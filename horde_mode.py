@@ -22,16 +22,20 @@ from loadouts import Loadout
 WaveResult = namedtuple("WaveResult", "wave outcomes avg_size avg_endurance avg_spoils survival_rate")
 
 
-def _make_endurance_max(loadout):
+def _retinues(rules):
+    return rules.retinues if rules is not None else RETINUES
+
+
+def _make_endurance_max(loadout, rules=None):
     """The maximum endurance for this loadout (factoring Cond Field)."""
-    base = RETINUES[loadout.retinue]["endurance"]
+    base = _retinues(rules)[loadout.retinue]["endurance"]
     if "Cond Field" in loadout.extra_tags:
         base += 1
     return base
 
 
 def run_horde(army, opponents, n_runs=500, max_waves=15, recovery=True, seed=42,
-              max_skirmishes_per_battle=20, replace_between_waves=False):
+              max_skirmishes_per_battle=20, replace_between_waves=False, rules=None):
     """Core horde runner.
 
     army: Loadout to test.
@@ -55,9 +59,10 @@ def run_horde(army, opponents, n_runs=500, max_waves=15, recovery=True, seed=42,
       'break_even_wave': per-run wave at which cumulative spoils first equals/exceeds total cost
                           (or max_waves+1 if never broke even)
     """
-    army_endurance_max = _make_endurance_max(army)
+    retinues = _retinues(rules)
+    army_endurance_max = _make_endurance_max(army, rules=rules)
     army_size_max = army.size
-    army_per_retinue_cost = RETINUES[army.retinue]["cost"]
+    army_per_retinue_cost = retinues[army.retinue]["cost"]
     initial_muster_cost = army_size_max * army_per_retinue_cost
 
     # Strain mechanic: armies that successfully end a battle via Fall Back gain Strain,
@@ -99,7 +104,7 @@ def run_horde(army, opponents, n_runs=500, max_waves=15, recovery=True, seed=42,
 
         opp = opponents[wave % len(opponents)]
         opp_size = np.full(n_runs, opp.size, dtype=np.int32)
-        opp_endurance = np.full(n_runs, _make_endurance_max(opp), dtype=np.int8)
+        opp_endurance = np.full(n_runs, _make_endurance_max(opp, rules=rules), dtype=np.int8)
 
         # Snapshot army size at start of wave (for casualty calculation)
         a_size_pre_wave = a_size.copy()
@@ -116,11 +121,12 @@ def run_horde(army, opponents, n_runs=500, max_waves=15, recovery=True, seed=42,
             b_init_endurance=opp_endurance,
             a_playstyle=getattr(army, "playstyle", None),
             b_playstyle=getattr(opp, "playstyle", None),
+            rules=rules,
         )
 
         # Per-run economic accounting
         opp_killed = opp_size - result["b_final_size"]
-        battle_spoils = opp_killed.astype(np.float64) * RETINUES[opp.retinue]["cost"]
+        battle_spoils = opp_killed.astype(np.float64) * retinues[opp.retinue]["cost"]
         a_lost = a_size_pre_wave - result["a_final_size"]
         battle_losses_value = a_lost.astype(np.float64) * army_per_retinue_cost
 
@@ -232,24 +238,24 @@ def run_horde(army, opponents, n_runs=500, max_waves=15, recovery=True, seed=42,
 # ==============================================================================
 
 def run_survival(army, opponent, n_runs=500, max_waves=20, recovery=True, seed=42,
-                 replace_between_waves=False):
+                 replace_between_waves=False, rules=None):
     """Fight the same opponent over and over until wipe."""
     return run_horde(army, [opponent], n_runs=n_runs, max_waves=max_waves, recovery=recovery,
-                    seed=seed, replace_between_waves=replace_between_waves)
+                    seed=seed, replace_between_waves=replace_between_waves, rules=rules)
 
 
 def run_fixed(army, opponent, n_battles=5, n_runs=500, recovery=True, seed=42,
-              replace_between_waves=False):
+              replace_between_waves=False, rules=None):
     """Fight N waves of the same opponent. Returns state at every wave."""
     return run_horde(army, [opponent], n_runs=n_runs, max_waves=n_battles, recovery=recovery,
-                    seed=seed, replace_between_waves=replace_between_waves)
+                    seed=seed, replace_between_waves=replace_between_waves, rules=rules)
 
 
 def run_escalation(army, opponent_ladder, n_runs=500, recovery=True, seed=42,
-                   replace_between_waves=False):
+                   replace_between_waves=False, rules=None):
     """Each wave is a different opponent (escalating difficulty)."""
     return run_horde(army, opponent_ladder, n_runs=n_runs, max_waves=len(opponent_ladder),
-                    recovery=recovery, seed=seed, replace_between_waves=replace_between_waves)
+                    recovery=recovery, seed=seed, replace_between_waves=replace_between_waves, rules=rules)
 
 
 # ==============================================================================
@@ -283,7 +289,7 @@ def summarize_horde(result, name=None):
               f"{wr.avg_size:>8.1f}  {wr.avg_endurance:>7.1f}  {wr.avg_spoils:>10.0f}")
 
 
-def compare_hordes(results, names=None):
+def compare_hordes(results, names=None, rules=None):
     """Side-by-side comparison of multiple horde results.
     results: list of horde result dicts.
     names: optional list of labels (defaults to army.name).
@@ -291,6 +297,7 @@ def compare_hordes(results, names=None):
     """
     import pandas as pd
     rows = []
+    retinues = _retinues(rules)
     for i, r in enumerate(results):
         name = (names[i] if names else r["army"].name)
         wow = r["wave_of_wipe"]
@@ -301,7 +308,7 @@ def compare_hordes(results, names=None):
         remuster = r["cumulative_remuster_cost"]
         initial_cost = r["initial_muster_cost"]
         net_profit = spoils - initial_cost - remuster
-        cost_per_kill_denom = np.where(spoils > 0, spoils / RETINUES[r["army"].retinue]["cost"], 1)  # not exact, but a proxy
+        cost_per_kill_denom = np.where(spoils > 0, spoils / retinues[r["army"].retinue]["cost"], 1)  # not exact, but a proxy
         rows.append({
             "army": name,
             "median_waves": np.median(wow),

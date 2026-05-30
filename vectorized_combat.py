@@ -21,9 +21,43 @@ from renown_combat import (
 
 _tactic_tables = None
 
-def _build_tactic_tables():
+def _rules_retinues(rules):
+    return rules.retinues if rules is not None else RETINUES
+
+
+def _rules_weapons(rules):
+    return rules.weapons if rules is not None else WEAPONS
+
+
+def _rules_ranged(rules):
+    return rules.ranged if rules is not None else RANGED
+
+
+def _rules_shields(rules):
+    return rules.shields if rules is not None else SHIELDS
+
+
+def _rules_armors(rules):
+    return rules.armors if rules is not None else ARMORS
+
+
+def _rules_tactics(rules):
+    return rules.tactics if rules is not None else TACTICS
+
+
+def _rules_tactic_matrix(rules):
+    return rules.tactic_matrix if rules is not None else TACTIC_MATRIX
+
+
+def _rules_mechanics(rules):
+    return getattr(rules, "mechanics", None)
+
+
+def _build_tactic_tables(rules=None):
     """Return dict of 7x7 numpy arrays indexed by (a_tac_idx, b_tac_idx)."""
-    n = len(TACTICS)
+    tactics = _rules_tactics(rules)
+    tactic_matrix = _rules_tactic_matrix(rules)
+    n = len(tactics)
     a_I  = np.zeros((n, n), dtype=np.int8)
     a_TH = np.zeros((n, n), dtype=np.int8)
     a_TS = np.zeros((n, n), dtype=np.int8)
@@ -35,9 +69,9 @@ def _build_tactic_tables():
     # For no_combat cells, whether endurance is still spent this skirmish.
     # Default True for safety; Scout/Scout and Ambush/Ambush set False.
     no_combat_endurance = np.zeros((n, n), dtype=bool)
-    for i, t_a in enumerate(TACTICS):
-        for j, t_b in enumerate(TACTICS):
-            a_mods, b_mods = TACTIC_MATRIX[(t_a, t_b)]
+    for i, t_a in enumerate(tactics):
+        for j, t_b in enumerate(tactics):
+            a_mods, b_mods = tactic_matrix[(t_a, t_b)]
             a_I[i, j]  = a_mods["I"]
             a_TH[i, j] = a_mods["TH"]
             a_TS[i, j] = a_mods["TS"]
@@ -60,16 +94,25 @@ def _build_tactic_tables():
     }
 
 
-def get_tactic_tables():
+def get_tactic_tables(rules=None):
     """Build (and cache) tactic mod lookup tables. Call invalidate_tactic_tables() after editing TACTIC_MATRIX."""
+    if rules is not None:
+        cached = getattr(rules, "_tactic_tables_cache", None)
+        if cached is None:
+            cached = _build_tactic_tables(rules)
+            setattr(rules, "_tactic_tables_cache", cached)
+        return cached
     global _tactic_tables
     if _tactic_tables is None:
         _tactic_tables = _build_tactic_tables()
     return _tactic_tables
 
 
-def invalidate_tactic_tables():
+def invalidate_tactic_tables(rules=None):
     """Force rebuild on next use. Call this after installing the normalized matrix."""
+    if rules is not None:
+        setattr(rules, "_tactic_tables_cache", None)
+        return
     global _tactic_tables
     _tactic_tables = None
 
@@ -78,9 +121,14 @@ def invalidate_tactic_tables():
 
 class StaticArmy:
     """Bundles a Loadout's static-per-run stats for the inner loop."""
-    def __init__(self, loadout, is_attacker):
+    def __init__(self, loadout, is_attacker, rules=None):
         ld = loadout
-        ret = RETINUES[ld.retinue]
+        retinues = _rules_retinues(rules)
+        weapons = _rules_weapons(rules)
+        ranged_table = _rules_ranged(rules)
+        shields = _rules_shields(rules)
+        armors = _rules_armors(rules)
+        ret = retinues[ld.retinue]
         self.size_start = ld.size
         self.to_hit = ret["to_hit"]
         # Conditioning Field mastery: +1 Max Endurance
@@ -88,13 +136,13 @@ class StaticArmy:
         self.endurance_start = ret["endurance"] + endurance_bonus
         self.shaking = ret["shaking"]
         self.unshakable = ret["unshakable"]
-        self.armor_save = ARMORS[ld.armor]["save"]
+        self.armor_save = armors[ld.armor]["save"]
         # Shield can be destroyed mid-battle; track shield_bonus as starting value
-        self.shield_bonus_start = SHIELDS[ld.shield]["save_bonus"] if ld.shield else 0
+        self.shield_bonus_start = shields[ld.shield]["save_bonus"] if ld.shield else 0
         # Shield -1TBH (Scutum, Tower, Heater): attacker must roll +1 higher to
         # hit this unit. Stored as a positive value (attacker's target_th +=
         # this). Disappears if shield is destroyed.
-        shield_tags = SHIELDS[ld.shield]["tags"] if ld.shield else []
+        shield_tags = shields[ld.shield]["tags"] if ld.shield else []
         self.shield_tbh_penalty_start = 1 if "-1TBH" in shield_tags else 0
         self.has_shield = ld.shield is not None
         # Immune Destroy Shield (Heater): this shield cannot be destroyed by Destroy Shield.
@@ -122,7 +170,7 @@ class StaticArmy:
         # 4. tiltyard_mastery distinguishes innate Tiltyard (Unwieldy applies)
         #    from mastered Tiltyard (Immune Unwieldy). Defaults to True.
         melee_weapon_name = ld.weapon if ld.weapon else "Farm Tools"
-        melee_profile = WEAPONS[melee_weapon_name]
+        melee_profile = weapons[melee_weapon_name]
         # Bastard Sword has two profiles:
         #   - With shield (1H mode): the WEAPONS['Bastard Sword'] entry (Shatter Armor, Steady)
         #   - 2H mode: the WEAPONS['2HBastard'] entry (Cleave, Unwieldy, 2H)
@@ -130,7 +178,7 @@ class StaticArmy:
         # mid-battle it switches to the 2HBastard profile (per-run, in the skirmish loop).
         # The standalone '2HBastard' weapon is always-2H from the start.
         # Sourcing the 2H profile from the dict (not inline) lets it be tuned in renown_combat.py.
-        _bastard_2h = WEAPONS.get("2HBastard", {
+        _bastard_2h = weapons.get("2HBastard", {
             "ap": -3, "init": 0, "tags": ["Cleave", "Unwieldy", "2H"], "tier": "Forged"})
         self.is_bastard_dual_profile = (melee_weapon_name == "Bastard Sword" and ld.shield is not None)
         bastard_2h_profile = None
@@ -144,7 +192,7 @@ class StaticArmy:
         has_real_melee = ld.weapon is not None and ld.weapon != "Farm Tools"
 
         if ld.ranged:
-            ranged_profile = RANGED[ld.ranged]
+            ranged_profile = ranged_table[ld.ranged]
             ranged_is_one_shot = "One Shot" in ranged_profile["tags"]
         else:
             ranged_profile = None
@@ -169,18 +217,18 @@ class StaticArmy:
         if ld.ranged:
             self.ap_first = ranged_profile["ap"] + mw_bonus
             self.init_first = ranged_profile["init"]
-            self.tags_first = self._compute_tags(ranged_profile, ld.shield, ld, has_both=has_real_melee, first=True)
+            self.tags_first = self._compute_tags(ranged_profile, ld.shield, ld, has_both=has_real_melee, first=True, rules=rules)
         else:
             self.ap_first = melee_profile["ap"] + mw_bonus
             self.init_first = melee_profile["init"]
-            self.tags_first = self._compute_tags(melee_profile, ld.shield, ld, has_both=False, first=True)
+            self.tags_first = self._compute_tags(melee_profile, ld.shield, ld, has_both=False, first=True, rules=rules)
 
         # Normal-skirmish stats (skirmishes 2+)
         if is_pure_ranged_multi:
             # Multi-shot bow keeps firing — ranged stats for every skirmish
             self.ap_normal = ranged_profile["ap"] + mw_bonus
             self.init_normal = ranged_profile["init"]
-            self.tags_normal = self._compute_tags(ranged_profile, ld.shield, ld, has_both=False, first=False)
+            self.tags_normal = self._compute_tags(ranged_profile, ld.shield, ld, has_both=False, first=False, rules=rules)
         else:
             # Standard: melee for S2+. This covers:
             #   - Melee-only: use melee weapon every skirmish
@@ -189,27 +237,27 @@ class StaticArmy:
             #     Farm Tools (melee_weapon_name resolves to Farm Tools in that case)
             self.ap_normal = melee_profile["ap"] + mw_bonus
             self.init_normal = melee_profile["init"]
-            self.tags_normal = self._compute_tags(melee_profile, ld.shield, ld, has_both=bool(ld.ranged) and has_real_melee, first=False)
+            self.tags_normal = self._compute_tags(melee_profile, ld.shield, ld, has_both=bool(ld.ranged) and has_real_melee, first=False, rules=rules)
         # ───────────────────────────────────────────────────────────────
         # Bastard dual: precompute the 2H tag sets for per-run override
         # when the shield is destroyed mid-battle.
         if self.is_bastard_dual_profile and bastard_2h_profile is not None:
             # 2H mode: no shield (so don't include shield tags), no shield save bonus
-            self.tags_first_2h = self._compute_tags(bastard_2h_profile, None, ld, has_both=False, first=True)
-            self.tags_normal_2h = self._compute_tags(bastard_2h_profile, None, ld, has_both=False, first=False)
+            self.tags_first_2h = self._compute_tags(bastard_2h_profile, None, ld, has_both=False, first=True, rules=rules)
+            self.tags_normal_2h = self._compute_tags(bastard_2h_profile, None, ld, has_both=False, first=False, rules=rules)
         else:
             self.tags_first_2h = None
             self.tags_normal_2h = None
         # Convenience: derived flags for the inner loop
-        self.shield_init = SHIELDS[ld.shield]["init"] if ld.shield else 0
+        self.shield_init = shields[ld.shield]["init"] if ld.shield else 0
 
     @staticmethod
-    def _compute_tags(weapon_profile, shield_name, ld, has_both, first):
+    def _compute_tags(weapon_profile, shield_name, ld, has_both, first, rules=None):
         tags = set(weapon_profile["tags"]) | set(ld.extra_tags)
         if shield_name:
-            tags |= set(SHIELDS[shield_name]["tags"])
+            tags |= set(_rules_shields(rules)[shield_name]["tags"])
         # Armor-granted initiative tags (Full Plate: Immune Nimble; Gothic: + Immune Steady)
-        tags |= set(ARMORS[ld.armor].get("tags", []))
+        tags |= set(_rules_armors(rules)[ld.armor].get("tags", []))
         # Dual-equip Unwieldy: applies when carrying BOTH a real melee weapon
         # (not Farm Tools) AND a ranged weapon AND Tiltyard is innate (not mastered).
         # Tiltyard mastery grants Immune Unwieldy. Without any Tiltyard, dual-equip
@@ -248,8 +296,8 @@ class StaticArmy:
 # ===== Vectorized strike resolution =====
 
 def _roll_strikes_vec(rng, n, target_th, front_line, atk_tags, defender_has_shield_flag,
-                     defender_shield_destroyed, atk_bastard_2h_mask=None, atk_tags_2h=None,
-                     defender_shield_immune=False):
+                      defender_shield_destroyed, atk_bastard_2h_mask=None, atk_tags_2h=None,
+                      defender_shield_immune=False, front_line_cap=20):
     """For each of n runs, roll up to 20 dice (front_line per run cap), count strikes.
     Returns: strikes (n,), shatter_strikes (n,), cleave_extra (n,), destroyed_shield (n,)
 
@@ -269,10 +317,11 @@ def _roll_strikes_vec(rng, n, target_th, front_line, atk_tags, defender_has_shie
     auto_pass = target_th_orig < 2  # per-run boolean: this run's hits all land
 
     # Roll 20 dice per run (max front line size). Mask out runs where target is auto-fail.
-    rolls = rng.integers(1, 7, size=(n, 20), dtype=np.int8)  # 1..6 inclusive
+    max_dice = max(1, int(front_line_cap))
+    rolls = rng.integers(1, 7, size=(n, max_dice), dtype=np.int8)  # 1..6 inclusive
     # die_index < front_line per run determines which dice "count"
-    die_idx = np.arange(20)[None, :]  # (1, 20)
-    die_in_use = die_idx < front_line[:, None]  # (n, 20)
+    die_idx = np.arange(max_dice)[None, :]
+    die_in_use = die_idx < front_line[:, None]
 
     # A die is a strike if (auto-pass for the run) OR (roll >= target AND not auto-fail);
     # always requires die_in_use.
@@ -323,7 +372,7 @@ def _roll_strikes_vec(rng, n, target_th, front_line, atk_tags, defender_has_shie
     return strikes + cleave_extra, shatter_strikes, destroyed_shield
 
 
-def _regen_threshold(def_tags, atk_tags=None):
+def _regen_threshold(def_tags, atk_tags=None, rules=None):
     """Return the defender's Regenerate save threshold (4, 5, or 6), or None if no Regenerate.
     Tags can be 'Regenerate' (=6), 'Regenerate 6', 'Regenerate 5', or 'Regenerate 4'.
     If multiple are present, the lowest threshold (strongest) wins.
@@ -346,7 +395,10 @@ def _regen_threshold(def_tags, atk_tags=None):
     if atk_tags is not None:
         rend = sum(1 for t in atk_tags if t == "Rend")
         if rend:
-            thr = min(7, thr + rend)
+            mech = _rules_mechanics(rules)
+            delta = mech.regen_rend_delta if mech is not None else 1
+            cap = mech.regen_rend_cap if mech is not None else 7
+            thr = min(cap, thr + (rend * delta))
     return thr
 
 
@@ -355,7 +407,9 @@ def _has_regen_reroll(tags):
     return "Regenerate Reroll" in tags
 
 
-def _roll_saves_vec(rng, n, save_target, n_strikes, shatter_strikes, atk_has_poison, def_has_parry, def_regen_threshold, def_has_regen_reroll):
+def _roll_saves_vec(rng, n, save_target, n_strikes, shatter_strikes, atk_has_poison,
+                    def_has_parry, def_regen_threshold, def_has_regen_reroll,
+                    parry_threshold=5, max_strikes_cap=40):
     """For each of n runs with n_strikes hits to resolve, return casualties (n,).
     Saves roll d6; saves on roll >= save_target (lower = better).
     Shatter: first `shatter_strikes` hits auto-pass to casualty.
@@ -368,7 +422,7 @@ def _roll_saves_vec(rng, n, save_target, n_strikes, shatter_strikes, atk_has_poi
     max_strikes = int(n_strikes.max()) if n_strikes.any() else 0
     if max_strikes == 0:
         return np.zeros(n, dtype=np.int32)
-    max_strikes = min(max_strikes, 40)
+    max_strikes = min(max_strikes, max_strikes_cap)
 
     save_clipped = np.clip(save_target, 2, 7)
     auto_fail_save = save_clipped >= 7
@@ -396,7 +450,7 @@ def _roll_saves_vec(rng, n, save_target, n_strikes, shatter_strikes, atk_has_poi
 
     if def_has_parry:
         parry_rolls = rng.integers(1, 7, size=(n, max_strikes), dtype=np.int8)
-        parry_save = (parry_rolls >= 5) & failed
+        parry_save = (parry_rolls >= parry_threshold) & failed
         failed = failed & (~parry_save)
     if def_regen_threshold is not None:
         regen_rolls = rng.integers(1, 7, size=(n, max_strikes), dtype=np.int8)
@@ -432,12 +486,13 @@ def _shaking_test_vec(rng, n, field_size, shaking_value, mask):
 
 # ===== Main matchup loop =====
 
-def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, alternate_attacker=True,
+def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=None, seed=None, alternate_attacker=True,
                     a_init_size=None, b_init_size=None, a_init_endurance=None, b_init_endurance=None,
                     return_per_run_state=False,
                     a_playstyle=None, b_playstyle=None,
                     attacker_mode="balanced",
-                    log_skirmishes=0):
+                    log_skirmishes=0,
+                    rules=None):
     """Run n_runs battles in parallel.
 
     State injection (for horde mode):
@@ -458,7 +513,19 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
     Returns dict with aggregates, plus per-run state arrays if return_per_run_state=True.
     """
     rng = np.random.default_rng(seed)
-    tab = get_tactic_tables()
+    mech = _rules_mechanics(rules)
+    if max_skirmishes is None:
+        max_skirmishes = mech.max_skirmishes if mech is not None else 20
+    init_min = mech.initiative_min if mech is not None else -2
+    init_max = mech.initiative_max if mech is not None else 2
+    front_line_cap = mech.front_line_cap if mech is not None else 20
+    reserve_cap = mech.reserve_cap if mech is not None else 10
+    field_cap = mech.field_cap if mech is not None else 25
+    rout_threshold = mech.rout_threshold if mech is not None else 7
+    parry_threshold = mech.parry_threshold if mech is not None else 5
+    heal_ratio = mech.apothecary_heal_casualties_per_retinue if mech is not None else 4
+    max_strikes_cap = max(1, int(front_line_cap)) * 2
+    tab = get_tactic_tables(rules)
     # Lazy import to avoid circular dependency
     from playstyles import resolve_playstyle_weights, sample_tactic_indices, ministry_counter_weights
     try:
@@ -466,7 +533,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
     except ImportError:
         # Older playstyles.py without per-playstyle initiate rates.
         # Default to 0.5 for all playstyles (neutral 50/50 split).
-        def get_initiate_rate(_playstyle):
+        def get_initiate_rate(_playstyle, rules=None):
             return 0.5
 
     # === Tactic-reveal (Outrider Intercept Post / legacy Ministry tag) detection ===
@@ -519,8 +586,8 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
     b_seizes = np.zeros(n_runs, dtype=bool)
 
     if attacker_mode == "playstyle":
-        a_rate = get_initiate_rate(a_playstyle)
-        b_rate = get_initiate_rate(b_playstyle)
+        a_rate = get_initiate_rate(a_playstyle, rules=rules)
+        b_rate = get_initiate_rate(b_playstyle, rules=rules)
         # Each side rolls independently for whether they "wanted to initiate."
         # If both want to or neither wants to, fall back to relative weights:
         a_wants = rng.random(n_runs) < a_rate
@@ -565,10 +632,10 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             a_seizes[:] = False
 
     # Build StaticArmy versions for both Seize states
-    a_with_seize = StaticArmy(ld_a, is_attacker=True)
-    a_no_seize   = StaticArmy(ld_a, is_attacker=False)
-    b_with_seize = StaticArmy(ld_b, is_attacker=True)
-    b_no_seize   = StaticArmy(ld_b, is_attacker=False)
+    a_with_seize = StaticArmy(ld_a, is_attacker=True, rules=rules)
+    a_no_seize   = StaticArmy(ld_a, is_attacker=False, rules=rules)
+    b_with_seize = StaticArmy(ld_b, is_attacker=True, rules=rules)
+    b_no_seize   = StaticArmy(ld_b, is_attacker=False, rules=rules)
 
     # Per-run base init for first skirmish (Seize +1 applies)
     a_base_init_first = np.where(a_seizes, a_with_seize.base_init(True), a_no_seize.base_init(True)).astype(np.int8)
@@ -647,7 +714,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
     first_a_tac = np.zeros(n_runs, dtype=np.int8)
     first_b_tac = np.zeros(n_runs, dtype=np.int8)
 
-    n_tactics = len(TACTICS)
+    n_tactics = len(_rules_tactics(rules))
 
     # Optional per-skirmish logging (first `log_skirmishes` skirmishes). Records, per run:
     # casualties each side took that skirmish (combat + shake) and who struck first
@@ -665,10 +732,10 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         # (wiped runs stay wiped — per-run mask, not per-matchup).
         if not first:
             if a_has_apo_heal:
-                a_heal = np.where(active, a_prev_casualties // 4, 0).astype(np.int32)
+                a_heal = np.where(active, a_prev_casualties // heal_ratio, 0).astype(np.int32)
                 a_size = np.minimum(a_size + a_heal, ld_a.size).astype(np.int32)
             if b_has_apo_heal:
-                b_heal = np.where(active, b_prev_casualties // 4, 0).astype(np.int32)
+                b_heal = np.where(active, b_prev_casualties // heal_ratio, 0).astype(np.int32)
                 b_size = np.minimum(b_size + b_heal, ld_b.size).astype(np.int32)
 
         # Static stats for this skirmish
@@ -698,8 +765,8 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         # Pick tactics per playstyle (defaults to uniform random if None/Random)
         a_state = {"a_size": a_size, "b_size": b_size, "a_end": a_end, "b_end": b_end, "a_fat": a_fat, "b_fat": b_fat}
         b_state = {"a_size": b_size, "b_size": a_size, "a_end": b_end, "b_end": a_end, "a_fat": b_fat, "b_fat": a_fat}
-        a_weights = resolve_playstyle_weights(a_playstyle, a_state, n_runs)
-        b_weights = resolve_playstyle_weights(b_playstyle, b_state, n_runs)
+        a_weights = resolve_playstyle_weights(a_playstyle, a_state, n_runs, rules=rules)
+        b_weights = resolve_playstyle_weights(b_playstyle, b_state, n_runs, rules=rules)
 
         # === Ministry of Strategy counter-pick ===
         # Determine if Ministry fires this skirmish for either side.
@@ -709,12 +776,12 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         if a_ministry_fires:
             # B picks first, A counter-picks
             b_tac = sample_tactic_indices(b_weights, rng)
-            a_weights = ministry_counter_weights(b_tac, n_runs, counter_weight=0.8)
+            a_weights = ministry_counter_weights(b_tac, n_runs, rules=rules)
             a_tac = sample_tactic_indices(a_weights, rng)
         elif b_ministry_fires:
             # A picks first, B counter-picks
             a_tac = sample_tactic_indices(a_weights, rng)
-            b_weights = ministry_counter_weights(a_tac, n_runs, counter_weight=0.8)
+            b_weights = ministry_counter_weights(a_tac, n_runs, rules=rules)
             b_tac = sample_tactic_indices(b_weights, rng)
         else:
             # Standard: simultaneous independent picks
@@ -770,8 +837,8 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             if "Unwieldy" in b_tags and not b_immune_unwieldy:
                 b_I_mod = np.where(b_I_mod > 0, 0, b_I_mod)
 
-        a_init = np.clip(a_base_init + a_I_mod, -2, 2)
-        b_init = np.clip(b_base_init + b_I_mod, -2, 2)
+        a_init = np.clip(a_base_init + a_I_mod, init_min, init_max)
+        b_init = np.clip(b_base_init + b_I_mod, init_min, init_max)
 
         # End-battle tactic pairs
         ending = end_pair & active
@@ -791,17 +858,17 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             continue
 
         # Determine strike order
-        a_tripped = (a_init <= -2) & proceed
-        b_tripped = (b_init <= -2) & proceed
+        a_tripped = (a_init <= init_min) & proceed
+        b_tripped = (b_init <= init_min) & proceed
         a_first_mask = (a_init > b_init) & proceed & (~a_tripped)
         b_first_mask = (b_init > a_init) & proceed & (~b_tripped)
         simul_mask = (a_init == b_init) & proceed
 
         # Compute front lines (each run independently)
-        a_front = np.minimum(20, a_size).astype(np.int8)
-        b_front = np.minimum(20, b_size).astype(np.int8)
-        a_reserves = np.minimum(10, np.maximum(0, a_size - 20))
-        b_reserves = np.minimum(10, np.maximum(0, b_size - 20))
+        a_front = np.minimum(front_line_cap, a_size).astype(np.int16)
+        b_front = np.minimum(front_line_cap, b_size).astype(np.int16)
+        a_reserves = np.minimum(reserve_cap, np.maximum(0, a_size - front_line_cap))
+        b_reserves = np.minimum(reserve_cap, np.maximum(0, b_size - front_line_cap))
 
         # To-hit targets (Yew Heart: ranged weapons +1 to hit, only on first skirmish with ranged equipped)
         yew_hit_bonus_a = -1 if (a_static.yew_heart and first and a_static.ranged) else 0
@@ -858,6 +925,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             b_static.has_shield, b_shield_destroyed,
             atk_bastard_2h_mask=a_bastard_2h_mask, atk_tags_2h=a_tags_2h,
             defender_shield_immune=b_static.shield_immune,
+            front_line_cap=front_line_cap,
         )
         # Mask: only count strikes from runs where A actually fights this skirmish
         a_fights = proceed & (~a_tripped) & (a_size > 0)
@@ -870,8 +938,10 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             rng, n_runs, b_save_target_against_a, a_strikes_initial, a_shatter,
             atk_has_poison=a_effective_poison,
             def_has_parry=("Parry" in b_tags),
-            def_regen_threshold=_regen_threshold(b_tags, a_tags),
+            def_regen_threshold=_regen_threshold(b_tags, a_tags, rules=rules),
             def_has_regen_reroll=_has_regen_reroll(b_tags),
+            parry_threshold=parry_threshold,
+            max_strikes_cap=max_strikes_cap,
         )
         b_casualties = np.minimum(b_casualties, b_front).astype(np.int32)
 
@@ -883,7 +953,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         # Compute B's reduced front line for a_first cases
         b_front_after_a_strike = np.maximum(0, b_front - b_casualties)
         # Refill from reserves
-        b_front_refilled = np.minimum(20, b_front_after_a_strike + b_reserves)
+        b_front_refilled = np.minimum(front_line_cap, b_front_after_a_strike + b_reserves)
         # In a_first cases, B uses b_front_refilled. In b_first/simul cases, B uses full b_front.
         b_effective_front = np.where(a_first_mask, b_front_refilled, b_front).astype(np.int8)
 
@@ -897,6 +967,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             a_static.has_shield, a_shield_destroyed,
             atk_bastard_2h_mask=b_bastard_2h_mask, atk_tags_2h=b_tags_2h,
             defender_shield_immune=a_static.shield_immune,
+            front_line_cap=front_line_cap,
         )
         b_strikes = np.where(b_fights, b_strikes, 0)
         b_shatter = np.where(b_fights, b_shatter, 0)
@@ -906,8 +977,10 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             rng, n_runs, a_save_target_against_b, b_strikes, b_shatter,
             atk_has_poison=b_effective_poison,
             def_has_parry=("Parry" in a_tags),
-            def_regen_threshold=_regen_threshold(a_tags, b_tags),
+            def_regen_threshold=_regen_threshold(a_tags, b_tags, rules=rules),
             def_has_regen_reroll=_has_regen_reroll(a_tags),
+            parry_threshold=parry_threshold,
+            max_strikes_cap=max_strikes_cap,
         )
         a_casualties = np.minimum(a_casualties, a_front).astype(np.int32)
 
@@ -919,7 +992,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         if recompute_a.any():
             a_front_after_b = np.maximum(0, a_front - a_casualties)
             a_reserves_avail = a_reserves
-            a_front_refilled = np.minimum(20, a_front_after_b + a_reserves_avail)
+            a_front_refilled = np.minimum(front_line_cap, a_front_after_b + a_reserves_avail)
             a_effective_front_after_b = np.where(recompute_a, a_front_refilled, a_front).astype(np.int8)
 
             # Recompute A's strikes for the b_first cases
@@ -928,6 +1001,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
                 b_static.has_shield, b_shield_destroyed,
                 atk_bastard_2h_mask=a_bastard_2h_mask, atk_tags_2h=a_tags_2h,
                 defender_shield_immune=b_static.shield_immune,
+                front_line_cap=front_line_cap,
             )
             a_alive_for_back = a_front_after_b + a_reserves_avail > 0
             new_a_fights = recompute_a & a_alive_for_back & (~a_tripped)
@@ -941,8 +1015,10 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
                 rng, n_runs, b_save_target_against_a, a_strikes_initial, a_shatter,
                 atk_has_poison=a_effective_poison,
                 def_has_parry=("Parry" in b_tags),
-                def_regen_threshold=_regen_threshold(b_tags, a_tags),
+                def_regen_threshold=_regen_threshold(b_tags, a_tags, rules=rules),
                 def_has_regen_reroll=_has_regen_reroll(b_tags),
+                parry_threshold=parry_threshold,
+                max_strikes_cap=max_strikes_cap,
             )
             new_b_casualties = np.minimum(new_b_casualties, b_front).astype(np.int32)
             b_casualties = np.where(recompute_a, new_b_casualties, b_casualties)
@@ -981,8 +1057,10 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         #   - no_combat WITH endurance_loss (Flank/Flank): NOT exempt — maneuvering tires
         #   - Regular combat skirmishes: lose endurance as normal
         no_combat_free = no_combat_this_skirm & (~no_combat_endurance_pair)
-        a_loses_end = active & ~(("Drilled" in a_tags) and first) & (a_size > 0) & (~no_combat_free)
-        b_loses_end = active & ~(("Drilled" in b_tags) and first) & (b_size > 0) & (~no_combat_free)
+        a_drilled_exempt = ("Drilled" in a_tags) and first
+        b_drilled_exempt = ("Drilled" in b_tags) and first
+        a_loses_end = active & (not a_drilled_exempt) & (a_size > 0) & (~no_combat_free)
+        b_loses_end = active & (not b_drilled_exempt) & (b_size > 0) & (~no_combat_free)
         # already fatigued → gain fatigue token instead of endurance loss
         a_already_fat = a_fat > 0
         b_already_fat = b_fat > 0
@@ -1003,12 +1081,12 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
 
         # Shaking test (Unshakable exempts; Steadfast does NOT — only Route protection)
         # Skip for runs that ended via tactic pairing (Fall Back withdrew before shake).
-        a_field = np.minimum(25, a_size)
-        b_field = np.minimum(25, b_size)
-        a_shake_cas = _shaking_test_vec(rng, n_runs, a_field, a_static.shaking,
-                                         a_newly_fat & ~a_static.unshakable & ~("Unshakable" in a_tags) & ~ending)
-        b_shake_cas = _shaking_test_vec(rng, n_runs, b_field, b_static.shaking,
-                                         b_newly_fat & ~b_static.unshakable & ~("Unshakable" in b_tags) & ~ending)
+        a_field = np.minimum(field_cap, a_size)
+        b_field = np.minimum(field_cap, b_size)
+        a_shake_mask = a_newly_fat & (not a_static.unshakable) & ("Unshakable" not in a_tags) & ~ending
+        b_shake_mask = b_newly_fat & (not b_static.unshakable) & ("Unshakable" not in b_tags) & ~ending
+        a_shake_cas = _shaking_test_vec(rng, n_runs, a_field, a_static.shaking, a_shake_mask)
+        b_shake_cas = _shaking_test_vec(rng, n_runs, b_field, b_static.shaking, b_shake_mask)
         a_pre_shake_size = a_size.copy()
         b_pre_shake_size = b_size.copy()
         a_size = np.maximum(0, a_size - a_shake_cas)
@@ -1054,7 +1132,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         a_can_rout = (not a_static.unshakable) and ("Unshakable" not in a_tags) and ("Steadfast" not in a_tags)
         b_can_rout = (not b_static.unshakable) and ("Unshakable" not in b_tags) and ("Steadfast" not in b_tags)
         if a_can_rout:
-            a_rout_threshold_hit = (a_static.to_hit + a_fat) >= 7
+            a_rout_threshold_hit = (a_static.to_hit + a_fat) >= rout_threshold
             a_routs = active & a_rout_threshold_hit & (a_size > 0) & (~ending)
             a_rout_loss = np.where(a_routs, a_size, 0)
             a_rout_cas_total += a_rout_loss
@@ -1062,7 +1140,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             a_newly_dead_rout = a_routs & (a_cause_of_wipe == 0)
             a_cause_of_wipe = np.where(a_newly_dead_rout, 3, a_cause_of_wipe).astype(np.int8)
         if b_can_rout:
-            b_rout_threshold_hit = (b_static.to_hit + b_fat) >= 7
+            b_rout_threshold_hit = (b_static.to_hit + b_fat) >= rout_threshold
             b_routs = active & b_rout_threshold_hit & (b_size > 0) & (~ending)
             b_rout_loss = np.where(b_routs, b_size, 0)
             b_rout_cas_total += b_rout_loss
@@ -1174,8 +1252,9 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
 
 
 # Drop-in replacement
-def run_matchup(ld_a, ld_b, n_runs=100, max_skirmishes=20):
-    return run_matchup_vec(ld_a, ld_b, n_runs=n_runs, max_skirmishes=max_skirmishes, alternate_attacker=True)
+def run_matchup(ld_a, ld_b, n_runs=100, max_skirmishes=20, rules=None):
+    return run_matchup_vec(ld_a, ld_b, n_runs=n_runs, max_skirmishes=max_skirmishes,
+                           alternate_attacker=True, rules=rules)
 
 
 def run_matchup_tiltyard_adaptive(ld_a, ld_b, n_runs=100, **kwargs):
@@ -1210,8 +1289,8 @@ def run_matchup_tiltyard_adaptive(ld_a, ld_b, n_runs=100, **kwargs):
     def ranged_only(ld):
         # Drop the real melee → unit falls back to Farm Tools + multi-shot bow.
         # For one-shot ranged, ranged-only variant doesn't make sense.
-        from renown_combat import RANGED
-        if "One Shot" in RANGED[ld.ranged]["tags"]:
+        rules = kwargs.get("rules")
+        if "One Shot" in _rules_ranged(rules)[ld.ranged]["tags"]:
             return None
         return ld._replace(weapon="Farm Tools")
 

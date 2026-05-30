@@ -59,10 +59,14 @@ def _is_set(val):
     return s not in ("", "nan", "None")
 
 
-def compute_per_retinue_upkeep(retinue, weapon, shield, armor, ranged):
+def _retinues(rules):
+    return rules.retinues if rules is not None else RETINUES
+
+
+def compute_per_retinue_upkeep(retinue, weapon, shield, armor, ranged, rules=None):
     """Modified upkeep per retinue, applying all relevant spec reductions.
     Clamped at 0 (a retinue cannot have negative upkeep)."""
-    base = RETINUES[retinue]["cost"]
+    base = _retinues(rules)[retinue]["cost"]
     reduction = GENERIC_UPKEEP_TOTAL
 
     if weapon == "Lance":
@@ -99,9 +103,9 @@ def upkeep_sources(retinue, weapon, shield, armor, ranged):
     return sources
 
 
-def upkeep_breakdown(retinue, weapon, shield, armor, ranged):
+def upkeep_breakdown(retinue, weapon, shield, armor, ranged, rules=None):
     """Show how a loadout's modified upkeep is computed. Useful for sanity checks."""
-    base = RETINUES[retinue]["cost"]
+    base = _retinues(rules)[retinue]["cost"]
     lines = [f"Base ({retinue}): {base}"]
     total = 0
     for source, val in upkeep_sources(retinue, weapon, shield, armor, ranged):
@@ -117,7 +121,7 @@ def upkeep_breakdown(retinue, weapon, shield, armor, ranged):
 # LOAD TOURNAMENT
 # ==============================================================================
 
-def load_tournament(matchups_path="matchups.csv", encoding="utf-8"):
+def load_tournament(matchups_path="matchups.csv", encoding="utf-8", rules=None):
     """Load matchups CSV with derived columns:
       - a_ret_cost / b_ret_cost: base per-retinue cost
       - a_ret_cost_modified / b_ret_cost_modified: after spec reductions
@@ -153,15 +157,16 @@ def load_tournament(matchups_path="matchups.csv", encoding="utf-8"):
     if "b_shield_destroyed_rate" not in df.columns:
         df["b_shield_destroyed_rate"] = 0.0
 
-    df["a_ret_cost"] = df["a_retinue"].map(lambda r: RETINUES[r]["cost"])
-    df["b_ret_cost"] = df["b_retinue"].map(lambda r: RETINUES[r]["cost"])
+    retinues = _retinues(rules)
+    df["a_ret_cost"] = df["a_retinue"].map(lambda r: retinues[r]["cost"])
+    df["b_ret_cost"] = df["b_retinue"].map(lambda r: retinues[r]["cost"])
 
     df["a_ret_cost_modified"] = df.apply(
-        lambda r: compute_per_retinue_upkeep(r["a_retinue"], r["a_weapon"], r["a_shield"], r["a_armor"], r["a_ranged"]),
+        lambda r: compute_per_retinue_upkeep(r["a_retinue"], r["a_weapon"], r["a_shield"], r["a_armor"], r["a_ranged"], rules=rules),
         axis=1,
     )
     df["b_ret_cost_modified"] = df.apply(
-        lambda r: compute_per_retinue_upkeep(r["b_retinue"], r["b_weapon"], r["b_shield"], r["b_armor"], r["b_ranged"]),
+        lambda r: compute_per_retinue_upkeep(r["b_retinue"], r["b_weapon"], r["b_shield"], r["b_armor"], r["b_ranged"], rules=rules),
         axis=1,
     )
 
@@ -697,7 +702,7 @@ def shaking_threshold_analysis(df):
     return grp.sort_values(["a_retinue", "skirm_bin"])
 
 
-def steadfast_gold_value(df, retinue_size=50):
+def steadfast_gold_value(df, retinue_size=50, rules=None):
     """Estimate the gold value of Steadfast per battle for each retinue.
     Steadfast prevents Army Rout (to-hit modified to 7+). It does NOT prevent shake —
     only Unshakable does. So Steadfast's value = avg Rout casualties saved × retinue cost.
@@ -715,7 +720,8 @@ def steadfast_gold_value(df, retinue_size=50):
         avg_shake=("avg_a_killed_shake", "mean"),
         n=(rout_col, "count"),
     )
-    grp["ret_cost"] = grp.index.map(lambda r: RETINUES[r]["cost"])
+    retinues = _retinues(rules)
+    grp["ret_cost"] = grp.index.map(lambda r: retinues[r]["cost"])
     # Steadfast value = rout casualties saved × retinue cost
     grp["steadfast_value_per_battle"] = grp["avg_rout"] * grp["ret_cost"]
     grp["steadfast_value_pct_of_army"] = grp["avg_rout"] / retinue_size * 100

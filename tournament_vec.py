@@ -43,8 +43,10 @@ renown_combat.TACTIC_MATRIX.update(build_normalized_matrix())
 invalidate_tactic_tables()
 
 
-def _init_worker():
+def _init_worker(rules=None):
     """Each worker installs the matrix and rebuilds tactic tables on init."""
+    if rules is not None:
+        return
     import renown_combat
     from normalized_matrix import build_normalized_matrix
     from vectorized_combat import invalidate_tactic_tables
@@ -55,7 +57,7 @@ def _init_worker():
 
 def _process_row(args):
     """Process one row (one a_loadout vs all b_loadouts)."""
-    i, ld_a, pool, n_runs, base_seed, n_loadouts = args
+    i, ld_a, pool, n_runs, base_seed, n_loadouts, rules = args
     from vectorized_combat import run_matchup_vec
     row_results = []
     for j, ld_b in enumerate(pool):
@@ -63,7 +65,8 @@ def _process_row(args):
             continue  # both share a unique monument — can't coexist, skip
         seed = base_seed + i * n_loadouts + j
         r = run_matchup_vec(ld_a, ld_b, n_runs=n_runs, seed=seed,
-                            a_playstyle=ld_a.playstyle, b_playstyle=ld_b.playstyle)
+                            a_playstyle=ld_a.playstyle, b_playstyle=ld_b.playstyle,
+                            rules=rules)
         row_results.append((j, r))
     return i, row_results
 
@@ -166,7 +169,8 @@ def _write_summary(summary, summary_path, n_runs):
 
 
 def run_tournament_vec(pool, n_runs=100, output_dir=".", base_seed=2026,
-                       filename_suffix="", n_workers=1, verbose=True, print_every=1):
+                       filename_suffix="", n_workers=1, verbose=True, print_every=1,
+                       rules=None):
     """Run a full round-robin tournament.
 
     n_workers: number of parallel worker processes. 1 = no multiprocessing.
@@ -211,7 +215,8 @@ def run_tournament_vec(pool, n_runs=100, output_dir=".", base_seed=2026,
                     continue  # both share a unique monument — can't coexist, skip
                 seed = base_seed + i * n_loadouts + j
                 r = run_matchup_vec(ld_a, ld_b, n_runs=n_runs, seed=seed,
-                                    a_playstyle=ld_a.playstyle, b_playstyle=ld_b.playstyle)
+                                    a_playstyle=ld_a.playstyle, b_playstyle=ld_b.playstyle,
+                                    rules=rules)
                 _write_matchup_row(writer, ld_a, ld_b, r)
                 _update_summary(summary, ld_a.name, r, n_runs, mirror=(i == j))
                 # Accumulate tactic-pair matrices (defensive .get() for older results).
@@ -225,9 +230,9 @@ def run_tournament_vec(pool, n_runs=100, output_dir=".", base_seed=2026,
                 eta = elapsed / done - elapsed if done > 0 else 0
                 print(f"  [{i+1}/{n_loadouts}] {ld_a.name:<40} | elapsed {elapsed:.0f}s, eta {eta:.0f}s", flush=True)
     else:
-        tasks = [(i, ld_a, pool, n_runs, base_seed, n_loadouts) for i, ld_a in enumerate(pool)]
+        tasks = [(i, ld_a, pool, n_runs, base_seed, n_loadouts, rules) for i, ld_a in enumerate(pool)]
         completed = 0
-        with mp.Pool(n_workers, initializer=_init_worker) as workers:
+        with mp.Pool(n_workers, initializer=_init_worker, initargs=(rules,)) as workers:
             for i, row_results in workers.imap_unordered(_process_row, tasks, chunksize=1):
                 ld_a = pool[i]
                 for j, r in row_results:
@@ -251,14 +256,14 @@ def run_tournament_vec(pool, n_runs=100, output_dir=".", base_seed=2026,
     _write_summary(summary, summary_path, n_runs)
 
     # Write the empirical tactic matrix (one row per (a_tac, b_tac) pair).
-    from renown_combat import TACTICS
+    tactics = rules.tactics if rules is not None else renown_combat.TACTICS
     tactic_matrix_path = out_dir / f"tactic_matrix{filename_suffix}.csv"
     with open(tactic_matrix_path, "w", newline="") as tf:
         tw = csv.writer(tf)
         tw.writerow(["a_tactic", "b_tactic", "n_battles", "a_wins", "b_wins",
                      "a_win_rate", "b_win_rate", "stalemate_rate"])
-        for i, a_t in enumerate(TACTICS):
-            for j, b_t in enumerate(TACTICS):
+        for i, a_t in enumerate(tactics):
+            for j, b_t in enumerate(tactics):
                 n = int(tactic_pair_count[i, j])
                 aw = int(tactic_pair_a_wins[i, j])
                 bw = int(tactic_pair_b_wins[i, j])

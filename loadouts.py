@@ -30,6 +30,42 @@ Loadout = namedtuple("Loadout",
 Loadout.__new__.__defaults__ = (None, True, frozenset(), 0, 0)  # playstyle, tiltyard_mastery, pursuits, mpc, domain_count
 
 
+def _retinues(rules):
+    return rules.retinues if rules is not None else RETINUES
+
+
+def _weapons(rules):
+    return rules.weapons if rules is not None else WEAPONS
+
+
+def _ranged(rules):
+    return rules.ranged if rules is not None else RANGED
+
+
+def _shields(rules):
+    return rules.shields if rules is not None else SHIELDS
+
+
+def _armors(rules):
+    return rules.armors if rules is not None else ARMORS
+
+
+def _pursuits_info(rules):
+    return rules.pursuits_info if rules is not None else PURSUITS_INFO
+
+
+def _tier_industry_req(rules):
+    return rules.tier_industry_req if rules is not None else TIER_INDUSTRY_REQ
+
+
+def _armor_requires(rules):
+    return rules.armor_requires if rules is not None else ARMOR_REQUIRES
+
+
+def _shield_metal_requires(rules):
+    return rules.shield_metal_requires if rules is not None else SHIELD_METAL_REQUIRES
+
+
 # ==============================================================================
 # Tier ordering, abbreviations
 # ==============================================================================
@@ -130,14 +166,14 @@ def _name(retinue, weapon, shield, armor, ranged, has_tiltyard, extra_tags, play
 # Validity
 # ==============================================================================
 
-def is_2h(weapon_name):
+def is_2h(weapon_name, rules=None):
     if weapon_name is None:
         return False
-    profile = WEAPONS.get(weapon_name) or RANGED.get(weapon_name)
+    profile = _weapons(rules).get(weapon_name) or _ranged(rules).get(weapon_name)
     return "2H" in profile["tags"]
 
 
-def valid_combo(retinue, weapon, shield, armor, ranged, has_tiltyard, allow_tier_mismatch=2):
+def valid_combo(retinue, weapon, shield, armor, ranged, has_tiltyard, allow_tier_mismatch=2, rules=None):
     """Filter for sensible combinations.
     - 2H melee disallows shields.
     - 1H melee REQUIRES a shield (except Bastard Sword, which has both profiles).
@@ -153,7 +189,11 @@ def valid_combo(retinue, weapon, shield, armor, ranged, has_tiltyard, allow_tier
     - Dual-equip (real melee + ranged) REQUIRES Tiltyard.
     - Pure-ranged exception: Farm Tools + ranged represents a ranged-focused build.
     """
-    if is_2h(weapon) and shield is not None:
+    weapons = _weapons(rules)
+    ranged_table = _ranged(rules)
+    shields = _shields(rules)
+    armors = _armors(rules)
+    if is_2h(weapon, rules=rules) and shield is not None:
         return False
     # Lance restrictions: cannot use Tower (too unwieldy on horse) or Wooden (too cheap).
     # Lance CAN use Kite, Scutum, or Heater Shield.
@@ -180,7 +220,7 @@ def valid_combo(retinue, weapon, shield, armor, ranged, has_tiltyard, allow_tier
     # if their shield options are incompatible with the Crossbow→Tower rule
     # (e.g., Lance can use Tower? No — so Lance+Crossbow runs shieldless).
     if (weapon != "Farm Tools"
-            and not is_2h(weapon)
+            and not is_2h(weapon, rules=rules)
             and shield is None
             and ranged != "Crossbow"):
         return False
@@ -188,14 +228,14 @@ def valid_combo(retinue, weapon, shield, armor, ranged, has_tiltyard, allow_tier
     # 1H + shield: shield tier must be >= weapon tier
     # Exception: Lance is exempt from the tier rule (only the explicit forbidden-shield
     # list above applies). Lance can use Kite, Scutum, or Heater regardless of weapon tier.
-    if shield is not None and not is_2h(weapon) and weapon != "Farm Tools" and weapon != "Lance":
-        weapon_tier_idx = TIER_IDX.get(WEAPONS[weapon]["tier"], 0)
-        shield_tier_idx = TIER_IDX.get(SHIELDS[shield]["tier"], 0)
+    if shield is not None and not is_2h(weapon, rules=rules) and weapon != "Farm Tools" and weapon != "Lance":
+        weapon_tier_idx = TIER_IDX.get(weapons[weapon]["tier"], 0)
+        shield_tier_idx = TIER_IDX.get(shields[shield]["tier"], 0)
         if shield_tier_idx < weapon_tier_idx:
             return False
 
     # "One Shot" ranged weapons (Javelin, Pilum) require Tiltyard.
-    if ranged is not None and "One Shot" in RANGED[ranged].get("tags", []):
+    if ranged is not None and "One Shot" in ranged_table[ranged].get("tags", []):
         if not has_tiltyard:
             return False
 
@@ -205,14 +245,14 @@ def valid_combo(retinue, weapon, shield, armor, ranged, has_tiltyard, allow_tier
         return False
 
     retinue_idx = RETINUE_TIER[retinue]
-    armor_tier_idx = TIER_IDX[ARMORS[armor]["tier"]]
+    armor_tier_idx = TIER_IDX[armors[armor]["tier"]]
     FORGED_IDX = TIER_IDX["Forged"]
     CRAFTED_IDX = TIER_IDX["Crafted"]
 
     # Pure-ranged loadout: weapon is Farm Tools fallback, real weapon is ranged.
     # Tier-check against the ranged weapon instead of Farm Tools.
     if weapon == "Farm Tools" and ranged is not None:
-        ranged_tier_idx = TIER_IDX.get(RANGED[ranged]["tier"], 0)
+        ranged_tier_idx = TIER_IDX.get(ranged_table[ranged]["tier"], 0)
         if ranged_tier_idx < retinue_idx:
             return False
         if armor_tier_idx < retinue_idx:
@@ -224,12 +264,12 @@ def valid_combo(retinue, weapon, shield, armor, ranged, has_tiltyard, allow_tier
             if armor_tier_idx >= FORGED_IDX:
                 return False
             if shield is not None:
-                shield_tier_idx = TIER_IDX.get(SHIELDS[shield]["tier"], 0)
+                shield_tier_idx = TIER_IDX.get(shields[shield]["tier"], 0)
                 if shield_tier_idx >= FORGED_IDX:
                     return False
         return True
 
-    weapon_tier_idx = TIER_IDX.get(WEAPONS[weapon]["tier"], 0)
+    weapon_tier_idx = TIER_IDX.get(weapons[weapon]["tier"], 0)
 
     # Equipment tier >= retinue tier
     if weapon_tier_idx < retinue_idx:
@@ -244,13 +284,13 @@ def valid_combo(retinue, weapon, shield, armor, ranged, has_tiltyard, allow_tier
         if armor_tier_idx >= FORGED_IDX:
             return False
         if shield is not None:
-            shield_tier_idx = TIER_IDX.get(SHIELDS[shield]["tier"], 0)
+            shield_tier_idx = TIER_IDX.get(shields[shield]["tier"], 0)
             if shield_tier_idx >= FORGED_IDX:
                 return False
 
     # Dual-equip: ranged tier check (ranged weapon must also be tier-appropriate)
     if has_real_melee and ranged is not None:
-        ranged_tier_idx = TIER_IDX.get(RANGED[ranged]["tier"], 0)
+        ranged_tier_idx = TIER_IDX.get(ranged_table[ranged]["tier"], 0)
         if ranged_tier_idx < retinue_idx:
             return False
         # Levy ranged cap at Wrought
@@ -276,6 +316,7 @@ def generate_loadouts(
     tag_sets=((),),  # tuple of tag-tuples
     playstyles=(None,),  # tuple of playstyle names. None = Random.
     allow_tier_mismatch=2,
+    rules=None,
 ):
     """Yield valid Loadouts across the given option lists.
 
@@ -283,11 +324,16 @@ def generate_loadouts(
     for that loadout. Pass `((),)` for vanilla only.
     playstyles: tuple of playstyle names. Each loadout will be replicated under each style.
     """
-    retinue_options  = retinue_options  or list(RETINUES.keys())
-    weapon_options   = weapon_options   or list(WEAPONS.keys())
-    shield_options   = shield_options   or list(SHIELDS.keys())
-    armor_options    = armor_options    or list(ARMORS.keys())
-    ranged_options   = ranged_options   or [None] + list(RANGED.keys())
+    retinues = _retinues(rules)
+    weapons = _weapons(rules)
+    shields = _shields(rules)
+    armors = _armors(rules)
+    ranged_table = _ranged(rules)
+    retinue_options  = retinue_options  or list(retinues.keys())
+    weapon_options   = weapon_options   or list(weapons.keys())
+    shield_options   = shield_options   or list(shields.keys())
+    armor_options    = armor_options    or list(armors.keys())
+    ranged_options   = ranged_options   or [None] + list(ranged_table.keys())
 
     out = []
     for ret in retinue_options:
@@ -298,12 +344,12 @@ def generate_loadouts(
                         for ty in tiltyard_options:
                             if ty and r is None:
                                 continue
-                            if not valid_combo(ret, w, s, a, r, ty, allow_tier_mismatch):
+                            if not valid_combo(ret, w, s, a, r, ty, allow_tier_mismatch, rules=rules):
                                 continue
                             for size in sizes:
                                 for tag_tuple in tag_sets:
                                     for ps in playstyles:
-                                        upkeep = RETINUES[ret]["cost"]
+                                        upkeep = retinues[ret]["cost"]
                                         tags = list(tag_tuple)
                                         name = _name(ret, w, s, a, r, ty, tags, playstyle=ps)
                                         out.append(Loadout(
@@ -533,21 +579,25 @@ TIER_PURSUIT_TO_TIER = {None: "Crude", "Furnace": "Cast", "Blacksmith": "Wrought
                         "Forge": "Forged", "ABF": "Crafted"}
 
 
-def _gear_tier_idx(loadout_weapon, loadout_shield, loadout_armor, loadout_ranged):
+def _gear_tier_idx(loadout_weapon, loadout_shield, loadout_armor, loadout_ranged, rules=None):
     """Return the highest tier index used by any gear piece on this loadout."""
+    weapons = _weapons(rules)
+    ranged_table = _ranged(rules)
+    shields = _shields(rules)
+    armors = _armors(rules)
     max_idx = 0
     if loadout_weapon and loadout_weapon != "Farm Tools":
-        max_idx = max(max_idx, TIER_IDX.get(WEAPONS[loadout_weapon]["tier"], 0))
+        max_idx = max(max_idx, TIER_IDX.get(weapons[loadout_weapon]["tier"], 0))
     if loadout_armor:
-        max_idx = max(max_idx, TIER_IDX.get(ARMORS[loadout_armor]["tier"], 0))
+        max_idx = max(max_idx, TIER_IDX.get(armors[loadout_armor]["tier"], 0))
     if loadout_shield:
-        max_idx = max(max_idx, TIER_IDX.get(SHIELDS[loadout_shield]["tier"], 0))
+        max_idx = max(max_idx, TIER_IDX.get(shields[loadout_shield]["tier"], 0))
     if loadout_ranged:
-        max_idx = max(max_idx, TIER_IDX.get(RANGED[loadout_ranged].get("tier", "Crude"), 0))
+        max_idx = max(max_idx, TIER_IDX.get(ranged_table[loadout_ranged].get("tier", "Crude"), 0))
     return max_idx
 
 
-def derive_retinue_from_pursuits(pursuits):
+def derive_retinue_from_pursuits(pursuits, rules=None):
     """The player's retinue is DETERMINED by what's built — not chosen separately.
 
     Rules:
@@ -571,7 +621,7 @@ def derive_retinue_from_pursuits(pursuits):
     return "Levy"
 
 
-def derive_tier_from_pursuits(pursuits):
+def derive_tier_from_pursuits(pursuits, rules=None):
     """The WEAPON gear tier is DETERMINED by the tier pursuit built (highest one wins).
 
     NOTE: As of the building-driven gating rules, tier pursuits gate ONLY weapons.
@@ -622,26 +672,26 @@ SHIELD_METAL_REQUIRES = {
 }
 
 
-def armor_satisfied(armor_name, pursuits):
+def armor_satisfied(armor_name, pursuits, rules=None):
     """True if the loadout's pursuits include a building that unlocks the given armor."""
-    required = ARMOR_REQUIRES.get(armor_name, set())
+    required = _armor_requires(rules).get(armor_name, set())
     if not required:
         return True  # no building needed (Cloth)
     return bool(required & pursuits)
 
 
-def shield_satisfied(shield_name, pursuits):
+def shield_satisfied(shield_name, pursuits, rules=None):
     """True if the loadout has Joinery AND any of the metal-craft buildings the shield needs.
     Wooden Shield needs only Joinery (no metal)."""
     if "Joinery" not in pursuits:
         return False
-    required_metal = SHIELD_METAL_REQUIRES.get(shield_name, set())
+    required_metal = _shield_metal_requires(rules).get(shield_name, set())
     if not required_metal:
         return True  # only Joinery needed (Wooden Shield)
     return bool(required_metal & pursuits)
 
 
-def compute_pursuit_cost(pursuits):
+def compute_pursuit_cost(pursuits, rules=None):
     """Compute cost, domain requirements, and granted tags from a pursuit set.
 
     Cost model: every pursuit innately costs 1. A pursuit costs 0 if its upstream
@@ -660,6 +710,7 @@ def compute_pursuit_cost(pursuits):
 
     Returns (total_cost, domain_dict, tags_set).
     """
+    pursuits_info = _pursuits_info(rules)
     pursuits_for_cost = set(pursuits)
 
     # Efficiency lines: {downstream: upstream_parent}. Downstream costs 0 if parent present.
@@ -678,22 +729,22 @@ def compute_pursuit_cost(pursuits):
         if parent is not None and parent in pursuits_for_cost:
             cost_p = 0   # extending an existing line — free
         else:
-            cost_p = PURSUITS_INFO[p]["cost"]
+            cost_p = pursuits_info[p]["cost"]
         total_cost += cost_p
 
     # Domain requirements
     domain = {"Industry": 0, "Prowess": 0, "Piety": 0, "Cunning": 0}
     for p in pursuits:
-        for d, v in PURSUITS_INFO[p]["domain"].items():
+        for d, v in pursuits_info[p]["domain"].items():
             domain[d] = max(domain[d], v)
     # Industry requirement may also come from the actual gear tier
-    tier_str = derive_tier_from_pursuits(pursuits)
-    domain["Industry"] = max(domain["Industry"], TIER_INDUSTRY_REQ[tier_str])
+    tier_str = derive_tier_from_pursuits(pursuits, rules=rules)
+    domain["Industry"] = max(domain["Industry"], _tier_industry_req(rules)[tier_str])
 
     # Granted tags
     tags = set()
     for p in pursuits:
-        tags.update(PURSUITS_INFO[p]["tags"])
+        tags.update(pursuits_info[p]["tags"])
 
     # Hospitaller mastery: full stack adds Regenerate Reroll
     if "Hospitaller" in pursuits and "Apothecary" in pursuits and "Infirmary" in pursuits:
@@ -715,7 +766,7 @@ def compute_pursuit_cost(pursuits):
     return total_cost, domain, tags
 
 
-def compute_effective_upkeep(loadout):
+def compute_effective_upkeep(loadout, rules=None):
     """Compute per-retinue upkeep AFTER all pursuit-based reductions.
 
     Walks the loadout's pursuits, applies flat reductions and conditional
@@ -727,12 +778,12 @@ def compute_effective_upkeep(loadout):
       - "if_ranged": active when loadout.ranged is not None
       - "if_armor_in": active when loadout.armor in the listed armor set
     """
-    base = RETINUES[loadout.retinue]["cost"]
+    base = _retinues(rules)[loadout.retinue]["cost"]
     reduction = 0
     has_shield = loadout.shield is not None
     has_ranged = loadout.ranged is not None
     for p in loadout.pursuits:
-        effects = PURSUITS_INFO.get(p, {}).get("upkeep_effects", [])
+        effects = _pursuits_info(rules).get(p, {}).get("upkeep_effects", [])
         for eff in effects:
             if "flat" in eff:
                 reduction += eff["flat"]
@@ -757,7 +808,7 @@ def compute_effective_upkeep(loadout):
 #   - No pursuit is "wasted" in the sense the user described (e.g., Stable
 #     without Forge/ABF would never be built since Lance needs Forged)
 
-def _pursuit_set_is_valid(pursuits):
+def _pursuit_set_is_valid(pursuits, rules=None):
     # Prereq satisfaction (a pursuit's prereqs must be in the set, with subsumption)
     has_forge_or_abf = ("Forge" in pursuits) or ("ABF" in pursuits)
     # Stable implicitly grants Animal Husbandry (no explicit AH needed if Stable present)
@@ -831,7 +882,7 @@ def _pursuit_set_is_valid(pursuits):
     return True
 
 
-def _load_loadouts_from_csv(csv_path):
+def _load_loadouts_from_csv(csv_path, rules=None):
     """Load loadouts from a CSV produced by an earlier archetype_pool() export.
 
     Expected columns (extras are ignored, missing optional cols default safely):
@@ -865,7 +916,7 @@ def _load_loadouts_from_csv(csv_path):
             pursuits_str = row.get("pursuits", "") or ""
             pursuits = frozenset(p.strip() for p in pursuits_str.split("|") if p.strip())
 
-            upkeep = int(row.get("upkeep_per_retinue") or RETINUES[retinue]["cost"])
+            upkeep = int(row.get("upkeep_per_retinue") or _retinues(rules)[retinue]["cost"])
 
             pool.append(Loadout(
                 name=row["name"],
@@ -882,7 +933,7 @@ def _load_loadouts_from_csv(csv_path):
     return pool
 
 
-def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None):
+def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, rules=None):
     """Enumerate loadouts. Two modes:
 
       1. CSV mode (`csv_path` given): load loadouts directly from a CSV file
@@ -917,9 +968,12 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None):
     """
     # ── CSV mode ──────────────────────────────────────────────────────────
     if csv_path is not None:
-        return _load_loadouts_from_csv(csv_path)
+        return _load_loadouts_from_csv(csv_path, rules=rules)
 
     pool = []
+    weapons = _weapons(rules)
+    ranged_table = _ranged(rules)
+    shields = _shields(rules)
 
     # ── Gear tables ──────────────────────────────────────────────────────
     # Weapons by tier (melee), respecting weapon spec tier exactly.
@@ -1012,7 +1066,7 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None):
     for tier_p in TIER_PURSUITS:
         tier_str = TIER_PURSUIT_TO_TIER[tier_p]
         for ret_chain in RETINUE_CHAINS:
-            retinue_guess = derive_retinue_from_pursuits(ret_chain)
+            retinue_guess = derive_retinue_from_pursuits(ret_chain, rules=rules)
             # Levy capped at Wrought; MaA+ uses Wrought minimum
             if retinue_guess == "Levy" and tier_str in ("Forged", "Crafted"):
                 continue
@@ -1049,7 +1103,7 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None):
 
                 # Validate prereqs (no auto-promote — explicit purchases must
                 # have their prereqs satisfied or the combo is skipped)
-                if not _pursuit_set_is_valid(pursuits):
+                if not _pursuit_set_is_valid(pursuits, rules=rules):
                     continue
 
                 # Re-derive retinue from the FINAL pursuit set (after auto-includes).
@@ -1057,7 +1111,7 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None):
                 # auto-include; re-deriving guarantees the stored label matches the
                 # actual pursuits (e.g., a Tiltyard MaA that gains Coliseum stays MaA,
                 # and nothing is silently mislabeled).
-                retinue_guess = derive_retinue_from_pursuits(pursuits)
+                retinue_guess = derive_retinue_from_pursuits(pursuits, rules=rules)
                 # Re-apply the Levy/tier gating now that retinue is final.
                 if retinue_guess == "Levy" and tier_str in ("Forged", "Crafted"):
                     continue
@@ -1069,7 +1123,7 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None):
                 # Cost check: pool restricted to MPC in [min_pursuit_cost, max_pursuit_cost].
                 # Default range is [5, 13] — players will realistically have at least 5pts
                 # of military buildings, and 13 is the upper budget cap.
-                total_cost, domain, tags = compute_pursuit_cost(pursuits)
+                total_cost, domain, tags = compute_pursuit_cost(pursuits, rules=rules)
                 if total_cost > max_pursuit_cost or total_cost < min_pursuit_cost:
                     continue
 
@@ -1162,13 +1216,13 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None):
                         # init floor — if weapon+Tower would be < -1 base init (e.g.
                         # Morningstar -1 + Tower -1 = -2), Tower isn't offered; the loadout
                         # runs shieldless instead (no lower shield is legal with Crossbow).
-                        w_init = WEAPONS[weapon]["init"] if weapon and weapon != "Farm Tools" else 0
+                        w_init = weapons[weapon]["init"] if weapon and weapon != "Farm Tools" else 0
                         opts = [None]
-                        if (shield_satisfied("Tower Shield", pursuits)
-                                and w_init + SHIELDS["Tower Shield"]["init"] >= -1):
+                        if (shield_satisfied("Tower Shield", pursuits, rules=rules)
+                                and w_init + shields["Tower Shield"]["init"] >= -1):
                             opts.append("Tower Shield")
                         shield_opts = opts
-                    elif weapon is None or is_2h(weapon):
+                    elif weapon is None or is_2h(weapon, rules=rules):
                         shield_opts = [None]
                     else:
                         # Highest available shield by DEFENSIVE value, but skip any shield
@@ -1176,13 +1230,13 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None):
                         # Step down the defensive ladder until a building-satisfied shield
                         # keeps base init >= -1. E.g. Morningstar(-1)+Tower(-1) = -2 is skipped;
                         # falls to the next legal shield (Kite/Heater at init 0 → total -1).
-                        w_init = WEAPONS[weapon]["init"] if weapon and weapon != "Farm Tools" else \
-                                 (RANGED[ranged]["init"] if ranged else 0)
+                        w_init = weapons[weapon]["init"] if weapon and weapon != "Farm Tools" else \
+                                 (ranged_table[ranged]["init"] if ranged else 0)
                         best_shield = None
                         for s in SHIELD_LADDER:
-                            if not shield_satisfied(s, pursuits):
+                            if not shield_satisfied(s, pursuits, rules=rules):
                                 continue
-                            if w_init + SHIELDS[s]["init"] < -1:
+                            if w_init + shields[s]["init"] < -1:
                                 continue   # would break the init floor; try a lower-tier shield
                             best_shield = s
                             break
@@ -1192,20 +1246,20 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None):
                     # if no armor-craft building is present.
                     ARMOR_LADDER = ["Gothic Plate","Full Plate","Chainmail","Leather","Cloth"]
                     armor_opts = [next((a for a in ARMOR_LADDER
-                                        if armor_satisfied(a, pursuits)), "Cloth")]
+                                        if armor_satisfied(a, pursuits, rules=rules)), "Cloth")]
 
                     for shield in shield_opts:
                         for armor in armor_opts:
                             if not valid_combo(retinue_guess, weapon or "Farm Tools",
-                                                shield, armor, ranged, ty):
+                                                shield, armor, ranged, ty, rules=rules):
                                 continue
                             # Cross-validation: equipment requires specific pursuits.
                             # Shields require Joinery PLUS a metal-craft building based on tier.
                             # Wooden Shield needs only Joinery.
-                            if shield is not None and not shield_satisfied(shield, pursuits):
+                            if shield is not None and not shield_satisfied(shield, pursuits, rules=rules):
                                 continue
                             # Armor requires its armor-craft building. Cloth is free.
-                            if not armor_satisfied(armor, pursuits):
+                            if not armor_satisfied(armor, pursuits, rules=rules):
                                 continue
                             # Ranged weapons require Fletchery (carpentry-based ranged
                             # production; Carpentry is a Fletchery prereq).
@@ -1221,7 +1275,7 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None):
                             #  shield's own Joinery requirement. '2HBastard' is 2H → exempt here.)
                             requires_joinery = (
                                 weapon is not None and weapon != "Farm Tools"
-                                and not is_2h(weapon)
+                                and not is_2h(weapon, rules=rules)
                                 and ranged != "Crossbow"
                             )
                             if requires_joinery and "Joinery" not in pursuits:
@@ -1249,7 +1303,7 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None):
                             )
                             # Compute upkeep AFTER construction (needs loadout object
                             # so the conditional reductions can inspect equipment).
-                            ld = ld._replace(upkeep_per_retinue=compute_effective_upkeep(ld))
+                            ld = ld._replace(upkeep_per_retinue=compute_effective_upkeep(ld, rules=rules))
                             seen_keys[obs_key] = (total_cost, ld)
     return [v[1] for v in seen_keys.values()]
 
@@ -1274,7 +1328,7 @@ def with_playstyle(loadout, playstyle):
     return loadout._replace(name=new_name, playstyle=playstyle)
 
 
-def kt_twins(pool):
+def kt_twins(pool, rules=None):
     """For every KT loadout in `pool`, create a twin that's the SAME KT retinue & equipment
     but assigned the equipment-natural NON-Unshakable playstyle (computed by temporarily
     treating the loadout as a non-KT to bypass the KT→Unshakable rule).
@@ -1301,7 +1355,7 @@ def kt_twins(pool):
             continue
         # Spoof retinue to Sergeant to derive the equipment-natural playstyle
         spoof = ld._replace(retinue="Sergeant")
-        natural_ps = assign_default_playstyle(spoof)
+        natural_ps = assign_default_playstyle(spoof, rules=rules)
         # If somehow the natural playstyle is still Unshakable (shouldn't happen with
         # current rules, but be defensive), skip — no useful twin to create.
         if natural_ps == "Unshakable":
@@ -1326,12 +1380,12 @@ def cross_playstyle_pool(base_pool, playstyles):
     return out
 
 
-def optimal_playstyle_pool(base_pool):
+def optimal_playstyle_pool(base_pool, rules=None):
     """For each loadout in `base_pool`, assign its heuristic optimal playstyle.
     Returns a new pool the same size, each loadout tagged with one chosen style.
     """
     from playstyles import assign_default_playstyle
-    return [with_playstyle(ld, assign_default_playstyle(ld)) for ld in base_pool]
+    return [with_playstyle(ld, assign_default_playstyle(ld, rules=rules)) for ld in base_pool]
 
 
 if __name__ == "__main__":

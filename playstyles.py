@@ -75,17 +75,39 @@ def _score_for_attacker(a_mods, b_mods):
     return score
 
 
-def _build_counter_table():
+def _rules_tactics(rules):
+    return rules.tactics if rules is not None else TACTICS
+
+
+def _rules_tactic_matrix(rules):
+    return rules.tactic_matrix if rules is not None else TACTIC_MATRIX
+
+
+def _rules_static_playstyles(rules):
+    return rules.static_playstyles if rules is not None else STATIC_PLAYSTYLES
+
+
+def _rules_adaptive_playstyles(rules):
+    return rules.adaptive_playstyles if rules is not None else ADAPTIVE_PLAYSTYLES
+
+
+def _rules_mechanics(rules):
+    return getattr(rules, "mechanics", None)
+
+
+def _build_counter_table(rules=None):
     """For each opponent tactic, return the index of the best counter-tactic."""
+    tactics = _rules_tactics(rules)
+    tactic_matrix = _rules_tactic_matrix(rules)
     table = np.zeros(7, dtype=np.int8)
-    for opp_idx, opp_tac in enumerate(TACTICS):
+    for opp_idx, opp_tac in enumerate(tactics):
         best_score = -1e9
         best_idx = 0
-        for my_idx, my_tac in enumerate(TACTICS):
+        for my_idx, my_tac in enumerate(tactics):
             key = (my_tac, opp_tac)
-            if key not in TACTIC_MATRIX:
+            if key not in tactic_matrix:
                 continue
-            a_mods, b_mods = TACTIC_MATRIX[key]
+            a_mods, b_mods = tactic_matrix[key]
             s = _score_for_attacker(a_mods, b_mods)
             if s > best_score:
                 best_score = s
@@ -97,27 +119,39 @@ def _build_counter_table():
 # Lazily built so it reflects the current TACTIC_MATRIX
 _counter_table_cache = None
 
-def get_counter_table():
+def get_counter_table(rules=None):
     """Returns 1D int array [counter_for_opp_tac_0, ..., counter_for_opp_tac_6]."""
+    if rules is not None:
+        cached = getattr(rules, "_counter_table_cache", None)
+        if cached is None:
+            cached = _build_counter_table(rules)
+            setattr(rules, "_counter_table_cache", cached)
+        return cached
     global _counter_table_cache
     if _counter_table_cache is None:
         _counter_table_cache = _build_counter_table()
     return _counter_table_cache
 
 
-def invalidate_counter_table():
+def invalidate_counter_table(rules=None):
+    if rules is not None:
+        setattr(rules, "_counter_table_cache", None)
+        return
     global _counter_table_cache
     _counter_table_cache = None
 
 
-def ministry_counter_weights(opp_tac_idx, n_runs, counter_weight=0.8):
+def ministry_counter_weights(opp_tac_idx, n_runs, counter_weight=None, rules=None):
     """Given the opponent's chosen tactic indices (shape n_runs), return weights for the
     Ministry-side tactic selection.
     
     counter_weight=0.8: 80% chance to play the optimal counter, 20% spread among the
     other 6 tactics. Returns shape (n_runs, 7).
     """
-    counters = get_counter_table()  # int array of length 7
+    if counter_weight is None:
+        mech = _rules_mechanics(rules)
+        counter_weight = mech.ministry_counter_weight if mech is not None else 0.8
+    counters = get_counter_table(rules)  # int array of length 7
     counter_indices = counters[opp_tac_idx]  # shape (n_runs,)
     weights = np.full((n_runs, 7), (1 - counter_weight) / 6, dtype=np.float64)
     # Set the counter index to counter_weight for each run
@@ -393,7 +427,7 @@ ADAPTIVE_PLAYSTYLES = {
 ALL_PLAYSTYLES = list(STATIC_PLAYSTYLES.keys()) + list(ADAPTIVE_PLAYSTYLES.keys())
 
 
-def get_initiate_rate(playstyle_name):
+def get_initiate_rate(playstyle_name, rules=None):
     """Return the probability that a player with this playstyle initiates a battle
     (and thus typically gains Seize the Initiative). Defaults to 0.5 if unknown.
 
@@ -401,12 +435,14 @@ def get_initiate_rate(playstyle_name):
     Defensive playstyles (Defender, Cautious, Evasive, Attritionist) initiate ~20-35%.
     This drives the "who plays white" assignment in matchups when attacker_mode='playstyle'.
     """
+    static_playstyles = _rules_static_playstyles(rules)
+    adaptive_playstyles = _rules_adaptive_playstyles(rules)
     if playstyle_name is None or playstyle_name == "Random":
-        return 0.50
-    if playstyle_name in STATIC_PLAYSTYLES:
-        return STATIC_PLAYSTYLES[playstyle_name].get("initiate_rate", 0.50)
-    if playstyle_name in ADAPTIVE_PLAYSTYLES:
-        return ADAPTIVE_PLAYSTYLES[playstyle_name].get("initiate_rate", 0.50)
+        return static_playstyles.get("Random", {}).get("initiate_rate", 0.50)
+    if playstyle_name in static_playstyles:
+        return static_playstyles[playstyle_name].get("initiate_rate", 0.50)
+    if playstyle_name in adaptive_playstyles:
+        return adaptive_playstyles[playstyle_name].get("initiate_rate", 0.50)
     return 0.50
 
 
@@ -425,7 +461,7 @@ def _apply_no_fb_rule(weights, n_runs):
     return out
 
 
-def _apply_fatigue_fb_rule(weights, a_fat, n_runs):
+def _apply_fatigue_fb_rule(weights, a_fat, n_runs, rules=None):
     """Re-shape a (n_runs, 7) weight matrix so each row uses the canonical
     fatigue-conditional Fall Back rule:
       fat == 0:  0% FB; row's FB weight goes to the other 6 tactics proportionally
@@ -435,10 +471,13 @@ def _apply_fatigue_fb_rule(weights, a_fat, n_runs):
     """
     if np.isscalar(a_fat):
         a_fat = np.full(n_runs, a_fat, dtype=np.int8)
+    mech = _rules_mechanics(rules)
+    fat1_weight = mech.fatigue_fallback_weight_fat1 if mech is not None else 0.15
+    fat2_weight = mech.fatigue_fallback_weight_fat2plus if mech is not None else 0.40
 
     target_fb = np.zeros(n_runs, dtype=np.float64)
-    target_fb[a_fat == 1] = 0.15
-    target_fb[a_fat >= 2] = 0.40
+    target_fb[a_fat == 1] = fat1_weight
+    target_fb[a_fat >= 2] = fat2_weight
 
     out = weights.copy()
     non_fb_total = out[:, :6].sum(axis=1)
@@ -465,7 +504,7 @@ FB_INTENTIONAL_PLAYSTYLES = {
 }
 
 
-def resolve_playstyle_weights(playstyle_name, state, n_runs):
+def resolve_playstyle_weights(playstyle_name, state, n_runs, rules=None):
     """Return a weight array of shape (n_runs, 7) for the given playstyle and state.
     state: dict with keys 'a_size', 'b_size', 'a_end', 'b_end', 'a_fat', 'b_fat'.
 
@@ -477,18 +516,27 @@ def resolve_playstyle_weights(playstyle_name, state, n_runs):
       3. Everything else (Random, Skirmisher, Defender, Ranger, Attritionist):
          apply the canonical fatigue-conditional rule (0% / 15% / 40% at fat 0/1/2+).
     """
+    static_playstyles = _rules_static_playstyles(rules)
+    adaptive_playstyles = _rules_adaptive_playstyles(rules)
     if playstyle_name is None or playstyle_name == "Random":
         # Random starts uniform over 6 non-FB tactics, then fatigue rule adds FB
         weights = np.zeros((n_runs, 7), dtype=np.float64)
         weights[:, :6] = 1 / 6
-        return _apply_fatigue_fb_rule(weights, state["a_fat"], n_runs)
+        return _apply_fatigue_fb_rule(weights, state["a_fat"], n_runs, rules=rules)
 
-    if playstyle_name in STATIC_PLAYSTYLES:
-        primaries = STATIC_PLAYSTYLES[playstyle_name]["primaries"]
-        w = _weights_from_primaries(primaries)
+    if playstyle_name in static_playstyles:
+        profile = static_playstyles[playstyle_name]
+        if "weights" in profile:
+            w = np.asarray(profile["weights"], dtype=np.float64)
+            w = w / w.sum()
+        else:
+            primaries = profile["primaries"]
+            w = _weights_from_primaries(primaries, profile.get("primary_weight", 0.7))
         weights = np.tile(w, (n_runs, 1))
-    elif playstyle_name in ADAPTIVE_PLAYSTYLES:
-        weights = ADAPTIVE_PLAYSTYLES[playstyle_name]["func"](state, n_runs)
+        if profile.get("disable_fatigue_fallback", False):
+            return weights
+    elif playstyle_name in adaptive_playstyles:
+        weights = adaptive_playstyles[playstyle_name]["func"](state, n_runs)
     else:
         raise ValueError(f"Unknown playstyle: {playstyle_name}")
 
@@ -497,7 +545,7 @@ def resolve_playstyle_weights(playstyle_name, state, n_runs):
     if playstyle_name in FB_INTENTIONAL_PLAYSTYLES:
         return weights
     # Default: fatigue rule (same as Random)
-    return _apply_fatigue_fb_rule(weights, state["a_fat"], n_runs)
+    return _apply_fatigue_fb_rule(weights, state["a_fat"], n_runs, rules=rules)
 
 
 def sample_tactic_indices(weights, rng):
@@ -518,7 +566,7 @@ def sample_tactic_indices(weights, rng):
 # optimal playstyle based on its equipment/tags. This is the heuristic that powers
 # `assign_default_playstyle()` and the playstyle-pool generator.
 
-def assign_default_playstyle(loadout):
+def assign_default_playstyle(loadout, rules=None):
     """Heuristic: given a loadout, return the best-fit playstyle name.
 
     Priority order (first match wins):
