@@ -1,0 +1,14 @@
+**/lab_out/*.csv
+**/lab_out/*.parquet
+RenownWiki/
+__pycache__/
+*.pyc
+numba_cache/
+*.tmp
+*.env
+.env
+Combatv3/wiki/ 
+**/__pycache__/ 
+Combatv3/cd 
+Combatv3/python 
+Combatv3/rmdir 

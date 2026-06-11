@@ -1,0 +1,27 @@
+Name,Domain,Standing,Rank,Effect,Requires_All,Requires_Any,Extra_Req,Monument
+Apothecary,Piety,Untested,1,Heal 4,,,,no
+Conditioning Field,Prowess,Untested,1,+1 Endurance,,,,no
+Fletchery,Prowess,Untested,1,Ranged weapons,,,,no
+Furnace,Industry,Untested,1,Cast weapons,,,,no
+Infirmary,Piety,Untested,1,Recover 6,Apothecary,,,no
+Stable,Industry,Untested,1,Cavalry weapons,,,,no
+Tannery,Industry,Untested,1,Leather armor,,,,no
+Armory,Industry,Rising,1,Chainmail,Joinery,,,no
+Blacksmith,Industry,Rising,1,Wrought weapons,Furnace,,,no
+Coliseum,Prowess,Rising,1,Man-at-Arms unlock,Conditioning Field,,,no
+Joinery,Industry,Rising,1,Shields,Tannery,,,no
+Toxicarium,Cunning,Rising,1,Poison,,,,no
+Forge,Industry,Established,1,Forged weapons,Blacksmith,,,no
+Gilded Foundry,Industry,Established,1,Full Plate + Planishing,Armory,,,no
+Grand Tournament,Prowess,Established,1,Improved Parry + Riposte,Coliseum,,,no
+Hospitaller,Piety,Established,1,Recover +1 / +1,Infirmary,,,no
+Master Workshop,Industry,Established,1,Serrated,Forge,,,no
+Tiltyard,Prowess,Established,1,Dual-equip; Immune Unwieldy,Fletchery,,,no
+War College,Prowess,Established,1,Sergeant unlock,Coliseum,,,no
+Advanced Blast Furnace,Industry,Sovereign,1,Crafted tier,"Master Workshop, Gilded Foundry",,,yes
+Ministry of Military Strategy,Prowess,Sovereign,1,Always Seize the Initiative; ignore -1 to Strike from Tactics,War College,,,yes
+Ministry of Military Strategy,Prowess,Sovereign,2,"Effects that trigger on a natural 6 also trigger on a natural 5, so long as the natural 5 would be a successful roll. Gain +1 Initiative; your maximum Initiative is now +3",,,,yes
+Outrider Intercept Post,Cunning,Sovereign,1,See enemy Tactic before choosing; mastery forces reveal,Toxicarium,,,yes
+Preceptory of the Knight's Templar,Piety,Sovereign,1,Immune Panic,Hospitaller,,Established Prowess,yes
+Preceptory of the Knight's Templar,Piety,Sovereign,2,Knight Templar unlock,,,,yes
+Royal Pavilion,Prowess,Sovereign,1,Immune Strain; Drilled; Nimble,"Tiltyard, Grand Tournament",,,yes

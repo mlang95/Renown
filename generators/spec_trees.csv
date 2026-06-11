@@ -1,0 +1,268 @@
+tree,pathology,node,parents,tier,domain,type
+Butchery,Path of Butchery,Salt Works,,Untested,—,Raw Materials
+Butchery,Path of Butchery,Arable Land,,Untested,—,Raw Materials
+Butchery,Path of Butchery,Forestry,,Untested,—,Raw Materials
+Butchery,Path of Butchery,Animal Husbandry,Arable Land,—,Industry,Husbandry
+Butchery,Path of Butchery,Tannery,Animal Husbandry,—,Industry,Craft
+Butchery,Path of Butchery,Kiln,Forestry,Rising,Industry,Energy
+Butchery,Path of Butchery,Butchery,Animal Husbandry; Tannery; Salt Works,—,Industry,Craft
+Butchery,Path of Butchery,Smokehouse,Salt Works; Kiln; Butchery,—,Industry,Craft
+Shipyard,Path of Seafaring,Forestry,,Untested,—,Raw Materials
+Shipyard,Path of Seafaring,Fishmongery,,Untested,—,Raw Materials
+Shipyard,Path of Seafaring,Carpentry,Forestry,—,Industry,Craft
+Shipyard,Path of Seafaring,Harbor,Fishmongery,—,Industry,Craft
+Shipyard,Path of Seafaring,Shipyard,Carpentry; Harbor,—,Industry,Craft
+Shipyard,Path of Seafaring,Kiln,Forestry,Rising,Industry,Energy
+Shipyard,Path of Seafaring,Charcoal Burner,Forestry; Kiln,Rising,Industry,Energy
+Shipyard,Path of Seafaring,Windmill,Carpentry,Rising,Industry,Energy
+Shipyard,Path of Seafaring,Watermill,Carpentry,Rising,Industry,Energy
+Siege Camp,Path of Sieging,Mine,,Untested,—,Raw Materials
+Siege Camp,Path of Sieging,Furnace,Mine,—,Industry,Craft
+Siege Camp,Path of Sieging,Blacksmith,Furnace,Rising,Industry,Craft
+Siege Camp,Path of Sieging,Siege Works,Blacksmith,Rising,Prowess,Power
+Siege Camp,Path of Sieging,Siege Camp,Siege Works,Established,Prowess,Power
+Studium Generale,Path of Influence,Apiary,,Untested,—,Raw Materials
+Studium Generale,Path of Influence,Peat Bog,,Untested,—,Raw Materials
+Studium Generale,Path of Influence,Library,,—,Civic,Civic
+Studium Generale,Path of Influence,Alchemy,Apiary; Peat Bog,—,Industry,Craft
+Studium Generale,Path of Influence,Academy,Library; Alchemy,—,Civic,Civic
+Studium Generale,Path of Influence,University,Academy,—,Civic,Power
+Studium Generale,Path of Influence,Studium Generale,University,Sovereign,Industry,Monument
+Saddlery,Path of Riding,Arable Land,,Untested,—,Raw Materials
+Saddlery,Path of Riding,Quarry,,Untested,—,Raw Materials
+Saddlery,Path of Riding,Mine,,Untested,—,Raw Materials
+Saddlery,Path of Riding,Masonry,Quarry,Rising,Industry,Craft
+Saddlery,Path of Riding,Furnace,Mine,—,Industry,Craft
+Saddlery,Path of Riding,Blacksmith,Furnace,Rising,Industry,Craft
+Saddlery,Path of Riding,Animal Husbandry,Arable Land,—,Industry,Husbandry
+Saddlery,Path of Riding,Courtyard,Masonry,—,Industry,Civic
+Saddlery,Path of Riding,Conditioning Field,Courtyard,—,Industry,Civic
+Saddlery,Path of Riding,Stable,Animal Husbandry; Conditioning Field; Blacksmith,—,Industry,Transportation
+Saddlery,Path of Riding,Saddlery,Arable Land; Animal Husbandry; Stable,—,Industry,Husbandry
+Saddlery,Path of Riding,Windmill,Arable Land,Rising,Industry,Energy
+Manor House,Path of Farming,Hamlet,,—,Civic,Civic
+Manor House,Path of Farming,Arable Land,Hamlet,Untested,—,Raw Materials
+Manor House,Path of Farming,Apiary,,Untested,—,Raw Materials
+Manor House,Path of Farming,Peat Bog,,Untested,—,Raw Materials
+Manor House,Path of Farming,Animal Husbandry,Arable Land,—,Industry,Husbandry
+Manor House,Path of Farming,Herb Garden,Arable Land; Peat Bog,—,Industry,Husbandry
+Manor House,Path of Farming,Vineyard,Arable Land; Apiary; Peat Bog,—,Industry,Husbandry
+Manor House,Path of Farming,Orchard,Arable Land; Apiary; Peat Bog,—,Industry,Husbandry
+Manor House,Path of Farming,Granary,Arable Land,Rising,Industry,Civic
+Manor House,Path of Farming,Windmill,Arable Land,Rising,Industry,Energy
+Manor House,Path of Farming,Bakery,Arable Land; Windmill,—,Industry,Craft
+Manor House,Path of Farming,Market Square,Arable Land; Apiary,Rising,Industry,Craft
+Manor House,Path of Farming,Manor House,Hamlet; Market Square,Established,Industry,Monument
+Manor House,Path of Farming,Watermill,Bakery,Rising,Industry,Energy
+Meadery & Winery,Path of Cellar,Forestry,,Untested,—,Raw Materials
+Meadery & Winery,Path of Cellar,Apiary,,Untested,—,Raw Materials
+Meadery & Winery,Path of Cellar,Peat Bog,,Untested,—,Raw Materials
+Meadery & Winery,Path of Cellar,Arable Land,,Untested,—,Raw Materials
+Meadery & Winery,Path of Cellar,Carpentry,Forestry,—,Industry,Craft
+Meadery & Winery,Path of Cellar,Joinery,Carpentry,Rising,Industry,Craft
+Meadery & Winery,Path of Cellar,Vineyard,Arable Land; Apiary; Peat Bog,—,Industry,Husbandry
+Meadery & Winery,Path of Cellar,Orchard,Arable Land; Apiary; Peat Bog,—,Industry,Husbandry
+Meadery & Winery,Path of Cellar,Winery,Vineyard; Joinery,—,Industry,Craft
+Meadery & Winery,Path of Cellar,Meadery,Orchard; Joinery,—,Industry,Craft
+Meadery & Winery,Path of Cellar,Cidery,Orchard; Joinery; Inn,—,Industry,Craft
+Meadery & Winery,Path of Cellar,Inn,,—,Industry,Craft
+Meadery & Winery,Path of Cellar,Kiln,Forestry,Rising,Industry,Energy
+Meadery & Winery,Path of Cellar,Charcoal Burner,Forestry; Kiln,Rising,Industry,Energy
+Meadery & Winery,Path of Cellar,Windmill,Carpentry,Rising,Industry,Energy
+Meadery & Winery,Path of Cellar,Watermill,Carpentry,Rising,Industry,Energy
+Senate Hall,Path of Diplomacy,Quarry,,Untested,—,Raw Materials
+Senate Hall,Path of Diplomacy,Library,,—,Civic,Civic
+Senate Hall,Path of Diplomacy,Town Hall,,—,Nobility,Civic
+Senate Hall,Path of Diplomacy,Masonry,Quarry,Rising,Industry,Craft
+Senate Hall,Path of Diplomacy,Courtyard,Masonry,—,Industry,Civic
+Senate Hall,Path of Diplomacy,Episcopal Court,Masonry,—,Piety,Civic
+Senate Hall,Path of Diplomacy,Bell Tower,Episcopal Court,Established,Piety,Civic
+Senate Hall,Path of Diplomacy,Jester's Court,Courtyard,Rising,Nobility,Power
+Senate Hall,Path of Diplomacy,Embassy,Bell Tower; Jester's Court,Rising,Nobility,Monument
+Senate Hall,Path of Diplomacy,Senate Hall,Embassy; Library; Town Hall; Courtyard,Sovereign,Nobility,Monument
+Imperial Palace,Path of Power,Quarry,,Untested,—,Raw Materials
+Imperial Palace,Path of Power,Arable Land,,Untested,—,Raw Materials
+Imperial Palace,Path of Power,Masonry,Quarry,Rising,Industry,Craft
+Imperial Palace,Path of Power,Granary,Arable Land,Rising,Industry,Civic
+Imperial Palace,Path of Power,Episcopal Court,Masonry,—,Piety,Civic
+Imperial Palace,Path of Power,Interrogation Chambers,Episcopal Court,Rising,Piety,Civic
+Imperial Palace,Path of Power,Citadel,Masonry; Granary,Established,Prowess,Power
+Imperial Palace,Path of Power,Execution Dock,Interrogation Chambers,Established,Piety,Civic
+Imperial Palace,Path of Power,Imperial Palace,Citadel; Execution Dock,Sovereign,Prowess,Monument
+Imperial Palace,Path of Power,Windmill,Arable Land,Rising,Industry,Energy
+Royal Pavilion,Path of the Champion,Quarry,,Untested,—,Raw Materials
+Royal Pavilion,Path of the Champion,Forestry,,Untested,—,Raw Materials
+Royal Pavilion,Path of the Champion,Masonry,Quarry,Rising,Industry,Craft
+Royal Pavilion,Path of the Champion,Carpentry,Forestry,—,Industry,Craft
+Royal Pavilion,Path of the Champion,Courtyard,Masonry,—,Industry,Civic
+Royal Pavilion,Path of the Champion,Conditioning Field,Courtyard,—,Industry,Civic
+Royal Pavilion,Path of the Champion,Fletchery,Forestry; Carpentry,—,Industry,Craft
+Royal Pavilion,Path of the Champion,Coliseum,Conditioning Field; Masonry,Rising,Prowess,Civic
+Royal Pavilion,Path of the Champion,Grand Tournament,Conditioning Field; Coliseum,—,Industry,Civic
+Royal Pavilion,Path of the Champion,Tiltyard,Fletchery; Coliseum,Established,Prowess,Power
+Royal Pavilion,Path of the Champion,Royal Pavilion,Grand Tournament; Tiltyard,Sovereign,Prowess,Monument
+Royal Pavilion,Path of the Champion,Kiln,Forestry,Rising,Industry,Energy
+Royal Pavilion,Path of the Champion,Charcoal Burner,Forestry; Kiln,Rising,Industry,Energy
+Royal Pavilion,Path of the Champion,Windmill,Carpentry,Rising,Industry,Energy
+Royal Pavilion,Path of the Champion,Watermill,Carpentry,Rising,Industry,Energy
+Inquisitorial Palace,Path of Inquisition,Quarry,,Untested,—,Raw Materials
+Inquisitorial Palace,Path of Inquisition,Library,,—,Civic,Civic
+Inquisitorial Palace,Path of Inquisition,Alchemy,,Rising,Industry,Craft
+Inquisitorial Palace,Path of Inquisition,Masonry,Quarry,Rising,Industry,Craft
+Inquisitorial Palace,Path of Inquisition,Episcopal Court,Masonry,—,Piety,Civic
+Inquisitorial Palace,Path of Inquisition,Academy,Library; Alchemy,Rising,Industry,Civic
+Inquisitorial Palace,Path of Inquisition,Interrogation Chambers,Episcopal Court,Rising,Piety,Civic
+Inquisitorial Palace,Path of Inquisition,Abbey,Episcopal Court; Academy,Rising,Piety,Civic
+Inquisitorial Palace,Path of Inquisition,Execution Dock,Interrogation Chambers,Established,Piety,Civic
+Inquisitorial Palace,Path of Inquisition,Monastery,Abbey,Established,Piety,Civic
+Inquisitorial Palace,Path of Inquisition,Inquisitorial Palace,Execution Dock; Monastery,Sovereign,Piety,Power
+Thieves' Guild,Path of Thievery,Raw Materials,,Untested,—,Base
+Thieves' Guild,Path of Thievery,Market Square,Raw Materials,Rising,Industry,Craft
+Thieves' Guild,Path of Thievery,Caravanery,Market Square,—,Industry,Transportation
+Thieves' Guild,Path of Thievery,Inn,Caravanery; Market Square,—,Industry,Craft
+Thieves' Guild,Path of Thievery,Secret Cellar,Inn,Rising,Cunning,Secrecy
+Thieves' Guild,Path of Thievery,Forgotten Catacombs,Secret Cellar,Rising,Cunning,Energy
+Thieves' Guild,Path of Thievery,Smuggler's Nook,Secret Cellar,Established,Cunning,Secrecy
+Thieves' Guild,Path of Thievery,Thieves' Guild,Market Square; Smuggler's Nook; Secret Cellar,Sovereign,Cunning,Monument
+Cipher Chamber,Path of Secrecy,Apiary,,Untested,—,Raw Materials
+Cipher Chamber,Path of Secrecy,Peat Bog,,Untested,—,Raw Materials
+Cipher Chamber,Path of Secrecy,Library,,—,Civic,Civic
+Cipher Chamber,Path of Secrecy,Alchemy,Apiary; Peat Bog,—,Industry,Craft
+Cipher Chamber,Path of Secrecy,Market Square,Apiary; Peat Bog,Rising,Industry,Craft
+Cipher Chamber,Path of Secrecy,Caravanery,Market Square,—,Industry,Transportation
+Cipher Chamber,Path of Secrecy,Inn,Caravanery; Market Square,—,Industry,Craft
+Cipher Chamber,Path of Secrecy,Academy,Library; Alchemy,—,Civic,Civic
+Cipher Chamber,Path of Secrecy,Secret Cellar,Inn,Rising,Cunning,Secrecy
+Cipher Chamber,Path of Secrecy,Toxicarium,Academy; Alchemy,Rising,Cunning,Secrecy
+Cipher Chamber,Path of Secrecy,Courier Network,Caravanery; Inn,—,Industry,Civic
+Cipher Chamber,Path of Secrecy,University,Academy,—,Civic,Power
+Cipher Chamber,Path of Secrecy,Forgery Workshop,Academy; Secret Cellar,Established,Cunning,Secrecy
+Cipher Chamber,Path of Secrecy,Studium Generale,University,Sovereign,Industry,Monument
+Cipher Chamber,Path of Secrecy,Cipher Chamber,University; Courier Network,Sovereign,Cunning,Monument
+Aristocratic Court,Path of Kleptocracy,Raw Materials,,Untested,—,Base
+Aristocratic Court,Path of Kleptocracy,Library,,—,Civic,Civic
+Aristocratic Court,Path of Kleptocracy,Alchemy,,—,Industry,Craft
+Aristocratic Court,Path of Kleptocracy,Market Square,Raw Materials,Rising,Industry,Craft
+Aristocratic Court,Path of Kleptocracy,Caravanery,Market Square,—,Industry,Transportation
+Aristocratic Court,Path of Kleptocracy,Inn,Caravanery; Market Square,—,Industry,Craft
+Aristocratic Court,Path of Kleptocracy,Academy,Library; Alchemy,—,Civic,Civic
+Aristocratic Court,Path of Kleptocracy,Secret Cellar,Inn,Rising,Cunning,Secrecy
+Aristocratic Court,Path of Kleptocracy,Forgotten Catacombs,Secret Cellar,Rising,Cunning,Energy
+Aristocratic Court,Path of Kleptocracy,Toxicarium,Academy; Alchemy,Rising,Cunning,Secrecy
+Aristocratic Court,Path of Kleptocracy,Merchant Quarter,Market Square,Rising,Industry,Craft
+Aristocratic Court,Path of Kleptocracy,Money Lending,Merchant Quarter,Established,Industry,Power
+Aristocratic Court,Path of Kleptocracy,Court Artists,Merchant Quarter; Money Lending,—,Industry,Civic
+Aristocratic Court,Path of Kleptocracy,Black Market,Market Square; Caravanery,Rising,Cunning,Secrecy
+Aristocratic Court,Path of Kleptocracy,Forgery Workshop,Academy; Secret Cellar,Established,Cunning,Secrecy
+Aristocratic Court,Path of Kleptocracy,Aristocratic Court,Money Lending; Forgery Workshop; Court Artists,Sovereign,Industry,Monument
+Court Artists,Path of Income,Quarry,,Untested,—,Raw Materials
+Court Artists,Path of Income,Forestry,,Untested,—,Raw Materials
+Court Artists,Path of Income,Mine,,Untested,—,Raw Materials
+Court Artists,Path of Income,Arable Land,,Untested,—,Raw Materials
+Court Artists,Path of Income,Masonry,Quarry,—,Industry,Craft
+Court Artists,Path of Income,Carpentry,Forestry,—,Industry,Craft
+Court Artists,Path of Income,Furnace,Mine,—,Industry,Craft
+Court Artists,Path of Income,Animal Husbandry,Arable Land,—,Industry,Husbandry
+Court Artists,Path of Income,Herb Garden,Arable Land,—,Industry,Husbandry
+Court Artists,Path of Income,Market Square,Quarry; Forestry,Rising,Industry,Craft
+Court Artists,Path of Income,Caravanery,Market Square,—,Industry,Transportation
+Court Artists,Path of Income,Merchant Quarter,Market Square; Masonry; Carpentry,Rising,Industry,Craft
+Court Artists,Path of Income,Weavery,Merchant Quarter; Animal Husbandry,—,Industry,Craft
+Court Artists,Path of Income,Artisan Workshop,Carpentry; Arable Land; Weavery,—,Industry,Civic
+Court Artists,Path of Income,Spice Merchant,Caravanery; Merchant Quarter; Herb Garden,—,Industry,Craft
+Court Artists,Path of Income,Jewelry Foundry,Mine; Merchant Quarter; Furnace,—,Industry,Craft
+Court Artists,Path of Income,Money Lending,Merchant Quarter,Established,Industry,Power
+Court Artists,Path of Income,Black Market,Market Square; Caravanery,Rising,Cunning,Secrecy
+Court Artists,Path of Income,Court Artists,Merchant Quarter; Money Lending,—,Industry,Civic
+Court Artists,Path of Income,Kiln,Forestry,Rising,Industry,Energy
+Court Artists,Path of Income,Charcoal Burner,Forestry; Kiln,Rising,Industry,Energy
+Court Artists,Path of Income,Windmill,Arable Land; Carpentry,Rising,Industry,Energy
+Court Artists,Path of Income,Watermill,Weavery; Carpentry,Rising,Industry,Energy
+Beacon Towers,Path of Territory,Quarry,,Untested,—,Raw Materials
+Beacon Towers,Path of Territory,Forestry,,Untested,—,Raw Materials
+Beacon Towers,Path of Territory,Arable Land,,Untested,—,Raw Materials
+Beacon Towers,Path of Territory,Masonry,Quarry,—,Industry,Craft
+Beacon Towers,Path of Territory,Carpentry,Forestry,—,Industry,Craft
+Beacon Towers,Path of Territory,Herb Garden,Arable Land,—,Industry,Husbandry
+Beacon Towers,Path of Territory,Market Square,Quarry; Forestry,Rising,Industry,Craft
+Beacon Towers,Path of Territory,Caravanery,Market Square,—,Industry,Transportation
+Beacon Towers,Path of Territory,Inn,Caravanery; Market Square,—,Industry,Craft
+Beacon Towers,Path of Territory,Merchant Quarter,Market Square; Masonry; Carpentry,Rising,Industry,Craft
+Beacon Towers,Path of Territory,Courier Network,Caravanery; Inn,—,Industry,Civic
+Beacon Towers,Path of Territory,Spice Merchant,Caravanery; Merchant Quarter; Herb Garden,—,Industry,Craft
+Beacon Towers,Path of Territory,Toll House,Caravanery; Courier Network,—,Industry,Civic
+Beacon Towers,Path of Territory,Black Market,Market Square; Caravanery,Rising,Cunning,Secrecy
+Beacon Towers,Path of Territory,Beacon Towers,Courier Network; Toll House,Rising,Prowess,Energy
+Beacon Towers,Path of Territory,Kiln,Forestry,Rising,Industry,Energy
+Beacon Towers,Path of Territory,Charcoal Burner,Forestry; Kiln,Rising,Industry,Energy
+Beacon Towers,Path of Territory,Windmill,Arable Land; Carpentry,Rising,Industry,Energy
+Beacon Towers,Path of Territory,Watermill,Carpentry,Rising,Industry,Energy
+Storehouse,Path of Labor,Common Land,,Untested,—,Raw Materials
+Storehouse,Path of Labor,Forestry,,Untested,—,Raw Materials
+Storehouse,Path of Labor,Fishmongery,,Untested,—,Raw Materials
+Storehouse,Path of Labor,Workyard,Common Land,—,Industry,Craft
+Storehouse,Path of Labor,Burgages,Common Land,—,Industry,Energy
+Storehouse,Path of Labor,Carpentry,Forestry,—,Industry,Craft
+Storehouse,Path of Labor,Harbor,Fishmongery,—,Industry,Craft
+Storehouse,Path of Labor,Market Square,Fishmongery; Forestry,Rising,Industry,Craft
+Storehouse,Path of Labor,Trade Guild,Carpentry,—,Industry,Civic
+Storehouse,Path of Labor,Academy,,Rising,Industry,Civic
+Storehouse,Path of Labor,Shipyard,Carpentry; Harbor,Established,Industry,Craft
+Storehouse,Path of Labor,Census Hall,Workyard; Market Square,—,Industry,Craft
+Storehouse,Path of Labor,College of Engineering,Academy; Trade Guild,Established,Industry,Civic
+Storehouse,Path of Labor,Storehouse,College of Engineering; Workyard; Shipyard,Sovereign,Industry,Craft
+Storehouse,Path of Labor,Kiln,Forestry,Rising,Industry,Energy
+Storehouse,Path of Labor,Charcoal Burner,Forestry; Kiln,Rising,Industry,Energy
+Storehouse,Path of Labor,Windmill,Carpentry,Rising,Industry,Energy
+Storehouse,Path of Labor,Watermill,Carpentry,Rising,Industry,Energy
+Ministry of Military Strategy,Path of Tactics,Quarry,,Untested,—,Raw Materials
+Ministry of Military Strategy,Path of Tactics,Library,,—,Civic,Civic
+Ministry of Military Strategy,Path of Tactics,Alchemy,,Rising,Industry,Craft
+Ministry of Military Strategy,Path of Tactics,Masonry,Quarry,Rising,Industry,Craft
+Ministry of Military Strategy,Path of Tactics,Courtyard,Masonry,—,Industry,Civic
+Ministry of Military Strategy,Path of Tactics,Conditioning Field,Courtyard,—,Industry,Civic
+Ministry of Military Strategy,Path of Tactics,Coliseum,Conditioning Field; Masonry,Rising,Prowess,Civic
+Ministry of Military Strategy,Path of Tactics,Academy,Library; Alchemy,Rising,Industry,Civic
+Ministry of Military Strategy,Path of Tactics,University,Academy,—,Industry,Power
+Ministry of Military Strategy,Path of Tactics,Levy Hall,,Rising,Prowess,Power
+Ministry of Military Strategy,Path of Tactics,War College,Coliseum; Levy Hall; Academy,Established,Prowess,Power
+Ministry of Military Strategy,Path of Tactics,Ministry of Military Strategy,University; War College,Sovereign,Prowess,Monument
+Advanced Blast Furnaces,Path of Technology,Mine,,Untested,—,Raw Materials
+Advanced Blast Furnaces,Path of Technology,Quarry,,Untested,—,Raw Materials
+Advanced Blast Furnaces,Path of Technology,Arable Land,,Untested,—,Raw Materials
+Advanced Blast Furnaces,Path of Technology,Furnace,Mine,—,Industry,Craft
+Advanced Blast Furnaces,Path of Technology,Masonry,Quarry,Rising,Industry,Craft
+Advanced Blast Furnaces,Path of Technology,Animal Husbandry,Arable Land,—,Industry,Husbandry
+Advanced Blast Furnaces,Path of Technology,Blacksmith,Furnace,Rising,Industry,Craft
+Advanced Blast Furnaces,Path of Technology,Tannery,Animal Husbandry,—,Industry,Craft
+Advanced Blast Furnaces,Path of Technology,Courtyard,Masonry,—,Industry,Civic
+Advanced Blast Furnaces,Path of Technology,Conditioning Field,Courtyard,—,Industry,Civic
+Advanced Blast Furnaces,Path of Technology,Armory,Tannery; Blacksmith,Rising,Industry,Craft
+Advanced Blast Furnaces,Path of Technology,Stable,Animal Husbandry; Conditioning Field; Blacksmith,—,Industry,Transportation
+Advanced Blast Furnaces,Path of Technology,Forge,Blacksmith,Established,Industry,Power
+Advanced Blast Furnaces,Path of Technology,Master Workshop,Forge; Armory,Sovereign,Industry,Power
+Advanced Blast Furnaces,Path of Technology,Gilded Foundry,Forge; Armory,Sovereign,Industry,Power
+Advanced Blast Furnaces,Path of Technology,Advanced Blast Furnaces,Gilded Foundry; Master Workshop; Blacksmith; Stable,Sovereign,Industry,Monument
+Advanced Blast Furnaces,Path of Technology,Windmill,Arable Land,Rising,Industry,Energy
+Advanced Blast Furnaces,Path of Technology,Watermill,Forge,Rising,Industry,Energy
+Preceptory of the Knight's Templar,Path of the Crusade,Quarry,,Untested,—,Raw Materials
+Preceptory of the Knight's Templar,Path of the Crusade,Apiary,,Untested,—,Raw Materials
+Preceptory of the Knight's Templar,Path of the Crusade,Peat Bog,,Untested,—,Raw Materials
+Preceptory of the Knight's Templar,Path of the Crusade,Arable Land,,Untested,—,Raw Materials
+Preceptory of the Knight's Templar,Path of the Crusade,Library,,—,Civic,Civic
+Preceptory of the Knight's Templar,Path of the Crusade,Cathedral,,—,Piety,Civic
+Preceptory of the Knight's Templar,Path of the Crusade,Masonry,Quarry,Rising,Industry,Craft
+Preceptory of the Knight's Templar,Path of the Crusade,Alchemy,Apiary; Peat Bog,Rising,Industry,Craft
+Preceptory of the Knight's Templar,Path of the Crusade,Herb Garden,Arable Land; Peat Bog,—,Industry,Husbandry
+Preceptory of the Knight's Templar,Path of the Crusade,Chandlery,Apiary,—,Industry,Craft
+Preceptory of the Knight's Templar,Path of the Crusade,Episcopal Court,Masonry,—,Piety,Civic
+Preceptory of the Knight's Templar,Path of the Crusade,Academy,Library; Alchemy,Rising,Industry,Civic
+Preceptory of the Knight's Templar,Path of the Crusade,Apothecary,Herb Garden,—,Civic,Civic
+Preceptory of the Knight's Templar,Path of the Crusade,Infirmary,Alchemy; Herb Garden,—,Civic,Civic
+Preceptory of the Knight's Templar,Path of the Crusade,Abbey,Episcopal Court; Academy,Rising,Piety,Civic
+Preceptory of the Knight's Templar,Path of the Crusade,Reliquary,Abbey; Chandlery; Cathedral,Rising,Piety,Civic
+Preceptory of the Knight's Templar,Path of the Crusade,Monastery,Abbey,Established,Piety,Civic
+Preceptory of the Knight's Templar,Path of the Crusade,Hospitaller,Apothecary; Infirmary,Established,Piety,Civic
+Preceptory of the Knight's Templar,Path of the Crusade,Pilgrimage Site,Reliquary; Chandlery,Established,Piety,Energy
+Preceptory of the Knight's Templar,Path of the Crusade,Preceptory of the Knight's Templar,Monastery; Pilgrimage Site; Hospitaller,Sovereign,Piety,Monument
+Preceptory of the Knight's Templar,Path of the Crusade,Windmill,Arable Land,Rising,Industry,Energy

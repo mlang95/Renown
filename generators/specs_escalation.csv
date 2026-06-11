@@ -1,0 +1,38 @@
+Pursuits,Type,Unlock Requirement,Mastery Requirement,Innate Effects,Mastery Effect,Builds Into
+Herb Garden,Husbandry,-,Arable Land or Peat Bog,"+200, **Natural**",**Efficient Hamlet**,"Apothecary, Spice Merchant"
+Animal Husbandry,Husbandry,-,Arable Land,"+100, **Natural**",300,"Saddlery, Tannery, Stable, Weavery, Butchery"
+Carpentry,Craft,-,Forestry,**Build Timer −1**,100; Craft+1,"Joinery, Fletchery, Artisan Workshop, Trade Guild, Shipyard, Stable"
+Alchemy,Craft,-,Apiary or Peat Bog,100,100; Craft+1,"Academy, Infirmary, Toxicarium"
+Fletchery,Craft,-,Carpentry,**Maintain Ranged −5**,Unlocks **Ranged Weapons**,Tiltyard
+Tannery,Craft,-,Animal Husbandry,**Upkeep −5**; Craft +1,**Unlocks Leather Armor**,"Butchery, Armory"
+Joinery,Craft,Rising Industry,Carpentry,"200,**Maintain Shield −5**",unlocks **Shields**,"Winery, Meadery, Cidery"
+Furnace,Craft,-,Mine,Unlocks **Cast Weapons**,200,"Blacksmith, Jewelry Foundry"
+Blacksmith,Craft,Rising Industry,Furnace,200; Craft +1,"Unlocks **Wrought** Tier, **Efficient Furnace**","Forge, Armory, Stable, Siege Works, Supply Depot"
+Armory,Craft,Rising Industry,Tannery + Blacksmith,"**Upkeep −5**, **Efficient Tannery**",**Unlock Chainmail**; Craft +1,Gilded Foundry
+Gilded Foundry,Craft,Established Industry, Armory + Blacksmith,**Unlock Plate Armor**; Craft +1,Gain Planishing,Advanced Blast Furnace
+Caravanery,Craft,-,Market Square or Merchant Quarter,**Influence -1** to **Intercept Caravan actions** targeting your **settlements**,* Craft +2**,"Inn, Spice Merchant, Courier Network, Toll House"
+Stable,Civic,-,Animal Husbandry + Blacksmith or Carpentry,Armies **Speed +1**,"Armies **Speed +1**, **Efficient Animal Husbandry**; Unlocks Lance and Cavalry Spear","Saddlery, Advanced Blast Furnace"
+Coliseum,Civic,Rising Prowess,Conditioning Field,**Faith 1** while At War,Unlocks **Man-at-Arms** for **Muster**,"War College, Tiltyard, Grand Tournament, Stable"
+Abbey,Civic,Rising Piety,Episcopal Court + Academy,Once/turn: **Influence 1** another Player's Piety Envoy,,"Reliquary, Monastery, Preceptory of Knight's Templar"
+Monastery,Power,Established Piety,Abbey,**Influence −1** to Piety actions targeting you,"Other players cannot Oppose your Piety Envoys, **Efficient Abbey**","Inquisitorial Palace, Preceptory of the Knight's Templar"
+Hospitaller,Civic,Established Piety,Apothecary + Infirmary,**Recover** improved by +1,**Recover** improved by +1,Preceptory of the Knight's Templar
+Academy,Civic,-,Library + Alchemy,**Influence 1** to Council Envoys,**Influence 1** to non-Council Envoys,"University, Abbey, War College, Forgery Workshop, Toxicarium, College of Engineering"
+Conditioning Field,Civic,-,Courtyard,**Faith 1** while not at War,Armies gain **+1 Maximum Endurance**,"Coliseum, Grand Tournament"
+Grand Tournament,Civic,Established Prowess,Coliseum + Conditioning Field,"**Faith 1**, **Efficient Coliseum**; Improve Parry by +1.",3x/turn: exchange 500 gold for **1 Influence**; Gain Riposte,Royal Pavilion
+Apothecary,Civic,-,Herb Garden,100,Gain Heal 4.,"Infirmary, Hospitaller"
+Infirmary,Civic,-,Apothecary + Herb Garden,"-100, **Efficient Apothecary**",Armies gain **Recover 6**; improve by +1 if already have,Hospitaller
+University,Power,-,Academy,"May spend one additional **Influence** per Support or Oppose, **Efficient Academy**",+1 **Influence** per Domain you are Rising,"Studium Generale, Ministry of Military Strategy, College of Engineering"
+Toxicarium,Secrecy,Rising Cunning,Academy,"All Endorsed Cunning actions give an additional **Doubt 1** to Target and **Extort 1000**,", **Efficient Alchemy**; Weapons have **Poison**,-
+Pilgrimage Site,Energy,Rising Piety,Reliquary + Chandlery,**Extort 200** every Player without a Pilgrimage Site,"**Doubt 1** to all other Players without a Pilgrimage Site, **Efficient Reliquary**",Preceptory of the Knight's Templar
+War College,Power,Established Prowess,Levy Hall + Academy,Gain **+2 Influence** while At War,"Unlocks **Sergeants** for Muster, **Efficient Academy**",Ministry of Military Strategy
+Tiltyard,Power,Established Prowess,Fletchery + Coliseum,Armies may be Equipped with a Ranged and Melee Weapon; all weapons gain **Unwieldy** when equipped with both,"Armies gain **Immune Unwieldy**, **Efficient Conditioning Field**",Royal Pavilion
+Royal Pavilion,Monument,Sovereign Prowess,Grand Tournament + Tiltyard,Armies gain **Immune Strain**,Armies gain **Drilled** & **Nimble**,-
+Ministry of Military Strategy,Monument,Sovereign Prowess,University + War College,"**Doubt 1**; Always gains **Seize the Initiative**, and your opponent doesn't. Ignore -1 to Strike penalties from Tactics.",Gain +1I and +1 to Strike; your maximum initiative increases to 3. ,-
+Preceptory of the Knight's Templar,Monument,Sovereign Piety + Established Prowess,Monastery + Pilgrimage Site + Hospitaller + Abbey,Armies gain **Immune Panic**,Unlocks **Knight's Templar** for Muster,-
+Advanced Blast Furnace,Monument,Sovereign Industry,Gilded Foundry + Master Workshop + Blacksmith + Stable + Forge,"-200, **Upkeep −5**","**Crafted** Tier Unlocked, **Efficient Forge**",-
+Cipher Chamber,Power,Sovereign Cunning,University + Caravanery,"Once/turn when a Player Sends an Envoy: that Player must declare the specific Action they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action. **Efficient University**.",Once/turn: select any active **Timer** you did not select last turn; increase it by 1.,
+Outrider Intercept Post,Monument,Sovereign Cunning,Caravanery + Cipher Chamber,"In the first Skirmish of every Battle, your opponent plays their Tactic Card face up before you select your own.","Every skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own.",
+Master Workshop,Craft,Established Industry,Forge + Blacksmith,**Upkeep −5**; Craft +1,Add **Serrated** to Weapons,Advanced Blast Furnace
+Levy Hall,Power,Rising Prowess,Keep + Salt Works,Allied & Controlled Armies within Province: **Upkeep −5**,Controlled Armies outside Province: **Upkeep −5**,"War College, Ministry of Military Strategy"
+Forge,Power,Established Industry,Blacksmith,300,"Unlocks **Forged** Tier, **Efficient Blacksmith**","Master Workshop, Gilded Foundry, Advanced Blast Furnace"
+Courtyard,Civic,-,Masonry,200,**Faith 1**,"Conditioning Field, Jester's Court"

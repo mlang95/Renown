@@ -1,0 +1,34 @@
+Item,Type,Tier,AP_or_Save,Init,Keywords
+Farm Tools,Melee,Crude,0,0,
+Cudgel,Melee,Crude,-1,-1,"2H, Unwieldy"
+Pitchfork,Melee,Crude,0,1,"2H, Unwieldy"
+Daggers,Melee,Cast,0,1,"Nimble, 2H, Deadly"
+Short Sword,Melee,Cast,-1,0,Steady
+Spears,Melee,Cast,-1,1,Unwieldy
+Arming Sword,Melee,Wrought,-1,0,"Steady, Deadly"
+Pike,Melee,Wrought,-2,1,"Unwieldy, Deadly, 2H"
+Flail,Melee,Wrought,-2,-1,Cleave
+Halberd,Melee,Wrought,-3,0,2H
+Battle Axe,Melee,Wrought,-2,-1,"Unstoppable, 2H, Cleave"
+Cavalry Spear,Melee,Wrought,-2,0,"Unwieldy, Steady"
+Bastard Sword,Melee,Forged,-3,0,"Steady, Deadly"
+2HBastard,Melee,Forged,-3,0,"Cleave, 2H, Unwieldy"
+Lance,Melee,Forged,-4,1,"Steady, Unwieldy, Deadly, Unstoppable"
+Morningstar,Melee,Forged,-3,-1,"Unwieldy, Destroy Shield, Cleave"
+War Hammer,Melee,Forged,-8,-1,"Unwieldy, Destroy Shield, Unstoppable, 2H, Deadly"
+Poleaxe,Melee,Crafted,-4,0,"Steady, 2H, Unstoppable, Deadly, Cleave"
+Hunting Bow,Ranged,Crude,-1,2,"2H, Deadly, Deflect"
+Longbow,Ranged,Cast,-2,2,"Deadly, 2H, Deflect"
+Javelin,Ranged,Wrought,-3,1,"Deadly, Steady, Unstoppable, One Shot, Deflect"
+Crossbow,Ranged,Forged,-4,0,"Deadly, Unwieldy, Unstoppable, Deflect"
+Pilum,Ranged,Crafted,-5,1,"Steady, Destroy Shield, Unstoppable, One Shot, Deadly, Deflect"
+Wooden Shield,Shield,Crude,+1,-1,Unwieldy
+Kite Shield,Shield,Cast,+1,0,Steady
+Scutum Shield,Shield,Wrought,+1,-1,"Unwieldy, -1 to Strike"
+Tower Shield,Shield,Forged,+2,-1,"-1 to Strike, Unwieldy"
+Heater Shield,Shield,Crafted,+1,0,"-1 to Strike, Immune Destroy Shield"
+Cloth,Armor,Crude,6+,,
+Leather,Armor,Cast,5+,,
+Chainmail,Armor,Wrought,4+,,
+Full Plate,Armor,Forged,3+,,
+Gothic Plate,Armor,Crafted,2+,,
