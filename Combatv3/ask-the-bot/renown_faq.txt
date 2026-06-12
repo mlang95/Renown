@@ -351,7 +351,7 @@ Unstoppable | Ignore the target shield's -1 to Strike; the target's Parry is -1 
 Unwieldy | Initiative cannot be improved by Tactics.
 Vassal | A player subordinated via Vassalization: their chartered settlements return to them, they mirror the Suzerain's Treaties, count as allied to the Suzerain, and cannot perform or be targeted by Diplomacy actions.
 vassalize | Win path (Edict): force other players into vassalage. See Vassalization rules.
-version | Renown v0.4.8.2.2.
+version | Renown v0.4.8.3.1.
 victory | See 'how to win' / 'edicts'.
 Village / Settlement (tier 1). Tax 2000, muster 10, build 1, wards 1, reach 1. 
 Vineyard | Pursuit (Husbandry). Innate: Natural / Mastery: +600 in Fall

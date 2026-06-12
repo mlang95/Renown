@@ -1,6 +1,6 @@
 # renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
-VERSION = "0.4.8.2.2"
+VERSION = "0.4.8.3.1"
 # ── Keyword constants ─────────────────────────────────────────────────────
 # Rename a keyword here and it renames everywhere (GLOSSARY keys, tags, cards).
 STEADY          = "Steady"
