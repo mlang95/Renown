@@ -5,7 +5,7 @@ Abbey | Pursuit (Civic). Innate: Once/turn: Influence +1 another player's Piety 
 Abstain | Decline to spend Influence on a vote.
 Academy | Pursuit (Civic). Innate: Influence +1 to Council Envoys / Mastery: Influence +1 to non-Council Envoys
 adjacent | Range 1.
-Advanced Blast Furnace | Pursuit (Monument). Innate: Upkeep -500; Your weapons gain -1 AP, incoming attack's AP is reduced by 1. / Mastery: Crafted Tier Unlocked
+Advanced Blast Furnace | Pursuit (Monument). Innate: Upkeep -500 / Mastery: Crafted Tier Unlocked
 Alchemy | Pursuit (Craft). Innate: +100 / Mastery: +200; Craft+1
 Alliance | A Treaty binding players to mutual support; Military and Defensive Alliances unlock by Era.
 Animal Husbandry | Pursuit (Husbandry). Innate: +100, Natural / Mastery: +300
@@ -104,7 +104,7 @@ Fall / Season (Harvest). Husbandry Mastery Effects are doubled.
 Fall Back | A controlled retreat that ends the Battle with at least one retinue left — a partial success.
 Farm Tools | Melee weapon (Crude). AP 0, Init +0. Keywords: none.
 Fatigue Token | Each token is -1 to your Strike, Parry, and Recover rolls, to a maximum of 6+; and Morale -1 (uncapped). If your modified Morale is ever 7+, your army Routs. Tokens stack.
-Fatigued | A side at 0 Endurance. It cannot Parry, Riposte or Recover; each Skirmish its field takes a Break check, then it gains a Fatigue token.
+Fatigued | A side at 0 Endurance. Each Skirmish its field takes a Break check, then it gains a Fatigue token.
 Field | Your retinues in play — front line (up to 10) plus reserve (up to 5). Casualties leave the field at once, lowering its count.
 Fishmongery | Pursuit (Raw Materials). Innate: +300, Natural; Craft +1
 Flail | Melee weapon (Wrought). AP -2, Init -1. Keywords: Cleave.
@@ -180,7 +180,7 @@ Merchant Quarter | Pursuit (Craft). Innate: +400 / Mastery: Trade Partners gain 
 Metropolis / Settlement (tier 4). Tax 10000, muster 50, build 5, wards 4, reach 4. Capital only, requires Sovereign Industry (Titan of Industry)
 Mill | Pursuit (Energy). Innate: +300
 Mine | Pursuit (Raw Materials). Innate: +300, Natural; Craft +1
-Ministry of Military Strategy | Pursuit (Monument). Innate: Always gains Seize the Initiative, and your opponent doesn't. Immune -1 to Strike from Tactics. / Mastery: Gain +1I; your maximum initiative increases to 3. Riposte, Destroy Shield, Deadly, & Cleave also trigger on a natural 5.
+Ministry of Military Strategy | Pursuit (Monument). Innate: Always gains Seize the Initiative, and your opponent doesn't. Immune -1 to Strike from Tactics. / Mastery: Gain +1I; your maximum initiative increases to 3. Deadly, & Cleave also trigger on a natural 5.
 Monastery | Pursuit (Power). Innate: Influence −1 to Piety actions targeting you / Mastery: Other players cannot Oppose your Piety Envoys
 Money Lending | Pursuit (Power). Innate: Extort 500 / Mastery: May loan money to Trade Partners at 100 per 1000/turn interest(minimum 100); on Default: Perform Demand Tribute
 Monument | A Domain's capstone Pursuit. Completing one scores its Edict and grants a powerful effect.
@@ -199,7 +199,7 @@ Oppose X | Spend X Influence to decrease an Envoy's net Influence.
 Orchard | Pursuit (Husbandry). Innate: Natural / Mastery: +400 in Fall
 Outlaw Country | Three uncontrollable territories in your starting region where Bandit Camps spawn.
 Outrider Intercept Post | Pursuit (Monument). Innate: In the first Skirmish of every Battle, your opponent plays their Tactic Card face up before you select your own. / Mastery: Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own.
-Panic check | Taken at most once per Skirmish by a side that suffered 5 or more casualties in that Skirmish, before it Strikes back. Roll Morale (up to 5 dice); Immune Panic auto-passes.
+Panic check | Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish, after it Strikes back. Roll Morale (up to 5 dice); Immune Panic auto-passes.
 Parry | Roll a d6 to cancel a Strike before the Save on a 5+ (a natural 6 is a Riposte). -1 versus Unstoppable, versus ranged, and per Fatigue token (to a maximum of 6+).
 Passed | Net Influence 1 or more.
 Peat Bog | Pursuit (Raw Materials). Innate: +300, Natural; Craft +1
@@ -280,7 +280,7 @@ Storehouse | Pursuit (Craft). Innate: Doubt +2, +600 / Mastery: Build Timer −2
 Strained | -1 Initiative every Skirmish (negated by Immune Strain).
 Strike | A landed hit. Roll a D6, apply modifiers to the roll, and Strike on a result >= the to-Strike number. The target may then Parry, Save, and Recover.
 strong factions | See 'high strength factions'.
-Studium Generale | Pursuit (Monument). Innate: +1 Influence per Established Standing / Mastery: May gain one Sovereign Domain effect without spending the Domain Points
+Studium Generale | Pursuit (Power). Innate: +1 Influence per Established Standing / Mastery: May gain one Sovereign Domain effect without spending the Domain Points
 Summer / Season (Campaigning). All Armies gain Speed +3; all Armies gain Strained.
 Supply Depot | Pursuit (Civic). Innate: May Muster an Army in a Settlement under Siege / Mastery: Craft +2
 Support X | Spend X Influence to increase an Envoy's net Influence.
@@ -324,7 +324,7 @@ The Smoldering Crown / Faction (High difficulty, Medium strength, Aggressive, De
 The Squatters' Crown / Faction (High difficulty, Medium strength, Mobile Occupier). Occupy: You start the game with an additional army. All must begin the game placed inside your settlements. You do not control your settlements when you leave them. To collect taxes or use Pursuits, end your turn inside that Settlement. To Occupy a Settlement, begin a Battle adjacent to the city like a Siege — instead, you Battle against the Garrison and Armies at war with you or owned by the same owner. If you win (or there is no force to fight), move inside. In the Upkeep Phase, only pay upkeep on equipment. You count as having all Infrastructure of Occupied Settlements and always count as 3 Trading Pursuits. When you leave a Settlement, you may not re-enter it until you Occupy another Settlement and a Trade Agreement is signed.
 The Sublime Gate / Faction (Medium difficulty, Medium strength, Mercantile Military). Integrated Arms: You may Muster Retinues and Equipment from your Trade Partners' Pursuits (and Mastery Effects, if active) for their Cost.
 The Tunnellers / Faction (Low difficulty, Low strength, Mountain Passers). Tunnellers: You treat Mountain Territory like Grasslands for purposes of movement, and begin the game with a Mine Raw Pursuit (no ward, no upkeep, always active Mastery).
-The Undying Flame / Faction (Low difficulty, Low strength, Unconvinced). Martyrdom: Your Armies gain Immune Panic, but your armies continue to suffer −1 To Hit from Fatigue Tokens. Gain Faith +1 for every player you're at War with and every Battle where you lose 20 or more Retinues, win or loss.
+The Undying Flame / Faction (Low difficulty, Low strength, Unconvinced). Martyrdom: Your Armies gain Immune Break Check and Immune Panic, but your armies continue to suffer −1 from Fatigue Tokens, to a maximum of 6+. Gain Faith +1 for every player you're at War with and every Battle where you lose 20 or more Retinues, win or loss.
 The Velvet Hand / Faction (Medium difficulty, Medium strength, Generous Sponsor). Friends in High Places: At the beginning of the turn, players gain Faith +1 if they Supported an Envoy you Sent and it was Passed. And, if it was Endorsed, they Extort 500 gold per Era.
 The Verdant Kingdom / Faction (Low difficulty, High strength, Pure Economy). Peaceful & Inventive: You cannot declare war, enter Military Alliances, perform Cunning actions, or build Pursuits that require Prowess or Cunning Standing. In the Income step, gain 100 gold for each Craft Mastery Effect you have active.
 The Wandering Crown / Faction (High difficulty, Medium strength, Nomads). Wandering Nomads: Your armies function as settlements, classified as a Band, Tribe, or Horde and upgraded accordingly. You may have one additional army per Era, starting with two. Armies do not require troops to exist and cannot be besieged. Nomads cannot build infrastructure but may build pursuits. Raw Material pursuits within Reach are always considered active and do not take a settlement ward. Each army is considered to have a Muster Field. You may trade so long as your border touches another player's border. Armies count as settlements with a Reach of 3. When an army is destroyed, so is its settlement. You may begin a new army adjacent to any existing army by using either the Charter Settlement or Muster Army actions. Nomads do not pay any upkeep.
@@ -351,7 +351,7 @@ Unstoppable | Ignore the target shield's -1 to Strike; the target's Parry is -1 
 Unwieldy | Initiative cannot be improved by Tactics.
 Vassal | A player subordinated via Vassalization: their chartered settlements return to them, they mirror the Suzerain's Treaties, count as allied to the Suzerain, and cannot perform or be targeted by Diplomacy actions.
 vassalize | Win path (Edict): force other players into vassalage. See Vassalization rules.
-version | Renown v0.4.8.2.1.
+version | Renown v0.4.8.3.
 victory | See 'how to win' / 'edicts'.
 Village / Settlement (tier 1). Tax 2000, muster 10, build 1, wards 1, reach 1. 
 Vineyard | Pursuit (Husbandry). Innate: Natural / Mastery: +600 in Fall

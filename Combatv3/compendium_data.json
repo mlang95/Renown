@@ -1,5 +1,5 @@
 {
- "version": "0.4.8.2.1",
+ "version": "0.4.8.3",
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
@@ -36,9 +36,9 @@
   "Casualty": "A retinue removed from the field \u2014 from an unsaved Strike or a failed Panic or Break check.",
   "Field": "Your retinues in play \u2014 front line (up to 10) plus reserve (up to 5). Casualties leave the field at once, lowering its count.",
   "Endurance": "A side's stamina. Each side that fights loses 1 per Skirmish; at 0 it becomes Fatigued.",
-  "Fatigued": "A side at 0 Endurance. It cannot Parry, Riposte or Recover; each Skirmish its field takes a Break check, then it gains a Fatigue token.",
+  "Fatigued": "A side at 0 Endurance. Each Skirmish its field takes a Break check, then it gains a Fatigue token.",
   "Break check": "Taken by each Fatigued side's field every Skirmish, just before it gains its Fatigue token. Roll Morale (up to 5 dice, modified by Fatigue tokens); failures are casualties, but a Break check never triggers a Panic check. Unbreakable auto-passes.",
-  "Panic check": "Taken at most once per Skirmish by a side that suffered 5 or more casualties in that Skirmish, before it Strikes back. Roll Morale (up to 5 dice); Immune Panic auto-passes.",
+  "Panic check": "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish, after it Strikes back. Roll Morale (up to 5 dice); Immune Panic auto-passes.",
   "Morale": "How steady a retinue is when tested (lower is steadier; see the retinue table). Break and Panic checks roll it: a D6 per retinue in the field, up to 5 dice, each must meet its modified value; failures are casualties. If the modified value is ever 7+, the army Routs.",
   "Rout": "The army breaks and leaves the Battle (you lose it). Whenever an army's modified Morale value reaches 7 or more, it Routs automatically.",
   "Fall Back": "A controlled retreat that ends the Battle with at least one retinue left \u2014 a partial success.",
@@ -250,7 +250,7 @@
     ],
     [
      "Fatigued",
-     "A side at 0 Endurance. It cannot Parry, Riposte or Recover; each Skirmish its field takes a Break check, then it gains a Fatigue token."
+     "A side at 0 Endurance. Each Skirmish its field takes a Break check, then it gains a Fatigue token."
     ],
     [
      "Break check",
@@ -258,7 +258,7 @@
     ],
     [
      "Panic check",
-     "Taken at most once per Skirmish by a side that suffered 5 or more casualties in that Skirmish, before it Strikes back. Roll Morale (up to 5 dice); Immune Panic auto-passes."
+     "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish, after it Strikes back. Roll Morale (up to 5 dice); Immune Panic auto-passes."
     ],
     [
      "Morale",
@@ -1416,6 +1416,12 @@
      "Armies gain **Immune Unwieldy**"
     ],
     [
+     "Studium Generale",
+     "University + Academy",
+     "+1 **Influence** per **Established** Standing",
+     "May gain one **Sovereign Domain** effect without spending the Domain Points"
+    ],
+    [
      "Cipher Chamber",
      "University + Courier Network",
      "**Efficient University**; Once/turn when a player Sends an Envoy: that player must declare the specific Action they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action. .",
@@ -1442,7 +1448,7 @@
      "Ministry of Military Strategy",
      "University + War College",
      "**Efficient War College**; Always gains **Seize the Initiative**, and your opponent doesn't. Immune -1 to Strike from Tactics.",
-     "Gain +1I; your maximum initiative increases to 3. Riposte, Destroy Shield, Deadly, & Cleave also trigger on a natural 5."
+     "Gain +1I; your maximum initiative increases to 3. Deadly, & Cleave also trigger on a natural 5."
     ],
     [
      "Thieves' Guild",
@@ -1481,15 +1487,9 @@
      "Your Vote counts as 2 votes toward Domain selection during the Council Phase."
     ],
     [
-     "Studium Generale",
-     "University + Academy",
-     "+1 **Influence** per **Established** Standing",
-     "May gain one **Sovereign Domain** effect without spending the Domain Points"
-    ],
-    [
      "Advanced Blast Furnace",
      "Gilded Foundry + Master Workshop + Blacksmith + Stable",
-     "**Efficient Forge**; **Upkeep -500**; Your weapons gain -1 AP, incoming attack's AP is reduced by 1.",
+     "**Efficient Forge**; **Upkeep -500**",
      "**Crafted** Tier Unlocked"
     ],
     [
@@ -1982,7 +1982,7 @@
   ],
   [
    "The Undying Flame",
-   "Martyrdom: Your Armies gain Immune Panic, but your armies continue to suffer \u22121 To Hit from Fatigue Tokens. Gain Faith +1 for every player you're at War with and every Battle where you lose 20 or more Retinues, win or loss."
+   "Martyrdom: Your Armies gain Immune Break Check and Immune Panic, but your armies continue to suffer \u22121 from Fatigue Tokens, to a maximum of 6+. Gain Faith +1 for every player you're at War with and every Battle where you lose 20 or more Retinues, win or loss."
   ],
   [
    "The Verdant Kingdom",

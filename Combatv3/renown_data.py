@@ -1,6 +1,6 @@
 # renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
-VERSION = "0.4.8.2.1"
+VERSION = "0.4.8.3"
 # ── Keyword constants ─────────────────────────────────────────────────────
 # Rename a keyword here and it renames everywhere (GLOSSARY keys, tags, cards).
 STEADY          = "Steady"
@@ -78,9 +78,9 @@ GLOSSARY = {
     "Casualty":      "A retinue removed from the field — from an unsaved Strike or a failed Panic or Break check.",
     "Field":         "Your retinues in play — front line (up to 10) plus reserve (up to 5). Casualties leave the field at once, lowering its count.",
     "Endurance":     "A side's stamina. Each side that fights loses 1 per Skirmish; at 0 it becomes Fatigued.",
-    "Fatigued":      "A side at 0 Endurance. It cannot Parry, Riposte or Recover; each Skirmish its field takes a Break check, then it gains a Fatigue token.",
+    "Fatigued":      "A side at 0 Endurance. Each Skirmish its field takes a Break check, then it gains a Fatigue token.",
     "Break check":   "Taken by each Fatigued side's field every Skirmish, just before it gains its Fatigue token. Roll Morale (up to 5 dice, modified by Fatigue tokens); failures are casualties, but a Break check never triggers a Panic check. Unbreakable auto-passes.",
-    "Panic check":   "Taken at most once per Skirmish by a side that suffered 5 or more casualties in that Skirmish, before it Strikes back. Roll Morale (up to 5 dice); Immune Panic auto-passes.",
+    "Panic check":   "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish, after it Strikes back. Roll Morale (up to 5 dice); Immune Panic auto-passes.",
     "Morale":        "How steady a retinue is when tested (lower is steadier; see the retinue table). Break and Panic checks roll it: a D6 per retinue in the field, up to 5 dice, each must meet its modified value; failures are casualties. If the modified value is ever 7+, the army Routs.",
     "Rout":          "The army breaks and leaves the Battle (you lose it). Whenever an army's modified Morale value reaches 7 or more, it Routs automatically.",
     "Fall Back":     "A controlled retreat that ends the Battle with at least one retinue left — a partial success.",
@@ -1180,7 +1180,7 @@ NODES = {
         "unlock": "Sovereign Prowess",
         "mastery_req": "University + War College",
         "innate": "Always gains **Seize the Initiative**, and your opponent doesn't. Immune -1 to Strike from Tactics.",
-        "mastery": "Gain +1I; your maximum initiative increases to 3. Riposte, Destroy Shield, Deadly, & Cleave also trigger on a natural 5.",
+        "mastery": "Gain +1I; your maximum initiative increases to 3. Deadly, & Cleave also trigger on a natural 5.",
         "efficient": "War College",
         "builds_into": [],
         "monument": True,
@@ -1224,7 +1224,7 @@ NODES = {
         "engine": {"alias": "Preceptory", "cost": 1, "prereqs": [], "domain": {"Piety": 10, "Prowess": 6}, "innate_tags": ["Immune Panic"], "mastery_tags": [], "mastery_req": ["Monastery", "Pilgrimage Site", "Hospitaller", "Abbey"]}},
     "Manor House": {
         "type": "Monument",
-        "unlock": "Established Industry",
+        "unlock": "Sovereign Industry",
         "mastery_req": "Hamlet + Market Square",
         "innate": "Gain +100 gold for each active natural specialization.",
         "mastery": "Gain +100 gold for each active energy specialization.",
@@ -1240,18 +1240,18 @@ NODES = {
         "builds_into": [],
         "monument": True},
     "Studium Generale": {
-        "type": "Monument",
+        "type": "Power",
         "unlock": "4 Established",
         "mastery_req": "University + Academy",
         "innate": "+1 **Influence** per **Established** Standing",
         "mastery": "May gain one **Sovereign Domain** effect without spending the Domain Points",
         "builds_into": [],
-        "monument": True},
+        "monument": False},
     "Advanced Blast Furnace": {
         "type": "Monument",
         "unlock": "Sovereign Industry",
         "mastery_req": "Gilded Foundry + Master Workshop + Blacksmith + Stable",
-        "innate": "**Upkeep -500**; Your weapons gain -1 AP, incoming attack's AP is reduced by 1.",
+        "innate": "**Upkeep -500**",
         "mastery": "**Crafted** Tier Unlocked",
         "efficient": "Forge",
         "builds_into": [],
@@ -1460,8 +1460,8 @@ FACTIONS = {'The Battering Ram': {'inspiration': 'Siege-focused',
                        'feel': 'Unconvinced',
                        'difficulty': 'Low',
                        'strength': 'Low',
-                       'mechanic': 'Martyrdom: Your Armies gain Immune Panic, but your armies continue to '
-                                   'suffer −1 To Hit from Fatigue Tokens. Gain Faith +1 for every player '
+                       'mechanic': 'Martyrdom: Your Armies gain Immune Break Check and Immune Panic, but your armies continue to '
+                                   'suffer −1 from Fatigue Tokens, to a maximum of 6+. Gain Faith +1 for every player '
                                    "you're at War with and every Battle where you lose 20 or more Retinues, "
                                    'win or loss.',
                        'pair': "Preceptory of the Knight's Templar, Inquisitorial Palace",
