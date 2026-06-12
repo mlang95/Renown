@@ -1,6 +1,6 @@
 # renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
-VERSION = "0.4.8.3"
+VERSION = "0.4.8.2.2"
 # ── Keyword constants ─────────────────────────────────────────────────────
 # Rename a keyword here and it renames everywhere (GLOSSARY keys, tags, cards).
 STEADY          = "Steady"
@@ -811,7 +811,7 @@ NODES = {
         "efficient": "Infirmary",
         "builds_into": ["Preceptory of the Knight's Templar"],
         "monument": False,
-        "escalation": {"standing": "Established Piety", "ranks": {1: "Recover +1 / +1"}, "requires_all": ["Infirmary"], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Established Piety", "ranks": {1: "Heal 4; Recover 4+"}, "requires_all": ["Infirmary"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Apothecary", "Infirmary"], "domain": {"Piety": 6}, "innate_tags": ["Recover 5"], "mastery_tags": ["Recover 4"], "mastery_req": ["Apothecary", "Infirmary"]}},
     "Jester's Court": {
         "type": "Civic",
@@ -896,7 +896,7 @@ NODES = {
         "efficient": "Alchemy",
         "builds_into": ["Infirmary", "Hospitaller"],
         "monument": False,
-        "escalation": {"standing": "Untested Piety", "ranks": {1: "Heal 4"}, "requires_all": [], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Untested Piety", "ranks": {1: "Recover 6"}, "requires_all": [], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": [], "mastery_tags": ["Apothecary Heal"], "mastery_req": ["Herb Garden"]}},
     "Infirmary": {
         "type": "Civic",
@@ -907,7 +907,7 @@ NODES = {
         "efficient": "Apothecary",
         "builds_into": ["Hospitaller"],
         "monument": False,
-        "escalation": {"standing": "Untested Piety", "ranks": {1: "Recover 6"}, "requires_all": ["Apothecary"], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Untested Piety", "ranks": {1: "Recover 5"}, "requires_all": ["Apothecary"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Apothecary"], "domain": {}, "innate_tags": [], "mastery_tags": ["Recover 6"], "mastery_req": ["Alchemy", "Herb Garden"], "efficient": "Apothecary", "upkeep_effects": [{"flat": 100}]}},
     "Supply Depot": {
         "type": "Civic",
@@ -1184,7 +1184,7 @@ NODES = {
         "efficient": "War College",
         "builds_into": [],
         "monument": True,
-        "escalation": {"standing": "Sovereign Prowess", "ranks": {1: "Always Seize the Initiative; ignore -1 to Strike from Tactics", 2: "Effects that trigger on a natural 6 also trigger on a natural 5, so long as the natural 5 would be a successful roll. Gain +1 Initiative; your maximum Initiative is now +3"}, "requires_all": ["War College"], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Sovereign Prowess", "ranks": {1: "Always Seize the Initiative; Immune -1 to Strike from Tactics", 2: "Gain +1I; your maximum initiative increases to 3. Deadly, & Cleave also trigger on a natural 5."}, "requires_all": ["War College"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["University", "War College"], "domain": {"Prowess": 10}, "innate_tags": ["Seize: first", "Immune Tactic TH"], "mastery_tags": ["Crit 5", "+1I", "MaxInit3"], "mastery_req": ["University", "War College"]}},
     "Thieves' Guild": {
         "type": "Monument",
@@ -1276,7 +1276,7 @@ NODES = {
         "mastery": "Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own.",
         "builds_into": [],
         "monument": True,
-        "escalation": {"standing": "Sovereign Cunning", "ranks": {1: "See enemy Tactic before choosing; mastery forces reveal"}, "requires_all": ["Toxicarium"], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Sovereign Cunning", "ranks": {1: "See enemy Tactic before choosing"}, "requires_all": ["Toxicarium"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Caravanery", "Cipher Chamber"], "domain": {"Cunning": 10}, "innate_tags": ["Outrider: once"], "mastery_tags": ["Outrider: every"], "mastery_req": ["Caravanery", "Cipher Chamber"]}}
 }
 

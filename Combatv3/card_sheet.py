@@ -32,6 +32,23 @@ from reportlab.lib.colors import black, grey, HexColor
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase.pdfmetrics import stringWidth
 
+# ---------- Symbol font ----------
+# Keyword symbols need glyphs Helvetica lacks (it renders missing glyphs as a
+# black box). Register EB Garamond for the symbol cells; fall back to Helvetica
+# if the fonts folder isn't present. SYM_FONT is used wherever a symbol is drawn.
+import os as _os
+from reportlab.pdfbase import pdfmetrics as _pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont as _TTFont
+SYM_FONT = "Helvetica-Bold"
+try:
+    _fdir = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "fonts")
+    _fpath = _os.path.join(_fdir, "EBGaramond-Bold.ttf")
+    if _os.path.exists(_fpath):
+        _pdfmetrics.registerFont(_TTFont("EBGaramondSym", _fpath))
+        SYM_FONT = "EBGaramondSym"
+except Exception:
+    SYM_FONT = "Helvetica-Bold"
+
 # ---------- Layout ----------
 CARD_W = 2.5 * inch
 CARD_H = 3.5 * inch
@@ -201,9 +218,9 @@ TIER_MARK = {"Crude": "1\u00b7Cr", "Cast": "2\u00b7Ca", "Wrought": "3\u00b7W",
 # same thing on every card. Concise definitions sized for card footnotes.
 KEYWORD_SYMBOL = {
     "Deadly": "\u2020", "Cleave": "\u2021", "Steady": "*", "Unwieldy": "\u00b6",
-    "2H": "\u00a7", "Unstoppable": "\u25aa", "Destroy Shield": "\u25c6",
-    "Deflect": "\u2261", "Nimble": "\u25b2", "One Shot": "\u2299",
-    "-1 to Strike": "\u2212", "Immune Destroy Shield": "\u2298", "Unbreakable": "\u2605",
+    "2H": "\u00a7", "Unstoppable": "\u00bb", "Destroy Shield": "\u25c6",
+    "Deflect": "\u00ac", "Nimble": "\u25b2", "One Shot": "\u00b0",
+    "-1 to Strike": "\u2212", "Immune Destroy Shield": "\u00d8", "Unbreakable": "#",
 }
 KEYWORD_DEF = {
     "Deadly": "nat-6 Strike: AP -5; only Parry/Recover on 6",
@@ -211,14 +228,14 @@ KEYWORD_DEF = {
     "Steady": "Init can't be lowered by Tactics",
     "Unwieldy": "Init can't be raised by Tactics",
     "2H": "no Shield",
-    "Unstoppable": "ignore shield -1 to Strike; target -1 Parry",
+    "Unstoppable": "ignore shield -1 to Strike; target -1 Parry, max 6+",
     "Destroy Shield": "nat-6 Strike: target loses Shield",
-    "Deflect": "vs ranged: -1 Parry, no Riposte",
+    "Deflect": "vs ranged: -1 Parry, no Riposte, max 6+",
     "Nimble": "+1 Init, Skirmish 1",
     "One Shot": "Skirmish 1 only",
     "-1 to Strike": "attackers take -1 to Strike",
     "Immune Destroy Shield": "shield can't be destroyed",
-    "Unbreakable": "no Break checks while Fatigued",
+    "Unbreakable": "Immune Break checks",
 }
 
 
@@ -299,20 +316,20 @@ def _draw_equipment_block(c, x, cur_y, inner_w, eq_items, label):
             c.drawString(x + PAD + 78, cur_y, ap)
             c.drawString(x + PAD + 112, cur_y, init)
             c.drawString(x + PAD + 138, cur_y, morale)
-            c.setFont("Helvetica-Bold", 6.8); c.drawString(x + PAD + 162, cur_y, syms)
+            c.setFont(SYM_FONT, 6.8); c.drawString(x + PAD + 162, cur_y, syms)
         else:
             c.setFont("Helvetica", 5.8)
             c.drawString(x + PAD + 70, cur_y, TIER_MARK.get(d.get("tier"), ""))
             c.setFont("Helvetica", 6.3)
             c.drawString(x + PAD + 92, cur_y, ap)
             c.drawString(x + PAD + 108, cur_y, init)
-            c.setFont("Helvetica-Bold", 6.8); c.drawString(x + PAD + 128, cur_y, syms)
+            c.setFont(SYM_FONT, 6.8); c.drawString(x + PAD + 128, cur_y, syms)
         cur_y -= row_h
     if kw_sym:
         cur_y -= 2
         for kw, sym in kw_sym.items():
             definition = KEYWORD_DEF.get(kw, "")
-            c.setFont("Helvetica-Bold", 5.5); c.drawString(x + PAD, cur_y, sym)
+            c.setFont(SYM_FONT, 5.5); c.drawString(x + PAD, cur_y, sym)
             c.setFont("Helvetica", 5.5)
             c.drawString(x + PAD + 7, cur_y, f"{kw}: {definition}" if definition else kw)
             cur_y -= 6.5
@@ -562,19 +579,6 @@ def draw_crop_marks(c):
         c.line(MARGIN_X - gap, gy, MARGIN_X - gap - tick, gy)
         c.line(PAGE_W - MARGIN_X + gap, gy, PAGE_W - MARGIN_X + gap + tick, gy)
     c.setStrokeColor(black)
-    _stamp_version(c)
-
-
-def _stamp_version(c):
-    """Small grey version stamp from renown_data.VERSION, bottom-right of each page."""
-    try:
-        from renown_data import VERSION
-    except Exception:
-        return
-    c.setFillColor(grey)
-    c.setFont("Helvetica", 6)
-    c.drawRightString(PAGE_W - MARGIN_X, MARGIN_Y * 0.45, f"Renown v{VERSION}")
-    c.setFillColor(black)
 
 
 def _eff_innate(n):
@@ -596,15 +600,34 @@ def _rows_from_renown_data(mode="renown", players=1):
         copies = card_copies.copy_map(mode, players)
     rows = []
     for name, n in get_data(mode).items():
-        row = _norm_row({
-            "Pursuits": name,
-            "Type": n.get("type", ""),
-            "Unlock Requirement": n.get("unlock", ""),
-            "Mastery Requirement": n.get("mastery_req", ""),
-            "Innate Effects": _eff_innate(n),
-            "Mastery Effect": n.get("mastery", ""),
-            "Builds Into": ", ".join(n.get("builds_into", [])),
-        })
+        if mode == "escalation":
+            # Combat cards: text comes from the escalation.ranks dict, NOT the
+            # full-game innate/mastery. rank 1 -> INNATE, rank 2 -> MASTERY.
+            # Non-combat type/builds-into are dropped to leave room for the
+            # equipment table.
+            esc = n.get("escalation", {}) or {}
+            ranks = esc.get("ranks", {}) or {}
+            innate_txt  = ranks.get(1, "") or ""
+            mastery_txt = ranks.get(2, "") or ""
+            row = _norm_row({
+                "Pursuits": name,
+                "Type": "",
+                "Unlock Requirement": esc.get("standing", n.get("unlock", "")),
+                "Mastery Requirement": n.get("mastery_req", ""),
+                "Innate Effects": innate_txt,
+                "Mastery Effect": mastery_txt,
+                "Builds Into": "",
+            })
+        else:
+            row = _norm_row({
+                "Pursuits": name,
+                "Type": n.get("type", ""),
+                "Unlock Requirement": n.get("unlock", ""),
+                "Mastery Requirement": n.get("mastery_req", ""),
+                "Innate Effects": _eff_innate(n),
+                "Mastery Effect": n.get("mastery", ""),
+                "Builds Into": ", ".join(n.get("builds_into", [])),
+            })
         rows.extend([row] * (copies[name] if copies else 1))
     return rows
 

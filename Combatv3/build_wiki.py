@@ -138,6 +138,11 @@ def nav(current=""):
         it.append(f"<a href='{uu}'{' class=active' if current==uu else ''}>{label}</a>")
     it.append(f"<a href='glossary.html'{' class=active' if current=='glossary.html' else ''}>Glossary</a>")
     if FACTIONS: it.append(f"<a href='factions.html'{' class=active' if current=='factions.html' else ''}>Factions</a>")
+    it.append('<div class="navhead">Escalation</div>')
+    for label,uu in [("Overview","escalation.html"),("Battle Rules","escalation-rules.html"),
+                     ("Combat Pursuits","escalation-pursuits.html"),("Tactic Matrix","tactic-matrix-ref.html"),
+                     ("Equipment","equipment-ref.html"),("Combat Keywords","keywords-ref.html")]:
+        it.append(f"<a href='{uu}'{' class=active' if current==uu else ''}>{label}</a>")
     return "\n".join(it)
 
 def page(title,body,current=""):
@@ -461,6 +466,99 @@ if hasattr(rd,"TACTIC_MATRIX") and hasattr(rd,"TACTICS"):
         "<p style='margin-top:16px;font-size:13px'>The seven Tactics: "+", ".join(f"<a class='term' href='glossary.html'>{html.escape(t)}</a>" for t in tt)+".</p>"]
     open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Tactic Matrix","".join(tm),u))
     search_index.append({"title":"Tactic Matrix","url":u,"text":"tactic matrix scout ambush flank charge fighting defensive formation fall back initiative"})
+
+# ════════════ ESCALATION SECTION ════════════
+# Landing page (hub) + Battle Rules (prose, mirrors the PDF) + Combat Pursuits (data-driven from escalation.ranks).
+u="escalation.html"
+esc_body=["<h1>Escalation Campaign</h1>",
+ "<p>A fast, battle-driven mode for 2+ players over ten or more turns. Every player runs the same starting army; "
+ "what carries between Battles is your Standings, Pursuits, unlocks, and Victory Points.</p>",
+ "<h2>In this section</h2>",
+ "<table class='pursuits'><tbody>",
+ "<tr><td><a href='escalation-rules.html'>Battle Rules</a></td><td>Setup, turn sequence, victory points, and the step-by-step Skirmish walkthrough.</td></tr>",
+ "<tr><td><a href='escalation-pursuits.html'>Combat Pursuits</a></td><td>The pursuits available in Escalation, by Domain, with their unlock and rank effects.</td></tr>",
+ "<tr><td><a href='tactic-matrix-ref.html'>Tactic Matrix</a></td><td>The 7\u00d77 grid of Tactic interactions revealed each Skirmish.</td></tr>",
+ "<tr><td><a href='equipment-ref.html'>Equipment / Armory</a></td><td>Retinues, weapons, ranged, shields, and armor stats.</td></tr>",
+ "<tr><td><a href='keywords-ref.html'>Combat Keywords</a></td><td>Deadly, Cleave, Poison, Parry, and the rest \u2014 what every keyword does.</td></tr>",
+ "<tr><td><a href='domain-board-ref.html'>Domain Board</a></td><td>Standing effects and the influence track.</td></tr>",
+ "</tbody></table>"]
+open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Escalation Campaign","".join(esc_body),u))
+search_index.append({"title":"Escalation Campaign","url":u,"text":"escalation campaign combat battle mode overview"})
+
+# Battle Rules (prose, mirrors build_escalation_campaign_pdf.py — keep in sync if the PDF rules change)
+u="escalation-rules.html"
+er=["<h1>Escalation \u2014 Battle Rules</h1>"]
+er.append("<h2>Dice Principle</h2>")
+er.append("<p>A successful roll is written <strong>X+</strong>: roll that number or higher on a d6. Each <strong>\u22121</strong> penalty "
+          "requires your roll to be one higher; each <strong>+1</strong> bonus, one lower. If a 7+ is ever needed it automatically fails; "
+          "if a 1 or less is needed it automatically passes (but if a natural result could still trigger an effect, you still roll). "
+          "A <strong>natural</strong> roll is the die before modifiers; a <strong>natural 6</strong> triggers Cleave, Deadly, Destroy Shield "
+          "and Riposte (and a natural-6 Save fails against Poison).</p>")
+er.append("<h2>Setup</h2>")
+er.append("<p>Each player starts with <strong>25 Levy retinues, Farm Tools, Cloth armor, no shield</strong>. All four Domains start "
+          "Untested. No Pursuits, 0 VP. Every Battle is fought at an army size of 25; Standings, Pursuits, unlocks and VP carry over.</p>")
+er.append("<h2>Turn Sequence</h2>")
+er.append("<p><strong>1 \u2014 Battle.</strong> Pair off and fight one Battle (rotate pairings each turn).</p>")
+er.append(_grid(["Result","VP"],[
+    ["Decisive Win: reduce the enemy army to zero or cause a Rout.","+3"],
+    ["Minor Victory: the enemy army Fell Back.","+2"],
+    ["Lose, but end it via a successful Fall Back with 1+ retinue remaining.","+1"],
+    ["Lose any other way (wiped out, Routed, failed Fall Back).","0"]], u))
+er.append("<p><strong>2 \u2014 Advancement</strong> (all players simultaneously): unlock one Domain Standing (advance one Domain one step, "
+          "if the prior standing is unlocked); perform one Build Action (construct one Pursuit you qualify for); and you may change your "
+          "army to any composition you have unlocked.</p>")
+er.append("<h2>Battle Walkthrough</h2>")
+er.append("<p>Roll off for Initiative (<strong>+1 if you won your last Battle</strong>, re-roll ties). The higher roller Seizes the "
+          "Initiative: they are the Attacker and gain +1 Initiative in the first Skirmish. A Battle is a series of Skirmishes \u2014 repeat "
+          "these steps until it ends:</p>")
+_steps=[
+ ("Form the Field","Place up to 10 retinues in the front line (one attack each) plus up to 5 in reserve."),
+ ("Choose Tactics","Both players secretly pick one Tactic, then reveal together."),
+ ("Declare equipment","The Attacker names equipment first; the Defender responds."),
+ ("Initiative","Runs \u22122 to +2. Higher Strikes first. At \u22122 or lower you Blunder (Strike can't be improved beyond 6+)."),
+ ("Roll to Strike","Roll a d6 per front-line retinue against the to-Strike number (plus bonuses, minus 1 per Fatigue token, to a max of 6+, then other penalties)."),
+ ("Strike and defend","Resolve Strikes \u2014 Parry (resolve Ripostes), then Save, then Recover. Casualties leave the field at once."),
+ ("Panic check","A side taking 5+ casualties this Skirmish takes a Panic check (d6 per retinue, up to 5 dice); a value modified to 7+ Routs the army. At most once per Skirmish."),
+ ("Strike back","The other player Strikes the same way, if able."),
+ ("Lose Endurance","Each army that fought loses 1 Endurance; at 0 it is Fatigued."),
+ ("Break check","Each Fatigued field rolls Morale (up to 5 dice) before gaining its token; failures are casualties; never triggers Panic. 7+ Routs."),
+ ("Fatigue token","Each Fatigued side gains a token: \u22121 to Strike, Morale, Parry, Recover (capped 6+ except Morale); they stack."),
+ ("End the Skirmish","The Battle ends if a side hits 0, Routs, or Falls Back. You cannot Fall Back in the first two Skirmishes."),
+]
+er.append("<ol>")
+for h,b in _steps:
+    er.append(f"<li><strong>{html.escape(h)}.</strong> {autolink(md_inline(b),u)}</li>")
+er.append("</ol>")
+open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Escalation Battle Rules","".join(er),u))
+search_index.append({"title":"Escalation Battle Rules","url":u,"text":"escalation battle rules setup turn sequence skirmish walkthrough victory points dice"})
+
+# Combat Pursuits (data-driven from escalation.ranks, grouped by Domain)
+u="escalation-pursuits.html"
+esc_nodes=rd.get_data("escalation")
+from collections import defaultdict as _dd
+_groups=_dd(list)
+for nm,n in esc_nodes.items():
+    e=n.get("escalation",{}) or {}
+    st=e.get("standing","")
+    dom=next((d for d in ["Industry","Prowess","Piety","Cunning"] if d in st),"Other")
+    _groups[dom].append((nm,e.get("standing",""),e.get("ranks",{}) or {},n.get("mastery_req",""),n.get("monument")))
+cp=["<h1>Escalation \u2014 Combat Pursuits</h1>",
+    "<p>The pursuits available in the Escalation Campaign, grouped by Domain. <strong>Unlock</strong> is the Domain Standing required to build; "
+    "<strong>Mastery Req</strong> lists the pursuits needed to master it. Rank&nbsp;1 is the innate effect; Rank&nbsp;2 (where present) is the mastery effect.</p>"]
+DOM_COLOR={"Industry":"#1f4e8c","Prowess":"#9e1b1b","Piety":"#b89400","Cunning":"#1a1a1a"}
+for dom in ["Industry","Prowess","Piety","Cunning"]:
+    if dom not in _groups: continue
+    cp.append(f"<h2 style='color:{DOM_COLOR[dom]}'>{dom}</h2>")
+    rows=[]
+    for nm,st,ranks,mreq,mon in sorted(_groups[dom], key=lambda r:r[1]):
+        r1=ranks.get(1,"") or ""
+        r2=ranks.get(2,"") or ""
+        label=f"{nm} \u2605" if mon else nm
+        rows.append([label, st, (mreq or "\u2014"), r1, (r2 or "\u2014")])
+    cp.append(_grid(["Pursuit","Unlock","Mastery Req","Rank 1 (Innate)","Rank 2 (Mastery)"], rows, u))
+open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Escalation Combat Pursuits","".join(cp),u))
+search_index.append({"title":"Escalation Combat Pursuits","url":u,"text":"escalation combat pursuits industry prowess piety cunning ranks mastery monument"})
+
 
 # Combat Keywords (the keyword subset of glossary)
 u="keywords-ref.html"
