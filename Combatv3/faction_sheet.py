@@ -369,6 +369,19 @@ def draw_crop_marks(c):
         c.line(MARGIN_X - gap, gy, MARGIN_X - gap - tick, gy)
         c.line(PAGE_W - MARGIN_X + gap, gy, PAGE_W - MARGIN_X + gap + tick, gy)
     c.setStrokeColor(black)
+    _stamp_version(c)
+
+
+def _stamp_version(c):
+    """Small grey version stamp from renown_data.VERSION, bottom-right of each page."""
+    try:
+        from renown_data import VERSION
+    except Exception:
+        return
+    c.setFillColor(grey)
+    c.setFont("Helvetica", 6)
+    c.drawRightString(PAGE_W - MARGIN_X, MARGIN_Y * 0.45, f"Renown v{VERSION}")
+    c.setFillColor(black)
 
 
 def _rows_from_renown_data():

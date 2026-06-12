@@ -8,6 +8,14 @@ cd /d "C:\Users\Matt\OneDrive\Desktop\Game\Combatv3"
 REM ---------------------------------------------------------------- EDIT THESE
 set PY="C:\Users\Matt\anaconda3\envs\kotr\python.exe"
 set GIT="C:\Program Files\Git\cmd\git.exe"
+REM VERSION : pulled from renown_data.py (single source of truth)
+%PY% -c "import renown_data,sys; sys.stdout.write(renown_data.VERSION)" > "%TEMP%\renown_ver.txt"
+set /p VERSION=<"%TEMP%\renown_ver.txt"
+del "%TEMP%\renown_ver.txt"
+REM PUSH_REPO : 1 = commit+tag+push the whole Game repo, 0 = don't
+set PUSH_REPO=1
+REM REPO_MSG : short description of what changed this version
+set REPO_MSG=wiki + reference pages, Mill merge, Cipher Chamber
 REM MODE : renown | escalation | both
 set MODE=both
 REM WHAT : cards | docs | wiki | both
@@ -76,7 +84,19 @@ pushd "%WIKI_REPO%"
 %GIT% commit -m "wiki rebuild" || echo   (nothing changed)
 %GIT% push
 popd
-goto end
+:pushrepo
+REM ---- optional: commit + tag + push the WHOLE project repo ----
+if "%PUSH_REPO%"=="1" (
+  echo --- Pushing main repo as v%VERSION% ---
+  pushd "C:\Users\Matt\OneDrive\Desktop\Game"
+  %GIT% add -A
+  %GIT% commit -m "v%VERSION%: %REPO_MSG%" || echo   (nothing to commit)
+  %GIT% tag -a v%VERSION% -m "%REPO_MSG%"
+  %GIT% push
+  %GIT% push origin v%VERSION%
+  popd
+)
+
 
 :end
 echo.

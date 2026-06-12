@@ -163,6 +163,7 @@ def build_payload():
     infra, wonders = infra_tables()
     tm_header, tm_rows = tactic_matrix_grid()
     return {
+        "version": getattr(rd, "VERSION", ""),
         "glossary": rd.GLOSSARY,
         "glossary_categorized": glossary_categorized(),
         "standing_effects": standing_effects_rows(),

@@ -28,6 +28,10 @@ def build(out_path):
                      "Requires bordering, Dirt Road, and a Trade Agreement.")
     # monument cap (commonly asked)
     lines.append("monument cap | You may build at most 2 Monuments.")
+    # version (single source of truth)
+    _ver = getattr(rd, "VERSION", "")
+    if _ver:
+        lines.append(f"version | Renown v{_ver}.")
     # tier ladder (matches the card markers)
     lines.append("tiers | 1.Cr Crude (start) -> 2.Ca Cast (Furnace) -> 3.W Wrought "
                  "(Blacksmith) -> 4.F Forged (Forge) -> 5.Cf Crafted (ABF).")

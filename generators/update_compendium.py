@@ -215,8 +215,8 @@ def _build_table_map(doc, specs_by_name, eq_by_cat_name=None):
         if len(t.rows) > 1 and t.rows[1].cells:
             first_data_name = t.rows[1].cells[0].text.strip().replace("\u2019", "'")
 
-        # Spec tables: 4 columns starting with 'Specialization' or 'Pursuit'
-        if len(header) >= 4 and header[0].lower() in ('specialization', 'pursuit') and \
+        # Spec tables: 4 columns starting with 'Specialization'
+        if len(header) >= 4 and header[0].lower() == 'specialization' and \
            'mastery unlock' in header[1].lower():
             spec_type = None
             for row in t.rows[1:]:
@@ -349,9 +349,6 @@ def update_infrastructure_table(doc, infra_rows, table_map):
     for row in table.rows[1:]:
         cells = row.cells
         name = cells[0].text.strip()
-        # Skip the generic 'Wonder' placeholder row — Wonders are tracked in their own table.
-        if name == "Wonder":
-            continue
         seen.add(name)
         if name not in infra_by_name:
             issues.append(f"Table {infra_table_idx}: docx row '{name}' not in infrastructure.csv")

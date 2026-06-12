@@ -54,7 +54,7 @@ Cleave | On a natural 6 to Strike, you may roll an additional Strike die at your
 Cloth | Armor (Crude). Save 6+. Keywords: none.
 Coliseum | Pursuit (Civic). Innate: Faith +1 while at War / Mastery: Unlocks Man-at-Arms for Muster
 College of Engineering | Pursuit (Power). Innate: No Upkeep on Sophisticated Infrastructure / Mastery: Build Timer −2
-Colossus | Wonder. Upkeep 200 (per Wonder). You may support your own prowess envoys before other players vote. Armies move Speed +2 Siege Timer âˆ’2 gain Immune Blocked.
+Colossus | Wonder. Upkeep 200 (per Wonder). You may support your own prowess envoys before other players vote. Armies move Speed +2 Siege Timer -2 gain Immune Blocked.
 combat | See 'how to attack'. Battles use the Escalation skirmish system.
 Common Land | Pursuit (Raw Materials). Innate: +500, Natural, Doubt +1
 Condemned | An Envoy whose net Influence is -3 or less: it fails and you resolve that Domain's Condemn effect.
@@ -351,6 +351,7 @@ Unstoppable | Ignore the target shield's -1 to Strike; the target's Parry is -1 
 Unwieldy | Initiative cannot be improved by Tactics.
 Vassal | A player subordinated via Vassalization: their chartered settlements return to them, they mirror the Suzerain's Treaties, count as allied to the Suzerain, and cannot perform or be targeted by Diplomacy actions.
 vassalize | Win path (Edict): force other players into vassalage. See Vassalization rules.
+version | Renown v0.4.8.2.1.
 victory | See 'how to win' / 'edicts'.
 Village / Settlement (tier 1). Tax 2000, muster 10, build 1, wards 1, reach 1. 
 Vineyard | Pursuit (Husbandry). Innate: Natural / Mastery: +600 in Fall

@@ -17,6 +17,7 @@ Usage: python build_wiki.py [RULES.md] [out_dir]
 import sys, os, re, html, json
 sys.path.insert(0, ".")
 import renown_data as rd
+_VERSION = str(getattr(rd, "VERSION", ""))
 
 SRC = sys.argv[1] if len(sys.argv) > 1 else "RULES.md"
 OUTDIR = sys.argv[2] if len(sys.argv) > 2 else "wiki"
@@ -133,7 +134,7 @@ def nav(current=""):
                      ("Infrastructure","infrastructure-ref.html"),("Wonders","wonders-ref.html"),
                      ("Settlements","settlements-ref.html"),("Eras","eras-ref.html"),
                      ("Public Order","public-order-ref.html"),("Domain Board","domain-board-ref.html"),
-                     ("Seasons","seasons-ref.html"),("Reference Tables","reference-tables.html")]:
+                     ("Seasons","seasons-ref.html"),("Tactic Matrix","tactic-matrix-ref.html"),("Reference Tables","reference-tables.html")]:
         it.append(f"<a href='{uu}'{' class=active' if current==uu else ''}>{label}</a>")
     it.append(f"<a href='glossary.html'{' class=active' if current=='glossary.html' else ''}>Glossary</a>")
     if FACTIONS: it.append(f"<a href='factions.html'{' class=active' if current=='factions.html' else ''}>Factions</a>")
@@ -144,7 +145,8 @@ def page(title,body,current=""):
 <title>{html.escape(title)} — Renown</title><link rel="stylesheet" href="wiki.css"></head><body>
 <input id="q" placeholder="Search…" autocomplete="off"><div id="results"></div>
 <div class="wrap"><nav>{nav(current)}</nav><main>{body}</main></div>
-<script src="search.js"></script></body></html>"""
+<script src="search.js"></script>
+<div class="versionstamp">Renown v{_VERSION}</div></body></html>"""
 
 search_index=[]
 
@@ -344,13 +346,14 @@ if hasattr(rd, "PUBLIC_ORDER"):
 if hasattr(rd, "DOMAIN_BOARD"):
     u="domain-board-ref.html"
     db=rd.DOMAIN_BOARD
+    DOM_ORDER=["Industry","Prowess","Piety","Cunning"]
+    TIER_ORDER=["Rising","Established","Sovereign"]
     rows=[]
-    for dom in ["Industry","Prowess","Cunning","Piety"]:
+    for dom in DOM_ORDER:
         if dom in db:
-            for tier in ["Rising","Established","Sovereign"]:
-                rows.append([dom, tier, db[dom].get(tier,"")])
-    body="<h1>Domain Board</h1><p>Empire-side standing effects unlocked by raising a Domain.</p>"
-    body+=_grid(["Domain","Standing","Effect"], rows, u)
+            rows.append([dom]+[db[dom].get(tier,"") for tier in TIER_ORDER])
+    body="<h1>Domain Board</h1><p>Empire-side standing effects unlocked by raising a Domain. Rows are Domains; columns are Standings.</p>"
+    body+=_grid(["Domain"]+TIER_ORDER, rows, u)
     mi=db.get("max_influence_per_vote",{}); inn=db.get("innate_influence_own_envoys",{})
     body+="<h2>Influence by Standing</h2>"
     body+=_grid(["Standing","Max Influence / Vote","Innate Influence (own Envoys)"],
@@ -406,8 +409,58 @@ if hasattr(rd,"TRADE_RULES"):
     tr=rd.TRADE_RULES
     rt.append("<h2>Trade Rules</h2>")
     rt.append(_kv_table([("Income per Craft", tr.get("income_per_craft","")),("Requirements", tr.get("requirements","")),("No trade in", tr.get("no_trade_season","")),("Tax collected in", tr.get("tax_season",""))]))
+if hasattr(rd,"BUILD_TIMERS"):
+    rt.append("<h2>Build Timers</h2><p>Turns until a build completes.</p>")
+    bt_rows=[]
+    for k,v in rd.BUILD_TIMERS.items():
+        if isinstance(v,dict):
+            for tier,n in v.items(): bt_rows.append([f"{k} ({tier})", n])
+        else:
+            bt_rows.append([k, v])
+    rt.append(_grid(["Build","Turns"], bt_rows, u))
+if hasattr(rd,"BANDIT_GROWTH_PER_ERA"):
+    rt.append("<h2>Bandit Growth per Era</h2>")
+    rt.append(_grid(["Era","Retinues/Turn"], [[k,v] for k,v in rd.BANDIT_GROWTH_PER_ERA.items()], u))
+    rt.append(_kv_table([("Camp starting size", getattr(rd,"BANDIT_CAMP_START","")),("Becomes Army at", getattr(rd,"BANDIT_ARMY_THRESHOLD",""))]))
+if hasattr(rd,"TIER_UNLOCK"):
+    rt.append("<h2>Equipment Tier Ladder</h2><p>Each tier is unlocked by the named Industry node.</p>")
+    rt.append(_grid(["Tier","Unlocked by"], [[t,(rd.TIER_UNLOCK.get(t) or "Starting")] for t in getattr(rd,"TIERS",list(rd.TIER_UNLOCK))], u))
+if hasattr(rd,"STANDING_EFFECTS"):
+    rt.append("<h2>Combat Standing Effects</h2><p>Battlefield effects granted by Domain Standing (Escalation).</p>")
+    se_rows=[[dom, tier, eff] for (dom,tier),eff in rd.STANDING_EFFECTS.items()]
+    rt.append(_grid(["Domain","Standing","Effect"], se_rows, u))
 open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Reference Tables","".join(rt),u))
-search_index.append({"title":"Reference Tables","url":u,"text":"bandits timers influence gain trade rules"})
+search_index.append({"title":"Reference Tables","url":u,"text":"bandits timers influence gain trade rules build timers tier unlock standing effects"})
+
+# ── Tactic Matrix (7x7 interaction grid) ──
+if hasattr(rd,"TACTIC_MATRIX") and hasattr(rd,"TACTICS"):
+    u="tactic-matrix-ref.html"
+    def _fmt_cell(c):
+        parts=[]
+        if c.get("I"):  parts.append(f"I{c['I']:+d}")
+        if c.get("TH"): parts.append(f"Strike{c['TH']:+d}")
+        if c.get("TS"): parts.append(f"Save{c['TS']:+d}")
+        if c.get("end"): parts.append("Battle ends")
+        if c.get("no_combat"): parts.append("No combat")
+        return ", ".join(parts) if parts else "—"
+    tt=rd.TACTICS
+    # header row: your tactic (rows) vs their tactic (cols); cell = YOUR modifier
+    head="<th>You ↓ / Them →</th>"+"".join(f"<th>{html.escape(t)}</th>" for t in tt)
+    body=[]
+    for a in tt:
+        cells=[f"<th>{html.escape(a)}</th>"]
+        for b in tt:
+            pair=rd.TACTIC_MATRIX.get((a,b))
+            cells.append(f"<td>{_fmt_cell(pair[0]) if pair else '—'}</td>")
+        body.append("<tr>"+"".join(cells)+"</tr>")
+    grid=f"<table class='pursuits tacticmatrix'><thead><tr>{head}</tr></thead><tbody>{''.join(body)}</tbody></table>"
+    tm=["<h1>Tactic Matrix</h1>",
+        "<p>Both players reveal a Tactic each Skirmish. Each cell shows <strong>your</strong> modifier when you play the row tactic and your opponent plays the column tactic. "
+        "I = Initiative, Strike = to-Strike roll, Save = Save roll (lower target is better).</p>",
+        grid,
+        "<p style='margin-top:16px;font-size:13px'>The seven Tactics: "+", ".join(f"<a class='term' href='glossary.html'>{html.escape(t)}</a>" for t in tt)+".</p>"]
+    open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Tactic Matrix","".join(tm),u))
+    search_index.append({"title":"Tactic Matrix","url":u,"text":"tactic matrix scout ambush flank charge fighting defensive formation fall back initiative"})
 
 # Combat Keywords (the keyword subset of glossary)
 u="keywords-ref.html"
@@ -459,6 +512,10 @@ table.pursuits{border-collapse:collapse;width:100%;font:13px sans-serif;backgrou
 table.pursuits th{background:#f1efe9;text-align:left;padding:7px 9px;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--mut)}
 table.pursuits td{padding:7px 9px;border-top:1px solid #efeee9;vertical-align:top}table.pursuits tr:hover td{background:#fcfbff}
 td.nm{font-weight:700;white-space:nowrap;font-family:Georgia,serif}.dim{color:#ccc}
+table.tacticmatrix{font-size:11.5px;display:block;overflow-x:auto}
+table.tacticmatrix th{white-space:nowrap}
+table.tacticmatrix tbody th{background:#f1efe9;font-family:Georgia,serif;text-transform:none;letter-spacing:0;font-size:12px;color:var(--ink);position:sticky;left:0}
+table.tacticmatrix td{white-space:nowrap;font-size:11px}
 .gate{color:var(--mut);font-size:12px}
 ul.cols{columns:2;font:14px sans-serif;list-style:none;padding:0}ul.cols li{margin:3px 0;break-inside:avoid}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:1em}
@@ -484,6 +541,7 @@ code{background:#efeee9;padding:1px 5px;border-radius:4px;font-size:.9em}
 .pn{padding:8px 14px;border:1px solid var(--line);border-radius:7px;text-decoration:none;color:var(--ink);max-width:46%;border-bottom:1px solid var(--line)!important}
 .pn:hover{border-color:var(--accent);background:#faf7fe}
 .pn.next{margin-left:auto;text-align:right}
+.versionstamp{position:fixed;bottom:8px;right:12px;font-family:sans-serif;font-size:11px;color:var(--mut);opacity:.6;pointer-events:none}
 @media(max-width:760px){.wrap{flex-direction:column}nav{position:static;height:auto;flex:none;border-right:0;border-bottom:1px solid var(--line)}}
 """)
 

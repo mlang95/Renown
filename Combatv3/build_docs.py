@@ -12,6 +12,11 @@ Markers: run `python docx_tables.py` to list available table names.
 import re, sys, zipfile, shutil, os
 sys.path.insert(0, ".")
 import docx_tables
+try:
+    import renown_data as _rd
+    _VERSION = getattr(_rd, "VERSION", "")
+except Exception:
+    _VERSION = ""
 
 def _xesc(t):
     return t.replace('&','&amp;').replace('<','&lt;').replace('>','&gt;')
@@ -19,6 +24,7 @@ def _xesc(t):
 MARKER      = re.compile(r"\{\{TABLE:([a-z_]+)\}\}")
 GLOSSARY_MK = re.compile(r"\{\{GLOSSARY\}\}")
 DEF_MK      = re.compile(r"\{\{DEF:([^}]+)\}\}")
+VERSION_MK  = re.compile(r"\{\{VERSION\}\}")
 
 def _transform(xml):
     """Replace each <w:p> containing a block marker with generated XML; inline DEF subs."""
@@ -41,6 +47,8 @@ def _transform(xml):
         return _xesc(d) if d else mm.group(0)
     count += len(DEF_MK.findall(result))
     result = DEF_MK.sub(_sub_def, result)
+    count += len(VERSION_MK.findall(result))
+    result = VERSION_MK.sub(_xesc(_VERSION), result)
     return result, count
 
 def fill(in_docx, out_docx):

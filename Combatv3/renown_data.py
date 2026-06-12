@@ -1,6 +1,6 @@
 # renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
-
+VERSION = "0.4.8.2.1"
 # ── Keyword constants ─────────────────────────────────────────────────────
 # Rename a keyword here and it renames everywhere (GLOSSARY keys, tags, cards).
 STEADY          = "Steady"
@@ -1779,7 +1779,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
 WONDERS = {'Colossus': {'upkeep': 200,
               'upkeep_frequency': 'per Wonder',
               'empire_bonus': 'You may **support** your own **prowess envoys** before other **players '
-                              'vote**. **Armies** move **Speed +2** **Siege Timer âˆ’2** gain **Immune '
+                              'vote**. **Armies** move **Speed +2** **Siege Timer -2** gain **Immune '
                               'Blocked**.',
               'tier': 'Wonder',
               'build_time': 10,

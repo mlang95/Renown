@@ -1,4 +1,5 @@
 {
+ "version": "0.4.8.2.1",
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
@@ -1883,7 +1884,7 @@
  "wonders": [
   [
    "Colossus",
-   "You may **support** your own **prowess envoys** before other **players vote**. **Armies** move **Speed +2** **Siege Timer \u00e2\u02c6\u20192** gain **Immune Blocked**.",
+   "You may **support** your own **prowess envoys** before other **players vote**. **Armies** move **Speed +2** **Siege Timer -2** gain **Immune Blocked**.",
    "10",
    "All Infrastructure unlocked"
   ],

@@ -100,7 +100,11 @@ def build(data, out_path):
     # Title
     p = doc.add_paragraph(); r = p.add_run("Renown — Compendium")
     r.bold = True; r.font.name = FONT; r.font.size = Pt(22)
-    p2 = doc.add_paragraph(); _rich(p2, "Generated from renown_data.py — the single source of truth.", italic=True)
+    ver = data.get("version", "")
+    sub = "Generated from renown_data.py — the single source of truth."
+    if ver:
+        sub = f"v{ver} · " + sub
+    p2 = doc.add_paragraph(); _rich(p2, sub, italic=True)
 
     # Pursuits
     h1(doc, "Pursuits")
