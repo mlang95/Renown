@@ -72,6 +72,8 @@ echo   Rules...
 %PY% build_docs.py Rules_authored.docx Rules.docx
 echo   FAQ...
 %PY% faq_export.py "ask-the-bot\renown_faq.txt"
+echo   Combat quick-reference sheet (front/back PDF)...
+%PY% combat_sheet.py "%OUT_DIR%\combat_sheet.pdf"
 :wiki
 echo --- Wiki ---
 rmdir /s /q wiki 2>nul
@@ -115,7 +117,6 @@ echo.
 echo Done. Press any key to close.
 pause
 goto :eof
-
 REM ============================================================================
 REM  :board  - generate the print-and-tape map PDF into BOARD_DIR
 REM ============================================================================

@@ -47,12 +47,29 @@ FACTIONS = getattr(rd, "FACTIONS", {})
 for f in FACTIONS:
     TERMS.setdefault(f, (f"faction-{slug(f)}.html", None))
 
+# Domain-standing effect names (e.g. "Grand Vizier", "Titan of Industry") -> domain board.
+# Each DOMAIN_BOARD cell reads "Name: description"; register the Name part.
+for _dom, _tiers in getattr(rd, "DOMAIN_BOARD", {}).items():
+    if not isinstance(_tiers, dict):
+        continue
+    for _tier, _txt in _tiers.items():
+        if _tier not in ("Rising", "Established", "Sovereign"):
+            continue
+        if isinstance(_txt, str) and ":" in _txt:
+            _name = _txt.split(":", 1)[0].strip()
+            if _name and len(_name) > 2:
+                TERMS.setdefault(_name, ("domain-board-ref.html", None))
+
 TERM_LIST = sorted(TERMS, key=lambda t:-len(t))
 TERM_RE = re.compile(r"\b(" + "|".join(re.escape(t) for t in TERM_LIST) + r")\b")
-def autolink(text, current=None):
+def autolink(text, current=None, current_anchor=None):
     def repl(m):
         term=m.group(1); url,anchor=TERMS[term]
-        if url==current: return term
+        # suppress only a true self-reference (same page AND same anchor, or
+        # same page with no anchor target) — otherwise allow same-page anchor jumps.
+        if url==current:
+            if anchor is None or anchor==current_anchor:
+                return term
         href=url+(f"#{anchor}" if anchor else "")
         return f'<a class="term" href="{href}">{term}</a>'
     return TERM_RE.sub(repl, text)
@@ -132,6 +149,8 @@ def nav(current=""):
     it.append('<div class="navhead">Reference</div>')
     for label,uu in [("Actions","actions-ref.html"),("Treaties & Alliances","treaties-ref.html"),
                      ("Edicts","edicts-ref.html"),("Economy","economy-ref.html"),
+                     ("Terrain & Movement","terrain-ref.html"),("Bandits","bandits-ref.html"),
+                     ("Timers, Influence & PO","systems-ref.html"),
                      ("Equipment","equipment-ref.html"),("Combat Keywords","keywords-ref.html"),
                      ("Infrastructure","infrastructure-ref.html"),("Wonders","wonders-ref.html"),
                      ("Settlements","settlements-ref.html"),("Eras","eras-ref.html"),
@@ -380,6 +399,72 @@ if hasattr(rd, "COSTS") or hasattr(rd, "UPKEEP_TRACKS"):
     open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Economy Reference",body,u))
     search_index.append({"title":"Economy Reference","url":u,
         "text":"upkeep costs pursuit army infrastructure tax trade "+ " ".join(rd.COSTS.values() if hasattr(rd,'COSTS') else [])})
+
+# Terrain & Movement — TERRAIN + MOVEMENT_MODIFIERS
+if hasattr(rd, "TERRAIN"):
+    u="terrain-ref.html"
+    trows=[[t, d.get("Effect","") or "\u2014", ", ".join(d.get("Raw Materials",[])) or "\u2014"]
+           for t,d in rd.TERRAIN.items()]
+    body="<h1>Terrain &amp; Movement</h1>"
+    body+="<p>The six territory types, their movement effects, and the Raw Material pursuits each can host.</p>"
+    body+=_grid(["Terrain","Effect","Raw Materials"], trows, u)
+    if hasattr(rd, "MOVEMENT_MODIFIERS"):
+        body+="<h2>Movement Modifiers</h2>"
+        body+="<p>Sources that change how terrain affects movement (infrastructure, faction, and pursuit effects).</p>"
+        mrows=[]
+        for k,d in rd.MOVEMENT_MODIFIERS.items():
+            eff=d.get("Effect","")
+            eff=" ".join(eff) if isinstance(eff,list) else eff
+            mrows.append([k, eff])
+        body+=_grid(["Source","Effect"], mrows, u)
+    open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Terrain & Movement",body,u))
+    for t in rd.TERRAIN:
+        TERMS.setdefault(t,(u,None)); search_index.append({"title":t,"url":u,"text":f"{t} terrain {rd.TERRAIN[t].get('Effect','')}"})
+    search_index.append({"title":"Terrain & Movement","url":u,"text":"terrain movement grassland wetland tundra mountain water forest roads bridge"})
+
+# Bandits — BANDITS + BANDIT_BEHAVIOR + BANDIT_GROWTH_PER_ERA
+if hasattr(rd, "BANDITS"):
+    u="bandits-ref.html"
+    body="<h1>Bandits</h1>"
+    body+=_grid(["Term","Rule"], [[k,v] for k,v in rd.BANDITS.items()], u)
+    if hasattr(rd, "BANDIT_BEHAVIOR"):
+        body+="<h2>Behavior</h2>"
+        body+=_grid(["Aspect","Rule"], [[k,v] for k,v in rd.BANDIT_BEHAVIOR.items()], u)
+    if hasattr(rd, "BANDIT_GROWTH_PER_ERA"):
+        body+="<h2>Growth per Era</h2>"
+        body+=_grid(["Era","Retinues / turn"], [[k,str(v)] for k,v in rd.BANDIT_GROWTH_PER_ERA.items()], u)
+    if hasattr(rd,"BANDIT_CAMP_START"):
+        body+=f"<p class='mut'>Camp starts at {rd.BANDIT_CAMP_START} retinues; becomes a Bandit Army at {getattr(rd,'BANDIT_ARMY_THRESHOLD','?')}.</p>"
+    open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Bandits",body,u))
+    search_index.append({"title":"Bandits","url":u,"text":"bandits outlaw country camp army growth cunning raze destabilize"})
+
+# Timers / Influence / Public Order modifiers — TIMERS + INFLUENCE_GAIN + PO_MODIFIERS
+if hasattr(rd, "TIMERS") or hasattr(rd, "INFLUENCE_GAIN") or hasattr(rd, "PO_MODIFIERS"):
+    u="systems-ref.html"
+    body="<h1>Timers, Influence &amp; Public Order Modifiers</h1>"
+    if hasattr(rd, "TIMERS"):
+        body+="<h2>Timers</h2>"
+        body+=_grid(["Timer","Where","Tracks"], [[k, d.get("where",""), d.get("tracks","")] for k,d in rd.TIMERS.items()], u)
+    if hasattr(rd, "INFLUENCE_GAIN"):
+        body+="<h2>Influence Gain (per turn)</h2>"
+        body+=_grid(["Source","Change","Notes"], [[k, d.get("change",""), d.get("notes","")] for k,d in rd.INFLUENCE_GAIN.items()], u)
+    if hasattr(rd, "PO_MODIFIERS"):
+        body+="<h2>Innate Faith / Doubt Sources</h2>"
+        porows=[]
+        for kind in ("faith","doubt"):
+            for name,cond in rd.PO_MODIFIERS.get(kind,{}).items():
+                porows.append([kind.capitalize(), name, cond])
+        body+=_grid(["Type","Source","Condition"], porows, u)
+    open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Timers, Influence & PO",body,u))
+    # make PO-modifier names + timer names linkable
+    if hasattr(rd,"PO_MODIFIERS"):
+        for kind in ("faith","doubt"):
+            for name in rd.PO_MODIFIERS.get(kind,{}):
+                TERMS.setdefault(name,(u,None))
+    if hasattr(rd,"TIMERS"):
+        for name in rd.TIMERS:
+            TERMS.setdefault(name,(u,None))
+    search_index.append({"title":"Timers, Influence & PO","url":u,"text":"timers influence public order modifiers faith doubt border tension"})
 
 # Settlements
 if hasattr(rd, "SETTLEMENTS"):
@@ -633,15 +718,50 @@ KW=[rd.STEADY,rd.UNWIELDY,rd.TWO_H,rd.SHATTER_ARMOR,rd.UNSTOPPABLE,rd.CLEAVE,rd.
 kw=["<h1>Combat Keywords</h1><dl class='gloss'>"]
 for k in KW:
     if k in rd.GLOSSARY:
-        kw.append(f"<dt id='{slug(k)}'>{html.escape(k)}</dt><dd>{autolink(md_inline(str(rd.GLOSSARY[k])),u)}</dd>")
+        kw.append(f"<dt id='{slug(k)}'>{html.escape(k)}</dt><dd>{autolink(md_inline(str(rd.GLOSSARY[k])),u,slug(k))}</dd>")
 kw.append("</dl>")
 open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Combat Keywords","".join(kw),u))
 search_index.append({"title":"Combat Keywords","url":u,"text":"keywords deadly cleave poison parry riposte"})
 
 # ── glossary ──
+# A term's "context page": where it's used/defined more fully than the glossary
+# stub. Built from the richer registries so a glossary entry can link out to it.
+CONTEXT_PAGE = {}
+for _n in getattr(rd, "NODES", {}):           # pursuits -> their type page
+    CONTEXT_PAGE[_n] = TERMS[_n]
+for _n in getattr(rd, "ACTIONS", {}):          # actions -> actions-ref
+    CONTEXT_PAGE[_n] = ("actions-ref.html", None)
+for _n in getattr(rd, "TREATIES", {}):
+    CONTEXT_PAGE[_n] = ("treaties-ref.html", None)
+for _n in getattr(rd, "EDICTS", {}):
+    CONTEXT_PAGE.setdefault(_n, ("edicts-ref.html", None))
+for _n in getattr(rd, "FACTIONS", {}):
+    CONTEXT_PAGE[_n] = (f"faction-{slug(_n)}.html", None)
+# hand-mapped concept -> reference page for common glossary nouns
+_CONCEPT_PAGE = {
+    "Reach":"settlements-ref.html","Reach X":"settlements-ref.html",
+    "Public Order":"public-order-ref.html","Standing":"domain-board-ref.html",
+    "Domain":"domain-board-ref.html","Renown":"eras-ref.html","Era":"eras-ref.html",
+    "Treaty":"treaties-ref.html","Alliance":"treaties-ref.html","Edict":"edicts-ref.html",
+    "Bandit":"bandits-ref.html","Outlaw Country":"bandits-ref.html",
+    "Influence":"systems-ref.html",
+    "Speed":"economy-ref.html","Extort X":"economy-ref.html","Recoup":"economy-ref.html",
+    "Territory":"terrain-ref.html","Province":"terrain-ref.html","Region":"terrain-ref.html",
+}
+for _t,_pg in _CONCEPT_PAGE.items():
+    CONTEXT_PAGE.setdefault(_t, (_pg, None))
+
 gl=["<h1>Glossary</h1><dl class='gloss'>"]
 for term in sorted(rd.GLOSSARY):
-    gl.append(f"<dt id='{slug(term)}'>{html.escape(term)}</dt><dd>{autolink(md_inline(str(rd.GLOSSARY[term])),'glossary.html')}</dd>")
+    sl=slug(term)
+    body=autolink(md_inline(str(rd.GLOSSARY[term])),'glossary.html',sl)
+    # "Used in" backlink to a richer context page, when one exists and differs.
+    used=""
+    cp=CONTEXT_PAGE.get(term)
+    if cp and cp[0]!="glossary.html":
+        href=cp[0]+(f"#{cp[1]}" if cp[1] else "")
+        used=f" <a class='usedin' href='{href}'>→ in context</a>"
+    gl.append(f"<dt id='{sl}'>{html.escape(term)}</dt><dd>{body}{used}</dd>")
 gl.append("</dl>")
 open(os.path.join(OUTDIR,"glossary.html"),"w",encoding="utf-8").write(page("Glossary","".join(gl),"glossary.html"))
 for term in rd.GLOSSARY:
@@ -688,6 +808,7 @@ ul.cols{columns:2;font:14px sans-serif;list-style:none;padding:0}ul.cols li{marg
 .card:hover{border-color:var(--accent);box-shadow:0 3px 10px rgba(91,46,142,.1)}.card .ct{font-weight:700;font-size:16px}.card .cn{color:var(--mut);font-size:13px;font-family:sans-serif}
 .chain{margin:.4em 0 1em}.chain ul{list-style:none;padding-left:18px;border-left:1px solid var(--line)}.chain>ul{border-left:0;padding-left:0}.chain li{margin:2px 0;font:14px sans-serif}
 dl.gloss dt{font-weight:700;color:var(--accent);margin-top:.9em;font-size:16px}dl.gloss dd{margin:.15em 0 0}
+a.usedin{color:var(--link);text-decoration:none;font-size:12px;font-style:italic;opacity:.75;white-space:nowrap}a.usedin:hover{opacity:1}
 code{background:#efeee9;padding:1px 5px;border-radius:4px;font-size:.9em}
 .turnflow{max-width:620px}
 .phase{background:#fff;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:12px 16px;margin:0}
