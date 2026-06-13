@@ -1,6 +1,6 @@
 # renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
-VERSION = "0.4.8.3.1"
+VERSION = "0.4.8.4"
 # ── Keyword constants ─────────────────────────────────────────────────────
 # Rename a keyword here and it renames everywhere (GLOSSARY keys, tags, cards).
 STEADY          = "Steady"
@@ -1966,6 +1966,24 @@ BUILD_TIMERS = {
     "Infrastructure": {"Primitive": 2, "Developed": 3, "Sophisticated": 4},
 }
 
+TERRAIN = {
+	"Grassland": {"Effect": "—", "Raw Materials": ["Arable Land", "Apiary"]},
+	"Wetlands": {"Effect": "Speed -1", "Raw Materials": ["Peat Bog", "Forestry"]},
+	"Tundra": {"Effect": "gain Strained", "Raw Materials": ["Quarry", "Salt Works"]},
+	"Mountains": {"Effect": "Impassable", "Raw Materials": ["Mine"]},
+	"Water": {"Effect": "Must end Move after passing over 1 Water Territory (must end on land)", "Raw Materials": ["Fishmongery"]},
+	"Forest": {"Effect": "Speed -1", "Raw Materials": ["Forestry","Apiary"]}
+}
+
+MOVEMENT_MODIFIERS = {
+	"Dirt Roads" : {"Effect": "Immune Speed -1 from Terrain"},
+	"Stone Roads" : {"Effect": "Immune Speed -1 from Terrain. Gain Speed +2"},
+	"Bridge" : {"Effect": "Immune Water Effect."},
+	"Tunneler": {"Effect": "Immune Mountain Effect"},
+	"Ancient Wilds": {"Effect": ["Immune Speed -1 from Terrain", "Other armies gain Speed -1 in Province."]},
+	"Shipyard": {"Effect": "Immune Water Effect"}
+}
+
 INFLUENCE_GAIN = {
     "Era": {"change": "+1/+2/+3/+4", "notes": "Based on the Current Era"},
     "Trading Partners": {"change": "+1", "notes": "Per Trading Partner."},
@@ -2001,3 +2019,223 @@ GLOSSARY.update({
     "Failed": "Net Influence 0 or less.",
     "Passed": "Net Influence 1 or more.",
 })
+# ============================================================================
+# NEW STRUCTURES — paste into renown_data.py and modify as needed.
+# Built from RULES.md (v0.4.8.3.1). Schemas chosen to be generator-friendly:
+# the wiki / FAQ / compendium can iterate these the same way they do NODES.
+# ============================================================================
+
+# ── ACTIONS ─────────────────────────────────────────────────────────────────
+# Every Envoy action, by domain. Fields:
+#   domain   : Prowess | Cunning | Piety | Industry | Diplomacy
+#   cost     : gold/doubt/None cost to perform (string, as written)
+#   requires : standing or other gate to send ("" = none)
+#   effect   : the "if passes" description (concise)
+#   endorsed : the endorsed bonus
+#   notes    : list of rules notes (sub-clauses)
+ACTIONS = {
+    # ── PROWESS ──
+    "Move": {
+        "domain": "Prowess", "cost": "None", "requires": "",
+        "effect": "Move an Army up to its Speed in Territories, then choose: March (move up to 2x Speed, −1 Endurance, no other action), Skirmish (end adjacent to a non-allied Army not in a settlement → Battle, Seize the Initiative +1I Skirmish 1), Lay Siege (end adjacent to an at-war settlement → Siege), or Muster (within range 3 of your settlements, not within range 1 of a non-ally → recruit up to combined muster limit; may swap retinues between adjacent allied armies and change equipment).",
+        "endorsed": "Perform another Move action (same or different Army).",
+        "notes": ["Each Army may be the target of only one Move action per turn.",
+                  "Strained armies do not gain +1 Endurance at the start of next turn.",
+                  "An Army that Skirmished/Sieged/Mustered cannot act again until that battle/siege/muster timer ends.",
+                  "An Army that Skirmished gains +1I in the first Skirmish."]},
+    "Declare War": {
+        "domain": "Prowess", "cost": "None", "requires": "Rising Prowess",
+        "effect": "Choose a non-allied player you have no NAP or active truce with. Both players are now At War. Trade Agreements between you end.",
+        "endorsed": "Perform a Move action.",
+        "notes": ["If target is in a Defensive Alliance, all members are now at war with you.",
+                  "If you are in a Military Alliance, all members Declare War on the target next turn and send 1 fewer envoy next turn."]},
+    "Demand Tribute": {
+        "domain": "Prowess", "cost": "None", "requires": "",
+        "effect": "Choose a non-allied player with no NAP. Negotiate: Target agrees → sign a NAP or Alliance (target's choice of offered terms); Target refuses or fails terms → immediately Declare War on them.",
+        "endorsed": "Perform a Move action.",
+        "notes": ["Terms may include gold, settlements, territory, treaties, or promises. Promises are unenforceable, but unfulfilled promises trigger the refusal clause."]},
+    # ── CUNNING ──
+    "Intercept Caravan": {
+        "domain": "Cunning", "cost": "2000 gold", "requires": "",
+        "effect": "Choose a player. The next turn they are Host, Extort their Trade Income.",
+        "endorsed": "Extort 2000.",
+        "notes": ["Affects only a single turn's trade income; normal income resumes after."]},
+    "Foster Rebellion": {
+        "domain": "Cunning", "cost": "2000 gold", "requires": "",
+        "effect": "Choose a player. At the next Bandit Mechanic Phase, place a Bandit Camp with 10 retinues in their Outlaw Country.",
+        "endorsed": "Extort 2000.",
+        "notes": ["If their Outlaw Country has no room, increase it by one territory and spawn there."]},
+    "Raze": {
+        "domain": "Cunning", "cost": "2000 gold", "requires": "",
+        "effect": "Choose another player's settlement. Select one active Pursuit, active Infrastructure, or active Build Timer there — it becomes Damaged; its effects are inactive until Repaired. A damaged Build Timer does not increment until Repaired.",
+        "endorsed": "Extort 2000.",
+        "notes": ["Wonders have Immune Razed and cannot be targeted."]},
+    "Destabilize": {
+        "domain": "Cunning", "cost": "2000 gold", "requires": "",
+        "effect": "Choose a player. Extort their Tax Income at the beginning of next turn.",
+        "endorsed": "Extort 2000.",
+        "notes": ["Affects only the next single turn's tax income.",
+                  "Act of War: if a Cunning envoy is Condemned while targeting a NAP partner, they may immediately Declare War on the condemned player."]},
+    # ── PIETY ──
+    "Spread Gospel": {
+        "domain": "Piety", "cost": "Doubt 1", "requires": "",
+        "effect": "All non-allied players gain Doubt 1. All allied players gain Faith 1.",
+        "endorsed": "Gain Faith 1.", "notes": []},
+    "Send Missionaries": {
+        "domain": "Piety", "cost": "Doubt 1", "requires": "",
+        "effect": "Choose a target player or alliance. Outside your alliance → all players in the target alliance gain Doubt 2. Inside your alliance → all other allied players gain Faith 2.",
+        "endorsed": "Gain Faith 1.", "notes": []},
+    "Tithe": {
+        "domain": "Piety", "cost": "Doubt 1", "requires": "",
+        "effect": "Choose a player. Extort 10% of their treasury (round down to nearest 100, min 0).",
+        "endorsed": "Gain Faith 1.", "notes": []},
+    "Convert": {
+        "domain": "Piety", "cost": "Doubt 1", "requires": "",
+        "effect": "Choose another player's closest non-capital settlement; they must have Public Order −5 or lower. Lay Siege using only settlement-type siege modifiers (Wooden Walls, Stone Walls, Citadel, Garrison, Standing Army) and set a Convert Timer. At 0, the settlement joins your empire (see Capture).",
+        "endorsed": "Gain Faith 1.",
+        "notes": ["If the target's Public Order rises to 1+ before the timer hits 0, the Convert fails and the timer is removed."]},
+    "Crusade": {
+        "domain": "Piety", "cost": "Doubt 1", "requires": "Sovereign Piety",
+        "effect": "Declare War on a non-ally with no NAP or truce, then immediately perform a Move action with one of your armies.",
+        "endorsed": "Gain Faith 1.",
+        "notes": ["While a Crusade is active, neither player may Declare War, Sign/End Treaty, Negotiate, or Demand Tribute against each other.",
+                  "A player may only be on one active Crusade at a time. It ends only when one involved player is Vassalized."]},
+    # ── INDUSTRY ──
+    "Build": {
+        "domain": "Industry", "cost": "2000 gold", "requires": "",
+        "effect": "Choose an unlocked, available Infrastructure; set a Build Timer equal to its build time. On completion it becomes active in all settlements in your province.",
+        "endorsed": "Recoup 2000.",
+        "notes": ["You must have at least one infrastructure from the prior tier before building the next tier.",
+                  "Only one active Build Timer at a time.",
+                  "Wonders are built in your capital and require all other infrastructure active when the Build action is performed."]},
+    "Repair": {
+        "domain": "Industry", "cost": "2000 gold", "requires": "",
+        "effect": "Choose a damaged Pursuit or Infrastructure in a settlement you control; set Repair Timer 2. At 0, choose: Restore (reactivate with all effects) or Demolish (remove it, freeing the ward).",
+        "endorsed": "Recoup 2000.", "notes": []},
+    "Pursue": {
+        "domain": "Industry", "cost": "2000 gold", "requires": "",
+        "effect": "Choose an inactive settlement ward you control. Select a Pursuit whose prerequisites you meet; set a Build Timer equal to its build time (usually 1). On completion, place the Pursuit; innate effects activate immediately, mastery if all mastery reqs met.",
+        "endorsed": "Recoup 2000.",
+        "notes": ["You may have only 2 Monument pursuits across your empire.",
+                  "Power and unique pursuits have Build Timer +1; Monuments +2; all others Build Timer 1."]},
+    "Charter": {
+        "domain": "Industry", "cost": "2000 gold", "requires": "",
+        "effect": "Choose: Charter a new Village (uncontrolled or in-province non-water/mountain territory, range 4+ from any settlement, not within range 2 of Outlaw Country); Charter a Hamlet (if none, range 2 from capital, non-water/mountain); or Expand an existing non-city settlement by one tier into an adjacent territory, adding a ward.",
+        "endorsed": "Recoup 2000.",
+        "notes": ["To upgrade to City or Metropolis you must meet that tier's requirements; otherwise set Build Timer 1.",
+                  "Hamlets always allow pursuing Arable Land."]},
+    # ── DIPLOMACY ──
+    "Sign Treaty": {
+        "domain": "Diplomacy", "cost": "None", "requires": "",
+        "effect": "Ask players to agree; choose one and both sign one of: Peace Treaty (end war, truce timer 5), Trade Agreement (begin trading next turn), Non-Aggression Pact (no Declare War; ending it via End Treaty gives both truce timer 5), or Alliance (join/form/invite to Defensive or Military Alliance).",
+        "endorsed": "Perform a Diplomacy action.",
+        "notes": ["Acting on behalf of an alliance, End Treaty requires all allies to agree.",
+                  "A player may not be in more than one alliance (exception: Masters of Duplicity)."]},
+    "Negotiate": {
+        "domain": "Diplomacy", "cost": "None", "requires": "",
+        "effect": "Propose terms to a target; they agree or refuse. Terms may include gold, settlement ownership, territory, treaty sign/end, or promises (non-binding).",
+        "endorsed": "Perform a Diplomacy action.",
+        "notes": ["Unfulfilled promises let the affected player Declare War on the promiser.",
+                  "Also used (automatically, no envoy) to resolve Demand Tribute and siege surrenders."]},
+    "End Treaty": {
+        "domain": "Diplomacy", "cost": "None", "requires": "",
+        "effect": "Choose a target with an active treaty signed with you; that treaty is removed. Does not require the target to agree.",
+        "endorsed": "Perform a Diplomacy action.", "notes": []},
+}
+
+# ── TREATIES ────────────────────────────────────────────────────────────────
+# The standing agreements players can hold. signed_via is the action; ended_via
+# notes how it ends; era is when it unlocks (alliances scale with Era).
+TREATIES = {
+    "Peace Treaty":      {"signed_via": "Sign Treaty", "effect": "Ends war between the two players; sets Truce Timer 5.", "era": "Any"},
+    "Trade Agreement":   {"signed_via": "Sign Treaty", "effect": "Begin trading (Trade Income flows from next turn). Requires bordering + active Dirt Road.", "era": "Any"},
+    "Non-Aggression Pact": {"signed_via": "Sign Treaty", "effect": "Neither player may Declare War on the other. Ending it via End Treaty gives both a Truce Timer 5.", "era": "Any"},
+    "Military Alliance":  {"signed_via": "Sign Treaty", "effect": "Mutual offensive pact: if a member Declares War, all members Declare War on the target next turn (and send 1 fewer envoy).", "era": "Eminence"},
+    "Defensive Alliance": {"signed_via": "Sign Treaty", "effect": "Mutual defense: attacking one member puts all members at war with the attacker.", "era": "Zenith"},
+}
+# General alliance rules (prose, surfaced for the wiki):
+ALLIANCE_RULES = [
+    "New alliance members are added by unanimous agreement.",
+    "A player cannot be in more than one alliance at a time (exception: Masters of Duplicity).",
+    "An alliance may cast out a member via End Treaty if all others agree.",
+]
+
+# ── EDICTS / WIN CONDITIONS ──────────────────────────────────────────────────
+# Completing an Edict raises the Renown tracker by 1. Any Edict may be completed
+# multiple times. Whoever has completed the most when the Last Alliance Standing
+# condition is met wins.
+EDICTS = {
+    "Sovereign Standing": {"type": "Standing",  "requirement": "Reach a Sovereign Standing (Domain value 10) in any Domain."},
+    "Monument":           {"type": "Build",     "requirement": "Complete (build) a Monument pursuit."},
+    "Wonder":             {"type": "Build",     "requirement": "Complete a World Wonder."},
+    "Wealth":             {"type": "Economy",   "requirement": "Generate 10,000 gold per turn for five consecutive turns."},
+    "Vassalize":          {"type": "Conquest",  "requirement": "Vassalize a rival player (control their capital with no other settlements/armies under them)."},
+    "Living Saints":      {"type": "Piety",     "requirement": "Sustain Public Order 7 (Living Saints) for five consecutive turns (Pious Timer)."},
+    "Last Alliance Standing": {"type": "Endgame", "requirement": "Be the last alliance standing — the game-ending stop condition."},
+}
+# Note: consecutive-turn Edicts require the timer to increment each turn; if it
+# fails to increment for any reason, remove the timer until restarted.
+
+# ── BANDIT BEHAVIOR ──────────────────────────────────────────────────────────
+# Extends BANDITS with the Cunning-mechanic + army-behavior tables from Rules.
+BANDIT_BEHAVIOR = {
+    "Renown":        "Bandits share the Realm's Renown level.",
+    "Domain Value":  "+1 Cunning and +1 Prowess per 5 retinues in the camp (e.g. 30 retinues = 6 Cunning = Established).",
+    "At War":        "All players are At War with all bandits. Players Abstain all bandit actions, but innate modifiers can still cause them to Fail.",
+    "Cunning Roll":  "If 15+ retinues in camp, roll a d3 each turn: 1 = Intercept Caravan, 2 = Raze, 3 = Destabilize.",
+    "Treasury":      "Bandit camps keep Extorted gold in their treasury and pay no costs or upkeep. Destroying a camp/army Extorts its treasury.",
+    "Army Behavior": "After bandit mechanics, a Bandit Army performs a Move: Skirmish (player army in range) > Lay Siege (player settlement in range) > March (toward closest army/settlement). Host breaks range ties.",
+    "Attacking":     "Move to end adjacent to a camp; another player rolls bandit tactics (d6, 7 = Fall Back) and resolves to-hit/save as a Battle. Bandits never Fall Back but may Flee. Extort the camp's gold if destroyed.",
+}
+
+# ── UPKEEP — THREE SEPARATE TRACKS ────────────────────────────────────────────
+# Renown has three distinct upkeep pools, each reduced by different effects.
+# Keep them straight: a reducer that names one track does NOT touch the others.
+#
+# 1) PURSUIT upkeep  — fixed by pursuit type (below). Zeroed for Civic pursuits
+#    by the Luminous Court faction. Not touched by "Upkeep -X" or Trade Guild.
+# 2) ARMY upkeep     — retinue count x (retinue cost - "Upkeep -X" modifiers).
+#    The "Upkeep -200 / -300 / -500" effects (Levy Hall, Tannery, Armory,
+#    Saddlery, Butchery, Fletchery, Smokehouse, ABF) and High Quartermaster
+#    (-2000) reduce the per-retinue cost here.
+# 3) INFRASTRUCTURE upkeep — the per-settlement upkeep in INFRASTRUCTURE.
+#    Trade Guild removes upkeep on Primitive (innate) and Developed (mastery)
+#    infrastructure; College of Engineering removes it on Sophisticated.
+UPKEEP_TRACKS = {
+    "Pursuit":        "Fixed by pursuit type: Monument 300, Power 200, Energy 0, all others 100. Luminous Court zeroes Civic-pursuit upkeep.",
+    "Army":           "retinue count x (retinue cost - Upkeep -X). Reduced by Levy Hall (-200/-300), Tannery/Armory/Saddlery/Butchery/Fletchery/Smokehouse (-200), ABF (-500), High Quartermaster (-2000).",
+    "Infrastructure": "Per-settlement upkeep in INFRASTRUCTURE. Trade Guild removes Primitive (innate) + Developed (mastery); College of Engineering removes Sophisticated.",
+}
+
+# 1) PURSUIT upkeep — fixed by type.
+PURSUIT_UPKEEP_BY_TYPE = {
+    "Monument": 300,
+    "Power":    200,
+    "Energy":   0,
+}
+PURSUIT_UPKEEP_DEFAULT = 100
+
+def pursuit_upkeep(node):
+    """Per-turn upkeep for a node, fixed by its type. node = a NODES entry (dict) or a type string."""
+    t = node.get("type") if isinstance(node, dict) else node
+    return PURSUIT_UPKEEP_BY_TYPE.get(t, PURSUIT_UPKEEP_DEFAULT)
+
+# 2) ARMY upkeep — formula note (per-retinue costs in RETINUES[*]["cost"]).
+ARMY_UPKEEP_NOTE = "Net Army Upkeep = retinue count x (retinue cost - Upkeep -X modifiers)."
+
+# ── ACTION / EMPIRE GOLD COSTS ───────────────────────────────────────────────
+# The flat costs the rules attach to actions and siege outcomes.
+COSTS = {
+    "Pursue action":   "2000 gold (the envoy action; pursuit then costs per-turn upkeep by type)",
+    "Pursuit upkeep":  "Per turn by type (fixed): Monument 300, Power 200, Energy 0, all others 100",
+    "Army upkeep":     "retinue count x (retinue cost - Upkeep -X modifiers)",
+    "Infrastructure upkeep": "Per-settlement (see INFRASTRUCTURE); Trade Guild removes Primitive/Developed, College of Engineering removes Sophisticated",
+    "Cunning action":  "2000 gold (Intercept Caravan / Foster Rebellion / Raze / Destabilize)",
+    "Industry action": "2000 gold (Build / Repair / Pursue / Charter)",
+    "Piety action":    "Doubt 1 (Spread Gospel / Send Missionaries / Tithe / Convert / Crusade)",
+    "Prowess action":  "None (Move / Declare War / Demand Tribute)",
+    "Diplomacy action":"None (Sign Treaty / Negotiate / End Treaty)",
+    "Sack":            "Extort 1000 per settlement tier; reduce settlement by 1 tier; Sack Timer 2",
+    "Tax per tier":    "500 gold per settlement tier per turn (collected in Winter)",
+    "Trade Income":    "100 x host's Craft X per active Trade Agreement",
+}

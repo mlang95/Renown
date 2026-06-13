@@ -130,7 +130,9 @@ def nav(current=""):
         u=f"domain-{slug(d)}.html"; it.append(f"<a href='{u}'{' class=active' if u==current else ''}>{d}</a>")
     it.append(f"<a href='paths.html'{' class=active' if current=='paths.html' else ''}>Build Paths</a>")
     it.append('<div class="navhead">Reference</div>')
-    for label,uu in [("Equipment","equipment-ref.html"),("Combat Keywords","keywords-ref.html"),
+    for label,uu in [("Actions","actions-ref.html"),("Treaties & Alliances","treaties-ref.html"),
+                     ("Edicts","edicts-ref.html"),("Economy","economy-ref.html"),
+                     ("Equipment","equipment-ref.html"),("Combat Keywords","keywords-ref.html"),
                      ("Infrastructure","infrastructure-ref.html"),("Wonders","wonders-ref.html"),
                      ("Settlements","settlements-ref.html"),("Eras","eras-ref.html"),
                      ("Public Order","public-order-ref.html"),("Domain Board","domain-board-ref.html"),
@@ -313,6 +315,71 @@ if hasattr(rd, "WONDERS"):
     open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Wonders",body,u))
     for n,d in rd.WONDERS.items():
         TERMS.setdefault(n,(u,None)); search_index.append({"title":n,"url":u,"text":f"{n} wonder {d.get('empire_bonus','')}"})
+
+# Actions (grouped by domain) — data-driven from rd.ACTIONS
+if hasattr(rd, "ACTIONS"):
+    u="actions-ref.html"
+    DOM_ORDER=["Prowess","Cunning","Piety","Industry","Diplomacy"]
+    body=f"<h1>Actions <span class='count'>{len(rd.ACTIONS)}</span></h1>"
+    body+="<p>Every Envoy action, grouped by Domain. Each is Sent during the Envoy Phase, voted on, and resolved on a pass.</p>"
+    for dom in DOM_ORDER:
+        acts=[(n,a) for n,a in rd.ACTIONS.items() if a.get("domain")==dom]
+        if not acts: continue
+        body+=f"<h2>{dom}</h2>"
+        rows=[]
+        for n,a in acts:
+            req=a.get("requires","") or "\u2014"
+            notes=a.get("notes",[])
+            note_html=("<br><span class='mut'>"+"; ".join(html.escape(x) for x in notes)+"</span>") if notes else ""
+            rows.append([n, a.get("cost","") or "\u2014", req, (a.get("effect","")+note_html), a.get("endorsed","") or "\u2014"])
+        body+=_grid(["Action","Cost","Requires","Effect (if passes)","Endorsed"], rows, u)
+    open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Actions",body,u))
+    for n,a in rd.ACTIONS.items():
+        TERMS.setdefault(n,(u,None)); search_index.append({"title":n,"url":u,"text":f"{n} {a.get('domain','')} action {a.get('effect','')}"})
+
+# Treaties & Alliances — data-driven from rd.TREATIES + rd.ALLIANCE_RULES
+if hasattr(rd, "TREATIES"):
+    u="treaties-ref.html"
+    rows=[[n, d.get("signed_via",""), d.get("era",""), d.get("effect","")] for n,d in rd.TREATIES.items()]
+    body=f"<h1>Treaties &amp; Alliances <span class='count'>{len(rd.TREATIES)}</span></h1>"
+    body+="<p>Standing agreements signed via Diplomacy. Alliances scale with Era.</p>"
+    body+=_grid(["Treaty","Signed Via","Era","Effect"], rows, u)
+    if hasattr(rd,"ALLIANCE_RULES") and rd.ALLIANCE_RULES:
+        body+="<h2>Alliance Rules</h2><ul>"+"".join(f"<li>{html.escape(x)}</li>" for x in rd.ALLIANCE_RULES)+"</ul>"
+    open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Treaties & Alliances",body,u))
+    for n,d in rd.TREATIES.items():
+        TERMS.setdefault(n,(u,None)); search_index.append({"title":n,"url":u,"text":f"{n} treaty {d.get('effect','')}"})
+
+# Edicts (win paths) — data-driven from rd.EDICTS
+if hasattr(rd, "EDICTS"):
+    u="edicts-ref.html"
+    rows=[[n, d.get("type",""), d.get("requirement","")] for n,d in rd.EDICTS.items()]
+    body=f"<h1>Edicts <span class='count'>{len(rd.EDICTS)}</span></h1>"
+    body+="<p>Scoring achievements / win paths. Completing one raises the shared Renown tracker by 1; any Edict may be completed multiple times. Whoever has completed the most when the Last Alliance Standing condition is met wins.</p>"
+    body+=_grid(["Edict","Type","Requirement"], rows, u)
+    open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Edicts",body,u))
+    for n,d in rd.EDICTS.items():
+        TERMS.setdefault(n,(u,None)); search_index.append({"title":n,"url":u,"text":f"{n} edict win {d.get('requirement','')}"})
+
+# Economy Reference — costs + the three upkeep tracks (rd.COSTS, rd.UPKEEP_TRACKS)
+if hasattr(rd, "COSTS") or hasattr(rd, "UPKEEP_TRACKS"):
+    u="economy-ref.html"
+    body="<h1>Economy Reference</h1>"
+    if hasattr(rd, "UPKEEP_TRACKS"):
+        body+="<h2>Upkeep — three separate tracks</h2>"
+        body+="<p>Each upkeep pool is reduced by different effects; a reducer that names one track does not touch the others.</p>"
+        body+=_grid(["Track","How it works"], [[k, v] for k,v in rd.UPKEEP_TRACKS.items()], u)
+        if hasattr(rd, "PURSUIT_UPKEEP_BY_TYPE"):
+            pu=rd.PURSUIT_UPKEEP_BY_TYPE
+            extra=", ".join(f"{k} {v}" for k,v in pu.items())
+            dflt=getattr(rd,"PURSUIT_UPKEEP_DEFAULT","")
+            body+=f"<p class='mut'>Pursuit upkeep by type: {extra}, all others {dflt}.</p>"
+    if hasattr(rd, "COSTS"):
+        body+="<h2>Action &amp; empire costs</h2>"
+        body+=_grid(["Item","Cost"], [[k, v] for k,v in rd.COSTS.items()], u)
+    open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Economy Reference",body,u))
+    search_index.append({"title":"Economy Reference","url":u,
+        "text":"upkeep costs pursuit army infrastructure tax trade "+ " ".join(rd.COSTS.values() if hasattr(rd,'COSTS') else [])})
 
 # Settlements
 if hasattr(rd, "SETTLEMENTS"):

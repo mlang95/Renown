@@ -6,7 +6,7 @@ REM --- Edit these ---
 set MPC_MIN=3
 set MPC_MAX=20
 set RUNS=50
-
+set PY="C:\Users\Matt\AppData\Local\Programs\Python\Python39\python.exe"
 REM POOL MODE:
 REM   BALANCED=1  -> balanced_validation_pool (all tiers, full gear cross, balanced per retinue x MPC)
 REM   BALANCED=0  -> archetype_pool generator (realistic floors/caps)
@@ -31,9 +31,9 @@ set SLOT_BUDGET=auto
 REM ========================================================================
 set NO_PLAYSTYLE=--no-playstyle
 if "%BALANCED%"=="1" (
-  python run_tournament.py --balanced --mpc-min %MPC_MIN% --mpc-max %MPC_MAX% --per-cell %PER_CELL% --runs %RUNS% --slot-budget %SLOT_BUDGET% --workers %WORKERS% %NO_PLAYSTYLE%
+  %PY% run_tournament.py --balanced --mpc-min %MPC_MIN% --mpc-max %MPC_MAX% --per-cell %PER_CELL% --runs %RUNS% --slot-budget %SLOT_BUDGET% --workers %WORKERS% %NO_PLAYSTYLE%
 ) else (
-  python run_tournament.py --mpc-min %MPC_MIN% --mpc-max %MPC_MAX% --stratify %STRATIFY% --budget-metric %BUDGET_METRIC% --runs %RUNS% --slot-budget %SLOT_BUDGET% --workers %WORKERS% %NO_PLAYSTYLE%
+  %PY% run_tournament.py --mpc-min %MPC_MIN% --mpc-max %MPC_MAX% --stratify %STRATIFY% --budget-metric %BUDGET_METRIC% --runs %RUNS% --slot-budget %SLOT_BUDGET% --workers %WORKERS% %NO_PLAYSTYLE%
 )
 
 echo.

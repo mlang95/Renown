@@ -1,8 +1,8 @@
 @echo off
 REM ============================================================================
 REM  build_all.bat - regenerate everything downstream of renown_data.py.
-REM  Cards (player-scaled), the Word docs, and the GitHub Pages wiki.
-REM  Does NOT run tournaments - that's run_tournament.bat, kept separate.
+REM  Cards (player-scaled), the Word docs, the GitHub Pages wiki, and the
+REM  print-and-tape board. Does NOT run tournaments - that's run_tournament.bat.
 REM ============================================================================
 cd /d "C:\Users\Matt\OneDrive\Desktop\Game\Combatv3"
 REM ---------------------------------------------------------------- EDIT THESE
@@ -28,16 +28,32 @@ REM WIKI_REPO : local clone of the RenownWiki repo (GitHub Pages source)
 set WIKI_REPO=C:\Users\Matt\OneDrive\Desktop\Game\RenownWiki
 REM PUSH_WIKI : 1 = git commit+push after build, 0 = build only
 set PUSH_WIKI=1
+REM ---- BOARD (print-and-tape map) --------------------------------------------
+REM BUILD_BOARD : 1 = generate a board PDF, 0 = skip
+set BUILD_BOARD=1
+REM BOARD_DIR   : folder holding mapgen.py / hexmap.py / hexgen.py / build_board.py
+set BOARD_DIR=C:\Users\Matt\OneDrive\Desktop\Game\Combatv3\mapgen
+REM board dimensions, table size, seed, hex size (mm c->corner), paper
+set BOARD_W=18
+set BOARD_H=20
+set BOARD_PLAYERS=4
+set BOARD_SEED=25
+set BOARD_HEX=20
+set BOARD_PAPER=A4
+REM BOARD_RES : 1 = stamp raw-material toppers, 0 = terrain only (loose tokens)
+set BOARD_RES=0
+REM BOARD_OUT : output PDF (lands in BOARD_DIR)
+set BOARD_OUT=%BOARD_DIR%\board_%BOARD_W%x%BOARD_H%_%BOARD_PLAYERS%p.pdf
 REM ---------------------------------------------------------------------------
 echo.
-echo === build_all : MODE=%MODE%  WHAT=%WHAT%  PLAYERS=%PLAYERS% ===
+echo === build_all : MODE=%MODE%  WHAT=%WHAT%  PLAYERS=%PLAYERS%  BOARD=%BUILD_BOARD% ===
 echo.
+if /i "%BUILD_BOARD%"=="1" call :board
 if /i "%WHAT%"=="cards" goto cards
 if /i "%WHAT%"=="docs"  goto docs
 if /i "%WHAT%"=="wiki"  goto wiki
 if /i "%WHAT%"=="both"  goto cards
 echo Invalid WHAT=%WHAT% & goto end
-
 :cards
 echo --- Cards ---
 if /i "%MODE%"=="both" (
@@ -47,7 +63,6 @@ if /i "%MODE%"=="both" (
   %PY% generate_cards.py %MODE% "%OUT_DIR%" %PLAYERS%
 )
 if /i "%WHAT%"=="cards" goto end
-
 :docs
 echo --- Docs ---
 echo   Compendium...
@@ -57,7 +72,6 @@ echo   Rules...
 %PY% build_docs.py Rules_authored.docx Rules.docx
 echo   FAQ...
 %PY% faq_export.py "ask-the-bot\renown_faq.txt"
-
 :wiki
 echo --- Wiki ---
 rmdir /s /q wiki 2>nul
@@ -96,9 +110,27 @@ if "%PUSH_REPO%"=="1" (
   %GIT% push origin v%VERSION%
   popd
 )
-
-
 :end
 echo.
 echo Done. Press any key to close.
 pause
+goto :eof
+
+REM ============================================================================
+REM  :board  - generate the print-and-tape map PDF into BOARD_DIR
+REM ============================================================================
+:board
+echo --- Board ---
+if not exist "%BOARD_DIR%\build_board.py" (
+  echo   ERROR: build_board.py not found in %BOARD_DIR% - skipping board.
+  exit /b
+)
+REM svglib is the only extra dep (reportlab already present); install if missing
+%PY% -c "import svglib" 2>nul || %PY% -m pip install svglib
+set BOARD_FLAGS=
+if /i "%BOARD_RES%"=="0" set BOARD_FLAGS=--no-resources
+pushd "%BOARD_DIR%"
+%PY% build_board.py %BOARD_W% %BOARD_H% --seed %BOARD_SEED% --hex %BOARD_HEX% --paper %BOARD_PAPER% --param players=%BOARD_PLAYERS% %BOARD_FLAGS% --out "%BOARD_OUT%"
+popd
+echo   Board -^> %BOARD_OUT%
+exit /b
