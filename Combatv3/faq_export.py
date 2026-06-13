@@ -194,6 +194,16 @@ def build(out_path):
         lines.append("seasons | " + wlink("Seasons", "seasons-ref.html") + ": " +
                      ", ".join(rd.SEASONS.keys()) +
                      ". Each applies a global effect (e.g. Winter = tax + Speed -1).")
+	# ── TERRAIN (data-driven from rd.TERRAIN) ──
+    if hasattr(rd, "TERRAIN"):
+        for n, t in rd.TERRAIN.items():
+            eff = t.get("Effect", "") or "—"
+            raws = ", ".join(t.get("Raw Materials") or []) or "none"
+            lines.append(entry(n, wlink(n, "reference-tables.html") +
+                         f" Terrain. Movement: {eff}. Raw Materials: {raws}."))
+        lines.append(entry("terrain", wlink("Terrain", "reference-tables.html") +
+                     ": " + ", ".join(rd.TERRAIN.keys()) +
+                     ". Each Territory type has a movement effect and the Raw Material pursuits it supports."))
 
     # 10) public order bands
     for k, v in (rd.PUBLIC_ORDER.items() if hasattr(rd, "PUBLIC_ORDER") else []):

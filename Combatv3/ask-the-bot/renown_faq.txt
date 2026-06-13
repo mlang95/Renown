@@ -158,6 +158,7 @@ Field | [Field](https://mlang95.github.io/RenownWiki/glossary.html#field): Your 
 Fishmongery | [Fishmongery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Raw Materials). Innate: +300, Natural; Craft +1
 Flail | [Flail](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP -2, Init -1. Keywords: Cleave.
 Fletchery | [Fletchery](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Craft). Innate: Unlocks Ranged Weapons / Mastery: Upkeep -200
+Forest | [Forest](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: Speed -1. Raw Materials: Forestry, Apiary.
 Forestry | [Forestry](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Raw Materials). Innate: +300, Natural; Craft +1
 Forge | [Forge](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Power). Innate: +300 / Mastery: Unlocks Forged Tier
 forged gear | Forged tier: weapons [Bastard Sword, 2HBastard, Lance, Morningstar, War Hammer, Crossbow], shields [Tower Shield], armor [Full Plate].
@@ -173,6 +174,7 @@ Gilded Foundry | [Gilded Foundry](https://mlang95.github.io/RenownWiki/escalatio
 Gothic Plate | [Gothic Plate](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Crafted). Save 2+. Keywords: none.
 Granary | [Granary](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: +200 / Mastery: Armies and Garrisons gain Endurance while Besieged
 Grand Tournament | [Grand Tournament](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Civic). Innate: Faith +1; Improve Parry by 1 / Mastery: 3x/turn: exchange 500 gold for 1 Influence; Armies gain Riposte
+Grassland | [Grassland](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: —. Raw Materials: Arable Land, Apiary.
 Halberd | [Halberd](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP -3, Init +0. Keywords: 2H.
 Hamlet | [Hamlet](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 0). Tax 0, muster 0, build 1, wards 3, reach 1. Husbandry pursuits only; exactly range 2 from capital; may always pursue Arable Land
 Harbor | [Harbor](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: +300; Craft +2 / Mastery: Extort 200 per player without Harbor
@@ -243,6 +245,7 @@ Monument | [Monument](https://mlang95.github.io/RenownWiki/glossary.html#monumen
 monument cap | You may build at most 2 Monuments.
 Morale | [Morale](https://mlang95.github.io/RenownWiki/glossary.html#morale): How steady a retinue is when tested (lower is steadier; see the retinue table). Break and Panic checks roll it: a D6 per retinue in the field, up to 5 dice, each must meet its modified value; failures are casualties. If the modified value is ever 7+, the army Routs.
 Morningstar | [Morningstar](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP -3, Init -1. Keywords: Unwieldy, Destroy Shield, Cleave.
+Mountains | [Mountains](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: Impassable. Raw Materials: Mine.
 Move | [Move](https://mlang95.github.io/RenownWiki/actions-ref.html): Prowess action. Cost: None. Move an Army up to its Speed in Territories, then choose: March (move up to 2x Speed, −1 Endurance, no other action), Skirmish (end adjacent to a non-allied Army not in a settlement → Battle, Seize the Initiative +1I Skirmish 1), Lay Siege (end adjacent to an at-war settlement → Siege), or Muster (within range 3 of your settlements, not within range 1 of a non-ally → recruit up to combined muster limit; may swap retinues between adjacent allied armies and change equipment). Endorsed: Perform another Move action (same or different Army).
 Muster | [Muster](https://mlang95.github.io/RenownWiki/glossary.html#muster): Raise retinues into an Army, up to a Settlement's muster limit (Industry/Prowess).
 Muster Field | [Muster Field](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Primitive). Upkeep 50 (per Settlement), build 2. Can Muster
@@ -355,6 +358,7 @@ Suzerain | [Suzerain](https://mlang95.github.io/RenownWiki/glossary.html#suzerai
 Tactic | [Tactic](https://mlang95.github.io/RenownWiki/glossary.html#tactic): A choice both players make secretly and reveal together each Skirmish; it can shift Initiative and Strike rolls.
 Tannery | [Tannery](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Craft). Innate: Unlocks Leather Armor / Mastery: Upkeep -200; Craft +1
 tax per tier | [Tax per tier](https://mlang95.github.io/RenownWiki/economy-ref.html): 500 gold per settlement tier per turn (collected in Winter)
+terrain | [Terrain](https://mlang95.github.io/RenownWiki/reference-tables.html): Grassland, Wetlands, Tundra, Mountains, Water, Forest. Each Territory type has a movement effect and the Raw Material pursuits it supports.
 Territory | [Territory](https://mlang95.github.io/RenownWiki/glossary.html#territory): 1 Hex.
 The Ancient Wilds | [The Ancient Wilds](https://mlang95.github.io/RenownWiki/factions.html) Faction (Medium difficulty, High strength, Oathkeepers). Highlander Way: Enemy armies gain Speed −1 in your Controlled Territory. You ignore all Terrain Speed modifiers and may trade without Dirt Roads. You must accept the first Non-Aggression Pact offered by each player or Alliance. If that player later joins an alliance, this condition is considered satisfied for that Alliance.
 The Ashen Vale | [The Ashen Vale](https://mlang95.github.io/RenownWiki/factions.html) Faction (High difficulty, Low strength, Sickly). Pestilence: Each bordering player gains Doubt +1, your settlements gain Reach +1, and all Retinues gain Poison. You may not Pursue an Apothecary, Infirmary, or Hospitaller.
@@ -414,6 +418,7 @@ Trade Guild | [Trade Guild](https://mlang95.github.io/RenownWiki/pursuits.html) 
 trade income | [Trade Income](https://mlang95.github.io/RenownWiki/economy-ref.html): 100 x host's Craft X per active Trade Agreement
 treaties | [Treaties & Alliances](https://mlang95.github.io/RenownWiki/treaties-ref.html): Peace Treaty, Trade Agreement, Non-Aggression Pact, Military Alliance, Defensive Alliance. Signed via Diplomacy.
 Treaty | [Treaty](https://mlang95.github.io/RenownWiki/glossary.html#treaty): A standing agreement between players (e.g. Trade Agreement, Non-Aggression, Alliance) signed via Diplomacy.
+Tundra | [Tundra](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: gain Strained. Raw Materials: Quarry, Salt Works.
 turn order | See 'turn structure'.
 turn structure | Each turn players take actions (Host, Trade, Council, Nobility, Pursuit) resolved via the influence vote; seasons cycle Winter->Spring->Summer->Fall.
 Unbreakable | [Unbreakable](https://mlang95.github.io/RenownWiki/keywords-ref.html#unbreakable): Immune Break: does not take Break checks while Fatigued.
@@ -432,10 +437,12 @@ Vote | [Vote](https://mlang95.github.io/RenownWiki/glossary.html#vote): On each 
 vp | See 'escalation victory'.
 War College | [War College](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Power). Innate: Gain +2 Influence while At War / Mastery: Unlocks Sergeants for Muster
 War Hammer | [War Hammer](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP -8, Init -1. Keywords: Unwieldy, Destroy Shield, Unstoppable, 2H, Deadly.
+Water | [Water](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: Must end Move after passing over 1 Water Territory (must end on land). Raw Materials: Fishmongery.
 weak factions | See 'low strength factions'.
 Wealth | [Wealth](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Economy). Generate 10,000 gold per turn for five consecutive turns.
 weapon tiers | [Equipment](https://mlang95.github.io/RenownWiki/equipment-ref.html): Crude (start) -> Cast (Furnace) -> Wrought (Blacksmith) -> Forged (Forge) -> Crafted (ABF). Ask e.g. 'wrought weapons' for a tier's list.
 Weavery | [Weavery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: +300 / Mastery: +300; Craft +2
+Wetlands | [Wetlands](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: Speed -1. Raw Materials: Peat Bog, Forestry.
 win | See 'how to win'. Win paths are Edicts: Sovereign Standing, Monument, Wonder, wealth, Vassalize, Living Saints, Last Standing.
 Winery | [Winery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: +400 / Mastery: Craft +3
 Winter | [Winter](https://mlang95.github.io/RenownWiki/seasons-ref.html) Season (Freezing). All Armies gain Speed -1; Sieges do not increment. Tax income collected.
