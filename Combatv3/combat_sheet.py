@@ -321,31 +321,31 @@ def back(c):
              "Unwieldy":"Unw","Steady":"Stdy","2H":"2H","Nimble":"Nmb","Deflect":"Dfl",
              "One Shot":"1Sht","Poison":"Psn"}
         return ", ".join(m.get(t, t) for t in tags) or "\u2014"
-    wrows = [[n, w["tier"][:3], w["ap"], f"{w['init']:+d}", kw_short(w["tags"])]
+    wrows = [[n, w["tier"], w["ap"], f"{w['init']:+d}", kw_short(w["tags"])]
              for n, w in rd.WEAPONS.items()]
     yl = chart(c, lx, y_start, col_w, "Melee Weapons",
                ["Weapon", "Tier", "AP", "Init", "Keywords"], wrows,
-               colw=[col_w*0.26, col_w*0.13, col_w*0.10, col_w*0.11, col_w*0.40],
+               colw=[col_w*0.24, col_w*0.18, col_w*0.09, col_w*0.10, col_w*0.39],
                fs=6.6, rowh=10.5)
-    rrows = [[n, w["tier"][:3], w["ap"], f"{w['init']:+d}", kw_short(w["tags"])]
+    rrows = [[n, w["tier"], w["ap"], f"{w['init']:+d}", kw_short(w["tags"])]
              for n, w in rd.RANGED.items()]
     yl = chart(c, lx, yl - 4, col_w, "Ranged Weapons",
                ["Weapon", "Tier", "AP", "Init", "Keywords"], rrows,
-               colw=[col_w*0.26, col_w*0.13, col_w*0.10, col_w*0.11, col_w*0.40],
+               colw=[col_w*0.24, col_w*0.18, col_w*0.09, col_w*0.10, col_w*0.39],
                fs=6.6, rowh=10.5)
 
     # RIGHT COLUMN: Armor, Shields, then Keywords
     yr = y_start
-    arows = [[n, a["tier"][:3], f"{a['save']}+"] for n, a in rd.ARMORS.items()]
+    arows = [[n, a["tier"], f"{a['save']}+"] for n, a in rd.ARMORS.items()]
     yr = chart(c, rx, yr, col_w, "Armor",
                ["Armor", "Tier", "Save"], arows,
-               colw=[col_w*0.5, col_w*0.25, col_w*0.25], fs=6.8, rowh=10.5)
-    srows = [[n, s["tier"][:3] if s["tier"] else "\u2014", f"+{s['save_bonus']}",
+               colw=[col_w*0.45, col_w*0.32, col_w*0.23], fs=6.8, rowh=10.5)
+    srows = [[n, s["tier"] if s["tier"] else "\u2014", f"+{s['save_bonus']}",
               f"{s['init']:+d}", kw_short(s["tags"])]
              for n, s in rd.SHIELDS.items() if n]
     yr = chart(c, rx, yr - 4, col_w, "Shields",
                ["Shield", "Tier", "Save", "Init", "Keywords"], srows,
-               colw=[col_w*0.28, col_w*0.13, col_w*0.13, col_w*0.12, col_w*0.34],
+               colw=[col_w*0.26, col_w*0.18, col_w*0.12, col_w*0.11, col_w*0.33],
                fs=6.6, rowh=10.5)
 
     # Keyword glossary (compact) — continues down the right column
