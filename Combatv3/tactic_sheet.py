@@ -69,7 +69,7 @@ from renown_data import TACTICS as TACTIC_ORDER, TACTIC_MATRIX
 def _cell_text(m):
     """Render a tactic-matrix cell (this side's modifiers) as card text."""
     if m["end"]:
-        return "Battle Ends"
+        return "Battle Ends, gain Strain" if m.get("strain") else "Battle Ends"
     if m["no_combat"]:
         return "No Combat"
     parts = []

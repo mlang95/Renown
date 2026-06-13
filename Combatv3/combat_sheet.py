@@ -201,20 +201,37 @@ def front(c):
     y -= 6
     # Natural-6 triggers
     nat_rows = [
-        ["Deadly", "AP \u22125; only Parried/Recovered on a natural 6."],
-        ["Cleave", "Roll one extra Strike die at your modified value (can chain)."],
-        ["Destroy Shield", "Target loses Shield for the rest of the Battle."],
-        ["Poison", "A natural 6 to Save against this retinue fails."],
+        ["Deadly", "On Strike: AP \u22125; can only be Parried or Recovered on a natural 6."],
+        ["Cleave", "On Strike: roll one extra Strike die at your modified value (can chain)."],
+        ["Destroy Shield", "On Strike: target loses Shield for the rest of the Battle."],
+        ["Poison", "A natural 6 to Save against this retinue's Strikes fails."],
+        ["Riposte", "A natural 6 on a Parry (melee): striker immediately takes a Strike back."],
     ]
     y = chart(c, right_x, y, right_w, "On a Natural 6",
               ["Keyword", "Effect"], nat_rows,
-              colw=[right_w*0.30, right_w*0.70], fs=7.5)
+              colw=[right_w*0.26, right_w*0.74], fs=7.5)
     y -= 6
     # Standing combat effects
     se_rows = [[f"{dom} {st}", eff] for (dom, st), eff in rd.STANDING_EFFECTS.items()]
     y = chart(c, right_x, y, right_w, "Standing Combat Effects",
               ["Standing", "Effect"], se_rows,
               colw=[right_w*0.42, right_w*0.58], fs=7.5)
+    y -= 8
+
+    # The 6+ ceiling: what's clamped to 6+, what can be pushed to 7+, what's uncapped.
+    cap_rows = [
+        ["Blunder (Init \u22122 or lower)",
+         "Your to-Strike is set to 6+ (hit only on a natural 6), before other negative modifiers."],
+        ["Capped at 6+",
+         "Fatigue \u22121 to to-Strike, Parry, and Recover; Planishing keeps the Save at 6+ vs any AP. A natural 6 always has a chance."],
+        ["Pushes past 6+ \u2192 7+ (auto-miss)",
+         "Shield \u22121 to Strike (Scutum/Tower/Heater) and enemy tactic to-Strike penalties apply AFTER the cap \u2014 they can raise the target to 7+."],
+        ["Uncapped \u2192 Rout",
+         "Fatigue's \u22121 to Morale is NOT capped. At modified Morale 7+ the army Routs."],
+    ]
+    y = chart(c, right_x, y, right_w, "The 6+ Ceiling",
+              ["Rule", "Effect"], cap_rows,
+              colw=[right_w*0.34, right_w*0.66], fs=7.5)
 
     _footer(c, "Front")
     c.showPage()
@@ -225,6 +242,9 @@ def tactic_grid(c, x, y, w):
     n = len(T)
     abbr = {"Scout":"Sc","Ambush":"Am","Flank":"Fl","Charge":"Ch",
             "Fighting Formation":"FF","Defensive Formation":"DF","Fall Back":"FB"}
+    # full row labels: two-word tactics stack onto two lines so the label
+    # column stays narrow (one word wide) and the grid stays square.
+    rowlabel = {t: t.split(" ") if " " in t else [t] for t in T}
     _set(c, ACCENT); c.setFont(SERIF_B, 12)
     c.drawString(x, y, "TACTIC MATRIX")
     y -= 4
@@ -233,7 +253,7 @@ def tactic_grid(c, x, y, w):
     _set(c, INK); c.setFont(SERIF_I, 7)
     c.drawString(x, y, "Your tactic (row) vs opponent (col). I=Init, H=to-Strike, S=Save (lower target better).")
     y -= 12
-    label_w = 34
+    label_w = 50          # fits the longest single word (Defensive / Formation)
     cell = (w - label_w) / n
     rowh = 26
     def fmt(m):
@@ -244,19 +264,30 @@ def tactic_grid(c, x, y, w):
         if m.get("TH"): parts.append(f"H{m['TH']:+d}")
         if m.get("TS"): parts.append(f"S{m['TS']:+d}")
         return " ".join(parts) if parts else "\u2014"
-    # column headers
-    _set(c, INK); c.setFont(SERIF_B, 7.5)
+    # column headers — full names, stacked two lines (to keep columns narrow)
+    _set(c, INK); c.setFont(SERIF_B, 6.8)
     cx = x + label_w
+    hdr_h = 16
     for t in T:
-        c.drawCentredString(cx + cell/2, y, abbr[t]); cx += cell
-    y -= 4
+        words = t.split(" ") if " " in t else [t]
+        ty = y - (hdr_h - len(words)*7)/2 - 5
+        for wd in words:
+            c.drawCentredString(cx + cell/2, ty, wd); ty -= 7
+        cx += cell
+    y -= hdr_h
     _stroke(c, RULE); c.setLineWidth(0.5); c.line(x, y, x + w, y)
     y -= rowh
     for ri, rt in enumerate(T):
         if ri % 2 == 0:
             _set(c, BANDALT); c.rect(x, y, w, rowh, fill=1, stroke=0)
-        _set(c, ACCENT); c.setFont(SERIF_B, 7.5)
-        c.drawString(x + 1, y + rowh/2 - 2, abbr[rt])
+        # full row name, stacked if two words, vertically centered in the row
+        _set(c, ACCENT); c.setFont(SERIF_B, 7)
+        words = rowlabel[rt]
+        line_h = 8
+        total_h = len(words) * line_h
+        ty = y + rowh/2 + total_h/2 - line_h + 1
+        for wd in words:
+            c.drawString(x + 1, ty, wd); ty -= line_h
         cx = x + label_w
         for ct in T:
             a, _b = rd.TACTIC_MATRIX[(rt, ct)]
@@ -267,10 +298,6 @@ def tactic_grid(c, x, y, w):
             cx += cell
         y -= rowh
     _stroke(c, RULE); c.setLineWidth(0.5); c.line(x, y + rowh, x + w, y + rowh)
-    # legend
-    _set(c, INK); c.setFont(SERIF_I, 6.5)
-    leg = "  ".join(f"{abbr[t]}={t}" for t in T)
-    c.drawString(x, y + 4, leg)
     return y - 6
 
 # ── BACK PAGE ──

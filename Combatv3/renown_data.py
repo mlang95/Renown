@@ -1,6 +1,6 @@
 # renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
-VERSION = "0.4.8.5"
+VERSION = "0.4.8.5.5"
 # ── Keyword constants ─────────────────────────────────────────────────────
 # Rename a keyword here and it renames everywhere (GLOSSARY keys, tags, cards).
 STEADY          = "Steady"
@@ -225,19 +225,10 @@ STANDING_EFFECTS = {
 }
 	
 # ── Tactics ────────────────────────────────────────────────────────────────
-def _m(I=0, TH=0, TS=0, end=False, no_combat=False, endurance_loss=True):
-    """Tactic modifier cell.
-      I: initiative adjustment (this side's initiative gain)
-      TH: to-hit adjustment (this side's to-hit improvement; lower target = better)
-      TS: save-target adjustment (this side's save improvement; lower target = better)
-      end: battle terminates (indecisive outcome unless one side already wiped).
-      no_combat: this skirmish has no engagement (no strikes, no shake, no rout).
-      endurance_loss: only meaningful when no_combat=True. If True, armies still spend
-        endurance this skirmish (Flank/Flank: maneuvering tires the troops).
-        If False, no_combat skirmishes are completely free (n/a in current card set).
-    """
+def _m(I=0, TH=0, TS=0, end=False, no_combat=False, endurance_loss=True, strain=False):
     return {"I": I, "TH": TH, "TS": TS,
-            "end": end, "no_combat": no_combat, "endurance_loss": endurance_loss}
+            "end": end, "no_combat": no_combat, "endurance_loss": endurance_loss,
+            "strain": strain}
 
 # Tactic matrix transcribed verbatim from tactic_cards.pdf. Format is the card-holder's
 # perspective: (A_tactic, B_tactic) -> (A's gains/penalties, B's gains/penalties).
@@ -257,7 +248,7 @@ TACTIC_MATRIX = {
     ("Scout", "Charge"):                           (_m(I=1), _m(I=-1)),
     ("Scout", "Fighting Formation"):               (_m(TS=-1), _m(I=-1, TH=1)),
     ("Scout", "Defensive Formation"):              (_m(I=1), _m(I=-1, TS=1)),
-    ("Scout", "Fall Back"):                        (_m(end=True), _m(end=True)),
+    ("Scout", "Fall Back"):                        (_m(end=True), _m(end=True, strain=True)),
     # -- Ambush --
     ("Ambush", "Scout"):                           (_m(I=-1, TS=1), _m(I=1)),
     ("Ambush", "Ambush"):                          (_m(I=-1, TS=1), _m(I=-1, TS=1)),
@@ -265,7 +256,7 @@ TACTIC_MATRIX = {
     ("Ambush", "Charge"):                          (_m(I=1, TH=1), _m(I=-1, TS=-1)),
     ("Ambush", "Fighting Formation"):              (_m(I=1, TS=1), _m(I=-1, TS=-1)),
     ("Ambush", "Defensive Formation"):             (_m(TH=-1), _m(TS=1)),
-    ("Ambush", "Fall Back"):                       (_m(end=True), _m(end=True)),
+    ("Ambush", "Fall Back"):                       (_m(end=True), _m(end=True, strain=True)),
     # -- Flank --
     ("Flank", "Scout"):                            (_m(I=1), _m(I=-1, TS=1)),
     ("Flank", "Ambush"):                           (_m(I=-1, TH=1), _m(I=1, TH=-1)),
@@ -297,14 +288,14 @@ TACTIC_MATRIX = {
     ("Defensive Formation", "Charge"):             (_m(I=1, TH=1, TS=1), _m(I=-1, TS=-1)),
     ("Defensive Formation", "Fighting Formation"): (_m(TS=1), _m(TH=1)),
     ("Defensive Formation", "Defensive Formation"): (_m(TS=1), _m(TS=1)),
-    ("Defensive Formation", "Fall Back"):          (_m(end=True), _m(end=True)),
+    ("Defensive Formation", "Fall Back"):          (_m(end=True), _m(end=True, strain=True)),
     # -- Fall Back --
-    ("Fall Back", "Scout"):                        (_m(end=True), _m(end=True)),
-    ("Fall Back", "Ambush"):                       (_m(end=True), _m(end=True)),
+    ("Fall Back", "Scout"):                        (_m(end=True, strain=True), _m(end=True)),
+    ("Fall Back", "Ambush"):                       (_m(end=True, strain=True), _m(end=True)),
     ("Fall Back", "Flank"):                        (_m(I=1, TH=1), _m(I=-1)),
     ("Fall Back", "Charge"):                       (_m(I=-1), _m(I=1, TH=1)),
     ("Fall Back", "Fighting Formation"):           (_m(), _m(TH=1)),
-    ("Fall Back", "Defensive Formation"):          (_m(end=True), _m(end=True)),
+    ("Fall Back", "Defensive Formation"):          (_m(end=True, strain=True), _m(end=True)),
     ("Fall Back", "Fall Back"):                    (_m(end=True), _m(end=True)),
 }
  
