@@ -123,6 +123,65 @@ def _render_board_png(placed, board_w, board_h, R, out_png, settlements=None,
     renderPM.drawToFile(svg2rlg(tmp), out_png, fmt="PNG", dpi=dpi)
 
 
+def generate_tactical_board(width=9, height=6, *, seed=7, out_pdf="tactical_board.pdf",
+                            hex_mm=20.0, paper="A4", margin_mm=6.0, mapgen_params=None):
+    """One-sheet skirmish board (landscape). Terrain only, hills painted with the
+    hills tile, no labels/trim grid (single page). Auto-clamps width/height so the
+    whole board fits one landscape page at hex_mm."""
+    if paper not in PAPER:
+        raise ValueError(f"paper must be one of {list(PAPER)}")
+    page_wmm, page_hmm = PAPER[paper][1], PAPER[paper][0]      # landscape
+    R = float(hex_mm)
+    dx = 1.5 * R
+    dy = math.sqrt(3) * R
+    # how many hexes fit on one landscape page (with margins)?
+    win_w = page_wmm - 2 * margin_mm
+    win_h = page_hmm - 2 * margin_mm
+    max_w = int((win_w - 2 * R) / dx) + 1
+    max_h = int((win_h - dy) / dy) + 1
+    width = min(width, max_w)
+    height = min(height, max_h)
+
+    mp = dict(mapgen_params or {})
+    m = mapgen.generate_tactical(width=width, height=height, seed=seed, **mp)
+
+    tbody = _terrain_bodies()
+    hill_body = _strip(hexgen.terrain("hills"))
+    placed = []
+    for h in m.all():
+        cx, cy = _hex_center(h.col, h.row, R, dx, dy)
+        body = hill_body if getattr(h, "tactical", None) == "hill" else tbody[h.terrain]
+        placed.append((cx, cy, body))
+
+    xs = [p[0] for p in placed]; ys = [p[1] for p in placed]
+    board_w = max(xs) + R
+    board_h = max(ys) + R * math.sqrt(3) / 2
+
+    c = rl_canvas.Canvas(out_pdf, pagesize=(page_wmm * mm, page_hmm * mm))
+    # centre the board on the page
+    off_x = (page_wmm - board_w) / 2
+    off_y = (page_hmm - board_h) / 2
+    svg = _page_svg((-off_x, -off_y, board_w, board_h), placed, R, page_wmm, page_hmm, 0)
+    tmp = os.path.join(_TMPDIR, "_tactical.svg")
+    with open(tmp, "w") as f:
+        f.write(svg)
+    renderPDF.draw(svg2rlg(tmp), c, 0, 0)
+    c.showPage()
+    c.save()
+
+    out_png = os.path.splitext(out_pdf)[0] + ".png"
+    try:
+        _render_board_png(placed, board_w, board_h, R, out_png)
+    except Exception as e:
+        out_png = f"(preview failed: {e})"
+    from collections import Counter
+    terr = Counter(h.terrain for h in m.all())
+    hills = sum(1 for h in m.all() if getattr(h, "tactical", None) == "hill")
+    return {"pdf": out_pdf, "png": out_png, "grid": (width, height),
+            "board_mm": (round(board_w, 1), round(board_h, 1)),
+            "terrain": dict(terr), "hills": hills}
+
+
 def generate_board(width, height, *, seed=7, place_resources=True,
                    out_pdf="renown_board.pdf", hex_mm=40.0, paper="A4",
                    margin_mm=6.0, mapgen_params=None):
@@ -215,14 +274,21 @@ if __name__ == "__main__":
     ap.add_argument("--no-resources", action="store_true")
     ap.add_argument("--param", action="append", default=[],
                     help='mapgen override, e.g. --param players=6 --param forests=14')
+    ap.add_argument("--tactical", action="store_true",
+                    help="one-sheet skirmish board (landscape, terrain only, hills)")
     ap.add_argument("--out", default="renown_board.pdf", dest="out_pdf")
     a = ap.parse_args()
     mparams = {}
     for kv in a.param:
         k, v = kv.split("=", 1)
         mparams[k] = _coerce(v)
-    info = generate_board(a.width, a.height, seed=a.seed, hex_mm=a.hex_mm,
-                          paper=a.paper, margin_mm=a.margin_mm,
-                          place_resources=not a.no_resources,
-                          out_pdf=a.out_pdf, mapgen_params=mparams)
+    if a.tactical:
+        info = generate_tactical_board(a.width, a.height, seed=a.seed, hex_mm=a.hex_mm,
+                                       paper=a.paper, margin_mm=a.margin_mm,
+                                       out_pdf=a.out_pdf, mapgen_params=mparams)
+    else:
+        info = generate_board(a.width, a.height, seed=a.seed, hex_mm=a.hex_mm,
+                              paper=a.paper, margin_mm=a.margin_mm,
+                              place_resources=not a.no_resources,
+                              out_pdf=a.out_pdf, mapgen_params=mparams)
     print(info)

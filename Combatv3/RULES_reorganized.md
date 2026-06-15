@@ -6,7 +6,7 @@
 
 Within the Realm, Empires expand, specialize, confer, and when diplomacy fails—battle. You will lead your humble Province to greatness. **Charter settlements**, **pursue** your economy, and **negotiate** your way to victory. Will your religion dominate the **Realm**? Will your economy grow until your wealth is undeniable? Can you build a **world wonder**? Can you **extort** your way to victory? Pick your Faction, command your Domain, and pursue your craft in this political grand strategy, where every action you attempt can be **endorsed** or **condemned** by your allies and other players.
 
-## Game Synopsis
+### Game Synopsis
 
 **Renown** is a turn-based political strategy game for 1–7 players (3+ preferred) set in a medieval world of competing lords. Each player controls a growing empire — settlements, armies, and pursuits — but the game’s central tension isn’t military. It’s political.
 
@@ -26,7 +26,7 @@ This game is for:
 
 3. Finally, this game is designed to be played at an advanced level—for players who want a TTRPG experience with the Duke, opening a GM experience with asymmetric information, private actions, and many additional crunchy, flavorful mechanics.
 
-## How to Win (Edicts)
+### How to Win (Edicts)
 
 Whichever player has accomplished the most **Edicts** before the last Alliance standing condition is met, from the list below, wins the game:
 
@@ -47,14 +47,14 @@ To **vassalize** a **player**:
 - The **vassal** immediately ends all existing **treaties** and inherits all **treaties** held by the **Suzerain**. For the remainder of the game, the **vassal’s** Treaties exactly mirror the **Suzerain**—any **treaty** the **Suzerain** signs, ends, or has ended for them applies identically to the **vassal**. The **vassal** counts as being in a **military** and **defensive** **alliance** with the **Suzerain**, but has no say in other **player’s** joining the **suzerains** alliances.
 - The **vassal** cannot **perform Diplomacy actions** and cannot be the **target** of **Diplomacy actions**.
 - The **Suzerain** collects:
-I. Half of the **vassal’s trade income** from trading with other **players**
-1. The first **3 influence** the **vassal** generates each turn
+    - Half of the **vassal’s trade income** from trading with other **players**
+    - The first **3 influence** the **vassal** generates each turn
 
 *Note: mutual exchange (empire phase of each turn): if both players agree, you may exchange up to 2000 gold, exchange ownership of settlements, or transfer forces (so long as armies are adjacent to each other or an army is adjacent to a garrison), in either direction.*
 
 *Note: if the suzerain becomes vassalized, both the original vassal and the suzerain become vassals to the new suzerain, and the new suzerain gains the benefits for each vassal.*
 
-## Turn Outline
+### Turn Outline
 
 Each turn flows through five phases, then passes the Host and repeats:
 
@@ -64,7 +64,7 @@ Each turn flows through five phases, then passes the Host and repeats:
 4. **Battle Phase** — Skirmishes, Sieges, and Battles resolve.
 5. **Rest Phase** — cleanup, Season +1, score Renown, spend one Domain Point, pass the Host.
 
-## Key Resources
+### Key Resources
 
 The game tracks a handful of core resources:
 
@@ -153,28 +153,28 @@ The game tracks a handful of core resources:
 - **Activate** any **unlocked domain** **standing** effects.
 - **Gain seasonal effect** — check the **season** of this **turn** and apply its effect.
 - **Increment all eligible, active timers** in this order:
-- Build Timers
-- Repair Timers
-- Truce Timers
-- Siege Timers
-- Muster Timers
-- Sack / Capture Timers
+    - Build Timers
+    - Repair Timers
+    - Truce Timers
+    - Siege Timers
+    - Muster Timers
+    - Sack / Capture Timers
 - **Resolve** any timers incremented to 0.
 - May modify any **active infrastructure.**
 - **Host Resolves Bandit Mechanics:**
-- Grow existing **bandit camps** according to **Era**
-- If a **camp** reaches 25, convert it to an **army**
-- **Perform Cunning actions**
-- **Perform move actions**
-- Spawn new **bandit camps**
+    - Grow existing **bandit camps** according to **Era**
+    - If a **camp** reaches 25, convert it to an **army**
+    - **Perform Cunning actions**
+    - **Perform move actions**
+    - Spawn new **bandit camps**
 - **Gain Influence & Envoys:**
-- Gain **influence** based on: **Era**, **innate modifiers** (Trade Partners, Alliances, at War, etc.), **pursuits**, and **infrastructure**
-- Gain **envoys** based on the **Era**
+    - Gain **influence** based on: **Era**, **innate modifiers** (Trade Partners, Alliances, at War, etc.), **pursuits**, and **infrastructure**
+    - Gain **envoys** based on the **Era**
 - **Winter Phase:**
-- If **Winter**, gain **tax income** equal to your settlements tiers and adjusted by any modifiers.
+    - If **Winter**, gain **tax income** equal to your settlements tiers and adjusted by any modifiers.
 - **Income & Upkeep:**
-- All **players** gain **pursuit income**
-- **Pay army**, **pursuit**, **infrastructure**, and any additional **upkeep**
+    - All **players** gain **pursuit income**
+    - **Pay army**, **pursuit**, **infrastructure**, and any additional **upkeep**
 - **Trade**: If there is a **host**, the **host** collects **trade income** and distributes it amongst their **trade partners**.
 - **Extort —** Any **pursuits** or effects that trigger **extort** are resolved now.
 - **Determine public order** — add all **faith** **X** accumulated since the last **public order** Step and subtract all **doubt** **X**; apply the result to your current **public order**.
@@ -283,7 +283,17 @@ Whenever you **perform** an **action**, pay the relevant **cost** (**gold**, **d
 
 ## Influence
 
-Each turn, gain **influence** based on:
+Each turn, gain **influence** based on the following sources (see the **Timers, Influence & PO** reference for the full table):
+
+- **Era** — **+1 / +2 / +3 / +4**, based on your current **Era**.
+- **Trading Partners** — **+1** per **trading partner**.
+- **Alliances** — **+1** per **alliance member**.
+- **Infrastructure** — **+1** per **infrastructure tier** fully completed.
+- **Cunning Standing** — **+1** flat if you hold any **Cunning** **standing**.
+- **Fully Mustered Army** — **+1** per active **army** of 50 **retinues**.
+- **Pursuits & other effects** — **+X** from **pursuits**, **factions**, and other effects.
+- **Condemned Envoy** — **−1** per **envoy** of yours **condemned** last turn.
+- **At War** — **−3** while you are **at war**.
 
 ## Prowess Actions
 
@@ -531,7 +541,7 @@ If **passes**, choose a **target** with an **active treaty signed** with you. Th
 
 # Diplomacy & Treaties
 
-## Treaties & Alliances
+### Treaties & Alliances
 
  **Alliance Rules:** 
 
@@ -541,7 +551,7 @@ If **passes**, choose a **target** with an **active treaty signed** with you. Th
 
 # Domains & Standings
 
-## Domain Standings
+### Domain Standings
 
  	**Domains** are the identity of your character in **Renown**. As you gain **Renown** each turn, you’ll gain access to a **Domain point**, which you can spend in any of the four **Domains**. Every time you spend a **Domain point**, you increase your **Domain value** by 1. When your **Domain value** becomes *three*, you become **Rising** in that **Domain**, allowing you spend an additional **influence** on another **player’s envoy** of that **domain**, and your **envoys** gain **influence +1**. You also unlock a unique effect. This continues when you have a **domain value** of *six*, causing you to become **Established** in that **domain**, and **Sovereign** when your reach a **domain value** of *ten*.
 
@@ -549,7 +559,23 @@ Each **standing** you gain in a **domain** makes you harder to stop in that area
 
 ** ****Domain Identities & Traits**
 
-## Domain Resolve Table
+### Domain Resolve Table
+
+Every **envoy** resolves by its **net influence** (all **support** minus all **oppose**, plus any **influence X** modifiers). The net total maps to one of four outcomes:
+
+- **Condemned** — net **influence** **−3 or lower**. The **action** fails and may trigger consequences (e.g. the Cunning **Act of War**).
+- **Failed** — net **influence** **−2 to 0**. The **action** simply does not resolve.
+- **Passed** — net **influence** **1 or higher**. Perform the **action’s** pass effect.
+- **Endorsed** — net **influence** **3 or higher**. Perform the pass effect *and* the **endorsed** effect.
+
+Your **standing** in a **domain** sets how much **influence** you bring to its **envoys**:
+
+| Standing | Innate Influence (your own Envoys) | Max Influence per Vote |
+|---|---|---|
+| Untested | 0 | 1 |
+| Rising | 1 | 2 |
+| Established | 2 | 3 |
+| Sovereign | 3 | 4 |
 
 # Empire & Economy
 
@@ -662,7 +688,7 @@ Hamlets are unique **settlements** that can be placed *exactly* **range 2** from
 
 # Armies
 
-## Armies Overview
+### Armies Overview
 
 **Armies** are a collection of **retinues** that exist on the **realm**. **Armies** are the target of **move** **actions**. **Armies** consist of up to 50 **retinues** with up to a single piece of **equipment** from each type (**armor**, **weapons**, **shields**).
 
@@ -672,7 +698,7 @@ Hamlets are unique **settlements** that can be placed *exactly* **range 2** from
 
 If an has been **engaged** in a **battle** or **lay siege action** started by another **player’s army**, both **armies** cannot be the **target** of any **actions** until the **battle** or **lay siege** has been resolved. 
 
-## Recruiting an Army
+### Recruiting an Army
 
 When you **perform** a **muster action**, if you do not have the maximum amount of **armies** you are allowed, you may place an **army** is **within** (range 0) a **settlement** you **control** that is not being **sieged** by another **player**. When you do, you may **muster** an amount of **retinues** according to the **muster** **limit** of the **settlement**, **pay** the appropriate **cost** according to the **type** of **retinue** you are eligible to purchase, select their **equipment** based on the available equipment you have to choose from, and set a **muster timer 1**.
 
@@ -680,13 +706,13 @@ If you want to **muster** more **retinues** than the **muster limit**, you may *
 
 If your settlement is ever besieged, the **muster limit** is set to 0, and if there’s an active **muster timer**, the **muster timer** does not increment. 
 
-## Recruiting Retinues to an Existing Army
+### Recruiting Retinues to an Existing Army
 
 If you have an existing army that performs a **muster action** **within range 3** of any **settlement**(s) you **control** that are not under **siege**, you may **muster** an amount of **retinues** according to the **muster** **limit** of the **settlement**, up to the maximum an **army** can hold (50), **pay** the appropriate **cost** according to the **type** of **retinue** in your existing army, and set a **muster timer 1**. Once the muster timer resolves, you gain those retinues and they gain the same equipment your retinues already had equipped. 
 
 During any **upkeep** phase where an **army** is **within** (range 0) a **settlement** you **control**, you may change that **army’s equipment** according the **equipment** you have **unlocked**. 
 
-## Blocked Armies
+### Blocked Armies
 
 A **blocked army** is an **army** that cannot be the **target** of **actions** until **blocked** is removed. **Armies** gain **blocked** whenever they are **within** a **settlement** that is under **siege** or was selected as a result of a **condemned prowess envoy**. 
 

@@ -2,7 +2,7 @@ Item,Type,Tier,AP_or_Save,Init,Keywords
 Farm Tools,Melee,Crude,0,0,
 Cudgel,Melee,Crude,-1,-1,"2H, Unwieldy"
 Pitchfork,Melee,Crude,0,1,"2H, Unwieldy"
-Daggers,Melee,Cast,0,1,"Nimble, 2H, Deadly"
+Daggers,Melee,Cast,0,1,"Deflect, 2H, Deadly, Dual Wield"
 Short Sword,Melee,Cast,-1,0,Steady
 Spears,Melee,Cast,-1,1,Unwieldy
 Arming Sword,Melee,Wrought,-1,0,"Steady, Deadly"
@@ -17,6 +17,7 @@ Lance,Melee,Forged,-4,1,"Steady, Unwieldy, Deadly, Unstoppable"
 Morningstar,Melee,Forged,-3,-1,"Unwieldy, Destroy Shield, Cleave"
 War Hammer,Melee,Forged,-8,-1,"Unwieldy, Destroy Shield, Unstoppable, 2H, Deadly"
 Poleaxe,Melee,Crafted,-4,0,"Steady, 2H, Unstoppable, Deadly, Cleave"
+Estoc,Melee,Crafted,-3,-1,"Steady, Deadly, Deflect, Negate Tempered"
 Hunting Bow,Ranged,Crude,-1,2,"2H, Deadly, Deflect"
 Longbow,Ranged,Cast,-2,2,"Deadly, 2H, Deflect"
 Javelin,Ranged,Wrought,-3,1,"Deadly, Steady, Unstoppable, One Shot, Deflect"
@@ -26,7 +27,7 @@ Wooden Shield,Shield,Crude,+1,-1,Unwieldy
 Kite Shield,Shield,Cast,+1,0,Steady
 Scutum Shield,Shield,Wrought,+1,-1,"Unwieldy, -1 to Strike"
 Tower Shield,Shield,Forged,+2,-1,"-1 to Strike, Unwieldy"
-Heater Shield,Shield,Crafted,+1,0,"-1 to Strike, Immune Destroy Shield"
+Heater Shield,Shield,Crafted,+1,0,"-1 to Strike, Immune Destroy Shield, Negate Unstoppable"
 Cloth,Armor,Crude,6+,,
 Leather,Armor,Cast,5+,,
 Chainmail,Armor,Wrought,4+,,

@@ -1,32 +1,36 @@
 {
- "version": "0.4.8.5.5",
+ "version": "0.4.8.6",
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
   "2H": "Cannot use a Shield.",
   "Deadly": "On a natural 6 to Strike, increase the AP by -5. Can only be Parried or Recovered on a natural 6.",
-  "Unstoppable": "Ignore the target shield's -1 to Strike; the target's Parry is -1 against you.",
+  "Unstoppable": "Ignore the target shield's -1 to Strike, and impose -1 to Parry on the target (negated entirely if the target has Negate Unstoppable).",
   "Cleave": "On a natural 6 to Strike, you may roll an additional Strike die at your modified Strike value.",
   "Poison": "A natural 6 to Save against this Retinue's Strikes fails.",
-  "Nimble": "Gain +1 Initiative in the first Skirmish of each Battle.",
   "Drilled": "Does not lose Endurance in the first Skirmish of each Battle.",
   "Destroy Shield": "On a natural 6 to Strike, target loses Shield attributes for the rest of the Battle.",
   "Blunder": "At Initiative -2 or lower, your to-Strike is set to 6+, before other negative modifiers.",
   "One Shot": "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard.",
-  "Deflect": "Ranged Strikes are -1 to Parry and can never be Riposted.",
+  "Deflect": "-1 to Parry and Negate Riposte against this weapon's Strikes. (All Ranged weapons have Deflect.)",
   "Immune Panic": "Automatically passes Panic checks.",
   "Unbreakable": "Immune Break: does not take Break checks while Fatigued.",
   "Parry": "Roll a d6 to cancel a Strike before the Save on a 5+ (a natural 6 is a Riposte). -1 versus Unstoppable, versus ranged, and per Fatigue token (to a maximum of 6+).",
   "Riposte": "If you roll a natural 6 on a Parry from a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your equipped weapon. You can Riposte a Riposte.",
   "Recover": "If a to-Save roll fails, roll a d6: a result of X+ saves the retinue. Worsened by Fatigue and Serrated, to a maximum of 6+.",
-  "Serrated": "Your Strikes worsen the enemy's Recover roll by 1.",
-  "Planishing": "Your armor Save cannot be reduced beyond a 6+.",
+  "Serrated": "-1 to Recover against this weapon's Strikes (worsens the defender's Recover roll by 1).",
+  "Tempered": "Your armor Save cannot be reduced beyond a 6+.",
   "Fatigue Token": "Each token is -1 to your Strike, Parry, and Recover rolls, to a maximum of 6+; and Morale -1 (uncapped). If your modified Morale is ever 7+, your army Routs. Tokens stack.",
-  "-1 to Strike": "Attackers Striking this shield-bearer take -1 to the Strike roll.",
+  "-1 to Strike": "A stacking -1 penalty to the Strike roll (to a maximum of 6+). Sources: a shield's -1 to Strike (ignored by Unstoppable unless the shield has Negate Unstoppable), some Tactics (the Ministry innate is immune to the Tactic source), and each Fatigue token.",
+  "Negate Unstoppable": "Cancels the attacker's Unstoppable entirely: this shield's -1 to Strike still applies, and the attacker's -1 to Parry does not.",
+  "Negate Tempered": "Ignores Tempered: this weapon's AP can reduce the target's Save past 6+ (to auto-fail), defeating the Tempered floor.",
+  "Negate Riposte": "The target's Parry can never Riposte this weapon's Strikes (a natural 6 Parry still cancels the Strike, but no counter-Strike follows).",
+  "-1 to Parry": "A stacking -1 penalty to the defender's Parry roll (to a maximum of 6+). Sources: Unstoppable, Deflect, and each Fatigue token.",
+  "Dual Wield": "A Strike die that fails to Strike is rerolled once; the reroll can hit and can itself trigger a natural-6 effect. Dual Wield confers 2H (both hands on weapons \u2014 no Shield). Daggers have it innately; the Tiltyard mastery grants it when two of the same 1H Melee Weapon are equipped.",
   "Immune [keyword]": "Cancels that keyword as it applies to you (e.g. Immune Unwieldy, Strain, Destroy Shield).",
   "AP": "Armor Penetration \u2014 a weapon's (negative) modifier to the defender's Save roll; the more negative, the harder to save.",
   "Blocked": "-1 Initiative in the first Skirmish (negated by Immune Blocked).",
-  "Strained": "-1 Initiative every Skirmish (negated by Immune Strain).",
+  "Strained": "-1 Initiative every Skirmish (negated by Immune Strain). Does not gain Endurance in the Empire Phase.",
   "Improved Parry": "Your Parry succeeds on 4+ instead of 5+.",
   "Heal X": "At the end of each Skirmish, for every X casualties you took from Strikes, return 1 retinue to your Army.",
   "Seize the Initiative": "Won by the roll-off at the start of the Battle \u2014 the winner of their last Battle adds +1 to the roll. You become the Attacker and gain +1 Initiative in the first Skirmish. Some Tactics and the Ministry monument also grant it.",
@@ -133,7 +137,7 @@
     ],
     [
      "Unstoppable",
-     "Ignore the target shield's -1 to Strike; the target's Parry is -1 against you."
+     "Ignore the target shield's -1 to Strike, and impose -1 to Parry on the target (negated entirely if the target has Negate Unstoppable)."
     ],
     [
      "Cleave",
@@ -142,10 +146,6 @@
     [
      "Poison",
      "A natural 6 to Save against this Retinue's Strikes fails."
-    ],
-    [
-     "Nimble",
-     "Gain +1 Initiative in the first Skirmish of each Battle."
     ],
     [
      "Drilled",
@@ -161,7 +161,7 @@
     ],
     [
      "Deflect",
-     "Ranged Strikes are -1 to Parry and can never be Riposted."
+     "-1 to Parry and Negate Riposte against this weapon's Strikes. (All Ranged weapons have Deflect.)"
     ],
     [
      "Immune Panic",
@@ -185,11 +185,7 @@
     ],
     [
      "Serrated",
-     "Your Strikes worsen the enemy's Recover roll by 1."
-    ],
-    [
-     "Planishing",
-     "Your armor Save cannot be reduced beyond a 6+."
+     "-1 to Recover against this weapon's Strikes (worsens the defender's Recover roll by 1)."
     ],
     [
      "Improved Parry",
@@ -201,7 +197,7 @@
     ],
     [
      "Strained",
-     "-1 Initiative every Skirmish (negated by Immune Strain)."
+     "-1 Initiative every Skirmish (negated by Immune Strain). Does not gain Endurance in the Empire Phase."
     ],
     [
      "Seize the Initiative",
@@ -485,8 +481,12 @@
    "title": "Other",
    "rows": [
     [
+     "-1 to Parry",
+     "A stacking -1 penalty to the defender's Parry roll (to a maximum of 6+). Sources: Unstoppable, Deflect, and each Fatigue token."
+    ],
+    [
      "-1 to Strike",
-     "Attackers Striking this shield-bearer take -1 to the Strike roll."
+     "A stacking -1 penalty to the Strike roll (to a maximum of 6+). Sources: a shield's -1 to Strike (ignored by Unstoppable unless the shield has Negate Unstoppable), some Tactics (the Ministry innate is immune to the Tactic source), and each Fatigue token."
     ],
     [
      "Border",
@@ -505,6 +505,10 @@
      "Cost to perform an action, usually in Gold or Doubt."
     ],
     [
+     "Dual Wield",
+     "A Strike die that fails to Strike is rerolled once; the reroll can hit and can itself trigger a natural-6 effect. Dual Wield confers 2H (both hands on weapons \u2014 no Shield). Daggers have it innately; the Tiltyard mastery grants it when two of the same 1H Melee Weapon are equipped."
+    ],
+    [
      "Fail",
      "An unsuccessful to Hit or to Save."
     ],
@@ -515,6 +519,18 @@
     [
      "Fatigue Token",
      "Each token is -1 to your Strike, Parry, and Recover rolls, to a maximum of 6+; and Morale -1 (uncapped). If your modified Morale is ever 7+, your army Routs. Tokens stack."
+    ],
+    [
+     "Negate Riposte",
+     "The target's Parry can never Riposte this weapon's Strikes (a natural 6 Parry still cancels the Strike, but no counter-Strike follows)."
+    ],
+    [
+     "Negate Tempered",
+     "Ignores Tempered: this weapon's AP can reduce the target's Save past 6+ (to auto-fail), defeating the Tempered floor."
+    ],
+    [
+     "Negate Unstoppable",
+     "Cancels the attacker's Unstoppable entirely: this shield's -1 to Strike still applies, and the attacker's -1 to Parry does not."
     ],
     [
      "One Shot",
@@ -557,6 +573,10 @@
      "Declare a Domain, spend 1 Envoy."
     ],
     [
+     "Tempered",
+     "Your armor Save cannot be reduced beyond a 6+."
+    ],
+    [
      "Territory",
      "1 Hex."
     ],
@@ -582,14 +602,14 @@
  "standing_effects": [
   [
    "Prowess",
-   "Immune Blocked",
+   "\u2014",
    "Parry",
    "\u2014"
   ],
   [
    "Cunning",
    "\u2014",
-   "Foes gain Blocked",
+   "Foes gain Blunder in first Skirmish",
    "Foes gain Strain"
   ],
   [
@@ -1026,7 +1046,7 @@
     [
      "Gilded Foundry",
      "Armory + Blacksmith",
-     "**Efficient Armory**; Planishing: Your to Save modifier cannot be reduced beyond 6+.",
+     "**Efficient Armory**; Tempered: Your to Save modifier cannot be reduced beyond 6+.",
      "**Unlock Plate Armor**; Craft +1"
     ],
     [
@@ -1412,8 +1432,8 @@
     [
      "Tiltyard",
      "Fletchery + Coliseum",
-     "Armies may be Equipped with a Ranged and Melee Weapon; all weapons gain **Unwieldy** when equipped with both",
-     "Armies gain **Immune Unwieldy**"
+     "Armies may be Equipped with a second weapon (a Ranged and a Melee Weapon); the army gains **Unwieldy**",
+     "Armies gain **Immune Unwieldy**, and may instead equip two of the same 1H Melee Weapon to gain **Dual Wield**"
     ],
     [
      "Studium Generale",
@@ -1563,7 +1583,7 @@
     "Cast",
     "0",
     "+1",
-    "Nimble, 2H, Deadly"
+    "Deflect, 2H, Deadly, Dual Wield"
    ],
    [
     "Short Sword",
@@ -1662,6 +1682,13 @@
     "-4",
     "+0",
     "Steady, 2H, Unstoppable, Deadly, Cleave"
+   ],
+   [
+    "Estoc",
+    "Crafted",
+    "-3",
+    "-1",
+    "Steady, Deadly, Deflect, Negate Tempered"
    ]
   ],
   "Ranged": [
@@ -1735,7 +1762,7 @@
     "Crafted",
     "+1",
     "+0",
-    "-1 to Strike, Immune Destroy Shield"
+    "-1 to Strike, Immune Destroy Shield, Negate Unstoppable"
    ]
   ],
   "Armor": [

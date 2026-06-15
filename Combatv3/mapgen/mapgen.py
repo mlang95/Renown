@@ -470,6 +470,9 @@ def _fill_to_target(m, p, rng):
     tot = m.width * m.height
     target = p["plains_target"]
     cap = p["cluster_cap"]
+    eb = p.get("edge_bias", 0.0)              # tactical: push biomes to the rim
+    def _edge(c):                              # higher near the board edge
+        return -min(c[0], m.width - 1 - c[0], c[1], m.height - 1 - c[1])
     types = ["forest", "wetland", "tundra"]
     ti = 0
     misses = 0
@@ -492,9 +495,10 @@ def _fill_to_target(m, p, rng):
         sample = rng.sample(cands, min(len(cands), 60))
         if existing:                      # spread from same-terrain, plus bias
             seed = max(sample, key=lambda c: min(distance(c, e) for e in existing)
-                       + _seed_score(m, c, terrain))
+                       + _seed_score(m, c, terrain) + eb * _edge(c))
         else:
-            seed = max(sample, key=lambda c: _seed_score(m, c, terrain) + rng.random())
+            seed = max(sample, key=lambda c: _seed_score(m, c, terrain)
+                       + eb * _edge(c) + rng.random())
         want = rng.randint(cap - 8, cap)
         _blob_compact(m, seed, want, terrain, ok=is_plain)
 
@@ -527,25 +531,37 @@ MATERIAL_TERRAINS = ("forest", "mountain", "tundra", "wetland", "water")
 
 
 def _ensure_region_material(m, p):
-    """Every starting region needs a raw-material source within range 2 of its
-    settlements. If none (only bare plains nearby), open a water board-edge hex
-    so the player can take the water/fishing route."""
+    """Every starting region should have >=2 distinct raw-material terrains
+    (forest/mountain/tundra/wetland/water) within range 2 (<=2 moves) of one of
+    its settlements. If short, open a water board-edge hex near the best
+    settlement (the fishing route) as the second source. A region whose only
+    nearby material is already water can't be topped past one type by water
+    alone - those rare cases ship as-is. Never disturbs the capital plains ring."""
+    def types_for(st):
+        return {m.get(h.coord).terrain for h in m.within(st, 2)
+                if m.get(h.coord).terrain in MATERIAL_TERRAINS}
+
     for settles in m.settlements:
         cap = settles[0]
         ring = {cap} | {n.coord for n in m.neighbors(cap)}
-        reach = set()
-        for s in settles:
-            for h in m.within(s, 2):
-                reach.add(h.coord)
-        if any(m.get(c).terrain in MATERIAL_TERRAINS for c in reach):
-            continue
-        # don't disturb the capital's plains ring; prefer a board edge
-        pool0 = [c for c in reach if c not in ring]
-        edge = [c for c in pool0
-                if c[0] in (0, m.width - 1) or c[1] in (0, m.height - 1)]
-        pool = edge or pool0 or list(reach)
-        target = min(pool, key=lambda c: min(distance(c, s) for s in settles))
-        m.get(target).terrain = "water"
+        best = max(settles, key=lambda st: len(types_for(st)))
+        guard = 0
+        while len(types_for(best)) < 2 and guard < 4:
+            guard += 1
+            have = types_for(best)
+            conv = [h.coord for h in m.within(best, 2)
+                    if h.coord not in ring
+                    and m.get(h.coord).terrain not in MATERIAL_TERRAINS]
+            if not conv:
+                break
+            edge = [c for c in conv
+                    if c[0] in (0, m.width - 1) or c[1] in (0, m.height - 1)]
+            if "water" not in have:                      # fishing route first
+                tgt = min(edge or conv, key=lambda c: distance(c, best))
+                m.get(tgt).terrain = "water"
+            else:                                        # water already there: add land
+                tgt = min(conv, key=lambda c: distance(c, best))
+                m.get(tgt).terrain = "tundra"            # quarry/salt site
 
 
 def _carve_region_exits(m, p):
@@ -646,6 +662,85 @@ def _resources(m, p, rng):
 
 
 # ── top level ─────────────────────────────────────────────────────────────────
+def _mark_hills(m):
+    """A 'hill' is a grassland hex whose six neighbours are all grassland
+    (fully landlocked open ground). Stored as h.tactical='hill'; the terrain
+    stays 'plains' so the renderer can paint it with the hills tile. Everything
+    else grassland is open field."""
+    for h in m.all():
+        h.tactical = None
+    for h in m.all():
+        if (h.terrain == "plains" and len(m.neighbors(h.coord)) == 6
+                and all(n.terrain == "plains" for n in m.neighbors(h.coord))):
+            h.tactical = "hill"
+
+
+def _ensure_hill(m):
+    """Hills are emergent and rare on a small sheet. If none formed, clear the
+    least-disruptive interior rosette (a hex with all 6 neighbours in-bounds,
+    chosen for the most plains already present) to grassland so exactly one
+    hill is guaranteed — the Hill rule is always live."""
+    if any(h.tactical == "hill" for h in m.all()):
+        return
+    interior = [h.coord for h in m.all() if len(m.neighbors(h.coord)) == 6]
+    if not interior:
+        return
+    def plains_in_rosette(c):
+        ring = [c] + [n.coord for n in m.neighbors(c)]
+        return sum(1 for x in ring if m.get(x).terrain == "plains")
+    best = max(interior, key=plains_in_rosette)
+    for x in [best] + [n.coord for n in m.neighbors(best)]:
+        m.get(x).terrain = "plains"
+    _mark_hills(m)
+
+
+def generate_tactical(**over):
+    """A single-sheet skirmish board: same terrain themes as generate(), but no
+    settlements/regions/resources and no per-region guarantees. Terrain carries
+    the tactical modifiers (Hill / Open Field / Forest / Mire / Tundra /
+    Mountains / Water). Deterministic per seed."""
+    area = over.get("width", 16) * over.get("height", 11)
+    # tactical tuning (small board): grassland-dominant so hills form and ranged
+    # matters; small biome blobs; a short mountain wall or two. Not area-scaled.
+    tac = dict(
+        coast_prob=0.10,
+        rivers=(0, 1), river_len=(3, 5), river_branch=0.0,
+        lakes=(1, 2), lake_size=(2, 3),
+        ranges=(1, 2), range_len=(3, 6), range_width2=0.25,
+        plains_target=0.58,                      # keep the field open
+        cluster_cap=max(5, area // 9),           # small woods/mires, not slabs
+        edge_bias=1.4,                           # push biomes toward the rim
+    )
+    p = {**PARAMS, **tac, **over}                # explicit caller args still win
+    rng = random.Random(p["seed"])
+    random.seed(p["seed"])
+    m = HexMap.blank(p["width"], p["height"], "plains")
+    m._rng = rng
+    m.reserved = set()
+    _coastline(m, p, rng)
+    _rivers(m, p, rng)
+    _lakes(m, p, rng)
+    # free-roaming mountain ranges: start near an edge, walk inward as a wall
+    for _ in range(max(1, rng.randint(*p["ranges"]))):
+        side = rng.randrange(4)
+        if side == 0:   c, d = (rng.randint(1, m.width - 2), 1), 5
+        elif side == 1: c, d = (rng.randint(1, m.width - 2), m.height - 2), 2
+        elif side == 2: c, d = (1, rng.randint(1, m.height - 2)), 1
+        else:           c, d = (m.width - 2, rng.randint(1, m.height - 2)), 4
+        _walk(m, c, d, rng.randint(*p["range_len"]),
+              "mountain", ("plains",), rng, width2=p["range_width2"])
+    _fill_to_target(m, p, rng)
+    _cull_small(m)
+    _ensure_biomes(m, rng, size=4)
+    _cap_components(m, p["cluster_cap"])
+    _mark_hills(m)
+    _ensure_hill(m)
+    for h in m.all():
+        h.resource = None
+    m.anchors = []
+    return m
+
+
 def generate(**over):
     p = {**PARAMS, **over}
     # scale feature counts to map area (baseline 720 hexes = 30x24); lengths by linear dim

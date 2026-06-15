@@ -40,6 +40,33 @@ SPEC_ALIASES = {
     'Shipwright': 'Shipyard',
 }
 
+# Editorial tree config: capstone pursuit -> pathology (flavor) name.
+# This is the ONLY tree data not derivable from renown_data — pathology names
+# are pure flavor with no home in NODES. Node membership, parents, tier, domain,
+# and type are all derived from renown_data (mastery_req closure + unlock field).
+# Seeded from the legacy spec_trees.csv; renamed capstones resolved via SPEC_ALIASES.
+TREES = {
+    "Butchery": "Path of Butchery",
+    "Shipyard": "Path of Seafaring",
+    "Siege Camp": "Path of Sieging",
+    "Studium Generale": "Path of Influence",
+    "Saddlery": "Path of Riding",
+    "Manor House": "Path of Farming",
+    "Senate Hall": "Path of Diplomacy",
+    "Imperial Palace": "Path of Power",
+    "Royal Pavilion": "Path of the Champion",
+    "Inquisitorial Palace": "Path of Inquisition",
+    "Thieves' Guild": "Path of Thievery",
+    "Cipher Chamber": "Path of Secrecy",
+    "Aristocratic Court": "Path of Kleptocracy",
+    "Court Artists": "Path of Income",
+    "Beacon Towers": "Path of Territory",
+    "Storehouse": "Path of Labor",
+    "Ministry of Military Strategy": "Path of Tactics",
+    "Advanced Blast Furnace": "Path of Technology",
+    "Preceptory of the Knight's Templar": "Path of the Crusade",
+}
+
 
 def load_specs(specs_csv=None):
     """Populate SPECS from renown_data.NODES — the single source of truth.
@@ -534,6 +561,70 @@ def merge_buckets_in_tree(tree_name, nodes):
     return buckets
 
 
+def _rd_parse_parents(node, NODES):
+    """Parse a node's mastery_req into a list of prerequisite spec names that
+    exist in NODES. Splits on '+' and 'or'; drops numeric prefixes."""
+    req = (NODES.get(node, {}).get("mastery_req") or "").strip()
+    if not req or req == "-":
+        return []
+    out = []
+    for p in req.split("+"):
+        for q in re.split(r"\bor\b", p):
+            nm = re.sub(r"^\d+\s+", "", q.strip().rstrip(",").strip())
+            if nm in NODES and nm not in out:
+                out.append(nm)
+    return out
+
+
+def _rd_tier_domain(node, NODES):
+    """Derive (tier, domain) from a node's unlock field (e.g. 'Sovereign Prowess')."""
+    u = (NODES.get(node, {}).get("unlock") or "").strip()
+    tier = next((t for t in ("Untested", "Rising", "Established", "Sovereign") if t in u), "—")
+    dom = next((d for d in ("Industry", "Prowess", "Cunning", "Piety", "Nobility", "Civic") if d in u), "—")
+    return tier, dom
+
+
+def read_trees_from_renown_data():
+    """Build the tree structures from renown_data.NODES — the single source of
+    truth. Each tree is a capstone (see TREES) plus its mastery_req ancestor
+    closure. parents/tier/domain/type derive from NODES; pathology comes from
+    the editorial TREES config. Returns the same shape read_trees() produces."""
+    from renown_data import NODES
+    trees = {}
+    for capstone, pathology in TREES.items():
+        cap = _resolve_spec_name(capstone) or capstone
+        if cap not in NODES:
+            continue  # renamed/absent capstone — skip rather than crash
+        # mastery_req ancestor closure
+        members, stack = set(), [cap]
+        while stack:
+            n = stack.pop()
+            if n in members:
+                continue
+            members.add(n)
+            for p in _rd_parse_parents(n, NODES):
+                if p not in members:
+                    stack.append(p)
+        nodes = {}
+        for n in members:
+            tier, dom = _rd_tier_domain(n, NODES)
+            # parents within this tree only (layout uses in-tree edges)
+            parents = [p for p in _rd_parse_parents(n, NODES) if p in members]
+            nodes[n] = {
+                "parents": parents,
+                "tier": tier,
+                "domain": dom,
+                "type": NODES[n].get("type", ""),
+            }
+        # Key the tree by the canonical capstone name (matches a node, so the
+        # renderer treats it as the capstone and forces it rightmost).
+        trees[cap] = {"pathology": pathology, "nodes": nodes}
+    # Apply the same bucket merge (Raw Materials / Energy collapsing) as the CSV path
+    for tree_name, tree_data in trees.items():
+        tree_data["buckets"] = merge_buckets_in_tree(tree_name, tree_data["nodes"])
+    return trees
+
+
 def read_trees(csv_path):
     trees = {}  # tree_name -> {"pathology": str, "nodes": {node: data}, "buckets": {}}
     with open(csv_path, newline="", encoding="utf-8-sig") as f:
@@ -995,15 +1086,31 @@ def draw_cut_marks(c, panel_top_y_list):
     c.setStrokeColor(black)
 
 
-def make_pdf(csv_path, pdf_path, specs_csv=None):
-    # Auto-detect specs.csv adjacent to the spec_trees csv if not given
-    if specs_csv is None:
-        candidate = os.path.join(os.path.dirname(csv_path) or '.', 'specs.csv')
-        if os.path.exists(candidate):
-            specs_csv = candidate
-    load_specs(specs_csv)
+def make_pdf(csv_path=None, pdf_path=None, specs_csv=None):
+    """Render the spec-tree sheet. By default reads renown_data (single source
+    of truth). Pass csv_path to use a legacy spec_trees.csv instead.
+    Usage: make_pdf(pdf_path="spec_trees.pdf")  # renown_data
+           make_pdf("spec_trees.csv", "spec_trees.pdf")  # legacy CSV
+    """
+    # Allow make_pdf("out.pdf") positional shorthand when reading renown_data.
+    if pdf_path is None and csv_path and csv_path.lower().endswith(".pdf"):
+        csv_path, pdf_path = None, csv_path
+    if pdf_path is None:
+        pdf_path = "spec_trees.pdf"
 
-    trees = read_trees(csv_path)
+    use_csv = bool(csv_path) and os.path.exists(csv_path)
+    if use_csv:
+        # Auto-detect specs.csv adjacent to the spec_trees csv if not given
+        if specs_csv is None:
+            candidate = os.path.join(os.path.dirname(csv_path) or '.', 'specs.csv')
+            if os.path.exists(candidate):
+                specs_csv = candidate
+        load_specs(specs_csv)
+        trees = read_trees(csv_path)
+    else:
+        load_specs(None)                      # populate SPECS from renown_data
+        trees = read_trees_from_renown_data()  # build trees from renown_data
+
     tree_items = list(trees.items())
 
     c = canvas.Canvas(pdf_path, pagesize=landscape(letter))
@@ -1024,7 +1131,8 @@ def make_pdf(csv_path, pdf_path, specs_csv=None):
     c.save()
 
     n_pages = (len(tree_items) + PANELS_PER_PAGE - 1) // PANELS_PER_PAGE
-    print(f"Wrote {pdf_path}  ({len(tree_items)} trees, {n_pages} page(s))")
+    src = "spec_trees.csv" if use_csv else "renown_data"
+    print(f"Wrote {pdf_path}  ({len(tree_items)} trees from {src}, {n_pages} page(s))")
 
 
 def _page_panel_separators():
@@ -1034,3 +1142,18 @@ def _page_panel_separators():
         y = PAGE_H - PAGE_MARGIN - i * PANEL_H - (i - 1) * PANEL_GAP - PANEL_GAP / 2
         seps.append(y)
     return seps
+
+if __name__ == "__main__":
+    import sys
+    # Usage:
+    #   python spec_tree_sheet.py [out.pdf]                  -> read renown_data
+    #   python spec_tree_sheet.py spec_trees.csv [out.pdf]   -> legacy CSV
+    args = sys.argv[1:]
+    if len(args) == 1 and args[0].lower().endswith(".pdf"):
+        make_pdf(pdf_path=args[0])
+    elif len(args) >= 2:
+        make_pdf(args[0], args[1])
+    elif len(args) == 1:
+        make_pdf(args[0], "spec_trees.pdf")
+    else:
+        make_pdf(pdf_path="spec_trees.pdf")

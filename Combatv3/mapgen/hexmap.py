@@ -37,6 +37,7 @@ class Hex:
     region: int = None            # starting-region id (0..n-1) or None
     owner: str = None             # player name once settled
     settlement: str = None        # tier name once placed
+    tactical: str = None          # tactical-board tag, e.g. 'hill'
 
     @property
     def coord(self):

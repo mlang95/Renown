@@ -294,6 +294,10 @@ class StaticArmy:
         # Blocked: -1 initiative in the FIRST skirmish only — unless Immune Blocked (Rising Prowess).
         if "Blocked" in tags and "Immune Blocked" not in tags and first:
             i -= 1
+        # Blocked Blunder (experimental Cunning rework): force a BLUNDER in skirmish 1 by
+        # dropping Initiative to the -2 floor that turn (to-Strike becomes 6+). Immune Blocked negates.
+        if "Blocked Blunder" in tags and "Immune Blocked" not in tags and first:
+            i = min(i, -2)
         # Ministry mastery (MinInit+1): flat +1 initiative every skirmish.
         if "MinInit+1" in tags:
             i += 1
@@ -351,13 +355,16 @@ except Exception:  # numba not installed → transparent NumPy fallback
 
 @_njit(cache=True)
 def _strikes_kernel(rolls, cleave_rolls, front_line, target_th_clip, auto_fail, auto_pass,
-                    has_deadly, has_cleave, crit5):
+                    has_deadly, has_cleave, crit5, reroll_misses=False):
     """Per-run strike resolution. rolls/cleave_rolls: (n,20) int8.
     Proc = natural 6, or natural 5 if crit5 AND the 5 is itself a successful roll.
     Deadly: proc'd strikes are Deadly (resolved at AP-5, parry/recover nat-6 only).
     Cleave: each proc grants ONE additional Strike die rolled at the modified to-Strike
     value (it can miss; extra dice never chain further Cleave, but a proc on the extra
     die makes that extra strike Deadly).
+    reroll_misses (dual-wield): a die that fails to Strike is rerolled once (using the
+    spare cleave_rolls die); the reroll can hit and can itself be a Deadly proc. Mutually
+    exclusive with Cleave at the engine level (a weapon won't carry both).
     Returns strikes, deadly_strikes, proc_count (proc_count drives Destroy Shield)."""
     n = rolls.shape[0]
     maxd = rolls.shape[1]
@@ -378,6 +385,15 @@ def _strikes_kernel(rolls, cleave_rolls, front_line, target_th_clip, auto_fail, 
             roll = rolls[r, d]
             is_strike = ap or (roll >= th and not af)
             if not is_strike:
+                # dual-wield reroll: the missed die gets one more chance
+                if reroll_misses and not af:
+                    rr = cleave_rolls[r, d]
+                    if rr >= th:
+                        s += 1
+                        if (rr == 6) or (crit5 and rr == 5):
+                            pc += 1
+                            if has_deadly:
+                                dl += 1
                 continue
             s += 1
             is_proc = (roll == 6) or (crit5 and roll == 5)
@@ -435,7 +451,7 @@ def _strikes_kernel_dual(rolls, cleave_rolls, front_line, target_th_clip, auto_f
 def _saves_kernel(rolls, parry_rolls, regen_rolls,
                   n_strikes, deadly_strikes, save_clip, deadly_save_clip, auto_pass_save,
                   atk_has_poison, parry_mask, parry_thr, regen_thr,
-                  riposte_mask, riposte_on5, parry_before_save=False):
+                  riposte_mask, riposte_on5, parry_before_save=False, halfsword_mode=False):
     """Per-run save resolution. All roll arrays (n,max_strikes) int8.
     save_clip / deadly_save_clip: per-run save targets (2..7; 7 = impossible).
       Deadly strikes resolve at deadly_save_clip (normal target worsened by Deadly's AP -5;
@@ -466,36 +482,52 @@ def _saves_kernel(rolls, parry_rolls, regen_rolls,
         for d in range(maxs):
             if d >= ns:
                 break
-            is_deadly = d < dl
-            pthr_eff = 6 if is_deadly else pthr
+            is_proc = d < dl
+            is_deadly = is_proc and not halfsword_mode
+            is_half = is_proc and halfsword_mode
+            # Halfsword: parry -1 (thr+1) ; Deadly: parry on natural 6 only ; else base
+            if is_half:
+                pthr_eff = 6 if (pthr + 1) > 6 else (pthr + 1)
+            elif is_deadly:
+                pthr_eff = 6
+            else:
+                pthr_eff = pthr
             # ── PARRY-FIRST ordering (experiment toggle) ──
             if parry_before_save and pmask and pthr_eff <= 6:
                 pr = parry_rolls[r, d]
                 if pr >= pthr_eff:
-                    if rip_on and (pr == 6 or (rip5 and pr == 5 and pthr_eff <= 5)):
+                    # Halfsword strikes can never be Riposted
+                    if (not is_half) and rip_on and (pr == 6 or (rip5 and pr == 5 and pthr_eff <= 5)):
                         rip += 1
                     continue
-            # ── Armor save ──
+            # ── Armor save (Halfsword strikes allow NO save) ──
             roll = rolls[r, d]
-            tgt = dsc if is_deadly else sc
-            failed = (roll < tgt)
-            if ap and not is_deadly:
-                failed = False
-            if atk_has_poison and roll == 6:
+            if is_half:
                 failed = True
+            else:
+                tgt = dsc if is_deadly else sc
+                failed = (roll < tgt)
+                if ap and not is_deadly:
+                    failed = False
+                if atk_has_poison and roll == 6:
+                    failed = True
             if not failed:
                 continue
             # ── Default ordering: Parry after a failed save ──
             if (not parry_before_save) and pmask and pthr_eff <= 6:
                 pr = parry_rolls[r, d]
                 if pr >= pthr_eff:
-                    if rip_on and (pr == 6 or (rip5 and pr == 5 and pthr_eff <= 5)):
+                    if (not is_half) and rip_on and (pr == 6 or (rip5 and pr == 5 and pthr_eff <= 5)):
                         rip += 1
                     continue
-            # ── Recover ──
+            # ── Recover (Halfsword: -1 to Recover, i.e. thr+1) ──
             if rthr > 0:
                 rr = regen_rolls[r, d]
-                if is_deadly:
+                if is_half:
+                    rthr_eff = 6 if (rthr + 1) > 6 else (rthr + 1)
+                    if rr >= rthr_eff:
+                        continue
+                elif is_deadly:
                     if rr == 6:
                         continue
                 elif rr >= rthr:
@@ -534,7 +566,10 @@ def _roll_strikes_vec(rng, n, target_th, front_line, atk_tags, defender_has_shie
     th_clip = np.broadcast_to(target_th, (n,)).astype(np.int64).copy()
 
     def _deadly_in(tags):
-        return ("Deadly" in tags) or ("Shatter Armor" in tags)
+        # Halfsword uses the same proc-strike machinery as Deadly (natural-6 strikes
+        # get special handling); the halfsword_mode flag at the save step reinterprets
+        # those procs as the Halfsword bundle instead of the Deadly bundle.
+        return ("Deadly" in tags) or ("Shatter Armor" in tags) or ("Halfsword" in tags)
 
     if has_dual:
         deadly_base = _deadly_in(atk_tags)
@@ -550,7 +585,8 @@ def _roll_strikes_vec(rng, n, target_th, front_line, atk_tags, defender_has_shie
     else:
         strikes, deadly_strikes, proc_count = _strikes_kernel(
             rolls, cleave_rolls, front_line, th_clip, af, ap,
-            _deadly_in(atk_tags), bool("Cleave" in atk_tags), bool(atk_crit5))
+            _deadly_in(atk_tags), bool("Cleave" in atk_tags), bool(atk_crit5),
+            bool("Dual Wield" in atk_tags))
 
     # Destroy Shield: any proc destroys defender's shield (if not already destroyed, not immune).
     destroyed_shield = np.zeros(n, dtype=bool)
@@ -704,7 +740,7 @@ def _counter_weights_from_table(counter_tbl, opp_tac_idx, n_runs, counter_weight
     return weights
 
 
-def _roll_saves_vec(rng, n, save_target, n_strikes, shatter_strikes, atk_has_poison, def_has_parry, def_regen_threshold, def_has_regen_reroll=False, atk_unstoppable=False, def_has_riposte=False, def_parry_improved=False, def_can_parry_shatter=False, atk_is_ranged=False, def_fat=None, def_planishing=False, def_crit5=False):
+def _roll_saves_vec(rng, n, save_target, n_strikes, shatter_strikes, atk_has_poison, def_has_parry, def_regen_threshold, def_has_regen_reroll=False, atk_unstoppable=False, def_has_riposte=False, def_parry_improved=False, def_can_parry_shatter=False, atk_is_ranged=False, def_fat=None, def_planishing=False, def_crit5=False, atk_has_deflect=False, atk_has_halfsword=False, atk_ignores_tempered=False):
     """For each of n runs with n_strikes hits to resolve, return (casualties, ripostes).
     Saves roll d6; saves on roll >= save_target (lower = better).
     Deadly strikes (shatter_strikes count): resolve at save_target +5 (Deadly's AP -5),
@@ -729,8 +765,8 @@ def _roll_saves_vec(rng, n, save_target, n_strikes, shatter_strikes, atk_has_poi
 
     save_clipped = np.clip(save_t, 2, 7)            # 7 = impossible (auto-fail)
     deadly_clipped = np.clip(save_t + 5, 2, 7)      # Deadly: AP -5
-    if def_planishing:
-        save_clipped = np.minimum(save_clipped, 6)   # Planishing: never beyond 6+
+    if def_planishing and not atk_ignores_tempered:
+        save_clipped = np.minimum(save_clipped, 6)   # Tempered: never beyond 6+ (unless attacker ignores it)
         deadly_clipped = np.minimum(deadly_clipped, 6)
     auto_pass_save = save_t < 2
 
@@ -772,17 +808,19 @@ def _roll_saves_vec(rng, n, save_target, n_strikes, shatter_strikes, atk_has_poi
         riposte_mask = _rip_in.astype(np.bool_).copy()
 
     # Per-run Parry threshold vs NORMAL hits: base 5+ (4+ Improved), +1 vs Unstoppable,
-    # +1 vs ranged, +1 per Fatigue token — capped at 6+ (a natural 6 can always Parry).
+    # +1 vs Deflect (ranged weapons all carry Deflect; melee may too), +1 per Fatigue
+    # token — capped at 6+ (a natural 6 can always Parry).
     # Deadly strikes Parry only on a natural 6 (handled in the kernel).
+    deflect = bool(atk_has_deflect) or bool(atk_is_ranged)
     base = 4 if def_parry_improved else 5
     parry_thr_arr = np.minimum(
-        6, base + (1 if atk_unstoppable else 0) + (1 if atk_is_ranged else 0) + fat
+        6, base + (1 if atk_unstoppable else 0) + (1 if deflect else 0) + fat
     ).astype(np.int64)
     if np.isscalar(parry_thr_arr) or parry_thr_arr.ndim == 0:
         parry_thr_arr = np.full(n, int(parry_thr_arr), dtype=np.int64)
 
-    # A Parry against a RANGED strike never Ripostes (Deflect).
-    if atk_is_ranged:
+    # A Parry against a Deflect strike never Ripostes (all ranged are Deflect).
+    if deflect:
         riposte_mask[:] = False
     rip5_arr = np.full(n, bool(def_crit5), dtype=np.bool_)
 
@@ -791,7 +829,7 @@ def _roll_saves_vec(rng, n, save_target, n_strikes, shatter_strikes, atk_has_poi
         n_strikes_arr, deadly_arr, save_clip_arr, deadly_clip_arr, ap_arr,
         bool(atk_has_poison), parry_mask, parry_thr_arr, regen_thr_arr,
         riposte_mask, rip5_arr,
-        bool(globals().get("PARRY_BEFORE_SAVE", False)))
+        bool(globals().get("PARRY_BEFORE_SAVE", False)), bool(atk_has_halfsword))
     return casualties, ripostes
 
 
@@ -828,6 +866,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
                     return_per_run_state=False,
                     a_playstyle=None, b_playstyle=None,
                     attacker_mode="balanced",
+                    fb_min_skirmish=1,
                     log_skirmishes=0):
     """Run n_runs battles in parallel.
 
@@ -1193,6 +1232,14 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         a_weights = resolve_playstyle_weights(a_playstyle, a_state, n_runs)
         b_weights = resolve_playstyle_weights(b_playstyle, b_state, n_runs)
 
+        # Fall Back availability gate: FB is unavailable as a tactic before
+        # skirmish index `fb_min_skirmish` (default 0 = always available). When
+        # gated out, its weight is zeroed and the remaining tactics renormalize,
+        # so the player simply picks another tactic that skirmish.
+        if sk < fb_min_skirmish:
+            a_weights = a_weights.copy(); a_weights[:, FB_IDX] = 0.0
+            b_weights = b_weights.copy(); b_weights[:, FB_IDX] = 0.0
+
         # === Outrider Intercept Post tactic-reveal (counter-pick) ===
         # Determine if Ministry fires this skirmish for either side.
         #   "once"/"first" → skirmish 1 only (innate)
@@ -1364,8 +1411,13 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         b_unstoppable = "Unstoppable" in b_tags
         a_th_mod_eff = a_TH_mod
         b_th_mod_eff = b_TH_mod
-        a_shield_tbh_eff = (b_shield_tbh * 0) if a_unstoppable else b_shield_tbh
-        b_shield_tbh_eff = (a_shield_tbh * 0) if b_unstoppable else a_shield_tbh
+        # Negate Unstoppable (shield tag): cancels the attacker's Unstoppable entirely —
+        # the defender's -1 to Strike survives (here), and the attacker's -1 to Parry is
+        # suppressed at the save call site below.
+        b_negate_unstoppable = "Negate Unstoppable" in b_tags   # B is the defender vs A's strike
+        a_negate_unstoppable = "Negate Unstoppable" in a_tags
+        a_shield_tbh_eff = (b_shield_tbh * 0) if (a_unstoppable and not b_negate_unstoppable) else b_shield_tbh
+        b_shield_tbh_eff = (a_shield_tbh * 0) if (b_unstoppable and not a_negate_unstoppable) else a_shield_tbh
         # === To-hit with the FATIGUE 6+ CAP ===
         # Rule: fatigue can never push the target-to-hit past 6+ (a fatigued unit always still
         # hits on a natural 6). The cap is applied to (base + improving mods + fatigue). Then
@@ -1439,11 +1491,14 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             def_has_parry=((("Parry" in b_tags) | ("Improved Parry" in b_tags))),
             def_regen_threshold=_regen_threshold(b_tags, a_tags),
             def_has_regen_reroll=_has_regen_reroll(b_tags),
-            atk_unstoppable=a_unstoppable,
+            atk_unstoppable=(a_unstoppable and not b_negate_unstoppable),
             def_has_riposte=(("Riposte" in b_tags)),
             def_parry_improved=("Improved Parry" in b_tags),
             def_can_parry_shatter=("Riposte" in b_tags),
             atk_is_ranged=a_atk_is_ranged,
+            atk_has_deflect=("Deflect" in a_tags),
+            atk_has_halfsword=("Halfsword" in a_tags),
+            atk_ignores_tempered=("Negate Tempered" in a_tags),
         
             def_fat=b_fat, def_planishing=b_static.planishing, def_crit5=("Crit 5" in b_tags),
         )
@@ -1459,7 +1514,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
                 def_has_parry=((("Parry" in a_tags) | ("Improved Parry" in a_tags))),
                 def_regen_threshold=_regen_threshold(a_tags, b_tags),
                 def_has_regen_reroll=_has_regen_reroll(a_tags),
-                atk_unstoppable=b_unstoppable,
+                atk_unstoppable=(b_unstoppable and not a_negate_unstoppable),
                 def_has_riposte=False,   # ripostes do not themselves riposte
                 def_parry_improved=("Improved Parry" in a_tags),
             
@@ -1503,11 +1558,14 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             def_has_parry=((("Parry" in a_tags) | ("Improved Parry" in a_tags))),
             def_regen_threshold=_regen_threshold(a_tags, b_tags),
             def_has_regen_reroll=_has_regen_reroll(a_tags),
-            atk_unstoppable=b_unstoppable,
+            atk_unstoppable=(b_unstoppable and not a_negate_unstoppable),
             def_has_riposte=(("Riposte" in a_tags)),
             def_parry_improved=("Improved Parry" in a_tags),
             def_can_parry_shatter=("Riposte" in a_tags),
             atk_is_ranged=b_atk_is_ranged,
+            atk_has_deflect=("Deflect" in b_tags),
+            atk_has_halfsword=("Halfsword" in b_tags),
+            atk_ignores_tempered=("Negate Tempered" in b_tags),
         
             def_fat=a_fat, def_planishing=a_static.planishing, def_crit5=("Crit 5" in a_tags),
         )
@@ -1520,7 +1578,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
                 def_has_parry=(("Parry" in b_tags)),
                 def_regen_threshold=_regen_threshold(b_tags, a_tags),
                 def_has_regen_reroll=_has_regen_reroll(b_tags),
-                atk_unstoppable=a_unstoppable,
+                atk_unstoppable=(a_unstoppable and not b_negate_unstoppable),
                 def_has_riposte=False,
             
             def_fat=b_fat, def_planishing=b_static.planishing, def_crit5=("Crit 5" in b_tags),
@@ -1562,11 +1620,14 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
                 def_has_parry=(("Parry" in b_tags)),
                 def_regen_threshold=_regen_threshold(b_tags, a_tags),
                 def_has_regen_reroll=_has_regen_reroll(b_tags),
-                atk_unstoppable=a_unstoppable,
+                atk_unstoppable=(a_unstoppable and not b_negate_unstoppable),
                 def_has_riposte=(("Riposte" in b_tags)),
                 def_parry_improved=("Improved Parry" in b_tags),
                 def_can_parry_shatter=("Riposte" in b_tags),
                 atk_is_ranged=a_atk_is_ranged,
+                atk_has_deflect=("Deflect" in a_tags),
+                atk_has_halfsword=("Halfsword" in a_tags),
+                atk_ignores_tempered=("Negate Tempered" in a_tags),
             
             def_fat=b_fat, def_planishing=b_static.planishing, def_crit5=("Crit 5" in b_tags),
         )
@@ -1581,7 +1642,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
                     def_has_parry=(("Parry" in a_tags)),
                     def_regen_threshold=_regen_threshold(a_tags, b_tags),
                     def_has_regen_reroll=_has_regen_reroll(a_tags),
-                    atk_unstoppable=b_unstoppable,
+                    atk_unstoppable=(b_unstoppable and not a_negate_unstoppable),
                     def_has_riposte=False,
                     def_parry_improved=("Improved Parry" in a_tags),
                 

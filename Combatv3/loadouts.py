@@ -93,7 +93,7 @@ TAG_DISPLAY = {
     "Recover 5":         "Rec 5",
     "Recover 4":         "Rec 4",
     "Serrated":          "Serr",
-    "Planishing":        "Plan",
+    "Planishing":        "Temp",   # internal tag key stays "Planishing"; display abbrev = Tempered
     "Crit 5":            "Crit5",
     "+1I":               "+1I",
     "Immune Panic":      "ImmPanic",
@@ -223,7 +223,9 @@ def is_2h(weapon_name):
         # Weapon name not in either table (e.g. a renamed/removed profile still referenced by a
         # build-kit list). It can't be two-handed if it doesn't exist; don't crash the generator.
         return False
-    return "2H" in profile.get("tags", [])
+    tags = profile.get("tags", [])
+    # Dual Wield confers 2H (both hands on weapons) — a Dual Wield weapon never carries a shield.
+    return ("2H" in tags) or ("Dual Wield" in tags)
 
 
 def valid_combo(retinue, weapon, shield, armor, ranged, has_tiltyard, allow_tier_mismatch=2):

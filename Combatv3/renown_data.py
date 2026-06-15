@@ -1,6 +1,6 @@
 # renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
-VERSION = "0.4.8.5.5"
+VERSION = "0.4.8.6"
 # ── Keyword constants ─────────────────────────────────────────────────────
 # Rename a keyword here and it renames everywhere (GLOSSARY keys, tags, cards).
 STEADY          = "Steady"
@@ -24,7 +24,7 @@ RECOVER         = "Recover"
 SERRATED        = "Serrated"
 STRAIN          = "Strain"
 MINUS_1_TBH     = "-1 to Strike"
-PLANISHING      = "Planishing"
+PLANISHING      = "Tempered"
 FATIGUE_TOKEN   = "Fatigue Token"
 
 IMMUNE = "Immune"
@@ -37,36 +37,48 @@ def immune(keyword):
 IMMUNE_DESTROY_SHIELD = immune(DESTROY_SHIELD)
 IMMUNE_UNWIELDY       = immune(UNWIELDY)
 IMMUNE_STRAIN         = immune(STRAIN)
+# Negate family (offensive — cancel an enemy keyword) + atomic penalty/bundle terms
+NEGATE_UNSTOPPABLE = "Negate Unstoppable"
+NEGATE_TEMPERED    = "Negate Tempered"
+NEGATE_RIPOSTE     = "Negate Riposte"
+MINUS_1_PARRY      = "-1 to Parry"
+HALFSWORD          = "Halfsword"   # RESERVED — engine path intact, no weapon carries it (shelved)
+DUAL_WIELD         = "Dual Wield"
 
 GLOSSARY = {
     STEADY:         "Initiative cannot be reduced by Tactics.",
     UNWIELDY:       "Initiative cannot be improved by Tactics.",
     TWO_H:          "Cannot use a Shield.",
     SHATTER_ARMOR:  "On a natural 6 to Strike, increase the AP by -5. Can only be Parried or Recovered on a natural 6.",
-    UNSTOPPABLE:    "Ignore the target shield's -1 to Strike; the target's Parry is -1 against you.",
+    UNSTOPPABLE:    "Ignore the target shield's -1 to Strike, and impose -1 to Parry on the target (negated entirely if the target has Negate Unstoppable).",
     CLEAVE:         "On a natural 6 to Strike, you may roll an additional Strike die at your modified Strike value.",
     POISON:         "A natural 6 to Save against this Retinue's Strikes fails.",
-    NIMBLE:         "Gain +1 Initiative in the first Skirmish of each Battle.",
+    #NIMBLE:         "Gain +1 Initiative in the first Skirmish of each Battle.",
     DRILLED:        "Does not lose Endurance in the first Skirmish of each Battle.",
     DESTROY_SHIELD: "On a natural 6 to Strike, target loses Shield attributes for the rest of the Battle.",
     BLUNDER:        "At Initiative -2 or lower, your to-Strike is set to 6+, before other negative modifiers.",
     ONE_SHOT:       "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard.",
-    DEFLECT:        "Ranged Strikes are -1 to Parry and can never be Riposted.",
+    DEFLECT:        "-1 to Parry and Negate Riposte against this weapon's Strikes. (All Ranged weapons have Deflect.)",
     IMMUNE_PANIC:   "Automatically passes Panic checks.",
     UNBREAKABLE:    "Immune Break: does not take Break checks while Fatigued.",
     PARRY:          "Roll a d6 to cancel a Strike before the Save on a 5+ (a natural 6 is a Riposte). -1 versus Unstoppable, versus ranged, and per Fatigue token (to a maximum of 6+).",
     RIPOSTE:        "If you roll a natural 6 on a Parry from a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your equipped weapon. You can Riposte a Riposte.",
     RECOVER:        "If a to-Save roll fails, roll a d6: a result of X+ saves the retinue. Worsened by Fatigue and Serrated, to a maximum of 6+.",
-    SERRATED:       "Your Strikes worsen the enemy's Recover roll by 1.",
+    SERRATED:       "-1 to Recover against this weapon's Strikes (worsens the defender's Recover roll by 1).",
     PLANISHING:     "Your armor Save cannot be reduced beyond a 6+.",
     FATIGUE_TOKEN:  "Each token is -1 to your Strike, Parry, and Recover rolls, to a maximum of 6+; and Morale -1 (uncapped). If your modified Morale is ever 7+, your army Routs. Tokens stack.",
-    MINUS_1_TBH:    "Attackers Striking this shield-bearer take -1 to the Strike roll.",
+    MINUS_1_TBH:    "A stacking -1 penalty to the Strike roll (to a maximum of 6+). Sources: a shield's -1 to Strike (ignored by Unstoppable unless the shield has Negate Unstoppable), some Tactics (the Ministry innate is immune to the Tactic source), and each Fatigue token.",
+	NEGATE_UNSTOPPABLE: "Cancels the attacker's Unstoppable entirely: this shield's -1 to Strike still applies, and the attacker's -1 to Parry does not.",
+    NEGATE_TEMPERED: "Ignores Tempered: this weapon's AP can reduce the target's Save past 6+ (to auto-fail), defeating the Tempered floor.",
+    NEGATE_RIPOSTE: "The target's Parry can never Riposte this weapon's Strikes (a natural 6 Parry still cancels the Strike, but no counter-Strike follows).",
+    MINUS_1_PARRY: "A stacking -1 penalty to the defender's Parry roll (to a maximum of 6+). Sources: Unstoppable, Deflect, and each Fatigue token.",
+    DUAL_WIELD: "A Strike die that fails to Strike is rerolled once; the reroll can hit and can itself trigger a natural-6 effect. Dual Wield confers 2H (both hands on weapons — no Shield). Daggers have it innately; the Tiltyard mastery grants it when two of the same 1H Melee Weapon are equipped.",
     "Immune [keyword]": "Cancels that keyword as it applies to you (e.g. Immune Unwieldy, Strain, Destroy Shield).",
 
     # ── Combat keywords ported from the Escalation Campaign glossary ──
     "AP":            "Armor Penetration — a weapon's (negative) modifier to the defender's Save roll; the more negative, the harder to save.",
     "Blocked":       "-1 Initiative in the first Skirmish (negated by Immune Blocked).",
-    "Strained":      "-1 Initiative every Skirmish (negated by Immune Strain).",
+    "Strained":      "-1 Initiative every Skirmish (negated by Immune Strain). Does not gain Endurance in the Empire Phase.",
     "Improved Parry": "Your Parry succeeds on 4+ instead of 5+.",
     "Heal X":        "At the end of each Skirmish, for every X casualties you took from Strikes, return 1 retinue to your Army.",
     "Seize the Initiative": "Won by the roll-off at the start of the Battle — the winner of their last Battle adds +1 to the roll. You become the Attacker and gain +1 Initiative in the first Skirmish. Some Tactics and the Ministry monument also grant it.",
@@ -159,7 +171,7 @@ WEAPONS = {
     "Farm Tools":     {"ap":  0, "init":  0, "tier": "Crude",   "tags": []},
     "Cudgel":         {"ap": -1, "init": -1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY]},
     "Pitchfork":      {"ap":  0, "init":  1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY]},
-    "Daggers":        {"ap":  0, "init":  1, "tier": "Cast",    "tags": [NIMBLE, TWO_H, SHATTER_ARMOR]},
+    "Daggers":        {"ap":  0, "init":  1, "tier": "Cast",    "tags": [DEFLECT, TWO_H, SHATTER_ARMOR, DUAL_WIELD], 'note': "A paired light blade; dual-wields innately (rerolls missed Strikes). No shield."},
     "Short Sword":    {"ap": -1, "init":  0, "tier": "Cast",    "tags": [STEADY]},
     "Spears":         {"ap": -1, "init":  1, "tier": "Cast",    "tags": [UNWIELDY]},
     "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR]},
@@ -174,6 +186,7 @@ WEAPONS = {
     "Morningstar":    {"ap": -3, "init": -1, "tier": "Forged",  "tags": [UNWIELDY, DESTROY_SHIELD, CLEAVE]},
     "War Hammer":     {"ap": -8, "init": -1, "tier": "Forged",  "tags": [UNWIELDY, DESTROY_SHIELD, UNSTOPPABLE, TWO_H, SHATTER_ARMOR]},
     "Poleaxe":        {"ap": -4, "init":  0, "tier": "Crafted", "tags": [STEADY, TWO_H, UNSTOPPABLE, SHATTER_ARMOR, CLEAVE]},
+    "Estoc":          {"ap": -3, "init": -1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, DEFLECT, NEGATE_TEMPERED], 'note': "Master-crafted armor-defeating sword; 1H, may carry a shield. Ignores Tempered."},
 }
 
 RANGED = {
@@ -190,7 +203,7 @@ SHIELDS = {
     "Kite Shield":   {"save_bonus": 1, "init":  0, "tier": "Cast",    "tags": [STEADY]},
     "Scutum Shield": {"save_bonus": 1, "init": -1, "tier": "Wrought", "tags": [UNWIELDY, MINUS_1_TBH]},
     "Tower Shield":  {"save_bonus": 2, "init": -1, "tier": "Forged",  "tags": [MINUS_1_TBH, UNWIELDY]},
-    "Heater Shield": {"save_bonus": 1, "init":  0, "tier": "Crafted", "tags": [MINUS_1_TBH, IMMUNE_DESTROY_SHIELD]},
+    "Heater Shield": {"save_bonus": 1, "init":  0, "tier": "Crafted", "tags": [MINUS_1_TBH, IMMUNE_DESTROY_SHIELD, NEGATE_UNSTOPPABLE]},
 }
 
 ARMORS = {
@@ -217,10 +230,9 @@ TIER_UNLOCK = {
 # ── Domain Standing combat effects (Escalation) ───────────────────────────
 # Standings: Rising = 3, Established = 6, Sovereign = 10 domain points.
 STANDING_EFFECTS = {
-    ("Prowess", "Rising"):      "Immune Blocked",
     ("Prowess", "Established"): "Parry",
     ("Piety",   "Established"): "+1 Morale",
-    ("Cunning", "Established"): "Foes gain Blocked",
+    ("Cunning", "Established"): "Foes gain Blunder in first Skirmish",
     ("Cunning", "Sovereign"):   "Foes gain Strain",
 }
 	
@@ -578,7 +590,7 @@ NODES = {
         "type": "Craft",
         "unlock": "Established Industry",
         "mastery_req": "Armory + Blacksmith",
-        "innate": "Planishing: Your to Save modifier cannot be reduced beyond 6+.",
+        "innate": "Tempered: Your to Save modifier cannot be reduced beyond 6+.",
         "mastery": "**Unlock Plate Armor**; Craft +1",
         "efficient": "Armory",
         "builds_into": ["Advanced Blast Furnace"],
@@ -1140,11 +1152,11 @@ NODES = {
         "type": "Power",
         "unlock": "Established Prowess",
         "mastery_req": "Fletchery + Coliseum",
-        "innate": "Armies may be Equipped with a Ranged and Melee Weapon; all weapons gain **Unwieldy** when equipped with both",
-        "mastery": "Armies gain **Immune Unwieldy**",
+        "innate": "Armies may be Equipped with a second weapon (a Ranged and a Melee Weapon); the army gains **Unwieldy**",
+        "mastery": "Armies gain **Immune Unwieldy**, and may instead equip two of the same 1H Melee Weapon to gain **Dual Wield**",
         "builds_into": ["Royal Pavilion"],
         "monument": False,
-        "escalation": {"standing": "Established Prowess", "ranks": {1: "Dual-equip; Immune Unwieldy"}, "requires_all": ["Fletchery"], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Established Prowess", "ranks": {1: "Dual-equip; Immune Unwieldy; Dual Wield (two of a kind)"}, "requires_all": ["Fletchery"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Fletchery", "Coliseum"], "domain": {"Prowess": 6}, "innate_tags": [], "mastery_tags": ["Immune Unwieldy"], "mastery_req": ["Fletchery", "Coliseum"], "efficient": "Conditioning Field"}},
     "Royal Pavilion": {
         "type": "Monument",
@@ -1974,6 +1986,27 @@ MOVEMENT_MODIFIERS = {
 	"Ancient Wilds": {"Effect": ["Immune Speed -1 from Terrain", "Other armies gain Speed -1 in Province."]},
 	"Shipyard": {"Effect": "Immune Water Effect"}
 }
+
+# ── TACTICAL TERRAIN (battle-tile modifiers for the skirmish board) ──
+# Seize the Initiative precedence (highest first): Ministry of Military
+# Strategy > Hill > Forest (defender) > general rule (attacker).
+TACTICAL_TERRAIN = {
+    "Hill":       {"identify": "Grassland fully ringed by grassland",
+                   "effect": "An army on a Hill Seizes the Initiative every Skirmish."},
+    "Open Field": {"identify": "Any other grassland",
+                   "effect": "Ranged Weapons gain +1 to Strike."},
+    "Forest":     {"identify": "Forest",
+                   "effect": "You may only play Scout, Ambush, Flank, or Defensive Formation. The defending player Seizes the Initiative."},
+    "Mire":       {"identify": "Wetlands",
+                   "effect": "Gain Unwieldy and Immune Steady; -1 to Save."},
+    "Tundra":     {"identify": "Tundra",
+                   "effect": "Gain Strained."},
+    "Mountains":  {"identify": "Mountains",
+                   "effect": "Impassable."},
+    "Water":      {"identify": "Water",
+                   "effect": "Must end Move after crossing 1 Water Territory."},
+}
+TACTICAL_GLOBAL = ["Any player may Fall Back after the first Skirmish."]
 
 INFLUENCE_GAIN = {
     "Era": {"change": "+1/+2/+3/+4", "notes": "Based on the Current Era"},

@@ -61,17 +61,23 @@ for _dom, _tiers in getattr(rd, "DOMAIN_BOARD", {}).items():
                 TERMS.setdefault(_name, ("domain-board-ref.html", None))
 
 TERM_LIST = sorted(TERMS, key=lambda t:-len(t))
-TERM_RE = re.compile(r"\b(" + "|".join(re.escape(t) for t in TERM_LIST) + r")\b")
+TERM_RE = re.compile(r"\b(" + "|".join(re.escape(t) for t in TERM_LIST) + r")\b", re.IGNORECASE)
 def autolink(text, current=None, current_anchor=None):
+    # case-insensitive resolution: matched text may differ in case from the TERMS key
+    lower_map = {t.lower(): t for t in TERMS}
     def repl(m):
-        term=m.group(1); url,anchor=TERMS[term]
+        matched = m.group(1)
+        key = lower_map.get(matched.lower())
+        if key is None:
+            return matched
+        url, anchor = TERMS[key]
         # suppress only a true self-reference (same page AND same anchor, or
         # same page with no anchor target) — otherwise allow same-page anchor jumps.
-        if url==current:
-            if anchor is None or anchor==current_anchor:
-                return term
-        href=url+(f"#{anchor}" if anchor else "")
-        return f'<a class="term" href="{href}">{term}</a>'
+        if url == current:
+            if anchor is None or anchor == current_anchor:
+                return matched
+        href = url + (f"#{anchor}" if anchor else "")
+        return f'<a class="term" href="{href}">{matched}</a>'
     return TERM_RE.sub(repl, text)
 
 # ── markdown inline + block ──
@@ -83,23 +89,64 @@ def md_inline(s):
     s=re.sub(r"`(.+?)`",r"<code>\1</code>",s)
     return s
 def md_to_html(md,current=None):
-    out,i,lines=[],0,md.split("\n"); inl=False
+    out,i,lines=[],0,md.split("\n")
+    # list-nesting stack: each entry is the source indent width that opened a <ul>.
+    # Empty = not currently in a list. Indentation (leading spaces, tab=4) sets depth:
+    # a deeper indent than the current level opens a nested <ul>; a shallower one closes
+    # back down to the matching level.
+    stack=[]
+    def close_all():
+        while stack:
+            out.append("</ul>"); stack.pop()
     while i<len(lines):
-        ln=lines[i].rstrip()
+        raw=lines[i]
+        ln=raw.rstrip()
         if not ln.strip():
-            if inl: out.append("</ul>"); inl=False
-            i+=1; continue
+            close_all(); i+=1; continue
         m=re.match(r"^(#{1,6})\s+(.*)$",ln)
         if m:
-            if inl: out.append("</ul>"); inl=False
+            close_all()
             lvl=len(m.group(1)); out.append(f"<h{lvl} id='{slug(m.group(2))}'>{md_inline(m.group(2))}</h{lvl}>")
             i+=1; continue
-        if re.match(r"^[-*]\s+",ln) or re.match(r"^\d+\.\s+",ln):
-            if not inl: out.append("<ul>"); inl=True
-            out.append("<li>"+md_inline(re.sub(r"^([-*]|\d+\.)\s+","",ln))+"</li>"); i+=1; continue
-        if inl: out.append("</ul>"); inl=False
+        # GFM pipe table: a header row containing '|', then a separator row of
+        # dashes (|---|---|), then zero or more body rows. Rendered with the same
+        # table styling as the data-driven reference pages.
+        if "|" in ln and i+1 < len(lines) and re.match(r"^\s*\|?[\s:\-|]+\|[\s:\-|]*$", lines[i+1].rstrip()) and "-" in lines[i+1]:
+            close_all()
+            def _cells(row):
+                row = row.strip()
+                if row.startswith("|"): row = row[1:]
+                if row.endswith("|"): row = row[:-1]
+                return [c.strip() for c in row.split("|")]
+            header = _cells(ln)
+            i += 2  # skip header + separator
+            body_rows = []
+            while i < len(lines) and "|" in lines[i] and lines[i].strip():
+                body_rows.append(_cells(lines[i])); i += 1
+            th = "".join(f"<th>{md_inline(c)}</th>" for c in header)
+            trs = []
+            for r in body_rows:
+                tds = "".join(f"<td>{md_inline(c)}</td>" for c in r)
+                trs.append(f"<tr>{tds}</tr>")
+            out.append(f"<table class='pursuits'><thead><tr>{th}</tr></thead><tbody>{''.join(trs)}</tbody></table>")
+            continue
+        lm=re.match(r"^(\s*)([-*]|\d+\.)\s+(.*)$",ln)
+        if lm:
+            indent=len(lm.group(1).replace("\t","    "))
+            if not stack:
+                out.append("<ul>"); stack.append(indent)
+            elif indent>stack[-1]:
+                # deeper → open a nested list (nest inside the open <li>: reopen it)
+                out.append("<ul>"); stack.append(indent)
+            else:
+                # same or shallower → close lists until we're at/under this indent
+                while len(stack)>1 and indent<stack[-1]:
+                    out.append("</ul>"); stack.pop()
+            out.append("<li>"+md_inline(lm.group(3))+"</li>")
+            i+=1; continue
+        close_all()
         out.append("<p>"+md_inline(ln)+"</p>"); i+=1
-    if inl: out.append("</ul>")
+    close_all()
     return autolink("\n".join(out),current)
 
 # ── split RULES.md ──
@@ -108,10 +155,23 @@ parts=re.split(r"(?m)^#{1,2}\s+",raw)
 intro=parts[0]; sections=[]
 for c in parts[1:]:
     nl=c.find("\n"); title=(c[:nl] if nl>=0 else c).strip()
-    sections.append((title,"## "+title+"\n"+(c[nl+1:] if nl>=0 else "")))
+    body_raw=(c[nl+1:] if nl>=0 else "")
+    sections.append((title,"## "+title+"\n"+body_raw))
+# Parent-divider sections (e.g. "# The Turn", "# Armies") carry no prose of their
+# own — their content lives in child sub-sections that became their own pages.
+# These render as blank pages, so we skip emitting them and drop them from nav.
+# A section is "empty" when nothing but whitespace follows its title line.
+def _section_is_empty(body_md):
+    # body_md = "## Title\n<rest>"; strip the title line, check the remainder
+    nl = body_md.find("\n")
+    rest = body_md[nl+1:] if nl >= 0 else ""
+    return not rest.strip()
+EMPTY_SECTIONS = {t for t, b in sections if _section_is_empty(b)}
+# Sections we actually build pages for / show in nav.
+sections_live = [(t, b) for t, b in sections if t not in EMPTY_SECTIONS]
 
 # register rule-section titles + aliases as linkable terms (now that sections exist)
-_section_slugs = {slug(t) for t,_ in sections}
+_section_slugs = {slug(t) for t,_ in sections_live}
 _SECTION_ALIASES = {
     "Domain Standings": "Domain Standings", "Domain Standing": "Domain Standings",
     "Bandit Mechanics": "Bandit Mechanics", "Bandits": "Bandit Mechanics", "Bandit Camp": "Bandit Mechanics",
@@ -130,13 +190,13 @@ for alias, section in _SECTION_ALIASES.items():
         TERMS.setdefault(alias, (f"rules-{slug(section)}.html", None))
 # rebuild the matcher now that TERMS grew
 TERM_LIST = sorted(TERMS, key=lambda t:-len(t))
-TERM_RE = re.compile(r"\b(" + "|".join(re.escape(t) for t in TERM_LIST) + r")\b")
+TERM_RE = re.compile(r"\b(" + "|".join(re.escape(t) for t in TERM_LIST) + r")\b", re.IGNORECASE)
 
 # ── nav ──
 def nav(current=""):
     it=['<div class="navhead">Rules</div>']
     it.append(f"<a href='turn-sequence.html'{' class=active' if current=='turn-sequence.html' else ''}>★ Turn Sequence</a>")
-    for t,_ in sections:
+    for t,_ in sections_live:
         u=f"rules-{slug(t)}.html"; it.append(f"<a href='{u}'{' class=active' if u==current else ''}>{html.escape(t)}</a>")
     it.append('<div class="navhead">Pursuits</div>')
     it.append(f"<a href='pursuits.html'{' class=active' if current=='pursuits.html' else ''}>Overview</a>")
@@ -177,7 +237,7 @@ def page(title,body,current=""):
 search_index=[]
 
 # ── rule section pages ──
-for t,body_md in sections:
+for t,body_md in sections_live:
     u=f"rules-{slug(t)}.html"; bh=md_to_html(body_md,u)
     open(os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page(t,bh,u))
     search_index.append({"title":t,"url":u,"text":re.sub(r"<[^>]+>","",bh)[:1200]})
@@ -267,7 +327,7 @@ def _link(label, *candidates):
 
 PHASES = [
     ("1 · Empire Phase", "Start of turn. Resolve start-of-turn effects, collect income, check Public Order.",
-     ["rules-seasons.html"], ["Income", "Public Order"]),
+     ["rules-seasons.html","seasons-ref.html"], ["Income", "Public Order"]),
     ("2 · Council Phase", "Players resolve Council business; Council Envoys are sent and voted before Domain Envoys.",
      ["rules-council-phase.html"], ["Council Envoy", "Influence", "Abstain"]),
     ("3 · Envoy Phase", "Diplomacy Envoys first, then Domain Envoys. Send → Vote → Net Influence → Resolve.",
@@ -275,7 +335,7 @@ PHASES = [
     ("4 · Battle Phase", "Skirmishes, Sieges, and Battles resolve. Roll off for Initiative; fight in Skirmishes.",
      ["rules-battle-phase.html","rules-siege-warfare.html"], ["Skirmish", "Initiative", "Battle", "Siege"]),
     ("5 · Rest Phase", "Cleanup → Season +1 → score Renown → spend 1 Domain Point → pass the Host.",
-     ["rules-seasons.html"], ["Season", "Renown", "Domain Point", "Edict"]),
+     ["rules-seasons.html","seasons-ref.html"], ["Season", "Renown", "Domain Point", "Edict"]),
 ]
 
 ts = ["<h1>Turn Sequence</h1>",
@@ -714,7 +774,7 @@ search_index.append({"title":"Escalation Combat Pursuits","url":u,"text":"escala
 
 # Combat Keywords (the keyword subset of glossary)
 u="keywords-ref.html"
-KW=[rd.STEADY,rd.UNWIELDY,rd.TWO_H,rd.SHATTER_ARMOR,rd.UNSTOPPABLE,rd.CLEAVE,rd.POISON,rd.NIMBLE,rd.DRILLED,rd.DESTROY_SHIELD,rd.BLUNDER,rd.ONE_SHOT,rd.DEFLECT,rd.IMMUNE_PANIC,rd.UNBREAKABLE,rd.PARRY,rd.RIPOSTE,rd.RECOVER,rd.SERRATED,rd.PLANISHING,rd.FATIGUE_TOKEN,rd.MINUS_1_TBH]
+KW=[rd.STEADY,rd.UNWIELDY,rd.TWO_H,rd.SHATTER_ARMOR,rd.UNSTOPPABLE,rd.CLEAVE,rd.POISON,rd.NIMBLE,rd.DRILLED,rd.DESTROY_SHIELD,rd.BLUNDER,rd.ONE_SHOT,rd.DEFLECT,rd.IMMUNE_PANIC,rd.UNBREAKABLE,rd.PARRY,rd.RIPOSTE,rd.RECOVER,rd.SERRATED,rd.PLANISHING,rd.FATIGUE_TOKEN,rd.MINUS_1_TBH,rd.NEGATE_UNSTOPPABLE,rd.NEGATE_TEMPERED,rd.MINUS_1_PARRY,rd.NEGATE_RIPOSTE]
 kw=["<h1>Combat Keywords</h1><dl class='gloss'>"]
 for k in KW:
     if k in rd.GLOSSARY:
@@ -846,7 +906,7 @@ import glob, collections
 
 # reading order for prev/next = the rule section order (from RULES.md) + key pages
 order = ["index.html", "turn-sequence.html"]
-order += [f"rules-{slug(t)}.html" for t,_ in sections]
+order += [f"rules-{slug(t)}.html" for t,_ in sections_live]
 order += ["pursuits.html"] + [f"type-{slug(t)}.html" for t in TYPE_ORDER if t in by_type]
 order += [f"domain-{slug(d)}.html" for d in DOMAINS]
 order += [f"standing-{slug(t)}.html" for t in TIERS]
@@ -942,5 +1002,5 @@ for i, u in enumerate(order):
 # emit an empty .nojekyll so GitHub Pages serves files as-is (no Jekyll front-matter leak)
 open(_os.path.join(OUTDIR, ".nojekyll"), "w").close()
 print(f"wiki -> {OUTDIR}/index.html")
-print(f"  {len(sections)} rule pages | {len([t for t in TYPE_ORDER if t in by_type])} type pages | "
+print(f"  {len(sections_live)} rule pages ({len(EMPTY_SECTIONS)} blank parents skipped) | {len([t for t in TYPE_ORDER if t in by_type])} type pages | "
       f"{len(DOMAINS)} domain + {len(TIERS)} standing views | paths | {len(rd.GLOSSARY)} glossary | {len(search_index)} search")

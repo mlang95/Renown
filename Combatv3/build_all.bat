@@ -2,7 +2,7 @@
 REM ============================================================================
 REM  build_all.bat - regenerate everything downstream of renown_data.py.
 REM  Cards (player-scaled), the Word docs, the GitHub Pages wiki, and the
-REM  print-and-tape board. Does NOT run tournaments - that's run_tournament.bat.
+REM  print-and-tape board(s). Does NOT run tournaments - that's run_tournament.bat.
 REM ============================================================================
 cd /d "C:\Users\Matt\OneDrive\Desktop\Game\Combatv3"
 REM ---------------------------------------------------------------- EDIT THESE
@@ -28,8 +28,8 @@ REM WIKI_REPO : local clone of the RenownWiki repo (GitHub Pages source)
 set WIKI_REPO=C:\Users\Matt\OneDrive\Desktop\Game\RenownWiki
 REM PUSH_WIKI : 1 = git commit+push after build, 0 = build only
 set PUSH_WIKI=1
-REM ---- BOARD (print-and-tape map) --------------------------------------------
-REM BUILD_BOARD : 1 = generate a board PDF, 0 = skip
+REM ---- BOARD (print-and-tape start map) --------------------------------------
+REM BUILD_BOARD : 1 = generate a start-board PDF, 0 = skip
 set BUILD_BOARD=1
 REM BOARD_DIR   : folder holding mapgen.py / hexmap.py / hexgen.py / build_board.py
 set BOARD_DIR=C:\Users\Matt\OneDrive\Desktop\Game\Combatv3\mapgen
@@ -44,11 +44,21 @@ REM BOARD_RES : 1 = stamp raw-material toppers, 0 = terrain only (loose tokens)
 set BOARD_RES=0
 REM BOARD_OUT : output PDF (lands in BOARD_DIR)
 set BOARD_OUT=%BOARD_DIR%\board_%BOARD_W%x%BOARD_H%_%BOARD_PLAYERS%p.pdf
+REM ---- TACTICAL BOARD (one-sheet skirmish map) -------------------------------
+REM BUILD_TACTICAL : 1 = also emit the one-sheet skirmish board, 0 = skip
+REM   terrain-only, landscape; ignores players/resources; auto-clamps to fit.
+set BUILD_TACTICAL=1
+set TAC_W=9
+set TAC_H=6
+set TAC_SEED=11
+set TAC_HEX=20
+set TAC_OUT=%BOARD_DIR%\tactical_%TAC_W%x%TAC_H%_s%TAC_SEED%.pdf
 REM ---------------------------------------------------------------------------
 echo.
-echo === build_all : MODE=%MODE%  WHAT=%WHAT%  PLAYERS=%PLAYERS%  BOARD=%BUILD_BOARD% ===
+echo === build_all : MODE=%MODE%  WHAT=%WHAT%  PLAYERS=%PLAYERS%  BOARD=%BUILD_BOARD%  TACTICAL=%BUILD_TACTICAL% ===
 echo.
 if /i "%BUILD_BOARD%"=="1" call :board
+if /i "%BUILD_TACTICAL%"=="1" call :tactical
 if /i "%WHAT%"=="cards" goto cards
 if /i "%WHAT%"=="docs"  goto docs
 if /i "%WHAT%"=="wiki"  goto wiki
@@ -74,10 +84,12 @@ echo   FAQ...
 %PY% faq_export.py "ask-the-bot\renown_faq.txt"
 echo   Combat quick-reference sheet (front/back PDF)...
 %PY% combat_sheet.py "%OUT_DIR%\combat_sheet.pdf"
+echo   Specialization trees (landscape PDF)...
+%PY% spec_tree_sheet.py "%OUT_DIR%\spec_trees.pdf"
 :wiki
 echo --- Wiki ---
 rmdir /s /q wiki 2>nul
-%PY% build_wiki.py RULES.md wiki
+%PY% build_wiki.py RULES_reorganized.md wiki
 if errorlevel 1 (
   echo   Wiki build FAILED - skipping push.
   goto end
@@ -118,7 +130,7 @@ echo Done. Press any key to close.
 pause
 goto :eof
 REM ============================================================================
-REM  :board  - generate the print-and-tape map PDF into BOARD_DIR
+REM  :board  - generate the print-and-tape start map PDF into BOARD_DIR
 REM ============================================================================
 :board
 echo --- Board ---
@@ -134,4 +146,19 @@ pushd "%BOARD_DIR%"
 %PY% build_board.py %BOARD_W% %BOARD_H% --seed %BOARD_SEED% --hex %BOARD_HEX% --paper %BOARD_PAPER% --param players=%BOARD_PLAYERS% %BOARD_FLAGS% --out "%BOARD_OUT%"
 popd
 echo   Board -^> %BOARD_OUT%
+exit /b
+REM ============================================================================
+REM  :tactical  - one-sheet skirmish board (terrain only, landscape) into BOARD_DIR
+REM ============================================================================
+:tactical
+echo --- Tactical board ---
+if not exist "%BOARD_DIR%\build_board.py" (
+  echo   ERROR: build_board.py not found in %BOARD_DIR% - skipping tactical.
+  exit /b
+)
+%PY% -c "import svglib" 2>nul || %PY% -m pip install svglib
+pushd "%BOARD_DIR%"
+%PY% build_board.py %TAC_W% %TAC_H% --tactical --seed %TAC_SEED% --hex %TAC_HEX% --paper %BOARD_PAPER% --out "%TAC_OUT%"
+popd
+echo   Tactical board -^> %TAC_OUT%
 exit /b
