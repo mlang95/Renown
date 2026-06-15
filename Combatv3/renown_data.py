@@ -50,11 +50,11 @@ GLOSSARY = {
     UNWIELDY:       "Initiative cannot be improved by Tactics.",
     TWO_H:          "Cannot use a Shield.",
     SHATTER_ARMOR:  "On a natural 6 to Strike, increase the AP by -5. Can only be Parried or Recovered on a natural 6.",
-    UNSTOPPABLE:    "Ignore the target shield's -1 to Strike, and impose -1 to Parry on the target (negated entirely if the target has Negate Unstoppable).",
+    UNSTOPPABLE:    "Negate target shield's -1 to Strike, and impose -1 to Parry on the target.",
     CLEAVE:         "On a natural 6 to Strike, you may roll an additional Strike die at your modified Strike value.",
     POISON:         "A natural 6 to Save against this Retinue's Strikes fails.",
     #NIMBLE:         "Gain +1 Initiative in the first Skirmish of each Battle.",
-    DRILLED:        "Does not lose Endurance in the first Skirmish of each Battle.",
+    #DRILLED:        "Does not lose Endurance in the first Skirmish of each Battle.",
     DESTROY_SHIELD: "On a natural 6 to Strike, target loses Shield attributes for the rest of the Battle.",
     BLUNDER:        "At Initiative -2 or lower, your to-Strike is set to 6+, before other negative modifiers.",
     ONE_SHOT:       "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard.",
@@ -72,7 +72,7 @@ GLOSSARY = {
     NEGATE_TEMPERED: "Ignores Tempered: this weapon's AP can reduce the target's Save past 6+ (to auto-fail), defeating the Tempered floor.",
     NEGATE_RIPOSTE: "The target's Parry can never Riposte this weapon's Strikes (a natural 6 Parry still cancels the Strike, but no counter-Strike follows).",
     MINUS_1_PARRY: "A stacking -1 penalty to the defender's Parry roll (to a maximum of 6+). Sources: Unstoppable, Deflect, and each Fatigue token.",
-    DUAL_WIELD: "A Strike die that fails to Strike is rerolled once; the reroll can hit and can itself trigger a natural-6 effect. Dual Wield confers 2H (both hands on weapons — no Shield). Daggers have it innately; the Tiltyard mastery grants it when two of the same 1H Melee Weapon are equipped.",
+    DUAL_WIELD: "A Strike die that fails to Strike is rerolled once; the reroll can hit and can itself trigger a natural-6 effect. Dual Wield confers 2H (both hands on weapons — no Shield).",
     "Immune [keyword]": "Cancels that keyword as it applies to you (e.g. Immune Unwieldy, Strain, Destroy Shield).",
 
     # ── Combat keywords ported from the Escalation Campaign glossary ──
@@ -122,11 +122,15 @@ GLOSSARY = {
     "Oppose X":      "Spend X Influence to decrease an Envoy's net Influence.",
     "Abstain":       "Decline to spend Influence on a vote.",
     "Net Influence": "The sum of an Envoy's starting Influence (1+ by Standing) and all Support, Oppose, and Influence X. The total sets the outcome: -3 or less Condemned, 0 or less Failed (gain Doubt +1), 1+ passes.",
-    "Endorsed":      "An Envoy that passes with high net Influence, triggering its endorsed effect (and a Domain's Rising/Established/Sovereign endorsement).",
+    "Endorsed":      "An Envoy that passes with 3+ net Influence, triggering its endorsed effect (and a Domain's Rising/Established/Sovereign endorsement).",
     "Condemned":     "An Envoy whose net Influence is -3 or less: it fails and you resolve that Domain's Condemn effect.",
     "Council Phase": "Before Personal Envoys, all players vote on a Domain (clockwise; Host breaks ties). Each then sends a free Council Envoy of that Domain. Council Envoys auto-Abstain and their net Influence cannot drop below 1.",
     "Council Envoy": "A free Envoy resolved in the Council Phase on the voted Domain; auto-Abstained, net Influence floored at 1.",
     "Personal Envoy": "An Envoy you send in the Envoy Phase to perform an action; count and reach scale with Era.",
+	"Envoy Outcome": "How a Sent Envoy resolves, by Net Influence: Condemned (<= -3), "
+                    "Failed (-3 < Net <= 0, gain Doubt 1), Passed (>= 1), Endorsed (>= 3). The per-domain "
+                    "effect at each band is given by ENVOY_OUTCOMES; an action's own endorsed bonus overrides "
+                    "the domain default.",
 
     # ── Empire actions ──
     "Charter":       "Found or upgrade a Settlement (Industry action).",
@@ -179,10 +183,10 @@ WEAPONS = {
     "Flail":          {"ap": -2, "init": -1, "tier": "Wrought", "tags": [CLEAVE]},
     "Halberd":        {"ap": -3, "init":  0, "tier": "Wrought", "tags": [TWO_H]},
     "Battle Axe":     {"ap": -2, "init": -1, "tier": "Wrought", "tags": [UNSTOPPABLE, TWO_H, CLEAVE]},
-    "Cavalry Spear":  {"ap": -2, "init":  0, "tier": "Wrought", "tags": [UNWIELDY, STEADY], 'note': "Needs Stable; no Tower Shield"},
+    "Cavalry Spear":  {"ap": -2, "init":  0, "tier": "Wrought", "tags": [UNWIELDY, STEADY], 'note': "Needs Stable; no Tower Shield or Dual Wield or Ranged Weapon"},
     "Bastard Sword":  {"ap": -3, "init":  0, "tier": "Forged",  "tags": [STEADY, SHATTER_ARMOR]},
     "2HBastard":      {"ap": -3, "init":  0, "tier": "Forged",  "tags": [CLEAVE, TWO_H, UNWIELDY]},
-    "Lance":          {"ap": -4, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE], 'note': "Needs Stable; no Tower Shield"},
+    "Lance":          {"ap": -4, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE], 'note': "Needs Stable; no Tower Shield or Dual Wield"},
     "Morningstar":    {"ap": -3, "init": -1, "tier": "Forged",  "tags": [UNWIELDY, DESTROY_SHIELD, CLEAVE]},
     "War Hammer":     {"ap": -8, "init": -1, "tier": "Forged",  "tags": [UNWIELDY, DESTROY_SHIELD, UNSTOPPABLE, TWO_H, SHATTER_ARMOR]},
     "Poleaxe":        {"ap": -4, "init":  0, "tier": "Crafted", "tags": [STEADY, TWO_H, UNSTOPPABLE, SHATTER_ARMOR, CLEAVE]},
@@ -1153,7 +1157,7 @@ NODES = {
         "unlock": "Established Prowess",
         "mastery_req": "Fletchery + Coliseum",
         "innate": "Armies may be Equipped with a second weapon (a Ranged and a Melee Weapon); the army gains **Unwieldy**",
-        "mastery": "Armies gain **Immune Unwieldy**, and may instead equip two of the same 1H Melee Weapon to gain **Dual Wield**",
+        "mastery": "Armies gain **Immune Unwieldy**, and may instead equip two of the same 1H Melee Weapon to gain **Dual Wield** & **2H**",
         "builds_into": ["Royal Pavilion"],
         "monument": False,
         "escalation": {"standing": "Established Prowess", "ranks": {1: "Dual-equip; Immune Unwieldy; Dual Wield (two of a kind)"}, "requires_all": ["Fletchery"], "requires_any": [], "extra_req": ""},
@@ -1334,7 +1338,7 @@ FACTIONS = {'The Battering Ram': {'inspiration': 'Siege-focused',
                       'feel': 'Pirate Life',
                       'difficulty': 'Low',
                       'strength': 'Medium',
-                      'mechanic': 'Sea Lanes: Other players cannot Perform Intercept Caravan on you. You '
+                      'mechanic': 'Sea Lanes: Other players cannot perform Intercept Caravan on you. You '
                                   'begin the game with a Shipyard that does not occupy a Settlement ward, '
                                   'does not cost upkeep, and always has the Mastery Effect, even if you do '
                                   'not have a Water Settlement.',
@@ -1344,8 +1348,8 @@ FACTIONS = {'The Battering Ram': {'inspiration': 'Siege-focused',
                         'feel': 'Diplomatic, Inescapable',
                         'difficulty': 'Low',
                         'strength': 'Medium',
-                        'mechanic': 'Royal Marriage: Once per game, you may Join an Alliance without '
-                                    'unanimous consent, or Form an Alliance with a player who is not in one. '
+                        'mechanic': 'Royal Marriage: Once per game, you may join an Alliance without '
+                                    'unanimous consent, or form an Alliance with a player who is not in one. '
                                     'Whoever is in that Alliance gains Faith +1 and +1 Influence per turn.',
                         'pair': 'Aristocratic Court, Senate Hall',
                         'complement': 'Royal Pavilion'},
@@ -1372,9 +1376,7 @@ FACTIONS = {'The Battering Ram': {'inspiration': 'Siege-focused',
                          'strength': 'Medium',
                          'mechanic': 'Prosperity For All: Begin the game with an Inn which does not occupy a '
                                      'Settlement ward, cost Upkeep, and counts as an activated Mastery '
-                                     'Effect which cannot be deactivated. You always gain trade income on '
-                                     'the turn trade is initiated or ended, regardless of who started and '
-                                     'who broke the trade agreement.',
+                                     'Effect which cannot be deactivated.',
                          'pair': 'Meadery & Winery, Studium Generale',
                          'complement': 'Royal Pavilion'},
  'The Gilded Path': {'inspiration': 'Great Income',
@@ -1392,14 +1394,14 @@ FACTIONS = {'The Battering Ram': {'inspiration': 'Siege-focused',
                       'strength': 'Low',
                       'mechanic': "Independent, but Ambitious: You Abstain every Vote on other players' "
                                   'Envoys, and other players must use 2 Influence to affect your Envoys by '
-                                  '1. Gain Influence +1 to all Personal Envoys.',
+                                  '1. Gain Influence +1 to all Personal Envoys. You cannot vote on Council Envoys.',
                       'pair': 'Studium Generale, Saddlery',
                       'complement': 'Royal Pavilion'},
  'The Illuminated Order': {'inspiration': 'Scholarly',
                            'feel': 'Knowledge is Power',
                            'difficulty': 'Low',
                            'strength': 'Medium',
-                           'mechanic': 'Knowledge is Power: For every 2 Pursuits, gain +1 Influence each '
+                           'mechanic': 'Knowledge is Power: For every 3 Pursuits, gain +1 Influence each '
                                        'turn.',
                            'pair': 'Studium Generale, Senate Hall',
                            'complement': 'Royal Pavilion'},
@@ -1415,9 +1417,9 @@ FACTIONS = {'The Battering Ram': {'inspiration': 'Siege-focused',
                     'feel': 'Scavenger',
                     'difficulty': 'Low',
                     'strength': 'Medium',
-                    'mechanic': 'Scavengers: Whether you Win or Lose a Battle, collect the Spoils of War. '
-                                'You may also Recoup the Cost of the Retinues received as Casualties in that '
-                                'Battle. Lastly, whenever you perform the Repair action, recoup its cost, '
+                    'mechanic': 'Scavengers: Whether you win or lose a battle, collect the Spoils of War. '
+                                'You may also recoup the cost of the retinues received as Casualties in that '
+                                'Battle. Lastly, whenever you perform the Rrpair action, recoup its cost, '
                                 'even if it only passed.',
                     'pair': 'Royal Pavilion, Shipyard',
                     'complement': 'Forge'},
@@ -1454,8 +1456,8 @@ FACTIONS = {'The Battering Ram': {'inspiration': 'Siege-focused',
                     'feel': 'Mountain Passers',
                     'difficulty': 'Low',
                     'strength': 'Low',
-                    'mechanic': 'Tunnellers: You treat Mountain Territory like Grasslands for purposes of '
-                                'movement, and begin the game with a Mine Raw Pursuit (no ward, no upkeep, '
+                    'mechanic': 'Tunnellers: You treat mountain territory like grasslands for purposes of '
+                                'movement, and begin the game with a Mine raw material pursuit (no ward, no upkeep, '
                                 'always active Mastery).',
                     'pair': 'Forge, Advanced Blast Furnace',
                     'complement': 'Royal Pavilion'},
@@ -1463,9 +1465,9 @@ FACTIONS = {'The Battering Ram': {'inspiration': 'Siege-focused',
                        'feel': 'Unconvinced',
                        'difficulty': 'Low',
                        'strength': 'Low',
-                       'mechanic': 'Martyrdom: Your Armies gain Immune Break Check and Immune Panic, but your armies continue to '
-                                   'suffer −1 from Fatigue Tokens, to a maximum of 6+. Gain Faith +1 for every player '
-                                   "you're at War with and every Battle where you lose 20 or more Retinues, "
+                       'mechanic': 'Martyrdom: Your armies Morale cannot be modified beyond 6+, but your armies continue to '
+                                   'suffer −1 from Fatigue Tokens. Gain Faith +1 for every player '
+                                   "you're at War with and every Battle where you lose 20 or more retinues, "
                                    'win or loss.',
                        'pair': "Preceptory of the Knight's Templar, Inquisitorial Palace",
                        'complement': 'Royal Pavilion'},
@@ -1483,8 +1485,8 @@ FACTIONS = {'The Battering Ram': {'inspiration': 'Siege-focused',
                        'feel': 'Aggressive, Parasitic',
                        'difficulty': 'Low',
                        'strength': 'Medium',
-                       'mechanic': "Danegeld: Your Armies do not pay Upkeep in enemy territory when you're "
-                                   'at war — the enemy player pays the Upkeep instead. Do not gain Speed −1 '
+                       'mechanic': "Danegeld: Your armies do not pay upkeep in enemy territory when you're "
+                                   'at war — the enemy player pays the upkeep instead. Do not gain Speed −1 '
                                    'in Winter.',
                        'pair': 'Royal Pavilion, Shipyard',
                        'complement': 'Forge'},
@@ -1492,11 +1494,11 @@ FACTIONS = {'The Battering Ram': {'inspiration': 'Siege-focused',
                        'feel': 'Oathkeepers',
                        'difficulty': 'Medium',
                        'strength': 'High',
-                       'mechanic': 'Highlander Way: Enemy armies gain Speed −1 in your Controlled Territory. '
+                       'mechanic': 'Highlander Way: Enemy armies gain Speed −1 in your Province. '
                                    'You ignore all Terrain Speed modifiers and may trade without Dirt Roads. '
                                    'You must accept the first Non-Aggression Pact offered by each player or '
                                    'Alliance. If that player later joins an alliance, this condition is '
-                                   'considered satisfied for that Alliance.',
+                                   'considered satisfied for that alliance.',
                        'pair': 'Royal Pavilion, Saddlery',
                        'complement': 'Senate Hall'},
  'The Bloodied Cross': {'inspiration': 'Crusading Sect',
@@ -1505,7 +1507,7 @@ FACTIONS = {'The Battering Ram': {'inspiration': 'Siege-focused',
                         'strength': 'High',
                         'mechanic': 'Prophets of War: May Crusade at Rising Piety instead of Sovereign '
                                     'Piety, and do not have a cap on how many Crusades you may have active. '
-                                    'All players receive Doubt +1 per Crusade you are on. You cannot Convert.',
+                                    'All players receive Doubt +1 per Crusade you are on. You cannot perform convert actions.',
                         'pair': "Preceptory of the Knight's Templar, Inquisitorial Palace",
                         'complement': 'Senate Hall'},
  'The Blazing Standard': {'inspiration': 'Teutonic Knight',
@@ -1514,10 +1516,10 @@ FACTIONS = {'The Battering Ram': {'inspiration': 'Siege-focused',
                           'strength': 'High',
                           'mechanic': "Burning Cross: You begin the game with a Preceptory of the Knight's "
                                       'Templar (no ward, no upkeep, always active Mastery). If you Declared '
-                                      'War via Crusade, that player must take a Shaken Test at the beginning '
-                                      'of every Battle. If during the Prowess Envoy phase you do not have an '
-                                      "army with 50 Knight's Templars, you must attempt to send an envoy. If "
-                                      'it passes, you must muster an army until it has 50 retinues of '
+                                      'War via Crusade, that player must take a Panic Check at the beginning '
+                                      'of every battle after lines are formed. If during the Prowess Envoy phase you do not have an '
+                                      "army with 25 Knight's Templars, you must attempt to send an envoy. If "
+                                      'it passes, you must muster an army until it has 25 retinues of '
                                       "Knight's Templar.",
                           'pair': "Preceptory of the Knight's Templar, Royal Pavilion",
                           'complement': 'Senate Hall'},
@@ -1526,15 +1528,15 @@ FACTIONS = {'The Battering Ram': {'inspiration': 'Siege-focused',
                       'difficulty': 'Medium',
                       'strength': 'Medium',
                       'mechanic': 'Palatine: Players who are allied with you gain Influence +1 to their '
-                                  'envoys, but you may spend 1 of their Influence each turn.',
+                                  'envoys, but you may spend 1 of their Influence each turn, targeting your own envoys if you wish.',
                       'pair': 'Senate Hall, Aristocratic Court',
                       'complement': 'Royal Pavilion'},
  'The Luminous Court': {'inspiration': 'Renaissance',
                         'feel': 'Civic Soft Power',
                         'difficulty': 'Medium',
                         'strength': 'Medium',
-                        'mechanic': 'Arts & Humanities / Hearts & Minds: Cannot Pursue Craft Pursuits. Civic '
-                                    'Pursuits gain as Craft +1. All Civic Pursuits do not cost Upkeep. This '
+                        'mechanic': 'Arts & Humanities / Hearts & Minds: Cannot pursue Craft Pursuits. Civic '
+                                    'Pursuits gain Craft +1. All Civic Pursuits do not cost Upkeep. This '
                                     'Player must accept a Peace Treaty if offered one.',
                         'pair': 'Studium Generale, Aristocratic Court, Senate Hall',
                         'complement': 'Royal Pavilion'},
@@ -1551,7 +1553,7 @@ FACTIONS = {'The Battering Ram': {'inspiration': 'Siege-focused',
                      'difficulty': 'Medium',
                      'strength': 'Low',
                      'mechanic': 'Inexorable: Your armies always have Unwieldy and cannot gain Immune '
-                                 'Unwieldy, Recover, Speed −1, and Immune Panic. Your Public Order cannot '
+                                 'Unwieldy, but also gain Recover +1, Speed −1, and Immune Panic. Your Public Order cannot '
                                  'exceed 1.',
                      'pair': "Preceptory of the Knight's Templar, Forge",
                      'complement': 'Advanced Blast Furnace'},
@@ -1559,8 +1561,8 @@ FACTIONS = {'The Battering Ram': {'inspiration': 'Siege-focused',
                       'feel': 'Mercantile Military',
                       'difficulty': 'Medium',
                       'strength': 'Medium',
-                      'mechanic': 'Integrated Arms: You may Muster Retinues and Equipment from your Trade '
-                                  "Partners' Pursuits (and Mastery Effects, if active) for their Cost.",
+                      'mechanic': 'Integrated Arms: You may Muster retinues and equipment from your Trade '
+                                  "Partners' Pursuits (and Mastery Effects, if active) for their cost when you perform a muster action.",
                       'pair': 'Forge, Advanced Blast Furnace',
                       'complement': 'Royal Pavilion'},
  'The Velvet Hand': {'inspiration': 'Patrons',
@@ -1568,8 +1570,8 @@ FACTIONS = {'The Battering Ram': {'inspiration': 'Siege-focused',
                      'difficulty': 'Medium',
                      'strength': 'Medium',
                      'mechanic': 'Friends in High Places: At the beginning of the turn, players gain Faith +1 '
-                                 'if they Supported an Envoy you Sent and it was Passed. And, if it was '
-                                 'Endorsed, they Extort 500 gold per Era.',
+                                 'if they supported an envoy you sent and it was passed. And, if it was '
+                                 'endorsed, they Extort 500 gold per Era.',
                      'pair': 'Aristocratic Court, Senate Hall',
                      'complement': 'Royal Pavilion'},
  'The Ashen Vale': {'inspiration': 'Plague',
@@ -1577,7 +1579,7 @@ FACTIONS = {'The Battering Ram': {'inspiration': 'Siege-focused',
                     'difficulty': 'High',
                     'strength': 'Low',
                     'mechanic': 'Pestilence: Each bordering player gains Doubt +1, your settlements gain '
-                                'Reach +1, and all Retinues gain Poison. You may not Pursue an Apothecary, '
+                                'Reach +1, and all retinues gain Poison. You may not pursue an Apothecary, '
                                 'Infirmary, or Hospitaller.',
                     'pair': "Thieves' Guild, Inquisitorial Palace",
                     'complement': 'Royal Pavilion'},
@@ -1588,7 +1590,7 @@ FACTIONS = {'The Battering Ram': {'inspiration': 'Siege-focused',
                        'mechanic': 'The Highest Bidder: You cannot Declare War and cannot be the Target of a '
                                    'Declare War action. However you must sign any Military or Defensive '
                                    'Alliance offered to you by the highest bidding player each turn and must '
-                                   'be paid each turn. In order to overturn an existing Alliance, the player '
+                                   'be paid each turn. In order to overturn an existing alliance, the player '
                                    'must pay a higher amount than the prior agreement. You cannot sign or '
                                    'end alliances via a Diplomacy action.',
                        'pair': 'Royal Pavilion, Forge',
@@ -1622,8 +1624,8 @@ FACTIONS = {'The Battering Ram': {'inspiration': 'Siege-focused',
                           'mechanic': 'Reckless: Gain Influence +2 to all Cunning Envoys when targeting a '
                                       'Player with PO > 0. You begin the game with a Secret Cellar (no ward, '
                                       'no upkeep, always active Mastery). Cannot be in an alliance. Cannot '
-                                      'Perform Diplomacy actions. If you Send a Prowess Envoy, it cannot '
-                                      'Fail — if Condemned, it Passes but still gains Blocked.',
+                                      'perform Diplomacy actions. If you Send a Prowess envoy, it cannot '
+                                      'fail — if condemned, it passes.',
                           'pair': "Thieves' Guild, Inquisitorial Palace",
                           'complement': 'Royal Pavilion'},
  "The Squatters' Crown": {'inspiration': 'Insurgents',
@@ -1682,7 +1684,7 @@ FACTIONS = {'The Battering Ram': {'inspiration': 'Siege-focused',
                      'difficulty': 'Low',
                      'strength': 'Medium',
                      'mechanic': 'Wise & Suspicious: Gain Doubt +1; If Public Order is 1+, armies gain '
-                                 'Nimble, Steady, and Speed +1. Cannot be a member of an alliance.',
+                                 '+1I, Steady, and Speed +1. Cannot be a member of an alliance.',
                      'pair': 'Forge',
                      'complement': 'Inquisitorial Palace'},
  'The Yew Heart': {'inspiration': 'English Longbows',
@@ -1692,8 +1694,8 @@ FACTIONS = {'The Battering Ram': {'inspiration': 'Siege-focused',
                    'mechanic': 'Archery is a Way of Life: You begin the game with a Fletchery which does not '
                                'occupy a Settlement ward, nor cost upkeep. You always gain its Mastery '
                                'Effect, which cannot be deactivated. In addition, your armies must always be '
-                               'equipped with a ranged weapon. Ranged Weapons gain +1 to Hit. Cannot  be '
-                               'equipped with plate or articulated gothic plate. Cannot use shields. Cannot '
+                               'equipped with a ranged weapon. Ranged Weapons gain +1 to Strike. Cannot  be '
+                               'equipped with full plate or articulated gothic plate. Cannot use shields. Cannot '
                                "build a Preceptory of Knight's Templar.",
                    'pair': 'Royal Pavilion',
                    'complement': 'Senate Hall'}}
@@ -1783,7 +1785,7 @@ WONDERS = {'Colossus': {'upkeep': 200,
               'upkeep_frequency': 'per Wonder',
               'empire_bonus': 'You may **support** your own **prowess envoys** before other **players '
                               'vote**. **Armies** move **Speed +2** **Siege Timer -2** gain **Immune '
-                              'Blocked**.',
+                              'Blunder**.',
               'tier': 'Wonder',
               'build_time': 10,
               'requirement': 'All Infrastructure unlocked'},
@@ -2048,6 +2050,39 @@ GLOSSARY.update({
 # Built from RULES.md (v0.4.8.3.1). Schemas chosen to be generator-friendly:
 # the wiki / FAQ / compendium can iterate these the same way they do NODES.
 # ============================================================================
+
+
+
+
+# ── ENVOY OUTCOMES ───────────────────────────────────────────────────────
+# Resolution bands for a Sent Envoy, by Net Influence (starting Influence by
+# Standing + all Support/Oppose/Influence X):
+#   Condemned : Net <= -3   (resolve the domain's Condemn effect)
+#   Failed    : Net <= 0     (gain Doubt 1)
+#   Passed    : Net >= 1
+#   Endorsed  : Net >= <THRESHOLD?>   (Passed + the domain's endorsed bonus)
+ENVOY_OUTCOME_THRESHOLDS = {
+    "Condemned": -3,   # Net Influence <= -3
+    "Failed":     0,   # Net Influence <= 0  (and > -3)
+    "Passed":     1,   # Net Influence >= 1
+    "Endorsed":   3,  # <-- NEED THE NUMBER
+}
+# Per-domain effect at each outcome band. Prowess Condemn is a combat penalty
+# (Strain; if already Strained, no Move this turn or next) rather than Doubt+Cost,
+# since Prowess actions carry no gold/doubt cost.
+ENVOY_OUTCOMES = {
+    "Prowess":   {"condemned": "Doubt 1 + Armies gain Strain; if already Strained, that army cannot perform a Move action this turn or next.",
+                  "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Perform a Move action"},
+    "Cunning":   {"condemned": "Doubt 1 + pay the action's cost",
+                  "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Extort 2000"},
+    "Piety":     {"condemned": "Doubt 1 + pay the action's cost",
+                  "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Faith 1"},
+    "Industry":  {"condemned": "Doubt 1 + pay the action's cost",
+                  "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Recoup 2000"},
+    "Diplomacy": {"condemned": "Doubt 1 + pay the action's cost",
+                  "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Perform a Diplomacy action"},
+}
+
 
 # ── ACTIONS ─────────────────────────────────────────────────────────────────
 # Every Envoy action, by domain. Fields:

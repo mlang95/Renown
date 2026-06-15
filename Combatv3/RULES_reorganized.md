@@ -559,7 +559,7 @@ Each **standing** you gain in a **domain** makes you harder to stop in that area
 
 ** ****Domain Identities & Traits**
 
-### Domain Resolve Table
+### [Domain Resolve Table](envoy-outcomes-ref.html)
 
 Every **envoy** resolves by its **net influence** (all **support** minus all **oppose**, plus any **influence X** modifiers). The net total maps to one of four outcomes:
 

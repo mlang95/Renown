@@ -4,7 +4,7 @@ cd /d "C:\Users\Matt\OneDrive\Desktop\Game\Combatv3"
 
 REM --- Edit these ---
 set MPC_MIN=3
-set MPC_MAX=20
+set MPC_MAX=16
 set RUNS=50
 set PY="C:\Users\Matt\AppData\Local\Programs\Python\Python39\python.exe"
 REM POOL MODE:

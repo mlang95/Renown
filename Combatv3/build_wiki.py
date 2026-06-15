@@ -188,6 +188,11 @@ _SECTION_ALIASES = {
 for alias, section in _SECTION_ALIASES.items():
     if slug(section) in _section_slugs:
         TERMS.setdefault(alias, (f"rules-{slug(section)}.html", None))
+
+# Envoy Outcomes page — register early so rule pages can link to it.
+TERMS.setdefault("Envoy Outcome",       ("envoy-outcomes-ref.html", None))
+TERMS.setdefault("Envoy Outcomes",      ("envoy-outcomes-ref.html", None))
+TERMS.setdefault("Domain Resolve Table", ("envoy-outcomes-ref.html", None))
 # rebuild the matcher now that TERMS grew
 TERM_LIST = sorted(TERMS, key=lambda t:-len(t))
 TERM_RE = re.compile(r"\b(" + "|".join(re.escape(t) for t in TERM_LIST) + r")\b", re.IGNORECASE)
@@ -207,7 +212,7 @@ def nav(current=""):
         u=f"domain-{slug(d)}.html"; it.append(f"<a href='{u}'{' class=active' if u==current else ''}>{d}</a>")
     it.append(f"<a href='paths.html'{' class=active' if current=='paths.html' else ''}>Build Paths</a>")
     it.append('<div class="navhead">Reference</div>')
-    for label,uu in [("Actions","actions-ref.html"),("Treaties & Alliances","treaties-ref.html"),
+    for label,uu in [("Actions","actions-ref.html"),("Envoy Outcomes","envoy-outcomes-ref.html"),("Treaties & Alliances","treaties-ref.html"),
                      ("Edicts","edicts-ref.html"),("Economy","economy-ref.html"),
                      ("Terrain & Movement","terrain-ref.html"),("Bandits","bandits-ref.html"),
                      ("Timers, Influence & PO","systems-ref.html"),
@@ -415,7 +420,30 @@ if hasattr(rd, "ACTIONS"):
     open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Actions",body,u))
     for n,a in rd.ACTIONS.items():
         TERMS.setdefault(n,(u,None)); search_index.append({"title":n,"url":u,"text":f"{n} {a.get('domain','')} action {a.get('effect','')}"})
-
+        
+# Envoy Outcomes — data-driven from rd.ENVOY_OUTCOMES + rd.ENVOY_OUTCOME_THRESHOLDS
+if hasattr(rd, "ENVOY_OUTCOMES"):
+    u="envoy-outcomes-ref.html"
+    DOM_ORDER=["Prowess","Cunning","Piety","Industry","Diplomacy"]
+    th=getattr(rd,"ENVOY_OUTCOME_THRESHOLDS",{})
+    body="<h1>Envoy Outcomes</h1>"
+    body+=("<p>How a Sent Envoy resolves by <strong>Net Influence</strong>: "
+           f"Condemned (\u2264{th.get('Condemned','?')}), Failed (\u2264{th.get('Failed','?')}, gain Doubt 1), "
+           f"Passed (\u2265{th.get('Passed','?')}), Endorsed (\u2265{th.get('Endorsed','?')}). "
+           "An individual action's own Endorsed bonus (see Actions) overrides the domain default below.</p>")
+    rows=[[dom,
+           rd.ENVOY_OUTCOMES[dom].get("condemned",""),
+           rd.ENVOY_OUTCOMES[dom].get("failed",""),
+           rd.ENVOY_OUTCOMES[dom].get("passed",""),
+           rd.ENVOY_OUTCOMES[dom].get("endorsed","")]
+          for dom in DOM_ORDER if dom in rd.ENVOY_OUTCOMES]
+    body+=_grid(["Domain","Condemned","Failed","Passed","Endorsed"], rows, u)
+    open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Envoy Outcomes",body,u))
+    for _t in ("Envoy Outcome", "Envoy Outcomes", "Domain Resolve Table"):
+        TERMS.setdefault(_t, (u, None))
+    search_index.append({"title":"Envoy Outcomes","url":u,
+        "text":"envoy outcomes condemned failed passed endorsed net influence resolve domain"})
+        
 # Treaties & Alliances — data-driven from rd.TREATIES + rd.ALLIANCE_RULES
 if hasattr(rd, "TREATIES"):
     u="treaties-ref.html"
