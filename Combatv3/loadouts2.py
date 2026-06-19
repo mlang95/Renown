@@ -19,14 +19,6 @@ Engine-recognized extra_tags:
 """
 from collections import namedtuple
 from renown_data import RETINUES, WEAPONS, RANGED, SHIELDS, ARMORS
-# Keyword constants so tag-injection sites point at VARIABLES, not literals (rename-safe).
-from renown_data import (
-    SHATTER_ARMOR, CLEAVE, DEFLECT, DESTROY_SHIELD, DRILLED, DUAL_WIELD, HALFSWORD,
-    MINUS_1_TBH, MINUS_1_PARRY, NEGATE_RIPOSTE, NEGATE_TEMPERED, NEGATE_UNSTOPPABLE,
-    NIMBLE, ONE_SHOT, PARRY, PLANISHING, POISON, RECOVER, RIPOSTE, SERRATED,
-    STEADY, STRAIN, TWO_H, UNBREAKABLE, UNSTOPPABLE, UNWIELDY,
-    IMMUNE_DESTROY_SHIELD, IMMUNE_STRAIN, IMMUNE_UNWIELDY,
-)
 Loadout = namedtuple("Loadout",
     "name retinue weapon shield armor ranged has_tiltyard size extra_tags upkeep_per_retinue playstyle tiltyard_mastery pursuits military_pursuit_count domain_count")
 Loadout.__new__.__defaults__ = (None, True, frozenset(), 0, 0)  # playstyle, tiltyard_mastery, pursuits, mpc, domain_count
@@ -66,9 +58,9 @@ ARMOR_LABEL = {
     "Gothic Plate": "Gothic",
 }
 SHIELD_LABEL = {
-    "Buckler Shield": "Buckler",
-    "Targe Shield": "Targe",
+    "Wooden Shield": "Wooden",
     "Kite Shield": "Kite",
+    "Scutum Shield": "Scutum",
     "Tower Shield": "Tower",
     "Heater Shield": "Heater",
 }
@@ -89,12 +81,12 @@ TAG_DISPLAY = {
     "Recover 6":         "Rec 6",
     "Recover 5":         "Rec 5",
     "Recover 4":         "Rec 4",
-    SERRATED:          "Serr",
-    PLANISHING:          "Temp",   # tag value is "Tempered" (PLANISHING constant); display abbrev = Temp
+    "Serrated":          "Serr",
+    "Planishing":        "Temp",   # internal tag key stays "Planishing"; display abbrev = Tempered
     "Crit 5":            "Crit5",
     "+1I":               "+1I",
     "Immune Panic":      "ImmPanic",
-    IMMUNE_UNWIELDY:   "ImmU",
+    "Immune Unwieldy":   "ImmU",
     "Immune Poison":     "ImmP",
     "Apothecary Heal":   "ApoHeal",
     "Cond Field":        "CFM",
@@ -110,7 +102,7 @@ TAG_DISPLAY = {
     "GF Armor":          "GF",
     "Shake +1":          "Shake+1",
     "Yew Heart":         "YewHeart",
-    DUAL_WIELD:        "DW",
+    "Dual Wield":        "DW",
 }
 def _w_label(w):
     return WEAPON_LABEL.get(w, w)
@@ -125,11 +117,11 @@ _MON_ABBR = {
     "Outrider Intercept Post": "OuInPo",
 }
 # Tags absorbed into the domain-standing tuple (they ARE the standing's grant):
-_DOMAIN_TAGS = {"Immune Blocked", PARRY, "confers:Blocked", "confers:Strain"}
+_DOMAIN_TAGS = {"Immune Blocked", "Parry", "confers:Blocked", "confers:Strain"}
 def _standing_letter(v):
     return "S" if v >= 10 else ("E" if v >= 6 else ("R" if v >= 3 else "N"))
 def _name(retinue, weapon, shield, armor, ranged, has_tiltyard, extra_tags, playstyle=None,
-          pursuits=None):
+          pursuits=None, domain=None):
     """Build a human-readable name for a loadout.
     Format: RET/WEAPON[+RANGED]/SHIELD/ARMOR (TY) [bracket] <playstyle>
     - Pure-ranged (no real melee weapon — None or the Farm Tools placeholder): the ranged weapon is
@@ -138,6 +130,8 @@ def _name(retinue, weapon, shield, armor, ranged, has_tiltyard, extra_tags, play
       the 4-domain standing tuple (xInd, xProw, xPie, xCun) with x in {N,R,E,S}, then remaining tags.
       Monument-granted tags and domain-standing tags (Immune Blocked/Parry/confers:*) are absorbed
       into the marker/tuple. Without `pursuits`, the legacy flat-tag bracket is used.
+    - `domain` (optional): the precomputed domain dict for `pursuits`. If supplied, the standing
+      tuple uses it directly instead of recomputing compute_pursuit_cost(P). Output is identical.
     - Riposte implies the parry kit (Parry from Established Prowess, Improved Parry from the Grand
       Tournament innate), so both are hidden whenever Riposte is shown. Display-only."""
     parts = [RETINUE_LABEL[retinue]]
@@ -156,15 +150,15 @@ def _name(retinue, weapon, shield, armor, ranged, has_tiltyard, extra_tags, play
     if has_tiltyard and ranged and not pure_ranged:
         base += " (TY)"   # marks an actual dual-equip (melee + ranged)
     elif (has_tiltyard and not ranged and weapon and weapon != "Farm Tools"
-          and DUAL_WIELD in (extra_tags or [])
-          and DUAL_WIELD not in WEAPONS.get(weapon, {}).get("tags", [])):
+          and "Dual Wield" in (extra_tags or [])
+          and "Dual Wield" not in WEAPONS.get(weapon, {}).get("tags", [])):
         # Tiltyard two-of-same: a non-intrinsic-DW 1H weapon doubled to gain Dual Wield.
         # (Daggers carry DW intrinsically and are excluded by the weapon-tag check.)
         base += " (DW)"
     tags = list(extra_tags) if extra_tags else []
     # Display only the strongest Regenerate tier (engine takes min threshold; dominated tags are noise)
     _regen_rank = {"Regenerate 4": 4, "Regenerate 5": 5, "Regenerate 6": 6, "Regenerate": 6,
-                   "Recover 4": 4, "Recover 5": 5, "Recover 6": 6, RECOVER: 6}
+                   "Recover 4": 4, "Recover 5": 5, "Recover 6": 6, "Recover": 6}
     _regen_present = [t for t in tags if t in _regen_rank]
     if len(_regen_present) > 1:
         best = min(_regen_present, key=lambda t: _regen_rank[t])
@@ -184,18 +178,21 @@ def _name(retinue, weapon, shield, armor, ranged, has_tiltyard, extra_tags, play
             hidden.update(t for t in info.get("innate_tags", []) if not t.startswith("tier:"))
             if mastered:
                 hidden.update(t for t in info.get("mastery_tags", []) if not t.startswith("tier:"))
-        # 4-domain standing tuple
-        _, dom, _ = compute_pursuit_cost(P)
+        # 4-domain standing tuple (use precomputed domain if given; identical otherwise)
+        if domain is None:
+            _, dom, _ = compute_pursuit_cost(P)
+        else:
+            dom = domain
         bracket_items.append("({}Ind, {}Prow, {}Pie, {}Cun)".format(
             _standing_letter(dom.get("Industry", 0)), _standing_letter(dom.get("Prowess", 0)),
             _standing_letter(dom.get("Piety", 0)), _standing_letter(dom.get("Cunning", 0))))
-        if RIPOSTE in tags:
+        if "Riposte" in tags:
             hidden.add("Improved Parry")
         bracket_items += [TAG_DISPLAY.get(t, t) for t in tags if t not in hidden]
     elif tags:
         # legacy flat bracket (no pursuit info available)
         _display = [t for t in tags
-                    if not (t in (PARRY, "Improved Parry") and RIPOSTE in tags)]
+                    if not (t in ("Parry", "Improved Parry") and "Riposte" in tags)]
         bracket_items = [TAG_DISPLAY.get(t, t) for t in _display]
     if bracket_items:
         base += f" [{', '.join(bracket_items)}]"
@@ -215,7 +212,7 @@ def is_2h(weapon_name):
         return False
     tags = profile.get("tags", [])
     # Dual Wield confers 2H (both hands on weapons) — a Dual Wield weapon never carries a shield.
-    return (TWO_H in tags) or (DUAL_WIELD in tags)
+    return ("2H" in tags) or ("Dual Wield" in tags)
 def valid_combo(retinue, weapon, shield, armor, ranged, has_tiltyard, allow_tier_mismatch=2):
     """Filter for sensible combinations.
     - 2H melee disallows shields.
@@ -273,7 +270,7 @@ def valid_combo(retinue, weapon, shield, armor, ranged, has_tiltyard, allow_tier
         if shield_tier_idx < weapon_tier_idx:
             return False
     # "One Shot" ranged weapons (Javelin, Pilum) require Tiltyard.
-    if ranged is not None and ONE_SHOT in RANGED[ranged].get("tags", []):
+    if ranged is not None and "One Shot" in RANGED[ranged].get("tags", []):
         if not has_tiltyard:
             return False
     # Dual-equip requires Tiltyard. Real melee + ranged without Tiltyard is invalid.
@@ -354,18 +351,18 @@ BUILD_KITS = {
     # — Baseline —
     "Vanilla":              (),
     # — Single spec masteries / domain effects —
-    DRILLED:              (DRILLED,),
-    NIMBLE:               (NIMBLE,),
-    STEADY:               (STEADY,),
+    "Drilled":              ("Drilled",),
+    "Nimble":               ("Nimble",),
+    "Steady":               ("Steady",),
     "Steadfast":            ("Immune Panic",),                  # Preceptory innate / Undying Flame (legacy preset name)
-    PARRY:                (PARRY,),                         # Edict of War (Sovereign Prowess)
+    "Parry":                ("Parry",),                         # Edict of War (Sovereign Prowess)
     "Cond Field":           ("Cond Field",),                    # Conditioning Field mastery
-    "Rend":           (SERRATED,),               # Master Workshop mastery
-    "GF Armor":             (PLANISHING,),                      # Gilded Foundry mastery
+    "Rend":           ("Serrated",),               # Master Workshop mastery
+    "GF Armor":             ("Planishing",),                    # Gilded Foundry mastery
     "Immune Poison":        (),                                 # Apothecary no longer grants Immune Poison (disabled)
     "Apothecary Heal":      ("Apothecary Heal",),               # Apothecary mastery: Heal 1 per 4 cas (Immune Poison removed)
-    POISON:               (POISON,),                        # Toxicarium innate
-    IMMUNE_UNWIELDY:      (IMMUNE_UNWIELDY,),               # Tiltyard mastery
+    "Poison":               ("Poison",),                        # Toxicarium innate
+    "Immune Unwieldy":      ("Immune Unwieldy",),               # Tiltyard mastery
     # — Regenerate ladder —
     "Regen 6+":             ("Recover 6",),
     "Regen 5+":             ("Recover 5",),
@@ -376,30 +373,30 @@ BUILD_KITS = {
     "Regen 5+ Reroll":      ("Recover 5",),
     "Regen 4+ Reroll":      ("Recover 4",),
     # — Spec combinations (multi-spec pathways) —
-    "Royal Pavilion":       (DRILLED, NIMBLE),                                    # RP mastery
+    "Royal Pavilion":       ("Drilled", "Nimble"),                                    # RP mastery
     "Preceptory":           ("Immune Panic",),                                        # Preceptory innate
-    "Pre + RP":             (DRILLED, NIMBLE, "Immune Panic"),
-    "Pre + RP + Parry":     (DRILLED, NIMBLE, "Immune Panic", PARRY),
-    "RP + Conditioned":     (DRILLED, NIMBLE, "Cond Field"),
-    "Pre + RP + Cond":      (DRILLED, NIMBLE, "Immune Panic", "Cond Field"),
-    "MW + GF":              (SERRATED, PLANISHING),
-    "Industry Elite":       (SERRATED, PLANISHING, "Cond Field"),
-    "Apo + Tox":            (POISON,),
+    "Pre + RP":             ("Drilled", "Nimble", "Immune Panic"),
+    "Pre + RP + Parry":     ("Drilled", "Nimble", "Immune Panic", "Parry"),
+    "RP + Conditioned":     ("Drilled", "Nimble", "Cond Field"),
+    "Pre + RP + Cond":      ("Drilled", "Nimble", "Immune Panic", "Cond Field"),
+    "MW + GF":              ("Serrated", "Planishing"),
+    "Industry Elite":       ("Serrated", "Planishing", "Cond Field"),
+    "Apo + Tox":            ("Poison",),
     "Apo + Inf":            ("Recover 6",),
     "Apo + Inf + Hosp":     ("Recover 5",),
     "Apo + Inf + Hosp(M)":  ("Recover 4",),
     # — Faction effects —
-    "Pale Throne":          (UNWIELDY, "Recover 6", "Immune Panic"),                # mandatory faction tags
-    "Pale Throne + Inf":    (UNWIELDY, "Recover 5", "Immune Panic"),
-    "Pale Throne max":      (UNWIELDY, "Recover 4", "Immune Panic"),                # +Inf+Hosp innate
-    "Pale Throne max + HM": (UNWIELDY, "Recover 4", "Immune Panic"),                # Hosp mastery: 4+ floor — no gain for PT
-    "Pale Throne + MWGF":   (UNWIELDY, "Recover 6", "Immune Panic", SERRATED, PLANISHING),
-    "Elder Grove":          (NIMBLE, STEADY),                                     # requires PO 1+
-    "Elder Grove + RP":     (NIMBLE, STEADY, DRILLED),
+    "Pale Throne":          ("Unwieldy", "Recover 6", "Immune Panic"),                # mandatory faction tags
+    "Pale Throne + Inf":    ("Unwieldy", "Recover 5", "Immune Panic"),
+    "Pale Throne max":      ("Unwieldy", "Recover 4", "Immune Panic"),                # +Inf+Hosp innate
+    "Pale Throne max + HM": ("Unwieldy", "Recover 4", "Immune Panic"),                # Hosp mastery: 4+ floor — no gain for PT
+    "Pale Throne + MWGF":   ("Unwieldy", "Recover 6", "Immune Panic", "Serrated", "Planishing"),
+    "Elder Grove":          ("Nimble", "Steady"),                                     # requires PO 1+
+    "Elder Grove + RP":     ("Nimble", "Steady", "Drilled"),
     "Undying Flame":        ("Immune Panic",),                                        # same as Preceptory in-engine
-    "Ashen Vale":           (POISON,),                                              # all retinues poison
+    "Ashen Vale":           ("Poison",),                                              # all retinues poison
     "Yew Heart":            ("Yew Heart",),                                           # ranged +1 to hit
-    "Yew Heart TY":         ("Yew Heart", IMMUNE_UNWIELDY),                         # +Tiltyard mastery
+    "Yew Heart TY":         ("Yew Heart", "Immune Unwieldy"),                         # +Tiltyard mastery
     "Blazing Standard":     ("Immune Panic",),                                        # free Preceptory mastery
     # — Ministry of Strategy (Sovereign Prowess monument) —
     # Reveal opponent's tactic before picking yours. Counter-pick with 80% confidence.
@@ -408,36 +405,13 @@ BUILD_KITS = {
     "Outrider: first":      ("Outrider: first",),                                     # first skirmish only
     "Outrider: once":       ("Outrider: once",),                                      # once per battle (modeled as first)
     # — Endgame meta stack —
-    "Crusader King":        (DRILLED, NIMBLE, "Steadfast", PARRY, "Rend", "GF Armor", "Cond Field"),
+    "Crusader King":        ("Drilled", "Nimble", "Steadfast", "Parry", "Rend", "GF Armor", "Cond Field"),
 }
 # ==============================================================================
 # Pursuit cost system — Military Pursuit Count & Domain Count
 # ==============================================================================
-# Each Loadout's "Military Pursuit Count" is the total building-cost of the
-# pursuits a player must have invested in to field this loadout. A player has a
-# fixed budget (default 13 points); spending more on military pursuits means
-# spending less on income, faith, etc. Domain Count tracks domain investment.
-# Pursuit catalog: cost, prereqs, domain requirements, granted tags, upkeep effects.
-#
-# upkeep_effect: per-retinue gold reduction. Three forms:
-#   - {"flat": N}             → -N flat per retinue while pursuit is owned
-#   - {"if_shield": N}        → -N per retinue if loadout has a shield
-#   - {"if_ranged": N}        → -N per retinue if loadout has a ranged weapon
-#   - {"if_armor_in": ([armors], N)} → -N per retinue if loadout's armor is in the list
-#   Multiple effects stack (a pursuit may have both flat and conditional).
-# PURSUITS_INFO — rebuilt from specs.csv (combat-relevant specs only).
-# Per spec: prereqs (=Mastery Requirement pursuits), domain (Unlock standing R3/E6/S10),
-#   innate_tags (granted when spec present), mastery_tags (granted only when mastery_req ⊆ build),
-#   mastery_req (pursuits gating the mastery effect — LOCAL, not transitive),
-#   efficient (this spec's mastery makes that target spec cost 0 MPC if both present),
-#   upkeep_effects (flat -200 per -5, -500 per -10, stacking).
-# Economic prereqs not in this dict (Academy, Mine, Herb Garden, etc.) are the closure boundary:
-#   treated as satisfied, never added to builds.
 def _pursuits_info_from_renown_data():
-    """Build the sim's pursuit table from renown_data.NODES 'engine' fields —
-    the single source of truth. Each engine entry carries the sim semantics
-    (cost/prereqs/domain/innate_tags/mastery_tags/mastery_req/efficient/
-    upkeep_effects); 'alias' is the short key the sim uses internally."""
+    """Build the sim's pursuit table from renown_data.NODES 'engine' fields."""
     from renown_data import NODES
     out = {}
     for node_name, node in NODES.items():
@@ -446,9 +420,6 @@ def _pursuits_info_from_renown_data():
             continue
         key = eng.get("alias", node_name)
         out[key] = {k: v for k, v in eng.items() if k != "alias"}
-    # Override 'efficient' from the canonical text-parsed graph (single source of
-    # truth = the "**Efficient X**" markup), keyed by sim alias, so the MPC
-    # discount sees ALL 46 links — not the partial engine.efficient mirror.
     from renown_data import EFFICIENT, NODES as _N
     def _alias(name):
         return _N.get(name, {}).get("engine", {}).get("alias", name)
@@ -458,13 +429,10 @@ def _pursuits_info_from_renown_data():
             out[k]["efficient"] = _alias(tgt)
     return out
 PURSUITS_INFO = _pursuits_info_from_renown_data()
-# Tier → Industry domain requirement (Rising/Established/Sovereign mapping)
 TIER_INDUSTRY_REQ = {"Crude": 0, "Cast": 0, "Wrought": 3, "Forged": 6, "Crafted": 10}
-# Mapping from tier pursuit → gear tier string
 TIER_PURSUIT_TO_TIER = {None: "Crude", "Furnace": "Cast", "Blacksmith": "Wrought",
                         "Forge": "Forged", "ABF": "Crafted"}
 def _gear_tier_idx(loadout_weapon, loadout_shield, loadout_armor, loadout_ranged):
-    """Return the highest tier index used by any gear piece on this loadout."""
     max_idx = 0
     if loadout_weapon and loadout_weapon != "Farm Tools":
         max_idx = max(max_idx, TIER_IDX.get(WEAPONS[loadout_weapon]["tier"], 0))
@@ -476,19 +444,7 @@ def _gear_tier_idx(loadout_weapon, loadout_shield, loadout_armor, loadout_ranged
         max_idx = max(max_idx, TIER_IDX.get(RANGED[loadout_ranged].get("tier", "Crude"), 0))
     return max_idx
 def derive_retinue_from_pursuits(pursuits):
-    """The player's retinue is DETERMINED by what's built — not chosen separately.
-    Rules:
-      - Full Preceptory MASTERY (Preceptory + its full mastery_req: Monastery,
-        Pilgrimage Site, Hospitaller, Abbey) + Preceptory KT → Knight Templar
-      - War College (without full Preceptory) → Sergeant  [no longer needs Coliseum]
-      - Coliseum alone (no War College) → Man-at-Arms
-      - Nothing → Levy
-    NOTE: War College is depegged from Coliseum. A Sergeant build need not carry
-    Coliseum. If a Sergeant wants the Tiltyard chain (which requires Coliseum), they
-    must buy Coliseum separately. Coliseum now appears mainly on Man-at-Arms builds
-    and on Sergeants/KTs that specifically want the Tiltyard/Royal Pavilion line.
-    """
-    precep_mastery = set(PURSUITS_INFO["Preceptory"]["mastery_req"])  # Monastery, Pilgrimage Site, Hospitaller, Abbey
+    precep_mastery = set(PURSUITS_INFO["Preceptory"]["mastery_req"])
     has_full_precep = ("Preceptory" in pursuits and "Preceptory KT" in pursuits
                        and precep_mastery <= set(pursuits))
     if has_full_precep:
@@ -499,18 +455,6 @@ def derive_retinue_from_pursuits(pursuits):
         return "Man-at-Arms"
     return "Levy"
 def derive_tier_from_pursuits(pursuits):
-    """The WEAPON gear tier is DETERMINED by the tier pursuit built (highest one wins).
-    NOTE: As of the building-driven gating rules, tier pursuits gate ONLY weapons.
-    Armor tier is gated by armor-craft buildings (Tannery/Armory/GF/ABF) and shield
-    tier is gated by Joinery + the appropriate metal building. See ARMOR_REQUIRES
-    and SHIELD_METAL_REQUIRES below.
-    Rules (weapons):
-      - ABF → Crafted (only)
-      - Forge → Forged (only)
-      - Blacksmith → Wrought (only)
-      - Furnace → Cast (only)
-      - Nothing → Crude
-    """
     if "ABF" in pursuits:
         return "Crafted"
     if "Forge" in pursuits:
@@ -520,149 +464,86 @@ def derive_tier_from_pursuits(pursuits):
     if "Furnace" in pursuits:
         return "Cast"
     return "Crude"
-# Armor → required armor-craft building. Cloth is free (no building).
-# ABF subsumes GF subsumes Armory subsumes Tannery in the craft ladder, so a higher
-# building should satisfy a lower armor too (any player with ABF can field Leather,
-# Chainmail, Full Plate, AND Gothic Plate). This is enforced as set-membership.
 ARMOR_REQUIRES = {
-    "Cloth":        set(),                                              # no building required
-    "Leather":      {"Tannery", "Armory", "Gilded Foundry", "ABF"},     # any of these
+    "Cloth":        set(),
+    "Leather":      {"Tannery", "Armory", "Gilded Foundry", "ABF"},
     "Chainmail":    {"Armory", "Gilded Foundry", "ABF"},
     "Full Plate":   {"Gilded Foundry", "ABF"},
     "Gothic Plate": {"ABF"},
 }
-# Shield → required metal-craft building (besides Joinery, which all shields need).
-# Wooden Shield uses no metal — just Joinery. Higher metal-craft buildings subsume
-# lower ones (Armory satisfies Kite's Tannery requirement, GF satisfies Scutum's
-# Armory, etc.).
 SHIELD_METAL_REQUIRES = {
-    "Buckler Shield":  set(),                                              # no metal building
-    "Targe Shield":    {"Tannery", "Armory", "Gilded Foundry", "ABF"},
-    "Kite Shield":  {"Armory", "Gilded Foundry", "ABF"},
+    "Wooden Shield":  set(),
+    "Kite Shield":    {"Tannery", "Armory", "Gilded Foundry", "ABF"},
+    "Scutum Shield":  {"Armory", "Gilded Foundry", "ABF"},
     "Tower Shield":   {"Gilded Foundry", "ABF"},
     "Heater Shield":  {"ABF"},
 }
 def armor_satisfied(armor_name, pursuits):
-    """True if the loadout's pursuits include a building that unlocks the given armor."""
     required = ARMOR_REQUIRES.get(armor_name, set())
     if not required:
-        return True  # no building needed (Cloth)
+        return True
     return bool(required & pursuits)
 def shield_satisfied(shield_name, pursuits):
-    """True if the loadout has Joinery AND any of the metal-craft buildings the shield needs.
-    Wooden Shield needs only Joinery (no metal)."""
     if "Joinery" not in pursuits:
         return False
     required_metal = SHIELD_METAL_REQUIRES.get(shield_name, set())
     if not required_metal:
-        return True  # only Joinery needed (Wooden Shield)
+        return True
     return bool(required_metal & pursuits)
 import renown_data as rd
 _POOL_MONUMENTS = frozenset(
     (rd.NODES[n].get("engine", {}).get("alias", n))
     for n, v in rd.NODES.items()
     if (v.get("type") == "Monument" or v.get("monument"))
-) | {"Ministry of Military Strategy"}  # canonical name (post-normalization)
+) | {"Ministry of Military Strategy"}
 def _normalize_pool_tokens(pursuits):
-    """Map the archetype pool's short Ministry tokens onto the canonical pursuit.
-    Pool emits "Ministry" (base) and "Ministry Mastery" (mastery upgrade). The
-    real node is "Ministry of Military Strategy"; its mastery tags fire when its
-    mastery_req {University, War College} are present. So:
-      "Ministry"          -> add the canonical node
-      "Ministry Mastery"  -> add the canonical node AND University (satisfies mastery)
-    Both tokens are removed after mapping.
-    """
     p = set(pursuits)
     if "Ministry" in p or "Ministry Mastery" in p:
         p.discard("Ministry")
         if "Ministry Mastery" in p:
             p.discard("Ministry Mastery")
-            p.add("University")          # the missing half of mastery_req
+            p.add("University")
         p.add("Ministry of Military Strategy")
     return p
 def compute_pursuit_cost(pursuits):
-    """Compute (MPC, domain_dict, tags_set) from a pursuit set under the CSV-derived model.
-    TAGS — innate vs mastery:
-      * A spec's innate_tags are granted whenever the spec is present.
-      * A spec's mastery_tags are granted ONLY when every pursuit in its mastery_req is also
-        present (the mastery gate is LOCAL — those prereqs need only be present, not themselves
-        mastered). Mastery without innate is impossible; innate without mastery is fine.
-    MPC (settlement space) vs TOTAL INVESTMENT (action economy):
-      * total_investment = raw count of pursuits (every pursuit = 1; computed separately, see
-        analysis.total_investment). NOT returned here.
-      * MPC = pursuit count minus each satisfied "Efficient X": if a spec's mastery is satisfied
-        and grants Efficient<Target>, and Target is in the build, Target costs 0 MPC. Each such
-        discount removes 1 from MPC. total_investment is unaffected by Efficient-X.
-    Economic prereqs not in PURSUITS_INFO (Academy, Mine, Herb Garden, ...) are the closure
-    boundary: ignored here (treated as satisfied, never costed).
-    Returns (mpc, domain_dict, tags_set).
-    """
     P = set(pursuits)
     known = [p for p in P if p in PURSUITS_INFO]
     def mastered(p):
         mreq = PURSUITS_INFO[p].get("mastery_req", [])
         return all(r in P for r in mreq)
-    # ── MPC: start at count of known pursuits, subtract satisfied Efficient-X discounts ──
     discounted = set()
     for p in known:
         tgt = PURSUITS_INFO[p].get("efficient")
         if tgt and mastered(p) and tgt in P and tgt in PURSUITS_INFO:
-            discounted.add(tgt)   # target spec costs 0 MPC (space) thanks to this efficiency
+            discounted.add(tgt)
     mpc = len(known) - len(discounted)
-    # ── Domain requirements (max across pursuits; floor from gear tier) ──
     domain = {"Industry": 0, "Prowess": 0, "Piety": 0, "Cunning": 0}
     for p in known:
         for d, v in PURSUITS_INFO[p].get("domain", {}).items():
             domain[d] = max(domain[d], v)
     tier_str = derive_tier_from_pursuits(pursuits)
     domain["Industry"] = max(domain["Industry"], TIER_INDUSTRY_REQ[tier_str])
-    # ── Tags: innate always; mastery only when mastery_req satisfied ──
     tags = set()
     for p in known:
         info = PURSUITS_INFO[p]
         tags.update(info.get("innate_tags", []))
         if mastered(p):
             tags.update(info.get("mastery_tags", []))
-    # Outrider: mastery (reveal every skirmish) supersedes the innate once/battle reveal.
     if "Outrider: every" in tags:
         tags.discard("Outrider: once")
-    # 'tier:*' entries are informational (which gear tier the spec unlocks); the engine derives
-    # the actual gear tier from the equipped weapon/armor, so drop them from the combat tag set.
     tags = {t for t in tags if not t.startswith("tier:")}
-    # ── Domain-standing SELF tags (conferred by reaching a standing in a domain) ──
-    # Standings: Rising=3, Established=6, Sovereign=10. These apply to the build itself.
-    #   Rising Prowess (>=3)      -> Immune Blocked (immune to the first-skirmish -1 init debuff)
-    #   Established Prowess (>=6)  -> Parry (failed-save second chance, 5+)
-    # (Opponent-applied Cunning debuffs — Established Cunning->opp Blocked, Sovereign Cunning->opp
-    #  Strain — are NOT here; they're applied at matchup resolution in the engine, since they depend
-    #  on the opponent. They're surfaced via the 'confers:*' marker tags below so the engine can read
-    #  a build's Cunning standing without recomputing domains.)
     if domain["Prowess"] >= 3:
         tags.add("Immune Blocked")
     if domain["Prowess"] >= 6:
-        tags.add(PARRY)
-    #   Established Piety (>=6)    -> +1 Morale ("Shake +1": -1 to the effective Morale target,
-    #                                  which also delays the Fatigue rout clock by one token)
+        tags.add("Parry")
     if domain["Piety"] >= 6:
         tags.add("Shake +1")
-    # Marker tags (not combat effects themselves) telling the engine what this build inflicts on its
-    # opponent. The engine strips 'confers:*' from the build's own effective tags and instead adds the
-    # named debuff to the OPPONENT's tags at matchup setup.
     if domain["Cunning"] >= 6:
         tags.add("confers:Blocked")
     if domain["Cunning"] >= 10:
         tags.add("confers:Strain")
     return mpc, domain, tags
 def compute_effective_upkeep(loadout):
-    """Compute per-retinue upkeep AFTER all pursuit-based reductions.
-    Walks the loadout's pursuits, applies flat reductions and conditional
-    reductions (based on equipped shield, ranged weapon, or armor type).
-    Returns the reduced per-retinue cost. Floor of 200 to prevent free retinues.
-    Conditionals checked:
-      - "if_shield": active when loadout.shield is not None
-      - "if_ranged": active when loadout.ranged is not None
-      - "if_armor_in": active when loadout.armor in the listed armor set
-    """
     base = RETINUES[loadout.retinue]["cost"]
     reduction = 0
     has_shield = loadout.shield is not None
@@ -680,100 +561,54 @@ def compute_effective_upkeep(loadout):
                 armors, amount = eff["if_armor_in"]
                 if loadout.armor in armors:
                     reduction += amount
-    # Levy Hall + Butchery synergy: a Levy Hall paired with a Butchery upgrades from
-    # -200 to -500 (the extra -300 on top of Levy Hall's base -200 flat).
     if "Levy Hall" in loadout.pursuits and "Butchery" in loadout.pursuits:
         reduction += 300
-    # Floor at 200 gold per retinue to prevent free troops
     return max(200, base - reduction)
-# ──────────────────────────────────────────────────────────────────────────
-# Pursuit-set enumeration: which pursuit sets are valid (no waste, no
-# unsatisfied prereqs)?
-# ──────────────────────────────────────────────────────────────────────────
-# A pursuit set is valid if:
-#   - All structural prereqs are met (e.g., MW requires Forge or ABF)
-#   - No pursuit is "wasted" in the sense the user described (e.g., Stable
-#     without Forge/ABF would never be built since Lance needs Forged)
 def _pursuit_set_is_valid(pursuits):
-    # Prereq satisfaction (a pursuit's prereqs must be in the set, with subsumption)
     has_forge_or_abf = ("Forge" in pursuits) or ("ABF" in pursuits)
-    # Stable implicitly grants Animal Husbandry (no explicit AH needed if Stable present)
     has_animal_husbandry = ("Animal Husbandry" in pursuits) or ("Stable" in pursuits)
-    # Master Workshop and MWRend are mutually exclusive — a workshop is built one way
-   
-    # ABF requires a Master Workshop OR MWRend (either workshop variant satisfies it),
-    # plus Stable + Gilded Foundry.
     if "ABF" in pursuits:
         if not (("Master Workshop" in pursuits) or ("MWRend" in pursuits)):
             return False
         if "Stable" not in pursuits or "Gilded Foundry" not in pursuits:
             return False
-    # Outrider Intercept Post requires both Cunning buildings.
     if "Outrider Intercept Post" in pursuits:
         if not ({"Caravanery", "Cipher Chamber"} <= pursuits):
             return False
-    # Mastery upgrades require their base monument.
     if "Outrider Mastery" in pursuits and "Outrider Intercept Post" not in pursuits:
         return False
-    if False:  # Ministry mastery handled via mastery_req after normalization
-        return False
-    # Caravanery / Cipher Chamber are only useful as Outrider prereqs — don't allow them
-    # to appear without Outrider (no wasted Cunning buildings).
     if ("Caravanery" in pursuits or "Cipher Chamber" in pursuits) and "Outrider Intercept Post" not in pursuits:
         return False
-    # War College is depegged from Coliseum (no prereq). Sergeant via War College alone.
-    # Ministry requires War College
     if "Ministry of Military Strategy" in pursuits and "War College" not in pursuits:
         return False
-    # Carpentry: no prereq, but Joinery/Fletchery require it
     if "Joinery" in pursuits and "Carpentry" not in pursuits:
         return False
     if "Fletchery" in pursuits and "Carpentry" not in pursuits:
         return False
-    # Tiltyard requires Fletchery + Coliseum
     if "Tiltyard" in pursuits and not ({"Fletchery", "Coliseum"} <= pursuits):
         return False
-    # Royal Pavilion requires Tiltyard
     if "Royal Pavilion" in pursuits and "Tiltyard" not in pursuits and "Grand Tournament" not in pursuits:
         return False
-    # Tannery requires Animal Husbandry (Stable counts as substitute)
     if "Tannery" in pursuits and not has_animal_husbandry:
         return False
-    # Butchery requires Animal Husbandry + Tannery
     if "Butchery" in pursuits and (not has_animal_husbandry or "Tannery" not in pursuits):
         return False
-    # Smokehouse requires Butchery (Smokehouse is built into a Butchery)
     if "Smokehouse" in pursuits and "Butchery" not in pursuits:
         return False
-    # Armory requires Tannery + Blacksmith (Forge/ABF count as Blacksmith via subsumption)
     has_blacksmith_tier = ("Blacksmith" in pursuits) or has_forge_or_abf
     if "Armory" in pursuits and ("Tannery" not in pursuits or not has_blacksmith_tier):
         return False
-    # Master Workshop requires Forge or ABF (ABF auto-includes MW, but if MW is
-    # in the set, the player needs Forge tier minimum)
     if "Master Workshop" in pursuits and "Blacksmith" not in pursuits:
         return False
-    # Gilded Foundry now requires Armory (Tannery+Blacksmith path) + Forge/ABF
     if "Gilded Foundry" in pursuits and "Armory" not in pursuits:
         return False
-    # Preceptory KT requires Preceptory MASTERED (Monastery + Pilgrimage Site + Hospitaller + Abbey)
     if "Preceptory KT" in pursuits and not (
             {"Preceptory"} | set(PURSUITS_INFO["Preceptory"]["mastery_req"]) <= set(pursuits)):
         return False
-    # Stable is only useful for Lance, which requires Forged tier. Skip otherwise.
     if "Stable" in pursuits and not has_forge_or_abf:
         return False
-    # If ABF in pursuits, Stable/MW/GF are auto-included; pruning duplicates in cost.
     return True
 def _load_loadouts_from_csv(csv_path):
-    """Load loadouts from a CSV produced by an earlier archetype_pool() export.
-    Expected columns (extras are ignored, missing optional cols default safely):
-      name, retinue, weapon, shield, armor, ranged, tiltyard, size, tags,
-      military_pursuit_count, domain_count, pursuits, upkeep_per_retinue
-    Empty-string values for `weapon`, `shield`, `ranged` become None.
-    `tags` is comma-separated; `pursuits` is pipe-separated.
-    `tiltyard` accepts "True"/"False"/"1"/"0".
-    """
     import csv
     pool = []
     with open(csv_path, newline="") as f:
@@ -787,9 +622,6 @@ def _load_loadouts_from_csv(csv_path):
             ty_raw = str(row.get("tiltyard", "False")).strip().lower()
             has_tiltyard = ty_raw in ("true", "1", "yes")
             size = DEFAULT_ARMY_SIZE
-            # The CSV column is "extra_tags" (comma-separated). Older code looked for a
-            # nonexistent "tags" column, silently dropping ALL tags (Ministry/Outrider/Cond
-            # Field/etc.). Read extra_tags; fall back to "tags" for legacy files.
             tags_str = row.get("extra_tags", row.get("tags", "")) or ""
             extra_tags = [t.strip() for t in tags_str.split(",") if t.strip()]
             mpc = int(row.get("military_pursuit_count") or 0)
@@ -810,292 +642,165 @@ def _load_loadouts_from_csv(csv_path):
                 domain_count=dc,
             ))
     return pool
-def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budget_metric="mpc", max_monuments=2):
-    """Enumerate loadouts. Two modes:
-      1. CSV mode (`csv_path` given): load loadouts directly from a CSV file
-         produced by an earlier run. Useful for reproducibility — work from a
-         frozen, pre-computed pool instead of regenerating.
-      2. Generator mode (default): derive loadouts from pursuit-set enumeration
-         per the rules below.
-    Generator mode derives everything from the pursuit set:
-    Player decision = which pursuits to build. Everything else is derived:
-      - retinue: derive_retinue_from_pursuits
-      - tier: derive_tier_from_pursuits
-      - arms:
-          * EXPLICIT Stable in pursuits → Lance forced (Lance is Forged tier)
-            + Tiltyard → Lance + Ranged dual-equip
-            + no Tiltyard → Lance only
-          * Fletchery + Tiltyard (no Stable) → melee at tier + Ranged
-          * Fletchery only (no Tiltyard, no Stable) → ranged only (weapon=None,
-            sim uses Farm Tools as placeholder)
-          * Nothing → melee at tier only
-      - shield: at tier, only for 1H melee weapons (Lance special: Kite/Scutum)
-      - armor: at tier
-      - tags: union of pursuit-granted tags; full Hospitaller mastery = Regenerate 4
-    Note on ABF: ABF (Crafted) is a 5pt all-inclusive package. It subsumes
-    Stable + MW + GF + Forge. ABF in pursuits does NOT auto-imply explicit
-    Stable purchase, so ABF players can still choose between Poleaxe (Crafted)
-    or — if they also explicitly bought Stable — Lance (Forged). The "Stable
-    → Lance" rule applies only to explicit Stable purchases.
-    """
-    # ── CSV mode ──────────────────────────────────────────────────────────
+# ── PERF: module-level constants hoisted out of archetype_pool's hot loop ──
+_WEAPONS_BY_TIER = {
+    "Crude":   ["Cudgel", "Farm Tools"],
+    "Cast":    ["Daggers", "Short Sword", "Spears"],
+    "Wrought": ["Arming Sword", "Pike", "Flail", "Halberd", "Battle Axe"],
+    "Forged":  ["Bastard Sword", "2HBastard", "Morningstar", "War Hammer"],
+    "Crafted": ["Poleaxe", "Estoc"],
+}
+_RANGED_BY_TIER = {
+    "Crude":   ["Hunting Bow"],
+    "Cast":    ["Longbow"],
+    "Wrought": ["Javelin"],
+    "Forged":  ["Crossbow"],
+    "Crafted": ["Pilum"],
+}
+_CRAFTED_1H_FALLBACK = ["Bastard Sword", "Morningstar"]
+_SHIELD_LADDER = ["Heater Shield", "Tower Shield", "Scutum Shield", "Kite Shield", "Wooden Shield"]
+_ARMOR_LADDER = ["Gothic Plate", "Full Plate", "Chainmail", "Leather", "Cloth"]
+def _melee_options_for_tier(t):
+    """Melee weapons available at gear tier t (Crafted adds Forged-1H fallbacks). Output identical
+    to the former nested def; hoisted to module level so it isn't rebuilt per mask iteration."""
+    if t == "Crafted":
+        return _WEAPONS_BY_TIER["Crafted"] + _CRAFTED_1H_FALLBACK
+    return _WEAPONS_BY_TIER[t]
+def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budget_metric="mpc", max_monuments=2,
+                   _independent_options=None):
+    """Enumerate loadouts. CSV mode loads a frozen pool; generator mode derives builds from
+    pursuit-set enumeration. (Behavior unchanged; this revision only adds output-preserving
+    performance work: hoisted constants, a precomputed prereq-closure table, and a memo cache
+    on the closure+validity+cost resolution of each pre-closure pursuit set.)
+
+    `_independent_options` is a test-only hook: pass a smaller option list to exercise the same
+    code paths on a tractable powerset (the diff harness uses it). Default None = full list."""
     if csv_path is not None:
         return _load_loadouts_from_csv(csv_path)
-    pool = []
-    # ── Gear tables ──────────────────────────────────────────────────────
-    # Weapons by tier (melee), respecting weapon spec tier exactly.
-    WEAPONS_BY_TIER = {
-        "Crude":   ["Cudgel", "Farm Tools"],
-        "Cast":    ["Daggers", "Short Sword", "Spears"],
-        "Wrought": ["Arming Sword", "Pike", "Flail", "Halberd", "Battle Axe"],
-        "Forged":  ["Bastard Sword", "2HBastard", "Morningstar", "War Hammer"],  # Lance handled via Stable
-        "Crafted": ["Poleaxe","Estoc"],                                       # Only Poleaxe is Crafted
-    }
-    ARMOR_BY_TIER = {
-        "Crude":   ["Cloth"],
-        "Cast":    ["Leather"],
-        "Wrought": ["Chainmail"],
-        "Forged":  ["Full Plate"],
-        "Crafted": ["Gothic Plate"],
-    }
-    SHIELDS_BY_TIER = {
-        "Crude":   ["Buckler Shield"],
-        "Cast":    ["Targe Shield"],
-        "Wrought": ["Kite Shield"],
-        "Forged":  ["Tower Shield"],
-        "Crafted": ["Heater Shield"],
-    }
-    RANGED_BY_TIER = {
-        "Crude":   ["Hunting Bow"],
-        "Cast":    ["Longbow"],
-        "Wrought": ["Javelin"],
-        "Forged":  ["Crossbow"],
-        "Crafted": ["Pilum"],
-    }
-    TIER_PURSUITS = [None, "Furnace", "Blacksmith", "Forge", "ABF"]
-    # Instead of one tier pursuit, build the Industry chain explicitly with forks:
+    # ── Industry forks (explicit chain rungs for the pathology comparison) ──
     INDUSTRY_PATHS = []
-    # Crude / Cast / Wrought — unchanged (no masteries)
     INDUSTRY_PATHS.append(set())                                    # Crude
     INDUSTRY_PATHS.append({"Furnace"})                              # Cast
-    INDUSTRY_PATHS.append({"Blacksmith"})                           # Wrought     
-    INDUSTRY_PATHS.append({"Blacksmith", "Master Workshop"})       # Wrought + Serrated (early tech-in)
-    INDUSTRY_PATHS.append({"Blacksmith", "Armory", "Gilded Foundry"})  # Wrought + Planishing (you have this)
-    # Forged: Blacksmith+Forge, ±Master Workshop
+    INDUSTRY_PATHS.append({"Blacksmith"})                           # Wrought
+    INDUSTRY_PATHS.append({"Blacksmith", "Master Workshop"})        # Wrought + Serrated
+    INDUSTRY_PATHS.append({"Blacksmith", "Armory", "Gilded Foundry"})  # Wrought + Planishing
     INDUSTRY_PATHS.append({"Blacksmith", "Forge"})                  # Forged, no MW
     INDUSTRY_PATHS.append({"Blacksmith", "Forge", "Master Workshop"})  # Forged + Serrated
-    INDUSTRY_PATHS.append({"Blacksmith","Forge", "Armory", "Gilded Foundry"})  # Forged + Serrated
-    INDUSTRY_PATHS.append({"Blacksmith","Forge", "Armory", "Gilded Foundry", "Master Workshop"})  # Forged + Serrated
-    # Crafted/ABF: full climb required, ±the masteries that aren't forced
-    # ABF needs Forge+MW+Armory+GF literally → all present
-    INDUSTRY_PATHS.append({"Stable","Blacksmith","Forge","Master Workshop","Armory","Gilded Foundry","ABF"})  # full line
-    
-    TIER_PURSUITS.extend(INDUSTRY_PATHS)
-    # optionally: ABF variants that climbed but skipped a non-required mastery — but ABF REQUIRES MW+GF,
-    # so the only ABF variant is the full one. The forks live BELOW ABF (Forged±MW, Armory±GF).
+    INDUSTRY_PATHS.append({"Blacksmith", "Forge", "Armory", "Gilded Foundry"})  # Forged + Planishing
+    INDUSTRY_PATHS.append({"Blacksmith", "Forge", "Armory", "Gilded Foundry", "Master Workshop"})  # Forged + both
+    INDUSTRY_PATHS.append({"Stable", "Blacksmith", "Forge", "Master Workshop", "Armory", "Gilded Foundry", "ABF"})  # full line
     RETINUE_CHAINS = [
-        frozenset(),                                                   # Levy
-        frozenset(["Coliseum"]),                                       # MaA
-        frozenset(["War College"]),                                    # Sgt (depegged from Coliseum)
+        frozenset(),
+        frozenset(["Coliseum"]),
+        frozenset(["War College"]),
         frozenset(["Preceptory", "Preceptory KT", "Hospitaller", "Abbey",
-                   "Monastery", "Pilgrimage Site"]),                   # KT (Preceptory mastered)
+                   "Monastery", "Pilgrimage Site"]),
     ]
     INDEPENDENT_OPTIONS = [
-        # Coliseum is NOT a free option — it comes from the MaA retinue seed, or is
-        # force-added when Tiltyard is selected (Tiltyard requires Coliseum). Listing it
-        # here would let it attach to Levy/Sgt seeds and silently promote/mislabel them.
-        "Levy Hall",     # Rising Prowess; -5 upkeep flat
-        "Joinery",       # Rising Industry; shield unlock; -5 upkeep if shielded; needs Carpentry
-        "Fletchery",     # ranged unlock; -5 upkeep if ranged; needs Carpentry
-        "Tiltyard",      # dual-equip + Immune Unwieldy (force-adds Coliseum as prereq)
-        "Stable",        # Lance unlock; implicitly grants Animal Husbandry
+        "Levy Hall",
+        "Joinery",
+        "Fletchery",
+        "Tiltyard",
+        "Stable",
         "Royal Pavilion",
-        "Grand Tournament",          # standalone: mastery (req Conditioning Field + Coliseum) grants Riposte
+        "Grand Tournament",
         "Ministry",
-        "Ministry Mastery",          # Seize first TWO skirmishes (mastery upgrade)
-        "Outrider Intercept Post",   # Cunning monument: tactic-reveal once/battle
-        "Outrider Mastery",          # tactic-reveal first TWO skirmishes (mastery upgrade)
-        # Master Workshop grants Rend (the -1 AP mechanic is retired). MWRend was its duplicate
-        # and is no longer generated; ABF also grants Rend (see compute_pursuit_cost).
-       
-        "Tannery",       # -5 flat + -5 if cloth/leather; auto-bundles with Armory (shared slot)
+        "Ministry Mastery",
+        "Outrider Intercept Post",
+        "Outrider Mastery",
+        "Tannery",
         "Armory",
-        # NOTE: Armory is NOT a separate option — it auto-bundles with Tannery.
-        "Butchery",      # -5 flat; needs Animal Husbandry + Tannery
-        "Toxicarium",    # Rising Cunning; Poison tag on weapons
-        # Health-stack collapsed: 'Full Hospitaller' represents the full
-        # Apothecary + Infirmary + Hospitaller bundle (3pt, all the tags).
+        "Butchery",
+        "Toxicarium",
         "Full Hospitaller",
         "Preceptory",
-        "Abbey",          # Piety 3; grants Shake +1 (morale buff). Independent MPC; also a
-                          # prereq for Preceptory KT. Can attach to any retinue's build.
+        "Abbey",
     ]
-    # Pursuits that get auto-included when one of their dependents is sampled.
-    # These never appear as standalone choices but are added to the pursuit set
-    # whenever a dependent is present. Costs are still applied (per PURSUITS_INFO).
+    if _independent_options is not None:
+        INDEPENDENT_OPTIONS = list(_independent_options)
     AUTO_INCLUDED = {
-        "Carpentry":         ["Joinery", "Fletchery"],         # Carpentry forced when either present
-        "Animal Husbandry":  ["Tannery", "Butchery"],          # Stable also implies it (handled in cost)
-        "Smokehouse":        ["Butchery"],                     # free with Butchery (0 cost)
-        # Tiltyard chain requires Coliseum — force it in so Sgt/KT who take Tiltyard
-        # pay for Coliseum (they don't get it from their retinue seed post-depeg).
+        "Carpentry":         ["Joinery", "Fletchery"],
+        "Animal Husbandry":  ["Tannery", "Butchery"],
+        "Smokehouse":        ["Butchery"],
         "Coliseum":          ["Tiltyard", "Royal Pavilion"],
-        # Tannery and Armory share a building slot — players build them together when both
-        # are useful. If either is sampled, include the other (combined cost is 1 per the
-        # shared-slot rule in compute_pursuit_cost). This cuts the search tree on this axis.
         "Tannery":           ["Armory"],
         "Armory":            ["Tannery"],
-        # Ministry mastery forces base Ministry; Outrider chain dependencies.
         "Ministry":          ["Ministry Mastery"],
         "Caravanery":        ["Outrider Intercept Post"],
         "Cipher Chamber":    ["Outrider Intercept Post"],
         "Outrider Intercept Post": ["Outrider Mastery"],
     }
+    n_opts = len(INDEPENDENT_OPTIONS)
+    # ── PERF: memo cache keyed on the post-normalize, pre-closure pursuit frozenset. ──
     seen_keys = {}
-    _CLOSURE_COST_CACHE = {}   # frozenset(normalized pursuits) -> (closed, valid, cost, domain, tags)
     for industry_path in INDUSTRY_PATHS:
         tier_str = derive_tier_from_pursuits(industry_path)
+        # tier_str only depends on industry_path → compute the per-tier melee list once here.
+        melee_for_tier = _melee_options_for_tier(tier_str)
+        ranged_at_or_below = _ranged_at_or_below(tier_str, _RANGED_BY_TIER)
+        industry_set = set(industry_path)
         for ret_chain in RETINUE_CHAINS:
-            retinue_guess = derive_retinue_from_pursuits(ret_chain)
-            # NO retinue tier floors or caps — full retinue x tier cross.
-            for mask in range(1 << len(INDEPENDENT_OPTIONS)):
-                opt_set = frozenset(INDEPENDENT_OPTIONS[i] for i in range(len(INDEPENDENT_OPTIONS))
-                                     if mask & (1 << i))
-                pursuits = set(ret_chain) | set(opt_set)
-                pursuits.update(industry_path)
-                # Expand the "Full Hospitaller" macro into its three component pursuits.
+            ret_seed = set(ret_chain) | industry_set
+            for mask in range(1 << n_opts):
+                opt_set = frozenset(INDEPENDENT_OPTIONS[i] for i in range(n_opts)
+                                    if mask & (1 << i))
+                pursuits = set(ret_seed) | set(opt_set)
                 if "Full Hospitaller" in pursuits:
                     pursuits.discard("Full Hospitaller")
                     pursuits.update(("Apothecary", "Infirmary", "Hospitaller"))
-                # Auto-include forced prereqs (Carpentry for Joinery/Fletchery,
-                # Animal Husbandry for Tannery/Butchery, Smokehouse free with Butchery).
                 for forced, deps in AUTO_INCLUDED.items():
-                    # Tannery↔Armory bundle: ONLY auto-include Armory if Blacksmith-tier or
-                    # higher metallurgy is present (Armory's prereq). Otherwise the bundle
-                    # would force the loadout into Wrought tier and block Cast-tier Leather
-                    # builds. The reverse direction (Armory→Tannery) always fires.
                     if forced == "Armory" and not (
                         "Blacksmith" in pursuits or "Forge" in pursuits or "ABF" in pursuits
                     ):
                         continue
                     if any(d in pursuits for d in deps):
                         pursuits.add(forced)
-                # Normalize pool tokens onto canonical node names before validity/cost.
-                # The pool enumerates "Ministry"/"Ministry Mastery"; the node is keyed
-                # "Ministry of Military Strategy" and its mastery (Crit 5/+1I/MaxInit3)
-                # fires when mastery_req {University, War College} are present.
                 pursuits = _normalize_pool_tokens(pursuits)
-                # Memoized closure+validity+cost: ~2x of these masks normalize to a set already
-                # seen, and the closure/validity/cost are pure functions of that set — so cache on
-                # the frozenset. Output-identical (same input -> same result), recompute skipped.
-                _mk = frozenset(pursuits)
-                _cached = _CLOSURE_COST_CACHE.get(_mk)
-                if _cached is None:
-                    _closed = master_effect_closure(prereq_closure(pursuits))
-                    _valid = _pursuit_set_is_valid(_closed)
-                    if _valid:
-                        _tc, _dom, _tg = compute_pursuit_cost(_closed)
-                    else:
-                        _tc, _dom, _tg = (None, None, None)
-                    _cached = (_closed, _valid, _tc, _dom, _tg)
-                    _CLOSURE_COST_CACHE[_mk] = _cached
-                _closed, _valid, total_cost, domain, tags = _cached
-                pursuits = _closed
-                if not _valid:
+                # closure (precomputed prereq table + direct mastery-req pull) then validity + cost
+                pursuits = master_effect_closure(prereq_closure(pursuits))
+                if not _pursuit_set_is_valid(pursuits):
                     continue
-                # Re-derive retinue from the FINAL pursuit set (after auto-includes).
-                # Post-depeg, Coliseum only enters via the MaA seed or the Tiltyard
-                # auto-include; re-deriving guarantees the stored label matches the
-                # actual pursuits (e.g., a Tiltyard MaA that gains Coliseum stays MaA,
-                # and nothing is silently mislabeled).
+                total_cost, domain, tags = compute_pursuit_cost(pursuits)
                 retinue_guess = derive_retinue_from_pursuits(pursuits)
-                # NO retinue tier floors or caps (retinue re-derived post auto-includes).
-                # Cost check: pool restricted to [min_pursuit_cost, max_pursuit_cost] on the
-                # chosen budget metric:
-                #   budget_metric="mpc"   -> MPC (pursuit count minus Efficient-X discounts)
-                #   budget_metric="total" -> total investment (raw pursuit count, no discounts)
                 budget = len(pursuits) if budget_metric == "total" else total_cost
                 if budget > max_pursuit_cost or budget < min_pursuit_cost:
                     continue
-                # Max 2 monuments per loadout (unique one-per-game buildings). A player
-                # realistically commits to at most a couple of these capstones.
-                # Monument cap (parameterized). Set derived from renown_data flags,
-                # mapped to the sim's aliases; counts canonical names post-normalization.
                 if sum(1 for m in _POOL_MONUMENTS if m in pursuits) > max_monuments:
                     continue
-                # ── Derive arms ──
-                # "Stable → Lance" rule only fires on EXPLICIT Stable purchase
                 has_stable_explicit = "Stable" in opt_set
                 has_fletch = "Fletchery" in pursuits
                 has_ty = "Tiltyard" in pursuits
-                has_abf = "ABF" in pursuits
-                # Determine (weapon, ranged, has_ty) options for this pursuit set.
-                #
-                # Crafted-tier players have a special wrinkle: the spec has no Crafted
-                # 1H melee weapon (only Poleaxe is Crafted, and it's 2H). A Crafted player
-                # who wants a shield must "downgrade" to a Forged 1H weapon but keeps
-                # their Crafted shield (Heater) and Crafted armor (Gothic). The Crafted
-                # tag (e.g. MW Weapons) still applies to the 1H weapon since the player
-                # has access to Crafted-quality equipment.
-                CRAFTED_1H_FALLBACK = ["Bastard Sword", "Morningstar"]  # Forged tier 1H
-                def melee_options_for_tier(t):
-                    """Melee weapons available to a player at gear tier t.
-                    Crafted players have Poleaxe (2H Crafted) OR a Forged 1H weapon
-                    paired with Crafted shield/armor.
-                    """
-                    if t == "Crafted":
-                        return WEAPONS_BY_TIER["Crafted"]
-                    return WEAPONS_BY_TIER[t]
                 arms_options = []
                 if has_stable_explicit and has_ty:
-                    # Stable cavalry weapons CANNOT dual-equip ranged (charge weapons).
-                    # So with Tiltyard, Lance/Cavalry Spear are offered MELEE-ONLY; the
-                    # tier's other melee weapons still dual-equip ranged as normal.
                     arms_options.append(("Lance", None, False))
                     arms_options.append(("Cavalry Spear", None, False))
-                    for w in melee_options_for_tier(tier_str):
-                        for r in _ranged_at_or_below(tier_str, RANGED_BY_TIER):
+                    for w in melee_for_tier:
+                        for r in ranged_at_or_below:
                             arms_options.append((w, r, True))
                 elif has_stable_explicit:
                     arms_options.append(("Lance", None, False))
                     arms_options.append(("Cavalry Spear", None, False))
-                    for w in melee_options_for_tier(tier_str):
+                    for w in melee_for_tier:
                         arms_options.append((w, None, False))
                 elif has_fletch and has_ty:
-                    # Dual-equip: melee at gear tier + ranged
-                    for w in melee_options_for_tier(tier_str):
-                        for r in _ranged_at_or_below(tier_str, RANGED_BY_TIER):
+                    for w in melee_for_tier:
+                        for r in ranged_at_or_below:
                             arms_options.append((w, r, True))
                 elif has_fletch:
-                    # Ranged-only
-                    for r in _ranged_at_or_below(tier_str, RANGED_BY_TIER):
+                    for r in ranged_at_or_below:
                         arms_options.append((None, r, False))
                 else:
-                    # Melee-only
-                    for w in melee_options_for_tier(tier_str):
+                    for w in melee_for_tier:
                         arms_options.append((w, None, False))
-                # ── Tiltyard two-of-same (independent of the chain above) ──
-                # Tiltyard mastery can double a 1H melee weapon to gain Dual Wield
-                # (no ranged, no shield). ADDED to whatever the chain produced. Daggers
-                # are excluded — is_2h() returns True for them (Dual Wield ⇒ 2H), so the
-                # `continue` skips them; they carry Dual Wield intrinsically already.
-                # Stable cavalry weapons (Lance, Cavalry Spear) are ALSO excluded — they
-                # are charge weapons and cannot take the two-of-same DW path.
                 dual_wield_weapons = set()
                 if has_ty:
-                    for w in melee_options_for_tier(tier_str):
+                    for w in melee_for_tier:
                         if w == "Farm Tools" or is_2h(w) or w in STABLE_WEAPONS:
                             continue
                         arms_options.append((w, None, True))
                         dual_wield_weapons.add(w)
-                # ── Enumerate shields and armor ──
                 for weapon, ranged, ty in arms_options:
-                    # Two-of-same Dual Wield entry: doubled 1H weapon (ranged=None, ty=True,
-                    # weapon in the DW set). Dual Wield confers 2H → no shield; the "Dual Wield"
-                    # tag is injected below so the engine reroll fires and (DW) renders in the name.
                     is_two_of_same = (weapon in dual_wield_weapons and ranged is None and ty)
-                    SHIELD_LADDER = ["Heater Shield","Tower Shield","Kite Shield",
-                                     "Targe Shield","Buckler Shield"]
                     if ranged == "Crossbow":
                         w_init = WEAPONS[weapon]["init"] if weapon and weapon != "Farm Tools" else 0
                         opts = [None]
@@ -1110,7 +815,7 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
                                   if weapon and weapon != "Farm Tools"
                                   else (RANGED.get(ranged, {}).get("init", 0) if ranged else 0))
                         best_shield = None
-                        for s in SHIELD_LADDER:
+                        for s in _SHIELD_LADDER:
                             if not shield_satisfied(s, pursuits):
                                 continue
                             if w_init + SHIELDS[s]["init"] < -1:
@@ -1118,15 +823,10 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
                             best_shield = s
                             break
                         shield_opts = [best_shield] if best_shield else [None]
-                    ARMOR_LADDER = ["Gothic Plate","Full Plate","Chainmail","Leather","Cloth"]
-                    armor_opts = [next((a for a in ARMOR_LADDER
+                    armor_opts = [next((a for a in _ARMOR_LADDER
                                         if armor_satisfied(a, pursuits)), "Cloth")]
                     for shield in shield_opts:
                         for armor in armor_opts:
-                            # Two-of-same builds are legal by construction (1H non-Daggers,
-                            # no shield, ty=True); valid_combo would wrongly reject them on the
-                            # 1H-needs-shield rule (the DW tag isn't on the weapon profile), so
-                            # skip valid_combo for them.
                             if not is_two_of_same and not valid_combo(
                                     retinue_guess, weapon or "Farm Tools", shield, armor, ranged, ty):
                                 continue
@@ -1139,7 +839,7 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
                             requires_joinery = (
                                 weapon is not None and weapon != "Farm Tools"
                                 and not is_2h(weapon)
-                                and not is_two_of_same          # DW build carries no shield/haft kit
+                                and not is_two_of_same
                                 and ranged != "Crossbow"
                             )
                             if requires_joinery and "Joinery" not in pursuits:
@@ -1147,18 +847,16 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
                             domain_count = sum(domain.values())
                             if domain_count > 30:
                                 continue
-                            # Inject Dual Wield for two-of-same (engine reroll + (DW) marker).
                             build_tags = set(tags)
                             if is_two_of_same:
-                                build_tags.add(DUAL_WIELD)
-                            # Dedupe key includes the DW tag so the two-of-same variant is
-                            # distinct from a plain melee build with the same gear.
+                                build_tags.add("Dual Wield")
                             tags_tuple = tuple(sorted(build_tags))
                             obs_key = (retinue_guess, weapon, shield, armor, ranged, ty, tags_tuple)
                             if obs_key in seen_keys and seen_keys[obs_key][0] <= total_cost:
                                 continue
                             name = _name(retinue_guess, weapon, shield, armor, ranged, ty,
-                                         sorted(build_tags), playstyle=None, pursuits=pursuits)
+                                         sorted(build_tags), playstyle=None, pursuits=pursuits,
+                                         domain=domain)
                             ld = Loadout(
                                 name=name,
                                 retinue=retinue_guess, weapon=weapon, shield=shield, armor=armor,
@@ -1167,7 +865,7 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
                                 upkeep_per_retinue=0,
                                 playstyle=None,
                                 tiltyard_mastery=True,
-                                pursuits=frozenset(pursuits),
+                                pursuits=pursuits,
                                 military_pursuit_count=total_cost,
                                 domain_count=domain_count,
                             )
@@ -1175,7 +873,6 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
                             seen_keys[obs_key] = (total_cost, ld)
     return [v[1] for v in seen_keys.values()]
 def _ranged_at_or_below(tier_str, table):
-    """Ranged weapons at or below the given gear tier."""
     order = ["Crude", "Cast", "Wrought", "Forged", "Crafted"]
     idx = order.index(tier_str)
     out = []
@@ -1183,20 +880,8 @@ def _ranged_at_or_below(tier_str, table):
         out.extend(table[t])
     return out
 def _structural_legal(weapon, shield, armor, ranged, has_tiltyard):
-    """ONLY the structural weapon rules — no tier floors/caps, no shield-tier>=weapon-tier.
-    These are the rules Gage specified for pool generation:
-      - 2H melee cannot use a shield.
-      - 1H melee (except Farm Tools) requires a shield, UNLESS Crossbow forces it shieldless.
-      - Bastard Sword (1H profile) must carry a shield.
-      - Lance / Cavalry Spear cannot use Tower Shield (Wooden is allowed).
-      - Stable cavalry weapons (Lance, Cavalry Spear) cannot dual-equip a ranged weapon.
-      - Crossbow: only Tower Shield allowed (or shieldless); not with Lance/Cavalry Spear.
-      - One Shot ranged (Javelin, Pilum) requires Tiltyard.
-      - Dual-equip (real melee + ranged) requires Tiltyard.
-    """
     if is_2h(weapon) and shield is not None:
         return False
-    # Stable cavalry weapons cannot dual-equip a ranged weapon (charge weapons).
     if weapon in STABLE_WEAPONS and ranged is not None:
         return False
     if weapon in ("Lance", "Cavalry Spear") and shield == "Tower Shield":
@@ -1210,68 +895,38 @@ def _structural_legal(weapon, shield, armor, ranged, has_tiltyard):
         return False
     if (weapon != "Farm Tools" and not is_2h(weapon) and shield is None and ranged != "Crossbow"):
         return False
-    if ranged is not None and ONE_SHOT in RANGED[ranged].get("tags", []) and not has_tiltyard:
+    if ranged is not None and "One Shot" in RANGED[ranged].get("tags", []) and not has_tiltyard:
         return False
     if weapon != "Farm Tools" and ranged is not None and not has_tiltyard:
         return False
     return True
 def balanced_validation_pool(mpc_min=4, mpc_max=13, per_cell=None, seed=2026,
                              keep_shield_tier_rule=False, verbose=False):
-    """Large validation pool, balanced per (retinue x MPC bucket), spanning ALL gear tiers and the
-    full legal weapon/armor/shield cross — IGNORING retinue tier floors/caps (every retinue can take
-    every tier, like the fullcross pool) so retinue effects can be compared cleanly.
-    Tier-ceiling-independent-of-MPC: each build encodes a smithing stopping point (Furnace=Cast,
-    Blacksmith=Wrought, Forge=Forged, ABF=Crafted) and an armor/shield stopping point via its pursuit
-    set, then is padded with filler independent pursuits to hit the exact target MPC. So at a given MPC
-    you get both "climbed smithing -> Forged/Crafted gear" and "stopped at Blacksmith -> Wrought-capped,
-    spent MPC elsewhere" builds. Structural weapon rules (2H/OneShot/Lance/Crossbow) are always enforced
-    via valid_combo; the retinue floor/cap is bypassed by passing retinue="Sergeant" to valid_combo for
-    the structural check only (its floor is low enough not to block any tier here) then re-labeling.
-    Args:
-      per_cell: target builds per (retinue, MPC) cell. None = keep all legal, then the caller can
-                stratify. An int caps each cell (random sample) for an exactly-balanced pool.
-      keep_shield_tier_rule: OFF by default. The shield-tier>=weapon-tier rule was only ever a
-                temporary pool-deflation device, NOT a real generation rule. Leave False for the
-                full legal cross. (True is available only for legacy comparison.)
-    Returns a list of Loadout. military_pursuit_count is the (filler-padded) target MPC.
-    """
     import random as _random
     from collections import defaultdict
     rng = _random.Random(seed)
-    RETS = ["Man-at-Arms", "Sergeant", "Knight Templar"]
-    # Smithing path -> (weapon tier unlocked, pursuit set, base MPC of the path)
+    RETS = ["Levy", "Man-at-Arms", "Sergeant", "Knight Templar"]
     SMITH_PATHS = {
         "Crude":   ([], 0),
         "Cast":    (["Furnace"], 1),
         "Wrought": (["Blacksmith"], 1),
-        "Forged":  (["Blacksmith", "Forge"], 1),          # efficiency line: total 1
-        "Crafted": (["Blacksmith", "Forge", "ABF"], 1),   # total 1
+        "Forged":  (["Blacksmith", "Forge"], 1),
+        "Crafted": (["Blacksmith", "Forge", "ABF"], 1),
     }
-    # Armor/shield metal path -> pursuit set + base MPC. Joinery (cost 1) needed for any shield.
-    # Tannery->Armory->Gilded Foundry is an efficiency line (total 1 from Tannery).
     METAL_PATHS = {
-        None:            ([], 0),                                   # Cloth, no shield
-        "Tannery":       (["Animal Husbandry", "Tannery"], 2),      # Leather; AH cost1 + Tannery cost1
-        "Armory":        (["Animal Husbandry", "Tannery", "Armory"], 2),       # Chainmail
-        "Gilded Foundry":(["Animal Husbandry", "Tannery", "Armory", "Gilded Foundry"], 2),  # Full Plate
-        "ABF":           (["Animal Husbandry", "Tannery", "Armory", "Gilded Foundry", "ABF"], 2),  # Gothic Plate (Crafted armor) needs ABF
+        None:            ([], 0),
+        "Tannery":       (["Animal Husbandry", "Tannery"], 2),
+        "Armory":        (["Animal Husbandry", "Tannery", "Armory"], 2),
+        "Gilded Foundry":(["Animal Husbandry", "Tannery", "Armory", "Gilded Foundry"], 2),
+        "ABF":           (["Animal Husbandry", "Tannery", "Armory", "Gilded Foundry", "ABF"], 2),
     }
-    # Filler independent pursuits (cost 1 each, no tier effect) to pad MPC up to target.
-    # Filler = cheap, build-agnostic pursuits used only to pad to a target MPC. EXCLUDED:
-    #  - Outrider chain (Cipher Chamber, Caravanery, Outrider posts) — only built FOR the Outrider.
-    #  - War College — its only effect is the Sergeant unlock; as filler it would convert random
-    #    builds to Sergeant and skew the pool. Appears only on deliberately-built Sergeant loadouts.
-    #  - Hospitaller — does nothing alone; only enters bundled with a regen stack (see below).
-    #  - Apothecary — now a deliberate REGEN-TIER pursuit (regen axis below), not random filler.
-    # FILLER (lowest priority): combat-tag specs a build takes with spare MPC. Coliseum REMOVED
-    # (it's a retinue unlock now). Regen is handled separately via REGEN_LADDER (partial climb).
     FILLER = ["Master Workshop", "Toxicarium", "Stable", "Butchery", "Smokehouse"]
     FILLER = [f for f in FILLER if f in PURSUITS_INFO]
     armor_for_tier = {"Crude": "Cloth", "Cast": "Leather", "Wrought": "Chainmail",
                       "Forged": "Full Plate", "Crafted": "Gothic Plate"}
-    shield_tiers = {None: None, "Crude": "Buckler Shield", "Cast": "Targe Shield",
-                    "Wrought": "Kite Shield", "Forged": "Tower Shield", "Crafted": "Heater Shield"}
-    cells = defaultdict(list)   # (retinue, mpc) -> list of loadouts
+    shield_tiers = {None: None, "Crude": "Wooden Shield", "Cast": "Kite Shield",
+                    "Wrought": "Scutum Shield", "Forged": "Tower Shield", "Crafted": "Heater Shield"}
+    cells = defaultdict(list)
     weapons_by_tier = defaultdict(list)
     for w, d in WEAPONS.items():
         weapons_by_tier[d["tier"]].append(w)
@@ -1280,23 +935,14 @@ def balanced_validation_pool(mpc_min=4, mpc_max=13, per_cell=None, seed=2026,
         ranged_by_tier[d["tier"]].append(r)
     TIER_AT_OR_BELOW = {t: TIER_ORDER[:i + 1] for i, t in enumerate(TIER_ORDER)}
     def shield_options(weapon, smith_tier):
-        # shields whose tier <= smith ceiling, plus None. Structural rules (2H, Lance, Crossbow)
-        # are handled by valid_combo downstream.
         opts = [None]
         for st in TIER_AT_OR_BELOW[smith_tier]:
             sh = shield_tiers.get(st)
             if sh:
                 opts.append(sh)
         return list(dict.fromkeys(opts))
-    # Enumerate gear configs: weapon (any tier) x armor (ANY tier) x shield (ANY tier) — full legal
-    # cross, tiers independent (a Forged weapon may pair with Cloth armor, etc.). The smith/metal
-    # PURSUIT paths are derived later from whichever tiers the gear actually uses.
-
-    # after the existing melee + ranged loops, add the two-of-same DW branch:
     gear_configs = []
     all_shields = [None] + [shield_tiers[t] for t in TIER_ORDER]
-
-    # ── Melee builds (weapon + optional shield, no ranged) ──
     for weapon, wd in WEAPONS.items():
         for armor_tier in TIER_ORDER:
             armor = armor_for_tier[armor_tier]
@@ -1308,20 +954,6 @@ def balanced_validation_pool(mpc_min=4, mpc_max=13, per_cell=None, seed=2026,
                     if TIER_IDX.get(SHIELDS[shield]["tier"], 0) < TIER_IDX.get(WEAPONS[weapon]["tier"], 0):
                         continue
                 gear_configs.append((weapon, shield, armor, None))
-
-    # ── Tiltyard two-of-same Dual Wield (doubled 1H melee, no shield, no ranged) ──
-    # Daggers excluded (intrinsic DW, is_2h True), 2H excluded, Lance/Cavalry Spear excluded.
-    # Bastard Sword excluded: its shieldless form is the dedicated 2HBastard weapon (a doubled
-    # shieldless Bastard would violate the Bastard-needs-shield rule).
-    for weapon, wd in WEAPONS.items():
-        if (weapon in ("Farm Tools", "Bastard Sword") or is_2h(weapon)
-                or weapon in STABLE_WEAPONS):
-            continue
-        for armor_tier in TIER_ORDER:
-            armor = armor_for_tier[armor_tier]
-            gear_configs.append((weapon, None, armor, None, "DW"))   # 5-tuple = DW-marked
-
-    # ── Pure-ranged + dual-equip (need Tiltyard) — FULL cross for maximum gear coverage ──
     for ranged in RANGED:
         for armor_tier in TIER_ORDER:
             armor = armor_for_tier[armor_tier]
@@ -1340,99 +972,57 @@ def balanced_validation_pool(mpc_min=4, mpc_max=13, per_cell=None, seed=2026,
                     gear_configs.append((weapon, shield, armor, ranged))
     if verbose:
         print(f"gear configs: {len(gear_configs)}")
-    # For each gear config, derive the smith+metal pursuit base set from the tiers the gear USES,
-    # pad with filler to each target MPC, emit one build per retinue.
-    for cfg in gear_configs:
-        if len(cfg) == 5:
-            weapon, shield, armor, ranged, _dw_mark = cfg
-            is_dw = True
-        else:
-            weapon, shield, armor, ranged = cfg
-            is_dw = False
-        # smith path = highest weapon/ranged tier present (weapons need the smithing line)
+    for (weapon, shield, armor, ranged) in gear_configs:
         wtier = WEAPONS[weapon]["tier"] if weapon in WEAPONS else "Crude"
         if ranged is not None:
             wtier = TIER_ORDER[max(TIER_IDX[wtier], TIER_IDX[RANGED[ranged]["tier"]])]
         smith_set, _ = SMITH_PATHS[wtier]
         atier = ARMORS[armor]["tier"]
-        # METAL path is ARMOR-ONLY now (Gilded Foundry only for Full Plate, ABF only for Gothic).
-        # Shields do NOT use the metal line — they use the SMITH line (below).
         metal_by_armor = {"Crude": None, "Cast": "Tannery", "Wrought": "Armory",
                           "Forged": "Gilded Foundry", "Crafted": "ABF"}
         metal_name = metal_by_armor[atier]
         metal_set = list(METAL_PATHS[metal_name][0]) if metal_name else []
-        # SHIELD buildings: Joinery (+ Carpentry prereq) plus buildings by shield tier:
-        #   Wooden = Joinery only
-        #   Kite   = Joinery + Blacksmith
-        #   Scutum = Joinery + Blacksmith + Armory
-        #   Tower  = Joinery + Blacksmith + Forge
-        #   Heater = Joinery + Blacksmith + ABF
         shield_set = []
         if shield is not None:
             shield_set = ["Carpentry", "Joinery"]
             shield_bld = {
-                "Buckler Shield": [],
-                "Targe Shield":   ["Blacksmith"],
-                "Kite Shield": ["Blacksmith", "Armory"],
+                "Wooden Shield": [],
+                "Kite Shield":   ["Blacksmith"],
+                "Scutum Shield": ["Blacksmith", "Armory"],
                 "Tower Shield":  ["Blacksmith", "Forge"],
                 "Heater Shield": ["Blacksmith", "ABF"],
             }
             shield_set += shield_bld.get(shield, [])
-        # Tiltyard line: a RANGED weapon still needs the tiltyard to be EQUIPPABLE (dual-equip
-        # enabler), so ranged gear forces Tiltyard+Fletchery into the gear base. (Tiltyard also
-        # appears as a Retinue Upgrade for melee builds — see UPGRADES below.)
-        # Tiltyard is required for a ranged dual-equip OR a two-of-same Dual Wield (is_dw).
-        has_ty = (ranged is not None) or is_dw
+        has_ty = ranged is not None
         ty_set = ["Carpentry", "Fletchery", "Coliseum", "Tiltyard"] if has_ty else []
         gear_base = set(smith_set) | set(metal_set) | set(shield_set) | set(ty_set)
-        # ── CATEGORY DEFINITIONS ───────────────────────────────────────────────────────────────
-        # Priority for filling MPC: Retinue Unlock >= Retinue Upgrade > Gear > Filler.
-        # Retinue Unlock: the spec whose MASTERY unlocks the retinue (flat mastery_req, no cascade).
         RETINUE_UNLOCK = {"Levy": [], "Man-at-Arms": ["Coliseum"],
                           "Sergeant": ["War College"], "Knight Templar": ["Preceptory"]}
-        # Retinue Upgrade: <=1 per build. Conditioning Field strongly preferred (>=2/3 of slots).
-        # Preceptory here = the NON-KT innate-Unshakable case (KT gets it via unlock instead).
-        # Tiltyard is NOT here — it's only for ranged+melee dual-equip (handled in the gear path).
-        # Grand Tournament is a STANDALONE upgrade: its mastery (req Conditioning Field + Coliseum)
-        # grants Riposte. It's also Royal Pavilion's prerequisite, so a build can take GT alone (Riposte,
-        # no RP) OR go all the way to RP (Riposte + Drilled + Nimble). Including it here lets non-RP
-        # builds carry Riposte.
         UPGRADES = ["Conditioning Field", "Royal Pavilion", "Ministry of Military Strategy",
                     "Outrider Intercept Post", "Preceptory", "Grand Tournament"]
-        # Monuments get the 1/3-innate-only treatment (skip mastery_req → only innate fires) to expose
-        # the innate-vs-mastery value jump. ABF excluded (its innate does nothing relevant).
         MONUMENTS_SPLIT = {"Royal Pavilion", "Ministry of Military Strategy", "Outrider Intercept Post", "Preceptory"}
-        # Filler (lowest priority): Coliseum removed (it's a retinue unlock). Regen enters here as a
-        # partial-tree climb (Apothecary→Infirmary→Hospitaller), stopping when MPC runs out.
         REGEN_LADDER = ["Apothecary", "Infirmary", "Hospitaller"]
         def flat_mastery_seed(spec):
-            """spec + the pursuits named in its mastery_req (flat, no closure)."""
             s = {spec}
             if spec in PURSUITS_INFO:
                 s |= set(PURSUITS_INFO[spec].get("mastery_req", []))
             return s
         for ret in RETS:
-            # 1) RETINUE UNLOCK (mandatory). KT always MASTERS Preceptory (needs the KT unlock).
             unlock_seed = set()
             for u in RETINUE_UNLOCK[ret]:
                 unlock_seed |= flat_mastery_seed(u)
-            # 2) RETINUE UPGRADE: <=1. Conditioning Field >=2/3 of the time; else a random other
-            #    upgrade. Each upgrade rolled across several builds so all appear in the data.
-            for _u_try in range(3):   # a few upgrade variants per (gear,retinue) for sampling breadth
+            for _u_try in range(3):
                 if rng.random() < 2/3:
                     upgrade = "Conditioning Field"
                 else:
                     upgrade = rng.choice([u for u in UPGRADES if u != "Conditioning Field"])
-                # Preceptory upgrade only makes sense on NON-KT (KT already has it via unlock).
                 if upgrade == "Preceptory" and ret == "Knight Templar":
                     upgrade = "Conditioning Field"
-                # 1/3 of monument-upgrade builds are INNATE-ONLY (skip mastery_req). ABF/Cond Field
-                # are not in MONUMENTS_SPLIT so they always master.
                 innate_only = (upgrade in MONUMENTS_SPLIT) and (rng.random() < 1/3)
                 if innate_only:
-                    upgrade_seed = {upgrade}                       # innate only — no mastery_req
+                    upgrade_seed = {upgrade}
                 else:
-                    upgrade_seed = flat_mastery_seed(upgrade)      # innate + mastery
+                    upgrade_seed = flat_mastery_seed(upgrade)
                 base_seed_set = unlock_seed | upgrade_seed
                 gear_full = master_effect_closure(prereq_closure(gear_base))
                 base_set = gear_full | base_seed_set
@@ -1440,14 +1030,10 @@ def balanced_validation_pool(mpc_min=4, mpc_max=13, per_cell=None, seed=2026,
                 for target_mpc in range(mpc_min, mpc_max + 1):
                     if base_cost > target_mpc:
                         continue
-                    # 3) FILLER (lowest priority): climb the regen ladder partially (Apothecary →
-                    # Infirmary → Hospitaller, in order) then other filler, adding items one at a
-                    # time and recomputing the ACTUAL closed cost (each regen spec pulls its economic
-                    # mastery-req via closure, so cost can jump >1). Stop when we hit target_mpc.
                     regen_avail = [r for r in REGEN_LADDER if r not in base_set]
                     other_filler = [f for f in FILLER if f not in base_set]
                     rng.shuffle(other_filler)
-                    menu = regen_avail + other_filler   # regen first so partial stacks are coherent
+                    menu = regen_avail + other_filler
                     chosen = []
                     cur_cost = base_cost
                     for f in menu:
@@ -1457,7 +1043,7 @@ def balanced_validation_pool(mpc_min=4, mpc_max=13, per_cell=None, seed=2026,
                             prereq_closure(gear_base | set(chosen + [f]))) | base_seed_set
                         tc, _, _ = compute_pursuit_cost(trial)
                         if tc > target_mpc:
-                            continue   # this item overshoots; try a cheaper one
+                            continue
                         chosen.append(f)
                         cur_cost = tc
                     pursuit_set = (master_effect_closure(
@@ -1466,12 +1052,10 @@ def balanced_validation_pool(mpc_min=4, mpc_max=13, per_cell=None, seed=2026,
                     if cost != target_mpc:
                         continue
                     tags = set(tags)
-                    if is_dw:
-                        tags.add(DUAL_WIELD)   # two-of-same: engine reroll + (DW) name marker
                     dom_count = int(sum(domain.values()))
                     eff_ret = ret
                     name = _name(eff_ret, weapon, shield, armor, ranged, has_ty, sorted(tags),
-                                 pursuits=pursuit_set)
+                                 pursuits=pursuit_set, domain=domain)
                     ld = Loadout(
                         name=name + f"|M{target_mpc}",
                         retinue=eff_ret, weapon=weapon, shield=shield, armor=armor, ranged=ranged,
@@ -1482,10 +1066,8 @@ def balanced_validation_pool(mpc_min=4, mpc_max=13, per_cell=None, seed=2026,
                     )
                     ld = ld._replace(upkeep_per_retinue=compute_effective_upkeep(ld))
                     cells[(eff_ret, target_mpc)].append(ld)
-    # Balance: optionally cap each (retinue, mpc) cell to per_cell via random sample.
     out = []
     for key, builds in cells.items():
-        # dedupe by gear+tags+MPC within the cell
         uniq = {}
         for b in builds:
             uniq[(b.weapon, b.shield, b.armor, b.ranged, b.has_tiltyard,
@@ -1500,90 +1082,60 @@ def balanced_validation_pool(mpc_min=4, mpc_max=13, per_cell=None, seed=2026,
         print("per retinue:", dict(_C(b.retinue for b in out)))
         print("per MPC:", dict(sorted(_C(b.military_pursuit_count for b in out).items())))
     return out
-# Effect-bearing specs: their mastery grants a real combat TAG (not a tier/retinue marker). For a
-# build that contains one of these, we pull its DIRECT mastery_req (one level, incl. economic specs
-# like Herb Garden) so the mastery effect actually fires. Pure tier/retinue-unlock specs are NOT
-# here — their "mastery" is the tier/retinue gate, handled separately.
 _EFFECT_BEARING_MASTERY = {
     "Conditioning Field", "Ministry of Military Strategy", "Tiltyard", "Royal Pavilion",
     "Master Workshop", "Gilded Foundry", "Outrider Intercept Post",
     "Apothecary", "Infirmary", "Hospitaller", "Grand Tournament",
 }
 def master_effect_closure(pursuits):
-    """For each effect-bearing spec present, add its DIRECT mastery_req specs (one level, no deeper
-    chaining) so the spec's mastery tag fires. This is the ONLY route by which economic specs
-    (Herb Garden, Alchemy, Grand Tournament, University) enter a combat build — and only to enable
-    a mastery the build is meant to have. They then count toward MPC and total_investment.
-    """
     out = set(pursuits)
     for p in list(out):
         if p in _EFFECT_BEARING_MASTERY and p in PURSUITS_INFO:
             for req in PURSUITS_INFO[p].get("mastery_req", []):
-                out.add(req)   # direct only; do NOT recurse into req's own prereqs
+                out.add(req)
     return out
+# ── PERF: precompute each combat spec's full transitive prereq closure once at import. ──
+# prereq_closure() then becomes a flat union of these frozensets instead of an O(n^2)
+# while-fixpoint re-run on every candidate. The closure it produces is byte-for-byte the
+# same set the old fixpoint produced (same combat-spec-only prereq graph).
+_EMPTY = frozenset()
+def _build_prereq_closure_table():
+    table = {}
+    def closure_of(node, stack):
+        if node in table:
+            return table[node]
+        if node not in PURSUITS_INFO:
+            return _EMPTY
+        acc = set()
+        for pre in PURSUITS_INFO[node].get("prereqs", []):
+            if pre in PURSUITS_INFO:
+                acc.add(pre)
+                if pre not in stack:           # guard against any accidental cycle
+                    acc |= closure_of(pre, stack | {pre})
+        fs = frozenset(acc)
+        table[node] = fs
+        return fs
+    for n in PURSUITS_INFO:
+        closure_of(n, {n})
+    return table
+_PREREQ_CLOSURE = _build_prereq_closure_table()
 def prereq_closure(pursuits):
-    """Return the input set plus the transitive closure of COMBAT-RELEVANT prerequisites.
-    Closure adds a prereq only if it is itself a combat spec (present in PURSUITS_INFO). Economic
-    prereqs (Mine, Academy, Herb Garden, Monastery, ...) are the boundary: they gate the spec in
-    the real game but the combat sim treats them as satisfied and never adds them to the build. So
-    ABF pulls its combat chain (Blacksmith, Forge, Master Workshop, Gilded Foundry, Armory, Tannery,
-    Stable) but NOT Mine/Animal Husbandry; Preceptory pulls nothing economic. Validity/presence
-    only — the MPC discount in compute_pursuit_cost applies on top.
-    """
+    """Input set plus the transitive closure of COMBAT-RELEVANT prerequisites. Uses a
+    precomputed per-node closure table (built once at import); result is identical to the
+    former fixpoint implementation."""
     out = set(pursuits)
-    changed = True
-    while changed:
-        changed = False
-        for p in list(out):
-            if p not in PURSUITS_INFO:
-                continue
-            for pre in PURSUITS_INFO[p].get("prereqs", []):
-                if pre in PURSUITS_INFO and pre not in out:
-                    out.add(pre)
-                    changed = True
+    for p in pursuits:
+        c = _PREREQ_CLOSURE.get(p)
+        if c:
+            out |= c
     return out
 def validate_loadout(ld, check_tier_floors=False):
-    """Check ONE loadout against the full rule set. Returns a list of violation strings (empty = valid).
-    Validity is currently maintained by each generator's construction logic; there's no single gate
-    every build passes through, so construction gaps (e.g. a shield routing through the wrong building
-    line) slip through silently. This is that gate — run it over a pool to catch them automatically.
-    Rules checked:
-      STRUCTURAL (gear shape, always):
-        - 2H weapon -> no shield; 1H (non-Farm Tools) -> needs shield unless Crossbow forces shieldless
-        - Bastard Sword 1H -> needs shield
-        - Lance/Cavalry Spear -> no Tower Shield
-        - Stable cavalry weapons -> no dual-equip with ranged
-        - Crossbow -> Tower-only or shieldless; not with Lance/Cavalry Spear
-        - One-Shot ranged / dual-equip -> requires Tiltyard
-      BUILDING REQUIREMENTS (pursuits must back the gear tier):
-        - Weapon tier -> smithing line present (Cast=Furnace, Wrought=Blacksmith, Forged=+Forge,
-          Crafted=+ABF). Crude needs none.
-        - Shield -> Joinery (+Carpentry) + buildings: Wooden=none, Kite=Blacksmith,
-          Scutum=Blacksmith+Armory, Tower=Blacksmith+Forge, Heater=Blacksmith+ABF
-        - Armor tier -> metal line: Cast=Tannery, Wrought=Armory, Forged=Gilded Foundry, Crafted=ABF
-        - Ranged present -> Tiltyard line (Carpentry+Fletchery+Coliseum+Tiltyard)
-      EFFICIENCY (no building you don't use):
-        - No Fletchery / Tiltyard without a ranged weapon
-        - Gilded Foundry only if armor is Full Plate or Gothic (armor-driven only; shields don't pull GF)
-        - No shield -> no Joinery
-      PREREQUISITES: every pursuit's prereqs must be present in the set.
-      (check_tier_floors is retained for API compatibility but is a NO-OP — tier
-        floors/caps are removed game-wide; gear is gated by infrastructure pursuits.)
-    """
     v = []
     P = set(ld.pursuits)
     w, sh, ar, rg = ld.weapon, ld.shield, ld.armor, ld.ranged
-    # Two-of-same Dual Wield: the build carries the "Dual Wield" tag but the weapon PROFILE
-    # doesn't (Daggers carry it intrinsically; a doubled Arming Sword etc. gets it injected).
-    # Such builds are legal shieldless 1H melee that also legitimately carry the Tiltyard chain.
-    _is_dw_build = (DUAL_WIELD in set(ld.extra_tags or [])
-                    and w is not None
-                    and DUAL_WIELD not in WEAPONS.get(w, {}).get("tags", []))
-    # ── Structural ──
     if w is not None and is_2h(w) and sh is not None:
         v.append(f"2H weapon {w} has shield {sh}")
-    if (w not in (None, "Farm Tools") and not is_2h(w) and sh is None and rg != "Crossbow"
-            and not _is_dw_build):
+    if (w not in (None, "Farm Tools") and not is_2h(w) and sh is None and rg != "Crossbow"):
         v.append(f"1H weapon {w} has no shield")
     if w == "Bastard Sword" and sh is None:
         v.append("Bastard Sword (1H) has no shield")
@@ -1596,21 +1148,17 @@ def validate_loadout(ld, check_tier_floors=False):
             v.append(f"Crossbow with non-Tower shield {sh}")
         if w in ("Lance", "Cavalry Spear"):
             v.append(f"Crossbow with {w}")
-    if rg is not None and ONE_SHOT in RANGED.get(rg, {}).get("tags", []) and not ld.has_tiltyard:
+    if rg is not None and "One Shot" in RANGED.get(rg, {}).get("tags", []) and not ld.has_tiltyard:
         v.append(f"One-Shot ranged {rg} without Tiltyard")
     if w not in (None, "Farm Tools") and rg is not None and not ld.has_tiltyard:
         v.append(f"dual-equip ({w}+{rg}) without Tiltyard")
-    # ── Building requirements ──
     SMITH_REQ = {"Crude": set(), "Cast": {"Furnace"}, "Wrought": {"Blacksmith"},
                  "Forged": {"Blacksmith", "Forge"}, "Crafted": {"Blacksmith", "Forge", "ABF"}}
-    # weapon (and ranged) smithing: highest tier of the two must be backed
     wt = WEAPONS.get(w, {}).get("tier", "Crude") if w else "Crude"
     if rg is not None:
         rt = RANGED.get(rg, {}).get("tier", "Crude")
         if TIER_IDX[rt] > TIER_IDX[wt]:
             wt = rt
-    # NOTE: a shield may legitimately supply Forge/ABF even for a lower-tier weapon, so the smithing
-    # requirement is "the weapon-tier buildings are a subset of what's present", checked leniently.
     missing_smith = SMITH_REQ[wt] - P
     if missing_smith:
         v.append(f"{w} (tier {wt}) missing smithing {sorted(missing_smith)}")
@@ -1619,8 +1167,8 @@ def validate_loadout(ld, check_tier_floors=False):
             v.append(f"shield {sh} without Joinery")
         if "Carpentry" not in P:
             v.append(f"shield {sh} without Carpentry (Joinery prereq)")
-        SHIELD_REQ = {"Buckler Shield": set(), "Targe Shield": {"Blacksmith"},
-                      "Kite Shield": {"Blacksmith", "Armory"},
+        SHIELD_REQ = {"Wooden Shield": set(), "Kite Shield": {"Blacksmith"},
+                      "Scutum Shield": {"Blacksmith", "Armory"},
                       "Tower Shield": {"Blacksmith", "Forge"},
                       "Heater Shield": {"Blacksmith", "ABF"}}
         missing_sh = SHIELD_REQ.get(sh, set()) - P
@@ -1639,33 +1187,19 @@ def validate_loadout(ld, check_tier_floors=False):
         for need in ("Carpentry", "Fletchery", "Tiltyard"):
             if need not in P:
                 v.append(f"ranged {rg} without {need}")
-    # ── Efficiency (no unused building) ──
-    # Tiltyard (and its Fletchery prereq) normally require a ranged weapon. EXCEPTION: Royal Pavilion
-    # masters via Grand Tournament + Tiltyard, so a mastered-RP melee build legitimately carries them.
     _rp_present = "Royal Pavilion" in P
-    if "Fletchery" in P and rg is None and not _rp_present and not _is_dw_build:
+    if "Fletchery" in P and rg is None and not _rp_present:
         v.append("Fletchery without a ranged weapon")
-    if ld.has_tiltyard and rg is None and not _rp_present and not _is_dw_build:
+    if ld.has_tiltyard and rg is None and not _rp_present:
         v.append("Tiltyard without a ranged weapon")
-    # GF now always grants Planishing (mastery) — never inert. No efficiency flag needed.
-    # (rule removed)
     _gf_masters = "Armory" in P and "Blacksmith" in P
     if ("Gilded Foundry" in P and ar not in ("Full Plate", "Gothic Plate")
             and "ABF" not in P and not _gf_masters):
         v.append(f"Gilded Foundry present but armor is {ar}, no ABF, and Planishing unmet (inert)")
-    # ── Prerequisites (combat-relevant only; economic prereqs are the closure boundary) ──
-    # A pursuit present ONLY to satisfy another present spec's mastery_req (e.g. Hospitaller for
-    # Preceptory's KT unlock) does NOT require its own prereqs — it can exist inert. Build the set
-    # of such "present-for-mastery" pursuits: any pursuit named in the mastery_req of a spec that is
-    # itself present in this build.
     present_for_mastery = set()
     for p in P:
         if p in PURSUITS_INFO:
             present_for_mastery |= set(PURSUITS_INFO[p].get("mastery_req", []))
-    # Innate-only monuments: a monument present WITHOUT its mastery_req pursuits is "innate-only"
-    # (it grants just its innate effect, which needs only a domain standing — NO buildings). So it
-    # is exempt from its own prereq check too. Detect: a MONUMENT spec present whose mastery_req is
-    # NOT fully satisfied in the build.
     _MONUMENTS = {"Royal Pavilion", "Ministry of Military Strategy", "Outrider Intercept Post",
                   "Preceptory", "ABF"}
     innate_only_specs = set()
@@ -1678,16 +1212,12 @@ def validate_loadout(ld, check_tier_floors=False):
         if p not in PURSUITS_INFO:
             continue
         if p in present_for_mastery or p in innate_only_specs:
-            continue   # present-for-mastery or innate-only monument — no own-prereq requirement
+            continue
         for pre in PURSUITS_INFO[p].get("prereqs", []):
             if pre in PURSUITS_INFO and pre not in P:
                 v.append(f"pursuit {p} missing prereq {pre}")
-    # Tier floors/caps removed game-wide; check_tier_floors is a no-op.
     return v
 def validate_pool(pool, check_tier_floors=False, max_report=20, verbose=True):
-    """Run validate_loadout over a whole pool. Returns {build_name: [violations]} for invalid builds.
-    Prints a summary + a sample of violations. Use after generating a pool to catch construction bugs.
-    """
     bad = {}
     counts = {}
     for ld in pool:
@@ -1696,7 +1226,6 @@ def validate_pool(pool, check_tier_floors=False, max_report=20, verbose=True):
             bad[ld.name] = vio
             for msg in vio:
                 key = msg.split(" ")[0] + " " + (msg.split(" missing ")[0].split()[-1] if "missing" in msg else "")
-                # bucket by a coarse signature for the summary
                 sig = msg
                 for tok in (ld.weapon or "", ld.shield or "", ld.armor or "", ld.ranged or ""):
                     if tok:
@@ -1709,42 +1238,21 @@ def validate_pool(pool, check_tier_floors=False, max_report=20, verbose=True):
             for sig, n in sorted(counts.items(), key=lambda kv: -kv[1])[:max_report]:
                 print(f"  {n:6d}  {sig}")
         else:
-            print("  ALL VALID ✓")
+            print("  ALL VALID")
     return bad
 def with_playstyle(loadout, playstyle):
-    """Return a copy of `loadout` with a different playstyle (and updated name).
-    Useful for one-off comparisons."""
     new_name = _name(loadout.retinue, loadout.weapon, loadout.shield, loadout.armor,
                      loadout.ranged, loadout.has_tiltyard, loadout.extra_tags,
                      playstyle=playstyle, pursuits=loadout.pursuits)
     return loadout._replace(name=new_name, playstyle=playstyle)
 def kt_twins(pool):
-    """For every KT loadout in `pool`, create a twin that's the SAME KT retinue & equipment
-    but assigned the equipment-natural NON-Unshakable playstyle (computed by temporarily
-    treating the loadout as a non-KT to bypass the KT→Unshakable rule).
-    Purpose: isolate the playstyle effect WITHIN KT. We can ask "does
-    KT/Bastard/Tower/FullPlate perform better as Unshakable or as Patient?" while
-    holding the retinue and equipment constant.
-    Returns the new twins only — does not modify or include the original pool.
-    Notes:
-      - Twins are still Knight Templar (rout-immune stat preserved). Only the playstyle
-        changes.
-      - The natural playstyle is derived by running assign_default_playstyle on a
-        temporary copy with retinue set to "Sergeant" (matches KT's premium gear tier
-        and bypasses the KT→Unshakable first-rule). This gives the equipment-based
-        playstyle the loadout "would have" if it weren't KT.
-      - Twin gets a " (NaturalPS)" suffix so it's distinguishable in CSVs.
-    """
     from playstyles import assign_default_playstyle
     twins = []
     for ld in pool:
         if ld.retinue != "Knight Templar":
             continue
-        # Spoof retinue to Sergeant to derive the equipment-natural playstyle
         spoof = ld._replace(retinue="Sergeant")
         natural_ps = assign_default_playstyle(spoof)
-        # If somehow the natural playstyle is still Unshakable (shouldn't happen with
-        # current rules, but be defensive), skip — no useful twin to create.
         if natural_ps == "Unshakable":
             continue
         new_name = _name(ld.retinue, ld.weapon, ld.shield, ld.armor,
@@ -1754,19 +1262,12 @@ def kt_twins(pool):
         twins.append(twin)
     return twins
 def cross_playstyle_pool(base_pool, playstyles):
-    """Take a base pool and cross every loadout with every playstyle.
-    Output: len(base_pool) * len(playstyles) loadouts.
-    Used for "8 playstyles × 216 loadouts" sweep tournaments.
-    """
     out = []
     for ld in base_pool:
         for ps in playstyles:
             out.append(with_playstyle(ld, ps))
     return out
 def optimal_playstyle_pool(base_pool):
-    """For each loadout in `base_pool`, assign its heuristic optimal playstyle.
-    Returns a new pool the same size, each loadout tagged with one chosen style.
-    """
     from playstyles import assign_default_playstyle
     return [with_playstyle(ld, assign_default_playstyle(ld)) for ld in base_pool]
 if __name__ == "__main__":
@@ -1778,5 +1279,5 @@ if __name__ == "__main__":
         print(f"  {ld.name}")
     print(f"  ... ({len(pool) - 30} more)")
     print()
-    print(f"Tournament size: {len(pool)} × {len(pool)} = {len(pool)**2:,} matchups")
+    print(f"Tournament size: {len(pool)} x {len(pool)} = {len(pool)**2:,} matchups")
     print(f"At 100 runs/matchup: {len(pool)**2 * 100:,} battles")

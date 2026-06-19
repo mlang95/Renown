@@ -1,5 +1,5 @@
 {
- "version": "0.4.8.6",
+ "version": "0.4.9",
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
@@ -17,11 +17,11 @@
   "Parry": "Roll a d6 to cancel a Strike before the Save on a 5+ (a natural 6 is a Riposte). -1 versus Unstoppable, versus ranged, and per Fatigue token (to a maximum of 6+).",
   "Riposte": "If you roll a natural 6 on a Parry from a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your equipped weapon. You can Riposte a Riposte.",
   "Recover": "If a to-Save roll fails, roll a d6: a result of X+ saves the retinue. Worsened by Fatigue and Serrated, to a maximum of 6+.",
-  "Serrated": "-1 to Recover against this weapon's Strikes (worsens the defender's Recover roll by 1).",
+  "Serrated": "-2 to Recover against this weapon's Strikes (worsens the defender's Recover roll by 2).",
   "Tempered": "Your armor Save cannot be reduced beyond a 6+.",
   "Fatigue Token": "Each token is -1 to your Strike, Parry, and Recover rolls, to a maximum of 6+; and Morale -1 (uncapped). If your modified Morale is ever 7+, your army Routs. Tokens stack.",
-  "-1 to Strike": "A stacking -1 penalty to the Strike roll (to a maximum of 6+). Sources: a shield's -1 to Strike (ignored by Unstoppable unless the shield has Negate Unstoppable), some Tactics (the Ministry innate is immune to the Tactic source), and each Fatigue token.",
-  "Negate Unstoppable": "Cancels the attacker's Unstoppable entirely: this shield's -1 to Strike still applies, and the attacker's -1 to Parry does not.",
+  "Shielded": "A stacking -1 penalty to the Strike roll (to a maximum of 6+). Sources: a shield's -1 to Strike (ignored by Unstoppable unless the shield has Negate Unstoppable), some Tactics (the Ministry innate is immune to the Tactic source), and each Fatigue token.",
+  "Immune Unstoppable": "Cancels the attacker's Parry from Unstoppable: this shield's -1 to Strike still applies, and the attacker's -1 to Parry does not.",
   "Negate Tempered": "Ignores Tempered: this weapon's AP can reduce the target's Save past 6+ (to auto-fail), defeating the Tempered floor.",
   "Negate Riposte": "The target's Parry can never Riposte this weapon's Strikes (a natural 6 Parry still cancels the Strike, but no counter-Strike follows).",
   "-1 to Parry": "A stacking -1 penalty to the defender's Parry roll (to a maximum of 6+). Sources: Unstoppable, Deflect, and each Fatigue token.",
@@ -181,7 +181,7 @@
     ],
     [
      "Serrated",
-     "-1 to Recover against this weapon's Strikes (worsens the defender's Recover roll by 1)."
+     "-2 to Recover against this weapon's Strikes (worsens the defender's Recover roll by 2)."
     ],
     [
      "Improved Parry",
@@ -481,10 +481,6 @@
      "A stacking -1 penalty to the defender's Parry roll (to a maximum of 6+). Sources: Unstoppable, Deflect, and each Fatigue token."
     ],
     [
-     "-1 to Strike",
-     "A stacking -1 penalty to the Strike roll (to a maximum of 6+). Sources: a shield's -1 to Strike (ignored by Unstoppable unless the shield has Negate Unstoppable), some Tactics (the Ministry innate is immune to the Tactic source), and each Fatigue token."
-    ],
-    [
      "Border",
      "Your Settlement's Reach is Range 1 or within Reach of another Player's Reach."
     ],
@@ -521,16 +517,16 @@
      "Each token is -1 to your Strike, Parry, and Recover rolls, to a maximum of 6+; and Morale -1 (uncapped). If your modified Morale is ever 7+, your army Routs. Tokens stack."
     ],
     [
+     "Immune Unstoppable",
+     "Cancels the attacker's Parry from Unstoppable: this shield's -1 to Strike still applies, and the attacker's -1 to Parry does not."
+    ],
+    [
      "Negate Riposte",
      "The target's Parry can never Riposte this weapon's Strikes (a natural 6 Parry still cancels the Strike, but no counter-Strike follows)."
     ],
     [
      "Negate Tempered",
      "Ignores Tempered: this weapon's AP can reduce the target's Save past 6+ (to auto-fail), defeating the Tempered floor."
-    ],
-    [
-     "Negate Unstoppable",
-     "Cancels the attacker's Unstoppable entirely: this shield's -1 to Strike still applies, and the attacker's -1 to Parry does not."
     ],
     [
      "One Shot",
@@ -571,6 +567,10 @@
     [
      "Send an Envoy",
      "Declare a Domain, spend 1 Envoy."
+    ],
+    [
+     "Shielded",
+     "A stacking -1 penalty to the Strike roll (to a maximum of 6+). Sources: a shield's -1 to Strike (ignored by Unstoppable unless the shield has Negate Unstoppable), some Tactics (the Ministry innate is immune to the Tactic source), and each Fatigue token."
     ],
     [
      "Tempered",
@@ -1039,15 +1039,15 @@
     ],
     [
      "Master Workshop",
-     "Forge + Blacksmith",
+     "Blacksmith",
      "**Upkeep -200**; Craft +1",
      "Add **Serrated** to Weapons"
     ],
     [
      "Gilded Foundry",
      "Armory + Blacksmith",
-     "**Efficient Armory**; Tempered: Your to Save modifier cannot be reduced beyond 6+.",
-     "**Unlock Plate Armor**; Craft +1"
+     "**Efficient Armory**; **Unlock Plate Armor**",
+     "Tempered: Your to Save modifier cannot be reduced beyond 6+; Craft +1"
     ],
     [
      "Smokehouse",
@@ -1160,7 +1160,7 @@
      "Abbey",
      "Episcopal Court + Academy",
      "**Efficient Episcopal Court**; Once/turn: **Influence +1** another player's Piety Envoy",
-     "Morale is improved by 1, to a maximum of 2+."
+     "Morale +1."
     ],
     [
      "Reliquary",
@@ -1183,8 +1183,8 @@
     [
      "Hospitaller",
      "Apothecary + Infirmary",
-     "**Efficient Infirmary**; For every 4 casualties in a Skirmish, **Heal 1** at start of next Skirmish",
-     "**Recover** improved by +1"
+     "**Efficient Infirmary**; **Recover** improved by +1",
+     "gain Enduring: Your recovers cannot be reduced beyond a 6+ while Fatigued."
     ],
     [
      "Jester's Court",
@@ -1226,12 +1226,12 @@
      "Conditioning Field",
      "Courtyard",
      "**Efficient Courtyard**; **Faith +1** while not at War",
-     "Armies gain **+1 Maximum Endurance**"
+     "Armies gain **Nimble**"
     ],
     [
      "Grand Tournament",
      "Coliseum + Conditioning Field",
-     "**Efficient Coliseum**; **Faith +1**; Improve **Parry** by 1",
+     "**Efficient Coliseum**; **Faith +1**",
      "3x/turn: exchange 500 gold for **1 Influence**; Armies gain **Riposte**"
     ],
     [
@@ -1244,7 +1244,7 @@
      "Infirmary",
      "Alchemy + Herb Garden",
      "**Efficient Apothecary**",
-     "Armies gain **Recover** or improve by +1"
+     "Improve Recover by +1"
     ],
     [
      "Supply Depot",
@@ -1456,7 +1456,7 @@
      "Royal Pavilion",
      "Grand Tournament + Tiltyard",
      "**Efficient Tiltyard**; Armies gain **Immune Strained**",
-     "Armies gain **Drilled** & **Nimble**"
+     "Armies gain **Drilled**"
     ],
     [
      "Imperial Palace",
@@ -1467,8 +1467,8 @@
     [
      "Ministry of Military Strategy",
      "University + War College",
-     "**Efficient War College**; Always gains **Seize the Initiative**, and your opponent doesn't. Immune -1 to Strike from Tactics.",
-     "Gain +1I; your maximum initiative increases to 3. Deadly, & Cleave also trigger on a natural 5."
+     "**Efficient War College**; Always gains **Seize the Initiative**, and your opponent doesn't. gain Immune Tactic -1 to Strike",
+     "Gain +1I & max initiative is 3; Deadly, & Cleave also trigger on a natural 5."
     ],
     [
      "Thieves' Guild",
@@ -1491,7 +1491,7 @@
     [
      "Preceptory of the Knight's Templar",
      "Monastery + Pilgrimage Site + Hospitaller + Abbey",
-     "**Efficient Monastery**; Armies gain **Immune Panic**",
+     "**Efficient Monastery**; Armies gain **Zealous**: Automatically pass the first Panic Check of every Battle.",
      "Unlocks **Knight's Templar** for Muster"
     ],
     [
@@ -1535,8 +1535,8 @@
     "Man-at-Arms",
     "2000",
     "3+",
-    "3",
-    "4+",
+    "4",
+    "5+",
     "\u2014"
    ],
    [
@@ -1552,8 +1552,8 @@
     "3000",
     "3+",
     "3",
-    "4+",
-    "Unbreakable"
+    "3+",
+    "\u2014"
    ]
   ],
   "Weapons": [
@@ -1590,7 +1590,7 @@
     "Cast",
     "-1",
     "+0",
-    "Steady"
+    "\u2014"
    ],
    [
     "Spears",
@@ -1604,7 +1604,7 @@
     "Wrought",
     "-1",
     "+0",
-    "Steady, Deadly"
+    "Steady"
    ],
    [
     "Pike",
@@ -1616,9 +1616,9 @@
    [
     "Flail",
     "Wrought",
-    "-2",
     "-1",
-    "Cleave"
+    "+0",
+    "Unwieldy, Cleave"
    ],
    [
     "Halberd",
@@ -1631,15 +1631,15 @@
     "Battle Axe",
     "Wrought",
     "-2",
-    "-1",
-    "Unstoppable, 2H, Cleave"
+    "+0",
+    "Negate Shielded, 2H, Cleave"
    ],
    [
     "Cavalry Spear",
     "Wrought",
     "-2",
     "+0",
-    "Unwieldy, Steady"
+    "Unwieldy, Steady, Negate Riposte"
    ],
    [
     "Bastard Sword",
@@ -1660,7 +1660,7 @@
     "Forged",
     "-4",
     "+1",
-    "Steady, Unwieldy, Deadly, Unstoppable"
+    "Steady, Unwieldy, Unstoppable, Negate Shielded, Negate Riposte, Deadly"
    ],
    [
     "Morningstar",
@@ -1674,102 +1674,102 @@
     "Forged",
     "-8",
     "-1",
-    "Unwieldy, Destroy Shield, Unstoppable, 2H, Deadly"
+    "Unwieldy, Destroy Shield, Unstoppable, Negate Shielded, 2H, Deadly, Negate Riposte"
    ],
    [
     "Poleaxe",
     "Crafted",
-    "-4",
-    "+0",
-    "Steady, 2H, Unstoppable, Deadly, Cleave"
+    "-3",
+    "+1",
+    "Steady, 2H, Unstoppable, Negate Shielded, Deadly, Negate Tempered"
    ],
    [
     "Estoc",
     "Crafted",
     "-3",
-    "-1",
-    "Steady, Deadly, Deflect, Negate Tempered"
+    "+1",
+    "Steady, Deadly, Negate Riposte, Negate Tempered"
    ]
   ],
   "Ranged": [
    [
     "Hunting Bow",
     "Crude",
-    "-1",
+    "0",
     "+2",
-    "2H, Deadly, Deflect"
+    "2H, Negate Riposte"
    ],
    [
     "Longbow",
     "Cast",
-    "-2",
+    "-1",
     "+2",
-    "Deadly, 2H, Deflect"
+    "2H, Negate Riposte"
    ],
    [
     "Javelin",
     "Wrought",
-    "-3",
+    "-2",
     "+1",
-    "Deadly, Steady, Unstoppable, One Shot, Deflect"
+    "Deadly, Steady, Unstoppable, Negate Shielded, One Shot, Negate Riposte"
    ],
    [
     "Crossbow",
     "Forged",
     "-4",
     "+0",
-    "Deadly, Unwieldy, Unstoppable, Deflect"
+    "Deadly, Unwieldy, Unstoppable, Negate Shielded, Negate Riposte, One Shot"
    ],
    [
     "Pilum",
     "Crafted",
-    "-5",
+    "-3",
     "+1",
-    "Steady, Destroy Shield, Unstoppable, One Shot, Deadly, Deflect"
+    "Steady, Destroy Shield, Unstoppable, Negate Shielded, One Shot, Deadly, Negate Riposte"
    ]
   ],
   "Shields": [
    [
-    "Wooden Shield",
+    "Buckler Shield",
     "Crude",
     "+1",
+    "+0",
+    "\u2014"
+   ],
+   [
+    "Targe Shield",
+    "Cast",
+    "+0",
     "-1",
-    "Unwieldy"
+    "Shielded, Steady"
    ],
    [
     "Kite Shield",
-    "Cast",
-    "+1",
-    "+0",
-    "Steady"
-   ],
-   [
-    "Scutum Shield",
     "Wrought",
     "+1",
     "-1",
-    "Unwieldy, -1 to Strike"
+    "Unwieldy, Shielded"
    ],
    [
     "Tower Shield",
     "Forged",
     "+2",
     "-1",
-    "-1 to Strike, Unwieldy"
+    "Shielded, Unwieldy"
    ],
    [
     "Heater Shield",
     "Crafted",
-    "+1",
+    "+2",
     "+0",
-    "-1 to Strike, Immune Destroy Shield, Negate Unstoppable"
+    "Shielded, Immune Destroy Shield"
    ]
   ],
   "Armor": [
    [
     "Cloth",
     "Crude",
-    "6+",
+    "7+",
     "\u2014"
    ],
    [
@@ -1794,7 +1794,7 @@
     "Gothic Plate",
     "Crafted",
     "2+",
-    "\u2014"
+    "Immune Unwieldy"
    ]
   ]
  },

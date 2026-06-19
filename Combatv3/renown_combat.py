@@ -19,16 +19,25 @@ from typing import Optional
 
 
 # ---------- Static data ----------
-# All canonical data lives in renown_data.py — the single source of truth.
-# Edit renown_data.py; this module (and every generator) imports from it.
+
+# renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
+# Edit THIS file; equipment.csv, cards, and docs are generated from it.
+
+# ── Keyword constants ─────────────────────────────────────────────────────
+# Rename a keyword here and it renames everywhere (GLOSSARY keys, tags, cards).
+# renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
+# Edit THIS file; equipment.csv, cards, and docs are generated from it.
+
+# ── Keyword constants ─────────────────────────────────────────────────────
+# Rename a keyword here and it renames everywhere (GLOSSARY keys, tags, cards).
 from renown_data import (
-    GLOSSARY, RETINUES, WEAPONS, RANGED, SHIELDS, ARMORS,
-    TACTICS, TACTIC_MATRIX, TIERS, TIER_UNLOCK, immune, IMMUNE,
+    RETINUES, WEAPONS, RANGED, SHIELDS, ARMORS,
+    TACTIC_MATRIX, TACTICS,
+    STEADY, UNWIELDY, TWO_H, SHATTER_ARMOR, UNSTOPPABLE, CLEAVE, POISON,
+    NIMBLE, DRILLED, DESTROY_SHIELD, BLUNDER, ONE_SHOT, DEFLECT,
+    IMMUNE_PANIC, UNBREAKABLE, PARRY, RIPOSTE, RECOVER, SERRATED, STRAIN,
+    MINUS_1_TBH, PLANISHING, GLOSSARY,
 )
-from renown_data import _m  # tactic-cell helper (kept for tooling that builds cells)
-
-
-
 
 # ---------- Army definition ----------
 
@@ -51,6 +60,8 @@ class Army:
     fatigue: int = 0
     skirmish_count: int = 0
     spent: bool = False  # withdrew/wiped/fled
+    ranged_used: bool = False      # ranged weapon already fired this battle (one use)
+    _ranged_active: bool = False   # set per-skirmish by decide_ranged(); read by active_weapon
 
     def __post_init__(self):
         if self.endurance == 0:
@@ -75,12 +86,63 @@ class Army:
 
     def active_weapon(self, first_skirmish: bool):
         """Which weapon profile is active this skirmish.
-        Tiltyard rules: melee + ranged both equipped; One Shot ranged fires first skirmish only, melee thereafter.
-        Without Tiltyard, the dual-equip incurs Unwieldy on both weapons (handled in all_tags).
+        The firing decision is made ONCE per skirmish by decide_ranged() (which has the
+        opponent in scope) and cached in self._ranged_active. This method just reads it,
+        so all the downstream per-skirmish methods stay opponent-free.
+        Ranged timing rules:
+          - One Shot (Javelin, Crossbow, Pilum): fire in the FIRST skirmish only, then melee.
+          - Non-One-Shot (Hunting Bow, Longbow): ONE use per battle, fired on the first skirmish
+            where the bow would flip initiative (melee_init <= opp_init < bow_init); melee otherwise.
         """
-        if self.ranged and first_skirmish:
+        if self.ranged and self._ranged_active:
             return ("ranged", self.ranged)
         return ("melee", self.weapon)
+
+    def _ranged_is_one_shot(self):
+        if not self.ranged:
+            return False
+        return "One Shot" in RANGED[self.ranged].get("tags", [])
+
+    def _base_init_with(self, kind: str, first_skirmish: bool):
+        """Base (pre-tactic) clamped initiative if this army fought with the given weapon
+        kind ('melee' or 'ranged') this skirmish. Mirrors base_initiative's bonuses but lets
+        us compare the melee vs ranged profile without committing _ranged_active first."""
+        if kind == "ranged" and self.ranged:
+            prof = RANGED[self.ranged]
+        else:
+            prof = WEAPONS[self.weapon]
+            kind = "melee"
+        i = prof["init"] + self.shield_init()
+        # Nimble / attacker bonuses apply regardless of which weapon is up.
+        if "Nimble" in set(self.extra_tags) and first_skirmish:
+            i += 1
+        if self.is_attacker and first_skirmish:
+            i += 1
+        return max(-2, min(2, i))
+
+    def decide_ranged(self, opponent: "Army", first_skirmish: bool):
+        """Set self._ranged_active for THIS skirmish, consuming the ranged weapon if fired.
+        Called once at skirmish start, before tactics/initiative resolution.
+          - No ranged, or already used  -> melee.
+          - One Shot                    -> active iff first_skirmish.
+          - Bow (1 use/battle)          -> active iff melee_init <= opp_init < bow_init
+                                           (all base, clamped, pre-tactic). Once fired, spent.
+        """
+        self._ranged_active = False
+        if not self.ranged or self.ranged_used:
+            return
+        if self._ranged_is_one_shot():
+            if first_skirmish:
+                self._ranged_active = True
+                self.ranged_used = True
+            return
+        # Non-One-Shot bow: fire only on the skirmish where it strictly flips initiative.
+        melee_init = self._base_init_with("melee", first_skirmish)
+        bow_init = self._base_init_with("ranged", first_skirmish)
+        opp_init = opponent._base_init_with("melee", first_skirmish)
+        if melee_init <= opp_init < bow_init:
+            self._ranged_active = True
+            self.ranged_used = True
 
     def weapon_profile(self, first_skirmish: bool):
         kind, name = self.active_weapon(first_skirmish)
@@ -185,7 +247,7 @@ def roll_to_hit_and_save(attacker: Army, defender: Army, atk_mods, def_mods, fir
         if roll >= target_th:
             strikes += 1
             if roll == 6:
-                if "Deadly" in atk_tags or "Shatter Armor" in atk_tags:
+                if "Shatter Armor" in atk_tags:
                     shatter_strikes += 1
                 if "Cleave" in atk_tags:
                     cleave_extra += 1
@@ -280,6 +342,11 @@ def shaking_test(army: Army):
 
 def run_skirmish(a: Army, b: Army, a_tactic: str, b_tactic: str, first_skirmish: bool, verbose=False):
     """Run a single skirmish. Returns dict with results."""
+    # Decide ranged firing FIRST (needs opponent, must precede initiative/weapon reads).
+    # Each army's call only reads the opponent's MELEE base init, so order doesn't matter.
+    a.decide_ranged(b, first_skirmish)
+    b.decide_ranged(a, first_skirmish)
+
     a_init, b_init, a_mods, b_mods = resolve_initiative(a, b, a_tactic, b_tactic, first_skirmish)
 
     result = {

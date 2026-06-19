@@ -1,6 +1,6 @@
 # renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
-VERSION = "0.4.8.6"
+VERSION = "0.4.9"
 # ── Keyword constants ─────────────────────────────────────────────────────
 # Rename a keyword here and it renames everywhere (GLOSSARY keys, tags, cards).
 STEADY          = "Steady"
@@ -22,25 +22,35 @@ PARRY           = "Parry"
 RIPOSTE         = "Riposte"
 RECOVER         = "Recover"
 SERRATED        = "Serrated"
+ENDURING        = "Enduring"   # Recover still gets a 6+ save while Fatigued (exception to off-when-fatigued)
 STRAIN          = "Strain"
-MINUS_1_TBH     = "-1 to Strike"
+MINUS_1_TBH     = "Shielded"
 PLANISHING      = "Tempered"
 FATIGUE_TOKEN   = "Fatigue Token"
+CRUSADER        = "Zealous"
 
 IMMUNE = "Immune"
 def immune(keyword):
     """Immunity to a keyword, referencing the canonical name so renames
     propagate. immune(DESTROY_SHIELD) -> 'Immune Destroy Shield'."""
     return f"{IMMUNE} {keyword}"
+	
+NEGATE = "Negate"
+def negate(keyword):
+    """Offensive cancel of an enemy keyword, referencing the canonical name so renames
+    propagate. negate(MINUS_1_TBH) -> 'Negate Shielded'."""
+    return f"{NEGATE} {keyword}"
 
 # convenience aliases for the immunities currently in use
 IMMUNE_DESTROY_SHIELD = immune(DESTROY_SHIELD)
 IMMUNE_UNWIELDY       = immune(UNWIELDY)
 IMMUNE_STRAIN         = immune(STRAIN)
 # Negate family (offensive — cancel an enemy keyword) + atomic penalty/bundle terms
-NEGATE_UNSTOPPABLE = "Negate Unstoppable"
+NEGATE_UNSTOPPABLE = "Immune Unstoppable"
+
 NEGATE_TEMPERED    = "Negate Tempered"
 NEGATE_RIPOSTE     = "Negate Riposte"
+NEGATE_SHIELDED    = negate(MINUS_1_TBH)   # "Negate Shielded": attacker ignores defender's Shielded (-1 to Strike)
 MINUS_1_PARRY      = "-1 to Parry"
 HALFSWORD          = "Halfsword"   # RESERVED — engine path intact, no weapon carries it (shelved)
 DUAL_WIELD         = "Dual Wield"
@@ -64,11 +74,11 @@ GLOSSARY = {
     PARRY:          "Roll a d6 to cancel a Strike before the Save on a 5+ (a natural 6 is a Riposte). -1 versus Unstoppable, versus ranged, and per Fatigue token (to a maximum of 6+).",
     RIPOSTE:        "If you roll a natural 6 on a Parry from a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your equipped weapon. You can Riposte a Riposte.",
     RECOVER:        "If a to-Save roll fails, roll a d6: a result of X+ saves the retinue. Worsened by Fatigue and Serrated, to a maximum of 6+.",
-    SERRATED:       "-1 to Recover against this weapon's Strikes (worsens the defender's Recover roll by 1).",
+    SERRATED:       "-2 to Recover against this weapon's Strikes (worsens the defender's Recover roll by 2).",
     PLANISHING:     "Your armor Save cannot be reduced beyond a 6+.",
     FATIGUE_TOKEN:  "Each token is -1 to your Strike, Parry, and Recover rolls, to a maximum of 6+; and Morale -1 (uncapped). If your modified Morale is ever 7+, your army Routs. Tokens stack.",
     MINUS_1_TBH:    "A stacking -1 penalty to the Strike roll (to a maximum of 6+). Sources: a shield's -1 to Strike (ignored by Unstoppable unless the shield has Negate Unstoppable), some Tactics (the Ministry innate is immune to the Tactic source), and each Fatigue token.",
-	NEGATE_UNSTOPPABLE: "Cancels the attacker's Unstoppable entirely: this shield's -1 to Strike still applies, and the attacker's -1 to Parry does not.",
+	NEGATE_UNSTOPPABLE: "Cancels the attacker's Parry from Unstoppable: this shield's -1 to Strike still applies, and the attacker's -1 to Parry does not.",
     NEGATE_TEMPERED: "Ignores Tempered: this weapon's AP can reduce the target's Save past 6+ (to auto-fail), defeating the Tempered floor.",
     NEGATE_RIPOSTE: "The target's Parry can never Riposte this weapon's Strikes (a natural 6 Parry still cancels the Strike, but no counter-Strike follows).",
     MINUS_1_PARRY: "A stacking -1 penalty to the defender's Parry roll (to a maximum of 6+). Sources: Unstoppable, Deflect, and each Fatigue token.",
@@ -164,11 +174,52 @@ GLOSSARY = {
 }
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# MORALE_GLOSSARY — personal working notes on the morale-immunity keyword family.
+# NOT yet merged into GLOSSARY / cards / wiki: these are candidate Knight Templar
+# abilities under test (only ONE will see final implementation). All are data-key
+# driven: set e.g. {"unbreakable": True} on a retinue (one key only). None of them
+# touch Immune Panic, which separately auto-passes the Panic check (>5 casualties).
+#
+# Background the four interact with:
+#   Morale target = base `shaking` + Fatigue tokens - shake bonuses (e.g. Abbey +1).
+#   Break check: each Fatigued side rolls every Skirmish (up to 5 dice) before its
+#                Fatigue token; failures are casualties. Target 7+ is unmakeable = Rout.
+#   Panic check: a side that took >5 casualties this Skirmish rolls once after it
+#                Strikes back. (Handled by Immune Panic, not by these four.)
+# ─────────────────────────────────────────────────────────────────────────────
+MORALE_GLOSSARY = {
+    "Unbreakable": "Skips the Break check entirely while Fatigued: never rolls, never takes "
+                   "break casualties. BUT still Routs if the morale target climbs to 7+ from "
+                   "accumulated Fatigue. Stands fully immune, then collapses all at once — and "
+                   "because it stays full-size up to the Rout, it loses MORE soldiers when it "
+                   "finally breaks than a unit that bled down gradually.",
+    "Unshakable":  "Caps the morale target at 6 permanently. Still TAKES every Break and Panic "
+                   "check each Skirmish (keeps bleeding casualties at a 6+ roll), but the target "
+                   "can never reach 7, so it NEVER Routs. Bends and bleeds forever, never shatters. "
+                   "Makes the `shaking` stat (and the Abbey bonus) irrelevant — it's capped regardless.",
+    "Rally":       "Auto-passes the FIRST Break check it is ever required to take in a battle "
+                   "(no roll, no casualties, no Rout); every Break check after is normal. One free "
+                   "crisis, then mortal. The only one of the four that keeps `shaking` a live dial — "
+                   "so it's the one that synergizes with lowering KT base shaking and stacking Abbey +1.",
+    "Zealot":      "Locks the morale target at base `shaking`, ignoring ALL modifiers: Fatigue "
+                   "tokens don't raise it, shake bonuses (Abbey) don't lower it. Takes checks every "
+                   "Skirmish at that fixed number, never escalates, never Routs. A fixed wall whose "
+                   "strength is entirely its base stat. Unlike Unshakable (caps at 6), Zealot pins at "
+                   "base — which can be better or worse than 6 — and deliberately ignores Abbey synergy.",
+}
+
+
+
+
+
+
+
 RETINUES = {
     "Levy":           {"cost": 1000, "to_hit": 4, "endurance": 3, "shaking": 5, "unbreakable": False},
-    "Man-at-Arms":    {"cost": 2000, "to_hit": 3, "endurance": 3, "shaking": 4, "unbreakable": False},
+    "Man-at-Arms":    {"cost": 2000, "to_hit": 3, "endurance": 4, "shaking": 5, "unbreakable": False},
     "Sergeant":       {"cost": 2500, "to_hit": 2, "endurance": 3, "shaking": 4, "unbreakable": False},
-    "Knight Templar": {"cost": 3000, "to_hit": 3, "endurance": 3, "shaking": 4, "unbreakable": True},
+    "Knight Templar": {"cost": 3000, "to_hit": 3, "endurance": 3, "shaking": 3, "unbreakable": False},
 }
 
 WEAPONS = {
@@ -176,46 +227,46 @@ WEAPONS = {
     "Cudgel":         {"ap": -1, "init": -1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY]},
     "Pitchfork":      {"ap":  0, "init":  1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY]},
     "Daggers":        {"ap":  0, "init":  1, "tier": "Cast",    "tags": [DEFLECT, TWO_H, SHATTER_ARMOR, DUAL_WIELD], 'note': "A paired light blade; dual-wields innately (rerolls missed Strikes). No shield."},
-    "Short Sword":    {"ap": -1, "init":  0, "tier": "Cast",    "tags": [STEADY]},
+    "Short Sword":    {"ap": -1, "init":  0, "tier": "Cast",    "tags": []},
     "Spears":         {"ap": -1, "init":  1, "tier": "Cast",    "tags": [UNWIELDY]},
-    "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR]},
+    "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY]},
     "Pike":           {"ap": -2, "init":  1, "tier": "Wrought", "tags": [UNWIELDY, SHATTER_ARMOR, TWO_H]},
-    "Flail":          {"ap": -2, "init": -1, "tier": "Wrought", "tags": [CLEAVE]},
+    "Flail":          {"ap": -1, "init":  0, "tier": "Wrought", "tags": [UNWIELDY, CLEAVE]},
     "Halberd":        {"ap": -3, "init":  0, "tier": "Wrought", "tags": [TWO_H]},
-    "Battle Axe":     {"ap": -2, "init": -1, "tier": "Wrought", "tags": [UNSTOPPABLE, TWO_H, CLEAVE]},
-    "Cavalry Spear":  {"ap": -2, "init":  0, "tier": "Wrought", "tags": [UNWIELDY, STEADY], 'note': "Needs Stable; no Tower Shield or Dual Wield or Ranged Weapon"},
+    "Battle Axe":     {"ap": -2, "init":  0, "tier": "Wrought", "tags": [NEGATE_SHIELDED, TWO_H, CLEAVE]},
+    "Cavalry Spear":  {"ap": -2, "init":  0, "tier": "Wrought", "tags": [UNWIELDY, STEADY, NEGATE_RIPOSTE], 'note': "Needs Stable; no Tower Shield or Dual Wield or Ranged Weapon"},
     "Bastard Sword":  {"ap": -3, "init":  0, "tier": "Forged",  "tags": [STEADY, SHATTER_ARMOR]},
     "2HBastard":      {"ap": -3, "init":  0, "tier": "Forged",  "tags": [CLEAVE, TWO_H, UNWIELDY]},
-    "Lance":          {"ap": -4, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE], 'note': "Needs Stable; no Tower Shield or Dual Wield"},
+    "Lance":          {"ap": -4, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, SHATTER_ARMOR], 'note': "Needs Stable; no Tower Shield or Dual Wield"},
     "Morningstar":    {"ap": -3, "init": -1, "tier": "Forged",  "tags": [UNWIELDY, DESTROY_SHIELD, CLEAVE]},
-    "War Hammer":     {"ap": -8, "init": -1, "tier": "Forged",  "tags": [UNWIELDY, DESTROY_SHIELD, UNSTOPPABLE, TWO_H, SHATTER_ARMOR]},
-    "Poleaxe":        {"ap": -4, "init":  0, "tier": "Crafted", "tags": [STEADY, TWO_H, UNSTOPPABLE, SHATTER_ARMOR, CLEAVE]},
-    "Estoc":          {"ap": -3, "init": -1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, DEFLECT, NEGATE_TEMPERED], 'note': "Master-crafted armor-defeating sword; 1H, may carry a shield. Ignores Tempered."},
+    "War Hammer":     {"ap": -8, "init": -1, "tier": "Forged",  "tags": [UNWIELDY, DESTROY_SHIELD, UNSTOPPABLE, NEGATE_SHIELDED, TWO_H, SHATTER_ARMOR, NEGATE_RIPOSTE]},
+    "Poleaxe":        {"ap": -3, "init":  1, "tier": "Crafted", "tags": [STEADY, TWO_H, UNSTOPPABLE, NEGATE_SHIELDED, SHATTER_ARMOR, NEGATE_TEMPERED]},
+    "Estoc":          {"ap": -3, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, NEGATE_RIPOSTE, NEGATE_TEMPERED]},
 }
 
 RANGED = {
-    "Hunting Bow": {"ap": -1, "init":  2, "tier": "Crude",   "tags": [TWO_H, SHATTER_ARMOR, DEFLECT]},
-    "Longbow":     {"ap": -2, "init":  2, "tier": "Cast",    "tags": [SHATTER_ARMOR, TWO_H, DEFLECT]},
-    "Javelin":     {"ap": -3, "init":  1, "tier": "Wrought", "tags": [SHATTER_ARMOR, STEADY, UNSTOPPABLE, ONE_SHOT, DEFLECT]},
-    "Crossbow":    {"ap": -4, "init":  0, "tier": "Forged",  "tags": [SHATTER_ARMOR, UNWIELDY, UNSTOPPABLE, DEFLECT], 'note': "Tower Shield only (no other shield)"},
-    "Pilum":       {"ap": -5, "init":  1, "tier": "Crafted", "tags": [STEADY, DESTROY_SHIELD, UNSTOPPABLE, ONE_SHOT, SHATTER_ARMOR, DEFLECT]},
+    "Hunting Bow": {"ap": 0, "init":  2, "tier": "Crude",   "tags":  [TWO_H, NEGATE_RIPOSTE]},
+    "Longbow":     {"ap": -1, "init":  2, "tier": "Cast",    "tags": [TWO_H, NEGATE_RIPOSTE]},
+    "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [SHATTER_ARMOR, STEADY, UNSTOPPABLE, NEGATE_SHIELDED, ONE_SHOT, NEGATE_RIPOSTE]},
+    "Crossbow":    {"ap": -4, "init":  0, "tier": "Forged",  "tags": [SHATTER_ARMOR, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, ONE_SHOT], 'note': "Tower Shield only (no other shield)"},
+    "Pilum":       {"ap": -3, "init":  1, "tier": "Crafted", "tags": [STEADY, DESTROY_SHIELD, UNSTOPPABLE, NEGATE_SHIELDED, ONE_SHOT, SHATTER_ARMOR, NEGATE_RIPOSTE]},
 }
 
 SHIELDS = {
-    None:            {"save_bonus": 0, "init":  0, "tier": None,      "tags": []},
-    "Wooden Shield": {"save_bonus": 1, "init": -1, "tier": "Crude",   "tags": [UNWIELDY]},
-    "Kite Shield":   {"save_bonus": 1, "init":  0, "tier": "Cast",    "tags": [STEADY]},
-    "Scutum Shield": {"save_bonus": 1, "init": -1, "tier": "Wrought", "tags": [UNWIELDY, MINUS_1_TBH]},
-    "Tower Shield":  {"save_bonus": 2, "init": -1, "tier": "Forged",  "tags": [MINUS_1_TBH, UNWIELDY]},
-    "Heater Shield": {"save_bonus": 1, "init":  0, "tier": "Crafted", "tags": [MINUS_1_TBH, IMMUNE_DESTROY_SHIELD, NEGATE_UNSTOPPABLE]},
+    None:            {"save_bonus": 0, "init":  0,"tier": None,     "tags": []},
+    "Buckler Shield":{"save_bonus": 1, "init":  0, "tier": "Crude",  "tags": []},
+    "Targe Shield":  {"save_bonus": 0, "init": -1,"tier": "Cast",  "tags": [MINUS_1_TBH,STEADY]},
+    "Kite Shield":   {"save_bonus": 1, "init": -1, "tier": "Wrought","tags": [UNWIELDY, MINUS_1_TBH]},
+    "Tower Shield":  {"save_bonus": 2, "init": -1, "tier": "Forged", "tags": [MINUS_1_TBH, UNWIELDY]},
+    "Heater Shield": {"save_bonus": 2, "init":  0, "tier": "Crafted","tags": [MINUS_1_TBH, IMMUNE_DESTROY_SHIELD]},
 }
 
 ARMORS = {
-    "Cloth":       {"save": 6, "tier": "Crude",   "tags": []},
+    "Cloth":       {"save": 7, "tier": "Crude",   "tags": []},
     "Leather":     {"save": 5, "tier": "Cast",    "tags": []},
     "Chainmail":   {"save": 4, "tier": "Wrought", "tags": []},
     "Full Plate":  {"save": 3, "tier": "Forged",  "tags": []},
-    "Gothic Plate":{"save": 2, "tier": "Crafted", "tags": []},
+    "Gothic Plate":{"save": 2, "tier": "Crafted", "tags": ["Immune Unwieldy"]},
 }
 
 
@@ -583,24 +634,24 @@ NODES = {
     "Master Workshop": {
         "type": "Craft",
         "unlock": "Established Industry",
-        "mastery_req": "Forge + Blacksmith",
+        "mastery_req": "Blacksmith",
         "innate": "**Upkeep -200**; Craft +1",
         "mastery": "Add **Serrated** to Weapons",
         "builds_into": ["Advanced Blast Furnace"],
         "monument": False,
         "escalation": {"standing": "Established Industry", "ranks": {1: "Serrated"}, "requires_all": ["Forge"], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": ["Forge", "Blacksmith"], "domain": {"Industry": 6}, "innate_tags": [], "mastery_tags": ["Serrated"], "mastery_req": ["Forge", "Blacksmith"], "upkeep_effects": [{"flat": 200}]}},
+        "engine": {"cost": 1, "prereqs": ["Blacksmith"], "domain": {"Industry": 6}, "innate_tags": [], "mastery_tags": ["Serrated"], "mastery_req": ["Blacksmith"], "upkeep_effects": [{"flat": 200}]}},
     "Gilded Foundry": {
         "type": "Craft",
         "unlock": "Established Industry",
         "mastery_req": "Armory + Blacksmith",
-        "innate": "Tempered: Your to Save modifier cannot be reduced beyond 6+.",
-        "mastery": "**Unlock Plate Armor**; Craft +1",
+        "innate": "**Unlock Plate Armor**",
+        "mastery": f"{PLANISHING}: Your to Save modifier cannot be reduced beyond 6+; Craft +1",
         "efficient": "Armory",
         "builds_into": ["Advanced Blast Furnace"],
         "monument": False,
-        "escalation": {"standing": "Established Industry", "ranks": {1: "Full Plate + Planishing"}, "requires_all": ["Armory"], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": ["Armory", "Blacksmith"], "domain": {"Industry": 6}, "innate_tags": ["tier:FullPlate"], "mastery_tags": ["Planishing"], "mastery_req": ["Armory", "Blacksmith"]}},
+        "escalation": {"standing": "Established Industry", "ranks": {1: f"Full Plate + {PLANISHING}"}, "requires_all": ["Armory"], "requires_any": [], "extra_req": ""},
+        "engine": {"cost": 1, "prereqs": ["Armory"], "domain": {"Industry": 6}, "innate_tags": ["tier:FullPlate"], "mastery_tags": [PLANISHING], "mastery_req": ["Armory","Blacksmith"]}},
     "Smokehouse": {
         "type": "Craft",
         "unlock": "-",
@@ -733,7 +784,7 @@ NODES = {
         "builds_into": ["Saddlery", "Advanced Blast Furnace"],
         "monument": False,
         "escalation": {"standing": "Untested Industry", "ranks": {1: "Cavalry weapons"}, "requires_all": [], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Animal Husbandry", "Conditioning Field"], "efficient": "Animal Husbandry"}},
+        "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Animal Husbandry", "Blacksmith"], "efficient": "Animal Husbandry"}},
     "Shipyard": {
         "type": "Craft",
         "unlock": "Established Industry, Water Settlement",
@@ -765,10 +816,10 @@ NODES = {
         "monument": False},
     "Abbey": {
         "type": "Civic",
-        "unlock": "Rising Piety",
+        "unlock": "Established Piety",
         "mastery_req": "Episcopal Court + Academy",
         "innate": "Once/turn: **Influence +1** another player's Piety Envoy",
-        "mastery": "Morale is improved by 1, to a maximum of 2+.",
+        "mastery": "Morale +1.",
         "efficient": "Episcopal Court",
         "builds_into": ["Reliquary", "Monastery"],
         "monument": False,
@@ -813,13 +864,13 @@ NODES = {
         "type": "Civic",
         "unlock": "Established Piety",
         "mastery_req": "Apothecary + Infirmary",
-        "innate": "For every 4 casualties in a Skirmish, **Heal 1** at start of next Skirmish",
-        "mastery": "**Recover** improved by +1",
+        "innate": "**Recover** improved by +1",
+        "mastery": "gain Enduring: Your recovers cannot be reduced beyond a 6+ while Fatigued.",
         "efficient": "Infirmary",
         "builds_into": ["Preceptory of the Knight's Templar"],
         "monument": False,
-        "escalation": {"standing": "Established Piety", "ranks": {1: "Heal 4; Recover 4+"}, "requires_all": ["Infirmary"], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": ["Apothecary", "Infirmary"], "domain": {"Piety": 6}, "innate_tags": ["Recover 5"], "mastery_tags": ["Recover 4"], "mastery_req": ["Apothecary", "Infirmary"]}},
+        "escalation": {"standing": "Established Piety", "ranks": {1: f"Recover 4+; {ENDURING}"}, "requires_all": ["Infirmary"], "requires_any": [], "extra_req": ""},
+        "engine": {"cost": 1, "prereqs": ["Apothecary", "Infirmary"], "domain": {"Piety": 6}, "innate_tags": ["Recover 4"], "mastery_tags": [ENDURING], "mastery_req": ["Apothecary", "Infirmary"]}},
     "Jester's Court": {
         "type": "Civic",
         "unlock": "1 Rising",
@@ -874,26 +925,26 @@ NODES = {
         "monument": False},
     "Conditioning Field": {
         "type": "Civic",
-        "unlock": "-",
+        "unlock": "Rising Prowess",
         "mastery_req": "Courtyard",
         "innate": "**Faith +1** while not at War",
-        "mastery": "Armies gain **+1 Maximum Endurance**",
+        "mastery": "Armies gain **Nimble**",
         "efficient": "Courtyard",
         "builds_into": ["Coliseum", "Grand Tournament"],
         "monument": False,
-        "escalation": {"standing": "Untested Prowess", "ranks": {1: "+1 Endurance"}, "requires_all": [], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": ["Courtyard"], "domain": {}, "innate_tags": [], "mastery_tags": ["Cond Field"], "mastery_req": []}},
+        "escalation": {"standing": "Untested Prowess", "ranks": {1: "Nimble"}, "requires_all": [], "requires_any": [], "extra_req": ""},
+        "engine": {"cost": 1, "prereqs": ["Courtyard"], "domain": {"Prowess": 3}, "innate_tags": [], "mastery_tags": ["Nimble"], "mastery_req": []}},
     "Grand Tournament": {
         "type": "Civic",
-        "unlock": "-",
+        "unlock": "Established Prowess",
         "mastery_req": "Coliseum + Conditioning Field",
-        "innate": "**Faith +1**; Improve **Parry** by 1",
+        "innate": "**Faith +1**",
         "mastery": "3x/turn: exchange 500 gold for **1 Influence**; Armies gain **Riposte**",
         "efficient": "Coliseum",
         "builds_into": ["Royal Pavilion"],
         "monument": False,
-        "escalation": {"standing": "Established Prowess", "ranks": {1: "Improved Parry + Riposte"}, "requires_all": ["Coliseum"], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": [], "domain": {"Prowess": 6}, "innate_tags": ["Improved Parry"], "mastery_tags": ["Riposte"], "mastery_req": ["Conditioning Field", "Coliseum"], "efficient": "Coliseum"}},
+        "escalation": {"standing": "Established Prowess", "ranks": {1: "Riposte"}, "requires_all": ["Coliseum"], "requires_any": [], "extra_req": ""},
+        "engine": {"cost": 1, "prereqs": [], "domain": {"Prowess": 6}, "innate_tags": [], "mastery_tags": ["Riposte"], "mastery_req": ["Conditioning Field", "Coliseum"], "efficient": "Coliseum"}},
     "Apothecary": {
         "type": "Civic",
         "unlock": "-",
@@ -904,18 +955,18 @@ NODES = {
         "builds_into": ["Infirmary", "Hospitaller"],
         "monument": False,
         "escalation": {"standing": "Untested Piety", "ranks": {1: "Recover 6"}, "requires_all": [], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": [], "mastery_tags": ["Apothecary Heal"], "mastery_req": ["Herb Garden"]}},
+        "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": [], "mastery_tags": ["Recover 6"], "mastery_req": ["Herb Garden"]}},
     "Infirmary": {
         "type": "Civic",
         "unlock": "-",
         "mastery_req": "Alchemy + Herb Garden",
         "innate": "",
-        "mastery": "Armies gain **Recover** or improve by +1",
+        "mastery": "Improve Recover by +1",
         "efficient": "Apothecary",
         "builds_into": ["Hospitaller"],
         "monument": False,
         "escalation": {"standing": "Untested Piety", "ranks": {1: "Recover 5"}, "requires_all": ["Apothecary"], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": ["Apothecary"], "domain": {}, "innate_tags": [], "mastery_tags": ["Recover 6"], "mastery_req": ["Alchemy", "Herb Garden"], "efficient": "Apothecary", "upkeep_effects": [{"flat": 100}]}},
+        "engine": {"cost": 1, "prereqs": ["Apothecary"], "domain": {}, "innate_tags": [], "mastery_tags": ["Recover 5"], "mastery_req": ["Alchemy", "Herb Garden"], "efficient": "Apothecary", "upkeep_effects": [{"flat": 100}]}},
     "Supply Depot": {
         "type": "Civic",
         "unlock": "-",
@@ -1161,18 +1212,18 @@ NODES = {
         "builds_into": ["Royal Pavilion"],
         "monument": False,
         "escalation": {"standing": "Established Prowess", "ranks": {1: "Dual-equip; Immune Unwieldy; Dual Wield (two of a kind)"}, "requires_all": ["Fletchery"], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": ["Fletchery", "Coliseum"], "domain": {"Prowess": 6}, "innate_tags": [], "mastery_tags": ["Immune Unwieldy"], "mastery_req": ["Fletchery", "Coliseum"], "efficient": "Conditioning Field"}},
+        "engine": {"cost": 1, "prereqs": ["Fletchery", "Coliseum"], "domain": {"Prowess": 6}, "innate_tags": [], "mastery_tags": ["Immune Unwieldy"], "mastery_req": ["Fletchery", "Coliseum"]}},
     "Royal Pavilion": {
         "type": "Monument",
         "unlock": "Sovereign Prowess",
         "mastery_req": "Grand Tournament + Tiltyard",
         "innate": "Armies gain **Immune Strained**",
-        "mastery": "Armies gain **Drilled** & **Nimble**",
+        "mastery": "Armies gain **Drilled**",
 		"efficient": "Tiltyard",
         "builds_into": [],
         "monument": True,
-        "escalation": {"standing": "Sovereign Prowess", "ranks": {1: "Immune Strain; Drilled; Nimble"}, "requires_all": ["Tiltyard", "Grand Tournament"], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": ["Tiltyard"], "domain": {"Prowess": 10}, "innate_tags": ["Immune Strain"], "mastery_tags": ["Drilled", "Nimble"], "mastery_req": ["Grand Tournament", "Tiltyard"]}},
+        "escalation": {"standing": "Sovereign Prowess", "ranks": {1: "Immune Strain; Drilled"}, "requires_all": ["Tiltyard", "Grand Tournament"], "requires_any": [], "extra_req": ""},
+        "engine": {"cost": 1, "prereqs": ["Tiltyard"], "domain": {"Prowess": 10}, "innate_tags": ["Immune Strain"], "mastery_tags": [ "Drilled"], "mastery_req": ["Grand Tournament", "Tiltyard"]}},
     "Imperial Palace": {
         "type": "Monument",
         "unlock": "Sovereign Prowess",
@@ -1186,13 +1237,13 @@ NODES = {
         "type": "Monument",
         "unlock": "Sovereign Prowess",
         "mastery_req": "University + War College",
-        "innate": "Always gains **Seize the Initiative**, and your opponent doesn't. Immune -1 to Strike from Tactics.",
-        "mastery": "Gain +1I; your maximum initiative increases to 3. Deadly, & Cleave also trigger on a natural 5.",
+        "innate": "Always gains **Seize the Initiative**, and your opponent doesn't. gain Immune Tactic -1 to Strike",
+        "mastery": "Gain +1I & max initiative is 3; Deadly, & Cleave also trigger on a natural 5.",
         "efficient": "War College",
         "builds_into": [],
         "monument": True,
-        "escalation": {"standing": "Sovereign Prowess", "ranks": {1: "Always Seize the Initiative; Immune -1 to Strike from Tactics", 2: "Gain +1I; your maximum initiative increases to 3. Deadly, & Cleave also trigger on a natural 5."}, "requires_all": ["War College"], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": ["University", "War College"], "domain": {"Prowess": 10}, "innate_tags": ["Seize: first", "Immune Tactic TH"], "mastery_tags": ["Crit 5", "+1I", "MaxInit3"], "mastery_req": ["University", "War College"]}},
+        "escalation": {"standing": "Sovereign Prowess", "ranks": {1: "Always Seize the Initiative;  Immune Tactic -1 to Strike", 2: "Gain +1I; your maximum initiative increases to 3. Deadly, & Cleave also trigger on a natural 5."}, "requires_all": ["War College"], "requires_any": [], "extra_req": ""},
+        "engine": {"cost": 1, "prereqs": [], "domain": {"Prowess": 10}, "innate_tags": ["Seize: first", "Immune Tactic TH"], "mastery_tags": ["Crit 5", "+1I", "MaxInit3"], "mastery_req": ["University", "War College"]}},
     "Thieves' Guild": {
         "type": "Monument",
         "unlock": "Sovereign Cunning",
@@ -1222,13 +1273,13 @@ NODES = {
         "type": "Monument",
         "unlock": "Sovereign Piety + Established Prowess",
         "mastery_req": "Monastery + Pilgrimage Site + Hospitaller + Abbey",
-        "innate": "Armies gain **Immune Panic**",
+        "innate": f"Armies gain **{CRUSADER}**: Automatically pass the first Panic Check of every Battle.",
         "mastery": "Unlocks **Knight's Templar** for Muster",
         "efficient": "Monastery",
         "builds_into": [],
         "monument": True,
-        "escalation": {"standing": "Sovereign Piety", "ranks": {1: "Immune Panic", 2: "Knight Templar unlock"}, "requires_all": ["Hospitaller"], "requires_any": [], "extra_req": "Established Prowess"},
-        "engine": {"alias": "Preceptory", "cost": 1, "prereqs": [], "domain": {"Piety": 10, "Prowess": 6}, "innate_tags": ["Immune Panic"], "mastery_tags": [], "mastery_req": ["Monastery", "Pilgrimage Site", "Hospitaller", "Abbey"]}},
+        "escalation": {"standing": "Sovereign Piety", "ranks": {1: f"{CRUSADER}", 2: "Knight Templar unlock"}, "requires_all": ["Hospitaller"], "requires_any": [], "extra_req": "Established Prowess"},
+        "engine": {"alias": "Preceptory", "cost": 1, "prereqs": [], "domain": {"Piety": 10, "Prowess": 6}, "innate_tags": ["Resolute"], "mastery_tags": [], "mastery_req": ["Monastery", "Pilgrimage Site", "Hospitaller", "Abbey"]}},
     "Manor House": {
         "type": "Monument",
         "unlock": "Sovereign Industry",

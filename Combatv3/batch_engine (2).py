@@ -29,20 +29,7 @@ import numpy as np
 import renown_combat
 from renown_combat import TACTICS
 import vectorized_combat as vc
-import os as _os
-_RENOWN_TRAJ = _os.environ.get('RENOWN_TRAJ')=='1'
-_RENOWN_TRAJ_LOG = []
 from vectorized_combat import StaticArmy, get_tactic_tables
-# Keyword constants — point tag checks at VARIABLES, not string literals (rename-safe).
-# Morale keywords (Rally/Resolute/Steadfast/Unshakable/Zealot) intentionally excluded
-# (slated for removal; stay as literals for now).
-from renown_data import (
-    SHATTER_ARMOR, CLEAVE, DEFLECT, DESTROY_SHIELD, DRILLED, DUAL_WIELD, HALFSWORD,
-    MINUS_1_TBH, MINUS_1_PARRY, NEGATE_RIPOSTE, NEGATE_SHIELDED, NEGATE_TEMPERED, NEGATE_UNSTOPPABLE,
-    NIMBLE, ONE_SHOT, PARRY, PLANISHING, POISON, RECOVER, RIPOSTE, SERRATED,
-    STEADY, STRAIN, TWO_H, UNBREAKABLE, UNSTOPPABLE, UNWIELDY, ENDURING,
-    IMMUNE_DESTROY_SHIELD, IMMUNE_STRAIN, IMMUNE_UNWIELDY,
-)
 # Shared combat rules — SAME kernels & primitive math as vectorized_combat (C2).
 from combat_kernel import (
     PARRY_BEFORE_SAVE,
@@ -58,8 +45,8 @@ except Exception:
     _HAVE_NUMBA = False
 
 # The 9 runtime tags tested inside the loop (besides what's baked into base_init).
-RUNTIME_TAGS = ["+1TH", "+1TH first", "+1TH after_first", "Immune Tactic TH", DRILLED, IMMUNE_UNWIELDY, PARRY, POISON,
-                STEADY, "Unshakable", UNBREAKABLE, "Zealot", "Rally", "Resolute", UNSTOPPABLE, NEGATE_SHIELDED, UNWIELDY]
+RUNTIME_TAGS = ["+1TH", "+1TH first", "+1TH after_first", "Immune Tactic TH", "Drilled", "Immune Unwieldy", "Parry", "Poison",
+                "Steady", "Unshakable", "Unbreakable", "Zealot", "Rally", "Resolute", "Unstoppable", "Unwieldy"]
 
 
 def _regen_threshold_for(tags_set, opp_tags_set):
@@ -125,10 +112,10 @@ def pack_side(loadouts, is_attacker):
     # NOTE: the tag is "Deadly" (renamed from "Shatter Armor"). _deadly_in also accepts the
     # legacy "Shatter Armor" alias, matching vectorized_combat._roll_strikes_vec._deadly_in.
     def _deadly_in(tagset):
-        return (SHATTER_ARMOR in tagset) or ("Shatter Armor" in tagset) or (HALFSWORD in tagset)
+        return ("Deadly" in tagset) or ("Shatter Armor" in tagset) or ("Halfsword" in tagset)
     P["first_Deadly"]  = np.array([_deadly_in(a.tags_first)  for a in armies], dtype=np.bool_)
     P["normal_Deadly"] = np.array([_deadly_in(a.tags_normal) for a in armies], dtype=np.bool_)
-    for t in [CLEAVE, DESTROY_SHIELD]:
+    for t in ["Cleave", "Destroy Shield"]:
         key = t.replace(" ", "_")
         P[f"first_{key}"]  = np.array([t in a.tags_first  for a in armies], dtype=np.bool_)
         P[f"normal_{key}"] = np.array([t in a.tags_normal for a in armies], dtype=np.bool_)
@@ -140,15 +127,15 @@ def pack_side(loadouts, is_attacker):
     P["first_crit_floor"]  = np.array([_crit_floor(a.tags_first)  for a in armies], dtype=np.int64)
     P["normal_crit_floor"] = np.array([_crit_floor(a.tags_normal) for a in armies], dtype=np.int64)
     # Per-slot Dual Wield (Daggers reroll-misses) for the strike kernel.
-    P["first_Dual_Wield"]  = np.array([(DUAL_WIELD in a.tags_first)  for a in armies], dtype=np.bool_)
-    P["normal_Dual_Wield"] = np.array([(DUAL_WIELD in a.tags_normal) for a in armies], dtype=np.bool_)
+    P["first_Dual_Wield"]  = np.array([("Dual Wield" in a.tags_first)  for a in armies], dtype=np.bool_)
+    P["normal_Dual_Wield"] = np.array([("Dual Wield" in a.tags_normal) for a in armies], dtype=np.bool_)
     # Per-slot attacker keywords feeding the SHARED save primitives:
     #   Deflect (explicit weapon tag OR ranged — ranged handled via uses_ranged_* at the call site),
     #   Negate Tempered (AP can push save past 6+, defeating Planishing/Tempered).
-    P["first_Deflect"]  = np.array([(DEFLECT in a.tags_first)  for a in armies], dtype=np.bool_)
-    P["normal_Deflect"] = np.array([(DEFLECT in a.tags_normal) for a in armies], dtype=np.bool_)
-    P["first_NegateTempered"]  = np.array([(NEGATE_TEMPERED in a.tags_first)  for a in armies], dtype=np.bool_)
-    P["normal_NegateTempered"] = np.array([(NEGATE_TEMPERED in a.tags_normal) for a in armies], dtype=np.bool_)
+    P["first_Deflect"]  = np.array([("Deflect" in a.tags_first)  for a in armies], dtype=np.bool_)
+    P["normal_Deflect"] = np.array([("Deflect" in a.tags_normal) for a in armies], dtype=np.bool_)
+    P["first_NegateTempered"]  = np.array([("Negate Tempered" in a.tags_first)  for a in armies], dtype=np.bool_)
+    P["normal_NegateTempered"] = np.array([("Negate Tempered" in a.tags_normal) for a in armies], dtype=np.bool_)
     # Per-slot defender Planishing (Tempered save cap). Static (armor/spec), not per-skirmish,
     # but stored per-phase for a uniform tflag() read.
     P["first_Planishing"]  = np.array([bool(a.planishing) for a in armies], dtype=np.bool_)
@@ -183,8 +170,8 @@ if __name__ == "__main__":
             ("binit_first", Pa["binit_first_seize"][i], sa.base_init(True)),
             ("binit_normal", Pa["binit_normal"][i], sa.base_init(False)),
             ("max_init", Pa["max_init"][i], sa.max_init),
-            ("first_Steady", Pa["first_Steady"][i], STEADY in sa.tags_first),
-            ("first_Unstoppable", Pa["first_Unstoppable"][i], UNSTOPPABLE in sa.tags_first),
+            ("first_Steady", Pa["first_Steady"][i], "Steady" in sa.tags_first),
+            ("first_Unstoppable", Pa["first_Unstoppable"][i], "Unstoppable" in sa.tags_first),
         ]
         for name, packed, ref in checks:
             if packed != ref:
@@ -363,12 +350,12 @@ def _precompute_regen_parry(Pa, Pb):
             rb = vc._regen_threshold(bt, at)
             a_regen[i] = ra if ra is not None else 0
             b_regen[i] = rb if rb is not None else 0
-            a_parry[i] = (PARRY in at) or ("Improved Parry" in at)
-            b_parry[i] = (PARRY in bt) or ("Improved Parry" in bt)
+            a_parry[i] = ("Parry" in at) or ("Improved Parry" in at)
+            b_parry[i] = ("Parry" in bt) or ("Improved Parry" in bt)
             a_reroll[i] = vc._has_regen_reroll(at)
             b_reroll[i] = vc._has_regen_reroll(bt)
-            a_riposte[i] = (RIPOSTE in at)
-            b_riposte[i] = (RIPOSTE in bt)
+            a_riposte[i] = ("Riposte" in at)
+            b_riposte[i] = ("Riposte" in bt)
             a_imp_parry[i] = ("Improved Parry" in at)
             b_imp_parry[i] = ("Improved Parry" in bt)
         out[skl] = dict(a_regen=a_regen, b_regen=b_regen, a_parry=a_parry, b_parry=b_parry,
@@ -560,11 +547,10 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
             b_bi = b_bi + (b_seize_second & (~b_seize_persist)).astype(np.int64)
 
         # tags per-slot (first/normal)
-        a_steady = tflag(Pa, skl, STEADY); b_steady = tflag(Pb, skl, STEADY)
-        a_unw = tflag(Pa, skl, UNWIELDY); b_unw = tflag(Pb, skl, UNWIELDY)
-        a_imunw = tflag(Pa, skl, IMMUNE_UNWIELDY); b_imunw = tflag(Pb, skl, IMMUNE_UNWIELDY)
-        a_unstop = tflag(Pa, skl, UNSTOPPABLE); b_unstop = tflag(Pb, skl, UNSTOPPABLE)
-        a_negshield = tflag(Pa, skl, NEGATE_SHIELDED); b_negshield = tflag(Pb, skl, NEGATE_SHIELDED)
+        a_steady = tflag(Pa, skl, "Steady"); b_steady = tflag(Pb, skl, "Steady")
+        a_unw = tflag(Pa, skl, "Unwieldy"); b_unw = tflag(Pb, skl, "Unwieldy")
+        a_imunw = tflag(Pa, skl, "Immune Unwieldy"); b_imunw = tflag(Pb, skl, "Immune Unwieldy")
+        a_unstop = tflag(Pa, skl, "Unstoppable"); b_unstop = tflag(Pb, skl, "Unstoppable")
         a_is_rng = tile(Pa[f"{skl}_is_ranged"]); b_is_rng = tile(Pb[f"{skl}_is_ranged"])
         a_immtac = tflag(Pa, skl, "Immune Tactic TH"); b_immtac = tflag(Pb, skl, "Immune Tactic TH")
         a_p1th = tflag(Pa, skl, "+1TH"); b_p1th = tflag(Pb, skl, "+1TH")
@@ -575,8 +561,8 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         a_p1th_rest = tflag(Pa, skl, "+1TH after_first") & (~first)
         b_p1th_rest = tflag(Pb, skl, "+1TH after_first") & (~first)
         a_dead = tile(Pa[f"{skl}_Deadly"]); b_dead = tile(Pb[f"{skl}_Deadly"])
-        a_clv = tflag(Pa, skl, CLEAVE); b_clv = tflag(Pb, skl, CLEAVE)
-        a_dstr = tflag(Pa, skl, DESTROY_SHIELD); b_dstr = tflag(Pb, skl, DESTROY_SHIELD)
+        a_clv = tflag(Pa, skl, "Cleave"); b_clv = tflag(Pb, skl, "Cleave")
+        a_dstr = tflag(Pa, skl, "Destroy Shield"); b_dstr = tflag(Pb, skl, "Destroy Shield")
         a_crit = tile(Pa[f"{skl}_crit_floor"]); b_crit = tile(Pb[f"{skl}_crit_floor"])
         a_dw = tile(Pa[f"{skl}_Dual_Wield"]); b_dw = tile(Pb[f"{skl}_Dual_Wield"])
         # Deflect = explicit weapon tag OR a ranged attack this skirmish.
@@ -681,8 +667,8 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         wth_b = np.where(b_p1th, -1, 0) + np.where(b_p1th_first, -1, 0) + np.where(b_p1th_rest, -1, 0)
         b_tbh = np.where(b_shdest, 0, b_shtbh); a_tbh = np.where(a_shdest, 0, a_shtbh)
         a_th_self = np.where(a_shdest, 0, a_shth); b_th_self = np.where(b_shdest, 0, b_shth)
-        a_tbh_eff = np.where(a_negshield, 0, b_tbh)   # Negate Shielded: attacker ignores defender's Shielded (-1 TBH)
-        b_tbh_eff = np.where(b_negshield, 0, a_tbh)
+        a_tbh_eff = np.where(a_unstop, 0, b_tbh)   # Unstoppable v2: only ignores shield TBH
+        b_tbh_eff = np.where(b_unstop, 0, a_tbh)
         # improving (lower target): weapon +1TH (wth, =-1), positive tactic TH. (Yew skipped.)
         # worsening (raise target): own/enemy shield TH, negative tactic TH.
         # Cap (base + improving + fatigue) at 6; then worsening mods apply and can reach 7+.
@@ -712,11 +698,9 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         a_reroll = np.repeat(RP[skl]["a_reroll"], n_runs); b_reroll = np.repeat(RP[skl]["b_reroll"], n_runs)
         a_riposte = np.repeat(RP[skl]["a_riposte"], n_runs); b_riposte = np.repeat(RP[skl]["b_riposte"], n_runs)
         a_imp_parry = np.repeat(RP[skl]["a_imp_parry"], n_runs); b_imp_parry = np.repeat(RP[skl]["b_imp_parry"], n_runs)
-        # fatigue disables parry/riposte; recover is handled in build_regen_thr (off when Fatigued,
-        # EXCEPT Enduring -> 6+). Pass the RAW threshold (may be negative = Enduring); def_fat below
-        # drives the rule. (Previously pre-zeroed here, which would clobber the Enduring sign.)
+        # fatigue disables parry/regen/riposte
         a_parry_eff = a_parry & (a_fat == 0); b_parry_eff = b_parry & (b_fat == 0)
-        a_regen_eff = a_regen; b_regen_eff = b_regen
+        a_regen_eff = np.where(a_fat == 0, a_regen, 0); b_regen_eff = np.where(b_fat == 0, b_regen, 0)
         a_riposte_eff = a_riposte & (a_fat == 0); b_riposte_eff = b_riposte & (b_fat == 0)
 
         # poison per-slot: Poison in attacker's tags AND not Immune Poison in defender's tags
@@ -817,18 +801,13 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         a_size = np.maximum(0, a_size - a_cas); b_size = np.maximum(0, b_size - b_cas)
         skirm_count = skirm_count + active.astype(np.int64)
         a_clost = a_pre - a_size; b_clost = b_pre - b_size
-        if _RENOWN_TRAJ:
-            _RENOWN_TRAJ_LOG.append((int(sk),
-                float(a_clost[active].mean()) if active.any() else 0.0,
-                float(b_clost[active].mean()) if active.any() else 0.0,
-                int(active.sum())))
         a_kill += a_clost; b_kill += b_clost
         a_nd = (a_size <= 0) & (a_cause == 0) & active; b_nd = (b_size <= 0) & (b_cause == 0) & active
         a_cause = np.where(a_nd, 1, a_cause).astype(np.int8); b_cause = np.where(b_nd, 1, b_cause).astype(np.int8)
         a_scas = a_clost.copy(); b_scas = b_clost.copy()
 
         # endurance / fatigue
-        a_drilled = tflag(Pa, skl, DRILLED); b_drilled = tflag(Pb, skl, DRILLED)
+        a_drilled = tflag(Pa, skl, "Drilled"); b_drilled = tflag(Pb, skl, "Drilled")
         no_combat_free = no_combat_this & (~no_combat_endurance_pair)
         a_lose = active & (~(a_drilled & first)) & (a_size > 0) & (~no_combat_free)
         b_lose = active & (~(b_drilled & first)) & (b_size > 0) & (~no_combat_free)
@@ -845,10 +824,10 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
                                      for t in (Pa["tags_first"] if first else Pa["tags_normal"])], dtype=bool))
         b_steadfast = tile(np.array([(("Steadfast" in t) or ("Immune Panic" in t))
                                      for t in (Pb["tags_first"] if first else Pb["tags_normal"])], dtype=bool))
-        a_unbreak_eff = a_unshak | tflag(Pa, skl, UNBREAKABLE)
+        a_unbreak_eff = a_unshak | tflag(Pa, skl, "Unbreakable")
         a_mcap = tflag(Pa, skl, "Unshakable")
         a_zealot = tflag(Pa, skl, "Zealot"); a_rally = tflag(Pa, skl, "Rally"); a_resolute = tflag(Pa, skl, "Resolute")
-        b_unbreak_eff = b_unshak | tflag(Pb, skl, UNBREAKABLE)
+        b_unbreak_eff = b_unshak | tflag(Pb, skl, "Unbreakable")
         b_mcap = tflag(Pb, skl, "Unshakable")
         b_zealot = tflag(Pb, skl, "Zealot"); b_rally = tflag(Pb, skl, "Rally"); b_resolute = tflag(Pb, skl, "Resolute")
         a_netc = np.maximum(0, a_clost - a_heal); b_netc = np.maximum(0, b_clost - b_heal)
@@ -953,7 +932,7 @@ def _poison_batch(P_atk, P_def, skl, n_runs):
     AND not Immune Poison in the defender's tags."""
     atk = P_atk["tags_first"] if skl == "first" else P_atk["tags_normal"]
     dfn = P_def["tags_first"] if skl == "first" else P_def["tags_normal"]
-    per_pair = np.array([(POISON in atk[i]) and ("Immune Poison" not in dfn[i])
+    per_pair = np.array([("Poison" in atk[i]) and ("Immune Poison" not in dfn[i])
                          for i in range(len(atk))], dtype=bool)
     return np.repeat(per_pair, n_runs)
 
