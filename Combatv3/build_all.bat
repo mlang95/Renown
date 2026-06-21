@@ -34,8 +34,8 @@ set BUILD_BOARD=1
 REM BOARD_DIR   : folder holding mapgen.py / hexmap.py / hexgen.py / build_board.py
 set BOARD_DIR=C:\Users\Matt\OneDrive\Desktop\Game\Combatv3\mapgen
 REM board dimensions, table size, seed, hex size (mm c->corner), paper
-set BOARD_W=14
-set BOARD_H=8
+set BOARD_W=13
+set BOARD_H=7
 set BOARD_PLAYERS=2
 set BOARD_SEED=96
 set BOARD_HEX=20
