@@ -37,7 +37,7 @@ from vectorized_combat import StaticArmy, get_tactic_tables
 # Morale keywords (Rally/Resolute/Steadfast/Unshakable/Zealot) intentionally excluded
 # (slated for removal; stay as literals for now).
 from renown_data import (
-    SHATTER_ARMOR, CLEAVE, DEFLECT, DESTROY_SHIELD, DRILLED, DUAL_WIELD, HALFSWORD,
+    SHATTER_ARMOR, CLEAVE, DEFLECT, DESTROY_SHIELD, DRILLED, DUAL_WIELD, FLORENTINE, HALFSWORD,
     MINUS_1_TBH, MINUS_1_PARRY, NEGATE_RIPOSTE, NEGATE_SHIELDED, NEGATE_TEMPERED, NEGATE_UNSTOPPABLE,
     NIMBLE, ONE_SHOT, PARRY, PLANISHING, POISON, RECOVER, RIPOSTE, SERRATED,
     STEADY, STRAIN, TWO_H, UNBREAKABLE, UNSTOPPABLE, UNWIELDY, ENDURING,
@@ -59,7 +59,7 @@ except Exception:
 
 # The 9 runtime tags tested inside the loop (besides what's baked into base_init).
 RUNTIME_TAGS = ["+1TH", "+1TH first", "+1TH after_first", "Immune Tactic TH", DRILLED, IMMUNE_UNWIELDY, PARRY, POISON,
-                STEADY, "Unshakable", UNBREAKABLE, "Zealot", "Rally", "Resolute", UNSTOPPABLE, NEGATE_SHIELDED, UNWIELDY]
+                STEADY, "Unshakable", UNBREAKABLE, "Zealot", "Rally", "Resolute", UNSTOPPABLE, NEGATE_SHIELDED, UNWIELDY, FLORENTINE]
 
 
 def _regen_threshold_for(tags_set, opp_tags_set):
@@ -357,24 +357,31 @@ def _precompute_regen_parry(Pa, Pb):
         b_riposte = np.zeros(n, dtype=np.bool_)
         a_imp_parry = np.zeros(n, dtype=np.bool_)
         b_imp_parry = np.zeros(n, dtype=np.bool_)
+        a_florentine = np.zeros(n, dtype=np.bool_)
+        b_florentine = np.zeros(n, dtype=np.bool_)
         for i in range(n):
             at, bt = a_tags_list[i], b_tags_list[i]
             ra = vc._regen_threshold(at, bt)   # A regenerates, B's Rend worsens it
             rb = vc._regen_threshold(bt, at)
             a_regen[i] = ra if ra is not None else 0
             b_regen[i] = rb if rb is not None else 0
-            a_parry[i] = (PARRY in at) or ("Improved Parry" in at)
-            b_parry[i] = (PARRY in bt) or ("Improved Parry" in bt)
+            a_flor = (FLORENTINE in at) and (DUAL_WIELD in at)   # Florentine only active while dual-wielding
+            b_flor = (FLORENTINE in bt) and (DUAL_WIELD in bt)
+            a_parry[i] = (PARRY in at) or ("Improved Parry" in at) or a_flor
+            b_parry[i] = (PARRY in bt) or ("Improved Parry" in bt) or b_flor
             a_reroll[i] = vc._has_regen_reroll(at)
             b_reroll[i] = vc._has_regen_reroll(bt)
             a_riposte[i] = (RIPOSTE in at)
             b_riposte[i] = (RIPOSTE in bt)
             a_imp_parry[i] = ("Improved Parry" in at)
             b_imp_parry[i] = ("Improved Parry" in bt)
+            a_florentine[i] = a_flor
+            b_florentine[i] = b_flor
         out[skl] = dict(a_regen=a_regen, b_regen=b_regen, a_parry=a_parry, b_parry=b_parry,
                         a_reroll=a_reroll, b_reroll=b_reroll,
                         a_riposte=a_riposte, b_riposte=b_riposte,
-                        a_imp_parry=a_imp_parry, b_imp_parry=b_imp_parry)
+                        a_imp_parry=a_imp_parry, b_imp_parry=b_imp_parry,
+                        a_florentine=a_florentine, b_florentine=b_florentine)
     return out
 
 
@@ -712,10 +719,12 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         a_reroll = np.repeat(RP[skl]["a_reroll"], n_runs); b_reroll = np.repeat(RP[skl]["b_reroll"], n_runs)
         a_riposte = np.repeat(RP[skl]["a_riposte"], n_runs); b_riposte = np.repeat(RP[skl]["b_riposte"], n_runs)
         a_imp_parry = np.repeat(RP[skl]["a_imp_parry"], n_runs); b_imp_parry = np.repeat(RP[skl]["b_imp_parry"], n_runs)
+        a_florentine = np.repeat(RP[skl]["a_florentine"], n_runs); b_florentine = np.repeat(RP[skl]["b_florentine"], n_runs)
         # fatigue disables parry/riposte; recover is handled in build_regen_thr (off when Fatigued,
         # EXCEPT Enduring -> 6+). Pass the RAW threshold (may be negative = Enduring); def_fat below
         # drives the rule. (Previously pre-zeroed here, which would clobber the Enduring sign.)
-        a_parry_eff = a_parry & (a_fat == 0); b_parry_eff = b_parry & (b_fat == 0)
+        # Florentine: parry is NOT disabled by Fatigue — build_parry_thr already caps it at 6+.
+        a_parry_eff = a_parry & ((a_fat == 0) | a_florentine); b_parry_eff = b_parry & ((b_fat == 0) | b_florentine)
         a_regen_eff = a_regen; b_regen_eff = b_regen
         a_riposte_eff = a_riposte & (a_fat == 0); b_riposte_eff = b_riposte & (b_fat == 0)
 

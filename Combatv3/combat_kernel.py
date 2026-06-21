@@ -193,6 +193,7 @@ def _saves_kernel(rolls, parry_rolls, regen_rolls,
                     continue
             # ── Armor save (Halfsword strikes allow NO save) ──
             roll = rolls[r, d]
+            poison_kill = False
             if is_half:
                 failed = True
             else:
@@ -202,6 +203,7 @@ def _saves_kernel(rolls, parry_rolls, regen_rolls,
                     failed = False
                 if poi and roll == 6:
                     failed = True
+                    poison_kill = True
             if not failed:
                 continue
             # ── Default ordering: Parry after a failed save ──
@@ -220,6 +222,9 @@ def _saves_kernel(rolls, parry_rolls, regen_rolls,
                         continue
                 elif is_deadly:
                     if rr == 6:
+                        continue
+                elif poison_kill:
+                    if rr == 6:        # Poison wounds: Recover only on a natural 6
                         continue
                 elif rr >= rthr:
                     continue

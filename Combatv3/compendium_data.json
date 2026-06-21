@@ -1,37 +1,33 @@
 {
- "version": "0.4.9",
+ "version": "0.4.9.1",
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
   "2H": "Cannot use a Shield.",
-  "Deadly": "On a natural 6 to Strike, increase the AP by -5. Can only be Parried or Recovered on a natural 6.",
-  "Unstoppable": "Negate target shield's -1 to Strike, and impose -1 to Parry on the target.",
-  "Cleave": "On a natural 6 to Strike, you may roll an additional Strike die at your modified Strike value.",
-  "Poison": "A natural 6 to Save against this Retinue's Strikes fails.",
-  "Destroy Shield": "On a natural 6 to Strike, target loses Shield attributes for the rest of the Battle.",
+  "Deadly": "On a Focused Strike: increase AP by -5, and the defender may Parry or Recover only with a Focused roll.",
+  "Unstoppable": "Parried only by a Focused roll.",
+  "Cleave": "On a Focused Strike: roll one extra Strike die at your modified to-Strike.",
+  "Poison": "When the Defender receives a Strike and rolls a Focused Save, it fails; the resulting wound may only be Recovered with a Focused Recover.",
+  "Nimble": "Gain +1 Initiative in the first Skirmish of each Battle.",
+  "Drilled": "Does not lose Endurance in the first Skirmish of each Battle.",
+  "Destroy Shield": "On a Focused Strike: the target loses its Shield attributes for the rest of the Battle.",
   "Blunder": "At Initiative -2 or lower, your to-Strike is set to 6+, before other negative modifiers.",
   "One Shot": "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard.",
-  "Deflect": "-1 to Parry and Negate Riposte against this weapon's Strikes. (All Ranged weapons have Deflect.)",
-  "Immune Panic": "Automatically passes Panic checks.",
-  "Unbreakable": "Immune Break: does not take Break checks while Fatigued.",
-  "Parry": "Roll a d6 to cancel a Strike before the Save on a 5+ (a natural 6 is a Riposte). -1 versus Unstoppable, versus ranged, and per Fatigue token (to a maximum of 6+).",
-  "Riposte": "If you roll a natural 6 on a Parry from a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your equipped weapon. You can Riposte a Riposte.",
-  "Recover": "If a to-Save roll fails, roll a d6: a result of X+ saves the retinue. Worsened by Fatigue and Serrated, to a maximum of 6+.",
+  "Parry": "While not Fatigued, roll a d6 to save a Strike before the Save on a 5+.",
+  "Riposte": "While not Fatigued, if you roll a natural 6 on a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your equipped weapon. You can Riposte a Riposte.",
+  "Recover": "While not Fatigued, if a to-Save roll fails, roll a d6: a result of X+ saves the retinue.",
   "Serrated": "-2 to Recover against this weapon's Strikes (worsens the defender's Recover roll by 2).",
-  "Tempered": "Your armor Save cannot be reduced beyond a 6+.",
-  "Fatigue Token": "Each token is -1 to your Strike, Parry, and Recover rolls, to a maximum of 6+; and Morale -1 (uncapped). If your modified Morale is ever 7+, your army Routs. Tokens stack.",
-  "Shielded": "A stacking -1 penalty to the Strike roll (to a maximum of 6+). Sources: a shield's -1 to Strike (ignored by Unstoppable unless the shield has Negate Unstoppable), some Tactics (the Ministry innate is immune to the Tactic source), and each Fatigue token.",
-  "Immune Unstoppable": "Cancels the attacker's Parry from Unstoppable: this shield's -1 to Strike still applies, and the attacker's -1 to Parry does not.",
+  "Tempered": "A Focused Save succeeds regardless of AP.",
+  "Fatigue Token": "Each token is -1 to your Strike to a maximum of 6+; and Morale -1 (uncapped). If your modified Morale is ever 7+, your army Routs. Tokens stack.",
+  "Shielded": "A stacking -1 penalty to the Strike roll (to a maximum of 6+). Sources: a shield's -1 to Strike.",
   "Negate Tempered": "Ignores Tempered: this weapon's AP can reduce the target's Save past 6+ (to auto-fail), defeating the Tempered floor.",
   "Negate Riposte": "The target's Parry can never Riposte this weapon's Strikes (a natural 6 Parry still cancels the Strike, but no counter-Strike follows).",
-  "-1 to Parry": "A stacking -1 penalty to the defender's Parry roll (to a maximum of 6+). Sources: Unstoppable, Deflect, and each Fatigue token.",
   "Dual Wield": "A Strike die that fails to Strike is rerolled once; the reroll can hit and can itself trigger a natural-6 effect. Dual Wield confers 2H (both hands on weapons \u2014 no Shield).",
+  "Florentine": "Only active while Dual Wielding. Grants Parry, and your Parry is never disabled by Fatigue: penalties (Unstoppable, Deflect, Fatigue) can raise it to 6+ but it never switches off. This keeps only the Parry \u2014 it does NOT restore Riposte: while Fatigued, a natural 6 still cancels the Strike but never counter-Strikes.",
   "Immune [keyword]": "Cancels that keyword as it applies to you (e.g. Immune Unwieldy, Strain, Destroy Shield).",
   "AP": "Armor Penetration \u2014 a weapon's (negative) modifier to the defender's Save roll; the more negative, the harder to save.",
   "Blocked": "-1 Initiative in the first Skirmish (negated by Immune Blocked).",
   "Strained": "-1 Initiative every Skirmish (negated by Immune Strain). Does not gain Endurance in the Empire Phase.",
-  "Improved Parry": "Your Parry succeeds on 4+ instead of 5+.",
-  "Heal X": "At the end of each Skirmish, for every X casualties you took from Strikes, return 1 retinue to your Army.",
   "Seize the Initiative": "Won by the roll-off at the start of the Battle \u2014 the winner of their last Battle adds +1 to the roll. You become the Attacker and gain +1 Initiative in the first Skirmish. Some Tactics and the Ministry monument also grant it.",
   "Attacker / Defender": "Set by the roll-off. Each Skirmish the Attacker declares equipment first; the Defender then responds.",
   "Battle": "One fight between two players, resolved as a series of Skirmishes until a side is wiped out, Routs, or Falls Back.",
@@ -39,7 +35,7 @@
   "Casualty": "A retinue removed from the field \u2014 from an unsaved Strike or a failed Panic or Break check.",
   "Field": "Your retinues in play \u2014 front line (up to 10) plus reserve (up to 5). Casualties leave the field at once, lowering its count.",
   "Endurance": "A side's stamina. Each side that fights loses 1 per Skirmish; at 0 it becomes Fatigued.",
-  "Fatigued": "A side at 0 Endurance. Each Skirmish its field takes a Break check, then it gains a Fatigue token.",
+  "Fatigued": "A side at 0 Endurance. Each Skirmish its field takes a Break check, then it gains a Fatigue token. Fatigued Armies cannot Parry, Riposte, or Recover",
   "Break check": "Taken by each Fatigued side's field every Skirmish, just before it gains its Fatigue token. Roll Morale (up to 5 dice, modified by Fatigue tokens); failures are casualties, but a Break check never triggers a Panic check. Unbreakable auto-passes.",
   "Panic check": "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish, after it Strikes back. Roll Morale (up to 5 dice); Immune Panic auto-passes.",
   "Morale": "How steady a retinue is when tested (lower is steadier; see the retinue table). Break and Panic checks roll it: a D6 per retinue in the field, up to 5 dice, each must meet its modified value; failures are casualties. If the modified value is ever 7+, the army Routs.",
@@ -50,7 +46,7 @@
   "Save": "The defender's roll to avoid a casualty: roll a D6, add the weapon's AP (a negative) and the shield's Save bonus (a positive); the hit is saved on a result >= the armor value.",
   "Natural roll": "The number on the die before any modifiers. Modifiers never change what counts as 'natural'.",
   "Initiative": "Decides who Strikes first each Skirmish (higher first). Runs -2 to +2 (Ministry can raise the maximum to +3). At -2 or lower you Blunder.",
-  "Tactic": "A choice both players make secretly and reveal together each Skirmish; it can shift Initiative and Strike rolls.",
+  "Tactic": "A choice both players make secretly and reveal together each Skirmish; it can shift Initiative, Strike, and Save rolls.",
   "Dual-equip": "Carry two weapons at once (e.g. melee + ranged). Granted by the Tiltyard, which also gives Unwieldy until its mastery removes it.",
   "Edict": "A scoring achievement / win path: reach a Sovereign Standing, complete a Monument, or fulfill a victory condition (Wonder, wealth, Vassalize, Living Saints, Last Standing).",
   "Monument": "A Domain's capstone Pursuit. Completing one scores its Edict and grants a powerful effect.",
@@ -58,7 +54,7 @@
   "Doubt X": "Gain X Doubt: each Doubt lowers your Public Order track by 1 when resolved.",
   "Extort X": "Take X from the stated source: the gold goes to you instead of its owner.",
   "Recoup": "Regain the stated cost in gold after paying it.",
-  "Speed": "An Army's movement allowance in Territories per Move action.",
+  "Speed": "An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 2",
   "Influence": "The political currency of voting. Spend it to Support or Oppose Envoys. You gain it each turn from your Era, innate modifiers (trade partners, alliances, war), Pursuits, and Infrastructure.",
   "Influence X": "An automatic +X (or -X) to an Envoy's net Influence from a Pursuit, Infrastructure, or Faction.",
   "Envoy": "The currency of actions: send an Envoy to perform an action during the Envoy Phase. Council Envoys act on the voted Domain; Personal Envoys are sent by Era progression.",
@@ -90,10 +86,11 @@
   "Domain Point": "Gained 1 per Rest Phase; spend to raise a Domain value by 1.",
   "Standing": "Your tier in a Domain: Untested, Rising (3), Established (6), Sovereign (10). Sets max Influence per vote (1/2/3/4) and unlocks Domain effects.",
   "Public Order": "A track from -5 to 7, adjusted each turn by Faith minus Doubt; its band applies cumulative effects (see the Public Order table).",
-  "Reach": "How far a Settlement projects control, in Territories (by tier).",
+  "Reach": "How far a Settlement projects control, in Territories (by tier). Calculated like Range X",
   "Bandit": "Neutral hostile force; Bandit Camps spawn in Outlaw Country and on low Public Order.",
-  "Outlaw Country": "Three uncontrollable territories in your starting region where Bandit Camps spawn.",
-  "Siege": "Investing a Settlement with an Army to capture it; does not increment in Winter.",
+  "Outlaw Country": "Uncontrollable territories in your starting region where Bandit Camps spawn, starting at 3 and expanding if there is no room to place new Bandit Camps.",
+  "Siege": "Sieging a Settlement with an Army to capture it; does not increment in Winter.",
+  "Focused": "A roll of natural 6. Keywords trigger on a Focused, or succeed only on one.",
   "Border": "Your Settlement's Reach is Range 1 or within Reach of another Player's Reach.",
   "Province": "The collection of Contested Territory and Controlled Territory by your Settlement's Reach.",
   "Region": "A collection of Territories of the same Type.",
@@ -133,59 +130,51 @@
     ],
     [
      "Deadly",
-     "On a natural 6 to Strike, increase the AP by -5. Can only be Parried or Recovered on a natural 6."
+     "On a Focused Strike: increase AP by -5, and the defender may Parry or Recover only with a Focused roll."
     ],
     [
      "Unstoppable",
-     "Negate target shield's -1 to Strike, and impose -1 to Parry on the target."
+     "Parried only by a Focused roll."
     ],
     [
      "Cleave",
-     "On a natural 6 to Strike, you may roll an additional Strike die at your modified Strike value."
+     "On a Focused Strike: roll one extra Strike die at your modified to-Strike."
     ],
     [
      "Poison",
-     "A natural 6 to Save against this Retinue's Strikes fails."
+     "When the Defender receives a Strike and rolls a Focused Save, it fails; the resulting wound may only be Recovered with a Focused Recover."
+    ],
+    [
+     "Nimble",
+     "Gain +1 Initiative in the first Skirmish of each Battle."
+    ],
+    [
+     "Drilled",
+     "Does not lose Endurance in the first Skirmish of each Battle."
     ],
     [
      "Destroy Shield",
-     "On a natural 6 to Strike, target loses Shield attributes for the rest of the Battle."
+     "On a Focused Strike: the target loses its Shield attributes for the rest of the Battle."
     ],
     [
      "Blunder",
      "At Initiative -2 or lower, your to-Strike is set to 6+, before other negative modifiers."
     ],
     [
-     "Deflect",
-     "-1 to Parry and Negate Riposte against this weapon's Strikes. (All Ranged weapons have Deflect.)"
-    ],
-    [
-     "Immune Panic",
-     "Automatically passes Panic checks."
-    ],
-    [
-     "Unbreakable",
-     "Immune Break: does not take Break checks while Fatigued."
-    ],
-    [
      "Parry",
-     "Roll a d6 to cancel a Strike before the Save on a 5+ (a natural 6 is a Riposte). -1 versus Unstoppable, versus ranged, and per Fatigue token (to a maximum of 6+)."
+     "While not Fatigued, roll a d6 to save a Strike before the Save on a 5+."
     ],
     [
      "Riposte",
-     "If you roll a natural 6 on a Parry from a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your equipped weapon. You can Riposte a Riposte."
+     "While not Fatigued, if you roll a natural 6 on a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your equipped weapon. You can Riposte a Riposte."
     ],
     [
      "Recover",
-     "If a to-Save roll fails, roll a d6: a result of X+ saves the retinue. Worsened by Fatigue and Serrated, to a maximum of 6+."
+     "While not Fatigued, if a to-Save roll fails, roll a d6: a result of X+ saves the retinue."
     ],
     [
      "Serrated",
      "-2 to Recover against this weapon's Strikes (worsens the defender's Recover roll by 2)."
-    ],
-    [
-     "Improved Parry",
-     "Your Parry succeeds on 4+ instead of 5+."
     ],
     [
      "Blocked",
@@ -198,10 +187,6 @@
     [
      "Seize the Initiative",
      "Won by the roll-off at the start of the Battle \u2014 the winner of their last Battle adds +1 to the roll. You become the Attacker and gain +1 Initiative in the first Skirmish. Some Tactics and the Ministry monument also grant it."
-    ],
-    [
-     "Heal X",
-     "At the end of each Skirmish, for every X casualties you took from Strikes, return 1 retinue to your Army."
     ],
     [
      "Immune [keyword]",
@@ -242,7 +227,7 @@
     ],
     [
      "Fatigued",
-     "A side at 0 Endurance. Each Skirmish its field takes a Break check, then it gains a Fatigue token."
+     "A side at 0 Endurance. Each Skirmish its field takes a Break check, then it gains a Fatigue token. Fatigued Armies cannot Parry, Riposte, or Recover"
     ],
     [
      "Break check",
@@ -286,7 +271,7 @@
     ],
     [
      "Tactic",
-     "A choice both players make secretly and reveal together each Skirmish; it can shift Initiative and Strike rolls."
+     "A choice both players make secretly and reveal together each Skirmish; it can shift Initiative, Strike, and Save rolls."
     ],
     [
      "Dual-equip",
@@ -392,7 +377,7 @@
     ],
     [
      "Speed",
-     "An Army's movement allowance in Territories per Move action."
+     "An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 2"
     ],
     [
      "Edict",
@@ -452,7 +437,7 @@
     ],
     [
      "Reach",
-     "How far a Settlement projects control, in Territories (by tier)."
+     "How far a Settlement projects control, in Territories (by tier). Calculated like Range X"
     ]
    ]
   },
@@ -465,21 +450,17 @@
     ],
     [
      "Outlaw Country",
-     "Three uncontrollable territories in your starting region where Bandit Camps spawn."
+     "Uncontrollable territories in your starting region where Bandit Camps spawn, starting at 3 and expanding if there is no room to place new Bandit Camps."
     ],
     [
      "Siege",
-     "Investing a Settlement with an Army to capture it; does not increment in Winter."
+     "Sieging a Settlement with an Army to capture it; does not increment in Winter."
     ]
    ]
   },
   {
    "title": "Other",
    "rows": [
-    [
-     "-1 to Parry",
-     "A stacking -1 penalty to the defender's Parry roll (to a maximum of 6+). Sources: Unstoppable, Deflect, and each Fatigue token."
-    ],
     [
      "Border",
      "Your Settlement's Reach is Range 1 or within Reach of another Player's Reach."
@@ -514,11 +495,15 @@
     ],
     [
      "Fatigue Token",
-     "Each token is -1 to your Strike, Parry, and Recover rolls, to a maximum of 6+; and Morale -1 (uncapped). If your modified Morale is ever 7+, your army Routs. Tokens stack."
+     "Each token is -1 to your Strike to a maximum of 6+; and Morale -1 (uncapped). If your modified Morale is ever 7+, your army Routs. Tokens stack."
     ],
     [
-     "Immune Unstoppable",
-     "Cancels the attacker's Parry from Unstoppable: this shield's -1 to Strike still applies, and the attacker's -1 to Parry does not."
+     "Florentine",
+     "Only active while Dual Wielding. Grants Parry, and your Parry is never disabled by Fatigue: penalties (Unstoppable, Deflect, Fatigue) can raise it to 6+ but it never switches off. This keeps only the Parry \u2014 it does NOT restore Riposte: while Fatigued, a natural 6 still cancels the Strike but never counter-Strikes."
+    ],
+    [
+     "Focused",
+     "A roll of natural 6. Keywords trigger on a Focused, or succeed only on one."
     ],
     [
      "Negate Riposte",
@@ -570,11 +555,11 @@
     ],
     [
      "Shielded",
-     "A stacking -1 penalty to the Strike roll (to a maximum of 6+). Sources: a shield's -1 to Strike (ignored by Unstoppable unless the shield has Negate Unstoppable), some Tactics (the Ministry innate is immune to the Tactic source), and each Fatigue token."
+     "A stacking -1 penalty to the Strike roll (to a maximum of 6+). Sources: a shield's -1 to Strike."
     ],
     [
      "Tempered",
-     "Your armor Save cannot be reduced beyond a 6+."
+     "A Focused Save succeeds regardless of AP."
     ],
     [
      "Territory",
@@ -1154,7 +1139,7 @@
      "Interrogation Chambers",
      "Episcopal Court",
      "**Efficient Episcopal Court**",
-     "**Doubt +1** to any player who performs a Cunning action targeting you"
+     "Cunning actions targetting this player that cause Doubt are reduced by 1, to a minimum of 0."
     ],
     [
      "Abbey",
@@ -1433,7 +1418,7 @@
      "Tiltyard",
      "Fletchery + Coliseum",
      "Armies may be Equipped with a second weapon (a Ranged and a Melee Weapon); the army gains **Unwieldy**",
-     "Armies gain **Immune Unwieldy**, and may instead equip two of the same 1H Melee Weapon to gain **Dual Wield** & **2H**"
+     "Armies gain **Immune Unwieldy**, and may instead equip two of the same 1H Melee Weapon to gain **Dual Wield**, **2H** & **Florentine**: May Parry on a natural 6 while Fatigued."
     ],
     [
      "Studium Generale",
@@ -1491,8 +1476,8 @@
     [
      "Preceptory of the Knight's Templar",
      "Monastery + Pilgrimage Site + Hospitaller + Abbey",
-     "**Efficient Monastery**; Armies gain **Zealous**: Automatically pass the first Panic Check of every Battle.",
-     "Unlocks **Knight's Templar** for Muster"
+     "**Efficient Monastery**; Unlocks **Knight's Templar** for Muster",
+     "Armies gain **Zealous**: Automatically pass the first Panic Check of every Battle."
     ],
     [
      "Manor House",
@@ -2113,7 +2098,7 @@
    "1",
    "\u2014",
    "2000",
-   "10",
+   "5",
    "1",
    "1",
    "1",
@@ -2124,7 +2109,7 @@
    "2",
    "Sea Town",
    "4000",
-   "25",
+   "10",
    "2",
    "2",
    "2",
@@ -2135,7 +2120,7 @@
    "3",
    "Port",
    "6000",
-   "50",
+   "25",
    "3",
    "3",
    "3",
@@ -2146,7 +2131,7 @@
    "4",
    "Metropolis",
    "10000",
-   "50",
+   "25",
    "5",
    "4",
    "4",

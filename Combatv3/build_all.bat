@@ -34,10 +34,10 @@ set BUILD_BOARD=1
 REM BOARD_DIR   : folder holding mapgen.py / hexmap.py / hexgen.py / build_board.py
 set BOARD_DIR=C:\Users\Matt\OneDrive\Desktop\Game\Combatv3\mapgen
 REM board dimensions, table size, seed, hex size (mm c->corner), paper
-set BOARD_W=18
-set BOARD_H=20
-set BOARD_PLAYERS=4
-set BOARD_SEED=25
+set BOARD_W=8
+set BOARD_H=8
+set BOARD_PLAYERS=2
+set BOARD_SEED=96
 set BOARD_HEX=20
 set BOARD_PAPER=A4
 REM BOARD_RES : 1 = stamp raw-material toppers, 0 = terrain only (loose tokens)
@@ -50,7 +50,7 @@ REM   terrain-only, landscape; ignores players/resources; auto-clamps to fit.
 set BUILD_TACTICAL=1
 set TAC_W=9
 set TAC_H=6
-set TAC_SEED=11
+set TAC_SEED=26
 set TAC_HEX=20
 set TAC_OUT=%BOARD_DIR%\tactical_%TAC_W%x%TAC_H%_s%TAC_SEED%.pdf
 REM ---------------------------------------------------------------------------

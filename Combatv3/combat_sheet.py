@@ -34,6 +34,11 @@ def _set(c, rgb): c.setFillColorRGB(*rgb)
 def _stroke(c, rgb): c.setStrokeColorRGB(*rgb)
 def bg(c): _set(c, PARCH); c.rect(0,0,PAGE_W,PAGE_H,fill=1,stroke=0)
 
+def gtext(key):
+    """Single source of truth: pull a keyword's rule text from renown_data.GLOSSARY
+    (whitespace-collapsed). Falls back to '' so a renamed/removed key never crashes."""
+    return " ".join(str(rd.GLOSSARY.get(key, "")).split())
+
 def header(c, title, sub=None):
     _set(c, ACCENT); c.setFont(SERIF_B, 22)
     c.drawString(MARGIN, PAGE_H-MARGIN-14, title)
@@ -160,24 +165,20 @@ def front(c):
     gap = 0.3*inch
     left_w = (PAGE_W-2*MARGIN-gap)*0.56
     right_x = MARGIN+left_w+gap; right_w = PAGE_W-MARGIN-right_x
-    step_spine(c, MARGIN, top, left_w)
+    left_end = step_spine(c, MARGIN, top, left_w)
     y = top
     rt_rows = [[n, f"{r['to_hit']}+", r['endurance'], f"{r['shaking']}+", r['cost'],
                 ("Unbrk" if r.get('unbreakable') else "")] for n, r in rd.RETINUES.items()]
     y = chart(c, right_x, y, right_w, "Retinues", ["Type","Strk","End","Mor","Cost",""], rt_rows,
               colw=[right_w*0.34,right_w*0.12,right_w*0.11,right_w*0.12,right_w*0.18,right_w*0.13],
               align=["l","num","num","num","num","l"]); y -= 6
-    def_rows = [["1 Parry","D6 \u2265 5+ cancels; nat 6 = Riposte. \u22121 vs Deflect / Unstoppable / per Fatigue. No Riposte vs Deflect."],
-                ["2 Save","D6 + weapon AP + shield bonus \u2265 armor value."],
-                ["3 Recover","After failed Save: D6 \u2265 Recover value. Worsened by Fatigue & Serrated."]]
+    def_rows = [["1 " + rd.PARRY, gtext(rd.PARRY)],
+                ["2 Save", "D6 + weapon AP + shield bonus \u2265 armor value."],
+                ["3 " + rd.RECOVER, gtext(rd.RECOVER)]]
     y = chart(c, right_x, y, right_w, "Defense Sequence (per Strike)", ["Step","Roll"], def_rows,
               colw=[right_w*0.24,right_w*0.76], fs=7.5); y -= 6
-    nat_rows = [["Deadly","On Strike: AP \u22125; can only be Parried or Recovered on a natural 6."],
-                ["Cleave","On Strike: roll one extra Strike die at your modified value (can chain)."],
-                ["Destroy Shield","On Strike: target loses Shield for the rest of the Battle."],
-                ["Poison","A natural 6 to Save against this retinue's Strikes fails."],
-                ["Riposte","A natural 6 on a Parry (melee): striker immediately takes a Strike back."],
-                ["Tempered","Your Save can't be reduced past 6+: a natural 6 always saves, regardless of AP."]]
+    nat_keys = [rd.SHATTER_ARMOR, rd.CLEAVE, rd.DESTROY_SHIELD, rd.POISON, rd.RIPOSTE, rd.PLANISHING]
+    nat_rows = [[k, gtext(k)] for k in nat_keys if k in rd.GLOSSARY]
     y = chart(c, right_x, y, right_w, "On a Natural 6", ["Keyword","Effect"], nat_rows,
               colw=[right_w*0.26,right_w*0.74], fs=7.5); y -= 6
     se_rows = [[f"{dom} {st}", eff] for (dom, st), eff in rd.STANDING_EFFECTS.items()]
@@ -189,16 +190,21 @@ def front(c):
                 ["Uncapped \u2192 Rout","Fatigue's \u22121 to Morale is NOT capped. At modified Morale 7+ the army Routs."]]
     y = chart(c, right_x, y, right_w, "The 6+ Ceiling", ["Rule","Effect"], cap_rows,
               colw=[right_w*0.34,right_w*0.66], fs=7.5)
+    # compact Tactic Matrix in the lower-left whitespace, below the Skirmish steps
+    tactic_grid(c, MARGIN, left_end - 14, left_w, rowh=17, cell_fs=6, label_fs=6,
+                hdr_fs=5.8, title_fs=10, line_h=6.6, label_w=48)
     _footer(c, "Front"); c.showPage()
 
-def tactic_grid(c, x, y, w):
+def tactic_grid(c, x, y, w, rowh=26, cell_fs=7, label_fs=7, hdr_fs=6.8, title_fs=12,
+                line_h=8, label_w=50, title="TACTIC MATRIX", intro=True):
     T = rd.TACTICS; n = len(T)
     rowlabel = {t: t.split(" ") if " " in t else [t] for t in T}
-    _set(c, ACCENT); c.setFont(SERIF_B, 12); c.drawString(x, y, "TACTIC MATRIX"); y -= 4
+    _set(c, ACCENT); c.setFont(SERIF_B, title_fs); c.drawString(x, y, title); y -= 4
     _stroke(c, RULE); c.setLineWidth(1.0); c.line(x, y, x+w, y); y -= 6
-    _set(c, INK); c.setFont(SERIF_I, 7)
-    c.drawString(x, y, "Your tactic (row) vs opponent (col). I=Init, H=to-Strike, S=Save (lower target better)."); y -= 12
-    label_w = 50; cell = (w-label_w)/n; rowh = 26
+    if intro:
+        _set(c, INK); c.setFont(SERIF_I, max(6, cell_fs))
+        c.drawString(x, y, "Your tactic (row) vs opponent (col). I=Init, H=to-Strike, S=Save (lower target better)."); y -= 11
+    cell = (w-label_w)/n
     def fmt(m):
         parts = []
         if m.get("end"): return "END"
@@ -207,74 +213,112 @@ def tactic_grid(c, x, y, w):
         if m.get("TH"): parts.append(f"H{m['TH']:+d}")
         if m.get("TS"): parts.append(f"S{m['TS']:+d}")
         return " ".join(parts) if parts else "\u2014"
-    _set(c, INK); c.setFont(SERIF_B, 6.8); cx = x+label_w; hdr_h = 16
+    _set(c, INK); c.setFont(SERIF_B, hdr_fs); cx = x+label_w; hdr_h = line_h*2 + 2
     for t in T:
-        words = t.split(" ") if " " in t else [t]; ty = y-(hdr_h-len(words)*7)/2-5
-        for wd in words: c.drawCentredString(cx+cell/2, ty, wd); ty -= 7
+        words = t.split(" ") if " " in t else [t]; ty = y-(hdr_h-len(words)*line_h)/2-line_h+1
+        for wd in words: c.drawCentredString(cx+cell/2, ty, wd); ty -= line_h
         cx += cell
     y -= hdr_h; _stroke(c, RULE); c.setLineWidth(0.5); c.line(x, y, x+w, y); y -= rowh
     for ri, rt in enumerate(T):
         if ri % 2 == 0: _set(c, BANDALT); c.rect(x, y, w, rowh, fill=1, stroke=0)
-        _set(c, ACCENT); c.setFont(SERIF_B, 7); words = rowlabel[rt]; line_h = 8
+        _set(c, ACCENT); c.setFont(SERIF_B, label_fs); words = rowlabel[rt]
         ty = y+rowh/2+len(words)*line_h/2-line_h+1
         for wd in words: c.drawString(x+1, ty, wd); ty -= line_h
         cx = x+label_w
         for ct in T:
             a, _b = rd.TACTIC_MATRIX[(rt, ct)]
-            _set(c, INK); c.setFont(SERIF, 7); c.drawCentredString(cx+cell/2, y+rowh/2-2, fmt(a))
+            _set(c, INK); c.setFont(SERIF, cell_fs); c.drawCentredString(cx+cell/2, y+rowh/2-cell_fs/2+1, fmt(a))
             _stroke(c, RULE); c.setLineWidth(0.2); c.line(cx, y, cx, y+rowh); cx += cell
         y -= rowh
     _stroke(c, RULE); c.setLineWidth(0.5); c.line(x, y+rowh, x+w, y+rowh)
     return y-6
 
+def _kw_lines(c, w, k, defn, name_fs, body_fs):
+    kw_w = c.stringWidth(k+"  ", SERIF_B, name_fs); words = defn.split(); line=""; first=True; lines=1
+    for wd in words:
+        t = (line+" "+wd).strip(); avail = (w-kw_w) if first else w
+        if c.stringWidth(t, SERIF, body_fs) <= avail: line = t
+        else: lines += 1; first = False; line = wd
+    return lines
+
+def _draw_keyword(c, x, y, w, k, defn, name_fs, body_fs, line_h):
+    _set(c, ACCENT); c.setFont(SERIF_B, name_fs); c.drawString(x, y, k)
+    kw_w = c.stringWidth(k+"  ", SERIF_B, name_fs); _set(c, INK); c.setFont(SERIF, body_fs)
+    words = defn.split(); line=""; first=True; yy=y; tx0=x+kw_w
+    for wd in words:
+        t = (line+" "+wd).strip(); avail = (w-kw_w) if first else w
+        if c.stringWidth(t, SERIF, body_fs) <= avail: line = t
+        else: c.drawString(tx0 if first else x, yy, line); yy -= line_h; first=False; tx0=x; line=wd
+    c.drawString(tx0 if first else x, yy, line)
+    return yy
+
+def keywords_block(c, x, y, full_w, gap, KW, floor):
+    """Keywords in two balanced full-width columns; auto-fits font/spacing to fill the
+    available space (up to a cap) while clearing the footer. Text pulled from GLOSSARY."""
+    _set(c, ACCENT); c.setFont(SERIF_B, 11); c.drawString(x, y, "Keywords")
+    yk = y-10; _stroke(c, RULE); c.setLineWidth(0.6); c.line(x, yk, x+full_w, yk); yk -= 12
+    cw = (full_w-gap)/2; xs = [x, x+cw+gap]; avail = yk - floor
+    items = sorted([(k, " ".join(str(rd.GLOSSARY[k]).split())) for k in KW if k in rd.GLOSSARY],
+                   key=lambda kv: kv[0].lower())
+    def layout(scale):
+        nfs, bfs, lh, gp = 7.0*scale, 6.6*scale, 7.5*scale, 8.5*scale
+        hs = [_kw_lines(c, cw, k, d, nfs, bfs)*lh + gp for k, d in items]
+        half = sum(hs)/2; acc = 0; split = len(hs)
+        for i, h in enumerate(hs):                       # balanced break point
+            if acc >= half and i > 0: split = i; break
+            acc += h
+        return (nfs, bfs, lh, gp), split, max(sum(hs[:split]), sum(hs[split:]))
+    # largest scale (<= cap) where the taller balanced column still fits
+    scale = 1.9
+    while scale > 0.6:
+        params, split, tallest = layout(scale)
+        if tallest <= avail: break
+        scale -= 0.04
+    (nfs, bfs, lh, gp), split, _ = layout(scale)
+    yy = yk
+    for i, (k, d) in enumerate(items):
+        if i == split: yy = yk
+        cx = xs[0] if i < split else xs[1]
+        yy = _draw_keyword(c, cx, yy, cw, k, d, nfs, bfs, lh) - gp
+    return yy
+
 def back(c):
     bg(c)
-    top = header(c, "Combat Charts", f"Renown v{rd.VERSION} \u2014 tactics, terrain, equipment & keywords")
+    top = header(c, "Combat Charts", f"Renown v{rd.VERSION} \u2014 equipment, terrain & keywords")
     full_w = PAGE_W-2*MARGIN
-    y = tactic_grid(c, MARGIN, top, full_w); y -= 8
-    gap = 0.3*inch; col_w = (full_w-gap)/2; lx, rx = MARGIN, MARGIN+col_w+gap; y_start = y
+    gap = 0.3*inch; col_w = (full_w-gap)/2; lx, rx = MARGIN, MARGIN+col_w+gap; y_start = top
     def kw_short(tags):
         m = {"Deadly":"Dly","Unstoppable":"Unst","Cleave":"Clv","Destroy Shield":"DShd",
              "Unwieldy":"Unw","Steady":"Stdy","2H":"2H","Nimble":"Nmb","Deflect":"Dfl",
-             "One Shot":"1Sht","Poison":"Psn"}
+             "One Shot":"1Sht","Poison":"Psn","Negate Shielded":"NgShd","Negate Riposte":"NgRip",
+             "Negate Tempered":"NgTmp","Negate Unstoppable":"NgUns","Dual Wield":"Dual","Florentine":"Flor"}
         return ", ".join(m.get(t, t) for t in tags) or "\u2014"
     wrows = [[n, w["tier"], w["ap"], f"{w['init']:+d}", kw_short(w["tags"])] for n, w in rd.WEAPONS.items()]
     yl = chart(c, lx, y_start, col_w, "Melee Weapons", ["Weapon","Tier","AP","Init","Keywords"], wrows,
-               colw=[col_w*0.24,col_w*0.18,col_w*0.09,col_w*0.10,col_w*0.39], fs=6.4, rowh=9.2,
+               colw=[col_w*0.24,col_w*0.18,col_w*0.09,col_w*0.10,col_w*0.39], fs=7.2, rowh=11,
                align=["l","l","num","num","l"])
     rrows = [[n, w["tier"], w["ap"], f"{w['init']:+d}", kw_short(w["tags"])] for n, w in rd.RANGED.items()]
-    yl = chart(c, lx, yl-4, col_w, "Ranged Weapons", ["Weapon","Tier","AP","Init","Keywords"], rrows,
-               colw=[col_w*0.24,col_w*0.18,col_w*0.09,col_w*0.10,col_w*0.39], fs=6.4, rowh=9.2,
+    yl = chart(c, lx, yl-6, col_w, "Ranged Weapons", ["Weapon","Tier","AP","Init","Keywords"], rrows,
+               colw=[col_w*0.24,col_w*0.18,col_w*0.09,col_w*0.10,col_w*0.39], fs=7.2, rowh=11,
                align=["l","l","num","num","l"])
-    # NEW: terrain modifiers, under the weapon tables
-    yl = terrain_chart(c, lx, yl-3, col_w)
     yr = y_start
     arows = [[n, a["tier"], f"{a['save']}+"] for n, a in rd.ARMORS.items()]
     yr = chart(c, rx, yr, col_w, "Armor", ["Armor","Tier","Save"], arows,
-               colw=[col_w*0.45,col_w*0.32,col_w*0.23], fs=6.8, rowh=10.5, align=["l","l","num"])
+               colw=[col_w*0.45,col_w*0.32,col_w*0.23], fs=8, rowh=12.5, align=["l","l","num"])
     srows = [[n, s["tier"] if s["tier"] else "\u2014", f"+{s['save_bonus']}", f"{s['init']:+d}", kw_short(s["tags"])]
              for n, s in rd.SHIELDS.items() if n]
-    yr = chart(c, rx, yr-4, col_w, "Shields", ["Shield","Tier","Save","Init","Keywords"], srows,
-               colw=[col_w*0.26,col_w*0.18,col_w*0.12,col_w*0.11,col_w*0.33], fs=6.6, rowh=10.5,
+    yr = chart(c, rx, yr-6, col_w, "Shields", ["Shield","Tier","Save","Init","Keywords"], srows,
+               colw=[col_w*0.26,col_w*0.18,col_w*0.12,col_w*0.11,col_w*0.33], fs=7.5, rowh=12.5,
                align=["l","l","num","num","l"])
+    yr = terrain_chart(c, rx, yr-6, col_w, fs=7.2, rowh=11)
     KW = [rd.SHATTER_ARMOR, rd.CLEAVE, rd.DESTROY_SHIELD, rd.POISON, rd.UNSTOPPABLE,
-          rd.PARRY, rd.RIPOSTE, rd.RECOVER, rd.SERRATED, rd.PLANISHING, rd.DEFLECT,
+          rd.PARRY, rd.RIPOSTE, rd.FLORENTINE, rd.RECOVER, rd.SERRATED, rd.PLANISHING, rd.DEFLECT,
           rd.NIMBLE, rd.DRILLED, rd.STEADY, rd.UNWIELDY, rd.BLUNDER, rd.ONE_SHOT,
           rd.IMMUNE_PANIC, rd.UNBREAKABLE, rd.FATIGUE_TOKEN, rd.MINUS_1_TBH, rd.TWO_H,
           rd.NEGATE_UNSTOPPABLE, rd.NEGATE_TEMPERED, rd.MINUS_1_PARRY, rd.NEGATE_RIPOSTE]
-    _set(c, ACCENT); c.setFont(SERIF_B, 11); c.drawString(rx, yr-4, "Keywords")
-    yk = yr-10; _stroke(c, RULE); c.setLineWidth(0.6); c.line(rx, yk, rx+col_w, yk); yk -= 12
-    for k in KW:
-        if k not in rd.GLOSSARY: continue
-        defn = " ".join(str(rd.GLOSSARY[k]).split())
-        _set(c, INK); c.setFont(SERIF_B, 7.0); c.drawString(rx, yk, k)
-        kw_w = c.stringWidth(k+"  ", SERIF_B, 7.0); c.setFont(SERIF, 6.6)
-        words = defn.split(); line = ""; first = True; yy = yk; tx0 = rx+kw_w
-        for wd in words:
-            t = (line+" "+wd).strip(); w_avail = (col_w-kw_w) if first else col_w
-            if c.stringWidth(t, SERIF, 6.6) <= w_avail: line = t
-            else: c.drawString(tx0 if first else rx, yy, line); yy -= 7.5; first = False; tx0 = rx; line = wd
-        c.drawString(tx0 if first else rx, yy, line); yk = yy-8.5
+    # Keywords span the full page width in two columns, below both table columns,
+    # so the (often long) list uses the lower-left whitespace instead of overflowing.
+    keywords_block(c, MARGIN, min(yl, yr) - 8, full_w, gap, KW, floor=MARGIN + 6)
     _footer(c, "Back"); c.showPage()
 
 def _footer(c, label):
