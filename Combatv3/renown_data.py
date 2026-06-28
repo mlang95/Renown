@@ -3,6 +3,7 @@
 VERSION = "0.4.9.1"
 # ── Keyword constants ─────────────────────────────────────────────────────
 # Rename a keyword here and it renames everywhere (GLOSSARY keys, tags, cards).
+
 STEADY          = "Steady"
 UNWIELDY        = "Unwieldy"
 TWO_H           = "2H"
@@ -55,36 +56,38 @@ MINUS_1_PARRY      = "-1 to Parry"
 HALFSWORD          = "Halfsword"   # RESERVED — engine path intact, no weapon carries it (shelved)
 DUAL_WIELD         = "Dual Wield"
 FLORENTINE         = "Florentine"  # Parry survives Fatigue: degrades to 6+ but is never disabled. Grants Parry. Only active while Dual Wielding.
+PIVOTAL = "Focused"
+
 
 GLOSSARY = {
     STEADY:         "Initiative cannot be reduced by Tactics.",
     UNWIELDY:       "Initiative cannot be improved by Tactics.",
     TWO_H:          "Cannot use a Shield.",
-    SHATTER_ARMOR:  "On a natural 6 to Strike, increase the AP by -5. Can only be Parried or Recovered on a natural 6.",
-    UNSTOPPABLE:    "Can only be parried by a natural 6.",
-    CLEAVE:         "On a natural 6 to Strike, you may roll an additional Strike die at your modified Strike value.",
-    POISON:         f"A natural 6 to Save against this Retinue's Strikes fails. Any save failed by a natural 6 can only be {RECOVER}ed by a natural 6.",
+    SHATTER_ARMOR:  f"On a {PIVOTAL} Strike: increase AP by -5, and the defender may Parry or {RECOVER} only with a {PIVOTAL} roll.",
+    UNSTOPPABLE:    f"Parried only by a {PIVOTAL} roll.",
+    CLEAVE:         f"On a {PIVOTAL} Strike: roll one extra Strike die at your modified to-Strike.",
+    POISON:         f"When the Defender receives a Strike and rolls a {PIVOTAL} Save, it fails; the resulting wound may only be {RECOVER}ed with a {PIVOTAL} {RECOVER}.",
     NIMBLE:         "Gain +1 Initiative in the first Skirmish of each Battle.",
     DRILLED:        "Does not lose Endurance in the first Skirmish of each Battle.",
-    DESTROY_SHIELD: "On a natural 6 to Strike, target loses Shield attributes for the rest of the Battle.",
+    DESTROY_SHIELD: f"On a {PIVOTAL} Strike: the target loses its Shield attributes for the rest of the Battle.",
     BLUNDER:        "At Initiative -2 or lower, your to-Strike is set to 6+, before other negative modifiers.",
     ONE_SHOT:       "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard.",
     #DEFLECT:        "-1 to Parry and Negate Riposte against this weapon's Strikes. (All Ranged weapons have Deflect.)",
     #IMMUNE_PANIC:   "Automatically passes Panic checks.",
     #UNBREAKABLE:    "Immune Break: does not take Break checks while Fatigued.",
-    PARRY:          "While not Fatigued, roll a d6 to save a Strike before the Save on a 5+.",
-    RIPOSTE:        "While not Fatigued, if you roll a natural 6 on a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your equipped weapon. You can Riposte a Riposte.",
-    RECOVER:        "While not Fatigued, if a to-Save roll fails, roll a d6: a result of X+ saves the retinue.",
+    PARRY:          "While not Fatigued, roll a d6 to attempt to Parry a Strike before the Save. On a 5+, the Strike is Parried.",
+    RIPOSTE:        "While not Fatigued, if you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
+    RECOVER:        "While not Fatigued, if a to-Save roll fails, roll a d6: a result of X+ Recovers the retinue.",
     SERRATED:       "-2 to Recover against this weapon's Strikes (worsens the defender's Recover roll by 2).",
-    PLANISHING:     "Your armor Save cannot be reduced beyond a 6+.",
+    PLANISHING:     f"A {PIVOTAL} Save succeeds, regardless of AP.",
     FATIGUE_TOKEN:  "Each token is -1 to your Strike to a maximum of 6+; and Morale -1 (uncapped). If your modified Morale is ever 7+, your army Routs. Tokens stack.",
     MINUS_1_TBH:    "A stacking -1 penalty to the Strike roll (to a maximum of 6+). Sources: a shield's -1 to Strike.",
 	#NEGATE_UNSTOPPABLE: "Cancels the attacker's Parry from Unstoppable: this shield's -1 to Strike still applies, and the attacker's -1 to Parry does not.",
     NEGATE_TEMPERED: "Ignores Tempered: this weapon's AP can reduce the target's Save past 6+ (to auto-fail), defeating the Tempered floor.",
     NEGATE_RIPOSTE: "The target's Parry can never Riposte this weapon's Strikes (a natural 6 Parry still cancels the Strike, but no counter-Strike follows).",
     #MINUS_1_PARRY: "A stacking -1 penalty to the defender's Parry roll (to a maximum of 6+). Sources: Unstoppable, Deflect, and each Fatigue token.",
-    DUAL_WIELD: "A Strike die that fails to Strike is rerolled once; the reroll can hit and can itself trigger a natural-6 effect. Dual Wield confers 2H (both hands on weapons — no Shield).",
-    FLORENTINE: "Only active while Dual Wielding. Grants Parry, and your Parry is never disabled by Fatigue: penalties (Unstoppable, Deflect, Fatigue) can raise it to 6+ but it never switches off. This keeps only the Parry — it does NOT restore Riposte: while Fatigued, a natural 6 still cancels the Strike but never counter-Strikes.",
+    DUAL_WIELD: "A Strike die that fails to Strike is rerolled once; the reroll can Focused Strike. Dual Wield confers 2H (both hands on weapons — no Shield). You cannot reroll successful Strikes.",
+    FLORENTINE: "Only active while Dual Wielding. Even while Fatigued, a Focused Parry succeeds. This alone does not enable Riposte while Fatigued.",
     "Immune [keyword]": "Cancels that keyword as it applies to you (e.g. Immune Unwieldy, Strain, Destroy Shield).",
 
     # ── Combat keywords ported from the Escalation Campaign glossary ──
@@ -181,21 +184,6 @@ GLOSSARY = {
 # this .update() form can be pasted anywhere after GLOSSARY and the constants exist.
 PIVOTAL = "Focused"
 
-GLOSSARY.update({
-    PIVOTAL:        f"A roll of natural 6. Keywords trigger on a {PIVOTAL}, or succeed only on one.",
-
-    # — Trigger on your Pivotal Strike —
-    CLEAVE:         f"On a {PIVOTAL} Strike: roll one extra Strike die at your modified to-Strike.",
-    DESTROY_SHIELD: f"On a {PIVOTAL} Strike: the target loses its Shield attributes for the rest of the Battle.",
-    SHATTER_ARMOR:  f"On a {PIVOTAL} Strike: increase AP by -5, and the defender may Parry or {RECOVER} only with a {PIVOTAL} roll.",
-
-    # — Defensive threshold —
-    UNSTOPPABLE:    f"Parried only by a {PIVOTAL} roll.",
-    PLANISHING:     f"A {PIVOTAL} Save succeeds regardless of AP.",
-    POISON:         f"When the Defender receives a Strike and rolls a {PIVOTAL} Save, it fails; the resulting wound may only be {RECOVER}ed with a {PIVOTAL} {RECOVER}.",
-
-    # —
-})
 
 # ─────────────────────────────────────────────────────────────────────────────
 # MORALE_GLOSSARY — personal working notes on the morale-immunity keyword family.
@@ -239,48 +227,48 @@ MORALE_GLOSSARY = {
 
 
 RETINUES = {
-    "Levy":           {"cost": 1000, "to_hit": 4, "endurance": 3, "shaking": 5, "unbreakable": False},
-    "Man-at-Arms":    {"cost": 2000, "to_hit": 3, "endurance": 4, "shaking": 5, "unbreakable": False},
-    "Sergeant":       {"cost": 2500, "to_hit": 2, "endurance": 3, "shaking": 4, "unbreakable": False},
-    "Knight Templar": {"cost": 3000, "to_hit": 3, "endurance": 3, "shaking": 3, "unbreakable": False},
+    "Levy":           {"cost": 1000, "to_hit": 4, "endurance": 3, "shaking": 5, "unbreakable": False, "speed": 3},
+    "Man-at-Arms":    {"cost": 2000, "to_hit": 3, "endurance": 4, "shaking": 5, "unbreakable": False, "speed": 2},
+    "Sergeant":       {"cost": 2500, "to_hit": 2, "endurance": 3, "shaking": 4, "unbreakable": False, "speed": 2},
+    "Knight Templar": {"cost": 3000, "to_hit": 3, "endurance": 3, "shaking": 3, "unbreakable": False, "speed": 2},
 }
 
 WEAPONS = {
     "Farm Tools":     {"ap":  0, "init":  0, "tier": "Crude",   "tags": []},
     "Cudgel":         {"ap": -1, "init": -1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY]},
     "Pitchfork":      {"ap":  0, "init":  1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY]},
-    "Daggers":        {"ap":  0, "init":  1, "tier": "Cast",    "tags": [DEFLECT, TWO_H, SHATTER_ARMOR, DUAL_WIELD], 'note': "A paired light blade; dual-wields innately (rerolls missed Strikes). No shield."},
+    "Daggers":        {"ap":  0, "init":  1, "tier": "Cast",    "tags": [TWO_H, DUAL_WIELD, SHATTER_ARMOR], 'note': "A paired light blade; dual-wields innately (rerolls missed Strikes). No shield."},
     "Short Sword":    {"ap": -1, "init":  0, "tier": "Cast",    "tags": []},
-    "Spears":         {"ap": -1, "init":  1, "tier": "Cast",    "tags": [UNWIELDY]},
+    "Spears":         {"ap": -1, "init":  1, "tier": "Cast",    "tags": [TWO_H, UNWIELDY]},
     "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY]},
-    "Pike":           {"ap": -2, "init":  1, "tier": "Wrought", "tags": [UNWIELDY, SHATTER_ARMOR, TWO_H]},
+    "Pike":           {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, UNWIELDY, SHATTER_ARMOR]},
     "Flail":          {"ap": -1, "init":  0, "tier": "Wrought", "tags": [UNWIELDY, CLEAVE]},
-    "Halberd":        {"ap": -3, "init":  0, "tier": "Wrought", "tags": [TWO_H]},
-    "Battle Axe":     {"ap": -2, "init":  0, "tier": "Wrought", "tags": [NEGATE_SHIELDED, TWO_H, CLEAVE]},
-    "Cavalry Spear":  {"ap": -2, "init":  0, "tier": "Wrought", "tags": [UNWIELDY, STEADY, NEGATE_RIPOSTE], 'note': "Needs Stable; no Tower Shield or Dual Wield or Ranged Weapon"},
+    "Halberd":        {"ap": -3, "init":  0, "tier": "Wrought", "tags": [TWO_H, UNWIELDY]},
+    "Battle Axe":     {"ap": -2, "init":  0, "tier": "Wrought", "tags": [TWO_H, UNWIELDY, CLEAVE, NEGATE_SHIELDED]},
+    "Cavalry Spear":  {"ap": -2, "init":  0, "tier": "Wrought", "tags": [STEADY, UNWIELDY, NEGATE_RIPOSTE], 'note': "Needs Stable; no Tower Shield or Dual Wield or Ranged Weapon"},
+    "Morningstar":    {"ap": -3, "init": -1, "tier": "Forged",  "tags": [UNWIELDY, CLEAVE, DESTROY_SHIELD]},
     "Bastard Sword":  {"ap": -3, "init":  0, "tier": "Forged",  "tags": [STEADY, SHATTER_ARMOR]},
-    "2HBastard":      {"ap": -3, "init":  0, "tier": "Forged",  "tags": [CLEAVE, TWO_H, UNWIELDY]},
-    "Lance":          {"ap": -4, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, SHATTER_ARMOR], 'note': "Needs Stable; no Tower Shield or Dual Wield"},
-    "Morningstar":    {"ap": -3, "init": -1, "tier": "Forged",  "tags": [UNWIELDY, DESTROY_SHIELD, CLEAVE]},
-    "War Hammer":     {"ap": -8, "init": -1, "tier": "Forged",  "tags": [UNWIELDY, DESTROY_SHIELD, UNSTOPPABLE, NEGATE_SHIELDED, TWO_H, SHATTER_ARMOR, NEGATE_RIPOSTE]},
-    "Poleaxe":        {"ap": -3, "init":  1, "tier": "Crafted", "tags": [STEADY, TWO_H, UNSTOPPABLE, NEGATE_SHIELDED, SHATTER_ARMOR, NEGATE_TEMPERED]},
+    "2HBastard":      {"ap": -3, "init":  0, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, CLEAVE]},
+    "War Hammer":     {"ap": -8, "init": -1, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD]},
+    "Lance":          {"ap": -4, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE], 'note': "Needs Stable; no Tower Shield or Dual Wield"},
     "Estoc":          {"ap": -3, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, NEGATE_RIPOSTE, NEGATE_TEMPERED]},
+    "Poleaxe":        {"ap": -3, "init":  1, "tier": "Crafted", "tags": [TWO_H, STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_TEMPERED]},
 }
 
 RANGED = {
-    "Hunting Bow": {"ap": 0, "init":  2, "tier": "Crude",   "tags":  [TWO_H, NEGATE_RIPOSTE]},
+    "Hunting Bow": {"ap":  0, "init":  2, "tier": "Crude",   "tags": [TWO_H, NEGATE_RIPOSTE]},
     "Longbow":     {"ap": -1, "init":  2, "tier": "Cast",    "tags": [TWO_H, NEGATE_RIPOSTE]},
-    "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [SHATTER_ARMOR, STEADY, UNSTOPPABLE, NEGATE_SHIELDED, ONE_SHOT, NEGATE_RIPOSTE]},
-    "Crossbow":    {"ap": -4, "init":  0, "tier": "Forged",  "tags": [SHATTER_ARMOR, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, ONE_SHOT], 'note': "Tower Shield only (no other shield)"},
-    "Pilum":       {"ap": -3, "init":  1, "tier": "Crafted", "tags": [STEADY, DESTROY_SHIELD, UNSTOPPABLE, NEGATE_SHIELDED, ONE_SHOT, SHATTER_ARMOR, NEGATE_RIPOSTE]},
+    "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, ONE_SHOT]},
+    "Crossbow":    {"ap": -4, "init":  0, "tier": "Forged",  "tags": [UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, ONE_SHOT], 'note': "Tower Shield only (no other shield)"},
+    "Pilum":       {"ap": -3, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD, ONE_SHOT]},
 }
 
 SHIELDS = {
-    None:            {"save_bonus": 0, "init":  0,"tier": None,     "tags": []},
+    None:            {"save_bonus": 0, "init":  0, "tier": None,     "tags": []},
     "Buckler Shield":{"save_bonus": 1, "init":  0, "tier": "Crude",  "tags": []},
-    "Targe Shield":  {"save_bonus": 0, "init": -1,"tier": "Cast",  "tags": [MINUS_1_TBH,STEADY]},
+    "Targe Shield":  {"save_bonus": 0, "init": -1, "tier": "Cast",   "tags": [STEADY, MINUS_1_TBH]},
     "Kite Shield":   {"save_bonus": 1, "init": -1, "tier": "Wrought","tags": [UNWIELDY, MINUS_1_TBH]},
-    "Tower Shield":  {"save_bonus": 2, "init": -1, "tier": "Forged", "tags": [MINUS_1_TBH, UNWIELDY]},
+    "Tower Shield":  {"save_bonus": 2, "init": -1, "tier": "Forged", "tags": [UNWIELDY, MINUS_1_TBH]},
     "Heater Shield": {"save_bonus": 2, "init":  0, "tier": "Crafted","tags": [MINUS_1_TBH, IMMUNE_DESTROY_SHIELD]},
 }
 
@@ -291,7 +279,6 @@ ARMORS = {
     "Full Plate":  {"save": 3, "tier": "Forged",  "tags": []},
     "Gothic Plate":{"save": 2, "tier": "Crafted", "tags": ["Immune Unwieldy"]},
 }
-
 
 # ── Tier ladder ────────────────────────────────────────────────────────────
 # Worst → best; each tier unlocked by the named Industry node.
@@ -391,7 +378,183 @@ TACTIC_MATRIX = {
  
 TACTICS = ["Scout", "Ambush", "Flank", "Charge", "Fighting Formation", "Defensive Formation", "Fall Back"]
  
- 
+
+
+
+# PLAYSTYLE: faction playstyle taxonomy (12 buckets)
+# 7 axes (0; fill 1->5) | pairs | complements | factions | wonders | both.
+# Seats: Royal Pavilion=prowess-adjacent only; Senate Hall=Generalist/Influence/Polymath only;
+# Advanced Blast Furnace=assumed default (stripped). Complements pruned to archetype domains
+# (wonders exempt). Saddlery removed from Influence.
+
+PLAYSTYLES = {
+    'Industry x Prowess': {
+        'military_solutions'    : 5,
+        'economy_generators'    : 4,
+        'faith_management'      : 2,
+        'doubt_warfare'         : 2,
+        'political_control'     : 3,
+        'board_presence'        : 4,
+        'degenerate_punishment' : 2,
+        'pairs':       {'Advanced Blast Furnace', 'Royal Pavilion', 'The Grand Exchange', 'Colossus'},
+        'complements': set(),
+        'factions':    ['The Iron Shore', 'The Winter Wolves', 'The Pale Throne'],
+        'wonders':     ['Colossus', 'The Grand Exchange'],
+    },
+    'Industry x Cunning': {
+        'military_solutions'    : 2,
+        'economy_generators'    : 5,
+        'faith_management'      : 2,
+        'doubt_warfare'         : 4,
+        'political_control'     : 4,
+        'board_presence'        : 1,
+        'degenerate_punishment' : 3,
+        'pairs':       {'Aristocratic Court', "Thieves' Guild" , 'The Grand Exchange', 'High Chancery'},
+        'complements': {"Manor House", "Outrider Intercept Post"},
+        'factions':    ['The Crimson Tide', 'The Grand Compact', 'The Illuminated Order'],
+        'wonders':     ['High Chancery', 'The Grand Exchange'],
+    },
+    'Industry x Piety': {
+        'military_solutions'    : 3,
+        'economy_generators'    : 4,
+        'faith_management'      : 4,
+        'doubt_warfare'         : 3,
+        'political_control'     : 2,
+        'board_presence'        : 1,
+        'degenerate_punishment' : 3,
+        'pairs':       { 'Inquisitorial Palace', 'The Grand Exchange', 'The Great Basilica'},
+        'complements': set(),
+        'factions':    ['The Iron Faith', 'The Luminous Court', 'The Sacred Throne'],
+        'wonders':     ['The Grand Exchange', 'The Great Basilica'],
+
+    },
+    'Prowess x Cunning': {
+        'military_solutions'    : 4,
+        'economy_generators'    : 2,
+        'faith_management'      : 1,
+        'doubt_warfare'         : 4,
+        'political_control'     : 3,
+        'board_presence'        : 4,
+        'degenerate_punishment' : 5,
+        'pairs':       {'Royal Pavilion', 'Outrider Intercept Post'},
+        'complements': {"Thieves' Guild", "Cipher Chamber"},
+        'factions':    ["The Squatters' Crown", 'The Bandit King'],
+        'wonders':     ['Colossus', 'High Chancery'],
+
+    },
+    'Prowess x Piety': {
+        'military_solutions'    : 5,
+        'economy_generators'    : 2,
+        'faith_management'      : 4,
+        'doubt_warfare'         : 3,
+        'political_control'     : 2,
+        'board_presence'        : 3,
+        'degenerate_punishment' : 2,
+        'pairs':       {'Royal Pavilion', "Preceptory of the Knight's Templar", "Imperial Palace" },
+        'complements': {'Inquisitorial Palace'},
+        'factions':    ['The Undying Flame', 'The Bloodied Cross', 'The Blazing Standard'],
+        'wonders':     ['Colossus', 'The Great Basilica'],
+
+    },
+    'Cunning x Piety': {
+        'military_solutions'    : 2,
+        'economy_generators'    : 2,
+        'faith_management'      : 4,
+        'doubt_warfare'         : 5,
+        'political_control'     : 4,
+        'board_presence'        : 1,
+        'degenerate_punishment' : 5,
+        'pairs':       {"Thieves' Guild", 'Inquisitorial Palace'},
+        'complements': {"War College"},
+        'factions':    ['The Velvet Hand', 'The Ashen Vale', 'The Smoldering Crown'],
+        'wonders':     ['High Chancery', 'The Great Basilica'],
+
+    },
+    'Mono-Industry': {
+        'military_solutions'    : 3,
+        'economy_generators'    : 5,
+        'faith_management'      : 3,
+        'doubt_warfare'         : 1,
+        'political_control'     : 3,
+        'board_presence'        : 3,
+        'degenerate_punishment' : 2,
+        'pairs':       {'Aristocratic Court', 'Studium Generale', 'Winery', 'The Grand Exchange'},
+        'complements': {'Advanced Blast Furnace', 'Colossus','The Great Basilica', 'High Chancery', "Meadery"},
+        'factions':    ['The Verdant Kingdom', 'The Merchant Republics', 'The Gilded Path', 'The Gilded Crescent'],
+        'wonders':     ['Colossus', 'High Chancery', 'The Grand Exchange', 'The Great Basilica'],
+    },
+    'Mono-Prowess': {
+        'military_solutions'    : 5,
+        'economy_generators'    : 1,
+        'faith_management'      : 3,
+        'doubt_warfare'         : 2,
+        'political_control'     : 2,
+        'board_presence'        : 5,
+        'degenerate_punishment' : 4,
+        'pairs':       {"Ministry of Military Strategy", 'Royal Pavilion'},
+        'complements': {"Imperial Palace"},
+        'factions':    ['The Battering Ram', 'The Boundless Steppe', 'The Yew Heart', 'The Elder Grove'],
+        'wonders':     ['Colossus', 'The Great Basilica'],
+    },
+    'Generalist': {
+        'military_solutions'    : 3,
+        'economy_generators'    : 3,
+        'faith_management'      : 4,
+        'doubt_warfare'         : 2,
+        'political_control'     : 4,
+        'board_presence'        : 3,
+        'degenerate_punishment' : 2,
+        'pairs':       {'Senate Hall', 'Inquisitorial Palace', 'Forge', 'Imperial Palace'},
+        'complements': set(),
+        'factions':    ['The Iron Throne', 'The Final Word', 'The Tunnellers', 'The Ancient Wilds'],
+        'wonders':     ['High Chancery', 'The Grand Exchange', 'The Great Basilica'],
+        'both':        {'Senate Hall'},
+    },
+    'Influence': {
+        'military_solutions'    : 2,
+        'economy_generators'    : 3,
+        'faith_management'      : 4,
+        'doubt_warfare'         : 3,
+        'political_control'     : 5,
+        'board_presence'        : 2,
+        'degenerate_punishment' : 3,
+        'pairs':       {'Studium Generale', 'Senate Hall', 'Aristocratic Court'},
+        'complements': {"War College", "Ministry of Military Strategy"},
+        'factions':    ['The Crowned Star', 'The Entwined Crown', 'The Eternal Court', 'The Inner Circle', 'The Hermit Crown'],
+        'wonders':     ['High Chancery', 'The Great Basilica'],
+
+    },
+    'Polymath': {
+        'military_solutions'    : 4,
+        'economy_generators'    : 4,
+        'faith_management'      : 4,
+        'doubt_warfare'         : 4,
+        'political_control'     : 4,
+        'board_presence'        : 4,
+        'degenerate_punishment' : 2,
+        'pairs':       {'Studium Generale', "Manor House"},
+        'complements': {'Senate Hall', 'Advanced Blast Furnace'},
+        'factions':    ['The Hall of Masks', 'The Wandering Crown', 'The Forked Tongue', 'The Broken Banner', 'The Sublime Gate'],
+        'wonders':     ['Colossus', 'High Chancery', 'The Grand Exchange', 'The Great Basilica'],
+
+    },
+    'The Duke': {
+        'military_solutions'    : 2,
+        'economy_generators'    : 5,
+        'faith_management'      : 5,
+        'doubt_warfare'         : 1,
+        'political_control'     : 5,
+        'board_presence'        : 1,
+        'degenerate_punishment' : 1,
+        'pairs':       {'Studium Generale', 'The Grand Exchange'},
+        'complements': set(),
+        'factions':    ['The Dukedom'],
+        'wonders':     ['High Chancery', 'The Great Basilica','The Grand Exchange'],
+
+    },
+}
+
+
 # ── NODES — THE master node graph. EDIT HERE (CSVs are retired/exported). ──
 # Per node: rules text (type/unlock/mastery_req/innate/mastery/builds_into),
 # 'escalation' = Escalation talent-tree view (presence = membership),
@@ -594,7 +757,7 @@ NODES = {
         "type": "Craft",
         "unlock": "-",
         "mastery_req": "Animal Husbandry",
-        "innate": "**Unlocks Leather Armor**",
+        "innate": "Unlocks **Cast** armor & shield.",
         "mastery": "**Upkeep -200**; Craft +1",
         "efficient": "Animal Husbandry",
         "builds_into": ["Butchery", "Armory"],
@@ -647,8 +810,8 @@ NODES = {
         "type": "Craft",
         "unlock": "Rising Industry",
         "mastery_req": "Tannery + Blacksmith",
-        "innate": "**Unlock Chainmail**; Craft +1",
-        "mastery": "**Upkeep -200**",
+        "innate": "**Unlock Wrought** armor & shield",
+        "mastery": "**Upkeep -200**; Craft +1",
         "efficient": "Tannery",
         "builds_into": ["Gilded Foundry"],
         "monument": False,
@@ -668,7 +831,7 @@ NODES = {
         "type": "Craft",
         "unlock": "Established Industry",
         "mastery_req": "Armory + Blacksmith",
-        "innate": "**Unlock Plate Armor**",
+        "innate": "Unlock **Forged** armor and shield.",
         "mastery": f"{PLANISHING}: Your to Save modifier cannot be reduced beyond 6+; Craft +1",
         "efficient": "Armory",
         "builds_into": ["Advanced Blast Furnace"],
@@ -884,7 +1047,7 @@ NODES = {
         "builds_into": ["Inquisitorial Palace", "Imperial Palace"],
         "monument": False},
     "Hospitaller": {
-        "type": "Civic",
+        "type": "Power",
         "unlock": "Established Piety",
         "mastery_req": "Apothecary + Infirmary",
         "innate": "**Recover** improved by +1",
@@ -1261,7 +1424,7 @@ NODES = {
         "unlock": "Sovereign Prowess",
         "mastery_req": "University + War College",
         "innate": "Always gains **Seize the Initiative**, and your opponent doesn't. gain Immune Tactic -1 to Strike",
-        "mastery": "Gain +1I & max initiative is 3; Deadly, & Cleave also trigger on a natural 5.",
+        "mastery": "Gain +1I & max initiative is 3; Deadly, & Cleave also trigger Focused Strikes on a natural 5.",
         "efficient": "War College",
         "builds_into": [],
         "monument": True,
@@ -1321,13 +1484,13 @@ NODES = {
         "builds_into": [],
         "monument": True},
     "Studium Generale": {
-        "type": "Power",
+        "type": "Monument",
         "unlock": "4 Established",
         "mastery_req": "University + Academy",
         "innate": "+1 **Influence** per **Established** Standing",
         "mastery": "May gain one **Sovereign Domain** effect without spending the Domain Points",
         "builds_into": [],
-        "monument": False},
+        "monument": True},
     "Advanced Blast Furnace": {
         "type": "Monument",
         "unlock": "Sovereign Industry",
@@ -1952,8 +2115,8 @@ DOMAIN_BOARD = {
     },
     "Cunning": {
         "Rising":      "Clandestine Councilor: Once per turn, when another player's Envoy is Sent, target a player - that player Abstains.",
-        "Established": "Grand Vizier: Players may not target you with Cunning Envoys if your Cunning value is higher.",
-        "Sovereign":   "Master Conspirator: Once per turn, if your non-Cunning Envoy passes or is Endorsed, you may instead perform a Cunning action.",
+        "Established": "Grand Vizier: Players may not target you with Cunning Envoys if your Cunning value is higher. When you perform a Skirmish action, your opponent gains Blunder in the first Skirmish of that Battle.",
+        "Sovereign":   "Master Conspirator: Once per turn, if your non-Cunning Envoy passes or is Endorsed, you may instead perform a Cunning action. In Battle, your opponent gains Strained each Skirmish.",
     },
     "Piety": {
         "Rising":      "Divine Mandate: Faith +1.",
@@ -2080,7 +2243,7 @@ TACTICAL_TERRAIN = {
     "Mountains":  {"identify": "Mountains",
                    "effect": "Impassable."},
     "Water":      {"identify": "Water",
-                   "effect": "Must end Move after crossing 1 Water Territory."},
+                   "effect": "Must end Move after crossing 1 Water Territory. Cannot Skirmish or Siege move."},
 }
 TACTICAL_GLOBAL = ["Any player may Fall Back after the first Skirmish."]
 

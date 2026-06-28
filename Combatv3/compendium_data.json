@@ -13,17 +13,17 @@
   "Destroy Shield": "On a Focused Strike: the target loses its Shield attributes for the rest of the Battle.",
   "Blunder": "At Initiative -2 or lower, your to-Strike is set to 6+, before other negative modifiers.",
   "One Shot": "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard.",
-  "Parry": "While not Fatigued, roll a d6 to save a Strike before the Save on a 5+.",
-  "Riposte": "While not Fatigued, if you roll a natural 6 on a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your equipped weapon. You can Riposte a Riposte.",
-  "Recover": "While not Fatigued, if a to-Save roll fails, roll a d6: a result of X+ saves the retinue.",
+  "Parry": "While not Fatigued, roll a d6 to attempt to Parry a Strike before the Save. On a 5+, the Strike is Parried.",
+  "Riposte": "While not Fatigued, if you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
+  "Recover": "While not Fatigued, if a to-Save roll fails, roll a d6: a result of X+ Recovers the retinue.",
   "Serrated": "-2 to Recover against this weapon's Strikes (worsens the defender's Recover roll by 2).",
-  "Tempered": "A Focused Save succeeds regardless of AP.",
+  "Tempered": "A Focused Save succeeds, regardless of AP.",
   "Fatigue Token": "Each token is -1 to your Strike to a maximum of 6+; and Morale -1 (uncapped). If your modified Morale is ever 7+, your army Routs. Tokens stack.",
   "Shielded": "A stacking -1 penalty to the Strike roll (to a maximum of 6+). Sources: a shield's -1 to Strike.",
   "Negate Tempered": "Ignores Tempered: this weapon's AP can reduce the target's Save past 6+ (to auto-fail), defeating the Tempered floor.",
   "Negate Riposte": "The target's Parry can never Riposte this weapon's Strikes (a natural 6 Parry still cancels the Strike, but no counter-Strike follows).",
-  "Dual Wield": "A Strike die that fails to Strike is rerolled once; the reroll can hit and can itself trigger a natural-6 effect. Dual Wield confers 2H (both hands on weapons \u2014 no Shield).",
-  "Florentine": "Only active while Dual Wielding. Grants Parry, and your Parry is never disabled by Fatigue: penalties (Unstoppable, Deflect, Fatigue) can raise it to 6+ but it never switches off. This keeps only the Parry \u2014 it does NOT restore Riposte: while Fatigued, a natural 6 still cancels the Strike but never counter-Strikes.",
+  "Dual Wield": "A Strike die that fails to Strike is rerolled once; the reroll can Focused Strike. Dual Wield confers 2H (both hands on weapons \u2014 no Shield). You cannot reroll successful Strikes.",
+  "Florentine": "Only active while Dual Wielding. Even while Fatigued, a Focused Parry succeeds. This alone does not enable Riposte while Fatigued.",
   "Immune [keyword]": "Cancels that keyword as it applies to you (e.g. Immune Unwieldy, Strain, Destroy Shield).",
   "AP": "Armor Penetration \u2014 a weapon's (negative) modifier to the defender's Save roll; the more negative, the harder to save.",
   "Blocked": "-1 Initiative in the first Skirmish (negated by Immune Blocked).",
@@ -90,7 +90,6 @@
   "Bandit": "Neutral hostile force; Bandit Camps spawn in Outlaw Country and on low Public Order.",
   "Outlaw Country": "Uncontrollable territories in your starting region where Bandit Camps spawn, starting at 3 and expanding if there is no room to place new Bandit Camps.",
   "Siege": "Sieging a Settlement with an Army to capture it; does not increment in Winter.",
-  "Focused": "A roll of natural 6. Keywords trigger on a Focused, or succeed only on one.",
   "Border": "Your Settlement's Reach is Range 1 or within Reach of another Player's Reach.",
   "Province": "The collection of Contested Territory and Controlled Territory by your Settlement's Reach.",
   "Region": "A collection of Territories of the same Type.",
@@ -162,15 +161,15 @@
     ],
     [
      "Parry",
-     "While not Fatigued, roll a d6 to save a Strike before the Save on a 5+."
+     "While not Fatigued, roll a d6 to attempt to Parry a Strike before the Save. On a 5+, the Strike is Parried."
     ],
     [
      "Riposte",
-     "While not Fatigued, if you roll a natural 6 on a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your equipped weapon. You can Riposte a Riposte."
+     "While not Fatigued, if you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte."
     ],
     [
      "Recover",
-     "While not Fatigued, if a to-Save roll fails, roll a d6: a result of X+ saves the retinue."
+     "While not Fatigued, if a to-Save roll fails, roll a d6: a result of X+ Recovers the retinue."
     ],
     [
      "Serrated",
@@ -479,7 +478,7 @@
     ],
     [
      "Dual Wield",
-     "A Strike die that fails to Strike is rerolled once; the reroll can hit and can itself trigger a natural-6 effect. Dual Wield confers 2H (both hands on weapons \u2014 no Shield)."
+     "A Strike die that fails to Strike is rerolled once; the reroll can Focused Strike. Dual Wield confers 2H (both hands on weapons \u2014 no Shield). You cannot reroll successful Strikes."
     ],
     [
      "Envoy Outcome",
@@ -499,11 +498,7 @@
     ],
     [
      "Florentine",
-     "Only active while Dual Wielding. Grants Parry, and your Parry is never disabled by Fatigue: penalties (Unstoppable, Deflect, Fatigue) can raise it to 6+ but it never switches off. This keeps only the Parry \u2014 it does NOT restore Riposte: while Fatigued, a natural 6 still cancels the Strike but never counter-Strikes."
-    ],
-    [
-     "Focused",
-     "A roll of natural 6. Keywords trigger on a Focused, or succeed only on one."
+     "Only active while Dual Wielding. Even while Fatigued, a Focused Parry succeeds. This alone does not enable Riposte while Fatigued."
     ],
     [
      "Negate Riposte",
@@ -559,7 +554,7 @@
     ],
     [
      "Tempered",
-     "A Focused Save succeeds regardless of AP."
+     "A Focused Save succeeds, regardless of AP."
     ],
     [
      "Territory",
@@ -989,7 +984,7 @@
     [
      "Tannery",
      "Animal Husbandry",
-     "**Efficient Animal Husbandry**; **Unlocks Leather Armor**",
+     "**Efficient Animal Husbandry**; Unlocks **Cast** armor & shield.",
      "**Upkeep -200**; Craft +1"
     ],
     [
@@ -1019,8 +1014,8 @@
     [
      "Armory",
      "Tannery + Blacksmith",
-     "**Efficient Tannery**; **Unlock Chainmail**; Craft +1",
-     "**Upkeep -200**"
+     "**Efficient Tannery**; **Unlock Wrought** armor & shield",
+     "**Upkeep -200**; Craft +1"
     ],
     [
      "Master Workshop",
@@ -1031,7 +1026,7 @@
     [
      "Gilded Foundry",
      "Armory + Blacksmith",
-     "**Efficient Armory**; **Unlock Plate Armor**",
+     "**Efficient Armory**; Unlock **Forged** armor and shield.",
      "Tempered: Your to Save modifier cannot be reduced beyond 6+; Craft +1"
     ],
     [
@@ -1164,12 +1159,6 @@
      "Interrogation Chambers",
      "**Influence -1** to **Foster Rebellion actions** targeting your **settlements**",
      "**Players** who **target** you or your **settlements** with **actions** that cause **doubt** gain **Doubt +1**"
-    ],
-    [
-     "Hospitaller",
-     "Apothecary + Infirmary",
-     "**Efficient Infirmary**; **Recover** improved by +1",
-     "gain Enduring: Your recovers cannot be reduced beyond a 6+ while Fatigued."
     ],
     [
      "Jester's Court",
@@ -1361,6 +1350,12 @@
      "Other players cannot Oppose your Piety Envoys"
     ],
     [
+     "Hospitaller",
+     "Apothecary + Infirmary",
+     "**Efficient Infirmary**; **Recover** improved by +1",
+     "gain Enduring: Your recovers cannot be reduced beyond a 6+ while Fatigued."
+    ],
+    [
      "University",
      "Academy",
      "**Efficient Academy**; May spend one additional **Influence** per Support or Oppose",
@@ -1421,12 +1416,6 @@
      "Armies gain **Immune Unwieldy**, and may instead equip two of the same 1H Melee Weapon to gain **Dual Wield**, **2H** & **Florentine**: May Parry on a natural 6 while Fatigued."
     ],
     [
-     "Studium Generale",
-     "University + Academy",
-     "+1 **Influence** per **Established** Standing",
-     "May gain one **Sovereign Domain** effect without spending the Domain Points"
-    ],
-    [
      "Cipher Chamber",
      "University + Courier Network",
      "**Efficient University**; Once/turn when a player Sends an Envoy: that player must declare the specific Action they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action. .",
@@ -1453,7 +1442,7 @@
      "Ministry of Military Strategy",
      "University + War College",
      "**Efficient War College**; Always gains **Seize the Initiative**, and your opponent doesn't. gain Immune Tactic -1 to Strike",
-     "Gain +1I & max initiative is 3; Deadly, & Cleave also trigger on a natural 5."
+     "Gain +1I & max initiative is 3; Deadly, & Cleave also trigger Focused Strikes on a natural 5."
     ],
     [
      "Thieves' Guild",
@@ -1490,6 +1479,12 @@
      "Money Lending + Forgery Workshop + Court Artists",
      "**Efficient Court Artists**; **Doubt +1**",
      "Your Vote counts as 2 votes toward Domain selection during the Council Phase."
+    ],
+    [
+     "Studium Generale",
+     "University + Academy",
+     "+1 **Influence** per **Established** Standing",
+     "May gain one **Sovereign Domain** effect without spending the Domain Points"
     ],
     [
      "Advanced Blast Furnace",
@@ -1568,7 +1563,7 @@
     "Cast",
     "0",
     "+1",
-    "Deflect, 2H, Deadly, Dual Wield"
+    "2H, Dual Wield, Deadly"
    ],
    [
     "Short Sword",
@@ -1582,7 +1577,7 @@
     "Cast",
     "-1",
     "+1",
-    "Unwieldy"
+    "2H, Unwieldy"
    ],
    [
     "Arming Sword",
@@ -1596,7 +1591,7 @@
     "Wrought",
     "-2",
     "+1",
-    "Unwieldy, Deadly, 2H"
+    "2H, Unwieldy, Deadly"
    ],
    [
     "Flail",
@@ -1610,21 +1605,28 @@
     "Wrought",
     "-3",
     "+0",
-    "2H"
+    "2H, Unwieldy"
    ],
    [
     "Battle Axe",
     "Wrought",
     "-2",
     "+0",
-    "Negate Shielded, 2H, Cleave"
+    "2H, Unwieldy, Cleave, Negate Shielded"
    ],
    [
     "Cavalry Spear",
     "Wrought",
     "-2",
     "+0",
-    "Unwieldy, Steady, Negate Riposte"
+    "Steady, Unwieldy, Negate Riposte"
+   ],
+   [
+    "Morningstar",
+    "Forged",
+    "-3",
+    "-1",
+    "Unwieldy, Cleave, Destroy Shield"
    ],
    [
     "Bastard Sword",
@@ -1638,35 +1640,21 @@
     "Forged",
     "-3",
     "+0",
-    "Cleave, 2H, Unwieldy"
-   ],
-   [
-    "Lance",
-    "Forged",
-    "-4",
-    "+1",
-    "Steady, Unwieldy, Unstoppable, Negate Shielded, Negate Riposte, Deadly"
-   ],
-   [
-    "Morningstar",
-    "Forged",
-    "-3",
-    "-1",
-    "Unwieldy, Destroy Shield, Cleave"
+    "2H, Unwieldy, Cleave"
    ],
    [
     "War Hammer",
     "Forged",
     "-8",
     "-1",
-    "Unwieldy, Destroy Shield, Unstoppable, Negate Shielded, 2H, Deadly, Negate Riposte"
+    "2H, Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield"
    ],
    [
-    "Poleaxe",
-    "Crafted",
-    "-3",
+    "Lance",
+    "Forged",
+    "-4",
     "+1",
-    "Steady, 2H, Unstoppable, Negate Shielded, Deadly, Negate Tempered"
+    "Steady, Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte"
    ],
    [
     "Estoc",
@@ -1674,6 +1662,13 @@
     "-3",
     "+1",
     "Steady, Deadly, Negate Riposte, Negate Tempered"
+   ],
+   [
+    "Poleaxe",
+    "Crafted",
+    "-3",
+    "+1",
+    "2H, Steady, Deadly, Unstoppable, Negate Shielded, Negate Tempered"
    ]
   ],
   "Ranged": [
@@ -1696,21 +1691,21 @@
     "Wrought",
     "-2",
     "+1",
-    "Deadly, Steady, Unstoppable, Negate Shielded, One Shot, Negate Riposte"
+    "Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, One Shot"
    ],
    [
     "Crossbow",
     "Forged",
     "-4",
     "+0",
-    "Deadly, Unwieldy, Unstoppable, Negate Shielded, Negate Riposte, One Shot"
+    "Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte, One Shot"
    ],
    [
     "Pilum",
     "Crafted",
     "-3",
     "+1",
-    "Steady, Destroy Shield, Unstoppable, Negate Shielded, One Shot, Deadly, Negate Riposte"
+    "Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One Shot"
    ]
   ],
   "Shields": [
@@ -1726,7 +1721,7 @@
     "Cast",
     "+0",
     "-1",
-    "Shielded, Steady"
+    "Steady, Shielded"
    ],
    [
     "Kite Shield",
@@ -1740,7 +1735,7 @@
     "Forged",
     "+2",
     "-1",
-    "Shielded, Unwieldy"
+    "Unwieldy, Shielded"
    ],
    [
     "Heater Shield",
@@ -2196,8 +2191,8 @@
   [
    "Cunning",
    "Clandestine Councilor: Once per turn, when another player's Envoy is Sent, target a player - that player Abstains.",
-   "Grand Vizier: Players may not target you with Cunning Envoys if your Cunning value is higher.",
-   "Master Conspirator: Once per turn, if your non-Cunning Envoy passes or is Endorsed, you may instead perform a Cunning action."
+   "Grand Vizier: Players may not target you with Cunning Envoys if your Cunning value is higher. When you perform a Skirmish action, your opponent gains Blunder in the first Skirmish of that Battle.",
+   "Master Conspirator: Once per turn, if your non-Cunning Envoy passes or is Endorsed, you may instead perform a Cunning action. In Battle, your opponent gains Strained each Skirmish."
   ],
   [
    "Piety",

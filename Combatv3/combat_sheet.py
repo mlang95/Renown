@@ -126,18 +126,18 @@ def step_spine(c, x, y, w):
     rts = {n: r["to_hit"] for n, r in rd.RETINUES.items()}
     rt_str = ", ".join(f"{n.split()[0] if n!='Knight Templar' else 'KT'} {v}+" for n, v in rts.items())
     STEPS = [
-        ("Form the Line","Up to 10 front line (1 Strike die each) + up to 5 reserve. Refill between Skirmishes."),
+        ("Form the Line","Up to 10 front line (1 Strike die each) + up to 5 reserve. Fill at beginning of each skirmish. Rest remain at camp. Default max Army size is 25."),
         ("Choose Tactics","Both pick a Tactic in secret, reveal together. Fall Back can't be chosen in Skirmish 1. (See Tactic Matrix.)"),
-        ("Declare Equipment","Attacker declares first; Defender responds."),
-        ("Initiative","Range \u22122 to +2 (Ministry: +3). Higher Strikes first. At \u22122\u2212 you Blunder (Strike only on natural 6)."),
-        ("Roll to Strike",f"D6 per front-line retinue \u2265 to-Strike: {rt_str}. Natural 6 \u2192 Cleave / Deadly / Destroy Shield."),
-        ("Strike & Defend","Per Strike, defender resolves in order: Parry \u2192 Save \u2192 Recover. Unsaved = casualty (leaves field at once)."),
-        ("Panic Check","If a side took 5+ casualties this Skirmish, before it Strikes back: roll Morale (\u22645 dice). Immune Panic auto-passes. 7+ \u2192 Rout."),
+        ("Declare Equipment","Attacker declares first; Defender responds (Only relevant with Tiltyard or Bastard Sword dual profile)."),
+        ("Initiative","Range \u22122 to +2. Higher Strikes first. At \u22122\u2212 you Blunder (Only Focused Strikes)."),
+        ("Roll to Strike",f"D6 per front-line retinue \u2265 to-Strike: {rt_str}. Focused Strike \u2192 Cleave / Deadly / Destroy Shield."),
+        ("Strike & Defend","Per Strike, defender resolves in order: Parry \u2192 Save \u2192 Recover. Unsaved = casualty (leaves field at once, replenished by reserves after all Strikes)."),
         ("Strike Back","The other side Strikes the same way, if able."),
+		("Panic Check","If a side took 5+ casualties this Skirmish: roll Morale (\u22645 dice)."),
         ("Lose Endurance","Each side that fought: \u22121 Endurance. At 0 Endurance \u2192 Fatigued."),
-        ("Break Check","Each Fatigued field, before its token: roll Morale (\u22645 dice). Unbreakable auto-passes. Never triggers Panic. 7+ \u2192 Rout."),
-        ("Fatigue Token","Each Fatigued side gains a token: \u22121 to Strike, Parry, Recover, Morale (rolls cap 6+; Morale uncapped). Tokens stack."),
-        ("End the Skirmish","Battle ends if a side is wiped, Routs (Morale 7+), or Falls Back. Else refill and repeat."),
+        ("Break Check","Each Fatigued field, before its token: roll Morale (\u22645 dice). Never triggers Panic. 7+ \u2192 Rout."),
+        ("Fatigue Token","Each Fatigued side gains a token: \u22121 to Strike & Morale (rolls cap 6+; Morale uncapped). Tokens stack. You cannot Parry or Recover while Fatigued unless otherwise specified."),
+        ("End the Skirmish","Battle ends if a side is wiped, Routs (Morale 7+), or Falls Back. Else, Form the Line."),
     ]
     num_w = 20; title_fs, body_fs = 10.5, 8
     _set(c, ACCENT); c.setFont(SERIF_B, 12); c.drawString(x, y, "THE SKIRMISH"); y -= 4
@@ -181,12 +181,12 @@ def front(c):
     nat_rows = [[k, gtext(k)] for k in nat_keys if k in rd.GLOSSARY]
     y = chart(c, right_x, y, right_w, "On a Natural 6", ["Keyword","Effect"], nat_rows,
               colw=[right_w*0.26,right_w*0.74], fs=7.5); y -= 6
-    se_rows = [[f"{dom} {st}", eff] for (dom, st), eff in rd.STANDING_EFFECTS.items()]
+    se_rows = [[f"{dom} {st}", eff] for ( st,dom), eff in rd.STANDING_EFFECTS.items()]
     y = chart(c, right_x, y, right_w, "Standing Combat Effects", ["Standing","Effect"], se_rows,
               colw=[right_w*0.42,right_w*0.58], fs=7.5); y -= 8
-    cap_rows = [["Blunder (Init \u22122 or lower)","Your to-Strike is set to 6+ (hit only on a natural 6), before other negative modifiers."],
-                ["Capped at 6+","Fatigue \u22121 to to-Strike, Parry, and Recover; Tempered keeps the Save at 6+ vs any AP. A natural 6 always has a chance."],
-                ["Pushes past 6+ \u2192 7+ (auto-miss)","Shield \u22121 to Strike (Scutum/Tower/Heater) and enemy tactic to-Strike penalties apply AFTER the cap \u2014 they can raise the target to 7+."],
+    cap_rows = [["Blunder (Init \u22122 or lower)","Your to-Strike is set to 6+, only a Focused Strike can succeed, before other negative modifiers."],
+                ["Capped at 6+","Fatigue \u22121 to to-Strike, Parry, and Recover; Tempered keeps the Save at 6+ vs any AP. A Focused Save succeeds."],
+                ["Pushes past 6+ \u2192 7+ (auto-miss)","Shield \u22121 to Strike (Kite/Tower/Heater) and enemy tactic to-Strike penalties apply AFTER the cap \u2014 they can raise the target to 7+."],
                 ["Uncapped \u2192 Rout","Fatigue's \u22121 to Morale is NOT capped. At modified Morale 7+ the army Routs."]]
     y = chart(c, right_x, y, right_w, "The 6+ Ceiling", ["Rule","Effect"], cap_rows,
               colw=[right_w*0.34,right_w*0.66], fs=7.5)
@@ -284,22 +284,26 @@ def keywords_block(c, x, y, full_w, gap, KW, floor):
 
 def back(c):
     bg(c)
-    top = header(c, "Combat Charts", f"Renown v{rd.VERSION} \u2014 equipment, terrain & keywords")
+    top = header(c, "Combat Charts", f"Renown v{rd.VERSION} \u2014 equipment, terrain & keywords    (\u00ac = Negate, ! = Immune)")
     full_w = PAGE_W-2*MARGIN
     gap = 0.3*inch; col_w = (full_w-gap)/2; lx, rx = MARGIN, MARGIN+col_w+gap; y_start = top
     def kw_short(tags):
         m = {"Deadly":"Dly","Unstoppable":"Unst","Cleave":"Clv","Destroy Shield":"DShd",
              "Unwieldy":"Unw","Steady":"Stdy","2H":"2H","Nimble":"Nmb","Deflect":"Dfl",
-             "One Shot":"1Sht","Poison":"Psn","Negate Shielded":"NgShd","Negate Riposte":"NgRip",
-             "Negate Tempered":"NgTmp","Negate Unstoppable":"NgUns","Dual Wield":"Dual","Florentine":"Flor"}
+             "One Shot":"1Sht","Poison":"Psn","Negate Shielded":"¬Shd","Negate Riposte":"¬Rip",
+             "Negate Tempered":"¬Tmp","Negate Unstoppable":"¬Uns","Dual Wield":"Dual","Florentine":"Flor"}
+        m = {"Deadly":"Deadly","Unstoppable":"Unstopp","Cleave":"Cleave","Destroy Shield":"DShield",
+             "Unwieldy":"Unwldy","Steady":"Stdy","2H":"2H","Nimble":"Nmb",
+             "One Shot":"1Shot","Poison":"Poison","Negate Shielded":"¬Shielded","Negate Riposte":"¬Riposte",
+             "Negate Tempered":"¬Tempered","Dual Wield":"Dual", "Immune Destroy Shield" : "!DShield"}
         return ", ".join(m.get(t, t) for t in tags) or "\u2014"
     wrows = [[n, w["tier"], w["ap"], f"{w['init']:+d}", kw_short(w["tags"])] for n, w in rd.WEAPONS.items()]
     yl = chart(c, lx, y_start, col_w, "Melee Weapons", ["Weapon","Tier","AP","Init","Keywords"], wrows,
-               colw=[col_w*0.24,col_w*0.18,col_w*0.09,col_w*0.10,col_w*0.39], fs=7.2, rowh=11,
+               colw=[col_w*0.24, col_w*0.13, col_w*0.08, col_w*0.09, col_w*0.46], fs=7.2, rowh=11,
                align=["l","l","num","num","l"])
     rrows = [[n, w["tier"], w["ap"], f"{w['init']:+d}", kw_short(w["tags"])] for n, w in rd.RANGED.items()]
     yl = chart(c, lx, yl-6, col_w, "Ranged Weapons", ["Weapon","Tier","AP","Init","Keywords"], rrows,
-               colw=[col_w*0.24,col_w*0.18,col_w*0.09,col_w*0.10,col_w*0.39], fs=7.2, rowh=11,
+               colw=[col_w*0.24, col_w*0.13, col_w*0.08, col_w*0.09, col_w*0.46], fs=7.2, rowh=11,
                align=["l","l","num","num","l"])
     yr = y_start
     arows = [[n, a["tier"], f"{a['save']}+"] for n, a in rd.ARMORS.items()]

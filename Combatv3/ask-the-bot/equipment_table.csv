@@ -2,31 +2,31 @@ Item,Type,Tier,AP_or_Save,Init,Keywords
 Farm Tools,Melee,Crude,0,0,
 Cudgel,Melee,Crude,-1,-1,"2H, Unwieldy"
 Pitchfork,Melee,Crude,0,1,"2H, Unwieldy"
-Daggers,Melee,Cast,0,1,"Deflect, 2H, Deadly, Dual Wield"
+Daggers,Melee,Cast,0,1,"2H, Dual Wield, Deadly"
 Short Sword,Melee,Cast,-1,0,
-Spears,Melee,Cast,-1,1,Unwieldy
+Spears,Melee,Cast,-1,1,"2H, Unwieldy"
 Arming Sword,Melee,Wrought,-1,0,Steady
-Pike,Melee,Wrought,-2,1,"Unwieldy, Deadly, 2H"
+Pike,Melee,Wrought,-2,1,"2H, Unwieldy, Deadly"
 Flail,Melee,Wrought,-1,0,"Unwieldy, Cleave"
-Halberd,Melee,Wrought,-3,0,2H
-Battle Axe,Melee,Wrought,-2,0,"Negate Shielded, 2H, Cleave"
-Cavalry Spear,Melee,Wrought,-2,0,"Unwieldy, Steady, Negate Riposte"
+Halberd,Melee,Wrought,-3,0,"2H, Unwieldy"
+Battle Axe,Melee,Wrought,-2,0,"2H, Unwieldy, Cleave, Negate Shielded"
+Cavalry Spear,Melee,Wrought,-2,0,"Steady, Unwieldy, Negate Riposte"
+Morningstar,Melee,Forged,-3,-1,"Unwieldy, Cleave, Destroy Shield"
 Bastard Sword,Melee,Forged,-3,0,"Steady, Deadly"
-2HBastard,Melee,Forged,-3,0,"Cleave, 2H, Unwieldy"
-Lance,Melee,Forged,-4,1,"Steady, Unwieldy, Unstoppable, Negate Shielded, Negate Riposte, Deadly"
-Morningstar,Melee,Forged,-3,-1,"Unwieldy, Destroy Shield, Cleave"
-War Hammer,Melee,Forged,-8,-1,"Unwieldy, Destroy Shield, Unstoppable, Negate Shielded, 2H, Deadly, Negate Riposte"
-Poleaxe,Melee,Crafted,-3,1,"Steady, 2H, Unstoppable, Negate Shielded, Deadly, Negate Tempered"
+2HBastard,Melee,Forged,-3,0,"2H, Unwieldy, Cleave"
+War Hammer,Melee,Forged,-8,-1,"2H, Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield"
+Lance,Melee,Forged,-4,1,"Steady, Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte"
 Estoc,Melee,Crafted,-3,1,"Steady, Deadly, Negate Riposte, Negate Tempered"
+Poleaxe,Melee,Crafted,-3,1,"2H, Steady, Deadly, Unstoppable, Negate Shielded, Negate Tempered"
 Hunting Bow,Ranged,Crude,0,2,"2H, Negate Riposte"
 Longbow,Ranged,Cast,-1,2,"2H, Negate Riposte"
-Javelin,Ranged,Wrought,-2,1,"Deadly, Steady, Unstoppable, Negate Shielded, One Shot, Negate Riposte"
-Crossbow,Ranged,Forged,-4,0,"Deadly, Unwieldy, Unstoppable, Negate Shielded, Negate Riposte, One Shot"
-Pilum,Ranged,Crafted,-3,1,"Steady, Destroy Shield, Unstoppable, Negate Shielded, One Shot, Deadly, Negate Riposte"
+Javelin,Ranged,Wrought,-2,1,"Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, One Shot"
+Crossbow,Ranged,Forged,-4,0,"Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte, One Shot"
+Pilum,Ranged,Crafted,-3,1,"Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One Shot"
 Buckler Shield,Shield,Crude,+1,0,
-Targe Shield,Shield,Cast,+0,-1,"Shielded, Steady"
+Targe Shield,Shield,Cast,+0,-1,"Steady, Shielded"
 Kite Shield,Shield,Wrought,+1,-1,"Unwieldy, Shielded"
-Tower Shield,Shield,Forged,+2,-1,"Shielded, Unwieldy"
+Tower Shield,Shield,Forged,+2,-1,"Unwieldy, Shielded"
 Heater Shield,Shield,Crafted,+2,0,"Shielded, Immune Destroy Shield"
 Cloth,Armor,Crude,7+,,
 Leather,Armor,Cast,5+,,
