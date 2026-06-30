@@ -36,26 +36,6 @@ When an Edict is completed, increase the Renown tracker by 1, and mark your comp
 
 *Note: if any Edicts requires consecutive turns, the timer must increment each turn. If for any reason the timer does not increment, remove the timer until restarted.*
 
-### Vassalization
-
-To **vassalize** a **player**:
-
-1. **Control** that **player’s capital** **settlement** and the **player** has no other **settlements** or **armies** under it’s **control**.
-
-2. At the **end of the Rest Phase**, return all **settlements** you **control** that were **chartered** by that **player** to that **player**. You become that player’s **Suzerain**, and they become your **vassal**.
-
-**While Suzerain:**
-
-- The **vassal** immediately ends all existing **treaties** and inherits all **treaties** held by the **Suzerain**. For the remainder of the game, the **vassal’s** Treaties exactly mirror the **Suzerain**—any **treaty** the **Suzerain** signs, ends, or has ended for them applies identically to the **vassal**. The **vassal** counts as being in a **military** and **defensive** **alliance** with the **Suzerain**, but has no say in other **player’s** joining the **suzerains** alliances.
-- The **vassal** cannot **perform Diplomacy actions** and cannot be the **target** of **Diplomacy actions**.
-- The **Suzerain** collects:
-    - Half of the **vassal’s trade income** from trading with other **players**
-    - The first **{{VAL:VASSAL_INFLUENCE_TAKE}} influence** the **vassal** generates each turn
-
-*Note: mutual exchange (empire phase of each turn): if both players agree, you may exchange up to {{VAL:VASSAL_EXCHANGE_CAP}} gold, exchange ownership of settlements, or transfer forces (so long as armies are adjacent to each other or an army is adjacent to a garrison), in either direction.*
-
-*Note: if the suzerain becomes vassalized, both the original vassal and the suzerain become vassals to the new suzerain, and the new suzerain gains the benefits for each vassal.*
-
 ### Game Structure
 
 Renown takes place over multiple Eras, represented by four distinct phases of the game, that grant bonuses to all players once that Era becomes active. An Era becomes active once the Renown tracker equals the Era requirement.
@@ -130,9 +110,11 @@ The game tracks a handful of core resources:
 
 15. **Monument Pursuits** & **Wonders** are unique unless started with a **Faction**.
 
-# Phase Reference
+# The Turn
 
-### Empire Phase (summary)
+Each turn proceeds through the five phases below in order, then passes the Host and repeats. (See the Turn Outline above for the at-a-glance version.)
+
+## Empire Phase
 
 - **Activate** any **unlocked domain** **standing** effects.
 - **Gain seasonal effect** — check the **season** of this **turn** and apply its effect.
@@ -159,46 +141,6 @@ The game tracks a handful of core resources:
 - All **armies** without **strained** gain **+2 endurance**, remove **strained** from all **armies ***Note: they can immediately regain these effects after losing them if applicable.*
 - Do any remaining **start of turn** effects.
 
-### Council Phase (summary)
-
-1. **Vote on Council envoy** — see Council Phase rules below.
-
-2. **Resolve Council envoys** *(each Player performs exactly one action of the voted Domain)* in clockwise order from the **starting** **player**.
-
-*Note: council envoys are automatically abstained and cannot have their net influence reduced to be less than 1.*
-
-### Envoy Phase (summary)
-
-#### Envoy Declaration Phase
-
-All Players place their envoys in the Domain tray of their choice, from the starting player
-
-**Diplomacy Envoys**
-
-- **resolve** **Diplomacy** **envoys** from the **starting player**.
-**Domain envoys** (Resolved in this order): 
-
-1. **Prowess envoys** — descending order of **Prowess**
-
-2. **Cunning envoys** — descending order of **Cunning**
-
-3. **Piety envoys** — descending order of **Piety**
-
-4. **Industry** **envoys** — descending order of **Industry**
-
-*The Time to Act is Now: Once all players have had an opportunity to send an envoy of that domain, no further envoys of that domain may be sent this turn. Then repeat for Cunning, then Piety, then Industry. All remaining envoys must be sent for Industry.*
-
-### Actions & Voting
-
-- To **perform** an **action**, you **send an envoy**, then **players** **vote** and you calculate the net **influence** outcome to determine whether the **envoy passes** or **fails**.
-- For the full procedure (including **influence** caps, outcomes, and terminology), see **actions & voting → action mechanics**.
-
-### Battle Phase (summary)
-
-If a player performed a **Battle** or **Siege** Move action this turn, resolve it now — see the **Battles & Sieges** section for the full procedure.
-
-# The Turn
-
 ## Council Phase
 
 Before each **player** sends **personal envoys**, there is a **council vote** on a **domain**. Each **player** votes for a **domain**, clockwise from the **starting** **player**; in the case of a tie, the **host** breaks ties. Then, clockwise from the **starting player**, each **player** sends a **free envoy** and resolves one **action** of that **domain**, starting with **innate** **influence** equal to their **domain standing**.
@@ -207,11 +149,17 @@ Before each **player** sends **personal envoys**, there is a **council vote** on
 
 ## Envoy Phase
 
-Each player who wishes to send a Diplomacy envoy may do so, starting with the starting player. Once everyone has had the opportunity, no further Diplomacy envoys may be sent this turn.
+**Envoy Declaration.** Starting with the starting player, all players place their envoys in the Domain tray of their choice.
 
-Then, **players** send **domain envoys** in order: **Prowess** → **Cunning** → **Piety** → **Industry**, in descending order of magnitude. That is, the player with the highest Prowess will always have the first opportunity to send a **prowess envoy**.
+Then resolve envoys in order. First, each player who wishes to send a **Diplomacy envoy** may do so, starting with the starting player; once everyone has had the opportunity, no further Diplomacy envoys may be sent this turn.
 
- All remaining **envoys** must be **sent** on **Industry envoys** when given an opportunity to send.
+Then players send **domain envoys** in order: **Prowess → Cunning → Piety → Industry**, in descending order of magnitude — the player with the highest Prowess has the first opportunity to send a Prowess envoy, and so on. Once every player has had an opportunity to send an envoy of a domain, no further envoys of that domain may be sent this turn. All remaining envoys must be sent on Industry envoys when given the opportunity.
+
+To resolve an envoy — voting, influence spending, and outcomes — see **Actions & Voting**.
+
+## Battle Phase
+
+If a player performed a **Battle** or **Siege** Move action this turn, resolve it now — see **Battles & Sieges** for the full procedure.
 
 ## Rest Phase
 
@@ -226,6 +174,12 @@ Then, **players** send **domain envoys** in order: **Prowess** → **Cunning** �
 5. **Change host** — rotate the **host token** clockwise to the **starting player** unless it’s **Spring**.
 
 6. Start the next **Empire Phase**. 
+
+# Seasons
+
+The Realm cycles through four seasons. The current season's effect is applied during the Empire Phase, and the Rest Phase advances the season by one.
+
+{{TABLE:seasons}}
 
 # Actions & Voting
 
@@ -295,16 +249,6 @@ The **Act of War** triggers on the **condemned** result regardless of which **Cu
 
 {{ACTIONS:Diplomacy}}
 
-# Diplomacy & Treaties
-
-### Treaties & Alliances
-
-{{TABLE:treaties}}
-
- **Alliance Rules:** 
-
-{{LIST:ALLIANCE_RULES}}
-
 # Domains & Standings
 
 ### Domain Standings
@@ -317,14 +261,7 @@ Each **standing** you gain in a **domain** makes you harder to stop in that area
 
 {{TABLE:domain_board}}
 
-### Domain Resolve Table
-
-Every **envoy** resolves by its **net influence** (all **support** minus all **oppose**, plus any **influence X** modifiers). The net total maps to one of four outcomes:
-
-- **Condemned** — net **influence** **−3 or lower**. The **action** fails and may trigger consequences (e.g. the Cunning **Act of War**).
-- **Failed** — net **influence** **−2 to 0**. The **action** simply does not resolve.
-- **Passed** — net **influence** **1 or higher**. Perform the **action’s** pass effect.
-- **Endorsed** — net **influence** **3 or higher**. Perform the pass effect *and* the **endorsed** effect.
+### Standing & Influence
 
 Your **standing** in a **domain** sets how much **influence** you bring to its **envoys**:
 
@@ -335,7 +272,89 @@ Your **standing** in a **domain** sets how much **influence** you bring to its *
 | Established | 2 | 3 |
 | Sovereign | 3 | 4 |
 
-# Empire & Economy
+# Diplomacy & Treaties
+
+### Treaties & Alliances
+
+{{TABLE:treaties}}
+
+ **Alliance Rules:** 
+
+{{LIST:ALLIANCE_RULES}}
+
+### Vassalization
+
+To **vassalize** a **player**:
+
+1. **Control** that **player’s capital** **settlement** and the **player** has no other **settlements** or **armies** under it’s **control**.
+
+2. At the **end of the Rest Phase**, return all **settlements** you **control** that were **chartered** by that **player** to that **player**. You become that player’s **Suzerain**, and they become your **vassal**.
+
+**While Suzerain:**
+
+- The **vassal** immediately ends all existing **treaties** and inherits all **treaties** held by the **Suzerain**. For the remainder of the game, the **vassal’s** Treaties exactly mirror the **Suzerain**—any **treaty** the **Suzerain** signs, ends, or has ended for them applies identically to the **vassal**. The **vassal** counts as being in a **military** and **defensive** **alliance** with the **Suzerain**, but has no say in other **player’s** joining the **suzerains** alliances.
+- The **vassal** cannot **perform Diplomacy actions** and cannot be the **target** of **Diplomacy actions**.
+- The **Suzerain** collects:
+    - Half of the **vassal’s trade income** from trading with other **players**
+    - The first **{{VAL:VASSAL_INFLUENCE_TAKE}} influence** the **vassal** generates each turn
+
+*Note: mutual exchange (empire phase of each turn): if both players agree, you may exchange up to {{VAL:VASSAL_EXCHANGE_CAP}} gold, exchange ownership of settlements, or transfer forces (so long as armies are adjacent to each other or an army is adjacent to a garrison), in either direction.*
+
+*Note: if the suzerain becomes vassalized, both the original vassal and the suzerain become vassals to the new suzerain, and the new suzerain gains the benefits for each vassal.*
+
+# Empire Building
+
+## Settlements
+
+**Settlements** are the primary vehicle of your Empire. **Settlements** are separated into **tiers**: **villages**, **towns**, **cities**, and a **metropolis**. Each tier provides **tax income** each **turn**, **settlement wards** that can be filled by a **pursuit**, and a per-turn **muster limit** of **retinues**. The exact values per tier are below:
+
+{{TABLE:settlements}}
+
+### Settlement Wards
+
+**Settlements** contain **1 settlement ward** for each tier of settlement your settlement is. **Villages** have **1 central hub**, which all other **settlement wards** must be **adjacent** (range 1)**,** **towns** have 2 settlement wards, **cities** have 3, and a **metropolis** can have 4. The only exception is a **hamlet**, which is a village that can only contain **husbandry pursuits**, but can contains **3 settlement wards**. 
+
+### Chartering Settlements
+
+When **chartering** new settlements, you must place them at least **range {{VAL:CHARTER_MIN_RANGE}}** from all other settlements, and **range {{VAL:OUTLAW_BUFFER_RANGE}}** from any **outlaw country**. In addition, you cannot **charter** **settlements** on **mountain** or **water territory**, and, if you’d like to upgrade a **village** to a **sea town**, you must have a **settlement ward adjacent** to a **water territory**. 
+
+### Settlement Reach
+
+Settlements have a **reach** value defined by their **tier**, starting from 1 & incrementing to 4. **Reach X** is used to determine which **territory** you **control** in your **province**. For example, if you have **reach 1**, you control all **territory** within **range 1** of that settlement. If more than one **player controls** a **territory**, it is considered **contested**, & **controlled** by both **players**. 
+
+### Hamlets
+
+Hamlets are unique **settlements** that can be placed *exactly* **range {{VAL:HAMLET_RANGE}}** from your **capital** via a **charter settlement** **action**. These are small farmland communities that produce no tax income or muster limit but have **3 husbandry settlement wards**. In addition, you may **pursue arable land **in a **hamlet**, even if that **raw material** is not in the **hamlet’s** region.
+
+## Infrastructure
+
+ 	Infrastructure is the infrastructure of your settlements. Each infrastructure you have active provides a effect that affects your entire empire and settlements.
+
+ 	*For example, Wooden walls protect all settlements from cunning envoys, and Cathedrals increase your innate Faith by 1 each turn, regardless of how many settlements you have.*
+
+ 	Infrastructure is broken into 5 different tiers that are arranged in ascending tiers. First, there’s **primitive** infrastructure, that builds the basic blocks of your empire. Next, there’s **developed** infrastructure, which expands and replaces some **primitive** infrastructure. Then, there’s **sophisticated** infrastructure, which allows for more powerful effects and helps unlock unique **monument** **pursuits**. Only a single infrastructure can have an active **build timer** concurrently.
+
+ 	Lastly, there’s **world wonders**. **Wonders** are unique infrastructure that each can only be built once per game, once all other infrastructure is **built** and **active** in your **empire**. These are Edict satisfying buildings that provide very powerful effects. **Wonders** exist inside your **capital** and cannot be **razed** or **damaged**.
+
+The full list of infrastructure — their tiers, build times, upkeep, requirements, and effects:
+
+{{TABLE:infrastructure}}
+
+World Wonders:
+
+{{TABLE:wonders}}
+
+## Territory & Terrain
+
+**Territory** is the smallest unit of land. To move from one territory to another, you move **range 1**. To be **within** a territory, you are **range 0**; **adjacent**, **range 1**; **next to**, **range 2**.
+
+ 	**Territories** have modifiers based on the type of hex they are (grassland, forest, tundra, wetlands, water, & mountain), and can either be **uncontrolled**, **contested**, or **controlled**. **Territory** begins as **uncontrolled**. By **chartering** **settlements**, you can **control territories**. All **settlements** have a **reach X**, adding all **territory** to your **province** within the **range** of your **settlements** equal to your **reach** characteristic. However, if another **player’s settlement reach** is within **reach** of any **territory** you **control**, it is **contested**.
+
+ 	To **border** another **player**, your **reach** must be **within** or **adjacent** to another **player’s reach**. 
+
+{{TABLE:terrain}}
+
+# Economy
 
 ## Public Order
 
@@ -405,58 +424,6 @@ You become Bankrupt when Insolvency has been resolved to its fullest extent and 
 - **Taxes:** At start of each round, gain **tax income** equal to your **settlement** total, after modifiers.
 - **Trade:** See above.
 - **Pursuits:** Gain **innate** and **active mastery** **effect** **income** at the start of **income phase**.
-
-# Empire Building
-
-## Settlements
-
-**Settlements** are the primary vehicle of your Empire. **Settlements** are separated into **tiers**: **villages**, **towns**, **cities**, and a **metropolis**. Each tier provides **tax income** each **turn**, **settlement wards** that can be filled by a **pursuit**, and a per-turn **muster limit** of **retinues**. The exact values per tier are below:
-
-{{TABLE:settlements}}
-
-### Settlement Wards
-
-**Settlements** contain **1 settlement ward** for each tier of settlement your settlement is. **Villages** have **1 central hub**, which all other **settlement wards** must be **adjacent** (range 1)**,** **towns** have 2 settlement wards, **cities** have 3, and a **metropolis** can have 4. The only exception is a **hamlet**, which is a village that can only contain **husbandry pursuits**, but can contains **3 settlement wards**. 
-
-### Chartering Settlements
-
-When **chartering** new settlements, you must place them at least **range {{VAL:CHARTER_MIN_RANGE}}** from all other settlements, and **range {{VAL:OUTLAW_BUFFER_RANGE}}** from any **outlaw country**. In addition, you cannot **charter** **settlements** on **mountain** or **water territory**, and, if you’d like to upgrade a **village** to a **sea town**, you must have a **settlement ward adjacent** to a **water territory**. 
-
-### Settlement Reach
-
-Settlements have a **reach** value defined by their **tier**, starting from 1 & incrementing to 4. **Reach X** is used to determine which **territory** you **control** in your **province**. For example, if you have **reach 1**, you control all **territory** within **range 1** of that settlement. If more than one **player controls** a **territory**, it is considered **contested**, & **controlled** by both **players**. 
-
-### Hamlets
-
-Hamlets are unique **settlements** that can be placed *exactly* **range {{VAL:HAMLET_RANGE}}** from your **capital** via a **charter settlement** **action**. These are small farmland communities that produce no tax income or muster limit but have **3 husbandry settlement wards**. In addition, you may **pursue arable land **in a **hamlet**, even if that **raw material** is not in the **hamlet’s** region.
-
-## Infrastructure
-
- 	Infrastructure is the infrastructure of your settlements. Each infrastructure you have active provides a effect that affects your entire empire and settlements.
-
- 	*For example, Wooden walls protect all settlements from cunning envoys, and Cathedrals increase your innate Faith by 1 each turn, regardless of how many settlements you have.*
-
- 	Infrastructure is broken into 5 different tiers that are arranged in ascending tiers. First, there’s **primitive** infrastructure, that builds the basic blocks of your empire. Next, there’s **developed** infrastructure, which expands and replaces some **primitive** infrastructure. Then, there’s **sophisticated** infrastructure, which allows for more powerful effects and helps unlock unique **monument** **pursuits**. Only a single infrastructure can have an active **build timer** concurrently.
-
- 	Lastly, there’s **world wonders**. **Wonders** are unique infrastructure that each can only be built once per game, once all other infrastructure is **built** and **active** in your **empire**. These are Edict satisfying buildings that provide very powerful effects. **Wonders** exist inside your **capital** and cannot be **razed** or **damaged**.
-
-The full list of infrastructure — their tiers, build times, upkeep, requirements, and effects:
-
-{{TABLE:infrastructure}}
-
-World Wonders:
-
-{{TABLE:wonders}}
-
-## Territory & Terrain
-
-**Territory** is the smallest unit of land. To move from one territory to another, you move **range 1**. To be **within** a territory, you are **range 0**; **adjacent**, **range 1**; **next to**, **range 2**.
-
- 	**Territories** have modifiers based on the type of hex they are (grassland, forest, tundra, wetlands, water, & mountain), and can either be **uncontrolled**, **contested**, or **controlled**. **Territory** begins as **uncontrolled**. By **chartering** **settlements**, you can **control territories**. All **settlements** have a **reach X**, adding all **territory** to your **province** within the **range** of your **settlements** equal to your **reach** characteristic. However, if another **player’s settlement reach** is within **reach** of any **territory** you **control**, it is **contested**.
-
- 	To **border** another **player**, your **reach** must be **within** or **adjacent** to another **player’s reach**. 
-
-{{TABLE:terrain}}
 
 # Armies
 
@@ -577,13 +544,7 @@ When a Siege Timer reaches 0:
 - **Capture:** **capture timer {{VAL:TIMERS.Capture Timer.default}}**. When **resolved**, the **settlement** is under your **control**: the **settlement** receive your **active infrastructure** effects, gain it’s **pursuits**, **tax income**, and **reach**.
 - **Sack:** **raze** all **pursuits**; **extort** **1000** per **settlement** **tier**; reduce **settlement** by **1 tier**. The **player** that **controls** the **settlement** removes all **pursuits** from one **settlement ward** of the **sacking player’s** choice, and removes the **settlement ward** from play. Set **sack timer {{VAL:TIMERS.Sack Timer.default}}** — may not **lay siege** until **resolved**. **Army** gains **blocked** and **strained** until the **sack timer** is **resolved**. 
 
-# The World
-
-## Seasons
-
-{{TABLE:seasons}}
-
-## Bandit Mechanics
+# Bandits
 
 ### Outlaw Country
 

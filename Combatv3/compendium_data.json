@@ -1,5 +1,5 @@
 {
- "version": "0.4.9.2",
+ "version": "0.4.9.2.5",
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
@@ -742,12 +742,12 @@
   [
    "Spring",
    "Planting",
-   "No Host, Bandits, Trade Income, Council Phase, or Diplomacy Actions. Gain +1 Envoy."
+   "No Host, Bandit Mechanics, Trade Income, Council Phase, or Diplomacy Actions. Gain +1 Envoy. Bandit Camps Spawn."
   ],
   [
    "Summer",
    "Campaigning",
-   "All Armies gain Speed +3; all Armies gain Strained."
+   "All Armies gain Speed +2"
   ],
   [
    "Fall",
@@ -2144,7 +2144,7 @@
   [
    "Metropolis",
    "4",
-   "Metropolis",
+   "\u2014",
    "10000",
    "25",
    "5",

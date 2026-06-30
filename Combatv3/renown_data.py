@@ -1,6 +1,6 @@
 # renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
-VERSION = "0.4.9.2"
+VERSION = "0.4.9.2.5"
 # ── Keyword constants ─────────────────────────────────────────────────────
 # Rename a keyword here and it renames everywhere (GLOSSARY keys, tags, cards).
 
@@ -222,16 +222,26 @@ MORALE_GLOSSARY = {
 
 
 
-
+# ── Army / Skirmish structural constants ──────────────────────────────────────
+# Caps that the rules prose previously hard-coded. Pull these via {{VAL:...}} so
+# the rulebook can never drift from canon.
+ARMY_MAX_RETINUES   = 25   # maximum retinues a single Army may hold
+FRONT_LINE_MAX      = 10   # retinues placed in the front line per Skirmish (one Strike die each)
+RESERVE_MAX         = 5    # retinues held in reserve to replace front-line losses
+MORALE_DICE_MAX     = 5    # max dice rolled on a Break or Panic check
+PANIC_CASUALTY_THRESHOLD = 5  # take a Panic check if casualties this Skirmish exceed this
+ENDURANCE_REGAIN    = 2    # +Endurance restored to non-Strained armies in the Empire Phase
 
 
 
 RETINUES = {
-    "Levy":           {"cost": 1000, "to_hit": 4, "endurance": 3, "shaking": 5, "unbreakable": False, "speed": 3},
-    "Man-at-Arms":    {"cost": 2000, "to_hit": 3, "endurance": 4, "shaking": 5, "unbreakable": False, "speed": 2},
-    "Sergeant":       {"cost": 2500, "to_hit": 2, "endurance": 3, "shaking": 4, "unbreakable": False, "speed": 2},
-    "Knight Templar": {"cost": 3000, "to_hit": 3, "endurance": 3, "shaking": 3, "unbreakable": False, "speed": 2},
+    "Levy":           {"cost": 1000, "to_hit": 4, "endurance": 3, "shaking": 5, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
+    "Man-at-Arms":    {"cost": 2000, "to_hit": 3, "endurance": 4, "shaking": 5, "unbreakable": False, "speed": 2, "max_size": ARMY_MAX_RETINUES},
+    "Sergeant":       {"cost": 2500, "to_hit": 2, "endurance": 3, "shaking": 4, "unbreakable": False, "speed": 2, "max_size": ARMY_MAX_RETINUES},
+    "Knight Templar": {"cost": 3000, "to_hit": 3, "endurance": 3, "shaking": 3, "unbreakable": False, "speed": 2, "max_size": ARMY_MAX_RETINUES},
 }
+
+
 
 WEAPONS = {
     "Farm Tools":     {"ap":  0, "init":  0, "tier": "Crude",   "tags": []},
@@ -1535,408 +1545,329 @@ def get_data(mode="renown"):
 # ── FACTIONS ────────────────────────────────────────────────────────────────
 # Master source for the 38+ asymmetric factions. Edit HERE; faction cards and
 # docs are generated from this dict (factions.csv is retired).
-FACTIONS = {'The Battering Ram': {'inspiration': 'Siege-focused',
-                       'feel': 'Offensive, Arrogant',
-                       'difficulty': 'Low',
-                       'strength': 'Medium',
-                       'mechanic': 'Siege Specialist: You begin the game with a Siege Works (no ward, no '
-                                   'upkeep, always active Mastery). If a player builds a Citadel, you must '
-                                   'Siege it as a Personal Win Condition.',
-                       'pair': 'Siege Camp, Royal Pavilion',
-                       'complement': 'Senate Hall'},
- 'The Boundless Steppe': {'inspiration': 'Mongol Horde',
-                          'feel': 'Fast',
+FACTIONS = {
+    'The Battering Ram': {'final_cut': True,
+                          'inspiration': 'Siege-focused',
+                          'feel': 'Offensive, Arrogant',
                           'difficulty': 'Low',
                           'strength': 'Medium',
-                          'mechanic': 'Horsemasters: Begin the game with a Stable which does not occupy a '
-                                      'Settlement ward, cost Upkeep, and counts as an activated Mastery '
-                                      'Effect which cannot be deactivated.',
-                          'pair': 'Saddlery, Royal Pavilion',
-                          'complement': 'Forge'},
- 'The Bandit King': {'inspiration': 'Brigands',
-                     'feel': 'Scrappy',
-                     'difficulty': 'Low',
-                     'strength': 'Low',
-                     'mechanic': "Friends in Low Places: You begin the game with a Smuggler's Nook which "
-                                 'does not occupy a Settlement ward, nor cost upkeep. You always gain its '
-                                 'Mastery Effect, which cannot be deactivated. In addition, you may control '
-                                 'one Bandit Camp outside your territory each turn. Every turn a Bandit Camp '
-                                 'is generated, you may place it in your Outlaw Country instead.',
-                     'pair': "Thieves' Guild, Saddlery",
-                     'complement': 'Royal Pavilion'},
- 'The Crowned Star': {'inspiration': 'Reigning Sovereign',
-                      'feel': 'Sovereign Voice',
-                      'difficulty': 'Low',
-                      'strength': 'Medium',
-                      'mechanic': "The Monarch: Each Turn, you choose each Council Envoy's Domain. All "
-                                  'Envoys you send gain Influence -1.',
-                      'pair': 'Senate Hall, Aristocratic Court',
-                      'complement': 'Royal Pavilion'},
- 'The Crimson Tide': {'inspiration': 'Pirate',
-                      'feel': 'Pirate Life',
-                      'difficulty': 'Low',
-                      'strength': 'Medium',
-                      'mechanic': 'Sea Lanes: Other players cannot perform Intercept Caravan on you. You '
-                                  'begin the game with a Shipyard that does not occupy a Settlement ward, '
-                                  'does not cost upkeep, and always has the Mastery Effect, even if you do '
-                                  'not have a Water Settlement.',
-                      'pair': "Shipyard, Thieves' Guild",
-                      'complement': 'Royal Pavilion'},
- 'The Entwined Crown': {'inspiration': 'Habsburg Dynasty',
-                        'feel': 'Diplomatic, Inescapable',
+                          'mechanic': 'Siege Specialist: You begin the game with a Siege Works (no ward, no upkeep, always active Mastery). If a player builds a Citadel, you must Siege it as a Personal Win Condition.',
+                          'pair': 'Siege Camp, Royal Pavilion',
+                          'complement': 'Senate Hall'},
+    'The Boundless Steppe': {'final_cut': True,
+                             'inspiration': 'Mongol Horde',
+                             'feel': 'Fast',
+                             'difficulty': 'Low',
+                             'strength': 'Medium',
+                             'mechanic': 'Horsemasters: Begin the game with a Stable which does not occupy a Settlement ward, cost Upkeep, and counts as an activated Mastery Effect which cannot be deactivated.',
+                             'pair': 'Saddlery, Royal Pavilion',
+                             'complement': 'Forge'},
+    'The Bandit King': {'final_cut': True,
+                        'inspiration': 'Brigands',
+                        'feel': 'Scrappy',
                         'difficulty': 'Low',
-                        'strength': 'Medium',
-                        'mechanic': 'Royal Marriage: Once per game, you may join an Alliance without '
-                                    'unanimous consent, or form an Alliance with a player who is not in one. '
-                                    'Whoever is in that Alliance gains Faith +1 and +1 Influence per turn.',
-                        'pair': 'Aristocratic Court, Senate Hall',
+                        'strength': 'Low',
+                        'mechanic': "Friends in Low Places: You begin the game with a Smuggler's Nook which does not occupy a Settlement ward, nor cost upkeep. You always gain its Mastery Effect, which cannot be deactivated. In addition, you may control one Bandit Camp outside your territory each turn. Every turn a Bandit Camp is generated, you may place it in your Outlaw Country instead.",
+                        'pair': "Thieves' Guild, Saddlery",
                         'complement': 'Royal Pavilion'},
- 'The Eternal Court': {'inspiration': 'Byzantine Empire',
-                       'feel': 'Patient & Reserved',
-                       'difficulty': 'Low',
-                       'strength': 'Medium',
-                       'mechanic': 'Patient Court: Your influence is never wasted — unspent influence is not '
-                                   'discarded in the Rest Phase. Once the Era is Zenith, you have a cap of 5 '
-                                   'on influence you spend per envoy, regardless of your Domain Standing.',
-                       'pair': 'Senate Hall, Aristocratic Court',
-                       'complement': 'Royal Pavilion'},
- 'The Final Word': {'inspiration': 'Warlord Council',
-                    'feel': 'Cold Steel',
-                    'difficulty': 'Low',
-                    'strength': 'Medium',
-                    'mechanic': 'The Decider: Ignore the Innate Doubt & Influence Modifiers that are '
-                                'triggered for being at War.',
-                    'pair': 'Royal Pavilion, Imperial Palace',
-                    'complement': 'Senate Hall'},
- 'The Gilded Crescent': {'inspiration': 'Moorish Caliphate',
-                         'feel': 'Egalitarian',
+    'The Crowned Star': {'final_cut': True,
+                         'inspiration': 'Reigning Sovereign',
+                         'feel': 'Sovereign Voice',
                          'difficulty': 'Low',
                          'strength': 'Medium',
-                         'mechanic': 'Prosperity For All: Begin the game with an Inn which does not occupy a '
-                                     'Settlement ward, cost Upkeep, and counts as an activated Mastery '
-                                     'Effect which cannot be deactivated.',
-                         'pair': 'Meadery & Winery, Studium Generale',
+                         'mechanic': "The Monarch: Each Turn, you choose each Council Envoy's Domain. All Envoys you send gain Influence -1.",
+                         'pair': 'Senate Hall, Aristocratic Court',
                          'complement': 'Royal Pavilion'},
- 'The Gilded Path': {'inspiration': 'Great Income',
-                     'feel': 'Rich Trader',
-                     'difficulty': 'Low',
-                     'strength': 'Low',
-                     'mechanic': 'Silk Road: You begin the game with an Artisan Workshop (no ward, no '
-                                 'upkeep, always active Mastery). However, you cannot refuse a Trade '
-                                 'Agreement.',
-                     'pair': 'Meadery & Winery, Forge',
-                     'complement': 'Royal Pavilion'},
- 'The Hermit Crown': {'inspiration': 'Independent',
-                      'feel': 'Independent',
-                      'difficulty': 'Low',
-                      'strength': 'Low',
-                      'mechanic': "Independent, but Ambitious: You Abstain every Vote on other players' "
-                                  'Envoys, and other players must use 2 Influence to affect your Envoys by '
-                                  '1. Gain Influence +1 to all Personal Envoys. You cannot vote on Council Envoys.',
-                      'pair': 'Studium Generale, Saddlery',
-                      'complement': 'Royal Pavilion'},
- 'The Illuminated Order': {'inspiration': 'Scholarly',
-                           'feel': 'Knowledge is Power',
+    'The Crimson Tide': {'final_cut': False,
+                         'inspiration': 'Pirate',
+                         'feel': 'Pirate Life',
+                         'difficulty': 'Low',
+                         'strength': 'Medium',
+                         'mechanic': 'Sea Lanes: Other players cannot perform Intercept Caravan on you. You begin the game with a Shipyard that does not occupy a Settlement ward, does not cost upkeep, and always has the Mastery Effect, even if you do not have a Water Settlement.',
+                         'pair': "Shipyard, Thieves' Guild",
+                         'complement': 'Royal Pavilion'},
+    'The Entwined Crown': {'final_cut': True,
+                           'inspiration': 'Habsburg Dynasty',
+                           'feel': 'Diplomatic, Inescapable',
                            'difficulty': 'Low',
                            'strength': 'Medium',
-                           'mechanic': 'Knowledge is Power: For every 3 Pursuits, gain +1 Influence each '
-                                       'turn.',
-                           'pair': 'Studium Generale, Senate Hall',
+                           'mechanic': 'Royal Marriage: Once per game, you may join an Alliance without unanimous consent, or form an Alliance with a player who is not in one. Whoever is in that Alliance gains Faith +1 and +1 Influence per turn.',
+                           'pair': 'Aristocratic Court, Senate Hall',
                            'complement': 'Royal Pavilion'},
- 'The Iron Faith': {'inspiration': 'Crusader States',
-                    'feel': 'Piously Resolute',
-                    'difficulty': 'Low',
-                    'strength': 'Medium',
-                    'mechanic': 'Fortress of Faith: While Public Order is greater than or equal to 3, Lay '
-                                'Siege actions targeting Settlements you Control have Siege Timer +2.',
-                    'pair': "Siege Camp, Preceptory of the Knight's Templar",
-                    'complement': 'Senate Hall'},
- 'The Iron Shore': {'inspiration': 'Norse',
-                    'feel': 'Scavenger',
-                    'difficulty': 'Low',
-                    'strength': 'Medium',
-                    'mechanic': 'Scavengers: Whether you win or lose a battle, collect the Spoils of War. '
-                                'You may also recoup the cost of the retinues received as Casualties in that '
-                                'Battle. Lastly, whenever you perform the Rrpair action, recoup its cost, '
-                                'even if it only passed.',
-                    'pair': 'Royal Pavilion, Shipyard',
-                    'complement': 'Forge'},
- 'The Iron Throne': {'inspiration': 'Defensive',
-                     'feel': 'Defensive, Impenetrable',
-                     'difficulty': 'Low',
-                     'strength': 'Medium',
-                     'mechanic': 'Unimpeachable: Begin the game with a Citadel (no ward, no upkeep, always '
-                                 'active Mastery). You (or your alliance) cannot perform Declare War or '
-                                 'Crusade.',
-                     'pair': 'Inquisitorial Palace, Senate Hall',
-                     'complement': 'Royal Pavilion'},
- 'The Merchant Republics': {'inspiration': 'Italian City States',
-                            'feel': 'Trade Dependent',
-                            'difficulty': 'Low',
-                            'strength': 'High',
-                            'mechanic': 'Heart of Trade: Begin the game with Stone Roads infrastructure, do '
-                                        'not pay Upkeep, and cannot be Razed. In order for any player to be '
-                                        'able to trade, they must trade with this player first, unless at '
-                                        'War with this player. As soon as another player is eligible, you '
-                                        'must attempt to Sign a Trade Agreement once with that player. You '
-                                        'may not perform the End Treaty Diplomacy action.',
-                            'pair': 'Shipyard, Meadery & Winery',
-                            'complement': 'Royal Pavilion'},
- 'The Sacred Throne': {'inspiration': 'Papal State',
-                       'feel': 'Pure and Defensive',
-                       'difficulty': 'Low',
-                       'strength': 'High',
-                       'mechanic': 'Sacrosanct: Players who declare war on you (and their allies) gain an '
-                                   'additional Doubt +1.',
-                       'pair': "Inquisitorial Palace, Preceptory of the Knight's Templar",
-                       'complement': 'Royal Pavilion'},
- 'The Tunnellers': {'inspiration': 'Dwarves',
-                    'feel': 'Mountain Passers',
-                    'difficulty': 'Low',
-                    'strength': 'Low',
-                    'mechanic': 'Tunnellers: You treat mountain territory like grasslands for purposes of '
-                                'movement, and begin the game with a Mine raw material pursuit (no ward, no upkeep, '
-                                'always active Mastery).',
-                    'pair': 'Forge, Advanced Blast Furnace',
-                    'complement': 'Royal Pavilion'},
- 'The Undying Flame': {'inspiration': 'Martyrs',
-                       'feel': 'Unconvinced',
-                       'difficulty': 'Low',
-                       'strength': 'Low',
-                       'mechanic': 'Martyrdom: Your armies Morale cannot be modified beyond 6+, but your armies continue to '
-                                   'suffer −1 from Fatigue Tokens. Gain Faith +1 for every player '
-                                   "you're at War with and every Battle where you lose 20 or more retinues, "
-                                   'win or loss.',
-                       'pair': "Preceptory of the Knight's Templar, Inquisitorial Palace",
-                       'complement': 'Royal Pavilion'},
- 'The Verdant Kingdom': {'inspiration': 'Industry',
-                         'feel': 'Pure Economy',
-                         'difficulty': 'Low',
-                         'strength': 'High',
-                         'mechanic': 'Peaceful & Inventive: You cannot declare war, enter Military '
-                                     'Alliances, perform Cunning actions, or build Pursuits that require '
-                                     'Prowess or Cunning Standing. In the Income step, gain 100 gold for '
-                                     'each Craft Mastery Effect you have active.',
-                         'pair': 'Forge, Advanced Blast Furnace, Meadery & Winery',
-                         'complement': 'Senate Hall'},
- 'The Winter Wolves': {'inspiration': 'Vikings',
-                       'feel': 'Aggressive, Parasitic',
+    'The Eternal Court': {'final_cut': True,
+                          'inspiration': 'Byzantine Empire',
+                          'feel': 'Patient & Reserved',
+                          'difficulty': 'Low',
+                          'strength': 'Medium',
+                          'mechanic': 'Patient Court: Your influence is never wasted — unspent influence is not discarded in the Rest Phase. Once the Era is Zenith, you have a cap of 5 on influence you spend per envoy, regardless of your Domain Standing.',
+                          'pair': 'Senate Hall, Aristocratic Court',
+                          'complement': 'Royal Pavilion'},
+    'The Final Word': {'final_cut': False,
+                       'inspiration': 'Warlord Council',
+                       'feel': 'Cold Steel',
                        'difficulty': 'Low',
                        'strength': 'Medium',
-                       'mechanic': "Danegeld: Your armies do not pay upkeep in enemy territory when you're "
-                                   'at war — the enemy player pays the upkeep instead. Do not gain Speed −1 '
-                                   'in Winter.',
+                       'mechanic': 'The Decider: Ignore the Innate Doubt & Influence Modifiers that are triggered for being at War.',
+                       'pair': 'Royal Pavilion, Imperial Palace',
+                       'complement': 'Senate Hall'},
+    'The Gilded Crescent': {'final_cut': False,
+                            'inspiration': 'Moorish Caliphate',
+                            'feel': 'Egalitarian',
+                            'difficulty': 'Low',
+                            'strength': 'Medium',
+                            'mechanic': 'Prosperity For All: Begin the game with an Inn which does not occupy a Settlement ward, cost Upkeep, and counts as an activated Mastery Effect which cannot be deactivated.',
+                            'pair': 'Meadery & Winery, Studium Generale',
+                            'complement': 'Royal Pavilion'},
+    'The Gilded Path': {'final_cut': False,
+                        'inspiration': 'Great Income',
+                        'feel': 'Rich Trader',
+                        'difficulty': 'Low',
+                        'strength': 'Low',
+                        'mechanic': 'Silk Road: You begin the game with an Artisan Workshop (no ward, no upkeep, always active Mastery). However, you cannot refuse a Trade Agreement.',
+                        'pair': 'Meadery & Winery, Forge',
+                        'complement': 'Royal Pavilion'},
+    'The Hermit Crown': {'final_cut': False,
+                         'inspiration': 'Independent',
+                         'feel': 'Independent',
+                         'difficulty': 'Low',
+                         'strength': 'Low',
+                         'mechanic': "Independent, but Ambitious: You Abstain every Vote on other players' Envoys, and other players must use 2 Influence to affect your Envoys by 1. Gain Influence +1 to all Personal Envoys. You cannot vote on Council Envoys.",
+                         'pair': 'Studium Generale, Saddlery',
+                         'complement': 'Royal Pavilion'},
+    'The Illuminated Order': {'final_cut': False,
+                              'inspiration': 'Scholarly',
+                              'feel': 'Knowledge is Power',
+                              'difficulty': 'Low',
+                              'strength': 'Medium',
+                              'mechanic': 'Knowledge is Power: For every 3 Pursuits, gain +1 Influence each turn.',
+                              'pair': 'Studium Generale, Senate Hall',
+                              'complement': 'Royal Pavilion'},
+    'The Iron Faith': {'final_cut': True,
+                       'inspiration': 'Crusader States',
+                       'feel': 'Piously Resolute',
+                       'difficulty': 'Low',
+                       'strength': 'Medium',
+                       'mechanic': 'Fortress of Faith: While Public Order is greater than or equal to 3, Lay Siege actions targeting Settlements you Control have Siege Timer +2.',
+                       'pair': "Siege Camp, Preceptory of the Knight's Templar",
+                       'complement': 'Senate Hall'},
+    'The Iron Shore': {'final_cut': True,
+                       'inspiration': 'Norse',
+                       'feel': 'Scavenger',
+                       'difficulty': 'Low',
+                       'strength': 'Medium',
+                       'mechanic': 'Scavengers: Whether you win or lose a battle, collect the Spoils of War. You may also recoup the cost of the retinues received as Casualties in that Battle. Lastly, whenever you perform the Rrpair action, recoup its cost, even if it only passed.',
                        'pair': 'Royal Pavilion, Shipyard',
                        'complement': 'Forge'},
- 'The Ancient Wilds': {'inspiration': 'Celtic Kingdoms',
-                       'feel': 'Oathkeepers',
-                       'difficulty': 'Medium',
-                       'strength': 'High',
-                       'mechanic': 'Highlander Way: Enemy armies gain Speed −1 in your Province. '
-                                   'You ignore all Terrain Speed modifiers and may trade without Dirt Roads. '
-                                   'You must accept the first Non-Aggression Pact offered by each player or '
-                                   'Alliance. If that player later joins an alliance, this condition is '
-                                   'considered satisfied for that alliance.',
-                       'pair': 'Royal Pavilion, Saddlery',
-                       'complement': 'Senate Hall'},
- 'The Bloodied Cross': {'inspiration': 'Crusading Sect',
-                        'feel': 'Holy War Without End',
-                        'difficulty': 'Medium',
-                        'strength': 'High',
-                        'mechanic': 'Prophets of War: May Crusade at Rising Piety instead of Sovereign '
-                                    'Piety, and do not have a cap on how many Crusades you may have active. '
-                                    'All players receive Doubt +1 per Crusade you are on. You cannot perform convert actions.',
-                        'pair': "Preceptory of the Knight's Templar, Inquisitorial Palace",
-                        'complement': 'Senate Hall'},
- 'The Blazing Standard': {'inspiration': 'Teutonic Knight',
-                          'feel': 'Crusader Feel',
+    'The Iron Throne': {'final_cut': False,
+                        'inspiration': 'Defensive',
+                        'feel': 'Defensive, Impenetrable',
+                        'difficulty': 'Low',
+                        'strength': 'Medium',
+                        'mechanic': 'Unimpeachable: Begin the game with a Citadel (no ward, no upkeep, always active Mastery). You (or your alliance) cannot perform Declare War or Crusade.',
+                        'pair': 'Inquisitorial Palace, Senate Hall',
+                        'complement': 'Royal Pavilion'},
+    'The Merchant Republics': {'final_cut': True,
+                               'inspiration': 'Italian City States',
+                               'feel': 'Trade Dependent',
+                               'difficulty': 'Low',
+                               'strength': 'High',
+                               'mechanic': 'Heart of Trade: Begin the game with Stone Roads infrastructure, do not pay Upkeep, and cannot be Razed. In order for any player to be able to trade, they must trade with this player first, unless at War with this player. As soon as another player is eligible, you must attempt to Sign a Trade Agreement once with that player. You may not perform the End Treaty Diplomacy action.',
+                               'pair': 'Shipyard, Meadery & Winery',
+                               'complement': 'Royal Pavilion'},
+    'The Sacred Throne': {'final_cut': True,
+                          'inspiration': 'Papal State',
+                          'feel': 'Pure and Defensive',
+                          'difficulty': 'Low',
+                          'strength': 'High',
+                          'mechanic': 'Sacrosanct: Players who declare war on you (and their allies) gain an additional Doubt +1.',
+                          'pair': "Inquisitorial Palace, Preceptory of the Knight's Templar",
+                          'complement': 'Royal Pavilion'},
+    'The Tunnellers': {'final_cut': True,
+                       'inspiration': 'Dwarves',
+                       'feel': 'Mountain Passers',
+                       'difficulty': 'Low',
+                       'strength': 'Low',
+                       'mechanic': 'Tunnellers: You treat mountain territory like grasslands for purposes of movement, and begin the game with a Mine raw material pursuit (no ward, no upkeep, always active Mastery).',
+                       'pair': 'Forge, Advanced Blast Furnace',
+                       'complement': 'Royal Pavilion'},
+    'The Undying Flame': {'final_cut': True,
+                          'inspiration': 'Martyrs',
+                          'feel': 'Unconvinced',
+                          'difficulty': 'Low',
+                          'strength': 'Low',
+                          'mechanic': "Martyrdom: Your armies Morale cannot be modified beyond 6+, but your armies continue to suffer −1 from Fatigue Tokens. Gain Faith +1 for every player you're at War with and every Battle where you lose 20 or more retinues, win or loss.",
+                          'pair': "Preceptory of the Knight's Templar, Inquisitorial Palace",
+                          'complement': 'Royal Pavilion'},
+    'The Verdant Kingdom': {'final_cut': True,
+                            'inspiration': 'Industry',
+                            'feel': 'Pure Economy',
+                            'difficulty': 'Low',
+                            'strength': 'High',
+                            'mechanic': 'Peaceful & Inventive: You cannot declare war, enter Military Alliances, perform Cunning actions, or build Pursuits that require Prowess or Cunning Standing. In the Income step, gain 100 gold for each Craft Mastery Effect you have active.',
+                            'pair': 'Forge, Advanced Blast Furnace, Meadery & Winery',
+                            'complement': 'Senate Hall'},
+    'The Winter Wolves': {'final_cut': True,
+                          'inspiration': 'Vikings',
+                          'feel': 'Aggressive, Parasitic',
+                          'difficulty': 'Low',
+                          'strength': 'Medium',
+                          'mechanic': "Danegeld: Your armies do not pay upkeep in enemy territory when you're at war — the enemy player pays the upkeep instead. Do not gain Speed −1 in Winter.",
+                          'pair': 'Royal Pavilion, Shipyard',
+                          'complement': 'Forge'},
+    'The Ancient Wilds': {'final_cut': False,
+                          'inspiration': 'Celtic Kingdoms',
+                          'feel': 'Oathkeepers',
                           'difficulty': 'Medium',
                           'strength': 'High',
-                          'mechanic': "Burning Cross: You begin the game with a Preceptory of the Knight's "
-                                      'Templar (no ward, no upkeep, always active Mastery). If you Declared '
-                                      'War via Crusade, that player must take a Panic Check at the beginning '
-                                      'of every battle after lines are formed. If during the Prowess Envoy phase you do not have an '
-                                      "army with 25 Knight's Templars, you must attempt to send an envoy. If "
-                                      'it passes, you must muster an army until it has 25 retinues of '
-                                      "Knight's Templar.",
-                          'pair': "Preceptory of the Knight's Templar, Royal Pavilion",
+                          'mechanic': 'Highlander Way: Enemy armies gain Speed −1 in your Province. You ignore all Terrain Speed modifiers and may trade without Dirt Roads. You must accept the first Non-Aggression Pact offered by each player or Alliance. If that player later joins an alliance, this condition is considered satisfied for that alliance.',
+                          'pair': 'Royal Pavilion, Saddlery',
                           'complement': 'Senate Hall'},
- 'The Inner Circle': {'inspiration': 'Natural Leader',
-                      'feel': 'Strength Through Diplomacy',
-                      'difficulty': 'Medium',
-                      'strength': 'Medium',
-                      'mechanic': 'Palatine: Players who are allied with you gain Influence +1 to their '
-                                  'envoys, but you may spend 1 of their Influence each turn, targeting your own envoys if you wish.',
-                      'pair': 'Senate Hall, Aristocratic Court',
-                      'complement': 'Royal Pavilion'},
- 'The Luminous Court': {'inspiration': 'Renaissance',
-                        'feel': 'Civic Soft Power',
+    'The Bloodied Cross': {'final_cut': True,
+                           'inspiration': 'Crusading Sect',
+                           'feel': 'Holy War Without End',
+                           'difficulty': 'Medium',
+                           'strength': 'High',
+                           'mechanic': 'Prophets of War: May Crusade at Rising Piety instead of Sovereign Piety, and do not have a cap on how many Crusades you may have active. All players receive Doubt +1 per Crusade you are on. You cannot perform convert actions.',
+                           'pair': "Preceptory of the Knight's Templar, Inquisitorial Palace",
+                           'complement': 'Senate Hall'},
+    'The Blazing Standard': {'final_cut': False,
+                             'inspiration': 'Teutonic Knight',
+                             'feel': 'Crusader Feel',
+                             'difficulty': 'Medium',
+                             'strength': 'High',
+                             'mechanic': "Burning Cross: You begin the game with a Preceptory of the Knight's Templar (no ward, no upkeep, always active Mastery). If you Declared War via Crusade, that player must take a Panic Check at the beginning of every battle after lines are formed. If during the Prowess Envoy phase you do not have an army with 25 Knight's Templars, you must attempt to send an envoy. If it passes, you must muster an army until it has 25 retinues of Knight's Templar.",
+                             'pair': "Preceptory of the Knight's Templar, Royal Pavilion",
+                             'complement': 'Senate Hall'},
+    'The Inner Circle': {'final_cut': True,
+                         'inspiration': 'Natural Leader',
+                         'feel': 'Strength Through Diplomacy',
+                         'difficulty': 'Medium',
+                         'strength': 'Medium',
+                         'mechanic': 'Palatine: Players who are allied with you gain Influence +1 to their envoys, but you may spend 1 of their Influence each turn, targeting your own envoys if you wish.',
+                         'pair': 'Senate Hall, Aristocratic Court',
+                         'complement': 'Royal Pavilion'},
+    'The Luminous Court': {'final_cut': True,
+                           'inspiration': 'Renaissance',
+                           'feel': 'Civic Soft Power',
+                           'difficulty': 'Medium',
+                           'strength': 'Medium',
+                           'mechanic': 'Arts & Humanities / Hearts & Minds: Cannot pursue Craft Pursuits. Civic Pursuits gain Craft +1. All Civic Pursuits do not cost Upkeep. This Player must accept a Peace Treaty if offered one.',
+                           'pair': 'Studium Generale, Aristocratic Court, Senate Hall',
+                           'complement': 'Royal Pavilion'},
+    'The Grand Compact': {'final_cut': False,
+                          'inspiration': 'Hanseatic League',
+                          'feel': 'Peace Through Trade',
+                          'difficulty': 'Medium',
+                          'strength': 'Medium',
+                          'mechanic': 'Mercantile Pact: If anyone Declares War on you, players with Trade Agreements with you must Declare War back or End Trade Agreement.',
+                          'pair': 'Shipyard, Senate Hall',
+                          'complement': 'Royal Pavilion'},
+    'The Pale Throne': {'final_cut': True,
+                        'inspiration': 'Undead',
+                        'feel': 'Undead',
+                        'difficulty': 'Medium',
+                        'strength': 'Low',
+                        'mechanic': 'Inexorable: Your armies always have Unwieldy and cannot gain Immune Unwieldy, but also gain Recover +1, Speed −1, and Immune Panic. Your Public Order cannot exceed 1.',
+                        'pair': "Preceptory of the Knight's Templar, Forge",
+                        'complement': 'Advanced Blast Furnace'},
+    'The Sublime Gate': {'final_cut': False,
+                         'inspiration': 'Ottoman Empire',
+                         'feel': 'Mercantile Military',
+                         'difficulty': 'Medium',
+                         'strength': 'Medium',
+                         'mechanic': "Integrated Arms: You may Muster retinues and equipment from your Trade Partners' Pursuits (and Mastery Effects, if active) for their cost when you perform a muster action.",
+                         'pair': 'Forge, Advanced Blast Furnace',
+                         'complement': 'Royal Pavilion'},
+    'The Velvet Hand': {'final_cut': False,
+                        'inspiration': 'Patrons',
+                        'feel': 'Generous Sponsor',
                         'difficulty': 'Medium',
                         'strength': 'Medium',
-                        'mechanic': 'Arts & Humanities / Hearts & Minds: Cannot pursue Craft Pursuits. Civic '
-                                    'Pursuits gain Craft +1. All Civic Pursuits do not cost Upkeep. This '
-                                    'Player must accept a Peace Treaty if offered one.',
-                        'pair': 'Studium Generale, Aristocratic Court, Senate Hall',
+                        'mechanic': 'Friends in High Places: At the beginning of the turn, players gain Faith +1 if they supported an envoy you sent and it was passed. And, if it was endorsed, they Extort 500 gold per Era.',
+                        'pair': 'Aristocratic Court, Senate Hall',
                         'complement': 'Royal Pavilion'},
- 'The Grand Compact': {'inspiration': 'Hanseatic League',
-                       'feel': 'Peace Through Trade',
-                       'difficulty': 'Medium',
-                       'strength': 'Medium',
-                       'mechanic': 'Mercantile Pact: If anyone Declares War on you, players with Trade '
-                                   'Agreements with you must Declare War back or End Trade Agreement.',
-                       'pair': 'Shipyard, Senate Hall',
-                       'complement': 'Royal Pavilion'},
- 'The Pale Throne': {'inspiration': 'Undead',
-                     'feel': 'Undead',
-                     'difficulty': 'Medium',
-                     'strength': 'Low',
-                     'mechanic': 'Inexorable: Your armies always have Unwieldy and cannot gain Immune '
-                                 'Unwieldy, but also gain Recover +1, Speed −1, and Immune Panic. Your Public Order cannot '
-                                 'exceed 1.',
-                     'pair': "Preceptory of the Knight's Templar, Forge",
-                     'complement': 'Advanced Blast Furnace'},
- 'The Sublime Gate': {'inspiration': 'Ottoman Empire',
-                      'feel': 'Mercantile Military',
-                      'difficulty': 'Medium',
-                      'strength': 'Medium',
-                      'mechanic': 'Integrated Arms: You may Muster retinues and equipment from your Trade '
-                                  "Partners' Pursuits (and Mastery Effects, if active) for their cost when you perform a muster action.",
-                      'pair': 'Forge, Advanced Blast Furnace',
-                      'complement': 'Royal Pavilion'},
- 'The Velvet Hand': {'inspiration': 'Patrons',
-                     'feel': 'Generous Sponsor',
-                     'difficulty': 'Medium',
-                     'strength': 'Medium',
-                     'mechanic': 'Friends in High Places: At the beginning of the turn, players gain Faith +1 '
-                                 'if they supported an envoy you sent and it was passed. And, if it was '
-                                 'endorsed, they Extort 500 gold per Era.',
-                     'pair': 'Aristocratic Court, Senate Hall',
-                     'complement': 'Royal Pavilion'},
- 'The Ashen Vale': {'inspiration': 'Plague',
-                    'feel': 'Sickly',
-                    'difficulty': 'High',
-                    'strength': 'Low',
-                    'mechanic': 'Pestilence: Each bordering player gains Doubt +1, your settlements gain '
-                                'Reach +1, and all retinues gain Poison. You may not pursue an Apothecary, '
-                                'Infirmary, or Hospitaller.',
-                    'pair': "Thieves' Guild, Inquisitorial Palace",
-                    'complement': 'Royal Pavilion'},
- 'The Broken Banner': {'inspiration': 'Mercenary',
-                       'feel': 'Always for Sale',
+    'The Ashen Vale': {'final_cut': True,
+                       'inspiration': 'Plague',
+                       'feel': 'Sickly',
                        'difficulty': 'High',
                        'strength': 'Low',
-                       'mechanic': 'The Highest Bidder: You cannot Declare War and cannot be the Target of a '
-                                   'Declare War action. However you must sign any Military or Defensive '
-                                   'Alliance offered to you by the highest bidding player each turn and must '
-                                   'be paid each turn. In order to overturn an existing alliance, the player '
-                                   'must pay a higher amount than the prior agreement. You cannot sign or '
-                                   'end alliances via a Diplomacy action.',
-                       'pair': 'Royal Pavilion, Forge',
-                       'complement': 'Senate Hall'},
- 'The Forked Tongue': {'inspiration': 'Deceptive',
-                       'feel': 'Two-Faced',
-                       'difficulty': 'High',
-                       'strength': 'High',
-                       'mechanic': 'Masters of Duplicity: You may hold any number of treaties simultaneously '
-                                   'with any number of players, regardless of contradiction. Your treaties '
-                                   'are never automatically canceled or voided by game events. When a '
-                                   'situation arises that would normally force a treaty to be canceled, you '
-                                   'may choose which obligation to honor, keeping all other treaties intact. '
-                                   'Other players may still end their treaties with you via the End Treaty '
-                                   'action.',
-                       'pair': "Thieves' Guild, Senate Hall",
+                       'mechanic': 'Pestilence: Each bordering player gains Doubt +1, your settlements gain Reach +1, and all retinues gain Poison. You may not pursue an Apothecary, Infirmary, or Hospitaller.',
+                       'pair': "Thieves' Guild, Inquisitorial Palace",
                        'complement': 'Royal Pavilion'},
- 'The Hall of Masks': {'inspiration': 'Doppelganger',
-                       'feel': 'Shifting Identity',
-                       'difficulty': 'High',
-                       'strength': 'High',
-                       'mechanic': "Mimic: At the beginning of every player's turn, pick another player's "
-                                   'Faction. You gain that Faction for this turn. Next turn, you cannot '
-                                   'select that Faction.',
-                       'pair': 'Studium Generale, Senate Hall',
-                       'complement': 'Royal Pavilion'},
- 'The Smoldering Crown': {'inspiration': 'Terrorists',
-                          'feel': 'Aggressive, Destructive',
+    'The Broken Banner': {'final_cut': False,
+                          'inspiration': 'Mercenary',
+                          'feel': 'Always for Sale',
                           'difficulty': 'High',
-                          'strength': 'Medium',
-                          'mechanic': 'Reckless: Gain Influence +2 to all Cunning Envoys when targeting a '
-                                      'Player with PO > 0. You begin the game with a Secret Cellar (no ward, '
-                                      'no upkeep, always active Mastery). Cannot be in an alliance. Cannot '
-                                      'perform Diplomacy actions. If you Send a Prowess envoy, it cannot '
-                                      'fail — if condemned, it passes.',
-                          'pair': "Thieves' Guild, Inquisitorial Palace",
+                          'strength': 'Low',
+                          'mechanic': 'The Highest Bidder: You cannot Declare War and cannot be the Target of a Declare War action. However you must sign any Military or Defensive Alliance offered to you by the highest bidding player each turn and must be paid each turn. In order to overturn an existing alliance, the player must pay a higher amount than the prior agreement. You cannot sign or end alliances via a Diplomacy action.',
+                          'pair': 'Royal Pavilion, Forge',
+                          'complement': 'Senate Hall'},
+    'The Forked Tongue': {'final_cut': True,
+                          'inspiration': 'Deceptive',
+                          'feel': 'Two-Faced',
+                          'difficulty': 'High',
+                          'strength': 'High',
+                          'mechanic': 'Masters of Duplicity: You may hold any number of treaties simultaneously with any number of players, regardless of contradiction. Your treaties are never automatically canceled or voided by game events. When a situation arises that would normally force a treaty to be canceled, you may choose which obligation to honor, keeping all other treaties intact. Other players may still end their treaties with you via the End Treaty action.',
+                          'pair': "Thieves' Guild, Senate Hall",
                           'complement': 'Royal Pavilion'},
- "The Squatters' Crown": {'inspiration': 'Insurgents',
-                          'feel': 'Mobile Occupier',
+    'The Hall of Masks': {'final_cut': False,
+                          'inspiration': 'Doppelganger',
+                          'feel': 'Shifting Identity',
                           'difficulty': 'High',
-                          'strength': 'Medium',
-                          'mechanic': 'Occupy: You start the game with an additional army. All must begin '
-                                      'the game placed inside your settlements. You do not control your '
-                                      'settlements when you leave them. To collect taxes or use Pursuits, '
-                                      'end your turn inside that Settlement. To Occupy a Settlement, begin a '
-                                      'Battle adjacent to the city like a Siege — instead, you Battle '
-                                      'against the Garrison and Armies at war with you or owned by the same '
-                                      'owner. If you win (or there is no force to fight), move inside. In '
-                                      'the Upkeep Phase, only pay upkeep on equipment. You count as having '
-                                      'all Infrastructure of Occupied Settlements and always count as 3 '
-                                      'Trading Pursuits. When you leave a Settlement, you may not re-enter '
-                                      'it until you Occupy another Settlement and a Trade Agreement is '
-                                      'signed.',
-                          'pair': 'Royal Pavilion, Saddlery',
-                          'complement': 'Forge'},
- 'The Wandering Crown': {'inspiration': 'Nomadic',
-                         'feel': 'Nomads',
-                         'difficulty': 'High',
-                         'strength': 'Medium',
-                         'mechanic': 'Wandering Nomads: Your armies function as settlements, classified as a '
-                                     'Band, Tribe, or Horde and upgraded accordingly. You may have one '
-                                     'additional army per Era, starting with two. Armies do not require '
-                                     'troops to exist and cannot be besieged. Nomads cannot build '
-                                     'infrastructure but may build pursuits. Raw Material pursuits within '
-                                     'Reach are always considered active and do not take a settlement ward. '
-                                     'Each army is considered to have a Muster Field. You may trade so long '
-                                     "as your border touches another player's border. Armies count as "
-                                     'settlements with a Reach of 3. When an army is destroyed, so is its '
-                                     'settlement. You may begin a new army adjacent to any existing army by '
-                                     'using either the Charter Settlement or Muster Army actions. Nomads do '
-                                     'not pay any upkeep.',
-                         'pair': 'Saddlery, Royal Pavilion',
-                         'complement': 'Forge'},
- 'The Dukedom': {'inspiration': 'The Game',
-                 'feel': 'King of the Castle',
-                 'difficulty': 'High',
-                 'strength': 'High',
-                 'mechanic': 'The Great Arbiter: The Duke begins the game trading with all players under a '
-                             'Non-Aggression Pact. The Duke cannot join alliances, perform Cunning actions, '
-                             "or Declare War. If a player declares war on the Duke, that player's Trade "
-                             'Agreements, Non-Aggression Pacts, and Defensive Alliances are immediately and '
-                             'permanently voided. Their Military Alliance remains intact. All other players '
-                             'simultaneously declare war on that player and their Military Alliance. These '
-                             'cannot be reinstated while at war with the Duke. The Duke sees all private '
-                             'actions, resolves player actions, and manages Bandit Mechanics. If the Duke is '
-                             'eliminated, the game ends. The Duke may optionally choose a faction.',
-                 'pair': 'Senate Hall, Aristocratic Court',
-                 'complement': 'Royal Pavilion, Imperial Palace'},
- 'The Elder Grove': {'inspiration': 'Elves',
-                     'feel': 'Cautious Quickfighters',
-                     'difficulty': 'Low',
-                     'strength': 'Medium',
-                     'mechanic': 'Wise & Suspicious: Gain Doubt +1; If Public Order is 1+, armies gain '
-                                 '+1I, Steady, and Speed +1. Cannot be a member of an alliance.',
-                     'pair': 'Forge',
-                     'complement': 'Inquisitorial Palace'},
- 'The Yew Heart': {'inspiration': 'English Longbows',
-                   'feel': 'Skilled Volleys',
-                   'difficulty': 'Low',
-                   'strength': 'Medium',
-                   'mechanic': 'Archery is a Way of Life: You begin the game with a Fletchery which does not '
-                               'occupy a Settlement ward, nor cost upkeep. You always gain its Mastery '
-                               'Effect, which cannot be deactivated. In addition, your armies must always be '
-                               'equipped with a ranged weapon. Ranged Weapons gain +1 to Strike. Cannot  be '
-                               'equipped with full plate or articulated gothic plate. Cannot use shields. Cannot '
-                               "build a Preceptory of Knight's Templar.",
-                   'pair': 'Royal Pavilion',
-                   'complement': 'Senate Hall'}}
+                          'strength': 'High',
+                          'mechanic': "Mimic: At the beginning of every player's turn, pick another player's Faction. You gain that Faction for this turn. Next turn, you cannot select that Faction.",
+                          'pair': 'Studium Generale, Senate Hall',
+                          'complement': 'Royal Pavilion'},
+    'The Smoldering Crown': {'final_cut': False,
+                             'inspiration': 'Terrorists',
+                             'feel': 'Aggressive, Destructive',
+                             'difficulty': 'High',
+                             'strength': 'Medium',
+                             'mechanic': 'Reckless: Gain Influence +2 to all Cunning Envoys when targeting a Player with PO > 0. You begin the game with a Secret Cellar (no ward, no upkeep, always active Mastery). Cannot be in an alliance. Cannot perform Diplomacy actions. If you Send a Prowess envoy, it cannot fail — if condemned, it passes.',
+                             'pair': "Thieves' Guild, Inquisitorial Palace",
+                             'complement': 'Royal Pavilion'},
+    "The Squatters' Crown": {'final_cut': False,
+                             'inspiration': 'Insurgents',
+                             'feel': 'Mobile Occupier',
+                             'difficulty': 'High',
+                             'strength': 'Medium',
+                             'mechanic': 'Occupy: You start the game with an additional army. All must begin the game placed inside your settlements. You do not control your settlements when you leave them. To collect taxes or use Pursuits, end your turn inside that Settlement. To Occupy a Settlement, begin a Battle adjacent to the city like a Siege — instead, you Battle against the Garrison and Armies at war with you or owned by the same owner. If you win (or there is no force to fight), move inside. In the Upkeep Phase, only pay upkeep on equipment. You count as having all Infrastructure of Occupied Settlements and always count as 3 Trading Pursuits. When you leave a Settlement, you may not re-enter it until you Occupy another Settlement and a Trade Agreement is signed.',
+                             'pair': 'Royal Pavilion, Saddlery',
+                             'complement': 'Forge'},
+    'The Wandering Crown': {'final_cut': True,
+                            'inspiration': 'Nomadic',
+                            'feel': 'Nomads',
+                            'difficulty': 'High',
+                            'strength': 'Medium',
+                            'mechanic': "Wandering Nomads: Your armies function as settlements, classified as a Band, Tribe, or Horde and upgraded accordingly. You may have one additional army per Era, starting with two. Armies do not require troops to exist and cannot be besieged. Nomads cannot build infrastructure but may build pursuits. Raw Material pursuits within Reach are always considered active and do not take a settlement ward. Each army is considered to have a Muster Field. You may trade so long as your border touches another player's border. Armies count as settlements with a Reach of 3. When an army is destroyed, so is its settlement. You may begin a new army adjacent to any existing army by using either the Charter Settlement or Muster Army actions. Nomads do not pay any upkeep.",
+                            'pair': 'Saddlery, Royal Pavilion',
+                            'complement': 'Forge'},
+    'The Dukedom': {'final_cut': True,
+                    'inspiration': 'The Game',
+                    'feel': 'King of the Castle',
+                    'difficulty': 'High',
+                    'strength': 'High',
+                    'mechanic': "The Great Arbiter: The Duke begins the game trading with all players under a Non-Aggression Pact. The Duke cannot join alliances, perform Cunning actions, or Declare War. If a player declares war on the Duke, that player's Trade Agreements, Non-Aggression Pacts, and Defensive Alliances are immediately and permanently voided. Their Military Alliance remains intact. All other players simultaneously declare war on that player and their Military Alliance. These cannot be reinstated while at war with the Duke. The Duke sees all private actions, resolves player actions, and manages Bandit Mechanics. If the Duke is eliminated, the game ends. The Duke may optionally choose a faction.",
+                    'pair': 'Senate Hall, Aristocratic Court',
+                    'complement': 'Royal Pavilion, Imperial Palace'},
+    'The Elder Grove': {'final_cut': False,
+                        'inspiration': 'Elves',
+                        'feel': 'Cautious Quickfighters',
+                        'difficulty': 'Low',
+                        'strength': 'Medium',
+                        'mechanic': 'Wise & Suspicious: Gain Doubt +1; If Public Order is 1+, armies gain +1I, Steady, and Speed +1. Cannot be a member of an alliance.',
+                        'pair': 'Forge',
+                        'complement': 'Inquisitorial Palace'},
+    'The Yew Heart': {'final_cut': True,
+                      'inspiration': 'English Longbows',
+                      'feel': 'Skilled Volleys',
+                      'difficulty': 'Low',
+                      'strength': 'Medium',
+                      'mechanic': "Archery is a Way of Life: You begin the game with a Fletchery which does not occupy a Settlement ward, nor cost upkeep. You always gain its Mastery Effect, which cannot be deactivated. In addition, your armies must always be equipped with a ranged weapon. Ranged Weapons gain +1 to Strike. Cannot  be equipped with full plate or articulated gothic plate. Cannot use shields. Cannot build a Preceptory of Knight's Templar.",
+                      'pair': 'Royal Pavilion',
+                      'complement': 'Senate Hall'},
+}
+
 
 # ── INFRASTRUCTURE & WONDERS ───────────────────────────────────────────────
 # Empire-level builds (per-settlement infrastructure + unique Wonders).
@@ -2057,7 +1988,7 @@ SETTLEMENTS = {
     "Village":    {"tier": 1, "sea_variant": None,        "tax_income": 2000,  "muster_limit": 5, "build_time": 1, "wards": 1, "reach": 1, "notes": ""},
     "Town":       {"tier": 2, "sea_variant": "Sea Town",  "tax_income": 4000,  "muster_limit": 10, "build_time": 2, "wards": 2, "reach": 2, "notes": ""},
     "City":       {"tier": 3, "sea_variant": "Port",      "tax_income": 6000,  "muster_limit": 25, "build_time": 3, "wards": 3, "reach": 3, "notes": ""},
-    "Metropolis": {"tier": 4, "sea_variant": "Metropolis","tax_income": 10000, "muster_limit": 25, "build_time": 5, "wards": 4, "reach": 4, "notes": "Capital only, requires Sovereign Industry (Titan of Industry)"},
+    "Metropolis": {"tier": 4, "sea_variant": "—","tax_income": 10000, "muster_limit": 25, "build_time": 5, "wards": 4, "reach": 4, "notes": "Capital only, requires Sovereign Industry (Titan of Industry)"},
 }
 
 # Era progression: shared-Renown thresholds; caps on armies/cities; influence.
@@ -2136,8 +2067,8 @@ DOMAIN_BOARD = {
 # Seasons (turn cycle of 4; Rest Phase advances Season +1).
 SEASONS = {
     "Winter": {"name": "Freezing",    "effect": "All Armies gain Speed -1; Sieges do not increment. Tax income collected."},
-    "Spring": {"name": "Planting",    "effect": "No Host, Bandits, Trade Income, Council Phase, or Diplomacy Actions. Gain +1 Envoy."},
-    "Summer": {"name": "Campaigning", "effect": "All Armies gain Speed +3; all Armies gain Strained."},
+    "Spring": {"name": "Planting",    "effect": "No Host, Bandit Mechanics, Trade Income, Council Phase, or Diplomacy Actions. Gain +1 Envoy. Bandit Camps Spawn."},
+    "Summer": {"name": "Campaigning", "effect": "All Armies gain Speed +2"},
     "Fall":   {"name": "Harvest",     "effect": "Husbandry Mastery Effects are doubled."},
 }
 
@@ -2183,20 +2114,31 @@ BANDITS = {
 }
 
 # Bandit Camp -> Army threshold and starting size, surfaced for the engine.
-BANDIT_CAMP_START = 10
+BANDIT_CAMP_START = 5
 BANDIT_ARMY_THRESHOLD = 25
 BANDIT_GROWTH_PER_ERA = {"Founding": 1, "Ascension": 5, "Eminence": 10, "Zenith": 20}
 
 TIMERS = {
-    "Build Timer":   {"where": "Infrastructure / Settlement Wards / Pursuits", "tracks": "Turns until an infrastructure/build completes and becomes Active."},
-    "Repair Timer":  {"where": "Damaged Pursuits / Infrastructure", "tracks": "Turns until a Damaged piece is repaired and its effects return."},
-    "Truce Timer":   {"where": "Treaties / diplomacy outcomes", "tracks": "Turns remaining until a Truce expires (and related diplomacy restrictions end)."},
-    "Siege Timer":   {"where": "Lay Siege", "tracks": "Turns remaining until a Siege resolves."},
-    "Muster Timer":  {"where": "Muster effects (e.g., Garrison timing)", "tracks": "Turns remaining until Recruited Retinues become Active (or until a temporary Muster state ends)."},
-    "Sack Timer":    {"where": "After Sacking a Settlement", "tracks": "Cooldown before the same force may Lay Siege again (per Sack rules)."},
-    "Capture Timer": {"where": "Capturing a Settlement after Siege", "tracks": "Turns until a Captured Settlement becomes Controlled by the Player with the Capture Timer and applies the listed capture effects."},
-    "Convert Timer": {"where": "Convert (Piety action)", "tracks": "Turns until a Convert attempt resolves (or fails early if conditions change)."},
+    "Build Timer":   {"where": "Infrastructure / Settlement Wards / Pursuits", "default": None, "tracks": "Turns until an infrastructure/build completes and becomes Active."},
+    "Repair Timer":  {"where": "Damaged Pursuits / Infrastructure", "default": 2, "tracks": "Turns until a Damaged piece is repaired and its effects return."},
+    "Truce Timer":   {"where": "Treaties / diplomacy outcomes", "default": 5, "tracks": "Turns remaining until a Truce expires (and related diplomacy restrictions end)."},
+    "Siege Timer":   {"where": "Lay Siege", "default": None, "tracks": "Turns remaining until a Siege resolves."},
+    "Muster Timer":  {"where": "Muster effects (e.g., Garrison timing)", "default": 1, "tracks": "Turns remaining until Recruited Retinues become Active (or until a temporary Muster state ends)."},
+    "Sack Timer":    {"where": "After Sacking a Settlement", "default": 2, "tracks": "Cooldown before the same force may Lay Siege again (per Sack rules)."},
+    "Capture Timer": {"where": "Capturing a Settlement after Siege", "default": 1, "tracks": "Turns until a Captured Settlement becomes Controlled by the Player with the Capture Timer and applies the listed capture effects."},
+    "Convert Timer": {"where": "Convert (Piety action)", "default": None, "tracks": "Turns until a Convert attempt resolves (or fails early if conditions change)."},
 }
+
+# ── Chartering / map placement constants (prose-only before; tunable balance) ──
+CHARTER_MIN_RANGE   = 4   # min range a new settlement must be from any other settlement
+OUTLAW_BUFFER_RANGE = 2   # new settlements must be at least this far from Outlaw Country
+HAMLET_RANGE        = 2   # exact range a Hamlet sits from the capital
+OUTLAW_COUNTRY_START = 3  # Outlaw Country territories demarcated at game start
+
+# ── Vassalage ─────────────────────────────────────────────────────────────────
+VASSAL_EXCHANGE_CAP = 2000  # max gold a Suzerain/vassal may exchange per Empire Phase
+VASSAL_INFLUENCE_TAKE = 3   # first N Influence the vassal generates each turn goes to Suzerain
+
 
 # Build durations in turns. Infrastructure keyed by its tier name.
 BUILD_TIMERS = {
@@ -2258,7 +2200,7 @@ INFLUENCE_GAIN = {
     "Alliances": {"change": "+1", "notes": "Per Alliance Member."},
     "Infrastructure tier completed": {"change": "+1", "notes": "Per Infrastructure tier fully completed."},
     "Cunning Standing": {"change": "+1", "notes": "Flat bonus if you have the Cunning Standing."},
-    "Fully Mustered Army": {"change": "+1", "notes": "Per active Army of 50 Retinues."},
+    "Fully Mustered Army": {"change": "+1", "notes": "Per active Army of 25 Retinues."},
     "Condemned Envoy last turn": {"change": "-1", "notes": "Per Condemned Envoy last turn."},
     "At War": {"change": "-3", "notes": "While at War."},
     "Other sources": {"change": "+X", "notes": "From other effects like Pursuits."},
@@ -2338,7 +2280,7 @@ ACTIONS = {
     # ── PROWESS ──
     "Move": {
         "domain": "Prowess", "cost": "None", "requires": "",
-        "effect": "Move an Army up to its Speed in Territories, then choose: March (move up to 2x Speed, −1 Endurance, no other action), Skirmish (end adjacent to a non-allied Army not in a settlement → Battle, Seize the Initiative +1I Skirmish 1), Lay Siege (end adjacent to an at-war settlement → Siege), or Muster (within range 3 of your settlements, not within range 1 of a non-ally → recruit up to combined muster limit; may swap retinues between adjacent allied armies and change equipment).",
+        "effect": "Move an Army up to its Speed in Territories, then choose: March (move up to 2x Speed, −1 Endurance, no other action), Skirmish (end adjacent to a non-allied Army not in a settlement → Battle, Seize the Initiative +1I Skirmish 1), Lay Siege (end adjacent to an at-war settlement → Siege), or Muster (within range 3 of your settlements, not within range 1 of a non-ally, with an active Muster Field → recruit up to combined muster limit; may swap retinues between adjacent allied armies and change equipment).",
         "endorsed": "Perform another Move action (same or different Army).",
         "notes": ["Each Army may be the target of only one Move action per turn.",
                   "Strained armies do not gain +1 Endurance at the start of next turn.",
@@ -2421,7 +2363,7 @@ ACTIONS = {
                   "Power and unique pursuits have Build Timer +1; Monuments +2; all others Build Timer 1."]},
     "Charter": {
         "domain": "Industry", "cost": "2000 gold", "requires": "",
-        "effect": "Choose: Charter a new Village (uncontrolled or in-province non-water/mountain territory, range 4+ from any settlement, not within range 2 of Outlaw Country); Charter a Hamlet (if none, range 2 from capital, non-water/mountain); or Expand an existing non-city settlement by one tier into an adjacent territory, adding a ward.",
+        "effect": "Choose: Charter a new Village (uncontrolled or in-province non-water/mountain territory, range 4+ from any settlement, not within range 2 of Outlaw Country); Charter a Hamlet (if none, range 2 from capital, non-water/mountain — a Hamlet always allows pursuing Arable Land even if that raw material is not in its region); or Expand an existing non-city settlement by one tier into an adjacent territory (Village → Sea/Town, Sea/Town → Port/City, Port/City → Metropolis), adding a ward.",
         "endorsed": "Recoup 2000.",
         "notes": ["To upgrade to City or Metropolis you must meet that tier's requirements; otherwise set Build Timer 1.",
                   "Hamlets always allow pursuing Arable Land."]},

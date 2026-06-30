@@ -32,14 +32,19 @@ HEAD_BEFORE = {1: 12, 2: 12, 3: 8, 4: 6, 5: 6, 6: 6}
 
 TABLE_MK    = re.compile(r"^\s*\{\{TABLE:([a-z_]+)\}\}\s*$")
 GLOSSARY_MK = re.compile(r"^\s*\{\{GLOSSARY\}\}\s*$")
+ACTIONS_MK  = re.compile(r"^\s*\{\{ACTIONS:([A-Za-z]+)\}\}\s*$")
+LIST_MK     = re.compile(r"^\s*\{\{LIST:([A-Z_]+)\}\}\s*$")
+COLS_MK     = re.compile(r"^\s*\{\{COLS:(\d)\}\}\s*$")
 DEF_MK      = re.compile(r"\{\{DEF:([^}]+)\}\}")
+VAL_MK      = re.compile(r"\{\{VAL:([^}]+)\}\}")
 VERSION_MK  = re.compile(r"\{\{VERSION\}\}")
 INLINE      = re.compile(r"(\*\*\*.+?\*\*\*|\*\*.+?\*\*|\*.+?\*|`.+?`)")
 
 
 def _subs(text):
-    """Inline {{VERSION}} / {{DEF:term}} substitutions (run before run parsing)."""
+    """Inline {{VERSION}} / {{VAL:path}} / {{DEF:term}} substitutions (run before run parsing)."""
     text = VERSION_MK.sub(VERSION, text)
+    text = VAL_MK.sub(lambda m: dt.value(m.group(1).strip()), text)
     text = DEF_MK.sub(lambda m: dt.definition(m.group(1).strip()) or m.group(0), text)
     return text
 
@@ -65,6 +70,19 @@ def _runs(paragraph, text, base_bold=False, base_size=None):
             r.font.size = Pt(base_size)
         r.bold = bold
         r.italic = ital
+
+
+def _colbreak(n):
+    """A continuous section break. Per OOXML, a sectPr in a paragraph defines the
+    section ENDING at that paragraph, so {{COLS:N}} sets N columns for everything
+    since the previous break up to here. The final (body) sectPr stays 1-column."""
+    cols = ('<w:cols w:space="708"/>' if n == 1
+            else f'<w:cols w:num="{n}" w:space="360" w:equalWidth="1"/>')
+    return ('<w:p><w:pPr><w:sectPr><w:type w:val="continuous"/>'
+            '<w:pgSz w:w="11906" w:h="16838"/>'
+            '<w:pgMar w:top="720" w:right="720" w:bottom="720" w:left="720" '
+            'w:header="708" w:footer="708" w:gutter="0"/>'
+            f'{cols}</w:sectPr></w:pPr></w:p>')
 
 
 def _inject(doc, ooxml):
@@ -124,6 +142,21 @@ def render(md_path, out_path):
             continue
         if GLOSSARY_MK.match(ln):
             _inject(doc, dt.glossary_block())
+            i += 1
+            continue
+        am = ACTIONS_MK.match(ln)
+        if am:
+            _inject(doc, dt.actions(am.group(1)))
+            i += 1
+            continue
+        lm0 = LIST_MK.match(ln)
+        if lm0:
+            _inject(doc, dt.list_block(lm0.group(1)))
+            i += 1
+            continue
+        cm = COLS_MK.match(ln)
+        if cm:
+            _inject(doc, _colbreak(int(cm.group(1))))
             i += 1
             continue
 
