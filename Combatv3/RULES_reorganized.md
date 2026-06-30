@@ -823,29 +823,29 @@ When a Siege Timer reaches 0:
 
 ### Spawning Bandit Camps
 
-At the beginning of Bandit Mechanic Phase: **fate roll**. Modify by −1 for each **bandit camp** already in the **Realm**. If the modified roll is 7 or higher, place a **bandit camp** with 10 Bandits (Retinues) in a **player’s** Outlaw Country with the fewest **bandit camps** in their Outlaw Country. The **player** with the highest Cunning Player besides the Player who **controls** the **starting settlement region** where the **bandit camp** is being placed, places it. If every **player** already has the same number of **bandit camps**, the **player** with the lowest Cunning (tiebreak: Prowess) and count of **bandit camps** receives the next one.
+At the beginning of Bandit Mechanic Phase in Spring: Place a **bandit camp** with 5 Bandits (retinues) in each **player’s** Outlaw Country. 
 
  *Note: if your outlaw country is selected to receive another bandit camp, but there is no room to place one, increase your outlaw country territory by one, and spawn the bandit camp there.*
 
 ### Growing Bandit Camps
 
-A **bandit camp** becomes a **bandit army** when it reaches 25 Retinues. Bandit Armies still gain Retinues (max 50).
+A **bandit camp** becomes a **bandit army** when it reaches 25 Retinues.
 
 ### Bandit Armaments by Era
 
 ### Bandit Info
 
-Bandits share the same **Renown** level as **players**. **Bandit domain** Value is determined by the size of it’s Bandit Camp:
+Bandits share the same **Renown** level as **players**. **Bandit Domain** value is determined by the size of it’s Bandit Camp:
 
 - +1 Cunning and +1 Prowess for every multiple of 5 Bandits in the camp(e.g., 30 Retinues = 6 Cunning = Established Cunning = influence 2).
 All **players** are At War with all Bandits and their camps. **Players abstain** all Bandit Actions, but **innate modifiers** can be applied to cause the **action** to Fail.
 
-If 15+ Bandits (Retinues) in camp, roll d3 each turn:
+If 10+ Bandits (Retinues) in camp, roll d3 each turn:
 
 - **1 –** Intercept Caravan
 - **2 –** Raze
 - **3 –** Destabilize
-**Host** rolls first for **spawning** new **bandit camps**. **Bandit camps** keep Extorted money in it’s **treasury** and doesn’t **pay costs** or **upkeep**. When you destroy a **bandit camp** or **army**, you **extort bandit camp’s treasury**.
+**Bandit camps** keep Extorted money in it’s **treasury** and doesn’t **pay costs**, **upkeep**, or **recoups**. When you destroy a **bandit camp** or **army**, you **extort bandit camp’s treasury**.
 
 ### Bandit Army Behavior
 
@@ -861,4 +861,4 @@ After Performing Bandit Mechanics, a Bandit **army** will perform a Move Action 
 
 ### Attacking a Bandit Camp
 
-Use the **move** a**rmy** **action** to end **adjacent** to a **bandit camp**. Another **player** rolls for **bandit tactics** (roll D6, 7 = Fallback), and **resolves to hit** and to **save rolls**. Resolve as a **battle** in **battle phase**. **Extort** the **bandit camp’s** g**old** if destroyed. **Bandits** never **fallback**, but may **flee**.
+Use the **move** **army** **action** to end **adjacent** to a **bandit camp**. Another **player** rolls for **bandit tactics** (roll D6, 7 = Fallback), and **resolves to hit** and to **save rolls**. Resolve as a **battle** in **battle phase**. **Extort** the **bandit camp’s** **gold** if destroyed. **Bandits** never **fallback**, but may **flee**.

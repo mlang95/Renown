@@ -1,5 +1,5 @@
 {
- "version": "0.4.9.1",
+ "version": "0.4.9.2",
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
@@ -85,7 +85,7 @@
   "Domain": "One of the four identities \u2014 Industry, Prowess, Cunning, Piety \u2014 raised by spending Domain points. Values 3/6/10 = Rising/Established/Sovereign Standing.",
   "Domain Point": "Gained 1 per Rest Phase; spend to raise a Domain value by 1.",
   "Standing": "Your tier in a Domain: Untested, Rising (3), Established (6), Sovereign (10). Sets max Influence per vote (1/2/3/4) and unlocks Domain effects.",
-  "Public Order": "A track from -5 to 7, adjusted each turn by Faith minus Doubt; its band applies cumulative effects (see the Public Order table).",
+  "Public Order": "A track from -5 to 10, adjusted each turn by Faith minus Doubt; its band applies cumulative effects (see the Public Order table).",
   "Reach": "How far a Settlement projects control, in Territories (by tier). Calculated like Range X",
   "Bandit": "Neutral hostile force; Bandit Camps spawn in Outlaw Country and on low Public Order.",
   "Outlaw Country": "Uncontrollable territories in your starting region where Bandit Camps spawn, starting at 3 and expanding if there is no room to place new Bandit Camps.",
@@ -432,7 +432,7 @@
     ],
     [
      "Public Order",
-     "A track from -5 to 7, adjusted each turn by Faith minus Doubt; its band applies cumulative effects (see the Public Order table)."
+     "A track from -5 to 10, adjusted each turn by Faith minus Doubt; its band applies cumulative effects (see the Public Order table)."
     ],
     [
      "Reach",
@@ -657,11 +657,26 @@
   ],
   [
    "6",
-   "Holy",
-   "+2 Influence"
+   "Devout",
+   "+1 Influence"
   ],
   [
    "7",
+   "Pious",
+   "Immune Deficit"
+  ],
+  [
+   "8",
+   "Holy",
+   "Immune to Spread Gospel"
+  ],
+  [
+   "9",
+   "Sanctified",
+   "Immune to Send Missionaries"
+  ],
+  [
+   "10",
    "Living Saints",
    "Begin Pious Timer Edict"
   ]
@@ -711,6 +726,11 @@
    "Doubt",
    "Mounting Panic",
    "Per Settlement being Besieged"
+  ],
+  [
+   "Doubt",
+   "War Weariness",
+   "Per consecutive Battle loss"
   ]
  ],
  "seasons": [
@@ -902,7 +922,7 @@
      "Herb Garden",
      "Arable Land or Peat Bog",
      "+200, **Natural**",
-     "\u2014"
+     "Craft +1"
     ],
     [
      "Animal Husbandry",
@@ -914,7 +934,7 @@
      "Saddlery",
      "Arable Land + Animal Husbandry + Stable",
      "**Efficient Stable**; +200, **Natural**",
-     "**Upkeep -200**"
+     "**Upkeep -200**; Speed +1"
     ],
     [
      "Vineyard",
@@ -1092,20 +1112,20 @@
     [
      "Merchant Quarter",
      "Craft 3 + Market Square",
-     "**Efficient Market Square**; +400",
-     "Trade Partners gain Craft +1"
+     "**Efficient Market Square**; +500",
+     "Trade Partners gain Craft +2"
     ],
     [
      "Census Hall",
      "Workyard + Market Square",
-     "**Doubt +1**; Craft +2",
-     "+600"
+     "**Doubt +1**; +200",
+     "+500"
     ],
     [
      "Caravanery",
-     "Market Square or Merchant Quarter",
+     "Market Square or Merchant Quarter + Stable",
      "**Influence -1** to **Intercept Caravan actions** targeting your **settlements**",
-     "**Craft +2**"
+     "**Craft +2**; **Speed -2** to non-allied players in your Province."
     ],
     [
      "Shipyard",
@@ -1163,19 +1183,19 @@
     [
      "Jester's Court",
      "Courtyard",
-     "**Efficient Courtyard**",
-     "First **Oppose** on your Envoy: reduce by 1"
+     "**Efficient Courtyard**; First **Oppose** on your Envoy: reduce by 1",
+     "Second **Oppose** on your Envoy: reduce by 1"
     ],
     [
      "Embassy",
      "Bell Tower + Jester's Court",
      "**Efficient Jester's Court**; **Influence +1** to Diplomacy Envoys",
-     "\u2014"
+     "Players that perform a Diplomacy action targetting you may perform another Displomacy action targetting you."
     ],
     [
      "Granary",
      "Arable Land",
-     "**Efficient Arable Land**; +200",
+     "**Efficient Arable Land**; Upkeep -200",
      "Armies and Garrisons gain **Endurance** while Besieged"
     ],
     [
@@ -1187,14 +1207,14 @@
     [
      "Courtyard",
      "Masonry",
-     "+200",
+     "Craft +1",
      "**Faith +1**"
     ],
     [
      "Episcopal Court",
      "Masonry",
-     "**Faith +1**",
-     "+200"
+     "**Efficient Courtyard**; **Faith +1**",
+     "Reduce the first instance of Doubt at start of turn by 1, min 0."
     ],
     [
      "Conditioning Field",
@@ -1217,20 +1237,20 @@
     [
      "Infirmary",
      "Alchemy + Herb Garden",
-     "**Efficient Apothecary**",
+     "**Efficient Apothecary**; +200",
      "Improve Recover by +1"
     ],
     [
      "Supply Depot",
      "Granary or Smokehouse",
-     "**Efficient Granary**; May **Muster** an Army in a Settlement under Siege",
-     "**Craft +2**"
+     "**Efficient Granary**; **Craft +2**",
+     "May **Muster** an Army in a Settlement under Siege and increment Muster Timers."
     ],
     [
      "Artisan Workshop",
      "Carpentry + Arable Land + Weavery",
-     "+400, **Faith +1**",
-     "+200"
+     "+400",
+     "+200, **Faith +1**"
     ],
     [
      "Trade Guild",
@@ -1240,7 +1260,7 @@
     ],
     [
      "Court Artists",
-     "Merchant Quarter + Money Lending",
+     "Merchant Quarter + Artisan Workshop",
      "**Extort 500**; **Faith +1**",
      "**Extort 500**; Target of Extort gains **Faith +1**"
     ],
@@ -1253,7 +1273,7 @@
     [
      "Toll House",
      "Caravanery + Courier Network",
-     "Once/turn when a non-allied Army ends a Move action within Province: Perform a Diplomacy action",
+     "Once/turn when an Army ends a Move action within Province: Perform a Diplomacy action targeting that army's player",
      "**Extort 500** when non-Allied Army ends a Move action within Province"
     ]
    ]
@@ -1264,8 +1284,8 @@
     [
      "Smuggler's Nook",
      "Secret Cellar + Inn",
-     "**Efficient Secret Cellar**; \u2014",
-     "Bandit Camps in your Outlaw Country don't target you and target other players instead randomly; no Doubt +1 per Bandit Camp in Outlaw Country"
+     "**Efficient Secret Cellar**; gain Immune Local Unrest (-1PO per Bandit Camp)",
+     "Bandit Camps in your Outlaw Country don't target you and target other players instead randomly."
     ],
     [
      "Black Market",
@@ -1276,13 +1296,13 @@
     [
      "Toxicarium",
      "Academy + Alchemy",
-     "**Efficient Alchemy**; Weapons have **Poison**",
-     "All Endorsed Cunning actions give an additional **Doubt +1** to Target and **Extort 1000**"
+     "**Efficient Alchemy**; Weapons gain **Poison**",
+     "All Endorsed Cunning actions give an additional **Doubt +1** to Target"
     ],
     [
      "Forgotten Catacombs",
      "Secret Cellar",
-     "**Efficient Secret Cellar**",
+     "**Efficient Secret Cellar**; Whenever you are the target of **Extort**, reduce the Extort amount by 100 (min 100).",
      "Cunning actions against you cannot be **Endorsed**"
     ]
    ]
@@ -1293,7 +1313,7 @@
     [
      "Secret Cellar",
      "Smuggler's Nook",
-     "**Efficient Inn**",
+     "**Efficient Inn**; \u2014",
      "Passed Cunning actions **Recoup 500 Gold**"
     ],
     [
@@ -1305,7 +1325,7 @@
     [
      "Beacon Towers",
      "Courier Network + Toll House",
-     "**Efficient Toll House**",
+     "**Efficient Toll House**; \u2014",
      "Whenever a non-allied Army ends a Move action within Province, you may immediately perform a Move action"
     ],
     [
@@ -1370,7 +1390,7 @@
     [
      "Forgery Workshop",
      "Academy + Secret Cellar",
-     "**Efficient Academy**; Extort 200 anytime a player Opposes an Envoy of yours",
+     "**Efficient Academy**; **Extort 200** anytime a player Opposes an Envoy of yours",
      "Once/turn: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed"
     ],
     [
@@ -1406,7 +1426,7 @@
     [
      "Forge",
      "Blacksmith",
-     "**Efficient Blacksmith**; +300",
+     "**Efficient Blacksmith**; Craft +1",
      "Unlocks **Forged** Tier"
     ],
     [
@@ -1418,8 +1438,8 @@
     [
      "Cipher Chamber",
      "University + Courier Network",
-     "**Efficient University**; Once/turn when a player Sends an Envoy: that player must declare the specific Action they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action. .",
-     "Once/turn: select any active **Timer** you did not select last turn; increase it by 1."
+     "**Efficient University**; Once/turn when a player Sends an Envoy: that player must declare the specific Action they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action.",
+     "Once/turn: select any active **Timer** you did not select last turn; increase it by 2."
     ]
    ]
   },
@@ -1454,19 +1474,19 @@
      "Senate Hall",
      "Embassy + Library + Town Hall",
      "**Faith +1**, gain **+1 Influence** per other player per Turn",
-     "Once/turn: auto-**Condemn** an At War Envoy OR auto-**Endorse** an Ally's Envoy"
+     "Once/turn: Before players Support or Oppose, you may auto-**Condemn** an At War Envoy OR auto-**Endorse** an Ally's Envoy"
     ],
     [
      "Inquisitorial Palace",
      "Execution Dock + Monastery",
      "**Efficient Monastery**; **Doubt +1**; Unlocks **Grand Vizier** which uses your **Public Order** instead of your **Cunning** value.",
-     "**Piety Value** acts as **Cunning Value** for Grand Vizier"
+     "You may use your **Piety Value** as **Cunning Value** for **Grand Vizier**."
     ],
     [
      "Preceptory of the Knight's Templar",
      "Monastery + Pilgrimage Site + Hospitaller + Abbey",
-     "**Efficient Monastery**; Unlocks **Knight's Templar** for Muster",
-     "Armies gain **Zealous**: Automatically pass the first Panic Check of every Battle."
+     "**Efficient Monastery**; Armies gain **Zealous**: Automatically pass the first Panic Check of every Battle.",
+     "Unlocks **Knight's Templar** for Muster"
     ],
     [
      "Manor House",
@@ -1477,7 +1497,7 @@
     [
      "Aristocratic Court",
      "Money Lending + Forgery Workshop + Court Artists",
-     "**Efficient Court Artists**; **Doubt +1**",
+     "**Efficient Court Artists**; **Doubt +1** per player who earns more Income than you each turn in the Income step.",
      "Your Vote counts as 2 votes toward Domain selection during the Council Phase."
     ],
     [
@@ -1490,7 +1510,7 @@
      "Advanced Blast Furnace",
      "Gilded Foundry + Master Workshop + Blacksmith + Stable",
      "**Efficient Forge**; **Upkeep -500**",
-     "**Crafted** Tier Unlocked"
+     "**Crafted** Tier Unlocked; Craft +2"
     ],
     [
      "Outrider Intercept Post",
@@ -1782,8 +1802,8 @@
   [
    "Dirt Roads",
    "0",
-   "per Settlement",
-   "Can Trade; place Dirt Road Territories; ignore Terrain Speed Modifiers",
+   "\u2014",
+   "Can Trade; place Dirt Road Territories in Province; ignore Terrain Speed Modifiers",
    "Primitive",
    "2",
    "None"
@@ -1791,7 +1811,7 @@
   [
    "Hitching Post",
    "0",
-   "per Settlement",
+   "\u2014",
    "Craft +1",
    "Primitive",
    "2",
@@ -1799,8 +1819,8 @@
   ],
   [
    "Muster Field",
-   "50",
-   "per Settlement",
+   "100",
+   "\u2014",
    "Can Muster",
    "Primitive",
    "2",
@@ -1808,8 +1828,8 @@
   ],
   [
    "Wooden Walls",
-   "50",
-   "per Settlement",
+   "100",
+   "\u2014",
    "**Influence -1** to **Raze actions** targeting your **settlements**",
    "Primitive",
    "2",
@@ -1817,8 +1837,8 @@
   ],
   [
    "Stone Roads",
-   "50",
-   "per Settlement",
+   "100",
+   "\u2014",
    "Ignore Terrain Speed Modifiers; if you start turn on Stone Road gain Speed +2; replaces Dirt Roads",
    "Developed",
    "3",
@@ -1826,8 +1846,8 @@
   ],
   [
    "Town Hall",
-   "50",
-   "per Settlement",
+   "100",
+   "\u2014",
    "+1 Influence per turn",
    "Developed",
    "3",
@@ -1836,7 +1856,7 @@
   [
    "Bridges",
    "0",
-   "\u00e2\u20ac\u201d",
+   "\u2014",
    "Armies cross Water Territory at full movement; Stone Roads may be built over Water",
    "Developed",
    "3",
@@ -1844,17 +1864,17 @@
   ],
   [
    "Garrison",
-   "50/100/200",
-   "per Settlement",
-   "Local Armies form (10/20/30 by Settlement size). All Garrisons share Equipment. Cannot be targeted; may Sally Forth.",
+   "200",
+   "\u2014",
+   "Local Armies form (10/15/25 by Settlement size). All Garrisons share Equipment. Cannot be targeted; may Sally Forth.",
    "Developed",
    "3",
    "Muster Field"
   ],
   [
    "Stone Walls",
-   "50",
-   "per Settlement",
+   "100",
+   "\u2014",
    "**Influence -1** to **Destabilize actions** targeting your **settlements**",
    "Sophisticated",
    "4",
@@ -1862,8 +1882,8 @@
   ],
   [
    "Keep",
-   "50",
-   "\u00e2\u20ac\u201d",
+   "100",
+   "\u2014",
    "May Muster from Garrison in addition to normal Muster Limits. If so set Garrison to 0 and Muster Timer 1. Garrison returns to full when resolved.",
    "Sophisticated",
    "4",
@@ -1871,8 +1891,8 @@
   ],
   [
    "Cathedral",
-   "50",
-   "per Settlement",
+   "100",
+   "\u2014",
    "Faith +1",
    "Sophisticated",
    "4",
@@ -1880,8 +1900,8 @@
   ],
   [
    "Library",
-   "50",
-   "per Settlement",
+   "200",
+   "\u2014",
    "Influence +1 to Council Envoys",
    "Sophisticated",
    "4",
@@ -2185,7 +2205,7 @@
   [
    "Prowess",
    "Indominable: Once per turn, if you have not sent an Envoy, you may perform a Prowess action; send 1 fewer Envoy this turn (min 0). May use Declare War action.",
-   "Edict of War: All armies gain Parry. No longer gain Doubt while at War.",
+   "Edict of War: All armies gain Parry. Gain Immune State of Alarm (No longer gain Doubt while at War).",
    "High Quartermaster: Upkeep -2000. No longer lose Influence while at War. May change equipment on your armies during any upkeep phase where that army is within Province."
   ],
   [
@@ -2196,8 +2216,8 @@
   ],
   [
    "Piety",
-   "Divine Mandate: Faith +1.",
-   "Prophet of Retribution: All other players gain Doubt +1 while your Public Order is positive.",
+   "Divine Mandate: Faith +2.",
+   "Prophet of Retribution: All other players gain Doubt +2 while your Public Order is positive.",
    "Pillar of Faith: If your Public Order would go below 3, set it to 3. May use the Crusade action."
   ]
  ],

@@ -21,7 +21,7 @@ set MODE=both
 REM WHAT : cards | docs | wiki | both
 set WHAT=both
 REM PLAYERS : table size (2-7)
-set PLAYERS=1
+set PLAYERS=2
 REM OUT_DIR : where card PDFs land
 set OUT_DIR=cards
 REM WIKI_REPO : local clone of the RenownWiki repo (GitHub Pages source)
