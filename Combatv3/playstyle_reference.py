@@ -32,7 +32,7 @@ try:    WONDERS = set(rd.WONDERS)
 except Exception: WONDERS = set()
 
 AXES = [("military_solutions", "Military"), ("economy_generators", "Economy"),
-        ("faith_management", "Faith"), ("doubt_warfare", "Doubt"),
+        ("faith_management", "Faith"), ("doubt_warfare", "Disruption"),
         ("political_control", "Influence"), ("board_presence", "Board"),
         ("degenerate_punishment", "Punish")]
 AXIS_LABELS = [lab for _, lab in AXES]

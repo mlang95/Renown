@@ -1,6 +1,6 @@
 # renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
-VERSION = "0.4.9.2.5"
+VERSION = "0.4.9.2.7"
 # ── Keyword constants ─────────────────────────────────────────────────────
 # Rename a keyword here and it renames everywhere (GLOSSARY keys, tags, cards).
 
@@ -2104,19 +2104,17 @@ EFFICIENT = {n: t[0] for n, t in EFFICIENT_MULTI.items()} # first target (1-part
 # (Regenerate/Steadfast/Unshakable/Shaking Test/Tripped/Maximum Endurance) are
 # intentionally excluded as deprecated relative to the combat model above.
 # ============================================================================
+BANDIT_CAMP_START = 5
+BANDIT_ARMY_THRESHOLD = 25
+BANDIT_GROWTH_PER_ERA = {"Founding": 1, "Ascension": 2, "Eminence": 5, "Zenith": 10}
 
 BANDITS = {
     "Bandit Domain Value": "For every 5 Retinues in the Bandit Camp or Army, the Bandit Camp has +1 Cunning and +1 Prowess.",
-    "Bandit Camp": "A collection of Bandits in Outlaw Country, starting with 10 Retinues.",
-    "Bandit Growth": "Bandit Camps gain (1/5/10/20) Retinues a turn, based on the Era of the Realm.",
-    "Bandit Army": "A Bandit Camp becomes a Bandit Army at 25 Retinues. Performs Move actions toward the closest Settlement or Army, laying Siege or Skirmishing if possible, in addition to Bandit Cunning Mechanics.",
+    "Bandit Camp": f"A collection of Bandits in Outlaw Country, starting with {BANDIT_CAMP_START} Retinues.",
+    "Bandit Growth": f"Bandit Camps gain ({'/'.join(str(v) for v in BANDIT_GROWTH_PER_ERA.values())}) Retinues a turn, based on the Era of the Realm.",
+    "Bandit Army": f"A Bandit Camp becomes a Bandit Army at {BANDIT_ARMY_THRESHOLD} Retinues. Performs Move actions toward the closest Settlement or Army, laying Siege or Skirmishing if possible, in addition to Bandit Cunning Mechanics. Bandit Armies cannot exceed {BANDIT_ARMY_THRESHOLD}",
     "Spawn a Bandit Camp": "Each Spring, every player gains a Bandit Camp.",
 }
-
-# Bandit Camp -> Army threshold and starting size, surfaced for the engine.
-BANDIT_CAMP_START = 5
-BANDIT_ARMY_THRESHOLD = 25
-BANDIT_GROWTH_PER_ERA = {"Founding": 1, "Ascension": 5, "Eminence": 10, "Zenith": 20}
 
 TIMERS = {
     "Build Timer":   {"where": "Infrastructure / Settlement Wards / Pursuits", "default": None, "tracks": "Turns until an infrastructure/build completes and becomes Active."},
@@ -2160,8 +2158,9 @@ TERRAIN = {
 	"Wetlands": {"Effect": "Speed -1", "Raw Materials": ["Peat Bog", "Forestry"]},
 	"Tundra": {"Effect": "gain Strained", "Raw Materials": ["Quarry", "Salt Works"]},
 	"Mountains": {"Effect": "Impassable", "Raw Materials": ["Mine"]},
-	"Water": {"Effect": "Must end Move after passing over 1 Water Territory (must end on land)", "Raw Materials": ["Fishmongery"]},
-	"Forest": {"Effect": "Speed -1", "Raw Materials": ["Forestry","Apiary"]}
+	"Water": {"Effect": "Must end move after passing over 1 Water Territory (must end on land)", "Raw Materials": ["Fishmongery"]},
+	"Forest": {"Effect": "Speed -1", "Raw Materials": ["Forestry","Apiary"]},
+	"Hill":  {"Effect": "Gains Seize the Initiative. Where Settlements can be chartered."},
 }
 
 MOVEMENT_MODIFIERS = {

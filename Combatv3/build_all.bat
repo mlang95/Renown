@@ -91,7 +91,7 @@ echo   Playstyle reference (one-page landscape PDF)...
 :wiki
 echo --- Wiki ---
 rmdir /s /q wiki 2>nul
-%PY% build_wiki.py RULES_reorganized.md wiki
+%PY% build_wiki.py RULES_reorganized_5.md wiki
 if errorlevel 1 (
   echo   Wiki build FAILED - skipping push.
   goto end

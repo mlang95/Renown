@@ -17,6 +17,7 @@ Usage: python build_wiki.py [RULES.md] [out_dir]
 import sys, os, re, html, json
 sys.path.insert(0, ".")
 import renown_data as rd
+import wiki_markers as wm
 _VERSION = str(getattr(rd, "VERSION", ""))
 
 SRC = sys.argv[1] if len(sys.argv) > 1 else "RULES.md"
@@ -89,6 +90,7 @@ def md_inline(s):
     s=re.sub(r"`(.+?)`",r"<code>\1</code>",s)
     return s
 def md_to_html(md,current=None):
+    md = wm.preprocess_inline(md)
     out,i,lines=[],0,md.split("\n")
     # list-nesting stack: each entry is the source indent width that opened a <ul>.
     # Empty = not currently in a list. Indentation (leading spaces, tab=4) sets depth:
@@ -108,6 +110,9 @@ def md_to_html(md,current=None):
             close_all()
             lvl=len(m.group(1)); out.append(f"<h{lvl} id='{slug(m.group(2))}'>{md_inline(m.group(2))}</h{lvl}>")
             i+=1; continue
+        _bh = wm.block_html(ln)
+        if _bh is not None:
+            close_all(); out.append(_bh); i += 1; continue
         # GFM pipe table: a header row containing '|', then a separator row of
         # dashes (|---|---|), then zero or more body rows. Rendered with the same
         # table styling as the data-driven reference pages.
@@ -579,7 +584,8 @@ if hasattr(rd, "ERAS"):
 if hasattr(rd, "PUBLIC_ORDER"):
     u="public-order-ref.html"
     rows=[[k, v[0], v[1]] for k,v in sorted(rd.PUBLIC_ORDER.items(), reverse=True)]
-    body="<h1>Public Order Track</h1><p>From -5 to 7, adjusted each turn by Faith minus Doubt.</p>"
+    _lo,_hi=min(rd.PUBLIC_ORDER),max(rd.PUBLIC_ORDER)
+    body=f"<h1>Public Order Track</h1><p>From {_lo} to {_hi}; Faith raises it, Doubt lowers it.</p>"
     body+=_grid(["Value","State","Effect"], rows, u)
     if hasattr(rd,"PO_MODIFIERS"):
         body+="<h2>Faith sources</h2>"+_grid(["Source","Condition"], [[k,v] for k,v in rd.PO_MODIFIERS.get("faith",{}).items()], u)

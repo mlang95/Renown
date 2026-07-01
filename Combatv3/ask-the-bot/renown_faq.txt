@@ -187,6 +187,7 @@ Herb Garden | [Herb Garden](https://mlang95.github.io/RenownWiki/pursuits.html) 
 High Chancery | [High Chancery](https://mlang95.github.io/RenownWiki/wonders-ref.html) Wonder. Upkeep 500 (per Wonder). Once per turn: automatically Condemn or Endorse one Envoy Sent by any other player regardless of Net Influence after Influence has been spent, even if it’s a Council Envoy.
 high difficulty factions | 8 factions: The Ashen Vale, The Broken Banner, The Forked Tongue, The Hall of Masks, The Smoldering Crown, The Squatters' Crown, The Wandering Crown, The Dukedom
 high strength factions | 9 factions: The Merchant Republics, The Sacred Throne, The Verdant Kingdom, The Ancient Wilds, The Bloodied Cross, The Blazing Standard, The Forked Tongue, The Hall of Masks, The Dukedom
+Hill | [Hill](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: Gains Seize the Initiative. Where Settlements can be chartered.. Raw Materials: none.
 Hitching Post | [Hitching Post](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Primitive). Upkeep 0 (—), build 2. Craft +1
 Hospitaller | [Hospitaller](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Power). Innate: Recover improved by +1 / Mastery: gain Enduring: Your recovers cannot be reduced beyond a 6+ while Fatigued.
 how to attack | Resolve battles via the Escalation combat system: muster a Host, Move into an enemy, fight skirmishes (Strike/Parry/Recover) until one side Routs.
@@ -364,7 +365,7 @@ Tannery | [Tannery](https://mlang95.github.io/RenownWiki/escalation-pursuits.htm
 Targe Shield | [Targe Shield](https://mlang95.github.io/RenownWiki/equipment-ref.html) Shield (Cast). Save +0, Init -1. Keywords: Steady, Shielded.
 tax per tier | [Tax per tier](https://mlang95.github.io/RenownWiki/economy-ref.html): 500 gold per settlement tier per turn (collected in Winter)
 Tempered | [Tempered](https://mlang95.github.io/RenownWiki/keywords-ref.html#tempered): A Focused Save succeeds, regardless of AP.
-terrain | [Terrain](https://mlang95.github.io/RenownWiki/reference-tables.html): Grassland, Wetlands, Tundra, Mountains, Water, Forest. Each Territory type has a movement effect and the Raw Material pursuits it supports.
+terrain | [Terrain](https://mlang95.github.io/RenownWiki/reference-tables.html): Grassland, Wetlands, Tundra, Mountains, Water, Forest, Hill. Each Territory type has a movement effect and the Raw Material pursuits it supports.
 Territory | [Territory](https://mlang95.github.io/RenownWiki/glossary.html#territory): 1 Hex.
 The Ancient Wilds | [The Ancient Wilds](https://mlang95.github.io/RenownWiki/factions.html) Faction (Medium difficulty, High strength, Oathkeepers). Highlander Way: Enemy armies gain Speed −1 in your Province. You ignore all Terrain Speed modifiers and may trade without Dirt Roads. You must accept the first Non-Aggression Pact offered by each player or Alliance. If that player later joins an alliance, this condition is considered satisfied for that alliance.
 The Ashen Vale | [The Ashen Vale](https://mlang95.github.io/RenownWiki/factions.html) Faction (High difficulty, Low strength, Sickly). Pestilence: Each bordering player gains Doubt +1, your settlements gain Reach +1, and all retinues gain Poison. You may not pursue an Apothecary, Infirmary, or Hospitaller.
@@ -442,7 +443,7 @@ Vote | [Vote](https://mlang95.github.io/RenownWiki/glossary.html#vote): On each 
 vp | See 'escalation victory'.
 War College | [War College](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Power). Innate: Gain +2 Influence while At War / Mastery: Unlocks Sergeants for Muster
 War Hammer | [War Hammer](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP -8, Init -1. Keywords: 2H, Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield.
-Water | [Water](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: Must end Move after passing over 1 Water Territory (must end on land). Raw Materials: Fishmongery.
+Water | [Water](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: Must end move after passing over 1 Water Territory (must end on land). Raw Materials: Fishmongery.
 weak factions | See 'low strength factions'.
 Wealth | [Wealth](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Economy). Generate 10,000 gold per turn for five consecutive turns.
 weapon tiers | [Equipment](https://mlang95.github.io/RenownWiki/equipment-ref.html): Crude (start) -> Cast (Furnace) -> Wrought (Blacksmith) -> Forged (Forge) -> Crafted (ABF). Ask e.g. 'wrought weapons' for a tier's list.
