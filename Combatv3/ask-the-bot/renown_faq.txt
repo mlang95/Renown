@@ -287,10 +287,6 @@ PO 2 | [Public Order 2](https://mlang95.github.io/RenownWiki/public-order-ref.ht
 PO 3 | [Public Order 3](https://mlang95.github.io/RenownWiki/public-order-ref.html) (Motivated): Speed +1
 PO 4 | [Public Order 4](https://mlang95.github.io/RenownWiki/public-order-ref.html) (Economic Boom): Tax income +500 per settlement
 PO 5 | [Public Order 5](https://mlang95.github.io/RenownWiki/public-order-ref.html) (Eureka): Activate 1 Mastery
-PO 6 | [Public Order 6](https://mlang95.github.io/RenownWiki/public-order-ref.html) (Devout): +1 Influence
-PO 7 | [Public Order 7](https://mlang95.github.io/RenownWiki/public-order-ref.html) (Pious): Immune Deficit
-PO 8 | [Public Order 8](https://mlang95.github.io/RenownWiki/public-order-ref.html) (Holy): Immune to Spread Gospel
-PO 9 | [Public Order 9](https://mlang95.github.io/RenownWiki/public-order-ref.html) (Sanctified): Immune to Send Missionaries
 Poison | [Poison](https://mlang95.github.io/RenownWiki/keywords-ref.html#poison): When the Defender receives a Strike and rolls a Focused Save, it fails; the resulting wound may only be Recovered with a Focused Recover.
 Poleaxe | [Poleaxe](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Crafted). AP -3, Init +1. Keywords: 2H, Steady, Deadly, Unstoppable, Negate Shielded, Negate Tempered.
 powerful factions | See 'high strength factions'.

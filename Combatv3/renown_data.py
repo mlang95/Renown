@@ -2012,10 +2012,10 @@ PUBLIC_ORDER = {
      3: ("Motivated",     "Speed +1"),
      4: ("Economic Boom", "Tax income +500 per settlement"),
      5: ("Eureka",        "Activate 1 Mastery"),
-     6: ("Devout",        "+1 Influence"),
-	 7: ("Pious",         "Immune Deficit"),
-	 8: ("Holy",          "Immune to Spread Gospel"),
-	 9: ("Sanctified",    "Immune to Send Missionaries"),
+     #6: ("Devout",        "+1 Influence"),
+	 #7: ("Pious",         "Immune Deficit"),
+	 #8: ("Holy",          "Immune to Spread Gospel"),
+	 #9: ("Sanctified",    "Immune to Send Missionaries"),
     10: ("Living Saints", "Begin Pious Timer Edict"),
 }
 
