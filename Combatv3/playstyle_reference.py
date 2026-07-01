@@ -155,7 +155,7 @@ def card(c, name, x, ytop):
     c.setFillColor(Color(1, 1, 1)); c.drawString(x + 7.0, ty, name)
 
     # radar
-    radar(c, x + COL_W/2, hy - 48, 28, vals, bar_color(doms))
+    radar(c, x + COL_W/2, hy - 44, 28, vals, bar_color(doms))
 
     # meta rows
     inner = x + 9; tag_w = 34; val_x = inner + tag_w; maxw = x + COL_W - 9 - val_x
