@@ -103,6 +103,7 @@
   "within": "Range 0.",
   "Range X": "The amount of Territories you must move in order to get from your current position to the specific Territory.",
   "Reach X": "The Range X characteristic which determines what Territories you Control and are in your Province.",
+  "Host": "The turn's starting player, who holds the Host Card. The role passes clockwise each Rest Phase (there is no Host in Spring). The Host collects and distributes Trade Income, resolves Bandit Mechanics, and breaks ties (Council vote, bandit targeting, and any tie not otherwise resolved).",
   "Send an Envoy": "Declare a Domain, spend 1 Envoy.",
   "Perform": "When you Perform an action, immediately do the description of the action. Pay the action's normal Cost.",
   "Resolve": "Attempt to Perform an action.",
@@ -499,6 +500,10 @@
     [
      "Florentine",
      "Only active while Dual Wielding. Even while Fatigued, a Focused Parry succeeds. This alone does not enable Riposte while Fatigued."
+    ],
+    [
+     "Host",
+     "The turn's starting player, who holds the Host Card. The role passes clockwise each Rest Phase (there is no Host in Spring). The Host collects and distributes Trade Income, resolves Bandit Mechanics, and breaks ties (Council vote, bandit targeting, and any tie not otherwise resolved)."
     ],
     [
      "Negate Riposte",
@@ -1989,7 +1994,7 @@
   ],
   [
    "The Undying Flame",
-   "Martyrdom: Your armies Morale cannot be modified beyond 6+, but your armies continue to suffer \u22121 from Fatigue Tokens. Gain Faith +1 for every player you're at War with and every Battle where you lose 20 or more retinues, win or loss."
+   "Martyrdom: Your armies Morale cannot be modified beyond 6+, but your armies continue to suffer \u22121 from Fatigue Tokens. Gain Faith +1 for every player you're at War with and every Battle where you lose 20 or more retinues, win or loss. Gain Immune War Weariness"
   ],
   [
    "The Verdant Kingdom",

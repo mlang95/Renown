@@ -52,6 +52,8 @@ Each turn flows through five phases, then passes the Host and repeats:
 4. **Battle Phase** — Skirmishes, Sieges, and Battles resolve.
 5. **Rest Phase** — cleanup, Season +1, score Renown, spend one Domain Point, pass the Host.
 
+**The Host.** Each turn one Player is the **Host** — the starting Player, who holds the Host Card. The role passes clockwise each Rest Phase (there is no Host in Spring). The Host runs the between-turn business the rest of the table doesn't: collecting and distributing Trade Income, resolving Bandit Mechanics, and breaking ties (Council vote, bandit targeting, and anything not otherwise resolved). The Host Card carries the step-by-step detail.
+
 ### Key Resources
 
 The game tracks a handful of core resources:
