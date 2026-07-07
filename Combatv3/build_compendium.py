@@ -10,14 +10,14 @@ Usage:  python build_compendium.py compendium_data.json Compendium.docx
 import json, re, sys
 from docx import Document
 from docx.shared import Pt, RGBColor, Twips
-from docx.enum.section import WD_ORIENT, WD_SECTION
+from docx.enum.section import WD_ORIENT
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 
 FONT = "EB Garamond"
-BODY = 8.0          # pt
+BODY = 8.5          # pt
 HEAD_FILL = "EFEFEF"
 
 def _set_cell_border(cell, color="auto", sz=4):
@@ -56,33 +56,10 @@ def _cell_para(cell):
     pf.line_spacing = 1.0
     return para
 
-
-def _content_weights(headers, rows, floor=6, cap=60):
-    w=[]
-    for i in range(len(headers)):
-        htext=re.sub(r"\*\*","",str(headers[i]))
-        # never narrower than the longest word in the header (prevents "Ty pe")
-        hword=max([len(x) for x in htext.split()] or [floor])
-        m=max(len(htext), hword)
-        for r in rows:
-            if i<len(r) and r[i] is not None:
-                m=max(m,len(re.sub(r"\*\*","",str(r[i]))))
-        w.append(min(cap,max(floor,hword,m)))
-    return w
-
-def _set_col_widths(t, weights, total_in=10.0):
-    tblPr=t._tbl.tblPr
-    lay=OxmlElement("w:tblLayout"); lay.set(qn("w:type"),"fixed"); tblPr.append(lay)
-    tot=float(sum(weights)) or 1.0
-    for i,col in enumerate(t.columns):
-        wtw=Twips(int(total_in*1440*weights[i]/tot))
-        for cell in col.cells:
-            cell.width=wtw
-
-def add_table(doc, headers, rows, total_in=10.0, gap=True):
+def add_table(doc, headers, rows):
     t = doc.add_table(rows=1, cols=len(headers))
     t.alignment = WD_TABLE_ALIGNMENT.CENTER
-    t.autofit = False
+    t.autofit = True
     hdr = t.rows[0].cells
     for i, h in enumerate(headers):
         p = _cell_para(hdr[i])
@@ -95,9 +72,7 @@ def add_table(doc, headers, rows, total_in=10.0, gap=True):
             p = _cell_para(cells[i])
             _rich(p, "" if val is None else val)
             _set_cell_border(cells[i])
-    _set_col_widths(t, _content_weights(headers, rows), total_in)
-    if gap:
-        g=doc.add_paragraph(); g.paragraph_format.space_after=Pt(2)
+    doc.add_paragraph()  # small gap after table
     return t
 
 def _heading(doc, text, size, before, after):
@@ -107,47 +82,8 @@ def _heading(doc, text, size, before, after):
     r = p.add_run(text); r.bold = True; r.font.name = FONT; r.font.size = Pt(size)
     return p
 
-def h1(doc, t): return _heading(doc, t, 15, 6, 2)
-def h2(doc, t): return _heading(doc, t, 11, 3, 1)
-
-
-def add_tables_row(doc, specs, widths_in=None):
-    """specs=[(headers,rows),...] laid side by side to save vertical space."""
-    n=len(specs)
-    outer=doc.add_table(rows=1, cols=n); outer.alignment=WD_TABLE_ALIGNMENT.CENTER
-    tblPr=outer._tbl.tblPr; lay=OxmlElement("w:tblLayout"); lay.set(qn("w:type"),"fixed"); tblPr.append(lay)
-    page_in=10.0; widths_in=widths_in or [page_in/n]*n
-    for i,(headers,rows) in enumerate(specs):
-        cell=outer.rows[0].cells[i]
-        cell.width=Twips(int(widths_in[i]*1440))
-        # drop default empty para, build inner table inside the cell
-        cell._tc.remove(cell.paragraphs[0]._p)
-        it=cell.add_table(rows=1, cols=len(headers)); it.alignment=WD_TABLE_ALIGNMENT.LEFT; it.autofit=False
-        hdr=it.rows[0].cells
-        for j,h in enumerate(headers):
-            p=_cell_para(hdr[j]); _rich(p,h,bold=True); _shade(hdr[j],HEAD_FILL); _set_cell_border(hdr[j])
-        for row in rows:
-            cc=it.add_row().cells
-            for j,val in enumerate(row):
-                if j>=len(cc): break
-                _rich(_cell_para(cc[j]),"" if val is None else val); _set_cell_border(cc[j])
-        _set_col_widths(it,_content_weights(headers,rows),widths_in[i]-0.1)
-    doc.add_paragraph().paragraph_format.space_after=Pt(2)
-    return outer
-
-def _cols_on(doc, n, space=360):
-    """Start a continuous section; content after flows into n newspaper columns."""
-    sec = doc.add_section(WD_SECTION.CONTINUOUS)
-    cols = sec._sectPr.find(qn("w:cols"))
-    if cols is None:
-        cols = OxmlElement("w:cols"); sec._sectPr.append(cols)
-    cols.set(qn("w:num"), str(n)); cols.set(qn("w:space"), str(space))
-    return sec
-
-def _no_split(t):
-    for row in t.rows:
-        trPr = row._tr.get_or_add_trPr()
-        trPr.append(OxmlElement("w:cantSplit"))
+def h1(doc, t): return _heading(doc, t, 16, 9, 3)
+def h2(doc, t): return _heading(doc, t, 13, 6, 2)
 
 def build(data, out_path):
     doc = Document()
@@ -159,7 +95,7 @@ def build(data, out_path):
     sec.orientation = WD_ORIENT.LANDSCAPE
     sec.page_width = Twips(16838); sec.page_height = Twips(11906)
     for m in ("top_margin", "bottom_margin", "left_margin", "right_margin"):
-        setattr(sec, m, Twips(504))
+        setattr(sec, m, Twips(720))
 
     # Title
     p = doc.add_paragraph(); r = p.add_run("Renown — Compendium")
@@ -176,16 +112,14 @@ def build(data, out_path):
         h2(doc, s["title"])
         add_table(doc, ["Pursuit", "Mastery Unlock", "Innate Effect", "Mastery Effect"], s["rows"])
 
-    # Equipment — 2-column flow
+    # Equipment
     h1(doc, "Equipment")
     eq = data["equipment"]
-    _cols_on(doc, 2)
-    h2(doc, "Retinues");       add_table(doc, ["Retinue","Cost","To Hit","Endurance","Morale","Keyword"], eq["Retinues"], total_in=4.7)
-    h2(doc, "Melee Weapons");  add_table(doc, ["Weapon","Tier","AP","Init","Keywords"], eq["Weapons"], total_in=4.7)
-    h2(doc, "Ranged Weapons"); add_table(doc, ["Ranged","Tier","AP","Init","Keywords"], eq["Ranged"], total_in=4.7)
-    h2(doc, "Shields");        add_table(doc, ["Shield","Tier","Save","Init","Keywords"], eq["Shields"], total_in=4.7)
-    h2(doc, "Armor");          add_table(doc, ["Armor","Tier","Save","Keywords"], eq["Armor"], total_in=4.7)
-    _cols_on(doc, 1)
+    h2(doc, "Retinues");       add_table(doc, ["Retinue","Cost","To Hit","Endurance","Morale","Keyword"], eq["Retinues"])
+    h2(doc, "Melee Weapons");  add_table(doc, ["Weapon","Tier","AP","Init","Keywords"], eq["Weapons"])
+    h2(doc, "Ranged Weapons"); add_table(doc, ["Ranged","Tier","AP","Init","Keywords"], eq["Ranged"])
+    h2(doc, "Shields");        add_table(doc, ["Shield","Tier","Save","Init","Keywords"], eq["Shields"])
+    h2(doc, "Armor");          add_table(doc, ["Armor","Tier","Save","Keywords"], eq["Armor"])
 
     # Infrastructure & Wonders
     h1(doc, "Infrastructure & Wonders")
@@ -196,52 +130,23 @@ def build(data, out_path):
     h1(doc, "Empire")
     h2(doc, "Settlements"); add_table(doc, ["Settlement","Tier","Sea Variant","Tax","Muster","Build","Wards","Reach","Notes"], data["settlements"])
     h2(doc, "Eras");        add_table(doc, ["Era","Renown","Armies","Cities","Infl/Turn","Diplo Infl","Envoys","Unlocks"], data["eras"])
-    _dh = h2(doc, "Domain Standings — empire + combat")
-    _dh.paragraph_format.page_break_before = True     # start fresh so it fits one page
-    _emp = data["domain_board"]
-    _cmb = {r[0]: r for r in data["standing_effects"]}   # keyed by domain
-    _merged = []
-    for er in _emp:
-        dom = er[0]; cr = _cmb.get(dom, [dom, "", "", ""])
-        row = [dom]
-        for i in (1, 2, 3):
-            emp = (er[i] if i < len(er) and er[i] else "").strip()
-            cmb = (cr[i] if i < len(cr) and cr[i] else "").strip()
-            cell = emp
-            if cmb:
-                cell = (emp + "  " if emp else "") + f"**Combat:** {cmb}"
-            row.append(cell)
-        _merged.append(row)
-    _dt = add_table(doc, ["Domain", "Rising (3)", "Established (6)", "Sovereign (10)"], _merged)
-    _no_split(_dt)
-
+    h2(doc, "Domain Standings (empire)"); add_table(doc, ["Domain","Rising (3)","Established (6)","Sovereign (10)"], data["domain_board"])
+    h2(doc, "Domain Standing Effects (combat)"); add_table(doc, ["Domain","Rising","Established","Sovereign"], data["standing_effects"])
     h2(doc, "Tactic Matrix"); add_table(doc, data["tactic_matrix_header"], data["tactic_matrix_rows"])
-
-    # Public Order + Faith & Doubt Sources — 2-column flow
-    _cols_on(doc, 2)
-    h2(doc, "Public Order"); add_table(doc, ["PO","State","Effect"], data["public_order"], total_in=4.7)
-    h2(doc, "Faith & Doubt Sources"); add_table(doc, ["Type","Source","Condition"], data["po_modifiers"], total_in=4.7)
-    _cols_on(doc, 1)
-
-    h2(doc, "Seasons · Trade")
-    add_tables_row(doc, [(["Season","Name","Effect"], data["seasons"]),
-                         (["Rule","Value"], data["trade_rules"])],
-                   widths_in=[5.6,4.4])
+    h2(doc, "Public Order"); add_table(doc, ["PO","State","Effect"], data["public_order"])
+    h2(doc, "Faith & Doubt Sources"); add_table(doc, ["Type","Source","Condition"], data["po_modifiers"])
+    h2(doc, "Seasons"); add_table(doc, ["Season","Name","Effect"], data["seasons"])
+    h2(doc, "Trade & Income"); add_table(doc, ["Rule","Value"], data["trade_rules"])
 
     # Factions
     h1(doc, "Factions")
     add_table(doc, ["Faction","Mechanic"], data["factions"])
 
-    # Glossary — 2-column newspaper flow (short category tables stack and fill)
-    _sec = doc.add_section(WD_SECTION.CONTINUOUS)
-    _cols = _sec._sectPr.find(qn("w:cols"))
-    if _cols is None:
-        _cols = OxmlElement("w:cols"); _sec._sectPr.append(_cols)
-    _cols.set(qn("w:num"), "2"); _cols.set(qn("w:space"), "360")
+    # Glossary
     h1(doc, "Glossary")
     for cat in data["glossary_categorized"]:
         h2(doc, cat["title"])
-        add_table(doc, ["Term","Definition"], cat["rows"], total_in=4.7)
+        add_table(doc, ["Term","Definition"], cat["rows"])
 
     doc.save(out_path)
     print("wrote " + out_path)

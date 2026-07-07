@@ -122,8 +122,17 @@ def po_modifiers():
 
 def domain_board():
     # Full authored shape: Untested..Sovereign per domain, then the two influence rows.
+    # Combat standing effects (rd.STANDING_EFFECTS) are folded into the same cell —
+    # they unlock from the domain board, so they aren't partitioned out.
     b = rd.DOMAIN_BOARD
-    rows = [[d, "—", b[d].get("Rising", ""), b[d].get("Established", ""), b[d].get("Sovereign", "")]
+    se = getattr(rd, "STANDING_EFFECTS", {})
+    def cell(d, tier):
+        base = (b[d].get(tier, "") or "").strip()
+        cmb = se.get((d, tier))
+        if cmb:
+            base = (base + " " if base else "") + str(cmb).strip()
+        return base
+    rows = [[d, "—", cell(d, "Rising"), cell(d, "Established"), cell(d, "Sovereign")]
             for d in ["Industry", "Prowess", "Cunning", "Piety"]]
     order = ["Untested", "Rising", "Established", "Sovereign"]
     mi = b.get("max_influence_per_vote", {})
