@@ -323,21 +323,24 @@ def _place_regions(m, p, rng):
     buildable = lambda c: (m.in_bounds(c)
                            and m.get(c).terrain not in ("water", "mountain"))
     m.settlements, m.centers = [], []
+    placed_all = []                       # every settlement across regions (spacing)
 
     for rid, (a, (fx, fy)) in enumerate(zip(anchors, fracs)):
-        # settlement targets: [capital, s2, s3].
-        #  - corner region  -> all three aim at the board corner (cornered cluster)
-        #  - edge region     -> capital at the EDGE CENTRE, s2/s3 splayed toward
-        #                       that edge's two corners
-        #  - centre region   -> all three aim at the anchor
-        vmid = abs(fy - 0.5) < 0.12          # mid-height  -> left/right edge
-        hmid = abs(fx - 0.5) < 0.12          # mid-width   -> top/bottom edge
+        # settlement targets: [capital, corner-settle, centre-settle].
+        #  - edge region (left/right or top/bottom mid): capital at the EDGE
+        #    CENTRE, one settlement toward the near corner, one toward the board
+        #    centre (the two players meet in the middle).
+        #  - corner region: all three aim at the board corner (cornered cluster).
+        #  - dead-centre region: all three aim at the anchor.
+        cx0, cy0 = m.width // 2, m.height // 2
+        vmid = abs(fy - 0.5) < 0.12          # mid-height -> left/right edge
+        hmid = abs(fx - 0.5) < 0.12          # mid-width  -> top/bottom edge
         if vmid and not hmid:
             ex = 0 if fx < 0.5 else m.width - 1
-            targets = [(ex, m.height // 2), (ex, 0), (ex, m.height - 1)]
+            targets = [(ex, cy0), (ex, 0), (cx0, cy0)]
         elif hmid and not vmid:
             ey = 0 if fy < 0.5 else m.height - 1
-            targets = [(m.width // 2, ey), (0, ey), (m.width - 1, ey)]
+            targets = [(cx0, ey), (0, ey), (cx0, cy0)]
         elif vmid and hmid:
             targets = [a, a, a]
         else:
@@ -355,11 +358,12 @@ def _place_regions(m, p, rng):
             m.get(c).terrain = "plains"
 
         def pick(existing, target):
-            # buildable hex within [SEP, SMAX] of every existing settlement,
-            # nearest `target` so each settlement pulls toward its own corner.
+            # buildable hex within [SEP, SMAX] of this region's settlements AND
+            # >= SEP from every other region's settlement; nearest `target`.
             cells = [h.coord for h in m.all()
                      if buildable(h.coord)
-                     and all(SEP <= distance(h.coord, o) <= SMAX for o in existing)]
+                     and all(SEP <= distance(h.coord, o) <= SMAX for o in existing)
+                     and all(distance(h.coord, o) >= SEP for o in placed_all)]
             return min(cells, key=lambda c: distance(c, target) + rng.random()) if cells else None
 
         s2 = pick([cap], t2)
@@ -380,6 +384,7 @@ def _place_regions(m, p, rng):
                   round(sum(s[1] for s in settles) / 3))
         m.settlements.append(settles)
         m.centers.append(center)
+        placed_all.extend(settles)
 
         # keep each settlement spot open (1-hex ring) so it isn't buried
         for s in settles:
