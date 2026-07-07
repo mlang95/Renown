@@ -35,7 +35,7 @@ REM BOARD_DIR   : folder holding mapgen.py / hexmap.py / hexgen.py / build_board
 set BOARD_DIR=C:\Users\Matt\OneDrive\Desktop\Game\Combatv3\mapgen
 REM board dimensions, table size, seed, hex size (mm c->corner), paper
 set BOARD_W=13
-set BOARD_H=7
+set BOARD_H=13
 set BOARD_PLAYERS=2
 set BOARD_SEED=96
 set BOARD_HEX=20
@@ -88,6 +88,11 @@ echo   Specialization trees (landscape PDF)...
 %PY% spec_tree_sheet.py "%OUT_DIR%\spec_trees.pdf"
 echo   Playstyle reference (one-page landscape PDF)...
 %PY% playstyle_reference.py "%OUT_DIR%\playstyle_reference.pdf"
+echo   Pursuit ward-tiles (print-and-play PDF)...
+%PY% pursuit_tiles.py "%OUT_DIR%\pursuit_tiles.pdf"
+echo   Settlement board (landscape PDF)...
+%PY% -c "import settlement_mats as s; s.build_board(r'%OUT_DIR%\settlement_board.pdf')"
+%PY% settlement_mats.py "%OUT_DIR%\settlement_mats.pdf"
 :wiki
 echo --- Wiki ---
 rmdir /s /q wiki 2>nul
