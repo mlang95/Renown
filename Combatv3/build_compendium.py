@@ -177,9 +177,22 @@ def build(data, out_path):
     h1(doc, "Empire")
     h2(doc, "Settlements"); add_table(doc, ["Settlement","Tier","Sea Variant","Tax","Muster","Build","Wards","Reach","Notes"], data["settlements"])
     h2(doc, "Eras");        add_table(doc, ["Era","Renown","Armies","Cities","Infl/Turn","Diplo Infl","Envoys","Unlocks"], data["eras"])
-    h2(doc, "Domain Standings (empire) · Standing Effects (combat)")
-    add_tables_row(doc, [(["Domain","Rising (3)","Established (6)","Sovereign (10)"], data["domain_board"]),
-                         (["Domain","Rising","Established","Sovereign"], data["standing_effects"])])
+    h2(doc, "Domain Standings — empire + combat")
+    _emp = data["domain_board"]
+    _cmb = {r[0]: r for r in data["standing_effects"]}   # keyed by domain
+    _merged = []
+    for er in _emp:
+        dom = er[0]; cr = _cmb.get(dom, [dom, "", "", ""])
+        row = [dom]
+        for i in (1, 2, 3):
+            emp = (er[i] if i < len(er) and er[i] else "").strip()
+            cmb = (cr[i] if i < len(cr) and cr[i] else "").strip()
+            cell = emp
+            if cmb:
+                cell = (emp + "  " if emp else "") + f"**Combat:** {cmb}"
+            row.append(cell)
+        _merged.append(row)
+    add_table(doc, ["Domain", "Rising (3)", "Established (6)", "Sovereign (10)"], _merged)
     h2(doc, "Tactic Matrix"); add_table(doc, data["tactic_matrix_header"], data["tactic_matrix_rows"])
     h2(doc, "Public Order"); add_table(doc, ["PO","State","Effect"], data["public_order"])
     h2(doc, "Faith & Doubt · Seasons · Trade")
