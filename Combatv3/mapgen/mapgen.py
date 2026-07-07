@@ -369,6 +369,7 @@ def _place_regions(m, p, rng):
             def cands(cross):
                 return [h.coord for h in m.all()
                         if buildable(h.coord)
+                        and len(m.neighbors(h.coord)) == 6      # room for a range-1 ring
                         and SEP <= distance(h.coord, cap) <= SMAX
                         and all(distance(h.coord, o) >= SEP for o in others)
                         and (not cross or all(distance(h.coord, o) >= SEP for o in placed_all))]
