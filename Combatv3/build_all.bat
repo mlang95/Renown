@@ -37,7 +37,7 @@ REM board dimensions, table size, seed, hex size (mm c->corner), paper
 set BOARD_W=13
 set BOARD_H=16
 set BOARD_PLAYERS=2
-set BOARD_SEED=115
+set BOARD_SEED=56
 set BOARD_HEX=20
 set BOARD_PAPER=A4
 REM BOARD_RES : 1 = stamp raw-material toppers, 0 = terrain only (loose tokens)
