@@ -325,32 +325,45 @@ def _place_regions(m, p, rng):
     m.settlements, m.centers = [], []
 
     for rid, (a, (fx, fy)) in enumerate(zip(anchors, fracs)):
-        # corner target: the board-corner hex for this region's quadrant.
-        # middle-edge regions (e.g. 6p top-centre) have no corner -> use anchor.
-        if abs(fx - 0.5) < 0.12 or abs(fy - 0.5) < 0.12:
-            corner = a
+        # settlement targets: [capital, s2, s3].
+        #  - corner region  -> all three aim at the board corner (cornered cluster)
+        #  - edge region     -> capital at the EDGE CENTRE, s2/s3 splayed toward
+        #                       that edge's two corners
+        #  - centre region   -> all three aim at the anchor
+        vmid = abs(fy - 0.5) < 0.12          # mid-height  -> left/right edge
+        hmid = abs(fx - 0.5) < 0.12          # mid-width   -> top/bottom edge
+        if vmid and not hmid:
+            ex = 0 if fx < 0.5 else m.width - 1
+            targets = [(ex, m.height // 2), (ex, 0), (ex, m.height - 1)]
+        elif hmid and not vmid:
+            ey = 0 if fy < 0.5 else m.height - 1
+            targets = [(m.width // 2, ey), (0, ey), (m.width - 1, ey)]
+        elif vmid and hmid:
+            targets = [a, a, a]
         else:
             corner = (0 if fx < 0.5 else m.width - 1,
                       0 if fy < 0.5 else m.height - 1)
+            targets = [corner, corner, corner]
+        t_cap, t2, t3 = targets
 
-        # capital: nearest fully-interior hex to the corner (all 6 neighbours
+        # capital: nearest fully-interior hex to its target (all 6 neighbours
         # in-bounds), so a complete ring can surround it; force that ring plains.
-        interior = [h.coord for h in m.within(corner, FIRST + 1)
+        interior = [h.coord for h in m.within(t_cap, FIRST + 1)
                     if len(m.neighbors(h.coord)) == 6]
-        cap = min(interior, key=lambda c: distance(c, corner)) if interior else corner
+        cap = min(interior, key=lambda c: distance(c, t_cap)) if interior else t_cap
         for c in [cap] + [n.coord for n in m.neighbors(cap)]:
             m.get(c).terrain = "plains"
 
-        def pick(existing):
+        def pick(existing, target):
             # buildable hex within [SEP, SMAX] of every existing settlement,
-            # nearest the corner so the cluster stays cornered.
-            cells = [h.coord for h in m.within(corner, FIRST + SMAX)
+            # nearest `target` so each settlement pulls toward its own corner.
+            cells = [h.coord for h in m.all()
                      if buildable(h.coord)
                      and all(SEP <= distance(h.coord, o) <= SMAX for o in existing)]
-            return min(cells, key=lambda c: distance(c, corner) + rng.random()) if cells else None
+            return min(cells, key=lambda c: distance(c, target) + rng.random()) if cells else None
 
-        s2 = pick([cap])
-        s3 = pick([cap, s2]) if s2 else None
+        s2 = pick([cap], t2)
+        s3 = pick([cap, s2], t3) if s2 else None
         if s2 is None:
             s2 = cap
         if s3 is None:
