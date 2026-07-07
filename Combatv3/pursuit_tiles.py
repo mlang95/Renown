@@ -146,25 +146,51 @@ def tile(c, name, d, x, ytop):
         c.setFillColor(Color(1, 1, 1)); c.setFont(SERIF_B, nm_sz)
         c.drawRightString(x + TW - pad, hy + head_h*0.31, "\u25c6")
 
-    # meta line: gate  ·  upkeep
+    # meta line: gate  ·  efficient (top-right)
     my = hy - 9*s
     c.setFont(SERIF, meta_sz); c.setFillColor(MUTE)
     c.drawString(x + pad, my, gate if gate else "No gate")
+    eff_raw = d.get("efficient")
+    if isinstance(eff_raw, (list, tuple)):
+        eff = ", ".join(eff_raw)
+    else:
+        eff = (eff_raw or "").strip()
     up = upkeep(t)
+    right = f"Upkeep {up}"
     c.setFont(SERIF_B, meta_sz); c.setFillColor(_c("#7a5a1a") if up else MUTE)
-    c.drawRightString(x + TW - pad, my, f"Upkeep {up}")
-    c.setStrokeColor(LINE); c.setLineWidth(0.6); c.line(x + 6*s, my - 5*s, x + TW - 6*s, my - 5*s)
+    c.drawRightString(x + TW - pad, my, right)
+    if eff:
+        c.setFont(SERIF_I, meta_sz*0.9); c.setFillColor(_c("#3f7d7a"))
+        c.drawRightString(x + TW - pad, my - 8*s, f"efficient: {eff}")
+        line_y = my - 14*s
+    else:
+        line_y = my - 5*s
+    c.setStrokeColor(LINE); c.setLineWidth(0.6); c.line(x + 6*s, line_y, x + TW - 6*s, line_y)
+
+    # builds_into footer line
+    bi = d.get("builds_into") or []
+    bi_txt = ""
+    if bi:
+        bi_txt = "\u2192 " + ", ".join(bi)
+        c.setFont(SERIF_I, foot_sz)
+        while c.stringWidth(bi_txt, SERIF_I, foot_sz) > TW - 2*pad - c.stringWidth(t, SERIF_I, foot_sz) - 8 and "," in bi_txt:
+            bi_txt = bi_txt.rsplit(",", 1)[0]
+        if bi_txt != "\u2192 " + ", ".join(bi):
+            bi_txt += "\u2026"
 
     # body: innate + mastery, sized to fill the available height
-    y = my - 13*s
-    floor_y = ytop - TH + 13*s          # leave room for the type footer
+    y = line_y - 12*s
+    floor_y = ytop - TH + 15*s          # leave room for the footer row
     inn = _clean(d.get("innate"))
     mas = _clean(d.get("mastery"))
     body_layout(c, inn, mas, x + pad, y, floor_y, TW - 2*pad, cap=10.5, floor=5.5)
 
-    # type footer + border
+    # footer: type (left) + builds_into (right) + border
     c.setFont(SERIF_I, foot_sz); c.setFillColor(TAG)
     c.drawString(x + pad, ytop - TH + 5*s, t)
+    if bi_txt:
+        c.setFillColor(_c("#8a8072"))
+        c.drawRightString(x + TW - pad, ytop - TH + 5*s, bi_txt)
     c.setStrokeColor(LINE); c.setLineWidth(0.9)
     c.roundRect(x, ytop - TH, TW, TH, 5, stroke=1, fill=0)
 
