@@ -10,7 +10,7 @@ Usage:  python build_compendium.py compendium_data.json Compendium.docx
 import json, re, sys
 from docx import Document
 from docx.shared import Pt, RGBColor, Twips
-from docx.enum.section import WD_ORIENT
+from docx.enum.section import WD_ORIENT, WD_SECTION
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml.ns import qn
@@ -60,11 +60,14 @@ def _cell_para(cell):
 def _content_weights(headers, rows, floor=6, cap=60):
     w=[]
     for i in range(len(headers)):
-        m=len(re.sub(r"\*\*","",str(headers[i])))
+        htext=re.sub(r"\*\*","",str(headers[i]))
+        # never narrower than the longest word in the header (prevents "Ty pe")
+        hword=max([len(x) for x in htext.split()] or [floor])
+        m=max(len(htext), hword)
         for r in rows:
             if i<len(r) and r[i] is not None:
                 m=max(m,len(re.sub(r"\*\*","",str(r[i]))))
-        w.append(min(cap,max(floor,m)))
+        w.append(min(cap,max(floor,hword,m)))
     return w
 
 def _set_col_widths(t, weights, total_in=10.0):
@@ -195,21 +198,27 @@ def build(data, out_path):
     add_table(doc, ["Domain", "Rising (3)", "Established (6)", "Sovereign (10)"], _merged)
     h2(doc, "Tactic Matrix"); add_table(doc, data["tactic_matrix_header"], data["tactic_matrix_rows"])
     h2(doc, "Public Order"); add_table(doc, ["PO","State","Effect"], data["public_order"])
-    h2(doc, "Faith & Doubt · Seasons · Trade")
-    add_tables_row(doc, [(["Type","Source","Condition"], data["po_modifiers"]),
-                         (["Season","Name","Effect"], data["seasons"]),
+    h2(doc, "Faith & Doubt Sources")
+    add_table(doc, ["Type","Source","Condition"], data["po_modifiers"])
+    h2(doc, "Seasons · Trade")
+    add_tables_row(doc, [(["Season","Name","Effect"], data["seasons"]),
                          (["Rule","Value"], data["trade_rules"])],
-                   widths_in=[4.0,3.2,2.8])
+                   widths_in=[5.6,4.4])
 
     # Factions
     h1(doc, "Factions")
     add_table(doc, ["Faction","Mechanic"], data["factions"])
 
-    # Glossary
+    # Glossary — 2-column newspaper flow (short category tables stack and fill)
+    _sec = doc.add_section(WD_SECTION.CONTINUOUS)
+    _cols = _sec._sectPr.find(qn("w:cols"))
+    if _cols is None:
+        _cols = OxmlElement("w:cols"); _sec._sectPr.append(_cols)
+    _cols.set(qn("w:num"), "2"); _cols.set(qn("w:space"), "360")
     h1(doc, "Glossary")
     for cat in data["glossary_categorized"]:
         h2(doc, cat["title"])
-        add_table(doc, ["Term","Definition"], cat["rows"])
+        add_table(doc, ["Term","Definition"], cat["rows"], total_in=4.7)
 
     doc.save(out_path)
     print("wrote " + out_path)
