@@ -17,7 +17,7 @@ from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 
 FONT = "EB Garamond"
-BODY = 8.5          # pt
+BODY = 8.0          # pt
 HEAD_FILL = "EFEFEF"
 
 def _set_cell_border(cell, color="auto", sz=4):
@@ -56,10 +56,30 @@ def _cell_para(cell):
     pf.line_spacing = 1.0
     return para
 
-def add_table(doc, headers, rows):
+
+def _content_weights(headers, rows, floor=6, cap=60):
+    w=[]
+    for i in range(len(headers)):
+        m=len(re.sub(r"\*\*","",str(headers[i])))
+        for r in rows:
+            if i<len(r) and r[i] is not None:
+                m=max(m,len(re.sub(r"\*\*","",str(r[i]))))
+        w.append(min(cap,max(floor,m)))
+    return w
+
+def _set_col_widths(t, weights, total_in=10.0):
+    tblPr=t._tbl.tblPr
+    lay=OxmlElement("w:tblLayout"); lay.set(qn("w:type"),"fixed"); tblPr.append(lay)
+    tot=float(sum(weights)) or 1.0
+    for i,col in enumerate(t.columns):
+        wtw=Twips(int(total_in*1440*weights[i]/tot))
+        for cell in col.cells:
+            cell.width=wtw
+
+def add_table(doc, headers, rows, total_in=10.0, gap=True):
     t = doc.add_table(rows=1, cols=len(headers))
     t.alignment = WD_TABLE_ALIGNMENT.CENTER
-    t.autofit = True
+    t.autofit = False
     hdr = t.rows[0].cells
     for i, h in enumerate(headers):
         p = _cell_para(hdr[i])
@@ -72,7 +92,9 @@ def add_table(doc, headers, rows):
             p = _cell_para(cells[i])
             _rich(p, "" if val is None else val)
             _set_cell_border(cells[i])
-    doc.add_paragraph()  # small gap after table
+    _set_col_widths(t, _content_weights(headers, rows), total_in)
+    if gap:
+        g=doc.add_paragraph(); g.paragraph_format.space_after=Pt(2)
     return t
 
 def _heading(doc, text, size, before, after):
@@ -82,8 +104,33 @@ def _heading(doc, text, size, before, after):
     r = p.add_run(text); r.bold = True; r.font.name = FONT; r.font.size = Pt(size)
     return p
 
-def h1(doc, t): return _heading(doc, t, 16, 9, 3)
-def h2(doc, t): return _heading(doc, t, 13, 6, 2)
+def h1(doc, t): return _heading(doc, t, 15, 6, 2)
+def h2(doc, t): return _heading(doc, t, 11, 3, 1)
+
+
+def add_tables_row(doc, specs, widths_in=None):
+    """specs=[(headers,rows),...] laid side by side to save vertical space."""
+    n=len(specs)
+    outer=doc.add_table(rows=1, cols=n); outer.alignment=WD_TABLE_ALIGNMENT.CENTER
+    tblPr=outer._tbl.tblPr; lay=OxmlElement("w:tblLayout"); lay.set(qn("w:type"),"fixed"); tblPr.append(lay)
+    page_in=10.0; widths_in=widths_in or [page_in/n]*n
+    for i,(headers,rows) in enumerate(specs):
+        cell=outer.rows[0].cells[i]
+        cell.width=Twips(int(widths_in[i]*1440))
+        # drop default empty para, build inner table inside the cell
+        cell._tc.remove(cell.paragraphs[0]._p)
+        it=cell.add_table(rows=1, cols=len(headers)); it.alignment=WD_TABLE_ALIGNMENT.LEFT; it.autofit=False
+        hdr=it.rows[0].cells
+        for j,h in enumerate(headers):
+            p=_cell_para(hdr[j]); _rich(p,h,bold=True); _shade(hdr[j],HEAD_FILL); _set_cell_border(hdr[j])
+        for row in rows:
+            cc=it.add_row().cells
+            for j,val in enumerate(row):
+                if j>=len(cc): break
+                _rich(_cell_para(cc[j]),"" if val is None else val); _set_cell_border(cc[j])
+        _set_col_widths(it,_content_weights(headers,rows),widths_in[i]-0.1)
+    doc.add_paragraph().paragraph_format.space_after=Pt(2)
+    return outer
 
 def build(data, out_path):
     doc = Document()
@@ -95,7 +142,7 @@ def build(data, out_path):
     sec.orientation = WD_ORIENT.LANDSCAPE
     sec.page_width = Twips(16838); sec.page_height = Twips(11906)
     for m in ("top_margin", "bottom_margin", "left_margin", "right_margin"):
-        setattr(sec, m, Twips(720))
+        setattr(sec, m, Twips(504))
 
     # Title
     p = doc.add_paragraph(); r = p.add_run("Renown — Compendium")
@@ -130,13 +177,16 @@ def build(data, out_path):
     h1(doc, "Empire")
     h2(doc, "Settlements"); add_table(doc, ["Settlement","Tier","Sea Variant","Tax","Muster","Build","Wards","Reach","Notes"], data["settlements"])
     h2(doc, "Eras");        add_table(doc, ["Era","Renown","Armies","Cities","Infl/Turn","Diplo Infl","Envoys","Unlocks"], data["eras"])
-    h2(doc, "Domain Standings (empire)"); add_table(doc, ["Domain","Rising (3)","Established (6)","Sovereign (10)"], data["domain_board"])
-    h2(doc, "Domain Standing Effects (combat)"); add_table(doc, ["Domain","Rising","Established","Sovereign"], data["standing_effects"])
+    h2(doc, "Domain Standings (empire) · Standing Effects (combat)")
+    add_tables_row(doc, [(["Domain","Rising (3)","Established (6)","Sovereign (10)"], data["domain_board"]),
+                         (["Domain","Rising","Established","Sovereign"], data["standing_effects"])])
     h2(doc, "Tactic Matrix"); add_table(doc, data["tactic_matrix_header"], data["tactic_matrix_rows"])
     h2(doc, "Public Order"); add_table(doc, ["PO","State","Effect"], data["public_order"])
-    h2(doc, "Faith & Doubt Sources"); add_table(doc, ["Type","Source","Condition"], data["po_modifiers"])
-    h2(doc, "Seasons"); add_table(doc, ["Season","Name","Effect"], data["seasons"])
-    h2(doc, "Trade & Income"); add_table(doc, ["Rule","Value"], data["trade_rules"])
+    h2(doc, "Faith & Doubt · Seasons · Trade")
+    add_tables_row(doc, [(["Type","Source","Condition"], data["po_modifiers"]),
+                         (["Season","Name","Effect"], data["seasons"]),
+                         (["Rule","Value"], data["trade_rules"])],
+                   widths_in=[4.0,3.2,2.8])
 
     # Factions
     h1(doc, "Factions")
