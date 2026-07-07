@@ -135,6 +135,20 @@ def add_tables_row(doc, specs, widths_in=None):
     doc.add_paragraph().paragraph_format.space_after=Pt(2)
     return outer
 
+def _cols_on(doc, n, space=360):
+    """Start a continuous section; content after flows into n newspaper columns."""
+    sec = doc.add_section(WD_SECTION.CONTINUOUS)
+    cols = sec._sectPr.find(qn("w:cols"))
+    if cols is None:
+        cols = OxmlElement("w:cols"); sec._sectPr.append(cols)
+    cols.set(qn("w:num"), str(n)); cols.set(qn("w:space"), str(space))
+    return sec
+
+def _no_split(t):
+    for row in t.rows:
+        trPr = row._tr.get_or_add_trPr()
+        trPr.append(OxmlElement("w:cantSplit"))
+
 def build(data, out_path):
     doc = Document()
     # default font
@@ -162,14 +176,16 @@ def build(data, out_path):
         h2(doc, s["title"])
         add_table(doc, ["Pursuit", "Mastery Unlock", "Innate Effect", "Mastery Effect"], s["rows"])
 
-    # Equipment
+    # Equipment — 2-column flow
     h1(doc, "Equipment")
     eq = data["equipment"]
-    h2(doc, "Retinues");       add_table(doc, ["Retinue","Cost","To Hit","Endurance","Morale","Keyword"], eq["Retinues"])
-    h2(doc, "Melee Weapons");  add_table(doc, ["Weapon","Tier","AP","Init","Keywords"], eq["Weapons"])
-    h2(doc, "Ranged Weapons"); add_table(doc, ["Ranged","Tier","AP","Init","Keywords"], eq["Ranged"])
-    h2(doc, "Shields");        add_table(doc, ["Shield","Tier","Save","Init","Keywords"], eq["Shields"])
-    h2(doc, "Armor");          add_table(doc, ["Armor","Tier","Save","Keywords"], eq["Armor"])
+    _cols_on(doc, 2)
+    h2(doc, "Retinues");       add_table(doc, ["Retinue","Cost","To Hit","Endurance","Morale","Keyword"], eq["Retinues"], total_in=4.7)
+    h2(doc, "Melee Weapons");  add_table(doc, ["Weapon","Tier","AP","Init","Keywords"], eq["Weapons"], total_in=4.7)
+    h2(doc, "Ranged Weapons"); add_table(doc, ["Ranged","Tier","AP","Init","Keywords"], eq["Ranged"], total_in=4.7)
+    h2(doc, "Shields");        add_table(doc, ["Shield","Tier","Save","Init","Keywords"], eq["Shields"], total_in=4.7)
+    h2(doc, "Armor");          add_table(doc, ["Armor","Tier","Save","Keywords"], eq["Armor"], total_in=4.7)
+    _cols_on(doc, 1)
 
     # Infrastructure & Wonders
     h1(doc, "Infrastructure & Wonders")
@@ -180,7 +196,8 @@ def build(data, out_path):
     h1(doc, "Empire")
     h2(doc, "Settlements"); add_table(doc, ["Settlement","Tier","Sea Variant","Tax","Muster","Build","Wards","Reach","Notes"], data["settlements"])
     h2(doc, "Eras");        add_table(doc, ["Era","Renown","Armies","Cities","Infl/Turn","Diplo Infl","Envoys","Unlocks"], data["eras"])
-    h2(doc, "Domain Standings — empire + combat")
+    _dh = h2(doc, "Domain Standings — empire + combat")
+    _dh.paragraph_format.page_break_before = True     # start fresh so it fits one page
     _emp = data["domain_board"]
     _cmb = {r[0]: r for r in data["standing_effects"]}   # keyed by domain
     _merged = []
@@ -195,11 +212,17 @@ def build(data, out_path):
                 cell = (emp + "  " if emp else "") + f"**Combat:** {cmb}"
             row.append(cell)
         _merged.append(row)
-    add_table(doc, ["Domain", "Rising (3)", "Established (6)", "Sovereign (10)"], _merged)
+    _dt = add_table(doc, ["Domain", "Rising (3)", "Established (6)", "Sovereign (10)"], _merged)
+    _no_split(_dt)
+
     h2(doc, "Tactic Matrix"); add_table(doc, data["tactic_matrix_header"], data["tactic_matrix_rows"])
-    h2(doc, "Public Order"); add_table(doc, ["PO","State","Effect"], data["public_order"])
-    h2(doc, "Faith & Doubt Sources")
-    add_table(doc, ["Type","Source","Condition"], data["po_modifiers"])
+
+    # Public Order + Faith & Doubt Sources — 2-column flow
+    _cols_on(doc, 2)
+    h2(doc, "Public Order"); add_table(doc, ["PO","State","Effect"], data["public_order"], total_in=4.7)
+    h2(doc, "Faith & Doubt Sources"); add_table(doc, ["Type","Source","Condition"], data["po_modifiers"], total_in=4.7)
+    _cols_on(doc, 1)
+
     h2(doc, "Seasons · Trade")
     add_tables_row(doc, [(["Season","Name","Effect"], data["seasons"]),
                          (["Rule","Value"], data["trade_rules"])],
