@@ -310,6 +310,11 @@ def _place_regions(m, p, rng):
             (0.16, 0.8), (0.5, 0.84), (0.84, 0.8), (0.5, 0.5)],
     }
     fracs = layouts.get(n, layouts[6])[:n]
+    if n == 2:                            # 2p: capitals on the two SHORT edges
+        if m.height >= m.width:           # portrait -> top & bottom
+            fracs = [(0.5, 0.12), (0.5, 0.88)]
+        else:                             # landscape -> left & right
+            fracs = [(0.12, 0.5), (0.88, 0.5)]
     slots = [(int(m.width * fc), int(m.height * fr)) for (fc, fr) in fracs]
     anchors = []
     for (c, r) in slots:
@@ -337,10 +342,10 @@ def _place_regions(m, p, rng):
         hmid = abs(fx - 0.5) < 0.12          # mid-width  -> top/bottom edge
         if vmid and not hmid:
             ex = 0 if fx < 0.5 else m.width - 1
-            targets = [(ex, cy0), (ex, 0), (cx0, cy0)]
+            targets = [(ex, cy0), (ex, 0), (ex, m.height - 1)]
         elif hmid and not vmid:
             ey = 0 if fy < 0.5 else m.height - 1
-            targets = [(cx0, ey), (0, ey), (cx0, cy0)]
+            targets = [(cx0, ey), (0, ey), (m.width - 1, ey)]
         elif vmid and hmid:
             targets = [a, a, a]
         else:
@@ -357,17 +362,21 @@ def _place_regions(m, p, rng):
         for c in [cap] + [n.coord for n in m.neighbors(cap)]:
             m.get(c).terrain = "plains"
 
-        def pick(existing, target):
-            # buildable hex within [SEP, SMAX] of this region's settlements AND
-            # >= SEP from every other region's settlement; nearest `target`.
-            cells = [h.coord for h in m.all()
-                     if buildable(h.coord)
-                     and all(SEP <= distance(h.coord, o) <= SMAX for o in existing)
-                     and all(distance(h.coord, o) >= SEP for o in placed_all)]
+        def pick(target, others):
+            # buildable hex [SEP,SMAX] from the CAPITAL and >= SEP from sibling
+            # settlements; nearest `target`. Cross-region spacing is preferred
+            # but relaxed if it would leave no legal hex (no collapse).
+            def cands(cross):
+                return [h.coord for h in m.all()
+                        if buildable(h.coord)
+                        and SEP <= distance(h.coord, cap) <= SMAX
+                        and all(distance(h.coord, o) >= SEP for o in others)
+                        and (not cross or all(distance(h.coord, o) >= SEP for o in placed_all))]
+            cells = cands(True) or cands(False)
             return min(cells, key=lambda c: distance(c, target) + rng.random()) if cells else None
 
-        s2 = pick([cap], t2)
-        s3 = pick([cap, s2], t3) if s2 else None
+        s2 = pick(t2, [])
+        s3 = pick(t3, [s2]) if s2 else None
         if s2 is None:
             s2 = cap
         if s3 is None:
