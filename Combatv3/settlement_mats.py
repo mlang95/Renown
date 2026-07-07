@@ -202,6 +202,17 @@ def _ward_row(c, x, ytop, label, tiers, sub=None, gutter=78):
         c.setFont(SERIF_I, 7.5); c.setFillColor(MUTE)
         c.drawCentredString(sx + SLOT_W/2, ytop - SLOT_H/2 - 3, "ward")
 
+def _wrap_po(c, text, maxw, font="Helvetica", size=5.0):
+    out, cur = [], ""
+    for wd in str(text).split():
+        t = (cur + " " + wd).strip()
+        if c.stringWidth(t, SERIF, size) <= maxw: cur = t
+        else:
+            if cur: out.append(cur)
+            cur = wd
+    if cur: out.append(cur)
+    return out[:3]
+
 def build_board(out):
     """Landscape Settlement Board: tier ladder once at top, then a 2x2 grid of
     settlement rows (3 Settlements + Hamlet). Slots = the pursuit tile (master)."""
@@ -243,5 +254,36 @@ def build_board(out):
     for i, tiers in enumerate(cells):
         r, cc = divmod(i, 2)
         panel(col_x[cc], row_top[r], tiers)
+
+    # ---- bottom strip: Public Order spectrum across full width ----
+    by = MY + 78
+    c.setStrokeColor(FRAME); c.setLineWidth(0.8); c.line(x, by + 16, x + w, by + 16)
+    c.setFont(SERIF_B, 11); c.setFillColor(INK); c.drawString(x, by, "Public Order")
+
+    lo, hi = min(rd.PUBLIC_ORDER), max(rd.PUBLIC_ORDER)
+    n = hi - lo
+    y0 = by - 46
+    cellw = w / (n + 1)
+    for i, val in enumerate(range(lo, hi + 1)):
+        cx0 = x + i*cellw
+        if val < 0:    fill = "#9E2B25"
+        elif val == 0: fill = "#efe9db"
+        elif val >= 6: fill = "#B48A1E"
+        else:          fill = "#5f7360"
+        c.setFillColor(_c(fill)); c.setStrokeColor(SLOTLINE); c.setLineWidth(0.5)
+        c.rect(cx0, y0, cellw, 24, stroke=1, fill=1)
+        c.setFont(SERIF_B, 9); c.setFillColor(Color(1,1,1) if val != 0 else INK)
+        c.drawCentredString(cx0 + cellw/2, y0 + 8, str(val))
+        band = rd.PUBLIC_ORDER.get(val)
+        nm = band[0] if isinstance(band, (tuple, list)) else None
+        eff = band[1] if isinstance(band, (tuple, list)) and len(band) > 1 else None
+        if nm:
+            c.setFont(SERIF_B, 5.6); c.setFillColor(INK)
+            c.drawCentredString(cx0 + cellw/2, y0 - 9, nm)
+        if eff:
+            c.setFont(SERIF, 5.0); c.setFillColor(MUTE)
+            for j, ln in enumerate(_wrap_po(c, eff, cellw - 4)):
+                c.drawCentredString(cx0 + cellw/2, y0 - 17 - j*6, ln)
+
     c.showPage(); c.save()
-    print(f"settlement board -> {out}  (landscape, ladder + 2x2, slot {SLOT_W/MM:.0f}x{SLOT_H/MM:.0f}mm)")
+    print(f"settlement board -> {out}  (landscape, ladder + 2x2 + PO spectrum, slot {SLOT_W/MM:.0f}x{SLOT_H/MM:.0f}mm)")
