@@ -2045,7 +2045,7 @@ DOMAIN_BOARD = {
         "Sovereign":   "Titan of Industry: Your capital may be chartered to a Metropolis. Perform endorsed Charter.",
     },
     "Prowess": {
-        "Rising":      "Indominable: Once per turn, if you have not sent an Envoy, you may perform a Prowess action; send 1 fewer Envoy this turn (min 0). May use Declare War action.",
+        "Rising":      "Indomitable: Once per turn, if you have not sent a Personal Envoy, you may instead perform a Prowess action; send 1 fewer Envoy this turn (min 0). May use Declare War action.",
         "Established": "Edict of War: May have an additional Army. Perform a Muster Action. All armies gain Parry.",
         "Sovereign":   "High Quartermaster: Upkeep -2000. May change equipment on your armies during any upkeep phase where that army is within Province. No longer lose Influence while at War.",
     },
@@ -2056,7 +2056,7 @@ DOMAIN_BOARD = {
     },
     "Piety": {
         "Rising":      "Divine Mandate: Faith +1 each Empire Phase.",
-        "Established": "Prophet of Retribution: Each Empire Phase, all other players gain Doubt +2 while your Public Order is positive.",
+        "Established": "One True Gospel: Each Empire Phase, all other players with a lower Piety value gain Doubt +2.",
         "Sovereign":   "Pillar of Faith: If your Public Order would go below 3, set it to 3. May use the Crusade action.",
     },
     # Influence scaling by standing (Untested/Rising/Established/Sovereign):
