@@ -1,6 +1,6 @@
 # renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
-VERSION = "0.4.9.3"
+VERSION = "0.4.9.5"
 # ── Keyword constants ─────────────────────────────────────────────────────
 # Rename a keyword here and it renames everywhere (GLOSSARY keys, tags, cards).
 
@@ -144,7 +144,7 @@ GLOSSARY = {
     "Personal Envoy": "An Envoy you send in the Envoy Phase to perform an action; count and reach scale with Era.",
 	"Envoy Outcome": "How a Sent Envoy resolves, by Net Influence: Condemned (<= -3), "
                     "Failed (-3 < Net <= 0, gain Doubt 1), Passed (>= 1), Endorsed (>= 3). The per-domain "
-                    "effect at each band is given by ENVOY_OUTCOMES; an action's own endorsed bonus overrides "
+                    "effect at each band is given by the Envoy Outcome Table; an action's own endorsed bonus overrides "
                     "the domain default.",
 
     # ── Empire actions ──
@@ -266,8 +266,8 @@ WEAPONS = {
 }
 
 RANGED = {
-    "Hunting Bow": {"ap":  0, "init":  2, "tier": "Crude",   "tags": [TWO_H, NEGATE_RIPOSTE]},
-    "Longbow":     {"ap": -1, "init":  2, "tier": "Cast",    "tags": [TWO_H, NEGATE_RIPOSTE]},
+    "Hunting Bow": {"ap": -1, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNSTOPPABLE, NEGATE_RIPOSTE]},
+    "Longbow":     {"ap": -1, "init":  2, "tier": "Cast",    "tags": [TWO_H, UNSTOPPABLE, SHATTER_ARMOR, NEGATE_RIPOSTE]},
     "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, ONE_SHOT]},
     "Crossbow":    {"ap": -4, "init":  0, "tier": "Forged",  "tags": [UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, ONE_SHOT], 'note': "Tower Shield only (no other shield)"},
     "Pilum":       {"ap": -3, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD, ONE_SHOT]},
@@ -1444,7 +1444,7 @@ NODES = {
     "Thieves' Guild": {
         "type": "Monument",
         "unlock": "Sovereign Cunning",
-        "mastery_req": "Market Square + Smuggler's Nook + Secret Cellar",
+        "mastery_req": "Market Square + Smuggler's Nook + Secret Cellar + Black Market",
         "innate": "Whenever another player performs a Cunning action, you may recoup 1000 gold",
         "mastery": "**Extort 25%** of Trade Income from players who don't trade with you",
         "builds_into": [],
@@ -1551,7 +1551,7 @@ FACTIONS = {
                           'feel': 'Offensive, Arrogant',
                           'difficulty': 'Low',
                           'strength': 'Medium',
-                          'mechanic': 'Siege Specialist: You begin the game with a Siege Works (no ward, no upkeep, always active Mastery). If a player builds a Citadel, you must Siege it as a Personal Win Condition.',
+                          'mechanic': 'Siege Specialist: You begin the game with a Siege Works (no ward, no upkeep, always active Mastery). If a player builds a Citadel, you must Siege it as an Edict.',
                           'pair': 'Siege Camp, Royal Pavilion',
                           'complement': 'Senate Hall'},
     'The Boundless Steppe': {'final_cut': False,
@@ -1885,26 +1885,26 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                    'tier': 'Primitive',
                    'build_time': 2,
                    'requirement': 'None'},
- 'Muster Field': {'upkeep': 100,
+ 'Muster Field': {'upkeep': 200,
                   'upkeep_frequency': '—',
                   'empire_bonus': 'Can Muster',
                   'tier': 'Primitive',
                   'build_time': 2,
                   'requirement': 'None'},
- 'Wooden Walls': {'upkeep': 100,
+ 'Wooden Walls': {'upkeep': 200,
                   'upkeep_frequency': '—',
                   'empire_bonus': '**Influence -1** to **Raze actions** targeting your **settlements**',
                   'tier': 'Primitive',
                   'build_time': 2,
                   'requirement': 'None'},
- 'Stone Roads': {'upkeep': 100,
+ 'Stone Roads': {'upkeep': 200,
                  'upkeep_frequency': '—',
                  'empire_bonus': 'Ignore Terrain Speed Modifiers; if you start turn on Stone Road gain Speed '
                                  '+2; replaces Dirt Roads',
                  'tier': 'Developed',
                  'build_time': 3,
                  'requirement': 'Dirt Roads'},
- 'Town Hall': {'upkeep': 100,
+ 'Town Hall': {'upkeep': 200,
                'upkeep_frequency': '—',
                'empire_bonus': '+1 Influence per turn',
                'tier': 'Developed',
@@ -1917,33 +1917,33 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
              'tier': 'Developed',
              'build_time': 3,
              'requirement': 'One Tier Primitive + Stone Roads'},
- 'Garrison': {'upkeep': '200',
+ 'Garrison': {'upkeep': '300',
               'upkeep_frequency': '—',
-              'empire_bonus': 'Local Armies form (10/15/25 by Settlement size). All Garrisons share '
+              'empire_bonus': 'Local Armies form (10/15/25/50 by Settlement size). All Garrisons share '
                               'Equipment. Cannot be targeted; may Sally Forth.',
               'tier': 'Developed',
               'build_time': 3,
               'requirement': 'Muster Field'},
- 'Stone Walls': {'upkeep': 100,
+ 'Stone Walls': {'upkeep': 200,
                  'upkeep_frequency': '—',
                  'empire_bonus': '**Influence -1** to **Destabilize actions** targeting your **settlements**',
                  'tier': 'Sophisticated',
                  'build_time': 4,
                  'requirement': 'One Tier Developed + Wooden Walls'},
- 'Keep': {'upkeep': 100,
+ 'Keep': {'upkeep': 200,
           'upkeep_frequency': '—',
           'empire_bonus': 'May Muster from Garrison in addition to normal Muster Limits. If so set Garrison '
                           'to 0 and Muster Timer 1. Garrison returns to full when resolved.',
           'tier': 'Sophisticated',
           'build_time': 4,
           'requirement': 'Garrison'},
- 'Cathedral': {'upkeep': 100,
+ 'Cathedral': {'upkeep': 300,
                'upkeep_frequency': '—',
-               'empire_bonus': 'Faith +1',
+               'empire_bonus': 'Faith +2',
                'tier': 'Sophisticated',
                'build_time': 4,
                'requirement': 'Requires 1+ City'},
- 'Library': {'upkeep': 200,
+ 'Library': {'upkeep': 300,
              'upkeep_frequency': '—',
              'empire_bonus': 'Influence +1 to Council Envoys',
              'tier': 'Sophisticated',
@@ -1985,25 +1985,25 @@ WONDERS = {'Colossus': {'upkeep': 500,
 # pursuit slots (1 per tier; Hamlet exception); muster = retinues/turn.
 SETTLEMENTS = {
     "Hamlet":     {"tier": 0, "sea_variant": None,        "tax_income": 0,     "muster_limit": 0,  "build_time": 1, "wards": 3, "reach": 1, "notes": "Husbandry pursuits only; exactly range 2 from capital; may always pursue Arable Land"},
-    "Village":    {"tier": 1, "sea_variant": None,        "tax_income": 2000,  "muster_limit": 5, "build_time": 1, "wards": 1, "reach": 1, "notes": ""},
-    "Town":       {"tier": 2, "sea_variant": "Sea Town",  "tax_income": 4000,  "muster_limit": 10, "build_time": 2, "wards": 2, "reach": 2, "notes": ""},
-    "City":       {"tier": 3, "sea_variant": "Port",      "tax_income": 6000,  "muster_limit": 25, "build_time": 3, "wards": 3, "reach": 3, "notes": ""},
-    "Metropolis": {"tier": 4, "sea_variant": "—","tax_income": 10000, "muster_limit": 25, "build_time": 5, "wards": 4, "reach": 4, "notes": "Capital only, requires Sovereign Industry (Titan of Industry)"},
+    "Village":    {"tier": 1, "sea_variant": None,        "tax_income": 1000,  "muster_limit": 5, "build_time": 1, "wards": 1, "reach": 1, "notes": ""},
+    "Town":       {"tier": 2, "sea_variant": "Sea Town",  "tax_income": 3000,  "muster_limit": 10, "build_time": 2, "wards": 2, "reach": 2, "notes": ""},
+    "City":       {"tier": 3, "sea_variant": "Port",      "tax_income": 5000,  "muster_limit": 25, "build_time": 3, "wards": 3, "reach": 3, "notes": ""},
+    "Metropolis": {"tier": 4, "sea_variant": "—",         "tax_income": 8000, "muster_limit": 25, "build_time": 5, "wards": 4, "reach": 4, "notes": "Capital only, requires Sovereign Industry (Titan of Industry)"},
 }
 
 # Era progression: shared-Renown thresholds; caps on armies/cities; influence.
 ERAS = {
-    "Founding":  {"renown": 0,  "armies": 1, "cities": 0, "influence_per_turn": 1, "innate_diplomacy_influence": 0, "envoys": "1 Council + 1 Personal Envoy per turn", "unlocks": ""},
-    "Ascension": {"renown": 8,  "armies": 2, "cities": 1, "influence_per_turn": 2, "innate_diplomacy_influence": 1, "envoys": "Council Envoys perform 2 actions of that domain", "unlocks": "May resolve Charter Cities"},
-    "Eminence":  {"renown": 18, "armies": 3, "cities": 2, "influence_per_turn": 3, "innate_diplomacy_influence": 2, "envoys": "Personal Envoys perform 2 actions of that domain", "unlocks": "May form Military Alliances"},
-    "Zenith":    {"renown": 30, "armies": 4, "cities": 3, "influence_per_turn": 4, "innate_diplomacy_influence": 3, "envoys": "Send 2 Personal Envoys per turn", "unlocks": "May form Defensive Alliances"},
+    "Founding":  {"renown": 1,  "armies": 1, "cities": 0, "max_settlements": 3, "influence_per_turn": 1, "innate_diplomacy_influence": 1, "envoys": "1 Council + 1 Personal Envoy per turn", "unlocks": ""},
+    "Ascension": {"renown": 8,  "armies": 2, "cities": 1, "max_settlements": 4, "influence_per_turn": 2, "innate_diplomacy_influence": 2, "envoys": "Council Envoys perform 2 actions of that domain", "unlocks": "May resolve Charter Cities"},
+    "Eminence":  {"renown": 18, "armies": 3, "cities": 2, "max_settlements": 5, "influence_per_turn": 3, "innate_diplomacy_influence": 3, "envoys": "Personal Envoys perform 2 actions of that domain", "unlocks": "May form Military Alliances"},
+    "Zenith":    {"renown": 30, "armies": 4, "cities": 3, "max_settlements": 6, "influence_per_turn": 4, "innate_diplomacy_influence": 4, "envoys": "Send 2 Personal Envoys per turn", "unlocks": "May form Defensive Alliances"},
 }
 
 # Public Order track (−5..7): state name + effect.
 PUBLIC_ORDER = {
     -5: ("Uprising",      "Bandit Camp spawns in your Outlaw Country"),
     -4: ("Recession",     "-1000 Tax Income per Settlement"),
-    -3: ("Aimless",       "Speed -1"),
+    -3: ("Aimless",       "Speed -2"),
     -2: ("Indecisive",    "-1 Influence"),
     -1: ("Wavering",      "No effect"),
      0: ("Neutral",       "No effect"),
@@ -2046,22 +2046,22 @@ DOMAIN_BOARD = {
     },
     "Prowess": {
         "Rising":      "Indominable: Once per turn, if you have not sent an Envoy, you may perform a Prowess action; send 1 fewer Envoy this turn (min 0). May use Declare War action.",
-        "Established": "Edict of War: All armies gain Parry. Gain Immune State of Alarm (No longer gain Doubt while at War).",
-        "Sovereign":   "High Quartermaster: Upkeep -2000. No longer lose Influence while at War. May change equipment on your armies during any upkeep phase where that army is within Province.",
+        "Established": "Edict of War: May have an additional Army. Perform a Muster Action. All armies gain Parry.",
+        "Sovereign":   "High Quartermaster: Upkeep -2000. May change equipment on your armies during any upkeep phase where that army is within Province. No longer lose Influence while at War.",
     },
     "Cunning": {
-        "Rising":      "Clandestine Councilor: Once per turn, when another player's Envoy is Sent, target a player - that player Abstains.",
+        "Rising":      "Clandestine Councilor: Once per Envoy, target a player - that player Abstains.",
         "Established": "Grand Vizier: Players may not target you with Cunning Envoys if your Cunning value is higher. When you perform a Skirmish action, your opponent gains Blunder in the first Skirmish of that Battle.",
         "Sovereign":   "Master Conspirator: Once per turn, if your non-Cunning Envoy passes or is Endorsed, you may instead perform a Cunning action. In Battle, your opponent gains Strained each Skirmish.",
     },
     "Piety": {
-        "Rising":      "Divine Mandate: Faith +2.",
-        "Established": "Prophet of Retribution: All other players gain Doubt +2 while your Public Order is positive.",
+        "Rising":      "Divine Mandate: Faith +1 each Empire Phase.",
+        "Established": "Prophet of Retribution: Each Empire Phase, all other players gain Doubt +2 while your Public Order is positive.",
         "Sovereign":   "Pillar of Faith: If your Public Order would go below 3, set it to 3. May use the Crusade action.",
     },
     # Influence scaling by standing (Untested/Rising/Established/Sovereign):
     "max_influence_per_vote":  {"Untested": 1, "Rising": 2, "Established": 3, "Sovereign": 4},
-    "innate_influence_own_envoys": {"Untested": 0, "Rising": 1, "Established": 2, "Sovereign": 3},
+    "innate_influence_own_envoys": {"Untested": 1, "Rising": 2, "Established": 3, "Sovereign": 4},
 }
 
 # Seasons (turn cycle of 4; Rest Phase advances Season +1).
@@ -2107,13 +2107,13 @@ EFFICIENT = {n: t[0] for n, t in EFFICIENT_MULTI.items()} # first target (1-part
 BANDIT_CAMP_START = 5
 BANDIT_ARMY_THRESHOLD = 25
 BANDIT_GROWTH_PER_ERA = {"Founding": 1, "Ascension": 2, "Eminence": 5, "Zenith": 10}
-
+BANDIT_EQUIPMENT_PER_ERA = {"Founding": "Cudgel + Cloth", "Ascension": "Arming Swords, Target Shields, & Leather Armor" , "Eminence": "Halberds + Chainmail", "Zenith": "Battle Axes + Full Plate"}
 BANDITS = {
-    "Bandit Domain Value": "For every 5 Retinues in the Bandit Camp or Army, the Bandit Camp has +1 Cunning and +1 Prowess.",
+    "Bandit Domain Value": "For every 5 Retinues in the Bandit Camp or Army, the Bandit Camp has +2 Cunning and +2 Prowess.",
     "Bandit Camp": f"A collection of Bandits in Outlaw Country, starting with {BANDIT_CAMP_START} Retinues.",
     "Bandit Growth": f"Bandit Camps gain ({'/'.join(str(v) for v in BANDIT_GROWTH_PER_ERA.values())}) Retinues a turn, based on the Era of the Realm.",
     "Bandit Army": f"A Bandit Camp becomes a Bandit Army at {BANDIT_ARMY_THRESHOLD} Retinues. Performs Move actions toward the closest Settlement or Army, laying Siege or Skirmishing if possible, in addition to Bandit Cunning Mechanics. Bandit Armies cannot exceed {BANDIT_ARMY_THRESHOLD}",
-    "Spawn a Bandit Camp": "Each Spring, every player gains a Bandit Camp.",
+    "Spawn a Bandit Camp": "Each Spring, every player gains a Bandit Camp. When a Bandit Camp is spawned in Spring, it immediately performs a Raze action at a base influence of 1 targetting the closest settlement.",
 }
 
 TIMERS = {
@@ -2215,9 +2215,9 @@ GLOSSARY.update({
     "Contested": "Territory that is within Reach of more than one player's settlement(s). Considered Controlled by all Players that have a Settlement within Reach.",
     "Controlled": "Territory that is within Reach of a single Player's Settlement(s).",
     "Uncontrolled": "Territory that is not within Reach of any Player Settlement.",
-    "adjacent": "Range 1.",
-    "next to": "Range 2.",
-    "within": "Range 0.",
+    "Adjacent": "Range 1.",
+    "Next to": "Range 2.",
+    "Within": "Range 0.",
     "Range X": "The amount of Territories you must move in order to get from your current position to the specific Territory.",
     "Reach X": "The Range X characteristic which determines what Territories you Control and are in your Province.",
 	"Host": "The turn's starting player, who holds the Host Card. The role passes clockwise each Rest Phase (there is no Host in Spring). The Host collects and distributes Trade Income, resolves Bandit Mechanics, and breaks ties (Council vote, bandit targeting, and any tie not otherwise resolved).",
@@ -2280,12 +2280,12 @@ ACTIONS = {
     # ── PROWESS ──
     "Move": {
         "domain": "Prowess", "cost": "None", "requires": "",
-        "effect": "Move an Army up to its Speed in Territories, then choose: March (move up to 2x Speed, −1 Endurance, no other action), Skirmish (end adjacent to a non-allied Army not in a settlement → Battle, Seize the Initiative +1I Skirmish 1), Lay Siege (end adjacent to an at-war settlement → Siege), or Muster (within range 3 of your settlements, not within range 1 of a non-ally, with an active Muster Field → recruit up to combined muster limit; may swap retinues between adjacent allied armies and change equipment).",
+        "effect": "Move an Army up to its Speed in Territories, then choose: March (move up to 2x Speed, −1 Endurance, no other action), Battle (end adjacent to a non-allied Army not in a settlement → Battle, Seize the Initiative +1I Skirmish 1), Lay Siege (end adjacent to an at-war settlement → Siege), or Muster (within range 2 of your settlements, not within range 1 of a non-ally, with an active Muster Field → recruit up to combined muster limit; may swap retinues between adjacent allied armies and change equipment).",
         "endorsed": "Perform another Move action (same or different Army).",
         "notes": ["Each Army may be the target of only one Move action per turn.",
                   "Strained armies do not gain +1 Endurance at the start of next turn.",
-                  "An Army that Skirmished/Sieged/Mustered cannot act again until that battle/siege/muster timer ends.",
-                  "An Army that Skirmished gains +1I in the first Skirmish."]},
+                  "An Army that Battled/Sieged/Mustered cannot act again until that battle/siege/muster timer ends.",
+                  "An Army that Battled gains Seize the Initiative in the first Skirmish."]},
     "Declare War": {
         "domain": "Prowess", "cost": "None", "requires": "Rising Prowess",
         "effect": "Choose a non-allied player you have no NAP or active truce with. Both players are now At War. Trade Agreements between you end.",
@@ -2353,7 +2353,7 @@ ACTIONS = {
                   "Wonders are built in your capital and require all other infrastructure active when the Build action is performed."]},
     "Repair": {
         "domain": "Industry", "cost": "2000 gold", "requires": "",
-        "effect": "Choose a damaged Pursuit or Infrastructure in a settlement you control; set Repair Timer 2. At 0, choose: Restore (reactivate with all effects) or Demolish (remove it, freeing the ward).",
+        "effect": "Choose a damaged Pursuit or Infrastructure in a settlement you control; set Build Timer 2. At 0, choose: Restore (reactivate with all effects) or Demolish (remove it, freeing the ward).",
         "endorsed": "Recoup 2000.", "notes": []},
     "Pursue": {
         "domain": "Industry", "cost": "2000 gold", "requires": "",
@@ -2411,7 +2411,7 @@ EDICTS = {
     "Sovereign Standing": {"type": "Standing",  "requirement": "Reach a Sovereign Standing (Domain value 10) in any Domain."},
     "Monument":           {"type": "Build",     "requirement": "Complete (build) a Monument pursuit."},
     "Wonder":             {"type": "Build",     "requirement": "Complete a World Wonder."},
-    "Wealth":             {"type": "Economy",   "requirement": "Generate 10,000 gold per turn for five consecutive turns."},
+    "Wealth":             {"type": "Economy",   "requirement": "Generate 5,000 gold per turn for five consecutive turns."},
     "Vassalize":          {"type": "Conquest",  "requirement": "Vassalize a rival player (control their capital with no other settlements/armies under them)."},
     "Living Saints":      {"type": "Piety",     "requirement": "Sustain Public Order 10 (Living Saints) for five consecutive turns (Pious Timer)."},
     "Last Alliance Standing": {"type": "Endgame", "requirement": "Be the last alliance standing — the game-ending stop condition."},
@@ -2423,7 +2423,7 @@ EDICTS = {
 # Extends BANDITS with the Cunning-mechanic + army-behavior tables from Rules.
 BANDIT_BEHAVIOR = {
     "Renown":        "Bandits share the Realm's Renown level.",
-    "Domain Value":  "+1 Cunning and +1 Prowess per 5 retinues in the camp (e.g. 30 retinues = 6 Cunning = Established).",
+    "Domain Value":  "+2 Cunning and +2 Prowess per 5 retinues in the camp (e.g. 25 retinues = 10 Cunning = Sovereign).",
     "At War":        "All players are At War with all bandits. Players Abstain all bandit actions, but innate modifiers can still cause them to Fail.",
     "Cunning Roll":  "If 10+ retinues in camp, roll a d3 each turn: 1 = Intercept Caravan, 2 = Raze, 3 = Destabilize.",
     "Treasury":      "Bandit camps keep Extorted gold in their treasury and pay no costs or upkeep. Destroying a camp/army Extorts its treasury.",
@@ -2445,8 +2445,8 @@ BANDIT_BEHAVIOR = {
 #    Trade Guild removes upkeep on Primitive (innate) and Developed (mastery)
 #    infrastructure; College of Engineering removes it on Sophisticated.
 UPKEEP_TRACKS = {
-    "Pursuit":        "Fixed by pursuit type: Monument 300, Power 200, Energy 0, all others 100. Luminous Court zeroes Civic-pursuit upkeep.",
-    "Army":           "retinue count x (retinue cost - Upkeep -X). Reduced by Levy Hall (-200/-300), Tannery/Armory/Saddlery/Butchery/Fletchery/Smokehouse (-200), ABF (-500), High Quartermaster (-2000).",
+    "Pursuit":        "Fixed by pursuit type: Monument 300, Power 200, Energy 0, all others 0. Luminous Court zeroes Civic-pursuit upkeep.",
+    "Army":           "Σ(retinue costs x army) - Upkeep -X. Reduced by Levy Hall (-200/-300), Tannery/Armory/Saddlery/Butchery/Fletchery/Smokehouse (-200), ABF (-500), High Quartermaster (-2000).",
     "Infrastructure": "Per-settlement upkeep in INFRASTRUCTURE. Trade Guild removes Primitive (innate) + Developed (mastery); College of Engineering removes Sophisticated.",
 }
 
@@ -2456,7 +2456,7 @@ PURSUIT_UPKEEP_BY_TYPE = {
     "Power":    200,
     "Energy":   0,
 }
-PURSUIT_UPKEEP_DEFAULT = 100
+PURSUIT_UPKEEP_DEFAULT = 0
 
 def pursuit_upkeep(node):
     """Per-turn upkeep for a node, fixed by its type. node = a NODES entry (dict) or a type string."""
@@ -2470,7 +2470,7 @@ ARMY_UPKEEP_NOTE = "Net Army Upkeep = retinue count x (retinue cost - Upkeep -X 
 # The flat costs the rules attach to actions and siege outcomes.
 COSTS = {
     "Pursue action":   "2000 gold (the envoy action; pursuit then costs per-turn upkeep by type)",
-    "Pursuit upkeep":  "Per turn by type (fixed): Monument 300, Power 200, Energy 0, all others 100",
+    "Pursuit upkeep":  "Per turn by type (fixed): Monument 300, Power 200, Energy 0, all others 0",
     "Army upkeep":     "retinue count x (retinue cost - Upkeep -X modifiers)",
     "Infrastructure upkeep": "Per-settlement (see INFRASTRUCTURE); Trade Guild removes Primitive/Developed, College of Engineering removes Sophisticated",
     "Cunning action":  "2000 gold (Intercept Caravan / Foster Rebellion / Raze / Destabilize)",

@@ -49,6 +49,19 @@ TW = (PAGE_W - 2*MX - (COLS-1)*GAP) / COLS
 TH = (PAGE_H - 2*MY - (ROWS-1)*GAP) / ROWS
 HEAD_H = 20
 
+DOMAIN_COLOR = {"Industry": "#2E5A8C", "Prowess": "#9E2B25",
+                "Cunning": "#1c1c20", "Piety": "#C6A024"}
+def _domain_of(d):
+    eng = d.get("engine") or {}
+    dd = eng.get("domain") or {}
+    if dd:
+        return max(dd, key=dd.get)
+    u = d.get("unlock") or ""
+    for x in ("Industry", "Prowess", "Cunning", "Piety"):
+        if x in u:
+            return x
+    return None
+
 def _c(h): return HexColor(h)
 
 def _clean(s):
@@ -67,10 +80,10 @@ def wrap(c, text, font, size, maxw):
     if cur: out.append(cur)
     return out
 
-def body_layout(c, inn, mas, x, y_top, y_floor, w, cap=10.5, floor=5.5):
+def body_layout(c, inn, mas, mas_req, gate, gate_col, x, y_top, y_floor, w, cap=10.5, floor=5.5):
     """Pick the largest single body font at which INNATE+MASTERY both fit in the
-    vertical budget (y_top..y_floor), then draw them. Short tiles get big text;
-    only genuinely long ones shrink."""
+    vertical budget (y_top..y_floor), then draw them. Requirements print inline
+    after the section label: gate after INNATE, mas_req after MASTERY."""
     avail = y_top - y_floor
     size = cap
     while size > floor:
@@ -79,17 +92,45 @@ def body_layout(c, inn, mas, x, y_top, y_floor, w, cap=10.5, floor=5.5):
         for txt in (inn, mas):
             if txt:
                 lines += len(wrap(c, txt, SERIF, size, w)); blocks += 1
-        needed = lines * lh + blocks * (size * 0.85 + 3)
+        rs = max(5.0, size*0.72)
+        req_lines = 0
+        if inn and gate:     req_lines += len(wrap(c, "INNATE: " + gate, SERIF_I, rs, w))
+        if mas and mas_req:  req_lines += len(wrap(c, "MASTERY: " + mas_req, SERIF_I, rs, w))
+        needed = lines * lh + blocks * (size * 0.85 + 3) + req_lines * (rs + 1.4)
         if needed <= avail:
             break
         size -= 0.3
     y = y_top
-    for label, txt in (("INNATE", inn), ("MASTERY", mas)):
+    for label, txt, req in (("INNATE", inn, gate), ("MASTERY", mas, mas_req)):
         if not txt:
             continue
-        c.setFont(SERIF_B, max(5.4, size * 0.66)); c.setFillColor(TAG)
-        c.drawString(x, y, label)
-        y -= size * 0.85 + 1.5
+        lab_sz = max(5.4, size * 0.66)
+        if req:
+            # "LABEL:" then the requirement inline in italics, wrapping
+            rs = max(5.0, size * 0.72)
+            head = label + ": "
+            req_col = gate_col if (label == "INNATE" and gate_col) else MUTE
+            c.setFont(SERIF_B, lab_sz); c.setFillColor(TAG)
+            c.drawString(x, y, head)
+            hx = x + c.stringWidth(head, SERIF_B, lab_sz)
+            c.setFont(SERIF_I, rs); c.setFillColor(req_col)
+            words = req.split()
+            line = ""; first = True
+            for wd in words:
+                trial = (line + " " + wd).strip()
+                avail = (x + w - hx) if first else w
+                if c.stringWidth(trial, SERIF_I, rs) <= avail:
+                    line = trial
+                else:
+                    c.drawString(hx if first else x, y, line)
+                    y -= rs + 1.4; first = False; line = wd; hx = x
+            if line:
+                c.drawString(hx if first else x, y, line); y -= rs + 1.4
+            y -= 1.5
+        else:
+            c.setFont(SERIF_B, lab_sz); c.setFillColor(TAG)
+            c.drawString(x, y, label)
+            y -= size * 0.85 + 1.5
         c.setFont(SERIF, size); c.setFillColor(BODY)
         for ln in wrap(c, txt, SERIF, size, w):
             c.drawString(x, y, ln); y -= size + 1.8
@@ -119,8 +160,8 @@ def tile(c, name, d, x, ytop):
     nm_sz, meta_sz, body_base, body_min, foot_sz = 10.5*s, 7.2*s, 8.2*s, 5.4*s, 6.2*s
     pad = 7 * s
     t = d.get("type", "")
-    col = _c(TYPE_COLOR.get(t, "#555"))
     mon = d.get("monument")
+    col = _c(TYPE_COLOR.get(t, "#555"))
     gate = (d.get("unlock") or "").strip()
     gate = "" if gate in ("", "-", "\u2014") else gate
 
@@ -135,36 +176,38 @@ def tile(c, name, d, x, ytop):
     # name (shadow + white), monument diamond
     c.setFont(SERIF_B, nm_sz)
     nm = name
-    name_limit = TW - (30 if mon else 20) * s
+    up_val = upkeep(t)
+    reserve = 20
+    if up_val: reserve += 16
+    if mon: reserve += 14
+    name_limit = TW - reserve * s
     while c.stringWidth(nm, SERIF_B, nm_sz) > name_limit and len(nm) > 6:
         nm = nm[:-2]
     if nm != name:
         nm = nm.rstrip() + "\u2026"
     c.setFillColor(Color(0, 0, 0, 0.28)); c.drawString(x + pad + 0.5, hy + head_h*0.31 - 0.4, nm)
     c.setFillColor(Color(1, 1, 1)); c.drawString(x + pad, hy + head_h*0.31, nm)
+    up = upkeep(t)
+    corner_x = x + TW - pad
+    if up:
+        c.setFillColor(Color(1, 1, 1)); c.setFont(SERIF_B, nm_sz)
+        c.drawRightString(corner_x, hy + head_h*0.31, str(up))
+        corner_x -= c.stringWidth(str(up), SERIF_B, nm_sz) + 6*s
     if mon:
         c.setFillColor(Color(1, 1, 1)); c.setFont(SERIF_B, nm_sz)
-        c.drawRightString(x + TW - pad, hy + head_h*0.31, "\u25c6")
+        c.drawRightString(corner_x, hy + head_h*0.31, "\u25c6")
 
-    # meta line: gate  ·  efficient (top-right)
+    # meta line: efficient (left)  — gate moves into INNATE below
     my = hy - 9*s
-    c.setFont(SERIF, meta_sz); c.setFillColor(MUTE)
-    c.drawString(x + pad, my, gate if gate else "No gate")
     eff_raw = d.get("efficient")
     if isinstance(eff_raw, (list, tuple)):
         eff = ", ".join(eff_raw)
     else:
         eff = (eff_raw or "").strip()
-    up = upkeep(t)
-    right = f"Upkeep {up}"
-    c.setFont(SERIF_B, meta_sz); c.setFillColor(_c("#7a5a1a") if up else MUTE)
-    c.drawRightString(x + TW - pad, my, right)
     if eff:
-        c.setFont(SERIF_I, meta_sz*0.9); c.setFillColor(_c("#3f7d7a"))
-        c.drawRightString(x + TW - pad, my - 8*s, f"efficient: {eff}")
-        line_y = my - 14*s
-    else:
-        line_y = my - 5*s
+        c.setFont(SERIF_I, meta_sz*1.15); c.setFillColor(_c("#3f7d7a"))
+        c.drawString(x + pad, my, f"efficient: {eff}")
+    line_y = my - 5*s
     c.setStrokeColor(LINE); c.setLineWidth(0.6); c.line(x + 6*s, line_y, x + TW - 6*s, line_y)
 
     # builds_into footer line
@@ -183,7 +226,12 @@ def tile(c, name, d, x, ytop):
     floor_y = ytop - TH + 15*s          # leave room for the footer row
     inn = _clean(d.get("innate"))
     mas = _clean(d.get("mastery"))
-    body_layout(c, inn, mas, x + pad, y, floor_y, TW - 2*pad, cap=10.5, floor=5.5)
+    mreq = d.get("mastery_req")
+    mreq = "" if not mreq or str(mreq).strip() in ("", "-", "\u2014") else _clean(mreq)
+    gate_txt = "" if not gate or str(gate).strip() in ("", "-", "\u2014") else _clean(gate)
+    _dom = _domain_of(d)
+    gate_col = _c(DOMAIN_COLOR[_dom]) if _dom else None
+    body_layout(c, inn, mas, mreq, gate_txt, gate_col, x + pad, y, floor_y, TW - 2*pad, cap=10.5, floor=5.5)
 
     # footer: type (left) + builds_into (right) + border
     c.setFont(SERIF_I, foot_sz); c.setFillColor(TAG)

@@ -62,7 +62,7 @@ kids.push(para("Generated from renown_data.py — the single source of truth.", 
 kids.push(h1("Pursuits"));
 for (const sec of data.pursuit_sections) {
   kids.push(h2(sec.title));
-  kids.push(table(["Pursuit", "Mastery Unlock", "Innate Effect", "Mastery Effect"], sec.rows));
+  kids.push(table(["Pursuit", "Domain", "Mastery Unlock", "Innate Effect", "Mastery Effect"], sec.rows));
 }
 
 kids.push(h1("Equipment"));

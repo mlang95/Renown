@@ -250,7 +250,7 @@ def side_b(c):
         y = table(c, x, y, w, ["Realm Era", "Retinues / turn"], rows)
         y -= 4
         c.setFont(SERIF_I, 7.8); c.setFillColor(MUTE)
-        for ln in wrap(c, f"New Camps start at {CAMP_START} retinues. Bandit Armies keep growing (cap 50).", SERIF_I, 7.8, w):
+        for ln in wrap(c, f"New Camps start at {CAMP_START} retinues. Camps and Armies grow each turn but never exceed {ARMY_THRESH}; a Camp becomes a Bandit Army at {ARMY_THRESH}. After casualties they regrow toward {ARMY_THRESH}.", SERIF_I, 7.8, w):
             c.drawString(x, y, ln); y -= 9.6
         return y
     R.box("Growth Table", growth, 100)

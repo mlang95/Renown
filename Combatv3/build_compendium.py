@@ -7,7 +7,14 @@ bordered tables, **bold** markup parsed into runs.
 
 Usage:  python build_compendium.py compendium_data.json Compendium.docx
 """
-import json, re, sys
+import json, re, sys, os
+sys.path.insert(0, os.getcwd())
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+try:
+    import renown_data as rd
+except Exception as e:
+    sys.stderr.write(f"WARN: renown_data not importable ({e}); Speed/Max Settlements/Terrain/Bandit tables will be limited\n")
+    rd = None
 from docx import Document
 from docx.shared import Pt, RGBColor, Twips
 from docx.enum.section import WD_ORIENT
@@ -69,17 +76,97 @@ def _content_weights(headers, rows, floor=6, cap=60):
         w.append(min(cap,max(floor,hword,m)))
     return w
 
-def _set_col_widths(t, weights, total_in=10.0):
-    tblPr=t._tbl.tblPr
-    lay=OxmlElement("w:tblLayout"); lay.set(qn("w:type"),"fixed"); tblPr.append(lay)
-    tot=float(sum(weights)) or 1.0
-    for i,col in enumerate(t.columns):
-        wtw=Twips(int(total_in*1440*weights[i]/tot))
-        for cell in col.cells: cell.width=wtw
+def _alpha(rows, col=0):
+    return sorted(rows, key=lambda r: re.sub(r"\*\*","",str(r[col] or "")).lower())
 
-def add_table(doc, headers, rows, total_in=10.0, gap=True):
+from reportlab.pdfbase.pdfmetrics import stringWidth as _sw
+from reportlab.pdfbase import pdfmetrics as _pm
+from reportlab.pdfbase.ttfonts import TTFont as _TTF
+_MEAS_RF, _MEAS_BF = "Helvetica", "Helvetica-Bold"
+for _dir in (os.path.dirname(os.path.abspath(__file__)),
+             os.path.join(os.path.dirname(os.path.abspath(__file__)), "fonts"), "fonts", "."):
+    try:
+        _pm.registerFont(_TTF("EBG", os.path.join(_dir, "EBGaramond-Regular.ttf")))
+        _pm.registerFont(_TTF("EBGB", os.path.join(_dir, "EBGaramond-Bold.ttf")))
+        _MEAS_RF, _MEAS_BF = "EBG", "EBGB"
+        break
+    except Exception:
+        continue
+
+def _col_layout(headers, rows, total_in=10.0, cap=48, tight=None):
+    """Width columns to minimize wrapping, measured in the ACTUAL font. Each column
+    prefers its NATURAL width (longest full string on one line). If all fit, keep
+    compact. If not, only the widest columns shrink (water-filling from each
+    column's single-word floor); short columns keep natural and never wrap."""
+    tight = tight or set()
+    FS = 8.5; PAD = 0.19   # Word default cell margins (0.08in x2 = 0.16) + safety
+    RF, BF = _MEAS_RF, _MEAS_BF
+    def w_full(s, bold): return _sw(re.sub(r"\*\*","",s), BF if bold else RF, FS)/72.0 + PAD
+    def w_word(s, bold):
+        ws = re.sub(r"\*\*","",s).split()
+        return (max((_sw(w, BF if bold else RF, FS) for w in ws), default=0))/72.0 + PAD
+    n = len(headers)
+    nat_in = [0.0]*n; word_in = [0.0]*n
+    for i in range(n):
+        h = str(headers[i])
+        cells = [str(r[i]) for r in rows if i < len(r) and r[i] is not None]
+        nat_in[i]  = max([w_full(h, True)] + [w_full(c, False) for c in cells])
+        word_in[i] = max([w_word(h, True)] + [w_word(c, False) for c in cells])
+    width = [None]*n
+    for i in tight: width[i] = nat_in[i]
+    fixed = sum(width[i] for i in tight)
+    free = [i for i in range(n) if i not in tight]
+    rem = total_in - fixed
+    if not free:
+        s = sum(width); return [w*total_in/s for w in width] if s else width
+    if rem <= 0:
+        for i in free: width[i] = word_in[i]
+        s = sum(width); return [w*total_in/s for w in width]
+    if sum(nat_in[i] for i in free) <= rem:
+        for i in free: width[i] = nat_in[i]   # compact; don't balloon
+        return width
+    base = sum(word_in[i] for i in free)
+    if base >= rem:
+        for i in free: width[i] = word_in[i]
+        s = fixed + sum(word_in[i] for i in free); k = total_in/s
+        return [w*k if i in tight else word_in[i]*k for i, w in enumerate(width)]
+    water = rem - base
+    lo, hi = 0.0, max(nat_in[i]-word_in[i] for i in free)
+    for _ in range(60):
+        mid = (lo+hi)/2
+        if sum(min(nat_in[i]-word_in[i], mid) for i in free) < water: lo = mid
+        else: hi = mid
+    for i in free: width[i] = word_in[i] + min(nat_in[i]-word_in[i], lo)
+    return width
+
+def _set_col_widths(t, widths_in):
+    tbl = t._tbl; tblPr = tbl.tblPr
+    # fixed layout (find-or-create, don't stack duplicates)
+    lay = tblPr.find(qn("w:tblLayout"))
+    if lay is None:
+        lay = OxmlElement("w:tblLayout"); tblPr.append(lay)
+    lay.set(qn("w:type"), "fixed")
+    # total table width
+    tblW = tblPr.find(qn("w:tblW"))
+    if tblW is None:
+        tblW = OxmlElement("w:tblW"); tblPr.append(tblW)
+    tblW.set(qn("w:w"), str(int(sum(widths_in)*1440))); tblW.set(qn("w:type"), "dxa")
+    # rewrite the grid columns (Word uses these under fixed layout)
+    grid = tbl.find(qn("w:tblGrid"))
+    if grid is not None:
+        for gc in list(grid.findall(qn("w:gridCol"))):
+            grid.remove(gc)
+        for wi in widths_in:
+            gc = OxmlElement("w:gridCol"); gc.set(qn("w:w"), str(int(wi*1440))); grid.append(gc)
+    # and set each cell width to match
+    for i, col in enumerate(t.columns):
+        wtw = Twips(int(widths_in[i]*1440))
+        for cell in col.cells:
+            cell.width = wtw
+
+def add_table(doc, headers, rows, total_in=10.0, gap=True, tight=None):
     t = doc.add_table(rows=1, cols=len(headers))
-    t.alignment = WD_TABLE_ALIGNMENT.CENTER
+    t.alignment = WD_TABLE_ALIGNMENT.LEFT
     t.autofit = False
     hdr = t.rows[0].cells
     for i, h in enumerate(headers):
@@ -93,7 +180,7 @@ def add_table(doc, headers, rows, total_in=10.0, gap=True):
             p = _cell_para(cells[i])
             _rich(p, "" if val is None else val)
             _set_cell_border(cells[i])
-    _set_col_widths(t, _content_weights(headers, rows), total_in)
+    _set_col_widths(t, _col_layout(headers, rows, total_in, tight=tight))
     if gap:
         g=doc.add_paragraph(); g.paragraph_format.space_after=Pt(2)
     return t
@@ -111,7 +198,7 @@ def h2(doc, t): return _heading(doc, t, 13, 6, 2)
 
 def add_tables_row(doc, specs, widths_in=None):
     n=len(specs)
-    outer=doc.add_table(rows=1, cols=n); outer.alignment=WD_TABLE_ALIGNMENT.CENTER
+    outer=doc.add_table(rows=1, cols=n); outer.alignment=WD_TABLE_ALIGNMENT.LEFT
     tblPr=outer._tbl.tblPr; lay=OxmlElement("w:tblLayout"); lay.set(qn("w:type"),"fixed"); tblPr.append(lay)
     widths_in=widths_in or [10.0/n]*n
     for i,(headers,rows) in enumerate(specs):
@@ -126,7 +213,7 @@ def add_tables_row(doc, specs, widths_in=None):
             for j,val in enumerate(row):
                 if j>=len(cc): break
                 _rich(_cell_para(cc[j]),"" if val is None else val); _set_cell_border(cc[j])
-        _set_col_widths(it,_content_weights(headers,rows),widths_in[i]-0.1)
+        _set_col_widths(it,_col_layout(headers,rows,widths_in[i]-0.1))
     doc.add_paragraph().paragraph_format.space_after=Pt(2)
     return outer
 
@@ -155,12 +242,19 @@ def build(data, out_path):
     h1(doc, "Pursuits")
     for s in data["pursuit_sections"]:
         h2(doc, s["title"])
-        add_table(doc, ["Pursuit", "Mastery Unlock", "Innate Effect", "Mastery Effect"], s["rows"])
+        add_table(doc, ["Pursuit", "Mastery Unlock", "Innate Effect", "Mastery Effect"], _alpha(s["rows"]))
 
     # Equipment
     h1(doc, "Equipment")
     eq = data["equipment"]
-    h2(doc, "Retinues");       add_table(doc, ["Retinue","Cost","To Hit","Endurance","Morale","Keyword"], eq["Retinues"])
+    h2(doc, "Retinues")
+    if rd is not None and getattr(rd, "RETINUES", None):
+        _ret_rows = [[n, str(x.get("cost","")), f"{x['to_hit']}+", str(x.get("endurance","")),
+                      f"{x['shaking']}+", str(x.get("speed","\u2014")), str(x.get("max_size","\u2014"))]
+                     for n, x in rd.RETINUES.items()]
+        add_table(doc, ["Retinue","Cost","To Hit","Endurance","Morale","Speed","Max Size"], _ret_rows)
+    else:
+        add_table(doc, ["Retinue","Cost","To Hit","Endurance","Morale","Speed"], eq["Retinues"])
     h2(doc, "Melee Weapons");  add_table(doc, ["Weapon","Tier","AP","Init","Keywords"], eq["Weapons"])
     h2(doc, "Ranged Weapons"); add_table(doc, ["Ranged","Tier","AP","Init","Keywords"], eq["Ranged"])
     h2(doc, "Shields");        add_table(doc, ["Shield","Tier","Save","Init","Keywords"], eq["Shields"])
@@ -174,7 +268,14 @@ def build(data, out_path):
     # Empire
     h1(doc, "Empire")
     h2(doc, "Settlements"); add_table(doc, ["Settlement","Tier","Sea Variant","Tax","Muster","Build","Wards","Reach","Notes"], data["settlements"])
-    h2(doc, "Eras");        add_table(doc, ["Era","Renown","Armies","Cities","Infl/Turn","Diplo Infl","Envoys","Unlocks"], data["eras"])
+    if rd is not None and getattr(rd, "ERAS", None):
+        _era_rows = [[nm, str(e.get("renown","")), str(e.get("armies","")), str(e.get("cities","")),
+                      str(e.get("max_settlements","")), f"+{e.get('influence_per_turn',0)}",
+                      str(e.get("innate_diplomacy_influence","")), e.get("envoys","") or "",
+                      e.get("unlocks","") or "\u2014"] for nm, e in rd.ERAS.items()]
+        h2(doc, "Eras"); add_table(doc, ["Era","Renown","Armies","Cities","Max Settlements","Infl/Turn","Diplo Infl","Envoys","Unlocks"], _era_rows)
+    else:
+        h2(doc, "Eras");        add_table(doc, ["Era","Renown","Armies","Cities","Infl/Turn","Diplo Infl","Envoys","Unlocks"], data["eras"])
     h2(doc, "Domain Standings")
     _emp=data["domain_board"]; _cmb={r[0]:r for r in data["standing_effects"]}
     _merged=[]
@@ -186,22 +287,65 @@ def build(data, out_path):
             row.append((e+" "+c).strip() if c else e)
         _merged.append(row)
     add_table(doc, ["Domain","Rising (3)","Established (6)","Sovereign (10)"], _merged)
-    h2(doc, "Tactic Matrix"); add_table(doc, data["tactic_matrix_header"], data["tactic_matrix_rows"])
+    h2(doc, "Tactic Matrix")
+    def _relabel(v):
+        s = str(v)
+        s = s.replace("TS", "Save").replace("TH", "Strike")
+        return s
+    _tm_head = [_relabel(h) for h in data["tactic_matrix_header"]]
+    _tm_rows = [[_relabel(c) for c in r] for r in data["tactic_matrix_rows"]]
+    add_table(doc, _tm_head, _tm_rows)
+    p = doc.add_paragraph(); p.paragraph_format.space_after = Pt(2)
+    _leg = p.add_run("I = Initiative \u00b7 Strike = to Strike \u00b7 Save = to Save"); _leg.italic = True; _leg.font.size = Pt(7)
+
+    # Terrain — strategic + tactical merged into one table (tactical features
+    # map onto their base terrain, so keep it as a single reference)
+    if rd is not None and getattr(rd, "TERRAIN", None):
+        h2(doc, "Terrain")
+        tac = getattr(rd, "TACTICAL_TERRAIN", {}) or {}
+        # which tactical features belong to which base terrain
+        BASE = {"Hill": "Grassland", "Open Field": "Grassland", "Mire": "Wetlands",
+                "Forest": "Forest", "Tundra": "Tundra", "Mountains": "Mountains", "Water": "Water"}
+        battle = {}
+        for feat, fd in tac.items():
+            base = BASE.get(feat, feat)
+            note = fd.get("effect", "")
+            label = feat if feat != base else ""
+            battle.setdefault(base, []).append((f"{label}: {note}" if label else note))
+        trows = []
+        for n, d in rd.TERRAIN.items():
+            mats = ", ".join(d.get("Raw Materials", []) or []) or "\u2014"
+            mapfx = d.get("Effect", "\u2014") or "\u2014"
+            btl = "  ".join(battle.get(n, [])) or "\u2014"
+            trows.append([n, mats, mapfx, btl])
+        add_table(doc, ["Terrain", "Raw Materials", "Map Effect", "Battle Effect"], trows)
+
+    # Bandits by Era — growth + armaments in one table
+    if rd is not None and getattr(rd, "BANDIT_GROWTH_PER_ERA", None):
+        h2(doc, "Bandits by Era")
+        g = rd.BANDIT_GROWTH_PER_ERA
+        growth = dict(g.items() if isinstance(g, dict) else g)
+        equip = getattr(rd, "BANDIT_EQUIPMENT_PER_ERA", {}) or {}
+        order = list(rd.ERAS.keys()) if getattr(rd, "ERAS", None) else list(growth.keys())
+        brows = [[era, f"+{growth.get(era,'\u2014')}/turn", equip.get(era, "\u2014")] for era in order]
+        add_table(doc, ["Era", "Bandit Growth", "Armaments"], brows)
+
     h2(doc, "Public Order"); add_table(doc, ["PO","State","Effect"], data["public_order"])
     h2(doc, "Faith & Doubt Sources"); add_table(doc, ["Type","Source","Condition"], data["po_modifiers"])
-    h2(doc, "Seasons \u00b7 Trade")
-    add_tables_row(doc, [(["Season","Name","Effect"], data["seasons"]),
-                         (["Rule","Value"], data["trade_rules"])], widths_in=[5.6,4.4])
+    h2(doc, "Seasons")
+    add_table(doc, ["Season","Name","Effect"], data["seasons"])
+    h2(doc, "Trade & Income")
+    add_table(doc, ["Rule","Value"], data["trade_rules"], tight={0})
 
     # Factions
     h1(doc, "Factions")
-    add_table(doc, ["Faction","Mechanic"], data["factions"])
+    add_table(doc, ["Faction","Mechanic"], data["factions"], tight={0})
 
     # Glossary
     h1(doc, "Glossary")
     for cat in data["glossary_categorized"]:
         h2(doc, cat["title"])
-        add_table(doc, ["Term","Definition"], cat["rows"])
+        add_table(doc, ["Term","Definition"], _alpha(cat["rows"]), tight={0})
 
     doc.save(out_path)
     print("wrote " + out_path)

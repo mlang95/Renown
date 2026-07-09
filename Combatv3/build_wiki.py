@@ -526,6 +526,9 @@ if hasattr(rd, "BANDITS"):
     if hasattr(rd, "BANDIT_GROWTH_PER_ERA"):
         body+="<h2>Growth per Era</h2>"
         body+=_grid(["Era","Retinues / turn"], [[k,str(v)] for k,v in rd.BANDIT_GROWTH_PER_ERA.items()], u)
+    if hasattr(rd, "BANDIT_EQUIPMENT_PER_ERA"):
+        body+="<h2>Armaments per Era</h2>"
+        body+=_grid(["Era","Armaments"], [[k,v] for k,v in rd.BANDIT_EQUIPMENT_PER_ERA.items()], u)
     if hasattr(rd,"BANDIT_CAMP_START"):
         body+=f"<p class='mut'>Camp starts at {rd.BANDIT_CAMP_START} retinues; becomes a Bandit Army at {getattr(rd,'BANDIT_ARMY_THRESHOLD','?')}.</p>"
     open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Bandits",body,u))
@@ -573,10 +576,10 @@ if hasattr(rd, "SETTLEMENTS"):
 if hasattr(rd, "ERAS"):
     u="eras-ref.html"
     items=sorted(rd.ERAS.items(), key=lambda kv: kv[1].get("renown",0))
-    rows=[[n, d.get("renown",""), d.get("armies",""), d.get("cities",""), d.get("influence_per_turn",""), d.get("envoys",""), d.get("unlocks","")] for n,d in items]
+    rows=[[n, d.get("renown",""), d.get("armies",""), d.get("cities",""), d.get("max_settlements",""), d.get("influence_per_turn",""), d.get("innate_diplomacy_influence",""), d.get("envoys",""), d.get("unlocks","")] for n,d in items]
     body=f"<h1>Eras <span class='count'>{len(items)}</span></h1>"
     body+="<p>Shared-Renown thresholds raise everyone's Era, lifting army/city caps and influence.</p>"
-    body+=_grid(["Era","Renown","Armies","Cities","Influence/Turn","Envoys","Unlocks"], rows, u)
+    body+=_grid(["Era","Renown","Armies","Cities","Max Settlements","Influence/Turn","Diplo Infl","Envoys","Unlocks"], rows, u)
     open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Eras",body,u))
     search_index.append({"title":"Eras","url":u,"text":"eras founding ascension eminence zenith renown army cap"})
 
@@ -625,8 +628,8 @@ u="equipment-ref.html"
 eq=["<h1>Equipment</h1>"]
 if hasattr(rd,"RETINUES"):
     eq.append("<h2>Retinues</h2>")
-    eq.append(_grid(["Retinue","Cost","To-Hit","Endurance","Morale","Unbreakable"],
-        [[n,d.get("cost"),f"{d.get('to_hit')}+",d.get("endurance"),f"{d.get('shaking')}+","Yes" if d.get("unbreakable") else "—"] for n,d in rd.RETINUES.items()], u))
+    eq.append(_grid(["Retinue","Cost","To-Hit","Endurance","Morale","Speed","Max Size"],
+        [[n,d.get("cost"),f"{d.get('to_hit')}+",d.get("endurance"),f"{d.get('shaking')}+",d.get("speed","—"),d.get("max_size","—")] for n,d in rd.RETINUES.items()], u))
 def _wrow(n,d): return [n, d.get("ap"), (f"+{d['init']}" if d.get('init',0)>0 else d.get('init')), d.get("tier"), ", ".join(d.get("tags",[]))]
 if hasattr(rd,"WEAPONS"):
     eq.append("<h2>Melee Weapons</h2>")
@@ -672,6 +675,9 @@ if hasattr(rd,"BUILD_TIMERS"):
 if hasattr(rd,"BANDIT_GROWTH_PER_ERA"):
     rt.append("<h2>Bandit Growth per Era</h2>")
     rt.append(_grid(["Era","Retinues/Turn"], [[k,v] for k,v in rd.BANDIT_GROWTH_PER_ERA.items()], u))
+    if hasattr(rd,"BANDIT_EQUIPMENT_PER_ERA"):
+        rt.append("<h2>Bandit Armaments per Era</h2>")
+        rt.append(_grid(["Era","Armaments"], [[k,v] for k,v in rd.BANDIT_EQUIPMENT_PER_ERA.items()], u))
     rt.append(_kv_table([("Camp starting size", getattr(rd,"BANDIT_CAMP_START","")),("Becomes Army at", getattr(rd,"BANDIT_ARMY_THRESHOLD",""))]))
 if hasattr(rd,"TIER_UNLOCK"):
     rt.append("<h2>Equipment Tier Ladder</h2><p>Each tier is unlocked by the named Industry node.</p>")

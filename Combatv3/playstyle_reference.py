@@ -33,8 +33,8 @@ except Exception: WONDERS = set()
 
 AXES = [("military_solutions", "Military"), ("economy_generators", "Economy"),
         ("faith_management", "Faith"), ("doubt_warfare", "Disruption"),
-        ("political_control", "Influence")] #("board_presence", "Board"),
-        #("degenerate_punishment", "Punish")]
+        ("political_control", "Influence"), ("board_presence", "Board"),
+        ("degenerate_punishment", "Punish")]
 AXIS_LABELS = [lab for _, lab in AXES]
 
 IND, PRO, CUN, PIE = "#2E5A8C", "#9E2B25", "#1c1c20", "#C6A024"

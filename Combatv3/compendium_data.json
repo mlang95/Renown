@@ -1,5 +1,5 @@
 {
- "version": "0.4.9.3",
+ "version": "0.4.9.5",
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
@@ -22,25 +22,25 @@
   "Shielded": "A stacking -1 penalty to the Strike roll (to a maximum of 6+). Sources: a shield's -1 to Strike.",
   "Negate Tempered": "Ignores Tempered: this weapon's AP can reduce the target's Save past 6+ (to auto-fail), defeating the Tempered floor.",
   "Negate Riposte": "The target's Parry can never Riposte this weapon's Strikes (a natural 6 Parry still cancels the Strike, but no counter-Strike follows).",
-  "Dual Wield": "A Strike die that fails to Strike is rerolled once; the reroll can Focused Strike. Dual Wield confers 2H (both hands on weapons \u2014 no Shield). You cannot reroll successful Strikes.",
+  "Dual Wield": "A Strike die that fails to Strike is rerolled once; the reroll can Focused Strike. Dual Wield confers 2H (both hands on weapons — no Shield). You cannot reroll successful Strikes.",
   "Florentine": "Only active while Dual Wielding. Even while Fatigued, a Focused Parry succeeds. This alone does not enable Riposte while Fatigued.",
   "Immune [keyword]": "Cancels that keyword as it applies to you (e.g. Immune Unwieldy, Strain, Destroy Shield).",
-  "AP": "Armor Penetration \u2014 a weapon's (negative) modifier to the defender's Save roll; the more negative, the harder to save.",
+  "AP": "Armor Penetration — a weapon's (negative) modifier to the defender's Save roll; the more negative, the harder to save.",
   "Blocked": "-1 Initiative in the first Skirmish (negated by Immune Blocked).",
   "Strained": "-1 Initiative every Skirmish (negated by Immune Strain). Does not gain Endurance in the Empire Phase.",
-  "Seize the Initiative": "Won by the roll-off at the start of the Battle \u2014 the winner of their last Battle adds +1 to the roll. You become the Attacker and gain +1 Initiative in the first Skirmish. Some Tactics and the Ministry monument also grant it.",
+  "Seize the Initiative": "Won by the roll-off at the start of the Battle — the winner of their last Battle adds +1 to the roll. You become the Attacker and gain +1 Initiative in the first Skirmish. Some Tactics and the Ministry monument also grant it.",
   "Attacker / Defender": "Set by the roll-off. Each Skirmish the Attacker declares equipment first; the Defender then responds.",
   "Battle": "One fight between two players, resolved as a series of Skirmishes until a side is wiped out, Routs, or Falls Back.",
   "Skirmish": "One round of a Battle, run through the numbered Battle steps; a Battle repeats Skirmishes until it ends.",
-  "Casualty": "A retinue removed from the field \u2014 from an unsaved Strike or a failed Panic or Break check.",
-  "Field": "Your retinues in play \u2014 front line (up to 10) plus reserve (up to 5). Casualties leave the field at once, lowering its count.",
+  "Casualty": "A retinue removed from the field — from an unsaved Strike or a failed Panic or Break check.",
+  "Field": "Your retinues in play — front line (up to 10) plus reserve (up to 5). Casualties leave the field at once, lowering its count.",
   "Endurance": "A side's stamina. Each side that fights loses 1 per Skirmish; at 0 it becomes Fatigued.",
   "Fatigued": "A side at 0 Endurance. Each Skirmish its field takes a Break check, then it gains a Fatigue token. Fatigued Armies cannot Parry, Riposte, or Recover",
   "Break check": "Taken by each Fatigued side's field every Skirmish, just before it gains its Fatigue token. Roll Morale (up to 5 dice, modified by Fatigue tokens); failures are casualties, but a Break check never triggers a Panic check. Unbreakable auto-passes.",
   "Panic check": "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish, after it Strikes back. Roll Morale (up to 5 dice); Immune Panic auto-passes.",
   "Morale": "How steady a retinue is when tested (lower is steadier; see the retinue table). Break and Panic checks roll it: a D6 per retinue in the field, up to 5 dice, each must meet its modified value; failures are casualties. If the modified value is ever 7+, the army Routs.",
   "Rout": "The army breaks and leaves the Battle (you lose it). Whenever an army's modified Morale value reaches 7 or more, it Routs automatically.",
-  "Fall Back": "A controlled retreat that ends the Battle with at least one retinue left \u2014 a partial success.",
+  "Fall Back": "A controlled retreat that ends the Battle with at least one retinue left — a partial success.",
   "Strike": "A landed hit. Roll a D6, apply modifiers to the roll, and Strike on a result >= the to-Strike number. The target may then Parry, Save, and Recover.",
   "to-Strike number": "The D6 result a retinue needs to Strike (see the retinue table; lower is better). Bonuses add to the roll; penalties and Fatigue tokens subtract.",
   "Save": "The defender's roll to avoid a casualty: roll a D6, add the weapon's AP (a negative) and the shield's Save bonus (a positive); the hit is saved on a result >= the armor value.",
@@ -68,7 +68,7 @@
   "Council Phase": "Before Personal Envoys, all players vote on a Domain (clockwise; Host breaks ties). Each then sends a free Council Envoy of that Domain. Council Envoys auto-Abstain and their net Influence cannot drop below 1.",
   "Council Envoy": "A free Envoy resolved in the Council Phase on the voted Domain; auto-Abstained, net Influence floored at 1.",
   "Personal Envoy": "An Envoy you send in the Envoy Phase to perform an action; count and reach scale with Era.",
-  "Envoy Outcome": "How a Sent Envoy resolves, by Net Influence: Condemned (<= -3), Failed (-3 < Net <= 0, gain Doubt 1), Passed (>= 1), Endorsed (>= 3). The per-domain effect at each band is given by ENVOY_OUTCOMES; an action's own endorsed bonus overrides the domain default.",
+  "Envoy Outcome": "How a Sent Envoy resolves, by Net Influence: Condemned (<= -3), Failed (-3 < Net <= 0, gain Doubt 1), Passed (>= 1), Endorsed (>= 3). The per-domain effect at each band is given by the Envoy Outcome Table; an action's own endorsed bonus overrides the domain default.",
   "Charter": "Found or upgrade a Settlement (Industry action).",
   "Muster": "Raise retinues into an Army, up to a Settlement's muster limit (Industry/Prowess).",
   "Pursue": "Build a Pursuit, spending its purchase cost and a Settlement ward (Industry).",
@@ -82,7 +82,7 @@
   "Vassal": "A player subordinated via Vassalization: their chartered settlements return to them, they mirror the Suzerain's Treaties, count as allied to the Suzerain, and cannot perform or be targeted by Diplomacy actions.",
   "Suzerain": "The player who has Vassalized another; the vassal mirrors their Treaties.",
   "Renown": "The shared progress track. Gain 1 per Rest Phase; thresholds raise your Era (Ascension 8, Eminence 18, Zenith 30).",
-  "Domain": "One of the four identities \u2014 Industry, Prowess, Cunning, Piety \u2014 raised by spending Domain points. Values 3/6/10 = Rising/Established/Sovereign Standing.",
+  "Domain": "One of the four identities — Industry, Prowess, Cunning, Piety — raised by spending Domain points. Values 3/6/10 = Rising/Established/Sovereign Standing.",
   "Domain Point": "Gained 1 per Rest Phase; spend to raise a Domain value by 1.",
   "Standing": "Your tier in a Domain: Untested, Rising (3), Established (6), Sovereign (10). Sets max Influence per vote (1/2/3/4) and unlocks Domain effects.",
   "Public Order": "A track from -5 to 10, adjusted each turn by Faith minus Doubt; its band applies cumulative effects (see the Public Order table).",
@@ -98,9 +98,9 @@
   "Contested": "Territory that is within Reach of more than one player's settlement(s). Considered Controlled by all Players that have a Settlement within Reach.",
   "Controlled": "Territory that is within Reach of a single Player's Settlement(s).",
   "Uncontrolled": "Territory that is not within Reach of any Player Settlement.",
-  "adjacent": "Range 1.",
-  "next to": "Range 2.",
-  "within": "Range 0.",
+  "Adjacent": "Range 1.",
+  "Next to": "Range 2.",
+  "Within": "Range 0.",
   "Range X": "The amount of Territories you must move in order to get from your current position to the specific Territory.",
   "Reach X": "The Range X characteristic which determines what Territories you Control and are in your Province.",
   "Host": "The turn's starting player, who holds the Host Card. The role passes clockwise each Rest Phase (there is no Host in Spring). The Host collects and distributes Trade Income, resolves Bandit Mechanics, and breaks ties (Council vote, bandit targeting, and any tie not otherwise resolved).",
@@ -186,7 +186,7 @@
     ],
     [
      "Seize the Initiative",
-     "Won by the roll-off at the start of the Battle \u2014 the winner of their last Battle adds +1 to the roll. You become the Attacker and gain +1 Initiative in the first Skirmish. Some Tactics and the Ministry monument also grant it."
+     "Won by the roll-off at the start of the Battle — the winner of their last Battle adds +1 to the roll. You become the Attacker and gain +1 Initiative in the first Skirmish. Some Tactics and the Ministry monument also grant it."
     ],
     [
      "Immune [keyword]",
@@ -194,7 +194,7 @@
     ],
     [
      "AP",
-     "Armor Penetration \u2014 a weapon's (negative) modifier to the defender's Save roll; the more negative, the harder to save."
+     "Armor Penetration — a weapon's (negative) modifier to the defender's Save roll; the more negative, the harder to save."
     ]
    ]
   },
@@ -215,11 +215,11 @@
     ],
     [
      "Casualty",
-     "A retinue removed from the field \u2014 from an unsaved Strike or a failed Panic or Break check."
+     "A retinue removed from the field — from an unsaved Strike or a failed Panic or Break check."
     ],
     [
      "Field",
-     "Your retinues in play \u2014 front line (up to 10) plus reserve (up to 5). Casualties leave the field at once, lowering its count."
+     "Your retinues in play — front line (up to 10) plus reserve (up to 5). Casualties leave the field at once, lowering its count."
     ],
     [
      "Endurance",
@@ -247,7 +247,7 @@
     ],
     [
      "Fall Back",
-     "A controlled retreat that ends the Battle with at least one retinue left \u2014 a partial success."
+     "A controlled retreat that ends the Battle with at least one retinue left — a partial success."
     ],
     [
      "Strike",
@@ -421,7 +421,7 @@
     ],
     [
      "Domain",
-     "One of the four identities \u2014 Industry, Prowess, Cunning, Piety \u2014 raised by spending Domain points. Values 3/6/10 = Rising/Established/Sovereign Standing."
+     "One of the four identities — Industry, Prowess, Cunning, Piety — raised by spending Domain points. Values 3/6/10 = Rising/Established/Sovereign Standing."
     ],
     [
      "Domain Point",
@@ -462,6 +462,10 @@
    "title": "Other",
    "rows": [
     [
+     "Adjacent",
+     "Range 1."
+    ],
+    [
      "Border",
      "Your Settlement's Reach is Range 1 or within Reach of another Player's Reach."
     ],
@@ -479,11 +483,11 @@
     ],
     [
      "Dual Wield",
-     "A Strike die that fails to Strike is rerolled once; the reroll can Focused Strike. Dual Wield confers 2H (both hands on weapons \u2014 no Shield). You cannot reroll successful Strikes."
+     "A Strike die that fails to Strike is rerolled once; the reroll can Focused Strike. Dual Wield confers 2H (both hands on weapons — no Shield). You cannot reroll successful Strikes."
     ],
     [
      "Envoy Outcome",
-     "How a Sent Envoy resolves, by Net Influence: Condemned (<= -3), Failed (-3 < Net <= 0, gain Doubt 1), Passed (>= 1), Endorsed (>= 3). The per-domain effect at each band is given by ENVOY_OUTCOMES; an action's own endorsed bonus overrides the domain default."
+     "How a Sent Envoy resolves, by Net Influence: Condemned (<= -3), Failed (-3 < Net <= 0, gain Doubt 1), Passed (>= 1), Endorsed (>= 3). The per-domain effect at each band is given by the Envoy Outcome Table; an action's own endorsed bonus overrides the domain default."
     ],
     [
      "Fail",
@@ -512,6 +516,10 @@
     [
      "Negate Tempered",
      "Ignores Tempered: this weapon's AP can reduce the target's Save past 6+ (to auto-fail), defeating the Tempered floor."
+    ],
+    [
+     "Next to",
+     "Range 2."
     ],
     [
      "One Shot",
@@ -570,15 +578,7 @@
      "Territory that is not within Reach of any Player Settlement."
     ],
     [
-     "adjacent",
-     "Range 1."
-    ],
-    [
-     "next to",
-     "Range 2."
-    ],
-    [
-     "within",
+     "Within",
      "Range 0."
     ]
    ]
@@ -587,21 +587,21 @@
  "standing_effects": [
   [
    "Prowess",
-   "\u2014",
+   "—",
    "Parry",
-   "\u2014"
+   "—"
   ],
   [
    "Cunning",
-   "\u2014",
+   "—",
    "Foes gain Blunder in first Skirmish",
    "Foes gain Strain"
   ],
   [
    "Piety",
-   "\u2014",
+   "—",
    "+1 Morale",
-   "\u2014"
+   "—"
   ]
  ],
  "public_order": [
@@ -618,7 +618,7 @@
   [
    "-3",
    "Aimless",
-   "Speed -1"
+   "Speed -2"
   ],
   [
    "-2",
@@ -759,7 +759,7 @@
   ]
  ],
  "tactic_matrix_header": [
-  "vs \u2192",
+  "vs →",
   "Scout",
   "Ambush",
   "Flank",
@@ -777,7 +777,7 @@
    "I+1",
    "TS-1",
    "I+1",
-   "\u2014"
+   "—"
   ],
   [
    "Ambush",
@@ -787,7 +787,7 @@
    "I+1 TH+1",
    "I+1 TS+1",
    "TH-1",
-   "\u2014"
+   "—"
   ],
   [
    "Flank",
@@ -827,17 +827,17 @@
    "I+1 TH+1 TS+1",
    "TS+1",
    "TS+1",
-   "\u2014"
+   "—"
   ],
   [
    "Fall Back",
-   "\u2014",
-   "\u2014",
+   "—",
+   "—",
    "I+1 TH+1",
    "I-1",
-   "\u2014",
-   "\u2014",
-   "\u2014"
+   "—",
+   "—",
+   "—"
   ]
  ],
  "pursuit_sections": [
@@ -846,57 +846,66 @@
    "rows": [
     [
      "Quarry",
+     "",
      "Masonry",
      "+300, **Natural**; Craft +1",
-     "\u2014"
+     "—"
     ],
     [
      "Salt Works",
+     "",
      "Smokehouse",
      "+300, **Natural**; Craft +1",
-     "\u2014"
+     "—"
     ],
     [
      "Apiary",
+     "",
      "Chandlery",
      "+300, **Natural**; Craft +1",
-     "\u2014"
+     "—"
     ],
     [
      "Peat Bog",
+     "",
      "Alchemy",
      "+300, **Natural**; Craft +1",
-     "\u2014"
+     "—"
     ],
     [
      "Forestry",
+     "",
      "Carpentry",
      "+300, **Natural**; Craft +1",
-     "\u2014"
+     "—"
     ],
     [
      "Fishmongery",
+     "Water Settlement",
      "Harbor",
      "+300, **Natural**; Craft +1",
-     "\u2014"
+     "—"
     ],
     [
      "Mine",
+     "",
      "Blacksmith",
      "+300, **Natural**; Craft +1",
-     "\u2014"
+     "—"
     ],
     [
      "Arable Land",
+     "",
      "Granary",
      "+300, **Natural**; Craft +1",
-     "\u2014"
+     "—"
     ],
     [
      "Common Land",
+     "",
      "Workyard",
      "+500, **Natural**, **Doubt +1**",
-     "\u2014"
+     "—"
     ]
    ]
   },
@@ -905,30 +914,35 @@
    "rows": [
     [
      "Herb Garden",
+     "",
      "Arable Land or Peat Bog",
      "+200, **Natural**",
      "Craft +1"
     ],
     [
      "Animal Husbandry",
+     "",
      "Arable Land",
      "+100, **Natural**",
      "+300"
     ],
     [
      "Saddlery",
+     "",
      "Arable Land + Animal Husbandry + Stable",
      "**Efficient Stable**; +200, **Natural**",
      "**Upkeep -200**; Speed +1"
     ],
     [
      "Vineyard",
+     "",
      "Arable Land + Apiary or Peat Bog",
      "**Natural**",
      "+600 in **Fall**"
     ],
     [
      "Orchard",
+     "",
      "Arable Land + Apiary or Peat Bog",
      "**Natural**",
      "+400 in **Fall**"
@@ -940,180 +954,210 @@
    "rows": [
     [
      "Carpentry",
+     "",
      "Forestry",
-     "**Efficient Forestry**; **Build Timer \u22121**",
+     "**Efficient Forestry**; **Build Timer −1**",
      "+100; Craft+1"
     ],
     [
      "Alchemy",
+     "",
      "Apiary or Peat Bog",
      "**Efficient Peat Bog**; +100",
      "+200; Craft+1"
     ],
     [
      "Masonry",
+     "",
      "Quarry",
-     "**Efficient Quarry**; **Build Timer \u22121**",
+     "**Efficient Quarry**; **Build Timer −1**",
      "+100; Craft+1"
     ],
     [
      "Butchery",
+     "",
      "Animal Husbandry + Tannery + Salt Works",
      "**Efficient Smokehouse**; +300",
      "**Upkeep -200**; Craft+1"
     ],
     [
      "Bakery",
+     "",
      "Arable Land + Mill",
      "**Efficient Arable Land**; +300; Faith +1",
      "+100; Craft +2"
     ],
     [
      "Weavery",
+     "",
      "Merchant Quarter + Animal Husbandry",
      "+300",
      "+300; Craft +2"
     ],
     [
      "Fletchery",
+     "",
      "Carpentry",
      "**Efficient Carpentry**; Unlocks **Ranged Weapons**",
      "**Upkeep -200**"
     ],
     [
      "Chandlery",
+     "",
      "Apiary",
      "**Efficient Apiary**; +200",
-     "**Influence \u22121** to Cunning actions targeting you; Craft +1"
+     "**Influence −1** to Cunning actions targeting you; Craft +1"
     ],
     [
      "Tannery",
+     "",
      "Animal Husbandry",
      "**Efficient Animal Husbandry**; Unlocks **Cast** armor & shield.",
      "**Upkeep -200**; Craft +1"
     ],
     [
      "Joinery",
+     "Rising Industry",
      "Carpentry",
      "**Efficient Carpentry**; +200, unlocks **Shields**",
      "**Upkeep -200**"
     ],
     [
      "Furnace",
+     "",
      "Mine",
      "**Efficient Mine**; Unlocks **Cast Weapons**",
      "+200"
     ],
     [
      "Blacksmith",
+     "Rising Industry",
      "Furnace",
      "**Efficient Furnace**; +200; Craft +1",
      "Unlocks **Wrought** Tier"
     ],
     [
      "Jewelry Foundry",
+     "",
      "Mine + Merchant Quarter + Furnace",
      "**Efficient Gilded Foundry**; +200; Craft +2",
      "+500; **Influence +2** to Cunning Envoys targeting this player"
     ],
     [
      "Armory",
+     "Rising Industry",
      "Tannery + Blacksmith",
      "**Efficient Tannery**; **Unlock Wrought** armor & shield",
      "**Upkeep -200**; Craft +1"
     ],
     [
      "Master Workshop",
+     "Established Industry",
      "Blacksmith",
      "**Upkeep -200**; Craft +1",
      "Add **Serrated** to Weapons"
     ],
     [
      "Gilded Foundry",
+     "Established Industry",
      "Armory + Blacksmith",
      "**Efficient Armory**; Unlock **Forged** armor and shield.",
      "Tempered: Your to Save modifier cannot be reduced beyond 6+; Craft +1"
     ],
     [
      "Smokehouse",
+     "",
      "Salt Works + Kiln + Butchery",
      "**Efficient Salt Works**; +300; Craft +1",
      "**Upkeep -200**"
     ],
     [
      "Workyard",
+     "",
      "Common Land",
      "**Efficient Common Land**; **Doubt +1**, +400",
      "+400"
     ],
     [
      "Storehouse",
+     "Sovereign Industry",
      "College of Engineering + Workyard + Shipyard",
      "**Doubt +2**, +600",
-     "**Build Timer \u22122**"
+     "**Build Timer −2**"
     ],
     [
      "Meadery",
+     "Established Industry",
      "Apiary + Inn",
      "**Efficient Apiary**; **Faith +1**, +300",
      "+200,**Speed +1** in **Winter**"
     ],
     [
      "Winery",
+     "Established Industry",
      "Vineyard + Joinery",
      "**Efficient Vineyard**; +400",
      "Craft +3"
     ],
     [
      "Cidery",
+     "Established Industry",
      "Orchard + Joinery + Inn",
      "**Efficient Orchard**; **Faith +1**, +300",
      "+300; Craft +1"
     ],
     [
      "Market Square",
+     "Rising Industry",
      "2 Raw Materials",
      "**Efficient Courtyard**; Craft +2",
      "+400"
     ],
     [
      "Inn",
+     "",
      "Caravanery + Market Square",
      "**Faith +1** for trading partners with Craft 3+",
      "**Faith +1**"
     ],
     [
      "Spice Merchant",
+     "",
      "Caravanery + Merchant Quarter + Herb Garden",
      "+300; Influence +1 to Cunning Envoys targeting you",
      "+500; Craft +2"
     ],
     [
      "Harbor",
+     "Water Settlement",
      "Fishmongery + Salt Works",
      "**Efficient Fishmongery**; +300; Craft +2",
      "**Extort 200** per **player** without **Harbor**"
     ],
     [
      "Merchant Quarter",
+     "Rising Industry",
      "Craft 3 + Market Square",
      "**Efficient Market Square**; +500",
      "Trade Partners gain Craft +2"
     ],
     [
      "Census Hall",
+     "",
      "Workyard + Market Square",
      "**Doubt +1**; +200",
      "+500"
     ],
     [
      "Caravanery",
+     "",
      "Market Square or Merchant Quarter + Stable",
      "**Influence -1** to **Intercept Caravan actions** targeting your **settlements**",
      "**Craft +2**; **Speed -2** to non-allied players in your Province."
     ],
     [
      "Shipyard",
+     "Established Industry, Water Settlement",
      "Carpentry + Harbor",
      "**Efficient Harbor**; Craft +1",
      "Craft +2; Water Territory treated as Grassland for movement"
@@ -1125,138 +1169,161 @@
    "rows": [
     [
      "Stable",
+     "1 Rising",
      "Animal Husbandry + Blacksmith or Carpentry",
      "**Efficient Animal Husbandry**; **Speed +1**",
      "**Speed +1**; Unlocks Cavalry Weapons"
     ],
     [
      "Coliseum",
+     "Rising Prowess",
      "Conditioning Field",
      "**Efficient Conditioning Field**; **Faith +1** while at War",
      "Unlocks **Man-at-Arms** for **Muster**"
     ],
     [
      "Interrogation Chambers",
+     "Rising Piety",
      "Episcopal Court",
      "**Efficient Episcopal Court**",
      "Cunning actions targetting this player that cause Doubt are reduced by 1, to a minimum of 0."
     ],
     [
      "Abbey",
+     "Established Piety",
      "Episcopal Court + Academy",
      "**Efficient Episcopal Court**; Once/turn: **Influence +1** another player's Piety Envoy",
      "Morale +1."
     ],
     [
      "Reliquary",
+     "Rising Piety",
      "Salt Works + Chandlery + Cathedral",
      "**Efficient Abbey**",
      "First **Doubt** per turn reduced by 1 (min 0)"
     ],
     [
      "Bell Tower",
+     "Established Piety",
      "Episcopal Court",
      "**Efficient Courtyard**; **+1 Influence**/turn",
      "**Influence +1** to Piety actions"
     ],
     [
      "Execution Dock",
+     "Established Piety",
      "Interrogation Chambers",
      "**Influence -1** to **Foster Rebellion actions** targeting your **settlements**",
      "**Players** who **target** you or your **settlements** with **actions** that cause **doubt** gain **Doubt +1**"
     ],
     [
      "Jester's Court",
+     "1 Rising",
      "Courtyard",
      "**Efficient Courtyard**; First **Oppose** on your Envoy: reduce by 1",
      "Second **Oppose** on your Envoy: reduce by 1"
     ],
     [
      "Embassy",
+     "1 Established",
      "Bell Tower + Jester's Court",
      "**Efficient Jester's Court**; **Influence +1** to Diplomacy Envoys",
      "Players that perform a Diplomacy action targetting you may perform another Displomacy action targetting you."
     ],
     [
      "Granary",
+     "Rising Industry",
      "Arable Land",
      "**Efficient Arable Land**; Upkeep -200",
      "Armies and Garrisons gain **Endurance** while Besieged"
     ],
     [
      "Academy",
+     "1 Rising",
      "Library + Alchemy",
      "**Influence +1** to Council Envoys",
      "**Influence +1** to non-Council Envoys"
     ],
     [
      "Courtyard",
+     "",
      "Masonry",
      "Craft +1",
      "**Faith +1**"
     ],
     [
      "Episcopal Court",
+     "Rising Piety",
      "Masonry",
      "**Efficient Courtyard**; **Faith +1**",
      "Reduce the first instance of Doubt at start of turn by 1, min 0."
     ],
     [
      "Conditioning Field",
+     "Rising Prowess",
      "Courtyard",
      "**Efficient Courtyard**; **Faith +1** while not at War",
      "Armies gain **Nimble**"
     ],
     [
      "Grand Tournament",
+     "Established Prowess",
      "Coliseum + Conditioning Field",
      "**Efficient Coliseum**; **Faith +1**",
      "3x/turn: exchange 500 gold for **1 Influence**; Armies gain **Riposte**"
     ],
     [
      "Apothecary",
+     "",
      "Herb Garden + Alchemy",
      "**Efficient Alchemy**; +300",
      "Gain Recover 6, or improve Recover by +1."
     ],
     [
      "Infirmary",
+     "Rising Piety",
      "Alchemy + Herb Garden",
      "**Efficient Apothecary**; +200",
      "Improve Recover by +1"
     ],
     [
      "Supply Depot",
+     "Rising Industry",
      "Granary or Smokehouse",
      "**Efficient Granary**; **Craft +2**",
      "May **Muster** an Army in a Settlement under Siege and increment Muster Timers."
     ],
     [
      "Artisan Workshop",
+     "Established Industry",
      "Carpentry + Arable Land + Weavery",
      "+400",
      "+200, **Faith +1**"
     ],
     [
      "Trade Guild",
+     "Rising Industry",
      "Masonry or Carpentry",
      "No Upkeep on **Primitive Infrastructure**",
      "No Upkeep on **Developed Infrastructure**"
     ],
     [
      "Court Artists",
+     "Established Industry",
      "Merchant Quarter + Artisan Workshop",
      "**Extort 500**; **Faith +1**",
      "**Extort 500**; Target of Extort gains **Faith +1**"
     ],
     [
      "Courier Network",
+     "",
      "Caravanery + Inn",
-     "Once/turn: **Influence \u22121** on Target Envoy",
+     "Once/turn: **Influence −1** on Target Envoy",
      "Once/turn: successfully Performed Personal Envoy can be Performed next turn; send 1 fewer Envoys next turn"
     ],
     [
      "Toll House",
+     "",
      "Caravanery + Courier Network",
      "Once/turn when an Army ends a Move action within Province: Perform a Diplomacy action targeting that army's player",
      "**Extort 500** when non-Allied Army ends a Move action within Province"
@@ -1268,24 +1335,28 @@
    "rows": [
     [
      "Smuggler's Nook",
+     "Established Cunning",
      "Secret Cellar + Inn",
      "**Efficient Secret Cellar**; gain Immune Local Unrest (-1PO per Bandit Camp)",
      "Bandit Camps in your Outlaw Country don't target you and target other players instead randomly."
     ],
     [
      "Black Market",
+     "Established Cunning",
      "Market Square + Smuggler's Nook",
      "**Efficient Market Square**; When another player **Extorts** gold from any source: **Extort 200** per 1000 (minimum 100) from that player at the end of that resolution.",
      "When another player **Recoups** gold from any source: **Extort 200** per 1000 (minimum 100) from that player at the end of that resolution."
     ],
     [
      "Toxicarium",
+     "Rising Cunning",
      "Academy + Alchemy",
      "**Efficient Alchemy**; Weapons gain **Poison**",
      "All Endorsed Cunning actions give an additional **Doubt +1** to Target"
     ],
     [
      "Forgotten Catacombs",
+     "Rising Cunning",
      "Secret Cellar",
      "**Efficient Secret Cellar**; Whenever you are the target of **Extort**, reduce the Extort amount by 100 (min 100).",
      "Cunning actions against you cannot be **Endorsed**"
@@ -1297,42 +1368,49 @@
    "rows": [
     [
      "Secret Cellar",
+     "Rising Cunning",
      "Smuggler's Nook",
-     "**Efficient Inn**; \u2014",
+     "**Efficient Inn**; —",
      "Passed Cunning actions **Recoup 500 Gold**"
     ],
     [
      "Pilgrimage Site",
+     "Rising Piety",
      "Reliquary + Chandlery",
      "**Efficient Reliquary**; **Extort 200** every player without a Pilgrimage Site",
      "**Doubt +1** to all other players without a Pilgrimage Site"
     ],
     [
      "Beacon Towers",
+     "Rising Prowess",
      "Courier Network + Toll House",
-     "**Efficient Toll House**; \u2014",
+     "**Efficient Toll House**; —",
      "Whenever a non-allied Army ends a Move action within Province, you may immediately perform a Move action"
     ],
     [
      "Charcoal Burner",
+     "Established Industry",
      "Forestry + Kiln",
      "**Efficient Forestry, Kiln**; +400",
-     "\u2014"
+     "—"
     ],
     [
      "Mill",
+     "Rising Industry",
      "Bakery/Weavery/Forge/Carpentry",
      "**Efficient Bakery, Weavery, Forge, Carpentry**; +300",
-     "\u2014"
+     "—"
     ],
     [
      "Kiln",
+     "Rising Industry",
      "Forestry",
      "**Efficient Forestry**; +300",
-     "\u2014"
+     "—"
     ],
     [
      "Burgages",
+     "",
      "Common Land",
      "**Efficient Common Land**; +200",
      "**Faith +1**"
@@ -1344,84 +1422,98 @@
    "rows": [
     [
      "Money Lending",
+     "Established Industry",
      "Merchant Quarter",
      "**Extort 500**",
      "May loan money to Trade Partners at 100 per 1000/turn interest(minimum 100); on Default: Perform **Demand Tribute**"
     ],
     [
      "Monastery",
+     "Established Piety",
      "Abbey",
-     "**Efficient Abbey**; **Influence \u22121** to Piety actions targeting you",
+     "**Efficient Abbey**; **Influence −1** to Piety actions targeting you",
      "Other players cannot Oppose your Piety Envoys"
     ],
     [
      "Hospitaller",
+     "Established Piety",
      "Apothecary + Infirmary",
      "**Efficient Infirmary**; **Recover** improved by +1",
      "gain Enduring: Your recovers cannot be reduced beyond a 6+ while Fatigued."
     ],
     [
      "University",
+     "1 Established",
      "Academy",
      "**Efficient Academy**; May spend one additional **Influence** per Support or Oppose",
      "+1 **Influence** per Domain you are Rising"
     ],
     [
      "College of Engineering",
+     "Established Industry",
      "Academy + Trade Guild",
      "**Efficient Trade Guild**; No Upkeep on **Sophisticated Infrastructure**",
-     "**Build Timer \u22122**"
+     "**Build Timer −2**"
     ],
     [
      "Forgery Workshop",
+     "Established Cunning",
      "Academy + Secret Cellar",
      "**Efficient Academy**; **Extort 200** anytime a player Opposes an Envoy of yours",
      "Once/turn: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed"
     ],
     [
      "Levy Hall",
+     "Rising Prowess",
      "Keep + Salt Works",
      "**Upkeep -200**",
      "**Upkeep -300**"
     ],
     [
      "Siege Works",
+     "Rising Prowess",
      "Blacksmith",
-     "**Siege Timer \u22121**",
-     "**Siege Timer \u22121**; Sieges Increment in **Winter**"
+     "**Siege Timer −1**",
+     "**Siege Timer −1**; Sieges Increment in **Winter**"
     ],
     [
      "Siege Camp",
+     "Established Prowess",
      "Siege Works",
-     "**Efficient Siege Works**; **Siege Timer \u22121**",
+     "**Efficient Siege Works**; **Siege Timer −1**",
      "Armies gain **Immune Strained** during Lay Siege"
     ],
     [
      "Citadel",
+     "Established Prowess",
      "Masonry + Granary",
      "**Efficient Granary**; **Siege Timer +1**",
      "**Siege Timer +1**, Controlled Settlements gain **Reach +1**"
     ],
     [
      "War College",
+     "Established Prowess",
      "Coliseum + Levy Hall + Academy",
      "**Efficient Academy**; Gain **+2 Influence** while At War",
      "Unlocks **Sergeants** for Muster"
     ],
     [
      "Forge",
+     "Established Industry",
      "Blacksmith",
      "**Efficient Blacksmith**; Craft +1",
      "Unlocks **Forged** Tier"
     ],
     [
      "Tiltyard",
+     "Established Prowess",
      "Fletchery + Coliseum",
      "Armies may be Equipped with a second weapon (a Ranged and a Melee Weapon); the army gains **Unwieldy**",
      "Armies gain **Immune Unwieldy**, and may instead equip two of the same 1H Melee Weapon to gain **Dual Wield**, **2H** & **Florentine**: May Parry on a natural 6 while Fatigued."
     ],
     [
      "Cipher Chamber",
+     "Sovereign Cunning",
      "University + Courier Network",
      "**Efficient University**; Once/turn when a player Sends an Envoy: that player must declare the specific Action they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action.",
      "Once/turn: select any active **Timer** you did not select last turn; increase it by 2."
@@ -1433,72 +1525,84 @@
    "rows": [
     [
      "Royal Pavilion",
+     "Sovereign Prowess",
      "Grand Tournament + Tiltyard",
      "**Efficient Tiltyard**; Armies gain **Immune Strained**",
      "Armies gain **Drilled**"
     ],
     [
      "Imperial Palace",
+     "Sovereign Prowess",
      "Citadel + Execution Dock",
      "**Efficient Citadel**; Gain **Immune Border Tension & Invasion**",
      "Non-Military Alliance players that border you gain **Doubt +2**"
     ],
     [
      "Ministry of Military Strategy",
+     "Sovereign Prowess",
      "University + War College",
      "**Efficient War College**; Always gains **Seize the Initiative**, and your opponent doesn't. gain Immune Tactic -1 to Strike",
      "Gain +1I & max initiative is 3; Deadly, & Cleave also trigger Focused Strikes on a natural 5."
     ],
     [
      "Thieves' Guild",
-     "Market Square + Smuggler's Nook + Secret Cellar",
+     "Sovereign Cunning",
+     "Market Square + Smuggler's Nook + Secret Cellar + Black Market",
      "Whenever another player performs a Cunning action, you may recoup 1000 gold",
      "**Extort 25%** of Trade Income from players who don't trade with you"
     ],
     [
      "Senate Hall",
+     "1 Sovereign",
      "Embassy + Library + Town Hall",
      "**Faith +1**, gain **+1 Influence** per other player per Turn",
      "Once/turn: Before players Support or Oppose, you may auto-**Condemn** an At War Envoy OR auto-**Endorse** an Ally's Envoy"
     ],
     [
      "Inquisitorial Palace",
+     "Sovereign Piety",
      "Execution Dock + Monastery",
      "**Efficient Monastery**; **Doubt +1**; Unlocks **Grand Vizier** which uses your **Public Order** instead of your **Cunning** value.",
      "You may use your **Piety Value** as **Cunning Value** for **Grand Vizier**."
     ],
     [
      "Preceptory of the Knight's Templar",
+     "Sovereign Piety + Established Prowess",
      "Monastery + Pilgrimage Site + Hospitaller + Abbey",
      "**Efficient Monastery**; Armies gain **Zealous**: Automatically pass the first Panic Check of every Battle.",
      "Unlocks **Knight's Templar** for Muster"
     ],
     [
      "Manor House",
+     "Established Industry",
      "Hamlet + Market Square",
      "Gain +100 gold for each active natural specialization.",
      "Gain +100 gold for each active energy specialization."
     ],
     [
      "Aristocratic Court",
+     "Sovereign Industry",
      "Money Lending + Forgery Workshop + Court Artists",
      "**Efficient Court Artists**; **Doubt +1** per player who earns more Income than you each turn in the Income step.",
      "Your Vote counts as 2 votes toward Domain selection during the Council Phase."
     ],
     [
      "Studium Generale",
+     "4 Established",
      "University + Academy",
      "+1 **Influence** per **Established** Standing",
      "May gain one **Sovereign Domain** effect without spending the Domain Points"
     ],
     [
      "Advanced Blast Furnace",
+     "Sovereign Industry",
      "Gilded Foundry + Master Workshop + Blacksmith + Stable",
      "**Efficient Forge**; **Upkeep -500**",
      "**Crafted** Tier Unlocked; Craft +2"
     ],
     [
      "Outrider Intercept Post",
+     "Sovereign Cunning",
      "Caravanery + Cipher Chamber",
      "In the first Skirmish of every Battle, your opponent plays their Tactic Card face up before you select your own.",
      "Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own."
@@ -1514,7 +1618,7 @@
     "4+",
     "3",
     "5+",
-    "\u2014"
+    "—"
    ],
    [
     "Man-at-Arms",
@@ -1522,7 +1626,7 @@
     "3+",
     "4",
     "5+",
-    "\u2014"
+    "—"
    ],
    [
     "Sergeant",
@@ -1530,7 +1634,7 @@
     "2+",
     "3",
     "4+",
-    "\u2014"
+    "—"
    ],
    [
     "Knight Templar",
@@ -1538,7 +1642,7 @@
     "3+",
     "3",
     "3+",
-    "\u2014"
+    "—"
    ]
   ],
   "Weapons": [
@@ -1547,7 +1651,7 @@
     "Crude",
     "0",
     "+0",
-    "\u2014"
+    "—"
    ],
    [
     "Cudgel",
@@ -1575,7 +1679,7 @@
     "Cast",
     "-1",
     "+0",
-    "\u2014"
+    "—"
    ],
    [
     "Spears",
@@ -1680,16 +1784,16 @@
    [
     "Hunting Bow",
     "Crude",
-    "0",
+    "-1",
     "+2",
-    "2H, Negate Riposte"
+    "2H, Unstoppable, Negate Riposte"
    ],
    [
     "Longbow",
     "Cast",
     "-1",
     "+2",
-    "2H, Negate Riposte"
+    "2H, Unstoppable, Deadly, Negate Riposte"
    ],
    [
     "Javelin",
@@ -1719,7 +1823,7 @@
     "Crude",
     "+1",
     "+0",
-    "\u2014"
+    "—"
    ],
    [
     "Targe Shield",
@@ -1755,25 +1859,25 @@
     "Cloth",
     "Crude",
     "7+",
-    "\u2014"
+    "—"
    ],
    [
     "Leather",
     "Cast",
     "5+",
-    "\u2014"
+    "—"
    ],
    [
     "Chainmail",
     "Wrought",
     "4+",
-    "\u2014"
+    "—"
    ],
    [
     "Full Plate",
     "Forged",
     "3+",
-    "\u2014"
+    "—"
    ],
    [
     "Gothic Plate",
@@ -1787,7 +1891,7 @@
   [
    "Dirt Roads",
    "0",
-   "\u2014",
+   "—",
    "Can Trade; place Dirt Road Territories in Province; ignore Terrain Speed Modifiers",
    "Primitive",
    "2",
@@ -1796,7 +1900,7 @@
   [
    "Hitching Post",
    "0",
-   "\u2014",
+   "—",
    "Craft +1",
    "Primitive",
    "2",
@@ -1804,8 +1908,8 @@
   ],
   [
    "Muster Field",
-   "100",
-   "\u2014",
+   "200",
+   "—",
    "Can Muster",
    "Primitive",
    "2",
@@ -1813,8 +1917,8 @@
   ],
   [
    "Wooden Walls",
-   "100",
-   "\u2014",
+   "200",
+   "—",
    "**Influence -1** to **Raze actions** targeting your **settlements**",
    "Primitive",
    "2",
@@ -1822,8 +1926,8 @@
   ],
   [
    "Stone Roads",
-   "100",
-   "\u2014",
+   "200",
+   "—",
    "Ignore Terrain Speed Modifiers; if you start turn on Stone Road gain Speed +2; replaces Dirt Roads",
    "Developed",
    "3",
@@ -1831,8 +1935,8 @@
   ],
   [
    "Town Hall",
-   "100",
-   "\u2014",
+   "200",
+   "—",
    "+1 Influence per turn",
    "Developed",
    "3",
@@ -1841,7 +1945,7 @@
   [
    "Bridges",
    "0",
-   "\u2014",
+   "—",
    "Armies cross Water Territory at full movement; Stone Roads may be built over Water",
    "Developed",
    "3",
@@ -1849,17 +1953,17 @@
   ],
   [
    "Garrison",
-   "200",
-   "\u2014",
-   "Local Armies form (10/15/25 by Settlement size). All Garrisons share Equipment. Cannot be targeted; may Sally Forth.",
+   "300",
+   "—",
+   "Local Armies form (10/15/25/50 by Settlement size). All Garrisons share Equipment. Cannot be targeted; may Sally Forth.",
    "Developed",
    "3",
    "Muster Field"
   ],
   [
    "Stone Walls",
-   "100",
-   "\u2014",
+   "200",
+   "—",
    "**Influence -1** to **Destabilize actions** targeting your **settlements**",
    "Sophisticated",
    "4",
@@ -1867,8 +1971,8 @@
   ],
   [
    "Keep",
-   "100",
-   "\u2014",
+   "200",
+   "—",
    "May Muster from Garrison in addition to normal Muster Limits. If so set Garrison to 0 and Muster Timer 1. Garrison returns to full when resolved.",
    "Sophisticated",
    "4",
@@ -1876,17 +1980,17 @@
   ],
   [
    "Cathedral",
-   "100",
-   "\u2014",
-   "Faith +1",
+   "300",
+   "—",
+   "Faith +2",
    "Sophisticated",
    "4",
    "Requires 1+ City"
   ],
   [
    "Library",
-   "200",
-   "\u2014",
+   "300",
+   "—",
    "Influence +1 to Council Envoys",
    "Sophisticated",
    "4",
@@ -1914,7 +2018,7 @@
   ],
   [
    "High Chancery",
-   "Once per turn: automatically **Condemn** or **Endorse** one Envoy Sent by any other player regardless of **Net Influence** after Influence has been spent, even if it\u2019s a Council Envoy.",
+   "Once per turn: automatically **Condemn** or **Endorse** one Envoy Sent by any other player regardless of **Net Influence** after Influence has been spent, even if it’s a Council Envoy.",
    "10",
    "All Infrastructure unlocked"
   ]
@@ -1922,7 +2026,7 @@
  "factions": [
   [
    "The Battering Ram",
-   "Siege Specialist: You begin the game with a Siege Works (no ward, no upkeep, always active Mastery). If a player builds a Citadel, you must Siege it as a Personal Win Condition."
+   "Siege Specialist: You begin the game with a Siege Works (no ward, no upkeep, always active Mastery). If a player builds a Citadel, you must Siege it as an Edict."
   ],
   [
    "The Boundless Steppe",
@@ -1946,7 +2050,7 @@
   ],
   [
    "The Eternal Court",
-   "Patient Court: Your influence is never wasted \u2014 unspent influence is not discarded in the Rest Phase. Once the Era is Zenith, you have a cap of 5 on influence you spend per envoy, regardless of your Domain Standing."
+   "Patient Court: Your influence is never wasted — unspent influence is not discarded in the Rest Phase. Once the Era is Zenith, you have a cap of 5 on influence you spend per envoy, regardless of your Domain Standing."
   ],
   [
    "The Final Word",
@@ -1994,7 +2098,7 @@
   ],
   [
    "The Undying Flame",
-   "Martyrdom: Your armies Morale cannot be modified beyond 6+, but your armies continue to suffer \u22121 from Fatigue Tokens. Gain Faith +1 for every player you're at War with and every Battle where you lose 20 or more retinues, win or loss. Gain Immune War Weariness"
+   "Martyrdom: Your armies Morale cannot be modified beyond 6+, but your armies continue to suffer −1 from Fatigue Tokens. Gain Faith +1 for every player you're at War with and every Battle where you lose 20 or more retinues, win or loss. Gain Immune War Weariness"
   ],
   [
    "The Verdant Kingdom",
@@ -2002,11 +2106,11 @@
   ],
   [
    "The Winter Wolves",
-   "Danegeld: Your armies do not pay upkeep in enemy territory when you're at war \u2014 the enemy player pays the upkeep instead. Do not gain Speed \u22121 in Winter."
+   "Danegeld: Your armies do not pay upkeep in enemy territory when you're at war — the enemy player pays the upkeep instead. Do not gain Speed −1 in Winter."
   ],
   [
    "The Ancient Wilds",
-   "Highlander Way: Enemy armies gain Speed \u22121 in your Province. You ignore all Terrain Speed modifiers and may trade without Dirt Roads. You must accept the first Non-Aggression Pact offered by each player or Alliance. If that player later joins an alliance, this condition is considered satisfied for that alliance."
+   "Highlander Way: Enemy armies gain Speed −1 in your Province. You ignore all Terrain Speed modifiers and may trade without Dirt Roads. You must accept the first Non-Aggression Pact offered by each player or Alliance. If that player later joins an alliance, this condition is considered satisfied for that alliance."
   ],
   [
    "The Bloodied Cross",
@@ -2030,7 +2134,7 @@
   ],
   [
    "The Pale Throne",
-   "Inexorable: Your armies always have Unwieldy and cannot gain Immune Unwieldy, but also gain Recover +1, Speed \u22121, and Immune Panic. Your Public Order cannot exceed 1."
+   "Inexorable: Your armies always have Unwieldy and cannot gain Immune Unwieldy, but also gain Recover +1, Speed −1, and Immune Panic. Your Public Order cannot exceed 1."
   ],
   [
    "The Sublime Gate",
@@ -2058,11 +2162,11 @@
   ],
   [
    "The Smoldering Crown",
-   "Reckless: Gain Influence +2 to all Cunning Envoys when targeting a Player with PO > 0. You begin the game with a Secret Cellar (no ward, no upkeep, always active Mastery). Cannot be in an alliance. Cannot perform Diplomacy actions. If you Send a Prowess envoy, it cannot fail \u2014 if condemned, it passes."
+   "Reckless: Gain Influence +2 to all Cunning Envoys when targeting a Player with PO > 0. You begin the game with a Secret Cellar (no ward, no upkeep, always active Mastery). Cannot be in an alliance. Cannot perform Diplomacy actions. If you Send a Prowess envoy, it cannot fail — if condemned, it passes."
   ],
   [
    "The Squatters' Crown",
-   "Occupy: You start the game with an additional army. All must begin the game placed inside your settlements. You do not control your settlements when you leave them. To collect taxes or use Pursuits, end your turn inside that Settlement. To Occupy a Settlement, begin a Battle adjacent to the city like a Siege \u2014 instead, you Battle against the Garrison and Armies at war with you or owned by the same owner. If you win (or there is no force to fight), move inside. In the Upkeep Phase, only pay upkeep on equipment. You count as having all Infrastructure of Occupied Settlements and always count as 3 Trading Pursuits. When you leave a Settlement, you may not re-enter it until you Occupy another Settlement and a Trade Agreement is signed."
+   "Occupy: You start the game with an additional army. All must begin the game placed inside your settlements. You do not control your settlements when you leave them. To collect taxes or use Pursuits, end your turn inside that Settlement. To Occupy a Settlement, begin a Battle adjacent to the city like a Siege — instead, you Battle against the Garrison and Armies at war with you or owned by the same owner. If you win (or there is no force to fight), move inside. In the Upkeep Phase, only pay upkeep on equipment. You count as having all Infrastructure of Occupied Settlements and always count as 3 Trading Pursuits. When you leave a Settlement, you may not re-enter it until you Occupy another Settlement and a Trade Agreement is signed."
   ],
   [
    "The Wandering Crown",
@@ -2085,7 +2189,7 @@
   [
    "Hamlet",
    "0",
-   "\u2014",
+   "—",
    "0",
    "0",
    "1",
@@ -2096,41 +2200,41 @@
   [
    "Village",
    "1",
-   "\u2014",
-   "2000",
+   "—",
+   "1000",
    "5",
    "1",
    "1",
    "1",
-   "\u2014"
+   "—"
   ],
   [
    "Town",
    "2",
    "Sea Town",
-   "4000",
+   "3000",
    "10",
    "2",
    "2",
    "2",
-   "\u2014"
+   "—"
   ],
   [
    "City",
    "3",
    "Port",
-   "6000",
+   "5000",
    "25",
    "3",
    "3",
    "3",
-   "\u2014"
+   "—"
   ],
   [
    "Metropolis",
    "4",
-   "\u2014",
-   "10000",
+   "—",
+   "8000",
    "25",
    "5",
    "4",
@@ -2141,13 +2245,13 @@
  "eras": [
   [
    "Founding",
-   "0",
+   "1",
    "1",
    "0",
    "+1",
-   "0",
+   "1",
    "1 Council + 1 Personal Envoy per turn",
-   "\u2014"
+   "—"
   ],
   [
    "Ascension",
@@ -2155,7 +2259,7 @@
    "2",
    "1",
    "+2",
-   "1",
+   "2",
    "Council Envoys perform 2 actions of that domain",
    "May resolve Charter Cities"
   ],
@@ -2165,7 +2269,7 @@
    "3",
    "2",
    "+3",
-   "2",
+   "3",
    "Personal Envoys perform 2 actions of that domain",
    "May form Military Alliances"
   ],
@@ -2175,7 +2279,7 @@
    "4",
    "3",
    "+4",
-   "3",
+   "4",
    "Send 2 Personal Envoys per turn",
    "May form Defensive Alliances"
   ]
@@ -2190,19 +2294,19 @@
   [
    "Prowess",
    "Indominable: Once per turn, if you have not sent an Envoy, you may perform a Prowess action; send 1 fewer Envoy this turn (min 0). May use Declare War action.",
-   "Edict of War: All armies gain Parry. Gain Immune State of Alarm (No longer gain Doubt while at War).",
-   "High Quartermaster: Upkeep -2000. No longer lose Influence while at War. May change equipment on your armies during any upkeep phase where that army is within Province."
+   "Edict of War: May have an additional Army. Perform a Muster Action. All armies gain Parry.",
+   "High Quartermaster: Upkeep -2000. May change equipment on your armies during any upkeep phase where that army is within Province. No longer lose Influence while at War."
   ],
   [
    "Cunning",
-   "Clandestine Councilor: Once per turn, when another player's Envoy is Sent, target a player - that player Abstains.",
+   "Clandestine Councilor: Once per Envoy, target a player - that player Abstains.",
    "Grand Vizier: Players may not target you with Cunning Envoys if your Cunning value is higher. When you perform a Skirmish action, your opponent gains Blunder in the first Skirmish of that Battle.",
    "Master Conspirator: Once per turn, if your non-Cunning Envoy passes or is Endorsed, you may instead perform a Cunning action. In Battle, your opponent gains Strained each Skirmish."
   ],
   [
    "Piety",
-   "Divine Mandate: Faith +2.",
-   "Prophet of Retribution: All other players gain Doubt +2 while your Public Order is positive.",
+   "Divine Mandate: Faith +1 each Empire Phase.",
+   "Prophet of Retribution: Each Empire Phase, all other players gain Doubt +2 while your Public Order is positive.",
    "Pillar of Faith: If your Public Order would go below 3, set it to 3. May use the Crusade action."
   ]
  ],

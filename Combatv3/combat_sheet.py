@@ -191,8 +191,8 @@ def front(c):
     y = chart(c, right_x, y, right_w, "The 6+ Ceiling", ["Rule","Effect"], cap_rows,
               colw=[right_w*0.34,right_w*0.66], fs=7.5)
     # compact Tactic Matrix in the lower-left whitespace, below the Skirmish steps
-    tactic_grid(c, MARGIN, left_end - 14, left_w, rowh=17, cell_fs=6, label_fs=6,
-                hdr_fs=5.8, title_fs=10, line_h=6.6, label_w=48)
+    tactic_grid(c, MARGIN, left_end - 14, left_w, rowh=17, cell_fs=5.2, label_fs=6,
+                hdr_fs=5.8, title_fs=10, line_h=6.6, label_w=42)
     _footer(c, "Front"); c.showPage()
 
 def tactic_grid(c, x, y, w, rowh=26, cell_fs=7, label_fs=7, hdr_fs=6.8, title_fs=12,
@@ -203,15 +203,15 @@ def tactic_grid(c, x, y, w, rowh=26, cell_fs=7, label_fs=7, hdr_fs=6.8, title_fs
     _stroke(c, RULE); c.setLineWidth(1.0); c.line(x, y, x+w, y); y -= 6
     if intro:
         _set(c, INK); c.setFont(SERIF_I, max(6, cell_fs))
-        c.drawString(x, y, "Your tactic (row) vs opponent (col). I=Init, H=to-Strike, S=Save (lower target better)."); y -= 11
+        c.drawString(x, y, "Your tactic (row) vs opponent (col). I = Initiative, Str = to Strike, Sv = to Save (lower target is better)."); y -= 11
     cell = (w-label_w)/n
     def fmt(m):
         parts = []
         if m.get("end"): return "END"
         if m.get("no_combat"): return "no cbt"
         if m.get("I"): parts.append(f"I{m['I']:+d}")
-        if m.get("TH"): parts.append(f"H{m['TH']:+d}")
-        if m.get("TS"): parts.append(f"S{m['TS']:+d}")
+        if m.get("TH"): parts.append(f"Str{m['TH']:+d}")
+        if m.get("TS"): parts.append(f"Sv{m['TS']:+d}")
         return " ".join(parts) if parts else "\u2014"
     _set(c, INK); c.setFont(SERIF_B, hdr_fs); cx = x+label_w; hdr_h = line_h*2 + 2
     for t in T:
