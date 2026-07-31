@@ -1,0 +1,91 @@
+=== build_all : MODE=both  WHAT=both  PLAYERS=2  BOARD=1  TACTICAL=1 ===
+
+--- Board ---
+{'pdf': 'C:\\Users\\Matt\\OneDrive\\Desktop\\Game\\Combatv3\\mapgen\\board_13x16_2p.pdf', 'png': '(preview failed: cannot import desired renderPM backend rlPyCairo\nSeek advice at the users list see\nhttps://pairlist2.pair.net/mailman/listinfo/reportlab-users)', 'pages': 9, 'page_grid': (3, 3), 'board_mm': (400.0, 571.6), 'terrain': {'plains': 108, 'wetland': 28, 'forest': 30, 'water': 18, 'mountain': 17, 'tundra': 7}, 'resources': {'forestry': 3, 'arable': 4, 'mine': 3, 'quarry': 3, 'apiary': 3, 'salt': 2}, 'regions': {0: 40, 1: 38}}
+  Board -> C:\Users\Matt\OneDrive\Desktop\Game\Combatv3\mapgen\board_13x16_2p.pdf
+--- Tactical board ---
+{'pdf': 'C:\\Users\\Matt\\OneDrive\\Desktop\\Game\\Combatv3\\mapgen\\tactical_9x6_s26.pdf', 'png': '(preview failed: cannot import desired renderPM backend rlPyCairo\nSeek advice at the users list see\nhttps://pairlist2.pair.net/mailman/listinfo/reportlab-users)', 'grid': (9, 5), 'board_mm': (280.0, 190.5), 'terrain': {'plains': 23, 'wetland': 4, 'water': 10, 'forest': 3, 'mountain': 1, 'tundra': 4}, 'hills': 1}
+  Tactical board -> C:\Users\Matt\OneDrive\Desktop\Game\Combatv3\mapgen\tactical_9x6_s26.pdf
+--- Cards ---
+Wrote cards\pursuit_cards.pdf  (178 cards, 20 page(s))
+Wrote cards\faction_cards.pdf  (40 cards, 5 page(s))
+Wrote cards\tactic_cards.pdf  (14 cards, 2 page(s))
+
+renown: 3 deck(s) -> C:\Users\Matt\OneDrive\Desktop\Game\Combatv3\cards
+  pursuits   cards\pursuit_cards.pdf
+  factions   cards\faction_cards.pdf
+  tactics    cards\tactic_cards.pdf
+Wrote cards\pursuit_cards_escalation.pdf  (36 cards, 4 page(s))
+Wrote cards\tactic_cards_escalation.pdf  (14 cards, 2 page(s))
+
+escalation: 2 deck(s) -> C:\Users\Matt\OneDrive\Desktop\Game\Combatv3\cards
+  pursuits   cards\pursuit_cards_escalation.pdf
+  tactics    cards\tactic_cards_escalation.pdf
+--- Docs ---
+  Compendium...
+payload -> compendium_data.json
+  pursuits: 104 across 8 sections
+  factions 40 | infra 12 | wonders 4
+  settlements 5 | eras 4 | glossary 110
+patched 104 pursuit rows with Domain gate
+wrote Compendium.docx
+  Rules...
+wrote Rules.docx
+  FAQ...
+wrote 459 FAQ entries -> ask-the-bot\renown_faq.txt
+wrote faction table -> ask-the-bot\factions_table.csv
+wrote equipment table -> ask-the-bot\equipment_table.csv
+  Combat quick-reference sheet (front/back PDF)...
+wrote combat sheet -> cards\combat_sheet.pdf
+  Specialization trees (landscape PDF)...
+Wrote cards\spec_trees.pdf  (19 trees from renown_data, 7 page(s))
+  Playstyle reference (one-page landscape PDF)...
+playstyle reference -> cards\playstyle_reference.pdf
+  Pursuit ward-tiles (print-and-play PDF)...
+pursuit tiles -> cards\pursuit_tiles.pdf  (104 tiles, 5 pages)
+  Pursuit tech tree (2-page landscape SVG)...
+rendered 3 charts -> cards\pursuit_tree_p1.svg
+rendered 5 charts -> cards\pursuit_tree_p2.svg
+pages: ['cards\\pursuit_tree_p1.svg', 'cards\\pursuit_tree_p2.svg']
+(PDF skipped: no library called "cairo" was found
+no library called "libcairo-2" was found
+cannot load library 'C:\Program Files (x86)\Graphviz\bin\cairo-2.dll': error 0xc1
+cannot load library 'libcairo.so.2': error 0x7e.  Additionally, ctypes.util.find_library() did not manage to locate a library called 'libcairo.so.2'
+cannot load library 'libcairo.2.dylib': error 0x7e.  Additionally, ctypes.util.find_library() did not manage to locate a library called 'libcairo.2.dylib'
+cannot load library 'libcairo-2.dll': error 0x7e.  Additionally, ctypes.util.find_library() did not manage to locate a library called 'libcairo-2.dll'; install cairosvg + pypdf to enable)
+  Domain standing board (landscape PDF)...
+domain board -> cards\domain_board.pdf
+  Infrastructure board (landscape PDF)...
+infra board -> cards\infra_board.pdf
+  Settlement board (landscape PDF)...
+settlement board -> cards\settlement_board.pdf  (landscape, ladder + 2x2 + PO spectrum, slot 37x50mm)
+settlement mats -> cards\settlement_mats.pdf  (Settlement + Metropolis extension + Hamlet, slot 40x52mm)
+Host Sheet...
+host sheet -> cards\host_sheet.pdf
+--- Wiki ---
+wiki -> wiki/index.html
+  29 rule pages (4 blank parents skipped) | 8 type pages | 4 domain + 3 standing views | paths | 110 glossary | 315 search
+  Syncing into C:\Users\Matt\OneDrive\Desktop\Game\RenownWiki ...
+  Pushing to GitHub Pages ...
+Enumerating objects: 1023, done.
+Counting objects: 100% (1023/1023), done.
+Delta compression using up to 16 threads
+Compressing objects: 100% (1023/1023), done.
+Writing objects: 100% (1023/1023), done.
+Total 1023 (delta 923), reused 0 (delta 0), pack-reused 0 (from 0)
+[main d6074f9] wiki rebuild
+ 13 files changed, 13 insertions(+), 13 deletions(-)
+Enumerating objects: 29, done.
+Counting objects: 100% (29/29), done.
+Delta compression using up to 16 threads
+Compressing objects: 100% (12/12), done.
+Writing objects: 100% (15/15), 1.29 KiB | 1.29 MiB/s, done.
+Total 15 (delta 14), reused 4 (delta 3), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (14/14), completed with 14 local objects.
+To https://github.com/mlang95/RenownWiki.git
+   d79f3f6..d6074f9  main -> main
+fatal: tag 'v0.4.9.5' already exists
+Everything up-to-date
+Everything up-to-date
+
+Done. Press any key to close.

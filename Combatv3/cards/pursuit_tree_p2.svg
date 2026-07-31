@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="884" viewBox="0 0 1500 884" font-family="Georgia, serif">
-<rect width="1500" height="884" fill="#f4efe4"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1382" height="884" viewBox="0 0 1382 884" font-family="Georgia, serif">
+<rect width="1382" height="884" fill="#f4efe4"/>
 <defs><marker id="arw-2E5A8C" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#2E5A8C"/></marker><marker id="arw-9E2B25" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#9E2B25"/></marker><marker id="arw-1c9c8c" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1c9c8c"/></marker><marker id="arw-C6A024" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#C6A024"/></marker><marker id="arw-6A3D8F" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#6A3D8F"/></marker><marker id="arw-CC6A1A" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#CC6A1A"/></marker><marker id="arw-3a7d3a" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#3a7d3a"/></marker><marker id="arw-b5347a" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#b5347a"/></marker><marker id="arw-2b6f9e" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#2b6f9e"/></marker><marker id="arw-8a6d1a" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8a6d1a"/></marker><marker id="arw-5f5647" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5f5647"/></marker><marker id="arw-7a2ea0" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#7a2ea0"/></marker><marker id="arw-0f8a7e" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#0f8a7e"/></marker><marker id="arw-a83232" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#a83232"/></marker><marker id="arw-8f8672" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8f8672"/></marker></defs>
 <text x="30" y="34" font-size="20" font-weight="bold" fill="#2b2620">Pursuit Paths</text>
 <path d="M148,76 L163,76 Q172,76 172,85 L172,283 Q172,292 181,292 L195,292" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -126,82 +126,85 @@
 <path d="M1008,292 L1055,292" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <rect x="30" y="64" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="64" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="80" font-size="8.2" fill="#2b2620">Apiary</text>
+<text x="39" y="79" font-size="8.2" fill="#2b2620">Apiary</text>
 <rect x="202" y="64" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="202" y="64" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="80" font-size="8.2" fill="#2b2620">Herb Garden</text>
+<text x="211" y="79" font-size="8.2" fill="#2b2620">Herb Garden</text>
 <rect x="546" y="64" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="546" y="64" width="5" height="24" fill="#6a6a72"/>
-<text x="555" y="80" font-size="8.2" fill="#2b2620">Spice Merchant</text>
+<text x="555" y="79" font-size="8.2" fill="#2b2620">Spice Merchant</text>
 <rect x="374" y="100" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="374" y="100" width="5" height="24" fill="#2E5A8C"/>
-<text x="383" y="116" font-size="8.2" fill="#2b2620">Money Lending</text>
+<text x="383" y="115" font-size="8.2" fill="#2b2620">Money Lending</text>
 <rect x="546" y="100" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="546" y="100" width="5" height="24" fill="#2E5A8C"/>
-<text x="555" y="116" font-size="8.2" fill="#2b2620">Court Artists</text>
-<rect x="1062" y="100" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#2E5A8C" stroke-width="2.2"/>
-<rect x="1062" y="100" width="5" height="24" fill="#2E5A8C"/>
-<text x="1071" y="116" font-size="8.2" fill="#2b2620">Aristocratic Court ◆</text>
+<text x="555" y="115" font-size="8.2" fill="#2b2620">Court Artists</text>
+<rect x="1062" y="100" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#1c1c20" stroke-width="2.2"/>
+<rect x="1062" y="100" width="5" height="24" fill="#1c1c20"/>
+<text x="1071" y="115" font-size="8.2" fill="#2b2620">Aristocratic Court</text>
+<polygon points="1172.0,108.4 1175.6,112.0 1172.0,115.6 1168.4,112.0" fill="#8a6d1a"/>
 <rect x="546" y="244" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
 <rect x="546" y="244" width="5" height="24" fill="#1c1c20"/>
-<text x="555" y="260" font-size="8.2" fill="#2b2620">Toxicarium</text>
+<text x="555" y="259" font-size="8.2" fill="#2b2620">Toxicarium</text>
 <rect x="890" y="136" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
 <rect x="890" y="136" width="5" height="24" fill="#1c1c20"/>
-<text x="899" y="152" font-size="8.2" fill="#2b2620">Forgery Workshop</text>
+<text x="899" y="151" font-size="8.2" fill="#2b2620">Forgery Workshop</text>
 <rect x="30" y="172" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="30" y="172" width="5" height="24" fill="#2E5A8C"/>
-<text x="39" y="188" font-size="8.2" fill="#2b2620">Market Square</text>
+<text x="39" y="187" font-size="8.2" fill="#2b2620">Market Square</text>
 <rect x="202" y="172" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="202" y="172" width="5" height="24" fill="#2E5A8C"/>
-<text x="211" y="188" font-size="8.2" fill="#2b2620">Merchant Quarter</text>
+<text x="211" y="187" font-size="8.2" fill="#2b2620">Merchant Quarter</text>
 <rect x="202" y="208" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="202" y="208" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="224" font-size="8.2" fill="#2b2620">Caravanery</text>
+<text x="211" y="223" font-size="8.2" fill="#2b2620">Caravanery</text>
 <rect x="546" y="172" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="546" y="172" width="5" height="24" fill="#6a6a72"/>
-<text x="555" y="188" font-size="8.2" fill="#2b2620">Inn</text>
+<text x="555" y="187" font-size="8.2" fill="#2b2620">Inn</text>
 <rect x="718" y="172" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
 <rect x="718" y="172" width="5" height="24" fill="#1c1c20"/>
-<text x="727" y="188" font-size="8.2" fill="#2b2620">Secret Cellar</text>
+<text x="727" y="187" font-size="8.2" fill="#2b2620">Secret Cellar</text>
 <rect x="890" y="172" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
 <rect x="890" y="172" width="5" height="24" fill="#1c1c20"/>
-<text x="899" y="188" font-size="8.2" fill="#2b2620">Smuggler's Nook</text>
+<text x="899" y="187" font-size="8.2" fill="#2b2620">Smuggler's Nook</text>
 <rect x="1062" y="172" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
 <rect x="1062" y="172" width="5" height="24" fill="#1c1c20"/>
-<text x="1071" y="188" font-size="8.2" fill="#2b2620">Black Market</text>
+<text x="1071" y="187" font-size="8.2" fill="#2b2620">Black Market</text>
 <rect x="1234" y="172" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#1c1c20" stroke-width="2.2"/>
 <rect x="1234" y="172" width="5" height="24" fill="#1c1c20"/>
-<text x="1243" y="188" font-size="8.2" fill="#2b2620">Thieves' Guild ◆</text>
+<text x="1243" y="187" font-size="8.2" fill="#2b2620">Thieves' Guild</text>
+<polygon points="1344.0,180.4 1347.6,184.0 1344.0,187.6 1340.4,184.0" fill="#8a6d1a"/>
 <rect x="718" y="208" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="718" y="208" width="5" height="24" fill="#6a6a72"/>
-<text x="727" y="224" font-size="8.2" fill="#2b2620">Courier Network</text>
+<text x="727" y="223" font-size="8.2" fill="#2b2620">Courier Network</text>
 <rect x="890" y="208" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="890" y="208" width="5" height="24" fill="#6a6a72"/>
-<text x="899" y="224" font-size="8.2" fill="#2b2620">Toll House</text>
+<text x="899" y="223" font-size="8.2" fill="#2b2620">Toll House</text>
 <rect x="1062" y="208" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
 <rect x="1062" y="208" width="5" height="24" fill="#9E2B25"/>
-<text x="1071" y="224" font-size="8.2" fill="#2b2620">Beacon Towers</text>
+<text x="1071" y="223" font-size="8.2" fill="#2b2620">Beacon Towers</text>
 <rect x="890" y="244" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
 <rect x="890" y="244" width="5" height="24" fill="#1c1c20"/>
-<text x="899" y="260" font-size="8.2" fill="#2b2620">Forgotten Catacombs</text>
+<text x="899" y="259" font-size="8.2" fill="#2b2620">Forgotten Catacombs</text>
 <rect x="30" y="280" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="280" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="296" font-size="8.2" fill="#2b2620">Peat Bog</text>
+<text x="39" y="295" font-size="8.2" fill="#2b2620">Peat Bog</text>
 <rect x="202" y="280" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="202" y="280" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="296" font-size="8.2" fill="#2b2620">Alchemy</text>
+<text x="211" y="295" font-size="8.2" fill="#2b2620">Alchemy</text>
 <rect x="374" y="280" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="374" y="280" width="5" height="24" fill="#6a6a72"/>
-<text x="383" y="296" font-size="8.2" fill="#2b2620">Academy</text>
+<text x="383" y="295" font-size="8.2" fill="#2b2620">Academy</text>
 <rect x="546" y="280" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="546" y="280" width="5" height="24" fill="#6a6a72"/>
-<text x="555" y="296" font-size="8.2" fill="#2b2620">University</text>
+<text x="555" y="295" font-size="8.2" fill="#2b2620">University</text>
 <rect x="890" y="280" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
 <rect x="890" y="280" width="5" height="24" fill="#1c1c20"/>
-<text x="899" y="296" font-size="8.2" fill="#2b2620">Cipher Chamber</text>
+<text x="899" y="295" font-size="8.2" fill="#2b2620">Cipher Chamber</text>
 <rect x="1062" y="280" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#1c1c20" stroke-width="2.2"/>
 <rect x="1062" y="280" width="5" height="24" fill="#1c1c20"/>
-<text x="1071" y="296" font-size="8.2" fill="#2b2620">Outrider Intercept P… ◆</text>
+<text x="1071" y="295" font-size="8.2" fill="#2b2620">Outrider Intercept Post</text>
+<polygon points="1172.0,288.4 1175.6,292.0 1172.0,295.6 1168.4,292.0" fill="#8a6d1a"/>
 <path d="M148,354 L195,354" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M148,354 L195,354" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M320,354 L344,354" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -224,28 +227,29 @@
 <path d="M664,390 L679,390 Q688,390 688,381 L688,363 Q688,354 697,354 L711,354" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <rect x="30" y="342" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="342" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="358" font-size="8.2" fill="#2b2620">Quarry</text>
+<text x="39" y="357" font-size="8.2" fill="#2b2620">Quarry</text>
 <rect x="202" y="342" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="202" y="342" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="358" font-size="8.2" fill="#2b2620">Masonry</text>
+<text x="211" y="357" font-size="8.2" fill="#2b2620">Masonry</text>
 <rect x="374" y="342" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="374" y="342" width="5" height="24" fill="#6a6a72"/>
-<text x="383" y="358" font-size="8.2" fill="#2b2620">Courtyard</text>
+<text x="383" y="357" font-size="8.2" fill="#2b2620">Courtyard</text>
 <rect x="546" y="342" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="546" y="342" width="5" height="24" fill="#6a6a72"/>
-<text x="555" y="358" font-size="8.2" fill="#2b2620">Jester's Court</text>
+<text x="555" y="357" font-size="8.2" fill="#2b2620">Jester's Court</text>
 <rect x="718" y="342" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="718" y="342" width="5" height="24" fill="#6a6a72"/>
-<text x="727" y="358" font-size="8.2" fill="#2b2620">Embassy</text>
+<text x="727" y="357" font-size="8.2" fill="#2b2620">Embassy</text>
 <rect x="890" y="342" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#6a6a72" stroke-width="2.2"/>
 <rect x="890" y="342" width="5" height="24" fill="#6a6a72"/>
-<text x="899" y="358" font-size="8.2" fill="#2b2620">Senate Hall ◆</text>
+<text x="899" y="357" font-size="8.2" fill="#2b2620">Senate Hall</text>
+<polygon points="1000.0,350.4 1003.6,354.0 1000.0,357.6 996.4,354.0" fill="#8a6d1a"/>
 <rect x="374" y="378" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="374" y="378" width="5" height="24" fill="#C6A024"/>
-<text x="383" y="394" font-size="8.2" fill="#2b2620">Episcopal Court</text>
+<text x="383" y="393" font-size="8.2" fill="#2b2620">Episcopal Court</text>
 <rect x="546" y="378" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="546" y="378" width="5" height="24" fill="#C6A024"/>
-<text x="555" y="394" font-size="8.2" fill="#2b2620">Bell Tower</text>
+<text x="555" y="393" font-size="8.2" fill="#2b2620">Bell Tower</text>
 <path d="M148,452 L195,452" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M148,452 L195,452" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M320,452 L367,452" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -270,31 +274,32 @@
 <path d="M836,488 L883,488" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <rect x="30" y="440" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="440" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="456" font-size="8.2" fill="#2b2620">Arable Land</text>
+<text x="39" y="455" font-size="8.2" fill="#2b2620">Arable Land</text>
 <rect x="202" y="440" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="202" y="440" width="5" height="24" fill="#2E5A8C"/>
-<text x="211" y="456" font-size="8.2" fill="#2b2620">Granary</text>
-<rect x="374" y="440" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
-<rect x="374" y="440" width="5" height="24" fill="#9E2B25"/>
-<text x="383" y="456" font-size="8.2" fill="#2b2620">Citadel</text>
+<text x="211" y="455" font-size="8.2" fill="#2b2620">Granary</text>
+<rect x="374" y="440" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
+<rect x="374" y="440" width="5" height="24" fill="#2E5A8C"/>
+<text x="383" y="455" font-size="8.2" fill="#2b2620">Citadel</text>
 <rect x="30" y="476" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="476" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="492" font-size="8.2" fill="#2b2620">Quarry</text>
+<text x="39" y="491" font-size="8.2" fill="#2b2620">Quarry</text>
 <rect x="202" y="476" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="202" y="476" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="492" font-size="8.2" fill="#2b2620">Masonry</text>
+<text x="211" y="491" font-size="8.2" fill="#2b2620">Masonry</text>
 <rect x="374" y="476" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="374" y="476" width="5" height="24" fill="#C6A024"/>
-<text x="383" y="492" font-size="8.2" fill="#2b2620">Episcopal Court</text>
+<text x="383" y="491" font-size="8.2" fill="#2b2620">Episcopal Court</text>
 <rect x="546" y="476" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="546" y="476" width="5" height="24" fill="#C6A024"/>
-<text x="555" y="492" font-size="8.2" fill="#2b2620">Interrogation Chambe…</text>
+<text x="555" y="491" font-size="8.2" fill="#2b2620">Interrogation Chambers</text>
 <rect x="718" y="476" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="718" y="476" width="5" height="24" fill="#C6A024"/>
-<text x="727" y="492" font-size="8.2" fill="#2b2620">Execution Dock</text>
+<text x="727" y="491" font-size="8.2" fill="#2b2620">Execution Dock</text>
 <rect x="890" y="476" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
 <rect x="890" y="476" width="5" height="24" fill="#9E2B25"/>
-<text x="899" y="492" font-size="8.2" fill="#2b2620">Imperial Palace ◆</text>
+<text x="899" y="491" font-size="8.2" fill="#2b2620">Imperial Palace</text>
+<polygon points="1000.0,484.4 1003.6,488.0 1000.0,491.6 996.4,488.0" fill="#8a6d1a"/>
 <path d="M148,550 L195,550" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M148,550 L195,550" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M320,550 L367,550" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -343,55 +348,57 @@
 <path d="M836,586 L883,586" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <rect x="30" y="538" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="538" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="554" font-size="8.2" fill="#2b2620">Quarry</text>
+<text x="39" y="553" font-size="8.2" fill="#2b2620">Quarry</text>
 <rect x="202" y="538" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="202" y="538" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="554" font-size="8.2" fill="#2b2620">Masonry</text>
+<text x="211" y="553" font-size="8.2" fill="#2b2620">Masonry</text>
 <rect x="374" y="538" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="374" y="538" width="5" height="24" fill="#6a6a72"/>
-<text x="383" y="554" font-size="8.2" fill="#2b2620">Courtyard</text>
+<text x="383" y="553" font-size="8.2" fill="#2b2620">Courtyard</text>
 <rect x="546" y="538" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
 <rect x="546" y="538" width="5" height="24" fill="#9E2B25"/>
-<text x="555" y="554" font-size="8.2" fill="#2b2620">Conditioning Field</text>
+<text x="555" y="553" font-size="8.2" fill="#2b2620">Conditioning Field</text>
 <rect x="718" y="538" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
 <rect x="718" y="538" width="5" height="24" fill="#9E2B25"/>
-<text x="727" y="554" font-size="8.2" fill="#2b2620">Coliseum</text>
+<text x="727" y="553" font-size="8.2" fill="#2b2620">Coliseum</text>
 <rect x="890" y="538" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
 <rect x="890" y="538" width="5" height="24" fill="#9E2B25"/>
-<text x="899" y="554" font-size="8.2" fill="#2b2620">War College</text>
+<text x="899" y="553" font-size="8.2" fill="#2b2620">War College</text>
 <rect x="1062" y="538" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
 <rect x="1062" y="538" width="5" height="24" fill="#9E2B25"/>
-<text x="1071" y="554" font-size="8.2" fill="#2b2620">Ministry of Military… ◆</text>
+<text x="1071" y="553" font-size="7.8" fill="#2b2620">Ministry of Military Strategy</text>
+<polygon points="1172.0,546.4 1175.6,550.0 1172.0,553.6 1168.4,550.0" fill="#8a6d1a"/>
 <rect x="30" y="574" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="574" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="590" font-size="8.2" fill="#2b2620">Salt Works</text>
+<text x="39" y="589" font-size="8.2" fill="#2b2620">Salt Works</text>
 <rect x="202" y="574" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
 <rect x="202" y="574" width="5" height="24" fill="#9E2B25"/>
-<text x="211" y="590" font-size="8.2" fill="#2b2620">Levy Hall</text>
+<text x="211" y="589" font-size="8.2" fill="#2b2620">Levy Hall</text>
 <rect x="30" y="610" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="610" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="626" font-size="8.2" fill="#2b2620">Apiary</text>
+<text x="39" y="625" font-size="8.2" fill="#2b2620">Apiary</text>
 <rect x="30" y="646" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="646" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="662" font-size="8.2" fill="#2b2620">Peat Bog</text>
+<text x="39" y="661" font-size="8.2" fill="#2b2620">Peat Bog</text>
 <rect x="202" y="610" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="202" y="610" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="626" font-size="8.2" fill="#2b2620">Alchemy</text>
+<text x="211" y="625" font-size="8.2" fill="#2b2620">Alchemy</text>
 <rect x="374" y="610" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="374" y="610" width="5" height="24" fill="#6a6a72"/>
-<text x="383" y="626" font-size="8.2" fill="#2b2620">Academy</text>
+<text x="383" y="625" font-size="8.2" fill="#2b2620">Academy</text>
 <rect x="546" y="610" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="546" y="610" width="5" height="24" fill="#6a6a72"/>
-<text x="555" y="626" font-size="8.2" fill="#2b2620">University</text>
+<text x="555" y="625" font-size="8.2" fill="#2b2620">University</text>
 <rect x="718" y="610" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#6a6a72" stroke-width="2.2"/>
 <rect x="718" y="610" width="5" height="24" fill="#6a6a72"/>
-<text x="727" y="626" font-size="8.2" fill="#2b2620">Studium Generale ◆</text>
+<text x="727" y="625" font-size="8.2" fill="#2b2620">Studium Generale</text>
+<polygon points="828.0,618.4 831.6,622.0 828.0,625.6 824.4,622.0" fill="#8a6d1a"/>
 <rect x="718" y="574" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
 <rect x="718" y="574" width="5" height="24" fill="#9E2B25"/>
-<text x="727" y="590" font-size="8.2" fill="#2b2620">Siege Works</text>
+<text x="727" y="589" font-size="8.2" fill="#2b2620">Siege Works</text>
 <rect x="890" y="574" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
 <rect x="890" y="574" width="5" height="24" fill="#9E2B25"/>
-<text x="899" y="590" font-size="8.2" fill="#2b2620">Siege Camp</text>
+<text x="899" y="589" font-size="8.2" fill="#2b2620">Siege Camp</text>
 <path d="M148,720 L172,720" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M148,720 L172,720" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95"/>
 <path d="M172,720 L172,792" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -450,8 +457,6 @@
 <path d="M688,720 L712,720" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M836,792 L851,792 Q860,792 860,783 L860,729 Q860,720 869,720 L883,720" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M836,792 L851,792 Q860,792 860,783 L860,729 Q860,720 869,720 L883,720" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M1008,720 L1055,720" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M1008,720 L1055,720" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M148,792 L711,792" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M148,792 L711,792" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M836,720 L860,720" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -474,68 +479,70 @@
 <path d="M1008,828 L1055,828" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <rect x="30" y="708" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="708" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="724" font-size="8.2" fill="#2b2620">Apiary</text>
+<text x="39" y="723" font-size="8.2" fill="#2b2620">Apiary</text>
 <rect x="202" y="780" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="202" y="780" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="796" font-size="8.2" fill="#2b2620">Chandlery</text>
+<text x="211" y="795" font-size="8.2" fill="#2b2620">Chandlery</text>
 <rect x="30" y="744" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="744" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="760" font-size="8.2" fill="#2b2620">Arable Land</text>
+<text x="39" y="759" font-size="8.2" fill="#2b2620">Arable Land</text>
 <rect x="202" y="744" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="202" y="744" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="760" font-size="8.2" fill="#2b2620">Herb Garden</text>
+<text x="211" y="759" font-size="8.2" fill="#2b2620">Herb Garden</text>
 <rect x="374" y="744" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="374" y="744" width="5" height="24" fill="#6a6a72"/>
-<text x="383" y="760" font-size="8.2" fill="#2b2620">Apothecary</text>
+<text x="383" y="759" font-size="8.2" fill="#2b2620">Apothecary</text>
 <rect x="546" y="744" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="546" y="744" width="5" height="24" fill="#C6A024"/>
-<text x="555" y="760" font-size="8.2" fill="#2b2620">Infirmary</text>
+<text x="555" y="759" font-size="8.2" fill="#2b2620">Infirmary</text>
 <rect x="718" y="744" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="718" y="744" width="5" height="24" fill="#C6A024"/>
-<text x="727" y="760" font-size="8.2" fill="#2b2620">Hospitaller</text>
+<text x="727" y="759" font-size="8.2" fill="#2b2620">Hospitaller</text>
 <rect x="30" y="816" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="816" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="832" font-size="8.2" fill="#2b2620">Peat Bog</text>
+<text x="39" y="831" font-size="8.2" fill="#2b2620">Peat Bog</text>
 <rect x="202" y="708" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="202" y="708" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="724" font-size="8.2" fill="#2b2620">Alchemy</text>
+<text x="211" y="723" font-size="8.2" fill="#2b2620">Alchemy</text>
 <rect x="374" y="708" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="374" y="708" width="5" height="24" fill="#6a6a72"/>
-<text x="383" y="724" font-size="8.2" fill="#2b2620">Academy</text>
+<text x="383" y="723" font-size="8.2" fill="#2b2620">Academy</text>
 <rect x="546" y="708" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="546" y="708" width="5" height="24" fill="#C6A024"/>
-<text x="555" y="724" font-size="8.2" fill="#2b2620">Abbey</text>
+<text x="555" y="723" font-size="8.2" fill="#2b2620">Abbey</text>
 <rect x="718" y="780" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="718" y="780" width="5" height="24" fill="#C6A024"/>
-<text x="727" y="796" font-size="8.2" fill="#2b2620">Reliquary</text>
+<text x="727" y="795" font-size="8.2" fill="#2b2620">Reliquary</text>
 <rect x="890" y="708" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="890" y="708" width="5" height="24" fill="#C6A024"/>
-<text x="899" y="724" font-size="8.2" fill="#2b2620">Pilgrimage Site</text>
+<text x="899" y="723" font-size="8.2" fill="#2b2620">Pilgrimage Site</text>
 <rect x="1062" y="708" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
 <rect x="1062" y="708" width="5" height="24" fill="#9E2B25"/>
-<text x="1071" y="724" font-size="8.2" fill="#2b2620">Preceptory of the Kn… ◆</text>
+<text x="1071" y="723" font-size="6.0" fill="#2b2620">Preceptory of the Knight's Templar</text>
+<polygon points="1172.0,716.4 1175.6,720.0 1172.0,723.6 1168.4,720.0" fill="#8a6d1a"/>
 <rect x="30" y="780" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="780" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="796" font-size="8.2" fill="#2b2620">Salt Works</text>
+<text x="39" y="795" font-size="8.2" fill="#2b2620">Salt Works</text>
 <rect x="718" y="708" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="718" y="708" width="5" height="24" fill="#C6A024"/>
-<text x="727" y="724" font-size="8.2" fill="#2b2620">Monastery</text>
+<text x="727" y="723" font-size="8.2" fill="#2b2620">Monastery</text>
 <rect x="202" y="816" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="202" y="816" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="832" font-size="8.2" fill="#2b2620">Quarry</text>
+<text x="211" y="831" font-size="8.2" fill="#2b2620">Quarry</text>
 <rect x="374" y="816" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="374" y="816" width="5" height="24" fill="#6a6a72"/>
-<text x="383" y="832" font-size="8.2" fill="#2b2620">Masonry</text>
+<text x="383" y="831" font-size="8.2" fill="#2b2620">Masonry</text>
 <rect x="546" y="816" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="546" y="816" width="5" height="24" fill="#C6A024"/>
-<text x="555" y="832" font-size="8.2" fill="#2b2620">Episcopal Court</text>
+<text x="555" y="831" font-size="8.2" fill="#2b2620">Episcopal Court</text>
 <rect x="718" y="816" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="718" y="816" width="5" height="24" fill="#C6A024"/>
-<text x="727" y="832" font-size="8.2" fill="#2b2620">Interrogation Chambe…</text>
+<text x="727" y="831" font-size="8.2" fill="#2b2620">Interrogation Chambers</text>
 <rect x="890" y="816" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="890" y="816" width="5" height="24" fill="#C6A024"/>
-<text x="899" y="832" font-size="8.2" fill="#2b2620">Execution Dock</text>
+<text x="899" y="831" font-size="8.2" fill="#2b2620">Execution Dock</text>
 <rect x="1062" y="816" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#C6A024" stroke-width="2.2"/>
 <rect x="1062" y="816" width="5" height="24" fill="#C6A024"/>
-<text x="1071" y="832" font-size="8.2" fill="#2b2620">Inquisitorial Palace ◆</text>
+<text x="1071" y="831" font-size="8.2" fill="#2b2620">Inquisitorial Palace</text>
+<polygon points="1172.0,824.4 1175.6,828.0 1172.0,831.6 1168.4,828.0" fill="#8a6d1a"/>
 </svg>

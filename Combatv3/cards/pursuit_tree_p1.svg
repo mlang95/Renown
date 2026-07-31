@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="976" viewBox="0 0 1500 976" font-family="Georgia, serif">
-<rect width="1500" height="976" fill="#f4efe4"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1210" height="976" viewBox="0 0 1210 976" font-family="Georgia, serif">
+<rect width="1210" height="976" fill="#f4efe4"/>
 <defs><marker id="arw-2E5A8C" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#2E5A8C"/></marker><marker id="arw-9E2B25" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#9E2B25"/></marker><marker id="arw-1c9c8c" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1c9c8c"/></marker><marker id="arw-C6A024" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#C6A024"/></marker><marker id="arw-6A3D8F" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#6A3D8F"/></marker><marker id="arw-CC6A1A" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#CC6A1A"/></marker><marker id="arw-3a7d3a" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#3a7d3a"/></marker><marker id="arw-b5347a" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#b5347a"/></marker><marker id="arw-2b6f9e" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#2b6f9e"/></marker><marker id="arw-8a6d1a" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8a6d1a"/></marker><marker id="arw-5f5647" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5f5647"/></marker><marker id="arw-7a2ea0" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#7a2ea0"/></marker><marker id="arw-0f8a7e" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#0f8a7e"/></marker><marker id="arw-a83232" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#a83232"/></marker><marker id="arw-8f8672" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8f8672"/></marker></defs>
 <text x="30" y="34" font-size="20" font-weight="bold" fill="#2b2620">Pursuit Paths</text>
 <path d="M148,76 L195,76" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -22,46 +22,47 @@
 <path d="M148,292 L195,292" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <rect x="30" y="64" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="64" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="80" font-size="8.2" fill="#2b2620">Butchery</text>
+<text x="39" y="79" font-size="8.2" fill="#2b2620">Butchery</text>
 <rect x="202" y="64" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="202" y="64" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="80" font-size="8.2" fill="#2b2620">Smokehouse</text>
+<text x="211" y="79" font-size="8.2" fill="#2b2620">Smokehouse</text>
 <rect x="30" y="100" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="100" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="116" font-size="8.2" fill="#2b2620">Common Land</text>
+<text x="39" y="115" font-size="8.2" fill="#2b2620">Common Land</text>
 <rect x="202" y="100" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="202" y="100" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="116" font-size="8.2" fill="#2b2620">Burgages</text>
+<text x="211" y="115" font-size="8.2" fill="#2b2620">Burgages</text>
 <rect x="30" y="136" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="136" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="152" font-size="8.2" fill="#2b2620">Fishmongery</text>
+<text x="39" y="151" font-size="8.2" fill="#2b2620">Fishmongery</text>
 <rect x="30" y="172" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="30" y="172" width="5" height="24" fill="#2E5A8C"/>
-<text x="39" y="188" font-size="8.2" fill="#2b2620">Market Square</text>
+<text x="39" y="187" font-size="8.2" fill="#2b2620">Market Square</text>
 <rect x="202" y="172" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#2E5A8C" stroke-width="2.2"/>
 <rect x="202" y="172" width="5" height="24" fill="#2E5A8C"/>
-<text x="211" y="188" font-size="8.2" fill="#2b2620">Manor House ◆</text>
+<text x="211" y="187" font-size="8.2" fill="#2b2620">Manor House</text>
+<polygon points="312.0,180.4 315.6,184.0 312.0,187.6 308.4,184.0" fill="#8a6d1a"/>
 <rect x="30" y="208" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="30" y="208" width="5" height="24" fill="#2E5A8C"/>
-<text x="39" y="224" font-size="8.2" fill="#2b2620">Mill</text>
+<text x="39" y="223" font-size="8.2" fill="#2b2620">Mill</text>
 <rect x="202" y="208" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="202" y="208" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="224" font-size="8.2" fill="#2b2620">Bakery</text>
+<text x="211" y="223" font-size="8.2" fill="#2b2620">Bakery</text>
 <rect x="30" y="244" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="244" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="260" font-size="8.2" fill="#2b2620">Orchard</text>
+<text x="39" y="259" font-size="8.2" fill="#2b2620">Orchard</text>
 <rect x="202" y="244" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="202" y="244" width="5" height="24" fill="#2E5A8C"/>
-<text x="211" y="260" font-size="8.2" fill="#2b2620">Meadery</text>
+<text x="211" y="259" font-size="8.2" fill="#2b2620">Meadery</text>
 <rect x="30" y="280" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="280" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="296" font-size="8.2" fill="#2b2620">Vineyard</text>
+<text x="39" y="295" font-size="8.2" fill="#2b2620">Vineyard</text>
 <rect x="202" y="280" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="202" y="280" width="5" height="24" fill="#2E5A8C"/>
-<text x="211" y="296" font-size="8.2" fill="#2b2620">Winery</text>
+<text x="211" y="295" font-size="8.2" fill="#2b2620">Winery</text>
 <rect x="202" y="136" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="202" y="136" width="5" height="24" fill="#2E5A8C"/>
-<text x="211" y="152" font-size="8.2" fill="#2b2620">Cidery</text>
+<text x="211" y="151" font-size="8.2" fill="#2b2620">Cidery</text>
 <line x1="360" y1="60" x2="360" y2="348" stroke="#c9bfa8" stroke-width="1.4"/>
 <path d="M518,76 L611,76 Q620,76 620,85 L620,103 Q620,112 629,112 L737,112" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M518,76 L611,76 Q620,76 620,85 L620,103 Q620,112 629,112 L737,112" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
@@ -75,8 +76,6 @@
 <path d="M542,256 L738,256" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M690,112 L737,112" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M690,112 L737,112" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M862,112 L909,112" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M862,112 L909,112" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M518,148 L533,148 Q542,148 542,139 L542,121 Q542,112 551,112 L565,112" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M518,148 L533,148 Q542,148 542,139 L542,121 Q542,112 551,112 L565,112" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M518,184 L542,184" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -117,58 +116,58 @@
 <path d="M518,328 L611,328 Q620,328 620,319 L620,301 Q620,292 629,292 L737,292" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <rect x="400" y="64" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="400" y="64" width="5" height="24" fill="#6a6a72"/>
-<text x="409" y="80" font-size="8.2" fill="#2b2620">Academy</text>
+<text x="409" y="79" font-size="8.2" fill="#2b2620">Academy</text>
 <rect x="400" y="100" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="400" y="100" width="5" height="24" fill="#6a6a72"/>
-<text x="409" y="116" font-size="8.2" fill="#2b2620">Carpentry</text>
+<text x="409" y="115" font-size="8.2" fill="#2b2620">Carpentry</text>
 <rect x="572" y="100" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="572" y="100" width="5" height="24" fill="#2E5A8C"/>
-<text x="581" y="116" font-size="8.2" fill="#2b2620">Trade Guild</text>
+<text x="581" y="115" font-size="8.2" fill="#2b2620">Trade Guild</text>
 <rect x="744" y="100" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="744" y="100" width="5" height="24" fill="#2E5A8C"/>
-<text x="753" y="116" font-size="8.2" fill="#2b2620">College of Engineeri…</text>
+<text x="753" y="115" font-size="8.2" fill="#2b2620">College of Engineering</text>
 <rect x="916" y="100" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="916" y="100" width="5" height="24" fill="#2E5A8C"/>
-<text x="925" y="116" font-size="8.2" fill="#2b2620">Storehouse</text>
+<text x="925" y="115" font-size="8.2" fill="#2b2620">Storehouse</text>
 <rect x="400" y="136" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="400" y="136" width="5" height="24" fill="#6a6a72"/>
-<text x="409" y="152" font-size="8.2" fill="#2b2620">Masonry</text>
+<text x="409" y="151" font-size="8.2" fill="#2b2620">Masonry</text>
 <rect x="400" y="172" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="400" y="172" width="5" height="24" fill="#6a6a72"/>
-<text x="409" y="188" font-size="8.2" fill="#2b2620">Common Land</text>
+<text x="409" y="187" font-size="8.2" fill="#2b2620">Common Land</text>
 <rect x="572" y="172" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="572" y="172" width="5" height="24" fill="#6a6a72"/>
-<text x="581" y="188" font-size="8.2" fill="#2b2620">Workyard</text>
+<text x="581" y="187" font-size="8.2" fill="#2b2620">Workyard</text>
 <rect x="744" y="172" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="744" y="172" width="5" height="24" fill="#6a6a72"/>
-<text x="753" y="188" font-size="8.2" fill="#2b2620">Census Hall</text>
+<text x="753" y="187" font-size="8.2" fill="#2b2620">Census Hall</text>
 <rect x="400" y="208" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="400" y="208" width="5" height="24" fill="#2E5A8C"/>
-<text x="409" y="224" font-size="8.2" fill="#2b2620">Market Square</text>
+<text x="409" y="223" font-size="8.2" fill="#2b2620">Market Square</text>
 <rect x="572" y="208" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="572" y="208" width="5" height="24" fill="#6a6a72"/>
-<text x="581" y="224" font-size="8.2" fill="#2b2620">Burgages</text>
+<text x="581" y="223" font-size="8.2" fill="#2b2620">Burgages</text>
 <rect x="400" y="244" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="400" y="244" width="5" height="24" fill="#6a6a72"/>
-<text x="409" y="260" font-size="8.2" fill="#2b2620">Fishmongery</text>
+<text x="409" y="259" font-size="8.2" fill="#2b2620">Fishmongery</text>
 <rect x="572" y="244" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="572" y="244" width="5" height="24" fill="#6a6a72"/>
-<text x="581" y="260" font-size="8.2" fill="#2b2620">Harbor</text>
+<text x="581" y="259" font-size="8.2" fill="#2b2620">Harbor</text>
 <rect x="744" y="244" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="744" y="244" width="5" height="24" fill="#2E5A8C"/>
-<text x="753" y="260" font-size="8.2" fill="#2b2620">Shipyard</text>
+<text x="753" y="259" font-size="8.2" fill="#2b2620">Shipyard</text>
 <rect x="400" y="280" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="400" y="280" width="5" height="24" fill="#6a6a72"/>
-<text x="409" y="296" font-size="8.2" fill="#2b2620">Salt Works</text>
+<text x="409" y="295" font-size="8.2" fill="#2b2620">Salt Works</text>
 <rect x="572" y="280" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="572" y="280" width="5" height="24" fill="#6a6a72"/>
-<text x="581" y="296" font-size="8.2" fill="#2b2620">Smokehouse</text>
+<text x="581" y="295" font-size="8.2" fill="#2b2620">Smokehouse</text>
 <rect x="744" y="280" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="744" y="280" width="5" height="24" fill="#2E5A8C"/>
-<text x="753" y="296" font-size="8.2" fill="#2b2620">Supply Depot</text>
+<text x="753" y="295" font-size="8.2" fill="#2b2620">Supply Depot</text>
 <rect x="400" y="316" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="400" y="316" width="5" height="24" fill="#2E5A8C"/>
-<text x="409" y="332" font-size="8.2" fill="#2b2620">Granary</text>
+<text x="409" y="331" font-size="8.2" fill="#2b2620">Granary</text>
 <path d="M148,390 L195,390" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M148,390 L195,390" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M320,390 L344,390" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -305,95 +304,97 @@
 <path d="M1008,534 L1023,534 Q1032,534 1032,543 L1032,561 Q1032,570 1041,570 L1055,570" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <rect x="30" y="378" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="378" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="394" font-size="8.2" fill="#2b2620">Arable Land</text>
+<text x="39" y="393" font-size="8.2" fill="#2b2620">Arable Land</text>
 <rect x="202" y="378" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="202" y="378" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="394" font-size="8.2" fill="#2b2620">Animal Husbandry</text>
+<text x="211" y="393" font-size="8.2" fill="#2b2620">Animal Husbandry</text>
 <rect x="374" y="378" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="374" y="378" width="5" height="24" fill="#6a6a72"/>
-<text x="383" y="394" font-size="8.2" fill="#2b2620">Tannery</text>
+<text x="383" y="393" font-size="8.2" fill="#2b2620">Tannery</text>
 <rect x="546" y="378" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="546" y="378" width="5" height="24" fill="#2E5A8C"/>
-<text x="555" y="394" font-size="8.2" fill="#2b2620">Armory</text>
+<text x="555" y="393" font-size="8.2" fill="#2b2620">Armory</text>
 <rect x="718" y="378" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="718" y="378" width="5" height="24" fill="#2E5A8C"/>
-<text x="727" y="394" font-size="8.2" fill="#2b2620">Gilded Foundry</text>
+<text x="727" y="393" font-size="8.2" fill="#2b2620">Gilded Foundry</text>
 <rect x="1062" y="486" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#2E5A8C" stroke-width="2.2"/>
 <rect x="1062" y="486" width="5" height="24" fill="#2E5A8C"/>
-<text x="1071" y="502" font-size="8.2" fill="#2b2620">Advanced Blast Furna… ◆</text>
+<text x="1071" y="501" font-size="8.2" fill="#2b2620">Advanced Blast Furnace</text>
+<polygon points="1172.0,494.4 1175.6,498.0 1172.0,501.6 1168.4,498.0" fill="#8a6d1a"/>
 <rect x="30" y="414" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="414" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="430" font-size="8.2" fill="#2b2620">Forestry</text>
+<text x="39" y="429" font-size="8.2" fill="#2b2620">Forestry</text>
 <rect x="202" y="414" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="202" y="414" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="430" font-size="8.2" fill="#2b2620">Carpentry</text>
+<text x="211" y="429" font-size="8.2" fill="#2b2620">Carpentry</text>
 <rect x="890" y="414" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="890" y="414" width="5" height="24" fill="#6a6a72"/>
-<text x="899" y="430" font-size="8.2" fill="#2b2620">Stable</text>
+<text x="899" y="429" font-size="8.2" fill="#2b2620">Stable</text>
 <rect x="1062" y="414" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="1062" y="414" width="5" height="24" fill="#6a6a72"/>
-<text x="1071" y="430" font-size="8.2" fill="#2b2620">Saddlery</text>
+<text x="1071" y="429" font-size="8.2" fill="#2b2620">Saddlery</text>
 <rect x="30" y="450" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="30" y="450" width="5" height="24" fill="#2E5A8C"/>
-<text x="39" y="466" font-size="8.2" fill="#2b2620">Merchant Quarter</text>
+<text x="39" y="465" font-size="8.2" fill="#2b2620">Merchant Quarter</text>
 <rect x="374" y="450" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="374" y="450" width="5" height="24" fill="#6a6a72"/>
-<text x="383" y="466" font-size="8.2" fill="#2b2620">Weavery</text>
+<text x="383" y="465" font-size="8.2" fill="#2b2620">Weavery</text>
 <rect x="546" y="450" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="546" y="450" width="5" height="24" fill="#2E5A8C"/>
-<text x="555" y="466" font-size="8.2" fill="#2b2620">Artisan Workshop</text>
+<text x="555" y="465" font-size="8.2" fill="#2b2620">Artisan Workshop</text>
 <rect x="30" y="486" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="486" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="502" font-size="8.2" fill="#2b2620">Mine</text>
+<text x="39" y="501" font-size="8.2" fill="#2b2620">Mine</text>
 <rect x="202" y="486" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="202" y="486" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="502" font-size="8.2" fill="#2b2620">Furnace</text>
+<text x="211" y="501" font-size="8.2" fill="#2b2620">Furnace</text>
 <rect x="374" y="486" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="374" y="486" width="5" height="24" fill="#2E5A8C"/>
-<text x="383" y="502" font-size="8.2" fill="#2b2620">Blacksmith</text>
+<text x="383" y="501" font-size="8.2" fill="#2b2620">Blacksmith</text>
 <rect x="546" y="486" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="546" y="486" width="5" height="24" fill="#2E5A8C"/>
-<text x="555" y="502" font-size="8.2" fill="#2b2620">Forge</text>
+<text x="555" y="501" font-size="8.2" fill="#2b2620">Forge</text>
 <rect x="718" y="486" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="718" y="486" width="5" height="24" fill="#2E5A8C"/>
-<text x="727" y="502" font-size="8.2" fill="#2b2620">Master Workshop</text>
+<text x="727" y="501" font-size="8.2" fill="#2b2620">Master Workshop</text>
 <rect x="374" y="522" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="374" y="522" width="5" height="24" fill="#6a6a72"/>
-<text x="383" y="538" font-size="8.2" fill="#2b2620">Jewelry Foundry</text>
+<text x="383" y="537" font-size="8.2" fill="#2b2620">Jewelry Foundry</text>
 <rect x="30" y="558" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="558" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="574" font-size="8.2" fill="#2b2620">Quarry</text>
+<text x="39" y="573" font-size="8.2" fill="#2b2620">Quarry</text>
 <rect x="202" y="558" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="202" y="558" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="574" font-size="8.2" fill="#2b2620">Masonry</text>
+<text x="211" y="573" font-size="8.2" fill="#2b2620">Masonry</text>
 <rect x="374" y="558" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="374" y="558" width="5" height="24" fill="#6a6a72"/>
-<text x="383" y="574" font-size="8.2" fill="#2b2620">Courtyard</text>
+<text x="383" y="573" font-size="8.2" fill="#2b2620">Courtyard</text>
 <rect x="546" y="558" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
 <rect x="546" y="558" width="5" height="24" fill="#9E2B25"/>
-<text x="555" y="574" font-size="8.2" fill="#2b2620">Conditioning Field</text>
+<text x="555" y="573" font-size="8.2" fill="#2b2620">Conditioning Field</text>
 <rect x="718" y="558" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
 <rect x="718" y="558" width="5" height="24" fill="#9E2B25"/>
-<text x="727" y="574" font-size="8.2" fill="#2b2620">Coliseum</text>
+<text x="727" y="573" font-size="8.2" fill="#2b2620">Coliseum</text>
 <rect x="890" y="558" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
 <rect x="890" y="558" width="5" height="24" fill="#9E2B25"/>
-<text x="899" y="574" font-size="8.2" fill="#2b2620">Tiltyard</text>
+<text x="899" y="573" font-size="8.2" fill="#2b2620">Tiltyard</text>
 <rect x="1062" y="558" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
 <rect x="1062" y="558" width="5" height="24" fill="#9E2B25"/>
-<text x="1071" y="574" font-size="8.2" fill="#2b2620">Royal Pavilion ◆</text>
+<text x="1071" y="573" font-size="8.2" fill="#2b2620">Royal Pavilion</text>
+<polygon points="1172.0,566.4 1175.6,570.0 1172.0,573.6 1168.4,570.0" fill="#8a6d1a"/>
 <rect x="202" y="594" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="202" y="594" width="5" height="24" fill="#2E5A8C"/>
-<text x="211" y="610" font-size="8.2" fill="#2b2620">Kiln</text>
+<text x="211" y="609" font-size="8.2" fill="#2b2620">Kiln</text>
 <rect x="374" y="594" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="374" y="594" width="5" height="24" fill="#2E5A8C"/>
-<text x="383" y="610" font-size="8.2" fill="#2b2620">Charcoal Burner</text>
+<text x="383" y="609" font-size="8.2" fill="#2b2620">Charcoal Burner</text>
 <rect x="374" y="414" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="374" y="414" width="5" height="24" fill="#6a6a72"/>
-<text x="383" y="430" font-size="8.2" fill="#2b2620">Fletchery</text>
+<text x="383" y="429" font-size="8.2" fill="#2b2620">Fletchery</text>
 <rect x="374" y="630" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="374" y="630" width="5" height="24" fill="#2E5A8C"/>
-<text x="383" y="646" font-size="8.2" fill="#2b2620">Joinery</text>
+<text x="383" y="645" font-size="8.2" fill="#2b2620">Joinery</text>
 <rect x="890" y="522" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
 <rect x="890" y="522" width="5" height="24" fill="#9E2B25"/>
-<text x="899" y="538" font-size="8.2" fill="#2b2620">Grand Tournament</text>
+<text x="899" y="537" font-size="8.2" fill="#2b2620">Grand Tournament</text>
 </svg>

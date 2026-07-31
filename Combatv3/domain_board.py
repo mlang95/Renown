@@ -285,11 +285,12 @@ def build(out):
     ybot = draw_def_table(c, x, y, def_w, def_colw, def_data, fs=6.0)
 
     era_rows = [[nm, str(e["renown"]), str(e["armies"]), str(e["cities"]),
-                 str(e["influence_per_turn"]), str(e.get("unlocks", "") or "\u2014")]
+                 str(e.get("max_settlements", "")), str(e["influence_per_turn"]),
+                 str(e.get("unlocks", "") or "\u2014")]
                 for nm, e in rd.ERAS.items()]
     ex = x + def_w + 20; ew = w - def_w - 20
-    era_colw = [64, 44, 42, 40, 40, ew - 230]
-    era_bot = draw_table(c, ex, y, ew, ["Era", "Renown", "Armies", "Cities", "Infl", "Unlocks"],
+    era_colw = [46, 30, 30, 26, 40, 26, ew - 198]
+    era_bot = draw_table(c, ex, y, ew, ["Era", "Renown", "Armies", "Cities", "Max Set", "Infl", "Unlocks"],
                          era_rows, era_colw, "Era Standing", "#5a4f72", fs=7, hfs=7)
 
     # Envoys & Diplomacy as a table, under Era Standing

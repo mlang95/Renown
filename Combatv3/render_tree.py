@@ -70,10 +70,26 @@ def build(layout_path, out):
         po=f"{base}_p{pi+1}.svg"
         _build_page(pg, po); outs.append(po)
     print("pages:", outs)
+    # combined multi-page PDF via svglib + reportlab (pure Python, no Cairo DLL)
+    try:
+        from svglib.svglib import svg2rlg
+        from reportlab.graphics import renderPDF
+        from pypdf import PdfWriter, PdfReader
+        import io
+        w = PdfWriter()
+        for svg in outs:
+            drawing = svg2rlg(svg)
+            buf = io.BytesIO(); renderPDF.drawToFile(drawing, buf); buf.seek(0)
+            for pg in PdfReader(buf).pages: w.add_page(pg)
+        pdf_out = f"{base}.pdf"
+        with open(pdf_out, "wb") as f: w.write(f)
+        print("pdf:", pdf_out)
+    except Exception as e:
+        print(f"(PDF skipped: {e}; run: pip install svglib pypdf)")
     return
 
 def _build_page(charts, out):
-    PAGE_W=1500; PADL=30
+    PADL=30
     svg=[]; H=70
     laid=[]
     for c in charts:
@@ -81,6 +97,17 @@ def _build_page(charts, out):
         maxc=max(v[0] for v in nodes.values()); maxr=max(v[1] for v in nodes.values())
         w=(maxc+1)*NW+maxc*COLGAP; h=(maxr+1)*(NH+ROWGAP)
         laid.append((c,w,h)); H+=h+26
+    # page width = widest single chart, or the paired Husbandry+Trade row, + margins
+    PAGE_W=0
+    i=0
+    while i < len(laid):
+        c,w,h=laid[i]
+        if c["title"].startswith("Husbandry") and i+1<len(laid) and laid[i+1][0]["title"].startswith("Trade"):
+            row_w = w + 80 + laid[i+1][1]; i+=2
+        else:
+            row_w = w; i+=1
+        PAGE_W=max(PAGE_W, row_w)
+    PAGE_W = int(PAGE_W + 2*PADL)
     body=[f'<svg xmlns="http://www.w3.org/2000/svg" width="{PAGE_W}" height="{int(H)}" viewBox="0 0 {PAGE_W} {int(H)}" font-family="Georgia, serif">']
     body.append(f'<rect width="{PAGE_W}" height="{int(H)}" fill="#f4efe4"/>')
     defs=['<defs>']
@@ -112,6 +139,27 @@ def _edge(body, d, color="#8f8672", arrow=True, w=1.6):
     body.append(f'<path d="{d}" fill="none" stroke="#f4efe4" stroke-width="{w+3:.1f}" opacity="1"/>')
     marker=f' marker-end="url(#arw-{color[1:]})"' if arrow else ''
     body.append(f'<path d="{d}" fill="none" stroke="{color}" stroke-width="{w}" opacity="0.95"{marker}/>')
+
+def _fit_font(s, maxw, cap=8.2, floor=5.0):
+    # shrink font until the label fits maxw (Helvetica metric ~ proxy)
+    from reportlab.pdfbase.pdfmetrics import stringWidth
+    fs = cap
+    while fs > floor and stringWidth(s, "Helvetica", fs) > maxw:
+        fs -= 0.2
+    return fs
+
+def _draw_node(body, x, y, n):
+    col = DOMC[domain_of(n)]; mon = NODES[n].get("monument")
+    fill = "#fdf3d0" if mon else "#ffffff"; sw = 2.2 if mon else 1.4
+    body.append(f'<rect x="{x:.0f}" y="{y:.0f}" width="{NW}" height="{NH}" rx="4" fill="{fill}" stroke="{col}" stroke-width="{sw}"/>')
+    body.append(f'<rect x="{x:.0f}" y="{y:.0f}" width="5" height="{NH}" fill="{col}"/>')
+    tx = x + 9
+    text_maxw = NW - 13 - (11 if mon else 0)   # leave room for the diamond
+    fs = _fit_font(n, text_maxw)
+    body.append(f'<text x="{tx:.0f}" y="{y+NH/2+3:.0f}" font-size="{fs:.1f}" fill="#2b2620">{_esc(n)}</text>')
+    if mon:  # draw a real diamond (polygon), not a font glyph
+        cx = x + NW - 8; cy = y + NH/2; r = 3.6
+        body.append(f'<polygon points="{cx:.1f},{cy-r:.1f} {cx+r:.1f},{cy:.1f} {cx:.1f},{cy+r:.1f} {cx-r:.1f},{cy:.1f}" fill="#8a6d1a"/>')
 
 def _render_chart(body,c,w,h,PADL,oy):
     import json
@@ -164,12 +212,7 @@ def _render_chart(body,c,w,h,PADL,oy):
     for idx,(pn,cn,d,sg,arrow) in enumerate(edges):
         _edge(body,d,"#8f8672",arrow=arrow)
     for n in nodes:
-        x,y=px(n); col=DOMC[domain_of(n)]; mon=NODES[n].get("monument")
-        fill="#fdf3d0" if mon else "#ffffff"; sw=2.2 if mon else 1.4
-        body.append(f'<rect x="{x:.0f}" y="{y:.0f}" width="{NW}" height="{NH}" rx="4" fill="{fill}" stroke="{col}" stroke-width="{sw}"/>')
-        body.append(f'<rect x="{x:.0f}" y="{y:.0f}" width="5" height="{NH}" fill="{col}"/>')
-        lbl=n if len(n)<=21 else n[:20]+"\u2026"; dia=" \u25c6" if mon else ""
-        body.append(f'<text x="{x+9:.0f}" y="{y+15.5:.0f}" font-size="8.2" fill="#2b2620">{_esc(lbl)}{dia}</text>')
+        x,y=px(n); _draw_node(body,x,y,n)
 
 def _dead(c,w,h,PADL,oy):
     for c,w,h in []:
@@ -195,12 +238,7 @@ def _dead(c,w,h,PADL,oy):
                 for k,cy in zip(kids,cys):
                     bx=px(k)[0]; body.append(f'<path d="M{fx:.0f},{cy:.0f} L{bx-6:.0f},{cy:.0f}" stroke="#8f8672" stroke-width="1.2" fill="none" opacity="0.85" marker-end="url(#arw)"/>')
         for n in nodes:
-            x,y=px(n); col=DOMC[domain_of(n)]; mon=NODES[n].get("monument")
-            fill="#fdf3d0" if mon else "#ffffff"; sw=2.2 if mon else 1.4
-            body.append(f'<rect x="{x:.0f}" y="{y:.0f}" width="{NW}" height="{NH}" rx="4" fill="{fill}" stroke="{col}" stroke-width="{sw}"/>')
-            body.append(f'<rect x="{x:.0f}" y="{y:.0f}" width="5" height="{NH}" fill="{col}"/>')
-            lbl=n if len(n)<=21 else n[:20]+"\u2026"; dia=" \u25c6" if mon else ""
-            body.append(f'<text x="{x+9:.0f}" y="{y+15.5:.0f}" font-size="8.2" fill="#2b2620">{_esc(lbl)}{dia}</text>')
+            x,y=px(n); _draw_node(body,x,y,n)
         oy=oy2+h+40
     body.append("</svg>")
     open(out,"w",encoding="utf-8").write("\n".join(body))

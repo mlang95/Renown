@@ -1,5 +1,5 @@
 {
- "version": "0.4.9.5",
+ "version": "0.4.9.7.1",
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
@@ -1081,7 +1081,7 @@
     [
      "Storehouse",
      "Sovereign Industry",
-     "College of Engineering + Workyard + Shipyard",
+     "Workyard + Shipyard",
      "**Doubt +2**, +600",
      "**Build Timer −2**"
     ],
@@ -1466,8 +1466,8 @@
      "Levy Hall",
      "Rising Prowess",
      "Keep + Salt Works",
-     "**Upkeep -200**",
-     "**Upkeep -300**"
+     "**Upkeep -1000 while an army is range 0 of controlled settlement**",
+     "**Upkeep -1000 while an army is range 0 of controlled settlement**"
     ],
     [
      "Siege Works",
@@ -1485,7 +1485,7 @@
     ],
     [
      "Citadel",
-     "Established Prowess",
+     "Established Industry",
      "Masonry + Granary",
      "**Efficient Granary**; **Siege Timer +1**",
      "**Siege Timer +1**, Controlled Settlements gain **Reach +1**"
@@ -1524,6 +1524,13 @@
    "title": "Monument",
    "rows": [
     [
+     "Office of Works",
+     "Sovereign Industry",
+     "College of Engineering + Storehouse",
+     "Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions.",
+     "Siege Timer +2; Build Timer -2"
+    ],
+    [
      "Royal Pavilion",
      "Sovereign Prowess",
      "Grand Tournament + Tiltyard",
@@ -1532,10 +1539,10 @@
     ],
     [
      "Imperial Palace",
-     "Sovereign Prowess",
+     "Established Prowess",
      "Citadel + Execution Dock",
-     "**Efficient Citadel**; Gain **Immune Border Tension & Invasion**",
-     "Non-Military Alliance players that border you gain **Doubt +2**"
+     "**Efficient Citadel**; Each Empire Phase, all non-allied players with a lower Prowess value gain Doubt +2.",
+     "If your Envoy would fail, it passes instead."
     ],
     [
      "Ministry of Military Strategy",
@@ -1559,6 +1566,13 @@
      "Once/turn: Before players Support or Oppose, you may auto-**Condemn** an At War Envoy OR auto-**Endorse** an Ally's Envoy"
     ],
     [
+     "Papal Palace",
+     "Sovereign Piety",
+     "Monastery + Pilgrimage Site + Reliquary",
+     "Your Piety actions that cause doubt cause an additional doubt. You no longer pay cost for Piety actions.",
+     "At the beginning of each turn, Tithe every other player with lower Piety. Resolve in the Extort step.\nIn addition, once per turn, you may perform Spread Gospel."
+    ],
+    [
      "Inquisitorial Palace",
      "Sovereign Piety",
      "Execution Dock + Monastery",
@@ -1568,7 +1582,7 @@
     [
      "Preceptory of the Knight's Templar",
      "Sovereign Piety + Established Prowess",
-     "Monastery + Pilgrimage Site + Hospitaller + Abbey",
+     "Monastery + Hospitaller + Abbey",
      "**Efficient Monastery**; Armies gain **Zealous**: Automatically pass the first Panic Check of every Battle.",
      "Unlocks **Knight's Templar** for Muster"
     ],
@@ -1581,9 +1595,9 @@
     ],
     [
      "Aristocratic Court",
-     "Sovereign Industry",
+     "Sovereign Cunning",
      "Money Lending + Forgery Workshop + Court Artists",
-     "**Efficient Court Artists**; **Doubt +1** per player who earns more Income than you each turn in the Income step.",
+     "**Efficient Court Artists**; Each Empire Phase, Extort 1000 from each non-allied player with a lower Cunning value.",
      "Your Vote counts as 2 votes toward Domain selection during the Council Phase."
     ],
     [
@@ -1592,6 +1606,13 @@
      "University + Academy",
      "+1 **Influence** per **Established** Standing",
      "May gain one **Sovereign Domain** effect without spending the Domain Points"
+    ],
+    [
+     "Outlaw Rookery",
+     "Sovereign Cunning",
+     "Smuggler's Nook + Toxicarium + Courier Network",
+     "**Efficient Smuggler's Nook**; Both Bandit Camps & you gain Influence +1 when performing Cunning actions.",
+     "Endorsed Foster Rebellion places Bandit Camps with 25 retinues instead of 10."
     ],
     [
      "Advanced Blast Furnace",
@@ -2306,7 +2327,7 @@
   [
    "Piety",
    "Divine Mandate: Faith +1 each Empire Phase.",
-   "One True Gospel: Each Empire Phase, all other players with a lower Piety value gain Doubt +2.",
+   "One True Gospel: Each Empire Phase, all other non-allied players with a lower Piety value gain Doubt +2.",
    "Pillar of Faith: If your Public Order would go below 3, set it to 3. May use the Crusade action."
   ]
  ],

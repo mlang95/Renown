@@ -1,6 +1,6 @@
 # renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
-VERSION = "0.4.9.5"
+VERSION = "0.4.9.7.1"
 # ── Keyword constants ─────────────────────────────────────────────────────
 # Rename a keyword here and it renames everywhere (GLOSSARY keys, tags, cards).
 
@@ -870,10 +870,10 @@ NODES = {
     "Storehouse": {
         "type": "Craft",
         "unlock": "Sovereign Industry",
-        "mastery_req": "College of Engineering + Workyard + Shipyard",
+        "mastery_req": "Workyard + Shipyard",
         "innate": "**Doubt +2**, +600",
         "mastery": "**Build Timer −2**",
-        "builds_into": [],
+        "builds_into": ["Office of Works"],
         "monument": False},
     "Meadery": {
         "type": "Craft",
@@ -1027,7 +1027,7 @@ NODES = {
         "innate": "",
         "mastery": "First **Doubt** per turn reduced by 1 (min 0)",
         "efficient": "Abbey",
-        "builds_into": ["Pilgrimage Site"],
+        "builds_into": ["Pilgrimage Site", "Papal Palace"],
         "monument": False},
     "Monastery": {
         "type": "Power",
@@ -1179,7 +1179,7 @@ NODES = {
         "mastery_req": "Carpentry + Arable Land + Weavery",
         "innate": "+400",
         "mastery": "+200, **Faith +1**",
-        "builds_into": ["Court Artist"],
+        "builds_into": ["Court Artists"],
         "monument": False},
     "University": {
         "type": "Power",
@@ -1213,7 +1213,7 @@ NODES = {
         "mastery_req": "Caravanery + Inn",
         "innate": "Once/turn: **Influence −1** on Target Envoy",
         "mastery": "Once/turn: successfully Performed Personal Envoy can be Performed next turn; send 1 fewer Envoys next turn",
-        "builds_into": ["Toll House", "Beacon Towers"],
+        "builds_into": ["Toll House", "Beacon Towers", "Outlaw Rookery"],
         "monument": False},
     "Toll House": {
         "type": "Civic",
@@ -1230,7 +1230,7 @@ NODES = {
         "innate": "No Upkeep on **Sophisticated Infrastructure**",
         "mastery": "**Build Timer −2**",
         "efficient": "Trade Guild",
-        "builds_into": ["Storehouse"],
+        "builds_into": ["Office of Works"],
         "monument": False},
     "Secret Cellar": {
         "type": "Energy",
@@ -1248,7 +1248,7 @@ NODES = {
         "innate": "gain Immune Local Unrest (-1PO per Bandit Camp)",
         "mastery": "Bandit Camps in your Outlaw Country don't target you and target other players instead randomly.",
         "efficient": "Secret Cellar",
-        "builds_into": ["Thieves' Guild"],
+        "builds_into": ["Thieves' Guild", "Outlaw Rookery"],
         "monument": False},
     "Black Market": {
         "type": "Secrecy",
@@ -1257,7 +1257,7 @@ NODES = {
         "innate": "When another player **Extorts** gold from any source: **Extort 200** per 1000 (minimum 100) from that player at the end of that resolution.",
         "mastery": "When another player **Recoups** gold from any source: **Extort 200** per 1000 (minimum 100) from that player at the end of that resolution.",
         "efficient": "Market Square",
-        "builds_into": [],
+        "builds_into": ["Thieves' Guild"],
         "monument": False},
     "Forgery Workshop": {
         "type": "Power",
@@ -1275,7 +1275,7 @@ NODES = {
         "innate": "Weapons gain **Poison**",
         "mastery": "All Endorsed Cunning actions give an additional **Doubt +1** to Target",
         "efficient": "Alchemy",
-        "builds_into": [],
+        "builds_into": ["Outlaw Rookery"],
         "monument": False,
         "escalation": {"standing": "Rising Cunning", "ranks": {1: "Poison"}, "requires_all": [], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Academy", "Alchemy"], "domain": {"Cunning": 3}, "innate_tags": ["Poison"], "mastery_tags": [], "mastery_req": ["Academy", "Alchemy"], "upkeep_effects": [{"flat": 100}]}},
@@ -1286,7 +1286,7 @@ NODES = {
         "innate": "**Extort 200** every player without a Pilgrimage Site",
         "mastery": "**Doubt +1** to all other players without a Pilgrimage Site",
         "efficient": "Reliquary",
-        "builds_into": ["Preceptory of the Knight's Templar"],
+        "builds_into": ["Papal Palace"],
         "monument": False,
         "engine": {"cost": 1, "prereqs": [], "domain": {"Piety": 3}, "innate_tags": [], "mastery_tags": [], "mastery_req": []}},
     "Beacon Towers": {
@@ -1347,8 +1347,8 @@ NODES = {
         "type": "Power",
         "unlock": "Rising Prowess",
         "mastery_req": "Keep + Salt Works",
-        "innate": "**Upkeep -200**",
-        "mastery": "**Upkeep -300**",
+        "innate": "**Upkeep -1000 while an army is range 0 of controlled settlement**",
+        "mastery": "**Upkeep -1000 while an army is range 0 of controlled settlement**",
         "builds_into": ["War College", "Ministry of Military Strategy"],
         "monument": False,
         "engine": {"cost": 1, "prereqs": [], "domain": {"Prowess": 3}, "innate_tags": [], "mastery_tags": [], "mastery_req": [], "upkeep_effects": [{"flat": 200}]}},
@@ -1371,7 +1371,7 @@ NODES = {
         "monument": False},
     "Citadel": {
         "type": "Power",
-        "unlock": "Established Prowess",
+        "unlock": "Established Industry",
         "mastery_req": "Masonry + Granary",
         "innate": "**Siege Timer +1**",
         "mastery": "**Siege Timer +1**, Controlled Settlements gain **Reach +1**",
@@ -1410,6 +1410,14 @@ NODES = {
         "monument": False,
         "escalation": {"standing": "Established Prowess", "ranks": {1: "Dual-equip; Immune Unwieldy; Dual Wield (two of a kind)"}, "requires_all": ["Fletchery"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Fletchery", "Coliseum"], "domain": {"Prowess": 6}, "innate_tags": [], "mastery_tags": ["Immune Unwieldy", "Florentine"], "mastery_req": ["Fletchery", "Coliseum"]}},
+    "Office of Works": {
+        "type": "Monument",
+        "unlock": "Sovereign Industry",
+        "mastery_req": "College of Engineering + Storehouse",
+        "innate": "Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions.",
+        "mastery": "Siege Timer +2; Build Timer -2",
+        "builds_into": [],
+        "monument": True},
     "Royal Pavilion": {
         "type": "Monument",
         "unlock": "Sovereign Prowess",
@@ -1423,10 +1431,10 @@ NODES = {
         "engine": {"cost": 1, "prereqs": ["Tiltyard"], "domain": {"Prowess": 10}, "innate_tags": ["Immune Strain"], "mastery_tags": [ "Drilled"], "mastery_req": ["Grand Tournament", "Tiltyard"]}},
     "Imperial Palace": {
         "type": "Monument",
-        "unlock": "Sovereign Prowess",
+        "unlock": "Established Prowess",
         "mastery_req": "Citadel + Execution Dock",
-        "innate": "Gain **Immune Border Tension & Invasion**",
-        "mastery": "Non-Military Alliance players that border you gain **Doubt +2**",
+        "innate": "Each Empire Phase, all non-allied players with a lower Prowess value gain Doubt +2.",
+        "mastery": "If your Envoy would fail, it passes instead.",
         "efficient": "Citadel",
         "builds_into": [],
         "monument": True},
@@ -1457,6 +1465,14 @@ NODES = {
         "mastery": "Once/turn: Before players Support or Oppose, you may auto-**Condemn** an At War Envoy OR auto-**Endorse** an Ally's Envoy",
         "builds_into": [],
         "monument": True},
+    "Papal Palace": {
+        "type": "Monument",
+        "unlock": "Sovereign Piety",
+        "mastery_req": "Monastery + Pilgrimage Site + Reliquary",
+        "innate": "Your Piety actions that cause doubt cause an additional doubt. You no longer pay cost for Piety actions.",
+        "mastery": "At the beginning of each turn, Tithe every other player with lower Piety. Resolve in the Extort step.\nIn addition, once per turn, you may perform Spread Gospel.",
+        "builds_into": [],
+        "monument": True},
     "Inquisitorial Palace": {
         "type": "Monument",
         "unlock": "Sovereign Piety",
@@ -1469,7 +1485,7 @@ NODES = {
     "Preceptory of the Knight's Templar": {
         "type": "Monument",
         "unlock": "Sovereign Piety + Established Prowess",
-        "mastery_req": "Monastery + Pilgrimage Site + Hospitaller + Abbey",
+        "mastery_req": "Monastery + Hospitaller + Abbey",
         "innate": f"Armies gain **{CRUSADER}**: Automatically pass the first Panic Check of every Battle.",
         "mastery": "Unlocks **Knight's Templar** for Muster",
         "efficient": "Monastery",
@@ -1487,9 +1503,9 @@ NODES = {
         "monument": True},
     "Aristocratic Court": {
         "type": "Monument",
-        "unlock": "Sovereign Industry",
+        "unlock": "Sovereign Cunning",
         "mastery_req": "Money Lending + Forgery Workshop + Court Artists",
-        "innate": "**Doubt +1** per player who earns more Income than you each turn in the Income step.",
+        "innate": "Each Empire Phase, Extort 1000 from each non-allied player with a lower Cunning value.",
         "mastery": "Your Vote counts as 2 votes toward Domain selection during the Council Phase.",
         "efficient": "Court Artists",
         "builds_into": [],
@@ -1500,6 +1516,15 @@ NODES = {
         "mastery_req": "University + Academy",
         "innate": "+1 **Influence** per **Established** Standing",
         "mastery": "May gain one **Sovereign Domain** effect without spending the Domain Points",
+        "builds_into": [],
+        "monument": True},
+    "Outlaw Rookery": {
+        "type": "Monument",
+        "unlock": "Sovereign Cunning",
+        "mastery_req": "Smuggler's Nook + Toxicarium + Courier Network",
+        "innate": "Both Bandit Camps & you gain Influence +1 when performing Cunning actions.",
+        "mastery": "Endorsed Foster Rebellion places Bandit Camps with 25 retinues instead of 10.",
+        "efficient": "Smuggler's Nook",
         "builds_into": [],
         "monument": True},
     "Advanced Blast Furnace": {
@@ -1533,6 +1558,7 @@ NODES = {
         "monument": True,
         "escalation": {"standing": "Sovereign Cunning", "ranks": {1: "See enemy Tactic before choosing"}, "requires_all": ["Toxicarium"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Caravanery", "Cipher Chamber"], "domain": {"Cunning": 10}, "innate_tags": ["Outrider: once"], "mastery_tags": ["Outrider: every"], "mastery_req": ["Caravanery", "Cipher Chamber"]}}
+    
 }
 
 def get_data(mode="renown"):
@@ -2056,7 +2082,7 @@ DOMAIN_BOARD = {
     },
     "Piety": {
         "Rising":      "Divine Mandate: Faith +1 each Empire Phase.",
-        "Established": "One True Gospel: Each Empire Phase, all other players with a lower Piety value gain Doubt +2.",
+        "Established": "One True Gospel: Each Empire Phase, all other non-allied players with a lower Piety value gain Doubt +2.",
         "Sovereign":   "Pillar of Faith: If your Public Order would go below 3, set it to 3. May use the Crusade action.",
     },
     # Influence scaling by standing (Untested/Rising/Established/Sovereign):
@@ -2428,7 +2454,7 @@ BANDIT_BEHAVIOR = {
     "Cunning Roll":  "If 10+ retinues in camp, roll a d3 each turn: 1 = Intercept Caravan, 2 = Raze, 3 = Destabilize.",
     "Treasury":      "Bandit camps keep Extorted gold in their treasury and pay no costs or upkeep. Destroying a camp/army Extorts its treasury.",
     "Army Behavior": "After bandit mechanics, a Bandit Army performs a Move: Skirmish (player army in range) > Lay Siege (player settlement in range) > March (toward closest army/settlement). Host breaks range ties.",
-    "Attacking":     "Move to end adjacent to a camp; another player rolls bandit tactics (d6, 7 = Fall Back) and resolves to-hit/save as a Battle. Bandits never Fall Back but may Flee. Extort the camp's gold if destroyed.",
+    "Attacking":     "Move to end adjacent to a camp; another player rolls bandit tactics (d6, 7 = Fall Back) and resolves to-strike/save as a Battle. Bandits never Fall Back but may Flee. Extort the camp's gold if destroyed.",
 }
 
 # ── UPKEEP — THREE SEPARATE TRACKS ────────────────────────────────────────────

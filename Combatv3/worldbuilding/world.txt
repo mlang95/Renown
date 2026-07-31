@@ -1,0 +1,1469 @@
+================================================================================
+                               RENOWN — THE WORLD                               
+================================================================================
+
+CONTENTS
+
+     1.  THE PREMISE
+     2.  THE WORLD
+     3.  HOW PEOPLES FORM
+     4.  THE FIFTEEN
+     5.  THE RECKONING
+
+================================================================================
+                                1.  THE PREMISE                                 
+================================================================================
+
+  The world is sufficiently big that empires are always rising and falling.
+    Ruined empires are common, especially in Draggath. Most are forgotten — the
+    few still told survived because they became renowned. Renown is the win
+    condition of history itself: To be remembered is to have won, in a world
+    that forgets almost everyone. Most empires are forgotten. Make yours
+    renowned.
+
+  -- YOUR STORY GOES ANYWHERE IN IT --------------------------------------------
+
+  · WHERE ON THE MAP
+      Sets the neighbours, the terrain-mood, the hostilities available.
+
+  · WHERE IN THE ~4,600 YEARS
+      Sets which Age's conditions you play under — Fracture's chaos, Plenty's
+        cooperation, the Tetramorph's zealotry, Doubt's paranoia, Renown's cold
+        tension.
+
+  · WHICH CULTURE YOU ALIGN
+      Sets your values, your enemies, your whole relationship to the board.
+
+
+
+================================================================================
+                                 2.  THE WORLD                                  
+================================================================================
+
+  Vaelohk — the centre island, and the name the world took from it.
+
+  -- THE FOUR CORNERS ----------------------------------------------------------
+
+  · INDUSTRY
+      Nw — Blighthold (castle in mountains), Scarlet Forest.
+
+  · PROWESS
+      Ne — Draggath Wastes (tundra), Bleak Highlands, Glen of Pravak,
+        Drakenheart, Sea of Drakes.
+
+  · CUNNING
+      Sw — Dreadwood, Marrow Shoals.
+
+  · PIETY
+      S/se — Lenaveron and the Lost Woods.
+
+  -- THE SEA -------------------------------------------------------------------
+
+    One sea, and no name for the whole of it. Each shore names the water it can
+      see, and the ring is wide enough that they are all describing something
+      different.
+
+  · The Lonely Sea
+      A vast open sea of doldrums.
+
+  · The Sea of Drakes
+      Tumultuous. Mythology holds that flying drakes destroy ships to protect
+        it. Borders the Prowess corner.
+
+  · The Sea of Miracles
+      Where miracles are said to have happened.
+
+  · The Sea of Damnation
+      Fraught with Drakteni and sarkazekt — where the damned are sent to meet
+        their deserved fate. The name is honest by accident: What is actually
+        out there is a conquest fleet and mercenary free companies of unknown
+        allegiance. Whether the damnation is theological or just Drakteni
+        siege-ships depends on who you ask.
+
+  -- PLACES BELONGING TO NOBODY ------------------------------------------------
+
+  · Sea of Ash
+      A sea completely contaminated by Ash. Crossable, but it yields nothing —
+        no fish, no drinking water. You carry everything across it or you do not
+        arrive. Some say it is the ash of the old gods.
+
+
+================================================================================
+                              3.  HOW PEOPLES FORM                              
+================================================================================
+
+  Four domains define every culture, every value, and every quarrel in the
+    world. Nothing that follows parses without them.
+
+  -- PROWESS -------------------------------------------------------------------
+  Value:           Glory
+  Organization:    Warband
+  Government:      Kratocracy
+  Sacred:          War itself (deified) — combat is their god, glory-or-death is
+                   the sacrament
+  Economy:         Plunder, tribute
+  Identity:        You are who you serve
+  Taboo:           Retreat / cowardice
+  Defined against: The weak
+  Self-image:      The brave
+
+  -- CUNNING -------------------------------------------------------------------
+  Value:           Guile
+  Organization:    Brotherhood (a.k.a. Syndicate)
+  Government:      Aristocracy
+  Sacred:          The game / process itself — addicted to the play; sabotage,
+                   theft, deception, blackmail are the sacraments. The False
+                   Prophet is a weaponized tool, not worshipped
+  Economy:         Extraction, racket, theft
+  Identity:        You are what you've done (concealed)
+  Taboo:           Trust / being known
+  Defined against: The honest
+  Self-image:      The clever
+
+  -- INDUSTRY ------------------------------------------------------------------
+  Value:           Legacy
+  Organization:    Craft
+  Government:      Democracy
+  Sacred:          The work / building / order (Peace) deified, or atheist
+  Economy:         Production, craft, trade
+  Identity:        You are your inheritance
+  Taboo:           Waste / idleness
+  Defined against: The wasteful
+  Self-image:      The builders
+
+  -- PIETY ---------------------------------------------------------------------
+  Value:           Devotion
+  Organization:    Order
+  Government:      Ecclesiocracy (papacy)
+  Sacred:          The Tetramorph
+  Economy:         Tithe, alms
+  Identity:        You give the self up
+  Taboo:           Naming the self / pride
+  Defined against: The faithless
+  Self-image:      The saved
+
+
+  -- THE AGE OF DARKNESS -------------------------------------------------------
+    Before the count. No firm reckoning survives; the True Word records only
+      that it was
+
+    The old gods brought four peoples into the four corners of the world.
+
+  · TRUSTEKI
+      Formed as farmers worshipping the old deity Trusti, in the old continent
+        of the ancient Coloured Mountains.
+
+  · DRAGGATH
+      Formed as warriors under the Draggath Monarchy — eager expansionists
+        following the monarch's commands, believing the monarch to be the ear
+        and warrior-prophet of the old god Cailen.
+
+  · ISSETH
+      Far south-west. Nomadic and sparse, incapable of trusting one another and
+        rejecting the old god that brought them together, Clypso. Built
+        underground cities against an inhospitable land, and used the network to
+        travel in secret — finding and controlling natural chokepoints such as
+        the Crag Pass (narrow paths, labyrinths, slot canyons).
+
+  · LENAVORITES
+      South-east. Worshipped the old gods fervently, forming a tradition of bare
+        sustenance and the appeasement of the deities of old.
+
+  -- AND IN TIME ---------------------------------------------------------------
+
+  · TRUSTEKI
+      Grew beyond subsistence farming, passing knowledge down as oral tradition
+        through family lines. A peaceful people who traded fairly and easily to
+        raise everyone's quality of life — which let them learn advanced
+        technique quickly: Animal husbandry, the ship, baggage carts for long
+        travel. This brought them to Crag Pass, and taught them the dangers of
+        the south.
+
+  · DRAGGATH
+      At its zenith. The land itself named for Draggath — a land of plenty, easy
+        to farm, much time spent training for war in coliseums, training
+        grounds, and grand tournaments. The largest empire in the known world,
+        barred only by natural obstacle: The southern Lost Woods and the Sea of
+        Drakes (named for the folklore of it destroying ships that tried to
+        cross).
+
+  · ISSETH
+      Some, seeing the bounty taken in ambushes on Trusteki caravans, believed
+        life could be improved — and ventured north through the Marrow Shoals
+        and Crag Pass to learn a new way of life.
+
+  · LENAVORITES
+      After hundreds of generations of pious worship in the Great Basilicas of
+        their time — and generations of poverty, starvation, and
+        self-mortification — seeds of doubt formed. The old gods' names faded
+        into quietude. They migrated north and west from the frozen tundra and
+        named the land after themselves: Lenaveron — the first written record in
+        the world. The old gods were forgotten in the desolate tundra;
+        graveyards and basilicas left to crumble.
+
+    Those crumbling basilicas become the Tombs of the Old Gods. The old gods
+      died of abandonment — the divinity rule demonstrated in the world's own
+      prehistory, by the very people who would later invent the papacy.
+
+
+  -- THE INDUSTRY DIASPORA -----------------------------------------------------
+
+  · Madekites
+      Trusteki north to Fair Whitewood 'seeking religion' -> met Piety.
+
+  · Drakteni
+      Trusteki east by ship to Heathport, plentiful mines -> met Prowess.
+
+  · Prezish
+      Trusteki south to Marrow Shoals, meeting fleeing Isseth -> met Cunning.
+
+  · SECOND-ORDER CONTACT
+      The triples form from second-generation contact — diaspora cultures
+        meeting each other. The Ossensteins are the type case: The original and
+        most successful Trusteki families turned to trade, met the Shassolin and
+        the Prezish, and formed a secret network.
+
+  -- THE FOUR THAT FORMED ANOTHER WAY ------------------------------------------
+
+  · Belvarath
+      Refugee pact. Draggaths fleeing the Fracture met zealous Lenavorites
+        fleeing the Tombs of the Old Gods. The Draggaths agreed to teach martial
+        prowess if the Lenavorites taught them their god — the god of wrath.
+
+  · Shassolin
+      Stranded clergy. Frontier church administrators and missionaries,
+        abandoned when the alministralum's edges broke off. Not infiltrators —
+        repurposed.
+
+  · Cailendroffs
+      Exile. Driven out during the Great Fracture, never possessing the means to
+        return. No Industry = no way home.
+
+  · Vorghith
+      Shipwreck and imprisonment. Shipwrecked and imprisoned pirates and bandits
+        (Isseth stock) stranded in Kragh territory. With no fleet and no numbers
+        they cut supply lines instead — crippling the Kraghs so profusely they
+        were never given an opportunity to fight back. After Vogen's Gallows the
+        Kraghs recoiled inland, surrendering the best prison-turned-fortress and
+        island bay on the continent. The prisoners inherited the prison.
+
+  -- AND THE CENTRE ------------------------------------------------------------
+
+  · Astravantheliad
+      Settlement by the most diverse. Not conquest, not diaspora, not a pact —
+        they came as a collective, from all different walks of life, and settled
+        the centre.
+
+  · Families Embrace All Culture
+      The melting pot is additive, not erasive. A family that arrived Kragh does
+        not stop being Kragh-descended and does not stay merely Kragh — it takes
+        on the rest. This is why every citizen carries all four domains at a
+        baseline: Not curriculum, household inheritance. They have all four
+        because their families hold all four.
+
+  · When
+      No founding event. They accreted during and after all the other migrations
+        — the most diverse kept arriving across the Ages of Plenty, the
+        Tetramorph, and Doubt. The dukedom is the young thing, not the people:
+        They created the office ~4516 to give themselves a voice as natural
+        arbiters, and that act opens the Age of Renown.
+
+  · The Two Ladders
+      Renown gets a family to the centre; expertise gets a person near the Duke.
+        Two separate ascents — admission and proximity — which is why the
+        technocratic senate is a meritocracy rather than a court of birth.
+
+  · Why The Objections Sting
+      Many Astravantheliad are kin to the cultures that dismiss them. A Kragh
+        refusing a refinement on his stance is refusing a Kragh-descended
+        theorist. The charge underneath is not 'what would you know' but 'you
+        left.'.
+
+  · The Delegates
+      Every culture has kin at the centre, which is why the Astravantheliad are
+        the primary delegates in every envoy. The one who meets the Kraghs may
+        be Kragh-blooded — an advantage and an insult at once.
+
+  -- THE KRAGH WOUND -----------------------------------------------------------
+
+    The Kraghs did not lose the bay to force — they lost it to suspicion. Kragh
+      social technology assumes allegiance is visible (a warband is a banner,
+      worn loudly). Cunning conceals by definition. Against an enemy that does
+      not announce itself they had no instrument and no test. Was the citizen a
+      traitor? The warden? Some of the jailers must have been — but how could a
+      Kragh tell? Withdrawing inland was the only move: Retreat to where you
+      know everyone, because that is the only place your way of life still
+      functions. Same engine as the Inquisition — an invisible internal enemy
+      that can never be cleared. Prowess solved it by leaving; Piety could not
+      leave, so it ate itself for fifty generations. And some who walked out may
+      not have been theirs. There is no way to know.
+
+
+================================================================================
+                                4.  THE FIFTEEN                                 
+================================================================================
+
+  Four heartlands, six pairs, four polymaths, and the centre. Read them in order
+    — each group assumes the one before it.
+
+################################################################################
+#                             THE FOUR HEARTLANDS                              #
+################################################################################
+
+================================================================================
+LENAVORITES
+Pure  |  Piety  |  Lenaveron
+================================================================================
+
+A collection of different orders of varying styles of worship and devotion — one
+per greater deity: Melvanar (Wrath, self-flagellation), Lorenthal (Peace,
+missionary work), Anumaranth (Balance, administration, the Papal Palace — the
+Order of the True Word), Ollanenor (Saints, orthodoxy of power, the
+Inquisitorial Palace — the Inquisition). The ultimate administrators, record
+keepers, with an unhealthy dose of self-flagellation.
+
+--------------------------------------------------------------------------------
+Government:      Ecclesiocracy (papacy)
+Authority:       Divine mandate
+Sacred:          The Tetramorph
+Organization:    Order
+Economy:         Tithe, alms
+Kinship:         The Order
+Identity:        You give the self up
+Succession:      Chosen vessel
+Change:          Past (tradition)
+War doctrine:    Zealot, crusade
+Taboo:           Naming the self / pride
+Defined against: The faithless
+Naming:          St. [name] the [Order-adj]
+Monuments:       Papal Palace, Inquisitorial Palace
+--------------------------------------------------------------------------------
+
+PLACES
+  · Lenaveron
+      Named by the Lenavorites after themselves when they migrated north and
+        west out of the frozen tundra — the first written record in the world.
+        Papacy heartland; seat of the Papal Palace (Anumaranth) and the
+        Inquisitorial Palace (Ollanenor).
+
+  · Tombs of the Old Gods
+      The frozen south-eastern tundra the Lenavorites abandoned. Site of the
+        Great Basilica — an old-wonder of the vanished high civilization. The
+        graveyards and basilicas were left to crumble and the old gods
+        forgotten: Abandoned institutions, not dead beings. The Madekites chase
+        the lost technology of the Basilica still.
+
+NOTES
+  Internal conflict: Low, and doctrinal. Mostly cooperative — like Catholics vs
+    other Christians: Real debate on smaller issues, general agreement, everyone
+    rowing in the same direction. No one refuses to administrate or perform
+    their role; the machine runs. The disagreements are over characterisation
+    and priority within the Tetramorph — which face to weight, how a given god
+    should be understood. Not schism: Inflection. And these debates are the seed
+    vocabulary of every future schism — a characterisation dispute held quietly
+    inside orthodoxy for centuries is the fault line a real break eventually
+    cracks along. The Belvarath are one that already left: They did not reject
+    the church, they over-weighted wrath until they were a distinct order. The
+    internal debate is the schism that has not happened yet.
+
+
+================================================================================
+KRAGHS
+Pure  |  Prowess  |  Draggath Wastes / Bleak Highlands
+================================================================================
+
+Glory-or-death warband culture of the fractured wastes. Once the Great Monarchy
+that held the whole continent; the Great Fracture shattered it into perpetually
+warring city-states and warbands. Now nomadic warbands + some static
+city-states, perpetually training for inevitable conflict.
+
+--------------------------------------------------------------------------------
+Government:      Kratocracy
+Authority:       Force / victory
+Sacred:          War itself (deified) — combat is their god, glory-or-death is
+                   the sacrament
+Organization:    Warband
+Economy:         Plunder, tribute
+Kinship:         The band (allegiance)
+Identity:        You are who you serve
+Succession:      Strongest takes
+Change:          Present (glory-now)
+War doctrine:    Open force / shock and tactical (maneuver, discipline)
+Taboo:           Retreat / cowardice
+Defined against: The weak
+Naming:          [name] of the [Warband]
+Monuments:       Royal Pavilion, Ministry of Military Strategy
+--------------------------------------------------------------------------------
+
+PLACES
+  · Draggath Wastes
+      Once the Great Monarchy that held the whole continent; the Great Fracture
+        shattered it into warring city-states. Named for the final monarch — and
+        for the empire, the dynasty, and the land, all synonymous. Fertile once:
+        Endless war (salted earth, deforestation) made it badlands, and the
+        ruins are the former bounty. Recursive scarcity — the more they fought
+        over the lessening fertile land, the less there was.
+
+  · Bleak Highlands
+      Pastoralists, living as historical Highlanders did — herding clans under a
+        chief they swear fealty to. The northern limit of Vorghith expansion:
+        Vogen, their general, drove up to here in 1136 and no further. Also a
+        Sarkopekt free-company node. When the Pincer was organised it was
+        Highland clans who enlisted in the Mason-King's mercenary company in
+        exchange for his services — paying in fealty-service rather than coin,
+        which is how their oaths already work.
+
+  · Glen of Pravak
+      Named for the warband of Pravak — the most well-trained Kragh warband of
+        the early Fracture, which held the last remaining glen of tillable land
+        for centuries. Their strong internal pact disallowed Vorghith
+        infiltration: The one known counter to the problem that would later cost
+        the Kraghs the bay, solved in one glen and never generalised. Their dual
+        concentration on athleticism and strategy, plus intimate knowledge of
+        the ground, let them posture every battle in the glen into their favour.
+        Pravak is long gone, but his attention to positional strategy and
+        tactics reshaped how the Kraghs train.
+
+  · Cravencroft
+      The Kraghs hold that giants here destroy the weak and the outcast. A
+        threat aimed at their own: Giants that eat the weak is the story a
+        glory-or-death culture tells to keep weakness from taking root. Nobody
+        volunteers to test it.
+
+RIVALS
+  Vorghith — Supply lines, and the impossibility of telling friend from enemy.
+  Drakteni — Hermit's Row — the Drakteni hold a settlement in the narrows; the
+    Kraghs try to stave off the invasion.
+
+NOTES
+  Warbands: Since Pravak, Kragh warbands sit on a spectrum from individual skill
+    to positional strategy. A warband's place on it is advertised — a recruiting
+    pitch to unpledged young men choosing where to make their mark. The
+    strategy-end warbands train almost purely in military strategy over personal
+    prowess. Battlefield cunning is honoured; the knife in the dark is beneath
+    them.
+
+  Event - The Pincer of Dead Waters — 2910 (provisional): Every northern assault
+    on the Wheat Fields had broken on the Lost Woods treeline. A Prowess warlord
+    took the minimum slice of Industry to raise a single disposable shipyard on
+    the then-unnamed northern bay. Double-move: The main host drove south from
+    the north (the expected assault, drawing defenders to the treeline) while
+    the shipyard-born flotilla landed on their flank/rear from the water. The
+    most successful assault on the Lost Woods to date. The bay was named Dead
+    Waters for what came out of it. 'Most successful assault' is the attacker's
+    framing; the Lost Woods crusaders name the day a massacre / a drowning. The
+    highlanders, who agreed to join the Mason-king's mercenary company in
+    exchange for his services. Payment in men, not coin — Karalius came out of
+    the deal with a fleet and an army. The warlord did not have a stroke of
+    genius; he had a budget. Every prior assault on the Wheat Fields broke on
+    the treeline because nobody was willing to pay Karalius' number. The one who
+    finally was, won. The only defeat ever recorded of the drevghen. They gave
+    ground in the Wheat Fields for the first time that day — on ground that is
+    never paved because it is hallowed. For an order whose taboo is retreat and
+    doubt, this is not a battle loss but a theological event: The standard
+    failed the test, and every warlord ever turned back there learned it could
+    be done. Worse, the tactic mirrored them — a two-pronged attack against an
+    order whose entire discipline is holding two halves in balance. 156 years
+    later the alministralum's edges began to break.
+
+  Event - Vogen — 1136 (provisional): A Vorghith general. He led a warband to
+    control everything up to the Bleak Highlands — the northern limit of their
+    expansion — and went no further. Assassinating his opponents by public
+    execution. Vogen's Gallows is named for the method, and the site has carried
+    his name for some three thousand years since. Public execution is not
+    battlefield glory: A Kragh kills you in open combat for honour, and Vogen
+    hangs you in the square so that everyone watches.
+
+
+================================================================================
+ISSETH
+Pure  |  Cunning  |  Dreadwood + Marrow Shoals
+================================================================================
+
+An anarchic aristocracy comprised of brotherhoods and guilds that form criminal
+empires. A pirate/bandit haven — far more anarchy than anywhere else; no central
+authority, but a rigid internal hierarchy of the feared and successful. The game
+with no rules imposed on it.
+
+--------------------------------------------------------------------------------
+Government:      Aristocracy
+Authority:       Blood / leverage
+Sacred:          The game / process itself — addicted to the play; sabotage,
+                   theft, deception, blackmail are the sacraments. The False
+                   Prophet is a weaponized tool, not worshipped
+Organization:    Brotherhood (a.k.a. Syndicate)
+Economy:         Extraction, racket, theft
+Kinship:         The brotherhood (hidden kin)
+Identity:        You are what you've done (concealed)
+Succession:      Blood / intrigue
+Change:          Opportunistic (cyclical)
+War doctrine:    Ambush, asymmetric, sabotage
+Taboo:           Trust / being known
+Defined against: The honest
+Naming:          [name] [earned byname]
+Monuments:       Outlaw Rookery, Thieves' Guild, Outrider Intercept Post,
+                   Aristocratic Court
+--------------------------------------------------------------------------------
+
+PLACES
+  · Dreadwood
+      Isseth heartland. An anarchic aristocracy of brotherhoods and guilds
+        forming criminal empires — no central authority, but a rigid internal
+        hierarchy of the feared and successful.
+
+  · Crag Pass
+      A natural chokepoint of narrow paths, labyrinths, and slot canyons, found
+        and controlled by the shassith from their underground network — reached
+        in secret, held without garrison. Where Trusteki caravans learned the
+        dangers of the south, and the route by which Isseth who wanted another
+        life ventured north.
+
+NOTES
+  Trade: Primary supplier of illegally sourced fenced goods to the Prezish, who
+    take them to market. Unscrupulous and conniving, willing to step over
+    anyone, moving stolen and illicit goods from Heathport to the Wharf of St.
+    Brannoch.
+
+
+================================================================================
+TRUSTEKI
+Pure  |  Industry  |  Blighthold
+================================================================================
+
+A democratic republic where occupation is passed down as intellectual property
+each generation as tradecraft. Generally cooperative, but the virtue is
+progress. The senate is chosen by most-aligned short- and long-term interests.
+All forms of occupation, all focused on mastery. Forged by surviving the Blight:
+They learned to repair the land rather than fight it, and that patient
+accumulated technique became their culture. 'Blighthold' is named for what it
+endured — and doubles as reverse-marketing (Greenland/Iceland) to keep people
+from coming.
+
+--------------------------------------------------------------------------------
+Government:      Democracy
+Authority:       Consent / competence
+Sacred:          The work / building / order (Peace) deified, or atheist
+Organization:    Craft
+Economy:         Production, craft, trade
+Kinship:         The bloodline (inheritance)
+Identity:        You are your inheritance
+Succession:      Vote / merit
+Change:          Future (progress)
+War doctrine:    Tech, logistics, siege
+Taboo:           Waste / idleness
+Defined against: The wasteful
+Naming:          [name] [craft-surname] [numeral]
+Monuments:       Manor House, Office of Works
+--------------------------------------------------------------------------------
+
+PLACES
+  · Blighthold
+      Castle in the mountains. The heath where the Trusteki grew crops through
+        the Blight using ancient trade secrets, working together to survive the
+        diseased land. Named for what it endured — and it doubles as
+        reverse-marketing to keep people from coming. Received the migration
+        from the Coloured Mountains at the opening of the Age of Plenty.
+
+  · Scarlet Forest
+      The soil south of Blighthold turned blood red after the Blight, and
+        Scarlet trees grew from it — a verdant swelling, trees reaching the size
+        of the old wood of Fair Whitewood within a single generation. Produces
+        the best wood in the world. The most damaged land became the most
+        valuable, and they would never fight the earth again.
+
+  · Coloured Mountains
+      The ancient continent where the Trusteki first formed as farmers
+        worshipping the old deity Trusti. Their migration to Blighthold opens
+        the Age of Plenty.
+
+NOTES
+  Trade role: The primary traders and suppliers of the world. This is what keeps
+    them functioning with no martial might and relatively stable: They are
+    indispensable. You do not raid the people who supply you. Their safety is
+    economic, not military — wealthy and powerful while focused on the craft,
+    outputting to whoever is willing to purchase. They are the honest base layer
+    every other trade culture acts upon: The Prezish corner it, the Voldrastel
+    guard it, the Vorghith strangle it, the Isseth fence through it, the
+    Sarkopekt sell arms alongside it.
+
+  Internal conflict: Almost none. Families producing and competing in the same
+    craft are judged by the market, not by each other — competition is
+    externalised onto an impartial arbiter, so there is no advantage to seize by
+    scheming. The familial trade and craft dynasties are so old that the market
+    is legible: Everyone understands what it needs, families step in to fill the
+    gaps, and it is all respected by other Trusteki. No Cunning here. The
+    structural anti-shassith: Both lack a central authority, but Cunning turns
+    that into predation and Industry turns it into a guild. It is also why the
+    Ossensteins had to leave — you cannot be a puppetmaster among people who
+    will not play the game.
+
+
+
+################################################################################
+#                                THE SIX PAIRS                                 #
+################################################################################
+
+================================================================================
+BELVARATH
+Pair  |  Piety x Prowess  |  Lost Woods
+================================================================================
+
+The Lost Woods crusader order, serving Melvanar (Wrath). Prowess-weighted —
+warriors first, faith second: The militant killing edge that sounds more soldier
+than saint (the horror). Both protector (against the northern barbarians) and
+slaughterer (of its own pilgrims). Overtly, suspiciously devout — devotion
+curdled.
+
+ORIGIN
+  Refugee pact. Draggaths fleeing the Fracture met zealous Lenavorites fleeing
+    the Tombs of the Old Gods. The Draggaths agreed to teach martial prowess if
+    the Lenavorites taught them their god — the god of wrath.
+
+--------------------------------------------------------------------------------
+Government:      Militant ecclesiocracy — a warrior-church / theocratic military
+                   order
+Authority:       Divine mandate proven by force
+Sacred:          Melvanar (Wrath), served through the sword — faith as holy
+                   violence. They worshipped wrath before Melvanar had a written
+                   name
+Organization:    Militant Order / warrior-monks
+Economy:         Tithe + plunder (spoils of the crusade)
+Kinship:         The Militant Order of the Knight's Templar
+Identity:        You give the self up to the war for God
+Succession:      Chosen by output in battle
+Change:          Past/tradition — the sacred woods must never change
+War doctrine:    Zealot-crusade + tactical defense of the treeline
+Taboo:           Retreat and doubt (cowardice = faithlessness)
+Defined against: The faithless-and-the-barbarian (the northern Kraghs are both)
+Naming:          St. [name] the [Order] — martial saint-names
+Monuments:       Preceptory of the Knight's Templar
+--------------------------------------------------------------------------------
+
+PLACES
+  · Lost Woods
+      Sacred to the crusader order. Pilgrims come to 'meet the God of Gods' —
+        and the Belvarath cut them down; the meeting is death. Theologically
+        correct from inside: Seeking Esselantheum directly is the blasphemy, and
+        Melvanar's doctrine spreads by the reduction of false gods. Everyone
+        sincere, nobody lying. The only land left untouched by the Great
+        Fracture.
+
+  · Wheat Fields
+      Not a border — a proving ground. The strongest warbands and warlords come
+        here on purpose to test themselves against the Belvarath, known as the
+        best warriors in the world; some believe they truly are their god's
+        wrath made manifest. A frontier under conquest-pressure would fall or
+        expand; a proving ground stays exactly where it is forever, because both
+        sides want it to. Never paved: Hallowed ground, where the world comes to
+        be measured. Men reaped like wheat.
+
+NOTES
+  Event - The Pincer of Dead Waters — 2910 (provisional): Every northern assault
+    on the Wheat Fields had broken on the Lost Woods treeline. A Prowess warlord
+    took the minimum slice of Industry to raise a single disposable shipyard on
+    the then-unnamed northern bay. Double-move: The main host drove south from
+    the north (the expected assault, drawing defenders to the treeline) while
+    the shipyard-born flotilla landed on their flank/rear from the water. The
+    most successful assault on the Lost Woods to date. The bay was named Dead
+    Waters for what came out of it. 'Most successful assault' is the attacker's
+    framing; the Lost Woods crusaders name the day a massacre / a drowning. The
+    highlanders, who agreed to join the Mason-king's mercenary company in
+    exchange for his services. Payment in men, not coin — Karalius came out of
+    the deal with a fleet and an army. The warlord did not have a stroke of
+    genius; he had a budget. Every prior assault on the Wheat Fields broke on
+    the treeline because nobody was willing to pay Karalius' number. The one who
+    finally was, won. The only defeat ever recorded of the drevghen. They gave
+    ground in the Wheat Fields for the first time that day — on ground that is
+    never paved because it is hallowed. For an order whose taboo is retreat and
+    doubt, this is not a battle loss but a theological event: The standard
+    failed the test, and every warlord ever turned back there learned it could
+    be done. Worse, the tactic mirrored them — a two-pronged attack against an
+    order whose entire discipline is holding two halves in balance. 156 years
+    later the alministralum's edges began to break.
+
+
+================================================================================
+VORGHITH
+Pair  |  Prowess x Cunning  |  Vogen's Gallows (enclave)
+================================================================================
+
+Guerrilla & economic-warfare warbands. They don't win pitched battles; they
+bleed enemies — ambush, supply-line raids, trade sabotage, economic
+strangulation. Will spend an entire campaign evading a fight while raiding and
+pillaging, winning by refusing to be pinned. Vogen = famous general who
+conquered up to the Bleak Highlands; signature = public executions (hence
+Vogen's Gallows).
+
+ORIGIN
+  Shipwreck and imprisonment. Shipwrecked and imprisoned pirates and bandits
+    (Isseth stock) stranded in Kragh territory. With no fleet and no numbers
+    they cut supply lines instead — crippling the Kraghs so profusely they were
+    never given an opportunity to fight back. After Vogen's Gallows the Kraghs
+    recoiled inland, surrendering the best prison-turned-fortress and island bay
+    on the continent. The prisoners inherited the prison.
+
+--------------------------------------------------------------------------------
+Government:      Warlord dictatorship by fear & reputation
+Authority:       Force applied through terror — rule by strangulation
+Sacred:          Chaos and Disruption, not glory
+Organization:    Warband run like a Syndicate
+Economy:         Plunder + extraction/racket — economic warfare is the economy
+Kinship:         The band + hidden cells
+Identity:        You are what you've done — your raids, your kills
+Succession:      Strongest takes or out-schemes
+Change:          Opportunistic
+War doctrine:    Guerrilla, ambush, attrition, economic strangulation; evade
+                   decisive battle
+Taboo:           Fighting head-on (evasion is doctrine, not cowardice — inverts
+                   Prowess retreat-taboo)
+Defined against: The weak and the honest
+Naming:          [name] of the [Warband] or earned byname — Vogen's people carry
+                   grim bynames
+Monuments:       Outrider Intercept Post, Royal Pavilion
+--------------------------------------------------------------------------------
+
+PLACES
+  · Vogen's Gallows
+      Named for Vogen, the Vorghith general whose signature was assassinating
+        opponents by public execution. The best prison-turned-fortress and
+        island bay on the continent — abandoned by the Kraghs when they could no
+        longer tell who among them was Vorghith, and inherited by the prisoners.
+        Public execution is psychological and economic warfare, not battlefield
+        glory: A Kragh kills you in open combat for honour, Vogen hangs you in
+        the square so everyone watches.
+
+RIVALS
+  Kraghs — Supply lines, and the impossibility of telling friend from enemy.
+
+NOTES
+  Event - Vogen — 1136 (provisional): A Vorghith general. He led a warband to
+    control everything up to the Bleak Highlands — the northern limit of their
+    expansion — and went no further. Assassinating his opponents by public
+    execution. Vogen's Gallows is named for the method, and the site has carried
+    his name for some three thousand years since. Public execution is not
+    battlefield glory: A Kragh kills you in open combat for honour, and Vogen
+    hangs you in the square so that everyone watches.
+
+
+================================================================================
+DRAKTENI
+Pair  |  Prowess x Industry  |  Heathport / Drakenheart
+================================================================================
+
+The youngest of cultures. They combine craft to make firepower and use it to
+expand beyond their continent — constantly building and funding new campaigns to
+make their mark. Their craft is conquest. Siegemasters and
+professionally-equipped fighters.
+
+ORIGIN
+  Trusteki east by ship to Heathport, plentiful mines -> met Prowess.
+
+--------------------------------------------------------------------------------
+Government:      Martial republic / a professional officer-state
+Authority:       Competence + force — command earned by skill and rank
+Sacred:          War + the work — the engineered victory
+Organization:    Craft-warband (a professional standing army with an engineering
+                   corps)
+Economy:         Production + tribute — they build the war machine and take by
+                   it
+Kinship:         Regiments served through bloodline
+Identity:        You are your training and your record
+Succession:      Merit/rank — promotion through the professional hierarchy
+Change:          Future/progress in the art of war — better siege, better arms
+War doctrine:    Tech, logistics, siege — the best-equipped, disciplined siege
+                   specialists
+Taboo:           Unpreparedness + cowardice — an ill-supplied or broken line is
+                   shameful
+Defined against: The wasteful and the the amateurish, the unequipped
+Naming:          [name] [craft-surname] [numeral] — surnames of war-trades
+                   (Gunner, Sapper)
+Monuments:       Advanced Blast Furnace, Ministry of Military Strategy
+--------------------------------------------------------------------------------
+
+PLACES
+  · Heathport
+      A natural port with plentiful mines, found by Trusteki who built ships and
+        fled east after the Blight — where they met Prowess and became the
+        Drakteni. Now one end of the Isseth-to-Prezish illicit route (Heathport
+        to the Wharf of St. Brannoch).
+
+  · Drakenheart
+      Drakteni seat. Their craft is conquest: Firepower built to expand beyond
+        the continent, campaigns constantly funded and refunded. It is also the
+        smallest landmass for the size of the culture on it — the engine of
+        everything they do. They colonise to make room for themselves as an
+        empire.
+
+  · Hermit's Row
+      A narrow pair of mountain ranges. The Drakteni hold a position and
+        settlement here; the Kraghs hold the narrows against them.
+
+RIVALS
+  Madekites — What building is for — conquest vs devotion.
+  Kraghs — Hermit's Row — the Drakteni hold a settlement in the narrows; the
+    Kraghs try to stave off the invasion.
+
+
+================================================================================
+PREZISH
+Pair  |  Cunning x Industry  |  Bay of Pigs / Marrow Shoals
+================================================================================
+
+The pirates, smugglers, brokers, money-lenders and profiteers of the world. They
+profit from deception, threat of force, sabotage, and blackmail. Also the
+greatest trade organization to ever exist — an opec-like cartel/guild-syndicate
+that controls markets, sets prices, and corners supply.
+
+ORIGIN
+  Trusteki south to Marrow Shoals, meeting fleeing Isseth -> met Cunning.
+
+--------------------------------------------------------------------------------
+Government:      Oligarchic cartel — a guild-syndicate board
+Authority:       Leverage + competence — you rule by controlling supply
+Sacred:          The work + the game — the deal itself
+Organization:    Syndicate-Guild (a trade cartel)
+Economy:         Production + racket — market manipulation, cornering supply,
+                   price-setting
+Kinship:         Merchant bloodlines bound into a syndicate
+Identity:        You are your inheritance and your leverage from it
+Succession:      Inherit a seat but must earn it — how much do you enrich the
+                   syndicate
+Change:          Future/opportunistic — whatever moves markets
+War doctrine:    Sabotage + logistics — economic weapons, embargo, bought force
+Taboo:           Waste + being cut out of the deal
+Defined against: The wasteful and the honest
+Naming:          [name] [craft-surname] [numeral] — the 'craft' is trade;
+                   merchant dynasties
+Monuments:       Aristocratic Court, Thieves' Guild
+--------------------------------------------------------------------------------
+
+PLACES
+  · Bay of Pigs
+      A weaponized false exonym. The dismissive name was given by outsiders, and
+        the locals keep it deliberately — a bay named for filth attracts no
+        attention and lowers a merchant's guard. Prezish seat: Pirates,
+        smugglers, brokers, money-lenders and profiteers. The name is the first
+        move of the con.
+
+  · Marrow Shoals
+      Shared water — shassith and sixteni both. Where Trusteki venturing south
+        met the Isseth coming north, forming the Prezish.
+
+RIVALS
+  Voldrastel — The trade routes — predator vs protector.
+
+
+================================================================================
+SHASSOLIN
+Pair  |  Cunning x Piety  |  Shallow Mire / Quiet Hollow
+================================================================================
+
+The puppets and paupers of the Ossensteins. They are their own puppetmasters —
+manipulating the desperate and destitute, seeking converts, bringing in tithe
+and labor to fund and maintain the collective's lifestyle. They believe they are
+the puppetmasters over the poor and are unaware of the Ossensteins' influence
+over them. Settlements that refuse the missionary work of the Order of the Last
+Prophet find curses and bad luck: Poisoned wells, rot on crops, livestock
+slaughtered, plagues.
+
+ORIGIN
+  Stranded clergy. Frontier church administrators and missionaries, abandoned
+    when the alministralum's edges broke off. Not infiltrators — repurposed.
+
+--------------------------------------------------------------------------------
+Government:      A missionary hierarchy fronting as a church
+Authority:       Divine mandate (claimed) + leverage (real)
+Sacred:          The False Prophet — publicly the God of Gods, privately the
+                   wealth generated from it
+Organization:    Missionary order that is really a syndicate cell
+Economy:         Tithe + extraction — fleece the faithful
+Kinship:         The order over hidden brotherhood (CxPxI)
+Identity:        You give the self up to convince others to join
+Succession:      Chosen vessel (claimed) / intrigue (real)
+Change:          Tradition as cover — the con relies on looking ancient
+War doctrine:    Martyrdom + sabotage — poorly armed converts + quiet coercion
+Taboo:           Being exposed as false (fusion of 'being known' + 'pride/self')
+Defined against: The honest and (privately) the truly faithful they prey on
+Naming:          St. [name] the [Order] as the public face
+Monuments:       Senate Hall, Inquisitorial Palace
+--------------------------------------------------------------------------------
+
+PLACES
+  · Shallow Mire / Quiet Hollow
+      Swampy wetland at the end of the Strait of Sorrow. Shassolin territory —
+        administrators and missionaries of the false religion, stranded frontier
+        clergy abandoned and repurposed.
+
+  · Strait of Sorrow
+      Named by the Lenavorites who built simple rafts and fled west after the
+        Fracture — many and most fell ill on the journey and died, only to find
+        a worse swampy wetland to settle, inhabited by bandits and conmen of the
+        immoral kind.
+
+NOTES
+  See also: Section 9 — the Order of the Last Prophet, the machine they run and
+    are run by.
+
+
+================================================================================
+MADEKITES
+Pair  |  Piety x Industry  |  Fair Whitewood
+================================================================================
+
+Believe in the pain & sacrifice of building — labor as devotion, suffering as
+worship. Hard tundra rich with quarries. Strive to raise the grandest cathedrals
+to recreate the lost technology of the Great Basilica (the vanished Piety
+high-civilization's wonder). Sacred masons chasing a lost golden age.
+
+ORIGIN
+  Trusteki north to Fair Whitewood 'seeking religion' -> met Piety.
+
+--------------------------------------------------------------------------------
+Government:      A builders' ecclesiocracy — a guild of sacred masons under the
+                   church
+Authority:       Divine mandate + competence — the master-builder is holy
+Sacred:          The God of Gods + the work — building as worship, suffering as
+                   devotion
+Organization:    Sacred Craft-Order (mason-monks)
+Economy:         Tithe + production — cathedral-building funded by faith and
+                   labor
+Kinship:         The order + the bloodline of craft (technique passed down
+                   within the faith)
+Identity:        You give the self up to the Work and you use your inheritance
+                   to further it
+Succession:      Chosen vessel via merit — the anointed master mason
+Change:          Past — recover the Lost technology of the Great Basilica
+War doctrine:    Defensive/siege engineering — fortress-cathedrals
+Taboo:           Waste + pride (a flawed or vain structure is sin)
+Defined against: The wasteful and the faithless
+Naming:          St. [name] the [Craft-Order] [numeral]
+Monuments:       Office of Works, Papal Palace
+--------------------------------------------------------------------------------
+
+PLACES
+  · Fair Whitewood
+      Wintery forested mountain pass. Settled by Trusteki who moved north
+        'seeking religion' and became the Madekites — hard tundra rich with
+        quarries, where the pain and sacrifice of building is devotion. Their
+        fortress-cathedrals exist because the expansionist Drakteni will not
+        stop coming.
+
+RIVALS
+  Drakteni — What building is for — conquest vs devotion.
+
+
+
+################################################################################
+#                              THE FOUR POLYMATHS                              #
+################################################################################
+
+================================================================================
+CAILENDROFFS
+Triple  |  Piety x Prowess x Cunning  |  Cailendroff Isles / Wharf of St.
+  Brannoch
+================================================================================
+
+Believers that their warband is led by the last remaining bloodline of the last
+monarch of the Draggath Empire, and that the Draggath Wastes must be united
+under one banner — his. Exiled during the Great Fracture, they have never had
+the means to return, the harder now with Sarkopekt free companies patrolling the
+Sea of Damnation, never knowing who they work for. They are unsure even of the
+Voldrastel, who are rumoured to hold the Cailendroff Edict blasphemy to both
+gods and men. So they use piety and cunning to generate loyalists and recruits —
+growing the warband's size, skill base, and economic standing toward a final
+crusade to reunite the Kraghs under their true king, the Draggath dynasty.
+
+ORIGIN
+  Exile. Driven out during the Great Fracture, never possessing the means to
+    return. No Industry = no way home.
+
+--------------------------------------------------------------------------------
+Government:      Court-in-exile of a claimed monarch — sacred kingship
+Authority:       Bloodright (Prowess) + divine mandate (Piety) — both possibly
+                   fabricated (Cunning)
+Sacred:          The God of Gods — the pretender as divinely anointed; the war
+                   as crusade
+Organization:    A royalist warband-order around the prince
+Economy:         Tribute + tithe + covert financing by handlers
+Kinship:         The claimed royal bloodline + loyal band + the order
+Identity:        You serve the true king / you give the self up to the cause
+Succession:      Bloodright — the sacred royal line (the whole legitimacy
+                   question)
+Change:          Past — restoration; reverse the Great Fracture of Draggath
+War doctrine:    Crusade-reconquest + the schemers' plots
+Taboo:           Doubting the prince's legitimacy (retreat + heresy + exposure
+                   all in one)
+Defined against: The usurpers / all who deny the true anointed king
+Naming:          Royal names + war-bynames that have demonstrated your
+                   allegiance to the true crown; the prince is the only St.
+                   Name. 'the True King of Draggath over the water'
+Monuments:       Imperial Palace, Royal Pavilion
+--------------------------------------------------------------------------------
+
+PLACES
+  · Cailendroff Isles
+      Home of the exiled pretender's people, driven out during the Great
+        Fracture and never possessing the means to return — the harder now with
+        Sarkopekt free companies patrolling the Sea of Damnation under unknown
+        allegiance.
+
+  · Wharf of St. Brannoch
+      Named for a saint. A Sarkopekt free-company node and the far end of the
+        Isseth-Prezish illicit route from Heathport.
+
+
+================================================================================
+SARKOPEKT
+Triple  |  Cunning x Industry x Prowess  |  Free-company node network, no
+  homeland: NE Vaelohk, Ivory Isle, Bleak Highlands, Dead Waters, Wharf of St.
+  Brannoch, Bay of Lost Hope, Quiet Hollow, Cailendroff Isle.
+================================================================================
+
+Mercenary city-states and border princes. For-hire, for-profit arms dealers and
+mercenaries — merchant kings and warlords. Well-armed, well-trained, will use
+any tactic that gives an edge. The military-industrial-complex triple: Industry
+makes the arms, Cunning deals/schemes, Prowess fields them. They hold no
+homeland — a network of nodes threaded through others' territory, because a
+war-market culture must be wherever its customers are. They built or sold the
+shipyard behind the Pincer of Dead Waters — the warlord did not develop a
+capability, he bought one.
+
+--------------------------------------------------------------------------------
+Government:      Militarized corporate-oligarchy — an amoral war-industrial
+                   board
+Authority:       Force + leverage + competence — the best-armed and
+                   best-connected rule
+Sacred:          War + the work + the game — victory-at-any-cost, sold and waged
+Organization:    Arms-syndicate with a professional army
+Economy:         Arms production + racket + plunder — make weapons, sell them,
+                   use them
+Kinship:         Weaponsmith dynasties + syndicate
+Identity:        You are what you've built and how you've used it
+Succession:      Merit + intrigue + strength — the sharpest operator
+Change:          Future — every edge, every new weapon and tactic
+War doctrine:    Hyper-strategy, win-at-all-costs, any tactic for an edge;
+                   well-equipped
+Taboo:           Losing an edge / being outbid / being outgunned
+Defined against: The weak, the honest, and the wasteful (everyone soft or naive)
+Naming:          [earned combat byname] [arms-surname] [numeral]
+Monuments:       Outrider Intercept Post, Ministry of Military Strategy
+--------------------------------------------------------------------------------
+
+PLACES
+  · Ivory Isle
+      Known historically as the seat of Mason-King Karalius II — shipwright and
+        builder of masonry citadels, the expensive solution that always worked.
+        His wealth was recognised, not self-styled. Now a Sarkopekt node sitting
+        between the seat of power and the war-market.
+
+  · Dead Waters
+      Named for what came out of the shipyard raised on its then-unnamed shore.
+        The Pincer folded the Belvarath here — the only defeat ever recorded of
+        them.
+
+  · Bay of Lost Hope
+      A Sarkopekt free-company node.
+
+NOTES
+  Event - The Pincer of Dead Waters — 2910 (provisional): Every northern assault
+    on the Wheat Fields had broken on the Lost Woods treeline. A Prowess warlord
+    took the minimum slice of Industry to raise a single disposable shipyard on
+    the then-unnamed northern bay. Double-move: The main host drove south from
+    the north (the expected assault, drawing defenders to the treeline) while
+    the shipyard-born flotilla landed on their flank/rear from the water. The
+    most successful assault on the Lost Woods to date. The bay was named Dead
+    Waters for what came out of it. 'Most successful assault' is the attacker's
+    framing; the Lost Woods crusaders name the day a massacre / a drowning. The
+    highlanders, who agreed to join the Mason-king's mercenary company in
+    exchange for his services. Payment in men, not coin — Karalius came out of
+    the deal with a fleet and an army. The warlord did not have a stroke of
+    genius; he had a budget. Every prior assault on the Wheat Fields broke on
+    the treeline because nobody was willing to pay Karalius' number. The one who
+    finally was, won. The only defeat ever recorded of the drevghen. They gave
+    ground in the Wheat Fields for the first time that day — on ground that is
+    never paved because it is hallowed. For an order whose taboo is retreat and
+    doubt, this is not a battle loss but a theological event: The standard
+    failed the test, and every warlord ever turned back there learned it could
+    be done. Worse, the tactic mirrored them — a two-pronged attack against an
+    order whose entire discipline is holding two halves in balance. 156 years
+    later the alministralum's edges began to break.
+
+  Event - Mason-King Karalius II — 2910 (provisional): Sarkopekt. Famous
+    shipwright and builder of masonry citadels, seated at Ivory Isle. His wealth
+    is recognized — not self-styled, not contested; the title is acknowledged
+    because the money is undeniable. The expensive solution that always works.
+    You do not hire Karalius because he is clever; you hire him because you have
+    run out of cheaper options and you need the thing to actually happen. The
+    price is the price, and the wall stands, and the ship floats. Ii implies a
+    Karalius I — an anomaly in a culture whose succession is merit, intrigue,
+    and strength. Likely the Industry craft-lineage numeral worn as a crown: A
+    workshop convention repurposed as royal succession. He is not complicit; he
+    is infrastructure. Whatever you use him for is on you. The Voldrastel refuse
+    to deal with him on principle; the Prezish keep his terms on file.
+
+
+================================================================================
+OSSENSTEINS
+Triple  |  Cunning x Piety x Industry  |  Prophet's Landing
+================================================================================
+
+A very old, unknown faction — the oldest and wealthiest families, who pull the
+purse strings of most macroeconomic events. No one knows where they occupy, who
+they are, how wealthy they are, or how many are associated. Believed to own more
+than half the wealth of Vaelohk, the Dukedom included. Origin: The original and
+most successful Trusteki families, who turned to trade, met the Shassolin and
+the Prezish, and formed a secret network dedicated to world power without ever
+being known.
+
+--------------------------------------------------------------------------------
+Government:      A financier-cartel running a false church — puppet-master
+                   oligarchy
+Authority:       Money + leverage + claimed divine mandate
+Sacred:          The False Prophet — the industrialized con of the God of Gods
+Organization:    Syndicate that owns a manufactured religion
+Economy:         Industrialized extraction — the racket as a
+                   vertically-integrated enterprise
+Kinship:         Financier bloodlines + hidden syndicate + the front-order
+Identity:        You are invisible
+Succession:      Machiavellian intrigue — inherit control and retain power at
+                   all costs
+Change:          Opportunistic + progress — scale and optimize the con
+War doctrine:    Sabotage — hire and undermine, rarely fight openly
+Taboo:           Waste + exposure — an unprofitable or discovered scheme is
+                   failure
+Defined against: The honest, the wasteful, and the truly faithful
+Naming:          Hidden and mysterious faction, unknown
+Monuments:       Inquisitorial Palace, Office of Works, Aristocratic Court
+--------------------------------------------------------------------------------
+
+PLACES
+  · Prophet's Landing
+      A beautiful tropical archipelago — paradise as bait. Where the false god
+        manifested among the excommunicated (expelled for failing to recognise
+        the Tetramorph). The only place in the world where Esselantheum is
+        spoken aloud; saying it is the sales pitch.
+
+NOTES
+  See also: Section 9 — the Order of the Last Prophet, the machine they run and
+    are run by.
+
+
+================================================================================
+VOLDRASTEL
+Triple  |  Piety x Industry x Prowess  |  The Twelfth Reach (12 islands)
+================================================================================
+
+The moral authority and the direct antagonist of the sixteni. Heroes to others
+for guaranteeing safe passage and access to trade. A faithful, defensive,
+neutral-good arbiter of the trade routes — sincere all the way down (no Cunning
+= no con; the honest counterpart to the Cailendroff pretenders).
+Piety=principle, Industry=the routes, Prowess=defensive might.
+
+--------------------------------------------------------------------------------
+Government:      A council-republic of guardians under a code of moral faith
+Authority:       Divine mandate + competence + defensive force — trusted because
+                   principled
+Sacred:          The God of Gods + the work — faith and honest trade as duty
+Organization:    A defensive order-guild (faithful merchant-wardens)
+Economy:         Production + tithe + tolls — they keep the routes open and take
+                   a fair share
+Kinship:         The order + trade-bloodlines + the defensive regiment
+Identity:        You give the self up to the duty of keeping the routes fair
+Succession:      Merit + chosen vessel — the trusted, tested guardian
+Change:          Tradition + progress — steady stewardship, improving safety
+War doctrine:    Defensive — convoy escort, fortified waystations,
+                   siege-resistant
+Taboo:           Waste + betrayal of trust + cowardice (abandoning a convoy)
+Defined against: Raiders and cheats — those who prey on trade (esp. The
+                   Vorghith)
+Naming:          [name] [numeral] of the [order-fleet] — no saint's name as
+                   their humility doesn't allow themselves to be compared to
+                   saints
+Monuments:       Ministry of Military Strategy, Advanced Blast Furnace,
+                   Preceptory of the Knight's Templar
+--------------------------------------------------------------------------------
+
+PLACES
+  · The Twelfth Reach
+      Twelve islands. A diaspora zone receiving displaced Prowess x Industry
+        peoples, governed by the Voldrastel — neutral wardens of the trade
+        routes, safe passage and honest brokering for a toll and a broker's fee.
+
+RIVALS
+  Prezish — The trade routes — predator vs protector.
+
+NOTES
+  Role: Neutral defenders of the trade routes and seas — safe passage and honest
+    brokering as an intermediary, for a toll and a broker's fee. The stoic
+    wardens of the world's roads and sea routes: Powerful, and wielded for good.
+
+  Doctrine: The carry trade. Model: The Dutch Republic fused with 18th-century
+    Britain. From the Dutch — a merchant-republic governed by the trading class
+    itself, wealth from the entrepot (facilitating flow, not owning production),
+    financial instruments, defensive survival by being too costly to take and
+    too useful to destroy, and tolerance as commercial policy. From Britain —
+    balance-of-power doctrine, naval command of the routes, coalition-shifting
+    to prevent any hegemon, and a virtue that happens to be profitable. In a
+    world of fifteen cultures fighting over what they can hold, the Voldrastel
+    win by holding nothing and moving everything.
+
+  Strategy: Status-quo enforcers. They want the world's general balance
+    maintained, because the more control their antagonists gain, the less
+    footing and bargaining power they have. Their morality and their interest
+    point the same way — not hypocrisy, but the structure of a carry-trade
+    balancer: You genuinely believe in the open system because the open system
+    is what makes you rich. Four fronts: Out-manoeuvre the Drakteni (expansion
+    changes the board); interdict the sixteni (predators on the flow they
+    guarantee); relieve the Madekites when needed (same front as the Drakteni —
+    defend the victim to check the aggressor); shield the Trusteki (protect the
+    producer, protect the whole trade order).
+
+  Limits: Their reach is not infinite. They oppose all destabilisation in
+    principle but must triage. Ossensteins: Rarely even recognised — you cannot
+    oppose a hand you cannot see, and their invisibility is their immunity. (The
+    irony: The culture whose entire purpose is stopping board-owners is blind to
+    the faction that already won.) Cailendroffs: Currently self-contained — a
+    threat in potential, not in motion, so no expenditure is warranted yet; but
+    the Cailendroffs are actively recruiting toward a crusade, so the non-action
+    is provisional. False Prophet: A spiritual threat, headed off by the
+    Lenavorites — the church's front, not the wardens'. Implicit division of
+    labour: The Lenavorite administration polices belief, the Voldrastel police
+    the routes.
+
+  Pragmatism: They hold the Cailendroff Edict a fraud and would take the
+    pretender's success over his failure. A unified Draggath Wastes is an
+    objective good to a culture that thrives on trade and unification: Peace
+    ends the perpetual civil war, opens the northeast to routes, and creates one
+    negotiable partner instead of a thousand warbands. They are not rooting for
+    the Cailendroffs — they would settle for them. Legitimacy is the church's
+    concern; the Voldrastel care about the outcome. They would crown A liar to
+    close A wound.
+
+
+
+################################################################################
+#                                  THE CENTER                                  #
+################################################################################
+
+================================================================================
+ASTRAVANTHELIAD
+Center  |  Piety x Prowess x Cunning x Industry  |  Vaelohk (the center island)
+================================================================================
+
+A uniquely blended melting pot where all ideas can be explored and pursued
+fully, honestly, and tested rigorously. Every citizen carries all four domains
+at a baseline: Basic military training and athleticism (Prowess), familiarity
+with and recognition of the Tetramorph (Piety), adept craftsmanship and trade
+(Industry), and the capability to get themselves out of jams (Cunning). But
+their true character is hyper-intellectual: Perpetually studying, seeking the
+truth. Most are scribes, researchers, and academics aligned to an Academic Hall.
+Specialization contrast: The Trusteki master an industry; the Astravantheliad
+spend an entire lifetime solving A single small issue within the greater field
+of their niche Hall. Their sacred is influence/proximity to power — because
+their work is the most theoretical, and influence is the only mechanism by which
+an idea leaves the Hall and becomes real.
+
+ORIGIN
+  Settlement by the most diverse. Not conquest, not diaspora, not a pact — they
+    came as a collective, from all different walks of life, and settled the
+    centre.
+
+--------------------------------------------------------------------------------
+Government:      Technocracy — expertise is the currency of proximity; courtiers
+                   contest each other through information and expertise to climb
+                   toward the Duke
+Authority:       Access — whoever is nearest the throne; positional
+Sacred:          Influence / proximity to power through competitive proofs &
+                   application of expertise that result positively on the
+                   Astravantheliad
+Organization:    The court / courtiers, a hierarchy
+Economy:         Rents, patronage, brokerage — they produce nothing; they broker
+Kinship:         Alliance networks / who owes whom
+Identity:        You are your proximity to power
+Succession:      Positioning — outlast and outmaneuver at court
+Change:          Whatever preserves access — the ultimate pragmatists
+War doctrine:    None of their own — they deploy others using their logistical
+                   and strategic knowledge (incl. Populism as a tool)
+Taboo:           Irrelevance / distance from power / to be indebtted to another
+Defined against: The provincial (those with convictions but no access)
+Naming:          [Court-standing] [name] of [Academic Hall]; the
+                   hyper-intellectual demonym performs their vanity
+Monuments:       Studium Generale, Senate Hall, Aristocratic Court
+--------------------------------------------------------------------------------
+
+PLACES
+  · Vaelohk
+      The centre island, and the world's name. Grounded and educated: Home to
+        the Academic Halls, the technocratic senate, and the Duke. Place-names
+        here are plain common-tongue (The Duchy's Mouth, Bay of Renown).
+
+NOTES
+  Governance: An academically led technocracy focused on myopic, specific
+    problems, each citizen dedicating a whole life to one pursuit. Those with
+    the best outcomes and greatest products are voted into the technocratic
+    senate that takes court with the Duke, representing the most influential
+    members of Vaelohk.
+
+  Diplomacy: The primary delegates other cultures interact with during envoys
+    and diplomatic negotiation. Even when not participating, they are at the
+    center of influence. Knowledge is indeed power.
+
+  Internal Self Image: A rigorous, honest, meritocratic research culture. Every
+    citizen competent across all four domains. Lifetimes devoted to genuine
+    problems at extraordinary resolution. Knowledge as devotion; truth-seeking
+    as the highest calling. From inside: The Age of Renown is the age reason
+    finally governs.
+
+  External Reputation: Vain, hollow, produces nothing. Their work is the most
+    theoretical — from outside, a lifetime spent on something that never touches
+    the ground. The output is real, but it is abstraction, and abstraction is
+    invisible to everyone outside the Hall. From outside: The Age of Renown is
+    the age nobody does anything.
+
+  See also: Section 9 — the Duke, the fixed point they measure distance to.
+
+
+
+
+================================================================================
+                               5.  THE RECKONING                                
+================================================================================
+
+  Year 0 = The Great Fracture.
+  ~4570s–4580s. A generation or two into the Age of Renown.
+
+  -- YEAR 0 — THE GREAT FRACTURE -----------------------------------------------
+
+    The Draggath Empire suddenly collapsed. A great storm came, changing the
+      geography of the entire world over the course of several generations.
+      North-west: Disease and blight. South-west: A bountiful land — tall
+      forests, tropical islands teeming with plenty. South-east: Mire, a faint
+      reminder of the land of the old gods. North-east: Desolate wasteland,
+      crumbling the Empire's reach into civil war over the last dying flora and
+      fertile soil.
+
+    The only land that remained untouched was the Lost Woods, where a small sect
+      of Lenavorites migrated, never to return.
+
+    Year 0 is the storm's onset; the transformation took several generations.
+
+  -- THE FIVE AGES -------------------------------------------------------------
+
+    0-1352         Prowess    The Age of Fracture
+    1352-1942      Industry   The Age of Plenty
+    1942-3066      Piety      The Age of the Tetramorph
+    3066-4516      Cunning    The Age of Doubt
+    4516-present   Influence  The Age of Renown
+
+  -- THE CHRONICLE -------------------------------------------------------------
+
+  -- THE AGE OF FRACTURE -- 0-1352 ---------------------------------------------
+
+  · 0
+      The Great Fracture. Draggath falls.
+
+  · 0–~400
+      Geography transforms over several generations. Lenavorites build simple
+        rafts and flee west — naming the Strait of Sorrow, as many and most fell
+        ill on the journey and died, only to find a worse swampy wetland to
+        settle, inhabited by bandits and conmen of the immoral kind.
+      The Isseth leave their underground cities as the climate changes.
+
+  · 0–1352
+      The civil war — the primary motif of the timeline, but not the only thing
+        happening. Recursive scarcity: The more they fought over the lessening
+        fertile land, the less fertile land there was to fight over, and the
+        more they had to fight to claim it. Trusteki and Lenavorites migrate
+        throughout.
+      The Trusteki endure the Blight, using ancient trade secrets to grow crops
+        in the heath of what was soon dubbed Blighthold, working together to
+        survive the diseased land.
+
+  -- THE AGE OF PLENTY -- 1352-1942 --------------------------------------------
+
+  · 1352
+      From the proliferation of the Scarlet Forest, the migration to Blighthold
+        from the Coloured Mountains, and the general capacity to move at sea.
+      The soil south of Blighthold turns blood red; Scarlet trees grow from it.
+        A verdant swelling — trees reaching the size of the old wood of Fair
+        Whitewood within a single generation. The Trusteki's skill lets them
+        survive and repel the blight.
+
+  · 1352–1942
+      The migrations. Some Trusteki, not stalwart, move north seeking religion
+        in the wintery forested mountain pass of Fair Whitewood. Others build
+        ships and flee east, finding a natural port dubbed Heathport with
+        plentiful mines. Others venture south to the archipelago of the Marrow
+        Shoals, meeting the fleeing Isseth coming from the south, seeking
+        another way of life.
+      The utopia. Survival and cooperative spirit propel the Trusteki into a
+        great utopia — far from perfect. Wealth eventually outpaces meaning;
+        criminality and indulgence follow.
+
+  -- THE AGE OF THE TETRAMORPH -- 1942-3066 ------------------------------------
+
+  · 1942
+      Lenavorites are scattered in tiny abbeys, priories and monasteries,
+        forming many small orders. These begin combining into larger and larger
+        administrative bodies in the search of truth. Rises as a response to the
+        excess and over-indulgence of the Industrial utopia.
+
+  · 1942–2100
+      The unifying force. The four gods are recorded — Ollanenor, Anumaranth,
+        Melvanar, Lorenthal. The papacy begins at this moment. Mission work
+        starts as a collective movement.
+      The Inquisition appears — mostly idle and symbolic. As proof of the
+        absence of any other false gods, they do nothing.
+
+  · 2100–3066
+      Peak reach. Missions carry the faith to the furthest shores, and the
+        bureaucracy doubles, and doubles again.
+
+  -- THE AGE OF DOUBT -- 3066-4516 ---------------------------------------------
+
+  · 3066
+      Consolidating the small orders into one papacy required declaring who
+        stood outside it. Excommunications for failing to recognize the
+        Tetramorph — and the excommunicated go somewhere.
+      The false god manifests on Prophet's Landing, among the excommunicated. A
+        schism of distance as much as doctrine — out past where the papacy's
+        reach ended. By the time the center noticed, it was an institution.
+
+  · 3100–4516
+      The Inquisition seizes government. It began as a response to stifle the
+        False Prophet. The papacy is reduced to collection and administration —
+        Anumaranth's Order of the True Word still records everything and rules
+        nothing. The Inquisition rules. The religion turns gothic horror: A
+        timeline of hysteria and control.
+      The paranoia engine. The Inquisition keeps growing and preys on its own
+        people, ever more suspicious that the Lenavorites themselves are
+        converting to the False Prophet. The threat is unfalsifiable (conversion
+        is internal), so the work can never conclude. Suspicion → confession →
+        proof → more suspicion. Worse: Every purge exiles converts to Prophet's
+        Landing, manufacturing the thing it fears. Free recruitment for the
+        false church, funded by the orthodoxy's own fear.
+      The Ossensteins — little-known until now — fund and propel the False
+        Prophet's word, as a matter of profit and of control over their own
+        people. A cartel that invented a church to keep its workforce obedient.
+
+  · 3300–4516
+      The edges break off. The papacy's administration crumbles under its own
+        size — not completely, but the frontier shears away. Distant dioceses
+        stop answering. The Shassolin were not infiltrators: They were church
+        administrators and missionaries on the frontier when the connection to
+        the center failed — abandoned and repurposed. Criminals and
+        Machiavellians climb the cracks into aristocratic power. The papacy
+        knows and denies.
+      The reign of the puppetmasters. Raiders and piracy flourish in ungoverned
+        water. Chaos as decentralization, not apocalypse.
+
+  -- THE AGE OF RENOWN -- 4516-present -----------------------------------------
+
+  · 4516
+      The return to power. Stable tension after the dramatic ages — a perfect
+        balance of power and everyone's motivations within it. (The start date
+        is contested: The Astravantheliad argue it began earlier; the True Word
+        insists on the recorded year, and revising it would be blasphemy.).
+
+  · ~4570s–4580s
+      The present day. A generation or two into the Age.

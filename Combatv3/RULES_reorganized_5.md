@@ -520,7 +520,7 @@ End the Skirmish. The Battle ends if a side is wiped out, Routs (modified Morale
 
 3. If attacked while sieging — if you **fallback** or use **defensive formation**, the **siege** is broken and the **siege timer** is removed from play.
 
-4. **Settlement**s being besieged: cannot count **pursuits** for the purposes of **Craft X**; **armies** gain **blocked** except to **sally forth**; **timers** targeting the **settlement** do not increment; **industry actions** cannot target it. 
+4. **Settlements** being besieged: cannot count **pursuits** for the purposes of **Craft X**; **armies** gain **blocked** except to **sally forth**; **timers** targeting the **settlement** do not increment; **industry actions** cannot target it. 
 
 ### Resolving a Siege
 
@@ -533,7 +533,7 @@ When a Siege Timer reaches 0:
 3. If the besieging **player** wins or there is no eligible **army** or **garrison**:
 
 - **Capture:** **capture timer {{VAL:TIMERS.Capture Timer.default}}**. When **resolved**, the **settlement** is under your **control**: the **settlement** receive your **active infrastructure** effects, gain it’s **pursuits**, **tax income**, and **reach**.
-- **Sack:** **raze** all **pursuits**; **extort** **1000** per **settlement** **tier**; reduce **settlement** by **1 tier**. The **player** that **controls** the **settlement** removes all **pursuits** from one **settlement ward** of the **sacking player’s** choice, and removes the **settlement ward** from play. Set **sack timer {{VAL:TIMERS.Sack Timer.default}}** — may not **lay siege** until **resolved**. **Army** gains **blocked** and **strained** until the **sack timer** is **resolved**. 
+- **Sack:** **raze** all **pursuits**; **extort** **2500** per **settlement** **tier**; reduce **settlement** by **1 tier**. The **player** that **controls** the **settlement** removes all **pursuits** from one **settlement ward** of the **sacking player’s** choice, and removes the **settlement ward** from play. Set **sack timer {{VAL:TIMERS.Sack Timer.default}}** — may not **lay siege** until **resolved**. **Army** gains **blocked** and **strained** until the **sack timer** is **resolved**. 
 
 # Bandits
 
