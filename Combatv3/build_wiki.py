@@ -20,6 +20,50 @@ import renown_data as rd
 import wiki_markers as wm
 _VERSION = str(getattr(rd, "VERSION", ""))
 
+# ── world lore source: the hand-maintained world.txt book ─────────────────────
+# The Lore section renders whatever is currently in world.txt (parsed by
+# worldtxt.py), so editing world.txt updates the wiki. Path is overridable via
+# the WORLD_TXT env var; the section is simply omitted if the file is absent.
+import worldtxt as _wt
+WORLD_TXT = os.environ.get("WORLD_TXT", "world.txt")
+WORLD_SECTIONS = []   # [(title, body_lines), ...] in file order
+WORLD_CULTURES = []   # demonyms extracted from THE FIFTEEN
+if os.path.exists(WORLD_TXT):
+    try:
+        _wtext = open(WORLD_TXT, encoding="utf-8").read()
+        WORLD_SECTIONS = _wt.parse_sections(_wtext)
+        WORLD_CULTURES = _wt.extract_cultures(WORLD_SECTIONS)
+    except Exception as _e:
+        print(f"  [lore] world.txt present but failed to parse: {_e}")
+
+# Map each world.txt section title (matched loosely) to a wiki page + nav label,
+# in the book's reading order. Titles not listed here still render, appended in
+# file order onto the hub-following pages.
+_LORE_SECTION_MAP = [
+    ("PREMISE",  "lore.html",          "Overview"),
+    ("MAP",      "lore-map.html",      "The Map"),
+    ("FIFTEEN",  "lore-cultures.html", "The Fifteen"),
+    ("WORLD",    "lore-world.html",    "The World"),
+    ("TIMELINE", "lore-ages.html",     "The Timeline"),
+    ("DARKNESS", "lore-darkness.html", "Age of Darkness"),
+]
+def _lore_page_for(title):
+    up = title.upper()
+    for key, url, label in _LORE_SECTION_MAP:
+        if key in up:
+            return url, label
+    return None, None
+
+# Which Lore pages we'll emit, in reading order — decided up front from the
+# sections present, so nav() (built before the pages emit) and the emission
+# below stay in sync.
+LORE_NAV = []
+_seen_urls = set()
+for _title, _ in WORLD_SECTIONS:
+    _url, _label = _lore_page_for(_title)
+    if _url and _url not in _seen_urls:
+        LORE_NAV.append((_url, _label)); _seen_urls.add(_url)
+
 SRC = sys.argv[1] if len(sys.argv) > 1 else "RULES.md"
 OUTDIR = sys.argv[2] if len(sys.argv) > 2 else "wiki"
 os.makedirs(OUTDIR, exist_ok=True)
@@ -38,15 +82,17 @@ def tier_of(u):
         if t in (u or ""): return t
     return None
 
-# ── linkable terms: pursuits link to their TYPE page (anchored), glossary to glossary ──
+# ── linkable terms: pursuits link to their TYPE page (anchored) ──
+# Priority is first-write-wins (setdefault). Order matters: pursuits, factions,
+# domain-board, section aliases, reference and lore pages are all registered
+# BEFORE the glossary, so a term with a dedicated home links there and the
+# glossary stub only catches terms with no richer page.
 TERMS = {}
 for name, d in rd.NODES.items():
     TERMS[name] = (f"type-{slug(d.get('type','other'))}.html", slug(name))
-for term in rd.GLOSSARY:
-    TERMS.setdefault(term, ("glossary.html", slug(term)))
 FACTIONS = getattr(rd, "FACTIONS", {})
 for f in FACTIONS:
-    TERMS.setdefault(f, (f"faction-{slug(f)}.html", None))
+    TERMS.setdefault(f, ("factions.html", slug(f)))
 
 # Domain-standing effect names (e.g. "Grand Vizier", "Titan of Industry") -> domain board.
 # Each DOMAIN_BOARD cell reads "Name: description"; register the Name part.
@@ -61,25 +107,74 @@ for _dom, _tiers in getattr(rd, "DOMAIN_BOARD", {}).items():
             if _name and len(_name) > 2:
                 TERMS.setdefault(_name, ("domain-board-ref.html", None))
 
-TERM_LIST = sorted(TERMS, key=lambda t:-len(t))
-TERM_RE = re.compile(r"\b(" + "|".join(re.escape(t) for t in TERM_LIST) + r")\b", re.IGNORECASE)
-def autolink(text, current=None, current_anchor=None):
-    # case-insensitive resolution: matched text may differ in case from the TERMS key
-    lower_map = {t.lower(): t for t in TERMS}
+# Single-word game terms whose lowercase form is common English (e.g. "keep",
+# "strike", "save"). For these we require an EXACT-CASE match before linking, so
+# ordinary prose isn't peppered with false-positive links. Multiword and proper
+# terms are always matched case-insensitively.
+AMBIGUOUS_TERMS = {
+    "Strike","Save","Reach","Recover","Parry","Speed","Steady","Drilled","Nimble",
+    "Serrated","Strained","Focused","Damaged","Build","Move","Host","Support",
+    "Oppose","Hold","Rush","Charge","Keep","Cost","Library","Garrison","Standing",
+    "Deflect","Recoup","Sack","Sally","Convert","Capture","Cipher","Panic","Rout",
+}
+
+TERM_RE = None
+_LOWER_MAP = {}
+def _rebuild_terms():
+    """Rebuild the matcher + lowercase lookup from the current TERMS dict. Call
+    once after all term registration; cheap to call again if TERMS grows."""
+    global TERM_RE, _LOWER_MAP
+    term_list = sorted(TERMS, key=lambda t: -len(t))
+    TERM_RE = re.compile(r"\b(" + "|".join(re.escape(t) for t in term_list) + r")\b", re.IGNORECASE)
+    _LOWER_MAP = {t.lower(): t for t in TERMS}
+_rebuild_terms()
+
+_TAG_SPLIT = re.compile(r"(<[^>]+>)")
+def _link_text(text, current, current_anchor, seen):
     def repl(m):
         matched = m.group(1)
-        key = lower_map.get(matched.lower())
+        key = _LOWER_MAP.get(matched.lower())
         if key is None:
             return matched
+        # ambiguous common words: only link the exact-case (proper-noun) form
+        if key in AMBIGUOUS_TERMS and matched != key:
+            return matched
+        # first occurrence only (per autolink call → per page for prose, per cell
+        # for tables): don't re-link the same term again in this blob
+        if key in seen:
+            return matched
         url, anchor = TERMS[key]
-        # suppress only a true self-reference (same page AND same anchor, or
-        # same page with no anchor target) — otherwise allow same-page anchor jumps.
-        if url == current:
-            if anchor is None or anchor == current_anchor:
-                return matched
+        # suppress a true self-reference (same page + same/absent anchor);
+        # note the first *valid* link before we mark it seen
+        if url == current and (anchor is None or anchor == current_anchor):
+            return matched
+        seen.add(key)
         href = url + (f"#{anchor}" if anchor else "")
         return f'<a class="term" href="{href}">{matched}</a>'
     return TERM_RE.sub(repl, text)
+
+def autolink(text, current=None, current_anchor=None, seen=None):
+    """Tag-aware autolinker. Links glossary/pursuit/reference/lore terms, but never
+    inside an existing <a>, inside <code>, inside a heading, or inside tag
+    attributes — and only the first occurrence of each term per call."""
+    if seen is None:
+        seen = set()
+    out, skip, head = [], 0, 0
+    for tok in _TAG_SPLIT.split(text):
+        if tok.startswith("<") and tok.endswith(">"):
+            low = tok.lower(); m = re.match(r"</?([a-z0-9]+)", low)
+            name = m.group(1) if m else ""
+            close = low.startswith("</"); selfclose = low.endswith("/>")
+            if name in ("a", "code"):
+                if close: skip = max(0, skip - 1)
+                elif not selfclose: skip += 1
+            elif name in ("h1","h2","h3","h4","h5","h6"):
+                if close: head = max(0, head - 1)
+                elif not selfclose: head += 1
+            out.append(tok)
+        else:
+            out.append(tok if (skip or head or not tok) else _link_text(tok, current, current_anchor, seen))
+    return "".join(out)
 
 # ── markdown inline + block ──
 def md_inline(s):
@@ -198,9 +293,50 @@ for alias, section in _SECTION_ALIASES.items():
 TERMS.setdefault("Envoy Outcome",       ("envoy-outcomes-ref.html", None))
 TERMS.setdefault("Envoy Outcomes",      ("envoy-outcomes-ref.html", None))
 TERMS.setdefault("Domain Resolve Table", ("envoy-outcomes-ref.html", None))
-# rebuild the matcher now that TERMS grew
-TERM_LIST = sorted(TERMS, key=lambda t:-len(t))
-TERM_RE = re.compile(r"\b(" + "|".join(re.escape(t) for t in TERM_LIST) + r")\b", re.IGNORECASE)
+
+# ── register EVERY reference/lore term up front ───────────────────────────────
+# Historically these were registered as a side effect of generating each ref page,
+# which runs AFTER the rule/type pages — so the matcher was frozen before ~50 of
+# them existed and they never linked anywhere. Registering them here, before any
+# page is emitted, lets every page cross-link the full vocabulary.
+def _register_reference_terms():
+    reg = [
+        ("INFRASTRUCTURE", "infrastructure-ref.html"),
+        ("WONDERS",        "wonders-ref.html"),
+        ("ACTIONS",        "actions-ref.html"),
+        ("TREATIES",       "treaties-ref.html"),
+        ("EDICTS",         "edicts-ref.html"),
+        ("TERRAIN",        "terrain-ref.html"),
+        ("SETTLEMENTS",    "settlements-ref.html"),
+        ("RETINUES",       "equipment-ref.html"),
+        ("WEAPONS",        "equipment-ref.html"),
+        ("RANGED",         "equipment-ref.html"),
+        ("SHIELDS",        "equipment-ref.html"),
+        ("ARMORS",         "equipment-ref.html"),
+    ]
+    for attr, page_url in reg:
+        for n in getattr(rd, attr, {}) or {}:
+            if n and isinstance(n, str):
+                TERMS.setdefault(n, (page_url, None))
+    for kind in ("faith", "doubt"):
+        for n in getattr(rd, "PO_MODIFIERS", {}).get(kind, {}):
+            TERMS.setdefault(n, ("systems-ref.html", None))
+    for n in getattr(rd, "TIMERS", {}) or {}:
+        TERMS.setdefault(n, ("systems-ref.html", None))
+
+def _register_lore_terms():
+    # culture demonyms link to their entry on the Fifteen page
+    for name in WORLD_CULTURES:
+        TERMS.setdefault(name, ("lore-cultures.html", slug(name)))
+
+_register_reference_terms()
+_register_lore_terms()
+# Glossary LAST: it's the fallback home for any term without a richer page, so
+# stubs (e.g. "Siege") never shadow a dedicated rules/reference page.
+for term in rd.GLOSSARY:
+    TERMS.setdefault(term, ("glossary.html", slug(term)))
+# rebuild the matcher now that TERMS is complete
+_rebuild_terms()
 
 # ── nav ──
 def nav(current=""):
@@ -234,6 +370,10 @@ def nav(current=""):
                      ("Combat Pursuits","escalation-pursuits.html"),("Tactic Matrix","tactic-matrix-ref.html"),
                      ("Equipment","equipment-ref.html"),("Combat Keywords","keywords-ref.html")]:
         it.append(f"<a href='{uu}'{' class=active' if current==uu else ''}>{label}</a>")
+    if LORE_NAV:
+        it.append('<div class="navhead">Lore</div>')
+        for uu,label in LORE_NAV:
+            it.append(f"<a href='{uu}'{' class=active' if current==uu else ''}>{label}</a>")
     return "\n".join(it)
 
 def page(title,body,current=""):
@@ -419,8 +559,10 @@ if hasattr(rd, "ACTIONS"):
         for n,a in acts:
             req=a.get("requires","") or "\u2014"
             notes=a.get("notes",[])
-            note_html=("<br><span class='mut'>"+"; ".join(html.escape(x) for x in notes)+"</span>") if notes else ""
-            rows.append([n, a.get("cost","") or "\u2014", req, (a.get("effect","")+note_html), a.get("endorsed","") or "\u2014"])
+            eff=a.get("effect","")
+            if notes:
+                eff = eff + " \u2014 " + "; ".join(notes)
+            rows.append([n, a.get("cost","") or "\u2014", req, eff, a.get("endorsed","") or "\u2014"])
         body+=_grid(["Action","Cost","Requires","Effect (if passes)","Endorsed"], rows, u)
     open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Actions",body,u))
     for n,a in rd.ACTIONS.items():
@@ -647,18 +789,15 @@ if hasattr(rd,"ARMORS"):
 open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Equipment","".join(eq),u))
 search_index.append({"title":"Equipment","url":u,"text":"equipment retinues weapons ranged shields armor stats"})
 
-# Bandits / Timers / Influence Gain reference
+# Reference Tables — the catch-all for tables with no dedicated page of their own.
+# Bandits, Timers, Influence Gain and Bandit-growth all live on bandits-ref /
+# systems-ref, so they're linked here rather than duplicated.
 u="reference-tables.html"
-rt=["<h1>Reference Tables</h1>"]
-if hasattr(rd,"BANDITS"):
-    rt.append("<h2>Bandits</h2>")
-    rt.append(_grid(["Term","Rule"], [[k,v] for k,v in rd.BANDITS.items()], u))
-if hasattr(rd,"TIMERS"):
-    rt.append("<h2>Timers</h2>")
-    rt.append(_grid(["Timer","Where","Tracks"], [[k, v.get("where",""), v.get("tracks","")] for k,v in rd.TIMERS.items()], u))
-if hasattr(rd,"INFLUENCE_GAIN"):
-    rt.append("<h2>Influence Gain</h2>")
-    rt.append(_grid(["Source","Change","Notes"], [[k, v.get("change",""), v.get("notes","")] for k,v in rd.INFLUENCE_GAIN.items()], u))
+rt=["<h1>Reference Tables</h1>",
+    "<p class='mut'>Odds and ends that don't have a page of their own. "
+    "See also <a class='term' href='bandits-ref.html'>Bandits</a>, "
+    "<a class='term' href='systems-ref.html'>Timers, Influence &amp; PO</a>, and "
+    "<a class='term' href='economy-ref.html'>Economy</a>.</p>"]
 if hasattr(rd,"TRADE_RULES"):
     tr=rd.TRADE_RULES
     rt.append("<h2>Trade Rules</h2>")
@@ -672,13 +811,6 @@ if hasattr(rd,"BUILD_TIMERS"):
         else:
             bt_rows.append([k, v])
     rt.append(_grid(["Build","Turns"], bt_rows, u))
-if hasattr(rd,"BANDIT_GROWTH_PER_ERA"):
-    rt.append("<h2>Bandit Growth per Era</h2>")
-    rt.append(_grid(["Era","Retinues/Turn"], [[k,v] for k,v in rd.BANDIT_GROWTH_PER_ERA.items()], u))
-    if hasattr(rd,"BANDIT_EQUIPMENT_PER_ERA"):
-        rt.append("<h2>Bandit Armaments per Era</h2>")
-        rt.append(_grid(["Era","Armaments"], [[k,v] for k,v in rd.BANDIT_EQUIPMENT_PER_ERA.items()], u))
-    rt.append(_kv_table([("Camp starting size", getattr(rd,"BANDIT_CAMP_START","")),("Becomes Army at", getattr(rd,"BANDIT_ARMY_THRESHOLD",""))]))
 if hasattr(rd,"TIER_UNLOCK"):
     rt.append("<h2>Equipment Tier Ladder</h2><p>Each tier is unlocked by the named Industry node.</p>")
     rt.append(_grid(["Tier","Unlocked by"], [[t,(rd.TIER_UNLOCK.get(t) or "Starting")] for t in getattr(rd,"TIERS",list(rd.TIER_UNLOCK))], u))
@@ -687,7 +819,7 @@ if hasattr(rd,"STANDING_EFFECTS"):
     se_rows=[[dom, tier, eff] for (dom,tier),eff in rd.STANDING_EFFECTS.items()]
     rt.append(_grid(["Domain","Standing","Effect"], se_rows, u))
 open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Reference Tables","".join(rt),u))
-search_index.append({"title":"Reference Tables","url":u,"text":"bandits timers influence gain trade rules build timers tier unlock standing effects"})
+search_index.append({"title":"Reference Tables","url":u,"text":"trade rules build timers tier unlock standing effects"})
 
 # ── Tactic Matrix (7x7 interaction grid) ──
 if hasattr(rd,"TACTIC_MATRIX") and hasattr(rd,"TACTICS"):
@@ -836,7 +968,7 @@ for _n in getattr(rd, "TREATIES", {}):
 for _n in getattr(rd, "EDICTS", {}):
     CONTEXT_PAGE.setdefault(_n, ("edicts-ref.html", None))
 for _n in getattr(rd, "FACTIONS", {}):
-    CONTEXT_PAGE[_n] = (f"faction-{slug(_n)}.html", None)
+    CONTEXT_PAGE[_n] = ("factions.html", slug(_n))
 # hand-mapped concept -> reference page for common glossary nouns
 _CONCEPT_PAGE = {
     "Reach":"settlements-ref.html","Reach X":"settlements-ref.html",
@@ -875,6 +1007,64 @@ if FACTIONS:
         fi.append(f"<dt id='{slug(f)}'>{html.escape(f)}</dt><dd>{md_inline(str(desc))}</dd>")
     fi.append("</dl>")
     open(os.path.join(OUTDIR,"factions.html"),"w",encoding="utf-8").write(page("Factions","".join(fi),"factions.html"))
+
+# ════════════ LORE SECTION (rendered from world.txt via worldtxt.py) ════════════
+# Every section in world.txt becomes a linked wiki page, in the book's reading
+# order. Culture demonyms are cross-linked; "slop —>" draft markers are stripped
+# by the parser. Omitted entirely if world.txt isn't present.
+LORE_PAGES = []  # (url, title) in reading order, for nav + prev/next
+if WORLD_SECTIONS:
+    def _wl_esc(s):
+        # inline formatter for parsed lore text: escape, light **bold**/*em*,
+        # then autolink (fresh seen per field, so tables link per-cell)
+        return md_inline(str(s))
+    def _emit_lore(url, title, body_html, search_text):
+        # link the whole page body once (first-occurrence per page), suppressing
+        # self-references to this page
+        linked = autolink(body_html, url)
+        open(_os.path.join(OUTDIR, url), "w", encoding="utf-8").write(page(title, linked, url))
+        search_index.append({"title": title, "url": url, "text": search_text})
+
+    # group sections by their destination page (a page may take >1 section, though
+    # here it's 1:1) and render, preserving file order
+    _page_titles = {  # url -> <h1> heading for that page
+        "lore.html":          "The World of Vaelohk",
+        "lore-map.html":      "The Map",
+        "lore-cultures.html": "The Fifteen",
+        "lore-world.html":    "The World",
+        "lore-ages.html":     "The Timeline",
+        "lore-darkness.html": "The Age of Darkness",
+    }
+    _page_search = {
+        "lore.html":          "lore world vaelohk premise draggath fracture peoples",
+        "lore-map.html":      "map vaelohk sea corners regions places geography",
+        "lore-cultures.html": "cultures fifteen " + " ".join(WORLD_CULTURES),
+        "lore-world.html":    "world sea corners centre duke",
+        "lore-ages.html":     "timeline ages fracture plenty tetramorph doubt renown chronicle",
+        "lore-darkness.html": "age of darkness old gods foundings draggath trusti clypso cailen",
+    }
+    _page_body = {}   # url -> list of html fragments
+    _page_order = []  # urls in first-seen order
+    for _title, _body in WORLD_SECTIONS:
+        _url, _ = _lore_page_for(_title)
+        if not _url:
+            continue
+        if _url not in _page_body:
+            _page_body[_url] = []
+            _page_order.append(_url)
+            h1 = _page_titles.get(_url, _title.title())
+            _page_body[_url].append(f"<h1>{html.escape(h1)}</h1>")
+            # the Fifteen gets a count badge
+            if _url == "lore-cultures.html" and WORLD_CULTURES:
+                _page_body[_url][-1] = (f"<h1>The Fifteen "
+                                        f"<span class='count'>{len(WORLD_CULTURES)}</span></h1>")
+        _page_body[_url].append(_wt.render_section(_title, _body, esc=_wl_esc, slug=slug))
+
+    for _url in _page_order:
+        _emit_lore(_url, _page_titles.get(_url, _url), "".join(_page_body[_url]),
+                   _page_search.get(_url, "lore"))
+        LORE_PAGES.append((_url, _page_titles.get(_url, _url)))
+
 
 # ── CSS ──
 open(os.path.join(OUTDIR,"wiki.css"),"w",encoding="utf-8").write("""
@@ -928,6 +1118,19 @@ code{background:#efeee9;padding:1px 5px;border-radius:4px;font-size:.9em}
 .pn:hover{border-color:var(--accent);background:#faf7fe}
 .pn.next{margin-left:auto;text-align:right}
 .versionstamp{position:fixed;bottom:8px;right:12px;font-family:sans-serif;font-size:11px;color:var(--mut);opacity:.6;pointer-events:none}
+/* lore (world.txt) */
+h2.wl-group{margin-top:1.6em;text-transform:uppercase;letter-spacing:1px;font-size:15px;color:var(--accent);border-top:1px solid var(--line);padding-top:.8em}
+h3.wl-culture{margin-top:1.4em;font-size:22px;color:var(--ink)}
+.wl-type{font:12px sans-serif;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin:-.2em 0 .6em}
+h3.wl-sub{font-size:15px;color:#444;text-transform:uppercase;letter-spacing:.5px;margin:1.2em 0 .3em}
+h4.wl-label{font:11px sans-serif;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin:1em 0 .2em}
+dl.wl-defs{margin:.3em 0 1em}dl.wl-defs dt{font-weight:700;font-family:Georgia,serif;color:var(--ink);margin-top:.5em}
+dl.wl-defs dd{margin:.1em 0 0;color:#333}
+table.wl-attrs{max-width:640px;margin:.4em 0 1em}
+table.wl-table{max-width:560px}
+table.kv{border-collapse:collapse;width:100%;font:13.5px sans-serif;background:#fff;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+table.kv th{background:#f1efe9;text-align:left;padding:6px 10px;color:var(--mut);font-weight:700;white-space:nowrap;vertical-align:top;width:1%}
+table.kv td{padding:6px 10px;border-top:1px solid #efeee9;vertical-align:top}
 @media(max-width:760px){.wrap{flex-direction:column}nav{position:static;height:auto;flex:none;border-right:0;border-bottom:1px solid var(--line)}}
 """)
 
@@ -952,6 +1155,7 @@ order += [f"domain-{slug(d)}.html" for d in DOMAINS]
 order += [f"standing-{slug(t)}.html" for t in TIERS]
 order += ["paths.html", "glossary.html"]
 if FACTIONS: order.append("factions.html")
+order += [uu for uu, _ in LORE_NAV]
 order = [p for p in order if _os.path.exists(_os.path.join(OUTDIR, p))]
 
 titles = {}  # url -> display title (pull from <title> or <h1>)

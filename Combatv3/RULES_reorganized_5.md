@@ -247,6 +247,10 @@ The **Act of War** triggers on the **condemned** result regardless of which **Cu
 
 {{ACTIONS:Industry}}
 
+### Rule: Imperial Sovereignty
+
+Unless at War, **players** cannot **Oppose** **Industry envoys**.
+
 ## Diplomacy Actions
 
 {{ACTIONS:Diplomacy}}
