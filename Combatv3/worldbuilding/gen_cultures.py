@@ -26,11 +26,31 @@ from renown_worldlore import (
     CUNNING_NARRATION, FALSE_RELIGION_ENGINE, THE_DUKE, MACRO_FRAME,
     REPUTATION, PHONOLOGY, CORE_SPINE, LORE_SEQUENCE, OPEN_THREADS,
     DESIGN_ONLY, PLACE_OWNERS, PLACE_UNOWNED, PROSE, THREADS, OVERVIEW,
+    bearing, CULTURE_SEATS,
 )
 
 WIDTH = 80          # wrap column
 LABEL_W = 17        # width of the "Field:" label column in the facts list
 HANG = 2            # extra indent on wrapped continuation lines
+
+# Mark every reader-facing passage NOT authored by Gage. The only prose in the
+# document that is his is OVERVIEW; everything else is synthesised placeholder
+# and should be rewritten or cut before this goes to anyone.
+MARK_SLOP = True
+SLOP = "SLOP —> "
+
+# Passages Gage has written. These are never marked.
+AUTHORED = {"THE PREMISE"}
+
+# Sections the premise already introduces. No generated opener.
+NO_OPENER = {"THE FIFTEEN", "THE MAP", "THE TIMELINE", "THE AGE OF DARKNESS"}
+
+
+def sl(text):
+    """Prefix a placeholder passage."""
+    if not MARK_SLOP or not text:
+        return text
+    return SLOP + str(text).lstrip()
 
 # Audience switch. "reader" suppresses everything listed in DESIGN_ONLY;
 # "designer" emits the whole file. Set by main().
@@ -156,11 +176,13 @@ def wrap(text, indent=0, hang=0):
 def prose(key, indent=2):
     """A written opener. Paragraphs split on blank lines; no bullet indent."""
     body = PROSE.get(key, "")
+    mine = key not in AUTHORED
     if not body:
         return ""
     out = []
     for p in body.split("\n\n"):
         p = decaps(p.strip()) if not designing() else p.strip()
+        p = sl(p) if mine else p
         out.append(textwrap.fill(p, width=WIDTH,
                                  initial_indent=" " * indent,
                                  subsequent_indent=" " * indent,
@@ -233,38 +255,6 @@ def sec_premise():
     if "the_premise" in visible("MACRO_FRAME", MACRO_FRAME):
         L.append(para(MACRO_FRAME["the_premise"]))
         L.append("")
-    og = TIMELINE.get("old_gods_era", {})
-    if og:
-        L.append(rule(og.get("name", "THE AGE OF DARKNESS").upper(), og.get("dating", "")))
-        if og.get("premise"):
-            L.append("")
-            L.append(para(og["premise"], indent=4))
-        for people, text in og.get("the_four_foundings", {}).items():
-            L.append("")
-            L.append(bullet(people.upper(), text))
-        exp = og.get("the_slow_expansion", {})
-        if exp:
-            L.append("")
-            L.append(rule("AND IN TIME"))
-            for people, text in exp.items():
-                L.append("")
-                L.append(bullet(people.upper(), text))
-        if og.get("consequence"):
-            L.append("")
-            L.append(para(og["consequence"], indent=4))
-        L.append("")
-        L.append("")
-
-    zero = TIMELINE.get("year_zero", {})
-    if zero:
-        L.append(rule("YEAR 0 — " + zero.get("event", ""), ""))
-        for k in ("content", "untouched", "note"):
-            if zero.get(k):
-                L.append("")
-                L.append(para(zero[k], indent=4))
-        L.append("")
-        L.append("")
-
     L.append(rule("YOUR STORY GOES ANYWHERE IN IT"))
     for k, v in MACRO_FRAME["three_axes_of_agency"].items():
         L.append("")
@@ -336,16 +326,14 @@ def sec_how_to_read():
 
 # ================================================================ §4 THE WORLD
 
-def sec_world():
-    rl = MAP.get("regional_lore", {})
+def sec_map():
+    """Corners and sea — orientation, before anyone is introduced."""
     L = [para(MAP.get("world_name", ""))]
-
     L.append("")
     L.append(rule("THE FOUR CORNERS"))
     for dom, where in MAP.get("corners", {}).items():
         L.append("")
         L.append(bullet(dom.upper(), where))
-
     L.append("")
     L.append(rule("THE SEA"))
     L.append("")
@@ -353,7 +341,12 @@ def sec_world():
     for stretch, desc in MAP.get("sea_stretches", {}).items():
         L.append("")
         L.append(bullet(stretch, desc))
+    return "\n".join(L)
 
+
+def sec_land():
+    rl = MAP.get("regional_lore", {})
+    L = []
     loose = [p for p in PLACE_UNOWNED if p in rl
              and not str(rl[p]).strip().startswith("UNDEFINED")]
     if loose:
@@ -455,6 +448,25 @@ def sec_reckoning():
               if x in visible("TIMELINE", TIMELINE)]:
         if TIMELINE.get(k):
             L.append(para(TIMELINE[k], indent=2))
+    og = TIMELINE.get("old_gods_era", {})
+    if og:
+        L.append("")
+        L.append(rule(og.get("name", "THE AGE OF DARKNESS").upper(), og.get("dating", "")))
+        if og.get("premise"):
+            L.append("")
+            L.append(para(og["premise"], indent=4))
+        L.append("")
+
+    yz = TIMELINE.get("year_zero", {})
+    if yz:
+        L.append("")
+        L.append(rule("YEAR 0 — " + yz.get("event", ""), ""))
+        for k in ("content", "untouched", "note"):
+            if yz.get(k):
+                L.append("")
+                L.append(para(yz[k], indent=4))
+        L.append("")
+
     starts = TIMELINE.get("age_starts", {})
     names = AGES.get("names", {})
     order = list(starts)
@@ -509,6 +521,30 @@ def sec_reckoning():
 
 
 # ================================================================ §7 FORMATION
+
+def sec_darkness():
+    """Before the count: the four peoples, and how the other eleven came to be."""
+    L = []
+    og = TIMELINE.get("old_gods_era", {})
+    if og:
+        L.append(rule("THE FOUR FOUNDINGS"))
+        for people, text in og.get("the_four_foundings", {}).items():
+            L.append("")
+            L.append(bullet(people.upper(), text))
+        exp = og.get("the_slow_expansion", {})
+        if exp:
+            L.append("")
+            L.append(rule("AND IN TIME"))
+            for people, text in exp.items():
+                L.append("")
+                L.append(bullet(people.upper(), text))
+        if og.get("consequence"):
+            L.append("")
+            L.append(para(og["consequence"], indent=4))
+        L.append("")
+        L.append("")
+    return "\n".join(L) + sec_formation()
+
 
 def sec_formation():
     L = []
@@ -584,6 +620,10 @@ EXTRA_FIELDS = [
     ("limits",           "Limits"),
     ("pragmatism",       "Pragmatism"),
     ("warband_spectrum", "Warbands"),
+    ("the_antagonist",   "Their expansion"),
+    ("the_economy",      "Their economy"),
+    ("the_fund",         "The fund"),
+    ("the_army",         "Their army"),
     ("governance",       "Governance"),
     ("diplomatic_role",  "Diplomacy"),
 ]
@@ -711,13 +751,13 @@ def profile(name):
                 L.append("")
                 L.append(head)
                 for other, over in blk:
-                    L.append(para(f"{other} — {clean(over)}", indent=2))
+                    L.append(para(f"{other} — {sl(clean(over))}", indent=2))
         notes0 = get_notes(name)
         if notes0:
             L.append("")
             L.append("NOTES")
             for label, text in notes0:
-                L.append(para(f"{label}: {clean(text)}", indent=2))
+                L.append(para(f"{label}: {sl(clean(text))}", indent=2))
                 L.append("")
             L.pop()
         return "\n".join(L)
@@ -740,7 +780,7 @@ def profile(name):
     if origin:
         L.append("")
         L.append("ORIGIN")
-        L.append(para(origin, indent=2))
+        L.append(para(sl(origin), indent=2))
 
     axes = resolve_axes(name)
     if axes:
@@ -767,14 +807,14 @@ def profile(name):
         L.append("")
         L.append("RIVALS")
         for other, over in rivals:
-            L.append(para(f"{other} — {clean(over)}", indent=2))
+            L.append(para(f"{other} — {sl(clean(over))}", indent=2))
 
     notes = get_notes(name)
     if notes:
         L.append("")
         L.append("NOTES")
         for label, text in notes:
-            L.append(para(f"{label}: {clean(text)}", indent=2))
+            L.append(para(f"{label}: {sl(clean(text))}", indent=2))
             L.append("")
         L.pop()
     return "\n".join(L)
@@ -784,10 +824,6 @@ def sec_fifteen():
     L = []
     for title, members in THREADS:
         L.append(banner(title))
-        opener = prose(title, indent=0)
-        if opener:
-            L.append(opener)
-            L.append("")
         for name in members:
             if name in CULTURES:
                 L.append(profile(name))
@@ -888,17 +924,14 @@ def sec_appendix():
 # ================================================================ main
 
 # (title, builder, designer_only)
-def sec_overview():
-    """The world's shape, the four domains, and how peoples come to be."""
-    return sec_world() + "\n\n\n" + sec_formation()
-
-
 DOC_ALL = [
-    ("THE PREMISE",           sec_premise,   False),
+    ("THE PREMISE",           sec_premise,     False),
     ("HOW TO READ THIS",      sec_how_to_read, True),
-    ("THE OVERVIEW",          sec_overview,  False),
-    ("THE TIMELINE",          sec_reckoning, False),
-    ("THE FIFTEEN",           sec_fifteen,   False),
+    ("THE MAP",               sec_map,         False),
+    ("THE FIFTEEN",           sec_fifteen,     False),
+    ("THE WORLD",             sec_land,        False),
+    ("THE TIMELINE",          sec_reckoning,   False),
+    ("THE AGE OF DARKNESS",   sec_darkness,    False),
     ("THE GODS",              sec_gods,      True),
     ("WHAT RUNS THE PRESENT", sec_present,   True),
     ("APPENDIX",              sec_appendix,  True),
@@ -925,10 +958,11 @@ def main(path=None, audience="reader"):
     out = [contents()]
     for i, (title, fn) in enumerate(doc(), 1):
         out.append(title_bar(i, title))
-        opener = prose(title)
-        if opener:
-            out.append(opener)
-            out.append("")
+        if title not in NO_OPENER:
+            opener = prose(title)
+            if opener:
+                out.append(opener)
+                out.append("")
         out.append(fn())
         out.append("")
     with open(path, "w", encoding="utf-8") as f:
@@ -938,6 +972,35 @@ def main(path=None, audience="reader"):
           f"{lines} lines")
 
 
+def direction_guide():
+    """Every overview should orient itself against the culture the reader just
+    met — not against a place four entries back. Prints the correct anchor for
+    each, and flags any that reference something other than their predecessor."""
+    import re
+    pat = re.compile(r"\b(north-west|north-east|south-west|south-east|north|south|east|west)\b",
+                     re.I)
+    print("\n  ORIENT EACH OVERVIEW AGAINST THE ONE BEFORE IT")
+    prev = None
+    for title, members in THREADS:
+        print(f"    == {title}")
+        for name in members:
+            if prev is None:
+                print(f"       {name:<17} opens the document — absolute framing")
+            else:
+                want = bearing(prev, name)
+                seat = CULTURE_SEATS.get(prev, prev)
+                head = OVERVIEW.get(name, "")[:180]
+                names_pred = (prev.lower() in head.lower()
+                              or seat.split(" /")[0].lower() in head.lower())
+                said = [d.lower() for d in pat.findall(head)]
+                ok = names_pred and (not said or any(d in want for d in said))
+                flag = "" if ok else "   <-- rewrite"
+                print(f"       {name:<17} {want:<12} of {prev} ({seat}){flag}")
+            prev = name
+    print()
+
+
 if __name__ == "__main__":
     main(audience="reader")
     main(audience="designer")
+    direction_guide()

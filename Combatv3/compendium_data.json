@@ -1,5 +1,5 @@
 {
- "version": "0.4.9.7.1",
+ "version": "0.4.9.7.5",
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
@@ -1545,6 +1545,13 @@
      "If your Envoy would fail, it passes instead."
     ],
     [
+     "Artillery Park",
+     "Sovereign Prowess",
+     "Siege Camp + Master Workshop",
+     "**Efficient Siege Camp**; Siege Timers ignore Wooden & Stone Walls",
+     "Settlements you Siege cannot Sally Forth. Siege Timer -1."
+    ],
+    [
      "Ministry of Military Strategy",
      "Sovereign Prowess",
      "University + War College",
@@ -1733,8 +1740,8 @@
    [
     "Halberd",
     "Wrought",
-    "-3",
-    "+0",
+    "-2",
+    "+1",
     "2H, Unwieldy"
    ],
    [
@@ -1836,6 +1843,13 @@
     "-3",
     "+1",
     "Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One Shot"
+   ],
+   [
+    "Arqeubus",
+    "Crafted",
+    "-4",
+    "+2",
+    "2H, Steady, Unstoppable, Negate Shielded, Negate Riposte, Negate Tempered"
    ]
   ],
   "Shields": [
@@ -1913,7 +1927,7 @@
    "Dirt Roads",
    "0",
    "—",
-   "Can Trade; place Dirt Road Territories in Province; ignore Terrain Speed Modifiers",
+   "Can Trade; If you start a Move action within Province, gain Speed +1",
    "Primitive",
    "2",
    "None"
@@ -1930,7 +1944,7 @@
   [
    "Muster Field",
    "200",
-   "—",
+   "per Turn",
    "Can Muster",
    "Primitive",
    "2",
@@ -1939,8 +1953,8 @@
   [
    "Wooden Walls",
    "200",
-   "—",
-   "**Influence -1** to **Raze actions** targeting your **settlements**",
+   "per Turn",
+   "**Influence -1** to **Raze actions** targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**.",
    "Primitive",
    "2",
    "None"
@@ -1948,8 +1962,8 @@
   [
    "Stone Roads",
    "200",
-   "—",
-   "Ignore Terrain Speed Modifiers; if you start turn on Stone Road gain Speed +2; replaces Dirt Roads",
+   "per Turn",
+   "If you start a Move action within Province, gain Speed +2",
    "Developed",
    "3",
    "Dirt Roads"
@@ -1957,7 +1971,7 @@
   [
    "Town Hall",
    "200",
-   "—",
+   "per Turn",
    "+1 Influence per turn",
    "Developed",
    "3",
@@ -1975,7 +1989,7 @@
   [
    "Garrison",
    "300",
-   "—",
+   "per Turn",
    "Local Armies form (10/15/25/50 by Settlement size). All Garrisons share Equipment. Cannot be targeted; may Sally Forth.",
    "Developed",
    "3",
@@ -1983,17 +1997,17 @@
   ],
   [
    "Stone Walls",
-   "200",
-   "—",
-   "**Influence -1** to **Destabilize actions** targeting your **settlements**",
+   "300",
+   "per Turn",
+   "**Influence -1** to **Destabilize actions** targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**.",
    "Sophisticated",
    "4",
    "One Tier Developed + Wooden Walls"
   ],
   [
    "Keep",
-   "200",
-   "—",
+   "300",
+   "per Turn",
    "May Muster from Garrison in addition to normal Muster Limits. If so set Garrison to 0 and Muster Timer 1. Garrison returns to full when resolved.",
    "Sophisticated",
    "4",
@@ -2002,7 +2016,7 @@
   [
    "Cathedral",
    "300",
-   "—",
+   "per Turn",
    "Faith +2",
    "Sophisticated",
    "4",
@@ -2011,7 +2025,7 @@
   [
    "Library",
    "300",
-   "—",
+   "per Turn",
    "Influence +1 to Council Envoys",
    "Sophisticated",
    "4",

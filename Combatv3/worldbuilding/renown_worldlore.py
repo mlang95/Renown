@@ -179,7 +179,7 @@ GODS = {
         "domain": "WRATH",
         "nature": "The most archaic and gothic. Self-flagellation. Spreads its message through the "
                   "REDUCTION OF FALSE GODS.",
-        "adherents": "The Belvarath — self-flagellating knightly crusaders defending the Lost Woods as "
+        "adherents": "The Belvareth — self-flagellating knightly crusaders defending the Lost Woods as "
                      "hallowed ground. TO SEE THEM IS TO KNOW UNMITIGATED ZEALOUS FURY. Taken by "
                      "Prowess cultures if they are pious.",
     },
@@ -291,7 +291,7 @@ PIETY_STRUCTURE = {
                          "arose past where the papacy's reach ended, and by the time the center "
                          "noticed, it was an institution.",
     "militant_orders": "Warrior-orders (crusade/Templar) concentrate in Piety×Prowess (the "
-                       "Belvarath, serving Melvanar), NOT pure Piety. Pure Piety stays devotional, "
+                       "Belvareth, serving Melvanar), NOT pure Piety. Pure Piety stays devotional, "
                        "administrative, and penitential.",
     "the_denial": "The papacy KNOWS AND DENIES that its edges have broken off — like an empire "
                   "unable to acknowledge it no longer governs far distant shores. To admit the "
@@ -363,7 +363,7 @@ CULTURES = {
                     "warring city-states and warbands. Now nomadic warbands + some static city-states, "
                     "perpetually training for inevitable conflict.",
     },
-    "Isseth": {
+    "Ithiss": {
         "type": "pure",
         "domains": ["Cunning"],
         "region": "Dreadwood + Marrow Shoals",
@@ -390,7 +390,7 @@ CULTURES = {
     },
 
     # ---- Pairs ----
-    "Belvarath": {
+    "Belvareth": {
         "type": "pair",
         "domains": ["Piety", "Prowess"],
         "region": "Lost Woods",
@@ -551,7 +551,7 @@ ASTRAVANTHELIAD_PARADOX = {
                                "detached academic proving a refinement THE FAMILY HAS NOT FOUND ON "
                                "ITS OWN. If it was not earned through the lineage, it is not "
                                "legitimate.",
-        "Isseth (Cunning)": "Do not believe the Astravantheliad know anything about business — and "
+        "Ithiss (Cunning)": "Do not believe the Astravantheliad know anything about business — and "
                               "DESPISE their use of cunning for more than amoral purpose. Guile in "
                               "service of TRUTH is a category error; cunning is for advantage, not "
                               "for knowing.",
@@ -631,7 +631,7 @@ TIMELINE = {
             "Draggath": "Formed as WARRIORS under the Draggath Monarchy — eager expansionists "
                         "following the monarch's commands, believing the monarch to be the ear "
                         "and WARRIOR-PROPHET of the old god CAILEN.",
-            "Isseth":  "Far south-west. Nomadic and sparse, incapable of trusting one another "
+            "Ithiss":  "Far south-west. Nomadic and sparse, incapable of trusting one another "
                          "and REJECTING the old god that brought them together, CLYPSO. Built "
                          "UNDERGROUND CITIES against an inhospitable land, and used the network "
                          "to travel in secret — finding and controlling natural chokepoints such "
@@ -652,7 +652,7 @@ TIMELINE = {
                         "barred only by natural obstacle: the southern Lost Woods and the SEA OF "
                         "DRAKES (named for the folklore of it destroying ships that tried to "
                         "cross).",
-            "Isseth": "Some, seeing the bounty taken in ambushes on Trusteki caravans, believed "
+            "Ithiss": "Some, seeing the bounty taken in ambushes on Trusteki caravans, believed "
                         "life could be improved — and ventured north through the Marrow Shoals "
                         "and Crag Pass to learn a new way of life.",
             "Lenavorites": "After hundreds of generations of pious worship in the great basilicas "
@@ -693,7 +693,7 @@ TIMELINE = {
                   "journey and died, only to find a worse swampy wetland to settle, inhabited by "
                   "bandits and conmen of the immoral kind."},
         {"year": "0–~400", "age": "Prowess",
-         "event": "The Isseth leave their underground cities as the climate changes."},
+         "event": "The Ithiss leave their underground cities as the climate changes."},
         {"year": "0–1352", "age": "Prowess",
          "event": "THE CIVIL WAR  — the primary motif of the timeline, but "
                   "not the only thing happening. RECURSIVE SCARCITY: the more they fought over "
@@ -720,7 +720,7 @@ TIMELINE = {
                   "the wintery forested mountain pass of FAIR WHITEWOOD. Others build ships and "
                   "flee east, finding a natural port dubbed HEATHPORT with plentiful mines. "
                   "Others venture south to the archipelago of the MARROW SHOALS, meeting the "
-                  "fleeing Isseth coming from the south, seeking another way of life."},
+                  "fleeing Ithiss coming from the south, seeking another way of life."},
         {"year": "1352–1942", "age": "Industry",
          "event": "THE UTOPIA. Survival and cooperative spirit propel the Trusteki into a great "
                   "utopia — far from perfect. Wealth eventually outpaces meaning; criminality and "
@@ -806,7 +806,7 @@ TIMELINE = {
                              "fully synonymous. The oldest and most enduring single word in the "
                              "world's history and future. To claim Draggath's line is to claim "
                              "THE WORD ITSELF.",
-        "shassith_founding_refusal": "The Isseth's founding act was REJECTING Clypso, the god "
+        "shassith_founding_refusal": "The Ithiss's founding act was REJECTING Clypso, the god "
                                      "who brought them together. That is why Cunning is "
                                      "permanently a doubter domain.",
         "who_keeps_the_calendar": "The Order of the True Word maintains the reckoning — so the "
@@ -1052,7 +1052,7 @@ MAP = {
                               "the Age of Plenty.",
         "Heathport": "A natural port with plentiful mines, found by Trusteki who built ships and "
                      "fled east after the Blight — where they met Prowess and became the DRAKTENI. "
-                     "Now one end of the Isseth-to-Prezish illicit route (Heathport to the Wharf "
+                     "Now one end of the Ithiss-to-Prezish illicit route (Heathport to the Wharf "
                      "of St. Brannoch).",
         "Drakenheart": "Drakteni seat. Their craft is conquest: firepower built to expand beyond the "
                        "continent, campaigns constantly funded and refunded. It is also the SMALLEST "
@@ -1060,14 +1060,14 @@ MAP = {
                        "do. They colonise to make room for themselves as an empire.",
 
         # ---- Cunning corner (SW) ----
-        "Dreadwood": "Isseth heartland. An ANARCHIC ARISTOCRACY of brotherhoods and guilds forming "
+        "Dreadwood": "Ithiss heartland. An ANARCHIC ARISTOCRACY of brotherhoods and guilds forming "
                      "criminal empires — no central authority, but a rigid internal hierarchy of the "
                      "feared and successful.",
         "Crag Pass": "A natural chokepoint of narrow paths, labyrinths, and slot canyons, found and "
                      "controlled by the ISSETH from their underground network — reached in secret, "
                      "held without garrison. Where Trusteki caravans learned the dangers of the "
-                     "south, and the route by which Isseth who wanted another life ventured north.",
-        "Marrow Shoals": "Shared water — ISSETH and PREZISH both. Where Trusteki venturing south met the Isseth coming north, "
+                     "south, and the route by which Ithiss who wanted another life ventured north.",
+        "Marrow Shoals": "Shared water — ISSETH and PREZISH both. Where Trusteki venturing south met the Ithiss coming north, "
                          "forming the Prezish.",
         "Bay of Pigs": "A WEAPONIZED FALSE EXONYM. The dismissive name was given by outsiders, and "
                        "the locals KEEP IT DELIBERATELY — a bay named for filth attracts no "
@@ -1080,12 +1080,12 @@ MAP = {
                      "heartland; seat of the Papal Palace (Anumaranth) and the Inquisitorial Palace "
                      "(Ollanenor).",
         "Lost Woods": "Sacred to the crusader order. Pilgrims come to 'meet the God of Gods' — and "
-                      "the Belvarath cut them down; the meeting IS death. Theologically correct from "
+                      "the Belvareth cut them down; the meeting IS death. Theologically correct from "
                       "inside: seeking Esselantheum directly is the blasphemy, and Melvanar's "
                       "doctrine spreads by the reduction of false gods. Everyone sincere, nobody "
                       "lying. The only land left untouched by the Great Fracture.",
         "Wheat Fields": "Not a border — a PROVING GROUND. The strongest warbands and warlords come "
-                        "here on purpose to test themselves against the Belvarath, known as the best "
+                        "here on purpose to test themselves against the Belvareth, known as the best "
                         "warriors in the world; some believe they truly are their god's WRATH MADE "
                         "MANIFEST. A frontier under conquest-pressure would fall or expand; a "
                         "proving ground stays exactly where it is forever, because both sides want "
@@ -1112,7 +1112,7 @@ MAP = {
         "Wharf of St. Brannoch": "Named for a saint. A natural sanctuary off the coast of "
                                  "Lenaveron, and the busiest of the Sarkopekt nodes — where "
                                  "city-states, warbands and travelling nomads hire themselves "
-                                 "out. Also the far end of the Isseth-to-Prezish illicit route "
+                                 "out. Also the far end of the Ithiss-to-Prezish illicit route "
                                  "from Heathport.",
 
         # ---- Islands, sea, and the centre ----
@@ -1124,7 +1124,7 @@ MAP = {
                       "was recognised, not self-styled. Now a Sarkopekt node sitting between the "
                       "seat of power and the war-market.",
         "Dead Waters": "Named for what came out of the shipyard raised on its then-unnamed shore. The "
-                       "Pincer folded the Belvarath here — the only defeat ever recorded of them.",
+                       "Pincer folded the Belvareth here — the only defeat ever recorded of them.",
         "Sea of Ash": "A sea COMPLETELY CONTAMINATED BY ASH. Crossable, but it yields nothing — no "
                       "fish, no drinking water. You carry everything across it or you do not "
                       "arrive. Some say it is the ash of the old gods.",
@@ -1215,7 +1215,7 @@ CULTURE_AXES = {
         "lead": "Pure Prowess",
         "note": "Axes = the Prowess column. Fractured warband wastes; glory-or-death.",
     },
-    "Isseth": {  # Cunning
+    "Ithiss": {  # Cunning
         "lead": "Pure Cunning",
         "note": "Axes = the Cunning column. Pirate/bandit haven; anarchy; the game with no rules.",
     },
@@ -1225,7 +1225,7 @@ CULTURE_AXES = {
     },
 
     # ======================= PAIRS =======================
-    "Belvarath": {  # Piety × Prowess — Lost Woods crusader order
+    "Belvareth": {  # Piety × Prowess — Lost Woods crusader order
         "lead": "Defenders of the Lost Woods; Prowess-weighted in practice",
         "government": "Militant ecclesiocracy — a warrior-church / theocratic military order [FUSE]",
         "sacred": "The God of Gods, served through the sword — faith as holy violence [FUSE]",
@@ -1274,7 +1274,7 @@ CULTURE_AXES = {
         "attitude_to_change": "Future/progress in the art of war — better siege, better arms [Industry-lead]",
         "military_doctrine": "Tech, logistics, siege — the best-equipped, disciplined siege specialists [FUSE]",
         "taboo": "Unpreparedness + cowardice — an ill-supplied or broken line is shameful [FUSE]",
-        "defined_against": "The wasteful AND the the amateurish, the unequipped [FUSE]",
+        "defined_against": "The wasteful AND the amateurish, the unequipped [FUSE]",
         "naming": "[name] [craft-surname] [numeral] — surnames of war-trades (Gunner, Sapper) [Industry grammar]",
         "monuments": ["Advanced Blast Furnace", "Ministry of Military Strategy"]
     },
@@ -1435,7 +1435,7 @@ FORMATION = {
     "industry_diaspora": {
         "Madekites":   "Trusteki north to Fair Whitewood 'seeking religion' -> met Piety.",
         "Drakteni":    "Trusteki east by ship to Heathport, plentiful mines -> met Prowess.",
-        "Prezish":     "Trusteki south to Marrow Shoals, meeting fleeing Isseth -> met Cunning.",
+        "Prezish":     "Trusteki south to Marrow Shoals, meeting fleeing Ithiss -> met Cunning.",
         "second_order": "The triples form from SECOND-GENERATION contact — diaspora cultures meeting "
                         "each other. The Ossensteins are the type case: the original and most "
                         "successful Trusteki families turned to trade, met the Shassolin and the "
@@ -1443,7 +1443,7 @@ FORMATION = {
     },
 
     "non_industry": {
-        "Belvarath":    "REFUGEE PACT. Draggaths fleeing the Fracture met zealous Lenavorites "
+        "Belvareth":    "REFUGEE PACT. Draggaths fleeing the Fracture met zealous Lenavorites "
                        "fleeing the Tombs of the Old Gods. The Draggaths agreed to teach martial "
                        "prowess if the Lenavorites taught them their god — the god of wrath.",
         "Shassolin":   "STRANDED CLERGY. Frontier church administrators and missionaries, abandoned "
@@ -1451,7 +1451,7 @@ FORMATION = {
         "Cailendroffs":"EXILE. Driven out during the Great Fracture, never possessing the means to "
                        "return. No Industry = no way home.",
         "Vorghith":    "SHIPWRECK AND IMPRISONMENT. Shipwrecked and imprisoned pirates and bandits "
-                       "(Isseth stock) stranded in Kragh territory. With no fleet and no numbers "
+                       "(Ithiss stock) stranded in Kragh territory. With no fleet and no numbers "
                        "they cut supply lines instead — crippling the Kraghs so profusely they were "
                        "never given an opportunity to fight back. After Vogen's Gallows the Kraghs "
                        "recoiled inland, surrendering the best prison-turned-fortress and island bay "
@@ -1542,7 +1542,7 @@ EVENTS["Mason-King Karalius II"] = {
                       "his terms on file.",
 }
 
-EVENTS["The Pincer of Dead Waters"]["cultures"] = ["Belvarath", "Sarkopekt", "Kraghs"]
+EVENTS["The Pincer of Dead Waters"]["cultures"] = ["Belvareth", "Sarkopekt", "Kraghs"]
 EVENTS["Mason-King Karalius II"]["cultures"] = ["Sarkopekt"]
 
 EVENTS["The Pincer of Dead Waters"]["organised_by"] = (
@@ -1568,7 +1568,7 @@ PRECEPTORY = {
                    "the bond, and both halves are still in the vocabulary four and a half "
                    "thousand years later. A man speaks of HIS draghen, is draghen-bound, fights "
                    "AS draghen.",
-    "the_pairing": "Every Belvarath is PAIRED WITH THEIR OPPOSITE ORIGIN — one Draggath-descended, "
+    "the_pairing": "Every Belvareth is PAIRED WITH THEIR OPPOSITE ORIGIN — one Draggath-descended, "
                    "one Lenavorite-descended — bound as mutual lifelong mentors. Each teaches what "
                    "their line brought. They train together and FIGHT TOGETHER: the pair is the "
                    "combat unit. The founding trade never ended; it is a thing every member does "
@@ -1583,7 +1583,7 @@ PRECEPTORY = {
                            "half failing. Either is the same sin.",
     "the_oldest_monument": "Not a building — the ORDER ITSELF. Everything else in the world "
                            "fractured, migrated, converted, collapsed, or reinvented itself; the "
-                           "Belvarath have done the same thing in the same woods since the Fracture. "
+                           "Belvareth have done the same thing in the same woods since the Fracture. "
                            "They PREDATE THE PAPACY by ~1,900 years, and predate the recording of "
                            "the four gods — they worshipped wrath before Melvanar had a written "
                            "name. The Inquisition has no purchase on them: a regime built on "
@@ -1596,11 +1596,11 @@ PRECEPTORY = {
                   "completely closed.",
     "one_name_between_two": "A draghen holds ONE saint-name between them. Ollanenor delivers a "
                             "name when a person gives themselves up to an order — and the "
-                            "Belvarath give themselves up in twos, so one name is what comes "
+                            "Belvareth give themselves up in twos, so one name is what comes "
                             "back. The pair is the person. A brother who loses his draghen has "
                             "lost half of his own name, and is not whole again until he is "
                             "re-bound and renamed.",
-    "open": "Does the Preceptory hold other orders besides the Belvarath?",
+    "open": "Does the Preceptory hold other orders besides the Belvareth?",
 }
 
 RIVALRIES = {
@@ -1638,7 +1638,7 @@ CULTURES["Trusteki"]["trade_role"] = (
     "supply you. Their safety is economic, not military — wealthy and powerful while focused on the "
     "craft, outputting to whoever is willing to purchase. They are the honest base layer every "
     "other trade culture acts upon: the Prezish corner it, the Voldrastel guard it, the Vorghith "
-    "strangle it, the Isseth fence through it, the Sarkopekt sell arms alongside it."
+    "strangle it, the Ithiss fence through it, the Sarkopekt sell arms alongside it."
 )
 CULTURES["Trusteki"]["internal_conflict"] = (
     "ALMOST NONE. Families producing and competing in the same craft are judged BY THE MARKET, NOT "
@@ -1658,7 +1658,7 @@ CULTURES["Lenavorites"]["internal_conflict"] = (
     "CHARACTERISATION AND PRIORITY within the tetramorph — which face to weight, how a given god "
     "should be understood. Not schism: INFLECTION. And these debates are the SEED VOCABULARY OF "
     "EVERY FUTURE SCHISM — a characterisation dispute held quietly inside orthodoxy for centuries "
-    "is the fault line a real break eventually cracks along. The Belvarath are one that already "
+    "is the fault line a real break eventually cracks along. The Belvareth are one that already "
     "left: they did not reject the church, they OVER-WEIGHTED WRATH until they were a distinct "
     "order. The internal debate is the schism that has not happened yet."
 )
@@ -1668,6 +1668,31 @@ CULTURES["Kraghs"]["warband_spectrum"] = (
     "warband's place on it is ADVERTISED — a recruiting pitch to unpledged young men choosing where "
     "to make their mark. The strategy-end warbands train almost purely in military strategy over "
     "personal prowess. Battlefield cunning is honoured; the knife in the dark is beneath them."
+)
+
+CULTURES["Astravantheliad"]["the_fund"] = (
+    "ONE SHARED ACCOUNT. Complete egalitarians who are also, all of them, wealthy — the isle "
+    "operates as a single pooled endowment. If you need money you withdraw; if you do not, you put "
+    "in. This is not communal idealism, it is a LIQUIDITY POOL, and it does three things. Nobody "
+    "accumulates, so nobody can be leveraged — their taboo about being indebted to another is "
+    "enforced by the structure rather than by virtue. The fund is always deployable, because idle "
+    "money returns to it, which is what lets an entire isle underwrite sixty-year research "
+    "projects. And there is no such thing as an Astravantheliad debt crisis, a ruined family, or a "
+    "fortune to seize: an invader takes an island, not a treasury. WEALTH IS FLAT, so it cannot be "
+    "the currency of status — which leaves EXPERTISE as the only differentiator, and is why the "
+    "technocracy's meritocracy holds."
+)
+CULTURES["Astravantheliad"]["the_army"] = (
+    "MEDIOCRE AND DECENTLY EQUIPPED. Every citizen carries basic military training as part of the "
+    "four-domain baseline, so they field a competent militia: everyone has had the drill, the kit "
+    "is good, nobody is a specialist. Enough to hold their own island and be a real cost to invade; "
+    "nowhere near enough to project force or take ground from people who do that professionally. "
+    "That threshold is exactly why the office exists — a defenceless centre would be a prize and "
+    "the Duke would be somebody's puppet within a generation, while a centre that could compel "
+    "would arbitrate at swordpoint like everyone else. THE OFFICE IS THE INSTRUMENT OF A PEOPLE WHO "
+    "CAN DEFEND BUT CANNOT COMPEL. Contrast the Drakteni: the same Industry capacity for equipment, "
+    "opposite application — they forge the advantage and take ground with it; the centre equips "
+    "everyone adequately and takes ground from no one. The kit is insurance, not a plan."
 )
 
 CULTURES["Voldrastel"]["doctrine"] = (
@@ -1741,7 +1766,7 @@ CUNNING_NARRATION = {
     "principle": "The more Cunning a culture carries, the less MECHANICAL and more HAND-WAVEY its "
                  "fact patterns. You will be told things you doubt on their face and given no "
                  "further explanation. Word count does not drop — the RATIO of fact to folklore "
-                 "shifts. Trusteki are all ledger, no legend; Isseth are all legend, no ledger.",
+                 "shifts. Trusteki are all ledger, no legend; Ithiss are all legend, no ledger.",
     "the_safeguard": "SO LONG AS THE UNRELIABILITY IS OBVIOUS IN ITS UNRELIABLENESS, it works. The "
                      "reader must always be able to tell they are being handled. A gap that reads "
                      "as lazy writing FAILS; a gap that reads as 'they would never tell you that' "
@@ -1749,10 +1774,10 @@ CUNNING_NARRATION = {
                      "thing and the songs say another' — never leave it as a blank field.",
     "not_uniform": "Cunning is not one thing narratively. FOUR MODES, and the correlation is with "
                    "WHAT KIND of Cunning, not HOW MUCH — a flat ratio would wrongly make the "
-                   "Sarkopekt as hand-wavey as the Isseth.",
+                   "Sarkopekt as hand-wavey as the Ithiss.",
     "modes": {
         "OBFUSCATION — deception is the point": {
-            "cultures": ["Isseth", "Prezish", "Vorghith"],
+            "cultures": ["Ithiss", "Prezish", "Vorghith"],
             "where_the_doubt_lives": "EVERYWHERE. The whole telling is suspect. Hand-wavey, "
                                      "doubtful, unexplained; the unreliable narrator worn openly.",
         },
@@ -1848,6 +1873,75 @@ FALSE_RELIGION_ENGINE = {
                   "excommunicated who founded Prophet's Landing did not invent a new god — they "
                   "kept the structure and made it PLEASANT, which is the most damning thing about "
                   "it.",
+    "the_class_structure": "THREE TIERS, AND ONLY TWO OF THEM ARE VISIBLE TO EACH OTHER.\n"
+                           "  THE BOUND — the poor work, live on church land, and are PAID IN "
+                           "INDULGENCES rather than coin. Their wage is credit against a debt they "
+                           "never chose, issued by the people paying them, and it can only ever "
+                           "offset a running deficit. You cannot save indulgences into freedom. "
+                           "Serfdom with the ledger kept in salvation — and the labour costs the "
+                           "church nothing, because the currency is manufactured at will. The tithe "
+                           "is the retail business; the bound labour is the real one.\n"
+                           "  THE ABSOLVED — local wealth (merchants, minor lords, anyone with "
+                           "coin) buys its way out instantly. Same instrument, opposite direction: "
+                           "the sin is identical and only the settlement differs. NOBODY HAS TO BE "
+                           "LYING for this to work. The doctrine says the debt is real and payment "
+                           "discharges it; the rich simply have a faster method, and an "
+                           "administrator can watch it happen and see nothing wrong.\n"
+                           "  THE OWNERS — the Ossensteins are NOT the upper class. They are "
+                           "outside the hierarchy entirely, holding the instrument everyone inside "
+                           "is using. No Ossenstein is a bishop, a landlord, or a name on a deed. "
+                           "The visible upper class is LOCAL MONEY, and local money is a CUSTOMER, "
+                           "not a proprietor.",
+
+    "who_the_absolved_are": "PREZISH, chiefly — and local Lenavorite money. The Prezish fit "
+                            "because an indulgence is a NEGOTIABLE INSTRUMENT: it has a price, it "
+                            "settles a debt, and it is issued by someone with every incentive to "
+                            "keep issuing. They would be in that market within a week of finding "
+                            "it. NOT the Madekites: they are Piety x Industry with no Cunning, "
+                            "their theology holds that SUFFERING IS THE PAYMENT, and buying "
+                            "absolution with coin would be the vain settlement their own taboo "
+                            "forbids. They are also cash-poor by construction — quarrying frozen "
+                            "tundra and pouring everything into cathedrals the Drakteni keep "
+                            "besieging.",
+
+    "the_secondary_market": "The Prezish do not merely buy indulgences — they TRADE them, holding "
+                            "absolution as inventory: bulk rate from a Shassolin administrator, "
+                            "retail to a merchant who needs one before a voyage. Two consequences. "
+                            "(1) SECONDARY MARKETS SET THE REAL PRICE. The Shassolin issue; the "
+                            "Prezish decide what it is actually worth — cornering supply and "
+                            "setting prices, their cartel behaviour applied to salvation. (2) It "
+                            "CORRUPTS THE INSTRUMENT FROM OUTSIDE. The Ossensteins manufacture "
+                            "indulgences at zero cost, but once arbitraged the currency has a "
+                            "market rate the church does not control, and the bound poor could in "
+                            "principle discover what their wages are actually worth. Not a "
+                            "rebellion. An exchange rate.",
+
+    "the_orthodox_leak": "Local Lenavorite wealth quietly uses the false church's faster method — "
+                         "so the instrument leaks UPWARD INTO THE ORTHODOXY. The Inquisition's "
+                         "paranoia about internal conversion turns out to be CORRECT, and it still "
+                         "finds nothing: the converts are not heretics, they are customers.",
+
+    "the_kino_principle": "The wealthy are Kino from Andor — the prisoner who runs the room. His "
+                          "authority over the men on the floor is real and it matters; the distance "
+                          "between him and whoever owns the facility is so large it is not a "
+                          "relationship at all. He is not junior management. He is INVENTORY WITH A "
+                          "JOB. That is the local wealthy under the Ossensteins: rich by every "
+                          "measure their neighbours can apply, buying absolution their workers will "
+                          "never afford, and from above indistinguishable from the people they are "
+                          "standing on. Both tiers are the product. One has a better position "
+                          "inside it. (This beats a feudal-knight framing, because a knight has a "
+                          "RELATIONSHIP with his lord — homage sworn, obligations both ways, a name "
+                          "the lord knows. Nobody is an Ossenstein's vassal, because swearing "
+                          "requires knowing who you are swearing to.)",
+
+    "why_the_ladder_is_load_bearing": "The wealthy buying out is not a leak in the system — it is "
+                                      "the part that makes the poor accept it. If nobody visibly "
+                                      "escaped, the debt would look like a TRAP. Because some "
+                                      "people clearly do escape, it looks like a LADDER — and the "
+                                      "failure-loop supplies the explanation: if you are not "
+                                      "climbing it, the fault is your faith. The wealthy think they "
+                                      "have beaten the system. THEY ARE THE REASON IT WORKS.",
+
     "the_three_stories": {
         "The Last True Prophet": "SHASSOLIN LORE (and their converts). A genuine messenger, the only "
                                  "bridge to salvation. Sincere belief; they would die for him.",
@@ -1875,7 +1969,7 @@ THE_DUKE = {
     "the_origin": "THE TECHNOCRACY CREATED IT. The Astravantheliad accreted gradually at the "
                   "centre across all the migrations — no founding moment, just the most "
                   "diverse continuing to settle there. But a culture with no domain-force "
-                  "(no army, no cartel, no church) cannot make its arbitration COUNT. So "
+                  "(no army that can take anything, no cartel, no church) cannot make its arbitration COUNT. So "
                   "they installed a seat: an office to curtail those not operating in the "
                   "interest of the whole, which gave them a voice in the world as its "
                   "NATURAL ARBITERS. The Dukedom is young — ~4516, which makes the founding "
@@ -1960,10 +2054,10 @@ MACRO_FRAME = {
         },
         "the_payoff": "The game TEACHES ITS OWN LORE THROUGH USE. A player learning combat absorbs "
                       "Kragh values without reading a word of fiction; someone navigating the doubt "
-                      "mechanics IS BEING Isseth. Framework fully undercurrent — felt, not read.",
+                      "mechanics IS BEING Ithiss. Framework fully undercurrent — felt, not read.",
         "the_discipline": "COHESION LIVES IN STRUCTURE AND BEHAVIOUR, NOT SKINS. The aesthetic is "
                           "the LEAST important part — it lives in the player's head, the art, or "
-                          "customisation. The Isseth doubt-mechanics withhold because concealment "
+                          "customisation. The Ithiss doubt-mechanics withhold because concealment "
                           "is what Cunning IS, not because the page is painted spooky. IF THE "
                           "STRUCTURE IS RIGHT THE AESTHETIC IS OPTIONAL; IF THE STRUCTURE IS WRONG "
                           "NO AESTHETIC CAN SAVE IT. The cohesion is testable in monospace.",
@@ -1977,8 +2071,8 @@ MACRO_FRAME = {
 }
 
 
-# Belvarath serve Melvanar, not the God of Gods directly:
-CULTURE_AXES["Belvarath"]["sacred"] = (
+# Belvareth serve Melvanar, not the God of Gods directly:
+CULTURE_AXES["Belvareth"]["sacred"] = (
     "MELVANAR (Wrath), served through the sword — faith as holy violence. They worshipped wrath "
     "before Melvanar had a written name [FUSE]"
 )
@@ -2030,6 +2124,8 @@ DESIGN_ONLY = {
         "EXPANSION_HOOKS",      # product roadmap
         "OPEN_THREADS",         # unresolved design questions
         "PHONOLOGY",            # naming machinery
+        "WEALTH_SHAPES",        # economic analysis of the setting
+        "SPECIALISATION_DEPTH", # the tech-depth rule
         "REPUTATION",           # the matrix as a matrix
         "TERMS",                # glossary of design vocabulary
         "ARCHIVE_OPPOSITION",   # analysis of two institutions
@@ -2050,6 +2146,10 @@ DESIGN_ONLY = {
         "MACRO_FRAME":           ["the_premise", "the_effect", "why_the_world_map_is_lore_only",
                                   "two_tiers_of_canon", "domain_as_interface"],
         "FALSE_RELIGION_ENGINE": ["the_theodicy_trap", "the_mirror", "the_siphon",
+                                  "the_class_structure", "the_kino_principle",
+                                  "who_the_absolved_are", "the_secondary_market",
+                                  "the_orthodox_leak",
+                                  "why_the_ladder_is_load_bearing",
                                   "the_failure_loop", "the_social_proof",
                                   "the_manufactured_hardship", "the_three_stories"],
         "PRECEPTORY":            ["open"],
@@ -2081,9 +2181,9 @@ DESIGN_ONLY = {
 PLACE_OWNERS = {
     "Kraghs":          ["Draggath Wastes", "Bleak Highlands", "Glen of Pravak", "Cravencroft"],
     "Trusteki":        ["Blighthold", "Scarlet Forest", "Coloured Mountains"],
-    "Isseth":        ["Dreadwood", "Crag Pass"],
+    "Ithiss":        ["Dreadwood", "Crag Pass"],
     "Lenavorites":     ["Lenaveron", "Tombs of the Old Gods"],
-    "Belvarath":        ["Lost Woods", "Wheat Fields"],
+    "Belvareth":        ["Lost Woods", "Wheat Fields"],
     "Vorghith":        ["Vogen's Gallows"],
     "Drakteni":        ["Heathport", "Drakenheart", "Hermit's Row"],
     "Prezish":         ["Bay of Pigs", "Marrow Shoals"],
@@ -2218,9 +2318,9 @@ PROSE = {
 
 THREADS = [
     ("WHAT THE WORLD IS MADE OF",
-     ["Trusteki", "Isseth", "Prezish", "Voldrastel"]),
+     ["Trusteki", "Ithiss", "Prezish", "Voldrastel"]),
     ("THE FAITH, AND ITS BREAKING",
-     ["Lenavorites", "Madekites", "Belvarath", "Shassolin"]),
+     ["Lenavorites", "Madekites", "Belvareth", "Shassolin"]),
     ("THE WAR THAT DID NOT END",
      ["Kraghs", "Vorghith", "Drakteni", "Cailendroffs", "Sarkopekt"]),
     ("THE CENTRE",
@@ -2235,7 +2335,7 @@ PROSE.update({
         "who supply everyone. They have no army worth the name. They have never needed one — "
         "you do not burn the farm that feeds you, and every court in the world knows it.\n\n"
         "But goods move, and anything that moves can be taken. In the south-west there is no "
-        "law and never has been, and what the Isseth take has to be sold by somebody who "
+        "law and never has been, and what the Ithiss take has to be sold by somebody who "
         "looks respectable. The Prezish look extremely respectable. And where a cargo can be "
         "taken it can also be guarded, for a fee, by people who have made a virtue of "
         "guarding it.\n\n"
@@ -2293,7 +2393,10 @@ OVERVIEW = {
         "To the far north-west, across the centre isle, lies an archipelago — the Twelfth Reach, "
         "held by the Voldrastel. A people founded on the ideals of fairness and justice, they are "
         "wardens of the seas and of the indefensible, promoting peace and stability by any means "
-        "necessary."
+        "necessary. To travel the seas under the safety of the Voldrastel comes at a price. One "
+        "must pay tolls, or hire them to transport cargo, as they out-manoeuvre the Drakteni, "
+        "interdict the Prezish, assist the Madekites, and shield the Trusteki. They generate gold "
+        "without production. Their value is their presence."
     ),
     "Sarkopekt": (
         "Off the coast of Lenaveron, the Wharf of St. Brannoch operates as a natural sanctuary, "
@@ -2329,10 +2432,15 @@ OVERVIEW = {
         "Astravantheliad as a neutral arbiter to all cultures."
     ),
     "Vorghith": (
-        "During the Great Fracture, opportunity arose. Isseth of the Dreadwood, shipwrecked or "
-        "imprisoned, found opportunity in a world where fighting in the open was expected. From "
-        "there the Vorghith rose in the night, attacking the Kraghs in their sleep and behind "
-        "their front lines, causing fear and disrupting the supply lines of those who cross them."
+        "Many Ithiss of the Dreadwood, shipwrecked or imprisoned, found venture in a world where "
+        "fighting in the open was expected — glory prioritised. From the shadows the Vorghith rose "
+        "the night, attacking the Kraghs in their sleep and behind their front lines, causing fear "
+        "and disrupting the supply lines of those who cross them. The Kraghs, never knowing friend "
+        "from foe, retreated from the prison fortress and bay. From there a wave of terror spread: "
+        "raiding settlements in the night, burning crops and granaries, razing infrastructure, and "
+        "capturing neighbouring leaders to execute them in the prison's square — Vogen's Gallows. "
+        "The Vorghith refuse a fair fight and evade any sustained skirmish, always retreating into "
+        "the towns they will strike that night."
     ),
     "Drakteni": (
         "West of the Wastes, Trusteki who had run from the disease-ridden peninsula of Blighthold "
@@ -2344,22 +2452,25 @@ OVERVIEW = {
         "greatest edict, laying campaigns against the Kraghs in Hermit's Row and besieging the "
         "Madekites in the frozen, desolate cathedral fortresses of Fair Whitewood."
     ),
-    "Belvarath": (
+    "Belvareth": (
         "South of the Draggath Wastes lie the Bleak Highlands, rough terrain suitable for smaller "
         "warbands who pledge fealty to larger ones. The most determined Kraghs, who sought glory "
         "and rich land, marched south to the Wheat Fields — a place once known for its fertile "
         "soil, now a perpetual battlefield in an attempt to lay claim to the Lost Woods, which are "
-        "fervently protected by the Belvarath, the Order of the Preceptory of Melvanar. The Lost "
-        "Woods are hallowed ground to those who are pious, and the Belvarath were formed by the "
+        "fervently protected by the Belvareth, the Order of the Preceptory of Melvanar. The Lost "
+        "Woods are hallowed ground to those who are pious, and the Belvareth were formed by the "
         "most devout of the old gods and the Kraghs who sought a new way of life. Together they "
         "pair, in order to train in body and spirit and defend this sacred site from all outsiders "
         "of any kind."
     ),
     "Madekites": (
         "Other pious fled into the frozen forest of Fair Whitewood, rich with tundra and forestry, "
-        "during the fall of the old gods. They settled to redeem themselves, focusing their efforts "
-        "on reconstructing the wonders of the old gods — building grand basilicas, cathedrals and "
-        "citadels to shield themselves from all foreign reach."
+        "during the fall of the old gods. They sought to redeem themselves, labouring to prove "
+        "their devotion, suffering as a form of worship — all of it serving to reconstruct the "
+        "wonders of the old gods, seeking perfection from stone and the ancient techniques used to "
+        "raise cathedrals and citadels that insulate them from all foreign influence, reach, and "
+        "affront. They build defence from devotion, in the desolate frozen tundra, chasing a vain "
+        "perfection."
     ),
     "Trusteki": (
         "The Trusteki settled in what is now known as Blighthold. During the great famine the "
@@ -2373,14 +2484,14 @@ OVERVIEW = {
         "honest price. This wealth and abundance created opportunity for those less dependent on "
         "moral quandaries."
     ),
-    "Isseth": (
-        "The Isseth have long survived as a people in the Dreadwoods, originally living in "
+    "Ithiss": (
+        "The Ithiss have long survived as a people in the Dreadwoods, originally living in "
         "underground cities before the Dreadwoods grew. The people of the underground cities "
         "rejected the god Clypso, who in return planted a seed of doubt that would never be "
         "unsown. A vicious aristocracy ensues in an otherwise lawless land, neighbouring guilds "
         "and brotherhoods destabilising their opponents and razing settlements of those who are "
-        "too powerful. The Isseth may not create supply lines or fight for glory, but they strike "
-        "fear and alter the way of life for their neighbours. The Isseth do what serves their "
+        "too powerful. The Ithiss may not create supply lines or fight for glory, but they strike "
+        "fear and alter the way of life for their neighbours. The Ithiss do what serves their "
         "interest, especially when it hurts others."
     ),
     "Prezish": (
@@ -2394,11 +2505,13 @@ OVERVIEW = {
         "the waters without them knowing, or taking a cut."
     ),
     "Shassolin": (
-        "Others moved east, finding marsh and pious people seeking refuge, whose journey named the "
-        "Strait of Sorrow. The Shassolin found opportunity in its despondency. They formed a new "
+        "Others moved east out of the Dreadwood, finding marsh and pious people seeking refuge, "
+        "whose journey named the "
+        "Strait of Sorrow. The Shassolin found religion in its despondency. They formed a new "
         "order — one of a new prophet, the last prophet, capable of speaking to the God of Gods "
-        "himself, knowing and uttering its name, Esselantheum, and carrying your message. For an "
-        "indulgence."
+        "himself, knowing and uttering its name, Esselantheum, and carrying messages directly to "
+        "him. Missionary work is perpetual, seeking more to convert, to tithe, and to offer "
+        "indulgences for their lack of faith. Unfortunately, it never seems to be enough."
     ),
     "Lenavorites": (
         "In the corner to the far east lie the Tombs of the Old Gods: vast ancient ruins of gothic "
@@ -2425,3 +2538,328 @@ OVERVIEW = {
         "sandy soil."
     ),
 }
+
+
+# ---------------------------------------------------------------------------
+# WEALTH_SHAPES — the world can only see DISTRIBUTION, never AGGREGATE.
+# ---------------------------------------------------------------------------
+
+WEALTH_SHAPES = {
+    "the_instrument": "Nobody in the world has a view of total wealth. They have the people in "
+                      "front of them. So the culture with the highest MEDIAN reads as the richest, "
+                      "and a culture whose wealth sits with forty invisible families reads as "
+                      "nothing at all. The Ossensteins are not hiding cleverly — they are NOT "
+                      "MEASURABLE by the only instrument anyone has.",
+    "Ossensteins": "Highest TOTAL by far — believed to hold more than half the wealth of Vaelohk. "
+                   "Median is meaningless; there may be forty of them. A culture whose wealth "
+                   "statistic is aggregate is not a society, it is a holding.",
+    "Astravantheliad": "Highest MEDIAN, modest total — one isle. Everyone comfortable, nobody "
+                       "destitute, nobody a magnate. Visibly strange in a world of warbands and "
+                       "serfs, and resented about as often as admired: a whole island of people "
+                       "who have never wanted for anything, arguing about geometry. MOST OF THE "
+                       "WORLD ASSUMES THEY ARE THE WEALTHIEST CULTURE, and the assumption is "
+                       "reasonable on the evidence available.",
+    "Trusteki": "Second-highest median, and a different mechanism: EARNED AND INHERITED BY LINEAGE, "
+                "so the floor is high but families genuinely differ — an old craft-line is richer "
+                "than a new one. Prosperity, where the centre has endowment.",
+    "the_two_answers": "The centre and the Ossensteins are opposite answers to one question: what "
+                       "do you do with wealth? CIRCULATE ALL OF IT, or WITHDRAW ALL OF IT. The "
+                       "Ossenstein hoard is money removed from circulation and unaccounted for — "
+                       "which is why nobody feels rich anywhere else. Half the world's money is not "
+                       "in the world. Everyone's poverty has a cause nobody can name.",
+}
+
+
+# ---------------------------------------------------------------------------
+# SPECIALISATION_DEPTH — domain count is inverse to how deep you can reach.
+# ---------------------------------------------------------------------------
+
+SPECIALISATION_DEPTH = {
+    "rule": "Depth is inverse to breadth. Two domains means you reach the top of both trees; four "
+            "means you cap out mid-tier everywhere. Same craft capability in principle, a fraction "
+            "of the specialisation in practice.",
+    "Pure":   "Deepest possible in one domain. Nobody out-techs a pure corner in its own lane.",
+    "Pair":   "Deep in two. The Drakteni hold higher tech access than the centre for exactly this "
+              "reason — articulated plate, poleaxes, estocs, siege trains, all of it bought with "
+              "the breadth they gave up.",
+    "Triple": "Competent in three, top of none. Versatile, never dominant.",
+    "Centre": "Present in four, unremarkable in all.",
+    "the_inversion": "The centre LOOKS like the most capable culture — every domain, best educated, "
+                     "every option available. Mechanically it is the least capable at anything "
+                     "specific. The breadth is a CEILING, not an advantage, and it is exactly why "
+                     "influence is the only power they have: unable to out-build, out-fight, "
+                     "out-scheme or out-preach anyone, they broker between people who can.",
+}
+
+
+# ---------------------------------------------------------------------------
+# POSITIONS — a coarse grid so directional prose can be checked, not guessed.
+#
+# Origin (0,0) is Vaelohk, the centre isle. +x is east, +y is north.
+# These are RELATIVE PLACEMENTS for bearing arithmetic, not map coordinates.
+#
+# The overviews position themselves against each other ("west of the Wastes",
+# "others moved east"). That reads as a journey — and it breaks the moment a
+# thread is reordered, because "east" was measured from whoever used to come
+# before. bearing() lets the generator check every directional phrase against
+# the culture actually preceding it in reading order.
+# ---------------------------------------------------------------------------
+
+POSITIONS = {
+    # centre
+    "Vaelohk":                (0, 0),
+    # north-west — Industry
+    "Blighthold":             (-3, 2),
+    "Scarlet Forest":         (-3, 1),
+    "Coloured Mountains":     (-4, 3),
+    "Fair Whitewood":         (-1, 3),
+    # north-east — Prowess
+    "Draggath Wastes":        (3, 3),
+    "Bleak Highlands":        (3, 2),
+    "Glen of Pravak":         (2, 3),
+    "Cravencroft":            (4, 3),
+    "Hermit's Row":           (2, 2),
+    "Vogen's Gallows":        (4, 2),
+    "Heathport":              (1, 2),
+    "Drakenheart":            (1, 3),
+    "Dead Waters":            (2, 1),
+    # south-west — Cunning
+    "Dreadwood":              (-3, -3),
+    "Crag Pass":              (-3, -2),
+    "Marrow Shoals":          (-2, -2),
+    "Bay of Pigs":            (-3, -1),
+    # south / south-east — Piety
+    "Lenaveron":              (2, -2),
+    "Lost Woods":             (1, -3),
+    "Wheat Fields":           (1, -2),
+    "Tombs of the Old Gods":  (4, -3),
+    "Strait of Sorrow":       (0, -3),
+    "Shallow Mire / Quiet Hollow": (-1, -3),
+    "Wharf of St. Brannoch":  (3, -1),
+    # islands
+    "Ivory Isle":             (1, 1),
+    "The Twelfth Reach":      (-2, 2),
+    "Cailendroff Isles":      (3, 0),
+    "Prophet's Landing":      (-1, -1),
+    "Bay of Lost Hope":       (-2, 0),
+    "Sea of Ash":             (0, -4),
+}
+
+# Where each culture is measured FROM, for bearing arithmetic.
+CULTURE_SEATS = {
+    "Trusteki":        "Blighthold",
+    "Ithiss":          "Dreadwood",
+    "Prezish":         "Marrow Shoals",
+    "Voldrastel":      "The Twelfth Reach",
+    "Lenavorites":     "Lenaveron",
+    "Madekites":       "Fair Whitewood",
+    "Belvareth":       "Lost Woods",
+    "Shassolin":       "Shallow Mire / Quiet Hollow",
+    "Kraghs":          "Draggath Wastes",
+    "Vorghith":        "Vogen's Gallows",
+    "Drakteni":        "Drakenheart",
+    "Cailendroffs":    "Cailendroff Isles",
+    "Sarkopekt":       "Wharf of St. Brannoch",
+    "Astravantheliad": "Vaelohk",
+    "Ossensteins":     "Prophet's Landing",
+}
+ARTISTIC_REGISTER = {
+    "Kraghs": "ANCIENT ART, and mostly PROPAGANDA. History told in relief and frieze: victories, "
+              "the longest-reigning warlords, the great deeds — with folklore worked into the "
+              "record until the two cannot be separated, the way the ancient Greeks did it. Nobody "
+              "carves a defeat. A CULTURAL GRADIENT runs through them: Egyptian at the oldest and "
+              "most monumental end, then Roman, then English, then Highlander at the fringe — the "
+              "same people at four distances from the fallen empire.",
+    "Belvareth": "GOTHIC HORROR. The register their god deserves.",
+    "Drakteni": "THE PRINTING PRESS. The only culture that can mass-produce a claim — history "
+                "set in type, distributed, and identical in every copy.",
+    "Vorghith": "CAVE PAINTINGS. Most do not survive, and nothing was made to.",
+    "Voldrastel": "RENAISSANCE.",
+    "Astravantheliad": "ENLIGHTENMENT.",
+    "Cailendroffs": "NEOCLASSICAL — a revival style, which is the whole claim in a visual idiom: "
+                    "the deliberate imitation of an antiquity they say they descend from.",
+}
+
+NAMED_PERSONS = {
+    "rule": "HISTORICAL ONLY. No living individual is named anywhere in the lore — not the Duke, "
+            "not the prince, not the False Prophet. The people who have names are the people the "
+            "world has already finished with.",
+    "who_remembers": "AND EACH CULTURE REMEMBERS ITS OWN. There is no shared roll of great "
+                     "figures. The Kraghs carve Draggath and Pravak; the Vorghith keep Vogen; the "
+                     "Sarkopekt keep Karalius. Nobody keeps anybody else's — a renowned name "
+                     "travels only as far as the people who profit from telling it.",
+    "why": "Renown is the win condition of history, so a name in the record is a RESULT, not "
+           "furniture. Naming the living would spend that currency on people the world has not "
+           "finished judging. It also keeps the present tense open: every seat that matters — the "
+           "Duke, the prince, the Prophet — is occupied by someone the reader can fill in, or a "
+           "player can become.",
+    "the_named": ["Draggath (last monarch; empire, dynasty, land)",
+                  "Cailen (old god; the Draggath monarch was his warrior-prophet)",
+                  "Trusti (old god of the Trusteki)",
+                  "Clypso (old god the Ithiss rejected)",
+                  "Pravak (Kragh warband-leader, early Fracture)",
+                  "Vogen (Vorghith general, 1136)",
+                  "Mason-King Karalius II (Sarkopekt shipwright, ~2910)",
+                  "the four greater deities, and Esselantheum"],
+}
+
+
+
+# Heraldry — 'primary' is the culture's principal charge/beast.
+# Kept as a dict so secondary charges, tinctures, ordinaries, and mottos
+# can be added later without a schema change.
+
+# Pure corners
+CULTURES["Kraghs"]["heraldry"]          = {"primary": "Lion"}
+CULTURES["Trusteki"]["heraldry"]        = {"primary": "Beaver"}
+CULTURES["Ithiss"]["heraldry"]          = {"primary": "Fox"}
+CULTURES["Lenavorites"]["heraldry"]     = {"primary": "Pelican"}
+
+# Pairs
+CULTURES["Vorghith"]["heraldry"]        = {"primary": "Raven"}
+CULTURES["Shassolin"]["heraldry"]       = {"primary": "Mantis"}
+CULTURES["Prezish"]["heraldry"]         = {"primary": "Octopus"}
+CULTURES["Madekites"]["heraldry"]       = {"primary": "Stag"}
+CULTURES["Drakteni"]["heraldry"]        = {"primary": "Ox"}
+CULTURES["Belvareth"]["heraldry"]       = {"primary": "Tree"}
+
+# Triples
+CULTURES["Cailendroffs"]["heraldry"]    = {"primary": "Rooster"}
+CULTURES["Sarkopekt"]["heraldry"]       = {"primary": "Wolf"}
+CULTURES["Ossensteins"]["heraldry"]     = {"primary": "Spider"}
+CULTURES["Voldrastel"]["heraldry"]      = {"primary": "Sea Eagle"}
+
+# Center / all four
+CULTURES["Astravantheliad"]["heraldry"] = {"primary": "Owl"}
+
+
+
+
+PROSE["THE HOOK"] = (
+    "Four and a half thousand years ago the world fractured, shattering dynasties, "
+    "overturning climates, forcing migrations, and it has been filling the silence "
+    "with forgotten empires ever since.\n\n"
+    "However, these empires do not last. Walk the Draggath Wastes and you will cross "
+    "the ruins of abandoned cities of once-great empires — foundations under the "
+    "dust, a gate standing in open country with no wall left to hold, a road that "
+    "leads to an empty place: every one of them was once a certain claim. Every one "
+    "of them had a banner, an edict, a value and a name its people would have died "
+    "for, and did.\n\n"
+    "Nobody remembers their name.\n\n"
+    "There are some who have been remembered. Not the largest, nor the richest, nor "
+    "the most dominant; but the ones that did something the world could not forget. "
+    "Draggath, whose name became the word for empire, for everlasting monarchy, and "
+    "then the word for ruin. Vogen, who outmaneuvered the strong and left a gallows "
+    "where his name once was. Karalius, who never fought his own battles yet decided "
+    "many. These are not the great — they are the remembered. Yet, in a world this "
+    "forgetful, the two have become the same thing.\n\n"
+    "That is what is on offer. Not conquest — conquest is common. Empires rise to "
+    "their zenith and fall with the same certainty as the sunrise, and the wastes "
+    "are full of the men who managed it. Not wealth; the wealthiest people alive "
+    "cannot be named by anyone, hiding in the shadows. What is to be claimed is "
+    "RENOWN: to be one of the few empires the world does not misplace.\n\n"
+    "Most empires are forgotten. Make yours renowned."
+)
+
+PROSE["THE PREMISE"] = (
+    "The world of Renown, called Vaelohk, broke apart almost five thousand years "
+    "ago, ending the Age of Darkness. With the end of an age came rampant storms "
+    "that raised water, carved rock, and shifted climate and biome, causing great "
+    "migration and upheaval.\n\n"
+    "Before it sat the longest-reigning empire in the world of old — a name so "
+    "ancient that the land, the dynasty and the monarch all shared it: Draggath. "
+    "Within its reach the empire's land turned to desert, badland and bleak "
+    "highland, causing a Great Fracturing within its peoples. This turned a great "
+    "society of valour and honour into a civil war amongst city-states, nomadic "
+    "tribes and powerful warbands.\n\n"
+    "And so began the Age of Prowess.\n\n"
+    "Deep in the Coloured Mountains, an ancient people believing in the deity of "
+    "plenty, Trusti, migrated east to an unknown land to escape a blight caused by "
+    "the dark storms. For centuries the Trusti cooperated, learning and passing "
+    "down ancient techniques each family generation, creating a lineage of craft. "
+    "Over time these people developed beyond subsistence farming and created a "
+    "society of crafters, traders and merchants, all working in the best interest "
+    "of its community. Following the blight, an Age of Plenty had begun. The red "
+    "soil left over from the blight raised scarlet forests that grew to the size of "
+    "ancient trees within a generation, and with it came shipyards, migrations, "
+    "trade and wealth. The peninsula of Blighthold became a beacon of affluence, "
+    "which created much attention.\n\n"
+    "An ancient, sparsely populated, arid land of the south-western dunes was "
+    "occupied only by the most cunning. These were the people of Clypso — a people "
+    "of night. Living under the sands was hard rock, cut and chiselled into "
+    "underground catacombs, buildings and customs-houses to sleep in and to avoid "
+    "the dangerous heat of Clypso's Wrath: a legend of ancient history, the revenge "
+    "of the demigod upon whom they cast doubt.\n\n"
+    "That is, until the great storms came and never stopped. First the wells "
+    "overflowed. Then so did the tunnels. The Ithiss of Clypso left their sunken "
+    "catacombs to find the landscape changing into a lush forest, and they began to "
+    "settle above ground. But the Ithiss were untrusting, and soon began stealing "
+    "from one another in the night, hiding into the forests to count their spoils. "
+    "To survive, brotherhoods, guilds and syndicates formed, levying power to "
+    "control the flow of goods in their territories, and with wanton disregard "
+    "punishing those who attempted to steal from them."
+)
+
+
+PROSE["THE PREMISE"] += (
+    "\n\n"
+    "Long ago, in the place now known as the Tomb of the Old Gods, was a "
+    "pharisaical people, arrogant, legalistic, and vain. The Essels had built a "
+    "civilisation of worship and adoration, sculpting, carving, and erecting the "
+    "world's tallest and grandest cathedrals and basilicas.\n\n"
+    "Over time, the Essels' vanity grew, and with it came its laxity. Eventually, "
+    "the gods of old disappeared from the lips of its Pharisees, and in response, "
+    "their names became sacrilege to merely mention, fearing the penance of their "
+    "acknowledgment.\n\n"
+    "As the storms rose over the mountains, the civilisation once pious left their "
+    "golden cities as ash fell from the sky. These people migrated across the sea "
+    "of ash into the boxed mountains of Lenaveron, where the Lenavorites issued "
+    "their first record — the name of its home.\n\n"
+    "The Lenavorites, over time, began to focus their efforts on history, record "
+    "keeping, and the formation of the Truth. Soon, new gods were born: Ollanenor, "
+    "the god of Saints; Lorenthal, the god of Peace; Melvanar, the god of Wrath; "
+    "and Anumaranth, the god of Balance.\n\n"
+    "For each god existed an Order that rose to fill the void caused by the "
+    "migrations and lack of purpose.\n\n"
+    "Ollanenor was run by the Order of Saints, the first order, used to determine a "
+    "priest's Saint's name — the name they took, foregoing their old identity, to "
+    "take on the work of that Saint as their own. The Inquisition, a growing arm of "
+    "the order, trains the populace of Lenaveron preparing for their Saint's name, "
+    "removing all pharisaic tendencies from its own people to prevent the next "
+    "fall, always suspicious of its imminent arrival.\n\n"
+    "The Order of Mission represents Lorenthal, and is responsible for the mission "
+    "work of expanding its name and authority across all borders.\n\n"
+    "The Order of Penance of Melvanar prepares its people and all inhabitants of "
+    "Vaelohk for the return of Melvanar, seeking justice against those who had "
+    "fallen from his path.\n\n"
+    "Lastly, from Anumaranth came the Order of the True Word. They were strict "
+    "record keepers, fact finders, and administrators. In order to fund the grand "
+    "instrument of the papacy, the Tithe was implemented, causing all under the "
+    "reach of the four gods, the Tetramorph, to tithe in order to fund and fuel "
+    "the great power of Lenaveron."
+)
+
+
+
+
+
+
+def bearing(frm, to):
+    """Compass bearing from one culture (or place) to another. Returns e.g.
+    'north-west', 'east', or 'the same ground' when they overlap."""
+    a = POSITIONS.get(CULTURE_SEATS.get(frm, frm))
+    b = POSITIONS.get(CULTURE_SEATS.get(to, to))
+    if a is None or b is None:
+        return None
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    if dx == 0 and dy == 0:
+        return "the same ground"
+    ns = "north" if dy > 0 else ("south" if dy < 0 else "")
+    ew = "east" if dx > 0 else ("west" if dx < 0 else "")
+    # drop the minor axis when one dominates by 2:1
+    if ns and ew:
+        if abs(dy) >= 2 * abs(dx):
+            ew = ""
+        elif abs(dx) >= 2 * abs(dy):
+            ns = ""
+    return "-".join(p for p in (ns, ew) if p)

@@ -1,6 +1,6 @@
 # renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
-VERSION = "0.4.9.7.1"
+VERSION = "0.4.9.7.5"
 # ── Keyword constants ─────────────────────────────────────────────────────
 # Rename a keyword here and it renames everywhere (GLOSSARY keys, tags, cards).
 
@@ -253,7 +253,7 @@ WEAPONS = {
     "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY]},
     "Pike":           {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, UNWIELDY, SHATTER_ARMOR]},
     "Flail":          {"ap": -1, "init":  0, "tier": "Wrought", "tags": [UNWIELDY, CLEAVE]},
-    "Halberd":        {"ap": -3, "init":  0, "tier": "Wrought", "tags": [TWO_H, UNWIELDY]},
+    "Halberd":        {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, UNWIELDY]},
     "Battle Axe":     {"ap": -2, "init":  0, "tier": "Wrought", "tags": [TWO_H, UNWIELDY, CLEAVE, NEGATE_SHIELDED]},
     "Cavalry Spear":  {"ap": -2, "init":  0, "tier": "Wrought", "tags": [STEADY, UNWIELDY, NEGATE_RIPOSTE], 'note': "Needs Stable; no Tower Shield or Dual Wield or Ranged Weapon"},
     "Morningstar":    {"ap": -3, "init": -1, "tier": "Forged",  "tags": [UNWIELDY, CLEAVE, DESTROY_SHIELD]},
@@ -271,6 +271,7 @@ RANGED = {
     "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, ONE_SHOT]},
     "Crossbow":    {"ap": -4, "init":  0, "tier": "Forged",  "tags": [UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, ONE_SHOT], 'note': "Tower Shield only (no other shield)"},
     "Pilum":       {"ap": -3, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD, ONE_SHOT]},
+    "Arqeubus":    {"ap": -4, "init":  2, "tier": "Crafted", "tags": [TWO_H, STEADY, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, NEGATE_TEMPERED], 'note': "May only play Fighting Formation, Defensive Formation, or Fall Back Tactics. "},
 }
 
 SHIELDS = {
@@ -1367,7 +1368,7 @@ NODES = {
         "innate": "**Siege Timer −1**",
         "mastery": "Armies gain **Immune Strained** during Lay Siege",
         "efficient": "Siege Works",
-        "builds_into": [],
+        "builds_into": ["Artillery Park"],
         "monument": False},
     "Citadel": {
         "type": "Power",
@@ -1436,6 +1437,15 @@ NODES = {
         "innate": "Each Empire Phase, all non-allied players with a lower Prowess value gain Doubt +2.",
         "mastery": "If your Envoy would fail, it passes instead.",
         "efficient": "Citadel",
+        "builds_into": [],
+        "monument": True},
+    "Artillery Park": {
+        "type": "Monument",
+        "unlock": "Sovereign Prowess",
+        "mastery_req": "Siege Camp + Master Workshop",
+        "innate": "Siege Timers ignore Wooden & Stone Walls",
+        "mastery": "Settlements you Siege cannot Sally Forth. Siege Timer -1.",
+        "efficient": "Siege Camp",
         "builds_into": [],
         "monument": True},
     "Ministry of Military Strategy": {
@@ -1901,7 +1911,7 @@ FACTIONS = {
 # Tiered upkeep/build values (e.g. '50/100/200') are strings.
 INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                 'upkeep_frequency': '—',
-                'empire_bonus': 'Can Trade; place Dirt Road Territories in Province; ignore Terrain Speed Modifiers',
+                'empire_bonus': 'Can Trade; If you start a Move action within Province, gain Speed +1',
                 'tier': 'Primitive',
                 'build_time': 2,
                 'requirement': 'None'},
@@ -1912,26 +1922,25 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                    'build_time': 2,
                    'requirement': 'None'},
  'Muster Field': {'upkeep': 200,
-                  'upkeep_frequency': '—',
+                  'upkeep_frequency': 'per Turn',
                   'empire_bonus': 'Can Muster',
                   'tier': 'Primitive',
                   'build_time': 2,
                   'requirement': 'None'},
  'Wooden Walls': {'upkeep': 200,
-                  'upkeep_frequency': '—',
-                  'empire_bonus': '**Influence -1** to **Raze actions** targeting your **settlements**',
+                  'upkeep_frequency': 'per Turn',
+                  'empire_bonus': '**Influence -1** to **Raze actions** targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**.',
                   'tier': 'Primitive',
                   'build_time': 2,
                   'requirement': 'None'},
  'Stone Roads': {'upkeep': 200,
-                 'upkeep_frequency': '—',
-                 'empire_bonus': 'Ignore Terrain Speed Modifiers; if you start turn on Stone Road gain Speed '
-                                 '+2; replaces Dirt Roads',
+                 'upkeep_frequency': 'per Turn',
+                 'empire_bonus': 'If you start a Move action within Province, gain Speed +2',
                  'tier': 'Developed',
                  'build_time': 3,
                  'requirement': 'Dirt Roads'},
  'Town Hall': {'upkeep': 200,
-               'upkeep_frequency': '—',
+               'upkeep_frequency': 'per Turn',
                'empire_bonus': '+1 Influence per turn',
                'tier': 'Developed',
                'build_time': 3,
@@ -1944,33 +1953,33 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
              'build_time': 3,
              'requirement': 'One Tier Primitive + Stone Roads'},
  'Garrison': {'upkeep': '300',
-              'upkeep_frequency': '—',
+              'upkeep_frequency': 'per Turn',
               'empire_bonus': 'Local Armies form (10/15/25/50 by Settlement size). All Garrisons share '
                               'Equipment. Cannot be targeted; may Sally Forth.',
               'tier': 'Developed',
               'build_time': 3,
               'requirement': 'Muster Field'},
- 'Stone Walls': {'upkeep': 200,
-                 'upkeep_frequency': '—',
-                 'empire_bonus': '**Influence -1** to **Destabilize actions** targeting your **settlements**',
+ 'Stone Walls': {'upkeep': 300,
+                 'upkeep_frequency': 'per Turn',
+                 'empire_bonus': '**Influence -1** to **Destabilize actions** targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**.',
                  'tier': 'Sophisticated',
                  'build_time': 4,
                  'requirement': 'One Tier Developed + Wooden Walls'},
- 'Keep': {'upkeep': 200,
-          'upkeep_frequency': '—',
+ 'Keep': {'upkeep': 300,
+          'upkeep_frequency': 'per Turn',
           'empire_bonus': 'May Muster from Garrison in addition to normal Muster Limits. If so set Garrison '
                           'to 0 and Muster Timer 1. Garrison returns to full when resolved.',
           'tier': 'Sophisticated',
           'build_time': 4,
           'requirement': 'Garrison'},
  'Cathedral': {'upkeep': 300,
-               'upkeep_frequency': '—',
+               'upkeep_frequency': 'per Turn',
                'empire_bonus': 'Faith +2',
                'tier': 'Sophisticated',
                'build_time': 4,
                'requirement': 'Requires 1+ City'},
  'Library': {'upkeep': 300,
-             'upkeep_frequency': '—',
+             'upkeep_frequency': 'per Turn',
              'empire_bonus': 'Influence +1 to Council Envoys',
              'tier': 'Sophisticated',
              'build_time': 4,
@@ -2132,7 +2141,7 @@ EFFICIENT = {n: t[0] for n, t in EFFICIENT_MULTI.items()} # first target (1-part
 # ============================================================================
 BANDIT_CAMP_START = 5
 BANDIT_ARMY_THRESHOLD = 25
-BANDIT_GROWTH_PER_ERA = {"Founding": 1, "Ascension": 2, "Eminence": 5, "Zenith": 10}
+BANDIT_GROWTH_PER_ERA = {"Founding": 1, "Ascension": 2, "Eminence": 3, "Zenith": 4}
 BANDIT_EQUIPMENT_PER_ERA = {"Founding": "Cudgel + Cloth", "Ascension": "Arming Swords, Target Shields, & Leather Armor" , "Eminence": "Halberds + Chainmail", "Zenith": "Battle Axes + Full Plate"}
 BANDITS = {
     "Bandit Domain Value": "For every 5 Retinues in the Bandit Camp or Army, the Bandit Camp has +2 Cunning and +2 Prowess.",
@@ -2360,7 +2369,7 @@ ACTIONS = {
         "endorsed": "Gain Faith 1.", "notes": []},
     "Convert": {
         "domain": "Piety", "cost": "Doubt 1", "requires": "",
-        "effect": "Choose another player's closest non-capital settlement; they must have Public Order −5 or lower. Lay Siege using only settlement-type siege modifiers (Wooden Walls, Stone Walls, Citadel, Garrison, Standing Army) and set a Convert Timer. At 0, the settlement joins your empire (see Capture).",
+        "effect": "Choose another player's closest non-capital settlement; they must have Public Order −5 or lower. Lay Siege using only settlement-type siege modifiers (Settlement Size & Citadel) and set a Convert Timer. At 0, the settlement joins your empire (see Capture).",
         "endorsed": "Gain Faith 1.",
         "notes": ["If the target's Public Order rises to 1+ before the timer hits 0, the Convert fails and the timer is removed."]},
     "Crusade": {
@@ -2378,7 +2387,7 @@ ACTIONS = {
                   "Only one active Build Timer at a time.",
                   "Wonders are built in your capital and require all other infrastructure active when the Build action is performed."]},
     "Repair": {
-        "domain": "Industry", "cost": "2000 gold", "requires": "",
+        "domain": "Industry", "cost": "0 gold", "requires": "",
         "effect": "Choose a damaged Pursuit or Infrastructure in a settlement you control; set Build Timer 2. At 0, choose: Restore (reactivate with all effects) or Demolish (remove it, freeing the ward).",
         "endorsed": "Recoup 2000.", "notes": []},
     "Pursue": {
@@ -2473,7 +2482,7 @@ BANDIT_BEHAVIOR = {
 UPKEEP_TRACKS = {
     "Pursuit":        "Fixed by pursuit type: Monument 300, Power 200, Energy 0, all others 0. Luminous Court zeroes Civic-pursuit upkeep.",
     "Army":           "Σ(retinue costs x army) - Upkeep -X. Reduced by Levy Hall (-200/-300), Tannery/Armory/Saddlery/Butchery/Fletchery/Smokehouse (-200), ABF (-500), High Quartermaster (-2000).",
-    "Infrastructure": "Per-settlement upkeep in INFRASTRUCTURE. Trade Guild removes Primitive (innate) + Developed (mastery); College of Engineering removes Sophisticated.",
+    "Infrastructure": "Per-Empire upkeep in INFRASTRUCTURE. Trade Guild removes Primitive (innate) + Developed (mastery); College of Engineering removes Sophisticated.",
 }
 
 # 1) PURSUIT upkeep — fixed by type.
@@ -2508,3 +2517,41 @@ COSTS = {
     "Tax per tier":    "500 gold per settlement tier per turn (collected in Winter)",
     "Trade Income":    "100 x host's Craft X per active Trade Agreement",
 }
+
+# phase order (currently only in RULES_reorganized)
+PHASES = ("Empire", "Council", "Envoy", "Battle", "Rest")
+STARTING_TURN_PHASE_OPENER = PHASES[1]
+# ACTIONS["Move"] says "March (move up to 2x Speed)"
+MARCH_MULTIPLIER = 2
+STANDING_ARMY_SIEGE_MODIFIER = 1
+# economy.py has this as a local constant (EMPIRE_START)
+EMPIRE_START_TIERS = ("Town", "Village", "Village")
+STARTING_TREASURY = 10000
+
+BOARD_SIZES = {
+    "Tight":    {3: (12,10), 4: (16,12), 5: (18,14), 6: (20,16)},
+    "Standard": {3: (18,14), 4: (20,16), 5: (22,18), 6: (24,20)},
+    "Campaign": {3: (30,24), 4: (30,24), 5: (30,24), 6: (30,24)},
+}
+
+SIEGE_CALCULUS = {
+    "Lay Siege": {
+        "settlement_sources": ["Settlement Size", "Wooden Walls", "Stone Walls",
+                               "Citadel", "Garrison", "Standing Army"],
+        "attacker_sources": True,      # Siege Works, Siege Camp, army effects
+        "floor": 1,
+    },
+    "Convert": {
+        "settlement_sources": ["Settlement Size", "Citadel"],
+        "attacker_sources": False,     # settlement-type modifiers only
+        "floor": 1,
+    },
+}
+
+# Sources whose value isn't in effect text
+SIEGE_SOURCE_VALUES = {
+    "Settlement Size": {"from": "SETTLEMENTS", "field": "tier"},
+    "Standing Army":   {"from": "board_state", "value": 1,
+                        "rule": "army at range 0 of the settlement"},
+}
+
