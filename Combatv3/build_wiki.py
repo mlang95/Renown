@@ -16,25 +16,57 @@ Usage: python build_wiki.py [RULES.md] [out_dir]
 """
 import sys, os, re, html, json
 sys.path.insert(0, ".")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import renown_data as rd
 import wiki_markers as wm
 _VERSION = str(getattr(rd, "VERSION", ""))
 
 # ── world lore source: the hand-maintained world.txt book ─────────────────────
 # The Lore section renders whatever is currently in world.txt (parsed by
-# worldtxt.py), so editing world.txt updates the wiki. Path is overridable via
-# the WORLD_TXT env var; the section is simply omitted if the file is absent.
-import worldtxt as _wt
-WORLD_TXT = os.environ.get("WORLD_TXT", "world.txt")
+# worldtxt.py), so editing world.txt updates the wiki. Set WORLD_TXT to point
+# anywhere; otherwise these locations are searched (relative to the cwd, this
+# script, and the RULES file), including a worldbuilding/ subfolder.
+try:
+    import worldtxt as _wt
+except Exception as _e:
+    _wt = None
+    print(f"  [lore] worldtxt.py not importable ({_e}) -> Lore section skipped")
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+_RULES_DIR = os.path.dirname(os.path.abspath(sys.argv[1])) if len(sys.argv) > 1 else os.getcwd()
+def _find_world_txt():
+    env = os.environ.get("WORLD_TXT")
+    if env:
+        return env, [env]
+    names = ["world.txt", os.path.join("worldbuilding", "world.txt")]
+    bases = [os.getcwd(), _SCRIPT_DIR, _RULES_DIR,
+             os.path.dirname(_SCRIPT_DIR), os.path.dirname(_RULES_DIR)]
+    tried = []
+    for base in bases:
+        for nm in names:
+            p = os.path.normpath(os.path.join(base, nm))
+            if p not in tried:
+                tried.append(p)
+            if os.path.exists(p):
+                return p, tried
+    return None, tried
+
+WORLD_TXT, _WT_TRIED = _find_world_txt() if _wt else (None, [])
 WORLD_SECTIONS = []   # [(title, body_lines), ...] in file order
 WORLD_CULTURES = []   # demonyms extracted from THE FIFTEEN
-if os.path.exists(WORLD_TXT):
+if _wt and WORLD_TXT and os.path.exists(WORLD_TXT):
     try:
         _wtext = open(WORLD_TXT, encoding="utf-8").read()
         WORLD_SECTIONS = _wt.parse_sections(_wtext)
         WORLD_CULTURES = _wt.extract_cultures(WORLD_SECTIONS)
+        print(f"  [lore] world.txt -> {WORLD_TXT}  "
+              f"({len(WORLD_SECTIONS)} sections, {len(WORLD_CULTURES)} cultures)")
     except Exception as _e:
         print(f"  [lore] world.txt present but failed to parse: {_e}")
+elif _wt:
+    print("  [lore] world.txt NOT FOUND -> Lore section skipped. "
+          "Set WORLD_TXT=<path> or place world.txt in one of:")
+    for _p in _WT_TRIED:
+        print(f"           {_p}")
 
 # Map each world.txt section title (matched loosely) to a wiki page + nav label,
 # in the book's reading order. Titles not listed here still render, appended in
