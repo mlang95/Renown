@@ -137,29 +137,6 @@ CONTENTS
   · PIETY
       S/se — Lenaveron and the Lost Woods.
 
-  -- THE SEA -------------------------------------------------------------------
-
-    One sea, and no name for the whole of it. Each shore names the water it can
-      see, and the ring is wide enough that they are all describing something
-      different.
-
-  · The Lonely Sea
-      A vast open sea of doldrums.
-
-  · The Sea of Drakes
-      Tumultuous. Mythology holds that flying drakes destroy ships to protect
-        it. Borders the Prowess corner.
-
-  · The Sea of Miracles
-      Where miracles are said to have happened.
-
-  · The Sea of Damnation
-      Fraught with Drakteni and Sarkopekt — where the damned are sent to meet
-        their deserved fate. The name is honest by accident: what is actually
-        out there is a conquest fleet and mercenary free companies of unknown
-        allegiance. Whether the damnation is theological or just Drakteni
-        siege-ships depends on who you ask.
-
 
 ================================================================================
                                 3.  THE FIFTEEN                                 
@@ -1703,3 +1680,20 @@ Every place on the map with a story, and who holds it now. Names are claims and
         expand; a proving ground stays exactly where it is forever, because both
         sides want it to. Never paved: hallowed ground, where the world comes to
         be measured. Men reaped like wheat.
+
+  · The Lonely Sea  —  Sea
+      A vast open sea of doldrums.
+
+  · The Sea of Drakes  —  Sea
+      Tumultuous. Mythology holds that flying drakes destroy ships to protect
+        it. Borders the Prowess corner.
+
+  · The Sea of Miracles  —  Sea
+      Where miracles are said to have happened.
+
+  · The Sea of Damnation  —  Sea
+      Fraught with Drakteni and Sarkopekt — where the damned are sent to meet
+        their deserved fate. The name is honest by accident: what is actually
+        out there is a conquest fleet and mercenary free companies of unknown
+        allegiance. Whether the damnation is theological or just Drakteni
+        siege-ships depends on who you ask.

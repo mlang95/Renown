@@ -392,15 +392,10 @@ def _register_lore_terms():
     # culture demonyms link to their entry on the Fifteen page
     for name in WORLD_CULTURES:
         TERMS.setdefault(name, ("lore-cultures.html", slug(name)))
-    # named places link to their gazetteer row on the Map page; seas have no
-    # gazetteer row (they're in The Sea table) so they link to the page itself
+    # every named place/sea now has a gazetteer row on the Map page
     for p in WORLD_PLACES:
-        if not p.get("name"):
-            continue
-        if p["kind"] in ("territory", "unclaimed"):
+        if p.get("name"):
             TERMS.setdefault(p["name"], ("lore-map.html", "geo-" + slug(p["name"])))
-        else:
-            TERMS.setdefault(p["name"], ("lore-map.html", None))
 
 _register_reference_terms()
 _register_lore_terms()
@@ -1163,20 +1158,22 @@ if WORLD_SECTIONS:
     if WORLD_PLACES and "lore-map.html" in _page_body:
         u = "lore-map.html"
         terr = sorted((p for p in WORLD_PLACES if p["kind"] == "territory"), key=lambda p: p["name"])
+        seas = sorted((p for p in WORLD_PLACES if p["kind"] == "sea"), key=lambda p: p["name"])
         uncl = sorted((p for p in WORLD_PLACES if p["kind"] == "unclaimed"), key=lambda p: p["name"])
         rows = []
-        for p in terr + uncl:
+        for p in terr + seas + uncl:
             pid = "geo-" + slug(p["name"])
             if p["owner"]:
                 held = f"<a class='term' href='lore-cultures.html#{slug(p['owner'])}'>{html.escape(p['owner'])}</a>"
+            elif p["kind"] == "sea":
+                held = "<span class='mut'>Sea</span>"
             else:
                 held = "<span class='mut'>Unclaimed</span>"
             desc = md_inline(p["desc"]) if p["desc"] else ""
             rows.append(f"<tr id='{pid}'><td><strong>{html.escape(p['name'])}</strong></td>"
                         f"<td>{held}</td><td>{desc}</td></tr>")
         g = ["<h2 class='wl-group'>Gazetteer</h2>",
-             "<p class='mut'>Named places with recorded lore, and who holds them. "
-             "Seas are listed under The Sea above.</p>",
+             "<p class='mut'>Every named place and body of water with recorded lore, and who holds it.</p>",
              "<table class='pursuits wl-gazetteer'><thead><tr><th>Place</th><th>Held by</th>"
              "<th>Description</th></tr></thead><tbody>", *rows, "</tbody></table>"]
         _page_body[u].append("".join(g))

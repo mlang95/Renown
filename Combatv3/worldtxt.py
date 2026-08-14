@@ -101,6 +101,8 @@ def extract_places(sections):
                     holder = right.strip()
                     if holder.lower() in ("unclaimed", "contested", "nobody", "none", ""):
                         owner, kind = None, ("unclaimed" if holder else "territory")
+                    elif holder.lower() in ("sea", "open water", "water"):
+                        owner, kind = None, "sea"
                     else:
                         owner = holder
                 key = name.lower()
@@ -108,7 +110,12 @@ def extract_places(sections):
                     continue
                 seen.add(key)
                 places.append({"name": name, "owner": owner, "desc": desc, "kind": kind})
-        return places + seas(sections)
+        # add any seas from a legacy THE SEA block that the gazetteer didn't list
+        for s in seas(sections):
+            if s["name"].lower() not in seen:
+                seen.add(s["name"].lower())
+                places.append(s)
+        return places
 
     # ── fallback: derive from per-culture PLACES + THE WORLD unclaimed + seas ──
     places = []
