@@ -45,6 +45,106 @@ def parse_sections(text):
         sections.append((title, lines[start:end]))
     return sections
 
+def extract_places(sections):
+    """Return a gazetteer: list of dicts {name, owner, desc, kind}.
+      kind='territory' with owner=<demonym>  — a held place
+      kind='sea'       with owner=None       — THE MAP > THE SEA entries
+      kind='unclaimed' with owner=None       — unheld / contested places
+
+    Preferred source is a dedicated `THE GAZETTEER` section (bullets of the form
+    `· Name  —  Holder`, emitted by gen_cultures.py from MAP.regional_lore), which
+    lists every described place. If that section is absent (older world.txt), fall
+    back to deriving territories from the per-culture PLACES blocks.
+    """
+    def bullet_entries(block):
+        """[(name, desc)] from a block of `· name` + indented continuation lines."""
+        out, name, desc = [], None, []
+        for l in block:
+            mb = BULLET.match(l)
+            if mb:
+                if name is not None:
+                    out.append((name, " ".join(_clean(x) for x in desc).strip()))
+                name, desc = mb.group(1).strip(), []
+            elif name is not None:
+                desc.append(l)
+        if name is not None:
+            out.append((name, " ".join(_clean(x) for x in desc).strip()))
+        return out
+
+    def seas(sections):
+        out = []
+        for title, body in sections:
+            if "MAP" not in title.upper():
+                continue
+            in_sea = False
+            for block in _blocks(body):
+                if SUBHEAD.match(block[0]):
+                    in_sea = "SEA" in SUBHEAD.match(block[0]).group(1).upper()
+                    if in_sea:
+                        for nm, d in bullet_entries(block[1:]):
+                            out.append({"name": nm, "owner": None, "desc": d, "kind": "sea"})
+                elif in_sea and any(BULLET.match(l) for l in block):
+                    for nm, d in bullet_entries(block):
+                        out.append({"name": nm, "owner": None, "desc": d, "kind": "sea"})
+        return out
+
+    # ── preferred: the dedicated gazetteer section ──
+    gaz = next((body for title, body in sections if "GAZETTEER" in title.upper()), None)
+    if gaz is not None:
+        places, seen = [], set()
+        for block in _blocks(gaz):
+            for label, desc in bullet_entries(block):
+                name, owner, kind = label.strip(), None, "territory"
+                if "\u2014" in label:
+                    left, right = label.split("\u2014", 1)
+                    name = left.strip()
+                    holder = right.strip()
+                    if holder.lower() in ("unclaimed", "contested", "nobody", "none", ""):
+                        owner, kind = None, ("unclaimed" if holder else "territory")
+                    else:
+                        owner = holder
+                key = name.lower()
+                if key in seen:
+                    continue
+                seen.add(key)
+                places.append({"name": name, "owner": owner, "desc": desc, "kind": kind})
+        return places + seas(sections)
+
+    # ── fallback: derive from per-culture PLACES + THE WORLD unclaimed + seas ──
+    places = []
+    for title, body in sections:
+        up = title.upper()
+        if "FIFTEEN" in up:
+            current = None
+            for block in _blocks(body):
+                if _is_banner(block):
+                    inner = [l.strip() for l in block[1:-1] if l.strip()]
+                    if inner and "|" not in inner[0]:
+                        current = inner[0].title() if inner[0].isupper() else inner[0]
+                    continue
+                if block[0].strip().upper() == "PLACES":
+                    for nm, d in bullet_entries(block[1:]):
+                        places.append({"name": nm, "owner": current, "desc": d, "kind": "territory"})
+        elif "WORLD" in up:
+            in_unclaimed = False
+            for block in _blocks(body):
+                m = SUBHEAD.match(block[0])
+                if m:
+                    in_unclaimed = "BELONGING" in m.group(1).upper() or "NOBODY" in m.group(1).upper()
+                    if in_unclaimed:
+                        for nm, d in bullet_entries(block[1:]):
+                            places.append({"name": nm, "owner": None, "desc": d, "kind": "unclaimed"})
+                    continue
+                if block[0].strip().upper().startswith("PLACES BELONGING"):
+                    in_unclaimed = True
+                    for nm, d in bullet_entries(block[1:]):
+                        places.append({"name": nm, "owner": None, "desc": d, "kind": "unclaimed"})
+                elif in_unclaimed and any(BULLET.match(l) for l in block):
+                    for nm, d in bullet_entries(block):
+                        places.append({"name": nm, "owner": None, "desc": d, "kind": "unclaimed"})
+    return places + seas(sections)
+
+
 def extract_cultures(sections):
     """Return the list of culture demonyms (from culture banners in THE FIFTEEN)."""
     out = []

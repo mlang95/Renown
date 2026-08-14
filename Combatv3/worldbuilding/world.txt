@@ -10,6 +10,7 @@ CONTENTS
      4.  THE WORLD
      5.  THE TIMELINE
      6.  THE AGE OF DARKNESS
+     7.  THE GAZETTEER
 
 ================================================================================
                                 1.  THE PREMISE                                 
@@ -1497,3 +1498,208 @@ NOTES
       that can never be cleared. Prowess solved it by leaving; Piety could not
       leave, so it ate itself for fifty generations. And some who walked out may
       not have been theirs. There is no way to know.
+
+
+================================================================================
+                               7.  THE GAZETTEER                                
+================================================================================
+
+Every place on the map with a story, and who holds it now. Names are claims and
+  holders are current, not eternal.
+
+  · Bay of Lost Hope  —  Sarkopekt
+      A Sarkopekt free-company node.
+
+  · Bay of Pigs  —  Prezish
+      A weaponized false exonym. The dismissive name was given by outsiders, and
+        the locals keep it deliberately — a bay named for filth attracts no
+        attention and lowers a merchant's guard. Prezish seat: pirates,
+        smugglers, brokers, money-lenders and profiteers. The name is the first
+        move of the con.
+
+  · Bleak Highlands  —  Kraghs
+      Pastoralists, living as historical Highlanders did — herding clans under a
+        chief they swear fealty to. The northern limit of Vorghith expansion:
+        Vogen, their general, drove up to here in 1136 and no further. Also a
+        Sarkopekt free-company node. When the Pincer was organised it was
+        Highland clans who enlisted in the Mason-King's mercenary company in
+        exchange for his services — paying in fealty-service rather than coin,
+        which is how their oaths already work.
+
+  · Blighthold  —  Trusteki
+      Castle in the mountains. The heath where the Trusteki grew crops through
+        the Blight using ancient trade secrets, working together to survive the
+        diseased land. Named for what it endured — and it doubles as
+        reverse-marketing to keep people from coming. Received the migration
+        from the Coloured Mountains at the opening of the Age of Plenty.
+
+  · Cailendroff Isles  —  Cailendroffs
+      Home of the exiled pretender's people, driven out during the Great
+        Fracture and never possessing the means to return — the harder now with
+        Sarkopekt free companies patrolling the Sea of Damnation under unknown
+        allegiance.
+
+  · Coloured Mountains  —  Trusteki
+      The ancient continent where the Trusteki first formed as farmers
+        worshipping the old deity Trusti. Their migration to Blighthold opens
+        the Age of Plenty.
+
+  · Crag Pass  —  Ithiss
+      A natural chokepoint of narrow paths, labyrinths, and slot canyons, found
+        and controlled by the isseth from their underground network — reached in
+        secret, held without garrison. Where Trusteki caravans learned the
+        dangers of the south, and the route by which Ithiss who wanted another
+        life ventured north.
+
+  · Cravencroft  —  Kraghs
+      The Kraghs hold that giants here destroy the weak and the outcast. A
+        threat aimed at their own: giants that eat the weak is the story a
+        glory-or-death culture tells to keep weakness from taking root. Nobody
+        volunteers to test it.
+
+  · Dead Waters  —  Sarkopekt
+      Named for what came out of the shipyard raised on its then-unnamed shore.
+        The Pincer folded the Belvareth here — the only defeat ever recorded of
+        them.
+
+  · Draggath Wastes  —  Kraghs
+      Once the Great Monarchy that held the whole continent; the Great Fracture
+        shattered it into warring city-states. Named for the final monarch — and
+        for the empire, the dynasty, and the land, all synonymous. Fertile once:
+        endless war (salted earth, deforestation) made it badlands, and the
+        ruins are the former bounty. Recursive scarcity — the more they fought
+        over the lessening fertile land, the less there was.
+
+  · Drakenheart  —  Drakteni
+      Drakteni seat. Their craft is conquest: firepower built to expand beyond
+        the continent, campaigns constantly funded and refunded. It is also the
+        smallest landmass for the size of the culture on it — the engine of
+        everything they do. They colonise to make room for themselves as an
+        empire.
+
+  · Dreadwood  —  Ithiss
+      Ithiss heartland. An anarchic aristocracy of brotherhoods and guilds
+        forming criminal empires — no central authority, but a rigid internal
+        hierarchy of the feared and successful.
+
+  · Fair Whitewood  —  Madekites
+      Wintery forested mountain pass. Settled by Trusteki who moved north
+        'seeking religion' and became the Madekites — hard tundra rich with
+        quarries, where the pain and sacrifice of building is devotion. Their
+        fortress-cathedrals exist because the expansionist Drakteni will not
+        stop coming.
+
+  · Glen of Pravak  —  Kraghs
+      Named for the warband of Pravak — the most well-trained Kragh warband of
+        the early Fracture, which held the last remaining glen of tillable land
+        for centuries. Their strong internal pact disallowed Vorghith
+        infiltration: the one known counter to the problem that would later cost
+        the Kraghs the bay, solved in one glen and never generalised. Their dual
+        concentration on athleticism and strategy, plus intimate knowledge of
+        the ground, let them posture every battle in the glen into their favour.
+        Pravak is long gone, but his attention to positional strategy and
+        tactics reshaped how the Kraghs train.
+
+  · Heathport  —  Drakteni
+      A natural port with plentiful mines, found by Trusteki who built ships and
+        fled east after the Blight — where they met Prowess and became the
+        Drakteni. Now one end of the Ithiss-to-Prezish illicit route (Heathport
+        to the Wharf of St. Brannoch).
+
+  · Hermit's Row  —  Drakteni
+      A narrow pair of mountain ranges. The Drakteni hold a position and
+        settlement here; the Kraghs hold the narrows against them.
+
+  · Ivory Isle  —  Sarkopekt
+      Known historically as the seat of Mason-King Karalius II — shipwright and
+        builder of masonry citadels, the expensive solution that always worked.
+        His wealth was recognised, not self-styled. Now a Sarkopekt node sitting
+        between the seat of power and the war-market.
+
+  · Lenaveron  —  Lenavorites
+      Named by the Lenavorites after themselves when they migrated north and
+        west out of the frozen tundra — the first written record in the world.
+        Papacy heartland; seat of the Papal Palace (Anumaranth) and the
+        Inquisitorial Palace (Ollanenor).
+
+  · Lost Woods  —  Belvareth
+      Sacred to the crusader order. Pilgrims come to 'meet the God of Gods' —
+        and the Belvareth cut them down; the meeting is death. Theologically
+        correct from inside: seeking Esselantheum directly is the blasphemy, and
+        Melvanar's doctrine spreads by the reduction of false gods. Everyone
+        sincere, nobody lying. The only land left untouched by the Great
+        Fracture.
+
+  · Marrow Shoals  —  Prezish
+      Shared water — isseth and Prezish both. Where Trusteki venturing south met
+        the Ithiss coming north, forming the Prezish.
+
+  · Prophet's Landing  —  Ossensteins
+      A beautiful tropical archipelago — paradise as bait. Where the false god
+        manifested among the excommunicated (expelled for failing to recognise
+        the Tetramorph). The only place in the world where Esselantheum is
+        spoken aloud; saying it is the sales pitch.
+
+  · Scarlet Forest  —  Trusteki
+      The soil south of Blighthold turned blood red after the Blight, and
+        Scarlet trees grew from it — a verdant swelling, trees reaching the size
+        of the old wood of Fair Whitewood within a single generation. Produces
+        the best wood in the world. The most damaged land became the most
+        valuable, and they would never fight the earth again.
+
+  · Sea of Ash  —  Unclaimed
+      A sea completely contaminated by Ash. Crossable, but it yields nothing —
+        no fish, no drinking water. You carry everything across it or you do not
+        arrive. Some say it is the ash of the old gods.
+
+  · Shallow Mire / Quiet Hollow  —  Shassolin
+      Swampy wetland at the end of the Strait of Sorrow. Shassolin territory —
+        administrators and missionaries of the false religion, stranded frontier
+        clergy abandoned and repurposed.
+
+  · Strait of Sorrow  —  Shassolin
+      Named by the Lenavorites who built simple rafts and fled west after the
+        Fracture — many and most fell ill on the journey and died, only to find
+        a worse swampy wetland to settle, inhabited by bandits and conmen of the
+        immoral kind.
+
+  · The Twelfth Reach  —  Voldrastel
+      Twelve islands. A diaspora zone receiving displaced Prowess x Industry
+        peoples, governed by the Voldrastel — neutral wardens of the trade
+        routes, safe passage and honest brokering for a toll and a broker's fee.
+
+  · Tombs of the Old Gods  —  Lenavorites
+      The frozen south-eastern tundra the Lenavorites abandoned. Site of the
+        Great Basilica — an old-wonder of the vanished high civilization. The
+        graveyards and basilicas were left to crumble and the old gods
+        forgotten: abandoned institutions, not dead beings. The Madekites chase
+        the lost technology of the Basilica still.
+
+  · Vaelohk  —  Astravantheliad
+      The centre island, and the world's name. Grounded and educated: home to
+        the Academic Halls, the technocratic senate, and the Duke. Place-names
+        here are plain common-tongue (The Duchy's Mouth, Bay of Renown).
+
+  · Vogen's Gallows  —  Vorghith
+      Named for Vogen, the Vorghith general whose signature was assassinating
+        opponents by public execution. The best prison-turned-fortress and
+        island bay on the continent — abandoned by the Kraghs when they could no
+        longer tell who among them was Vorghith, and inherited by the prisoners.
+        Public execution is psychological and economic warfare, not battlefield
+        glory: a Kragh kills you in open combat for honour, Vogen hangs you in
+        the square so everyone watches.
+
+  · Wharf of St. Brannoch  —  Sarkopekt
+      Named for a saint. A natural sanctuary off the coast of Lenaveron, and the
+        busiest of the Sarkopekt nodes — where city-states, warbands and
+        travelling nomads hire themselves out. Also the far end of the
+        Ithiss-to-Prezish illicit route from Heathport.
+
+  · Wheat Fields  —  Belvareth
+      Not a border — a proving ground. The strongest warbands and warlords come
+        here on purpose to test themselves against the Belvareth, known as the
+        best warriors in the world; some believe they truly are their god's
+        wrath made manifest. A frontier under conquest-pressure would fall or
+        expand; a proving ground stays exactly where it is forever, because both
+        sides want it to. Never paved: hallowed ground, where the world comes to
+        be measured. Men reaped like wheat.

@@ -924,6 +924,26 @@ def sec_appendix():
 # ================================================================ main
 
 # (title, builder, designer_only)
+def sec_gazetteer():
+    """A complete index of every described place and who currently holds it.
+    Unlike the per-culture PLACES blocks (which skip places already named in an
+    overview), this lists them all, so nothing authored in regional_lore is lost."""
+    rl = MAP.get("regional_lore", {})
+    owner = {}
+    for c, ps in PLACE_OWNERS.items():
+        for p in ps:
+            owner.setdefault(p, c)
+    L = [para("Every place on the map with a story, and who holds it now. Names "
+              "are claims and holders are current, not eternal.", indent=0), ""]
+    for p in sorted(k for k, v in rl.items() if not str(v).strip().startswith("UNDEFINED")):
+        who = owner.get(p) or ("Unclaimed" if p in PLACE_UNOWNED else "Contested")
+        L.append(bullet(f"{p}  \u2014  {who}", rl[p]))
+        L.append("")
+    if L and L[-1] == "":
+        L.pop()
+    return "\n".join(L)
+
+
 DOC_ALL = [
     ("THE PREMISE",           sec_premise,     False),
     ("HOW TO READ THIS",      sec_how_to_read, True),
@@ -932,6 +952,7 @@ DOC_ALL = [
     ("THE WORLD",             sec_land,        False),
     ("THE TIMELINE",          sec_reckoning,   False),
     ("THE AGE OF DARKNESS",   sec_darkness,    False),
+    ("THE GAZETTEER",         sec_gazetteer,   False),
     ("THE GODS",              sec_gods,      True),
     ("WHAT RUNS THE PRESENT", sec_present,   True),
     ("APPENDIX",              sec_appendix,  True),
