@@ -327,15 +327,9 @@ def sec_how_to_read():
 # ================================================================ §4 THE WORLD
 
 def sec_map():
-    """Corners — orientation, before anyone is introduced. (The sea and every
-    named place now live in THE GAZETTEER so nothing is described twice.)"""
-    L = [para(MAP.get("world_name", ""))]
-    L.append("")
-    L.append(rule("THE FOUR CORNERS"))
-    for dom, where in MAP.get("corners", {}).items():
-        L.append("")
-        L.append(bullet(dom.upper(), where))
-    return "\n".join(L)
+    """Just the one-line orientation. The corners are described in THE WORLD
+    prose, and every named place lives in THE GAZETTEER — nothing repeated."""
+    return para(MAP.get("world_name", ""))
 
 
 def sec_land():

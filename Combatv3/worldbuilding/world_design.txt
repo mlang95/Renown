@@ -219,21 +219,6 @@ CONTENTS
 
   Vaelohk — the centre island, and the name the world took from it.
 
-  -- THE FOUR CORNERS ----------------------------------------------------------
-
-  · INDUSTRY
-      NW — Blighthold (castle in mountains), Scarlet Forest.
-
-  · PROWESS
-      NE — Draggath Wastes (tundra), Bleak Highlands, Glen of Pravak,
-        Drakenheart, Sea of Drakes.
-
-  · CUNNING
-      SW — Dreadwood, Marrow Shoals.
-
-  · PIETY
-      S/SE — Lenaveron and the Lost Woods.
-
 
 ================================================================================
                                 4.  THE FIFTEEN                                 
