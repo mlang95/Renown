@@ -28,6 +28,11 @@ REM WIKI_REPO : local clone of the RenownWiki repo (GitHub Pages source)
 set WIKI_REPO=C:\Users\Matt\OneDrive\Desktop\Game\RenownWiki
 REM PUSH_WIKI : 1 = git commit+push after build, 0 = build only
 set PUSH_WIKI=1
+REM ---- LORE (world.txt regenerated from renown_worldlore.py) -----------------
+REM BUILD_LORE : 1 = run gen_cultures.py before the wiki, 0 = use existing world.txt
+set BUILD_LORE=1
+REM LORE_DIR   : folder holding gen_cultures.py / renown_worldlore.py / world.txt
+set LORE_DIR=C:\Users\Matt\OneDrive\Desktop\Game\Combatv3\worldbuilding
 REM ---- BOARD (print-and-tape start map) --------------------------------------
 REM BUILD_BOARD : 1 = generate a start-board PDF, 0 = skip
 set BUILD_BOARD=1
@@ -55,7 +60,7 @@ set TAC_HEX=20
 set TAC_OUT=%BOARD_DIR%\tactical_%TAC_W%x%TAC_H%_s%TAC_SEED%.pdf
 REM ---------------------------------------------------------------------------
 echo.
-echo === build_all : MODE=%MODE%  WHAT=%WHAT%  PLAYERS=%PLAYERS%  BOARD=%BUILD_BOARD%  TACTICAL=%BUILD_TACTICAL% ===
+echo === build_all : MODE=%MODE%  WHAT=%WHAT%  PLAYERS=%PLAYERS%  LORE=%BUILD_LORE%  BOARD=%BUILD_BOARD%  TACTICAL=%BUILD_TACTICAL% ===
 echo.
 if /i "%BUILD_BOARD%"=="1" call :board
 if /i "%BUILD_TACTICAL%"=="1" call :tactical
@@ -106,6 +111,7 @@ echo Host Sheet...
 
 :wiki
 echo --- Wiki ---
+if /i "%BUILD_LORE%"=="1" call :lore
 rmdir /s /q wiki 2>nul
 %PY% build_wiki.py RULES_reorganized_5.md wiki
 if errorlevel 1 (
@@ -147,6 +153,21 @@ echo.
 echo Done. Press any key to close.
 pause
 goto :eof
+REM ============================================================================
+REM  :lore  - regenerate world.txt (+ world_design.txt) from renown_worldlore.py
+REM ============================================================================
+:lore
+echo --- Lore (world.txt from renown_worldlore.py) ---
+if not exist "%LORE_DIR%\gen_cultures.py" (
+  echo   ERROR: gen_cultures.py not found in %LORE_DIR% - skipping lore gen.
+  exit /b
+)
+pushd "%LORE_DIR%"
+%PY% gen_cultures.py
+if errorlevel 1 echo   WARNING: gen_cultures.py returned an error - wiki will use the existing world.txt.
+popd
+echo   Lore -^> %LORE_DIR%\world.txt
+exit /b
 REM ============================================================================
 REM  :board  - generate the print-and-tape start map PDF into BOARD_DIR
 REM ============================================================================

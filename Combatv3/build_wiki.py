@@ -53,11 +53,13 @@ def _find_world_txt():
 WORLD_TXT, _WT_TRIED = _find_world_txt() if _wt else (None, [])
 WORLD_SECTIONS = []   # [(title, body_lines), ...] in file order
 WORLD_CULTURES = []   # demonyms extracted from THE FIFTEEN
+WORLD_PLACES = []     # [{name, owner, desc, kind}, ...] gazetteer entries
 if _wt and WORLD_TXT and os.path.exists(WORLD_TXT):
     try:
         _wtext = open(WORLD_TXT, encoding="utf-8").read()
         WORLD_SECTIONS = _wt.parse_sections(_wtext)
         WORLD_CULTURES = _wt.extract_cultures(WORLD_SECTIONS)
+        WORLD_PLACES = _wt.extract_places(WORLD_SECTIONS)
         print(f"  [lore] world.txt -> {WORLD_TXT}  "
               f"({len(WORLD_SECTIONS)} sections, {len(WORLD_CULTURES)} cultures)")
     except Exception as _e:
@@ -75,7 +77,7 @@ _LORE_SECTION_MAP = [
     ("PREMISE",  "lore.html",          "Overview"),
     ("MAP",      "lore-map.html",      "The Map"),
     ("FIFTEEN",  "lore-cultures.html", "The Fifteen"),
-    ("WORLD",    "lore-world.html",    "The World"),
+    ("WORLD",    "lore-map.html",      "The Map"),   # merged into the Map page
     ("TIMELINE", "lore-ages.html",     "The Timeline"),
     ("DARKNESS", "lore-darkness.html", "Age of Darkness"),
 ]
@@ -99,6 +101,36 @@ for _title, _ in WORLD_SECTIONS:
 SRC = sys.argv[1] if len(sys.argv) > 1 else "RULES.md"
 OUTDIR = sys.argv[2] if len(sys.argv) > 2 else "wiki"
 os.makedirs(OUTDIR, exist_ok=True)
+
+# ── world map image (map7.png) ────────────────────────────────────────────────
+# Discovered like world.txt (cwd, this script, the RULES file, their parents, and
+# worldbuilding/ or Assets/ under each), copied into the output so it deploys with
+# the wiki, and embedded on the Map lore page. Override with WORLD_MAP=<path>.
+import shutil as _shutil
+def _find_asset(fname, subdirs=("", "worldbuilding", "Assets", "assets", "img")):
+    env = os.environ.get("WORLD_MAP")
+    if env and os.path.exists(env):
+        return env
+    bases = [os.getcwd(), _SCRIPT_DIR, _RULES_DIR,
+             os.path.dirname(_SCRIPT_DIR), os.path.dirname(_RULES_DIR)]
+    for base in bases:
+        for sub in subdirs:
+            p = os.path.normpath(os.path.join(base, sub, fname))
+            if os.path.exists(p):
+                return p
+    return None
+
+MAP_IMG_SRC = _find_asset("map7.png")
+MAP_IMG = None  # basename referenced from lore-map.html once copied
+if MAP_IMG_SRC:
+    try:
+        MAP_IMG = os.path.basename(MAP_IMG_SRC)
+        _shutil.copyfile(MAP_IMG_SRC, os.path.join(OUTDIR, MAP_IMG))
+        print(f"  [lore] map image -> {MAP_IMG_SRC}")
+    except Exception as _e:
+        print(f"  [lore] map image found but copy failed: {_e}")
+        MAP_IMG = None
+
 
 TYPE_ORDER = ["Raw Materials","Husbandry","Energy","Craft","Power","Civic","Secrecy","Monument"]
 DOMAINS = ["Industry","Prowess","Cunning","Piety"]
@@ -360,6 +392,15 @@ def _register_lore_terms():
     # culture demonyms link to their entry on the Fifteen page
     for name in WORLD_CULTURES:
         TERMS.setdefault(name, ("lore-cultures.html", slug(name)))
+    # named places link to their gazetteer row on the Map page; seas have no
+    # gazetteer row (they're in The Sea table) so they link to the page itself
+    for p in WORLD_PLACES:
+        if not p.get("name"):
+            continue
+        if p["kind"] in ("territory", "unclaimed"):
+            TERMS.setdefault(p["name"], ("lore-map.html", "geo-" + slug(p["name"])))
+        else:
+            TERMS.setdefault(p["name"], ("lore-map.html", None))
 
 _register_reference_terms()
 _register_lore_terms()
@@ -372,48 +413,70 @@ _rebuild_terms()
 
 # ── nav ──
 def nav(current=""):
-    it=['<div class="navhead">Rules</div>']
-    it.append(f"<a href='turn-sequence.html'{' class=active' if current=='turn-sequence.html' else ''}>★ Turn Sequence</a>")
-    for t,_ in sections_live:
-        u=f"rules-{slug(t)}.html"; it.append(f"<a href='{u}'{' class=active' if u==current else ''}>{html.escape(t)}</a>")
-    it.append('<div class="navhead">Pursuits</div>')
-    it.append(f"<a href='pursuits.html'{' class=active' if current=='pursuits.html' else ''}>Overview</a>")
+    groups = []  # (group_id, label, [link_html, ...])
+    def A(u, label):
+        return f"<a href='{u}'{' class=active' if u==current else ''}>{label}</a>"
+
+    rules = [A("turn-sequence.html", "★ Turn Sequence")]
+    for t, _ in sections_live:
+        rules.append(A(f"rules-{slug(t)}.html", html.escape(t)))
+    groups.append(("rules", "Rules", rules))
+
+    pursuits = [A("pursuits.html", "Overview")]
     for t in TYPE_ORDER:
-        u=f"type-{slug(t)}.html"; it.append(f"<a href='{u}'{' class=active' if u==current else ''}>{t}</a>")
-    it.append('<div class="navhead">Views</div>')
-    for d in DOMAINS:
-        u=f"domain-{slug(d)}.html"; it.append(f"<a href='{u}'{' class=active' if u==current else ''}>{d}</a>")
-    it.append(f"<a href='paths.html'{' class=active' if current=='paths.html' else ''}>Build Paths</a>")
-    it.append('<div class="navhead">Reference</div>')
-    for label,uu in [("Actions","actions-ref.html"),("Envoy Outcomes","envoy-outcomes-ref.html"),("Treaties & Alliances","treaties-ref.html"),
-                     ("Edicts","edicts-ref.html"),("Economy","economy-ref.html"),
-                     ("Terrain & Movement","terrain-ref.html"),("Bandits","bandits-ref.html"),
-                     ("Timers, Influence & PO","systems-ref.html"),
-                     ("Equipment","equipment-ref.html"),("Combat Keywords","keywords-ref.html"),
-                     ("Infrastructure","infrastructure-ref.html"),("Wonders","wonders-ref.html"),
-                     ("Settlements","settlements-ref.html"),("Eras","eras-ref.html"),
-                     ("Public Order","public-order-ref.html"),("Domain Board","domain-board-ref.html"),
-                     ("Seasons","seasons-ref.html"),("Tactic Matrix","tactic-matrix-ref.html"),("Reference Tables","reference-tables.html")]:
-        it.append(f"<a href='{uu}'{' class=active' if current==uu else ''}>{label}</a>")
-    it.append(f"<a href='glossary.html'{' class=active' if current=='glossary.html' else ''}>Glossary</a>")
-    if FACTIONS: it.append(f"<a href='factions.html'{' class=active' if current=='factions.html' else ''}>Factions</a>")
-    it.append('<div class="navhead">Escalation</div>')
-    for label,uu in [("Overview","escalation.html"),("Battle Rules","escalation-rules.html"),
-                     ("Combat Pursuits","escalation-pursuits.html"),("Tactic Matrix","tactic-matrix-ref.html"),
-                     ("Equipment","equipment-ref.html"),("Combat Keywords","keywords-ref.html")]:
-        it.append(f"<a href='{uu}'{' class=active' if current==uu else ''}>{label}</a>")
+        pursuits.append(A(f"type-{slug(t)}.html", t))
+    groups.append(("pursuits", "Pursuits", pursuits))
+
+    views = [A(f"domain-{slug(d)}.html", d) for d in DOMAINS]
+    views.append(A("paths.html", "Build Paths"))
+    groups.append(("views", "Views", views))
+
+    ref = []
+    for label, uu in [("Actions","actions-ref.html"),("Envoy Outcomes","envoy-outcomes-ref.html"),
+                      ("Treaties & Alliances","treaties-ref.html"),("Edicts","edicts-ref.html"),
+                      ("Economy","economy-ref.html"),("Terrain & Movement","terrain-ref.html"),
+                      ("Bandits","bandits-ref.html"),("Timers, Influence & PO","systems-ref.html"),
+                      ("Equipment","equipment-ref.html"),("Combat Keywords","keywords-ref.html"),
+                      ("Infrastructure","infrastructure-ref.html"),("Wonders","wonders-ref.html"),
+                      ("Settlements","settlements-ref.html"),("Eras","eras-ref.html"),
+                      ("Public Order","public-order-ref.html"),("Domain Board","domain-board-ref.html"),
+                      ("Seasons","seasons-ref.html"),("Tactic Matrix","tactic-matrix-ref.html"),
+                      ("Reference Tables","reference-tables.html")]:
+        ref.append(A(uu, label))
+    ref.append(A("glossary.html", "Glossary"))
+    if FACTIONS:
+        ref.append(A("factions.html", "Factions"))
+    groups.append(("reference", "Reference", ref))
+
+    esc = [A(uu, label) for label, uu in
+           [("Overview","escalation.html"),("Battle Rules","escalation-rules.html"),
+            ("Combat Pursuits","escalation-pursuits.html"),("Tactic Matrix","tactic-matrix-ref.html"),
+            ("Equipment","equipment-ref.html"),("Combat Keywords","keywords-ref.html")]]
+    groups.append(("escalation", "Escalation", esc))
+
     if LORE_NAV:
-        it.append('<div class="navhead">Lore</div>')
-        for uu,label in LORE_NAV:
-            it.append(f"<a href='{uu}'{' class=active' if current==uu else ''}>{label}</a>")
-    return "\n".join(it)
+        groups.append(("lore", "Lore", [A(uu, label) for uu, label in LORE_NAV]))
+
+    out = []
+    for gid, label, links in groups:
+        out.append(f"<div class='navgroup' data-group='{gid}'>"
+                   f"<button type='button' class='navhead'>{label}<span class='chev'>›</span></button>"
+                   f"<div class='navlinks'>{''.join(links)}</div></div>")
+    return "\n".join(out)
 
 def page(title,body,current=""):
     return f"""<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>(function(){{try{{var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);if(localStorage.getItem('gamemode')==='1')document.documentElement.classList.add('game-pending');}}catch(e){{document.documentElement.setAttribute('data-theme','dark');}}}})();</script>
 <title>{html.escape(title)} — Renown</title><link rel="stylesheet" href="wiki.css"></head><body>
 <input id="q" placeholder="Search…" autocomplete="off"><div id="results"></div>
+<button id="navtoggle" aria-label="Menu" onclick="document.body.classList.toggle('nav-open')">☰</button>
+<div class="topbtns">
+<button id="gamemode" type="button" aria-label="Game mode" title="Game mode: rules + reference only">♟</button>
+<button id="theme" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+</div>
 <div class="wrap"><nav>{nav(current)}</nav><main>{body}</main></div>
-<script src="search.js"></script>
+<script src="search.js"></script><script src="ui.js"></script>
 <div class="versionstamp">Renown v{_VERSION}</div></body></html>"""
 
 search_index=[]
@@ -1063,15 +1126,13 @@ if WORLD_SECTIONS:
         "lore.html":          "The World of Vaelohk",
         "lore-map.html":      "The Map",
         "lore-cultures.html": "The Fifteen",
-        "lore-world.html":    "The World",
         "lore-ages.html":     "The Timeline",
         "lore-darkness.html": "The Age of Darkness",
     }
     _page_search = {
         "lore.html":          "lore world vaelohk premise draggath fracture peoples",
-        "lore-map.html":      "map vaelohk sea corners regions places geography",
+        "lore-map.html":      "map vaelohk sea corners centre regions places geography duke unclaimed",
         "lore-cultures.html": "cultures fifteen " + " ".join(WORLD_CULTURES),
-        "lore-world.html":    "world sea corners centre duke",
         "lore-ages.html":     "timeline ages fracture plenty tetramorph doubt renown chronicle",
         "lore-darkness.html": "age of darkness old gods foundings draggath trusti clypso cailen",
     }
@@ -1090,7 +1151,35 @@ if WORLD_SECTIONS:
             if _url == "lore-cultures.html" and WORLD_CULTURES:
                 _page_body[_url][-1] = (f"<h1>The Fifteen "
                                         f"<span class='count'>{len(WORLD_CULTURES)}</span></h1>")
+            # the Map page gets the world map image under its heading
+            if _url == "lore-map.html" and MAP_IMG:
+                _page_body[_url].append(
+                    f"<figure class='lore-map'><img src='{MAP_IMG}' "
+                    f"alt='Map of Vaelohk' loading='lazy'>"
+                    f"<figcaption>The world of Vaelohk.</figcaption></figure>")
         _page_body[_url].append(_wt.render_section(_title, _body, esc=_wl_esc, slug=slug))
+
+    # ── Gazetteer: index every named place that has text, linked to who holds it ──
+    if WORLD_PLACES and "lore-map.html" in _page_body:
+        u = "lore-map.html"
+        terr = sorted((p for p in WORLD_PLACES if p["kind"] == "territory"), key=lambda p: p["name"])
+        uncl = sorted((p for p in WORLD_PLACES if p["kind"] == "unclaimed"), key=lambda p: p["name"])
+        rows = []
+        for p in terr + uncl:
+            pid = "geo-" + slug(p["name"])
+            if p["owner"]:
+                held = f"<a class='term' href='lore-cultures.html#{slug(p['owner'])}'>{html.escape(p['owner'])}</a>"
+            else:
+                held = "<span class='mut'>Unclaimed</span>"
+            desc = md_inline(p["desc"]) if p["desc"] else ""
+            rows.append(f"<tr id='{pid}'><td><strong>{html.escape(p['name'])}</strong></td>"
+                        f"<td>{held}</td><td>{desc}</td></tr>")
+        g = ["<h2 class='wl-group'>Gazetteer</h2>",
+             "<p class='mut'>Named places with recorded lore, and who holds them. "
+             "Seas are listed under The Sea above.</p>",
+             "<table class='pursuits wl-gazetteer'><thead><tr><th>Place</th><th>Held by</th>"
+             "<th>Description</th></tr></thead><tbody>", *rows, "</tbody></table>"]
+        _page_body[u].append("".join(g))
 
     for _url in _page_order:
         _emit_lore(_url, _page_titles.get(_url, _url), "".join(_page_body[_url]),
@@ -1100,40 +1189,53 @@ if WORLD_SECTIONS:
 
 # ── CSS ──
 open(os.path.join(OUTDIR,"wiki.css"),"w",encoding="utf-8").write("""
-:root{--bg:#f7f6f3;--ink:#1d1d1d;--mut:#888;--line:#e2e0db;--accent:#5b2e8e;--link:#1F4E8C}
+:root{--bg:#f7f6f3;--panel:#fff;--ink:#1d1d1d;--mut:#888;--line:#e2e0db;--accent:#5b2e8e;--link:#1F4E8C;--hover:#ece9e3;--chip:#eee4f7;--th:var(--th);--rowline:#efeee9;--rowhover:#fcfbff;--linkline:#aac;--shadow:rgba(0,0,0,.12)}
+ :root[data-theme=dark]{--bg:#15141a;--panel:#201e28;--ink:#e8e6e1;--mut:#9c99a6;--line:#34313f;--accent:#c4a2f0;--link:#82b4ec;--hover:#2b2836;--chip:#342a48;--th:#272430;--rowline:#2c2936;--rowhover:#262330;--linkline:#566;--shadow:rgba(0,0,0,.5)}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15.5px/1.6 Georgia,serif}
-#q{position:fixed;top:0;left:0;right:0;z-index:30;width:100%;padding:11px 16px;border:0;border-bottom:1px solid var(--line);font:15px sans-serif;background:#fff}
-#results{position:fixed;top:43px;left:0;right:0;background:#fff;z-index:29;box-shadow:0 6px 18px rgba(0,0,0,.1);max-height:62vh;overflow:auto;display:none}
-#results a{display:block;padding:9px 16px;border-bottom:1px solid #f0efea;text-decoration:none;color:var(--ink);font:14px sans-serif}
-#results a:hover,#results a.sel{background:#f3eefa}#results .t{font-weight:700;color:var(--accent)}#results .s{color:var(--mut);font-size:12.5px}
+#q{position:fixed;top:0;left:0;right:0;z-index:30;width:100%;padding:11px 16px;border:0;border-bottom:1px solid var(--line);font:15px sans-serif;background:var(--panel)}
+#results{position:fixed;top:43px;left:0;right:0;background:var(--panel);z-index:29;box-shadow:0 6px 18px var(--shadow);max-height:62vh;overflow:auto;display:none}
+#results a{display:block;padding:9px 16px;border-bottom:1px solid var(--rowline);text-decoration:none;color:var(--ink);font:14px sans-serif}
+#results a:hover,#results a.sel{background:var(--hover)}#results .t{font-weight:700;color:var(--accent)}#results .s{color:var(--mut);font-size:12.5px}
 .wrap{display:flex;max-width:1180px;margin:54px auto 0}
 nav{flex:0 0 215px;position:sticky;top:54px;height:calc(100vh - 54px);overflow:auto;padding:16px 12px;border-right:1px solid var(--line);font:13px sans-serif}
-nav a{display:block;padding:3px 8px;color:var(--ink);text-decoration:none;border-radius:5px}nav a:hover{background:#ece9e3}nav a.active{background:var(--accent);color:#fff}
-.navhead{font-weight:700;text-transform:uppercase;font-size:10.5px;letter-spacing:1px;color:var(--mut);margin:13px 0 4px;padding-left:8px}.navhead:first-child{margin-top:0}
+nav a{display:block;padding:3px 8px;color:var(--ink);text-decoration:none;border-radius:5px}nav a:hover{background:var(--hover)}nav a.active{background:var(--accent);color:var(--panel)}
+.navhead{display:flex;align-items:center;justify-content:space-between;width:100%;font-weight:700;text-transform:uppercase;font-size:10.5px;letter-spacing:1px;color:var(--mut);margin:13px 0 4px;padding:2px 8px;background:none;border:0;cursor:pointer;font-family:sans-serif}
+.navgroup:first-child .navhead{margin-top:0}
+.navhead:hover{color:var(--ink)}
+.navhead .chev{transition:transform .15s;font-size:14px;opacity:.7}
+.navgroup:not(.collapsed) .chev{transform:rotate(90deg)}
+.navgroup.collapsed .navlinks{display:none}
+body.game-mode .navgroup:not([data-group=rules]):not([data-group=reference]){display:none}
+html.game-pending .navgroup:not([data-group=rules]):not([data-group=reference]){display:none}
+.topbtns{position:fixed;top:0;right:0;z-index:31;height:43px;display:flex;align-items:center;gap:3px;padding-right:8px}
+.topbtns button{height:32px;min-width:34px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:7px;font-size:15px;cursor:pointer;line-height:1}
+.topbtns button:hover{border-color:var(--accent)}
+.topbtns button.on{background:var(--accent);color:var(--panel);border-color:var(--accent)}
+#q{padding-right:92px}
 main{flex:1;padding:8px 30px 80px;min-width:0}
 h1{font-size:26px;margin:.2em 0 .6em;border-bottom:2px solid var(--accent);padding-bottom:.2em}
-h1 .count,.count{font:13px sans-serif;background:#eee4f7;color:var(--accent);padding:2px 9px;border-radius:11px;vertical-align:middle}
-h2{font-size:19px;margin:1.2em 0 .4em}h3{font-size:16px;margin:1em 0 .3em;color:#444}p{margin:.5em 0}
-a.term{color:var(--link);text-decoration:none;border-bottom:1px dotted #aac}a.term:hover{background:#eef3fb}
-table.pursuits{border-collapse:collapse;width:100%;font:13px sans-serif;background:#fff;border:1px solid var(--line);border-radius:8px;overflow:hidden}
-table.pursuits th{background:#f1efe9;text-align:left;padding:7px 9px;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--mut)}
-table.pursuits td{padding:7px 9px;border-top:1px solid #efeee9;vertical-align:top}table.pursuits tr:hover td{background:#fcfbff}
-td.nm{font-weight:700;white-space:nowrap;font-family:Georgia,serif}.dim{color:#ccc}
+h1 .count,.count{font:13px sans-serif;background:var(--chip);color:var(--accent);padding:2px 9px;border-radius:11px;vertical-align:middle}
+h2{font-size:19px;margin:1.2em 0 .4em}h3{font-size:16px;margin:1em 0 .3em;color:var(--ink)}p{margin:.5em 0}
+a.term{color:var(--link);text-decoration:none;border-bottom:1px dotted var(--linkline)}a.term:hover{background:var(--hover)}
+table.pursuits{border-collapse:collapse;width:100%;font:13px sans-serif;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+table.pursuits th{background:var(--th);text-align:left;padding:7px 9px;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--mut)}
+table.pursuits td{padding:7px 9px;border-top:1px solid var(--rowline);vertical-align:top}table.pursuits tr:hover td{background:var(--rowhover)}
+td.nm{font-weight:700;white-space:nowrap;font-family:Georgia,serif}.dim{color:var(--mut)}
 table.tacticmatrix{font-size:11.5px;display:block;overflow-x:auto}
 table.tacticmatrix th{white-space:nowrap}
-table.tacticmatrix tbody th{background:#f1efe9;font-family:Georgia,serif;text-transform:none;letter-spacing:0;font-size:12px;color:var(--ink);position:sticky;left:0}
+table.tacticmatrix tbody th{background:var(--th);font-family:Georgia,serif;text-transform:none;letter-spacing:0;font-size:12px;color:var(--ink);position:sticky;left:0}
 table.tacticmatrix td{white-space:nowrap;font-size:11px}
 .gate{color:var(--mut);font-size:12px}
 ul.cols{columns:2;font:14px sans-serif;list-style:none;padding:0}ul.cols li{margin:3px 0;break-inside:avoid}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:1em}
-.card{display:flex;flex-direction:column;padding:16px;background:#fff;border:1px solid var(--line);border-radius:9px;text-decoration:none;color:var(--ink)}
+.card{display:flex;flex-direction:column;padding:16px;background:var(--panel);border:1px solid var(--line);border-radius:9px;text-decoration:none;color:var(--ink)}
 .card:hover{border-color:var(--accent);box-shadow:0 3px 10px rgba(91,46,142,.1)}.card .ct{font-weight:700;font-size:16px}.card .cn{color:var(--mut);font-size:13px;font-family:sans-serif}
 .chain{margin:.4em 0 1em}.chain ul{list-style:none;padding-left:18px;border-left:1px solid var(--line)}.chain>ul{border-left:0;padding-left:0}.chain li{margin:2px 0;font:14px sans-serif}
 dl.gloss dt{font-weight:700;color:var(--accent);margin-top:.9em;font-size:16px}dl.gloss dd{margin:.15em 0 0}
 a.usedin{color:var(--link);text-decoration:none;font-size:12px;font-style:italic;opacity:.75;white-space:nowrap}a.usedin:hover{opacity:1}
-code{background:#efeee9;padding:1px 5px;border-radius:4px;font-size:.9em}
+code{background:var(--rowline);padding:1px 5px;border-radius:4px;font-size:.9em}
 .turnflow{max-width:620px}
-.phase{background:#fff;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:12px 16px;margin:0}
+.phase{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:12px 16px;margin:0}
 .ph-head{font-weight:700;font-size:17px;font-family:Georgia,serif}
 .ph-head a{color:var(--accent)!important;border:0!important}
 .ph-desc{font-size:14px;margin:4px 0 0;font-family:sans-serif}
@@ -1144,26 +1246,36 @@ code{background:#efeee9;padding:1px 5px;border-radius:4px;font-size:.9em}
 .pagefoot{margin-top:48px;border-top:1px solid var(--line);padding-top:16px;font-family:sans-serif}
 .related{font-size:13px;margin-bottom:16px}
 .related .rl{color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-size:11px;font-weight:700;margin-right:6px}
-.related a{display:inline-block;margin:3px 6px 3px 0;padding:3px 10px;background:#eee4f7;border-radius:12px;border:0!important}
+.related a{display:inline-block;margin:3px 6px 3px 0;padding:3px 10px;background:var(--chip);border-radius:12px;border:0!important}
 .prevnext{display:flex;justify-content:space-between;gap:12px;font-size:14px}
 .pn{padding:8px 14px;border:1px solid var(--line);border-radius:7px;text-decoration:none;color:var(--ink);max-width:46%;border-bottom:1px solid var(--line)!important}
-.pn:hover{border-color:var(--accent);background:#faf7fe}
+.pn:hover{border-color:var(--accent);background:var(--hover)}
 .pn.next{margin-left:auto;text-align:right}
 .versionstamp{position:fixed;bottom:8px;right:12px;font-family:sans-serif;font-size:11px;color:var(--mut);opacity:.6;pointer-events:none}
 /* lore (world.txt) */
 h2.wl-group{margin-top:1.6em;text-transform:uppercase;letter-spacing:1px;font-size:15px;color:var(--accent);border-top:1px solid var(--line);padding-top:.8em}
 h3.wl-culture{margin-top:1.4em;font-size:22px;color:var(--ink)}
 .wl-type{font:12px sans-serif;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin:-.2em 0 .6em}
-h3.wl-sub{font-size:15px;color:#444;text-transform:uppercase;letter-spacing:.5px;margin:1.2em 0 .3em}
+h3.wl-sub{font-size:15px;color:var(--ink);text-transform:uppercase;letter-spacing:.5px;margin:1.2em 0 .3em}
 h4.wl-label{font:11px sans-serif;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin:1em 0 .2em}
 dl.wl-defs{margin:.3em 0 1em}dl.wl-defs dt{font-weight:700;font-family:Georgia,serif;color:var(--ink);margin-top:.5em}
-dl.wl-defs dd{margin:.1em 0 0;color:#333}
+dl.wl-defs dd{margin:.1em 0 0;color:var(--ink)}
 table.wl-attrs{max-width:640px;margin:.4em 0 1em}
 table.wl-table{max-width:560px}
-table.kv{border-collapse:collapse;width:100%;font:13.5px sans-serif;background:#fff;border:1px solid var(--line);border-radius:8px;overflow:hidden}
-table.kv th{background:#f1efe9;text-align:left;padding:6px 10px;color:var(--mut);font-weight:700;white-space:nowrap;vertical-align:top;width:1%}
-table.kv td{padding:6px 10px;border-top:1px solid #efeee9;vertical-align:top}
-@media(max-width:760px){.wrap{flex-direction:column}nav{position:static;height:auto;flex:none;border-right:0;border-bottom:1px solid var(--line)}}
+table.kv{border-collapse:collapse;width:100%;font:13.5px sans-serif;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+table.kv th{background:var(--th);text-align:left;padding:6px 10px;color:var(--mut);font-weight:700;white-space:nowrap;vertical-align:top;width:1%}
+table.kv td{padding:6px 10px;border-top:1px solid var(--rowline);vertical-align:top}
+figure.lore-map{margin:0 0 1.4em;text-align:center}
+figure.lore-map img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;box-shadow:0 2px 10px var(--shadow)}
+figure.lore-map figcaption{font:12px sans-serif;color:var(--mut);margin-top:.5em;font-style:italic}
+#navtoggle{display:none}
+@media(max-width:760px){
+  .wrap{flex-direction:column;margin-top:44px}
+  #navtoggle{display:flex;align-items:center;justify-content:center;position:fixed;top:0;left:0;z-index:31;height:44px;width:50px;border:0;border-right:1px solid var(--line);background:var(--panel);font-size:20px;line-height:1;cursor:pointer;color:var(--ink)}
+  #q{padding-left:58px}
+  nav{position:static;height:auto;flex:none;border-right:0;border-bottom:1px solid var(--line);display:none}
+  body.nav-open nav{display:block}
+}
 """)
 
 # ── search.js ──
@@ -1175,6 +1287,33 @@ box.innerHTML=cur.map((o,i)=>`<a href="${o.d.url}" data-i="${i}"><span class="t"
 q.addEventListener('keydown',e=>{const a=box.querySelectorAll('a');if(e.key==='ArrowDown')sel=Math.min(sel+1,a.length-1);else if(e.key==='ArrowUp')sel=Math.max(sel-1,0);else if(e.key==='Enter'&&cur.length){location.href=cur[Math.max(sel,0)].d.url;return;}else return;a.forEach((el,i)=>el.classList.toggle('sel',i===sel));e.preventDefault();});
 document.addEventListener('click',e=>{if(e.target!==q)box.style.display='none';});"""
 open(os.path.join(OUTDIR,"search.js"),"w",encoding="utf-8").write(js.replace("__IDX__",json.dumps(search_index)))
+
+open(os.path.join(OUTDIR,"ui.js"),"w",encoding="utf-8").write(r"""
+(function(){
+  var root=document.documentElement, body=document.body;
+  // ── theme toggle (head script already applied the stored/system theme) ──
+  var tb=document.getElementById('theme');
+  function setTheme(t){root.setAttribute('data-theme',t);try{localStorage.setItem('theme',t)}catch(e){}}
+  if(tb)tb.addEventListener('click',function(){setTheme(root.getAttribute('data-theme')==='dark'?'light':'dark')});
+  // ── game mode: rules + reference only ──
+  var gm=document.getElementById('gamemode');
+  function setGame(on){body.classList.toggle('game-mode',on);if(gm)gm.classList.toggle('on',on);root.classList.remove('game-pending');try{localStorage.setItem('gamemode',on?'1':'0')}catch(e){}}
+  var gs=false;try{gs=localStorage.getItem('gamemode')==='1'}catch(e){}
+  setGame(gs);
+  if(gm)gm.addEventListener('click',function(){setGame(!body.classList.contains('game-mode'))});
+  // ── collapsible nav groups (persisted); escalation collapsed by default ──
+  var KEY='navcollapsed', collapsed;
+  try{collapsed=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){collapsed=null}
+  var first=(collapsed===null); if(first)collapsed=['escalation'];
+  var groups=[].slice.call(document.querySelectorAll('.navgroup'));
+  groups.forEach(function(g){ if(collapsed.indexOf(g.dataset.group)>=0)g.classList.add('collapsed'); });
+  var act=document.querySelector('nav a.active');           // always reveal current group
+  if(act){var ag=act.closest('.navgroup'); if(ag)ag.classList.remove('collapsed');}
+  function persist(){var c=groups.filter(function(g){return g.classList.contains('collapsed')}).map(function(g){return g.dataset.group});try{localStorage.setItem(KEY,JSON.stringify(c))}catch(e){}}
+  if(first)persist();
+  groups.forEach(function(g){var h=g.querySelector('.navhead'); if(h)h.addEventListener('click',function(){g.classList.toggle('collapsed');persist();});});
+})();
+""")
 
 # ════════════ POST-PROCESS: prev/next + related footers ════════════
 import glob, collections
