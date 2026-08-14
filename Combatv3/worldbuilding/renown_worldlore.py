@@ -2231,7 +2231,6 @@ PROSE = {
     ),
 
     "THE WORLD": (
-        "There is one sea, and no agreement on what to call it.\n\n"
         "From the northern cliffs it is the Sea of Drakes, and the men there will tell you "
         "why ships do not come back. From the pilgrim coast it is the Sea of Miracles, and "
         "they will tell you what happened there, and when, and to whom. From the eastern "
