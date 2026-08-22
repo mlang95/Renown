@@ -36,7 +36,7 @@ sect.push(h1('The Hook'));
 paras(B.hook,{size:23,line:340});
 
 // ==================================================== 2. PREMISE
-sect.push(h1('The Premise'));
+sect.push(h1('The Age of Darkness'));
 paras(B.premise,{size:23,line:340});
 
 // ==================================================== 3. OVERVIEW  (fifteen peoples at a glance)
@@ -112,7 +112,7 @@ B.threads.forEach(th=>{
           children:[p(r[1],{size:17,line:240,after:0})]})]}))}));
     sect.push(p('',{after:200}));
     if (c.overview) sect.push(p(c.overview,{size:23,line:340}));
-    c.sections.concat(c.rivals.length?[{head:'Rivals',text:''}]:[]).forEach(s=>{
+    c.sections.concat(c.rivals.length?[{head:'Relations',text:''}]:[]).forEach(s=>{
       if (s.text===''){ sect.push(p(s.head,{heading:HeadingLevel.HEADING_2,size:26,bold:true,after:100}));
         c.rivals.forEach(r=>sect.push(p(`${r.head} — ${r.text}`,{})));
       } else { sect.push(p(s.head,{heading:HeadingLevel.HEADING_2,size:26,bold:true,after:100}));

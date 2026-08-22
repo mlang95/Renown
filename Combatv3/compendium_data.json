@@ -1,5 +1,5 @@
 {
- "version": "0.4.9.7.5",
+ "version": "0.4.9.7.6",
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
@@ -84,7 +84,7 @@
   "Renown": "The shared progress track. Gain 1 per Rest Phase; thresholds raise your Era (Ascension 8, Eminence 18, Zenith 30).",
   "Domain": "One of the four identities — Industry, Prowess, Cunning, Piety — raised by spending Domain points. Values 3/6/10 = Rising/Established/Sovereign Standing.",
   "Domain Point": "Gained 1 per Rest Phase; spend to raise a Domain value by 1.",
-  "Standing": "Your tier in a Domain: Untested, Rising (3), Established (6), Sovereign (10). Sets max Influence per vote (1/2/3/4) and unlocks Domain effects.",
+  "Standing": "Your tier in a Domain: Untested, Rising (3), Established (6), Sovereign (10). Sets max Influence per vote (0/1/2/3) and unlocks Domain effects.",
   "Public Order": "A track from -5 to 10, adjusted each turn by Faith minus Doubt; its band applies cumulative effects (see the Public Order table).",
   "Reach": "How far a Settlement projects control, in Territories (by tier). Calculated like Range X",
   "Bandit": "Neutral hostile force; Bandit Camps spawn in Outlaw Country and on low Public Order.",
@@ -429,7 +429,7 @@
     ],
     [
      "Standing",
-     "Your tier in a Domain: Untested, Rising (3), Established (6), Sovereign (10). Sets max Influence per vote (1/2/3/4) and unlocks Domain effects."
+     "Your tier in a Domain: Untested, Rising (3), Established (6), Sovereign (10). Sets max Influence per vote (0/1/2/3) and unlocks Domain effects."
     ],
     [
      "Public Order",
@@ -1337,7 +1337,7 @@
      "Smuggler's Nook",
      "Established Cunning",
      "Secret Cellar + Inn",
-     "**Efficient Secret Cellar**; gain Immune Local Unrest (-1PO per Bandit Camp)",
+     "**Efficient Secret Cellar**; gain Immune Uprising (Bandit Camp Spawn at -5PO)",
      "Bandit Camps in your Outlaw Country don't target you and target other players instead randomly."
     ],
     [

@@ -37,7 +37,7 @@ HANG = 2            # extra indent on wrapped continuation lines
 # document that is his is OVERVIEW; everything else is synthesised placeholder
 # and should be rewritten or cut before this goes to anyone.
 MARK_SLOP = True
-SLOP = "SLOP —> "
+SLOP = "WIP —> "
 
 # Passages Gage has written. These are never marked.
 AUTHORED = {"THE PREMISE"}
@@ -103,6 +103,11 @@ _PROPER = None
 
 # Canonical spellings restored verbatim after de-shouting, longest first so that
 # "Crag Pass" wins over "Crag" and "Order of the True Word" over "True Word".
+# Terms deliberately used in non-canonical casing in authored prose (e.g. the
+# pre-naming descriptive "sea of ash" that predates and explains the place name).
+# These keep whatever casing the source stores; decaps won't force-canonicalise them.
+_NO_CANON = {"Sea of Ash"}
+
 _MULTIWORD = sorted(
     set(list(CULTURES) + list(GODS) + list(MAP.get("regional_lore", {}))
         + list(MAP.get("sea_stretches", {})) + list(EVENTS) + list(TERMS)
@@ -135,6 +140,8 @@ def decaps(s):
     # restore capitals at sentence starts
     s = re.sub(r"(^|[.!?]\s+)([a-z])", lambda m: m.group(1) + m.group(2).upper(), s)
     for canon in _MULTIWORD:
+        if canon in _NO_CANON:
+            continue
         s = re.sub(re.escape(canon), canon, s, flags=re.I)
     return s
 
@@ -327,9 +334,21 @@ def sec_how_to_read():
 # ================================================================ §4 THE WORLD
 
 def sec_map():
-    """Just the one-line orientation. The corners are described in THE WORLD
-    prose, and every named place lives in THE GAZETTEER — nothing repeated."""
-    return para(MAP.get("world_name", ""))
+    """Corners and sea — orientation, before anyone is introduced."""
+    L = [para(MAP.get("world_name", ""))]
+    L.append("")
+    L.append(rule("THE FOUR CORNERS"))
+    for dom, where in MAP.get("corners", {}).items():
+        L.append("")
+        L.append(bullet(dom.upper(), where))
+    L.append("")
+    L.append(rule("THE SEA"))
+    L.append("")
+    L.append(para(MAP.get("sea", ""), indent=4))
+    for stretch, desc in MAP.get("sea_stretches", {}).items():
+        L.append("")
+        L.append(bullet(stretch, desc))
+    return "\n".join(L)
 
 
 def sec_land():
@@ -912,29 +931,6 @@ def sec_appendix():
 # ================================================================ main
 
 # (title, builder, designer_only)
-def sec_gazetteer():
-    """A complete index of every described place and who currently holds it.
-    Unlike the per-culture PLACES blocks (which skip places already named in an
-    overview), this lists them all, so nothing authored in regional_lore is lost."""
-    rl = MAP.get("regional_lore", {})
-    owner = {}
-    for c, ps in PLACE_OWNERS.items():
-        for p in ps:
-            owner.setdefault(p, c)
-    L = [para("Every place on the map with a story, and who holds it now. Names "
-              "are claims and holders are current, not eternal.", indent=0), ""]
-    for p in sorted(k for k, v in rl.items() if not str(v).strip().startswith("UNDEFINED")):
-        who = owner.get(p) or ("Unclaimed" if p in PLACE_UNOWNED else "Contested")
-        L.append(bullet(f"{p}  \u2014  {who}", rl[p]))
-        L.append("")
-    for stretch, desc in MAP.get("sea_stretches", {}).items():
-        L.append(bullet(f"{stretch}  \u2014  Sea", desc))
-        L.append("")
-    if L and L[-1] == "":
-        L.pop()
-    return "\n".join(L)
-
-
 DOC_ALL = [
     ("THE PREMISE",           sec_premise,     False),
     ("HOW TO READ THIS",      sec_how_to_read, True),
@@ -943,7 +939,6 @@ DOC_ALL = [
     ("THE WORLD",             sec_land,        False),
     ("THE TIMELINE",          sec_reckoning,   False),
     ("THE AGE OF DARKNESS",   sec_darkness,    False),
-    ("THE GAZETTEER",         sec_gazetteer,   False),
     ("THE GODS",              sec_gods,      True),
     ("WHAT RUNS THE PRESENT", sec_present,   True),
     ("APPENDIX",              sec_appendix,  True),

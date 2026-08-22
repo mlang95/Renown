@@ -1,6 +1,6 @@
 # renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
-VERSION = "0.4.9.7.5"
+VERSION = "0.4.9.7.6"
 # ── Keyword constants ─────────────────────────────────────────────────────
 # Rename a keyword here and it renames everywhere (GLOSSARY keys, tags, cards).
 
@@ -167,7 +167,7 @@ GLOSSARY = {
     "Renown":        "The shared progress track. Gain 1 per Rest Phase; thresholds raise your Era (Ascension 8, Eminence 18, Zenith 30).",
     "Domain":        "One of the four identities — Industry, Prowess, Cunning, Piety — raised by spending Domain points. Values 3/6/10 = Rising/Established/Sovereign Standing.",
     "Domain Point":  "Gained 1 per Rest Phase; spend to raise a Domain value by 1.",
-    "Standing":      "Your tier in a Domain: Untested, Rising (3), Established (6), Sovereign (10). Sets max Influence per vote (1/2/3/4) and unlocks Domain effects.",
+    "Standing":      "Your tier in a Domain: Untested, Rising (3), Established (6), Sovereign (10). Sets max Influence per vote (0/1/2/3) and unlocks Domain effects.",
     "Public Order":  "A track from -5 to 10, adjusted each turn by Faith minus Doubt; its band applies cumulative effects (see the Public Order table).",
     "Reach":         "How far a Settlement projects control, in Territories (by tier). Calculated like Range X",
     "Edict":         "A scoring achievement / win path: reach a Sovereign Standing, complete a Monument, or fulfill a victory condition (Wonder, wealth, Vassalize, Living Saints, Last Standing).",
@@ -1246,7 +1246,7 @@ NODES = {
         "type": "Secrecy",
         "unlock": "Established Cunning",
         "mastery_req": "Secret Cellar + Inn",
-        "innate": "gain Immune Local Unrest (-1PO per Bandit Camp)",
+        "innate": "gain Immune Uprising (Bandit Camp Spawn at -5PO)",
         "mastery": "Bandit Camps in your Outlaw Country don't target you and target other players instead randomly.",
         "efficient": "Secret Cellar",
         "builds_into": ["Thieves' Guild", "Outlaw Rookery"],

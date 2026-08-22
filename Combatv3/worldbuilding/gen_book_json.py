@@ -16,7 +16,7 @@ import renown_worldlore as W
 G.AUDIENCE = "reader"
 
 MARK_SLOP = True
-SLOP = "SLOP \u2192 "
+SLOP = "WIP \u2192 "
 AUTHORED_PROSE = {"THE PREMISE", "THE HOOK"}   # keys Gage has written
 
 
@@ -63,6 +63,38 @@ EXTRAS = [("trade_role", "Trade"), ("trade_relation", "Trade"),
           ("pragmatism", "Pragmatism"), ("warband_spectrum", "Warbands"),
           ("the_fund", "The fund"), ("the_army", "Their army"),
           ("governance", "Governance"), ("diplomatic_role", "Diplomacy")]
+
+
+def relations_for(name):
+    """All RELATIONS touching `name`, as rows for the culture page.
+    Directed 'A -> B' = A's stance toward B; mutual mirrors it. Returns
+    [{head, text}] where head is the other culture (+ how they regard `name`)."""
+    R = getattr(W, "RELATIONS", {})
+    STANCE_TO = {  # how to phrase `name`'s own stance toward the other
+        "ally": "ally", "protector": "protects", "dependency": "depends on",
+        "patron": "patron of", "supplier": "supplies", "predator": "preys on",
+        "rival": "rival of", "enemy": "enemy of", "resentment": "resents",
+        "tolerated": "tolerates", "controls": "controls", "denial": "denies",
+        "reverence": "reveres", "contempt": "holds in contempt", "mixed": "mixed with",
+        "conditional": "conditional toward", "wary": "wary of", "converts": "seeks to convert",
+        "none": "no relation with"}
+    seen, out = set(), []
+    for k, v in R.items():
+        a, b = [s.strip() for s in k.split("->")]
+        st, ov = v.get("stance", ""), G.clean(v.get("over", ""))
+        if a == name:                       # name's own stance toward b
+            out.append({"head": f"{b} \u2014 {STANCE_TO.get(st, st)}", "text": t(ov, slop=False)})
+            seen.add(b)
+        elif b == name and v.get("mutual"):  # symmetric: name shares stance toward a
+            out.append({"head": f"{a} \u2014 {STANCE_TO.get(st, st)}", "text": t(ov, slop=False)})
+            seen.add(a)
+    for k, v in R.items():                   # incoming-only: how others regard name
+        a, b = [s.strip() for s in k.split("->")]
+        if b == name and a not in seen and not v.get("mutual"):
+            st, ov = v.get("stance", ""), G.clean(v.get("over", ""))
+            out.append({"head": f"{a} \u2014 {STANCE_TO.get(st, st)} them", "text": t(ov, slop=False)})
+            seen.add(a)
+    return out
 
 
 def prose(key):
@@ -139,10 +171,7 @@ def build(path="book.json"):
                     seen.add(lab)
                     secs.append({"head": lab, "text": t(c[f])})
 
-            rivals = [{"head": [s.strip() for s in k.split(" vs ") if s.strip() != n][0],
-                       "text": t(v.get("over", ""))}
-                      for k, v in W.RIVALRIES.items()
-                      if isinstance(v, dict) and " vs " in k and n in k]
+            rivals = relations_for(n)
 
             evs = []
             for ev, dd in W.EVENTS.items():
@@ -160,21 +189,18 @@ def build(path="book.json"):
                 "holdings": [p for p in W.PLACE_OWNERS.get(n, []) if p in rl]})
         d["threads"].append(th)
 
-    # ---- Age of Darkness: the deep dump (founding + slow expansion, per people)
+    # ---- Age of Darkness (deep dive): WIP. Fills from old_gods_era["deep_dive"];
+    #      the mid-tier origin now lives in §2 (PROSE["THE PREMISE"]).
     og = W.TIMELINE.get("old_gods_era", {})
-    dk = {"name": og.get("name", "The Age of Darkness"),
-          "dating": og.get("dating", ""), "blocks": []}
-    if og.get("premise"):
-        dk["blocks"].append({"head": "", "text": t(og["premise"])})
-    ff = og.get("the_four_foundings", {})
-    ex = og.get("the_slow_expansion", {})
-    for people in ff:
-        dk["blocks"].append({"head": people, "text": t(ff[people])})
-        if people in ex:
-            dk["blocks"].append({"head": "", "text": t(ex[people])})
-    if og.get("consequence"):
-        dk["blocks"].append({"head": "", "text": t(og["consequence"])})
-    d["darkness"] = dk
+    deep = og.get("deep_dive", [])
+    blocks = []
+    for item in (deep if isinstance(deep, list) else [deep]):
+        if isinstance(item, dict):
+            blocks.append({"head": item.get("head", ""), "text": t(item.get("text", ""))})
+        elif item:
+            blocks.append({"head": "", "text": t(item)})
+    d["darkness"] = {"name": og.get("deep_name", "The Age of Darkness \u2014 In Depth"),
+                     "dating": og.get("dating", ""), "blocks": blocks}
 
     json.dump(d, open(path, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print(f"{path} — hook {len(d['hook'])}p, premise {len(d['premise'])}p, "

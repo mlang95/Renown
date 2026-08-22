@@ -340,7 +340,7 @@ Siege Works | [Siege Works](https://mlang95.github.io/RenownWiki/pursuits.html) 
 Sign Treaty | [Sign Treaty](https://mlang95.github.io/RenownWiki/actions-ref.html): Diplomacy action. Cost: None. Ask players to agree; choose one and both sign one of: Peace Treaty (end war, truce timer 5), Trade Agreement (begin trading next turn), Non-Aggression Pact (no Declare War; ending it via End Treaty gives both truce timer 5), or Alliance (join/form/invite to Defensive or Military Alliance). Endorsed: Perform a Diplomacy action.
 Skirmish | [Skirmish](https://mlang95.github.io/RenownWiki/glossary.html#skirmish): One round of a Battle, run through the numbered Battle steps; a Battle repeats Skirmishes until it ends.
 Smokehouse | [Smokehouse](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: +300; Craft +1 / Mastery: Upkeep -200
-Smuggler's Nook | [Smuggler's Nook](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Secrecy). Innate: gain Immune Local Unrest (-1PO per Bandit Camp) / Mastery: Bandit Camps in your Outlaw Country don't target you and target other players instead randomly.
+Smuggler's Nook | [Smuggler's Nook](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Secrecy). Innate: gain Immune Uprising (Bandit Camp Spawn at -5PO) / Mastery: Bandit Camps in your Outlaw Country don't target you and target other players instead randomly.
 Sovereign Standing | [Sovereign Standing](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Standing). Reach a Sovereign Standing (Domain value 10) in any Domain.
 Spears | [Spears](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Cast). AP -1, Init +1. Keywords: 2H, Unwieldy.
 Speed | [Speed](https://mlang95.github.io/RenownWiki/glossary.html#speed): An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 2
@@ -348,7 +348,7 @@ Spice Merchant | [Spice Merchant](https://mlang95.github.io/RenownWiki/pursuits.
 Spread Gospel | [Spread Gospel](https://mlang95.github.io/RenownWiki/actions-ref.html): Piety action. Cost: Doubt 1. All non-allied players gain Doubt 1. All allied players gain Faith 1. Endorsed: Gain Faith 1.
 Spring | [Spring](https://mlang95.github.io/RenownWiki/seasons-ref.html) Season (Planting). No Host, Bandit Mechanics, Trade Income, Council Phase, or Diplomacy Actions. Gain +1 Envoy. Bandit Camps Spawn.
 Stable | [Stable](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Civic). Innate: Speed +1 / Mastery: Speed +1; Unlocks Cavalry Weapons
-Standing | [Standing](https://mlang95.github.io/RenownWiki/glossary.html#standing): Your tier in a Domain: Untested, Rising (3), Established (6), Sovereign (10). Sets max Influence per vote (1/2/3/4) and unlocks Domain effects.
+Standing | [Standing](https://mlang95.github.io/RenownWiki/glossary.html#standing): Your tier in a Domain: Untested, Rising (3), Established (6), Sovereign (10). Sets max Influence per vote (0/1/2/3) and unlocks Domain effects.
 starting forces | [Escalation setup](https://mlang95.github.io/RenownWiki/escalation-rules.html): 25 Levy, Farm Tools, Cloth armor, no shield. Re-equip freely before each Battle with anything unlocked.
 Steady | [Steady](https://mlang95.github.io/RenownWiki/keywords-ref.html#steady): Initiative cannot be reduced by Tactics.
 Stone Roads | [Stone Roads](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Developed). Upkeep 200 (per Turn), build 3. If you start a Move action within Province, gain Speed +2

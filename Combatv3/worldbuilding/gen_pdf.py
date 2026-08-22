@@ -4,7 +4,7 @@ gen_pdf.py
 renown_world.pdf — the reader document as a laid-out book.
 
   1  Title
-  2  The Premise
+  2  The Age of Darkness
   3  The Map
   4  The Land            terrain and places, grouped by corner
   5  The Reckoning       vertical timeline, ages as bands, events alongside
@@ -69,7 +69,14 @@ def sl(s):
     """Mark a passage Gage did not author."""
     if not MARK_SLOP or not s:
         return s
-    return "<b>SLOP &rarr;</b> " + str(s).lstrip()
+    return "<b>WIP &rarr;</b> " + str(s).lstrip()
+
+
+def dot(s):
+    """Restore the terminal period clean() strips, so paragraphs end in punctuation."""
+    if not s:
+        return s
+    return s if s.rstrip()[-1:] in ".!?" else s.rstrip() + "."
 
 
 def para(s, style=BODY):
@@ -98,16 +105,16 @@ def hook_page(w):
     out = [Paragraph("The Hook", H1), rule_line(w), Spacer(1, 7 * mm)]
     for p in W.PROSE.get("THE HOOK", "").split("\n\n"):
         if p.strip():
-            out.append(Paragraph(txt(G.decaps(p.strip())), LEAD))
+            out.append(Paragraph(dot(txt(G.decaps(p.strip()))), LEAD))
     out.append(PageBreak())
     return out
 
 
 def premise_page(w):
-    out = [Paragraph("The Premise", H1), rule_line(w), Spacer(1, 7 * mm)]
+    out = [Paragraph("The Age of Darkness", H1), rule_line(w), Spacer(1, 7 * mm)]
     for p in W.PROSE.get("THE PREMISE", "").split("\n\n"):
         if p.strip():
-            out.append(Paragraph(txt(G.decaps(p.strip())), LEAD))
+            out.append(Paragraph(dot(txt(G.decaps(p.strip()))), LEAD))
     out.append(PageBreak())
     return out
 
@@ -127,30 +134,29 @@ def overview_pages(w):
                     Paragraph(f"<b>{txt(name)}</b>", ParagraphStyle("ovn", parent=LABEL,
                               fontSize=11, textColor=col)),
                     Paragraph(" / ".join(dom), SUB),
-                    Paragraph(txt(W.OVERVIEW[name]), BODY)]))
+                    Paragraph(dot(txt(W.OVERVIEW[name])), BODY)]))
     out.append(PageBreak())
     return out
 
 
 def darkness_pages(w):
-    """The Age of Darkness — the deep dump: founding + slow expansion, per people."""
+    """The Age of Darkness (deep dive): WIP. Renders only when old_gods_era['deep_dive']
+    is filled; the mid-tier origin now lives in the §2 'The Age of Darkness' prose."""
     og = W.TIMELINE.get("old_gods_era", {})
-    out = [Paragraph(txt(og.get("name", "The Age of Darkness")), H1),
+    deep = og.get("deep_dive", [])
+    items = deep if isinstance(deep, list) else ([deep] if deep else [])
+    if not items:
+        return []
+    out = [Paragraph(txt(og.get("deep_name", "The Age of Darkness \u2014 In Depth")), H1),
            rule_line(w), Spacer(1, 4 * mm)]
-    if og.get("dating"):
-        out.append(Paragraph(txt(og["dating"]), SUB))
-    if og.get("premise"):
-        out.append(Paragraph(sl(txt(og["premise"])), LEAD))
-    ff = og.get("the_four_foundings", {})
-    ex = og.get("the_slow_expansion", {})
-    for people in ff:
-        out.append(Paragraph(txt(people), H2))
-        out.append(Paragraph(sl(txt(ff[people])), BODY))
-        if people in ex:
-            out.append(Paragraph(sl(txt(ex[people])), BODY))
-    if og.get("consequence"):
-        out.append(Spacer(1, 3 * mm))
-        out.append(Paragraph(sl(txt(og["consequence"])), BODY))
+    for item in items:
+        if isinstance(item, dict):
+            if item.get("head"):
+                out.append(Paragraph(txt(item["head"]), H2))
+            if item.get("text"):
+                out.append(Paragraph(dot(sl(txt(item["text"]))), BODY))
+        elif item:
+            out.append(Paragraph(dot(sl(txt(item))), BODY))
     out.append(PageBreak())
     return out
 
@@ -163,7 +169,7 @@ def map_page(w, h):
         scale = min(w / iw, (h - 46 * mm) / ih)
         out.append(Image(MAP_FILE, iw * scale, ih * scale))
     out.append(Spacer(1, 4 * mm))
-    out.append(Paragraph(sl(txt(W.MAP.get("sea", ""))), BODY))
+    out.append(Paragraph(dot(sl(txt(W.MAP.get("sea", "")))), BODY))
     out.append(PageBreak())
     return out
 
@@ -189,13 +195,13 @@ def land_pages(w):
         for p in places:
             if p in rl:
                 out.append(KeepTogether([Paragraph(f"<b>{p}</b>", LABEL),
-                                         Paragraph(sl(txt(rl[p])), BODY)]))
+                                         Paragraph(dot(sl(txt(rl[p]))), BODY)]))
     out.append(Paragraph("The Sea, and the Isles", H2))
     for k, v in W.MAP.get("sea_stretches", {}).items():
-        out.append(KeepTogether([Paragraph(f"<b>{k}</b>", LABEL), Paragraph(sl(txt(v)), BODY)]))
+        out.append(KeepTogether([Paragraph(f"<b>{k}</b>", LABEL), Paragraph(dot(sl(txt(v))), BODY)]))
     for p in ISLES:
         if p in rl:
-            out.append(KeepTogether([Paragraph(f"<b>{p}</b>", LABEL), Paragraph(sl(txt(rl[p])), BODY)]))
+            out.append(KeepTogether([Paragraph(f"<b>{p}</b>", LABEL), Paragraph(dot(sl(txt(rl[p]))), BODY)]))
     out.append(PageBreak())
     return out
 
@@ -334,15 +340,31 @@ def culture_page(w, name):
         if c.get(f) and lab not in seen:
             seen.add(lab)
             out.append(Paragraph(lab, H2))
-            out.append(Paragraph(sl(txt(c[f])), BODY))
+            out.append(Paragraph(dot(sl(txt(c[f]))), BODY))
 
-    rivals = [(k, v) for k, v in W.RIVALRIES.items()
-              if isinstance(v, dict) and " vs " in k and name in k]
-    if rivals:
-        out.append(Paragraph("Rivals", H2))
-        for k, v in rivals:
-            other = [s.strip() for s in k.split(" vs ") if s.strip() != name]
-            out.append(Paragraph(f"<b>{other[0] if other else k}</b> — " + sl(txt(v.get('over',''))), BODY))
+    R = getattr(W, "RELATIONS", {})
+    ST = {"ally": "ally", "protector": "protects", "dependency": "depends on",
+          "patron": "patron of", "supplier": "supplies", "predator": "preys on",
+          "rival": "rival of", "enemy": "enemy of", "resentment": "resents",
+          "tolerated": "tolerates", "controls": "controls", "denial": "denies",
+          "reverence": "reveres", "contempt": "holds in contempt", "mixed": "mixed with",
+          "conditional": "conditional toward", "wary": "wary of", "converts": "seeks to convert",
+          "none": "no relation with"}
+    rel_rows, seen = [], set()
+    for k, v in R.items():
+        a, b = [s.strip() for s in k.split("->")]
+        if a == name:
+            rel_rows.append((f"{b} — {ST.get(v.get('stance',''), v.get('stance',''))}", v.get("over",""))); seen.add(b)
+        elif b == name and v.get("mutual"):
+            rel_rows.append((f"{a} — {ST.get(v.get('stance',''), v.get('stance',''))}", v.get("over",""))); seen.add(a)
+    for k, v in R.items():
+        a, b = [s.strip() for s in k.split("->")]
+        if b == name and a not in seen and not v.get("mutual"):
+            rel_rows.append((f"{a} — {ST.get(v.get('stance',''), v.get('stance',''))} them", v.get("over",""))); seen.add(a)
+    if rel_rows:
+        out.append(Paragraph("Relations", H2))
+        for head, ov in rel_rows:
+            out.append(Paragraph(f"<b>{txt(head)}</b> — " + dot(txt(ov)), BODY))
 
     places = [p for p in W.PLACE_OWNERS.get(name, [])
               if p in W.MAP.get("regional_lore", {})]
@@ -356,7 +378,7 @@ def culture_page(w, name):
             body = " ".join(str(v) for k, v in d.items()
                             if isinstance(v, str) and k not in ("cultures", "year", "type",
                                                                 "hero", "teaches"))
-            out.append(Paragraph(sl(txt(body)), BODY))
+            out.append(Paragraph(dot(sl(txt(body))), BODY))
 
     out.append(PageBreak())
     return out

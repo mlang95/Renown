@@ -529,6 +529,16 @@ CULTURES = {
     },
 }
 
+CULTURES["Voldrastel"]["reckoning_witness"] = (
+    "THEY KEEP THE YEAR FOR EVERYONE. Present on every route and staked in no shore, they are the "
+    "one party whose interest is served by the count being ACCURATE AND SHARED rather than by what "
+    "it says — a common calendar is trade infrastructure, and infrastructure is their whole "
+    "existence. So they witness and carry the arrival-count realm-wide, and the True Word ratifies "
+    "what they report. It follows that TO GUARD THE VOYAGE IS TO GUARD THE YEAR: interdict the "
+    "fleet and you do not merely stop trade, you stop time — a late or strangled arrival is a year "
+    "that did not turn. Route defence is not only commerce; it is keeping the world's clock running."
+)
+
 
 ASTRAVANTHELIAD_PARADOX = {
     "internal_self_image": "A rigorous, honest, meritocratic research culture. Every citizen "
@@ -809,9 +819,15 @@ TIMELINE = {
         "shassith_founding_refusal": "The Ithiss's founding act was REJECTING Clypso, the god "
                                      "who brought them together. That is why Cunning is "
                                      "permanently a doubter domain.",
-        "who_keeps_the_calendar": "The Order of the True Word maintains the reckoning — so the "
-                                  "papacy DATES the world even where it no longer GOVERNS it. "
-                                  "Prophet's Landing presumably keeps its own count.",
+        "who_keeps_the_calendar": "The year turns on the ARRIVAL — the Trusteki winter voyage "
+                                  "making landfall — but the fleet reaches each coast on a "
+                                  "different day across the long winter, so the True Word "
+                                  "DECLARES which landfall is canonical and reconciles the rest "
+                                  "to it. The unit is Industry's; the count is Piety's. So the "
+                                  "papacy DATES the world even where it no longer GOVERNS it — "
+                                  "and the peoples the voyage never reaches (Prophet's Landing, "
+                                  "the far isles) take the declared count on faith or keep their "
+                                  "own.",
         "ages_declared_retroactively": "Nobody knew the Fracture ended an Age; they thought it "
                                        "was a bad decade.",
         "lenavorite_temperament": "Self-flagellation and weaponized guilt are not ancient "
@@ -821,6 +837,57 @@ TIMELINE = {
                                   "from the men who come asking.",
     },
 }
+
+TIMELINE["old_gods_era"]["the_name"] = (
+    "A FOLK NAME, not a clerk's. It is the common word for the murky time before the count, of "
+    "which only legends survive — and the True Word adopted it wholesale because the name was the "
+    "FIRST THING it could record of the age: when there is nothing else to enter, you enter what "
+    "it is called. The only age named by ABSENCE. Every counted age was titled afterwards by "
+    "clerks; this one keeps the vernacular, because the clerks could never reach it."
+)
+
+TIMELINE["old_gods_era"]["dating"] = (
+    "Before the count. No firm reckoning survives; the True Word records only that it WAS. The "
+    "Darkness ends at Year 0 not because the world brightened but because that is where the "
+    "reconstruction bottoms out — the deepest the Trusteki ledgers, Kragh oral succession and the "
+    "Astravantheliad's cross-referencing could reach. Dark because the record gives out there. The "
+    "Astravantheliad keep trying to push past it into negative years; the True Word holds the floor "
+    "fixed and calls the attempt recording what did not happen."
+)
+
+TIMELINE["implications"]["how_the_reckoning_was_reconstructed"] = (
+    "A CONSORTIUM, not one keeper's ledger. Trusteki craft-dynasty ledgers and the arrival-count "
+    "give the hard forward reckoning (~1352 on); the Voldrastel WITNESS and carry it — present on "
+    "every route, the one party with no stake in what the count says, only that it is true and "
+    "shared. Before 1352 the ledgers give out and the backbone is Kragh warband succession — oral, "
+    "wide-erred. The Astravantheliad supply the METHOD: cross-referencing, Scarlet-Forest "
+    "tree-ring anchoring, honest error bars. The True Word RATIFIES — it did not compute the "
+    "number, it OWNS it, turning four cultures' findings into canon, sacred and unrevisable. "
+    "Whoever ratifies the count need not have kept it."
+)
+
+TIMELINE["implications"]["why_anchored_to_the_fracture"] = (
+    "Political first. (1) Whoever DEFINES Year 0 owns the arithmetic the pretender needs — "
+    "reaching the count back to the Fracture is the record seizing the origin from the "
+    "bloodline-claimants: the ledger, not the blood, holds Draggath. (2) A record that starts "
+    "mid-history admits an ignorant BEFORE; to be complete and holy it must reach the one "
+    "discontinuity every origin story shares. (3) The five ages are a moral sequence, each a "
+    "response to the last's failure — a sequence needs a Genesis, and the Fracture is the fall "
+    "that begins it. It also happens to be where the reconstruction physically bottoms out. Name, "
+    "epoch and floor collapse into one fact."
+)
+
+TIMELINE["implications"]["why_the_cailendroffs_rage"] = (
+    "Not a rival's propaganda they could wave off — they are shut out of a record their ENEMIES "
+    "BUILT TOGETHER and everyone else accepts. Every other culture is a contributor or a "
+    "ratifier; the Cailendroffs alone are NEITHER — written ABOUT (Draggath fell at Year 0) and "
+    "never CONSULTED. Worse: the pre-count backbone is Kragh oral history, and the Cailendroffs "
+    "claim to be the TRUE Kragh line — their own cousins narrated them out of their own origin. "
+    "The single date that guts the claim, ~4,570 unbroken years, is the one date the whole world "
+    "co-signed. They cannot burn one archive; they would have to unmake a civilisation's shared "
+    "memory. Hence bloodright over ledger — THE BLOOD REMEMBERS WHAT THE RECORD DENIES — the only "
+    "move left to a people locked out of the room."
+)
 
 
 
@@ -1064,10 +1131,10 @@ MAP = {
                      "criminal empires — no central authority, but a rigid internal hierarchy of the "
                      "feared and successful.",
         "Crag Pass": "A natural chokepoint of narrow paths, labyrinths, and slot canyons, found and "
-                     "controlled by the ISSETH from their underground network — reached in secret, "
+                     "controlled by the Ithiss from their underground network — reached in secret, "
                      "held without garrison. Where Trusteki caravans learned the dangers of the "
                      "south, and the route by which Ithiss who wanted another life ventured north.",
-        "Marrow Shoals": "Shared water — ISSETH and PREZISH both. Where Trusteki venturing south met the Ithiss coming north, "
+        "Marrow Shoals": "Shared water — Ithiss and PREZISH both. Where Trusteki venturing south met the Ithiss coming north, "
                          "forming the Prezish.",
         "Bay of Pigs": "A WEAPONIZED FALSE EXONYM. The dismissive name was given by outsiders, and "
                        "the locals KEEP IT DELIBERATELY — a bay named for filth attracts no "
@@ -1329,7 +1396,7 @@ CULTURE_AXES = {
         "military_doctrine": "Defensive/siege engineering — fortress-cathedrals [Industry-lead]",
         "taboo": "Waste + pride (a flawed or vain structure is sin) [FUSE]",
         "defined_against": "The wasteful AND the faithless [FUSE]",
-        "naming": "St. [name] the [Craft-Order] [numeral] [FUSE]",
+        "naming": "[name] the [Craft-Order] [numeral] — a craft-lineage tally, not a saint-name: they hold themselves unworthy of one until the Work is perfect, which it never is [FUSE]"
         "monuments": ["Office of Works","Papal Palace"]
     },
 
@@ -1553,7 +1620,7 @@ EVENTS["The Pincer of Dead Waters"]["organised_by"] = (
     "finally was, won."
 )
 EVENTS["The Pincer of Dead Waters"]["significance"] = (
-    "THE ONLY DEFEAT EVER RECORDED OF THE BELVARATH. They gave ground in the Wheat Fields for the "
+    "THE ONLY DEFEAT EVER RECORDED OF THE BELVARETH. They gave ground in the Wheat Fields for the "
     "first time that day — on ground that is never paved because it is hallowed. For an order whose "
     "taboo is retreat AND doubt, this is not a battle loss but a THEOLOGICAL EVENT: the standard "
     "failed the test, and every warlord ever turned back there learned it could be done. Worse, the "
@@ -1561,7 +1628,7 @@ EVENTS["The Pincer of Dead Waters"]["significance"] = (
     "two halves in balance. 156 years later the alministralum's edges began to break."
 )
 PRECEPTORY = {
-    "what": "The holy order. The BELVARATH are a SUBSET of it — one militant order under the "
+    "what": "The holy order. The BELVARETH are a SUBSET of it — one militant order under the "
             "Preceptory umbrella, not the whole institution.",
     "the_draghen": "The pairing is called a DRAGHEN — a Draggath word at the centre of a "
                    "Lenavorite-named order. The faith supplied the name; the warriors supplied "
@@ -1645,7 +1712,7 @@ CULTURES["Trusteki"]["internal_conflict"] = (
     "BY EACH OTHER — competition is externalised onto an impartial arbiter, so there is no "
     "advantage to seize by scheming. The familial trade and craft dynasties are so old that the "
     "market is LEGIBLE: everyone understands what it needs, families step in to fill the gaps, and "
-    "it is all respected by other Trusteki. NO CUNNING HERE. The structural ANTI-ISSETH: both "
+    "it is all respected by other Trusteki. NO CUNNING HERE. The structural ANTI-Ithiss: both "
     "lack a central authority, but Cunning turns that into predation and Industry turns it into a "
     "guild. It is also why the Ossensteins had to LEAVE — you cannot be a puppetmaster among people "
     "who will not play the game."
@@ -2049,7 +2116,7 @@ MACRO_FRAME = {
             "Combat resolution": "KRAGH — blunt, hammered, glory-tallied, the martial chronicle.",
             "Pursuits / infrastructure / tech": "TRUSTEKI — inherited craft, mastery, generational "
                                                 "IP, clipped and mechanical.",
-            "Doubt / extortion / sabotage systems": "ISSETH — folklore and rumour, deniable, never "
+            "Doubt / extortion / sabotage systems": "Ithiss — folklore and rumour, deniable, never "
                                                     "a straight confession.",
         },
         "the_payoff": "The game TEACHES ITS OWN LORE THROUGH USE. A player learning combat absorbs "
@@ -2277,10 +2344,15 @@ PROSE = {
         "None of them is the hero. Several of them think they are."
     ),
 
-    "THE RECKONING": (
-        "The Order of the True Word has counted every year since the world broke, and "
-        "measures them in Trusteki harvests, because when the counting began nobody could "
-        "agree on anything else.\n\n"
+    "THE TIMELINE": (
+        "The Order of the True Word has counted every year since the world broke, and marks each "
+        "one by the ARRIVAL — the year turns when the Trusteki come in from the winter water and "
+        "the fleet is delivered to shore. The harvest is only the cause; the LANDFALL is the tick. "
+        "The seasons keep no honest clock, so the count runs on the one event every coast can "
+        "witness and none dispute; and because the fleet reaches each shore on a different day "
+        "across the long winter, it falls to the True Word to declare WHICH landfall turns the "
+        "year, and to reconcile the rest to it. When the counting began, nobody could agree on "
+        "anything else.\n\n"
         "Five ages have passed under that count. Each began because the one before it had "
         "failed — war answered by patience, patience answered by faith, faith answered by "
         "rot, and rot answered at last by the quiet, poisonous balance we are standing in "
@@ -2861,4 +2933,417 @@ def bearing(frm, to):
             ew = ""
         elif abs(dx) >= 2 * abs(dy):
             ns = ""
-    return "-".join(p for p in (ns, ew) if p)
+    return "-".join(p for p in (ns, ew) if p)# ==========================================================================
+# RELATIONS  — directed: key "A -> B" is A's stance toward B; "mutual": True
+# mirrors it. Controlled stance vocabulary; only `over` renders, `detail` is
+# data-only. Supersedes RIVALRIES (all rivalries migrated in).
+# ==========================================================================
+RELATIONS = {
+    # -- the papacy (Lenavorites) web --------------------------------------
+    "Kraghs -> Lenavorites": {"stance": "conditional",
+        "over": "The honest ledger — victors want it kept, the beaten want it burned.",
+        "detail": "Net indifferent at the domain level; a Kragh's stance is set at the table by how their war went. The record validates a claimed win and preserves a defeat their own propaganda friezes erase."},
+    "Trusteki -> Lenavorites": {"stance": "mixed",
+        "over": "The Tithe against the papal contract — the same hand taxes and buys.",
+        "detail": "Splits Industry internally: suppliers to Lenaveron net positive (tithed but paid), pure taxpayers net negative. The contract does not reduce the Tithe."},
+    "Astravantheliad -> Lenavorites": {"stance": "dependency", "mutual": True,
+        "over": "The archive is the knowledge-state's foundation — a dependency, not a rivalry.",
+        "detail": "Astra shields the world's only honest record-keepers because everything it trades on rests on the record existing and staying true."},
+    "Voldrastel -> Lenavorites": {"stance": "protector",
+        "over": "The monolith is good for tolls — a stable superpower means taxable traffic.",
+        "detail": "Neutral wardens profit from one vast predictable flow of pilgrims, tithe-goods and papal supply to broker and toll."},
+    "Shassolin -> Lenavorites": {"stance": "predator",
+        "over": "The false faith feeds on the true one — preying on the tithed poor.",
+        "detail": "Where the Lenavorites tithe openly, the Shassolin work the same desperation by fraud — a parasite on the papacy's flock."},
+    "Cailendroffs -> Lenavorites": {"stance": "resentment",
+        "over": "The ledger falsifies the bloodline — a record they need buried.",
+        "detail": "The Neoclassical claim of descent from antiquity is exactly what the honest record can expose. Resentment extends to the Prowess past they graft onto."},
+    "Lenavorites -> Belvareth": {"stance": "reverence",
+        "over": "The guardians of the pilgrimage sites — keepers of the last relics.",
+        "detail": "MISTAKEN. Lenaveron believes the Belvareth guard its holy pilgrimage sites and sends its missions to them in good faith."},
+    "Belvareth -> Lenavorites": {"stance": "predator",
+        "over": "The offering — the missions sent to them are cut down and given to Melvanar.",
+        "detail": "HIDDEN beneath the reverence: the pilgrims and missionaries Lenaveron entrusts to them are not protected but sacrificed. The meeting IS death; the papacy does not know it feeds its own faithful to the god of Wrath."},
+    "Lenavorites -> Ossensteins": {"stance": "none",
+        "over": "No record - the record-keepers have never entered the Ossensteins into the ledger.",
+        "detail": "The Lenavorites keep the world's honest record and have NO record of the Ossensteins. The two institutions built to know - Astra's knowledge and the papacy's ledger - are both blind to the hidden hand."},
+    "Lenavorites -> Ithiss": {"stance": "converts",
+        "over": "The Inquisition seeks to leash the anarchy through religion.",
+        "detail": "One of the few powers that pushes back on the Ithiss: the Inquisition seeks to bring the anarchic criminal aristocracy under religious control."},
+    # -- Astravantheliad: legibility ---------------------------------------
+    "Astravantheliad -> Prezish": {"stance": "patron",
+        "over": "The rare-goods pipeline — the collector at the clean end of a dirty chain.",
+        "detail": "Astra collect rare goods the Prezish bring to market, sourced illicitly by the Ithiss (Ithiss -> Prezish -> Astra). No questions asked about provenance."},
+    "Astravantheliad -> Shassolin": {"stance": "tolerated",
+        "over": "Tolerated — sovereignty respected even for the false faith.",
+        "detail": "Toleration is not endorsement; the knowledge-state declines to intervene."},
+    "Astravantheliad -> Cailendroffs": {"stance": "tolerated",
+        "over": "Tolerated — sovereignty respected even for the false bloodline.",
+        "detail": "Same principled non-interference extended to the Cailendroffs."},
+    "Astravantheliad -> Ossensteins": {"stance": "denial",
+        "over": "Officially they aren't real — the state denies the Ossensteins exist.",
+        "detail": "A power that cannot be known, named or placed is intolerable to a state whose claim is that knowledge is power, so it denies them the status of real. The denial must never break — even as Astra deals with Ossenstein-run fronts."},
+    "Astravantheliad -> Madekites": {"stance": "ally",
+        "over": "Shared hunger for lost technology — the Basilica's secrets.",
+        "detail": "The Madekites chase the lost technology of the Great Basilica; the knowledge-state is keenly interested in whatever they recover."},
+    # -- Belvareth / Kraghs (mythic misread) -------------------------------
+    "Belvareth -> Kraghs": {"stance": "contempt",
+        "over": "Blasphemers and savages.",
+        "detail": "The militant-pious splinter holds the Kraghs in religious contempt."},
+    "Kraghs -> Belvareth": {"stance": "reverence",
+        "over": "The ancient warriors of Cailen — strongest fighters, who harness the old gods.",
+        "detail": "A DELIBERATE MISUNDERSTANDING by a mythos-based people: the Kraghs read the Belvareth's holy violence through their own old god Cailen, though the Belvareth worship Melvanar and would never claim him. The misread is the point, not an error."},
+    # -- Cailendroffs ------------------------------------------------------
+    "Cailendroffs -> Astravantheliad": {"stance": "rival",
+        "over": "Competition in the game of intellectual warfare.",
+        "detail": "The forger of pedigrees against the keeper of knowledge — a contest of minds, not arms."},
+    "Cailendroffs -> Shassolin": {"stance": "rival",
+        "over": "Competition in the game of intellectual warfare.",
+        "detail": "Two schemers reading each other; a rivalry of guile, not force."},
+    "Cailendroffs -> Sarkopekt": {"stance": "wary",
+        "over": "Feeble in a real conflict — avoided, not fought.",
+        "detail": "The Cailendroffs are incapable of a direct contest with Sarkopekt muscle and keep clear of one."},
+    "Cailendroffs -> Voldrastel": {"stance": "wary",
+        "over": "Feeble in a direct fight — deterred by the wardens.",
+        "detail": "A straight fight with Voldrastel is unwinnable for them; they do not start one."},
+    # -- Sarkopekt: the freelancers ----------------------------------------
+    "Sarkopekt -> Drakteni": {"stance": "ally", "mutual": True,
+        "over": "Specialised mercenaries for advanced campaigns and strategic operations.",
+        "detail": "The Drakteni hire Sarkopekt for the hard operations; frequent allies of convenience whenever a campaign needs specialists."},
+    "Sarkopekt -> Prezish": {"stance": "ally", "mutual": True,
+        "over": "The arms market — Prezish supply lines and brokered deals.",
+        "detail": "Sarkopekt fund the world's arms trade off Prezish supply lines and the excess of the Drakteni military-industrial complex."},
+    "Sarkopekt -> Vorghith": {"stance": "enemy",
+        "over": "The contract enemy — hired to drive them out.",
+        "detail": "Freelancers retained to fight the Vorghith off, protect settlements and supply lines, and clear them from contested ground."},
+    "Sarkopekt -> Kraghs": {"stance": "none",
+        "over": "No relation — beneath them, and no profit either way.",
+        "detail": "A FINALISED non-relation: the Sarkopekt see the Kraghs as beneath them and do not engage, there being no money in destroying or helping them."},
+    "Trusteki -> Sarkopekt": {"stance": "ally", "mutual": True,
+        "over": "Lumber for safe passage - trade at the Bay of Lost Hope.",
+        "detail": "High-quality scarlet-forest lumber traded at the Bay of Lost Hope; the Sarkopekt escort the Trusteki and their cargo to safe passage in exchange for goods."},
+    # -- Drakteni ----------------------------------------------------------
+    "Drakteni -> Astravantheliad": {"stance": "ally",
+        "over": "Technology for political immunity — quid pro quo, up to a point.",
+        "detail": "The Drakteni trade technology to the knowledge-state in exchange for political cover, the immunity scaling with how far they push things."},
+    "Drakteni -> Madekites": {"stance": "enemy",
+        "over": "What building is FOR — conquest vs devotion.",
+        "detail": "The expansionist Drakteni attack the Madekites, which is WHY the Madekites build fortress-citadels. One builds siege engines to break walls; the other builds walls to survive them."},
+    "Drakteni -> Kraghs": {"stance": "enemy",
+        "over": "Hermit's Row — the Drakteni hold the narrows, the Kraghs try to break it.",
+        "detail": "A contested chokepoint the two fight over."},
+    # -- Ithiss: apex predator, and who reaches for it ---------------------
+    "Ithiss -> Shassolin": {"stance": "predator",
+        "over": "Working the Shassolin's serfs — robbery, caravans, rebellion.",
+        "detail": "The Ithiss rob and destabilise the Shassolin's serfs, intercept caravans and foster rebellions; reach is small outside their neighbours."},
+    "Ithiss -> Prezish": {"stance": "supplier",
+        "over": "The fenced-goods pipeline — illicit source to the market-hand.",
+        "detail": "Primary supplier of illegally sourced goods to the Prezish, who take them to market (Ithiss -> Prezish -> Astravantheliad); moved Heathport to the Wharf of St. Brannoch, willing to step over anyone."},
+    "Ithiss -> Trusteki": {"stance": "predator",
+        "over": "The primary prey — Trusteki caravans, first met at Crag Pass.",
+        "detail": "Outside their own internecine predation, the Trusteki are the Ithiss's main victims. First contact was Trusteki caravans running into the Ithiss at the Crag Pass chokepoint, held without garrison."},
+    "Trusteki -> Ithiss": {"stance": "wary",
+        "over": "Fearful of the syndicates that bleed their profits.",
+        "detail": "The Trusteki are generally fearful of the criminal syndicates that impede their profits and way of life - the Ithiss chief among them."},
+    "Shassolin -> Ithiss": {"stance": "converts",
+        "over": "The false faith reaches for the same leash - control through religion.",
+        "detail": "The Shassolin likewise seek to control the Ithiss through religion, making the Inquisition and the false faith quiet competitors over the same ungovernable prey."},
+    "Prezish -> Ithiss": {"stance": "patron",
+        "over": "A wonderful arrangement - pay a pittance, charge a fortune.",
+        "detail": "The Prezish view the Ithiss as a gift: none of the dirty work, pay the Ithiss little for illicit goods, then resell for huge sums of gold."},
+    # -- Ossensteins: the hidden hand --------------------------------------
+    "Ossensteins -> Prezish": {"stance": "controls",
+        "over": "Rumoured to manage the Prezish trade and brokering.",
+        "detail": "The unknown dynasty is said to run the Prezish industries of trade and brokering from nowhere."},
+    "Ossensteins -> Shassolin": {"stance": "controls",
+        "over": "Rumoured to manage the Shassolin's trade and religion.",
+        "detail": "The same hidden hand is said to run the Shassolin's brokering and the machinery of their false religion."},
+    # -- Voldrastel: esteemed, and busy ------------------------------------
+    "Voldrastel -> Vorghith": {"stance": "rival",
+        "over": "Busy managing the chaos of the Vorghith.",
+        "detail": "Much of the wardens' effort goes to containing Vorghith disorder on the roads and routes."},
+    "Voldrastel -> Drakteni": {"stance": "rival",
+        "over": "Busy managing the expansion of the Drakteni.",
+        "detail": "The wardens spend heavily brokering and blunting Drakteni expansion."},
+    "Voldrastel -> Madekites": {"stance": "protector", "mutual": True,
+        "over": "Protector and protected — the Reach fortified into mutual defence.",
+        "detail": "Voldrastel protect the Madekites; the Madekites converted the Twelfth Reach into a ring of fortresses that defend each other under invasion, which serves Voldrastel too."},
+    "Prezish -> Voldrastel": {"stance": "rival",
+        "over": "The trade routes — predator vs protector.",
+        "detail": "The Prezish prey on the routes the Voldrastel exist to protect."},
+    # -- Vorghith: stolen-ship terror cells --------------------------------
+    "Vorghith -> Kraghs": {"stance": "enemy",
+        "over": "Supply lines, and the impossibility of telling friend from enemy.",
+        "detail": "See FORMATION['the_kragh_wound']."},
+    "Vorghith -> Trusteki": {"stance": "predator",
+        "over": "Stolen ships against the trade routes - the sea raid on the market's lifelines.",
+        "detail": "The Vorghith raid Trusteki shipping and supply lines by sea, bleeding the trade hub the whole map depends on."},
+    "Vorghith -> Voldrastel": {"stance": "predator",
+        "over": "Coastlines and routes raided - the chaos the wardens exist to contain.",
+        "detail": "Vorghith stolen-ship raids fall on exactly the coasts and routes Voldrastel are sworn to keep."},
+    "Vorghith -> Astravantheliad": {"stance": "predator",
+        "over": "The only ones daring - or stupid enough - to commandeer the Prezish or raid the Vaelohk coast.",
+        "detail": "Alone among the cultures, the Vorghith will seize Prezish ships and strike the Vaelohk coastline itself. Everyone else knows better than to touch the knowledge-state's chain or its shores."},
+    "Vorghith -> Drakteni": {"stance": "predator",
+        "over": "Scylla - a handful of ships vanish as the cost of expansion.",
+        "detail": "The Drakteni are prime Vorghith targets: grand campaigns and deep funds mean lost ships are written off as the price of expanding. Like the six-mouthed thing in the Odyssey, the Vorghith let everyone else pass so long as the appetite is fed."},
+    # -- Madekites ---------------------------------------------------------
+    "Madekites -> Trusteki": {"stance": "supplier",
+        "over": "Most of the masonry skill and supply for the Trusteki.",
+        "detail": "The fortress-builders furnish the trade society with the bulk of its masonry labour and materials."},
+    # -- Kraghs ------------------------------------------------------------
+    "Kraghs -> Trusteki": {"stance": "dependency",
+        "over": "They cannot feed or move themselves - reliant on Trusteki supply lines.",
+        "detail": "The Kraghs lack the technology to produce their own food and transport at scale, so the glory-culture leans on the honest-price traders it would never respect. Raid the Trusteki lines and the Kraghs starve."},
+}
+
+# ---- Belvareth doctrine + limits (isolationist, defensive-only) ----
+CULTURES["Belvareth"]["doctrine"] = (
+    "DEFENSIVE CRUSADE. Isolationist by conviction, devastating only at home. The "
+    "Belvareth love a defensive fight and fight almost nowhere else: the Lost Woods - "
+    "the one land the Great Fracture never touched - is their ground, and the killing "
+    "comes to them, as pilgrims and Lenavorite missions walk in and are reduced. They "
+    "do not march; they receive.")
+CULTURES["Belvareth"]["limits"] = (
+    "NO POWER PROJECTION. Expansion into Lenaveron is unfounded and SACRILEGIOUS - one "
+    "does not conquer the faith one broke from. They could not endure a campaign into "
+    "the Bleak Highlands, and have no capacity for the Sea of Damnation. A wall, not a spear.")
+
+# ---- territory (geography; add "territory" to EXTRAS if you want it to render) ----
+CULTURES["Ithiss"]["territory"] = (
+    "South of and including CRAG PASS, and west of the MIRE. Crag Pass is their northern "
+    "gate and the Mire their eastern edge; to stay clear of the Ithiss is to stay north "
+    "of the Pass and east of the Mire.")
+CULTURES["Drakteni"]["territory"] = (
+    "A northern regime expanding outward from DRAKENHEART, their heartland - a centred "
+    "state that pushes its borders out, not a scatter of cells.")
+    
+    
+CULTURES["Trusteki"]["winter_voyage"] = (
+    "THE OFF-SEASON IS THE WORK. Two growing years are banked before the long winter closes the "
+    "fields, and the household SPLITS. The craft-heir — the firstborn who carries the trade-surname "
+    "and the technique — STAYS: winter is for honing the craft, refining the method, teaching it "
+    "down. The non-heir kin HAULS — taking the year's stockpiled output to market by ship and "
+    "caravan through the whole of the long winter. This is not wanderlust; it is the MECHANISM of "
+    "their trade role. The base layer only reaches the world because the second kin spends the dead "
+    "season moving it — feeding and supplying the Kraghs who can neither feed nor move themselves, "
+    "and every other culture that sits on Trusteki goods. And it is the SAME SEASON THE PREDATORS "
+    "WORK: with armies stalled and nothing growing, the roads and sea-lanes belong to trade and to "
+    "those who prey on it alike — the Prezish corner the winter routes, the Vorghith strangle them, "
+    "the Ithiss fence what they take. SUPPLY SEASON AND RAID SEASON ARE ONE SEASON."
+)
+
+MAP["climate"] = (
+    "THE YEAR IS DOUBLED AT ONE END AND STRETCHED AT THE OTHER. Spring, summer and autumn turn "
+    "TWICE before winter comes — two full harvests banked back to back — and then a SINGLE LONG "
+    "WINTER that runs longer than both growing spells together. The doubled harvest is why one "
+    "people of craftsmen can carry a whole world on their supply lines: the surplus is put up before "
+    "the freeze. And the long winter is WHEN THE SEAS MOVE. Nothing grows and the campaigning stops "
+    "— armies mire, sieges stall — so travel and trade inherit the season by default. The year's "
+    "goods go to market across the winter water, and the cultures that live on another people's "
+    "output are relieved just as their own stores would have run thin. The calendar itself makes the "
+    "supplier indispensable and the raider busy in the same breath."
+)
+
+
+# ===========================================================================
+# APPENDED: THE SAINT DECK — cards, naming, cross-refs, deck relationships
+# ===========================================================================
+
+# ======================= 3. THE SAINT DECK ================================
+# 40 cards: 4 Pillars x 8 offices (32) + 8 Foundations. The apex is not a card.
+
+SAINT_DECK = {
+    "vocabulary": {
+        "pillars":  "The four current greater deities — the guardian faces. The living church. "
+                    "4 Pillars x 8 offices = 32.",
+        "ancients": "The FOUNDATIONS (tier name; swappable) — the old gods; the deepest, rarest, "
+                    "most revered offices. 8. Named by symbol, no count.",
+        "apex":     "Esselantheum, the God of Gods — NOT a card. The empty throne the Pillars guard.",
+        "total":    "40 cards — 32 Pillar offices + 8 Foundations. Divisible by four the whole way down.",
+    },
+
+    # ---- APEX: not in the deck --------------------------------------------
+    "apex": {
+        "name": "Esselantheum", "title": "the God of Gods", "in_deck": False,
+        "why_absent": "The true name is UNSPEAKABLE — to know it is itself blasphemy. You cannot "
+                      "card what may not be named. The deck leaves the throne EMPTY on purpose; a "
+                      "deck that fills it has committed the bypass (TETRAMORPH: structural collapse).",
+        "held_by": "The papacy alone, BOTH ways: the reigning pope receives the name ON ACCESSION, "
+                   "and the Inquisition (Ollanenor's order, whose sigil is EYES — the eyes of the "
+                   "papacy) knows it collectively to recognise and hunt those who do. Outside the "
+                   "church it lives only at Prophet's Landing, spoken by the false-religion cultures "
+                   "(Shassolin front, Ossenstein handlers).",
+        "the_essel_root": "ESSEL EXALTED — the ancient Essel's name raised to 'God of Gods'. The "
+                          "Essels were his people (the vanished civilisation, now the Tombs of the "
+                          "Old Gods). Orthodoxy holds Essel-the-ancient and Esselantheum-the-apex "
+                          "SEPARATE and denies the etymology; the heresy is affirming they are one.",
+    },
+
+    # ---- PILLARS: roles ordered least -> greatest; count = index + 1 ------
+    #      naming -> "St. <office> the <adj>, <n> of <sigil>"
+    "pillars": {
+        "Ollanenor":  {"domain": "Saints",  "sigil": "eyes",    "adj": "the Saintly",
+                       "order": "The Inquisition",
+                       "note": "Eyes are double — the saints' watchful gaze AND the Inquisition's "
+                               "surveillance: the eyes of the papacy. Ollanenor delivers every "
+                               "saint-name, so this Pillar names the others.",
+                       "roles": ["Alice", "Agatha", "Kristi", "Clarice",
+                                 "Claire", "Clarence", "Christo", "Sophia"]},
+        "Melvanar":   {"domain": "Wrath",   "sigil": "whips",   "adj": "the Penitent",
+                       "order": "The Order of Penance",
+                       "roles": ["Louse", "Pliwo", "Karl", "Brok",
+                                 "Vash", "Poe", "Brutus", "Daemon"]},
+        "Lorenthal":  {"domain": "Peace",   "sigil": "staves",  "adj": "the Missionary",
+                       "order": "The Order of Mission",
+                       "roles": ["Dane", "Domas", "Grenada", "Fasille",
+                                 "Kanga", "Hygle", "Francis", "Scepter"]},
+        "Anumaranth": {"domain": "Balance", "sigil": "candles", "adj": "the True",
+                       "order": "The Order of the True Word",
+                       "note": "The candle is the reckoning made visible — a measured burn is the count.",
+                       "roles": ["Deca", "Lieber", "Calvin", "Cauch",
+                                 "Riema", "Kant", "Hiber", "Gaus"]},
+    },
+
+    # ---- THE FOUNDATIONS: old gods; single seats, named by symbol, no count -
+    "ancients": {
+        "Essel":    {"symbol": "the Tree",       "principle": "origin, root, lineage; the Essels' god — Esselantheum un-exalted", "whose": "Lenavorite"},
+        "Trusti":   {"symbol": "the Sheaf",      "principle": "plenty, harvest",                          "whose": "Trusteki"},
+        "Cailen":   {"symbol": "the Sword",      "principle": "war, martial prophecy, anointed kingship", "whose": "Draggath/Kraghs"},
+        "Clypso":   {"symbol": "the Closed Eye", "principle": "doubt, blindness; the rejected sun",       "whose": "Ithiss"},
+        "Valkadin": {"symbol": "Fire",           "principle": "wrath, purification, the pyre",            "whose": "Lenavorite"},
+        "Mica":     {"symbol": "the Goat",       "principle": "sacrifice — the scapegoat, sin exiled",    "whose": "Lenavorite"},
+        "Margit":   {"symbol": "the Castle",     "principle": "refuge, permanence, the walls",            "whose": "Lenavorite"},
+        "Velor":    {"symbol": "the Chalice",    "principle": "mercy, cleansing, the poured cup",         "whose": "Lenavorite"},
+    },
+
+    # ---- HERESY: the Shassolin deck ---------------------------------------
+    "heresy_shassolin": {
+        "fifth_pillar": "the Stars of Esselantheum", "sigil": "stars",
+        "the_act": "EXALTING ESSEL — taking the Foundation and standing him up as Esselantheum: the "
+                   "God of Gods represented OUTSIDE the papacy, named, reachable, SOLD. The bypass "
+                   "rendered as a card.",
+        "replaces": "the Foundations — the Stars stand where the old gods should. They EXPOSE what "
+                    "should be guarded and BURY what should be revered.",
+        "tell": "A deck bearing Stars is a false deck; saying 'Esselantheum' aloud marks the convert. "
+                "The heraldry is the spoken-name tell made visible.",
+    },
+}
+
+SAINT_NAMING = {
+    "form": "St. [office] the [Pillar-adj], [count] of [sigil] — e.g. 'St. Louse the Penitent, One "
+            "of Whips' (lowest Melvanar) ... 'St. Gaus the True, Eight of Candles' (greatest "
+            "reckoner). The office is an Ollanenor grant; the adj marks the Pillar; the count is the "
+            "rung, least -> greatest.",
+    "offices_are_seats": "A name is an OFFICE, not a person — worn by whoever holds it now, passed "
+                         "on when they do not. To name someone is to seat them.",
+    "the_foundations": "Named directly for an old god by symbol — 'St. Margit of the Castle' — the "
+                       "rarest, most revered, least-spoken stations, and they take NO count.",
+    "the_apex": "Never a name. The pope represents Esselantheum; to be named 'Esselantheum' is the "
+                "Shassolin blasphemy.",
+    "count_layer": "The count is the rung within a Pillar. A finer sub-rank within a single office "
+                   "remains available if ever wanted; parked.",
+}
+
+
+# ======================= 4. CANON CROSS-REFERENCES ========================
+
+GODS["Esselantheum"]["essel_root"] = (
+    "ESSEL EXALTED. The apex is the ancient god Essel — patron of the vanished ESSELS (now the "
+    "Tombs of the Old Gods) — his name raised to 'God of Gods'. Orthodoxy keeps Essel (an ordinary "
+    "Foundation) and Esselantheum (the unspeakable apex) DOCTRINALLY SEPARATE and denies the "
+    "etymology. The Shassolin heresy is the exaltation itself. See SAINT_DECK."
+)
+GODS["Esselantheum"]["holders"] = (
+    "The papacy alone — the pope receives the name ON ACCESSION; the Inquisition, the EYES OF THE "
+    "PAPACY, knows it collectively to hunt it. Outside the church it lives only at Prophet's "
+    "Landing, spoken by the false-religion cultures (Shassolin front, Ossenstein handlers)."
+)
+TETRAMORPH["the_deck"] = (
+    "The church renders as SAINT_DECK: the four faces become the four PILLARS (eyes/staves/whips/"
+    "candles, 8 offices each), the old gods become the FOUNDATIONS beneath (8), and the throne is "
+    "left an EMPTY CARD — the name may not be spoken. To add the apex to the deck IS the bypass — "
+    "the Shassolin fifth Pillar, the Stars. 40 cards, divisible by four throughout."
+)
+
+
+# ======================= 5. DECK RELATIONSHIPS ============================
+# How each Piety-adjacent culture relates to the Saint Deck.
+
+CULTURES["Lenavorites"]["deck_relationship"] = (
+    "THEY DEAL THE WHOLE DECK. The orthodox church IS the deck: every cleric holds a Pillar office "
+    "at a count, the Foundations are the deepest and rarest seats, and the throne is kept an EMPTY "
+    "CARD — the apex may not be named. Full grammar: St. [office] the [Pillar-adj], [count] of "
+    "[sigil]; a Foundation is named by symbol, without count."
+)
+CULTURES["Madekites"]["deck_relationship"] = (
+    "THEY WON'T BE NAMED — UNWORTHY, BY THEIR OWN LIGHTS. Pious, but they decline the deck: to a "
+    "people who suffer toward a perfection they never reach, a conferred saint-name is PRESUMPTION "
+    "— you are not named for a Saint until the Work is worthy, and the Work is never worthy. So a "
+    "Madekite holds NO Pillar office and takes NO sigil-count, not for want of the faith but for "
+    "excess of it. Their numeral stays what it always was — a CRAFT-LINEAGE tally, technique passed "
+    "down the mason-line. This is the pride-taboo made law: to take the name is the same sin as "
+    "leaving a flawed wall standing. Distance from Lenaveron only seals what conviction already "
+    "decided. Where the Voldrastel refuse the deck from HUMILITY, the Madekites refuse it from "
+    "UNWORTHINESS — the same act, a hair apart."
+)
+)
+CULTURES["Belvareth"]["deck_relationship"] = (
+    "A ONE-SUIT DECK. They draw ONLY Melvanar — whips, and nothing else. The schism that made them "
+    "a distinct order was a SUIT-FIXATION: wrath over-weighted until the other three faces fell "
+    "away. No Foundations, no other Pillar. Every Belvareth is a Penitent and only a Penitent: "
+    "St. [name] the Penitent, [count] of Whips."
+)
+CULTURES["Shassolin"]["deck_relationship"] = (
+    "A FORGED DECK. The four Pillars aped as a front, plus the fifth pillar no true deck holds — "
+    "the STARS OF ESSELANTHEUM, which EXALT the Foundation Essel into the God of Gods and stand "
+    "where the Foundations should. Their saint-names mimic the orthodox grammar; the Stars are the "
+    "tell. A deck bearing Stars is counterfeit, as speaking the name aloud marks the convert."
+)
+CULTURES["Voldrastel"]["deck_relationship"] = (
+    "THEY REFUSE TO DRAW. No saint-name, by humility — they will not seat themselves among the "
+    "saints. They KEEP THE COUNT for everyone (they witness the year) but claim no card in it: "
+    "[name] [numeral] of the [order-fleet], a rank, never a Pillar. The one culture that holds the "
+    "deck's tally and takes no office from it."
+)
+CULTURES["Cailendroffs"]["deck_relationship"] = (
+    "THEY CLAIM A FOUNDATION. The prince alone bears a saint-name, and it is not a Pillar office "
+    "but a FOUNDATION'S — descent from CAILEN, the old god of the Sword, styled 'the True King of "
+    "Draggath over the water.' Seating yourself among the Foundations is not a grant but a "
+    "SELF-DEALING the orthodox call blasphemy — you do not name yourself an old god."
+)
+
+
+# ======================= WIRING (optional, to render in-book) =============
+# gen_book_json.py EXTRAS:  ("winter_voyage", "Winter voyage"),
+#                           ("reckoning_witness", "The reckoning"),
+#                           ("deck_relationship", "The Saint Deck")
+# MAP["climate"] / old_gods_era["the_name"]: emit + print under The Map /
+#   the Darkness section if you want them in the reader edition.
+# implications keys are designer-edition canon (like their siblings).
+# ===========================================================================
+
+
+# ===========================================================================
+# REGISTER — cultural speech: (salutation, farewell, toast) per culture.
+# Sentence-cased, terminal punctuation normalized. Ossensteins blank by design
+# (a faction that officially does not exist has no public register).
+# [filled stubs: Lenavorites.salutation, Shassolin.salutation]
+# ===========================================================================
+REGISTER = {
+    "Trusteki":        {"salutation": "Cellars of plenty, my friend.",     "farewell": "May your Craft never falter.",     "toast": "To the next generation's better work."},
+    "Ithiss":          {"salutation": "Name your business, not yourself.", "farewell": "Owe nothing you can't pay.",        "toast": "To debts collected, never forgiven!"},
+    "Prezish":         {"salutation": "Come, let's talk numbers.",         "farewell": "Good fortune to us both.",          "toast": "To the cut we all take."},
+    "Voldrastel":      {"salutation": "Safe passage to you.",              "farewell": "May your convoy hold.",             "toast": "To the indefensible, defended."},
+    "Lenavorites":     {"salutation": "Lorenthal keep you.",               "farewell": "Records remembered.",               "toast": "To the Four whom we will never forget."},
+    "Madekites":       {"salutation": "Quarry well, pray harder.",         "farewell": "Build well, suffer gladly.",        "toast": "To the Basilica we will raise again."},
+    "Belvareth":       {"salutation": "Wrath keep you.",                   "farewell": "Melvanar protects.",                "toast": "Faith and honour."},
+    "Shassolin":       {"salutation": "The Prophet hears you.",            "farewell": "May He speak for you.",             "toast": "Give to Esselantheum what you cannot give yourself."},
+    "Kraghs":          {"salutation": "Rising banners.",                   "farewell": "Return with scars.",                "toast": "May your blood never spill for nothing."},
+    "Vorghith":        {"salutation": "Silence, friend.",                  "farewell": "May they never see you coming.",    "toast": "Enemies to the gallows."},
+    "Drakteni":        {"salutation": "Conquest be upon ye.",              "farewell": "Until we campaign again.",          "toast": "Land and empire."},
+    "Cailendroffs":    {"salutation": "In the name of Draggath.",          "farewell": "Until we cross again.",             "toast": "To the Scion of Draggath, and the return of the King!"},
+    "Sarkopekt":       {"salutation": "State your contract.",              "farewell": "If you need us.",                   "toast": "Wealth and those left behind."},
+    "Astravantheliad": {"salutation": "Knowledge is power.",               "farewell": "May your knowledge run deep.",      "toast": "May what we learn never be lost."},
+    "Ossensteins":     {"salutation": None,                                "farewell": None,                                "toast": None},
+}
