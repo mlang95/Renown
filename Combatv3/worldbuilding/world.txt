@@ -10,7 +10,6 @@ CONTENTS
      4.  THE WORLD
      5.  THE TIMELINE
      6.  THE AGE OF DARKNESS
-     7.  THE GAZETTEER
 
 ================================================================================
                                 1.  THE PREMISE                                 
@@ -69,34 +68,35 @@ CONTENTS
   acknowledgment.
 
   As the storms rose over the mountains, the civilisation once pious left their
-  golden cities as ash fell from the sky. These people migrated across the Sea
-  of Ash into the boxed mountains of Lenaveron, where the Lenavorites issued
+  golden cities as ash fell from the sky. These people migrated across the sea
+  of ash into the boxed mountains of Lenaveron, where the Lenavorites issued
   their first record — the name of its home.
 
   The Lenavorites, over time, began to focus their efforts on history, record
   keeping, and the formation of the Truth. Soon, new gods were born: Ollanenor,
-  the god of Saints; Lorenthal, the god of Peace; Melvanar, the god of Wrath;
-  and Anumaranth, the god of Balance.
+  the god of Balance; Lorenthal, the god of Peace; Melvanar, the god of Wrath;
+  and Anumaranth, the god of Saints.
 
   For each god existed an Order that rose to fill the void caused by the
   migrations and lack of purpose.
 
-  Ollanenor was run by the Order of Saints, the first order, used to determine a
-  priest's Saint's name — the name they took, foregoing their old identity, to
-  take on the work of that Saint as their own. The Inquisition, a growing arm of
-  the order, trains the populace of Lenaveron preparing for their Saint's name,
-  removing all pharisaic tendencies from its own people to prevent the next
-  fall, always suspicious of its imminent arrival.
+  Anumaranth was run by the Order of Saints, the first order, used to determine
+  a priest's Saint's name — the name they took, foregoing their old identity, to
+  take on the work of that Saint as their own. The Inquisition — Ollanenor's
+  Order of Balance, the eyes of the Tetramorph — removes all pharisaic
+  tendencies from its own people to prevent the next fall, always suspicious of
+  its imminent arrival.
 
-  The Order of Mission represents Lorenthal, and is responsible for the mission
-  work of expanding its name and authority across all borders.
+  The Order of Missions represents Lorenthal, the spirit of the Tetramorph,
+  responsible for the mission work of expanding its name and authority across
+  all borders.
 
-  The Order of Penance of Melvanar prepares its people and all inhabitants of
-  Vaelohk for the return of Melvanar, seeking justice against those who had
-  fallen from his path.
+  The Order of Penance of Melvanar, the sword of the Tetramorph, prepares its
+  people and all inhabitants of Vaelohk for the return of Melvanar, seeking
+  justice against those who had fallen from his path.
 
-  Lastly, from Anumaranth came the Order of the True Word. They were strict
-  record keepers, fact finders, and administrators. In order to fund the grand
+  Within the Order of Saints, the True Word keeps the records — strict record
+  keepers, fact finders, and administrators. In order to fund the grand
   instrument of the papacy, the Tithe was implemented, causing all under the
   reach of the four gods, the Tetramorph, to tithe in order to fund and fuel the
   great power of Lenaveron.
@@ -121,6 +121,44 @@ CONTENTS
 ================================================================================
 
   Vaelohk — the centre island, and the name the world took from it.
+
+  -- THE FOUR CORNERS ----------------------------------------------------------
+
+  · INDUSTRY
+      Nw — Blighthold (castle in mountains), Scarlet Forest.
+
+  · PROWESS
+      Ne — Draggath Wastes (tundra), Bleak Highlands, Glen of Pravak,
+        Drakenheart, Sea of Drakes.
+
+  · CUNNING
+      Sw — Dreadwood, Marrow Shoals.
+
+  · PIETY
+      S/se — Lenaveron and the Lost Woods.
+
+  -- THE SEA -------------------------------------------------------------------
+
+    One sea, and no name for the whole of it. Each shore names the water it can
+      see, and the ring is wide enough that they are all describing something
+      different.
+
+  · The Lonely Sea
+      A vast open sea of doldrums.
+
+  · The Sea of Drakes
+      Tumultuous. Mythology holds that flying drakes destroy ships to protect
+        it. Borders the Prowess corner.
+
+  · The Sea of Miracles
+      Where miracles are said to have happened.
+
+  · The Sea of Damnation
+      Fraught with Drakteni and Sarkopekt — where the damned are sent to meet
+        their deserved fate. The name is honest by accident: what is actually
+        out there is a conquest fleet and mercenary free companies of unknown
+        allegiance. Whether the damnation is theological or just Drakteni
+        siege-ships depends on who you ask.
 
 
 ================================================================================
@@ -175,7 +213,7 @@ PLACES
         valuable, and they would never fight the earth again.
 
 NOTES
-  Trade role: slop —> The primary traders and suppliers of the world. This is
+  Trade role: wip —> The primary traders and suppliers of the world. This is
     what keeps them functioning with no martial might and relatively stable:
     they are indispensable. You do not raid the people who supply you. Their
     safety is economic, not military — wealthy and powerful while focused on the
@@ -184,13 +222,13 @@ NOTES
     Voldrastel guard it, the Vorghith strangle it, the Ithiss fence through it,
     the Sarkopekt sell arms alongside it.
 
-  Internal conflict: slop —> Almost none. Families producing and competing in
-    the same craft are judged by the market, not by each other — competition is
+  Internal conflict: wip —> Almost none. Families producing and competing in the
+    same craft are judged by the market, not by each other — competition is
     externalised onto an impartial arbiter, so there is no advantage to seize by
     scheming. The familial trade and craft dynasties are so old that the market
     is legible: everyone understands what it needs, families step in to fill the
     gaps, and it is all respected by other Trusteki. No Cunning here. The
-    structural anti-isseth: both lack a central authority, but Cunning turns
+    structural anti-Ithiss: both lack a central authority, but Cunning turns
     that into predation and Industry turns it into a guild. It is also why the
     Ossensteins had to leave — you cannot be a puppetmaster among people who
     will not play the game.
@@ -234,13 +272,13 @@ Monuments:       Outlaw Rookery, Thieves' Guild, Outrider Intercept Post,
 PLACES
   · Crag Pass
       A natural chokepoint of narrow paths, labyrinths, and slot canyons, found
-        and controlled by the isseth from their underground network — reached in
+        and controlled by the Ithiss from their underground network — reached in
         secret, held without garrison. Where Trusteki caravans learned the
         dangers of the south, and the route by which Ithiss who wanted another
         life ventured north.
 
 NOTES
-  Trade: slop —> Primary supplier of illegally sourced fenced goods to the
+  Trade: wip —> Primary supplier of illegally sourced fenced goods to the
     Prezish, who take them to market. Unscrupulous and conniving, willing to
     step over anyone, moving stolen and illicit goods from Heathport to the
     Wharf of St. Brannoch.
@@ -290,7 +328,7 @@ PLACES
         move of the con.
 
 RIVALS
-  Voldrastel — slop —> The trade routes — predator vs protector.
+  Voldrastel — wip —> The trade routes — predator vs protector.
 
 
 ================================================================================
@@ -332,15 +370,15 @@ Monuments:       Ministry of Military Strategy, Advanced Blast Furnace,
 --------------------------------------------------------------------------------
 
 RIVALS
-  Prezish — slop —> The trade routes — predator vs protector.
+  Prezish — wip —> The trade routes — predator vs protector.
 
 NOTES
-  Role: slop —> Neutral defenders of the trade routes and seas — safe passage
-    and honest brokering as an intermediary, for a toll and a broker's fee. The
+  Role: wip —> Neutral defenders of the trade routes and seas — safe passage and
+    honest brokering as an intermediary, for a toll and a broker's fee. The
     stoic wardens of the world's roads and sea routes: powerful, and wielded for
     good.
 
-  Doctrine: slop —> The carry trade. Model: the Dutch Republic fused with
+  Doctrine: wip —> The carry trade. Model: the Dutch Republic fused with
     18th-century Britain. From the Dutch — a merchant-republic governed by the
     trading class itself, wealth from the entrepot (facilitating flow, not
     owning production), financial instruments, defensive survival by being too
@@ -350,7 +388,7 @@ NOTES
     to be profitable. In a world of fifteen cultures fighting over what they can
     hold, the Voldrastel win by holding nothing and moving everything.
 
-  Strategy: slop —> Status-quo enforcers. They want the world's general balance
+  Strategy: wip —> Status-quo enforcers. They want the world's general balance
     maintained, because the more control their antagonists gain, the less
     footing and bargaining power they have. Their morality and their interest
     point the same way — not hypocrisy, but the structure of a carry-trade
@@ -361,19 +399,19 @@ NOTES
     defend the victim to check the aggressor); shield the Trusteki (protect the
     producer, protect the whole trade order).
 
-  Limits: slop —> Their reach is not infinite. They oppose all destabilisation
-    in principle but must triage. Ossensteins: rarely even recognised — you
-    cannot oppose a hand you cannot see, and their invisibility is their
-    immunity. (The irony: the culture whose entire purpose is stopping
-    board-owners is blind to the faction that already won.) Cailendroffs:
-    currently self-contained — a threat in potential, not in motion, so no
-    expenditure is warranted yet; but the Cailendroffs are actively recruiting
-    toward a crusade, so the non-action is provisional. False Prophet: a
-    spiritual threat, headed off by the Lenavorites — the church's front, not
-    the wardens'. Implicit division of labour: the Lenavorite administration
-    polices belief, the Voldrastel police the routes.
+  Limits: wip —> Their reach is not infinite. They oppose all destabilisation in
+    principle but must triage. Ossensteins: rarely even recognised — you cannot
+    oppose a hand you cannot see, and their invisibility is their immunity. (The
+    irony: the culture whose entire purpose is stopping board-owners is blind to
+    the faction that already won.) Cailendroffs: currently self-contained — a
+    threat in potential, not in motion, so no expenditure is warranted yet; but
+    the Cailendroffs are actively recruiting toward a crusade, so the non-action
+    is provisional. False Prophet: a spiritual threat, headed off by the
+    Lenavorites — the church's front, not the wardens'. Implicit division of
+    labour: the Lenavorite administration polices belief, the Voldrastel police
+    the routes.
 
-  Pragmatism: slop —> They hold the Cailendroff Edict a fraud and would take the
+  Pragmatism: wip —> They hold the Cailendroff Edict a fraud and would take the
     pretender's success over his failure. A unified Draggath Wastes is an
     objective good to a culture that thrives on trade and unification: peace
     ends the perpetual civil war, opens the northeast to routes, and creates one
@@ -402,9 +440,9 @@ all of Vaelohk was its name: Lenaveron. The Lenavorites are a self-flagellating,
 unforgiving people, eager to regain their lost devotion, seeking piety through
 any means. Tithe. Spread the gospel. Offer yourself as a missionary, or a
 martyr. And most importantly: record it. From the Lenavorites came a large papal
-institution of administration. The Inquisition of Ollanenor taught the way of
-life and assigned your role in it by assigning your name according to a saint,
-forgoing all prior sense of self.
+institution of administration. The Order of Saints taught the way of life and
+assigned your role in it by assigning your name according to a saint, forgoing
+all prior sense of self.
 
 --------------------------------------------------------------------------------
 Government:      Ecclesiocracy (papacy)
@@ -424,7 +462,7 @@ Monuments:       Papal Palace, Inquisitorial Palace
 --------------------------------------------------------------------------------
 
 NOTES
-  Internal conflict: slop —> Low, and doctrinal. Mostly cooperative — like
+  Internal conflict: wip —> Low, and doctrinal. Mostly cooperative — like
     Catholics vs other Christians: real debate on smaller issues, general
     agreement, everyone rowing in the same direction. No one refuses to
     administrate or perform their role; the machine runs. The disagreements are
@@ -469,12 +507,14 @@ Change:          Past — recover the Lost technology of the Great Basilica
 War doctrine:    Defensive/siege engineering — fortress-cathedrals
 Taboo:           Waste + pride (a flawed or vain structure is sin)
 Defined against: The wasteful and the faithless
-Naming:          St. [name] the [Craft-Order] [numeral]
+Naming:          [name] the [Craft-Order] [numeral] — a craft-lineage tally, not
+                   a saint-name: too far from Lenaveron for the Inquisition to
+                   confer one
 Monuments:       Office of Works, Papal Palace
 --------------------------------------------------------------------------------
 
 RIVALS
-  Drakteni — slop —> What building is for — conquest vs devotion.
+  Drakteni — wip —> What building is for — conquest vs devotion.
 
 
 ================================================================================
@@ -514,7 +554,18 @@ Monuments:       Preceptory of the Knight's Templar
 --------------------------------------------------------------------------------
 
 NOTES
-  Event - The Pincer of Dead Waters — 2910 (provisional): slop —> Every northern
+  Doctrine: wip —> Defensive crusade. Isolationist by conviction, devastating
+    only at home. The Belvareth love a defensive fight and fight almost nowhere
+    else: the Lost Woods - the one land the Great Fracture never touched - is
+    their ground, and the killing comes to them, as pilgrims and Lenavorite
+    missions walk in and are reduced. They do not march; they receive.
+
+  Limits: wip —> No power projection. Expansion into Lenaveron is unfounded and
+    sacrilegious - one does not conquer the faith one broke from. They could not
+    endure a campaign into the Bleak Highlands, and have no capacity for the Sea
+    of Damnation. A wall, not a spear.
+
+  Event - The Pincer of Dead Waters — 2910 (provisional): wip —> Every northern
     assault on the Wheat Fields had broken on the Lost Woods treeline. A Prowess
     warlord took the minimum slice of Industry to raise a single disposable
     shipyard on the then-unnamed northern bay. Double-move: the main host drove
@@ -529,7 +580,7 @@ NOTES
     stroke of genius; he had a budget. Every prior assault on the Wheat Fields
     broke on the treeline because nobody was willing to pay Karalius' number.
     The one who finally was, won. The only defeat ever recorded of the
-    belvarath. They gave ground in the Wheat Fields for the first time that day
+    Belvareth. They gave ground in the Wheat Fields for the first time that day
     — on ground that is never paved because it is hallowed. For an order whose
     taboo is retreat and doubt, this is not a battle loss but a theological
     event: the standard failed the test, and every warlord ever turned back
@@ -576,7 +627,7 @@ PLACES
         clergy abandoned and repurposed.
 
 NOTES
-  See also: slop —> Section 9 — the Order of the Last Prophet, the machine they
+  See also: wip —> Section 9 — the Order of the Last Prophet, the machine they
     run and are run by.
 
 
@@ -647,20 +698,20 @@ PLACES
         volunteers to test it.
 
 RIVALS
-  Vorghith — slop —> Supply lines, and the impossibility of telling friend from
+  Vorghith — wip —> Supply lines, and the impossibility of telling friend from
     enemy.
-  Drakteni — slop —> Hermit's Row — the Drakteni hold a settlement in the
+  Drakteni — wip —> Hermit's Row — the Drakteni hold a settlement in the
     narrows; the Kraghs try to stave off the invasion.
 
 NOTES
-  Warbands: slop —> Since Pravak, Kragh warbands sit on a spectrum from
+  Warbands: wip —> Since Pravak, Kragh warbands sit on a spectrum from
     individual skill to positional strategy. A warband's place on it is
     advertised — a recruiting pitch to unpledged young men choosing where to
     make their mark. The strategy-end warbands train almost purely in military
     strategy over personal prowess. Battlefield cunning is honoured; the knife
     in the dark is beneath them.
 
-  Event - The Pincer of Dead Waters — 2910 (provisional): slop —> Every northern
+  Event - The Pincer of Dead Waters — 2910 (provisional): wip —> Every northern
     assault on the Wheat Fields had broken on the Lost Woods treeline. A Prowess
     warlord took the minimum slice of Industry to raise a single disposable
     shipyard on the then-unnamed northern bay. Double-move: the main host drove
@@ -675,7 +726,7 @@ NOTES
     stroke of genius; he had a budget. Every prior assault on the Wheat Fields
     broke on the treeline because nobody was willing to pay Karalius' number.
     The one who finally was, won. The only defeat ever recorded of the
-    belvarath. They gave ground in the Wheat Fields for the first time that day
+    Belvareth. They gave ground in the Wheat Fields for the first time that day
     — on ground that is never paved because it is hallowed. For an order whose
     taboo is retreat and doubt, this is not a battle loss but a theological
     event: the standard failed the test, and every warlord ever turned back
@@ -683,7 +734,7 @@ NOTES
     two-pronged attack against an order whose entire discipline is holding two
     halves in balance. 156 years later the alministralum's edges began to break.
 
-  Event - Vogen — 1136 (provisional): slop —> A Vorghith general. He led a
+  Event - Vogen — 1136 (provisional): wip —> A Vorghith general. He led a
     warband to control everything up to the Bleak Highlands — the northern limit
     of their expansion — and went no further. Assassinating his opponents by
     public execution. Vogen's Gallows is named for the method, and the site has
@@ -729,11 +780,11 @@ Monuments:       Outrider Intercept Post, Royal Pavilion
 --------------------------------------------------------------------------------
 
 RIVALS
-  Kraghs — slop —> Supply lines, and the impossibility of telling friend from
+  Kraghs — wip —> Supply lines, and the impossibility of telling friend from
     enemy.
 
 NOTES
-  Event - Vogen — 1136 (provisional): slop —> A Vorghith general. He led a
+  Event - Vogen — 1136 (provisional): wip —> A Vorghith general. He led a
     warband to control everything up to the Bleak Highlands — the northern limit
     of their expansion — and went no further. Assassinating his opponents by
     public execution. Vogen's Gallows is named for the method, and the site has
@@ -758,11 +809,10 @@ campaigns against the Kraghs in Hermit's Row and besieging the Madekites in the
 frozen, desolate cathedral fortresses of Fair Whitewood.
 
 --------------------------------------------------------------------------------
-Government:      Martial republic / a professional officer-state
+Government:      Meritocratic Stratocracy
 Authority:       Competence + force — command earned by skill and rank
 Sacred:          War + the work — the engineered victory
-Organization:    Craft-warband (a professional standing army with an engineering
-                   corps)
+Organization:    Structured Hierarachal Chain of Command
 Economy:         Production + tribute — they build the war machine and take by
                    it
 Kinship:         Regiments served through bloodline
@@ -794,8 +844,8 @@ PLACES
         empire.
 
 RIVALS
-  Madekites — slop —> What building is for — conquest vs devotion.
-  Kraghs — slop —> Hermit's Row — the Drakteni hold a settlement in the narrows;
+  Madekites — wip —> What building is for — conquest vs devotion.
+  Kraghs — wip —> Hermit's Row — the Drakteni hold a settlement in the narrows;
     the Kraghs try to stave off the invasion.
 
 
@@ -893,7 +943,7 @@ PLACES
         them.
 
 NOTES
-  Event - The Pincer of Dead Waters — 2910 (provisional): slop —> Every northern
+  Event - The Pincer of Dead Waters — 2910 (provisional): wip —> Every northern
     assault on the Wheat Fields had broken on the Lost Woods treeline. A Prowess
     warlord took the minimum slice of Industry to raise a single disposable
     shipyard on the then-unnamed northern bay. Double-move: the main host drove
@@ -908,7 +958,7 @@ NOTES
     stroke of genius; he had a budget. Every prior assault on the Wheat Fields
     broke on the treeline because nobody was willing to pay Karalius' number.
     The one who finally was, won. The only defeat ever recorded of the
-    belvarath. They gave ground in the Wheat Fields for the first time that day
+    Belvareth. They gave ground in the Wheat Fields for the first time that day
     — on ground that is never paved because it is hallowed. For an order whose
     taboo is retreat and doubt, this is not a battle loss but a theological
     event: the standard failed the test, and every warlord ever turned back
@@ -916,7 +966,7 @@ NOTES
     two-pronged attack against an order whose entire discipline is holding two
     halves in balance. 156 years later the alministralum's edges began to break.
 
-  Event - Mason-King Karalius II — 2910 (provisional): slop —> Sarkopekt. Famous
+  Event - Mason-King Karalius II — 2910 (provisional): wip —> Sarkopekt. Famous
     shipwright and builder of masonry citadels, seated at Ivory Isle. His wealth
     is recognized — not self-styled, not contested; the title is acknowledged
     because the money is undeniable. The expensive solution that always works.
@@ -972,7 +1022,7 @@ Monuments:       Studium Generale, Senate Hall, Aristocratic Court
 --------------------------------------------------------------------------------
 
 NOTES
-  The fund: slop —> One shared account. Complete egalitarians who are also, all
+  The fund: wip —> One shared account. Complete egalitarians who are also, all
     of them, wealthy — the isle operates as a single pooled endowment. If you
     need money you withdraw; if you do not, you put in. This is not communal
     idealism, it is a liquidity pool, and it does three things. Nobody
@@ -985,8 +1035,8 @@ NOTES
     cannot be the currency of status — which leaves expertise as the only
     differentiator, and is why the technocracy's meritocracy holds.
 
-  Their army: slop —> Mediocre and decently equipped. Every citizen carries
-    basic military training as part of the four-domain baseline, so they field a
+  Their army: wip —> Mediocre and decently equipped. Every citizen carries basic
+    military training as part of the four-domain baseline, so they field a
     competent militia: everyone has had the drill, the kit is good, nobody is a
     specialist. Enough to hold their own island and be a real cost to invade;
     nowhere near enough to project force or take ground from people who do that
@@ -999,29 +1049,29 @@ NOTES
     take ground with it; the centre equips everyone adequately and takes ground
     from no one. The kit is insurance, not a plan.
 
-  Governance: slop —> An academically led technocracy focused on myopic,
-    specific problems, each citizen dedicating a whole life to one pursuit.
-    Those with the best outcomes and greatest products are voted into the
-    technocratic senate that takes court with the Duke, representing the most
-    influential members of Vaelohk.
+  Governance: wip —> An academically led technocracy focused on myopic, specific
+    problems, each citizen dedicating a whole life to one pursuit. Those with
+    the best outcomes and greatest products are voted into the technocratic
+    senate that takes court with the Duke, representing the most influential
+    members of Vaelohk.
 
-  Diplomacy: slop —> The primary delegates other cultures interact with during
+  Diplomacy: wip —> The primary delegates other cultures interact with during
     envoys and diplomatic negotiation. Even when not participating, they are at
     the center of influence. Knowledge is indeed power.
 
-  Internal Self Image: slop —> A rigorous, honest, meritocratic research
-    culture. Every citizen competent across all four domains. Lifetimes devoted
-    to genuine problems at extraordinary resolution. Knowledge as devotion;
+  Internal Self Image: wip —> A rigorous, honest, meritocratic research culture.
+    Every citizen competent across all four domains. Lifetimes devoted to
+    genuine problems at extraordinary resolution. Knowledge as devotion;
     truth-seeking as the highest calling. From inside: the Age of Renown is the
     age reason finally governs.
 
-  External Reputation: slop —> Vain, hollow, produces nothing. Their work is the
+  External Reputation: wip —> Vain, hollow, produces nothing. Their work is the
     most theoretical — from outside, a lifetime spent on something that never
     touches the ground. The output is real, but it is abstraction, and
     abstraction is invisible to everyone outside the Hall. From outside: the Age
     of Renown is the age nobody does anything.
 
-  See also: slop —> Section 9 — the Duke, the fixed point they measure distance
+  See also: wip —> Section 9 — the Duke, the fixed point they measure distance
     to.
 
 
@@ -1065,7 +1115,7 @@ PLACES
         spoken aloud; saying it is the sales pitch.
 
 NOTES
-  See also: slop —> Section 9 — the Order of the Last Prophet, the machine they
+  See also: wip —> Section 9 — the Order of the Last Prophet, the machine they
     run and are run by.
 
 
@@ -1075,7 +1125,7 @@ NOTES
                                  4.  THE WORLD                                  
 ================================================================================
 
-  SLOP —> From the northern cliffs it is the Sea of Drakes, and the men there
+  WIP —> From the northern cliffs it is the Sea of Drakes, and the men there
   will tell you why ships do not come back. From the pilgrim coast it is the Sea
   of Miracles, and they will tell you what happened there, and when, and to
   whom. From the eastern shore it is the Sea of Damnation, which is where the
@@ -1083,7 +1133,7 @@ NOTES
   company of mercenaries who will not say who is paying them. The water does not
   care. It is wide enough that all three are describing something true.
 
-  SLOP —> Around it, four corners and a centre. Ice and bad soil in the
+  WIP —> Around it, four corners and a centre. Ice and bad soil in the
   north-east, where the old empire died and the warbands still fight over what
   killed it. Mountains and mines in the north-west, where a people who survived
   a plague of the earth itself now supply half the world. Warrens and shoals in
@@ -1091,7 +1141,7 @@ NOTES
   in the south, where a church that no longer governs its own frontier is still
   certain it does.
 
-  SLOP —> And in the middle, an island the world is named for, where the Duke
+  WIP —> And in the middle, an island the world is named for, where the Duke
   sits and says nothing, and everyone who matters is trying to stand nearer to
   him.
 
@@ -1113,7 +1163,13 @@ NOTES
 
   -- THE AGE OF DARKNESS -------------------------------------------------------
     Before the count. No firm reckoning survives; the True Word records only
-      that it was
+      that it was. The Darkness ends at Year 0 not because the world brightened
+      but because that is where the reconstruction bottoms out — the deepest the
+      Trusteki ledgers, Kragh oral succession and the Astravantheliad's
+      cross-referencing could reach. Dark because the record gives out there.
+      The Astravantheliad keep trying to push past it into negative years; the
+      True Word holds the floor fixed and calls the attempt recording what did
+      not happen
 
     The old gods brought four peoples into the four corners of the world.
 
@@ -1458,225 +1514,3 @@ NOTES
       that can never be cleared. Prowess solved it by leaving; Piety could not
       leave, so it ate itself for fifty generations. And some who walked out may
       not have been theirs. There is no way to know.
-
-
-================================================================================
-                               7.  THE GAZETTEER                                
-================================================================================
-
-Every place on the map with a story, and who holds it now. Names are claims and
-  holders are current, not eternal.
-
-  · Bay of Lost Hope  —  Sarkopekt
-      A Sarkopekt free-company node.
-
-  · Bay of Pigs  —  Prezish
-      A weaponized false exonym. The dismissive name was given by outsiders, and
-        the locals keep it deliberately — a bay named for filth attracts no
-        attention and lowers a merchant's guard. Prezish seat: pirates,
-        smugglers, brokers, money-lenders and profiteers. The name is the first
-        move of the con.
-
-  · Bleak Highlands  —  Kraghs
-      Pastoralists, living as historical Highlanders did — herding clans under a
-        chief they swear fealty to. The northern limit of Vorghith expansion:
-        Vogen, their general, drove up to here in 1136 and no further. Also a
-        Sarkopekt free-company node. When the Pincer was organised it was
-        Highland clans who enlisted in the Mason-King's mercenary company in
-        exchange for his services — paying in fealty-service rather than coin,
-        which is how their oaths already work.
-
-  · Blighthold  —  Trusteki
-      Castle in the mountains. The heath where the Trusteki grew crops through
-        the Blight using ancient trade secrets, working together to survive the
-        diseased land. Named for what it endured — and it doubles as
-        reverse-marketing to keep people from coming. Received the migration
-        from the Coloured Mountains at the opening of the Age of Plenty.
-
-  · Cailendroff Isles  —  Cailendroffs
-      Home of the exiled pretender's people, driven out during the Great
-        Fracture and never possessing the means to return — the harder now with
-        Sarkopekt free companies patrolling the Sea of Damnation under unknown
-        allegiance.
-
-  · Coloured Mountains  —  Trusteki
-      The ancient continent where the Trusteki first formed as farmers
-        worshipping the old deity Trusti. Their migration to Blighthold opens
-        the Age of Plenty.
-
-  · Crag Pass  —  Ithiss
-      A natural chokepoint of narrow paths, labyrinths, and slot canyons, found
-        and controlled by the isseth from their underground network — reached in
-        secret, held without garrison. Where Trusteki caravans learned the
-        dangers of the south, and the route by which Ithiss who wanted another
-        life ventured north.
-
-  · Cravencroft  —  Kraghs
-      The Kraghs hold that giants here destroy the weak and the outcast. A
-        threat aimed at their own: giants that eat the weak is the story a
-        glory-or-death culture tells to keep weakness from taking root. Nobody
-        volunteers to test it.
-
-  · Dead Waters  —  Sarkopekt
-      Named for what came out of the shipyard raised on its then-unnamed shore.
-        The Pincer folded the Belvareth here — the only defeat ever recorded of
-        them.
-
-  · Draggath Wastes  —  Kraghs
-      Once the Great Monarchy that held the whole continent; the Great Fracture
-        shattered it into warring city-states. Named for the final monarch — and
-        for the empire, the dynasty, and the land, all synonymous. Fertile once:
-        endless war (salted earth, deforestation) made it badlands, and the
-        ruins are the former bounty. Recursive scarcity — the more they fought
-        over the lessening fertile land, the less there was.
-
-  · Drakenheart  —  Drakteni
-      Drakteni seat. Their craft is conquest: firepower built to expand beyond
-        the continent, campaigns constantly funded and refunded. It is also the
-        smallest landmass for the size of the culture on it — the engine of
-        everything they do. They colonise to make room for themselves as an
-        empire.
-
-  · Dreadwood  —  Ithiss
-      Ithiss heartland. An anarchic aristocracy of brotherhoods and guilds
-        forming criminal empires — no central authority, but a rigid internal
-        hierarchy of the feared and successful.
-
-  · Fair Whitewood  —  Madekites
-      Wintery forested mountain pass. Settled by Trusteki who moved north
-        'seeking religion' and became the Madekites — hard tundra rich with
-        quarries, where the pain and sacrifice of building is devotion. Their
-        fortress-cathedrals exist because the expansionist Drakteni will not
-        stop coming.
-
-  · Glen of Pravak  —  Kraghs
-      Named for the warband of Pravak — the most well-trained Kragh warband of
-        the early Fracture, which held the last remaining glen of tillable land
-        for centuries. Their strong internal pact disallowed Vorghith
-        infiltration: the one known counter to the problem that would later cost
-        the Kraghs the bay, solved in one glen and never generalised. Their dual
-        concentration on athleticism and strategy, plus intimate knowledge of
-        the ground, let them posture every battle in the glen into their favour.
-        Pravak is long gone, but his attention to positional strategy and
-        tactics reshaped how the Kraghs train.
-
-  · Heathport  —  Drakteni
-      A natural port with plentiful mines, found by Trusteki who built ships and
-        fled east after the Blight — where they met Prowess and became the
-        Drakteni. Now one end of the Ithiss-to-Prezish illicit route (Heathport
-        to the Wharf of St. Brannoch).
-
-  · Hermit's Row  —  Drakteni
-      A narrow pair of mountain ranges. The Drakteni hold a position and
-        settlement here; the Kraghs hold the narrows against them.
-
-  · Ivory Isle  —  Sarkopekt
-      Known historically as the seat of Mason-King Karalius II — shipwright and
-        builder of masonry citadels, the expensive solution that always worked.
-        His wealth was recognised, not self-styled. Now a Sarkopekt node sitting
-        between the seat of power and the war-market.
-
-  · Lenaveron  —  Lenavorites
-      Named by the Lenavorites after themselves when they migrated north and
-        west out of the frozen tundra — the first written record in the world.
-        Papacy heartland; seat of the Papal Palace (Anumaranth) and the
-        Inquisitorial Palace (Ollanenor).
-
-  · Lost Woods  —  Belvareth
-      Sacred to the crusader order. Pilgrims come to 'meet the God of Gods' —
-        and the Belvareth cut them down; the meeting is death. Theologically
-        correct from inside: seeking Esselantheum directly is the blasphemy, and
-        Melvanar's doctrine spreads by the reduction of false gods. Everyone
-        sincere, nobody lying. The only land left untouched by the Great
-        Fracture.
-
-  · Marrow Shoals  —  Prezish
-      Shared water — isseth and Prezish both. Where Trusteki venturing south met
-        the Ithiss coming north, forming the Prezish.
-
-  · Prophet's Landing  —  Ossensteins
-      A beautiful tropical archipelago — paradise as bait. Where the false god
-        manifested among the excommunicated (expelled for failing to recognise
-        the Tetramorph). The only place in the world where Esselantheum is
-        spoken aloud; saying it is the sales pitch.
-
-  · Scarlet Forest  —  Trusteki
-      The soil south of Blighthold turned blood red after the Blight, and
-        Scarlet trees grew from it — a verdant swelling, trees reaching the size
-        of the old wood of Fair Whitewood within a single generation. Produces
-        the best wood in the world. The most damaged land became the most
-        valuable, and they would never fight the earth again.
-
-  · Sea of Ash  —  Unclaimed
-      A sea completely contaminated by Ash. Crossable, but it yields nothing —
-        no fish, no drinking water. You carry everything across it or you do not
-        arrive. Some say it is the ash of the old gods.
-
-  · Shallow Mire / Quiet Hollow  —  Shassolin
-      Swampy wetland at the end of the Strait of Sorrow. Shassolin territory —
-        administrators and missionaries of the false religion, stranded frontier
-        clergy abandoned and repurposed.
-
-  · Strait of Sorrow  —  Shassolin
-      Named by the Lenavorites who built simple rafts and fled west after the
-        Fracture — many and most fell ill on the journey and died, only to find
-        a worse swampy wetland to settle, inhabited by bandits and conmen of the
-        immoral kind.
-
-  · The Twelfth Reach  —  Voldrastel
-      Twelve islands. A diaspora zone receiving displaced Prowess x Industry
-        peoples, governed by the Voldrastel — neutral wardens of the trade
-        routes, safe passage and honest brokering for a toll and a broker's fee.
-
-  · Tombs of the Old Gods  —  Lenavorites
-      The frozen south-eastern tundra the Lenavorites abandoned. Site of the
-        Great Basilica — an old-wonder of the vanished high civilization. The
-        graveyards and basilicas were left to crumble and the old gods
-        forgotten: abandoned institutions, not dead beings. The Madekites chase
-        the lost technology of the Basilica still.
-
-  · Vaelohk  —  Astravantheliad
-      The centre island, and the world's name. Grounded and educated: home to
-        the Academic Halls, the technocratic senate, and the Duke. Place-names
-        here are plain common-tongue (The Duchy's Mouth, Bay of Renown).
-
-  · Vogen's Gallows  —  Vorghith
-      Named for Vogen, the Vorghith general whose signature was assassinating
-        opponents by public execution. The best prison-turned-fortress and
-        island bay on the continent — abandoned by the Kraghs when they could no
-        longer tell who among them was Vorghith, and inherited by the prisoners.
-        Public execution is psychological and economic warfare, not battlefield
-        glory: a Kragh kills you in open combat for honour, Vogen hangs you in
-        the square so everyone watches.
-
-  · Wharf of St. Brannoch  —  Sarkopekt
-      Named for a saint. A natural sanctuary off the coast of Lenaveron, and the
-        busiest of the Sarkopekt nodes — where city-states, warbands and
-        travelling nomads hire themselves out. Also the far end of the
-        Ithiss-to-Prezish illicit route from Heathport.
-
-  · Wheat Fields  —  Belvareth
-      Not a border — a proving ground. The strongest warbands and warlords come
-        here on purpose to test themselves against the Belvareth, known as the
-        best warriors in the world; some believe they truly are their god's
-        wrath made manifest. A frontier under conquest-pressure would fall or
-        expand; a proving ground stays exactly where it is forever, because both
-        sides want it to. Never paved: hallowed ground, where the world comes to
-        be measured. Men reaped like wheat.
-
-  · The Lonely Sea  —  Sea
-      A vast open sea of doldrums.
-
-  · The Sea of Drakes  —  Sea
-      Tumultuous. Mythology holds that flying drakes destroy ships to protect
-        it. Borders the Prowess corner.
-
-  · The Sea of Miracles  —  Sea
-      Where miracles are said to have happened.
-
-  · The Sea of Damnation  —  Sea
-      Fraught with Drakteni and Sarkopekt — where the damned are sent to meet
-        their deserved fate. The name is honest by accident: what is actually
-        out there is a conquest fleet and mercenary free companies of unknown
-        allegiance. Whether the damnation is theological or just Drakteni
-        siege-ships depends on who you ask.

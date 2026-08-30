@@ -149,34 +149,43 @@ GODS = {
                 "by someone who has. The word is evidence.",
     },
     "Ollanenor": {
-        "tier": "Greater deity — the GREATEST, of utmost power",
-        "domain": "SAINTS",
-        "nature": "The deliverer of saints' names. When a person gives themselves up to an order "
-                  "their born name is erased and Ollanenor returns one in its place — an office "
-                  "rather than a person, worn by whoever holds it now and passed on when they "
-                  "do not. The most mysterious of the sects, and an orthodoxy of power.",
+        "tier": "Greater deity — the most FEARED of the four",
+        "domain": "BALANCE",
+        "order": "The Order of Balance — the EYES of the Tetramorph; the purifiers",
+        "head": "The Inquisition",
         "seat": "The Inquisitorial Palace",
-        "order": "The Inquisition",
-        "the_schooling": "The Inquisition runs the EDUCATIONAL ARM of the papacy — the "
-                         "administration is Anumaranth's, but the teaching is Ollanenor's. They "
-                         "prepare a person to give themselves up: what it will cost, what will be "
-                         "asked, and WHICH ORDER SUITS THEM, weighed against their temperament and "
-                         "their preferences. A novice does not choose blind. They are counselled "
-                         "toward wrath or peace or balance or the saints by the people who will "
-                         "later hand them the name.",
+        "nature": "Orthodoxy and purification — the most feared power in the church. Their "
+                  "administration is JUSTICE: where Anumaranth keeps the records, the Inquisition "
+                  "keeps the faithful in line, holding the four faces in balance by rooting out "
+                  "what would tip them — heresy, false gods, and above all those who SPEAK THE "
+                  "NAME of the God of Gods. That hunt never ends. ONLY the Inquisition holds the "
+                  "name outside Prophet's Landing; to know it is to be able to bypass the four "
+                  "faces, so the purifiers exist to prevent that STRUCTURAL COLLAPSE — and every "
+                  "inquisitor carries the very blasphemy he hunts.",
     },
     "Anumaranth": {
         "tier": "Greater deity",
-        "domain": "BALANCE",
-        "nature": "Makes those who are empty WHOLE, and those who must be tithed, REDUCED. "
-                  "The god of ADMINISTRATION.",
+        "domain": "SAINTS",
+        "order": "The Order of Saints — the BODY of the Tetramorph",
+        "head": "The papacy",
         "seat": "The Papal Palace",
-        "order": "The Order of the True Word — the ultimate administrators, who attempt to record "
-                 "every possible thing. People believe these documents will prove their truths.",
+        "nature": "The body of the church: education, record-keeping, the tithe, and the naming of "
+                  "saints. When a person gives themselves up their born name is erased and "
+                  "Anumaranth returns one in its place — an office rather than a person, worn by "
+                  "whoever holds it now and passed on when they do not. Its record-keeping arm is "
+                  "THE ORDER OF THE TRUE WORD, which attempts to record every possible thing and "
+                  "keeps the reckoning of the years.",
+        "the_schooling": "The Order of Saints runs the EDUCATIONAL ARM of the papacy: it prepares "
+                         "a person to give themselves up — what it will cost, what will be asked, "
+                         "and WHICH ORDER SUITS THEM, weighed against temperament and preference. "
+                         "A novice does not choose blind; they are counselled toward balance, "
+                         "penance, mission, or the saints by the people who will later hand them "
+                         "the name.",
     },
     "Melvanar": {
         "tier": "Greater deity",
         "domain": "WRATH",
+        "order": "The Order of Penance — the SWORD of the Tetramorph; carries out the internal penance of the Lenavorites",
         "nature": "The most archaic and gothic. Self-flagellation. Spreads its message through the "
                   "REDUCTION OF FALSE GODS.",
         "adherents": "The Belvareth — self-flagellating knightly crusaders defending the Lost Woods as "
@@ -186,6 +195,7 @@ GODS = {
     "Lorenthal": {
         "tier": "Greater deity",
         "domain": "PEACE",
+        "order": "The Order of Missions — the SPIRIT of the Tetramorph; missionary work",
         "nature": "The most ACCESSIBLE greater deity. Fixes the weather, brings good crops, keeps the "
                   "faithful safe from bandits and warbands. Spreads gospel through missionaries sent "
                   "throughout the world. Taken by Industry cultures if they are pious.",
@@ -201,7 +211,9 @@ GODS = {
 }
 
 TETRAMORPH = {
-    "faces": ["Ollanenor (Saints)", "Anumaranth (Balance)", "Melvanar (Wrath)", "Lorenthal (Peace)"],
+    "faces": ["Ollanenor (Balance)", "Anumaranth (Saints)", "Melvanar (Wrath)", "Lorenthal (Peace)"],
+    "aspects": "An anatomy: EYES (Ollanenor, the Inquisition), BODY (Anumaranth, the papacy), "
+               "SWORD (Melvanar, penance), SPIRIT (Lorenthal, mission).",
     "function": "The four greater deities ARE the tetramorph (Revelation's four winged creatures) — "
                 "four faces around the unreachable throne, standing between the faithful and the "
                 "thing no one may approach. The pantheon has a SHAPE.",
@@ -271,19 +283,21 @@ GOD_OPPOSITIONS = [
 ]
 
 PIETY_STRUCTURE = {
-    "form": "A papacy with TWO SEATS, not one. The Papal Palace (Anumaranth, Balance) runs "
-            "administration; the Inquisitorial Palace (Ollanenor, Saints) runs orthodoxy and "
-            "the Inquisition. Vessels are CHOSEN, not born.",
-    "who_teaches": "The INQUISITION holds the schooling. Administration belongs to Anumaranth "
-                   "and the Papal Palace, but the preparation of novices belongs to Ollanenor — "
-                   "the god who delivers the name is the god whose order decides you are ready "
-                   "for one. Every person in every order was placed there on Inquisitorial "
-                   "counsel. The Inquisition was inside the formation of the whole church long "
-                   "before it took the government of it, and when the suspicion began, the "
-                   "people it suspected were the people it had taught.",
-    "the_four_orders": "One order per greater deity — Melvanar (Wrath, self-flagellation), "
-                       "Lorenthal (Peace, missionary), Anumaranth (Balance, administration — the "
-                       "Order of the True Word), Ollanenor (Saints, orthodoxy of power — the "
+    "form": "A papacy with TWO SEATS, not one. The Papal Palace (Anumaranth, Saints) runs "
+            "administration, education, records and the naming of saints; the Inquisitorial "
+            "Palace (Ollanenor, Balance) runs orthodoxy and the Inquisition. Vessels are "
+            "CHOSEN, not born.",
+    "who_teaches": "THE ORDER OF SAINTS holds the schooling. Education, records and the naming "
+                   "all belong to Anumaranth and the Papal Palace: the god who delivers the name "
+                   "is the god whose order decides you are ready for one. Every person in every "
+                   "order was placed there on the Order of Saints' counsel. The Inquisition "
+                   "(Ollanenor) came to govern the church it did not teach — and when the "
+                   "suspicion began, the people it suspected were the people the Papal Palace "
+                   "had taught.",
+    "the_four_orders": "One order per greater deity — Melvanar (Wrath, penance — the SWORD), "
+                       "Lorenthal (Peace, mission — the SPIRIT), Anumaranth (Saints, "
+                       "administration/records/naming — the BODY, with the Order of the True Word "
+                       "as its record arm), Ollanenor (Balance, orthodoxy of power — the EYES, the "
                        "Inquisition). Together they are the TETRAMORPH: four faces guarding the "
                        "unreachable throne.",
     "the_false_prophet": "Not an antipope and not a rival god — a claimed GREATER DEMIGOD who "
@@ -348,10 +362,12 @@ CULTURES = {
         "domains": ["Piety"],
         "region": "Lenaveron",
         "identity": "A COLLECTION OF DIFFERENT ORDERS of varying styles of worship and devotion — one per "
-            "greater deity: Melvanar (Wrath, self-flagellation), Lorenthal (Peace, missionary work), "
-            "Anumaranth (Balance, administration, the Papal Palace — the Order of the True Word), "
-            "Ollanenor (Saints, orthodoxy of power, the Inquisitorial Palace — the Inquisition). "
-            "The ultimate administrators, record keepers, with an unhealthy dose of self-flagellation.",
+            "greater deity: Melvanar (Wrath, self-flagellation — the Order of Penance), Lorenthal "
+            "(Peace, missionary work — the Order of Missions), Anumaranth (Saints, administration, "
+            "records and naming, the Papal Palace — the Order of Saints, whose record arm is the "
+            "True Word), Ollanenor (Balance, orthodoxy of power, the Inquisitorial Palace — the "
+            "Order of Balance, the Inquisition). The ultimate administrators, record keepers, with "
+            "an unhealthy dose of self-flagellation.",
 
     },
     "Kraghs": {
@@ -1330,9 +1346,9 @@ CULTURE_AXES = {
 
     "Drakteni": {  # Prowess × Industry — siegemasters, professional army
         "lead": "Balanced; Industry gives the method, Prowess the purpose",
-        "government": "Martial republic / a professional officer-state [FUSE]",
+        "government": "Meritocratic Stratocracy",
         "sacred": "War + the work — the engineered victory [FUSE]",
-        "org_form": "Craft-warband (a professional standing army with an engineering corps) [FUSE]",
+        "org_form": "Structured Hierarachal Chain of Command [FUSE]",
         "authority": "Competence + force — command earned by skill and rank [FUSE]",
         "economy": "Production + tribute — they build the war machine and take by it [FUSE]",
         "kinship_unit": "Regiments served through bloodline [Prowess-lead, institutionalized]",
@@ -1396,7 +1412,7 @@ CULTURE_AXES = {
         "military_doctrine": "Defensive/siege engineering — fortress-cathedrals [Industry-lead]",
         "taboo": "Waste + pride (a flawed or vain structure is sin) [FUSE]",
         "defined_against": "The wasteful AND the faithless [FUSE]",
-        "naming": "[name] the [Craft-Order] [numeral] — a craft-lineage tally, not a saint-name: they hold themselves unworthy of one until the Work is perfect, which it never is [FUSE]"
+        "naming": "[name] the [Craft-Order] [numeral] — a craft-lineage tally, NOT a saint-name: too far from Lenaveron for the Inquisition to confer one [FUSE]",
         "monuments": ["Office of Works","Papal Palace"]
     },
 
@@ -1661,7 +1677,7 @@ PRECEPTORY = {
                   "HAVE BEEN EACH OTHER'S WHOLE LIFE — one who inherited the sword, one who "
                   "inherited the wrath, each of whom taught the other. Sincere, mutual, and "
                   "completely closed.",
-    "one_name_between_two": "A draghen holds ONE saint-name between them. Ollanenor delivers a "
+    "one_name_between_two": "A draghen holds ONE saint-name between them. Anumaranth delivers a "
                             "name when a person gives themselves up to an order — and the "
                             "Belvareth give themselves up in twos, so one name is what comes "
                             "back. The pair is the person. A brother who loses his draghen has "
@@ -2248,7 +2264,7 @@ DESIGN_ONLY = {
 PLACE_OWNERS = {
     "Kraghs":          ["Draggath Wastes", "Bleak Highlands", "Glen of Pravak", "Cravencroft"],
     "Trusteki":        ["Blighthold", "Scarlet Forest", "Coloured Mountains"],
-    "Ithiss":        ["Dreadwood", "Crag Pass"],
+    "Ithiss":          ["Dreadwood", "Crag Pass"],
     "Lenavorites":     ["Lenaveron", "Tombs of the Old Gods"],
     "Belvareth":        ["Lost Woods", "Wheat Fields"],
     "Vorghith":        ["Vogen's Gallows"],
@@ -2593,7 +2609,7 @@ OVERVIEW = {
         "Lenavorites are a self-flagellating, unforgiving people, eager to regain their lost "
         "devotion, seeking piety through any means. Tithe. Spread the gospel. Offer yourself as a "
         "missionary, or a martyr. And most importantly: record it. From the Lenavorites came a "
-        "large papal institution of administration. The Inquisition of Ollanenor taught the way of "
+        "large papal institution of administration. The Order of Saints taught the way of "
         "life and assigned your role in it by assigning your name according to a saint, forgoing "
         "all prior sense of self."
     ),
@@ -2888,23 +2904,23 @@ PROSE["THE PREMISE"] += (
     "their first record — the name of its home.\n\n"
     "The Lenavorites, over time, began to focus their efforts on history, record "
     "keeping, and the formation of the Truth. Soon, new gods were born: Ollanenor, "
-    "the god of Saints; Lorenthal, the god of Peace; Melvanar, the god of Wrath; "
-    "and Anumaranth, the god of Balance.\n\n"
+    "the god of Balance; Lorenthal, the god of Peace; Melvanar, the god of Wrath; "
+    "and Anumaranth, the god of Saints.\n\n"
     "For each god existed an Order that rose to fill the void caused by the "
     "migrations and lack of purpose.\n\n"
-    "Ollanenor was run by the Order of Saints, the first order, used to determine a "
+    "Anumaranth was run by the Order of Saints, the first order, used to determine a "
     "priest's Saint's name — the name they took, foregoing their old identity, to "
-    "take on the work of that Saint as their own. The Inquisition, a growing arm of "
-    "the order, trains the populace of Lenaveron preparing for their Saint's name, "
-    "removing all pharisaic tendencies from its own people to prevent the next "
+    "take on the work of that Saint as their own. The Inquisition — Ollanenor's Order "
+    "of Balance, the eyes of the Tetramorph — removes all pharisaic tendencies from "
+    "its own people to prevent the next "
     "fall, always suspicious of its imminent arrival.\n\n"
-    "The Order of Mission represents Lorenthal, and is responsible for the mission "
+    "The Order of Missions represents Lorenthal, the spirit of the Tetramorph, responsible for the mission "
     "work of expanding its name and authority across all borders.\n\n"
-    "The Order of Penance of Melvanar prepares its people and all inhabitants of "
+    "The Order of Penance of Melvanar, the sword of the Tetramorph, prepares its people and all inhabitants of "
     "Vaelohk for the return of Melvanar, seeking justice against those who had "
     "fallen from his path.\n\n"
-    "Lastly, from Anumaranth came the Order of the True Word. They were strict "
-    "record keepers, fact finders, and administrators. In order to fund the grand "
+    "Within the Order of Saints, the True Word keeps the records — strict record "
+    "keepers, fact finders, and administrators. In order to fund the grand "
     "instrument of the papacy, the Tithe was implemented, causing all under the "
     "reach of the four gods, the Tetramorph, to tithe in order to fund and fuel "
     "the great power of Lenaveron."
@@ -3170,7 +3186,7 @@ SAINT_DECK = {
                       "card what may not be named. The deck leaves the throne EMPTY on purpose; a "
                       "deck that fills it has committed the bypass (TETRAMORPH: structural collapse).",
         "held_by": "The papacy alone, BOTH ways: the reigning pope receives the name ON ACCESSION, "
-                   "and the Inquisition (Ollanenor's order, whose sigil is EYES — the eyes of the "
+                   "and the Inquisition (Ollanenor's Order of Balance, whose sigil is EYES — the eyes of the "
                    "papacy) knows it collectively to recognise and hunt those who do. Outside the "
                    "church it lives only at Prophet's Landing, spoken by the false-religion cultures "
                    "(Shassolin front, Ossenstein handlers).",
@@ -3183,11 +3199,11 @@ SAINT_DECK = {
     # ---- PILLARS: roles ordered least -> greatest; count = index + 1 ------
     #      naming -> "St. <office> the <adj>, <n> of <sigil>"
     "pillars": {
-        "Ollanenor":  {"domain": "Saints",  "sigil": "eyes",    "adj": "the Saintly",
-                       "order": "The Inquisition",
-                       "note": "Eyes are double — the saints' watchful gaze AND the Inquisition's "
-                               "surveillance: the eyes of the papacy. Ollanenor delivers every "
-                               "saint-name, so this Pillar names the others.",
+        "Ollanenor":  {"domain": "Balance", "sigil": "eyes",    "adj": "the Watchful",
+                       "order": "The Order of Balance (the Inquisition)",
+                       "note": "Eyes are the Inquisition's — the watchful gaze of the purifiers, "
+                               "the eyes of the Tetramorph. This Pillar is orthodoxy and "
+                               "purification, not naming.",
                        "roles": ["Alice", "Agatha", "Kristi", "Clarice",
                                  "Claire", "Clarence", "Christo", "Sophia"]},
         "Melvanar":   {"domain": "Wrath",   "sigil": "whips",   "adj": "the Penitent",
@@ -3198,9 +3214,11 @@ SAINT_DECK = {
                        "order": "The Order of Mission",
                        "roles": ["Dane", "Domas", "Grenada", "Fasille",
                                  "Kanga", "Hygle", "Francis", "Scepter"]},
-        "Anumaranth": {"domain": "Balance", "sigil": "candles", "adj": "the True",
-                       "order": "The Order of the True Word",
-                       "note": "The candle is the reckoning made visible — a measured burn is the count.",
+        "Anumaranth": {"domain": "Saints",  "sigil": "candles", "adj": "the Saintly",
+                       "order": "The Order of Saints (records via the True Word)",
+                       "note": "The Order of Saints delivers every saint-name, so THIS Pillar names "
+                               "the others; its True Word arm keeps the count, and the candle is the "
+                               "reckoning made visible — a measured burn is the count.",
                        "roles": ["Deca", "Lieber", "Calvin", "Cauch",
                                  "Riema", "Kant", "Hiber", "Gaus"]},
     },
@@ -3232,8 +3250,8 @@ SAINT_DECK = {
 
 SAINT_NAMING = {
     "form": "St. [office] the [Pillar-adj], [count] of [sigil] — e.g. 'St. Louse the Penitent, One "
-            "of Whips' (lowest Melvanar) ... 'St. Gaus the True, Eight of Candles' (greatest "
-            "reckoner). The office is an Ollanenor grant; the adj marks the Pillar; the count is the "
+            "of Whips' (lowest Melvanar) ... 'St. Gaus the Saintly, Eight of Candles' (greatest "
+            "reckoner). The office is an Anumaranth (Order of Saints) grant; the adj marks the Pillar; the count is the "
             "rung, least -> greatest.",
     "offices_are_seats": "A name is an OFFICE, not a person — worn by whoever holds it now, passed "
                          "on when they do not. To name someone is to seat them.",
@@ -3277,16 +3295,13 @@ CULTURES["Lenavorites"]["deck_relationship"] = (
     "[sigil]; a Foundation is named by symbol, without count."
 )
 CULTURES["Madekites"]["deck_relationship"] = (
-    "THEY WON'T BE NAMED — UNWORTHY, BY THEIR OWN LIGHTS. Pious, but they decline the deck: to a "
-    "people who suffer toward a perfection they never reach, a conferred saint-name is PRESUMPTION "
-    "— you are not named for a Saint until the Work is worthy, and the Work is never worthy. So a "
-    "Madekite holds NO Pillar office and takes NO sigil-count, not for want of the faith but for "
-    "excess of it. Their numeral stays what it always was — a CRAFT-LINEAGE tally, technique passed "
-    "down the mason-line. This is the pride-taboo made law: to take the name is the same sin as "
-    "leaving a flawed wall standing. Distance from Lenaveron only seals what conviction already "
-    "decided. Where the Voldrastel refuse the deck from HUMILITY, the Madekites refuse it from "
-    "UNWORTHINESS — the same act, a hair apart."
-)
+    "OUTSIDE THE DECK — TOO FAR TO BE NAMED. Pious, but severed from Lenaveron: the papacy "
+    "(the papacy's Order of Saints, Anumaranth) never reaches Fair Whitewood to confer saint-names, so a Madekite holds NO Pillar "
+    "office and takes NO sigil-count. Their numeral is what it always was — a CRAFT-LINEAGE tally, "
+    "technique passed down the mason-line, not a rung in any suit. They venerate the faith directly, "
+    "through the Work, without the papal naming apparatus that never crossed the tundra to them. "
+    "Where the Voldrastel WON'T draw (humility), the Madekites CAN'T (distance) — both outside the "
+    "deck, opposite reasons."
 )
 CULTURES["Belvareth"]["deck_relationship"] = (
     "A ONE-SUIT DECK. They draw ONLY Melvanar — whips, and nothing else. The schism that made them "
