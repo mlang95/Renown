@@ -83,8 +83,8 @@
   "Suzerain": "The player who has Vassalized another; the vassal mirrors their Treaties.",
   "Renown": "The shared progress track. Gain 1 per Rest Phase; thresholds raise your Era (Ascension 8, Eminence 18, Zenith 30).",
   "Domain": "One of the four identities — Industry, Prowess, Cunning, Piety — raised by spending Domain points. Values 3/6/10 = Rising/Established/Sovereign Standing.",
-  "Domain Point": "Gained 1 per Rest Phase; spend to raise a Domain value by 1.",
-  "Standing": "Your tier in a Domain: Untested, Rising (3), Established (6), Sovereign (10). Sets max Influence per vote (0/1/2/3) and unlocks Domain effects.",
+  "Domain Point": "Gain 1 per Rest Phase; spend to raise a Domain value by 1.",
+  "Standing": "Your tier in a Domain: Untested, Rising (3), Established (6), Sovereign (10). Sets max Influence per vote (1/2/3/4) and unlocks Domain effects.",
   "Public Order": "A track from -5 to 10, adjusted each turn by Faith minus Doubt; its band applies cumulative effects (see the Public Order table).",
   "Reach": "How far a Settlement projects control, in Territories (by tier). Calculated like Range X",
   "Bandit": "Neutral hostile force; Bandit Camps spawn in Outlaw Country and on low Public Order.",
@@ -425,11 +425,11 @@
     ],
     [
      "Domain Point",
-     "Gained 1 per Rest Phase; spend to raise a Domain value by 1."
+     "Gain 1 per Rest Phase; spend to raise a Domain value by 1."
     ],
     [
      "Standing",
-     "Your tier in a Domain: Untested, Rising (3), Established (6), Sovereign (10). Sets max Influence per vote (0/1/2/3) and unlocks Domain effects."
+     "Your tier in a Domain: Untested, Rising (3), Established (6), Sovereign (10). Sets max Influence per vote (1/2/3/4) and unlocks Domain effects."
     ],
     [
      "Public Order",
@@ -658,7 +658,7 @@
   [
    "5",
    "Eureka",
-   "Activate 1 Mastery"
+   "Activate 1 inactive Mastery until end of turn."
   ],
   [
    "10",
@@ -747,7 +747,7 @@
   ],
   [
    "Requirements",
-   "Players must border each other, have active Dirt Road infrastructure, and a signed Trade Agreement"
+   "Players must have active Dirt Road infrastructure, and a signed Trade Agreement"
   ],
   [
    "No-trade season",
@@ -1954,7 +1954,7 @@
    "Wooden Walls",
    "200",
    "per Turn",
-   "**Influence -1** to **Raze actions** targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**.",
+   "**Influence -2** to **Raze actions** from players targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**.",
    "Primitive",
    "2",
    "None"
@@ -1963,7 +1963,7 @@
    "Stone Roads",
    "200",
    "per Turn",
-   "If you start a Move action within Province, gain Speed +2",
+   "If you start a Move action within Province, gain additional Speed +1",
    "Developed",
    "3",
    "Dirt Roads"
@@ -1981,7 +1981,7 @@
    "Bridges",
    "0",
    "—",
-   "Armies cross Water Territory at full movement; Stone Roads may be built over Water",
+   "Armies cross Water Territory at full movement within Province; Stone Roads may be built over Water",
    "Developed",
    "3",
    "One Tier Primitive + Stone Roads"
@@ -1999,7 +1999,7 @@
    "Stone Walls",
    "300",
    "per Turn",
-   "**Influence -1** to **Destabilize actions** targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**.",
+   "**Influence -2** to **Destabilize actions** from players targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**.",
    "Sophisticated",
    "4",
    "One Tier Developed + Wooden Walls"
@@ -2020,7 +2020,7 @@
    "Faith +2",
    "Sophisticated",
    "4",
-   "Requires 1+ City"
+   "Requires Capital City"
   ],
   [
    "Library",
@@ -2035,7 +2035,7 @@
  "wonders": [
   [
    "Colossus",
-   "You may **support** your own **prowess envoys** before other **players vote**. **Armies** move **Speed +2** **Siege Timer -2** gain **Immune Blunder**.",
+   "You may **support** your own **prowess envoys** before other **players vote**. **Armies** move **Speed +2**, **Siege Timer -2**, & gain **Immune Blunder**.",
    "10",
    "All Infrastructure unlocked"
   ],
@@ -2328,13 +2328,13 @@
   ],
   [
    "Prowess",
-   "Indomitable: Once per turn, if you have not sent a Personal Envoy, you may instead perform a Prowess action; send 1 fewer Envoy this turn (min 0). May use Declare War action.",
+   "Indomitable: Once per turn, if you have not sent a Personal Envoy, you may instead perform a Prowess action; send 1 fewer Envoy this turn (min 0). In addition, may use Declare War action.",
    "Edict of War: May have an additional Army. Perform a Muster Action. All armies gain Parry.",
    "High Quartermaster: Upkeep -2000. May change equipment on your armies during any upkeep phase where that army is within Province. No longer lose Influence while at War."
   ],
   [
    "Cunning",
-   "Clandestine Councilor: Once per Envoy, target a player - that player Abstains.",
+   "Clandestine Councilor: Twice per Envoy Phase, during a vote on an Envoy, target a player - that player Abstains that Envoy.",
    "Grand Vizier: Players may not target you with Cunning Envoys if your Cunning value is higher. When you perform a Skirmish action, your opponent gains Blunder in the first Skirmish of that Battle.",
    "Master Conspirator: Once per turn, if your non-Cunning Envoy passes or is Endorsed, you may instead perform a Cunning action. In Battle, your opponent gains Strained each Skirmish."
   ],
@@ -2342,7 +2342,7 @@
    "Piety",
    "Divine Mandate: Faith +1 each Empire Phase.",
    "One True Gospel: Each Empire Phase, all other non-allied players with a lower Piety value gain Doubt +2.",
-   "Pillar of Faith: If your Public Order would go below 3, set it to 3. May use the Crusade action."
+   "Pillar of Faith: If your Public Order would be set below 3, set it to 3. In addition, may use the Crusade action."
   ]
  ],
  "tactics_matrix": {

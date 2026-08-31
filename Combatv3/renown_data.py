@@ -166,8 +166,8 @@ GLOSSARY = {
     # ── Empire state ──
     "Renown":        "The shared progress track. Gain 1 per Rest Phase; thresholds raise your Era (Ascension 8, Eminence 18, Zenith 30).",
     "Domain":        "One of the four identities — Industry, Prowess, Cunning, Piety — raised by spending Domain points. Values 3/6/10 = Rising/Established/Sovereign Standing.",
-    "Domain Point":  "Gained 1 per Rest Phase; spend to raise a Domain value by 1.",
-    "Standing":      "Your tier in a Domain: Untested, Rising (3), Established (6), Sovereign (10). Sets max Influence per vote (0/1/2/3) and unlocks Domain effects.",
+    "Domain Point":  "Gain 1 per Rest Phase; spend to raise a Domain value by 1.",
+    "Standing":      "Your tier in a Domain: Untested, Rising (3), Established (6), Sovereign (10). Sets max Influence per vote (1/2/3/4) and unlocks Domain effects.",
     "Public Order":  "A track from -5 to 10, adjusted each turn by Faith minus Doubt; its band applies cumulative effects (see the Public Order table).",
     "Reach":         "How far a Settlement projects control, in Territories (by tier). Calculated like Range X",
     "Edict":         "A scoring achievement / win path: reach a Sovereign Standing, complete a Monument, or fulfill a victory condition (Wonder, wealth, Vassalize, Living Saints, Last Standing).",
@@ -1929,13 +1929,13 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                   'requirement': 'None'},
  'Wooden Walls': {'upkeep': 200,
                   'upkeep_frequency': 'per Turn',
-                  'empire_bonus': '**Influence -1** to **Raze actions** targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**.',
+                  'empire_bonus': '**Influence -2** to **Raze actions** from players targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**.',
                   'tier': 'Primitive',
                   'build_time': 2,
                   'requirement': 'None'},
  'Stone Roads': {'upkeep': 200,
                  'upkeep_frequency': 'per Turn',
-                 'empire_bonus': 'If you start a Move action within Province, gain Speed +2',
+                 'empire_bonus': 'If you start a Move action within Province, gain additional Speed +1',
                  'tier': 'Developed',
                  'build_time': 3,
                  'requirement': 'Dirt Roads'},
@@ -1947,7 +1947,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                'requirement': 'One Tier Primitive'},
  'Bridges': {'upkeep': 0,
              'upkeep_frequency': '—',
-             'empire_bonus': 'Armies cross Water Territory at full movement; Stone Roads may be built over '
+             'empire_bonus': 'Armies cross Water Territory at full movement within Province; Stone Roads may be built over '
                              'Water',
              'tier': 'Developed',
              'build_time': 3,
@@ -1961,7 +1961,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
               'requirement': 'Muster Field'},
  'Stone Walls': {'upkeep': 300,
                  'upkeep_frequency': 'per Turn',
-                 'empire_bonus': '**Influence -1** to **Destabilize actions** targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**.',
+                 'empire_bonus': '**Influence -2** to **Destabilize actions** from players targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**.',
                  'tier': 'Sophisticated',
                  'build_time': 4,
                  'requirement': 'One Tier Developed + Wooden Walls'},
@@ -1977,7 +1977,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                'empire_bonus': 'Faith +2',
                'tier': 'Sophisticated',
                'build_time': 4,
-               'requirement': 'Requires 1+ City'},
+               'requirement': 'Requires Capital City'},
  'Library': {'upkeep': 300,
              'upkeep_frequency': 'per Turn',
              'empire_bonus': 'Influence +1 to Council Envoys',
@@ -1988,7 +1988,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
 WONDERS = {'Colossus': {'upkeep': 500,
               'upkeep_frequency': 'per Wonder',
               'empire_bonus': 'You may **support** your own **prowess envoys** before other **players '
-                              'vote**. **Armies** move **Speed +2** **Siege Timer -2** gain **Immune '
+                              'vote**. **Armies** move **Speed +2**, **Siege Timer -2**, & gain **Immune '
                               'Blunder**.',
               'tier': 'Wonder',
               'build_time': 10,
@@ -2046,7 +2046,7 @@ PUBLIC_ORDER = {
      2: ("Confident",     "+1 Influence"),
      3: ("Motivated",     "Speed +1"),
      4: ("Economic Boom", "Tax income +500 per settlement"),
-     5: ("Eureka",        "Activate 1 Mastery"),
+     5: ("Eureka",        "Activate 1 inactive Mastery until end of turn."),
      #6: ("Devout",        "+1 Influence"),
 	 #7: ("Pious",         "Immune Deficit"),
 	 #8: ("Holy",          "Immune to Spread Gospel"),
@@ -2080,19 +2080,19 @@ DOMAIN_BOARD = {
         "Sovereign":   "Titan of Industry: Your capital may be chartered to a Metropolis. Perform endorsed Charter.",
     },
     "Prowess": {
-        "Rising":      "Indomitable: Once per turn, if you have not sent a Personal Envoy, you may instead perform a Prowess action; send 1 fewer Envoy this turn (min 0). May use Declare War action.",
+        "Rising":      "Indomitable: Once per turn, if you have not sent a Personal Envoy, you may instead perform a Prowess action; send 1 fewer Envoy this turn (min 0). In addition, may use Declare War action.",
         "Established": "Edict of War: May have an additional Army. Perform a Muster Action. All armies gain Parry.",
         "Sovereign":   "High Quartermaster: Upkeep -2000. May change equipment on your armies during any upkeep phase where that army is within Province. No longer lose Influence while at War.",
     },
     "Cunning": {
-        "Rising":      "Clandestine Councilor: Once per Envoy, target a player - that player Abstains.",
+        "Rising":      "Clandestine Councilor: Twice per Envoy Phase, during a vote on an Envoy, target a player - that player Abstains that Envoy.",
         "Established": "Grand Vizier: Players may not target you with Cunning Envoys if your Cunning value is higher. When you perform a Skirmish action, your opponent gains Blunder in the first Skirmish of that Battle.",
         "Sovereign":   "Master Conspirator: Once per turn, if your non-Cunning Envoy passes or is Endorsed, you may instead perform a Cunning action. In Battle, your opponent gains Strained each Skirmish.",
     },
     "Piety": {
         "Rising":      "Divine Mandate: Faith +1 each Empire Phase.",
         "Established": "One True Gospel: Each Empire Phase, all other non-allied players with a lower Piety value gain Doubt +2.",
-        "Sovereign":   "Pillar of Faith: If your Public Order would go below 3, set it to 3. May use the Crusade action.",
+        "Sovereign":   "Pillar of Faith: If your Public Order would be set below 3, set it to 3. In addition, may use the Crusade action.",
     },
     # Influence scaling by standing (Untested/Rising/Established/Sovereign):
     "max_influence_per_vote":  {"Untested": 1, "Rising": 2, "Established": 3, "Sovereign": 4},
@@ -2110,7 +2110,7 @@ SEASONS = {
 # Trade & income constants (Rules: Trade & Income Rules).
 TRADE_RULES = {
     "income_per_craft": 100,                # Trade Income = 100 x host's Craft X, per active agreement
-    "requirements": "Players must border each other, have active Dirt Road infrastructure, and a signed Trade Agreement",
+    "requirements": "Players must have active Dirt Road infrastructure, and a signed Trade Agreement",
     "no_trade_season": "Spring",            # no trade income in Spring
     "tax_season": "Winter",                 # tax collected only in Winter
 }
@@ -2169,7 +2169,7 @@ HAMLET_RANGE        = 2   # exact range a Hamlet sits from the capital
 OUTLAW_COUNTRY_START = 3  # Outlaw Country territories demarcated at game start
 
 # ── Vassalage ─────────────────────────────────────────────────────────────────
-VASSAL_EXCHANGE_CAP = 2000  # max gold a Suzerain/vassal may exchange per Empire Phase
+VASSAL_EXCHANGE_CAP = 5000  # max gold a Suzerain/vassal may exchange per Empire Phase
 VASSAL_INFLUENCE_TAKE = 3   # first N Influence the vassal generates each turn goes to Suzerain
 
 
@@ -2193,7 +2193,7 @@ TERRAIN = {
 	"Wetlands": {"Effect": "Speed -1", "Raw Materials": ["Peat Bog", "Forestry"]},
 	"Tundra": {"Effect": "gain Strained", "Raw Materials": ["Quarry", "Salt Works"]},
 	"Mountains": {"Effect": "Impassable", "Raw Materials": ["Mine"]},
-	"Water": {"Effect": "Must end move after passing over 1 Water Territory (must end on land)", "Raw Materials": ["Fishmongery"]},
+	"Water": {"Effect": "Must end move after moving over 1 Water Territory (must end on land)", "Raw Materials": ["Fishmongery"]},
 	"Forest": {"Effect": "Speed -1", "Raw Materials": ["Forestry","Apiary"]},
 	"Hill":  {"Effect": "Gains Seize the Initiative. Where Settlements can be chartered."},
 }
@@ -2224,7 +2224,7 @@ TACTICAL_TERRAIN = {
     "Mountains":  {"identify": "Mountains",
                    "effect": "Impassable."},
     "Water":      {"identify": "Water",
-                   "effect": "Must end Move after crossing 1 Water Territory. Cannot Skirmish or Siege move."},
+                   "effect": "Must end Move after moving 1 Water Territory. Cannot Skirmish or Siege move."},
 }
 TACTICAL_GLOBAL = ["Any player may Fall Back after the first Skirmish."]
 
@@ -2233,10 +2233,11 @@ INFLUENCE_GAIN = {
     "Trading Partners": {"change": "+1", "notes": "Per Trading Partner."},
     "Alliances": {"change": "+1", "notes": "Per Alliance Member."},
     "Infrastructure tier completed": {"change": "+1", "notes": "Per Infrastructure tier fully completed."},
-    "Cunning Standing": {"change": "+1", "notes": "Flat bonus if you have the Cunning Standing."},
+    "Cunning Standing": {"change": "+1", "notes": "per unlocked Cunning Standing."},
     "Fully Mustered Army": {"change": "+1", "notes": "Per active Army of 25 Retinues."},
     "Condemned Envoy last turn": {"change": "-1", "notes": "Per Condemned Envoy last turn."},
     "At War": {"change": "-3", "notes": "While at War."},
+    "Monuments & Wonders": {"change": "+1", "notes": "Per active Monument or Wonder."},
     "Other sources": {"change": "+X", "notes": "From other effects like Pursuits."},
 }
 
@@ -2315,12 +2316,12 @@ ACTIONS = {
     # ── PROWESS ──
     "Move": {
         "domain": "Prowess", "cost": "None", "requires": "",
-        "effect": "Move an Army up to its Speed in Territories, then choose: March (move up to 2x Speed, −1 Endurance, no other action), Battle (end adjacent to a non-allied Army not in a settlement → Battle, Seize the Initiative +1I Skirmish 1), Lay Siege (end adjacent to an at-war settlement → Siege), or Muster (within range 2 of your settlements, not within range 1 of a non-ally, with an active Muster Field → recruit up to combined muster limit; may swap retinues between adjacent allied armies and change equipment).",
+        "effect": "Move an Army up to its Speed in Territories, then choose: March (move up to 2x Speed, −1 Endurance, no other action), Battle (end adjacent to a non-allied Army not in a settlement → Battle), Lay Siege (end adjacent to an at-war settlement → Siege), or Muster (within range 2 of your settlements, not within range 1 of a non-ally, with an active Muster Field → recruit up to combined muster limit; may swap retinues between adjacent allied armies and change equipment).",
         "endorsed": "Perform another Move action (same or different Army).",
         "notes": ["Each Army may be the target of only one Move action per turn.",
-                  "Strained armies do not gain +1 Endurance at the start of next turn.",
-                  "An Army that Battled/Sieged/Mustered cannot act again until that battle/siege/muster timer ends.",
-                  "An Army that Battled gains Seize the Initiative in the first Skirmish."]},
+                  "Strained armies do not gain Endurance at the start of next turn.",
+                  "An Army that performed a Battle/Siege/Muster action cannot be the target of actions until that battle/siege/muster timer ends.",
+                  "An Army that performed a Battle action gains Seize the Initiative in the first Skirmish."]},
     "Declare War": {
         "domain": "Prowess", "cost": "None", "requires": "Rising Prowess",
         "effect": "Choose a non-allied player you have no NAP or active truce with. Both players are now At War. Trade Agreements between you end.",
@@ -2342,18 +2343,18 @@ ACTIONS = {
         "domain": "Cunning", "cost": "2000 gold", "requires": "",
         "effect": "Choose a player. At the next Bandit Mechanic Phase, place a Bandit Camp with 10 retinues in their Outlaw Country.",
         "endorsed": "Extort 2000.",
-        "notes": ["If their Outlaw Country has no room, increase it by one territory and spawn there."]},
+        "notes": ["If that player's Outlaw Country has no room, increase it by one territory and spawn there instead."]},
     "Raze": {
         "domain": "Cunning", "cost": "2000 gold", "requires": "",
-        "effect": "Choose another player's settlement. Select one active Pursuit, active Infrastructure, or active Build Timer there — it becomes Damaged; its effects are inactive until Repaired. A damaged Build Timer does not increment until Repaired.",
+        "effect": "Choose another player's settlement. Select one active Pursuit, active Infrastructure, or active Build Timer in that Settlement — it becomes Damaged; its effects are inactive until Repaired. A damaged Build Timer does not increment until Repaired.",
         "endorsed": "Extort 2000.",
         "notes": ["Wonders have Immune Razed and cannot be targeted."]},
     "Destabilize": {
         "domain": "Cunning", "cost": "2000 gold", "requires": "",
-        "effect": "Choose a player. Extort their Tax Income at the beginning of next turn.",
+        "effect": "Choose a player. Extort their Tax Income in the next Extort Phase during Winter.",
         "endorsed": "Extort 2000.",
-        "notes": ["Affects only the next single turn's tax income.",
-                  "Act of War: if a Cunning envoy is Condemned while targeting a NAP partner, they may immediately Declare War on the condemned player."]},
+        "notes": ["Affects only the next single turn's tax income, when collected."]
+                 },
     # ── PIETY ──
     "Spread Gospel": {
         "domain": "Piety", "cost": "Doubt 1", "requires": "",
@@ -2376,48 +2377,47 @@ ACTIONS = {
         "domain": "Piety", "cost": "Doubt 1", "requires": "Sovereign Piety",
         "effect": "Declare War on a non-ally with no NAP or truce, then immediately perform a Move action with one of your armies.",
         "endorsed": "Gain Faith 1.",
-        "notes": ["While a Crusade is active, neither player may Declare War, Sign/End Treaty, Negotiate, or Demand Tribute against each other.",
-                  "A player may only be on one active Crusade at a time. It ends only when one involved player is Vassalized."]},
+        "notes": ["While a Crusade is active, neither player may Declare War, Sign/End Treaty, Negotiate, or Demand Tribute targetting each other.",
+                  "A player may only have one active Crusade at a time. It ends only when one involved player is Vassalized or otherwise removed from the game."]},
     # ── INDUSTRY ──
     "Build": {
         "domain": "Industry", "cost": "2000 gold", "requires": "",
         "effect": "Choose an unlocked, available Infrastructure; set a Build Timer equal to its build time. On completion it becomes active in all settlements in your province.",
         "endorsed": "Recoup 2000.",
         "notes": ["You must have at least one infrastructure from the prior tier before building the next tier.",
-                  "Only one active Build Timer at a time.",
                   "Wonders are built in your capital and require all other infrastructure active when the Build action is performed."]},
     "Repair": {
         "domain": "Industry", "cost": "0 gold", "requires": "",
-        "effect": "Choose a damaged Pursuit or Infrastructure in a settlement you control; set Build Timer 2. At 0, choose: Restore (reactivate with all effects) or Demolish (remove it, freeing the ward).",
+        "effect": "Choose a damaged Pursuit or Infrastructure in a settlement you control; set Build Timer 2. At 0, choose: Restore (reactivate with all effects) or Demolish (remove the Pursuit tile from your Empire Tableau).",
         "endorsed": "Recoup 2000.", "notes": []},
     "Pursue": {
         "domain": "Industry", "cost": "2000 gold", "requires": "",
-        "effect": "Choose an inactive settlement ward you control. Select a Pursuit whose prerequisites you meet; set a Build Timer equal to its build time (usually 1). On completion, place the Pursuit; innate effects activate immediately, mastery if all mastery reqs met.",
+        "effect": "Choose an inactive settlement ward you control. Select a Pursuit whose prerequisites you meet; set a Build Timer equal to its build time (usually 1). On completion, place the Pursuit in an available ward slot; innate effects activate immediately, mastery if all mastery reqs met.",
         "endorsed": "Recoup 2000.",
         "notes": ["You may have only 2 Monument pursuits across your empire.",
                   "Power and unique pursuits have Build Timer +1; Monuments +2; all others Build Timer 1."]},
     "Charter": {
         "domain": "Industry", "cost": "2000 gold", "requires": "",
-        "effect": "Choose: Charter a new Village (uncontrolled or in-province non-water/mountain territory, range 4+ from any settlement, not within range 2 of Outlaw Country); Charter a Hamlet (if none, range 2 from capital, non-water/mountain — a Hamlet always allows pursuing Arable Land even if that raw material is not in its region); or Expand an existing non-city settlement by one tier into an adjacent territory (Village → Sea/Town, Sea/Town → Port/City, Port/City → Metropolis), adding a ward.",
+        "effect": "Choose: Charter a new Village (uncontrolled or in-province non-water/mountain territory, range 4+ from any settlement, Range 2+ of Outlaw Country); or Expand an existing non-city settlement by one tier into an adjacent territory (Village → Sea/Town, Sea/Town → Port/City, Port/City → Metropolis), adding a ward.",
         "endorsed": "Recoup 2000.",
         "notes": ["To upgrade to City or Metropolis you must meet that tier's requirements; otherwise set Build Timer 1.",
-                  "Hamlets always allow pursuing Arable Land."]},
+                  ]},
     # ── DIPLOMACY ──
     "Sign Treaty": {
         "domain": "Diplomacy", "cost": "None", "requires": "",
         "effect": "Ask players to agree; choose one and both sign one of: Peace Treaty (end war, truce timer 5), Trade Agreement (begin trading next turn), Non-Aggression Pact (no Declare War; ending it via End Treaty gives both truce timer 5), or Alliance (join/form/invite to Defensive or Military Alliance).",
         "endorsed": "Perform a Diplomacy action.",
         "notes": ["Acting on behalf of an alliance, End Treaty requires all allies to agree.",
-                  "A player may not be in more than one alliance (exception: Masters of Duplicity)."]},
+                  "A player may not be in more than one alliance."]},
     "Negotiate": {
         "domain": "Diplomacy", "cost": "None", "requires": "",
         "effect": "Propose terms to a target; they agree or refuse. Terms may include gold, settlement ownership, territory, treaty sign/end, or promises (non-binding).",
         "endorsed": "Perform a Diplomacy action.",
         "notes": ["Unfulfilled promises let the affected player Declare War on the promiser.",
-                  "Also used (automatically, no envoy) to resolve Demand Tribute and siege surrenders."]},
+                  "Also used to resolve Demand Tribute and siege surrenders."]},
     "End Treaty": {
         "domain": "Diplomacy", "cost": "None", "requires": "",
-        "effect": "Choose a target with an active treaty signed with you; that treaty is removed. Does not require the target to agree.",
+        "effect": "Choose a target with an active treaty signed with you with no active truce timer; that treaty is removed. Does not require the target player to agree.",
         "endorsed": "Perform a Diplomacy action.", "notes": []},
 }
 
@@ -2434,8 +2434,8 @@ TREATIES = {
 # General alliance rules (prose, surfaced for the wiki):
 ALLIANCE_RULES = [
     "New alliance members are added by unanimous agreement.",
-    "A player cannot be in more than one alliance at a time (exception: Masters of Duplicity).",
-    "An alliance may cast out a member via End Treaty if all others agree.",
+    "A player cannot be in more than one alliance at a time.",
+    "An alliance may remove a member via End Treaty if all others agree.",
 ]
 
 # ── EDICTS / WIN CONDITIONS ──────────────────────────────────────────────────
@@ -2444,9 +2444,9 @@ ALLIANCE_RULES = [
 # condition is met wins.
 EDICTS = {
     "Sovereign Standing": {"type": "Standing",  "requirement": "Reach a Sovereign Standing (Domain value 10) in any Domain."},
-    "Monument":           {"type": "Build",     "requirement": "Complete (build) a Monument pursuit."},
+    "Monument":           {"type": "Build",     "requirement": "Have an active Mastery Effect of a Monument pursuit."},
     "Wonder":             {"type": "Build",     "requirement": "Complete a World Wonder."},
-    "Wealth":             {"type": "Economy",   "requirement": "Generate 5,000 gold per turn for five consecutive turns."},
+    "Wealth":             {"type": "Economy",   "requirement": "Generate 5,000 gold per turn for five consecutive turns, net Upkeep costs."},
     "Vassalize":          {"type": "Conquest",  "requirement": "Vassalize a rival player (control their capital with no other settlements/armies under them)."},
     "Living Saints":      {"type": "Piety",     "requirement": "Sustain Public Order 10 (Living Saints) for five consecutive turns (Pious Timer)."},
     "Last Alliance Standing": {"type": "Endgame", "requirement": "Be the last alliance standing — the game-ending stop condition."},
