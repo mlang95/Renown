@@ -530,9 +530,9 @@ Each player rolls one D6 (+1 if they won their last Battle), re-rolling ties. Th
 
 9. **Lose Endurance.** Each side that fought loses 1 Endurance. A side at 0 Endurance is Fatigued.
 
-10. **Break check.** Before gaining its token, each Fatigued side's field takes a Break check: roll a D6 per retinue in the field, up to {{VAL:MORALE_DICE_MAX}} dice, each ≥ its modified Morale value; failures are casualties. A Break check never triggers a Panic check, and Unbreakable auto-passes it. A check ever modified to 7 or more Routs the whole army.
+10. **Break check.** Before gaining its token, each Fatigued side's field takes a Break check: roll a D6 per retinue in the field, up to {{VAL:MORALE_DICE_MAX}} dice, each ≥ its modified Morale value; failures are casualties. A Break check never triggers a Panic check. A check ever modified to 7 or more Routs the whole army.
 
-11. **Fatigue token.** Each Fatigued side then gains a Fatigue token — each token is −1 to that army's Strike, Parry, Recover, and Morale rolls (to a maximum of 6+ on the rolls; Morale is uncapped). Tokens stack and last until the Battle ends.
+11. **Fatigue token.** Each Fatigued side then gains a Fatigue token — each token is −1 to that army's Strike and Morale rolls (Strike to a maximum of 6+; Morale uncapped); while Fatigued, retinues can't Parry or Recover. Tokens stack and last until the Battle ends.
 
 12. **End the Skirmish.** The Battle ends if a side is wiped out, Routs (modified Morale 7+), or successfully Falls Back. Otherwise refill the lines and begin the next Skirmish.
 

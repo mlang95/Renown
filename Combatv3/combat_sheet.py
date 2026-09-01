@@ -185,7 +185,7 @@ def front(c):
     y = chart(c, right_x, y, right_w, "Standing Combat Effects", ["Standing","Effect"], se_rows,
               colw=[right_w*0.42,right_w*0.58], fs=7.5); y -= 8
     cap_rows = [["Blunder (Init \u22122 or lower)","Your to-Strike is set to 6+, only a Focused Strike can succeed, before other negative modifiers."],
-                ["Capped at 6+","Fatigue \u22121 to to-Strike, Parry, and Recover; Tempered keeps the Save at 6+ vs any AP. A Focused Save succeeds."],
+                ["Capped at 6+","Fatigue \u22121 to to-Strike; Tempered keeps the Save at 6+ vs any AP. A Focused Save succeeds. (No Parry or Recover while Fatigued.)"],
                 ["Pushes past 6+ \u2192 7+ (auto-miss)","Shield \u22121 to Strike (Kite/Tower/Heater) and enemy tactic to-Strike penalties apply AFTER the cap \u2014 they can raise the target to 7+."],
                 ["Uncapped \u2192 Rout","Fatigue's \u22121 to Morale is NOT capped. At modified Morale 7+ the army Routs."]]
     y = chart(c, right_x, y, right_w, "The 6+ Ceiling", ["Rule","Effect"], cap_rows,

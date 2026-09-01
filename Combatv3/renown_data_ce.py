@@ -6,7 +6,7 @@ VERSION = "0.4.9.8"
 
 STEADY          = "Steady"
 UNWIELDY        = "Unwieldy"
-TWO_H           = "2H"
+TWO_H           = "Two-Handed"
 SHATTER_ARMOR   = "Deadly"
 UNSTOPPABLE     = "Unstoppable"
 CLEAVE          = "Cleave"
@@ -15,7 +15,7 @@ NIMBLE          = "Nimble"
 DRILLED         = "Drilled"
 DESTROY_SHIELD  = "Destroy Shield"
 BLUNDER         = "Blunder"
-ONE_SHOT        = "One Shot"
+ONE_SHOT        = "One-Shot"
 DEFLECT         = "Deflect"
 IMMUNE_PANIC    = "Immune Panic"
 UNBREAKABLE     = "Unbreakable"
@@ -86,7 +86,7 @@ GLOSSARY = {
     NEGATE_TEMPERED: "Ignores Tempered: this weapon's AP can reduce the target's Save past 6+ (to auto-fail), defeating the Tempered floor.",
     NEGATE_RIPOSTE: "The target's Parry can never Riposte this weapon's Strikes (a natural 6 Parry still cancels the Strike, but no counter-Strike follows).",
     #MINUS_1_PARRY: "A stacking -1 penalty to the defender's Parry roll (to a maximum of 6+). Sources: Unstoppable, Deflect, and each Fatigue token.",
-    DUAL_WIELD: "A Strike die that fails to Strike is rerolled once; the reroll can Focused Strike. Dual Wield confers 2H (both hands on weapons — no Shield). You cannot reroll successful Strikes.",
+    DUAL_WIELD: F"A failed Strike is rerolled once; the rerolled Strike can be Focused. Dual Wield confers {TWO_H}. You cannot reroll successful Strikes.",
     FLORENTINE: "Only active while Dual Wielding. Even while Fatigued, a Focused Parry succeeds. This alone does not enable Riposte while Fatigued.",
     "Immune [keyword]": "Cancels that keyword as it applies to you (e.g. Immune Unwieldy, Strain, Destroy Shield).",
 
@@ -1406,7 +1406,7 @@ NODES = {
         "unlock": "Established Prowess",
         "mastery_req": "Fletchery + Coliseum",
         "innate": "Armies may be Equipped with a second weapon (a Ranged and a Melee Weapon); the army gains **Unwieldy**",
-        "mastery": "Your armies have **Immune Unwieldy**. Instead, they may equip two of the same 1H Melee Weapon to gain **Dual Wield**, **2H**, and **Florentine** (while Fatigued, may Parry on a natural 6).",
+        "mastery": f"Your armies have **Immune Unwieldy**. Instead, they may equip two of the same 1H Melee Weapon to gain **Dual Wield**, **{TWO_H}**, and **Florentine** (while Fatigued, may Parry on a natural 6).",
         "builds_into": ["Royal Pavilion"],
         "monument": False,
         "escalation": {"standing": "Established Prowess", "ranks": {1: "Dual-equip; Immune Unwieldy; Dual Wield (two of a kind)"}, "requires_all": ["Fletchery"], "requires_any": [], "extra_req": ""},
@@ -2669,3 +2669,13 @@ SIEGE_SOURCE_VALUES = {
     "Standing Army":   {"from": "board_state", "value": 1,
                         "rule": "army at range 0 of the settlement"},
 }
+
+
+GLOSSARY.update({
+    PIVOTAL:        "A natural 6, before modifiers.",
+    FATIGUE_TOKEN:  "Each token is -1 to your Strike (to a maximum of 6+) and Morale -1 (uncapped); if your modified Morale is ever 7+, your army Routs. Tokens stack. While Fatigued, retinues cannot Parry or Recover.",
+    "Sally Forth":  "While a settlement you control is besieged and you have an army inside it, you may Sally Forth: Battle in the Battle Phase without performing an action.",
+    "War Weariness":"gain Doubt 1 for each consecutive Battle you lose in the Empire Phase.",
+    "Ward":         "A slot in a settlement that holds one Pursuit; a settlement has one ward per tier (a Hamlet has 3 husbandry wards).",
+    "Efficient X":  "While this Pursuit occupies the same settlement ward as X (the raw material or Pursuit named on its tile), it uses no ward of its own — the two share one ward. Placed anywhere else, it fills a ward normally. (Core Principle 14.) Note: Two Pursuits that are Efficient with the same Pursuit cannot share a Ward with each other.",
+})

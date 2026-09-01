@@ -81,12 +81,11 @@ def standings_rows():
 
 
 GLOSSARY_CATEGORIES = [
-    ("Combat — Keyword Abilities", ["Steady","Unwieldy","2H","Two-handed","Deadly","Shatter Armor",
-        "Unstoppable","Cleave","Poison","Nimble","Drilled","Destroy Shield","One-Shot","Deflect",
-        "Immune Panic","Unbreakable","Parry","Riposte","Recover","Serrated","Planishing",
-        "Improved Parry","Heal X","Immune [keyword]"]),
-    ("Combat — States", ["Blunder","Fatigue token","Blocked","Strained","Seize the Initiative"]),
-    ("Combat — Terms", ["AP"]),
+    ("Combat — Keyword Abilities", [rd.STEADY, rd.UNWIELDY, rd.TWO_H, rd.SHATTER_ARMOR, rd.UNSTOPPABLE,
+        rd.CLEAVE, rd.POISON, rd.NIMBLE, rd.DRILLED, rd.DESTROY_SHIELD, rd.ONE_SHOT, rd.PARRY,
+        rd.RIPOSTE, rd.RECOVER, rd.SERRATED, rd.PLANISHING, "Immune [keyword]"]),
+    ("Combat — States", [rd.BLUNDER, rd.FATIGUE_TOKEN, "Blocked", "Strained", "Seize the Initiative"]),
+    ("Combat — Terms", ["AP", rd.PIVOTAL]),
     ("Battle Structure", ["Attacker / Defender","Battle","Skirmish","Casualty","Field","Endurance",
         "Fatigued","Break check","Panic check","Morale","Rout","Fall Back","Strike",
         "to-Strike number","Save","Natural roll","Initiative","Tactic","Dual-equip"]),
@@ -95,8 +94,8 @@ GLOSSARY_CATEGORIES = [
         "Diplomacy","Treaty","Alliance","Vassal","Suzerain"]),
     ("Empire & Economy", ["Faith X","Doubt X","Extort X","Recoup","Speed","Edict","Monument","Charter",
         "Muster","Pursue","Build","Repair","Move","Demand Tribute","Renown","Domain","Domain Point",
-        "Standing","Public Order","Reach"]),
-    ("World", ["Bandit","Outlaw Country","Siege"]),
+        "Standing","Public Order","Reach","Ward","Efficient X","War Weariness"]),
+    ("World", ["Bandit","Outlaw Country","Siege","Sally Forth"]),
 ]
 
 def glossary_categorized():

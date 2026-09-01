@@ -157,6 +157,10 @@
      "On a Focused Strike: the target loses its Shield attributes for the rest of the Battle."
     ],
     [
+     "One Shot",
+     "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard."
+    ],
+    [
      "Parry",
      "While not Fatigued, roll a d6 to attempt to Parry a Strike before the Save. On a 5+, the Strike is Parried."
     ],
@@ -173,6 +177,10 @@
      "-2 to Recover against this weapon's Strikes (worsens the defender's Recover roll by 2)."
     ],
     [
+     "Tempered",
+     "A Focused Save succeeds, regardless of AP."
+    ],
+    [
      "Immune [keyword]",
      "Cancels that keyword as it applies to you (e.g. Immune Unwieldy, Strain, Destroy Shield)."
     ]
@@ -184,6 +192,10 @@
     [
      "Blunder",
      "At Initiative -2 or lower, your to-Strike is set to 6+, before other negative modifiers."
+    ],
+    [
+     "Fatigue Token",
+     "Each token is -1 to your Strike to a maximum of 6+; and Morale -1 (uncapped). If your modified Morale is ever 7+, your army Routs. Tokens stack."
     ],
     [
      "Blocked",
@@ -508,10 +520,6 @@
      "Net Influence 0 or less."
     ],
     [
-     "Fatigue Token",
-     "Each token is -1 to your Strike to a maximum of 6+; and Morale -1 (uncapped). If your modified Morale is ever 7+, your army Routs. Tokens stack."
-    ],
-    [
      "Florentine",
      "Only active while Dual Wielding. Even while Fatigued, a Focused Parry succeeds. This alone does not enable Riposte while Fatigued."
     ],
@@ -530,10 +538,6 @@
     [
      "Next to",
      "Range 2."
-    ],
-    [
-     "One Shot",
-     "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard."
     ],
     [
      "Passed",
@@ -574,10 +578,6 @@
     [
      "Shielded",
      "A stacking -1 penalty to the Strike roll (to a maximum of 6+). Sources: a shield's -1 to Strike."
-    ],
-    [
-     "Tempered",
-     "A Focused Save succeeds, regardless of AP."
     ],
     [
      "Territory",
