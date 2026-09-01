@@ -1929,7 +1929,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                   'requirement': 'None'},
  'Wooden Walls': {'upkeep': 200,
                   'upkeep_frequency': 'per Turn',
-                  'empire_bonus': '**Influence -2** to **Raze actions** from players targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**.',
+                  'empire_bonus': '**Influence -2** to **Raze actions** from players targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**. Siege Timer +1',
                   'tier': 'Primitive',
                   'build_time': 2,
                   'requirement': 'None'},
@@ -1955,13 +1955,13 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
  'Garrison': {'upkeep': '300',
               'upkeep_frequency': 'per Turn',
               'empire_bonus': 'Local Armies form (10/15/25/50 by Settlement size). All Garrisons share '
-                              'Equipment. Cannot be targeted; may Sally Forth.',
+                              'Equipment. Cannot be targeted; may Sally Forth. Siege Timer +1',
               'tier': 'Developed',
               'build_time': 3,
               'requirement': 'Muster Field'},
  'Stone Walls': {'upkeep': 300,
                  'upkeep_frequency': 'per Turn',
-                 'empire_bonus': '**Influence -2** to **Destabilize actions** from players targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**.',
+                 'empire_bonus': '**Influence -2** to **Destabilize actions** from players targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**. Siege Timer +1',
                  'tier': 'Sophisticated',
                  'build_time': 4,
                  'requirement': 'One Tier Developed + Wooden Walls'},
@@ -2549,9 +2549,19 @@ SIEGE_CALCULUS = {
 }
 
 # Sources whose value isn't in effect text
+# All settlement-source Siege/Convert magnitudes live here (single source of truth).
+# The calculus reads settlement sources from this dict ONLY — it does not also parse
+# "Siege Timer +N" from effect text for them (avoids double-counting Citadel).
+# Effect-text parsing is reserved for attacker sources (Siege Works, Siege Camp, army).
 SIEGE_SOURCE_VALUES = {
-    "Settlement Size": {"from": "SETTLEMENTS", "field": "tier"},
-    "Standing Army":   {"from": "board_state", "value": 1,
+    "Settlement Size": {"from": "SETTLEMENTS", "field": "tier"},   # 0–4 by tier
+    "Standing Army":   {"from": "board_state", "value": STANDING_ARMY_SIEGE_MODIFIER,
                         "rule": "army at range 0 of the settlement"},
+    "Garrison":        {"value": 1},                 # presence (confirm: flat vs scaling)
+    "Wooden Walls":    {"value": 1},
+    "Stone Walls":     {"value": 1},                 # + Wooden when stacking (see ruling)
+    "Citadel":         {"innate_value": 1, "mastery_value": 2},
 }
+
+
 

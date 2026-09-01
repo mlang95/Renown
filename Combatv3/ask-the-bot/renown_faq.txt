@@ -174,7 +174,7 @@ Foster Rebellion | [Foster Rebellion](https://mlang95.github.io/RenownWiki/actio
 Founding | [Founding](https://mlang95.github.io/RenownWiki/eras-ref.html) Era. Renown 1, armies 1, cities 0, influence/turn 1, envoys: 1 Council + 1 Personal Envoy per turn. Unlocks: 
 Full Plate | [Full Plate](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Forged). Save 3+. Keywords: none.
 Furnace | [Furnace](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Craft). Innate: Unlocks Cast Weapons / Mastery: +200
-Garrison | [Garrison](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Developed). Upkeep 300 (per Turn), build 3. Local Armies form (10/15/25/50 by Settlement size). All Garrisons share Equipment. Cannot be targeted; may Sally Forth.
+Garrison | [Garrison](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Developed). Upkeep 300 (per Turn), build 3. Local Armies form (10/15/25/50 by Settlement size). All Garrisons share Equipment. Cannot be targeted; may Sally Forth. Siege Timer +1
 Gilded Foundry | [Gilded Foundry](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Craft). Innate: Unlock Forged armor and shield. / Mastery: Tempered: Your to Save modifier cannot be reduced beyond 6+; Craft +1
 Gothic Plate | [Gothic Plate](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Crafted). Save 2+. Keywords: Immune Unwieldy.
 Granary | [Granary](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Upkeep -200 / Mastery: Armies and Garrisons gain Endurance while Besieged
@@ -352,7 +352,7 @@ Standing | [Standing](https://mlang95.github.io/RenownWiki/glossary.html#standin
 starting forces | [Escalation setup](https://mlang95.github.io/RenownWiki/escalation-rules.html): 25 Levy, Farm Tools, Cloth armor, no shield. Re-equip freely before each Battle with anything unlocked.
 Steady | [Steady](https://mlang95.github.io/RenownWiki/keywords-ref.html#steady): Initiative cannot be reduced by Tactics.
 Stone Roads | [Stone Roads](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Developed). Upkeep 200 (per Turn), build 3. If you start a Move action within Province, gain additional Speed +1
-Stone Walls | [Stone Walls](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Sophisticated). Upkeep 300 (per Turn), build 4. Influence -2 to Destabilize actions from players targeting your settlements. Influence -1 to Bandit Cunning actions targetting your settlements.
+Stone Walls | [Stone Walls](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Sophisticated). Upkeep 300 (per Turn), build 4. Influence -2 to Destabilize actions from players targeting your settlements. Influence -1 to Bandit Cunning actions targetting your settlements. Siege Timer +1
 Storehouse | [Storehouse](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Doubt +2, +600 / Mastery: Build Timer −2
 Strained | [Strained](https://mlang95.github.io/RenownWiki/glossary.html#strained): -1 Initiative every Skirmish (negated by Immune Strain). Does not gain Endurance in the Empire Phase.
 Strike | [Strike](https://mlang95.github.io/RenownWiki/glossary.html#strike): A landed hit. Roll a D6, apply modifiers to the roll, and Strike on a result >= the to-Strike number. The target may then Parry, Save, and Recover.
@@ -457,7 +457,7 @@ Winter | [Winter](https://mlang95.github.io/RenownWiki/seasons-ref.html) Season 
 Within | [Within](https://mlang95.github.io/RenownWiki/glossary.html#within): Range 0.
 Wonder | [Wonder](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Build). Complete a World Wonder.
 wonders | [Wonders](https://mlang95.github.io/RenownWiki/wonders-ref.html): Colossus, The Grand Exchange, The Great Basilica, High Chancery. Each grants a powerful empire bonus; completing one scores its Edict.
-Wooden Walls | [Wooden Walls](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Primitive). Upkeep 200 (per Turn), build 2. Influence -2 to Raze actions from players targeting your settlements. Influence -1 to Bandit Cunning actions targetting your settlements.
+Wooden Walls | [Wooden Walls](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Primitive). Upkeep 200 (per Turn), build 2. Influence -2 to Raze actions from players targeting your settlements. Influence -1 to Bandit Cunning actions targetting your settlements. Siege Timer +1
 Workyard | [Workyard](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Doubt +1, +400 / Mastery: +400
 wrought gear | Wrought tier: weapons [Arming Sword, Pike, Flail, Halberd, Battle Axe, Cavalry Spear, Javelin], shields [Kite Shield], armor [Chainmail].
 wrought weapons | [Wrought tier](https://mlang95.github.io/RenownWiki/equipment-ref.html) (7): Arming Sword, Pike, Flail, Halberd, Battle Axe, Cavalry Spear, Javelin

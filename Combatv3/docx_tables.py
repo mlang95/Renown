@@ -244,6 +244,33 @@ def build_timers():
             rows.append([k, str(v)])
     return _table(["Build", "Turns"], rows)
 
+def siege_calculus(mode="Lay Siege"):
+    spec = rd.SIEGE_CALCULUS[mode]; vals = rd.SIEGE_SOURCE_VALUES
+    def fmt(src):
+        v = vals.get(src, {})
+        if v.get("from") == "SETTLEMENTS":
+            t = [s[v["field"]] for s in rd.SETTLEMENTS.values()]
+            return f"+{min(t)} to +{max(t)}", "settlement tier (Hamlet 0 … Metropolis 4)"
+        if "innate_value" in v:
+            iv, mv = v["innate_value"], v.get("mastery_value", 0)
+            return (f"+{iv} / +{iv+mv}", "innate / mastered") if mv else (f"+{iv}", "")
+        if v.get("from") == "board_state":
+            return f"+{v['value']}", v.get("rule", "")
+        if "value" in v:
+            return f"+{v['value']}", ""
+        return "—", "value undefined"
+    rows = [[src, *fmt(src)] for src in spec["settlement_sources"]]
+    if spec.get("attacker_sources"):
+        import re
+        red = set()
+        for name, n in rd.NODES.items():
+            txt = f"{n.get('innate','')} {n.get('mastery','')}"
+            for m in re.finditer(r"Siege Timer\s*[\u2212-]\s*(\d+)", txt):
+                red.add(f"{name} \u2212{m.group(1)}")
+        rows.append(["Attacker effects", "\u2212 varies", ", ".join(sorted(red)) or "from effect text"])
+    return _table(["Source", "Timer", "Note"], rows)
+
+
 REGISTRY = {
     "retinues": retinues, "settlements": settlements, "eras": eras,
     "public_order": public_order, "po_modifiers": po_modifiers,

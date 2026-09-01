@@ -209,6 +209,10 @@ Add everything together for the **net influence**, then read the outcome:
 
 When you **perform** an action, pay its cost (**gold** or **doubt**) and follow the pass effect. If **endorsed**, also perform the domain's endorsed effect.
 
+Each outcome resolves differently by domain — what Condemned, Failed, Passed, and Endorsed each do:
+
+{{TABLE:envoy_outcomes}}
+
 ## Battle Phase
 
 If a player performed a **Battle** or **Siege** Move action this turn, resolve it now — see **Battles & Sieges** for the full procedure.
@@ -226,6 +230,12 @@ If a player performed a **Battle** or **Siege** Move action this turn, resolve i
 5. **Change host** — rotate the **host token** clockwise to the **starting player** unless it’s **Spring**.
 
 6. Start the next **Empire Phase**. 
+
+### Timers
+
+Several actions set a timer that counts down and resolves on a later turn. (Siege renders "—" in this table because it's computed — see Siege Warfare.)
+
+{{TABLE:timers}}
 
 # Seasons
 
@@ -369,6 +379,10 @@ World Wonders:
 
 {{TABLE:wonders}}
 
+Build times, in turns, by what you're building:
+
+{{TABLE:build_timers}}
+
 ## Territory & Terrain
 
 **Territory** is the smallest unit of land. To move from one territory to another, you move **range 1**. To be **within** a territory, you are **range 0**; **adjacent**, **range 1**; **next to**, **range 2**.
@@ -463,6 +477,10 @@ If you have an existing army that performs a **muster action** **within range 3*
 
 During any **upkeep** phase where an **army** is **within** (range 0) a **settlement** you **control**, you may change that **army’s equipment** according the **equipment** you have **unlocked**. 
 
+Retinue types — cost, to-Strike, and base profile:
+
+{{TABLE:retinues}}
+
 ### Blocked Armies
 
 A **blocked army** is an **army** that cannot be the **target** of **actions** until **blocked** is removed. **Armies** gain **blocked** whenever they are **within** a **settlement** that is under **siege** or was selected as a result of a **condemned prowess envoy**. 
@@ -532,6 +550,12 @@ End the Skirmish. The Battle ends if a side is wiped out, Routs (modified Morale
 - If you **lay siege** during the **envoy** Phase, track the relevant **siege timer(s)**.
 - When a **siege timer** reaches 0, resolve the **siege** before **Rest Phase** (**negotiate** → **battle** if needed → **capture/sack**).
 - For full Siege rules, see **warfare → siege warfare**.
+
+### Siege Timer
+
+A **Siege Timer** is the sum of the besieged settlement's defenses minus the attacker's siege effects, to a minimum of {{VAL:SIEGE_CALCULUS.Lay Siege.floor}} (no maximum). Walls **stack** — a settlement with both Wooden and Stone Walls contributes +3.
+
+{{TABLE:siege_calculus}}
 
 ### Beginning a Siege
 

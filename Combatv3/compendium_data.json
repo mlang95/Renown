@@ -1954,7 +1954,7 @@
    "Wooden Walls",
    "200",
    "per Turn",
-   "**Influence -2** to **Raze actions** from players targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**.",
+   "**Influence -2** to **Raze actions** from players targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**. Siege Timer +1",
    "Primitive",
    "2",
    "None"
@@ -1990,7 +1990,7 @@
    "Garrison",
    "300",
    "per Turn",
-   "Local Armies form (10/15/25/50 by Settlement size). All Garrisons share Equipment. Cannot be targeted; may Sally Forth.",
+   "Local Armies form (10/15/25/50 by Settlement size). All Garrisons share Equipment. Cannot be targeted; may Sally Forth. Siege Timer +1",
    "Developed",
    "3",
    "Muster Field"
@@ -1999,7 +1999,7 @@
    "Stone Walls",
    "300",
    "per Turn",
-   "**Influence -2** to **Destabilize actions** from players targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**.",
+   "**Influence -2** to **Destabilize actions** from players targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**. Siege Timer +1",
    "Sophisticated",
    "4",
    "One Tier Developed + Wooden Walls"
