@@ -185,15 +185,17 @@ def add_table(doc, headers, rows, total_in=10.0, gap=True, tight=None):
         g=doc.add_paragraph(); g.paragraph_format.space_after=Pt(2)
     return t
 
-def _heading(doc, text, size, before, after):
+def _heading(doc, text, size, before, after, level=1):
     p = doc.add_paragraph()
     pf = p.paragraph_format
     pf.space_before = Pt(before); pf.space_after = Pt(after); pf.keep_with_next = True
     r = p.add_run(text); r.bold = True; r.font.name = FONT; r.font.size = Pt(size)
+    ol = OxmlElement("w:outlineLvl"); ol.set(qn("w:val"), str(level - 1))
+    p._p.get_or_add_pPr().append(ol)
     return p
 
-def h1(doc, t): return _heading(doc, t, 16, 9, 3)
-def h2(doc, t): return _heading(doc, t, 13, 6, 2)
+def h1(doc, t): return _heading(doc, t, 16, 9, 3, level=1)
+def h2(doc, t): return _heading(doc, t, 13, 6, 2, level=2)
 
 
 def add_tables_row(doc, specs, widths_in=None):
@@ -238,115 +240,125 @@ def build(data, out_path):
         sub = f"v{ver} · " + sub
     p2 = doc.add_paragraph(); _rich(p2, sub, italic=True)
 
-    # Pursuits
-    h1(doc, "Pursuits")
-    for s in data["pursuit_sections"]:
-        h2(doc, s["title"])
-        add_table(doc, ["Pursuit", "Mastery Unlock", "Innate Effect", "Mastery Effect"], _alpha(s["rows"]))
-
-    # Equipment
-    h1(doc, "Equipment")
     eq = data["equipment"]
-    h2(doc, "Retinues")
-    if rd is not None and getattr(rd, "RETINUES", None):
-        _ret_rows = [[n, str(x.get("cost","")), f"{x['to_hit']}+", str(x.get("endurance","")),
-                      f"{x['shaking']}+", str(x.get("speed","\u2014")), str(x.get("max_size","\u2014"))]
-                     for n, x in rd.RETINUES.items()]
-        add_table(doc, ["Retinue","Cost","To Hit","Endurance","Morale","Speed","Max Size"], _ret_rows)
-    else:
-        add_table(doc, ["Retinue","Cost","To Hit","Endurance","Morale","Speed"], eq["Retinues"])
-    h2(doc, "Melee Weapons");  add_table(doc, ["Weapon","Tier","AP","Init","Keywords"], eq["Weapons"])
-    h2(doc, "Ranged Weapons"); add_table(doc, ["Ranged","Tier","AP","Init","Keywords"], eq["Ranged"])
-    h2(doc, "Shields");        add_table(doc, ["Shield","Tier","Save","Init","Keywords"], eq["Shields"])
-    h2(doc, "Armor");          add_table(doc, ["Armor","Tier","Save","Keywords"], eq["Armor"])
 
-    # Infrastructure & Wonders
-    h1(doc, "Infrastructure & Wonders")
-    add_table(doc, ["Infrastructure","Upkeep","Freq","Empire Bonus","Tier","Build","Requirement"], data["infrastructure"])
-    h2(doc, "Wonders"); add_table(doc, ["Wonder","Empire Bonus","Build","Requirement"], data["wonders"])
-
-    # Empire
-    h1(doc, "Empire")
-    h2(doc, "Settlements"); add_table(doc, ["Settlement","Tier","Sea Variant","Tax","Muster","Build","Wards","Reach","Notes"], data["settlements"])
-    if rd is not None and getattr(rd, "ERAS", None):
-        _era_rows = [[nm, str(e.get("renown","")), str(e.get("armies","")), str(e.get("cities","")),
+    # ── section emitters (row-prep preserved; order set in assembly below) ──
+    def sec_eras():
+        if rd is not None and getattr(rd, "ERAS", None):
+            _rows = [[nm, str(e.get("renown","")), str(e.get("armies","")), str(e.get("cities","")),
                       str(e.get("max_settlements","")), f"+{e.get('influence_per_turn',0)}",
                       str(e.get("innate_diplomacy_influence","")), e.get("envoys","") or "",
                       e.get("unlocks","") or "\u2014"] for nm, e in rd.ERAS.items()]
-        h2(doc, "Eras"); add_table(doc, ["Era","Renown","Armies","Cities","Max Settlements","Infl/Turn","Diplo Infl","Envoys","Unlocks"], _era_rows)
-    else:
-        h2(doc, "Eras");        add_table(doc, ["Era","Renown","Armies","Cities","Infl/Turn","Diplo Infl","Envoys","Unlocks"], data["eras"])
-    h2(doc, "Domain Standings")
-    _emp=data["domain_board"]; _cmb={r[0]:r for r in data["standing_effects"]}
-    _merged=[]
-    for er in _emp:
-        dom=er[0]; cr=_cmb.get(dom,[dom,"","",""]); row=[dom]
-        for i in (1,2,3):
-            e=(er[i] if i<len(er) and er[i] else "").strip()
-            c=(cr[i] if i<len(cr) and cr[i] else "").strip()
-            row.append((e+" "+c).strip() if c else e)
-        _merged.append(row)
-    add_table(doc, ["Domain","Rising (3)","Established (6)","Sovereign (10)"], _merged)
-    h2(doc, "Tactic Matrix")
-    def _relabel(v):
-        s = str(v)
-        s = s.replace("TS", "Save").replace("TH", "Strike")
-        return s
-    _tm_head = [_relabel(h) for h in data["tactic_matrix_header"]]
-    _tm_rows = [[_relabel(c) for c in r] for r in data["tactic_matrix_rows"]]
-    add_table(doc, _tm_head, _tm_rows)
-    p = doc.add_paragraph(); p.paragraph_format.space_after = Pt(2)
-    _leg = p.add_run("I = Initiative \u00b7 Strike = to Strike \u00b7 Save = to Save"); _leg.italic = True; _leg.font.size = Pt(7)
+            h2(doc, "Eras"); add_table(doc, ["Era","Renown","Armies","Cities","Max Settlements","Infl/Turn","Diplo Infl","Envoys","Unlocks"], _rows)
+        else:
+            h2(doc, "Eras"); add_table(doc, ["Era","Renown","Armies","Cities","Infl/Turn","Diplo Infl","Envoys","Unlocks"], data["eras"])
 
-    # Terrain — strategic + tactical merged into one table (tactical features
-    # map onto their base terrain, so keep it as a single reference)
-    if rd is not None and getattr(rd, "TERRAIN", None):
-        h2(doc, "Terrain")
-        tac = getattr(rd, "TACTICAL_TERRAIN", {}) or {}
-        # which tactical features belong to which base terrain
-        BASE = {"Hill": "Grassland", "Open Field": "Grassland", "Mire": "Wetlands",
-                "Forest": "Forest", "Tundra": "Tundra", "Mountains": "Mountains", "Water": "Water"}
-        battle = {}
-        for feat, fd in tac.items():
-            base = BASE.get(feat, feat)
-            note = fd.get("effect", "")
-            label = feat if feat != base else ""
-            battle.setdefault(base, []).append((f"{label}: {note}" if label else note))
-        trows = []
-        for n, d in rd.TERRAIN.items():
-            mats = ", ".join(d.get("Raw Materials", []) or []) or "\u2014"
-            mapfx = d.get("Effect", "\u2014") or "\u2014"
-            btl = "  ".join(battle.get(n, [])) or "\u2014"
-            trows.append([n, mats, mapfx, btl])
-        add_table(doc, ["Terrain", "Raw Materials", "Map Effect", "Battle Effect"], trows)
+    def sec_seasons():
+        h2(doc, "Seasons"); add_table(doc, ["Season","Name","Effect"], data["seasons"])
 
-    # Bandits by Era — growth + armaments in one table
-    if rd is not None and getattr(rd, "BANDIT_GROWTH_PER_ERA", None):
-        h2(doc, "Bandits by Era")
-        g = rd.BANDIT_GROWTH_PER_ERA
-        growth = dict(g.items() if isinstance(g, dict) else g)
-        equip = getattr(rd, "BANDIT_EQUIPMENT_PER_ERA", {}) or {}
-        order = list(rd.ERAS.keys()) if getattr(rd, "ERAS", None) else list(growth.keys())
-        brows = [[era, f"+{growth.get(era,'\u2014')}/turn", equip.get(era, "\u2014")] for era in order]
-        add_table(doc, ["Era", "Bandit Growth", "Armaments"], brows)
+    def sec_domain_standings():
+        _emp = data["domain_board"]; _cmb = {r[0]: r for r in data["standing_effects"]}
+        _merged = []
+        for er in _emp:
+            dom = er[0]; cr = _cmb.get(dom, [dom,"","",""]); row = [dom]
+            for i in (1,2,3):
+                e = (er[i] if i < len(er) and er[i] else "").strip()
+                c = (cr[i] if i < len(cr) and cr[i] else "").strip()
+                row.append((e+" "+c).strip() if c else e)
+            _merged.append(row)
+        add_table(doc, ["Domain","Rising (3)","Established (6)","Sovereign (10)"], _merged)
 
-    h2(doc, "Public Order"); add_table(doc, ["PO","State","Effect"], data["public_order"])
-    h2(doc, "Faith & Doubt Sources"); add_table(doc, ["Type","Source","Condition"], data["po_modifiers"])
-    h2(doc, "Seasons")
-    add_table(doc, ["Season","Name","Effect"], data["seasons"])
-    h2(doc, "Trade & Income")
-    add_table(doc, ["Rule","Value"], data["trade_rules"], tight={0})
+    def sec_settlements():
+        h2(doc, "Settlements"); add_table(doc, ["Settlement","Tier","Sea Variant","Tax","Muster","Build","Wards","Reach","Notes"], data["settlements"])
 
-    # Factions
-    h1(doc, "Factions")
-    add_table(doc, ["Faction","Mechanic"], data["factions"], tight={0})
+    def sec_infra():
+        h2(doc, "Infrastructure"); add_table(doc, ["Infrastructure","Upkeep","Freq","Empire Bonus","Tier","Build","Requirement"], data["infrastructure"])
 
-    # Glossary
-    h1(doc, "Glossary")
-    for cat in data["glossary_categorized"]:
-        h2(doc, cat["title"])
-        add_table(doc, ["Term","Definition"], _alpha(cat["rows"]), tight={0})
+    def sec_wonders():
+        h2(doc, "Wonders"); add_table(doc, ["Wonder","Empire Bonus","Build","Requirement"], data["wonders"])
 
+    def sec_terrain():
+        if rd is not None and getattr(rd, "TERRAIN", None):
+            h2(doc, "Terrain")
+            tac = getattr(rd, "TACTICAL_TERRAIN", {}) or {}
+            BASE = {"Hill": "Grassland", "Open Field": "Grassland", "Mire": "Wetlands",
+                    "Forest": "Forest", "Tundra": "Tundra", "Mountains": "Mountains", "Water": "Water"}
+            battle = {}
+            for feat, fd in tac.items():
+                base = BASE.get(feat, feat); note = fd.get("effect", ""); label = feat if feat != base else ""
+                battle.setdefault(base, []).append((f"{label}: {note}" if label else note))
+            trows = []
+            for n, d in rd.TERRAIN.items():
+                mats = ", ".join(d.get("Raw Materials", []) or []) or "\u2014"
+                mapfx = d.get("Effect", "\u2014") or "\u2014"
+                btl = "  ".join(battle.get(n, [])) or "\u2014"
+                trows.append([n, mats, mapfx, btl])
+            add_table(doc, ["Terrain", "Raw Materials", "Map Effect", "Battle Effect"], trows)
+
+    def sec_pursuits():
+        for s in data["pursuit_sections"]:
+            h2(doc, s["title"]); add_table(doc, ["Pursuit", "Mastery Unlock", "Innate Effect", "Mastery Effect"], _alpha(s["rows"]))
+
+    def sec_public_order():
+        h2(doc, "Public Order"); add_table(doc, ["PO","State","Effect"], data["public_order"])
+
+    def sec_faith():
+        h2(doc, "Faith & Doubt Sources"); add_table(doc, ["Type","Source","Condition"], data["po_modifiers"])
+
+    def sec_trade():
+        h2(doc, "Trade & Income"); add_table(doc, ["Rule","Value"], data["trade_rules"], tight={0})
+
+    def sec_retinues():
+        h2(doc, "Retinues")
+        if rd is not None and getattr(rd, "RETINUES", None):
+            _rows = [[n, str(x.get("cost","")), f"{x['to_hit']}+", str(x.get("endurance","")),
+                      f"{x['shaking']}+", str(x.get("speed","\u2014")), str(x.get("max_size","\u2014"))]
+                     for n, x in rd.RETINUES.items()]
+            add_table(doc, ["Retinue","Cost","To Hit","Endurance","Morale","Speed","Max Size"], _rows)
+        else:
+            add_table(doc, ["Retinue","Cost","To Hit","Endurance","Morale","Speed"], eq["Retinues"])
+
+    def sec_weapons():
+        h2(doc, "Melee Weapons");  add_table(doc, ["Weapon","Tier","AP","Init","Keywords"], eq["Weapons"])
+        h2(doc, "Ranged Weapons"); add_table(doc, ["Ranged","Tier","AP","Init","Keywords"], eq["Ranged"])
+        h2(doc, "Shields");        add_table(doc, ["Shield","Tier","Save","Init","Keywords"], eq["Shields"])
+        h2(doc, "Armor");          add_table(doc, ["Armor","Tier","Save","Keywords"], eq["Armor"])
+
+    def sec_tactic_matrix():
+        h2(doc, "Tactic Matrix")
+        def _relabel(v):
+            s = str(v); return s.replace("TS", "Save").replace("TH", "Strike")
+        _tm_head = [_relabel(h) for h in data["tactic_matrix_header"]]
+        _tm_rows = [[_relabel(c) for c in r] for r in data["tactic_matrix_rows"]]
+        add_table(doc, _tm_head, _tm_rows)
+        p = doc.add_paragraph(); p.paragraph_format.space_after = Pt(2)
+        _leg = p.add_run("I = Initiative \u00b7 Strike = to Strike \u00b7 Save = to Save"); _leg.italic = True; _leg.font.size = Pt(7)
+
+    def sec_bandits():
+        if rd is not None and getattr(rd, "BANDIT_GROWTH_PER_ERA", None):
+            g = rd.BANDIT_GROWTH_PER_ERA; growth = dict(g.items() if isinstance(g, dict) else g)
+            equip = getattr(rd, "BANDIT_EQUIPMENT_PER_ERA", {}) or {}
+            order = list(rd.ERAS.keys()) if getattr(rd, "ERAS", None) else list(growth.keys())
+            brows = [[era, f"+{growth.get(era,'\u2014')}/turn", equip.get(era, "\u2014")] for era in order]
+            add_table(doc, ["Era", "Bandit Growth", "Armaments"], brows)
+
+    def sec_factions():
+        add_table(doc, ["Faction","Mechanic"], data["factions"], tight={0})
+
+    def sec_glossary():
+        for cat in data["glossary_categorized"]:
+            h2(doc, cat["title"]); add_table(doc, ["Term","Definition"], _alpha(cat["rows"]), tight={0})
+
+    # ── assembly: grouped by likeness, in rulebook introduction order ──
+    h1(doc, "Progression");         sec_eras(); sec_seasons()
+    h1(doc, "Domains & Standings"); sec_domain_standings()
+    h1(doc, "Empire");              sec_settlements(); sec_infra(); sec_wonders(); sec_terrain()
+    h1(doc, "Pursuits");            sec_pursuits()
+    h1(doc, "Economy");             sec_public_order(); sec_faith(); sec_trade()
+    h1(doc, "Armies & Combat");     sec_retinues(); sec_weapons(); sec_tactic_matrix()
+    h1(doc, "Bandits");             sec_bandits()
+    h1(doc, "Factions");            sec_factions()
+    h1(doc, "Glossary");            sec_glossary()
     doc.save(out_path)
     print("wrote " + out_path)
 

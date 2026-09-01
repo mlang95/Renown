@@ -16,7 +16,7 @@ Usage:  python md_to_docx.py RULES_reorganized.md Rules.docx
 import re, sys
 from docx import Document
 from docx.shared import Pt, Twips
-from docx.oxml import parse_xml
+from docx.oxml import parse_xml, OxmlElement
 from docx.oxml.ns import qn
 import docx_tables as dt
 try:
@@ -169,6 +169,8 @@ def render(md_path, out_path):
             p.paragraph_format.space_after = Pt(4)
             p.paragraph_format.keep_with_next = True
             _runs(p, hm.group(2), base_bold=True, base_size=HEAD_SIZES.get(lvl, 11))
+            ol = OxmlElement("w:outlineLvl"); ol.set(qn("w:val"), str(lvl - 1))
+            p._p.get_or_add_pPr().append(ol)
             i += 1
             continue
 
