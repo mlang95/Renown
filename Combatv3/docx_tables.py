@@ -281,6 +281,7 @@ REGISTRY = {
     "ranged": ranged, "shields": shields, "infrastructure": infrastructure,
     "wonders": wonders, "terrain": terrain, "tactical_terrain": tactical_terrain,
     "factions": factions, "timers": timers, "build_timers": build_timers,
+    "siege_calculus": siege_calculus,
 }
 
 # ── {{ACTIONS:Domain}} — render every ACTIONS entry of a domain as prose ──
