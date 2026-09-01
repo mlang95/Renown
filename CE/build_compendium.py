@@ -235,7 +235,7 @@ def build(data, out_path):
     p = doc.add_paragraph(); r = p.add_run("Renown — Compendium")
     r.bold = True; r.font.name = FONT; r.font.size = Pt(22)
     ver = data.get("version", "")
-    sub = "Generated from renown_data.py — the single source of truth."
+    sub = "Generated from renown_data.py"
     if ver:
         sub = f"v{ver} · " + sub
     p2 = doc.add_paragraph(); _rich(p2, sub, italic=True)
