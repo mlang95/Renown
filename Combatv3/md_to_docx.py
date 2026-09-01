@@ -183,20 +183,24 @@ def render(md_path, out_path):
             _inject(doc, dt._table(header, body))   # same dense style as data tables
             continue
 
-        # list item
+                # list item
         lm = re.match(r"^(\s*)([-*]|\d+\.)\s+(.*)$", raw)
         if lm:
+            indent = len(lm.group(1).expandtabs(4))
+            level  = indent // 2          # 2 spaces per nesting level; 0 = top
             marker = lm.group(2)
             if marker[0].isdigit():
-                # Keep the source's own numbering. Word's "List Number" style uses
-                # one document-wide counter, so successive lists would read 34,35…
-                # instead of restarting at 1; emit the authored number as text.
                 p = doc.add_paragraph()
-                p.paragraph_format.left_indent = Pt(18)
+                p.paragraph_format.left_indent = Pt(18 + 18 * level)
                 p.paragraph_format.first_line_indent = Pt(-18)
                 _runs(p, f"{marker} {lm.group(3)}")
             else:
-                p = doc.add_paragraph(style="List Bullet")
+                style = "List Bullet" if level == 0 else f"List Bullet {min(level + 1, 3)}"
+                try:
+                    p = doc.add_paragraph(style=style)
+                except KeyError:                      # style absent in template
+                    p = doc.add_paragraph(style="List Bullet")
+                    p.paragraph_format.left_indent = Pt(18 + 18 * level)
                 _runs(p, lm.group(3))
             i += 1
             continue

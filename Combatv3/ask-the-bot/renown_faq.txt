@@ -19,7 +19,7 @@ Arming Sword | [Arming Sword](https://mlang95.github.io/RenownWiki/equipment-ref
 Armory | [Armory](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Craft). Innate: Unlock Wrought armor & shield / Mastery: Upkeep -200; Craft +1
 army upkeep | [Army upkeep](https://mlang95.github.io/RenownWiki/economy-ref.html): Σ(retinue costs x army) - Upkeep -X. Reduced by Levy Hall (-200/-300), Tannery/Armory/Saddlery/Butchery/Fletchery/Smokehouse (-200), ABF (-500), High Quartermaster (-2000).
 Arqeubus | [Arqeubus](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Crafted). AP -4, Init +2. Keywords: 2H, Steady, Unstoppable, Negate Shielded, Negate Riposte, Negate Tempered.
-Artillery Park | [Artillery Park](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Siege Timers ignore Wooden & Stone Walls / Mastery: Settlements you Siege cannot Sally Forth. Siege Timer -1.
+Artillery Park | [Artillery Park](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Siege Timers ignore Wooden & Stone Walls / Mastery: Settlements you Siege cannot Sally Forth. Siege Timer -2.
 Artisan Workshop | [Artisan Workshop](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: +400 / Mastery: +200, Faith +1
 Ascension | [Ascension](https://mlang95.github.io/RenownWiki/eras-ref.html) Era. Renown 8, armies 2, cities 1, influence/turn 2, envoys: Council Envoys perform 2 actions of that domain. Unlocks: May resolve Charter Cities
 Attacker / Defender | [Attacker / Defender](https://mlang95.github.io/RenownWiki/glossary.html#attacker-defender): Set by the roll-off. Each Skirmish the Attacker declares equipment first; the Defender then responds.
@@ -422,7 +422,7 @@ Town | [Town](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlem
 Town Hall | [Town Hall](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Developed). Upkeep 200 (per Turn), build 3. +1 Influence per turn
 Toxicarium | [Toxicarium](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Secrecy). Innate: Weapons gain Poison / Mastery: All Endorsed Cunning actions give an additional Doubt +1 to Target
 trade | [Trade rules](https://mlang95.github.io/RenownWiki/reference-tables.html): Income = 100 x Craft x partners x 0.75. No trade in Spring. Tax only in Winter. Requires bordering, Dirt Road, and a Trade Agreement.
-Trade Agreement | [Trade Agreement](https://mlang95.github.io/RenownWiki/treaties-ref.html) Treaty. Begin trading (Trade Income flows from next turn). Requires bordering + active Dirt Road.
+Trade Agreement | [Trade Agreement](https://mlang95.github.io/RenownWiki/treaties-ref.html) Treaty. Begin trading (Trade Income flows from next turn). Requires active Dirt Road.
 Trade Guild | [Trade Guild](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: No Upkeep on Primitive Infrastructure / Mastery: No Upkeep on Developed Infrastructure
 trade income | [Trade Income](https://mlang95.github.io/RenownWiki/economy-ref.html): 100 x host's Craft X per active Trade Agreement
 treaties | [Treaties & Alliances](https://mlang95.github.io/RenownWiki/treaties-ref.html): Peace Treaty, Trade Agreement, Non-Aggression Pact, Military Alliance, Defensive Alliance. Signed via Diplomacy.

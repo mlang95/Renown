@@ -1444,7 +1444,7 @@ NODES = {
         "unlock": "Sovereign Prowess",
         "mastery_req": "Siege Camp + Master Workshop",
         "innate": "Siege Timers ignore Wooden & Stone Walls",
-        "mastery": "Settlements you Siege cannot Sally Forth. Siege Timer -1.",
+        "mastery": "Settlements you Siege cannot Sally Forth. Siege Timer -2.",
         "efficient": "Siege Camp",
         "builds_into": [],
         "monument": True},
@@ -2182,7 +2182,7 @@ BUILD_TIMERS = {
     "Hamlet": 1,
     "Town": 2,
     "City": 3,
-    "Metropolis": 5,
+    "Metropolis": 4,
     "Wonder": 10,
     "Repair": 2,
     "Infrastructure": {"Primitive": 2, "Developed": 3, "Sophisticated": 4},
@@ -2426,7 +2426,7 @@ ACTIONS = {
 # notes how it ends; era is when it unlocks (alliances scale with Era).
 TREATIES = {
     "Peace Treaty":      {"signed_via": "Sign Treaty", "effect": "Ends war between the two players; sets Truce Timer 5.", "era": "Any"},
-    "Trade Agreement":   {"signed_via": "Sign Treaty", "effect": "Begin trading (Trade Income flows from next turn). Requires bordering + active Dirt Road.", "era": "Any"},
+    "Trade Agreement":   {"signed_via": "Sign Treaty", "effect": "Begin trading (Trade Income flows from next turn). Requires active Dirt Road.", "era": "Any"},
     "Non-Aggression Pact": {"signed_via": "Sign Treaty", "effect": "Neither player may Declare War on the other. Ending it via End Treaty gives both a Truce Timer 5.", "era": "Any"},
     "Military Alliance":  {"signed_via": "Sign Treaty", "effect": "Mutual offensive pact: if a member Declares War, all members Declare War on the target next turn (and send 1 fewer envoy).", "era": "Eminence"},
     "Defensive Alliance": {"signed_via": "Sign Treaty", "effect": "Mutual defense: attacking one member puts all members at war with the attacker.", "era": "Zenith"},
