@@ -58,9 +58,18 @@ set TAC_H=6
 set TAC_SEED=26
 set TAC_HEX=20
 set TAC_OUT=%BOARD_DIR%\tactical_%TAC_W%x%TAC_H%_s%TAC_SEED%.pdf
+REM ---- CE BUILD (all-CE book: reorg_6 + renown_data_CE + split glossary) ------
+REM BUILD_CE : 1 = also build Renown_CE.docx from the CE folder, 0 = skip
+set BUILD_CE=1
+REM CE_DIR   : folder holding the CE files (renown_data_CE.py, RULES_reorganized_6.md,
+REM            gen_compendium.py, build_compendium.py, docx_tables.py, md_to_docx.py,
+REM            combine_docx.py). Optionally drop patch_pursuit_domains.py here too.
+set CE_DIR=C:\Users\Matt\OneDrive\Desktop\Game\CE
+REM CE_COPY_TO_MAIN : 1 = also copy Renown_CE.docx next to Renown.docx, 0 = leave in CE_DIR
+set CE_COPY_TO_MAIN=1
 REM ---------------------------------------------------------------------------
 echo.
-echo === build_all : MODE=%MODE%  WHAT=%WHAT%  PLAYERS=%PLAYERS%  LORE=%BUILD_LORE%  BOARD=%BUILD_BOARD%  TACTICAL=%BUILD_TACTICAL% ===
+echo === build_all : MODE=%MODE%  WHAT=%WHAT%  PLAYERS=%PLAYERS%  LORE=%BUILD_LORE%  BOARD=%BUILD_BOARD%  TACTICAL=%BUILD_TACTICAL%  CE=%BUILD_CE% ===
 echo.
 if /i "%BUILD_BOARD%"=="1" call :board
 if /i "%BUILD_TACTICAL%"=="1" call :tactical
@@ -87,6 +96,7 @@ echo   Compendium...
 echo   Rules...
 %PY% md_to_docx.py RULES_reorganized_5.md Rules.docx 
 %PY% combine_docx.py Rules.docx Compendium.docx Renown.docx
+if /i "%BUILD_CE%"=="1" call :ce
 echo   FAQ...
 %PY% faq_export.py "ask-the-bot\renown_faq.txt"
 echo   Combat quick-reference sheet (front/back PDF)...
@@ -201,4 +211,39 @@ pushd "%BOARD_DIR%"
 %PY% build_board.py %TAC_W% %TAC_H% --tactical --seed %TAC_SEED% --hex %TAC_HEX% --paper %BOARD_PAPER% --out "%TAC_OUT%"
 popd
 echo   Tactical board -^> %TAC_OUT%
+exit /b
+REM ============================================================================
+REM  :ce  - build Renown_CE.docx from the CE folder (all-CE book).
+REM         Runs the CE scripts *inside* CE_DIR so they import the CE renown_data
+REM         (renown_data_CE.py is copied to renown_data.py there). Fully isolated
+REM         from the main build - its own compendium_data.json / Rules.docx.
+REM ============================================================================
+:ce
+echo --- Renown_CE (all-CE book from %CE_DIR%) ---
+if not exist "%CE_DIR%\combine_docx.py" (
+  echo   ERROR: CE files not found in %CE_DIR% - skipping CE build.
+  exit /b
+)
+if not exist "%CE_DIR%\renown_data_CE.py" (
+  echo   ERROR: renown_data_CE.py not found in %CE_DIR% - skipping CE build.
+  exit /b
+)
+pushd "%CE_DIR%"
+REM make the CE data importable under the module name 'renown_data'
+copy /y renown_data_CE.py renown_data.py >nul
+%PY% gen_compendium.py compendium_data.json
+if exist patch_pursuit_domains.py %PY% patch_pursuit_domains.py compendium_data.json
+%PY% build_compendium.py compendium_data.json Compendium.docx
+%PY% md_to_docx.py RULES_reorganized_6.md Rules.docx
+%PY% combine_docx.py Rules.docx Compendium.docx Renown_CE.docx
+popd
+if not exist "%CE_DIR%\Renown_CE.docx" (
+  echo   CE build did not produce Renown_CE.docx - check the errors above.
+  exit /b
+)
+echo   Renown_CE -^> %CE_DIR%\Renown_CE.docx
+if /i "%CE_COPY_TO_MAIN%"=="1" (
+  copy /y "%CE_DIR%\Renown_CE.docx" "Renown_CE.docx" >nul
+  echo   Renown_CE -^> %CD%\Renown_CE.docx
+)
 exit /b

@@ -150,7 +150,7 @@ Estoc | [Estoc](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee w
 Execution Dock | [Execution Dock](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Influence -1 to Foster Rebellion actions targeting your settlements / Mastery: Players who target you or your settlements with actions that cause doubt gain Doubt +1
 Extort X | [Extort X](https://mlang95.github.io/RenownWiki/glossary.html#extort-x): Take X from the stated source: the gold goes to you instead of its owner.
 factions | [40 factions](https://mlang95.github.io/RenownWiki/factions.html). Filter by 'low/medium/high difficulty factions' or 'low/medium/high strength factions', or ask a faction by name.
-Fail | [Fail](https://mlang95.github.io/RenownWiki/glossary.html#fail): An unsuccessful to Hit or to Save.
+Fail | [Fail](https://mlang95.github.io/RenownWiki/glossary.html#fail): An unsuccessful Strike or Save.
 Failed | [Failed](https://mlang95.github.io/RenownWiki/glossary.html#failed): Net Influence 0 or less.
 Faith X | [Faith X](https://mlang95.github.io/RenownWiki/glossary.html#faith-x): Gain X Faith: each Faith raises your Public Order track by 1 when resolved.
 Fall | [Fall](https://mlang95.github.io/RenownWiki/seasons-ref.html) Season (Harvest). Husbandry Mastery Effects are doubled.
