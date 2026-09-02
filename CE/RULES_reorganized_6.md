@@ -334,7 +334,7 @@ To vassalize a player:
 - The Vassal can't perform Diplomacy actions and can't be the target of Diplomacy actions.
 - The Suzerain collects:
     - Half of the Vassal's trade income from trading with other players.
-    - The first **{{VAL:VASSAL_INFLUENCE_TAKE}} Influence** the Vassal generates each turn.
+    - The first {{VAL:VASSAL_INFLUENCE_TAKE}} Influence the Vassal generates each turn.
 
 *Note (mutual exchange, each Empire Phase): if both players agree, either player may exchange up to {{VAL:VASSAL_EXCHANGE_CAP}} gold, exchange ownership of Settlements, or transfer forces (so long as the Armies are adjacent to each other, or an Army is adjacent to a Garrison), in either direction.*
 
@@ -354,7 +354,7 @@ A Settlement contains 1 Settlement Ward for each of its tiers. A Village has 1 c
 
 ### Chartering Settlements
 
-When chartering a new Settlement, place it at least **range {{VAL:CHARTER_MIN_RANGE}} from all other Settlements and range {{VAL:OUTLAW_BUFFER_RANGE}} from any Outlaw Country. You can't charter a Settlement on mountain or water Territory. To upgrade a Village into a Sea Town, you must have a Settlement Ward adjacent to a water** Territory.
+When chartering a new Settlement, place it at least range {{VAL:CHARTER_MIN_RANGE}} from all other Settlements and range {{VAL:OUTLAW_BUFFER_RANGE}} from any Outlaw Country. You can't charter a Settlement on mountain or water Territory. To upgrade a Village into a Sea Town, you must have a Settlement Ward adjacent to a water Territory.
 
 ### Settlement Reach
 
@@ -362,7 +362,7 @@ Settlements have a Reach value set by their tier, from 1 up to 4. Reach X determ
 
 ### Hamlets
 
-Hamlets are unique Settlements, placed *exactly* **range {{VAL:HAMLET_RANGE}} from your capital via a Charter Settlement action. These small farmland communities produce no tax income or muster limit, but have 3 Husbandry Settlement Wards. You may also pursue arable land in a Hamlet even if that Raw Material** isn't in the Hamlet's region.
+Hamlets are unique Settlements, placed *exactly* range {{VAL:HAMLET_RANGE}} from your capital via a Charter Settlement action. These small farmland communities produce no tax income or muster limit, but have 3 Husbandry Settlement Wards. You may also pursue arable land in a Hamlet even if that Raw Material isn't in the Hamlet's region.
 
 ## Infrastructure
 
@@ -466,7 +466,7 @@ While an Army has been engaged in a Battle or Lay Siege action started by anothe
 
 ### Recruiting an Army
 
-When you perform a Muster action and you're below your Army cap, you may place an Army within (range 0) a Settlement you Control that isn't being sieged by another player. When you do: muster Retinues up to the Settlement's muster limit, pay the cost for the Retinue type you're eligible to buy, choose their equipment from what you have available, and set a **Muster Timer {{VAL:TIMERS.Muster Timer.default}}**.
+When you perform a Muster action and you're below your Army cap, you may place an Army within (range 0) a Settlement you Control that isn't being sieged by another player. When you do: muster Retinues up to the Settlement's muster limit, pay the cost for the Retinue type you're eligible to buy, choose their equipment from what you have available, and set a Muster Timer {{VAL:TIMERS.Muster Timer.default}}.
 
 To muster more Retinues than the muster limit, increment the Muster Timer +1 for each additional turn's worth of mustering. Each turn the Muster Timer increments, you recruit that many Retinues and begin paying upkeep on them.
 
@@ -474,7 +474,7 @@ While a Settlement is besieged, its muster limit is 0; an active Muster Timer do
 
 ### Recruiting Retinues to an Existing Army
 
-If an existing Army performs a Muster action within range 3 of any Settlement(s) you Control that aren't under Siege, you may muster Retinues up to the Settlement's muster limit, to the maximum an Army can hold ({{VAL:ARMY_MAX_RETINUES}}), and set a **Muster Timer {{VAL:TIMERS.Muster Timer.default}}**. When the Muster Timer resolves, you gain those Retinues, equipped the same as your existing Retinues.
+If an existing Army performs a Muster action within range 3 of any Settlement(s) you Control that aren't under Siege, you may muster Retinues up to the Settlement's muster limit, to the maximum an Army can hold ({{VAL:ARMY_MAX_RETINUES}}), and set a Muster Timer {{VAL:TIMERS.Muster Timer.default}}. When the Muster Timer resolves, you gain those Retinues, equipped the same as your existing Retinues.
 
 During any Upkeep phase while an Army is within (range 0) a Settlement you Control, you may change that Army's equipment to any you've unlocked.
 
@@ -578,14 +578,14 @@ When a Siege Timer reaches 0:
 
 3. If the besieging player wins, or there's no eligible Army or Garrison, choose one:
 
-- **Capture:** set a **Capture Timer {{VAL:TIMERS.Capture Timer.default}}. When it resolves, the Settlement comes under your Control — it receives your active Infrastructure effects, and you gain its Pursuits, tax income, and Reach**.
-- **Sack:** raze all Pursuits; extort 2500 per Settlement tier; reduce the Settlement by 1 tier. Its controller removes all Pursuits from one Settlement Ward of the sacking player's choice, then removes that Ward from play. Set a **Sack Timer {{VAL:TIMERS.Sack Timer.default}} — you can't Lay Siege again until it resolves. Your Army gains Blocked and Strained** until the Sack Timer resolves.
+- **Capture:** set a Capture Timer {{VAL:TIMERS.Capture Timer.default}}. When it resolves, the Settlement comes under your Control — it receives your active Infrastructure effects, and you gain its Pursuits, tax income, and Reach.
+- **Sack:** raze all Pursuits; extort 2500 per Settlement tier; reduce the Settlement by 1 tier. Its controller removes all Pursuits from one Settlement Ward of the sacking player's choice, then removes that Ward from play. Set a Sack Timer {{VAL:TIMERS.Sack Timer.default}} — you can't Lay Siege again until it resolves. Your Army gains Blocked and Strained until the Sack Timer resolves.
 
 # Bandits
 
 ### Outlaw Country
 
-Outlaw Country is a cluster of Territory in your starting Settlement region that you can't Control. At the start of the game, demarcate {{VAL:OUTLAW_COUNTRY_START}} Territories in your starting region, each within range 1 of at least one other Outlaw Country Territory and at least **range {{VAL:OUTLAW_BUFFER_RANGE}} from any Settlement**.
+Outlaw Country is a cluster of Territory in your starting Settlement region that you can't Control. At the start of the game, demarcate {{VAL:OUTLAW_COUNTRY_START}} Territories in your starting region, each within range 1 of at least one other Outlaw Country Territory and at least range {{VAL:OUTLAW_BUFFER_RANGE}} from any Settlement.
 
 If that's not possible, place them range 2 from your capital Settlement.
 

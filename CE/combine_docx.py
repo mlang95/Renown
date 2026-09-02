@@ -22,6 +22,7 @@ from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+from docx.shared import Pt
 
 FONT = "EB Garamond"
 SIZE = 8            # footer pt
@@ -183,6 +184,27 @@ def set_update_fields(doc):
         uf = OxmlElement("w:updateFields"); uf.set(qn("w:val"), "true"); settings.append(uf)
 
 
+
+def compact_toc_styles(doc, size=10):
+    """Make the compendium index fit one page: zero paragraph spacing on the TOC
+    entry styles + a smaller font. Word/LibreOffice apply these named styles when
+    they build the TOC field."""
+    from docx.enum.style import WD_STYLE_TYPE
+    existing = {st.name for st in doc.styles}
+    for lvl in range(1, 6):
+        name = f"TOC {lvl}"
+        try:
+            st = doc.styles[name] if name in existing else doc.styles.add_style(name, WD_STYLE_TYPE.PARAGRAPH)
+        except Exception:
+            continue
+        pf = st.paragraph_format
+        pf.space_before = Pt(0); pf.space_after = Pt(0); pf.line_spacing = 1.0
+        try:
+            st.font.size = Pt(size); st.font.name = FONT
+        except Exception:
+            pass
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 4:
         sys.exit("usage: python combine_docx.py Rules.docx Compendium.docx Renown.docx [version]")
@@ -190,5 +212,6 @@ if __name__ == "__main__":
     doc = combine(sys.argv[1], sys.argv[2])
     add_footers(doc, version)
     set_update_fields(doc)
+    compact_toc_styles(doc)
     doc.save(sys.argv[3])
     print(f"wrote {sys.argv[3]} (master TOC + compendium TOC via TC marks, footer Renown v{version})")
