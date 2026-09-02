@@ -6,7 +6,7 @@ VERSION = "0.4.9.8"
 
 STEADY          = "Steady"
 UNWIELDY        = "Unwieldy"
-TWO_H           = "2H"
+TWO_H           = "Two-Handed"
 SHATTER_ARMOR   = "Deadly"
 UNSTOPPABLE     = "Unstoppable"
 CLEAVE          = "Cleave"
@@ -15,7 +15,7 @@ NIMBLE          = "Nimble"
 DRILLED         = "Drilled"
 DESTROY_SHIELD  = "Destroy Shield"
 BLUNDER         = "Blunder"
-ONE_SHOT        = "One Shot"
+ONE_SHOT        = "One-Shot"
 DEFLECT         = "Deflect"
 IMMUNE_PANIC    = "Immune Panic"
 UNBREAKABLE     = "Unbreakable"
@@ -86,7 +86,7 @@ GLOSSARY = {
     NEGATE_TEMPERED: "Ignores Tempered: this weapon's AP can reduce the target's Save past 6+ (to auto-fail), defeating the Tempered floor.",
     NEGATE_RIPOSTE: "The target's Parry can never Riposte this weapon's Strikes (a natural 6 Parry still cancels the Strike, but no counter-Strike follows).",
     #MINUS_1_PARRY: "A stacking -1 penalty to the defender's Parry roll (to a maximum of 6+). Sources: Unstoppable, Deflect, and each Fatigue token.",
-    DUAL_WIELD: "A Strike die that fails to Strike is rerolled once; the reroll can Focused Strike. Dual Wield confers 2H (both hands on weapons — no Shield). You cannot reroll successful Strikes.",
+    DUAL_WIELD: "A failed Strike is rerolled once; the rerolled Strike can be Focused. Dual Wield confers Two-Handed. You cannot reroll successful Strikes.",
     FLORENTINE: "Only active while Dual Wielding. Even while Fatigued, a Focused Parry succeeds. This alone does not enable Riposte while Fatigued.",
     "Immune [keyword]": "Cancels that keyword as it applies to you (e.g. Immune Unwieldy, Strain, Destroy Shield).",
 
@@ -1406,7 +1406,7 @@ NODES = {
         "unlock": "Established Prowess",
         "mastery_req": "Fletchery + Coliseum",
         "innate": "Armies may be Equipped with a second weapon (a Ranged and a Melee Weapon); the army gains **Unwieldy**",
-        "mastery": "Your armies have **Immune Unwieldy**. Instead, they may equip two of the same 1H Melee Weapon to gain **Dual Wield**, **2H**, and **Florentine** (while Fatigued, may Parry on a natural 6).",
+        "mastery": "Your armies have **Immune Unwieldy**. Instead, they may equip two of the same 1H Melee Weapon to gain **Dual Wield**, **Two-Handed**, and **Florentine** (while Fatigued, may Parry on a natural 6).",
         "builds_into": ["Royal Pavilion"],
         "monument": False,
         "escalation": {"standing": "Established Prowess", "ranks": {1: "Dual-equip; Immune Unwieldy; Dual Wield (two of a kind)"}, "requires_all": ["Fletchery"], "requires_any": [], "extra_req": ""},
@@ -1588,7 +1588,7 @@ FACTIONS = {
         'feel': 'Offensive, Arrogant',
         'difficulty': 'Low',
         'strength': 'Medium',
-        'mechanic': 'Siege Specialist: You begin the game with a Siege Works (no ward, no upkeep, always-active Mastery). When a player builds a Citadel, you must Siege it as an Edict.',
+        'mechanic': 'Siege Specialist: You begin the game with a Siege Works (no Ward, no upkeep, always-active Mastery). When a player builds a Citadel, you must Siege it as an Edict.',
         'pair': 'Siege Camp, Royal Pavilion',
         'complement': 'Senate Hall',
     },
@@ -1598,7 +1598,7 @@ FACTIONS = {
         'feel': 'Fast',
         'difficulty': 'Low',
         'strength': 'Medium',
-        'mechanic': "Horsemasters: You begin the game with a Stable (no ward, no upkeep, always-active Mastery that can't be deactivated).",
+        'mechanic': "Horsemasters: You begin the game with a Stable (no Ward, no upkeep, always-active Mastery that can't be deactivated).",
         'pair': 'Saddlery, Royal Pavilion',
         'complement': 'Forge',
     },
@@ -1608,7 +1608,7 @@ FACTIONS = {
         'feel': 'Scrappy',
         'difficulty': 'Low',
         'strength': 'Low',
-        'mechanic': "Friends in Low Places: You begin the game with a Smuggler's Nook (no ward, no upkeep, always-active Mastery that can't be deactivated). Each turn, you may control one Bandit Camp outside your territory. When a Bandit Camp is generated, you may place it in your Outlaw Country instead.",
+        'mechanic': "Friends in Low Places: You begin the game with a Smuggler's Nook (no Ward, no upkeep, always-active Mastery that can't be deactivated). Each turn, you may control one Bandit Camp outside your Territory. When a Bandit Camp is generated, you may place it in your Outlaw Country instead.",
         'pair': "Thieves' Guild, Saddlery",
         'complement': 'Royal Pavilion',
     },
@@ -1618,7 +1618,7 @@ FACTIONS = {
         'feel': 'Sovereign Voice',
         'difficulty': 'Low',
         'strength': 'Medium',
-        'mechanic': "The Monarch: Each turn, you choose every Council Envoy's Domain. Every envoy you send has Influence −1.",
+        'mechanic': "The Monarch: Each turn, you choose every Council Envoy's Domain. Every Envoy you send has Influence −1.",
         'pair': 'Senate Hall, Aristocratic Court',
         'complement': 'Royal Pavilion',
     },
@@ -1628,7 +1628,7 @@ FACTIONS = {
         'feel': 'Pirate Life',
         'difficulty': 'Low',
         'strength': 'Medium',
-        'mechanic': "Sea Lanes: Other players can't perform Intercept Caravan on you. You begin the game with a Shipyard (no ward, no upkeep, always-active Mastery) — even without a Water Settlement.",
+        'mechanic': "Sea Lanes: Other players can't perform Intercept Caravan on you. You begin the game with a Shipyard (no Ward, no upkeep, always-active Mastery) — even without a Water Settlement.",
         'pair': "Shipyard, Thieves' Guild",
         'complement': 'Royal Pavilion',
     },
@@ -1648,7 +1648,7 @@ FACTIONS = {
         'feel': 'Patient & Reserved',
         'difficulty': 'Low',
         'strength': 'Medium',
-        'mechanic': "Patient Court: Your unspent influence isn't discarded in the Rest Phase. While the Era is Zenith, you may spend up to 5 influence per envoy, regardless of your Domain Standing.",
+        'mechanic': "Patient Court: Your unspent Influence isn't discarded in the Rest Phase. While the Era is Zenith, you may spend up to 5 Influence per Envoy, regardless of your Domain Standing.",
         'pair': 'Senate Hall, Aristocratic Court',
         'complement': 'Royal Pavilion',
     },
@@ -1668,7 +1668,7 @@ FACTIONS = {
         'feel': 'Egalitarian',
         'difficulty': 'Low',
         'strength': 'Medium',
-        'mechanic': "Prosperity For All: You begin the game with an Inn (no ward, no upkeep, always-active Mastery that can't be deactivated).",
+        'mechanic': "Prosperity For All: You begin the game with an Inn (no Ward, no upkeep, always-active Mastery that can't be deactivated).",
         'pair': 'Meadery & Winery, Studium Generale',
         'complement': 'Royal Pavilion',
     },
@@ -1678,7 +1678,7 @@ FACTIONS = {
         'feel': 'Rich Trader',
         'difficulty': 'Low',
         'strength': 'Low',
-        'mechanic': "Silk Road: You begin the game with an Artisan Workshop (no ward, no upkeep, always-active Mastery). You can't refuse a Trade Agreement.",
+        'mechanic': "Silk Road: You begin the game with an Artisan Workshop (no Ward, no upkeep, always-active Mastery). You can't refuse a Trade Agreement.",
         'pair': 'Meadery & Winery, Forge',
         'complement': 'Royal Pavilion',
     },
@@ -1718,7 +1718,7 @@ FACTIONS = {
         'feel': 'Scavenger',
         'difficulty': 'Low',
         'strength': 'Medium',
-        'mechanic': 'Scavengers: You collect the Spoils of War whether you win or lose a Battle, and may also recoup the cost of your retinues lost as Casualties in that Battle. When you perform the Repair action, recoup its cost even if it only passed.',
+        'mechanic': 'Scavengers: You collect the Spoils of War whether you win or lose a Battle, and may also recoup the cost of your Retinues lost as Casualties in that Battle. When you perform the Repair action, recoup its cost even if it only passed.',
         'pair': 'Royal Pavilion, Shipyard',
         'complement': 'Forge',
     },
@@ -1728,7 +1728,7 @@ FACTIONS = {
         'feel': 'Defensive, Impenetrable',
         'difficulty': 'Low',
         'strength': 'Medium',
-        'mechanic': "Unimpeachable: You begin the game with a Citadel (no ward, no upkeep, always-active Mastery). You (and your Alliance) can't perform Declare War or Crusade.",
+        'mechanic': "Unimpeachable: You begin the game with a Citadel (no Ward, no upkeep, always-active Mastery). You (and your Alliance) can't perform Declare War or Crusade.",
         'pair': 'Inquisitorial Palace, Senate Hall',
         'complement': 'Royal Pavilion',
     },
@@ -1758,7 +1758,7 @@ FACTIONS = {
         'feel': 'Mountain Passers',
         'difficulty': 'Low',
         'strength': 'Low',
-        'mechanic': 'Tunnellers: You treat mountain territory as grassland for movement, and begin the game with a Mine raw-material pursuit (no ward, no upkeep, always-active Mastery).',
+        'mechanic': 'Tunnellers: You treat mountain Territory as grassland for movement, and begin the game with a Mine Raw-Material Pursuit (no Ward, no upkeep, always-active Mastery).',
         'pair': 'Forge, Advanced Blast Furnace',
         'complement': 'Royal Pavilion',
     },
@@ -1768,7 +1768,7 @@ FACTIONS = {
         'feel': 'Unconvinced',
         'difficulty': 'Low',
         'strength': 'Low',
-        'mechanic': "Martyrdom: Your armies' Morale can't be modified beyond 6+, but still suffer −1 per Fatigue Token. Gain Faith +1 for every player you're At War with, and Faith +1 in every Battle where you lose 20 or more retinues (win or lose). Your armies have Immune War Weariness.",
+        'mechanic': "Martyrdom: Your Armies' Morale can't be modified beyond 6+, but still suffer −1 per Fatigue Token. Gain Faith +1 for every player you're At War with, and Faith +1 in every Battle where you lose 20 or more Retinues (win or lose). Your Armies have Immune War Weariness.",
         'pair': "Preceptory of the Knight's Templar, Inquisitorial Palace",
         'complement': 'Royal Pavilion',
     },
@@ -1788,7 +1788,7 @@ FACTIONS = {
         'feel': 'Aggressive, Parasitic',
         'difficulty': 'Low',
         'strength': 'Medium',
-        'mechanic': "Danegeld: While At War, your armies pay no upkeep in enemy territory — the enemy player pays it instead. You don't gain Speed −1 in Winter.",
+        'mechanic': "Danegeld: While At War, your Armies pay no upkeep in enemy Territory — the enemy player pays it instead. You don't gain Speed −1 in Winter.",
         'pair': 'Royal Pavilion, Shipyard',
         'complement': 'Forge',
     },
@@ -1798,7 +1798,7 @@ FACTIONS = {
         'feel': 'Oathkeepers',
         'difficulty': 'Medium',
         'strength': 'High',
-        'mechanic': 'Highlander Way: Enemy armies have Speed −1 in your Province. You ignore all terrain Speed modifiers and may trade without Dirt Roads. You must accept the first Non-Aggression Pact each player or Alliance offers you. If that player later joins an Alliance, this is considered satisfied for that Alliance.',
+        'mechanic': 'Highlander Way: Enemy Armies have Speed −1 in your Province. You ignore all terrain Speed modifiers and may trade without Dirt Roads. You must accept the first Non-Aggression Pact each player or Alliance offers you. If that player later joins an Alliance, this is considered satisfied for that Alliance.',
         'pair': 'Royal Pavilion, Saddlery',
         'complement': 'Senate Hall',
     },
@@ -1818,7 +1818,7 @@ FACTIONS = {
         'feel': 'Crusader Feel',
         'difficulty': 'Medium',
         'strength': 'High',
-        'mechanic': "Burning Cross: You begin the game with a Preceptory of the Knight's Templar (no ward, no upkeep, always-active Mastery). When you Declared War via Crusade, that player takes a Panic Check at the start of every Battle, after lines are formed. During the Prowess Envoy phase, if you don't have an army of 25 Knight's Templars, you must attempt to send an envoy; if it passes, you must muster an army until it holds 25 Knight's Templar retinues.",
+        'mechanic': "Burning Cross: You begin the game with a Preceptory of the Knight's Templar (no Ward, no upkeep, always-active Mastery). When you Declared War via Crusade, that player takes a Panic Check at the start of every Battle, after lines are formed. During the Prowess Envoy phase, if you don't have an Army of 25 Knight's Templars, you must attempt to send an Envoy; if it passes, you must muster an Army until it holds 25 Knight's Templar Retinues.",
         'pair': "Preceptory of the Knight's Templar, Royal Pavilion",
         'complement': 'Senate Hall',
     },
@@ -1828,7 +1828,7 @@ FACTIONS = {
         'feel': 'Strength Through Diplomacy',
         'difficulty': 'Medium',
         'strength': 'Medium',
-        'mechanic': "Palatine: Each player allied with you has Influence +1 on their envoys. Each turn, you may spend 1 of an ally's Influence, targeting your own envoys if you wish.",
+        'mechanic': "Palatine: Each player allied with you has Influence +1 on their Envoys. Each turn, you may spend 1 of an ally's Influence, targeting your own Envoys if you wish.",
         'pair': 'Senate Hall, Aristocratic Court',
         'complement': 'Royal Pavilion',
     },
@@ -1858,7 +1858,7 @@ FACTIONS = {
         'feel': 'Undead',
         'difficulty': 'Medium',
         'strength': 'Low',
-        'mechanic': "Inexorable: Your armies always have Unwieldy and can't gain Immune Unwieldy; they also have Recover +1, Speed −1, and Immune Panic. Your Public Order can't exceed 1.",
+        'mechanic': "Inexorable: Your Armies always have Unwieldy and can't gain Immune Unwieldy; they also have Recover +1, Speed −1, and Immune Panic. Your Public Order can't exceed 1.",
         'pair': "Preceptory of the Knight's Templar, Forge",
         'complement': 'Advanced Blast Furnace',
     },
@@ -1868,7 +1868,7 @@ FACTIONS = {
         'feel': 'Mercantile Military',
         'difficulty': 'Medium',
         'strength': 'Medium',
-        'mechanic': "Integrated Arms: When you perform a Muster action, you may muster retinues and equipment from your Trade Partners' Pursuits (and their Mastery Effects, if active), paying their cost.",
+        'mechanic': "Integrated Arms: When you perform a Muster action, you may muster Retinues and equipment from your Trade Partners' Pursuits (and their Mastery Effects, if active), paying their cost.",
         'pair': 'Forge, Advanced Blast Furnace',
         'complement': 'Royal Pavilion',
     },
@@ -1878,7 +1878,7 @@ FACTIONS = {
         'feel': 'Generous Sponsor',
         'difficulty': 'Medium',
         'strength': 'Medium',
-        'mechanic': 'Friends in High Places: At the start of the turn, a player who supported an envoy you sent that passed gains Faith +1; if that envoy was endorsed, they Extort 500 gold per Era.',
+        'mechanic': 'Friends in High Places: At the start of the turn, a player who supported an Envoy you sent that passed gains Faith +1; if that Envoy was endorsed, they Extort 500 gold per Era.',
         'pair': 'Aristocratic Court, Senate Hall',
         'complement': 'Royal Pavilion',
     },
@@ -1888,7 +1888,7 @@ FACTIONS = {
         'feel': 'Sickly',
         'difficulty': 'High',
         'strength': 'Low',
-        'mechanic': "Pestilence: Each bordering player gains Doubt +1. Your settlements have Reach +1, and all your retinues have Poison. You can't pursue an Apothecary, Infirmary, or Hospitaller.",
+        'mechanic': "Pestilence: Each bordering player gains Doubt +1. Your Settlements have Reach +1, and all your Retinues have Poison. You can't pursue an Apothecary, Infirmary, or Hospitaller.",
         'pair': "Thieves' Guild, Inquisitorial Palace",
         'complement': 'Royal Pavilion',
     },
@@ -1908,7 +1908,7 @@ FACTIONS = {
         'feel': 'Two-Faced',
         'difficulty': 'High',
         'strength': 'High',
-        'mechanic': 'Masters of Duplicity: You may hold any number of treaties at once with any number of players, even contradictory ones. Your treaties are never automatically canceled or voided by game events. When something would normally force a treaty to cancel, you choose which obligation to honor and keep all your other treaties intact. Other players may still End Treaty with you.',
+        'mechanic': 'Masters of Duplicity: You may hold any number of Treaties at once with any number of players, even contradictory ones. Your Treaties are never automatically canceled or voided by game events. When something would normally force a Treaty to cancel, you choose which obligation to honor and keep all your other Treaties intact. Other players may still End Treaty with you.',
         'pair': "Thieves' Guild, Senate Hall",
         'complement': 'Royal Pavilion',
     },
@@ -1928,7 +1928,7 @@ FACTIONS = {
         'feel': 'Aggressive, Destructive',
         'difficulty': 'High',
         'strength': 'Medium',
-        'mechanic': "Reckless: Your Cunning Envoys have Influence +2 when targeting a player with Public Order above 0. You begin the game with a Secret Cellar (no ward, no upkeep, always-active Mastery). You can't be in an Alliance and can't perform Diplomacy actions. A Prowess envoy you send can't fail — if it would be condemned, it passes instead.",
+        'mechanic': "Reckless: Your Cunning Envoys have Influence +2 when targeting a player with Public Order above 0. You begin the game with a Secret Cellar (no Ward, no upkeep, always-active Mastery). You can't be in an Alliance and can't perform Diplomacy actions. A Prowess Envoy you send can't fail — if it would be condemned, it passes instead.",
         'pair': "Thieves' Guild, Inquisitorial Palace",
         'complement': 'Royal Pavilion',
     },
@@ -1938,7 +1938,7 @@ FACTIONS = {
         'feel': 'Mobile Occupier',
         'difficulty': 'High',
         'strength': 'Medium',
-        'mechanic': "Occupy: You start with an additional army; all your armies begin inside your settlements. While you're outside a settlement, you don't control it — to collect taxes or use its Pursuits, end your turn inside it. To Occupy a Settlement, begin a Battle adjacent to it as if Sieging, but instead Battle the Garrison and any Armies at War with you or sharing its owner; if you win (or there's no force to fight), move inside. In the Upkeep Phase, pay upkeep only on equipment. You count as having all Infrastructure of your Occupied Settlements, and always count as 3 Trading Pursuits. When you leave a Settlement, you can't re-enter it until you Occupy another Settlement and sign a Trade Agreement.",
+        'mechanic': "Occupy: You start with an additional Army; all your Armies begin inside your Settlements. While you're outside a Settlement, you don't control it — to collect taxes or use its Pursuits, end your turn inside it. To Occupy a Settlement, begin a Battle adjacent to it as if Sieging, but instead Battle the Garrison and any Armies at War with you or sharing its owner; if you win (or there's no force to fight), move inside. In the Upkeep Phase, pay upkeep only on equipment. You count as having all Infrastructure of your Occupied Settlements, and always count as 3 Trading Pursuits. When you leave a Settlement, you can't re-enter it until you Occupy another Settlement and sign a Trade Agreement.",
         'pair': 'Royal Pavilion, Saddlery',
         'complement': 'Forge',
     },
@@ -1948,7 +1948,7 @@ FACTIONS = {
         'feel': 'Nomads',
         'difficulty': 'High',
         'strength': 'Medium',
-        'mechanic': "Wandering Nomads: Your armies function as settlements — a Band, Tribe, or Horde, upgraded accordingly — count as settlements with Reach 3, and each has a Muster Field. You may have one additional army per Era, starting with two. Your armies don't require troops to exist and can't be besieged. You can't build Infrastructure, but may build Pursuits; Raw Material pursuits within Reach are always active and take no settlement ward. You may trade so long as your border touches another player's. You may begin a new army adjacent to any existing army with a Charter Settlement or Muster Army action. When an army is destroyed, so is its settlement. Nomads pay no upkeep.",
+        'mechanic': "Wandering Nomads: Your Armies function as Settlements — a Band, Tribe, or Horde, upgraded accordingly — count as Settlements with Reach 3, and each has a Muster Field. You may have one additional Army per Era, starting with two. Your Armies don't require troops to exist and can't be besieged. You can't build Infrastructure, but may build Pursuits; Raw Material Pursuits within Reach are always active and take no Settlement Ward. You may trade so long as your border touches another player's. You may begin a new Army adjacent to any existing Army with a Charter Settlement or Muster Army action. When an Army is destroyed, so is its Settlement. Nomads pay no upkeep.",
         'pair': 'Saddlery, Royal Pavilion',
         'complement': 'Forge',
     },
@@ -1968,7 +1968,7 @@ FACTIONS = {
         'feel': 'Cautious Quickfighters',
         'difficulty': 'Low',
         'strength': 'Medium',
-        'mechanic': "Wise & Suspicious: Gain Doubt +1. While your Public Order is 1 or higher, your armies have +1 Initiative, Steady, and Speed +1. You can't be in an Alliance.",
+        'mechanic': "Wise & Suspicious: Gain Doubt +1. While your Public Order is 1 or higher, your Armies have +1 Initiative, Steady, and Speed +1. You can't be in an Alliance.",
         'pair': 'Forge',
         'complement': 'Inquisitorial Palace',
     },
@@ -1978,7 +1978,7 @@ FACTIONS = {
         'feel': 'Skilled Volleys',
         'difficulty': 'Low',
         'strength': 'Medium',
-        'mechanic': "Archery is a Way of Life: You begin the game with a Fletchery (no ward, no upkeep, always-active Mastery that can't be deactivated). Your armies must always equip a ranged weapon, and Ranged Weapons have +1 to Strike. Your armies can't equip full plate or articulated gothic plate, can't use shields, and can't build a Preceptory of Knight's Templar.",
+        'mechanic': "Archery is a Way of Life: You begin the game with a Fletchery (no Ward, no upkeep, always-active Mastery that can't be deactivated). Your Armies must always equip a ranged weapon, and Ranged Weapons have +1 to Strike. Your Armies can't equip full plate or articulated gothic plate, can't use shields, and can't build a Preceptory of Knight's Templar.",
         'pair': 'Royal Pavilion',
         'complement': 'Senate Hall',
     },
@@ -2393,146 +2393,152 @@ ENVOY_OUTCOMES = {
 #   endorsed : the endorsed bonus
 #   notes    : list of rules notes (sub-clauses)
 ACTIONS = {
-    # ── Prowess ──────────────────────────────────────────────────────────────
-    "Move": {
-        "domain": "Prowess", "cost": "None", "requires": "",
-        "effect": "Move an Army up to its Speed in Territories. Then choose one: "
-                  "March \u2014 move up to 2\u00d7 Speed, lose 1 Endurance, take no other action; "
-                  "Battle \u2014 end adjacent to a non-allied Army not in a settlement, then begin a Battle; "
-                  "Lay Siege \u2014 end adjacent to an at-war settlement, then begin a Siege; "
-                  "Muster \u2014 end within range 2 of your settlements, not within range 1 of a non-ally, at an active Muster Field, then recruit up to your combined muster limit (you may swap retinues between adjacent allied Armies and change equipment).",
-        "endorsed": "Perform another Move action (same or a different Army).",
-        "notes": [
-            "An Army may be the target of only one Move action per turn.",
-            "While an Army's Battle, Siege, or Muster timer is running, it can't be the target of actions.",
-            "When an Army performs the Battle mode, it has Seize the Initiative in that Battle's first Skirmish.",
-        ],
+    'Move': {
+        'domain': 'Prowess',
+        'cost': 'None',
+        'requires': '',
+        'effect': 'Move an Army up to its Speed in Territories. Then choose one: March — move up to 2× Speed, lose 1 Endurance, take no other action; Battle — end adjacent to a non-allied Army not in a Settlement, then begin a Battle; Lay Siege — end adjacent to an at-war Settlement, then begin a Siege; Muster — end within range 2 of your Settlements, not within range 1 of a non-ally, at an active Muster Field, then recruit up to your combined muster limit (you may swap Retinues between adjacent allied Armies and change equipment).',
+        'endorsed': 'Perform another Move action (same or a different Army).',
+        'notes': ['An Army may be the target of only one Move action per turn.', "While an Army's Battle, Siege, or Muster Timer is running, it can't be the target of actions.", "When an Army performs the Battle mode, it has Seize the Initiative in that Battle's first Skirmish."],
     },
-    "Declare War": {
-        "domain": "Prowess", "cost": "None", "requires": "Rising Prowess",
-        "effect": "Choose a non-allied player you have no NAP or active truce with. You and that player are now At War, and any Trade Agreements between you end. If the target is in a Defensive Alliance, every member is now At War with you.",
-        "endorsed": "Perform a Move action.",
-        "notes": [
-            "If you are in a Military Alliance, then at the start of your next turn every member Declares War on the target and sends 1 fewer envoy that turn.",
-        ],
+    'Declare War': {
+        'domain': 'Prowess',
+        'cost': 'None',
+        'requires': 'Rising Prowess',
+        'effect': 'Choose a non-allied player you have no NAP or active truce with. You and that player are now At War, and any Trade Agreements between you end. If the target is in a Defensive Alliance, every member is now At War with you.',
+        'endorsed': 'Perform a Move action.',
+        'notes': ['If you are in a Military Alliance, then at the start of your next turn every member Declares War on the target and sends 1 fewer Envoy that turn.'],
     },
-    "Demand Tribute": {
-        "domain": "Prowess", "cost": "None", "requires": "",
-        "effect": "Choose a non-allied player you have no NAP with, then negotiate terms. If the target agrees, sign a NAP or Alliance (the target picks among the offered terms). If the target refuses, or later fails to meet the terms, immediately Declare War on them.",
-        "endorsed": "Perform a Move action.",
-        "notes": [
-            "Terms may include gold, settlements, territory, treaties, or promises. A promise is unenforceable, but breaking one counts as failing the terms.",
-        ],
+    'Demand Tribute': {
+        'domain': 'Prowess',
+        'cost': 'None',
+        'requires': '',
+        'effect': 'Choose a non-allied player you have no NAP with, then negotiate terms. If the target agrees, sign a NAP or Alliance (the target picks among the offered terms). If the target refuses, or later fails to meet the terms, immediately Declare War on them.',
+        'endorsed': 'Perform a Move action.',
+        'notes': ['Terms may include gold, Settlements, Territory, Treaties, or promises. A promise is unenforceable, but breaking one counts as failing the terms.'],
     },
-    # ── Cunning ──────────────────────────────────────────────────────────────
-    "Intercept Caravan": {
-        "domain": "Cunning", "cost": "2000 gold", "requires": "",
-        "effect": "Choose a player. The next turn that player is Host, Extort their Trade Income.",
-        "endorsed": "Extort 2000.",
-        "notes": ["This affects only a single turn's trade income; normal income resumes afterward."],
+    'Intercept Caravan': {
+        'domain': 'Cunning',
+        'cost': '2000 gold',
+        'requires': '',
+        'effect': 'Choose a player. The next turn that player is Host, Extort their Trade Income.',
+        'endorsed': 'Extort 2000.',
+        'notes': ["This affects only a single turn's trade income; normal income resumes afterward."],
     },
-    "Foster Rebellion": {
-        "domain": "Cunning", "cost": "2000 gold", "requires": "",
-        "effect": "Choose a player. At the next Bandit Mechanics step, place a Bandit Camp of 10 retinues in their Outlaw Country.",
-        "endorsed": "Extort 2000.",
-        "notes": ["If that player's Outlaw Country has no room, expand it by one territory and spawn there instead."],
+    'Foster Rebellion': {
+        'domain': 'Cunning',
+        'cost': '2000 gold',
+        'requires': '',
+        'effect': 'Choose a player. At the next Bandit Mechanics step, place a Bandit Camp of 10 Retinues in their Outlaw Country.',
+        'endorsed': 'Extort 2000.',
+        'notes': ["If that player's Outlaw Country has no room, expand it by one Territory and spawn there instead."],
     },
-    "Raze": {
-        "domain": "Cunning", "cost": "2000 gold", "requires": "",
-        "effect": "Choose another player's settlement, then choose one active Pursuit, active Infrastructure, or active Build Timer in it: that target becomes Damaged, and its effects are inactive until Repaired. A Damaged Build Timer doesn't increment until Repaired.",
-        "endorsed": "Extort 2000.",
-        "notes": ["A Wonder has Immune Razed and can't be targeted."],
+    'Raze': {
+        'domain': 'Cunning',
+        'cost': '2000 gold',
+        'requires': '',
+        'effect': "Choose another player's Settlement, then choose one active Pursuit, active Infrastructure, or active Build Timer in it: that target becomes Damaged, and its effects are inactive until Repaired. A Damaged Build Timer doesn't increment until Repaired.",
+        'endorsed': 'Extort 2000.',
+        'notes': ["A Wonder has Immune Razed and can't be targeted."],
     },
-    "Destabilize": {
-        "domain": "Cunning", "cost": "2000 gold", "requires": "",
-        "effect": "Choose a player. In the next Extort step during Winter, Extort their Tax Income.",
-        "endorsed": "Extort 2000.",
-        "notes": ["This affects only the next single turn's tax income, when it's collected."],
+    'Destabilize': {
+        'domain': 'Cunning',
+        'cost': '2000 gold',
+        'requires': '',
+        'effect': 'Choose a player. In the next Extort step during Winter, Extort their Tax Income.',
+        'endorsed': 'Extort 2000.',
+        'notes': ["This affects only the next single turn's tax income, when it's collected."],
     },
-    # ── Piety ────────────────────────────────────────────────────────────────
-    "Spread Gospel": {
-        "domain": "Piety", "cost": "Doubt 1", "requires": "",
-        "effect": "Each non-allied player gains Doubt 1. Each allied player gains Faith 1.",
-        "endorsed": "Gain Faith 1.",
+    'Spread Gospel': {
+        'domain': 'Piety',
+        'cost': 'Doubt 1',
+        'requires': '',
+        'effect': 'Each non-allied player gains Doubt 1. Each allied player gains Faith 1.',
+        'endorsed': 'Gain Faith 1.',
     },
-    "Send Missionaries": {
-        "domain": "Piety", "cost": "Doubt 1", "requires": "",
-        "effect": "Choose a target player or alliance. If the target is outside your alliance, each player in it gains Doubt 2. If the target is inside your alliance, each other allied player gains Faith 2.",
-        "endorsed": "Gain Faith 1.",
+    'Send Missionaries': {
+        'domain': 'Piety',
+        'cost': 'Doubt 1',
+        'requires': '',
+        'effect': 'Choose a target player or Alliance. If the target is outside your Alliance, each player in it gains Doubt 2. If the target is inside your Alliance, each other allied player gains Faith 2.',
+        'endorsed': 'Gain Faith 1.',
     },
-    "Tithe": {
-        "domain": "Piety", "cost": "Doubt 1", "requires": "",
-        "effect": "Choose a player. Extort 10% of their treasury (round down to the nearest 100, minimum 0).",
-        "endorsed": "Gain Faith 1.",
+    'Tithe': {
+        'domain': 'Piety',
+        'cost': 'Doubt 1',
+        'requires': '',
+        'effect': 'Choose a player. Extort 10% of their Treasury (round down to the nearest 100, minimum 0).',
+        'endorsed': 'Gain Faith 1.',
     },
-    "Convert": {
-        "domain": "Piety", "cost": "Doubt 1", "requires": "",
-        "effect": "Choose another player's closest non-capital settlement; its Public Order must be \u22125 or lower. Lay Siege using only settlement-type siege modifiers (Settlement Size and Citadel) and set a Convert Timer. When it reaches 0, the settlement joins your empire (see Capture).",
-        "endorsed": "Gain Faith 1.",
-        "notes": ["If the target's Public Order rises to 1 or higher before the timer reaches 0, the Convert fails and the timer is removed."],
+    'Convert': {
+        'domain': 'Piety',
+        'cost': 'Doubt 1',
+        'requires': '',
+        'effect': "Choose another player's closest non-capital Settlement; its Public Order must be −5 or lower. Lay Siege using only Settlement-type Siege modifiers (Settlement Size and Citadel) and set a Convert Timer. When it reaches 0, the Settlement joins your empire (see Capture).",
+        'endorsed': 'Gain Faith 1.',
+        'notes': ["If the target's Public Order rises to 1 or higher before the timer reaches 0, the Convert fails and the timer is removed."],
     },
-    "Crusade": {
-        "domain": "Piety", "cost": "Doubt 1", "requires": "Sovereign Piety",
-        "effect": "Declare War on a non-ally you have no NAP or truce with, then immediately perform a Move action with one of your armies.",
-        "endorsed": "Gain Faith 1.",
-        "notes": [
-            "While a Crusade is active, neither player may Declare War on, Sign or End a Treaty with, Negotiate with, or Demand Tribute from the other.",
-            "You may have only one active Crusade at a time. It ends only when one of the two players is Vassalized or otherwise removed from the game.",
-        ],
+    'Crusade': {
+        'domain': 'Piety',
+        'cost': 'Doubt 1',
+        'requires': 'Sovereign Piety',
+        'effect': 'Declare War on a non-ally you have no NAP or truce with, then immediately perform a Move action with one of your Armies.',
+        'endorsed': 'Gain Faith 1.',
+        'notes': ['While a Crusade is active, neither player may Declare War on, Sign or End a Treaty with, Negotiate with, or Demand Tribute from the other.', 'You may have only one active Crusade at a time. It ends only when one of the two players is Vassalized or otherwise removed from the game.'],
     },
-    # ── Industry ─────────────────────────────────────────────────────────────
-    "Build": {
-        "domain": "Industry", "cost": "2000 gold", "requires": "",
-        "effect": "Choose an unlocked, available Infrastructure and set a Build Timer equal to its build time. When it completes, the Infrastructure becomes active in every settlement in your province.",
-        "endorsed": "Recoup 2000.",
-        "notes": [
-            "You must have at least one Infrastructure from the prior tier before building the next tier.",
-            "A Wonder is built in your capital and requires all other Infrastructure to be active when the Build action is performed.",
-        ],
+    'Build': {
+        'domain': 'Industry',
+        'cost': '2000 gold',
+        'requires': '',
+        'effect': 'Choose an unlocked, available Infrastructure and set a Build Timer equal to its build time. When it completes, the Infrastructure becomes active in every Settlement in your province.',
+        'endorsed': 'Recoup 2000.',
+        'notes': ['You must have at least one Infrastructure from the prior tier before building the next tier.', 'A Wonder is built in your capital and requires all other Infrastructure to be active when the Build action is performed.'],
     },
-    "Repair": {
-        "domain": "Industry", "cost": "0 gold", "requires": "",
-        "effect": "Choose a Damaged Pursuit or Infrastructure in a settlement you control and set Build Timer 2. When it reaches 0, choose one: Restore \u2014 reactivate it with all effects; Demolish \u2014 remove the Pursuit tile from your Empire Tableau.",
-        "endorsed": "Recoup 2000.",
+    'Repair': {
+        'domain': 'Industry',
+        'cost': '0 gold',
+        'requires': '',
+        'effect': 'Choose a Damaged Pursuit or Infrastructure in a Settlement you control and set Build Timer 2. When it reaches 0, choose one: Restore — reactivate it with all effects; Demolish — remove the Pursuit tile from your Empire Tableau.',
+        'endorsed': 'Recoup 2000.',
     },
-    "Pursue": {
-        "domain": "Industry", "cost": "2000 gold", "requires": "",
-        "effect": "Choose an inactive settlement ward you control, then choose a Pursuit whose prerequisites you meet and set a Build Timer equal to its build time (usually 1). When it completes, place the Pursuit in an available ward slot; its innate effect activates immediately, and its mastery effect activates if all mastery requirements are met.",
-        "endorsed": "Recoup 2000.",
-        "notes": [
-            "You may have only 2 Monument pursuits across your empire.",
-            "Power and unique pursuits have Build Timer +1; Monuments +2; all others Build Timer 1.",
-        ],
+    'Pursue': {
+        'domain': 'Industry',
+        'cost': '2000 gold',
+        'requires': '',
+        'effect': 'Choose an inactive Settlement Ward you control, then choose a Pursuit whose prerequisites you meet and set a Build Timer equal to its build time (usually 1). When it completes, place the Pursuit in an available Ward slot; its innate effect activates immediately, and its mastery effect activates if all mastery requirements are met.',
+        'endorsed': 'Recoup 2000.',
+        'notes': ['You may have only 2 Monument Pursuits across your empire.', 'Power and unique Pursuits have Build Timer +1; Monuments +2; all others Build Timer 1.'],
     },
-    "Charter": {
-        "domain": "Industry", "cost": "2000 gold", "requires": "",
-        "effect": "Choose one: Charter a new Village \u2014 on uncontrolled or in-province non-water, non-mountain territory, range 4+ from any settlement and range 2+ from Outlaw Country; or Expand a non-city settlement one tier into an adjacent territory (Village to Sea/Town, Sea/Town to Port/City, Port/City to Metropolis), adding a ward.",
-        "endorsed": "Recoup 2000.",
-        "notes": ["To upgrade to City or Metropolis you must meet that tier's requirements; otherwise set Build Timer 1."],
+    'Charter': {
+        'domain': 'Industry',
+        'cost': '2000 gold',
+        'requires': '',
+        'effect': 'Choose one: Charter a new Village — on uncontrolled or in-province non-water, non-mountain Territory, range 4+ from any Settlement and range 2+ from Outlaw Country; or Expand a non-City Settlement one tier into an adjacent Territory (Village to Sea/Town, Sea/Town to Port/City, Port/City to Metropolis), adding a Ward.',
+        'endorsed': 'Recoup 2000.',
+        'notes': ["To upgrade to City or Metropolis you must meet that tier's requirements; otherwise set Build Timer 1."],
     },
-    # ── Diplomacy ────────────────────────────────────────────────────────────
-    "Sign Treaty": {
-        "domain": "Diplomacy", "cost": "None", "requires": "",
-        "effect": "Ask players to agree, then choose one and both sign it: Peace Treaty \u2014 end the war, set Truce Timer 5; Trade Agreement \u2014 begin trading next turn; Non-Aggression Pact \u2014 no Declare War (ending it via End Treaty gives both Truce Timer 5); Alliance \u2014 join, form, or invite to a Defensive or Military Alliance.",
-        "endorsed": "Perform a Diplomacy action.",
-        "notes": [
-            "When acting on behalf of an alliance, End Treaty requires all allies to agree.",
-            "A player can't be in more than one alliance.",
-        ],
+    'Sign Treaty': {
+        'domain': 'Diplomacy',
+        'cost': 'None',
+        'requires': '',
+        'effect': 'Ask players to agree, then choose one and both sign it: Peace Treaty — end the war, set Truce Timer 5; Trade Agreement — begin trading next turn; Non-Aggression Pact — no Declare War (ending it via End Treaty gives both Truce Timer 5); Alliance — join, form, or invite to a Defensive or Military Alliance.',
+        'endorsed': 'Perform a Diplomacy action.',
+        'notes': ['When acting on behalf of an Alliance, End Treaty requires all allies to agree.', "A player can't be in more than one Alliance."],
     },
-    "Negotiate": {
-        "domain": "Diplomacy", "cost": "None", "requires": "",
-        "effect": "Propose terms to a target; they agree or refuse. Terms may include gold, settlement ownership, territory, signing or ending a treaty, or promises (non-binding).",
-        "endorsed": "Perform a Diplomacy action.",
-        "notes": [
-            "If a promise goes unfulfilled, the affected player may Declare War on the promiser.",
-            "Also used to resolve Demand Tribute and siege surrenders.",
-        ],
+    'Negotiate': {
+        'domain': 'Diplomacy',
+        'cost': 'None',
+        'requires': '',
+        'effect': 'Propose terms to a target; they agree or refuse. Terms may include gold, Settlement ownership, Territory, signing or ending a Treaty, or promises (non-binding).',
+        'endorsed': 'Perform a Diplomacy action.',
+        'notes': ['If a promise goes unfulfilled, the affected player may Declare War on the promiser.', 'Also used to resolve Demand Tribute and Siege surrenders.'],
     },
-    "End Treaty": {
-        "domain": "Diplomacy", "cost": "None", "requires": "",
-        "effect": "Choose a target with whom you have an active treaty and no active Truce Timer; remove that treaty. The target doesn't need to agree.",
-        "endorsed": "Perform a Diplomacy action.",
+    'End Treaty': {
+        'domain': 'Diplomacy',
+        'cost': 'None',
+        'requires': '',
+        'effect': "Choose a target with whom you have an active Treaty and no active Truce Timer; remove that Treaty. The target doesn't need to agree.",
+        'endorsed': 'Perform a Diplomacy action.',
     },
 }
 
@@ -2674,3 +2680,16 @@ SIEGE_SOURCE_VALUES = {
     "Citadel":         {"innate_value": 1, "mastery_value": 1},
 }
 
+
+
+
+
+# ── Missing glossary definitions (CE) ────────────────────────────────────────
+GLOSSARY.update({
+    PIVOTAL:        "A natural 6, before modifiers.",
+    FATIGUE_TOKEN:  "Each token is -1 to your Strike (to a maximum of 6+) and Morale -1 (uncapped); if your modified Morale is ever 7+, your army Routs. Tokens stack. While Fatigued, retinues cannot Parry or Recover.",
+    "Sally Forth":  "While a settlement you control is besieged and you have an army inside it, you may Sally Forth: Battle in the Battle Phase without performing an action.",
+    "War Weariness":"gain Doubt 1 for each consecutive Battle you lose in the Empire Phase.",
+    "Ward":         "A slot in a Settlement that holds one Pursuit; a Settlement has one Ward per tier (a Hamlet has 3 Husbandry Wards).",
+    "Efficient X":  "While this Pursuit occupies the same Settlement Ward as X (the Raw Material or Pursuit named on its tile), it uses no ward of its own \u2014 the two share one ward. Placed anywhere else, it fills a ward normally. (Core Principle 14.) Note: Two Pursuits that are Efficient with the same Pursuit cannot share a Ward with each other.",
+})

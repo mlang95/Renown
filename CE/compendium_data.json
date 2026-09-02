@@ -3,7 +3,7 @@
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
-  "2H": "Cannot use a Shield.",
+  "Two-Handed": "Cannot use a Shield.",
   "Deadly": "On a Focused Strike: increase AP by -5, and the defender may Parry or Recover only with a Focused roll.",
   "Unstoppable": "Parried only by a Focused roll.",
   "Cleave": "On a Focused Strike: roll one extra Strike die at your modified to-Strike.",
@@ -12,17 +12,17 @@
   "Drilled": "Does not lose Endurance in the first Skirmish of each Battle.",
   "Destroy Shield": "On a Focused Strike: the target loses its Shield attributes for the rest of the Battle.",
   "Blunder": "At Initiative -2 or lower, your to-Strike is set to 6+, before other negative modifiers.",
-  "One Shot": "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard.",
+  "One-Shot": "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard.",
   "Parry": "While not Fatigued, roll a d6 to attempt to Parry a Strike before the Save. On a 5+, the Strike is Parried.",
   "Riposte": "While not Fatigued, if you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
   "Recover": "While not Fatigued, if a to-Save roll fails, roll a d6: a result of X+ Recovers the retinue.",
   "Serrated": "-2 to Recover against this weapon's Strikes (worsens the defender's Recover roll by 2).",
   "Tempered": "A Focused Save succeeds, regardless of AP.",
-  "Fatigue Token": "Each token is -1 to your Strike to a maximum of 6+; and Morale -1 (uncapped). If your modified Morale is ever 7+, your army Routs. Tokens stack.",
+  "Fatigue Token": "Each token is -1 to your Strike (to a maximum of 6+) and Morale -1 (uncapped); if your modified Morale is ever 7+, your army Routs. Tokens stack. While Fatigued, retinues cannot Parry or Recover.",
   "Shielded": "A stacking -1 penalty to the Strike roll (to a maximum of 6+). Sources: a shield's -1 to Strike.",
   "Negate Tempered": "Ignores Tempered: this weapon's AP can reduce the target's Save past 6+ (to auto-fail), defeating the Tempered floor.",
   "Negate Riposte": "The target's Parry can never Riposte this weapon's Strikes (a natural 6 Parry still cancels the Strike, but no counter-Strike follows).",
-  "Dual Wield": "A Strike die that fails to Strike is rerolled once; the reroll can Focused Strike. Dual Wield confers 2H (both hands on weapons \u2014 no Shield). You cannot reroll successful Strikes.",
+  "Dual Wield": "A failed Strike is rerolled once; the rerolled Strike can be Focused. Dual Wield confers Two-Handed. You cannot reroll successful Strikes.",
   "Florentine": "Only active while Dual Wielding. Even while Fatigued, a Focused Parry succeeds. This alone does not enable Riposte while Fatigued.",
   "Immune [keyword]": "Cancels that keyword as it applies to you (e.g. Immune Unwieldy, Strain, Destroy Shield).",
   "AP": "Armor Penetration \u2014 a weapon's (negative) modifier to the defender's Save roll; the more negative, the harder to save.",
@@ -110,7 +110,12 @@
   "Cost / Pay": "Cost to perform an action, usually in Gold or Doubt.",
   "Fail": "An unsuccessful to Hit or to Save.",
   "Failed": "Net Influence 0 or less.",
-  "Passed": "Net Influence 1 or more."
+  "Passed": "Net Influence 1 or more.",
+  "Focused": "A natural 6, before modifiers.",
+  "Sally Forth": "While a settlement you control is besieged and you have an army inside it, you may Sally Forth: Battle in the Battle Phase without performing an action.",
+  "War Weariness": "gain Doubt 1 for each consecutive Battle you lose in the Empire Phase.",
+  "Ward": "A slot in a Settlement that holds one Pursuit; a Settlement has one Ward per tier (a Hamlet has 3 Husbandry Wards).",
+  "Efficient X": "While this Pursuit occupies the same Settlement Ward as X (the Raw Material or Pursuit named on its tile), it uses no ward of its own \u2014 the two share one ward. Placed anywhere else, it fills a ward normally. (Core Principle 14.) Note: Two Pursuits that are Efficient with the same Pursuit cannot share a Ward with each other."
  },
  "glossary_categorized": [
   {
@@ -125,7 +130,7 @@
      "Initiative cannot be improved by Tactics."
     ],
     [
-     "2H",
+     "Two-Handed",
      "Cannot use a Shield."
     ],
     [
@@ -157,7 +162,7 @@
      "On a Focused Strike: the target loses its Shield attributes for the rest of the Battle."
     ],
     [
-     "One Shot",
+     "One-Shot",
      "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard."
     ],
     [
@@ -195,7 +200,7 @@
     ],
     [
      "Fatigue Token",
-     "Each token is -1 to your Strike to a maximum of 6+; and Morale -1 (uncapped). If your modified Morale is ever 7+, your army Routs. Tokens stack."
+     "Each token is -1 to your Strike (to a maximum of 6+) and Morale -1 (uncapped); if your modified Morale is ever 7+, your army Routs. Tokens stack. While Fatigued, retinues cannot Parry or Recover."
     ],
     [
      "Blocked",
@@ -217,6 +222,10 @@
     [
      "AP",
      "Armor Penetration \u2014 a weapon's (negative) modifier to the defender's Save roll; the more negative, the harder to save."
+    ],
+    [
+     "Focused",
+     "A natural 6, before modifiers."
     ]
    ]
   },
@@ -460,6 +469,18 @@
     [
      "Reach",
      "How far a Settlement projects control, in Territories (by tier). Calculated like Range X"
+    ],
+    [
+     "Ward",
+     "A slot in a Settlement that holds one Pursuit; a Settlement has one Ward per tier (a Hamlet has 3 Husbandry Wards)."
+    ],
+    [
+     "Efficient X",
+     "While this Pursuit occupies the same Settlement Ward as X (the Raw Material or Pursuit named on its tile), it uses no ward of its own \u2014 the two share one ward. Placed anywhere else, it fills a ward normally. (Core Principle 14.) Note: Two Pursuits that are Efficient with the same Pursuit cannot share a Ward with each other."
+    ],
+    [
+     "War Weariness",
+     "gain Doubt 1 for each consecutive Battle you lose in the Empire Phase."
     ]
    ]
   },
@@ -477,6 +498,10 @@
     [
      "Siege",
      "Sieging a Settlement with an Army to capture it; does not increment in Winter."
+    ],
+    [
+     "Sally Forth",
+     "While a settlement you control is besieged and you have an army inside it, you may Sally Forth: Battle in the Battle Phase without performing an action."
     ]
    ]
   },
@@ -505,7 +530,7 @@
     ],
     [
      "Dual Wield",
-     "A Strike die that fails to Strike is rerolled once; the reroll can Focused Strike. Dual Wield confers 2H (both hands on weapons \u2014 no Shield). You cannot reroll successful Strikes."
+     "A failed Strike is rerolled once; the rerolled Strike can be Focused. Dual Wield confers Two-Handed. You cannot reroll successful Strikes."
     ],
     [
      "Envoy Outcome",
@@ -1428,7 +1453,7 @@
      "Tiltyard",
      "Fletchery + Coliseum",
      "Armies may be Equipped with a second weapon (a Ranged and a Melee Weapon); the army gains **Unwieldy**",
-     "Your armies have **Immune Unwieldy**. Instead, they may equip two of the same 1H Melee Weapon to gain **Dual Wield**, **2H**, and **Florentine** (while Fatigued, may Parry on a natural 6)."
+     "Your armies have **Immune Unwieldy**. Instead, they may equip two of the same 1H Melee Weapon to gain **Dual Wield**, **Two-Handed**, and **Florentine** (while Fatigued, may Parry on a natural 6)."
     ],
     [
      "Cipher Chamber",
@@ -1588,21 +1613,21 @@
     "Crude",
     "-1",
     "-1",
-    "2H, Unwieldy"
+    "Two-Handed, Unwieldy"
    ],
    [
     "Pitchfork",
     "Crude",
     "0",
     "+1",
-    "2H, Unwieldy"
+    "Two-Handed, Unwieldy"
    ],
    [
     "Daggers",
     "Cast",
     "0",
     "+1",
-    "2H, Dual Wield, Deadly"
+    "Two-Handed, Dual Wield, Deadly"
    ],
    [
     "Short Sword",
@@ -1616,7 +1641,7 @@
     "Cast",
     "-1",
     "+1",
-    "2H, Unwieldy"
+    "Two-Handed, Unwieldy"
    ],
    [
     "Arming Sword",
@@ -1630,7 +1655,7 @@
     "Wrought",
     "-2",
     "+1",
-    "2H, Unwieldy, Deadly"
+    "Two-Handed, Unwieldy, Deadly"
    ],
    [
     "Flail",
@@ -1644,14 +1669,14 @@
     "Wrought",
     "-2",
     "+1",
-    "2H, Unwieldy"
+    "Two-Handed, Unwieldy"
    ],
    [
     "Battle Axe",
     "Wrought",
     "-2",
     "+0",
-    "2H, Unwieldy, Cleave, Negate Shielded"
+    "Two-Handed, Unwieldy, Cleave, Negate Shielded"
    ],
    [
     "Cavalry Spear",
@@ -1679,14 +1704,14 @@
     "Forged",
     "-3",
     "+0",
-    "2H, Unwieldy, Cleave"
+    "Two-Handed, Unwieldy, Cleave"
    ],
    [
     "War Hammer",
     "Forged",
     "-8",
     "-1",
-    "2H, Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield"
+    "Two-Handed, Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield"
    ],
    [
     "Lance",
@@ -1707,7 +1732,7 @@
     "Crafted",
     "-3",
     "+1",
-    "2H, Steady, Deadly, Unstoppable, Negate Shielded, Negate Tempered"
+    "Two-Handed, Steady, Deadly, Unstoppable, Negate Shielded, Negate Tempered"
    ]
   ],
   "Ranged": [
@@ -1716,42 +1741,42 @@
     "Crude",
     "-1",
     "+2",
-    "2H, Unstoppable, Negate Riposte"
+    "Two-Handed, Unstoppable, Negate Riposte"
    ],
    [
     "Longbow",
     "Cast",
     "-1",
     "+2",
-    "2H, Unstoppable, Deadly, Negate Riposte"
+    "Two-Handed, Unstoppable, Deadly, Negate Riposte"
    ],
    [
     "Javelin",
     "Wrought",
     "-2",
     "+1",
-    "Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, One Shot"
+    "Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, One-Shot"
    ],
    [
     "Crossbow",
     "Forged",
     "-4",
     "+0",
-    "Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte, One Shot"
+    "Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte, One-Shot"
    ],
    [
     "Pilum",
     "Crafted",
     "-3",
     "+1",
-    "Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One Shot"
+    "Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One-Shot"
    ],
    [
     "Arqeubus",
     "Crafted",
     "-4",
     "+2",
-    "2H, Steady, Unstoppable, Negate Shielded, Negate Riposte, Negate Tempered"
+    "Two-Handed, Steady, Unstoppable, Negate Shielded, Negate Riposte, Negate Tempered"
    ]
   ],
   "Shields": [
@@ -1963,23 +1988,23 @@
  "factions": [
   [
    "The Battering Ram",
-   "Siege Specialist: You begin the game with a Siege Works (no ward, no upkeep, always-active Mastery). When a player builds a Citadel, you must Siege it as an Edict."
+   "Siege Specialist: You begin the game with a Siege Works (no Ward, no upkeep, always-active Mastery). When a player builds a Citadel, you must Siege it as an Edict."
   ],
   [
    "The Boundless Steppe",
-   "Horsemasters: You begin the game with a Stable (no ward, no upkeep, always-active Mastery that can't be deactivated)."
+   "Horsemasters: You begin the game with a Stable (no Ward, no upkeep, always-active Mastery that can't be deactivated)."
   ],
   [
    "The Bandit King",
-   "Friends in Low Places: You begin the game with a Smuggler's Nook (no ward, no upkeep, always-active Mastery that can't be deactivated). Each turn, you may control one Bandit Camp outside your territory. When a Bandit Camp is generated, you may place it in your Outlaw Country instead."
+   "Friends in Low Places: You begin the game with a Smuggler's Nook (no Ward, no upkeep, always-active Mastery that can't be deactivated). Each turn, you may control one Bandit Camp outside your Territory. When a Bandit Camp is generated, you may place it in your Outlaw Country instead."
   ],
   [
    "The Crowned Star",
-   "The Monarch: Each turn, you choose every Council Envoy's Domain. Every envoy you send has Influence \u22121."
+   "The Monarch: Each turn, you choose every Council Envoy's Domain. Every Envoy you send has Influence \u22121."
   ],
   [
    "The Crimson Tide",
-   "Sea Lanes: Other players can't perform Intercept Caravan on you. You begin the game with a Shipyard (no ward, no upkeep, always-active Mastery) \u2014 even without a Water Settlement."
+   "Sea Lanes: Other players can't perform Intercept Caravan on you. You begin the game with a Shipyard (no Ward, no upkeep, always-active Mastery) \u2014 even without a Water Settlement."
   ],
   [
    "The Entwined Crown",
@@ -1987,7 +2012,7 @@
   ],
   [
    "The Eternal Court",
-   "Patient Court: Your unspent influence isn't discarded in the Rest Phase. While the Era is Zenith, you may spend up to 5 influence per envoy, regardless of your Domain Standing."
+   "Patient Court: Your unspent Influence isn't discarded in the Rest Phase. While the Era is Zenith, you may spend up to 5 Influence per Envoy, regardless of your Domain Standing."
   ],
   [
    "The Final Word",
@@ -1995,11 +2020,11 @@
   ],
   [
    "The Gilded Crescent",
-   "Prosperity For All: You begin the game with an Inn (no ward, no upkeep, always-active Mastery that can't be deactivated)."
+   "Prosperity For All: You begin the game with an Inn (no Ward, no upkeep, always-active Mastery that can't be deactivated)."
   ],
   [
    "The Gilded Path",
-   "Silk Road: You begin the game with an Artisan Workshop (no ward, no upkeep, always-active Mastery). You can't refuse a Trade Agreement."
+   "Silk Road: You begin the game with an Artisan Workshop (no Ward, no upkeep, always-active Mastery). You can't refuse a Trade Agreement."
   ],
   [
    "The Hermit Crown",
@@ -2015,11 +2040,11 @@
   ],
   [
    "The Iron Shore",
-   "Scavengers: You collect the Spoils of War whether you win or lose a Battle, and may also recoup the cost of your retinues lost as Casualties in that Battle. When you perform the Repair action, recoup its cost even if it only passed."
+   "Scavengers: You collect the Spoils of War whether you win or lose a Battle, and may also recoup the cost of your Retinues lost as Casualties in that Battle. When you perform the Repair action, recoup its cost even if it only passed."
   ],
   [
    "The Iron Throne",
-   "Unimpeachable: You begin the game with a Citadel (no ward, no upkeep, always-active Mastery). You (and your Alliance) can't perform Declare War or Crusade."
+   "Unimpeachable: You begin the game with a Citadel (no Ward, no upkeep, always-active Mastery). You (and your Alliance) can't perform Declare War or Crusade."
   ],
   [
    "The Merchant Republics",
@@ -2031,11 +2056,11 @@
   ],
   [
    "The Tunnellers",
-   "Tunnellers: You treat mountain territory as grassland for movement, and begin the game with a Mine raw-material pursuit (no ward, no upkeep, always-active Mastery)."
+   "Tunnellers: You treat mountain Territory as grassland for movement, and begin the game with a Mine Raw-Material Pursuit (no Ward, no upkeep, always-active Mastery)."
   ],
   [
    "The Undying Flame",
-   "Martyrdom: Your armies' Morale can't be modified beyond 6+, but still suffer \u22121 per Fatigue Token. Gain Faith +1 for every player you're At War with, and Faith +1 in every Battle where you lose 20 or more retinues (win or lose). Your armies have Immune War Weariness."
+   "Martyrdom: Your Armies' Morale can't be modified beyond 6+, but still suffer \u22121 per Fatigue Token. Gain Faith +1 for every player you're At War with, and Faith +1 in every Battle where you lose 20 or more Retinues (win or lose). Your Armies have Immune War Weariness."
   ],
   [
    "The Verdant Kingdom",
@@ -2043,11 +2068,11 @@
   ],
   [
    "The Winter Wolves",
-   "Danegeld: While At War, your armies pay no upkeep in enemy territory \u2014 the enemy player pays it instead. You don't gain Speed \u22121 in Winter."
+   "Danegeld: While At War, your Armies pay no upkeep in enemy Territory \u2014 the enemy player pays it instead. You don't gain Speed \u22121 in Winter."
   ],
   [
    "The Ancient Wilds",
-   "Highlander Way: Enemy armies have Speed \u22121 in your Province. You ignore all terrain Speed modifiers and may trade without Dirt Roads. You must accept the first Non-Aggression Pact each player or Alliance offers you. If that player later joins an Alliance, this is considered satisfied for that Alliance."
+   "Highlander Way: Enemy Armies have Speed \u22121 in your Province. You ignore all terrain Speed modifiers and may trade without Dirt Roads. You must accept the first Non-Aggression Pact each player or Alliance offers you. If that player later joins an Alliance, this is considered satisfied for that Alliance."
   ],
   [
    "The Bloodied Cross",
@@ -2055,11 +2080,11 @@
   ],
   [
    "The Blazing Standard",
-   "Burning Cross: You begin the game with a Preceptory of the Knight's Templar (no ward, no upkeep, always-active Mastery). When you Declared War via Crusade, that player takes a Panic Check at the start of every Battle, after lines are formed. During the Prowess Envoy phase, if you don't have an army of 25 Knight's Templars, you must attempt to send an envoy; if it passes, you must muster an army until it holds 25 Knight's Templar retinues."
+   "Burning Cross: You begin the game with a Preceptory of the Knight's Templar (no Ward, no upkeep, always-active Mastery). When you Declared War via Crusade, that player takes a Panic Check at the start of every Battle, after lines are formed. During the Prowess Envoy phase, if you don't have an Army of 25 Knight's Templars, you must attempt to send an Envoy; if it passes, you must muster an Army until it holds 25 Knight's Templar Retinues."
   ],
   [
    "The Inner Circle",
-   "Palatine: Each player allied with you has Influence +1 on their envoys. Each turn, you may spend 1 of an ally's Influence, targeting your own envoys if you wish."
+   "Palatine: Each player allied with you has Influence +1 on their Envoys. Each turn, you may spend 1 of an ally's Influence, targeting your own Envoys if you wish."
   ],
   [
    "The Luminous Court",
@@ -2071,19 +2096,19 @@
   ],
   [
    "The Pale Throne",
-   "Inexorable: Your armies always have Unwieldy and can't gain Immune Unwieldy; they also have Recover +1, Speed \u22121, and Immune Panic. Your Public Order can't exceed 1."
+   "Inexorable: Your Armies always have Unwieldy and can't gain Immune Unwieldy; they also have Recover +1, Speed \u22121, and Immune Panic. Your Public Order can't exceed 1."
   ],
   [
    "The Sublime Gate",
-   "Integrated Arms: When you perform a Muster action, you may muster retinues and equipment from your Trade Partners' Pursuits (and their Mastery Effects, if active), paying their cost."
+   "Integrated Arms: When you perform a Muster action, you may muster Retinues and equipment from your Trade Partners' Pursuits (and their Mastery Effects, if active), paying their cost."
   ],
   [
    "The Velvet Hand",
-   "Friends in High Places: At the start of the turn, a player who supported an envoy you sent that passed gains Faith +1; if that envoy was endorsed, they Extort 500 gold per Era."
+   "Friends in High Places: At the start of the turn, a player who supported an Envoy you sent that passed gains Faith +1; if that Envoy was endorsed, they Extort 500 gold per Era."
   ],
   [
    "The Ashen Vale",
-   "Pestilence: Each bordering player gains Doubt +1. Your settlements have Reach +1, and all your retinues have Poison. You can't pursue an Apothecary, Infirmary, or Hospitaller."
+   "Pestilence: Each bordering player gains Doubt +1. Your Settlements have Reach +1, and all your Retinues have Poison. You can't pursue an Apothecary, Infirmary, or Hospitaller."
   ],
   [
    "The Broken Banner",
@@ -2091,7 +2116,7 @@
   ],
   [
    "The Forked Tongue",
-   "Masters of Duplicity: You may hold any number of treaties at once with any number of players, even contradictory ones. Your treaties are never automatically canceled or voided by game events. When something would normally force a treaty to cancel, you choose which obligation to honor and keep all your other treaties intact. Other players may still End Treaty with you."
+   "Masters of Duplicity: You may hold any number of Treaties at once with any number of players, even contradictory ones. Your Treaties are never automatically canceled or voided by game events. When something would normally force a Treaty to cancel, you choose which obligation to honor and keep all your other Treaties intact. Other players may still End Treaty with you."
   ],
   [
    "The Hall of Masks",
@@ -2099,15 +2124,15 @@
   ],
   [
    "The Smoldering Crown",
-   "Reckless: Your Cunning Envoys have Influence +2 when targeting a player with Public Order above 0. You begin the game with a Secret Cellar (no ward, no upkeep, always-active Mastery). You can't be in an Alliance and can't perform Diplomacy actions. A Prowess envoy you send can't fail \u2014 if it would be condemned, it passes instead."
+   "Reckless: Your Cunning Envoys have Influence +2 when targeting a player with Public Order above 0. You begin the game with a Secret Cellar (no Ward, no upkeep, always-active Mastery). You can't be in an Alliance and can't perform Diplomacy actions. A Prowess Envoy you send can't fail \u2014 if it would be condemned, it passes instead."
   ],
   [
    "The Squatters' Crown",
-   "Occupy: You start with an additional army; all your armies begin inside your settlements. While you're outside a settlement, you don't control it \u2014 to collect taxes or use its Pursuits, end your turn inside it. To Occupy a Settlement, begin a Battle adjacent to it as if Sieging, but instead Battle the Garrison and any Armies at War with you or sharing its owner; if you win (or there's no force to fight), move inside. In the Upkeep Phase, pay upkeep only on equipment. You count as having all Infrastructure of your Occupied Settlements, and always count as 3 Trading Pursuits. When you leave a Settlement, you can't re-enter it until you Occupy another Settlement and sign a Trade Agreement."
+   "Occupy: You start with an additional Army; all your Armies begin inside your Settlements. While you're outside a Settlement, you don't control it \u2014 to collect taxes or use its Pursuits, end your turn inside it. To Occupy a Settlement, begin a Battle adjacent to it as if Sieging, but instead Battle the Garrison and any Armies at War with you or sharing its owner; if you win (or there's no force to fight), move inside. In the Upkeep Phase, pay upkeep only on equipment. You count as having all Infrastructure of your Occupied Settlements, and always count as 3 Trading Pursuits. When you leave a Settlement, you can't re-enter it until you Occupy another Settlement and sign a Trade Agreement."
   ],
   [
    "The Wandering Crown",
-   "Wandering Nomads: Your armies function as settlements \u2014 a Band, Tribe, or Horde, upgraded accordingly \u2014 count as settlements with Reach 3, and each has a Muster Field. You may have one additional army per Era, starting with two. Your armies don't require troops to exist and can't be besieged. You can't build Infrastructure, but may build Pursuits; Raw Material pursuits within Reach are always active and take no settlement ward. You may trade so long as your border touches another player's. You may begin a new army adjacent to any existing army with a Charter Settlement or Muster Army action. When an army is destroyed, so is its settlement. Nomads pay no upkeep."
+   "Wandering Nomads: Your Armies function as Settlements \u2014 a Band, Tribe, or Horde, upgraded accordingly \u2014 count as Settlements with Reach 3, and each has a Muster Field. You may have one additional Army per Era, starting with two. Your Armies don't require troops to exist and can't be besieged. You can't build Infrastructure, but may build Pursuits; Raw Material Pursuits within Reach are always active and take no Settlement Ward. You may trade so long as your border touches another player's. You may begin a new Army adjacent to any existing Army with a Charter Settlement or Muster Army action. When an Army is destroyed, so is its Settlement. Nomads pay no upkeep."
   ],
   [
    "The Dukedom",
@@ -2115,11 +2140,11 @@
   ],
   [
    "The Elder Grove",
-   "Wise & Suspicious: Gain Doubt +1. While your Public Order is 1 or higher, your armies have +1 Initiative, Steady, and Speed +1. You can't be in an Alliance."
+   "Wise & Suspicious: Gain Doubt +1. While your Public Order is 1 or higher, your Armies have +1 Initiative, Steady, and Speed +1. You can't be in an Alliance."
   ],
   [
    "The Yew Heart",
-   "Archery is a Way of Life: You begin the game with a Fletchery (no ward, no upkeep, always-active Mastery that can't be deactivated). Your armies must always equip a ranged weapon, and Ranged Weapons have +1 to Strike. Your armies can't equip full plate or articulated gothic plate, can't use shields, and can't build a Preceptory of Knight's Templar."
+   "Archery is a Way of Life: You begin the game with a Fletchery (no Ward, no upkeep, always-active Mastery that can't be deactivated). Your Armies must always equip a ranged weapon, and Ranged Weapons have +1 to Strike. Your Armies can't equip full plate or articulated gothic plate, can't use shields, and can't build a Preceptory of Knight's Templar."
   ]
  ],
  "settlements": [
