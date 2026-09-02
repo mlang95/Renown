@@ -185,7 +185,7 @@ def set_update_fields(doc):
 
 
 
-def compact_toc_styles(doc, size=10):
+def compact_toc_styles(doc, size=9):
     """Make the compendium index fit one page: zero paragraph spacing on the TOC
     entry styles + a smaller font. Word/LibreOffice apply these named styles when
     they build the TOC field."""
@@ -198,7 +198,8 @@ def compact_toc_styles(doc, size=10):
         except Exception:
             continue
         pf = st.paragraph_format
-        pf.space_before = Pt(0); pf.space_after = Pt(0); pf.line_spacing = 1.0
+        pf.space_before = Pt(0); pf.space_after = Pt(0)
+        pf.line_spacing = Pt(size + 2)        # EXACT line height -> Word cannot use a taller default
         try:
             st.font.size = Pt(size); st.font.name = FONT
         except Exception:
