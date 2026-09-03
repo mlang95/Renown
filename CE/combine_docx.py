@@ -116,7 +116,7 @@ def _tag_heading_as_tc(p, flag):
     ol = pPr.find(W_OL) if pPr is not None else None
     if ol is None:
         return
-    level = int(ol.get(qn("w:val"))) + 1
+    level = int(ol.get(qn("w:val"))) + 3
     title = "".join(t.text or "" for t in p.findall(".//" + W_T)).replace('"', "'").strip()
     pPr.remove(ol)  # keep it out of the master TOC
     if not title:
@@ -128,6 +128,15 @@ def _tag_heading_as_tc(p, flag):
 
 
 # ── merge ────────────────────────────────────────────────────────────────────
+
+def _set_columns(sectPr, num, space=720):
+    cols = sectPr.find(qn("w:cols"))
+    if cols is None:
+        cols = OxmlElement("w:cols")
+        pgmar = sectPr.find(qn("w:pgMar"))
+        (pgmar.addnext(cols) if pgmar is not None else sectPr.append(cols))
+    cols.set(qn("w:num"), str(num)); cols.set(qn("w:space"), str(space)); cols.set(qn("w:equalWidth"), "1")
+
 def combine(rules_path, comp_path):
     A = Document(rules_path)
     B = Document(comp_path)
@@ -148,16 +157,20 @@ def combine(rules_path, comp_path):
         if c.tag == W_P:
             _tag_heading_as_tc(c, COMP_FLAG)
         ab.append(c)  # compendium body; its sectPr (if any) stays last
-    # Back-of-book compendium contents: page break + title + TOC, before the final sectPr.
-    tb = _toc_block("Compendium Contents", flag=COMP_FLAG, title_size=16)  # [title, toc, break]
-    back = [_page_break(), tb[1]]                                           # break, toc (title dropped)
+    # Back-of-book index in its OWN 2-column landscape section, TOC levels 3-4 (styled
+    # independently of the front TOC). A section break closes the 1-column compendium;
+    # the final sectPr (now 2 columns) governs the index, and starts it on a new page.
+    tb = _toc_block("Compendium Contents", levels="3-4", flag=COMP_FLAG, title_size=16)
     sect = ab.findall(W_SECT)
     if sect:
-        for el in back:
-            sect[-1].addprevious(el)
+        final = sect[-1]
+        closer = OxmlElement("w:p"); closer.append(OxmlElement("w:pPr"))
+        closer.find(W_PPR).append(deepcopy(final))   # copy of 1-col props -> ends compendium section
+        _set_columns(final, 2)                        # index section = 2 columns
+        final.addprevious(closer)
+        final.addprevious(tb[1])
     else:
-        for el in back:
-            ab.append(el)
+        ab.append(tb[1])
 
     # Master TOC (whole book) at the very front.
     for idx, el in enumerate(_toc_block("Contents", title_size=18)):
@@ -185,32 +198,34 @@ def set_update_fields(doc):
 
 
 
-def compact_toc_styles(doc, size=9):
-    """Make the compendium index fit one page: zero paragraph spacing on the TOC
-    entry styles + a smaller font. Word/LibreOffice apply these named styles when
-    they build the TOC field."""
+def style_toc(doc, size=10):
+    """Style ONLY the back-index entry styles (TOC 3/4): compact, EB Garamond, with a
+    right tab at the column's edge + dot leader so the page number sits next to the
+    text in the 2-column index. Front TOC (TOC 1/2) is left as Word's normal styling.
+    customStyle is stripped so Word applies these to its generated TOC output."""
     from docx.enum.style import WD_STYLE_TYPE
+    from docx.enum.text import WD_TAB_ALIGNMENT, WD_TAB_LEADER
+    from docx.shared import Inches
     existing = {st.name for st in doc.styles}
-    for lvl in range(1, 6):
+    for lvl in (3, 4):
         name = f"TOC {lvl}"
         try:
             st = doc.styles[name] if name in existing else doc.styles.add_style(name, WD_STYLE_TYPE.PARAGRAPH)
         except Exception:
             continue
+        cs = qn("w:customStyle")
+        if cs in st.element.attrib:
+            del st.element.attrib[cs]
         pf = st.paragraph_format
-        pf.space_before = Pt(0); pf.space_after = Pt(0)
-        pf.line_spacing = Pt(size + 2)        # EXACT line height -> Word cannot use a taller default
+        pf.space_before = Pt(0); pf.space_after = Pt(0); pf.line_spacing = 1.0
         try:
             st.font.size = Pt(size); st.font.name = FONT
         except Exception:
             pass
-        # CRITICAL: python-docx marks new styles customStyle="1"; Word then ignores
-        # them for TOC output and uses its own built-in TOC 1. Drop the flag so this
-        # definition overrides the built-in style Word applies to TOC entries.
-        cs = qn("w:customStyle")
-        if cs in st.element.attrib:
-            del st.element.attrib[cs]
-
+        try:
+            pf.tab_stops.add_tab_stop(Inches(4.6), WD_TAB_ALIGNMENT.RIGHT, WD_TAB_LEADER.DOTS)
+        except Exception:
+            pass
 
 if __name__ == "__main__":
     if len(sys.argv) < 4:
@@ -219,6 +234,6 @@ if __name__ == "__main__":
     doc = combine(sys.argv[1], sys.argv[2])
     add_footers(doc, version)
     set_update_fields(doc)
-    compact_toc_styles(doc)
+    style_toc(doc)
     doc.save(sys.argv[3])
     print(f"wrote {sys.argv[3]} (master TOC + compendium TOC via TC marks, footer Renown v{version})")
