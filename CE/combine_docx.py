@@ -137,6 +137,15 @@ def _set_columns(sectPr, num, space=720):
         (pgmar.addnext(cols) if pgmar is not None else sectPr.append(cols))
     cols.set(qn("w:num"), str(num)); cols.set(qn("w:space"), str(space)); cols.set(qn("w:equalWidth"), "1")
 
+
+def _set_sect_type(sectPr, val):
+    t = sectPr.find(qn("w:type"))
+    if t is None:
+        t = OxmlElement("w:type")
+        pgsz = sectPr.find(qn("w:pgSz"))
+        (pgsz.addprevious(t) if pgsz is not None else sectPr.insert(0, t))
+    t.set(qn("w:val"), val)
+
 def combine(rules_path, comp_path):
     A = Document(rules_path)
     B = Document(comp_path)
@@ -163,12 +172,21 @@ def combine(rules_path, comp_path):
     tb = _toc_block("Compendium Contents", levels="3-4", flag=COMP_FLAG, title_size=16)
     sect = ab.findall(W_SECT)
     if sect:
-        final = sect[-1]
+        final = sect[-1]                    # body sectPr (landscape, 1 col)
+        land = deepcopy(final)
+        # closer: ends the 1-column compendium section
         closer = OxmlElement("w:p"); closer.append(OxmlElement("w:pPr"))
-        closer.find(W_PPR).append(deepcopy(final))   # copy of 1-col props -> ends compendium section
-        _set_columns(final, 2)                        # index section = 2 columns
+        closer.find(W_PPR).append(deepcopy(land))
+        # balance: a 2-column section that TERMINATES the index -> Word balances the columns
+        # (an unterminated last section fills the first column instead). Starts on a new page.
+        bal = deepcopy(land); _set_columns(bal, 2); _set_sect_type(bal, "nextPage")
+        balance = OxmlElement("w:p"); balance.append(OxmlElement("w:pPr"))
+        balance.find(W_PPR).append(bal)
+        # body final sectPr -> empty 1-column trailing section, continuous (no extra page)
+        _set_columns(final, 1); _set_sect_type(final, "continuous")
         final.addprevious(closer)
         final.addprevious(tb[1])
+        final.addprevious(balance)
     else:
         ab.append(tb[1])
 
