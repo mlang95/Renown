@@ -204,6 +204,12 @@ def compact_toc_styles(doc, size=9):
             st.font.size = Pt(size); st.font.name = FONT
         except Exception:
             pass
+        # CRITICAL: python-docx marks new styles customStyle="1"; Word then ignores
+        # them for TOC output and uses its own built-in TOC 1. Drop the flag so this
+        # definition overrides the built-in style Word applies to TOC entries.
+        cs = qn("w:customStyle")
+        if cs in st.element.attrib:
+            del st.element.attrib[cs]
 
 
 if __name__ == "__main__":
