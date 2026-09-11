@@ -1,0 +1,106 @@
+Pursuits,Type,Unlock Requirement,Mastery Requirement,Innate Effects,Mastery Effect,Builds Into
+Quarry,Raw Materials,-,Masonry,"+300, **Natural**; Craft +1",**Efficient Masonry**,Masonry
+Salt Works,Raw Materials,-,Smokehouse,"+300, **Natural**; Craft +1",**Efficient Smokehouse**,"Smokehouse, Harbor, Reliquary, Levy Hall"
+Apiary,Raw Materials,-,Chandlery,"+300, **Natural**; Craft +1",**Efficient Chandlery**,"Chandlery, Alchemy, Vineyard, Orchard, Meadery"
+Peat Bog,Raw Materials,-,Alchemy,"+300, **Natural**; Craft +1",**Efficient Alchemy**,"Alchemy, Herb Garden, Vineyard, Orchard"
+Forestry,Raw Materials,-,Carpentry,"+300, **Natural**; Craft +1",**Efficient Carpentry**,"Carpentry, Fletchery, Kiln, Charcoal Burner"
+Fishmongery,Raw Materials,Water Settlement,Harbor,"+300, **Natural**; Craft +1",**Efficient Harbor**,Harbor
+Mine,Raw Materials,-,Blacksmith,"+300, **Natural**; Craft +1",**Efficient Furnace**,"Furnace, Blacksmith, Jewelry Foundry"
+Arable Land,Raw Materials,-,Granary,"+300, **Natural**; Craft +1",**Efficient Granary**,"Granary, Herb Garden, Animal Husbandry, Bakery, Vineyard, Orchard"
+Common Land,Raw Materials,-,Workyard,"+500, **Natural**, **Doubt 1**",**Efficient Workyard**,"Workyard, Burgages"
+Herb Garden,Husbandry,-,Arable Land or Peat Bog,"+200, **Natural**",**Efficient Hamlet**,"Apothecary, Spice Merchant"
+Animal Husbandry,Husbandry,-,Arable Land,"+100, **Natural**",300,"Saddlery, Tannery, Stable, Weavery, Butchery"
+Saddlery,Husbandry,-,Arable Land + Animal Husbandry + Stable,"+200, **Natural**",**Upkeep -200**,-
+Vineyard,Husbandry,-,Arable Land + Apiary or Peat Bog,**Natural**,+600 in **Fall**,Winery
+Orchard,Husbandry,-,Arable Land + Apiary or Peat Bog,**Natural**,+400 in **Fall**,"Meadery, Cidery"
+Carpentry,Craft,-,Forestry,**Build Timer −1**,100; Craft+1,"Joinery, Fletchery, Artisan Workshop, Trade Guild, Shipyard, Stable"
+Alchemy,Craft,-,Apiary or Peat Bog,100,100; Craft+1,"Academy, Infirmary, Toxicarium"
+Masonry,Craft,-,Quarry,**Build Timer −1**,100; Craft+1,"Courtyard, Episcopal Court, Trade Guild, Citadel"
+Butchery,Craft,-,Animal Husbandry + Tannery + Salt Works,300,**Upkeep -200**; Craft+1,Smokehouse
+Bakery,Craft,-,Arable Land + Windmill or Watermill,300; Faith 1,+100; Craft +2,-
+Weavery,Craft,-,Merchant Quarter + Animal Husbandry,300,300; Craft +2,Artisan Workshop
+Fletchery,Craft,-,Forestry + Carpentry,Unlocks **Ranged Weapons**,**Upkeep -200**,Tiltyard
+Chandlery,Craft,-,Apiary,200,**Influence −1** to Cunning actions targeting you; Craft +1,"Reliquary, Pilgrimage Site"
+Tannery,Craft,-,Animal Husbandry,**Unlocks Leather Armor**,**Upkeep -200**; Craft +1,"Butchery, Armory"
+Joinery,Craft,Rising Industry,Carpentry,"+200, unlocks **Shields**",**Upkeep -200**,"Winery, Meadery, Cidery"
+Furnace,Craft,-,Mine,Unlocks **Cast Weapons**,200,"Blacksmith, Jewelry Foundry"
+Blacksmith,Craft,Rising Industry,Furnace,200; Craft +1,"Unlocks **Wrought** Tier, **Efficient Furnace**","Forge, Armory, Stable, Siege Works, Supply Depot"
+Jewelry Foundry,Craft,-,Mine + Merchant Quarter + Furnace,200; Craft +2,+500; **Influence 2** to Cunning Envoys targeting this Player,-
+Armory,Craft,Rising Industry,Tannery + Blacksmith,**Unlock Chainmail**; Craft +1,"**Upkeep -200**, **Efficient Tannery**",Gilded Foundry
+Master Workshop,Craft,Established Industry,Forge + Blacksmith,**Upkeep -200**; Craft +1,Add **Serrated** to Weapons,Advanced Blast Furnaces
+Gilded Foundry,Craft,Established Industry, Armory + Blacksmith,Planishing: your to Save modifier cannot be reduced beyond 6+.; Craft +1,**Unlock Plate Armor**;,Advanced Blast Furnaces
+Smokehouse,Craft,-,Salt Works + Kiln + Butchery,300; Craft +1,"**Upkeep -200**, **Efficient Butchery**",Supply Depot
+Workyard,Craft,-,Common Land,"**Doubt 1**, +400",400,"Census Hall, Storehouse"
+Storehouse,Craft,Sovereign Industry,College of Engineering + Workyard + Shipyard,"**Doubt 2**, +600",**Build Timer −2**,-
+Meadery,Craft,-,Apiary + Inn,"**Efficient Apiary**, **Faith 1**, +300","+200, gain **Speed +1** in **Winter**",-
+Winery,Craft,-,Vineyard + Joinery,"**Efficient Vineyard**, +400",Craft +3,-
+Cidery,Craft,-,Orchard + Joinery + Inn,"**Efficient Orchard**, **Faith 1**, +300",300; Craft +1,-
+Market Square,Craft,Rising Industry,2 Raw Materials,Craft +2,"+400, **Efficient Courtyard**","Inn, Merchant Quarter, Spice Merchant, Census Hall, Thieves' Guild"
+Inn,Craft,-,Caravanery + Market Square,**Faith 1** for trading partners with Craft 3+,**Faith 1**,"Secret Cellar, Meadery, Cidery"
+Spice Merchant,Craft,-,Caravanery + Merchant Quarter + Herb Garden,+300; Influence +1 to Cunning Envoys targeting you,+500; Craft +2,-
+Harbor,Craft,Water Settlement,Fishmongery + Salt Works,+300; Craft +2,**Extort 200** per **player** without **Harbor**,Shipyard
+Merchant Quarter,Craft,Rising Industry,Craft 3 + Market Square,"+400, Efficient Market Square",Trade Partners gain Craft +1,"Money Lending, Court Artists, Spice Merchant, Jewelry Foundry, Weavery"
+Money Lending,Power,Established Industry,Merchant Quarter,**Extort 500**,Loan money to Trade Partners at 10%/turn interest; on Default: Perform **Demand Tribute**,"Court Artists, Aristocratic Court"
+Census Hall,Craft,-,Workyard + Market Square,**Doubt 1**; Craft +2,600,-
+Caravanery,Craft,-,Market Square or Merchant Quarter,**Influence ?1** to **Intercept Caravan actions** targeting your **settlements**,* Craft +2**,"Inn, Spice Merchant, Courier Network, Toll House"
+Stable,Civic,-,Animal Husbandry + Blacksmith or Carpentry,Armies **Speed +1**,"Armies **Speed +1**, **Efficient Animal Husbandry**; Unlocks Cavalry Weapons","Saddlery, Advanced Blast Furnaces"
+Shipyard,Craft,"Established Industry, Water Settlement",Carpentry + Harbor,+1 Trade Specialization,Craft +2; Water Territory treated as Grassland for movement,Storehouse
+Coliseum,Civic,Rising Prowess,Conditioning Field,**Faith 1** while At War,Unlocks **Man-at-Arms** for **Muster**,"War College, Tiltyard, Grand Tournament, Stable"
+Interrogation Chambers,Civic,Rising Piety,Episcopal Court,**Doubt 1** to anyone who performs a Cunning action targeting you,**Efficient Episcopal Court**,Execution Dock
+Abbey,Civic,Rising Piety,Episcopal Court + Academy,Once/turn: **Influence 1** another Player's Piety Envoy,"Shaken Tests are improved by 2, to a maximum of 2+.","Reliquary, Monastery"
+Reliquary,Civic,Rising Piety,Salt Works + Chandlery + Cathedral,**Efficient Abbey**,First **Doubt** per turn reduced by 1 (min 0),Pilgrimage Site
+Monastery,Power,Established Piety,Abbey,**Influence −1** to Piety actions targeting you,"Other players cannot Oppose your Piety Envoys, **Efficient Abbey**","Inquisitorial Palace, Preceptory of the Knight's Templar"
+Bell Tower,Civic,Established Piety,Episcopal Court,"**+1 Influence**/turn, **Efficient Courtyard**",**Influence 1** to Piety actions,Embassy
+Execution Dock,Civic,Established Piety,Interrogation Chambers,**Influence ?1** to **Foster Rebellion actions** targeting your **settlements**,**Players** who **target** you or your **settlements** with **actions** that cause **doubt** gain **Doubt 1**,"Inquisitorial Palace, Imperial Palace"
+Hospitaller,Civic,Established Piety,Apothecary + Infirmary,**Recover** improved by +1,**Recover** improved by +1,Preceptory of the Knight's Templar
+Jester's Court,Civic,1 Rising,Courtyard,First **Oppose** on your Envoy: reduce by 1,**Efficient Courtyard**,Embassy
+Embassy,Civic,1 Established,Bell Tower + Jester's Court,**Influence 1** to Diplomacy Envoys,**Efficient Jester's Court**,Senate Hall
+Granary,Civic,Rising Industry,Arable Land,200,Armies and Garrisons gain **Endurance** while Besieged,"Supply Depot, Citadel"
+Academy,Civic,-,Library + Alchemy,**Influence 1** to Council Envoys,**Influence 1** to non-Council Envoys,"University, Abbey, War College, Forgery Workshop, Toxicarium, College of Engineering"
+Courtyard,Civic,-,Masonry,200,**Faith 1**,"Conditioning Field, Jester's Court"
+Episcopal Court,Civic,Rising Piety,Masonry,**Faith 1**,200,"Interrogation Chambers, Abbey, Bell Tower"
+Conditioning Field,Civic,-,Courtyard,**Faith 1** while not at War,Armies gain **+1 Maximum Endurance**,"Coliseum, Grand Tournament"
+Grand Tournament,Civic,-,Coliseum + Conditioning Field,"**Faith 1**, **Efficient Coliseum**; Improve **Parry** by 1",3x/turn: exchange 500 gold for **1 Influence**; Armies gain **Riposte**,Royal Pavilion
+Apothecary,Civic,-,Herb Garden,300,"For every 4 casualties in a Skirmish, **Heal 1** at start of next Skirmish","Infirmary, Hospitaller"
+Infirmary,Civic,-,Alchemy + Herb Garden,**Efficient Apothecary**,Armies gain **Recover**; improve by +1 if already have,Hospitaller
+Supply Depot,Civic,-,Granary or Smokehouse,May **Muster** an Army in a Settlement under Siege,"**+2 Trade Specialization**, **Efficient Granary**",-
+Artisan Workshop,Civic,-,Carpentry + Arable Land + Weavery,"+400, **Faith 1**",200,-
+University,Power,-,Academy,"May spend one additional **Influence** per Support or Oppose, **Efficient Academy**",+1 **Influence** per Domain you are Rising,"Studium Generale, Ministry of Military Strategy, College of Engineering"
+Trade Guild,Civic,-,Masonry or Carpentry,No Upkeep on **Primitive Infrastructure**,No Upkeep on **Developed Infrastructure**,College of Engineering
+Court Artists,Civic,-,Merchant Quarter + Money Lending,**Extort 500**; **Faith 1**,**Extort 500**; Target of Extort gains **Faith 1**,Aristocratic Court
+Courier Network,Civic,-,Caravanery + Inn,Once/turn: **Influence −1** on Target Envoy,Once/turn: successfully Performed Personal Envoy can be Performed next turn; send 1 fewer Envoys next turn,"Toll House, Beacon Towers"
+Toll House,Civic,-,Caravanery + Courier Network,Once/turn when a non-allied Army ends a Move action within Province: Perform a Diplomacy action,**Extort 500** when non-Allied Army ends a Move action within Province,Beacon Towers
+College of Engineering,Power,Established Industry,Academy + Trade Guild,"No Upkeep on **Sophisticated Infrastructure**, **Efficient Trade Guild**",**Build Timer −2**,Storehouse
+Secret Cellar,Energy,Rising Cunning,Smuggler's Nook,**Efficient Inn**,Passed Cunning actions **Recoup 500 Gold**,"Smuggler's Nook, Forgery Workshop, Forgotten Catacombs, Thieves' Guild"
+Smuggler's Nook,Secrecy,Established Cunning,Secret Cellar + Inn,"-500, **Efficient Secret Cellar**",Bandit Camps in your Outlaw Country don't target you and target other players instead randomly; no Doubt 1 per Bandit Camp in Outlaw Country,Thieves' Guild
+Black Market,Secrecy,Established Cunning,Market Square + Smuggler's Nook,When another Player **Extorts** gold from any source: **Extort 200** from that Player at the end of that resolution.,When another Player **Recoups** gold from any source: **Extort 200** from that Player at the end of that resolution. **Efficient Market Square**.,
+Forgery Workshop,Power,Established Cunning,Academy + Secret Cellar,"-100, **Efficient Academy**",Once/turn: attempt another Cunning Envoy targeting a different Player if your Cunning Envoy Failed,Aristocratic Court
+Toxicarium,Secrecy,Rising Cunning,Academy + Alchemy,-100; Weapons have **Poison**,"All Endorsed Cunning actions give an additional **Doubt 1** to Target and **Extort 1000**, **Efficient Alchemy**",-
+Pilgrimage Site,Energy,Rising Piety,Reliquary + Chandlery,**Extort 200** every Player without a Pilgrimage Site,"**Doubt 1** to all other Players without a Pilgrimage Site, **Efficient Reliquary**",Preceptory of the Knight's Templar
+Beacon Towers,Energy,Rising Prowess,Courier Network + Toll House,**Efficient Toll House**,"If non-allied Army ends a Move action within any Controlled or Contested Territory, you may Perform a Move action",-
+Forgotten Catacombs,Secrecy,Rising Cunning,Secret Cellar,**Efficient Secret Cellar**,Cunning actions against you cannot be **Endorsed**,-
+Charcoal Burner,Energy,Rising Industry,Forestry + Kiln,300,**Efficient Forestry + Kiln**,-
+Windmill,Energy,Rising Industry,"Arable Land/Weavery/Forge/Carpentry, Land Settlement",300,**Efficient** Arable Land/Weavery/Forge/Carpentry,Bakery
+Watermill,Energy,Rising Industry,"Bakery/Weavery/Forge/Carpentry, Water Settlement",300,**Efficient** Bakery/Weavery/Forge/Carpentry,Bakery
+Kiln,Energy,Rising Industry,Forestry,200,**Efficient Forestry**,"Smokehouse, Charcoal Burner"
+Burgages,Energy,-,Common Land,400,"**Efficient Common Land**, **Faith 1**",-
+Levy Hall,Power,Rising Prowess,Keep + Salt Works,**Upkeep -200**,**Upkeep -300**,"War College, Ministry of Military Strategy"
+Siege Works,Power,Rising Prowess,Blacksmith,**Siege Timer −1**,**Siege Timer −1**; Sieges Increment in **Winter**,Siege Camp
+Siege Camp,Power,Established Prowess,Siege Works,**Siege Timer −1**,"Armies gain **Immune Strained** during Lay Siege, **Efficient Siege Works**",-
+Citadel,Power,Established Prowess,Masonry + Granary,"**Siege Timer +1**, **Efficient Granary**","**Siege Timer +1**, Controlled Settlements gain **Reach +1**",Imperial Palace
+War College,Power,Established Prowess,Levy Hall + Academy,Gain **+2 Influence** while At War,"Unlocks **Sergeants** for Muster, **Efficient Academy**",Ministry of Military Strategy
+Forge,Power,Established Industry,Blacksmith,300,"Unlocks **Forged** Tier, **Efficient Blacksmith**","Master Workshop, Gilded Foundry, Advanced Blast Furnaces"
+Tiltyard,Power,Established Prowess,Fletchery + Coliseum,Armies may be Equipped with a Ranged and Melee Weapon; all weapons gain **Unwieldy** when equipped with both,"Armies gain **Immune Unwieldy**, **Efficient Conditioning Field**",Royal Pavilion
+Royal Pavilion,Monument,Sovereign Prowess,Grand Tournament + Tiltyard,Armies gain **Immune Strained**,Armies gain **Drilled** & **Nimble**,-
+Imperial Palace,Monument,Sovereign Prowess,Citadel + Execution Dock,Gain **Immune Border Tension & Invasion**,Non-Military Alliance players that border you gain **Doubt 2**,-
+Ministry of Military Strategy,Monument,Sovereign Prowess,University + War College,"Always gains **Seize the Initiative**, and your opponent doesn't. Immune -1 to Strike from Tactics.","Gain +1I; your maximum initiative increases to 3. Riposte, Destroy Shield, Deadly, & Cleave also trigger on a natural 5.",-
+Thieves' Guild,Monument,Sovereign Cunning,Market Square + Smuggler's Nook + Secret Cellar,"Whenever another player performs a Cunning action, you may recoup 1000 gold",**Extort 25%** of Trade Income from players who don't trade with you,-
+Senate Hall,Monument,1 Sovereign,Embassy + Library + Town Hall,"**Faith 1**, gain **+1 Influence** per other Player per Turn",Once/turn: auto-**Condemn** an At War Envoy OR auto-**Endorse** an Ally's Envoy,-
+Inquisitorial Palace,Monument,Sovereign Piety,Execution Dock + Monastery,**Doubt 1**; Unlocks **Grand Vizier** which uses your **Public Order** instead of your **Cunning** value.,**Piety Value** acts as **Cunning Value** for Grand Vizier,-
+Preceptory of the Knight's Templar,Monument,Sovereign Piety + Established Prowess,Monastery + Pilgrimage Site + Hospitaller + Abbey,Armies gain **Immune Panic**,Unlocks **Knight's Templar** for Muster,-
+Manor House,Monument,Established Industry,Hamlet + Market Square,Gain +100 gold for each active natural specialization.,Gain +100 gold for each active energy specialization.,-
+Aristocratic Court,Monument,Sovereign Industry,Money Lending + Forgery Workshop + Court Artists,**Doubt 1**,Your Vote counts as 2 votes toward Domain selection during the Council Phase.,-
+Studium Generale,Monument,4 Established,University + Academy,+1 **Influence** per **Established** Standing,May gain one **Sovereign Domain** effect without spending the Domain Points,-
+Advanced Blast Furnace,Monument,Sovereign Industry,Gilded Foundry + Master Workshop + Blacksmith + Stable,"**Upkeep -200**; Your weapons gain -1 AP, incoming attack's AP is reduced by 1.","**Crafted** Tier Unlocked, **Efficient Forge**",-
+Cipher Chamber,Monument,Sovereign Cunning,University + Courier Network,"Once/turn when a Player Sends an Envoy: that Player must declare the specific Action they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action. **Efficient University**.",Once/turn: select any active **Timer** you did not select last turn; increase it by 1.,
+Outrider Intercept Post,Monument,Sovereign Cunning,Caravanery + Cipher Chamber,"In the first Skirmish of every Battle, your opponent plays their Tactic Card face up before you select your own.","Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own.",

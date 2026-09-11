@@ -1,0 +1,3104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Renown — Map Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --slate:#22262c; --panel:#2a2f37; --edge:#373d47;
+  --ink:#e9e5db; --dim:#959aa4; --sea:#4a748c; --sea-lit:#6d9cb8;
+  --warn:#c9743f;
+  --ui:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  background:var(--slate); color:var(--ink);
+  font:400 13px/1.5 var(--ui);
+  display:grid; grid-template-columns:314px 1fr; overflow:hidden;
+}
+/* ── rail ─────────────────────────────────────────────── */
+#rail{
+  background:var(--panel); border-right:1px solid var(--edge);
+  overflow-y:auto; padding:18px 18px 40px; scrollbar-width:thin;
+}
+#rail h1{
+  font:600 27px/1 "EB Garamond",Georgia,serif; margin:0 0 2px;
+  letter-spacing:.01em;
+}
+#rail h1 span{color:var(--dim); font-weight:400; font-style:italic}
+.sub{color:var(--dim); font-size:12px; margin:0 0 18px}
+fieldset{border:0;border-top:1px solid var(--edge);margin:16px 0 0;padding:12px 0 0}
+legend{
+  font:600 12px var(--ui); color:var(--dim); padding:0 8px 0 0;
+}
+label{display:block;margin:9px 0 0}
+.lb{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.lb b{font-weight:400}
+.lb i{font-style:normal;color:var(--sea-lit);font-variant-numeric:tabular-nums}
+select,input[type=text],input[type=number]{
+  width:100%; background:var(--slate); color:var(--ink);
+  border:1px solid var(--edge); border-radius:3px; padding:6px 7px;
+  font:400 13px var(--ui); margin-top:3px;
+}
+select:focus,input:focus,button:focus{outline:2px solid var(--sea-lit);outline-offset:1px}
+input[type=range]{width:100%;margin:5px 0 0;accent-color:var(--sea-lit)}
+.row{display:flex;gap:8px}
+.row>*{flex:1}
+button{
+  background:var(--sea); color:#0f1418; border:0; border-radius:3px;
+  padding:9px 10px; font:600 13px var(--ui); cursor:pointer; width:100%;
+}
+button:hover{background:var(--sea-lit)}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--edge)}
+button.ghost:hover{background:var(--edge)}
+.swatches{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.sw{display:flex;flex-direction:column;gap:3px;align-items:center;font-size:11px;color:var(--dim)}
+.sw input[type=color]{
+  width:100%;height:26px;padding:0;border:1px solid var(--edge);
+  border-radius:3px;background:none;cursor:pointer;
+}
+.lb input.num{
+  width:52px;background:var(--slate);color:var(--sea-lit);border:1px solid var(--edge);
+  border-radius:3px;padding:1px 4px;font:400 12px var(--ui);text-align:right;
+  font-variant-numeric:tabular-nums;margin:0;
+}
+.lb input.num::-webkit-outer-spin-button,.lb input.num::-webkit-inner-spin-button{
+  -webkit-appearance:none;margin:0}
+.lock{
+  display:flex;justify-content:flex-end;align-items:center;gap:6px;
+  font:400 11px var(--ui);color:var(--dim);cursor:pointer;
+  margin:-22px 0 2px;                 /* sits on the legend's line */
+}
+.lock input{accent-color:var(--sea-lit);width:13px;height:13px;margin:0;cursor:pointer}
+#terrainRef{margin-top:14px}
+#terrainRef summary{
+  cursor:pointer;color:var(--dim);font-size:12px;list-style:none;
+  padding:5px 0;border-top:1px solid var(--edge);
+}
+#terrainRef summary::-webkit-details-marker{display:none}
+#terrainRef summary:before{content:"▸ ";color:var(--sea-lit)}
+#terrainRef[open] summary:before{content:"▾ "}
+#terrainRef table{border-collapse:collapse;width:100%;margin-top:6px;font-size:11px}
+#terrainRef th{
+  text-align:left;color:var(--dim);font-weight:400;padding:4px 6px 4px 0;
+  border-bottom:1px solid var(--edge);
+}
+#terrainRef td{padding:5px 6px 5px 0;vertical-align:top;border-bottom:1px solid #ffffff0d}
+#terrainRef td:first-child{white-space:nowrap;color:var(--ink)}
+#terrainRef td i{
+  display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;
+  border:1px solid #0007;vertical-align:baseline;
+}
+#terrainRef .gl{color:var(--dim);font-size:11px;margin:8px 0 0}
+.tog{display:flex;align-items:center;gap:8px;margin:7px 0 0;cursor:pointer}
+.tog input{accent-color:var(--sea-lit);width:15px;height:15px;margin:0;cursor:pointer}
+#legend{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;margin-top:11px}
+#legend span{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim)}
+#legend i{width:10px;height:10px;border-radius:50%;border:1px solid #0007;flex:0 0 auto}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.chip{
+  border:1px solid var(--edge);background:var(--slate);color:var(--dim);
+  border-radius:3px;padding:4px 8px;font-size:11px;cursor:pointer;width:auto;
+}
+.chip:hover{color:var(--ink)}
+/* ── stage ────────────────────────────────────────────── */
+/* The board must always fit the stage — no scrolling to see a corner of it.
+   Every link in the flex chain needs min-height/min-width 0, or a flex item
+   refuses to shrink below its content and the SVG pushes the container taller
+   than the viewport. */
+#stage{display:flex;flex-direction:column;overflow:hidden;min-height:0;min-width:0}
+#board{flex:1;min-height:0;min-width:0;overflow:hidden;display:flex;padding:16px}
+/* The SVG takes the full box and letterboxes itself via preserveAspectRatio,
+   which is what lets a small board scale UP as well as down — max-width alone
+   only ever shrinks. */
+#boardwrap{flex:1;min-height:0;min-width:0}
+#boardwrap svg{display:block;width:100%;height:100%}
+#status{
+  border-top:1px solid var(--edge); background:var(--panel);
+  padding:9px 18px; font-size:12px; color:var(--dim);
+  display:flex; gap:20px; flex-wrap:wrap; align-items:baseline;
+}
+#status b{color:var(--ink);font-weight:400;font-variant-numeric:tabular-nums}
+#viol{color:var(--warn)}
+.note{color:var(--dim);font-size:11px;line-height:1.45;margin:8px 0 0}
+@media print{
+  body{display:block;background:#fff;overflow:visible}
+  #rail>*{display:none}
+  #rail{border:0;padding:0;background:#fff;color:#000;break-before:page}
+  #rail #terrainRef{display:block}
+  #terrainRef summary{display:none}
+  #terrainRef td,#terrainRef th{color:#000;border-color:#ccc}
+  #status{display:none}
+  #board{padding:0;display:block}
+  #board svg{width:100%;max-height:none}
+}
+@media (max-width:860px){
+  /* Stacked layout: the page scrolls, so give the board a definite height
+     instead of letting it collapse to nothing inside a flex column. */
+  body{grid-template-columns:1fr;grid-template-rows:auto auto;
+       height:auto;min-height:100%;overflow:auto}
+  #rail{border-right:0;border-bottom:1px solid var(--edge);order:2}
+  #stage{order:1;height:70vh}
+}
+</style>
+</head>
+<body>
+<div id="rail">
+  <h1>Renown <span>maps</span></h1>
+  <p class="sub">Regional board generator</p>
+
+  <label><span class="lb"><b>Region</b></span>
+    <select id="preset"></select></label>
+  <p class="note" id="blurb"></p>
+
+  <div class="row" style="margin-top:12px">
+    <label style="flex:2"><span class="lb"><b>Seed</b></span>
+      <input type="number" id="seed" value="7" min="0" step="1"></label>
+    <label style="flex:1;align-self:end"><button class="ghost" id="reroll">Reroll</button></label>
+  </div>
+
+  <fieldset><legend>Board</legend>
+    <label class="lock"><input type="checkbox" id="lockSize"> keep my size</label>
+    <label><span class="lb"><b>Players</b>
+      <input class="num" type="number" id="vPlayers" min="2" max="7" value="4"></span>
+      <input type="range" id="players" min="2" max="7" value="4"></label>
+    <label><span class="lb"><b>Width</b>
+      <input class="num" type="number" id="vW" min="10" max="80" value="26"></span>
+      <input type="range" id="width" min="14" max="48" value="26"></label>
+    <label><span class="lb"><b>Height</b>
+      <input class="num" type="number" id="vH" min="10" max="70" value="21"></span>
+      <input type="range" id="height" min="12" max="40" value="21"></label>
+    <p class="note">Player count resizes the board to suit it. Lock the size to
+      keep your own, or type any value — the boxes accept numbers past the
+      slider range.</p>
+  </fieldset>
+
+  <fieldset><legend>Terrain mix</legend><div id="shares"></div></fieldset>
+
+  <fieldset id="carveSet"><legend>Roads &amp; rivers</legend><div id="carve"></div></fieldset>
+
+  <fieldset><legend>Overlays</legend>
+    <label class="tog"><input type="checkbox" id="showRes"> Raw materials</label>
+    <label class="tog"><input type="checkbox" id="showSet"> Settlement sites</label>
+    <div id="legend" hidden></div>
+  </fieldset>
+
+  <fieldset><legend>Colours</legend>
+    <label class="lock"><input type="checkbox" id="lockColors"> keep my colours</label>
+    <div class="swatches" id="swatches"></div>
+    <div class="chips">
+      <button class="chip" data-pal="default">Default</button>
+      <button class="chip" data-pal="wastes">Draggath</button>
+      <button class="chip" data-pal="scarlet">Scarlet</button>
+      <button class="chip" data-pal="ink">Print</button>
+    </div>
+  </fieldset>
+
+  <fieldset><legend>Output</legend>
+    <label><button id="print">Print board</button></label>
+    <div class="row" style="margin-top:8px">
+      <button class="ghost" id="svg">Save SVG</button>
+      <button class="ghost" id="json">Save JSON</button>
+    </div>
+    <label style="margin-top:8px"><button class="ghost" id="openBtn">Open a saved board</button></label>
+    <input type="file" id="file" accept=".json,application/json" hidden>
+    <p class="note" id="importNote" hidden></p>
+    <p class="note">The JSON grid is the durable artifact — a seed only
+      reproduces a board against this exact build. Keep the grid if a
+      playtest needs to refer back to it.</p>
+  </fieldset>
+  <details id="terrainRef">
+    <summary>Terrain effects</summary>
+    <div id="terrainBody"></div>
+  </details>
+</div>
+
+<div id="stage">
+  <div id="board"><div id="boardwrap"></div></div>
+  <div id="status">
+    <span><b id="stPreset">—</b></span>
+    <span>hexes <b id="stHex">—</b></span>
+    <span>hills <b id="stHills">—</b></span>
+    <span id="stTerr"></span>
+    <span id="stRes"></span>
+    <span id="viol"></span>
+  </div>
+</div>
+
+<script>/* gen.js — Renown regional map generator, JS port.
+ *
+ * Port of mapgen_regional.py + the parts of mapgen.py it depends on.
+ * No DOM, no dependencies: runs in node for testing and in the browser for
+ * the app. The browser is the ONLY generator — Python renders what this
+ * emits — so there is no requirement to match CPython's Mersenne Twister.
+ * A seeded mulberry32 is enough, and it makes seeds reproducible here.
+ */
+(function (root) {
+'use strict';
+
+/* ── seeded rng ─────────────────────────────────────────────────────────── */
+function RNG(seed) {
+  let a = (seed >>> 0) || 1;
+  this._next = function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+RNG.prototype.random = function () { return this._next(); };
+RNG.prototype.randrange = function (n) { return Math.floor(this._next() * n); };
+RNG.prototype.randint = function (a, b) { return a + Math.floor(this._next() * (b - a + 1)); };
+RNG.prototype.uniform = function (a, b) { return a + this._next() * (b - a); };
+RNG.prototype.choice = function (arr) { return arr[this.randrange(arr.length)]; };
+RNG.prototype.sample = function (arr, k) {
+  const c = arr.slice();
+  for (let i = c.length - 1; i > 0; i--) {
+    const j = this.randrange(i + 1); const t = c[i]; c[i] = c[j]; c[j] = t;
+  }
+  return c.slice(0, Math.min(k, c.length));
+};
+RNG.prototype.choices = function (arr, w) {
+  let tot = 0; for (const x of w) tot += x;
+  let r = this._next() * tot;
+  for (let i = 0; i < arr.length; i++) { r -= w[i]; if (r <= 0) return arr[i]; }
+  return arr[arr.length - 1];
+};
+
+/* ── hex core (odd-q, flat-top) ─────────────────────────────────────────── */
+const EVEN = [[1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [0, 1]];
+const ODD  = [[1, 1], [1, 0], [0, -1], [-1, 0], [-1, 1], [0, 1]];
+const CUBE_DIRS = [[1, -1, 0], [1, 0, -1], [0, 1, -1],
+                   [-1, 1, 0], [-1, 0, 1], [0, -1, 1]];
+
+const key = (c, r) => c + ',' + r;
+function cube(c, r) { const x = c, z = r - ((c - (c & 1)) >> 1); return [x, -x - z, z]; }
+function offset(x, y, z) { return [x, z + Math.floor((x - (x & 1)) / 2)]; }
+function dist(a, b) {
+  const A = cube(a[0], a[1]), B = cube(b[0], b[1]);
+  return (Math.abs(A[0] - B[0]) + Math.abs(A[1] - B[1]) + Math.abs(A[2] - B[2])) / 2;
+}
+function nbrCoords(c, r) {
+  const d = (c % 2 === 0) ? EVEN : ODD;
+  return d.map(([dc, dr]) => [c + dc, r + dr]);
+}
+
+function HexMap(w, h, fill) {
+  this.width = w; this.height = h; this.cells = new Map();
+  for (let c = 0; c < w; c++) for (let r = 0; r < h; r++)
+    this.cells.set(key(c, r), { col: c, row: r, terrain: fill || 'plains',
+                                resource: null, region: null, tactical: null });
+}
+HexMap.prototype.inb = function (co) {
+  return co[0] >= 0 && co[0] < this.width && co[1] >= 0 && co[1] < this.height;
+};
+HexMap.prototype.get = function (co) { return this.cells.get(key(co[0], co[1])); };
+HexMap.prototype.all = function () { return Array.from(this.cells.values()); };
+HexMap.prototype.nbrs = function (co) {
+  const out = [];
+  for (const n of nbrCoords(co[0], co[1])) if (this.inb(n)) out.push(this.get(n));
+  return out;
+};
+HexMap.prototype.count = function (t) {
+  let n = 0; for (const h of this.cells.values()) if (h.terrain === t) n++; return n;
+};
+HexMap.prototype.within = function (co, rad) {
+  const out = [];
+  for (const h of this.cells.values())
+    if (dist(co, [h.col, h.row]) <= rad) out.push(h);
+  return out;
+};
+
+/* ── tables (from mapgen.py) ────────────────────────────────────────────── */
+const PARAMS = { width: 32, height: 26, players: 6, seed: 7,
+  settlement_range: 5, settlement_range_max: 7, first_settle_range: 4,
+  region_core: 2, cluster_cap: 30 };
+const MIN_NODE = 5, BIG_NODE = 16;
+const MARK_MIN = { forest: 12, wetland: 12, tundra: 5, plains: 5 };
+const RESOURCE_BY_TERRAIN = {
+  plains: ['arable', 'apiary'], forest: ['forestry', 'apiary'],
+  wetland: ['forestry'], tundra: ['quarry', 'salt'], mountain: ['mine', 'quarry'] };
+const RESOURCE_MIN = { mine: 3, quarry: 3, arable: 3, forestry: 3, apiary: 2, salt: 2 };
+const TOPUP_TERRAINS = { arable: ['plains'], apiary: ['plains', 'forest'],
+  forestry: ['forest', 'wetland'], salt: ['tundra'], quarry: ['tundra'], mine: [] };
+const MATERIAL_TERRAINS = ['forest', 'mountain', 'tundra', 'wetland', 'water'];
+const PASSABLE = ['plains', 'forest', 'wetland', 'tundra'];
+
+const LAYOUTS = {
+  1: [[0.5, 0.5]], 2: [[0.18, 0.5], [0.82, 0.5]],
+  3: [[0.18, 0.2], [0.82, 0.2], [0.5, 0.82]],
+  4: [[0.16, 0.18], [0.84, 0.18], [0.16, 0.82], [0.84, 0.82]],
+  5: [[0.16, 0.18], [0.84, 0.18], [0.16, 0.82], [0.84, 0.82], [0.5, 0.5]],
+  6: [[0.16, 0.2], [0.5, 0.16], [0.84, 0.2], [0.16, 0.8], [0.5, 0.84], [0.84, 0.8]],
+  7: [[0.16, 0.2], [0.5, 0.16], [0.84, 0.2], [0.16, 0.8], [0.5, 0.84], [0.84, 0.8], [0.5, 0.5]] };
+
+/* ── settlement placement (port of mapgen._place_regions) ───────────────── */
+function placeRegions(m, p, rng) {
+  const n = p.players;
+  const fracs = (LAYOUTS[n] || LAYOUTS[6]).slice(0, n);
+  const anchors = fracs.map(([fc, fr]) => {
+    let c = Math.floor(m.width * fc), r = Math.floor(m.height * fr);
+    c = Math.min(m.width - 3, Math.max(2, c + rng.randint(-1, 1)));
+    r = Math.min(m.height - 3, Math.max(2, r + rng.randint(-1, 1)));
+    return [c, r];
+  });
+  const SEP = p.settlement_range, SMAX = p.settlement_range_max,
+        FIRST = p.first_settle_range;
+  const buildable = (c) => m.inb(c) && ['water', 'mountain'].indexOf(m.get(c).terrain) < 0;
+  m.settlements = []; m.centers = [];
+
+  fracs.forEach(([fx, fy], rid) => {
+    const a = anchors[rid];
+    const corner = (Math.abs(fx - 0.5) < 0.12 || Math.abs(fy - 0.5) < 0.12) ? a
+      : [fx < 0.5 ? 0 : m.width - 1, fy < 0.5 ? 0 : m.height - 1];
+    const interior = m.within(corner, FIRST + 1)
+      .filter(h => m.nbrs([h.col, h.row]).length === 6).map(h => [h.col, h.row]);
+    let cap = corner;
+    if (interior.length) {
+      cap = interior.reduce((b, c) => dist(c, corner) < dist(b, corner) ? c : b);
+    }
+    [cap].concat(m.nbrs(cap).map(h => [h.col, h.row]))
+      .forEach(c => { m.get(c).terrain = 'plains'; });
+
+    const pick = (existing) => {
+      const cells = m.within(corner, FIRST + SMAX)
+        .map(h => [h.col, h.row])
+        .filter(c => buildable(c) && existing.every(o => {
+          const d = dist(c, o); return d >= SEP && d <= SMAX; }));
+      if (!cells.length) return null;
+      let best = null, bs = Infinity;
+      for (const c of cells) {
+        const s = dist(c, corner) + rng.random();
+        if (s < bs) { bs = s; best = c; }
+      }
+      return best;
+    };
+    let s2 = pick([cap]);
+    let s3 = s2 ? pick([cap, s2]) : null;
+    if (!s2) s2 = cap;
+    if (!s3) s3 = s2;
+    const settles = [cap, s2, s3];
+    for (const s of settles) {
+      const h = m.get(s);
+      if (h.terrain === 'water' || h.terrain === 'mountain') h.terrain = 'plains';
+      h.region = rid;
+    }
+    m.settlements.push(settles);
+    m.centers.push([Math.round((settles[0][0] + settles[1][0] + settles[2][0]) / 3),
+                    Math.round((settles[0][1] + settles[1][1] + settles[2][1]) / 3)]);
+    for (const s of settles)
+      for (const h of m.within(s, 1)) m.reserved.add(key(h.col, h.row));
+    for (const s of settles)
+      for (const h of m.within(s, p.region_core))
+        if (h.region === null && h.terrain !== 'water') h.region = rid;
+  });
+  return anchors;
+}
+
+/* ── components / spreading ─────────────────────────────────────────────── */
+function component(m, start, terrain, visited) {
+  const comp = [], stack = [[start.col, start.row]];
+  while (stack.length) {
+    const c = stack.pop(), k = key(c[0], c[1]);
+    if (visited.has(k)) continue;
+    const h = m.get(c);
+    if (!h || h.terrain !== terrain) continue;
+    visited.add(k); comp.push(c);
+    for (const nb of m.nbrs(c)) if (!visited.has(key(nb.col, nb.row))) stack.push([nb.col, nb.row]);
+  }
+  return comp;
+}
+function spreadPicks(comp, k) {
+  let best = comp[0], bs = Infinity;
+  for (const c of comp) { let s = 0; for (const x of comp) s += dist(c, x);
+    if (s < bs) { bs = s; best = c; } }
+  const picks = [best];
+  while (picks.length < k && picks.length < comp.length) {
+    let far = null, fs = -1;
+    for (const c of comp) {
+      let mn = Infinity; for (const q of picks) mn = Math.min(mn, dist(c, q));
+      if (mn > fs) { fs = mn; far = c; }
+    }
+    picks.push(far);
+  }
+  return picks;
+}
+
+/* ── borders ────────────────────────────────────────────────────────────── */
+function resolveBorders(spec, players, rng, w, h, mirror) {
+  const one = (v, length) => {
+    let wd, sp;
+    if (v && typeof v === 'object' && !Array.isArray(v)) {
+      wd = v.width === undefined ? 1 : v.width;
+      wd = Array.isArray(wd) ? rng.randint(wd[0], wd[1]) : wd;
+      sp = v.span === undefined ? 1 : v.span;
+      sp = Array.isArray(sp) ? rng.uniform(sp[0], sp[1]) : sp;
+    } else {
+      wd = Array.isArray(v) ? rng.randint(v[0], v[1]) : (v || 0);
+      sp = 1;
+    }
+    if (wd <= 0) return [0, 0, -1];
+    const run = Math.max(1, Math.round(sp * length));
+    const lo = rng.randint(0, Math.max(0, length - run));
+    return [wd, lo, lo + run - 1];
+  };
+  if (typeof spec === 'number') { const o = {}; for (const e of 'nsew') o[e] = spec; spec = o; }
+  spec = Object.assign({}, spec);
+  if (mirror === 'auto') mirror = players <= 2 ? 'ew' : ([4, 5].indexOf(players) >= 0 ? 'all' : 'ns');
+  const out = {};
+  if (mirror === 'all') { const v = one(spec.n || 0, w); for (const e of 'nsew') out[e] = v; return out; }
+  const pair = mirror === 'ns' ? ['n', 's'] : (mirror === 'ew' ? ['e', 'w'] : null);
+  if (pair) {
+    const v = one(spec[pair[0]] || 0, pair[0] === 'n' ? w : h);
+    out[pair[0]] = v; out[pair[1]] = v;
+  }
+  for (const e of 'nsew') if (!(e in out)) out[e] = one(spec[e] || 0, 'ns'.indexOf(e) >= 0 ? w : h);
+  return out;
+}
+function borderWater(m, edges) {
+  const g = (e) => edges[e] || [0, 0, -1];
+  const [wn, ln, hn] = g('n'), [ws, ls, hs] = g('s'), [ww, lw, hw] = g('w'), [we, le, he] = g('e');
+  for (const h of m.all()) {
+    if ((h.row < wn && h.col >= ln && h.col <= hn) ||
+        (m.height - 1 - h.row < ws && h.col >= ls && h.col <= hs) ||
+        (h.col < ww && h.row >= lw && h.row <= hw) ||
+        (m.width - 1 - h.col < we && h.row >= le && h.row <= he)) h.terrain = 'water';
+  }
+}
+
+/* ── primitives ─────────────────────────────────────────────────────────── */
+function pourSubstrate(m, terrain, skip) {
+  for (const h of m.all()) {
+    if (h.terrain === 'water' || skip.has(key(h.col, h.row))) continue;
+    h.terrain = terrain;
+  }
+}
+function carveClearing(m, centre, radius, terrain) {
+  terrain = terrain || 'plains';
+  for (const h of m.within(centre, radius)) {
+    if (h.terrain !== 'water' && h.terrain !== terrain) {
+      m.carved.add(key(h.col, h.row)); h.terrain = terrain;
+    }
+  }
+}
+function carveRoute(m, a, b, width, terrain, temp, rng) {
+  terrain = terrain || 'plains'; width = width || 1; temp = temp === undefined ? 0.8 : temp;
+  let cur = a, laid = 0;
+  const budget = 8 * dist(a, b) + 30;
+  for (let i = 0; i < budget; i++) {
+    const h = m.get(cur);
+    if (h && h.terrain !== 'water' && h.terrain !== terrain) {
+      m.carved.add(key(cur[0], cur[1])); h.terrain = terrain; laid++;
+    }
+    if (width > 1) for (const nb of m.nbrs(cur))
+      if (nb.terrain !== 'water' && nb.terrain !== terrain) {
+        m.carved.add(key(nb.col, nb.row)); nb.terrain = terrain; laid++;
+      }
+    if (cur[0] === b[0] && cur[1] === b[1]) break;
+    const ns = m.nbrs(cur).filter(n => n.terrain !== 'water').map(n => [n.col, n.row]);
+    if (!ns.length) break;
+    const d0 = dist(cur, b);
+    const ws = ns.map(c => Math.exp(-(dist(c, b) - d0) / Math.max(temp, 1e-3)));
+    cur = rng.choices(ns, ws);
+  }
+  return laid;
+}
+function routeNetwork(m, pts, extra, width, temp, rng) {
+  if (pts.length < 2) return;
+  const linked = [pts[0]]; const rest = pts.slice(1);
+  while (rest.length) {
+    let ba = null, bb = null, bd = Infinity, bi = -1;
+    linked.forEach(x => rest.forEach((y, j) => {
+      const d = dist(x, y); if (d < bd) { bd = d; ba = x; bb = y; bi = j; } }));
+    carveRoute(m, ba, bb, width, 'plains', temp, rng);
+    linked.push(bb); rest.splice(bi, 1);
+  }
+  const pairs = [];
+  for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++)
+    pairs.push([pts[i], pts[j], dist(pts[i], pts[j])]);
+  pairs.sort((x, y) => x[2] - y[2]);
+  for (let i = 0; i < Math.max(0, extra) && i < pairs.length; i++)
+    carveRoute(m, pairs[i][0], pairs[i][1], width, 'plains', temp, rng);
+}
+
+/* Rivers: heading momentum, loop cutting, thinning. Both ends off-map. */
+function carveRiver(m, count, rng, temp, turnP) {
+  temp = temp === undefined ? 1.0 : temp; turnP = turnP === undefined ? 0.38 : turnP;
+  const depth = (c) => Math.min(c[0], m.width - 1 - c[0], c[1], m.height - 1 - c[1]);
+  const inland = Math.max(2, Math.floor(Math.min(m.width, m.height) / 4));
+  const bw = m.borders || {};
+  const wet = new Set(['n', 's', 'e', 'w'].filter(e => (bw[e] || [0])[0] > 0));
+  const side = (c) => c[1] === 0 ? 'n' : (c[1] === m.height - 1 ? 's'
+    : (c[0] === 0 ? 'w' : (c[0] === m.width - 1 ? 'e' : null)));
+  const edges = m.all().filter(h => h.col === 0 || h.col === m.width - 1
+    || h.row === 0 || h.row === m.height - 1).map(h => [h.col, h.row]);
+  if (edges.length < 2) return 0;
+  const mouths = edges.concat(edges.filter(c => wet.has(side(c))));
+  let laid = 0;
+  for (let n = 0; n < count; n++) {
+    const a = rng.choice(mouths);
+    const far = edges.filter(c => dist(c, a) >= Math.floor(Math.max(m.width, m.height) / 2)
+      && depth([Math.floor((c[0] + a[0]) / 2), Math.floor((c[1] + a[1]) / 2)]) >= inland);
+    if (!far.length) continue;
+    const b = rng.choice(far);
+    let path = [a], cur = a, wentInland = false;
+    let heading = 0, bd = -1;
+    for (let d = 0; d < 6; d++) {
+      const o = offset(cube(a[0], a[1])[0] + CUBE_DIRS[d][0],
+                       cube(a[0], a[1])[1] + CUBE_DIRS[d][1],
+                       cube(a[0], a[1])[2] + CUBE_DIRS[d][2]);
+      if (depth(o) > bd) { bd = depth(o); heading = d; }
+    }
+    const budget = 8 * dist(a, b) + 30;
+    for (let i = 0; i < budget; i++) {
+      if (rng.random() < turnP) heading = (heading + (rng.random() < 0.5 ? 5 : 1)) % 6;
+      else if (rng.random() < (1 / Math.max(temp, 0.2)) * 0.10) {
+        let bh = heading, bs = Infinity;
+        for (const k of [-1, 0, 1]) {
+          const d2 = ((heading + k) % 6 + 6) % 6;
+          const cu = cube(cur[0], cur[1]);
+          const o = offset(cu[0] + CUBE_DIRS[d2][0], cu[1] + CUBE_DIRS[d2][1], cu[2] + CUBE_DIRS[d2][2]);
+          if (dist(o, b) < bs) { bs = dist(o, b); bh = d2; }
+        }
+        heading = bh;
+      }
+      const cu = cube(cur[0], cur[1]);
+      let nxt = offset(cu[0] + CUBE_DIRS[heading][0], cu[1] + CUBE_DIRS[heading][1],
+                       cu[2] + CUBE_DIRS[heading][2]);
+      if (!m.inb(nxt)) {
+        if (wentInland) break;
+        let ok = false;
+        for (const k of [1, -1, 2, -2, 3]) {
+          const h2 = ((heading + k) % 6 + 6) % 6;
+          const cand = offset(cu[0] + CUBE_DIRS[h2][0], cu[1] + CUBE_DIRS[h2][1], cu[2] + CUBE_DIRS[h2][2]);
+          if (m.inb(cand) && !path.some(q => q[0] === cand[0] && q[1] === cand[1])) {
+            heading = h2; nxt = cand; ok = true; break;
+          }
+        }
+        if (!ok) break;
+      }
+      const idx = path.findIndex(q => q[0] === nxt[0] && q[1] === nxt[1]);
+      if (idx >= 0) { path = path.slice(0, idx + 1); cur = nxt; continue; }
+      path.push(nxt); cur = nxt;
+      if (depth(cur) >= inland) wentInland = true;
+      if (cur[0] === b[0] && cur[1] === b[1] && wentInland) break;
+    }
+    for (let i = 1; i < path.length - 1;) {
+      if (dist(path[i - 1], path[i + 1]) <= 1) path.splice(i, 1); else i++;
+    }
+    for (const c of path) {
+      const h = m.get(c);
+      if (h && h.terrain !== 'water') { h.terrain = 'water'; laid++; }
+    }
+  }
+  return laid;
+}
+
+/* Flatten confluences: rivers are drawn as layers, so crossings bulge. */
+function thinWater(m, protect) {
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const h of m.all()) {
+      if (h.terrain !== 'water' || protect.has(key(h.col, h.row))) continue;
+      const wn = m.nbrs([h.col, h.row]).filter(n => n.terrain === 'water')
+        .map(n => [n.col, n.row]);
+      if (wn.length < 3) continue;
+      const seen = new Set(), stack = [wn[0]], me = key(h.col, h.row);
+      while (stack.length) {
+        const c = stack.pop(), k = key(c[0], c[1]);
+        if (seen.has(k) || k === me) continue;
+        if (m.get(c).terrain !== 'water') continue;
+        seen.add(k);
+        for (const nb of m.nbrs(c)) {
+          const k2 = key(nb.col, nb.row);
+          if (!seen.has(k2) && k2 !== me) stack.push([nb.col, nb.row]);
+        }
+      }
+      if (wn.every(w => seen.has(key(w[0], w[1])))) { h.terrain = 'plains'; changed = true; }
+    }
+  }
+}
+
+function carveMaze(m, count, rng, temp, junctionP) {
+  if (count <= 0) return 0;
+  const rim = m.all().filter(h => h.terrain !== 'water' &&
+    (m.nbrs([h.col, h.row]).some(n => n.terrain === 'water')
+      || h.col === 0 || h.col === m.width - 1 || h.row === 0 || h.row === m.height - 1))
+    .map(h => [h.col, h.row]);
+  if (rim.length < 2) return 0;
+  let junction = null;
+  if (rng.random() < junctionP) {
+    const mid = [Math.floor(m.width / 2), Math.floor(m.height / 2)];
+    const plains = m.all().filter(h => h.terrain === 'plains').map(h => [h.col, h.row]);
+    const inner = m.all().filter(h => h.terrain !== 'water' && h.terrain !== 'plains'
+      && dist([h.col, h.row], mid) <= Math.floor(Math.max(m.width, m.height) / 3))
+      .map(h => [h.col, h.row]);
+    if (inner.length) {
+      let best = null, bs = -Infinity;
+      for (const c of inner) {
+        let mn = 99; for (const q of plains) mn = Math.min(mn, dist(c, q));
+        const s = mn - 0.15 * dist(c, mid);
+        if (s > bs) { bs = s; best = c; }
+      }
+      junction = best;
+    }
+  }
+  let laid = 0; const used = [];
+  for (let i = 0; i < count; i++) {
+    let pool = rim.filter(c => used.every(u => dist(c, u) >= 6));
+    if (!pool.length) pool = rim;
+    const a = rng.choice(pool);
+    let b = null, bs = -Infinity;
+    for (const c of rim) {
+      const s = dist(c, a) - 3 * used.filter(u => dist(c, u) < 6).length;
+      if (s > bs) { bs = s; b = c; }
+    }
+    used.push(a, b);
+    if (junction) {
+      laid += carveRoute(m, a, junction, 1, 'plains', temp, rng);
+      laid += carveRoute(m, junction, b, 1, 'plains', temp, rng);
+    } else laid += carveRoute(m, a, b, 1, 'plains', temp, rng);
+  }
+  return laid;
+}
+
+function blob(m, seed, size, terrain, ok, buffers, substrate) {
+  if (!ok(m.get(seed)) || !clearPW(m, seed, terrain, new Set(), buffers, substrate)) return 0;
+  m.get(seed).terrain = terrain;
+  const filled = new Set([key(seed[0], seed[1])]);
+  const coords = [seed];
+  let placed = 1;
+  while (placed < size) {
+    const frontier = [];
+    const fset = new Set();
+    for (const c of coords) for (const nb of m.nbrs(c)) {
+      const k = key(nb.col, nb.row);
+      if (!filled.has(k) && !fset.has(k) && ok(nb)
+          && clearPW(m, [nb.col, nb.row], terrain, filled, buffers, substrate)) {
+        fset.add(k); frontier.push([nb.col, nb.row]);
+      }
+    }
+    if (!frontier.length) break;
+    let nxt = frontier[0], bd = Infinity;
+    for (const c of frontier) { const d = dist(seed, c); if (d < bd) { bd = d; nxt = c; } }
+    m.get(nxt).terrain = terrain; filled.add(key(nxt[0], nxt[1])); coords.push(nxt); placed++;
+  }
+  return placed;
+}
+function clearPW(m, coord, terrain, own, buffers, substrate) {
+  for (const nb of m.nbrs(coord)) {
+    const t = nb.terrain;
+    if (t === 'plains' || t === terrain || t === substrate || own.has(key(nb.col, nb.row))) continue;
+    if (buffers.has([terrain, t].sort().join('|'))) return false;
+  }
+  return true;
+}
+function stampBlobs(m, terrain, target, ok, buffers, substrate, rng, lo, hi) {
+  lo = lo || 9; hi = hi || 16;
+  let guard = 0;
+  while (m.count(terrain) < target && guard < 400) {
+    guard++;
+    const cands = m.all().filter(h => ok(h)
+      && clearPW(m, [h.col, h.row], terrain, new Set(), buffers, substrate))
+      .map(h => [h.col, h.row]);
+    if (!cands.length) break;
+    const existing = m.all().filter(h => h.terrain === terrain).map(h => [h.col, h.row]);
+    const sample = rng.sample(cands, Math.min(cands.length, 80));
+    let seed;
+    if (existing.length) {
+      let bs = -1;
+      for (const c of sample) {
+        let mn = Infinity; for (const e of existing) mn = Math.min(mn, dist(c, e));
+        if (mn > bs) { bs = mn; seed = c; }
+      }
+    } else seed = rng.choice(sample);
+    const want = Math.min(rng.randint(lo, hi), target - m.count(terrain));
+    blob(m, seed, Math.max(1, want), terrain, ok, buffers, substrate);
+  }
+}
+function stampBand(m, terrain, target, edge, thickFrac, jitter, ok, rng, span) {
+  /* `span` is the fraction of the cross axis a band covers, at a random
+     offset. At 1.0 a band reaches edge to edge and is a real wall — right for
+     Hermit's Row, whose ranges exist to be held at a narrows. Below 1.0 it is
+     a ridge with open ground at one or both ends. Two ridges may share an
+     across-position when their spans don't overlap, or partial bands could
+     never reach the share target. */
+  span = span === undefined ? 1.0 : span;
+  const vertical = (edge === 'e' || edge === 'w');
+  const across = vertical ? m.width : m.height;
+  const cross = vertical ? m.height : m.width;
+  const thick = Math.max(1, Math.round(thickFrac * across));
+  const used = []; let guard = 0;
+  while (m.count(terrain) < target && guard < 30) {
+    guard++;
+    const sp = Array.isArray(span) ? rng.uniform(span[0], span[1]) : span;
+    const run = Math.max(1, Math.round(Math.min(1, sp) * cross));
+    const start = rng.randint(0, Math.max(0, cross - run));
+    const cands = [];
+    for (let p = 2; p < across - 2; p++)
+      if (used.every(u => Math.abs(p - u[0]) >= thick + 2
+                       || start > u[2] || start + run < u[1])) cands.push(p);
+    if (!cands.length) break;
+    const pos = rng.choice(cands); used.push([pos, start, start + run]);
+    let centre = pos;
+    for (let k = start; k < start + run; k++) {
+      if (rng.random() < jitter) centre += (rng.random() < 0.5 ? -1 : 1);
+      centre = Math.max(1, Math.min(across - 2, centre));
+      for (let d = 0; d < thick; d++) {
+        const pp = centre + d - Math.floor(thick / 2);
+        const co = vertical ? [pp, k] : [k, pp];
+        const h = m.get(co);
+        if (h && ok(h)) h.terrain = terrain;
+      }
+    }
+  }
+}
+function stampScatter(m, terrain, count, lo, hi, minSep, ok, rng, chain, chainRange, widen) {
+  chain = chain || 0; chainRange = chainRange || 5; widen = widen || 0;
+  const seeds = []; let guard = 0;
+  while (seeds.length < count && guard < 3000) {
+    guard++;
+    const cands = m.all().filter(ok).map(h => [h.col, h.row]);
+    if (!cands.length) break;
+    const c = rng.choice(cands);
+    if (seeds.some(s => dist(c, s) < minSep)) continue;
+    seeds.push(c);
+    blob(m, c, rng.randint(lo, hi), terrain, ok, new Set(), terrain);
+  }
+  /* Join some peaks into short ridges. Each peak may be joined ONCE: without
+     that cap the spurs cascade transitively and a scatter meant to read as
+     broken country grows a 20-hex wall. */
+  if (chain > 0 && seeds.length > 1) {
+    const linked = new Set();
+    const kk = (c) => c[0] + ',' + c[1];
+    for (const a of seeds) {
+      if (linked.has(kk(a)) || rng.random() >= chain) continue;
+      const near = seeds.filter(b => kk(b) !== kk(a) && !linked.has(kk(b))
+        && dist(a, b) <= chainRange);
+      if (!near.length) continue;
+      let b = near[0], bd = Infinity;
+      for (const q of near) { const d = dist(a, q); if (d < bd) { bd = d; b = q; } }
+      linked.add(kk(a)); linked.add(kk(b));
+      let cur = a, g = 0;
+      while ((cur[0] !== b[0] || cur[1] !== b[1]) && g < 12) {
+        g++;
+        let step = null, sd = Infinity;
+        for (const n of m.nbrs(cur)) {
+          const d = dist([n.col, n.row], b);
+          if (d < sd) { sd = d; step = [n.col, n.row]; }
+        }
+        if (!step || dist(step, b) >= dist(cur, b)) break;
+        const h = m.get(step);
+        if (h && ok(h)) h.terrain = terrain;
+        if (widen && rng.random() < widen) {
+          for (const nb of m.nbrs(step)) { if (ok(nb)) { nb.terrain = terrain; break; } }
+        }
+        cur = step;
+      }
+    }
+  }
+  return seeds.length;
+}
+function stampMassif(m, terrain, count, lo, hi, minSep, bbox, keepout, ok, rng) {
+  /* Chunky bounded blocks. Any hex that would push the cluster's bounding box
+     past `bbox` is refused, so a massif stays a block rather than sprawling
+     into a range; `keepout` bars seeding near the board centre, where high
+     ground would cut the map in half. */
+  const mid = [Math.floor(m.width / 2), Math.floor(m.height / 2)];
+  const seeds = []; let guard = 0;
+  while (seeds.length < count && guard < 2000) {
+    guard++;
+    const cands = m.all().filter(h => ok(h) && dist([h.col, h.row], mid) >= keepout)
+      .map(h => [h.col, h.row]);
+    if (!cands.length) break;
+    const c = rng.choice(cands);
+    if (seeds.some(s => dist(c, s) < minSep)) continue;
+    seeds.push(c);
+    if (!ok(m.get(c))) continue;
+    m.get(c).terrain = terrain;
+    const filled = [c]; const fk = new Set([key(c[0], c[1])]);
+    const want = rng.randint(lo, hi);
+    while (filled.length < want) {
+      let loC = Infinity, hiC = -Infinity, loR = Infinity, hiR = -Infinity;
+      for (const f of filled) {
+        loC = Math.min(loC, f[0]); hiC = Math.max(hiC, f[0]);
+        loR = Math.min(loR, f[1]); hiR = Math.max(hiR, f[1]);
+      }
+      const frontier = []; const seen = new Set();
+      for (const f of filled) for (const nb of m.nbrs(f)) {
+        const k = key(nb.col, nb.row);
+        if (fk.has(k) || seen.has(k) || !ok(nb)) continue;
+        if (Math.max(hiC, nb.col) - Math.min(loC, nb.col) >= bbox) continue;
+        if (Math.max(hiR, nb.row) - Math.min(loR, nb.row) >= bbox) continue;
+        seen.add(k); frontier.push([nb.col, nb.row]);
+      }
+      if (!frontier.length) break;
+      let nxt = frontier[0], bd = Infinity;
+      for (const q of frontier) { const d = dist(c, q); if (d < bd) { bd = d; nxt = q; } }
+      m.get(nxt).terrain = terrain; fk.add(key(nxt[0], nxt[1])); filled.push(nxt);
+    }
+  }
+  return seeds.length;
+}
+
+function stampPerimeter(m, terrain, count, length, width, depth, ok, rng, jitter) {
+  /* Long thin ranges running PARALLEL to the nearest board edge and set back
+     from it, so they frame a region along its margins instead of crossing it. */
+  jitter = jitter === undefined ? 0.30 : jitter;
+  for (let i = 0; i < count; i++) {
+    const band = m.all().filter(h => ok(h) && (() => {
+      const d = Math.min(h.col, m.width - 1 - h.col, h.row, m.height - 1 - h.row);
+      return d >= depth[0] && d <= depth[1];
+    })()).map(h => [h.col, h.row]);
+    if (!band.length) break;
+    const start = rng.choice(band);
+    const dd = { w: start[0], e: m.width - 1 - start[0],
+                 n: start[1], s: m.height - 1 - start[1] };
+    let near = 'w'; for (const k of ['w', 'e', 'n', 's']) if (dd[k] < dd[near]) near = k;
+    const vertical = (near === 'w' || near === 'e');
+    const step = rng.random() < 0.5 ? -1 : 1;
+    const cur = start.slice();
+    const run = rng.randint(length[0], length[1]);
+    for (let t = 0; t < run; t++) {
+      const wdt = rng.randint(width[0], width[1]);
+      for (let k = 0; k < wdt; k++) {
+        const c = vertical ? [cur[0], cur[1] + k] : [cur[0] + k, cur[1]];
+        const h = m.get(c);
+        if (h && ok(h)) h.terrain = terrain;
+      }
+      if (vertical) { cur[1] += step; if (rng.random() < jitter) cur[0] += (rng.random() < 0.5 ? -1 : 1); }
+      else { cur[0] += step; if (rng.random() < jitter) cur[1] += (rng.random() < 0.5 ? -1 : 1); }
+      if (!m.inb(cur)) break;
+    }
+  }
+}
+
+function stampFringe(m, terrain, target, ok, rng, depth) {
+  depth = depth === undefined ? 3 : depth;
+  const cands = m.all().filter(ok);
+  const d = (h) => Math.min(h.col, m.width - 1 - h.col, h.row, m.height - 1 - h.row);
+  cands.sort((a, b) => d(a) - d(b));
+  let n = 0;
+  for (const h of cands) {
+    if (n >= target) break;
+    if (d(h) > depth && n >= target * 0.6) break;
+    h.terrain = terrain; n++;
+  }
+  return n;
+}
+
+/* ── islands (water substrate) ──────────────────────────────────────────── */
+function groupRegions(m, k) {
+  const ctrs = m.centers;
+  if (k >= ctrs.length) return m.settlements.map(st => st.slice());
+  const picks = [ctrs[0]];
+  while (picks.length < k) {
+    let far = null, fs = -1;
+    for (const c of ctrs) {
+      let mn = Infinity; for (const q of picks) mn = Math.min(mn, dist(c, q));
+      if (mn > fs) { fs = mn; far = c; }
+    }
+    picks.push(far);
+  }
+  const groups = picks.map(() => []);
+  m.settlements.forEach((st, i) => {
+    let bi = 0, bd = Infinity;
+    picks.forEach((p, j) => { const d = dist(m.centers[i], p); if (d < bd) { bd = d; bi = j; } });
+    groups[bi] = groups[bi].concat(st);
+  });
+  return groups.filter(g => g.length);
+}
+function liftIslands(m, groups, sizeRng, rng, islets, landTarget, gap) {
+  islets = islets || [0, 0]; landTarget = landTarget === undefined ? 0.55 : landTarget;
+  gap = gap || [2, 4];
+  let budget = Math.floor(landTarget * m.width * m.height) - m.count('plains');
+  for (const grp of groups) {
+    let want = Math.floor(rng.randint(sizeRng[0], sizeRng[1]) * Math.max(1, grp.length / 3));
+    want = Math.max(grp.length * 8, Math.min(want, Math.floor(budget / Math.max(1, groups.length))));
+    const filled = new Set(grp.map(c => key(c[0], c[1])));
+    const coords = grp.slice();
+    for (const c of grp) { const h = m.get(c); if (h && h.terrain === 'water') h.terrain = 'plains'; }
+    const anchor = grp[0];
+    for (const c of grp) {
+      let cur = c;
+      while (!(cur[0] === anchor[0] && cur[1] === anchor[1])) {
+        let nx = null, bd = Infinity;
+        for (const n of m.nbrs(cur)) { const d = dist([n.col, n.row], anchor);
+          if (d < bd) { bd = d; nx = [n.col, n.row]; } }
+        if (!nx || dist(nx, anchor) >= dist(cur, anchor)) break;
+        const h = m.get(nx); if (h.terrain === 'water') h.terrain = 'plains';
+        if (!filled.has(key(nx[0], nx[1]))) { filled.add(key(nx[0], nx[1])); coords.push(nx); }
+        cur = nx;
+      }
+    }
+    while (coords.length < want) {
+      const frontier = []; const fset = new Set();
+      for (const c of coords) for (const nb of m.nbrs(c)) {
+        const k = key(nb.col, nb.row);
+        if (!filled.has(k) && !fset.has(k) && nb.terrain === 'water') {
+          fset.add(k); frontier.push([nb.col, nb.row]);
+        }
+      }
+      if (!frontier.length) break;
+      let nxt = frontier[0], bs = Infinity;
+      for (const c of frontier) {
+        let mn = Infinity; for (const g of grp) mn = Math.min(mn, dist(c, g));
+        const s = mn + rng.random() * 2;
+        if (s < bs) { bs = s; nxt = c; }
+      }
+      m.get(nxt).terrain = 'plains'; filled.add(key(nxt[0], nxt[1])); coords.push(nxt);
+    }
+  }
+  const [nIslet, sz] = islets;
+  for (let i = 0; i < nIslet; i++) {
+    const land = m.all().filter(h => h.terrain !== 'water').map(h => [h.col, h.row]);
+    const open = m.all().filter(h => h.terrain === 'water'
+      && m.nbrs([h.col, h.row]).every(n => n.terrain === 'water')).map(h => [h.col, h.row]);
+    let cands = open.filter(c => {
+      let mn = 99; for (const l of land) mn = Math.min(mn, dist(c, l));
+      return mn >= gap[0] && mn <= gap[1];
+    });
+    if (!cands.length) cands = open;
+    if (!cands.length) break;
+    const seed = rng.choice(cands);
+    const filled = new Set([key(seed[0], seed[1])]); const coords = [seed];
+    m.get(seed).terrain = 'plains';
+    while (coords.length < sz) {
+      const frontier = []; const fset = new Set();
+      for (const c of coords) for (const nb of m.nbrs(c)) {
+        const k = key(nb.col, nb.row);
+        if (!fset.has(k) && nb.terrain === 'water') { fset.add(k); frontier.push([nb.col, nb.row]); }
+      }
+      if (!frontier.length) break;
+      let nxt = frontier[0], bs = Infinity;
+      for (const c of frontier) { const s = dist(c, seed) + rng.random(); if (s < bs) { bs = s; nxt = c; } }
+      m.get(nxt).terrain = 'plains'; filled.add(key(nxt[0], nxt[1])); coords.push(nxt);
+    }
+  }
+}
+
+/* ── housekeeping ───────────────────────────────────────────────────────── */
+function cullSmall(m, substrate, palette, exempt) {
+  for (const terrain of ['forest', 'wetland', 'tundra']) {
+    if (terrain === substrate || palette.indexOf(terrain) < 0 || exempt.indexOf(terrain) >= 0) continue;
+    const seen = new Set();
+    for (const h of m.all()) if (h.terrain === terrain && !seen.has(key(h.col, h.row))) {
+      const comp = component(m, h, terrain, seen);
+      if (comp.length < MIN_NODE) for (const c of comp) m.get(c).terrain = 'plains';
+    }
+  }
+}
+function capComponents(m, cap, substrate, palette, exempt) {
+  for (const terrain of ['forest', 'wetland', 'tundra']) {
+    if (terrain === substrate || palette.indexOf(terrain) < 0 || exempt.indexOf(terrain) >= 0) continue;
+    const seen = new Set();
+    for (const h of m.all()) if (h.terrain === terrain && !seen.has(key(h.col, h.row))) {
+      let comp = component(m, h, terrain, seen);
+      while (comp.length > cap) {
+        const peri = comp.filter(c => m.nbrs(c).some(n => n.terrain === 'plains'));
+        if (!peri.length) break;
+        let worst = peri[0], bs = -1;
+        for (const c of peri) {
+          const s = m.nbrs(c).filter(n => n.terrain === 'plains').length;
+          if (s > bs) { bs = s; worst = c; }
+        }
+        m.get(worst).terrain = 'plains';
+        comp = comp.filter(c => !(c[0] === worst[0] && c[1] === worst[1]));
+      }
+    }
+  }
+}
+function reachable(m, start, seaHop) {
+  seaHop = seaHop !== false;
+  const seen = new Set(), stack = [start];
+  while (stack.length) {
+    const c = stack.pop(), k = key(c[0], c[1]);
+    if (seen.has(k)) continue;
+    const h = m.get(c);
+    if (!h || PASSABLE.indexOf(h.terrain) < 0) continue;
+    seen.add(k);
+    for (const nb of m.nbrs(c)) {
+      if (seen.has(key(nb.col, nb.row))) continue;
+      if (PASSABLE.indexOf(nb.terrain) >= 0) stack.push([nb.col, nb.row]);
+      else if (seaHop && nb.terrain === 'water')
+        for (const far of m.nbrs([nb.col, nb.row]))
+          if (PASSABLE.indexOf(far.terrain) >= 0 && !seen.has(key(far.col, far.row)))
+            stack.push([far.col, far.row]);
+    }
+  }
+  return seen;
+}
+function ensureConnectivity(m, rng) {
+  const pts = [].concat.apply([], m.settlements);
+  if (!pts.length) return;
+  for (let g = 0; g < 20; g++) {
+    const reach = reachable(m, pts[0]);
+    const orphan = pts.find(s => !reach.has(key(s[0], s[1])));
+    if (!orphan) break;
+    let target = pts[0], bd = Infinity;
+    for (const k of reach) {
+      const c = k.split(',').map(Number);
+      const d = dist(orphan, c); if (d < bd) { bd = d; target = c; }
+    }
+    carveRoute(m, orphan, target, 1, 'plains', 0.8, rng);
+  }
+}
+function ensureRegionMaterial(m, p) {
+  /* forest/wetland/tundra grow as small patches; mountain is the LAST resort
+     and is placed as a single hex. Adding a terrain to a preset's palette to
+     dodge this case would put it on every map of that region, whereas the
+     shortfall usually hits one region on one seed. */
+  const order = ['forest', 'wetland', 'tundra', 'mountain']
+    .filter(t => p.palette.indexOf(t) >= 0 && t !== p.substrate);
+  const sub = p.substrate;
+  const look = (c) => m.carved.has(key(c[0], c[1])) ? sub : m.get(c).terrain;
+  for (const settles of m.settlements) {
+    const ring = new Set();
+    for (const s of settles) {
+      ring.add(key(s[0], s[1]));
+      for (const n of m.nbrs(s)) ring.add(key(n.col, n.row));
+    }
+    for (let it = 0; it < 6; it++) {
+      let best = settles[0], bn = -1;
+      for (const st of settles) {
+        const set = new Set();
+        for (const h of m.within(st, 2)) {
+          const t = look([h.col, h.row]);
+          if (MATERIAL_TERRANS_HAS(t)) set.add(t);
+        }
+        if (set.size > bn) { bn = set.size; best = st; }
+      }
+      const have = new Set();
+      for (const h of m.within(best, 2)) {
+        const t = look([h.col, h.row]);
+        if (MATERIAL_TERRANS_HAS(t)) have.add(t);
+      }
+      if (have.size >= 2) break;
+      const pick = order.find(t => !have.has(t));
+      if (!pick) break;
+      const spots = m.within(best, 2).filter(h => !ring.has(key(h.col, h.row))
+        && h.terrain === 'plains').map(h => [h.col, h.row]);
+      if (!spots.length) break;
+      let seed = spots[0], bd = -1;
+      for (const c of spots) { const d = dist(c, best); if (d > bd) { bd = d; seed = c; } }
+      const targets = pick === 'mountain'
+        ? [seed]
+        : [seed].concat(m.nbrs(seed).slice(0, 2).map(n => [n.col, n.row]));
+      for (const c of targets) {
+        const h = m.get(c);
+        if (h && h.terrain === 'plains' && !ring.has(key(c[0], c[1]))) h.terrain = pick;
+      }
+    }
+  }
+}
+function MATERIAL_TERRANS_HAS(t) { return MATERIAL_TERRAINS.indexOf(t) >= 0; }
+
+const HILL_SEP = 4;
+
+function markHills(m, minSep) {
+  /* Hills, thinned so no two sit within minSep of each other.
+
+     The raw rule — a plains hex ringed entirely by plains — measures how open
+     a map is, not where high ground is: 9% of plains on Lost Woods, 44% on
+     Hermit's Row, because any wide field is wall-to-wall "hill". Those are
+     plateaus. Candidates are scored by how deep inside their own open ground
+     they sit, the deepest is taken as that plateau's summit, and everything
+     within minSep of it is dropped. Sparse maps barely change; open ones
+     collapse to a handful of summits. */
+  minSep = minSep === undefined ? HILL_SEP : minSep;
+  for (const h of m.all()) h.tactical = null;
+  const cand = m.all().filter(h => {
+    const ns = m.nbrs([h.col, h.row]);
+    return h.terrain === 'plains' && ns.length === 6
+      && ns.every(n => n.terrain === 'plains');
+  }).map(h => [h.col, h.row]);
+  if (!cand.length) return;
+  if (minSep <= 1) { for (const c of cand) m.get(c).tactical = 'hill'; return; }
+
+  // one multi-source BFS from every obstruction gives all depths
+  const depth = new Map(); const dq = [];
+  for (const h of m.all()) if (h.terrain !== 'plains') {
+    depth.set(key(h.col, h.row), 0); dq.push([h.col, h.row]);
+  }
+  let qi = 0;
+  while (qi < dq.length) {
+    const c = dq[qi++]; const d = depth.get(key(c[0], c[1]));
+    for (const nb of m.nbrs(c)) {
+      const k = key(nb.col, nb.row);
+      if (!depth.has(k)) { depth.set(k, d + 1); dq.push([nb.col, nb.row]); }
+    }
+  }
+  const dep = (c) => depth.has(key(c[0], c[1])) ? depth.get(key(c[0], c[1])) : 99;
+  cand.sort((a, b) => (dep(b) - dep(a)) || (a[0] - b[0]) || (a[1] - b[1]));
+  const kept = [];
+  for (const c of cand) {
+    if (kept.every(k => dist(c, k) >= minSep)) {
+      kept.push(c); m.get(c).tactical = 'hill';
+    }
+  }
+}
+function resources(m, palette, resMin) {
+  for (const h of m.all()) h.resource = null;
+  for (const terrain of ['forest', 'wetland', 'tundra', 'plains']) {
+    if (palette.indexOf(terrain) < 0) continue;
+    const list = RESOURCE_BY_TERRAIN[terrain];
+    const prim = list[0], rest = list.slice(1);
+    const seen = new Set();
+    for (const h of m.all()) if (h.terrain === terrain && !seen.has(key(h.col, h.row))) {
+      const comp = component(m, h, terrain, seen);
+      if (comp.length < MARK_MIN[terrain]) continue;
+      const types = [prim].concat(comp.length >= BIG_NODE ? rest : []);
+      spreadPicks(comp, types.length).forEach((c, i) => { if (types[i]) m.get(c).resource = types[i]; });
+    }
+  }
+  if (palette.indexOf('mountain') >= 0) {
+    const seen = new Set();
+    for (const h of m.all()) if (h.terrain === 'mountain' && !seen.has(key(h.col, h.row))) {
+      const comp = component(m, h, 'mountain', seen);
+      if (comp.length < 3) continue;
+      const types = ['mine'].concat(comp.length >= BIG_NODE ? ['quarry'] : []);
+      spreadPicks(comp, types.length).forEach((c, i) => { if (types[i]) m.get(c).resource = types[i]; });
+    }
+  }
+  for (const res of Object.keys(resMin)) {
+    const need = resMin[res];
+    if (need <= 0) continue;
+    let have = m.all().filter(h => h.resource === res).length;
+    if (have >= need) continue;
+    let cands;
+    if (res === 'mine') cands = m.all().filter(h => h.terrain === 'mountain' && !h.resource);
+    else if (res === 'quarry') cands = m.all().filter(h =>
+      (h.terrain === 'tundra' || h.terrain === 'mountain') && !h.resource);
+    else {
+      const ts = TOPUP_TERRAINS[res].filter(t => palette.indexOf(t) >= 0);
+      cands = m.all().filter(h => ts.indexOf(h.terrain) >= 0 && !h.resource);
+    }
+    const existing = m.all().filter(h => h.resource === res).map(h => [h.col, h.row]);
+    cands = cands.map(h => [h.col, h.row]).sort((a, b) => {
+      const f = (c) => { let mn = 999; for (const e of existing) mn = Math.min(mn, dist(c, e)); return -mn; };
+      return f(a) - f(b);
+    });
+    for (const c of cands) { if (have >= need) break; m.get(c).resource = res; have++; }
+  }
+}
+
+/* ── validator ──────────────────────────────────────────────────────────── */
+function validate(m, p) {
+  const v = [];
+  const resMin = Object.assign({}, RESOURCE_MIN, p.resource_min || {});
+  m.settlements.forEach((settles, i) => {
+    const uniq = new Set(settles.map(s => key(s[0], s[1])));
+    if (uniq.size < 3) v.push(`region ${i}: only ${uniq.size} distinct settlements`);
+    for (const s of settles) {
+      const t = m.get(s).terrain;
+      if (t === 'water' || t === 'mountain') v.push(`region ${i}: settlement on ${t}`);
+    }
+  });
+  const sub = p.substrate;
+  const look = (c) => m.carved.has(key(c[0], c[1])) ? sub : m.get(c).terrain;
+  m.settlements.forEach((settles, i) => {
+    let best = 0;
+    for (const st of settles) {
+      const set = new Set();
+      for (const h of m.within(st, 2)) {
+        const t = look([h.col, h.row]);
+        if (MATERIAL_TERRANS_HAS(t)) set.add(t);
+      }
+      best = Math.max(best, set.size);
+    }
+    if (best < 2) v.push(`region ${i}: only ${best} material terrain(s) within range 2`);
+  });
+  if ((p.sea_crossing || 'base') === 'shipyard') {
+    m.settlements.forEach((settles, i) => {
+      const reach = reachable(m, settles[0]);
+      if (settles.some(s => !reach.has(key(s[0], s[1]))))
+        v.push(`region ${i}: own settlements not mutually reachable`);
+    });
+  } else {
+    const all = [].concat.apply([], m.settlements);
+    if (all.length) {
+      const reach = reachable(m, all[0]);
+      const orph = all.filter(s => !reach.has(key(s[0], s[1])));
+      if (orph.length) v.push(`${orph.length} settlement(s) unreachable from region 0`);
+    }
+    for (const h of m.all()) {
+      if (h.terrain !== 'water') continue;
+      const runs = m.nbrs([h.col, h.row]).filter(n => n.terrain === 'water').length;
+      if (runs >= 5 && h.col > 1 && h.col < m.width - 2 && h.row > 1 && h.row < m.height - 2) {
+        v.push('interior open water wider than a one-hex strait'); break;
+      }
+    }
+  }
+  if (p.require_hill && !m.all().some(h => h.tactical === 'hill')) v.push('no Hill on the board');
+  const have = {};
+  for (const h of m.all()) if (h.resource) have[h.resource] = (have[h.resource] || 0) + 1;
+  for (const r of Object.keys(resMin))
+    if (resMin[r] > 0 && (have[r] || 0) < resMin[r])
+      v.push(`resource ${r}: ${have[r] || 0}/${resMin[r]}`);
+  return v;
+}
+
+/* ── pipeline ───────────────────────────────────────────────────────────── */
+function build(p, seed) {
+  const rng = new RNG(seed);
+  const m = new HexMap(p.width, p.height, 'plains');
+  m.reserved = new Set(); m.carved = new Set();
+  const palette = p.palette, substrate = p.substrate;
+  const buffers = new Set((p.buffers || []).map(b => b.slice().sort().join('|')));
+  const tot = p.width * p.height;
+
+  m.borders = resolveBorders(p.border || 0, p.players, rng, p.width, p.height,
+                             p.border_mirror || 'ns');
+  borderWater(m, m.borders);
+  m.rim = new Set(m.all().filter(h => h.terrain === 'water').map(h => key(h.col, h.row)));
+
+  placeRegions(m, p, rng);
+  m.settlement_range = p.settlement_range;
+
+  const carve = p.carve || {};
+  if (substrate === 'water') {
+    pourSubstrate(m, 'water', m.reserved);
+    const k = carve.islands ? rng.randint(carve.islands[0], carve.islands[1]) : 3;
+    liftIslands(m, groupRegions(m, k), carve.island_size || [60, 90], rng,
+                carve.islets || [0, 0], carve.land_target === undefined ? 0.55 : carve.land_target,
+                carve.gap || [2, 4]);
+  } else if (substrate !== 'plains') {
+    pourSubstrate(m, substrate, m.reserved);
+    const cr = carve.clearing_radius === undefined ? 1 : carve.clearing_radius;
+    const w = carve.width || 1;
+    for (const st of m.settlements) for (const s of st) carveClearing(m, s, cr);
+    routeNetwork(m, m.centers.slice(), carve.routes || 0, w,
+                 carve.temp === undefined ? 0.8 : carve.temp, rng);
+    for (let i = 0; i < m.settlements.length; i++)
+      for (const s of m.settlements[i]) carveRoute(m, s, m.centers[i], 1, 'plains', 0.5, rng);
+    if (carve.mazes)
+      carveMaze(m, rng.randint(carve.mazes[0], carve.mazes[1]), rng,
+                carve.maze_temp === undefined ? 1.7 : carve.maze_temp,
+                carve.junction_p === undefined ? 0.5 : carve.junction_p);
+  }
+
+  if (carve.rivers && substrate !== 'water') {
+    carveRiver(m, rng.randint(carve.rivers[0], carve.rivers[1]), rng,
+               carve.river_temp === undefined ? 1.9 : carve.river_temp);
+    thinWater(m, m.rim);
+  }
+
+  const accentOver = substrate === 'water' ? 'plains' : substrate;
+  const free = (h) => h && h.terrain === accentOver && !m.reserved.has(key(h.col, h.row));
+
+  const shares = Object.entries(p.shares || {}).sort((a, b) => b[1] - a[1]);
+  for (const [terrain, share] of shares) {
+    if (palette.indexOf(terrain) < 0 || terrain === substrate) continue;
+    const target = Math.round(share * tot);
+    const morph = (p.morphology || {})[terrain] || 'blob';
+    if (morph === 'band') {
+      const b = (p.band || {})[terrain] || ['e', 0.10, 0.35];
+      stampBand(m, terrain, target, b[0], b[1], b[2], free, rng,
+                b.length > 3 ? b[3] : 1.0);
+    } else if (morph === 'channels') {
+      const b = (p.band || {})[terrain] || ['e', 0, 0.5];
+      stampBand(m, terrain, target, b[0], 1 / Math.max(m.width, m.height), b[2],
+                free, rng, b.length > 3 ? b[3] : 1.0);
+    } else if (morph === 'scatter') {
+      const s = (p.scatter || {})[terrain] || [12, 1, 3, 3];
+      stampScatter(m, terrain, s[0], s[1], s[2], s[3], free, rng,
+                   s[4] || 0, s[5] || 5, s[6] || 0);
+    } else if (morph === 'massif') {
+      const ms = (p.massif || {})[terrain] || [5, 8, 14, 7, 4, 6];
+      stampMassif(m, terrain, ms[0], ms[1], ms[2], ms[3], ms[4], ms[5], free, rng);
+    } else if (morph === 'perimeter') {
+      const pm = (p.perimeter || {})[terrain] || [4, [8, 16], [1, 2], [1, 6]];
+      stampPerimeter(m, terrain, pm[0], pm[1], pm[2], pm[3], free, rng);
+    } else if (morph === 'fringe') {
+      stampFringe(m, terrain, target, free, rng);
+    } else {
+      stampBlobs(m, terrain, target, free, buffers, substrate, rng);
+    }
+  }
+
+  const scattered = Object.keys(p.morphology || {}).filter(t => p.morphology[t] === 'scatter');
+  cullSmall(m, substrate, palette, scattered);
+  capComponents(m, p.cluster_cap, substrate, palette, scattered);
+
+  for (const st of m.settlements) for (const s of st) {
+    const h = m.get(s);
+    if (h.terrain === 'water' || h.terrain === 'mountain') h.terrain = 'plains';
+  }
+
+  if ((p.sea_crossing || 'base') !== 'shipyard') ensureConnectivity(m, rng);
+  else for (const st of m.settlements) {
+    const reach = reachable(m, st[0]);
+    for (const s of st.slice(1))
+      if (!reach.has(key(s[0], s[1]))) carveRoute(m, s, st[0], 1, 'plains', 0.6, rng);
+  }
+  ensureRegionMaterial(m, p);
+  markHills(m, p.hill_sep === undefined ? HILL_SEP : p.hill_sep);
+  resources(m, palette, Object.assign({}, RESOURCE_MIN, p.resource_min || {}));
+  return m;
+}
+
+function generateRegion(preset, over, attempts) {
+  attempts = attempts || 12;
+  const p = Object.assign({}, PARAMS, preset, over || {});
+  let best = null, bestV = null;
+  for (let k = 0; k < attempts; k++) {
+    const m = build(p, (p.seed + k * 1009) >>> 0);
+    const v = validate(m, p);
+    if (!v.length) return { map: m, params: p, violations: [] };
+    if (bestV === null || v.length < bestV.length) { best = m; bestV = v; }
+  }
+  return { map: best, params: p, violations: bestV };
+}
+
+/* ── export ─────────────────────────────────────────────────────────────── */
+const FORMAT_VERSION = 1, GENERATOR_VERSION = '0.1.0';
+const T2C = { plains: 'p', forest: 'f', wetland: 'w', tundra: 't', mountain: 'm', water: '~' };
+
+function exportMap(m, p, seed, violations) {
+  const terrain = [];
+  for (let c = 0; c < m.width; c++) {
+    let s = '';
+    for (let r = 0; r < m.height; r++) s += T2C[m.get([c, r]).terrain];
+    terrain.push(s);
+  }
+  const res = {}, reg = {};
+  for (const h of m.all()) {
+    if (h.resource) res[h.col + ',' + h.row] = h.resource;
+    if (h.region !== null) reg[h.col + ',' + h.row] = h.region;
+  }
+  const borders = {};
+  for (const k of Object.keys(m.borders || {})) borders[k] = m.borders[k].slice();
+  return { format: FORMAT_VERSION, generator: GENERATOR_VERSION,
+    preset: p.name || '?', seed: seed, width: m.width, height: m.height,
+    players: p.players, substrate: p.substrate, borders: borders,
+    terrain: terrain, resources: res, regions: reg,
+    settlements: m.settlements.map(r => r.map(s => s.slice())),
+    centers: m.centers.map(c => c.slice()),
+    settlement_range: m.settlement_range, art: p.art || {},
+    violations: violations || [] };
+}
+
+const C2T = {}; for (const k of Object.keys(T2C)) C2T[T2C[k]] = k;
+
+function importMap(data) {
+  /* Rebuild a board from an exported grid. The GRID is what is restored, not
+     the seed — a seed only reproduces a board against the build that made it,
+     so re-running the generator would quietly hand back a different map.
+     Hills are recomputed rather than stored, so they always agree with the
+     terrain they sit on. */
+  if (data.format !== FORMAT_VERSION)
+    throw new Error('unsupported map format ' + data.format);
+  const m = new HexMap(data.width, data.height, 'plains');
+  data.terrain.forEach((col, c) => {
+    for (let r = 0; r < col.length; r++) {
+      const t = C2T[col[r]];
+      if (!t) throw new Error('unknown terrain code ' + col[r]);
+      m.get([c, r]).terrain = t;
+    }
+  });
+  for (const k of Object.keys(data.resources || {})) {
+    const [c, r] = k.split(',').map(Number); m.get([c, r]).resource = data.resources[k];
+  }
+  for (const k of Object.keys(data.regions || {})) {
+    const [c, r] = k.split(',').map(Number); m.get([c, r]).region = data.regions[k];
+  }
+  m.settlements = (data.settlements || []).map(g => g.map(x => x.slice()));
+  m.centers = (data.centers || []).map(x => x.slice());
+  m.settlement_range = data.settlement_range;
+  m.borders = {};
+  for (const k of Object.keys(data.borders || {})) m.borders[k] = data.borders[k].slice();
+  markHills(m, data.hill_sep === undefined ? HILL_SEP : data.hill_sep);
+  return m;
+}
+
+root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
+  validate, markHills, PARAMS, RESOURCE_MIN, MATERIAL_TERRAINS };
+
+})(typeof module !== 'undefined' && module.exports ? module.exports : (typeof window !== 'undefined' ? window : globalThis));
+</script>
+<script>/* presets.js - GENERATED from region_presets.py. Do not hand-edit. */
+(function(root){root.RenownPresets={
+ "Bleak Highlands": {
+  "name": "Bleak Highlands",
+  "substrate": "plains",
+  "palette": [
+   "mountain",
+   "plains",
+   "tundra",
+   "water"
+  ],
+  "shares": {
+   "mountain": 0.3,
+   "tundra": 0.1
+  },
+  "morphology": {
+   "mountain": "scatter",
+   "tundra": "blob"
+  },
+  "buffers": [],
+  "band": {},
+  "scatter": {
+   "mountain": [
+    110,
+    1,
+    3,
+    3,
+    0.7,
+    5,
+    0.3
+   ]
+  },
+  "border": {
+   "n": 0,
+   "s": 0,
+   "e": {
+    "width": [
+     0,
+     1
+    ],
+    "span": [
+     0.2,
+     0.5
+    ]
+   },
+   "w": 0
+  },
+  "carve": null,
+  "require_hill": true,
+  "resource_min": {
+   "forestry": 0,
+   "apiary": 0,
+   "mine": 1
+  },
+  "art": {
+   "plains": "wastes",
+   "tundra": "badlands"
+  },
+  "notes": "Herding clans under a chief \u2014 the line Vogen reached in 1136 and got no further. Broken country rather than a wall: peaks stand alone or join in short ridges, occasionally two hexes thick. Every route exists and none is fast, so an army bleeds tempo everywhere instead of being stopped in one pass. No forest, so forestry is unavailable.",
+  "massif": {},
+  "perimeter": {}
+ },
+ "Blighthold": {
+  "name": "Blighthold",
+  "substrate": "plains",
+  "palette": [
+   "forest",
+   "mountain",
+   "plains",
+   "tundra",
+   "water"
+  ],
+  "shares": {
+   "mountain": 0.2,
+   "tundra": 0.12,
+   "forest": 0.1
+  },
+  "morphology": {
+   "mountain": "massif",
+   "tundra": "blob",
+   "forest": "scatter"
+  },
+  "buffers": [],
+  "band": {},
+  "scatter": {
+   "forest": [
+    35,
+    1,
+    2,
+    2
+   ]
+  },
+  "border": {
+   "n": 0,
+   "s": 0,
+   "w": 0,
+   "e": {
+    "width": [
+     0,
+     1
+    ],
+    "span": [
+     0.2,
+     0.5
+    ]
+   }
+  },
+  "carve": null,
+  "require_hill": true,
+  "resource_min": {
+   "mine": 4,
+   "quarry": 3
+  },
+  "art": {},
+  "notes": "The heath they grew crops through the Blight. A handful of chunky massifs set away from the centre \u2014 high ground that frames the worked land instead of cutting it in half.",
+  "massif": {
+   "mountain": [
+    12,
+    10,
+    16,
+    6,
+    4,
+    6
+   ]
+  },
+  "perimeter": {}
+ },
+ "Coloured Mountains": {
+  "name": "Coloured Mountains",
+  "substrate": "mountain",
+  "palette": [
+   "forest",
+   "mountain",
+   "plains",
+   "tundra",
+   "water"
+  ],
+  "shares": {
+   "tundra": 0.16,
+   "forest": 0.14
+  },
+  "morphology": {
+   "tundra": "blob",
+   "forest": "scatter"
+  },
+  "buffers": [],
+  "band": {},
+  "scatter": {
+   "forest": [
+    45,
+    1,
+    3,
+    2
+   ]
+  },
+  "border": {
+   "n": 0,
+   "s": 0,
+   "w": {
+    "width": [
+     0,
+     1
+    ],
+    "span": [
+     0.2,
+     0.5
+    ]
+   },
+   "e": 0
+  },
+  "carve": {
+   "routes": 2,
+   "width": 1,
+   "clearing_radius": 1,
+   "temp": 0.9,
+   "mazes": [
+    2,
+    3
+   ],
+   "maze_temp": 1.1,
+   "junction_p": 0.4,
+   "connect": "spanning"
+  },
+  "require_hill": false,
+  "resource_min": {
+   "mine": 5,
+   "quarry": 4,
+   "arable": 1,
+   "salt": 1
+  },
+  "art": {},
+  "notes": "The ancient continent. Wider valleys than Crag Pass \u2014 this is where a people farmed, not a labyrinth.",
+  "massif": {},
+  "perimeter": {}
+ },
+ "Crag Pass": {
+  "name": "Crag Pass",
+  "substrate": "mountain",
+  "palette": [
+   "forest",
+   "mountain",
+   "plains",
+   "water"
+  ],
+  "shares": {
+   "forest": 0.14
+  },
+  "morphology": {
+   "forest": "blob"
+  },
+  "buffers": [],
+  "band": {},
+  "scatter": {},
+  "border": 0,
+  "carve": {
+   "routes": 0,
+   "width": 1,
+   "clearing_radius": 1,
+   "temp": 1.3,
+   "mazes": [
+    2,
+    3
+   ],
+   "maze_temp": 1.3,
+   "junction_p": 0.6,
+   "connect": "spanning"
+  },
+  "require_hill": false,
+  "resource_min": {
+   "salt": 0,
+   "arable": 1,
+   "forestry": 1,
+   "apiary": 0,
+   "quarry": 1,
+   "mine": 2
+  },
+  "art": {},
+  "notes": "Labyrinth. Everything is impassable except the carved network. Chokepoint warfare; movement is the whole game.",
+  "massif": {},
+  "perimeter": {}
+ },
+ "Default": {
+  "name": "Default",
+  "substrate": "plains",
+  "palette": [
+   "forest",
+   "mountain",
+   "plains",
+   "tundra",
+   "water",
+   "wetland"
+  ],
+  "shares": {
+   "forest": 0.18,
+   "wetland": 0.18,
+   "tundra": 0.08,
+   "mountain": 0.08
+  },
+  "morphology": {
+   "forest": "blob",
+   "wetland": "blob",
+   "tundra": "blob",
+   "mountain": "band"
+  },
+  "buffers": [
+   [
+    "forest",
+    "wetland"
+   ],
+   [
+    "forest",
+    "tundra"
+   ],
+   [
+    "wetland",
+    "tundra"
+   ]
+  ],
+  "band": {},
+  "scatter": {},
+  "border": {
+   "n": 0,
+   "s": 0,
+   "e": {
+    "width": [
+     0,
+     1
+    ],
+    "span": [
+     0.3,
+     0.7
+    ]
+   },
+   "w": {
+    "width": [
+     0,
+     1
+    ],
+    "span": [
+     0.3,
+     0.7
+    ]
+   }
+  },
+  "carve": null,
+  "require_hill": true,
+  "resource_min": {},
+  "art": {},
+  "notes": "Terrain stays out of the way. Baseline.",
+  "massif": {},
+  "perimeter": {}
+ },
+ "Draggath Wastes": {
+  "name": "Draggath Wastes",
+  "substrate": "plains",
+  "palette": [
+   "mountain",
+   "plains",
+   "tundra",
+   "water"
+  ],
+  "shares": {
+   "tundra": 0.42,
+   "mountain": 0.12
+  },
+  "morphology": {
+   "tundra": "blob",
+   "mountain": "scatter"
+  },
+  "buffers": [],
+  "band": {},
+  "scatter": {
+   "mountain": [
+    55,
+    1,
+    3,
+    3
+   ]
+  },
+  "border": {
+   "n": 0,
+   "s": 0,
+   "w": {
+    "width": [
+     0,
+     1
+    ],
+    "span": [
+     0.2,
+     0.5
+    ]
+   },
+   "e": 0
+  },
+  "carve": {
+   "rivers": [
+    1,
+    2
+   ],
+   "river_temp": 1.0
+  },
+  "require_hill": true,
+  "resource_min": {
+   "forestry": 0,
+   "apiary": 0
+  },
+  "art": {
+   "plains": "wastes",
+   "tundra": "badlands"
+  },
+  "notes": "Badlands. Tundra painted as salted earth. Strained everywhere; arable is scarce and contested \u2014 recursive scarcity.",
+  "massif": {},
+  "perimeter": {}
+ },
+ "Drakenheart": {
+  "name": "Drakenheart",
+  "substrate": "plains",
+  "palette": [
+   "forest",
+   "mountain",
+   "plains",
+   "tundra",
+   "water"
+  ],
+  "shares": {
+   "water": 0.22,
+   "mountain": 0.22,
+   "forest": 0.08,
+   "tundra": 0.06
+  },
+  "morphology": {
+   "water": "channels",
+   "mountain": "scatter",
+   "forest": "scatter",
+   "tundra": "blob"
+  },
+  "buffers": [],
+  "band": {
+   "water": [
+    "e",
+    0.0,
+    0.6
+   ]
+  },
+  "scatter": {
+   "mountain": [
+    70,
+    1,
+    4,
+    3
+   ],
+   "forest": [
+    35,
+    1,
+    2,
+    2
+   ]
+  },
+  "border": {
+   "n": {
+    "width": [
+     1,
+     2
+    ],
+    "span": [
+     0.6,
+     1.0
+    ]
+   },
+   "s": {
+    "width": [
+     1,
+     2
+    ],
+    "span": [
+     0.6,
+     1.0
+    ]
+   },
+   "w": {
+    "width": [
+     1,
+     2
+    ],
+    "span": [
+     0.5,
+     1.0
+    ]
+   },
+   "e": {
+    "width": [
+     1,
+     2
+    ],
+    "span": [
+     0.5,
+     1.0
+    ]
+   }
+  },
+  "carve": null,
+  "require_hill": true,
+  "resource_min": {
+   "mine": 3,
+   "salt": 0
+  },
+  "art": {},
+  "notes": "Drakteni seat. Land is the scarce resource and the engine of everything they do \u2014 heavily channelled, mine-rich. Straits stay one hex so expansion is possible without a Shipyard, but every crossing ends your Move.",
+  "massif": {},
+  "perimeter": {}
+ },
+ "Dreadwood": {
+  "name": "Dreadwood",
+  "substrate": "forest",
+  "palette": [
+   "forest",
+   "plains",
+   "water",
+   "wetland"
+  ],
+  "shares": {
+   "wetland": 0.1
+  },
+  "morphology": {
+   "wetland": "blob"
+  },
+  "buffers": [],
+  "band": {},
+  "scatter": {},
+  "border": {
+   "n": 0,
+   "s": 0,
+   "w": {
+    "width": 1,
+    "span": [
+     0.3,
+     0.6
+    ]
+   },
+   "e": 0
+  },
+  "carve": {
+   "routes": 1,
+   "width": 1,
+   "clearing_radius": 1,
+   "temp": 0.9,
+   "mazes": [
+    2,
+    3
+   ],
+   "maze_temp": 1.1,
+   "junction_p": 0.5,
+   "connect": "spanning"
+  },
+  "require_hill": false,
+  "resource_min": {
+   "quarry": 0,
+   "salt": 0,
+   "mine": 0,
+   "arable": 1
+  },
+  "art": {},
+  "notes": "Ithiss heartland. Woodland matrix; settlements sit in clearings linked by narrow grass passages. No tundra, no mountain: quarry/salt/mine are unavailable by design.",
+  "massif": {},
+  "perimeter": {}
+ },
+ "Fair Whitewood": {
+  "name": "Fair Whitewood",
+  "substrate": "tundra",
+  "palette": [
+   "forest",
+   "mountain",
+   "plains",
+   "tundra",
+   "water"
+  ],
+  "shares": {
+   "forest": 0.24,
+   "mountain": 0.16
+  },
+  "morphology": {
+   "forest": "blob",
+   "mountain": "band"
+  },
+  "buffers": [],
+  "band": {
+   "mountain": [
+    "w",
+    0.16,
+    0.4,
+    [
+     0.35,
+     0.6
+    ]
+   ]
+  },
+  "scatter": {},
+  "border": {
+   "n": {
+    "width": [
+     0,
+     1
+    ],
+    "span": [
+     0.3,
+     0.6
+    ]
+   },
+   "s": {
+    "width": [
+     0,
+     1
+    ],
+    "span": [
+     0.3,
+     0.6
+    ]
+   },
+   "w": 0,
+   "e": 0
+  },
+  "carve": {
+   "routes": 2,
+   "width": 1,
+   "clearing_radius": 1,
+   "temp": 0.8,
+   "connect": "spanning"
+  },
+  "require_hill": false,
+  "resource_min": {
+   "arable": 1,
+   "apiary": 0,
+   "quarry": 3,
+   "salt": 2
+  },
+  "art": {},
+  "notes": "Madekite. Wintery forested mountain pass. Ridges run part-way down the map rather than sealing it, so the passes are between the ranges instead of through them. Strained is the default condition; quarry-rich, arable-poor.",
+  "massif": {},
+  "perimeter": {}
+ },
+ "Glen of Pravak": {
+  "name": "Glen of Pravak",
+  "substrate": "plains",
+  "palette": [
+   "forest",
+   "mountain",
+   "plains",
+   "tundra",
+   "water"
+  ],
+  "shares": {
+   "mountain": 0.3,
+   "tundra": 0.1,
+   "forest": 0.14
+  },
+  "morphology": {
+   "mountain": "fringe",
+   "tundra": "blob",
+   "forest": "scatter"
+  },
+  "buffers": [],
+  "band": {},
+  "scatter": {
+   "forest": [
+    60,
+    1,
+    2,
+    2
+   ]
+  },
+  "border": 0,
+  "carve": null,
+  "require_hill": true,
+  "resource_min": {
+   "salt": 0,
+   "forestry": 1
+  },
+  "art": {},
+  "notes": "A glen ringed by rock. Mountains on the rim, tillable centre. Positional strategy: every approach is known ground.",
+  "massif": {},
+  "perimeter": {}
+ },
+ "Hermit's Row": {
+  "name": "Hermit's Row",
+  "substrate": "plains",
+  "palette": [
+   "mountain",
+   "plains",
+   "tundra",
+   "water"
+  ],
+  "shares": {
+   "mountain": 0.24,
+   "tundra": 0.12
+  },
+  "morphology": {
+   "mountain": "band",
+   "tundra": "blob"
+  },
+  "buffers": [],
+  "band": {
+   "mountain": [
+    "w",
+    0.1,
+    0.5
+   ]
+  },
+  "scatter": {},
+  "border": {
+   "n": 0,
+   "s": 0,
+   "e": {
+    "width": [
+     0,
+     1
+    ],
+    "span": [
+     0.2,
+     0.5
+    ]
+   },
+   "w": 0
+  },
+  "carve": null,
+  "require_hill": true,
+  "resource_min": {
+   "forestry": 0,
+   "apiary": 0
+  },
+  "art": {
+   "plains": "wastes",
+   "tundra": "badlands"
+  },
+  "notes": "A narrow pair of ranges. Two walls, one contested narrows between them.",
+  "massif": {},
+  "perimeter": {}
+ },
+ "Lenaveron": {
+  "name": "Lenaveron",
+  "substrate": "plains",
+  "palette": [
+   "forest",
+   "mountain",
+   "plains",
+   "tundra",
+   "water"
+  ],
+  "shares": {
+   "tundra": 0.16,
+   "mountain": 0.1,
+   "forest": 0.08
+  },
+  "morphology": {
+   "tundra": "blob",
+   "mountain": "perimeter",
+   "forest": "scatter"
+  },
+  "buffers": [],
+  "band": {},
+  "scatter": {
+   "forest": [
+    40,
+    1,
+    2,
+    2
+   ]
+  },
+  "border": {
+   "n": 0,
+   "s": 0,
+   "e": {
+    "width": [
+     1,
+     2
+    ],
+    "span": [
+     0.5,
+     0.9
+    ]
+   },
+   "w": 0
+  },
+  "carve": {
+   "rivers": [
+    2,
+    3
+   ],
+   "river_temp": 1.0
+  },
+  "require_hill": true,
+  "resource_min": {
+   "forestry": 1
+  },
+  "art": {},
+  "notes": "Papacy heartland. Open and buildable in the middle \u2014 Piety wants Public Order, not chokepoints \u2014 with long thin ranges running along the margins and rivers crossing the interior.",
+  "perimeter": {
+   "mountain": [
+    9,
+    [
+     14,
+     26
+    ],
+    [
+     1,
+     2
+    ],
+    [
+     1,
+     6
+    ]
+   ]
+  },
+  "massif": {}
+ },
+ "Lost Woods": {
+  "name": "Lost Woods",
+  "substrate": "forest",
+  "palette": [
+   "forest",
+   "plains",
+   "water",
+   "wetland"
+  ],
+  "shares": {
+   "wetland": 0.06
+  },
+  "morphology": {
+   "wetland": "blob"
+  },
+  "buffers": [],
+  "band": {},
+  "scatter": {},
+  "border": {
+   "n": 0,
+   "s": 0,
+   "w": {
+    "width": [
+     1,
+     2
+    ],
+    "span": [
+     0.5,
+     0.9
+    ]
+   },
+   "e": 0
+  },
+  "carve": {
+   "routes": 0,
+   "width": 1,
+   "clearing_radius": 1,
+   "temp": 0.6,
+   "mazes": [
+    1,
+    2
+   ],
+   "maze_temp": 0.9,
+   "junction_p": 0.7,
+   "rivers": [
+    3,
+    4
+   ],
+   "river_temp": 1.0,
+   "connect": "spanning"
+  },
+  "require_hill": false,
+  "resource_min": {
+   "quarry": 0,
+   "salt": 0,
+   "mine": 0,
+   "arable": 1
+  },
+  "art": {},
+  "notes": "The only land untouched by the Great Fracture. Denser than Dreadwood and barely carved: one or two passages, everything else is wood. Defender Seizes the Initiative almost always.",
+  "massif": {},
+  "perimeter": {}
+ },
+ "Marrow Shoals": {
+  "name": "Marrow Shoals",
+  "substrate": "water",
+  "palette": [
+   "forest",
+   "plains",
+   "water",
+   "wetland"
+  ],
+  "shares": {
+   "wetland": 0.1,
+   "forest": 0.06
+  },
+  "morphology": {
+   "wetland": "blob",
+   "forest": "scatter"
+  },
+  "buffers": [],
+  "band": {},
+  "scatter": {
+   "forest": [
+    25,
+    1,
+    2,
+    2
+   ]
+  },
+  "border": 0,
+  "carve": {
+   "islands": [
+    6,
+    6
+   ],
+   "island_size": [
+    44,
+    58
+   ],
+   "islets": [
+    16,
+    4
+   ],
+   "land_target": 0.48,
+   "gap": [
+    2,
+    3
+   ]
+  },
+  "require_hill": false,
+  "resource_min": {
+   "mine": 0,
+   "quarry": 0,
+   "salt": 0,
+   "arable": 2,
+   "forestry": 2
+  },
+  "art": {},
+  "notes": "A true archipelago \u2014 one small isle per player plus scattered islets to expand onto. Deep water between them: you reach anyone else only once a Shipyard is mastered. Land is the scarcest thing on the board.",
+  "sea_crossing": "shipyard",
+  "massif": {},
+  "perimeter": {}
+ },
+ "Scarlet Forest": {
+  "name": "Scarlet Forest",
+  "substrate": "forest",
+  "palette": [
+   "forest",
+   "mountain",
+   "plains",
+   "water",
+   "wetland"
+  ],
+  "shares": {
+   "mountain": 0.08,
+   "wetland": 0.05
+  },
+  "morphology": {
+   "mountain": "band",
+   "wetland": "blob"
+  },
+  "buffers": [],
+  "band": {},
+  "scatter": {},
+  "border": {
+   "n": 0,
+   "s": 0,
+   "w": {
+    "width": 1,
+    "span": [
+     0.3,
+     0.7
+    ]
+   },
+   "e": 0
+  },
+  "carve": {
+   "routes": 1,
+   "width": 1,
+   "clearing_radius": 1,
+   "temp": 0.8,
+   "mazes": [
+    2,
+    3
+   ],
+   "maze_temp": 1.1,
+   "junction_p": 0.5,
+   "rivers": [
+    1,
+    2
+   ],
+   "river_temp": 1.0,
+   "connect": "spanning"
+  },
+  "require_hill": false,
+  "resource_min": {
+   "forestry": 6,
+   "salt": 0,
+   "quarry": 1,
+   "arable": 2
+  },
+  "art": {
+   "plains": "scarlet_plain",
+   "forest": "scarlet_forest"
+  },
+  "notes": "Best wood in the world. Woodland matrix but wider passages than Dreadwood; forestry saturated.",
+  "massif": {},
+  "perimeter": {}
+ },
+ "Shallow Mire": {
+  "name": "Shallow Mire",
+  "substrate": "wetland",
+  "palette": [
+   "forest",
+   "plains",
+   "water",
+   "wetland"
+  ],
+  "shares": {
+   "forest": 0.12
+  },
+  "morphology": {
+   "forest": "blob"
+  },
+  "buffers": [],
+  "band": {},
+  "scatter": {},
+  "border": {
+   "n": {
+    "width": [
+     1,
+     2
+    ],
+    "span": [
+     0.4,
+     0.8
+    ]
+   },
+   "s": {
+    "width": [
+     1,
+     2
+    ],
+    "span": [
+     0.4,
+     0.8
+    ]
+   },
+   "w": {
+    "width": [
+     0,
+     2
+    ],
+    "span": [
+     0.3,
+     0.7
+    ]
+   },
+   "e": {
+    "width": [
+     0,
+     2
+    ],
+    "span": [
+     0.3,
+     0.7
+    ]
+   }
+  },
+  "carve": {
+   "routes": 3,
+   "width": 1,
+   "clearing_radius": 1,
+   "temp": 0.7,
+   "connect": "spanning"
+  },
+  "require_hill": false,
+  "resource_min": {
+   "quarry": 0,
+   "salt": 0,
+   "mine": 0,
+   "arable": 1
+  },
+  "art": {},
+  "notes": "Shassolin territory. Mire everywhere: Unwieldy, Immune Steady, -1 Save is the default battle condition. No tundra.",
+  "massif": {},
+  "perimeter": {}
+ },
+ "The Twelfth Reach": {
+  "name": "The Twelfth Reach",
+  "substrate": "water",
+  "palette": [
+   "forest",
+   "plains",
+   "tundra",
+   "water",
+   "wetland"
+  ],
+  "shares": {
+   "forest": 0.14,
+   "wetland": 0.06,
+   "tundra": 0.04
+  },
+  "morphology": {
+   "forest": "blob",
+   "wetland": "blob",
+   "tundra": "blob"
+  },
+  "buffers": [],
+  "band": {},
+  "scatter": {},
+  "border": 0,
+  "carve": {
+   "islands": [
+    3,
+    4
+   ],
+   "island_size": [
+    95,
+    130
+   ],
+   "islets": [
+    5,
+    9
+   ],
+   "land_target": 0.58,
+   "gap": [
+    2,
+    5
+   ]
+  },
+  "require_hill": true,
+  "resource_min": {
+   "mine": 0,
+   "quarry": 0,
+   "salt": 0
+  },
+  "art": {},
+  "notes": "Two to four substantial islands rather than a scatter \u2014 a diaspora zone, not a reef. Players share an island with a neighbour and must cross open water to reach the rest.",
+  "sea_crossing": "shipyard",
+  "massif": {},
+  "perimeter": {}
+ },
+ "Tombs of the Old Gods": {
+  "name": "Tombs of the Old Gods",
+  "substrate": "tundra",
+  "palette": [
+   "forest",
+   "mountain",
+   "plains",
+   "tundra",
+   "water"
+  ],
+  "shares": {
+   "mountain": 0.12,
+   "plains": 0.0,
+   "forest": 0.06
+  },
+  "morphology": {
+   "mountain": "scatter",
+   "forest": "scatter"
+  },
+  "buffers": [],
+  "band": {},
+  "scatter": {
+   "mountain": [
+    40,
+    1,
+    3,
+    3
+   ],
+   "forest": [
+    25,
+    1,
+    2,
+    3
+   ]
+  },
+  "border": {
+   "n": 0,
+   "s": 0,
+   "e": {
+    "width": [
+     0,
+     1
+    ],
+    "span": [
+     0.3,
+     0.6
+    ]
+   },
+   "w": 0
+  },
+  "carve": {
+   "routes": 2,
+   "width": 1,
+   "clearing_radius": 1,
+   "temp": 0.8,
+   "mazes": [
+    2,
+    3
+   ],
+   "maze_temp": 1.1,
+   "junction_p": 0.4,
+   "connect": "spanning"
+  },
+  "require_hill": false,
+  "resource_min": {
+   "arable": 1,
+   "forestry": 1,
+   "quarry": 4,
+   "salt": 3
+  },
+  "art": {},
+  "notes": "Frozen tundra the Lenavorites abandoned. Strained is the default state; quarry and salt are abundant, food is not.",
+  "massif": {},
+  "perimeter": {}
+ },
+ "Vaelohk": {
+  "name": "Vaelohk",
+  "substrate": "plains",
+  "palette": [
+   "forest",
+   "mountain",
+   "plains",
+   "tundra",
+   "water"
+  ],
+  "shares": {
+   "forest": 0.22,
+   "mountain": 0.06,
+   "water": 0.04,
+   "tundra": 0.05
+  },
+  "morphology": {
+   "forest": "blob",
+   "mountain": "scatter",
+   "water": "blob",
+   "tundra": "blob"
+  },
+  "buffers": [
+   [
+    "forest",
+    "tundra"
+   ]
+  ],
+  "band": {},
+  "scatter": {
+   "mountain": [
+    22,
+    1,
+    2,
+    4
+   ]
+  },
+  "border": {
+   "n": {
+    "width": [
+     1,
+     2
+    ],
+    "span": [
+     0.7,
+     1.0
+    ]
+   },
+   "s": {
+    "width": [
+     1,
+     2
+    ],
+    "span": [
+     0.7,
+     1.0
+    ]
+   },
+   "w": {
+    "width": [
+     1,
+     2
+    ],
+    "span": [
+     0.7,
+     1.0
+    ]
+   },
+   "e": {
+    "width": [
+     1,
+     2
+    ],
+    "span": [
+     0.7,
+     1.0
+    ]
+   }
+  },
+  "carve": {
+   "rivers": [
+    2,
+    3
+   ],
+   "river_temp": 1.0
+  },
+  "require_hill": true,
+  "resource_min": {},
+  "art": {},
+  "notes": "The centre island and the world's name. Deliberately the most even preset \u2014 no dominant terrain, everything available. The Sullen Lake is the one inland water body.",
+  "massif": {},
+  "perimeter": {}
+ },
+ "Wheat Fields": {
+  "name": "Wheat Fields",
+  "substrate": "plains",
+  "palette": [
+   "forest",
+   "plains",
+   "water",
+   "wetland"
+  ],
+  "shares": {
+   "forest": 0.22,
+   "wetland": 0.04
+  },
+  "morphology": {
+   "forest": "scatter",
+   "wetland": "blob"
+  },
+  "buffers": [],
+  "band": {},
+  "scatter": {
+   "forest": [
+    120,
+    1,
+    3,
+    2
+   ]
+  },
+  "border": {
+   "n": 0,
+   "s": 0,
+   "e": {
+    "width": [
+     0,
+     1
+    ],
+    "span": [
+     0.2,
+     0.5
+    ]
+   },
+   "w": {
+    "width": [
+     0,
+     1
+    ],
+    "span": [
+     0.2,
+     0.5
+    ]
+   }
+  },
+  "carve": {
+   "rivers": [
+    1,
+    2
+   ],
+   "river_temp": 1.0
+  },
+  "require_hill": true,
+  "resource_min": {
+   "quarry": 0,
+   "salt": 0,
+   "mine": 0,
+   "forestry": 1
+  },
+  "art": {},
+  "notes": "Proving ground. Open field: ranged +1 Strike almost everywhere, Hills decide initiative. Never paved.",
+  "massif": {},
+  "perimeter": {}
+ }
+};})(typeof module!=='undefined'&&module.exports?module.exports:(typeof window!=='undefined'?window:globalThis));
+</script>
+<script>
+'use strict';
+const G = window.RenownGen, PRESETS = window.RenownPresets;
+
+const BASE = { plains:'#96b060', forest:'#2e5c34', wetland:'#5e7054',
+               tundra:'#d6dad6', mountain:'#6e6864', water:'#4a748c' };
+const PALETTES = {
+  default: BASE,
+  wastes:  Object.assign({}, BASE, { plains:'#d4b84e', tundra:'#c49854', mountain:'#7d7469' }),
+  scarlet: Object.assign({}, BASE, { plains:'#bc5442', forest:'#7a2224', wetland:'#6d4038' }),
+  ink:     { plains:'#ffffff', forest:'#c8c8c8', wetland:'#e0e0e0',
+             tundra:'#f4f4f4', mountain:'#8c8c8c', water:'#dcdcdc' }
+};
+const TERRAIN_REF = {"terrain":{"Grassland":{"Effect":"\u2014","Raw Materials":["Arable Land","Apiary"]},"Wetlands":{"Effect":"Speed -1","Raw Materials":["Peat Bog","Forestry"]},"Tundra":{"Effect":"gain Strained","Raw Materials":["Quarry","Salt Works"]},"Mountains":{"Effect":"Impassable","Raw Materials":["Mine"]},"Water":{"Effect":"Must end move after moving over 1 Water Territory (must end on land)","Raw Materials":["Fishmongery"]},"Forest":{"Effect":"Speed -1","Raw Materials":["Forestry","Apiary"]},"Hill":{"Effect":"Gains Seize the Initiative. Where Settlements can be chartered."}},"tactical":{"Hill":{"identify":"Grassland fully ringed by grassland","effect":"An army on a Hill Seizes the Initiative every Skirmish."},"Open Field":{"identify":"Any other grassland","effect":"Ranged Weapons gain +1 to Strike."},"Forest":{"identify":"Forest","effect":"You may only play Scout, Ambush, Flank, or Defensive Formation. The defending player Seizes the Initiative."},"Mire":{"identify":"Wetlands","effect":"Gain Unwieldy and Immune Steady; -1 to Save."},"Tundra":{"identify":"Tundra","effect":"Gain Strained."},"Mountains":{"identify":"Mountains","effect":"Impassable."},"Water":{"identify":"Water","effect":"Must end Move after moving 1 Water Territory. Cannot Skirmish or Siege move."}},"tactical_global":["Any player may Fall Back after the first Skirmish."],"movement":{"Dirt Roads":{"Effect":"Immune Speed -1 from Terrain"},"Stone Roads":{"Effect":"Immune Speed -1 from Terrain. Gain Speed +2"},"Bridge":{"Effect":"Immune Water Effect."},"Tunneler":{"Effect":"Immune Mountain Effect"},"Ancient Wilds":{"Effect":["Immune Speed -1 from Terrain","Other armies gain Speed -1 in Province."]},"Shipyard":{"Effect":"Immune Water Effect"}},"version":"0.4.9.8-d10","source":"combatv4"};
+/* map generator terrain key -> the name the rules use */
+const RULE_NAME = { plains:'Grassland', forest:'Forest', wetland:'Wetlands',
+                    tundra:'Tundra', mountain:'Mountains', water:'Water' };
+const RESCOL = { mine:'#161616', quarry:'#8a3b2e', arable:'#7a4f2a',
+                 forestry:'#2f5d2f', apiary:'#e8c020', salt:'#ece6d6' };
+const TERRAINS = ['plains','forest','wetland','tundra','mountain','water'];
+/* Board size per player count. Roughly 140 hexes a player at a 1.23 aspect:
+   settlement clearings and roads cost the same per player at any scale, so a
+   fixed hexes-per-player ratio keeps the terrain mix steady rather than
+   letting a small board get crowded out by its own infrastructure. */
+const BOARD = { 2: [19, 15], 3: [23, 18], 4: [26, 21],
+                5: [29, 24], 6: [32, 26], 7: [35, 28] };
+let colors = Object.assign({}, BASE);
+let current = null, overrides = {};
+
+/* ── controls ───────────────────────────────────────── */
+const $ = id => document.getElementById(id);
+const presetSel = $('preset');
+Object.keys(PRESETS).sort().forEach(n => {
+  const o = document.createElement('option'); o.value = o.textContent = n;
+  presetSel.appendChild(o);
+});
+/* Open on something different every time: a person arriving at the tool
+   should land on a board, not on a blank default they have to go looking
+   past. Both are overwritten the moment they choose for themselves. */
+const NAMES = Object.keys(PRESETS).sort();
+presetSel.value = NAMES[Math.floor(Math.random() * NAMES.length)];
+
+function slider(host, key, label, min, max, val, step, fmt) {
+  const l = document.createElement('label');
+  l.innerHTML = `<span class="lb"><b>${label}</b><i></i></span>`;
+  const i = document.createElement('input');
+  i.type = 'range'; i.min = min; i.max = max; i.step = step || 1; i.value = val;
+  const out = l.querySelector('i');
+  const show = () => out.textContent = fmt ? fmt(+i.value) : i.value;
+  show();
+  i.addEventListener('input', () => { show(); overrides[key] = +i.value; run(); });
+  l.appendChild(i); host.appendChild(l);
+}
+
+function buildControls() {
+  const p = PRESETS[presetSel.value];
+  $('blurb').textContent = p.notes || '';
+  overrides = {};
+  const sh = $('shares'); sh.innerHTML = '';
+  const keys = Object.keys(p.shares || {}).sort();
+  if (!keys.length) sh.innerHTML = '<p class="note">This region is a single '
+    + 'terrain with no accent mix to adjust.</p>';
+  keys.forEach(t => slider(sh, 'share:' + t, t, 0, 60,
+    Math.round((p.shares[t] || 0) * 100), 1, v => v + '%'));
+
+  const cv = $('carve'); cv.innerHTML = '';
+  const c = p.carve || {};
+  const has = k => c[k] !== undefined;
+  if (has('routes')) slider(cv, 'carve:routes', 'extra roads', 0, 6, c.routes);
+  if (has('width'))  slider(cv, 'carve:width', 'road width', 1, 3, c.width);
+  if (has('temp'))   slider(cv, 'carve:temp', 'road meander', 2, 20, c.temp * 10, 1,
+                            v => (v / 10).toFixed(1));
+  if (has('mazes'))  slider(cv, 'carve:mazes', 'side passages', 0, 6, c.mazes[1]);
+  if (has('junction_p')) slider(cv, 'carve:junction_p', 'shared chokepoint', 0, 100,
+                            Math.round(c.junction_p * 100), 5, v => v + '%');
+  if (has('rivers')) slider(cv, 'carve:rivers', 'rivers', 0, 8, c.rivers[1]);
+  if (has('river_temp')) slider(cv, 'carve:river_temp', 'river meander', 4, 25,
+                            c.river_temp * 10, 1, v => (v / 10).toFixed(1));
+  if (has('islands')) slider(cv, 'carve:islands', 'islands', 1, 8, c.islands[1]);
+  if (has('islets'))  slider(cv, 'carve:islets', 'islets', 0, 24, c.islets[0]);
+  if (has('land_target')) slider(cv, 'carve:land_target', 'land share', 20, 80,
+                            Math.round(c.land_target * 100), 1, v => v + '%');
+  $('carveSet').style.display = cv.children.length ? '' : 'none';
+
+  const artPal = p.art && p.art.plains
+    ? (p.art.plains === 'wastes' ? 'wastes' : 'scarlet') : 'default';
+  setPalette(artPal);
+}
+
+function setPalette(name, force) {
+  if ($('lockColors').checked && !force) return;   // the person's palette wins
+  colors = Object.assign({}, PALETTES[name] || BASE);
+  drawSwatches();
+  drawTerrainRef();
+  if (current) render();
+}
+function drawSwatches() {
+  const host = $('swatches'); host.innerHTML = '';
+  TERRAINS.forEach(t => {
+    const d = document.createElement('div'); d.className = 'sw';
+    const i = document.createElement('input');
+    i.type = 'color'; i.value = colors[t]; i.setAttribute('aria-label', t + ' colour');
+    i.addEventListener('input', () => {
+      colors[t] = i.value; drawTerrainRef(); render();
+    });
+    const s = document.createElement('span'); s.textContent = t;
+    d.appendChild(i); d.appendChild(s); host.appendChild(d);
+  });
+}
+
+function collectOverrides() {
+  const p = PRESETS[presetSel.value];
+  const o = { seed: +$('seed').value, players: +$('vPlayers').value,
+              width: +$('vW').value, height: +$('vH').value };
+  const shares = Object.assign({}, p.shares);
+  const carve = Object.assign({}, p.carve || {});
+  for (const k of Object.keys(overrides)) {
+    const v = overrides[k];
+    if (k.startsWith('share:')) shares[k.slice(6)] = v / 100;
+    else {
+      const f = k.slice(6);
+      if (f === 'temp' || f === 'river_temp') carve[f] = v / 10;
+      else if (f === 'junction_p' || f === 'land_target') carve[f] = v / 100;
+      else if (f === 'mazes' || f === 'rivers')
+        carve[f] = [Math.max(0, v - 1), v];
+      else if (f === 'islands') carve[f] = [Math.max(1, v - 1), v];
+      else if (f === 'islets') carve[f] = [v, (p.carve.islets || [0, 4])[1]];
+      else carve[f] = v;
+    }
+  }
+  o.shares = shares;
+  if (Object.keys(carve).length) o.carve = carve;
+  return o;
+}
+
+/* ── render ─────────────────────────────────────────── */
+function render() {
+  const m = current.map, R = 15;
+  const showRes = $('showRes').checked, showSet = $('showSet').checked;
+  const dx = 1.5 * R, dy = Math.sqrt(3) * R;
+  const W = m.width * dx + R * 2, H = m.height * dy + dy;
+  let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W.toFixed(1)} ${H.toFixed(1)}" `
+        + `preserveAspectRatio="xMidYMid meet" role="img" `
+        + `aria-label="Generated Renown board"><rect width="100%" height="100%" fill="#f7f5ef"/>`;
+  const pts = (cx, cy) => {
+    let a = [];
+    for (let k = 0; k < 6; k++) {
+      const t = Math.PI / 180 * 60 * k;
+      a.push((cx + R * Math.cos(t)).toFixed(1) + ',' + (cy + R * Math.sin(t)).toFixed(1));
+    }
+    return a.join(' ');
+  };
+  const lighten = (hex, k) => {
+    const n = parseInt(hex.slice(1), 16);
+    const f = v => Math.min(255, Math.round(v * k));
+    return '#' + [f(n >> 16 & 255), f(n >> 8 & 255), f(n & 255)]
+      .map(v => v.toString(16).padStart(2, '0')).join('');
+  };
+  for (const h of m.all()) {
+    const cx = R + h.col * dx, cy = dy / 2 + h.row * dy + (h.col % 2 ? dy / 2 : 0);
+    let fill = colors[h.terrain];
+    if (h.tactical === 'hill') fill = lighten(fill, 1.16);
+    s += `<polygon points="${pts(cx, cy)}" fill="${fill}" stroke="#00000026" stroke-width="1"/>`;
+    if (h.resource && showRes) s += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${(R*.3).toFixed(1)}" `
+      + `fill="${RESCOL[h.resource]}" stroke="#0006" stroke-width="1"/>`;
+  }
+  if (showSet) for (const reg of m.settlements) for (const st of reg) {
+    const cx = R + st[0] * dx, cy = dy / 2 + st[1] * dy + (st[0] % 2 ? dy / 2 : 0);
+    const w = R * .42;
+    s += `<rect x="${(cx-w).toFixed(1)}" y="${(cy-w).toFixed(1)}" width="${(w*2).toFixed(1)}" `
+      + `height="${(w*2).toFixed(1)}" fill="#b3392f" stroke="#fff" stroke-width="1.6"/>`;
+  }
+  s += '</svg>';
+  $('boardwrap').innerHTML = s;
+}
+
+function run() {
+  imported = null;
+  $('importNote').hidden = true;
+  const p = PRESETS[presetSel.value];
+  const t0 = performance.now();
+  current = G.generateRegion(p, collectOverrides());
+  const ms = Math.round(performance.now() - t0);
+  render();
+  const m = current.map, tot = m.width * m.height, c = {};
+  for (const h of m.all()) c[h.terrain] = (c[h.terrain] || 0) + 1;
+  $('stPreset').textContent = p.name;
+  $('stHex').textContent = `${m.width}×${m.height} = ${tot}`;
+  $('stHills').textContent = m.all().filter(h => h.tactical === 'hill').length;
+  $('stTerr').textContent = Object.entries(c).sort((a, b) => b[1] - a[1])
+    .map(([k, v]) => `${k} ${Math.round(v * 100 / tot)}%`).join('  ');
+  const res = {};
+  for (const h of m.all()) if (h.resource) res[h.resource] = (res[h.resource] || 0) + 1;
+  const missing = Object.keys(G.RESOURCE_MIN).filter(r => !res[r]);
+  $('stRes').textContent = missing.length ? 'unavailable: ' + missing.join(', ') : '';
+  $('viol').textContent = current.violations.length
+    ? current.violations.length + ' unmet: ' + current.violations[0] : '';
+  $('viol').title = current.violations.join('\n');
+  $('stPreset').title = ms + ' ms';
+}
+
+/* ── output ─────────────────────────────────────────── */
+function download(name, text, type) {
+  const b = new Blob([text], { type: type });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(b); a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+$('print').addEventListener('click', () => window.print());
+$('svg').addEventListener('click', () => {
+  const n = presetSel.value.replace(/\W+/g, '-').toLowerCase();
+  download(`renown-${n}-${$('seed').value}.svg`,
+           $('boardwrap').innerHTML, 'image/svg+xml');
+});
+$('svg').title = 'Saves exactly what is on screen, overlays included';
+$('json').addEventListener('click', () => {
+  const d = G.exportMap(current.map, current.params, +$('seed').value, current.violations);
+  d.colors = colors;
+  d.hill_sep = current.params.hill_sep;
+  const n = presetSel.value.replace(/\W+/g, '-').toLowerCase();
+  download(`renown-${n}-${$('seed').value}.json`,
+           JSON.stringify(d), 'application/json');
+});
+let imported = null;          // a loaded grid, shown as-is until something changes
+
+function showImported(d) {
+  imported = d;
+  current = { map: G.importMap(d), params: d, violations: d.violations || [] };
+  if (PRESETS[d.preset]) { presetSel.value = d.preset; buildControls(); }
+  if (d.seed !== undefined) $('seed').value = d.seed;
+  if (d.players) { $('players').value = d.players; $('vPlayers').value = d.players; }
+  $('width').value = d.width; $('vW').value = d.width;
+  $('height').value = d.height; $('vH').value = d.height;
+  if (d.colors) { colors = Object.assign({}, BASE, d.colors); drawSwatches(); drawTerrainRef(); }
+  render();
+  const m = current.map, tot = m.width * m.height, c = {};
+  for (const h of m.all()) c[h.terrain] = (c[h.terrain] || 0) + 1;
+  $('stPreset').textContent = (d.preset || 'imported');
+  $('stHex').textContent = `${m.width}×${m.height} = ${tot}`;
+  $('stHills').textContent = m.all().filter(h => h.tactical === 'hill').length;
+  $('stTerr').textContent = Object.entries(c).sort((a, b) => b[1] - a[1])
+    .map(([k, v]) => `${k} ${Math.round(v * 100 / tot)}%`).join('  ');
+  $('stRes').textContent = '';
+  $('viol').textContent = '';
+  const note = $('importNote');
+  note.hidden = false;
+  note.textContent = `Showing the saved grid — ${d.preset || 'board'}, seed `
+    + `${d.seed}, made by generator ${d.generator || '?'}. Change any control `
+    + `to generate a new board.`;
+}
+
+$('openBtn').addEventListener('click', () => $('file').click());
+$('file').addEventListener('change', async e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const note = $('importNote');
+  note.hidden = false;
+  try {
+    showImported(JSON.parse(await f.text()));
+  } catch (err) {
+    imported = null;
+    note.textContent = 'That file could not be read as a Renown board: '
+      + err.message + '. Save one with the JSON button to see the format.';
+  }
+  e.target.value = '';
+});
+
+$('reroll').addEventListener('click', () => {
+  $('seed').value = Math.floor(Math.random() * 100000); run();
+});
+function drawTerrainRef() {
+  const T = TERRAIN_REF.terrain, X = TERRAIN_REF.tactical;
+  let h = '<table><tr><th>Terrain</th><th>On the map</th></tr>';
+  for (const k of Object.keys(RULE_NAME)) {
+    const nm = RULE_NAME[k], e = (T[nm] || {}).Effect || '—';
+    h += `<tr><td><i style="background:${colors[k]}"></i>${nm}</td><td>${e}</td></tr>`;
+  }
+  const hill = (T.Hill || {}).Effect || '';
+  h += `<tr><td><i style="background:${colors.plains};filter:brightness(1.16)"></i>Hill</td>`
+     + `<td>${hill}</td></tr></table>`;
+  h += '<table style="margin-top:12px"><tr><th>In battle</th><th>Effect</th></tr>';
+  for (const k of Object.keys(X))
+    h += `<tr><td>${k}</td><td>${X[k].effect}</td></tr>`;
+  h += '</table>';
+  if (TERRAIN_REF.tactical_global && TERRAIN_REF.tactical_global.length)
+    h += `<p class="gl">${TERRAIN_REF.tactical_global.join(' ')}</p>`;
+  h += `<p class="gl">Renown v${TERRAIN_REF.version}</p>`;
+  $('terrainBody').innerHTML = h;
+}
+
+function drawLegend() {
+  const host = $('legend'), on = $('showRes').checked;
+  host.hidden = !on;
+  if (!on) return;
+  host.innerHTML = Object.keys(RESCOL).sort()
+    .map(k => `<span><i style="background:${RESCOL[k]}"></i>${k}</span>`).join('');
+}
+['showRes', 'showSet'].forEach(id =>
+  $(id).addEventListener('change', () => { drawLegend(); render(); }));
+drawLegend();
+document.querySelectorAll('.chip').forEach(b =>
+  b.addEventListener('click', () => setPalette(b.dataset.pal, true)));
+['seed'].forEach(id => $(id).addEventListener('change', run));
+/* Each control is a slider plus a typeable box showing the same value. The box
+   accepts numbers beyond the slider's range — a 60x50 board at 7 players is a
+   legitimate choice, just a slow one — and the slider clamps to its own ends
+   without overwriting what was typed. */
+function pair(sliderId, numId, onChange) {
+  const sl = $(sliderId), nu = $(numId);
+  sl.addEventListener('input', () => { nu.value = sl.value; onChange(+sl.value); });
+  const commit = () => {
+    let v = parseInt(nu.value, 10);
+    if (isNaN(v)) { nu.value = sl.value; return; }
+    v = Math.max(+nu.min, Math.min(+nu.max, v));
+    nu.value = v;
+    sl.value = Math.max(+sl.min, Math.min(+sl.max, v));
+    onChange(v);
+  };
+  nu.addEventListener('change', commit);
+  nu.addEventListener('keydown', e => { if (e.key === 'Enter') commit(); });
+}
+function applyBoardSize(n) {
+  if ($('lockSize').checked) return;
+  const [w, h] = BOARD[n] || BOARD[6];
+  $('width').value = w; $('vW').value = w;
+  $('height').value = h; $('vH').value = h;
+}
+pair('players', 'vPlayers', n => { applyBoardSize(n); run(); });
+pair('width', 'vW', run);
+pair('height', 'vH', run);
+$('lockSize').addEventListener('change', () => {
+  if (!$('lockSize').checked) { applyBoardSize(+$('vPlayers').value); run(); }
+});
+presetSel.addEventListener('change', () => { buildControls(); run(); });
+
+$('seed').value = Math.floor(Math.random() * 100000);
+drawTerrainRef();
+buildControls();
+run();
+</script>
+</body>
+</html>

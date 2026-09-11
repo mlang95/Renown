@@ -1,0 +1,3353 @@
+{
+ "version": "0.4.9.8",
+ "glossary": {
+  "Steady": "Initiative cannot be reduced by Tactics.",
+  "Unwieldy": "Initiative cannot be improved by Tactics.",
+  "2H": "Cannot use a Shield.",
+  "Deadly": "On a Focused Strike: increase AP by -5, and the defender may Parry or Recover only with a Focused roll.",
+  "Unstoppable": "Parried only by a Focused roll.",
+  "Cleave": "On a Focused Strike: roll one extra Strike die at your modified to-Strike.",
+  "Poison": "When the Defender receives a Strike and rolls a Focused Save, it fails; the resulting wound may only be Recovered with a Focused Recover.",
+  "Nimble": "Gain +1 Initiative in the first Skirmish of each Battle.",
+  "Drilled": "Does not lose Endurance in the first Skirmish of each Battle.",
+  "Destroy Shield": "On a Focused Strike: the target loses its Shield attributes for the rest of the Battle.",
+  "Blunder": "At Initiative -2 or lower, your to-Strike is set to 6+, before other negative modifiers.",
+  "One Shot": "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard.",
+  "Parry": "While not Fatigued, roll a d6 to attempt to Parry a Strike before the Save. On a 5+, the Strike is Parried.",
+  "Riposte": "While not Fatigued, if you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
+  "Recover": "While not Fatigued, if a to-Save roll fails, roll a d6: a result of X+ Recovers the retinue.",
+  "Serrated": "-2 to Recover against this weapon's Strikes (worsens the defender's Recover roll by 2).",
+  "Tempered": "A Focused Save succeeds, regardless of AP.",
+  "Fatigue Token": "Each token is -1 to your Strike to a maximum of 6+; and Morale -1 (uncapped). If your modified Morale is ever 7+, your army Routs. Tokens stack.",
+  "Shielded": "A stacking -1 penalty to the Strike roll (to a maximum of 6+). Sources: a shield's -1 to Strike.",
+  "Negate Tempered": "Ignores Tempered: this weapon's AP can reduce the target's Save past 6+ (to auto-fail), defeating the Tempered floor.",
+  "Negate Riposte": "The target's Parry can never Riposte this weapon's Strikes (a natural 6 Parry still cancels the Strike, but no counter-Strike follows).",
+  "Dual Wield": "A Strike die that fails to Strike is rerolled once; the reroll can Focused Strike. Dual Wield confers 2H (both hands on weapons — no Shield). You cannot reroll successful Strikes.",
+  "Florentine": "Only active while Dual Wielding. Even while Fatigued, a Focused Parry succeeds. This alone does not enable Riposte while Fatigued.",
+  "Immune [keyword]": "Cancels that keyword as it applies to you (e.g. Immune Unwieldy, Strain, Destroy Shield).",
+  "AP": "Armor Penetration — a weapon's (negative) modifier to the defender's Save roll; the more negative, the harder to save.",
+  "Blocked": "-1 Initiative in the first Skirmish (negated by Immune Blocked).",
+  "Strained": "-1 Initiative every Skirmish (negated by Immune Strain). Does not gain Endurance in the Empire Phase.",
+  "Seize the Initiative": "Won by the roll-off at the start of the Battle — the winner of their last Battle adds +1 to the roll. You become the Attacker and gain +1 Initiative in the first Skirmish. Some Tactics and the Ministry monument also grant it.",
+  "Attacker / Defender": "Set by the roll-off. Each Skirmish the Attacker declares equipment first; the Defender then responds.",
+  "Battle": "One fight between two players, resolved as a series of Skirmishes until a side is wiped out, Routs, or Falls Back.",
+  "Skirmish": "One round of a Battle, run through the numbered Battle steps; a Battle repeats Skirmishes until it ends.",
+  "Casualty": "A retinue removed from the field — from an unsaved Strike or a failed Panic or Break check.",
+  "Field": "Your retinues in play — front line (up to 10) plus reserve (up to 5). Casualties leave the field at once, lowering its count.",
+  "Endurance": "A side's stamina. Each side that fights loses 1 per Skirmish; at 0 it becomes Fatigued.",
+  "Fatigued": "A side at 0 Endurance. Each Skirmish its field takes a Break check, then it gains a Fatigue token. Fatigued Armies cannot Parry, Riposte, or Recover",
+  "Break check": "Taken by each Fatigued side's field every Skirmish, just before it gains its Fatigue token. Roll Morale (up to 5 dice, modified by Fatigue tokens); failures are casualties, but a Break check never triggers a Panic check. Unbreakable auto-passes.",
+  "Panic check": "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish, after it Strikes back. Roll Morale (up to 5 dice); Immune Panic auto-passes.",
+  "Morale": "How steady a retinue is when tested (lower is steadier; see the retinue table). Break and Panic checks roll it: a D6 per retinue in the field, up to 5 dice, each must meet its modified value; failures are casualties. If the modified value is ever 7+, the army Routs.",
+  "Rout": "The army breaks and leaves the Battle (you lose it). Whenever an army's modified Morale value reaches 7 or more, it Routs automatically.",
+  "Fall Back": "A controlled retreat that ends the Battle with at least one retinue left — a partial success.",
+  "Strike": "A landed hit. Roll a D6, apply modifiers to the roll, and Strike on a result >= the to-Strike number. The target may then Parry, Save, and Recover.",
+  "to-Strike number": "The D6 result a retinue needs to Strike (see the retinue table; lower is better). Bonuses add to the roll; penalties and Fatigue tokens subtract.",
+  "Save": "The defender's roll to avoid a casualty: roll a D6, add the weapon's AP (a negative) and the shield's Save bonus (a positive); the hit is saved on a result >= the armor value.",
+  "Natural roll": "The number on the die before any modifiers. Modifiers never change what counts as 'natural'.",
+  "Initiative": "Decides who Strikes first each Skirmish (higher first). Runs -2 to +2 (Ministry can raise the maximum to +3). At -2 or lower you Blunder.",
+  "Tactic": "A choice both players make secretly and reveal together each Skirmish; it can shift Initiative, Strike, and Save rolls.",
+  "Dual-equip": "Carry two weapons at once (e.g. melee + ranged). Granted by the Tiltyard, which also gives Unwieldy until its mastery removes it.",
+  "Edict": "A scoring achievement / win path: reach a Sovereign Standing, complete a Monument, or fulfill a victory condition (Wonder, wealth, Vassalize, Living Saints, Last Standing).",
+  "Monument": "A Domain's capstone Pursuit. Completing one scores its Edict and grants a powerful effect.",
+  "Faith X": "Gain X Faith: each Faith raises your Public Order track by 1 when resolved.",
+  "Doubt X": "Gain X Doubt: each Doubt lowers your Public Order track by 1 when resolved.",
+  "Extort X": "Take X from the stated source: the gold goes to you instead of its owner.",
+  "Recoup": "Regain the stated cost in gold after paying it.",
+  "Speed": "An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 2",
+  "Influence": "The political currency of voting. Spend it to Support or Oppose Envoys. You gain it each turn from your Era, innate modifiers (trade partners, alliances, war), Pursuits, and Infrastructure.",
+  "Influence X": "An automatic +X (or -X) to an Envoy's net Influence from a Pursuit, Infrastructure, or Faction.",
+  "Envoy": "The currency of actions: send an Envoy to perform an action during the Envoy Phase. Council Envoys act on the voted Domain; Personal Envoys are sent by Era progression.",
+  "Vote": "On each Envoy, every player in clockwise order from the starting player must Support, Oppose, or Abstain.",
+  "Support X": "Spend X Influence to increase an Envoy's net Influence.",
+  "Oppose X": "Spend X Influence to decrease an Envoy's net Influence.",
+  "Abstain": "Decline to spend Influence on a vote.",
+  "Net Influence": "The sum of an Envoy's starting Influence (1+ by Standing) and all Support, Oppose, and Influence X. The total sets the outcome: -3 or less Condemned, 0 or less Failed (gain Doubt +1), 1+ passes.",
+  "Endorsed": "An Envoy that passes with 3+ net Influence, triggering its endorsed effect (and a Domain's Rising/Established/Sovereign endorsement).",
+  "Condemned": "An Envoy whose net Influence is -3 or less: it fails and you resolve that Domain's Condemn effect.",
+  "Council Phase": "Before Personal Envoys, all players vote on a Domain (clockwise; Host breaks ties). Each then sends a free Council Envoy of that Domain. Council Envoys auto-Abstain and their net Influence cannot drop below 1.",
+  "Council Envoy": "A free Envoy resolved in the Council Phase on the voted Domain; auto-Abstained, net Influence floored at 1.",
+  "Personal Envoy": "An Envoy you send in the Envoy Phase to perform an action; count and reach scale with Era.",
+  "Envoy Outcome": "How a Sent Envoy resolves, by Net Influence: Condemned (<= -3), Failed (-3 < Net <= 0, gain Doubt 1), Passed (>= 1), Endorsed (>= 3). The per-domain effect at each band is given by the Envoy Outcome Table; an action's own endorsed bonus overrides the domain default.",
+  "Charter": "Found or upgrade a Settlement (Industry action).",
+  "Muster": "Raise retinues into an Army, up to a Settlement's muster limit (Industry/Prowess).",
+  "Pursue": "Build a Pursuit, spending its purchase cost and a Settlement ward (Industry).",
+  "Build": "Construct Infrastructure (Industry action).",
+  "Repair": "Restore damaged Infrastructure or Settlements (Industry).",
+  "Move": "Advance an Army up to its Speed in Territories (Prowess).",
+  "Demand Tribute": "Coerce gold or concessions from another player (Prowess).",
+  "Diplomacy": "Free Envoy actions for forming and ending Treaties and Trade Agreements; resolved before Domain Envoys.",
+  "Treaty": "A standing agreement between players (e.g. Trade Agreement, Non-Aggression, Alliance) signed via Diplomacy.",
+  "Alliance": "A Treaty binding players to mutual support; Military and Defensive Alliances unlock by Era.",
+  "Vassal": "A player subordinated via Vassalization: their chartered settlements return to them, they mirror the Suzerain's Treaties, count as allied to the Suzerain, and cannot perform or be targeted by Diplomacy actions.",
+  "Suzerain": "The player who has Vassalized another; the vassal mirrors their Treaties.",
+  "Renown": "The shared progress track. Gain 1 per Rest Phase; thresholds raise your Era (Ascension 8, Eminence 18, Zenith 30).",
+  "Domain": "One of the four identities — Industry, Prowess, Cunning, Piety — raised by spending Domain points. Values 3/6/10 = Rising/Established/Sovereign Standing.",
+  "Domain Point": "Gain 1 per Rest Phase; spend to raise a Domain value by 1.",
+  "Standing": "Your tier in a Domain: Untested, Rising (3), Established (6), Sovereign (10). Sets max Influence per vote (1/2/3/4) and unlocks Domain effects.",
+  "Public Order": "A track from -5 to 10, adjusted each turn by Faith minus Doubt; its band applies cumulative effects (see the Public Order table).",
+  "Reach": "How far a Settlement projects control, in Territories (by tier). Calculated like Range X",
+  "Bandit": "Neutral hostile force; Bandit Camps spawn in Outlaw Country and on low Public Order.",
+  "Outlaw Country": "Uncontrollable territories in your starting region where Bandit Camps spawn, starting at 3 and expanding if there is no room to place new Bandit Camps.",
+  "Siege": "Sieging a Settlement with an Army to capture it; does not increment in Winter.",
+  "Border": "Your Settlement's Reach is Range 1 or within Reach of another Player's Reach.",
+  "Province": "The collection of Contested Territory and Controlled Territory by your Settlement's Reach.",
+  "Region": "A collection of Territories of the same Type.",
+  "Realm": "The total collection of Regions.",
+  "Territory": "1 Hex.",
+  "Contested": "Territory that is within Reach of more than one player's settlement(s). Considered Controlled by all Players that have a Settlement within Reach.",
+  "Controlled": "Territory that is within Reach of a single Player's Settlement(s).",
+  "Uncontrolled": "Territory that is not within Reach of any Player Settlement.",
+  "Adjacent": "Range 1.",
+  "Next to": "Range 2.",
+  "Within": "Range 0.",
+  "Range X": "The amount of Territories you must move in order to get from your current position to the specific Territory.",
+  "Reach X": "The Range X characteristic which determines what Territories you Control and are in your Province.",
+  "Host": "The turn's starting player, who holds the Host Card. The role passes clockwise each Rest Phase (there is no Host in Spring). The Host collects and distributes Trade Income, resolves Bandit Mechanics, and breaks ties (Council vote, bandit targeting, and any tie not otherwise resolved).",
+  "Send an Envoy": "Declare a Domain, spend 1 Envoy.",
+  "Perform": "When you Perform an action, immediately do the description of the action. Pay the action's normal Cost.",
+  "Resolve": "Attempt to Perform an action.",
+  "Cost / Pay": "Cost to perform an action, usually in Gold or Doubt.",
+  "Fail": "An unsuccessful Strike or Save.",
+  "Failed": "Net Influence 0 or less.",
+  "Passed": "Net Influence 1 or more."
+ },
+ "glossary_categorized": [
+  {
+   "title": "Combat Keywords",
+   "rows": [
+    [
+     "Steady",
+     "Initiative cannot be reduced by Tactics."
+    ],
+    [
+     "Unwieldy",
+     "Initiative cannot be improved by Tactics."
+    ],
+    [
+     "2H",
+     "Cannot use a Shield."
+    ],
+    [
+     "Deadly",
+     "On a Focused Strike: increase AP by -5, and the defender may Parry or Recover only with a Focused roll."
+    ],
+    [
+     "Unstoppable",
+     "Parried only by a Focused roll."
+    ],
+    [
+     "Cleave",
+     "On a Focused Strike: roll one extra Strike die at your modified to-Strike."
+    ],
+    [
+     "Poison",
+     "When the Defender receives a Strike and rolls a Focused Save, it fails; the resulting wound may only be Recovered with a Focused Recover."
+    ],
+    [
+     "Nimble",
+     "Gain +1 Initiative in the first Skirmish of each Battle."
+    ],
+    [
+     "Drilled",
+     "Does not lose Endurance in the first Skirmish of each Battle."
+    ],
+    [
+     "Destroy Shield",
+     "On a Focused Strike: the target loses its Shield attributes for the rest of the Battle."
+    ],
+    [
+     "Blunder",
+     "At Initiative -2 or lower, your to-Strike is set to 6+, before other negative modifiers."
+    ],
+    [
+     "Parry",
+     "While not Fatigued, roll a d6 to attempt to Parry a Strike before the Save. On a 5+, the Strike is Parried."
+    ],
+    [
+     "Riposte",
+     "While not Fatigued, if you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte."
+    ],
+    [
+     "Recover",
+     "While not Fatigued, if a to-Save roll fails, roll a d6: a result of X+ Recovers the retinue."
+    ],
+    [
+     "Serrated",
+     "-2 to Recover against this weapon's Strikes (worsens the defender's Recover roll by 2)."
+    ],
+    [
+     "Blocked",
+     "-1 Initiative in the first Skirmish (negated by Immune Blocked)."
+    ],
+    [
+     "Strained",
+     "-1 Initiative every Skirmish (negated by Immune Strain). Does not gain Endurance in the Empire Phase."
+    ],
+    [
+     "Seize the Initiative",
+     "Won by the roll-off at the start of the Battle — the winner of their last Battle adds +1 to the roll. You become the Attacker and gain +1 Initiative in the first Skirmish. Some Tactics and the Ministry monument also grant it."
+    ],
+    [
+     "Immune [keyword]",
+     "Cancels that keyword as it applies to you (e.g. Immune Unwieldy, Strain, Destroy Shield)."
+    ],
+    [
+     "AP",
+     "Armor Penetration — a weapon's (negative) modifier to the defender's Save roll; the more negative, the harder to save."
+    ]
+   ]
+  },
+  {
+   "title": "Battle Structure",
+   "rows": [
+    [
+     "Attacker / Defender",
+     "Set by the roll-off. Each Skirmish the Attacker declares equipment first; the Defender then responds."
+    ],
+    [
+     "Battle",
+     "One fight between two players, resolved as a series of Skirmishes until a side is wiped out, Routs, or Falls Back."
+    ],
+    [
+     "Skirmish",
+     "One round of a Battle, run through the numbered Battle steps; a Battle repeats Skirmishes until it ends."
+    ],
+    [
+     "Casualty",
+     "A retinue removed from the field — from an unsaved Strike or a failed Panic or Break check."
+    ],
+    [
+     "Field",
+     "Your retinues in play — front line (up to 10) plus reserve (up to 5). Casualties leave the field at once, lowering its count."
+    ],
+    [
+     "Endurance",
+     "A side's stamina. Each side that fights loses 1 per Skirmish; at 0 it becomes Fatigued."
+    ],
+    [
+     "Fatigued",
+     "A side at 0 Endurance. Each Skirmish its field takes a Break check, then it gains a Fatigue token. Fatigued Armies cannot Parry, Riposte, or Recover"
+    ],
+    [
+     "Break check",
+     "Taken by each Fatigued side's field every Skirmish, just before it gains its Fatigue token. Roll Morale (up to 5 dice, modified by Fatigue tokens); failures are casualties, but a Break check never triggers a Panic check. Unbreakable auto-passes."
+    ],
+    [
+     "Panic check",
+     "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish, after it Strikes back. Roll Morale (up to 5 dice); Immune Panic auto-passes."
+    ],
+    [
+     "Morale",
+     "How steady a retinue is when tested (lower is steadier; see the retinue table). Break and Panic checks roll it: a D6 per retinue in the field, up to 5 dice, each must meet its modified value; failures are casualties. If the modified value is ever 7+, the army Routs."
+    ],
+    [
+     "Rout",
+     "The army breaks and leaves the Battle (you lose it). Whenever an army's modified Morale value reaches 7 or more, it Routs automatically."
+    ],
+    [
+     "Fall Back",
+     "A controlled retreat that ends the Battle with at least one retinue left — a partial success."
+    ],
+    [
+     "Strike",
+     "A landed hit. Roll a D6, apply modifiers to the roll, and Strike on a result >= the to-Strike number. The target may then Parry, Save, and Recover."
+    ],
+    [
+     "to-Strike number",
+     "The D6 result a retinue needs to Strike (see the retinue table; lower is better). Bonuses add to the roll; penalties and Fatigue tokens subtract."
+    ],
+    [
+     "Save",
+     "The defender's roll to avoid a casualty: roll a D6, add the weapon's AP (a negative) and the shield's Save bonus (a positive); the hit is saved on a result >= the armor value."
+    ],
+    [
+     "Natural roll",
+     "The number on the die before any modifiers. Modifiers never change what counts as 'natural'."
+    ],
+    [
+     "Initiative",
+     "Decides who Strikes first each Skirmish (higher first). Runs -2 to +2 (Ministry can raise the maximum to +3). At -2 or lower you Blunder."
+    ],
+    [
+     "Tactic",
+     "A choice both players make secretly and reveal together each Skirmish; it can shift Initiative, Strike, and Save rolls."
+    ],
+    [
+     "Dual-equip",
+     "Carry two weapons at once (e.g. melee + ranged). Granted by the Tiltyard, which also gives Unwieldy until its mastery removes it."
+    ]
+   ]
+  },
+  {
+   "title": "Council & Diplomacy",
+   "rows": [
+    [
+     "Influence",
+     "The political currency of voting. Spend it to Support or Oppose Envoys. You gain it each turn from your Era, innate modifiers (trade partners, alliances, war), Pursuits, and Infrastructure."
+    ],
+    [
+     "Influence X",
+     "An automatic +X (or -X) to an Envoy's net Influence from a Pursuit, Infrastructure, or Faction."
+    ],
+    [
+     "Envoy",
+     "The currency of actions: send an Envoy to perform an action during the Envoy Phase. Council Envoys act on the voted Domain; Personal Envoys are sent by Era progression."
+    ],
+    [
+     "Vote",
+     "On each Envoy, every player in clockwise order from the starting player must Support, Oppose, or Abstain."
+    ],
+    [
+     "Support X",
+     "Spend X Influence to increase an Envoy's net Influence."
+    ],
+    [
+     "Oppose X",
+     "Spend X Influence to decrease an Envoy's net Influence."
+    ],
+    [
+     "Abstain",
+     "Decline to spend Influence on a vote."
+    ],
+    [
+     "Net Influence",
+     "The sum of an Envoy's starting Influence (1+ by Standing) and all Support, Oppose, and Influence X. The total sets the outcome: -3 or less Condemned, 0 or less Failed (gain Doubt +1), 1+ passes."
+    ],
+    [
+     "Endorsed",
+     "An Envoy that passes with 3+ net Influence, triggering its endorsed effect (and a Domain's Rising/Established/Sovereign endorsement)."
+    ],
+    [
+     "Condemned",
+     "An Envoy whose net Influence is -3 or less: it fails and you resolve that Domain's Condemn effect."
+    ],
+    [
+     "Council Phase",
+     "Before Personal Envoys, all players vote on a Domain (clockwise; Host breaks ties). Each then sends a free Council Envoy of that Domain. Council Envoys auto-Abstain and their net Influence cannot drop below 1."
+    ],
+    [
+     "Council Envoy",
+     "A free Envoy resolved in the Council Phase on the voted Domain; auto-Abstained, net Influence floored at 1."
+    ],
+    [
+     "Personal Envoy",
+     "An Envoy you send in the Envoy Phase to perform an action; count and reach scale with Era."
+    ],
+    [
+     "Diplomacy",
+     "Free Envoy actions for forming and ending Treaties and Trade Agreements; resolved before Domain Envoys."
+    ],
+    [
+     "Treaty",
+     "A standing agreement between players (e.g. Trade Agreement, Non-Aggression, Alliance) signed via Diplomacy."
+    ],
+    [
+     "Alliance",
+     "A Treaty binding players to mutual support; Military and Defensive Alliances unlock by Era."
+    ],
+    [
+     "Vassal",
+     "A player subordinated via Vassalization: their chartered settlements return to them, they mirror the Suzerain's Treaties, count as allied to the Suzerain, and cannot perform or be targeted by Diplomacy actions."
+    ],
+    [
+     "Suzerain",
+     "The player who has Vassalized another; the vassal mirrors their Treaties."
+    ]
+   ]
+  },
+  {
+   "title": "Empire & Economy",
+   "rows": [
+    [
+     "Faith X",
+     "Gain X Faith: each Faith raises your Public Order track by 1 when resolved."
+    ],
+    [
+     "Doubt X",
+     "Gain X Doubt: each Doubt lowers your Public Order track by 1 when resolved."
+    ],
+    [
+     "Extort X",
+     "Take X from the stated source: the gold goes to you instead of its owner."
+    ],
+    [
+     "Recoup",
+     "Regain the stated cost in gold after paying it."
+    ],
+    [
+     "Speed",
+     "An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 2"
+    ],
+    [
+     "Edict",
+     "A scoring achievement / win path: reach a Sovereign Standing, complete a Monument, or fulfill a victory condition (Wonder, wealth, Vassalize, Living Saints, Last Standing)."
+    ],
+    [
+     "Monument",
+     "A Domain's capstone Pursuit. Completing one scores its Edict and grants a powerful effect."
+    ],
+    [
+     "Charter",
+     "Found or upgrade a Settlement (Industry action)."
+    ],
+    [
+     "Muster",
+     "Raise retinues into an Army, up to a Settlement's muster limit (Industry/Prowess)."
+    ],
+    [
+     "Pursue",
+     "Build a Pursuit, spending its purchase cost and a Settlement ward (Industry)."
+    ],
+    [
+     "Build",
+     "Construct Infrastructure (Industry action)."
+    ],
+    [
+     "Repair",
+     "Restore damaged Infrastructure or Settlements (Industry)."
+    ],
+    [
+     "Move",
+     "Advance an Army up to its Speed in Territories (Prowess)."
+    ],
+    [
+     "Demand Tribute",
+     "Coerce gold or concessions from another player (Prowess)."
+    ],
+    [
+     "Renown",
+     "The shared progress track. Gain 1 per Rest Phase; thresholds raise your Era (Ascension 8, Eminence 18, Zenith 30)."
+    ],
+    [
+     "Domain",
+     "One of the four identities — Industry, Prowess, Cunning, Piety — raised by spending Domain points. Values 3/6/10 = Rising/Established/Sovereign Standing."
+    ],
+    [
+     "Domain Point",
+     "Gain 1 per Rest Phase; spend to raise a Domain value by 1."
+    ],
+    [
+     "Standing",
+     "Your tier in a Domain: Untested, Rising (3), Established (6), Sovereign (10). Sets max Influence per vote (1/2/3/4) and unlocks Domain effects."
+    ],
+    [
+     "Public Order",
+     "A track from -5 to 10, adjusted each turn by Faith minus Doubt; its band applies cumulative effects (see the Public Order table)."
+    ],
+    [
+     "Reach",
+     "How far a Settlement projects control, in Territories (by tier). Calculated like Range X"
+    ]
+   ]
+  },
+  {
+   "title": "World",
+   "rows": [
+    [
+     "Bandit",
+     "Neutral hostile force; Bandit Camps spawn in Outlaw Country and on low Public Order."
+    ],
+    [
+     "Outlaw Country",
+     "Uncontrollable territories in your starting region where Bandit Camps spawn, starting at 3 and expanding if there is no room to place new Bandit Camps."
+    ],
+    [
+     "Siege",
+     "Sieging a Settlement with an Army to capture it; does not increment in Winter."
+    ]
+   ]
+  },
+  {
+   "title": "Other",
+   "rows": [
+    [
+     "Adjacent",
+     "Range 1."
+    ],
+    [
+     "Border",
+     "Your Settlement's Reach is Range 1 or within Reach of another Player's Reach."
+    ],
+    [
+     "Contested",
+     "Territory that is within Reach of more than one player's settlement(s). Considered Controlled by all Players that have a Settlement within Reach."
+    ],
+    [
+     "Controlled",
+     "Territory that is within Reach of a single Player's Settlement(s)."
+    ],
+    [
+     "Cost / Pay",
+     "Cost to perform an action, usually in Gold or Doubt."
+    ],
+    [
+     "Dual Wield",
+     "A Strike die that fails to Strike is rerolled once; the reroll can Focused Strike. Dual Wield confers 2H (both hands on weapons — no Shield). You cannot reroll successful Strikes."
+    ],
+    [
+     "Envoy Outcome",
+     "How a Sent Envoy resolves, by Net Influence: Condemned (<= -3), Failed (-3 < Net <= 0, gain Doubt 1), Passed (>= 1), Endorsed (>= 3). The per-domain effect at each band is given by the Envoy Outcome Table; an action's own endorsed bonus overrides the domain default."
+    ],
+    [
+     "Fail",
+     "An unsuccessful Strike or Save."
+    ],
+    [
+     "Failed",
+     "Net Influence 0 or less."
+    ],
+    [
+     "Fatigue Token",
+     "Each token is -1 to your Strike to a maximum of 6+; and Morale -1 (uncapped). If your modified Morale is ever 7+, your army Routs. Tokens stack."
+    ],
+    [
+     "Florentine",
+     "Only active while Dual Wielding. Even while Fatigued, a Focused Parry succeeds. This alone does not enable Riposte while Fatigued."
+    ],
+    [
+     "Host",
+     "The turn's starting player, who holds the Host Card. The role passes clockwise each Rest Phase (there is no Host in Spring). The Host collects and distributes Trade Income, resolves Bandit Mechanics, and breaks ties (Council vote, bandit targeting, and any tie not otherwise resolved)."
+    ],
+    [
+     "Negate Riposte",
+     "The target's Parry can never Riposte this weapon's Strikes (a natural 6 Parry still cancels the Strike, but no counter-Strike follows)."
+    ],
+    [
+     "Negate Tempered",
+     "Ignores Tempered: this weapon's AP can reduce the target's Save past 6+ (to auto-fail), defeating the Tempered floor."
+    ],
+    [
+     "Next to",
+     "Range 2."
+    ],
+    [
+     "One Shot",
+     "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard."
+    ],
+    [
+     "Passed",
+     "Net Influence 1 or more."
+    ],
+    [
+     "Perform",
+     "When you Perform an action, immediately do the description of the action. Pay the action's normal Cost."
+    ],
+    [
+     "Province",
+     "The collection of Contested Territory and Controlled Territory by your Settlement's Reach."
+    ],
+    [
+     "Range X",
+     "The amount of Territories you must move in order to get from your current position to the specific Territory."
+    ],
+    [
+     "Reach X",
+     "The Range X characteristic which determines what Territories you Control and are in your Province."
+    ],
+    [
+     "Realm",
+     "The total collection of Regions."
+    ],
+    [
+     "Region",
+     "A collection of Territories of the same Type."
+    ],
+    [
+     "Resolve",
+     "Attempt to Perform an action."
+    ],
+    [
+     "Send an Envoy",
+     "Declare a Domain, spend 1 Envoy."
+    ],
+    [
+     "Shielded",
+     "A stacking -1 penalty to the Strike roll (to a maximum of 6+). Sources: a shield's -1 to Strike."
+    ],
+    [
+     "Tempered",
+     "A Focused Save succeeds, regardless of AP."
+    ],
+    [
+     "Territory",
+     "1 Hex."
+    ],
+    [
+     "Uncontrolled",
+     "Territory that is not within Reach of any Player Settlement."
+    ],
+    [
+     "Within",
+     "Range 0."
+    ]
+   ]
+  }
+ ],
+ "standing_effects": [
+  [
+   "Prowess",
+   "—",
+   "Parry",
+   "—"
+  ],
+  [
+   "Cunning",
+   "—",
+   "Foes gain Blunder in first Skirmish",
+   "Foes gain Strain"
+  ],
+  [
+   "Piety",
+   "—",
+   "+1 Morale",
+   "—"
+  ]
+ ],
+ "public_order": [
+  [
+   "-5",
+   "Uprising",
+   "Bandit Camp spawns in your Outlaw Country"
+  ],
+  [
+   "-4",
+   "Recession",
+   "-1000 Tax Income per Settlement"
+  ],
+  [
+   "-3",
+   "Aimless",
+   "Speed -2"
+  ],
+  [
+   "-2",
+   "Indecisive",
+   "-1 Influence"
+  ],
+  [
+   "-1",
+   "Wavering",
+   "No effect"
+  ],
+  [
+   "0",
+   "Neutral",
+   "No effect"
+  ],
+  [
+   "1",
+   "Focused",
+   "No effect"
+  ],
+  [
+   "2",
+   "Confident",
+   "+1 Influence"
+  ],
+  [
+   "3",
+   "Motivated",
+   "Speed +1"
+  ],
+  [
+   "4",
+   "Economic Boom",
+   "Tax income +500 per settlement"
+  ],
+  [
+   "5",
+   "Eureka",
+   "Activate 1 inactive Mastery until end of turn."
+  ],
+  [
+   "10",
+   "Living Saints",
+   "Begin Pious Timer Edict"
+  ]
+ ],
+ "po_modifiers": [
+  [
+   "Faith",
+   "Lasting Legacy",
+   "Most recent Battle was Won"
+  ],
+  [
+   "Faith",
+   "Restored Order",
+   "Destroyed a Bandit Camp last turn"
+  ],
+  [
+   "Doubt",
+   "Local Unrest",
+   "Per active Bandit Camp in your Territory"
+  ],
+  [
+   "Doubt",
+   "Deficit",
+   "Net Income is negative"
+  ],
+  [
+   "Doubt",
+   "Insolvency",
+   "Per consecutive Upkeep Phase with negative Treasury"
+  ],
+  [
+   "Doubt",
+   "Border Tension",
+   "Per other player Army in your Territory (not Alliance or NAP)"
+  ],
+  [
+   "Doubt",
+   "Invasion",
+   "Additional per other player Army in your Territory at War"
+  ],
+  [
+   "Doubt",
+   "State of Alarm",
+   "If at War"
+  ],
+  [
+   "Doubt",
+   "Mounting Panic",
+   "Per Settlement being Besieged"
+  ],
+  [
+   "Doubt",
+   "War Weariness",
+   "Per consecutive Battle loss"
+  ]
+ ],
+ "seasons": [
+  [
+   "Winter",
+   "Freezing",
+   "All Armies gain Speed -1; Sieges do not increment. Tax income collected."
+  ],
+  [
+   "Spring",
+   "Planting",
+   "No Host, Bandit Mechanics, Trade Income, Council Phase, or Diplomacy Actions. Gain +1 Envoy. Bandit Camps Spawn."
+  ],
+  [
+   "Summer",
+   "Campaigning",
+   "All Armies gain Speed +2"
+  ],
+  [
+   "Fall",
+   "Harvest",
+   "Husbandry Mastery Effects are doubled."
+  ]
+ ],
+ "trade_rules": [
+  [
+   "Income per Craft",
+   "100"
+  ],
+  [
+   "Requirements",
+   "Players must have active Dirt Road infrastructure, and a signed Trade Agreement"
+  ],
+  [
+   "No-trade season",
+   "Spring"
+  ],
+  [
+   "Tax season",
+   "Winter"
+  ]
+ ],
+ "tactic_matrix_header": [
+  "vs →",
+  "Scout",
+  "Ambush",
+  "Flank",
+  "Charge",
+  "Fighting Formation",
+  "Defensive Formation",
+  "Fall Back"
+ ],
+ "tactic_matrix_rows": [
+  [
+   "Scout",
+   "I+1",
+   "I+1",
+   "I-1 TS+1",
+   "I+1",
+   "TS-1",
+   "I+1",
+   "—"
+  ],
+  [
+   "Ambush",
+   "I-1 TS+1",
+   "I-1 TS+1",
+   "I+1 TH-1",
+   "I+1 TH+1",
+   "I+1 TS+1",
+   "TH-1",
+   "—"
+  ],
+  [
+   "Flank",
+   "I+1",
+   "I-1 TH+1",
+   "no-cbt",
+   "I-1",
+   "I+1 TH+1",
+   "I+1",
+   "I-1"
+  ],
+  [
+   "Charge",
+   "I-1",
+   "I-1 TS-1",
+   "I+1",
+   "TH+1",
+   "I+1 TH-1",
+   "I-1 TS-1",
+   "I+1 TH+1"
+  ],
+  [
+   "Fighting Formation",
+   "I-1 TH+1",
+   "I-1 TS-1",
+   "I-1",
+   "I-1 TH+1",
+   "I-1 TH+1",
+   "TH+1",
+   "TH+1"
+  ],
+  [
+   "Defensive Formation",
+   "I-1 TS+1",
+   "TS+1",
+   "I-1 TS+1",
+   "I+1 TH+1 TS+1",
+   "TS+1",
+   "TS+1",
+   "—"
+  ],
+  [
+   "Fall Back",
+   "—",
+   "—",
+   "I+1 TH+1",
+   "I-1",
+   "—",
+   "—",
+   "—"
+  ]
+ ],
+ "pursuit_sections": [
+  {
+   "title": "Raw Materials",
+   "rows": [
+    [
+     "Quarry",
+     "",
+     "Masonry",
+     "+300, **Natural**; Craft +1",
+     "—"
+    ],
+    [
+     "Salt Works",
+     "",
+     "Smokehouse",
+     "+300, **Natural**; Craft +1",
+     "—"
+    ],
+    [
+     "Apiary",
+     "",
+     "Chandlery",
+     "+300, **Natural**; Craft +1",
+     "—"
+    ],
+    [
+     "Peat Bog",
+     "",
+     "Alchemy",
+     "+300, **Natural**; Craft +1",
+     "—"
+    ],
+    [
+     "Forestry",
+     "",
+     "Carpentry",
+     "+300, **Natural**; Craft +1",
+     "—"
+    ],
+    [
+     "Fishmongery",
+     "Water Settlement",
+     "Harbor",
+     "+300, **Natural**; Craft +1",
+     "—"
+    ],
+    [
+     "Mine",
+     "",
+     "Blacksmith",
+     "+300, **Natural**; Craft +1",
+     "—"
+    ],
+    [
+     "Arable Land",
+     "",
+     "Granary",
+     "+300, **Natural**; Craft +1",
+     "—"
+    ],
+    [
+     "Common Land",
+     "",
+     "Workyard",
+     "+500, **Natural**, **Doubt +1**",
+     "—"
+    ]
+   ]
+  },
+  {
+   "title": "Husbandry",
+   "rows": [
+    [
+     "Herb Garden",
+     "",
+     "Arable Land or Peat Bog",
+     "+200, **Natural**",
+     "Craft +1"
+    ],
+    [
+     "Animal Husbandry",
+     "",
+     "Arable Land",
+     "+100, **Natural**",
+     "+300"
+    ],
+    [
+     "Saddlery",
+     "",
+     "Arable Land + Animal Husbandry + Stable",
+     "**Efficient Stable**; +200, **Natural**",
+     "**Upkeep -200**; Speed +1"
+    ],
+    [
+     "Vineyard",
+     "",
+     "Arable Land + Apiary or Peat Bog",
+     "**Natural**",
+     "+600 in **Fall**"
+    ],
+    [
+     "Orchard",
+     "",
+     "Arable Land + Apiary or Peat Bog",
+     "**Natural**",
+     "+400 in **Fall**"
+    ]
+   ]
+  },
+  {
+   "title": "Craft",
+   "rows": [
+    [
+     "Carpentry",
+     "",
+     "Forestry",
+     "**Efficient Forestry**; **Build Timer −1**",
+     "+100; Craft+1"
+    ],
+    [
+     "Alchemy",
+     "",
+     "Apiary or Peat Bog",
+     "**Efficient Peat Bog**; +100",
+     "+200; Craft+1"
+    ],
+    [
+     "Masonry",
+     "",
+     "Quarry",
+     "**Efficient Quarry**; **Build Timer −1**",
+     "+100; Craft+1"
+    ],
+    [
+     "Butchery",
+     "",
+     "Animal Husbandry + Tannery + Salt Works",
+     "**Efficient Smokehouse**; +300",
+     "**Upkeep -200**; Craft+1"
+    ],
+    [
+     "Bakery",
+     "",
+     "Arable Land + Mill",
+     "**Efficient Arable Land**; +300; Faith +1",
+     "+100; Craft +2"
+    ],
+    [
+     "Weavery",
+     "",
+     "Merchant Quarter + Animal Husbandry",
+     "+300",
+     "+300; Craft +2"
+    ],
+    [
+     "Fletchery",
+     "",
+     "Carpentry",
+     "**Efficient Carpentry**; Unlocks **Ranged Weapons**",
+     "**Upkeep -200**"
+    ],
+    [
+     "Chandlery",
+     "",
+     "Apiary",
+     "**Efficient Apiary**; +200",
+     "**Influence −1** to Cunning actions targeting you; Craft +1"
+    ],
+    [
+     "Tannery",
+     "",
+     "Animal Husbandry",
+     "**Efficient Animal Husbandry**; Unlocks **Cast** armor & shield.",
+     "**Upkeep -200**; Craft +1"
+    ],
+    [
+     "Joinery",
+     "Rising Industry",
+     "Carpentry",
+     "**Efficient Carpentry**; +200, unlocks **Shields**",
+     "**Upkeep -200**"
+    ],
+    [
+     "Furnace",
+     "",
+     "Mine",
+     "**Efficient Mine**; Unlocks **Cast Weapons**",
+     "+200"
+    ],
+    [
+     "Blacksmith",
+     "Rising Industry",
+     "Furnace",
+     "**Efficient Furnace**; +200; Craft +1",
+     "Unlocks **Wrought** Tier"
+    ],
+    [
+     "Jewelry Foundry",
+     "",
+     "Mine + Merchant Quarter + Furnace",
+     "**Efficient Gilded Foundry**; +200; Craft +2",
+     "+500; **Influence +2** to Cunning Envoys targeting this player"
+    ],
+    [
+     "Armory",
+     "Rising Industry",
+     "Tannery + Blacksmith",
+     "**Efficient Tannery**; **Unlock Wrought** armor & shield",
+     "**Upkeep -200**; Craft +1"
+    ],
+    [
+     "Master Workshop",
+     "Established Industry",
+     "Blacksmith",
+     "**Upkeep -200**; Craft +1",
+     "Add **Serrated** to Weapons"
+    ],
+    [
+     "Gilded Foundry",
+     "Established Industry",
+     "Armory + Blacksmith",
+     "**Efficient Armory**; Unlock **Forged** armor and shield.",
+     "Tempered: Your to Save modifier cannot be reduced beyond 6+; Craft +1"
+    ],
+    [
+     "Smokehouse",
+     "",
+     "Salt Works + Kiln + Butchery",
+     "**Efficient Salt Works**; +300; Craft +1",
+     "**Upkeep -200**"
+    ],
+    [
+     "Workyard",
+     "",
+     "Common Land",
+     "**Efficient Common Land**; **Doubt +1**, +400",
+     "+400"
+    ],
+    [
+     "Storehouse",
+     "Sovereign Industry",
+     "Workyard + Shipyard",
+     "**Doubt +2**, +600",
+     "**Build Timer −2**"
+    ],
+    [
+     "Meadery",
+     "Established Industry",
+     "Apiary + Inn",
+     "**Efficient Apiary**; **Faith +1**, +300",
+     "+200,**Speed +1** in **Winter**"
+    ],
+    [
+     "Winery",
+     "Established Industry",
+     "Vineyard + Joinery",
+     "**Efficient Vineyard**; +400",
+     "Craft +3"
+    ],
+    [
+     "Cidery",
+     "Established Industry",
+     "Orchard + Joinery + Inn",
+     "**Efficient Orchard**; **Faith +1**, +300",
+     "+300; Craft +1"
+    ],
+    [
+     "Market Square",
+     "Rising Industry",
+     "2 Raw Materials",
+     "**Efficient Courtyard**; Craft +2",
+     "+400"
+    ],
+    [
+     "Inn",
+     "",
+     "Caravanery + Market Square",
+     "**Faith +1** for trading partners with Craft 3+",
+     "**Faith +1**"
+    ],
+    [
+     "Spice Merchant",
+     "",
+     "Caravanery + Merchant Quarter + Herb Garden",
+     "+300; Influence +1 to Cunning Envoys targeting you",
+     "+500; Craft +2"
+    ],
+    [
+     "Harbor",
+     "Water Settlement",
+     "Fishmongery + Salt Works",
+     "**Efficient Fishmongery**; +300; Craft +2",
+     "**Extort 200** per **player** without **Harbor**"
+    ],
+    [
+     "Merchant Quarter",
+     "Rising Industry",
+     "Craft 3 + Market Square",
+     "**Efficient Market Square**; +500",
+     "Trade Partners gain Craft +2"
+    ],
+    [
+     "Census Hall",
+     "",
+     "Workyard + Market Square",
+     "**Doubt +1**; +200",
+     "+500"
+    ],
+    [
+     "Caravanery",
+     "",
+     "Market Square or Merchant Quarter + Stable",
+     "**Influence -1** to **Intercept Caravan actions** targeting your **settlements**",
+     "**Craft +2**; **Speed -2** to non-allied players in your Province."
+    ],
+    [
+     "Shipyard",
+     "Established Industry, Water Settlement",
+     "Carpentry + Harbor",
+     "**Efficient Harbor**; Craft +1",
+     "Craft +2; Water Territory treated as Grassland for movement"
+    ]
+   ]
+  },
+  {
+   "title": "Civic",
+   "rows": [
+    [
+     "Stable",
+     "1 Rising",
+     "Animal Husbandry + Blacksmith or Carpentry",
+     "**Efficient Animal Husbandry**; **Speed +1**",
+     "**Speed +1**; Unlocks Cavalry Weapons"
+    ],
+    [
+     "Coliseum",
+     "Rising Prowess",
+     "Conditioning Field",
+     "**Efficient Conditioning Field**; **Faith +1** while at War",
+     "Unlocks **Man-at-Arms** for **Muster**"
+    ],
+    [
+     "Interrogation Chambers",
+     "Rising Piety",
+     "Episcopal Court",
+     "**Efficient Episcopal Court**",
+     "Cunning actions targetting this player that cause Doubt are reduced by 1, to a minimum of 0."
+    ],
+    [
+     "Abbey",
+     "Established Piety",
+     "Episcopal Court + Academy",
+     "**Efficient Episcopal Court**; Once/turn: **Influence +1** another player's Piety Envoy",
+     "Morale +1."
+    ],
+    [
+     "Reliquary",
+     "Rising Piety",
+     "Salt Works + Chandlery + Cathedral",
+     "**Efficient Abbey**",
+     "First **Doubt** per turn reduced by 1 (min 0)"
+    ],
+    [
+     "Bell Tower",
+     "Established Piety",
+     "Episcopal Court",
+     "**Efficient Courtyard**; **+1 Influence**/turn",
+     "**Influence +1** to Piety actions"
+    ],
+    [
+     "Execution Dock",
+     "Established Piety",
+     "Interrogation Chambers",
+     "**Influence -1** to **Foster Rebellion actions** targeting your **settlements**",
+     "**Players** who **target** you or your **settlements** with **actions** that cause **doubt** gain **Doubt +1**"
+    ],
+    [
+     "Jester's Court",
+     "1 Rising",
+     "Courtyard",
+     "**Efficient Courtyard**; First **Oppose** on your Envoy: reduce by 1",
+     "Second **Oppose** on your Envoy: reduce by 1"
+    ],
+    [
+     "Embassy",
+     "1 Established",
+     "Bell Tower + Jester's Court",
+     "**Efficient Jester's Court**; **Influence +1** to Diplomacy Envoys",
+     "Players that perform a Diplomacy action targetting you may perform another Displomacy action targetting you."
+    ],
+    [
+     "Granary",
+     "Rising Industry",
+     "Arable Land",
+     "**Efficient Arable Land**; Upkeep -200",
+     "Armies and Garrisons gain **Endurance** while Besieged"
+    ],
+    [
+     "Academy",
+     "1 Rising",
+     "Library + Alchemy",
+     "**Influence +1** to Council Envoys",
+     "**Influence +1** to non-Council Envoys"
+    ],
+    [
+     "Courtyard",
+     "",
+     "Masonry",
+     "Craft +1",
+     "**Faith +1**"
+    ],
+    [
+     "Episcopal Court",
+     "Rising Piety",
+     "Masonry",
+     "**Efficient Courtyard**; **Faith +1**",
+     "Reduce the first instance of Doubt at start of turn by 1, min 0."
+    ],
+    [
+     "Conditioning Field",
+     "Rising Prowess",
+     "Courtyard",
+     "**Efficient Courtyard**; **Faith +1** while not at War",
+     "Armies gain **Nimble**"
+    ],
+    [
+     "Grand Tournament",
+     "Established Prowess",
+     "Coliseum + Conditioning Field",
+     "**Efficient Coliseum**; **Faith +1**",
+     "3x/turn: exchange 500 gold for **1 Influence**; Armies gain **Riposte**"
+    ],
+    [
+     "Apothecary",
+     "",
+     "Herb Garden + Alchemy",
+     "**Efficient Alchemy**; +300",
+     "Gain Recover 6, or improve Recover by +1."
+    ],
+    [
+     "Infirmary",
+     "Rising Piety",
+     "Alchemy + Herb Garden",
+     "**Efficient Apothecary**; +200",
+     "Improve Recover by +1"
+    ],
+    [
+     "Supply Depot",
+     "Rising Industry",
+     "Granary or Smokehouse",
+     "**Efficient Granary**; **Craft +2**",
+     "May **Muster** an Army in a Settlement under Siege and increment Muster Timers."
+    ],
+    [
+     "Artisan Workshop",
+     "Established Industry",
+     "Carpentry + Arable Land + Weavery",
+     "+400",
+     "+200, **Faith +1**"
+    ],
+    [
+     "Trade Guild",
+     "Rising Industry",
+     "Masonry or Carpentry",
+     "No Upkeep on **Primitive Infrastructure**",
+     "No Upkeep on **Developed Infrastructure**"
+    ],
+    [
+     "Court Artists",
+     "Established Industry",
+     "Merchant Quarter + Artisan Workshop",
+     "**Extort 500**; **Faith +1**",
+     "**Extort 500**; Target of Extort gains **Faith +1**"
+    ],
+    [
+     "Courier Network",
+     "",
+     "Caravanery + Inn",
+     "Once/turn: **Influence −1** on Target Envoy",
+     "Once/turn: successfully Performed Personal Envoy can be Performed next turn; send 1 fewer Envoys next turn"
+    ],
+    [
+     "Toll House",
+     "",
+     "Caravanery + Courier Network",
+     "Once/turn when an Army ends a Move action within Province: Perform a Diplomacy action targeting that army's player",
+     "**Extort 500** when non-Allied Army ends a Move action within Province"
+    ]
+   ]
+  },
+  {
+   "title": "Secrecy",
+   "rows": [
+    [
+     "Smuggler's Nook",
+     "Established Cunning",
+     "Secret Cellar + Inn",
+     "**Efficient Secret Cellar**; gain Immune Uprising (Bandit Camp Spawn at -5PO)",
+     "Bandit Camps in your Outlaw Country don't target you and target other players instead randomly."
+    ],
+    [
+     "Black Market",
+     "Established Cunning",
+     "Market Square + Smuggler's Nook",
+     "**Efficient Market Square**; When another player **Extorts** gold from any source: **Extort 200** per 1000 (minimum 100) from that player at the end of that resolution.",
+     "When another player **Recoups** gold from any source: **Extort 200** per 1000 (minimum 100) from that player at the end of that resolution."
+    ],
+    [
+     "Toxicarium",
+     "Rising Cunning",
+     "Academy + Alchemy",
+     "**Efficient Alchemy**; Weapons gain **Poison**",
+     "All Endorsed Cunning actions give an additional **Doubt +1** to Target"
+    ],
+    [
+     "Forgotten Catacombs",
+     "Rising Cunning",
+     "Secret Cellar",
+     "**Efficient Secret Cellar**; Whenever you are the target of **Extort**, reduce the Extort amount by 100 (min 100).",
+     "Cunning actions against you cannot be **Endorsed**"
+    ]
+   ]
+  },
+  {
+   "title": "Energy",
+   "rows": [
+    [
+     "Secret Cellar",
+     "Rising Cunning",
+     "Smuggler's Nook",
+     "**Efficient Inn**; —",
+     "Passed Cunning actions **Recoup 500 Gold**"
+    ],
+    [
+     "Pilgrimage Site",
+     "Rising Piety",
+     "Reliquary + Chandlery",
+     "**Efficient Reliquary**; **Extort 200** every player without a Pilgrimage Site",
+     "**Doubt +1** to all other players without a Pilgrimage Site"
+    ],
+    [
+     "Beacon Towers",
+     "Rising Prowess",
+     "Courier Network + Toll House",
+     "**Efficient Toll House**; —",
+     "Whenever a non-allied Army ends a Move action within Province, you may immediately perform a Move action"
+    ],
+    [
+     "Charcoal Burner",
+     "Established Industry",
+     "Forestry + Kiln",
+     "**Efficient Forestry, Kiln**; +400",
+     "—"
+    ],
+    [
+     "Mill",
+     "Rising Industry",
+     "Bakery/Weavery/Forge/Carpentry",
+     "**Efficient Bakery, Weavery, Forge, Carpentry**; +300",
+     "—"
+    ],
+    [
+     "Kiln",
+     "Rising Industry",
+     "Forestry",
+     "**Efficient Forestry**; +300",
+     "—"
+    ],
+    [
+     "Burgages",
+     "",
+     "Common Land",
+     "**Efficient Common Land**; +200",
+     "**Faith +1**"
+    ]
+   ]
+  },
+  {
+   "title": "Power",
+   "rows": [
+    [
+     "Money Lending",
+     "Established Industry",
+     "Merchant Quarter",
+     "**Extort 500**",
+     "May loan money to Trade Partners at 100 per 1000/turn interest(minimum 100); on Default: Perform **Demand Tribute**"
+    ],
+    [
+     "Monastery",
+     "Established Piety",
+     "Abbey",
+     "**Efficient Abbey**; **Influence −1** to Piety actions targeting you",
+     "Other players cannot Oppose your Piety Envoys"
+    ],
+    [
+     "Hospitaller",
+     "Established Piety",
+     "Apothecary + Infirmary",
+     "**Efficient Infirmary**; **Recover** improved by +1",
+     "gain Enduring: Your recovers cannot be reduced beyond a 6+ while Fatigued."
+    ],
+    [
+     "University",
+     "1 Established",
+     "Academy",
+     "**Efficient Academy**; May spend one additional **Influence** per Support or Oppose",
+     "+1 **Influence** per Domain you are Rising"
+    ],
+    [
+     "College of Engineering",
+     "Established Industry",
+     "Academy + Trade Guild",
+     "**Efficient Trade Guild**; No Upkeep on **Sophisticated Infrastructure**",
+     "**Build Timer −2**"
+    ],
+    [
+     "Forgery Workshop",
+     "Established Cunning",
+     "Academy + Secret Cellar",
+     "**Efficient Academy**; **Extort 200** anytime a player Opposes an Envoy of yours",
+     "Once/turn: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed"
+    ],
+    [
+     "Levy Hall",
+     "Rising Prowess",
+     "Keep + Salt Works",
+     "**Upkeep -1000 while an army is range 0 of controlled settlement**",
+     "**Upkeep -1000 while an army is range 0 of controlled settlement**"
+    ],
+    [
+     "Siege Works",
+     "Rising Prowess",
+     "Blacksmith",
+     "**Siege Timer −1**",
+     "**Siege Timer −1**; Sieges Increment in **Winter**"
+    ],
+    [
+     "Siege Camp",
+     "Established Prowess",
+     "Siege Works",
+     "**Efficient Siege Works**; **Siege Timer −1**",
+     "Armies gain **Immune Strained** during Lay Siege"
+    ],
+    [
+     "Citadel",
+     "Established Industry",
+     "Masonry + Granary",
+     "**Efficient Granary**; **Siege Timer +1**",
+     "**Siege Timer +1**, Controlled Settlements gain **Reach +1**"
+    ],
+    [
+     "War College",
+     "Established Prowess",
+     "Coliseum + Levy Hall + Academy",
+     "**Efficient Academy**; Gain **+2 Influence** while At War",
+     "Unlocks **Sergeants** for Muster"
+    ],
+    [
+     "Forge",
+     "Established Industry",
+     "Blacksmith",
+     "**Efficient Blacksmith**; Craft +1",
+     "Unlocks **Forged** Tier"
+    ],
+    [
+     "Tiltyard",
+     "Established Prowess",
+     "Fletchery + Coliseum",
+     "Armies may be Equipped with a second weapon (a Ranged and a Melee Weapon); the army gains **Unwieldy**",
+     "Armies gain **Immune Unwieldy**, and may instead equip two of the same 1H Melee Weapon to gain **Dual Wield**, **2H** & **Florentine**: May Parry on a natural 6 while Fatigued."
+    ],
+    [
+     "Cipher Chamber",
+     "Sovereign Cunning",
+     "University + Courier Network",
+     "**Efficient University**; Once/turn when a player Sends an Envoy: that player must declare the specific Action they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action.",
+     "Once/turn: select any active **Timer** you did not select last turn; increase it by 2."
+    ]
+   ]
+  },
+  {
+   "title": "Monument",
+   "rows": [
+    [
+     "Office of Works",
+     "Sovereign Industry",
+     "College of Engineering + Storehouse",
+     "Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions.",
+     "Siege Timer +2; Build Timer -2"
+    ],
+    [
+     "Royal Pavilion",
+     "Sovereign Prowess",
+     "Grand Tournament + Tiltyard",
+     "**Efficient Tiltyard**; Armies gain **Immune Strained**",
+     "Armies gain **Drilled**"
+    ],
+    [
+     "Imperial Palace",
+     "Established Prowess",
+     "Citadel + Execution Dock",
+     "**Efficient Citadel**; Each Empire Phase, all non-allied players with a lower Prowess value gain Doubt +2.",
+     "If your Envoy would fail, it passes instead."
+    ],
+    [
+     "Artillery Park",
+     "Sovereign Prowess",
+     "Siege Camp + Master Workshop",
+     "**Efficient Siege Camp**; Siege Timers ignore Wooden & Stone Walls",
+     "Settlements you Siege cannot Sally Forth. Siege Timer -2."
+    ],
+    [
+     "Ministry of Military Strategy",
+     "Sovereign Prowess",
+     "University + War College",
+     "**Efficient War College**; Always gains **Seize the Initiative**, and your opponent doesn't. gain Immune Tactic -1 to Strike",
+     "Gain +1I & max initiative is 3; Deadly, & Cleave also trigger Focused Strikes on a natural 5."
+    ],
+    [
+     "Thieves' Guild",
+     "Sovereign Cunning",
+     "Market Square + Smuggler's Nook + Secret Cellar + Black Market",
+     "Whenever another player performs a Cunning action, you may recoup 1000 gold",
+     "**Extort 25%** of Trade Income from players who don't trade with you"
+    ],
+    [
+     "Senate Hall",
+     "1 Sovereign",
+     "Embassy + Library + Town Hall",
+     "**Faith +1**, gain **+1 Influence** per other player per Turn",
+     "Once/turn: Before players Support or Oppose, you may auto-**Condemn** an At War Envoy OR auto-**Endorse** an Ally's Envoy"
+    ],
+    [
+     "Papal Palace",
+     "Sovereign Piety",
+     "Monastery + Pilgrimage Site + Reliquary",
+     "Your Piety actions that cause doubt cause an additional doubt. You no longer pay cost for Piety actions.",
+     "At the beginning of each turn, Tithe every other player with lower Piety. Resolve in the Extort step.\nIn addition, once per turn, you may perform Spread Gospel."
+    ],
+    [
+     "Inquisitorial Palace",
+     "Sovereign Piety",
+     "Execution Dock + Monastery",
+     "**Efficient Monastery**; **Doubt +1**; Unlocks **Grand Vizier** which uses your **Public Order** instead of your **Cunning** value.",
+     "You may use your **Piety Value** as **Cunning Value** for **Grand Vizier**."
+    ],
+    [
+     "Preceptory of the Knight's Templar",
+     "Sovereign Piety + Established Prowess",
+     "Monastery + Hospitaller + Abbey",
+     "**Efficient Monastery**; Armies gain **Zealous**: Automatically pass the first Panic Check of every Battle.",
+     "Unlocks **Knight's Templar** for Muster"
+    ],
+    [
+     "Manor House",
+     "Established Industry",
+     "Hamlet + Market Square",
+     "Gain +100 gold for each active natural specialization.",
+     "Gain +100 gold for each active energy specialization."
+    ],
+    [
+     "Aristocratic Court",
+     "Sovereign Cunning",
+     "Money Lending + Forgery Workshop + Court Artists",
+     "**Efficient Court Artists**; Each Empire Phase, Extort 1000 from each non-allied player with a lower Cunning value.",
+     "Your Vote counts as 2 votes toward Domain selection during the Council Phase."
+    ],
+    [
+     "Studium Generale",
+     "4 Established",
+     "University + Academy",
+     "+1 **Influence** per **Established** Standing",
+     "May gain one **Sovereign Domain** effect without spending the Domain Points"
+    ],
+    [
+     "Outlaw Rookery",
+     "Sovereign Cunning",
+     "Smuggler's Nook + Toxicarium + Courier Network",
+     "**Efficient Smuggler's Nook**; Both Bandit Camps & you gain Influence +1 when performing Cunning actions.",
+     "Endorsed Foster Rebellion places Bandit Camps with 25 retinues instead of 10."
+    ],
+    [
+     "Advanced Blast Furnace",
+     "Sovereign Industry",
+     "Gilded Foundry + Master Workshop + Blacksmith + Stable",
+     "**Efficient Forge**; **Upkeep -500**",
+     "**Crafted** Tier Unlocked; Craft +2"
+    ],
+    [
+     "Outrider Intercept Post",
+     "Sovereign Cunning",
+     "Caravanery + Cipher Chamber",
+     "In the first Skirmish of every Battle, your opponent plays their Tactic Card face up before you select your own.",
+     "Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own."
+    ]
+   ]
+  }
+ ],
+ "equipment": {
+  "Retinues": [
+   [
+    "Levy",
+    "1000",
+    "4+",
+    "3",
+    "5+",
+    "—"
+   ],
+   [
+    "Man-at-Arms",
+    "2000",
+    "3+",
+    "4",
+    "5+",
+    "—"
+   ],
+   [
+    "Sergeant",
+    "2500",
+    "2+",
+    "3",
+    "4+",
+    "—"
+   ],
+   [
+    "Knight Templar",
+    "3000",
+    "3+",
+    "3",
+    "3+",
+    "—"
+   ]
+  ],
+  "Weapons": [
+   [
+    "Farm Tools",
+    "Crude",
+    "0",
+    "+0",
+    "—"
+   ],
+   [
+    "Cudgel",
+    "Crude",
+    "-1",
+    "-1",
+    "2H, Unwieldy"
+   ],
+   [
+    "Pitchfork",
+    "Crude",
+    "0",
+    "+1",
+    "2H, Unwieldy"
+   ],
+   [
+    "Daggers",
+    "Cast",
+    "0",
+    "+1",
+    "2H, Dual Wield, Deadly"
+   ],
+   [
+    "Short Sword",
+    "Cast",
+    "-1",
+    "+0",
+    "—"
+   ],
+   [
+    "Spears",
+    "Cast",
+    "-1",
+    "+1",
+    "2H, Unwieldy"
+   ],
+   [
+    "Arming Sword",
+    "Wrought",
+    "-1",
+    "+0",
+    "Steady"
+   ],
+   [
+    "Pike",
+    "Wrought",
+    "-2",
+    "+1",
+    "2H, Unwieldy, Deadly"
+   ],
+   [
+    "Flail",
+    "Wrought",
+    "-1",
+    "+0",
+    "Unwieldy, Cleave"
+   ],
+   [
+    "Halberd",
+    "Wrought",
+    "-2",
+    "+1",
+    "2H, Unwieldy"
+   ],
+   [
+    "Battle Axe",
+    "Wrought",
+    "-2",
+    "+0",
+    "2H, Unwieldy, Cleave, Negate Shielded"
+   ],
+   [
+    "Cavalry Spear",
+    "Wrought",
+    "-2",
+    "+0",
+    "Steady, Unwieldy, Negate Riposte"
+   ],
+   [
+    "Morningstar",
+    "Forged",
+    "-3",
+    "-1",
+    "Unwieldy, Cleave, Destroy Shield"
+   ],
+   [
+    "Bastard Sword",
+    "Forged",
+    "-3",
+    "+0",
+    "Steady, Deadly"
+   ],
+   [
+    "2HBastard",
+    "Forged",
+    "-3",
+    "+0",
+    "2H, Unwieldy, Cleave"
+   ],
+   [
+    "War Hammer",
+    "Forged",
+    "-8",
+    "-1",
+    "2H, Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield"
+   ],
+   [
+    "Lance",
+    "Forged",
+    "-4",
+    "+1",
+    "Steady, Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte"
+   ],
+   [
+    "Estoc",
+    "Crafted",
+    "-3",
+    "+1",
+    "Steady, Deadly, Negate Riposte, Negate Tempered"
+   ],
+   [
+    "Poleaxe",
+    "Crafted",
+    "-3",
+    "+1",
+    "2H, Steady, Deadly, Unstoppable, Negate Shielded, Negate Tempered"
+   ]
+  ],
+  "Ranged": [
+   [
+    "Hunting Bow",
+    "Crude",
+    "-1",
+    "+2",
+    "2H, Unstoppable, Negate Riposte"
+   ],
+   [
+    "Longbow",
+    "Cast",
+    "-1",
+    "+2",
+    "2H, Unstoppable, Deadly, Negate Riposte"
+   ],
+   [
+    "Javelin",
+    "Wrought",
+    "-2",
+    "+1",
+    "Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, One Shot"
+   ],
+   [
+    "Crossbow",
+    "Forged",
+    "-4",
+    "+0",
+    "Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte, One Shot"
+   ],
+   [
+    "Pilum",
+    "Crafted",
+    "-3",
+    "+1",
+    "Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One Shot"
+   ],
+   [
+    "Arqeubus",
+    "Crafted",
+    "-4",
+    "+2",
+    "2H, Steady, Unstoppable, Negate Shielded, Negate Riposte, Negate Tempered"
+   ]
+  ],
+  "Shields": [
+   [
+    "Buckler Shield",
+    "Crude",
+    "+1",
+    "+0",
+    "—"
+   ],
+   [
+    "Targe Shield",
+    "Cast",
+    "+0",
+    "-1",
+    "Steady, Shielded"
+   ],
+   [
+    "Kite Shield",
+    "Wrought",
+    "+1",
+    "-1",
+    "Unwieldy, Shielded"
+   ],
+   [
+    "Tower Shield",
+    "Forged",
+    "+2",
+    "-1",
+    "Unwieldy, Shielded"
+   ],
+   [
+    "Heater Shield",
+    "Crafted",
+    "+2",
+    "+0",
+    "Shielded, Immune Destroy Shield"
+   ]
+  ],
+  "Armor": [
+   [
+    "Cloth",
+    "Crude",
+    "7+",
+    "—"
+   ],
+   [
+    "Leather",
+    "Cast",
+    "5+",
+    "—"
+   ],
+   [
+    "Chainmail",
+    "Wrought",
+    "4+",
+    "—"
+   ],
+   [
+    "Full Plate",
+    "Forged",
+    "3+",
+    "—"
+   ],
+   [
+    "Gothic Plate",
+    "Crafted",
+    "2+",
+    "Immune Unwieldy"
+   ]
+  ]
+ },
+ "infrastructure": [
+  [
+   "Dirt Roads",
+   "0",
+   "—",
+   "Can Trade; If you start a Move action within Province, gain Speed +1",
+   "Primitive",
+   "2",
+   "None"
+  ],
+  [
+   "Hitching Post",
+   "0",
+   "—",
+   "Craft +1",
+   "Primitive",
+   "2",
+   "None"
+  ],
+  [
+   "Muster Field",
+   "200",
+   "per Turn",
+   "Can Muster",
+   "Primitive",
+   "2",
+   "None"
+  ],
+  [
+   "Wooden Walls",
+   "200",
+   "per Turn",
+   "**Influence -2** to **Raze actions** from players targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**. Siege Timer +1",
+   "Primitive",
+   "2",
+   "None"
+  ],
+  [
+   "Stone Roads",
+   "200",
+   "per Turn",
+   "If you start a Move action within Province, gain additional Speed +1",
+   "Developed",
+   "3",
+   "Dirt Roads"
+  ],
+  [
+   "Town Hall",
+   "200",
+   "per Turn",
+   "+1 Influence per turn",
+   "Developed",
+   "3",
+   "One Tier Primitive"
+  ],
+  [
+   "Bridges",
+   "0",
+   "—",
+   "Armies cross Water Territory at full movement within Province; Stone Roads may be built over Water",
+   "Developed",
+   "3",
+   "One Tier Primitive + Stone Roads"
+  ],
+  [
+   "Garrison",
+   "300",
+   "per Turn",
+   "Local Armies form (10/15/25/50 by Settlement size). All Garrisons share Equipment. Cannot be targeted; may Sally Forth. Siege Timer +1",
+   "Developed",
+   "3",
+   "Muster Field"
+  ],
+  [
+   "Stone Walls",
+   "300",
+   "per Turn",
+   "**Influence -2** to **Destabilize actions** from players targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**. Siege Timer +1",
+   "Sophisticated",
+   "4",
+   "One Tier Developed + Wooden Walls"
+  ],
+  [
+   "Keep",
+   "300",
+   "per Turn",
+   "May Muster from Garrison in addition to normal Muster Limits. If so set Garrison to 0 and Muster Timer 1. Garrison returns to full when resolved.",
+   "Sophisticated",
+   "4",
+   "Garrison"
+  ],
+  [
+   "Cathedral",
+   "300",
+   "per Turn",
+   "Faith +2",
+   "Sophisticated",
+   "4",
+   "Requires Capital City"
+  ],
+  [
+   "Library",
+   "300",
+   "per Turn",
+   "Influence +1 to Council Envoys",
+   "Sophisticated",
+   "4",
+   "Town Hall"
+  ]
+ ],
+ "wonders": [
+  [
+   "Colossus",
+   "You may **support** your own **prowess envoys** before other **players vote**. **Armies** move **Speed +2**, **Siege Timer -2**, & gain **Immune Blunder**.",
+   "10",
+   "All Infrastructure unlocked"
+  ],
+  [
+   "The Grand Exchange",
+   "Whenever you generate **Trade Income** you generate **twice as much** for yourself.",
+   "10",
+   "All Infrastructure unlocked"
+  ],
+  [
+   "The Great Basilica",
+   "If your **Public Order** would ever be less than 5 set it to 5 instead. Your **Settlements** gain **Reach +1**.",
+   "10",
+   "All Infrastructure unlocked"
+  ],
+  [
+   "High Chancery",
+   "Once per turn: automatically **Condemn** or **Endorse** one Envoy Sent by any other player regardless of **Net Influence** after Influence has been spent, even if it’s a Council Envoy.",
+   "10",
+   "All Infrastructure unlocked"
+  ]
+ ],
+ "factions": [
+  [
+   "The Battering Ram",
+   "Siege Specialist: You begin the game with a Siege Works (no ward, no upkeep, always active Mastery). If a player builds a Citadel, you must Siege it as an Edict."
+  ],
+  [
+   "The Boundless Steppe",
+   "Horsemasters: Begin the game with a Stable which does not occupy a Settlement ward, cost Upkeep, and counts as an activated Mastery Effect which cannot be deactivated."
+  ],
+  [
+   "The Bandit King",
+   "Friends in Low Places: You begin the game with a Smuggler's Nook which does not occupy a Settlement ward, nor cost upkeep. You always gain its Mastery Effect, which cannot be deactivated. In addition, you may control one Bandit Camp outside your territory each turn. Every turn a Bandit Camp is generated, you may place it in your Outlaw Country instead."
+  ],
+  [
+   "The Crowned Star",
+   "The Monarch: Each Turn, you choose each Council Envoy's Domain. All Envoys you send gain Influence -1."
+  ],
+  [
+   "The Crimson Tide",
+   "Sea Lanes: Other players cannot perform Intercept Caravan on you. You begin the game with a Shipyard that does not occupy a Settlement ward, does not cost upkeep, and always has the Mastery Effect, even if you do not have a Water Settlement."
+  ],
+  [
+   "The Entwined Crown",
+   "Royal Marriage: Once per game, you may join an Alliance without unanimous consent, or form an Alliance with a player who is not in one. Whoever is in that Alliance gains Faith +1 and +1 Influence per turn."
+  ],
+  [
+   "The Eternal Court",
+   "Patient Court: Your influence is never wasted — unspent influence is not discarded in the Rest Phase. Once the Era is Zenith, you have a cap of 5 on influence you spend per envoy, regardless of your Domain Standing."
+  ],
+  [
+   "The Final Word",
+   "The Decider: Ignore the Innate Doubt & Influence Modifiers that are triggered for being at War."
+  ],
+  [
+   "The Gilded Crescent",
+   "Prosperity For All: Begin the game with an Inn which does not occupy a Settlement ward, cost Upkeep, and counts as an activated Mastery Effect which cannot be deactivated."
+  ],
+  [
+   "The Gilded Path",
+   "Silk Road: You begin the game with an Artisan Workshop (no ward, no upkeep, always active Mastery). However, you cannot refuse a Trade Agreement."
+  ],
+  [
+   "The Hermit Crown",
+   "Independent, but Ambitious: You Abstain every Vote on other players' Envoys, and other players must use 2 Influence to affect your Envoys by 1. Gain Influence +1 to all Personal Envoys. You cannot vote on Council Envoys."
+  ],
+  [
+   "The Illuminated Order",
+   "Knowledge is Power: For every 3 Pursuits, gain +1 Influence each turn."
+  ],
+  [
+   "The Iron Faith",
+   "Fortress of Faith: While Public Order is greater than or equal to 3, Lay Siege actions targeting Settlements you Control have Siege Timer +2."
+  ],
+  [
+   "The Iron Shore",
+   "Scavengers: Whether you win or lose a battle, collect the Spoils of War. You may also recoup the cost of the retinues received as Casualties in that Battle. Lastly, whenever you perform the Rrpair action, recoup its cost, even if it only passed."
+  ],
+  [
+   "The Iron Throne",
+   "Unimpeachable: Begin the game with a Citadel (no ward, no upkeep, always active Mastery). You (or your alliance) cannot perform Declare War or Crusade."
+  ],
+  [
+   "The Merchant Republics",
+   "Heart of Trade: Begin the game with Stone Roads infrastructure, do not pay Upkeep, and cannot be Razed. In order for any player to be able to trade, they must trade with this player first, unless at War with this player. As soon as another player is eligible, you must attempt to Sign a Trade Agreement once with that player. You may not perform the End Treaty Diplomacy action."
+  ],
+  [
+   "The Sacred Throne",
+   "Sacrosanct: Players who declare war on you (and their allies) gain an additional Doubt +1."
+  ],
+  [
+   "The Tunnellers",
+   "Tunnellers: You treat mountain territory like grasslands for purposes of movement, and begin the game with a Mine raw material pursuit (no ward, no upkeep, always active Mastery)."
+  ],
+  [
+   "The Undying Flame",
+   "Martyrdom: Your armies Morale cannot be modified beyond 6+, but your armies continue to suffer −1 from Fatigue Tokens. Gain Faith +1 for every player you're at War with and every Battle where you lose 20 or more retinues, win or loss. Gain Immune War Weariness"
+  ],
+  [
+   "The Verdant Kingdom",
+   "Peaceful & Inventive: You cannot declare war, enter Military Alliances, perform Cunning actions, or build Pursuits that require Prowess or Cunning Standing. In the Income step, gain 100 gold for each Craft Mastery Effect you have active."
+  ],
+  [
+   "The Winter Wolves",
+   "Danegeld: Your armies do not pay upkeep in enemy territory when you're at war — the enemy player pays the upkeep instead. Do not gain Speed −1 in Winter."
+  ],
+  [
+   "The Ancient Wilds",
+   "Highlander Way: Enemy armies gain Speed −1 in your Province. You ignore all Terrain Speed modifiers and may trade without Dirt Roads. You must accept the first Non-Aggression Pact offered by each player or Alliance. If that player later joins an alliance, this condition is considered satisfied for that alliance."
+  ],
+  [
+   "The Bloodied Cross",
+   "Prophets of War: May Crusade at Rising Piety instead of Sovereign Piety, and do not have a cap on how many Crusades you may have active. All players receive Doubt +1 per Crusade you are on. You cannot perform convert actions."
+  ],
+  [
+   "The Blazing Standard",
+   "Burning Cross: You begin the game with a Preceptory of the Knight's Templar (no ward, no upkeep, always active Mastery). If you Declared War via Crusade, that player must take a Panic Check at the beginning of every battle after lines are formed. If during the Prowess Envoy phase you do not have an army with 25 Knight's Templars, you must attempt to send an envoy. If it passes, you must muster an army until it has 25 retinues of Knight's Templar."
+  ],
+  [
+   "The Inner Circle",
+   "Palatine: Players who are allied with you gain Influence +1 to their envoys, but you may spend 1 of their Influence each turn, targeting your own envoys if you wish."
+  ],
+  [
+   "The Luminous Court",
+   "Arts & Humanities / Hearts & Minds: Cannot pursue Craft Pursuits. Civic Pursuits gain Craft +1. All Civic Pursuits do not cost Upkeep. This Player must accept a Peace Treaty if offered one."
+  ],
+  [
+   "The Grand Compact",
+   "Mercantile Pact: If anyone Declares War on you, players with Trade Agreements with you must Declare War back or End Trade Agreement."
+  ],
+  [
+   "The Pale Throne",
+   "Inexorable: Your armies always have Unwieldy and cannot gain Immune Unwieldy, but also gain Recover +1, Speed −1, and Immune Panic. Your Public Order cannot exceed 1."
+  ],
+  [
+   "The Sublime Gate",
+   "Integrated Arms: You may Muster retinues and equipment from your Trade Partners' Pursuits (and Mastery Effects, if active) for their cost when you perform a muster action."
+  ],
+  [
+   "The Velvet Hand",
+   "Friends in High Places: At the beginning of the turn, players gain Faith +1 if they supported an envoy you sent and it was passed. And, if it was endorsed, they Extort 500 gold per Era."
+  ],
+  [
+   "The Ashen Vale",
+   "Pestilence: Each bordering player gains Doubt +1, your settlements gain Reach +1, and all retinues gain Poison. You may not pursue an Apothecary, Infirmary, or Hospitaller."
+  ],
+  [
+   "The Broken Banner",
+   "The Highest Bidder: You cannot Declare War and cannot be the Target of a Declare War action. However you must sign any Military or Defensive Alliance offered to you by the highest bidding player each turn and must be paid each turn. In order to overturn an existing alliance, the player must pay a higher amount than the prior agreement. You cannot sign or end alliances via a Diplomacy action."
+  ],
+  [
+   "The Forked Tongue",
+   "Masters of Duplicity: You may hold any number of treaties simultaneously with any number of players, regardless of contradiction. Your treaties are never automatically canceled or voided by game events. When a situation arises that would normally force a treaty to be canceled, you may choose which obligation to honor, keeping all other treaties intact. Other players may still end their treaties with you via the End Treaty action."
+  ],
+  [
+   "The Hall of Masks",
+   "Mimic: At the beginning of every player's turn, pick another player's Faction. You gain that Faction for this turn. Next turn, you cannot select that Faction."
+  ],
+  [
+   "The Smoldering Crown",
+   "Reckless: Gain Influence +2 to all Cunning Envoys when targeting a Player with PO > 0. You begin the game with a Secret Cellar (no ward, no upkeep, always active Mastery). Cannot be in an alliance. Cannot perform Diplomacy actions. If you Send a Prowess envoy, it cannot fail — if condemned, it passes."
+  ],
+  [
+   "The Squatters' Crown",
+   "Occupy: You start the game with an additional army. All must begin the game placed inside your settlements. You do not control your settlements when you leave them. To collect taxes or use Pursuits, end your turn inside that Settlement. To Occupy a Settlement, begin a Battle adjacent to the city like a Siege — instead, you Battle against the Garrison and Armies at war with you or owned by the same owner. If you win (or there is no force to fight), move inside. In the Upkeep Phase, only pay upkeep on equipment. You count as having all Infrastructure of Occupied Settlements and always count as 3 Trading Pursuits. When you leave a Settlement, you may not re-enter it until you Occupy another Settlement and a Trade Agreement is signed."
+  ],
+  [
+   "The Wandering Crown",
+   "Wandering Nomads: Your armies function as settlements, classified as a Band, Tribe, or Horde and upgraded accordingly. You may have one additional army per Era, starting with two. Armies do not require troops to exist and cannot be besieged. Nomads cannot build infrastructure but may build pursuits. Raw Material pursuits within Reach are always considered active and do not take a settlement ward. Each army is considered to have a Muster Field. You may trade so long as your border touches another player's border. Armies count as settlements with a Reach of 3. When an army is destroyed, so is its settlement. You may begin a new army adjacent to any existing army by using either the Charter Settlement or Muster Army actions. Nomads do not pay any upkeep."
+  ],
+  [
+   "The Dukedom",
+   "The Great Arbiter: The Duke begins the game trading with all players under a Non-Aggression Pact. The Duke cannot join alliances, perform Cunning actions, or Declare War. If a player declares war on the Duke, that player's Trade Agreements, Non-Aggression Pacts, and Defensive Alliances are immediately and permanently voided. Their Military Alliance remains intact. All other players simultaneously declare war on that player and their Military Alliance. These cannot be reinstated while at war with the Duke. The Duke sees all private actions, resolves player actions, and manages Bandit Mechanics. If the Duke is eliminated, the game ends. The Duke may optionally choose a faction."
+  ],
+  [
+   "The Elder Grove",
+   "Wise & Suspicious: Gain Doubt +1; If Public Order is 1+, armies gain +1I, Steady, and Speed +1. Cannot be a member of an alliance."
+  ],
+  [
+   "The Yew Heart",
+   "Archery is a Way of Life: You begin the game with a Fletchery which does not occupy a Settlement ward, nor cost upkeep. You always gain its Mastery Effect, which cannot be deactivated. In addition, your armies must always be equipped with a ranged weapon. Ranged Weapons gain +1 to Strike. Cannot  be equipped with full plate or articulated gothic plate. Cannot use shields. Cannot build a Preceptory of Knight's Templar."
+  ]
+ ],
+ "settlements": [
+  [
+   "Hamlet",
+   "0",
+   "—",
+   "0",
+   "0",
+   "1",
+   "3",
+   "1",
+   "Husbandry pursuits only; exactly range 2 from capital; may always pursue Arable Land"
+  ],
+  [
+   "Village",
+   "1",
+   "—",
+   "1000",
+   "5",
+   "1",
+   "1",
+   "1",
+   "—"
+  ],
+  [
+   "Town",
+   "2",
+   "Sea Town",
+   "3000",
+   "10",
+   "2",
+   "2",
+   "2",
+   "—"
+  ],
+  [
+   "City",
+   "3",
+   "Port",
+   "5000",
+   "25",
+   "3",
+   "3",
+   "3",
+   "—"
+  ],
+  [
+   "Metropolis",
+   "4",
+   "—",
+   "8000",
+   "25",
+   "5",
+   "4",
+   "4",
+   "Capital only, requires Sovereign Industry (Titan of Industry)"
+  ]
+ ],
+ "eras": [
+  [
+   "Founding",
+   "1",
+   "1",
+   "0",
+   "+1",
+   "1",
+   "1 Council + 1 Personal Envoy per turn",
+   "—"
+  ],
+  [
+   "Ascension",
+   "8",
+   "2",
+   "1",
+   "+2",
+   "2",
+   "Council Envoys perform 2 actions of that domain",
+   "May resolve Charter Cities"
+  ],
+  [
+   "Eminence",
+   "18",
+   "3",
+   "2",
+   "+3",
+   "3",
+   "Personal Envoys perform 2 actions of that domain",
+   "May form Military Alliances"
+  ],
+  [
+   "Zenith",
+   "30",
+   "4",
+   "3",
+   "+4",
+   "4",
+   "Send 2 Personal Envoys per turn",
+   "May form Defensive Alliances"
+  ]
+ ],
+ "domain_board": [
+  [
+   "Industry",
+   "Trade Secrets: Perform endorsed Pursuit.",
+   "Grand Architect: May have an additional City. Perform endorsed Charter.",
+   "Titan of Industry: Your capital may be chartered to a Metropolis. Perform endorsed Charter."
+  ],
+  [
+   "Prowess",
+   "Indomitable: Once per turn, if you have not sent a Personal Envoy, you may instead perform a Prowess action; send 1 fewer Envoy this turn (min 0). In addition, may use Declare War action.",
+   "Edict of War: May have an additional Army. Perform a Muster Action. All armies gain Parry.",
+   "High Quartermaster: Upkeep -2000. May change equipment on your armies during any upkeep phase where that army is within Province. No longer lose Influence while at War."
+  ],
+  [
+   "Cunning",
+   "Clandestine Councilor: Twice per Envoy Phase, during a vote on an Envoy, target a player - that player Abstains that Envoy.",
+   "Grand Vizier: Players may not target you with Cunning Envoys if your Cunning value is higher. When you perform a Skirmish action, your opponent gains Blunder in the first Skirmish of that Battle.",
+   "Master Conspirator: Once per turn, if your non-Cunning Envoy passes or is Endorsed, you may instead perform a Cunning action. In Battle, your opponent gains Strained each Skirmish."
+  ],
+  [
+   "Piety",
+   "Divine Mandate: Faith +1 each Empire Phase.",
+   "One True Gospel: Each Empire Phase, all other non-allied players with a lower Piety value gain Doubt +2.",
+   "Pillar of Faith: If your Public Order would be set below 3, set it to 3. In addition, may use the Crusade action."
+  ]
+ ],
+ "tactics_matrix": {
+  "Scout": {
+   "Scout": [
+    {
+     "I": 1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Ambush": [
+    {
+     "I": 1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": 1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Flank": [
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": 1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Charge": [
+    {
+     "I": 1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Fighting Formation": [
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": -1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": -1,
+     "TH": 1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Defensive Formation": [
+    {
+     "I": 1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": 1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Fall Back": [
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 0,
+     "end": true,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 0,
+     "end": true,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": true
+    }
+   ]
+  },
+  "Ambush": {
+   "Scout": [
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": 1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Ambush": [
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": 1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": 1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Flank": [
+    {
+     "I": 1,
+     "TH": -1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": -1,
+     "TH": 1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Charge": [
+    {
+     "I": 1,
+     "TH": 1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": -1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Fighting Formation": [
+    {
+     "I": 1,
+     "TH": 0,
+     "TS": 1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": -1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Defensive Formation": [
+    {
+     "I": 0,
+     "TH": -1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Fall Back": [
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 0,
+     "end": true,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 0,
+     "end": true,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": true
+    }
+   ]
+  },
+  "Flank": {
+   "Scout": [
+    {
+     "I": 1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": 1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Ambush": [
+    {
+     "I": -1,
+     "TH": 1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 1,
+     "TH": -1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Flank": [
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": true,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": true,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Charge": [
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Fighting Formation": [
+    {
+     "I": 1,
+     "TH": 1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Defensive Formation": [
+    {
+     "I": 1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": 1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Fall Back": [
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 1,
+     "TH": 1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ]
+  },
+  "Charge": {
+   "Scout": [
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Ambush": [
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": -1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 1,
+     "TH": 1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Flank": [
+    {
+     "I": 1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Charge": [
+    {
+     "I": 0,
+     "TH": 1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 0,
+     "TH": 1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Fighting Formation": [
+    {
+     "I": 1,
+     "TH": -1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": -1,
+     "TH": 1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Defensive Formation": [
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": -1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 1,
+     "TH": 1,
+     "TS": 1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Fall Back": [
+    {
+     "I": 1,
+     "TH": 1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ]
+  },
+  "Fighting Formation": {
+   "Scout": [
+    {
+     "I": -1,
+     "TH": 1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": -1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Ambush": [
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": -1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 1,
+     "TH": 0,
+     "TS": 1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Flank": [
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 1,
+     "TH": 1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Charge": [
+    {
+     "I": -1,
+     "TH": 1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 1,
+     "TH": -1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Fighting Formation": [
+    {
+     "I": -1,
+     "TH": 1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": -1,
+     "TH": 1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Defensive Formation": [
+    {
+     "I": 0,
+     "TH": 1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Fall Back": [
+    {
+     "I": 0,
+     "TH": 1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ]
+  },
+  "Defensive Formation": {
+   "Scout": [
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": 1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Ambush": [
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 0,
+     "TH": -1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Flank": [
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": 1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Charge": [
+    {
+     "I": 1,
+     "TH": 1,
+     "TS": 1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": -1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Fighting Formation": [
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 0,
+     "TH": 1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Defensive Formation": [
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 1,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Fall Back": [
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 0,
+     "end": true,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 0,
+     "end": true,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": true
+    }
+   ]
+  },
+  "Fall Back": {
+   "Scout": [
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 0,
+     "end": true,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": true
+    },
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 0,
+     "end": true,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Ambush": [
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 0,
+     "end": true,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": true
+    },
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 0,
+     "end": true,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Flank": [
+    {
+     "I": 1,
+     "TH": 1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Charge": [
+    {
+     "I": -1,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 1,
+     "TH": 1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Fighting Formation": [
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 0,
+     "TH": 1,
+     "TS": 0,
+     "end": false,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Defensive Formation": [
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 0,
+     "end": true,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": true
+    },
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 0,
+     "end": true,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ],
+   "Fall Back": [
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 0,
+     "end": true,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    },
+    {
+     "I": 0,
+     "TH": 0,
+     "TS": 0,
+     "end": true,
+     "no_combat": false,
+     "endurance_loss": true,
+     "strain": false
+    }
+   ]
+  }
+ },
+ "tactics": [
+  "Scout",
+  "Ambush",
+  "Flank",
+  "Charge",
+  "Fighting Formation",
+  "Defensive Formation",
+  "Fall Back"
+ ]
+}

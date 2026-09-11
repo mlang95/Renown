@@ -1,0 +1,37 @@
+Name,Category,Tier,AP,Initiative,Save,Effects,Cost,Strike,Endurance,Morale,Pursuit Unlock,Note
+Farm Tools,Weapon,Crude,0,0,,None,,,,,,
+Cudgel,Weapon,Crude,−1,−1,,"2H, Unwieldy",,,,,,
+Pitchfork,Weapon,Crude,0,1,,"2H, Unwieldy",,,,,,
+Daggers,Weapon,Cast,0,'+1,,"Nimble, 2H, Shatter Armor",,,,,,
+Short Sword,Weapon,Cast,−1,0,,Steady,,,,,,
+Spears,Weapon,Cast,−1,'+1,,Unwieldy,,,,,,
+Arming Sword,Weapon,Wrought,−1,0,,"Steady, Shatter Armor",,,,,,
+Pike,Weapon,Wrought,−2,'+1,,"Unwieldy, Shatter Armor, 2H",,,,,,
+Flail,Weapon,Wrought,−2,−1,,Cleave,,,,,,
+Halberd,Weapon,Wrought,−3,0,,2H,,,,,,
+Battle Axe,Weapon,Wrought,−2,−1,,"Unstoppable, 2H, Cleave",,,,,,
+Cavalry Spear,Weapon,Wrought,−2,0,,"Unwieldy, Steady",,,,,Stable,*No Tower Shield or Crossbow dual
+Bastard Sword,Weapon,Forged,−3,0,,"[Steady, Shatter Armor] or [2H, Unwieldy, Cleave]",,,,,,*Choose profile when declaring equipment after tactics
+Lance,Weapon,Forged,−4,'+1,,"Steady, Unwieldy, Shatter Armor, Unstoppable",,,,,Stable,*No Tower Shield or Crossbow dual
+Morningstar,Weapon,Forged,−3,−1,,"Unwieldy, Destroy Shield, Cleave",,,,,,
+War Hammer,Weapon,Forged,−8,−1,,"Unwieldy, Destroy Shield, Unstoppable, 2H, Shatter Armor",,,,,,
+Poleaxe,Weapon,Crafted,−4,'+1,,"Steady, 2H, Unstoppable, Shatter Armor",,,,,,
+Hunting Bow,Ranged,Crude,−1,2,,"2H, Shatter Armor, Deflect",,,,,Fletchery,
+Longbow,Ranged,Cast,−2,2,,"Shatter Armor, 2H, Deflect",,,,,Fletchery,
+Javelin,Ranged,Wrought,−3,'+1,,"Shatter Armor, Steady, Unstoppable, One Shot, Deflect",,,,,Fletchery,
+Crossbow,Ranged,Forged,−4,0,,"Shatter Armor, Unwieldy, Unstoppable, Deflect",,,,,Fletchery,*Tower Shield only (no other shield permitted)
+Pilum,Ranged,Crafted,−5,'+1,,"Steady, Destroy Shield, Unstoppable, One Shot, Shatter Armor, Deflect",,,,,Fletchery,
+Wooden Shield,Shield,Crude,,−1,1,Unwieldy,,,,,Joinery,
+Kite Shield,Shield,Cast,,0,1,Steady,,,,,Joinery,
+Scutum Shield,Shield,Wrought,,−1,1,"Unwieldy, −1TBH",,,,,Joinery,
+Tower Shield,Shield,Forged,,−1,2,"−1TBH, Unwieldy",,,,,Joinery,*Cannot be used with Lance or Cavalry Spear; only shield usable with Crossbow
+Heater Shield,Shield,Crafted,,0,1,"−1TBH, Immune Destroy Shield",,,,,Joinery,
+Cloth,Armor,Crude,,,6+,,,,,,,
+Leather,Armor,Cast,,,5+,,,,,,Tannery,
+Chainmail,Armor,Wrought,,,4+,Unwieldy,,,,,Armory,
+Full Plate,Armor,Forged,,,3+,Unwieldy,,,,,Gilded Foundry,
+Gothic Plate,Armor,Crafted,,,2+,Unwieldy,,,,,Advanced Blast Furnace,
+Levy,Retinue,,,,,,1000,4+,3,5+,None,
+Man-at-Arms,Retinue,,,,,,2000,3+,2,4+,Coliseum,
+Sergeant,Retinue,,,,,,2500,2+,2,4+,War College,
+Knight Templar,Retinue,,,,,,3000,2+,2,4+,Preceptory of the Knight's Templar,*Unbreakable

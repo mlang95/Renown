@@ -1,0 +1,249 @@
+@echo off
+REM ============================================================================
+REM  build_all.bat - regenerate everything downstream of renown_data.py.
+REM  Cards (player-scaled), the Word docs, the GitHub Pages wiki, and the
+REM  print-and-tape board(s). Does NOT run tournaments - that's run_tournament.bat.
+REM ============================================================================
+cd /d "C:\Users\Matt\OneDrive\Desktop\Game\Combatv3"
+REM ---------------------------------------------------------------- EDIT THESE
+set PY="C:\Users\Matt\anaconda3\envs\kotr\python.exe"
+set GIT="C:\Program Files\Git\cmd\git.exe"
+REM VERSION : pulled from renown_data.py (single source of truth)
+%PY% -c "import renown_data,sys; sys.stdout.write(renown_data.VERSION)" > "%TEMP%\renown_ver.txt"
+set /p VERSION=<"%TEMP%\renown_ver.txt"
+del "%TEMP%\renown_ver.txt"
+REM PUSH_REPO : 1 = commit+tag+push the whole Game repo, 0 = don't
+set PUSH_REPO=1
+REM REPO_MSG : short description of what changed this version
+set REPO_MSG=wiki + reference pages, Mill merge, Cipher Chamber
+REM MODE : renown | escalation | both
+set MODE=both
+REM WHAT : cards | docs | wiki | both
+set WHAT=both
+REM PLAYERS : table size (2-7)
+set PLAYERS=2
+REM OUT_DIR : where card PDFs land
+set OUT_DIR=cards
+REM WIKI_REPO : local clone of the RenownWiki repo (GitHub Pages source)
+set WIKI_REPO=C:\Users\Matt\OneDrive\Desktop\Game\RenownWiki
+REM PUSH_WIKI : 1 = git commit+push after build, 0 = build only
+set PUSH_WIKI=1
+REM ---- LORE (world.txt regenerated from renown_worldlore.py) -----------------
+REM BUILD_LORE : 1 = run gen_cultures.py before the wiki, 0 = use existing world.txt
+set BUILD_LORE=1
+REM LORE_DIR   : folder holding gen_cultures.py / renown_worldlore.py / world.txt
+set LORE_DIR=C:\Users\Matt\OneDrive\Desktop\Game\Combatv3\worldbuilding
+REM ---- BOARD (print-and-tape start map) --------------------------------------
+REM BUILD_BOARD : 1 = generate a start-board PDF, 0 = skip
+set BUILD_BOARD=1
+REM BOARD_DIR   : folder holding mapgen.py / hexmap.py / hexgen.py / build_board.py
+set BOARD_DIR=C:\Users\Matt\OneDrive\Desktop\Game\Combatv3\mapgen
+REM board dimensions, table size, seed, hex size (mm c->corner), paper
+set BOARD_W=13
+set BOARD_H=16
+set BOARD_PLAYERS=2
+set BOARD_SEED=56
+set BOARD_HEX=20
+set BOARD_PAPER=A4
+REM BOARD_RES : 1 = stamp raw-material toppers, 0 = terrain only (loose tokens)
+set BOARD_RES=0
+REM BOARD_OUT : output PDF (lands in BOARD_DIR)
+set BOARD_OUT=%BOARD_DIR%\board_%BOARD_W%x%BOARD_H%_%BOARD_PLAYERS%p.pdf
+REM ---- TACTICAL BOARD (one-sheet skirmish map) -------------------------------
+REM BUILD_TACTICAL : 1 = also emit the one-sheet skirmish board, 0 = skip
+REM   terrain-only, landscape; ignores players/resources; auto-clamps to fit.
+set BUILD_TACTICAL=1
+set TAC_W=9
+set TAC_H=6
+set TAC_SEED=26
+set TAC_HEX=20
+set TAC_OUT=%BOARD_DIR%\tactical_%TAC_W%x%TAC_H%_s%TAC_SEED%.pdf
+REM ---- CE BUILD (all-CE book: reorg_6 + renown_data_CE + split glossary) ------
+REM BUILD_CE : 1 = also build Renown_CE.docx from the CE folder, 0 = skip
+set BUILD_CE=1
+REM CE_DIR   : folder holding the CE files (renown_data_CE.py, RULES_reorganized_6.md,
+REM            gen_compendium.py, build_compendium.py, docx_tables.py, md_to_docx.py,
+REM            combine_docx.py). Optionally drop patch_pursuit_domains.py here too.
+set CE_DIR=C:\Users\Matt\OneDrive\Desktop\Game\CE
+REM CE_COPY_TO_MAIN : 1 = also copy Renown_CE.docx next to Renown.docx, 0 = leave in CE_DIR
+set CE_COPY_TO_MAIN=1
+REM ---------------------------------------------------------------------------
+echo.
+echo === build_all : MODE=%MODE%  WHAT=%WHAT%  PLAYERS=%PLAYERS%  LORE=%BUILD_LORE%  BOARD=%BUILD_BOARD%  TACTICAL=%BUILD_TACTICAL%  CE=%BUILD_CE% ===
+echo.
+if /i "%BUILD_BOARD%"=="1" call :board
+if /i "%BUILD_TACTICAL%"=="1" call :tactical
+if /i "%WHAT%"=="cards" goto cards
+if /i "%WHAT%"=="docs"  goto docs
+if /i "%WHAT%"=="wiki"  goto wiki
+if /i "%WHAT%"=="both"  goto cards
+echo Invalid WHAT=%WHAT% & goto end
+:cards
+echo --- Cards ---
+if /i "%MODE%"=="both" (
+  %PY% generate_cards.py renown "%OUT_DIR%" %PLAYERS%
+  %PY% generate_cards.py escalation "%OUT_DIR%" %PLAYERS%
+) else (
+  %PY% generate_cards.py %MODE% "%OUT_DIR%" %PLAYERS%
+)
+if /i "%WHAT%"=="cards" goto end
+:docs
+echo --- Docs ---
+echo   Compendium...
+%PY% gen_compendium.py compendium_data.json
+%PY% patch_pursuit_domains.py compendium_data.json
+%PY% build_compendium.py compendium_data.json Compendium.docx
+echo   Rules...
+%PY% md_to_docx.py RULES_reorganized_5.md Rules.docx 
+%PY% combine_docx.py Rules.docx Compendium.docx Renown.docx
+if /i "%BUILD_CE%"=="1" call :ce
+echo   FAQ...
+%PY% faq_export.py "ask-the-bot\renown_faq.txt"
+echo   Combat quick-reference sheet (front/back PDF)...
+%PY% combat_sheet.py "%OUT_DIR%\combat_sheet.pdf"
+echo   Specialization trees (landscape PDF)...
+%PY% spec_tree_sheet.py "%OUT_DIR%\spec_trees.pdf"
+echo   Playstyle reference (one-page landscape PDF)...
+%PY% playstyle_reference.py "%OUT_DIR%\playstyle_reference.pdf"
+echo   Pursuit ward-tiles (print-and-play PDF)...
+%PY% pursuit_tiles.py "%OUT_DIR%\pursuit_tiles.pdf"
+echo   Pursuit tech tree (2-page landscape SVG)...
+%PY% render_tree.py layout.json "%OUT_DIR%\pursuit_tree.svg"
+%PY% svg_to_pdf.py "%OUT_DIR%\pursuit_tree.pdf" "%OUT_DIR%\pursuit_tree_p1.svg" "%OUT_DIR%\pursuit_tree_p2.svg"
+echo   Domain standing board (landscape PDF)...
+%PY% domain_board.py "%OUT_DIR%\domain_board.pdf"
+echo   Infrastructure board (landscape PDF)...
+%PY% infra_board.py "%OUT_DIR%\infra_board.pdf"
+echo   Settlement board (landscape PDF)...
+%PY% -c "import settlement_mats as s; s.build_board(r'%OUT_DIR%\settlement_board.pdf')"
+%PY% settlement_mats.py "%OUT_DIR%\settlement_mats.pdf"
+echo Host Sheet...
+%PY% host_sheet.py "%OUT_DIR%\host_sheet.pdf"
+
+:wiki
+echo --- Wiki ---
+if /i "%BUILD_LORE%"=="1" call :lore
+rmdir /s /q wiki 2>nul
+%PY% build_wiki.py RULES_reorganized_5.md wiki
+if errorlevel 1 (
+  echo   Wiki build FAILED - skipping push.
+  goto end
+)
+if "%PUSH_WIKI%"=="0" (
+  echo   Built wiki - push skipped.
+  goto end
+)
+if not exist "%WIKI_REPO%\.git" (
+  echo   ERROR: %WIKI_REPO% is not a git repo.
+  goto end
+)
+echo   Syncing into %WIKI_REPO% ...
+for /d %%D in ("%WIKI_REPO%\*") do if /i not "%%~nxD"==".git" rmdir /s /q "%%D" 2>nul
+for %%F in ("%WIKI_REPO%\*") do if /i not "%%~nxF"==".git" del /q "%%F" 2>nul
+xcopy /e /i /y /h wiki "%WIKI_REPO%" >nul
+echo   Pushing to GitHub Pages ...
+pushd "%WIKI_REPO%"
+%GIT% add -A
+%GIT% commit -m "wiki rebuild" || echo   (nothing changed)
+%GIT% push
+popd
+:pushrepo
+REM ---- optional: commit + tag + push the WHOLE project repo ----
+if "%PUSH_REPO%"=="1" (
+  echo --- Pushing main repo as v%VERSION% ---
+  pushd "C:\Users\Matt\OneDrive\Desktop\Game"
+  %GIT% add -A
+  %GIT% commit -m "v%VERSION%: %REPO_MSG%" || echo   (nothing to commit)
+  %GIT% tag -a v%VERSION% -m "%REPO_MSG%"
+  %GIT% push
+  %GIT% push origin v%VERSION%
+  popd
+)
+:end
+echo.
+echo Done. Press any key to close.
+pause
+goto :eof
+REM ============================================================================
+REM  :lore  - regenerate world.txt (+ world_design.txt) from renown_worldlore.py
+REM ============================================================================
+:lore
+echo --- Lore (world.txt from renown_worldlore.py) ---
+if not exist "%LORE_DIR%\gen_cultures.py" (
+  echo   ERROR: gen_cultures.py not found in %LORE_DIR% - skipping lore gen.
+  exit /b
+)
+pushd "%LORE_DIR%"
+%PY% gen_cultures.py
+if errorlevel 1 echo   WARNING: gen_cultures.py returned an error - wiki will use the existing world.txt.
+popd
+echo   Lore -^> %LORE_DIR%\world.txt
+exit /b
+REM ============================================================================
+REM  :board  - generate the print-and-tape start map PDF into BOARD_DIR
+REM ============================================================================
+:board
+echo --- Board ---
+if not exist "%BOARD_DIR%\build_board.py" (
+  echo   ERROR: build_board.py not found in %BOARD_DIR% - skipping board.
+  exit /b
+)
+REM svglib is the only extra dep (reportlab already present); install if missing
+%PY% -c "import svglib" 2>nul || %PY% -m pip install svglib
+set BOARD_FLAGS=
+if /i "%BOARD_RES%"=="0" set BOARD_FLAGS=--no-resources
+pushd "%BOARD_DIR%"
+%PY% build_board.py %BOARD_W% %BOARD_H% --seed %BOARD_SEED% --hex %BOARD_HEX% --paper %BOARD_PAPER% --param players=%BOARD_PLAYERS% %BOARD_FLAGS% --out "%BOARD_OUT%"
+popd
+echo   Board -^> %BOARD_OUT%
+exit /b
+REM ============================================================================
+REM  :tactical  - one-sheet skirmish board (terrain only, landscape) into BOARD_DIR
+REM ============================================================================
+:tactical
+echo --- Tactical board ---
+if not exist "%BOARD_DIR%\build_board.py" (
+  echo   ERROR: build_board.py not found in %BOARD_DIR% - skipping tactical.
+  exit /b
+)
+%PY% -c "import svglib" 2>nul || %PY% -m pip install svglib
+pushd "%BOARD_DIR%"
+%PY% build_board.py %TAC_W% %TAC_H% --tactical --seed %TAC_SEED% --hex %TAC_HEX% --paper %BOARD_PAPER% --out "%TAC_OUT%"
+popd
+echo   Tactical board -^> %TAC_OUT%
+exit /b
+REM ============================================================================
+REM  :ce  - build Renown_CE.docx from the CE folder (all-CE book).
+REM         Runs the CE scripts *inside* CE_DIR so they import the CE renown_data
+REM         (renown_data_CE.py is copied to renown_data.py there). Fully isolated
+REM         from the main build - its own compendium_data.json / Rules.docx.
+REM ============================================================================
+:ce
+echo --- Renown_CE (all-CE book from %CE_DIR%) ---
+if not exist "%CE_DIR%\combine_docx.py" (
+  echo   ERROR: CE files not found in %CE_DIR% - skipping CE build.
+  exit /b
+)
+if not exist "%CE_DIR%\renown_data_CE.py" (
+  echo   ERROR: renown_data_CE.py not found in %CE_DIR% - skipping CE build.
+  exit /b
+)
+pushd "%CE_DIR%"
+REM make the CE data importable under the module name 'renown_data'
+copy /y renown_data_CE.py renown_data.py >nul
+%PY% gen_compendium.py compendium_data.json
+if exist patch_pursuit_domains.py %PY% patch_pursuit_domains.py compendium_data.json
+%PY% build_compendium.py compendium_data.json Compendium.docx
+%PY% md_to_docx.py RULES_reorganized_6.md Rules.docx
+%PY% combine_docx.py Rules.docx Compendium.docx Renown_CE.docx
+popd
+if not exist "%CE_DIR%\Renown_CE.docx" (
+  echo   CE build did not produce Renown_CE.docx - check the errors above.
+  exit /b
+)
+echo   Renown_CE -^> %CE_DIR%\Renown_CE.docx
+if /i "%CE_COPY_TO_MAIN%"=="1" (
+  copy /y "%CE_DIR%\Renown_CE.docx" "Renown_CE.docx" >nul
+  echo   Renown_CE -^> %CD%\Renown_CE.docx
+)
+exit /b

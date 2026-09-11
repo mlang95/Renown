@@ -1,0 +1,17 @@
+Name,Category,Upkeep,Upkeep Frequency,Empire Bonus,Tier,Build Time,Requirement
+Dirt Roads,Infrastructure,0,per Settlement,Can Trade; place Dirt Road Territories; ignore Terrain Speed Modifiers,Primitive,2,None
+Hitching Post,Infrastructure,0,per Settlement,Craft +1,Primitive,2,None
+Muster Field,Infrastructure,50,per Settlement,Can Muster,Primitive,2,None
+Wooden Walls,Infrastructure,50,per Settlement,**Influence -1** to **Raze actions** targeting your **settlements**,Primitive,2,None
+Stone Roads,Infrastructure,50,per Settlement,Ignore Terrain Speed Modifiers; if you start turn on Stone Road gain Speed +2; replaces Dirt Roads,Developed,3,Dirt Roads
+Town Hall,Infrastructure,50,per Settlement,+1 Influence per turn,Developed,3,One Tier Primitive
+Bridges,Infrastructure,0,—,Armies cross Water Territory at full movement; Stone Roads may be built over Water,Developed,3,One Tier Primitive + Stone Roads
+Garrison,Infrastructure,50/100/200,per Settlement,Local Armies form (10/20/30 by Settlement size). All Garrisons share Equipment. Cannot be targeted; may Sally Forth.,Developed,3,Muster Field
+Stone Walls,Infrastructure,50,per Settlement,**Influence ?1** to **Destabilize actions** targeting your **settlements**,Sophisticated,4,One Tier Developed + Wooden Walls
+Keep,Infrastructure,50,—,May Muster from Garrison in addition to normal Muster Limits. If so set Garrison to 0 and Muster Timer 1. Garrison returns to full when resolved.,Sophisticated,4,Garrison
+Cathedral,Infrastructure,50,per Settlement,Faith 1,Sophisticated,4,Requires 1+ City
+Library,Infrastructure,50,per Settlement,Influence 1 to Council Envoys,Sophisticated,4,Town Hall
+Colossus,Wonder,200,per Wonder,You may **support** your own **prowess envoys** before other **players vote**. **Armies** move **Speed +2** **Siege Timer −2** gain **Immune Blocked**.,Wonder,10,All Infrastructure unlocked
+The Grand Exchange,Wonder,200,per Wonder,Whenever you generate **Trade Income** you generate **twice as much** for yourself.,Wonder,10,All Infrastructure unlocked
+The Great Basilica,Wonder,200,per Wonder,If your **Public Order** would ever be less than 5 set it to 5 instead. Your **Settlements** gain **Reach +1**.,Wonder,10,All Infrastructure unlocked
+High Chancery,Wonder,200,per Wonder,"Once per turn: automatically **Condemn** or **Endorse** one Envoy Sent by any other Player regardless of **Net Influence** after Influence has been spent, even if it�s a Council Envoy.",Wonder,10,All Infrastructure unlocked
