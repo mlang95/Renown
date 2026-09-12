@@ -43,7 +43,7 @@ REM LAB_DIR is tagged by variant so trials stay side-by-side.
 set LAB_DIR=%CE_ROOT%\lab_out\%DIE%
 
 REM RULES : the CE rules markdown that feeds docs + wiki (lives in sheets\)
-set RULES_MD=RULES_reorganized_6.md
+set RULES_MD=%CE_ROOT%\RULES_reorganized_6.md
 
 REM WHAT   : maps | cards | docs | wiki | all
 set WHAT=all
@@ -151,9 +151,10 @@ REM Say what is missing ONCE, up front, rather than one traceback per script.
 REM A half-ported folder is the normal state mid-migration; it should read as a
 REM checklist, not a failure.
 set MISSING=0
-for %%F in (build_wiki.py wiki_markers.py %RULES_MD% docx_tables.py gen_compendium.py patch_pursuit_domains.py build_compendium.py md_to_docx.py combat_sheet.py spec_tree_sheet.py playstyle_reference.py pursuit_tiles.py render_tree.py layout.json svg_to_pdf.py domain_board.py infra_board.py settlement_mats.py host_sheet.py generate_cards.py card_sheet.py equipment_sheet.py faction_sheet.py tactic_sheet.py) do (
-  if not exist "%SHEET_DIR%\%%F" ( echo   MISSING  sheets\%%F & set MISSING=1 )
+for %%F in (build_wiki.py wiki_markers.py docx_tables.py gen_compendium.py patch_pursuit_domains.py build_compendium.py md_to_docx.py combat_sheet.py spec_tree_sheet.py playstyle_reference.py pursuit_tiles.py render_tree.py layout.json svg_to_pdf.py domain_board.py infra_board.py settlement_mats.py host_sheet.py generate_cards.py card_sheet.py card_copies.py reference_sheets.py equipment_sheet.py faction_sheet.py tactic_sheet.py) do (
+  if not exist "%SHEET_DIR%\%%F" ( echo   MISSING  references\%%F & set MISSING=1 )
 )
+if not exist "%RULES_MD%" ( echo   MISSING  %RULES_MD% & set MISSING=1 )
 for %%F in (hexmap.py mapgen.py hexgen.py build_board.py mapgen_regional.py region_presets.py gen.js app_shell.html build_mapapp.py) do (
   if not exist "%MAP_DIR%\%%F" ( echo   MISSING  mapgen\%%F & set MISSING=1 )
 )
@@ -213,7 +214,7 @@ if exist "gen_compendium.py"        %PY% gen_compendium.py "%LAB_DIR%\compendium
 if exist "patch_pursuit_domains.py" %PY% patch_pursuit_domains.py "%LAB_DIR%\compendium_data.json"
 if exist "build_compendium.py"      %PY% build_compendium.py "%LAB_DIR%\compendium_data.json" "%LAB_DIR%\Compendium.docx"
 echo   Rules...
-if exist "md_to_docx.py"            %PY% md_to_docx.py %RULES_MD% "%LAB_DIR%\Rules.docx"
+if exist "md_to_docx.py"            %PY% md_to_docx.py "%RULES_MD%" "%LAB_DIR%\Rules.docx"
 echo   Combat quick-reference sheet...
 if exist "combat_sheet.py"          %PY% combat_sheet.py "%OUT_DIR%\combat_sheet.pdf"
 echo   Specialization trees...
@@ -251,7 +252,7 @@ if not exist "wiki_markers.py" (
   goto pushrepo
 )
 if not exist "%RULES_MD%" (
-  echo   skipped - %RULES_MD% not found in %SHEET_DIR%
+  echo   skipped - %RULES_MD% not found
   popd
   goto pushrepo
 )
