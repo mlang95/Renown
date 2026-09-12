@@ -24,6 +24,7 @@ REM FAT_M   : Fatigue token penalty to Morale (magnitude).
 REM PARRY   : base Parry target.
 REM RECOVER : worst rung of the Recover ladder.
 REM AUTOPASS: blank keeps the auto-pass rule; set to 1 to delete it.
+
 set FACES=10
 set FOCUSED=10
 set FAT_S=2
@@ -31,6 +32,10 @@ set FAT_M=2
 set PARRY=8
 set RECOVER=8
 set AUTOPASS=
+set DEADLY_AP=0
+set DEADLY_MODE=
+set UNSTOP=
+set IMP_PARRY=
 REM set FACES=8
 REM set FOCUSED=8
 REM set FAT_S=1
@@ -66,6 +71,16 @@ set RENOWN_RECOVER_BASE=%RECOVER%
 set NO_PLAYSTYLE=--no-playstyle
 
 set DICE=--faces %FACES% --focused %FOCUSED% --fatigue-strike %FAT_S% --fatigue-morale %FAT_M%
+if not "%PARRY%"==""       set DICE=%DICE% --parry-base %PARRY%
+if not "%RECOVER%"==""     set DICE=%DICE% --recover-base %RECOVER%
+if not "%DEADLY_AP%"==""   set DICE=%DICE% --deadly-ap %DEADLY_AP%
+if not "%DEADLY_MODE%"=="" set DICE=%DICE% --deadly-mode %DEADLY_MODE%
+if not "%UNSTOP%"==""      set DICE=%DICE% --unstoppable %UNSTOP%
+if not "%IMP_PARRY%"==""   set DICE=%DICE% --improved-parry %IMP_PARRY%
+
+NOTE: the bat already exports RENOWN_PARRY_BASE / RENOWN_RECOVER_BASE. Those
+still work as the env fallback; the --parry-base/--recover-base flags now
+override them explicitly and put PARRY into the tag. Keep both — no conflict.
 if not "%AUTOPASS%"=="" set DICE=%DICE% --no-auto-pass
 if not "%TAG%"==""      set DICE=%DICE% --tag %TAG%
 

@@ -38,6 +38,12 @@ _pre.add_argument("--no-auto-pass", action="store_true",
                   help="delete the auto-pass rule (AUTO_PASS_FLOOR = None)")
 _pre.add_argument("--tag", default=None,
                   help="subfolder under lab_out for this run (default: derived from the dice settings)")
+_pre.add_argument("--parry-base", type=int, default=None, help="override PARRY_BASE (base Parry target)")
+_pre.add_argument("--recover-base", type=int, default=None, help="override RECOVER_BASE (worst Recover rung)")
+_pre.add_argument("--deadly-ap", type=int, default=None, help="override DEADLY_AP (additional AP on a Focused Deadly strike)")
+_pre.add_argument("--deadly-mode", choices=["additional", "set"], default=None, help="override DEADLY_MODE")
+_pre.add_argument("--unstoppable", type=int, default=None, help="override UNSTOPPABLE_MOD (+N to defender Parry target)")
+_pre.add_argument("--improved-parry", type=int, default=None, help="override IMPROVED_PARRY_MOD (-N to own Parry target)")
 _pre.add_argument("--skip-verify", action="store_true", help="skip the d10 sanity assertions")
 mine, passthrough = _pre.parse_known_args()
 
@@ -63,20 +69,30 @@ if mine.fatigue_morale is not None:
     dc.FATIGUE_MORALE = mine.fatigue_morale
 if mine.no_auto_pass:
     dc.AUTO_PASS_FLOOR = None
+if mine.parry_base is not None:     dc.PARRY_BASE = mine.parry_base
+if mine.recover_base is not None:   dc.RECOVER_BASE = mine.recover_base
+if mine.deadly_ap is not None:      dc.DEADLY_AP = mine.deadly_ap
+if mine.deadly_mode is not None:    dc.DEADLY_MODE = mine.deadly_mode
+if mine.unstoppable is not None:    dc.UNSTOPPABLE_MOD = mine.unstoppable
+if mine.improved_parry is not None: dc.IMPROVED_PARRY_MOD = mine.improved_parry
 
 # Workers get the overrides too (spawn re-imports dice_config from disk).
-for _k in ("FACES", "FOCUSED_THR", "ROUT_THR", "CAP_THR", "FATIGUE_STRIKE", "FATIGUE_MORALE"):
+for _k in ("FACES", "FOCUSED_THR", "ROUT_THR", "CAP_THR", "FATIGUE_STRIKE", "FATIGUE_MORALE",
+           "PARRY_BASE", "RECOVER_BASE", "DEADLY_AP", "UNSTOPPABLE_MOD", "IMPROVED_PARRY_MOD"):
     os.environ[f"RENOWN_{_k}"] = str(getattr(dc, _k))
 os.environ["RENOWN_AUTO_PASS_FLOOR"] = str(dc.AUTO_PASS_FLOOR)
+os.environ["RENOWN_DEADLY_MODE"] = str(dc.DEADLY_MODE)
 
-tag = mine.tag or f"d{dc.FACES}_foc{dc.FOCUSED_THR}_fat{dc.FATIGUE_STRIKE}{dc.FATIGUE_MORALE}"
+tag = mine.tag or (
+    f"d{dc.FACES}_foc{dc.FOCUSED_THR}_fat{dc.FATIGUE_STRIKE}{dc.FATIGUE_MORALE}"
+    f"_par{dc.PARRY_BASE}_dea{dc.DEADLY_AP}{'s' if dc.DEADLY_MODE == 'set' else 'a'}"
+    f"_uns{dc.UNSTOPPABLE_MOD}_imp{dc.IMPROVED_PARRY_MOD}"
+)
 out_dir = os.path.join(OUT_ROOT, tag)
 os.makedirs(out_dir, exist_ok=True)
 
 print(f"\n=== Renown tournament — {tag} ===")
-print(f"  FACES {dc.FACES} | FOCUSED_THR {dc.FOCUSED_THR} | ROUT_THR {dc.ROUT_THR} | "
-      f"CAP_THR {dc.CAP_THR} | Fatigue -{dc.FATIGUE_STRIKE} Strike / -{dc.FATIGUE_MORALE} Morale | "
-      f"auto-pass {dc.AUTO_PASS_FLOOR}")
+print("  " + dc.describe())
 print(f"  output -> {out_dir}\n")
 
 if not mine.skip_verify and dc.FACES == 10:

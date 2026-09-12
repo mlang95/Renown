@@ -42,6 +42,7 @@ IMMUNE_PANIC    = "Immune Panic"
 UNBREAKABLE     = "Unbreakable"
 PARRY           = "Parry"
 RIPOSTE         = "Riposte"
+NO_PARRY        = "Unbalanced"
 RECOVER         = "Recover"
 SERRATED        = "Serrated"
 ENDURING        = "Enduring"   # Recover still gets a CAP_THR+ save while Fatigued (exception to off-when-fatigued)
@@ -98,6 +99,7 @@ GLOSSARY = {
     #UNBREAKABLE:    "Immune Break: does not take Break checks while Fatigued.",
     PARRY:          f"While not Fatigued, roll a D{FACES} to attempt to Parry a Strike before the Save. On a {PARRY_BASE}+, the Strike is Parried.",
     RIPOSTE:        "While not Fatigued, if you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
+    NO_PARRY:       "While equipped with this weapon during a skirmish, you cannot Parry, and so cannot Riposte.",
     RECOVER:        f"While not Fatigued, if a to-Save roll fails, roll a D{FACES}: a result of X+ Recovers the retinue.",
     SERRATED:       "A cumulative -2 penalty to the defender's Recover roll.",
     PLANISHING:     f"A {PIVOTAL} Save succeeds, regardless of AP.",
@@ -259,27 +261,27 @@ RETINUES = {
     "Levy":           {"cost": 1000, "to_hit": 5, "endurance": 2, "shaking": 6, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
     "Man-at-Arms":    {"cost": 2000, "to_hit": 4, "endurance": 3, "shaking": 5, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
     "Sergeant":       {"cost": 2500, "to_hit": 2, "endurance": 2, "shaking": 4, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
-    "Knight Templar": {"cost": 3000, "to_hit": 4, "endurance": 2, "shaking": 3, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
+    "Knight Templar": {"cost": 3000, "to_hit": 3, "endurance": 2, "shaking": 3, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
 }
 
 WEAPONS = {
-    "Farm Tools":     {"ap":  0, "init":  0, "tier": "Crude",   "tags": []},
-    "Cudgel":         {"ap": -1, "init": -1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY]},
-    "Pitchfork":      {"ap":  0, "init":  1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY]},
+    "Farm Tools":     {"ap":  0, "init":  0, "tier": "Crude",   "tags": [NO_PARRY]},
+    "Cudgel":         {"ap": -1, "init": -1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, NO_PARRY]},
+    "Pitchfork":      {"ap":  0, "init":  1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, NO_PARRY]},
     "Daggers":        {"ap":  0, "init":  1, "tier": "Cast",    "tags": [TWO_H, DUAL_WIELD, SHATTER_ARMOR], 'note': "A paired light blade; dual-wields innately (rerolls missed Strikes). No shield."},
     "Short Sword":    {"ap":  0, "init":  0, "tier": "Cast",    "tags": [STEADY]},
     "Spears":         {"ap": -2, "init":  1, "tier": "Cast",    "tags": [TWO_H, UNWIELDY]},
     "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY]},
-    "Pike":           {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, STEADY, UNWIELDY, SHATTER_ARMOR]},
-    "Flail":          {"ap": -2, "init": -1, "tier": "Wrought", "tags": [UNWIELDY, CLEAVE], 'note': 'Cannot Dual Wield'},
+    "Pike":           {"ap": -3, "init":  3, "tier": "Wrought", "tags": [TWO_H, STEADY, UNWIELDY, SHATTER_ARMOR, NO_PARRY]},
+    "Flail":          {"ap": -3, "init": -1, "tier": "Wrought", "tags": [UNWIELDY, CLEAVE, NO_PARRY], 'note': 'Cannot Dual Wield'},
     "Halberd":        {"ap": -4, "init":  0, "tier": "Wrought", "tags": [TWO_H, UNWIELDY]},
-    "Battle Axe":     {"ap": -5, "init": -1, "tier": "Wrought", "tags": [TWO_H, UNWIELDY, CLEAVE, NEGATE_SHIELDED]},
-    "Cavalry Spear":  {"ap": -3, "init":  1, "tier": "Wrought", "tags": [STEADY, UNWIELDY, NEGATE_RIPOSTE], 'note': "Needs Stable; no Tower Shield or Dual Wield or Ranged Weapon"},
+    "Battle Axe":     {"ap": -5, "init": -1, "tier": "Wrought", "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, CLEAVE, NEGATE_SHIELDED]},
+    "Cavalry Spear":  {"ap": -3, "init":  1, "tier": "Wrought", "tags": [STEADY, UNWIELDY, NEGATE_RIPOSTE, NO_PARRY], 'note': "Needs Stable; no Tower Shield or Dual Wield or Ranged Weapon; cannot Parry"},
     "Morningstar":    {"ap": -4, "init": -1, "tier": "Forged",  "tags": [UNWIELDY, CLEAVE, DESTROY_SHIELD], 'note': 'Cannot Dual Wield'},
     "Bastard Sword":  {"ap": -2, "init":  0, "tier": "Forged",  "tags": [STEADY, SHATTER_ARMOR], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile. Cannot Dual Wield'},
-    "2HBastard":      {"ap": -3, "init":  0, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, CLEAVE]},
-    "War Hammer":     {"ap":-10, "init": -1, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, SHATTER_ARMOR,UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD]},
-    "Lance":          {"ap": -5, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NEGATE_RIPOSTE], 'note': "Needs Stable; no Tower Shield or Dual Wield"},
+    "2HBastard":      {"ap": -4, "init":  0, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, CLEAVE]},
+    "War Hammer":     {"ap":-10, "init": -1, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD]},
+    "Lance":          {"ap": -5, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY, NEGATE_RIPOSTE], 'note': "Needs Stable; no Tower Shield, Dual Wield, Ranged weapon, or Parry."},
     "Estoc":          {"ap": -3, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, NEGATE_RIPOSTE, NEGATE_TEMPERED]},
     "Poleaxe":        {"ap": -6, "init":  0, "tier": "Crafted", "tags": [TWO_H, STEADY, UNSTOPPABLE, NEGATE_SHIELDED]},
 }
@@ -289,7 +291,7 @@ RANGED = {
     "Longbow":     {"ap": -1, "init":  2, "tier": "Cast",    "tags": [TWO_H, UNSTOPPABLE, SHATTER_ARMOR, NEGATE_RIPOSTE]},
     "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD, ONE_SHOT], 'note': 'Cannot Dual Wield'},
     "Crossbow":    {"ap": -4, "init":  0, "tier": "Forged",  "tags": [UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, ONE_SHOT], 'note': "Tower Shield only (no other shield), cannot Dual Wield"},
-    "Arquebus":    {"ap": -6, "init":  2, "tier": "Crafted", "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, NEGATE_TEMPERED], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["ABF", "Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
+    "Arquebus":    {"ap": -5, "init":  2, "tier": "Crafted", "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, NEGATE_TEMPERED, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["ABF", "Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
     "Pilum":       {"ap": -3, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD, ONE_SHOT]},
 }
 
@@ -298,7 +300,7 @@ SHIELDS = {
     "Buckler Shield":{"save_bonus": 1, "init":  0, "tier": "Crude",  "tags": []},
     "Targe Shield":  {"save_bonus": 1, "init":  0, "tier": "Cast",   "tags": [UNWIELDY, MINUS_1_TBH]},
     "Kite Shield":   {"save_bonus": 1, "init":  0, "tier": "Wrought","tags": [STEADY, MINUS_1_TBH]},
-    "Tower Shield":  {"save_bonus": 3, "init":  0, "tier": "Forged", "tags": [UNWIELDY, MINUS_1_TBH]},
+    "Tower Shield":  {"save_bonus": 2, "init":  0, "tier": "Forged", "tags": [UNWIELDY, MINUS_1_TBH]},
     "Heater Shield": {"save_bonus": 2, "init":  0, "tier": "Crafted","tags": [MINUS_1_TBH, IMMUNE_DESTROY_SHIELD]},
 }
 
@@ -1156,13 +1158,13 @@ NODES = {
         "type": "Civic",
         "unlock": "Established Prowess",
         "mastery_req": "Coliseum + Conditioning Field",
-        "innate": "**Faith +1**",
+        "innate": "**Faith +1**; Improve Parry by +1.",
         "mastery": "3x/turn: exchange 500 gold for **1 Influence**; Armies gain **Riposte**",
         "efficient": "Coliseum",
         "builds_into": ["Royal Pavilion"],
         "monument": False,
         "escalation": {"standing": "Established Prowess", "ranks": {1: "Riposte"}, "requires_all": ["Coliseum"], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": [], "domain": {"Prowess": 6}, "innate_tags": [], "mastery_tags": ["Riposte"], "mastery_req": ["Conditioning Field", "Coliseum"], "efficient": "Coliseum"}},
+        "engine": {"cost": 1, "prereqs": [], "domain": {"Prowess": 6}, "innate_tags": ["Improved Parry"], "mastery_tags": ["Riposte"], "mastery_req": ["Conditioning Field", "Coliseum"], "efficient": "Coliseum"}},
     "Apothecary": {
         "type": "Civic",
         "unlock": "-",

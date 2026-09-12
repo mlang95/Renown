@@ -202,6 +202,60 @@ TERMS.setdefault("Domain Resolve Table", ("envoy-outcomes-ref.html", None))
 TERM_LIST = sorted(TERMS, key=lambda t:-len(t))
 TERM_RE = re.compile(r"\b(" + "|".join(re.escape(t) for t in TERM_LIST) + r")\b", re.IGNORECASE)
 
+# ── MAP GENERATOR (external HTML tool, copied in verbatim) ──
+# Looks for the standalone map-generator page shipped alongside mapgen.py and
+# mirrors its whole folder into the wiki so relative js/css/img paths survive.
+import shutil as _sh, glob as _gl
+# CE layout: build_wiki.py runs from CE\references, the app lives in CE\mapgen.
+_HERE = os.path.dirname(os.path.abspath(__file__))
+MAPGEN_DIRS = [os.environ.get("RENOWN_MAPGEN_DIR", ""),
+               os.path.join(_HERE, "..", "mapgen"),   # CE\references -> CE\mapgen
+               "../mapgen", "mapgen", "../CE/mapgen"]
+MAPGEN_ENTRY = "renown-maps.html"      # build_mapapp.py output (app_shell.html is its template)
+MAPGEN_PAGE = "maps.html"              # wiki page that hosts it
+MAPGEN_BUILD = os.environ.get("RENOWN_MAPGEN_BUILD", "") == "1"  # re-run build_mapapp.py first
+MAPGEN_URL = None                      # e.g. "mapgen/renown-maps.html"
+MAPGEN_TITLE = "Map Generator"
+_ASSET_RE = re.compile(r"""(?:src|href)\s*=\s*["']([^"':#?]+\.(?:js|css|png|jpg|jpeg|svg|gif|webp|json|woff2?))["']""", re.I)
+for _d in MAPGEN_DIRS:
+    if not _d or not os.path.isfile(os.path.join(_d, MAPGEN_ENTRY)):
+        continue
+    if MAPGEN_BUILD and os.path.isfile(os.path.join(_d, "build_mapapp.py")):
+        import subprocess as _sp
+        _cmd = [sys.executable, "build_mapapp.py"]
+        if os.environ.get("RENOWN_CODE_DIR"):
+            _cmd += ["--data", os.environ["RENOWN_CODE_DIR"]]
+        print(f"  [map generator] build_mapapp.py -> rc={_sp.run(_cmd, cwd=_d).returncode}")
+    _srcf = os.path.join(_d, MAPGEN_ENTRY)
+    # stale check: output older than any of its inputs
+    _ins = [p for p in ("app_shell.html","gen.js","presets.js","build_mapapp.py")
+            if os.path.isfile(os.path.join(_d, p))
+            and os.path.getmtime(os.path.join(_d, p)) > os.path.getmtime(_srcf)]
+    if _ins:
+        print(f"  [map generator] WARNING {MAPGEN_ENTRY} is older than: {', '.join(_ins)}"
+              " - re-run build_mapapp.py (or set RENOWN_MAPGEN_BUILD=1)")
+    _dst = os.path.join(OUTDIR, "mapgen")
+    os.makedirs(_dst, exist_ok=True)
+    _sh.copy2(_srcf, os.path.join(_dst, MAPGEN_ENTRY))
+    # ship any local assets the built page still references (none if fully inlined)
+    _txt = open(_srcf, encoding="utf-8", errors="ignore").read()
+    _assets = []
+    for _rel in sorted(set(_ASSET_RE.findall(_txt))):
+        _rel = _rel.replace("\\", "/").lstrip("./")
+        _ap = os.path.join(_d, _rel)
+        if _rel.startswith(("http", "//")) or not os.path.isfile(_ap):
+            continue
+        _t = os.path.join(_dst, _rel)
+        os.makedirs(os.path.dirname(_t), exist_ok=True)
+        _sh.copy2(_ap, _t); _assets.append(_rel)
+    MAPGEN_URL = "mapgen/" + MAPGEN_ENTRY
+    print(f"  [map generator] {os.path.normpath(_srcf)} -> {OUTDIR}/{MAPGEN_URL}"
+          + (f" (+{len(_assets)}: {', '.join(_assets)})" if _assets else " (self-contained)"))
+    break
+if MAPGEN_URL is None:
+    print(f"  [map generator] {MAPGEN_ENTRY} not found in: " +
+          ", ".join(os.path.normpath(d) for d in MAPGEN_DIRS if d))
+
 # ── nav ──
 def nav(current=""):
     it=['<div class="navhead">Rules</div>']
@@ -229,8 +283,9 @@ def nav(current=""):
         it.append(f"<a href='{uu}'{' class=active' if current==uu else ''}>{label}</a>")
     it.append(f"<a href='glossary.html'{' class=active' if current=='glossary.html' else ''}>Glossary</a>")
     if FACTIONS: it.append(f"<a href='factions.html'{' class=active' if current=='factions.html' else ''}>Factions</a>")
-    it.append('<div class="navhead">Tools</div>')
-    it.append(f"<a href='maps.html'{' class=active' if current=='maps.html' else ''}>Map Generator</a>")
+    if MAPGEN_URL:
+        it.append('<div class="navhead">Tools</div>')
+        it.append(f"<a href='{MAPGEN_PAGE}'{' class=active' if current==MAPGEN_PAGE else ''}>{MAPGEN_TITLE}</a>")
     it.append('<div class="navhead">Escalation</div>')
     for label,uu in [("Overview","escalation.html"),("Battle Rules","escalation-rules.html"),
                      ("Combat Pursuits","escalation-pursuits.html"),("Tactic Matrix","tactic-matrix-ref.html"),
@@ -878,33 +933,21 @@ if FACTIONS:
     fi.append("</dl>")
     open(os.path.join(OUTDIR,"factions.html"),"w",encoding="utf-8").write(page("Factions","".join(fi),"factions.html"))
 
-# ── CSS ──
-# ── map generator (standalone app, copied verbatim) ──
-# Searched rather than assumed: the app may sit beside this script, in a
-# mapgen/ subfolder, or one level up if the wiki build runs from a subdir.
-# RENOWN_MAPAPP overrides everything for an odd layout.
-_HERE = os.path.dirname(os.path.abspath(__file__))
-_MAPAPP = next((c for c in [
-    os.environ.get("RENOWN_MAPAPP", ""),
-    os.path.join(_HERE, "renown-maps.html"),
-    os.path.join(_HERE, "mapgen", "renown-maps.html"),
-    os.path.join(_HERE, "..", "mapgen", "renown-maps.html"),
-    os.path.join(_HERE, "..", "renown-maps.html"),
-    os.path.join(os.getcwd(), "renown-maps.html"),
-    os.path.join(os.getcwd(), "mapgen", "renown-maps.html"),
-] if c and os.path.exists(c)), None)
-if _MAPAPP:
-    _app = open(_MAPAPP, encoding="utf-8").read()
-    _app = _app.replace(
-        '<p class="sub">Regional board generator</p>',
-        '<p class="sub">Regional board generator &middot; '
-        '<a href="index.html" style="color:var(--sea-lit)">back to the wiki</a></p>')
-    open(os.path.join(OUTDIR, "maps.html"), "w", encoding="utf-8").write(_app)
-    print(f"  map generator <- {os.path.relpath(_MAPAPP, _HERE)}")
-else:
-    print("  note: renown-maps.html not found (looked beside build_wiki.py, in "
-          "mapgen/, and one level up) - skipping maps.html")
+# ── map generator page (iframe wrapper so wiki nav/search stay put) ──
+if MAPGEN_URL:
+    u = MAPGEN_PAGE
+    mg = [f"<h1>{MAPGEN_TITLE}</h1>",
+          "<p>Procedural start-map generator. Rolls terrain, rivers, lakes and "
+          "resources the same way <code>mapgen.py</code> does for the print-and-tape board. "
+          f"<a class='term' href='{MAPGEN_URL}' target='_blank'>Open full screen \u2197</a></p>",
+          f"<iframe class='mapframe' src='{MAPGEN_URL}' loading='lazy' "
+          "title='Renown map generator'></iframe>"]
+    open(os.path.join(OUTDIR, u), "w", encoding="utf-8").write(
+        page(MAPGEN_TITLE, "".join(mg), u))
+    search_index.append({"title": MAPGEN_TITLE, "url": u,
+                         "text": "map generator procedural board terrain hex seed rivers lakes resources start map"})
 
+# ── CSS ──
 open(os.path.join(OUTDIR,"wiki.css"),"w",encoding="utf-8").write("""
 :root{--bg:#f7f6f3;--ink:#1d1d1d;--mut:#888;--line:#e2e0db;--accent:#5b2e8e;--link:#1F4E8C}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15.5px/1.6 Georgia,serif}
@@ -938,6 +981,7 @@ ul.cols{columns:2;font:14px sans-serif;list-style:none;padding:0}ul.cols li{marg
 dl.gloss dt{font-weight:700;color:var(--accent);margin-top:.9em;font-size:16px}dl.gloss dd{margin:.15em 0 0}
 a.usedin{color:var(--link);text-decoration:none;font-size:12px;font-style:italic;opacity:.75;white-space:nowrap}a.usedin:hover{opacity:1}
 code{background:#efeee9;padding:1px 5px;border-radius:4px;font-size:.9em}
+.mapframe{width:100%;height:78vh;min-height:520px;border:1px solid var(--line);border-radius:9px;background:#fff}
 .turnflow{max-width:620px}
 .phase{background:#fff;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:12px 16px;margin:0}
 .ph-head{font-weight:700;font-size:17px;font-family:Georgia,serif}

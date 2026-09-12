@@ -21,8 +21,9 @@ Extracted from vectorized_combat._roll_saves_vec / _roll_strikes_vec (canonical)
 """
 import numpy as np
 from dice_config import (FACES, FOCUSED_THR, ROUT_THR, CAP_THR, AUTO_PASS_FLOOR,
-                         PARRY_BASE, RECOVER_BASE, DEADLY_AP)
-
+                         PARRY_BASE, RECOVER_BASE, DEADLY_AP, DEADLY_MODE,
+                         UNSTOPPABLE_MOD, IMPROVED_PARRY_MOD)
+_AP_FLOOR = AUTO_PASS_FLOOR if AUTO_PASS_FLOOR is not None else 1
 
 
 def _as_bool_arr(x, n):
@@ -54,7 +55,10 @@ def crit_floor_from_tags_scalar(tags):
 def build_save_clips(n, save_target, def_planishing, atk_ignores_tempered):
     """Normal + Deadly save-target arrays, with the Planishing (Tempered) cap.
 
-    Deadly strikes resolve at save_target + 5 (Deadly's AP -5). Planishing caps
+        Deadly strikes resolve at save_target + DEADLY_AP (default +3, additive). Planishing caps
+
+    NOTE: DEADLY_MODE="set" is NOT wired here — see OPEN #1. Leave it "additional"
+    until that's decided; importing DEADLY_MODE now just makes the field available.
     BOTH at 6+ (no auto-fail from AP) UNLESS the attacker carries Negate Tempered
     (atk_ignores_tempered), which lets AP push the save past 6+ to auto-fail.
 
@@ -66,8 +70,8 @@ def build_save_clips(n, save_target, def_planishing, atk_ignores_tempered):
     Returns (save_clip (n,) int64, deadly_save_clip (n,) int64, auto_pass_save (n,) bool).
     """
     save_t = _as_int_arr(save_target, n)
-    save_clipped = np.clip(save_t, AUTO_PASS_FLOOR, FACES + 1)      # FACES+1 = auto-fail
-    deadly_clipped = np.clip(save_t + DEADLY_AP, AUTO_PASS_FLOOR, FACES + 1)
+    save_clipped = np.clip(save_t, _AP_FLOOR, FACES + 1) # FACES+1 = auto-fail
+    deadly_clipped = np.clip(save_t + DEADLY_AP, _AP_FLOOR, FACES + 1)
 
     planish = _as_bool_arr(def_planishing, n)
     ignores = _as_bool_arr(atk_ignores_tempered, n)
@@ -76,7 +80,7 @@ def build_save_clips(n, save_target, def_planishing, atk_ignores_tempered):
     save_clipped = np.where(cap_active, np.minimum(save_clipped, CAP_THR), save_clipped)
     deadly_clipped = np.where(cap_active, np.minimum(deadly_clipped, CAP_THR), deadly_clipped)
 
-    auto_pass_save = save_t < 2
+    auto_pass_save = save_t < _AP_FLOOR
     return (save_clipped.astype(np.int64).copy(),
             deadly_clipped.astype(np.int64).copy(),
             auto_pass_save.astype(np.bool_).copy())
@@ -101,8 +105,8 @@ def build_parry_thr(n, def_parry_improved, atk_unstoppable, atk_is_ranged,
     fat = _as_int_arr(def_fat, n) if def_fat is not None else np.zeros(n, dtype=np.int64)
 
     deflect = deflect_tag | ranged   # ranged always Deflects
-    base = np.where(improved, PARRY_BASE - 1, PARRY_BASE).astype(np.int64)
-    parry_thr = base + 2 * unstop.astype(np.int64) + deflect.astype(np.int64) + fat
+    base = np.where(improved, PARRY_BASE - IMPROVED_PARRY_MOD, PARRY_BASE).astype(np.int64)
+    parry_thr = base + UNSTOPPABLE_MOD * unstop.astype(np.int64) + deflect.astype(np.int64) + fat
     parry_thr = np.minimum(parry_thr, CAP_THR).astype(np.int64)
     return parry_thr.copy(), deflect
 

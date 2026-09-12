@@ -14,7 +14,7 @@ import re
 import numpy as np
 from dice_config import (FACES, FOCUSED_THR, ROUT_THR, CAP_THR, AUTO_PASS_FLOOR,
                          PARRY_BASE, RECOVER_BASE, DEADLY_AP)
-
+_AP_FLOOR = AUTO_PASS_FLOOR if AUTO_PASS_FLOOR is not None else 1 # None (rule off) => floor 1, nothing auto-passes
 from renown_data_d10 import (
     RETINUES, WEAPONS, RANGED, SHIELDS, ARMORS,
     TACTIC_MATRIX, TACTICS,
@@ -27,7 +27,7 @@ from renown_data_d10 import (
 from renown_data_d10 import (
     SHATTER_ARMOR, CLEAVE, DEFLECT, DESTROY_SHIELD, DRILLED, DUAL_WIELD, HALFSWORD,
     MINUS_1_TBH, MINUS_1_PARRY, NEGATE_RIPOSTE, NEGATE_SHIELDED, NEGATE_TEMPERED, NEGATE_UNSTOPPABLE,
-    NIMBLE, ONE_SHOT, PARRY, PLANISHING, POISON, RECOVER, RIPOSTE, SERRATED,
+    NIMBLE, NO_PARRY, ONE_SHOT, PARRY, PLANISHING, POISON, RECOVER, RIPOSTE, SERRATED,
     STEADY, STRAIN, TWO_H, UNBREAKABLE, UNSTOPPABLE, UNWIELDY, ENDURING,
     IMMUNE_DESTROY_SHIELD, IMMUNE_STRAIN, IMMUNE_UNWIELDY,
 )
@@ -428,9 +428,9 @@ def _roll_strikes_vec(rng, n, target_th, front_line, atk_tags, defender_has_shie
     # A target of FACES+1 or worse cannot be rolled. On d6 this was hardcoded as 7;
     # on d10 targets of 7..10 are legitimate, so clipping at 7 silently turned every
     # Fatigued or shield-penalised army into automatic misses.
-    target_th = np.clip(target_th_orig, AUTO_PASS_FLOOR, FACES + 1)
+    target_th = np.clip(target_th_orig, _AP_FLOOR, FACES + 1)
     auto_fail = (target_th > FACES)
-    auto_pass = (target_th_orig < AUTO_PASS_FLOOR)
+    auto_pass = (target_th_orig < _AP_FLOOR)
 
     front_line = np.asarray(front_line, dtype=np.int64)
     rolls = rng.integers(1, FACES + 1, size=(n, 20), dtype=np.int8)
@@ -557,13 +557,13 @@ def _best_response_table(tab, me_static, opp_static, me_first, opp_first):
 
     def p_hit(target_th):
         # need dFACES >= target_th; FACES+1 or worse = auto-miss, < floor = auto-hit
-        t = max(AUTO_PASS_FLOOR, min(FACES + 1, target_th))
+        t = max(_AP_FLOOR, min(FACES + 1, target_th))
         if target_th > FACES: return 0.0
         return (FACES + 1 - t) / float(FACES)  # rolls t..FACES succeed
 
     def p_fail_save(save_target):
         # defender fails (casualty) if roll < save_target; save_target<2 = auto-pass (0 fail)
-        if save_target < AUTO_PASS_FLOOR: return 0.0
+        if save_target < _AP_FLOOR: return 0.0
         s = min(FACES + 1, save_target)
         return (s - 1) / float(FACES)  # rolls 1..s-1 fail
 
@@ -1390,7 +1390,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         b_casualties, b_ripostes = _roll_saves_vec(
             rng, n_runs, b_save_target_against_a, a_strikes_initial, a_shatter,
             atk_has_poison=a_effective_poison,
-            def_has_parry=(((PARRY in b_tags) | ("Improved Parry" in b_tags))),
+            def_has_parry=(((PARRY in b_tags) | ("Improved Parry" in b_tags)) & (NO_PARRY not in b_tags)),
             def_regen_threshold=_regen_threshold(b_tags, a_tags),
             def_has_regen_reroll=_has_regen_reroll(b_tags),
             atk_unstoppable=(a_unstoppable and not b_negate_unstoppable),
@@ -1413,7 +1413,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             a_rip_cas, _ = _roll_saves_vec(
                 rng, n_runs, a_save_target_against_b, b_ripostes, np.zeros(n_runs, dtype=np.int64),
                 atk_has_poison=b_effective_poison,
-                def_has_parry=(((PARRY in a_tags) | ("Improved Parry" in a_tags))),
+                def_has_parry=(((PARRY in a_tags) | ("Improved Parry" in a_tags)) & (NO_PARRY not in a_tags)),
                 def_regen_threshold=_regen_threshold(a_tags, b_tags),
                 def_has_regen_reroll=_has_regen_reroll(a_tags),
                 atk_unstoppable=(b_unstoppable and not a_negate_unstoppable),
@@ -1457,7 +1457,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         a_casualties, a_ripostes = _roll_saves_vec(
             rng, n_runs, a_save_target_against_b, b_strikes, b_shatter,
             atk_has_poison=b_effective_poison,
-            def_has_parry=(((PARRY in a_tags) | ("Improved Parry" in a_tags))),
+            def_has_parry=(((PARRY in a_tags) | ("Improved Parry" in a_tags)) & (NO_PARRY not in a_tags)),
             def_regen_threshold=_regen_threshold(a_tags, b_tags),
             def_has_regen_reroll=_has_regen_reroll(a_tags),
             atk_unstoppable=(b_unstoppable and not a_negate_unstoppable),
@@ -1477,7 +1477,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             b_rip_cas, _ = _roll_saves_vec(
                 rng, n_runs, b_save_target_against_a, a_ripostes, np.zeros(n_runs, dtype=np.int64),
                 atk_has_poison=a_effective_poison,
-                def_has_parry=((PARRY in b_tags)),
+                def_has_parry=((PARRY in b_tags) & (NO_PARRY not in b_tags)),
                 def_regen_threshold=_regen_threshold(b_tags, a_tags),
                 def_has_regen_reroll=_has_regen_reroll(b_tags),
                 atk_unstoppable=(a_unstoppable and not b_negate_unstoppable),
@@ -1519,7 +1519,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             new_b_casualties, new_b_ripostes = _roll_saves_vec(
                 rng, n_runs, b_save_target_against_a, a_strikes_initial, a_shatter,
                 atk_has_poison=a_effective_poison,
-                def_has_parry=((PARRY in b_tags)),
+                def_has_parry=((PARRY in b_tags) & (NO_PARRY not in b_tags)),
                 def_regen_threshold=_regen_threshold(b_tags, a_tags),
                 def_has_regen_reroll=_has_regen_reroll(b_tags),
                 atk_unstoppable=(a_unstoppable and not b_negate_unstoppable),
@@ -1541,7 +1541,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
                 new_a_rip, _ = _roll_saves_vec(
                     rng, n_runs, a_save_target_against_b, new_b_ripostes, np.zeros(n_runs, dtype=np.int64),
                     atk_has_poison=b_effective_poison,
-                    def_has_parry=((PARRY in a_tags)),
+                    def_has_parry=((PARRY in a_tags) & (NO_PARRY not in a_tags)),
                     def_regen_threshold=_regen_threshold(a_tags, b_tags),
                     def_has_regen_reroll=_has_regen_reroll(a_tags),
                     atk_unstoppable=(b_unstoppable and not a_negate_unstoppable),

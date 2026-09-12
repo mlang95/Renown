@@ -39,7 +39,7 @@ from vectorized_combat import StaticArmy, get_tactic_tables
 from renown_data import (
     SHATTER_ARMOR, CLEAVE, DEFLECT, DESTROY_SHIELD, DRILLED, DUAL_WIELD, FLORENTINE, HALFSWORD,
     MINUS_1_TBH, MINUS_1_PARRY, NEGATE_RIPOSTE, NEGATE_SHIELDED, NEGATE_TEMPERED, NEGATE_UNSTOPPABLE,
-    NIMBLE, ONE_SHOT, PARRY, PLANISHING, POISON, RECOVER, RIPOSTE, SERRATED,
+    NIMBLE, NO_PARRY, ONE_SHOT, PARRY, PLANISHING, POISON, RECOVER, RIPOSTE, SERRATED,
     STEADY, STRAIN, TWO_H, UNBREAKABLE, UNSTOPPABLE, UNWIELDY, ENDURING,
     IMMUNE_DESTROY_SHIELD, IMMUNE_STRAIN, IMMUNE_UNWIELDY,
 )
@@ -53,6 +53,7 @@ from combat_kernel import (
 import combat_primitives as _cp
 import re
 from dice_config import FACES, FOCUSED_THR, CAP_THR, AUTO_PASS_FLOOR
+_AP_FLOOR = AUTO_PASS_FLOOR if AUTO_PASS_FLOOR is not None else 1  # None (rule off) => floor 1, nothing auto-passes
 try:
     import numba
     _HAVE_NUMBA = True
@@ -228,9 +229,9 @@ def _roll_strikes_batch(rng, n, target_th, front_line, has_deadly, has_cleave,
       crit_floor  : FOCUSED_THR (Focused) or lower via a `Crit N` tag — proc threshold per slot
       has_dual_wield : Daggers-style reroll-misses (optional; default all-False)
     Returns (strikes incl. cleave extras, deadly_strikes, destroyed_shield)."""
-    target_th_c = np.clip(target_th, AUTO_PASS_FLOOR, FACES + 1).astype(np.int64)
+    target_th_c = np.clip(target_th, _AP_FLOOR, FACES + 1).astype(np.int64)
     auto_fail = (target_th_c > FACES)
-    auto_pass = (np.asarray(target_th) < AUTO_PASS_FLOOR)
+    auto_pass = (np.asarray(target_th) < _AP_FLOOR)
     rolls = rng.integers(1, FACES + 1, size=(n, 20), dtype=np.int8)
     cleave_rolls = rng.integers(1, FACES + 1, size=(n, 20), dtype=np.int8)
     fl = front_line.astype(np.int64)
@@ -370,8 +371,8 @@ def _precompute_regen_parry(Pa, Pb):
             b_regen[i] = rb if rb is not None else 0
             a_flor = (FLORENTINE in at) and (DUAL_WIELD in at)   # Florentine only active while dual-wielding
             b_flor = (FLORENTINE in bt) and (DUAL_WIELD in bt)
-            a_parry[i] = (PARRY in at) or ("Improved Parry" in at) or a_flor
-            b_parry[i] = (PARRY in bt) or ("Improved Parry" in bt) or b_flor
+            a_parry[i] = ((PARRY in at) or ("Improved Parry" in at) or a_flor) and (NO_PARRY not in at)
+            b_parry[i] = ((PARRY in bt) or ("Improved Parry" in bt) or b_flor) and (NO_PARRY not in bt)
             a_reroll[i] = vc._has_regen_reroll(at)
             b_reroll[i] = vc._has_regen_reroll(bt)
             a_riposte[i] = (RIPOSTE in at)
