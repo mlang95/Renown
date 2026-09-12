@@ -55,7 +55,7 @@ set OUT_DIR=%LAB_DIR%\cards
 
 REM WIKI_REPO : local clone GitHub Pages serves. Blank = build only.
 REM   Do NOT point this at the D6 RenownWiki clone or CE will overwrite it.
-set WIKI_REPO=
+set WIKI_REPO=C:\Users\Matt\OneDrive\Desktop\Game\RenownWiki
 set PUSH_WIKI=1
 
 REM ---- REPO PUSH (commit + tag + push the CE project to GitHub) --------------
