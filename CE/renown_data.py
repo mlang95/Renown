@@ -1,12 +1,33 @@
 # renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
-VERSION = "0.4.9.8"
+VERSION = "0.4.9.8-d10"
+
+# ── DICE ─────────────────────────────────────────────────────────────────────
+# Single source for die size, shared with the combat engines. Every threshold
+# string below is an f-string built from these, so changing the die rewrites the
+# rules text with it. Values come from dice_config (CE/combatv4) when it is
+# importable, so the data file and the engines can never disagree; the fallbacks
+# only apply when this file is imported standalone for doc/card generation.
+try:
+    from dice_config import (FACES, FOCUSED_THR, ROUT_THR, CAP_THR,
+                             AUTO_PASS_FLOOR, FATIGUE_STRIKE, FATIGUE_MORALE)
+except ImportError:  # standalone (build_wiki, gen_compendium, card sheets, ...)
+    FACES            = 10
+    FOCUSED_THR      = FACES
+    ROUT_THR         = FACES + 1
+    CAP_THR          = FACES
+    AUTO_PASS_FLOOR  = 2
+    FATIGUE_STRIKE   = 2
+    FATIGUE_MORALE   = 2
+
+BLUNDER_THR = CAP_THR   # Blunder sets to-Strike to the worst printable target
+PARRY_BASE  = 9         # base Parry target
 # ── Keyword constants ─────────────────────────────────────────────────────
 # Rename a keyword here and it renames everywhere (GLOSSARY keys, tags, cards).
 
 STEADY          = "Steady"
 UNWIELDY        = "Unwieldy"
-TWO_H           = "Two-Handed"
+TWO_H           = "2H"
 SHATTER_ARMOR   = "Deadly"
 UNSTOPPABLE     = "Unstoppable"
 CLEAVE          = "Cleave"
@@ -21,9 +42,10 @@ IMMUNE_PANIC    = "Immune Panic"
 UNBREAKABLE     = "Unbreakable"
 PARRY           = "Parry"
 RIPOSTE         = "Riposte"
+NO_PARRY        = "Awkward"
 RECOVER         = "Recover"
 SERRATED        = "Serrated"
-ENDURING        = "Enduring"   # Recover still gets a 6+ save while Fatigued (exception to off-when-fatigued)
+ENDURING        = "Enduring"   # Recover still gets a CAP_THR+ save while Fatigued (exception to off-when-fatigued)
 STRAIN          = "Strain"
 MINUS_1_TBH     = "Shielded"
 PLANISHING      = "Tempered"
@@ -49,13 +71,13 @@ IMMUNE_STRAIN         = immune(STRAIN)
 # Negate family (offensive — cancel an enemy keyword) + atomic penalty/bundle terms
 NEGATE_UNSTOPPABLE = "Immune Unstoppable"
 
-NEGATE_TEMPERED    = "Negate Tempered"
+NEGATE_TEMPERED    = f"Negate {PLANISHING}"
 NEGATE_RIPOSTE     = "Negate Riposte"
 NEGATE_SHIELDED    = negate(MINUS_1_TBH)   # "Negate Shielded": attacker ignores defender's Shielded (-1 to Strike)
 MINUS_1_PARRY      = "-1 to Parry"
 HALFSWORD          = "Halfsword"   # RESERVED — engine path intact, no weapon carries it (shelved)
 DUAL_WIELD         = "Dual Wield"
-FLORENTINE         = "Florentine"  # Parry survives Fatigue: degrades to 6+ but is never disabled. Grants Parry. Only active while Dual Wielding.
+FLORENTINE         = "Florentine"  # Parry survives Fatigue: degrades to CAP_THR+ but is never disabled. Grants Parry. Only active while Dual Wielding.
 PIVOTAL = "Focused"
 
 
@@ -63,28 +85,29 @@ GLOSSARY = {
     STEADY:         "Initiative cannot be reduced by Tactics.",
     UNWIELDY:       "Initiative cannot be improved by Tactics.",
     TWO_H:          "Cannot use a Shield.",
-    SHATTER_ARMOR:  f"On a {PIVOTAL} Strike: that strike's AP is set to -5, and the defender may Parry or {RECOVER} only with a {PIVOTAL} roll.",
-    UNSTOPPABLE:    f"Parried only by a {PIVOTAL} roll.",
+    SHATTER_ARMOR:  f"On a {PIVOTAL} Strike: that strike's AP is increased by -5, and the defender may Parry or {RECOVER} only with a {PIVOTAL} roll.",
+    UNSTOPPABLE:    f"-1 to the defender's Parry roll (i.e. +2 to the Parry target, to a maximum of {CAP_THR}+).",
     CLEAVE:         f"On a {PIVOTAL} Strike: roll one extra Strike die at your modified to-Strike.",
     POISON:         f"When the Defender receives a Strike and rolls a {PIVOTAL} Save, it fails; the resulting wound may only be {RECOVER}ed with a {PIVOTAL} {RECOVER}.",
     NIMBLE:         "Gain +1 Initiative in the first Skirmish of each Battle.",
     DRILLED:        "Does not lose Endurance in the first Skirmish of each Battle.",
     DESTROY_SHIELD: f"On a {PIVOTAL} Strike: the target loses its Shield attributes for the rest of the Battle.",
-    BLUNDER:        "At Initiative -2 or lower, your to-Strike is set to 6+, before other negative modifiers.",
+    BLUNDER:        f"At Initiative -2 or lower, your to-Strike is set to {BLUNDER_THR}+, before other negative modifiers.",
     ONE_SHOT:       "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard.",
     #DEFLECT:        "-1 to Parry and Negate Riposte against this weapon's Strikes. (All Ranged weapons have Deflect.)",
     #IMMUNE_PANIC:   "Automatically passes Panic checks.",
     #UNBREAKABLE:    "Immune Break: does not take Break checks while Fatigued.",
-    PARRY:          "While not Fatigued, roll a d6 to attempt to Parry a Strike before the Save. On a 5+, the Strike is Parried.",
+    PARRY:          f"While not Fatigued, roll a D{FACES} to attempt to Parry a Strike before the Save. On a {PARRY_BASE}+, the Strike is Parried.",
     RIPOSTE:        "While not Fatigued, if you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
-    RECOVER:        "While not Fatigued, if a to-Save roll fails, roll a d6: a result of X+ Recovers the retinue.",
+    NO_PARRY:       "While equipped with this weapon during a skirmish, you cannot Parry, and so cannot Riposte.",
+    RECOVER:        f"While not Fatigued, if a to-Save roll fails, roll a D{FACES}: a result of X+ Recovers the retinue.",
     SERRATED:       "A cumulative -2 penalty to the defender's Recover roll.",
     PLANISHING:     f"A {PIVOTAL} Save succeeds, regardless of AP.",
-    FATIGUE_TOKEN:  "Each token is -1 to your Strike to a maximum of 6+; and Morale -1 (uncapped). If your modified Morale is ever 7+, your army Routs. These effects are cumulative.",
-    MINUS_1_TBH:    "A cumulative -1 penalty to the Strike roll (to a maximum of 6+). Sources: a shield's -1 to Strike.",
+    FATIGUE_TOKEN:  f"Each token is -{FATIGUE_STRIKE} to your Strike to a maximum of {CAP_THR}+; and Morale -{FATIGUE_MORALE} (uncapped). If your modified Morale is ever {ROUT_THR}+, your army Routs. These effects are cumulative.",
+    MINUS_1_TBH:    f"A cumulative -1 penalty to the Strike roll (to a maximum of {CAP_THR}+). Sources: a shield's -1 to Strike.",
 	#NEGATE_UNSTOPPABLE: "Cancels the attacker's Parry from Unstoppable: this shield's -1 to Strike still applies, and the attacker's -1 to Parry does not.",
-    NEGATE_TEMPERED: "Ignores Tempered: this weapon's AP can reduce the target's Save past 6+ (to auto-fail), defeating the Tempered floor.",
-    NEGATE_RIPOSTE: "The target's Parry can never Riposte this weapon's Strikes (a natural 6 Parry still cancels the Strike, but no counter-Strike follows).",
+    NEGATE_TEMPERED: f"Ignores Tempered: this weapon's AP can reduce the target's Save past {CAP_THR}+ (to auto-fail), defeating the Tempered floor.",
+    NEGATE_RIPOSTE: f"The target's Parry can never Riposte this weapon's Strikes (a natural {FOCUSED_THR} Parry still cancels the Strike, but no counter-Strike follows).",
     #MINUS_1_PARRY: "A stacking -1 penalty to the defender's Parry roll (to a maximum of 6+). Sources: Unstoppable, Deflect, and each Fatigue token.",
     DUAL_WIELD: "A failed Strike is rerolled once; the rerolled Strike can be Focused. Dual Wield confers Two-Handed. You cannot reroll successful Strikes.",
     FLORENTINE: "Only active while Dual Wielding. Even while Fatigued, a Focused Parry succeeds. This alone does not enable Riposte while Fatigued.",
@@ -108,12 +131,12 @@ GLOSSARY = {
     "Fatigued":      f"A side at 0 Endurance. Each Skirmish its field takes a Break check, then it gains a Fatigue token. Fatigued Armies cannot {PARRY}, {RIPOSTE}, or {RECOVER}",
     "Break check":   "Taken by each Fatigued side's field every Skirmish, just before it gains its Fatigue token. Roll Morale (up to 5 dice, modified by Fatigue tokens); failures are casualties, but a Break check never triggers a Panic check. Unbreakable auto-passes.",
     "Panic check":   "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish, after it Strikes back. Roll Morale (up to 5 dice); Immune Panic auto-passes.",
-    "Morale":        "How steady a retinue is when tested (lower is steadier; see the retinue table). Break and Panic checks roll it: a D6 per retinue in the field, up to 5 dice, each must meet its modified value; failures are casualties. If the modified value is ever 7+, the army Routs.",
+    "Morale":        f"How steady a retinue is when tested (lower is steadier; see the retinue table). Break and Panic checks roll it: a D{FACES} per retinue in the field, up to 5 dice, each must meet its modified value; failures are casualties. If the modified value is ever {ROUT_THR}+, the army Routs.",
     "Rout":          "The army breaks and leaves the Battle (you lose it). Whenever an army's modified Morale value reaches 7 or more, it Routs automatically.",
     "Fall Back":     "A controlled retreat that ends the Battle with at least one retinue left — a partial success.",
-    "Strike":        "A landed hit. Roll a D6, apply modifiers to the roll, and Strike on a result >= the to-Strike number. The target may then Parry, Save, and Recover.",
-    "to-Strike number": "The D6 result a retinue needs to Strike (see the retinue table; lower is better). Bonuses add to the roll; penalties and Fatigue tokens subtract.",
-    "Save":          "The defender's roll to avoid a casualty: roll a D6, add the weapon's AP (a negative) and the shield's Save bonus (a positive); the hit is saved on a result >= the armor value.",
+    "Strike":        f"A landed hit. Roll a D{FACES}, apply modifiers to the roll, and Strike on a result >= the to-Strike number. The target may then Parry, Save, and Recover.",
+    "to-Strike number": f"The D{FACES} result a retinue needs to Strike (see the retinue table; lower is better). Bonuses add to the roll; penalties and Fatigue tokens subtract.",
+    "Save":          f"The defender's roll to avoid a casualty: roll a D{FACES}, add the weapon's AP (a negative) and the shield's Save bonus (a positive); the hit is saved on a result >= the armor value.",
     "Natural roll":  "The number on the die before any modifiers. Modifiers never change what counts as 'natural'.",
     "Initiative":    "Decides who Strikes first each Skirmish (higher first). Runs -2 to +2 (Ministry can raise the maximum to +3). At -2 or lower you Blunder.",
     "Tactic":        "A choice both players make secretly and reveal together each Skirmish; it can shift Initiative, Strike, and Save rolls.",
@@ -178,11 +201,10 @@ GLOSSARY = {
     "Siege":         "Sieging a Settlement with an Army to capture it; does not increment in Winter.",
 }
 
-# ── Pivotal: one word for "a natural 6" across all combat effects ─────────────
+# ── Pivotal: one word for "a natural FOCUSED_THR" across all combat effects ─────────────
 # Pure synonym — Pivotal carries no mechanics of its own; each keyword does the work.
 # Swap the term anywhere by editing this one string. Must be defined before use;
 # this .update() form can be pasted anywhere after GLOSSARY and the constants exist.
-PIVOTAL = "Focused"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -195,19 +217,19 @@ PIVOTAL = "Focused"
 # Background the four interact with:
 #   Morale target = base `shaking` + Fatigue tokens - shake bonuses (e.g. Abbey +1).
 #   Break check: each Fatigued side rolls every Skirmish (up to 5 dice) before its
-#                Fatigue token; failures are casualties. Target 7+ is unmakeable = Rout.
+#                Fatigue token; failures are casualties. Target ROUT_THR+ is unmakeable = Rout.
 #   Panic check: a side that took >5 casualties this Skirmish rolls once after it
 #                Strikes back. (Handled by Immune Panic, not by these four.)
 # ─────────────────────────────────────────────────────────────────────────────
 MORALE_GLOSSARY = {
     "Unbreakable": "Skips the Break check entirely while Fatigued: never rolls, never takes "
-                   "break casualties. BUT still Routs if the morale target climbs to 7+ from "
+                   "break casualties. BUT still Routs if the morale target climbs to ROUT_THR+ from "
                    "accumulated Fatigue. Stands fully immune, then collapses all at once — and "
                    "because it stays full-size up to the Rout, it loses MORE soldiers when it "
                    "finally breaks than a unit that bled down gradually.",
-    "Unshakable":  "Caps the morale target at 6 permanently. Still TAKES every Break and Panic "
-                   "check each Skirmish (keeps bleeding casualties at a 6+ roll), but the target "
-                   "can never reach 7, so it NEVER Routs. Bends and bleeds forever, never shatters. "
+    "Unshakable":  "Caps the morale target at CAP_THR permanently. Still TAKES every Break and Panic "
+                   "check each Skirmish (keeps bleeding casualties at a CAP_THR+ roll), but the target "
+                   "can never reach ROUT_THR, so it NEVER Routs. Bends and bleeds forever, never shatters. "
                    "Makes the `shaking` stat (and the Abbey bonus) irrelevant — it's capped regardless.",
     "Rally":       "Auto-passes the FIRST Break check it is ever required to take in a battle "
                    "(no roll, no casualties, no Rout); every Break check after is normal. One free "
@@ -235,60 +257,59 @@ ENDURANCE_REGAIN    = 2    # +Endurance restored to non-Strained armies in the E
 
 
 RETINUES = {
-    "Levy":           {"cost": 1000, "to_hit": 4, "endurance": 3, "shaking": 5, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
-    "Man-at-Arms":    {"cost": 2000, "to_hit": 3, "endurance": 4, "shaking": 5, "unbreakable": False, "speed": 2, "max_size": ARMY_MAX_RETINUES},
-    "Sergeant":       {"cost": 2500, "to_hit": 2, "endurance": 3, "shaking": 4, "unbreakable": False, "speed": 2, "max_size": ARMY_MAX_RETINUES},
-    "Knight Templar": {"cost": 3000, "to_hit": 3, "endurance": 3, "shaking": 3, "unbreakable": False, "speed": 2, "max_size": ARMY_MAX_RETINUES},
+    "Levy":           {"cost": 1000, "to_hit": 8, "endurance": 2, "shaking": 6, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
+    "Man-at-Arms":    {"cost": 2000, "to_hit": 6, "endurance": 3, "shaking": 5, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
+    "Sergeant":       {"cost": 2000, "to_hit": 2, "endurance": 2, "shaking": 4, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
+    "Knight Templar": {"cost": 2000, "to_hit": 5, "endurance": 2, "shaking": 3, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
 }
 
-
-
 WEAPONS = {
-    "Farm Tools":     {"ap":  0, "init":  0, "tier": "Crude",   "tags": []},
-    "Cudgel":         {"ap": -1, "init": -1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY]},
-    "Pitchfork":      {"ap":  0, "init":  1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY]},
-    "Daggers":        {"ap":  0, "init":  1, "tier": "Cast",    "tags": [TWO_H, DUAL_WIELD, SHATTER_ARMOR], 'note': "A paired light blade; dual-wields innately (rerolls missed Strikes). No shield."},
-    "Short Sword":    {"ap": -1, "init":  0, "tier": "Cast",    "tags": []},
-    "Spears":         {"ap": -1, "init":  1, "tier": "Cast",    "tags": [TWO_H, UNWIELDY]},
+    "Farm Tools":     {"ap":  0, "init":  0, "tier": "Crude",   "tags": [NO_PARRY]},
+    "Cudgel":         {"ap": -1, "init": -1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, NO_PARRY]},
+    "Pitchfork":      {"ap":  0, "init":  1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, NO_PARRY]},
+    "Daggers":        {"ap":  0, "init":  1, "tier": "Cast",    "tags": [TWO_H, SHATTER_ARMOR]},
+    "Short Sword":    {"ap":  0, "init":  0, "tier": "Cast",    "tags": [STEADY]},
+    "Spears":         {"ap": -1, "init":  1, "tier": "Cast",    "tags": [UNWIELDY]},
     "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY]},
-    "Pike":           {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, UNWIELDY, SHATTER_ARMOR]},
-    "Flail":          {"ap": -1, "init":  0, "tier": "Wrought", "tags": [UNWIELDY, CLEAVE], 'note': 'Cannot Dual Wield'},
-    "Halberd":        {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, UNWIELDY]},
-    "Battle Axe":     {"ap": -2, "init":  0, "tier": "Wrought", "tags": [TWO_H, UNWIELDY, CLEAVE, NEGATE_SHIELDED]},
-    "Cavalry Spear":  {"ap": -2, "init":  0, "tier": "Wrought", "tags": [STEADY, UNWIELDY, NEGATE_RIPOSTE], 'note': "Needs Stable; no Tower Shield or Dual Wield or Ranged Weapon"},
-    "Morningstar":    {"ap": -3, "init": -1, "tier": "Forged",  "tags": [UNWIELDY, CLEAVE, DESTROY_SHIELD], 'note': 'Cannot Dual Wield'},
-    "Bastard Sword":  {"ap": -3, "init":  0, "tier": "Forged",  "tags": [STEADY, SHATTER_ARMOR], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile. Cannot Dual Wield'},
-    "2HBastard":      {"ap": -3, "init":  0, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, CLEAVE]},
-    "War Hammer":     {"ap": -8, "init": -1, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD]},
-    "Lance":          {"ap": -4, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE], 'note': "Needs Stable; no Tower Shield or Dual Wield"},
-    "Estoc":          {"ap": -3, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, NEGATE_RIPOSTE, NEGATE_TEMPERED]},
-    "Poleaxe":        {"ap": -3, "init":  1, "tier": "Crafted", "tags": [TWO_H, STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_TEMPERED]},
+    "Pike":           {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, STEADY, UNWIELDY, SHATTER_ARMOR, NO_PARRY]},
+    "Flail":          {"ap": -3, "init": -1, "tier": "Wrought", "tags": [STEADY, UNSTOPPABLE, CLEAVE, NO_PARRY], 'note': 'Cannot Dual Wield'},
+    "Halberd":        {"ap": -3, "init":  0, "tier": "Wrought", "tags": [TWO_H, UNWIELDY]},
+    "Battle Axe":     {"ap": -4, "init": -1, "tier": "Wrought", "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, CLEAVE, NEGATE_SHIELDED]},
+    "Cavalry Spear":  {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, UNWIELDY, NEGATE_RIPOSTE, NO_PARRY], 'note': "Needs Stable; no Tower Shield or Dual Wield or Ranged Weapon; cannot Parry"},
+    "Morningstar":    {"ap": -4, "init": -1, "tier": "Forged",  "tags": [CLEAVE, DESTROY_SHIELD], 'note': 'Cannot Dual Wield'},
+    "Bastard Sword":  {"ap": -3, "init":  0, "tier": "Forged",  "tags": [STEADY], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile.'},
+    "2HBastard":      {"ap": -3, "init":  0, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, CLEAVE]},
+    "War Hammer":     {"ap":-10, "init": -1, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD]},
+    "Lance":          {"ap": -4, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY, NEGATE_RIPOSTE], 'note': "Needs Stable; no Tower Shield, Dual Wield, Ranged weapon, or Parry."},
+    "Estoc":          {"ap": -4, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_RIPOSTE, NEGATE_TEMPERED]},
+    "Poleaxe":        {"ap": -6, "init":  0, "tier": "Crafted", "tags": [TWO_H, STEADY, CLEAVE, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_TEMPERED]},
 }
 
 RANGED = {
-    "Hunting Bow": {"ap":  0, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNSTOPPABLE, NEGATE_RIPOSTE]},
-    "Longbow":     {"ap": -1, "init":  2, "tier": "Cast",    "tags": [TWO_H, UNSTOPPABLE, SHATTER_ARMOR, NEGATE_RIPOSTE]},
-    "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD, ONE_SHOT], 'note': 'Cannot Dual Wield'},
-    "Crossbow":    {"ap": -4, "init":  0, "tier": "Forged",  "tags": [UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, ONE_SHOT], 'note': "Tower Shield only (no other shield), cannot Dual Wield"},
-    #"Pilum":       {"ap": -3, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD, ONE_SHOT]},
-    "Arqeubus":    {"ap": -4, "init":  2, "tier": "Crafted", "tags": [TWO_H, STEADY, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, NEGATE_TEMPERED], 'note': "May only use the Fighting Formation, Defensive Formation, or Fall Back Tactics. "},
+    "Hunting Bow": {"ap": -1, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNSTOPPABLE, NEGATE_RIPOSTE]},
+    "Longbow":     {"ap": -2, "init":  2, "tier": "Cast",    "tags": [TWO_H, UNSTOPPABLE, SHATTER_ARMOR, NEGATE_RIPOSTE]},
+    "Javelin":     {"ap": -3, "init":  1, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD, ONE_SHOT], 'note': 'Cannot Dual Wield'},
+    "Crossbow":    {"ap": -4, "init":  0, "tier": "Forged",  "tags": [UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE], 'note': "Tower Shield only (no other shield), cannot Dual Wield"},
+    "Arquebus":    {"ap": -6, "init":  2, "tier": "Crafted", "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, NEGATE_TEMPERED, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["ABF", "Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
+    "Pilum":       {"ap": -5, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD, ONE_SHOT]},
 }
 
 SHIELDS = {
     None:            {"save_bonus": 0, "init":  0, "tier": None,     "tags": []},
     "Buckler Shield":{"save_bonus": 1, "init":  0, "tier": "Crude",  "tags": []},
-    "Targe Shield":  {"save_bonus": 0, "init": -1, "tier": "Cast",   "tags": [STEADY, MINUS_1_TBH]},
-    "Kite Shield":   {"save_bonus": 1, "init": -1, "tier": "Wrought","tags": [UNWIELDY, MINUS_1_TBH]},
-    "Tower Shield":  {"save_bonus": 2, "init": -1, "tier": "Forged", "tags": [UNWIELDY, MINUS_1_TBH]},
+    "Targe Shield":  {"save_bonus": 1, "init":  0, "tier": "Cast",   "tags": [UNWIELDY, MINUS_1_TBH]},
+    "Kite Shield":   {"save_bonus": 1, "init":  0, "tier": "Wrought","tags": [STEADY, MINUS_1_TBH]},
+    "Tower Shield":  {"save_bonus": 2, "init":  0, "tier": "Forged", "tags": [UNWIELDY, MINUS_1_TBH]},
     "Heater Shield": {"save_bonus": 2, "init":  0, "tier": "Crafted","tags": [MINUS_1_TBH, IMMUNE_DESTROY_SHIELD]},
 }
 
 ARMORS = {
-    "Cloth":       {"save": 7, "tier": "Crude",   "tags": []},
-    "Leather":     {"save": 5, "tier": "Cast",    "tags": []},
-    "Chainmail":   {"save": 4, "tier": "Wrought", "tags": []},
-    "Full Plate":  {"save": 3, "tier": "Forged",  "tags": []},
-    "Gothic Plate":{"save": 2, "tier": "Crafted", "tags": ["Immune Unwieldy"]},
+    "Cloth":       {"save": 10, "tier": "Crude",   "tags": []},
+    "Gambeson":    {"save":  9, "tier": "Crude",   "tags": []},
+    "Leather":     {"save":  8, "tier": "Cast",    "tags": []},
+    "Chainmail":   {"save":  7, "tier": "Wrought", "tags": []},
+    "Full Plate":  {"save":  6, "tier": "Forged",  "tags": []},
+    "Gothic Plate":{"save":  5, "tier": "Crafted", "tags": []},
 }
 
 # ── Tier ladder ────────────────────────────────────────────────────────────
@@ -306,10 +327,10 @@ TIER_UNLOCK = {
 # ── Domain Standing combat effects (Escalation) ───────────────────────────
 # Standings: Rising = 3, Established = 6, Sovereign = 10 domain points.
 STANDING_EFFECTS = {
-    ("Prowess", "Established"): "Parry",
+    ("Prowess", "Established"): "", #Remove "Parry"
     ("Piety",   "Established"): "+1 Morale",
-    ("Cunning", "Established"): "Foes gain Blunder in first Skirmish",
-    ("Cunning", "Sovereign"):   "Foes gain Strain",
+    ("Cunning", "Established"): "", #Remove "Foes gain Blunder in first Skirmish"
+    ("Cunning", "Sovereign"):   "", #Remove "Foes gain Strain"
 }
 	
 # ── Tactics ────────────────────────────────────────────────────────────────
@@ -658,7 +679,7 @@ NODES = {
         "type": "Husbandry",
         "unlock": "-",
         "mastery_req": "Arable Land",
-        "innate": "+100, **Natural**",
+        "innate": "+100, **Natural**, Unlock **Crude** armor and shield.",
         "mastery": "+300",
         "builds_into": ["Saddlery", "Tannery", "Stable", "Weavery", "Butchery"],
         "monument": False,
@@ -842,13 +863,13 @@ NODES = {
         "type": "Craft",
         "unlock": "Established Industry",
         "mastery_req": "Armory + Blacksmith",
-        "innate": "Unlock **Forged** armor and shield.",
-        "mastery": f"{PLANISHING}: Your to-Save can't be reduced beyond 6+. Craft +1",
+        "innate": f"{PLANISHING}: Your to-Save can't be reduced beyond {CAP_THR}+.",
+        "mastery": "Unlock **Forged** armor and shield. Craft +1.",
         "efficient": "Armory",
         "builds_into": ["Advanced Blast Furnace"],
         "monument": False,
         "escalation": {"standing": "Established Industry", "ranks": {1: f"Full Plate + {PLANISHING}"}, "requires_all": ["Armory"], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": ["Armory"], "domain": {"Industry": 6}, "innate_tags": ["tier:FullPlate"], "mastery_tags": [PLANISHING], "mastery_req": ["Armory","Blacksmith"]}},
+        "engine": {"cost": 1, "prereqs": ["Armory"], "domain": {"Industry": 6}, "innate_tags": [PLANISHING], "mastery_tags": ["tier:FullPlate"], "mastery_req": ["Armory","Blacksmith"]}},
     "Smokehouse": {
         "type": "Craft",
         "unlock": "-",
@@ -1062,12 +1083,12 @@ NODES = {
         "unlock": "Established Piety",
         "mastery_req": "Apothecary + Infirmary",
         "innate": "**Recover** improved by +1",
-        "mastery": "Enduring: while Fatigued, your Recover rolls can't be reduced beyond 6+.",
+        "mastery": f"Enduring: while Fatigued, your Recover rolls can't be reduced beyond {CAP_THR}+.",
         "efficient": "Infirmary",
         "builds_into": ["Preceptory of the Knight's Templar"],
         "monument": False,
-        "escalation": {"standing": "Established Piety", "ranks": {1: f"Recover 4+; {ENDURING}"}, "requires_all": ["Infirmary"], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": ["Apothecary", "Infirmary"], "domain": {"Piety": 6}, "innate_tags": ["Recover 4"], "mastery_tags": [ENDURING], "mastery_req": ["Apothecary", "Infirmary"]}},
+        "escalation": {"standing": "Established Piety", "ranks": {1: f"Recover 8+; {ENDURING}"}, "requires_all": ["Infirmary"], "requires_any": [], "extra_req": ""},
+        "engine": {"cost": 1, "prereqs": ["Apothecary", "Infirmary"], "domain": {"Piety": 6}, "innate_tags": ["Recover 6"], "mastery_tags": [ENDURING], "mastery_req": ["Apothecary", "Infirmary"]}},
     "Jester's Court": {
         "type": "Civic",
         "unlock": "1 Rising",
@@ -1136,24 +1157,24 @@ NODES = {
         "type": "Civic",
         "unlock": "Established Prowess",
         "mastery_req": "Coliseum + Conditioning Field",
-        "innate": "**Faith +1**",
+        "innate": "**Faith +1**; Improve Parry by +1.",
         "mastery": "3x/turn: exchange 500 gold for **1 Influence**; Armies gain **Riposte**",
         "efficient": "Coliseum",
         "builds_into": ["Royal Pavilion"],
         "monument": False,
         "escalation": {"standing": "Established Prowess", "ranks": {1: "Riposte"}, "requires_all": ["Coliseum"], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": [], "domain": {"Prowess": 6}, "innate_tags": [], "mastery_tags": ["Riposte"], "mastery_req": ["Conditioning Field", "Coliseum"], "efficient": "Coliseum"}},
+        "engine": {"cost": 1, "prereqs": [], "domain": {"Prowess": 6}, "innate_tags": ["Parry +1"], "mastery_tags": ["Riposte"], "mastery_req": ["Conditioning Field", "Coliseum"], "efficient": "Coliseum"}},
     "Apothecary": {
         "type": "Civic",
         "unlock": "-",
         "mastery_req": "Herb Garden + Alchemy",
         "innate": "+300",
-        "mastery": "Gain Recover 6, or improve Recover by +1.",
+        "mastery": "Gain Recover 8, or improve Recover by +1.",
         "efficient": "Alchemy",
         "builds_into": ["Infirmary", "Hospitaller"],
         "monument": False,
-        "escalation": {"standing": "Untested Piety", "ranks": {1: "Recover 6"}, "requires_all": [], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": [], "mastery_tags": ["Recover 6"], "mastery_req": ["Herb Garden"]}},
+        "escalation": {"standing": "Untested Piety", "ranks": {1: "Recover 10"}, "requires_all": [], "requires_any": [], "extra_req": ""},
+        "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": [], "mastery_tags": ["Recover 8"], "mastery_req": ["Herb Garden"]}},
     "Infirmary": {
         "type": "Civic",
         "unlock": "Rising Piety",
@@ -1163,8 +1184,8 @@ NODES = {
         "efficient": "Apothecary",
         "builds_into": ["Hospitaller"],
         "monument": False,
-        "escalation": {"standing": "Untested Piety", "ranks": {1: "Recover 5"}, "requires_all": ["Apothecary"], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": ["Apothecary"], "domain": {}, "innate_tags": [], "mastery_tags": ["Recover 5"], "mastery_req": ["Alchemy", "Herb Garden"], "efficient": "Apothecary", "upkeep_effects": [{"flat": 100}]}},
+        "escalation": {"standing": "Untested Piety", "ranks": {1: "Recover 9"}, "requires_all": ["Apothecary"], "requires_any": [], "extra_req": ""},
+        "engine": {"cost": 1, "prereqs": ["Apothecary"], "domain": {}, "innate_tags": [], "mastery_tags": ["Recover 7"], "mastery_req": ["Alchemy", "Herb Garden"], "efficient": "Apothecary", "upkeep_effects": [{"flat": 100}]}},
     "Supply Depot": {
         "type": "Civic",
         "unlock": "Rising Industry",
@@ -1382,14 +1403,14 @@ NODES = {
     "War College": {
         "type": "Power",
         "unlock": "Established Prowess",
-        "mastery_req": "Coliseum + Levy Hall + Academy",
+        "mastery_req": "Levy Hall + Academy",
         "innate": "Gain **+2 Influence** while At War",
         "mastery": "Unlocks **Sergeants** for Muster",
         "efficient": "Academy",
         "builds_into": ["Ministry of Military Strategy"],
         "monument": False,
-        "escalation": {"standing": "Established Prowess", "ranks": {1: "Sergeant unlock"}, "requires_all": ["Coliseum"], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": ["Coliseum", "Levy Hall", "Academy"], "domain": {"Prowess": 6}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Coliseum", "Levy Hall", "Academy"], "efficient": "Academy"}},
+        "escalation": {"standing": "Established Prowess", "ranks": {1: "Sergeant unlock"}, "requires_all": [""], "requires_any": [], "extra_req": ""},
+        "engine": {"cost": 1, "prereqs": [ "Levy Hall", "Academy"], "domain": {"Prowess": 6}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Levy Hall", "Academy"], "efficient": "Academy"}},
     "Forge": {
         "type": "Power",
         "unlock": "Established Industry",
@@ -1406,7 +1427,7 @@ NODES = {
         "unlock": "Established Prowess",
         "mastery_req": "Fletchery + Coliseum",
         "innate": "Armies may be Equipped with a second weapon (a Ranged and a Melee Weapon); the army gains **Unwieldy**",
-        "mastery": "Your armies have **Immune Unwieldy**. Instead, they may equip two of the same 1H Melee Weapon to gain **Dual Wield**, **Two-Handed**, and **Florentine** (while Fatigued, may Parry on a natural 6).",
+        "mastery": "Your armies have **Immune Unwieldy**. Instead, they may equip two of the same 1H Melee Weapon to gain **Dual Wield**, **Two-Handed**, and **Florentine** (while Fatigued, may Parry on a natural {FOCUSED_THR}).",
         "builds_into": ["Royal Pavilion"],
         "monument": False,
         "escalation": {"standing": "Established Prowess", "ranks": {1: "Dual-equip; Immune Unwieldy; Dual Wield (two of a kind)"}, "requires_all": ["Fletchery"], "requires_any": [], "extra_req": ""},
@@ -1443,22 +1464,27 @@ NODES = {
         "type": "Monument",
         "unlock": "Sovereign Prowess",
         "mastery_req": "Siege Camp + Master Workshop",
-        "innate": "Siege Timers ignore Wooden & Stone Walls",
+        "innate": "Siege Timers ignore Wooden & Stone Walls. Unlocks Arquebus",
         "mastery": "Settlements you Siege can't Sally Forth. Siege Timer −1.",
         "efficient": "Siege Camp",
         "builds_into": [],
-        "monument": True},
+        "monument": True,
+        "engine": {"cost": 1, "prereqs": ["Siege Camp", "Master Workshop"],
+                   "domain": {"Prowess": 10},
+                   "innate_tags": ["Artillery Park"], "mastery_tags": [],
+                   "mastery_req": ["Siege Camp", "Master Workshop"],
+                   "efficient": "Siege Camp"}},
     "Ministry of Military Strategy": {
         "type": "Monument",
         "unlock": "Sovereign Prowess",
         "mastery_req": "University + War College",
-        "innate": "Always gains **Seize the Initiative**, and your opponent doesn't. gain Immune Tactic -1 to Strike",
-        "mastery": "Gain +1I & max initiative is 3; Deadly, & Cleave also trigger Focused Strikes on a natural 5.",
+        "innate": "Always gains **Seize the Initiative**, and your opponent doesn't; Gain +1I & max initiative is 3",
+        "mastery": "Deadly, & Cleave also trigger Focused Strikes on a natural 8. Improve Parry by +1.",
         "efficient": "War College",
         "builds_into": [],
         "monument": True,
-        "escalation": {"standing": "Sovereign Prowess", "ranks": {1: "Always Seize the Initiative;  Immune Tactic -1 to Strike", 2: "Gain +1I; your maximum initiative increases to 3. Deadly, & Cleave also trigger on a natural 5."}, "requires_all": ["War College"], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": [], "domain": {"Prowess": 10}, "innate_tags": ["Seize: first", "Immune Tactic TH"], "mastery_tags": ["Crit 5", "+1I", "MaxInit3"], "mastery_req": ["University", "War College"]}},
+        "escalation": {"standing": "Sovereign Prowess", "ranks": {1: "Always Seize the Initiative; Gain +1I; your maximum initiative increases to 3.", 2: "Deadly, & Cleave also trigger on a natural 7+. Gain +1 to Strike & Parry.."}, "requires_all": ["War College"], "requires_any": [], "extra_req": ""},
+        "engine": {"cost": 1, "prereqs": [], "domain": {"Prowess": 10}, "innate_tags": ["Seize: first", "Init +1", "MaxInit3"], "mastery_tags": ["Crit 8", "Parry +1", "Save +1"], "mastery_req": ["University", "War College"]}},
     "Thieves' Guild": {
         "type": "Monument",
         "unlock": "Sovereign Cunning",
@@ -1768,7 +1794,7 @@ FACTIONS = {
         'feel': 'Unconvinced',
         'difficulty': 'Low',
         'strength': 'Low',
-        'mechanic': "Martyrdom: Your Armies' Morale can't be modified beyond 6+, but still suffer −1 per Fatigue Token. Gain Faith +1 for every player you're At War with, and Faith +1 in every Battle where you lose 20 or more Retinues (win or lose). Your Armies have Immune War Weariness.",
+        'mechanic': f"Martyrdom: Your Armies' Morale can't be modified beyond {CAP_THR}+, but still suffer −{FATIGUE_MORALE} per Fatigue Token. Gain Faith +1 for every player you're At War with, and Faith +1 in every Battle where you lose 20 or more Retinues (win or lose). Your Armies have Immune War Weariness.",
         'pair': "Preceptory of the Knight's Templar, Inquisitorial Palace",
         'complement': 'Royal Pavilion',
     },
@@ -2165,7 +2191,7 @@ DOMAIN_BOARD = {
         "Sovereign":   "High Quartermaster: Upkeep -2000. May change equipment on your armies during any upkeep phase where that army is within Province. No longer lose Influence while at War.",
     },
     "Cunning": {
-        "Rising":      "Clandestine Councilor: Twice per Envoy Phase, during a vote on an Envoy, target a player - that player Abstains that Envoy.",
+        "Rising":      "Clandestine Councilor: Once per Envoy Phase, during a vote on an Envoy, target a player - that player Abstains that Envoy.",
         "Established": "Grand Vizier: Players may not target you with Cunning Envoys if your Cunning value is higher. When you perform a Skirmish action, your opponent gains Blunder in the first Skirmish of that Battle.",
         "Sovereign":   "Master Conspirator: Once per turn, if your non-Cunning Envoy passes or is Endorsed, you may instead perform a Cunning action. In Battle, your opponent gains Strained each Skirmish.",
     },
@@ -2584,7 +2610,7 @@ BANDIT_BEHAVIOR = {
     "Cunning Roll":  "If 10+ retinues in camp, roll a d3 each turn: 1 = Intercept Caravan, 2 = Raze, 3 = Destabilize.",
     "Treasury":      "Bandit camps keep Extorted gold in their treasury and pay no costs or upkeep. Destroying a camp/army Extorts its treasury.",
     "Army Behavior": "After bandit mechanics, a Bandit Army performs a Move: Skirmish (player army in range) > Lay Siege (player settlement in range) > March (toward closest army/settlement). Host breaks range ties.",
-    "Attacking":     "Move to end adjacent to a camp; another player rolls bandit tactics (d6, 7 = Fall Back) and resolves to-strike/save as a Battle. Bandits never Fall Back but may Flee. Extort the camp's gold if destroyed.",
+    "Attacking":     "Move to end adjacent to a camp; another player rolls bandit tactics (D{FACES}; a Focused result = Fall Back) and resolves to-strike/save as a Battle. Bandits never Fall Back but may Flee. Extort the camp's gold if destroyed.",
 }
 
 # ── UPKEEP — THREE SEPARATE TRACKS ────────────────────────────────────────────
@@ -2686,10 +2712,145 @@ SIEGE_SOURCE_VALUES = {
 
 # ── Missing glossary definitions (CE) ────────────────────────────────────────
 GLOSSARY.update({
-    PIVOTAL:        "A natural 6, before modifiers.",
-    FATIGUE_TOKEN:  "Each token is -1 to your Strike (to a maximum of 6+) and Morale -1 (uncapped); if your modified Morale is ever 7+, your army Routs. Tokens stack. While Fatigued, retinues cannot Parry or Recover.",
+    PIVOTAL:        f"A natural {FOCUSED_THR}, before modifiers." if FOCUSED_THR == FACES else f"A natural {FOCUSED_THR} or higher, before modifiers.",
+    FATIGUE_TOKEN:  f"Each token is -{FATIGUE_STRIKE} to your Strike (to a maximum of {CAP_THR}+) and Morale -{FATIGUE_MORALE} (uncapped); if your modified Morale is ever {ROUT_THR}+, your army Routs. Tokens stack. While Fatigued, retinues cannot Parry or Recover.",
     "Sally Forth":  "While a settlement you control is besieged and you have an army inside it, you may Sally Forth: Battle in the Battle Phase without performing an action.",
     "War Weariness":"gain Doubt 1 for each consecutive Battle you lose in the Empire Phase.",
     "Ward":         "A slot in a Settlement that holds one Pursuit; a Settlement has one Ward per tier (a Hamlet has 3 Husbandry Wards).",
     "Efficient X":  "While this Pursuit occupies the same Settlement Ward as X (the Raw Material or Pursuit named on its tile), it uses no ward of its own \u2014 the two share one ward. Placed anywhere else, it fills a ward normally. (Core Principle 14.) Note: Two Pursuits that are Efficient with the same Pursuit cannot share a Ward with each other.",
 })
+
+NAME_DISPLAY = {
+    "Spears": "Spear",
+    "Pilum": "Angon",
+    "Farm Tools": "Farm Tool",
+    "Artillery Park": "Ordinance Yard",
+    "Coliseum": "Training Ground"
+}
+def display(name):
+    """Player-facing name for an engine id (weapon/ranged/shield/armor/node).
+    Returns the id itself when no override is set."""
+    return NAME_DISPLAY.get(name, name)
+ 
+
+# ══════════════════════════════════════════════════════════════════════════════
+# BANDIT DIE TABLES — dice-agnostic. Keys are a face value or a (lo, hi) range.
+# Edit the tables; every renderer (MD, host sheet, cards) recomputes from them.
+# ══════════════════════════════════════════════════════════════════════════════
+BANDIT_FACES = FACES          # die bandits roll; tracks dice_config.FACES
+BANDIT_CUNNING_MIN = 10       # retinues in camp required to roll the Cunning table
+
+# ── Generic table plumbing (works for any value/range: action table) ─────────
+def die_table_ranges(table, faces=None):
+    """Normalize {int|(lo,hi): action} to a sorted [(lo, hi, action), ...]."""
+    out = []
+    for key, action in table.items():
+        lo, hi = (key, key) if isinstance(key, int) else (key[0], key[1])
+        out.append((lo, hi, action))
+    return sorted(out)
+
+def die_table_rows(table, faces=None):
+    """Human-readable rows: '1-3 – Intercept Caravan', '10 – Foster Rebellion'."""
+    rows = []
+    for lo, hi, action in die_table_ranges(table, faces):
+        span = f"{lo}" if lo == hi else f"{lo}-{hi}"
+        rows.append(f"{span} \u2013 {action}")
+    return rows
+
+def die_table_text(table, faces=None):
+    """Inline form: '1-3 = Intercept Caravan, 4-6 = Raze, ...'."""
+    parts = []
+    for lo, hi, action in die_table_ranges(table, faces):
+        span = f"{lo}" if lo == hi else f"{lo}-{hi}"
+        parts.append(f"{span} = {action}")
+    return ", ".join(parts)
+
+def die_table_lookup(table, roll, faces=None):
+    """Resolve a rolled value to its action; None if the face is uncovered."""
+    for lo, hi, action in die_table_ranges(table, faces):
+        if lo <= roll <= hi:
+            return action
+    return None
+
+def die_table_verify(table, faces=None, label="table"):
+    """Return (ok, problems). Checks every face 1..faces is covered exactly once."""
+    faces = BANDIT_FACES if faces is None else faces
+    ranges = die_table_ranges(table, faces)
+    problems, seen = [], {}
+    for lo, hi, action in ranges:
+        if lo > hi:
+            problems.append(f"{label}: inverted range {lo}-{hi} ({action})")
+        if lo < 1 or hi > faces:
+            problems.append(f"{label}: {lo}-{hi} ({action}) outside 1-{faces}")
+        for v in range(max(lo, 1), min(hi, faces) + 1):
+            if v in seen:
+                problems.append(f"{label}: face {v} claimed by both {seen[v]} and {action}")
+            seen[v] = action
+    missing = [v for v in range(1, faces + 1) if v not in seen]
+    if missing:
+        problems.append(f"{label}: faces uncovered: {missing}")
+    return (not problems, problems)
+
+def die_table_weights(table, faces=None):
+    """{action: face count} — for eyeballing frequency when modulating."""
+    faces = BANDIT_FACES if faces is None else faces
+    w = {}
+    for lo, hi, action in die_table_ranges(table, faces):
+        w[action] = w.get(action, 0) + (min(hi, faces) - max(lo, 1) + 1)
+    return w
+
+# ── CUNNING TABLE — what a camp of BANDIT_CUNNING_MIN+ retinues does each turn ─
+# Tune these ranges freely; die_table_verify() enforces full coverage of 1..FACES.
+BANDIT_CUNNING_TABLE = {
+    (1, 2):  "Intercept Caravan",
+    (3, 7):  "Raze",
+    (8, 9):  "Destabilize",
+    10:      "Foster Rebellion",
+}
+
+def bandit_cunning_ranges(faces=None): return die_table_ranges(BANDIT_CUNNING_TABLE, faces)
+def bandit_cunning_rows(faces=None):   return die_table_rows(BANDIT_CUNNING_TABLE, faces)
+def bandit_cunning_lookup(roll, faces=None): return die_table_lookup(BANDIT_CUNNING_TABLE, roll, faces)
+
+def bandit_cunning_text(faces=None):
+    faces = BANDIT_FACES if faces is None else faces
+    return (f"If {BANDIT_CUNNING_MIN}+ retinues in camp, roll a d{faces} each turn: "
+            f"{die_table_text(BANDIT_CUNNING_TABLE, faces)}.")
+
+# ── TACTIC TABLE — explicit ranges, same plumbing (replaces the even auto-split)
+BANDIT_TACTIC_TABLE = {
+    (1, 2):  "Ambush",
+    (3, 4):  "Flank",
+    (5, 6):  "Charge",
+    (7, 8):  "Fighting Formation",
+    (9, 10): "Defensive Formation",
+}
+BANDIT_TACTICS = [a for _, _, a in die_table_ranges(BANDIT_TACTIC_TABLE)]
+
+def bandit_tactic_ranges(faces=None): return die_table_ranges(BANDIT_TACTIC_TABLE, faces)
+def bandit_tactic_rows(faces=None):   return die_table_rows(BANDIT_TACTIC_TABLE, faces)
+def bandit_tactic_lookup(roll, faces=None): return die_table_lookup(BANDIT_TACTIC_TABLE, roll, faces)
+
+# ── Coverage check (call from verify_d10.py / build step) ────────────────────
+def verify_bandit_tables(faces=None):
+    ok_c, p_c = die_table_verify(BANDIT_CUNNING_TABLE, faces, "BANDIT_CUNNING_TABLE")
+    ok_t, p_t = die_table_verify(BANDIT_TACTIC_TABLE,  faces, "BANDIT_TACTIC_TABLE")
+    return (ok_c and ok_t, p_c + p_t)
+
+# ── Wire the generated text back into BANDIT_BEHAVIOR ────────────────────────
+# Place after BANDIT_BEHAVIOR is defined, or move the dict below this block.
+BANDIT_BEHAVIOR["Cunning Roll"] = bandit_cunning_text()
+BANDIT_BEHAVIOR["Attacking"] = (
+    f"Move to end adjacent to a camp; another player rolls bandit tactics on a "
+    f"D{BANDIT_FACES} (see the bandit tactic table) and resolves to-strike/save as a "
+    f"Battle. Bandits never Fall Back but may Flee. Extort the camp's gold if destroyed."
+)
+
+if __name__ == "__main__":
+    ok, problems = verify_bandit_tables()
+    print(f"d{BANDIT_FACES} | bandit tables {'OK' if ok else 'FAIL'}")
+    for p in problems:
+        print("  " + p)
+    print("Cunning:", die_table_weights(BANDIT_CUNNING_TABLE))
+    print("Tactics:", die_table_weights(BANDIT_TACTIC_TABLE))
+    print(bandit_cunning_text())
