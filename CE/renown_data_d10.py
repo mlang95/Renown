@@ -42,7 +42,7 @@ IMMUNE_PANIC    = "Immune Panic"
 UNBREAKABLE     = "Unbreakable"
 PARRY           = "Parry"
 RIPOSTE         = "Riposte"
-NO_PARRY        = "Unbalanced"
+NO_PARRY        = "Awkward"
 RECOVER         = "Recover"
 SERRATED        = "Serrated"
 ENDURING        = "Enduring"   # Recover still gets a CAP_THR+ save while Fatigued (exception to off-when-fatigued)
@@ -71,7 +71,7 @@ IMMUNE_STRAIN         = immune(STRAIN)
 # Negate family (offensive — cancel an enemy keyword) + atomic penalty/bundle terms
 NEGATE_UNSTOPPABLE = "Immune Unstoppable"
 
-NEGATE_TEMPERED    = "Negate Tempered"
+NEGATE_TEMPERED    = f"Negate {PLANISHING}"
 NEGATE_RIPOSTE     = "Negate Riposte"
 NEGATE_SHIELDED    = negate(MINUS_1_TBH)   # "Negate Shielded": attacker ignores defender's Shielded (-1 to Strike)
 MINUS_1_PARRY      = "-1 to Parry"
@@ -86,7 +86,7 @@ GLOSSARY = {
     UNWIELDY:       "Initiative cannot be improved by Tactics.",
     TWO_H:          "Cannot use a Shield.",
     SHATTER_ARMOR:  f"On a {PIVOTAL} Strike: that strike's AP is increased by -5, and the defender may Parry or {RECOVER} only with a {PIVOTAL} roll.",
-    UNSTOPPABLE:    f"-2 to the defender's Parry roll (i.e. +2 to the Parry target, to a maximum of {CAP_THR}+).",
+    UNSTOPPABLE:    f"-1 to the defender's Parry roll (i.e. +2 to the Parry target, to a maximum of {CAP_THR}+).",
     CLEAVE:         f"On a {PIVOTAL} Strike: roll one extra Strike die at your modified to-Strike.",
     POISON:         f"When the Defender receives a Strike and rolls a {PIVOTAL} Save, it fails; the resulting wound may only be {RECOVER}ed with a {PIVOTAL} {RECOVER}.",
     NIMBLE:         "Gain +1 Initiative in the first Skirmish of each Battle.",
@@ -205,7 +205,6 @@ GLOSSARY = {
 # Pure synonym — Pivotal carries no mechanics of its own; each keyword does the work.
 # Swap the term anywhere by editing this one string. Must be defined before use;
 # this .update() form can be pasted anywhere after GLOSSARY and the constants exist.
-PIVOTAL = "Focused"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -258,41 +257,41 @@ ENDURANCE_REGAIN    = 2    # +Endurance restored to non-Strained armies in the E
 
 
 RETINUES = {
-    "Levy":           {"cost": 1000, "to_hit": 5, "endurance": 2, "shaking": 6, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
-    "Man-at-Arms":    {"cost": 2000, "to_hit": 4, "endurance": 3, "shaking": 5, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
-    "Sergeant":       {"cost": 2500, "to_hit": 2, "endurance": 2, "shaking": 4, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
-    "Knight Templar": {"cost": 3000, "to_hit": 3, "endurance": 2, "shaking": 3, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
+    "Levy":           {"cost": 1000, "to_hit": 8, "endurance": 2, "shaking": 6, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
+    "Man-at-Arms":    {"cost": 2000, "to_hit": 6, "endurance": 3, "shaking": 5, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
+    "Sergeant":       {"cost": 2000, "to_hit": 2, "endurance": 2, "shaking": 4, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
+    "Knight Templar": {"cost": 2000, "to_hit": 5, "endurance": 2, "shaking": 3, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
 }
 
 WEAPONS = {
     "Farm Tools":     {"ap":  0, "init":  0, "tier": "Crude",   "tags": [NO_PARRY]},
     "Cudgel":         {"ap": -1, "init": -1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, NO_PARRY]},
     "Pitchfork":      {"ap":  0, "init":  1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, NO_PARRY]},
-    "Daggers":        {"ap":  0, "init":  1, "tier": "Cast",    "tags": [TWO_H, DUAL_WIELD, SHATTER_ARMOR], 'note': "A paired light blade; dual-wields innately (rerolls missed Strikes). No shield."},
+    "Daggers":        {"ap":  0, "init":  1, "tier": "Cast",    "tags": [TWO_H, SHATTER_ARMOR]},
     "Short Sword":    {"ap":  0, "init":  0, "tier": "Cast",    "tags": [STEADY]},
-    "Spears":         {"ap": -2, "init":  1, "tier": "Cast",    "tags": [TWO_H, UNWIELDY]},
+    "Spears":         {"ap": -1, "init":  1, "tier": "Cast",    "tags": [UNWIELDY]},
     "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY]},
-    "Pike":           {"ap": -3, "init":  3, "tier": "Wrought", "tags": [TWO_H, STEADY, UNWIELDY, SHATTER_ARMOR, NO_PARRY]},
-    "Flail":          {"ap": -3, "init": -1, "tier": "Wrought", "tags": [UNWIELDY, CLEAVE, NO_PARRY], 'note': 'Cannot Dual Wield'},
-    "Halberd":        {"ap": -4, "init":  0, "tier": "Wrought", "tags": [TWO_H, UNWIELDY]},
-    "Battle Axe":     {"ap": -5, "init": -1, "tier": "Wrought", "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, CLEAVE, NEGATE_SHIELDED]},
-    "Cavalry Spear":  {"ap": -3, "init":  1, "tier": "Wrought", "tags": [STEADY, UNWIELDY, NEGATE_RIPOSTE, NO_PARRY], 'note': "Needs Stable; no Tower Shield or Dual Wield or Ranged Weapon; cannot Parry"},
-    "Morningstar":    {"ap": -4, "init": -1, "tier": "Forged",  "tags": [UNWIELDY, CLEAVE, DESTROY_SHIELD], 'note': 'Cannot Dual Wield'},
-    "Bastard Sword":  {"ap": -2, "init":  0, "tier": "Forged",  "tags": [STEADY, SHATTER_ARMOR], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile. Cannot Dual Wield'},
-    "2HBastard":      {"ap": -4, "init":  0, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, CLEAVE]},
+    "Pike":           {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, STEADY, UNWIELDY, SHATTER_ARMOR, NO_PARRY]},
+    "Flail":          {"ap": -3, "init": -1, "tier": "Wrought", "tags": [STEADY, UNSTOPPABLE, CLEAVE, NO_PARRY], 'note': 'Cannot Dual Wield'},
+    "Halberd":        {"ap": -3, "init":  0, "tier": "Wrought", "tags": [TWO_H, UNWIELDY]},
+    "Battle Axe":     {"ap": -4, "init": -1, "tier": "Wrought", "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, CLEAVE, NEGATE_SHIELDED]},
+    "Cavalry Spear":  {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, UNWIELDY, NEGATE_RIPOSTE, NO_PARRY], 'note': "Needs Stable; no Tower Shield or Dual Wield or Ranged Weapon; cannot Parry"},
+    "Morningstar":    {"ap": -4, "init": -1, "tier": "Forged",  "tags": [CLEAVE, DESTROY_SHIELD], 'note': 'Cannot Dual Wield'},
+    "Bastard Sword":  {"ap": -3, "init":  0, "tier": "Forged",  "tags": [STEADY], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile.'},
+    "2HBastard":      {"ap": -3, "init":  0, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, CLEAVE]},
     "War Hammer":     {"ap":-10, "init": -1, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD]},
-    "Lance":          {"ap": -5, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY, NEGATE_RIPOSTE], 'note': "Needs Stable; no Tower Shield, Dual Wield, Ranged weapon, or Parry."},
-    "Estoc":          {"ap": -3, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, NEGATE_RIPOSTE, NEGATE_TEMPERED]},
-    "Poleaxe":        {"ap": -6, "init":  0, "tier": "Crafted", "tags": [TWO_H, STEADY, UNSTOPPABLE, NEGATE_SHIELDED]},
+    "Lance":          {"ap": -4, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY, NEGATE_RIPOSTE], 'note': "Needs Stable; no Tower Shield, Dual Wield, Ranged weapon, or Parry."},
+    "Estoc":          {"ap": -4, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_RIPOSTE, NEGATE_TEMPERED]},
+    "Poleaxe":        {"ap": -6, "init":  0, "tier": "Crafted", "tags": [TWO_H, STEADY, CLEAVE, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_TEMPERED]},
 }
 
 RANGED = {
-    "Hunting Bow": {"ap":  0, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNSTOPPABLE, NEGATE_RIPOSTE]},
-    "Longbow":     {"ap": -1, "init":  2, "tier": "Cast",    "tags": [TWO_H, UNSTOPPABLE, SHATTER_ARMOR, NEGATE_RIPOSTE]},
-    "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD, ONE_SHOT], 'note': 'Cannot Dual Wield'},
-    "Crossbow":    {"ap": -4, "init":  0, "tier": "Forged",  "tags": [UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, ONE_SHOT], 'note': "Tower Shield only (no other shield), cannot Dual Wield"},
-    "Arquebus":    {"ap": -5, "init":  2, "tier": "Crafted", "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, NEGATE_TEMPERED, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["ABF", "Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
-    "Pilum":       {"ap": -3, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD, ONE_SHOT]},
+    "Hunting Bow": {"ap": -1, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNSTOPPABLE, NEGATE_RIPOSTE]},
+    "Longbow":     {"ap": -2, "init":  2, "tier": "Cast",    "tags": [TWO_H, UNSTOPPABLE, SHATTER_ARMOR, NEGATE_RIPOSTE]},
+    "Javelin":     {"ap": -3, "init":  1, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD, ONE_SHOT], 'note': 'Cannot Dual Wield'},
+    "Crossbow":    {"ap": -4, "init":  0, "tier": "Forged",  "tags": [UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE], 'note': "Tower Shield only (no other shield), cannot Dual Wield"},
+    "Arquebus":    {"ap": -6, "init":  2, "tier": "Crafted", "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, NEGATE_TEMPERED, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["ABF", "Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
+    "Pilum":       {"ap": -5, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD, ONE_SHOT]},
 }
 
 SHIELDS = {
@@ -306,11 +305,11 @@ SHIELDS = {
 
 ARMORS = {
     "Cloth":       {"save": 10, "tier": "Crude",   "tags": []},
-    "Gambeson":    {"save":  8, "tier": "Crude",   "tags": []},
-    "Leather":     {"save":  7, "tier": "Cast",    "tags": []},
-    "Chainmail":   {"save":  6, "tier": "Wrought", "tags": []},
-    "Full Plate":  {"save":  5, "tier": "Forged",  "tags": []},
-    "Gothic Plate":{"save":  4, "tier": "Crafted", "tags": []},
+    "Gambeson":    {"save":  9, "tier": "Crude",   "tags": []},
+    "Leather":     {"save":  8, "tier": "Cast",    "tags": []},
+    "Chainmail":   {"save":  7, "tier": "Wrought", "tags": []},
+    "Full Plate":  {"save":  6, "tier": "Forged",  "tags": []},
+    "Gothic Plate":{"save":  5, "tier": "Crafted", "tags": []},
 }
 
 # ── Tier ladder ────────────────────────────────────────────────────────────
@@ -864,13 +863,13 @@ NODES = {
         "type": "Craft",
         "unlock": "Established Industry",
         "mastery_req": "Armory + Blacksmith",
-        "innate": "Unlock **Forged** armor and shield.",
-        "mastery": f"{PLANISHING}: Your to-Save can't be reduced beyond {CAP_THR}+. Craft +1",
+        "innate": f"{PLANISHING}: Your to-Save can't be reduced beyond {CAP_THR}+.",
+        "mastery": "Unlock **Forged** armor and shield. Craft +1.",
         "efficient": "Armory",
         "builds_into": ["Advanced Blast Furnace"],
         "monument": False,
         "escalation": {"standing": "Established Industry", "ranks": {1: f"Full Plate + {PLANISHING}"}, "requires_all": ["Armory"], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": ["Armory"], "domain": {"Industry": 6}, "innate_tags": ["tier:FullPlate"], "mastery_tags": [PLANISHING], "mastery_req": ["Armory","Blacksmith"]}},
+        "engine": {"cost": 1, "prereqs": ["Armory"], "domain": {"Industry": 6}, "innate_tags": [PLANISHING], "mastery_tags": ["tier:FullPlate"], "mastery_req": ["Armory","Blacksmith"]}},
     "Smokehouse": {
         "type": "Craft",
         "unlock": "-",
@@ -1164,7 +1163,7 @@ NODES = {
         "builds_into": ["Royal Pavilion"],
         "monument": False,
         "escalation": {"standing": "Established Prowess", "ranks": {1: "Riposte"}, "requires_all": ["Coliseum"], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": [], "domain": {"Prowess": 6}, "innate_tags": ["Improved Parry"], "mastery_tags": ["Riposte"], "mastery_req": ["Conditioning Field", "Coliseum"], "efficient": "Coliseum"}},
+        "engine": {"cost": 1, "prereqs": [], "domain": {"Prowess": 6}, "innate_tags": ["Parry +1"], "mastery_tags": ["Riposte"], "mastery_req": ["Conditioning Field", "Coliseum"], "efficient": "Coliseum"}},
     "Apothecary": {
         "type": "Civic",
         "unlock": "-",
@@ -1480,12 +1479,12 @@ NODES = {
         "unlock": "Sovereign Prowess",
         "mastery_req": "University + War College",
         "innate": "Always gains **Seize the Initiative**, and your opponent doesn't; Gain +1I & max initiative is 3",
-        "mastery": "Deadly, & Cleave also trigger Focused Strikes on a natural 9. Improve Parry by +1.",
+        "mastery": "Deadly, & Cleave also trigger Focused Strikes on a natural 8. Improve Parry by +1.",
         "efficient": "War College",
         "builds_into": [],
         "monument": True,
-        "escalation": {"standing": "Sovereign Prowess", "ranks": {1: "Always Seize the Initiative; Gain +1I; your maximum initiative increases to 3.", 2: " Deadly, & Cleave also trigger on a natural 7+."}, "requires_all": ["War College"], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": [], "domain": {"Prowess": 10}, "innate_tags": ["Seize: first", "+1I", "MaxInit3"], "mastery_tags": ["Crit 7", "Improved Parry"], "mastery_req": ["University", "War College"]}},
+        "escalation": {"standing": "Sovereign Prowess", "ranks": {1: "Always Seize the Initiative; Gain +1I; your maximum initiative increases to 3.", 2: "Deadly, & Cleave also trigger on a natural 7+. Gain +1 to Strike & Parry.."}, "requires_all": ["War College"], "requires_any": [], "extra_req": ""},
+        "engine": {"cost": 1, "prereqs": [], "domain": {"Prowess": 10}, "innate_tags": ["Seize: first", "Init +1", "MaxInit3"], "mastery_tags": ["Crit 8", "Parry +1", "Save +1"], "mastery_req": ["University", "War College"]}},
     "Thieves' Guild": {
         "type": "Monument",
         "unlock": "Sovereign Cunning",
@@ -2733,36 +2732,125 @@ def display(name):
     Returns the id itself when no override is set."""
     return NAME_DISPLAY.get(name, name)
  
- 
+
 # ══════════════════════════════════════════════════════════════════════════════
-# BANDIT TACTIC TABLE — dice-agnostic. Change BANDIT_FACES (or the tactic list)
-# and every renderer (MD, host sheet, cards) recomputes the ranges automatically.
+# BANDIT DIE TABLES — dice-agnostic. Keys are a face value or a (lo, hi) range.
+# Edit the tables; every renderer (MD, host sheet, cards) recomputes from them.
 # ══════════════════════════════════════════════════════════════════════════════
-# Tactics in order; the die is split contiguously across them (see bandit_tactic_ranges).
-BANDIT_TACTICS = ["Ambush", "Flank", "Charge", "Defensive Formation"]
- 
-def bandit_tactic_ranges(faces=None, tactics=None):
-    """Split 1..faces contiguously across `tactics`. Returns [(lo, hi, tactic), ...].
-    Divides evenly when it can; any leftover faces go one-each to the LAST tactics."""
-    faces = BANDIT_FACES if faces is None else faces
-    tactics = list(BANDIT_TACTICS if tactics is None else tactics)
-    k = len(tactics)
-    if k == 0 or faces <= 0:
-        return []
-    base, extra = divmod(faces, k)                 # `extra` tactics cover one more face
-    sizes = [base + (1 if i >= k - extra else 0) for i in range(k)]
-    out, lo = [], 1
-    for size, t in zip(sizes, tactics):
-        if size <= 0:                              # more tactics than faces: skip the tail
-            continue
-        hi = lo + size - 1
-        out.append((lo, hi, t)); lo = hi + 1
-    return out
- 
-def bandit_tactic_rows(faces=None, tactics=None):
-    """Human-readable rows for the MD / sheets: '1-2 – Ambush', '7 – Charge', ..."""
+BANDIT_FACES = FACES          # die bandits roll; tracks dice_config.FACES
+BANDIT_CUNNING_MIN = 10       # retinues in camp required to roll the Cunning table
+
+# ── Generic table plumbing (works for any value/range: action table) ─────────
+def die_table_ranges(table, faces=None):
+    """Normalize {int|(lo,hi): action} to a sorted [(lo, hi, action), ...]."""
+    out = []
+    for key, action in table.items():
+        lo, hi = (key, key) if isinstance(key, int) else (key[0], key[1])
+        out.append((lo, hi, action))
+    return sorted(out)
+
+def die_table_rows(table, faces=None):
+    """Human-readable rows: '1-3 – Intercept Caravan', '10 – Foster Rebellion'."""
     rows = []
-    for lo, hi, t in bandit_tactic_ranges(faces, tactics):
+    for lo, hi, action in die_table_ranges(table, faces):
         span = f"{lo}" if lo == hi else f"{lo}-{hi}"
-        rows.append(f"{span} \u2013 {t}")
+        rows.append(f"{span} \u2013 {action}")
     return rows
+
+def die_table_text(table, faces=None):
+    """Inline form: '1-3 = Intercept Caravan, 4-6 = Raze, ...'."""
+    parts = []
+    for lo, hi, action in die_table_ranges(table, faces):
+        span = f"{lo}" if lo == hi else f"{lo}-{hi}"
+        parts.append(f"{span} = {action}")
+    return ", ".join(parts)
+
+def die_table_lookup(table, roll, faces=None):
+    """Resolve a rolled value to its action; None if the face is uncovered."""
+    for lo, hi, action in die_table_ranges(table, faces):
+        if lo <= roll <= hi:
+            return action
+    return None
+
+def die_table_verify(table, faces=None, label="table"):
+    """Return (ok, problems). Checks every face 1..faces is covered exactly once."""
+    faces = BANDIT_FACES if faces is None else faces
+    ranges = die_table_ranges(table, faces)
+    problems, seen = [], {}
+    for lo, hi, action in ranges:
+        if lo > hi:
+            problems.append(f"{label}: inverted range {lo}-{hi} ({action})")
+        if lo < 1 or hi > faces:
+            problems.append(f"{label}: {lo}-{hi} ({action}) outside 1-{faces}")
+        for v in range(max(lo, 1), min(hi, faces) + 1):
+            if v in seen:
+                problems.append(f"{label}: face {v} claimed by both {seen[v]} and {action}")
+            seen[v] = action
+    missing = [v for v in range(1, faces + 1) if v not in seen]
+    if missing:
+        problems.append(f"{label}: faces uncovered: {missing}")
+    return (not problems, problems)
+
+def die_table_weights(table, faces=None):
+    """{action: face count} — for eyeballing frequency when modulating."""
+    faces = BANDIT_FACES if faces is None else faces
+    w = {}
+    for lo, hi, action in die_table_ranges(table, faces):
+        w[action] = w.get(action, 0) + (min(hi, faces) - max(lo, 1) + 1)
+    return w
+
+# ── CUNNING TABLE — what a camp of BANDIT_CUNNING_MIN+ retinues does each turn ─
+# Tune these ranges freely; die_table_verify() enforces full coverage of 1..FACES.
+BANDIT_CUNNING_TABLE = {
+    (1, 2):  "Intercept Caravan",
+    (3, 7):  "Raze",
+    (8, 9):  "Destabilize",
+    10:      "Foster Rebellion",
+}
+
+def bandit_cunning_ranges(faces=None): return die_table_ranges(BANDIT_CUNNING_TABLE, faces)
+def bandit_cunning_rows(faces=None):   return die_table_rows(BANDIT_CUNNING_TABLE, faces)
+def bandit_cunning_lookup(roll, faces=None): return die_table_lookup(BANDIT_CUNNING_TABLE, roll, faces)
+
+def bandit_cunning_text(faces=None):
+    faces = BANDIT_FACES if faces is None else faces
+    return (f"If {BANDIT_CUNNING_MIN}+ retinues in camp, roll a d{faces} each turn: "
+            f"{die_table_text(BANDIT_CUNNING_TABLE, faces)}.")
+
+# ── TACTIC TABLE — explicit ranges, same plumbing (replaces the even auto-split)
+BANDIT_TACTIC_TABLE = {
+    (1, 2):  "Ambush",
+    (3, 4):  "Flank",
+    (5, 6):  "Charge",
+    (7, 8):  "Fighting Formation",
+    (9, 10): "Defensive Formation",
+}
+BANDIT_TACTICS = [a for _, _, a in die_table_ranges(BANDIT_TACTIC_TABLE)]
+
+def bandit_tactic_ranges(faces=None): return die_table_ranges(BANDIT_TACTIC_TABLE, faces)
+def bandit_tactic_rows(faces=None):   return die_table_rows(BANDIT_TACTIC_TABLE, faces)
+def bandit_tactic_lookup(roll, faces=None): return die_table_lookup(BANDIT_TACTIC_TABLE, roll, faces)
+
+# ── Coverage check (call from verify_d10.py / build step) ────────────────────
+def verify_bandit_tables(faces=None):
+    ok_c, p_c = die_table_verify(BANDIT_CUNNING_TABLE, faces, "BANDIT_CUNNING_TABLE")
+    ok_t, p_t = die_table_verify(BANDIT_TACTIC_TABLE,  faces, "BANDIT_TACTIC_TABLE")
+    return (ok_c and ok_t, p_c + p_t)
+
+# ── Wire the generated text back into BANDIT_BEHAVIOR ────────────────────────
+# Place after BANDIT_BEHAVIOR is defined, or move the dict below this block.
+BANDIT_BEHAVIOR["Cunning Roll"] = bandit_cunning_text()
+BANDIT_BEHAVIOR["Attacking"] = (
+    f"Move to end adjacent to a camp; another player rolls bandit tactics on a "
+    f"D{BANDIT_FACES} (see the bandit tactic table) and resolves to-strike/save as a "
+    f"Battle. Bandits never Fall Back but may Flee. Extort the camp's gold if destroyed."
+)
+
+if __name__ == "__main__":
+    ok, problems = verify_bandit_tables()
+    print(f"d{BANDIT_FACES} | bandit tables {'OK' if ok else 'FAIL'}")
+    for p in problems:
+        print("  " + p)
+    print("Cunning:", die_table_weights(BANDIT_CUNNING_TABLE))
+    print("Tactics:", die_table_weights(BANDIT_TACTIC_TABLE))
+    print(bandit_cunning_text())

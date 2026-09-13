@@ -107,6 +107,8 @@ def pack_side(loadouts, is_attacker):
     armies_seize   = [StaticArmy(ld, is_attacker=True)  for ld in loadouts]
     armies_noseize = [StaticArmy(ld, is_attacker=False) for ld in loadouts]
     P["ap_first"]    = np.array([a.ap_first for a in armies], dtype=np.int64)
+    P["parry_bonus"] = np.array([a.parry_bonus for a in armies], dtype=np.int64)
+    P["strike_bonus"] = np.array([a.strike_bonus for a in armies], dtype=np.int64)
     P["ap_normal"]   = np.array([a.ap_normal for a in armies], dtype=np.int64)
     P["binit_first_seize"]   = np.array([a.base_init(True)  for a in armies_seize],   dtype=np.int64)
     P["binit_first_noseize"] = np.array([a.base_init(True)  for a in armies_noseize], dtype=np.int64)
@@ -688,8 +690,8 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         # to-hit (random mode: Yew only first skirmish w/ ranged — but random pool rarely; include for parity)
         yew_a = 0; yew_b = 0  # Yew Heart handled via tags? It's an extra_tag, not in RUNTIME_TAGS; skip (matches: random uses same)
         # === To-hit with the FATIGUE CAP_THR+ CAP (matches vectorized_combat) ===
-        wth_a = np.where(a_p1th, -1, 0) + np.where(a_p1th_first, -1, 0) + np.where(a_p1th_rest, -1, 0)
-        wth_b = np.where(b_p1th, -1, 0) + np.where(b_p1th_first, -1, 0) + np.where(b_p1th_rest, -1, 0)
+        wth_a = -tile(Pa["strike_bonus"]) + np.where(a_p1th_first, -1, 0) + np.where(a_p1th_rest, -1, 0)
+        wth_b = -tile(Pb["strike_bonus"]) + np.where(b_p1th_first, -1, 0) + np.where(b_p1th_rest, -1, 0)
         b_tbh = np.where(b_shdest, 0, b_shtbh); a_tbh = np.where(a_shdest, 0, a_shtbh)
         a_th_self = np.where(a_shdest, 0, a_shth); b_th_self = np.where(b_shdest, 0, b_shth)
         a_tbh_eff = np.where(a_negshield, 0, b_tbh)   # Negate Shielded: attacker ignores defender's Shielded (-1 TBH)
@@ -741,10 +743,12 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
                                                        b_hasshield, b_shdest, b_shimm, a_crit, a_dw)
         a_fights = proceed & (a_size > 0)
         a_strk = np.where(a_fights, a_strk, 0); a_sh = np.where(a_fights, a_sh, 0)
+        a_parry_bonus = tile(Pa["parry_bonus"])
+        b_parry_bonus = tile(Pb["parry_bonus"])
         a_destroys = a_destroys & a_fights
         b_cas, b_rip = _roll_saves_batch(rng, N, b_sv, a_strk, a_sh, a_poison, b_parry_eff, b_regen_eff, b_reroll,
                                          atk_unstoppable=a_unstop, def_riposte=b_riposte_eff,
-                                         def_parry_improved=b_imp_parry, def_can_parry_shatter=b_riposte,
+                                         def_parry_improved=b_parry_bonus, def_can_parry_shatter=b_riposte,
                                          atk_is_ranged=a_is_rng, def_fat=b_fat, def_planishing=b_planish,
                                          atk_has_deflect=a_deflect, atk_ignores_tempered=a_negtemp)
         b_cas = np.minimum(b_cas, b_front)
@@ -758,7 +762,7 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
             a_rip_cas, _ = _roll_saves_batch(rng, N, a_sv_rip, b_rip, np.zeros(N, np.int32),
                                              b_poison, a_parry_eff, a_regen_eff, a_reroll,
                                              atk_unstoppable=b_unstop, def_riposte=np.zeros(N, np.bool_),
-                                             def_parry_improved=a_imp_parry, def_fat=a_fat,
+                                             def_parry_improved=a_parry_bonus, def_fat=a_fat,
                                              def_planishing=a_planish)
 
         b_front_after = np.maximum(0, b_front - b_cas)
@@ -772,7 +776,7 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         b_destroys = b_destroys & b_fights
         a_cas, a_rip = _roll_saves_batch(rng, N, a_sv, b_strk, b_sh, b_poison, a_parry_eff, a_regen_eff, a_reroll,
                                          atk_unstoppable=b_unstop, def_riposte=a_riposte_eff,
-                                         def_parry_improved=a_imp_parry, def_can_parry_shatter=a_riposte,
+                                         def_parry_improved=a_parry_bonus, def_can_parry_shatter=a_riposte,
                                          atk_is_ranged=b_is_rng, def_fat=a_fat, def_planishing=a_planish,
                                          atk_has_deflect=b_deflect, atk_ignores_tempered=b_negtemp)
         a_cas = np.minimum(a_cas, a_front)
@@ -784,7 +788,7 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
             b_rip_cas, _ = _roll_saves_batch(rng, N, b_sv_rip, a_rip, np.zeros(N, np.int32),
                                              a_poison, b_parry_eff, b_regen_eff, b_reroll,
                                              atk_unstoppable=a_unstop, def_riposte=np.zeros(N, np.bool_),
-                                             def_parry_improved=b_imp_parry, def_fat=b_fat,
+                                             def_parry_improved=b_parry_bonus, def_fat=b_fat,
                                              def_planishing=b_planish)
 
         # recompute A for b_first
@@ -802,7 +806,7 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
             a_destroys = np.where(recompute_a, na_destroys & na_fights, a_destroys)
             nb_cas, nb_rip = _roll_saves_batch(rng, N, b_sv, a_strk, a_sh, a_poison, b_parry_eff, b_regen_eff, b_reroll,
                                                atk_unstoppable=a_unstop, def_riposte=b_riposte_eff,
-                                               def_parry_improved=b_imp_parry, def_can_parry_shatter=b_riposte,
+                                               def_parry_improved=b_parry_bonus, def_can_parry_shatter=b_riposte,
                                                atk_is_ranged=a_is_rng, def_fat=b_fat, def_planishing=b_planish,
                                                atk_has_deflect=a_deflect, atk_ignores_tempered=a_negtemp)
             nb_cas = np.minimum(nb_cas, b_front)
@@ -814,7 +818,7 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
                 na_rip_cas, _ = _roll_saves_batch(rng, N, a_sv_rip2, nb_rip, np.zeros(N, np.int32),
                                                   b_poison, a_parry_eff, a_regen_eff, a_reroll,
                                                   atk_unstoppable=b_unstop, def_riposte=np.zeros(N, np.bool_),
-                                                  def_parry_improved=a_imp_parry, def_fat=a_fat,
+                                                  def_parry_improved=a_parry_bonus, def_fat=a_fat,
                                                   def_planishing=a_planish)
                 a_rip_cas = np.where(recompute_a, na_rip_cas, a_rip_cas)
         a_shdest = a_shdest | b_destroys

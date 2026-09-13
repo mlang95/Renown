@@ -12,7 +12,24 @@ without them a worker would silently re-read the file defaults and produce
 results from a different die than the one you asked for.
 """
 import os
+import re as _re
+_BONUS_STATS = ("Parry", "Save", "Strike", "Shake", "Init", "AP")
+_BONUS_RE = _re.compile(r'^(Parry|Save|Strike|Shake|Init|AP)\s*([+-]\d+)$')
+_LEGACY = {"+1I": ("Init", 1), "+1TH": ("Strike", 1), "Improved Parry": ("Parry", 1)}
+# NB: "Shake +1" is NOT in _LEGACY — it already matches the regex natively.
 
+def parse_bonuses(tags):
+    """Sum every '<Stat> +N' tag (+ legacy aliases) into {stat: total}, cumulative.
+    +N = better for the wielder for every stat; AP uses -N (more negative = more AP)."""
+    out = {s: 0 for s in _BONUS_STATS}
+    for t in tags:
+        t = str(t).strip()
+        if t in _LEGACY:
+            s, a = _LEGACY[t]; out[s] += a; continue
+        m = _BONUS_RE.match(t)
+        if m:
+            out[m.group(1)] += int(m.group(2))
+    return out
 
 def _env_int(name, default):
     raw = os.environ.get(name)

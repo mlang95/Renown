@@ -98,14 +98,14 @@ def build_parry_thr(n, def_parry_improved, atk_unstoppable, atk_is_ranged,
     All inputs scalar-or-array (n,). Returns parry_thr (n,) int64.
     Also returns the per-element `deflect` mask so the caller can suppress riposte.
     """
-    improved = _as_bool_arr(def_parry_improved, n)
+    parry_bonus = _as_int_arr(def_parry_improved, n) # 0 = none; each +1 = one rung better
     unstop = _as_bool_arr(atk_unstoppable, n)
     ranged = _as_bool_arr(atk_is_ranged, n)
     deflect_tag = _as_bool_arr(atk_has_deflect, n)
     fat = _as_int_arr(def_fat, n) if def_fat is not None else np.zeros(n, dtype=np.int64)
 
     deflect = deflect_tag | ranged   # ranged always Deflects
-    base = np.where(improved, PARRY_BASE - IMPROVED_PARRY_MOD, PARRY_BASE).astype(np.int64)
+    base = (PARRY_BASE - parry_bonus).astype(np.int64)
     parry_thr = base + UNSTOPPABLE_MOD * unstop.astype(np.int64) + deflect.astype(np.int64) + fat
     parry_thr = np.minimum(parry_thr, CAP_THR).astype(np.int64)
     return parry_thr.copy(), deflect

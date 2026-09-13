@@ -13,7 +13,7 @@ Drop-in replacement for the loop-based run_matchup in tournament.py:
 import re
 import numpy as np
 from dice_config import (FACES, FOCUSED_THR, ROUT_THR, CAP_THR, AUTO_PASS_FLOOR,
-                         PARRY_BASE, RECOVER_BASE, DEADLY_AP)
+                         PARRY_BASE, RECOVER_BASE, DEADLY_AP, parse_bonuses)
 _AP_FLOOR = AUTO_PASS_FLOOR if AUTO_PASS_FLOOR is not None else 1 # None (rule off) => floor 1, nothing auto-passes
 from renown_data_d10 import (
     RETINUES, WEAPONS, RANGED, SHIELDS, ARMORS,
@@ -114,7 +114,6 @@ class StaticArmy:
         # Abbey: "Shake +1" tag = +1 to the shaken die roll, i.e. -1 to the effective shake
         # target (a morale buff — easier to pass the shaken test). Stored as a positive amount
         # that is SUBTRACTED from the per-run shake target.
-        self.shake_bonus = 1 if "Shake +1" in ld.extra_tags else 0
         self.armor_save = ARMORS[ld.armor]["save"]
         # Shield can be destroyed mid-battle; track shield_bonus as starting value
         self.shield_bonus_start = SHIELDS[ld.shield]["save_bonus"] if ld.shield else 0
@@ -150,7 +149,6 @@ class StaticArmy:
         # Deadly's -5 stacks on top (a Deadly proc into an ABF defender = (AP+1) - 5).
         self.abf = "ABF" in ld.extra_tags
         # Flat +1 Initiative (Ministry rank 2).
-        self.init_bonus = 1 if "+1I" in ld.extra_tags else 0
         # Yew Heart faction: ranged weapons gain +1 to Hit
         self.yew_heart = "Yew Heart" in ld.extra_tags
         # ── Weapon resolution ──────────────────────────────────────────
@@ -281,6 +279,17 @@ class StaticArmy:
         self.unwieldy_non_shield = bool(_wpn_unw or _arm_unw or _dual_unw or _extra_unw)
         # Convenience: derived flags for the inner loop
         self.shield_init = SHIELDS[ld.shield]["init"] if ld.shield else 0
+        # ── cumulative +X bonuses, summed from the full tag set ──
+        _b = parse_bonuses(self.tags_normal)
+        self.init_bonus   = _b["Init"]     # was the +1I line
+        self.shake_bonus  = _b["Shake"]    # was the "Shake +1" line
+        self.strike_bonus = _b["Strike"]   # consumed in Step 2
+        self.parry_bonus  = _b["Parry"]    # consumed in Step 3
+        self.armor_save  -= _b["Save"]     # Save folds into armor save (lower target = better)
+        self.ap_first    += _b["AP"]       # AP folds into weapon AP (both engines read these)
+        self.ap_normal   += _b["AP"]
+
+
 
     @staticmethod
     def _compute_tags(weapon_profile, shield_name, ld, has_both, first):
@@ -1272,8 +1281,8 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         # Applies whenever the weapon with the tag is the active weapon (so it's already
         # gated by skirmish via the tag set — on dual-equip, tags_normal switches to the
         # melee profile and the +1TH disappears; on pure-ranged it persists every skirmish).
-        weapon_th_bonus_a = -1 if "+1TH" in a_tags else 0
-        weapon_th_bonus_b = -1 if "+1TH" in b_tags else 0
+        weapon_th_bonus_a = -a_static.strike_bonus
+        weapon_th_bonus_b = -b_static.strike_bonus
         # First-skirmish-only +1TH (Ministry innate): -1 to target_th on the FIRST skirmish only.
         first_th_bonus_a = -1 if ("+1TH first" in a_tags and first) else 0
         first_th_bonus_b = -1 if ("+1TH first" in b_tags and first) else 0
@@ -1395,7 +1404,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             def_has_regen_reroll=_has_regen_reroll(b_tags),
             atk_unstoppable=(a_unstoppable and not b_negate_unstoppable),
             def_has_riposte=((RIPOSTE in b_tags)),
-            def_parry_improved=("Improved Parry" in b_tags),
+            def_parry_improved=b_static.parry_bonus,
             def_can_parry_shatter=(RIPOSTE in b_tags),
             atk_is_ranged=a_atk_is_ranged,
             atk_has_deflect=(DEFLECT in a_tags),
@@ -1418,7 +1427,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
                 def_has_regen_reroll=_has_regen_reroll(a_tags),
                 atk_unstoppable=(b_unstoppable and not a_negate_unstoppable),
                 def_has_riposte=False,   # ripostes do not themselves riposte
-                def_parry_improved=("Improved Parry" in a_tags),
+                def_parry_improved=a_static.parry_bonus,
             
             def_fat=a_fat, def_planishing=a_static.planishing, def_crit5=("Crit 5" in a_tags),
         )
@@ -1462,7 +1471,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             def_has_regen_reroll=_has_regen_reroll(a_tags),
             atk_unstoppable=(b_unstoppable and not a_negate_unstoppable),
             def_has_riposte=((RIPOSTE in a_tags)),
-            def_parry_improved=("Improved Parry" in a_tags),
+            def_parry_improved=a_static.parry_bonus,
             def_can_parry_shatter=(RIPOSTE in a_tags),
             atk_is_ranged=b_atk_is_ranged,
             atk_has_deflect=(DEFLECT in b_tags),
@@ -1524,7 +1533,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
                 def_has_regen_reroll=_has_regen_reroll(b_tags),
                 atk_unstoppable=(a_unstoppable and not b_negate_unstoppable),
                 def_has_riposte=((RIPOSTE in b_tags)),
-                def_parry_improved=("Improved Parry" in b_tags),
+                def_parry_improved=b_static.parry_bonus,
                 def_can_parry_shatter=(RIPOSTE in b_tags),
                 atk_is_ranged=a_atk_is_ranged,
                 atk_has_deflect=(DEFLECT in a_tags),
@@ -1546,7 +1555,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
                     def_has_regen_reroll=_has_regen_reroll(a_tags),
                     atk_unstoppable=(b_unstoppable and not a_negate_unstoppable),
                     def_has_riposte=False,
-                    def_parry_improved=("Improved Parry" in a_tags),
+                    def_parry_improved=a_static.parry_bonus,
                 
             def_fat=a_fat, def_planishing=a_static.planishing, def_crit5=("Crit 5" in a_tags),
         )

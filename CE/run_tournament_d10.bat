@@ -32,9 +32,9 @@ set FAT_M=2
 set PARRY=8
 set RECOVER=8
 set AUTOPASS=
-set DEADLY_AP=0
+set DEADLY_AP=5
 set DEADLY_MODE=
-set UNSTOP=
+set UNSTOP=1
 set IMP_PARRY=
 REM set FACES=8
 REM set FOCUSED=8
@@ -52,7 +52,7 @@ set MPC_MAX=8
 set RUNS=100
 REM BALANCED=1 -> balanced_validation_pool ; BALANCED=0 -> archetype_pool
 set BALANCED=1
-set PER_CELL=100
+set PER_CELL=125
 set STRATIFY=250
 set BUDGET_METRIC=total
 
