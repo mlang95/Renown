@@ -59,9 +59,10 @@ set BUDGET_METRIC=mpc
 REM ============================ MEMORY SETTINGS ===============================
 REM WORKERS: each initializes numba and RESERVES several GB of Windows COMMIT.
 REM Keep at 6-8. Lower on MemoryError; raise cautiously.
-set WORKERS=6
+set WORKERS=11
 set RENOWN_MEM_DEBUG=1
-set SLOT_BUDGET=auto
+set SLOT_BUDGET= 600000
+REM auto
 REM ============================================================================
 
 REM Exported so spawned workers inherit the same dice settings.

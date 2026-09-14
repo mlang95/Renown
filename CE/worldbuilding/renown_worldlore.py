@@ -2090,9 +2090,9 @@ MACRO_FRAME = {
                    "almost everyone. MOST EMPIRES ARE FORGOTTEN. MAKE YOURS RENOWNED.",
     "three_axes_of_agency": {
         "WHERE ON THE MAP": "Sets the neighbours, the terrain-mood, the hostilities available.",
-        "WHERE IN THE ~4,600 YEARS": "Sets which Age's conditions you play under — Fracture's chaos, "
-                                     "Plenty's cooperation, the Tetramorph's zealotry, Doubt's "
-                                     "paranoia, Renown's cold tension.",
+        "WHERE IN THE ~4,600 YEARS": "Sets which Age's conditions you play under: War's chaos, "
+                                     "Plenty's cooperation, Tetramorph's zealotry, Doubt's paranoia, "
+                                     "or Renown's cold tension.",
         "WHICH CULTURE YOU ALIGN": "Sets your values, your enemies, your whole relationship to the "
                                    "board.",
     },
@@ -2926,7 +2926,28 @@ PROSE["THE PREMISE"] += (
     "the great power of Lenaveron."
 )
 
+PROSE["THE PREMISE"] = ('''
+Before
+There is nothing tangible that remains of The Age of Darkness. 
 
+The True Word records only that it was…
+& that the Old Gods brought Four Peoples into the four corners of the world.
+
+
+Era Zero - The Great Fracturing
+Almost five thousand years ago, the Lands of Vaelohk fractured as the skies fell. In Year Zero, the Rampant Storms came raising water, carving rock, and forever shifting climates & biomes. The geography of the world changed over the course of mere generations creating great upheaval and migrations within the Four Peoples of the Old Gods thus ending The Age of Darkness.
+
+To the Northwest, deep in the Coloured Mountains, an ancient people believed in the deity of plenty. These fertile lands granted great prosperity to its caretakers. Each family generation passed down ancient techniques, creating a lineage of craft. Then, as Blight from the Storms viciously spread beyond their control, The Trusti People were forced to migrate east to unknown terrain.
+
+In the South-Western dunes, beneath the sands, within the hard rock cut & chiseled into underground catacombs, lived a people most cunning. Upholding the legend of their ancient history, they erected sunken buildings and customs-houses to sleep in to avoid the the dangerous heat of Clypso's Wrath: the looming revenge of the demigod upon whom they cast doubt. That is, until the great floods came and never stopped. First the wells overflowed. Then so did the tunnels. The Issith of Clypso left their sunken catacombs to find the landscape changing into a lush forest and began to settle above ground.
+
+Within the most south-eastern reach, now known as the Tomb of the Old Gods, was a pharisaical people: arrogant, legalistic, and vain. A civilization of worship and adoration, sculpting, carving, and erecting the world's grandest cathedrals and tallest basilicas. Over time, their vanity grew, and with it came its laxity. Eventually, the Gods of Old disappeared from the lips of the pharisees, and in response, their names became sacrilege to merely mention, fearing the penance of their acknowledgment. The once pious Essels left their golden cities as ash rained from the sky. These people migrated across the Sea of Ash into the boxed mountains they would name Lenaveron.
+
+Sprawling the Northeast lands, lay the longest-reigning Empire in the world of old. A name so ancient that the land, the dynasty, and the monarch all shared it: Draggath. But The Rampant Storms seized all sanity; bringing famine and the kingdom to its knees. The once rich land within the great empire's reach turned to desert, badland, and bleak highland. The once splendent society of valour and honour, turned into civil war amongst its city-states, nomadic tribes, and powerful warbands. 
+Across all of Vaelohk and its people, The Great Fracturing ingrained an unceasing desperation of a return to glory.
+And so began the Era of Renown.
+
+''')
 
 
 

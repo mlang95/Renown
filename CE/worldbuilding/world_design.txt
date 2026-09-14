@@ -19,91 +19,55 @@ CONTENTS
                                 1.  THE PREMISE                                 
 ================================================================================
 
-  The world of Renown, called Vaelohk, broke apart almost five thousand years
-  ago, ending the Age of Darkness. With the end of an age came rampant storms
-  that raised water, carved rock, and shifted climate and biome, causing great
-  migration and upheaval.
+  Before There is nothing tangible that remains of The Age of Darkness.
 
-  Before it sat the longest-reigning empire in the world of old — a name so
-  ancient that the land, the dynasty and the monarch all shared it: Draggath.
-  Within its reach the empire's land turned to desert, badland and bleak
-  highland, causing a Great Fracturing within its peoples. This turned a great
-  society of valour and honour into a civil war amongst city-states, nomadic
-  tribes and powerful warbands.
+  The True Word records only that it was… & that the Old Gods brought Four
+  Peoples into the four corners of the world.
 
-  And so began the Age of Prowess.
+  Era Zero - The Great Fracturing Almost five thousand years ago, the Lands of
+  Vaelohk fractured as the skies fell. In Year Zero, the Rampant Storms came
+  raising water, carving rock, and forever shifting climates & biomes. The
+  geography of the world changed over the course of mere generations creating
+  great upheaval and migrations within the Four Peoples of the Old Gods thus
+  ending The Age of Darkness.
 
-  Deep in the Coloured Mountains, an ancient people believing in the deity of
-  plenty, Trusti, migrated east to an unknown land to escape a blight caused by
-  the dark storms. For centuries the Trusti cooperated, learning and passing
-  down ancient techniques each family generation, creating a lineage of craft.
-  Over time these people developed beyond subsistence farming and created a
-  society of crafters, traders and merchants, all working in the best interest
-  of its community. Following the blight, an Age of Plenty had begun. The red
-  soil left over from the blight raised scarlet forests that grew to the size of
-  ancient trees within a generation, and with it came shipyards, migrations,
-  trade and wealth. The peninsula of Blighthold became a beacon of affluence,
-  which created much attention.
+  To the Northwest, deep in the Coloured Mountains, an ancient people believed
+  in the deity of plenty. These fertile lands granted great prosperity to its
+  caretakers. Each family generation passed down ancient techniques, creating a
+  lineage of craft. Then, as Blight from the Storms viciously spread beyond
+  their control, The Trusti People were forced to migrate east to unknown
+  terrain.
 
-  An ancient, sparsely populated, arid land of the south-western dunes was
-  occupied only by the most cunning. These were the people of Clypso — a people
-  of night. Living under the sands was hard rock, cut and chiselled into
-  underground catacombs, buildings and customs-houses to sleep in and to avoid
-  the dangerous heat of Clypso's Wrath: a legend of ancient history, the revenge
-  of the demigod upon whom they cast doubt.
+  In the South-Western dunes, beneath the sands, within the hard rock cut &
+  chiseled into underground catacombs, lived a people most cunning. Upholding
+  the legend of their ancient history, they erected sunken buildings and
+  customs-houses to sleep in to avoid the the dangerous heat of Clypso's Wrath:
+  the looming revenge of the demigod upon whom they cast doubt. That is, until
+  the great floods came and never stopped. First the wells overflowed. Then so
+  did the tunnels. The Issith of Clypso left their sunken catacombs to find the
+  landscape changing into a lush forest and began to settle above ground.
 
-  That is, until the great storms came and never stopped. First the wells
-  overflowed. Then so did the tunnels. The Ithiss of Clypso left their sunken
-  catacombs to find the landscape changing into a lush forest, and they began to
-  settle above ground. But the Ithiss were untrusting, and soon began stealing
-  from one another in the night, hiding into the forests to count their spoils.
-  To survive, brotherhoods, guilds and syndicates formed, levying power to
-  control the flow of goods in their territories, and with wanton disregard
-  punishing those who attempted to steal from them.
+  Within the most south-eastern reach, now known as the Tomb of the Old Gods,
+  was a pharisaical people: arrogant, legalistic, and vain. A civilization of
+  worship and adoration, sculpting, carving, and erecting the world's grandest
+  cathedrals and tallest basilicas. Over time, their vanity grew, and with it
+  came its laxity. Eventually, the Gods of Old disappeared from the lips of the
+  pharisees, and in response, their names became sacrilege to merely mention,
+  fearing the penance of their acknowledgment. The once pious Essels left their
+  golden cities as ash rained from the sky. These people migrated across the Sea
+  of Ash into the boxed mountains they would name Lenaveron.
 
-  Long ago, in the place now known as the Tomb of the Old Gods, was a
-  pharisaical people, arrogant, legalistic, and vain. The Essels had built a
-  civilisation of worship and adoration, sculpting, carving, and erecting the
-  world's tallest and grandest cathedrals and basilicas.
+  Sprawling the Northeast lands, lay the longest-reigning Empire in the world of
+  old. A name so ancient that the land, the dynasty, and the monarch all shared
+  it: Draggath. But The Rampant Storms seized all sanity; bringing famine and
+  the kingdom to its knees. The once rich land within the great empire's reach
+  turned to desert, badland, and bleak highland. The once splendent society of
+  valour and honour, turned into civil war amongst its city-states, nomadic
+  tribes, and powerful warbands.  Across all of Vaelohk and its people, The
+  Great Fracturing ingrained an unceasing desperation of a return to glory. And
+  so began the Era of Renown.
 
-  Over time, the Essels' vanity grew, and with it came its laxity. Eventually,
-  the gods of old disappeared from the lips of its Pharisees, and in response,
-  their names became sacrilege to merely mention, fearing the penance of their
-  acknowledgment.
 
-  As the storms rose over the mountains, the civilisation once pious left their
-  golden cities as ash fell from the sky. These people migrated across the sea
-  of ash into the boxed mountains of Lenaveron, where the Lenavorites issued
-  their first record — the name of its home.
-
-  The Lenavorites, over time, began to focus their efforts on history, record
-  keeping, and the formation of the Truth. Soon, new gods were born: Ollanenor,
-  the god of Balance; Lorenthal, the god of Peace; Melvanar, the god of Wrath;
-  and Anumaranth, the god of Saints.
-
-  For each god existed an Order that rose to fill the void caused by the
-  migrations and lack of purpose.
-
-  Anumaranth was run by the Order of Saints, the first order, used to determine
-  a priest's Saint's name — the name they took, foregoing their old identity, to
-  take on the work of that Saint as their own. The Inquisition — Ollanenor's
-  Order of Balance, the eyes of the Tetramorph — removes all pharisaic
-  tendencies from its own people to prevent the next fall, always suspicious of
-  its imminent arrival.
-
-  The Order of Missions represents Lorenthal, the spirit of the Tetramorph,
-  responsible for the mission work of expanding its name and authority across
-  all borders.
-
-  The Order of Penance of Melvanar, the sword of the Tetramorph, prepares its
-  people and all inhabitants of Vaelohk for the return of Melvanar, seeking
-  justice against those who had fallen from his path.
-
-  Within the Order of Saints, the True Word keeps the records — strict record
-  keepers, fact finders, and administrators. In order to fund the grand
-  instrument of the papacy, the Tithe was implemented, causing all under the
-  reach of the four gods, the Tetramorph, to tithe in order to fund and fuel the
-  great power of Lenaveron.
 
   The world is sufficiently big that EMPIRES ARE ALWAYS RISING AND FALLING.
     Ruined empires are common, especially in Draggath. Most are forgotten — the
@@ -118,8 +82,8 @@ CONTENTS
       Sets the neighbours, the terrain-mood, the hostilities available.
 
   · WHERE IN THE ~4,600 YEARS
-      Sets which Age's conditions you play under — Fracture's chaos, Plenty's
-        cooperation, the Tetramorph's zealotry, Doubt's paranoia, Renown's cold
+      Sets which Age's conditions you play under: War's chaos, Plenty's
+        cooperation, Tetramorph's zealotry, Doubt's paranoia, or Renown's cold
         tension.
 
   · WHICH CULTURE YOU ALIGN

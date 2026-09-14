@@ -1519,7 +1519,7 @@ def run_mode_batched(pool, mode="random", n_runs=100, output_dir=".", suffix="",
                     f2 = ex.submit(_batch_block_worker, (pairs, n_runs, base_seed + nb, mode))
                     fut_to_bstart[f2] = nb
                 del done_set
-                _gc.collect()
+                #_gc.collect()
         finally:
             # Force the worker processes down NOW so Windows reclaims their committed (virtual)
             # memory immediately — on success OR on error. The plain `with` block calls
