@@ -23,7 +23,7 @@ except ImportError:  # standalone (build_wiki, gen_compendium, card sheets, ...)
     FATIGUE_MORALE   = 2
     PARRY_BASE       = 8
     RECOVER_BASE     = 8
-    DEADLY_AP        = 3
+    DEADLY_AP        = 5
     DEADLY_MODE      = "additional"
     UNSTOPPABLE_MOD  = 2
     IMPROVED_PARRY_MOD = 1
@@ -58,7 +58,7 @@ SERRATED        = "Serrated"
 ENDURING        = "Enduring"   # Recover still gets a CAP_THR+ save while Fatigued (exception to off-when-fatigued)
 STRAIN          = "Strain"
 MINUS_1_TBH     = "Shielded"
-PLANISHING      = "Tempered"
+PLANISHING      = "Planishing"
 FATIGUE_TOKEN   = "Fatigue Token"
 CRUSADER        = "Zealous"
 
@@ -95,14 +95,14 @@ GLOSSARY = {
     STEADY:         "Initiative cannot be reduced by Tactics.",
     UNWIELDY:       "Initiative cannot be improved by Tactics.",
     TWO_H:          "Cannot use a Shield.",
-    SHATTER_ARMOR:  f"On a {PIVOTAL} Strike: that strike's AP is increased by -5, and the defender may Parry or {RECOVER} only with a {PIVOTAL} roll.",
-    UNSTOPPABLE:    f"-1 to the defender's Parry roll (i.e. +2 to the Parry target, to a maximum of {CAP_THR}+).",
+    SHATTER_ARMOR:  f"On a {PIVOTAL} Strike: that strike's AP is increased by {DEADLY_AP}, and the defender may Parry or {RECOVER} only with a {PIVOTAL} roll.",
+    UNSTOPPABLE:    f"{UNSTOPPABLE_MOD} to the defender's Parry roll (i.e. +2 to the Parry target, to a maximum of {CAP_THR}+).",
     CLEAVE:         f"On a {PIVOTAL} Strike: roll one extra Strike die at your modified to-Strike.",
     POISON:         f"When the Defender receives a Strike and rolls a {PIVOTAL} Save, it fails; the resulting wound may only be {RECOVER}ed with a {PIVOTAL} {RECOVER}.",
     NIMBLE:         "Gain +1 Initiative in the first Skirmish of each Battle.",
     DRILLED:        "Does not lose Endurance in the first Skirmish of each Battle.",
     DESTROY_SHIELD: f"On a {PIVOTAL} Strike: the target loses its Shield attributes for the rest of the Battle.",
-    BLUNDER:        f"At Initiative -2 or lower, your to-Strike is set to {BLUNDER_THR}+, before other negative modifiers.",
+    BLUNDER:        f"At Initiative -2, your to-Strike is set to {BLUNDER_THR}+, before other negative modifiers.",
     ONE_SHOT:       "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard.",
     #DEFLECT:        "-1 to Parry and Negate Riposte against this weapon's Strikes. (All Ranged weapons have Deflect.)",
     #IMMUNE_PANIC:   "Automatically passes Panic checks.",
@@ -116,7 +116,7 @@ GLOSSARY = {
     FATIGUE_TOKEN:  f"Each token is -{FATIGUE_STRIKE} to your Strike to a maximum of {CAP_THR}+; and Morale -{FATIGUE_MORALE} (uncapped). If your modified Morale is ever {ROUT_THR}+, your army Routs. These effects are cumulative.",
     MINUS_1_TBH:    f"A cumulative -1 penalty to the Strike roll (to a maximum of {CAP_THR}+). Sources: a shield's -1 to Strike.",
 	#NEGATE_UNSTOPPABLE: "Cancels the attacker's Parry from Unstoppable: this shield's -1 to Strike still applies, and the attacker's -1 to Parry does not.",
-    NEGATE_TEMPERED: f"Ignores Tempered: this weapon's AP can reduce the target's Save past {CAP_THR}+ (to auto-fail), defeating the Tempered floor.",
+    NEGATE_TEMPERED: f"Ignores {PLANISHING}: this weapon's AP can reduce the target's Save past {CAP_THR}+ (to auto-fail), defeating the Crafted floor.",
     NEGATE_RIPOSTE: f"The target's Parry can never Riposte this weapon's Strikes (a natural {FOCUSED_THR} Parry still cancels the Strike, but no counter-Strike follows).",
     #MINUS_1_PARRY: "A stacking -1 penalty to the defender's Parry roll (to a maximum of 6+). Sources: Unstoppable, Deflect, and each Fatigue token.",
     DUAL_WIELD: "A failed Strike is rerolled once; the rerolled Strike can be Focused. Dual Wield confers Two-Handed. You cannot reroll successful Strikes.",
@@ -2730,18 +2730,90 @@ GLOSSARY.update({
     "Efficient X":  "While this Pursuit occupies the same Settlement Ward as X (the Raw Material or Pursuit named on its tile), it uses no ward of its own \u2014 the two share one ward. Placed anywhere else, it fills a ward normally. (Core Principle 14.) Note: Two Pursuits that are Efficient with the same Pursuit cannot share a Ward with each other.",
 })
 
+# ══════════════════════════════════════════════════════════════════════════════
+# DISPLAY LAYER — engine ids stay stable; only printed labels change.
+# Add an alias here, never rename an id in NODES/WEAPONS/TIERS/loadouts.
+# ══════════════════════════════════════════════════════════════════════════════
+import re as _re_disp
+
+# Entity ids -> printed label (weapons, ranged, shields, armor, nodes).
 NAME_DISPLAY = {
     "Spears": "Spear",
     "Pilum": "Angon",
     "Farm Tools": "Farm Tool",
     "Artillery Park": "Ordinance Yard",
     "Coliseum": "Castle Yard",
-    "Javelin" : "Throwing Axe"
+    "Javelin": "Throwing Axe",
 }
+
+# Equipment tier ids -> printed label. Separate map because tiers are a closed
+# set the engine keys on (loadouts.TIER_INDUSTRY_REQ, WEAPONS_BY_TIER, ...).
+TIER_DISPLAY = {
+    "Crafted": "Tempered",
+}
+
+# One combined table for free-text rewriting. Keep ids unique across both maps.
+ALIASES = {**NAME_DISPLAY, **TIER_DISPLAY}
+
+# Longest-first alternation so "Artillery Park" wins over a hypothetical "Park",
+# and \b so "Coliseum" never fires inside "Coliseums" or "GrandColiseum".
+_ALIAS_RE = _re_disp.compile(
+    r"\b(" + "|".join(_re_disp.escape(k) for k in
+                      sorted(ALIASES, key=len, reverse=True)) + r")\b"
+) if ALIASES else None
+
+
 def display(name):
-    """Player-facing name for an engine id (weapon/ranged/shield/armor/node).
-    Returns the id itself when no override is set."""
-    return NAME_DISPLAY.get(name, name)
+    """Player-facing label for an engine id. Returns the id when unaliased."""
+    return ALIASES.get(name, name)
+
+
+def display_tier(tier):
+    """Player-facing label for a tier id. Handles None/'' (shields)."""
+    return TIER_DISPLAY.get(tier, tier) if tier else tier
+
+
+def display_text(s):
+    """Rewrite every alias inside a free-text string — mastery_req, effect and
+    note text, escalation ranks. Single pass over a combined pattern, so a
+    rename can never cascade into another rename's output."""
+    if not s or _ALIAS_RE is None:
+        return s
+    return _ALIAS_RE.sub(lambda m: ALIASES[m.group(1)], str(s))
+
+
+def display_list(seq, sep=", "):
+    """Join an id list (builds_into, prereqs, requires_all) as labels."""
+    return sep.join(display(x) for x in (seq or []))
+
+
+def undisplay(label):
+    """Label -> engine id. For wiki anchors and cross-links that must resolve
+    back to a real key. Raises on an ambiguous alias rather than guessing."""
+    hits = [k for k, v in ALIASES.items() if v == label]
+    if len(hits) > 1:
+        raise KeyError(f"alias {label!r} maps back to {hits}")
+    return hits[0] if hits else label
+
+
+def verify_aliases():
+    """Return (ok, problems). Run from verify_d10.py."""
+    problems = []
+    for k, v in ALIASES.items():
+        if k == v:
+            problems.append(f"{k!r} aliases to itself")
+        if v in ALIASES:
+            problems.append(f"{k!r} -> {v!r}, but {v!r} is itself an alias key (chain)")
+    for label in set(ALIASES.values()):
+        owners = [k for k, v in ALIASES.items() if v == label]
+        if len(owners) > 1:
+            problems.append(f"label {label!r} claimed by {owners}")
+    # An alias key that is not a real id is a typo that silently does nothing.
+    known = set(NODES) | set(WEAPONS) | set(RANGED) | set(SHIELDS) | set(ARMORS) | set(TIERS)
+    for k in ALIASES:
+        if k not in known:
+            problems.append(f"alias key {k!r} matches no node/weapon/tier id")
+    return (not problems, problems)
  
 
 # ══════════════════════════════════════════════════════════════════════════════
