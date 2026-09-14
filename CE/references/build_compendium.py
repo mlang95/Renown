@@ -337,7 +337,7 @@ def build(data, out_path):
 
     h1(doc, "Pursuits")
     for s in data["pursuit_sections"]:
-        h2(doc, s["title"]); add_table(doc, ["Pursuit","Mastery Unlock","Innate Effect","Mastery Effect"], _alpha(s["rows"]))
+        h2(doc, s["title"]); add_table(doc, ["Pursuit","Domain","Mastery Unlock","Innate Effect","Mastery Effect"], _alpha(s["rows"]))
 
     h1(doc, "Economy")
     # Public Order ‖ Faith & Doubt (both narrow) — reclaim right half
