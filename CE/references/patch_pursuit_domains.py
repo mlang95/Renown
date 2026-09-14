@@ -19,6 +19,7 @@ def norm(s):
     return re.sub(r"\s+", " ", re.sub(r"\*\*", "", str(s or ""))).strip().lower()
 
 GATE_NORM = {norm(k): v for k, v in GATE.items()}
+GATE_NORM.update({norm(rd.display(k)): v for k, v in GATE.items()})
 
 def build(path):
     data = json.load(open(path, encoding="utf-8"))
