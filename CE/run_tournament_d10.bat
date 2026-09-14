@@ -34,7 +34,7 @@ set RECOVER=8
 set AUTOPASS=
 set DEADLY_AP=5
 set DEADLY_MODE=
-set UNSTOP=1
+set UNSTOP=2
 set IMP_PARRY=
 REM set FACES=8
 REM set FOCUSED=8
@@ -48,13 +48,13 @@ set TAG=
 
 REM ============================ POOL SETTINGS =================================
 set MPC_MIN=1
-set MPC_MAX=8
+set MPC_MAX=11
 set RUNS=100
 REM BALANCED=1 -> balanced_validation_pool ; BALANCED=0 -> archetype_pool
 set BALANCED=1
-set PER_CELL=125
+set PER_CELL=150
 set STRATIFY=250
-set BUDGET_METRIC=total
+set BUDGET_METRIC=mpc
 
 REM ============================ MEMORY SETTINGS ===============================
 REM WORKERS: each initializes numba and RESERVES several GB of Windows COMMIT.

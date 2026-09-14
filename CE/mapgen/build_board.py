@@ -1,4 +1,5 @@
-#!usrbinenv python3
+
+'''#!usrbinenv python3
 build_board.py - print-and-tape Renown board from a procedural map.
 
 Drives off mapgen.generate() (the real pipeline coastlineriverslakes
@@ -11,7 +12,7 @@ Usage
     python build_board.py 24 20 --seed 11 --hex 20 --out board.pdf
     python build_board.py 32 26 --seed 7  --hex 20 --param players=6 --param forests=14
 Or import generate_board(...).
-
+'''
 import math, re, argparse, os, tempfile
 from reportlab.pdfgen import canvas as rl_canvas
 from reportlab.lib.units import mm

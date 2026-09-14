@@ -6,6 +6,7 @@ REM  Layout:
 REM     CE\combatv4   renown_data_d10.py (or _CE.py), combat + simulation code
 REM     CE\sheets     every publishing script: cards, PDFs, docx, wiki
 REM     CE\mapgen     map tools + the browser map generator
+REM     CE\worldbuilding  renown_worldlore.py + the gen_* world documents
 REM     CE\lab_out    ALL generated output
 REM
 REM  The sheets scripts all "import renown_data", so PYTHONPATH points at
@@ -24,9 +25,17 @@ set PY="C:\Users\Matt\anaconda3\envs\kotr\python.exe"
 set GIT="C:\Program Files\Git\cmd\git.exe"
 set CE_ROOT=C:\Users\Matt\OneDrive\Desktop\Game\CE
 
-set CODE_DIR=%CE_ROOT%\combatv4
-set SHEET_DIR=%CE_ROOT%\references
-set MAP_DIR=%CE_ROOT%\mapgen
+REM ---- FOLDER NAMES (rename a folder on disk = change one word here) --------
+set DIR_CODE=combatv4
+set DIR_SHEET=references
+set DIR_MAP=mapgen
+set DIR_LORE=worldbuilding
+set DIR_LAB=lab_out
+
+set CODE_DIR=%CE_ROOT%\%DIR_CODE%
+set SHEET_DIR=%CE_ROOT%\%DIR_SHEET%
+set MAP_DIR=%CE_ROOT%\%DIR_MAP%
+set LORE_DIR=%CE_ROOT%\%DIR_LORE%
 
 REM ---- DATA VARIANT ----------------------------------------------------------
 REM DIE : which data file gets copied to renown_data.py. Flip this one line to
@@ -40,12 +49,24 @@ set DATA_CE=renown_data_CE.py
 call set DATA_SRC=%%DATA_%DIE%%%
 
 REM LAB_DIR is tagged by variant so trials stay side-by-side.
-set LAB_DIR=%CE_ROOT%\lab_out\%DIE%
+set LAB_DIR=%CE_ROOT%\%DIR_LAB%\%DIE%
 
 REM RULES : the CE rules markdown that feeds docs + wiki (lives in sheets\)
 set RULES_MD=%CE_ROOT%\RULES_reorganized_6.md
 
-REM WHAT   : maps | cards | docs | wiki | all
+REM ---- LORE (world documents from renown_worldlore.py) ----------------------
+REM BUILD_LORE : 1 = regenerate the world documents before the wiki, 0 = skip.
+set BUILD_LORE=1
+REM LORE_OUT : NOT tagged by DIE. The lore is dice-agnostic, so a d8 and a d10
+REM   run would otherwise write byte-identical files into two lab_out folders.
+set LORE_OUT=%CE_ROOT%\%DIR_LAB%\lore
+REM LORE_BOOK : 1 = also build renown_world.pdf (+ .docx if node docx present).
+set LORE_BOOK=1
+REM LORE_MAP : map image the book pages and the wiki Map page embed.
+REM   Blank = no map image, both still build.
+set LORE_MAP=%LORE_DIR%\map7.png
+
+REM WHAT   : maps | cards | docs | wiki | lore | all
 set WHAT=all
 REM MODE   : renown | escalation | both
 set MODE=both
@@ -151,10 +172,15 @@ REM Say what is missing ONCE, up front, rather than one traceback per script.
 REM A half-ported folder is the normal state mid-migration; it should read as a
 REM checklist, not a failure.
 set MISSING=0
-for %%F in (build_wiki.py wiki_markers.py docx_tables.py gen_compendium.py patch_pursuit_domains.py build_compendium.py md_to_docx.py combat_sheet.py spec_tree_sheet.py playstyle_reference.py pursuit_tiles.py render_tree.py layout.json svg_to_pdf.py domain_board.py infra_board.py settlement_mats.py host_sheet.py generate_cards.py card_sheet.py card_copies.py reference_sheets.py equipment_sheet.py faction_sheet.py tactic_sheet.py) do (
+for %%F in (build_wiki.py wiki_markers.py worldtxt.py docx_tables.py gen_compendium.py patch_pursuit_domains.py build_compendium.py md_to_docx.py combat_sheet.py spec_tree_sheet.py playstyle_reference.py pursuit_tiles.py render_tree.py layout.json svg_to_pdf.py domain_board.py infra_board.py settlement_mats.py host_sheet.py generate_cards.py card_sheet.py card_copies.py reference_sheets.py equipment_sheet.py faction_sheet.py tactic_sheet.py) do (
   if not exist "%SHEET_DIR%\%%F" ( echo   MISSING  references\%%F & set MISSING=1 )
 )
 if not exist "%RULES_MD%" ( echo   MISSING  %RULES_MD% & set MISSING=1 )
+if /i "%BUILD_LORE%"=="1" (
+  for %%F in (renown_worldlore.py gen_cultures.py gen_intro.py gen_draft.py gen_pdf.py gen_book_json.py) do (
+    if not exist "%LORE_DIR%\%%F" ( echo   MISSING  %DIR_LORE%\%%F & set MISSING=1 )
+  )
+)
 for %%F in (hexmap.py mapgen.py hexgen.py build_board.py mapgen_regional.py region_presets.py gen.js app_shell.html build_mapapp.py) do (
   if not exist "%MAP_DIR%\%%F" ( echo   MISSING  mapgen\%%F & set MISSING=1 )
 )
@@ -169,6 +195,7 @@ if /i "%WHAT%"=="maps"  goto maps
 if /i "%WHAT%"=="cards" goto cards
 if /i "%WHAT%"=="docs"  goto docs
 if /i "%WHAT%"=="wiki"  goto maps
+if /i "%WHAT%"=="lore"  ( call :lore & goto end )
 if /i "%WHAT%"=="all"   goto maps
 echo Invalid WHAT=%WHAT% & goto end
 
@@ -239,6 +266,9 @@ popd
 
 REM ============================================================================
 :wiki
+REM Lore first: build_wiki.py renders its Lore pages from world.txt, so the
+REM text has to be regenerated before the wiki reads it.
+if /i "%BUILD_LORE%"=="1" call :lore
 echo --- Wiki ---
 pushd "%SHEET_DIR%"
 if not exist "build_wiki.py" (
@@ -399,4 +429,45 @@ pushd "%MAP_DIR%"
 %PY% build_board.py %TAC_W% %TAC_H% --tactical --seed %TAC_SEED% --hex %TAC_HEX% --paper %BOARD_PAPER% --out "%TAC_OUT%"
 popd
 echo   Tactical board -^> %TAC_OUT%
+exit /b
+
+REM ============================================================================
+REM  :lore  - regenerate the world documents from renown_worldlore.py, and hand
+REM    build_wiki.py the world.txt + map image it renders the Lore pages from.
+REM    The gen_* scripts write bare filenames into the CWD, so this pushd's into
+REM    LORE_DIR and copies the results out to LORE_OUT afterwards.
+REM    Nothing here imports renown_data - the lore is dice-agnostic, which is why
+REM    LORE_OUT is not tagged by DIE. CE keeps its OWN copy of renown_worldlore.py;
+REM    drift from the Combatv3 copy is intentional and timestamped by the commit.
+REM ============================================================================
+:lore
+echo --- Lore (world documents from renown_worldlore.py) ---
+if not exist "%LORE_DIR%\gen_cultures.py" (
+  echo   skipped - %DIR_LORE%\gen_cultures.py not ported
+  exit /b
+)
+if not exist "%LORE_OUT%" mkdir "%LORE_OUT%"
+REM Read by gen_pdf.py / build_docx.js (RENOWN_MAP) and by build_wiki.py
+REM (WORLD_TXT / WORLD_MAP). Set explicitly so the wiki never falls back to its
+REM parent-directory search and renders Combatv3's world.txt instead of CE's.
+set RENOWN_MAP=%LORE_MAP%
+set WORLD_MAP=%LORE_MAP%
+set WORLD_TXT=%LORE_DIR%\world.txt
+pushd "%LORE_DIR%"
+%PY% gen_cultures.py
+if errorlevel 1 echo   WARNING: gen_cultures.py failed - the wiki will render the previous world.txt.
+if exist gen_intro.py %PY% gen_intro.py
+if exist gen_draft.py %PY% gen_draft.py
+if /i "%LORE_BOOK%"=="1" (
+  if exist gen_pdf.py %PY% gen_pdf.py
+  if exist gen_book_json.py (
+    %PY% gen_book_json.py
+    if exist build_docx.js node build_docx.js || echo   ^(node docx not installed - DOCX skipped^)
+  )
+)
+for %%F in (world.txt world_design.txt intro.txt draft.txt book.json renown_world.pdf renown_world.docx) do (
+  if exist "%%F" copy /y "%%F" "%LORE_OUT%\" >nul
+)
+popd
+echo   Lore -^> %LORE_OUT%
 exit /b

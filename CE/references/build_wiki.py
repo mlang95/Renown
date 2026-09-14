@@ -20,9 +20,115 @@ import renown_data as rd
 import wiki_markers as wm
 _VERSION = str(getattr(rd, "VERSION", ""))
 
+# ── world lore source: the hand-maintained world.txt book ─────────────────────
+# The Lore section renders whatever is currently in world.txt (parsed by
+# worldtxt.py), so editing world.txt updates the wiki. Set WORLD_TXT to point
+# anywhere; otherwise these locations are searched (relative to the cwd, this
+# script, and the RULES file), including a worldbuilding/ subfolder.
+try:
+    import worldtxt as _wt
+except Exception as _e:
+    _wt = None
+    print(f"  [lore] worldtxt.py not importable ({_e}) -> Lore section skipped")
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+_RULES_DIR = os.path.dirname(os.path.abspath(sys.argv[1])) if len(sys.argv) > 1 else os.getcwd()
+def _find_world_txt():
+    env = os.environ.get("WORLD_TXT")
+    if env:
+        return env, [env]
+    names = ["world.txt", os.path.join("worldbuilding", "world.txt")]
+    bases = [os.getcwd(), _SCRIPT_DIR, _RULES_DIR,
+             os.path.dirname(_SCRIPT_DIR), os.path.dirname(_RULES_DIR)]
+    tried = []
+    for base in bases:
+        for nm in names:
+            p = os.path.normpath(os.path.join(base, nm))
+            if p not in tried:
+                tried.append(p)
+            if os.path.exists(p):
+                return p, tried
+    return None, tried
+
+WORLD_TXT, _WT_TRIED = _find_world_txt() if _wt else (None, [])
+WORLD_SECTIONS = []   # [(title, body_lines), ...] in file order
+WORLD_CULTURES = []   # demonyms extracted from THE FIFTEEN
+WORLD_PLACES = []     # [{name, owner, desc, kind}, ...] gazetteer entries
+if _wt and WORLD_TXT and os.path.exists(WORLD_TXT):
+    try:
+        _wtext = open(WORLD_TXT, encoding="utf-8").read()
+        WORLD_SECTIONS = _wt.parse_sections(_wtext)
+        WORLD_CULTURES = _wt.extract_cultures(WORLD_SECTIONS)
+        WORLD_PLACES = _wt.extract_places(WORLD_SECTIONS)
+        print(f"  [lore] world.txt -> {WORLD_TXT}  "
+              f"({len(WORLD_SECTIONS)} sections, {len(WORLD_CULTURES)} cultures)")
+    except Exception as _e:
+        print(f"  [lore] world.txt present but failed to parse: {_e}")
+elif _wt:
+    print("  [lore] world.txt NOT FOUND -> Lore section skipped. "
+          "Set WORLD_TXT=<path> or place world.txt in one of:")
+    for _p in _WT_TRIED:
+        print(f"           {_p}")
+
+# Map each world.txt section title (matched loosely) to a wiki page + nav label,
+# in the book's reading order. Titles not listed here still render, appended in
+# file order onto the hub-following pages.
+_LORE_SECTION_MAP = [
+    ("PREMISE",  "lore.html",          "Overview"),
+    ("MAP",      "lore-map.html",      "The Map"),
+    ("FIFTEEN",  "lore-cultures.html", "The Fifteen"),
+    ("WORLD",    "lore-map.html",      "The Map"),   # merged into the Map page
+    ("TIMELINE", "lore-ages.html",     "The Timeline"),
+    ("DARKNESS", "lore-darkness.html", "Age of Darkness"),
+]
+def _lore_page_for(title):
+    up = title.upper()
+    for key, url, label in _LORE_SECTION_MAP:
+        if key in up:
+            return url, label
+    return None, None
+
+# Which Lore pages we'll emit, in reading order — decided up front from the
+# sections present, so nav() (built before the pages emit) and the emission
+# below stay in sync.
+LORE_NAV = []
+_seen_urls = set()
+for _title, _ in WORLD_SECTIONS:
+    _url, _label = _lore_page_for(_title)
+    if _url and _url not in _seen_urls:
+        LORE_NAV.append((_url, _label)); _seen_urls.add(_url)
+
 SRC = sys.argv[1] if len(sys.argv) > 1 else "RULES.md"
 OUTDIR = sys.argv[2] if len(sys.argv) > 2 else "wiki"
 os.makedirs(OUTDIR, exist_ok=True)
+
+# ── world map image (map7.png) ────────────────────────────────────────────────
+# Discovered like world.txt (cwd, this script, the RULES file, their parents, and
+# worldbuilding/ or Assets/ under each), copied into the output so it deploys with
+# the wiki, and embedded on the Map lore page. Override with WORLD_MAP=<path>.
+import shutil as _shutil
+def _find_asset(fname, subdirs=("", "worldbuilding", "Assets", "assets", "img")):
+    env = os.environ.get("WORLD_MAP")
+    if env and os.path.exists(env):
+        return env
+    bases = [os.getcwd(), _SCRIPT_DIR, _RULES_DIR,
+             os.path.dirname(_SCRIPT_DIR), os.path.dirname(_RULES_DIR)]
+    for base in bases:
+        for sub in subdirs:
+            p = os.path.normpath(os.path.join(base, sub, fname))
+            if os.path.exists(p):
+                return p
+    return None
+
+MAP_IMG_SRC = _find_asset("map7.png")
+MAP_IMG = None  # basename referenced from lore-map.html once copied
+if MAP_IMG_SRC:
+    try:
+        MAP_IMG = os.path.basename(MAP_IMG_SRC)
+        _shutil.copyfile(MAP_IMG_SRC, os.path.join(OUTDIR, MAP_IMG))
+        print(f"  [lore] map image -> {MAP_IMG_SRC}")
+    except Exception as _e:
+        print(f"  [lore] map image found but copy failed: {_e}")
+        MAP_IMG = None
 
 TYPE_ORDER = ["Raw Materials","Husbandry","Energy","Craft","Power","Civic","Secrecy","Monument"]
 DOMAINS = ["Industry","Prowess","Cunning","Piety"]
@@ -47,6 +153,17 @@ for term in rd.GLOSSARY:
 FACTIONS = getattr(rd, "FACTIONS", {})
 for f in FACTIONS:
     TERMS.setdefault(f, (f"faction-{slug(f)}.html", None))
+
+def _register_lore_terms():
+    # culture demonyms link to their entry on the Fifteen page
+    for name in WORLD_CULTURES:
+        TERMS.setdefault(name, ("lore-cultures.html", slug(name)))
+    # every named place/sea now has a gazetteer row on the Map page
+    for p in WORLD_PLACES:
+        if p.get("name"):
+            TERMS.setdefault(p["name"], ("lore-map.html", "geo-" + slug(p["name"])))
+
+_register_lore_terms()
 
 # Domain-standing effect names (e.g. "Grand Vizier", "Titan of Industry") -> domain board.
 # Each DOMAIN_BOARD cell reads "Name: description"; register the Name part.
@@ -291,6 +408,10 @@ def nav(current=""):
                      ("Combat Pursuits","escalation-pursuits.html"),("Tactic Matrix","tactic-matrix-ref.html"),
                      ("Equipment","equipment-ref.html"),("Combat Keywords","keywords-ref.html")]:
         it.append(f"<a href='{uu}'{' class=active' if current==uu else ''}>{label}</a>")
+    if LORE_NAV:
+        it.append('<div class="navhead">Lore</div>')
+        for uu, label in LORE_NAV:
+            it.append(f"<a href='{uu}'{' class=active' if current==uu else ''}>{label}</a>")
     return "\n".join(it)
 
 def page(title,body,current=""):
@@ -947,6 +1068,91 @@ if MAPGEN_URL:
     search_index.append({"title": MAPGEN_TITLE, "url": u,
                          "text": "map generator procedural board terrain hex seed rivers lakes resources start map"})
 
+# ════════════ LORE SECTION (rendered from world.txt via worldtxt.py) ════════════
+# Every section in world.txt becomes a linked wiki page, in the book's reading
+# order. Culture demonyms are cross-linked; "slop —>" draft markers are stripped
+# by the parser. Omitted entirely if world.txt isn't present.
+LORE_PAGES = []  # (url, title) in reading order, for nav + prev/next
+if WORLD_SECTIONS:
+    def _wl_esc(s):
+        # inline formatter for parsed lore text: escape, light **bold**/*em*,
+        # then autolink (fresh seen per field, so tables link per-cell)
+        return md_inline(str(s))
+    def _emit_lore(url, title, body_html, search_text):
+        # link the whole page body once (first-occurrence per page), suppressing
+        # self-references to this page
+        linked = autolink(body_html, url)
+        open(_os.path.join(OUTDIR, url), "w", encoding="utf-8").write(page(title, linked, url))
+        search_index.append({"title": title, "url": url, "text": search_text})
+
+    # group sections by their destination page (a page may take >1 section, though
+    # here it's 1:1) and render, preserving file order
+    _page_titles = {  # url -> <h1> heading for that page
+        "lore.html":          "The World of Vaelohk",
+        "lore-map.html":      "The Map",
+        "lore-cultures.html": "The Fifteen",
+        "lore-ages.html":     "The Timeline",
+        "lore-darkness.html": "The Age of Darkness",
+    }
+    _page_search = {
+        "lore.html":          "lore world vaelohk premise draggath fracture peoples",
+        "lore-map.html":      "map vaelohk sea corners centre regions places geography duke unclaimed",
+        "lore-cultures.html": "cultures fifteen " + " ".join(WORLD_CULTURES),
+        "lore-ages.html":     "timeline ages fracture plenty tetramorph doubt renown chronicle",
+        "lore-darkness.html": "age of darkness old gods foundings draggath trusti clypso cailen",
+    }
+    _page_body = {}   # url -> list of html fragments
+    _page_order = []  # urls in first-seen order
+    for _title, _body in WORLD_SECTIONS:
+        _url, _ = _lore_page_for(_title)
+        if not _url:
+            continue
+        if _url not in _page_body:
+            _page_body[_url] = []
+            _page_order.append(_url)
+            h1 = _page_titles.get(_url, _title.title())
+            _page_body[_url].append(f"<h1>{html.escape(h1)}</h1>")
+            # the Fifteen gets a count badge
+            if _url == "lore-cultures.html" and WORLD_CULTURES:
+                _page_body[_url][-1] = (f"<h1>The Fifteen "
+                                        f"<span class='count'>{len(WORLD_CULTURES)}</span></h1>")
+            # the Map page gets the world map image under its heading
+            if _url == "lore-map.html" and MAP_IMG:
+                _page_body[_url].append(
+                    f"<figure class='lore-map'><img src='{MAP_IMG}' "
+                    f"alt='Map of Vaelohk' loading='lazy'>"
+                    f"<figcaption>The world of Vaelohk.</figcaption></figure>")
+        _page_body[_url].append(_wt.render_section(_title, _body, esc=_wl_esc, slug=slug))
+
+    # ── Gazetteer: index every named place that has text, linked to who holds it ──
+    if WORLD_PLACES and "lore-map.html" in _page_body:
+        u = "lore-map.html"
+        terr = sorted((p for p in WORLD_PLACES if p["kind"] == "territory"), key=lambda p: p["name"])
+        seas = sorted((p for p in WORLD_PLACES if p["kind"] == "sea"), key=lambda p: p["name"])
+        uncl = sorted((p for p in WORLD_PLACES if p["kind"] == "unclaimed"), key=lambda p: p["name"])
+        rows = []
+        for p in terr + seas + uncl:
+            pid = "geo-" + slug(p["name"])
+            if p["owner"]:
+                held = f"<a class='term' href='lore-cultures.html#{slug(p['owner'])}'>{html.escape(p['owner'])}</a>"
+            elif p["kind"] == "sea":
+                held = "<span class='mut'>Sea</span>"
+            else:
+                held = "<span class='mut'>Unclaimed</span>"
+            desc = md_inline(p["desc"]) if p["desc"] else ""
+            rows.append(f"<tr id='{pid}'><td><strong>{html.escape(p['name'])}</strong></td>"
+                        f"<td>{held}</td><td>{desc}</td></tr>")
+        g = ["<h2 class='wl-group'>Gazetteer</h2>",
+             "<p class='mut'>Every named place and body of water with recorded lore, and who holds it.</p>",
+             "<table class='pursuits wl-gazetteer'><thead><tr><th>Place</th><th>Held by</th>"
+             "<th>Description</th></tr></thead><tbody>", *rows, "</tbody></table>"]
+        _page_body[u].append("".join(g))
+
+    for _url in _page_order:
+        _emit_lore(_url, _page_titles.get(_url, _url), "".join(_page_body[_url]),
+                   _page_search.get(_url, "lore"))
+        LORE_PAGES.append((_url, _page_titles.get(_url, _url)))
+
 # ── CSS ──
 open(os.path.join(OUTDIR,"wiki.css"),"w",encoding="utf-8").write("""
 :root{--bg:#f7f6f3;--ink:#1d1d1d;--mut:#888;--line:#e2e0db;--accent:#5b2e8e;--link:#1F4E8C}
@@ -1000,6 +1206,22 @@ code{background:#efeee9;padding:1px 5px;border-radius:4px;font-size:.9em}
 .pn:hover{border-color:var(--accent);background:#faf7fe}
 .pn.next{margin-left:auto;text-align:right}
 .versionstamp{position:fixed;bottom:8px;right:12px;font-family:sans-serif;font-size:11px;color:var(--mut);opacity:.6;pointer-events:none}
+/* lore (world.txt) */
+h2.wl-group{margin-top:1.6em;text-transform:uppercase;letter-spacing:1px;font-size:15px;color:var(--accent);border-top:1px solid var(--line);padding-top:.8em}
+h3.wl-culture{margin-top:1.4em;font-size:22px;color:var(--ink)}
+.wl-type{font:12px sans-serif;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin:-.2em 0 .6em}
+h3.wl-sub{font-size:15px;color:var(--ink);text-transform:uppercase;letter-spacing:.5px;margin:1.2em 0 .3em}
+h4.wl-label{font:11px sans-serif;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin:1em 0 .2em}
+dl.wl-defs{margin:.3em 0 1em}dl.wl-defs dt{font-weight:700;font-family:Georgia,serif;color:var(--ink);margin-top:.5em}
+dl.wl-defs dd{margin:.1em 0 0;color:var(--ink)}
+table.wl-attrs{max-width:640px;margin:.4em 0 1em}
+table.wl-table{max-width:560px}
+table.kv{border-collapse:collapse;width:100%;font:13.5px sans-serif;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+table.kv th{background:var(--th);text-align:left;padding:6px 10px;color:var(--mut);font-weight:700;white-space:nowrap;vertical-align:top;width:1%}
+table.kv td{padding:6px 10px;border-top:1px solid var(--rowline);vertical-align:top}
+figure.lore-map{margin:0 0 1.4em;text-align:center}
+figure.lore-map img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;box-shadow:0 2px 10px var(--shadow)}
+figure.lore-map figcaption{font:12px sans-serif;color:var(--mut);margin-top:.5em;font-style:italic}
 @media(max-width:760px){.wrap{flex-direction:column}nav{position:static;height:auto;flex:none;border-right:0;border-bottom:1px solid var(--line)}}
 """)
 
@@ -1024,6 +1246,7 @@ order += [f"domain-{slug(d)}.html" for d in DOMAINS]
 order += [f"standing-{slug(t)}.html" for t in TIERS]
 order += ["paths.html", "glossary.html"]
 if FACTIONS: order.append("factions.html")
+order += [uu for uu, _ in LORE_NAV]
 order = [p for p in order if _os.path.exists(_os.path.join(OUTDIR, p))]
 
 titles = {}  # url -> display title (pull from <title> or <h1>)
