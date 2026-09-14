@@ -27,7 +27,7 @@ _TMPDIR = tempfile.gettempdir()         # cross-platform (Windows-safe)
 H_CX, H_CY, H_R = hexgen.CX, hexgen.CY, hexgen.R          # 60, 54, 54 (px)
 
 # mapgen terrain plains has no hexgen tile - render as grassland
-TERRAIN_ART = {plains grassland, forest forest, mountain mountain,
+TERRAIN_ART = {plains, grassland, forest forest, mountain mountain,
                water water, wetland wetland, tundra tundra}
 # mapgen resource keys - hexgen resource icon (apiary handled separately)
 RES_ART = {mine ore, quarry stone, arable grain,
