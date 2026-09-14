@@ -1450,7 +1450,7 @@ NODES = {
         "builds_into": [],
         "monument": True,
         "escalation": {"standing": "Sovereign Prowess", "ranks": {1: "Immune Strain; Drilled"}, "requires_all": ["Tiltyard", "Grand Tournament"], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": ["Tiltyard"], "domain": {"Prowess": 10}, "innate_tags": ["Immune Strain","Cond Field"], "mastery_tags": ["Crit 8", "Parry +1"], "mastery_req": ["Grand Tournament", "Tiltyard"]}},
+        "engine": {"cost": 1, "prereqs": ["Tiltyard"], "domain": {"Prowess": 10}, "innate_tags": ["Immune Strain", "Parry +1"], "mastery_tags": ["Crit 8","Cond Field"], "mastery_req": ["Grand Tournament", "Tiltyard"]}},
     "Imperial Palace": {
         "type": "Monument",
         "unlock": "Established Prowess",

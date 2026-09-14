@@ -153,7 +153,7 @@ if not exist "%DATA_SRC%" (
 copy /y "%DATA_SRC%" "renown_data.py" >nul
 
 REM sheets\ scripts import renown_data from combatv4
-set PYTHONPATH=%CODE_DIR%
+set PYTHONPATH=%CE_ROOT%;%CODE_DIR%
 
 %PY% -c "import renown_data,sys; sys.stdout.write(renown_data.VERSION)" > "%TEMP%\ce_ver.txt"
 set /p VERSION=<"%TEMP%\ce_ver.txt"

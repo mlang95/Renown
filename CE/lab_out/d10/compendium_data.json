@@ -3,9 +3,9 @@
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
-  "Two-Handed": "Cannot use a Shield.",
-  "Deadly": "On a Focused Strike: that strike's AP is set to -5, and the defender may Parry or Recover only with a Focused roll.",
-  "Unstoppable": "Parried only by a Focused roll.",
+  "2H": "Cannot use a Shield.",
+  "Deadly": "On a Focused Strike: that strike's AP is increased by -5, and the defender may Parry or Recover only with a Focused roll.",
+  "Unstoppable": "-1 to the defender's Parry roll (i.e. +2 to the Parry target, to a maximum of 10+).",
   "Cleave": "On a Focused Strike: roll one extra Strike die at your modified to-Strike.",
   "Poison": "When the Defender receives a Strike and rolls a Focused Save, it fails; the resulting wound may only be Recovered with a Focused Recover.",
   "Nimble": "Gain +1 Initiative in the first Skirmish of each Battle.",
@@ -13,8 +13,9 @@
   "Destroy Shield": "On a Focused Strike: the target loses its Shield attributes for the rest of the Battle.",
   "Blunder": "At Initiative -2 or lower, your to-Strike is set to 10+, before other negative modifiers.",
   "One-Shot": "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard.",
-  "Parry": "While not Fatigued, roll a D10 to attempt to Parry a Strike before the Save. On a 8+, the Strike is Parried.",
+  "Parry": "While not Fatigued, roll a D10 to attempt to Parry a Strike before the Save. On a 9+, the Strike is Parried.",
   "Riposte": "While not Fatigued, if you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
+  "Awkward": "While equipped with this weapon during a skirmish, you cannot Parry, and so cannot Riposte.",
   "Recover": "While not Fatigued, if a to-Save roll fails, roll a D10: a result of X+ Recovers the retinue.",
   "Serrated": "A cumulative -2 penalty to the defender's Recover roll.",
   "Tempered": "A Focused Save succeeds, regardless of AP.",
@@ -130,16 +131,16 @@
      "Initiative cannot be improved by Tactics."
     ],
     [
-     "Two-Handed",
+     "2H",
      "Cannot use a Shield."
     ],
     [
      "Deadly",
-     "On a Focused Strike: that strike's AP is set to -5, and the defender may Parry or Recover only with a Focused roll."
+     "On a Focused Strike: that strike's AP is increased by -5, and the defender may Parry or Recover only with a Focused roll."
     ],
     [
      "Unstoppable",
-     "Parried only by a Focused roll."
+     "-1 to the defender's Parry roll (i.e. +2 to the Parry target, to a maximum of 10+)."
     ],
     [
      "Cleave",
@@ -167,7 +168,7 @@
     ],
     [
      "Parry",
-     "While not Fatigued, roll a D10 to attempt to Parry a Strike before the Save. On a 8+, the Strike is Parried."
+     "While not Fatigued, roll a D10 to attempt to Parry a Strike before the Save. On a 9+, the Strike is Parried."
     ],
     [
      "Riposte",
@@ -513,6 +514,10 @@
      "Range 1."
     ],
     [
+     "Awkward",
+     "While equipped with this weapon during a skirmish, you cannot Parry, and so cannot Riposte."
+    ],
+    [
      "Border",
      "Your Settlement's Reach is Range 1 or within Reach of another Player's Reach."
     ],
@@ -623,14 +628,14 @@
   [
    "Prowess",
    "—",
-   "Parry",
+   "",
    "—"
   ],
   [
    "Cunning",
    "—",
-   "Foes gain Blunder in first Skirmish",
-   "Foes gain Strain"
+   "",
+   ""
   ],
   [
    "Piety",
@@ -1096,8 +1101,8 @@
      "Gilded Foundry",
      "Established Industry",
      "Armory + Blacksmith",
-     "**Efficient Armory**; Unlock **Forged** armor and shield.",
-     "Tempered: Your to-Save can't be reduced beyond 10+. Craft +1"
+     "**Efficient Armory**; Tempered: Your to-Save can't be reduced beyond 10+.",
+     "Unlock **Forged** armor and shield. Craft +1."
     ],
     [
      "Smokehouse",
@@ -1304,7 +1309,7 @@
      "Grand Tournament",
      "Established Prowess",
      "Coliseum + Conditioning Field",
-     "**Efficient Coliseum**; **Faith +1**",
+     "**Efficient Coliseum**; **Faith +1**; Improve Parry by +1.",
      "3x/turn: exchange 500 gold for **1 Influence**; Armies gain **Riposte**"
     ],
     [
@@ -1528,7 +1533,7 @@
     [
      "War College",
      "Established Prowess",
-     "Coliseum + Levy Hall + Academy",
+     "Levy Hall + Academy",
      "**Efficient Academy**; Gain **+2 Influence** while At War",
      "Unlocks **Sergeants** for Muster"
     ],
@@ -1569,8 +1574,8 @@
      "Royal Pavilion",
      "Sovereign Prowess",
      "Grand Tournament + Tiltyard",
-     "**Efficient Tiltyard**; Armies gain **Immune Strained**",
-     "Armies gain **Drilled**"
+     "**Efficient Tiltyard**; Armies gain **Immune Strained** & +1 Endurance",
+     "Deadly, & Cleave also trigger Focused Strikes on a natural 8+. Improve Parry by +1"
     ],
     [
      "Imperial Palace",
@@ -1583,15 +1588,15 @@
      "Artillery Park",
      "Sovereign Prowess",
      "Siege Camp + Master Workshop",
-     "**Efficient Siege Camp**; Siege Timers ignore Wooden & Stone Walls",
+     "**Efficient Siege Camp**; Siege Timers ignore Wooden & Stone Walls. Unlocks Arquebus",
      "Settlements you Siege can't Sally Forth. Siege Timer −1."
     ],
     [
      "Ministry of Military Strategy",
      "Sovereign Prowess",
      "University + War College",
-     "**Efficient War College**; Always gains **Seize the Initiative**, and your opponent doesn't. gain Immune Tactic -1 to Strike",
-     "Gain +1I & max initiative is 3; Deadly, & Cleave also trigger Focused Strikes on a natural 5."
+     "**Efficient War College**; Always gains **Seize the Initiative**, and your opponent doesn't; Gain +1I & max initiative is 3",
+     "Gain Drilled."
     ],
     [
      "Thieves' Guild",
@@ -1678,8 +1683,8 @@
    [
     "Levy",
     "1000",
-    "6+",
-    "3",
+    "8+",
+    "2",
     "7+",
     "—"
    ],
@@ -1687,23 +1692,23 @@
     "Man-at-Arms",
     "2000",
     "5+",
-    "4",
+    "3",
     "6+",
     "—"
    ],
    [
     "Sergeant",
-    "2500",
+    "2000",
     "3+",
-    "3",
+    "2",
     "5+",
     "—"
    ],
    [
     "Knight Templar",
-    "3000",
+    "2000",
     "4+",
-    "3",
+    "2",
     "4+",
     "—"
    ]
@@ -1714,133 +1719,133 @@
     "Crude",
     "0",
     "+0",
-    "—"
+    "Awkward"
    ],
    [
     "Cudgel",
     "Crude",
     "-1",
     "-1",
-    "Two-Handed, Unwieldy"
+    "2H, Unwieldy, Awkward"
    ],
    [
     "Pitchfork",
     "Crude",
     "0",
     "+1",
-    "Two-Handed, Unwieldy"
+    "2H, Unwieldy, Awkward"
    ],
    [
     "Daggers",
     "Cast",
     "0",
     "+1",
-    "Two-Handed, Dual Wield, Deadly"
+    "2H, Deadly"
    ],
    [
     "Short Sword",
     "Cast",
-    "-1",
+    "0",
     "+0",
-    "—"
+    "Steady"
    ],
    [
     "Spears",
     "Cast",
-    "-2",
+    "-1",
     "+1",
-    "Two-Handed, Unwieldy"
+    "Unwieldy"
    ],
    [
     "Arming Sword",
     "Wrought",
-    "-2",
+    "-1",
     "+0",
     "Steady"
    ],
    [
     "Pike",
     "Wrought",
-    "-3",
+    "-2",
     "+1",
-    "Two-Handed, Steady, Unwieldy, Deadly"
+    "2H, Steady, Unwieldy, Deadly, Awkward"
    ],
    [
     "Flail",
     "Wrought",
-    "-2",
     "-1",
-    "Unwieldy, Cleave"
+    "+0",
+    "Unwieldy, Unstoppable, Cleave, Awkward"
    ],
    [
     "Halberd",
     "Wrought",
-    "-4",
+    "-3",
     "+0",
-    "Two-Handed, Unwieldy"
+    "2H, Unwieldy"
    ],
    [
     "Battle Axe",
     "Wrought",
-    "-3",
+    "-4",
     "-1",
-    "Two-Handed, Unwieldy, Cleave, Negate Shielded"
+    "2H, Unwieldy, Unstoppable, Cleave, Negate Shielded"
    ],
    [
     "Cavalry Spear",
     "Wrought",
-    "-3",
-    "+0",
-    "Steady, Unwieldy, Negate Riposte"
+    "-2",
+    "+1",
+    "Steady, Unwieldy, Negate Riposte, Awkward"
    ],
    [
     "Morningstar",
     "Forged",
-    "-3",
+    "-4",
     "-1",
-    "Unwieldy, Cleave, Destroy Shield"
+    "Cleave, Destroy Shield"
    ],
    [
     "Bastard Sword",
     "Forged",
     "-3",
     "+0",
-    "Steady, Deadly"
+    "Steady"
    ],
    [
     "2HBastard",
     "Forged",
-    "-4",
+    "-3",
     "+0",
-    "Two-Handed, Unwieldy, Cleave"
+    "2H, Unwieldy, Unstoppable, Cleave"
    ],
    [
     "War Hammer",
     "Forged",
     "-10",
     "-1",
-    "Two-Handed, Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield"
+    "2H, Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield"
    ],
    [
     "Lance",
     "Forged",
-    "-6",
+    "-4",
     "+1",
-    "Steady, Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte"
+    "Steady, Unwieldy, Unstoppable, Awkward, Negate Riposte"
    ],
    [
     "Estoc",
     "Crafted",
-    "-4",
+    "-3",
     "+1",
-    "Steady, Deadly, Negate Riposte, Negate Tempered"
+    "Steady, Deadly, Unstoppable, Negate Riposte, Negate Tempered"
    ],
    [
     "Poleaxe",
     "Crafted",
-    "-5",
-    "+1",
-    "Two-Handed, Steady, Unstoppable, Negate Shielded, Negate Tempered"
+    "-6",
+    "+0",
+    "2H, Steady, Cleave, Unstoppable, Negate Shielded, Negate Tempered"
    ]
   ],
   "Ranged": [
@@ -1849,19 +1854,19 @@
     "Crude",
     "-1",
     "+2",
-    "Two-Handed, Unstoppable, Negate Riposte"
+    "2H, Unstoppable, Negate Riposte"
    ],
    [
     "Longbow",
     "Cast",
     "-2",
     "+2",
-    "Two-Handed, Unstoppable, Deadly, Negate Riposte"
+    "2H, Unstoppable, Deadly, Negate Riposte"
    ],
    [
     "Javelin",
     "Wrought",
-    "-3",
+    "-2",
     "+1",
     "Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One-Shot"
    ],
@@ -1870,14 +1875,21 @@
     "Forged",
     "-4",
     "+0",
-    "Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte, One-Shot"
+    "Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte"
    ],
    [
     "Arquebus",
     "Crafted",
-    "-5",
+    "-7",
     "+2",
-    "Two-Handed, Steady, Unstoppable, Negate Shielded, Negate Riposte, Negate Tempered"
+    "2H, Unwieldy, Unstoppable, Negate Shielded, Negate Riposte, Negate Tempered, Awkward"
+   ],
+   [
+    "Pilum",
+    "Crafted",
+    "-5",
+    "+1",
+    "Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One-Shot"
    ]
   ],
   "Shields": [
@@ -1892,21 +1904,21 @@
     "Targe Shield",
     "Cast",
     "+1",
-    "-1",
-    "Steady, Shielded"
+    "+0",
+    "Unwieldy, Shielded"
    ],
    [
     "Kite Shield",
     "Wrought",
-    "+2",
-    "-1",
-    "Unwieldy, Shielded"
+    "+1",
+    "+0",
+    "Steady, Shielded"
    ],
    [
     "Tower Shield",
     "Forged",
-    "+3",
-    "-1",
+    "+2",
+    "+0",
     "Unwieldy, Shielded"
    ],
    [
@@ -1927,32 +1939,32 @@
    [
     "Gambeson",
     "Crude",
-    "8+",
+    "9+",
     "—"
    ],
    [
     "Leather",
     "Cast",
-    "7+",
+    "8+",
     "—"
    ],
    [
     "Chainmail",
     "Wrought",
-    "6+",
+    "7+",
     "—"
    ],
    [
     "Full Plate",
     "Forged",
-    "5+",
+    "6+",
     "—"
    ],
    [
     "Gothic Plate",
     "Crafted",
-    "3+",
-    "Immune Unwieldy"
+    "5+",
+    "—"
    ]
   ]
  },
@@ -2368,7 +2380,7 @@
   ],
   [
    "Cunning",
-   "Clandestine Councilor: Twice per Envoy Phase, during a vote on an Envoy, target a player - that player Abstains that Envoy.",
+   "Clandestine Councilor: Once per Envoy Phase, during a vote on an Envoy, target a player - that player Abstains that Envoy.",
    "Grand Vizier: Players may not target you with Cunning Envoys if your Cunning value is higher. When you perform a Skirmish action, your opponent gains Blunder in the first Skirmish of that Battle.",
    "Master Conspirator: Once per turn, if your non-Cunning Envoy passes or is Endorsed, you may instead perform a Cunning action. In Battle, your opponent gains Strained each Skirmish."
   ],

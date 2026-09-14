@@ -59,9 +59,9 @@ set BUDGET_METRIC=mpc
 REM ============================ MEMORY SETTINGS ===============================
 REM WORKERS: each initializes numba and RESERVES several GB of Windows COMMIT.
 REM Keep at 6-8. Lower on MemoryError; raise cautiously.
-set WORKERS=11
+set WORKERS=7
 set RENOWN_MEM_DEBUG=1
-set SLOT_BUDGET= 600000
+set SLOT_BUDGET=auto
 REM auto
 REM ============================================================================
 

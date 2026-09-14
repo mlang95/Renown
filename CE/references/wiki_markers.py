@@ -104,6 +104,20 @@ def _t_bandit_growth():
     return _htable(["Era", "Retinues Gained per Turn"],
                    [[k, str(v)] for k, v in rd.BANDIT_GROWTH_PER_ERA.items()])
 
+def _t_bandit_cunning():
+    return _htable([f"d{rd.BANDIT_FACES}", "Cunning Action"],
+                   [[(f"{lo}" if lo == hi else f"{lo}\u2013{hi}"), a]
+                    for lo, hi, a in rd.die_table_ranges(rd.BANDIT_CUNNING_TABLE)])
+
+def _t_bandit_tactics():
+    return _htable([f"d{rd.BANDIT_FACES}", "Tactic"],
+                   [[(f"{lo}" if lo == hi else f"{lo}\u2013{hi}"), a]
+                    for lo, hi, a in rd.die_table_ranges(rd.BANDIT_TACTIC_TABLE)])
+
+def _t_bandit_armaments():
+    return _htable(["Era", "Armament"],
+                   [[k, v] for k, v in rd.BANDIT_EQUIPMENT_PER_ERA.items()])
+
 def _t_treaties():
     return _htable(["Treaty", "Signed Via", "Era", "Effect"],
                    [[n, d.get("signed_via", ""), d.get("era", ""), d.get("effect", "")] for n, d in rd.TREATIES.items()])
@@ -151,7 +165,8 @@ TABLE_RENDER = {
     "net_influence": _t_net_influence, "influence_gain": _t_influence_gain, "bandit_growth": _t_bandit_growth,
     "treaties": _t_treaties, "edicts": _t_edicts, "seasons": _t_seasons, "eras": _t_eras,
     "settlements": _t_settlements, "terrain": _t_terrain, "infrastructure": _t_infrastructure,
-    "wonders": _t_wonders,
+    "wonders": _t_wonders, "bandit_cunning": _t_bandit_cunning, "bandit_tactics": _t_bandit_tactics,
+    "bandit_armaments": _t_bandit_armaments,
 }
 
 def _render_actions(domain):

@@ -599,21 +599,27 @@ A Bandit Camp becomes a Bandit Army when it reaches {{VAL:BANDIT_ARMY_THRESHOLD}
 
 ### Bandit Armaments by Era
 
+{{TABLE:bandit_armaments}}
+
+### Bandit Growth by Era
+
 {{TABLE:bandit_growth}}
 
 ### Bandit Info
 
 Bandits share the same Renown level as players. A Bandit's Domain value is set by the size of its Bandit Camp:
 
-- +1 Cunning and +1 Prowess for every multiple of 5 Bandits in the camp (e.g. 30 Retinues = 6 Cunning = Established Cunning = Influence 2).
+- {{VAL:BANDITS.Bandit Domain Value}}
 
 All players are At War with all Bandits and their camps. Players abstain on all Bandit Actions, but innate modifiers can still apply and cause the action to Fail.
 
-While there are 10+ Bandits (Retinues) in a camp, roll a d3 each turn:
+While there are {{VAL:BANDIT_CUNNING_MIN}}+ Bandits (Retinues) in a camp, roll a d{{VAL:BANDIT_FACES}} each turn:
 
-- **1 —** Intercept Caravan
-- **2 —** Raze
-- **3 —** Destabilize
+{{TABLE:bandit_cunning}}
+
+When a player attacks a Bandit Camp or Army, another player rolls its tactic:
+
+{{TABLE:bandit_tactics}}
 
 A Bandit Camp keeps Extorted money in its Treasury and doesn't pay costs, upkeep, or recoup. When you destroy a Bandit Camp or Army, you extort its Treasury.
 

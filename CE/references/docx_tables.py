@@ -175,6 +175,22 @@ def bandit_growth():
     rows = [[k, str(v)] for k, v in rd.BANDIT_GROWTH_PER_ERA.items()]
     return _table(["Era", "Retinues Gained per Turn"], rows)
 
+def _die_span(lo, hi):
+    return f"{lo}" if lo == hi else f"{lo}\u2013{hi}"
+
+def _die_rows(table):
+    return [[_die_span(lo, hi), action] for lo, hi, action in rd.die_table_ranges(table)]
+
+def bandit_cunning():
+    return _table([f"d{rd.BANDIT_FACES}", "Cunning Action"], _die_rows(rd.BANDIT_CUNNING_TABLE))
+
+def bandit_tactics():
+    return _table([f"d{rd.BANDIT_FACES}", "Tactic"], _die_rows(rd.BANDIT_TACTIC_TABLE))
+
+def bandit_armaments():
+    return _table(["Era", "Armament"],
+                  [[k, v] for k, v in rd.BANDIT_EQUIPMENT_PER_ERA.items()])
+
 def edicts():
     rows = [[n, d.get("type", ""), d.get("requirement", "")] for n, d in rd.EDICTS.items()]
     return _table(["Edict", "Type", "Requirement"], rows)
@@ -277,6 +293,8 @@ REGISTRY = {
     "ranged": ranged, "shields": shields, "infrastructure": infrastructure,
     "wonders": wonders, "terrain": terrain, "tactical_terrain": tactical_terrain,
     "factions": factions, "timers": timers, "build_timers": build_timers, "siege_calculus": siege_calculus,
+    "bandit_cunning": bandit_cunning, "bandit_tactics": bandit_tactics,
+    "bandit_armaments": bandit_armaments,
 }
 
 # ── {{ACTIONS:Domain}} — render every ACTIONS entry of a domain as prose ──
