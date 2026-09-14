@@ -47,6 +47,9 @@ set DATA_d8=renown_data_d8.py
 set DATA_d10=renown_data_d10.py
 set DATA_CE=renown_data_CE.py
 call set DATA_SRC=%%DATA_%DIE%%%
+REM USE_LAST_RUN : 1 = dice knobs come from lab_out\last_run.json (the most
+REM   recent tournament). 0 = dice_config file defaults. Set 0 before a print run.
+set USE_LAST_RUN=0
 
 REM LAB_DIR is tagged by variant so trials stay side-by-side.
 set LAB_DIR=%CE_ROOT%\%DIR_LAB%\%DIE%
@@ -154,6 +157,8 @@ copy /y "%DATA_SRC%" "renown_data.py" >nul
 
 REM sheets\ scripts import renown_data from combatv4
 set PYTHONPATH=%CE_ROOT%;%CODE_DIR%
+set RENOWN_USE_LAST_RUN=%USE_LAST_RUN%
+%PY% -c "import dice_config;print('    dice  ',dice_config.describe())"
 
 %PY% -c "import renown_data,sys; sys.stdout.write(renown_data.VERSION)" > "%TEMP%\ce_ver.txt"
 set /p VERSION=<"%TEMP%\ce_ver.txt"

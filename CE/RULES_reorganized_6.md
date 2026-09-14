@@ -1,5 +1,5 @@
 # Renown
-
+{{VAL:DICE_PROVENANCE}}
  A turn-based strategy game of empire building, diplomacy, and domain mastery.
 
 # Introduction

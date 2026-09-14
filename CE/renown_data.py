@@ -1,6 +1,6 @@
 # renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
-VERSION = "0.4.9.8-d10"
+VERSION = "0.4.9.9-d10"
 
 # ── DICE ─────────────────────────────────────────────────────────────────────
 # Single source for die size, shared with the combat engines. Every threshold
@@ -10,7 +10,9 @@ VERSION = "0.4.9.8-d10"
 # only apply when this file is imported standalone for doc/card generation.
 try:
     from dice_config import (FACES, FOCUSED_THR, ROUT_THR, CAP_THR,
-                             AUTO_PASS_FLOOR, FATIGUE_STRIKE, FATIGUE_MORALE)
+                             AUTO_PASS_FLOOR, FATIGUE_STRIKE, FATIGUE_MORALE,
+                             PARRY_BASE, RECOVER_BASE, DEADLY_AP, DEADLY_MODE,
+                             UNSTOPPABLE_MOD, IMPROVED_PARRY_MOD, SOURCE as DICE_SOURCE)
 except ImportError:  # standalone (build_wiki, gen_compendium, card sheets, ...)
     FACES            = 10
     FOCUSED_THR      = FACES
@@ -19,9 +21,17 @@ except ImportError:  # standalone (build_wiki, gen_compendium, card sheets, ...)
     AUTO_PASS_FLOOR  = 2
     FATIGUE_STRIKE   = 2
     FATIGUE_MORALE   = 2
+    PARRY_BASE       = 8
+    RECOVER_BASE     = 8
+    DEADLY_AP        = 3
+    DEADLY_MODE      = "additional"
+    UNSTOPPABLE_MOD  = 2
+    IMPROVED_PARRY_MOD = 1
+    DICE_SOURCE      = "renown_data fallback"
 
 BLUNDER_THR = CAP_THR   # Blunder sets to-Strike to the worst printable target
-PARRY_BASE  = 9         # base Parry target
+DICE_PROVENANCE = (f"d{FACES} | Focused {FOCUSED_THR}+ | Parry {PARRY_BASE}+ | "
+                   f"Recover {RECOVER_BASE}+ | src {DICE_SOURCE}")
 # ── Keyword constants ─────────────────────────────────────────────────────
 # Rename a keyword here and it renames everywhere (GLOSSARY keys, tags, cards).
 

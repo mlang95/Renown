@@ -1,5 +1,5 @@
 {
- "version": "0.4.9.8-d10",
+ "version": "0.4.9.9-d10",
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
@@ -13,7 +13,7 @@
   "Destroy Shield": "On a Focused Strike: the target loses its Shield attributes for the rest of the Battle.",
   "Blunder": "At Initiative -2 or lower, your to-Strike is set to 10+, before other negative modifiers.",
   "One-Shot": "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard.",
-  "Parry": "While not Fatigued, roll a D10 to attempt to Parry a Strike before the Save. On a 9+, the Strike is Parried.",
+  "Parry": "While not Fatigued, roll a D10 to attempt to Parry a Strike before the Save. On a 8+, the Strike is Parried.",
   "Riposte": "While not Fatigued, if you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
   "Awkward": "While equipped with this weapon during a skirmish, you cannot Parry, and so cannot Riposte.",
   "Recover": "While not Fatigued, if a to-Save roll fails, roll a D10: a result of X+ Recovers the retinue.",
@@ -168,7 +168,7 @@
     ],
     [
      "Parry",
-     "While not Fatigued, roll a D10 to attempt to Parry a Strike before the Save. On a 9+, the Strike is Parried."
+     "While not Fatigued, roll a D10 to attempt to Parry a Strike before the Save. On a 8+, the Strike is Parried."
     ],
     [
      "Riposte",
