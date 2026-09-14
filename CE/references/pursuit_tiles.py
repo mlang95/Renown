@@ -214,21 +214,21 @@ def tile(c, name, d, x, ytop):
     bi = d.get("builds_into") or []
     bi_txt = ""
     if bi:
-        bi_txt = "\u2192 " + ", ".join(bi)
+        bi_txt = "\u2192 " + rd.display_list(bi)
         c.setFont(SERIF_I, foot_sz)
         while c.stringWidth(bi_txt, SERIF_I, foot_sz) > TW - 2*pad - c.stringWidth(t, SERIF_I, foot_sz) - 8 and "," in bi_txt:
             bi_txt = bi_txt.rsplit(",", 1)[0]
-        if bi_txt != "\u2192 " + ", ".join(bi):
+        if bi_txt != "\u2192 " + rd.display_list(bi):
             bi_txt += "\u2026"
 
     # body: innate + mastery, sized to fill the available height
     y = line_y - 12*s
     floor_y = ytop - TH + 15*s          # leave room for the footer row
-    inn = _clean(d.get("innate"))
-    mas = _clean(d.get("mastery"))
+    inn = rd.display_text(_clean(d.get("innate")))
+    mas = rd.display_text(_clean(d.get("mastery")))
     mreq = d.get("mastery_req")
-    mreq = "" if not mreq or str(mreq).strip() in ("", "-", "\u2014") else _clean(mreq)
-    gate_txt = "" if not gate or str(gate).strip() in ("", "-", "\u2014") else _clean(gate)
+    mreq = "" if not mreq or str(mreq).strip() in ("", "-", "\u2014") else rd.display_text(_clean(mreq))
+    gate_txt = "" if not gate or str(gate).strip() in ("", "-", "\u2014") else rd.display_text(_clean(gate))
     _dom = _domain_of(d)
     gate_col = _c(DOMAIN_COLOR[_dom]) if _dom else None
     body_layout(c, inn, mas, mreq, gate_txt, gate_col, x + pad, y, floor_y, TW - 2*pad, cap=10.5, floor=5.5)

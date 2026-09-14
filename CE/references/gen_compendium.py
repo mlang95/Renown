@@ -23,10 +23,10 @@ def pursuit_sections():
             eff = v.get("efficient")
             innate = v.get("innate", "") or ""
             if eff:
-                eff_txt = "**Efficient " + (eff if isinstance(eff, str) else ", ".join(eff)) + "**"
+                eff_txt = "**Efficient " + (rd.display(eff) if isinstance(eff, str) else rd.display_list(eff)) + "**"
                 innate = eff_txt + ("; " + innate if innate else "")
-            rows.append([n, v.get("mastery_req", "") or "—",
-                         innate or "—", v.get("mastery", "") or "—"])
+            rows.append([rd.display(n), rd.display_text(v.get("mastery_req", "")) or "—",
+                rd.display_text(innate) or "—", rd.display_text(v.get("mastery", "")) or "—"])
         if rows:
             secs.append({"title": t, "rows": rows})
     return secs
@@ -36,13 +36,13 @@ def equipment_tables():
     out["Retinues"] = [[n, f"{x['cost']}", f"{x['to_hit']}+", f"{x['endurance']}",
                         f"{x['shaking']}+", "Unbreakable" if x.get("unbreakable") else "—"]
                        for n, x in rd.RETINUES.items()]
-    out["Weapons"] = [[n, x["tier"], f"{x['ap']}", f"{x['init']:+d}",
+    out["Weapons"] = [[rd.display(n), rd.display_tier(x["tier"]), f"{x['ap']}", f"{x['init']:+d}",
                        ", ".join(x["tags"]) or "—"] for n, x in rd.WEAPONS.items()]
-    out["Ranged"] = [[n, x["tier"], f"{x['ap']}", f"{x['init']:+d}",
+    out["Ranged"] = [[rd.display(n), rd.display_tier(x["tier"]), f"{x['ap']}", f"{x['init']:+d}",
                       ", ".join(x["tags"]) or "—"] for n, x in rd.RANGED.items()]
-    out["Shields"] = [[n, x["tier"], f"+{x['save_bonus']}", f"{x['init']:+d}",
+    out["Shields"] = [[rd.display(n), rd.display_tier(x["tier"]), f"+{x['save_bonus']}", f"{x['init']:+d}",
                        ", ".join(x["tags"]) or "—"] for n, x in rd.SHIELDS.items() if n]
-    out["Armor"] = [[n, x["tier"], f"{x['save']}+", ", ".join(x["tags"]) or "—"]
+    out["Armor"] = [[rd.display(n), rd.display_tier(x["tier"]), f"{x['save']}+", ", ".join(x["tags"]) or "—"]
                     for n, x in rd.ARMORS.items()]
     return out
 

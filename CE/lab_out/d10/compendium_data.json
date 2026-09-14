@@ -1215,8 +1215,8 @@
      "**Speed +1**; Unlocks Cavalry Weapons"
     ],
     [
-     "Coliseum",
-     "Rising Prowess",
+     "Castle Yard",
+     "",
      "Conditioning Field",
      "**Efficient Conditioning Field**; **Faith +1** while at War",
      "Unlocks **Man-at-Arms** for **Muster**"
@@ -1308,8 +1308,8 @@
     [
      "Grand Tournament",
      "Established Prowess",
-     "Coliseum + Conditioning Field",
-     "**Efficient Coliseum**; **Faith +1**; Improve Parry by +1.",
+     "Castle Yard + Conditioning Field",
+     "**Efficient Castle Yard**; **Faith +1**; Improve Parry by +1.",
      "3x/turn: exchange 500 gold for **1 Influence**; Armies gain **Riposte**"
     ],
     [
@@ -1547,7 +1547,7 @@
     [
      "Tiltyard",
      "Established Prowess",
-     "Fletchery + Coliseum",
+     "Fletchery + Castle Yard",
      "Armies may be Equipped with a second weapon (a Ranged and a Melee Weapon); the army gains **Unwieldy**",
      "Your armies have **Immune Unwieldy**. Instead, they may equip two of the same 1H Melee Weapon to gain **Dual Wield**, **Two-Handed**, and **Florentine** (while Fatigued, may Parry on a natural {FOCUSED_THR})."
     ],
@@ -1585,8 +1585,8 @@
      "If your Envoy would fail, it passes instead."
     ],
     [
-     "Artillery Park",
-     "Sovereign Prowess",
+     "Ordinance Yard",
+     "",
      "Siege Camp + Master Workshop",
      "**Efficient Siege Camp**; Siege Timers ignore Wooden & Stone Walls. Unlocks Arquebus",
      "Settlements you Siege can't Sally Forth. Siege Timer −1."
@@ -1666,7 +1666,7 @@
      "Sovereign Industry",
      "Gilded Foundry + Master Workshop + Blacksmith + Stable",
      "**Efficient Forge**; **Upkeep -500**",
-     "**Crafted** Tier Unlocked; Craft +2"
+     "**Tempered** Tier Unlocked; Craft +2"
     ],
     [
      "Outrider Intercept Post",
@@ -1715,7 +1715,7 @@
   ],
   "Weapons": [
    [
-    "Farm Tools",
+    "Farm Tool",
     "Crude",
     "0",
     "+0",
@@ -1750,7 +1750,7 @@
     "Steady"
    ],
    [
-    "Spears",
+    "Spear",
     "Cast",
     "-1",
     "+1",
@@ -1835,14 +1835,14 @@
    ],
    [
     "Estoc",
-    "Crafted",
+    "Tempered",
     "-3",
     "+1",
     "Steady, Deadly, Unstoppable, Negate Riposte, Negate Planishing"
    ],
    [
     "Poleaxe",
-    "Crafted",
+    "Tempered",
     "-6",
     "+0",
     "2H, Steady, Cleave, Unstoppable, Negate Shielded, Negate Planishing"
@@ -1864,7 +1864,7 @@
     "2H, Unstoppable, Deadly, Negate Riposte"
    ],
    [
-    "Javelin",
+    "Throwing Axe",
     "Wrought",
     "-2",
     "+1",
@@ -1879,14 +1879,14 @@
    ],
    [
     "Arquebus",
-    "Crafted",
+    "Tempered",
     "-7",
     "+2",
     "2H, Unwieldy, Unstoppable, Negate Shielded, Negate Riposte, Negate Planishing, Awkward"
    ],
    [
-    "Pilum",
-    "Crafted",
+    "Angon",
+    "Tempered",
     "-5",
     "+1",
     "Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One-Shot"
@@ -1923,7 +1923,7 @@
    ],
    [
     "Heater Shield",
-    "Crafted",
+    "Tempered",
     "+2",
     "+0",
     "Shielded, Immune Destroy Shield"
@@ -1962,7 +1962,7 @@
    ],
    [
     "Gothic Plate",
-    "Crafted",
+    "Tempered",
     "5+",
     "—"
    ]

@@ -74,7 +74,7 @@ check("renown_data is the -d10 build", str(rd.VERSION).endswith("-d10"), rd.VERS
 check("renown_data.FACES matches dice_config", rd.FACES == dc.FACES, f"{rd.FACES} vs {dc.FACES}")
 
 print("\n3. DATA VALUES  (structural — these do not hard-code your tuning)")
-TIER_ORDER = ["Crude", "Cast", "Wrought", "Forged", "Crafted"]
+IER_ORDER = list(rd.TIERS)
 
 # every combat threshold must be rollable and not auto-pass
 bad = [(n, k, v[k]) for n, v in rd.RETINUES.items() for k in ("to_hit", "shaking")
@@ -157,6 +157,12 @@ try:
     print("      ", str(res)[:400])
 except Exception as e:
     check("smoke run", False, f"{type(e).__name__}: {e}")
-
+ok, problems = rd.verify_aliases()
+if not ok:
+    for p in problems:
+        print("  [FAIL] " + p)
+    FAILED = True
+else:
+    print("[PASS] display aliases consistent")
 print("\n" + ("ALL CHECKS PASSED" if not FAIL else f"{len(FAIL)} FAILURE(S): " + ", ".join(FAIL)))
 sys.exit(1 if FAIL else 0)

@@ -443,7 +443,7 @@ def stat_table(names,current):
     for n in sorted(names):
         d=rd.NODES[n]; cells=[]
         for k,_ in COLS:
-            v=d.get(k,""); v=", ".join(v) if isinstance(v,list) else (v or "")
+            v=d.get(k,""); v=rd.display_list(v) if isinstance(v,list) else rd.display_text(v or "")
             cells.append(f"<td>{autolink(md_inline(str(v)),current) if v else '<span class=dim>—</span>'}</td>")
         mon=" ◆" if d.get("monument") else ""
         rows.append(f"<tr id='{slug(n)}'><td class='nm'>{html.escape(n)}{mon}</td>"+"".join(cells)+"</tr>")
@@ -490,7 +490,7 @@ def chains():
     roots=sorted([n for n in rd.NODES if n not in targets])
     def node_html(n,seen):
         d=rd.NODES.get(n,{})
-        link=f"<a class='term' href='type-{slug(d.get('type','other'))}.html#{slug(n)}'>{html.escape(n)}</a>"
+        link=f"<a class='term' href='type-{slug(d.get('type','other'))}.html#{slug(n)}'>{html.escape(rd.display(n))}</a>"
         mon=" ◆" if d.get("monument") else ""
         kids=[c for c in (d.get("builds_into") or []) if c not in seen]
         inner=""
@@ -971,7 +971,7 @@ for nm,n in esc_nodes.items():
     e=n.get("escalation",{}) or {}
     st=e.get("standing","")
     dom=next((d for d in ["Industry","Prowess","Piety","Cunning"] if d in st),"Other")
-    _groups[dom].append((nm,e.get("standing",""),e.get("ranks",{}) or {},n.get("mastery_req",""),n.get("monument")))
+    _groups[dom].append((rd.display(nm),e.get("standing",""),{k:rd.display_text(v) for k,v in (e.get("ranks",{}) or {}).items()},rd.display_text(n.get("mastery_req","")),n.get("monument")))
 cp=["<h1>Escalation \u2014 Combat Pursuits</h1>",
     "<p>The pursuits available in the Escalation Campaign, grouped by Domain. <strong>Unlock</strong> is the Domain Standing required to build; "
     "<strong>Mastery Req</strong> lists the pursuits needed to master it. Rank&nbsp;1 is the innate effect; Rank&nbsp;2 (where present) is the mastery effect.</p>"]

@@ -299,21 +299,21 @@ def back(c):
         m = {"Deadly":"Deadly","Unstoppable":"Unstopp","Cleave":"Cleave","Destroy Shield":"DShield",
              "Unwieldy":"Unwldy","Steady":"Stdy","2H":"2H","Nimble":"Nmb",
              "One Shot":"1Shot","Poison":"Poison","Negate Shielded":"¬Shielded","Negate Riposte":"¬Riposte",
-             "Negate Tempered":"¬Tempered","Dual Wield":"Dual", "Immune Destroy Shield" : "!DShield"}
+             "Negate Planishing":"¬Planishing","Dual Wield":"Dual", "Immune Destroy Shield" : "!DShield"}
         return ", ".join(m.get(t, t) for t in tags) or "\u2014"
-    wrows = [[rd.display(n), w["tier"], w["ap"], f"{w['init']:+d}", kw_short(w["tags"])] for n, w in rd.WEAPONS.items()]
+    wrows = [[rd.display(n), rd.display_tier(w["tier"]), w["ap"], f"{w['init']:+d}", kw_short(w["tags"])] for n, w in rd.WEAPONS.items()]
     yl = chart(c, lx, y_start, col_w, "Melee Weapons", ["Weapon","Tier","AP","Init","Keywords"], wrows,
                colw=[col_w*0.24, col_w*0.13, col_w*0.08, col_w*0.09, col_w*0.46], fs=7.2, rowh=11,
                align=["l","l","num","num","l"])
-    rrows = [[rd.display(n), w["tier"], w["ap"], f"{w['init']:+d}", kw_short(w["tags"])] for n, w in rd.RANGED.items()]
+    rrows = [[rd.display(n), rd.display_tier(w["tier"]), w["ap"], f"{w['init']:+d}", kw_short(w["tags"])] for n, w in rd.RANGED.items()]
     yl = chart(c, lx, yl-6, col_w, "Ranged Weapons", ["Weapon","Tier","AP","Init","Keywords"], rrows,
                colw=[col_w*0.24, col_w*0.13, col_w*0.08, col_w*0.09, col_w*0.46], fs=7.2, rowh=11,
                align=["l","l","num","num","l"])
     yr = y_start
-    arows = [[rd.display(n), a["tier"], f"{a['save']}+"] for n, a in rd.ARMORS.items()]
+    arows = [[rd.display(n), rd.display_tier(a["tier"]), f"{a['save']}+"] for n, a in rd.ARMORS.items()]
     yr = chart(c, rx, yr, col_w, "Armor", ["Armor","Tier","Save"], arows,
                colw=[col_w*0.45,col_w*0.32,col_w*0.23], fs=8, rowh=12.5, align=["l","l","num"])
-    srows = [[rd.display(n), s["tier"] if s["tier"] else "\u2014", f"+{s['save_bonus']}", f"{s['init']:+d}", kw_short(s["tags"])]
+    srows = [[rd.display(n), rd.display_tier(s["tier"]) if s["tier"] else "\u2014", f"+{s['save_bonus']}", f"{s['init']:+d}", kw_short(s["tags"])]
              for n, s in rd.SHIELDS.items() if n]
     yr = chart(c, rx, yr-6, col_w, "Shields", ["Shield","Tier","Save","Init","Keywords"], srows,
                colw=[col_w*0.26,col_w*0.18,col_w*0.12,col_w*0.11,col_w*0.33], fs=7.5, rowh=12.5,

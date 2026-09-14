@@ -596,7 +596,7 @@ def _rows_from_renown_data(mode="renown", players=1):
     """Build renderer rows from renown_data.NODES — the single source of truth.
     mode='renown' = all 105 pursuits; mode='escalation' = the combat subset.
     players>1 duplicates each card by its spec-tree fan-out copy count."""
-    from renown_data import get_data, display
+    from renown_data import get_data, display, display_text, display_list
     copies = None
     if players and players > 1:
         import card_copies
@@ -616,20 +616,19 @@ def _rows_from_renown_data(mode="renown", players=1):
                 "Pursuits": display(name),
                 "Type": "",
                 "Unlock Requirement": esc.get("standing", n.get("unlock", "")),
-                "Mastery Requirement": n.get("mastery_req", ""),
-                "Innate Effects": innate_txt,
-                "Mastery Effect": mastery_txt,
+                "Mastery Requirement": display_text(n.get("mastery_req", "")),
+                "Innate Effects": display_text(innate_txt),
+                "Mastery Effect": display_text(mastery_txt),
                 "Builds Into": "",
             })
         else:
             row = _norm_row({
                 "Pursuits": display(name),
                 "Type": n.get("type", ""),
-                "Unlock Requirement": n.get("unlock", ""),
-                "Mastery Requirement": n.get("mastery_req", ""),
-                "Innate Effects": _eff_innate(n),
-                "Mastery Effect": n.get("mastery", ""),
-                "Builds Into": ", ".join(display(x) for x in n.get("builds_into", [])),
+                "Mastery Requirement": display_text(n.get("mastery_req", "")),
+                "Innate Effects": display_text(_eff_innate(n)),
+                "Mastery Effect": display_text(n.get("mastery", "")),
+                "Builds Into": display_list(n.get("builds_into", [])),
             })
         rows.extend([row] * (copies[name] if copies else 1))
     return rows
