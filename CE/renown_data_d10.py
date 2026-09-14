@@ -2744,6 +2744,8 @@ NAME_DISPLAY = {
     "Artillery Park": "Ordinance Yard",
     "Coliseum": "Castle Yard",
     "Javelin": "Throwing Axe",
+    "Tempered" : "Planishing",
+    "Crafted" : "Tempered",
 }
 
 # Equipment tier ids -> printed label. Separate map because tiers are a closed
