@@ -337,10 +337,10 @@ TIER_UNLOCK = {
 # ── Domain Standing combat effects (Escalation) ───────────────────────────
 # Standings: Rising = 3, Established = 6, Sovereign = 10 domain points.
 STANDING_EFFECTS = {
-    ("Prowess", "Established"): "", #Remove "Parry"
-    ("Piety",   "Established"): "+1 Morale",
-    ("Cunning", "Established"): "", #Remove "Foes gain Blunder in first Skirmish"
-    ("Cunning", "Sovereign"):   "", #Remove "Foes gain Strain"
+    ("Prowess", "Established"): "Gain Parry.", #Remove "Parry"
+    ("Piety",   "Established"): "Shake +1",
+    ("Cunning", "Established"): "Opponent gains Blunder in the first Skirmish.", #Remove "Foes gain Blunder in first Skirmish"
+    ("Cunning", "Sovereign"):   "Opponent gains Strain.", #Remove "Foes gain Strain"
 }
 	
 # ── Tactics ────────────────────────────────────────────────────────────────
@@ -2197,13 +2197,13 @@ DOMAIN_BOARD = {
     },
     "Prowess": {
         "Rising":      "Indomitable: Once per turn, if you have not sent a Personal Envoy, you may instead perform a Prowess action; send 1 fewer Envoy this turn (min 0). In addition, may use Declare War action.",
-        "Established": "Edict of War: May have an additional Army. Perform a Muster Action. All armies gain Parry.",
+        "Established": "Edict of War: May have an additional Army. Perform a Muster Action.",
         "Sovereign":   "High Quartermaster: Upkeep -2000. May change equipment on your armies during any upkeep phase where that army is within Province. No longer lose Influence while at War.",
     },
     "Cunning": {
         "Rising":      "Clandestine Councilor: Once per Envoy Phase, during a vote on an Envoy, target a player - that player Abstains that Envoy.",
-        "Established": "Grand Vizier: Players may not target you with Cunning Envoys if your Cunning value is higher. When you perform a Skirmish action, your opponent gains Blunder in the first Skirmish of that Battle.",
-        "Sovereign":   "Master Conspirator: Once per turn, if your non-Cunning Envoy passes or is Endorsed, you may instead perform a Cunning action. In Battle, your opponent gains Strained each Skirmish.",
+        "Established": "Grand Vizier: Players may not target you with Cunning Envoys if your Cunning value is higher.",
+        "Sovereign":   "Master Conspirator: Once per turn, if your non-Cunning Envoy passes or is Endorsed, you may instead perform a Cunning action.",
     },
     "Piety": {
         "Rising":      "Divine Mandate: Faith +1 each Empire Phase.",
