@@ -46,6 +46,7 @@
    "w": 0
   },
   "carve": null,
+  "structure": null,
   "require_hill": true,
   "resource_min": {
    "forestry": 0,
@@ -106,6 +107,7 @@
    }
   },
   "carve": null,
+  "structure": null,
   "require_hill": true,
   "resource_min": {
    "mine": 4,
@@ -181,6 +183,7 @@
    "junction_p": 0.4,
    "connect": "spanning"
   },
+  "structure": null,
   "require_hill": false,
   "resource_min": {
    "mine": 5,
@@ -225,6 +228,7 @@
    "junction_p": 0.6,
    "connect": "spanning"
   },
+  "structure": null,
   "require_hill": false,
   "resource_min": {
    "salt": 0,
@@ -303,6 +307,7 @@
    }
   },
   "carve": null,
+  "structure": null,
   "require_hill": true,
   "resource_min": {},
   "art": {},
@@ -359,6 +364,7 @@
    ],
    "river_temp": 1.0
   },
+  "structure": null,
   "require_hill": true,
   "resource_min": {
    "forestry": 0,
@@ -459,6 +465,7 @@
    }
   },
   "carve": null,
+  "structure": null,
   "require_hill": true,
   "resource_min": {
    "mine": 3,
@@ -500,17 +507,31 @@
    "e": 0
   },
   "carve": {
-   "routes": 1,
+   "routes": 0,
    "width": 1,
    "clearing_radius": 1,
    "temp": 0.9,
    "mazes": [
-    2,
-    3
+    1,
+    2
    ],
    "maze_temp": 1.1,
    "junction_p": 0.5,
    "connect": "spanning"
+  },
+  "structure": {
+   "dendritic": {
+    "depth": 2,
+    "branches": [
+     2,
+     2
+    ],
+    "trunk": [
+     5,
+     9
+    ],
+    "decay": 0.6
+   }
   },
   "require_hill": false,
   "resource_min": {
@@ -520,7 +541,7 @@
    "arable": 1
   },
   "art": {},
-  "notes": "Ithiss heartland. Woodland matrix; settlements sit in clearings linked by narrow grass passages. No tundra, no mountain: quarry/salt/mine are unavailable by design.",
+  "notes": "Ithiss heartland. Woodland matrix; settlements sit in clearings linked by narrow grass passages. No tundra, no mountain: quarry/salt/mine are unavailable by design. Lanes branch and dead-end rather than joining up, so a limb is a commitment and a defender has ground that cannot be flanked through.",
   "massif": {},
   "perimeter": {}
  },
@@ -586,6 +607,7 @@
    "temp": 0.8,
    "connect": "spanning"
   },
+  "structure": null,
   "require_hill": false,
   "resource_min": {
    "arable": 1,
@@ -609,12 +631,12 @@
    "water"
   ],
   "shares": {
-   "mountain": 0.3,
+   "mountain": 0.18,
    "tundra": 0.1,
    "forest": 0.14
   },
   "morphology": {
-   "mountain": "fringe",
+   "mountain": "scatter",
    "tundra": "blob",
    "forest": "scatter"
   },
@@ -626,17 +648,31 @@
     1,
     2,
     2
+   ],
+   "mountain": [
+    10,
+    1,
+    3,
+    4
    ]
   },
   "border": 0,
   "carve": null,
+  "structure": {
+   "ring": {
+    "terrain": "mountain",
+    "radius": 9,
+    "thickness": 3,
+    "gaps": 3
+   }
+  },
   "require_hill": true,
   "resource_min": {
    "salt": 0,
    "forestry": 1
   },
   "art": {},
-  "notes": "A glen ringed by rock. Mountains on the rim, tillable centre. Positional strategy: every approach is known ground.",
+  "notes": "A glen ringed by rock - the one piece of tillable land left, and the middle of the map is the thing worth taking rather than the thing in the way. Three passes through the ring, so every approach is known ground and can be watched.",
   "massif": {},
   "perimeter": {}
  },
@@ -682,6 +718,7 @@
    "w": 0
   },
   "carve": null,
+  "structure": null,
   "require_hill": true,
   "resource_min": {
    "forestry": 0,
@@ -706,25 +743,16 @@
    "water"
   ],
   "shares": {
-   "tundra": 0.16,
-   "mountain": 0.1,
-   "forest": 0.08
+   "tundra": 0.12,
+   "mountain": 0.1
   },
   "morphology": {
    "tundra": "blob",
-   "mountain": "perimeter",
-   "forest": "scatter"
+   "mountain": "perimeter"
   },
   "buffers": [],
   "band": {},
-  "scatter": {
-   "forest": [
-    40,
-    1,
-    2,
-    2
-   ]
-  },
+  "scatter": {},
   "border": {
    "n": 0,
    "s": 0,
@@ -742,20 +770,44 @@
   },
   "carve": {
    "rivers": [
-    2,
-    3
+    1,
+    2
    ],
    "river_temp": 1.0
+  },
+  "structure": {
+   "compartments": {
+    "cells": 7,
+    "gate": [
+     1,
+     1
+    ],
+    "site_inset": 5,
+    "water_seam_p": 0.15,
+    "mountain_run": [
+     6,
+     12
+    ],
+    "forest_run": [
+     3,
+     5
+    ],
+    "forest_thick": 0.75,
+    "wall": {
+     "mountain": 0.45,
+     "forest": 0.55
+    }
+   }
   },
   "require_hill": true,
   "resource_min": {
    "forestry": 1
   },
   "art": {},
-  "notes": "Papacy heartland. Open and buildable in the middle \u2014 Piety wants Public Order, not chokepoints \u2014 with long thin ranges running along the margins and rivers crossing the interior.",
+  "notes": "Papacy heartland. Open and buildable in the middle \u2014 Piety wants Public Order, not chokepoints \u2014 with long thin ranges running along the margins. Ridges and rivers close the interior into walled compartments with one gate each - a Piety region should be held by knowing the ground, not by meeting in the open. Forest belongs to the walls rather than being scattered loose across the fields.",
   "perimeter": {
    "mountain": [
-    9,
+    7,
     [
      14,
      26
@@ -823,6 +875,7 @@
    "river_temp": 1.0,
    "connect": "spanning"
   },
+  "structure": null,
   "require_hill": false,
   "resource_min": {
    "quarry": 0,
@@ -882,6 +935,7 @@
     3
    ]
   },
+  "structure": null,
   "require_hill": false,
   "resource_min": {
    "mine": 0,
@@ -947,6 +1001,7 @@
    "river_temp": 1.0,
    "connect": "spanning"
   },
+  "structure": null,
   "require_hill": false,
   "resource_min": {
    "forestry": 6,
@@ -1029,6 +1084,7 @@
    "temp": 0.7,
    "connect": "spanning"
   },
+  "structure": null,
   "require_hill": false,
   "resource_min": {
    "quarry": 0,
@@ -1084,6 +1140,7 @@
     5
    ]
   },
+  "structure": null,
   "require_hill": true,
   "resource_min": {
    "mine": 0,
@@ -1159,6 +1216,7 @@
    "junction_p": 0.4,
    "connect": "spanning"
   },
+  "structure": null,
   "require_hill": false,
   "resource_min": {
    "arable": 1,
@@ -1182,7 +1240,7 @@
    "water"
   ],
   "shares": {
-   "forest": 0.22,
+   "forest": 0.34,
    "mountain": 0.06,
    "water": 0.04,
    "tundra": 0.05
@@ -1257,10 +1315,17 @@
    ],
    "river_temp": 1.0
   },
+  "structure": {
+   "radial": {
+    "hub_radius": 2,
+    "width": 1,
+    "temp": 0.45
+   }
+  },
   "require_hill": true,
   "resource_min": {},
   "art": {},
-  "notes": "The centre island and the world's name. Deliberately the most even preset \u2014 no dominant terrain, everything available. The Sullen Lake is the one inland water body.",
+  "notes": "The centre island and the world's name. Deliberately the most even preset \u2014 no dominant terrain, everything available. The Sullen Lake is the one inland water body. One lane runs from every region to the centre island's heart, so the middle is what everyone is equidistant from and committed toward - the question is when to march down your spoke, not which way.",
   "massif": {},
   "perimeter": {}
  },
@@ -1322,6 +1387,7 @@
    ],
    "river_temp": 1.0
   },
+  "structure": null,
   "require_hill": true,
   "resource_min": {
    "quarry": 0,

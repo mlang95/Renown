@@ -74,7 +74,7 @@ check("renown_data is the -d10 build", str(rd.VERSION).endswith("-d10"), rd.VERS
 check("renown_data.FACES matches dice_config", rd.FACES == dc.FACES, f"{rd.FACES} vs {dc.FACES}")
 
 print("\n3. DATA VALUES  (structural — these do not hard-code your tuning)")
-IER_ORDER = list(rd.TIERS)
+TIER_ORDER = list(rd.TIERS)
 
 # every combat threshold must be rollable and not auto-pass
 bad = [(n, k, v[k]) for n, v in rd.RETINUES.items() for k in ("to_hit", "shaking")

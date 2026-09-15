@@ -1,0 +1,20 @@
+{
+  "tag": "d10_foc10_fat22_par8_dea5a_uns2_imp1",
+  "utc": "2026-09-14T22:56:44+00:00",
+  "out_dir": "C:\\Users\\Matt\\OneDrive\\Desktop\\Game\\CE\\lab_out\\d10_foc10_fat22_par8_dea5a_uns2_imp1",
+  "dice": {
+    "FACES": 10,
+    "FOCUSED_THR": 10,
+    "ROUT_THR": 11,
+    "CAP_THR": 10,
+    "AUTO_PASS_FLOOR": 2,
+    "FATIGUE_STRIKE": 2,
+    "FATIGUE_MORALE": 2,
+    "PARRY_BASE": 8,
+    "RECOVER_BASE": 8,
+    "DEADLY_AP": 5,
+    "UNSTOPPABLE_MOD": 2,
+    "IMPROVED_PARRY_MOD": 1
+  },
+  "deadly_mode": "additional"
+}

@@ -393,6 +393,179 @@ function thinWater(m, protect) {
   }
 }
 
+function carveRadial(m, rng, hubRadius, width, temp) {
+  /* Spokes from every region toward ONE centre. A spanning tree connects
+     players to each other; a radial network connects everyone to the same
+     place, so the middle stops being wherever two people happen to meet.
+     Spoke hexes are reserved so later terrain passes can't close the lanes. */
+  hubRadius = hubRadius === undefined ? 2 : hubRadius;
+  width = width || 1; temp = temp === undefined ? 0.45 : temp;
+  const hub = [Math.floor(m.width / 2), Math.floor(m.height / 2)];
+  for (const h of m.within(hub, hubRadius))
+    if (h.terrain !== 'water') { h.terrain = 'plains'; m.reserved.add(key(h.col, h.row)); }
+  for (const ctr of (m.centers || [])) {
+    let cur = ctr;
+    for (let g = 0; g < 300 && (cur[0] !== hub[0] || cur[1] !== hub[1]); g++) {
+      const h = m.get(cur);
+      if (h && h.terrain !== 'water') {
+        h.terrain = 'plains'; m.reserved.add(key(cur[0], cur[1]));
+        if (width > 1) for (const nb of m.nbrs(cur))
+          if (nb.terrain !== 'water') { nb.terrain = 'plains'; m.reserved.add(key(nb.col, nb.row)); }
+      }
+      const ns = m.nbrs(cur).filter(n => n.terrain !== 'water').map(n => [n.col, n.row]);
+      if (!ns.length) break;
+      const d0 = dist(cur, hub);
+      cur = rng.choices(ns, ns.map(c => Math.exp(-(dist(c, hub) - d0) / Math.max(temp, 1e-3))));
+    }
+  }
+}
+
+function carveDendritic(m, rng, depth, branches, trunk, decay) {
+  /* Branching lanes that taper and DEAD-END. A spanning tree makes every
+     corridor a through-route; real woodland branches and the twigs stop. The
+     dead ends are the point - a limb becomes a commitment, and a defender
+     gets ground that cannot be flanked through. */
+  depth = depth || 3; branches = branches || [2, 3];
+  trunk = trunk || [7, 12]; decay = decay || 0.62;
+  function limb(start, length, level) {
+    let cur = start, heading = rng.randrange(6);
+    for (let i = 0; i < Math.floor(length); i++) {
+      if (rng.random() < 0.34) heading = (heading + (rng.random() < 0.5 ? 5 : 1)) % 6;
+      const cu = cube(cur[0], cur[1]);
+      const nxt = offset(cu[0] + CUBE_DIRS[heading][0], cu[1] + CUBE_DIRS[heading][1],
+                         cu[2] + CUBE_DIRS[heading][2]);
+      if (!m.inb(nxt)) break;
+      const h = m.get(nxt);
+      if (h.terrain === 'water') break;
+      if (h.terrain !== 'plains') { m.carved.add(key(nxt[0], nxt[1])); h.terrain = 'plains'; }
+      cur = nxt;
+    }
+    if (level < depth)
+      for (let b = rng.randint(branches[0], branches[1]); b > 0; b--)
+        limb(cur, Math.max(2, length * decay), level + 1);
+  }
+  for (const ctr of (m.centers || []))
+    for (let b = rng.randint(branches[0], branches[1]); b > 0; b--)
+      limb(ctr, rng.randint(trunk[0], trunk[1]), 1);
+}
+
+function stampCompartments(m, rng, cells, wall, gate, opt, ok) {
+  /* Partition into cells and wall the seams with CLUMPED relief.
+
+     Sites are inset from the board edge: a site near the rim throws a seam
+     parallel to it and pinches off a sliver too thin to hold a settlement.
+     Inset, the cells that own the edge reach out to it and their boundaries
+     run perpendicular instead.
+
+     Each terrain clumps at its own scale - a river takes a whole side, a
+     mountain ridge runs long, a wood comes in short stretches widened to two
+     hexes. One hex of everything alternating looks like noise. */
+  opt = opt || {};
+  cells = cells || 6;
+  wall = wall || { mountain: 0.45, forest: 0.55 };
+  gate = gate || [1, 1];
+  const inset = opt.site_inset === undefined ? 4 : opt.site_inset;
+  const waterP = opt.water_seam_p === undefined ? 0.30 : opt.water_seam_p;
+  const mrun = opt.mountain_run || [6, 12];
+  const frun = opt.forest_run || [3, 5];
+  const fthick = opt.forest_thick === undefined ? 0.75 : opt.forest_thick;
+  ok = ok || (() => true);
+
+  const pool = m.all().filter(h => h.terrain !== 'water').map(h => [h.col, h.row]);
+  let inner = m.all().filter(h => h.terrain !== 'water'
+    && Math.min(h.col, m.width - 1 - h.col, h.row, m.height - 1 - h.row) >= inset)
+    .map(h => [h.col, h.row]);
+  if (inner.length < cells) inner = pool;
+  if (pool.length < cells) return;
+
+  const sites = [rng.choice(inner)];
+  while (sites.length < cells) {
+    const samp = rng.sample(inner, Math.min(inner.length, 150));
+    let best = samp[0], bs = -1;
+    for (const c of samp) {
+      let mn = Infinity; for (const s of sites) mn = Math.min(mn, dist(c, s));
+      if (mn > bs) { bs = mn; best = c; }
+    }
+    sites.push(best);
+  }
+  const owner = new Map();
+  for (const c of pool) {
+    let bi = 0, bd = Infinity;
+    sites.forEach((s, i) => { const d = dist(c, s); if (d < bd) { bd = d; bi = i; } });
+    owner.set(key(c[0], c[1]), bi);
+  }
+  const own = c => owner.get(key(c[0], c[1]));
+  const seams = new Map();
+  for (const c of pool) for (const n of m.nbrs(c)) {
+    const o = own([n.col, n.row]);
+    if (o === undefined || o === own(c)) continue;
+    const pair = [own(c), o].sort((a, b) => a - b).join('-');
+    if (!seams.has(pair)) seams.set(pair, new Set());
+    seams.get(pair).add(key(c[0], c[1]));
+  }
+
+  for (const hexSet of seams.values()) {
+    const hexes = [...hexSet].map(k => k.split(',').map(Number))
+      .sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+    if (hexes.length < 4) continue;
+    const gaps = new Set();
+    for (let i = rng.randint(gate[0], gate[1]); i > 0; i--) {
+      const g = rng.choice(hexes);
+      for (const h of m.within(g, 1)) gaps.add(key(h.col, h.row));
+    }
+    const body = hexes.filter(c => !gaps.has(key(c[0], c[1])));
+    if (!body.length) continue;
+
+    if (rng.random() < waterP) {                 // river takes the whole side
+      for (const c of body) {
+        const h = m.get(c);
+        if (h && ok(h) && h.terrain !== 'water') h.terrain = 'water';
+      }
+      continue;
+    }
+    const mw = wall.mountain === undefined ? 0.45 : wall.mountain;
+    const fw = wall.forest === undefined ? 0.55 : wall.forest;
+    const seq = [];
+    while (seq.length < body.length) {
+      const mountain = rng.random() < mw / Math.max(mw + fw, 1e-9);
+      const kind = mountain ? 'mountain' : 'forest';
+      const n = mountain ? rng.randint(mrun[0], mrun[1]) : rng.randint(frun[0], frun[1]);
+      for (let i = 0; i < n; i++) seq.push(kind);
+    }
+    for (let i = 0; i < body.length; i++) {
+      const h = m.get(body[i]);
+      if (!h || !ok(h) || h.terrain === 'water') continue;
+      h.terrain = seq[i];
+      if (seq[i] === 'forest' && rng.random() < fthick) {
+        for (const nb of m.nbrs(body[i])) {
+          if (ok(nb) && nb.terrain !== 'water' && nb.terrain !== 'mountain') {
+            nb.terrain = 'forest'; break;
+          }
+        }
+      }
+    }
+  }
+}
+
+function stampRing(m, terrain, radius, thickness, gaps, rng, ok) {
+  /* A rim of high ground with `gaps` passes cut through it. The inverse of a
+     central obstruction: the middle is the prize, and the ring decides how
+     many ways there are in. */
+  ok = ok || (() => true);
+  const mid = [Math.floor(m.width / 2), Math.floor(m.height / 2)];
+  const band = m.all().filter(h => {
+    const d = dist([h.col, h.row], mid);
+    return d >= radius && d < radius + thickness && h.terrain !== 'water' && ok(h);
+  });
+  if (!band.length) return;
+  const passes = [];
+  for (let i = 0; i < gaps; i++) { const b = rng.choice(band); passes.push([b.col, b.row]); }
+  for (const h of band) {
+    if (passes.some(pp => dist([h.col, h.row], pp) <= 2)) continue;
+    h.terrain = terrain;
+  }
+}
+
 function carveMaze(m, count, rng, temp, junctionP) {
   if (count <= 0) return 0;
   const rim = m.all().filter(h => h.terrain !== 'water' &&
@@ -860,7 +1033,13 @@ function ensureRegionMaterial(m, p) {
         : [seed].concat(m.nbrs(seed).slice(0, 2).map(n => [n.col, n.row]));
       for (const c of targets) {
         const h = m.get(c);
-        if (h && h.terrain === 'plains' && !ring.has(key(c[0], c[1]))) h.terrain = pick;
+        if (h && h.terrain === 'plains' && !ring.has(key(c[0], c[1]))) {
+          h.terrain = pick;
+          // A carved hex reads as the substrate to look(), so a repair placed
+          // on one stays invisible to the very check that asked for it. Once
+          // repaired it is real terrain, not opened substrate.
+          m.carved.delete(key(c[0], c[1]));
+        }
       }
     }
   }
@@ -1089,6 +1268,24 @@ function build(p, seed) {
       stampBlobs(m, terrain, target, free, buffers, substrate, rng);
     }
   }
+
+  /* Structural pass: these cut through the FINISHED terrain, because a lane
+     or a seam only means something once there is terrain for it to cut. */
+  const st = p.structure || {};
+  if (st.ring) stampRing(m, st.ring.terrain || 'mountain', st.ring.radius || 7,
+                         st.ring.thickness || 2, st.ring.gaps || 3, rng,
+                         h => !m.reserved.has(key(h.col, h.row)));
+  if (st.compartments) {
+    stampCompartments(m, rng, st.compartments.cells, st.compartments.wall,
+                      st.compartments.gate, st.compartments,
+                      h => !m.reserved.has(key(h.col, h.row)));
+    // a Voronoi seam is two hexes wide where cells meet obliquely, so a river
+    // along one comes out as open water and breaks the one-hex-strait rule
+    thinWater(m, m.rim || new Set());
+  }
+  if (st.dendritic) carveDendritic(m, rng, st.dendritic.depth,
+                         st.dendritic.branches, st.dendritic.trunk, st.dendritic.decay);
+  if (st.radial) carveRadial(m, rng, st.radial.hub_radius, st.radial.width, st.radial.temp);
 
   const scattered = Object.keys(p.morphology || {}).filter(t => p.morphology[t] === 'scatter');
   cullSmall(m, substrate, palette, scattered);

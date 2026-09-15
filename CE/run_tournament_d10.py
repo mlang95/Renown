@@ -88,6 +88,8 @@ tag = mine.tag or (
     f"_par{dc.PARRY_BASE}_dea{dc.DEADLY_AP}{'s' if dc.DEADLY_MODE == 'set' else 'a'}"
     f"_uns{dc.UNSTOPPABLE_MOD}_imp{dc.IMPROVED_PARRY_MOD}"
 )
+out_dir = os.path.join(OUT_ROOT, tag)
+os.makedirs(out_dir, exist_ok=True)
 import json, datetime
 _KNOBS = ("FACES", "FOCUSED_THR", "ROUT_THR", "CAP_THR", "AUTO_PASS_FLOOR",
           "FATIGUE_STRIKE", "FATIGUE_MORALE", "PARRY_BASE", "RECOVER_BASE",
@@ -100,8 +102,7 @@ _manifest = {
     "deadly_mode": dc.DEADLY_MODE,
 }
 
-out_dir = os.path.join(OUT_ROOT, tag)
-os.makedirs(out_dir, exist_ok=True)
+
 for _p in (os.path.join(out_dir, "dice.json"),          # immutable, beside the parquet
            os.path.join(OUT_ROOT, "last_run.json")):    # mutable pointer the docs read
     with open(_p, "w", encoding="utf-8") as fh:

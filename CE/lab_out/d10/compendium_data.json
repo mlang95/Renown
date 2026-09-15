@@ -5,7 +5,7 @@
   "Unwieldy": "Initiative cannot be improved by Tactics.",
   "2H": "Cannot use a Shield.",
   "Deadly": "On a Focused Strike: that strike's AP is increased by 3, and the defender may Parry or Recover only with a Focused roll.",
-  "Unstoppable": "2 to the defender's Parry roll (i.e. +2 to the Parry target, to a maximum of 10+).",
+  "Unstoppable": "-2 to the defender's Parry roll (i.e. +2 to the Parry target, to a maximum of 10+).",
   "Cleave": "On a Focused Strike: roll one extra Strike die at your modified to-Strike.",
   "Poison": "When the Defender receives a Strike and rolls a Focused Save, it fails; the resulting wound may only be Recovered with a Focused Recover.",
   "Nimble": "Gain +1 Initiative in the first Skirmish of each Battle.",
@@ -16,12 +16,12 @@
   "Parry": "While not Fatigued, roll a D10 to attempt to Parry a Strike before the Save. On a 8+, the Strike is Parried.",
   "Riposte": "While not Fatigued, if you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
   "Awkward": "While equipped with this weapon during a skirmish, you cannot Parry, and so cannot Riposte.",
-  "Recover": "While not Fatigued, if a to-Save roll fails, roll a D10: a result of X+ Recovers the retinue.",
+  "Recover": "While not Fatigued, if a to-Save roll fails, roll a D10 & compare it to your Recover value: a result greater than or equal to your Recover value recovers the retinue.",
   "Serrated": "A cumulative -2 penalty to the defender's Recover roll.",
   "Planishing": "A Focused Save succeeds, regardless of AP.",
   "Fatigue Token": "Each token is -2 to your Strike (to a maximum of 10+) and Morale -2 (uncapped); if your modified Morale is ever 11+, your army Routs. Tokens stack. While Fatigued, retinues cannot Parry or Recover.",
   "Shielded": "A cumulative -1 penalty to the Strike roll (to a maximum of 10+). Sources: a shield's -1 to Strike.",
-  "Negate Planishing": "Ignores Planishing: this weapon's AP can reduce the target's Save past 10+ (to auto-fail), defeating the Crafted floor.",
+  "Negate Planishing": "Ignores Planishing: this weapon's AP can reduce the target's Save beyond 10+ (to auto-fail).",
   "Negate Riposte": "The target's Parry can never Riposte this weapon's Strikes (a natural 10 Parry still cancels the Strike, but no counter-Strike follows).",
   "Dual Wield": "A failed Strike is rerolled once; the rerolled Strike can be Focused. Dual Wield confers Two-Handed. You cannot reroll successful Strikes.",
   "Florentine": "Only active while Dual Wielding. Even while Fatigued, a Focused Parry succeeds. This alone does not enable Riposte while Fatigued.",
@@ -40,7 +40,7 @@
   "Break check": "Taken by each Fatigued side's field every Skirmish, just before it gains its Fatigue token. Roll Morale (up to 5 dice, modified by Fatigue tokens); failures are casualties, but a Break check never triggers a Panic check. Unbreakable auto-passes.",
   "Panic check": "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish, after it Strikes back. Roll Morale (up to 5 dice); Immune Panic auto-passes.",
   "Morale": "How steady a retinue is when tested (lower is steadier; see the retinue table). Break and Panic checks roll it: a D10 per retinue in the field, up to 5 dice, each must meet its modified value; failures are casualties. If the modified value is ever 11+, the army Routs.",
-  "Rout": "The army breaks and leaves the Battle (you lose it). Whenever an army's modified Morale value reaches 7 or more, it Routs automatically.",
+  "Rout": "The army breaks and leaves the Battle (you lose it). Whenever an army's modified Morale value reaches 11+ or more, it Routs automatically.",
   "Fall Back": "A controlled retreat that ends the Battle with at least one retinue left — a partial success.",
   "Strike": "A landed hit. Roll a D10, apply modifiers to the roll, and Strike on a result >= the to-Strike number. The target may then Parry, Save, and Recover.",
   "to-Strike number": "The D10 result a retinue needs to Strike (see the retinue table; lower is better). Bonuses add to the roll; penalties and Fatigue tokens subtract.",
@@ -140,7 +140,7 @@
     ],
     [
      "Unstoppable",
-     "2 to the defender's Parry roll (i.e. +2 to the Parry target, to a maximum of 10+)."
+     "-2 to the defender's Parry roll (i.e. +2 to the Parry target, to a maximum of 10+)."
     ],
     [
      "Cleave",
@@ -176,7 +176,7 @@
     ],
     [
      "Recover",
-     "While not Fatigued, if a to-Save roll fails, roll a D10: a result of X+ Recovers the retinue."
+     "While not Fatigued, if a to-Save roll fails, roll a D10 & compare it to your Recover value: a result greater than or equal to your Recover value recovers the retinue."
     ],
     [
      "Serrated",
@@ -275,7 +275,7 @@
     ],
     [
      "Rout",
-     "The army breaks and leaves the Battle (you lose it). Whenever an army's modified Morale value reaches 7 or more, it Routs automatically."
+     "The army breaks and leaves the Battle (you lose it). Whenever an army's modified Morale value reaches 11+ or more, it Routs automatically."
     ],
     [
      "Fall Back",
@@ -559,7 +559,7 @@
     ],
     [
      "Negate Planishing",
-     "Ignores Planishing: this weapon's AP can reduce the target's Save past 10+ (to auto-fail), defeating the Crafted floor."
+     "Ignores Planishing: this weapon's AP can reduce the target's Save beyond 10+ (to auto-fail)."
     ],
     [
      "Negate Riposte",
@@ -1233,7 +1233,7 @@
      "Established Piety",
      "Episcopal Court + Academy",
      "**Efficient Episcopal Court**; Once/turn: **Influence +1** another player's Piety Envoy",
-     "Morale +1."
+     "Shake +1."
     ],
     [
      "Reliquary",
@@ -1574,8 +1574,8 @@
      "Royal Pavilion",
      "Sovereign Prowess",
      "Grand Tournament + Tiltyard",
-     "**Efficient Tiltyard**; Armies gain **Immune Strained** & +1 Endurance",
-     "Deadly, & Cleave also trigger Focused Strikes on a natural 8+. Improve Parry by +1"
+     "**Efficient Tiltyard**; Armies gain **Immune Strained**. Improve Parry by +1",
+     "Gain +1 Endurance. Deadly, & Cleave also trigger Focused Strikes on a natural 8+."
     ],
     [
      "Imperial Palace",

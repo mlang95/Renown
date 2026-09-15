@@ -43,7 +43,8 @@ def preset(**kw):
     base = dict(
         name="", substrate="plains", palette=set(ALL), shares={},
         morphology={}, buffers=[], band={}, scatter={}, border=0,
-        carve=None, require_hill=True, resource_min={}, art={}, notes="",
+        carve=None, structure=None,
+        require_hill=True, resource_min={}, art={}, notes="",
     )
     base.update(kw)
     return base
@@ -73,14 +74,18 @@ PRESETS = {
         morphology={"wetland": "blob"},
         buffers=[],                      # forest touches everything here
         border={"n": 0, "s": 0, "w": {"width": 1, "span": (.3, .6)}, "e": 0},
-        carve=dict(routes=1, width=1, clearing_radius=1, temp=0.9,
-                   mazes=(2, 3), maze_temp=1.1, junction_p=0.5,
+        carve=dict(routes=0, width=1, clearing_radius=1, temp=0.9,
+                   mazes=(1, 2), maze_temp=1.1, junction_p=0.5,
                    connect="spanning"),
+        structure=dict(dendritic=dict(depth=2, branches=(2, 2),
+                                      trunk=(5, 9), decay=0.6)),
         require_hill=False,
         resource_min={"quarry": 0, "salt": 0, "mine": 0, "arable": 1},
         notes=("Ithiss heartland. Woodland matrix; settlements sit in clearings "
                "linked by narrow grass passages. No tundra, no mountain: "
-               "quarry/salt/mine are unavailable by design."),
+               "quarry/salt/mine are unavailable by design. Lanes branch and "
+               "dead-end rather than joining up, so a limb is a commitment "
+               "and a defender has ground that cannot be flanked through."),
     ),
 
     # ── matrix: mountain substrate, slot-canyon corridors ───────────────────
@@ -219,15 +224,19 @@ PRESETS = {
         name="Glen of Pravak",
         substrate="plains",
         palette={"plains", "mountain", "tundra", "forest", "water"},
-        shares={"mountain": 0.30, "tundra": 0.10, "forest": 0.14},
-        morphology={"mountain": "fringe", "tundra": "blob", "forest": "scatter"},
-        scatter={"forest": (60, 1, 2, 2)},
+        shares={"mountain": 0.18, "tundra": 0.10, "forest": 0.14},
+        morphology={"mountain": "scatter", "tundra": "blob", "forest": "scatter"},
+        scatter={"forest": (60, 1, 2, 2), "mountain": (10, 1, 3, 4)},
+        structure=dict(ring=dict(terrain="mountain", radius=9,
+                                 thickness=3, gaps=3)),
         buffers=[],
         border=0,
         require_hill=True,
         resource_min={"salt": 0, "forestry": 1},
-        notes=("A glen ringed by rock. Mountains on the rim, tillable centre. "
-               "Positional strategy: every approach is known ground."),
+        notes=("A glen ringed by rock - the one piece of tillable land left, "
+               "and the middle of the map is the thing worth taking rather "
+               "than the thing in the way. Three passes through the ring, so "
+               "every approach is known ground and can be watched."),
     ),
 
     # ── two parallel ranges with a held gap ────────────────────────────────
@@ -251,20 +260,26 @@ PRESETS = {
         name="Lenaveron",
         substrate="plains",
         palette={"plains", "tundra", "mountain", "water", "forest"},
-        shares={"tundra": 0.16, "mountain": 0.10, "forest": 0.08},
-        morphology={"tundra": "blob", "mountain": "perimeter",
-                    "forest": "scatter"},
+        shares={"tundra": 0.12, "mountain": 0.10},
+        morphology={"tundra": "blob", "mountain": "perimeter"},
         # count, length, width, depth-from-edge band
-        perimeter={"mountain": (9, (14, 26), (1, 2), (1, 6))},
-        scatter={"forest": (40, 1, 2, 2)},
-        carve=dict(rivers=(2, 3), river_temp=1.0),
+        perimeter={"mountain": (7, (14, 26), (1, 2), (1, 6))},
+        carve=dict(rivers=(1, 2), river_temp=1.0),
+        structure=dict(compartments=dict(
+            cells=7, gate=(1, 1), site_inset=5, water_seam_p=0.15,
+            mountain_run=(6, 12), forest_run=(3, 5), forest_thick=0.75,
+            wall={"mountain": 0.45, "forest": 0.55})),
         buffers=[],
         border={"n": 0, "s": 0, "e": {"width": (1, 2), "span": (.5, .9)}, "w": 0},
         require_hill=True,
         resource_min={"forestry": 1},
         notes=("Papacy heartland. Open and buildable in the middle — Piety "
                "wants Public Order, not chokepoints — with long thin ranges "
-               "running along the margins and rivers crossing the interior."),
+               "running along the margins. Ridges and rivers close the "
+               "interior into walled compartments with one gate each - a "
+               "Piety region should be held by knowing the ground, not by "
+               "meeting in the open. Forest belongs to the walls rather than "
+               "being scattered loose across the fields."),
     ),
 
     # ── unbroken sacred forest; almost no carving ──────────────────────────
@@ -334,17 +349,21 @@ PRESETS = {
         name="Vaelohk",
         substrate="plains",
         palette={"plains", "forest", "water", "mountain", "tundra"},
-        shares={"forest": 0.22, "mountain": 0.06, "water": 0.04, "tundra": 0.05},
+        shares={"forest": 0.34, "mountain": 0.06, "water": 0.04, "tundra": 0.05},
         morphology={"forest": "blob", "mountain": "scatter",
                     "water": "blob", "tundra": "blob"},
         scatter={"mountain": (22, 1, 2, 4)},
         carve=dict(rivers=(2, 3), river_temp=1.0),
+        structure=dict(radial=dict(hub_radius=2, width=1, temp=0.45)),
         buffers=[("forest", "tundra")],
         border={"n": {"width": (1, 2), "span": (.7, 1.)}, "s": {"width": (1, 2), "span": (.7, 1.)}, "w": {"width": (1, 2), "span": (.7, 1.)}, "e": {"width": (1, 2), "span": (.7, 1.)}},
         require_hill=True,
         notes=("The centre island and the world's name. Deliberately the most "
                "even preset — no dominant terrain, everything available. The "
-               "Sullen Lake is the one inland water body."),
+               "Sullen Lake is the one inland water body. One lane runs from "
+               "every region to the centre island's heart, so the middle is "
+               "what everyone is equidistant from and committed toward - the "
+               "question is when to march down your spoke, not which way."),
     ),
 
     # ── castle in the mountains, heath below ───────────────────────────────

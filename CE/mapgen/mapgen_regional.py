@@ -490,6 +490,212 @@ def _group_regions(m, k):
     return [g for g in groups if g]
 
 
+def _carve_radial(m, rng, hub_radius=2, width=1, temp=0.45, terrain="plains"):
+    """Spokes from every region toward one contested centre.
+
+    A spanning tree connects players to each other; a radial network connects
+    every player to the SAME place. That is a different game: the centre stops
+    being wherever two people happen to meet and becomes the thing everyone is
+    equidistant from and committed toward. Each region gets exactly one lane
+    in, so the choice is when to commit down it, not which way to go.
+
+    Spoke hexes are reserved so later terrain passes can't close the lanes.
+    """
+    hub = (m.width // 2, m.height // 2)
+    for h in m.within(hub, hub_radius):
+        if h.terrain != "water":
+            h.terrain = terrain
+            m.reserved.add(h.coord)
+    laid = 0
+    for ctr in getattr(m, "centers", []):
+        cur, guard = ctr, 0
+        while cur != hub and guard < 300:
+            guard += 1
+            h = m.get(cur)
+            if h is not None and h.terrain != "water":
+                if h.terrain != terrain:
+                    h.terrain = terrain
+                    laid += 1
+                m.reserved.add(cur)
+                if width > 1:
+                    for nb in m.neighbors(cur):
+                        if nb.terrain != "water":
+                            nb.terrain = terrain
+                            m.reserved.add(nb.coord)
+            nbrs = [n.coord for n in m.neighbors(cur) if n.terrain != "water"]
+            if not nbrs:
+                break
+            d0 = distance(cur, hub)
+            ws = [math.exp(-(distance(c, hub) - d0) / max(temp, 1e-3)) for c in nbrs]
+            cur = rng.choices(nbrs, weights=ws, k=1)[0]
+    return laid
+
+
+def _carve_dendritic(m, rng, depth=3, branches=(2, 3), trunk=(7, 12),
+                     decay=0.62, terrain="plains"):
+    """Branching lanes that taper and DEAD-END, rather than a road network.
+
+    A spanning tree joins every settlement to every other, so every corridor is
+    a through-route and nothing is ever a cul-de-sac. Real woodland and valley
+    country branches: a trunk splits, each limb splits again, and the twigs
+    stop. Dead ends are the point — they make committing down a limb a decision
+    with a cost, and they give a defender ground that cannot be flanked through.
+
+    Grown from each region centre outward, each generation shorter than the
+    last by `decay`.
+    """
+    laid = 0
+
+    def limb(start, length, level):
+        nonlocal laid
+        cur = start
+        heading = rng.randrange(6)
+        for _ in range(int(length)):
+            if rng.random() < 0.34:
+                heading = (heading + rng.choice((-1, 1))) % 6
+            nxt = _offset(*(x + y for x, y in
+                            zip(_cube(*cur), CUBE_DIRS[heading])))
+            if not m.in_bounds(nxt):
+                break
+            h = m.get(nxt)
+            if h.terrain == "water":
+                break
+            if h.terrain != terrain:
+                m.carved.add(nxt)
+                h.terrain = terrain
+                laid += 1
+            cur = nxt
+        if level < depth:
+            for _ in range(rng.randint(*branches)):
+                limb(cur, max(2, length * decay), level + 1)
+
+    for ctr in getattr(m, "centers", []):
+        for _ in range(rng.randint(*branches)):
+            limb(ctr, rng.randint(*trunk), 1)
+    return laid
+
+
+def _stamp_compartments(m, rng, cells=6, wall=None, gate=(1, 1),
+                        site_inset=4, water_seam_p=0.30,
+                        mountain_run=(6, 12), forest_run=(3, 5),
+                        forest_thick=0.75, ok=None):
+    """Partition the board into cells and wall the seams with clumped relief.
+
+    Three things make this read as country rather than as a diagram:
+
+    SITES ARE INSET from the board edge. A site landing near the rim throws a
+    seam that runs parallel to it and pinches off a sliver too thin to hold a
+    settlement. With every site at least `site_inset` hexes in, the cells that
+    own the edge reach out to it and their boundaries run roughly perpendicular
+    to the rim instead, so edge compartments are as big as interior ones.
+
+    EACH TERRAIN CLUMPS AT ITS OWN SCALE. A river takes a whole side of a
+    compartment; mountain comes in long ridges; forest comes in short stretches
+    widened to two hexes, so a wood reads as a block of trees rather than a
+    hedge. One hex of everything alternating looks like noise and plays like
+    nothing.
+
+    Every seam is walled and given a small gate, so a cell stays a cell while
+    the map stays connected.
+    """
+    wall = wall or {"mountain": 0.45, "forest": 0.55}
+    ok = ok or (lambda h: True)
+    inner = [h.coord for h in m.all()
+             if h.terrain != "water"
+             and min(h.col, m.width - 1 - h.col,
+                     h.row, m.height - 1 - h.row) >= site_inset]
+    pool = [h.coord for h in m.all() if h.terrain != "water"]
+    if len(inner) < cells:
+        inner = pool
+    if len(pool) < cells:
+        return 0
+    sites = [rng.choice(inner)]
+    while len(sites) < cells:
+        sites.append(max(rng.sample(inner, min(len(inner), 150)),
+                         key=lambda c: min(distance(c, s) for s in sites)))
+    owner = {c: min(range(len(sites)), key=lambda i: distance(c, sites[i]))
+             for c in pool}
+
+    seams = {}
+    for c in pool:
+        for n in m.neighbors(c):
+            o = owner.get(n.coord)
+            if o is not None and o != owner[c]:
+                seams.setdefault(tuple(sorted((owner[c], o))), []).append(c)
+
+    laid = 0
+    for pair, hexes in seams.items():
+        hexes = sorted(set(hexes))
+        if len(hexes) < 4:
+            continue
+        gaps = set()
+        for _ in range(rng.randint(*gate)):
+            g = rng.choice(hexes)
+            gaps |= {h.coord for h in m.within(g, 1)}
+        body = [c for c in hexes if c not in gaps]
+        if not body:
+            continue
+
+        # a river takes the WHOLE side rather than a stretch of it
+        if rng.random() < water_seam_p:
+            for c in body:
+                h = m.get(c)
+                if h is not None and ok(h) and h.terrain != "water":
+                    h.terrain = "water"
+                    laid += 1
+            continue
+
+        # otherwise alternate long mountain ridges with wide forest blocks
+        seq, i = [], 0
+        mw = wall.get("mountain", 0.45)
+        while i < len(body):
+            if rng.random() < mw / max(mw + wall.get("forest", 0.55), 1e-9):
+                kind, n = "mountain", rng.randint(*mountain_run)
+            else:
+                kind, n = "forest", rng.randint(*forest_run)
+            seq += [kind] * n
+            i += n
+        for c, kind in zip(body, seq):
+            h = m.get(c)
+            if h is None or not ok(h) or h.terrain == "water":
+                continue
+            h.terrain = kind
+            laid += 1
+            if kind == "forest" and rng.random() < forest_thick:
+                # widen into a block; a one-hex line of trees is a hedge
+                for nb in m.neighbors(c):
+                    if ok(nb) and nb.terrain not in ("water", "mountain"):
+                        nb.terrain = "forest"
+                        laid += 1
+                        break
+    return laid
+
+
+def _stamp_ring(m, terrain, radius, thickness, gaps, rng, ok=None):
+    """A ring of high ground at `radius` from the board centre, with `gaps`
+    passes cut through it.
+
+    The inverse of a central obstruction: the middle is the prize, not the
+    wall. Everything worth having sits inside, and the ring decides how many
+    ways there are in.
+    """
+    ok = ok or (lambda h: True)
+    mid = (m.width // 2, m.height // 2)
+    band = [h for h in m.all()
+            if radius <= distance(h.coord, mid) < radius + thickness
+            and h.terrain != "water" and ok(h)]
+    if not band:
+        return 0
+    passes = [rng.choice(band).coord for _ in range(gaps)]
+    laid = 0
+    for h in band:
+        if any(distance(h.coord, p) <= 2 for p in passes):
+            continue
+        h.terrain = terrain
+        laid += 1
+    return laid
+
+
 def _carve_maze(m, count, rng, temp=1.7, junction_p=0.5, terrain="plains"):
     """Extra single-hex passages threaded through the matrix, independent of
     the settlement network.
@@ -924,6 +1130,11 @@ def _ensure_region_material(m, p, rng):
                 h = m.get(c)
                 if h and h.terrain == "plains" and c not in ring:
                     h.terrain = pick
+                    # A carved hex reads as the substrate to look(), so a
+                    # repair placed on one stays invisible to the very check
+                    # that asked for it - the pass would loop placing patches
+                    # that never register. Once repaired it is real terrain.
+                    carved.discard(c)
 
 
 HILL_SEP = 4
@@ -1335,6 +1546,39 @@ def _build(p, seed):
             _stamp_fringe(m, terrain, target, free, rng)
         else:
             _stamp_blobs(m, terrain, target, free, buffers, substrate, rng)
+
+    st = p.get("structure") or {}
+    if st.get("ring"):
+        r = st["ring"]
+        _stamp_ring(m, r.get("terrain", "mountain"),
+                    r.get("radius", 7), r.get("thickness", 2),
+                    r.get("gaps", 3), rng,
+                    ok=lambda h: h.coord not in m.reserved)
+    if st.get("compartments"):
+        c = st["compartments"]
+        _stamp_compartments(m, rng, cells=c.get("cells", 6),
+                            wall=c.get("wall"),
+                            gate=tuple(c.get("gate", (1, 1))),
+                            site_inset=c.get("site_inset", 4),
+                            water_seam_p=c.get("water_seam_p", 0.30),
+                            mountain_run=tuple(c.get("mountain_run", (6, 12))),
+                            forest_run=tuple(c.get("forest_run", (3, 5))),
+                            forest_thick=c.get("forest_thick", 0.75),
+                            ok=lambda h: h.coord not in m.reserved)
+        # a Voronoi seam is two hexes wide where cells meet obliquely, so a
+        # river laid along one comes out as open water and breaks the
+        # one-hex-strait rule. Same thinning the rivers use.
+        _thin_water(m, getattr(m, "rim", set()))
+    if st.get("dendritic"):
+        d = st["dendritic"]
+        _carve_dendritic(m, rng, depth=d.get("depth", 3),
+                         branches=tuple(d.get("branches", (2, 3))),
+                         trunk=tuple(d.get("trunk", (7, 12))),
+                         decay=d.get("decay", 0.62))
+    if st.get("radial"):
+        r = st["radial"]
+        _carve_radial(m, rng, hub_radius=r.get("hub_radius", 2),
+                      width=r.get("width", 1), temp=r.get("temp", 0.45))
 
     scattered = tuple(t for t, mo in p.get("morphology", {}).items()
                       if mo == "scatter")
