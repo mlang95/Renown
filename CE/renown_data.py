@@ -96,7 +96,7 @@ GLOSSARY = {
     UNWIELDY:       "Initiative cannot be improved by Tactics.",
     TWO_H:          "Cannot use a Shield.",
     SHATTER_ARMOR:  f"On a {PIVOTAL} Strike: that strike's AP is increased by {DEADLY_AP}, and the defender may Parry or {RECOVER} only with a {PIVOTAL} roll.",
-    UNSTOPPABLE:    f"-{UNSTOPPABLE_MOD} to the defender's Parry roll (i.e. +2 to the Parry target, to a maximum of {CAP_THR}+).",
+    UNSTOPPABLE:    f"-{UNSTOPPABLE_MOD} to the defender's Parry roll, to a maximum of {CAP_THR}+).",
     CLEAVE:         f"On a {PIVOTAL} Strike: roll one extra Strike die at your modified to-Strike.",
     POISON:         f"When the Defender receives a Strike and rolls a {PIVOTAL} Save, it fails; the resulting wound may only be {RECOVER}ed with a {PIVOTAL} {RECOVER}.",
     NIMBLE:         "Gain +1 Initiative in the first Skirmish of each Battle.",
@@ -107,7 +107,7 @@ GLOSSARY = {
     #DEFLECT:        "-1 to Parry and Negate Riposte against this weapon's Strikes. (All Ranged weapons have Deflect.)",
     #IMMUNE_PANIC:   "Automatically passes Panic checks.",
     #UNBREAKABLE:    "Immune Break: does not take Break checks while Fatigued.",
-    PARRY:          f"While not Fatigued, roll a D{FACES} to attempt to Parry a Strike before the Save. On a {PARRY_BASE}+, the Strike is Parried.",
+    PARRY:          f"While not Fatigued, roll a D{FACES} to attempt to Parry a Strike before an Armor Save. On a {PARRY_BASE}+ (Improved by Improved Parry), the Strike is Parried and has no further effect.",
     RIPOSTE:        "While not Fatigued, if you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
     NO_PARRY:       "While equipped with this weapon during a skirmish, you cannot Parry, and so cannot Riposte.",
     RECOVER:        f"While not Fatigued, if a to-Save roll fails, roll a D{FACES} & compare it to your Recover value: a result greater than or equal to your Recover value recovers the retinue.",
@@ -314,7 +314,7 @@ SHIELDS = {
 }
 
 ARMORS = {
-    "Cloth":       {"save": 10, "tier": "Crude",   "tags": []},
+    "Cloth":       {"save": 10, "tier": None,      "tags": []},
     "Gambeson":    {"save":  9, "tier": "Crude",   "tags": []},
     "Leather":     {"save":  8, "tier": "Cast",    "tags": []},
     "Chainmail":   {"save":  7, "tier": "Wrought", "tags": []},
@@ -693,13 +693,14 @@ NODES = {
         "mastery": "+300",
         "builds_into": ["Saddlery", "Tannery", "Stable", "Weavery", "Butchery"],
         "monument": False,
+        "escalation": {"standing": "Untested Industry", "ranks": {1: "Gambeson armor"}, "row": 1, "gate": None, "requires_all": [], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": ["tier:Gambeson"], "mastery_tags": [], "mastery_req": []}},
     "Saddlery": {
         "type": "Husbandry",
         "unlock": "-",
         "mastery_req": "Arable Land + Animal Husbandry + Stable",
-        "innate": "+200, **Natural**",
-        "mastery": "**Upkeep -200**; Speed +1",
+        "innate": "+500, **Natural**",
+        "mastery": "**Upkeep -500**; Speed +1",
         "efficient": "Stable",
         "builds_into": [],
         "monument": False},
@@ -784,7 +785,7 @@ NODES = {
         "efficient": "Carpentry",
         "builds_into": ["Tiltyard"],
         "monument": False,
-        "escalation": {"standing": "Untested Prowess", "ranks": {1: "Ranged weapons"}, "requires_all": [], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Untested Industry", "ranks": {1: "Ranged weapons"}, "row": 1, "gate": None, "requires_all": [], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Carpentry"], "domain": {}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Forestry", "Carpentry"], "upkeep_effects": [{"if_ranged": 200}]}},
     "Chandlery": {
         "type": "Craft",
@@ -804,7 +805,7 @@ NODES = {
         "efficient": "Animal Husbandry",
         "builds_into": ["Butchery", "Armory"],
         "monument": False,
-        "escalation": {"standing": "Untested Industry", "ranks": {1: "Leather armor"}, "requires_all": [], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Untested Industry", "ranks": {1: "Leather armor"}, "row": 2, "gate": None, "requires_all": ["Animal Husbandry"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": ["tier:Leather"], "mastery_tags": [], "mastery_req": ["Animal Husbandry"], "upkeep_effects": [{"flat": 200}]}},
     "Joinery": {
         "type": "Craft",
@@ -815,7 +816,7 @@ NODES = {
         "efficient": "Carpentry",
         "builds_into": ["Winery", "Meadery", "Cidery"],
         "monument": False,
-        "escalation": {"standing": "Rising Industry", "ranks": {1: "Shields"}, "requires_all": ["Tannery"], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Rising Industry", "ranks": {1: "Shields"}, "row": 2, "gate": None, "requires_all": [], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Carpentry"], "domain": {"Industry": 3}, "innate_tags": ["tier:Shields"], "mastery_tags": [], "mastery_req": ["Carpentry"], "upkeep_effects": [{"if_shield": 200}]}},
     "Furnace": {
         "type": "Craft",
@@ -826,7 +827,7 @@ NODES = {
         "efficient": "Mine",
         "builds_into": ["Blacksmith", "Jewelry Foundry"],
         "monument": False,
-        "escalation": {"standing": "Untested Industry", "ranks": {1: "Cast weapons"}, "requires_all": [], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Untested Industry", "ranks": {1: "Cast weapons"}, "row": 1, "gate": None, "requires_all": [], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": ["tier:Cast"], "mastery_tags": [], "mastery_req": ["Mine"]}},
     "Blacksmith": {
         "type": "Craft",
@@ -837,14 +838,14 @@ NODES = {
         "efficient": "Furnace",
         "builds_into": ["Forge", "Armory", "Stable", "Siege Works", "Supply Depot"],
         "monument": False,
-        "escalation": {"standing": "Rising Industry", "ranks": {1: "Wrought weapons"}, "requires_all": ["Furnace"], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Rising Industry", "ranks": {1: "Wrought weapons"}, "row": 2, "gate": None, "requires_all": ["Furnace"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Furnace"], "domain": {"Industry": 3}, "innate_tags": [], "mastery_tags": ["tier:Wrought"], "mastery_req": ["Furnace"], "efficient": "Furnace"}},
     "Jewelry Foundry": {
         "type": "Craft",
         "unlock": "-",
         "mastery_req": "Mine + Merchant Quarter + Furnace",
         "innate": "+200; Craft +2",
-        "mastery": "+500; **Influence +2** to Cunning Envoys targeting this player",
+        "mastery": "+500; **Influence +1** to Cunning Envoys targeting this player",
         "efficient": "Gilded Foundry",
         "builds_into": [],
         "monument": False},
@@ -853,11 +854,11 @@ NODES = {
         "unlock": "Rising Industry",
         "mastery_req": "Tannery + Blacksmith",
         "innate": "**Unlock Wrought** armor & shield",
-        "mastery": "**Upkeep -200**; Craft +1",
+        "mastery": "**Upkeep -300**; Craft +1",
         "efficient": "Tannery",
         "builds_into": ["Gilded Foundry"],
         "monument": False,
-        "escalation": {"standing": "Rising Industry", "ranks": {1: "Chainmail"}, "requires_all": ["Joinery"], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Rising Industry", "ranks": {1: "Chainmail"}, "row": 3, "gate": None, "requires_all": ["Tannery"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Tannery", "Blacksmith"], "domain": {"Industry": 3}, "innate_tags": ["tier:Chainmail"], "mastery_tags": [], "mastery_req": ["Tannery", "Blacksmith"], "efficient": "Tannery", "upkeep_effects": [{"flat": 200}]}},
     "Master Workshop": {
         "type": "Craft",
@@ -867,7 +868,7 @@ NODES = {
         "mastery": "Add **Serrated** to Weapons",
         "builds_into": ["Advanced Blast Furnace"],
         "monument": False,
-        "escalation": {"standing": "Established Industry", "ranks": {1: "Serrated"}, "requires_all": ["Forge"], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Established Industry", "ranks": {1: "Serrated"}, "row": 5, "gate": None, "requires_all": ["Stable"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Blacksmith"], "domain": {"Industry": 6}, "innate_tags": [], "mastery_tags": ["Serrated"], "mastery_req": ["Blacksmith"], "upkeep_effects": [{"flat": 200}]}},
     "Gilded Foundry": {
         "type": "Craft",
@@ -878,7 +879,7 @@ NODES = {
         "efficient": "Armory",
         "builds_into": ["Advanced Blast Furnace"],
         "monument": False,
-        "escalation": {"standing": "Established Industry", "ranks": {1: f"Full Plate + {PLANISHING}"}, "requires_all": ["Armory"], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Established Industry", "ranks": {1: f"Full Plate + {PLANISHING}"}, "row": 5, "gate": None, "requires_all": ["Stable"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Armory"], "domain": {"Industry": 6}, "innate_tags": [PLANISHING], "mastery_tags": ["tier:FullPlate"], "mastery_req": ["Armory","Blacksmith"]}},
     "Smokehouse": {
         "type": "Craft",
@@ -929,7 +930,7 @@ NODES = {
         "type": "Craft",
         "unlock": "Established Industry",
         "mastery_req": "Orchard + Joinery + Inn",
-        "innate": "**Faith +1**, +300",
+        "innate": "**Faith +1**, +200",
         "mastery": "+300; Craft +1",
         "efficient": "Orchard",
         "builds_into": [],
@@ -1011,7 +1012,7 @@ NODES = {
         "efficient": "Animal Husbandry",
         "builds_into": ["Saddlery", "Advanced Blast Furnace"],
         "monument": False,
-        "escalation": {"standing": "Untested Industry", "ranks": {1: "Cavalry weapons"}, "requires_all": [], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Untested Industry", "ranks": {1: "Cavalry weapons"}, "row": 4, "gate": 3, "requires_all": [], "requires_any": ["Forge", "Armory"], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Animal Husbandry", "Blacksmith"], "efficient": "Animal Husbandry"}},
     "Shipyard": {
         "type": "Craft",
@@ -1031,7 +1032,7 @@ NODES = {
         "efficient": "Conditioning Field",
         "builds_into": ["War College", "Tiltyard", "Grand Tournament", "Stable"],
         "monument": False,
-        "escalation": {"standing": "Rising Prowess", "ranks": {1: "Man-at-Arms unlock"}, "requires_all": ["Conditioning Field"], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Rising Prowess", "ranks": {1: "Man-at-Arms unlock"}, "row": 2, "gate": None, "requires_all": ["Conditioning Field"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Conditioning Field"], "domain": {"Prowess": 3}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Conditioning Field"]}},
     "Interrogation Chambers": {
         "type": "Civic",
@@ -1097,7 +1098,7 @@ NODES = {
         "efficient": "Infirmary",
         "builds_into": ["Preceptory of the Knight's Templar"],
         "monument": False,
-        "escalation": {"standing": "Established Piety", "ranks": {1: f"Recover 6; {ENDURING}"}, "requires_all": ["Infirmary"], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Established Piety", "ranks": {1: f"Recover 6; {ENDURING}"}, "row": 4, "gate": None, "requires_all": ["Infirmary"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Apothecary", "Infirmary"], "domain": {"Piety": 6}, "innate_tags": ["Recover 6"], "mastery_tags": [ENDURING], "mastery_req": ["Apothecary", "Infirmary"]}},
     "Jester's Court": {
         "type": "Civic",
@@ -1141,7 +1142,7 @@ NODES = {
         "mastery_req": "Masonry",
         "innate": "Craft +1",
         "mastery": "**Faith +1**",
-        "builds_into": ["Conditioning Field", "Jester's Court"],
+        "builds_into": ["Conditioning Field", "Jester's Court", "Market Square"],
         "monument": False},
     "Episcopal Court": {
         "type": "Civic",
@@ -1161,7 +1162,7 @@ NODES = {
         "efficient": "Courtyard",
         "builds_into": ["Coliseum", "Grand Tournament"],
         "monument": False,
-        "escalation": {"standing": "Untested Prowess", "ranks": {1: "Nimble"}, "requires_all": [], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Untested Prowess", "ranks": {1: "Nimble"}, "row": 1, "gate": None, "requires_all": [], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Courtyard"], "domain": {"Prowess": 3}, "innate_tags": [], "mastery_tags": ["Nimble"], "mastery_req": []}},
     "Grand Tournament": {
         "type": "Civic",
@@ -1172,7 +1173,7 @@ NODES = {
         "efficient": "Coliseum",
         "builds_into": ["Royal Pavilion"],
         "monument": False,
-        "escalation": {"standing": "Established Prowess", "ranks": {1: "Riposte"}, "requires_all": ["Coliseum"], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Established Prowess", "ranks": {1: "Riposte"}, "row": 4, "gate": None, "requires_all": ["Coliseum"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": [], "domain": {"Prowess": 6}, "innate_tags": ["Parry +1"], "mastery_tags": ["Riposte"], "mastery_req": ["Conditioning Field", "Coliseum"], "efficient": "Coliseum"}},
     "Apothecary": {
         "type": "Civic",
@@ -1183,7 +1184,7 @@ NODES = {
         "efficient": "Alchemy",
         "builds_into": ["Infirmary", "Hospitaller"],
         "monument": False,
-        "escalation": {"standing": "Untested Piety", "ranks": {1: "Recover 8"}, "requires_all": [], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Untested Piety", "ranks": {1: "Recover 8"}, "row": 1, "gate": None, "requires_all": [], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": [], "mastery_tags": ["Recover 8"], "mastery_req": ["Herb Garden"]}},
     "Infirmary": {
         "type": "Civic",
@@ -1194,7 +1195,7 @@ NODES = {
         "efficient": "Apothecary",
         "builds_into": ["Hospitaller"],
         "monument": False,
-        "escalation": {"standing": "Untested Piety", "ranks": {1: "Recover 7"}, "requires_all": ["Apothecary"], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Untested Piety", "ranks": {1: "Recover 7"}, "row": 2, "gate": None, "requires_all": ["Apothecary"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Apothecary"], "domain": {}, "innate_tags": [], "mastery_tags": ["Recover 7"], "mastery_req": ["Alchemy", "Herb Garden"], "efficient": "Apothecary", "upkeep_effects": [{"flat": 100}]}},
     "Supply Depot": {
         "type": "Civic",
@@ -1309,7 +1310,7 @@ NODES = {
         "efficient": "Alchemy",
         "builds_into": ["Outlaw Rookery"],
         "monument": False,
-        "escalation": {"standing": "Rising Cunning", "ranks": {1: "Poison"}, "requires_all": [], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Rising Cunning", "ranks": {1: "Poison"}, "row": 2, "gate": None, "requires_all": [], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Academy", "Alchemy"], "domain": {"Cunning": 3}, "innate_tags": ["Poison"], "mastery_tags": [], "mastery_req": ["Academy", "Alchemy"], "upkeep_effects": [{"flat": 100}]}},
     "Pilgrimage Site": {
         "type": "Energy",
@@ -1419,18 +1420,18 @@ NODES = {
         "efficient": "Academy",
         "builds_into": ["Ministry of Military Strategy"],
         "monument": False,
-        "escalation": {"standing": "Established Prowess", "ranks": {1: "Sergeant unlock"}, "requires_all": [""], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Established Prowess", "ranks": {1: "Sergeant unlock"}, "row": 4, "gate": None, "requires_all": ["Coliseum"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": [ "Levy Hall", "Academy"], "domain": {"Prowess": 6}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Levy Hall", "Academy"], "efficient": "Academy"}},
     "Forge": {
         "type": "Power",
         "unlock": "Established Industry",
         "mastery_req": "Blacksmith",
-        "innate": "Craft +1",
+        "innate": "Craft +2",
         "mastery": "Unlocks **Forged** Tier",
         "efficient": "Blacksmith",
         "builds_into": ["Master Workshop", "Gilded Foundry", "Advanced Blast Furnace"],
         "monument": False,
-        "escalation": {"standing": "Established Industry", "ranks": {1: "Forged weapons"}, "requires_all": ["Blacksmith"], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Established Industry", "ranks": {1: "Forged weapons"}, "row": 3, "gate": None, "requires_all": ["Blacksmith"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Blacksmith"], "domain": {"Industry": 6}, "innate_tags": [], "mastery_tags": ["tier:Forged"], "mastery_req": ["Blacksmith"], "efficient": "Blacksmith"}},
     "Tiltyard": {
         "type": "Power",
@@ -1440,7 +1441,7 @@ NODES = {
         "mastery": "Your armies have **Immune Unwieldy**. Instead, they may equip two of the same 1H Melee Weapon to gain **Dual Wield**, **Two-Handed**, and **Florentine** (while Fatigued, may Parry on a natural {FOCUSED_THR}).",
         "builds_into": ["Royal Pavilion"],
         "monument": False,
-        "escalation": {"standing": "Established Prowess", "ranks": {1: "Dual-equip; Immune Unwieldy; Dual Wield (two of a kind)"}, "requires_all": ["Fletchery"], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Established Prowess", "ranks": {1: "Dual-equip; Immune Unwieldy; Dual Wield (two of a kind)"}, "row": 4, "gate": None, "requires_all": ["Coliseum"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Fletchery", "Coliseum"], "domain": {"Prowess": 6}, "innate_tags": [], "mastery_tags": ["Immune Unwieldy", "Florentine"], "mastery_req": ["Fletchery", "Coliseum"]}},
     "Office of Works": {
         "type": "Monument",
@@ -1455,12 +1456,12 @@ NODES = {
         "unlock": "Sovereign Prowess",
         "mastery_req": "Grand Tournament + Tiltyard",
         "innate": "Armies gain **Immune Strained**. Improve Parry by +1",
-        "mastery": "Gain +1 Endurance. Deadly, & Cleave also trigger Focused Strikes on a natural 8+.",
+        "mastery": "Gain +1 to Strike. Deadly, & Cleave also trigger Focused Strikes on a natural 8+.",
 		"efficient": "Tiltyard",
         "builds_into": [],
         "monument": True,
-        "escalation": {"standing": "Sovereign Prowess", "ranks": {1: "Immune Strain; Drilled"}, "requires_all": ["Tiltyard", "Grand Tournament"], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": ["Tiltyard"], "domain": {"Prowess": 10}, "innate_tags": ["Immune Strain", "Parry +1"], "mastery_tags": ["Crit 8","Cond Field"], "mastery_req": ["Grand Tournament", "Tiltyard"]}},
+        "escalation": {"standing": "Sovereign Prowess", "ranks": {1: "Immune Strain; Drilled"}, "row": 6, "gate": None, "requires_all": ["Tiltyard", "Grand Tournament"], "requires_any": [], "extra_req": ""},
+        "engine": {"cost": 1, "prereqs": ["Tiltyard"], "domain": {"Prowess": 10}, "innate_tags": ["Immune Strain", "Parry +1"], "mastery_tags": ["Crit 8","Strike +1"], "mastery_req": ["Grand Tournament", "Tiltyard"]}},
     "Imperial Palace": {
         "type": "Monument",
         "unlock": "Established Prowess",
@@ -1493,7 +1494,7 @@ NODES = {
         "efficient": "War College",
         "builds_into": [],
         "monument": True,
-        "escalation": {"standing": "Sovereign Prowess", "ranks": {1: "Always Seize the Initiative; Gain +1I; your maximum initiative increases to 3.", 2: "Deadly, & Cleave also trigger on a natural 8+."}, "requires_all": ["War College"], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Sovereign Prowess", "ranks": {1: "Always Seize the Initiative; Gain +1I; your maximum initiative increases to 3.", 2: "Deadly, & Cleave also trigger on a natural 8+."}, "row": 6, "gate": None, "requires_all": ["War College"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": [], "domain": {"Prowess": 10}, "innate_tags": ["Seize: first", "Init +1", "MaxInit3"], "mastery_tags": ["Drilled"], "mastery_req": ["University", "War College"]}},
     "Thieves' Guild": {
         "type": "Monument",
@@ -1537,7 +1538,7 @@ NODES = {
         "efficient": "Monastery",
         "builds_into": [],
         "monument": True,
-        "escalation": {"standing": "Sovereign Piety", "ranks": {1: f"{CRUSADER}", 2: "Knight Templar unlock"}, "requires_all": ["Hospitaller"], "requires_any": [], "extra_req": "Established Prowess"},
+        "escalation": {"standing": "Sovereign Piety", "ranks": {1: f"{CRUSADER}", 2: "Knight Templar unlock"}, "row": 6, "gate": None, "requires_all": ["Hospitaller"], "requires_any": [], "extra_req": "Established Prowess"},
         "engine": {"alias": "Preceptory", "cost": 1, "prereqs": [], "domain": {"Piety": 10, "Prowess": 6}, "innate_tags": ["Resolute"], "mastery_tags": [], "mastery_req": ["Monastery", "Pilgrimage Site", "Hospitaller", "Abbey"]}},
     "Manor House": {
         "type": "Monument",
@@ -1551,7 +1552,7 @@ NODES = {
         "type": "Monument",
         "unlock": "Sovereign Cunning",
         "mastery_req": "Money Lending + Forgery Workshop + Court Artists",
-        "innate": "Each Empire Phase, Extort 1000 from each non-allied player with a lower Cunning value.",
+        "innate": "Each Empire Phase, Extort 500 from each non-allied player with a lower Cunning value.",
         "mastery": "Your Vote counts as 2 votes toward Domain selection during the Council Phase.",
         "efficient": "Court Artists",
         "builds_into": [],
@@ -1582,11 +1583,11 @@ NODES = {
         "efficient": "Forge",
         "builds_into": [],
         "monument": True,
-        "escalation": {"standing": "Sovereign Industry", "ranks": {1: "Crafted tier"}, "requires_all": ["Master Workshop", "Gilded Foundry"], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Sovereign Industry", "ranks": {1: "Crafted tier"}, "row": 6, "gate": None, "requires_all": ["Stable", "Master Workshop", "Gilded Foundry"], "requires_any": [], "extra_req": ""},
         "engine": {"alias": "ABF", "cost": 1, "prereqs": ["Gilded Foundry", "Master Workshop", "Blacksmith", "Stable"], "domain": {"Industry": 10}, "innate_tags": ["ABF"], "mastery_tags": ["tier:Crafted"], "mastery_req": ["Gilded Foundry", "Master Workshop", "Blacksmith", "Stable"], "efficient": "Forge", "upkeep_effects": [{"flat": 500}]}},
     "Cipher Chamber": {
         "type": "Power",
-        "unlock": "Sovereign Cunning",
+        "unlock": "Established Cunning",
         "mastery_req": "University + Courier Network",
         "innate": "Once/turn when a player Sends an Envoy: that player must declare the specific Action they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action.",
         "mastery": "Once/turn: select any active **Timer** you did not select last turn; increase it by 2.",
@@ -1602,7 +1603,7 @@ NODES = {
         "mastery": "Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own.",
         "builds_into": [],
         "monument": True,
-        "escalation": {"standing": "Sovereign Cunning", "ranks": {1: "See enemy Tactic before choosing"}, "requires_all": ["Toxicarium"], "requires_any": [], "extra_req": ""},
+        "escalation": {"standing": "Sovereign Cunning", "ranks": {1: "First Skirmish: see enemy Tactic before choosing", 2: "Every Skirmish: see enemy Tactic before choosing"}, "row": 6, "gate": None, "requires_all": ["Toxicarium"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Caravanery", "Cipher Chamber"], "domain": {"Cunning": 10}, "innate_tags": ["Outrider: once"], "mastery_tags": ["Outrider: every"], "mastery_req": ["Caravanery", "Cipher Chamber"]}}
     
 }
@@ -2716,10 +2717,6 @@ SIEGE_SOURCE_VALUES = {
     "Citadel":         {"innate_value": 1, "mastery_value": 1},
 }
 
-
-
-
-
 # ── Missing glossary definitions (CE) ────────────────────────────────────────
 GLOSSARY.update({
     PIVOTAL:        f"A natural {FOCUSED_THR}, before modifiers." if FOCUSED_THR == FACES else f"A natural {FOCUSED_THR} or higher, before modifiers.",
@@ -2745,6 +2742,7 @@ NAME_DISPLAY = {
     "Coliseum": "Castle Yard",
     "Javelin": "Throwing Axe",
     "Crafted" : "Tempered",
+    "Gambeson": "Padded",
 }
 
 # Equipment tier ids -> printed label. Separate map because tiers are a closed

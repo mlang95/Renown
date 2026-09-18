@@ -48,11 +48,11 @@ set TAG=
 
 REM ============================ POOL SETTINGS =================================
 set MPC_MIN=1
-set MPC_MAX=11
+set MPC_MAX=7
 set RUNS=100
 REM BALANCED=1 -> balanced_validation_pool ; BALANCED=0 -> archetype_pool
 set BALANCED=0
-set PER_CELL=150
+set PER_CELL=100
 set STRATIFY=250
 set BUDGET_METRIC=mpc
 

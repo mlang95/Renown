@@ -106,7 +106,7 @@ def describe():
 # ── Additional printed thresholds (data-side defaults, engine-visible) ───────
 PARRY_BASE    = _knob("PARRY_BASE", 8)    # base Parry target
 RECOVER_BASE  = _knob("RECOVER_BASE", 8) # worst rung of the Recover ladder
-DEADLY_AP     = _knob("DEADLY_AP", 3)     # additional AP on a Focused Deadly strike
+DEADLY_AP     = _knob("DEADLY_AP", 5)     # additional AP on a Focused Deadly strike
 def _env_str(name, default):
     raw = os.environ.get(name)
     return default if raw is None or str(raw).strip() == "" else str(raw).strip()

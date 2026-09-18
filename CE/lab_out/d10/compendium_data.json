@@ -4,8 +4,8 @@
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
   "2H": "Cannot use a Shield.",
-  "Deadly": "On a Focused Strike: that strike's AP is increased by 3, and the defender may Parry or Recover only with a Focused roll.",
-  "Unstoppable": "-2 to the defender's Parry roll (i.e. +2 to the Parry target, to a maximum of 10+).",
+  "Deadly": "On a Focused Strike: that strike's AP is increased by 5, and the defender may Parry or Recover only with a Focused roll.",
+  "Unstoppable": "-2 to the defender's Parry roll, to a maximum of 10+).",
   "Cleave": "On a Focused Strike: roll one extra Strike die at your modified to-Strike.",
   "Poison": "When the Defender receives a Strike and rolls a Focused Save, it fails; the resulting wound may only be Recovered with a Focused Recover.",
   "Nimble": "Gain +1 Initiative in the first Skirmish of each Battle.",
@@ -13,7 +13,7 @@
   "Destroy Shield": "On a Focused Strike: the target loses its Shield attributes for the rest of the Battle.",
   "Blunder": "At Initiative -2, your to-Strike is set to 10+, before other negative modifiers.",
   "One-Shot": "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard.",
-  "Parry": "While not Fatigued, roll a D10 to attempt to Parry a Strike before the Save. On a 8+, the Strike is Parried.",
+  "Parry": "While not Fatigued, roll a D10 to attempt to Parry a Strike before an Armor Save. On a 8+ (Improved by Improved Parry), the Strike is Parried and has no further effect.",
   "Riposte": "While not Fatigued, if you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
   "Awkward": "While equipped with this weapon during a skirmish, you cannot Parry, and so cannot Riposte.",
   "Recover": "While not Fatigued, if a to-Save roll fails, roll a D10 & compare it to your Recover value: a result greater than or equal to your Recover value recovers the retinue.",
@@ -136,11 +136,11 @@
     ],
     [
      "Deadly",
-     "On a Focused Strike: that strike's AP is increased by 3, and the defender may Parry or Recover only with a Focused roll."
+     "On a Focused Strike: that strike's AP is increased by 5, and the defender may Parry or Recover only with a Focused roll."
     ],
     [
      "Unstoppable",
-     "-2 to the defender's Parry roll (i.e. +2 to the Parry target, to a maximum of 10+)."
+     "-2 to the defender's Parry roll, to a maximum of 10+)."
     ],
     [
      "Cleave",
@@ -168,7 +168,7 @@
     ],
     [
      "Parry",
-     "While not Fatigued, roll a D10 to attempt to Parry a Strike before the Save. On a 8+, the Strike is Parried."
+     "While not Fatigued, roll a D10 to attempt to Parry a Strike before an Armor Save. On a 8+ (Improved by Improved Parry), the Strike is Parried and has no further effect."
     ],
     [
      "Riposte",
@@ -970,8 +970,8 @@
      "Saddlery",
      "",
      "Arable Land + Animal Husbandry + Stable",
-     "**Efficient Stable**; +200, **Natural**",
-     "**Upkeep -200**; Speed +1"
+     "**Efficient Stable**; +500, **Natural**",
+     "**Upkeep -500**; Speed +1"
     ],
     [
      "Vineyard",
@@ -1081,14 +1081,14 @@
      "",
      "Mine + Merchant Quarter + Furnace",
      "**Efficient Gilded Foundry**; +200; Craft +2",
-     "+500; **Influence +2** to Cunning Envoys targeting this player"
+     "+500; **Influence +1** to Cunning Envoys targeting this player"
     ],
     [
      "Armory",
      "Rising Industry",
      "Tannery + Blacksmith",
      "**Efficient Tannery**; **Unlock Wrought** armor & shield",
-     "**Upkeep -200**; Craft +1"
+     "**Upkeep -300**; Craft +1"
     ],
     [
      "Master Workshop",
@@ -1143,7 +1143,7 @@
      "Cidery",
      "Established Industry",
      "Orchard + Joinery + Inn",
-     "**Efficient Orchard**; **Faith +1**, +300",
+     "**Efficient Orchard**; **Faith +1**, +200",
      "+300; Craft +1"
     ],
     [
@@ -1541,7 +1541,7 @@
      "Forge",
      "Established Industry",
      "Blacksmith",
-     "**Efficient Blacksmith**; Craft +1",
+     "**Efficient Blacksmith**; Craft +2",
      "Unlocks **Forged** Tier"
     ],
     [
@@ -1553,7 +1553,7 @@
     ],
     [
      "Cipher Chamber",
-     "Sovereign Cunning",
+     "Established Cunning",
      "University + Courier Network",
      "**Efficient University**; Once/turn when a player Sends an Envoy: that player must declare the specific Action they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action.",
      "Once/turn: select any active **Timer** you did not select last turn; increase it by 2."
@@ -1575,7 +1575,7 @@
      "Sovereign Prowess",
      "Grand Tournament + Tiltyard",
      "**Efficient Tiltyard**; Armies gain **Immune Strained**. Improve Parry by +1",
-     "Gain +1 Endurance. Deadly, & Cleave also trigger Focused Strikes on a natural 8+."
+     "Gain +1 to Strike. Deadly, & Cleave also trigger Focused Strikes on a natural 8+."
     ],
     [
      "Imperial Palace",
@@ -1644,7 +1644,7 @@
      "Aristocratic Court",
      "Sovereign Cunning",
      "Money Lending + Forgery Workshop + Court Artists",
-     "**Efficient Court Artists**; Each Empire Phase, Extort 1000 from each non-allied player with a lower Cunning value.",
+     "**Efficient Court Artists**; Each Empire Phase, Extort 500 from each non-allied player with a lower Cunning value.",
      "Your Vote counts as 2 votes toward Domain selection during the Council Phase."
     ],
     [
@@ -1932,12 +1932,12 @@
   "Armor": [
    [
     "Cloth",
-    "Crude",
+    null,
     "10+",
     "—"
    ],
    [
-    "Gambeson",
+    "Padded",
     "Crude",
     "9+",
     "—"
