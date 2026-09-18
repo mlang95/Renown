@@ -1,6 +1,8 @@
 <!doctype html><html><head><meta charset="utf-8">
+<script>(function(){try{var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
 <title>Infrastructure — Renown</title><link rel="stylesheet" href="wiki.css"></head><body>
 <input id="q" placeholder="Search…" autocomplete="off"><div id="results"></div>
+<button id="theme" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
 <div class="wrap"><nav><div class="navhead">Rules</div>
 <a href='turn-sequence.html'>★ Turn Sequence</a>
 <a href='rules-renown.html'>Renown</a>
@@ -94,4 +96,5 @@
 <p><a class="term" href="glossary.html#build">Build</a> times, in turns, by what you&#x27;re building:</p>
 <p><em>[unknown table: build_timers]</em></p><div class="pagefoot"><div class='related'><span class='rl'>Related:</span> <a class='term' href='glossary.html'>Glossary</a> <a class='term' href='factions.html'>Factions</a> <a class='term' href='type-monument.html'>Monument</a> <a class='term' href='type-civic.html'>Civic</a> <a class='term' href='rules-cunning-actions.html'>Cunning Actions</a> <a class='term' href='type-power.html'>Power</a></div><div class='prevnext'><a class='pn prev' href='rules-settlements.html'>← Settlements</a><a class='pn next' href='rules-territory-terrain.html'>Territory &amp; Terrain →</a></div></div></main></div>
 <script src="search.js"></script>
+<script>(function(){var r=document.documentElement,tb=document.getElementById('theme');function s(t){r.setAttribute('data-theme',t);try{localStorage.setItem('theme',t)}catch(e){}}if(tb)tb.addEventListener('click',function(){s(r.getAttribute('data-theme')==='dark'?'light':'dark')});})();</script>
 <div class="versionstamp">Renown v0.4.9.9-d10</div></body></html>

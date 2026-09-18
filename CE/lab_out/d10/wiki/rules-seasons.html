@@ -1,6 +1,8 @@
 <!doctype html><html><head><meta charset="utf-8">
+<script>(function(){try{var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
 <title>Seasons — Renown</title><link rel="stylesheet" href="wiki.css"></head><body>
 <input id="q" placeholder="Search…" autocomplete="off"><div id="results"></div>
+<button id="theme" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
 <div class="wrap"><nav><div class="navhead">Rules</div>
 <a href='turn-sequence.html'>★ Turn Sequence</a>
 <a href='rules-renown.html'>Renown</a>
@@ -86,4 +88,5 @@
 <p>The <a class="term" href="glossary.html#realm">Realm</a> cycles through four Seasons. The current Season&#x27;s effect is applied during the Empire Phase, and the Rest Phase advances the Season by one.</p>
 <table class='pursuits'><thead><tr><th>Season</th><th>Name</th><th>Effect</th></tr></thead><tbody><tr><td>Winter</td><td>Freezing</td><td>All Armies gain <a class="term" href="glossary.html#speed">Speed</a> -1; Sieges do not increment. Tax income collected.</td></tr><tr><td>Spring</td><td>Planting</td><td>No <a class="term" href="glossary.html#host">Host</a>, <a class="term" href="glossary.html#bandit">Bandit</a> Mechanics, Trade Income, <a class="term" href="glossary.html#council-phase">Council Phase</a>, or <a class="term" href="glossary.html#diplomacy">Diplomacy</a> Actions. Gain +1 <a class="term" href="glossary.html#envoy">Envoy</a>. <a class="term" href="glossary.html#bandit">Bandit</a> Camps Spawn.</td></tr><tr><td>Summer</td><td>Campaigning</td><td>All Armies gain <a class="term" href="glossary.html#speed">Speed</a> +2</td></tr><tr><td>Fall</td><td>Harvest</td><td>Husbandry Mastery Effects are doubled.</td></tr></tbody></table><div class="pagefoot"><div class='related'><span class='rl'>Related:</span> <a class='term' href='glossary.html'>Glossary</a> <a class='term' href='rules-the-turn.html'>The Turn</a> <a class='term' href='turn-sequence.html'>Turn Sequence</a> <a class='term' href='rules-introduction.html'>Introduction</a> <a class='term' href='factions.html'>Factions</a> <a class='term' href='type-monument.html'>Monument</a></div><div class='prevnext'><a class='pn prev' href='rules-action-mechanics.html'>← Action Mechanics</a><a class='pn next' href='rules-influence.html'>Influence →</a></div></div></main></div>
 <script src="search.js"></script>
+<script>(function(){var r=document.documentElement,tb=document.getElementById('theme');function s(t){r.setAttribute('data-theme',t);try{localStorage.setItem('theme',t)}catch(e){}}if(tb)tb.addEventListener('click',function(){s(r.getAttribute('data-theme')==='dark'?'light':'dark')});})();</script>
 <div class="versionstamp">Renown v0.4.9.9-d10</div></body></html>

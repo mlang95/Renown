@@ -1,6 +1,8 @@
 <!doctype html><html><head><meta charset="utf-8">
+<script>(function(){try{var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
 <title>Renown — Renown</title><link rel="stylesheet" href="wiki.css"></head><body>
 <input id="q" placeholder="Search…" autocomplete="off"><div id="results"></div>
+<button id="theme" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
 <div class="wrap"><nav><div class="navhead">Rules</div>
 <a href='turn-sequence.html'>★ Turn Sequence</a>
 <a href='rules-renown.html' class=active>Renown</a>
@@ -86,4 +88,5 @@
 <p>d10 | <a class="term" href="glossary.html#focused">Focused</a> 10+ | <a class="term" href="glossary.html#parry">Parry</a> 8+ | <a class="term" href="glossary.html#recover">Recover</a> 8+ | src defaults</p>
 <p> A turn-based strategy game of empire building, <a class="term" href="glossary.html#diplomacy">diplomacy</a>, and <a class="term" href="glossary.html#domain">domain</a> mastery.</p><div class="pagefoot"><div class='related'><span class='rl'>Related:</span> <a class='term' href='glossary.html'>Glossary</a> <a class='term' href='type-monument.html'>Monument</a> <a class='term' href='type-power.html'>Power</a> <a class='term' href='type-civic.html'>Civic</a> <a class='term' href='rules-battle-phase.html'>Battle Phase</a> <a class='term' href='rules-public-order.html'>Public Order</a></div><div class='prevnext'><a class='pn prev' href='turn-sequence.html'>← Turn Sequence</a><a class='pn next' href='rules-introduction.html'>Introduction →</a></div></div></main></div>
 <script src="search.js"></script>
+<script>(function(){var r=document.documentElement,tb=document.getElementById('theme');function s(t){r.setAttribute('data-theme',t);try{localStorage.setItem('theme',t)}catch(e){}}if(tb)tb.addEventListener('click',function(){s(r.getAttribute('data-theme')==='dark'?'light':'dark')});})();</script>
 <div class="versionstamp">Renown v0.4.9.9-d10</div></body></html>

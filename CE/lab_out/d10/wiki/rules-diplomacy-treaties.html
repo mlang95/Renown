@@ -1,6 +1,8 @@
 <!doctype html><html><head><meta charset="utf-8">
+<script>(function(){try{var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
 <title>Diplomacy &amp; Treaties — Renown</title><link rel="stylesheet" href="wiki.css"></head><body>
 <input id="q" placeholder="Search…" autocomplete="off"><div id="results"></div>
+<button id="theme" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
 <div class="wrap"><nav><div class="navhead">Rules</div>
 <a href='turn-sequence.html'>★ Turn Sequence</a>
 <a href='rules-renown.html'>Renown</a>
@@ -108,4 +110,5 @@
 <p><em>Note (mutual exchange, each Empire Phase): if both players agree, either player may exchange up to 5000 gold, exchange ownership of <a class="term" href="rules-settlements.html">Settlements</a>, or transfer forces (so long as the Armies are <a class="term" href="glossary.html#adjacent">adjacent</a> to each other, or an Army is <a class="term" href="glossary.html#adjacent">adjacent</a> to a Garrison), in either direction.</em></p>
 <p><em>Note: if the <a class="term" href="glossary.html#suzerain">Suzerain</a> is vassalized, both the original <a class="term" href="glossary.html#vassal">Vassal</a> and the <a class="term" href="glossary.html#suzerain">Suzerain</a> become vassals of the new <a class="term" href="glossary.html#suzerain">Suzerain</a>, and the new <a class="term" href="glossary.html#suzerain">Suzerain</a> gains the benefits of each <a class="term" href="glossary.html#vassal">Vassal</a>.</em></p><div class="pagefoot"><div class='related'><span class='rl'>Related:</span> <a class='term' href='glossary.html'>Glossary</a> <a class='term' href='rules-diplomacy-actions.html'>Diplomacy Actions</a> <a class='term' href='factions.html'>Factions</a> <a class='term' href='rules-settlements.html'>Settlements</a> <a class='term' href='rules-piety-actions.html'>Piety Actions</a> <a class='term' href='rules-prowess-actions.html'>Prowess Actions</a></div><div class='prevnext'><a class='pn prev' href='rules-domains-standings.html'>← Domains &amp; Standings</a><a class='pn next' href='rules-settlements.html'>Settlements →</a></div></div></main></div>
 <script src="search.js"></script>
+<script>(function(){var r=document.documentElement,tb=document.getElementById('theme');function s(t){r.setAttribute('data-theme',t);try{localStorage.setItem('theme',t)}catch(e){}}if(tb)tb.addEventListener('click',function(){s(r.getAttribute('data-theme')==='dark'?'light':'dark')});})();</script>
 <div class="versionstamp">Renown v0.4.9.9-d10</div></body></html>

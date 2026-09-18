@@ -1,6 +1,8 @@
 <!doctype html><html><head><meta charset="utf-8">
+<script>(function(){try{var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
 <title>Map Generator — Renown</title><link rel="stylesheet" href="wiki.css"></head><body>
 <input id="q" placeholder="Search…" autocomplete="off"><div id="results"></div>
+<button id="theme" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
 <div class="wrap"><nav><div class="navhead">Rules</div>
 <a href='turn-sequence.html'>★ Turn Sequence</a>
 <a href='rules-renown.html'>Renown</a>
@@ -84,4 +86,5 @@
 <a href='lore-ages.html'>The Timeline</a>
 <a href='lore-darkness.html'>Age of Darkness</a></nav><main><h1>Map Generator</h1><p>Procedural start-map generator. Rolls terrain, rivers, lakes and resources the same way <code>mapgen.py</code> does for the print-and-tape board. <a class='term' href='mapgen/renown-maps.html' target='_blank'>Open full screen ↗</a></p><iframe class='mapframe' src='mapgen/renown-maps.html' loading='lazy' title='Renown map generator'></iframe></main></div>
 <script src="search.js"></script>
+<script>(function(){var r=document.documentElement,tb=document.getElementById('theme');function s(t){r.setAttribute('data-theme',t);try{localStorage.setItem('theme',t)}catch(e){}}if(tb)tb.addEventListener('click',function(){s(r.getAttribute('data-theme')==='dark'?'light':'dark')});})();</script>
 <div class="versionstamp">Renown v0.4.9.9-d10</div></body></html>
