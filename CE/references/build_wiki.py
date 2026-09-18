@@ -16,7 +16,7 @@ Usage: python build_wiki.py [RULES.md] [out_dir]
 """
 import sys, os, re, html, json
 sys.path.insert(0, ".")
-import renown_data as rd
+import renown_data_d10 as rd
 import wiki_markers as wm
 _VERSION = str(getattr(rd, "VERSION", ""))
 
@@ -147,7 +147,11 @@ def tier_of(u):
 # ── linkable terms: pursuits link to their TYPE page (anchored), glossary to glossary ──
 TERMS = {}
 for name, d in rd.NODES.items():
-    TERMS[name] = (f"type-{slug(d.get('type','other'))}.html", slug(name))
+    _u = f"type-{slug(d.get('type','other'))}.html"
+    TERMS[name] = (_u, slug(name))
+    _lbl = rd.display(name)
+    if _lbl != name:
+        TERMS.setdefault(_lbl, (_u, slug(name)))
 for term in rd.GLOSSARY:
     TERMS.setdefault(term, ("glossary.html", slug(term)))
 FACTIONS = getattr(rd, "FACTIONS", {})
@@ -446,7 +450,7 @@ def stat_table(names,current):
             v=d.get(k,""); v=rd.display_list(v) if isinstance(v,list) else rd.display_text(v or "")
             cells.append(f"<td>{autolink(md_inline(str(v)),current) if v else '<span class=dim>—</span>'}</td>")
         mon=" ◆" if d.get("monument") else ""
-        rows.append(f"<tr id='{slug(n)}'><td class='nm'>{html.escape(n)}{mon}</td>"+"".join(cells)+"</tr>")
+        rows.append(f"<tr id='{slug(n)}'><td class='nm'>{html.escape(rd.display(n))}{mon}</td>"+"".join(cells)+"</tr>")
     return f"<table class='pursuits'><thead><tr><th>Pursuit</th>{head}</tr></thead><tbody>{''.join(rows)}</tbody></table>"
 for t in TYPE_ORDER:
     if t not in by_type: continue
@@ -475,7 +479,7 @@ def index_page(title,filt,u):
         if t not in groups: continue
         b.append(f"<h2>{t}</h2><ul class='cols'>")
         for n in sorted(groups[t]):
-            b.append(f"<li><a class='term' href='type-{slug(t)}.html#{slug(n)}'>{html.escape(n)}</a> <span class='gate'>{html.escape(rd.NODES[n].get('unlock','') or '')}</span></li>")
+            b.append(f"<li><a class='term' href='type-{slug(t)}.html#{slug(n)}'>{html.escape(rd.display(n))}</a> <span class='gate'>{html.escape(rd.display_text(rd.NODES[n].get('unlock','') or ''))}</span></li>")
         b.append("</ul>")
     open(os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page(title,"".join(b),u))
 for d in DOMAINS:
@@ -807,8 +811,8 @@ eq=["<h1>Equipment</h1>"]
 if hasattr(rd,"RETINUES"):
     eq.append("<h2>Retinues</h2>")
     eq.append(_grid(["Retinue","Cost","To-Hit","Endurance","Morale","Speed","Max Size"],
-        [[n,d.get("cost"),f"{d.get('to_hit')}+",d.get("endurance"),f"{d.get('shaking')}+",d.get("speed","—"),d.get("max_size","—")] for n,d in rd.RETINUES.items()], u))
-def _wrow(n,d): return [n, d.get("ap"), (f"+{d['init']}" if d.get('init',0)>0 else d.get('init')), d.get("tier"), ", ".join(d.get("tags",[]))]
+        [[rd.display(n),d.get("cost"),f"{d.get('to_hit')}+",d.get("endurance"),f"{d.get('shaking')}+",d.get("speed","—"),d.get("max_size","—")] for n,d in rd.RETINUES.items()], u))
+def _wrow(n,d): return [rd.display(n), d.get("ap"), (f"+{d['init']}" if d.get('init',0)>0 else d.get('init')), rd.display_tier(d.get("tier")), ", ".join(d.get("tags",[]))]
 if hasattr(rd,"WEAPONS"):
     eq.append("<h2>Melee Weapons</h2>")
     eq.append(_grid(["Weapon","AP","Init","Tier","Keywords"], [_wrow(n,d) for n,d in rd.WEAPONS.items()], u))
@@ -818,10 +822,10 @@ if hasattr(rd,"RANGED"):
 if hasattr(rd,"SHIELDS"):
     eq.append("<h2>Shields</h2>")
     eq.append(_grid(["Shield","Save Bonus","Init","Tier","Keywords"],
-        [[(n or "None"), f"+{d.get('save_bonus')}", d.get("init"), d.get("tier") or "—", ", ".join(d.get("tags",[]))] for n,d in rd.SHIELDS.items()], u))
+        [[(rd.display(n) if n else "None"), f"+{d.get('save_bonus')}", d.get("init"), rd.display_tier(d.get("tier")) or "—", ", ".join(d.get("tags",[]))] for n,d in rd.SHIELDS.items()], u))
 if hasattr(rd,"ARMORS"):
     eq.append("<h2>Armor</h2>")
-    eq.append(_grid(["Armor","Save","Tier","Keywords"], [[n,f"{d.get('save')}+",d.get("tier"),", ".join(d.get("tags",[]))] for n,d in rd.ARMORS.items()], u))
+    eq.append(_grid(["Armor","Save","Tier","Keywords"], [[rd.display(n),f"{d.get('save')}+",rd.display_tier(d.get("tier")),", ".join(d.get("tags",[]))] for n,d in rd.ARMORS.items()], u))
 open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Equipment","".join(eq),u))
 search_index.append({"title":"Equipment","url":u,"text":"equipment retinues weapons ranged shields armor stats"})
 
@@ -859,7 +863,7 @@ if hasattr(rd,"BANDIT_GROWTH_PER_ERA"):
     rt.append(_kv_table([("Camp starting size", getattr(rd,"BANDIT_CAMP_START","")),("Becomes Army at", getattr(rd,"BANDIT_ARMY_THRESHOLD",""))]))
 if hasattr(rd,"TIER_UNLOCK"):
     rt.append("<h2>Equipment Tier Ladder</h2><p>Each tier is unlocked by the named Industry node.</p>")
-    rt.append(_grid(["Tier","Unlocked by"], [[t,(rd.TIER_UNLOCK.get(t) or "Starting")] for t in getattr(rd,"TIERS",list(rd.TIER_UNLOCK))], u))
+    rt.append(_grid(["Tier","Unlocked by"], [[rd.display_tier(t),(rd.display_text(rd.TIER_UNLOCK.get(t)) if rd.TIER_UNLOCK.get(t) else "Starting")] for t in getattr(rd,"TIERS",list(rd.TIER_UNLOCK))], u))
 if hasattr(rd,"STANDING_EFFECTS"):
     rt.append("<h2>Combat Standing Effects</h2><p>Battlefield effects granted by Domain Standing (Escalation).</p>")
     se_rows=[[dom, tier, eff] for (dom,tier),eff in rd.STANDING_EFFECTS.items()]
