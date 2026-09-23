@@ -1,90 +1,19 @@
 <!doctype html><html><head><meta charset="utf-8">
-<script>(function(){try{var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>(function(){try{var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);if(localStorage.getItem('gamemode')==='1')document.documentElement.classList.add('game-pending');}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
 <title>The World of Vaelohk — Renown</title><link rel="stylesheet" href="wiki.css"></head><body>
 <input id="q" placeholder="Search…" autocomplete="off"><div id="results"></div>
+<button id="navtoggle" aria-label="Menu" onclick="document.body.classList.toggle('nav-open')">☰</button>
+<div class="topbtns">
+<button id="gamemode" type="button" aria-label="Game mode" title="Game mode: rules + reference only">♟</button>
 <button id="theme" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
-<div class="wrap"><nav><div class="navhead">Rules</div>
-<a href='turn-sequence.html'>★ Turn Sequence</a>
-<a href='rules-renown.html'>Renown</a>
-<a href='rules-introduction.html'>Introduction</a>
-<a href='rules-reading-these-rules.html'>Reading These Rules</a>
-<a href='rules-core-principles.html'>Core Principles</a>
-<a href='rules-the-turn.html'>The Turn</a>
-<a href='rules-table-setup.html'>Table Setup</a>
-<a href='rules-player-setup.html'>Player Setup</a>
-<a href='rules-action-mechanics.html'>Action Mechanics</a>
-<a href='rules-seasons.html'>Seasons</a>
-<a href='rules-influence.html'>Influence</a>
-<a href='rules-prowess-actions.html'>Prowess Actions</a>
-<a href='rules-cunning-actions.html'>Cunning Actions</a>
-<a href='rules-piety-actions.html'>Piety Actions</a>
-<a href='rules-industry-actions.html'>Industry Actions</a>
-<a href='rules-diplomacy-actions.html'>Diplomacy Actions</a>
-<a href='rules-domains-standings.html'>Domains &amp; Standings</a>
-<a href='rules-diplomacy-treaties.html'>Diplomacy &amp; Treaties</a>
-<a href='rules-settlements.html'>Settlements</a>
-<a href='rules-infrastructure.html'>Infrastructure</a>
-<a href='rules-territory-terrain.html'>Territory &amp; Terrain</a>
-<a href='rules-public-order.html'>Public Order</a>
-<a href='rules-treasury-upkeep.html'>Treasury &amp; Upkeep</a>
-<a href='rules-trade-income.html'>Trade &amp; Income</a>
-<a href='rules-armies.html'>Armies</a>
-<a href='rules-battle-phase.html'>Battle Phase</a>
-<a href='rules-siege-warfare.html'>Siege Warfare</a>
-<a href='rules-bandits.html'>Bandits</a>
-<div class="navhead">Pursuits</div>
-<a href='pursuits.html'>Overview</a>
-<a href='type-raw-materials.html'>Raw Materials</a>
-<a href='type-husbandry.html'>Husbandry</a>
-<a href='type-energy.html'>Energy</a>
-<a href='type-craft.html'>Craft</a>
-<a href='type-power.html'>Power</a>
-<a href='type-civic.html'>Civic</a>
-<a href='type-secrecy.html'>Secrecy</a>
-<a href='type-monument.html'>Monument</a>
-<div class="navhead">Views</div>
-<a href='domain-industry.html'>Industry</a>
-<a href='domain-prowess.html'>Prowess</a>
-<a href='domain-cunning.html'>Cunning</a>
-<a href='domain-piety.html'>Piety</a>
-<a href='paths.html'>Build Paths</a>
-<div class="navhead">Reference</div>
-<a href='actions-ref.html'>Actions</a>
-<a href='envoy-outcomes-ref.html'>Envoy Outcomes</a>
-<a href='treaties-ref.html'>Treaties & Alliances</a>
-<a href='edicts-ref.html'>Edicts</a>
-<a href='economy-ref.html'>Economy</a>
-<a href='terrain-ref.html'>Terrain & Movement</a>
-<a href='bandits-ref.html'>Bandits</a>
-<a href='systems-ref.html'>Timers, Influence & PO</a>
-<a href='equipment-ref.html'>Equipment</a>
-<a href='keywords-ref.html'>Combat Keywords</a>
-<a href='infrastructure-ref.html'>Infrastructure</a>
-<a href='wonders-ref.html'>Wonders</a>
-<a href='settlements-ref.html'>Settlements</a>
-<a href='eras-ref.html'>Eras</a>
-<a href='public-order-ref.html'>Public Order</a>
-<a href='domain-board-ref.html'>Domain Board</a>
-<a href='seasons-ref.html'>Seasons</a>
-<a href='tactic-matrix-ref.html'>Tactic Matrix</a>
-<a href='reference-tables.html'>Reference Tables</a>
-<a href='glossary.html'>Glossary</a>
-<a href='factions.html'>Factions</a>
-<div class="navhead">Tools</div>
-<a href='maps.html'>Map Generator</a>
-<div class="navhead">Escalation</div>
-<a href='escalation.html'>Overview</a>
-<a href='escalation-rules.html'>Battle Rules</a>
-<a href='escalation-pursuits.html'>Combat Pursuits</a>
-<a href='tactic-matrix-ref.html'>Tactic Matrix</a>
-<a href='equipment-ref.html'>Equipment</a>
-<a href='keywords-ref.html'>Combat Keywords</a>
-<div class="navhead">Lore</div>
-<a href='lore.html' class=active>Overview</a>
-<a href='lore-map.html'>The Map</a>
-<a href='lore-cultures.html'>The Fifteen</a>
-<a href='lore-ages.html'>The Timeline</a>
-<a href='lore-darkness.html'>Age of Darkness</a></nav><main><h1>The World of Vaelohk</h1><p>Before There is nothing tangible that remains of The Age of Darkness.</p><p>The True Word records only that it was… &amp; that the Old Gods brought Four Peoples into the four corners of the world.</p><p>Era Zero - The Great Fracturing Almost five thousand years ago, the Lands of Vaelohk fractured as the skies fell. In Year Zero, the Rampant Storms came raising water, carving rock, and forever shifting climates &amp; biomes. The geography of the world changed over the course of mere generations creating great upheaval and migrations <a class="term" href="glossary.html#within">within</a> the Four Peoples of the Old Gods thus ending The Age of Darkness.</p><p>To the Northwest, deep in the Coloured Mountains, an ancient people believed in the deity of plenty. These fertile lands granted great prosperity to its caretakers. Each family generation <a class="term" href="glossary.html#passed">passed</a> down ancient techniques, creating a lineage of craft. Then, as Blight from the Storms viciously spread beyond their control, The Trusti People were forced to migrate east to unknown terrain.</p><p>In the South-Western dunes, beneath the sands, <a class="term" href="glossary.html#within">within</a> the hard rock cut &amp; chiseled into underground catacombs, lived a people most cunning. Upholding the legend of their ancient history, they erected sunken buildings and customs-houses to sleep in to avoid the the dangerous heat of Clypso&#x27;s Wrath: the looming revenge of the demigod upon whom they cast doubt. That is, until the great floods came and never stopped. First the wells overflowed. Then so did the tunnels. The Issith of Clypso left their sunken catacombs to find the landscape changing into a lush forest and began to settle above ground.</p><p><a class="term" href="glossary.html#within">Within</a> the most south-eastern <a class="term" href="glossary.html#reach">reach</a>, now known as the Tomb of the Old Gods, was a pharisaical people: arrogant, legalistic, and vain. A civilization of worship and adoration, sculpting, carving, and erecting the world&#x27;s grandest cathedrals and tallest basilicas. Over time, their vanity grew, and with it came its laxity. Eventually, the Gods of Old disappeared from the lips of the pharisees, and in response, their names became sacrilege to merely mention, fearing the penance of their acknowledgment. The once pious Essels left their golden cities as ash rained from the sky. These people migrated across the <a class="term" href="lore-map.html#geo-sea-of-ash">Sea of Ash</a> into the boxed mountains they would name Lenaveron.</p><p>Sprawling the Northeast lands, lay the longest-reigning Empire in the world of old. A name so ancient that the land, the dynasty, and the monarch all shared it: Draggath. But The Rampant Storms seized all sanity; bringing famine and the kingdom to its knees. The once rich land <a class="term" href="glossary.html#within">within</a> the great empire&#x27;s <a class="term" href="glossary.html#reach">reach</a> turned to desert, badland, and bleak highland. The once splendent society of valour and honour, turned into civil war amongst its city-states, nomadic tribes, and powerful warbands.  Across all of Vaelohk and its people, The Great Fracturing ingrained an unceasing desperation of a return to glory. And so began the Era of <a class="term" href="glossary.html#renown">Renown</a>.</p><h3 class='wl-sub'>YOUR STORY GOES ANYWHERE IN IT</h3><dl class='wl-defs'><dt>WHERE ON THE MAP</dt><dd>Sets the neighbours, the terrain-mood, the hostilities available.</dd></dl><dl class='wl-defs'><dt>WHERE IN THE ~4,600 YEARS</dt><dd>Sets which Age&#x27;s conditions you play under: War&#x27;s chaos, Plenty&#x27;s cooperation, Tetramorph&#x27;s zealotry, Doubt&#x27;s paranoia, or <a class="term" href="glossary.html#renown">Renown</a>&#x27;s cold tension.</dd></dl><dl class='wl-defs'><dt>WHICH CULTURE YOU ALIGN</dt><dd>Sets your values, your enemies, your whole relationship to the board.</dd></dl><div class="pagefoot"><div class='related'><span class='rl'>Related:</span> <a class='term' href='lore-map.html'>The Map</a> <a class='term' href='glossary.html'>Glossary</a> <a class='term' href='rules-introduction.html'>Introduction</a> <a class='term' href='lore-cultures.html'>The Fifteen</a> <a class='term' href='lore-darkness.html'>The Age of Darkness</a> <a class='term' href='lore-ages.html'>The Timeline</a></div><div class='prevnext'><a class='pn prev' href='factions.html'>← Factions</a><a class='pn next' href='lore-map.html'>The Map →</a></div></div></main></div>
-<script src="search.js"></script>
-<script>(function(){var r=document.documentElement,tb=document.getElementById('theme');function s(t){r.setAttribute('data-theme',t);try{localStorage.setItem('theme',t)}catch(e){}}if(tb)tb.addEventListener('click',function(){s(r.getAttribute('data-theme')==='dark'?'light':'dark')});})();</script>
+</div>
+<div class="wrap"><nav><div class='navgroup' data-group='rules'><button type='button' class='navhead'>Rules<span class='chev'>›</span></button><div class='navlinks'><a href='turn-sequence.html'>★ Turn Sequence</a><a href='rules-renown.html'>Renown</a><a href='rules-introduction.html'>Introduction</a><a href='rules-reading-these-rules.html'>Reading These Rules</a><a href='rules-core-principles.html'>Core Principles</a><a href='rules-the-turn.html'>The Turn</a><a href='rules-table-setup.html'>Table Setup</a><a href='rules-player-setup.html'>Player Setup</a><a href='rules-action-mechanics.html'>Action Mechanics</a><a href='rules-seasons.html'>Seasons</a><a href='rules-influence.html'>Influence</a><a href='rules-prowess-actions.html'>Prowess Actions</a><a href='rules-cunning-actions.html'>Cunning Actions</a><a href='rules-piety-actions.html'>Piety Actions</a><a href='rules-industry-actions.html'>Industry Actions</a><a href='rules-diplomacy-actions.html'>Diplomacy Actions</a><a href='rules-domains-standings.html'>Domains &amp; Standings</a><a href='rules-diplomacy-treaties.html'>Diplomacy &amp; Treaties</a><a href='rules-settlements.html'>Settlements</a><a href='rules-infrastructure.html'>Infrastructure</a><a href='rules-territory-terrain.html'>Territory &amp; Terrain</a><a href='rules-public-order.html'>Public Order</a><a href='rules-treasury-upkeep.html'>Treasury &amp; Upkeep</a><a href='rules-trade-income.html'>Trade &amp; Income</a><a href='rules-armies.html'>Armies</a><a href='rules-battle-phase.html'>Battle Phase</a><a href='rules-siege-warfare.html'>Siege Warfare</a><a href='rules-bandits.html'>Bandits</a></div></div>
+<div class='navgroup' data-group='pursuits'><button type='button' class='navhead'>Pursuits<span class='chev'>›</span></button><div class='navlinks'><a href='pursuits.html'>Overview</a><a href='type-raw-materials.html'>Raw Materials</a><a href='type-husbandry.html'>Husbandry</a><a href='type-energy.html'>Energy</a><a href='type-craft.html'>Craft</a><a href='type-power.html'>Power</a><a href='type-civic.html'>Civic</a><a href='type-secrecy.html'>Secrecy</a><a href='type-monument.html'>Monument</a></div></div>
+<div class='navgroup' data-group='views'><button type='button' class='navhead'>Views<span class='chev'>›</span></button><div class='navlinks'><a href='domain-industry.html'>Industry</a><a href='domain-prowess.html'>Prowess</a><a href='domain-cunning.html'>Cunning</a><a href='domain-piety.html'>Piety</a><a href='paths.html'>Build Paths</a></div></div>
+<div class='navgroup' data-group='reference'><button type='button' class='navhead'>Reference<span class='chev'>›</span></button><div class='navlinks'><a href='actions-ref.html'>Actions</a><a href='envoy-outcomes-ref.html'>Envoy Outcomes</a><a href='treaties-ref.html'>Treaties & Alliances</a><a href='edicts-ref.html'>Edicts</a><a href='economy-ref.html'>Economy</a><a href='terrain-ref.html'>Terrain & Movement</a><a href='bandits-ref.html'>Bandits</a><a href='systems-ref.html'>Timers, Influence & PO</a><a href='equipment-ref.html'>Equipment</a><a href='keywords-ref.html'>Combat Keywords</a><a href='infrastructure-ref.html'>Infrastructure</a><a href='wonders-ref.html'>Wonders</a><a href='settlements-ref.html'>Settlements</a><a href='eras-ref.html'>Eras</a><a href='public-order-ref.html'>Public Order</a><a href='domain-board-ref.html'>Domain Board</a><a href='seasons-ref.html'>Seasons</a><a href='tactic-matrix-ref.html'>Tactic Matrix</a><a href='reference-tables.html'>Reference Tables</a><a href='glossary.html'>Glossary</a><a href='factions.html'>Factions</a></div></div>
+<div class='navgroup' data-group='tools'><button type='button' class='navhead'>Tools<span class='chev'>›</span></button><div class='navlinks'><a href='maps.html'>Map Generator</a></div></div>
+<div class='navgroup' data-group='escalation'><button type='button' class='navhead'>Escalation<span class='chev'>›</span></button><div class='navlinks'><a href='escalation.html'>Overview</a><a href='escalation-rules.html'>Battle Rules</a><a href='escalation-pursuits.html'>Combat Pursuits</a><a href='tactic-matrix-ref.html'>Tactic Matrix</a><a href='equipment-ref.html'>Equipment</a><a href='keywords-ref.html'>Combat Keywords</a></div></div>
+<div class='navgroup' data-group='lore'><button type='button' class='navhead'>Lore<span class='chev'>›</span></button><div class='navlinks'><a href='lore.html' class=active>Overview</a><a href='lore-map.html'>The Map</a><a href='lore-cultures.html'>The Fifteen</a><a href='lore-ages.html'>The Timeline</a><a href='lore-darkness.html'>Age of Darkness</a></div></div></nav><main><h1>The World of Vaelohk</h1><p>Before There is nothing tangible that remains of The Age of Darkness.</p><p>The True Word records only that it was… &amp; that the Old Gods brought Four Peoples into the four corners of the world.</p><p>Era Zero - The Great Fracturing Almost five thousand years ago, the Lands of Vaelohk fractured as the skies fell. In Year Zero, the Rampant Storms came raising water, carving rock, and forever shifting climates &amp; biomes. The geography of the world changed over the course of mere generations creating great upheaval and migrations <a class="term" href="glossary.html#within">within</a> the Four Peoples of the Old Gods thus ending The Age of Darkness.</p><p>To the Northwest, deep in the Coloured Mountains, an ancient people believed in the deity of plenty. These fertile lands granted great prosperity to its caretakers. Each family generation <a class="term" href="glossary.html#passed">passed</a> down ancient techniques, creating a lineage of craft. Then, as Blight from the Storms viciously spread beyond their control, The Trusti People were forced to migrate east to unknown terrain.</p><p>In the South-Western dunes, beneath the sands, <a class="term" href="glossary.html#within">within</a> the hard rock cut &amp; chiseled into underground catacombs, lived a people most cunning. Upholding the legend of their ancient history, they erected sunken buildings and customs-houses to sleep in to avoid the the dangerous heat of Clypso&#x27;s Wrath: the looming revenge of the demigod upon whom they cast doubt. That is, until the great floods came and never stopped. First the wells overflowed. Then so did the tunnels. The Issith of Clypso left their sunken catacombs to find the landscape changing into a lush forest and began to settle above ground.</p><p><a class="term" href="glossary.html#within">Within</a> the most south-eastern <a class="term" href="glossary.html#reach">reach</a>, now known as the Tomb of the Old Gods, was a pharisaical people: arrogant, legalistic, and vain. A civilization of worship and adoration, sculpting, carving, and erecting the world&#x27;s grandest cathedrals and tallest basilicas. Over time, their vanity grew, and with it came its laxity. Eventually, the Gods of Old disappeared from the lips of the pharisees, and in response, their names became sacrilege to merely mention, fearing the penance of their acknowledgment. The once pious Essels left their golden cities as ash rained from the sky. These people migrated across the <a class="term" href="lore-map.html#geo-sea-of-ash">Sea of Ash</a> into the boxed mountains they would name Lenaveron.</p><p>Sprawling the Northeast lands, lay the longest-reigning Empire in the world of old. A name so ancient that the land, the dynasty, and the monarch all shared it: Draggath. But The Rampant Storms seized all sanity; bringing famine and the kingdom to its knees. The once rich land <a class="term" href="glossary.html#within">within</a> the great empire&#x27;s <a class="term" href="glossary.html#reach">reach</a> turned to desert, badland, and bleak highland. The once splendent society of valour and honour, turned into civil war amongst its city-states, nomadic tribes, and powerful warbands.  Across all of Vaelohk and its people, The Great Fracturing ingrained an unceasing desperation of a return to glory. And so began the Era of <a class="term" href="glossary.html#renown">Renown</a>.</p><h3 class='wl-sub'>YOUR STORY GOES ANYWHERE IN IT</h3><dl class='wl-defs'><dt>WHERE ON THE MAP</dt><dd>Sets the neighbours, the terrain-mood, the hostilities available.</dd></dl><dl class='wl-defs'><dt>WHERE IN THE ~4,600 YEARS</dt><dd>Sets which Age&#x27;s conditions you play under: War&#x27;s chaos, Plenty&#x27;s cooperation, Tetramorph&#x27;s zealotry, Doubt&#x27;s paranoia, or <a class="term" href="glossary.html#renown">Renown</a>&#x27;s cold tension.</dd></dl><dl class='wl-defs'><dt>WHICH CULTURE YOU ALIGN</dt><dd>Sets your values, your enemies, your whole relationship to the board.</dd></dl><div class="pagefoot"><div class='related'><span class='rl'>Related:</span> <a class='term' href='lore-map.html'>The Map</a> <a class='term' href='glossary.html'>Glossary</a> <a class='term' href='rules-introduction.html'>Introduction</a> <a class='term' href='lore-cultures.html'>The Fifteen</a> <a class='term' href='lore-darkness.html'>The Age of Darkness</a> <a class='term' href='lore-ages.html'>The Timeline</a></div><div class='prevnext'><a class='pn prev' href='factions.html'>← Factions</a><a class='pn next' href='lore-map.html'>The Map →</a></div></div></main></div>
+<script src="search.js"></script><script src="ui.js"></script>
 <div class="versionstamp">Renown v0.4.9.9-d10</div></body></html>

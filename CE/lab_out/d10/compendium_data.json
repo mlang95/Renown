@@ -13,18 +13,18 @@
   "Destroy Shield": "On a Focused Strike: the target loses its Shield attributes for the rest of the Battle.",
   "Blunder": "At Initiative -2, your to-Strike is set to 10+, before other negative modifiers.",
   "One-Shot": "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard.",
-  "Parry": "While not Fatigued, roll a D10 to attempt to Parry a Strike before an Armor Save. On a 8+ (Improved by Improved Parry), the Strike is Parried and has no further effect.",
-  "Riposte": "While not Fatigued, if you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
+  "Parry": "Roll a D10 to attempt to Parry a Strike before an Armor Save. On a 8+ (Improved by Improved Parry), the Strike is Parried and has no further effect.",
+  "Riposte": "If you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
   "Awkward": "While equipped with this weapon during a skirmish, you cannot Parry, and so cannot Riposte.",
-  "Recover": "While not Fatigued, if a to-Save roll fails, roll a D10 & compare it to your Recover value: a result greater than or equal to your Recover value recovers the retinue.",
+  "Recover": "If a to-Save roll fails, roll a D10 & compare it to your Recover value: a result greater than or equal to your Recover value recovers the retinue.",
   "Serrated": "A cumulative -2 penalty to the defender's Recover roll.",
   "Planishing": "A Focused Save succeeds, regardless of AP.",
-  "Fatigue Token": "Each token is -2 to your Strike (to a maximum of 10+) and Morale -2 (uncapped); if your modified Morale is ever 11+, your army Routs. Tokens stack. While Fatigued, retinues cannot Parry or Recover.",
+  "Fatigue Token": "Each token reduces Morale  by 2 (uncapped); if your modified Morale is ever 11+, your army Routs. Tokens stack.",
   "Shielded": "A cumulative -1 penalty to the Strike roll (to a maximum of 10+). Sources: a shield's -1 to Strike.",
   "Negate Planishing": "Ignores Planishing: this weapon's AP can reduce the target's Save beyond 10+ (to auto-fail).",
   "Negate Riposte": "The target's Parry can never Riposte this weapon's Strikes (a natural 10 Parry still cancels the Strike, but no counter-Strike follows).",
   "Dual Wield": "A failed Strike is rerolled once; the rerolled Strike can be Focused. Dual Wield confers Two-Handed. You cannot reroll successful Strikes.",
-  "Florentine": "Only active while Dual Wielding. Even while Fatigued, a Focused Parry succeeds. This alone does not enable Riposte while Fatigued.",
+  "Florentine": "Only active while Dual Wielding.",
   "Immune [keyword]": "Cancels that keyword as it applies to you (e.g. Immune Unwieldy, Strain, Destroy Shield).",
   "AP": "Armor Penetration — a weapon's (negative) modifier to the defender's Save roll; the more negative, the harder to save.",
   "Blocked": "-1 Initiative in the first Skirmish (negated by Immune Blocked).",
@@ -36,9 +36,9 @@
   "Casualty": "A retinue removed from the field — from an unsaved Strike or a failed Panic or Break check.",
   "Field": "Your retinues in play — front line (up to 10) plus reserve (up to 5). Casualties leave the field at once, lowering its count.",
   "Endurance": "A side's stamina. Each side that fights loses 1 per Skirmish; at 0 it becomes Fatigued.",
-  "Fatigued": "A side at 0 Endurance. Each Skirmish its field takes a Break check, then it gains a Fatigue token. Fatigued Armies cannot Parry, Riposte, or Recover",
-  "Break check": "Taken by each Fatigued side's field every Skirmish, just before it gains its Fatigue token. Roll Morale (up to 5 dice, modified by Fatigue tokens); failures are casualties, but a Break check never triggers a Panic check. Unbreakable auto-passes.",
-  "Panic check": "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish, after it Strikes back. Roll Morale (up to 5 dice); Immune Panic auto-passes.",
+  "Fatigued": "A side at 0 Endurance. Each Skirmish its field takes a Break check, then it gains a Fatigue token.",
+  "Break check": "Taken by each Fatigued side's field every Skirmish, just before it gains its Fatigue token. Roll Morale (5 dice, modified by Fatigue tokens); failures are casualties, but a Break check never triggers a Panic check. Unbreakable auto-passes.",
+  "Panic check": "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish, after it Strikes back. Roll Morale (5 dice); Immune Panic auto-passes.",
   "Morale": "How steady a retinue is when tested (lower is steadier; see the retinue table). Break and Panic checks roll it: a D10 per retinue in the field, up to 5 dice, each must meet its modified value; failures are casualties. If the modified value is ever 11+, the army Routs.",
   "Rout": "The army breaks and leaves the Battle (you lose it). Whenever an army's modified Morale value reaches 11+ or more, it Routs automatically.",
   "Fall Back": "A controlled retreat that ends the Battle with at least one retinue left — a partial success.",
@@ -168,15 +168,15 @@
     ],
     [
      "Parry",
-     "While not Fatigued, roll a D10 to attempt to Parry a Strike before an Armor Save. On a 8+ (Improved by Improved Parry), the Strike is Parried and has no further effect."
+     "Roll a D10 to attempt to Parry a Strike before an Armor Save. On a 8+ (Improved by Improved Parry), the Strike is Parried and has no further effect."
     ],
     [
      "Riposte",
-     "While not Fatigued, if you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte."
+     "If you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte."
     ],
     [
      "Recover",
-     "While not Fatigued, if a to-Save roll fails, roll a D10 & compare it to your Recover value: a result greater than or equal to your Recover value recovers the retinue."
+     "If a to-Save roll fails, roll a D10 & compare it to your Recover value: a result greater than or equal to your Recover value recovers the retinue."
     ],
     [
      "Serrated",
@@ -201,7 +201,7 @@
     ],
     [
      "Fatigue Token",
-     "Each token is -2 to your Strike (to a maximum of 10+) and Morale -2 (uncapped); if your modified Morale is ever 11+, your army Routs. Tokens stack. While Fatigued, retinues cannot Parry or Recover."
+     "Each token reduces Morale  by 2 (uncapped); if your modified Morale is ever 11+, your army Routs. Tokens stack."
     ],
     [
      "Blocked",
@@ -259,15 +259,15 @@
     ],
     [
      "Fatigued",
-     "A side at 0 Endurance. Each Skirmish its field takes a Break check, then it gains a Fatigue token. Fatigued Armies cannot Parry, Riposte, or Recover"
+     "A side at 0 Endurance. Each Skirmish its field takes a Break check, then it gains a Fatigue token."
     ],
     [
      "Break check",
-     "Taken by each Fatigued side's field every Skirmish, just before it gains its Fatigue token. Roll Morale (up to 5 dice, modified by Fatigue tokens); failures are casualties, but a Break check never triggers a Panic check. Unbreakable auto-passes."
+     "Taken by each Fatigued side's field every Skirmish, just before it gains its Fatigue token. Roll Morale (5 dice, modified by Fatigue tokens); failures are casualties, but a Break check never triggers a Panic check. Unbreakable auto-passes."
     ],
     [
      "Panic check",
-     "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish, after it Strikes back. Roll Morale (up to 5 dice); Immune Panic auto-passes."
+     "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish, after it Strikes back. Roll Morale (5 dice); Immune Panic auto-passes."
     ],
     [
      "Morale",
@@ -551,7 +551,7 @@
     ],
     [
      "Florentine",
-     "Only active while Dual Wielding. Even while Fatigued, a Focused Parry succeeds. This alone does not enable Riposte while Fatigued."
+     "Only active while Dual Wielding."
     ],
     [
      "Host",
@@ -1479,7 +1479,7 @@
      "Established Piety",
      "Apothecary + Infirmary",
      "**Efficient Infirmary**; **Recover** improved by +1",
-     "Enduring: while Fatigued, your Recover rolls can't be reduced beyond 10+."
+     "Enduring: Successful Recovered rolls do not count towards the panic check threshold."
     ],
     [
      "University",
@@ -1549,7 +1549,7 @@
      "Established Prowess",
      "Fletchery + Castle Yard",
      "Armies may be Equipped with a second weapon (a Ranged and a Melee Weapon); the army gains **Unwieldy**",
-     "Your armies have **Immune Unwieldy**. Instead, they may equip two of the same 1H Melee Weapon to gain **Dual Wield**, **Two-Handed**, and **Florentine** (while Fatigued, may Parry on a natural {FOCUSED_THR})."
+     "Your armies have **Immune Unwieldy**. Instead, they may equip two of the same 1H Melee Weapon to gain **Dual Wield**."
     ],
     [
      "Cipher Chamber",
@@ -1683,9 +1683,9 @@
    [
     "Levy",
     "1000",
-    "8+",
-    "2",
     "7+",
+    "2",
+    "8+",
     "—"
    ],
    [
@@ -1766,7 +1766,7 @@
    [
     "Pike",
     "Wrought",
-    "-2",
+    "-1",
     "+1",
     "2H, Steady, Unwieldy, Deadly, Awkward"
    ],
@@ -1780,14 +1780,14 @@
    [
     "Halberd",
     "Wrought",
-    "-3",
+    "-2",
     "+0",
     "2H, Unwieldy"
    ],
    [
     "Battle Axe",
     "Wrought",
-    "-4",
+    "-3",
     "-1",
     "2H, Unwieldy, Unstoppable, Cleave, Negate Shielded"
    ],
@@ -1808,14 +1808,14 @@
    [
     "Bastard Sword",
     "Forged",
-    "-3",
+    "-2",
     "+0",
     "Steady"
    ],
    [
     "2HBastard",
     "Forged",
-    "-3",
+    "-2",
     "+0",
     "2H, Unwieldy, Unstoppable, Cleave"
    ],
@@ -1843,7 +1843,7 @@
    [
     "Poleaxe",
     "Tempered",
-    "-6",
+    "-5",
     "+0",
     "2H, Steady, Cleave, Unstoppable, Negate Shielded, Negate Planishing"
    ]
@@ -1852,14 +1852,14 @@
    [
     "Hunting Bow",
     "Crude",
-    "-1",
+    "0",
     "+2",
     "2H, Unstoppable, Negate Riposte"
    ],
    [
     "Longbow",
     "Cast",
-    "-2",
+    "-1",
     "+2",
     "2H, Unstoppable, Deadly, Negate Riposte"
    ],
@@ -1880,7 +1880,7 @@
    [
     "Arquebus",
     "Tempered",
-    "-7",
+    "-6",
     "+2",
     "2H, Unwieldy, Unstoppable, Negate Shielded, Negate Riposte, Negate Planishing, Awkward"
    ],
@@ -1939,31 +1939,31 @@
    [
     "Padded",
     "Crude",
-    "9+",
+    "8+",
     "—"
    ],
    [
     "Leather",
     "Cast",
-    "8+",
+    "7+",
     "—"
    ],
    [
     "Chainmail",
     "Wrought",
-    "7+",
+    "6+",
     "—"
    ],
    [
     "Full Plate",
     "Forged",
-    "6+",
+    "5+",
     "—"
    ],
    [
     "Gothic Plate",
     "Tempered",
-    "5+",
+    "4+",
     "—"
    ]
   ]

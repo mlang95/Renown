@@ -9,7 +9,12 @@
 .wrap{display:flex;max-width:1180px;margin:54px auto 0}
 nav{flex:0 0 215px;position:sticky;top:54px;height:calc(100vh - 54px);overflow:auto;padding:16px 12px;border-right:1px solid var(--line);font:13px sans-serif}
 nav a{display:block;padding:3px 8px;color:var(--ink);text-decoration:none;border-radius:5px}nav a:hover{background:var(--hover)}nav a.active{background:var(--accent);color:var(--panel)}
-.navhead{font-weight:700;text-transform:uppercase;font-size:10.5px;letter-spacing:1px;color:var(--mut);margin:13px 0 4px;padding-left:8px}.navhead:first-child{margin-top:0}
+.navhead{display:flex;align-items:center;justify-content:space-between;width:100%;font-weight:700;text-transform:uppercase;font-size:10.5px;letter-spacing:1px;color:var(--mut);margin:13px 0 4px;padding:2px 8px;background:none;border:0;cursor:pointer;font-family:sans-serif}
+.navgroup:first-child .navhead{margin-top:0}
+.navhead:hover{color:var(--ink)}
+.navhead .chev{transition:transform .15s;font-size:14px;opacity:.7}
+.navgroup:not(.collapsed) .chev{transform:rotate(90deg)}
+.navgroup.collapsed .navlinks{display:none}
 main{flex:1;padding:8px 30px 80px;min-width:0}
 h1{font-size:26px;margin:.2em 0 .6em;border-bottom:2px solid var(--accent);padding-bottom:.2em}
 h1 .count,.count{font:13px sans-serif;background:var(--chip);color:var(--accent);padding:2px 9px;border-radius:11px;vertical-align:middle}
@@ -67,7 +72,18 @@ table.kv td{padding:6px 10px;border-top:1px solid var(--rowline);vertical-align:
 figure.lore-map{margin:0 0 1.4em;text-align:center}
 figure.lore-map img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;box-shadow:0 2px 10px var(--shadow)}
 figure.lore-map figcaption{font:12px sans-serif;color:var(--mut);margin-top:.5em;font-style:italic}
-#theme{position:fixed;top:0;right:0;z-index:31;height:43px;min-width:46px;border:0;border-left:1px solid var(--line);background:var(--panel);color:var(--ink);font-size:16px;line-height:43px;cursor:pointer}
-#theme:hover{color:var(--accent)}
-#q{padding-right:58px}
-@media(max-width:760px){.wrap{flex-direction:column}nav{position:static;height:auto;flex:none;border-right:0;border-bottom:1px solid var(--line)}}
+.topbtns{position:fixed;top:0;right:0;z-index:31;height:43px;display:flex;align-items:center;gap:3px;padding-right:8px}
+.topbtns button{height:32px;min-width:34px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:7px;font-size:15px;cursor:pointer;line-height:1}
+.topbtns button:hover{border-color:var(--accent)}
+.topbtns button.on{background:var(--accent);color:var(--panel);border-color:var(--accent)}
+body.game-mode .navgroup:not([data-group=rules]):not([data-group=reference]){display:none}
+html.game-pending .navgroup:not([data-group=rules]):not([data-group=reference]){display:none}
+#q{padding-right:92px}
+#navtoggle{display:none}
+@media(max-width:760px){
+  .wrap{flex-direction:column;margin-top:44px}
+  #navtoggle{display:flex;align-items:center;justify-content:center;position:fixed;top:0;left:0;z-index:31;height:44px;width:50px;border:0;border-right:1px solid var(--line);background:var(--panel);font-size:20px;line-height:1;cursor:pointer;color:var(--ink)}
+  #q{padding-left:58px}
+  nav{position:static;height:auto;flex:none;border-right:0;border-bottom:1px solid var(--line);display:none}
+  body.nav-open nav{display:block}
+}

@@ -107,20 +107,20 @@ GLOSSARY = {
     #DEFLECT:        "-1 to Parry and Negate Riposte against this weapon's Strikes. (All Ranged weapons have Deflect.)",
     #IMMUNE_PANIC:   "Automatically passes Panic checks.",
     #UNBREAKABLE:    "Immune Break: does not take Break checks while Fatigued.",
-    PARRY:          f"While not Fatigued, roll a D{FACES} to attempt to Parry a Strike before an Armor Save. On a {PARRY_BASE}+ (Improved by Improved Parry), the Strike is Parried and has no further effect.",
-    RIPOSTE:        "While not Fatigued, if you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
+    PARRY:          f"Roll a D{FACES} to attempt to Parry a Strike before an Armor Save. On a {PARRY_BASE}+ (Improved by Improved Parry), the Strike is Parried and has no further effect.",
+    RIPOSTE:        "If you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
     NO_PARRY:       "While equipped with this weapon during a skirmish, you cannot Parry, and so cannot Riposte.",
-    RECOVER:        f"While not Fatigued, if a to-Save roll fails, roll a D{FACES} & compare it to your Recover value: a result greater than or equal to your Recover value recovers the retinue.",
+    RECOVER:        f"If a to-Save roll fails, roll a D{FACES} & compare it to your Recover value: a result greater than or equal to your Recover value recovers the retinue.",
     SERRATED:       "A cumulative -2 penalty to the defender's Recover roll.",
     PLANISHING:     f"A {PIVOTAL} Save succeeds, regardless of AP.",
-    FATIGUE_TOKEN:  f"Each token is -{FATIGUE_STRIKE} to your Strike to a maximum of {CAP_THR}+; and Morale -{FATIGUE_MORALE} (uncapped). If your modified Morale is ever {ROUT_THR}+, your army Routs. These effects are cumulative.",
+    FATIGUE_TOKEN:  f"Each token reduces Morale -{FATIGUE_MORALE} by. If your modified Morale is ever {ROUT_THR}+, your army Routs. These effects are cumulative.",
     MINUS_1_TBH:    f"A cumulative -1 penalty to the Strike roll (to a maximum of {CAP_THR}+). Sources: a shield's -1 to Strike.",
 	#NEGATE_UNSTOPPABLE: "Cancels the attacker's Parry from Unstoppable: this shield's -1 to Strike still applies, and the attacker's -1 to Parry does not.",
     NEGATE_TEMPERED: f"Ignores {PLANISHING}: this weapon's AP can reduce the target's Save beyond {CAP_THR}+ (to auto-fail).",
     NEGATE_RIPOSTE: f"The target's Parry can never Riposte this weapon's Strikes (a natural {FOCUSED_THR} Parry still cancels the Strike, but no counter-Strike follows).",
     #MINUS_1_PARRY: "A stacking -1 penalty to the defender's Parry roll (to a maximum of 6+). Sources: Unstoppable, Deflect, and each Fatigue token.",
     DUAL_WIELD: "A failed Strike is rerolled once; the rerolled Strike can be Focused. Dual Wield confers Two-Handed. You cannot reroll successful Strikes.",
-    FLORENTINE: "Only active while Dual Wielding. Even while Fatigued, a Focused Parry succeeds. This alone does not enable Riposte while Fatigued.",
+    FLORENTINE: "Only active while Dual Wielding.",
     "Immune [keyword]": "Cancels that keyword as it applies to you (e.g. Immune Unwieldy, Strain, Destroy Shield).",
 
     # ── Combat keywords ported from the Escalation Campaign glossary ──
@@ -138,9 +138,9 @@ GLOSSARY = {
     "Casualty":      "A retinue removed from the field — from an unsaved Strike or a failed Panic or Break check.",
     "Field":         "Your retinues in play — front line (up to 10) plus reserve (up to 5). Casualties leave the field at once, lowering its count.",
     "Endurance":     "A side's stamina. Each side that fights loses 1 per Skirmish; at 0 it becomes Fatigued.",
-    "Fatigued":      f"A side at 0 Endurance. Each Skirmish its field takes a Break check, then it gains a Fatigue token. Fatigued Armies cannot {PARRY}, {RIPOSTE}, or {RECOVER}",
-    "Break check":   "Taken by each Fatigued side's field every Skirmish, just before it gains its Fatigue token. Roll Morale (up to 5 dice, modified by Fatigue tokens); failures are casualties, but a Break check never triggers a Panic check. Unbreakable auto-passes.",
-    "Panic check":   "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish, after it Strikes back. Roll Morale (up to 5 dice); Immune Panic auto-passes.",
+    "Fatigued":      f"A side at 0 Endurance. Each Skirmish its field takes a Break check, then it gains a Fatigue token.",
+    "Break check":   "Taken by each Fatigued side's field every Skirmish, just before it gains its Fatigue token. Roll Morale (5 dice, modified by Fatigue tokens); failures are casualties, but a Break check never triggers a Panic check. Unbreakable auto-passes.",
+    "Panic check":   "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish, after it Strikes back. Roll Morale (5 dice); Immune Panic auto-passes.",
     "Morale":        f"How steady a retinue is when tested (lower is steadier; see the retinue table). Break and Panic checks roll it: a D{FACES} per retinue in the field, up to 5 dice, each must meet its modified value; failures are casualties. If the modified value is ever {ROUT_THR}+, the army Routs.",
     "Rout":          f"The army breaks and leaves the Battle (you lose it). Whenever an army's modified Morale value reaches {ROUT_THR}+ or more, it Routs automatically.",
     "Fall Back":     "A controlled retreat that ends the Battle with at least one retinue left — a partial success.",
@@ -267,7 +267,7 @@ ENDURANCE_REGAIN    = 2    # +Endurance restored to non-Strained armies in the E
 
 
 RETINUES = {
-    "Levy":           {"cost": 1000, "to_hit": 8, "endurance": 2, "shaking": 7, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
+    "Levy":           {"cost": 1000, "to_hit": 7, "endurance": 2, "shaking": 8, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
     "Man-at-Arms":    {"cost": 2000, "to_hit": 5, "endurance": 3, "shaking": 6, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
     "Sergeant":       {"cost": 2000, "to_hit": 3, "endurance": 2, "shaking": 5, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
     "Knight Templar": {"cost": 2000, "to_hit": 4, "endurance": 2, "shaking": 4, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
@@ -281,26 +281,26 @@ WEAPONS = {
     "Short Sword":    {"ap":  0, "init":  0, "tier": "Cast",    "tags": [STEADY]},
     "Spears":         {"ap": -1, "init":  1, "tier": "Cast",    "tags": [UNWIELDY]},
     "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY]},
-    "Pike":           {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, STEADY, UNWIELDY, SHATTER_ARMOR, NO_PARRY]},
+    "Pike":           {"ap": -1, "init":  1, "tier": "Wrought", "tags": [TWO_H, STEADY, UNWIELDY, SHATTER_ARMOR, NO_PARRY]},
     "Flail":          {"ap": -1, "init":  0, "tier": "Wrought", "tags": [UNWIELDY, UNSTOPPABLE, CLEAVE, NO_PARRY], 'note': 'Cannot Dual Wield'},
-    "Halberd":        {"ap": -3, "init":  0, "tier": "Wrought", "tags": [TWO_H, UNWIELDY]},
-    "Battle Axe":     {"ap": -4, "init": -1, "tier": "Wrought", "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, CLEAVE, NEGATE_SHIELDED]},
+    "Halberd":        {"ap": -2, "init":  0, "tier": "Wrought", "tags": [TWO_H, UNWIELDY]},
+    "Battle Axe":     {"ap": -3, "init": -1, "tier": "Wrought", "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, CLEAVE, NEGATE_SHIELDED]},
     "Cavalry Spear":  {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, UNWIELDY, NEGATE_RIPOSTE, NO_PARRY], 'note': "Needs Stable; no Tower Shield or Dual Wield or Ranged Weapon; cannot Parry"},
     "Morningstar":    {"ap": -4, "init": -1, "tier": "Forged",  "tags": [CLEAVE, DESTROY_SHIELD], 'note': 'Cannot Dual Wield'},
-    "Bastard Sword":  {"ap": -3, "init":  0, "tier": "Forged",  "tags": [STEADY], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile.'},
-    "2HBastard":      {"ap": -3, "init":  0, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, CLEAVE]},
+    "Bastard Sword":  {"ap": -2, "init":  0, "tier": "Forged",  "tags": [STEADY], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile.'},
+    "2HBastard":      {"ap": -2, "init":  0, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, CLEAVE]},
     "War Hammer":     {"ap":-10, "init": -1, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD]},
     "Lance":          {"ap": -4, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY, NEGATE_RIPOSTE], 'note': "Needs Stable; no Tower Shield, Dual Wield, Ranged weapon, or Parry."},
     "Estoc":          {"ap": -3, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_RIPOSTE, NEGATE_TEMPERED]},
-    "Poleaxe":        {"ap": -6, "init":  0, "tier": "Crafted", "tags": [TWO_H, STEADY, CLEAVE, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_TEMPERED]},
+    "Poleaxe":        {"ap": -5, "init":  0, "tier": "Crafted", "tags": [TWO_H, STEADY, CLEAVE, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_TEMPERED]},
 }
 
 RANGED = {
-    "Hunting Bow": {"ap": -1, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNSTOPPABLE, NEGATE_RIPOSTE]},
-    "Longbow":     {"ap": -2, "init":  2, "tier": "Cast",    "tags": [TWO_H, UNSTOPPABLE, SHATTER_ARMOR, NEGATE_RIPOSTE]},
+    "Hunting Bow": {"ap":  0, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNSTOPPABLE, NEGATE_RIPOSTE]},
+    "Longbow":     {"ap": -1, "init":  2, "tier": "Cast",    "tags": [TWO_H, UNSTOPPABLE, SHATTER_ARMOR, NEGATE_RIPOSTE]},
     "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD, ONE_SHOT], 'note': 'Cannot Dual Wield'},
     "Crossbow":    {"ap": -4, "init":  0, "tier": "Forged",  "tags": [UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE], 'note': "Tower Shield only (no other shield), cannot Dual Wield"},
-    "Arquebus":    {"ap": -7, "init":  2, "tier": "Crafted", "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, NEGATE_TEMPERED, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["ABF", "Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
+    "Arquebus":    {"ap": -6, "init":  2, "tier": "Crafted", "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, NEGATE_TEMPERED, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["ABF", "Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
     "Pilum":       {"ap": -5, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD, ONE_SHOT]},
 }
 
@@ -315,11 +315,11 @@ SHIELDS = {
 
 ARMORS = {
     "Cloth":       {"save": 10, "tier": None,      "tags": []},
-    "Gambeson":    {"save":  9, "tier": "Crude",   "tags": []},
-    "Leather":     {"save":  8, "tier": "Cast",    "tags": []},
-    "Chainmail":   {"save":  7, "tier": "Wrought", "tags": []},
-    "Full Plate":  {"save":  6, "tier": "Forged",  "tags": []},
-    "Gothic Plate":{"save":  5, "tier": "Crafted", "tags": []},
+    "Gambeson":    {"save":  8, "tier": "Crude",   "tags": []},
+    "Leather":     {"save":  7, "tier": "Cast",    "tags": []},
+    "Chainmail":   {"save":  6, "tier": "Wrought", "tags": []},
+    "Full Plate":  {"save":  5, "tier": "Forged",  "tags": []},
+    "Gothic Plate":{"save":  4, "tier": "Crafted", "tags": []},
 }
 
 # ── Tier ladder ────────────────────────────────────────────────────────────
@@ -1094,7 +1094,7 @@ NODES = {
         "unlock": "Established Piety",
         "mastery_req": "Apothecary + Infirmary",
         "innate": "**Recover** improved by +1",
-        "mastery": f"Enduring: while Fatigued, your Recover rolls can't be reduced beyond {CAP_THR}+.",
+        "mastery": f"Enduring: Successful Recovered rolls do not count towards the panic check threshold.",
         "efficient": "Infirmary",
         "builds_into": ["Preceptory of the Knight's Templar"],
         "monument": False,
@@ -1438,7 +1438,7 @@ NODES = {
         "unlock": "Established Prowess",
         "mastery_req": "Fletchery + Coliseum",
         "innate": "Armies may be Equipped with a second weapon (a Ranged and a Melee Weapon); the army gains **Unwieldy**",
-        "mastery": "Your armies have **Immune Unwieldy**. Instead, they may equip two of the same 1H Melee Weapon to gain **Dual Wield**, **Two-Handed**, and **Florentine** (while Fatigued, may Parry on a natural {FOCUSED_THR}).",
+        "mastery": "Your armies have **Immune Unwieldy**. Instead, they may equip two of the same 1H Melee Weapon to gain **Dual Wield**.",
         "builds_into": ["Royal Pavilion"],
         "monument": False,
         "escalation": {"standing": "Established Prowess", "ranks": {1: "Dual-equip; Immune Unwieldy; Dual Wield (two of a kind)"}, "row": 4, "gate": None, "requires_all": ["Coliseum"], "requires_any": [], "extra_req": ""},
@@ -2486,7 +2486,7 @@ ACTIONS = {
         'endorsed': 'Extort 2000.',
         'notes': ["This affects only the next single turn's tax income, when it's collected."],
     },
-    'Spread Gospel': {
+    'Spread Truth': {
         'domain': 'Piety',
         'cost': 'Doubt 1',
         'requires': '',
@@ -2649,7 +2649,7 @@ PURSUIT_UPKEEP_BY_TYPE = {
     "Power":    200,
     "Energy":   0,
 }
-PURSUIT_UPKEEP_DEFAULT = 0
+PURSUIT_UPKEEP_DEFAULT = 100
 
 def pursuit_upkeep(node):
     """Per-turn upkeep for a node, fixed by its type. node = a NODES entry (dict) or a type string."""
@@ -2720,7 +2720,7 @@ SIEGE_SOURCE_VALUES = {
 # ── Missing glossary definitions (CE) ────────────────────────────────────────
 GLOSSARY.update({
     PIVOTAL:        f"A natural {FOCUSED_THR}, before modifiers." if FOCUSED_THR == FACES else f"A natural {FOCUSED_THR} or higher, before modifiers.",
-    FATIGUE_TOKEN:  f"Each token is -{FATIGUE_STRIKE} to your Strike (to a maximum of {CAP_THR}+) and Morale -{FATIGUE_MORALE} (uncapped); if your modified Morale is ever {ROUT_THR}+, your army Routs. Tokens stack. While Fatigued, retinues cannot Parry or Recover.",
+    FATIGUE_TOKEN:  f"Each token reduces Morale  by {FATIGUE_MORALE} (uncapped); if your modified Morale is ever {ROUT_THR}+, your army Routs. Tokens stack.",
     "Sally Forth":  "While a settlement you control is besieged and you have an army inside it, you may Sally Forth: Battle in the Battle Phase without performing an action.",
     "War Weariness":"gain Doubt 1 for each consecutive Battle you lose in the Empire Phase.",
     "Ward":         "A slot in a Settlement that holds one Pursuit; a Settlement has one Ward per tier (a Hamlet has 3 Husbandry Wards).",

@@ -1,93 +1,22 @@
 <!doctype html><html><head><meta charset="utf-8">
-<script>(function(){try{var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>(function(){try{var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);if(localStorage.getItem('gamemode')==='1')document.documentElement.classList.add('game-pending');}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
 <title>Industry Actions — Renown</title><link rel="stylesheet" href="wiki.css"></head><body>
 <input id="q" placeholder="Search…" autocomplete="off"><div id="results"></div>
+<button id="navtoggle" aria-label="Menu" onclick="document.body.classList.toggle('nav-open')">☰</button>
+<div class="topbtns">
+<button id="gamemode" type="button" aria-label="Game mode" title="Game mode: rules + reference only">♟</button>
 <button id="theme" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
-<div class="wrap"><nav><div class="navhead">Rules</div>
-<a href='turn-sequence.html'>★ Turn Sequence</a>
-<a href='rules-renown.html'>Renown</a>
-<a href='rules-introduction.html'>Introduction</a>
-<a href='rules-reading-these-rules.html'>Reading These Rules</a>
-<a href='rules-core-principles.html'>Core Principles</a>
-<a href='rules-the-turn.html'>The Turn</a>
-<a href='rules-table-setup.html'>Table Setup</a>
-<a href='rules-player-setup.html'>Player Setup</a>
-<a href='rules-action-mechanics.html'>Action Mechanics</a>
-<a href='rules-seasons.html'>Seasons</a>
-<a href='rules-influence.html'>Influence</a>
-<a href='rules-prowess-actions.html'>Prowess Actions</a>
-<a href='rules-cunning-actions.html'>Cunning Actions</a>
-<a href='rules-piety-actions.html'>Piety Actions</a>
-<a href='rules-industry-actions.html' class=active>Industry Actions</a>
-<a href='rules-diplomacy-actions.html'>Diplomacy Actions</a>
-<a href='rules-domains-standings.html'>Domains &amp; Standings</a>
-<a href='rules-diplomacy-treaties.html'>Diplomacy &amp; Treaties</a>
-<a href='rules-settlements.html'>Settlements</a>
-<a href='rules-infrastructure.html'>Infrastructure</a>
-<a href='rules-territory-terrain.html'>Territory &amp; Terrain</a>
-<a href='rules-public-order.html'>Public Order</a>
-<a href='rules-treasury-upkeep.html'>Treasury &amp; Upkeep</a>
-<a href='rules-trade-income.html'>Trade &amp; Income</a>
-<a href='rules-armies.html'>Armies</a>
-<a href='rules-battle-phase.html'>Battle Phase</a>
-<a href='rules-siege-warfare.html'>Siege Warfare</a>
-<a href='rules-bandits.html'>Bandits</a>
-<div class="navhead">Pursuits</div>
-<a href='pursuits.html'>Overview</a>
-<a href='type-raw-materials.html'>Raw Materials</a>
-<a href='type-husbandry.html'>Husbandry</a>
-<a href='type-energy.html'>Energy</a>
-<a href='type-craft.html'>Craft</a>
-<a href='type-power.html'>Power</a>
-<a href='type-civic.html'>Civic</a>
-<a href='type-secrecy.html'>Secrecy</a>
-<a href='type-monument.html'>Monument</a>
-<div class="navhead">Views</div>
-<a href='domain-industry.html'>Industry</a>
-<a href='domain-prowess.html'>Prowess</a>
-<a href='domain-cunning.html'>Cunning</a>
-<a href='domain-piety.html'>Piety</a>
-<a href='paths.html'>Build Paths</a>
-<div class="navhead">Reference</div>
-<a href='actions-ref.html'>Actions</a>
-<a href='envoy-outcomes-ref.html'>Envoy Outcomes</a>
-<a href='treaties-ref.html'>Treaties & Alliances</a>
-<a href='edicts-ref.html'>Edicts</a>
-<a href='economy-ref.html'>Economy</a>
-<a href='terrain-ref.html'>Terrain & Movement</a>
-<a href='bandits-ref.html'>Bandits</a>
-<a href='systems-ref.html'>Timers, Influence & PO</a>
-<a href='equipment-ref.html'>Equipment</a>
-<a href='keywords-ref.html'>Combat Keywords</a>
-<a href='infrastructure-ref.html'>Infrastructure</a>
-<a href='wonders-ref.html'>Wonders</a>
-<a href='settlements-ref.html'>Settlements</a>
-<a href='eras-ref.html'>Eras</a>
-<a href='public-order-ref.html'>Public Order</a>
-<a href='domain-board-ref.html'>Domain Board</a>
-<a href='seasons-ref.html'>Seasons</a>
-<a href='tactic-matrix-ref.html'>Tactic Matrix</a>
-<a href='reference-tables.html'>Reference Tables</a>
-<a href='glossary.html'>Glossary</a>
-<a href='factions.html'>Factions</a>
-<div class="navhead">Tools</div>
-<a href='maps.html'>Map Generator</a>
-<div class="navhead">Escalation</div>
-<a href='escalation.html'>Overview</a>
-<a href='escalation-rules.html'>Battle Rules</a>
-<a href='escalation-pursuits.html'>Combat Pursuits</a>
-<a href='tactic-matrix-ref.html'>Tactic Matrix</a>
-<a href='equipment-ref.html'>Equipment</a>
-<a href='keywords-ref.html'>Combat Keywords</a>
-<div class="navhead">Lore</div>
-<a href='lore.html'>Overview</a>
-<a href='lore-map.html'>The Map</a>
-<a href='lore-cultures.html'>The Fifteen</a>
-<a href='lore-ages.html'>The Timeline</a>
-<a href='lore-darkness.html'>Age of Darkness</a></nav><main><h2 id='industry-actions'>Industry Actions</h2>
+</div>
+<div class="wrap"><nav><div class='navgroup' data-group='rules'><button type='button' class='navhead'>Rules<span class='chev'>›</span></button><div class='navlinks'><a href='turn-sequence.html'>★ Turn Sequence</a><a href='rules-renown.html'>Renown</a><a href='rules-introduction.html'>Introduction</a><a href='rules-reading-these-rules.html'>Reading These Rules</a><a href='rules-core-principles.html'>Core Principles</a><a href='rules-the-turn.html'>The Turn</a><a href='rules-table-setup.html'>Table Setup</a><a href='rules-player-setup.html'>Player Setup</a><a href='rules-action-mechanics.html'>Action Mechanics</a><a href='rules-seasons.html'>Seasons</a><a href='rules-influence.html'>Influence</a><a href='rules-prowess-actions.html'>Prowess Actions</a><a href='rules-cunning-actions.html'>Cunning Actions</a><a href='rules-piety-actions.html'>Piety Actions</a><a href='rules-industry-actions.html' class=active>Industry Actions</a><a href='rules-diplomacy-actions.html'>Diplomacy Actions</a><a href='rules-domains-standings.html'>Domains &amp; Standings</a><a href='rules-diplomacy-treaties.html'>Diplomacy &amp; Treaties</a><a href='rules-settlements.html'>Settlements</a><a href='rules-infrastructure.html'>Infrastructure</a><a href='rules-territory-terrain.html'>Territory &amp; Terrain</a><a href='rules-public-order.html'>Public Order</a><a href='rules-treasury-upkeep.html'>Treasury &amp; Upkeep</a><a href='rules-trade-income.html'>Trade &amp; Income</a><a href='rules-armies.html'>Armies</a><a href='rules-battle-phase.html'>Battle Phase</a><a href='rules-siege-warfare.html'>Siege Warfare</a><a href='rules-bandits.html'>Bandits</a></div></div>
+<div class='navgroup' data-group='pursuits'><button type='button' class='navhead'>Pursuits<span class='chev'>›</span></button><div class='navlinks'><a href='pursuits.html'>Overview</a><a href='type-raw-materials.html'>Raw Materials</a><a href='type-husbandry.html'>Husbandry</a><a href='type-energy.html'>Energy</a><a href='type-craft.html'>Craft</a><a href='type-power.html'>Power</a><a href='type-civic.html'>Civic</a><a href='type-secrecy.html'>Secrecy</a><a href='type-monument.html'>Monument</a></div></div>
+<div class='navgroup' data-group='views'><button type='button' class='navhead'>Views<span class='chev'>›</span></button><div class='navlinks'><a href='domain-industry.html'>Industry</a><a href='domain-prowess.html'>Prowess</a><a href='domain-cunning.html'>Cunning</a><a href='domain-piety.html'>Piety</a><a href='paths.html'>Build Paths</a></div></div>
+<div class='navgroup' data-group='reference'><button type='button' class='navhead'>Reference<span class='chev'>›</span></button><div class='navlinks'><a href='actions-ref.html'>Actions</a><a href='envoy-outcomes-ref.html'>Envoy Outcomes</a><a href='treaties-ref.html'>Treaties & Alliances</a><a href='edicts-ref.html'>Edicts</a><a href='economy-ref.html'>Economy</a><a href='terrain-ref.html'>Terrain & Movement</a><a href='bandits-ref.html'>Bandits</a><a href='systems-ref.html'>Timers, Influence & PO</a><a href='equipment-ref.html'>Equipment</a><a href='keywords-ref.html'>Combat Keywords</a><a href='infrastructure-ref.html'>Infrastructure</a><a href='wonders-ref.html'>Wonders</a><a href='settlements-ref.html'>Settlements</a><a href='eras-ref.html'>Eras</a><a href='public-order-ref.html'>Public Order</a><a href='domain-board-ref.html'>Domain Board</a><a href='seasons-ref.html'>Seasons</a><a href='tactic-matrix-ref.html'>Tactic Matrix</a><a href='reference-tables.html'>Reference Tables</a><a href='glossary.html'>Glossary</a><a href='factions.html'>Factions</a></div></div>
+<div class='navgroup' data-group='tools'><button type='button' class='navhead'>Tools<span class='chev'>›</span></button><div class='navlinks'><a href='maps.html'>Map Generator</a></div></div>
+<div class='navgroup' data-group='escalation'><button type='button' class='navhead'>Escalation<span class='chev'>›</span></button><div class='navlinks'><a href='escalation.html'>Overview</a><a href='escalation-rules.html'>Battle Rules</a><a href='escalation-pursuits.html'>Combat Pursuits</a><a href='tactic-matrix-ref.html'>Tactic Matrix</a><a href='equipment-ref.html'>Equipment</a><a href='keywords-ref.html'>Combat Keywords</a></div></div>
+<div class='navgroup' data-group='lore'><button type='button' class='navhead'>Lore<span class='chev'>›</span></button><div class='navlinks'><a href='lore.html'>Overview</a><a href='lore-map.html'>The Map</a><a href='lore-cultures.html'>The Fifteen</a><a href='lore-ages.html'>The Timeline</a><a href='lore-darkness.html'>Age of Darkness</a></div></div></nav><main><h2 id='industry-actions'>Industry Actions</h2>
 <table class='pursuits'><thead><tr><th>Action</th><th>Cost</th><th>Requires</th><th>Effect (if passes)</th><th><a class="term" href="glossary.html#endorsed">Endorsed</a></th></tr></thead><tbody><tr><td><a class="term" href="glossary.html#build">Build</a></td><td>2000 gold</td><td>—</td><td>Choose an unlocked, available <a class="term" href="rules-infrastructure.html">Infrastructure</a> and set a <a class="term" href="glossary.html#build">Build</a> Timer equal to its <a class="term" href="glossary.html#build">build</a> time. When it completes, the <a class="term" href="rules-infrastructure.html">Infrastructure</a> becomes active in every <a class="term" href="rules-settlements.html">Settlement</a> in your <a class="term" href="glossary.html#province">province</a>. — You must have at least one <a class="term" href="rules-infrastructure.html">Infrastructure</a> from the prior tier before building the next tier.; A Wonder is built in your capital and requires all other <a class="term" href="rules-infrastructure.html">Infrastructure</a> to be active when the <a class="term" href="glossary.html#build">Build</a> action is performed.</td><td><a class="term" href="glossary.html#recoup">Recoup</a> 2000.</td></tr><tr><td><a class="term" href="glossary.html#repair">Repair</a></td><td>0 gold</td><td>—</td><td>Choose a Damaged Pursuit or <a class="term" href="rules-infrastructure.html">Infrastructure</a> in a <a class="term" href="rules-settlements.html">Settlement</a> you control and set <a class="term" href="glossary.html#build">Build</a> Timer 2. When it reaches 0, choose one: Restore — reactivate it with all effects; Demolish — remove the Pursuit tile from your Empire Tableau.</td><td><a class="term" href="glossary.html#recoup">Recoup</a> 2000.</td></tr><tr><td><a class="term" href="glossary.html#pursue">Pursue</a></td><td>2000 gold</td><td>—</td><td>Choose an inactive <a class="term" href="rules-settlements.html">Settlement</a> <a class="term" href="glossary.html#ward">Ward</a> you control, then choose a Pursuit whose prerequisites you meet and set a <a class="term" href="glossary.html#build">Build</a> Timer equal to its <a class="term" href="glossary.html#build">build</a> time (usually 1). When it completes, place the Pursuit in an available <a class="term" href="glossary.html#ward">Ward</a> slot; its innate effect activates immediately, and its mastery effect activates if all mastery requirements are met. — You may have only 2 <a class="term" href="glossary.html#monument">Monument</a> Pursuits across your empire.; Power and unique Pursuits have <a class="term" href="glossary.html#build">Build</a> Timer +1; Monuments +2; all others <a class="term" href="glossary.html#build">Build</a> Timer 1.</td><td><a class="term" href="glossary.html#recoup">Recoup</a> 2000.</td></tr><tr><td><a class="term" href="glossary.html#charter">Charter</a></td><td>2000 gold</td><td>—</td><td>Choose one: <a class="term" href="glossary.html#charter">Charter</a> a new Village — on <a class="term" href="glossary.html#uncontrolled">uncontrolled</a> or in-<a class="term" href="glossary.html#province">province</a> non-water, non-mountain <a class="term" href="glossary.html#territory">Territory</a>, range 4+ from any <a class="term" href="rules-settlements.html">Settlement</a> and range 2+ from <a class="term" href="glossary.html#outlaw-country">Outlaw Country</a>; or Expand a non-City <a class="term" href="rules-settlements.html">Settlement</a> one tier into an <a class="term" href="glossary.html#adjacent">adjacent</a> <a class="term" href="glossary.html#territory">Territory</a> (Village to Sea/Town, Sea/Town to Port/City, Port/City to Metropolis), adding a <a class="term" href="glossary.html#ward">Ward</a>. — To upgrade to City or Metropolis you must meet that tier&#x27;s requirements; otherwise set <a class="term" href="glossary.html#build">Build</a> Timer 1.</td><td><a class="term" href="glossary.html#recoup">Recoup</a> 2000.</td></tr></tbody></table>
 <h3 id='rule-ulterior-motive'>Rule: Ulterior Motive</h3>
 <p>Unless the target player is At War, players can&#x27;t Oppose that player&#x27;s Industry Envoys.</p><div class="pagefoot"><div class='related'><span class='rl'>Related:</span> <a class='term' href='glossary.html'>Glossary</a> <a class='term' href='rules-settlements.html'>Settlements</a> <a class='term' href='rules-infrastructure.html'>Infrastructure</a> <a class='term' href='factions.html'>Factions</a> <a class='term' href='rules-cunning-actions.html'>Cunning Actions</a> <a class='term' href='rules-introduction.html'>Introduction</a></div><div class='prevnext'><a class='pn prev' href='rules-piety-actions.html'>← Piety Actions</a><a class='pn next' href='rules-diplomacy-actions.html'>Diplomacy Actions →</a></div></div></main></div>
-<script src="search.js"></script>
-<script>(function(){var r=document.documentElement,tb=document.getElementById('theme');function s(t){r.setAttribute('data-theme',t);try{localStorage.setItem('theme',t)}catch(e){}}if(tb)tb.addEventListener('click',function(){s(r.getAttribute('data-theme')==='dark'?'light':'dark')});})();</script>
+<script src="search.js"></script><script src="ui.js"></script>
 <div class="versionstamp">Renown v0.4.9.9-d10</div></body></html>

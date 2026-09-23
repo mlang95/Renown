@@ -88,11 +88,9 @@ A few conventions make every rule in this book read the same way:
 8. **Do as much as possible.** Follow as much of an effect as you can; ignore any part you can't carry out.
 
 9. **Dice.**
-    - 9.1 If a Roll is modified beyond 6+, it automatically fails.
-    - 9.2 If a Roll is modified below 2+, it automatically passes.
-    - 9.3 If modified to 1+ or 7+ but specific results trigger on a 1 or 6, you still roll the dice for those specific results.
-    - 9.4 You can't re-roll a re-roll, and you can't re-roll a success.
-    - 9.5 Effects that occur on a 1 or 6 occur on unmodified rolls of 1 or 6.
+    - 9.1 If a Roll is modified beyond 10+, it automatically fails.
+    - 9.2 You can't re-roll a re-roll, and you can't re-roll a successful roll.
+    - 9.3 Effects that occur on a 1 or 10 occur on unmodified rolls of 1 or 10.
 
 10. **Rounding (denomination of 100).**
     - 10.1 When a gold amount isn't divisible by 100, round down to the nearest 100, minimum 0.
@@ -506,7 +504,7 @@ A Battle is fought as a series of Skirmishes, run through the steps below until 
 
 ### Begin the Battle — Seize the Initiative
 
-Each player rolls one D6 (+1 if they won their last Battle), re-rolling ties. The higher roller Seizes the Initiative: they become the Attacker this Battle and gain +1 Initiative in the first Skirmish; their opponent is the Defender.
+Determine who gains Seize the Initiative. Typically, the player who performed the Battle Action gains Seize the Initiative, but Terrain and the Ministry of Military Strategy can affect that. When a player gains Seize the Initiative, the player gains +1 Initiative in the first round of combat.
 
 ### The Skirmish Steps
 
@@ -516,23 +514,23 @@ Each player rolls one D6 (+1 if they won their last Battle), re-rolling ties. Th
 
 3. **Declare equipment.** The Attacker names equipment first; the Defender responds.
 
-4. **Initiative.** Initiative runs from −2 to +2 (the Ministry Monument can raise the maximum to +3). The higher Initiative Strikes first this Skirmish. At −2 or lower you Blunder — you can Strike only on a natural 6.
+4. **Initiative.** Initiative ranges from −2 to +2. The higher Initiative Strikes first this Skirmish. At −2 or lower you Blunder — you can Strike only on a natural 10.
 
-5. **Roll to Strike.** Roll a D6 for each front-line Retinue, applying its modifiers. It Strikes on a result ≥ its to-Strike number (Levy {{VAL:RETINUES.Levy.to_hit}}+, Man-at-Arms {{VAL:RETINUES.Man-at-Arms.to_hit}}+, Sergeant {{VAL:RETINUES.Sergeant.to_hit}}+, Knight Templar {{VAL:RETINUES.Knight Templar.to_hit}}+). A natural 6 may trigger Cleave, Deadly, or Destroy Shield.
+5. **Roll to Strike.** Roll a D10 for each front-line Retinue, applying its modifiers. It Strikes on a result ≥ its to-Strike number (Levy {{VAL:RETINUES.Levy.to_hit}}+, Man-at-Arms {{VAL:RETINUES.Man-at-Arms.to_hit}}+, Sergeant {{VAL:RETINUES.Sergeant.to_hit}}+, Knight Templar {{VAL:RETINUES.Knight Templar.to_hit}}+). A natural 10 may trigger Cleave, Deadly, or Destroy Shield.
 
-6. **Strike and defend.** Resolve the first side's Strikes — the defender may Parry (D6, 5+ cancels; a natural 6 is a Riposte), then Save (D6 + the weapon's AP + the shield's bonus ≥ the armor value), then Recover (after a failed Save, a final D6 ≥ the Recover value). Unsaved, unrecovered Strikes are casualties, and leave the field at once.
+6. **Strike and defend.** Resolve the first side's Strikes — the defender may Parry (D10, 8+ cancels; a natural 10 is a Riposte), then Save (D10 + the weapon's AP + the shield's bonus ≥ the armor value), then Recover (after a failed Save, a final D10 ≥ the Recover value). Unsaved, unrecovered Strikes are casualties, and leave the field at once.
 
-7. **Panic check.** If the side about to Strike back took {{VAL:PANIC_CASUALTY_THRESHOLD}} or more casualties this Skirmish, it first takes a Panic check: roll its Morale, up to {{VAL:MORALE_DICE_MAX}} dice; failures are casualties. Immune Panic auto-passes. A check ever modified to 7 or more Routs the whole Army.
+7. **Panic check.** If the side about to Strike back took {{VAL:PANIC_CASUALTY_THRESHOLD}} or more casualties this Skirmish, it first takes a Panic check: roll its Morale, up to {{VAL:MORALE_DICE_MAX}} dice; failures are casualties. A check ever modified to 11 or more Routs the whole Army.
 
 8. **Strike back.** The other side Strikes the same way, if able, taking any Panic check its own casualties trigger.
 
 9. **Lose Endurance.** Each side that fought loses 1 Endurance. A side at 0 Endurance is Fatigued.
 
-10. **Break check.** Before gaining its token, each Fatigued side's field takes a Break check: roll a D6 per Retinue in the field, up to {{VAL:MORALE_DICE_MAX}} dice, each ≥ its modified Morale value; failures are casualties. A Break check never triggers a Panic check. A check ever modified to 7 or more Routs the whole Army.
+10. **Break check.** Before gaining its token, each Fatigued side's field takes a Break check: roll a D10 per Retinue in the field, up to {{VAL:MORALE_DICE_MAX}} dice, each ≥ its modified Morale value; failures are casualties. A Break check never triggers a Panic check. A check ever modified to 11 or more Routs the whole Army.
 
-11. **Fatigue token.** Each Fatigued side then gains a Fatigue token — each token is −1 to that Army's Strike and Morale rolls (Strike to a maximum of 6+; Morale uncapped); while Fatigued, Retinues can't Parry or Recover. Tokens stack and last until the Battle ends.
+11. **Fatigue token.** Each Fatigued side then gains a Fatigue token — each token is −2 to that Army's Morale rolls; Tokens stack and last until the Battle ends.
 
-12. **End the Skirmish.** The Battle ends if a side is wiped out, Routs (modified Morale 7+), or successfully Falls Back. Otherwise refill the lines and begin the next Skirmish.
+12. **End the Skirmish.** The Battle ends if a side is wiped out, Routs (modified Morale 11+), or successfully Falls Back. Otherwise refill the lines and begin the next Skirmish.
 
 ### Resolve Battle
 
@@ -637,4 +635,4 @@ After Bandit Mechanics resolve, a Bandit Army performs a Move action based on, i
 
 ### Attacking a Bandit Camp
 
-Use the Move action to end adjacent to a Bandit Camp. Another player rolls for Bandit Tactics (roll D6; 7 = Fall Back) and resolves the to-Strike and to-Save rolls. Resolve it as a Battle in the Battle Phase. Extort the Bandit Camp's gold if it's destroyed. Bandits never Fall Back, but they may flee.
+Use the Move action to end adjacent to a Bandit Camp. Another player rolls for Bandit Tactics (See Bandit Info) and resolves the to-Strike and to-Save rolls. Resolve it as a Battle in the Battle Phase. Extort the Bandit Camp's gold if it's destroyed. Bandits never Fall Back, but they may flee.

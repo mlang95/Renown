@@ -379,19 +379,25 @@ if MAPGEN_URL is None:
 
 # ── nav ──
 def nav(current=""):
-    it=['<div class="navhead">Rules</div>']
-    it.append(f"<a href='turn-sequence.html'{' class=active' if current=='turn-sequence.html' else ''}>★ Turn Sequence</a>")
+    def A(u,label):
+        return f"<a href='{u}'{' class=active' if u==current else ''}>{label}</a>"
+    groups=[]  # (group_id, label, [link_html,...])
+
+    rules=[A("turn-sequence.html","\u2605 Turn Sequence")]
     for t,_ in sections_live:
-        u=f"rules-{slug(t)}.html"; it.append(f"<a href='{u}'{' class=active' if u==current else ''}>{html.escape(t)}</a>")
-    it.append('<div class="navhead">Pursuits</div>')
-    it.append(f"<a href='pursuits.html'{' class=active' if current=='pursuits.html' else ''}>Overview</a>")
+        rules.append(A(f"rules-{slug(t)}.html", html.escape(t)))
+    groups.append(("rules","Rules",rules))
+
+    pursuits=[A("pursuits.html","Overview")]
     for t in TYPE_ORDER:
-        u=f"type-{slug(t)}.html"; it.append(f"<a href='{u}'{' class=active' if u==current else ''}>{t}</a>")
-    it.append('<div class="navhead">Views</div>')
-    for d in DOMAINS:
-        u=f"domain-{slug(d)}.html"; it.append(f"<a href='{u}'{' class=active' if u==current else ''}>{d}</a>")
-    it.append(f"<a href='paths.html'{' class=active' if current=='paths.html' else ''}>Build Paths</a>")
-    it.append('<div class="navhead">Reference</div>')
+        pursuits.append(A(f"type-{slug(t)}.html", t))
+    groups.append(("pursuits","Pursuits",pursuits))
+
+    views=[A(f"domain-{slug(d)}.html", d) for d in DOMAINS]
+    views.append(A("paths.html","Build Paths"))
+    groups.append(("views","Views",views))
+
+    ref=[]
     for label,uu in [("Actions","actions-ref.html"),("Envoy Outcomes","envoy-outcomes-ref.html"),("Treaties & Alliances","treaties-ref.html"),
                      ("Edicts","edicts-ref.html"),("Economy","economy-ref.html"),
                      ("Terrain & Movement","terrain-ref.html"),("Bandits","bandits-ref.html"),
@@ -401,32 +407,43 @@ def nav(current=""):
                      ("Settlements","settlements-ref.html"),("Eras","eras-ref.html"),
                      ("Public Order","public-order-ref.html"),("Domain Board","domain-board-ref.html"),
                      ("Seasons","seasons-ref.html"),("Tactic Matrix","tactic-matrix-ref.html"),("Reference Tables","reference-tables.html")]:
-        it.append(f"<a href='{uu}'{' class=active' if current==uu else ''}>{label}</a>")
-    it.append(f"<a href='glossary.html'{' class=active' if current=='glossary.html' else ''}>Glossary</a>")
-    if FACTIONS: it.append(f"<a href='factions.html'{' class=active' if current=='factions.html' else ''}>Factions</a>")
+        ref.append(A(uu,label))
+    ref.append(A("glossary.html","Glossary"))
+    if FACTIONS: ref.append(A("factions.html","Factions"))
+    groups.append(("reference","Reference",ref))
+
     if MAPGEN_URL:
-        it.append('<div class="navhead">Tools</div>')
-        it.append(f"<a href='{MAPGEN_PAGE}'{' class=active' if current==MAPGEN_PAGE else ''}>{MAPGEN_TITLE}</a>")
-    it.append('<div class="navhead">Escalation</div>')
-    for label,uu in [("Overview","escalation.html"),("Battle Rules","escalation-rules.html"),
-                     ("Combat Pursuits","escalation-pursuits.html"),("Tactic Matrix","tactic-matrix-ref.html"),
-                     ("Equipment","equipment-ref.html"),("Combat Keywords","keywords-ref.html")]:
-        it.append(f"<a href='{uu}'{' class=active' if current==uu else ''}>{label}</a>")
+        groups.append(("tools","Tools",[A(MAPGEN_PAGE, MAPGEN_TITLE)]))
+
+    esc=[A(uu,label) for label,uu in
+         [("Overview","escalation.html"),("Battle Rules","escalation-rules.html"),
+          ("Combat Pursuits","escalation-pursuits.html"),("Tactic Matrix","tactic-matrix-ref.html"),
+          ("Equipment","equipment-ref.html"),("Combat Keywords","keywords-ref.html")]]
+    groups.append(("escalation","Escalation",esc))
+
     if LORE_NAV:
-        it.append('<div class="navhead">Lore</div>')
-        for uu, label in LORE_NAV:
-            it.append(f"<a href='{uu}'{' class=active' if current==uu else ''}>{label}</a>")
-    return "\n".join(it)
+        groups.append(("lore","Lore",[A(uu,label) for uu,label in LORE_NAV]))
+
+    out=[]
+    for gid,label,links in groups:
+        out.append(f"<div class='navgroup' data-group='{gid}'>"
+                   f"<button type='button' class='navhead'>{label}<span class='chev'>\u203a</span></button>"
+                   f"<div class='navlinks'>{''.join(links)}</div></div>")
+    return "\n".join(out)
 
 def page(title,body,current=""):
     return f"""<!doctype html><html><head><meta charset="utf-8">
-<script>(function(){{try{{var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);}}catch(e){{document.documentElement.setAttribute('data-theme','dark');}}}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>(function(){{try{{var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);if(localStorage.getItem('gamemode')==='1')document.documentElement.classList.add('game-pending');}}catch(e){{document.documentElement.setAttribute('data-theme','dark');}}}})();</script>
 <title>{html.escape(title)} — Renown</title><link rel="stylesheet" href="wiki.css"></head><body>
 <input id="q" placeholder="Search…" autocomplete="off"><div id="results"></div>
+<button id="navtoggle" aria-label="Menu" onclick="document.body.classList.toggle('nav-open')">☰</button>
+<div class="topbtns">
+<button id="gamemode" type="button" aria-label="Game mode" title="Game mode: rules + reference only">♟</button>
 <button id="theme" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
+</div>
 <div class="wrap"><nav>{nav(current)}</nav><main>{body}</main></div>
-<script src="search.js"></script>
-<script>(function(){{var r=document.documentElement,tb=document.getElementById('theme');function s(t){{r.setAttribute('data-theme',t);try{{localStorage.setItem('theme',t)}}catch(e){{}}}}if(tb)tb.addEventListener('click',function(){{s(r.getAttribute('data-theme')==='dark'?'light':'dark')}});}})();</script>
+<script src="search.js"></script><script src="ui.js"></script>
 <div class="versionstamp">Renown v{_VERSION}</div></body></html>"""
 
 search_index=[]
@@ -1172,7 +1189,12 @@ open(os.path.join(OUTDIR,"wiki.css"),"w",encoding="utf-8").write("""
 .wrap{display:flex;max-width:1180px;margin:54px auto 0}
 nav{flex:0 0 215px;position:sticky;top:54px;height:calc(100vh - 54px);overflow:auto;padding:16px 12px;border-right:1px solid var(--line);font:13px sans-serif}
 nav a{display:block;padding:3px 8px;color:var(--ink);text-decoration:none;border-radius:5px}nav a:hover{background:var(--hover)}nav a.active{background:var(--accent);color:var(--panel)}
-.navhead{font-weight:700;text-transform:uppercase;font-size:10.5px;letter-spacing:1px;color:var(--mut);margin:13px 0 4px;padding-left:8px}.navhead:first-child{margin-top:0}
+.navhead{display:flex;align-items:center;justify-content:space-between;width:100%;font-weight:700;text-transform:uppercase;font-size:10.5px;letter-spacing:1px;color:var(--mut);margin:13px 0 4px;padding:2px 8px;background:none;border:0;cursor:pointer;font-family:sans-serif}
+.navgroup:first-child .navhead{margin-top:0}
+.navhead:hover{color:var(--ink)}
+.navhead .chev{transition:transform .15s;font-size:14px;opacity:.7}
+.navgroup:not(.collapsed) .chev{transform:rotate(90deg)}
+.navgroup.collapsed .navlinks{display:none}
 main{flex:1;padding:8px 30px 80px;min-width:0}
 h1{font-size:26px;margin:.2em 0 .6em;border-bottom:2px solid var(--accent);padding-bottom:.2em}
 h1 .count,.count{font:13px sans-serif;background:var(--chip);color:var(--accent);padding:2px 9px;border-radius:11px;vertical-align:middle}
@@ -1230,10 +1252,21 @@ table.kv td{padding:6px 10px;border-top:1px solid var(--rowline);vertical-align:
 figure.lore-map{margin:0 0 1.4em;text-align:center}
 figure.lore-map img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;box-shadow:0 2px 10px var(--shadow)}
 figure.lore-map figcaption{font:12px sans-serif;color:var(--mut);margin-top:.5em;font-style:italic}
-#theme{position:fixed;top:0;right:0;z-index:31;height:43px;min-width:46px;border:0;border-left:1px solid var(--line);background:var(--panel);color:var(--ink);font-size:16px;line-height:43px;cursor:pointer}
-#theme:hover{color:var(--accent)}
-#q{padding-right:58px}
-@media(max-width:760px){.wrap{flex-direction:column}nav{position:static;height:auto;flex:none;border-right:0;border-bottom:1px solid var(--line)}}
+.topbtns{position:fixed;top:0;right:0;z-index:31;height:43px;display:flex;align-items:center;gap:3px;padding-right:8px}
+.topbtns button{height:32px;min-width:34px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:7px;font-size:15px;cursor:pointer;line-height:1}
+.topbtns button:hover{border-color:var(--accent)}
+.topbtns button.on{background:var(--accent);color:var(--panel);border-color:var(--accent)}
+body.game-mode .navgroup:not([data-group=rules]):not([data-group=reference]){display:none}
+html.game-pending .navgroup:not([data-group=rules]):not([data-group=reference]){display:none}
+#q{padding-right:92px}
+#navtoggle{display:none}
+@media(max-width:760px){
+  .wrap{flex-direction:column;margin-top:44px}
+  #navtoggle{display:flex;align-items:center;justify-content:center;position:fixed;top:0;left:0;z-index:31;height:44px;width:50px;border:0;border-right:1px solid var(--line);background:var(--panel);font-size:20px;line-height:1;cursor:pointer;color:var(--ink)}
+  #q{padding-left:58px}
+  nav{position:static;height:auto;flex:none;border-right:0;border-bottom:1px solid var(--line);display:none}
+  body.nav-open nav{display:block}
+}
 """)
 
 # ── search.js ──
@@ -1245,6 +1278,33 @@ box.innerHTML=cur.map((o,i)=>`<a href="${o.d.url}" data-i="${i}"><span class="t"
 q.addEventListener('keydown',e=>{const a=box.querySelectorAll('a');if(e.key==='ArrowDown')sel=Math.min(sel+1,a.length-1);else if(e.key==='ArrowUp')sel=Math.max(sel-1,0);else if(e.key==='Enter'&&cur.length){location.href=cur[Math.max(sel,0)].d.url;return;}else return;a.forEach((el,i)=>el.classList.toggle('sel',i===sel));e.preventDefault();});
 document.addEventListener('click',e=>{if(e.target!==q)box.style.display='none';});"""
 open(os.path.join(OUTDIR,"search.js"),"w",encoding="utf-8").write(js.replace("__IDX__",json.dumps(search_index)))
+
+open(os.path.join(OUTDIR,"ui.js"),"w",encoding="utf-8").write(r"""
+(function(){
+  var root=document.documentElement, body=document.body;
+  // theme toggle (head script already applied the stored/default theme)
+  var tb=document.getElementById('theme');
+  function setTheme(t){root.setAttribute('data-theme',t);try{localStorage.setItem('theme',t)}catch(e){}}
+  if(tb)tb.addEventListener('click',function(){setTheme(root.getAttribute('data-theme')==='dark'?'light':'dark')});
+  // game mode: rules + reference only
+  var gm=document.getElementById('gamemode');
+  function setGame(on){body.classList.toggle('game-mode',on);if(gm)gm.classList.toggle('on',on);root.classList.remove('game-pending');try{localStorage.setItem('gamemode',on?'1':'0')}catch(e){}}
+  var gs=false;try{gs=localStorage.getItem('gamemode')==='1'}catch(e){}
+  setGame(gs);
+  if(gm)gm.addEventListener('click',function(){setGame(!body.classList.contains('game-mode'))});
+  // collapsible nav groups (persisted); escalation collapsed by default
+  var KEY='navcollapsed', collapsed;
+  try{collapsed=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){collapsed=null}
+  var first=(collapsed===null); if(first)collapsed=['escalation'];
+  var groups=[].slice.call(document.querySelectorAll('.navgroup'));
+  groups.forEach(function(g){ if(collapsed.indexOf(g.dataset.group)>=0)g.classList.add('collapsed'); });
+  var act=document.querySelector('nav a.active');
+  if(act){var ag=act.closest('.navgroup'); if(ag)ag.classList.remove('collapsed');}
+  function persist(){var c=groups.filter(function(g){return g.classList.contains('collapsed')}).map(function(g){return g.dataset.group});try{localStorage.setItem(KEY,JSON.stringify(c))}catch(e){}}
+  if(first)persist();
+  groups.forEach(function(g){var h=g.querySelector('.navhead'); if(h)h.addEventListener('click',function(){g.classList.toggle('collapsed');persist();});});
+})();
+""")
 
 # ════════════ POST-PROCESS: prev/next + related footers ════════════
 import glob, collections

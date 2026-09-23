@@ -1,90 +1,19 @@
 <!doctype html><html><head><meta charset="utf-8">
-<script>(function(){try{var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>(function(){try{var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);if(localStorage.getItem('gamemode')==='1')document.documentElement.classList.add('game-pending');}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
 <title>Energy — Renown</title><link rel="stylesheet" href="wiki.css"></head><body>
 <input id="q" placeholder="Search…" autocomplete="off"><div id="results"></div>
+<button id="navtoggle" aria-label="Menu" onclick="document.body.classList.toggle('nav-open')">☰</button>
+<div class="topbtns">
+<button id="gamemode" type="button" aria-label="Game mode" title="Game mode: rules + reference only">♟</button>
 <button id="theme" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
-<div class="wrap"><nav><div class="navhead">Rules</div>
-<a href='turn-sequence.html'>★ Turn Sequence</a>
-<a href='rules-renown.html'>Renown</a>
-<a href='rules-introduction.html'>Introduction</a>
-<a href='rules-reading-these-rules.html'>Reading These Rules</a>
-<a href='rules-core-principles.html'>Core Principles</a>
-<a href='rules-the-turn.html'>The Turn</a>
-<a href='rules-table-setup.html'>Table Setup</a>
-<a href='rules-player-setup.html'>Player Setup</a>
-<a href='rules-action-mechanics.html'>Action Mechanics</a>
-<a href='rules-seasons.html'>Seasons</a>
-<a href='rules-influence.html'>Influence</a>
-<a href='rules-prowess-actions.html'>Prowess Actions</a>
-<a href='rules-cunning-actions.html'>Cunning Actions</a>
-<a href='rules-piety-actions.html'>Piety Actions</a>
-<a href='rules-industry-actions.html'>Industry Actions</a>
-<a href='rules-diplomacy-actions.html'>Diplomacy Actions</a>
-<a href='rules-domains-standings.html'>Domains &amp; Standings</a>
-<a href='rules-diplomacy-treaties.html'>Diplomacy &amp; Treaties</a>
-<a href='rules-settlements.html'>Settlements</a>
-<a href='rules-infrastructure.html'>Infrastructure</a>
-<a href='rules-territory-terrain.html'>Territory &amp; Terrain</a>
-<a href='rules-public-order.html'>Public Order</a>
-<a href='rules-treasury-upkeep.html'>Treasury &amp; Upkeep</a>
-<a href='rules-trade-income.html'>Trade &amp; Income</a>
-<a href='rules-armies.html'>Armies</a>
-<a href='rules-battle-phase.html'>Battle Phase</a>
-<a href='rules-siege-warfare.html'>Siege Warfare</a>
-<a href='rules-bandits.html'>Bandits</a>
-<div class="navhead">Pursuits</div>
-<a href='pursuits.html'>Overview</a>
-<a href='type-raw-materials.html'>Raw Materials</a>
-<a href='type-husbandry.html'>Husbandry</a>
-<a href='type-energy.html' class=active>Energy</a>
-<a href='type-craft.html'>Craft</a>
-<a href='type-power.html'>Power</a>
-<a href='type-civic.html'>Civic</a>
-<a href='type-secrecy.html'>Secrecy</a>
-<a href='type-monument.html'>Monument</a>
-<div class="navhead">Views</div>
-<a href='domain-industry.html'>Industry</a>
-<a href='domain-prowess.html'>Prowess</a>
-<a href='domain-cunning.html'>Cunning</a>
-<a href='domain-piety.html'>Piety</a>
-<a href='paths.html'>Build Paths</a>
-<div class="navhead">Reference</div>
-<a href='actions-ref.html'>Actions</a>
-<a href='envoy-outcomes-ref.html'>Envoy Outcomes</a>
-<a href='treaties-ref.html'>Treaties & Alliances</a>
-<a href='edicts-ref.html'>Edicts</a>
-<a href='economy-ref.html'>Economy</a>
-<a href='terrain-ref.html'>Terrain & Movement</a>
-<a href='bandits-ref.html'>Bandits</a>
-<a href='systems-ref.html'>Timers, Influence & PO</a>
-<a href='equipment-ref.html'>Equipment</a>
-<a href='keywords-ref.html'>Combat Keywords</a>
-<a href='infrastructure-ref.html'>Infrastructure</a>
-<a href='wonders-ref.html'>Wonders</a>
-<a href='settlements-ref.html'>Settlements</a>
-<a href='eras-ref.html'>Eras</a>
-<a href='public-order-ref.html'>Public Order</a>
-<a href='domain-board-ref.html'>Domain Board</a>
-<a href='seasons-ref.html'>Seasons</a>
-<a href='tactic-matrix-ref.html'>Tactic Matrix</a>
-<a href='reference-tables.html'>Reference Tables</a>
-<a href='glossary.html'>Glossary</a>
-<a href='factions.html'>Factions</a>
-<div class="navhead">Tools</div>
-<a href='maps.html'>Map Generator</a>
-<div class="navhead">Escalation</div>
-<a href='escalation.html'>Overview</a>
-<a href='escalation-rules.html'>Battle Rules</a>
-<a href='escalation-pursuits.html'>Combat Pursuits</a>
-<a href='tactic-matrix-ref.html'>Tactic Matrix</a>
-<a href='equipment-ref.html'>Equipment</a>
-<a href='keywords-ref.html'>Combat Keywords</a>
-<div class="navhead">Lore</div>
-<a href='lore.html'>Overview</a>
-<a href='lore-map.html'>The Map</a>
-<a href='lore-cultures.html'>The Fifteen</a>
-<a href='lore-ages.html'>The Timeline</a>
-<a href='lore-darkness.html'>Age of Darkness</a></nav><main><h1>Energy <span class='count'>7</span></h1><table class='pursuits'><thead><tr><th>Pursuit</th><th>Gate</th><th>Build Req</th><th>Innate</th><th>Mastery</th><th>Efficient</th><th>Builds Into</th></tr></thead><tbody><tr id='beacon-towers'><td class='nm'>Beacon Towers</td><td>Rising Prowess</td><td><a class="term" href="type-civic.html#courier-network">Courier Network</a> + <a class="term" href="type-civic.html#toll-house">Toll House</a></td><td>—</td><td>Whenever a non-allied Army ends a <a class="term" href="glossary.html#move">Move</a> action <a class="term" href="glossary.html#within">within</a> <a class="term" href="glossary.html#province">Province</a>, you may immediately <a class="term" href="glossary.html#perform">perform</a> a <a class="term" href="glossary.html#move">Move</a> action</td><td><a class="term" href="type-civic.html#toll-house">Toll House</a></td><td><span class=dim>—</span></td></tr><tr id='burgages'><td class='nm'>Burgages</td><td>-</td><td><a class="term" href="type-raw-materials.html#common-land">Common Land</a></td><td>+200</td><td><strong>Faith +1</strong></td><td><a class="term" href="type-raw-materials.html#common-land">Common Land</a></td><td><span class=dim>—</span></td></tr><tr id='charcoal-burner'><td class='nm'>Charcoal Burner</td><td>Established Industry</td><td><a class="term" href="type-raw-materials.html#forestry">Forestry</a> + <a class="term" href="type-energy.html#kiln">Kiln</a></td><td>+400</td><td><span class=dim>—</span></td><td><a class="term" href="type-raw-materials.html#forestry">Forestry</a>, <a class="term" href="type-energy.html#kiln">Kiln</a></td><td><span class=dim>—</span></td></tr><tr id='kiln'><td class='nm'>Kiln</td><td>Rising Industry</td><td><a class="term" href="type-raw-materials.html#forestry">Forestry</a></td><td>+300</td><td><span class=dim>—</span></td><td><a class="term" href="type-raw-materials.html#forestry">Forestry</a></td><td><a class="term" href="type-craft.html#smokehouse">Smokehouse</a>, <a class="term" href="type-energy.html#charcoal-burner">Charcoal Burner</a></td></tr><tr id='mill'><td class='nm'>Mill</td><td>Rising Industry</td><td><a class="term" href="type-craft.html#bakery">Bakery</a>/<a class="term" href="type-craft.html#weavery">Weavery</a>/<a class="term" href="type-power.html#forge">Forge</a>/<a class="term" href="type-craft.html#carpentry">Carpentry</a></td><td>+300</td><td><span class=dim>—</span></td><td><a class="term" href="type-craft.html#bakery">Bakery</a>, <a class="term" href="type-craft.html#weavery">Weavery</a>, <a class="term" href="type-power.html#forge">Forge</a>, <a class="term" href="type-craft.html#carpentry">Carpentry</a></td><td><a class="term" href="type-craft.html#bakery">Bakery</a></td></tr><tr id='pilgrimage-site'><td class='nm'>Pilgrimage Site</td><td>Rising Piety</td><td><a class="term" href="type-civic.html#reliquary">Reliquary</a> + <a class="term" href="type-craft.html#chandlery">Chandlery</a></td><td><strong>Extort 200</strong> every player without a <a class="term" href="type-energy.html#pilgrimage-site">Pilgrimage Site</a></td><td><strong>Doubt +1</strong> to all other players without a <a class="term" href="type-energy.html#pilgrimage-site">Pilgrimage Site</a></td><td><a class="term" href="type-civic.html#reliquary">Reliquary</a></td><td><a class="term" href="type-monument.html#papal-palace">Papal Palace</a></td></tr><tr id='secret-cellar'><td class='nm'>Secret Cellar</td><td>Rising Cunning</td><td>Smuggler&#x27;s Nook</td><td>—</td><td><a class="term" href="glossary.html#passed">Passed</a> Cunning actions <strong><a class="term" href="glossary.html#recoup">Recoup</a> 500 Gold</strong></td><td><a class="term" href="type-craft.html#inn">Inn</a></td><td>Smuggler&#x27;s Nook, <a class="term" href="type-power.html#forgery-workshop">Forgery Workshop</a>, <a class="term" href="type-secrecy.html#forgotten-catacombs">Forgotten Catacombs</a>, Thieves&#x27; Guild</td></tr></tbody></table><div class="pagefoot"><div class='related'><span class='rl'>Related:</span> <a class='term' href='paths.html'>Build Paths</a> <a class='term' href='type-craft.html'>Craft</a> <a class='term' href='type-civic.html'>Civic</a> <a class='term' href='type-raw-materials.html'>Raw Materials</a> <a class='term' href='type-monument.html'>Monument</a> <a class='term' href='glossary.html'>Glossary</a></div><div class='prevnext'><a class='pn prev' href='type-husbandry.html'>← Husbandry</a><a class='pn next' href='type-craft.html'>Craft →</a></div></div></main></div>
-<script src="search.js"></script>
-<script>(function(){var r=document.documentElement,tb=document.getElementById('theme');function s(t){r.setAttribute('data-theme',t);try{localStorage.setItem('theme',t)}catch(e){}}if(tb)tb.addEventListener('click',function(){s(r.getAttribute('data-theme')==='dark'?'light':'dark')});})();</script>
+</div>
+<div class="wrap"><nav><div class='navgroup' data-group='rules'><button type='button' class='navhead'>Rules<span class='chev'>›</span></button><div class='navlinks'><a href='turn-sequence.html'>★ Turn Sequence</a><a href='rules-renown.html'>Renown</a><a href='rules-introduction.html'>Introduction</a><a href='rules-reading-these-rules.html'>Reading These Rules</a><a href='rules-core-principles.html'>Core Principles</a><a href='rules-the-turn.html'>The Turn</a><a href='rules-table-setup.html'>Table Setup</a><a href='rules-player-setup.html'>Player Setup</a><a href='rules-action-mechanics.html'>Action Mechanics</a><a href='rules-seasons.html'>Seasons</a><a href='rules-influence.html'>Influence</a><a href='rules-prowess-actions.html'>Prowess Actions</a><a href='rules-cunning-actions.html'>Cunning Actions</a><a href='rules-piety-actions.html'>Piety Actions</a><a href='rules-industry-actions.html'>Industry Actions</a><a href='rules-diplomacy-actions.html'>Diplomacy Actions</a><a href='rules-domains-standings.html'>Domains &amp; Standings</a><a href='rules-diplomacy-treaties.html'>Diplomacy &amp; Treaties</a><a href='rules-settlements.html'>Settlements</a><a href='rules-infrastructure.html'>Infrastructure</a><a href='rules-territory-terrain.html'>Territory &amp; Terrain</a><a href='rules-public-order.html'>Public Order</a><a href='rules-treasury-upkeep.html'>Treasury &amp; Upkeep</a><a href='rules-trade-income.html'>Trade &amp; Income</a><a href='rules-armies.html'>Armies</a><a href='rules-battle-phase.html'>Battle Phase</a><a href='rules-siege-warfare.html'>Siege Warfare</a><a href='rules-bandits.html'>Bandits</a></div></div>
+<div class='navgroup' data-group='pursuits'><button type='button' class='navhead'>Pursuits<span class='chev'>›</span></button><div class='navlinks'><a href='pursuits.html'>Overview</a><a href='type-raw-materials.html'>Raw Materials</a><a href='type-husbandry.html'>Husbandry</a><a href='type-energy.html' class=active>Energy</a><a href='type-craft.html'>Craft</a><a href='type-power.html'>Power</a><a href='type-civic.html'>Civic</a><a href='type-secrecy.html'>Secrecy</a><a href='type-monument.html'>Monument</a></div></div>
+<div class='navgroup' data-group='views'><button type='button' class='navhead'>Views<span class='chev'>›</span></button><div class='navlinks'><a href='domain-industry.html'>Industry</a><a href='domain-prowess.html'>Prowess</a><a href='domain-cunning.html'>Cunning</a><a href='domain-piety.html'>Piety</a><a href='paths.html'>Build Paths</a></div></div>
+<div class='navgroup' data-group='reference'><button type='button' class='navhead'>Reference<span class='chev'>›</span></button><div class='navlinks'><a href='actions-ref.html'>Actions</a><a href='envoy-outcomes-ref.html'>Envoy Outcomes</a><a href='treaties-ref.html'>Treaties & Alliances</a><a href='edicts-ref.html'>Edicts</a><a href='economy-ref.html'>Economy</a><a href='terrain-ref.html'>Terrain & Movement</a><a href='bandits-ref.html'>Bandits</a><a href='systems-ref.html'>Timers, Influence & PO</a><a href='equipment-ref.html'>Equipment</a><a href='keywords-ref.html'>Combat Keywords</a><a href='infrastructure-ref.html'>Infrastructure</a><a href='wonders-ref.html'>Wonders</a><a href='settlements-ref.html'>Settlements</a><a href='eras-ref.html'>Eras</a><a href='public-order-ref.html'>Public Order</a><a href='domain-board-ref.html'>Domain Board</a><a href='seasons-ref.html'>Seasons</a><a href='tactic-matrix-ref.html'>Tactic Matrix</a><a href='reference-tables.html'>Reference Tables</a><a href='glossary.html'>Glossary</a><a href='factions.html'>Factions</a></div></div>
+<div class='navgroup' data-group='tools'><button type='button' class='navhead'>Tools<span class='chev'>›</span></button><div class='navlinks'><a href='maps.html'>Map Generator</a></div></div>
+<div class='navgroup' data-group='escalation'><button type='button' class='navhead'>Escalation<span class='chev'>›</span></button><div class='navlinks'><a href='escalation.html'>Overview</a><a href='escalation-rules.html'>Battle Rules</a><a href='escalation-pursuits.html'>Combat Pursuits</a><a href='tactic-matrix-ref.html'>Tactic Matrix</a><a href='equipment-ref.html'>Equipment</a><a href='keywords-ref.html'>Combat Keywords</a></div></div>
+<div class='navgroup' data-group='lore'><button type='button' class='navhead'>Lore<span class='chev'>›</span></button><div class='navlinks'><a href='lore.html'>Overview</a><a href='lore-map.html'>The Map</a><a href='lore-cultures.html'>The Fifteen</a><a href='lore-ages.html'>The Timeline</a><a href='lore-darkness.html'>Age of Darkness</a></div></div></nav><main><h1>Energy <span class='count'>7</span></h1><table class='pursuits'><thead><tr><th>Pursuit</th><th>Gate</th><th>Build Req</th><th>Innate</th><th>Mastery</th><th>Efficient</th><th>Builds Into</th></tr></thead><tbody><tr id='beacon-towers'><td class='nm'>Beacon Towers</td><td>Rising Prowess</td><td><a class="term" href="type-civic.html#courier-network">Courier Network</a> + <a class="term" href="type-civic.html#toll-house">Toll House</a></td><td>—</td><td>Whenever a non-allied Army ends a <a class="term" href="glossary.html#move">Move</a> action <a class="term" href="glossary.html#within">within</a> <a class="term" href="glossary.html#province">Province</a>, you may immediately <a class="term" href="glossary.html#perform">perform</a> a <a class="term" href="glossary.html#move">Move</a> action</td><td><a class="term" href="type-civic.html#toll-house">Toll House</a></td><td><span class=dim>—</span></td></tr><tr id='burgages'><td class='nm'>Burgages</td><td>-</td><td><a class="term" href="type-raw-materials.html#common-land">Common Land</a></td><td>+200</td><td><strong>Faith +1</strong></td><td><a class="term" href="type-raw-materials.html#common-land">Common Land</a></td><td><span class=dim>—</span></td></tr><tr id='charcoal-burner'><td class='nm'>Charcoal Burner</td><td>Established Industry</td><td><a class="term" href="type-raw-materials.html#forestry">Forestry</a> + <a class="term" href="type-energy.html#kiln">Kiln</a></td><td>+400</td><td><span class=dim>—</span></td><td><a class="term" href="type-raw-materials.html#forestry">Forestry</a>, <a class="term" href="type-energy.html#kiln">Kiln</a></td><td><span class=dim>—</span></td></tr><tr id='kiln'><td class='nm'>Kiln</td><td>Rising Industry</td><td><a class="term" href="type-raw-materials.html#forestry">Forestry</a></td><td>+300</td><td><span class=dim>—</span></td><td><a class="term" href="type-raw-materials.html#forestry">Forestry</a></td><td><a class="term" href="type-craft.html#smokehouse">Smokehouse</a>, <a class="term" href="type-energy.html#charcoal-burner">Charcoal Burner</a></td></tr><tr id='mill'><td class='nm'>Mill</td><td>Rising Industry</td><td><a class="term" href="type-craft.html#bakery">Bakery</a>/<a class="term" href="type-craft.html#weavery">Weavery</a>/<a class="term" href="type-power.html#forge">Forge</a>/<a class="term" href="type-craft.html#carpentry">Carpentry</a></td><td>+300</td><td><span class=dim>—</span></td><td><a class="term" href="type-craft.html#bakery">Bakery</a>, <a class="term" href="type-craft.html#weavery">Weavery</a>, <a class="term" href="type-power.html#forge">Forge</a>, <a class="term" href="type-craft.html#carpentry">Carpentry</a></td><td><a class="term" href="type-craft.html#bakery">Bakery</a></td></tr><tr id='pilgrimage-site'><td class='nm'>Pilgrimage Site</td><td>Rising Piety</td><td><a class="term" href="type-civic.html#reliquary">Reliquary</a> + <a class="term" href="type-craft.html#chandlery">Chandlery</a></td><td><strong>Extort 200</strong> every player without a <a class="term" href="type-energy.html#pilgrimage-site">Pilgrimage Site</a></td><td><strong>Doubt +1</strong> to all other players without a <a class="term" href="type-energy.html#pilgrimage-site">Pilgrimage Site</a></td><td><a class="term" href="type-civic.html#reliquary">Reliquary</a></td><td><a class="term" href="type-monument.html#papal-palace">Papal Palace</a></td></tr><tr id='secret-cellar'><td class='nm'>Secret Cellar</td><td>Rising Cunning</td><td>Smuggler&#x27;s Nook</td><td>—</td><td><a class="term" href="glossary.html#passed">Passed</a> Cunning actions <strong><a class="term" href="glossary.html#recoup">Recoup</a> 500 Gold</strong></td><td><a class="term" href="type-craft.html#inn">Inn</a></td><td>Smuggler&#x27;s Nook, <a class="term" href="type-power.html#forgery-workshop">Forgery Workshop</a>, <a class="term" href="type-secrecy.html#forgotten-catacombs">Forgotten Catacombs</a>, Thieves&#x27; Guild</td></tr></tbody></table><div class="pagefoot"><div class='related'><span class='rl'>Related:</span> <a class='term' href='paths.html'>Build Paths</a> <a class='term' href='type-craft.html'>Craft</a> <a class='term' href='type-civic.html'>Civic</a> <a class='term' href='type-raw-materials.html'>Raw Materials</a> <a class='term' href='type-monument.html'>Monument</a> <a class='term' href='glossary.html'>Glossary</a></div><div class='prevnext'><a class='pn prev' href='type-husbandry.html'>← Husbandry</a><a class='pn next' href='type-craft.html'>Craft →</a></div></div></main></div>
+<script src="search.js"></script><script src="ui.js"></script>
 <div class="versionstamp">Renown v0.4.9.9-d10</div></body></html>

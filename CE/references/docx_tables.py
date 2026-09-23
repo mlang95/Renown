@@ -119,6 +119,10 @@ def po_modifiers():
         for src, cond in rd.PO_MODIFIERS.get(sign, {}).items():
             rows.append([f"{sign.title()} 1", src, cond])
     return _table(["Type", "Source", "Condition"], rows)
+    
+def bandit_armaments():
+    rows = [[k, v] for k, v in rd.BANDIT_EQUIPMENT_PER_ERA.items()]
+    return _table(["Era", "Armaments"], rows)
 
 def domain_board():
     # Full authored shape: Untested..Sovereign per domain, then the two influence rows.
