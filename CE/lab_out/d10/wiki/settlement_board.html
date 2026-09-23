@@ -440,7 +440,7 @@ function startDoms(){return (D&&D.startDomains)?D.startDomains:{Industry:1,Prowe
 function newBoard(){return {placed:[],settlements:[],infra:{},wonders:{},armies:[],
   treasury:0,turn:0,autoNet:true,expanded:[],po:0,domains:Object.assign({},startDoms()),edicts:{}};}
 function newPlayer(i){return {id:i,name:"Player "+i,color:PLAYER_COLORS[(i-1)%PLAYER_COLORS.length],board:newBoard()};}
-let D={players:[],active:0,view:"board",renown:1,theme:"ink",
+let D={players:[],active:0,view:"board",renown:1,theme:"parchment",
        startDomains:{Industry:1,Prowess:1,Piety:1,Cunning:1},
        map:{seed:"",cols:16,rows:12,markers:[]}};
 D.players=[newPlayer(1)];
@@ -457,7 +457,7 @@ try{
 }catch(e){}
 function normalizeD(){
   D.startDomains=D.startDomains||{Industry:1,Prowess:1,Piety:1,Cunning:1};
-  D.theme=D.theme||"ink"; D.shape=D.shape||"rounded"; D.pursuitView=D.pursuitView||"cards";
+  D.theme=D.theme||"parchment"; D.shape=D.shape||"sharp"; D.pursuitView=D.pursuitView||"cards";
   D.players=(D.players&&D.players.length)?D.players:[newPlayer(1)];
   D.players.forEach(p=>{p.board=Object.assign(newBoard(),p.board);
     const dm=p.board.domains||{},nd={};
@@ -703,8 +703,8 @@ function atomsBlock(atoms,hideCombat){
 // ---- render ----
 function render(){
   reindex();                    // S := active board, ids synced
-  applyTheme(D.theme||"ink");
-  applySkin(D.shape||"rounded");
+  applyTheme(D.theme||"parchment");
+  applySkin(D.shape||"sharp");
   renderTopBar();
   const view=D.view||"board";
   document.getElementById("appBoard").style.display = view==="board"?"":"none";
@@ -737,9 +737,9 @@ function render(){
 document.querySelectorAll(".vtab").forEach(t=>t.onclick=()=>{D.view=t.dataset.v;save();render();});
 function renderTopBar(){
   const ts=document.getElementById("themeSel");
-  if(ts){ts.value=D.theme||"ink";if(!ts._wired){ts._wired=1;ts.onchange=()=>{D.theme=ts.value;applyTheme(D.theme);save();render();};}}
+  if(ts){ts.value=D.theme||"parchment";if(!ts._wired){ts._wired=1;ts.onchange=()=>{D.theme=ts.value;applyTheme(D.theme);save();render();};}}
   const sh=document.getElementById("shapeSel");
-  if(sh){sh.value=D.shape||"rounded";if(!sh._wired){sh._wired=1;sh.onchange=()=>{D.shape=sh.value;applySkin(D.shape);save();render();};}}
+  if(sh){sh.value=D.shape||"sharp";if(!sh._wired){sh._wired=1;sh.onchange=()=>{D.shape=sh.value;applySkin(D.shape);save();render();};}}
   const bar=document.getElementById("playerBar");bar.innerHTML="";
   const chips=[];
   D.players.forEach((p,i)=>{
