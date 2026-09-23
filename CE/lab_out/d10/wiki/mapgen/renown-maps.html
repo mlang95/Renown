@@ -161,6 +161,13 @@ button.ghost:hover{background:var(--edge)}
       <input type="number" id="seed" value="7" min="0" step="1"></label>
     <label style="flex:1;align-self:end"><button class="ghost" id="reroll">Reroll</button></label>
   </div>
+  <div class="row" style="margin-top:6px">
+    <label style="flex:3"><span class="lb"><b>Seed code</b></span>
+      <input type="text" id="seedCode" placeholder="Region/seed/players/WxH"></label>
+    <label style="flex:1;align-self:end"><button class="ghost" id="copyCode">Copy</button></label>
+  </div>
+  <p class="note" id="codeNote">Paste a code and press Enter to load it. Codes
+    reproduce the board only with default region sliders — use Export JSON otherwise.</p>
 
   <fieldset><legend>Board</legend>
     <label class="lock"><input type="checkbox" id="lockSize"> keep my size</label>
@@ -3197,6 +3204,7 @@ function render() {
   }
   s += '</svg>';
   $('boardwrap').innerHTML = s;
+  if (typeof updateCode === 'function' && $('seedCode')) updateCode();
 }
 
 function run() {
@@ -3223,6 +3231,42 @@ function run() {
   $('viol').title = current.violations.join('\n');
   $('stPreset').title = ms + ' ms';
 }
+
+/* ── seed code: Region/seed/players/WxH (read by the settlement board) ── */
+function seedCode() {
+  return presetSel.value + '/' + $('seed').value + '/' + $('vPlayers').value
+    + '/' + $('vW').value + 'x' + $('vH').value;
+}
+function updateCode() {
+  $('seedCode').value = seedCode();
+  const tuned = Object.keys(overrides).length > 0 || imported;
+  $('codeNote').style.color = tuned ? '#b3392f' : '';
+  $('codeNote').textContent = tuned
+    ? (imported ? 'Showing an imported grid — the code may not reproduce it; share the JSON.'
+                : 'Region sliders changed — this code will NOT reproduce the board. Export JSON instead.')
+    : 'Paste a code and press Enter to load it. Codes reproduce the board only with default region sliders.';
+}
+function loadCode(txt) {
+  const p = String(txt || '').split('/').map(x => x.trim());
+  if (p.length < 3 || !PRESETS[p[0]] || isNaN(+p[1]) || !+p[2]) { $('codeNote').textContent = 'Bad code — expected Region/seed/players[/WxH].'; return; }
+  presetSel.value = p[0]; buildControls();
+  $('seed').value = +p[1];
+  $('players').value = +p[2]; $('vPlayers').value = +p[2];
+  const wh = (p[3] || '').split('x');
+  if (+wh[0] && +wh[1]) {
+    $('lockSize').checked = true;
+    $('width').value = +wh[0]; $('vW').value = +wh[0];
+    $('height').value = +wh[1]; $('vH').value = +wh[1];
+  } else { $('lockSize').checked = false; applyBoardSize(+p[2]); }
+  run();
+}
+$('seedCode').addEventListener('keydown', e => { if (e.key === 'Enter') loadCode($('seedCode').value); });
+$('copyCode').addEventListener('click', () => {
+  const t = $('seedCode').value;
+  (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject())
+    .then(() => { $('copyCode').textContent = 'Copied'; setTimeout(() => $('copyCode').textContent = 'Copy', 1200); })
+    .catch(() => { $('seedCode').select(); document.execCommand('copy'); });
+});
 
 /* ── output ─────────────────────────────────────────── */
 function download(name, text, type) {

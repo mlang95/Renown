@@ -2259,7 +2259,7 @@ EFFICIENT = {n: t[0] for n, t in EFFICIENT_MULTI.items()} # first target (1-part
 BANDIT_CAMP_START = 5
 BANDIT_ARMY_THRESHOLD = 25
 BANDIT_GROWTH_PER_ERA = {"Founding": 1, "Ascension": 2, "Eminence": 3, "Zenith": 4}
-BANDIT_EQUIPMENT_PER_ERA = {"Founding": "Cudgel + Cloth", "Ascension": "Arming Swords, Target Shields, & Leather Armor" , "Eminence": "Halberds + Chainmail", "Zenith": "Battle Axes + Full Plate"}
+BANDIT_EQUIPMENT_PER_ERA = {"Founding": "Cudgel + Cloth", "Ascension": "Arming Sword, Targe Shield, & Leather Armor" , "Eminence": "Halberd + Chainmail", "Zenith": "Battle Axe + Full Plate"}
 BANDITS = {
     "Bandit Domain Value": "For every 5 Retinues in the Bandit Camp or Army, the Bandit Camp has +2 Cunning and +2 Prowess.",
     "Bandit Camp": f"A collection of Bandits in Outlaw Country, starting with {BANDIT_CAMP_START} Retinues.",
