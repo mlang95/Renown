@@ -1048,7 +1048,7 @@ NODES = {
         "unlock": "Established Piety",
         "mastery_req": "Episcopal Court + Academy",
         "innate": "Once/turn: **Influence +1** another player's Piety Envoy",
-        "mastery": "Shake +1.",
+        "mastery": "Morale +1.",
         "efficient": "Episcopal Court",
         "builds_into": ["Reliquary", "Monastery"],
         "monument": False,
