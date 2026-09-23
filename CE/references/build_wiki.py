@@ -377,6 +377,19 @@ if MAPGEN_URL is None:
     print(f"  [map generator] {MAPGEN_ENTRY} not found in: " +
           ", ".join(os.path.normpath(d) for d in MAPGEN_DIRS if d))
 
+# ── settlement-board emulator (built by gen_settlement_board.py, lives in references/) ──
+BOARD_ENTRY = "settlement_board.html"   # gen_settlement_board.py output
+BOARD_PAGE  = "board.html"              # wiki page that hosts it
+BOARD_TITLE = "Board Emulator"
+BOARD_URL   = None
+_bsrc = os.path.join(_HERE, BOARD_ENTRY)
+if os.path.isfile(_bsrc):
+    _sh.copy2(_bsrc, os.path.join(OUTDIR, BOARD_ENTRY))
+    BOARD_URL = BOARD_ENTRY
+    print(f"  [board] {os.path.normpath(_bsrc)} -> {OUTDIR}/{BOARD_URL}")
+else:
+    print(f"  [board] {BOARD_ENTRY} not found in {_HERE} - run gen_settlement_board.py first")
+
 # ── nav ──
 def nav(current=""):
     def A(u,label):
@@ -412,8 +425,11 @@ def nav(current=""):
     if FACTIONS: ref.append(A("factions.html","Factions"))
     groups.append(("reference","Reference",ref))
 
-    if MAPGEN_URL:
-        groups.append(("tools","Tools",[A(MAPGEN_PAGE, MAPGEN_TITLE)]))
+    _tools=[]
+    if MAPGEN_URL: _tools.append(A(MAPGEN_PAGE, MAPGEN_TITLE))
+    if BOARD_URL:  _tools.append(A(BOARD_PAGE,  BOARD_TITLE))
+    if _tools:
+        groups.append(("tools","Tools",_tools))
 
     esc=[A(uu,label) for label,uu in
          [("Overview","escalation.html"),("Battle Rules","escalation-rules.html"),
@@ -1091,6 +1107,19 @@ if MAPGEN_URL:
         page(MAPGEN_TITLE, "".join(mg), u))
     search_index.append({"title": MAPGEN_TITLE, "url": u,
                          "text": "map generator procedural board terrain hex seed rivers lakes resources start map"})
+
+if BOARD_URL:
+    u = BOARD_PAGE
+    bd = [f"<h1>{BOARD_TITLE}</h1>",
+          "<p>Interactive settlement-board emulator. Place pursuits into ward slots, "
+          "track infrastructure, armies, Public Order, Renown &amp; domains, and see live totals. "
+          f"<a class='term' href='{BOARD_URL}' target='_blank'>Open full screen \u2197</a></p>",
+          f"<iframe class='mapframe' src='{BOARD_URL}' loading='lazy' "
+          "title='Renown settlement-board emulator'></iframe>"]
+    open(os.path.join(OUTDIR, u), "w", encoding="utf-8").write(
+        page(BOARD_TITLE, "".join(bd), u))
+    search_index.append({"title": BOARD_TITLE, "url": u,
+                         "text": "settlement board emulator pursuits wards infrastructure army public order renown domains"})
 
 # ════════════ LORE SECTION (rendered from world.txt via worldtxt.py) ════════════
 # Every section in world.txt becomes a linked wiki page, in the book's reading

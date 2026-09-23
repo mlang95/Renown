@@ -2736,13 +2736,15 @@ import re as _re_disp
 # Entity ids -> printed label (weapons, ranged, shields, armor, nodes).
 NAME_DISPLAY = {
     "Spears": "Spear",
-    "Pilum": "Angon",
+    "Pilum": "Throwing Spear",
     "Farm Tools": "Farm Tool",
     "Artillery Park": "Ordinance Yard",
     "Coliseum": "Castle Yard",
     "Javelin": "Throwing Axe",
     "Crafted" : "Tempered",
     "Gambeson": "Padded",
+    #"to-hit", "to-Strike",
+    
 }
 
 # Equipment tier ids -> printed label. Separate map because tiers are a closed
