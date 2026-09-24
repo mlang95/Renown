@@ -65,6 +65,23 @@
   .sgroup-hd{display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer;flex-wrap:wrap}
   .sgroup-hd .stitle{font-family:Georgia,serif;font-size:14px}
   .sgroup-hd .rm{font-size:11px}
+  /* ward slots + solitaire piles (efficient riders stack on their host) */
+  #board-pursuit.board{display:block}   /* settlements = full-width rows; wards tile inside */
+  .wards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;align-items:start}
+  .ward{border:1px solid var(--line);border-radius:var(--radius);padding:6px;background:var(--panel2);min-height:128px;display:flex;flex-direction:column}
+  .ward-lbl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin:0 2px 5px;display:flex;justify-content:space-between;gap:6px}
+  .ward.empty{border:2px dashed var(--line2);background:transparent;cursor:pointer}
+  .ward.empty:hover{border-color:var(--income)}
+  .ward.empty .emp{flex:1;display:flex;align-items:center;justify-content:center;color:var(--dim2);font-family:Georgia,serif;font-size:13px;font-style:italic}
+  .ward.over{border-color:var(--upkeep);background:rgba(239,83,80,.10)}
+  .ward.over .ward-lbl{color:var(--upkeep)}
+  .pile{position:relative}
+  .pc{position:relative}
+  .pc.buried{height:34px}
+  .pc.buried>.card{position:absolute;left:0;right:0;top:0;max-height:34px;overflow:hidden}
+  .pile .pc+.pc>.card{box-shadow:0 -3px 6px rgba(0,0,0,.35)}
+  .pc.buried:hover{z-index:19!important}
+  .pc.buried:hover>.card{max-height:none;overflow:visible;outline:1px solid var(--line2);box-shadow:0 8px 22px rgba(0,0,0,.6)}
 
   .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:10px;
     border-left:4px solid var(--other);min-width:0;overflow-wrap:anywhere}
@@ -98,6 +115,17 @@
   .verb{color:var(--dim);font-size:11px;margin-top:5px;overflow-wrap:anywhere}
   .req{color:var(--dim);font-size:11px;margin-top:4px;overflow-wrap:anywhere}
   .miss{color:var(--upkeep);font-size:11px;margin-top:3px;overflow-wrap:anywhere}
+  .badge.manual{color:var(--order);border-color:var(--order)}
+  .ireq{font-size:11px;margin-top:3px;display:flex;gap:5px;align-items:baseline;flex-wrap:wrap}
+  .ireq .ok{color:var(--income)} .ireq .no{color:var(--upkeep)} .ireq .mn{color:var(--order)}
+  .ireq .why{color:var(--dim)}
+  .card.illegal{background:rgba(239,83,80,.08)}
+  .poladder{margin-top:6px;display:flex;flex-direction:column;gap:1px;font-size:11px}
+  .poladder .pr{display:grid;grid-template-columns:22px 92px 1fr;gap:6px;padding:1px 4px;border-radius:var(--radius-sm);color:var(--dim2)}
+  .poladder .pr.on.neg{color:var(--upkeep);background:rgba(239,83,80,.10)}
+  .poladder .pr.on.pos{color:var(--income);background:rgba(102,187,106,.10)}
+  .poladder .pr.cur{font-weight:700;outline:1px solid var(--line2)}
+  .poladder .pr .v{text-align:right}
   .rm{color:var(--dim2);border:none;background:none;font-size:14px;cursor:pointer;margin-left:auto}
   .rm:hover{color:var(--upkeep)}
   .empty{color:var(--dim2);text-align:center;padding:24px 10px}
@@ -331,7 +359,8 @@
         <span class="note" id="poBand"></span>
       </div>
       <div class="note" id="poEffect"></div>
-      <div class="note">clamped −5..10; end turn applies Faith−Doubt</div>
+      <div class="poladder" id="poLadder"></div>
+      <div class="note">cumulative both ways: every band from 0 out to your value is active · clamped −5..10; end turn applies Faith−Doubt</div>
     </div>
 
     <div class="tot">
@@ -3240,7 +3269,9 @@ function applySkin(name){
 
 // ---- state: multiplayer dashboard ----
 function startDoms(){return (D&&D.startDomains)?D.startDomains:{Industry:1,Prowess:1,Piety:1,Cunning:1};}
-function newBoard(){return {placed:[],settlements:[],infra:{},wonders:{},armies:[],
+// every game starts with 1 Hamlet, 1 Village, 1 Town — the Town is the capital
+function startSettlements(){return [{id:1,tier:"Hamlet"},{id:2,tier:"Village"},{id:3,tier:"Town",capital:true}];}
+function newBoard(){return {placed:[],settlements:startSettlements(),infra:{},wonders:{},armies:[],
   treasury:0,turn:0,autoNet:true,expanded:[],po:0,domains:Object.assign({},startDoms()),edicts:{},edictLog:{},edictTimers:{}};}
 function newPlayer(i){return {id:i,name:"Player "+i,color:PLAYER_COLORS[(i-1)%PLAYER_COLORS.length],board:newBoard()};}
 let D={players:[],active:0,view:"board",renown:1,theme:"parchment",
@@ -3284,7 +3315,7 @@ function reindex(){
   S.armies.forEach(a=>{if(a.id>=aid)aid=a.id+1;});
   S.placed.forEach(p=>{if(p.id>=pid)pid=p.id+1;});
   S.settlements.forEach(s=>{if(s.id>=sid)sid=s.id+1;});
-  activeSid=S.settlements[0]?S.settlements[0].id:null;
+  const cp=S.settlements.find(x=>x.capital);activeSid=cp?cp.id:(S.settlements[0]?S.settlements[0].id:null);
 }
 (D.map.markers||[]).forEach(m=>{if(m.id>=mid)mid=m.id+1;});
 reindex();
@@ -3455,6 +3486,8 @@ function canPlace(name, sid){
 
 // ---- uniqueness + tier progression ----
 const TIER_CHAIN=["Village","Town","City","Metropolis"];
+function capitalSett(){return S.settlements.find(s=>s.capital)||null;}
+function setCapital(id){S.settlements.forEach(s=>{s.capital=(s.id===id);});}
 function hasMetropolis(exceptId){return S.settlements.some(s=>s.tier==="Metropolis"&&s.id!==exceptId);}
 function onBoard(name){return S.placed.some(p=>p.name===name);}      // one of each name, anywhere
 function nextTier(t){const i=TIER_CHAIN.indexOf(t);return i>=0&&i<TIER_CHAIN.length-1?TIER_CHAIN[i+1]:null;}
@@ -3515,7 +3548,9 @@ function renderList(){
     Object.keys(src).filter(n=>n.toLowerCase().includes(q)).forEach(n=>{
       const r=src[n];const row=itemRow(n,false,!!have[n]);
       const meta=document.createElement("span");meta.className="meta";
-      meta.textContent=r.tier+(r.upkeep?(" · up "+r.upkeep):"");
+      const rs=infraReqStatus(r);
+      meta.textContent=r.tier+(r.upkeep?(" · up "+r.upkeep):"")+(!rs.ok?" · 🔒":rs.manual?" · ?":"");
+      if(!rs.ok||rs.manual)meta.title=(!rs.ok?"missing: "+rs.missing.join(", "):"")+(rs.manual?(rs.ok?"":"\n")+"check manually: "+rs.toks.filter(x=>x.ok===null).map(x=>x.tok).join(", "):"");
       row.insertBefore(meta,row.lastChild);list.appendChild(row);
     });
   }
@@ -3554,7 +3589,59 @@ function moveInstance(id,sid){
 }
 
 // ---- mastery ----
-function infraActive(tok){return !!S.infra[tok]||!!S.wonders[tok];}
+// ---- infrastructure / wonder requirements ----
+// requirement string = '+'-joined tokens. Token kinds:
+//   <Infra name>          → that Infrastructure built AND its own requirements met
+//   One Tier <Tier>       → every Infrastructure of that tier built  (reading: full tier; data has no rules definition)
+//   All Infrastructure…   → every Infrastructure built and requirement-valid (Wonders)
+//   …Capital City…        → your capital is City tier or higher (City / Metropolis)
+//   …Capital…             → you have a capital settlement (every player has one)
+//   anything else         → not modelled → manual "?" flag, non-blocking
+function infraReqToks(rec){const s=((rec&&rec.requirement)||"").trim();
+  if(!s||/^none$/i.test(s))return [];return s.split("+").map(t=>t.trim()).filter(Boolean);}
+function infraTokStatus(tok,seen){
+  let m;seen=seen||new Set();
+  if(m=tok.match(/^One\s+Tier\s+(\w+)$/i)){const t=m[1].toLowerCase();
+    const all=Object.keys(INFRA).filter(n=>(INFRA[n].tier||"").toLowerCase()===t),miss=all.filter(n=>!S.infra[n]);
+    return {tok,ok:!miss.length,missing:miss,why:"all "+cap(t)+" ("+(all.length-miss.length)+"/"+all.length+")"};}
+  if(/^All\s+Infrastructure/i.test(tok)){const all=Object.keys(INFRA),miss=all.filter(n=>!infraValid(n,seen));
+    return {tok,ok:!miss.length,missing:miss,why:"all Infrastructure ("+(all.length-miss.length)+"/"+all.length+")"};}
+  if(INFRA[tok]){const built=!!S.infra[tok],ok=built&&infraValid(tok,seen);
+    return {tok,ok,missing:ok?[]:[tok+(built?" (req unmet)":"")],why:tok};}
+  if(/capital\s+city/i.test(tok)){const c=capitalSett(),ok=!!c&&TIER_CHAIN.indexOf(c.tier)>=TIER_CHAIN.indexOf("City");
+    return {tok,ok,missing:ok?[]:[c?"Capital is a "+c.tier+" (needs City)":"a Capital"],why:"Capital is a City+"+(c?" (now "+c.tier+")":" — none set")};}
+  if(/capital/i.test(tok)){const c=capitalSett();return {tok,ok:!!c,missing:c?[]:["a Capital"],why:"Capital"+(c?" ("+c.tier+")":" — none set")};}
+  return {tok,ok:null,missing:[],why:tok+" — check manually"};
+}
+function infraReqStatus(rec,seen){
+  const st=infraReqToks(rec).map(t=>infraTokStatus(t,seen));
+  const bad=st.filter(x=>x.ok===false),man=st.filter(x=>x.ok===null);
+  return {ok:!bad.length,manual:man.length>0,toks:st,missing:[].concat(...bad.map(x=>x.missing))};
+}
+function infraValid(n,seen){               // built + requirements met (manual tokens don't block)
+  const src=INFRA[n]?S.infra:S.wonders, rec=INFRA[n]||WON[n];
+  if(!rec||!src[n])return false;
+  seen=seen||new Set(); if(seen.has(n))return true; const s2=new Set(seen);s2.add(n);
+  return infraReqStatus(rec,s2).ok;
+}
+function infraActive(tok){return infraValid(tok);}
+function infraReqLinesHTML(rec){
+  return infraReqStatus(rec).toks.map(x=>'<div class="ireq"><span class="'+(x.ok===true?'ok':x.ok===false?'no':'mn')+'">'+(x.ok===true?'✓':x.ok===false?'✗':'?')+'</span><span>'+esc(x.why)+'</span>'+(x.ok===false&&x.missing.length?'<span class="why">missing: '+esc(x.missing.join(", "))+'</span>':'')+'</div>').join("");
+}
+// infra/wonder tokens a pursuit's mastery depends on
+function masteryInfraToks(r){return [...new Set([].concat(...r.mreq).map(t=>t.trim()).filter(t=>INFRA[t]||WON[t]))];}
+function masteryInfraHTML(r){
+  const toks=masteryInfraToks(r);if(!toks.length)return "";
+  return '<div class="lbl" style="margin-top:6px">INFRASTRUCTURE REQ</div>'+toks.map(t=>{const rec=INFRA[t]||WON[t],built=!!(INFRA[t]?S.infra:S.wonders)[t],st=infraReqStatus(rec),ok=built&&st.ok;
+    return '<div class="ireq"><span class="'+(ok?'ok':'no')+'">'+(ok?'✓':'✗')+'</span><span>'+esc(t)+'</span><span class="why">'+
+      (!built?'not built':!st.ok?'built — its req unmet: '+esc(st.missing.join(", ")):'active')+(st.manual?' · ? '+esc(st.toks.filter(x=>x.ok===null).map(x=>x.tok).join(", ")):'')+'</span></div>'+
+      (rec.requirement&&!/^none$/i.test(rec.requirement)?'<div class="ireq"><span class="why" style="margin-left:14px">'+esc(t)+' needs: '+esc(rec.requirement)+'</span></div>':'');}).join("");
+}
+function annotReqTok(o){o=o.trim();
+  if(INFRA[o]||WON[o]){const built=!!(INFRA[o]?S.infra:S.wonders)[o];
+    if(!built)return o+" [infra: not built]";
+    const st=infraReqStatus(INFRA[o]||WON[o]);if(!st.ok)return o+" [infra req unmet: "+st.missing.join(", ")+"]";}
+  return o;}
 function optionMet(tok,have,craft,tc){
   tok=tok.trim();let m;
   if(m=tok.match(/^Craft\s+(\d+)$/i))return craft>=+m[1];
@@ -3566,7 +3653,7 @@ function optionMet(tok,have,craft,tc){
 function reqStatus(rec,have,craft,tc){
   if(!rec.mreq.length)return{earned:true,missing:[]};
   const missing=[];let ok=true;
-  rec.mreq.forEach(g=>{if(!g.some(o=>optionMet(o,have,craft,tc))){ok=false;missing.push(g.join(" / "));}});
+  rec.mreq.forEach(g=>{if(!g.some(o=>optionMet(o,have,craft,tc))){ok=false;missing.push(g.map(annotReqTok).join(" / "));}});
   return{earned:ok,missing};
 }
 function computeEarned(have){
@@ -3689,10 +3776,10 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
   const sel=document.createElement("select");
   Object.keys(DATA.settlements).forEach(t=>{const o=document.createElement("option");o.value=t;
     o.textContent=t+" ("+DATA.settlements[t].wards+"w)";
-    if(t==="Metropolis"&&hasMetropolis())o.disabled=true;sel.appendChild(o);});
+    if(t==="Metropolis")o.disabled=true;sel.appendChild(o);});   // Metropolis: capital only (expand the capital)
   const addB=document.createElement("button");addB.textContent="+ settlement";
   addB.onclick=()=>{
-    if(sel.value==="Metropolis"&&hasMetropolis()){flash("only one Metropolis allowed");return;}
+    if(sel.value==="Metropolis"){flash("Metropolis is capital only — expand your capital");return;}
     const id=sid++;S.settlements.push({id,tier:sel.value});activeSid=id;autoFill();save();render();};
   tb.appendChild(sel);tb.appendChild(addB);
   const exAll=document.createElement("button");exAll.textContent="expand all";
@@ -3725,13 +3812,20 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
       const tier=settTier(gid),wu=wardUse(gid);
       const t=document.createElement("span");t.className="stitle";t.style.cursor="pointer";
       t.onclick=()=>{activeSid=gid;render();};
-      t.innerHTML=(gid===activeSid?"● ":"")+tier+' <span class="note">wards '+wu.used+'/'+wu.cap+' · '+occ.length+' pursuits'+(wu.typeBad?' · <span style="color:var(--upkeep)">type!</span>':'')+(tier==="Hamlet"?' · Husbandry/Arable only':'')+'</span>';
+      const isCap=!!(S.settlements.find(x=>x.id===gid)||{}).capital;
+      t.innerHTML=(gid===activeSid?"● ":"")+(isCap?"★ ":"")+tier+(isCap?' <span class="badge earn">Capital</span>':'')+' <span class="note">wards '+wu.used+'/'+wu.cap+(wu.free>0?' · <b style="color:var(--income)">'+wu.free+' empty</b>':'')+(wu.free<0?' · <b style="color:var(--upkeep)">'+(-wu.free)+' over</b>':'')+' · '+occ.length+' pursuits'+(wu.typeBad?' · <span style="color:var(--upkeep)">type!</span>':'')+(tier==="Hamlet"?' · Husbandry/Arable only':'')+'</span>';
       hd.appendChild(t);hd.appendChild(settBar(gid));
+      const cb=document.createElement("button");cb.textContent=isCap?"★ capital":"☆ make capital";
+      cb.title=isCap?"this is your capital":"move your capital here";if(isCap)cb.style.color="var(--income)";
+      cb.onclick=(e)=>{e.stopPropagation();if(isCap){flash("every player has a capital — set another to move it");return;}
+        if(S.settlements.some(x=>x.tier==="Metropolis"&&x.id!==gid)){flash("Metropolis is capital only — can't move the capital off it");return;}
+        setCapital(gid);save();render();};
+      hd.appendChild(cb);
       const nt=nextTier(tier);
-      if(nt){
+      if(nt&&!(nt==="Metropolis"&&!isCap)){
         const ex=document.createElement("button");ex.textContent="expand ▲ "+nt;ex.title="upgrade to "+nt;
         ex.onclick=(e)=>{e.stopPropagation();
-          if(nt==="Metropolis"&&hasMetropolis(gid)){flash("only one Metropolis allowed");return;}
+          if(nt==="Metropolis"&&(!isCap||hasMetropolis(gid))){flash("Metropolis is capital only");return;}
           const s=S.settlements.find(x=>x.id===gid);s.tier=nt;autoFill();save();render();};
         hd.appendChild(ex);
       }
@@ -3748,6 +3842,8 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
     if(!closed){
       if((D.pursuitView||"cards")==="table"){
         grp.appendChild(pursuitTable(occ,earned,craft,tc,hideCombat,have));
+      } else if(gid!=null){
+        grp.appendChild(wardGrid(gid,occ,earned,craft,tc,hideCombat,have));
       } else {
         const board=document.createElement("div");board.className="board";
         occ.sort((a,b)=>R[a.name].type.localeCompare(R[b.name].type)||a.name.localeCompare(b.name));
@@ -3761,12 +3857,48 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
   document.getElementById("c-pursuit").textContent=S.placed.length?("· "+S.placed.length):"";
 }
 
+// piles: each ward-consuming pursuit is a pile root; its efficient rider chain stacks on top (chains, not branches)
+function wardPiles(occ){
+  const exempt=exemptionsOf(occ), riderOf={};
+  occ.forEach(o=>{if(exempt.has(o.id))riderOf[R[o.name].efficient]=o;});
+  const used=new Set(), piles=[];
+  occ.filter(o=>!exempt.has(o.id))
+     .sort((a,b)=>R[a.name].type.localeCompare(R[b.name].type)||a.name.localeCompare(b.name))
+     .forEach(root=>{const pile=[root];used.add(root.id);let cur=root;
+       while(riderOf[cur.name]&&!used.has(riderOf[cur.name].id)){cur=riderOf[cur.name];used.add(cur.id);pile.push(cur);}
+       piles.push(pile);});
+  occ.filter(o=>!used.has(o.id)).forEach(o=>piles.push([o]));   // safety: orphaned riders
+  return piles;
+}
+function wardGrid(gid,occ,earned,craft,tc,hideCombat,have){
+  const wu=wardUse(gid), piles=wardPiles(occ), n=Math.max(wu.cap,piles.length);
+  const grid=document.createElement("div");grid.className="wards";
+  for(let i=0;i<n;i++){
+    const w=document.createElement("div");w.className="ward";const pile=piles[i];
+    const lbl=document.createElement("div");lbl.className="ward-lbl";
+    lbl.innerHTML='<span>Ward '+(i+1)+(i>=wu.cap?' · over cap':'')+'</span>'+(pile&&pile.length>1?'<span>⚡ '+(pile.length-1)+' stacked</span>':'');
+    w.appendChild(lbl);
+    if(i>=wu.cap)w.classList.add("over");
+    if(!pile){
+      w.classList.add("empty");w.title="empty ward — click to target this settlement";
+      const e=document.createElement("div");e.className="emp";e.textContent="empty ward";w.appendChild(e);
+      w.onclick=()=>{activeSid=gid;render();};
+    } else {
+      const pl=document.createElement("div");pl.className="pile";
+      pile.forEach((p,j)=>{const pc=document.createElement("div");pc.className="pc"+(j<pile.length-1?" buried":"");
+        pc.style.zIndex=j+1;pc.appendChild(pursuitCard(p,earned,craft,tc,hideCombat,have));pl.appendChild(pc);});
+      w.appendChild(pl);
+    }
+    grid.appendChild(w);
+  }
+  return grid;
+}
 function placementSelect(inst){
   const n=inst.name, psel=document.createElement("select");psel.style.fontSize="11px";
   const uo=document.createElement("option");uo.value="";uo.textContent="Unplaced";psel.appendChild(uo);
   S.settlements.forEach(s=>{const c=canPlace(n,s.id);const o=document.createElement("option");
     o.value=s.id;const wu=wardUse(s.id);
-    o.textContent=s.tier+" ("+wu.used+"/"+wu.cap+")"+(c.ok?"":" 🔒");
+    o.textContent=(s.capital?"★ ":"")+s.tier+" ("+wu.used+"/"+wu.cap+")"+(c.ok?"":" 🔒");
     if(!c.ok && s.id!==inst.sid)o.disabled=true;psel.appendChild(o);});
   psel.value=inst.sid==null?"":String(inst.sid);
   psel.onchange=()=>moveInstance(inst.id, psel.value===""?null:+psel.value);
@@ -3795,6 +3927,7 @@ function pursuitDetail(r,hideCombat,me){
   if(r.mastery_raw){
     const ab=atomsBlock(r.mastery,hideCombat);if(!me.earned)ab.style.opacity=".5";bm.appendChild(ab);
     if(r.mreq_raw){const rq=document.createElement("div");rq.className="req";rq.textContent="req: "+r.mreq_raw;bm.appendChild(rq);}
+    {const ih=masteryInfraHTML(r);if(ih){const d=document.createElement("div");d.innerHTML=ih;bm.appendChild(d);}}
     if(!me.earned){const mm=document.createElement("div");mm.className="miss";mm.textContent="missing: "+me.missing.join("  +  ");bm.appendChild(mm);}
     const v=document.createElement("div");v.className="verb";v.textContent=r.mastery_raw;bm.appendChild(v);
   }
@@ -3867,6 +4000,7 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
   if(r.mastery_raw){
     const ab=atomsBlock(r.mastery,hideCombat);if(!me.earned)ab.style.opacity=".5";bm.appendChild(ab);
     if(r.mreq_raw){const rq=document.createElement("div");rq.className="req";rq.textContent="req: "+r.mreq_raw;bm.appendChild(rq);}
+    {const ih=masteryInfraHTML(r);if(ih){const d=document.createElement("div");d.innerHTML=ih;bm.appendChild(d);}}
     if(!me.earned){const mm=document.createElement("div");mm.className="miss";mm.textContent="missing: "+me.missing.join("  +  ");bm.appendChild(mm);}
     const v=document.createElement("div");v.className="verb";v.textContent=r.mastery_raw;bm.appendChild(v);
   }
@@ -3885,14 +4019,20 @@ function renderInfraSection(kind,src,have,hideCombat){
     const car=document.createElement("span");car.className="pcaret";car.textContent=open?"▾":"▸";h.appendChild(car);
     const nm=document.createElement("span");nm.className="nm";nm.textContent=n;h.appendChild(nm);
     const tb=document.createElement("span");tb.className="badge tier";tb.textContent=r.tier;h.appendChild(tb);
+    const rs=infraReqStatus(r);
+    if(infraReqToks(r).length){const qb=document.createElement("span");qb.className="badge "+(!rs.ok?"noearn":rs.manual?"manual":"earn");
+      qb.textContent=!rs.ok?"req ✗":rs.manual?"req ?":"req ✓";qb.title=r.requirement;h.appendChild(qb);}
+    if(!rs.ok)card.classList.add("illegal");
     if(r.upkeep){const ub=document.createElement("span");ub.className="badge";ub.style.borderColor="var(--upkeep)";ub.style.color="var(--upkeep)";ub.textContent="up "+r.upkeep;h.appendChild(ub);}
     const rm=document.createElement("button");rm.className="rm";rm.textContent="✕";
     rm.onclick=(e)=>{e.stopPropagation();delete have[n];save();render();renderList();};h.appendChild(rm);
     h.onclick=()=>{S.eqOpen=S.eqOpen||[];const i=S.eqOpen.indexOf(n);if(i<0)S.eqOpen.push(n);else S.eqOpen.splice(i,1);save();render();};
     card.appendChild(h);
+    if(!rs.ok){const mm=document.createElement("div");mm.className="miss";mm.textContent="req unmet — inactive for mastery · missing: "+rs.missing.join(", ");card.appendChild(mm);}
     if(open){
       const sub=document.createElement("div");sub.className="sub";
       sub.textContent="upkeep "+r.upkeep+(r.requirement?(" · req: "+r.requirement):"");card.appendChild(sub);
+      if(infraReqToks(r).length){const rq=document.createElement("div");rq.className="block";rq.innerHTML='<div class="lbl">REQUIREMENTS</div>'+infraReqLinesHTML(r);card.appendChild(rq);}
       const bi=document.createElement("div");bi.className="block";bi.innerHTML='<div class="lbl">EMPIRE EFFECT</div>';
       bi.appendChild(atomsBlock(r.atoms,hideCombat));
       if(r.effect_raw){const v=document.createElement("div");v.className="verb";v.textContent=r.effect_raw;bi.appendChild(v);}
@@ -4237,11 +4377,19 @@ function boardMetrics(b){
 
 // ---- Public Order tracker ----
 function poBandName(v){let best=null;Object.keys(PO).map(Number).sort((a,b)=>a-b).forEach(k=>{if(k<=v)best=k;});return best!=null?PO[String(best)]:null;}
+// Public Order is cumulative in both directions: at +4 bands 1..4 are all active; at −3 bands −1..−3 are all active.
+function poActiveKeys(v){return Object.keys(PO).map(Number).filter(k=>v>0?(k>=1&&k<=v):v<0?(k<=-1&&k>=v):k===0).sort((a,b)=>Math.abs(a)-Math.abs(b));}
+function poActiveEffects(v){return poActiveKeys(v).map(k=>PO[String(k)]).filter(b=>b&&!/^no effect$/i.test(b[1]));}
 function renderPO(){
   const v=Math.max(-5,Math.min(10,S.po||0));S.po=v;
   set("poVal",v);const band=poBandName(v);
   document.getElementById("poBand").textContent=band?band[0]:"";
-  document.getElementById("poEffect").textContent=band?band[1]:"";
+  const act=poActiveEffects(v);
+  document.getElementById("poEffect").textContent=act.length?("active ("+act.length+"): "+act.map(b=>b[1]).join(" · ")):"no active effects";
+  const on=new Set(poActiveKeys(v)), curK=Math.max(...Object.keys(PO).map(Number).filter(k=>k<=v));
+  const lad=document.getElementById("poLadder");
+  lad.innerHTML=Object.keys(PO).map(Number).sort((a,b)=>b-a).map(k=>{const b=PO[String(k)];
+    return '<div class="pr'+(on.has(k)?' on '+(k<0?'neg':'pos'):'')+(k===curK?' cur':'')+'"><span class="v">'+(k>0?'+':'')+k+'</span><span>'+esc(b[0])+'</span><span>'+esc(b[1])+'</span></div>';}).join("");
 }
 
 // ---- Dashboards view ----
@@ -4258,14 +4406,14 @@ function renderDash(){
   D.players.forEach((p,i)=>{
     const b=p.board,m=boardMetrics(b);
     let wu=0,wa=0;withBoard(b,()=>{b.settlements.forEach(s=>{const w=wardUse(s.id);wu+=w.used;wa+=w.cap;});});
-    const po=Math.max(-5,Math.min(10,b.po||0)),band=poBandName(po);
+    const po=Math.max(-5,Math.min(10,b.po||0)),band=poBandName(po),poAct=poActiveEffects(po);
     const sov=DOMAINS.filter(d=>((b.domains||{})[d]||0)>=10);
     const dsum=DOMAINS.reduce((a,d)=>a+((b.domains||{})[d]||0),0),dmax=DOMAINS.reduce((a,d)=>a+((D.startDomains||{})[d]||0),0)+((D.renown||1)-1),dover=dsum>dmax;
     h+='<tr>'+
       '<td><span class="pdot" style="display:inline-block;background:'+p.color+'"></span> '+esc(p.name)+(i===D.active?' <span class="note">(active)</span>':'')+'</td>'+
       '<td class="num" style="color:'+(m.net<0?cvar("--upkeep"):cvar("--income"))+'">'+fmt(m.net)+'</td>'+
       '<td class="num">'+(b.treasury||0).toLocaleString()+'</td>'+
-      '<td class="num">'+po+(band?' <span class="note">'+esc(band[0])+'</span>':'')+'</td>'+
+      '<td class="num" title="'+esc(poAct.map(x=>x[0]+": "+x[1]).join("\n")||"no active effects")+'">'+po+(band?' <span class="note">'+esc(band[0])+(poAct.length?' ×'+poAct.length:'')+'</span>':'')+'</td>'+
       '<td class="num">'+b.settlements.length+'</td>'+
       '<td class="num">'+wu+'/'+wa+'</td>'+
       '<td class="num">'+b.armies.length+'</td>'+
@@ -4922,7 +5070,7 @@ document.getElementById("poPlus").onclick=()=>{S.po=Math.min(10,(S.po||0)+1);sav
 document.querySelectorAll("[data-gold]").forEach(b=>b.onclick=()=>{S.treasury=(S.treasury||0)+(+b.dataset.gold);trIn.value=S.treasury;save();});
 
 // ---- toolbar ----
-document.getElementById("clear").onclick=()=>{const b=activeBoard();b.placed=[];b.settlements=[];b.infra={};b.wonders={};b.armies=[];activeSid=null;save();render();renderList();};
+document.getElementById("clear").onclick=()=>{const b=activeBoard();b.placed=[];b.settlements=startSettlements();b.infra={};b.wonders={};b.armies=[];reindex();save();render();renderList();};
 document.getElementById("export").onclick=()=>{const b=new Blob([JSON.stringify(D,null,2)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="renown_build.json";a.click();};
 document.getElementById("import").onclick=()=>document.getElementById("file").click();
