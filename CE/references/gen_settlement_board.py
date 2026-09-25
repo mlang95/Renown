@@ -379,6 +379,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .miss{color:var(--upkeep);font-size:11px;margin-top:3px;overflow-wrap:anywhere}
   .badge.manual{color:var(--order);border-color:var(--order)}
   .ttab{font-size:11px;width:100%} .ttab td{vertical-align:top}
+  .bcun{margin-top:5px;padding:5px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--panel2)}
+  .bcrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px}
+  .ttab tr.broll td{background:rgba(255,179,0,.18);font-weight:700}
   .ttwrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:10px;margin-top:10px;align-items:start}
   .tsw{display:inline-block;width:11px;height:11px;border:1px solid #0005;border-radius:2px;margin-right:5px;vertical-align:-1px}
   .dpcell{text-align:center;font-size:12px;font-family:ui-monospace,monospace;padding:4px 6px;border:1px solid var(--line)}
@@ -2608,6 +2611,29 @@ function outlawReport(M){
   return {by,warn};
 }
 function banditDomain(n){return Math.floor(n/5)*2;}
+const STAND_INF={Untested:1,Rising:2,Established:3,Sovereign:4};
+function envoyOutcome(net){const T=BAN.outcomeThresh||{};
+  if(T.Condemned!=null&&net<=T.Condemned)return "Condemned";
+  if(T.Failed!=null&&net<=T.Failed)return "Failed";
+  if(T.Endorsed!=null&&net>=T.Endorsed)return "Endorsed";
+  return "Passed";}
+function banditCunningHTML(k,cp){
+  const cv=banditDomain(cp.n),st=domBand(cv),inf=STAND_INF[st]||1,mod=+cp.cmod||0,net=inf+mod,oc=envoyOutcome(net);
+  const col=oc==="Condemned"||oc==="Failed"?"var(--upkeep)":"var(--income)";
+  const O=BAN.cunningOutcomes||{},A=BAN.cunningActions||{},tbl=BAN.cunningTable||[],canRoll=cp.n>=(BAN.cunningMin||10);
+  const act=cp.croll?dieLookup(tbl,cp.croll):null;
+  let h='<div class="bcun"><div class="bcrow"><span><b>Cunning</b> '+cv+' · '+st+'</span><span>Influence '+inf+'</span>'+
+    '<span>mod <input class="bcm" data-k="'+k+'" type="number" value="'+mod+'" style="width:48px"></span>'+
+    '<span>net <b>'+net+'</b> → <b style="color:'+col+'">'+oc+'</b></span></div>';
+  if(O[oc.toLowerCase()])h+='<div class="note">'+esc(oc)+': '+esc(O[oc.toLowerCase()])+'</div>';
+  h+='<table class="dtable ttab" style="margin-top:4px"><thead><tr><th>d'+(BAN.faces||10)+'</th><th>Action</th><th>Effect</th></tr></thead><tbody>'+
+    tbl.map(([lo,hi,a])=>{const on=cp.croll&&cp.croll>=lo&&cp.croll<=hi;
+      return '<tr'+(on?' class="broll"':'')+'><td>'+(lo===hi?lo:lo+'–'+hi)+'</td><td>'+esc(a)+'</td><td>'+esc((A[a]||{}).effect||'')+(on&&oc==="Endorsed"&&(A[a]||{}).endorsed?' <b>Endorsed:</b> '+esc(A[a].endorsed):'')+'</td></tr>';}).join('')+'</tbody></table>';
+  h+='<div class="bcrow" style="margin-top:4px">'+(canRoll?'<button class="bcr" data-k="'+k+'" data-r="cunning">roll d'+(BAN.faces||10)+'</button>':'<span class="note">'+(BAN.cunningMin||10)+'+ retinues to roll</span>')+
+    '<span>rolled <input class="bcv" data-k="'+k+'" type="number" min="1" max="'+(BAN.faces||10)+'" value="'+(cp.croll||'')+'" style="width:48px"'+(canRoll?'':' disabled')+'></span>'+
+    (act?'<span>→ <b>'+esc(act)+'</b></span>':'')+'</div></div>';
+  return h;
+}
 function dieLookup(tbl,v){const x=(tbl||[]).find(([lo,hi])=>v>=lo&&v<=hi);return x?x[2]:"?";}
 function terrainTablesHTML(PAL){
   const T=TREF.terrain||{},MV=TREF.movement||{},X=TREF.tactical||{};
@@ -2648,7 +2674,7 @@ function renderMap(){
   h+='<div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap"><div class="hexwrap" style="flex:1;min-width:320px">'+mapSVG(M)+'</div>';
   // side panel: outlaw + bandits
   const rep=outlawReport(M);
-  h+='<div style="width:320px"><div class="tot"><h3 style="font-size:13px">Outlaw Country</h3>'+
+  h+='<div style="width:420px;max-width:100%"><div class="tot"><h3 style="font-size:13px">Outlaw Country</h3>'+
     '<div class="note">'+(BAN.outlawStart?BAN.outlawStart+' per player at setup, within range 1 of each other, range '+BAN.outlawBuffer+'+ from any Settlement.':'')+'</div>'+
     '<div style="margin-top:4px">'+(Object.keys(rep.by).length?Object.keys(rep.by).map(rg=>'<span class="badge tier">region '+esc(rg)+': '+rep.by[rg]+'</span>').join(' '):'<span class="note">none marked</span>')+'</div>'+
     (rep.warn.length?'<div class="note" style="color:var(--upkeep);margin-top:4px">'+rep.warn.slice(0,6).map(esc).join('<br>')+'</div>':'')+'</div>';
@@ -2660,8 +2686,8 @@ function renderMap(){
     h+='<div style="border-top:1px solid var(--line);padding:5px 0"><b>'+(army?'Bandit Army':'Bandit Camp')+'</b> <span class="note">@ '+k+'</span>'+
       '<div class="dctrls" style="margin:3px 0 0 0"><span class="dctrl"><span class="note">retinues</span><button class="bcn" data-k="'+k+'" data-d="-1">−</button><span class="dcv">'+cp.n+'</span><button class="bcn" data-k="'+k+'" data-d="1">+</button></span>'+
       '<span class="note">treasury</span><input class="bct" data-k="'+k+'" type="number" step="100" value="'+(cp.gold||0)+'" style="width:80px"></div>'+
-      '<div class="note">Cunning +'+dv+' · Prowess +'+dv+'</div>'+
-      '<div style="display:flex;gap:4px;margin-top:3px">'+(cp.n>=(BAN.cunningMin||10)?'<button class="bcr" data-k="'+k+'" data-r="cunning">cunning roll</button>':'<span class="note">cunning roll at '+(BAN.cunningMin||10)+'+</span>')+
+      '<div class="note">Prowess +'+dv+'</div>'+banditCunningHTML(k,cp)+
+      '<div style="display:flex;gap:4px;margin-top:3px">'+
       '<button class="bcr" data-k="'+k+'" data-r="tactic">tactic roll</button><button class="bcx" data-k="'+k+'">remove</button></div>'+
       (cp.last?'<div class="note">'+esc(cp.last)+'</div>':'')+'</div>';});
   h+='</div></div></div>'+terrainTablesHTML(mapPal(g))+'</div>';
@@ -2693,7 +2719,11 @@ function renderMap(){
   host.querySelectorAll(".bct").forEach(i=>i.onchange=()=>{M.camps[i.dataset.k].gold=+i.value||0;save();});
   host.querySelectorAll(".bcx").forEach(b=>b.onclick=()=>{delete M.camps[b.dataset.k];save();render();});
   host.querySelectorAll(".bcr").forEach(b=>b.onclick=()=>{const cp=M.camps[b.dataset.k],v=1+Math.floor(Math.random()*(BAN.faces||10));
-    cp.last=(b.dataset.r==="cunning"?"Cunning d"+(BAN.faces||10)+": "+v+" → "+dieLookup(BAN.cunningTable,v):"Tactic d"+(BAN.faces||10)+": "+v+" → "+dieLookup(BAN.tacticTable,v));save();render();});
+    if(b.dataset.r==="cunning")cp.croll=v;else cp.last="Tactic d"+(BAN.faces||10)+": "+v+" → "+dieLookup(BAN.tacticTable,v);save();render();});
+  host.querySelectorAll(".bcv").forEach(i=>i.onchange=()=>{const cp=M.camps[i.dataset.k];if(!cp)return;const v=Math.round(+i.value),F=BAN.faces||10,nv=(v>=1&&v<=F)?v:null;
+    if(nv===(cp.croll||null))return;cp.croll=nv;save();setTimeout(render,0);});
+  host.querySelectorAll(".bcm").forEach(i=>i.onchange=()=>{const cp=M.camps[i.dataset.k];if(!cp)return;const nv=Math.round(+i.value)||0;
+    if(nv===(+cp.cmod||0))return;cp.cmod=nv;save();setTimeout(render,0);});
 }
 let MAPSEL=null;
 function set(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
@@ -3035,6 +3065,10 @@ def main():
             "outlawStart": ns.get("OUTLAW_COUNTRY_START"), "outlawBuffer": ns.get("OUTLAW_BUFFER_RANGE"),
             "cunningTable": [list(x) for x in ns["die_table_ranges"](ns["BANDIT_CUNNING_TABLE"])] if "die_table_ranges" in ns and "BANDIT_CUNNING_TABLE" in ns else [],
             "tacticTable": [list(x) for x in ns["die_table_ranges"](ns["BANDIT_TACTIC_TABLE"])] if "die_table_ranges" in ns and "BANDIT_TACTIC_TABLE" in ns else [],
+            "outcomeThresh": ns.get("ENVOY_OUTCOME_THRESHOLDS", {}),
+            "cunningOutcomes": ns.get("ENVOY_OUTCOMES", {}).get("Cunning", {}),
+            "cunningActions": {k: {"effect": v.get("effect", ""), "endorsed": v.get("endorsed", ""), "cost": v.get("cost", "")}
+                               for k, v in ns.get("ACTIONS", {}).items() if v.get("domain") == "Cunning"},
         },
         treaties=ns.get("TREATIES", {}), allianceRules=list(ns.get("ALLIANCE_RULES", [])),
         warnings=b_warn, version=ns.get("VERSION", "?"),
