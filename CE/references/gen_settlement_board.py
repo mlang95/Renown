@@ -378,6 +378,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .req{color:var(--dim);font-size:11px;margin-top:4px;overflow-wrap:anywhere}
   .miss{color:var(--upkeep);font-size:11px;margin-top:3px;overflow-wrap:anywhere}
   .badge.manual{color:var(--order);border-color:var(--order)}
+  .ttab{font-size:11px;width:100%} .ttab td{vertical-align:top}
+  .ttwrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:10px;margin-top:10px;align-items:start}
+  .tsw{display:inline-block;width:11px;height:11px;border:1px solid #0005;border-radius:2px;margin-right:5px;vertical-align:-1px}
   .dpcell{text-align:center;font-size:12px;font-family:ui-monospace,monospace;padding:4px 6px;border:1px solid var(--line)}
   button:disabled{opacity:.45;cursor:not-allowed}
   .grip{cursor:grab;color:var(--dim2);font-size:12px;letter-spacing:-2px;padding:2px 5px 2px 0;touch-action:none;user-select:none;-webkit-user-select:none}
@@ -2527,6 +2530,14 @@ const MG=(typeof RenownGen!=="undefined")?RenownGen:null, MP=(typeof RenownPrese
 const BAN=DATA.bandits||{};
 const BOARD_SIZE={2:[19,15],3:[23,18],4:[26,21],5:[29,24],6:[32,26],7:[35,28]};   // mirrors renown-maps.html
 const TCOL={plains:'#96b060',forest:'#2e5c34',wetland:'#5e7054',tundra:'#d6dad6',mountain:'#6e6864',water:'#4a748c'};
+// region art palettes (mirror of mapgen/app_shell.html PALETTES); picked from the map's `art`, else its preset's
+const TPAL={default:TCOL,
+  wastes:Object.assign({},TCOL,{plains:'#d4b84e',tundra:'#c49854',mountain:'#7d7469'}),
+  scarlet:Object.assign({},TCOL,{plains:'#bc5442',forest:'#7a2224',wetland:'#6d4038'})};
+const RULE_NAME={plains:'Grassland',forest:'Forest',wetland:'Wetlands',tundra:'Tundra',mountain:'Mountains',water:'Water'};
+const TREF=DATA.terrainRef||{terrain:{},movement:{},tactical:{},tacticalGlobal:[]};
+function mapArt(g){if(!g)return {};return (g.art&&Object.keys(g.art).length)?g.art:((MP[g.preset]||{}).art||{});}
+function mapPal(g){const a=mapArt(g);return TPAL[a.plains?(a.plains==='wastes'?'wastes':'scarlet'):'default'];}
 const RCOL={mine:'#161616',quarry:'#8a3b2e',arable:'#7a4f2a',forestry:'#2f5d2f',apiary:'#e8c020',salt:'#ece6d6'};
 const C2T={p:'plains',f:'forest',w:'wetland',t:'tundra',m:'mountain','~':'water'};
 let MAPVIEW=null;                                   // decoded grid cache {sig, hex:{key:{t,res,reg,hill}}}
@@ -2561,7 +2572,7 @@ function parseSeedCode(s){ // Region/seed/players[/WxH]
 }
 function mapSVG(M){
   const V=decodeGrid(M.grid),g=M.grid,cols=g?g.width:(M.cols||16),rows=g?g.height:(M.rows||12);
-  const R=15,dx=1.5*R,dy=Math.sqrt(3)*R,W=cols*dx+R*2,H=rows*dy+dy;
+  const R=15,dx=1.5*R,dy=Math.sqrt(3)*R,W=cols*dx+R*2,H=rows*dy+dy,PAL=mapPal(g);
   const pts=(cx,cy)=>{let a=[];for(let k=0;k<6;k++){const t=Math.PI/180*60*k;a.push((cx+R*Math.cos(t)).toFixed(1)+","+(cy+R*Math.sin(t)).toFixed(1));}return a.join(" ");};
   const lighten=(hex,k)=>{const n=parseInt(hex.slice(1),16),f=v=>Math.min(255,Math.round(v*k));
     return "#"+[f(n>>16&255),f(n>>8&255),f(n&255)].map(v=>v.toString(16).padStart(2,"0")).join("");};
@@ -2569,8 +2580,8 @@ function mapSVG(M){
   let s='<svg width="'+W.toFixed(0)+'" height="'+H.toFixed(0)+'" style="display:block"><defs><pattern id="olh" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="3" height="6" fill="rgba(120,20,20,.45)"/></pattern></defs>';
   for(let c=0;c<cols;c++)for(let r=0;r<rows;r++){
     const k=c+","+r,cx=R+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0),h=V.hex[k];
-    let fill=h?TCOL[h.t]:"var(--chip)";if(h&&h.hill)fill=lighten(fill,1.16);
-    s+='<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="'+fill+'" stroke="#00000030" stroke-width="1" style="cursor:pointer"><title>'+k+(h?" · "+h.t+(h.hill?" (hill)":"")+(h.res?" · "+h.res:"")+(h.reg!=null?" · region "+h.reg:""):"")+'</title></polygon>';
+    let fill=h?PAL[h.t]:"var(--chip)";if(h&&h.hill)fill=lighten(fill,1.16);
+    s+='<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="'+fill+'" stroke="#00000030" stroke-width="1" style="cursor:pointer"><title>'+k+(h?" · "+(RULE_NAME[h.t]||h.t)+(h.hill?" (Hill)":"")+(h.res?" · "+h.res:"")+(h.reg!=null?" · region "+h.reg:""):"")+'</title></polygon>';
     if(M.outlaw[k])s+='<polygon points="'+pts(cx,cy)+'" fill="url(#olh)" stroke="#7a1414" stroke-width="1.5" pointer-events="none"/>';
     if(h&&h.res&&M.showRes!==false)s+='<circle cx="'+cx.toFixed(1)+'" cy="'+(cy+R*.45).toFixed(1)+'" r="'+(R*.22).toFixed(1)+'" fill="'+RCOL[h.res]+'" stroke="#0006" pointer-events="none"/>';
   }
@@ -2598,6 +2609,22 @@ function outlawReport(M){
 }
 function banditDomain(n){return Math.floor(n/5)*2;}
 function dieLookup(tbl,v){const x=(tbl||[]).find(([lo,hi])=>v>=lo&&v<=hi);return x?x[2]:"?";}
+function terrainTablesHTML(PAL){
+  const T=TREF.terrain||{},MV=TREF.movement||{},X=TREF.tactical||{};
+  const sw=(c,hill)=>'<i class="tsw" style="background:'+c+(hill?';filter:brightness(1.16)':'')+'"></i>';
+  const fx=v=>Array.isArray(v)?v.join(' '):(v||'—');
+  let h='<div class="ttwrap"><div class="tot"><h3 style="font-size:13px">Terrain</h3><table class="dtable ttab"><thead><tr><th>Terrain</th><th>Effect</th><th>Raw Materials</th></tr></thead><tbody>';
+  Object.keys(RULE_NAME).forEach(k=>{const nm=RULE_NAME[k],e=T[nm]||{};
+    h+='<tr><td>'+sw(PAL[k])+esc(nm)+'</td><td>'+esc(fx(e.Effect))+'</td><td>'+esc((e["Raw Materials"]||[]).join(", ")||'—')+'</td></tr>';});
+  if(T.Hill)h+='<tr><td>'+sw(PAL.plains,1)+'Hill</td><td>'+esc(fx(T.Hill.Effect))+'</td><td>—</td></tr>';
+  h+='</tbody></table></div>';
+  if(Object.keys(MV).length)h+='<div class="tot"><h3 style="font-size:13px">Movement</h3><table class="dtable ttab"><thead><tr><th>Source</th><th>Effect</th></tr></thead><tbody>'+
+    Object.keys(MV).map(k=>'<tr><td>'+esc(k)+'</td><td>'+esc(fx((MV[k]||{}).Effect))+'</td></tr>').join('')+'</tbody></table></div>';
+  if(Object.keys(X).length){h+='<div class="tot"><h3 style="font-size:13px">Battle terrain</h3><table class="dtable ttab"><thead><tr><th>Tile</th><th>Map</th><th>Effect</th></tr></thead><tbody>'+
+    Object.keys(X).map(k=>'<tr><td>'+esc(k)+'</td><td>'+esc(X[k].identify||'')+'</td><td>'+esc(X[k].effect||'')+'</td></tr>').join('')+'</tbody></table>';
+    if((TREF.tacticalGlobal||[]).length)h+='<div class="note" style="margin-top:4px">'+TREF.tacticalGlobal.map(esc).join(' ')+'</div>';h+='</div>';}
+  return h+'</div>';
+}
 function renderMap(){
   const host=document.getElementById("viewMap"),M=mapState(),g=M.grid;
   const tools=["Army","Hamlet","Village","Town","City","Metropolis","Outlaw Country","Bandit Camp","Erase"];
@@ -2617,7 +2644,7 @@ function renderMap(){
     ' <label class="note"><input type="checkbox" id="mStarts"'+(M.showStarts?' checked':'')+'> suggested settlement spots</label>'+
     ' <button id="mClear">clear markers</button></div>';
   h+='<div class="note" style="margin-bottom:6px">'+(g?'Board: <b>'+esc(g.preset)+'</b> seed '+g.seed+' · '+g.players+' players · '+g.width+'×'+g.height+' · generator '+esc(g.generator||'?')+
-      ' — a seed only reproduces on the same generator build; the JSON grid is the durable copy.':'No terrain loaded — blank grid. Generate a region or import a map JSON from renown-maps.html.')+'</div>';
+      '':'No terrain loaded')+'</div>';
   h+='<div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap"><div class="hexwrap" style="flex:1;min-width:320px">'+mapSVG(M)+'</div>';
   // side panel: outlaw + bandits
   const rep=outlawReport(M);
@@ -2637,7 +2664,7 @@ function renderMap(){
       '<div style="display:flex;gap:4px;margin-top:3px">'+(cp.n>=(BAN.cunningMin||10)?'<button class="bcr" data-k="'+k+'" data-r="cunning">cunning roll</button>':'<span class="note">cunning roll at '+(BAN.cunningMin||10)+'+</span>')+
       '<button class="bcr" data-k="'+k+'" data-r="tactic">tactic roll</button><button class="bcx" data-k="'+k+'">remove</button></div>'+
       (cp.last?'<div class="note">'+esc(cp.last)+'</div>':'')+'</div>';});
-  h+='</div></div></div></div>';
+  h+='</div></div></div>'+terrainTablesHTML(mapPal(g))+'</div>';
   host.innerHTML=h;
   const $=id=>document.getElementById(id);
   if(MG){$("mGen").onclick=()=>{if(g&&!confirm("Replace the current terrain? Markers stay."))return;
@@ -2998,6 +3025,8 @@ def main():
         tradePerCraft=ns.get("TRADE_RULES", {}).get("income_per_craft", 100),
         settlements=ns.get("SETTLEMENTS", {}),
         battle=battle_data(ns, rules_path),
+        terrainRef={"terrain": ns.get("TERRAIN", {}), "movement": ns.get("MOVEMENT_MODIFIERS", {}),
+                    "tactical": ns.get("TACTICAL_TERRAIN", {}), "tacticalGlobal": list(ns.get("TACTICAL_GLOBAL", []))},
         banditLoadouts=b_lo,
         bandits={
             "campStart": ns.get("BANDIT_CAMP_START"), "armyThreshold": ns.get("BANDIT_ARMY_THRESHOLD"),
