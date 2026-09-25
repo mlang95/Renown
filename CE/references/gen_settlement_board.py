@@ -378,6 +378,17 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .req{color:var(--dim);font-size:11px;margin-top:4px;overflow-wrap:anywhere}
   .miss{color:var(--upkeep);font-size:11px;margin-top:3px;overflow-wrap:anywhere}
   .badge.manual{color:var(--order);border-color:var(--order)}
+  .scell.cur{outline:2px solid var(--ink)}
+  .pomh{display:flex;flex-direction:column;gap:6px;font-size:11px}
+  .pomr{display:flex;justify-content:space-between;align-items:center;gap:4px;margin:1px 0}
+  .pomr button,.icd{padding:0 5px;font-size:10px;line-height:14px}
+  .pomr b{min-width:14px;text-align:center;display:inline-block}
+  button.flagged{border-color:var(--upkeep);color:var(--upkeep)}
+  .tmr{display:inline-flex;align-items:center;gap:2px} .tmr button{padding:0 5px;font-size:10px;line-height:14px}
+  .card.inactive{opacity:.6}
+  .facbox{border:1px solid var(--line);border-radius:var(--radius);padding:8px;margin-bottom:10px;background:var(--panel2)}
+  .facbox select{width:100%;margin-bottom:6px}
+  .facbox .fm{font-size:12px;line-height:1.35} .facbox .fk{font-size:11px;color:var(--dim);margin-top:4px}
   .ttab{font-size:11px;width:100%} .ttab td{vertical-align:top}
   .bcun{margin-top:5px;padding:5px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--panel2)}
   .bcrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px}
@@ -564,6 +575,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 <div class="app" id="appBoard">
   <!-- CATALOG -->
   <div class="col" id="catalog">
+    <div class="facbox" id="facBox"></div>
     <div class="hd"><h2>Catalog</h2><span class="v" id="ver"></span></div>
     <div class="tabs" id="tabs">
       <div class="tab on" data-k="pursuit">Pursuits</div>
@@ -587,13 +599,13 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     </div>
 
     <details class="section" open id="sec-pursuit"><summary><span class="caret"></span>Pursuits <span class="cnt" id="c-pursuit"></span></summary>
-      <div class="sectionbody"><div class="board" id="board-pursuit"></div><div class="empty" id="e-pursuit">Add pursuits from the catalog.</div></div></details>
+      <div class="sectionbody"><div class="board" id="board-pursuit"></div><div class="empty" id="e-pursuit">No pursuits.</div></div></details>
 
     <details class="section" open id="sec-infra"><summary><span class="caret"></span>Infrastructure <span class="cnt" id="c-infra"></span></summary>
-      <div class="sectionbody"><div class="board" id="board-infra"></div><div class="empty" id="e-infra">Empire-wide. Adds upkeep; satisfies infra mastery reqs.</div></div></details>
+      <div class="sectionbody"><div class="board" id="board-infra"></div><div class="empty" id="e-infra">No infrastructure.</div></div></details>
 
     <details class="section" open id="sec-wonder"><summary><span class="caret"></span>Wonders <span class="cnt" id="c-wonder"></span></summary>
-      <div class="sectionbody"><div class="board" id="board-wonder"></div><div class="empty" id="e-wonder">One per game each.</div></div></details>
+      <div class="sectionbody"><div class="board" id="board-wonder"></div><div class="empty" id="e-wonder">No wonders.</div></div></details>
 
     <details class="section" open id="sec-army"><summary><span class="caret"></span>Army <span class="cnt" id="c-army"></span></summary>
       <div class="sectionbody">
@@ -606,7 +618,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
   <!-- SUMMARY -->
   <div class="col" id="summary">
-    <div class="hd"><h2>Totals</h2><span class="v">flat atoms only</span></div>
+    <div class="hd"><h2>Totals</h2></div>
 
     <div class="tot">
       <div class="big"><span class="k">Net gold / turn</span><span class="n" id="netgold">0</span></div>
@@ -639,12 +651,14 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       </div>
       <div class="note" id="poEffect"></div>
       <div class="poladder" id="poLadder"></div>
+      <div id="poMods" style="margin-top:8px"></div>
     </div>
 
     <div class="tot">
       <div class="kv"><span class="k">Gold income (flat)</span><span class="val" id="t_gold">0</span></div>
       <div class="kv"><span class="k">Scaling gold</span><span class="val" id="t_scale">0</span></div>
       <div class="kv"><span class="k">Upkeep — infra/wonder</span><span class="val" id="t_upkeep">0</span></div>
+      <div class="kv"><span class="k">Upkeep — pursuits</span><span class="val" id="t_pupkeep">0</span></div>
       <div class="kv"><span class="k">Upkeep reductions (pool)</span><span class="val" id="t_reduce">0</span></div>
       <div class="kv"><span class="k">Upkeep — army (net)</span><span class="val" id="t_army">0</span></div>
       <div class="kv"><span class="k">Craft X</span><span class="val" id="t_craft">0</span></div>
@@ -652,6 +666,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       <div class="kv"><span class="k">Influence (flat)</span><span class="val" id="t_infl">0</span></div>
       <div class="kv"><span class="k">Faith − Doubt (PO/turn)</span><span class="val" id="t_po">0</span></div>
     </div>
+
+    <div class="tot" id="inflBox"></div>
 
     <div class="tot">
       <h3 style="font-size:13px">Net gold by season</h3>
@@ -753,10 +769,12 @@ function applySkin(name){
 
 // ---- state: multiplayer dashboard ----
 function startDoms(){return (D&&D.startDomains)?D.startDomains:{Industry:1,Prowess:1,Piety:1,Cunning:1};}
-// every game starts with 1 Hamlet, 1 Village, 1 Town — the Town is the capital
-function startSettlements(){return [{id:1,tier:"Hamlet"},{id:2,tier:"Village"},{id:3,tier:"Town",capital:true}];}
+// EMPIRE_START_TIERS; highest tier is the capital
+function startSettlements(){const t=(DATA.startTiers&&DATA.startTiers.length)?DATA.startTiers:["Town","Village","Hamlet"];
+  const rank=x=>((DATA.settlements||{})[x]||{}).tier||0;let ci=0;t.forEach((x,i)=>{if(rank(x)>rank(t[ci]))ci=i;});
+  return t.map((x,i)=>({id:i+1,tier:x,capital:i===ci}));}
 function newBoard(){return {placed:[],settlements:startSettlements(),infra:{},wonders:{},armies:[],
-  treasury:0,turn:0,autoNet:true,expanded:[],po:0,domains:Object.assign({},startDoms()),edicts:{},edictLog:{},edictTimers:{}};}
+  treasury:(DATA.startTreasury||0),turn:0,autoNet:true,expanded:[],po:0,domains:Object.assign({},startDoms()),edicts:{},edictLog:{},edictTimers:{}};}
 function newPlayer(i){return {id:i,name:"Player "+i,color:PLAYER_COLORS[(i-1)%PLAYER_COLORS.length],board:newBoard()};}
 let D={players:[],active:0,view:"board",renown:1,theme:"parchment",
        startDomains:{Industry:1,Prowess:1,Piety:1,Cunning:1},
@@ -805,7 +823,24 @@ function reindex(){
 reindex();
 
 let PC={};                              // name -> count (derived, active board)
-function recomputePC(){PC={};S.placed.forEach(p=>PC[p.name]=(PC[p.name]||0)+1);}
+function pActive(p){return !(p.bt>0)&&!(p.dmg>0);}
+function recomputePC(){PC={};S.placed.forEach(p=>{if(pActive(p))PC[p.name]=(PC[p.name]||0)+1;});}
+const BTM=DATA.buildTimers||{},TMR=DATA.timers||{};
+const REPAIR_T=((TMR["Repair Timer"]||{}).default)||BTM.Repair||2;
+function pursuitBuildTime(n){const t=(R[n]||{}).type;return t==="Power"?(BTM["Power Pursuit"]??BTM.Pursuit):t==="Monument"?(BTM["Monument Pursuit"]??BTM.Pursuit):(BTM.Pursuit||0);}
+function infraBuildTime(n){if(WON[n])return BTM.Wonder||0;const i=INFRA[n];return i?(((BTM.Infrastructure||{})[i.tier])||0):0;}
+function settBuildTime(t){return BTM[t]??(((DATA.settlements||{})[t]||{}).build_time)??0;}
+function itm(){S.itimer=S.itimer||{};S.idmg=S.idmg||{};S.facInfra=S.facInfra||[];}
+function infraOn(n){itm();return !!(S.infra[n]||S.wonders[n])&&!(S.itimer[n]>0)&&!(S.idmg[n]>0);}
+function gameStarted(){return (S.turn||0)>0;}
+function tickTimers(b){
+  (b.placed||[]).forEach(p=>{if(p.bt>0)p.bt--;if(p.dmg>0)p.dmg--;});
+  ["itimer","idmg"].forEach(k=>{const o=b[k]||{};Object.keys(o).forEach(n=>{o[n]--;if(o[n]<=0)delete o[n];});});
+  (b.settlements||[]).forEach(s=>{if(s.bt>0)s.bt--;});
+}
+// pursuit upkeep: PURSUIT_UPKEEP_BY_TYPE, else PURSUIT_UPKEEP_DEFAULT; faction pieces pay none
+const PUP=DATA.pursuitUpkeep||{byType:{},def:0};
+function pursuitUpkeep(p){if(p.fac)return 0;const t=(R[p.name]||{}).type;return (PUP.byType&&t in PUP.byType)?PUP.byType[t]:(PUP.def||0);}
 function withBoard(b,fn){const pS=S,pPC=PC;S=b;recomputePC();const r=fn();S=pS;PC=pPC;return r;}
 
 // ---- persistence: server API (same-origin) with localStorage fallback ----
@@ -989,6 +1024,9 @@ function boardFlags(){
   const sCap=eraCap("max_settlements");if(sCap!=null&&S.settlements.length>sCap)f.push("Settlements "+S.settlements.length+" / "+sCap+" allowed in "+era);
   const aCap=eraCap("armies");if(aCap!=null&&S.armies.length>aCap)f.push("Armies "+S.armies.length+" / "+aCap+" allowed in "+era);
   if(!capitalSett())f.push("No capital set");
+  if((S.treasury||0)<0)f.push("Treasury negative");
+  if(S.settlements.filter(s=>s.tier==="Metropolis").length>1)f.push("More than one Metropolis");
+  factionFlags().forEach(x=>f.push(x));
   const m=S.settlements.find(s=>s.tier==="Metropolis");
   if(m&&!m.capital)f.push("Metropolis is not the capital (capital only)");
   if(m&&((S.domains||{}).Industry||0)<10)f.push("Metropolis without Sovereign Industry");
@@ -1075,13 +1113,14 @@ function itemRow(n,mon,have){
 function flash(msg){const el=document.getElementById("flash");el.textContent=msg;el.style.opacity=1;
   clearTimeout(flash._t);flash._t=setTimeout(()=>el.style.opacity=0,2200);}
 function addItem(n){
-  if(tab==="infra"){S.infra[n]=1;save();render();renderList();return;}
-  if(tab==="wonder"){S.wonders[n]=1;save();render();renderList();return;}
+  if(tab==="infra"||tab==="wonder"){(tab==="infra"?S.infra:S.wonders)[n]=1;itm();
+    if(gameStarted()){const t=infraBuildTime(n);if(t>0)S.itimer[n]=t;}save();render();renderList();return;}
   // pursuit — one of each name only (covers Monuments, Principle 15)
   if(onBoard(n)){flash(n+" already on board — one per name");return;}
   let target=activeSid, note="";
   if(target!=null){const c=canPlace(n,target);if(!c.ok){target=null;note=" — "+c.why+", left Unplaced";}}
-  S.placed.push({id:pid++,name:n,sid:target});
+  const np={id:pid++,name:n,sid:target};if(gameStarted()){const t=pursuitBuildTime(n);if(t>0)np.bt=t;}
+  S.placed.push(np);
   if(note)flash(n+note);
   save();render();renderList();
 }
@@ -1094,7 +1133,6 @@ function removeOneByName(n){ // remove an unplaced one first, else last placed
 function addByName(n){addItem(n);}   // used by card '+' (respects active settlement)
 function moveInstance(id,sid){
   const p=S.placed.find(x=>x.id===id);if(!p)return;
-  if(sid!=null){const c=canPlace(p.name,sid);if(!c.ok){flash(c.why);return;}}
   p.sid=sid;save();render();
 }
 
@@ -1131,6 +1169,7 @@ function infraReqStatus(rec,seen){
 function infraValid(n,seen){               // built + requirements met (manual tokens don't block)
   const src=INFRA[n]?S.infra:S.wonders, rec=INFRA[n]||WON[n];
   if(!rec||!src[n])return false;
+  if(((S.itimer||{})[n]>0)||((S.idmg||{})[n]>0))return false;
   seen=seen||new Set(); if(seen.has(n))return true; const s2=new Set(seen);s2.add(n);
   return infraReqStatus(rec,s2).ok;
 }
@@ -1174,9 +1213,10 @@ function computeEarned(have){
     Object.keys(PC).forEach(n=>{const r=R[n],q=PC[n];
       r.innate.forEach(a=>{if(a.flat&&a.cat==="craft")craft+=a.val*q;});
       if(earned[n])r.mastery.forEach(a=>{if(a.flat&&a.cat==="craft")craft+=a.val*q;});});
-    Object.keys(S.infra).forEach(n=>INFRA[n].atoms.forEach(a=>{if(a.flat&&a.cat==="craft")craft+=a.val;}));
-    Object.keys(S.wonders).forEach(n=>WON[n].atoms.forEach(a=>{if(a.flat&&a.cat==="craft")craft+=a.val;}));
+    Object.keys(S.infra).filter(infraOn).forEach(n=>INFRA[n].atoms.forEach(a=>{if(a.flat&&a.cat==="craft")craft+=a.val;}));
+    Object.keys(S.wonders).filter(infraOn).forEach(n=>WON[n].atoms.forEach(a=>{if(a.flat&&a.cat==="craft")craft+=a.val;}));
     const ne={};Object.keys(PC).forEach(n=>{ne[n]=reqStatus(R[n],have,craft,tc).earned;});
+    S.placed.forEach(p=>{if(p.fac&&pActive(p))ne[p.name]=true;});      // faction pieces: always-active Mastery
     earned=ne;
   }
   return{earned,craft,tc};
@@ -1226,6 +1266,7 @@ function render(){
   const have=new Set(Object.keys(PC));
   const {earned,craft,tc}=computeEarned(have);
   const hideCombat=document.getElementById("hideCombat").checked;
+  renderFaction();
   renderPursuitBoard(earned,craft,tc,hideCombat,have);
   renderInfraSection("infra",INFRA,S.infra,hideCombat);
   renderInfraSection("wonder",WON,S.wonders,hideCombat);
@@ -1286,13 +1327,10 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
   const sel=document.createElement("select");
   Object.keys(DATA.settlements).forEach(t=>{const o=document.createElement("option");o.value=t;
     o.textContent=t+" ("+DATA.settlements[t].wards+"w)";
-    if(t==="Metropolis")o.disabled=true;sel.appendChild(o);});   // Metropolis: capital only (expand the capital)
+    sel.appendChild(o);});
   const addB=document.createElement("button");addB.textContent="+ settlement";
   addB.onclick=()=>{
-    if(sel.value==="Metropolis"){flash("Metropolis is capital only — expand your capital");return;}
-    {const ea=eraAllows(sel.value,null);if(!ea.ok){flash(ea.why);return;}
-     const sc=eraCap("max_settlements");if(sc!=null&&S.settlements.length+1>sc){flash(currentEra()+" allows "+sc+" settlements");return;}}
-    const id=sid++;S.settlements.push({id,tier:sel.value});activeSid=id;autoFill();save();render();};
+    const id=sid++;const ns={id,tier:sel.value};if(gameStarted()){const t=settBuildTime(sel.value);if(t>0)ns.bt=t;}S.settlements.push(ns);activeSid=id;autoFill();save();render();};
   tb.appendChild(sel);tb.appendChild(addB);
   const exAll=document.createElement("button");exAll.textContent="expand all";
   exAll.onclick=()=>{S.expanded=S.placed.map(p=>p.id);save();render();};
@@ -1310,6 +1348,10 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
     fb.innerHTML='<b>⚑ '+flags.length+' flag'+(flags.length>1?'s':'')+'</b><ul>'+flags.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul>';
     host.appendChild(fb);}
 
+  const facP=S.placed.filter(p=>p.sid==="faction");
+  if(facP.length){const grp=document.createElement("div");grp.className="sgroup";
+    const hd=document.createElement("div");hd.className="sgroup-hd";hd.innerHTML='<span class="stitle">Faction <span class="note">'+esc(S.faction||"")+'</span></span>';grp.appendChild(hd);
+    const bd=document.createElement("div");bd.className="board";facP.forEach(p=>bd.appendChild(pursuitCard(p,earned,craft,tc,hideCombat,have)));grp.appendChild(bd);host.appendChild(grp);}
   const groups=[...S.settlements.map(s=>s.id), null];
   let any=false;
   groups.forEach(gid=>{
@@ -1332,21 +1374,17 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
       const isCap=!!(S.settlements.find(x=>x.id===gid)||{}).capital;
       t.innerHTML=(gid===activeSid?"● ":"")+(isCap?"★ ":"")+tier+(isCap?' <span class="badge earn">Capital</span>':'')+' <span class="note">wards '+wu.used+'/'+wu.cap+(wu.free>0?' · <b style="color:var(--income)">'+wu.free+' empty</b>':'')+(wu.free<0?' · <b style="color:var(--upkeep)">'+(-wu.free)+' over</b>':'')+' · '+occ.length+' pursuits'+(wu.typeBad?' · <span style="color:var(--upkeep)">type!</span>':'')+(tier==="Hamlet"?' · Husbandry/Arable only':'')+'</span>';
       hd.appendChild(t);hd.appendChild(settBar(gid));
+      {const so=S.settlements.find(x=>x.id===gid);if(so&&so.bt>0)hd.appendChild(timerCtl("build",so.bt,d=>{so.bt=Math.max(0,so.bt+d);save();render();}));}
       const cb=document.createElement("button");cb.textContent=isCap?"★ capital":"☆ make capital";
 if(isCap)cb.style.color="var(--income)";
       cb.onclick=(e)=>{e.stopPropagation();if(isCap){flash("every player has a capital — set another to move it");return;}
-        if(S.settlements.some(x=>x.tier==="Metropolis"&&x.id!==gid)){flash("Metropolis is capital only — can't move the capital off it");return;}
         setCapital(gid);save();render();};
       hd.appendChild(cb);
       const nt=nextTier(tier);
-      if(nt&&!(nt==="Metropolis"&&!isCap)){
-        const ea=eraAllows(nt,gid);
-        const ex=document.createElement("button");ex.textContent="expand ▲ "+nt+(ea.ok?"":" 🔒");ex.title=ea.ok?"upgrade to "+nt:ea.why;
-        if(!ea.ok)ex.style.opacity=".55";
+      if(nt){
+        const ex=document.createElement("button");ex.textContent="expand ▲ "+nt;
         ex.onclick=(e)=>{e.stopPropagation();
-          if(nt==="Metropolis"&&(!isCap||hasMetropolis(gid))){flash("Metropolis is capital only");return;}
-          {const ea=eraAllows(nt,gid);if(!ea.ok){flash(ea.why);return;}}
-          const s=S.settlements.find(x=>x.id===gid);s.tier=nt;autoFill();save();render();};
+          const s=S.settlements.find(x=>x.id===gid);s.tier=nt;if(gameStarted()){const t=settBuildTime(nt);if(t>0)s.bt=t;}autoFill();save();render();};
         hd.appendChild(ex);
       }
       const del=document.createElement("button");del.className="rm";del.textContent="✕ settlement";
@@ -1438,7 +1476,6 @@ function tryMove(unit,t,commit){
     tsid=t.sid==="none"?null:+t.sid;
     if(tsid===src)return {ok:false,why:""};
   }
-  if(tsid!=null&&settTier(tsid)==="Hamlet"){const bad=unit.find(u=>!hamletOK(u.name));if(bad)return {ok:false,why:"Hamlet holds Husbandry / Arable Land only"};}
   const before={};[src,tsid].forEach(x=>{if(x!=null)before[x]=exemptionsOf(occupants(x));});
   unit.forEach(u=>u.sid=tsid);
   if(onto){root.ride=1+Math.max(0,...S.placed.map(p=>p.ride||0));if(displaced)displaced.ride=0;}
@@ -1517,13 +1554,46 @@ function dragEnd(drop){
   else if(drop&&d.res&&!d.res.ok&&d.res.why)flash(d.res.why);
 }
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&DRAG)dragEnd(false);});
+// ---- factions ----
+const FAC=DATA.factions||{};
+function factionFree(fn){const f=FAC[fn];if(!f)return [];const out=[],re=/begin the game with (?:an? )?([^(.;]+?)\s*\((?:no Ward|no upkeep)/gi;let m;
+  while((m=re.exec(f.mechanic))){const n=m[1].trim().replace(/\s+Raw-Material Pursuit$/i,"").replace(/\s+Pursuit$/i,"");
+    if(R[n])out.push({kind:"pursuit",name:n});else if(INFRA[n])out.push({kind:"infra",name:n});else if(WON[n])out.push({kind:"wonder",name:n});}
+  return out;}
+function setFaction(fn){itm();
+  S.placed=S.placed.filter(p=>!p.fac);
+  S.facInfra.forEach(n=>{delete S.infra[n];delete S.wonders[n];});S.facInfra=[];
+  S.faction=fn||"";
+  factionFree(fn).forEach(x=>{if(x.kind==="pursuit")S.placed.push({id:pid++,name:x.name,sid:"faction",fac:true});
+    else{(x.kind==="infra"?S.infra:S.wonders)[x.name]=1;S.facInfra.push(x.name);}});
+}
+function factionFlags(){const f=FAC[S.faction];if(!f)return [];const out=[];
+  const types=[...new Set(Object.values(R).map(r=>r.type))];
+  f.mechanic.split(/(?<=[.;])\s+/).forEach(sen=>{if(!/can't (pursue|build)/i.test(sen))return;
+    S.placed.filter(p=>!p.fac).forEach(p=>{const r=R[p.name];
+      if(sen.includes(p.name)||types.some(t=>t===r.type&&new RegExp("\\b"+t+" Pursuits","i").test(sen)))out.push(S.faction+": "+p.name+" — "+sen.trim());});});
+  return out;}
+function renderFaction(){const box=document.getElementById("facBox");if(!box)return;const f=FAC[S.faction];
+  const names=Object.keys(FAC),fin=names.filter(n=>FAC[n].final),oth=names.filter(n=>!FAC[n].final);
+  const opt=n=>'<option'+(n===S.faction?' selected':'')+'>'+esc(n)+'</option>';
+  box.innerHTML='<select id="facSel"><option value="">— faction —</option><optgroup label="Final cut">'+fin.map(opt).join('')+'</optgroup>'+
+    (oth.length?'<optgroup label="Other">'+oth.map(opt).join('')+'</optgroup>':'')+'</select>'+
+    (f?'<div class="fm">'+esc(f.mechanic)+'</div><div class="fk">Difficulty '+esc(f.difficulty)+' · Strength '+esc(f.strength)+(f.feel?' · '+esc(f.feel):'')+
+      (f.pair?'<br>Pair: '+esc(f.pair):'')+(f.complement?'<br>Complement: '+esc(f.complement):'')+'</div>':'');
+  document.getElementById("facSel").onchange=e=>{setFaction(e.target.value);save();render();renderList();};
+}
+function timerCtl(kind,n,step){
+  const w=document.createElement("span");w.className="badge noearn tmr";w.onclick=e=>e.stopPropagation();
+  const m=document.createElement("button");m.textContent="−";m.onclick=e=>{e.stopPropagation();step(-1);};
+  const pl=document.createElement("button");pl.textContent="+";pl.onclick=e=>{e.stopPropagation();step(1);};
+  w.appendChild(document.createTextNode(kind+" "));w.appendChild(m);w.appendChild(document.createTextNode(" "+n+" "));w.appendChild(pl);return w;}
 function placementSelect(inst){
   const n=inst.name, psel=document.createElement("select");psel.style.fontSize="11px";
   const uo=document.createElement("option");uo.value="";uo.textContent="Unplaced";psel.appendChild(uo);
   S.settlements.forEach(s=>{const c=canPlace(n,s.id);const o=document.createElement("option");
     o.value=s.id;const wu=wardUse(s.id);
-    o.textContent=(s.capital?"★ ":"")+s.tier+" ("+wu.used+"/"+wu.cap+")"+(c.ok?"":" 🔒");
-    if(!c.ok && s.id!==inst.sid)o.disabled=true;psel.appendChild(o);});
+    o.textContent=(s.capital?"★ ":"")+s.tier+" ("+wu.used+"/"+wu.cap+")";
+    psel.appendChild(o);});
   psel.value=inst.sid==null?"":String(inst.sid);
   psel.onchange=()=>moveInstance(inst.id, psel.value===""?null:+psel.value);
   return psel;
@@ -1589,15 +1659,18 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
   const card=document.createElement("div");card.className="card";
   card.style.borderLeftColor=cvar(PHASE_COLOR[PHASE[(r.innate[0]||{}).cat]||"other"]);
   const h=document.createElement("h3");h.style.cursor="pointer";
-  const grip=document.createElement("span");grip.className="grip";grip.textContent="⋮⋮";
-  grip.onclick=e=>e.stopPropagation();h.appendChild(grip);armDrag(grip,inst,0);armDrag(h,inst,6);
+  if(!inst.fac){const grip=document.createElement("span");grip.className="grip";grip.textContent="⋮⋮";
+    grip.onclick=e=>e.stopPropagation();h.appendChild(grip);armDrag(grip,inst,0);armDrag(h,inst,6);}
   const car=document.createElement("span");car.className="pcaret";car.textContent=open?"▾":"▸";h.appendChild(car);
   const nm=document.createElement("span");nm.className="nm";nm.textContent=n;h.appendChild(nm);
   if(r.monument){const b=document.createElement("span");b.className="badge mon";b.textContent="Monument";h.appendChild(b);}
   if(r.mastery_raw){const b=document.createElement("span");b.className="badge "+(me.earned?"earn":"noearn");b.textContent=me.earned?"✓":"✗";h.appendChild(b);}
-  if(inst.sid!=null && isFreeRider(inst)){const b=document.createElement("span");b.className="badge earn";b.textContent="⚡";b.title="efficient rider";h.appendChild(b);}
-  const rm=document.createElement("button");rm.className="rm";rm.textContent="✕";rm.onclick=(e)=>{e.stopPropagation();removeInstance(inst.id);};
-  h.appendChild(rm);
+  if(inst.sid!=null && inst.sid!=="faction" && isFreeRider(inst)){const b=document.createElement("span");b.className="badge earn";b.textContent="⚡";b.title="efficient rider";h.appendChild(b);}
+  if(inst.fac){const b=document.createElement("span");b.className="badge earn";b.textContent="Faction";h.appendChild(b);}
+  if(inst.bt>0)h.appendChild(timerCtl("build",inst.bt,d=>{inst.bt=Math.max(0,inst.bt+d);save();render();}));
+  if(inst.dmg>0)h.appendChild(timerCtl("repair",inst.dmg,d=>{inst.dmg=Math.max(0,inst.dmg+d);save();render();}));
+  if(!inst.fac){const rm=document.createElement("button");rm.className="rm";rm.textContent="✕";rm.onclick=(e)=>{e.stopPropagation();removeInstance(inst.id);};
+    h.appendChild(rm);}
   h.onclick=()=>{if(h._suppressClick)return;const i=S.expanded.indexOf(inst.id);if(i<0)S.expanded.push(inst.id);else S.expanded.splice(i,1);save();render();};
   card.appendChild(h);
 
@@ -1606,7 +1679,14 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
 
   // placement dropdown (always visible for quick moves)
   const place=document.createElement("div");place.className="sub";
-  place.appendChild(placementSelect(inst));card.appendChild(place);
+  if(!inst.fac)place.appendChild(placementSelect(inst));
+  if(open){const bb=document.createElement("button");bb.textContent="build timer";bb.style.marginLeft="6px";
+      bb.onclick=e=>{e.stopPropagation();inst.bt=pursuitBuildTime(n)||1;save();render();};
+    const db=document.createElement("button");db.textContent=inst.dmg>0?"repaired":"damage";db.style.marginLeft="4px";
+      db.onclick=e=>{e.stopPropagation();inst.dmg=inst.dmg>0?0:REPAIR_T;save();render();};
+    if(!(inst.bt>0))place.appendChild(bb);place.appendChild(db);}
+  card.appendChild(place);
+  if(!pActive(inst))card.classList.add("inactive");
 
   if(!open){   // collapsed: header + placement + compact contribution summary
     const sum=contribChips(r,me.earned);sum.style.marginTop="4px";
@@ -1649,15 +1729,23 @@ function renderInfraSection(kind,src,have,hideCombat){
     if(infraReqToks(r).length){const qb=document.createElement("span");qb.className="badge "+(!rs.ok?"noearn":rs.manual?"manual":"earn");
       qb.textContent=!rs.ok?"req ✗":rs.manual?"req ?":"req ✓";qb.title=r.requirement;h.appendChild(qb);}
     if(!rs.ok)card.classList.add("illegal");
-    if(r.upkeep){const ub=document.createElement("span");ub.className="badge";ub.style.borderColor="var(--upkeep)";ub.style.color="var(--upkeep)";ub.textContent="up "+r.upkeep;h.appendChild(ub);}
-    const rm=document.createElement("button");rm.className="rm";rm.textContent="✕";
-    rm.onclick=(e)=>{e.stopPropagation();delete have[n];save();render();renderList();};h.appendChild(rm);
+    itm();const isFac=S.facInfra.includes(n);
+    if(isFac){const fb=document.createElement("span");fb.className="badge earn";fb.textContent="Faction";h.appendChild(fb);}
+    if(r.upkeep&&!isFac){const ub=document.createElement("span");ub.className="badge";ub.style.borderColor="var(--upkeep)";ub.style.color="var(--upkeep)";ub.textContent="up "+r.upkeep;h.appendChild(ub);}
+    if(S.itimer[n]>0)h.appendChild(timerCtl("build",S.itimer[n],d=>{S.itimer[n]=Math.max(0,S.itimer[n]+d);if(!S.itimer[n])delete S.itimer[n];save();render();}));
+    if(S.idmg[n]>0)h.appendChild(timerCtl("repair",S.idmg[n],d=>{S.idmg[n]=Math.max(0,S.idmg[n]+d);if(!S.idmg[n])delete S.idmg[n];save();render();}));
+    if(!isFac){const rm=document.createElement("button");rm.className="rm";rm.textContent="✕";
+      rm.onclick=(e)=>{e.stopPropagation();delete have[n];delete S.itimer[n];delete S.idmg[n];save();render();renderList();};h.appendChild(rm);}
     h.onclick=()=>{S.eqOpen=S.eqOpen||[];const i=S.eqOpen.indexOf(n);if(i<0)S.eqOpen.push(n);else S.eqOpen.splice(i,1);save();render();};
     card.appendChild(h);
     if(!rs.ok){const mm=document.createElement("div");mm.className="miss";mm.textContent="missing: "+rs.missing.join(", ");card.appendChild(mm);}
     if(open){
       const sub=document.createElement("div");sub.className="sub";
-      sub.textContent="upkeep "+r.upkeep+(r.requirement?(" · req: "+r.requirement):"");card.appendChild(sub);
+      sub.textContent="upkeep "+(isFac?0:r.upkeep)+(r.requirement?(" · req: "+r.requirement):"");card.appendChild(sub);
+      {const tl=document.createElement("div");tl.className="sub";
+        const bb=document.createElement("button");bb.textContent="build timer";bb.onclick=e=>{e.stopPropagation();S.itimer[n]=infraBuildTime(n)||1;save();render();};
+        const db=document.createElement("button");db.textContent=S.idmg[n]>0?"repaired":"damage";db.onclick=e=>{e.stopPropagation();if(S.idmg[n]>0)delete S.idmg[n];else S.idmg[n]=REPAIR_T;save();render();};
+        if(!(S.itimer[n]>0))tl.appendChild(bb);tl.appendChild(db);card.appendChild(tl);}
       if(infraReqToks(r).length){const rq=document.createElement("div");rq.className="block";rq.innerHTML='<div class="lbl">REQUIREMENTS</div>'+infraReqLinesHTML(r);card.appendChild(rq);}
       const bi=document.createElement("div");bi.className="block";bi.innerHTML='<div class="lbl">EMPIRE EFFECT</div>';
       bi.appendChild(atomsBlock(r.atoms,hideCombat));
@@ -1966,33 +2054,37 @@ function calcMetrics(have,earned,tc){
   }
   Object.keys(PC).forEach(n=>{const r=R[n],q=PC[n];
     eat(r.innate,true,q); if(r.mastery_raw)eat(r.mastery,!!earned[n],q);});
-  Object.keys(S.infra).forEach(n=>{eat(INFRA[n].atoms,true,1);infraUp+=INFRA[n].upkeep;});
-  Object.keys(S.wonders).forEach(n=>{eat(WON[n].atoms,true,1);infraUp+=WON[n].upkeep;});
+  itm();
+  Object.keys(S.infra).forEach(n=>{const on=infraOn(n);eat(INFRA[n].atoms,on,1);if(!S.facInfra.includes(n))infraUp+=INFRA[n].upkeep;});
+  Object.keys(S.wonders).forEach(n=>{eat(WON[n].atoms,infraOn(n),1);infraUp+=WON[n].upkeep;});
+  const pursUp=S.placed.reduce((a,p)=>a+pursuitUpkeep(p),0);
   const armyGross=S.armies.reduce((s,a)=>s+(+a.upkeep||0),0);
   const netArmy=Math.max(0,armyGross-reduce);
   const unusedReduce=Math.max(0,reduce-armyGross);
-  const baseNet=gold+scale-infraUp-netArmy;
-  return {gold,reduce,craft,infl,faith,doubt,scale,infraUp,armyGross,netArmy,unusedReduce,baseNet,seasonAdd,phaseCount};
+  const baseNet=gold+scale-infraUp-pursUp-netArmy;
+  return {gold,reduce,craft,infl,faith,doubt,scale,infraUp,pursUp,armyGross,netArmy,unusedReduce,baseNet,seasonAdd,phaseCount};
 }
 function computeTotals(have,earned,tc){
   const m=calcMetrics(have,earned,tc);
-  set("t_gold",fmt(m.gold));set("t_scale",fmt(m.scale));set("t_upkeep",fmt(-m.infraUp));
+  set("t_gold",fmt(m.gold));set("t_scale",fmt(m.scale));set("t_upkeep",fmt(-m.infraUp));set("t_pupkeep",fmt(-m.pursUp));
   set("t_reduce",m.reduce?("pool "+fmt(m.reduce)+(m.unusedReduce?(" · "+fmt(-m.unusedReduce)+" unused"):"")):"0");
   set("t_army",fmt(-m.netArmy));set("t_craft",fmt(m.craft));
-  set("t_trade",fmt(m.craft*DATA.tradePerCraft)+" g");set("t_infl",fmt(m.infl));set("t_po",fmt(m.faith-m.doubt));
+  set("t_trade",fmt(m.craft*DATA.tradePerCraft)+" g");set("t_infl",fmt(m.infl));set("t_po",fmt(m.faith-m.doubt+poModTotal(S)));
   const ng=document.getElementById("netgold");ng.textContent=fmt(m.baseNet);
   ng.className="n "+(m.baseNet<0?"neg":m.baseNet>0?"pos":"");
   document.getElementById("netnote").innerHTML=
-    "gold "+fmt(m.gold)+(m.scale?(" · scaling "+fmt(m.scale)):"")+" · infra "+fmt(-m.infraUp)+
+    "gold "+fmt(m.gold)+(m.scale?(" · scaling "+fmt(m.scale)):"")+" · infra "+fmt(-m.infraUp)+" · pursuits "+fmt(-m.pursUp)+
     " · army ("+String(m.armyGross)+" cost − "+m.reduce+" reduce = "+fmt(-m.netArmy)+")"+
-    " &nbsp;<span class='note'>(flat, active-mastery only)</span>";
+    "";
   const sg=document.getElementById("seasons");sg.innerHTML="";
-  SEASONS.forEach(s=>{const v=m.baseNet+m.seasonAdd[s];const c=document.createElement("div");c.className="scell";
+  const cse=curSeason();
+  SEASONS.forEach(s=>{const v=m.baseNet+m.seasonAdd[s];const c=document.createElement("div");c.className="scell"+(s===cse?" cur":"");
     c.innerHTML='<div class="sn">'+s+'</div><div class="sv" style="color:'+(v<0?cvar("--upkeep"):v>m.baseNet?cvar("--income"):cvar("--ink"))+'">'+fmt(v)+'</div>';sg.appendChild(c);});
   const leg=document.getElementById("legend");leg.innerHTML="";
   Object.keys(PHASE_LABEL).forEach(ph=>{const li=document.createElement("div");li.className="li";
     li.innerHTML='<span class="sw" style="background:'+cvar(PHASE_COLOR[ph])+'"></span>'+PHASE_LABEL[ph]+(m.phaseCount[ph]?(" ("+m.phaseCount[ph]+")"):"");leg.appendChild(li);});
   window._net=m.baseNet;
+  renderInfluence();renderPOMods();
 }
 // metrics for any board (used by dashboards)
 function boardMetrics(b){
@@ -2019,6 +2111,112 @@ function renderPO(){
 }
 
 // ---- Dashboards view ----
+// ---- seasons ----
+const SEAS=DATA.seasons||{},SEAS_ORDER=Object.keys(SEAS);
+function curSeason(){if(!D.season||!SEAS[D.season])D.season=SEAS.Summer?"Summer":SEAS_ORDER[0];return D.season;}
+function stepSeason(dl){const i=SEAS_ORDER.indexOf(curSeason());D.season=SEAS_ORDER[(i+dl+SEAS_ORDER.length)%SEAS_ORDER.length];}
+// ---- influence per turn (INFLUENCE_GAIN) ----
+const IG=DATA.influenceGain||{};
+function playerOfBoard(b){return D.players.find(p=>p.board===b);}
+function igVal(k){const m=String((IG[k]||{}).change||"0").match(/^([+-]?\d+)/);return m?+m[1]:0;}
+function eraIdx(){const ks=Object.keys(ERAS).sort((a,b)=>ERAS[a].renown-ERAS[b].renown);return Math.max(0,ks.indexOf(currentEra()));}
+function playerAtWar(pid){const d=diplo();return !!pid&&Object.keys(d.pairs).some(k=>k.split("|").includes(pid)&&d.pairs[k].war);}
+function influenceRows(b){
+  const p=playerOfBoard(b),pid=p?String(p.id):null,d=diplo(),rows=[];
+  const add=(k,cnt,val)=>{if(IG[k])rows.push({k,cnt,val:val||0});};
+  if(IG.Era){const parts=String(IG.Era.change).split("/").map(x=>parseInt(x,10));add("Era",1,parts[eraIdx()]||0);}
+  const pairs=Object.keys(d.pairs).filter(k=>pid&&k.split("|").includes(pid)).map(k=>d.pairs[k]);
+  const tp=pairs.filter(x=>x.trade).length;add("Trading Partners",tp,tp*igVal("Trading Partners"));
+  const g=pid?d.member[pid]:null,am=g?Object.keys(d.member).filter(q=>q!==pid&&d.member[q]===g).length:0;add("Alliances",am,am*igVal("Alliances"));
+  const tiers=withBoard(b,()=>{const T={};Object.keys(INFRA).forEach(n=>{(T[INFRA[n].tier]=T[INFRA[n].tier]||[]).push(n);});return Object.keys(T).filter(t=>T[t].every(infraOn)).length;});
+  add("Infrastructure tier completed",tiers,tiers*igVal("Infrastructure tier completed"));
+  const cv=(b.domains||{}).Cunning||0,cs=Object.values(STAND_THRESH).filter(x=>cv>=x).length;add("Cunning Standing",cs,cs*igVal("Cunning Standing"));
+  const fa=(b.armies||[]).filter(a=>(a.count||0)>=EQ.army_max).length;add("Fully Mustered Army",fa,fa*igVal("Fully Mustered Army"));
+  const ce=+b.condemned||0;add("Condemned Envoy last turn",ce,ce*igVal("Condemned Envoy last turn"));
+  const war=playerAtWar(pid)?1:0;add("At War",war,war*igVal("At War"));
+  const mw=withBoard(b,()=>S.placed.filter(q=>pActive(q)&&(R[q.name]||{}).type==="Monument").length+Object.keys(S.wonders).filter(infraOn).length);
+  add("Monuments & Wonders",mw,mw*igVal("Monuments & Wonders"));
+  const oth=boardMetrics(b).infl;add("Other sources",oth?1:0,oth);
+  return rows;}
+function influenceTotal(b){return influenceRows(b).reduce((a,r)=>a+r.val,0);}
+// ---- Public Order modifiers (PO_MODIFIERS; 1 per instance) ----
+const POM=DATA.poModifiers||{faith:{},doubt:{}};
+function poModRows(b){b.poMods=b.poMods||{};const p=playerOfBoard(b),pid=p?String(p.id):null,rows=[];
+  const auto={"Deficit":()=>boardMetrics(b).net<0?1:0,"State of Alarm":()=>playerAtWar(pid)?1:0};
+  ["faith","doubt"].forEach(side=>Object.keys(POM[side]||{}).forEach(k=>{const a=auto[k];
+    rows.push({side,k,desc:POM[side][k],auto:!!a,n:a?a():(+b.poMods[k]||0)});}));
+  return rows;}
+function poModTotal(b){return poModRows(b).reduce((a,r)=>a+(r.side==="faith"?r.n:-r.n),0);}
+function renderInfluence(){const box=document.getElementById("inflBox");if(!box)return;const rows=influenceRows(S),tot=rows.reduce((a,r)=>a+r.val,0);
+  box.innerHTML='<h3 style="font-size:13px">Influence / turn <span style="float:right">'+(tot>0?'+':'')+tot+'</span></h3>'+
+    rows.map(r=>'<div class="kv"><span class="k">'+esc(r.k)+(r.cnt>1||(r.cnt&&r.k!=="Era"&&r.k!=="Other sources")?' ×'+r.cnt:'')+
+      (r.k==="Condemned Envoy last turn"?' <button class="icd" data-d="-1">−</button><button class="icd" data-d="1">+</button>':'')+
+      '</span><span class="val">'+(r.val>0?'+':'')+r.val+'</span></div>').join('');
+  box.querySelectorAll(".icd").forEach(bt=>bt.onclick=()=>{S.condemned=Math.max(0,(+S.condemned||0)+(+bt.dataset.d));save();render();});}
+function renderPOMods(){const box=document.getElementById("poMods");if(!box)return;const rows=poModRows(S),tot=poModTotal(S),m=boardMetrics(S);
+  box.innerHTML='<div class="pomh">'+['faith','doubt'].map(side=>'<div><div class="lbl">'+side.toUpperCase()+'</div>'+
+    rows.filter(r=>r.side===side).map(r=>'<div class="pomr"><span title="'+esc(r.desc)+'">'+esc(r.k)+'</span><span>'+
+      (r.auto?'<b>'+r.n+'</b>':'<button class="pmd" data-k="'+esc(r.k)+'" data-d="-1">−</button><b>'+r.n+'</b><button class="pmd" data-k="'+esc(r.k)+'" data-d="1">+</button>')+'</span></div>').join('')+'</div>').join('')+'</div>'+
+    '<div class="kv"><span class="k">PO / turn</span><span class="val">'+fmt(m.po)+' '+(tot<0?'−':'+')+' '+Math.abs(tot)+' = '+fmt(m.po+tot)+'</span></div>';
+  box.querySelectorAll(".pmd").forEach(bt=>bt.onclick=()=>{S.poMods=S.poMods||{};const k=bt.dataset.k;S.poMods[k]=Math.max(0,(+S.poMods[k]||0)+(+bt.dataset.d));save();render();});}
+// ---- siege calculator (SIEGE_CALCULUS / SIEGE_SOURCE_VALUES) ----
+function siegeState(){D.siege=D.siege||{tp:null,sid:null,mode:"Lay Siege",army:false,att:0,def:0};return D.siege;}
+function siegeCalc(){const sg=siegeState(),C=(DATA.siege||{}).calculus||{},SV=(DATA.siege||{}).sources||{};
+  const mode=C[sg.mode]?sg.mode:(Object.keys(C)[0]||""),cfg=C[mode]||{settlement_sources:[],floor:1,attacker_sources:false};
+  const p=D.players.find(q=>String(q.id)===String(sg.tp))||D.players[0],b=p.board;
+  const st=(b.settlements||[]).find(x=>String(x.id)===String(sg.sid))||(b.settlements||[])[0];
+  const rows=[];
+  withBoard(b,()=>{const have=new Set(Object.keys(PC)),ce=computeEarned(have).earned;
+    (cfg.settlement_sources||[]).forEach(src=>{const v=SV[src]||{};let val=0;
+      if(src==="Settlement Size")val=st?(((DATA.settlements||{})[st.tier]||{})[v.field||"tier"]||0):0;
+      else if(src==="Standing Army")val=sg.army?(v.value||0):0;
+      else if(src==="Citadel"){const c=S.placed.find(q=>q.name==="Citadel"&&pActive(q)&&st&&q.sid===st.id);val=c?(v.innate_value||0)+(ce.Citadel?(v.mastery_value||0):0):0;}
+      else val=infraOn(src)?(v.value||0):0;
+      rows.push({src,val});});});
+  const base=rows.reduce((a,r)=>a+r.val,0),att=cfg.attacker_sources?(+sg.att||0):0,def=+sg.def||0;
+  return {p,st,mode,cfg,rows,base,att,def,total:Math.max(cfg.floor||1,base+def-att)};}
+function siegeHTML(){const sg=siegeState(),c=siegeCalc(),C=(DATA.siege||{}).calculus||{};
+  let h='<div class="tot" style="margin-top:12px"><h3 style="font-size:13px">Siege calculator</h3><div class="bcrow">'+
+    '<select id="sgMode">'+Object.keys(C).map(m=>'<option'+(m===c.mode?' selected':'')+'>'+esc(m)+'</option>').join('')+'</select>'+
+    '<select id="sgP">'+D.players.map(p=>'<option value="'+p.id+'"'+(p===c.p?' selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select>'+
+    '<select id="sgS">'+(c.p.board.settlements||[]).map(x=>'<option value="'+x.id+'"'+(x===c.st?' selected':'')+'>'+(x.capital?'★ ':'')+esc(x.tier)+'</option>').join('')+'</select>'+
+    ((c.cfg.settlement_sources||[]).includes("Standing Army")?'<label><input type="checkbox" id="sgArmy"'+(sg.army?' checked':'')+'> Standing Army</label>':'')+'</div>'+
+    '<table class="dtable ttab" style="margin-top:6px;max-width:420px"><tbody>'+c.rows.map(r=>'<tr><td>'+esc(r.src)+'</td><td class="num">'+r.val+'</td></tr>').join('')+
+    '<tr><td>defender modifiers</td><td class="num"><input id="sgDef" type="number" value="'+(+sg.def||0)+'" style="width:56px"></td></tr>'+
+    (c.cfg.attacker_sources?'<tr><td>attacker Siege effects (−)</td><td class="num"><input id="sgAtt" type="number" value="'+(+sg.att||0)+'" style="width:56px"></td></tr>':'')+
+    '<tr><td><b>'+esc(c.mode==="Convert"?"Convert Timer":"Siege Timer")+'</b> (min '+(c.cfg.floor||1)+')</td><td class="num"><b>'+c.total+'</b></td></tr></tbody></table>'+
+    '<button id="sgStart" style="margin-top:6px">start timer</button></div>';
+  return h;}
+// ---- realm timers ----
+function realmTimers(){D.rtimers=D.rtimers||[];return D.rtimers;}
+function timersHTML(){const T=realmTimers(),keys=Object.keys(TMR);
+  return '<div class="tot" style="margin-top:12px"><h3 style="font-size:13px">Timers</h3>'+
+    (T.length?'<table class="dtable ttab" style="max-width:640px"><tbody>'+T.map((t,i)=>'<tr'+(t.n<=0?' class="broll"':'')+'><td>'+esc(t.type)+'</td><td>'+esc(t.label||'')+'</td><td class="num"><button class="rtd" data-i="'+i+'" data-d="-1">−</button> '+t.n+' <button class="rtd" data-i="'+i+'" data-d="1">+</button></td><td><button class="rtx" data-i="'+i+'">✕</button></td></tr>').join('')+'</tbody></table>':'')+
+    '<div class="bcrow" style="margin-top:6px"><select id="rtType">'+keys.map(k=>'<option>'+esc(k)+'</option>').join('')+'</select>'+
+    '<input id="rtLabel" placeholder="label" style="width:160px"><input id="rtN" type="number" style="width:56px" value="'+(((TMR[keys[0]]||{}).default)||1)+'">'+
+    '<button id="rtAdd">add</button><button id="rtTick">−1 all</button></div></div>';}
+function seasonsHTML(){const cs=curSeason();
+  return '<div class="tot" style="margin-top:12px"><h3 style="font-size:13px">Season <button id="seaPrev">◂</button> <b>'+esc(cs)+'</b> — '+esc((SEAS[cs]||{}).name||'')+' <button id="seaNext">▸</button></h3>'+
+    '<table class="dtable ttab" style="max-width:760px"><tbody>'+SEAS_ORDER.map(k=>'<tr'+(k===cs?' class="broll"':'')+'><td>'+esc(k)+'</td><td>'+esc(SEAS[k].name||'')+'</td><td>'+esc(SEAS[k].effect||'')+'</td></tr>').join('')+'</tbody></table></div>';}
+function costsHTML(){const C=DATA.costs||{};if(!Object.keys(C).length)return '';
+  return '<div class="tot" style="margin-top:12px"><h3 style="font-size:13px">Costs</h3><table class="dtable ttab" style="max-width:760px"><tbody>'+
+    Object.keys(C).map(k=>'<tr><td>'+esc(k)+'</td><td>'+esc(C[k])+'</td></tr>').join('')+'</tbody></table></div>';}
+function wireDashExtras(host){const $=id=>host.querySelector("#"+id),sg=siegeState();
+  const on=(id,ev,fn)=>{const e=$(id);if(e)e[ev]=fn;};
+  on("seaPrev","onclick",()=>{stepSeason(-1);save();render();});on("seaNext","onclick",()=>{stepSeason(1);save();render();});
+  on("sgMode","onchange",e=>{sg.mode=e.target.value;save();render();});
+  on("sgP","onchange",e=>{sg.tp=e.target.value;sg.sid=null;save();render();});
+  on("sgS","onchange",e=>{sg.sid=e.target.value;save();render();});
+  on("sgArmy","onchange",e=>{sg.army=e.target.checked;save();render();});
+  on("sgDef","onchange",e=>{sg.def=Math.round(+e.target.value)||0;save();setTimeout(render,0);});
+  on("sgAtt","onchange",e=>{sg.att=Math.round(+e.target.value)||0;save();setTimeout(render,0);});
+  on("sgStart","onclick",()=>{const c=siegeCalc();realmTimers().push({type:c.mode==="Convert"?"Convert Timer":"Siege Timer",label:c.p.name+" · "+(c.st?c.st.tier:""),n:c.total});save();render();});
+  on("rtType","onchange",e=>{const d=(TMR[e.target.value]||{}).default;$("rtN").value=d==null?1:d;});
+  on("rtAdd","onclick",()=>{realmTimers().push({type:$("rtType").value,label:$("rtLabel").value,n:Math.round(+$("rtN").value)||0});save();render();});
+  on("rtTick","onclick",()=>{const w=curSeason()==="Winter";realmTimers().forEach(t=>{if(w&&t.type==="Siege Timer")return;if(t.n>0)t.n--;});save();render();});
+  host.querySelectorAll(".rtd").forEach(b=>b.onclick=()=>{const t=realmTimers()[+b.dataset.i];t.n=Math.max(0,t.n+(+b.dataset.d));save();render();});
+  host.querySelectorAll(".rtx").forEach(b=>b.onclick=()=>{realmTimers().splice(+b.dataset.i,1);save();render();});}
+
 function renderDash(){
   const host=document.getElementById("viewDash");
   const era=currentEra(),E=ERAS[era]||{};
@@ -2028,7 +2226,7 @@ function renderDash(){
     (E.unlocks?' · '+esc(E.unlocks):'')+'</div>'+
     '<table class="dtable"><thead><tr>'+
     '<th>Player</th><th>Net gold/turn</th><th>Treasury</th><th>Public Order</th>'+
-    '<th>Settlements</th><th>Wards</th><th>Armies</th><th>Craft</th><th>Domain pts</th><th>Sovereign domains</th></tr></thead><tbody>';
+    '<th>Influence/turn</th><th>Settlements</th><th>Wards</th><th>Armies</th><th>Craft</th><th>Domain pts</th><th>Sovereign domains</th></tr></thead><tbody>';
   D.players.forEach((p,i)=>{
     const b=p.board,m=boardMetrics(b);
     let wu=0,wa=0;withBoard(b,()=>{b.settlements.forEach(s=>{const w=wardUse(s.id);wu+=w.used;wa+=w.cap;});});
@@ -2040,6 +2238,7 @@ function renderDash(){
       '<td class="num" style="color:'+(m.net<0?cvar("--upkeep"):cvar("--income"))+'">'+fmt(m.net)+'</td>'+
       '<td class="num">'+(b.treasury||0).toLocaleString()+'</td>'+
       '<td class="num" title="'+esc(poAct.map(x=>x[0]+": "+x[1]).join("\n")||"no active effects")+'">'+po+(band?' <span class="note">'+esc(band[0])+(poAct.length?' ×'+poAct.length:'')+'</span>':'')+'</td>'+
+      '<td class="num">'+(()=>{const v=influenceTotal(b);return (v>0?'+':'')+v;})()+'</td>'+
       '<td class="num">'+b.settlements.length+'</td>'+
       '<td class="num">'+wu+'/'+wa+'</td>'+
       '<td class="num">'+b.armies.length+'</td>'+
@@ -2047,7 +2246,8 @@ function renderDash(){
       '<td class="num"'+(dover?' style="color:var(--upkeep)"':'')+'>'+dsum+'/'+dmax+(dover?' ⚠':'')+'</td>'+
       '<td class="note">'+(sov.length?sov.join(", "):"—")+'</td></tr>';
   });
-  h+='</tbody></table>';host.innerHTML=h;
+  h+='</tbody></table>'+seasonsHTML()+timersHTML()+siegeHTML()+costsHTML();host.innerHTML=h;
+  wireDashExtras(host);
   if(mods().diplomacy){host.insertAdjacentHTML("beforeend",diploHTML());wireDiplo(host);}
 }
 
@@ -2109,6 +2309,13 @@ function hasRoad(id){return !!((pboard(id).infra||{})["Dirt Roads"]);}
 function eraRank(e){const ks=Object.keys(ERAS).sort((a,b)=>ERAS[a].renown-ERAS[b].renown);return ks.indexOf(e);}
 function allianceEra(type){return ((TREATIES[type+" Alliance"]||{}).era)||"Any";}
 function allianceOK(type){const e=allianceEra(type);return e==="Any"||eraRank(currentEra())>=eraRank(e);}
+function pairFlags(a,b,x){const d=diplo(),f=[];const sameAl=d.member[a]&&d.member[a]===d.member[b];
+  if(x.war&&x.nap)f.push("War with Non-Aggression Pact in force");
+  if(x.war&&x.truce>0)f.push("War during truce ("+x.truce+")");
+  if(x.war&&sameAl)f.push("War within the same alliance");
+  if(x.trade&&x.war)f.push("Trade Agreement while at war");
+  if(x.trade&&(!hasRoad(a)||!hasRoad(b)))f.push("Trade Agreement without Dirt Roads ("+[a,b].filter(q=>!hasRoad(q)).map(pname).join(", ")+")");
+  return f;}
 function dStatus(x){return x.war?"W":x.truce>0?"TR":"P";}
 // letter codes (no emoji)
 const DCODE={W:"War",P:"Peace",TR:"Truce (turns left)",TA:"Trade Agreement",NAP:"Non-Aggression Pact",AL:"same Alliance",VS:"Vassal / Suzerain"};
@@ -2129,6 +2336,7 @@ function diploHTML(){
       if(x.trade)b.push('TA');if(x.nap)b.push('NAP');
       if(d.member[r.id]&&d.member[r.id]===d.member[c.id])b.push('AL');
       if(String(d.suzerain[r.id])===String(c.id)||String(d.suzerain[c.id])===String(r.id))b.push('VS');
+      if(pairFlags(r.id,c.id,x).length)b.push('<b style="color:var(--upkeep)">!</b>');
       const sel=DIPLO_SEL===pk(r.id,c.id);
       h+='<td class="dpcell" data-a="'+r.id+'" data-b="'+c.id+'" style="cursor:pointer;'+(sel?'outline:2px solid var(--ink);':'')+(x.war?'background:rgba(198,40,40,.12)':'')+'">'+b.join(' ')+'</td>';});
     h+='</tr>';});
@@ -2138,7 +2346,8 @@ function diploHTML(){
     const warNo=x.war?"already at war":x.truce>0?"truce active ("+x.truce+")":x.nap?"Non-Aggression Pact in force":sameAl?"same alliance":"";
     const warFlag="";
     const trNo=x.trade?"":(!hasRoad(a)||!hasRoad(b))?"needs active Dirt Road ("+[a,b].filter(q=>!hasRoad(q)).map(pname).join(", ")+" missing)":"";
-    const btn=(act,label,dis,tip)=>'<button class="dpa" data-act="'+act+'"'+(dis?' disabled title="'+esc(dis)+'"':(tip?' title="'+esc(tip)+'"':''))+'>'+esc(label)+'</button> ';
+    const btn=(act,label,dis)=>'<button class="dpa'+(dis?' flagged':'')+'" data-act="'+act+'"'+(dis?' title="'+esc(dis)+'"':'')+'>'+esc(label)+'</button> ';
+    const pf=pairFlags(a,b,x);
     h+='<div class="tot" style="margin-top:8px;background:var(--panel2)"><b>'+esc(pname(a))+' – '+esc(pname(b))+'</b> '+
       '<span class="note">status: <b>'+DCODE[dStatus(x)]+(x.truce>0&&!x.war?' '+x.truce:'')+'</b>'+(x.trade?' · TA':'')+(x.nap?' · NAP':'')+'</span>'+
       '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;align-items:center">'+
@@ -2147,13 +2356,14 @@ function diploHTML(){
       (x.trade?btn("endtrade","End Trade Agreement"):btn("trade","Trade Agreement",x.war?"at war":trNo))+
       (x.nap?btn("endnap","End NAP"+(TRUCE_LEN?" (truce "+TRUCE_LEN+")":"")):btn("nap","Non-Aggression Pact",x.war?"at war":""))+
       '<span style="margin-left:6px">Truce <button class="dpt" data-d="-1">−</button> '+x.truce+' <button class="dpt" data-d="1">+</button></span></div>'+
+      (pf.length?'<div class="flagbox" style="margin-top:6px">⚑ '+pf.map(esc).join(' · ')+'</div>':'')+
       '<div class="note" style="margin-top:4px">'+Object.keys(TREATIES).map(t=>'<b>'+esc(t)+'</b> ('+esc(TREATIES[t].era||'')+'): '+esc(TREATIES[t].effect||'')).join('<br>')+'</div></div>';}
   // alliances + vassals
   h+='<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:8px">'+P.map(p=>{
-      const g=d.member[p.id]||"",opts=Object.keys(d.alliances).map(k=>'<option value="'+k+'"'+(k===g?' selected':'')+(!allianceOK(d.alliances[k].type)&&k!==g?' disabled':'')+'>'+esc(allianceLabel(k))+'</option>').join('');
+      const g=d.member[p.id]||"",opts=Object.keys(d.alliances).map(k=>'<option value="'+k+'"'+(k===g?' selected':'')+(!allianceOK(d.alliances[k].type)?' style="color:var(--upkeep)"':'')+'>'+esc(allianceLabel(k))+'</option>').join('');
       const sz=d.suzerain[p.id]||"";
       return '<div><span class="pdotsm" style="background:'+p.color+'"></span> '+esc(p.name)+'<br>'+
-        '<select class="dal" data-p="'+p.id+'"><option value="">no alliance</option>'+opts+''+["Military","Defensive"].map(t=>'<option value="+'+t+'"'+(allianceOK(t)?'':' disabled')+'>+ new '+t+(allianceOK(t)?'':' ('+allianceEra(t)+')')+'</option>').join('')+'</select> '+
+        '<select class="dal" data-p="'+p.id+'"><option value="">no alliance</option>'+opts+''+["Military","Defensive"].map(t=>'<option value="+'+t+'"'+(allianceOK(t)?'':' style="color:var(--upkeep)"')+'>+ new '+t+(allianceOK(t)?'':' ('+allianceEra(t)+')')+'</option>').join('')+'</select> '+
         '<select class="dvs" data-p="'+p.id+'"><option value="">not a vassal</option>'+P.filter(q=>q.id!==p.id).map(q=>'<option value="'+q.id+'"'+(String(sz)===String(q.id)?' selected':'')+'>vassal of '+esc(q.name)+'</option>').join('')+'</select></div>';}).join('')+'</div>'+
     (()=>{const bad=Object.keys(d.alliances).filter(k=>!allianceOK(d.alliances[k].type));
       return bad.length?'<div class="flagbox" style="margin-top:8px">⚑ '+bad.map(k=>esc(allianceLabel(k))+' requires '+esc(allianceEra(d.alliances[k].type))+' (now '+esc(currentEra())+')').join(' · ')+'</div>':'';})()+
@@ -2168,15 +2378,14 @@ function wireDiplo(host){
   host.querySelectorAll(".dpt").forEach(b=>b.onclick=()=>{const x=cur();x.truce=Math.max(0,x.truce+(+b.dataset.d));save();render();});
   host.querySelectorAll(".dpa").forEach(b=>b.onclick=()=>{const x=cur();
     const act=b.dataset.act;
-    if(act==="war"){if(x.nap||x.war||x.truce>0)return;x.war=true;x.trade=false;}   // declaring war ends trade
-    if(act==="peace"){if(!x.war)return;x.war=false;x.truce=TRUCE_LEN;}
+    if(act==="war"){x.war=true;x.trade=false;}   // declaring war ends trade
+    if(act==="peace"){x.war=false;x.truce=TRUCE_LEN;}
     if(act==="trade")x.trade=true;
     if(act==="endtrade")x.trade=false;
     if(act==="nap")x.nap=true;
     if(act==="endnap"){x.nap=false;x.truce=TRUCE_LEN;}
     save();render();});
   host.querySelectorAll(".dal").forEach(s=>s.onchange=()=>{let v=s.value;
-    {const ty=v.startsWith("+")?v.slice(1):(d.alliances[v]||{}).type;if(v&&ty&&!allianceOK(ty)){s.value=d.member[s.dataset.p]||"";return;}}
     if(v.startsWith("+")){let n=1;while(d.alliances[String(n)])n++;v=String(n);d.alliances[v]={type:s.value.slice(1)};}
     if(v)d.member[s.dataset.p]=v;else delete d.member[s.dataset.p];
     Object.keys(d.alliances).forEach(k=>{if(!Object.values(d.member).includes(k))delete d.alliances[k];});save();render();});
@@ -2758,9 +2967,9 @@ document.getElementById("autoNet").checked=S.autoNet;
 trIn.oninput=()=>{S.treasury=+trIn.value||0;save();};
 document.getElementById("autoNet").onchange=e=>{S.autoNet=e.target.checked;save();};
 document.getElementById("endturn").onclick=()=>{
-  S.turn++;
+  S.turn++;tickTimers(S);
   if(S.autoNet){S.treasury+=Math.round(window._net||0);trIn.value=S.treasury;}
-  const dpo=boardMetrics(S).po;                         // Faith − Doubt this turn
+  const dpo=boardMetrics(S).po+poModTotal(S);           // Faith − Doubt this turn (incl. PO modifiers)
   S.po=Math.max(-5,Math.min(10,(S.po||0)+dpo));
   S.armies.forEach(a=>{if(!a.strained)a.endurance=(a.endurance||0)+EQ.endurance_regain; a.strained=false;});
   document.getElementById("turn").textContent=S.turn;save();render();
@@ -3071,6 +3280,14 @@ def main():
                                for k, v in ns.get("ACTIONS", {}).items() if v.get("domain") == "Cunning"},
         },
         treaties=ns.get("TREATIES", {}), allianceRules=list(ns.get("ALLIANCE_RULES", [])),
+        startTiers=list(ns.get("EMPIRE_START_TIERS", ())), startTreasury=ns.get("STARTING_TREASURY", 0),
+        pursuitUpkeep={"byType": ns.get("PURSUIT_UPKEEP_BY_TYPE", {}), "def": ns.get("PURSUIT_UPKEEP_DEFAULT", 0)},
+        buildTimers=ns.get("BUILD_TIMERS", {}), timers=ns.get("TIMERS", {}), seasons=ns.get("SEASONS", {}),
+        poModifiers=ns.get("PO_MODIFIERS", {}), costs=ns.get("COSTS", {}), influenceGain=ns.get("INFLUENCE_GAIN", {}),
+        siege={"calculus": ns.get("SIEGE_CALCULUS", {}), "sources": ns.get("SIEGE_SOURCE_VALUES", {})},
+        factions={k: {"final": bool(v.get("final_cut")), "difficulty": v.get("difficulty", ""), "strength": v.get("strength", ""),
+                      "feel": v.get("feel", ""), "mechanic": v.get("mechanic", ""), "pair": v.get("pair", ""), "complement": v.get("complement", "")}
+                  for k, v in ns.get("FACTIONS", {}).items()},
         warnings=b_warn, version=ns.get("VERSION", "?"),
     )
     with open(a.out, "w", encoding="utf-8") as fh:

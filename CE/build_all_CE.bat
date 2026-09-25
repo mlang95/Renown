@@ -55,7 +55,7 @@ REM LAB_DIR is tagged by variant so trials stay side-by-side.
 set LAB_DIR=%CE_ROOT%\%DIR_LAB%\%DIE%
 
 REM RULES : the CE rules markdown that feeds docs + wiki (lives in sheets\)
-set RULES_MD=%CE_ROOT%\RULES_reorganized_6.md
+set RULES_MD=%CE_ROOT%\RULES_push.md
 
 REM ---- LORE (world documents from renown_worldlore.py) ----------------------
 REM BUILD_LORE : 1 = regenerate the world documents before the wiki, 0 = skip.

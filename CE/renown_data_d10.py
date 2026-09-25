@@ -32,6 +32,23 @@ except ImportError:  # standalone (build_wiki, gen_compendium, card sheets, ...)
 BLUNDER_THR = CAP_THR   # Blunder sets to-Strike to the worst printable target
 DICE_PROVENANCE = (f"d{FACES} | Focused {FOCUSED_THR}+ | Parry {PARRY_BASE}+ | "
                    f"Recover {RECOVER_BASE}+ | src {DICE_SOURCE}")
+# ── Balance constants (rules text + data strings read these) ─────────────────
+SACK_EXTORT_PER_TIER = 1000
+WEALTH_EDICT_GOLD    = 10000
+MUSTER_RANGE         = 2
+MARCH_MULTIPLIER     = 2
+PO_MIN               = -5
+PO_MAX               = 10
+INITIATIVE_MIN       = -2
+INITIATIVE_MAX       = 2
+STANDING_THRESHOLDS = {
+    "Untested":    1,
+    "Rising":      3,
+    "Established": 6,
+    "Sovereign":  10,
+}
+_ST = STANDING_THRESHOLDS
+
 # ── Keyword constants ─────────────────────────────────────────────────────
 # Rename a keyword here and it renames everywhere (GLOSSARY keys, tags, cards).
 
@@ -102,7 +119,7 @@ GLOSSARY = {
     NIMBLE:         "Gain +1 Initiative in the first Skirmish of each Battle.",
     DRILLED:        "Does not lose Endurance in the first Skirmish of each Battle.",
     DESTROY_SHIELD: f"On a {PIVOTAL} Strike: the target loses its Shield attributes for the rest of the Battle.",
-    BLUNDER:        f"At Initiative -2, your to-Strike is set to {BLUNDER_THR}+, before other negative modifiers.",
+    BLUNDER:        f"At Initiative {INITIATIVE_MIN}, your to-Strike is set to {BLUNDER_THR}+, before other negative modifiers.",
     ONE_SHOT:       "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard.",
     #DEFLECT:        "-1 to Parry and Negate Riposte against this weapon's Strikes. (All Ranged weapons have Deflect.)",
     #IMMUNE_PANIC:   "Automatically passes Panic checks.",
@@ -148,7 +165,7 @@ GLOSSARY = {
     "to-Strike number": f"The D{FACES} result a retinue needs to Strike (see the retinue table; lower is better). Bonuses add to the roll; penalties and Fatigue tokens subtract.",
     "Save":          f"The defender's roll to avoid a casualty: roll a D{FACES}, add the weapon's AP (a negative) and the shield's Save bonus (a positive); the hit is saved on a result >= the armor value.",
     "Natural roll":  "The number on the die before any modifiers. Modifiers never change what counts as 'natural'.",
-    "Initiative":    "Decides who Strikes first each Skirmish (higher first). Runs -2 to +2 (Ministry can raise the maximum to +3). At -2 or lower you Blunder.",
+    "Initiative":    f"Decides who Strikes first each Skirmish (higher first). Runs {INITIATIVE_MIN} to +{INITIATIVE_MAX} (Ministry can raise the maximum to +3). At {INITIATIVE_MIN} or lower you Blunder.",
     "Tactic":        "A choice both players make secretly and reveal together each Skirmish; it can shift Initiative, Strike, and Save rolls.",
     "Dual-equip":    "Carry two weapons at once (e.g. melee + ranged). Granted by the Tiltyard, which also gives Unwieldy until its mastery removes it.",
     "Edict":         "A scoring achievement: reach a Sovereign Standing, or complete a Monument.",
@@ -198,10 +215,10 @@ GLOSSARY = {
 
     # ── Empire state ──
     "Renown":        "The shared progress track. Gain 1 per Rest Phase; thresholds raise your Era (Ascension 8, Eminence 18, Zenith 30).",
-    "Domain":        "One of the four identities — Industry, Prowess, Cunning, Piety — raised by spending Domain points. Values 3/6/10 = Rising/Established/Sovereign Standing.",
+    "Domain":        f"One of the four identities — Industry, Prowess, Cunning, Piety — raised by spending Domain points. Values {_ST['Rising']}/{_ST['Established']}/{_ST['Sovereign']} = Rising/Established/Sovereign Standing.",
     "Domain Point":  "Gain 1 per Rest Phase; spend to raise a Domain value by 1.",
-    "Standing":      "Your tier in a Domain: Untested, Rising (3), Established (6), Sovereign (10). Sets max Influence per vote (1/2/3/4) and unlocks Domain effects.",
-    "Public Order":  "A track from -5 to 10, adjusted each turn by Faith minus Doubt; its band applies cumulative effects (see the Public Order table).",
+    "Standing":      f"Your tier in a Domain: Untested, Rising ({_ST['Rising']}), Established ({_ST['Established']}), Sovereign ({_ST['Sovereign']}). Sets max Influence per vote (1/2/3/4) and unlocks Domain effects.",
+    "Public Order":  f"A track from {PO_MIN} to {PO_MAX}, adjusted each turn by Faith minus Doubt; its band applies cumulative effects (see the Public Order table).",
     "Reach":         "How far a Settlement projects control, in Territories (by tier). Calculated like Range X",
     "Edict":         "A scoring achievement / win path: reach a Sovereign Standing, complete a Monument, or fulfill a victory condition (Wonder, wealth, Vassalize, Living Saints, Last Standing).",
 
@@ -2171,6 +2188,9 @@ PUBLIC_ORDER = {
     10: ("Living Saints", "Begin Pious Timer Edict"),
 }
 
+assert (min(PUBLIC_ORDER), max(PUBLIC_ORDER)) == (PO_MIN, PO_MAX), \
+    f"PUBLIC_ORDER keys {min(PUBLIC_ORDER)}..{max(PUBLIC_ORDER)} != PO_MIN/PO_MAX {PO_MIN}..{PO_MAX}"
+
 # Innate Faith/Doubt sources (per turn, applied at the Public Order step).
 PO_MODIFIERS = {
     "faith": {
@@ -2434,7 +2454,7 @@ ACTIONS = {
         'domain': 'Prowess',
         'cost': 'None',
         'requires': '',
-        'effect': 'Move an Army up to its Speed in Territories. Then choose one: March — move up to 2× Speed, lose 1 Endurance, take no other action; Battle — end adjacent to a non-allied Army not in a Settlement, then begin a Battle; Lay Siege — end adjacent to an at-war Settlement, then begin a Siege; Muster — end within range 2 of your Settlements, not within range 1 of a non-ally, at an active Muster Field, then recruit up to your combined muster limit (you may swap Retinues between adjacent allied Armies and change equipment).',
+        'effect': f'Move an Army up to its Speed in Territories. Then choose one: March — move up to {MARCH_MULTIPLIER}× Speed, lose 1 Endurance, take no other action; Battle — end adjacent to a non-allied Army not in a Settlement, then begin a Battle; Lay Siege — end adjacent to an at-war Settlement, then begin a Siege; Muster — end within range {MUSTER_RANGE} of your Settlements, not within range 1 of a non-ally, at an active Muster Field, then recruit up to your combined muster limit (you may swap Retinues between adjacent allied Armies and change equipment).',
         'endorsed': 'Perform another Move action (same or a different Army).',
         'notes': ['An Army may be the target of only one Move action per turn.', "While an Army's Battle, Siege, or Muster Timer is running, it can't be the target of actions.", "When an Army performs the Battle mode, it has Seize the Initiative in that Battle's first Skirmish."],
     },
@@ -2511,7 +2531,7 @@ ACTIONS = {
         'domain': 'Piety',
         'cost': 'Doubt 1',
         'requires': '',
-        'effect': "Choose another player's closest non-capital Settlement; its Public Order must be −5 or lower. Lay Siege using only Settlement-type Siege modifiers (Settlement Size and Citadel) and set a Convert Timer. When it reaches 0, the Settlement joins your empire (see Capture).",
+        'effect': f"Choose another player's closest non-capital Settlement; its Public Order must be {PO_MIN} or lower. Lay Siege using only Settlement-type Siege modifiers (Settlement Size and Citadel) and set a Convert Timer. When it reaches 0, the Settlement joins your empire (see Capture).",
         'endorsed': 'Gain Faith 1.',
         'notes': ["If the target's Public Order rises to 1 or higher before the timer reaches 0, the Convert fails and the timer is removed."],
     },
@@ -2535,7 +2555,7 @@ ACTIONS = {
         'domain': 'Industry',
         'cost': '0 gold',
         'requires': '',
-        'effect': 'Choose a Damaged Pursuit or Infrastructure in a Settlement you control and set Build Timer 2. When it reaches 0, choose one: Restore — reactivate it with all effects; Demolish — remove the Pursuit tile from your Empire Tableau.',
+        'effect': f'Choose a Damaged Pursuit or Infrastructure in a Settlement you control and set Build Timer {TIMERS["Repair Timer"]["default"]}. When it reaches 0, choose one: Restore — reactivate it with all effects; Demolish — remove the Pursuit tile from your Empire Tableau.',
         'endorsed': 'Recoup 2000.',
     },
     'Pursue': {
@@ -2544,13 +2564,13 @@ ACTIONS = {
         'requires': '',
         'effect': 'Choose an inactive Settlement Ward you control, then choose a Pursuit whose prerequisites you meet and set a Build Timer equal to its build time (usually 1). When it completes, place the Pursuit in an available Ward slot; its innate effect activates immediately, and its mastery effect activates if all mastery requirements are met.',
         'endorsed': 'Recoup 2000.',
-        'notes': ['You may have only 2 Monument Pursuits across your empire.', 'Power and unique Pursuits have Build Timer +1; Monuments +2; all others Build Timer 1.'],
+        'notes': ['You may have only 2 Monument Pursuits across your empire.', f'Power and unique Pursuits have Build Timer +{BUILD_TIMERS["Power Pursuit"] - BUILD_TIMERS["Pursuit"]}; Monuments +{BUILD_TIMERS["Monument Pursuit"] - BUILD_TIMERS["Pursuit"]}; all others Build Timer {BUILD_TIMERS["Pursuit"]}.'],
     },
     'Charter': {
         'domain': 'Industry',
         'cost': '2000 gold',
         'requires': '',
-        'effect': 'Choose one: Charter a new Village — on uncontrolled or in-province non-water, non-mountain Territory, range 4+ from any Settlement and range 2+ from Outlaw Country; or Expand a non-City Settlement one tier into an adjacent Territory (Village to Sea/Town, Sea/Town to Port/City, Port/City to Metropolis), adding a Ward.',
+        'effect': f'Choose one: Charter a new Village — on uncontrolled or in-province non-water, non-mountain Territory, range {CHARTER_MIN_RANGE}+ from any Settlement and range {OUTLAW_BUFFER_RANGE}+ from Outlaw Country; or Expand a non-City Settlement one tier into an adjacent Territory (Village to Sea/Town, Sea/Town to Port/City, Port/City to Metropolis), adding a Ward.',
         'endorsed': 'Recoup 2000.',
         'notes': ["To upgrade to City or Metropolis you must meet that tier's requirements; otherwise set Build Timer 1."],
     },
@@ -2558,7 +2578,7 @@ ACTIONS = {
         'domain': 'Diplomacy',
         'cost': 'None',
         'requires': '',
-        'effect': 'Ask players to agree, then choose one and both sign it: Peace Treaty — end the war, set Truce Timer 5; Trade Agreement — begin trading next turn; Non-Aggression Pact — no Declare War (ending it via End Treaty gives both Truce Timer 5); Alliance — join, form, or invite to a Defensive or Military Alliance.',
+        'effect': f'Ask players to agree, then choose one and both sign it: Peace Treaty — end the war, set Truce Timer {TIMERS["Truce Timer"]["default"]}; Trade Agreement — begin trading next turn; Non-Aggression Pact — no Declare War (ending it via End Treaty gives both Truce Timer {TIMERS["Truce Timer"]["default"]}); Alliance — join, form, or invite to a Defensive or Military Alliance.',
         'endorsed': 'Perform a Diplomacy action.',
         'notes': ['When acting on behalf of an Alliance, End Treaty requires all allies to agree.', "A player can't be in more than one Alliance."],
     },
@@ -2583,9 +2603,9 @@ ACTIONS = {
 # The standing agreements players can hold. signed_via is the action; ended_via
 # notes how it ends; era is when it unlocks (alliances scale with Era).
 TREATIES = {
-    "Peace Treaty":      {"signed_via": "Sign Treaty", "effect": "Ends war between the two players; sets Truce Timer 5.", "era": "Any"},
+    "Peace Treaty":      {"signed_via": "Sign Treaty", "effect": f"Ends war between the two players; sets Truce Timer {TIMERS['Truce Timer']['default']}.", "era": "Any"},
     "Trade Agreement":   {"signed_via": "Sign Treaty", "effect": "Begin trading (Trade Income flows from next turn). Requires bordering + active Dirt Road.", "era": "Any"},
-    "Non-Aggression Pact": {"signed_via": "Sign Treaty", "effect": "Neither player may Declare War on the other. Ending it via End Treaty gives both a Truce Timer 5.", "era": "Any"},
+    "Non-Aggression Pact": {"signed_via": "Sign Treaty", "effect": f"Neither player may Declare War on the other. Ending it via End Treaty gives both a Truce Timer {TIMERS['Truce Timer']['default']}.", "era": "Any"},
     "Military Alliance":  {"signed_via": "Sign Treaty", "effect": "Mutual offensive pact: if a member Declares War, all members Declare War on the target next turn (and send 1 fewer envoy).", "era": "Eminence"},
     "Defensive Alliance": {"signed_via": "Sign Treaty", "effect": "Mutual defense: attacking one member puts all members at war with the attacker.", "era": "Zenith"},
 }
@@ -2601,12 +2621,12 @@ ALLIANCE_RULES = [
 # multiple times. Whoever has completed the most when the Last Alliance Standing
 # condition is met wins.
 EDICTS = {
-    "Sovereign Standing": {"type": "Standing",  "requirement": "Reach a Sovereign Standing (Domain value 10) in any Domain."},
+    "Sovereign Standing": {"type": "Standing",  "requirement": f"Reach a Sovereign Standing (Domain value {_ST['Sovereign']}) in any Domain."},
     "Monument":           {"type": "Build",     "requirement": "Have an active Mastery Effect of a Monument pursuit."},
     "Wonder":             {"type": "Build",     "requirement": "Complete a World Wonder."},
-    "Wealth":             {"type": "Economy",   "requirement": "Generate 5,000 gold per turn for five consecutive turns, net Upkeep costs."},
+    "Wealth":             {"type": "Economy",   "requirement": f"Generate {WEALTH_EDICT_GOLD:,} gold per turn for five consecutive turns, net Upkeep costs."},
     "Vassalize":          {"type": "Conquest",  "requirement": "Vassalize a rival player (control their capital with no other settlements/armies under them)."},
-    "Living Saints":      {"type": "Piety",     "requirement": "Sustain Public Order 10 (Living Saints) for five consecutive turns (Pious Timer)."},
+    "Living Saints":      {"type": "Piety",     "requirement": f"Sustain Public Order {PO_MAX} (Living Saints) for five consecutive turns (Pious Timer)."},
     "Last Alliance Standing": {"type": "Endgame", "requirement": "Be the last alliance standing — the game-ending stop condition."},
 }
 # Note: consecutive-turn Edicts require the timer to increment each turn; if it
@@ -2637,19 +2657,22 @@ BANDIT_BEHAVIOR = {
 # 3) INFRASTRUCTURE upkeep — the per-settlement upkeep in INFRASTRUCTURE.
 #    Trade Guild removes upkeep on Primitive (innate) and Developed (mastery)
 #    infrastructure; College of Engineering removes it on Sophisticated.
-UPKEEP_TRACKS = {
-    "Pursuit":        "Fixed by pursuit type: Monument 300, Power 200, Energy 0, all others 0. Luminous Court zeroes Civic-pursuit upkeep.",
-    "Army":           "Σ(retinue costs x army) - Upkeep -X. Reduced by Levy Hall (-200/-300), Tannery/Armory/Saddlery/Butchery/Fletchery/Smokehouse (-200), ABF (-500), High Quartermaster (-2000).",
-    "Infrastructure": "Per-Empire upkeep in INFRASTRUCTURE. Trade Guild removes Primitive (innate) + Developed (mastery); College of Engineering removes Sophisticated.",
-}
-
-# 1) PURSUIT upkeep — fixed by type.
+PURSUIT_UPKEEP_DEFAULT = 100
 PURSUIT_UPKEEP_BY_TYPE = {
     "Monument": 300,
     "Power":    200,
     "Energy":   0,
+    "Other":    PURSUIT_UPKEEP_DEFAULT,
 }
-PURSUIT_UPKEEP_DEFAULT = 100
+_PU = PURSUIT_UPKEEP_BY_TYPE
+_PU_TEXT = (f"Monument {_PU['Monument']}, Power {_PU['Power']}, "
+            f"Energy {_PU['Energy']}, all others {_PU['Other']}")
+
+UPKEEP_TRACKS = {
+    "Pursuit":        f"Fixed by pursuit type: {_PU_TEXT}.",
+    "Army":           "Σ(retinue costs x army) - Upkeep -X. Reduced by Levy Hall, Tannery, Saddlery, Butchery, Smokehouse, Advanced Blast Furnace, High Quartermaster, etc.",
+    "Infrastructure": "Per-Empire upkeep in INFRASTRUCTURE. Trade Guild removes Primitive (innate) + Developed (mastery); College of Engineering removes Sophisticated.",
+}
 
 def pursuit_upkeep(node):
     """Per-turn upkeep for a node, fixed by its type. node = a NODES entry (dict) or a type string."""
@@ -2663,7 +2686,7 @@ ARMY_UPKEEP_NOTE = "Net Army Upkeep = retinue count x (retinue cost - Upkeep -X 
 # The flat costs the rules attach to actions and siege outcomes.
 COSTS = {
     "Pursue action":   "2000 gold (the envoy action; pursuit then costs per-turn upkeep by type)",
-    "Pursuit upkeep":  "Per turn by type (fixed): Monument 300, Power 200, Energy 0, all others 0",
+    "Pursuit upkeep":  f"Per turn by type (fixed): {_PU_TEXT}",
     "Army upkeep":     "retinue count x (retinue cost - Upkeep -X modifiers)",
     "Infrastructure upkeep": "Per-settlement (see INFRASTRUCTURE); Trade Guild removes Primitive/Developed, College of Engineering removes Sophisticated",
     "Cunning action":  "2000 gold (Intercept Caravan / Foster Rebellion / Raze / Destabilize)",
@@ -2671,7 +2694,7 @@ COSTS = {
     "Piety action":    "Doubt 1 (Spread Gospel / Send Missionaries / Tithe / Convert / Crusade)",
     "Prowess action":  "None (Move / Declare War / Demand Tribute)",
     "Diplomacy action":"None (Sign Treaty / Negotiate / End Treaty)",
-    "Sack":            "Extort 1000 per settlement tier; reduce settlement by 1 tier; Sack Timer 2",
+    "Sack":            f"Extort {SACK_EXTORT_PER_TIER} per settlement tier; reduce settlement by 1 tier; Sack Timer {TIMERS['Sack Timer']['default']}",
     "Tax per tier":    "500 gold per settlement tier per turn (collected in Winter)",
     "Trade Income":    "100 x host's Craft X per active Trade Agreement",
 }
@@ -2680,10 +2703,9 @@ COSTS = {
 PHASES = ("Empire", "Council", "Envoy", "Battle", "Rest")
 STARTING_TURN_PHASE_OPENER = PHASES[1]
 # ACTIONS["Move"] says "March (move up to 2x Speed)"
-MARCH_MULTIPLIER = 2
 STANDING_ARMY_SIEGE_MODIFIER = 1
 # economy.py has this as a local constant (EMPIRE_START)
-EMPIRE_START_TIERS = ("Town", "Village", "Village")
+EMPIRE_START_TIERS = ("Town", "Village", "Hamlet")
 STARTING_TREASURY = 10000
 
 BOARD_SIZES = {
