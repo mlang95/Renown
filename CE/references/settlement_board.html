@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Renown — Settlement Board Emulator</title>
 <style>
+
   :root{
     --bg:#0f1115; --panel:#161a21; --panel2:#1c222b; --line:#262d38;
     --ink:#e6eaf0; --dim:#8b95a3; --dim2:#5c6674;
@@ -13,13 +14,16 @@
     --envoy:#ec407a; --other:#7a828e;
     --chip:#12161d; --barbg:#222937; --topbar:#0c0e12;
     --sel:#222937; --line2:#3a4453;
-    --serif:Georgia,"Iowan Old Style",serif;
+    --serif:"EB Garamond",Georgia,"Iowan Old Style",serif;
     --mono:"Iosevka","SF Mono",ui-monospace,"Cascadia Code",monospace;
     --radius:10px; --radius-sm:6px; --pill:999px;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);
-    font-family:var(--mono);font-size:13px;line-height:1.45}
+    font-family:var(--serif);font-size:13px;line-height:1.45;
+    font-size-adjust:0.47;                         /* scale Garamond's small x-height to the old stack's */
+    font-variant-numeric:lining-nums tabular-nums} /* numbers align in columns */
+  input,select,button,textarea{font-size-adjust:inherit;font-variant-numeric:inherit}
   h1,h2,h3{font-family:var(--serif);font-weight:600;margin:0}
   .app{display:grid;grid-template-columns:300px 1fr 340px;height:100vh}
   @media(max-width:1100px){.app{grid-template-columns:1fr;height:auto}}
@@ -52,7 +56,7 @@
 
   details.section{margin-bottom:14px;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel)}
   details.section>summary{list-style:none;cursor:pointer;padding:8px 12px;display:flex;
-    align-items:center;gap:8px;font-family:Georgia,serif;font-size:15px;border-bottom:1px solid var(--line)}
+    align-items:center;gap:8px;font-family:var(--serif);font-size:15px;border-bottom:1px solid var(--line)}
   details.section>summary::-webkit-details-marker{display:none}
   details.section>summary .cnt{color:var(--dim2);font-size:11px;font-family:inherit}
   details.section[open]>summary .caret::before{content:"▾"} .caret::before{content:"▸";color:var(--dim)}
@@ -63,7 +67,7 @@
   .sgroup{border:1px dashed var(--line);border-radius:var(--radius);padding:8px;margin-bottom:10px}
   .sgroup.active{border-color:var(--income);border-style:solid}
   .sgroup-hd{display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer;flex-wrap:wrap}
-  .sgroup-hd .stitle{font-family:Georgia,serif;font-size:14px}
+  .sgroup-hd .stitle{font-family:var(--serif);font-size:14px}
   .sgroup-hd .rm{font-size:11px}
   /* ward slots + solitaire piles (efficient riders stack on their host) */
   #board-pursuit.board{display:block}   /* settlements = full-width rows; wards tile inside */
@@ -72,7 +76,7 @@
   .ward-lbl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin:0 2px 5px;display:flex;justify-content:space-between;gap:6px}
   .ward.empty{border:2px dashed var(--line2);background:transparent;cursor:pointer}
   .ward.empty:hover{border-color:var(--income)}
-  .ward.empty .emp{flex:1;display:flex;align-items:center;justify-content:center;color:var(--dim2);font-family:Georgia,serif;font-size:13px;font-style:italic}
+  .ward.empty .emp{flex:1;display:flex;align-items:center;justify-content:center;color:var(--dim2);font-family:var(--serif);font-size:13px;font-style:italic}
   .ward.over{border-color:var(--upkeep);background:rgba(239,83,80,.10)}
   .ward.over .ward-lbl{color:var(--upkeep)}
   .pile{position:relative}
@@ -139,7 +143,7 @@
   .grip:hover{color:var(--ink)}
   body.dnd,body.dnd *{cursor:grabbing!important;user-select:none;-webkit-user-select:none}
   .dragging{opacity:.35}
-  .dragghost{position:fixed;z-index:1000;pointer-events:none;background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius);padding:5px 8px;box-shadow:0 8px 22px rgba(0,0,0,.5);font-family:Georgia,serif;font-size:12px;max-width:260px}
+  .dragghost{position:fixed;z-index:1000;pointer-events:none;background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius);padding:5px 8px;box-shadow:0 8px 22px rgba(0,0,0,.5);font-family:var(--serif);font-size:12px;max-width:260px}
   .dragghost .gw{font-family:inherit;font-size:10px;margin-top:3px} .dragghost .gw.ok{color:var(--income)} .dragghost .gw.bad{color:var(--upkeep)}
   .drop-ok{outline:2px solid var(--income)!important;outline-offset:-2px}
   .drop-bad{outline:2px solid var(--upkeep)!important;outline-offset:-2px}
@@ -175,7 +179,7 @@
   .fld select option.locked{color:var(--dim2)}
   .stats{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
   .stat{background:var(--panel2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:2px 7px;font-size:11px}
-  .stat b{color:var(--ink);font-family:Georgia,serif}
+  .stat b{color:var(--ink);font-family:var(--serif)}
   .stat .k{color:var(--dim2);font-size:9px;letter-spacing:.04em;margin-right:3px}
   .status{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
   .stog{border:1px solid var(--line);border-radius:var(--pill);padding:2px 9px;font-size:11px;color:var(--dim);cursor:pointer;user-select:none}
@@ -191,20 +195,20 @@
   /* summary */
   .tot{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px;margin-bottom:10px}
   .big{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
-  .big .n{font-family:Georgia,serif;font-size:24px}
+  .big .n{font-family:var(--serif);font-size:24px}
   .big .n.neg{color:var(--upkeep)} .big .n.pos{color:var(--income)}
   .kv{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--line);gap:8px}
   .kv:last-child{border-bottom:none} .kv .k{color:var(--dim)} .kv .val{font-variant-numeric:tabular-nums;white-space:nowrap}
   .season-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
   .scell{background:var(--panel2);border:1px solid var(--line);border-radius:var(--radius);padding:6px;text-align:center}
-  .scell .sn{color:var(--dim);font-size:10px}.scell .sv{font-family:Georgia,serif;font-size:16px}
+  .scell .sn{color:var(--dim);font-size:10px}.scell .sv{font-family:var(--serif);font-size:16px}
   .legend{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
   .legend .li{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--dim)}
   .sw{width:10px;height:10px;border-radius:var(--radius-sm)}
   .bar{display:flex;height:8px;border-radius:var(--radius-sm);overflow:hidden;margin-top:6px;border:1px solid var(--line)}
   .bar>span{display:block}
   .treas{display:flex;align-items:center;gap:6px;margin:6px 0}
-  .treas input{width:120px;font-family:Georgia,serif;font-size:16px}
+  .treas input{width:120px;font-family:var(--serif);font-size:16px}
   details.notes{margin-top:10px} summary{cursor:pointer}
   .note{color:var(--dim2);font-size:11px;line-height:1.45} .note b{color:var(--dim)}
   .set-grid{display:grid;grid-template-columns:1fr auto;gap:4px 8px;align-items:center;margin-top:6px}
@@ -234,7 +238,7 @@
   /* top bar / views / players */
   .topbar{display:flex;align-items:center;gap:16px;padding:6px 12px;border-bottom:1px solid var(--line);background:var(--topbar);position:sticky;top:0;z-index:20;flex-wrap:wrap}
   .views{display:flex;gap:4px}
-  .vtab{padding:6px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel2);color:var(--dim);cursor:pointer;font-family:Georgia,serif}
+  .vtab{padding:6px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel2);color:var(--dim);cursor:pointer;font-family:var(--serif)}
   .vtab.on{color:var(--ink);border-color:var(--line2);background:var(--sel)}
   .players{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
   .pchip{display:flex;align-items:center;gap:5px;padding:3px 8px;border:1px solid var(--line);border-radius:var(--pill);cursor:pointer;font-size:12px;color:var(--dim)}
@@ -245,7 +249,7 @@
   .viewpane{height:calc(100vh - 47px)}
   .dtable{width:100%;border-collapse:collapse;font-size:13px;max-width:1000px}
   .dtable th,.dtable td{border:1px solid var(--line);padding:6px 9px;text-align:left}
-  .dtable th{color:var(--dim);font-weight:600;font-family:Georgia,serif}
+  .dtable th{color:var(--dim);font-weight:600;font-family:var(--serif)}
   .edb .edn{font-size:18px;font-weight:700;min-width:22px;text-align:center}
   .edb button{padding:1px 6px;font-size:11px}
   .dtable td.num{text-align:right;font-variant-numeric:tabular-nums}
@@ -256,7 +260,7 @@
   .rdom select{font-size:12px;padding:4px 6px}
   .sboard{max-width:1000px}
   .dtrack{display:flex;align-items:stretch;gap:6px;margin-bottom:5px}
-  .dtrack .dname{width:78px;font-family:Georgia,serif;color:var(--dim);display:flex;align-items:center;font-size:13px}
+  .dtrack .dname{width:78px;font-family:var(--serif);color:var(--dim);display:flex;align-items:center;font-size:13px}
   .dtrack .cells{display:grid;grid-template-columns:repeat(11,1fr);gap:2px;flex:1}
   .dcell{min-height:34px;border:1px solid var(--line);border-radius:var(--radius-sm);display:flex;flex-direction:column;align-items:center;padding-top:2px;font-size:9px;color:var(--dim2)}
   .dcell.b-untested{background:var(--chip)}
@@ -3279,9 +3283,9 @@ const STAND_THRESH={Rising:3,Established:6,Sovereign:10};
 const PLAYER_COLORS=["#4caf50","#ef5350","#42a5f5","#ffb300","#ab47bc","#26c6da","#ec407a"];
 const THEMES={
   ink:{},
-  parchment:{"--bg":"#efe7d6","--panel":"#f7f0dd","--panel2":"#efe6cd","--line":"#d9cba6","--line2":"#c3b48f","--ink":"#2c2114","--dim":"#6b5c43","--dim2":"#9c8b6a","--chip":"#efe6cd","--barbg":"#d9cba6","--topbar":"#e7dcc2","--sel":"#e3d7b8","--income":"#2e7d32","--craft":"#00838f","--influence":"#6a1b9a","--order":"#b8860b","--upkeep":"#c62828","--season":"#6d4c41","--build":"#3949ab","--battle":"#546e7a","--envoy":"#ad1457","--other":"#7a6f5a","--serif":"'Iowan Old Style',Georgia,serif"},
+  parchment:{"--bg":"#efe7d6","--panel":"#f7f0dd","--panel2":"#efe6cd","--line":"#d9cba6","--line2":"#c3b48f","--ink":"#2c2114","--dim":"#6b5c43","--dim2":"#9c8b6a","--chip":"#efe6cd","--barbg":"#d9cba6","--topbar":"#e7dcc2","--sel":"#e3d7b8","--income":"#2e7d32","--craft":"#00838f","--influence":"#6a1b9a","--order":"#b8860b","--upkeep":"#c62828","--season":"#6d4c41","--build":"#3949ab","--battle":"#546e7a","--envoy":"#ad1457","--other":"#7a6f5a","--serif":"'EB Garamond',Georgia,'Iowan Old Style',serif"},
   midnight:{"--bg":"#000000","--panel":"#0b0b0d","--panel2":"#131318","--line":"#2a2a33","--line2":"#3a3a45","--ink":"#f5f5f7","--dim":"#a7a7b2","--dim2":"#6c6c78","--chip":"#0f0f14","--barbg":"#20202a","--topbar":"#000000","--sel":"#1a1a22","--income":"#39d353","--craft":"#22d3ee","--influence":"#c084fc","--order":"#fbbf24","--upkeep":"#f87171","--season":"#a1887f","--build":"#818cf8","--battle":"#94a3b8","--envoy":"#f472b6","--other":"#8a8a96"},
-  slate:{"--bg":"#eef1f5","--panel":"#ffffff","--panel2":"#f3f5f9","--line":"#d6dbe3","--line2":"#c3ccd8","--ink":"#1f2430","--dim":"#5b6572","--dim2":"#93a0af","--chip":"#f3f5f9","--barbg":"#dfe4ec","--topbar":"#ffffff","--sel":"#e4e9f1","--income":"#2e7d32","--craft":"#0277bd","--influence":"#6a1b9a","--order":"#c77700","--upkeep":"#c62828","--season":"#795548","--build":"#3949ab","--battle":"#607d8b","--envoy":"#c2185b","--other":"#78889a","--serif":"'Iowan Old Style',Georgia,serif","--mono":"ui-monospace,'SF Mono',monospace"},
+  slate:{"--bg":"#eef1f5","--panel":"#ffffff","--panel2":"#f3f5f9","--line":"#d6dbe3","--line2":"#c3ccd8","--ink":"#1f2430","--dim":"#5b6572","--dim2":"#93a0af","--chip":"#f3f5f9","--barbg":"#dfe4ec","--topbar":"#ffffff","--sel":"#e4e9f1","--income":"#2e7d32","--craft":"#0277bd","--influence":"#6a1b9a","--order":"#c77700","--upkeep":"#c62828","--season":"#795548","--build":"#3949ab","--battle":"#607d8b","--envoy":"#c2185b","--other":"#78889a","--serif":"'EB Garamond',Georgia,'Iowan Old Style',serif","--mono":"ui-monospace,'SF Mono',monospace"},
   royal:{"--bg":"#0c1024","--panel":"#141a38","--panel2":"#1b2450","--line":"#2a356b","--line2":"#37456f","--ink":"#eef1ff","--dim":"#9aa6d6","--dim2":"#5b6aa0","--chip":"#101632","--barbg":"#222c5e","--topbar":"#0a0e20","--sel":"#202a5a","--income":"#5bd6a0","--craft":"#5cc8ff","--influence":"#c9a0ff","--order":"#ffd166","--upkeep":"#ff7a85","--season":"#b0885f","--build":"#8aa0ff","--battle":"#8ea2c8","--envoy":"#ff8ac0","--other":"#8f9bc0"}
 };
 const THEME_VARS=["--bg","--panel","--panel2","--line","--line2","--ink","--dim","--dim2","--income","--craft","--influence","--order","--upkeep","--season","--build","--battle","--envoy","--other","--chip","--barbg","--topbar","--sel","--serif","--mono"];
@@ -4814,7 +4818,7 @@ function standingsBoardHTML(){
      '</div>';
   // shared renown track
   const era=currentEra(),eraAt={};Object.keys(ERAS).forEach(e=>eraAt[ERAS[e].renown]=e);
-  h+='<div style="margin-top:8px"><div style="color:var(--dim);font-family:Georgia,serif;margin-bottom:3px">Renown (shared): '+(D.renown||1)+' · Era '+era+'</div>'+
+  h+='<div style="margin-top:8px"><div style="color:var(--dim);font-family:var(--serif);margin-bottom:3px">Renown (shared): '+(D.renown||1)+' · Era '+era+'</div>'+
      '<div style="display:grid;grid-template-columns:repeat(30,1fr);gap:1px">';
   for(let r=1;r<=30;r++){
     const cur=r===(D.renown||1);
@@ -5246,7 +5250,7 @@ function renderRenown(){
   h+='<div class="tot" style="max-width:1000px"><h3 style="font-size:13px">Standing effects — '+esc(ap.name)+'</h3>'+
      '';
   DOMAINS.forEach(d=>{const v=(ab.domains||{})[d]||0;
-    h+='<div style="margin-bottom:8px"><div style="color:var(--dim);font-family:Georgia,serif;margin-bottom:2px">'+d+' <span class="note">(cube '+v+' · '+domBand(v)+')</span></div>';
+    h+='<div style="margin-bottom:8px"><div style="color:var(--dim);font-family:var(--serif);margin-bottom:2px">'+d+' <span class="note">(cube '+v+' · '+domBand(v)+')</span></div>';
     ["Rising","Established","Sovereign"].forEach(st=>{const eff=(DBOARD[d]||{})[st]||"";const has=v>=STAND_THRESH[st];
       h+='<div style="display:flex;gap:8px;padding:3px 6px;border-left:3px solid '+(has?'var(--income)':'var(--line)')+';opacity:'+(has?'1':'.55')+';margin-bottom:2px">'+
          '<span style="min-width:88px;color:'+(has?'var(--income)':'var(--dim2)')+'">'+st+' ('+STAND_THRESH[st]+')</span>'+
