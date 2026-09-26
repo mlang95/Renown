@@ -486,6 +486,30 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .unlocks .grp{margin:3px 0}
   .unlocks .grp .h{color:var(--dim2);font-size:10px;letter-spacing:.05em;margin-right:4px}
   /* summary */
+  .tb-wrap{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:14px;padding:14px}
+  @media(max-width:1100px){.tb-wrap{grid-template-columns:1fr}}
+  .tb-felt{position:relative;height:560px;margin-bottom:10px}
+  .tb-oval{position:absolute;left:13%;right:13%;top:15%;bottom:15%;border-radius:50%;
+    background:radial-gradient(ellipse at center,color-mix(in srgb,var(--income) 26%,var(--panel)) 0%,color-mix(in srgb,var(--income) 12%,var(--panel2)) 75%);
+    border:7px solid var(--line2);box-shadow:inset 0 0 34px rgba(0,0,0,.18)}
+  .tb-center{position:absolute;left:24%;right:24%;top:27%;bottom:27%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px;overflow:auto}
+  .tb-center h2{font-size:22px}
+  .tb-env{background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius-sm);padding:6px 10px;margin-top:4px}
+  .tb-seat{position:absolute;transform:translate(-50%,-50%);width:150px;padding:6px 8px;border:1px solid var(--line2);border-radius:var(--radius-sm);
+    background:var(--panel);font-size:12px;box-shadow:0 2px 6px rgba(0,0,0,.12);z-index:1}
+  .tb-seat.empty{opacity:.65;border-style:dashed;text-align:center}
+  .tb-seat.act{outline:3px solid var(--order);outline-offset:1px}
+  .tb-seat.me{border-color:var(--ink);border-width:2px}
+  .tb-nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tb-b{display:inline-block;font-size:10px;line-height:14px;padding:0 5px;border-radius:999px;border:1px solid var(--line2);margin-left:4px;font-weight:600}
+  .tb-b.h{background:var(--order);color:#fff;border-color:var(--order)} .tb-b.s{background:var(--build);color:#fff;border-color:var(--build)}
+  .tb-vote{font-weight:600;margin-top:2px} .tb-timer{font-size:22px;font-weight:600}
+  .tb-mini{font-size:10px;padding:0 5px;margin-top:3px}
+  .tb-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:4px 0}
+  .tb-panel .lbl{font-weight:600;margin-bottom:4px} .tb-act{border-color:var(--order)}
+  .tb-lg{padding:4px 0;border-bottom:1px dashed var(--line)}
+  #viewTable .pos{color:var(--income)} #viewTable .neg{color:var(--upkeep)}
+  #viewTable button.on{border-color:var(--ink);font-weight:600}
   .tot{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px;margin-bottom:10px}
   .big{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
   .big .n{font-family:var(--serif);font-size:24px}
@@ -584,6 +608,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <div class="vtab on" data-v="board">Board</div>
     <div class="vtab" data-v="dash">Dashboards</div>
     <div class="vtab" data-v="renown">Renown &amp; Domains</div>
+    <div class="vtab" data-v="table">Table</div>
     <div class="vtab" data-v="map">Map</div>
     <div class="vtab" data-v="battle" id="vtabBattle" style="display:none">Battle</div>
   </div>
@@ -748,6 +773,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 <div id="viewDash" class="viewpane" style="display:none"></div>
 <div id="viewRenown" class="viewpane" style="display:none"></div>
 <div id="viewMap" class="viewpane" style="display:none"></div>
+<div id="viewTable" class="viewpane" style="display:none"></div>
 <div id="viewBattle" class="viewpane" style="display:none"></div>
 
 <div id="inspect" class="modal" style="display:none"><div class="modalcard" id="inspectCard"></div></div>
@@ -780,8 +806,340 @@ const ST=LIM.standing||{Untested:1,Rising:3,Established:6,Sovereign:10};
 const SOV=ST.Sovereign,EST=ST.Established,RIS=ST.Rising;
 const ERAS=DATA.eras||{};
 const EDICTS=DATA.edicts||{};
-const STAND_THRESH={Rising:3,Established:6,Sovereign:10};
+const STAND_THRESH={Rising:RIS,Established:EST,Sovereign:SOV};
 const PLAYER_COLORS=["#4caf50","#ef5350","#42a5f5","#ffb300","#ab47bc","#26c6da","#ec407a"];
+// ===================== TABLE: seating, Council & Envoy phases =====================
+// Everything the sequence needs is derived (tSim) from: shared D.tbl (seats, host, phase, phase start,
+// timer, host overrides) + each player's own board.tbl (seat, council vote, declaration, votes, mods).
+// Each client writes only its own board part (hot-seat excepted); the Host alone writes D.tbl.
+const T_DOMS=["Prowess","Cunning","Piety","Industry"];                 // resolution order after Diplomacy
+const T_ALL=["Diplomacy"].concat(T_DOMS);
+const EOUT=DATA.envoyOutcomes||{};
+const ETH=Object.assign({Condemned:-3,Failed:0,Passed:1,Endorsed:3},DATA.outcomeThresh||{});
+const T_PH=["empire","council","envoy","battle","rest"];
+const T_PHL={empire:"Empire Phase",council:"Council Phase",envoy:"Envoy Phase",battle:"Battle Phase",rest:"Rest Phase"};
+let SKEW=0,SKEW_N=0;                                                    // server clock − local clock (ms)
+function tnow(){return Date.now()+SKEW;}
+function noteServerDate(r){try{const d=Date.parse(r.headers.get("date")||"");if(isNaN(d))return;
+  const s=d+500-Date.now();SKEW=SKEW_N?Math.round(SKEW*0.8+s*0.2):s;SKEW_N++;}catch(e){}}
+let HOTSEAT=false;try{HOTSEAT=localStorage.getItem("renown_hotseat")==="1";}catch(e){}
+
+function TB(){D.tbl=D.tbl||{};D.tbl.skip=D.tbl.skip||{};return D.tbl;}
+function tSeats(){return Math.max(+TB().seats||6,D.players.length);}
+function tTimer(){const v=TB().timer;return v===undefined?20:Math.max(0,+v||0);}
+function tTurn(){return +TB().turn||1;}
+function tPhase(){const t=TB();if(T_PH.includes(t.phase))return t.phase;
+  const sp=String(DATA.startPhase||"Council").toLowerCase();return T_PH.includes(sp)?sp:"council";}
+function PT(p){const b=p.board;b.tbl=b.tbl||{};b.tbl.mods=b.tbl.mods||{};return b.tbl;}
+function tCur(p){const x=PT(p);return (x.cur&&x.cur.turn===tTurn())?x.cur:{turn:tTurn(),votes:{}};}
+function tCurW(p){const x=PT(p);if(!x.cur||x.cur.turn!==tTurn())x.cur={turn:tTurn(),votes:{}};x.cur.votes=x.cur.votes||{};return x.cur;}
+function sameP(a,b){return !!a&&!!b&&String(a.id)===String(b.id);}
+function meP(){return D.players[D.active];}
+function canAct(p){return HOTSEAT||sameP(meP(),p);}
+
+// ---- seating (seat index increases clockwise; ties on a seat go to whoever sat first) ----
+function seatMap(){const n=tSeats(),m={};
+  D.players.map(p=>({p,x:PT(p)})).filter(o=>Number.isInteger(o.x.seat)&&o.x.seat>=0&&o.x.seat<n)
+    .sort((a,b)=>(a.x.seatTs||0)-(b.x.seatTs||0)||String(a.p.id).localeCompare(String(b.p.id)))
+    .forEach(o=>{if(!m[o.x.seat])m[o.x.seat]=o.p;});return m;}
+function seated(){const m=seatMap();return Object.keys(m).map(Number).sort((a,b)=>a-b).map(i=>m[i]);}
+function hostP(){const s=seated();return s.find(p=>String(p.id)===String(TB().host))||s[0]||null;}
+function tOrder(){const s=seated();if(!s.length)return [];const i=s.indexOf(hostP());return s.slice(i+1).concat(s.slice(0,i+1));}
+function canHost(){const h=hostP();return HOTSEAT||!h||sameP(meP(),h);}
+function seatsLocked(){const ph=tPhase();return (ph==="council"||ph==="envoy")&&!!TB().phaseTs;}
+
+// ---- influence, standings, envoys ----
+function tStand(p,dom){return domBand((p.board.domains||{})[dom]||0);}
+function eraRec(){return ERAS[currentEra()]||{};}
+function diploInf(){const e=eraRec();return e.innate_diplomacy_influence??(eraIdx()+1);}
+function diploCap(){const e=eraRec();return e.max_influence_per_diplomacy_vote??diploInf();}
+function eraActions(council){const e=eraRec();return Math.max(1,+(council?e.council_actions_per_envoy:e.actions_per_envoy)||1);}
+function modSum(p,kind,dom,council){return Object.values(PT(p).mods).filter(m=>m&&m.kind===kind&&(m.dom==="All"||m.dom===dom)&&(!m.scope||m.scope==="all"||(m.scope==="council")===!!council))
+  .reduce((a,m)=>a+(+m.val||0),0);}
+function innateInf(p,dom,council){const base=dom==="Diplomacy"?diploInf():((DBOARD.innate_influence_own_envoys||{})[tStand(p,dom)]||0);
+  return base+modSum(p,"envoy",dom,council);}
+function voteCap(p,dom,council){const base=dom==="Diplomacy"?diploCap():((DBOARD.max_influence_per_vote||{})[tStand(p,dom)]||0);
+  return Math.max(0,base+modSum(p,"cap",dom,council));}
+function inflPool(p){return influenceTotal(p.board)+(+tCur(p).inflAdj||0);}
+function personalEnvoys(p){const e=eraRec();return Math.max(0,(+e.personal_envoys||1)+(+tCur(p).envAdj||0));}
+function councilEnvoys(){return Math.max(0,+eraRec().council_envoys||1);}
+function tOutcome(net){if(net<=ETH.Condemned)return "Condemned";if(net<=ETH.Failed)return "Failed";
+  if(net>=ETH.Endorsed)return "Endorsed";return "Passed";}
+function outText(dom,out){return ((EOUT[dom]||{})[String(out).toLowerCase()])||"";}
+
+// ---- the plan: ordered envoys for the current phase ----
+function tPlan(ph,ord,councilDom){const L=[];
+  if(ph==="council"){const nc=councilEnvoys();ord.forEach(p=>{for(let k=0;k<nc;k++)L.push({id:"C:"+p.id+(k?":"+k:""),owner:p,dom:councilDom||null,council:true,k});});return L;}
+  if(ph!=="envoy"||!ord.every(p=>(tCur(p).decl||{}).lock))return L;
+  const cnt=(p,d)=>Math.max(0,+(((tCur(p).decl||{}).n||{})[d])||0);
+  ord.forEach(p=>{for(let k=0;k<cnt(p,"Diplomacy");k++)L.push({id:"E:"+p.id+":Diplomacy:"+k,owner:p,dom:"Diplomacy",k});});
+  T_DOMS.forEach(d=>{ord.slice().sort((a,b)=>((b.board.domains||{})[d]||0)-((a.board.domains||{})[d]||0)||ord.indexOf(a)-ord.indexOf(b))
+    .forEach(p=>{for(let k=0;k<cnt(p,d);k++)L.push({id:"E:"+p.id+":"+d+":"+k,owner:p,dom:d,k});});});
+  return L;}
+
+// ---- simulation: walk every slot in order, apply pre-votes / timeouts, stop at the first open slot ----
+function tSim(){
+  const t=TB(),ph=tPhase(),ord=tOrder(),now=tnow(),TM=tTimer()*1000;
+  const R={ph,ord,log:[],envoys:[],cur:null,curEnvoy:null,spent:{},pool:{},resolved:new Set(),plan:[],councilDom:null};
+  ord.forEach(p=>{R.spent[p.id]=0;R.pool[p.id]=inflPool(p);});
+  if(ph!=="council"&&ph!=="envoy"){R.done=true;return R;}
+  if(!ord.length){R.waiting="seat";return R;}
+  if(!t.phaseTs){R.waiting="start";return R;}
+  let clock=t.phaseTs;
+  function runSlot(key,who,rec){
+    const start=clock,dl=TM>0?start+TM:Infinity,sk=t.skip[key];let res=null;
+    if(rec&&rec.ts<=start)res={rec,end:start,pre:true};
+    else if(rec&&rec.ts<=dl&&!(sk&&sk>=start&&rec.ts>sk))res={rec,end:rec.ts};
+    else if(sk&&sk>=start)res={rec:null,end:sk,forced:true};
+    else if(PT(who).auto)res={rec:null,end:start,auto:true};
+    else if(now>=dl)res={rec:null,end:dl,timeout:true};
+    if(!res){R.cur={key,who,start,deadline:dl};return null;}
+    R.resolved.add(key);clock=Math.max(clock,res.end);return res;}
+  function envoyRun(E){
+    E.innate=innateInf(E.owner,E.dom,E.council);E.votes=[];E.sup=0;E.opp=0;R.envoys.push(E);
+    for(const v of ord){if(sameP(v,E.owner))continue;
+      const r=runSlot(E.id+">"+v.id,v,tCur(v).votes[E.id]);
+      if(!r){R.curEnvoy=E;return false;}
+      let a="A",x=0;
+      if(r.rec&&(r.rec.a==="S"||r.rec.a==="O")){
+        const room=Math.max(0,R.pool[v.id]-R.spent[v.id]);
+        x=Math.max(0,Math.min(+r.rec.x||0,voteCap(v,E.dom,E.council),room));a=x>0?r.rec.a:"A";}
+      if(a==="S")E.sup+=x;else if(a==="O")E.opp+=x;R.spent[v.id]+=x;
+      E.votes.push({who:v,a,x,pre:!!r.pre,timeout:!!r.timeout,forced:!!r.forced,auto:!!r.auto});}
+    let net=E.innate+E.sup-E.opp;if(E.council)net=Math.max(1,net);       // Council Envoys can't fail
+    E.net=net;E.out=tOutcome(net);E.done=true;R.log.push({kind:"envoy",E});return true;}
+  if(ph==="council"){
+    const tally={};
+    for(const p of ord){const r=runSlot("CV:"+p.id,p,tCur(p).council);if(!r)return R;
+      const d=r.rec&&T_DOMS.includes(r.rec.dom)?r.rec.dom:null;if(d)tally[d]=(tally[d]||0)+1;
+      R.log.push({kind:"cvote",who:p,dom:d,pre:!!r.pre,timeout:!!r.timeout,forced:!!r.forced,auto:!!r.auto});}
+    R.tally=tally;
+    const mx=Math.max(0,...Object.values(tally)),top=T_DOMS.filter(d=>mx>0&&tally[d]===mx);
+    let dom=top.length===1?top[0]:null;
+    if(!dom){const tie=t.councilTie,cand=top.length?top:T_DOMS.slice();
+      if(tie&&tie.turn===tTurn()&&cand.includes(tie.dom)){dom=tie.dom;clock=Math.max(clock,+tie.ts||clock);}
+      else{R.waiting="tie";R.tieCands=cand;return R;}}
+    R.councilDom=dom;R.plan=tPlan(ph,ord,dom);
+    for(const E of R.plan)if(!envoyRun(E))return R;
+    R.done=true;return R;}
+  const pend=ord.filter(p=>!(tCur(p).decl||{}).lock);
+  if(pend.length){R.waiting="declare";R.declPending=pend;return R;}
+  clock=Math.max(clock,...ord.map(p=>+tCur(p).decl.lock||0));
+  R.plan=tPlan(ph,ord,null);
+  for(const E of R.plan)if(!envoyRun(E))return R;
+  R.done=true;return R;}
+
+// ---- optional auto-resolve: Faith/Doubt in the outcome text → owner's Public Order (owner's client applies once) ----
+function tApply(R){if(!TB().auto)return;let ch=false;
+  R.log.forEach(l=>{if(l.kind!=="envoy")return;const E=l.E,p=E.owner;
+    if(!(HOTSEAT||sameP(meP(),p)))return;
+    const c=tCurW(p);c.applied=c.applied||{};if(c.applied[E.id])return;
+    const txt=outText(E.dom,E.out),f=+((txt.match(/Faith (\d+)/)||[])[1]||0),dz=+((txt.match(/Doubt (\d+)/)||[])[1]||0);
+    if(f||dz)p.board.po=Math.max(PO_MIN,Math.min(PO_MAX,(p.board.po||0)+f-dz));
+    c.applied[E.id]={out:E.out,f,d:dz};ch=true;});
+  if(ch)save();}
+
+// ---- host actions ----
+function tSetPhase(ph){const t=TB();t.phase=ph;t.phaseTs=(ph==="council"||ph==="envoy")?tnow():0;t.skip={};
+  if(ph==="council")t.councilTie=null;save();render();}
+function tEndTurn(){const t=TB(),ord=tOrder();
+  if(t.auto)D.players.forEach(p=>{const ap=tCur(p).applied||{};p.board.condemned=Object.values(ap).filter(a=>a.out==="Condemned").length;});
+  stepSeason(1);
+  if(curSeason()!=="Spring"&&ord.length>1)t.host=String(ord[0].id);   // Host passes clockwise, except in Spring
+  t.turn=tTurn()+1;t.phase="empire";t.phaseTs=0;t.skip={};t.councilTie=null;save();render();}
+function tAutoSeat(){const m=seatMap(),n=tSeats();let i=0;
+  D.players.filter(p=>!Object.values(m).includes(p)).forEach(p=>{while(i<n&&m[i])i++;if(i<n){const x=PT(p);x.seat=i;x.seatTs=tnow();m[i]=p;}});
+  save();render();}
+
+// ---- rendering ----
+let T_SIG="";
+function tSig(R){return [tPhase(),tTurn(),R.waiting||"",R.cur?R.cur.key:"",R.log.length,R.done?1:0,R.councilDom||"",
+  JSON.stringify(R.spent)].join("|");}
+function tName(p){return '<span class="pdot" style="background:'+p.color+'"></span>'+esc(p.name);}
+function tVoteTxt(v){return v.a==="S"?'<span class="pos">+'+v.x+'</span>':v.a==="O"?'<span class="neg">−'+v.x+'</span>':'<span class="note">'+(v.timeout?"timeout":v.forced?"skipped":"abstain")+'</span>';}
+function tOutCls(o){return o==="Endorsed"||o==="Passed"?"pos":"neg";}
+function renderTable(){
+  const host=document.getElementById("viewTable");if(!host)return;
+  const R=tSim(),t=TB(),ph=tPhase(),me=meP(),ord=R.ord,sm=seatMap(),n=tSeats(),hp=hostP(),sp=ord[0]||null;
+  T_SIG=tSig(R);
+  const cw=R.cur?R.cur.who:null;
+  // --- seats around the felt ---
+  let seats="";
+  for(let i=0;i<n;i++){
+    const a=(-90+i*360/n)*Math.PI/180,x=50+44*Math.cos(a),y=50+41*Math.sin(a),p=sm[i];
+    if(!p){seats+='<div class="tb-seat empty" style="left:'+x+'%;top:'+y+'%"><div class="note">Seat '+(i+1)+'</div>'+
+      (seatsLocked()?'':'<button data-sit="'+i+'">sit here</button>')+'</div>';continue;}
+    const cls=["tb-seat"];if(sameP(p,cw))cls.push("act");if(sameP(p,me))cls.push("me");
+    let body='<div class="tb-nm">'+tName(p)+(sameP(p,hp)?'<span class="tb-b h" title="Host">Host</span>':'')+
+      (sameP(p,sp)?'<span class="tb-b s" title="Starting player">1st</span>':'')+'</div>';
+    const pool=R.pool[p.id]??inflPool(p),left=pool-(R.spent[p.id]||0);
+    body+='<div class="note">Influence <b>'+left+'</b>/'+pool+' · Envoys '+personalEnvoys(p)+'</div>';
+    if(ph==="envoy"&&TB().phaseTs){const dc=tCur(p).decl||{};
+      if(R.waiting==="declare")body+='<div class="note">'+(dc.lock?'<span class="pos">declared ✓</span>':'declaring…')+'</div>';
+      else{const nn=dc.n||{};body+='<div class="note">'+T_ALL.filter(d=>+nn[d]>0).map(d=>d.slice(0,3)+" ×"+nn[d]).join(" · ")+'</div>';}}
+    if(ph==="council"&&TB().phaseTs&&!R.councilDom){const lv=R.log.find(l=>l.kind==="cvote"&&sameP(l.who,p));
+      body+='<div class="note">'+(lv?(lv.dom?'voted <b>'+lv.dom+'</b>':'no vote'):sameP(p,cw)?'<b>voting…</b>':'—')+'</div>';}
+    const E=R.curEnvoy;
+    if(E){if(sameP(E.owner,p))body+='<div class="tb-vote">sending '+esc(E.dom)+'</div>';
+      else{const v=E.votes.find(q=>sameP(q.who,p));body+='<div class="tb-vote">'+(v?tVoteTxt(v):sameP(p,cw)?'<span class="note">to act <span class="tbcd"></span></span>':'<span class="note">…</span>')+'</div>';}}
+    if(!seatsLocked()&&sameP(p,me))body+='<button data-stand="1" class="tb-mini">stand</button>';
+    seats+='<div class="'+cls.join(" ")+'" style="left:'+x+'%;top:'+y+'%">'+body+'</div>';}
+  // --- centre of the felt ---
+  let ctr='<div class="note">Turn '+tTurn()+' · '+esc(curSeason())+' · '+esc(currentEra())+'</div><h2>'+T_PHL[ph]+'</h2>';
+  const E=R.curEnvoy;
+  if(R.waiting==="seat")ctr+='<div class="note">Take a seat to begin.</div>';
+  else if(R.waiting==="start")ctr+='<div class="note">Waiting for the Host to begin.</div>';
+  else if(R.waiting==="declare")ctr+='<div>Declare Envoys — '+(ord.length-R.declPending.length)+'/'+ord.length+' submitted</div>';
+  else if(R.waiting==="tie")ctr+='<div>Council vote tied — <b>'+R.tieCands.join(" / ")+'</b><br><span class="note">Host breaks the tie</span></div>';
+  else if(ph==="council"&&!R.councilDom&&cw)ctr+='<div>Council vote: '+tName(cw)+' <span class="tbcd tb-timer"></span></div>';
+  if(E){const net=E.council?Math.max(1,E.innate+E.sup-E.opp):E.innate+E.sup-E.opp,o=tOutcome(net);
+    ctr+='<div class="tb-env">'+tName(E.owner)+' → <b>'+esc(E.dom)+'</b>'+(E.council?' <span class="tb-b">Council</span>':'')+(eraActions(E.council)>1?' <span class="tb-b">×'+eraActions(E.council)+' actions</span>':'')+
+      '<div class="note">innate '+E.innate+' · <span class="pos">+'+E.sup+'</span> · <span class="neg">−'+E.opp+'</span></div>'+
+      '<div>net <b>'+net+'</b> → <b class="'+tOutCls(o)+'">'+o+'</b> <span class="note">(so far)</span></div>'+
+      (cw?'<div class="note">'+tName(cw)+' to act</div><div class="tbcd tb-timer"></div>':'')+'</div>';}
+  else if(R.done&&(ph==="council"||ph==="envoy")&&TB().phaseTs)ctr+='<div class="pos">All Envoys resolved.</div>';
+  if(R.councilDom)ctr+='<div class="note">Council Domain: <b>'+R.councilDom+'</b></div>';
+  if(ph==="empire")ctr+='<div class="note">Resolve the Empire Phase on each board (timers, Bandits, Influence & Envoys, income, upkeep, Public Order).</div>';
+  if(ph==="battle")ctr+='<div class="note">Resolve Battles and Sieges'+(mods().battle?' in the Battle view':'')+'.</div>';
+  if(ph==="rest")ctr+='<div class="note">Unused Envoys & Influence are discarded · Season +1 · gain Renown · spend a Domain Point · Host passes clockwise (not in Spring).</div>';
+  // --- log ---
+  let log="";
+  R.log.forEach(l=>{
+    if(l.kind==="cvote"){log+='<div>'+tName(l.who)+' Council vote: '+(l.dom?'<b>'+l.dom+'</b>':'<span class="note">'+(l.timeout?"timeout":l.forced?"skipped":"none")+'</span>')+(l.pre?' <span class="note">(queued)</span>':'')+'</div>';return;}
+    const E=l.E;log+='<div class="tb-lg">'+tName(E.owner)+' <b>'+esc(E.dom)+'</b>'+(E.council?' (Council)':'')+
+      ' — innate '+E.innate+(E.votes.length?'; '+E.votes.map(v=>esc(v.who.name)+' '+tVoteTxt(v)+(v.pre&&v.a!=="A"?'<span class="note">q</span>':'')).join(', '):'')+
+      ' → net <b>'+E.net+'</b> <b class="'+tOutCls(E.out)+'">'+E.out+'</b>'+(eraActions(E.council)>1&&(E.out==="Passed"||E.out==="Endorsed")?' <span class="tb-b">×'+eraActions(E.council)+' actions</span>':'')+'<div class="note">'+esc(outText(E.dom,E.out))+'</div></div>';});
+  // --- right panel ---
+  const pan=tPanel(R);
+  host.innerHTML='<div class="tb-wrap"><div><div class="tb-felt">'+'<div class="tb-oval"></div><div class="tb-center">'+ctr+'</div>'+seats+'</div>'+
+    (D.players.some(p=>!Object.values(sm).includes(p))?'<div class="note">Not seated: '+D.players.filter(p=>!Object.values(sm).includes(p)).map(p=>esc(p.name)).join(", ")+' — seated players only take part.</div>':'')+
+    '<div class="tot"><h3 style="font-size:13px">Log</h3>'+(log||'<div class="note">Nothing resolved yet this phase.</div>')+'</div></div>'+
+    '<div class="tb-panel">'+pan+'</div></div>';
+  tWire(host,R);tCountdown(R);}
+
+function tPanel(R){
+  const t=TB(),ph=tPhase(),me=meP(),E=R.curEnvoy,cw=R.cur?R.cur.who:null;let h="";
+  // identity
+  h+='<div class="tot"><div class="tb-row"><span>You: '+tName(me)+'</span><label class="note" style="margin-left:auto"><input type="checkbox" id="tbHot"'+(HOTSEAT?" checked":"")+'> hot-seat (act for anyone)</label></div>'+
+    '<div class="note">Switch players with the chips in the top bar.</div></div>';
+  // action box
+  let act="";
+  if(ph==="council"&&t.phaseTs&&!R.councilDom&&R.waiting!=="tie"){
+    const who=(cw&&canAct(cw)&&R.cur.key.startsWith("CV:"))?cw:me;
+    if(!R.resolved.has("CV:"+who.id)&&tOrder().some(p=>sameP(p,who))){
+      const cv=tCur(who).council;
+      act+='<div class="lbl">Council vote — '+esc(who.name)+(sameP(who,cw)?' <b>(your turn)</b>':' (queued, applies on your turn)')+'</div><div class="tb-row">'+
+        T_DOMS.map(d=>'<button data-cv="'+d+'" data-who="'+who.id+'"'+(cv&&cv.dom===d?' class="on"':'')+'>'+d+'</button>').join("")+
+        (cv?'<button data-cv="" data-who="'+who.id+'">clear</button>':'')+'</div>';}}
+  if(R.waiting==="tie"&&canHost())act+='<div class="lbl">Break the tie (Host)</div><div class="tb-row">'+R.tieCands.map(d=>'<button data-tie="'+d+'">'+d+'</button>').join("")+'</div>';
+  if(ph==="envoy"&&t.phaseTs&&R.waiting==="declare"){
+    const targets=HOTSEAT?R.declPending:(R.declPending.some(p=>sameP(p,me))?[me]:[]);
+    const lockedMe=!HOTSEAT&&(tCur(me).decl||{}).lock;
+    targets.slice(0,1).forEach(p=>{const dc=tCur(p).decl||{},nn=dc.n||{},tot=T_ALL.reduce((a,d)=>a+(+nn[d]||0),0),mx=personalEnvoys(p);
+      act+='<div class="lbl">Declare Envoys — '+esc(p.name)+' ('+tot+'/'+mx+')</div>'+T_ALL.map(d=>'<div class="tb-row"><span style="min-width:80px">'+d+'</span>'+
+        '<button data-dn="'+d+'" data-dv="-1" data-who="'+p.id+'">−</button><b style="min-width:16px;text-align:center">'+(+nn[d]||0)+'</b>'+
+        '<button data-dn="'+d+'" data-dv="1" data-who="'+p.id+'"'+(tot>=mx?' disabled':'')+'>+</button></div>').join("")+
+        '<div class="tb-row"><button data-lock="'+p.id+'" class="on">Submit</button><span class="note">Hidden until everyone submits.</span></div>';});
+    if(lockedMe)act+='<div class="tb-row"><span class="pos">Submitted.</span><button data-unlock="'+me.id+'">edit</button></div>';}
+  if(E&&cw&&canAct(cw)){
+    const room=Math.max(0,(R.pool[cw.id]||0)-(R.spent[cw.id]||0)),capv=Math.min(voteCap(cw,E.dom,E.council),room);
+    const cur=+(document.getElementById("tbAmt")||{}).value||1,amt=Math.max(1,Math.min(cur,capv||1));
+    act+='<div class="lbl">'+esc(cw.name)+' — respond to '+esc(E.owner.name)+"'s "+esc(E.dom)+' Envoy <span class="tbcd"></span></div>'+
+      '<div class="tb-row"><button data-vote="A" data-who="'+cw.id+'">Abstain</button>'+
+      (capv>0?'<select id="tbAmt">'+Array.from({length:capv},(_,i)=>'<option'+(i+1===amt?' selected':'')+'>'+(i+1)+'</option>').join("")+'</select>'+
+      '<button data-vote="S" data-who="'+cw.id+'" class="pos">Support</button><button data-vote="O" data-who="'+cw.id+'" class="neg">Oppose</button>':'<span class="note">no Influence available</span>')+'</div>'+
+      '<div class="note">Cap '+voteCap(cw,E.dom,E.council)+' ('+(E.dom==="Diplomacy"?currentEra():tStand(cw,E.dom))+') · '+room+' Influence left</div>';}
+  if(act)h+='<div class="tot tb-act">'+act+'</div>';
+  // queue (pre-votes) — upcoming envoys where I'm a voter
+  const qp=HOTSEAT?(cw||me):me;
+  const plan=R.plan.length?R.plan:tPlan(ph,R.ord,R.councilDom);
+  const up=plan.filter(E2=>!sameP(E2.owner,qp)&&!R.resolved.has(E2.id+">"+qp.id)&&!(R.cur&&R.cur.key===E2.id+">"+qp.id));
+  if((ph==="council"||ph==="envoy")&&t.phaseTs&&tOrder().some(p=>sameP(p,qp))){
+    h+='<div class="tot"><h3 style="font-size:13px">Queue — '+esc(qp.name)+'</h3>'+
+      '<label class="note"><input type="checkbox" id="tbAuto"'+(PT(qp).auto?" checked":"")+'> Auto-abstain when nothing is queued</label>';
+    if(!up.length)h+='<div class="note">'+(ph==="envoy"&&R.waiting==="declare"?"Envoys appear once everyone has declared.":"Nothing left to queue.")+'</div>';
+    up.forEach(E2=>{const v=tCur(qp).votes[E2.id],val=v?(v.a==="A"?"A":v.a+(v.x||1)):"";
+      const capv=voteCap(qp,E2.dom||"Prowess",E2.council),opts=['<option value="">—</option>','<option value="A">Abstain</option>'];
+      for(let i=1;i<=Math.max(1,capv);i++){opts.push('<option value="S'+i+'">Support '+i+'</option>');opts.push('<option value="O'+i+'">Oppose '+i+'</option>');}
+      h+='<div class="tb-row"><span style="flex:1">'+tName(E2.owner)+' '+esc(E2.dom||"Council")+(E2.council?' (Council)':'')+'</span>'+
+        '<select data-q="'+esc(E2.id)+'" data-who="'+qp.id+'">'+opts.join("").replace('value="'+val+'"','value="'+val+'" selected')+'</select></div>';});
+    h+='<div class="note">Queued responses fire the moment your turn comes. Others see them only once they apply.</div></div>';}
+  // my influence & envoys this turn
+  const c=tCur(qp);
+  h+='<div class="tot"><h3 style="font-size:13px">Influence & Envoys — '+esc(qp.name)+'</h3>'+
+    '<div class="tb-row"><span style="flex:1">Influence this turn</span><b>'+inflPool(qp)+'</b></div>'+
+    '<div class="tb-row"><span style="flex:1" class="note">gain '+influenceTotal(qp.board)+' + adjust</span><button data-adj="inflAdj" data-dv="-1" data-who="'+qp.id+'">−</button><b>'+(+c.inflAdj||0)+'</b><button data-adj="inflAdj" data-dv="1" data-who="'+qp.id+'">+</button></div>'+
+    '<div class="tb-row"><span style="flex:1">Personal Envoys</span><b>'+personalEnvoys(qp)+'</b></div>'+
+    '<div class="tb-row"><span style="flex:1" class="note">Era + adjust</span><button data-adj="envAdj" data-dv="-1" data-who="'+qp.id+'">−</button><b>'+(+c.envAdj||0)+'</b><button data-adj="envAdj" data-dv="1" data-who="'+qp.id+'">+</button></div>'+
+    '<div class="note">'+esc((ERAS[currentEra()]||{}).envoys||"")+'</div></div>';
+  // influence modifiers
+  const md=PT(qp).mods;
+  h+='<div class="tot"><h3 style="font-size:13px">Influence modifiers — '+esc(qp.name)+'</h3>'+
+    Object.keys(md).map(k=>{const m=md[k];return '<div class="tb-row">'+
+      '<input data-mk="'+k+'" data-mf="label" value="'+esc(m.label||"")+'" placeholder="source" style="flex:1;min-width:80px">'+
+      '<select data-mk="'+k+'" data-mf="kind"><option value="envoy"'+(m.kind==="envoy"?" selected":"")+'>own Envoys</option><option value="cap"'+(m.kind==="cap"?" selected":"")+'>vote cap</option></select>'+
+      '<select data-mk="'+k+'" data-mf="scope"><option value="all"'+(!m.scope||m.scope==="all"?" selected":"")+'>all Envoys</option><option value="council"'+(m.scope==="council"?" selected":"")+'>Council</option><option value="personal"'+(m.scope==="personal"?" selected":"")+'>Personal</option></select>'+
+      '<select data-mk="'+k+'" data-mf="dom">'+["All"].concat(T_ALL).map(d=>'<option'+(m.dom===d?" selected":"")+'>'+d+'</option>').join("")+'</select>'+
+      '<input data-mk="'+k+'" data-mf="val" type="number" value="'+(+m.val||0)+'" style="width:52px">'+
+      '<button data-mdel="'+k+'">✕</button></div>';}).join("")+
+    '<div class="tb-row"><button id="tbMadd" data-who="'+qp.id+'">+ modifier</button></div>'+
+    '<div class="note">own Envoys: automatic ±X on Envoys you send · vote cap: raises the most you may spend on one vote. Applied automatically.</div></div>';
+  // host controls
+  const hc=canHost();
+  h+='<div class="tot"><h3 style="font-size:13px">Host'+(hostP()?' — '+esc(hostP().name):'')+'</h3>'+
+    (hc?'':'<div class="note">Only the Host (or hot-seat) can run the table.</div>')+
+    '<div class="tb-row"><span style="flex:1">Phase</span>'+T_PH.map(p2=>'<button data-ph="'+p2+'"'+(p2===ph?' class="on"':'')+(hc?'':' disabled')+'>'+T_PHL[p2].replace(" Phase","")+'</button>').join("")+'</div>'+
+    ((ph==="council"||ph==="envoy")?'<div class="tb-row"><button data-begin="1"'+(hc?'':' disabled')+'>'+(t.phaseTs?'Restart ':'Begin ')+T_PHL[ph]+'</button>'+
+      (R.cur?'<button data-skip="1"'+(hc?'':' disabled')+'>Skip current (abstain)</button>':'')+'</div>':'')+
+    (ph==="rest"?'<div class="tb-row"><button data-endturn="1"'+(hc?'':' disabled')+' class="on">End turn</button><span class="note">Season +1 · Host passes</span></div>':'')+
+    '<div class="tb-row"><span style="flex:1">Host</span><select id="tbHost"'+(hc?'':' disabled')+'>'+seated().map(p=>'<option value="'+p.id+'"'+(sameP(p,hostP())?' selected':'')+'>'+esc(p.name)+'</option>').join("")+'</select></div>'+
+    '<div class="tb-row"><span style="flex:1">Seats</span><input id="tbSeats" type="number" min="'+Math.max(2,D.players.length)+'" max="12" value="'+tSeats()+'" style="width:60px"'+(hc?'':' disabled')+'></div>'+
+    '<div class="tb-row"><span style="flex:1">Vote timer (s, 0 = off)</span><input id="tbTimer" type="number" min="0" max="300" value="'+tTimer()+'" style="width:60px"'+(hc?'':' disabled')+'></div>'+
+    '<div class="tb-row"><label><input type="checkbox" id="tbAutoRes"'+(t.auto?" checked":"")+(hc?'':' disabled')+'> Auto-resolve Faith/Doubt → Public Order</label></div>'+
+    '<div class="tb-row"><button data-autoseat="1"'+(hc&&!seatsLocked()?'':' disabled')+'>Auto-seat unseated players</button></div>'+
+    '<div class="note">Turn '+tTurn()+(t.auto?' · outcomes apply Faith/Doubt only; gold, actions and “first Doubt” reductions stay manual':'')+'</div></div>';
+  return h;}
+
+function tWire(host,R){
+  const byId=id=>D.players.find(p=>String(p.id)===String(id));
+  const commit=()=>{save();renderTable();};
+  host.querySelectorAll("[data-sit]").forEach(b=>b.onclick=()=>{const x=PT(meP());x.seat=+b.dataset.sit;x.seatTs=tnow();commit();});
+  host.querySelectorAll("[data-stand]").forEach(b=>b.onclick=()=>{const x=PT(meP());delete x.seat;delete x.seatTs;commit();});
+  const hot=host.querySelector("#tbHot");if(hot)hot.onchange=()=>{HOTSEAT=hot.checked;try{localStorage.setItem("renown_hotseat",HOTSEAT?"1":"0");}catch(e){}renderTable();};
+  host.querySelectorAll("[data-cv]").forEach(b=>b.onclick=()=>{const p=byId(b.dataset.who),c=tCurW(p);
+    if(b.dataset.cv)c.council={dom:b.dataset.cv,ts:tnow()};else delete c.council;commit();});
+  host.querySelectorAll("[data-tie]").forEach(b=>b.onclick=()=>{TB().councilTie={dom:b.dataset.tie,turn:tTurn(),ts:tnow()};commit();});
+  host.querySelectorAll("[data-dn]").forEach(b=>b.onclick=()=>{const p=byId(b.dataset.who),c=tCurW(p);c.decl=c.decl||{};c.decl.n=c.decl.n||{};
+    const d=b.dataset.dn;c.decl.n[d]=Math.max(0,(+c.decl.n[d]||0)+(+b.dataset.dv));commit();});
+  host.querySelectorAll("[data-lock]").forEach(b=>b.onclick=()=>{const c=tCurW(byId(b.dataset.lock));c.decl=c.decl||{n:{}};c.decl.lock=tnow();commit();});
+  host.querySelectorAll("[data-unlock]").forEach(b=>b.onclick=()=>{const c=tCurW(byId(b.dataset.unlock));if(c.decl)delete c.decl.lock;commit();});
+  host.querySelectorAll("[data-vote]").forEach(b=>b.onclick=()=>{const p=byId(b.dataset.who),E=R.curEnvoy;if(!E)return;
+    const x=b.dataset.vote==="A"?0:+(host.querySelector("#tbAmt")||{}).value||1;tCurW(p).votes[E.id]={a:b.dataset.vote,x,ts:tnow()};commit();});
+  host.querySelectorAll("[data-q]").forEach(s=>s.onchange=()=>{const p=byId(s.dataset.who),c=tCurW(p),v=s.value;
+    if(!v)delete c.votes[s.dataset.q];else c.votes[s.dataset.q]={a:v[0],x:+v.slice(1)||0,ts:tnow()};commit();});
+  const au=host.querySelector("#tbAuto");if(au)au.onchange=()=>{const qp=HOTSEAT?((R.cur&&R.cur.who)||meP()):meP();PT(qp).auto=au.checked;commit();};
+  host.querySelectorAll("[data-adj]").forEach(b=>b.onclick=()=>{const c=tCurW(byId(b.dataset.who));c[b.dataset.adj]=(+c[b.dataset.adj]||0)+(+b.dataset.dv);commit();});
+  const madd=host.querySelector("#tbMadd");if(madd)madd.onclick=()=>{const p=byId(madd.dataset.who);PT(p).mods["m"+Date.now()]={label:"",kind:"envoy",scope:"all",dom:"All",val:1};commit();};
+  const mp=HOTSEAT?((R.cur&&R.cur.who)||meP()):meP();
+  host.querySelectorAll("[data-mk]").forEach(el=>el.onchange=()=>{const m=PT(mp).mods[el.dataset.mk];if(!m)return;
+    m[el.dataset.mf]=el.dataset.mf==="val"?(+el.value||0):el.value;commit();});
+  host.querySelectorAll("[data-mdel]").forEach(b=>b.onclick=()=>{delete PT(mp).mods[b.dataset.mdel];commit();});
+  host.querySelectorAll("[data-ph]").forEach(b=>b.onclick=()=>tSetPhase(b.dataset.ph));
+  host.querySelectorAll("[data-begin]").forEach(b=>b.onclick=()=>tSetPhase(tPhase()));
+  host.querySelectorAll("[data-skip]").forEach(b=>b.onclick=()=>{if(R.cur){TB().skip[R.cur.key]=Math.max(tnow(),R.cur.start);commit();}});
+  host.querySelectorAll("[data-endturn]").forEach(b=>b.onclick=tEndTurn);
+  host.querySelectorAll("[data-autoseat]").forEach(b=>b.onclick=tAutoSeat);
+  const hs=host.querySelector("#tbHost");if(hs)hs.onchange=()=>{TB().host=hs.value;commit();};
+  const se=host.querySelector("#tbSeats");if(se)se.onchange=()=>{TB().seats=Math.max(D.players.length,Math.min(12,+se.value||D.players.length));commit();};
+  const tm=host.querySelector("#tbTimer");if(tm)tm.onchange=()=>{TB().timer=Math.max(0,Math.min(300,+tm.value||0));commit();};
+  const ar=host.querySelector("#tbAutoRes");if(ar)ar.onchange=()=>{TB().auto=ar.checked;commit();};}
+
+function tCountdown(R){const els=document.querySelectorAll("#viewTable .tbcd");if(!els.length)return;
+  let txt="";if(R.cur&&isFinite(R.cur.deadline)){const s=Math.max(0,Math.ceil((R.cur.deadline-tnow())/1000));txt=s+"s";}
+  els.forEach(e=>{e.textContent=txt;e.classList.toggle("neg",!!txt&&parseInt(txt)<=5);});}
+setInterval(()=>{if(D.view!=="table")return;const R=tSim();tApply(R);
+  if(tSig(R)!==T_SIG&&!editing()){renderTable();return;}tCountdown(R);},500);
+
 const THEMES={
   ink:{},
   parchment:{"--bg":"#efe7d6","--panel":"#f7f0dd","--panel2":"#efe6cd","--line":"#d9cba6","--line2":"#c3b48f","--ink":"#2c2114","--dim":"#6b5c43","--dim2":"#9c8b6a","--chip":"#efe6cd","--barbg":"#d9cba6","--topbar":"#e7dcc2","--sel":"#e3d7b8","--income":"#2e7d32","--craft":"#00838f","--influence":"#6a1b9a","--order":"#b8860b","--upkeep":"#c62828","--season":"#6d4c41","--build":"#3949ab","--battle":"#546e7a","--envoy":"#ad1457","--other":"#7a6f5a","--serif":"'EB Garamond',Georgia,'Iowan Old Style',serif"},
@@ -888,7 +1246,7 @@ let TOKEN="";try{TOKEN=localStorage.getItem("renown_token")||"";}catch(e){}
 async function apiFetch(method,path,body){
   try{
     const h={};if(body!==undefined)h["Content-Type"]="application/json";if(TOKEN)h["X-Renown-Token"]=TOKEN;
-    const r=await fetch(path,{method,headers:h,body:body!==undefined?JSON.stringify(body):undefined});
+    const r=await fetch(path,{method,headers:h,body:body!==undefined?JSON.stringify(body):undefined});noteServerDate(r);
     if(r.status===401){setOnline(false);const t=document.getElementById("srvStat");if(t)t.textContent="unauthorized — check access token";return null;}
     if(!r.ok)throw 0;
     setOnline(true);
@@ -938,7 +1296,7 @@ function joinD(parts){
 async function apiRaw(method,path,body){
   try{
     const h={};if(body!==undefined)h["Content-Type"]="application/json";if(TOKEN)h["X-Renown-Token"]=TOKEN;
-    const r=await fetch(path,{method,headers:h,body:body!==undefined?JSON.stringify(body):undefined});
+    const r=await fetch(path,{method,headers:h,body:body!==undefined?JSON.stringify(body):undefined});noteServerDate(r);
     if(r.status===401){setOnline(false);const t=document.getElementById("srvStat");if(t)t.textContent="unauthorized — check access token";return null;}
     setOnline(true);
     return {status:r.status,json:await r.json().catch(()=>null)};
@@ -1244,6 +1602,8 @@ function reqStatus(rec,have,craft,tc){
   rec.mreq.forEach(g=>{if(!g.some(o=>optionMet(o,have,craft,tc))){ok=false;missing.push(g.map(annotReqTok).join(" / "));}});
   return{earned:ok,missing};
 }
+// Faction pieces: Mastery always counts as active, regardless of requirements.
+function instStatus(inst,r,have,craft,tc){return inst.fac?{earned:true,missing:[]}:reqStatus(r,have,craft,tc);}
 function computeEarned(have){
   const tc={};Object.keys(PC).forEach(n=>tc[R[n].type]=(tc[R[n].type]||0)+PC[n]);
   let earned={},craft=0;
@@ -1295,10 +1655,12 @@ function render(){
   document.getElementById("viewDash").style.display = view==="dash"?"":"none";
   document.getElementById("viewRenown").style.display = view==="renown"?"":"none";
   document.getElementById("viewMap").style.display = view==="map"?"":"none";
+  document.getElementById("viewTable").style.display = view==="table"?"":"none";
   document.querySelectorAll(".vtab").forEach(t=>t.classList.toggle("on",t.dataset.v===view));
   if(view==="dash"){renderDash();save();return;}
   if(view==="renown"){renderRenown();save();return;}
   if(view==="map"){renderMap();save();return;}
+  if(view==="table"){renderTable();save();return;}
   if(view==="battle"){renderBattle();save();return;}
 
   recomputePC();
@@ -1673,7 +2035,7 @@ function pursuitTable(occ,earned,craft,tc,hideCombat,have){
   tbl.innerHTML='<thead><tr><th>Pursuit</th><th>Type</th><th>Contribution</th><th>Mastery</th><th>Ward</th><th>Place</th><th></th></tr></thead>';
   const tb=document.createElement("tbody");
   occ.forEach(inst=>{
-    const n=inst.name,r=R[n],me=reqStatus(r,have,craft,tc),open=S.expanded.includes(inst.id);
+    const n=inst.name,r=R[n],me=instStatus(inst,r,have,craft,tc),open=S.expanded.includes(inst.id);
     const tr=document.createElement("tr");
     const c1=document.createElement("td");c1.style.cursor="pointer";
     c1.innerHTML='<span class="pcaret">'+(open?"▾":"▸")+'</span> '+esc(n)+(r.monument?' <span class="badge mon">M</span>':'');
@@ -1693,7 +2055,7 @@ function pursuitTable(occ,earned,craft,tc,hideCombat,have){
 }
 
 function pursuitCard(inst,earned,craft,tc,hideCombat,have){
-  const n=inst.name, r=R[n], me=reqStatus(r,have,craft,tc);
+  const n=inst.name, r=R[n], me=instStatus(inst,r,have,craft,tc);
   const open=S.expanded.includes(inst.id);
   const card=document.createElement("div");card.className="card";
   card.style.borderLeftColor=cvar(PHASE_COLOR[PHASE[(r.innate[0]||{}).cat]||"other"]);
@@ -2163,7 +2525,7 @@ function playerAtWar(pid){const d=diplo();return !!pid&&Object.keys(d.pairs).som
 function influenceRows(b){
   const p=playerOfBoard(b),pid=p?String(p.id):null,d=diplo(),rows=[];
   const add=(k,cnt,val)=>{if(IG[k])rows.push({k,cnt,val:val||0});};
-  if(IG.Era){const parts=String(IG.Era.change).split("/").map(x=>parseInt(x,10));add("Era",1,parts[eraIdx()]||0);}
+  if(IG.Era){const e=ERAS[currentEra()]||{},parts=String(IG.Era.change).split("/").map(x=>parseInt(x,10));add("Era",1,e.influence_per_turn??(parts[eraIdx()]||0));}
   const pairs=Object.keys(d.pairs).filter(k=>pid&&k.split("|").includes(pid)).map(k=>d.pairs[k]);
   const tp=pairs.filter(x=>x.trade).length;add("Trading Partners",tp,tp*igVal("Trading Partners"));
   const g=pid?d.member[pid]:null,am=g?Object.keys(d.member).filter(q=>q!==pid&&d.member[q]===g).length:0;add("Alliances",am,am*igVal("Alliances"));
@@ -3301,6 +3663,8 @@ def main():
                 "initMin": ns.get("INITIATIVE_MIN", -2), "initMax": ns.get("INITIATIVE_MAX", 2),
                 "standing": ns.get("STANDING_THRESHOLDS", {"Untested": 1, "Rising": 3, "Established": 6, "Sovereign": 10})},
         eras=ns.get("ERAS", {}), edicts=ns.get("EDICTS", {}),
+        envoyOutcomes=ns.get("ENVOY_OUTCOMES", {}), outcomeThresh=ns.get("ENVOY_OUTCOME_THRESHOLDS", {}),
+        startPhase=ns.get("STARTING_TURN_PHASE_OPENER", "Council"),
         domains=["Industry", "Prowess", "Cunning", "Piety"],
         standings=["Rising", "Established", "Sovereign"],
         tradePerCraft=ns.get("TRADE_RULES", {}).get("income_per_craft", 100),

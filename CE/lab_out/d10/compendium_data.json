@@ -2331,7 +2331,7 @@
    "0",
    "+1",
    "1",
-   "1 Council + 1 Personal Envoy per turn",
+   "1 Council Envoy (1 action each) + 1 Personal Envoy (1 action each) per turn",
    "—"
   ],
   [
@@ -2341,7 +2341,7 @@
    "1",
    "+2",
    "2",
-   "Council Envoys perform 2 actions of that domain",
+   "1 Council Envoy (2 actions each) + 1 Personal Envoy (1 action each) per turn",
    "May resolve Charter Cities"
   ],
   [
@@ -2351,7 +2351,7 @@
    "2",
    "+3",
    "3",
-   "Personal Envoys perform 2 actions of that domain",
+   "1 Council Envoy (2 actions each) + 1 Personal Envoy (2 actions each) per turn",
    "May form Military Alliances"
   ],
   [
@@ -2361,7 +2361,7 @@
    "3",
    "+4",
    "4",
-   "Send 2 Personal Envoys per turn",
+   "1 Council Envoy (2 actions each) + 2 Personal Envoys (2 actions each) per turn",
    "May form Defensive Alliances"
   ]
  ],

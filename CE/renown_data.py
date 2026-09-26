@@ -2162,11 +2162,16 @@ SETTLEMENTS = {
 
 # Era progression: shared-Renown thresholds; caps on armies/cities; influence.
 ERAS = {
-    "Founding":  {"renown": 1,  "armies": 1, "cities": 0, "max_settlements": 3, "influence_per_turn": 1, "innate_diplomacy_influence": 1, "envoys": "1 Council + 1 Personal Envoy per turn", "unlocks": ""},
-    "Ascension": {"renown": 8,  "armies": 2, "cities": 1, "max_settlements": 4, "influence_per_turn": 2, "innate_diplomacy_influence": 2, "envoys": "Council Envoys perform 2 actions of that domain", "unlocks": "May resolve Charter Cities"},
-    "Eminence":  {"renown": 18, "armies": 3, "cities": 2, "max_settlements": 5, "influence_per_turn": 3, "innate_diplomacy_influence": 3, "envoys": "Personal Envoys perform 2 actions of that domain", "unlocks": "May form Military Alliances"},
-    "Zenith":    {"renown": 30, "armies": 4, "cities": 3, "max_settlements": 6, "influence_per_turn": 4, "innate_diplomacy_influence": 4, "envoys": "Send 2 Personal Envoys per turn", "unlocks": "May form Defensive Alliances"},
+    "Founding":  {"renown": 1,  "armies": 1, "cities": 0, "max_settlements": 3, "influence_per_turn": 1, "max_influence_per_diplomacy_vote": 1, "innate_diplomacy_influence": 1, "council_envoys": 1, "council_actions_per_envoy": 1, "personal_envoys": 1, "actions_per_envoy": 1, "unlocks": ""},
+    "Ascension": {"renown": 8,  "armies": 2, "cities": 1, "max_settlements": 4, "influence_per_turn": 2, "max_influence_per_diplomacy_vote": 2, "innate_diplomacy_influence": 2, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 1, "actions_per_envoy": 1, "unlocks": "May resolve Charter Cities"},
+    "Eminence":  {"renown": 18, "armies": 3, "cities": 2, "max_settlements": 5, "influence_per_turn": 3, "max_influence_per_diplomacy_vote": 3, "innate_diplomacy_influence": 3, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 1, "actions_per_envoy": 2, "unlocks": "May form Military Alliances"},
+    "Zenith":    {"renown": 30, "armies": 4, "cities": 3, "max_settlements": 6, "influence_per_turn": 4, "max_influence_per_diplomacy_vote": 4, "innate_diplomacy_influence": 4, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 2, "actions_per_envoy": 2, "unlocks": "May form Defensive Alliances"},
 }
+for _e in ERAS.values():
+    _e["envoys"] = (f"{_e['council_envoys']} Council Envoy{'s' if _e['council_envoys'] > 1 else ''}"
+                    f" ({_e['council_actions_per_envoy']} action{'s' if _e['council_actions_per_envoy'] > 1 else ''} each)"
+                    f" + {_e['personal_envoys']} Personal Envoy{'s' if _e['personal_envoys'] > 1 else ''}"
+                    f" ({_e['actions_per_envoy']} action{'s' if _e['actions_per_envoy'] > 1 else ''} each) per turn")
 
 # Public Order track (−5..7): state name + effect.
 PUBLIC_ORDER = {
@@ -2235,6 +2240,10 @@ DOMAIN_BOARD = {
     "max_influence_per_vote":  {"Untested": 1, "Rising": 2, "Established": 3, "Sovereign": 4},
     "innate_influence_own_envoys": {"Untested": 1, "Rising": 2, "Established": 3, "Sovereign": 4},
 }
+_MIV = DOMAIN_BOARD["max_influence_per_vote"]
+GLOSSARY["Standing"] = (f"Your tier in a Domain: Untested, Rising ({_ST['Rising']}), Established ({_ST['Established']}), "
+                        f"Sovereign ({_ST['Sovereign']}). Sets max Influence per vote "
+                        f"({'/'.join(str(_MIV[t]) for t in ('Untested', 'Rising', 'Established', 'Sovereign'))}) and unlocks Domain effects.")
 
 # Seasons (turn cycle of 4; Rest Phase advances Season +1).
 SEASONS = {
@@ -2366,7 +2375,8 @@ TACTICAL_TERRAIN = {
 TACTICAL_GLOBAL = ["Any player may Fall Back after the first Skirmish."]
 
 INFLUENCE_GAIN = {
-    "Era": {"change": "+1/+2/+3/+4", "notes": "Based on the Current Era"},
+    "Era": {"change": "/".join(f"+{e['influence_per_turn']}" for e in sorted(ERAS.values(), key=lambda e: e["renown"])),
+            "notes": "Based on the Current Era"},
     "Trading Partners": {"change": "+1", "notes": "Per Trading Partner."},
     "Alliances": {"change": "+1", "notes": "Per Alliance Member."},
     "Infrastructure tier completed": {"change": "+1", "notes": "Per Infrastructure tier fully completed."},
