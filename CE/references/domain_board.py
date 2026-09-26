@@ -36,8 +36,10 @@ PW, PH = landscape(letter)
 MX, MY = 28, 26
 def _c(h): return HexColor(h)
 
-# tier thresholds on the 1-10 domain track
-TIERS = [(3, "Rising"), (6, "Established"), (10, "Sovereign")]
+# tier thresholds on the domain track (STANDING_THRESHOLDS; Untested is the start, not a mark)
+_ST = getattr(rd, "STANDING_THRESHOLDS", {"Untested": 1, "Rising": 3, "Established": 6, "Sovereign": 10})
+TIERS = [(_ST[k], k) for k in ("Rising", "Established", "Sovereign")]
+DOMAIN_MAX = _ST["Sovereign"]
 
 TIER_COL = {"Primitive": "#6f7a52", "Developed": "#5f7360", "Sophisticated": "#4f6a72"}
 SLOTBG = HexColor("#efe9db")
@@ -108,7 +110,7 @@ def _cell_lines(c, emp, cmb, size, maxw):
 
 def draw_def_table(c, x, ytop, w, colw, data, fs=6.4):
     c.setFont(SERIF_B, 11); c.setFillColor(INK); c.drawString(x, ytop, "Domain Standing Effects")
-    headers = ["Domain", "Rising (3)", "Established (6)", "Sovereign (10)"]
+    headers = ["Domain"] + [f"{nm} ({t})" for t, nm in TIERS]
     y = ytop - 14
     c.setFillColor(_c("#5f5647")); c.rect(x, y - 14, w, 14, stroke=0, fill=1)
     cx = x; c.setFont(SERIF_B, 7); c.setFillColor(Color(1,1,1))
@@ -151,7 +153,7 @@ def wrap(c, text, font, size, maxw):
     return out
 
 def domain_track(c, x, y, w, dom):
-    col = _c(DOMC[dom]); n = 10
+    col = _c(DOMC[dom]); n = DOMAIN_MAX
     lab_w = 66
     cellw = (w - lab_w) / n
     H = 26                                   # markers sit on the cell; no pip guides
@@ -163,7 +165,7 @@ def domain_track(c, x, y, w, dom):
         c.setFillColor(Color(col.red, col.green, col.blue, shade))
         c.setStrokeColor(FRAME); c.setLineWidth(0.5)
         c.rect(cx, y - H, cellw, H, stroke=1, fill=1)
-        c.setFont(SERIF_B, 8); c.setFillColor(Color(1,1,1) if i > 5 else INK)
+        c.setFont(SERIF_B, 8); c.setFillColor(Color(1,1,1) if i > n // 2 else INK)
         c.drawCentredString(cx + cellw/2, y - H/2 - 3, str(i))
         if i in tset:                        # tier threshold marker
             c.setStrokeColor(col); c.setLineWidth(2)
@@ -172,7 +174,7 @@ def domain_track(c, x, y, w, dom):
             c.drawCentredString(cx + cellw/2, y - H - 8, tset[i])
 
 def renown_track(c, x, y, w):
-    n = 30
+    n = max(e["renown"] for e in rd.ERAS.values())
     cellw = w / n
     eras = list(rd.ERAS.items())            # Founding0 Ascension8 Eminence18 Zenith30
     thresh = [(nm, e["renown"]) for nm, e in eras]

@@ -7,6 +7,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) 
 import ce_paths; ce_paths.install(verbose=False)   # renown_data -> renown_data_d10 (d10 values + GLOSSARY)
 import renown_data as rd
 from dice_config import FACES, FOCUSED_THR, ROUT_THR, CAP_THR, FATIGUE_STRIKE, FATIGUE_MORALE
+INIT_MIN = getattr(rd, "INITIATIVE_MIN", -2); INIT_MAX = getattr(rd, "INITIATIVE_MAX", 2)
+def _sgn(v): return ("\u2212" if v < 0 else "+") + str(abs(v))   # typographic sign
 
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
@@ -133,7 +135,7 @@ def step_spine(c, x, y, w):
         ("Form the Line","Up to 10 front line (1 Strike die each) + up to 5 reserve. Fill at beginning of each skirmish. Rest remain at camp. Default max Army size is 25."),
         ("Choose Tactics","Both pick a Tactic in secret, reveal together. Fall Back can't be chosen in Skirmish 1. (See Tactic Matrix.)"),
         ("Declare Equipment","Attacker declares first; Defender responds (Only relevant with Tiltyard or Bastard Sword dual profile)."),
-        ("Initiative","Range \u22122 to +2. Higher Strikes first. At \u22122\u2212 you Blunder (Only Focused Strikes)."),
+        ("Initiative",f"Range {_sgn(INIT_MIN)} to {_sgn(INIT_MAX)}. Higher Strikes first. At {_sgn(INIT_MIN)} or lower you Blunder (Only Focused Strikes)."),
         ("Roll to Strike",f"D{FACES} per front-line retinue \u2265 to-Strike: {rt_str}. Focused Strike \u2192 Cleave / Deadly / Destroy Shield."),
         ("Strike & Defend","Per Strike, defender resolves in order: Parry \u2192 Save \u2192 Recover. Unsaved = casualty (leaves field at once, replenished by reserves after all Strikes)."),
         ("Strike Back","The other side Strikes the same way, if able."),
@@ -188,7 +190,7 @@ def front(c):
     se_rows = [[f"{dom} {st}", eff] for ( st,dom), eff in rd.STANDING_EFFECTS.items()]
     y = chart(c, right_x, y, right_w, "Standing Combat Effects", ["Standing","Effect"], se_rows,
               colw=[right_w*0.42,right_w*0.58], fs=7.5); y -= 8
-    cap_rows = [["Blunder (Init \u22122 or lower)",f"Your to-Strike is set to {CAP_THR}+, only a Focused Strike can succeed, before other negative modifiers."],
+    cap_rows = [[f"Blunder (Init {_sgn(INIT_MIN)} or lower)",f"Your to-Strike is set to {CAP_THR}+, only a Focused Strike can succeed, before other negative modifiers."],
                 [f"Capped at {CAP_THR}+",f"Fatigue \u2212{FATIGUE_STRIKE} to to-Strike; Tempered keeps the Save at {CAP_THR}+ vs any AP. A Focused Save succeeds. (No Parry or Recover while Fatigued.)"],
                 [f"Pushes past {CAP_THR}+ \u2192 {FACES+1}+ (auto-miss)",f"Shield \u22121 to Strike (Kite/Tower/Heater) and enemy tactic to-Strike penalties apply AFTER the cap \u2014 they can raise the target to {FACES+1}+."],
                 ["Uncapped \u2192 Rout",f"Fatigue's \u2212{FATIGUE_MORALE} to Morale is NOT capped. At modified Morale {ROUT_THR}+ the army Routs."]]

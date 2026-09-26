@@ -739,6 +739,10 @@ const DOMAINS=DATA.domains||["Industry","Prowess","Piety","Cunning"];
 const STANDINGS=DATA.standings||["Rising","Established","Sovereign"];
 const DBOARD=DATA.domainBoard||{};
 const PO=DATA.publicOrder||{};
+const LIM=DATA.limits||{};
+const PO_MIN=(LIM.poMin??-5),PO_MAX=(LIM.poMax??10),INIT_MIN=(LIM.initMin??-2),INIT_MAX=(LIM.initMax??2);
+const ST=LIM.standing||{Untested:1,Rising:3,Established:6,Sovereign:10};
+const SOV=ST.Sovereign,EST=ST.Established,RIS=ST.Rising;
 const ERAS=DATA.eras||{};
 const EDICTS=DATA.edicts||{};
 const STAND_THRESH={Rising:3,Established:6,Sovereign:10};
@@ -1015,7 +1019,7 @@ function cityCount(exceptId){return S.settlements.filter(s=>isCityPlus(s.tier)&&
 function eraAllows(t,id){
   if(isCityPlus(t)&&!(id!=null&&isCityPlus(settTier(id)))){const c=eraCap("cities");
     if(c!=null&&cityCount(id)+1>c)return {ok:false,why:currentEra()+" allows "+c+" Cit"+(c===1?"y":"ies")+(c===0?" — reach Ascension (Renown "+((ERAS.Ascension||{}).renown||"?")+") first":"")};}
-  if(t==="Metropolis"&&((S.domains||{}).Industry||0)<10)return {ok:false,why:"Metropolis requires Sovereign Industry"};
+  if(t==="Metropolis"&&((S.domains||{}).Industry||0)<SOV)return {ok:false,why:"Metropolis requires Sovereign Industry"};
   return {ok:true};
 }
 function boardFlags(){
@@ -1029,7 +1033,7 @@ function boardFlags(){
   factionFlags().forEach(x=>f.push(x));
   const m=S.settlements.find(s=>s.tier==="Metropolis");
   if(m&&!m.capital)f.push("Metropolis is not the capital (capital only)");
-  if(m&&((S.domains||{}).Industry||0)<10)f.push("Metropolis without Sovereign Industry");
+  if(m&&((S.domains||{}).Industry||0)<SOV)f.push("Metropolis without Sovereign Industry");
   S.settlements.forEach(s=>{if(wardUse(s.id).typeBad)f.push(s.tier+": non-Husbandry pursuit in Hamlet");});
   S.settlements.forEach(s=>{const w=wardUse(s.id);if(w.free<0)f.push(s.tier+": "+(-w.free)+" ward(s) over cap");});
   Object.keys(S.infra).forEach(n=>{const st=infraReqStatus(INFRA[n]);if(!st.ok)f.push(n+": req unmet ("+st.missing.join(", ")+")");});
@@ -2099,7 +2103,7 @@ function poBandName(v){let best=null;Object.keys(PO).map(Number).sort((a,b)=>a-b
 function poActiveKeys(v){return Object.keys(PO).map(Number).filter(k=>v>0?(k>=1&&k<=v):v<0?(k<=-1&&k>=v):k===0).sort((a,b)=>Math.abs(a)-Math.abs(b));}
 function poActiveEffects(v){return poActiveKeys(v).map(k=>PO[String(k)]).filter(b=>b&&!/^no effect$/i.test(b[1]));}
 function renderPO(){
-  const v=Math.max(-5,Math.min(10,S.po||0));S.po=v;
+  const v=Math.max(PO_MIN,Math.min(PO_MAX,S.po||0));S.po=v;
   set("poVal",v);const band=poBandName(v);
   document.getElementById("poBand").textContent=band?band[0]:"";
   const act=poActiveEffects(v);
@@ -2230,8 +2234,8 @@ function renderDash(){
   D.players.forEach((p,i)=>{
     const b=p.board,m=boardMetrics(b);
     let wu=0,wa=0;withBoard(b,()=>{b.settlements.forEach(s=>{const w=wardUse(s.id);wu+=w.used;wa+=w.cap;});});
-    const po=Math.max(-5,Math.min(10,b.po||0)),band=poBandName(po),poAct=poActiveEffects(po);
-    const sov=DOMAINS.filter(d=>((b.domains||{})[d]||0)>=10);
+    const po=Math.max(PO_MIN,Math.min(PO_MAX,b.po||0)),band=poBandName(po),poAct=poActiveEffects(po);
+    const sov=DOMAINS.filter(d=>((b.domains||{})[d]||0)>=SOV);
     const dsum=DOMAINS.reduce((a,d)=>a+((b.domains||{})[d]||0),0),dmax=DOMAINS.reduce((a,d)=>a+((D.startDomains||{})[d]||0),0)+((D.renown||1)-1),dover=dsum>dmax;
     h+='<tr>'+
       '<td><span class="pdot" style="display:inline-block;background:'+p.color+'"></span> '+esc(p.name)+(i===D.active?' <span class="note">(active)</span>':'')+'</td>'+
@@ -2251,7 +2255,7 @@ function renderDash(){
   if(mods().diplomacy){host.insertAdjacentHTML("beforeend",diploHTML());wireDiplo(host);}
 }
 
-function domBand(v){return v>=10?"Sovereign":v>=6?"Established":v>=3?"Rising":"Untested";}
+function domBand(v){return v>=SOV?"Sovereign":v>=EST?"Established":v>=RIS?"Rising":"Untested";}
 function standingsBoardHTML(){
   let h='<div class="tot sboard"><h3 style="font-size:13px">Standings board — all players at a glance</h3>'+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">'+
@@ -2429,7 +2433,7 @@ function sideCalc(X){
   const rev=B.rev&&B.rev.sk===B.sk?B.rev:null,cell=rev?TMX[rev.A+"|"+rev.B]:null,tm=cell?(X==="A"?cell[0]:cell[1]):{I:0,TH:0,TS:0};
   const seize=B.seize===X&&B.sk===1?1:0;
   const rawI=(wpn.init||0)+(sh.init||0)+initPlus+(tm.I||0)+seize+(a.strained?-1:0)+sd.adj.I;
-  const I=Math.max(-2,Math.min(2,rawI)),blunder=I<=-2;
+  const I=Math.max(INIT_MIN,Math.min(INIT_MAX,rawI)),blunder=I<=INIT_MIN;
   const thMod=(tm.TH||0)+sd.adj.TH;
   let toStrike=(rt.to_hit||0)-strikePlus-thMod;if(blunder)toStrike=10+Math.max(0,-thMod);
   const save=(ar.save||0)-(ewpn.ap||0)-(sh.save_bonus||0)-(tm.TS||0)-sd.adj.TS;
@@ -2482,7 +2486,7 @@ function sideHTML(X){
   if(sd.kind==="bandit")h=h.replace(/<select class="bsel" data-x="[AB]" data-f="aid">[\s\S]*?<\/select><\/div>$/,'');
   if(!c)return h+'<div class="note">Pick a player and one of their armies.</div></div>';
   const a=c.a,stat=(k,v,t)=>'<span class="stat" title="'+esc(t||"")+'"><span class="k">'+k+'</span><b>'+v+'</b></span>';
-  h+='<div class="stats">'+stat("INIT",(c.I>=0?"+":"")+c.I+(c.rawI!==c.I?" ("+c.rawI+")":""),"clamped −2..+2")+stat("TO-STRIKE",c.toStrike+"+"+(c.blunder?" BLUNDER":""))+
+  h+='<div class="stats">'+stat("INIT",(c.I>=0?"+":"")+c.I+(c.rawI!==c.I?" ("+c.rawI+")":""),"clamped "+INIT_MIN+"..+"+INIT_MAX)+stat("TO-STRIKE",c.toStrike+"+"+(c.blunder?" BLUNDER":""))+
     stat("SAVE vs enemy",c.save+"+","armor − enemy AP − shield − TS")+stat("MORALE",c.morale+"+"+(c.morale>=11?" ROUT":""))+
     stat("ENDURANCE",a.endurance||0)+stat("FATIGUE",a.fatigue||0)+'</div>';
   h+='<div class="note">'+(c.seize?'Seize +1 I · ':'')+(a.strained?'Strained −1 I · ':'')+(c.cell?'Tactic '+fmtMod(c.tm):'Tactic mods apply once both reveal')+'</div>';
@@ -2726,10 +2730,10 @@ function renderRenown(){
   document.getElementById("rnVal").onchange=e=>{D.renown=Math.max(1,Math.min(30,+e.target.value||1));save();render();};
   host.querySelectorAll(".dcbtn").forEach(b=>b.onclick=()=>{
     const i=+b.dataset.pi,dom=b.dataset.dom,dl=+b.dataset.delta,bd=D.players[i].board;
-    bd.domains=bd.domains||{};bd.domains[dom]=Math.max(0,Math.min(10,(bd.domains[dom]||0)+dl));save();render();});
+    bd.domains=bd.domains||{};bd.domains[dom]=Math.max(0,Math.min(SOV,(bd.domains[dom]||0)+dl));save();render();});
   host.querySelectorAll(".sdbtn").forEach(b=>b.onclick=()=>{
     const dom=b.dataset.dom,dl=+b.dataset.delta;D.startDomains=D.startDomains||{};
-    D.startDomains[dom]=Math.max(0,Math.min(10,(D.startDomains[dom]||0)+dl));save();render();});
+    D.startDomains[dom]=Math.max(0,Math.min(SOV,(D.startDomains[dom]||0)+dl));save();render();});
   const ap2=document.getElementById("applyStart");if(ap2)ap2.onclick=()=>{
     if(confirm("Set every player's domains to the starting values?")){
       D.players.forEach(p=>{p.board.domains=Object.assign({},D.startDomains);});save();render();}};
@@ -2970,12 +2974,12 @@ document.getElementById("endturn").onclick=()=>{
   S.turn++;tickTimers(S);
   if(S.autoNet){S.treasury+=Math.round(window._net||0);trIn.value=S.treasury;}
   const dpo=boardMetrics(S).po+poModTotal(S);           // Faith − Doubt this turn (incl. PO modifiers)
-  S.po=Math.max(-5,Math.min(10,(S.po||0)+dpo));
+  S.po=Math.max(PO_MIN,Math.min(PO_MAX,(S.po||0)+dpo));
   S.armies.forEach(a=>{if(!a.strained)a.endurance=(a.endurance||0)+EQ.endurance_regain; a.strained=false;});
   document.getElementById("turn").textContent=S.turn;save();render();
 };
-document.getElementById("poMinus").onclick=()=>{S.po=Math.max(-5,(S.po||0)-1);save();render();};
-document.getElementById("poPlus").onclick=()=>{S.po=Math.min(10,(S.po||0)+1);save();render();};
+document.getElementById("poMinus").onclick=()=>{S.po=Math.max(PO_MIN,(S.po||0)-1);save();render();};
+document.getElementById("poPlus").onclick=()=>{S.po=Math.min(PO_MAX,(S.po||0)+1);save();render();};
 document.querySelectorAll("[data-gold]").forEach(b=>b.onclick=()=>{S.treasury=(S.treasury||0)+(+b.dataset.gold);trIn.value=S.treasury;save();});
 
 // ---- toolbar ----
@@ -3258,6 +3262,9 @@ def main():
         records=records, naturalNames=natural, externalTokens=external,
         infra=infra, wonders=wonders, armySrc=army_src, equip=equip, glossary=glossary,
         domainBoard=ns.get("DOMAIN_BOARD", {}), publicOrder=po,
+        limits={"poMin": ns.get("PO_MIN", -5), "poMax": ns.get("PO_MAX", 10),
+                "initMin": ns.get("INITIATIVE_MIN", -2), "initMax": ns.get("INITIATIVE_MAX", 2),
+                "standing": ns.get("STANDING_THRESHOLDS", {"Untested": 1, "Rising": 3, "Established": 6, "Sovereign": 10})},
         eras=ns.get("ERAS", {}), edicts=ns.get("EDICTS", {}),
         domains=["Industry", "Prowess", "Cunning", "Piety"],
         standings=["Rising", "Established", "Sovereign"],

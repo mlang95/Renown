@@ -76,6 +76,11 @@ def _t_po_modifiers():
             rows.append([f"{sign.title()} 1", src, cond])
     return _htable(["Type", "Source", "Condition"], rows)
 
+def _standing_headers():
+    """Domain-board header row; tier numbers from STANDING_THRESHOLDS."""
+    st = getattr(rd, "STANDING_THRESHOLDS", {"Untested": 1, "Rising": 3, "Established": 6, "Sovereign": 10})
+    return ["Domain", "Untested"] + [f"{t} ({st[t]})" for t in ("Rising", "Established", "Sovereign")]
+
 def _t_domain_board():
     b = rd.DOMAIN_BOARD
     order = ["Untested", "Rising", "Established", "Sovereign"]
@@ -84,7 +89,7 @@ def _t_domain_board():
     mi = b.get("max_influence_per_vote", {}); inn = b.get("innate_influence_own_envoys", {})
     rows.append(["Max Influence Per Vote"] + [str(mi.get(t, "")) for t in order])
     rows.append(["Innate Influence on Own Envoys"] + [str(inn.get(t, "")) for t in order])
-    return _htable(["Domain", "Untested", "Rising (3)", "Established (6)", "Sovereign (10)"], rows)
+    return _htable(_standing_headers(), rows)
 
 def _t_net_influence():
     t = rd.ENVOY_OUTCOME_THRESHOLDS

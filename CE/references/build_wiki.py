@@ -700,10 +700,12 @@ if hasattr(rd, "COSTS") or hasattr(rd, "UPKEEP_TRACKS"):
         body+="<p>Each upkeep pool is reduced by different effects; a reducer that names one track does not touch the others.</p>"
         body+=_grid(["Track","How it works"], [[k, v] for k,v in rd.UPKEEP_TRACKS.items()], u)
         if hasattr(rd, "PURSUIT_UPKEEP_BY_TYPE"):
-            pu=rd.PURSUIT_UPKEEP_BY_TYPE
-            extra=", ".join(f"{k} {v}" for k,v in pu.items())
-            dflt=getattr(rd,"PURSUIT_UPKEEP_DEFAULT","")
-            body+=f"<p class='mut'>Pursuit upkeep by type: {extra}, all others {dflt}.</p>"
+            pu_text=getattr(rd,"_PU_TEXT",None)
+            if pu_text is None:   # older data files without _PU_TEXT
+                pu=rd.PURSUIT_UPKEEP_BY_TYPE
+                extra=", ".join(f"{k} {v}" for k,v in pu.items() if k!="Other")
+                pu_text=f"{extra}, all others {pu.get('Other', getattr(rd,'PURSUIT_UPKEEP_DEFAULT',''))}"
+            body+=f"<p class='mut'>Pursuit upkeep by type: {pu_text}.</p>"
     if hasattr(rd, "COSTS"):
         body+="<h2>Action &amp; empire costs</h2>"
         body+=_grid(["Item","Cost"], [[k, v] for k,v in rd.COSTS.items()], u)

@@ -19,6 +19,10 @@ Engine-recognized extra_tags:
 """
 from collections import namedtuple
 from renown_data import RETINUES, WEAPONS, RANGED, SHIELDS, ARMORS
+import renown_data as _rd_st
+# Standing thresholds from data; fallback keeps this file copy-compatible with Combatv3 (D6) data.
+_ST = getattr(_rd_st, "STANDING_THRESHOLDS", {"Untested": 1, "Rising": 3, "Established": 6, "Sovereign": 10})
+_RIS, _EST, _SOV = _ST["Rising"], _ST["Established"], _ST["Sovereign"]
 # Keyword constants so tag-injection sites point at VARIABLES, not literals (rename-safe).
 from renown_data import (
     SHATTER_ARMOR, CLEAVE, DEFLECT, DESTROY_SHIELD, DRILLED, DUAL_WIELD, HALFSWORD,
@@ -127,7 +131,7 @@ _MON_ABBR = {
 # Tags absorbed into the domain-standing tuple (they ARE the standing's grant):
 _DOMAIN_TAGS = {"Immune Blocked", PARRY, "confers:Blocked", "confers:Strain"}
 def _standing_letter(v):
-    return "S" if v >= 10 else ("E" if v >= 6 else ("R" if v >= 3 else "N"))
+    return "S" if v >= _SOV else ("E" if v >= _EST else ("R" if v >= _RIS else "N"))
 def _name(retinue, weapon, shield, armor, ranged, has_tiltyard, extra_tags, playstyle=None,
           pursuits=None):
     """Build a human-readable name for a loadout.
@@ -658,20 +662,20 @@ def compute_pursuit_cost(pursuits):
     #  Strain — are NOT here; they're applied at matchup resolution in the engine, since they depend
     #  on the opponent. They're surfaced via the 'confers:*' marker tags below so the engine can read
     #  a build's Cunning standing without recomputing domains.)
-    if domain["Prowess"] >= 3:
+    if domain["Prowess"] >= _RIS:
         tags.add("Immune Blocked")
-    if domain["Prowess"] >= 6:
+    if domain["Prowess"] >= _EST:
         tags.add(PARRY)
     #   Established Piety (>=6)    -> +1 Morale ("Shake +1": -1 to the effective Morale target,
     #                                  which also delays the Fatigue rout clock by one token)
-    if domain["Piety"] >= 6:
+    if domain["Piety"] >= _EST:
         tags.add("Shake +1")
     # Marker tags (not combat effects themselves) telling the engine what this build inflicts on its
     # opponent. The engine strips 'confers:*' from the build's own effective tags and instead adds the
     # named debuff to the OPPONENT's tags at matchup setup.
-    if domain["Cunning"] >= 6:
+    if domain["Cunning"] >= _EST:
         tags.add("confers:Blocked")
-    if domain["Cunning"] >= 10:
+    if domain["Cunning"] >= _SOV:
         tags.add("confers:Strain")
     return mpc, domain, tags
 def compute_effective_upkeep(loadout):

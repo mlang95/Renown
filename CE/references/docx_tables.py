@@ -124,6 +124,11 @@ def bandit_armaments():
     rows = [[k, v] for k, v in rd.BANDIT_EQUIPMENT_PER_ERA.items()]
     return _table(["Era", "Armaments"], rows)
 
+def _standing_headers():
+    """Domain-board header row; tier numbers from STANDING_THRESHOLDS."""
+    st = getattr(rd, "STANDING_THRESHOLDS", {"Untested": 1, "Rising": 3, "Established": 6, "Sovereign": 10})
+    return ["Domain", "Untested"] + [f"{t} ({st[t]})" for t in ("Rising", "Established", "Sovereign")]
+
 def domain_board():
     # Full authored shape: Untested..Sovereign per domain, then the two influence rows.
     # Combat standing effects (rd.STANDING_EFFECTS) are folded into the same cell —
@@ -143,7 +148,7 @@ def domain_board():
     inn = b.get("innate_influence_own_envoys", {})
     rows.append(["Max Influence Per Vote"] + [str(mi.get(t, "")) for t in order])
     rows.append(["Innate Influence on Own Envoys"] + [str(inn.get(t, "")) for t in order])
-    return _table(["Domain", "Untested", "Rising (3)", "Established (6)", "Sovereign (10)"], rows)
+    return _table(_standing_headers(), rows)
 
 def envoy_outcomes():
     DOM = ["Prowess", "Cunning", "Piety", "Industry", "Diplomacy"]

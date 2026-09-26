@@ -304,7 +304,8 @@ def build(data, out_path):
                 c = (cr[i] if i < len(cr) and cr[i] else "").strip()
                 row.append((e+" "+c).strip() if c else e)
             merged.append(row)
-        return ["Domain","Rising (3)","Established (6)","Sovereign (10)"], merged
+        _st = getattr(rd, "STANDING_THRESHOLDS", None) or {"Rising": 3, "Established": 6, "Sovereign": 10}
+        return ["Domain"] + [f"{t} ({_st[t]})" for t in ("Rising","Established","Sovereign")], merged
 
     def terrain_spec():
         tac = getattr(rd, "TACTICAL_TERRAIN", {}) or {}
