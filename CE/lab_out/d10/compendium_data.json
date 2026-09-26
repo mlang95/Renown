@@ -1081,7 +1081,7 @@
      "",
      "Mine + Merchant Quarter + Furnace",
      "**Efficient Gilded Foundry**; +200; Craft +2",
-     "+500; **Influence +1** to Cunning Envoys targeting this player"
+     "+500; **Influence +1** to Cunning actions targeting this player"
     ],
     [
      "Armory",
@@ -1164,7 +1164,7 @@
      "Spice Merchant",
      "",
      "Caravanery + Merchant Quarter + Herb Garden",
-     "+300; Influence +1 to Cunning Envoys targeting you",
+     "+300; Influence +1 to Cunning actions targeting you",
      "+500; Craft +2"
     ],
     [
@@ -1247,7 +1247,7 @@
      "Established Piety",
      "Episcopal Court",
      "**Efficient Courtyard**; **+1 Influence**/turn",
-     "**Influence +1** to Piety actions"
+     "**Influence +1** to Piety Envoys"
     ],
     [
      "Execution Dock",

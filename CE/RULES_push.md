@@ -154,17 +154,20 @@ Many actions set a Timer to a number of turns. Each Empire Phase, every active T
 
 ### Council Phase
 
-Before players send personal Envoys, there's a Council vote on a Domain. Clockwise from the starting player, each player votes for a Domain; if the vote ties, the Host breaks it. Then, clockwise from the starting player, each player sends a free Envoy and resolves one action of that Domain, starting with innate Influence equal to their Domain Standing.
+Before players send personal Envoys, there's a Council vote on a Domain. Clockwise from the starting player, each player votes for a Domain; if the vote ties, the Host breaks it. Then, clockwise from the starting player, each player sends a free Envoy of that Domain, starting with innate Influence equal to their Domain Standing. A passed Council Envoy performs actions of that Domain equal to the Era's Council actions per Envoy (see Eras).
 
-*Note: a Council Envoy's net Influence can't be lower than 1, whatever the totalled value.*
+Council Envoys **auto-Abstain**: other players can't Support or Oppose them, though automatic Influence ±X modifiers still apply.
+
+*Note: a Council Envoy's net Influence can't be lower than 1, whatever the totalled value, so it can't fail or be Condemned.*
 
 ### Envoy Phase
 
-**Envoy Declaration.** From the starting player, all players place their Envoys in the Domain of their choice.
+**Envoy Declaration.** All players place their Envoys in the Domains of their choice at the same time, then reveal them together.
 
-Then resolve Envoys in order (see Actions & Voting for how a vote resolves). First, each player who wishes to send a Diplomacy Envoy may do so, starting with the starting player; once everyone has had the opportunity, no further Diplomacy Envoys may be sent this turn.
+Then resolve Envoys in order (see Actions & Voting for how a vote resolves):
 
-Then players send Domain Envoys in order — Prowess → Cunning → Piety → Industry — in descending order of magnitude: the player with the highest Prowess sends the first Envoy, and so on.
+1. **Diplomacy** — clockwise from the starting player.
+2. **Prowess → Cunning → Piety → Industry** — within each Domain, in descending order of Domain value: the player with the highest value resolves all of their Envoys of that Domain, then the next highest, and so on. Ties go clockwise from the starting player.
 
 ### Battle Phase
 
@@ -208,11 +211,11 @@ If a player performed a Battle or Siege Move action this turn, resolve it now �
 
 ### Sending an Envoy
 
-Envoys are the currency of actions: to perform an action you send an Envoy during the Envoy Phase. Sending costs 1 Envoy, and you must be able to pay the action's cost before you send it. Declare the Domain but not the action — *"I'd like to send a [Domain] Envoy."*
+Envoys are the currency of actions: to perform an action you send an Envoy during the Envoy Phase. Sending costs 1 Envoy, and you must be able to pay the action's cost before you send it. Declare the Domain but not the action — *"I'd like to send a [Domain] Envoy."* Envoys never target: you choose the action, and its target, only after the Envoy passes, so no one knows exactly what will happen until then.
 
 ### Resolving an Envoy
 
-Your Envoy begins with Influence equal to your innate Influence in its Domain — Untested {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Untested}}, Rising {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Rising}}, Established {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Established}}, Sovereign {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Sovereign}} — plus any automatic Influence ±X modifiers. *(These come from your Pursuits, Infrastructure, and faction, and apply on their own; you never spend Influence for them.)*
+Your Envoy begins with Influence equal to your innate Influence in its Domain — Untested {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Untested}}, Rising {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Rising}}, Established {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Established}}, Sovereign {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Sovereign}} — plus any automatic Influence ±X modifiers. *(These come from your Pursuits, Infrastructure, and faction, and apply on their own; you never spend Influence for them.)* Diplomacy has no Standing; a Diplomacy Envoy begins with Influence set by the Era (Founding {{VAL:ERAS.Founding.innate_diplomacy_influence}}, Ascension {{VAL:ERAS.Ascension.innate_diplomacy_influence}}, Eminence {{VAL:ERAS.Eminence.innate_diplomacy_influence}}, Zenith {{VAL:ERAS.Zenith.innate_diplomacy_influence}}).
 
 Then, clockwise from the starting player, every other player may respond:
 
@@ -220,7 +223,7 @@ Then, clockwise from the starting player, every other player may respond:
 - **Oppose X** — spend X of your Influence to lower it.
 - **Abstain** — spend nothing.
 
-You spend Influence only when you **Support** or **Oppose**; abstaining is free. You may let as much pass unopposed or unsupported as you like. **You can't vote on your own Envoy.** Each player may spend up to 1 + their Standing in that Domain on a single vote (Untested {{VAL:DOMAIN_BOARD.max_influence_per_vote.Untested}}, Rising {{VAL:DOMAIN_BOARD.max_influence_per_vote.Rising}}, Established {{VAL:DOMAIN_BOARD.max_influence_per_vote.Established}}, Sovereign {{VAL:DOMAIN_BOARD.max_influence_per_vote.Sovereign}}); Pursuits, Infrastructure, and factions may raise this cap. At the end of each turn, unused Influence is discarded.
+You spend Influence only when you **Support** or **Oppose**; abstaining is free. You may let as much pass unopposed or unsupported as you like. **You can't vote on your own Envoy.** Each player may spend up to 1 + their Standing in that Domain on a single vote (Untested {{VAL:DOMAIN_BOARD.max_influence_per_vote.Untested}}, Rising {{VAL:DOMAIN_BOARD.max_influence_per_vote.Rising}}, Established {{VAL:DOMAIN_BOARD.max_influence_per_vote.Established}}, Sovereign {{VAL:DOMAIN_BOARD.max_influence_per_vote.Sovereign}}). On Diplomacy Envoys the cap is set by the Era instead (Founding {{VAL:ERAS.Founding.max_influence_per_diplomacy_vote}}, Ascension {{VAL:ERAS.Ascension.max_influence_per_diplomacy_vote}}, Eminence {{VAL:ERAS.Eminence.max_influence_per_diplomacy_vote}}, Zenith {{VAL:ERAS.Zenith.max_influence_per_diplomacy_vote}}). Pursuits, Infrastructure, and factions may raise these caps. At the end of each turn, unused Influence is discarded.
 
 *In practice this isn't a round-the-table poll. The Host simply asks "anyone support or oppose?" and resolves. The clockwise order is only there to settle the rare case where who-spends-first changes a decision.*
 
@@ -230,7 +233,7 @@ Add everything together for the net Influence, then read the outcome:
 
 {{TABLE:net_influence}}
 
-*If a player has an effect that reduces a specific action's Influence, that reduction applies after the net Influence is totalled, and can turn a would-be pass into a fail. That player may instead perform a different action of the same Domain targeting the same player or Settlement.*
+*Effects that modify a specific action's Influence — including effects on actions targeting a player — apply after the net Influence is totalled, once the action and its target are chosen. They can raise or lower the result: a would-be pass can become a fail, or be Condemned. On a would-be fail, the player may instead perform a different action of the same Domain targeting the same player or Settlement.*
 
 When you perform an action, pay its cost (gold or Doubt) and follow the pass effect. If the action is **endorsed**, also perform the Domain's endorsed effect.
 
@@ -271,7 +274,7 @@ Each turn, gain Influence from the following sources:
 
 ### Rule: Ulterior Motive
 
-Unless the target player is At War, players can't Oppose that player's Industry Envoys.
+Unless you are at war with the player sending it, you can't Oppose an Industry Envoy.
 
 ## Diplomacy Actions
 
