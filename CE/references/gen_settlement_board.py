@@ -648,16 +648,42 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .ptable .pcaret{width:9px;display:inline-block}
   /* ---------- phones ---------- */
   .mnav{display:none}
+  .tbmore{padding:4px 10px}
+  .appmenu{display:none;position:fixed;right:10px;top:var(--tbh,60px);z-index:30;width:380px;max-width:calc(100vw - 20px);max-height:calc(100vh - var(--tbh,60px) - 10px);overflow:auto;
+    background:var(--bg);border:1px solid var(--line2);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,.25);padding:8px}
+  body.tbopen .appmenu{display:block}
+  .tstrip{width:100%;display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:4px 0 0;border-top:1px solid var(--line);font-size:13px}
+  .tstrip .ts-i{display:inline-flex;gap:4px;align-items:center}.tstrip button{padding:1px 7px;min-height:0}
+  .tstrip .ts-end{margin-left:auto;border-color:var(--order);font-weight:600}
+  .tb-check div{padding:1px 0}.tb-check a,.refnav a{color:var(--build)}
+  .refnav{margin-bottom:10px}
+  .bside-nav{display:none}
+  .msetup{margin-bottom:6px}.msetup>summary{cursor:pointer;padding:4px 0}.msetup .mtoolbar{margin-top:6px}
+  .mapzoom{display:flex;gap:4px;align-items:center;margin:0 0 6px}.mapzoom button.on{border-color:var(--ink);font-weight:600}
   @media(max-width:700px){
     body{font-size:14px}
     input,select,textarea{font-size:16px}                /* stops iOS zooming into fields */
     button{min-height:34px}
     .topbar{gap:6px;padding:6px 8px}
-    .views,.players{flex-wrap:nowrap;overflow-x:auto;width:100%;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+    .views,.players{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
     .views::-webkit-scrollbar,.players::-webkit-scrollbar{display:none}
     .vtab{white-space:nowrap;padding:6px 10px}
     .players>*{flex:0 0 auto}
     #themeSel,#shapeSel{max-width:118px}
+    .topbar{flex-wrap:wrap}
+    .topbar .views{order:1;flex:1;min-width:0;width:auto}
+    .topbar .tbundo{order:2;margin-left:0!important}
+    .tbmore{order:3;padding:6px 10px}
+    .tstrip{order:6;flex-wrap:nowrap;overflow-x:auto;gap:10px;scrollbar-width:none}.tstrip::-webkit-scrollbar{display:none}
+    .tstrip .ts-i{flex:0 0 auto}.tstrip .ts-end{flex:0 0 auto;order:-1;margin-left:0}
+    .appmenu{left:6px;right:6px;width:auto}
+    .topbar .players{order:4;width:100%}
+    .tbextra{order:5;width:100%;display:none;gap:6px;align-items:center;flex-wrap:wrap;padding-top:4px}
+    body.tbopen .tbextra{display:flex}
+    .bside-nav{display:flex;gap:4px;margin:8px 0}.bside-nav button{flex:1}.bside-nav button.on{border-color:var(--ink);font-weight:600}
+    .bsides[data-bs="A"] .bside[data-side="B"],.bsides[data-bs="B"] .bside[data-side="A"]{display:none}
+    .bside{min-width:0!important}
+    .hexwrap{max-height:70vh}
     body:not([data-view="board"]) .mnav{display:none!important}
     .mnav{display:flex;gap:4px;position:sticky;top:var(--tbh,0px);z-index:15;padding:6px 8px;background:var(--bg);border-bottom:1px solid var(--line)}
     .mnav button{flex:1}.mnav button.on{border-color:var(--ink);font-weight:600}
@@ -686,14 +712,16 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 <div class="topbar">
   <div class="views" id="viewTabs">
     <div class="vtab on" data-v="board">Board</div>
-    <div class="vtab" data-v="dash">Dashboards</div>
-    <div class="vtab" data-v="renown">Renown &amp; Domains</div>
     <div class="vtab" data-v="table">Table</div>
+    <div class="vtab" data-v="realm">Realm</div>
     <div class="vtab" data-v="map">Map</div>
     <div class="vtab" data-v="battle" id="vtabBattle" style="display:none">Battle</div>
+    <div class="vtab" data-v="reference">Reference</div>
   </div>
   <div class="players" id="playerBar"></div>
-  <span style="margin-left:auto;display:inline-flex;gap:4px"><button id="undoBtn" title="Undo (Ctrl+Z)" disabled>↶</button><button id="redoBtn" title="Redo (Ctrl+Shift+Z / Ctrl+Y)" disabled>↷</button></span>
+  <span class="tbundo" style="margin-left:auto;display:inline-flex;gap:4px"><button id="undoBtn" title="Undo (Ctrl+Z)" disabled>↶</button><button id="redoBtn" title="Redo (Ctrl+Shift+Z / Ctrl+Y)" disabled>↷</button></span>
+  <button id="tbMore" class="tbmore" title="menu">⋯</button>
+  <span class="tbextra" id="tbExtra">
   <details id="modBox" style="position:relative"><summary class="note" style="cursor:pointer">modules</summary>
     <div style="position:absolute;right:0;z-index:20;background:var(--panel);border:1px solid var(--line);padding:8px;min-width:190px">
       <label style="display:block"><input type="checkbox" class="modcb" data-m="diplomacy"> Diplomacy (Dashboards)</label>
@@ -712,12 +740,14 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <option value="sharp">Sharp</option>
     <option value="square">Square</option>
   </select>
+  </span>
+  <div class="tstrip" id="turnStrip"></div>
 </div>
+<div class="appmenu" id="appMenu"></div>
 <div class="mnav" id="mnav"><button data-mc="board" class="on">Board</button><button data-mc="catalog">Catalog</button><button data-mc="summary">Totals</button></div>
 <div class="app" id="appBoard" data-mc="board">
   <!-- CATALOG -->
   <div class="col" id="catalog">
-    <div class="facbox" id="facBox"></div>
     <div class="hd"><h2>Catalog</h2><span class="v" id="ver"></span></div>
     <div class="tabs" id="tabs">
       <div class="tab on" data-k="pursuit">Pursuits</div>
@@ -731,6 +761,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
   <!-- BOARD -->
   <div class="col" id="boardcol">
+    <div class="facbox" id="facBox"></div>
     <div class="hd"><h2>Board</h2><span class="v" id="poolcount"></span></div>
     <div class="toolbar">
       <button id="clear">clear all</button>
@@ -867,8 +898,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   </div>
 </div>
 
-<div id="viewDash" class="viewpane" style="display:none"></div>
-<div id="viewRenown" class="viewpane" style="display:none"></div>
+<div id="viewRealm" class="viewpane" style="display:none"><div id="viewDash"></div><div id="viewRenown"></div></div>
+<div id="viewReference" class="viewpane" style="display:none"></div>
 <div id="viewMap" class="viewpane" style="display:none"></div>
 <div id="viewTable" class="viewpane" style="display:none"></div>
 <div id="viewBattle" class="viewpane" style="display:none"></div>
@@ -1147,6 +1178,22 @@ function tPerformHtml(E){if(!(E.out==="Passed"||E.out==="Endorsed"))return "";
       '<button data-perf="'+esc(E.id)+'" data-who="'+E.owner.id+'">Perform</button>';}
   else h+='<span class="note">awaiting '+esc(E.owner.name)+"'s action</span>";
   return h+'</div>';}
+function empireChecklistHTML(){const sea=curSeason(),auto=!!TB().boardEnd;
+  const L=[["Activate Domain Standing effects","realm","Realm"],["Apply the Season: "+sea,"reference#refSeasons","Reference"],
+    ["Timers tick, finished builds resolve","board:board","Board"],["Host resolves Bandits","map","Map"],
+    ["Gain Influence & Envoys","",""],sea==="Winter"?["Winter: tax income","board:summary","Totals"]:null,
+    ["Income & upkeep","board:summary","Totals"],["Public Order (Faith − Doubt)","board:summary","Totals"],["Armies regain Endurance","board:board","Board"]].filter(Boolean);
+  return '<div class="tb-check">'+L.map(x=>'<div>'+esc(x[0])+(x[1]?' <a href="#" data-goto="'+x[1]+'">'+x[2]+' ▸</a>':' <span class="note">(this panel)</span>')+'</div>').join("")+
+    (auto?'<div class="note">End turn applies timers, income, PO and Endurance to every board.</div>':'')+'</div>';}
+function renderReference(){const host=document.getElementById("viewReference");
+  const g=(D.map||{}).grid;
+  let h='<div style="padding:14px"><h2 style="margin-bottom:8px">Reference</h2>'+
+    '<div class="refnav note">'+[["refSeasons","Seasons"],["refCosts","Costs"],["refStanding","Standing effects"],["refTerrain","Terrain & movement"],["refBattle","Skirmish rules & Tactic matrix"]]
+      .map(x=>'<a href="#" data-goto="reference#'+x[0]+'">'+x[1]+'</a>').join(' · ')+'</div>';
+  h+='<div id="refSeasons">'+seasonsHTML()+'</div><div id="refCosts">'+costsHTML()+'</div>'+
+    '<div id="refStanding">'+standingEffectsHTML()+'</div><div id="refTerrain">'+terrainTablesHTML(mapPal(g))+'</div>'+
+    '<div id="refBattle">'+battleRulesHTML()+'</div></div>';
+  host.innerHTML=h;wireDashExtras(host);}
 function renderTable(){
   const host=document.getElementById("viewTable");if(!host)return;
   const R=tSim(),t=TB(),ph=tPhase(),me=meP(),ord=R.ord,sm=seatMap(),n=tSeats(),hp=hostP(),sp=ord[0]||null;
@@ -1163,6 +1210,7 @@ function renderTable(){
       (sameP(p,sp)?'<span class="tb-b s" title="Starting player">1st</span>':'')+'</div>';
     const pool=R.pool[p.id]??inflPool(p),left=pool-(R.spent[p.id]||0);
     body+='<div class="note">Influence <b>'+left+'</b>/'+pool+' · Envoys '+personalEnvoys(p)+'</div>';
+    body+='<div class="note tb-doms">'+T_DOMS.map(d=>{const v=(p.board.domains||{})[d]||0,st=domBand(v);return '<span title="'+d+' '+v+' ('+st+')"'+(st!=="Untested"?' style="color:var(--ink);font-weight:600"':'')+'>'+d.slice(0,3)+' '+v+'</span>';}).join(' · ')+'</div>';
     if(ph==="envoy"&&TB().phaseTs){const dc=tCur(p).decl||{};
       if(R.waiting==="declare")body+='<div class="note">'+(dc.lock?'<span class="pos">declared ✓</span>':'declaring…')+'</div>';
       else{const nn=dc.n||{};body+='<div class="note">'+T_ALL.filter(d=>+nn[d]>0).map(d=>d.slice(0,3)+" ×"+nn[d]).join(" · ")+'</div>';}}
@@ -1189,7 +1237,7 @@ function renderTable(){
       (cw?'<div class="note">'+tName(cw)+' to act</div><div class="tbcd tb-timer"></div>':'')+'</div>';}
   else if(R.done&&(ph==="council"||ph==="envoy")&&TB().phaseTs)ctr+='<div class="pos">All Envoys resolved.</div>';
   if(R.councilDom)ctr+='<div class="note">Council Domain: <b>'+R.councilDom+'</b></div>';
-  if(ph==="empire")ctr+='<div class="note">Resolve the Empire Phase on each board (timers, Bandits, Influence & Envoys, income, upkeep, Public Order).</div>';
+  if(ph==="empire")ctr+=empireChecklistHTML();
   if(ph==="battle")ctr+='<div class="note">Resolve Battles and Sieges'+(mods().battle?' in the Battle view':'')+'.</div>';
   if(ph==="rest")ctr+='<div class="note">Unused Envoys & Influence are discarded · Season +1 · gain Renown · spend a Domain Point · Host passes clockwise (not in Spring).</div>';
   // --- log ---
@@ -1263,7 +1311,8 @@ function tPanel(R){
     '<div class="tb-row"><span style="flex:1" class="note">gain '+influenceTotal(qp.board)+' + adjust</span><button data-adj="inflAdj" data-dv="-1" data-who="'+qp.id+'">−</button><b>'+(+c.inflAdj||0)+'</b><button data-adj="inflAdj" data-dv="1" data-who="'+qp.id+'">+</button></div>'+
     '<div class="tb-row"><span style="flex:1">Personal Envoys</span><b>'+personalEnvoys(qp)+'</b></div>'+
     '<div class="tb-row"><span style="flex:1" class="note">Era + adjust</span><button data-adj="envAdj" data-dv="-1" data-who="'+qp.id+'">−</button><b>'+(+c.envAdj||0)+'</b><button data-adj="envAdj" data-dv="1" data-who="'+qp.id+'">+</button></div>'+
-    '<div class="note">'+esc((ERAS[currentEra()]||{}).envoys||"")+'</div></div>';
+    '<div class="note">'+esc((ERAS[currentEra()]||{}).envoys||"")+'</div>'+
+    '<details style="margin-top:4px"><summary class="note">Influence breakdown</summary>'+influenceRows(qp.board).filter(r=>r.val||r.cnt).map(r=>'<div class="tb-row"><span style="flex:1">'+kwify(r.k)+(r.cnt>1?' <span class="note">×'+r.cnt+'</span>':'')+'</span><b>'+(r.val>0?'+':'')+r.val+'</b></div>').join('')+'</details></div>';
   // influence modifiers
   const md=PT(qp).mods;
   const afx=boardFx(qp);
@@ -1867,20 +1916,22 @@ function render(){
   applySkin(D.shape||"sharp");
   renderTopBar();
   if(D.view==="battle"&&!mods().battle)D.view="board";
+  if(D.view==="dash"||D.view==="renown")D.view="realm";
   const view=D.view||"board";
+  renderTurnStrip();syncBoardEndBtn();
   document.body.dataset.view=view;
   document.getElementById("vtabBattle").style.display=mods().battle?"":"none";
   document.querySelectorAll(".modcb").forEach(cb=>{cb.checked=!!mods()[cb.dataset.m];
     if(!cb._w){cb._w=1;cb.onchange=()=>{mods()[cb.dataset.m]=cb.checked;save();render();};}});
   document.getElementById("viewBattle").style.display = view==="battle"?"":"none";
   document.getElementById("appBoard").style.display = view==="board"?"":"none";
-  document.getElementById("viewDash").style.display = view==="dash"?"":"none";
-  document.getElementById("viewRenown").style.display = view==="renown"?"":"none";
+  document.getElementById("viewRealm").style.display = view==="realm"?"":"none";
+  document.getElementById("viewReference").style.display = view==="reference"?"":"none";
   document.getElementById("viewMap").style.display = view==="map"?"":"none";
   document.getElementById("viewTable").style.display = view==="table"?"":"none";
   document.querySelectorAll(".vtab").forEach(t=>t.classList.toggle("on",t.dataset.v===view));
-  if(view==="dash"){renderDash();save();return;}
-  if(view==="renown"){renderRenown();save();return;}
+  if(view==="realm"){renderDash();renderRenown();save();return;}
+  if(view==="reference"){renderReference();save();return;}
   if(view==="map"){renderMap();save();return;}
   if(view==="table"){renderTable();save();return;}
   if(view==="battle"){renderBattle();save();return;}
@@ -2774,12 +2825,9 @@ function poModRows(b){b.poMods=b.poMods||{};const p=playerOfBoard(b),pid=p?Strin
     rows.push({side,k,desc:POM[side][k],auto:!!a,n:a?a():(+b.poMods[k]||0)});}));
   return rows;}
 function poModTotal(b){return poModRows(b).reduce((a,r)=>a+(r.side==="faith"?r.n:-r.n),0);}
-function renderInfluence(){const box=document.getElementById("inflBox");if(!box)return;const rows=influenceRows(S),tot=rows.reduce((a,r)=>a+r.val,0);
-  box.innerHTML='<h3 style="font-size:13px">Influence / turn <span style="float:right">'+(tot>0?'+':'')+tot+'</span></h3>'+
-    rows.map(r=>'<div class="kv"><span class="k">'+esc(r.k)+(r.cnt>1||(r.cnt&&r.k!=="Era"&&r.k!=="Other sources")?' ×'+r.cnt:'')+
-      (r.k==="Condemned Envoy last turn"?' <button class="icd" data-d="-1">−</button><button class="icd" data-d="1">+</button>':'')+
-      '</span><span class="val">'+(r.val>0?'+':'')+r.val+'</span></div>').join('');
-  box.querySelectorAll(".icd").forEach(bt=>bt.onclick=()=>{S.condemned=Math.max(0,(+S.condemned||0)+(+bt.dataset.d));save();render();});}
+function renderInfluence(){const box=document.getElementById("inflBox");if(!box)return;const tot=influenceTotal(S);
+  box.innerHTML='<div style="display:flex;align-items:center;gap:8px"><b>Influence / turn</b><span style="margin-left:auto;font-size:15px">'+(tot>0?'+':'')+tot+'</span></div>'+
+    '<div class="note">Breakdown, Envoys and modifiers: <a href="#" data-goto="table">Table ▸</a></div>';}
 function renderPOMods(){const box=document.getElementById("poMods");if(!box)return;const rows=poModRows(S),tot=poModTotal(S),m=boardMetrics(S);
   box.innerHTML='<div class="pomh">'+['faith','doubt'].map(side=>'<div><div class="lbl">'+side.toUpperCase()+'</div>'+
     rows.filter(r=>r.side===side).map(r=>'<div class="pomr"><span title="'+esc(r.desc)+'">'+esc(r.k)+'</span><span>'+
@@ -2847,7 +2895,7 @@ function wireDashExtras(host){const $=id=>host.querySelector("#"+id),sg=siegeSta
 function renderDash(){
   const host=document.getElementById("viewDash");
   const era=currentEra(),E=ERAS[era]||{};
-  let h='<h2 style="margin-bottom:6px">Player dashboards</h2>'+
+  let h='<h2 style="margin-bottom:6px">Realm — players</h2>'+
     '<div class="note" style="margin-bottom:10px">Renown '+(D.renown||1)+' · Era <b style="color:var(--ink)">'+era+'</b>'+
     ' — armies '+(E.armies??'?')+' / cities '+(E.cities??'?')+' / max settlements '+(E.max_settlements??'?')+' / influence '+(E.influence_per_turn||'?')+'/turn'+
     (E.unlocks?' · '+esc(E.unlocks):'')+'</div>'+
@@ -2873,7 +2921,7 @@ function renderDash(){
       '<td class="num"'+(dover?' style="color:var(--upkeep)"':'')+'>'+dsum+'/'+dmax+(dover?' ⚠':'')+'</td>'+
       '<td class="note">'+(sov.length?sov.join(", "):"—")+'</td></tr>';
   });
-  h+='</tbody></table>'+seasonsHTML()+timersHTML()+siegeHTML()+costsHTML();host.innerHTML=h;
+  h+='</tbody></table>'+timersHTML();host.innerHTML=h;
   wireDashExtras(host);
   if(mods().diplomacy){host.insertAdjacentHTML("beforeend",diploHTML());wireDiplo(host);}
 }
@@ -3149,7 +3197,7 @@ function rollHTML(X){const R=(battle().rolls||{})[X];if(!R)return"";
     ' → <b>'+R.succ+'</b> succeed, <b>'+(R.dice.length-R.succ)+'</b> fail'+(R.nat10?' · nat 10 ×'+R.nat10:'')+'</div>';}
 function sideHTML(X){
   const B=battle(),sd=B[X],c=sideCalc(X),v=viewerSide(),mine=v===X,O=X==="A"?"B":"A";
-  let h='<div class="tot" style="flex:1;min-width:300px"><h3 style="font-size:14px">Side '+X+(X==="A"?" (attacker)":"")+'</h3>'+
+  let h='<div class="tot bside" data-side="'+X+'" style="flex:1;min-width:300px"><h3 style="font-size:14px">Side '+X+(X==="A"?" (attacker)":"")+'</h3>'+
     '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0"><select class="bsel" data-x="'+X+'" data-f="pid"><option value="">player…</option>'+
     D.players.map(p=>'<option value="'+p.id+'"'+(sd.kind!=="bandit"&&String(p.id)===String(sd.pid)?' selected':'')+'>'+esc(p.name)+'</option>').join('')+
     Object.keys(mapState().camps).map(k=>{const cp=mapState().camps[k];return '<option value="bandit:'+k+'"'+(sd.kind==="bandit"&&sd.camp===k?' selected':'')+'>☠ Bandit '+(cp.n>=(BAN.armyThreshold||25)?'Army':'Camp')+' @ '+k+' ('+cp.n+')</option>';}).join('')+'</select>';
@@ -3204,6 +3252,13 @@ function sideHTML(X){
     '<span class="note">this Skirmish: '+(sd.cas||0)+((BT.panicThreshold&&sd.cas>=BT.panicThreshold)?' — <b style="color:var(--upkeep)">Panic check before striking back</b>':'')+'</span></div>';
   return h+'</div>';
 }
+function battleRulesHTML(){let h='';
+  h+='<details class="tot"><summary><b>Rules — Skirmish steps</b></summary><div class="note" style="margin-top:6px">'+mdLite(BT.seize)+'<br><br>'+mdLite(BT.steps)+'<br><br><b>Resolve Battle</b><br>'+mdLite(BT.resolve)+
+    ((BT.tacticalGlobal||[]).length?'<br><br>'+BT.tacticalGlobal.map(esc).join('<br>'):'')+'</div></details>';
+  h+='<details class="tot"><summary><b>Tactic matrix</b> <span class="note">(row = A, column = B; cell = A mods | B mods)</span></summary><div style="overflow-x:auto"><table class="dtable" style="font-size:11px"><thead><tr><th>A \\ B</th>'+
+    BT.tactics.map(t=>'<th>'+esc(t)+'</th>').join('')+'</tr></thead><tbody>'+BT.tactics.map(a=>'<tr><th>'+esc(a)+'</th>'+BT.tactics.map(b=>{const c=TMX[a+"|"+b];
+      return '<td>'+(c?fmtMod(c[0])+' | '+fmtMod(c[1]):'')+'</td>';}).join('')+'</tr>').join('')+'</tbody></table></div></details>';
+  return h;}
 function renderBattle(){
   const host=document.getElementById("viewBattle"),B=battle();
   let h='<div style="padding:14px;overflow-y:auto;height:100%"><h2 style="margin-bottom:6px">Battle</h2>'+
@@ -3218,14 +3273,12 @@ function renderBattle(){
     h+='<div class="tot"><b>Revealed:</b> A '+esc(B.rev.A)+' ('+fmtMod(cell&&cell[0])+') · B '+esc(B.rev.B)+' ('+fmtMod(cell&&cell[1])+')</div>';}
   const cA=sideCalc("A"),cB=sideCalc("B");
   if(cA&&cB)h+='<div class="note" style="margin-bottom:6px">'+(cA.I===cB.I?'<b>Simultaneous</b> — both sides Strike with their full front line':'Strikes first: <b>'+(cA.I>cB.I?"A":"B")+'</b>')+' (I '+cA.I+' vs '+cB.I+')</div>';
-  h+='<div style="display:flex;gap:10px;flex-wrap:wrap">'+sideHTML("A")+sideHTML("B")+'</div>';
+  const vs=viewerSide(),bs=BSIDE||(vs==="A"||vs==="B"?vs:"A");
+  h+='<div class="bside-nav"><button data-bs="A"'+(bs==="A"?' class="on"':'')+'>Side A</button><button data-bs="B"'+(bs==="B"?' class="on"':'')+'>Side B</button><button data-bs="AB"'+(bs==="AB"?' class="on"':'')+'>Both</button></div>';
+  h+='<div class="bsides" data-bs="'+bs+'" style="display:flex;gap:10px;flex-wrap:wrap">'+sideHTML("A")+sideHTML("B")+'</div>';
   h+='<div class="tot"><h3 style="font-size:13px">Log</h3><div class="note">'+(B.log||[]).map(esc).join('<br>')+'</div></div>';
-  h+='<details class="tot"><summary><b>Rules — Skirmish steps</b></summary><div class="note" style="margin-top:6px">'+mdLite(BT.seize)+'<br><br>'+mdLite(BT.steps)+'<br><br><b>Resolve Battle</b><br>'+mdLite(BT.resolve)+
-    ((BT.tacticalGlobal||[]).length?'<br><br>'+BT.tacticalGlobal.map(esc).join('<br>'):'')+'</div></details>';
-  h+='<details class="tot"><summary><b>Tactic matrix</b> <span class="note">(row = A, column = B; cell = A mods | B mods)</span></summary><div style="overflow-x:auto"><table class="dtable" style="font-size:11px"><thead><tr><th>A \\ B</th>'+
-    BT.tactics.map(t=>'<th>'+esc(t)+'</th>').join('')+'</tr></thead><tbody>'+BT.tactics.map(a=>'<tr><th>'+esc(a)+'</th>'+BT.tactics.map(b=>{const c=TMX[a+"|"+b];
-      return '<td>'+(c?fmtMod(c[0])+' | '+fmtMod(c[1]):'')+'</td>';}).join('')+'</tr>').join('')+'</tbody></table></div></details></div>';
-  host.innerHTML=h;wireBattle(host);
+  h+=siegeHTML()+'<div class="note" style="margin:8px 0">Skirmish rules and the Tactic matrix are in <a href="#" data-goto="reference#refBattle">Reference ▸</a></div></div>';
+  host.innerHTML=h;wireBattle(host);wireDashExtras(host);
 }
 // Incoming strikes still to resolve against side X (after any Parry), split normal / Deadly
 function incoming(X){const B=battle(),O=X==="A"?"B":"A",S_=B.strk&&B.strk[O];if(!S_||S_.sk!==B.sk)return {n:0,d:0};
@@ -3388,11 +3441,26 @@ function currentEra(){
   Object.keys(ERAS).forEach(e=>{const r=ERAS[e].renown;if(r<=(D.renown||1)&&r>bestR){bestR=r;best=e;}});
   return best||Object.keys(ERAS)[0];
 }
+function standingEffectsHTML(){
+  let h='';
+  const ap=D.players[D.active],ab=ap.board;
+  h+='<div class="tot" style="max-width:1000px"><h3 style="font-size:13px">Standing effects — '+esc(ap.name)+'</h3>'+
+     '';
+  DOMAINS.forEach(d=>{const v=(ab.domains||{})[d]||0;
+    h+='<div style="margin-bottom:8px"><div style="color:var(--dim);font-family:var(--serif);margin-bottom:2px">'+d+' <span class="note">(cube '+v+' · '+domBand(v)+')</span></div>';
+    ["Rising","Established","Sovereign"].forEach(st=>{const eff=(DBOARD[d]||{})[st]||"";const has=v>=STAND_THRESH[st];
+      h+='<div style="display:flex;gap:8px;padding:3px 6px;border-left:3px solid '+(has?'var(--income)':'var(--line)')+';opacity:'+(has?'1':'.55')+';margin-bottom:2px">'+
+         '<span style="min-width:88px;color:'+(has?'var(--income)':'var(--dim2)')+'">'+st+' ('+STAND_THRESH[st]+')</span>'+
+         '<span>'+esc(eff)+'</span></div>';});
+    h+='</div>';});
+  h+='</div>';
+
+  return h;}
 function renderRenown(){
   const host=document.getElementById("viewRenown");
   const era=currentEra(),E=ERAS[era]||{};
   const eraOrder=Object.keys(ERAS).sort((a,b)=>ERAS[a].renown-ERAS[b].renown);
-  let h='<h2 style="margin-bottom:10px">Renown &amp; Domains</h2>';
+  let h='<h2 style="margin:14px 0 10px">Renown &amp; Domains</h2>';
 
   // shared renown + era
   h+='<div class="tot" style="max-width:1000px"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
@@ -3417,19 +3485,6 @@ function renderRenown(){
          '<button class="sdbtn" data-dom="'+d+'" data-delta="-1">−</button><span class="dcv">'+v+'</span>'+
          '<button class="sdbtn" data-dom="'+d+'" data-delta="1">+</button></span>';}).join('')+
      '</div><div style="margin-top:6px"><button id="applyStart">apply to all players</button></div></div>';
-
-  // standing effects (actions) for the active player, achieved highlighted
-  const ap=D.players[D.active],ab=ap.board;
-  h+='<div class="tot" style="max-width:1000px"><h3 style="font-size:13px">Standing effects — '+esc(ap.name)+'</h3>'+
-     '';
-  DOMAINS.forEach(d=>{const v=(ab.domains||{})[d]||0;
-    h+='<div style="margin-bottom:8px"><div style="color:var(--dim);font-family:var(--serif);margin-bottom:2px">'+d+' <span class="note">(cube '+v+' · '+domBand(v)+')</span></div>';
-    ["Rising","Established","Sovereign"].forEach(st=>{const eff=(DBOARD[d]||{})[st]||"";const has=v>=STAND_THRESH[st];
-      h+='<div style="display:flex;gap:8px;padding:3px 6px;border-left:3px solid '+(has?'var(--income)':'var(--line)')+';opacity:'+(has?'1':'.55')+';margin-bottom:2px">'+
-         '<span style="min-width:88px;color:'+(has?'var(--income)':'var(--dim2)')+'">'+st+' ('+STAND_THRESH[st]+')</span>'+
-         '<span>'+esc(eff)+'</span></div>';});
-    h+='</div>';});
-  h+='</div>';
 
   host.innerHTML=h;
   document.getElementById("rnPlus").onclick=()=>{D.renown=Math.min(30,(D.renown||1)+1);save();render();};
@@ -3493,6 +3548,13 @@ function parseSeedCode(s){ // Region/seed/players[/WxH]
   if(!MP[preset]||isNaN(+seed)||!n)return null;
   return {preset,seed:+seed,players:n,w:+wh[0]||def[0],h:+wh[1]||def[1]};
 }
+// map zoom (per device): +/−, or fit to the panel width
+const MAPZ={z:1,fit:false,fitScale(W){const el=document.querySelector("#viewMap .hexwrap");const w=el?el.clientWidth-4:window.innerWidth-24;return Math.max(0.3,Math.min(3,w/W));}};
+try{const mz=JSON.parse(localStorage.getItem("renown_mapz")||"null");if(mz){MAPZ.z=+mz.z||1;MAPZ.fit=!!mz.fit;}}catch(e){}
+function mapZoom(k){if(k==="fit")MAPZ.fit=!MAPZ.fit;else{MAPZ.fit=false;MAPZ.z=Math.max(0.5,Math.min(3,Math.round((MAPZ.z*(k>0?1.25:0.8))*100)/100));}
+  try{localStorage.setItem("renown_mapz",JSON.stringify({z:MAPZ.z,fit:MAPZ.fit}));}catch(e){}renderMap();}
+let MAPSETUP_OPEN=null;   // null = open until terrain is loaded, then remember the player's choice (per device)
+document.addEventListener("click",e=>{const sm=e.target.closest("#mSetup > summary");if(sm)MAPSETUP_OPEN=!sm.parentElement.open;});   // user toggles only
 function mapSVG(M){
   const V=decodeGrid(M.grid),g=M.grid,cols=g?g.width:(M.cols||16),rows=g?g.height:(M.rows||12);
   const R=15,dx=1.5*R,dy=Math.sqrt(3)*R,W=cols*dx+R*2,H=rows*dy+dy,PAL=mapPal(g);
@@ -3500,7 +3562,8 @@ function mapSVG(M){
   const lighten=(hex,k)=>{const n=parseInt(hex.slice(1),16),f=v=>Math.min(255,Math.round(v*k));
     return "#"+[f(n>>16&255),f(n>>8&255),f(n&255)].map(v=>v.toString(16).padStart(2,"0")).join("");};
   const letter={Army:"A",Hamlet:"Ha",Village:"V",Town:"T",City:"C",Metropolis:"M"};
-  let s='<svg width="'+W.toFixed(0)+'" height="'+H.toFixed(0)+'" style="display:block"><defs><pattern id="olh" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="3" height="6" fill="rgba(120,20,20,.45)"/></pattern></defs>';
+  const z=MAPZ.fit?MAPZ.fitScale(W):MAPZ.z;
+  let s='<svg width="'+(W*z).toFixed(0)+'" height="'+(H*z).toFixed(0)+'" viewBox="0 0 '+W.toFixed(0)+' '+H.toFixed(0)+'" style="display:block"><defs><pattern id="olh" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="3" height="6" fill="rgba(120,20,20,.45)"/></pattern></defs>';
   for(let c=0;c<cols;c++)for(let r=0;r<rows;r++){
     const k=c+","+r,cx=R+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0),h=V.hex[k];
     let fill=h?PAL[h.t]:"var(--chip)";if(h&&h.hill)fill=lighten(fill,1.16);
@@ -3576,7 +3639,9 @@ function renderMap(){
   const tools=["Army","Hamlet","Village","Town","City","Metropolis","Outlaw Country","Bandit Camp","Erase"];
   const p=D.players[D.active],era=currentEra();
   const presets=Object.keys(MP),np=D.players.length>=2?Math.min(7,D.players.length):4,def=BOARD_SIZE[np]||BOARD_SIZE[6];
-  let h='<div style="padding:10px;overflow-y:auto;height:100%"><div class="mtoolbar">'+
+  const setupOpen=MAPSETUP_OPEN===null?!g:MAPSETUP_OPEN;
+  let h='<div style="padding:10px;overflow-y:auto;height:100%"><details class="msetup" id="mSetup"'+(setupOpen?' open':'')+'><summary><b>Map setup</b> <span class="note">— '+
+    (g?esc(g.preset)+' · seed '+g.seed+' · '+g.players+' players · '+g.width+'×'+g.height:'no terrain loaded')+'</span></summary><div class="mtoolbar">'+
     (MG?'<select id="mPreset">'+presets.map(n=>'<option'+((g?g.preset:"Default")===n?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select>'+
       ' seed <input id="mSeedN" type="number" value="'+esc(g?g.seed:(M.seed||Math.floor(Math.random()*100000)))+'" style="width:80px">'+
       ' players <input id="mPl" type="number" min="2" max="7" value="'+(g?g.players:np)+'" style="width:46px">'+
@@ -3584,14 +3649,13 @@ function renderMap(){
       ' <button id="mGen">generate</button>':'<span class="note">map generator not bundled — JSON import only</span>')+
     ' <input id="mCode" placeholder="Region/seed/players[/WxH]" style="width:210px" value="'+esc(seedCode(g))+'"><button id="mCodeGo">load code</button>'+
     ' <button id="mImp">import map JSON</button><input type="file" id="mFile" accept="application/json" style="display:none">'+
-    '</div><div class="mtoolbar">tool <select id="mTool">'+tools.map(t=>'<option'+(t===mtool?' selected':'')+'>'+t+'</option>').join('')+'</select>'+
+    '</div>'+(g?'<div class="note" style="margin:0 0 6px">generator '+esc(g.generator||'?')+'</div>':'')+'</details><div class="mtoolbar">tool <select id="mTool">'+tools.map(t=>'<option'+(t===mtool?' selected':'')+'>'+t+'</option>').join('')+'</select>'+
     ' <span class="note">placing as</span> <span class="pdot" style="display:inline-block;background:'+p.color+'"></span> '+esc(p.name)+
     ' <label class="note"><input type="checkbox" id="mRes"'+(M.showRes!==false?' checked':'')+'> resources</label>'+
     ' <label class="note"><input type="checkbox" id="mStarts"'+(M.showStarts?' checked':'')+'> suggested settlement spots</label>'+
     ' <button id="mClear">clear markers</button></div>';
-  h+='<div class="note" style="margin-bottom:6px">'+(g?'Board: <b>'+esc(g.preset)+'</b> seed '+g.seed+' · '+g.players+' players · '+g.width+'×'+g.height+' · generator '+esc(g.generator||'?')+
-      '':'No terrain loaded')+'</div>';
-  h+='<div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap"><div class="hexwrap" style="flex:1;min-width:320px">'+mapSVG(M)+'</div>';
+  h+='<div class="mapzoom"><button data-mz="-1" title="zoom out">−</button><button data-mz="1" title="zoom in">+</button><button data-mz="fit"'+(MAPZ.fit?' class="on"':'')+'>fit</button><span class="note">'+(MAPZ.fit?"fit to width":Math.round(MAPZ.z*100)+"%")+'</span></div>';
+  h+='<div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap"><div class="hexwrap" style="flex:1;min-width:min(320px,100%)">'+mapSVG(M)+'</div>';
   // side panel: outlaw + bandits
   const rep=outlawReport(M);
   h+='<div style="width:420px;max-width:100%"><div class="tot"><h3 style="font-size:13px">Outlaw Country</h3>'+
@@ -3610,7 +3674,7 @@ function renderMap(){
       '<div style="display:flex;gap:4px;margin-top:3px">'+
       '<button class="bcr" data-k="'+k+'" data-r="tactic">tactic roll</button><button class="bcx" data-k="'+k+'">remove</button></div>'+
       (cp.last?'<div class="note">'+esc(cp.last)+'</div>':'')+'</div>';});
-  h+='</div></div></div>'+terrainTablesHTML(mapPal(g))+'</div>';
+  h+='</div></div></div><div class="note" style="margin:8px 0">Terrain, movement and battle-terrain tables are in <a href="#" data-goto="reference#refTerrain">Reference ▸</a></div></div>';
   host.innerHTML=h;
   const $=id=>document.getElementById(id);
   if(MG){$("mGen").onclick=()=>{if(g&&!confirm("Replace the current terrain? Markers stay."))return;
@@ -3701,6 +3765,38 @@ document.getElementById("ver").textContent=DATA.version;
 if(DATA.warnings&&DATA.warnings.length)document.getElementById("assump").innerHTML="<span class='warn'>"+DATA.warnings.join("<br>")+"</span>";
 else document.getElementById("assump").closest("details").remove();
 
+// ---- top bar ⋯ (phones): modules, theme, shape ----
+document.getElementById("tbMore").onclick=()=>{document.body.classList.toggle("tbopen");mnavSync();};
+document.addEventListener("click",e=>{if(document.body.classList.contains("tbopen")&&!e.target.closest("#appMenu,#tbMore,.tbextra"))document.body.classList.remove("tbopen");});
+document.addEventListener("click",e=>{const v=e.target.closest("#viewMap [data-mz]");if(v){mapZoom(v.dataset.mz==="fit"?"fit":+v.dataset.mz);}
+  const b=e.target.closest("[data-bs]");if(b&&b.closest(".bside-nav")){BSIDE=b.dataset.bs;render();}});
+let BSIDE="";   // phone Battle view: which side card to show (per device, not synced)
+// ---- turn strip: Turn · Season · Renown/Era · Phase · Host · End turn (one place for all turn state) ----
+function renderTurnStrip(){const el=document.getElementById("turnStrip");if(!el)return;
+  const ph=tPhase(),hp=hostP(),hc=canHost(),i=T_PH.indexOf(ph),nx=T_PH[(i+1)%T_PH.length];
+  el.innerHTML='<span class="ts-i"><span class="note">Turn</span> <b>'+tTurn()+'</b></span>'+
+    '<span class="ts-i"><button data-ts="sea-" title="previous Season">◂</button><b>'+esc(curSeason())+'</b><button data-ts="sea+" title="next Season">▸</button></span>'+
+    '<span class="ts-i"><span class="note">Renown</span><button data-ts="rn-">−</button><b>'+(D.renown||1)+'</b><button data-ts="rn+">+</button><span class="note">'+esc(currentEra())+'</span></span>'+
+    '<span class="ts-i"><span class="note">Phase</span> <b>'+T_PHL[ph].replace(" Phase","")+'</b>'+(hc?'<button data-ts="ph" title="advance to '+T_PHL[nx]+'">▸</button>':'')+'</span>'+
+    '<span class="ts-i"><span class="note">Host</span> <b>'+(hp?esc(hp.name):'—')+'</b></span>'+
+    (hc?'<button class="ts-end" data-ts="end">End turn</button>':'');}
+document.addEventListener("click",e=>{const b=e.target.closest("#turnStrip [data-ts]");if(!b)return;const k=b.dataset.ts;
+  if(k==="sea-"||k==="sea+"){stepSeason(k==="sea+"?1:-1);save();render();}
+  else if(k==="rn-"||k==="rn+"){D.renown=Math.max(1,Math.min(30,(D.renown||1)+(k==="rn+"?1:-1)));save();render();}
+  else if(k==="ph"){const i=T_PH.indexOf(tPhase());tSetPhase(T_PH[(i+1)%T_PH.length]);}
+  else if(k==="end"){if(tPhase()!=="rest"&&!confirm("End the turn now? (current phase: "+T_PHL[tPhase()]+")"))return;tEndTurn();}});
+// one End turn: with the Table's "every board" toggle on, the Treasury button defers to it
+function syncBoardEndBtn(){const b=document.getElementById("endturn");if(!b)return;const on=!!TB().boardEnd;
+  b.disabled=on;b.title=on?"The End turn button in the turn strip ends every board's turn":"";}
+// ⋯ menu: Game + server panels live here (moved once at startup, ids unchanged)
+(()=>{const m=document.getElementById("appMenu");["gameBox","srvBox"].forEach(id=>{const e=document.getElementById(id);if(e){e.style.marginTop="0";m.appendChild(e);}});})();
+// jump links: data-goto="view", "board:<board|catalog|summary>", "view#elementId"
+document.addEventListener("click",e=>{const a=e.target.closest("[data-goto]");if(!a)return;e.preventDefault();
+  const [v0,anchor]=a.dataset.goto.split("#"),[v,sec]=v0.split(":");D.view=v;
+  if(v==="board"&&sec){const ap=document.getElementById("appBoard");ap.dataset.mc=sec;
+    document.querySelectorAll("#mnav [data-mc]").forEach(x=>x.classList.toggle("on",x.dataset.mc===sec));}
+  render();setTimeout(()=>{const t=anchor?document.getElementById(anchor):(sec&&window.innerWidth<=700?null:document.getElementById(sec==="summary"?"summary":sec==="board"?"boardcol":""));
+    if(t)t.scrollIntoView({behavior:"smooth",block:"start"});else window.scrollTo(0,0);},60);});
 // ---- phone section switcher (Board / Catalog / Totals) ----
 document.querySelectorAll("#mnav [data-mc]").forEach(b=>b.onclick=()=>{document.getElementById("appBoard").dataset.mc=b.dataset.mc;
   document.querySelectorAll("#mnav [data-mc]").forEach(x=>x.classList.toggle("on",x===b));window.scrollTo(0,0);});
