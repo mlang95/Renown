@@ -17,6 +17,7 @@ Run:
     PORT=9000 python server.py
     RENOWN_DB=/path/board.db python server.py
     RENOWN_TOKEN=<secret> python server.py   # require X-Renown-Token on /api/*
+    RENOWN_DUKE_PIN=<pin> python server.py   # PIN for the Duke (admin) on the board (unset = open)
     RENOWN_ORIGIN=https://board.example.com  # lock CORS (default *)
 
 API (JSON):
@@ -46,6 +47,7 @@ HTML   = os.path.join(HERE, "settlement_board.html")
 DB     = os.environ.get("RENOWN_DB", os.path.join(HERE, "renown.db"))
 PORT   = int(os.environ.get("PORT", "8000"))
 TOKEN  = os.environ.get("RENOWN_TOKEN", "")
+ADMIN_PIN = os.environ.get("RENOWN_DUKE_PIN", os.environ.get("RENOWN_ADMIN_PIN", ""))   # unlocks the Duke (admin) on the board; unset = open
 ORIGIN = os.environ.get("RENOWN_ORIGIN", "*")
 
 LOCAL_KEYS = {"active", "view", "theme", "shape", "pursuitView"}   # per-browser UI, never shared
@@ -287,6 +289,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if not self._authed(path):
             return
         body = self._read()
+        if path == "/api/admin":                     # {"pin": "..."} -> {"ok": bool, "open": bool}
+            if not ADMIN_PIN:
+                self._send(200, {"ok": True, "open": True}); return
+            ok = hmac.compare_digest(str(body.get("pin", "")), ADMIN_PIN)
+            self._send(200 if ok else 403, {"ok": ok, "open": False}); return
         name = build_name(path, "/snapshot")
         if name is not None:
             c = db(); c.execute("INSERT INTO snapshots(name,data,ts) VALUES(?,?,?)",
@@ -317,5 +324,6 @@ if __name__ == "__main__":
     print(f"Renown board:  http://localhost:{PORT}")
     print(f"Database:      {DB}")
     print(f"Auth:          {'token required' if TOKEN else 'open (no RENOWN_TOKEN set)'}")
+    print(f"Duke:          {'PIN required' if ADMIN_PIN else 'open (no RENOWN_DUKE_PIN set)'}")
     print("Ctrl-C to stop.")
     Server(("0.0.0.0", PORT), Handler).serve_forever()

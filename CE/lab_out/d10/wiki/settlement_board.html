@@ -408,7 +408,14 @@
   </span>
   <div class="tstrip" id="turnStrip"></div>
 </div>
-<div class="appmenu" id="appMenu"></div>
+<div class="appmenu" id="appMenu">
+  <details class="tot" id="adminBox" style="margin-top:0"><summary style="cursor:pointer" class="note">Duke <span id="adminState"></span></summary>
+    <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center">
+      <input id="adminPin" type="password" placeholder="Duke PIN" style="flex:1;min-width:90px" autocomplete="off">
+      <button id="adminOn">unlock</button><button id="adminOff">lock</button></div>
+    <div class="note" style="margin-top:4px">The Duke can act for any player, run every Host control (phases, End turn, skips, seats), and load or start games. Per browser tab; set the PIN with RENOWN_DUKE_PIN on the server.</div>
+  </details>
+</div>
 <div class="mnav" id="mnav"><button data-mc="board" class="on">Board</button><button data-mc="catalog">Catalog</button><button data-mc="summary">Totals</button></div>
 <div class="app" id="appBoard" data-mc="board">
   <!-- CATALOG -->
@@ -506,6 +513,7 @@
     </div>
 
     <div class="tot" id="inflBox"></div>
+    <div class="tot" id="timerBox"></div>
 
     <div class="tot">
       <h3 style="font-size:13px">Net gold by season</h3>
@@ -3408,6 +3416,8 @@ function tnow(){return Date.now()+SKEW;}
 function noteServerDate(r){try{const d=Date.parse(r.headers.get("date")||"");if(isNaN(d))return;
   const s=d+500-Date.now();SKEW=SKEW_N?Math.round(SKEW*0.8+s*0.2):s;SKEW_N++;}catch(e){}}
 let HOTSEAT=false;try{HOTSEAT=localStorage.getItem("renown_hotseat")==="1";}catch(e){}
+// The Duke (admin; per browser session): acts for anyone and has every Host control. Unlocked by the server's RENOWN_DUKE_PIN.
+let ADMIN=false;try{ADMIN=sessionStorage.getItem("renown_admin")==="1";}catch(e){}
 
 function TB(){D.tbl=D.tbl||{};D.tbl.skip=D.tbl.skip||{};return D.tbl;}
 function tSeats(){return Math.max(+TB().seats||6,D.players.length);}
@@ -3420,7 +3430,7 @@ function tCur(p){const x=PT(p);return (x.cur&&x.cur.turn===tTurn())?x.cur:{turn:
 function tCurW(p){const x=PT(p);if(!x.cur||x.cur.turn!==tTurn())x.cur={turn:tTurn(),votes:{}};x.cur.votes=x.cur.votes||{};return x.cur;}
 function sameP(a,b){return !!a&&!!b&&String(a.id)===String(b.id);}
 function meP(){return D.players[D.active];}
-function canAct(p){return HOTSEAT||sameP(meP(),p);}
+function canAct(p){return HOTSEAT||ADMIN||sameP(meP(),p);}
 
 // ---- seating (seat index increases clockwise; ties on a seat go to whoever sat first) ----
 function seatMap(){const n=tSeats(),m={};
@@ -3430,8 +3440,8 @@ function seatMap(){const n=tSeats(),m={};
 function seated(){const m=seatMap();return Object.keys(m).map(Number).sort((a,b)=>a-b).map(i=>m[i]);}
 function hostP(){const s=seated();return s.find(p=>String(p.id)===String(TB().host))||s[0]||null;}
 function tOrder(){const s=seated();if(!s.length)return [];const i=s.indexOf(hostP());return s.slice(i+1).concat(s.slice(0,i+1));}
-function canHost(){const h=hostP();return HOTSEAT||!h||sameP(meP(),h);}
-function seatsLocked(){const ph=tPhase();return (ph==="council"||ph==="envoy")&&!!TB().phaseTs;}
+function canHost(){const h=hostP();return HOTSEAT||ADMIN||!h||sameP(meP(),h);}
+function seatsLocked(){if(ADMIN)return false;const ph=tPhase();return (ph==="council"||ph==="envoy")&&!!TB().phaseTs;}
 
 // ---- influence, standings, envoys ----
 function tStand(p,dom){return domBand((p.board.domains||{})[dom]||0);}
@@ -3586,6 +3596,7 @@ function tEndTurn(){const t=TB(),ord=tOrder();
     t.hist=t.hist||{};t.hist[tTurn()]={turn:tTurn(),season:curSeason(),rows};
     Object.keys(t.hist).map(Number).sort((a,b)=>b-a).slice(6).forEach(k=>delete t.hist[k]);}
   stepSeason(1);
+  if(t.boardEnd){const w=curSeason()==="Winter";realmTimers().forEach(x=>{if(w&&x.type==="Siege Timer")return;if(x.n>0)x.n--;});}
   if(curSeason()!=="Spring"&&ord.length>1)t.host=String(ord[0].id);   // Host passes clockwise, except in Spring
   t.turn=tTurn()+1;t.phase="empire";t.phaseTs=0;t.skip={};t.councilTie=null;save();render();}
 function tAutoSeat(){const m=seatMap(),n=tSeats();let i=0;
@@ -3676,7 +3687,7 @@ function renderTable(){
     const E=R.curEnvoy;
     if(E){if(sameP(E.owner,p))body+='<div class="tb-vote">sending '+esc(E.dom)+'</div>';
       else{const v=E.votes.find(q=>sameP(q.who,p));body+='<div class="tb-vote">'+(v?tVoteTxt(v):sameP(p,cw)?'<span class="note">to act <span class="tbcd"></span></span>':'<span class="note">…</span>')+'</div>';}}
-    if(!seatsLocked()&&sameP(p,me))body+='<button data-stand="1" class="tb-mini">stand</button>';
+    if((!seatsLocked()&&sameP(p,me))||ADMIN)body+='<button data-stand="'+p.id+'" class="tb-mini">stand</button>';
     seats+='<div class="'+cls.join(" ")+'" style="left:'+x+'%;top:'+y+'%">'+body+'</div>';}
   // --- centre of the felt ---
   let ctr='<div class="note">Turn '+tTurn()+' · '+esc(curSeason())+' · '+esc(currentEra())+'</div><h2>'+T_PHL[ph]+'</h2>';
@@ -3708,9 +3719,9 @@ function renderTable(){
   const pan=tPanel(R);
   host.innerHTML='<div class="tb-wrap"><div><div class="tb-felt">'+'<div class="tb-oval"></div><div class="tb-center">'+ctr+'</div>'+seats+'</div>'+
     (D.players.some(p=>!Object.values(sm).includes(p))?'<div class="note">Not seated: '+D.players.filter(p=>!Object.values(sm).includes(p)).map(p=>esc(p.name)).join(", ")+' — seated players only take part.</div>':'')+
-    '<div class="tot"><h3 style="font-size:13px">Log</h3>'+(log||'<div class="note">Nothing resolved yet this phase.</div>')+'</div>'+tHistHtml()+activityHtml()+'</div>'+
+    '<div class="tot"><h3 style="font-size:13px">Log</h3>'+(log||'<div class="note">Nothing resolved yet this phase.</div>')+'</div>'+activeTimersHTML()+tHistHtml()+activityHtml()+'</div>'+
     '<div class="tb-panel">'+pan+'</div></div>';
-  tWire(host,R);tCountdown(R);}
+  tWire(host,R);wireDashExtras(host);tCountdown(R);}
 
 function tPanel(R){
   const t=TB(),ph=tPhase(),me=meP(),E=R.curEnvoy,cw=R.cur?R.cur.who:null;let h="";
@@ -3807,7 +3818,7 @@ function tWire(host,R){
   const byId=id=>D.players.find(p=>String(p.id)===String(id));
   const commit=()=>{save();renderTable();};
   host.querySelectorAll("[data-sit]").forEach(b=>b.onclick=()=>{const x=PT(meP());x.seat=+b.dataset.sit;x.seatTs=tnow();commit();});
-  host.querySelectorAll("[data-stand]").forEach(b=>b.onclick=()=>{const x=PT(meP());delete x.seat;delete x.seatTs;commit();});
+  host.querySelectorAll("[data-stand]").forEach(b=>b.onclick=()=>{const p=byId(b.dataset.stand)||meP(),x=PT(p);delete x.seat;delete x.seatTs;commit();});
   const hot=host.querySelector("#tbHot");if(hot)hot.onchange=()=>{HOTSEAT=hot.checked;try{localStorage.setItem("renown_hotseat",HOTSEAT?"1":"0");}catch(e){}renderTable();};
   host.querySelectorAll("[data-cv]").forEach(b=>b.onclick=()=>{const p=byId(b.dataset.who),c=tCurW(p);
     if(b.dataset.cv)c.council={dom:b.dataset.cv,ts:tnow()};else delete c.council;commit();});
@@ -4402,6 +4413,7 @@ function render(){
   renderInfraSection("infra",INFRA,S.infra,hideCombat);
   renderInfraSection("wonder",WON,S.wonders,hideCombat);
   renderArmy();
+  {const tb=document.getElementById("timerBox");if(tb){tb.innerHTML=timerAddHTML();wireDashExtras(tb);}}
   computeTotals(have,earned,tc);
   renderSettlements();
   renderPO();
@@ -5321,6 +5333,22 @@ function siegeHTML(){const sg=siegeState(),c=siegeCalc(),C=(DATA.siege||{}).calc
   return h;}
 // ---- realm timers ----
 function realmTimers(){D.rtimers=D.rtimers||[];return D.rtimers;}
+function timerAddHTML(){const keys=Object.keys(TMR),p=D.players[D.active]||{};
+  return '<h3 style="font-size:13px">Start a timer</h3><div class="bcrow" style="margin-top:6px;flex-wrap:wrap"><select id="rtType">'+keys.map(k=>'<option>'+esc(k)+'</option>').join('')+'</select>'+
+    '<input id="rtLabel" placeholder="label (e.g. target)" style="width:150px"><input id="rtN" type="number" style="width:56px" value="'+(((TMR[keys[0]]||{}).default)||1)+'">'+
+    '<button id="rtAdd">start</button></div><div class="note">Shared with everyone; listed on the Table under Active timers. Build and Repair timers are set on each Pursuit card.</div>';}
+function boardTimerRows(){const R_=[];
+  D.players.forEach(p=>{const b=p.board,sn=id=>{const x=(b.settlements||[]).find(s=>s.id===id);return x?(x.name||x.tier):"";};
+    (b.placed||[]).forEach(q=>{if(q.bt>0)R_.push([p,"Build Timer",q.name+" · "+sn(q.sid),q.bt]);if(q.dmg>0)R_.push([p,"Repair Timer",q.name+" · "+sn(q.sid),q.dmg]);});
+    Object.keys(b.itimer||{}).forEach(n=>R_.push([p,"Build Timer",n,b.itimer[n]]));Object.keys(b.idmg||{}).forEach(n=>R_.push([p,"Repair Timer",n,b.idmg[n]]));
+    (b.settlements||[]).forEach(s=>{if(s.bt>0)R_.push([p,"Build Timer",(s.name||s.tier)+" (settlement)",s.bt]);});});
+  return R_;}
+function activeTimersHTML(){const T=realmTimers(),B_=boardTimerRows();
+  return '<div class="tot"><h3 style="font-size:13px">Active timers</h3>'+
+    (T.length?'<table class="dtable ttab"><tbody>'+T.map((t,i)=>'<tr'+(t.n<=0?' class="broll"':'')+'><td>'+esc(t.type)+'</td><td>'+esc(t.label||'')+'</td><td class="num"><button class="rtd" data-i="'+i+'" data-d="-1">−</button> <b>'+t.n+'</b> <button class="rtd" data-i="'+i+'" data-d="1">+</button></td><td><button class="rtx" data-i="'+i+'">✕</button></td></tr>').join('')+'</tbody></table>':'<div class="note">No realm timers.</div>')+
+    (T.length?'<div class="bcrow" style="margin-top:6px"><button id="rtTick">−1 all</button><span class="note">Sieges don\'t tick in Winter.'+(TB().boardEnd?' End turn ticks these too.':'')+'</span></div>':'')+
+    (B_.length?'<div class="lbl" style="margin-top:8px">Build & Repair (set on each Board)</div><table class="dtable ttab"><tbody>'+B_.map(r=>'<tr><td><span class="pdot" style="background:'+r[0].color+'"></span>'+esc(r[0].name)+'</td><td>'+esc(r[1])+'</td><td>'+kwify(r[2])+'</td><td class="num"><b>'+r[3]+'</b></td></tr>').join('')+'</tbody></table>':'')+
+    '</div>';}
 function timersHTML(){const T=realmTimers(),keys=Object.keys(TMR);
   return '<div class="tot" style="margin-top:12px"><h3 style="font-size:13px">Timers</h3>'+
     (T.length?'<table class="dtable ttab" style="max-width:640px"><tbody>'+T.map((t,i)=>'<tr'+(t.n<=0?' class="broll"':'')+'><td>'+esc(t.type)+'</td><td>'+esc(t.label||'')+'</td><td class="num"><button class="rtd" data-i="'+i+'" data-d="-1">−</button> '+t.n+' <button class="rtd" data-i="'+i+'" data-d="1">+</button></td><td><button class="rtx" data-i="'+i+'">✕</button></td></tr>').join('')+'</tbody></table>':'')+
@@ -5344,7 +5372,7 @@ function wireDashExtras(host){const $=id=>host.querySelector("#"+id),sg=siegeSta
   on("sgAtt","onchange",e=>{sg.att=Math.round(+e.target.value)||0;save();setTimeout(render,0);});
   on("sgStart","onclick",()=>{const c=siegeCalc();realmTimers().push({type:c.mode==="Convert"?"Convert Timer":"Siege Timer",label:c.p.name+" · "+(c.st?c.st.tier:""),n:c.total});save();render();});
   on("rtType","onchange",e=>{const d=(TMR[e.target.value]||{}).default;$("rtN").value=d==null?1:d;});
-  on("rtAdd","onclick",()=>{realmTimers().push({type:$("rtType").value,label:$("rtLabel").value,n:Math.round(+$("rtN").value)||0});save();render();});
+  on("rtAdd","onclick",()=>{const p=D.players[D.active]||{};realmTimers().push({type:$("rtType").value,label:($("rtLabel").value||"")+(p.name?" — "+p.name:""),pid:p.id,n:Math.round(+$("rtN").value)||0});save();render();});
   on("rtTick","onclick",()=>{const w=curSeason()==="Winter";realmTimers().forEach(t=>{if(w&&t.type==="Siege Timer")return;if(t.n>0)t.n--;});save();render();});
   host.querySelectorAll(".rtd").forEach(b=>b.onclick=()=>{const t=realmTimers()[+b.dataset.i];t.n=Math.max(0,t.n+(+b.dataset.d));save();render();});
   host.querySelectorAll(".rtx").forEach(b=>b.onclick=()=>{realmTimers().splice(+b.dataset.i,1);save();render();});}
@@ -5378,7 +5406,7 @@ function renderDash(){
       '<td class="num"'+(dover?' style="color:var(--upkeep)"':'')+'>'+dsum+'/'+dmax+(dover?' ⚠':'')+'</td>'+
       '<td class="note">'+(sov.length?sov.join(", "):"—")+'</td></tr>';
   });
-  h+='</tbody></table>'+timersHTML();host.innerHTML=h;
+  h+='</tbody></table>'+edictBoardHTML()+standingsBoardHTML();host.innerHTML=h;
   wireDashExtras(host);
   if(mods().diplomacy){host.insertAdjacentHTML("beforeend",diploHTML());wireDiplo(host);}
 }
@@ -5931,9 +5959,6 @@ function renderRenown(){
      '</tbody></table>'+
      (E.envoys?'<div class="note" style="margin-top:6px">Envoys: '+esc(E.envoys)+'</div>':'')+'</div>';
 
-  h+=edictBoardHTML();
-
-  h+=standingsBoardHTML();
 
   // starting universe (default domain allocation)
   h+='<div class="tot" style="max-width:1000px"><h3 style="font-size:13px">Starting universe — domains new players begin with</h3>'+
@@ -5947,7 +5972,8 @@ function renderRenown(){
   document.getElementById("rnPlus").onclick=()=>{D.renown=Math.min(30,(D.renown||1)+1);save();render();};
   document.getElementById("rnMinus").onclick=()=>{D.renown=Math.max(1,(D.renown||1)-1);save();render();};
   document.getElementById("rnVal").onchange=e=>{D.renown=Math.max(1,Math.min(30,+e.target.value||1));save();render();};
-  host.querySelectorAll(".dcbtn").forEach(b=>b.onclick=()=>{
+  const realm=document.getElementById("viewRealm");
+  realm.querySelectorAll(".dcbtn").forEach(b=>b.onclick=()=>{
     const i=+b.dataset.pi,dom=b.dataset.dom,dl=+b.dataset.delta,bd=D.players[i].board;
     bd.domains=bd.domains||{};bd.domains[dom]=Math.max(0,Math.min(SOV,(bd.domains[dom]||0)+dl));save();render();});
   host.querySelectorAll(".sdbtn").forEach(b=>b.onclick=()=>{
@@ -5956,7 +5982,7 @@ function renderRenown(){
   const ap2=document.getElementById("applyStart");if(ap2)ap2.onclick=()=>{
     if(confirm("Set every player's domains to the starting values?")){
       D.players.forEach(p=>{p.board.domains=Object.assign({},D.startDomains);});save();render();}};
-  wireEdicts(host);
+  wireEdicts(realm);
 }
 
 // ---- Map view ----
@@ -6228,6 +6254,21 @@ document.addEventListener("click",e=>{if(document.body.classList.contains("tbope
 document.addEventListener("click",e=>{const v=e.target.closest("#viewMap [data-mz]");if(v){mapZoom(v.dataset.mz==="fit"?"fit":+v.dataset.mz);}
   const b=e.target.closest("[data-bs]");if(b&&b.closest(".bside-nav")){BSIDE=b.dataset.bs;render();}});
 let BSIDE="";   // phone Battle view: which side card to show (per device, not synced)
+// ---- admin unlock ----
+function adminUI(){const st=document.getElementById("adminState");if(st)st.innerHTML=ADMIN?'<b style="color:var(--order)">ON</b>':'off';
+  document.body.classList.toggle("is-admin",ADMIN);}
+async function adminSet(on){
+  if(!on){ADMIN=false;try{sessionStorage.removeItem("renown_admin");}catch(e){}adminUI();render();flash("the Duke steps down");return;}
+  const pin=(document.getElementById("adminPin")||{}).value||"";
+  if(API.online){let ok=false,open=false;
+    try{const h={"Content-Type":"application/json"};if(TOKEN)h["X-Renown-Token"]=TOKEN;
+      const r=await fetch("/api/admin",{method:"POST",headers:h,body:JSON.stringify({pin})});const j=await r.json().catch(()=>({}));ok=!!j.ok;open=!!j.open;}catch(e){}
+    if(!ok){flash("wrong Duke PIN");return;}if(open)flash("Duke unlocked (server has no PIN set)");}
+  ADMIN=true;try{sessionStorage.setItem("renown_admin","1");}catch(e){}const pi=document.getElementById("adminPin");if(pi)pi.value="";
+  adminUI();render();if(API.online)flash("the Duke presides");else flash("Duke unlocked (offline)");}
+document.getElementById("adminOn").onclick=()=>adminSet(true);document.getElementById("adminOff").onclick=()=>adminSet(false);
+document.getElementById("adminPin").onkeydown=e=>{if(e.key==="Enter")adminSet(true);};
+adminUI();
 // ---- turn strip: Turn · Season · Renown/Era · Phase · Host · End turn (one place for all turn state) ----
 function renderTurnStrip(){const el=document.getElementById("turnStrip");if(!el)return;
   const ph=tPhase(),hp=hostP(),hc=canHost(),i=T_PH.indexOf(ph),nx=T_PH[(i+1)%T_PH.length];
@@ -6236,7 +6277,7 @@ function renderTurnStrip(){const el=document.getElementById("turnStrip");if(!el)
     '<span class="ts-i"><span class="note">Renown</span><button data-ts="rn-">−</button><b>'+(D.renown||1)+'</b><button data-ts="rn+">+</button><span class="note">'+esc(currentEra())+'</span></span>'+
     '<span class="ts-i"><span class="note">Phase</span> <b>'+T_PHL[ph].replace(" Phase","")+'</b>'+(hc?'<button data-ts="ph" title="advance to '+T_PHL[nx]+'">▸</button>':'')+'</span>'+
     '<span class="ts-i"><span class="note">Host</span> <b>'+(hp?esc(hp.name):'—')+'</b></span>'+
-    (hc?'<button class="ts-end" data-ts="end">End turn</button>':'');}
+    (ADMIN?'<span class="ts-i"><b style="color:var(--order)">♛ DUKE</b></span>':'')+(hc?'<button class="ts-end" data-ts="end">End turn</button>':'');}
 document.addEventListener("click",e=>{const b=e.target.closest("#turnStrip [data-ts]");if(!b)return;const k=b.dataset.ts;
   if(k==="sea-"||k==="sea+"){stepSeason(k==="sea+"?1:-1);save();render();}
   else if(k==="rn-"||k==="rn+"){D.renown=Math.max(1,Math.min(30,(D.renown||1)+(k==="rn+"?1:-1)));save();render();}
@@ -6365,7 +6406,7 @@ function activityHtml(){const rows=D.players.map(p=>{const L=(p.board.act||[]).s
 
 // ===================== GAME: save · load · new =====================
 const GAME_PREFIX="game: ";
-function gameAllowed(){return !(typeof SYNC!=="undefined"&&SYNC.ready)||HOTSEAT||D.players.length<2||canHost();}
+function gameAllowed(){return !(typeof SYNC!=="undefined"&&SYNC.ready)||HOTSEAT||ADMIN||D.players.length<2||canHost();}
 function gameData(){return JSON.parse(JSON.stringify(D,function(k,v){if(this===D&&(k==="view"||k==="active"))return undefined;return v;}));}
 function refreshGames(list){const sel=document.getElementById("gameList");if(!sel)return;
   const g=(list||[]).filter(b=>String(b.name).startsWith(GAME_PREFIX));
