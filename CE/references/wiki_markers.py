@@ -191,6 +191,26 @@ _LIST_SRC = {"ALLIANCE_RULES": lambda: getattr(rd, "ALLIANCE_RULES", [])}
 
 BLOCK_MK = re.compile(r"^\s*\{\{(TABLE|ACTIONS|LIST|COLS):([^}]+)\}\}\s*$")
 
+def _docx_table_fallback(name):
+    """Render a {{TABLE:name}} that only docx_tables.py implements: read its WordprocessingML rows back into HTML,
+    so the wiki / board show the same table as Rules.docx instead of '[unknown table]'."""
+    try:
+        import docx_tables as _dt
+        if name not in _dt.REGISTRY: return None
+        xml = _dt.get(name)
+    except Exception:
+        return None
+    rows = []
+    for tr in re.findall(r"<w:tr\b.*?</w:tr>", xml, re.S):
+        cells = []
+        for tc in re.findall(r"<w:tc\b.*?</w:tc>", tr, re.S):
+            paras = ["".join(re.findall(r"<w:t(?:\s[^>]*)?>(.*?)</w:t>", pp, re.S)) for pp in re.findall(r"<w:p\b.*?</w:p>", tc, re.S)]
+            txt = " ".join(x for x in paras if x.strip())
+            cells.append(html.unescape(txt))
+        if cells: rows.append(cells)
+    if not rows: return None
+    return _htable(rows[0], rows[1:])
+
 def block_html(line):
     """Return HTML for a block-marker line, "" for COLS (print-only), or None if
     the line isn't a block marker."""
@@ -202,7 +222,9 @@ def block_html(line):
         return ""                       # column breaks are a print concern; drop
     if kind == "TABLE":
         r = TABLE_RENDER.get(arg)
-        return r() if r else f"<p><em>[unknown table: {html.escape(arg)}]</em></p>"
+        if r: return r()
+        fb = _docx_table_fallback(arg)             # tables only docx_tables knows: reuse its rows
+        return fb if fb is not None else f"<p><em>[unknown table: {html.escape(arg)}]</em></p>"
     if kind == "ACTIONS":
         return _render_actions(arg)
     if kind == "LIST":

@@ -214,6 +214,64 @@ def combine_effects(innate, mastery):
         out.append(f"{k[1]} {sv}" if k[0] == "w" else f"{sv} {k[1]}")
     return "; ".join(out + texts)
 
+def rules_payload(ns, rules_path):
+    """RULES md -> HTML for the Reference view: {{VAL:}} / {{TABLE:}} resolved via wiki_markers (same as the wiki).
+    Returns {"html":…, "toc":[[level, id, title], …]} or None."""
+    if not rules_path or not os.path.exists(rules_path): return None
+    try:
+        import types, html as _h
+        if "renown_data" not in sys.modules:                 # wiki_markers does `import renown_data`; hand it the loaded data
+            m = types.ModuleType("renown_data"); m.__dict__.update(ns); sys.modules["renown_data"] = m
+        here = os.path.dirname(os.path.abspath(__file__))
+        if here not in sys.path: sys.path.insert(0, here)
+        import wiki_markers as wm
+    except Exception as e:
+        print(f"  (rulebook: wiki_markers unavailable - {e})"); return None
+    def slug(t): return re.sub(r"[^a-z0-9]+", "-", t.lower()).strip("-")
+    def inline(t):
+        t = _h.escape(t)
+        t = re.sub(r"\*\*\*(.+?)\*\*\*", r"<strong><em>\1</em></strong>", t)
+        t = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", t)
+        t = re.sub(r"\*(.+?)\*", r"<em>\1</em>", t)
+        return re.sub(r"`(.+?)`", r"<code>\1</code>", t)
+    md = wm.preprocess_inline(open(rules_path, encoding="utf-8").read())
+    out, toc, stack, lines, i, seen = [], [], [], md.split("\n"), 0, {}
+    def close():
+        while stack: out.append("</ul>"); stack.pop()
+    while i < len(lines):
+        ln = lines[i].rstrip()
+        if not ln.strip(): close(); i += 1; continue
+        m = re.match(r"^(#{1,6})\s+(.*)$", ln)
+        if m:
+            close(); lvl = len(m.group(1)); t = m.group(2).strip(); sid = "rb-" + slug(t)
+            seen[sid] = seen.get(sid, 0) + 1
+            if seen[sid] > 1: sid += f"-{seen[sid]}"
+            out.append(f"<h{min(lvl+1,6)} id='{sid}'>{inline(t)}</h{min(lvl+1,6)}>")
+            if lvl <= 2: toc.append([lvl, sid, re.sub(r"[*`]", "", t)])
+            i += 1; continue
+        bh = wm.block_html(ln.strip())
+        if bh is not None: close(); out.append(bh); i += 1; continue
+        if "|" in ln and i + 1 < len(lines) and re.match(r"^\s*\|?[\s:\-|]+\|[\s:\-|]*$", lines[i+1].rstrip()) and "-" in lines[i+1]:
+            close()
+            cells = lambda r: [c.strip() for c in r.strip().strip("|").split("|")]
+            head = cells(ln); i += 2; body = []
+            while i < len(lines) and "|" in lines[i] and lines[i].strip(): body.append(cells(lines[i])); i += 1
+            out.append("<table class='dtable'><thead><tr>" + "".join(f"<th>{inline(c)}</th>" for c in head) + "</tr></thead><tbody>"
+                       + "".join("<tr>" + "".join(f"<td>{inline(c)}</td>" for c in r) + "</tr>" for r in body) + "</tbody></table>")
+            continue
+        lm = re.match(r"^(\s*)([-*]|\d+\.)\s+(.*)$", ln)
+        if lm:
+            ind = len(lm.group(1).replace("\t", "    "))
+            if not stack or ind > stack[-1]: out.append("<ul>"); stack.append(ind)
+            else:
+                while len(stack) > 1 and ind < stack[-1]: out.append("</ul>"); stack.pop()
+            out.append("<li>" + inline(lm.group(3)) + "</li>"); i += 1; continue
+        close(); out.append("<p>" + inline(ln.strip()) + "</p>"); i += 1
+    close()
+    left = re.findall(r"\{\{[^}]*\}\}", "\n".join(out))
+    if left: print(f"  (rulebook: {len(left)} unresolved markers, e.g. {left[0]})")
+    return {"html": "\n".join(out), "toc": toc}
+
 def tree_payload(ns, here):
     """Tech-tree charts: layout.json positions + builds_into / mastery_req edges (same graph as render_tree.py)."""
     path = os.path.join(here, "layout.json")
@@ -286,7 +344,9 @@ def build(ns):
             "mreq_raw": strip_md(v.get("mastery_req", "")),
             "unlock_raw": strip_md(str(v.get("unlock", "") or "")),
             "combo": combine_effects(v.get("innate", ""), v.get("mastery", "")),
-            "efficient": strip_md(v.get("efficient", "")),
+            "builds_into": [b for b in (v.get("builds_into") or []) if b in N],
+            "mastery_for": [m for m, mv in N.items() if m != name and name in re.split(r"\s*(?:\+|/|\bor\b)\s*", strip_md(str(mv.get("mastery_req") or "")))],
+            "efficient": [strip_md(x) for x in (v.get("efficient") if isinstance(v.get("efficient"), (list, tuple)) else [v.get("efficient")]) if x and strip_md(x) not in ("-", "\u2014")],
             "innate": innate, "mastery": mastery, "mreq": mreq,
             "innate_fx": envoy_fx(v.get("innate", "")), "mastery_fx": envoy_fx(v.get("mastery", "")),
         }
@@ -722,7 +782,14 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .tstrip .ts-end{margin-left:auto;border-color:var(--order);font-weight:600}
   .tb-check div{padding:1px 0}.tb-check a,.refnav a{color:var(--build)}
   .refnav{margin-bottom:10px}
-  .tchart{margin:10px 0 14px}.tscroll{overflow-x:auto;padding-bottom:4px}.tcanvas{position:relative}.tcanvas svg{position:absolute;left:0;top:0}
+  .rbtoc{display:flex;flex-wrap:wrap;gap:4px 12px;margin:6px 0 10px;padding:6px 8px;border:1px solid var(--line);border-radius:var(--radius-sm)}
+  .rbtoc a{color:var(--build)}.rbtoc a.l1{font-weight:600}
+  .rbody{max-width:900px;line-height:1.5}.rbody h2{font-size:20px;margin:18px 0 6px}.rbody h3{font-size:16px;margin:14px 0 4px}.rbody h4{font-size:14px;margin:10px 0 4px}
+  .rbody p{margin:6px 0}.rbody ul{margin:4px 0 4px 20px;padding:0}.rbody table{margin:8px 0}
+  .ignb{font-size:10px;padding:0 6px;min-height:0;margin-left:4px;opacity:.75}.ignb:hover{opacity:1}
+  .nxrow{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}.nx{font-size:11px;padding:1px 6px;border:1px solid var(--line2);border-radius:var(--radius-sm);background:var(--panel)}
+  .nx.have{border-color:var(--income);color:var(--income)}
+  .tchart{margin:6px 0 10px}.tchart>summary,#refTree>summary{cursor:pointer;padding:3px 0}.tchart[open]>summary{margin-bottom:6px}.tscroll{overflow-x:auto;padding-bottom:4px}.tcanvas{position:relative}.tcanvas svg{position:absolute;left:0;top:0}
   .tn{position:absolute;box-sizing:border-box;border:1.5px solid;border-left-width:5px;border-radius:var(--radius-sm);background:var(--panel);padding:3px 6px;overflow:hidden;font-size:11px;line-height:1.25}
   .tn.mon{background:color-mix(in srgb,var(--sel) 45%,var(--panel));border-width:2px;border-left-width:5px}
   .tn.have{box-shadow:0 0 0 2px var(--income)}
@@ -841,7 +908,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   <!-- BOARD -->
   <div class="col" id="boardcol">
     <div class="facbox" id="facBox"></div>
-    <div class="hd"><h2>Board</h2><span class="v" id="poolcount"></span></div>
+    <div class="hd"><h2>Board</h2><span class="v" id="poolcount"></span><span class="v" id="ignNote"></span></div>
     <div class="toolbar">
       <button id="clear">clear all</button>
       <button id="export">export</button>
@@ -1207,10 +1274,11 @@ function tSetPhase(ph){const t=TB();t.phase=ph;t.phaseTs=(ph==="council"||ph==="
   if(ph==="council")t.councilTie=null;save();render();}
 function tEndTurn(){const t=TB(),ord=tOrder();
   if(t.auto)D.players.forEach(p=>{const ap=tCur(p).applied||{};p.board.condemned=Object.values(ap).filter(a=>a.out==="Condemned").length;});
+  const endedSeason=curSeason();
+  stepSeason(1);                                                                // new turn's Season: its Empire Phase income applies below
   if(t.boardEnd){const rows=D.players.map(p=>Object.assign({pid:String(p.id),name:p.name,color:p.color},boardEndTurn(p.board)));
-    t.hist=t.hist||{};t.hist[tTurn()]={turn:tTurn(),season:curSeason(),rows};
+    t.hist=t.hist||{};t.hist[tTurn()]={turn:tTurn(),season:endedSeason,next:curSeason(),rows};
     Object.keys(t.hist).map(Number).sort((a,b)=>b-a).slice(6).forEach(k=>delete t.hist[k]);}
-  stepSeason(1);
   if(t.boardEnd){const w=curSeason()==="Winter";realmTimers().forEach(x=>{if(w&&x.type==="Siege Timer")return;if(x.n>0)x.n--;});}
   if(curSeason()!=="Spring"&&ord.length>1){t.host=String(ord[0].id);t.hostSet=true;}   // Host passes clockwise, except in Spring
   t.turn=tTurn()+1;t.phase="empire";t.phaseTs=0;t.skip={};t.councilTie=null;save();render();}
@@ -1236,7 +1304,7 @@ function tOutCls(o){return o==="Endorsed"||o==="Passed"?"pos":"neg";}
 function tHistHtml(){const H=TB().hist||{},ks=Object.keys(H).map(Number).sort((a,b)=>b-a);if(!ks.length)return "";
   const f=v=>(v<0?"\u2212":"+")+Math.abs(v).toLocaleString();
   const one=h=>h.rows.map(r=>'<div class="tb-lg"><span class="pdot" style="background:'+r.color+'"></span><b>'+esc(r.name)+'</b> — '+
-    (r.applied?'Gold <b class="'+(r.net<0?"neg":"pos")+'">'+f(r.net)+'</b> <span class="note">('+r.g0.toLocaleString()+' → '+r.g1.toLocaleString()+')</span>'
+    (r.applied?'Gold <b class="'+(r.net<0?"neg":"pos")+'">'+f(r.net)+'</b> <span class="note">('+r.g0.toLocaleString()+' → '+r.g1.toLocaleString()+(r.tax?'; incl. Winter tax '+f(r.tax):'')+(r.seasonal?'; '+esc(r.season||'')+' '+f(r.seasonal):'')+')</span>'
              :'Gold <span class="note">not applied (auto-apply off; net '+f(r.net)+')</span>')+
     ' · PO <b class="'+(r.p1-r.p0<0?"neg":r.p1-r.p0>0?"pos":"")+'">'+f(r.p1-r.p0)+'</b> <span class="note">(Faith−Doubt '+f(r.fd)+(r.pm?', modifiers '+f(r.pm):'')+'; '+r.p0+' → '+r.p1+')</span>'+
     (r.regained?' · Endurance +'+r.regain+' to '+r.regained+' Arm'+(r.regained>1?'ies':'y'):'')+
@@ -1268,6 +1336,16 @@ function empireChecklistHTML(){const sea=curSeason(),auto=!!TB().boardEnd;
     ["Income & upkeep","board:summary","Totals"],["Public Order (Faith − Doubt)","board:summary","Totals"],["Armies regain Endurance","board:board","Board"]].filter(Boolean);
   return '<div class="tb-check">'+L.map(x=>'<div>'+esc(x[0])+(x[1]?' <a href="#" data-goto="'+x[1]+'">'+x[2]+' ▸</a>':' <span class="note">(this panel)</span>')+'</div>').join("")+
     (auto?'<div class="note">End turn applies timers, income, PO and Endurance to every board.</div>':'')+'</div>';}
+// which tree charts are open (per device); the whole section's state too
+let TREE_OPEN=new Set(),TREE_SEC=true;
+try{TREE_OPEN=new Set(JSON.parse(localStorage.getItem("renown_tree_open")||"[]"));TREE_SEC=localStorage.getItem("renown_tree_sec")!=="0";}catch(e){}
+function treeSave(){try{localStorage.setItem("renown_tree_open",JSON.stringify([...TREE_OPEN]));localStorage.setItem("renown_tree_sec",TREE_SEC?"1":"0");}catch(e){}}
+document.addEventListener("click",e=>{
+  const sm=e.target.closest("#refTree details.tchart > summary");
+  if(sm){const d=sm.parentElement,t=d.dataset.t;if(d.open)TREE_OPEN.delete(t);else TREE_OPEN.add(t);treeSave();return;}   // user toggles only
+  const ss=e.target.closest("#refTree > summary");if(ss){TREE_SEC=!ss.parentElement.open;treeSave();return;}
+  const b=e.target.closest("#refTree [data-tree]");if(b){e.preventDefault();const all=b.dataset.tree==="open";
+    document.querySelectorAll("#refTree details.tchart").forEach(d=>{d.open=all;if(all)TREE_OPEN.add(d.dataset.t);else TREE_OPEN.delete(d.dataset.t);});treeSave();}});
 function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.json next to the generator — tree unavailable.</div>';
   const NH=62,CG=44,RG=10,AV=Math.max(600,((document.getElementById("viewReference")||{}).clientWidth||window.innerWidth)-70),EC=["#2E5A8C","#9E2B25","#1c9c8c","#C6A024","#6A3D8F","#CC6A1A","#3a7d3a","#b5347a","#2b6f9e","#8a6d1a"],E=T.edges||{},DC={Industry:"#2E5A8C",Prowess:"#9E2B25",Cunning:"#3a3a40",Piety:"#C6A024"};
   const dom=n=>{const u=(R[n]||{}).unlock_raw||"";return ["Industry","Prowess","Cunning","Piety"].find(d=>u.includes(d))||"";};
@@ -1280,23 +1358,41 @@ function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.
       const [x0,y0]=px(n),x1=x0+NW,y1=y0+NH/2,fx=x1+8+(N[n][1]%5)*6,col=EC[N[n][1]%EC.length];
       paths+='<g stroke="'+col+'"><path d="M'+x1+','+y1+' H'+fx+'"/>';
       kids.forEach(k=>{const [bx,by]=px(k),cy=by+NH/2+((N[n][1]%3)-1)*4;paths+='<path d="M'+fx+','+y1+' V'+cy+' H'+(bx-5)+'" marker-end="url(#tarw)"/>';});paths+='</g>';});
+    // same-column links: a lane in the gap left of the column
+    ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]===N[n][0]).forEach(k=>{const [x0,y0]=px(n),[,by]=px(k),lx=x0-12,col=EC[N[n][1]%EC.length];
+      paths+='<g stroke="'+col+'"><path d="M'+x0+','+(y0+NH/2)+' H'+lx+' V'+(by+NH/2)+' H'+(x0-5)+'" marker-end="url(#tarw)"/></g>';}));
+    // backward links (a Mastery that needs a later Pursuit): dashed, entering the child's right edge
+    ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]<N[n][0]).forEach(k=>{const [x0,y0]=px(n),[bx,by]=px(k),rx=bx+NW+10,col=EC[N[n][1]%EC.length];
+      paths+='<g stroke="'+col+'" stroke-dasharray="4 3"><title>'+esc(k)+' Mastery needs '+esc(n)+'</title><path d="M'+x0+','+(y0+NH-8)+' H'+(rx+8)+' V'+(by+NH-8)+' H'+(bx+NW+5)+'" marker-end="url(#tarw)"/></g>';}));
     const nodes=ks.map(n=>{const [x,y]=px(n),r=R[n]||{},col=DC[dom(n)]||"#6a6a72",have=(PC[n]||0)>0,us=unlockStatus(n);
       return '<div class="tn'+(r.monument?' mon':'')+(have?' have':'')+'" style="left:'+x+'px;top:'+y+'px;width:'+NW+'px;height:'+NH+'px;border-color:'+col+'">'+
         '<div class="tnh"><span class="gk" data-gk="'+(GK_BY[esc(n)]??"")+'">'+esc(n)+'</span>'+(r.monument?' ◆':'')+(have?' <span class="tb-b">built</span>':'')+
         (r.unlock_raw&&r.unlock_raw!=="-"&&r.unlock_raw!=="\u2014"?' <span class="tnu'+(us.ok?'':' bad')+'" title="Unlock: '+esc(r.unlock_raw)+'">'+(us.ok?'':'🔒')+esc(r.unlock_raw)+'</span>':'')+'</div>'+
-        '<div class="tnc" title="'+esc(r.combo||"")+'">'+esc(r.combo||"—")+'</div></div>';}).join("");
-    return '<div class="tchart"><h3 style="font-size:13px">'+esc(c.title)+'</h3><div class="tscroll"><div class="tcanvas" style="width:'+W+'px;height:'+H+'px">'+
-      '<svg width="'+W+'" height="'+H+'"><defs><marker id="tarw" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="context-stroke"/></marker></defs><g fill="none" stroke="#8f8672" stroke-width="1.4">'+paths+'</g></svg>'+nodes+'</div></div></div>';}).join("");}
+        '<div class="tnc">'+(r.combo?kwify(r.combo,n):"—")+'</div></div>';}).join("");
+    return '<details class="tchart" data-t="'+esc(c.title)+'"'+(TREE_OPEN.has(c.title)?' open':'')+'><summary><b>'+esc(c.title)+'</b> <span class="note">'+ks.length+' Pursuits</span></summary><div class="tscroll"><div class="tcanvas" style="width:'+W+'px;height:'+H+'px">'+
+      '<svg width="'+W+'" height="'+H+'"><defs><marker id="tarw" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="context-stroke"/></marker></defs><g fill="none" stroke="#8f8672" stroke-width="1.4">'+paths+'</g></svg>'+nodes+'</div></div></details>';}).join("");}
+// rulebook (collapsible, per device); keywords inside the text get hover links
+let RB_OPEN=false;try{RB_OPEN=localStorage.getItem("renown_rb_open")==="1";}catch(e){}
+document.addEventListener("click",e=>{const sm=e.target.closest("#refRules > summary");if(sm){RB_OPEN=!sm.parentElement.open;try{localStorage.setItem("renown_rb_open",RB_OPEN?"1":"0");}catch(_){}}});
+function rulebookHTML(){const RBk=DATA.rulebook;if(!RBk)return '<div class="note">Rulebook not bundled — build with --rules RULES_push.md.</div>';
+  return '<div class="rbtoc note">'+RBk.toc.map(t=>'<a href="#" data-goto="reference#'+t[1]+'" class="l'+t[0]+'">'+esc(t[2])+'</a>').join("")+'</div>'+
+    '<div class="rbody">'+RBk.html+'</div>';}
+function linkifyRules(root){if(!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>
+    (n.parentElement.closest("a,.gk,h2,h3,h4,h5,h6,code,th")||!n.nodeValue.trim())?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
+  const nodes=[];while(w.nextNode())nodes.push(w.currentNode);
+  nodes.forEach(n=>{const h=kwify(n.nodeValue);if(h.indexOf('class="gk"')<0)return;const t=document.createElement("template");t.innerHTML=h;n.replaceWith(t.content);});}
 function renderReference(){const host=document.getElementById("viewReference");
   const g=(D.map||{}).grid;
   let h='<div style="padding:14px"><h2 style="margin-bottom:8px">Reference</h2>'+
-    '<div class="refnav note">'+[["refTree","Pursuit tree"],["refSeasons","Seasons"],["refCosts","Costs"],["refStanding","Standing effects"],["refTerrain","Terrain & movement"],["refBattle","Skirmish rules & Tactic matrix"]]
+    '<div class="refnav note">'+[["refRules","Rulebook"],["refTree","Pursuit tree"],["refSeasons","Seasons"],["refCosts","Costs"],["refStanding","Standing effects"],["refTerrain","Terrain & movement"],["refBattle","Skirmish rules & Tactic matrix"]]
       .map(x=>'<a href="#" data-goto="reference#'+x[0]+'">'+x[1]+'</a>').join(' · ')+'</div>';
-  h+='<div id="refTree" class="tot"><h3 style="font-size:14px">Pursuit tree</h3><div class="note">Innate + Mastery combined (Mastery assumed earned; same stats summed). Colour = unlock Domain; ◆ = Monument; 🔒 = your Standing doesn\'t meet the unlock yet. Hover a name for the full text.</div>'+treeHTML()+'</div>'+
+  h+='<details id="refRules" class="tot"'+(RB_OPEN?' open':'')+'><summary><b style="font-size:14px">Rulebook</b> <span class="note">— RULES_push.md, values from the data</span></summary>'+rulebookHTML()+'</details>';
+  h+='<details id="refTree" class="tot"'+(TREE_SEC?' open':'')+'><summary><b style="font-size:14px">Pursuit tree</b></summary>'+
+    '<div class="tb-row" style="margin:6px 0"><button data-tree="open">expand all</button><button data-tree="close">collapse all</button></div><div class="note">Innate + Mastery combined (Mastery assumed earned; same stats summed). Colour = unlock Domain; ◆ = Monument; 🔒 = your Standing doesn\'t meet the unlock yet. Hover a name for the full text.</div>'+treeHTML()+'</details>'+
     '<div id="refSeasons">'+seasonsHTML()+'</div><div id="refCosts">'+costsHTML()+'</div>'+
     '<div id="refStanding">'+standingEffectsHTML()+'</div><div id="refTerrain">'+terrainTablesHTML(mapPal(g))+'</div>'+
     '<div id="refBattle">'+battleRulesHTML()+'</div></div>';
-  host.innerHTML=h;wireDashExtras(host);}
+  host.innerHTML=h;wireDashExtras(host);linkifyRules(host.querySelector('#refRules .rbody'));}
 function renderTable(){
   const host=document.getElementById("viewTable");if(!host)return;
   const R=tSim(),t=TB(),ph=tPhase(),me=meP(),ord=R.ord,sm=seatMap(),n=tSeats(),hp=hostP(),sp=ord[0]||null;
@@ -1576,6 +1672,20 @@ reindex();
 
 let PC={};                              // name -> count (derived, active board)
 function pActive(p){return !(p.bt>0)&&!(p.dmg>0);}
+// ---- ignorable flags: hidden while the same flag persists; shown again if it changes, or clears and returns ----
+let IGN_N=0,IGN_DIRTY=false;
+function flagState(key,active,sig){S.ign=S.ign||{};
+  if(!active){if(key in S.ign){delete S.ign[key];IGN_DIRTY=true;}return "off";}
+  if(S.ign[key]===sig){IGN_N++;return "ignored";}
+  if(key in S.ign){delete S.ign[key];IGN_DIRTY=true;}           // changed since it was ignored → show again
+  return "on";}
+function ignBtn(key,sig){const b=document.createElement("button");b.className="ignb";b.textContent="ignore";
+  b.title="Hide this flag until it changes, or clears and comes back";
+  b.onclick=e=>{e.stopPropagation();S.ign=S.ign||{};S.ign[key]=sig;save();render();};return b;}
+function ignNote(){const el=document.getElementById("ignNote");if(!el)return;
+  el.innerHTML=IGN_N?' · '+IGN_N+' flag'+(IGN_N>1?'s':'')+' ignored <a href="#" id="ignShow">show</a>':'';
+  const a=document.getElementById("ignShow");if(a)a.onclick=e=>{e.preventDefault();S.ign={};save();render();};
+  if(IGN_DIRTY){IGN_DIRTY=false;save();}}
 // ---- Pursuit unlock (Domain Standing) — flags only, never blocks ----
 const ST_ORDER=["Untested","Rising","Established","Sovereign"];
 function unlockStatus(n,b){b=b||S;const raw=((R[n]||{}).unlock_raw||"").trim();
@@ -1602,13 +1712,13 @@ function gameStarted(){return (S.turn||0)>0;}
 // One player's end-of-turn bookkeeping (treasury button and the Table's End turn share this).
 function boardEndTurn(b){
   b.turn=(b.turn||0)+1;const done=tickTimers(b);
-  const m=boardMetrics(b),net=Math.round(m.net||0),g0=b.treasury||0,p0=b.po||0;
-  if(b.autoNet)b.treasury=g0+net;                                               // net gold, if auto-apply is on
+  const sn=seasonNet(b),m=sn.m,net=Math.round(sn.net||0),g0=b.treasury||0,p0=b.po||0;
+  if(b.autoNet)b.treasury=g0+net;                                               // this Season's net (incl. seasonal gold and Winter tax), if auto-apply is on
   const fd=m.po||0,pm=poModTotal(b),dpo=fd+pm;                                 // Faith − Doubt this turn (incl. PO modifiers)
   b.po=Math.max(PO_MIN,Math.min(PO_MAX,p0+dpo));
   let regained=0,cleared=0;
   (b.armies||[]).forEach(a=>{if(!a.strained){a.endurance=(a.endurance||0)+EQ.endurance_regain;regained++;}else cleared++;a.strained=false;});
-  return {turn:b.turn,net,applied:!!b.autoNet,g0,g1:b.treasury||0,fd,pm,p0,p1:b.po,done,regained,regain:EQ.endurance_regain,cleared};}
+  return {turn:b.turn,net,tax:sn.tax,seasonal:sn.seasonal,season:curSeason(),applied:!!b.autoNet,g0,g1:b.treasury||0,fd,pm,p0,p1:b.po,done,regained,regain:EQ.endurance_regain,cleared};}
 function tickTimers(b){const done=[];
   (b.placed||[]).forEach(p=>{if(p.bt>0){p.bt--;if(!p.bt)done.push("built "+p.name);}if(p.dmg>0){p.dmg--;if(!p.dmg)done.push("repaired "+p.name);}});
   ["itimer","idmg"].forEach(k=>{const o=b[k]||{};Object.keys(o).forEach(n=>{o[n]--;if(o[n]<=0){delete o[n];done.push((k==="itimer"?"built ":"repaired ")+n);}});});
@@ -1754,12 +1864,15 @@ function occupants(sid){return S.placed.filter(p=>p.sid===sid);}
 function hamletOK(name){return R[name].type==="Husbandry"||name==="Arable Land";}
 // efficient forms CHAINS not branches: each pursuit hosts at most ONE efficient rider.
 // exemptionsOf(occ): set of occupant ids that ride free (one rider per source), for an explicit occupant list.
+// "efficient" may list several sources (efficient with ANY one of them). Each source hosts at most one rider;
+// riders claim hosts newest-drop first (then oldest id), preferring the host they were dropped onto.
+function effList(n){const e=(R[n]||{}).efficient;return Array.isArray(e)?e:(e?[e]:[]);}
 function exemptionsOf(occ){
-  const present=new Set(occ.map(o=>o.name));
-  const bySource={};
-  occ.forEach(o=>{const eff=R[o.name].efficient; if(eff&&present.has(eff))(bySource[eff]=bySource[eff]||[]).push(o);});
-  const free=new Set();
-  Object.keys(bySource).forEach(src=>{const rs=bySource[src].slice().sort((a,b)=>(b.ride||0)-(a.ride||0)||a.id-b.id);free.add(rs[0].id);});
+  const present=new Set(occ.map(o=>o.name)),taken={},free=new Set();free.hostOf={};
+  occ.filter(o=>effList(o.name).some(h=>h!==o.name&&present.has(h)))
+     .sort((a,b)=>(b.ride||0)-(a.ride||0)||a.id-b.id)
+     .forEach(o=>{const hs=effList(o.name).filter(h=>h!==o.name&&present.has(h)&&!taken[h]);
+       const h=(o.rideOn&&hs.includes(o.rideOn))?o.rideOn:hs[0];if(!h)return;taken[h]=o.id;free.add(o.id);free.hostOf[o.id]=h;});
   return free;
 }
 function wardExemptions(sid){ return exemptionsOf(occupants(sid)); }
@@ -2021,21 +2134,26 @@ function atomEl(a){
   const phase=a.season?"season":(PHASE[a.cat]||"other");const col=cvar(PHASE_COLOR[phase]);
   const el=document.createElement("span");el.className="atom"+(a.cond?" cond":"");
   el.style.borderColor=col;el.style.color=col;
-  el.textContent=a.scale?("+"+a.scale.per+"/"+a.scale.of+" spec"):a.text;
+  el.innerHTML=kwify(a.text);
   if(a.season){const s=document.createElement("span");s.className="s";s.textContent="["+a.season+"]";el.appendChild(s);}
-  el.title=(a.flat?"flat — summed":"conditional/triggered — not summed")+" · "+PHASE_LABEL[phase];
+  el.title=(a.scale?"scales: +"+a.scale.per+" per "+a.scale.of+" · ":"")+(a.flat?"flat — summed":"conditional/triggered — not summed")+" · "+PHASE_LABEL[phase];
   return el;
 }
 function atomsBlock(atoms,hideCombat){
   const wrap=document.createElement("div");wrap.className="atoms";
   const vis=atoms.filter(a=>!(hideCombat&&(a.cat==="combat"||a.cat==="other"||a.cat==="natural")));
   if(!vis.length){const s=document.createElement("span");s.className="note";s.textContent="—";wrap.appendChild(s);}
-  else vis.forEach(a=>wrap.appendChild(atomEl(a)));
+  else{ // a clause the parser split at a comma ("…Oppose" | "you may…") is shown as one chip again
+    const merged=[];vis.forEach(a=>{const p=merged[merged.length-1];
+      if(p&&!a.scale&&!p.scale&&a.val==null&&p.val==null&&a.cat===p.cat&&/^[a-z]/.test(a.text||""))merged[merged.length-1]=Object.assign({},p,{text:p.text+", "+a.text});
+      else merged.push(a);});
+    merged.forEach(a=>wrap.appendChild(atomEl(a)));}
   return wrap;
 }
 
 // ---- render ----
 function render(){
+  IGN_N=0;setTimeout(ignNote,0);
   reindex();                    // S := active board, ids synced
   applyTheme(D.theme||"parchment");
   applySkin(D.shape||"sharp");
@@ -2218,7 +2336,7 @@ if(isCap)cb.style.color="var(--income)";
 // piles: each ward-consuming pursuit is a pile root; its efficient rider chain stacks on top (chains, not branches)
 function wardPiles(occ){
   const exempt=exemptionsOf(occ), riderOf={};
-  occ.forEach(o=>{if(exempt.has(o.id))riderOf[R[o.name].efficient]=o;});
+  occ.forEach(o=>{if(exempt.has(o.id))riderOf[exempt.hostOf[o.id]]=o;});
   const used=new Set(), piles=[];
   occ.filter(o=>!exempt.has(o.id))
      .sort((a,b)=>R[a.name].type.localeCompare(R[b.name].type)||a.name.localeCompare(b.name))
@@ -2261,25 +2379,25 @@ function unitFor(inst){
   return pl?pl.slice():[inst];
 }
 function tryMove(unit,t,commit){
-  const snap=S.placed.map(p=>[p,p.sid,p.ride]);
-  const restore=()=>snap.forEach(([p,sd,r])=>{p.sid=sd;p.ride=r;});
+  const snap=S.placed.map(p=>[p,p.sid,p.ride,p.rideOn]);
+  const restore=()=>snap.forEach(([p,sd,r,ro])=>{p.sid=sd;p.ride=r;p.rideOn=ro;});
   const ids=new Set(unit.map(u=>u.id)),root=unit[0],src=root.sid;
   let onto=null,displaced=null,tsid;
   if(t.kind==="card"){
     onto=S.placed.find(p=>p.id===t.pid);
     if(!onto||ids.has(onto.id)||onto.sid==null)return {ok:false,why:""};
-    if(R[root.name].efficient!==onto.name)return {ok:false,why:root.name+" is not efficient with "+onto.name};
+    if(!effList(root.name).includes(onto.name))return {ok:false,why:root.name+" is not efficient with "+onto.name};
     tsid=onto.sid;
     const ex=exemptionsOf(occupants(tsid));
-    displaced=occupants(tsid).find(o=>ex.has(o.id)&&R[o.name].efficient===onto.name&&!ids.has(o.id))||null;
+    displaced=occupants(tsid).find(o=>ex.has(o.id)&&ex.hostOf[o.id]===onto.name&&!ids.has(o.id))||null;
   } else {
     tsid=t.sid==="none"?null:+t.sid;
     if(tsid===src)return {ok:false,why:""};
   }
   const before={};[src,tsid].forEach(x=>{if(x!=null)before[x]=exemptionsOf(occupants(x));});
   unit.forEach(u=>u.sid=tsid);
-  if(onto){root.ride=1+Math.max(0,...S.placed.map(p=>p.ride||0));if(displaced)displaced.ride=0;}
-  else root.ride=(tsid==null?0:-1);           // plain move never steals an existing rider's slot
+  if(onto){root.ride=1+Math.max(0,...S.placed.map(p=>p.ride||0));root.rideOn=onto.name;if(displaced){displaced.ride=0;delete displaced.rideOn;}}
+  else{root.ride=(tsid==null?0:-1);delete root.rideOn;}           // plain move never steals an existing rider's slot
   const evicted=[];
   for(const x of [tsid,src]){if(x==null)continue;let guard=200;
     while(wardUse(x).free<0&&guard--){
@@ -2413,7 +2531,6 @@ function pursuitDetail(r,hideCombat,me){
   const wrap=document.createElement("div");
   const bi=document.createElement("div");bi.className="block";bi.innerHTML='<div class="lbl">INNATE</div>';
   bi.appendChild(atomsBlock(r.innate,hideCombat));
-  if(r.innate_raw){const v=document.createElement("div");v.className="verb";v.innerHTML=kwify(r.innate_raw,r.name);bi.appendChild(v);}
   wrap.appendChild(bi);
   const bm=document.createElement("div");bm.className="block mastery"+(r.mastery_raw?(me.earned?" on":" off"):"");
   const badge=r.mastery_raw?('<span class="badge '+(me.earned?"earn":"noearn")+'">'+(me.earned?"earned ✓":"not earned ✗")+'</span>'):'<span class="badge nomast">none</span>';
@@ -2423,10 +2540,19 @@ function pursuitDetail(r,hideCombat,me){
     if(r.mreq_raw){const rq=document.createElement("div");rq.className="req";rq.innerHTML="req: "+kwify(r.mreq_raw,r.name);bm.appendChild(rq);}
     {const ih=masteryInfraHTML(r);if(ih){const d=document.createElement("div");d.innerHTML=ih;bm.appendChild(d);}}
     if(!me.earned){const mm=document.createElement("div");mm.className="miss";mm.textContent="missing: "+missTxt(me.missing);bm.appendChild(mm);}
-    const v=document.createElement("div");v.className="verb";v.innerHTML=kwify(r.mastery_raw,r.name);bm.appendChild(v);
   }
-  wrap.appendChild(bm);return wrap;
+  wrap.appendChild(bm);
+  const bl=nextLinksHTML(r);if(bl){const b=document.createElement("div");b.className="block";b.innerHTML=bl;wrap.appendChild(b);}
+  return wrap;
 }
+// "builds into" / "Mastery for" chips: ✓ built, 🔒 unlock not met (flags only)
+function nextLinksHTML(r){const chip=n=>{const have=(PC[n]||0)>0,us=unlockStatus(n),i=GK_BY[esc(n)];
+    return '<span class="nx'+(have?' have':'')+'"'+(us.ok?'':' title="Unlock not met: '+esc((R[n]||{}).unlock_raw||"")+'"')+'>'+(have?'✓ ':(us.ok?'':'🔒 '))+
+      (i!=null?'<span class="gk" data-gk="'+i+'">'+esc(n)+'</span>':esc(n))+'</span>';};
+  const bi=r.builds_into||[],mf=(r.mastery_for||[]).filter(x=>!bi.includes(x));
+  if(!bi.length&&!mf.length)return "";
+  return '<div class="lbl">BUILDS INTO</div>'+(bi.length?'<div class="nxrow">'+bi.map(chip).join("")+'</div>':'<div class="note">—</div>')+
+    (mf.length?'<div class="lbl" style="margin-top:4px">MASTERY NEEDED BY</div><div class="nxrow">'+mf.map(chip).join("")+'</div>':'');}
 // dense row-per-pursuit table for one settlement group
 function pursuitTable(occ,earned,craft,tc,hideCombat,have){
   occ.sort((a,b)=>R[a.name].type.localeCompare(R[b.name].type)||a.name.localeCompare(b.name));
@@ -2464,9 +2590,13 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
   const car=document.createElement("span");car.className="pcaret";car.textContent=open?"▾":"▸";h.appendChild(car);
   const nm=document.createElement("span");nm.className="nm";nm.textContent=n;h.appendChild(nm);
   if(r.monument){const b=document.createElement("span");b.className="badge mon";b.textContent="Monument";h.appendChild(b);}
-  if(r.mastery_raw){const b=document.createElement("span");b.className="badge "+(me.earned?"earn":"noearn");b.textContent=me.earned?"✓":"✗";h.appendChild(b);}
-  if(!inst.fac){const us=unlockStatus(n);if(!us.ok||us.manual){const b=document.createElement("span");b.className="badge "+(us.ok?"":"noearn");
-    b.textContent=us.ok?"unlock ?":"unlock ✗";b.title="Unlock: "+r.unlock_raw+"\n"+us.toks.map(x=>(x.ok===false?"✗ ":x.ok?"✓ ":"? ")+x.t+" — "+x.why).join("\n");h.appendChild(b);}}
+  const mFlag=r.mastery_raw?flagState("m:"+inst.id,!me.earned,(me.missing||[]).join("|")):"off";
+  if(r.mastery_raw&&mFlag!=="ignored"){const b=document.createElement("span");b.className="badge "+(me.earned?"earn":"noearn");b.textContent=me.earned?"✓":"✗";h.appendChild(b);}
+  if(!inst.fac){const us=unlockStatus(n),uf=flagState("u:"+inst.id,!us.ok,us.missing.join("|"));
+    if((!us.ok&&uf==="on")||(us.ok&&us.manual)){const b=document.createElement("span");b.className="badge "+(us.ok?"":"noearn");
+    b.textContent=us.ok?"unlock ?":"unlock ✗";b.title="Unlock: "+r.unlock_raw+"\n"+us.toks.map(x=>(x.ok===false?"✗ ":x.ok?"✓ ":"? ")+x.t+" — "+x.why).join("\n");h.appendChild(b);
+    if(!us.ok)h.appendChild(ignBtn("u:"+inst.id,us.missing.join("|")));}}
+  inst._mFlag=mFlag;
   if(inst.sid!=null && inst.sid!=="faction" && isFreeRider(inst)){const b=document.createElement("span");b.className="badge earn";b.textContent="⚡";b.title="efficient rider";h.appendChild(b);}
   if(inst.fac){const b=document.createElement("span");b.className="badge earn";b.textContent="Faction";h.appendChild(b);}
   if(inst.bt>0)h.appendChild(timerCtl("build",inst.bt,d=>{inst.bt=Math.max(0,inst.bt+d);save();render();}));
@@ -2477,7 +2607,7 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
   card.appendChild(h);
 
   const sub=document.createElement("div");sub.className="sub";
-  sub.textContent=r.type+(r.efficient?(" · efficient: "+r.efficient):"");card.appendChild(sub);
+  sub.textContent=r.type+(effList(n).length?(" · efficient: "+effList(n).join(" or ")):"");card.appendChild(sub);
 
   // placement dropdown (always visible for quick moves)
   const place=document.createElement("div");place.className="sub";
@@ -2499,7 +2629,6 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
   // INNATE
   const bi=document.createElement("div");bi.className="block";bi.innerHTML='<div class="lbl">INNATE</div>';
   bi.appendChild(atomsBlock(r.innate,hideCombat));
-  if(r.innate_raw){const v=document.createElement("div");v.className="verb";v.innerHTML=kwify(r.innate_raw,r.name);bi.appendChild(v);}
   card.appendChild(bi);
   // MASTERY
   const bm=document.createElement("div");bm.className="block mastery"+(r.mastery_raw?(me.earned?" on":" off"):"");
@@ -2509,10 +2638,11 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
     const ab=atomsBlock(r.mastery,hideCombat);if(!me.earned)ab.style.opacity=".5";bm.appendChild(ab);
     if(r.mreq_raw){const rq=document.createElement("div");rq.className="req";rq.innerHTML="req: "+kwify(r.mreq_raw,r.name);bm.appendChild(rq);}
     {const ih=masteryInfraHTML(r);if(ih){const d=document.createElement("div");d.innerHTML=ih;bm.appendChild(d);}}
-    if(!me.earned){const mm=document.createElement("div");mm.className="miss";mm.textContent="missing: "+missTxt(me.missing);bm.appendChild(mm);}
-    const v=document.createElement("div");v.className="verb";v.innerHTML=kwify(r.mastery_raw,r.name);bm.appendChild(v);
+    if(!me.earned&&inst._mFlag!=="ignored"){const mm=document.createElement("div");mm.className="miss";mm.textContent="missing: "+missTxt(me.missing)+" ";
+      mm.appendChild(ignBtn("m:"+inst.id,(me.missing||[]).join("|")));bm.appendChild(mm);}
   }
   card.appendChild(bm);
+  {const bl=nextLinksHTML(r);if(bl){const b=document.createElement("div");b.className="block";b.innerHTML=bl;card.appendChild(b);}}
   return card;
 }
 
@@ -2527,10 +2657,10 @@ function renderInfraSection(kind,src,have,hideCombat){
     const car=document.createElement("span");car.className="pcaret";car.textContent=open?"▾":"▸";h.appendChild(car);
     const nm=document.createElement("span");nm.className="nm";nm.textContent=n;h.appendChild(nm);
     const tb=document.createElement("span");tb.className="badge tier";tb.textContent=r.tier;h.appendChild(tb);
-    const rs=infraReqStatus(r);
-    if(infraReqToks(r).length){const qb=document.createElement("span");qb.className="badge "+(!rs.ok?"noearn":rs.manual?"manual":"earn");
+    const rs=infraReqStatus(r),rf=flagState("i:"+kind+":"+n,!rs.ok,rs.missing.join("|"));
+    if(infraReqToks(r).length&&rf!=="ignored"){const qb=document.createElement("span");qb.className="badge "+(!rs.ok?"noearn":rs.manual?"manual":"earn");
       qb.textContent=!rs.ok?"req ✗":rs.manual?"req ?":"req ✓";qb.title=r.requirement;h.appendChild(qb);}
-    if(!rs.ok)card.classList.add("illegal");
+    if(!rs.ok&&rf==="on")card.classList.add("illegal");
     itm();const isFac=S.facInfra.includes(n);
     if(isFac){const fb=document.createElement("span");fb.className="badge earn";fb.textContent="Faction";h.appendChild(fb);}
     if(r.upkeep&&!isFac){const ub=document.createElement("span");ub.className="badge";ub.style.borderColor="var(--upkeep)";ub.style.color="var(--upkeep)";ub.textContent="up "+r.upkeep;h.appendChild(ub);}
@@ -2540,7 +2670,8 @@ function renderInfraSection(kind,src,have,hideCombat){
       rm.onclick=(e)=>{e.stopPropagation();delete have[n];delete S.itimer[n];delete S.idmg[n];save();render();renderList();};h.appendChild(rm);}
     h.onclick=()=>{S.eqOpen=S.eqOpen||[];const i=S.eqOpen.indexOf(n);if(i<0)S.eqOpen.push(n);else S.eqOpen.splice(i,1);save();render();};
     card.appendChild(h);
-    if(!rs.ok){const mm=document.createElement("div");mm.className="miss";mm.textContent="missing: "+rs.missing.join(", ");card.appendChild(mm);}
+    if(!rs.ok&&rf==="on"){const mm=document.createElement("div");mm.className="miss";mm.textContent="missing: "+rs.missing.join(", ")+" ";
+      mm.appendChild(ignBtn("i:"+kind+":"+n,rs.missing.join("|")));card.appendChild(mm);}
     if(open){
       const sub=document.createElement("div");sub.className="sub";
       sub.textContent="upkeep "+(isFac?0:r.upkeep)+(r.requirement?(" · req: "+r.requirement):"");card.appendChild(sub);
@@ -2872,27 +3003,39 @@ function computeTotals(have,earned,tc){
   set("t_reduce",m.reduce?("pool "+fmt(m.reduce)+(m.unusedReduce?(" · "+fmt(-m.unusedReduce)+" unused"):"")):"0");
   set("t_army",fmt(-m.netArmy));set("t_craft",fmt(m.craft));
   set("t_trade",fmt(m.craft*DATA.tradePerCraft)+" g");set("t_infl",fmt(m.infl));set("t_po",fmt(m.faith-m.doubt+poModTotal(S)));
-  const ng=document.getElementById("netgold");ng.textContent=fmt(m.baseNet);
-  ng.className="n "+(m.baseNet<0?"neg":m.baseNet>0?"pos":"");
+  const cs0=curSeason(),sa0=(m.seasonAdd||{})[cs0]||0,wt=winterTax(S),tx0=cs0==="Winter"?wt.total:0,net0=m.baseNet+sa0+tx0;
+  const ng=document.getElementById("netgold");ng.textContent=fmt(net0);
+  ng.className="n "+(net0<0?"neg":net0>0?"pos":"");
   document.getElementById("netnote").innerHTML=
     "gold "+fmt(m.gold)+(m.scale?(" · scaling "+fmt(m.scale)):"")+" · infra "+fmt(-m.infraUp)+" · pursuits "+fmt(-m.pursUp)+
     " · army ("+String(m.armyGross)+" cost − "+m.reduce+" reduce = "+fmt(-m.netArmy)+")"+
-    (()=>{const nb=(S.placed||[]).filter(q=>q.bt>0).length;return nb?" · "+nb+" building (no income or effects until built)":"";})();
+    (()=>{const nb=(S.placed||[]).filter(q=>q.bt>0).length;return nb?" · "+nb+" building (no income or effects until built)":"";})()+
+    (sa0?" · "+cs0+" "+fmt(sa0):"")+(cs0==="Winter"?" · Winter tax "+fmt(wt.base)+(wt.adj?" "+(wt.adj>0?"+":"−")+Math.abs(wt.adj)+" PO":""):"");
   const sg=document.getElementById("seasons");sg.innerHTML="";
   const cse=curSeason();
-  SEASONS.forEach(s=>{const v=m.baseNet+m.seasonAdd[s];const c=document.createElement("div");c.className="scell"+(s===cse?" cur":"");
+  SEASONS.forEach(s=>{const v=m.baseNet+m.seasonAdd[s]+(s==="Winter"?wt.total:0);const c=document.createElement("div");c.className="scell"+(s===cse?" cur":"");
     c.innerHTML='<div class="sn">'+s+'</div><div class="sv" style="color:'+(v<0?cvar("--upkeep"):v>m.baseNet?cvar("--income"):cvar("--ink"))+'">'+fmt(v)+'</div>';sg.appendChild(c);});
   const leg=document.getElementById("legend");leg.innerHTML="";
   Object.keys(PHASE_LABEL).forEach(ph=>{const li=document.createElement("div");li.className="li";
     li.innerHTML='<span class="sw" style="background:'+cvar(PHASE_COLOR[ph])+'"></span>'+PHASE_LABEL[ph]+(m.phaseCount[ph]?(" ("+m.phaseCount[ph]+")"):"");leg.appendChild(li);});
-  window._net=m.baseNet;
+  window._net=net0;
   renderInfluence();renderPOMods();
 }
+// Winter tax (rules: "gain tax income equal to your Settlements' tiers, adjusted by any modifiers"):
+// SETTLEMENTS[tier].tax_income for each Settlement, plus the Public Order "Tax income ±X per settlement" effect at the board's PO level
+// (applied to each Settlement that pays tax; never below 0 per Settlement).
+function winterTax(b){const sets=b.settlements||[],e=PO[String(b.po||0)],txt=Array.isArray(e)?e.join(" "):String(e||"");
+  const m=txt.match(/Tax income\s*([+\-\u2212]\s?\d+)\s*per settlement/i)||txt.match(/([+\-\u2212]\s?\d+)\s*Tax Income per Settlement/i);
+  const mod=m?parseInt(m[1].replace(/\s/g,"").replace("\u2212","-"),10):0;let base=0,adj=0;
+  sets.forEach(s=>{const t=(((DATA.settlements||{})[s.tier]||{}).tax_income)||0;if(!t)return;base+=t;adj+=Math.max(-t,mod);});
+  return {base,mod,adj,total:base+adj};}
+function seasonNet(b,season){const m=boardMetrics(b),sea=season||curSeason(),sa=(m.seasonAdd||{})[sea]||0,tx=sea==="Winter"?winterTax(b).total:0;
+  return {net:m.net+sa+tx,base:m.net,seasonal:sa,tax:tx,m};}
 // metrics for any board (used by dashboards)
 function boardMetrics(b){
   return withBoard(b,()=>{const have=new Set(Object.keys(PC));const {earned,tc}=computeEarned(have);
     const m=calcMetrics(have,earned,tc);
-    return {net:m.baseNet,gold:m.gold,craft:m.craft,infl:m.infl,po:m.faith-m.doubt,netArmy:m.netArmy};});
+    return {net:m.baseNet,gold:m.gold,craft:m.craft,infl:m.infl,po:m.faith-m.doubt,netArmy:m.netArmy,seasonAdd:m.seasonAdd};});
 }
 
 // ---- Public Order tracker ----
@@ -3962,6 +4105,8 @@ document.addEventListener("click",e=>{const a=e.target.closest("[data-goto]");if
   if(v==="board"&&sec){const ap=document.getElementById("appBoard");ap.dataset.mc=sec;
     document.querySelectorAll("#mnav [data-mc]").forEach(x=>x.classList.toggle("on",x.dataset.mc===sec));}
   render();setTimeout(()=>{const t=anchor?document.getElementById(anchor):(sec&&window.innerWidth<=700?null:document.getElementById(sec==="summary"?"summary":sec==="board"?"boardcol":""));
+    if(t&&t.tagName==="DETAILS"&&!t.open){t.open=true;if(t.id==="refTree"){TREE_SEC=true;treeSave();}}
+    {let pd=t&&t.parentElement&&t.parentElement.closest("details");while(pd){if(!pd.open)pd.open=true;pd=pd.parentElement&&pd.parentElement.closest("details");}}
     if(t)t.scrollIntoView({behavior:"smooth",block:"start"});else window.scrollTo(0,0);},60);});
 // ---- phone section switcher (Board / Catalog / Totals) ----
 document.querySelectorAll("#mnav [data-mc]").forEach(b=>b.onclick=()=>{document.getElementById("appBoard").dataset.mc=b.dataset.mc;
@@ -4109,15 +4254,22 @@ document.getElementById("gameNew").onclick=async()=>{if(!gameAllowed()){flash("o
 // ===================== HOVER KEYWORDS =====================
 // Glossary terms, Pursuits, Infrastructure and Wonders inside rules text become hoverable (tap on touch).
 function gslug(s){return String(s).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
-const GK_LIST=[],GK_BY={};
-(()=>{const add=(t,k)=>{if(!t||GK_BY[esc(t)])return;GK_BY[esc(t)]=GK_LIST.length;GK_LIST.push({t,k});};
+const GK_LIST=[],GK_BY={},GK_LC={};
+(()=>{const add=(t,k,label)=>{const e=esc(label||t);if(!t||GK_BY[e]!=null)return;GK_BY[e]=GK_LIST.length;GK_LC[e.toLowerCase()]=GK_LIST.length;GK_LIST.push({t,k});};
   Object.keys(R).forEach(n=>add(n,"p"));Object.keys(WON||{}).forEach(n=>add(n,"w"));Object.keys(INFRA||{}).forEach(n=>add(n,"i"));
-  Object.keys(GLOSS).filter(t=>/^[A-Z][A-Za-z' /-]{2,}$/.test(t)).forEach(t=>add(t,"g"));})();
+  Object.keys(GLOSS).filter(t=>/^[A-Z][A-Za-z' /-]{2,}$/.test(t)).forEach(t=>{
+    const m=t.match(/^(.+?) X$/);                                   // "Extort X" → Extort, Extorts, Extorted…
+    if(m){const b=m[1];[b,b+"s",b+"ed",b+"ing",b+"ion"].forEach(v=>add(t,"g",v));}else add(t,"g");
+    if(/^[A-Z][a-z]+$/.test(t))[t+"s",t+"ed"].forEach(v=>add(t,"g",v));});})();   // Recoup → Recoups, Recouped
 const GK_RE=GK_LIST.length?new RegExp("(^|[^A-Za-z0-9])("+Object.keys(GK_BY).sort((a,b)=>b.length-a.length)
-  .map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")(?![A-Za-z0-9])","g"):null;
+  .map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")(?![A-Za-z0-9])","gi"):null;
 function kwify(text,self){const h=esc(text==null?"":text);if(!GK_RE)return h;const seen=new Set();
-  return h.replace(GK_RE,(m,pre,term)=>{if(seen.has(term)||term===self)return m;seen.add(term);
-    return pre+'<span class="gk" data-gk="'+GK_BY[term]+'">'+term+'</span>';});}
+  return h.replace(GK_RE,(m,pre,term)=>{
+    // single words must match case exactly (so "cast" in prose isn't linked); multi-word terms match any case ("Cast armor")
+    const idx=GK_BY[term]!=null?GK_BY[term]:(/\s/.test(term)?GK_LC[term.toLowerCase()]:undefined);
+    if(idx==null)return m;const key=GK_LIST[idx].t;
+    if(seen.has(key)||key===self)return m;seen.add(key);
+    return pre+'<span class="gk" data-gk="'+idx+'">'+term+'</span>';});}
 function wikiA(href){const base=DATA.wikiBase||"";return '<div><a href="'+esc(base+href)+'" target="_blank" rel="noopener">wiki ↗</a></div>';}
 function gkHtml(e){
   if(e.k==="g"){return '<div class="gh">'+esc(e.t)+'</div><div>'+esc(GLOSS[e.t]||"")+'</div>'+wikiA("glossary.html#"+gslug(e.t));}
@@ -4415,6 +4567,7 @@ def main():
         infra=infra, wonders=wonders, armySrc=army_src, equip=equip, glossary=glossary,
         domainBoard=ns.get("DOMAIN_BOARD", {}), publicOrder=po, wikiBase=a.wiki_base,
         tree=tree_payload(ns, os.path.dirname(os.path.abspath(__file__))),
+        rulebook=rules_payload(ns, rules_path if os.path.exists(rules_path) else None),
         limits={"poMin": ns.get("PO_MIN", -5), "poMax": ns.get("PO_MAX", 10),
                 "initMin": ns.get("INITIATIVE_MIN", -2), "initMax": ns.get("INITIATIVE_MAX", 2),
                 "standing": ns.get("STANDING_THRESHOLDS", {"Untested": 1, "Rising": 3, "Established": 6, "Sovereign": 10})},

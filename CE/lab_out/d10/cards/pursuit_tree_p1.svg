@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1210" height="976" viewBox="0 0 1210 976" font-family="Georgia, serif">
-<rect width="1210" height="976" fill="#f4efe4"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1236" height="976" viewBox="0 0 1236 976" font-family="Georgia, serif">
+<rect width="1236" height="976" fill="#f4efe4"/>
 <defs><marker id="arw-2E5A8C" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#2E5A8C"/></marker><marker id="arw-9E2B25" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#9E2B25"/></marker><marker id="arw-1c9c8c" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1c9c8c"/></marker><marker id="arw-C6A024" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#C6A024"/></marker><marker id="arw-6A3D8F" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#6A3D8F"/></marker><marker id="arw-CC6A1A" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#CC6A1A"/></marker><marker id="arw-3a7d3a" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#3a7d3a"/></marker><marker id="arw-b5347a" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#b5347a"/></marker><marker id="arw-2b6f9e" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#2b6f9e"/></marker><marker id="arw-8a6d1a" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8a6d1a"/></marker><marker id="arw-5f5647" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5f5647"/></marker><marker id="arw-7a2ea0" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#7a2ea0"/></marker><marker id="arw-0f8a7e" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#0f8a7e"/></marker><marker id="arw-a83232" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#a83232"/></marker><marker id="arw-8f8672" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8f8672"/></marker></defs>
 <text x="30" y="34" font-size="20" font-weight="bold" fill="#2b2620">Pursuit Paths</text>
 <path d="M148,76 L195,76" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -76,6 +76,10 @@
 <path d="M542,256 L738,256" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M690,112 L737,112" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M690,112 L737,112" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M862,112 L1081,112" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M862,112 L1081,112" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M1034,112 L1081,112" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M1034,112 L1081,112" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M518,148 L533,148 Q542,148 542,139 L542,121 Q542,112 551,112 L565,112" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M518,148 L533,148 Q542,148 542,139 L542,121 Q542,112 551,112 L565,112" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M518,184 L542,184" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -94,6 +98,8 @@
 <path d="M714,184 L738,184" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M714,112 L910,112" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M714,112 L910,112" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M862,184 L955,184 Q964,184 964,175 L964,121 Q964,112 973,112 L1081,112" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M862,184 L955,184 Q964,184 964,175 L964,121 Q964,112 973,112 L1081,112" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M518,220 L611,220 Q620,220 620,211 L620,193 Q620,184 629,184 L737,184" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M518,220 L611,220 Q620,220 620,211 L620,193 Q620,184 629,184 L737,184" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M518,256 L565,256" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -168,6 +174,10 @@
 <rect x="400" y="316" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="400" y="316" width="5" height="24" fill="#2E5A8C"/>
 <text x="409" y="331" font-size="8.2" fill="#2b2620">Granary</text>
+<rect x="1088" y="100" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#2E5A8C" stroke-width="2.2"/>
+<rect x="1088" y="100" width="5" height="24" fill="#2E5A8C"/>
+<text x="1097" y="115" font-size="8.2" fill="#2b2620">Office of Works</text>
+<polygon points="1198.0,108.4 1201.6,112.0 1198.0,115.6 1194.4,112.0" fill="#8a6d1a"/>
 <path d="M148,390 L195,390" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M148,390 L195,390" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M320,390 L344,390" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>

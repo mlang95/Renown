@@ -54,8 +54,8 @@
   "Faith X": "Gain X Faith: each Faith raises your Public Order track by 1 when resolved.",
   "Doubt X": "Gain X Doubt: each Doubt lowers your Public Order track by 1 when resolved.",
   "Extort X": "Take X from the stated source: the gold goes to you instead of its owner.",
-  "Recoup": "Regain the stated cost in gold after paying it.",
-  "Speed": "An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 2",
+  "Recoup X": "Regain the stated cost in gold after paying it.",
+  "Speed X": "An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 3",
   "Influence": "The political currency of voting. Spend it to Support or Oppose Envoys. You gain it each turn from your Era, innate modifiers (trade partners, alliances, war), Pursuits, and Infrastructure.",
   "Influence X": "An automatic +X (or -X) to an Envoy's net Influence from a Pursuit, Infrastructure, or Faction.",
   "Envoy": "The currency of actions: send an Envoy to perform an action during the Envoy Phase. Council Envoys act on the voted Domain; Personal Envoys are sent by Era progression.",
@@ -116,7 +116,40 @@
   "Sally Forth": "While a settlement you control is besieged and you have an army inside it, you may Sally Forth: Battle in the Battle Phase without performing an action.",
   "War Weariness": "gain Doubt 1 for each consecutive Battle you lose in the Empire Phase.",
   "Ward": "A slot in a Settlement that holds one Pursuit; a Settlement has one Ward per tier (a Hamlet has 3 Husbandry Wards).",
-  "Efficient X": "While this Pursuit occupies the same Settlement Ward as X (the Raw Material or Pursuit named on its tile), it uses no ward of its own — the two share one ward. Placed anywhere else, it fills a ward normally. (Core Principle 14.) Note: Two Pursuits that are Efficient with the same Pursuit cannot share a Ward with each other."
+  "Efficient X": "While this Pursuit occupies the same Settlement Ward as X (the Raw Material or Pursuit named on its tile), it uses no ward of its own — the two share one ward. Placed anywhere else, it fills a ward normally. (Core Principle 14.) Note: Two Pursuits that are Efficient with the same Pursuit cannot share a Ward with each other.",
+  "Natural": "Natural Pursuits do not cost Upkeep.",
+  "Upkeep": "Gold you pay each Empire Phase for Armies, Pursuits and Infrastructure. Pursuit upkeep is fixed by type (Monument 300, Power 200, Energy 0, all others 0); a Pursuit pays no upkeep while its Build Timer is running. Army upkeep = Retinue count × (Retinue cost − Upkeep modifiers).",
+  "Craft": "Craft Pursuits count toward how much income your Trade Agreements generate — any effect that grants Craft +X. For each active Trade Agreement, both players gain 100 × the Host's Craft X.",
+  "Efficient": "A Pursuit is efficient with the Raw Material or Pursuit named on its tile. While it shares a Settlement Ward with that piece, it doesn't consume a Ward of its own.",
+  "Build Timer": "Turns until an infrastructure/build completes and becomes Active.",
+  "Repair Timer": "Turns until a Damaged piece is repaired and its effects return.",
+  "Truce Timer": "Turns remaining until a Truce expires (and related diplomacy restrictions end).",
+  "Siege Timer": "Turns remaining until a Siege resolves.",
+  "Muster Timer": "Turns remaining until Recruited Retinues become Active (or until a temporary Muster state ends).",
+  "Sack Timer": "Cooldown before the same force may Lay Siege again (per Sack rules).",
+  "Capture Timer": "Turns until a Captured Settlement becomes Controlled by the Player with the Capture Timer and applies the listed capture effects.",
+  "Convert Timer": "Turns until a Convert attempt resolves (or fails early if conditions change).",
+  "Crude": "Crude equipment tier. Weapons: Farm Tools, Cudgel, Pitchfork; Ranged: Hunting Bow; Armor: Gambeson; Shield: Buckler Shield. Unlocked by: Animal Husbandry (armor & shield).",
+  "Crude Weapons": "Crude-tier weapons: Farm Tools, Cudgel, Pitchfork, Hunting Bow.",
+  "Crude Armor": "Crude-tier armor: Gambeson. Unlocked by: Animal Husbandry.",
+  "Crude Shields": "Crude-tier shields: Buckler Shield. Unlocked by: Animal Husbandry.",
+  "Cast": "Cast equipment tier. Weapons: Daggers, Short Sword, Spears; Ranged: Longbow; Armor: Leather; Shield: Targe Shield. Unlocked by: Tannery (armor & shield), Furnace (weapons).",
+  "Cast Weapons": "Cast-tier weapons: Daggers, Short Sword, Spears, Longbow. Unlocked by: Furnace.",
+  "Cast Armor": "Cast-tier armor: Leather. Unlocked by: Tannery.",
+  "Cast Shields": "Cast-tier shields: Targe Shield. Unlocked by: Tannery.",
+  "Wrought": "Wrought equipment tier. Weapons: Arming Sword, Pike, Flail, Halberd, Battle Axe, Cavalry Spear; Ranged: Javelin; Armor: Chainmail; Shield: Kite Shield. Unlocked by: Blacksmith (Mastery) (all), Armory (armor & shield).",
+  "Wrought Weapons": "Wrought-tier weapons: Arming Sword, Pike, Flail, Halberd, Battle Axe, Cavalry Spear, Javelin. Unlocked by: Blacksmith (Mastery).",
+  "Wrought Armor": "Wrought-tier armor: Chainmail. Unlocked by: Blacksmith (Mastery), Armory.",
+  "Wrought Shields": "Wrought-tier shields: Kite Shield. Unlocked by: Blacksmith (Mastery), Armory.",
+  "Forged": "Forged equipment tier. Weapons: Morningstar, Bastard Sword, 2HBastard, War Hammer, Lance; Ranged: Crossbow; Armor: Full Plate; Shield: Tower Shield. Unlocked by: Gilded Foundry (Mastery) (armor & shield), Forge (Mastery) (all).",
+  "Forged Weapons": "Forged-tier weapons: Morningstar, Bastard Sword, 2HBastard, War Hammer, Lance, Crossbow. Unlocked by: Forge (Mastery).",
+  "Forged Armor": "Forged-tier armor: Full Plate. Unlocked by: Gilded Foundry (Mastery), Forge (Mastery).",
+  "Forged Shields": "Forged-tier shields: Tower Shield. Unlocked by: Gilded Foundry (Mastery), Forge (Mastery).",
+  "Tempered": "Tempered equipment tier. Weapons: Estoc, Poleaxe; Ranged: Arquebus, Pilum; Armor: Gothic Plate; Shield: Heater Shield. Unlocked by: Advanced Blast Furnace (Mastery) (all).",
+  "Tempered Weapons": "Tempered-tier weapons: Estoc, Poleaxe, Arquebus, Pilum. Unlocked by: Advanced Blast Furnace (Mastery).",
+  "Tempered Armor": "Tempered-tier armor: Gothic Plate. Unlocked by: Advanced Blast Furnace (Mastery).",
+  "Tempered Shields": "Tempered-tier shields: Heater Shield. Unlocked by: Advanced Blast Furnace (Mastery).",
+  "Ranged Weapons": "Ranged weapons: Hunting Bow (Crude), Longbow (Cast), Javelin (Wrought), Crossbow (Forged), Arquebus (Tempered), Pilum (Tempered). Unlocked by: Fletchery."
  },
  "glossary_categorized": [
   {
@@ -404,14 +437,6 @@
      "Take X from the stated source: the gold goes to you instead of its owner."
     ],
     [
-     "Recoup",
-     "Regain the stated cost in gold after paying it."
-    ],
-    [
-     "Speed",
-     "An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 2"
-    ],
-    [
      "Edict",
      "A scoring achievement / win path: reach a Sovereign Standing, complete a Monument, or fulfill a victory condition (Wonder, wealth, Vassalize, Living Saints, Last Standing)."
     ],
@@ -522,6 +547,30 @@
      "Your Settlement's Reach is Range 1 or within Reach of another Player's Reach."
     ],
     [
+     "Build Timer",
+     "Turns until an infrastructure/build completes and becomes Active."
+    ],
+    [
+     "Capture Timer",
+     "Turns until a Captured Settlement becomes Controlled by the Player with the Capture Timer and applies the listed capture effects."
+    ],
+    [
+     "Cast",
+     "Cast equipment tier. Weapons: Daggers, Short Sword, Spears; Ranged: Longbow; Armor: Leather; Shield: Targe Shield. Unlocked by: Tannery (armor & shield), Furnace (weapons)."
+    ],
+    [
+     "Cast Armor",
+     "Cast-tier armor: Leather. Unlocked by: Tannery."
+    ],
+    [
+     "Cast Shields",
+     "Cast-tier shields: Targe Shield. Unlocked by: Tannery."
+    ],
+    [
+     "Cast Weapons",
+     "Cast-tier weapons: Daggers, Short Sword, Spears, Longbow. Unlocked by: Furnace."
+    ],
+    [
      "Contested",
      "Territory that is within Reach of more than one player's settlement(s). Considered Controlled by all Players that have a Settlement within Reach."
     ],
@@ -530,12 +579,40 @@
      "Territory that is within Reach of a single Player's Settlement(s)."
     ],
     [
+     "Convert Timer",
+     "Turns until a Convert attempt resolves (or fails early if conditions change)."
+    ],
+    [
      "Cost / Pay",
      "Cost to perform an action, usually in Gold or Doubt."
     ],
     [
+     "Craft",
+     "Craft Pursuits count toward how much income your Trade Agreements generate — any effect that grants Craft +X. For each active Trade Agreement, both players gain 100 × the Host's Craft X."
+    ],
+    [
+     "Crude",
+     "Crude equipment tier. Weapons: Farm Tools, Cudgel, Pitchfork; Ranged: Hunting Bow; Armor: Gambeson; Shield: Buckler Shield. Unlocked by: Animal Husbandry (armor & shield)."
+    ],
+    [
+     "Crude Armor",
+     "Crude-tier armor: Gambeson. Unlocked by: Animal Husbandry."
+    ],
+    [
+     "Crude Shields",
+     "Crude-tier shields: Buckler Shield. Unlocked by: Animal Husbandry."
+    ],
+    [
+     "Crude Weapons",
+     "Crude-tier weapons: Farm Tools, Cudgel, Pitchfork, Hunting Bow."
+    ],
+    [
      "Dual Wield",
      "A failed Strike is rerolled once; the rerolled Strike can be Focused. Dual Wield confers Two-Handed. You cannot reroll successful Strikes."
+    ],
+    [
+     "Efficient",
+     "A Pursuit is efficient with the Raw Material or Pursuit named on its tile. While it shares a Settlement Ward with that piece, it doesn't consume a Ward of its own."
     ],
     [
      "Envoy Outcome",
@@ -554,8 +631,32 @@
      "Only active while Dual Wielding."
     ],
     [
+     "Forged",
+     "Forged equipment tier. Weapons: Morningstar, Bastard Sword, 2HBastard, War Hammer, Lance; Ranged: Crossbow; Armor: Full Plate; Shield: Tower Shield. Unlocked by: Gilded Foundry (Mastery) (armor & shield), Forge (Mastery) (all)."
+    ],
+    [
+     "Forged Armor",
+     "Forged-tier armor: Full Plate. Unlocked by: Gilded Foundry (Mastery), Forge (Mastery)."
+    ],
+    [
+     "Forged Shields",
+     "Forged-tier shields: Tower Shield. Unlocked by: Gilded Foundry (Mastery), Forge (Mastery)."
+    ],
+    [
+     "Forged Weapons",
+     "Forged-tier weapons: Morningstar, Bastard Sword, 2HBastard, War Hammer, Lance, Crossbow. Unlocked by: Forge (Mastery)."
+    ],
+    [
      "Host",
      "The turn's starting player, who holds the Host Card. The role passes clockwise each Rest Phase (there is no Host in Spring). The Host collects and distributes Trade Income, resolves Bandit Mechanics, and breaks ties (Council vote, bandit targeting, and any tie not otherwise resolved)."
+    ],
+    [
+     "Muster Timer",
+     "Turns remaining until Recruited Retinues become Active (or until a temporary Muster state ends)."
+    ],
+    [
+     "Natural",
+     "Natural Pursuits do not cost Upkeep."
     ],
     [
      "Negate Planishing",
@@ -586,6 +687,10 @@
      "The amount of Territories you must move in order to get from your current position to the specific Territory."
     ],
     [
+     "Ranged Weapons",
+     "Ranged weapons: Hunting Bow (Crude), Longbow (Cast), Javelin (Wrought), Crossbow (Forged), Arquebus (Tempered), Pilum (Tempered). Unlocked by: Fletchery."
+    ],
+    [
      "Reach X",
      "The Range X characteristic which determines what Territories you Control and are in your Province."
     ],
@@ -594,12 +699,24 @@
      "The total collection of Regions."
     ],
     [
+     "Recoup X",
+     "Regain the stated cost in gold after paying it."
+    ],
+    [
      "Region",
      "A collection of Territories of the same Type."
     ],
     [
+     "Repair Timer",
+     "Turns until a Damaged piece is repaired and its effects return."
+    ],
+    [
      "Resolve",
      "Attempt to Perform an action."
+    ],
+    [
+     "Sack Timer",
+     "Cooldown before the same force may Lay Siege again (per Sack rules)."
     ],
     [
      "Send an Envoy",
@@ -610,16 +727,64 @@
      "A cumulative -1 penalty to the Strike roll (to a maximum of 10+). Sources: a shield's -1 to Strike."
     ],
     [
+     "Siege Timer",
+     "Turns remaining until a Siege resolves."
+    ],
+    [
+     "Speed X",
+     "An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 3"
+    ],
+    [
+     "Tempered",
+     "Tempered equipment tier. Weapons: Estoc, Poleaxe; Ranged: Arquebus, Pilum; Armor: Gothic Plate; Shield: Heater Shield. Unlocked by: Advanced Blast Furnace (Mastery) (all)."
+    ],
+    [
+     "Tempered Armor",
+     "Tempered-tier armor: Gothic Plate. Unlocked by: Advanced Blast Furnace (Mastery)."
+    ],
+    [
+     "Tempered Shields",
+     "Tempered-tier shields: Heater Shield. Unlocked by: Advanced Blast Furnace (Mastery)."
+    ],
+    [
+     "Tempered Weapons",
+     "Tempered-tier weapons: Estoc, Poleaxe, Arquebus, Pilum. Unlocked by: Advanced Blast Furnace (Mastery)."
+    ],
+    [
      "Territory",
      "1 Hex."
+    ],
+    [
+     "Truce Timer",
+     "Turns remaining until a Truce expires (and related diplomacy restrictions end)."
     ],
     [
      "Uncontrolled",
      "Territory that is not within Reach of any Player Settlement."
     ],
     [
+     "Upkeep",
+     "Gold you pay each Empire Phase for Armies, Pursuits and Infrastructure. Pursuit upkeep is fixed by type (Monument 300, Power 200, Energy 0, all others 0); a Pursuit pays no upkeep while its Build Timer is running. Army upkeep = Retinue count × (Retinue cost − Upkeep modifiers)."
+    ],
+    [
      "Within",
      "Range 0."
+    ],
+    [
+     "Wrought",
+     "Wrought equipment tier. Weapons: Arming Sword, Pike, Flail, Halberd, Battle Axe, Cavalry Spear; Ranged: Javelin; Armor: Chainmail; Shield: Kite Shield. Unlocked by: Blacksmith (Mastery) (all), Armory (armor & shield)."
+    ],
+    [
+     "Wrought Armor",
+     "Wrought-tier armor: Chainmail. Unlocked by: Blacksmith (Mastery), Armory."
+    ],
+    [
+     "Wrought Shields",
+     "Wrought-tier shields: Kite Shield. Unlocked by: Blacksmith (Mastery), Armory."
+    ],
+    [
+     "Wrought Weapons",
+     "Wrought-tier weapons: Arming Sword, Pike, Flail, Halberd, Battle Axe, Cavalry Spear, Javelin. Unlocked by: Blacksmith (Mastery)."
     ]
    ]
   }
@@ -1031,7 +1196,7 @@
      "Weavery",
      "",
      "Merchant Quarter + Animal Husbandry",
-     "+300",
+     "**Efficient Merchant Quarter**; +300",
      "+300; Craft +2"
     ],
     [
@@ -1344,14 +1509,14 @@
      "Trade Guild",
      "Rising Industry",
      "Masonry or Carpentry",
-     "No Upkeep on **Primitive Infrastructure**",
+     "**Efficient Carpentry, Masonry**; No Upkeep on **Primitive Infrastructure**",
      "No Upkeep on **Developed Infrastructure**"
     ],
     [
      "Court Artists",
      "Established Industry",
      "Merchant Quarter + Artisan Workshop",
-     "**Extort 500**; **Faith +1**",
+     "**Efficient Artisan Workshop**; **Extort 500**; **Faith +1**",
      "**Extort 500**; Target of Extort gains **Faith +1**"
     ],
     [
@@ -1464,7 +1629,7 @@
      "Money Lending",
      "Established Industry",
      "Merchant Quarter",
-     "**Extort 500**",
+     "**Efficient Merchant Quarter**; **Extort 500**",
      "May loan money to Trade Partners at 100 per 1000/turn interest(minimum 100); on Default: Perform **Demand Tribute**"
     ],
     [
@@ -1566,7 +1731,7 @@
     [
      "Office of Works",
      "Sovereign Industry",
-     "College of Engineering + Storehouse",
+     "College of Engineering + Storehouse + Census Hall",
      "Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions.",
      "Siege Timer +2; Build Timer -2"
     ],
@@ -2163,7 +2328,7 @@
   ],
   [
    "The Iron Throne",
-   "Unimpeachable: You begin the game with a Citadel (no Ward, no upkeep, always-active Mastery). You (and your Alliance) can't perform Declare War or Crusade."
+   "Unimpeachable: You begin the game with a Citadel (no Ward, no upkeep, always-active Mastery). You (and your Alliance) can't perform Declare War or Sacred War."
   ],
   [
    "The Merchant Republics",
@@ -2195,11 +2360,11 @@
   ],
   [
    "The Bloodied Cross",
-   "Prophets of War: You may Crusade at Rising Piety instead of Sovereign Piety, with no cap on active Crusades. Each player gains Doubt +1 per Crusade you're on. You can't perform Convert actions."
+   "Prophets of War: You may Sacred War at Rising Piety instead of Sovereign Piety, with no cap on active Sacred Wars. Each player gains Doubt +1 per Sacred War you're on. You can't perform Convert actions."
   ],
   [
    "The Blazing Standard",
-   "Burning Cross: You begin the game with a Preceptory of the Knight's Templar (no Ward, no upkeep, always-active Mastery). When you Declared War via Crusade, that player takes a Panic Check at the start of every Battle, after lines are formed. During the Prowess Envoy phase, if you don't have an Army of 25 Knight's Templars, you must attempt to send an Envoy; if it passes, you must muster an Army until it holds 25 Knight's Templar Retinues."
+   "Burning Cross: You begin the game with a Preceptory of the Knight's Templar (no Ward, no upkeep, always-active Mastery). When you Declared War via Sacred War, that player takes a Panic Check at the start of every Battle, after lines are formed. During the Prowess Envoy phase, if you don't have an Army of 25 Knight's Templars, you must attempt to send an Envoy; if it passes, you must muster an Army until it holds 25 Knight's Templar Retinues."
   ],
   [
    "The Inner Circle",
@@ -2388,7 +2553,7 @@
    "Piety",
    "Divine Mandate: Faith +1 each Empire Phase.",
    "One True Gospel: Each Empire Phase, all other non-allied players with a lower Piety value gain Doubt +2.",
-   "Pillar of Faith: If your Public Order would be set below 3, set it to 3. In addition, may use the Crusade action."
+   "Pillar of Faith: If your Public Order would be set below 3, set it to 3. In addition, may use the Sacred War action."
   ]
  ],
  "tactics_matrix": {

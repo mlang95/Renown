@@ -175,8 +175,8 @@ GLOSSARY = {
     "Faith X":       "Gain X Faith: each Faith raises your Public Order track by 1 when resolved.",
     "Doubt X":       "Gain X Doubt: each Doubt lowers your Public Order track by 1 when resolved.",
     "Extort X":      "Take X from the stated source: the gold goes to you instead of its owner.",
-    "Recoup":        "Regain the stated cost in gold after paying it.",
-    "Speed":         "An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 2",
+    "Recoup X":        "Regain the stated cost in gold after paying it.",
+    "Speed X":         "An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 3",
 
     # ── Council, Influence & Envoys (from Rules; the political loop) ──
     "Influence":     "The political currency of voting. Spend it to Support or Oppose Envoys. You gain it each turn from your Era, innate modifiers (trade partners, alliances, war), Pursuits, and Infrastructure.",
@@ -791,6 +791,7 @@ NODES = {
         "mastery_req": "Merchant Quarter + Animal Husbandry",
         "innate": "+300",
         "mastery": "+300; Craft +2",
+        "efficient": "Merchant Quarter",
         "builds_into": ["Artisan Workshop"],
         "monument": False},
     "Fletchery": {
@@ -1001,6 +1002,7 @@ NODES = {
         "mastery_req": "Merchant Quarter",
         "innate": "**Extort 500**",
         "mastery": "May loan money to Trade Partners at 100 per 1000/turn interest(minimum 100); on Default: Perform **Demand Tribute**",
+        "efficient": "Merchant Quarter",
         "builds_into": ["Court Artists", "Aristocratic Court"],
         "monument": False},
     "Census Hall": {
@@ -1247,6 +1249,7 @@ NODES = {
         "mastery_req": "Masonry or Carpentry",
         "innate": "No Upkeep on **Primitive Infrastructure**",
         "mastery": "No Upkeep on **Developed Infrastructure**",
+        "efficient": ["Carpentry","Masonry"],
         "builds_into": ["College of Engineering"],
         "monument": False},
     "Court Artists": {
@@ -1255,6 +1258,7 @@ NODES = {
         "mastery_req": "Merchant Quarter + Artisan Workshop",
         "innate": "**Extort 500**; **Faith +1**",
         "mastery": "**Extort 500**; Target of Extort gains **Faith +1**",
+        "efficient": "Artisan Workshop",
         "builds_into": ["Aristocratic Court"],
         "monument": False},
     "Courier Network": {
@@ -1463,7 +1467,7 @@ NODES = {
     "Office of Works": {
         "type": "Monument",
         "unlock": "Sovereign Industry",
-        "mastery_req": "College of Engineering + Storehouse",
+        "mastery_req": "College of Engineering + Storehouse + Census Hall",
         "innate": "Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions.",
         "mastery": "Siege Timer +2; Build Timer -2",
         "builds_into": [],
@@ -1783,7 +1787,7 @@ FACTIONS = {
         'feel': 'Defensive, Impenetrable',
         'difficulty': 'Low',
         'strength': 'Medium',
-        'mechanic': "Unimpeachable: You begin the game with a Citadel (no Ward, no upkeep, always-active Mastery). You (and your Alliance) can't perform Declare War or Crusade.",
+        'mechanic': "Unimpeachable: You begin the game with a Citadel (no Ward, no upkeep, always-active Mastery). You (and your Alliance) can't perform Declare War or Sacred War.",
         'pair': 'Inquisitorial Palace, Senate Hall',
         'complement': 'Royal Pavilion',
     },
@@ -1860,10 +1864,10 @@ FACTIONS = {
     'The Bloodied Cross': {
         'final_cut': True,
         'inspiration': 'Crusading Sect',
-        'feel': 'Holy War Without End',
+        'feel': 'Sacred War Without End',
         'difficulty': 'Medium',
         'strength': 'High',
-        'mechanic': "Prophets of War: You may Crusade at Rising Piety instead of Sovereign Piety, with no cap on active Crusades. Each player gains Doubt +1 per Crusade you're on. You can't perform Convert actions.",
+        'mechanic': "Prophets of War: You may Sacred War at Rising Piety instead of Sovereign Piety, with no cap on active Sacred Wars. Each player gains Doubt +1 per Sacred War you're on. You can't perform Convert actions.",
         'pair': "Preceptory of the Knight's Templar, Inquisitorial Palace",
         'complement': 'Senate Hall',
     },
@@ -1873,7 +1877,7 @@ FACTIONS = {
         'feel': 'Crusader Feel',
         'difficulty': 'Medium',
         'strength': 'High',
-        'mechanic': "Burning Cross: You begin the game with a Preceptory of the Knight's Templar (no Ward, no upkeep, always-active Mastery). When you Declared War via Crusade, that player takes a Panic Check at the start of every Battle, after lines are formed. During the Prowess Envoy phase, if you don't have an Army of 25 Knight's Templars, you must attempt to send an Envoy; if it passes, you must muster an Army until it holds 25 Knight's Templar Retinues.",
+        'mechanic': "Burning Cross: You begin the game with a Preceptory of the Knight's Templar (no Ward, no upkeep, always-active Mastery). When you Declared War via Sacred War, that player takes a Panic Check at the start of every Battle, after lines are formed. During the Prowess Envoy phase, if you don't have an Army of 25 Knight's Templars, you must attempt to send an Envoy; if it passes, you must muster an Army until it holds 25 Knight's Templar Retinues.",
         'pair': "Preceptory of the Knight's Templar, Royal Pavilion",
         'complement': 'Senate Hall',
     },
@@ -2235,7 +2239,7 @@ DOMAIN_BOARD = {
     "Piety": {
         "Rising":      "Divine Mandate: Faith +1 each Empire Phase.",
         "Established": "One True Gospel: Each Empire Phase, all other non-allied players with a lower Piety value gain Doubt +2.",
-        "Sovereign":   "Pillar of Faith: If your Public Order would be set below 3, set it to 3. In addition, may use the Crusade action.",
+        "Sovereign":   "Pillar of Faith: If your Public Order would be set below 3, set it to 3. In addition, may use the Sacred War action.",
     },
     # Influence scaling by standing (Untested/Rising/Established/Sovereign):
     "max_influence_per_vote":  {"Untested": 1, "Rising": 2, "Established": 3, "Sovereign": 4},
@@ -2546,13 +2550,18 @@ ACTIONS = {
         'endorsed': 'Gain Faith 1.',
         'notes': ["If the target's Public Order rises to 1 or higher before the timer reaches 0, the Convert fails and the timer is removed."],
     },
-    'Crusade': {
+    'Sacred War': {
         'domain': 'Piety',
         'cost': 'Doubt 1',
         'requires': 'Sovereign Piety',
         'effect': 'Declare War on a non-ally you have no NAP or truce with, then immediately perform a Move action with one of your Armies.',
         'endorsed': 'Gain Faith 1.',
-        'notes': ['While a Crusade is active, neither player may Declare War on, Sign or End a Treaty with, Negotiate with, or Demand Tribute from the other.', 'You may have only one active Crusade at a time. It ends only when one of the two players is Vassalized or otherwise removed from the game.'],
+        'notes': [
+            'While a Sacred War is active, neither player may Declare War on, Sign or End a Treaty with, Negotiate with, or Demand Tribute from the other. All previous treaties are immediately Ended.',
+            'You may have only one active Sacred War at a time. It ends only when one of the two players is Vassalized or otherwise removed from the game.',
+            'When you perform this action, members of Military and Defensive Alliances are ignored.',
+            'If the target of this action is vassalized by any player, the Sacred War can be transferred to the Suzerain if the player who performed the action wishes.',
+        ],
     },
     'Build': {
         'domain': 'Industry',
@@ -2702,7 +2711,7 @@ COSTS = {
     "Infrastructure upkeep": "Per-settlement (see INFRASTRUCTURE); Trade Guild removes Primitive/Developed, College of Engineering removes Sophisticated",
     "Cunning action":  "2000 gold (Intercept Caravan / Foster Rebellion / Raze / Destabilize)",
     "Industry action": "2000 gold (Build / Repair / Pursue / Charter)",
-    "Piety action":    "Doubt 1 (Spread Truth / Send Missionaries / Tithe / Convert / Crusade)",
+    "Piety action":    "Doubt 1 (Spread Truth / Send Missionaries / Tithe / Convert / Sacred War)",
     "Prowess action":  "None (Move / Declare War / Demand Tribute)",
     "Diplomacy action":"None (Sign Treaty / Negotiate / End Treaty)",
     "Sack":            f"Extort {SACK_EXTORT_PER_TIER} per settlement tier; reduce settlement by 1 tier; Sack Timer {TIMERS['Sack Timer']['default']}",
@@ -2971,3 +2980,53 @@ if __name__ == "__main__":
     print("Cunning:", die_table_weights(BANDIT_CUNNING_TABLE))
     print("Tactics:", die_table_weights(BANDIT_TACTIC_TABLE))
     print(bandit_cunning_text())
+
+# ── Keyword glossary: entries built from the data (so hovers/wiki stay in step with it) ──────────
+import re
+GLOSSARY.update({
+    "Natural": "Natural Pursuits do not cost Upkeep.",
+    "Upkeep":  (f"Gold you pay each Empire Phase for Armies, Pursuits and Infrastructure. Pursuit upkeep is fixed by type "
+                f"({_PU_TEXT}); a Pursuit pays no upkeep while its Build Timer is running. Army upkeep = Retinue count × "
+                f"(Retinue cost − Upkeep modifiers)."),
+    "Craft":   (f"Craft Pursuits count toward how much income your Trade Agreements generate — any effect that grants Craft +X. "
+                f"For each active Trade Agreement, both players gain {TRADE_RULES['income_per_craft']} × the Host's Craft X."),
+    "Efficient": ("A Pursuit is efficient with the Raw Material or Pursuit named on its tile. While it shares a Settlement Ward "
+                  "with that piece, it doesn't consume a Ward of its own."),
+})
+for _k, _v in TIMERS.items():                      # Build Timer, Repair Timer, Truce Timer, …
+    GLOSSARY.setdefault(_k, _v["tracks"])
+
+def _tier_items(src, t):
+    return [k for k, v in src.items() if k and v.get("tier") == t]
+def _unlockers(tier):
+    """[(pursuit, {'weapons','armor','shield'})] from Pursuit text: 'Unlocks Cast Weapons', 'Unlock Wrought armor & shield',
+    'Unlocks Forged Tier', 'Crafted Tier Unlocked' (a whole Tier = all three)."""
+    out = []
+    for n, d in NODES.items():
+        for part in ("innate", "mastery"):
+            t = re.sub(r"\*\*", "", d.get(part, "") or "").lower(); tl = tier.lower(); c = set()
+            if re.search(rf"unlocks?\s+{tl}\s+tier|{tl}\s+tier\s+unlocked", t): c = {"weapons", "armor", "shield"}
+            else:
+                if re.search(rf"unlocks?\s+{tl}\s+weapons", t): c.add("weapons")
+                if re.search(rf"unlocks?\s+{tl}\s+armor", t): c.add("armor")
+                if re.search(rf"unlocks?\s+{tl}\s+(armor\s+(&|and)\s+)?shields?", t): c.add("shield")
+            if c: out.append((n + ("" if part == "innate" else " (Mastery)"), c))
+    return out
+def _ulabel(c):
+    return "all" if len(c) == 3 else " & ".join(x for x in ("weapons", "armor", "shield") if x in c)
+for _t in TIERS:
+    _d = TIER_DISPLAY.get(_t, _t)
+    _parts = [(lab, _tier_items(src, _t)) for lab, src in
+              (("Weapons", WEAPONS), ("Ranged", RANGED), ("Armor", ARMORS), ("Shield", SHIELDS))]
+    _u = _unlockers(_t)
+    GLOSSARY.setdefault(_d, f"{_d} equipment tier. " + "; ".join(f"{lab}: {', '.join(xs)}" for lab, xs in _parts if xs) + "."
+                        + (f" Unlocked by: {', '.join(n + ' (' + _ulabel(c) + ')' for n, c in _u)}." if _u else ""))
+    for _lab, _srcs, _cat in (("Weapons", (WEAPONS, RANGED), "weapons"), ("Armor", (ARMORS,), "armor"), ("Shields", (SHIELDS,), "shield")):
+        _xs = [x for s in _srcs for x in _tier_items(s, _t)]
+        _uu = [n for n, c in _u if _cat in c]
+        if _xs:
+            GLOSSARY.setdefault(f"{_d} {_lab}", f"{_d}-tier {_lab.lower()}: {', '.join(_xs)}." + (f" Unlocked by: {', '.join(_uu)}." if _uu else ""))
+GLOSSARY.setdefault("Ranged Weapons", "Ranged weapons: " + ", ".join(
+    f"{k} ({TIER_DISPLAY.get(v.get('tier'), v.get('tier'))})" for k, v in RANGED.items()) + "."
+    + (lambda u: f" Unlocked by: {', '.join(u)}." if u else "")(
+        [n for n, d in NODES.items() if re.search(r"unlocks?\s+ranged weapons", re.sub(r"\*\*", "", (d.get("innate") or "") + " " + (d.get("mastery") or "")).lower())]))
