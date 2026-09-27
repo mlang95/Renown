@@ -2261,9 +2261,14 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
   tb.appendChild(vt);
   const fl=document.createElement("span");fl.id="flash";fl.className="flash";tb.appendChild(fl);
   host.appendChild(tb);
-  const flags=boardFlags();
+  // board flags: each can be ignored; it returns if its text changes (e.g. "Cities 2 / 0" → "3 / 0") or it clears and comes back
+  const flagsAll=boardFlags(),fkey=x=>"b:"+x.replace(/\d+/g,"#");
+  S.ign=S.ign||{};const liveKeys=new Set(flagsAll.map(fkey));
+  Object.keys(S.ign).filter(k=>k.startsWith("b:")&&!liveKeys.has(k)).forEach(k=>{delete S.ign[k];IGN_DIRTY=true;});
+  const flags=flagsAll.filter(x=>flagState(fkey(x),true,x)==="on");
   if(flags.length){const fb=document.createElement("div");fb.className="flagbox";
-    fb.innerHTML='<b>⚑ '+flags.length+' flag'+(flags.length>1?'s':'')+'</b><ul>'+flags.map(x=>'<li>'+esc(x)+'</li>').join("")+'</ul>';
+    fb.innerHTML='<b>⚑ '+flags.length+' flag'+(flags.length>1?'s':'')+'</b><ul></ul>';
+    const ul=fb.querySelector("ul");flags.forEach(x=>{const li=document.createElement("li");li.textContent=x+" ";li.appendChild(ignBtn(fkey(x),x));ul.appendChild(li);});
     host.appendChild(fb);}
 
   const facP=S.placed.filter(p=>p.sid==="faction");
