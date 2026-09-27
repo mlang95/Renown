@@ -606,7 +606,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .players{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
   .pchip{display:flex;align-items:center;gap:5px;padding:3px 8px;border:1px solid var(--line);border-radius:var(--pill);cursor:pointer;font-size:12px;color:var(--dim)}
   .pchip.on{color:var(--ink);border-color:var(--line2);background:var(--sel)}
-  .pdot{width:10px;height:10px;border-radius:50%}
+  .pdot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:baseline}
   .app{height:calc(100vh - 47px)}
   @media(max-width:1100px){.app{height:auto}}
   .viewpane{height:calc(100vh - 47px)}
@@ -646,6 +646,40 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .ptable td .atom{font-size:10px;padding:0 5px}
   .ptable select{font-size:11px;padding:2px 4px}
   .ptable .pcaret{width:9px;display:inline-block}
+  /* ---------- phones ---------- */
+  .mnav{display:none}
+  @media(max-width:700px){
+    body{font-size:14px}
+    input,select,textarea{font-size:16px}                /* stops iOS zooming into fields */
+    button{min-height:34px}
+    .topbar{gap:6px;padding:6px 8px}
+    .views,.players{flex-wrap:nowrap;overflow-x:auto;width:100%;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+    .views::-webkit-scrollbar,.players::-webkit-scrollbar{display:none}
+    .vtab{white-space:nowrap;padding:6px 10px}
+    .players>*{flex:0 0 auto}
+    #themeSel,#shapeSel{max-width:118px}
+    body:not([data-view="board"]) .mnav{display:none!important}
+    .mnav{display:flex;gap:4px;position:sticky;top:var(--tbh,0px);z-index:15;padding:6px 8px;background:var(--bg);border-bottom:1px solid var(--line)}
+    .mnav button{flex:1}.mnav button.on{border-color:var(--ink);font-weight:600}
+    .app{display:block}
+    .app .col{border:none;padding:10px;overflow:visible}
+    .app[data-mc="board"] #catalog,.app[data-mc="board"] #summary,
+    .app[data-mc="catalog"] #boardcol,.app[data-mc="catalog"] #summary,
+    .app[data-mc="summary"] #boardcol,.app[data-mc="summary"] #catalog{display:none}
+    .board,.wards{grid-template-columns:1fr}
+    .viewpane{padding:8px!important;max-width:100vw;overflow-x:hidden}
+    .viewpane table{display:block;overflow-x:auto;max-width:100%}
+    .tb-wrap{padding:8px;gap:8px}
+    /* Table view: the oval becomes a seat list in turn order, phase card first */
+    .tb-felt{height:auto;display:flex;flex-direction:column;gap:6px}
+    .tb-oval{display:none}
+    .tb-center{position:static!important;order:-1;border:1px solid var(--line2);border-radius:var(--radius-sm);padding:10px;
+      background:radial-gradient(ellipse at center,color-mix(in srgb,var(--income) 22%,var(--panel)) 0%,color-mix(in srgb,var(--income) 10%,var(--panel2)) 80%)}
+    .tb-seat{position:static!important;transform:none!important;width:auto!important}
+    .tb-seat.empty{display:none}
+    #gkTip{max-width:92vw}
+    .modalcard{max-width:96vw!important}
+  }
 </style>
 </head>
 <body>
@@ -679,7 +713,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <option value="square">Square</option>
   </select>
 </div>
-<div class="app" id="appBoard">
+<div class="mnav" id="mnav"><button data-mc="board" class="on">Board</button><button data-mc="catalog">Catalog</button><button data-mc="summary">Totals</button></div>
+<div class="app" id="appBoard" data-mc="board">
   <!-- CATALOG -->
   <div class="col" id="catalog">
     <div class="facbox" id="facBox"></div>
@@ -796,6 +831,21 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
     <details class="notes"><summary class="note">parser warnings</summary>
       <div class="note" id="assump"></div></details>
+
+    <details class="tot" id="gameBox" style="margin-top:10px">
+      <summary style="cursor:pointer" class="note">Game — save · load · new</summary>
+      <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+        <input id="gameName" placeholder="game name" style="flex:1;min-width:90px">
+        <button id="gameSave">save game</button>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+        <select id="gameList" style="flex:1;min-width:90px"><option value="">— saved games —</option></select>
+        <button id="gameLoad">load</button><button id="gameDel">del</button>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center">
+        <button id="gameNew">new game…</button><span class="note" id="gameNote">Host only when online. Export/import files still work.</span>
+      </div>
+    </details>
 
     <details class="tot" id="srvBox" style="margin-top:10px">
       <summary style="cursor:pointer;display:flex;align-items:center;gap:6px">
@@ -1153,7 +1203,7 @@ function renderTable(){
   const pan=tPanel(R);
   host.innerHTML='<div class="tb-wrap"><div><div class="tb-felt">'+'<div class="tb-oval"></div><div class="tb-center">'+ctr+'</div>'+seats+'</div>'+
     (D.players.some(p=>!Object.values(sm).includes(p))?'<div class="note">Not seated: '+D.players.filter(p=>!Object.values(sm).includes(p)).map(p=>esc(p.name)).join(", ")+' — seated players only take part.</div>':'')+
-    '<div class="tot"><h3 style="font-size:13px">Log</h3>'+(log||'<div class="note">Nothing resolved yet this phase.</div>')+'</div>'+tHistHtml()+'</div>'+
+    '<div class="tot"><h3 style="font-size:13px">Log</h3>'+(log||'<div class="note">Nothing resolved yet this phase.</div>')+'</div>'+tHistHtml()+activityHtml()+'</div>'+
     '<div class="tb-panel">'+pan+'</div></div>';
   tWire(host,R);tCountdown(R);}
 
@@ -1451,6 +1501,8 @@ function splitD(){
 }
 function joinD(parts){
   const act=(D.players[D.active]||{}).id,sh=parts.shared||{};
+  const preAct={};(D.players||[]).forEach(p=>{try{preAct[p.id]=actSnap(p.board);}catch(e){}});
+  const preSh=JSON.stringify([D.renown,D.season]);
   Object.keys(D).forEach(k=>{if(!LOCAL_KEYS.has(k))delete D[k];});
   Object.keys(sh).forEach(k=>{if(k!=="roster")D[k]=clone(sh[k]);});
   const ids=Object.keys(sh.roster||{}).sort((a,b)=>(+a)-(+b));
@@ -1458,6 +1510,7 @@ function joinD(parts){
     board:clone(parts["board:"+id])||newBoard()}));
   normalizeD();
   const ix=D.players.findIndex(p=>p.id===act);D.active=ix>=0?ix:Math.min(D.active||0,D.players.length-1);
+  actJoin(preAct,preSh);
   undoRebase();
 }
 async function apiRaw(method,path,body){
@@ -1471,7 +1524,7 @@ async function apiRaw(method,path,body){
 }
 let _saveT=null;
 function save(){
-  undoRecord();
+  undoRecord();if(!ACT.saving)actSchedule();
   try{localStorage.setItem("renown_dash",JSON.stringify(D));}catch(e){}
   clearTimeout(_saveT);_saveT=setTimeout(push,400);
 }
@@ -1815,6 +1868,7 @@ function render(){
   renderTopBar();
   if(D.view==="battle"&&!mods().battle)D.view="board";
   const view=D.view||"board";
+  document.body.dataset.view=view;
   document.getElementById("vtabBattle").style.display=mods().battle?"":"none";
   document.querySelectorAll(".modcb").forEach(cb=>{cb.checked=!!mods()[cb.dataset.m];
     if(!cb._w){cb._w=1;cb.onchange=()=>{mods()[cb.dataset.m]=cb.checked;save();render();};}});
@@ -3647,11 +3701,18 @@ document.getElementById("ver").textContent=DATA.version;
 if(DATA.warnings&&DATA.warnings.length)document.getElementById("assump").innerHTML="<span class='warn'>"+DATA.warnings.join("<br>")+"</span>";
 else document.getElementById("assump").closest("details").remove();
 
+// ---- phone section switcher (Board / Catalog / Totals) ----
+document.querySelectorAll("#mnav [data-mc]").forEach(b=>b.onclick=()=>{document.getElementById("appBoard").dataset.mc=b.dataset.mc;
+  document.querySelectorAll("#mnav [data-mc]").forEach(x=>x.classList.toggle("on",x===b));window.scrollTo(0,0);});
+function mnavSync(){const tb=document.querySelector(".topbar");if(tb)document.documentElement.style.setProperty("--tbh",tb.offsetHeight+"px");
+}
+window.addEventListener("resize",mnavSync);setInterval(mnavSync,1000);
+
 // ===================== UNDO / REDO =====================
 // Snapshots everything except Table data (votes are timestamped; undoing them would rewrite the sequence)
 // and view-local keys. Online with several players (not hot-seat): undo restores only YOUR board.
 const UNDO={past:[],future:[],last:null,t:null,mute:false,MAX:60};
-function undoSnap(){return JSON.stringify(D,function(k,v){if(k==="tbl")return undefined;
+function undoSnap(){return JSON.stringify(D,function(k,v){if(k==="tbl"||k==="act")return undefined;
   if(this===D&&(k==="view"||k==="active"))return undefined;return v;});}
 function undoRecord(){if(UNDO.mute)return;let cur;try{cur=undoSnap();}catch(e){return;}
   if(UNDO.last===null){UNDO.last=cur;return;}
@@ -3664,18 +3725,18 @@ function undoScoped(){return !!(typeof SYNC!=="undefined"&&SYNC.ready)&&!HOTSEAT
 function undoApply(sn){const o=JSON.parse(sn);UNDO.mute=true;
   try{
     if(undoScoped()){const me=meP(),src=(o.players||[]).find(p=>String(p.id)===String(me.id));
-      if(src){const tb=me.board.tbl;me.board=src.board;if(tb)me.board.tbl=tb;}}
-    else{const tbls={};D.players.forEach(p=>{if(p.board&&p.board.tbl)tbls[p.id]=p.board.tbl;});
+      if(src){const tb=me.board.tbl,ac=me.board.act;me.board=src.board;if(tb)me.board.tbl=tb;if(ac)me.board.act=ac;}}
+    else{const tbls={},acts={};D.players.forEach(p=>{if(p.board&&p.board.tbl)tbls[p.id]=p.board.tbl;if(p.board&&p.board.act)acts[p.id]=p.board.act;});
       Object.keys(D).forEach(k=>{if(k!=="view"&&k!=="active"&&k!=="tbl"&&!(k in o))delete D[k];});
       Object.keys(o).forEach(k=>{D[k]=o[k];});
-      D.players.forEach(p=>{if(tbls[p.id])p.board.tbl=tbls[p.id];});
+      D.players.forEach(p=>{if(tbls[p.id])p.board.tbl=tbls[p.id];if(acts[p.id])p.board.act=acts[p.id];});
       if(!(D.active<D.players.length))D.active=0;}
     reindex();render();renderList();
     const tr=document.getElementById("treasury");if(tr)tr.value=S.treasury;
     save();
   }finally{UNDO.last=undoSnap();UNDO.mute=false;undoButtons();}}
-function doUndo(){if(!UNDO.past.length)return;clearTimeout(UNDO.t);UNDO.t=null;UNDO.future.push(undoSnap());undoApply(UNDO.past.pop());}
-function doRedo(){if(!UNDO.future.length)return;clearTimeout(UNDO.t);UNDO.t=null;UNDO.past.push(undoSnap());undoApply(UNDO.future.pop());}
+function doUndo(){if(!UNDO.past.length)return;ACT.undo="undo";clearTimeout(UNDO.t);UNDO.t=null;UNDO.future.push(undoSnap());undoApply(UNDO.past.pop());}
+function doRedo(){if(!UNDO.future.length)return;ACT.undo="redo";clearTimeout(UNDO.t);UNDO.t=null;UNDO.past.push(undoSnap());undoApply(UNDO.future.pop());}
 function undoButtons(){const u=document.getElementById("undoBtn"),r=document.getElementById("redoBtn");
   if(u){u.disabled=!UNDO.past.length;u.title="Undo (Ctrl+Z)"+(UNDO.past.length?" · "+UNDO.past.length+" step"+(UNDO.past.length>1?"s":""):"")+(undoScoped()?" · your board only":"");}
   if(r)r.disabled=!UNDO.future.length;}
@@ -3684,6 +3745,104 @@ document.addEventListener("keydown",e=>{if(!(e.ctrlKey||e.metaKey))return;const 
   const tg=e.target;if(tg&&(tg.isContentEditable||tg.tagName==="TEXTAREA"||
     (tg.tagName==="INPUT"&&!["checkbox","radio","button","color","range"].includes(tg.type))))return;   // native text undo
   e.preventDefault();if(k==="y"||e.shiftKey)doRedo();else doUndo();});
+
+// ===================== ACTIVITY LOG =====================
+// Each client diffs the boards it changed (≈1 s after the last edit) and appends a summary to that
+// board's own log (b.act, last 40), so it syncs like everything else. Remote edits are never re-logged here.
+const ACT={base:null,t:null,saving:false,undo:false};
+function actSnap(b){const o=Object.assign({},b);delete o.tbl;delete o.act;delete o.expanded;return JSON.stringify(o);}
+function actRebase(){ACT.base={};D.players.forEach(p=>{ACT.base[p.id]=actSnap(p.board);});ACT.shared=JSON.stringify([D.renown,D.season]);}
+// after a remote merge: re-baseline only boards the remote actually changed, so local edits still pending get logged
+function actJoin(pre,preSh){if(!ACT.base){actRebase();return;}
+  D.players.forEach(p=>{const post=actSnap(p.board);if(pre[p.id]!==post||ACT.base[p.id]===undefined)ACT.base[p.id]=post;});
+  const sh=JSON.stringify([D.renown,D.season]);if(sh!==preSh)ACT.shared=sh;}
+function actSchedule(){if(!ACT.base){actRebase();return;}clearTimeout(ACT.t);ACT.t=setTimeout(actFlush,1200);}
+function fmtG(v){return (+v||0).toLocaleString();}
+function boardDiff(a,b){const L=[];
+  const sN=(bd,id)=>{if(id==="faction")return "faction";const x=(bd.settlements||[]).find(s=>s.id===id);return x?(x.name||x.tier):"?";};
+  const pa=new Map((a.placed||[]).map(x=>[x.id,x])),pb=new Map((b.placed||[]).map(x=>[x.id,x]));
+  pb.forEach((x,id)=>{const o=pa.get(id);
+    if(!o){L.push("placed "+x.name+" in "+sN(b,x.sid)+(x.bt>0?" (build "+x.bt+")":""));return;}
+    if(o.sid!==x.sid||o.ward!==x.ward)L.push("moved "+x.name+" → "+sN(b,x.sid));
+    if((o.bt||0)!==(x.bt||0))L.push(x.bt>0?x.name+" build timer "+(o.bt||0)+" → "+x.bt:x.name+" built");
+    if((o.dmg||0)!==(x.dmg||0))L.push(x.dmg>0?x.name+" damaged ("+x.dmg+")":x.name+" repaired");});
+  pa.forEach((x,id)=>{if(!pb.has(id))L.push("removed "+x.name);});
+  const sa=new Map((a.settlements||[]).map(x=>[x.id,x])),sb=new Map((b.settlements||[]).map(x=>[x.id,x]));
+  sb.forEach((x,id)=>{const o=sa.get(id);if(!o){L.push("new settlement: "+x.tier);return;}
+    if(o.tier!==x.tier)L.push((x.name||o.tier)+" "+o.tier+" → "+x.tier);
+    if(!o.capital&&x.capital)L.push("capital moved to "+(x.name||x.tier));
+    if((o.bt||0)!==(x.bt||0)&&!(x.bt>0))L.push((x.name||x.tier)+" finished");});
+  sa.forEach((x,id)=>{if(!sb.has(id))L.push("lost settlement: "+(x.name||x.tier));});
+  [["infra","Infrastructure"],["wonders","Wonder"]].forEach(([k,lab])=>{const A=a[k]||{},B_=b[k]||{};
+    Object.keys(B_).filter(n=>!(n in A)).forEach(n=>L.push("built "+lab+": "+n));
+    Object.keys(A).filter(n=>!(n in B_)).forEach(n=>L.push("removed "+lab+": "+n));});
+  const aa=new Map((a.armies||[]).map(x=>[x.id,x])),ab=new Map((b.armies||[]).map(x=>[x.id,x]));
+  const an=x=>(x.label||"Army "+x.id);
+  ab.forEach((x,id)=>{const o=aa.get(id);if(!o){L.push("raised "+an(x)+": "+(x.count||0)+"× "+x.retinue);return;}
+    if((o.count||0)!==(x.count||0))L.push(an(x)+" "+(o.count||0)+" → "+(x.count||0)+" "+x.retinue);
+    ["retinue","weapon","ranged","armor","shield"].forEach(f=>{if(o[f]!==x[f])L.push(an(x)+" "+f+": "+o[f]+" → "+x[f]);});
+    if(!o.strained&&x.strained)L.push(an(x)+" Strained");});
+  aa.forEach((x,id)=>{if(!ab.has(id))L.push("disbanded "+an(x));});
+  if((a.turn||0)!==(b.turn||0))L.push("ended turn "+(a.turn||0)+" → "+(b.turn||0));
+  if((a.treasury||0)!==(b.treasury||0)){const d=(b.treasury||0)-(a.treasury||0);L.push("gold "+fmtG(a.treasury)+" → "+fmtG(b.treasury)+" ("+(d>0?"+":"")+fmtG(d)+")");}
+  if((a.po||0)!==(b.po||0))L.push("Public Order "+(a.po||0)+" → "+(b.po||0));
+  const da=a.domains||{},db=b.domains||{};new Set([...Object.keys(da),...Object.keys(db)]).forEach(d=>{if((da[d]||0)!==(db[d]||0))L.push(d+" "+(da[d]||0)+" → "+(db[d]||0));});
+  if((a.faction||"")!==(b.faction||""))L.push("faction: "+(b.faction||"none"));
+  const ea=a.edictLog||{},eb=b.edictLog||{};Object.keys(eb).forEach(k=>{const n0=(ea[k]||[]).length,n1=(eb[k]||[]).length;if(n1>n0)L.push("Edict progress: "+k+" ("+n1+")");});
+  return L;}
+function actFlush(){ACT.t=null;if(!ACT.base){actRebase();return;}let ch=false;const by=meP()?meP().name:"";
+  const tag=ACT.undo?ACT.undo:"";ACT.undo=false;
+  D.players.forEach(p=>{const cur=actSnap(p.board),prev=ACT.base[p.id];ACT.base[p.id]=cur;
+    if(prev===undefined||prev===cur)return;
+    const lines=boardDiff(JSON.parse(prev),JSON.parse(cur));if(!lines.length)return;
+    const L=p.board.act=p.board.act||[];L.push({ts:Date.now(),turn:tTurn(),season:curSeason(),by:by!==p.name?by:"",tag,lines});
+    if(L.length>40)L.splice(0,L.length-40);ch=true;});
+  const sh=JSON.stringify([D.renown,D.season]);
+  if(ACT.shared&&sh!==ACT.shared&&meP()){const [r0,s0]=JSON.parse(ACT.shared),lines=[];
+    if(r0!==D.renown)lines.push("Renown "+r0+" → "+D.renown);if((s0||"")!==(D.season||""))lines.push("Season → "+curSeason());
+    if(lines.length){const L=meP().board.act=meP().board.act||[];L.push({ts:Date.now(),turn:tTurn(),season:curSeason(),by:"",tag,lines});ch=true;}}
+  ACT.shared=sh;
+  if(ch){ACT.saving=true;try{save();}finally{ACT.saving=false;}if(D.view==="table"&&!editing())renderTable();}}
+function activityHtml(){const rows=D.players.map(p=>{const L=(p.board.act||[]).slice().reverse();if(!L.length)return "";
+    const last=new Date(L[0].ts);
+    return '<details><summary><span class="pdot" style="background:'+p.color+'"></span><b>'+esc(p.name)+'</b> <span class="note">— '+L.length+' change'+(L.length>1?'s':'')+' · last '+last.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})+'</span></summary>'+
+      L.map(e=>'<div class="tb-lg"><span class="note">'+new Date(e.ts).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})+' · T'+e.turn+' '+esc(e.season||"")+(e.by?' · by '+esc(e.by):'')+(e.tag?' · '+e.tag:'')+'</span><div>'+
+        e.lines.map(x=>kwify(x)).join('<br>')+'</div></div>').join('')+'</details>';}).join("");
+  return '<div class="tot"><h3 style="font-size:13px">Activity</h3>'+(rows||'<div class="note">No changes recorded yet.</div>')+'</div>';}
+
+// ===================== GAME: save · load · new =====================
+const GAME_PREFIX="game: ";
+function gameAllowed(){return !(typeof SYNC!=="undefined"&&SYNC.ready)||HOTSEAT||D.players.length<2||canHost();}
+function gameData(){return JSON.parse(JSON.stringify(D,function(k,v){if(this===D&&(k==="view"||k==="active"))return undefined;return v;}));}
+function refreshGames(list){const sel=document.getElementById("gameList");if(!sel)return;
+  const g=(list||[]).filter(b=>String(b.name).startsWith(GAME_PREFIX));
+  sel.innerHTML='<option value="">— saved games —</option>'+g.map(b=>'<option value="'+esc(b.name)+'">'+esc(b.name.slice(GAME_PREFIX.length))+' ('+(b.updated_at||"").slice(0,16).replace("T"," ")+')</option>').join("");}
+function gameReplace(nd){const keepV=D.view,keepA=D.active;UNDO.mute=true;
+  try{Object.keys(D).forEach(k=>delete D[k]);Object.assign(D,nd);D.view=keepV;D.active=Math.min(keepA||0,(D.players||[1]).length-1);
+    normalizeD();reindex();render();renderList();const tr=document.getElementById("treasury");if(tr)tr.value=S.treasury;save();
+  }finally{UNDO.past=[];UNDO.future=[];UNDO.last=undoSnap();UNDO.mute=false;undoButtons();actRebase();}}
+function newGameState(){const o=gameData();
+  o.players=o.players.map(p=>{const b=newBoard(),tb=(p.board&&p.board.tbl)||{};
+    b.tbl={seat:tb.seat,seatTs:tb.seatTs,mods:tb.mods||{}};return {id:p.id,name:p.name,color:p.color,board:b};});
+  o.renown=1;delete o.season;delete o.diplo;delete o.battle;
+  const t=o.tbl||{};o.tbl={seats:t.seats,timer:t.timer,auto:t.auto,boardEnd:t.boardEnd,host:t.host,skip:{}};
+  return o;}
+document.getElementById("gameSave").onclick=async()=>{const nm=(document.getElementById("gameName").value||"").trim()||("Turn "+tTurn()+" "+new Date().toLocaleDateString());
+  if(API.online){const r=await apiFetch("PUT","/api/builds/"+encodeURIComponent(GAME_PREFIX+nm),{data:gameData()});flash(r?"saved game “"+nm+"”":"save failed");refreshBuilds();}
+  else{const b=new Blob([JSON.stringify(gameData(),null,2)],{type:"application/json"}),a=document.createElement("a");
+    a.href=URL.createObjectURL(b);a.download="renown_game_"+nm.replace(/[^A-Za-z0-9_-]+/g,"_")+".json";a.click();flash("no server — downloaded the game file");}};
+document.getElementById("gameLoad").onclick=async()=>{const nm=document.getElementById("gameList").value;if(!nm)return;
+  if(!gameAllowed()){flash("only the Host can load a game");return;}
+  if(!confirm("Load “"+nm.slice(GAME_PREFIX.length)+"”? This replaces the current game for everyone."))return;
+  const r=await apiFetch("GET","/api/builds/"+encodeURIComponent(nm));if(!r||!r.data){flash("load failed");return;}
+  gameReplace(r.data);flash("loaded “"+nm.slice(GAME_PREFIX.length)+"”");};
+document.getElementById("gameDel").onclick=async()=>{const nm=document.getElementById("gameList").value;if(!nm)return;
+  if(!confirm("Delete saved game “"+nm.slice(GAME_PREFIX.length)+"”?"))return;
+  await apiFetch("DELETE","/api/builds/"+encodeURIComponent(nm));refreshBuilds();};
+document.getElementById("gameNew").onclick=async()=>{if(!gameAllowed()){flash("only the Host can start a new game");return;}
+  if(!confirm("Start a new game? Players, seats, map and settings are kept; every board, Renown, Season, diplomacy, battle and the Table reset."))return;
+  if(confirm("Save the current game first?"))await document.getElementById("gameSave").onclick();
+  gameReplace(newGameState());flash("new game started");};
 
 // ===================== HOVER KEYWORDS =====================
 // Glossary terms, Pursuits, Infrastructure and Wonders inside rules text become hoverable (tap on touch).
@@ -3739,7 +3898,8 @@ async function refreshBuilds(){
   const sel=document.getElementById("buildList");
   if(!res||!res.builds){sel.innerHTML='<option value="">— saved builds —</option>';return;}
   sel.innerHTML='<option value="">— saved builds —</option>'+
-    res.builds.map(b=>'<option value="'+esc(b.name)+'">'+esc(b.name)+' ('+(b.updated_at||"").slice(0,16).replace("T"," ")+')</option>').join("");
+    res.builds.filter(b=>!String(b.name).startsWith(GAME_PREFIX)).map(b=>'<option value="'+esc(b.name)+'">'+esc(b.name)+' ('+(b.updated_at||"").slice(0,16).replace("T"," ")+')</option>').join("");
+  refreshGames(res.builds);
 }
 document.getElementById("buildSave").onclick=async()=>{
   const name=document.getElementById("buildName").value.trim();if(!name){flash("name the build first");return;}
