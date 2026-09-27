@@ -944,7 +944,7 @@
      "Common Land",
      "",
      "-",
-     "+500, **Natural**, **Doubt +1**",
+     "+400, **Natural**, **Doubt +1**",
      "—"
     ]
    ]
@@ -1115,15 +1115,15 @@
      "Workyard",
      "",
      "Common Land",
-     "**Efficient Common Land**; **Doubt +1**, +400",
-     "+400"
+     "**Efficient Common Land**; **Doubt +1**, +300",
+     "+300"
     ],
     [
      "Storehouse",
      "Sovereign Industry",
      "Workyard + Shipyard",
-     "**Doubt +2**, +600",
-     "**Build Timer −2**"
+     "**Doubt +1**, +600",
+     "**Build Timer −2, +600**"
     ],
     [
      "Meadery",
@@ -1617,7 +1617,7 @@
      "Sovereign Piety",
      "Monastery + Pilgrimage Site + Reliquary",
      "Your Piety actions that cause doubt cause an additional doubt. You no longer pay cost for Piety actions.",
-     "At the start of each turn, Tithe every other player with lower Piety, resolved in the Extort step.\nOnce per turn, you may perform Spread Gospel."
+     "At the start of each turn, Tithe every other player with lower Piety, resolved in the Extort step.\nOnce per turn, you may perform Spread Truth."
     ],
     [
      "Inquisitorial Palace",
@@ -1651,7 +1651,7 @@
      "Studium Generale",
      "4 Established",
      "University + Academy",
-     "+1 **Influence** per **Established** Standing",
+     "**Efficient University**; +1 **Influence** per **Established** Standing",
      "May gain one **Sovereign Domain** effect without spending the Domain Points"
     ],
     [

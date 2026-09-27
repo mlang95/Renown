@@ -369,7 +369,9 @@ Hamlets are unique Settlements, placed *exactly* range {{VAL:HAMLET_RANGE}} from
 
  	*Example: Wooden Walls protect all Settlements from Cunning Envoys, and a Cathedral raises your innate Faith by 2 each turn, regardless of how many Settlements you have.*
 
- 	Infrastructure comes in 5 ascending tiers. Primitive Infrastructure builds the basic blocks of your empire. Developed Infrastructure expands and replaces some primitive Infrastructure. Sophisticated Infrastructure allows more powerful effects and helps unlock unique Monument Pursuits.
+ 	Infrastructure comes in 4 ascending tiers. Primitive Infrastructure builds the basic blocks of your empire. Developed Infrastructure expands and replaces some primitive Infrastructure. Sophisticated Infrastructure allows more powerful effects and helps unlock unique Monument Pursuits.
+
+ 	To build any Infrastructure, you need at least one active Infrastructure of the tier below it — so Developed needs one Primitive, and Sophisticated needs one Developed (and therefore one Primitive). *One Tier Primitive* means any one Primitive Infrastructure. Some Infrastructure also names its own requirement on top of this: a Library needs a Town Hall, and a Cathedral needs a Capital City — so a Cathedral needs one Primitive, one Developed, and a Capital City.
 
  	Last are world Wonders. Wonders are unique Infrastructure, each built once per game, only once all other Infrastructure is built and active in your empire. They're Edict-satisfying buildings with very powerful effects. A Wonder exists inside your capital and can't be razed or damaged.
 
@@ -415,7 +417,7 @@ Your innate Public Order modifiers (below) are checked once each turn during the
 
 Your Treasury is the gold you Control. Each Empire Phase you gain your Revenue (tax, trade, and Pursuit income) and pay your Upkeep (Armies, Pursuits, and Infrastructure); the net lands in your Treasury. Costs you pay during the turn come out of the same Treasury.
 
-**Pursuit upkeep** is fixed by Pursuit type: Monument {{VAL:PURSUIT_UPKEEP_BY_TYPE.Monument}}, Power {{VAL:PURSUIT_UPKEEP_BY_TYPE.Power}}, Energy {{VAL:PURSUIT_UPKEEP_BY_TYPE.Energy}}, all others {{VAL:PURSUIT_UPKEEP_BY_TYPE.Other}}.
+**Pursuit upkeep** is fixed by Pursuit type: Monument {{VAL:PURSUIT_UPKEEP_BY_TYPE.Monument}}, Power {{VAL:PURSUIT_UPKEEP_BY_TYPE.Power}}, Energy {{VAL:PURSUIT_UPKEEP_BY_TYPE.Energy}}, all others {{VAL:PURSUIT_UPKEEP_BY_TYPE.Other}}. A Pursuit pays no upkeep while its Build Timer is running.
 
 **Army upkeep** = Retinue count × (Retinue cost − Upkeep modifiers). Retinue costs: Levy {{VAL:RETINUES.Levy.cost}}, Man-at-Arms {{VAL:RETINUES.Man-at-Arms.cost}}, Sergeant {{VAL:RETINUES.Sergeant.cost}}, Knight Templar {{VAL:RETINUES.Knight Templar.cost}}.
 
