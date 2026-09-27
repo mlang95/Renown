@@ -887,63 +887,63 @@
     [
      "Quarry",
      "",
-     "Masonry",
+     "-",
      "+300, **Natural**; Craft +1",
      "—"
     ],
     [
      "Salt Works",
      "",
-     "Smokehouse",
+     "-",
      "+300, **Natural**; Craft +1",
      "—"
     ],
     [
      "Apiary",
      "",
-     "Chandlery",
+     "-",
      "+300, **Natural**; Craft +1",
      "—"
     ],
     [
      "Peat Bog",
      "",
-     "Alchemy",
+     "-",
      "+300, **Natural**; Craft +1",
      "—"
     ],
     [
      "Forestry",
      "",
-     "Carpentry",
+     "-",
      "+300, **Natural**; Craft +1",
      "—"
     ],
     [
      "Fishmongery",
      "Water Settlement",
-     "Harbor",
+     "-",
      "+300, **Natural**; Craft +1",
      "—"
     ],
     [
      "Mine",
      "",
-     "Blacksmith",
+     "-",
      "+300, **Natural**; Craft +1",
      "—"
     ],
     [
      "Arable Land",
      "",
-     "Granary",
+     "-",
      "+300, **Natural**; Craft +1",
      "—"
     ],
     [
      "Common Land",
      "",
-     "Workyard",
+     "-",
      "+500, **Natural**, **Doubt +1**",
      "—"
     ]

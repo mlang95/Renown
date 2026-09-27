@@ -624,7 +624,7 @@ NODES = {
     "Quarry": {
         "type": "Raw Materials",
         "unlock": "-",
-        "mastery_req": "Masonry",
+        "mastery_req": "-",
         "innate": "+300, **Natural**; Craft +1",
         "mastery": "",
         "builds_into": ["Masonry"],
@@ -632,7 +632,7 @@ NODES = {
     "Salt Works": {
         "type": "Raw Materials",
         "unlock": "-",
-        "mastery_req": "Smokehouse",
+        "mastery_req": "-",
         "innate": "+300, **Natural**; Craft +1",
         "mastery": "",
         "builds_into": ["Smokehouse", "Harbor", "Reliquary", "Levy Hall"],
@@ -640,7 +640,7 @@ NODES = {
     "Apiary": {
         "type": "Raw Materials",
         "unlock": "-",
-        "mastery_req": "Chandlery",
+        "mastery_req": "-",
         "innate": "+300, **Natural**; Craft +1",
         "mastery": "",
         "builds_into": ["Chandlery", "Alchemy", "Vineyard", "Orchard", "Meadery"],
@@ -648,7 +648,7 @@ NODES = {
     "Peat Bog": {
         "type": "Raw Materials",
         "unlock": "-",
-        "mastery_req": "Alchemy",
+        "mastery_req": "-",
         "innate": "+300, **Natural**; Craft +1",
         "mastery": "",
         "builds_into": ["Alchemy", "Herb Garden", "Vineyard", "Orchard"],
@@ -656,7 +656,7 @@ NODES = {
     "Forestry": {
         "type": "Raw Materials",
         "unlock": "-",
-        "mastery_req": "Carpentry",
+        "mastery_req": "-",
         "innate": "+300, **Natural**; Craft +1",
         "mastery": "",
         "builds_into": ["Carpentry", "Fletchery", "Kiln", "Charcoal Burner"],
@@ -664,7 +664,7 @@ NODES = {
     "Fishmongery": {
         "type": "Raw Materials",
         "unlock": "Water Settlement",
-        "mastery_req": "Harbor",
+        "mastery_req": "-",
         "innate": "+300, **Natural**; Craft +1",
         "mastery": "",
         "builds_into": ["Harbor"],
@@ -672,7 +672,7 @@ NODES = {
     "Mine": {
         "type": "Raw Materials",
         "unlock": "-",
-        "mastery_req": "Blacksmith",
+        "mastery_req": "-",
         "innate": "+300, **Natural**; Craft +1",
         "mastery": "",
         "builds_into": ["Furnace", "Blacksmith", "Jewelry Foundry"],
@@ -680,7 +680,7 @@ NODES = {
     "Arable Land": {
         "type": "Raw Materials",
         "unlock": "-",
-        "mastery_req": "Granary",
+        "mastery_req": "-",
         "innate": "+300, **Natural**; Craft +1",
         "mastery": "",
         "builds_into": ["Granary", "Herb Garden", "Animal Husbandry", "Bakery", "Vineyard", "Orchard"],
@@ -688,7 +688,7 @@ NODES = {
     "Common Land": {
         "type": "Raw Materials",
         "unlock": "-",
-        "mastery_req": "Workyard",
+        "mastery_req": "-",
         "innate": "+500, **Natural**, **Doubt +1**",
         "mastery": "",
         "builds_into": ["Workyard", "Burgages"],
@@ -2667,7 +2667,7 @@ BANDIT_BEHAVIOR = {
 # 3) INFRASTRUCTURE upkeep — the per-settlement upkeep in INFRASTRUCTURE.
 #    Trade Guild removes upkeep on Primitive (innate) and Developed (mastery)
 #    infrastructure; College of Engineering removes it on Sophisticated.
-PURSUIT_UPKEEP_DEFAULT = 100
+PURSUIT_UPKEEP_DEFAULT = 0
 PURSUIT_UPKEEP_BY_TYPE = {
     "Monument": 300,
     "Power":    200,
