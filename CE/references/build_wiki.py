@@ -1065,7 +1065,7 @@ _CONCEPT_PAGE = {
     "Treaty":"treaties-ref.html","Alliance":"treaties-ref.html","Edict":"edicts-ref.html",
     "Bandit":"bandits-ref.html","Outlaw Country":"bandits-ref.html",
     "Influence":"systems-ref.html",
-    "Speed":"economy-ref.html","Extort X":"economy-ref.html","Recoup":"economy-ref.html",
+    "Speed X":"economy-ref.html","Extort X":"economy-ref.html","Recoup X":"economy-ref.html",
     "Territory":"terrain-ref.html","Province":"terrain-ref.html","Region":"terrain-ref.html",
 }
 for _t,_pg in _CONCEPT_PAGE.items():

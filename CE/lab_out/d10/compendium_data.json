@@ -118,7 +118,7 @@
   "Ward": "A slot in a Settlement that holds one Pursuit; a Settlement has one Ward per tier (a Hamlet has 3 Husbandry Wards).",
   "Efficient X": "While this Pursuit occupies the same Settlement Ward as X (the Raw Material or Pursuit named on its tile), it uses no ward of its own — the two share one ward. Placed anywhere else, it fills a ward normally. (Core Principle 14.) Note: Two Pursuits that are Efficient with the same Pursuit cannot share a Ward with each other.",
   "Natural": "Natural Pursuits do not cost Upkeep.",
-  "Upkeep": "Gold you pay each Empire Phase for Armies, Pursuits and Infrastructure. Pursuit upkeep is fixed by type (Monument 300, Power 200, Energy 0, all others 0); a Pursuit pays no upkeep while its Build Timer is running. Army upkeep = Retinue count × (Retinue cost − Upkeep modifiers).",
+  "Upkeep": "Gold you pay each Empire Phase for Armies, Pursuits and Infrastructure. Pursuit upkeep is fixed by type (Monument 300, Power 200, Energy 0, all others 100); a Pursuit pays no upkeep while its Build Timer is running. Army upkeep = Retinue count × (Retinue cost − Upkeep modifiers).",
   "Craft": "Craft Pursuits count toward how much income your Trade Agreements generate — any effect that grants Craft +X. For each active Trade Agreement, both players gain 100 × the Host's Craft X.",
   "Efficient": "A Pursuit is efficient with the Raw Material or Pursuit named on its tile. While it shares a Settlement Ward with that piece, it doesn't consume a Ward of its own.",
   "Build Timer": "Turns until an infrastructure/build completes and becomes Active.",
@@ -437,6 +437,14 @@
      "Take X from the stated source: the gold goes to you instead of its owner."
     ],
     [
+     "Recoup X",
+     "Regain the stated cost in gold after paying it."
+    ],
+    [
+     "Speed X",
+     "An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 3"
+    ],
+    [
      "Edict",
      "A scoring achievement / win path: reach a Sovereign Standing, complete a Monument, or fulfill a victory condition (Wonder, wealth, Vassalize, Living Saints, Last Standing)."
     ],
@@ -699,10 +707,6 @@
      "The total collection of Regions."
     ],
     [
-     "Recoup X",
-     "Regain the stated cost in gold after paying it."
-    ],
-    [
      "Region",
      "A collection of Territories of the same Type."
     ],
@@ -729,10 +733,6 @@
     [
      "Siege Timer",
      "Turns remaining until a Siege resolves."
-    ],
-    [
-     "Speed X",
-     "An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 3"
     ],
     [
      "Tempered",
@@ -764,7 +764,7 @@
     ],
     [
      "Upkeep",
-     "Gold you pay each Empire Phase for Armies, Pursuits and Infrastructure. Pursuit upkeep is fixed by type (Monument 300, Power 200, Energy 0, all others 0); a Pursuit pays no upkeep while its Build Timer is running. Army upkeep = Retinue count × (Retinue cost − Upkeep modifiers)."
+     "Gold you pay each Empire Phase for Armies, Pursuits and Infrastructure. Pursuit upkeep is fixed by type (Monument 300, Power 200, Energy 0, all others 100); a Pursuit pays no upkeep while its Build Timer is running. Army upkeep = Retinue count × (Retinue cost − Upkeep modifiers)."
     ],
     [
      "Within",
@@ -1053,63 +1053,63 @@
      "Quarry",
      "",
      "-",
-     "+300, **Natural**; Craft +1",
+     "+500, **Natural**; Craft +1",
      "—"
     ],
     [
      "Salt Works",
      "",
      "-",
-     "+300, **Natural**; Craft +1",
+     "+500, **Natural**; Craft +1",
      "—"
     ],
     [
      "Apiary",
      "",
      "-",
-     "+300, **Natural**; Craft +1",
+     "+500, **Natural**; Craft +1",
      "—"
     ],
     [
      "Peat Bog",
      "",
      "-",
-     "+300, **Natural**; Craft +1",
+     "+500, **Natural**; Craft +1",
      "—"
     ],
     [
      "Forestry",
      "",
      "-",
-     "+300, **Natural**; Craft +1",
+     "+500, **Natural**; Craft +1",
      "—"
     ],
     [
      "Fishmongery",
      "Water Settlement",
      "-",
-     "+300, **Natural**; Craft +1",
+     "+500, **Natural**; Craft +1",
      "—"
     ],
     [
      "Mine",
      "",
      "-",
-     "+300, **Natural**; Craft +1",
+     "+500, **Natural**; Craft +1",
      "—"
     ],
     [
      "Arable Land",
      "",
      "-",
-     "+300, **Natural**; Craft +1",
+     "+500, **Natural**; Craft +1",
      "—"
     ],
     [
      "Common Land",
      "",
      "-",
-     "+400, **Natural**, **Doubt +1**",
+     "+1000, **Natural**, **Doubt +1**",
      "—"
     ]
    ]
@@ -1121,15 +1121,15 @@
      "Herb Garden",
      "",
      "Arable Land or Peat Bog",
-     "+200, **Natural**",
+     "+500, **Natural**",
      "Craft +1"
     ],
     [
      "Animal Husbandry",
      "",
      "Arable Land",
-     "+100, **Natural**, Unlock **Crude** armor and shield.",
-     "+300"
+     "**Efficient Arable Land**; **Natural**, Unlock **Crude** armor and shield.",
+     "+500"
     ],
     [
      "Saddlery",
@@ -1142,14 +1142,14 @@
      "Vineyard",
      "",
      "Arable Land + Apiary or Peat Bog",
-     "**Natural**",
-     "+600 in **Fall**"
+     "+500, **Natural**",
+     "+500 in **Fall**"
     ],
     [
      "Orchard",
      "",
      "Arable Land + Apiary or Peat Bog",
-     "**Natural**",
+     "+800, **Natural**",
      "+400 in **Fall**"
     ]
    ]
@@ -1162,42 +1162,42 @@
      "",
      "Forestry",
      "**Efficient Forestry**; **Build Timer −1**",
-     "+100; Craft+1"
+     "+300; Craft+1"
     ],
     [
      "Alchemy",
      "",
      "Apiary or Peat Bog",
-     "**Efficient Peat Bog**; +100",
-     "+200; Craft+1"
+     "**Efficient Peat Bog**; +500",
+     "Craft+1"
     ],
     [
      "Masonry",
      "",
      "Quarry",
      "**Efficient Quarry**; **Build Timer −1**",
-     "+100; Craft+1"
+     "Craft+1"
     ],
     [
      "Butchery",
      "",
      "Animal Husbandry + Tannery + Salt Works",
-     "**Efficient Smokehouse**; +300",
+     "**Efficient Smokehouse**; +500",
      "**Upkeep -200**; Craft+1"
     ],
     [
      "Bakery",
      "",
      "Arable Land + Mill",
-     "**Efficient Arable Land**; +300; Faith +1",
-     "+100; Craft +2"
+     "**Efficient Arable Land**; Faith +1",
+     "+500; Craft +2"
     ],
     [
      "Weavery",
      "",
      "Merchant Quarter + Animal Husbandry",
-     "**Efficient Merchant Quarter**; +300",
-     "+300; Craft +2"
+     "**Efficient Merchant Quarter**; +500",
+     "+500; Craft +2"
     ],
     [
      "Fletchery",
@@ -1210,8 +1210,8 @@
      "Chandlery",
      "",
      "Apiary",
-     "**Efficient Apiary**; +200",
-     "**Influence −1** to Cunning actions targeting you; Craft +1"
+     "**Efficient Apiary**; Craft +1",
+     "**Influence −1** to Cunning actions targeting you"
     ],
     [
      "Tannery",
@@ -1224,7 +1224,7 @@
      "Joinery",
      "Rising Industry",
      "Carpentry",
-     "**Efficient Carpentry**; +200, unlocks **Shields**",
+     "**Efficient Carpentry**; unlocks **Shields**",
      "**Upkeep -200**"
     ],
     [
@@ -1232,21 +1232,21 @@
      "",
      "Mine",
      "**Efficient Mine**; Unlocks **Cast Weapons**",
-     "+200"
+     "+500"
     ],
     [
      "Blacksmith",
      "Rising Industry",
      "Furnace",
-     "**Efficient Furnace**; +200; Craft +1",
+     "**Efficient Furnace**; Craft +1",
      "Unlocks **Wrought** Tier"
     ],
     [
      "Jewelry Foundry",
      "",
      "Mine + Merchant Quarter + Furnace",
-     "**Efficient Gilded Foundry**; +200; Craft +2",
-     "+500; **Influence +1** to Cunning actions targeting this player"
+     "**Efficient Gilded Foundry**; +500; **Influence +1** to Cunning actions targeting this player",
+     "+800; Craft +2 "
     ],
     [
      "Armory",
@@ -1273,15 +1273,15 @@
      "Smokehouse",
      "",
      "Salt Works + Kiln + Butchery",
-     "**Efficient Salt Works**; +300; Craft +1",
-     "**Upkeep -200**"
+     "**Efficient Salt Works**; Craft +1",
+     "**Upkeep -300**; +500"
     ],
     [
      "Workyard",
      "",
      "Common Land",
-     "**Efficient Common Land**; **Doubt +1**, +300",
-     "+300"
+     "**Efficient Common Land**; **Doubt +1**, +500",
+     "+500"
     ],
     [
      "Storehouse",
@@ -1294,49 +1294,49 @@
      "Meadery",
      "Established Industry",
      "Apiary + Inn",
-     "**Efficient Apiary**; **Faith +1**, +300",
-     "+200,**Speed +1** in **Winter**"
+     "**Efficient Apiary**; **Faith +1**",
+     "**Speed +2** in **Winter**"
     ],
     [
      "Winery",
      "Established Industry",
      "Vineyard + Joinery",
-     "**Efficient Vineyard**; +400",
+     "**Efficient Vineyard**; +800",
      "Craft +3"
     ],
     [
      "Cidery",
      "Established Industry",
      "Orchard + Joinery + Inn",
-     "**Efficient Orchard**; **Faith +1**, +200",
-     "+300; Craft +1"
+     "**Efficient Orchard**; **Faith +2**",
+     "+800; Craft +1"
     ],
     [
      "Market Square",
      "Rising Industry",
      "2 Raw Materials",
      "**Efficient Courtyard**; Craft +2",
-     "+400"
+     "+500"
     ],
     [
      "Inn",
      "",
      "Caravanery + Market Square",
-     "**Faith +1** for trading partners with Craft 3+",
+     "**Efficient Courtyard**; **Faith +1** for trading partners with Craft 3+",
      "**Faith +1**"
     ],
     [
      "Spice Merchant",
      "",
      "Caravanery + Merchant Quarter + Herb Garden",
-     "+300; Influence +1 to Cunning actions targeting you",
+     "+500; Influence +1 to Cunning actions targeting you",
      "+500; Craft +2"
     ],
     [
      "Harbor",
      "Water Settlement",
      "Fishmongery + Salt Works",
-     "**Efficient Fishmongery**; +300; Craft +2",
+     "**Efficient Fishmongery**; +500; Craft +2",
      "**Extort 200** per **player** without **Harbor**"
     ],
     [
@@ -1350,7 +1350,7 @@
      "Census Hall",
      "",
      "Workyard + Market Square",
-     "**Doubt +1**; +200",
+     "**Doubt +1**; +500",
      "+500"
     ],
     [
@@ -1364,7 +1364,7 @@
      "Shipyard",
      "Established Industry, Water Settlement",
      "Carpentry + Harbor",
-     "**Efficient Harbor**; Craft +1",
+     "**Efficient Harbor**; Craft +2",
      "Craft +2; Water Territory treated as Grassland for movement"
     ]
    ]
@@ -1390,7 +1390,7 @@
      "Interrogation Chambers",
      "Rising Piety",
      "Episcopal Court",
-     "**Efficient Episcopal Court**",
+     "**Efficient Episcopal Court**; Extort 500",
      "Cunning actions targetting this player that cause Doubt are reduced by 1, to a minimum of 0."
     ],
     [
@@ -1398,13 +1398,13 @@
      "Established Piety",
      "Episcopal Court + Academy",
      "**Efficient Episcopal Court**; Once/turn: **Influence +1** another player's Piety Envoy",
-     "Morale +1."
+     "Morale +1"
     ],
     [
      "Reliquary",
      "Rising Piety",
      "Salt Works + Chandlery + Cathedral",
-     "**Efficient Abbey**",
+     "**Efficient Abbey**; +500",
      "First **Doubt** per turn reduced by 1 (min 0)"
     ],
     [
@@ -1425,21 +1425,21 @@
      "Jester's Court",
      "1 Rising",
      "Courtyard",
-     "**Efficient Courtyard**; First **Oppose** on your Envoy: reduce by 1",
-     "Second **Oppose** on your Envoy: reduce by 1"
+     "**Efficient Courtyard**; First **Oppose** on your Envoy each turn: reduce by 1",
+     "Second **Oppose** on your Envoy each turn: reduce by 1"
     ],
     [
      "Embassy",
      "1 Established",
      "Bell Tower + Jester's Court",
      "**Efficient Jester's Court**; **Influence +1** to Diplomacy Envoys",
-     "Players that perform a Diplomacy action targetting you may perform another Displomacy action targetting you."
+     "Whenever a player performs a Diplomacy action targeting you, that envoy cannot be Opposed."
     ],
     [
      "Granary",
      "Rising Industry",
      "Arable Land",
-     "**Efficient Arable Land**; Upkeep -200",
+     "**Efficient Arable Land**; Upkeep -500",
      "Armies and Garrisons gain **Endurance** while Besieged"
     ],
     [
@@ -1488,7 +1488,7 @@
      "Infirmary",
      "Rising Piety",
      "Alchemy + Herb Garden",
-     "**Efficient Apothecary**; +200",
+     "**Efficient Apothecary**; +500",
      "Improve Recover by +1"
     ],
     [
@@ -1502,8 +1502,8 @@
      "Artisan Workshop",
      "Established Industry",
      "Carpentry + Arable Land + Weavery",
-     "+400",
-     "+200, **Faith +1**"
+     "+500",
+     "+500, **Faith +1**"
     ],
     [
      "Trade Guild",
@@ -1517,7 +1517,7 @@
      "Established Industry",
      "Merchant Quarter + Artisan Workshop",
      "**Efficient Artisan Workshop**; **Extort 500**; **Faith +1**",
-     "**Extort 500**; Target of Extort gains **Faith +1**"
+     "**Extort 500**; Targets of Extort from this Court Artist gain **Faith +1**"
     ],
     [
      "Courier Network",
@@ -1531,7 +1531,7 @@
      "",
      "Caravanery + Courier Network",
      "Once/turn when an Army ends a Move action within Province: Perform a Diplomacy action targeting that army's player",
-     "**Extort 500** when non-Allied Army ends a Move action within Province"
+     "**Extort 2000** when non-Allied Army ends a Move action within Province"
     ]
    ]
   },
@@ -1543,7 +1543,7 @@
      "Established Cunning",
      "Secret Cellar + Inn",
      "**Efficient Secret Cellar**; gain Immune Uprising (Bandit Camp Spawn at -5PO)",
-     "Bandit Camps in your Outlaw Country don't target you and target other players instead randomly."
+     "Bandit Camps in your Outlaw Country don't target you and instead target other players randomly."
     ],
     [
      "Black Market",
@@ -1563,7 +1563,7 @@
      "Forgotten Catacombs",
      "Rising Cunning",
      "Secret Cellar",
-     "**Efficient Secret Cellar**; Whenever you are the target of **Extort**, reduce the Extort amount by 100 (min 100).",
+     "**Efficient Secret Cellar**; Whenever you are the target of **Extort**, reduce the Extort amount by 100.",
      "Cunning actions against you can't be **Endorsed**"
     ]
    ]
@@ -1575,43 +1575,43 @@
      "Secret Cellar",
      "Rising Cunning",
      "Smuggler's Nook",
-     "**Efficient Inn**; —",
+     "**Efficient Inn**; Failed Cunning actions **Recoup 500 Gold**",
      "Passed Cunning actions **Recoup 500 Gold**"
     ],
     [
      "Pilgrimage Site",
      "Rising Piety",
      "Reliquary + Chandlery",
-     "**Efficient Reliquary**; **Extort 200** every player without a Pilgrimage Site",
+     "**Efficient Reliquary**; **Extort 500** every player without a Pilgrimage Site",
      "**Doubt +1** to all other players without a Pilgrimage Site"
     ],
     [
      "Beacon Towers",
      "Rising Prowess",
      "Courier Network + Toll House",
-     "**Efficient Toll House**; —",
+     "**Efficient Toll House**; Once per turn, you may select an Army within Province and move it up to its modified Speed.",
      "Whenever a non-allied Army ends a Move action within Province, you may immediately perform a Move action"
     ],
     [
      "Charcoal Burner",
      "Established Industry",
      "Forestry + Kiln",
-     "**Efficient Forestry, Kiln**; +400",
-     "—"
+     "**Efficient Forestry, Kiln**; -",
+     "+500"
     ],
     [
      "Mill",
      "Rising Industry",
      "Bakery/Weavery/Forge/Carpentry",
-     "**Efficient Bakery, Weavery, Forge, Carpentry**; +300",
-     "—"
+     "**Efficient Bakery, Weavery, Forge, Carpentry**; -",
+     "+500"
     ],
     [
      "Kiln",
      "Rising Industry",
      "Forestry",
-     "**Efficient Forestry**; +300",
-     "—"
+     "**Efficient Forestry**; -",
+     "+500"
     ],
     [
      "Burgages",
@@ -1629,7 +1629,7 @@
      "Money Lending",
      "Established Industry",
      "Merchant Quarter",
-     "**Efficient Merchant Quarter**; **Extort 500**",
+     "**Efficient Merchant Quarter**; **Extort 1000**",
      "May loan money to Trade Partners at 100 per 1000/turn interest(minimum 100); on Default: Perform **Demand Tribute**"
     ],
     [
@@ -1664,7 +1664,7 @@
      "Forgery Workshop",
      "Established Cunning",
      "Academy + Secret Cellar",
-     "**Efficient Academy**; **Extort 200** anytime a player Opposes an Envoy of yours",
+     "**Efficient Academy**; **Extort 300** anytime a player Opposes an Envoy of yours",
      "Once/turn: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed"
     ],
     [
@@ -1693,7 +1693,7 @@
      "Established Industry",
      "Masonry + Granary",
      "**Efficient Granary**; **Siege Timer +1**",
-     "**Siege Timer +1**, Controlled Settlements gain **Reach +1**"
+     "**Siege Timer +2**, Controlled Settlements gain **Reach +1**"
     ],
     [
      "War College",
@@ -1713,14 +1713,14 @@
      "Tiltyard",
      "Established Prowess",
      "Fletchery + Castle Yard",
-     "Armies may be Equipped with a second weapon (a Ranged and a Melee Weapon); the army gains **Unwieldy**",
-     "Your armies have **Immune Unwieldy**. Instead, they may equip two of the same 1H Melee Weapon to gain **Dual Wield**."
+     "Armies may be equipped with a Ranged and a Melee Weapon simultaneously; If so, the army gains **Unwieldy**",
+     "Your armies gain **Immune Unwieldy**. Also, may equip two of the same 1H Melee Weapon to gain **Dual Wield**."
     ],
     [
      "Cipher Chamber",
      "Established Cunning",
      "University + Courier Network",
-     "**Efficient University**; Once/turn when a player Sends an Envoy: that player must declare the specific Action they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action.",
+     "**Efficient University**; Once/turn when a player Sends an Envoy: that player must declare the specific Action & target they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action at the declared target.",
      "Once/turn: select any active **Timer** you did not select last turn; increase it by 2."
     ]
    ]
@@ -1732,7 +1732,7 @@
      "Office of Works",
      "Sovereign Industry",
      "College of Engineering + Storehouse + Census Hall",
-     "Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions.",
+     "**Efficient College of Engineering**; Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions.",
      "Siege Timer +2; Build Timer -2"
     ],
     [
@@ -1759,7 +1759,7 @@
     [
      "Ministry of Military Strategy",
      "Sovereign Prowess",
-     "University + War College",
+     "Academy + War College",
      "**Efficient War College**; Always gains **Seize the Initiative**, and your opponent doesn't; Gain +1I & max initiative is 3",
      "Gain Drilled."
     ],
@@ -1767,21 +1767,21 @@
      "Thieves' Guild",
      "Sovereign Cunning",
      "Market Square + Smuggler's Nook + Secret Cellar + Black Market",
-     "Whenever another player performs a Cunning action, you may recoup 1000 gold",
+     "**Efficient Black Market**; Whenever another player performs a Cunning action, you may recoup 1000 gold",
      "**Extort 25%** of Trade Income from players who don't trade with you"
     ],
     [
      "Senate Hall",
      "1 Sovereign",
      "Embassy + Library + Town Hall",
-     "**Faith +1**, gain **+1 Influence** per other player per Turn",
+     "**Efficient Embassy**; **Faith +1**, gain **+1 Influence** per other player per Turn",
      "Once/turn: Before players Support or Oppose, you may auto-**Condemn** an At War Envoy OR auto-**Endorse** an Ally's Envoy"
     ],
     [
      "Papal Palace",
      "Sovereign Piety",
      "Monastery + Pilgrimage Site + Reliquary",
-     "Your Piety actions that cause doubt cause an additional doubt. You no longer pay cost for Piety actions.",
+     "**Efficient Monastery**; Your Piety actions that cause doubt cause an additional doubt. You no longer pay cost for Piety actions.",
      "At the start of each turn, Tithe every other player with lower Piety, resolved in the Extort step.\nOnce per turn, you may perform Spread Truth."
     ],
     [
@@ -1802,8 +1802,8 @@
      "Manor House",
      "Established Industry",
      "Hamlet + Market Square",
-     "Gain +100 gold for each active natural specialization.",
-     "Gain +100 gold for each active energy specialization."
+     "**Efficient Market Square**; Gain +200 gold for each active natural specialization.",
+     "Gain +200 gold for each active energy specialization."
     ],
     [
      "Aristocratic Court",
@@ -2252,7 +2252,7 @@
   ],
   [
    "The Grand Exchange",
-   "Whenever you generate **Trade Income** you generate **twice as much** for yourself.",
+   "Whenever you generate **Trade Income** you generate **thrice as much** for yourself.",
    "10",
    "All Infrastructure unlocked"
   ],
@@ -2458,7 +2458,7 @@
    "Town",
    "2",
    "Sea Town",
-   "3000",
+   "2000",
    "10",
    "2",
    "2",
@@ -2469,7 +2469,7 @@
    "City",
    "3",
    "Port",
-   "5000",
+   "3000",
    "25",
    "3",
    "3",
@@ -2480,7 +2480,7 @@
    "Metropolis",
    "4",
    "—",
-   "8000",
+   "4000",
    "25",
    "5",
    "4",

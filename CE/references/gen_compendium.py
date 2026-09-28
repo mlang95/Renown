@@ -92,7 +92,7 @@ GLOSSARY_CATEGORIES = [
     ("Council & Diplomacy", ["Influence","Influence X","Envoy","Vote","Support X","Oppose X","Abstain",
         "Net Influence","Endorsed","Condemned","Council Phase","Council Envoy","Personal Envoy",
         "Diplomacy","Treaty","Alliance","Vassal","Suzerain"]),
-    ("Empire & Economy", ["Faith X","Doubt X","Extort X","Recoup","Speed","Edict","Monument","Charter",
+    ("Empire & Economy", ["Faith X","Doubt X","Extort X","Recoup X","Speed X","Edict","Monument","Charter",
         "Muster","Pursue","Build","Repair","Move","Demand Tribute","Renown","Domain","Domain Point",
         "Standing","Public Order","Reach","Ward","Efficient X","War Weariness"]),
     ("World", ["Bandit","Outlaw Country","Siege","Sally Forth"]),

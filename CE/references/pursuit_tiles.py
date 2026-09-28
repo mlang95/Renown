@@ -9,6 +9,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.colors import HexColor, Color
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+import re
 import renown_data as rd
 
 SERIF, SERIF_B, SERIF_I = "Helvetica", "Helvetica-Bold", "Helvetica-Oblique"
@@ -38,7 +39,7 @@ LINE = HexColor("#e6e2d8"); BODY = HexColor("#2b2b32")
 
 UPK_BY_TYPE = getattr(rd, "PURSUIT_UPKEEP_BY_TYPE", {"Monument": 300, "Power": 200, "Energy": 0})
 UPK_DEFAULT = getattr(rd, "PURSUIT_UPKEEP_DEFAULT", 100)
-def upkeep(t): return UPK_BY_TYPE.get(t, UPK_DEFAULT)
+def upkeep(t, natural=False): return 0 if natural else UPK_BY_TYPE.get(t, UPK_DEFAULT)   # Natural Pursuits cost no Upkeep
 
 # ── geometry: 5 x 5 tiles per Letter page ──
 PAGE_W, PAGE_H = letter
@@ -176,7 +177,7 @@ def tile(c, name, d, x, ytop):
     # name (shadow + white), monument diamond
     c.setFont(SERIF_B, nm_sz)
     nm = name
-    up_val = upkeep(t)
+    up_val = upkeep(t, bool(re.search(r"\bNatural\b", str(d.get("innate","")).replace("**",""))))
     reserve = 20
     if up_val: reserve += 16
     if mon: reserve += 14
@@ -187,7 +188,7 @@ def tile(c, name, d, x, ytop):
         nm = nm.rstrip() + "\u2026"
     c.setFillColor(Color(0, 0, 0, 0.28)); c.drawString(x + pad + 0.5, hy + head_h*0.31 - 0.4, nm)
     c.setFillColor(Color(1, 1, 1)); c.drawString(x + pad, hy + head_h*0.31, nm)
-    up = upkeep(t)
+    up = upkeep(t, bool(re.search(r"\bNatural\b", str(d.get("innate","")).replace("**",""))))
     corner_x = x + TW - pad
     if up:
         c.setFillColor(Color(1, 1, 1)); c.setFont(SERIF_B, nm_sz)

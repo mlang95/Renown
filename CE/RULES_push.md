@@ -179,9 +179,9 @@ If a player performed a Battle or Siege Move action this turn, resolve it now â€
 
 2. Increment the Season by 1.
 
-3. Gain Renown.
+3. Gain {{VAL:RENOWN_PER_TURN}} Renown.
 
-4. Spend a Domain Point.
+4. Gain and spend {{VAL:DOMAIN_POINTS_PER_TURN}} Domain Point.
 
 5. **Change Host** â€” rotate the Host token clockwise to the starting player, unless it's Spring.
 
