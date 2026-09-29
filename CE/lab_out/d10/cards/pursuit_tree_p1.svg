@@ -10,14 +10,8 @@
 <path d="M148,184 L195,184" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M148,220 L195,220" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M148,220 L195,220" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M148,256 L172,256" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M148,256 L172,256" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95"/>
-<path d="M172,148 L172,256" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M172,148 L172,256" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95"/>
-<path d="M172,256 L196,256" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M172,256 L196,256" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M172,148 L196,148" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M172,148 L196,148" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M148,256 L163,256 Q172,256 172,247 L172,157 Q172,148 181,148 L195,148" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M148,256 L163,256 Q172,256 172,247 L172,157 Q172,148 181,148 L195,148" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M148,292 L195,292" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M148,292 L195,292" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <rect x="30" y="64" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>

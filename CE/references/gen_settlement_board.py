@@ -1925,9 +1925,9 @@ function isFreeRider(p){ return p.sid!=null && wardExemptions(p.sid).has(p.id); 
 function wardUse(sid){ // {cap, used, free, typeBad}
   const meta=settMeta(sid), cap=meta?meta.wards:0, occ=occupants(sid), tier=settTier(sid);
   const exempt=exemptionsOf(occ);
-  let typeBad=false; occ.forEach(p=>{ if(tier==="Hamlet"&&!hamletOK(p.name))typeBad=true; });
+  let typeBad=false;const badNames=[]; occ.forEach(p=>{ if(tier==="Hamlet"&&!hamletOK(p.name)){typeBad=true;badNames.push(p.name);} });
   const used=occ.length-exempt.size;
-  return {cap, used, free:cap-used, typeBad};
+  return {cap, used, free:cap-used, typeBad,badNames};
 }
 // can pursuit `name` be placed into settlement sid?  simulate the resulting ward count,
 // so adding a PARENT later (which lets an existing tile ride it) is allowed even when full.
@@ -1970,7 +1970,7 @@ function boardFlags(){
   const m=S.settlements.find(s=>s.tier==="Metropolis");
   if(m&&!m.capital)f.push("Metropolis is not the capital (capital only)");
   if(m&&((S.domains||{}).Industry||0)<SOV)f.push("Metropolis without Sovereign Industry");
-  S.settlements.forEach(s=>{if(wardUse(s.id).typeBad)f.push(s.tier+": non-Natural pursuit in Hamlet");});
+  S.settlements.forEach(s=>{const wu=wardUse(s.id);if(wu.typeBad)f.push(s.tier+": "+wu.badNames.join(", ")+(wu.badNames.length>1?" aren't":" isn't")+" Natural — Hamlets hold Natural Pursuits only");});
   S.settlements.forEach(s=>{const w=wardUse(s.id);if(w.free<0)f.push(s.tier+": "+(-w.free)+" ward(s) over cap");});
   Object.keys(S.infra).forEach(n=>{const st=infraReqStatus(INFRA[n]);if(!st.ok)f.push(n+": req unmet ("+st.missing.join(", ")+")");});
   Object.keys(S.wonders).forEach(n=>{const st=infraReqStatus(WON[n]);if(!st.ok)f.push(n+": req unmet ("+st.missing.length+" infra missing/invalid)");});

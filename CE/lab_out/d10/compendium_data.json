@@ -1182,14 +1182,14 @@
      "Butchery",
      "",
      "Animal Husbandry + Tannery + Salt Works",
-     "**Efficient Smokehouse**; +500, Natural",
+     "**Efficient Smokehouse**; Natural; +500",
      "**Upkeep -200**; Craft+1"
     ],
     [
      "Bakery",
      "",
      "Arable Land + Mill",
-     "**Efficient Arable Land**; Faith +1",
+     "**Efficient Arable Land**; Natural; Faith +1",
      "+500; Craft +2"
     ],
     [
@@ -1217,7 +1217,7 @@
      "Tannery",
      "",
      "Animal Husbandry",
-     "**Efficient Animal Husbandry**; Unlocks **Cast** armor & shield.",
+     "**Efficient Animal Husbandry**; Natural; Unlocks **Cast** armor & shield.",
      "**Upkeep -200**; Craft +1"
     ],
     [
@@ -1273,14 +1273,14 @@
      "Smokehouse",
      "",
      "Salt Works + Kiln + Butchery",
-     "**Efficient Salt Works**; +Craft +1, Natural",
+     "**Efficient Salt Works**; Natural; Craft +1",
      "**Upkeep -300**; +500"
     ],
     [
      "Workyard",
      "",
      "Common Land",
-     "**Efficient Common Land**; **Doubt +1**, +500",
+     "**Efficient Common Land**; Natural; **Doubt +1**, +500",
      "+500"
     ],
     [
@@ -1329,7 +1329,7 @@
      "Spice Merchant",
      "",
      "Caravanery + Merchant Quarter + Herb Garden",
-     "+500; Influence +1 to Cunning actions targeting you",
+     "Natural; +500; Influence +1 to Cunning actions targeting you",
      "+500; Craft +2"
     ],
     [
@@ -1542,7 +1542,7 @@
      "Smuggler's Nook",
      "Established Cunning",
      "Secret Cellar + Inn",
-     "**Efficient Secret Cellar**; gain Immune Uprising (Bandit Camp Spawn at -5PO)",
+     "**Efficient Inn**; gain Immune Uprising (Bandit Camp Spawn at -5PO)",
      "Bandit Camps in your Outlaw Country don't target you and instead target other players randomly."
     ],
     [
@@ -1575,7 +1575,7 @@
      "Secret Cellar",
      "Rising Cunning",
      "Smuggler's Nook",
-     "**Efficient Inn**; Natural; Failed Cunning actions **Recoup 500 Gold**",
+     "**Efficient Secrecy**; Natural; Failed Cunning actions **Recoup 500 Gold**",
      "Passed Cunning actions **Recoup 500 Gold**"
     ],
     [
@@ -1802,8 +1802,8 @@
      "Manor House",
      "Established Industry",
      "Hamlet + Market Square",
-     "**Efficient Market Square**; Gain +100 gold for each active natural specialization.",
-     "Gain +100 gold for each active natural specialization."
+     "**Efficient Natural**; Natural; Gain +100 gold for each active natural specialization.",
+     "Gain +200 gold for each active natural specialization."
     ],
     [
      "Aristocratic Court",
