@@ -1899,12 +1899,19 @@ function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 function settMeta(sid){const s=S.settlements.find(x=>x.id===sid);return s?DATA.settlements[s.tier]:null;}
 function settTier(sid){const s=S.settlements.find(x=>x.id===sid);return s?s.tier:null;}
 function occupants(sid){return S.placed.filter(p=>p.sid===sid);}
-function hamletOK(name){return R[name].type==="Husbandry"||name==="Arable Land";}
+function hamletOK(name){return NATURAL.has(name);}   // Hamlets take Natural Pursuits only (riders included: a rider must be Natural too)
 // efficient forms CHAINS not branches: each pursuit hosts at most ONE efficient rider.
 // exemptionsOf(occ): set of occupant ids that ride free (one rider per source), for an explicit occupant list.
 // "efficient" may list several sources (efficient with ANY one of them). Each source hosts at most one rider;
 // riders claim hosts newest-drop first (then oldest id), preferring the host they were dropped onto.
-function effList(n){const e=(R[n]||{}).efficient;return Array.isArray(e)?e:(e?[e]:[]);}
+// entries may name a Pursuit, or a group: "Natural" (any Natural Pursuit) or a Pursuit type ("Husbandry", "Raw Materials"…)
+const EFF_CACHE={};
+function effList(n){if(EFF_CACHE[n])return EFF_CACHE[n];const e=(R[n]||{}).efficient,raw=Array.isArray(e)?e:(e?[e]:[]),out=[];
+  raw.forEach(x=>{if(R[x])out.push(x);
+    else if(/^natural$/i.test(x))Object.keys(R).filter(k=>NATURAL.has(k)).forEach(k=>out.push(k));
+    else Object.keys(R).filter(k=>R[k].type===x).forEach(k=>out.push(k));});
+  return EFF_CACHE[n]=out.filter((x,i,a)=>x!==n&&a.indexOf(x)===i);}
+function effLabel(n){const e=(R[n]||{}).efficient;return (Array.isArray(e)?e:(e?[e]:[]));}
 function exemptionsOf(occ){
   const present=new Set(occ.map(o=>o.name)),taken={},free=new Set();free.hostOf={};
   occ.filter(o=>effList(o.name).some(h=>h!==o.name&&present.has(h)))
@@ -1918,7 +1925,7 @@ function isFreeRider(p){ return p.sid!=null && wardExemptions(p.sid).has(p.id); 
 function wardUse(sid){ // {cap, used, free, typeBad}
   const meta=settMeta(sid), cap=meta?meta.wards:0, occ=occupants(sid), tier=settTier(sid);
   const exempt=exemptionsOf(occ);
-  let typeBad=false; occ.forEach(p=>{ if(tier==="Hamlet"&&!hamletOK(p.name)&&!exempt.has(p.id))typeBad=true; });   // riders may sit in a Hamlet
+  let typeBad=false; occ.forEach(p=>{ if(tier==="Hamlet"&&!hamletOK(p.name))typeBad=true; });
   const used=occ.length-exempt.size;
   return {cap, used, free:cap-used, typeBad};
 }
@@ -1930,7 +1937,7 @@ function canPlace(name, sid){
   const meta=settMeta(sid), cap=meta?meta.wards:0;
   const sim=occupants(sid).concat([{id:1e9,name}]);   // hypothetical (high id → existing riders keep their slot)
   const exempt=exemptionsOf(sim);
-  if(tier==="Hamlet"&&!hamletOK(name)&&!exempt.has(1e9))return {ok:false,why:"Hamlet holds Husbandry / Arable Land only (or a Pursuit efficient with one there)"};
+  if(tier==="Hamlet"&&!hamletOK(name))return {ok:false,why:"Hamlets hold Natural Pursuits only"};
   const used=sim.length-exempt.size;
   if(used<=cap)return {ok:true, rider:exempt.has(1e9)};
   return {ok:false, why:"no free ward slot (efficient slot taken — chains, can't branch)"};
@@ -1963,7 +1970,7 @@ function boardFlags(){
   const m=S.settlements.find(s=>s.tier==="Metropolis");
   if(m&&!m.capital)f.push("Metropolis is not the capital (capital only)");
   if(m&&((S.domains||{}).Industry||0)<SOV)f.push("Metropolis without Sovereign Industry");
-  S.settlements.forEach(s=>{if(wardUse(s.id).typeBad)f.push(s.tier+": non-Husbandry pursuit in Hamlet");});
+  S.settlements.forEach(s=>{if(wardUse(s.id).typeBad)f.push(s.tier+": non-Natural pursuit in Hamlet");});
   S.settlements.forEach(s=>{const w=wardUse(s.id);if(w.free<0)f.push(s.tier+": "+(-w.free)+" ward(s) over cap");});
   Object.keys(S.infra).forEach(n=>{const st=infraReqStatus(INFRA[n]);if(!st.ok)f.push(n+": req unmet ("+st.missing.join(", ")+")");});
   Object.keys(S.wonders).forEach(n=>{const st=infraReqStatus(WON[n]);if(!st.ok)f.push(n+": req unmet ("+st.missing.length+" infra missing/invalid)");});
@@ -2055,7 +2062,7 @@ function addItem(n){
     let bn="";if(gameStarted()){const t=infraBuildTime(n);if(t>0)S.itimer[n]=t;bn=buildNote(infraBaseTime(n));}save();render();renderList();if(bn)flash(n+bn);return;}
   // pursuit — one of each name only (covers Monuments, Principle 15)
   if(onBoard(n)){flash(n+" already on board — one per name");return;}
-  // Husbandry / Arable Land fill Hamlets first (the only Pursuits a Hamlet takes); everything else: active settlement, capital, the rest
+  // Natural Pursuits fill Hamlets first (the only Pursuits a Hamlet takes); everything else: active settlement, capital, the rest
   const hams=hamletOK(n)?S.settlements.filter(x=>x.tier==="Hamlet").map(x=>x.id):[];
   const order=hams.concat([activeSid],[capitalSett()&&capitalSett().id],S.settlements.map(x=>x.id)).filter((x,i,a)=>x!=null&&a.indexOf(x)===i);
   let target=null,host=null,note="";
@@ -2343,7 +2350,7 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
       const t=document.createElement("span");t.className="stitle";t.style.cursor="pointer";
       t.onclick=()=>{activeSid=gid;render();};
       const isCap=!!(S.settlements.find(x=>x.id===gid)||{}).capital;
-      t.innerHTML=(gid===activeSid?"● ":"")+(isCap?"★ ":"")+tier+(isCap?' <span class="badge earn">Capital</span>':'')+' <span class="note">wards '+wu.used+'/'+wu.cap+(wu.free>0?' · <b style="color:var(--income)">'+wu.free+' empty</b>':'')+(wu.free<0?' · <b style="color:var(--upkeep)">'+(-wu.free)+' over</b>':'')+' · '+occ.length+' pursuits'+(wu.typeBad?' · <span style="color:var(--upkeep)">type!</span>':'')+(tier==="Hamlet"?' · Husbandry/Arable only':'')+'</span>';
+      t.innerHTML=(gid===activeSid?"● ":"")+(isCap?"★ ":"")+tier+(isCap?' <span class="badge earn">Capital</span>':'')+' <span class="note">wards '+wu.used+'/'+wu.cap+(wu.free>0?' · <b style="color:var(--income)">'+wu.free+' empty</b>':'')+(wu.free<0?' · <b style="color:var(--upkeep)">'+(-wu.free)+' over</b>':'')+' · '+occ.length+' pursuits'+(wu.typeBad?' · <span style="color:var(--upkeep)">type!</span>':'')+(tier==="Hamlet"?' · Natural only':'')+'</span>';
       hd.appendChild(t);hd.appendChild(settBar(gid));
       {const so=S.settlements.find(x=>x.id===gid);if(so&&so.bt>0)hd.appendChild(timerCtl("build",so.bt,d=>{so.bt=Math.max(0,so.bt+d);save();render();}));}
       const cb=document.createElement("button");cb.textContent=isCap?"★ capital":"☆ make capital";
@@ -2666,7 +2673,7 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
   card.appendChild(h);
 
   const sub=document.createElement("div");sub.className="sub";
-  sub.innerHTML=esc(r.type)+(effList(n).length?(" · efficient: "+effList(n).map(e=>kwify(e)).join(" or ")):"");card.appendChild(sub);
+  sub.innerHTML=esc(r.type)+(effLabel(n).length?(" · efficient: "+effLabel(n).map(e=>R[e]?kwify(e):(/^natural$/i.test(e)?"any "+kwify("Natural")+" Pursuit":"any "+esc(e)+" Pursuit")).join(" or ")):"");card.appendChild(sub);
 
   // placement dropdown (always visible for quick moves)
   const place=document.createElement("div");place.className="sub";

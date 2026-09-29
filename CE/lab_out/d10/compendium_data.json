@@ -1182,7 +1182,7 @@
      "Butchery",
      "",
      "Animal Husbandry + Tannery + Salt Works",
-     "**Efficient Smokehouse**; +500",
+     "**Efficient Smokehouse**; +500, Natural",
      "**Upkeep -200**; Craft+1"
     ],
     [
@@ -1273,7 +1273,7 @@
      "Smokehouse",
      "",
      "Salt Works + Kiln + Butchery",
-     "**Efficient Salt Works**; Craft +1",
+     "**Efficient Salt Works**; +Craft +1, Natural",
      "**Upkeep -300**; +500"
     ],
     [
@@ -1287,28 +1287,28 @@
      "Storehouse",
      "Sovereign Industry",
      "Workyard + Shipyard",
-     "**Doubt +1**, +600",
+     "**Efficient Shipyard**; **Doubt +1**, +600",
      "**Build Timer −2, +600**"
     ],
     [
      "Meadery",
      "Established Industry",
      "Apiary + Inn",
-     "**Efficient Apiary**; **Faith +1**",
+     "**Efficient Apiary**; Natural; **Faith +1**",
      "**Speed +2** in **Winter**"
     ],
     [
      "Winery",
      "Established Industry",
      "Vineyard + Joinery",
-     "**Efficient Vineyard**; +800",
+     "**Efficient Vineyard**; Natural; +800",
      "Craft +3"
     ],
     [
      "Cidery",
      "Established Industry",
      "Orchard + Joinery + Inn",
-     "**Efficient Orchard**; **Faith +2**",
+     "**Efficient Orchard**; Natural; **Faith +1**",
      "+800; Craft +1"
     ],
     [
@@ -1376,7 +1376,7 @@
      "Stable",
      "1 Rising",
      "Animal Husbandry + Blacksmith or Carpentry",
-     "**Efficient Animal Husbandry**; **Speed +1**",
+     "**Efficient Animal Husbandry**; **Speed +1**, Natural",
      "**Speed +1**; Unlocks Cavalry Weapons"
     ],
     [
@@ -1433,13 +1433,13 @@
      "1 Established",
      "Bell Tower + Jester's Court",
      "**Efficient Jester's Court**; **Influence +1** to Diplomacy Envoys",
-     "Whenever a player performs a Diplomacy action targeting you, that envoy cannot be Opposed."
+     "Whenever a player performs a Diplomacy Envoy targeting you, that envoy cannot be Opposed."
     ],
     [
      "Granary",
      "Rising Industry",
      "Arable Land",
-     "**Efficient Arable Land**; Upkeep -500",
+     "**Efficient Arable Land**; Upkeep -500, Natural",
      "Armies and Garrisons gain **Endurance** while Besieged"
     ],
     [
@@ -1575,49 +1575,49 @@
      "Secret Cellar",
      "Rising Cunning",
      "Smuggler's Nook",
-     "**Efficient Inn**; Failed Cunning actions **Recoup 500 Gold**",
+     "**Efficient Inn**; Natural; Failed Cunning actions **Recoup 500 Gold**",
      "Passed Cunning actions **Recoup 500 Gold**"
     ],
     [
      "Pilgrimage Site",
      "Rising Piety",
      "Reliquary + Chandlery",
-     "**Efficient Reliquary**; **Extort 500** every player without a Pilgrimage Site",
+     "**Efficient Reliquary**; Natural; **Extort 500** every player without a Pilgrimage Site",
      "**Doubt +1** to all other players without a Pilgrimage Site"
     ],
     [
      "Beacon Towers",
      "Rising Prowess",
      "Courier Network + Toll House",
-     "**Efficient Toll House**; Once per turn, you may select an Army within Province and move it up to its modified Speed.",
+     "**Efficient Toll House**; Natural; Once per turn, you may select an Army within Province and move it up to its modified Speed.",
      "Whenever a non-allied Army ends a Move action within Province, you may immediately perform a Move action"
     ],
     [
      "Charcoal Burner",
      "Established Industry",
      "Forestry + Kiln",
-     "**Efficient Forestry, Kiln**; -",
+     "**Efficient Forestry, Kiln**; Natural",
      "+500"
     ],
     [
      "Mill",
      "Rising Industry",
      "Bakery/Weavery/Forge/Carpentry",
-     "**Efficient Bakery, Weavery, Forge, Carpentry**; -",
+     "**Efficient Bakery, Weavery, Forge, Carpentry**; Natural",
      "+500"
     ],
     [
      "Kiln",
      "Rising Industry",
      "Forestry",
-     "**Efficient Forestry**; -",
+     "**Efficient Forestry**; Natural",
      "+500"
     ],
     [
      "Burgages",
      "",
      "Common Land",
-     "**Efficient Common Land**; +200",
+     "**Efficient Common Land**; +200, Natural",
      "**Faith +1**"
     ]
    ]
@@ -1671,7 +1671,7 @@
      "Levy Hall",
      "Rising Prowess",
      "Keep + Salt Works",
-     "**Upkeep -1000 while an army is range 0 of controlled settlement**",
+     "**Efficient Butchery**; **Upkeep -1000 while an army is range 0 of controlled settlement**",
      "**Upkeep -1000 while an army is range 0 of controlled settlement**"
     ],
     [
@@ -1691,8 +1691,8 @@
     [
      "Citadel",
      "Established Industry",
-     "Masonry + Granary",
-     "**Efficient Granary**; **Siege Timer +1**",
+     "Masonry + Granary or Supply Depot",
+     "**Efficient Granary, Supply Depot**; **Siege Timer +1**",
      "**Siege Timer +2**, Controlled Settlements gain **Reach +1**"
     ],
     [
@@ -1802,8 +1802,8 @@
      "Manor House",
      "Established Industry",
      "Hamlet + Market Square",
-     "**Efficient Market Square**; Gain +200 gold for each active natural specialization.",
-     "Gain +200 gold for each active energy specialization."
+     "**Efficient Market Square**; Gain +100 gold for each active natural specialization.",
+     "Gain +100 gold for each active natural specialization."
     ],
     [
      "Aristocratic Court",
