@@ -783,8 +783,12 @@ def _pursuit_set_is_valid(pursuits):
     if "Preceptory KT" in pursuits and not (
             {"Preceptory"} | set(PURSUITS_INFO["Preceptory"]["mastery_req"]) <= set(pursuits)):
         return False
-    # Stable is only useful for Lance, which requires Forged tier. Skip otherwise.
-    if "Stable" in pursuits and not has_forge_or_abf:
+    # Cavalry weapons are Mastery unlocks: Stable Mastery -> Cavalry Spear (Wrought; its mastery
+    # needs Blacksmith, Animal Husbandry implied by Stable); Saddlery Mastery -> Lance (Forged; its
+    # mastery needs Stable). A Stable without Blacksmith / a Saddlery without Forge unlocks nothing.
+    if "Stable" in pursuits and "Blacksmith" not in pursuits and not has_forge_or_abf:
+        return False
+    if "Saddlery" in pursuits and not has_forge_or_abf:
         return False
     # If ABF in pursuits, Stable/MW/GF are auto-included; pruning duplicates in cost.
     return True
@@ -931,7 +935,8 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
         "Joinery",       # Rising Industry; shield unlock; -5 upkeep if shielded; needs Carpentry
         "Fletchery",     # ranged unlock; -5 upkeep if ranged; needs Carpentry
         "Tiltyard",      # dual-equip + Immune Unwieldy (force-adds Coliseum as prereq)
-        "Stable",        # Lance unlock; implicitly grants Animal Husbandry
+        "Stable",        # Mastery unlocks Cavalry Spear (Wrought); implicitly grants Animal Husbandry
+        "Saddlery",      # Mastery unlocks Lance (Forged); forces Stable in (its mastery_req)
         "Royal Pavilion",
         "Grand Tournament",          # standalone: mastery (req Conditioning Field + Coliseum) grants Riposte
         "Ministry",
@@ -961,6 +966,7 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
         "Carpentry":         ["Joinery", "Fletchery"],         # Carpentry forced when either present
         "Animal Husbandry":  ["Tannery", "Butchery"],          # Stable also implies it (handled in cost)
         "Smokehouse":        ["Butchery"],                     # free with Butchery (0 cost)
+        "Stable":            ["Saddlery"],                     # Saddlery Mastery requires Stable
         # Tiltyard chain requires Coliseum — force it in so Sgt/KT who take Tiltyard
         # pay for Coliseum (they don't get it from their retinue seed post-depeg).
         "Coliseum":          ["Tiltyard", "Royal Pavilion"],
@@ -1048,8 +1054,15 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
                 if sum(1 for m in _POOL_MONUMENTS if m in pursuits) > max_monuments:
                     continue
                 # ── Derive arms ──
-                # "Stable → Lance" rule only fires on EXPLICIT Stable purchase
-                has_stable_explicit = "Stable" in opt_set
+                # Cavalry weapons only on EXPLICIT purchase: Stable Mastery -> Cavalry Spear (Wrought+),
+                # Saddlery Mastery -> Lance (Forged+). Each still needs its tier.
+                _ti = TIER_IDX.get(tier_str, -1)
+                cav = []
+                if ("Stable" in opt_set or "Saddlery" in opt_set) and "Blacksmith" in pursuits and _ti >= TIER_IDX["Wrought"]:
+                    cav.append("Cavalry Spear")
+                if "Saddlery" in opt_set and _ti >= TIER_IDX["Forged"]:
+                    cav.append("Lance")
+                has_stable_explicit = bool(cav)
                 has_fletch = "Fletchery" in pursuits
                 has_ty = "Tiltyard" in pursuits
                 has_abf = "ABF" in pursuits
@@ -1075,14 +1088,14 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
                     # Stable cavalry weapons CANNOT dual-equip ranged (charge weapons).
                     # So with Tiltyard, Lance/Cavalry Spear are offered MELEE-ONLY; the
                     # tier's other melee weapons still dual-equip ranged as normal.
-                    arms_options.append(("Lance", None, False))
-                    arms_options.append(("Cavalry Spear", None, False))
+                    for c in cav:
+                        arms_options.append((c, None, False))
                     for w in melee_options_for_tier(tier_str):
                         for r in _ranged_at_or_below(tier_str, RANGED_BY_TIER):
                             arms_options.append((w, r, True))
                 elif has_stable_explicit:
-                    arms_options.append(("Lance", None, False))
-                    arms_options.append(("Cavalry Spear", None, False))
+                    for c in cav:
+                        arms_options.append((c, None, False))
                     for w in melee_options_for_tier(tier_str):
                         arms_options.append((w, None, False))
                 elif has_fletch and has_ty:
@@ -1409,6 +1422,12 @@ def balanced_validation_pool(mpc_min=4, mpc_max=13, per_cell=None, seed=2026,
         has_ty = (ranged is not None) or is_dw
         ty_set = ["Carpentry", "Fletchery", "Coliseum", "Tiltyard"] if has_ty else []
         gear_base = set(smith_set) | set(metal_set) | set(shield_set) | set(ty_set)
+        # Cavalry weapons are Mastery unlocks: Cavalry Spear <- Stable (mastery_req Blacksmith, Animal
+        # Husbandry implied); Lance <- Saddlery (mastery_req Stable).
+        if weapon == "Cavalry Spear":
+            gear_base |= {"Stable", "Blacksmith"}
+        elif weapon == "Lance":
+            gear_base |= {"Saddlery", "Stable"}
         # ── CATEGORY DEFINITIONS ───────────────────────────────────────────────────────────────
         # Priority for filling MPC: Retinue Unlock >= Retinue Upgrade > Gear > Filler.
         # Retinue Unlock: the spec whose MASTERY unlocks the retinue (flat mastery_req, no cascade).
@@ -1582,6 +1601,7 @@ def validate_loadout(ld, check_tier_floors=False):
         - 2H weapon -> no shield; 1H (non-Farm Tools) -> needs shield unless Crossbow forces shieldless
         - Bastard Sword 1H -> needs shield
         - Lance/Cavalry Spear -> no Tower Shield
+        - Cavalry Spear -> Stable (mastered: +Blacksmith); Lance -> Saddlery (mastered: +Stable)
         - Stable cavalry weapons -> no dual-equip with ranged
         - Crossbow -> Tower-only or shieldless; not with Lance/Cavalry Spear
         - One-Shot ranged / dual-equip -> requires Tiltyard
@@ -1644,6 +1664,10 @@ def validate_loadout(ld, check_tier_floors=False):
     missing_smith = SMITH_REQ[wt] - P
     if missing_smith:
         v.append(f"{w} (tier {wt}) missing smithing {sorted(missing_smith)}")
+    # Cavalry weapons are Mastery unlocks: Cavalry Spear <- Stable Mastery, Lance <- Saddlery Mastery.
+    CAV_REQ = {"Cavalry Spear": {"Stable", "Blacksmith"}, "Lance": {"Saddlery", "Stable"}}
+    if w in CAV_REQ and (CAV_REQ[w] - P):
+        v.append(f"{w} missing its Mastery unlock {sorted(CAV_REQ[w] - P)}")
     if sh is not None:
         if "Joinery" not in P:
             v.append(f"shield {sh} without Joinery")

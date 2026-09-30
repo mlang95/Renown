@@ -47,8 +47,8 @@ REM TAG: subfolder under lab_out. Blank = auto-named from the dice settings.
 set TAG=
 
 REM ============================ POOL SETTINGS =================================
-set MPC_MIN=1
-set MPC_MAX=7
+set MPC_MIN=3
+set MPC_MAX=8
 set RUNS=100
 REM BALANCED=1 -> balanced_validation_pool ; BALANCED=0 -> archetype_pool
 set BALANCED=0

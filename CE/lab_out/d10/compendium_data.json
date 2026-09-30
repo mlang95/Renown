@@ -1141,7 +1141,7 @@
      "",
      "Arable Land + Animal Husbandry + Stable",
      "**Efficient Stable**; +500, **Natural**",
-     "**Upkeep -500**; Speed +1"
+     "Speed +1; Unlocks Lance (Still requires Tier Unlock)"
     ],
     [
      "Vineyard",
@@ -1382,7 +1382,7 @@
      "1 Rising",
      "Animal Husbandry + Blacksmith or Carpentry",
      "**Efficient Animal Husbandry**; **Speed +1**, Natural",
-     "**Speed +1**; Unlocks Cavalry Weapons"
+     "**Speed +1**; Unlocks Cavalry Spear (Still requires Tier Unlock)"
     ],
     [
      "Castle Yard",
@@ -1853,9 +1853,9 @@
    [
     "Levy",
     "1000",
-    "7+",
+    "6+",
     "2",
-    "8+",
+    "7+",
     "—"
    ],
    [
@@ -1999,15 +1999,15 @@
    [
     "Lance",
     "Forged",
-    "-4",
+    "-5",
     "+1",
-    "Steady, Unwieldy, Unstoppable, Awkward, Negate Riposte"
+    "Steady, Unwieldy, Deadly, Unstoppable, Awkward, Negate Riposte, Destroy Shield"
    ],
    [
     "Estoc",
     "Tempered",
     "-3",
-    "+1",
+    "+0",
     "Steady, Deadly, Unstoppable, Negate Riposte, Negate Planishing"
    ],
    [
@@ -2038,14 +2038,14 @@
     "Wrought",
     "-2",
     "+1",
-    "Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One-Shot"
+    "Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One-Shot, Awkward"
    ],
    [
     "Crossbow",
     "Forged",
     "-4",
-    "+0",
-    "Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte"
+    "+1",
+    "Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Awkward"
    ],
    [
     "Arquebus",
@@ -2059,7 +2059,7 @@
     "Tempered",
     "-5",
     "+1",
-    "Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One-Shot"
+    "Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One-Shot, Awkward"
    ]
   ],
   "Shields": [

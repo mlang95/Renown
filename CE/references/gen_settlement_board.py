@@ -393,6 +393,8 @@ def build(ns):
         out = []
         if re.search(r"Unlocks?\s+Ranged\s+Weapons", t, re.I): out.append("ranged")
         if re.search(r"Unlocks?\s+Cavalry\s+Weapons", t, re.I): out.append("cavalry")
+        for wm in re.finditer(r"Unlocks?\s+(Cavalry Spear|Lance)\b", t, re.I):   # e.g. Stable / Saddlery Mastery
+            out.append("weapon:" + wm.group(1).title())
         m = re.search(r"Unlocks?\s+(.+?)\s+for\s+Muster", t, re.I)
         if m: out.append("retinue:" + norm_ret(m.group(1)))
         return out
@@ -2816,7 +2818,7 @@ function armyUnlocks(earned){
   });
   const tset=new Set(active.map(a=>a.tok));
   const wTiers=new Set(["Crude"]), armors=new Set(["Cloth"]);
-  let shields=false, ranged=false, cavalry=false;
+  let shields=false, ranged=false, cavalry=false;const weaponsUnl=new Set();
   const retinues=new Set(["Levy"]); const mods=[];
   active.forEach(a=>{
     const t=a.tok;
@@ -2827,11 +2829,12 @@ function armyUnlocks(earned){
       else if(x==="Shields") shields=true;
     } else if(t==="ranged") ranged=true;
     else if(t==="cavalry") cavalry=true;
+    else if(t.startsWith("weapon:")){weaponsUnl.add(t.slice(7));cavalry=true;}
     else if(t.startsWith("retinue:")) retinues.add(t.slice(8));
     else mods.push(a);           // keyword / modifier
   });
   // armor also implied by weapon tiers? no — armor unlocked only by explicit armor tags.
-  return {set:tset,wTiers,armors,shields,ranged,cavalry,retinues,mods,active};
+  return {set:tset,wTiers,armors,shields,ranged,cavalry,weaponsUnl,retinues,mods,active};
 }
 function unlockedShieldTiers(u){ // shields gated by weapon-tier progression when Shields unlocked
   return u.shields ? u.wTiers : new Set();
@@ -2938,7 +2941,7 @@ function renderArmy(){
   up.className="block unlocks";
   up.innerHTML='<div class="lbl">ARMY UNLOCKS &amp; MODIFIERS</div>'
     + g("Weapon tiers", wt)
-    + g("Ranged", u.ranged?"yes":"no") + g("Cavalry", u.cavalry?"yes":"no")
+    + g("Ranged", u.ranged?"yes":"no") + g("Cavalry", u.weaponsUnl&&u.weaponsUnl.size?[...u.weaponsUnl].join(", "):(u.cavalry?"yes":"no"))
     + g("Armor", [...u.armors].join(", "))
     + g("Shields", u.shields?("yes ("+[...unlockedShieldTiers(u)].sort((a,b)=>TIER_RANK[a]-TIER_RANK[b]).join(", ")+")"):"no")
     + g("Retinues", [...u.retinues].join(", "))
@@ -2991,7 +2994,7 @@ function armyCard(a,u){
   const rsel=field("Retinue","retinue",retItems,new Set(Object.keys(EQ.retinues)),(name)=>u.retinues.has(name));
   rsel.onchange=()=>{a.retinue=rsel.value;const rt=EQ.retinues[a.retinue];if(rt){a.upkeep=rt.cost;a.endurance=rt.endurance;}save();render();};
   fixBastard(a);
-  field("Weapon","weapon",EQ.weapons,u.wTiers,(name,it)=>reqMet(it,u)&&noteMet(it));
+  field("Weapon","weapon",EQ.weapons,u.wTiers,(name,it)=>reqMet(it,u)&&weaponUnlockMet(name,u));
   const rangedItems=Object.assign({"None":{tier:null}},EQ.ranged);
   field("Ranged","ranged",rangedItems,u.wTiers,(name,it)=>name==="None"||(u.ranged&&reqMet(it,u)));
   field("Armor","armor",EQ.armors,new Set(EQ.tiers),(name)=>u.armors.has(name)||name==="Cloth");
@@ -3046,7 +3049,9 @@ function armyCard(a,u){
 }
 
 function reqMet(it,u){ if(!it.requires)return true; return it.requires.every(r=>u.set.has(r)); }
-function noteMet(it){ if(it.note&&/Needs Stable/i.test(it.note)) return !!PC["Stable"]; return true; }
+// weapons that some pursuit explicitly unlocks ("Unlocks Cavalry Spear" / "Unlocks Lance") need that unlock active
+const WEAPON_GATED=new Set(Object.values(ARMYSRC||{}).flatMap(v=>[].concat(v.innate||[],v.mastery||[])).filter(t=>String(t).startsWith("weapon:")).map(t=>t.slice(7)));
+function weaponUnlockMet(name,u){return !WEAPON_GATED.has(name)||(u.weaponsUnl&&u.weaponsUnl.has(name));}
 // morale characteristic = retinue Shaking + 2 per Fatigue token; >=11 = instant rout
 function moraleBase(a){const rt=EQ.retinues[a.retinue];return rt?rt.shaking:0;}
 function effMorale(a){return moraleBase(a)+(BT.fatigueMorale??2)*(a.fatigue||0);}
