@@ -31,6 +31,7 @@ from renown_data import (
     STEADY, STRAIN, TWO_H, UNBREAKABLE, UNSTOPPABLE, UNWIELDY,
     IMMUNE_DESTROY_SHIELD, IMMUNE_STRAIN, IMMUNE_UNWIELDY,
 )
+from dice_config import RECOVER_BASE
 Loadout = namedtuple("Loadout",
     "name retinue weapon shield armor ranged has_tiltyard size extra_tags upkeep_per_retinue playstyle tiltyard_mastery pursuits military_pursuit_count domain_count")
 Loadout.__new__.__defaults__ = (None, True, frozenset(), 0, 0)  # playstyle, tiltyard_mastery, pursuits, mpc, domain_count
@@ -90,6 +91,8 @@ TAG_DISPLAY = {
     "Regenerate 5":      "Regen 5",
     "Regenerate 4":      "Regen 4",
     "Regenerate Reroll": "Reroll",
+    "Recover 8":         "Rec 8",
+    "Recover 7":         "Rec 7",
     "Recover 6":         "Rec 6",
     "Recover 5":         "Rec 5",
     "Recover 4":         "Rec 4",
@@ -167,8 +170,8 @@ def _name(retinue, weapon, shield, armor, ranged, has_tiltyard, extra_tags, play
         base += " (DW)"
     tags = list(extra_tags) if extra_tags else []
     # Display only the strongest Regenerate tier (engine takes min threshold; dominated tags are noise)
-    _regen_rank = {"Regenerate 4": 4, "Regenerate 5": 5, "Regenerate 6": 6, "Regenerate": 6,
-                   "Recover 4": 4, "Recover 5": 5, "Recover 6": 6, RECOVER: 6}
+    _regen_rank = {"Regenerate 4": 4, "Regenerate 5": 5, "Regenerate 6": 6, "Regenerate": RECOVER_BASE,
+                   "Recover 4": 4, "Recover 5": 5, "Recover 6": 6, "Recover 7": 7, "Recover 8": 8, RECOVER: RECOVER_BASE}
     _regen_present = [t for t in tags if t in _regen_rank]
     if len(_regen_present) > 1:
         best = min(_regen_present, key=lambda t: _regen_rank[t])
@@ -302,7 +305,7 @@ def valid_combo(retinue, weapon, shield, armor, ranged, has_tiltyard, allow_tier
     if has_real_melee and ranged is not None and not has_tiltyard:
         return False
     retinue_idx = RETINUE_TIER[retinue]
-    armor_tier_idx = TIER_IDX[ARMORS[armor]["tier"]]
+    armor_tier_idx = TIER_IDX.get(ARMORS[armor]["tier"], -1)   # tier None (Cloth) = below Crude
     FORGED_IDX = TIER_IDX["Forged"]
     CRAFTED_IDX = TIER_IDX["Crafted"]
     # Pure-ranged loadout: weapon is Farm Tools fallback, real weapon is ranged.
@@ -387,15 +390,10 @@ BUILD_KITS = {
     "Apothecary Heal":      ("Apothecary Heal",),               # Apothecary mastery: Heal 1 per 4 cas (Immune Poison removed)
     POISON:               (POISON,),                        # Toxicarium innate
     IMMUNE_UNWIELDY:      (IMMUNE_UNWIELDY,),               # Tiltyard mastery
-    # — Regenerate ladder —
-    "Regen 6+":             ("Recover 6",),
-    "Regen 5+":             ("Recover 5",),
-    "Regen 4+":             ("Recover 4",),
-    # Hospitaller no longer grants a Recover reroll (now +1/+1); reroll tags are
-    # engine-ignored — these presets behave as plain Recover tiers.
-    "Regen 6+ Reroll":      ("Recover 6",),
-    "Regen 5+ Reroll":      ("Recover 5",),
-    "Regen 4+ Reroll":      ("Recover 4",),
+    # — Recover ladder (d10; tags read literally as N+) —
+    "Recover 8+":           ("Recover 8",),                     # Apothecary mastery
+    "Recover 7+":           ("Recover 7",),                     # Infirmary mastery
+    "Recover 6+":           ("Recover 6",),                     # Hospitaller innate
     # — Spec combinations (multi-spec pathways) —
     "Royal Pavilion":       (DRILLED, NIMBLE),                                    # RP mastery
     "Preceptory":           ("Immune Panic",),                                        # Preceptory innate
@@ -1383,7 +1381,7 @@ def balanced_validation_pool(mpc_min=4, mpc_max=13, per_cell=None, seed=2026,
         atier = ARMORS[armor]["tier"]
         # METAL path is ARMOR-ONLY now (Gilded Foundry only for Full Plate, ABF only for Gothic).
         # Shields do NOT use the metal line — they use the SMITH line (below).
-        metal_by_armor = {"Crude": None, "Cast": "Tannery", "Wrought": "Armory",
+        metal_by_armor = {None: None, "Crude": None, "Cast": "Tannery", "Wrought": "Armory",
                           "Forged": "Gilded Foundry", "Crafted": "ABF"}
         metal_name = metal_by_armor[atier]
         metal_set = list(METAL_PATHS[metal_name][0]) if metal_name else []
@@ -1661,7 +1659,7 @@ def validate_loadout(ld, check_tier_floors=False):
     else:
         if "Joinery" in P:
             v.append("Joinery present but no shield")
-    METAL_REQ = {"Crude": set(), "Cast": {"Tannery"}, "Wrought": {"Armory"},
+    METAL_REQ = {None: set(), "Crude": set(), "Cast": {"Tannery"}, "Wrought": {"Armory"},
                  "Forged": {"Gilded Foundry"}, "Crafted": {"ABF"}}
     at = ARMORS.get(ar, {}).get("tier", "Crude")
     missing_metal = METAL_REQ[at] - P

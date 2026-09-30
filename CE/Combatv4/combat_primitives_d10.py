@@ -92,7 +92,8 @@ def build_parry_thr(n, def_parry_improved, atk_unstoppable, atk_is_ranged,
 
     Base PARRY_BASE+ (one rung better with Improved Parry), -2 to Parry vs Unstoppable
     (i.e. +2 to the target), +1 vs Deflect (all ranged carry Deflect; Daggers/Estoc/
-    Ministry carry it explicitly), +1 per Fatigue token, capped at CAP_THR+. Deadly
+    Ministry carry it explicitly), capped at CAP_THR+. Fatigue no longer affects Parry
+    (def_fat kept for call-site compatibility, ignored). Deadly
     strikes Parry only on a Focused roll — handled in the kernel, not here.
 
     All inputs scalar-or-array (n,). Returns parry_thr (n,) int64.
@@ -102,11 +103,9 @@ def build_parry_thr(n, def_parry_improved, atk_unstoppable, atk_is_ranged,
     unstop = _as_bool_arr(atk_unstoppable, n)
     ranged = _as_bool_arr(atk_is_ranged, n)
     deflect_tag = _as_bool_arr(atk_has_deflect, n)
-    fat = _as_int_arr(def_fat, n) if def_fat is not None else np.zeros(n, dtype=np.int64)
-
     deflect = deflect_tag | ranged   # ranged always Deflects
     base = (PARRY_BASE - parry_bonus).astype(np.int64)
-    parry_thr = base + UNSTOPPABLE_MOD * unstop.astype(np.int64) + deflect.astype(np.int64) + fat
+    parry_thr = base + UNSTOPPABLE_MOD * unstop.astype(np.int64) + deflect.astype(np.int64)
     parry_thr = np.minimum(parry_thr, CAP_THR).astype(np.int64)
     return parry_thr.copy(), deflect
 
@@ -120,7 +119,6 @@ def build_regen_thr(n, def_regen_threshold, def_fat):
     def_regen_threshold: None, scalar, or (n,) array. def_fat: scalar-or-array (n,).
     Returns regen_thr (n,) int64.
     """
-    fat = _as_int_arr(def_fat, n) if def_fat is not None else np.zeros(n, dtype=np.int64)
     if def_regen_threshold is None:
         raw = np.zeros(n, dtype=np.int64)
     else:
@@ -129,17 +127,10 @@ def build_regen_thr(n, def_regen_threshold, def_fat):
             raw = np.full(n, int(a), dtype=np.int64)
         else:
             raw = a.astype(np.int64)
-    # Decode Enduring: a NEGATIVE threshold signals the Enduring keyword (encoded in
-    # _regen_threshold). Magnitude is the normal (Serrated-adjusted) pre-fatigue threshold.
-    enduring = raw < 0
-    regen_base = np.abs(raw)
-    # CANONICAL (matches batch_engine): Recover switches OFF entirely while Fatigued, rather than
-    # degrading — EXCEPT Enduring units, which still get a flat 6+ Recover while Fatigued.
-    # Pre-fatigue everyone recovers at their base threshold. (Aligns vec to batch: batch passes
-    # the raw threshold and lets this function own all fatigue/Enduring logic.)
-    fresh = (regen_base > 0) & (fat == 0)
-    fatigued_enduring = (regen_base > 0) & (fat > 0) & enduring
-    regen_thr = np.where(fresh, regen_base, np.where(fatigued_enduring, CAP_THR, 0))
+    # Fatigue no longer affects Recover (def_fat kept for call-site compatibility, ignored).
+    # Enduring is no longer a Recover modifier (it now keeps Recovered Strikes out of the Panic
+    # tally — handled by the engines); abs() keeps any legacy negative encoding harmless.
+    regen_thr = np.minimum(np.abs(raw), CAP_THR)
     return regen_thr.astype(np.int64).copy()
 
 

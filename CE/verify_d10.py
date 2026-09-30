@@ -84,7 +84,8 @@ print(f"      retinues: " + ", ".join(
     f"{n} {v['to_hit']}+/{v['shaking']}+" for n, v in rd.RETINUES.items()))
 
 # armor must not improve as tier drops
-arm = sorted(rd.ARMORS.items(), key=lambda kv: TIER_ORDER.index(kv[1]["tier"]))
+def _tier_i(t): return -1 if t is None else TIER_ORDER.index(t)   # tier None (Cloth) sorts below Crude
+arm = sorted(rd.ARMORS.items(), key=lambda kv: _tier_i(kv[1]["tier"]))
 mono = all(arm[i][1]["save"] >= arm[i + 1][1]["save"] for i in range(len(arm) - 1))
 check("armor ladder monotonic by tier", mono,
       ", ".join(f"{n} {d['save']}+" for n, d in arm))
@@ -93,7 +94,7 @@ check("armor saves within 2..FACES",
 
 # shields must not improve as tier drops
 sh = [(n, d) for n, d in rd.SHIELDS.items() if n]
-sh.sort(key=lambda kv: TIER_ORDER.index(kv[1]["tier"]))
+sh.sort(key=lambda kv: _tier_i(kv[1]["tier"]))
 # Shields deliberately trade across axes (Targe's save for Steady, Heater's save for
 # Initiative and Immune Destroy Shield), so a non-monotonic save ladder is a design
 # choice rather than an error. Reported, never failed.

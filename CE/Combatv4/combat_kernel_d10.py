@@ -141,7 +141,7 @@ def _strikes_kernel_dual(rolls, cleave_rolls, front_line, target_th_clip, auto_f
 
 
 @_njit(cache=True)
-def _saves_kernel(rolls, parry_rolls, regen_rolls,
+def _saves_kernel3(rolls, parry_rolls, regen_rolls,
                   n_strikes, deadly_strikes, save_clip, deadly_save_clip, auto_pass_save,
                   atk_has_poison, parry_mask, parry_thr, regen_thr,
                   riposte_mask, riposte_on5, parry_before_save=False, halfsword_mode=False):
@@ -149,17 +149,19 @@ def _saves_kernel(rolls, parry_rolls, regen_rolls,
     save_clip / deadly_save_clip: per-run save targets (2..7; 7 = impossible).
       Deadly strikes resolve at deadly_save_clip (normal target worsened by Deadly's AP -5;
       Planishing caps both at CAP_THR).
-    parry_thr: per-run Parry threshold (base PARRY_BASE/-1 + 2*Unstoppable + ranged/Deflect + Fatigue, capped CAP_THR).
+    parry_thr: per-run Parry threshold (base PARRY_BASE/-1 + 2*Unstoppable + ranged/Deflect, capped CAP_THR; Fatigue no longer applies).
       Deadly strikes can only be Parried on a Focused roll (>= FOCUSED_THR).
-    regen_thr: per-run Recover threshold (0 = none; base + Serrated + Fatigue, capped CAP_THR).
+    regen_thr: per-run Recover threshold (0 = none; base + Serrated, capped CAP_THR; Fatigue no longer applies).
       Deadly strikes can only be Recovered on a Focused roll (>= FOCUSED_THR).
     riposte_on5: defender's natural-5 Parry also Ripostes when the 5 parried (DEPRECATED; inert).
     halfsword_mode: DEPRECATED; carried forward inert (never set True by current callers).
-    Returns (casualties (n,), ripostes (n,))."""
+    Returns (casualties (n,), ripostes (n,), recovered (n,)) — recovered = Strikes a failed Save
+    let through that the Recover roll then saved (they still count toward Panic unless Enduring)."""
     n = rolls.shape[0]
     maxs = rolls.shape[1]
     casualties = np.zeros(n, dtype=np.int32)
     ripostes = np.zeros(n, dtype=np.int32)
+    recovered = np.zeros(n, dtype=np.int32)
     for r in range(n):
         ns = n_strikes[r]
         dl = deadly_strikes[r]
@@ -174,6 +176,7 @@ def _saves_kernel(rolls, parry_rolls, regen_rolls,
         poi = atk_has_poison[r]   # per-row: attacker's effective Poison vs this defender
         fails = 0
         rip = 0
+        rec = 0
         for d in range(maxs):
             if d >= ns:
                 break
@@ -222,16 +225,34 @@ def _saves_kernel(rolls, parry_rolls, regen_rolls,
                 if is_half:
                     rthr_eff = CAP_THR if (rthr + 1) > CAP_THR else (rthr + 1)
                     if rr >= rthr_eff:
+                        rec += 1
                         continue
                 elif is_deadly:
                     if rr >= FOCUSED_THR:
+                        rec += 1
                         continue
                 elif poison_kill:
                     if rr >= FOCUSED_THR:        # Poison wounds: Recover only on a Focused roll
+                        rec += 1
                         continue
                 elif rr >= rthr:
+                    rec += 1
                     continue
             fails += 1
         casualties[r] = fails
         ripostes[r] = rip
-    return casualties, ripostes
+        recovered[r] = rec
+    return casualties, ripostes, recovered
+
+
+@_njit(cache=True)
+def _saves_kernel(rolls, parry_rolls, regen_rolls,
+                  n_strikes, deadly_strikes, save_clip, deadly_save_clip, auto_pass_save,
+                  atk_has_poison, parry_mask, parry_thr, regen_thr,
+                  riposte_mask, riposte_on5, parry_before_save=False, halfsword_mode=False):
+    """Compatibility wrapper: (casualties, ripostes). See _saves_kernel3."""
+    c, rp, _rc = _saves_kernel3(rolls, parry_rolls, regen_rolls,
+                                n_strikes, deadly_strikes, save_clip, deadly_save_clip, auto_pass_save,
+                                atk_has_poison, parry_mask, parry_thr, regen_thr,
+                                riposte_mask, riposte_on5, parry_before_save, halfsword_mode)
+    return c, rp

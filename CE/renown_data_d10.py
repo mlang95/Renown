@@ -72,7 +72,7 @@ RIPOSTE         = "Riposte"
 NO_PARRY        = "Awkward"
 RECOVER         = "Recover"
 SERRATED        = "Serrated"
-ENDURING        = "Enduring"   # Recover still gets a CAP_THR+ save while Fatigued (exception to off-when-fatigued)
+ENDURING        = "Enduring"   # successfully Recovered Strikes don't count toward the Panic check threshold
 STRAIN          = "Strain"
 MINUS_1_TBH     = "Shielded"
 PLANISHING      = "Planishing"
@@ -111,7 +111,7 @@ PIVOTAL = "Focused"
 GLOSSARY = {
     STEADY:         "Initiative cannot be reduced by Tactics.",
     UNWIELDY:       "Initiative cannot be improved by Tactics.",
-    TWO_H:          "Cannot use a Shield.",
+    TWO_H:          "Cannot use a Shield: while a 2H weapon is Equipped, your Shield gives nothing that Skirmish (no Save bonus, Initiative or keywords).",
     SHATTER_ARMOR:  f"On a {PIVOTAL} Strike: that strike's AP is increased by {DEADLY_AP}, and the defender may Parry or {RECOVER} only with a {PIVOTAL} roll.",
     UNSTOPPABLE:    f"-{UNSTOPPABLE_MOD} to the defender's Parry roll, to a maximum of {CAP_THR}+).",
     CLEAVE:         f"On a {PIVOTAL} Strike: roll one extra Strike die at your modified to-Strike.",
@@ -120,14 +120,15 @@ GLOSSARY = {
     DRILLED:        "Does not lose Endurance in the first Skirmish of each Battle.",
     DESTROY_SHIELD: f"On a {PIVOTAL} Strike: the target loses its Shield attributes for the rest of the Battle.",
     BLUNDER:        f"At Initiative {INITIATIVE_MIN}, your to-Strike is set to {BLUNDER_THR}+, before other negative modifiers.",
-    ONE_SHOT:       "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard.",
+    ONE_SHOT:       "Must be Equipped in the first Skirmish of a Battle, and can't be Equipped after it. Requires a Tiltyard.",
     #DEFLECT:        "-1 to Parry and Negate Riposte against this weapon's Strikes. (All Ranged weapons have Deflect.)",
     #IMMUNE_PANIC:   "Automatically passes Panic checks.",
     #UNBREAKABLE:    "Immune Break: does not take Break checks while Fatigued.",
     PARRY:          f"Roll a D{FACES} to attempt to Parry a Strike before an Armor Save. On a {PARRY_BASE}+ (Improved by Improved Parry), the Strike is Parried and has no further effect.",
     RIPOSTE:        "If you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
     NO_PARRY:       "While equipped with this weapon during a skirmish, you cannot Parry, and so cannot Riposte.",
-    RECOVER:        f"If a to-Save roll fails, roll a D{FACES} & compare it to your Recover value: a result greater than or equal to your Recover value recovers the retinue.",
+    RECOVER:        f"If a to-Save roll fails, roll a D{FACES} & compare it to your Recover value: a result greater than or equal to your Recover value recovers the retinue. Recovered Strikes still count toward the Panic check threshold.",
+    ENDURING:       "Successfully Recovered Strikes don't count toward the Panic check threshold.",
     SERRATED:       "A cumulative -2 penalty to the defender's Recover roll.",
     PLANISHING:     f"A {PIVOTAL} Save succeeds, regardless of AP.",
     FATIGUE_TOKEN:  f"Each token reduces Morale -{FATIGUE_MORALE} by. If your modified Morale is ever {ROUT_THR}+, your army Routs. These effects are cumulative.",
@@ -157,7 +158,7 @@ GLOSSARY = {
     "Endurance":     "A side's stamina. Each side that fights loses 1 per Skirmish; at 0 it becomes Fatigued.",
     "Fatigued":      f"A side at 0 Endurance. Each Skirmish its field takes a Break check, then it gains a Fatigue token.",
     "Break check":   "Taken by each Fatigued side's field every Skirmish, just before it gains its Fatigue token. Roll Morale (5 dice, modified by Fatigue tokens); failures are casualties, but a Break check never triggers a Panic check. Unbreakable auto-passes.",
-    "Panic check":   "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish, after it Strikes back. Roll Morale (5 dice); Immune Panic auto-passes.",
+    "Panic check":   "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish (Recovered Strikes count, unless Enduring), after both sides have Struck. Roll Morale (5 dice); Immune Panic auto-passes.",
     "Morale":        f"How steady a retinue is when tested (lower is steadier; see the retinue table). Break and Panic checks roll it: a D{FACES} per retinue in the field, up to 5 dice, each must meet its modified value; failures are casualties. If the modified value is ever {ROUT_THR}+, the army Routs.",
     "Rout":          f"The army breaks and leaves the Battle (you lose it). Whenever an army's modified Morale value reaches {ROUT_THR}+ or more, it Routs automatically.",
     "Fall Back":     "A controlled retreat that ends the Battle with at least one retinue left — a partial success.",
@@ -313,8 +314,8 @@ WEAPONS = {
 }
 
 RANGED = {
-    "Hunting Bow": {"ap":  0, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNSTOPPABLE, NEGATE_RIPOSTE]},
-    "Longbow":     {"ap": -1, "init":  2, "tier": "Cast",    "tags": [TWO_H, UNSTOPPABLE, SHATTER_ARMOR, NEGATE_RIPOSTE]},
+    "Hunting Bow": {"ap":  0, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNSTOPPABLE, NEGATE_RIPOSTE, NO_PARRY]},
+    "Longbow":     {"ap": -1, "init":  2, "tier": "Cast",    "tags": [TWO_H, UNSTOPPABLE, SHATTER_ARMOR, NEGATE_RIPOSTE, NO_PARRY]},
     "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD, ONE_SHOT], 'note': 'Cannot Dual Wield'},
     "Crossbow":    {"ap": -4, "init":  0, "tier": "Forged",  "tags": [UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE], 'note': "Tower Shield only (no other shield), cannot Dual Wield"},
     "Arquebus":    {"ap": -6, "init":  2, "tier": "Crafted", "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, NEGATE_TEMPERED, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["ABF", "Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
@@ -2262,7 +2263,7 @@ GLOSSARY["Standing"] = (f"Your tier in a Domain: Untested, Rising ({_ST['Rising'
 # Seasons (turn cycle of 4; Rest Phase advances Season +1).
 SEASONS = {
     "Winter": {"name": "Freezing",    "effect": "All Armies gain Speed -1; Sieges do not increment. Tax income collected."},
-    "Spring": {"name": "Planting",    "effect": "No Host, Bandit Mechanics, Trade Income, Council Phase, or Diplomacy Actions. Gain +1 Envoy. Bandit Camps Spawn."},
+    "Spring": {"name": "Planting",    "effect": "No Host, Bandit actions, Trade Income, Council Phase, or Diplomacy Actions. Gain +1 Envoy. Bandit Camps Spawn."},
     "Summer": {"name": "Campaigning", "effect": "All Armies gain Speed +2"},
     "Fall":   {"name": "Harvest",     "effect": "Husbandry Mastery Effects are doubled."},
 }
@@ -2308,7 +2309,7 @@ BANDITS = {
     "Bandit Camp": f"A collection of Bandits in Outlaw Country, starting with {BANDIT_CAMP_START} Retinues.",
     "Bandit Growth": f"Bandit Camps gain ({'/'.join(str(v) for v in BANDIT_GROWTH_PER_ERA.values())}) Retinues a turn, based on the Era of the Realm.",
     "Bandit Army": f"A Bandit Camp becomes a Bandit Army at {BANDIT_ARMY_THRESHOLD} Retinues. Performs Move actions toward the closest Settlement or Army, laying Siege or Skirmishing if possible, in addition to Bandit Cunning Mechanics. Bandit Armies cannot exceed {BANDIT_ARMY_THRESHOLD}",
-    "Spawn a Bandit Camp": "Each Spring, every player gains a Bandit Camp. When a Bandit Camp is spawned in Spring, it immediately performs a Raze action at a base influence of 1 targetting the closest settlement.",
+    "Spawn a Bandit Camp": "Each Spring, every player gains a Bandit Camp.",
 }
 
 TIMERS = {

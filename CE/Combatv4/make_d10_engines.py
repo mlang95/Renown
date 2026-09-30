@@ -5,6 +5,16 @@ Every hardcoded 6 / 7 in a roll path becomes a reference to dice_config.
 Assertions on each edit so a miss fails loudly.
 """
 import re
+import sys as _sys
+
+# ── GUARD ─────────────────────────────────────────────────────────────────────
+# The *_d10.py engine files (and dice_config.py) are now maintained directly in CE —
+# they carry rules changes (no Fatigue on Parry/Recover, numeric Recover ladder, Enduring
+# Panic tally, melee-weapon Ripostes, …) that the d6 sources this script reads do not have.
+# Re-running it would overwrite dice_config.py and every *_d10.py with stale output.
+if "--force" not in _sys.argv:
+    _sys.exit("make_d10_engines.py: refusing to regenerate — the *_d10.py files are hand-maintained "
+             "now. Pass --force only if you really mean to overwrite them from the d6 sources.")
 
 CONFIG = '''"""dice_config — single source for die size across both combat engines.
 

@@ -3,7 +3,7 @@
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
-  "2H": "Cannot use a Shield.",
+  "2H": "Cannot use a Shield: while a 2H weapon is Equipped, your Shield gives nothing that Skirmish (no Save bonus, Initiative or keywords).",
   "Deadly": "On a Focused Strike: that strike's AP is increased by 5, and the defender may Parry or Recover only with a Focused roll.",
   "Unstoppable": "-2 to the defender's Parry roll, to a maximum of 10+).",
   "Cleave": "On a Focused Strike: roll one extra Strike die at your modified to-Strike.",
@@ -12,11 +12,12 @@
   "Drilled": "Does not lose Endurance in the first Skirmish of each Battle.",
   "Destroy Shield": "On a Focused Strike: the target loses its Shield attributes for the rest of the Battle.",
   "Blunder": "At Initiative -2, your to-Strike is set to 10+, before other negative modifiers.",
-  "One-Shot": "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard.",
+  "One-Shot": "Must be Equipped in the first Skirmish of a Battle, and can't be Equipped after it. Requires a Tiltyard.",
   "Parry": "Roll a D10 to attempt to Parry a Strike before an Armor Save. On a 8+ (Improved by Improved Parry), the Strike is Parried and has no further effect.",
   "Riposte": "If you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
   "Awkward": "While equipped with this weapon during a skirmish, you cannot Parry, and so cannot Riposte.",
-  "Recover": "If a to-Save roll fails, roll a D10 & compare it to your Recover value: a result greater than or equal to your Recover value recovers the retinue.",
+  "Recover": "If a to-Save roll fails, roll a D10 & compare it to your Recover value: a result greater than or equal to your Recover value recovers the retinue. Recovered Strikes still count toward the Panic check threshold.",
+  "Enduring": "Successfully Recovered Strikes don't count toward the Panic check threshold.",
   "Serrated": "A cumulative -2 penalty to the defender's Recover roll.",
   "Planishing": "A Focused Save succeeds, regardless of AP.",
   "Fatigue Token": "Each token reduces Morale  by 2 (uncapped); if your modified Morale is ever 11+, your army Routs. Tokens stack.",
@@ -38,7 +39,7 @@
   "Endurance": "A side's stamina. Each side that fights loses 1 per Skirmish; at 0 it becomes Fatigued.",
   "Fatigued": "A side at 0 Endurance. Each Skirmish its field takes a Break check, then it gains a Fatigue token.",
   "Break check": "Taken by each Fatigued side's field every Skirmish, just before it gains its Fatigue token. Roll Morale (5 dice, modified by Fatigue tokens); failures are casualties, but a Break check never triggers a Panic check. Unbreakable auto-passes.",
-  "Panic check": "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish, after it Strikes back. Roll Morale (5 dice); Immune Panic auto-passes.",
+  "Panic check": "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish (Recovered Strikes count, unless Enduring), after both sides have Struck. Roll Morale (5 dice); Immune Panic auto-passes.",
   "Morale": "How steady a retinue is when tested (lower is steadier; see the retinue table). Break and Panic checks roll it: a D10 per retinue in the field, up to 5 dice, each must meet its modified value; failures are casualties. If the modified value is ever 11+, the army Routs.",
   "Rout": "The army breaks and leaves the Battle (you lose it). Whenever an army's modified Morale value reaches 11+ or more, it Routs automatically.",
   "Fall Back": "A controlled retreat that ends the Battle with at least one retinue left — a partial success.",
@@ -165,7 +166,7 @@
     ],
     [
      "2H",
-     "Cannot use a Shield."
+     "Cannot use a Shield: while a 2H weapon is Equipped, your Shield gives nothing that Skirmish (no Save bonus, Initiative or keywords)."
     ],
     [
      "Deadly",
@@ -197,7 +198,7 @@
     ],
     [
      "One-Shot",
-     "May only be Equipped in the first Skirmish of a Battle. Requires a Tiltyard."
+     "Must be Equipped in the first Skirmish of a Battle, and can't be Equipped after it. Requires a Tiltyard."
     ],
     [
      "Parry",
@@ -209,7 +210,7 @@
     ],
     [
      "Recover",
-     "If a to-Save roll fails, roll a D10 & compare it to your Recover value: a result greater than or equal to your Recover value recovers the retinue."
+     "If a to-Save roll fails, roll a D10 & compare it to your Recover value: a result greater than or equal to your Recover value recovers the retinue. Recovered Strikes still count toward the Panic check threshold."
     ],
     [
      "Serrated",
@@ -300,7 +301,7 @@
     ],
     [
      "Panic check",
-     "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish, after it Strikes back. Roll Morale (5 dice); Immune Panic auto-passes."
+     "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish (Recovered Strikes count, unless Enduring), after both sides have Struck. Roll Morale (5 dice); Immune Panic auto-passes."
     ],
     [
      "Morale",
@@ -623,6 +624,10 @@
      "A Pursuit is efficient with the Raw Material or Pursuit named on its tile. While it shares a Settlement Ward with that piece, it doesn't consume a Ward of its own."
     ],
     [
+     "Enduring",
+     "Successfully Recovered Strikes don't count toward the Panic check threshold."
+    ],
+    [
      "Envoy Outcome",
      "How a Sent Envoy resolves, by Net Influence: Condemned (<= -3), Failed (-3 < Net <= 0, gain Doubt 1), Passed (>= 1), Endorsed (>= 3). The per-domain effect at each band is given by the Envoy Outcome Table; an action's own endorsed bonus overrides the domain default."
     ],
@@ -932,7 +937,7 @@
   [
    "Spring",
    "Planting",
-   "No Host, Bandit Mechanics, Trade Income, Council Phase, or Diplomacy Actions. Gain +1 Envoy. Bandit Camps Spawn."
+   "No Host, Bandit actions, Trade Income, Council Phase, or Diplomacy Actions. Gain +1 Envoy. Bandit Camps Spawn."
   ],
   [
    "Summer",
@@ -2019,14 +2024,14 @@
     "Crude",
     "0",
     "+2",
-    "2H, Unstoppable, Negate Riposte"
+    "2H, Unstoppable, Negate Riposte, Awkward"
    ],
    [
     "Longbow",
     "Cast",
     "-1",
     "+2",
-    "2H, Unstoppable, Deadly, Negate Riposte"
+    "2H, Unstoppable, Deadly, Negate Riposte, Awkward"
    ],
    [
     "Throwing Axe",

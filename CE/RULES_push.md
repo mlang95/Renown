@@ -417,7 +417,7 @@ Your innate Public Order modifiers (below) are checked once each turn during the
 
 Your Treasury is the gold you Control. Each Empire Phase you gain your Revenue (tax, trade, and Pursuit income) and pay your Upkeep (Armies, Pursuits, and Infrastructure); the net lands in your Treasury. Costs you pay during the turn come out of the same Treasury.
 
-**Pursuit upkeep** is fixed by Pursuit type: Monument {{VAL:PURSUIT_UPKEEP_BY_TYPE.Monument}}, Power {{VAL:PURSUIT_UPKEEP_BY_TYPE.Power}}, Energy {{VAL:PURSUIT_UPKEEP_BY_TYPE.Energy}}, all others {{VAL:PURSUIT_UPKEEP_BY_TYPE.Other}}. A Pursuit pays no upkeep while its Build Timer is running.
+**Pursuit upkeep** is fixed by Pursuit type: Monument {{VAL:PURSUIT_UPKEEP_BY_TYPE.Monument}}, Power {{VAL:PURSUIT_UPKEEP_BY_TYPE.Power}}, Energy {{VAL:PURSUIT_UPKEEP_BY_TYPE.Energy}}, all others {{VAL:PURSUIT_UPKEEP_BY_TYPE.Other}}. Pursuits and Infrastructure only pay upkeep while active: none while being built, Damaged, or under repair.
 
 **Army upkeep** = Retinue count × (Retinue cost − Upkeep modifiers). Retinue costs: Levy {{VAL:RETINUES.Levy.cost}}, Man-at-Arms {{VAL:RETINUES.Man-at-Arms.cost}}, Sergeant {{VAL:RETINUES.Sergeant.cost}}, Knight Templar {{VAL:RETINUES.Knight Templar.cost}}.
 
@@ -501,11 +501,9 @@ A Blocked Army can't be the target of actions until Blocked is removed. An Army 
 
 1. **Declare Army** — declare which Army will Skirmish (if more than one is adjacent to either Army in the Battle).
 
-2. **Choose a Tactic** — place a face-down Tactic; reveal once the other player has too.
+2. **Choose a Tactic and equipment** — place a face-down Tactic, together with your equipment for this Skirmish if you have a choice (a Tiltyard, or a Bastard Sword's 1H/2H profile); reveal both once the other player has too. A One-Shot weapon must be Equipped in the first Skirmish.
 
-3. **Declare equipment** (if you have a tiltyard or a one-shot weapon).
-
-4. **Resolve Tactic modifiers** — after Tactics are revealed, apply the Initiative and any other modifiers from your Tactics and weapon profile.
+3. **Resolve Tactic modifiers** — after Tactics are revealed, apply the Initiative and any other modifiers from your Tactics and weapon profile.
 
 ### How a Battle Resolves
 
@@ -519,27 +517,25 @@ Determine who gains Seize the Initiative. Typically, the player who performed th
 
 1. **Form the line.** Each side places up to {{VAL:FRONT_LINE_MAX}} Retinues in its front line — one Strike die each — and may keep up to {{VAL:RESERVE_MAX}} in reserve to replace losses as they fall. An Army of {{VAL:ARMY_MAX_RETINUES}} keeps the remainder in camp; between Skirmishes, camp and reserves refill the front line and reserve to their maximums.
 
-2. **Choose Tactics.** Both players secretly pick one Tactic, then reveal together.
+2. **Choose Tactics and equipment.** Both players secretly pick one Tactic and, if they have a choice, the equipment they'll use this Skirmish (a Tiltyard Army picks its Ranged or Melee weapon; a Bastard Sword picks its 1H or 2H profile), then reveal together. A One-Shot weapon must be Equipped in the first Skirmish and can't be Equipped after. Only Equipped gear counts: while a 2H weapon is Equipped your Shield gives nothing that Skirmish.
 
-3. **Declare equipment.** The Attacker names equipment first; the Defender responds.
+3. **Initiative.** Initiative ranges from {{VAL:INITIATIVE_MIN}} to +{{VAL:INITIATIVE_MAX}}. The higher Initiative Strikes first this Skirmish. At {{VAL:INITIATIVE_MIN}} or lower you Blunder — your to-Strike is set to {{VAL:BLUNDER_THR}}+, before other negative modifiers.
 
-4. **Initiative.** Initiative ranges from {{VAL:INITIATIVE_MIN}} to +{{VAL:INITIATIVE_MAX}}. The higher Initiative Strikes first this Skirmish. At {{VAL:INITIATIVE_MIN}} or lower you Blunder — your to-Strike is set to {{VAL:BLUNDER_THR}}+, before other negative modifiers.
+4. **Roll to Strike.** Roll a D{{VAL:FACES}} for each front-line Retinue, applying its modifiers. It Strikes on a result ≥ its to-Strike number (Levy {{VAL:RETINUES.Levy.to_hit}}+, Man-at-Arms {{VAL:RETINUES.Man-at-Arms.to_hit}}+, Sergeant {{VAL:RETINUES.Sergeant.to_hit}}+, Knight Templar {{VAL:RETINUES.Knight Templar.to_hit}}+). A natural {{VAL:FOCUSED_THR}} may trigger Cleave, Deadly, or Destroy Shield.
 
-5. **Roll to Strike.** Roll a D{{VAL:FACES}} for each front-line Retinue, applying its modifiers. It Strikes on a result ≥ its to-Strike number (Levy {{VAL:RETINUES.Levy.to_hit}}+, Man-at-Arms {{VAL:RETINUES.Man-at-Arms.to_hit}}+, Sergeant {{VAL:RETINUES.Sergeant.to_hit}}+, Knight Templar {{VAL:RETINUES.Knight Templar.to_hit}}+). A natural {{VAL:FOCUSED_THR}} may trigger Cleave, Deadly, or Destroy Shield.
+5. **Strike and defend.** Resolve the first side's Strikes — the defender may Parry (D{{VAL:FACES}}, {{VAL:PARRY_BASE}}+ cancels; a natural {{VAL:FOCUSED_THR}} is a Riposte), then Save (D{{VAL:FACES}} + the weapon's AP + the shield's bonus ≥ the armor value), then Recover (after a failed Save, a final D{{VAL:FACES}} ≥ the Recover value). Unsaved, unrecovered Strikes are casualties, and leave the field at once.
 
-6. **Strike and defend.** Resolve the first side's Strikes — the defender may Parry (D{{VAL:FACES}}, {{VAL:PARRY_BASE}}+ cancels; a natural {{VAL:FOCUSED_THR}} is a Riposte), then Save (D{{VAL:FACES}} + the weapon's AP + the shield's bonus ≥ the armor value), then Recover (after a failed Save, a final D{{VAL:FACES}} ≥ the Recover value). Unsaved, unrecovered Strikes are casualties, and leave the field at once.
+6. **Strike back.** The other side Strikes the same way, if able.
 
-7. **Panic check.** If the side about to Strike back took more than {{VAL:PANIC_CASUALTY_THRESHOLD}} casualties this Skirmish, it first takes a Panic check: roll its Morale, up to {{VAL:MORALE_DICE_MAX}} dice; failures are casualties. A check ever modified to {{VAL:ROUT_THR}} or more Routs the whole Army.
+7. **Panic check.** After both sides have Struck, each side that took more than {{VAL:PANIC_CASUALTY_THRESHOLD}} casualties this Skirmish (Strikes it Recovered still count, unless it has Enduring) takes a Panic check: roll its Morale, up to {{VAL:MORALE_DICE_MAX}} dice; failures are casualties. A check ever modified to {{VAL:ROUT_THR}} or more Routs the whole Army.
 
-8. **Strike back.** The other side Strikes the same way, if able, taking any Panic check its own casualties trigger.
+8. **Lose Endurance.** Each side that fought loses 1 Endurance. A side at 0 Endurance is Fatigued.
 
-9. **Lose Endurance.** Each side that fought loses 1 Endurance. A side at 0 Endurance is Fatigued.
+9. **Break check.** Before gaining its token, each Fatigued side's field takes a Break check: roll a D{{VAL:FACES}} per Retinue in the field, up to {{VAL:MORALE_DICE_MAX}} dice, each ≥ its modified Morale value; failures are casualties. A Break check never triggers a Panic check. A check ever modified to {{VAL:ROUT_THR}} or more Routs the whole Army.
 
-10. **Break check.** Before gaining its token, each Fatigued side's field takes a Break check: roll a D{{VAL:FACES}} per Retinue in the field, up to {{VAL:MORALE_DICE_MAX}} dice, each ≥ its modified Morale value; failures are casualties. A Break check never triggers a Panic check. A check ever modified to {{VAL:ROUT_THR}} or more Routs the whole Army.
+10. **Fatigue token.** Each Fatigued side then gains a Fatigue token — each token is −{{VAL:FATIGUE_MORALE}} to that Army's Morale rolls; Tokens stack and last until the Battle ends.
 
-11. **Fatigue token.** Each Fatigued side then gains a Fatigue token — each token is −{{VAL:FATIGUE_MORALE}} to that Army's Morale rolls; Tokens stack and last until the Battle ends.
-
-12. **End the Skirmish.** The Battle ends if a side is wiped out, Routs (modified Morale {{VAL:ROUT_THR}}+), or successfully Falls Back. Otherwise refill the lines and begin the next Skirmish.
+11. **End the Skirmish.** The Battle ends if a side is wiped out, Routs (modified Morale {{VAL:ROUT_THR}}+), or successfully Falls Back. Otherwise refill the lines and begin the next Skirmish.
 
 ### Resolve Battle
 
