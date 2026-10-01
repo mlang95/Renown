@@ -1146,7 +1146,7 @@
      "Saddlery",
      "",
      "Arable Land + Animal Husbandry + Stable",
-     "Stable",
+     "Stable, Caravanery",
      "+500, **Natural**",
      "Speed +1; Unlocks Lance (Still requires Tier Unlock)"
     ],
@@ -1359,7 +1359,7 @@
      "Inn",
      "",
      "Caravanery + Market Square",
-     "Market Square",
+     "Market Square, Merchant Quarter",
      "**Faith +1** for trading partners with Craft 3+",
      "**Faith +1**"
     ],
@@ -1444,7 +1444,7 @@
      "Abbey",
      "Established Piety",
      "Episcopal Court + Academy",
-     "Episcopal Court",
+     "Academy",
      "Once/turn: **Influence +1** another player's Piety Envoy",
      "Morale +1"
     ],
@@ -1460,7 +1460,7 @@
      "Bell Tower",
      "1 Established",
      "Jester's Court",
-     "Courtyard",
+     "Jester's Court",
      "**+1 Influence**/turn",
      "**Influence +1** to envoys sent during the Council Phase."
     ],
@@ -1609,7 +1609,7 @@
      "Smuggler's Nook",
      "Established Cunning",
      "Secret Cellar + Inn",
-     "Inn, Courier Network",
+     "Inn, Courier Network, Secret Cellar",
      "gain Immune Uprising (Bandit Camp Spawn at -5PO)",
      "Bandit Camps in your Outlaw Country don't target you and instead target other players randomly."
     ],
@@ -1617,15 +1617,23 @@
      "Black Market",
      "Established Cunning",
      "Market Square + Smuggler's Nook",
-     "Market Square",
+     "Smuggler's Nook, Secret Cellar",
      "When another player **Extorts** gold from any source: **Extort 200** per 1000 (minimum 100) from that player at the end of that resolution.",
      "When another player **Recoups** gold from any source: **Extort 200** per 1000 (minimum 100) from that player at the end of that resolution."
+    ],
+    [
+     "Forgery Workshop",
+     "Established Cunning",
+     "Academy + Secret Cellar",
+     "Academy, University, Secret Cellar",
+     "**Extort 300** anytime a player Opposes an Envoy of yours",
+     "Once/turn: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed"
     ],
     [
      "Toxicarium",
      "Rising Cunning",
      "Academy + Alchemy",
-     "Alchemy",
+     "Alchemy, Forgotten Catacombs",
      "Weapons gain **Poison**",
      "All Endorsed Cunning actions give an additional **Doubt +1** to Target"
     ],
@@ -1636,6 +1644,14 @@
      "Secret Cellar",
      "Whenever you are the target of **Extort**, reduce the Extort amount by 100.",
      "Cunning envoys against you can't be **Endorsed**"
+    ],
+    [
+     "Cipher Chamber",
+     "Established Cunning",
+     "Forgery Workshop + Courier Network",
+     "Forgery Workshop",
+     "Once/turn when a player Sends an Envoy: that player must declare the specific Action & target they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action at the declared target.",
+     "Once/turn: select any active **Timer** you did not select last turn; increase it by 2."
     ]
    ]
   },
@@ -1646,7 +1662,7 @@
      "Secret Cellar",
      "Rising Cunning",
      "Smuggler's Nook",
-     "Secrecy",
+     "Secrecy, Thieves' Guild, Outlaw Rookery, Outrider Intercept Post",
      "Natural; Failed Cunning envoys **Recoup 500 Gold**",
      "Passed Cunning envoys **Recoup 500 Gold**"
     ],
@@ -1744,14 +1760,6 @@
      "**Build Timer −2**"
     ],
     [
-     "Forgery Workshop",
-     "Established Cunning",
-     "Academy + Secret Cellar",
-     "Academy, University",
-     "**Extort 300** anytime a player Opposes an Envoy of yours",
-     "Once/turn: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed"
-    ],
-    [
      "Levy Hall",
      "Rising Prowess",
      "Keep + Salt Works",
@@ -1806,14 +1814,6 @@
      "Fletchery",
      "Armies may be equipped with a Ranged and a Melee Weapon simultaneously; If so, the army gains **Unwieldy**",
      "Your armies gain **Immune Unwieldy**. Also, may equip two of the same 1H Melee Weapon to gain **Dual Wield**."
-    ],
-    [
-     "Cipher Chamber",
-     "Established Cunning",
-     "Forgery Workshop + Courier Network",
-     "Forgery Workshop",
-     "Once/turn when a player Sends an Envoy: that player must declare the specific Action & target they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action at the declared target.",
-     "Once/turn: select any active **Timer** you did not select last turn; increase it by 2."
     ]
    ]
   },
@@ -1864,7 +1864,7 @@
      "Thieves' Guild",
      "Sovereign Cunning",
      "Market Square + Smuggler's Nook + Secret Cellar + Black Market",
-     "Black Market",
+     "Black Market, Secret Cellar",
      "Whenever another player performs a Cunning action, you may recoup 1000 gold",
      "**Extort 25%** of Trade Income from players who don't trade with you"
     ],
