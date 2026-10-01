@@ -31,6 +31,8 @@ Edit TACTIC_TABLE below to rebalance.
 """
 
 import re
+import display_pdf; display_pdf.install()   # NAME_DISPLAY on every drawn/measured string (before reportlab imports)
+from display_pdf import D as _D
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
 from reportlab.lib.colors import black, grey, HexColor

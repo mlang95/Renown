@@ -45,7 +45,9 @@ def _resolve_val(path):
 
 def preprocess_inline(md):
     md = VERSION_RE.sub(VERSION, md)
-    return VAL_RE.sub(lambda m: _resolve_val(m.group(1)), md)
+    md = VAL_RE.sub(lambda m: _resolve_val(m.group(1)), md)
+    # display layer (NAME_DISPLAY): rename prose, leaving {{TABLE:}} / {{DEF:}} markers intact
+    return getattr(rd, "display_md", lambda x: x)(md)
 
 # ── tiny inline formatter (escape + bold/italic/code); NO autolink ──
 def _inline(s):

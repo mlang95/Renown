@@ -26,6 +26,8 @@ Print at 100% / "actual size" — never "fit to page".
 
 import csv
 import re
+import display_pdf; display_pdf.install()   # NAME_DISPLAY on every drawn/measured string (before reportlab imports)
+from display_pdf import D as _D
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
 from reportlab.lib.colors import black, grey, HexColor
@@ -105,6 +107,7 @@ def _split_bold(text):
 
 
 def _wrap_rich(text, font_regular, font_bold, size, max_width):
+    text = _D(text)   # alias the whole text before splitting into words
     lines = []
     for paragraph in text.split("\n"):
         if not paragraph.strip():
@@ -149,6 +152,7 @@ def _draw_rich_line(c, x, y, segments, font_regular, font_bold, size):
 
 
 def _fit_centered(text, max_w, font, start, floor):
+    text = _D(text)
     size = start
     while size > floor and stringWidth(text, font, size) > max_w:
         size -= 0.5

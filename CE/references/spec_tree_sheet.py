@@ -25,6 +25,8 @@ import csv
 import re
 import os
 from collections import defaultdict
+import display_pdf; display_pdf.install()   # NAME_DISPLAY on every drawn/measured string (before reportlab imports)
+from display_pdf import D as _D
 from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib.units import inch
 from reportlab.lib.colors import black, grey, white, HexColor

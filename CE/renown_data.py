@@ -143,7 +143,7 @@ GLOSSARY = {
 
     # ── Combat keywords ported from the Escalation Campaign glossary ──
     "AP":            "Armor Penetration — a weapon's (negative) modifier to the defender's Save roll; the more negative, the harder to save.",
-    "Blocked":       "-1 Initiative in the first Skirmish (negated by Immune Blocked).",
+    "Blocked":       "-1 Initiative in the first Skirmish (negated by Immune Blocked). Armies with Blocked cannot perform Move actions.",
     "Strained":      "-1 Initiative every Skirmish (negated by Immune Strain). Does not gain Endurance in the Empire Phase.",
     #"Improved Parry": "Your Parry succeeds on 4+ instead of 5+.",
     #"Heal X":        "At the end of each Skirmish, for every X casualties you took from Strikes, return 1 retinue to your Army.",
@@ -666,7 +666,7 @@ NODES = {
         "type": "Raw Materials",
         "unlock": "Water Settlement",
         "mastery_req": "-",
-        "innate": "+500, **Natural**; Craft +1",
+        "innate": "+500, **Natural**; Craft +2",
         "mastery": "",
         "builds_into": ["Harbor", "Market Square"],
         "monument": False},
@@ -816,7 +816,7 @@ NODES = {
         "unlock": "-",
         "mastery_req": "Apiary",
         "innate": "Craft +1",
-        "mastery": "**Influence −1** to Cunning actions targeting you",
+        "mastery": "**Influence −1** to Cunning envoys targeting you",
         "efficient": "Apiary",
         "builds_into": ["Reliquary", "Pilgrimage Site"],
         "monument": False},
@@ -868,7 +868,7 @@ NODES = {
         "type": "Craft",
         "unlock": "-",
         "mastery_req": "Mine + Merchant Quarter + Furnace",
-        "innate": "+500; **Influence +1** to Cunning actions targeting this player",
+        "innate": "+500; **Influence +1** to Cunning envoys targeting this player",
         "mastery": "+800; Craft +2 ",
         "efficient": "Gilded Foundry",
         "builds_into": [],
@@ -983,7 +983,7 @@ NODES = {
         "type": "Craft",
         "unlock": "-",
         "mastery_req": "Caravanery + Merchant Quarter + Herb Garden",
-        "innate": "Natural; +500; Influence +1 to Cunning actions targeting you",
+        "innate": "Natural; +500; Influence +1 to Cunning envoys targeting you",
         "mastery": "+500; Craft +2",
         "efficient": "Herb Garden",
         "builds_into": [],
@@ -1097,7 +1097,7 @@ NODES = {
         "type": "Power",
         "unlock": "Established Piety",
         "mastery_req": "Abbey",
-        "innate": "**Influence −1** to Piety actions targeting you",
+        "innate": "**Influence −1** to Piety envoys targeting you",
         "mastery": "Other players can't Oppose your Piety Envoys",
         "efficient": "Abbey",
         "builds_into": ["Inquisitorial Palace", "Preceptory of the Knight's Templar", "Papal Palace"],
@@ -1308,8 +1308,8 @@ NODES = {
         "type": "Energy",
         "unlock": "Rising Cunning",
         "mastery_req": "Smuggler's Nook",
-        "innate": "Natural; Failed Cunning actions **Recoup 500 Gold**",
-        "mastery": "Passed Cunning actions **Recoup 500 Gold**",
+        "innate": "Natural; Failed Cunning envoys **Recoup 500 Gold**",
+        "mastery": "Passed Cunning envoys **Recoup 500 Gold**",
         "efficient": "Secrecy",
         "builds_into": ["Smuggler's Nook", "Forgery Workshop", "Forgotten Catacombs", "Thieves' Guild"],
         "monument": False},
@@ -1375,7 +1375,7 @@ NODES = {
         "unlock": "Rising Cunning",
         "mastery_req": "Secret Cellar",
         "innate": "Whenever you are the target of **Extort**, reduce the Extort amount by 100.",
-        "mastery": "Cunning actions against you can't be **Endorsed**",
+        "mastery": "Cunning envoys against you can't be **Endorsed**",
         "efficient": "Secret Cellar",
         "builds_into": [],
         "monument": False},
@@ -1560,8 +1560,8 @@ NODES = {
         "type": "Monument",
         "unlock": "Sovereign Piety",
         "mastery_req": "Monastery + Pilgrimage Site + Reliquary",
-        "innate": "Your Piety actions that cause doubt cause an additional doubt. You no longer pay cost for Piety actions.",
-        "mastery": "At the start of each turn, Tithe every other player with lower Piety, resolved in the Extort step.\nOnce per turn, you may perform Spread Truth.",
+        "innate": "Your Piety actions that cause doubt cause an additional doubt. You no longer pay cost for Piety Envoys.",
+        "mastery": "At the start of each turn, Tithe every other player with lower Piety, resolved in the Extort step.",
         "efficient": ["Monastery","Pilgrimage Site"],
         "builds_into": [],
         "monument": True},
@@ -2260,7 +2260,7 @@ DOMAIN_BOARD = {
     "Cunning": {
         "Rising":      "Clandestine Councilor: Once per Envoy Phase, during a vote on an Envoy, target a player - that player Abstains that Envoy.",
         "Established": "Grand Vizier: Players may not target you with Cunning Envoys if your Cunning value is higher.",
-        "Sovereign":   "Master Conspirator: Once per turn, if your non-Cunning Envoy passes or is Endorsed, you may instead perform a Cunning action.",
+        "Sovereign":   "Master Conspirator: Once per turn, if your non-Cunning Envoy passes or is endorsed, you may instead perform a Cunning action.",
     },
     "Piety": {
         "Rising":      "Divine Mandate: Faith +1 each Empire Phase.",
@@ -2319,7 +2319,7 @@ EFFICIENT = {n: t[0] for n, t in EFFICIENT_MULTI.items()} # first target (1-part
 BANDIT_CAMP_START = 5
 BANDIT_ARMY_THRESHOLD = 25
 BANDIT_GROWTH_PER_ERA = {"Founding": 1, "Ascension": 2, "Eminence": 3, "Zenith": 4}
-BANDIT_EQUIPMENT_PER_ERA = {"Founding": "Cudgel + Cloth", "Ascension": "Arming Sword, Targe Shield, & Leather Armor" , "Eminence": "Halberd + Chainmail", "Zenith": "Battle Axe + Full Plate"}
+BANDIT_EQUIPMENT_PER_ERA = {"Founding": "Levy: Cudgel + Cloth", "Ascension": "Levy: Arming Sword, Targe Shield, & Leather Armor" , "Eminence": "Man-at-Arms: Halberd + Chainmail", "Zenith": "Man-at-Arms: Battle Axe + Full Plate"}
 BANDITS = {
     "Bandit Domain Value": "For every 5 Retinues in the Bandit Camp or Army, the Bandit Camp has +2 Cunning and +2 Prowess.",
     "Bandit Camp": f"A collection of Bandits in Outlaw Country, starting with {BANDIT_CAMP_START} Retinues.",
@@ -2543,10 +2543,19 @@ ACTIONS = {
         'domain': 'Cunning',
         'cost': '2000 gold',
         'requires': '',
-        'effect': 'Choose a player. In the next Extort step during Winter, Extort their Tax Income.',
+        'effect': "Choose a player. In the next Winter phase, during the Extort step, Extort one settlement's tax income. Each settlement can only be Destabilized once per Winter.",
+        'endorsed': 'Extort 2000.',
+        'notes': ["If multiple players extort the same player, the player with the highest Cunning value chooses which settlement(s) are extorted first. In the event of a tie, or if there are not enough settlements, the Extort value is divided equally."],
+    },
+    'Sabotage': {
+        'domain': 'Cunning',
+        'cost': '2000 gold',
+        'requires': '',
+        'effect': 'Choose an army, that army gains Blocked.',
         'endorsed': 'Extort 2000.',
         'notes': ["This affects only the next single turn's tax income, when it's collected."],
     },
+    
     'Spread Truth': {
         'domain': 'Piety',
         'cost': 'Doubt 1',
@@ -2712,7 +2721,7 @@ PURSUIT_UPKEEP_BY_TYPE = {
 }
 _PU = PURSUIT_UPKEEP_BY_TYPE
 _PU_TEXT = (f"Monument {_PU['Monument']}, Power {_PU['Power']}, "
-            f"Energy {_PU['Energy']}, all others {_PU['Other']}")
+            f"Energy/Natural {_PU['Energy']}, all others {_PU['Other']}")
 
 UPKEEP_TRACKS = {
     "Pursuit":        f"Fixed by pursuit type: {_PU_TEXT}.",
@@ -2815,6 +2824,13 @@ NAME_DISPLAY = {
     "Gambeson": "Padded",
     #"to-hit", "to-Strike",
     #"Recover", "Heal",
+    "Preceptory of the Knight's Templar": "Sacred Preceptory",
+    "Knight's Templar": "Oathsworn",
+    "Knight Templar": "Oathsworn",
+    "Recover": "Heal",
+    "RECOVER": "HEAL",
+    "Recovered" : "Healed",
+
     
 }
 
@@ -2857,6 +2873,39 @@ def display_text(s):
 def display_list(seq, sep=", "):
     """Join an id list (builds_into, prereqs, requires_all) as labels."""
     return sep.join(display(x) for x in (seq or []))
+
+
+# ── whole-document helpers: alias everything a player READS, never ids/markers/markup ──
+_MD_MARKER_RE = _re_disp.compile(r"(\{\{[^}]*\}\})")
+_HTML_SPLIT_RE = _re_disp.compile(r"(<script\b.*?</script>|<style\b.*?</style>|<[^>]+>)", _re_disp.S | _re_disp.I)
+
+
+def display_md(s):
+    """display_text for Markdown prose (rules), leaving {{VAL:}}/{{TABLE:}}/{{DEF:}} markers untouched."""
+    if not s or _ALIAS_RE is None:
+        return s
+    return "".join(p if p.startswith("{{") else display_text(p) for p in _MD_MARKER_RE.split(str(s)))
+
+
+def display_html(html):
+    """display_text for a finished HTML page: only text between tags; tags, attributes (hrefs, ids,
+    anchors), <script> and <style> are left as-is."""
+    if not html or _ALIAS_RE is None:
+        return html
+    return "".join(p if p.startswith("<") else display_text(p) for p in _HTML_SPLIT_RE.split(str(html)))
+
+
+def display_obj(o):
+    """display_text over every string (dict keys included) in a JSON-able structure."""
+    if _ALIAS_RE is None:
+        return o
+    if isinstance(o, str):
+        return display_text(o)
+    if isinstance(o, dict):
+        return {display_obj(k) if isinstance(k, str) else k: display_obj(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)):
+        return type(o)(display_obj(x) for x in o)
+    return o
 
 
 def undisplay(label):
@@ -2958,7 +3007,8 @@ def die_table_weights(table, faces=None):
 # Tune these ranges freely; die_table_verify() enforces full coverage of 1..FACES.
 BANDIT_CUNNING_TABLE = {
     (1, 2):  "Intercept Caravan",
-    (3, 7):  "Raze",
+    (3, 5):  "Raze",
+    (6, 7):  "Sabotage",
     (8, 9):  "Destabilize",
     10:      "Foster Rebellion",
 }
@@ -3015,8 +3065,8 @@ import re
 GLOSSARY.update({
     "Natural": "Natural Pursuits do not cost Upkeep.",
     "Upkeep":  (f"Gold you pay each Empire Phase for Armies, Pursuits and Infrastructure. Pursuit upkeep is fixed by type "
-                f"({_PU_TEXT}); a Pursuit pays no upkeep while its Build Timer is running. Army upkeep = Retinue count × "
-                f"(Retinue cost − Upkeep modifiers)."),
+                f"({_PU_TEXT}); a Pursuit pays no upkeep while its Build Timer is running. Army upkeep = Army count × "
+                f"Army cost − Upkeep modifiers."),
     "Craft":   (f"Craft Pursuits count toward how much income your Trade Agreements generate — any effect that grants Craft +X. "
                 f"For each active Trade Agreement, both players gain {TRADE_RULES['income_per_craft']} × the Host's Craft X."),
     "Efficient": ("A Pursuit is efficient with the Raw Material or Pursuit named on its tile. While it shares a Settlement Ward "

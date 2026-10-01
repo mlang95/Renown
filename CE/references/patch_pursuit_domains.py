@@ -47,8 +47,8 @@ def build(path):
         print("unmatched names (left blank):", missed)
 
 def _looks_patched(row):
-    # heuristic: 5+ columns and col1 is a gate phrase or empty
-    if len(row) < 5:
+    # heuristic: 6+ columns (name, Domain, Mastery Unlock, Efficient, Innate, Mastery) and col1 is a gate phrase or empty
+    if len(row) < 6:
         return False
     c1 = str(row[1] or "")
     return c1 == "" or any(t in c1 for t in ("Rising", "Established", "Sovereign"))

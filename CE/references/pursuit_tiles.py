@@ -4,6 +4,8 @@
 # info (gate, upkeep, innate, mastery); the full tech tree lives in the reference.
 # Usage:  python pursuit_tiles.py [out.pdf]      (default: cards/pursuit_tiles.pdf)
 import sys, os
+import display_pdf; display_pdf.install()   # NAME_DISPLAY on every drawn/measured string (before reportlab imports)
+from display_pdf import D as _D
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.colors import HexColor, Color
@@ -70,6 +72,7 @@ def _clean(s):
     return s.strip()
 
 def wrap(c, text, font, size, maxw):
+    text = _D(text)
     out, cur = [], ""
     for w in text.split():
         t = (cur + " " + w).strip()
@@ -176,7 +179,7 @@ def tile(c, name, d, x, ytop):
 
     # name (shadow + white), monument diamond
     c.setFont(SERIF_B, nm_sz)
-    nm = name
+    nm = _D(name)        # display name (NAME_DISPLAY) before any truncation
     up_val = upkeep(t, bool(re.search(r"\bNatural\b", str(d.get("innate","")).replace("**",""))))
     reserve = 20
     if up_val: reserve += 16
@@ -184,7 +187,7 @@ def tile(c, name, d, x, ytop):
     name_limit = TW - reserve * s
     while c.stringWidth(nm, SERIF_B, nm_sz) > name_limit and len(nm) > 6:
         nm = nm[:-2]
-    if nm != name:
+    if nm != _D(name):
         nm = nm.rstrip() + "\u2026"
     c.setFillColor(Color(0, 0, 0, 0.28)); c.drawString(x + pad + 0.5, hy + head_h*0.31 - 0.4, nm)
     c.setFillColor(Color(1, 1, 1)); c.drawString(x + pad, hy + head_h*0.31, nm)

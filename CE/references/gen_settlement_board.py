@@ -1759,13 +1759,15 @@ function unlockStatus(n,b){b=b||S;const raw=((R[n]||{}).unlock_raw||"").trim();
       toks.push({t,ok:have>=+m[1],why:have+"/"+m[1]+" Domains at "+m[2]+"+"});}
     else toks.push({t,ok:null,why:"check manually"});});
   return {ok:toks.every(x=>x.ok!==false),manual:toks.some(x=>x.ok===null),toks,missing:toks.filter(x=>x.ok===false).map(x=>x.t+" ("+x.why+")")};}
+// catalog search matches the engine id OR its display name (NAME_DISPLAY)
+function nameHit(n,q){if(!q)return true;if(n.toLowerCase().includes(q))return true;const d=window.dispName?window.dispName(n):n;return d!==n&&d.toLowerCase().includes(q);}
 function missTxt(list){return list.map(n=>{const q=(S.placed||[]).find(x=>x.name===n&&!pActive(x));
   return q?n+(q.bt>0?" (building, "+q.bt+")":" (damaged, "+q.dmg+")"):n;}).join("  +  ");}
 function recomputePC(){PC={};S.placed.forEach(p=>{if(pActive(p))PC[p.name]=(PC[p.name]||0)+1;});}
 const BTM=DATA.buildTimers||{},TMR=DATA.timers||{};
 const REPAIR_T=((TMR["Repair Timer"]||{}).default)||BTM.Repair||2;
 // "Build Timer ±X" on your active Pursuits (Innate, or Mastery when earned) adjusts the default Build Timer of new
-// Pursuits, Infrastructure and Wonders; they stack; never below 0 (a Timer at 0 resolves immediately). Settlements are not affected.
+// Pursuits, Infrastructure, Wonders and Settlements (charter / upgrade); they stack; never below 0 (a Timer at 0 resolves immediately).
 function buildTimerMod(){return withBoard(S,()=>{const have=new Set(Object.keys(PC)),{earned}=computeEarned(have);let mod=0;const src=[];
   Object.keys(PC).forEach(n=>{const r=R[n]||{};[["innate_raw",true],["mastery_raw",!!earned[n]]].forEach(([k,on])=>{if(!on)return;
     const re=/Build Timer\s*([+\-\u2212])\s?(\d+)/gi;let x;while((x=re.exec(r[k]||""))){const v=(x[1]==="+"?1:-1)*(+x[2]);mod+=v;src.push(n+(k==="mastery_raw"?" (M)":"")+" "+(v>0?"+":"\u2212")+Math.abs(v));}});});
@@ -1776,7 +1778,8 @@ function infraBaseTime(n){if(WON[n])return BTM.Wonder||0;const i=INFRA[n];return
 function pursuitBuildTime(n){return withBuildMod(pursuitBaseTime(n)).t;}
 function infraBuildTime(n){return withBuildMod(infraBaseTime(n)).t;}
 function buildNote(base){const b=withBuildMod(base);return b.mod?" · Build Timer "+b.base+" → "+b.t+" ("+b.src.join(", ")+")":"";}
-function settBuildTime(t){return BTM[t]??(((DATA.settlements||{})[t]||{}).build_time)??0;}
+function settBaseTime(t){return BTM[t]??(((DATA.settlements||{})[t]||{}).build_time)??0;}
+function settBuildTime(t){return withBuildMod(settBaseTime(t)).t;}
 function itm(){S.itimer=S.itimer||{};S.idmg=S.idmg||{};S.facInfra=S.facInfra||[];}
 function infraOn(n){itm();return !!(S.infra[n]||S.wonders[n])&&!(S.itimer[n]>0)&&!(S.idmg[n]>0);}
 function gameStarted(){return (S.turn||0)>0;}
@@ -2054,7 +2057,7 @@ function renderList(){
   const list=document.getElementById("list"); list.innerHTML="";
   if(tab==="pursuit"){
     const searching=q.length>0;
-    const shown=TYPES.filter(t=>!(activeTypes.size&&!activeTypes.has(t)) && NAMES.some(n=>R[n].type===t&&n.toLowerCase().includes(q)));
+    const shown=TYPES.filter(t=>!(activeTypes.size&&!activeTypes.has(t)) && NAMES.some(n=>R[n].type===t&&nameHit(n,q)));
     // expand/collapse all row
     const ctl=document.createElement("div");ctl.className="catctl";
     const ea=document.createElement("span");ea.className="chip";ea.textContent="expand all";
@@ -2064,7 +2067,7 @@ function renderList(){
     const tl=document.createElement("span");tl.className="chip";tl.textContent="tree ▸";tl.dataset.goto="reference#refTree";
     ctl.appendChild(ea);ctl.appendChild(ca);ctl.appendChild(tl);list.appendChild(ctl);
     shown.forEach(t=>{
-      const mem=NAMES.filter(n=>R[n].type===t&&n.toLowerCase().includes(q));
+      const mem=NAMES.filter(n=>R[n].type===t&&nameHit(n,q));
       const openT=searching||catOpen.has(t);
       const g=document.createElement("div");g.className="typegroup";
       const th=document.createElement("div");th.className="th";th.style.cursor="pointer";
@@ -2080,7 +2083,7 @@ function renderList(){
     });
   } else {
     const src=tab==="infra"?INFRA:WON, have=tab==="infra"?S.infra:S.wonders;
-    Object.keys(src).filter(n=>n.toLowerCase().includes(q)).forEach(n=>{
+    Object.keys(src).filter(n=>nameHit(n,q)).forEach(n=>{
       const r=src[n];const row=itemRow(n,false,!!have[n]);
       const meta=document.createElement("span");meta.className="meta";
       const rs=infraReqStatus(r);
@@ -2352,7 +2355,7 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
     sel.appendChild(o);});
   const addB=document.createElement("button");addB.textContent="+ settlement";
   addB.onclick=()=>{
-    const id=sid++;const ns={id,tier:sel.value};if(gameStarted()){const t=settBuildTime(sel.value);if(t>0)ns.bt=t;}S.settlements.push(ns);activeSid=id;autoFill();save();render();};
+    const id=sid++;const ns={id,tier:sel.value};if(gameStarted()){const t=settBuildTime(sel.value);if(t>0)ns.bt=t;}S.settlements.push(ns);activeSid=id;autoFill();save();render();if(gameStarted()){const bn=buildNote(settBaseTime(sel.value));if(bn)flash(sel.value+bn);}};
   tb.appendChild(sel);tb.appendChild(addB);
   const exAll=document.createElement("button");exAll.textContent="expand all";
   exAll.onclick=()=>{S.expanded=S.placed.map(p=>p.id);save();render();};
@@ -2411,7 +2414,7 @@ if(isCap)cb.style.color="var(--income)";
       if(nt){
         const ex=document.createElement("button");ex.textContent="expand ▲ "+nt;
         ex.onclick=(e)=>{e.stopPropagation();
-          const s=S.settlements.find(x=>x.id===gid);s.tier=nt;if(gameStarted()){const t=settBuildTime(nt);if(t>0)s.bt=t;}autoFill();save();render();};
+          const s=S.settlements.find(x=>x.id===gid);s.tier=nt;if(gameStarted()){const t=settBuildTime(nt);if(t>0)s.bt=t;}autoFill();save();render();if(gameStarted()){const bn=buildNote(settBaseTime(nt));if(bn)flash(nt+bn);}};
         hd.appendChild(ex);
       }
       const del=document.createElement("button");del.className="rm";del.textContent="✕ settlement";
@@ -3606,9 +3609,11 @@ function banditArmy(camp){camp.army=camp.army||{retinue:"",endurance:0,fatigue:0
   return new Proxy(camp.army,{get:(t,k)=>k==="count"?camp.n:k==="label"?"Bandits":t[k],
     set:(t,k,v)=>{if(k==="count")camp.n=v;else t[k]=v;return true;}});}
 const BANDIT_DEFAULT_RETINUE="Levy";   // ruling: bandits default to Levies, changeable per battle
-function armBandits(camp){const a=banditArmy(camp);
-  if(!a.retinue&&EQ.retinues[BANDIT_DEFAULT_RETINUE]){a.retinue=BANDIT_DEFAULT_RETINUE;a.endurance=EQ.retinues[BANDIT_DEFAULT_RETINUE].endurance;}
-  const lo=BLO[currentEra()];if(!lo)return;a.weapon=lo.weapon;a.armor=lo.armor;a.shield=lo.shield;}
+function armBandits(camp){const a=banditArmy(camp),lo=BLO[currentEra()];
+  // Retinue + gear from BANDIT_EQUIPMENT_PER_ERA ("Retinue: weapon + armor…"); Levy if the era names none
+  const rn=(lo&&lo.retinue&&EQ.retinues[lo.retinue])?lo.retinue:(a.retinue||BANDIT_DEFAULT_RETINUE);
+  if(EQ.retinues[rn]&&a.retinue!==rn){a.retinue=rn;a.endurance=EQ.retinues[rn].endurance;}
+  if(!lo)return;a.weapon=lo.weapon;a.armor=lo.armor;a.shield=lo.shield;}
 function sideArmy(sd){
   if(sd.kind==="bandit"){const camp=mapState().camps[sd.camp];return camp?{p:null,a:banditArmy(camp),camp,bandit:true}:{};}
   const p=D.players.find(q=>String(q.id)===String(sd.pid));if(!p)return {};
@@ -4214,7 +4219,7 @@ function mapSVG(M){
   Object.keys(M.cells).forEach(k=>{const cell=M.cells[k],[c,r]=k.split(",").map(Number),cx=R+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0);
     const pl=D.players.find(pp=>pp.id===cell.player),col=pl?pl.color:"#888";
     s+='<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+(R*.62).toFixed(1)+'" fill="'+col+'" stroke="#111" pointer-events="none"/>'+
-       '<text x="'+cx.toFixed(1)+'" y="'+(cy+4).toFixed(1)+'" text-anchor="middle" font-size="10" font-weight="700" fill="#fff" pointer-events="none">'+(letter[cell.type]||"?")+'</text>';});
+       '<text x="'+cx.toFixed(1)+'" y="'+(cy+4).toFixed(1)+'" text-anchor="middle" font-size="10" font-weight="700" fill="#fff" pointer-events="none">'+(letter[cell.type]||"?")+(cell.blocked?"⊘":"")+'</text>'+(cell.blocked?'<title>Blocked (Sabotage) — re-place or erase the Army to clear</title>':'');});
   Object.keys(M.camps).forEach(k=>{const cp=M.camps[k],[c,r]=k.split(",").map(Number),cx=R+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0),army=cp.n>=(BAN.armyThreshold||25);
     s+='<rect x="'+(cx-R*.62).toFixed(1)+'" y="'+(cy-R*.5).toFixed(1)+'" width="'+(R*1.24).toFixed(1)+'" height="'+(R).toFixed(1)+'" fill="'+(army?"#5a0d0d":"#1b1b1b")+'" stroke="#e0b060" pointer-events="none"/>'+
        '<text x="'+cx.toFixed(1)+'" y="'+(cy+3.5).toFixed(1)+'" text-anchor="middle" font-size="9" font-weight="700" fill="#f3d38a" pointer-events="none">☠'+cp.n+'</text>';});
@@ -4280,16 +4285,19 @@ function banditAct(k){const M=mapState(),cp=M.camps[k],B=BST(),F=BAN.faces||10,r
   if(act==="Raze")tgt=L.map(x=>Object.assign({k:x.k},cellSett(x.k))).find(t=>t.s&&t.p.board.placed.some(q=>q.sid===t.s.id&&!(q.bt>0)&&!(q.dmg>0)));
   else if(act==="Destabilize")tgt=L.map(x=>Object.assign({k:x.k},cellSett(x.k))).find(t=>t.s&&!B.dest[t.p.id+":"+t.s.id]);
   else if(act==="Intercept Caravan")tgt=L.map(x=>Object.assign({k:x.k},cellSett(x.k))).find(t=>t.p&&!B.ic[t.p.id]);
+  else if(act==="Sabotage"){const M_=mapState(),arm=Object.keys(M_.cells).filter(q=>M_.cells[q].type==="Army"&&cellPlayer(M_.cells[q])&&!M_.cells[q].blocked).map(q=>({k:q,cell:M_.cells[q]}));
+    const A=byDist(k,arm,true)[0];tgt=A?{k:A.k,p:cellPlayer(A.cell),s:null,army:true}:null;}   // closest Army on the map
   else tgt=L.length?Object.assign({k:L[0].k},cellSett(L[0].k)):null;
   if(!tgt||!tgt.p){bLog("camp @ "+k+" rolls "+roll+" → "+act+": no valid target");return;}
   const base=STAND_INF[domBand(banditDomain(cp.n))]||1,tm=banditTargetMods(tgt.p,act),net=base+(+cp.cmod||0)+tm.v,oc=envoyOutcome(net);
-  const head="camp @ "+k+" rolls "+roll+" → "+act+" vs "+tgt.p.name+(tgt.s?" ("+(tgt.s.name||tgt.s.tier)+")":"")+" · Influence "+base+((+cp.cmod)?" "+sgn(+cp.cmod):"")+(tm.src.length?" "+tm.src.join(" "):"")+" = "+net+" → "+oc;
+  const head="camp @ "+k+" rolls "+roll+" → "+act+" vs "+tgt.p.name+(tgt.s?" ("+(tgt.s.name||tgt.s.tier)+")":tgt.army?" (Army @ "+tgt.k+")":"")+" · Influence "+base+((+cp.cmod)?" "+sgn(+cp.cmod):"")+(tm.src.length?" "+tm.src.join(" "):"")+" = "+net+" → "+oc;
   cp.last=head;if(oc!=="Passed"&&oc!=="Endorsed"){bLog(head);return;}
   let fx="";
   if(act==="Raze"){const pool=tgt.p.board.placed.filter(q=>q.sid===tgt.s.id&&!(q.bt>0)&&!(q.dmg>0)),q=pool[Math.floor(Math.random()*pool.length)],rt=((DATA.timers||{})["Repair Timer"]||{}).default||2;
     q.dmg=rt;fx=q.name+" Damaged (Repair "+rt+")";}
   else if(act==="Destabilize"){B.dest[tgt.p.id+":"+tgt.s.id]={camp:k};fx="next Winter: "+(tgt.s.name||tgt.s.tier)+"'s tax → camp";}
   else if(act==="Intercept Caravan"){B.ic[tgt.p.id]={camp:k};fx="next turn "+tgt.p.name+" is Host: trade income → camp";}
+  else if(act==="Sabotage"){mapState().cells[tgt.k].blocked=true;fx=tgt.p.name+"'s Army @ "+tgt.k+" gains Blocked";}
   else if(act==="Foster Rebellion"){B.foster.push({pid:String(tgt.p.id)});fx="next Bandit Mechanics: 10-Retinue camp in "+tgt.p.name+"'s Outlaw Country";}
   if(oc==="Endorsed"){const x=endorsedExtort(act),b=tgt.p.board,t=Math.min(x,Math.max(0,b.treasury||0));b.treasury=(b.treasury||0)-t;cp.gold=(cp.gold||0)+t;fx+=" · Endorsed: Extort "+t;}
   bLog(head+": "+fx);}
@@ -4720,6 +4728,22 @@ function gkHtml(e){
     (((e.k==="w"?S.wonders:S.infra)||{})[e.t]?'<div class="note">✓ in your '+(e.k==="w"?'Wonders':'Infrastructure')+'</div>'
       :'<div><button data-addi="'+(e.k==="w"?"wonder":"infra")+'|'+esc(e.t)+'">+ add to '+(e.k==="w"?'Wonders':'Infrastructure')+'</button></div>');}
 const GKT=document.createElement("div");GKT.id="gkTip";document.body.appendChild(GKT);
+// ---- Display layer (NAME_DISPLAY / ALIASES from the data): rename what players READ on the page. ----
+// Ids in the state, data-* attributes, select values and every lookup stay as engine ids; only visible text
+// nodes and title tooltips are rewritten, as they appear (MutationObserver), so it covers every view.
+(function(){const AL=DATA.aliases||{},keys=Object.keys(AL);if(!keys.length)return;
+  const re=new RegExp("\\b("+keys.sort((a,b)=>b.length-a.length).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")\\b","g");
+  const disp=t=>t.replace(re,m=>AL[m]);window.dispName=disp;
+  const SKIP={SCRIPT:1,STYLE:1,TEXTAREA:1,INPUT:1};
+  const fixText=n=>{const p=n.parentNode;if(!p||SKIP[p.nodeName]||(p.isContentEditable))return;const v=n.nodeValue,w=disp(v);if(w!==v)n.nodeValue=w;};
+  const fixEl=el=>{if(el.nodeType===3){fixText(el);return;}if(el.nodeType!==1||SKIP[el.nodeName])return;
+    if(el.hasAttribute&&el.hasAttribute("title")){const v=el.getAttribute("title"),w=disp(v);if(w!==v)el.setAttribute("title",w);}
+    const tw=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let x;while((x=tw.nextNode()))fixText(x);
+    el.querySelectorAll&&el.querySelectorAll("[title]").forEach(e=>{const v=e.getAttribute("title"),w=disp(v);if(w!==v)e.setAttribute("title",w);});};
+  new MutationObserver(ms=>{for(const m of ms){if(m.type==="characterData")fixText(m.target);
+      else if(m.type==="attributes")fixEl(m.target);else m.addedNodes.forEach(fixEl);}})
+    .observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:["title"]});
+  fixEl(document.body);})();
 // Buried pile cards: "lift" (expand to the front) on hover, and STAY lifted while the cursor is on that card or
 // on a tooltip opened from it. Switching to another buried card needs a short dwell, so passing over its
 // edge on the way to a link doesn't drop the one you're reading back into the stack.
@@ -4969,11 +4993,21 @@ def bandit_loadouts(ns, equip):
     (a trailing plural 's' is dropped); anything unmatched is reported, not guessed."""
     cats = {"weapon": equip.get("weapons", {}), "armor": equip.get("armors", {}),
             "shield": {k: v for k, v in equip.get("shields", {}).items() if k != "null"}}
+    rets = equip.get("retinues", {}) or {}
     out, warns = {}, []
     for era, txt in (ns.get("BANDIT_EQUIPMENT_PER_ERA") or {}).items():
-        lo = {"weapon": "Farm Tools", "armor": "Cloth", "shield": "None", "unmatched": []}
+        lo = {"weapon": "Farm Tools", "armor": "Cloth", "shield": "None", "retinue": None, "unmatched": []}
         found = {"weapon": False, "armor": False, "shield": False}
-        for tok in re.split(r"\s*(?:,|\+|&)\s*", str(txt)):
+        txt = str(txt)
+        # optional "Retinue: gear…" prefix (e.g. "Man-at-Arms: Halberd + Chainmail")
+        m = re.match(r"\s*([^:]+?)\s*:\s*(.*)$", txt)
+        if m:
+            if m.group(1) in rets:
+                lo["retinue"] = m.group(1); txt = m.group(2)
+            else:
+                warns.append(f"BANDIT_EQUIPMENT_PER_ERA[{era}]: retinue '{m.group(1)}' matches no RETINUES entry")
+                txt = m.group(2)
+        for tok in re.split(r"\s*(?:,|\+|&)\s*", txt):
             tok = tok.strip()
             if not tok:
                 continue
@@ -5060,7 +5094,8 @@ def main():
         startTiers=list(ns.get("EMPIRE_START_TIERS", ())), startTreasury=ns.get("STARTING_TREASURY", 0),
         pursuitUpkeep={"byType": ns.get("PURSUIT_UPKEEP_BY_TYPE", {}), "def": ns.get("PURSUIT_UPKEEP_DEFAULT", 0)},
         buildTimers=ns.get("BUILD_TIMERS", {}), timers=ns.get("TIMERS", {}), seasons=ns.get("SEASONS", {}),
-        poModifiers=ns.get("PO_MODIFIERS", {}), vassalInfluenceTake=ns.get("VASSAL_INFLUENCE_TAKE", 0), costs=ns.get("COSTS", {}), influenceGain=ns.get("INFLUENCE_GAIN", {}),
+        poModifiers=ns.get("PO_MODIFIERS", {}), vassalInfluenceTake=ns.get("VASSAL_INFLUENCE_TAKE", 0),
+        aliases=ns.get("ALIASES", {}) or {}, costs=ns.get("COSTS", {}), influenceGain=ns.get("INFLUENCE_GAIN", {}),
         siege={"calculus": ns.get("SIEGE_CALCULUS", {}), "sources": ns.get("SIEGE_SOURCE_VALUES", {})},
         factions={k: {"final": bool(v.get("final_cut")), "difficulty": v.get("difficulty", ""), "strength": v.get("strength", ""),
                       "feel": v.get("feel", ""), "mechanic": v.get("mechanic", ""), "pair": v.get("pair", ""), "complement": v.get("complement", "")}

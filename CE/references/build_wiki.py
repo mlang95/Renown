@@ -448,6 +448,10 @@ def nav(current=""):
     return "\n".join(out)
 
 def page(title,body,current=""):
+    # display layer (NAME_DISPLAY) over the finished page text — tags, hrefs, anchors and scripts untouched
+    return getattr(rd, "display_html", lambda x: x)(_page_raw(title, body, current))
+
+def _page_raw(title,body,current=""):
     return f"""<!doctype html><html><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script>(function(){{try{{var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);if(localStorage.getItem('gamemode')==='1')document.documentElement.classList.add('game-pending');}}catch(e){{document.documentElement.setAttribute('data-theme','dark');}}}})();</script>

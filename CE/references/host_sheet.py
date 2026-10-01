@@ -5,6 +5,8 @@
 # font/geometry conventions of playstyle_reference.py.
 # Usage:  python host_sheet.py [out.pdf]     (default: cards/host_sheet.pdf)
 import sys, os
+import display_pdf; display_pdf.install()   # NAME_DISPLAY on every drawn/measured string (before reportlab imports)
+from display_pdf import D as _D
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib.colors import HexColor, Color

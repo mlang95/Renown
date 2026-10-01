@@ -5,6 +5,8 @@
 #   * grouped by tier; effects table on the same page
 # Data-driven from renown_data.INFRASTRUCTURE. Usage: python infra_board.py [out.pdf]
 import sys, os
+import display_pdf; display_pdf.install()   # NAME_DISPLAY on every drawn/measured string (before reportlab imports)
+from display_pdf import D as _D
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib.colors import HexColor, Color

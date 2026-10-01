@@ -47,7 +47,9 @@ def _blend(colors):
     k=len(colors)
     return f"#{rs//k:02x}{gs//k:02x}{bs//k:02x}"
 
-def _esc(t): return str(t).replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
+import display_pdf; display_pdf.install()   # NAME_DISPLAY: label widths (stringWidth) measure the renamed text
+from display_pdf import D as _D
+def _esc(t): return _D(str(t)).replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")   # display name in the SVG
 
 def elbow(x1,y1,x2,y2):
     if abs(y1-y2)<2: return f'M{x1:.0f},{y1:.0f} L{x2-7:.0f},{y2:.0f}'

@@ -3,6 +3,8 @@
 # Reads PLAYSTYLES, FACTIONS, WONDERS from renown_data (single source of truth).
 # Usage:  python playstyle_reference.py [out.pdf]      (default: cards/playstyle_reference.pdf)
 import sys, os, math
+import display_pdf; display_pdf.install()   # NAME_DISPLAY on every drawn/measured string (before reportlab imports)
+from display_pdf import D as _D
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib.colors import HexColor, Color

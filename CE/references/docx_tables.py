@@ -31,7 +31,7 @@ SLACK    = 85
 _BOLD = _re.compile(r"\*\*(.+?)\*\*")
 
 def _cell(text, bold=False, w_dxa=1000):
-    text = str(text)
+    text = getattr(rd, "display_text", lambda x: x)(str(text))   # display layer (keywords, names in cells)
     def run(t, b):
         return (f'<w:r><w:rPr><w:rFonts w:ascii="{FONT}" w:hAnsi="{FONT}" w:cs="{FONT}"/>'
                 f'{"<w:b/><w:bCs/>" if b else ""}<w:sz w:val="{SZ}"/><w:szCs w:val="{SZ}"/></w:rPr>'

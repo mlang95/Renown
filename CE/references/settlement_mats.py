@@ -5,6 +5,8 @@
 # Ward slots match the pursuit tile (~40x52mm); tune SLOT_*.
 # Usage:  python settlement_mats.py [out.pdf]
 import sys, os, math
+import display_pdf; display_pdf.install()   # NAME_DISPLAY on every drawn/measured string (before reportlab imports)
+from display_pdf import D as _D
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.colors import HexColor, Color

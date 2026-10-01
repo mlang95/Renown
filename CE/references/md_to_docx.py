@@ -46,7 +46,8 @@ def _subs(text):
     text = VERSION_MK.sub(VERSION, text)
     text = VAL_MK.sub(lambda m: dt.value(m.group(1).strip()), text)
     text = DEF_MK.sub(lambda m: dt.definition(m.group(1).strip()) or m.group(0), text)
-    return text
+    # display layer (NAME_DISPLAY): rename what players read; markers already resolved above
+    return getattr(dt.rd, "display_md", lambda x: x)(text)
 
 
 def _runs(paragraph, text, base_bold=False, base_size=None):
@@ -182,6 +183,9 @@ def render(md_path, out_path):
             while i < n and "|" in lines[i] and lines[i].strip():
                 body.append(_gfm_cells(lines[i]))
                 i += 1
+            # resolve {{VAL:}} / {{VERSION}} / {{DEF:}} inside cells too (they bypass _runs)
+            header = [_subs(c) for c in header]
+            body = [[_subs(c) for c in r] for r in body]
             _inject(doc, dt._table(header, body))   # same dense style as data tables
             continue
 

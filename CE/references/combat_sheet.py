@@ -10,6 +10,8 @@ from dice_config import FACES, FOCUSED_THR, ROUT_THR, CAP_THR, FATIGUE_STRIKE, F
 INIT_MIN = getattr(rd, "INITIATIVE_MIN", -2); INIT_MAX = getattr(rd, "INITIATIVE_MAX", 2)
 def _sgn(v): return ("\u2212" if v < 0 else "+") + str(abs(v))   # typographic sign
 
+import display_pdf; display_pdf.install()   # NAME_DISPLAY on every drawn/measured string (before reportlab imports)
+from display_pdf import D as _D
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas

@@ -177,7 +177,7 @@ REM Say what is missing ONCE, up front, rather than one traceback per script.
 REM A half-ported folder is the normal state mid-migration; it should read as a
 REM checklist, not a failure.
 set MISSING=0
-for %%F in (build_wiki.py wiki_markers.py worldtxt.py docx_tables.py gen_compendium.py patch_pursuit_domains.py build_compendium.py md_to_docx.py combat_sheet.py spec_tree_sheet.py playstyle_reference.py pursuit_tiles.py render_tree.py layout.json svg_to_pdf.py domain_board.py infra_board.py settlement_mats.py host_sheet.py generate_cards.py card_sheet.py card_copies.py reference_sheets.py equipment_sheet.py faction_sheet.py tactic_sheet.py) do (
+for %%F in (display_pdf.py build_wiki.py wiki_markers.py worldtxt.py docx_tables.py gen_compendium.py patch_pursuit_domains.py build_compendium.py md_to_docx.py combat_sheet.py spec_tree_sheet.py playstyle_reference.py pursuit_tiles.py render_tree.py layout.json svg_to_pdf.py domain_board.py infra_board.py settlement_mats.py host_sheet.py generate_cards.py card_sheet.py card_copies.py reference_sheets.py equipment_sheet.py faction_sheet.py tactic_sheet.py) do (
   if not exist "%SHEET_DIR%\%%F" ( echo   MISSING  references\%%F & set MISSING=1 )
 )
 if not exist "%RULES_MD%" ( echo   MISSING  %RULES_MD% & set MISSING=1 )

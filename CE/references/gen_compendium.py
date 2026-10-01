@@ -22,10 +22,9 @@ def pursuit_sections():
                 continue
             eff = v.get("efficient")
             innate = v.get("innate", "") or ""
-            if eff:
-                eff_txt = "**Efficient " + (rd.display(eff) if isinstance(eff, str) else rd.display_list(eff)) + "**"
-                innate = eff_txt + ("; " + innate if innate else "")
-            rows.append([rd.display(n), rd.display_text(v.get("mastery_req", "")) or "—",
+            # Efficient gets its own column (was prefixed onto the Innate text)
+            eff_txt = (rd.display(eff) if isinstance(eff, str) else rd.display_list(eff)) if eff else "—"
+            rows.append([rd.display(n), rd.display_text(v.get("mastery_req", "")) or "—", eff_txt,
                 rd.display_text(innate) or "—", rd.display_text(v.get("mastery", "")) or "—"])
         if rows:
             secs.append({"title": t, "rows": rows})
@@ -188,7 +187,8 @@ def build_payload():
 
 if __name__ == "__main__":
     out = sys.argv[1] if len(sys.argv) > 1 else "compendium_data.json"
-    json.dump(build_payload(), open(out, "w"), indent=1, default=str)
+    # display layer (NAME_DISPLAY) over every string — keyword columns and Glossary terms included
+    json.dump(getattr(rd, "display_obj", lambda x: x)(build_payload()), open(out, "w"), indent=1, default=str)
     p = build_payload()
     print(f"payload -> {out}")
     print(f"  pursuits: {sum(len(s['rows']) for s in p['pursuit_sections'])} across {len(p['pursuit_sections'])} sections")

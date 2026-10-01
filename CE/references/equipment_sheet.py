@@ -22,6 +22,8 @@ Print at 100% / "actual size" — never "fit to page".
 """
 
 import re
+import display_pdf; display_pdf.install()   # NAME_DISPLAY on every drawn/measured string (before reportlab imports)
+from display_pdf import D as _D
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
 from reportlab.lib.colors import black, grey, HexColor
@@ -278,6 +280,7 @@ def _smart_title(s):
 
 # ---------- Text helpers ----------
 def _fit(text, max_w, font, start, floor):
+    text = _D(text)
     size = start
     while size > floor and stringWidth(text, font, size) > max_w:
         size -= 0.5
@@ -290,6 +293,7 @@ def _fit(text, max_w, font, start, floor):
 
 
 def _wrap(text, font, size, max_w):
+    text = _D(text)
     if not text:
         return []
     lines = []

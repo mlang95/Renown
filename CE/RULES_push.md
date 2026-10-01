@@ -284,7 +284,7 @@ Unless you are at war with the player sending it, you can't Oppose an Industry E
 
 ### Rule: Diplomatic Mission
 
-If your diplomacy envoy fails, or a treaty or agreement was not signed, you may send another envoy in another domain.
+If your diplomacy envoy fails, or a treaty or agreement was not signed, you may send another envoy in another domain, resolved in the order it would be resolved alongside other envoys.
 
 # Domains & Standings
 
@@ -429,7 +429,7 @@ Your Treasury is the gold you Control. Each Empire Phase you gain your Revenue (
 
 You go Insolvent the moment your Treasury can't cover a cost in full (at Upkeep, when paying for an action, or when an effect drains your gold). Pay what you can, then cut until the books balance, in this order:
 
-1. **Disband Retinues**, one at a time, cheapest-upkeep first, until your Armies are gone.
+1. **Disband Armies**, one at a time, cheapest-upkeep first, until your Armies are gone.
 2. **Set buildings inactive**, highest-tier first (Monuments, then Power Pursuits, then other non-natural Pursuits).
 
 An inactive Pursuit gives no innate or mastery effect, and anything that needed it as a prerequisite loses its mastery. An inactive piece is restored at any future Upkeep Step where you can pay its upkeep. Build Timers halt while you're Insolvent.
@@ -465,15 +465,15 @@ Armies are collections of Retinues on the realm, and are the target of Move acti
 
  	Armies cost upkeep, paid in the Empire Phase. To find an Army's upkeep, sum its Retinues by Retinue type cost, then subtract any upkeep modifiers.
 
- 	*Example: Net Upkeep = Retinue Count × (Retinue Cost − Upkeep Modifiers).*
+ 	*Example: Net Upkeep = Army Count × Retinue Cost − Upkeep Modifiers.*
 
 While an Army has been engaged in a Battle or Lay Siege action started by another player's Army, neither Army can be the target of any actions until that Battle or Lay Siege resolves.
 
 ### Recruiting an Army
 
-When you perform a Muster action and you're below your Army cap, you may place an Army within (range 0) a Settlement you Control that isn't being sieged by another player. When you do: muster Retinues up to the Settlement's muster limit, pay the cost for the Retinue type you're eligible to buy, choose their equipment from what you have available, and set a Muster Timer {{VAL:TIMERS.Muster Timer.default}}.
+When you perform a Muster action and you have not reached your maximum Army allowance, you may place an Army within (range 0) a Settlement you Control that isn't being sieged by another player. When you do: muster Retinues up to the Settlement's combined muster limit, pay the cost for the Retinue type you're eligible to buy, choose their equipment from what you have available, and set a Muster Timer {{VAL:TIMERS.Muster Timer.default}}.
 
-To muster more Retinues than the muster limit, increment the Muster Timer +1 for each additional turn's worth of mustering. Each turn the Muster Timer increments, you recruit that many Retinues and begin paying upkeep on them.
+To muster more Retinues than the muster limit, increment the Muster Timer +1 for each additional turn's worth of mustering. Each turn the Muster Timer increments, you recruit that many Retinues and begin paying upkeep on the army.
 
 While a Settlement is besieged, its muster limit is 0; an active Muster Timer doesn't increment and may be cancelled at any time.
 
@@ -481,7 +481,7 @@ While a Settlement is besieged, its muster limit is 0; an active Muster Timer do
 
 If an existing Army performs a Muster action within range {{VAL:MUSTER_RANGE}} of any Settlement(s) you Control that aren't under Siege, you may muster Retinues up to the Settlement's muster limit, to the maximum an Army can hold ({{VAL:ARMY_MAX_RETINUES}}), and set a Muster Timer {{VAL:TIMERS.Muster Timer.default}}. When the Muster Timer resolves, you gain those Retinues, equipped the same as your existing Retinues.
 
-During any Upkeep phase while an Army is within (range 0) a Settlement you Control, you may change that Army's equipment to any you've unlocked.
+During any Upkeep phase while an Army is within (range 0) a Settlement you Control, you may change that Army's equipment to any unlocked equipment.
 
 Retinue types — cost, to-Strike, and base profile:
 

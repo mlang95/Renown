@@ -67,6 +67,8 @@ def _repeat_header(row):
 
 def _rich(paragraph, text, bold=False, italic=False, size=BODY, keep=False):
     text = str(text)
+    if rd is not None and hasattr(rd, "display_text"):   # display layer: tables built straight from rd too
+        text = rd.display_text(text)
     parts = [p for p in re.split(r"(\*\*[^*]+\*\*)", text) if p != ""]
     if not parts:
         parts = [text]
@@ -92,6 +94,8 @@ def _alpha(rows, col=0):
     return sorted(rows, key=lambda r: re.sub(r"\*\*","",str(r[col] or "")).lower())
 
 # ── width measurement (real EB Garamond metrics when available) ───────────────
+import display_pdf; display_pdf.install()   # NAME_DISPLAY on every drawn/measured string (before reportlab imports)
+from display_pdf import D as _D
 from reportlab.pdfbase.pdfmetrics import stringWidth as _sw
 from reportlab.pdfbase import pdfmetrics as _pm
 from reportlab.pdfbase.ttfonts import TTFont as _TTF
@@ -237,7 +241,7 @@ def _heading(doc, text, size, before, after, level=1, rule=False):
     p = doc.add_paragraph()
     pf = p.paragraph_format
     pf.space_before = Pt(before); pf.space_after = Pt(after); pf.keep_with_next = True
-    r = p.add_run(text); r.bold = True; r.font.name = FONT; r.font.size = Pt(size)
+    r = p.add_run(rd.display_text(text) if rd is not None and hasattr(rd, "display_text") else text); r.bold = True; r.font.name = FONT; r.font.size = Pt(size)
     ol = OxmlElement("w:outlineLvl"); ol.set(qn("w:val"), str(level - 1))
     p._p.get_or_add_pPr().append(ol)
     if rule:  # thin bottom border under H1 for scannability
@@ -338,7 +342,7 @@ def build(data, out_path):
 
     h1(doc, "Pursuits")
     for s in data["pursuit_sections"]:
-        h2(doc, s["title"]); add_table(doc, ["Pursuit","Domain","Mastery Unlock","Innate Effect","Mastery Effect"], _alpha(s["rows"]))
+        h2(doc, s["title"]); add_table(doc, ["Pursuit","Domain","Mastery Unlock","Efficient","Innate Effect","Mastery Effect"], _alpha(s["rows"]))
 
     h1(doc, "Economy")
     # Public Order ‖ Faith & Doubt (both narrow) — reclaim right half
