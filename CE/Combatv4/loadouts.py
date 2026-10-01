@@ -497,8 +497,8 @@ def _gear_tier_idx(loadout_weapon, loadout_shield, loadout_armor, loadout_ranged
 def derive_retinue_from_pursuits(pursuits):
     """The player's retinue is DETERMINED by what's built — not chosen separately.
     Rules:
-      - Full Preceptory MASTERY (Preceptory + its full mastery_req: Monastery,
-        Pilgrimage Site, Hospitaller, Abbey) + Preceptory KT → Knight Templar
+      - Full Preceptory MASTERY (Preceptory + its full mastery_req, read from the data —
+        currently Pilgrimage Site + Hospitaller) + Preceptory KT → Knight Templar
       - War College (without full Preceptory) → Sergeant  [no longer needs Coliseum]
       - Coliseum alone (no War College) → Man-at-Arms
       - Nothing → Levy
@@ -507,7 +507,7 @@ def derive_retinue_from_pursuits(pursuits):
     must buy Coliseum separately. Coliseum now appears mainly on Man-at-Arms builds
     and on Sergeants/KTs that specifically want the Tiltyard/Royal Pavilion line.
     """
-    precep_mastery = set(PURSUITS_INFO["Preceptory"]["mastery_req"])  # Monastery, Pilgrimage Site, Hospitaller, Abbey
+    precep_mastery = set(PURSUITS_INFO["Preceptory"]["mastery_req"])  # from the data (Pilgrimage Site + Hospitaller)
     has_full_precep = ("Preceptory" in pursuits and "Preceptory KT" in pursuits
                        and precep_mastery <= set(pursuits))
     if has_full_precep:
@@ -590,9 +590,9 @@ def _normalize_pool_tokens(pursuits):
     """Map the archetype pool's short Ministry tokens onto the canonical pursuit.
     Pool emits "Ministry" (base) and "Ministry Mastery" (mastery upgrade). The
     real node is "Ministry of Military Strategy"; its mastery tags fire when its
-    mastery_req {University, War College} are present. So:
+    mastery_req (from the data; currently Academy + War College) is present. So:
       "Ministry"          -> add the canonical node
-      "Ministry Mastery"  -> add the canonical node AND University (satisfies mastery)
+      "Ministry Mastery"  -> add the canonical node AND its mastery_req pursuits
     Both tokens are removed after mapping.
     """
     p = set(pursuits)
@@ -600,7 +600,8 @@ def _normalize_pool_tokens(pursuits):
         p.discard("Ministry")
         if "Ministry Mastery" in p:
             p.discard("Ministry Mastery")
-            p.add("University")          # the missing half of mastery_req
+            # satisfy the Ministry's mastery_req (read from the data, not hard-coded)
+            p |= set(PURSUITS_INFO.get("Ministry of Military Strategy", {}).get("mastery_req", []))
         p.add("Ministry of Military Strategy")
     return p
 def compute_pursuit_cost(pursuits):
@@ -779,7 +780,7 @@ def _pursuit_set_is_valid(pursuits):
     # Gilded Foundry now requires Armory (Tannery+Blacksmith path) + Forge/ABF
     if "Gilded Foundry" in pursuits and "Armory" not in pursuits:
         return False
-    # Preceptory KT requires Preceptory MASTERED (Monastery + Pilgrimage Site + Hospitaller + Abbey)
+    # Preceptory KT requires Preceptory MASTERED (its mastery_req from the data)
     if "Preceptory KT" in pursuits and not (
             {"Preceptory"} | set(PURSUITS_INFO["Preceptory"]["mastery_req"]) <= set(pursuits)):
         return False

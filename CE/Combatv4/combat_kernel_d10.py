@@ -107,8 +107,9 @@ def _strikes_kernel(rolls, cleave_rolls, front_line, target_th_clip, auto_fail, 
 
 @_njit(cache=True)
 def _strikes_kernel_dual(rolls, cleave_rolls, front_line, target_th_clip, auto_fail, auto_pass,
-                         run_has_deadly, run_has_cleave, crit_floor):
-    """Bastard dual-profile variant: per-run deadly/cleave flags (arrays)."""
+                         run_has_deadly, run_has_cleave, crit_floor, run_reroll_misses):
+    """Per-run variant of _strikes_kernel: deadly / cleave / Dual-Wield reroll flags are arrays
+    (Bastard dual profile in vectorized; every slot in batch_engine). Same per-die logic."""
     n = rolls.shape[0]
     maxd = rolls.shape[1]
     strikes = np.zeros(n, dtype=np.int32)
@@ -123,6 +124,14 @@ def _strikes_kernel_dual(rolls, cleave_rolls, front_line, target_th_clip, auto_f
                 break
             roll = rolls[r, d]
             if not (ap or (roll >= th and not af)):
+                if run_reroll_misses[r] and not af:      # Dual Wield: a failed Strike is rerolled once
+                    rr = cleave_rolls[r, d]
+                    if rr >= th:
+                        s += 1
+                        if rr >= FOCUSED_THR:
+                            pc += 1
+                        if hd and rr >= crit_floor:
+                            dl += 1
                 continue
             s += 1
             if roll >= FOCUSED_THR:

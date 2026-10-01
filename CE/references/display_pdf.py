@@ -33,6 +33,25 @@ def D(text):
     return _disp()(text) if isinstance(text, str) else text
 
 
+def _hook(text):
+    """What the Canvas hook applies. Word-by-word drawers (rich-text wrappers) hand it single words of
+    text that was ALREADY renamed, so a lone word that is only PART of a longer new name ("Reliquary"
+    out of "Reliquary Sanctum") must not be renamed again — that would print "Reliquary Sanctum Sanctum".
+    Whole strings, and single words whose new name is a single word, are renamed as usual."""
+    if not isinstance(text, str):
+        return text
+    t = text.strip()
+    if t and not any(ch.isspace() for ch in t):
+        try:
+            import renown_data as rd
+            v = (getattr(rd, "ALIASES", {}) or {}).get(t)
+        except Exception:
+            v = None
+        if v is not None and t in v and v != t:
+            return text            # fragment of an already-renamed multi-word name
+    return D(text)
+
+
 _INSTALLED = False
 
 
@@ -47,7 +66,7 @@ def install():
 
     def _wrap_draw(orig):
         def f(self, x, y, text, *a, **k):
-            return orig(self, x, y, D(text), *a, **k)
+            return orig(self, x, y, _hook(text), *a, **k)
         f.__wrapped__ = orig
         return f
 
@@ -58,13 +77,13 @@ def install():
     if not hasattr(C.stringWidth, "__wrapped__"):
         _csw = C.stringWidth
         def _c_sw(self, text, fontName=None, fontSize=None):
-            return _csw(self, D(text), fontName, fontSize)
+            return _csw(self, _hook(text), fontName, fontSize)
         _c_sw.__wrapped__ = _csw
         C.stringWidth = _c_sw
 
     if not hasattr(_pm.stringWidth, "__wrapped__"):
         _psw = _pm.stringWidth
         def _p_sw(text, fontName, fontSize, encoding="utf8"):
-            return _psw(D(text), fontName, fontSize, encoding)
+            return _psw(_hook(text), fontName, fontSize, encoding)
         _p_sw.__wrapped__ = _psw
         _pm.stringWidth = _p_sw

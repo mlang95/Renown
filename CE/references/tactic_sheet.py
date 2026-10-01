@@ -170,6 +170,7 @@ def classify(outcome):
 
 # ---------- Text helpers ----------
 def _fit(text, max_w, font, start, floor):
+    text = _D(text)   # display layer: alias whole text before split/measure
     size = start
     while size > floor and stringWidth(text, font, size) > max_w:
         size -= 0.5

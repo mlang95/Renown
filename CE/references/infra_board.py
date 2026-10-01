@@ -37,9 +37,10 @@ SLOTBG = HexColor("#efe9db")
 PW, PH = landscape(letter)
 MX, MY = 28, 26
 def _c(h): return HexColor(h)
-def _clean(s): return " ".join(str(s or "").replace("**", "").split())
+def _clean(s): return " ".join(str(_D(s) or "").replace("**", "").split())
 
 def wrap(c, text, font, size, maxw):
+    text = _D(text)   # display layer: alias whole text before split/measure
     out, cur = [], ""
     for w in str(text).split():
         t = (cur + " " + w).strip()

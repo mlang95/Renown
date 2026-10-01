@@ -485,7 +485,7 @@ def _roll_strikes_vec(rng, n, target_th, front_line, atk_tags, defender_has_shie
         strikes, deadly_strikes, proc_count = _strikes_kernel_dual(
             rolls, cleave_rolls, front_line, th_clip, af, ap,
             run_has_deadly.astype(np.bool_).copy(), run_has_cleave.astype(np.bool_).copy(),
-            int(atk_crit_floor))
+            int(atk_crit_floor), np.full(n, bool(DUAL_WIELD in atk_tags), dtype=np.bool_))
     else:
         strikes, deadly_strikes, proc_count = _strikes_kernel(
             rolls, cleave_rolls, front_line, th_clip, af, ap,

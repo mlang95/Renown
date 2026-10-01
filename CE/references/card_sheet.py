@@ -95,6 +95,7 @@ def _get(row, *keys):
 
 # ---------- Text helpers ----------
 def _split_bold(text):
+    text = _D(text)   # display layer: alias whole text before split/measure
     parts = []
     for chunk in re.split(r"(\*\*[^*]+\*\*)", text):
         if not chunk:

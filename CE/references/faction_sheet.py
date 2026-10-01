@@ -69,6 +69,7 @@ def _norm_row(row):
 
 # ---------- Text helpers ----------
 def _fit(text, max_w, font, start, floor):
+    text = _D(text)   # display layer: alias whole text before split/measure
     size = start
     while size > floor and stringWidth(text, font, size) > max_w:
         size -= 0.5
@@ -81,6 +82,7 @@ def _fit(text, max_w, font, start, floor):
 
 
 def _wrap(text, font, size, max_w):
+    text = _D(text)   # display layer: alias whole text before split/measure
     if not text:
         return []
     lines = []
@@ -103,6 +105,7 @@ def _wrap(text, font, size, max_w):
 
 
 def _wrap_with_bold_prefix(prefix, body, font_reg, font_bold, size, max_w):
+    prefix = _D(prefix); body = _D(body)   # display layer: alias whole text before split/measure
     """Wrap text where the first word(s) of `prefix` are bold and `body` is regular.
     Returns list of segment-lists, each segment being (text, is_bold).
     """
@@ -160,6 +163,7 @@ def _draw_segment_line(c, x, y, segments, font_reg, font_bold, size):
 
 
 def _split_mechanic(text):
+    text = _D(text)   # display layer: alias whole text before split/measure
     """Split 'Name: rest of text' into (name, body). If no colon, body is the whole text."""
     m = re.match(r"^([^:]{2,60}):\s*(.*)$", text, re.DOTALL)
     if m:

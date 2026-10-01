@@ -156,6 +156,14 @@ def pack_side(loadouts, is_attacker):
         return min(floors) if floors else FOCUSED_THR
     P["first_crit_floor"]  = np.array([_crit_floor(a.tags_first)  for a in armies], dtype=np.int64)
     P["normal_crit_floor"] = np.array([_crit_floor(a.tags_normal) for a in armies], dtype=np.int64)
+    # Bastard Sword dual profile (same as vectorized_combat): once its shield is DESTROYED a Bastard
+    # army fights with the 2H profile — Deadly/Cleave from the 2H tags, and the init clamp flips
+    # from Steady (1H) to Unwieldy (2H). Per-phase 2H flags; False for non-Bastard armies.
+    def _dead(tags): return bool(tags) and ((SHATTER_ARMOR in tags) or ("Shatter Armor" in tags) or (HALFSWORD in tags))
+    for ph in ("first", "normal"):
+        P[f"{ph}_2h_Deadly"] = np.array([_dead(getattr(a, f"tags_{ph}_2h")) for a in armies], dtype=np.bool_)
+        P[f"{ph}_2h_Cleave"] = np.array([bool(getattr(a, f"tags_{ph}_2h")) and (CLEAVE in getattr(a, f"tags_{ph}_2h"))
+                                          for a in armies], dtype=np.bool_)
     # Per-slot Dual Wield (Daggers reroll-misses) for the strike kernel.
     P["first_Dual_Wield"]  = np.array([(DUAL_WIELD in a.tags_first)  for a in armies], dtype=np.bool_)
     P["normal_Dual_Wield"] = np.array([(DUAL_WIELD in a.tags_normal) for a in armies], dtype=np.bool_)
@@ -270,7 +278,8 @@ def _roll_strikes_batch(rng, n, target_th, front_line, has_deadly, has_cleave,
             continue
         s_m, d_m, p_m = _shared_strikes_kernel_dual(
             rolls[m], cleave_rolls[m], fl[m], target_th_c[m], af[m], ap[m],
-            hd[m].copy(), hc[m].copy(), int(floor_val))
+            hd[m].copy(), hc[m].copy(), int(floor_val),
+            np.asarray(has_dual_wield, dtype=np.bool_)[m].copy())     # Dual Wield reroll was dropped here
         strikes[m] = s_m; deadly[m] = d_m; procs[m] = p_m
     # Destroy Shield: proc (natural-6) destroys an existing, non-immune shield.
     can_destroy = np.asarray(has_destroy, dtype=np.bool_) & def_has_shield & (~def_shield_immune)
@@ -610,6 +619,13 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         a_dstr = tflag(Pa, skl, DESTROY_SHIELD); b_dstr = tflag(Pb, skl, DESTROY_SHIELD)
         a_crit = tile(Pa[f"{skl}_crit_floor"]); b_crit = tile(Pb[f"{skl}_crit_floor"])
         a_dw = tile(Pa[f"{skl}_Dual_Wield"]); b_dw = tile(Pb[f"{skl}_Dual_Wield"])
+        # Bastard 2H runs: shield destroyed at the start of this skirmish (not merely unequipped)
+        a_bd = tile(Pa["is_bastard_dual"]); b_bd = tile(Pb["is_bastard_dual"])
+        a_b2h = a_bd & a_shdest; b_b2h = b_bd & b_shdest
+        a_dead = np.where(a_bd, np.where(a_b2h, tile(Pa[f"{skl}_2h_Deadly"]), a_dead), a_dead)
+        b_dead = np.where(b_bd, np.where(b_b2h, tile(Pb[f"{skl}_2h_Deadly"]), b_dead), b_dead)
+        a_clv = np.where(a_bd, np.where(a_b2h, tile(Pa[f"{skl}_2h_Cleave"]), a_clv), a_clv)
+        b_clv = np.where(b_bd, np.where(b_b2h, tile(Pb[f"{skl}_2h_Cleave"]), b_clv), b_clv)
         # Deflect = explicit weapon tag OR a ranged attack this skirmish.
         a_deflect = tile(Pa[f"{skl}_Deflect"]) | a_is_rng
         b_deflect = tile(Pb[f"{skl}_Deflect"]) | b_is_rng
@@ -696,14 +712,16 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         no_combat_pair = tab["no_combat"][a_tac, b_tac]
         no_combat_endurance_pair = tab["no_combat_endurance"][a_tac, b_tac]
 
-        # Steady/Unwieldy init clamps (per-slot, no bastard-dual here yet).
-        a_I_mod = np.where(a_steady & (a_I_mod < 0), 0, a_I_mod)
-        b_I_mod = np.where(b_steady & (b_I_mod < 0), 0, b_I_mod)
+        # Steady/Unwieldy init clamps. Bastard dual: 1H runs Steady, 2H runs Unwieldy (unless immune).
+        a_I_mod = np.where(np.where(a_bd, ~a_b2h, a_steady) & (a_I_mod < 0), 0, a_I_mod)
+        b_I_mod = np.where(np.where(b_bd, ~b_b2h, b_steady) & (b_I_mod < 0), 0, b_I_mod)
         # Unwieldy positive-init clamp. Variant B: if the shield is the SOLE Unwieldy source, the
         # clamp is lifted on runs where that shield is destroyed (a destroyed shield stops being
         # Unwieldy). Non-shield Unwieldy (weapon/armor/dual) still clamps regardless.
         a_unw_active = a_unw & (~a_imunw) & ~(a_sh_only_unw & (a_shdest | _a_shoff))
         b_unw_active = b_unw & (~b_imunw) & ~(b_sh_only_unw & (b_shdest | _b_shoff))
+        a_unw_active = np.where(a_bd, a_b2h & (~a_imunw), a_unw_active)
+        b_unw_active = np.where(b_bd, b_b2h & (~b_imunw), b_unw_active)
         a_I_mod = np.where(a_unw_active & (a_I_mod > 0), 0, a_I_mod)
         b_I_mod = np.where(b_unw_active & (b_I_mod > 0), 0, b_I_mod)
 
@@ -1346,7 +1364,7 @@ def _warm_numba_kernels():
         af = _np.zeros(n, _np.bool_); ap = _np.zeros(n, _np.bool_)
         _shared_strikes_kernel(rolls, crolls, fl, th, af, ap, True, False, 4, False)
         _shared_strikes_kernel_dual(rolls, crolls, fl, th, af, ap,
-                                    _np.ones(n, _np.bool_), _np.zeros(n, _np.bool_), 4)
+                                    _np.ones(n, _np.bool_), _np.zeros(n, _np.bool_), 4, _np.zeros(n, _np.bool_))
         # SHARED _saves_kernel (combat_kernel) — full current signature.
         srolls = rng.integers(1, 7, size=(n, 5), dtype=_np.int8)
         prolls = rng.integers(1, 7, size=(n, 5), dtype=_np.int8)

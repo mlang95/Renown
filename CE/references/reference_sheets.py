@@ -155,6 +155,7 @@ DOMAIN_RESOLVE = {
 # Text helpers
 # ============================================================
 def _split_bold(text):
+    text = _D(text)   # display layer: alias whole text before split/measure
     parts = []
     for chunk in re.split(r"(\*\*[^*]+\*\*)", text):
         if not chunk:
@@ -167,6 +168,7 @@ def _split_bold(text):
 
 
 def _wrap_rich(text, font_reg, font_bold, size, max_w):
+    text = _D(text)   # display layer: alias whole text before split/measure
     if not text:
         return []
     lines = []
@@ -215,6 +217,7 @@ def _draw_rich_line(c, x, y, segs, font_reg, font_bold, size, color=None):
 
 
 def _fit(text, max_w, font, start, floor):
+    text = _D(text)   # display layer: alias whole text before split/measure
     size = start
     while size > floor and stringWidth(text, font, size) > max_w:
         size -= 0.5

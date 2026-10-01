@@ -84,7 +84,7 @@ def _wrap_runs(c, runs, size, maxw):
     """runs = [(text,bold),...] -> list of lines, each a list of (word,bold)."""
     words = []
     for text, bold in runs:
-        for wd in str(text).split():
+        for wd in str(_D(text)).split():
             words.append((wd, bold))
     lines, cur, curw = [], [], 0
     for wd, bold in words:
@@ -97,6 +97,7 @@ def _wrap_runs(c, runs, size, maxw):
     return lines
 
 def _cell_lines(c, emp, cmb, size, maxw):
+    emp = _D(emp); cmb = _D(cmb)   # display layer: alias whole text before split/measure
     """Empire effect (bold before ':') then combat effect (bold) on a new line."""
     lines = []
     if emp:
@@ -144,6 +145,7 @@ def draw_def_table(c, x, ytop, w, colw, data, fs=6.4):
     return y
 
 def wrap(c, text, font, size, maxw):
+    text = _D(text)   # display layer: alias whole text before split/measure
     out, cur = [], ""
     for w in str(text).split():
         t = (cur + " " + w).strip()

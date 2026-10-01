@@ -4733,7 +4733,9 @@ const GKT=document.createElement("div");GKT.id="gkTip";document.body.appendChild
 // nodes and title tooltips are rewritten, as they appear (MutationObserver), so it covers every view.
 (function(){const AL=DATA.aliases||{},keys=Object.keys(AL);if(!keys.length)return;
   const re=new RegExp("\\b("+keys.sort((a,b)=>b.length-a.length).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")\\b","g");
-  const disp=t=>t.replace(re,m=>AL[m]);window.dispName=disp;
+  // idempotent: skip a match that already sits inside its own new name ("Reliquary" in "Reliquary Sanctum"),
+  // so re-processing text (this observer sees its own edits) can never stack renames
+  const disp=t=>t.replace(re,(m,_g,i,str)=>{const v=AL[m];let o=v.indexOf(m);while(o!==-1){if(str.substr(i-o,v.length)===v)return m;o=v.indexOf(m,o+1);}return v;});window.dispName=disp;
   const SKIP={SCRIPT:1,STYLE:1,TEXTAREA:1,INPUT:1};
   const fixText=n=>{const p=n.parentNode;if(!p||SKIP[p.nodeName]||(p.isContentEditable))return;const v=n.nodeValue,w=disp(v);if(w!==v)n.nodeValue=w;};
   const fixEl=el=>{if(el.nodeType===3){fixText(el);return;}if(el.nodeType!==1||SKIP[el.nodeName])return;

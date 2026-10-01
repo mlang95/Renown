@@ -636,7 +636,7 @@ NODES = {
         "mastery_req": "-",
         "innate": "+500, **Natural**; Craft +1",
         "mastery": "",
-        "builds_into": ["Smokehouse", "Harbor", "Reliquary", "Levy Hall", "Butchery", "Market Square"],
+        "builds_into": ["Smokehouse", "Harbor", "Reliquary", "Levy Hall", "Butchery", "Market Square", "Supply Depot"],
         "monument": False},
     "Apiary": {
         "type": "Raw Materials",
@@ -714,7 +714,7 @@ NODES = {
         "builds_into": ["Saddlery", "Tannery", "Stable", "Weavery", "Butchery"],
         "monument": False,
         "escalation": {"standing": "Untested Industry", "ranks": {1: "Gambeson armor"}, "row": 1, "gate": None, "requires_all": [], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": ["tier:Gambeson"], "mastery_tags": [], "mastery_req": []}},
+        "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": ["tier:Gambeson"], "mastery_tags": [], "mastery_req": ["Arable Land"]}},
     "Saddlery": {
         "type": "Husbandry",
         "unlock": "-",
@@ -726,7 +726,7 @@ NODES = {
         "monument": False,
         # sim: Stable is its prereq (so it is always Mastered when built — Animal Husbandry is implied
         # by Stable and Arable Land is economic); its Mastery unlocks the Lance at Forged tier.
-        "engine": {"cost": 1, "prereqs": ["Stable"], "domain": {}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Stable"]}},
+        "engine": {"cost": 1, "prereqs": ["Stable"], "domain": {}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Arable Land", "Animal Husbandry", "Stable"]}},
     "Vineyard": {
         "type": "Husbandry",
         "unlock": "-",
@@ -752,7 +752,7 @@ NODES = {
         "efficient": "Forestry",
         "builds_into": ["Joinery", "Fletchery", "Artisan Workshop", "Trade Guild", "Shipyard", "Stable", "Mill"],
         "monument": False,
-        "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": [], "mastery_tags": [], "mastery_req": []}},
+        "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Forestry"]}},
     "Alchemy": {
         "type": "Craft",
         "unlock": "-",
@@ -770,7 +770,7 @@ NODES = {
         "innate": "**Build Timer −1**",
         "mastery": "Craft+1",
         "efficient": "Quarry",
-        "builds_into": ["Courtyard", "Episcopal Court", "Trade Guild", "Citadel"],
+        "builds_into": ["Courtyard", "Episcopal Court", "Trade Guild", "Citadel", "Mill"],
         "monument": False},
     "Butchery": {
         "type": "Craft",
@@ -779,7 +779,7 @@ NODES = {
         "innate": "Natural; +500",
         "mastery": "**Upkeep -200**; Craft+1",
         "efficient": "Smokehouse",
-        "builds_into": ["Smokehouse"],
+        "builds_into": [],
         "monument": False,
         "engine": {"cost": 1, "prereqs": ["Animal Husbandry", "Smokehouse"], "domain": {}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Animal Husbandry", "Smokehouse", "Salt Works"], "upkeep_effects": [{"flat": 200}]}},
     "Bakery": {
@@ -810,7 +810,7 @@ NODES = {
         "builds_into": ["Tiltyard"],
         "monument": False,
         "escalation": {"standing": "Untested Industry", "ranks": {1: "Ranged weapons"}, "row": 1, "gate": None, "requires_all": [], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": ["Carpentry"], "domain": {}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Forestry", "Carpentry"], "upkeep_effects": [{"if_ranged": 200}]}},
+        "engine": {"cost": 1, "prereqs": ["Carpentry"], "domain": {}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Carpentry"], "upkeep_effects": [{"if_ranged": 200}]}},
     "Chandlery": {
         "type": "Craft",
         "unlock": "-",
@@ -827,7 +827,7 @@ NODES = {
         "innate": "Natural; Unlocks **Cast** armor & shield.",
         "mastery": "**Upkeep -200**; Craft +1",
         "efficient": "Animal Husbandry",
-        "builds_into": ["Butchery", "Armory"],
+        "builds_into": ["Armory"],
         "monument": False,
         "escalation": {"standing": "Untested Industry", "ranks": {1: "Leather armor"}, "row": 2, "gate": None, "requires_all": ["Animal Husbandry"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": ["tier:Leather"], "mastery_tags": [], "mastery_req": ["Animal Husbandry"], "upkeep_effects": [{"flat": 200}]}},
@@ -860,7 +860,7 @@ NODES = {
         "innate": "Craft +1",
         "mastery": "Unlocks **Wrought** Tier",
         "efficient": "Furnace",
-        "builds_into": ["Forge", "Armory", "Stable", "Siege Works", "Master Workshop", "Gilded Foundry", "Advanced Blast Furnace"],
+        "builds_into": ["Forge", "Armory", "Stable", "Siege Works", "Master Workshop", "Gilded Foundry"],
         "monument": False,
         "escalation": {"standing": "Rising Industry", "ranks": {1: "Wrought weapons"}, "row": 2, "gate": None, "requires_all": ["Furnace"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Furnace"], "domain": {"Industry": 3}, "innate_tags": [], "mastery_tags": ["tier:Wrought"], "mastery_req": ["Furnace"], "efficient": "Furnace"}},
@@ -915,7 +915,7 @@ NODES = {
         "efficient": ["Salt Works","Charcoal Burner"],
         "builds_into": ["Supply Depot", "Butchery"],
         "monument": False,
-        "engine": {"cost": 1, "prereqs": ["Butchery"], "domain": {}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Salt Works", "Kiln", "Butchery"], "efficient": "Butchery", "upkeep_effects": [{"flat": 200}]}},
+        "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Kiln"], "efficient": "Butchery", "upkeep_effects": [{"flat": 200}]}},
     "Workyard": {
         "type": "Craft",
         "unlock": "—",
@@ -1033,7 +1033,7 @@ NODES = {
         "efficient": "Stable",
         "builds_into": ["Inn", "Spice Merchant", "Courier Network", "Toll House", "Outrider Intercept Post"],
         "monument": False,
-        "engine": {"cost": 1, "prereqs": [], "domain": {"Cunning": 6}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Market Square"]}},
+        "engine": {"cost": 1, "prereqs": [], "domain": {"Cunning": 6}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Stable"]}},
     "Stable": {
         "type": "Civic",
         "unlock": "1 Rising",
@@ -1044,7 +1044,7 @@ NODES = {
         "builds_into": ["Saddlery", "Advanced Blast Furnace", "Caravanery"],
         "monument": False,
         "escalation": {"standing": "Untested Industry", "ranks": {1: "Cavalry weapons"}, "row": 4, "gate": 3, "requires_all": [], "requires_any": ["Forge", "Armory"], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Animal Husbandry", "Blacksmith"], "efficient": "Animal Husbandry"}},
+        "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Animal Husbandry"], "efficient": "Animal Husbandry"}},
     "Shipyard": {
         "type": "Craft",
         "unlock": "Established Industry, Water Settlement",
@@ -1081,7 +1081,7 @@ NODES = {
         "innate": "Once/turn: **Influence +1** another player's Piety Envoy",
         "mastery": "Morale +1",
         "efficient": "Episcopal Court",
-        "builds_into": ["Monastery", "Preceptory of the Knight's Templar"],
+        "builds_into": ["Monastery"],
         "monument": False,
         "engine": {"cost": 1, "prereqs": [], "domain": {"Piety": 6}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Episcopal Court", "Academy"]}},
     "Reliquary": {
@@ -1091,7 +1091,7 @@ NODES = {
         "innate": "+500",
         "mastery": "First **Doubt** per turn reduced by 1 (min 0)",
         "efficient": "Chandlery",
-        "builds_into": ["Pilgrimage Site", "Papal Palace"],
+        "builds_into": ["Pilgrimage Site"],
         "monument": False},
     "Monastery": {
         "type": "Power",
@@ -1100,15 +1100,15 @@ NODES = {
         "innate": "**Influence −1** to Piety envoys targeting you",
         "mastery": "Other players can't Oppose your Piety Envoys",
         "efficient": "Abbey",
-        "builds_into": ["Inquisitorial Palace", "Preceptory of the Knight's Templar", "Papal Palace"],
+        "builds_into": ["Inquisitorial Palace", "Papal Palace"],
         "monument": False,
-        "engine": {"cost": 1, "prereqs": [], "domain": {"Piety": 6}, "innate_tags": [], "mastery_tags": [], "mastery_req": []}},
+        "engine": {"cost": 1, "prereqs": [], "domain": {"Piety": 6}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Abbey"]}},
     "Bell Tower": {
         "type": "Civic",
-        "unlock": "Established Piety",
-        "mastery_req": "Episcopal Court",
+        "unlock": "1 Established",
+        "mastery_req": "Jester's Court",
         "innate": "**+1 Influence**/turn",
-        "mastery": "**Influence +1** to Piety Envoys",
+        "mastery": "**Influence +1** to envoys sent during the Council Phase.",
         "efficient": "Courtyard",
         "builds_into": ["Embassy"],
         "monument": False},
@@ -1139,7 +1139,7 @@ NODES = {
         "innate": "First **Oppose** on your Envoy each turn: reduce by 1",
         "mastery": "Second **Oppose** on your Envoy each turn: reduce by 1",
         "efficient": "Courtyard",
-        "builds_into": ["Embassy"],
+        "builds_into": ["Bell Tower", "Embassy"],
         "monument": False},
     "Embassy": {
         "type": "Civic",
@@ -1168,7 +1168,7 @@ NODES = {
         "efficient": "Alchemy",
         "builds_into": ["University", "Abbey", "War College", "Forgery Workshop", "Toxicarium", "College of Engineering", "Ministry of Military Strategy", "Studium Generale"],
         "monument": False,
-        "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": [], "mastery_tags": [], "mastery_req": []}},
+        "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Alchemy"]}},
     "Courtyard": {
         "type": "Civic",
         "unlock": "-",
@@ -1184,7 +1184,7 @@ NODES = {
         "mastery_req": "Masonry",
         "innate": "**Faith +1**",
         "mastery": "Reduce the first instance of Doubt at start of turn by 1, min 0.",
-        "builds_into": ["Interrogation Chambers", "Abbey", "Bell Tower"],
+        "builds_into": ["Interrogation Chambers", "Abbey"],
         "monument": False,
 		"efficient": "Courtyard"},
     "Conditioning Field": {
@@ -1197,7 +1197,7 @@ NODES = {
         "builds_into": ["Coliseum", "Grand Tournament"],
         "monument": False,
         "escalation": {"standing": "Untested Prowess", "ranks": {1: "Nimble"}, "row": 1, "gate": None, "requires_all": [], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": ["Courtyard"], "domain": {"Prowess": 3}, "innate_tags": [], "mastery_tags": ["Nimble"], "mastery_req": []}},
+        "engine": {"cost": 1, "prereqs": ["Courtyard"], "domain": {"Prowess": 3}, "innate_tags": [], "mastery_tags": ["Nimble"], "mastery_req": ["Courtyard"]}},
     "Grand Tournament": {
         "type": "Civic",
         "unlock": "Established Prowess",
@@ -1208,7 +1208,7 @@ NODES = {
         "builds_into": ["Royal Pavilion"],
         "monument": False,
         "escalation": {"standing": "Established Prowess", "ranks": {1: "Riposte"}, "row": 4, "gate": None, "requires_all": ["Coliseum"], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": [], "domain": {"Prowess": 6}, "innate_tags": ["Parry +1"], "mastery_tags": ["Riposte"], "mastery_req": ["Conditioning Field", "Coliseum"], "efficient": "Coliseum"}},
+        "engine": {"cost": 1, "prereqs": [], "domain": {"Prowess": 6}, "innate_tags": ["Parry +1"], "mastery_tags": ["Riposte"], "mastery_req": ["Coliseum", "Conditioning Field"], "efficient": "Coliseum"}},
     "Apothecary": {
         "type": "Civic",
         "unlock": "-",
@@ -1219,7 +1219,7 @@ NODES = {
         "builds_into": ["Hospitaller"],
         "monument": False,
         "escalation": {"standing": "Untested Piety", "ranks": {1: "Recover 8"}, "row": 1, "gate": None, "requires_all": [], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": [], "mastery_tags": ["Recover 8"], "mastery_req": ["Herb Garden"]}},
+        "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": [], "mastery_tags": ["Recover 8"], "mastery_req": ["Herb Garden", "Alchemy"]}},
     "Infirmary": {
         "type": "Civic",
         "unlock": "Rising Piety",
@@ -1256,9 +1256,9 @@ NODES = {
         "innate": "May spend one additional **Influence** per Support or Oppose",
         "mastery": "+1 **Influence** per Domain you are Rising",
         "efficient": "Academy",
-        "builds_into": ["Studium Generale", "Cipher Chamber"],
+        "builds_into": ["Studium Generale"],
         "monument": False,
-        "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": [], "mastery_tags": [], "mastery_req": []}},
+        "engine": {"cost": 1, "prereqs": [], "domain": {}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Academy"]}},
     "Trade Guild": {
         "type": "Civic",
         "unlock": "Rising Industry",
@@ -1338,7 +1338,7 @@ NODES = {
         "innate": "**Extort 300** anytime a player Opposes an Envoy of yours",
         "mastery": "Once/turn: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed",
         "efficient": ["Academy", "University"],
-        "builds_into": ["Aristocratic Court"],
+        "builds_into": ["Aristocratic Court", "Cipher Chamber"],
         "monument": False},
     "Toxicarium": {
         "type": "Secrecy",
@@ -1353,14 +1353,14 @@ NODES = {
         "engine": {"cost": 1, "prereqs": ["Academy", "Alchemy"], "domain": {"Cunning": 3}, "innate_tags": ["Poison"], "mastery_tags": [], "mastery_req": ["Academy", "Alchemy"], "upkeep_effects": [{"flat": 100}]}},
     "Pilgrimage Site": {
         "type": "Energy",
-        "unlock": "Rising Piety",
+        "unlock": "Established Piety",
         "mastery_req": "Reliquary + Chandlery",
         "innate": "Natural; **Extort 500** every player without a Pilgrimage Site",
         "mastery": "**Doubt +1** to all other players without a Pilgrimage Site",
         "efficient": "Reliquary",
-        "builds_into": ["Papal Palace"],
+        "builds_into": ["Preceptory of the Knight's Templar", "Papal Palace"],
         "monument": False,
-        "engine": {"cost": 1, "prereqs": [], "domain": {"Piety": 3}, "innate_tags": [], "mastery_tags": [], "mastery_req": []}},
+        "engine": {"cost": 1, "prereqs": [], "domain": {"Piety": 6}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Reliquary", "Chandlery"]}},
     "Beacon Towers": {
         "type": "Energy",
         "unlock": "Rising Prowess",
@@ -1386,7 +1386,7 @@ NODES = {
         "innate": "Natural",
         "mastery": "+500",
         "efficient": ["Forestry", "Kiln"],
-        "builds_into": [],
+        "builds_into": ["Smokehouse"],
         "monument": False},
     "Mill": {
         "type": "Energy",
@@ -1424,7 +1424,7 @@ NODES = {
         "builds_into": ["War College"],
         "efficient": "Butchery",
         "monument": False,
-        "engine": {"cost": 1, "prereqs": [], "domain": {"Prowess": 3}, "innate_tags": [], "mastery_tags": [], "mastery_req": [], "upkeep_effects": [{"flat": 200}]}},
+        "engine": {"cost": 1, "prereqs": [], "domain": {"Prowess": 3}, "innate_tags": [], "mastery_tags": [], "mastery_req": ["Salt Works"], "upkeep_effects": [{"flat": 200}]}},
     "Siege Works": {
         "type": "Power",
         "unlock": "Rising Prowess",
@@ -1469,7 +1469,7 @@ NODES = {
         "innate": "Craft +2",
         "mastery": "Unlocks **Forged** Tier",
         "efficient": "Blacksmith",
-        "builds_into": ["Mill"],
+        "builds_into": ["Mill", "Advanced Blast Furnace"],
         "monument": False,
         "escalation": {"standing": "Established Industry", "ranks": {1: "Forged weapons"}, "row": 3, "gate": None, "requires_all": ["Blacksmith"], "requires_any": [], "extra_req": ""},
         "engine": {"cost": 1, "prereqs": ["Blacksmith"], "domain": {"Industry": 6}, "innate_tags": [], "mastery_tags": ["tier:Forged"], "mastery_req": ["Blacksmith"], "efficient": "Blacksmith"}},
@@ -1531,13 +1531,13 @@ NODES = {
         "type": "Monument",
         "unlock": "Sovereign Prowess",
         "mastery_req": "Academy + War College",
-        "innate": "Always gains **Seize the Initiative**, and your opponent doesn't; Gain +1I & max initiative is 3",
+        "innate": "Always gains **Seize the Initiative**, and your opponent doesn't; max initiative is increased to 3",
         "mastery": "Gain Drilled.",
         "efficient": "War College",
         "builds_into": [],
         "monument": True,
         "escalation": {"standing": "Sovereign Prowess", "ranks": {1: "Always Seize the Initiative; your maximum initiative increases to 3.", 2: "Deadly, & Cleave also trigger on a natural 8+."}, "row": 6, "gate": None, "requires_all": ["War College"], "requires_any": [], "extra_req": ""},
-        "engine": {"cost": 1, "prereqs": [], "domain": {"Prowess": 10}, "innate_tags": ["Seize: first", "MaxInit3"], "mastery_tags": ["Drilled"], "mastery_req": ["University", "War College"]}}, # "Init +1",
+        "engine": {"cost": 1, "prereqs": [], "domain": {"Prowess": 10}, "innate_tags": ["Seize: first", "MaxInit3"], "mastery_tags": ["Drilled"], "mastery_req": ["Academy", "War College"]}}, # "Init +1",
     "Thieves' Guild": {
         "type": "Monument",
         "unlock": "Sovereign Cunning",
@@ -1559,10 +1559,10 @@ NODES = {
     "Papal Palace": {
         "type": "Monument",
         "unlock": "Sovereign Piety",
-        "mastery_req": "Monastery + Pilgrimage Site + Reliquary",
+        "mastery_req": "Monastery + Pilgrimage Site",
         "innate": "Your Piety actions that cause doubt cause an additional doubt. You no longer pay cost for Piety Envoys.",
         "mastery": "At the start of each turn, Tithe every other player with lower Piety, resolved in the Extort step.",
-        "efficient": ["Monastery","Pilgrimage Site"],
+        "efficient": ["Monastery"],
         "builds_into": [],
         "monument": True},
     "Inquisitorial Palace": {
@@ -1577,14 +1577,14 @@ NODES = {
     "Preceptory of the Knight's Templar": {
         "type": "Monument",
         "unlock": "Sovereign Piety + Established Prowess",
-        "mastery_req": "Monastery + Hospitaller + Abbey",
+        "mastery_req": "Pilgrimage Site + Hospitaller",
         "innate": f"Armies gain **{CRUSADER}**: Automatically pass the first Panic Check of every Battle.",
         "mastery": "Unlocks **Knight's Templar** for Muster",
-        "efficient": "Monastery",
+        "efficient": "Pilgrimage Site",
         "builds_into": [],
         "monument": True,
         "escalation": {"standing": "Sovereign Piety", "ranks": {1: f"{CRUSADER}", 2: "Knight Templar unlock"}, "row": 6, "gate": None, "requires_all": ["Hospitaller"], "requires_any": [], "extra_req": "Established Prowess"},
-        "engine": {"alias": "Preceptory", "cost": 1, "prereqs": [], "domain": {"Piety": 10, "Prowess": 6}, "innate_tags": ["Resolute"], "mastery_tags": [], "mastery_req": ["Monastery", "Pilgrimage Site", "Hospitaller", "Abbey"]}},
+        "engine": {"alias": "Preceptory", "cost": 1, "prereqs": [], "domain": {"Piety": 10, "Prowess": 6}, "innate_tags": ["Resolute"], "mastery_tags": [], "mastery_req": ["Pilgrimage Site", "Hospitaller"]}},
     "Manor House": {
         "type": "Monument",
         "unlock": "Established Industry",
@@ -2507,6 +2507,13 @@ ACTIONS = {
         'endorsed': 'Perform a Move action.',
         'notes': ['If you are in a Military Alliance, then at the start of your next turn every member Declares War on the target and sends 1 fewer Envoy that turn.'],
     },
+    'Pillage': {
+        'domain': 'Prowess',
+        'cost': 'None',
+        'requires': 'Rising Prowess',
+        'effect': "Choose an army you control within Reach of an at-war player's Settlement that is not under Siege. Until cancelled, while that army remains within Reach of that Settlement and does not Lay Siege, Battle, or March, it may Extort half of that Settlement's [pursuit & tax income] in the Empire Phase. A Settlement may be Pillaged once per Empire Phase. Pillage ends if [war ends / army leaves Reach / Settlement is besieged].",
+        'endorsed': 'Perform a Move action.',
+    },
     'Demand Tribute': {
         'domain': 'Prowess',
         'cost': 'None',
@@ -2830,6 +2837,7 @@ NAME_DISPLAY = {
     "Recover": "Heal",
     "RECOVER": "HEAL",
     "Recovered" : "Healed",
+    "Reliquary": "Reliquary Sanctum",
 
     
 }
@@ -2867,7 +2875,18 @@ def display_text(s):
     rename can never cascade into another rename's output."""
     if not s or _ALIAS_RE is None:
         return s
-    return _ALIAS_RE.sub(lambda m: ALIASES[m.group(1)], str(s))
+    def _rep(m):
+        k, v = m.group(1), ALIASES[m.group(1)]
+        # idempotent: if this match is already part of its own new name (e.g. "Reliquary" inside
+        # "Reliquary Sanctum"), leave it — so running the display layer twice never stacks renames
+        st = m.string; i = m.start()
+        o = v.find(k)
+        while o != -1:
+            if st[i - o:i - o + len(v)] == v:
+                return k
+            o = v.find(k, o + 1)
+        return v
+    return _ALIAS_RE.sub(_rep, str(s))
 
 
 def display_list(seq, sep=", "):
@@ -2892,7 +2911,11 @@ def display_html(html):
     anchors), <script> and <style> are left as-is."""
     if not html or _ALIAS_RE is None:
         return html
-    return "".join(p if p.startswith("<") else display_text(p) for p in _HTML_SPLIT_RE.split(str(html)))
+    def _txt(p):   # text between tags: match names whose apostrophe was HTML-escaped (&#x27; / &#39; / &apos;)
+        q = _re_disp.sub(r"&#x27;|&#39;|&apos;", "'", p)
+        r = display_text(q)
+        return p if r == q else r.replace("'", "&#x27;")
+    return "".join(p if p.startswith("<") else _txt(p) for p in _HTML_SPLIT_RE.split(str(html)))
 
 
 def display_obj(o):

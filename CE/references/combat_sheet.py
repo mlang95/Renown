@@ -57,6 +57,8 @@ def header(c, title, sub=None):
     return y-14
 
 def chart(c, x, y, w, title, headers, rows, colw=None, fs=8, rowh=13, title_fs=11, align=None):
+    headers = [_D(x) for x in headers]
+    rows = [[_D(x) for x in r] for r in rows]   # display names before wrapping
     # align: per-column 'l' (left, default) | 'c' (centred) | 'r' (right) |
     # 'num' (right-aligned to the column's centre line, so signed ints like
     # 0 and -1 line up on their last digit while the column reads as centred).
@@ -77,7 +79,7 @@ def chart(c, x, y, w, title, headers, rows, colw=None, fs=8, rowh=13, title_fs=1
     for i, row in enumerate(rows):
         wrapped = []; maxlines = 1
         for cell, cw in zip(row, colw):
-            txt = str(cell); words = txt.split(); lines = []; curl = ""
+            txt = _D(str(cell)); words = txt.split(); lines = []; curl = ""   # alias before split
             for wd in words:
                 t = (curl+" "+wd).strip()
                 if c.stringWidth(t, SERIF, fs) <= cw-4: curl = t
@@ -152,7 +154,7 @@ def step_spine(c, x, y, w):
     _stroke(c, RULE); c.setLineWidth(1.0); c.line(x, y, x+w, y); y -= 14
     spine_x = x + num_w/2
     for i, (title, body) in enumerate(STEPS, 1):
-        words = body.split(); lines = []; cur = ""; avail = w-num_w-6
+        body = _D(body); words = body.split(); lines = []; cur = ""; avail = w-num_w-6
         for wd in words:
             t = (cur+" "+wd).strip()
             if c.stringWidth(t, SERIF, body_fs) <= avail: cur = t
@@ -242,6 +244,7 @@ def tactic_grid(c, x, y, w, rowh=26, cell_fs=7, label_fs=7, hdr_fs=6.8, title_fs
     return y-6
 
 def _kw_lines(c, w, k, defn, name_fs, body_fs):
+    k = _D(k); defn = _D(defn)   # display layer: alias whole text before split/measure
     kw_w = c.stringWidth(k+"  ", SERIF_B, name_fs); words = defn.split(); line=""; first=True; lines=1
     for wd in words:
         t = (line+" "+wd).strip(); avail = (w-kw_w) if first else w
@@ -250,6 +253,7 @@ def _kw_lines(c, w, k, defn, name_fs, body_fs):
     return lines
 
 def _draw_keyword(c, x, y, w, k, defn, name_fs, body_fs, line_h):
+    k = _D(k); defn = _D(defn)   # display layer: alias whole text before split/measure
     _set(c, ACCENT); c.setFont(SERIF_B, name_fs); c.drawString(x, y, k)
     kw_w = c.stringWidth(k+"  ", SERIF_B, name_fs); _set(c, INK); c.setFont(SERIF, body_fs)
     words = defn.split(); line=""; first=True; yy=y; tx0=x+kw_w

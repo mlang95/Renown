@@ -64,6 +64,7 @@ PAGE_W, PAGE_H = landscape(letter)     # 792 x 612
 MX, MT, MB = 34, 26, 24
 
 def wrap(c, text, font, size, maxw):
+    text = _D(text)   # display layer: alias whole text before split/measure
     words, lines, cur = text.split(), [], ""
     for w in words:
         t = (cur + " " + w).strip()

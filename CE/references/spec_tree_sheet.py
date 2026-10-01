@@ -282,6 +282,7 @@ def _extract_income(text):
 
 
 def _draw_text_fit(c, x, y, max_w, text, font, size):
+    text = _D(text)   # display layer: alias whole text before split/measure
     """Draw text, truncating with ellipsis if it exceeds max_w."""
     if stringWidth(text, font, size) <= max_w:
         c.setFont(font, size)
@@ -352,6 +353,7 @@ def build_summary_lines(tree_name, nodes):
 
 
 def _wrap_summary_text(text, font, size, max_w):
+    text = _D(text)   # display layer: alias whole text before split/measure
     """Wrap text into lines that fit within max_w. No ellipsing."""
     words = (text or '').split()
     if not words:
@@ -761,6 +763,7 @@ def compute_layout(tree_name, nodes):
 
 # ---------- Drawing helpers ----------
 def _wrap_to_box(text, font, size, box_w, padding=4):
+    text = _D(text)   # display layer: alias whole text before split/measure
     """Wrap text to fit within box_w. Returns list of lines (max 2)."""
     avail = box_w - 2 * padding
     words = text.split()
@@ -780,6 +783,7 @@ def _wrap_to_box(text, font, size, box_w, padding=4):
 
 
 def _fit_box_text(text, box_w, max_lines=2, font="Helvetica-Bold", start=8.5, floor=6.0):
+    text = _D(text)   # display layer: alias whole text before split/measure
     """Find a font size that fits text in the box at <= max_lines."""
     size = start
     while size >= floor:

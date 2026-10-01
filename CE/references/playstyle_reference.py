@@ -76,6 +76,7 @@ def bar_color(doms):
     return _c(SPECIAL.get(doms[0], NEU))
 
 def wrap(c, text, font, size, maxw):
+    text = _D(text)   # display layer: alias whole text before split/measure
     words, lines, cur = text.split(), [], ""
     for w in words:
         t = (cur + " " + w).strip()

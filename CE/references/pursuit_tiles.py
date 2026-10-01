@@ -88,6 +88,10 @@ def body_layout(c, inn, mas, mas_req, gate, gate_col, x, y_top, y_floor, w, cap=
     """Pick the largest single body font at which INNATE+MASTERY both fit in the
     vertical budget (y_top..y_floor), then draw them. Requirements print inline
     after the section label: gate after INNATE, mas_req after MASTERY."""
+    inn = _D(inn)   # display names before wrapping/measuring (multi-word renames)
+    mas = _D(mas)   # display names before wrapping/measuring (multi-word renames)
+    mas_req = _D(mas_req)   # display names before wrapping/measuring (multi-word renames)
+    gate = _D(gate)   # display names before wrapping/measuring (multi-word renames)
     avail = y_top - y_floor
     size = cap
     while size > floor:
@@ -142,6 +146,7 @@ def body_layout(c, inn, mas, mas_req, gate, gate_col, x, y_top, y_floor, w, cap=
     return y
 
 def fit_block(c, label, text, x, y, w, max_lines, base=8.2, min_sz=6.2):
+    label = _D(label); text = _D(text)   # display layer: alias whole text before split/measure
     """Draw a TAG label + wrapped text, shrinking font until it fits max_lines.
     Returns the y after drawing."""
     size = base

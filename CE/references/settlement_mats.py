@@ -205,6 +205,7 @@ def _ward_row(c, x, ytop, label, tiers, sub=None, gutter=78):
         c.drawCentredString(sx + SLOT_W/2, ytop - SLOT_H/2 - 3, "ward")
 
 def _wrap_po(c, text, maxw, font="Helvetica", size=5.0):
+    text = _D(text)   # display layer: alias whole text before split/measure
     out, cur = [], ""
     for wd in str(text).split():
         t = (cur + " " + wd).strip()

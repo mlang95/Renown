@@ -1449,7 +1449,7 @@
      "Morale +1"
     ],
     [
-     "Reliquary",
+     "Reliquary Sanctum",
      "Rising Piety",
      "Salt Works + Chandlery + Cathedral",
      "Chandlery",
@@ -1458,11 +1458,11 @@
     ],
     [
      "Bell Tower",
-     "Established Piety",
-     "Episcopal Court",
+     "1 Established",
+     "Jester's Court",
      "Courtyard",
      "**+1 Influence**/turn",
-     "**Influence +1** to Piety Envoys"
+     "**Influence +1** to envoys sent during the Council Phase."
     ],
     [
      "Execution Dock",
@@ -1652,9 +1652,9 @@
     ],
     [
      "Pilgrimage Site",
-     "Rising Piety",
-     "Reliquary + Chandlery",
-     "Reliquary",
+     "Established Piety",
+     "Reliquary Sanctum + Chandlery",
+     "Reliquary Sanctum",
      "Natural; **Extort 500** every player without a Pilgrimage Site",
      "**Doubt +1** to all other players without a Pilgrimage Site"
     ],
@@ -1857,7 +1857,7 @@
      "Sovereign Prowess",
      "Academy + War College",
      "War College",
-     "Always gains **Seize the Initiative**, and your opponent doesn't; Gain +1I & max initiative is 3",
+     "Always gains **Seize the Initiative**, and your opponent doesn't; max initiative is increased to 3",
      "Gain Drilled."
     ],
     [
@@ -1879,8 +1879,8 @@
     [
      "Papal Palace",
      "Sovereign Piety",
-     "Monastery + Pilgrimage Site + Reliquary",
-     "Monastery, Pilgrimage Site",
+     "Monastery + Pilgrimage Site",
+     "Monastery",
      "Your Piety actions that cause doubt cause an additional doubt. You no longer pay cost for Piety Envoys.",
      "At the start of each turn, Tithe every other player with lower Piety, resolved in the Extort step."
     ],
@@ -1895,8 +1895,8 @@
     [
      "Sacred Preceptory",
      "Sovereign Piety + Established Prowess",
-     "Monastery + Hospitaller + Abbey",
-     "Monastery",
+     "Pilgrimage Site + Hospitaller",
+     "Pilgrimage Site",
      "Armies gain **Righteous Fervour**: Automatically pass the first Panic Check of every Battle.",
      "Unlocks **Oathsworn** for Muster"
     ],
