@@ -554,8 +554,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .pc.buried{height:34px}
   .pc.buried>.card{position:absolute;left:0;right:0;top:0;max-height:34px;overflow:hidden}
   .pile .pc+.pc>.card{box-shadow:0 -3px 6px rgba(0,0,0,.35)}
-  .pc.buried:hover{z-index:19!important}
-  .pc.buried:hover>.card{max-height:none;overflow:visible;outline:1px solid var(--line2);box-shadow:0 8px 22px rgba(0,0,0,.6)}
+  .pc.buried.lift{z-index:19!important}
+  .pc.buried.lift>.card{max-height:none;overflow:visible;outline:1px solid var(--line2);box-shadow:0 8px 22px rgba(0,0,0,.6)}
 
   .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:10px;
     border-left:4px solid var(--other);min-width:0;overflow-wrap:anywhere}
@@ -2099,18 +2099,25 @@ function itemRow(n,mon,have){
 }
 function flash(msg){const el=document.getElementById("flash");el.textContent=msg;el.style.opacity=1;
   clearTimeout(flash._t);flash._t=setTimeout(()=>el.style.opacity=0,2200);}
+function addInfraByName(kind,n){                   // kind "infra" | "wonder"; same as adding it from the catalog
+  (kind==="infra"?S.infra:S.wonders)[n]=1;itm();
+  let bn="";if(gameStarted()){const t=infraBuildTime(n);if(t>0)S.itimer[n]=t;bn=buildNote(infraBaseTime(n));}save();render();renderList();flash(n+(bn||" added"));}
 function addItem(n){
-  if(tab==="infra"||tab==="wonder"){(tab==="infra"?S.infra:S.wonders)[n]=1;itm();
-    let bn="";if(gameStarted()){const t=infraBuildTime(n);if(t>0)S.itimer[n]=t;bn=buildNote(infraBaseTime(n));}save();render();renderList();if(bn)flash(n+bn);return;}
+  if(tab==="infra"||tab==="wonder"){addInfraByName(tab,n);return;}
   // pursuit — one of each name only (covers Monuments, Principle 15)
   if(onBoard(n)){flash(n+" already on board — one per name");return;}
   // Natural Pursuits fill Hamlets first (the only Pursuits a Hamlet takes); everything else: active settlement, capital, the rest
   const hams=hamletOK(n)?S.settlements.filter(x=>x.tier==="Hamlet").map(x=>x.id):[];
   const order=hams.concat([activeSid],[capitalSett()&&capitalSett().id],S.settlements.map(x=>x.id)).filter((x,i,a)=>x!=null&&a.indexOf(x)===i);
-  let target=null,host=null,note="";
-  // 1) efficient host already on the board with its rider slot free → ride it (active settlement first)
-  for(const sd of order){const c=canPlace(n,sd);if(c.ok&&c.rider){target=sd;
-    const ex=exemptionsOf(occupants(sd).concat([{id:1e9,name:n}]));host=ex.hostOf[1e9];break;}}
+  let target=null,host=null,note="",hosts=null;
+  // 1) efficient pairing first — before a Natural goes solo into a Hamlet: pick the settlement where adding
+  //    it creates the most new efficient pairs (it rides a host there, or something already there rides it).
+  //    Ties keep the usual order (Hamlets for Naturals, active settlement, capital, the rest).
+  {let best=0;
+    for(const sd of order){const c=canPlace(n,sd);if(!c.ok)continue;
+      const occ=occupants(sd),before=exemptionsOf(occ).size,ex=exemptionsOf(occ.concat([{id:1e9,name:n}]));
+      const gain=ex.size-before;if(gain>best){best=gain;target=sd;host=ex.hostOf[1e9]||null;
+        hosts=occ.filter(q=>ex.hostOf[q.id]===n).map(q=>q.name);}}}
   // 2) the active settlement, 3) any settlement with an eligible free Ward (capital first)
   if(target==null)for(const sd of order){if(canPlace(n,sd).ok){target=sd;break;}}
   if(target==null)note=" — no eligible free Ward, left Unplaced";
@@ -2118,7 +2125,7 @@ function addItem(n){
   if(host){np.rideOn=host;np.ride=1+Math.max(0,...S.placed.map(p=>p.ride||0));}
   S.placed.push(np);
   save();render();renderList();
-  flash(n+(target!=null?" → "+settTier(target)+(host?" (efficient with "+host+")":""):"")+note+(gameStarted()?buildNote(pursuitBaseTime(n)):""));   // after render (it rebuilds the toolbar)
+  flash(n+(target!=null?" → "+settTier(target)+(host?" (efficient with "+host+")":(hosts&&hosts.length?" ("+hosts.join(", ")+" efficient with it)":"")):"")+note+(gameStarted()?buildNote(pursuitBaseTime(n)):""));   // after render (it rebuilds the toolbar)
 }
 function removeInstance(id){S.placed=S.placed.filter(p=>p.id!==id);save();render();renderList();}
 function removeOneByName(n){ // remove an unplaced one first, else last placed
@@ -3637,6 +3644,12 @@ function eqWeapon(a,e,shDest){if(!a)return {ap:0};const r=(a.ranged&&a.ranged!==
   if(e.mode==="ranged"&&r)return r;
   if(a.weapon==="Bastard Sword"&&(e.b2h||shDest))return EQ.bastard2h||w;              // 2H profile (also forced once the shield is gone)
   return w;}
+// Random Tactic: uniform over the Tactics other than Fall Back (as the sim's Random mode), limited to
+// those an equipped weapon allows when its note says "May only use …" (e.g. Arquebus).
+function randomTacticPool(X){const B=battle(),{a}=sideArmy(B[X]);let pool=BT.tactics.filter(t=>t!=="Fall Back");
+  if(a){const w=eqWeapon(a,eqNow(X),!!((B.shDest||{})[X])),n=String(w.note||"");
+    if(/May only use/i.test(n)){const ok=BT.tactics.filter(t=>n.includes(t));const nf=ok.filter(t=>t!=="Fall Back");if(ok.length)pool=nf.length?nf:ok;}}
+  return pool;}
 function sideCalc(X){
   const B=battle(),sd=B[X],o=B[X==="A"?"B":"A"],{p,a}=sideArmy(sd);if(!a)return null;
   const eo=sideArmy(o).a;
@@ -3730,9 +3743,9 @@ function sideCalc(X){
     recThr=Math.min(CAP,base-adjR);                                                  // Fatigue no longer affects Recover
     recNote="Recover "+Math.min(...recs)+"+"+(serrN?" · Serrated +"+serrN*SM:"")+(enduring?" · Enduring: Recovered Strikes don't count for Panic":"");}
   if(canParry)trig.push("Parry "+parryThr+"+"+(parryPlus?" (Improved −"+parryPlus*IPM+")":"")+(eUnstop?" · enemy Unstoppable +"+UM:"")+(riposte?" · Riposte on "+FOC:""));
-  if(poisoned||poisonedMelee)trig.push("Enemy Poison: a "+FOC+" Save fails; Recover it only on "+FOC+(poisoned?"":" (melee only)"));
   else if(awkward)trig.push("No Parry: "+(eqX.mode==="ranged"?a.ranged:a.weapon)+" is Awkward");
   else trig.push("No Parry (needs "+(Object.keys(BT.standingFx||{}).find(k=>/Gain Parry/i.test(BT.standingFx[k]))||"Parry").replace("|"," ").split(" ").reverse().join(" ")+")");
+  if(poisoned||poisonedMelee)trig.push("Enemy Poison: a "+FOC+" Save fails; Recover it only on "+FOC+(poisoned?"":" (melee only)"));
   if(recNote)trig.push(recNote);
   const front=Math.min(a.count||0,sd.front!=null?sd.front:(BT.frontMax||10));
   const tags=[...new Set([...eqTags,...u.mods.map(m=>m.tok)])];
@@ -3808,11 +3821,18 @@ function sideHTML(X){
   // tactic
   const pk2=PICKS[X]||{},op=PICKS[O]||{};
   h+='<div style="margin-top:8px"><b>Tactic</b> '+(pk2.tactic?'<span class="badge earn">'+esc(pk2.tactic)+'</span>':(pk2.picked?'<span class="badge tier">picked (hidden)</span>':'<span class="note">not picked</span>'))+'</div>';
-  if(B.id&&sd.kind==="bandit"&&!(B.rev&&B.rev.sk===B.sk)){
+  const tmode=sd.tmode||"";                                   // "", "manual" or "random"
+  if(B.id&&!(B.rev&&B.rev.sk===B.sk)&&!pk2.picked){
+    const segB=(v,l)=>'<button class="btmode" data-x="'+X+'" data-m="'+v+'"'+(tmode===v?' style="border-color:var(--ink);font-weight:600"':'')+'>'+l+'</button>';
+    h+='<div style="margin-top:4px;display:flex;gap:4px;align-items:center"><span class="note">Tactic entry</span>'+
+      segB("",sd.kind==="bandit"?"bandit table":(mine||!API.online?"player":"player (hidden)"))+segB("manual","manual")+segB("random","random")+'</div>';
+    if(tmode==="random")h+='<div style="margin-top:4px"><button class="btrand" data-x="'+X+'">roll random Tactic</button> <span class="note">'+esc(randomTacticPool(X).join(", "))+'</span></div>';
+  }
+  if(B.id&&sd.kind==="bandit"&&!tmode&&!(B.rev&&B.rev.sk===B.sk)){
     h+=op.picked&&!pk2.picked?'<div style="margin-top:4px"><button class="bbroll" data-x="'+X+'">roll bandit tactic (d'+(BAN.faces||10)+')</button></div>'
       :(pk2.picked?'':'<div class="note">Bandits roll their Tactic once the other side has picked.</div>');
   }
-  else if(B.id&&(mine||!API.online)&&!(B.rev&&B.rev.sk===B.sk)){
+  else if(B.id&&(mine||!API.online||tmode==="manual")&&tmode!=="random"&&!(B.rev&&B.rev.sk===B.sk)){
     {const eo_=eqOptions(X),cur=eqNow(X);
       if(eo_.opts.length>1||eo_.bastard)h+='<div style="margin-top:4px;display:flex;gap:6px;align-items:center"><span class="note">Equipment</span>'+
         (eo_.opts.length>1?'<select class="beq" data-x="'+X+'"'+(pk2.picked?' disabled':'')+'>'+eo_.opts.map(m=>'<option value="'+m+'"'+(cur.mode===m?' selected':'')+'>'+(m==="ranged"?esc(a.ranged):esc(a.weapon||"melee"))+'</option>').join('')+'</select>':'')+
@@ -3980,6 +4000,9 @@ function wireBattle(host){
   const es=host.querySelector("#bEndSk");if(es)es.onclick=endSkirmish;
   const eb=host.querySelector("#bEndBattle");if(eb)eb.onclick=()=>{if(confirm("End the battle? Removes Fatigue tokens."))endBattle();};
   host.querySelectorAll(".btac").forEach(b=>b.onclick=()=>pickTactic(b.dataset.x,b.dataset.t));
+  host.querySelectorAll(".btmode").forEach(b=>b.onclick=()=>{B[b.dataset.x].tmode=b.dataset.m;save();render();});
+  host.querySelectorAll(".btrand").forEach(b=>b.onclick=()=>{const X=b.dataset.x,pool=randomTacticPool(X),t=pool[Math.floor(Math.random()*pool.length)];
+    blog(X+" random Tactic → picked (hidden until reveal)");pickTactic(X,t);});
   host.querySelectorAll(".beq").forEach(sl=>sl.onchange=()=>{EQSEL[sl.dataset.x]=Object.assign({},EQSEL[sl.dataset.x],{mode:sl.value});render();});
   host.querySelectorAll(".beqb").forEach(sl=>sl.onchange=()=>{EQSEL[sl.dataset.x]=Object.assign({},EQSEL[sl.dataset.x],{b2h:sl.value==="2H"});render();});
   const pe=host.querySelector("#bpeek");if(pe)pe.onclick=()=>{PEEK=true;loadPicks().then(render);};
@@ -4693,8 +4716,22 @@ function gkHtml(e){
   const r=(e.k==="w"?WON:INFRA)[e.t]||{};
   return '<div class="gh">'+esc(e.t)+' <span class="note">'+(e.k==="w"?"Wonder":esc(r.tier||"Infrastructure"))+'</span></div>'+
     (r.requirement?'<div class="note">Requires: '+esc(r.requirement)+'</div>':'')+
-    '<div>'+esc(r.effect_raw||"")+'</div>'+(r.upkeep?'<div class="note">Upkeep '+esc(r.upkeep)+'</div>':'');}
+    '<div>'+esc(r.effect_raw||"")+'</div>'+(r.upkeep?'<div class="note">Upkeep '+esc(r.upkeep)+'</div>':'')+
+    (((e.k==="w"?S.wonders:S.infra)||{})[e.t]?'<div class="note">✓ in your '+(e.k==="w"?'Wonders':'Infrastructure')+'</div>'
+      :'<div><button data-addi="'+(e.k==="w"?"wonder":"infra")+'|'+esc(e.t)+'">+ add to '+(e.k==="w"?'Wonders':'Infrastructure')+'</button></div>');}
 const GKT=document.createElement("div");GKT.id="gkTip";document.body.appendChild(GKT);
+// Buried pile cards: "lift" (expand to the front) on hover, and STAY lifted while the cursor is on that card or
+// on a tooltip opened from it. Switching to another buried card needs a short dwell, so passing over its
+// edge on the way to a link doesn't drop the one you're reading back into the stack.
+let LIFT=null,LIFT_T=null;
+function setLift(pc){if(LIFT&&!document.body.contains(LIFT))LIFT=null;if(LIFT===pc)return;
+  if(LIFT)LIFT.classList.remove("lift");LIFT=pc;if(pc)pc.classList.add("lift");}
+document.addEventListener("mouseover",e=>{if(LIFT&&!document.body.contains(LIFT))LIFT=null;
+  const inTip=e.target.closest("#gkTip"),inLift=LIFT&&LIFT.contains(e.target),pc=e.target.closest(".pc.buried");
+  if(inTip||inLift){clearTimeout(LIFT_T);return;}
+  clearTimeout(LIFT_T);
+  if(pc){if(!LIFT)setLift(pc);else LIFT_T=setTimeout(()=>setLift(pc),350);return;}
+  LIFT_T=setTimeout(()=>{if(!GK_PIN)setLift(null);},350);});
 let GK_PIN=false,GK_HIDE=null;
 function gkShow(el,html){clearTimeout(GK_HIDE);GKT.innerHTML=html;GKT.style.display="block";
   const r=el.getBoundingClientRect(),w=GKT.offsetWidth,h=GKT.offsetHeight;
@@ -4711,6 +4748,8 @@ document.addEventListener("mouseover",e=>{if(GK_PIN)return;const el=e.target.clo
 document.addEventListener("mouseout",e=>{const el=e.target.closest(".gk,[data-tok],[data-tip],[data-tipk],#gkTip");if(el)gkHide();});
 document.addEventListener("click",e=>{const a=e.target.closest("[data-addp]");if(!a)return;e.preventDefault();e.stopPropagation();
   GK_PIN=false;GKT.style.display="none";addPursuitByName(a.dataset.addp);},true);
+document.addEventListener("click",e=>{const a=e.target.closest("[data-addi]");if(!a)return;e.preventDefault();e.stopPropagation();
+  GK_PIN=false;GKT.style.display="none";const i=a.dataset.addi.indexOf("|");addInfraByName(a.dataset.addi.slice(0,i),a.dataset.addi.slice(i+1));},true);
 document.addEventListener("click",e=>{const el=e.target.closest(".gk,.tipk");
   if(el){e.preventDefault();GK_PIN=true;gkShow(el,gkFor(el));return;}
   if(!e.target.closest("#gkTip")){GK_PIN=false;GKT.style.display="none";}});

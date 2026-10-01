@@ -25,7 +25,6 @@
   "Negate Planishing": "Ignores Planishing: this weapon's AP can reduce the target's Save beyond 10+ (to auto-fail).",
   "Negate Riposte": "The target's Parry can never Riposte this weapon's Strikes (a natural 10 Parry still cancels the Strike, but no counter-Strike follows).",
   "Dual Wield": "A failed Strike is rerolled once; the rerolled Strike can be Focused. Dual Wield confers Two-Handed. You cannot reroll successful Strikes.",
-  "Florentine": "Only active while Dual Wielding.",
   "Immune [keyword]": "Cancels that keyword as it applies to you (e.g. Immune Unwieldy, Strain, Destroy Shield).",
   "AP": "Armor Penetration — a weapon's (negative) modifier to the defender's Save roll; the more negative, the harder to save.",
   "Blocked": "-1 Initiative in the first Skirmish (negated by Immune Blocked).",
@@ -640,10 +639,6 @@
      "Net Influence 0 or less."
     ],
     [
-     "Florentine",
-     "Only active while Dual Wielding."
-    ],
-    [
      "Forged",
      "Forged equipment tier. Weapons: Morningstar, Bastard Sword, 2HBastard, War Hammer, Lance; Ranged: Crossbow; Armor: Full Plate; Shield: Tower Shield. Unlocked by: Gilded Foundry (Mastery) (armor & shield), Forge (Mastery) (all)."
     ],
@@ -1126,7 +1121,7 @@
      "Herb Garden",
      "",
      "Arable Land or Peat Bog",
-     "+500, **Natural**",
+     "**Efficient Arable Land**; +500, **Natural**",
      "Craft +1"
     ],
     [
@@ -1186,7 +1181,7 @@
     [
      "Butchery",
      "",
-     "Animal Husbandry + Tannery + Salt Works",
+     "Animal Husbandry + Smokehouse + Salt Works",
      "**Efficient Smokehouse**; Natural; +500",
      "**Upkeep -200**; Craft+1"
     ],
@@ -1194,7 +1189,7 @@
      "Bakery",
      "",
      "Arable Land + Mill",
-     "**Efficient Arable Land**; Natural; Faith +1",
+     "**Efficient Mill**; Natural; Faith +1",
      "+500; Craft +2"
     ],
     [
@@ -1264,7 +1259,7 @@
      "Master Workshop",
      "Established Industry",
      "Blacksmith",
-     "**Upkeep -200**; Craft +1",
+     "**Efficient Forge**; **Upkeep -200**; Craft +1",
      "Add **Serrated** to Weapons"
     ],
     [
@@ -1277,9 +1272,9 @@
     [
      "Smokehouse",
      "",
-     "Salt Works + Kiln + Butchery",
-     "**Efficient Salt Works**; Natural; Craft +1",
-     "**Upkeep -300**; +500"
+     "Kiln + Charcoal Burner or Salt Works",
+     "**Efficient Salt Works, Charcoal Burner**; Natural; Craft +2",
+     "**Upkeep -500**"
     ],
     [
      "Workyard",
@@ -1327,14 +1322,14 @@
      "Inn",
      "",
      "Caravanery + Market Square",
-     "**Efficient Courtyard**; **Faith +1** for trading partners with Craft 3+",
+     "**Efficient Market Square**; **Faith +1** for trading partners with Craft 3+",
      "**Faith +1**"
     ],
     [
      "Spice Merchant",
      "",
      "Caravanery + Merchant Quarter + Herb Garden",
-     "Natural; +500; Influence +1 to Cunning actions targeting you",
+     "**Efficient Herb Garden**; Natural; +500; Influence +1 to Cunning actions targeting you",
      "+500; Craft +2"
     ],
     [
@@ -1355,14 +1350,14 @@
      "Census Hall",
      "",
      "Workyard + Market Square",
-     "**Doubt +1**; +500",
+     "**Efficient Market Square**; **Doubt +1**; +500",
      "+500"
     ],
     [
      "Caravanery",
      "",
      "Market Square or Merchant Quarter + Stable",
-     "**Influence -1** to **Intercept Caravan actions** targeting your **settlements**",
+     "**Efficient Stable**; Natural; **Influence -1** to **Intercept Caravan actions** targeting your **settlements**",
      "**Craft +2**; **Speed -2** to non-allied players in your Province."
     ],
     [
@@ -1409,7 +1404,7 @@
      "Reliquary",
      "Rising Piety",
      "Salt Works + Chandlery + Cathedral",
-     "**Efficient Abbey**; +500",
+     "**Efficient Chandlery**; +500",
      "First **Doubt** per turn reduced by 1 (min 0)"
     ],
     [
@@ -1423,7 +1418,7 @@
      "Execution Dock",
      "Established Piety",
      "Interrogation Chambers",
-     "**Influence -1** to **Foster Rebellion actions** targeting your **settlements**",
+     "**Efficient Interrogation Chambers**; **Influence -1** to **Foster Rebellion actions** targeting your **settlements**",
      "**Players** who **target** you or your **settlements** with **actions** that cause **doubt** gain **Doubt +1**"
     ],
     [
@@ -1451,14 +1446,14 @@
      "Academy",
      "1 Rising",
      "Library + Alchemy",
-     "**Influence +1** to Council Envoys",
+     "**Efficient Alchemy**; **Influence +1** to Council Envoys",
      "**Influence +1** to non-Council Envoys"
     ],
     [
      "Courtyard",
      "",
      "Masonry",
-     "Craft +1",
+     "**Efficient Masonry**; Craft +1",
      "**Faith +1**"
     ],
     [
@@ -1499,7 +1494,7 @@
     [
      "Supply Depot",
      "Rising Industry",
-     "Granary or Smokehouse",
+     "Granary or Smokehouse + Salt Works",
      "**Efficient Granary**; **Craft +2**",
      "May **Muster** an Army in a Settlement under Siege and increment Muster Timers."
     ],
@@ -1507,14 +1502,14 @@
      "Artisan Workshop",
      "Established Industry",
      "Carpentry + Arable Land + Weavery",
-     "+500",
+     "**Efficient Weavery**; +500",
      "+500, **Faith +1**"
     ],
     [
      "Trade Guild",
      "Rising Industry",
      "Masonry or Carpentry",
-     "**Efficient Carpentry, Masonry**; No Upkeep on **Primitive Infrastructure**",
+     "**Efficient Masonry**; No Upkeep on **Primitive Infrastructure**",
      "No Upkeep on **Developed Infrastructure**"
     ],
     [
@@ -1528,14 +1523,14 @@
      "Courier Network",
      "",
      "Caravanery + Inn",
-     "Once/turn: **Influence −1** on Target Envoy",
+     "**Efficient Inn**; Once/turn: **Influence −1** on Target Envoy",
      "Once/turn: successfully Performed Personal Envoy can be Performed next turn; send 1 fewer Envoys next turn"
     ],
     [
      "Toll House",
      "",
      "Caravanery + Courier Network",
-     "Once/turn when an Army ends a Move action within Province: Perform a Diplomacy action targeting that army's player",
+     "**Efficient Caravanery**; Natural; Once/turn when an Army ends a Move action within Province: Perform a Diplomacy action targeting that army's player",
      "**Extort 2000** when non-Allied Army ends a Move action within Province"
     ]
    ]
@@ -1547,7 +1542,7 @@
      "Smuggler's Nook",
      "Established Cunning",
      "Secret Cellar + Inn",
-     "**Efficient Inn**; gain Immune Uprising (Bandit Camp Spawn at -5PO)",
+     "**Efficient Inn, Courier Network**; gain Immune Uprising (Bandit Camp Spawn at -5PO)",
      "Bandit Camps in your Outlaw Country don't target you and instead target other players randomly."
     ],
     [
@@ -1607,8 +1602,8 @@
     [
      "Mill",
      "Rising Industry",
-     "Bakery/Weavery/Forge/Carpentry",
-     "**Efficient Bakery, Weavery, Forge, Carpentry**; Natural",
+     "Bakery/Weavery/Forge/Carpentry/Masonry",
+     "**Efficient Bakery, Weavery, Forge, Carpentry, Masonry**; Natural",
      "+500"
     ],
     [
@@ -1669,14 +1664,14 @@
      "Forgery Workshop",
      "Established Cunning",
      "Academy + Secret Cellar",
-     "**Efficient Academy**; **Extort 300** anytime a player Opposes an Envoy of yours",
+     "**Efficient Academy, University**; **Extort 300** anytime a player Opposes an Envoy of yours",
      "Once/turn: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed"
     ],
     [
      "Levy Hall",
      "Rising Prowess",
      "Keep + Salt Works",
-     "**Efficient Butchery**; **Upkeep -1000 while an army is range 0 of controlled settlement**",
+     "**Efficient Butchery**; Natural; **Upkeep -1000 while an army is range 0 of controlled settlement**",
      "**Upkeep -1000 while an army is range 0 of controlled settlement**"
     ],
     [
@@ -1718,14 +1713,14 @@
      "Tiltyard",
      "Established Prowess",
      "Fletchery + Castle Yard",
-     "Armies may be equipped with a Ranged and a Melee Weapon simultaneously; If so, the army gains **Unwieldy**",
+     "**Efficient Fletchery**; Armies may be equipped with a Ranged and a Melee Weapon simultaneously; If so, the army gains **Unwieldy**",
      "Your armies gain **Immune Unwieldy**. Also, may equip two of the same 1H Melee Weapon to gain **Dual Wield**."
     ],
     [
      "Cipher Chamber",
      "Established Cunning",
-     "University + Courier Network",
-     "**Efficient University**; Once/turn when a player Sends an Envoy: that player must declare the specific Action & target they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action at the declared target.",
+     "Forgery Workshop + Courier Network",
+     "**Efficient Forgery Workshop**; Once/turn when a player Sends an Envoy: that player must declare the specific Action & target they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action at the declared target.",
      "Once/turn: select any active **Timer** you did not select last turn; increase it by 2."
     ]
    ]
@@ -1786,7 +1781,7 @@
      "Papal Palace",
      "Sovereign Piety",
      "Monastery + Pilgrimage Site + Reliquary",
-     "**Efficient Monastery**; Your Piety actions that cause doubt cause an additional doubt. You no longer pay cost for Piety actions.",
+     "**Efficient Monastery, Pilgrimage Site**; Your Piety actions that cause doubt cause an additional doubt. You no longer pay cost for Piety actions.",
      "At the start of each turn, Tithe every other player with lower Piety, resolved in the Extort step.\nOnce per turn, you may perform Spread Truth."
     ],
     [
@@ -1800,7 +1795,7 @@
      "Preceptory of the Knight's Templar",
      "Sovereign Piety + Established Prowess",
      "Monastery + Hospitaller + Abbey",
-     "**Efficient Monastery**; Armies gain **Zealous**: Automatically pass the first Panic Check of every Battle.",
+     "**Efficient Monastery**; Armies gain **Righteous Fervour**: Automatically pass the first Panic Check of every Battle.",
      "Unlocks **Knight's Templar** for Muster"
     ],
     [
@@ -1834,15 +1829,15 @@
     [
      "Advanced Blast Furnace",
      "Sovereign Industry",
-     "Gilded Foundry + Master Workshop + Blacksmith + Stable",
-     "**Efficient Forge**; **Upkeep -500**",
+     "Gilded Foundry + Master Workshop + Forge + Stable",
+     "**Efficient Master Workshop**; **Upkeep -500**",
      "**Tempered** Tier Unlocked; Craft +2"
     ],
     [
      "Outrider Intercept Post",
      "Sovereign Cunning",
      "Caravanery + Cipher Chamber",
-     "In the first Skirmish of every Battle, your opponent plays their Tactic Card face up before you select your own.",
+     "**Efficient Cipher Chamber**; In the first Skirmish of every Battle, your opponent plays their Tactic Card face up before you select your own.",
      "Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own."
     ]
    ]
@@ -2446,7 +2441,7 @@
    "1",
    "3",
    "1",
-   "Husbandry pursuits only; exactly range 2 from capital; may always pursue Arable Land"
+   "Natural pursuits only; exactly range 2 from capital; may always pursue Arable Land"
   ],
   [
    "Village",
