@@ -198,12 +198,7 @@ button.ghost:hover{background:var(--edge)}
   <fieldset><legend>Colours</legend>
     <label class="lock"><input type="checkbox" id="lockColors"> keep my colours</label>
     <div class="swatches" id="swatches"></div>
-    <div class="chips">
-      <button class="chip" data-pal="default">Default</button>
-      <button class="chip" data-pal="wastes">Draggath</button>
-      <button class="chip" data-pal="scarlet">Scarlet</button>
-      <button class="chip" data-pal="ink">Print</button>
-    </div>
+    <div class="chips" id="chips"></div>
   </fieldset>
 
   <fieldset><legend>Output</legend>
@@ -243,15 +238,15 @@ button.ghost:hover{background:var(--edge)}
 'use strict';
 const G = window.RenownGen, PRESETS = window.RenownPresets;
 
-const BASE = { plains:'#96b060', forest:'#2e5c34', wetland:'#5e7054',
-               tundra:'#d6dad6', mountain:'#6e6864', water:'#4a748c' };
-const PALETTES = {
-  default: BASE,
-  wastes:  Object.assign({}, BASE, { plains:'#d4b84e', tundra:'#c49854', mountain:'#7d7469' }),
-  scarlet: Object.assign({}, BASE, { plains:'#bc5442', forest:'#7a2224', wetland:'#6d4038' }),
-  ink:     { plains:'#ffffff', forest:'#c8c8c8', wetland:'#e0e0e0',
-             tundra:'#f4f4f4', mountain:'#8c8c8c', water:'#dcdcdc' }
-};
+/* glyphs + climate palettes: GENERATED from hexstyle.py, shared with print */
+const STYLE = /*__STYLE__*/;
+const PALETTES = {};
+for (const k of Object.keys(STYLE.climates)) {
+  const c = STYLE.climates[k], o = {};
+  for (const t of ['plains','forest','wetland','tundra','mountain','water']) o[t] = c[t];
+  PALETTES[k] = o;
+}
+const BASE = PALETTES[STYLE.default_climate];
 const TERRAIN_REF = /*__TERRAIN__*/;
 /* map generator terrain key -> the name the rules use */
 const RULE_NAME = { plains:'Grassland', forest:'Forest', wetland:'Wetlands',
@@ -323,9 +318,7 @@ function buildControls() {
                             Math.round(c.land_target * 100), 1, v => v + '%');
   $('carveSet').style.display = cv.children.length ? '' : 'none';
 
-  const artPal = p.art && p.art.plains
-    ? (p.art.plains === 'wastes' ? 'wastes' : 'scarlet') : 'default';
-  setPalette(artPal);
+  setPalette(p.climate || STYLE.default_climate);
 }
 
 function setPalette(name, force) {
@@ -375,38 +368,75 @@ function collectOverrides() {
 }
 
 /* ── render ─────────────────────────────────────────── */
+/* Same rules as hexstyle.py: glyph = identity, colour = climate. Tone flips
+   to the light ink on dark fills so a glyph reads on any palette. */
+function lum(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+  return 0.2126 * f(n >> 16 & 255) + 0.7152 * f(n >> 8 & 255) + 0.0722 * f(n & 255);
+}
+const glyphTone = fill => lum(fill) < STYLE.lum_split ? STYLE.light : STYLE.ink;
+function lighten(hex, k) {
+  const n = parseInt(hex.slice(1), 16);
+  const f = v => Math.min(255, Math.round(v * k));
+  return '#' + [f(n >> 16 & 255), f(n >> 8 & 255), f(n & 255)]
+    .map(v => v.toString(16).padStart(2, '0')).join('');
+}
 function render() {
-  const m = current.map, R = 15;
+  const m = current.map, R = 15, sc = R / 54;
   const showRes = $('showRes').checked, showSet = $('showSet').checked;
   const dx = 1.5 * R, dy = Math.sqrt(3) * R;
   const W = m.width * dx + R * 2, H = m.height * dy + dy;
-  let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W.toFixed(1)} ${H.toFixed(1)}" `
+  const ctr = (c, r) => [R + c * dx, dy / 2 + r * dy + (c % 2 ? dy / 2 : 0)];
+  const vtx = (cx, cy, k) => [cx + R * Math.cos(Math.PI / 3 * k), cy + R * Math.sin(Math.PI / 3 * k)];
+  const pts = (cx, cy) => [0,1,2,3,4,5].map(k => vtx(cx, cy, k).map(v => v.toFixed(1)).join(',')).join(' ');
+  let s = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" `
+        + `viewBox="0 0 ${W.toFixed(1)} ${H.toFixed(1)}" `
         + `preserveAspectRatio="xMidYMid meet" role="img" `
-        + `aria-label="Generated Renown board"><rect width="100%" height="100%" fill="#f7f5ef"/>`;
-  const pts = (cx, cy) => {
-    let a = [];
-    for (let k = 0; k < 6; k++) {
-      const t = Math.PI / 180 * 60 * k;
-      a.push((cx + R * Math.cos(t)).toFixed(1) + ',' + (cy + R * Math.sin(t)).toFixed(1));
-    }
-    return a.join(' ');
-  };
-  const lighten = (hex, k) => {
-    const n = parseInt(hex.slice(1), 16);
-    const f = v => Math.min(255, Math.round(v * k));
-    return '#' + [f(n >> 16 & 255), f(n >> 8 & 255), f(n & 255)]
-      .map(v => v.toString(16).padStart(2, '0')).join('');
-  };
+        + `aria-label="Generated Renown board"><defs>`;
+  for (const g of Object.keys(STYLE.glyphs))
+    s += `<symbol id="g-${g}" viewBox="0 0 120 108"><g stroke-width="${STYLE.glyph_w}" `
+       + `stroke-linecap="round" stroke-linejoin="round">${STYLE.glyphs[g]
+         .replace(/stroke="SHADE"/g, 'style="stroke:var(--shade)"')
+         .replace(/stroke="HILITE"/g, 'style="stroke:var(--hilite)"')
+         .replace(/fill="SHADE"/g, 'style="fill:var(--shade)"')
+         .replace(/fill="DEEP"/g, 'style="fill:var(--deep)"')}</g></symbol>`;
+  s += `</defs><rect width="100%" height="100%" fill="#f7f5ef"/>`;
+  const gw = (120 * sc).toFixed(2), gh = (108 * sc).toFixed(2);
+  let tiles = '', glyphs = '', coast = '', res = '';
   for (const h of m.all()) {
-    const cx = R + h.col * dx, cy = dy / 2 + h.row * dy + (h.col % 2 ? dy / 2 : 0);
-    let fill = colors[h.terrain];
-    if (h.tactical === 'hill') fill = lighten(fill, 1.16);
-    s += `<polygon points="${pts(cx, cy)}" fill="${fill}" stroke="#00000026" stroke-width="1"/>`;
-    if (h.resource && showRes) s += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${(R*.3).toFixed(1)}" `
-      + `fill="${RESCOL[h.resource]}" stroke="#0006" stroke-width="1"/>`;
+    const [cx, cy] = ctr(h.col, h.row);
+    const hill = h.tactical === 'hill';
+    const fill = hill ? lighten(colors[h.terrain], 1.16) : colors[h.terrain];
+    tiles += `<polygon points="${pts(cx, cy)}" fill="${fill}" stroke="${STYLE.grid}" `
+           + `stroke-opacity="${STYLE.grid_opacity}" stroke-width="0.6"/>`;
+    const g = hill ? 'hill' : h.terrain;
+    if (STYLE.glyphs[g]) glyphs += `<use href="#g-${g}" xlink:href="#g-${g}" x="${(cx - 60 * sc).toFixed(2)}" `
+            + `y="${(cy - 54 * sc).toFixed(2)}" width="${gw}" height="${gh}" `
+            + `fill="${fill}" color="${glyphTone(fill)}" opacity="${STYLE.glyph_opacity}" `
+            + `style="--shade:${lighten(fill, STYLE.shade_k)};--hilite:${lighten(fill, STYLE.hilite_k)};--deep:${lighten(fill, STYLE.deep_k)}"/>`;
+    if (h.terrain !== 'water') for (const n of m.nbrs([h.col, h.row])) {
+      if (n.terrain !== 'water') continue;
+      const [nx, ny] = ctr(n.col, n.row);
+      const ang = Math.atan2(ny - cy, nx - cx) * 180 / Math.PI;
+      const k = ((Math.round((ang - 30) / 60) % 6) + 6) % 6;
+      const a = vtx(cx, cy, k), b = vtx(cx, cy, k + 1);
+      coast += `M${a[0].toFixed(1)} ${a[1].toFixed(1)}L${b[0].toFixed(1)} ${b[1].toFixed(1)}`;
+    }
+    if (h.resource && showRes) {
+      const bx = cx + 26 * sc, by = cy - 24 * sc;
+      res += `<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="${(17*sc).toFixed(2)}" `
+           + `fill="#e9ddc2" stroke="${STYLE.ink}" stroke-width="0.6"/>`
+           + `<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="${(10*sc).toFixed(2)}" `
+           + `fill="${RESCOL[h.resource]}" stroke="#0006" stroke-width="0.5"/>`;
+    }
   }
+  s += tiles + glyphs;
+  if (coast) s += `<path d="${coast}" fill="none" stroke="${STYLE.ink}" `
+                + `stroke-width="${(STYLE.coast_w * sc).toFixed(2)}" stroke-linecap="round"/>`;
+  s += res;
   if (showSet) for (const reg of m.settlements) for (const st of reg) {
-    const cx = R + st[0] * dx, cy = dy / 2 + st[1] * dy + (st[0] % 2 ? dy / 2 : 0);
+    const [cx, cy] = ctr(st[0], st[1]);
     const w = R * .42;
     s += `<rect x="${(cx-w).toFixed(1)}" y="${(cy-w).toFixed(1)}" width="${(w*2).toFixed(1)}" `
       + `height="${(w*2).toFixed(1)}" fill="#b3392f" stroke="#fff" stroke-width="1.6"/>`;
@@ -576,8 +606,12 @@ function drawLegend() {
 ['showRes', 'showSet'].forEach(id =>
   $(id).addEventListener('change', () => { drawLegend(); render(); }));
 drawLegend();
-document.querySelectorAll('.chip').forEach(b =>
-  b.addEventListener('click', () => setPalette(b.dataset.pal, true)));
+for (const k of Object.keys(STYLE.climates)) {
+  const b = document.createElement('button');
+  b.className = 'chip'; b.dataset.pal = k; b.textContent = STYLE.climates[k].label;
+  b.addEventListener('click', () => setPalette(k, true));
+  $('chips').appendChild(b);
+}
 ['seed'].forEach(id => $(id).addEventListener('change', run));
 /* Each control is a slider plus a typeable box showing the same value. The box
    accepts numbers beyond the slider's range — a 60x50 board at 7 players is a

@@ -30,8 +30,9 @@ require_hill whether the >=1 Hill invariant is enforced (see the TERRAIN /
              RULES chartering drift; left toggleable on purpose).
 resource_min per-preset overrides to mapgen.RESOURCE_MIN. A closed palette can
              make a raw material genuinely unavailable — that is intended.
-art          {terrain: tile_name} render override, e.g. Draggath tundra
-             painted as badlands. Consumed by build_board, not by mapgen.
+climate      key into hexstyle.CLIMATES - the region's colour set. Glyphs
+             (what a terrain IS) never change; climate only shifts colour.
+             Consumed by build_board and the map app, not by mapgen.
 """
 from __future__ import annotations
 
@@ -44,7 +45,7 @@ def preset(**kw):
         name="", substrate="plains", palette=set(ALL), shares={},
         morphology={}, buffers=[], band={}, scatter={}, border=0,
         carve=None, structure=None,
-        require_hill=True, resource_min={}, art={}, notes="",
+        require_hill=True, resource_min={}, climate="temperate", notes="",
     )
     base.update(kw)
     return base
@@ -55,6 +56,7 @@ PRESETS = {
     # ── additive: the existing generator, expressed as a preset ─────────────
     "Default": preset(
         name="Default",
+        climate="temperate",
         substrate="plains",
         shares={"forest": 0.18, "wetland": 0.18, "tundra": 0.08, "mountain": 0.08},
         morphology={"forest": "blob", "wetland": "blob", "tundra": "blob",
@@ -68,6 +70,7 @@ PRESETS = {
     # ── matrix: forest substrate, plains carved as narrow passages ──────────
     "Dreadwood": preset(
         name="Dreadwood",
+        climate="lush",
         substrate="forest",
         palette={"forest", "plains", "wetland", "water"},
         shares={"wetland": 0.10},
@@ -91,6 +94,7 @@ PRESETS = {
     # ── matrix: mountain substrate, slot-canyon corridors ───────────────────
     "Crag Pass": preset(
         name="Crag Pass",
+        climate="uplands",
         substrate="mountain",
         palette={"mountain", "plains", "forest", "water"},
         shares={"forest": 0.14},
@@ -110,6 +114,7 @@ PRESETS = {
     # ── matrix: wetland substrate ───────────────────────────────────────────
     "Shallow Mire": preset(
         name="Shallow Mire",
+        climate="mire",
         substrate="wetland",
         palette={"wetland", "plains", "forest", "water"},
         shares={"forest": 0.12},
@@ -126,6 +131,7 @@ PRESETS = {
     # ── interleaved cold: tundra bulk, forest bands, mountain wall ──────────
     "Fair Whitewood": preset(
         name="Fair Whitewood",
+        climate="frozen",
         substrate="tundra",
         palette={"tundra", "forest", "mountain", "plains", "water"},
         shares={"forest": 0.24, "mountain": 0.16},
@@ -145,6 +151,7 @@ PRESETS = {
     # ── scatter: open ground broken by isolated peaks ───────────────────────
     "Bleak Highlands": preset(
         name="Bleak Highlands",
+        climate="wastes",
         substrate="plains",
         palette={"plains", "mountain", "tundra", "water"},
         shares={"mountain": 0.30, "tundra": 0.10},
@@ -155,7 +162,6 @@ PRESETS = {
         border={"n": 0, "s": 0, "e": {"width": (0, 1), "span": (.2, .5)}, "w": 0},
         require_hill=True,
         resource_min={"forestry": 0, "apiary": 0, "mine": 1},
-        art={"plains": "wastes", "tundra": "badlands"},
         notes=("Herding clans under a chief — the line Vogen reached in 1136 "
                "and got no further. Broken country rather than a wall: peaks "
                "stand alone or join in short ridges, occasionally two hexes "
@@ -167,6 +173,7 @@ PRESETS = {
     # ── two-tone arid: tundra badlands over grassland ───────────────────────
     "Draggath Wastes": preset(
         name="Draggath Wastes",
+        climate="wastes",
         substrate="plains",
         palette={"plains", "tundra", "mountain", "water"},
         shares={"tundra": 0.42, "mountain": 0.12},
@@ -179,12 +186,12 @@ PRESETS = {
         resource_min={"forestry": 0, "apiary": 0},
         notes=("Badlands. Tundra painted as salted earth. Strained everywhere; "
                "arable is scarce and contested — recursive scarcity."),
-        art={"plains": "wastes", "tundra": "badlands"},
     ),
 
     # ── near-pure grassland ────────────────────────────────────────────────
     "Wheat Fields": preset(
         name="Wheat Fields",
+        climate="olive",
         substrate="plains",
         palette={"plains", "forest", "water", "wetland"},
         shares={"forest": 0.22, "wetland": 0.04},
@@ -202,6 +209,7 @@ PRESETS = {
     # ── forest bulk, resource-rich ─────────────────────────────────────────
     "Scarlet Forest": preset(
         name="Scarlet Forest",
+        climate="scarlet",
         substrate="forest",
         palette={"forest", "plains", "mountain", "water", "wetland"},
         shares={"mountain": 0.08, "wetland": 0.05},
@@ -216,12 +224,12 @@ PRESETS = {
         resource_min={"forestry": 6, "salt": 0, "quarry": 1, "arable": 2},
         notes=("Best wood in the world. Woodland matrix but wider passages "
                "than Dreadwood; forestry saturated."),
-        art={"plains": "scarlet_plain", "forest": "scarlet_forest"},
     ),
 
     # ── enclosed pocket of tillable land ───────────────────────────────────
     "Glen of Pravak": preset(
         name="Glen of Pravak",
+        climate="wastes",
         substrate="plains",
         palette={"plains", "mountain", "tundra", "forest", "water"},
         shares={"mountain": 0.18, "tundra": 0.10, "forest": 0.14},
@@ -242,6 +250,7 @@ PRESETS = {
     # ── two parallel ranges with a held gap ────────────────────────────────
     "Hermit's Row": preset(
         name="Hermit's Row",
+        climate="steppe",
         substrate="plains",
         palette={"plains", "mountain", "tundra", "water"},
         shares={"mountain": 0.24, "tundra": 0.12},
@@ -251,13 +260,13 @@ PRESETS = {
         border={"n": 0, "s": 0, "e": {"width": (0, 1), "span": (.2, .5)}, "w": 0},
         require_hill=True,
         resource_min={"forestry": 0, "apiary": 0},
-        art={"plains": "wastes", "tundra": "badlands"},
         notes=("A narrow pair of ranges. Two walls, one contested narrows "
                "between them."),
     ),
     # ── Piety heartland: settled, open, cut by a river ─────────────────────
     "Lenaveron": preset(
         name="Lenaveron",
+        climate="frozen",
         substrate="plains",
         palette={"plains", "tundra", "mountain", "water", "forest"},
         shares={"tundra": 0.12, "mountain": 0.10},
@@ -285,6 +294,7 @@ PRESETS = {
     # ── unbroken sacred forest; almost no carving ──────────────────────────
     "Lost Woods": preset(
         name="Lost Woods",
+        climate="deepwood",
         substrate="forest",
         palette={"forest", "plains", "wetland", "water"},
         shares={"wetland": 0.06},
@@ -305,6 +315,7 @@ PRESETS = {
     # ── smallest landmass for the size of the culture on it ────────────────
     "Drakenheart": preset(
         name="Drakenheart",
+        climate="steppe",
         substrate="plains",
         palette={"plains", "water", "mountain", "forest", "tundra"},
         shares={"water": 0.22, "mountain": 0.22, "forest": 0.08, "tundra": 0.06},
@@ -325,6 +336,7 @@ PRESETS = {
     # ── shoals: shared water, land in fragments ────────────────────────────
     "Marrow Shoals": preset(
         name="Marrow Shoals",
+        climate="warm",
         substrate="water",
         palette={"water", "plains", "wetland", "forest"},
         shares={"wetland": 0.10, "forest": 0.06},
@@ -347,6 +359,7 @@ PRESETS = {
     # ── the centre: balanced, wooded, one lake ─────────────────────────────
     "Vaelohk": preset(
         name="Vaelohk",
+        climate="temperate",
         substrate="plains",
         palette={"plains", "forest", "water", "mountain", "tundra"},
         shares={"forest": 0.34, "mountain": 0.06, "water": 0.04, "tundra": 0.05},
@@ -369,6 +382,7 @@ PRESETS = {
     # ── castle in the mountains, heath below ───────────────────────────────
     "Blighthold": preset(
         name="Blighthold",
+        climate="heath",
         substrate="plains",
         palette={"plains", "mountain", "tundra", "forest", "water"},
         shares={"mountain": 0.20, "tundra": 0.12, "forest": 0.10},
@@ -388,6 +402,7 @@ PRESETS = {
     # ── mountain bulk ──────────────────────────────────────────────────────
     "Coloured Mountains": preset(
         name="Coloured Mountains",
+        climate="uplands",
         substrate="mountain",
         palette={"mountain", "plains", "tundra", "forest", "water"},
         shares={"tundra": 0.16, "forest": 0.14},
@@ -407,6 +422,7 @@ PRESETS = {
     # ── frozen south-east, abandoned institutions ──────────────────────────
     "Tombs of the Old Gods": preset(
         name="Tombs of the Old Gods",
+        climate="frozen",
         substrate="tundra",
         palette={"tundra", "plains", "mountain", "water", "forest"},
         shares={"mountain": 0.12, "plains": 0.0, "forest": 0.06},
@@ -426,6 +442,7 @@ PRESETS = {
     # ── twelve islands ─────────────────────────────────────────────────────
     "The Twelfth Reach": preset(
         name="The Twelfth Reach",
+        climate="temperate",
         substrate="water",
         palette={"water", "plains", "forest", "wetland", "tundra"},
         shares={"forest": 0.14, "wetland": 0.06, "tundra": 0.04},

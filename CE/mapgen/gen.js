@@ -1345,7 +1345,7 @@ function exportMap(m, p, seed, violations) {
     terrain: terrain, resources: res, regions: reg,
     settlements: m.settlements.map(r => r.map(s => s.slice())),
     centers: m.centers.map(c => c.slice()),
-    settlement_range: m.settlement_range, art: p.art || {},
+    settlement_range: m.settlement_range, climate: p.climate || 'temperate',
     violations: violations || [] };
 }
 

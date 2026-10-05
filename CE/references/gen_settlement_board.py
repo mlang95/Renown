@@ -668,6 +668,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .tb-phase{text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
   .tb-phase h2{font-size:22px}
   .tb-map{position:absolute;left:16%;right:16%;top:18%;bottom:18%;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .tb-map.zm{overflow:auto;align-items:flex-start;justify-content:flex-start;z-index:1}
+  .tb-tools{padding:14px 14px 0}.tb-tools>details{margin:0}.tb-tools>details>summary{cursor:pointer}
+  .tmrow{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}.tmrow>.tot{flex:1;min-width:260px;margin:0}
   @media(max-width:1300px){.tb-wrap.tb3{grid-template-columns:240px minmax(0,1fr)}.tb-wrap.tb3 .tb-panel{grid-column:1 / -1}}
   @media(max-width:1100px){.tb-wrap,.tb-wrap.tb3{grid-template-columns:1fr}}
   .tb-felt{position:relative;height:560px;margin-bottom:10px}
@@ -887,7 +890,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <div class="vtab on" data-v="board">Board</div>
     <div class="vtab" data-v="table">Table</div>
     <div class="vtab" data-v="realm">Realm</div>
-    <div class="vtab" data-v="map">Map</div>
     <div class="vtab" data-v="battle" id="vtabBattle" style="display:none">Battle</div>
     <div class="vtab" data-v="reference">Reference</div>
   </div>
@@ -1084,7 +1086,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
 <div id="viewRealm" class="viewpane" style="display:none"><div id="viewDash"></div><div id="viewRenown"></div></div>
 <div id="viewReference" class="viewpane" style="display:none"></div>
-<div id="viewMap" class="viewpane" style="display:none"></div>
 <div id="viewTable" class="viewpane" style="display:none"></div>
 <div id="viewBattle" class="viewpane" style="display:none"></div>
 
@@ -1379,7 +1380,7 @@ function tPerformHtml(E){if(!(E.out==="Passed"||E.out==="Endorsed"))return "";
   return h+'</div>';}
 function empireChecklistHTML(){const sea=curSeason(),auto=boardEndOn();
   const L=[["Activate Domain Standing effects","realm","Realm"],["Apply the Season: "+sea,"reference#refSeasons","Reference"],
-    ["Timers tick, finished builds resolve","board:board","Board"],["Host resolves Bandits","map","Map"],
+    ["Timers tick, finished builds resolve","board:board","Board"],["Host resolves Bandits","table#tBanditBox","Bandits"],
     ["Gain Influence & Envoys","",""],sea==="Winter"?["Winter: tax income","board:summary","Totals"]:null,
     ["Income & upkeep","board:summary","Totals"],["Public Order (Faith − Doubt)","board:summary","Totals"],["Armies regain Endurance","board:board","Board"]].filter(Boolean);
   return '<div class="tb-check">'+L.map(x=>'<div>'+esc(x[0])+(x[1]?' <a href="#" data-goto="'+x[1]+'">'+x[2]+' ▸</a>':' <span class="note">(this panel)</span>')+'</div>').join("")+
@@ -1497,14 +1498,14 @@ function renderTable(){
   // --- right panel ---
   const pan=tPanel(R);
   const MM=mapState(),hasMap=!!(MM.grid||Object.keys(MM.cells).length);
-  const tmap=hasMap?mapSVG(MM).replace(/^<svg width="[^"]*" height="[^"]*"/,'<svg width="100%" height="100%" preserveAspectRatio="xMidYMid meet"'):'<div class="note">No map — generate or import one in the Map view.</div>';
-  host.innerHTML='<div class="tb-wrap tb3"><div class="tb-info"><div class="tot tb-phase">'+ctr+'</div>'+
+  const tmap=hasMap?(MAPZ.fit?mapSVG(MM).replace(/^<svg width="[^"]*" height="[^"]*"/,'<svg width="100%" height="100%" preserveAspectRatio="xMidYMid meet"'):mapSVG(MM)):'<div class="note">No map — Map ▸ Map setup above.</div>';
+  host.innerHTML='<div class="tb-tools">'+mapToolsHTML()+'</div><div class="tb-wrap tb3"><div class="tb-info"><div class="tot tb-phase">'+ctr+'</div>'+
     '<div class="tot"><h3 style="font-size:13px">Log</h3>'+(log||'<div class="note">Nothing resolved yet this phase.</div>')+'</div>'+
-    '<div class="tot"><h3 style="font-size:13px">Bandits</h3>'+banditAutoHTML(false)+'</div></div>'+
-    '<div><div class="tb-felt"><div class="tb-oval"></div><div class="tb-map">'+tmap+'</div>'+seats+'</div>'+
+    banditPanelHTML()+'</div>'+
+    '<div><div class="tb-felt"><div class="tb-oval"></div><div class="tb-map'+(MAPZ.fit?'':' zm')+'">'+tmap+'</div>'+seats+'</div>'+
     (D.players.some(p=>!Object.values(sm).includes(p))?'<div class="note">Not seated: '+D.players.filter(p=>!Object.values(sm).includes(p)).map(p=>esc(p.name)).join(", ")+' — seated players only take part.</div>':'')+
     activeTimersHTML()+tHistHtml()+activityHtml()+'</div>'+
-    '<div class="tb-panel">'+pan+'</div></div>';wireBanditAuto(host);
+    '<div class="tb-panel">'+pan+'</div></div>';wireBanditAuto(host);wireMap(host);
   tWire(host,R);wireDashExtras(host);tCountdown(R);}
 
 function tPanel(R){
@@ -2267,6 +2268,7 @@ function render(){
   renderTopBar();
   if(D.view==="battle"&&!mods().battle)D.view="board";
   if(D.view==="dash"||D.view==="renown")D.view="realm";
+  if(D.view==="map")D.view="table";
   const view=D.view||"board";
   renderTurnStrip();syncBoardEndBtn();
   document.body.dataset.view=view;
@@ -2277,12 +2279,10 @@ function render(){
   document.getElementById("appBoard").style.display = view==="board"?"":"none";
   document.getElementById("viewRealm").style.display = view==="realm"?"":"none";
   document.getElementById("viewReference").style.display = view==="reference"?"":"none";
-  document.getElementById("viewMap").style.display = view==="map"?"":"none";
   document.getElementById("viewTable").style.display = view==="table"?"":"none";
   document.querySelectorAll(".vtab").forEach(t=>t.classList.toggle("on",t.dataset.v===view));
   if(view==="realm"){renderDash();renderRenown();save();return;}
   if(view==="reference"){renderReference();save();return;}
-  if(view==="map"){renderMap();save();return;}
   if(view==="table"){renderTable();save();return;}
   if(view==="battle"){renderBattle();save();return;}
 
@@ -4146,7 +4146,7 @@ function renderRenown(){
 }
 
 // ---- Map view ----
-// ---- Map view: region generator (gen.js) + free placement + Outlaw Country + Bandits ----
+// ---- Map (on the Table): region generator (gen.js) + free placement + Outlaw Country + Bandits ----
 const MG=(typeof RenownGen!=="undefined")?RenownGen:null, MP=(typeof RenownPresets!=="undefined")?RenownPresets:{};
 const BAN=DATA.bandits||{};
 const BOARD_SIZE={2:[19,15],3:[23,18],4:[26,21],5:[29,24],6:[32,26],7:[35,28]};   // mirrors renown-maps.html
@@ -4192,10 +4192,10 @@ function parseSeedCode(s){ // Region/seed/players[/WxH]
   return {preset,seed:+seed,players:n,w:+wh[0]||def[0],h:+wh[1]||def[1]};
 }
 // map zoom (per device): +/−, or fit to the panel width
-const MAPZ={z:1,fit:false,fitScale(W){const el=document.querySelector("#viewMap .hexwrap");const w=el?el.clientWidth-4:window.innerWidth-24;return Math.max(0.3,Math.min(3,w/W));}};
+const MAPZ={z:1,fit:true,fitScale(W){const el=document.querySelector("#viewTable .tb-map");const w=el?el.clientWidth-4:window.innerWidth-24;return Math.max(0.3,Math.min(3,w/W));}};
 try{const mz=JSON.parse(localStorage.getItem("renown_mapz")||"null");if(mz){MAPZ.z=+mz.z||1;MAPZ.fit=!!mz.fit;}}catch(e){}
 function mapZoom(k){if(k==="fit")MAPZ.fit=!MAPZ.fit;else{MAPZ.fit=false;MAPZ.z=Math.max(0.5,Math.min(3,Math.round((MAPZ.z*(k>0?1.25:0.8))*100)/100));}
-  try{localStorage.setItem("renown_mapz",JSON.stringify({z:MAPZ.z,fit:MAPZ.fit}));}catch(e){}renderMap();}
+  try{localStorage.setItem("renown_mapz",JSON.stringify({z:MAPZ.z,fit:MAPZ.fit}));}catch(e){}render();}
 let MAPSETUP_OPEN=null;   // null = open until terrain is loaded, then remember the player's choice (per device)
 document.addEventListener("click",e=>{const sm=e.target.closest("#mSetup > summary");if(sm)MAPSETUP_OPEN=!sm.parentElement.open;});   // user toggles only
 function mapSVG(M){
@@ -4210,7 +4210,7 @@ function mapSVG(M){
   for(let c=0;c<cols;c++)for(let r=0;r<rows;r++){
     const k=c+","+r,cx=R+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0),h=V.hex[k];
     let fill=h?PAL[h.t]:"var(--chip)";if(h&&h.hill)fill=lighten(fill,1.16);
-    s+='<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="'+fill+'" stroke="#00000030" stroke-width="1" style="cursor:pointer"><title>'+k+(h?" · "+(RULE_NAME[h.t]||h.t)+(h.hill?" (Hill)":"")+(h.res?" · "+h.res:"")+(h.reg!=null?" · region "+h.reg:""):"")+'</title></polygon>';
+    s+='<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="'+fill+'" stroke="#00000030" stroke-width="1" style="cursor:pointer"><title>'+k+(h?" · "+(RULE_NAME[h.t]||h.t)+(h.hill?" (Hill)":"")+(h.res?" · "+h.res:"")+(h.reg!=null?" · region "+h.reg:""):"")+(M.cells[k]?" · "+esc(cellTitle(k)):"")+'</title></polygon>';
     if(M.outlaw[k])s+='<polygon points="'+pts(cx,cy)+'" fill="url(#olh)" stroke="#7a1414" stroke-width="1.5" pointer-events="none"/>';
     if(h&&h.res&&M.showRes!==false)s+='<circle cx="'+cx.toFixed(1)+'" cy="'+(cy+R*.45).toFixed(1)+'" r="'+(R*.22).toFixed(1)+'" fill="'+RCOL[h.res]+'" stroke="#0006" pointer-events="none"/>';
   }
@@ -4218,7 +4218,8 @@ function mapSVG(M){
     s+='<rect x="'+(cx-w).toFixed(1)+'" y="'+(cy-w).toFixed(1)+'" width="'+(w*2).toFixed(1)+'" height="'+(w*2).toFixed(1)+'" fill="none" stroke="#b3392f" stroke-width="1.6" stroke-dasharray="3 2" pointer-events="none"/>';}));
   Object.keys(M.cells).forEach(k=>{const cell=M.cells[k],[c,r]=k.split(",").map(Number),cx=R+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0);
     const pl=D.players.find(pp=>pp.id===cell.player),col=pl?pl.color:"#888";
-    s+='<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+(R*.62).toFixed(1)+'" fill="'+col+'" stroke="#111" pointer-events="none"/>'+
+    const unl=pl&&!(cell.type==="Army"?cellArmy(k).a:cellSett(k).s);
+    s+='<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+(R*.62).toFixed(1)+'" fill="'+col+'" stroke="'+(unl?'#b3392f':'#111')+'"'+(unl?' stroke-width="2" stroke-dasharray="3 2"':'')+' pointer-events="none"/>'+
        '<text x="'+cx.toFixed(1)+'" y="'+(cy+4).toFixed(1)+'" text-anchor="middle" font-size="10" font-weight="700" fill="#fff" pointer-events="none">'+(letter[cell.type]||"?")+(cell.blocked?"⊘":"")+'</text>'+(cell.blocked?'<title>Blocked (Sabotage) — re-place or erase the Army to clear</title>':'');});
   Object.keys(M.camps).forEach(k=>{const cp=M.camps[k],[c,r]=k.split(",").map(Number),cx=R+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0),army=cp.n>=(BAN.armyThreshold||25);
     s+='<rect x="'+(cx-R*.62).toFixed(1)+'" y="'+(cy-R*.5).toFixed(1)+'" width="'+(R*1.24).toFixed(1)+'" height="'+(R).toFixed(1)+'" fill="'+(army?"#5a0d0d":"#1b1b1b")+'" stroke="#e0b060" pointer-events="none"/>'+
@@ -4237,22 +4238,32 @@ function outlawReport(M){
   return {by,warn};
 }
 function banditDomain(n){return Math.floor(n/5)*2;}
-function banditAutoHTML(full){const B=BST(),M=mapState();
-  let h='<label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" class="bAuto"'+(B.auto?' checked':'')+'> auto Bandit Mechanics at End turn (Empire Phase)</label>';
-  const links=mapSetts().filter(x=>cellPlayer(x.cell));
-  const bad=links.filter(x=>!cellSett(x.k).s);
-  if(full&&links.length)h+='<div class="note" style="margin-top:4px">Map ↔ board settlements'+(bad.length?' — <b style="color:var(--upkeep)">'+bad.length+' unlinked</b>':'')+'</div>'+
-    links.map(x=>{const p=cellPlayer(x.cell),cs=cellSett(x.k),opts=(p.board.settlements||[]).filter(q=>q.tier===x.cell.type);
-      return '<div class="note">'+esc(p.name)+' '+esc(x.cell.type)+' @ '+x.k+' → '+(opts.length>1||x.cell.sid!=null?'<select class="bLink" data-k="'+x.k+'"><option value="">—</option>'+
-        opts.map(q=>'<option value="'+q.id+'"'+(cs.s&&cs.s.id===q.id?' selected':'')+'>'+esc(q.name||q.tier)+' #'+q.id+'</option>').join('')+'</select>':(cs.s?esc(cs.s.name||cs.s.tier):'<b style="color:var(--upkeep)">no '+esc(x.cell.type)+' on board</b>'))+'</div>';}).join('');
+function banditAutoHTML(full){const B=BST();
+  let h='<label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" class="bAuto"'+(B.auto?' checked':'')+'> auto Bandit Mechanics at Empire Phase</label>';
+  if(full)h+=full;
   const pend=[].concat(Object.keys(B.dest).map(k=>{const [pid,sid]=k.split(":"),p=D.players.find(q=>String(q.id)===pid);const st=p&&(p.board.settlements||[]).find(x=>String(x.id)===sid);return 'Destabilize: '+(p?esc(p.name):'?')+' '+esc(st?(st.name||st.tier):'#'+sid)+' (next Winter)';}),
     Object.keys(B.ic).map(pid=>'Intercept Caravan: '+esc(pname(pid))+' (next turn as Host)'),B.foster.map(x=>'Foster Rebellion: '+esc(pname(x.pid))+' (next Bandit Mechanics)'));
   if(pend.length)h+='<div class="note" style="margin-top:4px"><b>Pending</b><br>'+pend.join('<br>')+'</div>';
-  if(B.log.length)h+='<details style="margin-top:4px"'+(full?'':' open')+'><summary class="note">Bandit log ('+B.log.length+')</summary><div class="note">'+B.log.slice(0,full?80:12).map(esc).join('<br>')+'</div></details>';
+  if(B.log.length)h+='<details style="margin-top:4px"><summary class="note">Bandit log ('+B.log.length+')</summary><div class="note">'+B.log.slice(0,80).map(esc).join('<br>')+'</div></details>';
+  return h;}
+// Map ↔ board links: settlements by tier, armies by id (explicit link, else the owner's only one)
+function armyName(a){return (a.label||("Army "+a.id))+' — '+(a.retinue||'')+' ×'+(a.count||0);}
+function mapLinkBad(){return mapSetts().filter(x=>cellPlayer(x.cell)&&!cellSett(x.k).s).length+mapArmies().filter(x=>cellPlayer(x.cell)&&!cellArmy(x.k).a).length;}
+function mapLinksHTML(){const SL=mapSetts().filter(x=>cellPlayer(x.cell)),AL=mapArmies().filter(x=>cellPlayer(x.cell));
+  if(!SL.length&&!AL.length)return '<div class="note">No settlements or armies on the map.</div>';
+  const bad=mapLinkBad();
+  let h=bad?'<div class="note"><b style="color:var(--upkeep)">'+bad+' unlinked</b></div>':'';
+  if(SL.length)h+='<div class="note" style="margin-top:4px"><b>Settlements</b></div>'+SL.map(x=>{const p=cellPlayer(x.cell),cs=cellSett(x.k),opts=(p.board.settlements||[]).filter(q=>q.tier===x.cell.type);
+      return '<div class="note">'+esc(p.name)+' '+esc(x.cell.type)+' @ '+x.k+' → '+(opts.length>1||x.cell.sid!=null?'<select class="bLink" data-k="'+x.k+'"><option value="">—</option>'+
+        opts.map(q=>'<option value="'+q.id+'"'+(cs.s&&cs.s.id===q.id?' selected':'')+'>'+esc(q.name||q.tier)+' #'+q.id+'</option>').join('')+'</select>':(cs.s?esc(cs.s.name||cs.s.tier):'<b style="color:var(--upkeep)">no '+esc(x.cell.type)+' on board</b>'))+'</div>';}).join('');
+  if(AL.length)h+='<div class="note" style="margin-top:4px"><b>Armies</b></div>'+AL.map(x=>{const p=cellPlayer(x.cell),ca=cellArmy(x.k),opts=p.board.armies||[];
+      return '<div class="note">'+esc(p.name)+' Army @ '+x.k+(x.cell.blocked?' ⊘':'')+' → '+(opts.length>1||x.cell.aid!=null?'<select class="aLink" data-k="'+x.k+'"><option value="">—</option>'+
+        opts.map(a=>'<option value="'+a.id+'"'+(ca.a&&ca.a.id===a.id?' selected':'')+'>'+esc(armyName(a))+'</option>').join('')+'</select>':(ca.a?esc(armyName(ca.a)):'<b style="color:var(--upkeep)">no Army on board</b>'))+'</div>';}).join('');
   return h;}
 function wireBanditAuto(host){host.querySelectorAll(".bAuto").forEach(c=>c.onchange=()=>{BST().auto=c.checked;save();render();});
-  host.querySelectorAll(".bLink").forEach(sl=>sl.onchange=()=>{const cell=mapState().cells[sl.dataset.k];if(!cell)return;if(sl.value)cell.sid=+sl.value;else delete cell.sid;save();render();});}
-// ---- Bandit automation: Host's Bandit Mechanics step, run at End turn when switched on ----
+  host.querySelectorAll(".bLink").forEach(sl=>sl.onchange=()=>{const cell=mapState().cells[sl.dataset.k];if(!cell)return;if(sl.value)cell.sid=+sl.value;else delete cell.sid;save();render();});
+  host.querySelectorAll(".aLink").forEach(sl=>sl.onchange=()=>{const cell=mapState().cells[sl.dataset.k];if(!cell)return;if(sl.value)cell.aid=+sl.value;else delete cell.aid;save();render();});}
+// ---- Bandit automation: Host's Bandit Mechanics step, run as the new turn's Empire Phase opens (End turn) when switched on ----
 function BST(){D.bandit=D.bandit||{};const b=D.bandit;b.dest=b.dest||{};b.ic=b.ic||{};b.foster=b.foster||[];b.log=b.log||[];return b;}
 function bLog(m){const b=BST();b.log.unshift("T"+(b._t||tTurn())+" "+curSeason()+" · "+m);b.log=b.log.slice(0,80);}
 function hk(k){return k.split(",").map(Number);}
@@ -4262,6 +4273,13 @@ function cellPlayer(cell){return D.players.find(p=>String(p.id)===String(cell.pl
 function cellSett(k){const cell=mapState().cells[k];if(!cell)return {p:null,s:null};const p=cellPlayer(cell);if(!p)return {p:null,s:null};
   const ss=p.board.settlements||[];if(cell.sid!=null){const s=ss.find(x=>String(x.id)===String(cell.sid));if(s)return {p,s};}
   const c=ss.filter(x=>x.tier===cell.type);return {p,s:c.length===1?c[0]:null};}
+function mapArmies(){const M=mapState();return Object.keys(M.cells).filter(k=>M.cells[k].type==="Army").map(k=>({k,cell:M.cells[k]}));}
+function cellArmy(k){const cell=mapState().cells[k];if(!cell||cell.type!=="Army")return {p:null,a:null};const p=cellPlayer(cell);if(!p)return {p:null,a:null};
+  const as=p.board.armies||[];if(cell.aid!=null){const a=as.find(x=>String(x.id)===String(cell.aid));if(a)return {p,a};}
+  return {p,a:as.length===1?as[0]:null};}
+function cellTitle(k){const cell=mapState().cells[k];if(!cell)return "";const p=cellPlayer(cell);
+  const nm=cell.type==="Army"?(cellArmy(k).a?armyName(cellArmy(k).a):"Army — unlinked"):(cellSett(k).s?(cellSett(k).s.name||cellSett(k).s.tier):cell.type+" — unlinked");
+  return (p?p.name+" ":"")+nm+(cell.blocked?" · Blocked":"");}
 function byDist(k,list,randomTies){const a=hk(k);return list.map((x,i)=>({x,d:hexDist(a,hk(x.k)),r:randomTies?Math.random():i})).sort((u,v)=>u.d-v.d||u.r-v.r).map(o=>o.x);}
 function outlawOwner(k){const L=byDist(k,mapSetts(),false);return L.length?cellPlayer(L[0].cell):null;}   // Outlaw Country belongs to the closest settlement's owner
 function outlawOf(p){const M=mapState();return Object.keys(M.outlaw).filter(k=>M.outlaw[k]&&sameP(outlawOwner(k),p));}
@@ -4286,18 +4304,18 @@ function banditAct(k){const M=mapState(),cp=M.camps[k],B=BST(),F=BAN.faces||10,r
   else if(act==="Destabilize")tgt=L.map(x=>Object.assign({k:x.k},cellSett(x.k))).find(t=>t.s&&!B.dest[t.p.id+":"+t.s.id]);
   else if(act==="Intercept Caravan")tgt=L.map(x=>Object.assign({k:x.k},cellSett(x.k))).find(t=>t.p&&!B.ic[t.p.id]);
   else if(act==="Sabotage"){const M_=mapState(),arm=Object.keys(M_.cells).filter(q=>M_.cells[q].type==="Army"&&cellPlayer(M_.cells[q])&&!M_.cells[q].blocked).map(q=>({k:q,cell:M_.cells[q]}));
-    const A=byDist(k,arm,true)[0];tgt=A?{k:A.k,p:cellPlayer(A.cell),s:null,army:true}:null;}   // closest Army on the map
+    const A=byDist(k,arm,true)[0];tgt=A?{k:A.k,p:cellPlayer(A.cell),s:null,army:true,a:cellArmy(A.k).a}:null;}   // closest Army on the map
   else tgt=L.length?Object.assign({k:L[0].k},cellSett(L[0].k)):null;
   if(!tgt||!tgt.p){bLog("camp @ "+k+" rolls "+roll+" → "+act+": no valid target");return;}
   const base=STAND_INF[domBand(banditDomain(cp.n))]||1,tm=banditTargetMods(tgt.p,act),net=base+(+cp.cmod||0)+tm.v,oc=envoyOutcome(net);
-  const head="camp @ "+k+" rolls "+roll+" → "+act+" vs "+tgt.p.name+(tgt.s?" ("+(tgt.s.name||tgt.s.tier)+")":tgt.army?" (Army @ "+tgt.k+")":"")+" · Influence "+base+((+cp.cmod)?" "+sgn(+cp.cmod):"")+(tm.src.length?" "+tm.src.join(" "):"")+" = "+net+" → "+oc;
+  const head="camp @ "+k+" rolls "+roll+" → "+act+" vs "+tgt.p.name+(tgt.s?" ("+(tgt.s.name||tgt.s.tier)+")":tgt.army?" ("+(tgt.a?(tgt.a.label||"Army "+tgt.a.id):"Army")+" @ "+tgt.k+")":"")+" · Influence "+base+((+cp.cmod)?" "+sgn(+cp.cmod):"")+(tm.src.length?" "+tm.src.join(" "):"")+" = "+net+" → "+oc;
   cp.last=head;if(oc!=="Passed"&&oc!=="Endorsed"){bLog(head);return;}
   let fx="";
   if(act==="Raze"){const pool=tgt.p.board.placed.filter(q=>q.sid===tgt.s.id&&!(q.bt>0)&&!(q.dmg>0)),q=pool[Math.floor(Math.random()*pool.length)],rt=((DATA.timers||{})["Repair Timer"]||{}).default||2;
     q.dmg=rt;fx=q.name+" Damaged (Repair "+rt+")";}
   else if(act==="Destabilize"){B.dest[tgt.p.id+":"+tgt.s.id]={camp:k};fx="next Winter: "+(tgt.s.name||tgt.s.tier)+"'s tax → camp";}
   else if(act==="Intercept Caravan"){B.ic[tgt.p.id]={camp:k};fx="next turn "+tgt.p.name+" is Host: trade income → camp";}
-  else if(act==="Sabotage"){mapState().cells[tgt.k].blocked=true;fx=tgt.p.name+"'s Army @ "+tgt.k+" gains Blocked";}
+  else if(act==="Sabotage"){mapState().cells[tgt.k].blocked=true;fx=tgt.p.name+"'s "+(tgt.a?(tgt.a.label||"Army "+tgt.a.id):"Army")+" @ "+tgt.k+" gains Blocked";}
   else if(act==="Foster Rebellion"){B.foster.push({pid:String(tgt.p.id)});fx="next Bandit Mechanics: 10-Retinue camp in "+tgt.p.name+"'s Outlaw Country";}
   if(oc==="Endorsed"){const x=endorsedExtort(act),b=tgt.p.board,t=Math.min(x,Math.max(0,b.treasury||0));b.treasury=(b.treasury||0)-t;cp.gold=(cp.gold||0)+t;fx+=" · Endorsed: Extort "+t;}
   bLog(head+": "+fx);}
@@ -4360,13 +4378,19 @@ function terrainTablesHTML(PAL){
     if((TREF.tacticalGlobal||[]).length)h+='<div class="note" style="margin-top:4px">'+TREF.tacticalGlobal.map(esc).join(' ')+'</div>';h+='</div>';}
   return h+'</div>';
 }
-function renderMap(){
-  const host=document.getElementById("viewMap"),M=mapState(),g=M.grid;
+// Map tools (Table, collapsible) + Bandits panel; per-device open state
+let MTOOLS_OPEN=true,BPANEL_OPEN=false;
+try{MTOOLS_OPEN=localStorage.getItem("renown_mtools")!=="0";BPANEL_OPEN=localStorage.getItem("renown_bpanel")==="1";}catch(e){}
+document.addEventListener("click",e=>{const a=e.target.closest("#tMapTools > summary");if(a){MTOOLS_OPEN=!a.parentElement.open;try{localStorage.setItem("renown_mtools",MTOOLS_OPEN?"1":"0");}catch(_){}}
+  const b=e.target.closest("#tBandits > summary");if(b){BPANEL_OPEN=!b.parentElement.open;try{localStorage.setItem("renown_bpanel",BPANEL_OPEN?"1":"0");}catch(_){}}});
+function mapToolsHTML(){const M=mapState(),g=M.grid;
   const tools=["Army","Hamlet","Village","Town","City","Metropolis","Outlaw Country","Bandit Camp","Erase"];
-  const p=D.players[D.active],era=currentEra();
+  const p=D.players[D.active];
   const presets=Object.keys(MP),np=D.players.length>=2?Math.min(7,D.players.length):4,def=BOARD_SIZE[np]||BOARD_SIZE[6];
-  const setupOpen=MAPSETUP_OPEN===null?!g:MAPSETUP_OPEN;
-  let h='<div style="padding:10px;overflow-y:auto;height:100%"><details class="msetup" id="mSetup"'+(setupOpen?' open':'')+'><summary><b>Map setup</b> <span class="note">— '+
+  const setupOpen=MAPSETUP_OPEN===null?!g:MAPSETUP_OPEN,bad=mapLinkBad();
+  let h='<details class="tot" id="tMapTools"'+(MTOOLS_OPEN?' open':'')+'><summary><b style="font-size:13px">Map</b> <span class="note">— '+
+    (g?esc(g.preset)+' · seed '+g.seed+' · '+g.width+'×'+g.height:'no terrain loaded')+' · tool '+esc(mtool)+'</span>'+(bad?' <b class="note" style="color:var(--upkeep)">'+bad+' unlinked</b>':'')+'</summary>';
+  h+='<details class="msetup" id="mSetup"'+(setupOpen?' open':'')+'><summary><b>Map setup</b> <span class="note">— '+
     (g?esc(g.preset)+' · seed '+g.seed+' · '+g.players+' players · '+g.width+'×'+g.height:'no terrain loaded')+'</span></summary><div class="mtoolbar">'+
     (MG?'<select id="mPreset">'+presets.map(n=>'<option'+((g?g.preset:"Default")===n?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select>'+
       ' seed <input id="mSeedN" type="number" value="'+esc(g?g.seed:(M.seed||Math.floor(Math.random()*100000)))+'" style="width:80px">'+
@@ -4375,47 +4399,50 @@ function renderMap(){
       ' <button id="mGen">generate</button>':'<span class="note">map generator not bundled — JSON import only</span>')+
     ' <input id="mCode" placeholder="Region/seed/players[/WxH]" style="width:210px" value="'+esc(seedCode(g))+'"><button id="mCodeGo">load code</button>'+
     ' <button id="mImp">import map JSON</button><input type="file" id="mFile" accept="application/json" style="display:none">'+
-    '</div>'+(g?'<div class="note" style="margin:0 0 6px">generator '+esc(g.generator||'?')+'</div>':'')+'</details><div class="mtoolbar">tool <select id="mTool">'+tools.map(t=>'<option'+(t===mtool?' selected':'')+'>'+t+'</option>').join('')+'</select>'+
+    '</div>'+(g?'<div class="note" style="margin:0 0 6px">generator '+esc(g.generator||'?')+'</div>':'')+'</details>';
+  h+='<div class="mtoolbar">tool <select id="mTool">'+tools.map(t=>'<option'+(t===mtool?' selected':'')+'>'+t+'</option>').join('')+'</select>'+
     ' <span class="note">placing as</span> <span class="pdot" style="display:inline-block;background:'+p.color+'"></span> '+esc(p.name)+
     ' <label class="note"><input type="checkbox" id="mRes"'+(M.showRes!==false?' checked':'')+'> resources</label>'+
     ' <label class="note"><input type="checkbox" id="mStarts"'+(M.showStarts?' checked':'')+'> suggested settlement spots</label>'+
-    ' <button id="mClear">clear markers</button></div>';
-  h+='<div class="mapzoom"><button data-mz="-1" title="zoom out">−</button><button data-mz="1" title="zoom in">+</button><button data-mz="fit"'+(MAPZ.fit?' class="on"':'')+'>fit</button><span class="note">'+(MAPZ.fit?"fit to width":Math.round(MAPZ.z*100)+"%")+'</span></div>';
-  h+='<div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap"><div class="hexwrap" style="flex:1;min-width:min(320px,100%)">'+mapSVG(M)+'</div>';
-  // side panel: outlaw + bandits
+    ' <button id="mClear">clear markers</button>'+
+    ' <span class="mapzoom" style="display:inline-flex;margin:0"><button data-mz="-1" title="zoom out">−</button><button data-mz="1" title="zoom in">+</button><button data-mz="fit"'+(MAPZ.fit?' class="on"':'')+'>fit</button><span class="note">'+(MAPZ.fit?"fit":Math.round(MAPZ.z*100)+"%")+'</span></span></div>';
   const rep=outlawReport(M);
-  h+='<div style="width:420px;max-width:100%"><div class="tot"><h3 style="font-size:13px">Outlaw Country</h3>'+
+  h+='<div class="tmrow"><div class="tot"><h3 style="font-size:13px">Outlaw Country</h3>'+
     '<div class="note">'+(BAN.outlawStart?BAN.outlawStart+' per player at setup, within range 1 of each other, range '+BAN.outlawBuffer+'+ from any Settlement.':'')+'</div>'+
     '<div style="margin-top:4px">'+(Object.keys(rep.by).length?Object.keys(rep.by).map(rg=>'<span class="badge tier">region '+esc(rg)+': '+rep.by[rg]+'</span>').join(' '):'<span class="note">none marked</span>')+'</div>'+
-    (rep.warn.length?'<div class="note" style="color:var(--upkeep);margin-top:4px">'+rep.warn.slice(0,6).map(esc).join('<br>')+'</div>':'')+'</div>';
-  const camps=Object.keys(M.camps);
-  h+='<div class="tot"><h3 style="font-size:13px">Bandits</h3><div class="note">Era '+esc(era)+': grow +'+((BAN.growth||{})[era]||0)+'/turn · armed with '+esc((BAN.equipment||{})[era]||'—')+
+    (rep.warn.length?'<div class="note" style="color:var(--upkeep);margin-top:4px">'+rep.warn.slice(0,6).map(esc).join('<br>')+'</div>':'')+'</div>'+
+    '<div class="tot"><h3 style="font-size:13px">Map ↔ board</h3>'+mapLinksHTML()+'</div></div>'+
+    '<div class="note" style="margin:6px 0 0">Terrain, movement and battle-terrain tables are in <a href="#" data-goto="reference#refTerrain">Reference ▸</a></div></details>';
+  return h;}
+function banditPanelHTML(){const M=mapState(),era=currentEra(),camps=Object.keys(M.camps);
+  let c='<details id="tBandits" style="margin-top:4px"'+(BPANEL_OPEN?' open':'')+'><summary class="note" style="cursor:pointer"><b>Camps ('+camps.length+')</b> · Era '+esc(era)+'</summary>'+
+    '<div class="note">Era '+esc(era)+': grow +'+((BAN.growth||{})[era]||0)+'/turn · armed with '+esc((BAN.equipment||{})[era]||'—')+
     ' · camp starts at '+(BAN.campStart||'?')+', becomes an Army at '+(BAN.armyThreshold||'?')+'.</div>'+
-    '<div style="margin:6px 0"><button id="bGrow">grow all camps</button> <button id="bSpawn">spawn at selected hex</button></div>'+banditAutoHTML(true);
+    '<div style="margin:6px 0"><button id="bGrow">grow all camps</button> <button id="bSpawn">spawn at selected hex</button></div>';
   camps.forEach(k=>{const cp=M.camps[k],army=cp.n>=(BAN.armyThreshold||25),dv=banditDomain(cp.n);
-    h+='<div style="border-top:1px solid var(--line);padding:5px 0"><b>'+(army?'Bandit Army':'Bandit Camp')+'</b> <span class="note">@ '+k+'</span>'+
+    c+='<div style="border-top:1px solid var(--line);padding:5px 0"><b>'+(army?'Bandit Army':'Bandit Camp')+'</b> <span class="note">@ '+k+'</span>'+
       '<div class="dctrls" style="margin:3px 0 0 0"><span class="dctrl"><span class="note">retinues</span><button class="bcn" data-k="'+k+'" data-d="-1">−</button><span class="dcv">'+cp.n+'</span><button class="bcn" data-k="'+k+'" data-d="1">+</button></span>'+
       '<span class="note">treasury</span><input class="bct" data-k="'+k+'" type="number" step="100" value="'+(cp.gold||0)+'" style="width:80px"></div>'+
       '<div class="note">Prowess +'+dv+'</div>'+banditCunningHTML(k,cp)+
       '<div style="display:flex;gap:4px;margin-top:3px">'+
       '<button class="bcr" data-k="'+k+'" data-r="tactic">tactic roll</button><button class="bcx" data-k="'+k+'">remove</button></div>'+
       (cp.last?'<div class="note">'+esc(cp.last)+'</div>':'')+'</div>';});
-  h+='</div></div></div><div class="note" style="margin:8px 0">Terrain, movement and battle-terrain tables are in <a href="#" data-goto="reference#refTerrain">Reference ▸</a></div></div>';
-  host.innerHTML=h;wireBanditAuto(host);
-  const $=id=>document.getElementById(id);
-  if(MG){$("mGen").onclick=()=>{if(g&&!confirm("Replace the current terrain? Markers stay."))return;
+  c+='</details>';
+  return '<div class="tot" id="tBanditBox"><h3 style="font-size:13px">Bandits</h3>'+banditAutoHTML(c)+'</div>';}
+function wireMap(host){const M=mapState(),g=M.grid,era=currentEra(),$=id=>host.querySelector("#"+id);
+  if(MG&&$("mGen")){$("mGen").onclick=()=>{if(g&&!confirm("Replace the current terrain? Markers stay."))return;
       if(generateMap($("mPreset").value,$("mSeedN").value,$("mPl").value,$("mW").value,$("mH").value)){save();render();}};
     $("mPl").onchange=()=>{const d=BOARD_SIZE[+$("mPl").value];if(d){$("mW").value=d[0];$("mH").value=d[1];}};}
-  $("mCodeGo").onclick=()=>{const c=parseSeedCode($("mCode").value);if(!c){flash("code format: Region/seed/players[/WxH]");return;}
+  if($("mCodeGo"))$("mCodeGo").onclick=()=>{const c=parseSeedCode($("mCode").value);if(!c){flash("code format: Region/seed/players[/WxH]");return;}
     if(generateMap(c.preset,c.seed,c.players,c.w,c.h)){save();render();}};
-  $("mImp").onclick=()=>$("mFile").click();
-  $("mFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();
+  if($("mImp"))$("mImp").onclick=()=>$("mFile").click();
+  if($("mFile"))$("mFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();
     rd.onload=()=>{try{const j=JSON.parse(rd.result);if(!j.terrain||!j.width)throw 0;M.grid=j;M.cols=j.width;M.rows=j.height;M.seed=String(j.seed);MAPVIEW=null;save();render();}
       catch(err){flash("not a renown-maps JSON export");}};rd.readAsText(f);};
-  $("mTool").onchange=e=>{mtool=e.target.value;};
-  $("mRes").onchange=e=>{M.showRes=e.target.checked;save();render();};
-  $("mStarts").onchange=e=>{M.showStarts=e.target.checked;save();render();};
-  $("mClear").onclick=()=>{if(confirm("Clear settlements, armies, Outlaw Country and camps? Terrain stays.")){M.cells={};M.outlaw={};M.camps={};save();render();}};
+  if($("mTool"))$("mTool").onchange=e=>{mtool=e.target.value;render();};
+  if($("mRes"))$("mRes").onchange=e=>{M.showRes=e.target.checked;save();render();};
+  if($("mStarts"))$("mStarts").onchange=e=>{M.showStarts=e.target.checked;save();render();};
+  if($("mClear"))$("mClear").onclick=()=>{if(confirm("Clear settlements, armies, Outlaw Country and camps? Terrain stays.")){M.cells={};M.outlaw={};M.camps={};save();render();}};
   host.querySelectorAll("[data-cell]").forEach(el=>el.onclick=()=>{
     const k=el.dataset.cell;MAPSEL=k;
     if(mtool==="Erase"){delete M.cells[k];delete M.outlaw[k];delete M.camps[k];}
@@ -4423,8 +4450,8 @@ function renderMap(){
     else if(mtool==="Bandit Camp"){if(!M.camps[k])M.camps[k]={n:BAN.campStart||5,gold:0};}
     else M.cells[k]={type:mtool,player:D.players[D.active].id};
     save();render();});
-  $("bGrow").onclick=()=>{const gr=(BAN.growth||{})[era]||0,cap=BAN.armyThreshold||25;Object.values(M.camps).forEach(cp=>{cp.n=Math.min(cap,cp.n+gr);});save();render();};
-  $("bSpawn").onclick=()=>{if(!MAPSEL){flash("click a hex first");return;}if(!M.camps[MAPSEL])M.camps[MAPSEL]={n:BAN.campStart||5,gold:0};save();render();};
+  if($("bGrow"))$("bGrow").onclick=()=>{const gr=(BAN.growth||{})[era]||0,cap=BAN.armyThreshold||25;Object.values(M.camps).forEach(cp=>{cp.n=Math.min(cap,cp.n+gr);});save();render();};
+  if($("bSpawn"))$("bSpawn").onclick=()=>{if(!MAPSEL){flash("click a hex first");return;}if(!M.camps[MAPSEL])M.camps[MAPSEL]={n:BAN.campStart||5,gold:0};save();render();};
   host.querySelectorAll(".bcn").forEach(b=>b.onclick=()=>{const cp=M.camps[b.dataset.k];cp.n=Math.max(0,Math.min(BAN.armyThreshold||25,cp.n+(+b.dataset.d)));save();render();});
   host.querySelectorAll(".bct").forEach(i=>i.onchange=()=>{M.camps[i.dataset.k].gold=+i.value||0;save();});
   host.querySelectorAll(".bcx").forEach(b=>b.onclick=()=>{delete M.camps[b.dataset.k];save();render();});
@@ -4495,7 +4522,7 @@ else document.getElementById("assump").closest("details").remove();
 // ---- top bar ⋯ (phones): modules, theme, shape ----
 document.getElementById("tbMore").onclick=()=>{document.body.classList.toggle("tbopen");mnavSync();};
 document.addEventListener("click",e=>{if(document.body.classList.contains("tbopen")&&!e.target.closest("#appMenu,#tbMore,.tbextra"))document.body.classList.remove("tbopen");});
-document.addEventListener("click",e=>{const v=e.target.closest("#viewMap [data-mz]");if(v){mapZoom(v.dataset.mz==="fit"?"fit":+v.dataset.mz);}
+document.addEventListener("click",e=>{const v=e.target.closest("#viewTable [data-mz]");if(v){mapZoom(v.dataset.mz==="fit"?"fit":+v.dataset.mz);}
   const b=e.target.closest("[data-bs]");if(b&&b.closest(".bside-nav")){BSIDE=b.dataset.bs;render();}});
 let BSIDE="";   // phone Battle view: which side card to show (per device, not synced)
 // ---- admin unlock ----

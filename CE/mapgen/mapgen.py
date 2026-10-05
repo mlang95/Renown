@@ -142,6 +142,9 @@ def _rivers(m, p, rng):
 
 
 def _lakes(m, p, rng):
+    # a lake centre needs a 2-hex margin on every side; tiny boards get none
+    if m.width < 5 or m.height < 5:
+        return
     for _ in range(rng.randint(*p["lakes"])):
         c = (rng.randint(2, m.width - 3), rng.randint(2, m.height - 3))
         _blob(m, c, rng.randint(*p["lake_size"]), "water", ("plains", "wetland"), rng)
@@ -749,7 +752,9 @@ def generate_tactical(**over):
     _rivers(m, p, rng)
     _lakes(m, p, rng)
     # free-roaming mountain ranges: start near an edge, walk inward as a wall
-    for _ in range(max(1, rng.randint(*p["ranges"]))):
+    # a range starts 1 hex in from an edge; boards under 3x3 have no room
+    n_ranges = max(1, rng.randint(*p["ranges"])) if min(m.width, m.height) >= 3 else 0
+    for _ in range(n_ranges):
         side = rng.randrange(4)
         if side == 0:   c, d = (rng.randint(1, m.width - 2), 1), 5
         elif side == 1: c, d = (rng.randint(1, m.width - 2), m.height - 2), 2

@@ -7,6 +7,7 @@ layers composite by simple stacking (terrain -> resource -> road -> settlement
 is the asset pipeline, not hand-drawn art.
 """
 import math, os
+import hexstyle
 
 W, H = 120, 108
 CX, CY = 60, 54
@@ -44,43 +45,19 @@ def _svg(body, defs=""):
             f'viewBox="0 0 {W} {H}">{defs}{body}</svg>')
 
 # ── terrain bases ──────────────────────────────────────────────────────────
-def terrain(kind):
-    base, patch = PALETTE[kind]
-    pts = hexpts()
-    body = [_poly(pts, base)]
-    # subtle inner texture so flat tiles read as painted, not solid
-    if kind == "water":
-        for i, y in enumerate((44, 56, 68)):
-            body.append(f'<path d="M{38+ (i%2)*6} {y} q10 -5 20 0 q10 5 20 0" '
-                        f'fill="none" stroke="{patch}" stroke-width="2.2" stroke-linecap="round"/>')
-    elif kind == "forest":
-        for (x, y, s) in [(46,40,12),(70,46,13),(54,62,12),(76,66,11),(40,60,10)]:
-            body.append(f'<circle cx="{x}" cy="{y}" r="{s}" fill="{patch}"/>')
-            body.append(f'<polygon points="{x},{y-s} {x-s*0.7:.0f},{y+s*0.5:.0f} {x+s*0.7:.0f},{y+s*0.5:.0f}" '
-                        f'fill="#3c4d2b" stroke="{INK}" stroke-width="1.4"/>')
-    elif kind == "mountain":
-        body.append(f'<polygon points="60,24 84,72 36,72" fill="{patch}" stroke="{INK}" stroke-width="2"/>')
-        body.append(f'<polygon points="60,24 70,44 50,44" fill="#e9ddc2"/>')
-        body.append(f'<polygon points="44,48 60,72 28,72" fill="#5d5c65" stroke="{INK}" stroke-width="1.6"/>')
-    elif kind == "hills":
-        for (x, y, rx) in [(46,58,18),(74,60,16),(60,50,15)]:
-            body.append(f'<ellipse cx="{x}" cy="{y}" rx="{rx}" ry="{rx*0.7:.0f}" fill="{patch}"/>')
-    elif kind == "wetland":
-        for (x, y, rx, ry) in [(50,52,15,9),(74,58,13,8),(60,66,12,7)]:
-            body.append(f'<ellipse cx="{x}" cy="{y}" rx="{rx}" ry="{ry}" fill="{patch}"/>')
-        for (x, y) in [(44,46),(66,44),(80,52),(54,60)]:
-            body.append(f'<path d="M{x} {y} l-2 -8 M{x} {y} l0 -9 M{x} {y} l2 -8" '
-                        f'stroke="#3c4d2b" stroke-width="1.6" fill="none" stroke-linecap="round"/>')
-    elif kind == "tundra":
-        for (x, y, r) in [(48,50,4),(70,46,3),(58,62,4),(80,58,3),(40,60,3)]:
-            body.append(f'<circle cx="{x}" cy="{y}" r="{r}" fill="#ecefe6"/>')
-        for (x, y) in [(54,54),(72,60)]:
-            body.append(f'<circle cx="{x}" cy="{y}" r="5" fill="{patch}"/>')
-    else:  # grassland — faint tufts
-        for (x, y) in [(46,50),(72,46),(58,64),(80,62),(40,62)]:
-            body.append(f'<path d="M{x} {y} l-3 -7 M{x} {y} l0 -8 M{x} {y} l3 -7" '
-                        f'stroke="{patch}" stroke-width="1.8" fill="none" stroke-linecap="round"/>')
-    return _svg("".join(body))
+# Fill colour + glyph both come from hexstyle (shared with the map app).
+_KIND = {"grassland": "plains", "hills": "hill"}   # hexgen asset name -> style key
+
+def terrain(kind, fill=None, climate=None):
+    """Hex tile: climate fill + ink glyph. `fill` overrides the climate colour.
+    kind: grassland/plains, forest, hills/hill, mountain, water, wetland, tundra."""
+    key = _KIND.get(kind, kind)
+    cols = hexstyle.colors(climate)
+    if fill is None:
+        fill = hexstyle.lighten(cols["plains"]) if key == "hill" else cols[key]
+    body = _poly(hexpts(), fill, stroke=hexstyle.GRID, sw=1.6,
+                 extra=f'stroke-opacity="{hexstyle.GRID_OPACITY}"')
+    return _svg(body + hexstyle.glyph_svg(key, fill))
 
 # ── resource toppers (top-right, clear of buildings) ────────────────────────
 def resource(kind):

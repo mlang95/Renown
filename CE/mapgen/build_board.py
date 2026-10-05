@@ -19,6 +19,7 @@ from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPDF, renderPM
 
 import hexgen   # art pipeline: terrain(), resource(), resource_apiary(), constants
+import hexstyle # glyphs + climate palettes (shared with the map app)
 import mapgen   # procedural map pipeline -> HexMap
 
 _TMPDIR = tempfile.gettempdir()         # cross-platform (Windows-safe)
@@ -39,8 +40,57 @@ def _strip(svg):
     return re.sub(r"^<svg[^>]*>", "", svg)[:-len("</svg>")]
 
 
-def _terrain_bodies():
-    return {t: _strip(hexgen.terrain(art)) for t, art in TERRAIN_ART.items()}
+def _terrain_bodies(colors=None):
+    """Tile bodies for one palette. 'hill' = lightened plains + hill glyph."""
+    colors = colors or hexstyle.colors()
+    b = {t: _strip(hexgen.terrain(art, fill=colors[t])) for t, art in TERRAIN_ART.items()}
+    b["hill"] = _strip(hexgen.terrain("hills", fill=hexstyle.lighten(colors["plains"])))
+    return b
+
+
+def _resolve_colors(m=None, climate=None):
+    """Palette for a board. Priority: explicit climate > colours saved with an
+    app export (what the person saw) > the export's climate > its preset's
+    climate > default."""
+    if climate:
+        if climate not in hexstyle.CLIMATES:
+            raise ValueError(f"unknown climate {climate!r}; have {sorted(hexstyle.CLIMATES)}")
+        return hexstyle.colors(climate)
+    meta = getattr(m, "meta", None) or {}
+    saved = meta.get("colors")
+    if saved and all(t in saved for t in hexstyle.TERRAINS):
+        return {t: saved[t] for t in hexstyle.TERRAINS}
+    if meta.get("climate"):
+        return hexstyle.colors(meta["climate"])
+    if meta.get("preset"):
+        try:
+            import region_presets
+            return hexstyle.colors(region_presets.get(meta["preset"]).get("climate"))
+        except KeyError:
+            pass
+    return hexstyle.colors()
+
+
+def _coast_svg(m, R, dx, dy):
+    """Ink line on every land edge that faces water, in board coords (mm)."""
+    segs = []
+    for h in m.all():
+        if h.terrain == "water":
+            continue
+        cx, cy = _hex_center(h.col, h.row, R, dx, dy)
+        for n in m.neighbors(h.coord):
+            if n.terrain != "water":
+                continue
+            nx, ny = _hex_center(n.col, n.row, R, dx, dy)
+            k = round((math.degrees(math.atan2(ny - cy, nx - cx)) - 30) / 60) % 6
+            a0, a1 = math.radians(60 * k), math.radians(60 * (k + 1))
+            segs.append(f"M{cx + R*math.cos(a0):.2f} {cy + R*math.sin(a0):.2f}"
+                        f"L{cx + R*math.cos(a1):.2f} {cy + R*math.sin(a1):.2f}")
+    if not segs:
+        return ""
+    w = hexstyle.COAST_W * R / H_R
+    return (f'<path d="{"".join(segs)}" fill="none" stroke="{hexstyle.INK}" '
+            f'stroke-width="{w:.3f}" stroke-linecap="round"/>')
 
 
 def _resource_body(res):
@@ -57,7 +107,7 @@ def _hex_center(col, row, R, dx, dy):
     return cx, cy
 
 
-def _page_svg(window, hexes, R, page_wmm, page_hmm, margin):
+def _page_svg(window, hexes, R, page_wmm, page_hmm, margin, overlay=""):
     bx0, by0, win_w, win_h = window
     s = R / H_R
     txp = margin - bx0
@@ -72,6 +122,8 @@ def _page_svg(window, hexes, R, page_wmm, page_hmm, margin):
         gx = txp + cx - H_CX * s
         gy = typ + cy - H_CY * s
         parts.append(f'<g transform="translate({gx:.3f},{gy:.3f}) scale({s:.5f})">{body}</g>')
+    if overlay:
+        parts.append(f'<g transform="translate({txp:.3f},{typ:.3f})">{overlay}</g>')
     parts.append('</g></svg>')
     return "".join(parts)
 
@@ -88,7 +140,7 @@ def _trim_and_label(c, page_wmm, page_hmm, margin, label):
 
 
 def _render_board_png(placed, board_w, board_h, R, out_png, settlements=None,
-                      max_px=1600):
+                      max_px=1600, overlay=""):
     """Render the entire board to a single PNG (whole-map preview), with the
     settlement triangles drawn on top: capital = filled dot, others = hollow."""
     s = R / H_R
@@ -100,6 +152,7 @@ def _render_board_png(placed, board_w, board_h, R, out_png, settlements=None,
         gx = cx - H_CX * s
         gy = cy - H_CY * s
         parts.append(f'<g transform="translate({gx:.3f},{gy:.3f}) scale({s:.5f})">{body}</g>')
+    parts.append(overlay)
     # settlement overlays
     if settlements:
         dx, dy = 1.5 * R, math.sqrt(3) * R
@@ -124,7 +177,8 @@ def _render_board_png(placed, board_w, board_h, R, out_png, settlements=None,
 
 
 def generate_tactical_board(width=9, height=6, *, seed=7, out_pdf="tactical_board.pdf",
-                            hex_mm=20.0, paper="A4", margin_mm=6.0, mapgen_params=None):
+                            hex_mm=20.0, paper="A4", margin_mm=6.0, mapgen_params=None,
+                            climate=None):
     """One-sheet skirmish board (landscape). Terrain only, hills painted with the
     hills tile, no labels/trim grid (single page). Auto-clamps width/height so the
     whole board fits one landscape page at hex_mm."""
@@ -145,8 +199,8 @@ def generate_tactical_board(width=9, height=6, *, seed=7, out_pdf="tactical_boar
     mp = dict(mapgen_params or {})
     m = mapgen.generate_tactical(width=width, height=height, seed=seed, **mp)
 
-    tbody = _terrain_bodies()
-    hill_body = _strip(hexgen.terrain("hills"))
+    tbody = _terrain_bodies(hexstyle.colors(climate))
+    hill_body = tbody["hill"]
     placed = []
     for h in m.all():
         cx, cy = _hex_center(h.col, h.row, R, dx, dy)
@@ -193,14 +247,14 @@ def _coerce_map(src):
     if isinstance(src, dict):
         import mapgen_regional
         m = mapgen_regional.import_map(src)
-        m.meta = {k: src.get(k) for k in ("preset", "seed", "generator")}
+        m.meta = {k: src.get(k) for k in ("preset", "seed", "generator", "climate", "colors")}
         return m
     raise TypeError(f"can't read a board from {type(src).__name__}")
 
 
 def generate_board(width=None, height=None, *, seed=7, place_resources=True,
                    out_pdf="renown_board.pdf", hex_mm=40.0, paper="A4",
-                   margin_mm=6.0, mapgen_params=None, map=None):
+                   margin_mm=6.0, mapgen_params=None, map=None, climate=None):
     """Generate a numbered, tileable A4 PDF board.
 
     width, height   : hex grid dimensions. Optional when `map` is supplied.
@@ -214,6 +268,7 @@ def generate_board(width=None, height=None, *, seed=7, place_resources=True,
                       regional preset, or the browser generator — reaches the
                       print pipeline. Nothing downstream cares where the map
                       came from: it only reads h.terrain and h.resource.
+    climate         : hexstyle climate key; overrides the preset's / export's.
     """
     if paper not in PAPER:
         raise ValueError(f"paper must be one of {list(PAPER)}")
@@ -241,12 +296,13 @@ def generate_board(width=None, height=None, *, seed=7, place_resources=True,
     R = float(hex_mm)
     dx = 1.5 * R
     dy = math.sqrt(3) * R
-    tbody = _terrain_bodies()
+    tbody = _terrain_bodies(_resolve_colors(m, climate))
+    coast = _coast_svg(m, R, dx, dy)
 
     placed = []
     for h in m.all():
         cx, cy = _hex_center(h.col, h.row, R, dx, dy)
-        body = tbody[h.terrain]
+        body = tbody["hill"] if getattr(h, "tactical", None) == "hill" else tbody[h.terrain]
         if place_resources and h.resource:
             body = body + _resource_body(h.resource)
         placed.append((cx, cy, body))
@@ -269,7 +325,8 @@ def generate_board(width=None, height=None, *, seed=7, place_resources=True,
             sel = [p for p in placed
                    if bx0 - R <= p[0] <= bx0 + win_w + R
                    and by0 - R <= p[1] <= by0 + win_h + R]
-            svg = _page_svg((bx0, by0, win_w, win_h), sel, R, page_wmm, page_hmm, margin_mm)
+            svg = _page_svg((bx0, by0, win_w, win_h), sel, R, page_wmm, page_hmm,
+                            margin_mm, overlay=coast)
             tmp = os.path.join(_TMPDIR, f"_pg_{pr}_{pc}.svg")
             with open(tmp, "w") as f:
                 f.write(svg)
@@ -283,7 +340,7 @@ def generate_board(width=None, height=None, *, seed=7, place_resources=True,
     out_png = os.path.splitext(out_pdf)[0] + ".png"
     try:
         _render_board_png(placed, board_w, board_h, R, out_png,
-                          settlements=getattr(m, "settlements", None))
+                          settlements=getattr(m, "settlements", None), overlay=coast)
     except Exception as e:                 # preview is non-essential; PDF is the deliverable
         out_png = f"(preview failed: {e})"
     terr, res, regions = mapgen.stats(m)
@@ -316,6 +373,8 @@ if __name__ == "__main__":
                     help='mapgen override, e.g. --param players=6 --param forests=14')
     ap.add_argument("--tactical", action="store_true",
                     help="one-sheet skirmish board (landscape, terrain only, hills)")
+    ap.add_argument("--climate", default=None, choices=sorted(hexstyle.CLIMATES),
+                    help="colour set (default: the board's preset climate)")
     ap.add_argument("--out", default="renown_board.pdf", dest="out_pdf")
     a = ap.parse_args()
     mparams = {}
@@ -325,10 +384,12 @@ if __name__ == "__main__":
     if a.tactical:
         info = generate_tactical_board(a.width, a.height, seed=a.seed, hex_mm=a.hex_mm,
                                        paper=a.paper, margin_mm=a.margin_mm,
-                                       out_pdf=a.out_pdf, mapgen_params=mparams)
+                                       out_pdf=a.out_pdf, mapgen_params=mparams,
+                                       climate=a.climate)
     else:
         info = generate_board(a.width, a.height, seed=a.seed, hex_mm=a.hex_mm,
                               paper=a.paper, margin_mm=a.margin_mm,
                               place_resources=not a.no_resources,
-                              out_pdf=a.out_pdf, mapgen_params=mparams)
+                              out_pdf=a.out_pdf, mapgen_params=mparams,
+                              climate=a.climate)
     print(info)

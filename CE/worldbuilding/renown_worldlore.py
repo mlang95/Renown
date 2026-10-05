@@ -13,7 +13,6 @@ data-only (no logic) so it can be consumed by generators, wikis, or docs.
 # ---------------------------------------------------------------------------
 # DOMAINS — the master table. Each domain is one column of categorical choices.
 # ---------------------------------------------------------------------------
-
 DOMAINS = {
     "Prowess": {
         "core_value": "Glory",
@@ -3206,7 +3205,7 @@ SAINT_DECK = {
         "why_absent": "The true name is UNSPEAKABLE — to know it is itself blasphemy. You cannot "
                       "card what may not be named. The deck leaves the throne EMPTY on purpose; a "
                       "deck that fills it has committed the bypass (TETRAMORPH: structural collapse).",
-        "held_by": "The papacy alone, BOTH ways: the reigning pope receives the name ON ACCESSION, "
+        "held_by": "The papacy alone, BOTH ways: the reigning pope receives the name ON ASCENSION, "
                    "and the Inquisition (Ollanenor's Order of Balance, whose sigil is EYES — the eyes of the "
                    "papacy) knows it collectively to recognise and hunt those who do. Outside the "
                    "church it lives only at Prophet's Landing, spoken by the false-religion cultures "
@@ -3221,8 +3220,9 @@ SAINT_DECK = {
     #      naming -> "St. <office> the <adj>, <n> of <sigil>"
     "pillars": {
         "Ollanenor":  {"domain": "Balance", "sigil": "eyes",    "adj": "the Watchful",
-                       "order": "The Order of Balance (the Inquisition)",
-                       "note": "Eyes are the Inquisition's — the watchful gaze of the purifiers, "
+                       "order": "The Order of Saints (the Inquisition)",
+                       "note": "The Order of Saints delivers every saint-name, so THIS Pillar names "
+                                "Eyes are the Inquisition's — the watchful gaze of the purifiers, "
                                "the eyes of the Tetramorph. This Pillar is orthodoxy and "
                                "purification, not naming.",
                        "roles": ["Alice", "Agatha", "Kristi", "Clarice",
@@ -3236,8 +3236,8 @@ SAINT_DECK = {
                        "roles": ["Dane", "Domas", "Grenada", "Fasille",
                                  "Kanga", "Hygle", "Francis", "Scepter"]},
         "Anumaranth": {"domain": "Saints",  "sigil": "candles", "adj": "the Saintly",
-                       "order": "The Order of Saints (records via the True Word)",
-                       "note": "The Order of Saints delivers every saint-name, so THIS Pillar names "
+                       "order": "The Order of Balance (records via the True Word)",
+                       "note": 
                                "the others; its True Word arm keeps the count, and the candle is the "
                                "reckoning made visible — a measured burn is the count.",
                        "roles": ["Deca", "Lieber", "Calvin", "Cauch",

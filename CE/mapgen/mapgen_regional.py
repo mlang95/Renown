@@ -1401,7 +1401,7 @@ def export_map(m, p, seed, violations=()):
                         for reg in getattr(m, "settlements", [])],
         "centers": [list(c) for c in getattr(m, "centers", [])],
         "settlement_range": getattr(m, "settlement_range", None),
-        "art": p.get("art", {}),
+        "climate": p.get("climate", "temperate"),
         "violations": list(violations),
     }
 

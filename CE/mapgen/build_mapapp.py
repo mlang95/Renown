@@ -7,6 +7,7 @@ Three inputs are baked into one self-contained page:
                                                    /*__TERRAIN__*/ placeholders)
     gen.js            the generator, JS port
     region_presets.py -> presets.js               (generated, never hand-edited)
+    hexstyle.py       -> glyphs + climate palettes (/*__STYLE__*/)
     renown_data.py    -> the terrain effects table (generated)
 
 Run it from the folder holding the mapgen files. renown_data is imported from
@@ -33,7 +34,7 @@ def presets_js():
             q[f] = {k: [list(x) if isinstance(x, tuple) else x for x in v]
                     if isinstance(v, (list, tuple)) else v
                     for k, v in (q.get(f) or {}).items()}
-        for f in ("shares", "morphology", "resource_min", "art"):
+        for f in ("shares", "morphology", "resource_min"):
             q[f] = q.get(f) or {}
         c = q.get("carve")
         if c:
@@ -117,10 +118,14 @@ def main():
     open(os.path.join(HERE, "presets.js"), "w", encoding="utf-8").write(pjs)
     ref = terrain_ref(find_data(a.data))
 
-    for token in ("/*__GEN__*/", "/*__PRESETS__*/", "/*__TERRAIN__*/"):
+    sys.path.insert(0, HERE)
+    import hexstyle
+    style = json.dumps(hexstyle.export(), separators=(",", ":"))
+    for token in ("/*__GEN__*/", "/*__PRESETS__*/", "/*__TERRAIN__*/", "/*__STYLE__*/"):
         if token not in shell:
             raise SystemExit(f"app_shell.html is missing {token}")
     html = (shell.replace("/*__TERRAIN__*/", json.dumps(ref, separators=(",", ":")))
+                 .replace("/*__STYLE__*/", style)
                  .replace("/*__GEN__*/", gen)
                  .replace("/*__PRESETS__*/", pjs))
     open(a.out, "w", encoding="utf-8").write(html)

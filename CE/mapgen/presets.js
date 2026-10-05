@@ -53,10 +53,7 @@
    "apiary": 0,
    "mine": 1
   },
-  "art": {
-   "plains": "wastes",
-   "tundra": "badlands"
-  },
+  "climate": "wastes",
   "notes": "Herding clans under a chief \u2014 the line Vogen reached in 1136 and got no further. Broken country rather than a wall: peaks stand alone or join in short ridges, occasionally two hexes thick. Every route exists and none is fast, so an army bleeds tempo everywhere instead of being stopped in one pass. No forest, so forestry is unavailable.",
   "massif": {},
   "perimeter": {}
@@ -113,7 +110,7 @@
    "mine": 4,
    "quarry": 3
   },
-  "art": {},
+  "climate": "heath",
   "notes": "The heath they grew crops through the Blight. A handful of chunky massifs set away from the centre \u2014 high ground that frames the worked land instead of cutting it in half.",
   "massif": {
    "mountain": [
@@ -191,7 +188,7 @@
    "arable": 1,
    "salt": 1
   },
-  "art": {},
+  "climate": "uplands",
   "notes": "The ancient continent. Wider valleys than Crag Pass \u2014 this is where a people farmed, not a labyrinth.",
   "massif": {},
   "perimeter": {}
@@ -238,7 +235,7 @@
    "quarry": 1,
    "mine": 2
   },
-  "art": {},
+  "climate": "uplands",
   "notes": "Labyrinth. Everything is impassable except the carved network. Chokepoint warfare; movement is the whole game.",
   "massif": {},
   "perimeter": {}
@@ -310,7 +307,7 @@
   "structure": null,
   "require_hill": true,
   "resource_min": {},
-  "art": {},
+  "climate": "temperate",
   "notes": "Terrain stays out of the way. Baseline.",
   "massif": {},
   "perimeter": {}
@@ -370,10 +367,7 @@
    "forestry": 0,
    "apiary": 0
   },
-  "art": {
-   "plains": "wastes",
-   "tundra": "badlands"
-  },
+  "climate": "wastes",
   "notes": "Badlands. Tundra painted as salted earth. Strained everywhere; arable is scarce and contested \u2014 recursive scarcity.",
   "massif": {},
   "perimeter": {}
@@ -471,7 +465,7 @@
    "mine": 3,
    "salt": 0
   },
-  "art": {},
+  "climate": "steppe",
   "notes": "Drakteni seat. Land is the scarce resource and the engine of everything they do \u2014 heavily channelled, mine-rich. Straits stay one hex so expansion is possible without a Shipyard, but every crossing ends your Move.",
   "massif": {},
   "perimeter": {}
@@ -540,7 +534,7 @@
    "mine": 0,
    "arable": 1
   },
-  "art": {},
+  "climate": "lush",
   "notes": "Ithiss heartland. Woodland matrix; settlements sit in clearings linked by narrow grass passages. No tundra, no mountain: quarry/salt/mine are unavailable by design. Lanes branch and dead-end rather than joining up, so a limb is a commitment and a defender has ground that cannot be flanked through.",
   "massif": {},
   "perimeter": {}
@@ -615,7 +609,7 @@
    "quarry": 3,
    "salt": 2
   },
-  "art": {},
+  "climate": "frozen",
   "notes": "Madekite. Wintery forested mountain pass. Ridges run part-way down the map rather than sealing it, so the passes are between the ranges instead of through them. Strained is the default condition; quarry-rich, arable-poor.",
   "massif": {},
   "perimeter": {}
@@ -671,7 +665,7 @@
    "salt": 0,
    "forestry": 1
   },
-  "art": {},
+  "climate": "wastes",
   "notes": "A glen ringed by rock - the one piece of tillable land left, and the middle of the map is the thing worth taking rather than the thing in the way. Three passes through the ring, so every approach is known ground and can be watched.",
   "massif": {},
   "perimeter": {}
@@ -724,10 +718,7 @@
    "forestry": 0,
    "apiary": 0
   },
-  "art": {
-   "plains": "wastes",
-   "tundra": "badlands"
-  },
+  "climate": "steppe",
   "notes": "A narrow pair of ranges. Two walls, one contested narrows between them.",
   "massif": {},
   "perimeter": {}
@@ -803,7 +794,7 @@
   "resource_min": {
    "forestry": 1
   },
-  "art": {},
+  "climate": "frozen",
   "notes": "Papacy heartland. Open and buildable in the middle \u2014 Piety wants Public Order, not chokepoints \u2014 with long thin ranges running along the margins. Ridges and rivers close the interior into walled compartments with one gate each - a Piety region should be held by knowing the ground, not by meeting in the open. Forest belongs to the walls rather than being scattered loose across the fields.",
   "perimeter": {
    "mountain": [
@@ -883,7 +874,7 @@
    "mine": 0,
    "arable": 1
   },
-  "art": {},
+  "climate": "deepwood",
   "notes": "The only land untouched by the Great Fracture. Denser than Dreadwood and barely carved: one or two passages, everything else is wood. Defender Seizes the Initiative almost always.",
   "massif": {},
   "perimeter": {}
@@ -944,7 +935,7 @@
    "arable": 2,
    "forestry": 2
   },
-  "art": {},
+  "climate": "warm",
   "notes": "A true archipelago \u2014 one small isle per player plus scattered islets to expand onto. Deep water between them: you reach anyone else only once a Shipyard is mastered. Land is the scarcest thing on the board.",
   "sea_crossing": "shipyard",
   "massif": {},
@@ -1009,10 +1000,7 @@
    "quarry": 1,
    "arable": 2
   },
-  "art": {
-   "plains": "scarlet_plain",
-   "forest": "scarlet_forest"
-  },
+  "climate": "scarlet",
   "notes": "Best wood in the world. Woodland matrix but wider passages than Dreadwood; forestry saturated.",
   "massif": {},
   "perimeter": {}
@@ -1092,7 +1080,7 @@
    "mine": 0,
    "arable": 1
   },
-  "art": {},
+  "climate": "mire",
   "notes": "Shassolin territory. Mire everywhere: Unwieldy, Immune Steady, -1 Save is the default battle condition. No tundra.",
   "massif": {},
   "perimeter": {}
@@ -1147,7 +1135,7 @@
    "quarry": 0,
    "salt": 0
   },
-  "art": {},
+  "climate": "temperate",
   "notes": "Two to four substantial islands rather than a scatter \u2014 a diaspora zone, not a reef. Players share an island with a neighbour and must cross open water to reach the rest.",
   "sea_crossing": "shipyard",
   "massif": {},
@@ -1224,7 +1212,7 @@
    "quarry": 4,
    "salt": 3
   },
-  "art": {},
+  "climate": "frozen",
   "notes": "Frozen tundra the Lenavorites abandoned. Strained is the default state; quarry and salt are abundant, food is not.",
   "massif": {},
   "perimeter": {}
@@ -1324,7 +1312,7 @@
   },
   "require_hill": true,
   "resource_min": {},
-  "art": {},
+  "climate": "temperate",
   "notes": "The centre island and the world's name. Deliberately the most even preset \u2014 no dominant terrain, everything available. The Sullen Lake is the one inland water body. One lane runs from every region to the centre island's heart, so the middle is what everyone is equidistant from and committed toward - the question is when to march down your spoke, not which way.",
   "massif": {},
   "perimeter": {}
@@ -1395,7 +1383,7 @@
    "mine": 0,
    "forestry": 1
   },
-  "art": {},
+  "climate": "olive",
   "notes": "Proving ground. Open field: ranged +1 Strike almost everywhere, Hills decide initiative. Never paved.",
   "massif": {},
   "perimeter": {}

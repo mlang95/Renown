@@ -198,12 +198,7 @@ button.ghost:hover{background:var(--edge)}
   <fieldset><legend>Colours</legend>
     <label class="lock"><input type="checkbox" id="lockColors"> keep my colours</label>
     <div class="swatches" id="swatches"></div>
-    <div class="chips">
-      <button class="chip" data-pal="default">Default</button>
-      <button class="chip" data-pal="wastes">Draggath</button>
-      <button class="chip" data-pal="scarlet">Scarlet</button>
-      <button class="chip" data-pal="ink">Print</button>
-    </div>
+    <div class="chips" id="chips"></div>
   </fieldset>
 
   <fieldset><legend>Output</legend>
@@ -1584,7 +1579,7 @@ function exportMap(m, p, seed, violations) {
     terrain: terrain, resources: res, regions: reg,
     settlements: m.settlements.map(r => r.map(s => s.slice())),
     centers: m.centers.map(c => c.slice()),
-    settlement_range: m.settlement_range, art: p.art || {},
+    settlement_range: m.settlement_range, climate: p.climate || 'temperate',
     violations: violations || [] };
 }
 
@@ -1681,10 +1676,7 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
    "apiary": 0,
    "mine": 1
   },
-  "art": {
-   "plains": "wastes",
-   "tundra": "badlands"
-  },
+  "climate": "wastes",
   "notes": "Herding clans under a chief \u2014 the line Vogen reached in 1136 and got no further. Broken country rather than a wall: peaks stand alone or join in short ridges, occasionally two hexes thick. Every route exists and none is fast, so an army bleeds tempo everywhere instead of being stopped in one pass. No forest, so forestry is unavailable.",
   "massif": {},
   "perimeter": {}
@@ -1741,7 +1733,7 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
    "mine": 4,
    "quarry": 3
   },
-  "art": {},
+  "climate": "heath",
   "notes": "The heath they grew crops through the Blight. A handful of chunky massifs set away from the centre \u2014 high ground that frames the worked land instead of cutting it in half.",
   "massif": {
    "mountain": [
@@ -1819,7 +1811,7 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
    "arable": 1,
    "salt": 1
   },
-  "art": {},
+  "climate": "uplands",
   "notes": "The ancient continent. Wider valleys than Crag Pass \u2014 this is where a people farmed, not a labyrinth.",
   "massif": {},
   "perimeter": {}
@@ -1866,7 +1858,7 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
    "quarry": 1,
    "mine": 2
   },
-  "art": {},
+  "climate": "uplands",
   "notes": "Labyrinth. Everything is impassable except the carved network. Chokepoint warfare; movement is the whole game.",
   "massif": {},
   "perimeter": {}
@@ -1938,7 +1930,7 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   "structure": null,
   "require_hill": true,
   "resource_min": {},
-  "art": {},
+  "climate": "temperate",
   "notes": "Terrain stays out of the way. Baseline.",
   "massif": {},
   "perimeter": {}
@@ -1998,10 +1990,7 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
    "forestry": 0,
    "apiary": 0
   },
-  "art": {
-   "plains": "wastes",
-   "tundra": "badlands"
-  },
+  "climate": "wastes",
   "notes": "Badlands. Tundra painted as salted earth. Strained everywhere; arable is scarce and contested \u2014 recursive scarcity.",
   "massif": {},
   "perimeter": {}
@@ -2099,7 +2088,7 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
    "mine": 3,
    "salt": 0
   },
-  "art": {},
+  "climate": "steppe",
   "notes": "Drakteni seat. Land is the scarce resource and the engine of everything they do \u2014 heavily channelled, mine-rich. Straits stay one hex so expansion is possible without a Shipyard, but every crossing ends your Move.",
   "massif": {},
   "perimeter": {}
@@ -2168,7 +2157,7 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
    "mine": 0,
    "arable": 1
   },
-  "art": {},
+  "climate": "lush",
   "notes": "Ithiss heartland. Woodland matrix; settlements sit in clearings linked by narrow grass passages. No tundra, no mountain: quarry/salt/mine are unavailable by design. Lanes branch and dead-end rather than joining up, so a limb is a commitment and a defender has ground that cannot be flanked through.",
   "massif": {},
   "perimeter": {}
@@ -2243,7 +2232,7 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
    "quarry": 3,
    "salt": 2
   },
-  "art": {},
+  "climate": "frozen",
   "notes": "Madekite. Wintery forested mountain pass. Ridges run part-way down the map rather than sealing it, so the passes are between the ranges instead of through them. Strained is the default condition; quarry-rich, arable-poor.",
   "massif": {},
   "perimeter": {}
@@ -2299,7 +2288,7 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
    "salt": 0,
    "forestry": 1
   },
-  "art": {},
+  "climate": "wastes",
   "notes": "A glen ringed by rock - the one piece of tillable land left, and the middle of the map is the thing worth taking rather than the thing in the way. Three passes through the ring, so every approach is known ground and can be watched.",
   "massif": {},
   "perimeter": {}
@@ -2352,10 +2341,7 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
    "forestry": 0,
    "apiary": 0
   },
-  "art": {
-   "plains": "wastes",
-   "tundra": "badlands"
-  },
+  "climate": "steppe",
   "notes": "A narrow pair of ranges. Two walls, one contested narrows between them.",
   "massif": {},
   "perimeter": {}
@@ -2431,7 +2417,7 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   "resource_min": {
    "forestry": 1
   },
-  "art": {},
+  "climate": "frozen",
   "notes": "Papacy heartland. Open and buildable in the middle \u2014 Piety wants Public Order, not chokepoints \u2014 with long thin ranges running along the margins. Ridges and rivers close the interior into walled compartments with one gate each - a Piety region should be held by knowing the ground, not by meeting in the open. Forest belongs to the walls rather than being scattered loose across the fields.",
   "perimeter": {
    "mountain": [
@@ -2511,7 +2497,7 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
    "mine": 0,
    "arable": 1
   },
-  "art": {},
+  "climate": "deepwood",
   "notes": "The only land untouched by the Great Fracture. Denser than Dreadwood and barely carved: one or two passages, everything else is wood. Defender Seizes the Initiative almost always.",
   "massif": {},
   "perimeter": {}
@@ -2572,7 +2558,7 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
    "arable": 2,
    "forestry": 2
   },
-  "art": {},
+  "climate": "warm",
   "notes": "A true archipelago \u2014 one small isle per player plus scattered islets to expand onto. Deep water between them: you reach anyone else only once a Shipyard is mastered. Land is the scarcest thing on the board.",
   "sea_crossing": "shipyard",
   "massif": {},
@@ -2637,10 +2623,7 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
    "quarry": 1,
    "arable": 2
   },
-  "art": {
-   "plains": "scarlet_plain",
-   "forest": "scarlet_forest"
-  },
+  "climate": "scarlet",
   "notes": "Best wood in the world. Woodland matrix but wider passages than Dreadwood; forestry saturated.",
   "massif": {},
   "perimeter": {}
@@ -2720,7 +2703,7 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
    "mine": 0,
    "arable": 1
   },
-  "art": {},
+  "climate": "mire",
   "notes": "Shassolin territory. Mire everywhere: Unwieldy, Immune Steady, -1 Save is the default battle condition. No tundra.",
   "massif": {},
   "perimeter": {}
@@ -2775,7 +2758,7 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
    "quarry": 0,
    "salt": 0
   },
-  "art": {},
+  "climate": "temperate",
   "notes": "Two to four substantial islands rather than a scatter \u2014 a diaspora zone, not a reef. Players share an island with a neighbour and must cross open water to reach the rest.",
   "sea_crossing": "shipyard",
   "massif": {},
@@ -2852,7 +2835,7 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
    "quarry": 4,
    "salt": 3
   },
-  "art": {},
+  "climate": "frozen",
   "notes": "Frozen tundra the Lenavorites abandoned. Strained is the default state; quarry and salt are abundant, food is not.",
   "massif": {},
   "perimeter": {}
@@ -2952,7 +2935,7 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   },
   "require_hill": true,
   "resource_min": {},
-  "art": {},
+  "climate": "temperate",
   "notes": "The centre island and the world's name. Deliberately the most even preset \u2014 no dominant terrain, everything available. The Sullen Lake is the one inland water body. One lane runs from every region to the centre island's heart, so the middle is what everyone is equidistant from and committed toward - the question is when to march down your spoke, not which way.",
   "massif": {},
   "perimeter": {}
@@ -3023,7 +3006,7 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
    "mine": 0,
    "forestry": 1
   },
-  "art": {},
+  "climate": "olive",
   "notes": "Proving ground. Open field: ranged +1 Strike almost everywhere, Hills decide initiative. Never paved.",
   "massif": {},
   "perimeter": {}
@@ -3034,15 +3017,15 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
 'use strict';
 const G = window.RenownGen, PRESETS = window.RenownPresets;
 
-const BASE = { plains:'#96b060', forest:'#2e5c34', wetland:'#5e7054',
-               tundra:'#d6dad6', mountain:'#6e6864', water:'#4a748c' };
-const PALETTES = {
-  default: BASE,
-  wastes:  Object.assign({}, BASE, { plains:'#d4b84e', tundra:'#c49854', mountain:'#7d7469' }),
-  scarlet: Object.assign({}, BASE, { plains:'#bc5442', forest:'#7a2224', wetland:'#6d4038' }),
-  ink:     { plains:'#ffffff', forest:'#c8c8c8', wetland:'#e0e0e0',
-             tundra:'#f4f4f4', mountain:'#8c8c8c', water:'#dcdcdc' }
-};
+/* glyphs + climate palettes: GENERATED from hexstyle.py, shared with print */
+const STYLE = {"ink":"#2b241b","light":"#f3ead3","grid":"#2b241b","grid_opacity":0.22,"coast_w":4.2,"glyph_w":3.4,"glyph_opacity":0.88,"lum_split":0.26,"glyphs":{"plains":"","hill":"<path stroke=\"currentColor\" d=\"M48 74 Q68 34 90 74 Z\"/><path fill=\"none\" stroke=\"currentColor\" d=\"M75 55 l-4 8 M81 63 l-4 8\"/><path stroke=\"currentColor\" d=\"M24 84 Q44 44 68 84 Z\"/><path fill=\"none\" stroke=\"currentColor\" d=\"M51 64 l-4 8 M57 72 l-4 8\"/>","forest":"<path fill=\"none\" stroke=\"currentColor\" d=\"M38 84 V80\"/><polygon stroke=\"currentColor\" points=\"29,80 38,64 47,80\"/><polygon stroke=\"currentColor\" points=\"31.2,70 38,52 44.8,70\"/><path fill=\"none\" stroke=\"currentColor\" d=\"M58 68 V64\"/><polygon stroke=\"currentColor\" points=\"49,64 58,48 67,64\"/><polygon stroke=\"currentColor\" points=\"51.2,54 58,36 64.8,54\"/><path fill=\"none\" stroke=\"currentColor\" d=\"M80 88 V84\"/><polygon stroke=\"currentColor\" points=\"71,84 80,68 89,84\"/><polygon stroke=\"currentColor\" points=\"73.2,74 80,56 86.8,74\"/>","wetland":"<path fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" d=\"M30 30.6 H44 M64 54.0 H84 M26 77.4 H38 M54 77.4 H70\"/><path fill=\"none\" stroke=\"currentColor\" d=\"M42 77.4 C42 70 40 64 41 57 M41 67 L35 62 L33 57 M41 62 L46 57 L47 52 M41 58 L37 52\"/><path fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" d=\"M74 54 l0 -9 M70 54 l-2 -7 M78 54 l2 -7\"/>","tundra":"<path fill=\"none\" stroke=\"currentColor\" d=\"M48 92 q3 -5 6 0 q3 -5 6 0 M80 58 q3 -5 6 0 q3 -5 6 0 M30 48 q3 -5 6 0 q3 -5 6 0 M64 66 q3 -5 6 0 q3 -5 6 0\"/><path stroke=\"currentColor\" d=\"M30 72 Q28 71 28 69 L30 62 Q30 60 32 60 L41 58 Q43 58 45 60 L55 65 Q57 67 57 68 L54 73 Q53 75 51 75 L42 77 Q39 77 37 76 Z M78 88 Q76 89 75 88 L70 86 Q68 85 68 84 L68 78 Q68 77 69 77 L75 76 Q76 76 77 76 L81 77 Q82 78 83 79 L85 85 Q85 87 84 87 Z M66 46 Q66 47 66 48 L65 51 Q64 51 63 51 L59 50 Q58 50 57 49 L53 47 Q52 47 53 46 L57 43 Q58 42 59 42 L62 41 Q63 40 63 42 Z\"/><path fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" d=\"M48 67 l-3.5 7.0 M45 72 l-3.5 7.0 M80 82 l-2.2 4.5 M78 85 l-2.2 4.5 M63 46 l-1.8 3.5 M61 48 l-1.8 3.5\"/>","mountain":"<polygon stroke=\"currentColor\" points=\"28,82 44,54 60,82\"/><polygon stroke=\"currentColor\" points=\"42,86 64,40 88,86\"/><path fill=\"none\" stroke=\"currentColor\" d=\"M71 55 l-5 10 M77 67 l-5 10 M83 79 l-3 6\"/>","water":""},"shade_k":0.8,"hilite_k":1.14,"deep_k":0.58,"climates":{"temperate":{"plains":"#7fa452","forest":"#24502a","wetland":"#556b4a","tundra":"#8b6a45","mountain":"#6e6a62","water":"#4e7470","label":"Temperate"},"wastes":{"plains":"#d29a3a","forest":"#4a5a26","wetland":"#556b4a","tundra":"#a8732f","mountain":"#7d6a55","water":"#4a6f6c","label":"Wastes"},"steppe":{"plains":"#c2ad7a","forest":"#4f5a3a","wetland":"#7a7458","tundra":"#9c8458","mountain":"#8a8070","water":"#4c726f","label":"Steppe"},"frozen":{"plains":"#b0ad9e","forest":"#3a4a3a","wetland":"#7a7a68","tundra":"#e8e8e2","mountain":"#74716b","water":"#5a7a78","label":"Frozen"},"heath":{"plains":"#8f8456","forest":"#1d3d12","wetland":"#5e5634","tundra":"#7c5f3e","mountain":"#6e675a","water":"#4e7470","label":"Heath"},"uplands":{"plains":"#9a8150","forest":"#3a3f1e","wetland":"#5e5a3a","tundra":"#7a5a33","mountain":"#7a7466","water":"#4e7470","label":"Uplands"},"lush":{"plains":"#5f9435","forest":"#1d5210","wetland":"#3f5f2a","tundra":"#8b6a45","mountain":"#6e6a62","water":"#456b66","label":"Lush"},"deepwood":{"plains":"#6f6c38","forest":"#283412","wetland":"#4a4a26","tundra":"#8b6a45","mountain":"#6e6a62","water":"#455f55","label":"Deepwood"},"mire":{"plains":"#8a8250","forest":"#3a4422","wetland":"#625a38","tundra":"#8b6a45","mountain":"#6e6a62","water":"#4f6a5c","label":"Mire"},"warm":{"plains":"#6f9c3e","forest":"#285a2a","wetland":"#4f6c45","tundra":"#8b6a45","mountain":"#6e6a62","water":"#4f8077","label":"Warm coast"},"olive":{"plains":"#9c9548","forest":"#3a4a1e","wetland":"#5e5f36","tundra":"#8b6a45","mountain":"#6e6a62","water":"#4e7470","label":"Olive"},"scarlet":{"plains":"#bc5442","forest":"#7a2224","wetland":"#6d4038","tundra":"#8b6a45","mountain":"#6e6a62","water":"#4e7470","label":"Scarlet"},"ink":{"plains":"#ffffff","forest":"#c8c8c8","wetland":"#e0e0e0","tundra":"#f4f4f4","mountain":"#8c8c8c","water":"#dcdcdc","label":"Print (ink)"}},"default_climate":"temperate"};
+const PALETTES = {};
+for (const k of Object.keys(STYLE.climates)) {
+  const c = STYLE.climates[k], o = {};
+  for (const t of ['plains','forest','wetland','tundra','mountain','water']) o[t] = c[t];
+  PALETTES[k] = o;
+}
+const BASE = PALETTES[STYLE.default_climate];
 const TERRAIN_REF = {"terrain":{"Grassland":{"Effect":"\u2014","Raw Materials":["Arable Land","Apiary"]},"Wetlands":{"Effect":"Speed -1","Raw Materials":["Peat Bog","Forestry"]},"Tundra":{"Effect":"gain Strained","Raw Materials":["Quarry","Salt Works"]},"Mountains":{"Effect":"Impassable","Raw Materials":["Mine"]},"Water":{"Effect":"Must end move after moving over 1 Water Territory (must end on land)","Raw Materials":["Fishmongery"]},"Forest":{"Effect":"Speed -1","Raw Materials":["Forestry","Apiary"]},"Hill":{"Effect":"Gains Seize the Initiative. Where Settlements can be chartered."}},"tactical":{"Hill":{"identify":"Grassland fully ringed by grassland","effect":"An army on a Hill Seizes the Initiative every Skirmish."},"Open Field":{"identify":"Any other grassland","effect":"Ranged Weapons gain +1 to Strike."},"Forest":{"identify":"Forest","effect":"You may only play Scout, Ambush, Flank, or Defensive Formation. The defending player Seizes the Initiative."},"Mire":{"identify":"Wetlands","effect":"Gain Unwieldy and Immune Steady; -1 to Save."},"Tundra":{"identify":"Tundra","effect":"Gain Strained."},"Mountains":{"identify":"Mountains","effect":"Impassable."},"Water":{"identify":"Water","effect":"Must end Move after moving 1 Water Territory. Cannot Skirmish or Siege move."}},"tactical_global":["Any player may Fall Back after the first Skirmish."],"movement":{"Dirt Roads":{"Effect":"Immune Speed -1 from Terrain"},"Stone Roads":{"Effect":"Immune Speed -1 from Terrain. Gain Speed +2"},"Bridge":{"Effect":"Immune Water Effect."},"Tunneler":{"Effect":"Immune Mountain Effect"},"Ancient Wilds":{"Effect":["Immune Speed -1 from Terrain","Other armies gain Speed -1 in Province."]},"Shipyard":{"Effect":"Immune Water Effect"}},"version":"0.4.9.8-d10","source":"combatv4"};
 /* map generator terrain key -> the name the rules use */
 const RULE_NAME = { plains:'Grassland', forest:'Forest', wetland:'Wetlands',
@@ -3114,9 +3097,7 @@ function buildControls() {
                             Math.round(c.land_target * 100), 1, v => v + '%');
   $('carveSet').style.display = cv.children.length ? '' : 'none';
 
-  const artPal = p.art && p.art.plains
-    ? (p.art.plains === 'wastes' ? 'wastes' : 'scarlet') : 'default';
-  setPalette(artPal);
+  setPalette(p.climate || STYLE.default_climate);
 }
 
 function setPalette(name, force) {
@@ -3166,38 +3147,75 @@ function collectOverrides() {
 }
 
 /* ── render ─────────────────────────────────────────── */
+/* Same rules as hexstyle.py: glyph = identity, colour = climate. Tone flips
+   to the light ink on dark fills so a glyph reads on any palette. */
+function lum(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+  return 0.2126 * f(n >> 16 & 255) + 0.7152 * f(n >> 8 & 255) + 0.0722 * f(n & 255);
+}
+const glyphTone = fill => lum(fill) < STYLE.lum_split ? STYLE.light : STYLE.ink;
+function lighten(hex, k) {
+  const n = parseInt(hex.slice(1), 16);
+  const f = v => Math.min(255, Math.round(v * k));
+  return '#' + [f(n >> 16 & 255), f(n >> 8 & 255), f(n & 255)]
+    .map(v => v.toString(16).padStart(2, '0')).join('');
+}
 function render() {
-  const m = current.map, R = 15;
+  const m = current.map, R = 15, sc = R / 54;
   const showRes = $('showRes').checked, showSet = $('showSet').checked;
   const dx = 1.5 * R, dy = Math.sqrt(3) * R;
   const W = m.width * dx + R * 2, H = m.height * dy + dy;
-  let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W.toFixed(1)} ${H.toFixed(1)}" `
+  const ctr = (c, r) => [R + c * dx, dy / 2 + r * dy + (c % 2 ? dy / 2 : 0)];
+  const vtx = (cx, cy, k) => [cx + R * Math.cos(Math.PI / 3 * k), cy + R * Math.sin(Math.PI / 3 * k)];
+  const pts = (cx, cy) => [0,1,2,3,4,5].map(k => vtx(cx, cy, k).map(v => v.toFixed(1)).join(',')).join(' ');
+  let s = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" `
+        + `viewBox="0 0 ${W.toFixed(1)} ${H.toFixed(1)}" `
         + `preserveAspectRatio="xMidYMid meet" role="img" `
-        + `aria-label="Generated Renown board"><rect width="100%" height="100%" fill="#f7f5ef"/>`;
-  const pts = (cx, cy) => {
-    let a = [];
-    for (let k = 0; k < 6; k++) {
-      const t = Math.PI / 180 * 60 * k;
-      a.push((cx + R * Math.cos(t)).toFixed(1) + ',' + (cy + R * Math.sin(t)).toFixed(1));
-    }
-    return a.join(' ');
-  };
-  const lighten = (hex, k) => {
-    const n = parseInt(hex.slice(1), 16);
-    const f = v => Math.min(255, Math.round(v * k));
-    return '#' + [f(n >> 16 & 255), f(n >> 8 & 255), f(n & 255)]
-      .map(v => v.toString(16).padStart(2, '0')).join('');
-  };
+        + `aria-label="Generated Renown board"><defs>`;
+  for (const g of Object.keys(STYLE.glyphs))
+    s += `<symbol id="g-${g}" viewBox="0 0 120 108"><g stroke-width="${STYLE.glyph_w}" `
+       + `stroke-linecap="round" stroke-linejoin="round">${STYLE.glyphs[g]
+         .replace(/stroke="SHADE"/g, 'style="stroke:var(--shade)"')
+         .replace(/stroke="HILITE"/g, 'style="stroke:var(--hilite)"')
+         .replace(/fill="SHADE"/g, 'style="fill:var(--shade)"')
+         .replace(/fill="DEEP"/g, 'style="fill:var(--deep)"')}</g></symbol>`;
+  s += `</defs><rect width="100%" height="100%" fill="#f7f5ef"/>`;
+  const gw = (120 * sc).toFixed(2), gh = (108 * sc).toFixed(2);
+  let tiles = '', glyphs = '', coast = '', res = '';
   for (const h of m.all()) {
-    const cx = R + h.col * dx, cy = dy / 2 + h.row * dy + (h.col % 2 ? dy / 2 : 0);
-    let fill = colors[h.terrain];
-    if (h.tactical === 'hill') fill = lighten(fill, 1.16);
-    s += `<polygon points="${pts(cx, cy)}" fill="${fill}" stroke="#00000026" stroke-width="1"/>`;
-    if (h.resource && showRes) s += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${(R*.3).toFixed(1)}" `
-      + `fill="${RESCOL[h.resource]}" stroke="#0006" stroke-width="1"/>`;
+    const [cx, cy] = ctr(h.col, h.row);
+    const hill = h.tactical === 'hill';
+    const fill = hill ? lighten(colors[h.terrain], 1.16) : colors[h.terrain];
+    tiles += `<polygon points="${pts(cx, cy)}" fill="${fill}" stroke="${STYLE.grid}" `
+           + `stroke-opacity="${STYLE.grid_opacity}" stroke-width="0.6"/>`;
+    const g = hill ? 'hill' : h.terrain;
+    if (STYLE.glyphs[g]) glyphs += `<use href="#g-${g}" xlink:href="#g-${g}" x="${(cx - 60 * sc).toFixed(2)}" `
+            + `y="${(cy - 54 * sc).toFixed(2)}" width="${gw}" height="${gh}" `
+            + `fill="${fill}" color="${glyphTone(fill)}" opacity="${STYLE.glyph_opacity}" `
+            + `style="--shade:${lighten(fill, STYLE.shade_k)};--hilite:${lighten(fill, STYLE.hilite_k)};--deep:${lighten(fill, STYLE.deep_k)}"/>`;
+    if (h.terrain !== 'water') for (const n of m.nbrs([h.col, h.row])) {
+      if (n.terrain !== 'water') continue;
+      const [nx, ny] = ctr(n.col, n.row);
+      const ang = Math.atan2(ny - cy, nx - cx) * 180 / Math.PI;
+      const k = ((Math.round((ang - 30) / 60) % 6) + 6) % 6;
+      const a = vtx(cx, cy, k), b = vtx(cx, cy, k + 1);
+      coast += `M${a[0].toFixed(1)} ${a[1].toFixed(1)}L${b[0].toFixed(1)} ${b[1].toFixed(1)}`;
+    }
+    if (h.resource && showRes) {
+      const bx = cx + 26 * sc, by = cy - 24 * sc;
+      res += `<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="${(17*sc).toFixed(2)}" `
+           + `fill="#e9ddc2" stroke="${STYLE.ink}" stroke-width="0.6"/>`
+           + `<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="${(10*sc).toFixed(2)}" `
+           + `fill="${RESCOL[h.resource]}" stroke="#0006" stroke-width="0.5"/>`;
+    }
   }
+  s += tiles + glyphs;
+  if (coast) s += `<path d="${coast}" fill="none" stroke="${STYLE.ink}" `
+                + `stroke-width="${(STYLE.coast_w * sc).toFixed(2)}" stroke-linecap="round"/>`;
+  s += res;
   if (showSet) for (const reg of m.settlements) for (const st of reg) {
-    const cx = R + st[0] * dx, cy = dy / 2 + st[1] * dy + (st[0] % 2 ? dy / 2 : 0);
+    const [cx, cy] = ctr(st[0], st[1]);
     const w = R * .42;
     s += `<rect x="${(cx-w).toFixed(1)}" y="${(cy-w).toFixed(1)}" width="${(w*2).toFixed(1)}" `
       + `height="${(w*2).toFixed(1)}" fill="#b3392f" stroke="#fff" stroke-width="1.6"/>`;
@@ -3367,8 +3385,12 @@ function drawLegend() {
 ['showRes', 'showSet'].forEach(id =>
   $(id).addEventListener('change', () => { drawLegend(); render(); }));
 drawLegend();
-document.querySelectorAll('.chip').forEach(b =>
-  b.addEventListener('click', () => setPalette(b.dataset.pal, true)));
+for (const k of Object.keys(STYLE.climates)) {
+  const b = document.createElement('button');
+  b.className = 'chip'; b.dataset.pal = k; b.textContent = STYLE.climates[k].label;
+  b.addEventListener('click', () => setPalette(k, true));
+  $('chips').appendChild(b);
+}
 ['seed'].forEach(id => $(id).addEventListener('change', run));
 /* Each control is a slider plus a typeable box showing the same value. The box
    accepts numbers beyond the slider's range — a 60x50 board at 7 players is a
