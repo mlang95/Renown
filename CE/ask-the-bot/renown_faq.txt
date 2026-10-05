@@ -1,39 +1,39 @@
 2H | [2H](https://mlang95.github.io/RenownWiki/keywords-ref.html#2h): Cannot use a Shield: while a 2H weapon is Equipped, your Shield gives nothing that Skirmish (no Save bonus, Initiative or keywords).
 2HBastard | [2HBastard](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP -2, Init +0. Keywords: 2H, Unwieldy, Unstoppable, Cleave.
-Abbey | [Abbey](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Once/turn: Influence +1 another player's Piety Envoy / Mastery: Morale +1
+Abbey | [Abbey](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Once/turn: Influence +1 another player's Piety Envoy; Morale +1
 Abstain | [Abstain](https://mlang95.github.io/RenownWiki/glossary.html#abstain): Decline to spend Influence on a vote.
-Academy | [Academy](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Influence +1 to Council Envoys / Mastery: Influence +1 to non-Council Envoys
+Academy | [Academy](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Influence +1 to Council Envoys; Influence +1 to non-Council Envoys
 actions | [Actions](https://mlang95.github.io/RenownWiki/actions-ref.html): every Envoy action by Domain. Prowess (Move/Declare War/Pillage/Demand Tribute), Cunning (Intercept Caravan/Foster Rebellion/Raze/Destabilize/Sabotage), Piety (Spread Truth/Send Missionaries/Tithe/Convert/Sacred War), Industry (Build/Repair/Pursue/Charter), Diplomacy (Sign Treaty/Negotiate/End Treaty).
 Adjacent | [Adjacent](https://mlang95.github.io/RenownWiki/glossary.html#adjacent): Range 1.
-Advanced Blast Furnace | [Advanced Blast Furnace](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Monument). Innate: Upkeep -500 / Mastery: Crafted Tier Unlocked; Craft +2
-Alchemy | [Alchemy](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: +500 / Mastery: Craft+1
+Advanced Blast Furnace | [Advanced Blast Furnace](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Upkeep -500; Crafted Weapons Unlocked; Craft +2
+Alchemy | [Alchemy](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: +500; Craft+1
 Alliance | [Alliance](https://mlang95.github.io/RenownWiki/glossary.html#alliance): A Treaty binding players to mutual support; Military and Defensive Alliances unlock by Era.
 alliances | See 'treaties'. Military Alliances unlock at Eminence, Defensive at Zenith.
-Animal Husbandry | [Animal Husbandry](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Husbandry). Innate: Natural, Unlock Crude armor and shield. / Mastery: +500
+Animal Husbandry | [Animal Husbandry](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Husbandry). Innate: Natural, Unlock Crude armor and shield. +500
 AP | [AP](https://mlang95.github.io/RenownWiki/glossary.html#ap): Armor Penetration — a weapon's (negative) modifier to the defender's Save roll; the more negative, the harder to save.
 Apiary | [Apiary](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Raw Materials). Innate: +500, Natural; Craft +1
-Apothecary | [Apothecary](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Civic). Innate: +300 / Mastery: Gain Recover 8, or improve Recover by +1.
+Apothecary | [Apothecary](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: +300; Gain Recover 8, or improve Recover by +1.
 Aqueducts | [Aqueducts](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Sophisticated). Upkeep 300 (per Turn), build 4. Reach +1, Upkeep -500, Build Timer -1, +1 Influence
 Arable Land | [Arable Land](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Raw Materials). Innate: +500, Natural; Craft +1
-Aristocratic Court | [Aristocratic Court](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Each Empire Phase, Extort 500 from each non-allied player with a lower Cunning value. / Mastery: Your Vote counts as 2 votes toward Domain selection during the Council Phase.
+Aristocratic Court | [Aristocratic Court](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Each Empire Phase, Extort 500 from each non-allied player with a lower Cunning value. Your Vote counts as 2 votes toward Domain selection during the Council Phase.
 Arming Sword | [Arming Sword](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP -1, Init +0. Keywords: Steady.
-Armory | [Armory](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Craft). Innate: Unlock Wrought armor & shield / Mastery: Upkeep -300; Craft +1
+Armory | [Armory](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Unlock Wrought armor & shield; Upkeep -300; Craft +1
 army upkeep | [Army upkeep](https://mlang95.github.io/RenownWiki/economy-ref.html): Σ(retinue costs x army) - Upkeep -X. Reduced by Levy Hall, Tannery, Saddlery, Butchery, Smokehouse, Advanced Blast Furnace, High Quartermaster, etc.
 Arquebus | [Arquebus](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Crafted). AP -6, Init +2. Keywords: 2H, Unwieldy, Unstoppable, Negate Shielded, Negate Riposte, Negate Planishing, Awkward.
-Artillery Park | [Artillery Park](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Siege Timers ignore Wooden & Stone Walls. Unlocks Arquebus / Mastery: Settlements you Siege can't Sally Forth. Siege Timer −1.
-Artisan Workshop | [Artisan Workshop](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: +500 / Mastery: +500, Faith +1
+Artillery Park | [Artillery Park](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Siege Timers ignore Wooden & Stone Walls. Unlocks Arquebus; Settlements you Siege can't Sally Forth. Siege Timer −1.
+Artisan Workshop | [Artisan Workshop](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: +1000, Faith +1
 Ascension | [Ascension](https://mlang95.github.io/RenownWiki/eras-ref.html) Era. Renown 8, armies 2, cities 1, influence/turn 2, envoys: 1 Council Envoy (2 actions each) + 1 Personal Envoy (1 action each) per turn. Unlocks: May resolve Charter Cities
 Attacker / Defender | [Attacker / Defender](https://mlang95.github.io/RenownWiki/glossary.html#attacker-defender): Set by the roll-off. Each Skirmish the Attacker declares equipment first; the Defender then responds.
 Awkward | [Awkward](https://mlang95.github.io/RenownWiki/glossary.html#awkward): While equipped with this weapon during a skirmish, you cannot Parry, and so cannot Riposte.
-Bakery | [Bakery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Natural; Faith +1 / Mastery: +500; Craft +2
+Bakery | [Bakery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Natural; Faith +1; +500; Craft +2
 Bandit | [Bandit](https://mlang95.github.io/RenownWiki/glossary.html#bandit): Neutral hostile force; Bandit Camps spawn in Outlaw Country and on low Public Order.
 Bastard Sword | [Bastard Sword](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP -2, Init +0. Keywords: Steady.
 Battle | [Battle](https://mlang95.github.io/RenownWiki/glossary.html#battle): One fight between two players, resolved as a series of Skirmishes until a side is wiped out, Routs, or Falls Back.
 Battle Axe | [Battle Axe](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP -3, Init -1. Keywords: 2H, Unwieldy, Unstoppable, Cleave, Negate Shielded.
-Beacon Towers | [Beacon Towers](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Energy). Innate: Natural; Once per turn, you may select an Army within Province and move it up to its modified Speed. / Mastery: Whenever a non-allied Army ends a Move action within Province, you may immediately perform a Move action
-Bell Tower | [Bell Tower](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: +1 Influence/turn / Mastery: Influence +1 to envoys sent during the Council Phase.
-Black Market | [Black Market](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Secrecy). Innate: When another player Extorts gold from any source: Extort 200 per 1000 (minimum 100) from that player at the end of that resolution. / Mastery: When another player Recoups gold from any source: Extort 200 per 1000 (minimum 100) from that player at the end of that resolution.
-Blacksmith | [Blacksmith](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Craft). Innate: Craft +1 / Mastery: Unlocks Wrought Tier
+Beacon Towers | [Beacon Towers](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Energy). Innate: Natural; Once per turn, you may select an Army within Province and move it up to its modified Speed. Whenever a non-allied Army ends a Move action within Province, you may immediately perform a Move action
+Bell Tower | [Bell Tower](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: +1 Influence/turn; Influence +1 to envoys sent during the Council Phase.
+Black Market | [Black Market](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Secrecy). Innate: When another player Extorts gold from any source: Extort 200 per 1000 (minimum 100) from that player at the end of that resolution. When another player Recoups gold from any source: Extort 200 per 1000 (minimum 100) from that player at the end of that resolution.
+Blacksmith | [Blacksmith](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Craft +1; Unlocks Wrought Weapons
 Blocked | [Blocked](https://mlang95.github.io/RenownWiki/glossary.html#blocked): -1 Initiative in the first Skirmish (negated by Immune Blocked). Armies with Blocked cannot perform Move actions.
 Blunder | [Blunder](https://mlang95.github.io/RenownWiki/keywords-ref.html#blunder): At Initiative -2, your to-Strike is set to 10+, before other negative modifiers.
 Border | [Border](https://mlang95.github.io/RenownWiki/glossary.html#border): Your Settlement's Reach is Range 1 or within Reach of another Player's Reach.
@@ -42,11 +42,11 @@ Bridges | [Bridges](https://mlang95.github.io/RenownWiki/infrastructure-ref.html
 Buckler Shield | [Buckler Shield](https://mlang95.github.io/RenownWiki/equipment-ref.html) Shield (Crude). Save +1, Init +0. Keywords: none.
 Build | [Build](https://mlang95.github.io/RenownWiki/actions-ref.html): Industry action. Cost: 2000 gold. Choose an unlocked, available Infrastructure and set a Build Timer equal to its build time. When it completes, the Infrastructure becomes active in every Settlement in your province. Endorsed: Recoup 2000.
 Build Timer | [Build Timer](https://mlang95.github.io/RenownWiki/glossary.html#build-timer): Turns until an infrastructure/build completes and becomes Active.
-Burgages | [Burgages](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Energy). Innate: +200, Natural / Mastery: Faith +1
-Butchery | [Butchery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Natural; +500 / Mastery: Upkeep -200; Craft+1
+Burgages | [Burgages](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Energy). Innate: +200, Natural; Faith +1
+Butchery | [Butchery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Natural; +500; Upkeep -200; Craft+1
 Capture Timer | [Capture Timer](https://mlang95.github.io/RenownWiki/glossary.html#capture-timer): Turns until a Captured Settlement becomes Controlled by the Player with the Capture Timer and applies the listed capture effects.
-Caravanery | [Caravanery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Natural; Influence -1 to Intercept Caravan actions targeting your settlements / Mastery: Craft +2; Speed -2 to non-allied players in your Province.
-Carpentry | [Carpentry](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Build Timer −1 / Mastery: +300; Craft+1
+Caravanery | [Caravanery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Natural; Influence -1 to Intercept Caravan actions targeting your settlements; Craft +2; Speed -2 to non-allied players in your Province.
+Carpentry | [Carpentry](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Build Timer −1; +300; Craft+1
 Cast | [Cast](https://mlang95.github.io/RenownWiki/glossary.html#cast): Cast equipment tier. Weapons: Daggers, Short Sword, Spears; Ranged: Longbow; Armor: Leather; Shield: Targe Shield. Unlocked by: Tannery (armor & shield), Furnace (weapons).
 Cast Armor | [Cast Armor](https://mlang95.github.io/RenownWiki/glossary.html#cast-armor): Cast-tier armor: Leather. Unlocked by: Tannery.
 cast gear | Cast tier: weapons [Daggers, Short Sword, Spears, Longbow], shields [Targe Shield], armor [Leather].
@@ -55,24 +55,24 @@ cast weapons | [Cast tier](https://mlang95.github.io/RenownWiki/equipment-ref.ht
 Casualty | [Casualty](https://mlang95.github.io/RenownWiki/glossary.html#casualty): A retinue removed from the field — from an unsaved Strike or a failed Panic or Break check.
 Cathedral | [Cathedral](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Sophisticated). Upkeep 300 (per Turn), build 4. Faith +2
 Cavalry Spear | [Cavalry Spear](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP -2, Init +1. Keywords: Steady, Unwieldy, Negate Riposte, Awkward.
-Census Hall | [Census Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Doubt +1; +500 / Mastery: +500
+Census Hall | [Census Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Doubt +1; +1000
 Chainmail | [Chainmail](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Wrought). Save 6+. Keywords: none.
-Chandlery | [Chandlery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Craft +1 / Mastery: Influence −1 to Cunning envoys targeting you
-Charcoal Burner | [Charcoal Burner](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Energy). Innate: Natural / Mastery: +500
+Chandlery | [Chandlery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Craft +1; Influence −1 to Cunning envoys targeting you
+Charcoal Burner | [Charcoal Burner](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Energy). Innate: Natural; +500
 Charter | [Charter](https://mlang95.github.io/RenownWiki/actions-ref.html): Industry action. Cost: 2000 gold. Choose one: Charter a new Village — on uncontrolled or in-province non-water, non-mountain Territory, range 4+ from any Settlement and range 2+ from Outlaw Country; or Expand a non-City Settlement one tier into an adjacent Territory (Village to Sea/Town, Sea/Town to Port/City, Port/City to Metropolis), adding a Ward. Endorsed: Recoup 2000.
-Cidery | [Cidery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Natural; Faith +1 / Mastery: +800; Craft +1
-Cipher Chamber | [Cipher Chamber](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Secrecy). Innate: Once/turn when a player Sends an Envoy: that player must declare the specific Action & target they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action at the declared target. / Mastery: Once/turn: select any active Timer you did not select last turn; increase it by 2.
-Citadel | [Citadel](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Innate: Siege Timer +1 / Mastery: Siege Timer +2, Controlled Settlements gain Reach +1
-City | [City](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 3). Tax 3000, muster 25, build 6, wards 3, reach 3. 
+Cidery | [Cidery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Natural; Faith +1; +800; Craft +1
+Cipher Chamber | [Cipher Chamber](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Secrecy). Innate: Once/turn when a player Sends an Envoy: that player must declare the specific Action & target they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action at the declared target. Once/turn: select any active Timer you did not select last turn; increase it by 2.
+Citadel | [Citadel](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Innate: Siege Timer +3, Controlled Settlements gain Reach +1
+City | [City](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 3). Tax 3000, muster 25, build 6, wards 3, reach 6. 
 Cleave | [Cleave](https://mlang95.github.io/RenownWiki/keywords-ref.html#cleave): On a Focused Strike: roll one extra Strike die at your modified to-Strike.
 Cloth | [Cloth](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (None). Save 10+. Keywords: none.
-Coliseum | [Coliseum](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Civic). Innate: Faith +1 while at War / Mastery: Unlocks Man-at-Arms for Muster
-College of Engineering | [College of Engineering](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Innate: No Upkeep on Sophisticated Infrastructure / Mastery: Build Timer −2
+Coliseum | [Coliseum](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Faith +1 while at War; Unlocks Man-at-Arms for Muster
+College of Engineering | [College of Engineering](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Innate: No Upkeep on Sophisticated Infrastructure; Build Timer −2
 Colossus | [Colossus](https://mlang95.github.io/RenownWiki/wonders-ref.html) Wonder. Upkeep 1000 (per Wonder). You may support your own prowess envoys before other players vote. Armies move Speed +2, Siege Timer -2, & gain Immune Blunder.
 combat | See 'how to attack'.
 Common Land | [Common Land](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Raw Materials). Innate: +1000, Natural, Doubt +1
 Condemned | [Condemned](https://mlang95.github.io/RenownWiki/glossary.html#condemned): An Envoy whose net Influence is -3 or less: it fails and you resolve that Domain's Condemn effect.
-Conditioning Field | [Conditioning Field](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Civic). Innate: Faith +1 while not at War / Mastery: Armies gain Nimble
+Conditioning Field | [Conditioning Field](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Faith +1 while not at War; Armies gain Nimble
 Contested | [Contested](https://mlang95.github.io/RenownWiki/glossary.html#contested): Territory that is within Reach of more than one player's settlement(s). Considered Controlled by all Players that have a Settlement within Reach.
 Controlled | [Controlled](https://mlang95.github.io/RenownWiki/glossary.html#controlled): Territory that is within Reach of a single Player's Settlement(s).
 Convert | [Convert](https://mlang95.github.io/RenownWiki/actions-ref.html): Piety action. Cost: Doubt 1. Choose another player's closest non-capital Settlement; its Public Order must be -5 or lower. Lay Siege using only Settlement-type Siege modifiers (Settlement Size and Citadel) and set a Convert Timer. When it reaches 0, the Settlement joins your empire (see Capture). Endorsed: Gain Faith 1.
@@ -81,9 +81,10 @@ Cost / Pay | [Cost / Pay](https://mlang95.github.io/RenownWiki/glossary.html#cos
 costs | [Costs](https://mlang95.github.io/RenownWiki/economy-ref.html): Cunning/Industry actions cost 2000 gold; Piety costs Doubt 1; Prowess and Diplomacy are free. Tax = 500/tier/turn (Winter). Trade = 100 x Craft per agreement.
 Council Envoy | [Council Envoy](https://mlang95.github.io/RenownWiki/glossary.html#council-envoy): A free Envoy resolved in the Council Phase on the voted Domain; auto-Abstained, net Influence floored at 1.
 Council Phase | [Council Phase](https://mlang95.github.io/RenownWiki/glossary.html#council-phase): Before Personal Envoys, a brief Forum, then all players vote on a Domain with no talking (clockwise; Host breaks ties). Each then sends a free Council Envoy of that Domain. Council Envoys auto-Abstain and their net Influence cannot drop below 1.
-Courier Network | [Courier Network](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Once/turn: Influence −1 on Target Envoy / Mastery: Once/turn: successfully Performed Personal Envoy can be Performed next turn; send 1 fewer Envoys next turn
-Court Artists | [Court Artists](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Extort 500; Faith +1 / Mastery: Extort 500; Targets of Extort from this Court Artist gain Faith +1
-Courtyard | [Courtyard](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Craft +1 / Mastery: Faith +1
+Courier Network | [Courier Network](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Once/turn: Influence −1 on Target Envoy; Once/turn: successfully Performed Personal Envoy can be Performed next turn; send 1 fewer Envoys next turn
+Court Armoury | [Court Armoury](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Innate: Planishing: Your to-Save can't be reduced beyond 10+. Upkeep -500; Crafted Armor & Shield Unlocked
+Court Artists | [Court Artists](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Extort 1000; Faith +1; Targets of Extort from this Court Artist gain Faith +1
+Courtyard | [Courtyard](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Craft +1; Faith +1
 Craft | [Craft](https://mlang95.github.io/RenownWiki/glossary.html#craft): Craft Pursuits count toward how much income your Trade Agreements generate — any effect that grants Craft +X. For each active Trade Agreement, both players gain 100 × the Host's Craft X.
 crafted gear | Crafted tier: weapons [Estoc, Poleaxe, Arquebus, Pilum], shields [Heater Shield], armor [Gothic Plate].
 crafted weapons | [Crafted tier](https://mlang95.github.io/RenownWiki/equipment-ref.html) (4): Estoc, Poleaxe, Arquebus, Pilum
@@ -117,7 +118,7 @@ edict Monument | [Monument](https://mlang95.github.io/RenownWiki/edicts-ref.html
 edicts | [Edicts](https://mlang95.github.io/RenownWiki/edicts-ref.html): the win paths. Sovereign Standing, Monument, Wonder, Wealth, Vassalize, Living Saints, Last Alliance Standing. Completing one raises Renown by 1; most-completed wins.
 Efficient | [Efficient](https://mlang95.github.io/RenownWiki/glossary.html#efficient): A Pursuit is efficient with the Raw Material or Pursuit named on its tile. While it shares a Settlement Ward with that piece, it doesn't consume a Ward of its own.
 Efficient X | [Efficient X](https://mlang95.github.io/RenownWiki/glossary.html#efficient-x): While this Pursuit occupies the same Settlement Ward as X (the Raw Material or Pursuit named on its tile), it uses no ward of its own — the two share one ward. Placed anywhere else, it fills a ward normally. (Core Principle 14.) Note: Two Pursuits that are Efficient with the same Pursuit cannot share a Ward with each other.
-Embassy | [Embassy](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Influence +1 to Diplomacy Envoys / Mastery: Whenever a player performs a Diplomacy Envoy targeting you, that envoy cannot be Opposed.
+Embassy | [Embassy](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Influence +1 to Diplomacy Envoys; Whenever a player performs a Diplomacy Envoy targeting you, that envoy cannot be Opposed.
 Eminence | [Eminence](https://mlang95.github.io/RenownWiki/eras-ref.html) Era. Renown 18, armies 3, cities 2, influence/turn 3, envoys: 1 Council Envoy (2 actions each) + 1 Personal Envoy (2 actions each) per turn. Unlocks: May form Military Alliances
 End Treaty | [End Treaty](https://mlang95.github.io/RenownWiki/actions-ref.html): Diplomacy action. Cost: None. Choose a target with whom you have an active Treaty and no active Truce Timer; remove that Treaty. The target doesn't need to agree. Endorsed: Perform a Diplomacy action.
 Endorsed | [Endorsed](https://mlang95.github.io/RenownWiki/glossary.html#endorsed): An Envoy that passes with 3+ net Influence, triggering its endorsed effect (and a Domain's Rising/Established/Sovereign endorsement).
@@ -125,42 +126,17 @@ Endurance | [Endurance](https://mlang95.github.io/RenownWiki/glossary.html#endur
 Enduring | [Enduring](https://mlang95.github.io/RenownWiki/glossary.html#enduring): Successfully Recovered Strikes don't count toward the Panic check threshold.
 Envoy | [Envoy](https://mlang95.github.io/RenownWiki/glossary.html#envoy): The currency of actions: send an Envoy to perform an action during the Envoy Phase. Council Envoys act on the voted Domain; Personal Envoys are sent by Era progression.
 Envoy Outcome | [Envoy Outcome](https://mlang95.github.io/RenownWiki/glossary.html#envoy-outcome): How a Sent Envoy resolves, by Net Influence: Condemned (<= -3), Failed (-3 < Net <= 0, gain Doubt 1), Passed (>= 1), Endorsed (>= 3). The per-domain effect at each band is given by the Envoy Outcome Table; an action's own endorsed bonus overrides the domain default.
-Episcopal Court | [Episcopal Court](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Faith +1 / Mastery: Reduce the first instance of Doubt at start of turn by 1, min 0.
+Episcopal Court | [Episcopal Court](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Faith +1; Reduce the first instance of Doubt at start of turn by 1, min 0.
 era | [Eras](https://mlang95.github.io/RenownWiki/eras-ref.html) are the empire's growth stages: Founding -> Ascension -> Eminence -> Zenith. Each Era is reached at a Renown threshold (Founding 1, Ascension 8, Eminence 18, Zenith 30) and raises armies, cities, influence, and envoys.
 eras | [Eras](https://mlang95.github.io/RenownWiki/eras-ref.html): Founding -> Ascension -> Eminence -> Zenith.
 escalation | [Escalation Campaign](https://mlang95.github.io/RenownWiki/escalation.html): a fast, battle-driven mode for 2+ players. Start with 25 Levy + Crude gear; every Battle is fought at army size 25. Win VP each turn, then unlock a Standing and Build one Pursuit. See 'escalation rules', 'escalation pursuits', 'tactic matrix', and the Combat Keywords.
-escalation Advanced Blast Furnace | [Advanced Blast Furnace](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Sovereign Industry. Rank 1 (Innate): Crafted tier.
-escalation Animal Husbandry | [Animal Husbandry](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Untested Industry. Rank 1 (Innate): Gambeson armor.
-escalation Apothecary | [Apothecary](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Untested Piety. Rank 1 (Innate): Recover 8.
-escalation Armory | [Armory](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Rising Industry. Rank 1 (Innate): Chainmail.
-escalation Blacksmith | [Blacksmith](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Rising Industry. Rank 1 (Innate): Wrought weapons.
 escalation campaign | See 'escalation'.
-escalation Coliseum | [Coliseum](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Rising Prowess. Rank 1 (Innate): Man-at-Arms unlock.
-escalation Conditioning Field | [Conditioning Field](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Untested Prowess. Rank 1 (Innate): Nimble.
-escalation Fletchery | [Fletchery](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Untested Industry. Rank 1 (Innate): Ranged weapons.
-escalation Forge | [Forge](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Established Industry. Rank 1 (Innate): Forged weapons.
-escalation Furnace | [Furnace](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Untested Industry. Rank 1 (Innate): Cast weapons.
-escalation Gilded Foundry | [Gilded Foundry](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Established Industry. Rank 1 (Innate): Full Plate + Planishing.
-escalation Grand Tournament | [Grand Tournament](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Established Prowess. Rank 1 (Innate): Riposte.
-escalation Hospitaller | [Hospitaller](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Established Piety. Rank 1 (Innate): Recover 6; Enduring.
-escalation Infirmary | [Infirmary](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Untested Piety. Rank 1 (Innate): Recover 7.
-escalation Joinery | [Joinery](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Rising Industry. Rank 1 (Innate): Shields.
-escalation Master Workshop | [Master Workshop](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Established Industry. Rank 1 (Innate): Serrated.
-escalation Ministry of Military Strategy | [Ministry of Military Strategy](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Sovereign Prowess. Rank 1 (Innate): Always Seize the Initiative; your maximum initiative increases to 3.. Rank 2 (Mastery): Deadly, & Cleave also trigger on a natural 8+..
-escalation Outrider Intercept Post | [Outrider Intercept Post](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Sovereign Cunning. Rank 1 (Innate): First Skirmish: see enemy Tactic before choosing. Rank 2 (Mastery): Every Skirmish: see enemy Tactic before choosing.
-escalation Preceptory of the Knight's Templar | [Preceptory of the Knight's Templar](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Sovereign Piety. Rank 1 (Innate): Righteous Fervour. Rank 2 (Mastery): Knight Templar unlock.
 escalation pursuits | [Combat Pursuits](https://mlang95.github.io/RenownWiki/escalation-pursuits.html): the pursuits available in Escalation, grouped by Domain, with their unlock standing and rank effects.
-escalation Royal Pavilion | [Royal Pavilion](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Sovereign Prowess. Rank 1 (Innate): Immune Strain; Drilled.
 escalation rules | [Escalation Battle Rules](https://mlang95.github.io/RenownWiki/escalation-rules.html): setup, turn sequence, victory points, and the 12-step Skirmish walkthrough.
 escalation setup | [Escalation setup](https://mlang95.github.io/RenownWiki/escalation-rules.html): each player starts with 25 Levy retinues, Farm Tools, Cloth armor, no shield; all Domains Untested; 0 VP.
-escalation Stable | [Stable](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Untested Industry. Rank 1 (Innate): Cavalry weapons.
-escalation Tannery | [Tannery](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Untested Industry. Rank 1 (Innate): Leather armor.
-escalation Tiltyard | [Tiltyard](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Established Prowess. Rank 1 (Innate): Dual-equip; Immune Unwieldy; Dual Wield (two of a kind).
-escalation Toxicarium | [Toxicarium](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Rising Cunning. Rank 1 (Innate): Poison.
 escalation victory | [VP](https://mlang95.github.io/RenownWiki/escalation-rules.html): Decisive Win +3, Minor Victory (enemy Fell Back) +2, successful Fall Back +1, any other loss 0. Edicts (Sovereign Standing or mastered Monument) score VP too.
-escalation War College | [War College](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) (Escalation). Unlock: Established Prowess. Rank 1 (Innate): Sergeant unlock.
 Estoc | [Estoc](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Crafted). AP -3, Init +0. Keywords: Steady, Deadly, Unstoppable, Negate Riposte, Negate Planishing.
-Execution Dock | [Execution Dock](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Influence -1 to Foster Rebellion actions targeting your settlements / Mastery: Players who target you or your settlements with actions that cause doubt gain Doubt +1
+Execution Dock | [Execution Dock](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Influence -1 to Foster Rebellion actions targeting your settlements; Players who target you or your settlements with actions that cause doubt gain Doubt +1
 Extort X | [Extort X](https://mlang95.github.io/RenownWiki/glossary.html#extort-x): Take X from the stated source: the gold goes to you instead of its owner.
 factions | [40 factions](https://mlang95.github.io/RenownWiki/factions.html). Filter by 'low/medium/high difficulty factions' or 'low/medium/high strength factions', or ask a faction by name.
 Fail | [Fail](https://mlang95.github.io/RenownWiki/glossary.html#fail): An unsuccessful to Hit or to Save.
@@ -174,92 +150,92 @@ Fatigued | [Fatigued](https://mlang95.github.io/RenownWiki/glossary.html#fatigue
 Field | [Field](https://mlang95.github.io/RenownWiki/glossary.html#field): Your retinues in play — front line (up to 10) plus reserve (up to 5). Casualties leave the field at once, lowering its count.
 Fishmongery | [Fishmongery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Raw Materials). Innate: +500, Natural; Craft +2
 Flail | [Flail](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP -1, Init +0. Keywords: Unwieldy, Unstoppable, Cleave, Awkward.
-Fletchery | [Fletchery](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Craft). Innate: Unlocks Ranged Weapons / Mastery: Upkeep -200
+Fletchery | [Fletchery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Unlocks Ranged Weapons; Upkeep -200
 Focused | [Focused](https://mlang95.github.io/RenownWiki/glossary.html#focused): A natural 10, before modifiers.
 Forest | [Forest](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: Speed -1. Raw Materials: Forestry, Apiary.
 Forestry | [Forestry](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Raw Materials). Innate: +500, Natural; Craft +1
-Forge | [Forge](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Power). Innate: Craft +2 / Mastery: Unlocks Forged Tier
-Forged | [Forged](https://mlang95.github.io/RenownWiki/glossary.html#forged): Forged equipment tier. Weapons: Morningstar, Bastard Sword, 2HBastard, War Hammer, Lance; Ranged: Crossbow; Armor: Full Plate; Shield: Tower Shield. Unlocked by: Gilded Foundry (Mastery) (armor & shield), Forge (Mastery) (all).
-Forged Armor | [Forged Armor](https://mlang95.github.io/RenownWiki/glossary.html#forged-armor): Forged-tier armor: Full Plate. Unlocked by: Gilded Foundry (Mastery), Forge (Mastery).
+Forge | [Forge](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Innate: Craft +2; Unlocks Forged Tier Weapons
+Forged | [Forged](https://mlang95.github.io/RenownWiki/glossary.html#forged): Forged equipment tier. Weapons: Morningstar, Bastard Sword, 2HBastard, War Hammer, Lance; Ranged: Crossbow; Armor: Full Plate; Shield: Tower Shield. Unlocked by: Gilded Foundry (armor & shield), Forge (all).
+Forged Armor | [Forged Armor](https://mlang95.github.io/RenownWiki/glossary.html#forged-armor): Forged-tier armor: Full Plate. Unlocked by: Gilded Foundry, Forge.
 forged gear | Forged tier: weapons [Morningstar, Bastard Sword, 2HBastard, War Hammer, Lance, Crossbow], shields [Tower Shield], armor [Full Plate].
-Forged Shields | [Forged Shields](https://mlang95.github.io/RenownWiki/glossary.html#forged-shields): Forged-tier shields: Tower Shield. Unlocked by: Gilded Foundry (Mastery), Forge (Mastery).
+Forged Shields | [Forged Shields](https://mlang95.github.io/RenownWiki/glossary.html#forged-shields): Forged-tier shields: Tower Shield. Unlocked by: Gilded Foundry, Forge.
 forged weapons | [Forged tier](https://mlang95.github.io/RenownWiki/equipment-ref.html) (6): Morningstar, Bastard Sword, 2HBastard, War Hammer, Lance, Crossbow
-Forgery Workshop | [Forgery Workshop](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Secrecy). Innate: Extort 300 anytime a player Opposes an Envoy of yours / Mastery: Once/turn: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed
-Forgotten Catacombs | [Forgotten Catacombs](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Secrecy). Innate: Whenever you are the target of Extort, reduce the Extort amount by 100. / Mastery: Cunning envoys against you can't be Endorsed
+Forgery Workshop | [Forgery Workshop](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Secrecy). Innate: Extort 300 anytime a player Opposes an Envoy of yours; Once/turn: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed
+Forgotten Catacombs | [Forgotten Catacombs](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Secrecy). Innate: Whenever you are the target of Extort, reduce the Extort amount by 100. Cunning envoys against you can't be Endorsed
 Foster Rebellion | [Foster Rebellion](https://mlang95.github.io/RenownWiki/actions-ref.html): Cunning action. Cost: 2000 gold. Choose a player. At the next Bandit Mechanics step, place a Bandit Camp of 10 Retinues in their Outlaw Country. Endorsed: Extort 2000.
 Founding | [Founding](https://mlang95.github.io/RenownWiki/eras-ref.html) Era. Renown 1, armies 1, cities 0, influence/turn 1, envoys: 1 Council Envoy (1 action each) + 1 Personal Envoy (1 action each) per turn. Unlocks: 
 Full Plate | [Full Plate](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Forged). Save 5+. Keywords: none.
-Furnace | [Furnace](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Craft). Innate: Unlocks Cast Weapons / Mastery: +500
+Furnace | [Furnace](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Unlocks Cast Weapons; +500
 Gambeson | [Gambeson](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Crude). Save 8+. Keywords: none.
 Garrison | [Garrison](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Developed). Upkeep 200 (per Turn), build 3. Local Armies form (10/15/25/50 by Settlement size). All Garrisons share Retinues & Equipment. Can't be targeted; may not Sally Forth while under Siege. Do not pay upkeep.
-Gilded Foundry | [Gilded Foundry](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Craft). Innate: Planishing: Your to-Save can't be reduced beyond 10+. / Mastery: Unlock Forged armor and shield. Craft +1.
+Gilded Foundry | [Gilded Foundry](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Unlock Forged armor and shield. Craft +1.
 Gothic Plate | [Gothic Plate](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Crafted). Save 4+. Keywords: none.
-Granary | [Granary](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Upkeep -500, Natural / Mastery: Armies and Garrisons gain Endurance while Besieged
-Grand Tournament | [Grand Tournament](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Civic). Innate: Faith +1; Improve Parry by +1. / Mastery: 3x/turn: exchange 500 gold for 1 Influence; Armies gain Riposte
+Granary | [Granary](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Upkeep -500, Natural; Armies and Garrisons gain Endurance while Besieged
+Grand Tournament | [Grand Tournament](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Faith +1; Improve Parry by +1. 3x/turn: exchange 500 gold for 1 Influence; Armies gain Riposte
 Grassland | [Grassland](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: —. Raw Materials: Arable Land, Apiary.
 Halberd | [Halberd](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP -2, Init +0. Keywords: 2H, Unwieldy.
 Hamlet | [Hamlet](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 0). Tax 0, muster 0, build 1, wards 3, reach 1. Natural pursuits only; exactly range 2 from capital; may always pursue Arable Land
-Harbor | [Harbor](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: +500; Craft +2 / Mastery: Extort 200 per player without Harbor
+Harbor | [Harbor](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: +500; Craft +2; Extort 200 per player without Harbor
 hard factions | See 'high difficulty factions'.
 Heater Shield | [Heater Shield](https://mlang95.github.io/RenownWiki/equipment-ref.html) Shield (Crafted). Save +2, Init +0. Keywords: Shielded, Immune Destroy Shield.
-Herb Garden | [Herb Garden](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Husbandry). Innate: +500, Natural / Mastery: Craft +1
+Herb Garden | [Herb Garden](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Husbandry). Innate: +500, Natural; Craft +1
 High Chancery | [High Chancery](https://mlang95.github.io/RenownWiki/wonders-ref.html) Wonder. Upkeep 1000 (per Wonder). Once per turn: automatically Condemn or Endorse one Envoy Sent by any other player regardless of Net Influence after Influence has been spent.
 high difficulty factions | 8 factions: The Ashen Vale, The Broken Banner, The Forked Tongue, The Hall of Masks, The Smoldering Crown, The Squatters' Crown, The Wandering Crown, The Dukedom
 high strength factions | 9 factions: The Merchant Republics, The Sacred Throne, The Verdant Kingdom, The Ancient Wilds, The Bloodied Cross, The Blazing Standard, The Forked Tongue, The Hall of Masks, The Dukedom
 Hill | [Hill](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: Gains Seize the Initiative. Where Settlements can be chartered.. Raw Materials: none.
 Hitching Post | [Hitching Post](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Primitive). Upkeep 0 (—), build 2. Craft +1
-Hospitaller | [Hospitaller](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Power). Innate: Recover improved by +1 / Mastery: Enduring: Successful Recovered rolls do not count towards the panic check threshold.
+Hospitaller | [Hospitaller](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Innate: Recover improved by +1; Enduring: Successful Recovered rolls do not count towards the panic check threshold.
 Host | [Host](https://mlang95.github.io/RenownWiki/glossary.html#host): Holds the Host Card; the starting player is the player directly clockwise from the Host, including in Spring. The role passes clockwise each Rest Phase (there is no Host in Spring). The Host collects and distributes Trade Income, resolves Bandit Mechanics, and breaks ties (Council vote, bandit targeting, and any tie not otherwise resolved).
 how to attack | [Battle Phase](https://mlang95.github.io/RenownWiki/rules-battle-phase.html): Move action (Prowess): Move an Army up to its Speed in Territories. Then choose one: March — move up to 2× Speed, lose 1 Endurance, take no other action; Battle — end adjacent to a non-allied Army not in a Settlement, then begin a Battle; Lay Siege — end adjacent to an at-war Settlement, then begin a Siege; Muster — end within range 2 of your Settlements, not within range 1 of a non-ally, at an active Muster Field, then recruit up to your combined muster limit (you may swap Retinues between adjacent allied Armies and change equipment). A Battle is fought as a series of Skirmishes until one side is wiped out, Routs, or successfully Falls Back.
 how to trade | [Trade](https://mlang95.github.io/RenownWiki/rules-trade-income.html): have active Dirt Road Infrastructure and sign a Trade Agreement (Sign Treaty). Per agreement, both players gain 100 x the Host's Craft X. After signing, the player who did not perform Sign Treaty gets income the next time they're Host; afterwards both get it each turn either is Host. No trade in Spring.
 how to win | [Edicts](https://mlang95.github.io/RenownWiki/edicts-ref.html): whichever player has accomplished the most Edicts before the last Alliance standing condition is met wins. Completing an Edict raises the Renown tracker by 1; any Edict may be completed multiple times. Edicts: Sovereign Standing (Reach a Sovereign Standing (Domain value 10) in any Domain.); Monument (Have an active Mastery Effect of a Monument pursuit.); Wonder (Complete a World Wonder.); Wealth (Generate 10,000 gold per turn for five consecutive turns, net Upkeep costs.); Vassalize (Vassalize a rival player (control their capital with no other settlements/armies under them).); Living Saints (Sustain Public Order 10 (Living Saints) for five consecutive turns (Pious Timer).); Last Alliance Standing (Be the last alliance standing — the game-ending stop condition.)
 Hunting Bow | [Hunting Bow](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Crude). AP 0, Init +2. Keywords: 2H, Unstoppable, Negate Riposte, Awkward.
 Immune [keyword] | [Immune [keyword]](https://mlang95.github.io/RenownWiki/glossary.html#immune-keyword): Cancels that keyword as it applies to you (e.g. Immune Unwieldy, Strain, Destroy Shield).
-Imperial Palace | [Imperial Palace](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Each Empire Phase, all non-allied players with a lower Prowess value gain Doubt +2. / Mastery: If your Envoy would fail, it passes instead.
+Imperial Palace | [Imperial Palace](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Each Empire Phase, all non-allied players with a lower Prowess value gain Doubt +2. If your Envoy would fail, it passes instead.
 Industry | [Industry](https://mlang95.github.io/RenownWiki/domain-board-ref.html) Domain standing. Rising: Trade Secrets: Perform endorsed Pursuit.; Established: Grand Architect: May have an additional City. Perform endorsed Charter.; Sovereign: Titan of Industry: Your capital may be chartered to a Metropolis. Perform endorsed Charter.
-Infirmary | [Infirmary](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Civic). Innate: +500 / Mastery: Improve Recover by +1
+Infirmary | [Infirmary](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: +500; Improve Recover by +1
 Influence | [Influence](https://mlang95.github.io/RenownWiki/glossary.html#influence): The political currency of voting. Spend it to Support or Oppose Envoys. You gain it each turn from your Era, innate modifiers (trade partners, alliances, war), Pursuits, and Infrastructure.
 Influence X | [Influence X](https://mlang95.github.io/RenownWiki/glossary.html#influence-x): An automatic +X (or -X) to an Envoy's net Influence from a Pursuit, Infrastructure, or Faction.
 infrastructure | [Infrastructure](https://mlang95.github.io/RenownWiki/infrastructure-ref.html): Dirt Roads, Hitching Post, Muster Field, Wooden Walls, Stone Roads, Town Hall, Bridges, Garrison, Stone Walls, Aqueducts, Cathedral, Library.
 infrastructure upkeep | [Infrastructure upkeep](https://mlang95.github.io/RenownWiki/economy-ref.html): Per-Empire upkeep in INFRASTRUCTURE. Trade Guild removes Primitive (innate) + Developed (mastery); College of Engineering removes Sophisticated.
 Initiative | [Initiative](https://mlang95.github.io/RenownWiki/glossary.html#initiative): Decides who Strikes first each Skirmish (higher first). Runs -2 to +2 (Ministry can raise the maximum to +3). At -2 or lower you Blunder.
-Inn | [Inn](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Faith +1 for trading partners with Craft 3+ / Mastery: Faith +1
-Inquisitorial Palace | [Inquisitorial Palace](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Doubt +1; Unlocks Grand Vizier which uses your Public Order instead of your Cunning value. / Mastery: You may use your Piety Value as Cunning Value for Grand Vizier.
+Inn | [Inn](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Faith +1 for trading partners with Craft 3+; Faith +1
+Inquisitorial Palace | [Inquisitorial Palace](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Doubt +1; Unlocks Grand Vizier which uses your Public Order instead of your Cunning value. You may use your Piety Value as Cunning Value for Grand Vizier.
 Intercept Caravan | [Intercept Caravan](https://mlang95.github.io/RenownWiki/actions-ref.html): Cunning action. Cost: 2000 gold. Choose a player. The next turn that player is Host, Extort their Trade Income. Endorsed: Extort 2000.
-Interrogation Chambers | [Interrogation Chambers](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Extort 500 / Mastery: Cunning actions targetting this player that cause Doubt are reduced by 1, to a minimum of 0.
+Interrogation Chambers | [Interrogation Chambers](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Extort 500; Cunning actions targetting this player that cause Doubt are reduced by 1, to a minimum of 0.
 Javelin | [Javelin](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Wrought). AP -2, Init +1. Keywords: Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One-Shot, Awkward.
-Jester's Court | [Jester's Court](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: First Oppose on your Envoy each turn: reduce by 1 / Mastery: Second Oppose on your Envoy each turn: reduce by 1
-Jewelry Foundry | [Jewelry Foundry](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: +500; Influence +1 to Cunning envoys targeting this player / Mastery: +800; Craft +2
-Joinery | [Joinery](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Craft). Innate: unlocks Shields / Mastery: Upkeep -200
-Kiln | [Kiln](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Energy). Innate: Natural / Mastery: +500
+Jester's Court | [Jester's Court](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: First and second Oppose on your Envoy each turn: reduce by 1
+Jewelry Foundry | [Jewelry Foundry](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: +1300; Influence +1 to Cunning envoys targeting this player; Craft +2
+Joinery | [Joinery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: unlocks Shields; Upkeep -200
+Kiln | [Kiln](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Energy). Innate: Natural; +500
 Kite Shield | [Kite Shield](https://mlang95.github.io/RenownWiki/equipment-ref.html) Shield (Wrought). Save +1, Init +0. Keywords: Steady, Shielded.
 Knight Templar | [Knight Templar](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 4+, Endurance 2, Morale 4+, cost 2000.
 Lance | [Lance](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP -5, Init +1. Keywords: Steady, Unwieldy, Deadly, Unstoppable, Awkward, Negate Riposte, Destroy Shield.
 Last Alliance Standing | [Last Alliance Standing](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Endgame). Be the last alliance standing — the game-ending stop condition.
 Leather | [Leather](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Cast). Save 7+. Keywords: none.
 Levy | [Levy](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 6+, Endurance 2, Morale 7+, cost 1000.
-Levy Hall | [Levy Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Innate: Natural; Upkeep -1000 while an army is range 0 of controlled settlement / Mastery: Upkeep -1000 while an army is range 0 of controlled settlement
+Levy Hall | [Levy Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Innate: Natural; Upkeep -2000 while an army is range 0 of controlled settlement
 Library | [Library](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Sophisticated). Upkeep 300 (per Turn), build 4. Council Envoys you send are always Endorsed
 Living Saints | [Living Saints](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Piety). Sustain Public Order 10 (Living Saints) for five consecutive turns (Pious Timer).
 Longbow | [Longbow](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Cast). AP -1, Init +2. Keywords: 2H, Unstoppable, Deadly, Negate Riposte, Awkward.
 low difficulty factions | 23 factions: The Battering Ram, The Boundless Steppe, The Bandit King, The Crowned Star, The Crimson Tide, The Entwined Crown, The Eternal Court, The Final Word, The Gilded Crescent, The Gilded Path, The Hermit Crown, The Illuminated Order, The Iron Faith, The Iron Shore, The Iron Throne, The Merchant Republics, The Sacred Throne, The Tunnellers, The Undying Flame, The Verdant Kingdom, The Winter Wolves, The Elder Grove, The Yew Heart
 low strength factions | 8 factions: The Bandit King, The Gilded Path, The Hermit Crown, The Tunnellers, The Undying Flame, The Pale Throne, The Ashen Vale, The Broken Banner
 Man-at-Arms | [Man-at-Arms](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 5+, Endurance 3, Morale 6+, cost 2000.
-Manor House | [Manor House](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Natural; Gain +100 gold for each active natural specialization. / Mastery: Gain +200 gold for each active natural specialization.
-Market Square | [Market Square](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Craft +2 / Mastery: +500
-Masonry | [Masonry](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Build Timer −1 / Mastery: Craft+1
-Master Workshop | [Master Workshop](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Craft). Innate: Upkeep -200; Craft +1 / Mastery: Add Serrated to Weapons
-Meadery | [Meadery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Natural; Faith +1 / Mastery: Speed +2 in Winter
+Manor House | [Manor House](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Natural; Gain +200 gold for each active natural specialization.
+Market Square | [Market Square](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Craft +2; +500
+Masonry | [Masonry](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Build Timer −1; Craft+1
+Master Workshop | [Master Workshop](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Upkeep -200; Craft +1; Add Serrated to Weapons
+Meadery | [Meadery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Natural; Faith +1; Speed +2 in Winter
 medium difficulty factions | 9 factions: The Ancient Wilds, The Bloodied Cross, The Blazing Standard, The Inner Circle, The Luminous Court, The Grand Compact, The Pale Throne, The Sublime Gate, The Velvet Hand
 medium strength factions | 23 factions: The Battering Ram, The Boundless Steppe, The Crowned Star, The Crimson Tide, The Entwined Crown, The Eternal Court, The Final Word, The Gilded Crescent, The Illuminated Order, The Iron Faith, The Iron Shore, The Iron Throne, The Winter Wolves, The Inner Circle, The Luminous Court, The Grand Compact, The Sublime Gate, The Velvet Hand, The Smoldering Crown, The Squatters' Crown, The Wandering Crown, The Elder Grove, The Yew Heart
-Merchant Quarter | [Merchant Quarter](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: +500 / Mastery: Trade Partners gain Craft +2
-Metropolis | [Metropolis](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 4). Tax 4000, muster 25, build 8, wards 4, reach 4. Capital only, requires Sovereign Industry (Titan of Industry)
+Merchant Quarter | [Merchant Quarter](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: +500; Trade Partners gain Craft +2
+Metropolis | [Metropolis](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 4). Tax 4000, muster 50, build 8, wards 4, reach 8. Capital only, requires Sovereign Industry (Titan of Industry)
 Military Alliance | [Military Alliance](https://mlang95.github.io/RenownWiki/treaties-ref.html) Treaty (unlocks: Eminence). Mutual offensive pact: if a member Declares War, all members Declare War on the target next turn (and send 1 fewer envoy).
-Mill | [Mill](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Energy). Innate: Natural / Mastery: +500
+Mill | [Mill](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Energy). Innate: Natural; +500
 Mine | [Mine](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Raw Materials). Innate: +500, Natural; Craft +1
-Ministry of Military Strategy | [Ministry of Military Strategy](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Monument). Innate: Always gains Seize the Initiative, and your opponent doesn't; max initiative is increased to 3 / Mastery: Gain Drilled.
-Monastery | [Monastery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Innate: Influence −1 to Piety envoys targeting you / Mastery: Other players can't Oppose your Piety Envoys
-Money Lending | [Money Lending](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Innate: Extort 1000 / Mastery: May loan money to Trade Partners at 100 per 1000/turn interest(minimum 100); on Default: Perform Demand Tribute
+Ministry of Military Strategy | [Ministry of Military Strategy](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Always gains Seize the Initiative, and your opponent doesn't; max initiative is increased to 3; Gain Drilled.
+Monastery | [Monastery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Innate: Influence −1 to Piety envoys targeting you; Other players can't Oppose your Piety Envoys
+Money Lending | [Money Lending](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Innate: Extort 1000; May loan money to Trade Partners at 100 per 1000/turn interest(minimum 100); on Default: Perform Demand Tribute
 Monument | [Monument](https://mlang95.github.io/RenownWiki/glossary.html#monument): A Domain's capstone Pursuit. Completing one scores its Edict and grants a powerful effect.
 monument cap | No numeric cap. Monuments & Wonders are unique: only one Pursuit or Wonder of each name can exist in a game.
 Morale | [Morale](https://mlang95.github.io/RenownWiki/glossary.html#morale): How steady a retinue is when tested (lower is steadier; see the retinue table). Break and Panic checks roll it: a D10 per retinue in the field, up to 5 dice, each must meet its modified value; failures are casualties. If the modified value is ever 11+, the army Routs.
@@ -278,15 +254,15 @@ Net Influence | [Net Influence](https://mlang95.github.io/RenownWiki/glossary.ht
 Next to | [Next to](https://mlang95.github.io/RenownWiki/glossary.html#next-to): Range 2.
 Nimble | [Nimble](https://mlang95.github.io/RenownWiki/keywords-ref.html#nimble): Gain +1 Initiative in the first Skirmish of each Battle.
 Non-Aggression Pact | [Non-Aggression Pact](https://mlang95.github.io/RenownWiki/treaties-ref.html) Treaty. Neither player may Declare War on the other. Ending it via End Treaty gives both a Truce Timer 5.
-Office of Works | [Office of Works](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions. / Mastery: Siege Timer +2; Build Timer -2
+Office of Works | [Office of Works](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions. Siege Timer +2; Build Timer -2
 One-Shot | [One-Shot](https://mlang95.github.io/RenownWiki/keywords-ref.html#one-shot): Must be Equipped in the first Skirmish of a Battle, and can't be Equipped after it. Requires a Tiltyard.
 Oppose X | [Oppose X](https://mlang95.github.io/RenownWiki/glossary.html#oppose-x): Spend X Influence to decrease an Envoy's net Influence.
-Orchard | [Orchard](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Husbandry). Innate: +800, Natural / Mastery: +400 in Fall
+Orchard | [Orchard](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Husbandry). Innate: +800, Natural; +400 in Fall
 Outlaw Country | [Outlaw Country](https://mlang95.github.io/RenownWiki/glossary.html#outlaw-country): Uncontrollable territories in your starting region where Bandit Camps spawn, starting at 3 and expanding if there is no room to place new Bandit Camps.
-Outlaw Rookery | [Outlaw Rookery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Both Bandit Camps & you have Influence +1 on Cunning actions. / Mastery: Endorsed Foster Rebellion places Bandit Camps with 25 retinues instead of 10.
-Outrider Intercept Post | [Outrider Intercept Post](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Monument). Innate: In the first Skirmish of every Battle, your opponent plays their Tactic Card face up before you select your own. / Mastery: Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own.
+Outlaw Rookery | [Outlaw Rookery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Both Bandit Camps & you have Influence +1 on Cunning actions. Endorsed Foster Rebellion places Bandit Camps with 25 retinues instead of 10.
+Outrider Intercept Post | [Outrider Intercept Post](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own.
 Panic check | [Panic check](https://mlang95.github.io/RenownWiki/glossary.html#panic-check): Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish (Recovered Strikes count, unless Enduring), after both sides have Struck. Roll Morale (5 dice); Immune Panic auto-passes.
-Papal Palace | [Papal Palace](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Your Piety actions that cause doubt cause an additional doubt. You no longer pay cost for Piety Envoys. / Mastery: At the start of each turn, Tithe every other player with lower Piety, resolved in the Extort step.
+Papal Palace | [Papal Palace](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: You no longer pay cost for Piety Envoys. At the start of each turn, Tithe every other player with lower Piety, resolved in the Extort step.
 Parry | [Parry](https://mlang95.github.io/RenownWiki/keywords-ref.html#parry): Roll a D10 to attempt to Parry a Strike before an Armor Save. On a 8+ (Improved by Improved Parry), the Strike is Parried and has no further effect.
 Passed | [Passed](https://mlang95.github.io/RenownWiki/glossary.html#passed): Net Influence 1 or more.
 Peace Treaty | [Peace Treaty](https://mlang95.github.io/RenownWiki/treaties-ref.html) Treaty. Ends war between the two players; sets Truce Timer 5.
@@ -295,7 +271,7 @@ Perform | [Perform](https://mlang95.github.io/RenownWiki/glossary.html#perform):
 Personal Envoy | [Personal Envoy](https://mlang95.github.io/RenownWiki/glossary.html#personal-envoy): An Envoy you send in the Envoy Phase to perform an action; count and reach scale with Era.
 Piety | [Piety](https://mlang95.github.io/RenownWiki/domain-board-ref.html) Domain standing. Rising: Divine Mandate: Faith +1 each Empire Phase.; Established: One True Gospel: Each Empire Phase, all other non-allied players with a lower Piety value gain Doubt +2.; Sovereign: Pillar of Faith: If your Public Order would be set below 3, set it to 3. In addition, may use the Sacred War action.
 Pike | [Pike](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP -1, Init +1. Keywords: 2H, Steady, Unwieldy, Deadly, Awkward.
-Pilgrimage Site | [Pilgrimage Site](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Energy). Innate: Natural; Extort 500 every player without a Pilgrimage Site / Mastery: Doubt +1 to all other players without a Pilgrimage Site
+Pilgrimage Site | [Pilgrimage Site](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Energy). Innate: Natural; Extort 500 every player without a Pilgrimage Site; Doubt +1 to all other players without a Pilgrimage Site
 Pillage | [Pillage](https://mlang95.github.io/RenownWiki/actions-ref.html): Prowess action. Cost: None. Requires: Rising Prowess. Choose an army you control within Reach of an at-war player's Settlement that is not under Siege. Until cancelled, while that army remains within Reach of that Settlement and does not Lay Siege, Battle, or March, it may Extort half of that Settlement's [pursuit & tax income] in the Empire Phase. A Settlement may be Pillaged once per Empire Phase. Pillage ends if [war ends / army leaves Reach / Settlement is besieged]. Endorsed: Perform a Move action.
 Pilum | [Pilum](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Crafted). AP -5, Init +1. Keywords: Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One-Shot, Awkward.
 Pitchfork | [Pitchfork](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Crude). AP 0, Init +1. Keywords: 2H, Unwieldy, Awkward.
@@ -315,7 +291,7 @@ PO 5 | [Public Order 5](https://mlang95.github.io/RenownWiki/public-order-ref.ht
 Poison | [Poison](https://mlang95.github.io/RenownWiki/keywords-ref.html#poison): When the Defender receives a Strike and rolls a Focused Save, it fails; the resulting wound may only be Recovered with a Focused Recover.
 Poleaxe | [Poleaxe](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Crafted). AP -5, Init +0. Keywords: 2H, Steady, Cleave, Unstoppable, Negate Shielded, Negate Planishing.
 powerful factions | See 'high strength factions'.
-Preceptory of the Knight's Templar | [Preceptory of the Knight's Templar](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Monument). Innate: Armies gain Righteous Fervour: Automatically pass the first Panic Check of every Battle. / Mastery: Unlocks Knight's Templar for Muster
+Preceptory of the Knight's Templar | [Preceptory of the Knight's Templar](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Armies gain Righteous Fervour: Automatically pass the first Panic Check of every Battle. Unlocks Knight's Templar for Muster
 Province | [Province](https://mlang95.github.io/RenownWiki/glossary.html#province): The collection of Contested Territory and Controlled Territory by your Settlement's Reach.
 Prowess | [Prowess](https://mlang95.github.io/RenownWiki/domain-board-ref.html) Domain standing. Rising: Indomitable: Once per turn, if you have not sent a Personal Envoy, you may instead perform a Prowess action; send 1 fewer Envoy this turn (min 0). In addition, may use Declare War action.; Established: Edict of War: May have an additional Army. Perform a Muster Action.; Sovereign: High Quartermaster: Upkeep -2000. May change equipment on your armies during any upkeep phase where that army is within Province. No longer lose Influence while at War.
 public order | [Public Order](https://mlang95.github.io/RenownWiki/public-order-ref.html): reduced by Doubt, improved by Faith; each band (from Uprising -5 to Living Saints 10) applies effects. See 'PO <number>' for a specific band.
@@ -331,71 +307,71 @@ Realm | [Realm](https://mlang95.github.io/RenownWiki/glossary.html#realm): The t
 Recoup X | [Recoup X](https://mlang95.github.io/RenownWiki/glossary.html#recoup-x): Regain the stated cost in gold after paying it.
 Recover | [Recover](https://mlang95.github.io/RenownWiki/keywords-ref.html#recover): If a to-Save roll fails, roll a D10 & compare it to your Recover value: a result greater than or equal to your Recover value recovers the retinue. Recovered Strikes still count toward the Panic check threshold.
 Region | [Region](https://mlang95.github.io/RenownWiki/glossary.html#region): A collection of Territories of the same Type.
-Reliquary | [Reliquary](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: +500 / Mastery: First Doubt per turn reduced by 1 (min 0)
+Reliquary | [Reliquary](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: +500; First Doubt per turn reduced by 1 (min 0)
 Renown | [Renown](https://mlang95.github.io/RenownWiki/glossary.html#renown): The shared progress track. Gain 1 per Rest Phase; thresholds raise your Era (Ascension 8, Eminence 18, Zenith 30).
 Repair | [Repair](https://mlang95.github.io/RenownWiki/actions-ref.html): Industry action. Cost: 0 gold. Choose a Damaged Pursuit or Infrastructure in a Settlement you control and set Build Timer 2. When it reaches 0, choose one: Restore — reactivate it with all effects; Demolish — remove the Pursuit tile from your Empire Tableau. Endorsed: Recoup 2000.
 Repair Timer | [Repair Timer](https://mlang95.github.io/RenownWiki/glossary.html#repair-timer): Turns until a Damaged piece is repaired and its effects return.
 Resolve | [Resolve](https://mlang95.github.io/RenownWiki/glossary.html#resolve): Attempt to Perform an action.
 Riposte | [Riposte](https://mlang95.github.io/RenownWiki/keywords-ref.html#riposte): If you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.
 Rout | [Rout](https://mlang95.github.io/RenownWiki/glossary.html#rout): The army breaks and leaves the Battle (you lose it). Whenever an army's modified Morale value reaches 11+ or more, it Routs automatically.
-Royal Pavilion | [Royal Pavilion](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Monument). Innate: Armies gain Immune Strained. Improve Parry by +1 / Mastery: Gain +1 to Strike. Deadly, & Cleave also trigger Focused Strikes on a natural 8+.
+Royal Pavilion | [Royal Pavilion](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Armies gain Immune Strained, Improve Parry by +1; Gain +1 to Strike. Deadly, & Cleave also trigger Focused Strikes on a natural 8+.
 Sabotage | [Sabotage](https://mlang95.github.io/RenownWiki/actions-ref.html): Cunning action. Cost: 2000 gold. Choose an army, that army gains Blocked. Endorsed: Extort 2000.
 sack | [Sack](https://mlang95.github.io/RenownWiki/economy-ref.html): Extort 1000 per settlement tier; reduce settlement by 1 tier; Sack Timer 2
 Sack Timer | [Sack Timer](https://mlang95.github.io/RenownWiki/glossary.html#sack-timer): Cooldown before the same force may Lay Siege again (per Sack rules).
 Sacred War | [Sacred War](https://mlang95.github.io/RenownWiki/actions-ref.html): Piety action. Cost: Doubt 1. Requires: Sovereign Piety. Declare War on a non-ally you have no NAP or truce with, then immediately perform a Move action with one of your Armies. Endorsed: Gain Faith 1.
-Saddlery | [Saddlery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Husbandry). Innate: +500, Natural / Mastery: Speed +1; Unlocks Lance (Still requires Tier Unlock)
+Saddlery | [Saddlery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Husbandry). Innate: +500, Natural; Speed +1; Unlocks Lance (Still requires Tier Unlock)
 Sally Forth | [Sally Forth](https://mlang95.github.io/RenownWiki/glossary.html#sally-forth): While a settlement you control is besieged and you have an army inside it, you may Sally Forth: Battle in the Battle Phase without performing an action.
 Salt Works | [Salt Works](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Raw Materials). Innate: +500, Natural; Craft +1
 Save | [Save](https://mlang95.github.io/RenownWiki/glossary.html#save): The defender's roll to avoid a casualty: roll a D10, add the weapon's AP (a negative) and the shield's Save bonus (a positive); the hit is saved on a result >= the armor value.
 seasons | [Seasons](https://mlang95.github.io/RenownWiki/seasons-ref.html): Winter, Spring, Summer, Fall. Each applies a global effect (e.g. Winter = tax + Speed -1).
-Secret Cellar | [Secret Cellar](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Energy). Innate: Natural; Failed Cunning envoys Recoup 500 Gold / Mastery: Passed Cunning envoys Recoup 500 Gold
+Secret Cellar | [Secret Cellar](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Energy). Innate: Natural; Failed Cunning envoys Recoup 500 Gold; Passed Cunning envoys Recoup 500 Gold
 Seize the Initiative | [Seize the Initiative](https://mlang95.github.io/RenownWiki/glossary.html#seize-the-initiative): Won by the roll-off at the start of the Battle — the winner of their last Battle adds +1 to the roll. You become the Attacker and gain +1 Initiative in the first Skirmish. Some Tactics and the Ministry monument also grant it.
-Senate Hall | [Senate Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Faith +1, gain +1 Influence per other player per Turn / Mastery: Once/turn: Before players Support or Oppose, you may auto-Condemn an At War Envoy OR auto-Endorse an Ally's Envoy
+Senate Hall | [Senate Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Faith +1, gain +1 Influence per other player per Turn; Once/turn: Before players Support or Oppose, you may auto-Condemn an At War Envoy OR auto-Endorse an Ally's Envoy
 Send an Envoy | [Send an Envoy](https://mlang95.github.io/RenownWiki/glossary.html#send-an-envoy): Declare a Domain, spend 1 Envoy.
 Send Missionaries | [Send Missionaries](https://mlang95.github.io/RenownWiki/actions-ref.html): Piety action. Cost: Doubt 1. Choose a target player or Alliance. If the target is outside your Alliance, each player in it gains Doubt 2. If the target is inside your Alliance, each other allied player gains Faith 2. Endorsed: Gain Faith 1.
 Sergeant | [Sergeant](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 3+, Endurance 2, Morale 5+, cost 2000.
 Serrated | [Serrated](https://mlang95.github.io/RenownWiki/keywords-ref.html#serrated): A cumulative -2 penalty to the defender's Recover roll.
 settlements | [Settlements](https://mlang95.github.io/RenownWiki/settlements-ref.html): Hamlet, Village, Town, City, Metropolis. Each has tax, muster, wards, and reach values.
 Shielded | [Shielded](https://mlang95.github.io/RenownWiki/keywords-ref.html#shielded): A cumulative -1 penalty to the Strike roll (to a maximum of 10+). Sources: a shield's -1 to Strike.
-Shipyard | [Shipyard](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Craft +2 / Mastery: Craft +2; Water Territory treated as Grassland for movement
+Shipyard | [Shipyard](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Craft +4; Water Territory treated as Grassland for movement
 Short Sword | [Short Sword](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Cast). AP 0, Init +0. Keywords: Steady.
 Siege | [Siege](https://mlang95.github.io/RenownWiki/glossary.html#siege): Sieging a Settlement with an Army to capture it; does not increment in Winter.
-Siege Camp | [Siege Camp](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Innate: Siege Timer −1 / Mastery: Armies gain Immune Strained during Lay Siege
+Siege Camp | [Siege Camp](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Innate: Siege Timer −1; Armies gain Immune Strained during Lay Siege
 Siege Timer | [Siege Timer](https://mlang95.github.io/RenownWiki/glossary.html#siege-timer): Turns remaining until a Siege resolves.
-Siege Works | [Siege Works](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Innate: Siege Timer −1 / Mastery: Siege Timer −1; Sieges Increment in Winter
+Siege Works | [Siege Works](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Innate: Siege Timer −2; Sieges Increment in Winter
 Sign Treaty | [Sign Treaty](https://mlang95.github.io/RenownWiki/actions-ref.html): Diplomacy action. Cost: None. Ask players to agree, then choose one and both sign it: Peace Treaty — end the war, set Truce Timer 5; Trade Agreement — begin trading next turn; Non-Aggression Pact — no Declare War (ending it via End Treaty gives both Truce Timer 5); Alliance — join, form, or invite to a Defensive or Military Alliance. Endorsed: Perform a Diplomacy action.
 Skirmish | [Skirmish](https://mlang95.github.io/RenownWiki/glossary.html#skirmish): One round of a Battle, run through the numbered Battle steps; a Battle repeats Skirmishes until it ends.
-Smokehouse | [Smokehouse](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Natural; Craft +2 / Mastery: Upkeep -500
-Smuggler's Nook | [Smuggler's Nook](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Secrecy). Innate: gain Immune Uprising (Bandit Camp Spawn at -5PO) / Mastery: Bandit Camps in your Outlaw Country don't target you and instead target other players randomly.
+Smokehouse | [Smokehouse](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Natural; Craft +2; Upkeep -500
+Smuggler's Nook | [Smuggler's Nook](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Secrecy). Innate: gain Immune Uprising (Bandit Camp Spawn at -5PO); Bandit Camps in your Outlaw Country don't target you and instead target other players randomly.
 Sovereign Standing | [Sovereign Standing](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Standing). Reach a Sovereign Standing (Domain value 10) in any Domain.
 Spears | [Spears](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Cast). AP -1, Init +1. Keywords: Unwieldy.
 Speed X | [Speed X](https://mlang95.github.io/RenownWiki/glossary.html#speed-x): An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 3
-Spice Merchant | [Spice Merchant](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Natural; +500; Influence +1 to Cunning envoys targeting you / Mastery: +500; Craft +2
+Spice Merchant | [Spice Merchant](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Natural; +1000; Influence +1 to Cunning envoys targeting you; Craft +2
 Spread Truth | [Spread Truth](https://mlang95.github.io/RenownWiki/actions-ref.html): Piety action. Cost: Doubt 1. Each non-allied player gains Doubt 1. Each allied player gains Faith 1. Endorsed: Gain Faith 1.
 Spring | [Spring](https://mlang95.github.io/RenownWiki/seasons-ref.html) Season (Planting). No Host, Bandit actions, Trade Income, Council Phase, or Diplomacy Actions. Players don't gain Influence tokens. Bandit Camps Spawn.
-Stable | [Stable](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Civic). Innate: Speed +1, Natural / Mastery: Speed +1; Unlocks Cavalry Spear (Still requires Tier Unlock)
+Stable | [Stable](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Speed +2, Natural; Unlocks Cavalry Spear (Still requires Tier Unlock)
 Standing | [Standing](https://mlang95.github.io/RenownWiki/glossary.html#standing): Your tier in a Domain: Untested, Rising (3), Established (6), Sovereign (10). Sets max Influence per vote (1/2/3/4) and unlocks Domain effects.
 starting forces | [Escalation setup](https://mlang95.github.io/RenownWiki/escalation-rules.html): 25 Levy, Farm Tools, Cloth armor, no shield. Re-equip freely before each Battle with anything unlocked.
 Steady | [Steady](https://mlang95.github.io/RenownWiki/keywords-ref.html#steady): Initiative cannot be reduced by Tactics.
 Stone Roads | [Stone Roads](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Developed). Upkeep 200 (per Turn), build 3. If you start a Move action within Province, gain additional Speed +1
 Stone Walls | [Stone Walls](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Sophisticated). Upkeep 300 (per Turn), build 4. Influence -2 to Destabilize actions from players targeting your settlements. Influence -1 to Bandit Cunning actions targetting your settlements.
-Storehouse | [Storehouse](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Doubt +1, +600 / Mastery: Build Timer −2, +600
+Storehouse | [Storehouse](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Doubt +1, +1200; Build Timer −2
 Strained | [Strained](https://mlang95.github.io/RenownWiki/glossary.html#strained): -1 Initiative every Skirmish (negated by Immune Strain). Does not gain Endurance in the Empire Phase.
 Strike | [Strike](https://mlang95.github.io/RenownWiki/glossary.html#strike): A landed hit. Roll a D10, apply modifiers to the roll, and Strike on a result >= the to-Strike number. The target may then Parry, Save, and Recover.
 strong factions | See 'high strength factions'.
-Studium Generale | [Studium Generale](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: +1 Influence per Established Standing / Mastery: May gain one Sovereign Domain effect without spending the Domain Points
+Studium Generale | [Studium Generale](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: +1 Influence per Established Standing; May gain one Sovereign Domain effect without spending the Domain Points
 Summer | [Summer](https://mlang95.github.io/RenownWiki/seasons-ref.html) Season (Campaigning). All Armies gain Speed +2
-Supply Depot | [Supply Depot](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Craft +2 / Mastery: May Muster an Army in a Settlement under Siege and increment Muster Timers.
+Supply Depot | [Supply Depot](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Craft +2; May Muster an Army in a Settlement under Siege and increment Muster Timers.
 Support X | [Support X](https://mlang95.github.io/RenownWiki/glossary.html#support-x): Spend X Influence to increase an Envoy's net Influence.
 Suzerain | [Suzerain](https://mlang95.github.io/RenownWiki/glossary.html#suzerain): The player who has Vassalized another; the vassal mirrors their Treaties.
 Tactic | [Tactic](https://mlang95.github.io/RenownWiki/glossary.html#tactic): A choice both players make secretly and reveal together each Skirmish; it can shift Initiative, Strike, and Save rolls.
-Tannery | [Tannery](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Craft). Innate: Natural; Unlocks Cast armor & shield. / Mastery: Upkeep -200; Craft +1
+Tannery | [Tannery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Natural; Unlocks Cast armor & shield. Upkeep -200; Craft +1
 Targe Shield | [Targe Shield](https://mlang95.github.io/RenownWiki/equipment-ref.html) Shield (Cast). Save +1, Init +0. Keywords: Unwieldy, Shielded.
 tax per tier | [Tax per tier](https://mlang95.github.io/RenownWiki/economy-ref.html): 500 gold per settlement tier per turn (collected in Winter)
-Tempered | [Tempered](https://mlang95.github.io/RenownWiki/glossary.html#tempered): Tempered equipment tier. Weapons: Estoc, Poleaxe; Ranged: Arquebus, Pilum; Armor: Gothic Plate; Shield: Heater Shield. Unlocked by: Advanced Blast Furnace (Mastery) (all).
-Tempered Armor | [Tempered Armor](https://mlang95.github.io/RenownWiki/glossary.html#tempered-armor): Tempered-tier armor: Gothic Plate. Unlocked by: Advanced Blast Furnace (Mastery).
-Tempered Shields | [Tempered Shields](https://mlang95.github.io/RenownWiki/glossary.html#tempered-shields): Tempered-tier shields: Heater Shield. Unlocked by: Advanced Blast Furnace (Mastery).
-Tempered Weapons | [Tempered Weapons](https://mlang95.github.io/RenownWiki/glossary.html#tempered-weapons): Tempered-tier weapons: Estoc, Poleaxe, Arquebus, Pilum. Unlocked by: Advanced Blast Furnace (Mastery).
+Tempered | [Tempered](https://mlang95.github.io/RenownWiki/glossary.html#tempered): Tempered equipment tier. Weapons: Estoc, Poleaxe; Ranged: Arquebus, Pilum; Armor: Gothic Plate; Shield: Heater Shield.
+Tempered Armor | [Tempered Armor](https://mlang95.github.io/RenownWiki/glossary.html#tempered-armor): Tempered-tier armor: Gothic Plate.
+Tempered Shields | [Tempered Shields](https://mlang95.github.io/RenownWiki/glossary.html#tempered-shields): Tempered-tier shields: Heater Shield.
+Tempered Weapons | [Tempered Weapons](https://mlang95.github.io/RenownWiki/glossary.html#tempered-weapons): Tempered-tier weapons: Estoc, Poleaxe, Arquebus, Pilum.
 terrain | [Terrain](https://mlang95.github.io/RenownWiki/reference-tables.html): Grassland, Wetlands, Tundra, Mountains, Water, Forest, Hill. Each Territory type has a movement effect and the Raw Material pursuits it supports.
 Territory | [Territory](https://mlang95.github.io/RenownWiki/glossary.html#territory): 1 Hex.
 The Ancient Wilds | [The Ancient Wilds](https://mlang95.github.io/RenownWiki/factions.html) Faction (Medium difficulty, High strength, Oathkeepers). Highlander Way: Enemy Armies have Speed −1 in your Province. You ignore all terrain Speed modifiers and may trade without Dirt Roads. You must accept the first Non-Aggression Pact each player or Alliance offers you. If that player later joins an Alliance, this is considered satisfied for that Alliance.
@@ -440,19 +416,19 @@ The Verdant Kingdom | [The Verdant Kingdom](https://mlang95.github.io/RenownWiki
 The Wandering Crown | [The Wandering Crown](https://mlang95.github.io/RenownWiki/factions.html) Faction (High difficulty, Medium strength, Nomads). Wandering Nomads: Your Armies function as Settlements — a Band, Tribe, or Horde, upgraded accordingly — count as Settlements with Reach 3, and each has a Muster Field. You may have one additional Army per Era, starting with two. Your Armies don't require troops to exist and can't be besieged. You can't build Infrastructure, but may build Pursuits; Raw Material Pursuits within Reach are always active and take no Settlement Ward. You may trade so long as your border touches another player's. You may begin a new Army adjacent to any existing Army with a Charter Settlement or Muster Army action. When an Army is destroyed, so is its Settlement. Nomads pay no upkeep.
 The Winter Wolves | [The Winter Wolves](https://mlang95.github.io/RenownWiki/factions.html) Faction (Low difficulty, Medium strength, Aggressive, Parasitic). Danegeld: While At War, your Armies pay no upkeep in Territory your at-war player controls. You don't gain Speed −1 in Winter.
 The Yew Heart | [The Yew Heart](https://mlang95.github.io/RenownWiki/factions.html) Faction (Low difficulty, Medium strength, Skilled Volleys). Archery is a Way of Life: You begin the game with a Fletchery (no Ward, no upkeep, always-active Mastery that can't be deactivated). Your Armies must always equip a ranged weapon, and Ranged Weapons have +1 to Strike. Your Armies can't equip full plate or articulated gothic plate, can't use shields, and can't build a Preceptory of Knight's Templar.
-Thieves' Guild | [Thieves' Guild](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Whenever another player performs a Cunning action, you may recoup 1000 gold / Mastery: Extort 25% of Trade Income from players who don't trade with you
+Thieves' Guild | [Thieves' Guild](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Innate: Whenever another player performs a Cunning action, you may recoup 1000 gold; Extort 25% of Trade Income from players who don't trade with you
 tiers | [Tier ladder](https://mlang95.github.io/RenownWiki/reference-tables.html): Crude (start) -> Cast (Furnace) -> Wrought (Blacksmith) -> Forged (Forge) -> Crafted (Advanced Blast Furnace).
-Tiltyard | [Tiltyard](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Power). Innate: Armies may be equipped with a Ranged and a Melee Weapon simultaneously; If so, the army gains Unwieldy / Mastery: Your armies gain Immune Unwieldy. Also, may equip two of the same 1H Melee Weapon to gain Dual Wield.
+Tiltyard | [Tiltyard](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Innate: Armies may be equipped with a Ranged and a Melee Weapon simultaneously; In addition, armies may equip two of the same 1H Melee Weapon to gain Dual Wield.
 Tithe | [Tithe](https://mlang95.github.io/RenownWiki/actions-ref.html): Piety action. Cost: Doubt 1. Choose a player. Extort 10% of their Treasury (round down to the nearest 100, minimum 0). Endorsed: Gain Faith 1.
 to-Strike number | [to-Strike number](https://mlang95.github.io/RenownWiki/glossary.html#to-strike-number): The D10 result a retinue needs to Strike (see the retinue table; lower is better). Bonuses add to the roll; penalties and Fatigue tokens subtract.
-Toll House | [Toll House](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Natural; Once/turn when an Army ends a Move action within Province: Perform a Diplomacy action targeting that army's player / Mastery: Extort 2000 when non-Allied Army ends a Move action within Province
+Toll House | [Toll House](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: Natural; Once/turn when an Army ends a Move action within Province: Perform a Diplomacy action targeting that army's player; Extort 2000 when non-Allied Army ends a Move action within Province
 Tower Shield | [Tower Shield](https://mlang95.github.io/RenownWiki/equipment-ref.html) Shield (Forged). Save +2, Init +0. Keywords: Unwieldy, Shielded.
-Town | [Town](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 2). Tax 2000, muster 10, build 4, wards 2, reach 2. 
+Town | [Town](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 2). Tax 2000, muster 10, build 4, wards 2, reach 4. 
 Town Hall | [Town Hall](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Developed). Upkeep 200 (per Turn), build 3. +1 Influence per turn
-Toxicarium | [Toxicarium](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Secrecy). Innate: Weapons gain Poison / Mastery: All Endorsed Cunning actions give an additional Doubt +1 to Target
+Toxicarium | [Toxicarium](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Secrecy). Innate: Weapons gain Poison; All Endorsed Cunning actions give an additional Doubt +1 to Target
 trade | [Trade rules](https://mlang95.github.io/RenownWiki/rules-trade-income.html): for each active Trade Agreement, both players gain 100 x the Host's Craft X. No trade in Spring. Tax only in Winter. Requirements: Players must have active Dirt Road infrastructure, and a signed Trade Agreement.
 Trade Agreement | [Trade Agreement](https://mlang95.github.io/RenownWiki/treaties-ref.html) Treaty. Begin trading (Trade Income flows from next turn). Requires bordering + active Dirt Road.
-Trade Guild | [Trade Guild](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: No Upkeep on Primitive Infrastructure / Mastery: No Upkeep on Developed Infrastructure
+Trade Guild | [Trade Guild](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Innate: No Upkeep on Primitive Infrastructure; No Upkeep on Developed Infrastructure
 trade income | [Trade Income](https://mlang95.github.io/RenownWiki/economy-ref.html): 100 x host's Craft X per active Trade Agreement
 treaties | [Treaties & Alliances](https://mlang95.github.io/RenownWiki/treaties-ref.html): Peace Treaty, Trade Agreement, Non-Aggression Pact, Military Alliance, Defensive Alliance. Signed via Diplomacy.
 Treaty | [Treaty](https://mlang95.github.io/RenownWiki/glossary.html#treaty): A standing agreement between players (e.g. Trade Agreement, Non-Aggression, Alliance) signed via Diplomacy.
@@ -461,7 +437,7 @@ Tundra | [Tundra](https://mlang95.github.io/RenownWiki/reference-tables.html) Te
 turn order | See 'turn structure'.
 turn structure | [The Turn](https://mlang95.github.io/RenownWiki/rules-the-turn.html): five phases, then pass the Host. 1) Empire Phase: activate Standing effects, apply the Season, increment timers, resolve Bandit Mechanics, gain Influence & Envoys, collect income, pay upkeep. 2) Council Phase: Council vote on a Domain; each player performs one action of that Domain. 3) Envoy Phase: Diplomacy Envoys first, then Domain Envoys (Prowess -> Cunning -> Piety -> Industry). 4) Battle Phase: Skirmishes, Sieges, and Battles resolve. 5) Rest Phase: cleanup, change Season, score Renown, spend one Domain Point, pass the Host.
 Uncontrolled | [Uncontrolled](https://mlang95.github.io/RenownWiki/glossary.html#uncontrolled): Territory that is not within Reach of any Player Settlement.
-University | [University](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Innate: May spend one additional Influence per Support or Oppose / Mastery: +1 Influence per Domain you are Rising
+University | [University](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Innate: May spend one additional Influence per Support or Oppose; +1 Influence per Domain you are Rising
 Unstoppable | [Unstoppable](https://mlang95.github.io/RenownWiki/keywords-ref.html#unstoppable): -2 to the defender's Parry roll, to a maximum of 10+).
 Unwieldy | [Unwieldy](https://mlang95.github.io/RenownWiki/keywords-ref.html#unwieldy): Initiative cannot be improved by Tactics.
 upkeep | [Upkeep](https://mlang95.github.io/RenownWiki/economy-ref.html): three separate tracks — Pursuit (fixed by type), Army (retinue count x cost - reductions), and Infrastructure (per-settlement). See 'pursuit upkeep', 'army upkeep', 'infrastructure upkeep'.
@@ -469,11 +445,11 @@ Vassal | [Vassal](https://mlang95.github.io/RenownWiki/glossary.html#vassal): A 
 Vassalize | [Vassalize](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Conquest). Vassalize a rival player (control their capital with no other settlements/armies under them).
 victory | See 'how to win' / 'edicts'.
 victory points | See 'escalation victory'.
-Village | [Village](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 1). Tax 1000, muster 5, build 2, wards 1, reach 1. 
-Vineyard | [Vineyard](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Husbandry). Innate: +500, Natural / Mastery: +500 in Fall
+Village | [Village](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 1). Tax 1000, muster 5, build 2, wards 1, reach 2. 
+Vineyard | [Vineyard](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Husbandry). Innate: +500, Natural; +500 in Fall
 Vote | [Vote](https://mlang95.github.io/RenownWiki/glossary.html#vote): On each Envoy, every player except the sender, in clockwise order from the starting player, must Support, Oppose, or Abstain. No talking during a vote.
 vp | See 'escalation victory'.
-War College | [War College](https://mlang95.github.io/RenownWiki/escalation-pursuits.html) Pursuit (Power). Innate: Gain +2 Influence while At War / Mastery: Unlocks Sergeants for Muster
+War College | [War College](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Innate: Gain +2 Influence while At War; Unlocks Sergeants for Muster
 War Hammer | [War Hammer](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP -10, Init -1. Keywords: 2H, Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield.
 War Weariness | [War Weariness](https://mlang95.github.io/RenownWiki/glossary.html#war-weariness): gain Doubt 1 for each consecutive Battle you lose in the Empire Phase.
 Ward | [Ward](https://mlang95.github.io/RenownWiki/glossary.html#ward): A slot in a Settlement that holds one Pursuit; a Settlement has one Ward per tier (a Hamlet has 3 Husbandry Wards).
@@ -481,19 +457,19 @@ Water | [Water](https://mlang95.github.io/RenownWiki/reference-tables.html) Terr
 weak factions | See 'low strength factions'.
 Wealth | [Wealth](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Economy). Generate 10,000 gold per turn for five consecutive turns, net Upkeep costs.
 weapon tiers | [Equipment](https://mlang95.github.io/RenownWiki/equipment-ref.html): Crude (start) -> Cast (Furnace) -> Wrought (Blacksmith) -> Forged (Forge) -> Crafted (Advanced Blast Furnace). Ask e.g. 'wrought weapons' for a tier's list.
-Weavery | [Weavery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: +500 / Mastery: +500; Craft +2
+Weavery | [Weavery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: +1000; Craft +2
 Wetlands | [Wetlands](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: Speed -1. Raw Materials: Peat Bog, Forestry.
 win | See 'how to win'.
-Winery | [Winery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Natural; +800 / Mastery: Craft +3
+Winery | [Winery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Natural; +800; Craft +3
 Winter | [Winter](https://mlang95.github.io/RenownWiki/seasons-ref.html) Season (Freezing). All Armies gain Speed -1; Sieges do not increment. Tax income collected.
 Within | [Within](https://mlang95.github.io/RenownWiki/glossary.html#within): Range 0.
 Wonder | [Wonder](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Build). Complete a World Wonder.
 wonders | [Wonders](https://mlang95.github.io/RenownWiki/wonders-ref.html): Colossus, The Grand Exchange, The Great Basilica, High Chancery. Each grants a powerful empire bonus; completing one scores its Edict.
 Wooden Walls | [Wooden Walls](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Primitive). Upkeep 200 (per Turn), build 2. Influence -2 to Raze actions from players targeting your settlements. Influence -1 to Bandit Cunning actions targetting your settlements.
-Workyard | [Workyard](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Natural; Doubt +1, +500 / Mastery: +500
-Wrought | [Wrought](https://mlang95.github.io/RenownWiki/glossary.html#wrought): Wrought equipment tier. Weapons: Arming Sword, Pike, Flail, Halberd, Battle Axe, Cavalry Spear; Ranged: Javelin; Armor: Chainmail; Shield: Kite Shield. Unlocked by: Blacksmith (Mastery) (all), Armory (armor & shield).
-Wrought Armor | [Wrought Armor](https://mlang95.github.io/RenownWiki/glossary.html#wrought-armor): Wrought-tier armor: Chainmail. Unlocked by: Blacksmith (Mastery), Armory.
+Workyard | [Workyard](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Innate: Natural; Doubt +1, +1000
+Wrought | [Wrought](https://mlang95.github.io/RenownWiki/glossary.html#wrought): Wrought equipment tier. Weapons: Arming Sword, Pike, Flail, Halberd, Battle Axe, Cavalry Spear; Ranged: Javelin; Armor: Chainmail; Shield: Kite Shield. Unlocked by: Blacksmith (weapons), Armory (armor & shield).
+Wrought Armor | [Wrought Armor](https://mlang95.github.io/RenownWiki/glossary.html#wrought-armor): Wrought-tier armor: Chainmail. Unlocked by: Armory.
 wrought gear | Wrought tier: weapons [Arming Sword, Pike, Flail, Halberd, Battle Axe, Cavalry Spear, Javelin], shields [Kite Shield], armor [Chainmail].
-Wrought Shields | [Wrought Shields](https://mlang95.github.io/RenownWiki/glossary.html#wrought-shields): Wrought-tier shields: Kite Shield. Unlocked by: Blacksmith (Mastery), Armory.
+Wrought Shields | [Wrought Shields](https://mlang95.github.io/RenownWiki/glossary.html#wrought-shields): Wrought-tier shields: Kite Shield. Unlocked by: Armory.
 wrought weapons | [Wrought tier](https://mlang95.github.io/RenownWiki/equipment-ref.html) (7): Arming Sword, Pike, Flail, Halberd, Battle Axe, Cavalry Spear, Javelin
 Zenith | [Zenith](https://mlang95.github.io/RenownWiki/eras-ref.html) Era. Renown 30, armies 4, cities 3, influence/turn 4, envoys: 1 Council Envoy (2 actions each) + 2 Personal Envoys (2 actions each) per turn. Unlocks: May form Defensive Alliances

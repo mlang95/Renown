@@ -1,5 +1,5 @@
 {
- "version": "0.4.9.9.4-d10",
+ "version": "0.4.9.9.5-d10",
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
@@ -137,18 +137,18 @@
   "Cast Weapons": "Cast-tier weapons: Daggers, Short Sword, Spear, Longbow. Unlocked by: Furnace.",
   "Cast Armor": "Cast-tier armor: Leather. Unlocked by: Tannery.",
   "Cast Shields": "Cast-tier shields: Targe Shield. Unlocked by: Tannery.",
-  "Wrought": "Wrought equipment tier. Weapons: Arming Sword, Pike, Flail, Halberd, Battle Axe, Cavalry Spear; Ranged: Throwing Axe; Armor: Chainmail; Shield: Kite Shield. Unlocked by: Blacksmith (Mastery) (all), Armory (armor & shield).",
-  "Wrought Weapons": "Wrought-tier weapons: Arming Sword, Pike, Flail, Halberd, Battle Axe, Cavalry Spear, Throwing Axe. Unlocked by: Blacksmith (Mastery).",
-  "Wrought Armor": "Wrought-tier armor: Chainmail. Unlocked by: Blacksmith (Mastery), Armory.",
-  "Wrought Shields": "Wrought-tier shields: Kite Shield. Unlocked by: Blacksmith (Mastery), Armory.",
-  "Forged": "Forged equipment tier. Weapons: Morningstar, Bastard Sword, 2HBastard, War Hammer, Lance; Ranged: Crossbow; Armor: Full Plate; Shield: Tower Shield. Unlocked by: Gilded Foundry (Mastery) (armor & shield), Forge (Mastery) (all).",
-  "Forged Weapons": "Forged-tier weapons: Morningstar, Bastard Sword, 2HBastard, War Hammer, Lance, Crossbow. Unlocked by: Forge (Mastery).",
-  "Forged Armor": "Forged-tier armor: Full Plate. Unlocked by: Gilded Foundry (Mastery), Forge (Mastery).",
-  "Forged Shields": "Forged-tier shields: Tower Shield. Unlocked by: Gilded Foundry (Mastery), Forge (Mastery).",
-  "Tempered": "Tempered equipment tier. Weapons: Estoc, Poleaxe; Ranged: Arquebus, Throwing Spear; Armor: Gothic Plate; Shield: Heater Shield. Unlocked by: Advanced Blast Furnace (Mastery) (all).",
-  "Tempered Weapons": "Tempered-tier weapons: Estoc, Poleaxe, Arquebus, Throwing Spear. Unlocked by: Advanced Blast Furnace (Mastery).",
-  "Tempered Armor": "Tempered-tier armor: Gothic Plate. Unlocked by: Advanced Blast Furnace (Mastery).",
-  "Tempered Shields": "Tempered-tier shields: Heater Shield. Unlocked by: Advanced Blast Furnace (Mastery).",
+  "Wrought": "Wrought equipment tier. Weapons: Arming Sword, Pike, Flail, Halberd, Battle Axe, Cavalry Spear; Ranged: Throwing Axe; Armor: Chainmail; Shield: Kite Shield. Unlocked by: Blacksmith (weapons), Armory (armor & shield).",
+  "Wrought Weapons": "Wrought-tier weapons: Arming Sword, Pike, Flail, Halberd, Battle Axe, Cavalry Spear, Throwing Axe. Unlocked by: Blacksmith.",
+  "Wrought Armor": "Wrought-tier armor: Chainmail. Unlocked by: Armory.",
+  "Wrought Shields": "Wrought-tier shields: Kite Shield. Unlocked by: Armory.",
+  "Forged": "Forged equipment tier. Weapons: Morningstar, Bastard Sword, 2HBastard, War Hammer, Lance; Ranged: Crossbow; Armor: Full Plate; Shield: Tower Shield. Unlocked by: Gilded Foundry (armor & shield), Forge (all).",
+  "Forged Weapons": "Forged-tier weapons: Morningstar, Bastard Sword, 2HBastard, War Hammer, Lance, Crossbow. Unlocked by: Forge.",
+  "Forged Armor": "Forged-tier armor: Full Plate. Unlocked by: Gilded Foundry, Forge.",
+  "Forged Shields": "Forged-tier shields: Tower Shield. Unlocked by: Gilded Foundry, Forge.",
+  "Tempered": "Tempered equipment tier. Weapons: Estoc, Poleaxe; Ranged: Arquebus, Throwing Spear; Armor: Gothic Plate; Shield: Heater Shield.",
+  "Tempered Weapons": "Tempered-tier weapons: Estoc, Poleaxe, Arquebus, Throwing Spear.",
+  "Tempered Armor": "Tempered-tier armor: Gothic Plate.",
+  "Tempered Shields": "Tempered-tier shields: Heater Shield.",
   "Ranged Weapons": "Ranged weapons: Hunting Bow (Crude), Longbow (Cast), Throwing Axe (Wrought), Crossbow (Forged), Arquebus (Tempered), Throwing Spear (Tempered). Unlocked by: Fletchery."
  },
  "glossary_categorized": [
@@ -640,19 +640,19 @@
     ],
     [
      "Forged",
-     "Forged equipment tier. Weapons: Morningstar, Bastard Sword, 2HBastard, War Hammer, Lance; Ranged: Crossbow; Armor: Full Plate; Shield: Tower Shield. Unlocked by: Gilded Foundry (Mastery) (armor & shield), Forge (Mastery) (all)."
+     "Forged equipment tier. Weapons: Morningstar, Bastard Sword, 2HBastard, War Hammer, Lance; Ranged: Crossbow; Armor: Full Plate; Shield: Tower Shield. Unlocked by: Gilded Foundry (armor & shield), Forge (all)."
     ],
     [
      "Forged Armor",
-     "Forged-tier armor: Full Plate. Unlocked by: Gilded Foundry (Mastery), Forge (Mastery)."
+     "Forged-tier armor: Full Plate. Unlocked by: Gilded Foundry, Forge."
     ],
     [
      "Forged Shields",
-     "Forged-tier shields: Tower Shield. Unlocked by: Gilded Foundry (Mastery), Forge (Mastery)."
+     "Forged-tier shields: Tower Shield. Unlocked by: Gilded Foundry, Forge."
     ],
     [
      "Forged Weapons",
-     "Forged-tier weapons: Morningstar, Bastard Sword, 2HBastard, War Hammer, Lance, Crossbow. Unlocked by: Forge (Mastery)."
+     "Forged-tier weapons: Morningstar, Bastard Sword, 2HBastard, War Hammer, Lance, Crossbow. Unlocked by: Forge."
     ],
     [
      "Host",
@@ -736,19 +736,19 @@
     ],
     [
      "Tempered",
-     "Tempered equipment tier. Weapons: Estoc, Poleaxe; Ranged: Arquebus, Throwing Spear; Armor: Gothic Plate; Shield: Heater Shield. Unlocked by: Advanced Blast Furnace (Mastery) (all)."
+     "Tempered equipment tier. Weapons: Estoc, Poleaxe; Ranged: Arquebus, Throwing Spear; Armor: Gothic Plate; Shield: Heater Shield."
     ],
     [
      "Tempered Armor",
-     "Tempered-tier armor: Gothic Plate. Unlocked by: Advanced Blast Furnace (Mastery)."
+     "Tempered-tier armor: Gothic Plate."
     ],
     [
      "Tempered Shields",
-     "Tempered-tier shields: Heater Shield. Unlocked by: Advanced Blast Furnace (Mastery)."
+     "Tempered-tier shields: Heater Shield."
     ],
     [
      "Tempered Weapons",
-     "Tempered-tier weapons: Estoc, Poleaxe, Arquebus, Throwing Spear. Unlocked by: Advanced Blast Furnace (Mastery)."
+     "Tempered-tier weapons: Estoc, Poleaxe, Arquebus, Throwing Spear."
     ],
     [
      "Territory",
@@ -772,19 +772,19 @@
     ],
     [
      "Wrought",
-     "Wrought equipment tier. Weapons: Arming Sword, Pike, Flail, Halberd, Battle Axe, Cavalry Spear; Ranged: Throwing Axe; Armor: Chainmail; Shield: Kite Shield. Unlocked by: Blacksmith (Mastery) (all), Armory (armor & shield)."
+     "Wrought equipment tier. Weapons: Arming Sword, Pike, Flail, Halberd, Battle Axe, Cavalry Spear; Ranged: Throwing Axe; Armor: Chainmail; Shield: Kite Shield. Unlocked by: Blacksmith (weapons), Armory (armor & shield)."
     ],
     [
      "Wrought Armor",
-     "Wrought-tier armor: Chainmail. Unlocked by: Blacksmith (Mastery), Armory."
+     "Wrought-tier armor: Chainmail. Unlocked by: Armory."
     ],
     [
      "Wrought Shields",
-     "Wrought-tier shields: Kite Shield. Unlocked by: Blacksmith (Mastery), Armory."
+     "Wrought-tier shields: Kite Shield. Unlocked by: Armory."
     ],
     [
      "Wrought Weapons",
-     "Wrought-tier weapons: Arming Sword, Pike, Flail, Halberd, Battle Axe, Cavalry Spear, Throwing Axe. Unlocked by: Blacksmith (Mastery)."
+     "Wrought-tier weapons: Arming Sword, Pike, Flail, Halberd, Battle Axe, Cavalry Spear, Throwing Axe. Unlocked by: Blacksmith."
     ]
    ]
   }
@@ -1052,7 +1052,7 @@
     [
      "Quarry",
      "",
-     "-",
+     "—",
      "—",
      "+500, **Natural**; Craft +1",
      "—"
@@ -1060,7 +1060,7 @@
     [
      "Salt Works",
      "",
-     "-",
+     "—",
      "—",
      "+500, **Natural**; Craft +1",
      "—"
@@ -1068,7 +1068,7 @@
     [
      "Apiary",
      "",
-     "-",
+     "—",
      "—",
      "+500, **Natural**; Craft +1",
      "—"
@@ -1076,7 +1076,7 @@
     [
      "Peat Bog",
      "",
-     "-",
+     "—",
      "—",
      "+500, **Natural**; Craft +1",
      "—"
@@ -1084,15 +1084,15 @@
     [
      "Forestry",
      "",
-     "-",
+     "—",
      "—",
      "+500, **Natural**; Craft +1",
      "—"
     ],
     [
      "Fishmongery",
-     "Water Settlement",
-     "-",
+     "",
+     "—",
      "—",
      "+500, **Natural**; Craft +2",
      "—"
@@ -1100,7 +1100,7 @@
     [
      "Mine",
      "",
-     "-",
+     "—",
      "—",
      "+500, **Natural**; Craft +1",
      "—"
@@ -1108,7 +1108,7 @@
     [
      "Arable Land",
      "",
-     "-",
+     "—",
      "—",
      "+500, **Natural**; Craft +1",
      "—"
@@ -1116,7 +1116,7 @@
     [
      "Common Land",
      "",
-     "-",
+     "—",
      "—",
      "+1000, **Natural**, **Doubt +1**",
      "—"
@@ -1129,42 +1129,42 @@
     [
      "Herb Garden",
      "",
-     "Arable Land or Peat Bog",
+     "—",
      "Arable Land",
-     "+500, **Natural**",
-     "Craft +1"
+     "+500, **Natural**; Craft +1",
+     "—"
     ],
     [
      "Animal Husbandry",
      "",
+     "—",
      "Arable Land",
-     "Arable Land",
-     "**Natural**, Unlock **Crude** armor and shield.",
-     "+500"
+     "**Natural**, Unlock **Crude** armor and shield. +500",
+     "—"
     ],
     [
      "Saddlery",
      "",
-     "Arable Land + Animal Husbandry + Stable",
+     "—",
      "Stable, Caravanery",
-     "+500, **Natural**",
-     "Speed +1; Unlocks Lance (Still requires Tier Unlock)"
+     "+500, **Natural**; Speed +1; Unlocks Lance (Still requires Tier Unlock)",
+     "—"
     ],
     [
      "Vineyard",
      "",
-     "Arable Land + Apiary or Peat Bog",
      "—",
-     "+500, **Natural**",
-     "+500 in **Fall**"
+     "Arable Land",
+     "+500, **Natural**; +500 in **Fall**",
+     "—"
     ],
     [
      "Orchard",
      "",
-     "Arable Land + Apiary or Peat Bog",
      "—",
-     "+800, **Natural**",
-     "+400 in **Fall**"
+     "Arable Land",
+     "+800, **Natural**; +400 in **Fall**",
+     "—"
     ]
    ]
   },
@@ -1174,242 +1174,242 @@
     [
      "Carpentry",
      "",
+     "—",
      "Forestry",
-     "Forestry",
-     "**Build Timer −1**",
-     "+300; Craft+1"
+     "**Build Timer −1**; +300; Craft+1",
+     "—"
     ],
     [
      "Alchemy",
      "",
-     "Apiary or Peat Bog",
+     "—",
      "Peat Bog",
-     "+500",
-     "Craft+1"
+     "+500; Craft+1",
+     "—"
     ],
     [
      "Masonry",
      "",
+     "—",
      "Quarry",
-     "Quarry",
-     "**Build Timer −1**",
-     "Craft+1"
+     "**Build Timer −1**; Craft+1",
+     "—"
     ],
     [
      "Butchery",
      "",
-     "Animal Husbandry + Smokehouse + Salt Works",
+     "—",
      "Smokehouse",
-     "Natural; +500",
-     "**Upkeep -200**; Craft+1"
+     "Natural; +500; **Upkeep -200**; Craft+1",
+     "—"
     ],
     [
      "Bakery",
      "",
-     "Arable Land + Mill",
+     "—",
      "Mill",
-     "Natural; Faith +1",
-     "+500; Craft +2"
+     "Natural; Faith +1; +500; Craft +2",
+     "—"
     ],
     [
      "Weavery",
      "",
-     "Merchant Quarter + Animal Husbandry",
+     "—",
      "Merchant Quarter",
-     "+500",
-     "+500; Craft +2"
+     "+1000; Craft +2",
+     "—"
     ],
     [
      "Fletchery",
      "",
+     "—",
      "Carpentry",
-     "Carpentry",
-     "Unlocks **Ranged Weapons**",
-     "**Upkeep -200**"
+     "Unlocks **Ranged Weapons**; **Upkeep -200**",
+     "—"
     ],
     [
      "Chandlery",
      "",
+     "—",
      "Apiary",
-     "Apiary",
-     "Craft +1",
-     "**Influence −1** to Cunning envoys targeting you"
+     "Craft +1; **Influence −1** to Cunning envoys targeting you",
+     "—"
     ],
     [
      "Tannery",
      "",
+     "—",
      "Animal Husbandry",
-     "Animal Husbandry",
-     "Natural; Unlocks **Cast** armor & shield.",
-     "**Upkeep -200**; Craft +1"
+     "Natural; Unlocks **Cast** armor & shield. **Upkeep -200**; Craft +1",
+     "—"
     ],
     [
      "Joinery",
      "Rising Industry",
+     "—",
      "Carpentry",
-     "Carpentry",
-     "unlocks **Shields**",
-     "**Upkeep -200**"
+     "unlocks **Shields**; **Upkeep -200**",
+     "—"
     ],
     [
      "Furnace",
      "",
+     "—",
      "Mine",
-     "Mine",
-     "Unlocks **Cast Weapons**",
-     "+500"
+     "Unlocks **Cast** Weapons; +500",
+     "—"
     ],
     [
      "Blacksmith",
      "Rising Industry",
+     "—",
      "Furnace",
-     "Furnace",
-     "Craft +1",
-     "Unlocks **Wrought** Tier"
+     "Craft +1; Unlocks **Wrought** Weapons",
+     "—"
     ],
     [
      "Jewelry Foundry",
      "",
-     "Mine + Merchant Quarter + Furnace",
+     "—",
      "Gilded Foundry",
-     "+500; **Influence +1** to Cunning envoys targeting this player",
-     "+800; Craft +2 "
+     "+1300; **Influence +1** to Cunning envoys targeting this player; Craft +2",
+     "—"
     ],
     [
      "Armory",
      "Rising Industry",
-     "Tannery + Blacksmith",
+     "—",
      "Tannery",
-     "**Unlock Wrought** armor & shield",
-     "**Upkeep -300**; Craft +1"
+     "Unlock **Wrought** armor & shield; **Upkeep -300**; Craft +1",
+     "—"
     ],
     [
      "Master Workshop",
      "Established Industry",
-     "Blacksmith",
+     "—",
      "Forge",
-     "**Upkeep -200**; Craft +1",
-     "Add **Serrated** to Weapons"
+     "**Upkeep -200**; Craft +1; Add **Serrated** to Weapons",
+     "—"
     ],
     [
      "Gilded Foundry",
      "Established Industry",
-     "Armory + Blacksmith",
+     "—",
      "Armory",
-     "Planishing: Your to-Save can't be reduced beyond 10+.",
-     "Unlock **Forged** armor and shield. Craft +1."
+     "Unlock **Forged** armor and shield. Craft +1.",
+     "—"
     ],
     [
      "Smokehouse",
      "",
-     "Kiln + Charcoal Burner or Salt Works",
+     "—",
      "Salt Works, Charcoal Burner",
-     "Natural; Craft +2",
-     "**Upkeep -500**"
+     "Natural; Craft +2; **Upkeep -500**",
+     "—"
     ],
     [
      "Workyard",
      "",
+     "—",
      "Common Land",
-     "Common Land",
-     "Natural; **Doubt +1**, +500",
-     "+500"
+     "Natural; **Doubt +1**, +1000",
+     "—"
     ],
     [
      "Storehouse",
      "Sovereign Industry",
-     "Workyard + Shipyard",
+     "—",
      "Shipyard",
-     "**Doubt +1**, +600",
-     "**Build Timer −2, +600**"
+     "**Doubt +1**, +1200; **Build Timer −2**",
+     "—"
     ],
     [
      "Meadery",
      "Established Industry",
-     "Apiary + Inn",
+     "—",
      "Apiary",
-     "Natural; **Faith +1**",
-     "**Speed +2** in **Winter**"
+     "Natural; **Faith +1**; **Speed +2** in **Winter**",
+     "—"
     ],
     [
      "Winery",
      "Established Industry",
-     "Vineyard + Joinery",
+     "—",
      "Vineyard",
-     "Natural; +800",
-     "Craft +3"
+     "Natural; +800; Craft +3",
+     "—"
     ],
     [
      "Cidery",
      "Established Industry",
-     "Orchard + Joinery + Inn",
+     "—",
      "Orchard",
-     "Natural; **Faith +1**",
-     "+800; Craft +1"
+     "Natural; **Faith +1**; +800; Craft +1",
+     "—"
     ],
     [
      "Market Square",
      "Rising Industry",
-     "2 Raw Materials",
+     "—",
      "Courtyard",
-     "Craft +2",
-     "+500"
+     "Craft +2; +500",
+     "—"
     ],
     [
      "Inn",
      "",
-     "Caravanery + Market Square",
+     "—",
      "Market Square, Merchant Quarter",
-     "**Faith +1** for trading partners with Craft 3+",
-     "**Faith +1**"
+     "**Faith +1** for trading partners with Craft 3+; **Faith +1**",
+     "—"
     ],
     [
      "Spice Merchant",
      "",
-     "Caravanery + Merchant Quarter + Herb Garden",
+     "—",
      "Herb Garden",
-     "Natural; +500; Influence +1 to Cunning envoys targeting you",
-     "+500; Craft +2"
+     "Natural; +1000; Influence +1 to Cunning envoys targeting you; Craft +2",
+     "—"
     ],
     [
      "Harbor",
-     "Water Settlement",
-     "Fishmongery + Salt Works",
+     "",
+     "—",
      "Fishmongery",
-     "+500; Craft +2",
-     "**Extort 200** per **player** without **Harbor**"
+     "+500; Craft +2; **Extort 200** per **player** without **Harbor**",
+     "—"
     ],
     [
      "Merchant Quarter",
      "Rising Industry",
-     "Craft 3 + Market Square",
+     "—",
      "Market Square",
-     "+500",
-     "Trade Partners gain Craft +2"
+     "+500; Trade Partners gain Craft +2",
+     "—"
     ],
     [
      "Census Hall",
      "",
-     "Workyard + Market Square",
+     "—",
      "Market Square",
-     "**Doubt +1**; +500",
-     "+500"
+     "**Doubt +1**; +1000",
+     "—"
     ],
     [
      "Caravanery",
      "",
-     "Market Square or Merchant Quarter + Stable",
+     "—",
      "Stable",
-     "Natural; **Influence -1** to **Intercept Caravan actions** targeting your **settlements**",
-     "**Craft +2**; **Speed -2** to non-allied players in your Province."
+     "Natural; **Influence -1** to **Intercept Caravan actions** targeting your **settlements**; **Craft +2**; **Speed -2** to non-allied players in your Province.",
+     "—"
     ],
     [
      "Shipyard",
-     "Established Industry, Water Settlement",
-     "Carpentry + Harbor",
+     "Established Industry",
+     "—",
      "Harbor",
-     "Craft +2",
-     "Craft +2; Water Territory treated as Grassland for movement"
+     "Craft +4; Water Territory treated as Grassland for movement",
+     "—"
     ]
    ]
   },
@@ -1419,186 +1419,186 @@
     [
      "Stable",
      "1 Rising",
-     "Animal Husbandry + Blacksmith or Carpentry",
+     "—",
      "Animal Husbandry",
-     "**Speed +1**, Natural",
-     "**Speed +1**; Unlocks Cavalry Spear (Still requires Tier Unlock)"
+     "**Speed +2**, Natural; Unlocks Cavalry Spear (Still requires Tier Unlock)",
+     "—"
     ],
     [
      "Castle Yard",
      "Rising Prowess",
+     "—",
      "Conditioning Field",
-     "Conditioning Field",
-     "**Faith +1** while at War",
-     "Unlocks **Man-at-Arms** for **Muster**"
+     "**Faith +1** while at War; Unlocks **Man-at-Arms** for **Muster**",
+     "—"
     ],
     [
      "Interrogation Chambers",
      "Rising Piety",
+     "—",
      "Episcopal Court",
-     "Episcopal Court",
-     "Extort 500",
-     "Cunning actions targetting this player that cause Doubt are reduced by 1, to a minimum of 0."
+     "Extort 500; Cunning actions targetting this player that cause Doubt are reduced by 1, to a minimum of 0.",
+     "—"
     ],
     [
      "Abbey",
      "Established Piety",
-     "Episcopal Court + Academy",
+     "—",
      "Academy",
-     "Once/turn: **Influence +1** another player's Piety Envoy",
-     "Morale +1"
+     "Once/turn: **Influence +1** another player's Piety Envoy; Morale +1",
+     "—"
     ],
     [
      "Reliquary Sanctum",
      "Rising Piety",
-     "Salt Works + Chandlery + Cathedral",
+     "—",
      "Chandlery",
-     "+500",
-     "First **Doubt** per turn reduced by 1 (min 0)"
+     "+500; First **Doubt** per turn reduced by 1 (min 0)",
+     "—"
     ],
     [
      "Bell Tower",
      "1 Established",
+     "—",
      "Jester's Court",
-     "Jester's Court",
-     "**+1 Influence**/turn",
-     "**Influence +1** to envoys sent during the Council Phase."
+     "**+1 Influence**/turn; **Influence +1** to envoys sent during the Council Phase.",
+     "—"
     ],
     [
      "Execution Dock",
      "Established Piety",
+     "—",
      "Interrogation Chambers",
-     "Interrogation Chambers",
-     "**Influence -1** to **Foster Rebellion actions** targeting your **settlements**",
-     "**Players** who **target** you or your **settlements** with **actions** that cause **doubt** gain **Doubt +1**"
+     "**Influence -1** to **Foster Rebellion actions** targeting your **settlements**; **Players** who **target** you or your **settlements** with **actions** that cause **doubt** gain **Doubt +1**",
+     "—"
     ],
     [
      "Jester's Court",
      "1 Rising",
+     "—",
      "Courtyard",
-     "Courtyard",
-     "First **Oppose** on your Envoy each turn: reduce by 1",
-     "Second **Oppose** on your Envoy each turn: reduce by 1"
+     "First and second **Oppose** on your Envoy each turn: reduce by 1",
+     "—"
     ],
     [
      "Embassy",
      "1 Established",
-     "Bell Tower + Jester's Court",
+     "—",
      "Jester's Court",
-     "**Influence +1** to Diplomacy Envoys",
-     "Whenever a player performs a Diplomacy Envoy targeting you, that envoy cannot be Opposed."
+     "**Influence +1** to Diplomacy Envoys; Whenever a player performs a Diplomacy Envoy targeting you, that envoy cannot be Opposed.",
+     "—"
     ],
     [
      "Granary",
      "Rising Industry",
+     "—",
      "Arable Land",
-     "Arable Land",
-     "Upkeep -500, Natural",
-     "Armies and Garrisons gain **Endurance** while Besieged"
+     "Upkeep -500, Natural; Armies and Garrisons gain **Endurance** while Besieged",
+     "—"
     ],
     [
      "Academy",
      "1 Rising",
-     "Library + Alchemy",
+     "—",
      "Alchemy",
-     "**Influence +1** to Council Envoys",
-     "**Influence +1** to non-Council Envoys"
+     "**Influence +1** to Council Envoys; **Influence +1** to non-Council Envoys",
+     "—"
     ],
     [
      "Courtyard",
      "",
+     "—",
      "Masonry",
-     "Masonry",
-     "Craft +1",
-     "**Faith +1**"
+     "Craft +1; **Faith +1**",
+     "—"
     ],
     [
      "Episcopal Court",
      "Rising Piety",
-     "Masonry",
+     "—",
      "Courtyard",
-     "**Faith +1**",
-     "Reduce the first instance of Doubt at start of turn by 1, min 0."
+     "**Faith +1**; Reduce the first instance of Doubt at start of turn by 1, min 0.",
+     "—"
     ],
     [
      "Conditioning Field",
      "Rising Prowess",
+     "—",
      "Courtyard",
-     "Courtyard",
-     "**Faith +1** while not at War",
-     "Armies gain **Nimble**"
+     "**Faith +1** while not at War; Armies gain **Nimble**",
+     "—"
     ],
     [
      "Grand Tournament",
      "Established Prowess",
-     "Castle Yard + Conditioning Field",
+     "—",
      "Castle Yard",
-     "**Faith +1**; Improve Parry by +1.",
-     "3x/turn: exchange 500 gold for **1 Influence**; Armies gain **Riposte**"
+     "**Faith +1**; Improve Parry by +1. 3x/turn: exchange 500 gold for **1 Influence**; Armies gain **Riposte**",
+     "—"
     ],
     [
      "Apothecary",
      "",
-     "Herb Garden + Alchemy",
+     "—",
      "Alchemy",
-     "+300",
-     "Gain Heal 8, or improve Heal by +1."
+     "+300; Gain Heal 8, or improve Heal by +1.",
+     "—"
     ],
     [
      "Infirmary",
      "Rising Piety",
-     "Alchemy + Herb Garden",
+     "—",
      "Apothecary",
-     "+500",
-     "Improve Heal by +1"
+     "+500; Improve Heal by +1",
+     "—"
     ],
     [
      "Supply Depot",
      "Rising Industry",
-     "Granary or Smokehouse + Salt Works",
+     "—",
      "Granary",
-     "**Craft +2**",
-     "May **Muster** an Army in a Settlement under Siege and increment Muster Timers."
+     "**Craft +2**; May **Muster** an Army in a Settlement under Siege and increment Muster Timers.",
+     "—"
     ],
     [
      "Artisan Workshop",
      "Established Industry",
-     "Carpentry + Arable Land + Weavery",
+     "—",
      "Weavery",
-     "+500",
-     "+500, **Faith +1**"
+     "+1000, **Faith +1**",
+     "—"
     ],
     [
      "Trade Guild",
      "Rising Industry",
-     "Masonry or Carpentry",
+     "—",
      "Masonry",
-     "No Upkeep on **Primitive Infrastructure**",
-     "No Upkeep on **Developed Infrastructure**"
+     "No Upkeep on **Primitive Infrastructure**; No Upkeep on **Developed Infrastructure**",
+     "—"
     ],
     [
      "Court Artists",
      "Established Industry",
-     "Merchant Quarter + Artisan Workshop",
+     "—",
      "Artisan Workshop",
-     "**Extort 500**; **Faith +1**",
-     "**Extort 500**; Targets of Extort from this Court Artist gain **Faith +1**"
+     "**Extort 1000**; **Faith +1**; Targets of Extort from this Court Artist gain **Faith +1**",
+     "—"
     ],
     [
      "Courier Network",
      "",
-     "Caravanery + Inn",
+     "—",
      "Inn",
-     "Once/turn: **Influence −1** on Target Envoy",
-     "Once/turn: successfully Performed Personal Envoy can be Performed next turn; send 1 fewer Envoys next turn"
+     "Once/turn: **Influence −1** on Target Envoy; Once/turn: successfully Performed Personal Envoy can be Performed next turn; send 1 fewer Envoys next turn",
+     "—"
     ],
     [
      "Toll House",
      "",
-     "Caravanery + Courier Network",
+     "—",
      "Caravanery",
-     "Natural; Once/turn when an Army ends a Move action within Province: Perform a Diplomacy action targeting that army's player",
-     "**Extort 2000** when non-Allied Army ends a Move action within Province"
+     "Natural; Once/turn when an Army ends a Move action within Province: Perform a Diplomacy action targeting that army's player; **Extort 2000** when non-Allied Army ends a Move action within Province",
+     "—"
     ]
    ]
   },
@@ -1608,50 +1608,50 @@
     [
      "Smuggler's Nook",
      "Established Cunning",
-     "Secret Cellar + Inn",
+     "—",
      "Inn, Courier Network, Secret Cellar",
-     "gain Immune Uprising (Bandit Camp Spawn at -5PO)",
-     "Bandit Camps in your Outlaw Country don't target you and instead target other players randomly."
+     "gain Immune Uprising (Bandit Camp Spawn at -5PO); Bandit Camps in your Outlaw Country don't target you and instead target other players randomly.",
+     "—"
     ],
     [
      "Black Market",
      "Established Cunning",
-     "Market Square + Smuggler's Nook",
+     "—",
      "Smuggler's Nook, Secret Cellar",
-     "When another player **Extorts** gold from any source: **Extort 200** per 1000 (minimum 100) from that player at the end of that resolution.",
-     "When another player **Recoups** gold from any source: **Extort 200** per 1000 (minimum 100) from that player at the end of that resolution."
+     "When another player **Extorts** gold from any source: **Extort 200** per 1000 (minimum 100) from that player at the end of that resolution. When another player **Recoups** gold from any source: **Extort 200** per 1000 (minimum 100) from that player at the end of that resolution.",
+     "—"
     ],
     [
      "Forgery Workshop",
      "Established Cunning",
-     "Academy + Secret Cellar",
+     "—",
      "Academy, University, Secret Cellar",
-     "**Extort 300** anytime a player Opposes an Envoy of yours",
-     "Once/turn: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed"
+     "**Extort 300** anytime a player Opposes an Envoy of yours; Once/turn: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed",
+     "—"
     ],
     [
      "Toxicarium",
      "Rising Cunning",
-     "Academy + Alchemy",
+     "—",
      "Alchemy, Forgotten Catacombs",
-     "Weapons gain **Poison**",
-     "All Endorsed Cunning actions give an additional **Doubt +1** to Target"
+     "Weapons gain **Poison**; All Endorsed Cunning actions give an additional **Doubt +1** to Target",
+     "—"
     ],
     [
      "Forgotten Catacombs",
      "Rising Cunning",
+     "—",
      "Secret Cellar",
-     "Secret Cellar",
-     "Whenever you are the target of **Extort**, reduce the Extort amount by 100.",
-     "Cunning envoys against you can't be **Endorsed**"
+     "Whenever you are the target of **Extort**, reduce the Extort amount by 100. Cunning envoys against you can't be **Endorsed**",
+     "—"
     ],
     [
      "Cipher Chamber",
      "Established Cunning",
-     "Forgery Workshop + Courier Network",
+     "—",
      "Forgery Workshop",
-     "Once/turn when a player Sends an Envoy: that player must declare the specific Action & target they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action at the declared target.",
-     "Once/turn: select any active **Timer** you did not select last turn; increase it by 2."
+     "Once/turn when a player Sends an Envoy: that player must declare the specific Action & target they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action at the declared target. Once/turn: select any active **Timer** you did not select last turn; increase it by 2.",
+     "—"
     ]
    ]
   },
@@ -1661,58 +1661,58 @@
     [
      "Secret Cellar",
      "Rising Cunning",
-     "Smuggler's Nook",
+     "—",
      "Secrecy, Thieves' Guild, Outlaw Rookery, Outrider Intercept Post",
-     "Natural; Failed Cunning envoys **Recoup 500 Gold**",
-     "Passed Cunning envoys **Recoup 500 Gold**"
+     "Natural; Failed Cunning envoys **Recoup 500 Gold**; Passed Cunning envoys **Recoup 500 Gold**",
+     "—"
     ],
     [
      "Pilgrimage Site",
      "Established Piety",
-     "Reliquary Sanctum + Chandlery",
+     "—",
      "Reliquary Sanctum",
-     "Natural; **Extort 500** every player without a Pilgrimage Site",
-     "**Doubt +1** to all other players without a Pilgrimage Site"
+     "Natural; **Extort 500** every player without a Pilgrimage Site; **Doubt +1** to all other players without a Pilgrimage Site",
+     "—"
     ],
     [
      "Beacon Towers",
      "Rising Prowess",
-     "Courier Network + Toll House",
+     "—",
      "Toll House",
-     "Natural; Once per turn, you may select an Army within Province and move it up to its modified Speed.",
-     "Whenever a non-allied Army ends a Move action within Province, you may immediately perform a Move action"
+     "Natural; Once per turn, you may select an Army within Province and move it up to its modified Speed. Whenever a non-allied Army ends a Move action within Province, you may immediately perform a Move action",
+     "—"
     ],
     [
      "Charcoal Burner",
      "Established Industry",
-     "Forestry + Kiln",
+     "—",
      "Forestry, Kiln",
-     "Natural",
-     "+500"
+     "Natural; +500",
+     "—"
     ],
     [
      "Mill",
      "Rising Industry",
-     "Bakery/Weavery/Forge/Carpentry/Masonry",
+     "—",
      "Bakery, Weavery, Forge, Carpentry, Masonry",
-     "Natural",
-     "+500"
+     "Natural; +500",
+     "—"
     ],
     [
      "Kiln",
      "Rising Industry",
+     "—",
      "Forestry",
-     "Forestry",
-     "Natural",
-     "+500"
+     "Natural; +500",
+     "—"
     ],
     [
      "Burgages",
      "",
+     "—",
      "Common Land",
-     "Common Land",
-     "+200, Natural",
-     "**Faith +1**"
+     "+200, Natural; **Faith +1**",
+     "—"
     ]
    ]
   },
@@ -1722,98 +1722,106 @@
     [
      "Money Lending",
      "Established Industry",
+     "—",
      "Merchant Quarter",
-     "Merchant Quarter",
-     "**Extort 1000**",
-     "May loan money to Trade Partners at 100 per 1000/turn interest(minimum 100); on Default: Perform **Demand Tribute**"
+     "**Extort 1000**; May loan money to Trade Partners at 100 per 1000/turn interest(minimum 100); on Default: Perform **Demand Tribute**",
+     "—"
     ],
     [
      "Monastery",
      "Established Piety",
+     "—",
      "Abbey",
-     "Abbey",
-     "**Influence −1** to Piety envoys targeting you",
-     "Other players can't Oppose your Piety Envoys"
+     "**Influence −1** to Piety envoys targeting you; Other players can't Oppose your Piety Envoys",
+     "—"
     ],
     [
      "Hospitaller",
      "Established Piety",
-     "Apothecary + Infirmary",
+     "—",
      "Infirmary",
-     "**Heal** improved by +1",
-     "Enduring: Successful Healed rolls do not count towards the panic check threshold."
+     "**Heal** improved by +1; Enduring: Successful Healed rolls do not count towards the panic check threshold.",
+     "—"
     ],
     [
      "University",
      "1 Established",
+     "—",
      "Academy",
-     "Academy",
-     "May spend one additional **Influence** per Support or Oppose",
-     "+1 **Influence** per Domain you are Rising"
+     "May spend one additional **Influence** per Support or Oppose; +1 **Influence** per Domain you are Rising",
+     "—"
     ],
     [
      "College of Engineering",
      "Established Industry",
-     "Academy + Trade Guild",
+     "—",
      "Trade Guild",
-     "No Upkeep on **Sophisticated Infrastructure**",
-     "**Build Timer −2**"
+     "No Upkeep on **Sophisticated Infrastructure**; **Build Timer −2**",
+     "—"
     ],
     [
      "Levy Hall",
      "Rising Prowess",
-     "Garrison + Salt Works",
+     "—",
      "Butchery",
-     "Natural; **Upkeep -1000 while an army is range 0 of controlled settlement**",
-     "**Upkeep -1000 while an army is range 0 of controlled settlement**"
+     "Natural; **Upkeep -2000 while an army is range 0 of controlled settlement**",
+     "—"
     ],
     [
      "Siege Works",
      "Rising Prowess",
-     "Blacksmith",
      "—",
-     "**Siege Timer −1**",
-     "**Siege Timer −1**; Sieges Increment in **Winter**"
+     "Carpentry, Mine",
+     "**Siege Timer −2**; Sieges Increment in **Winter**",
+     "—"
     ],
     [
      "Siege Camp",
      "Established Prowess",
+     "—",
      "Siege Works",
-     "Siege Works",
-     "**Siege Timer −1**",
-     "Armies gain **Immune Strained** during Lay Siege"
+     "**Siege Timer −1**; Armies gain **Immune Strained** during Lay Siege",
+     "—"
     ],
     [
      "Citadel",
      "Established Industry",
-     "Masonry + Granary or Supply Depot",
+     "—",
      "Granary, Supply Depot",
-     "**Siege Timer +1**",
-     "**Siege Timer +2**, Controlled Settlements gain **Reach +1**"
+     "**Siege Timer +3**, Controlled Settlements gain **Reach +1**",
+     "—"
     ],
     [
      "War College",
      "Established Prowess",
-     "Levy Hall + Academy",
+     "—",
      "Academy",
-     "Gain **+2 Influence** while At War",
-     "Unlocks **Sergeants** for Muster"
+     "Gain **+2 Influence** while At War; Unlocks **Sergeants** for Muster",
+     "—"
     ],
     [
      "Forge",
      "Established Industry",
+     "—",
      "Blacksmith",
-     "Blacksmith",
-     "Craft +2",
-     "Unlocks **Forged** Tier"
+     "Craft +2; Unlocks **Forged** Tier Weapons",
+     "—"
     ],
     [
      "Tiltyard",
      "Established Prowess",
-     "Fletchery + Castle Yard",
+     "—",
      "Fletchery",
-     "Armies may be equipped with a Ranged and a Melee Weapon simultaneously; If so, the army gains **Unwieldy**",
-     "Your armies gain **Immune Unwieldy**. Also, may equip two of the same 1H Melee Weapon to gain **Dual Wield**."
+     "Armies may be equipped with a Ranged and a Melee Weapon simultaneously; In addition, armies may equip two of the same 1H Melee Weapon to gain **Dual Wield**.",
+     "—"
+    ],
+    [
+     "Court Armoury",
+     "Sovereign Industry",
+     "—",
+     "Gilded Foundry",
+     "**Planishing**: Your to-Save can't be reduced beyond 10+. Upkeep -500; **Tempered** Armor & Shield Unlocked",
+     "—"
     ]
    ]
   },
@@ -1823,130 +1831,130 @@
     [
      "Office of Works",
      "Sovereign Industry",
-     "College of Engineering + Storehouse",
+     "—",
      "College of Engineering",
-     "Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions.",
-     "Siege Timer +2; Build Timer -2"
+     "Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions. Siege Timer +2; Build Timer -2",
+     "—"
     ],
     [
      "Royal Pavilion",
      "Sovereign Prowess",
-     "Grand Tournament + Tiltyard",
+     "—",
      "Tiltyard",
-     "Armies gain **Immune Strained**. Improve Parry by +1",
-     "Gain +1 to Strike. Deadly, & Cleave also trigger Focused Strikes on a natural 8+."
+     "Armies gain **Immune Strained**, Improve Parry by +1; Gain +1 to Strike. Deadly, & Cleave also trigger Focused Strikes on a natural 8+.",
+     "—"
     ],
     [
      "Imperial Palace",
      "Established Prowess",
-     "Citadel + Execution Dock",
+     "—",
      "Citadel",
-     "Each Empire Phase, all non-allied players with a lower Prowess value gain Doubt +2.",
-     "If your Envoy would fail, it passes instead."
+     "Each Empire Phase, all non-allied players with a lower Prowess value gain Doubt +2. If your Envoy would fail, it passes instead.",
+     "—"
     ],
     [
      "Ordinance Yard",
      "Sovereign Prowess",
-     "Siege Camp + Master Workshop",
+     "—",
      "Siege Camp",
-     "Siege Timers ignore Wooden & Stone Walls. Unlocks Arquebus",
-     "Settlements you Siege can't Sally Forth. Siege Timer −1."
+     "Siege Timers ignore Wooden & Stone Walls. Unlocks Arquebus; Settlements you Siege can't Sally Forth. Siege Timer −1.",
+     "—"
     ],
     [
      "Ministry of Military Strategy",
      "Sovereign Prowess",
-     "Academy + War College",
+     "—",
      "War College",
-     "Always gains **Seize the Initiative**, and your opponent doesn't; max initiative is increased to 3",
-     "Gain Drilled."
+     "Always gains **Seize the Initiative**, and your opponent doesn't; max initiative is increased to 3; Gain Drilled.",
+     "—"
     ],
     [
      "Thieves' Guild",
      "Sovereign Cunning",
-     "Market Square + Smuggler's Nook + Secret Cellar + Black Market",
+     "—",
      "Black Market, Secret Cellar",
-     "Whenever another player performs a Cunning action, you may recoup 1000 gold",
-     "**Extort 25%** of Trade Income from players who don't trade with you"
+     "Whenever another player performs a Cunning action, you may recoup 1000 gold; **Extort 25%** of Trade Income from players who don't trade with you",
+     "—"
     ],
     [
      "Senate Hall",
      "1 Sovereign",
-     "Embassy + Library + Town Hall",
+     "—",
      "Embassy",
-     "**Faith +1**, gain **+1 Influence** per other player per Turn",
-     "Once/turn: Before players Support or Oppose, you may auto-**Condemn** an At War Envoy OR auto-**Endorse** an Ally's Envoy"
+     "**Faith +1**, gain **+1 Influence** per other player per Turn; Once/turn: Before players Support or Oppose, you may auto-**Condemn** an At War Envoy OR auto-**Endorse** an Ally's Envoy",
+     "—"
     ],
     [
      "Papal Palace",
      "Sovereign Piety",
-     "Monastery + Pilgrimage Site",
+     "—",
      "Monastery",
-     "Your Piety actions that cause doubt cause an additional doubt. You no longer pay cost for Piety Envoys.",
-     "At the start of each turn, Tithe every other player with lower Piety, resolved in the Extort step."
+     "You no longer pay cost for Piety Envoys. At the start of each turn, Tithe every other player with lower Piety, resolved in the Extort step.",
+     "—"
     ],
     [
      "Inquisitorial Palace",
      "Sovereign Piety",
-     "Execution Dock + Monastery",
+     "—",
      "Monastery",
-     "**Doubt +1**; Unlocks **Grand Vizier** which uses your **Public Order** instead of your **Cunning** value.",
-     "You may use your **Piety Value** as **Cunning Value** for **Grand Vizier**."
+     "**Doubt +1**; Unlocks **Grand Vizier** which uses your **Public Order** instead of your **Cunning** value. You may use your **Piety Value** as **Cunning Value** for **Grand Vizier**.",
+     "—"
     ],
     [
      "Sacred Preceptory",
      "Sovereign Piety + Established Prowess",
-     "Pilgrimage Site + Hospitaller",
+     "—",
      "Pilgrimage Site",
-     "Armies gain **Righteous Fervour**: Automatically pass the first Panic Check of every Battle.",
-     "Unlocks **Oathsworn** for Muster"
+     "Armies gain **Righteous Fervour**: Automatically pass the first Panic Check of every Battle. Unlocks **Oathsworn** for Muster",
+     "—"
     ],
     [
      "Manor House",
      "Established Industry",
-     "Hamlet + Market Square",
+     "—",
      "Natural",
-     "Natural; Gain +100 gold for each active natural specialization.",
-     "Gain +200 gold for each active natural specialization."
+     "Natural; Gain +200 gold for each active natural specialization.",
+     "—"
     ],
     [
      "Aristocratic Court",
      "Sovereign Cunning",
-     "Money Lending + Forgery Workshop + Court Artists",
+     "—",
      "Court Artists",
-     "Each Empire Phase, Extort 500 from each non-allied player with a lower Cunning value.",
-     "Your Vote counts as 2 votes toward Domain selection during the Council Phase."
+     "Each Empire Phase, Extort 500 from each non-allied player with a lower Cunning value. Your Vote counts as 2 votes toward Domain selection during the Council Phase.",
+     "—"
     ],
     [
      "Studium Generale",
      "4 Established",
-     "University + Academy",
+     "—",
      "University",
-     "+1 **Influence** per **Established** Standing",
-     "May gain one **Sovereign Domain** effect without spending the Domain Points"
+     "+1 **Influence** per **Established** Standing; May gain one **Sovereign Domain** effect without spending the Domain Points",
+     "—"
     ],
     [
      "Outlaw Rookery",
      "Sovereign Cunning",
-     "Smuggler's Nook + Toxicarium + Courier Network",
+     "—",
      "Smuggler's Nook",
-     "Both Bandit Camps & you have Influence +1 on Cunning actions.",
-     "Endorsed Foster Rebellion places Bandit Camps with 25 retinues instead of 10."
+     "Both Bandit Camps & you have Influence +1 on Cunning actions. Endorsed Foster Rebellion places Bandit Camps with 25 retinues instead of 10.",
+     "—"
     ],
     [
      "Advanced Blast Furnace",
      "Sovereign Industry",
-     "Gilded Foundry + Master Workshop + Forge + Stable",
+     "—",
      "Master Workshop",
-     "**Upkeep -500**",
-     "**Tempered** Tier Unlocked; Craft +2"
+     "**Upkeep -500**; **Tempered** Weapons Unlocked; Craft +2",
+     "—"
     ],
     [
      "Outrider Intercept Post",
      "Sovereign Cunning",
-     "Caravanery + Cipher Chamber",
+     "—",
      "Cipher Chamber",
-     "In the first Skirmish of every Battle, your opponent plays their Tactic Card face up before you select your own.",
-     "Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own."
+     "Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own.",
+     "—"
     ]
    ]
   }
@@ -2559,7 +2567,7 @@
    "5",
    "2",
    "1",
-   "1",
+   "2",
    "—"
   ],
   [
@@ -2570,7 +2578,7 @@
    "10",
    "4",
    "2",
-   "2",
+   "4",
    "—"
   ],
   [
@@ -2581,7 +2589,7 @@
    "25",
    "6",
    "3",
-   "3",
+   "6",
    "—"
   ],
   [
@@ -2589,10 +2597,10 @@
    "4",
    "—",
    "4000",
-   "25",
+   "50",
    "8",
    "4",
-   "4",
+   "8",
    "Capital only, requires Sovereign Industry (Titan of Industry)"
   ]
  ],
