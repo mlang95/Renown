@@ -1,6 +1,6 @@
 # renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
-VERSION = "0.4.9.9.3-d10"
+VERSION = "0.4.9.9.4-d10"
 
 # ── DICE ─────────────────────────────────────────────────────────────────────
 # Single source for die size, shared with the combat engines. Every threshold
@@ -1441,7 +1441,7 @@ NODES = {
     "Levy Hall": {
         "type": "Power",
         "unlock": "Rising Prowess",
-        "mastery_req": "Keep + Salt Works",
+        "mastery_req": "Garrison + Salt Works",
         "innate":  "Natural; **Upkeep -1000 while an army is range 0 of controlled settlement**",
         "mastery": "**Upkeep -1000 while an army is range 0 of controlled settlement**",
         "builds_into": ["War College"],
@@ -1510,7 +1510,7 @@ NODES = {
     "Office of Works": {
         "type": "Monument",
         "unlock": "Sovereign Industry",
-        "mastery_req": "College of Engineering + Storehouse + Census Hall",
+        "mastery_req": "College of Engineering + Storehouse",
         "innate": "Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions.",
         "mastery": "Siege Timer +2; Build Timer -2",
         "efficient": "College of Engineering",
@@ -2140,10 +2140,11 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
              'tier': 'Developed',
              'build_time': 3,
              'requirement': 'One Tier Primitive + Stone Roads'},
- 'Garrison': {'upkeep': '300',
+
+ 'Garrison': {'upkeep': 200,
               'upkeep_frequency': 'per Turn',
               'empire_bonus': 'Local Armies form (10/15/25/50 by Settlement size). All Garrisons share '
-                              "Equipment. Can't be targeted; may Sally Forth.",
+                              "Retinues & Equipment. Can't be targeted; may not Sally Forth while under Siege. Do not pay upkeep.",
               'tier': 'Developed',
               'build_time': 3,
               'requirement': 'Muster Field'},
@@ -2153,13 +2154,13 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                  'tier': 'Sophisticated',
                  'build_time': 4,
                  'requirement': 'One Tier Developed + Wooden Walls'},
- 'Keep': {'upkeep': 300,
+ 'Aqueducts': {'upkeep': 300,
           'upkeep_frequency': 'per Turn',
-          'empire_bonus': 'May Muster from Garrison in addition to normal Muster Limits. If so set Garrison '
-                          'to 0 and Muster Timer 1. Garrison returns to full when resolved.',
+          'empire_bonus': 'Reach +1, Upkeep -500, Build Timer -1, +1 Influence'
+                          '',
           'tier': 'Sophisticated',
           'build_time': 4,
-          'requirement': 'Garrison'},
+          'requirement': 'Bridges'},
  'Cathedral': {'upkeep': 300,
                'upkeep_frequency': 'per Turn',
                'empire_bonus': 'Faith +2',
@@ -2168,7 +2169,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                'requirement': 'Requires Capital City'},
  'Library': {'upkeep': 300,
              'upkeep_frequency': 'per Turn',
-             'empire_bonus': 'Influence +1 to Council Envoys',
+             'empire_bonus': 'Council Envoys you send are always Endorsed',
              'tier': 'Sophisticated',
              'build_time': 4,
              'requirement': 'Town Hall'}}
@@ -2191,7 +2192,7 @@ WONDERS = {'Colossus': {'upkeep': 1000,
  'The Great Basilica': {'upkeep': 1000,
                         'upkeep_frequency': 'per Wonder',
                         'empire_bonus': 'If your **Public Order** would ever be less than 5 set it to 5 '
-                                        'instead. Your **Settlements** gain **Reach +1**.',
+                                        'instead. Public Order Modifiers are doubled. Your **Settlements** gain **Reach +2**.',
                         'tier': 'Wonder',
                         'build_time': 10,
                         'requirement': 'All Infrastructure unlocked'},
@@ -2199,7 +2200,7 @@ WONDERS = {'Colossus': {'upkeep': 1000,
                    'upkeep_frequency': 'per Wonder',
                    'empire_bonus': 'Once per turn: automatically **Condemn** or **Endorse** one Envoy Sent '
                                    'by any other player regardless of **Net Influence** after Influence has '
-                                   'been spent, even if it’s a Council Envoy.',
+                                   'been spent.',
                    'tier': 'Wonder',
                    'build_time': 10,
                    'requirement': 'All Infrastructure unlocked'}}
@@ -2207,11 +2208,11 @@ WONDERS = {'Colossus': {'upkeep': 1000,
 # Settlement tiers: tax is the WINTER collection (once per 4 turns); wards =
 # pursuit slots (1 per tier; Hamlet exception); muster = retinues/turn.
 SETTLEMENTS = {
-    "Hamlet":     {"tier": 0, "sea_variant": None,        "tax_income": 0,     "muster_limit": 0,  "build_time": 1, "wards": 3, "reach": 1, "notes": "Natural pursuits only; exactly range 2 from capital; may always pursue Arable Land"},
-    "Village":    {"tier": 1, "sea_variant": None,        "tax_income": 1000,  "muster_limit": 5, "build_time": 1, "wards": 1, "reach": 1, "notes": ""},
-    "Town":       {"tier": 2, "sea_variant": "Sea Town",  "tax_income": 2000,  "muster_limit": 10, "build_time": 2, "wards": 2, "reach": 2, "notes": ""},
-    "City":       {"tier": 3, "sea_variant": "Port",      "tax_income": 3000,  "muster_limit": 25, "build_time": 3, "wards": 3, "reach": 3, "notes": ""},
-    "Metropolis": {"tier": 4, "sea_variant": "—",         "tax_income": 4000, "muster_limit": 25, "build_time": 5, "wards": 4, "reach": 4, "notes": "Capital only, requires Sovereign Industry (Titan of Industry)"},
+    "Hamlet":     {"tier": 0, "sea_variant": None,        "tax_income": 0,     "muster_limit":  0, "build_time": 1, "wards": 3, "reach": 1, "notes": "Natural pursuits only; exactly range 2 from capital; may always pursue Arable Land"},
+    "Village":    {"tier": 1, "sea_variant": None,        "tax_income": 1000,  "muster_limit":  5, "build_time": 2, "wards": 1, "reach": 1, "notes": ""},
+    "Town":       {"tier": 2, "sea_variant": "Sea Town",  "tax_income": 2000,  "muster_limit": 10, "build_time": 4, "wards": 2, "reach": 2, "notes": ""},
+    "City":       {"tier": 3, "sea_variant": "Port",      "tax_income": 3000,  "muster_limit": 25, "build_time": 6, "wards": 3, "reach": 3, "notes": ""},
+    "Metropolis": {"tier": 4, "sea_variant": "—",         "tax_income": 4000,  "muster_limit": 25, "build_time": 8, "wards": 4, "reach": 4, "notes": "Capital only, requires Sovereign Industry (Titan of Industry)"},
 }
 
 # Era progression: shared-Renown thresholds; caps on armies/cities; influence.
@@ -2378,11 +2379,11 @@ BUILD_TIMERS = {
     "Pursuit": 1,
     "Power Pursuit": 2,
     "Monument Pursuit": 3,
-    "Village": 1,
-    "Hamlet": 1,
-    "Town": 2,
-    "City": 3,
-    "Metropolis": 5,
+    "Village": SETTLEMENTS["Village"]["build_time"],
+    "Hamlet": SETTLEMENTS["Hamlet"]["build_time"],
+    "Town": SETTLEMENTS["Town"]["build_time"],
+    "City": SETTLEMENTS["City"]["build_time"],
+    "Metropolis": SETTLEMENTS["Metropolis"]["build_time"],
     "Wonder": 10,
     "Repair": 2,
     "Infrastructure": {"Primitive": 2, "Developed": 3, "Sophisticated": 4},
@@ -3109,7 +3110,7 @@ if __name__ == "__main__":
 # ── Keyword glossary: entries built from the data (so hovers/wiki stay in step with it) ──────────
 import re
 GLOSSARY.update({
-    "Natural": "Natural Pursuits do not cost Upkeep.",
+    "Natural": "Natural Pursuits do not cost Upkeep & can be used in Hamlets.",
     "Upkeep":  (f"Gold you pay each Empire Phase for Armies, Pursuits and Infrastructure. Pursuit upkeep is fixed by type "
                 f"({_PU_TEXT}); a Pursuit pays no upkeep while its Build Timer is running. Army upkeep = Army count × "
                 f"Army cost − Upkeep modifiers."),

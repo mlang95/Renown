@@ -1,5 +1,5 @@
 {
- "version": "0.4.9.9.3-d10",
+ "version": "0.4.9.9.4-d10",
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
@@ -117,7 +117,7 @@
   "War Weariness": "gain Doubt 1 for each consecutive Battle you lose in the Empire Phase.",
   "Ward": "A slot in a Settlement that holds one Pursuit; a Settlement has one Ward per tier (a Hamlet has 3 Husbandry Wards).",
   "Efficient X": "While this Pursuit occupies the same Settlement Ward as X (the Raw Material or Pursuit named on its tile), it uses no ward of its own — the two share one ward. Placed anywhere else, it fills a ward normally. (Core Principle 14.) Note: Two Pursuits that are Efficient with the same Pursuit cannot share a Ward with each other.",
-  "Natural": "Natural Pursuits do not cost Upkeep.",
+  "Natural": "Natural Pursuits do not cost Upkeep & can be used in Hamlets.",
   "Upkeep": "Gold you pay each Empire Phase for Armies, Pursuits and Infrastructure. Pursuit upkeep is fixed by type (Monument 300, Power 200, Energy/Natural 0, all others 100); a Pursuit pays no upkeep while its Build Timer is running. Army upkeep = Army count × Army cost − Upkeep modifiers.",
   "Craft": "Craft Pursuits count toward how much income your Trade Agreements generate — any effect that grants Craft +X. For each active Trade Agreement, both players gain 100 × the Host's Craft X.",
   "Efficient": "A Pursuit is efficient with the Raw Material or Pursuit named on its tile. While it shares a Settlement Ward with that piece, it doesn't consume a Ward of its own.",
@@ -664,7 +664,7 @@
     ],
     [
      "Natural",
-     "Natural Pursuits do not cost Upkeep."
+     "Natural Pursuits do not cost Upkeep & can be used in Hamlets."
     ],
     [
      "Negate Planishing",
@@ -1762,7 +1762,7 @@
     [
      "Levy Hall",
      "Rising Prowess",
-     "Keep + Salt Works",
+     "Garrison + Salt Works",
      "Butchery",
      "Natural; **Upkeep -1000 while an army is range 0 of controlled settlement**",
      "**Upkeep -1000 while an army is range 0 of controlled settlement**"
@@ -1823,7 +1823,7 @@
     [
      "Office of Works",
      "Sovereign Industry",
-     "College of Engineering + Storehouse + Census Hall",
+     "College of Engineering + Storehouse",
      "College of Engineering",
      "Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions.",
      "Siege Timer +2; Build Timer -2"
@@ -2307,9 +2307,9 @@
   ],
   [
    "Garrison",
-   "300",
+   "200",
    "per Turn",
-   "Local Armies form (10/15/25/50 by Settlement size). All Garrisons share Equipment. Can't be targeted; may Sally Forth.",
+   "Local Armies form (10/15/25/50 by Settlement size). All Garrisons share Retinues & Equipment. Can't be targeted; may not Sally Forth while under Siege. Do not pay upkeep.",
    "Developed",
    "3",
    "Muster Field"
@@ -2324,13 +2324,13 @@
    "One Tier Developed + Wooden Walls"
   ],
   [
-   "Keep",
+   "Aqueducts",
    "300",
    "per Turn",
-   "May Muster from Garrison in addition to normal Muster Limits. If so set Garrison to 0 and Muster Timer 1. Garrison returns to full when resolved.",
+   "Reach +1, Upkeep -500, Build Timer -1, +1 Influence",
    "Sophisticated",
    "4",
-   "Garrison"
+   "Bridges"
   ],
   [
    "Cathedral",
@@ -2345,7 +2345,7 @@
    "Library",
    "300",
    "per Turn",
-   "Influence +1 to Council Envoys",
+   "Council Envoys you send are always Endorsed",
    "Sophisticated",
    "4",
    "Town Hall"
@@ -2366,13 +2366,13 @@
   ],
   [
    "The Great Basilica",
-   "If your **Public Order** would ever be less than 5 set it to 5 instead. Your **Settlements** gain **Reach +1**.",
+   "If your **Public Order** would ever be less than 5 set it to 5 instead. Public Order Modifiers are doubled. Your **Settlements** gain **Reach +2**.",
    "10",
    "All Infrastructure unlocked"
   ],
   [
    "High Chancery",
-   "Once per turn: automatically **Condemn** or **Endorse** one Envoy Sent by any other player regardless of **Net Influence** after Influence has been spent, even if it’s a Council Envoy.",
+   "Once per turn: automatically **Condemn** or **Endorse** one Envoy Sent by any other player regardless of **Net Influence** after Influence has been spent.",
    "10",
    "All Infrastructure unlocked"
   ]
@@ -2557,7 +2557,7 @@
    "—",
    "1000",
    "5",
-   "1",
+   "2",
    "1",
    "1",
    "—"
@@ -2568,7 +2568,7 @@
    "Sea Town",
    "2000",
    "10",
-   "2",
+   "4",
    "2",
    "2",
    "—"
@@ -2579,7 +2579,7 @@
    "Port",
    "3000",
    "25",
-   "3",
+   "6",
    "3",
    "3",
    "—"
@@ -2590,7 +2590,7 @@
    "—",
    "4000",
    "25",
-   "5",
+   "8",
    "4",
    "4",
    "Capital only, requires Sovereign Industry (Titan of Industry)"
