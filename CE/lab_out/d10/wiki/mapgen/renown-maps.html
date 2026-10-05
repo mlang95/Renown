@@ -99,7 +99,9 @@ button.ghost:hover{background:var(--edge)}
 .tog input{accent-color:var(--sea-lit);width:15px;height:15px;margin:0;cursor:pointer}
 #legend{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;margin-top:11px}
 #legend span{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim)}
-#legend i{width:10px;height:10px;border-radius:50%;border:1px solid #0007;flex:0 0 auto}
+#legend svg{flex:0 0 auto}
+#legend b{color:var(--ink);font-weight:600;margin-left:auto}
+#legend span.absent{opacity:.45;text-decoration:line-through}
 .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
 .chip{
   border:1px solid var(--edge);background:var(--slate);color:var(--dim);
@@ -190,7 +192,7 @@ button.ghost:hover{background:var(--edge)}
   <fieldset id="carveSet"><legend>Roads &amp; rivers</legend><div id="carve"></div></fieldset>
 
   <fieldset><legend>Overlays</legend>
-    <label class="tog"><input type="checkbox" id="showRes"> Raw materials</label>
+    <label class="tog"><input type="checkbox" id="showRes" checked> Raw materials</label>
     <label class="tog"><input type="checkbox" id="showSet" checked> Start zones</label>
     <div id="legend" hidden></div>
   </fieldset>
@@ -3273,14 +3275,14 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   "massif": {},
   "perimeter": {}
  }
-};root.RenownRules={"charter_min_range": 4, "hamlet_range": 2, "outlaw_buffer": 2, "outlaw_start": 3};})(typeof module!=='undefined'&&module.exports?module.exports:(typeof window!=='undefined'?window:globalThis));
+};root.RenownRules={"charter_min_range": 4, "hamlet_range": 2, "outlaw_buffer": 2, "outlaw_start": 3, "start_tiers": ["Town", "Village", "Village"]};})(typeof module!=='undefined'&&module.exports?module.exports:(typeof window!=='undefined'?window:globalThis));
 </script>
 <script>
 'use strict';
 const G = window.RenownGen, PRESETS = window.RenownPresets;
 
 /* glyphs + climate palettes: GENERATED from hexstyle.py, shared with print */
-const STYLE = {"ink":"#2b241b","light":"#f3ead3","grid":"#2b241b","grid_opacity":0.22,"coast_w":4.2,"glyph_w":3.4,"glyph_opacity":0.88,"lum_split":0.26,"glyphs":{"plains":"","hill":"<path stroke=\"currentColor\" d=\"M48 74 Q68 34 90 74 Z\"/><path fill=\"none\" stroke=\"currentColor\" d=\"M75 55 l-4 8 M81 63 l-4 8\"/><path stroke=\"currentColor\" d=\"M24 84 Q44 44 68 84 Z\"/><path fill=\"none\" stroke=\"currentColor\" d=\"M51 64 l-4 8 M57 72 l-4 8\"/>","forest":"<path fill=\"none\" stroke=\"currentColor\" d=\"M38 84 V80\"/><polygon stroke=\"currentColor\" points=\"29,80 38,64 47,80\"/><polygon stroke=\"currentColor\" points=\"31.2,70 38,52 44.8,70\"/><path fill=\"none\" stroke=\"currentColor\" d=\"M58 68 V64\"/><polygon stroke=\"currentColor\" points=\"49,64 58,48 67,64\"/><polygon stroke=\"currentColor\" points=\"51.2,54 58,36 64.8,54\"/><path fill=\"none\" stroke=\"currentColor\" d=\"M80 88 V84\"/><polygon stroke=\"currentColor\" points=\"71,84 80,68 89,84\"/><polygon stroke=\"currentColor\" points=\"73.2,74 80,56 86.8,74\"/>","wetland":"<path fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" d=\"M30 30.6 H44 M64 54.0 H84 M26 77.4 H38 M54 77.4 H70\"/><path fill=\"none\" stroke=\"currentColor\" d=\"M42 77.4 C42 70 40 64 41 57 M41 67 L35 62 L33 57 M41 62 L46 57 L47 52 M41 58 L37 52\"/><path fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" d=\"M74 54 l0 -9 M70 54 l-2 -7 M78 54 l2 -7\"/>","tundra":"<path fill=\"none\" stroke=\"currentColor\" d=\"M48 92 q3 -5 6 0 q3 -5 6 0 M80 58 q3 -5 6 0 q3 -5 6 0 M30 48 q3 -5 6 0 q3 -5 6 0 M64 66 q3 -5 6 0 q3 -5 6 0\"/><path stroke=\"currentColor\" d=\"M30 72 Q28 71 28 69 L30 62 Q30 60 32 60 L41 58 Q43 58 45 60 L55 65 Q57 67 57 68 L54 73 Q53 75 51 75 L42 77 Q39 77 37 76 Z M78 88 Q76 89 75 88 L70 86 Q68 85 68 84 L68 78 Q68 77 69 77 L75 76 Q76 76 77 76 L81 77 Q82 78 83 79 L85 85 Q85 87 84 87 Z M66 46 Q66 47 66 48 L65 51 Q64 51 63 51 L59 50 Q58 50 57 49 L53 47 Q52 47 53 46 L57 43 Q58 42 59 42 L62 41 Q63 40 63 42 Z\"/><path fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" d=\"M48 67 l-3.5 7.0 M45 72 l-3.5 7.0 M80 82 l-2.2 4.5 M78 85 l-2.2 4.5 M63 46 l-1.8 3.5 M61 48 l-1.8 3.5\"/>","mountain":"<polygon stroke=\"currentColor\" points=\"28,82 44,54 60,82\"/><polygon stroke=\"currentColor\" points=\"42,86 64,40 88,86\"/><path fill=\"none\" stroke=\"currentColor\" d=\"M71 55 l-5 10 M77 67 l-5 10 M83 79 l-3 6\"/>","water":""},"shade_k":0.8,"hilite_k":1.14,"deep_k":0.58,"climates":{"temperate":{"plains":"#7fa452","forest":"#24502a","wetland":"#556b4a","tundra":"#8b6a45","mountain":"#6e6a62","water":"#4e7470","label":"Temperate"},"wastes":{"plains":"#d29a3a","forest":"#4a5a26","wetland":"#556b4a","tundra":"#a8732f","mountain":"#7d6a55","water":"#4a6f6c","label":"Wastes"},"steppe":{"plains":"#c2ad7a","forest":"#4f5a3a","wetland":"#7a7458","tundra":"#9c8458","mountain":"#8a8070","water":"#4c726f","label":"Steppe"},"frozen":{"plains":"#b0ad9e","forest":"#3a4a3a","wetland":"#7a7a68","tundra":"#e8e8e2","mountain":"#74716b","water":"#5a7a78","label":"Frozen"},"heath":{"plains":"#8f8456","forest":"#1d3d12","wetland":"#5e5634","tundra":"#7c5f3e","mountain":"#6e675a","water":"#4e7470","label":"Heath"},"uplands":{"plains":"#9a8150","forest":"#3a3f1e","wetland":"#5e5a3a","tundra":"#7a5a33","mountain":"#7a7466","water":"#4e7470","label":"Uplands"},"lush":{"plains":"#5f9435","forest":"#1d5210","wetland":"#3f5f2a","tundra":"#8b6a45","mountain":"#6e6a62","water":"#456b66","label":"Lush"},"deepwood":{"plains":"#6f6c38","forest":"#283412","wetland":"#4a4a26","tundra":"#8b6a45","mountain":"#6e6a62","water":"#455f55","label":"Deepwood"},"mire":{"plains":"#8a8250","forest":"#3a4422","wetland":"#625a38","tundra":"#8b6a45","mountain":"#6e6a62","water":"#4f6a5c","label":"Mire"},"warm":{"plains":"#6f9c3e","forest":"#285a2a","wetland":"#4f6c45","tundra":"#8b6a45","mountain":"#6e6a62","water":"#4f8077","label":"Warm coast"},"olive":{"plains":"#9c9548","forest":"#3a4a1e","wetland":"#5e5f36","tundra":"#8b6a45","mountain":"#6e6a62","water":"#4e7470","label":"Olive"},"scarlet":{"plains":"#bc5442","forest":"#7a2224","wetland":"#6d4038","tundra":"#8b6a45","mountain":"#6e6a62","water":"#4e7470","label":"Scarlet"},"ink":{"plains":"#ffffff","forest":"#c8c8c8","wetland":"#e0e0e0","tundra":"#f4f4f4","mountain":"#8c8c8c","water":"#dcdcdc","label":"Print (ink)"}},"default_climate":"temperate"};
+const STYLE = {"ink":"#2b241b","light":"#f3ead3","grid":"#2b241b","grid_opacity":0.22,"coast_w":4.2,"glyph_w":3.4,"glyph_opacity":0.88,"lum_split":0.26,"glyphs":{"plains":"","hill":"<path stroke=\"currentColor\" d=\"M48 74 Q68 34 90 74 Z\"/><path fill=\"none\" stroke=\"currentColor\" d=\"M75 55 l-4 8 M81 63 l-4 8\"/><path stroke=\"currentColor\" d=\"M24 84 Q44 44 68 84 Z\"/><path fill=\"none\" stroke=\"currentColor\" d=\"M51 64 l-4 8 M57 72 l-4 8\"/>","forest":"<path fill=\"none\" stroke=\"currentColor\" d=\"M38 84 V80\"/><polygon stroke=\"currentColor\" points=\"29,80 38,64 47,80\"/><polygon stroke=\"currentColor\" points=\"31.2,70 38,52 44.8,70\"/><path fill=\"none\" stroke=\"currentColor\" d=\"M58 68 V64\"/><polygon stroke=\"currentColor\" points=\"49,64 58,48 67,64\"/><polygon stroke=\"currentColor\" points=\"51.2,54 58,36 64.8,54\"/><path fill=\"none\" stroke=\"currentColor\" d=\"M80 88 V84\"/><polygon stroke=\"currentColor\" points=\"71,84 80,68 89,84\"/><polygon stroke=\"currentColor\" points=\"73.2,74 80,56 86.8,74\"/>","wetland":"<path fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" d=\"M30 30.6 H44 M64 54.0 H84 M26 77.4 H38 M54 77.4 H70\"/><path fill=\"none\" stroke=\"currentColor\" d=\"M42 77.4 C42 70 40 64 41 57 M41 67 L35 62 L33 57 M41 62 L46 57 L47 52 M41 58 L37 52\"/><path fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" d=\"M74 54 l0 -9 M70 54 l-2 -7 M78 54 l2 -7\"/>","tundra":"<path fill=\"none\" stroke=\"currentColor\" d=\"M48 92 q3 -5 6 0 q3 -5 6 0 M80 58 q3 -5 6 0 q3 -5 6 0 M30 48 q3 -5 6 0 q3 -5 6 0 M64 66 q3 -5 6 0 q3 -5 6 0\"/><path stroke=\"currentColor\" d=\"M30 72 Q28 71 28 69 L30 62 Q30 60 32 60 L41 58 Q43 58 45 60 L55 65 Q57 67 57 68 L54 73 Q53 75 51 75 L42 77 Q39 77 37 76 Z M78 88 Q76 89 75 88 L70 86 Q68 85 68 84 L68 78 Q68 77 69 77 L75 76 Q76 76 77 76 L81 77 Q82 78 83 79 L85 85 Q85 87 84 87 Z M66 46 Q66 47 66 48 L65 51 Q64 51 63 51 L59 50 Q58 50 57 49 L53 47 Q52 47 53 46 L57 43 Q58 42 59 42 L62 41 Q63 40 63 42 Z\"/><path fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.6\" d=\"M48 67 l-3.5 7.0 M45 72 l-3.5 7.0 M80 82 l-2.2 4.5 M78 85 l-2.2 4.5 M63 46 l-1.8 3.5 M61 48 l-1.8 3.5\"/>","mountain":"<polygon stroke=\"currentColor\" points=\"28,82 44,54 60,82\"/><polygon stroke=\"currentColor\" points=\"42,86 64,40 88,86\"/><path fill=\"none\" stroke=\"currentColor\" d=\"M71 55 l-5 10 M77 67 l-5 10 M83 79 l-3 6\"/>","water":""},"shade_k":0.8,"hilite_k":1.14,"deep_k":0.58,"badge":[81,33,21],"badge_fill":"#f1e7cf","resources":{"arable":{"name":"Arable Land","color":"#d9a82e","icon":"<g transform=\"translate(81,33) scale(1.1667) translate(-81,-33)\"><path fill=\"none\" stroke=\"#2b241b\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M81 44 V27 M75 44 Q75 35 74 31 M87 44 Q87 35 88 31\"/><ellipse cx=\"81\" cy=\"24\" rx=\"2.2\" ry=\"3.4\" fill=\"#d9a82e\" stroke=\"#2b241b\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" transform=\"rotate(0 81 24)\"/><ellipse cx=\"78.5\" cy=\"29\" rx=\"2.2\" ry=\"3.4\" fill=\"#d9a82e\" stroke=\"#2b241b\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" transform=\"rotate(-30 78.5 29)\"/><ellipse cx=\"83.5\" cy=\"29\" rx=\"2.2\" ry=\"3.4\" fill=\"#d9a82e\" stroke=\"#2b241b\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" transform=\"rotate(30 83.5 29)\"/><ellipse cx=\"74\" cy=\"28\" rx=\"2.2\" ry=\"3.4\" fill=\"#d9a82e\" stroke=\"#2b241b\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" transform=\"rotate(-15 74 28)\"/><ellipse cx=\"88\" cy=\"28\" rx=\"2.2\" ry=\"3.4\" fill=\"#d9a82e\" stroke=\"#2b241b\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" transform=\"rotate(15 88 28)\"/></g>"},"apiary":{"name":"Apiary","color":"#e0b030","icon":"<g transform=\"translate(81,33) scale(1.1667) translate(-81,-33)\"><path d=\"M70 42 Q70 22 81 22 Q92 22 92 42 Z\" fill=\"#e0b030\" stroke=\"#2b241b\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path fill=\"none\" stroke=\"#2b241b\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M71 35 H91 M73 28 H89\"/><path d=\"M78 42 V38 Q81 35 84 38 V42 Z\" fill=\"#2b241b\"/></g>"},"forestry":{"name":"Forestry","color":"#8a5a2b","icon":"<g transform=\"translate(81,33) scale(1.1667) translate(-81,-33)\"><circle cx=\"75\" cy=\"38\" r=\"6\" fill=\"#b98a55\" stroke=\"#2b241b\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><circle cx=\"75\" cy=\"38\" r=\"2.2\" fill=\"none\" stroke=\"#2b241b\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><circle cx=\"87\" cy=\"38\" r=\"6\" fill=\"#b98a55\" stroke=\"#2b241b\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><circle cx=\"87\" cy=\"38\" r=\"2.2\" fill=\"none\" stroke=\"#2b241b\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><circle cx=\"81\" cy=\"28\" r=\"6\" fill=\"#b98a55\" stroke=\"#2b241b\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><circle cx=\"81\" cy=\"28\" r=\"2.2\" fill=\"none\" stroke=\"#2b241b\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></g>"},"quarry":{"name":"Quarry","color":"#a9a49a","icon":"<g transform=\"translate(81,33) scale(1.1667) translate(-81,-33)\"><g fill=\"#b9b4a8\" stroke=\"#2b241b\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"70\" y=\"34\" width=\"11\" height=\"8\" rx=\"1\"/><rect x=\"81\" y=\"34\" width=\"11\" height=\"8\" rx=\"1\"/><rect x=\"75\" y=\"25\" width=\"12\" height=\"9\" rx=\"1\"/></g></g>"},"salt":{"name":"Salt Works","color":"#ece6d6","icon":"<g transform=\"translate(81,33) scale(1.1667) translate(-81,-33)\"><path d=\"M75.5 31.5 L81.0 34.25 L81.0 39.75 L75.5 42.5 L70.0 39.75 L70.0 34.25 Z M70.0 34.25 L75.5 37 L81.0 34.25 M75.5 37 V42.5\" fill=\"#f7f4ec\" stroke=\"#2b241b\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M86.5 31.5 L92.0 34.25 L92.0 39.75 L86.5 42.5 L81.0 39.75 L81.0 34.25 Z M81.0 34.25 L86.5 37 L92.0 34.25 M86.5 37 V42.5\" fill=\"#f7f4ec\" stroke=\"#2b241b\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M81 22.5 L86.5 25.25 L86.5 30.75 L81 33.5 L75.5 30.75 L75.5 25.25 Z M75.5 25.25 L81 28 L86.5 25.25 M81 28 V33.5\" fill=\"#f7f4ec\" stroke=\"#2b241b\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></g>"},"mine":{"name":"Mine","color":"#4a4440","icon":"<g transform=\"translate(81,33) scale(1.1667) translate(-81,-33)\"><path fill=\"none\" stroke=\"#2b241b\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2.6\" d=\"M73 43 L86 28\"/><path d=\"M75 24 Q85 21 92 30 Q87 26 82 27 Q78 26 75 24 Z\" fill=\"#6e6a66\" stroke=\"#2b241b\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></g>"}},"climates":{"temperate":{"plains":"#7fa452","forest":"#24502a","wetland":"#556b4a","tundra":"#8b6a45","mountain":"#6e6a62","water":"#4e7470","label":"Temperate"},"wastes":{"plains":"#d29a3a","forest":"#4a5a26","wetland":"#556b4a","tundra":"#a8732f","mountain":"#7d6a55","water":"#4a6f6c","label":"Wastes"},"steppe":{"plains":"#c2ad7a","forest":"#4f5a3a","wetland":"#7a7458","tundra":"#9c8458","mountain":"#8a8070","water":"#4c726f","label":"Steppe"},"frozen":{"plains":"#b0ad9e","forest":"#3a4a3a","wetland":"#7a7a68","tundra":"#e8e8e2","mountain":"#74716b","water":"#5a7a78","label":"Frozen"},"heath":{"plains":"#8f8456","forest":"#1d3d12","wetland":"#5e5634","tundra":"#7c5f3e","mountain":"#6e675a","water":"#4e7470","label":"Heath"},"uplands":{"plains":"#9a8150","forest":"#3a3f1e","wetland":"#5e5a3a","tundra":"#7a5a33","mountain":"#7a7466","water":"#4e7470","label":"Uplands"},"lush":{"plains":"#5f9435","forest":"#1d5210","wetland":"#3f5f2a","tundra":"#8b6a45","mountain":"#6e6a62","water":"#456b66","label":"Lush"},"deepwood":{"plains":"#6f6c38","forest":"#283412","wetland":"#4a4a26","tundra":"#8b6a45","mountain":"#6e6a62","water":"#455f55","label":"Deepwood"},"mire":{"plains":"#8a8250","forest":"#3a4422","wetland":"#625a38","tundra":"#8b6a45","mountain":"#6e6a62","water":"#4f6a5c","label":"Mire"},"warm":{"plains":"#6f9c3e","forest":"#285a2a","wetland":"#4f6c45","tundra":"#8b6a45","mountain":"#6e6a62","water":"#4f8077","label":"Warm coast"},"olive":{"plains":"#9c9548","forest":"#3a4a1e","wetland":"#5e5f36","tundra":"#8b6a45","mountain":"#6e6a62","water":"#4e7470","label":"Olive"},"scarlet":{"plains":"#bc5442","forest":"#7a2224","wetland":"#6d4038","tundra":"#8b6a45","mountain":"#6e6a62","water":"#4e7470","label":"Scarlet"},"ink":{"plains":"#ffffff","forest":"#c8c8c8","wetland":"#e0e0e0","tundra":"#f4f4f4","mountain":"#8c8c8c","water":"#dcdcdc","label":"Print (ink)"}},"default_climate":"temperate"};
 const PALETTES = {};
 for (const k of Object.keys(STYLE.climates)) {
   const c = STYLE.climates[k], o = {};
@@ -3292,8 +3294,10 @@ const TERRAIN_REF = {"terrain":{"Grassland":{"Effect":"\u2014","Raw Materials":[
 /* map generator terrain key -> the name the rules use */
 const RULE_NAME = { plains:'Grassland', forest:'Forest', wetland:'Wetlands',
                     tundra:'Tundra', mountain:'Mountains', water:'Water' };
-const RESCOL = { mine:'#161616', quarry:'#8a3b2e', arable:'#7a4f2a',
-                 forestry:'#2f5d2f', apiary:'#e8c020', salt:'#ece6d6' };
+/* raw materials: names, colours and badge icons come from hexstyle.py */
+const RES = STYLE.resources;
+const resBadge = (k) => `<circle cx="${STYLE.badge[0]}" cy="${STYLE.badge[1]}" r="${STYLE.badge[2]}" `
+  + `fill="${STYLE.badge_fill}" stroke="${STYLE.ink}" stroke-width="2"/>` + RES[k].icon;
 const TERRAINS = ['plains','forest','wetland','tundra','mountain','water'];
 /* Board size per player count. Roughly 140 hexes a player at a 1.23 aspect:
    settlement clearings and roads cost the same per player at any scale, so a
@@ -3442,6 +3446,8 @@ function render() {
          .replace(/stroke="HILITE"/g, 'style="stroke:var(--hilite)"')
          .replace(/fill="SHADE"/g, 'style="fill:var(--shade)"')
          .replace(/fill="DEEP"/g, 'style="fill:var(--deep)"')}</g></symbol>`;
+  for (const k of Object.keys(RES))
+    s += `<symbol id="r-${k}" viewBox="0 0 120 108">${resBadge(k)}</symbol>`;
   s += `</defs><rect width="100%" height="100%" fill="#f7f5ef"/>`;
   const gw = (120 * sc).toFixed(2), gh = (108 * sc).toFixed(2);
   let tiles = '', glyphs = '', coast = '', res = '';
@@ -3464,13 +3470,9 @@ function render() {
       const a = vtx(cx, cy, k), b = vtx(cx, cy, k + 1);
       coast += `M${a[0].toFixed(1)} ${a[1].toFixed(1)}L${b[0].toFixed(1)} ${b[1].toFixed(1)}`;
     }
-    if (h.resource && showRes) {
-      const bx = cx + 26 * sc, by = cy - 24 * sc;
-      res += `<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="${(17*sc).toFixed(2)}" `
-           + `fill="#e9ddc2" stroke="${STYLE.ink}" stroke-width="0.6"/>`
-           + `<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="${(10*sc).toFixed(2)}" `
-           + `fill="${RESCOL[h.resource]}" stroke="#0006" stroke-width="0.5"/>`;
-    }
+    if (h.resource && showRes && RES[h.resource])
+      res += `<use href="#r-${h.resource}" xlink:href="#r-${h.resource}" x="${(cx - 60 * sc).toFixed(2)}" `
+           + `y="${(cy - 54 * sc).toFixed(2)}" width="${gw}" height="${gh}"><title>${RES[h.resource].name}</title></use>`;
   }
   s += tiles + glyphs;
   if (coast) s += `<path d="${coast}" fill="none" stroke="${STYLE.ink}" `
@@ -3479,6 +3481,7 @@ function render() {
   if (showSet) s += RenownGen.zoneOverlaySVG(m.startZones, ctr, R);
   s += '</svg>';
   $('boardwrap').innerHTML = s;
+  drawLegend();
   if (typeof updateCode === 'function' && $('seedCode')) updateCode();
 }
 
@@ -3639,11 +3642,18 @@ function drawTerrainRef() {
 }
 
 function drawLegend() {
+  /* every raw material the generator places: icon, rules name, count on THIS
+     board; absent ones are struck through so "not on the board" is explicit */
   const host = $('legend'), on = $('showRes').checked;
   host.hidden = !on;
   if (!on) return;
-  host.innerHTML = Object.keys(RESCOL).sort()
-    .map(k => `<span><i style="background:${RESCOL[k]}"></i>${k}</span>`).join('');
+  const n = {};
+  if (current && current.map) for (const h of current.map.all()) if (h.resource) n[h.resource] = (n[h.resource] || 0) + 1;
+  host.innerHTML = Object.keys(RES).map(k => {
+    const ico = `<svg viewBox="${STYLE.badge[0]-STYLE.badge[2]-1} ${STYLE.badge[1]-STYLE.badge[2]-1} ${2*STYLE.badge[2]+2} ${2*STYLE.badge[2]+2}" width="22" height="22" aria-hidden="true">${resBadge(k)}</svg>`;
+    return `<span class="${n[k] ? '' : 'absent'}" title="${RES[k].name}: ${n[k] || 0} on this board">`
+      + `${ico}${RES[k].name} <b>${n[k] || 0}</b></span>`;
+  }).join('');
 }
 ['showRes', 'showSet'].forEach(id =>
   $(id).addEventListener('change', () => { drawLegend(); render(); }));

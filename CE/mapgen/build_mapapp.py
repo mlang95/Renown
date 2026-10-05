@@ -31,7 +31,42 @@ def rules_of(data_dir):
     return {"charter_min_range": rd.CHARTER_MIN_RANGE,
             "hamlet_range": rd.HAMLET_RANGE,
             "outlaw_buffer": rd.OUTLAW_BUFFER_RANGE,
-            "outlaw_start": rd.OUTLAW_COUNTRY_START}
+            "outlaw_start": rd.OUTLAW_COUNTRY_START,
+            "start_tiers": list(rd.EMPIRE_START_TIERS)}
+
+
+def check_resources(data_dir):
+    """Raw-material names/badges (hexstyle) and where the generator places them
+    (gen.js RESOURCE_BY_TERRAIN) vs renown_data TERRAIN "Raw Materials".
+    Reports drift; never edits anything."""
+    import re
+    sys.path.insert(0, os.path.abspath(data_dir))
+    sys.path.insert(0, HERE)
+    import renown_data as rd, hexstyle
+    rule = {"plains": "Grassland", "forest": "Forest", "wetland": "Wetlands",
+            "tundra": "Tundra", "mountain": "Mountains", "water": "Water"}
+    data = {k: set(rd.TERRAIN.get(v, {}).get("Raw Materials", [])) for k, v in rule.items()}
+    names = {k: v["name"] for k, v in hexstyle.RESOURCES.items()}
+    out = []
+    every = set().union(*data.values())
+    for k, n in names.items():
+        if n not in every:
+            out.append(f"badge '{k}' is named {n!r}, which no TERRAIN lists")
+    gen = open(os.path.join(HERE, "gen.js"), encoding="utf-8").read()
+    m = re.search(r"const RESOURCE_BY_TERRAIN = \{(.*?)\};", gen, re.S)
+    if m:
+        for t, lst in re.findall(r"(\w+):\s*\[([^\]]*)\]", m.group(1)):
+            placed = {names.get(x.strip(" '\""), x.strip(" '\"")) for x in lst.split(",") if x.strip()}
+            extra, miss = placed - data.get(t, set()), data.get(t, set()) - placed
+            if extra:
+                out.append(f"{rule.get(t, t)}: generator places {sorted(extra)}, data doesn't list it")
+            if miss:
+                out.append(f"{rule.get(t, t)}: data lists {sorted(miss)}, generator never places it")
+        placed_terr = set(re.findall(r"(\w+):\s*\[", m.group(1)))
+        for t in rule:
+            if t not in placed_terr and data[t]:
+                out.append(f"{rule[t]}: data lists {sorted(data[t])}, generator never places it")
+    return out
 
 
 def presets_js(rules=None):
@@ -84,8 +119,10 @@ def find_data(explicit=None):
     """
     seen = []
     for c in [explicit,
+              os.path.join(HERE, ".."),               # data one folder up (CE root:
+                                                      # build_all_CE copies the selected
+                                                      # DIE's data here as renown_data.py)
               os.path.join(HERE, "..", "combatv4"),   # CE/{combatv4,mapgen}
-              os.path.join(HERE, ".."),               # data one folder up
               HERE,                                   # data beside the app
               os.getcwd()]:
         if not c:
@@ -121,7 +158,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", default=None,
                     help="folder containing renown_data.py "
-                         "(default: search ../combatv4, .., then this folder)")
+                         "(default: search .., ../combatv4, then this folder)")
     ap.add_argument("--out", default=os.path.join(HERE, "renown-maps.html"))
     a = ap.parse_args()
 
@@ -132,6 +169,8 @@ def main():
     pjs, npre = presets_js(rules)
     open(os.path.join(HERE, "presets.js"), "w", encoding="utf-8").write(pjs)
     ref = terrain_ref(data_dir)
+    for w in check_resources(data_dir):
+        print("  raw materials:", w)
 
     sys.path.insert(0, HERE)
     import hexstyle

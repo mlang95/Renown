@@ -146,6 +146,75 @@ def colors(climate=None):
     return {t: c[t] for t in TERRAINS}
 
 
+# ── raw materials ───────────────────────────────────────────────────────────
+# One badge per resource hex, top-right of the tile (clear of the glyph zone).
+# Each raw material has its own SHAPE (readable in monochrome) and colour.
+# `name` must match renown_data TERRAIN "Raw Materials" spelling; build_mapapp
+# checks that. Keys are the generator's (mapgen RESOURCE_BY_TERRAIN).
+BADGE = (81, 33, 21)            # cx, cy, r on the 120x108 tile canvas
+ICON_K = 21 / 18                 # icons are drawn at r=18 and scaled to the badge
+BADGE_FILL = "#f1e7cf"
+
+
+def _icon(key):
+    x, y = BADGE[0], BADGE[1]
+    I = f'stroke="{INK}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'
+    if key == "arable":            # wheat: three stalks, grain heads
+        heads = "".join(f'<ellipse cx="{x+dx}" cy="{y+dy}" rx="2.2" ry="3.4" fill="#d9a82e" {I} '
+                        f'transform="rotate({rot} {x+dx} {y+dy})"/>'
+                        for dx, dy, rot in ((0, -9, 0), (-2.5, -4, -30), (2.5, -4, 30),
+                                            (-7, -5, -15), (7, -5, 15)))
+        return (f'<path fill="none" {I} d="M{x} {y+11} V{y-6} M{x-6} {y+11} Q{x-6} {y+2} {x-7} {y-2} '
+                f'M{x+6} {y+11} Q{x+6} {y+2} {x+7} {y-2}"/>' + heads)
+    if key == "apiary":            # skep: banded dome, dark entrance
+        return (f'<path d="M{x-11} {y+9} Q{x-11} {y-11} {x} {y-11} Q{x+11} {y-11} {x+11} {y+9} Z" '
+                f'fill="#e0b030" {I}/>'
+                f'<path fill="none" {I} d="M{x-10} {y+2} H{x+10} M{x-8} {y-5} H{x+8}"/>'
+                f'<path d="M{x-3} {y+9} V{y+5} Q{x} {y+2} {x+3} {y+5} V{y+9} Z" fill="{INK}"/>')
+    if key == "forestry":          # log stack, end grain showing
+        logs = ((x - 6, y + 5), (x + 6, y + 5), (x, y - 5))
+        return "".join(f'<circle cx="{lx}" cy="{ly}" r="6" fill="#b98a55" {I}/>'
+                       f'<circle cx="{lx}" cy="{ly}" r="2.2" fill="none" {I}/>' for lx, ly in logs)
+    if key == "quarry":            # dressed stone blocks, bonded
+        return (f'<g fill="#b9b4a8" {I}>'
+                f'<rect x="{x-11}" y="{y+1}" width="11" height="8" rx="1"/>'
+                f'<rect x="{x}" y="{y+1}" width="11" height="8" rx="1"/>'
+                f'<rect x="{x-6}" y="{y-8}" width="12" height="9" rx="1"/></g>')
+    if key == "salt":              # salt crystals: three cubes in a heap
+        def cube(cx, cy, s):
+            return (f'<path d="M{cx} {cy-s} L{cx+s} {cy-s/2} L{cx+s} {cy+s/2} L{cx} {cy+s} '
+                    f'L{cx-s} {cy+s/2} L{cx-s} {cy-s/2} Z M{cx-s} {cy-s/2} L{cx} {cy} L{cx+s} {cy-s/2} '
+                    f'M{cx} {cy} V{cy+s}" fill="#f7f4ec" {I}/>')
+        return cube(x - 5.5, y + 4, 5.5) + cube(x + 5.5, y + 4, 5.5) + cube(x, y - 5, 5.5)
+    if key == "mine":              # pick-axe
+        return (f'<path fill="none" {I} stroke-width="2.6" d="M{x-8} {y+10} L{x+5} {y-5}"/>'
+                f'<path d="M{x-6} {y-9} Q{x+4} {y-12} {x+11} {y-3} Q{x+6} {y-7} {x+1} {y-6} '
+                f'Q{x-3} {y-7} {x-6} {y-9} Z" fill="#6e6a66" {I}/>')
+    return ""
+
+
+RESOURCES = {
+    "arable":   {"name": "Arable Land", "color": "#d9a82e"},
+    "apiary":   {"name": "Apiary",      "color": "#e0b030"},
+    "forestry": {"name": "Forestry",    "color": "#8a5a2b"},
+    "quarry":   {"name": "Quarry",      "color": "#a9a49a"},
+    "salt":     {"name": "Salt Works",  "color": "#ece6d6"},
+    "mine":     {"name": "Mine",        "color": "#4a4440"},
+}
+for _k, _v in RESOURCES.items():
+    _v["icon"] = (f'<g transform="translate({BADGE[0]},{BADGE[1]}) scale({ICON_K:.4f}) '
+                  f'translate({-BADGE[0]},{-BADGE[1]})">{_icon(_k)}</g>')
+
+
+def resource_svg(key):
+    """Badge + icon for one raw material, on the 120x108 tile canvas."""
+    if key not in RESOURCES:
+        return ""
+    cx, cy, r = BADGE
+    return (f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="{BADGE_FILL}" stroke="{INK}" '
+            f'stroke-width="2"/>' + RESOURCES[key]["icon"])
+
+
 # ── tone rule (mirrored in app_shell.html glyphTone) ────────────────────────
 def luminance(hexcol):
     h = hexcol.lstrip("#")
@@ -184,5 +253,6 @@ def export():
     return {"ink": INK, "light": LIGHT, "grid": GRID, "grid_opacity": GRID_OPACITY,
             "coast_w": COAST_W, "glyph_w": GLYPH_W, "glyph_opacity": GLYPH_OPACITY,
             "lum_split": LUM_SPLIT, "glyphs": GLYPHS,
-            "shade_k": SHADE_K, "hilite_k": HILITE_K, "deep_k": DEEP_K, "climates": CLIMATES,
+            "shade_k": SHADE_K, "hilite_k": HILITE_K, "deep_k": DEEP_K,
+            "badge": BADGE, "badge_fill": BADGE_FILL, "resources": RESOURCES, "climates": CLIMATES,
             "default_climate": DEFAULT_CLIMATE}

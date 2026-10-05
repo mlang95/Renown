@@ -99,7 +99,9 @@ button.ghost:hover{background:var(--edge)}
 .tog input{accent-color:var(--sea-lit);width:15px;height:15px;margin:0;cursor:pointer}
 #legend{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;margin-top:11px}
 #legend span{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim)}
-#legend i{width:10px;height:10px;border-radius:50%;border:1px solid #0007;flex:0 0 auto}
+#legend svg{flex:0 0 auto}
+#legend b{color:var(--ink);font-weight:600;margin-left:auto}
+#legend span.absent{opacity:.45;text-decoration:line-through}
 .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
 .chip{
   border:1px solid var(--edge);background:var(--slate);color:var(--dim);
@@ -190,7 +192,7 @@ button.ghost:hover{background:var(--edge)}
   <fieldset id="carveSet"><legend>Roads &amp; rivers</legend><div id="carve"></div></fieldset>
 
   <fieldset><legend>Overlays</legend>
-    <label class="tog"><input type="checkbox" id="showRes"> Raw materials</label>
+    <label class="tog"><input type="checkbox" id="showRes" checked> Raw materials</label>
     <label class="tog"><input type="checkbox" id="showSet" checked> Start zones</label>
     <div id="legend" hidden></div>
   </fieldset>
@@ -252,8 +254,10 @@ const TERRAIN_REF = /*__TERRAIN__*/;
 /* map generator terrain key -> the name the rules use */
 const RULE_NAME = { plains:'Grassland', forest:'Forest', wetland:'Wetlands',
                     tundra:'Tundra', mountain:'Mountains', water:'Water' };
-const RESCOL = { mine:'#161616', quarry:'#8a3b2e', arable:'#7a4f2a',
-                 forestry:'#2f5d2f', apiary:'#e8c020', salt:'#ece6d6' };
+/* raw materials: names, colours and badge icons come from hexstyle.py */
+const RES = STYLE.resources;
+const resBadge = (k) => `<circle cx="${STYLE.badge[0]}" cy="${STYLE.badge[1]}" r="${STYLE.badge[2]}" `
+  + `fill="${STYLE.badge_fill}" stroke="${STYLE.ink}" stroke-width="2"/>` + RES[k].icon;
 const TERRAINS = ['plains','forest','wetland','tundra','mountain','water'];
 /* Board size per player count. Roughly 140 hexes a player at a 1.23 aspect:
    settlement clearings and roads cost the same per player at any scale, so a
@@ -402,6 +406,8 @@ function render() {
          .replace(/stroke="HILITE"/g, 'style="stroke:var(--hilite)"')
          .replace(/fill="SHADE"/g, 'style="fill:var(--shade)"')
          .replace(/fill="DEEP"/g, 'style="fill:var(--deep)"')}</g></symbol>`;
+  for (const k of Object.keys(RES))
+    s += `<symbol id="r-${k}" viewBox="0 0 120 108">${resBadge(k)}</symbol>`;
   s += `</defs><rect width="100%" height="100%" fill="#f7f5ef"/>`;
   const gw = (120 * sc).toFixed(2), gh = (108 * sc).toFixed(2);
   let tiles = '', glyphs = '', coast = '', res = '';
@@ -424,13 +430,9 @@ function render() {
       const a = vtx(cx, cy, k), b = vtx(cx, cy, k + 1);
       coast += `M${a[0].toFixed(1)} ${a[1].toFixed(1)}L${b[0].toFixed(1)} ${b[1].toFixed(1)}`;
     }
-    if (h.resource && showRes) {
-      const bx = cx + 26 * sc, by = cy - 24 * sc;
-      res += `<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="${(17*sc).toFixed(2)}" `
-           + `fill="#e9ddc2" stroke="${STYLE.ink}" stroke-width="0.6"/>`
-           + `<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="${(10*sc).toFixed(2)}" `
-           + `fill="${RESCOL[h.resource]}" stroke="#0006" stroke-width="0.5"/>`;
-    }
+    if (h.resource && showRes && RES[h.resource])
+      res += `<use href="#r-${h.resource}" xlink:href="#r-${h.resource}" x="${(cx - 60 * sc).toFixed(2)}" `
+           + `y="${(cy - 54 * sc).toFixed(2)}" width="${gw}" height="${gh}"><title>${RES[h.resource].name}</title></use>`;
   }
   s += tiles + glyphs;
   if (coast) s += `<path d="${coast}" fill="none" stroke="${STYLE.ink}" `
@@ -439,6 +441,7 @@ function render() {
   if (showSet) s += RenownGen.zoneOverlaySVG(m.startZones, ctr, R);
   s += '</svg>';
   $('boardwrap').innerHTML = s;
+  drawLegend();
   if (typeof updateCode === 'function' && $('seedCode')) updateCode();
 }
 
@@ -599,11 +602,18 @@ function drawTerrainRef() {
 }
 
 function drawLegend() {
+  /* every raw material the generator places: icon, rules name, count on THIS
+     board; absent ones are struck through so "not on the board" is explicit */
   const host = $('legend'), on = $('showRes').checked;
   host.hidden = !on;
   if (!on) return;
-  host.innerHTML = Object.keys(RESCOL).sort()
-    .map(k => `<span><i style="background:${RESCOL[k]}"></i>${k}</span>`).join('');
+  const n = {};
+  if (current && current.map) for (const h of current.map.all()) if (h.resource) n[h.resource] = (n[h.resource] || 0) + 1;
+  host.innerHTML = Object.keys(RES).map(k => {
+    const ico = `<svg viewBox="${STYLE.badge[0]-STYLE.badge[2]-1} ${STYLE.badge[1]-STYLE.badge[2]-1} ${2*STYLE.badge[2]+2} ${2*STYLE.badge[2]+2}" width="22" height="22" aria-hidden="true">${resBadge(k)}</svg>`;
+    return `<span class="${n[k] ? '' : 'absent'}" title="${RES[k].name}: ${n[k] || 0} on this board">`
+      + `${ico}${RES[k].name} <b>${n[k] || 0}</b></span>`;
+  }).join('');
 }
 ['showRes', 'showSet'].forEach(id =>
   $(id).addEventListener('change', () => { drawLegend(); render(); }));

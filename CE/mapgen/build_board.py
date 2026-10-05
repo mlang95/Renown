@@ -94,6 +94,10 @@ def _coast_svg(m, R, dx, dy):
 
 
 def _resource_body(res):
+    """Raw-material badge from hexstyle (same icon as renown-maps and the
+    settlement board); falls back to the old hexgen toppers for unknown keys."""
+    if res in hexstyle.RESOURCES:
+        return hexstyle.resource_svg(res)
     if res == "apiary":
         return _strip(hexgen.resource_apiary())
     icon = RES_ART.get(res)

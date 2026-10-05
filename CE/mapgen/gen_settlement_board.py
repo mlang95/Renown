@@ -619,6 +619,10 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .ttwrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:10px;margin-top:10px;align-items:start}
   .tsw{display:inline-block;width:11px;height:11px;border:1px solid #0005;border-radius:2px;margin-right:5px;vertical-align:-1px}
   .tswg{display:inline-block;margin-right:6px;vertical-align:middle;flex:none}
+  .reslegend{display:flex;flex-wrap:wrap;gap:4px 14px;margin:4px 0 6px;font-size:12px}
+  .reslegend span{display:inline-flex;align-items:center;gap:5px}
+  .reslegend b{font-weight:600}
+  .reslegend span.absent{opacity:.45;text-decoration:line-through}
   .ttab td:first-child{white-space:nowrap}
   .dpcell{text-align:center;font-size:12px;font-family:ui-monospace,monospace;padding:4px 6px;border:1px solid var(--line)}
   button:disabled{opacity:.45;cursor:not-allowed}
@@ -2368,7 +2372,8 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
     sel.appendChild(o);});
   const addB=document.createElement("button");addB.textContent="+ settlement";
   addB.onclick=()=>{
-    const id=sid++;const ns={id,tier:sel.value};if(gameStarted()){const t=settBuildTime(sel.value);if(t>0)ns.bt=t;}S.settlements.push(ns);activeSid=id;autoFill();save();render();if(gameStarted()){const bn=buildNote(settBaseTime(sel.value));if(bn)flash(sel.value+bn);}};
+    const id=sid++;const ns={id,tier:sel.value};if(gameStarted()){const t=settBuildTime(sel.value);if(t>0)ns.bt=t;}S.settlements.push(ns);activeSid=id;autoFill();save();render();if(gameStarted()){const bn=buildNote(settBaseTime(sel.value));if(bn)flash(sel.value+bn);
+      if(sel.value==="Hamlet")flash("⚑ Hamlets are starting pieces only — a Hamlet can't be chartered");}};
   tb.appendChild(sel);tb.appendChild(addB);
   const exAll=document.createElement("button");exAll.textContent="expand all";
   exAll.onclick=()=>{S.expanded=S.placed.map(p=>p.id);save();render();};
@@ -4197,7 +4202,15 @@ function tSwatch(kind,fill,px){px=px||26;const g=tGlyph(kind,fill);
   return '<svg class="tswg" width="'+px+'" height="'+(px*0.9).toFixed(0)+'" viewBox="0 0 120 108" aria-hidden="true">'+
     '<polygon points="114,54 87,100.8 33,100.8 6,54 33,7.2 87,7.2" fill="'+fill+'" stroke="#2b241b" stroke-opacity=".45" stroke-width="3"/>'+
     (g?'<g fill="'+fill+'" stroke-width="'+(RS.glyph_w*1.25)+'" stroke-linecap="round" stroke-linejoin="round" opacity="'+RS.glyph_opacity+'">'+g+'</g>':'')+'</svg>';}
-const RCOL={mine:'#161616',quarry:'#8a3b2e',arable:'#7a4f2a',forestry:'#2f5d2f',apiary:'#e8c020',salt:'#ece6d6'};
+const RCOL={mine:'#161616',quarry:'#8a3b2e',arable:'#7a4f2a',forestry:'#2f5d2f',apiary:'#e8c020',salt:'#ece6d6'};  // fallback only
+// raw materials: names + badge icons from mapgen/hexstyle.py (RenownStyle), same as renown-maps / print
+function resName(k){return (RS&&RS.resources&&RS.resources[k])?RS.resources[k].name:k;}
+function resBadge(k){if(!RS||!RS.resources||!RS.resources[k])return "";const b=RS.badge;
+  return '<circle cx="'+b[0]+'" cy="'+b[1]+'" r="'+b[2]+'" fill="'+RS.badge_fill+'" stroke="'+RS.ink+'" stroke-width="2"/>'+RS.resources[k].icon;}
+function resLegendHTML(g){if(!g||!RS||!RS.resources)return "";const V=decodeGrid(g),n={};
+  Object.keys(V.hex).forEach(k=>{const r=V.hex[k].res;if(r)n[r]=(n[r]||0)+1;});
+  return '<div class="reslegend">'+Object.keys(RS.resources).map(k=>'<span class="'+(n[k]?'':'absent')+'" title="'+esc(resName(k))+': '+(n[k]||0)+' on this board">'+
+    '<svg viewBox="'+(RS.badge[0]-RS.badge[2]-1)+' '+(RS.badge[1]-RS.badge[2]-1)+' '+(2*RS.badge[2]+2)+' '+(2*RS.badge[2]+2)+'" width="20" height="20" aria-hidden="true">'+resBadge(k)+'</svg>'+esc(resName(k))+' <b>'+(n[k]||0)+'</b></span>').join('')+'</div>';}
 const C2T={p:'plains',f:'forest',w:'wetland',t:'tundra',m:'mountain','~':'water'};
 let MAPVIEW=null;                                   // decoded grid cache {sig, hex:{key:{t,res,reg,hill}}}
 function mapState(){const M=D.map;M.cells=M.cells||{};M.outlaw=M.outlaw||{};M.camps=M.camps||{};return M;}
@@ -4261,11 +4274,13 @@ function mapSVG(M){
         const nx=R+(c+oc)*dx,ny=dy/2+(r+orr)*dy+((c+oc)%2?dy/2:0),ang=Math.atan2(ny-cy,nx-cx)*180/Math.PI;
         const e=((Math.round((ang-30)/60)%6)+6)%6,v=t=>[cx+R*Math.cos(Math.PI/3*t),cy+R*Math.sin(Math.PI/3*t)];
         const a=v(e),b=v(e+1);coast+='M'+a[0].toFixed(1)+' '+a[1].toFixed(1)+'L'+b[0].toFixed(1)+' '+b[1].toFixed(1);});}
-    s+='<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="'+fill+'" stroke="#00000030" stroke-width="1" style="cursor:pointer"><title>'+k+(h?" · "+(RULE_NAME[h.t]||h.t)+(h.hill?" (Hill)":"")+(h.res?" · "+h.res:"")+(h.reg!=null?" · region "+h.reg:""):"")+(M.cells[k]?" · "+esc(cellTitle(k)):"")+'</title></polygon>';
+    s+='<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="'+fill+'" stroke="#00000030" stroke-width="1" style="cursor:pointer"><title>'+k+(h?" · "+(RULE_NAME[h.t]||h.t)+(h.hill?" (Hill)":"")+(h.res?" · "+resName(h.res):"")+(h.reg!=null?" · region "+h.reg:""):"")+(M.cells[k]?" · "+esc(cellTitle(k)):"")+'</title></polygon>';
     if(M.outlaw[k])over+='<polygon points="'+pts(cx,cy)+'" fill="url(#olh)" stroke="#7a1414" stroke-width="1.5" pointer-events="none"/>';
-    if(h&&h.res&&M.showRes!==false){const bx=cx+26*sc,by=cy-24*sc;   // badge top-right, as renown-maps / print
-      over+='<circle cx="'+bx.toFixed(1)+'" cy="'+by.toFixed(1)+'" r="'+(17*sc).toFixed(2)+'" fill="#e9ddc2" stroke="#2b241b" stroke-width="0.6" pointer-events="none"/>'+
-        '<circle cx="'+bx.toFixed(1)+'" cy="'+by.toFixed(1)+'" r="'+(10*sc).toFixed(2)+'" fill="'+RCOL[h.res]+'" stroke="#0006" stroke-width="0.5" pointer-events="none"/>';}
+    if(h&&h.res&&M.showRes!==false){
+      if(RS&&RS.resources&&RS.resources[h.res])   // icon badge top-right, as renown-maps / print
+        over+='<g transform="translate('+(cx-60*sc).toFixed(2)+','+(cy-54*sc).toFixed(2)+') scale('+sc.toFixed(4)+')" pointer-events="none">'+resBadge(h.res)+'</g>';
+      else {const bx=cx+26*sc,by=cy-24*sc;
+        over+='<circle cx="'+bx.toFixed(1)+'" cy="'+by.toFixed(1)+'" r="'+(10*sc).toFixed(2)+'" fill="'+RCOL[h.res]+'" stroke="#0006" stroke-width="0.5" pointer-events="none"/>';}}
   }
   s+=glyphs;
   if(coast)s+='<path d="'+coast+'" fill="none" stroke="'+(RS?RS.ink:"#2b241b")+'" stroke-width="'+((RS?RS.coast_w:4.2)*sc).toFixed(2)+'" stroke-linecap="round" pointer-events="none"/>';
@@ -4295,6 +4310,56 @@ function outlawReport(M){
   return {by,warn};
 }
 function banditDomain(n){return Math.floor(n/5)*2;}
+// ---- Opening setup vs the map's start zones (Player Setup) — flags only, never blocks ----
+// Starting pieces = DATA.startTiers (renown_data EMPIRE_START_TIERS). First tier (the capital)
+// on a start-zone Town Hill, one player per zone; Hamlet exactly hamlet range from it (a starting
+// piece, never chartered, exempt from charter spacing); any other starting tier charter range+
+// from every Settlement but Hamlets; Outlaw Country: N connected, never on water or mountains,
+// outlaw buffer+ from every non-Hamlet piece, not adjacent to a Hamlet. All inside the zone.
+function setupCheck(M){const g=M.grid,zones=(g&&g.start_zones)||[];if(!zones.length)return null;
+  const SR=DATA.setupRules||{},CM=SR.charterMin||4,HR=SR.hamletRange||2,OB=SR.outlawBuffer||2,OS=SR.outlawStart||3;
+  const TIERS=(DATA.startTiers&&DATA.startTiers.length)?DATA.startTiers:["Town","Hamlet"],CAP=TIERS[0];
+  const need={};TIERS.slice(1).forEach(t=>need[t]=(need[t]||0)+1);
+  const V=decodeGrid(g),ck=c=>c[0]+","+c[1],S=mapSetts();
+  const zoneOf=k=>zones.find(z=>z.hexes.some(c=>ck(c)===k))||null;
+  const unbuild=k=>{const h=V.hex[k];return !h||h.t==="water"||h.t==="mountain";};
+  const out=[];
+  D.players.forEach(p=>{const mine=S.filter(x=>sameP(cellPlayer(x.cell),p)),f=[],todo=[];
+    const cap=mine.find(x=>x.cell.type===CAP);
+    if(!cap){out.push({p,f:[],todo:"no "+CAP+" placed"});return;}
+    const z=zoneOf(cap.k),inZ=k=>!!z&&z.hexes.some(c=>ck(c)===k),T=hk(cap.k);
+    if(!z)f.push(CAP+" "+cap.k+" is outside every start zone");
+    const th=V.hex[cap.k];if(!th||!th.hill)f.push(CAP+" "+cap.k+" is not on a Hill");
+    if(z)D.players.forEach(q=>{if(sameP(q,p))return;const o=S.find(x=>sameP(cellPlayer(x.cell),q)&&x.cell.type===CAP);
+      if(o&&zoneOf(o.k)===z&&String(p.id)<String(q.id))f.push("shares start zone "+(z.seat+1)+" with "+q.name);});
+    const hard=[cap];                                   // non-Hamlet starting pieces (Outlaw buffer)
+    const hams=[];
+    Object.keys(need).forEach(t=>{const got=mine.filter(x=>x.cell.type===t).slice(0,need[t]);
+      if(got.length<need[t])todo.push((need[t]-got.length>1?(need[t]-got.length)+"× ":"")+t);
+      got.forEach(x=>{const d=hexDist(hk(x.k),T);
+        if(z&&!inZ(x.k))f.push(t+" "+x.k+" is outside start zone "+(z.seat+1));
+        if(unbuild(x.k))f.push(t+" "+x.k+" is on water or mountains");
+        if(t==="Hamlet"){hams.push(x);if(d!==HR)f.push("Hamlet "+x.k+" is range "+d+" from the "+CAP+" (must be exactly "+HR+")");return;}
+        hard.push(x);
+        S.forEach(o=>{if(o.k===x.k||o.cell.type==="Hamlet")return;const dd=hexDist(hk(o.k),hk(x.k));
+          if(dd<CM)f.push(t+" "+x.k+" is range "+dd+" from "+(cellPlayer(o.cell)||{name:"?"}).name+"'s "+o.cell.type+" "+o.k+" (needs "+CM+"+)");});});});
+    const oc=outlawOf(p);
+    if(oc.length){
+      if(oc.length!==OS)f.push("Outlaw Country: "+oc.length+" Territories (setup is "+OS+")");
+      oc.forEach(k=>{const a=hk(k);
+        if(z&&!inZ(k))f.push("Outlaw Country "+k+" is outside start zone "+(z.seat+1));
+        if(unbuild(k))f.push("Outlaw Country "+k+" is on water or mountains");
+        hard.forEach(x=>{if(hexDist(a,hk(x.k))<OB)f.push("Outlaw Country "+k+" is within "+(OB-1)+" of "+x.cell.type+" "+x.k+" (needs "+OB+"+)");});
+        hams.forEach(x=>{if(hexDist(a,hk(x.k))<=1)f.push("Outlaw Country "+k+" is adjacent to the Hamlet");});
+        if(oc.length>1&&!oc.some(o=>o!==k&&hexDist(a,hk(o))<=1))f.push("Outlaw Country "+k+" is not within range 1 of another");});}
+    else todo.push("Outlaw Country");
+    out.push({p,f,todo:todo.length?"to place: "+todo.join(", "):""});});
+  return out;}
+function setupCheckHTML(M){const rows=setupCheck(M);if(!rows)return "";
+  return '<div class="tot"><h3 style="font-size:13px">Opening setup</h3>'+rows.map(r=>'<div class="note" style="margin-top:3px"><b>'+esc(r.p.name)+'</b> '+
+    (r.f.length?'<span style="color:var(--upkeep)">⚑ '+r.f.map(esc).join(' · ')+'</span>':(/^no /.test(r.todo)?'':'✓'))+
+    (r.todo?' <span class="note">'+esc(r.todo)+'</span>':'')+'</div>').join('')+
+    '<div class="note" style="margin-top:4px">Flags only. Starting pieces: '+esc(((DATA.startTiers&&DATA.startTiers.length)?DATA.startTiers:["Town","Hamlet"]).join(", "))+'. Capital on a Hill in a start zone; everything else inside that zone.</div></div>';}
 function banditAutoHTML(full){const B=BST();
   let h='<label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" class="bAuto"'+(B.auto?' checked':'')+'> auto Bandit Mechanics at Empire Phase</label>';
   if(full)h+=full;
@@ -4461,15 +4526,17 @@ function mapToolsHTML(){const M=mapState(),g=M.grid;
     '</div>'+(g?'<div class="note" style="margin:0 0 6px">generator '+esc(g.generator||'?')+' · climate '+esc(mapPal(g).label||mapClimate(g))+'</div>':'')+'</details>';
   h+='<div class="mtoolbar">tool <select id="mTool">'+tools.map(t=>'<option'+(t===mtool?' selected':'')+'>'+t+'</option>').join('')+'</select>'+
     ' <span class="note">placing as</span> <span class="pdot" style="display:inline-block;background:'+p.color+'"></span> '+esc(p.name)+
-    ' <label class="note"><input type="checkbox" id="mRes"'+(M.showRes!==false?' checked':'')+'> resources</label>'+
+    ' <label class="note"><input type="checkbox" id="mRes"'+(M.showRes!==false?' checked':'')+'> raw materials</label>'+
     ' <label class="note"><input type="checkbox" id="mStarts"'+(M.showStarts!==false?' checked':'')+'> start zones</label>'+
     ' <button id="mClear">clear markers</button>'+
     ' <span class="mapzoom" style="display:inline-flex;margin:0"><button data-mz="-1" title="zoom out">−</button><button data-mz="1" title="zoom in">+</button><button data-mz="fit"'+(MAPZ.fit?' class="on"':'')+'>fit</button><span class="note">'+(MAPZ.fit?"fit":Math.round(MAPZ.z*100)+"%")+'</span></span></div>';
+  if(g&&M.showRes!==false)h+=resLegendHTML(g);
   const rep=outlawReport(M);
   h+='<div class="tmrow"><div class="tot"><h3 style="font-size:13px">Outlaw Country</h3>'+
     '<div class="note">'+(BAN.outlawStart?BAN.outlawStart+' per player at setup, within range 1 of each other, range '+BAN.outlawBuffer+'+ from any Settlement.':'')+'</div>'+
     '<div style="margin-top:4px">'+(Object.keys(rep.by).length?Object.keys(rep.by).map(rg=>'<span class="badge tier">region '+esc(rg)+': '+rep.by[rg]+'</span>').join(' '):'<span class="note">none marked</span>')+'</div>'+
     (rep.warn.length?'<div class="note" style="color:var(--upkeep);margin-top:4px">'+rep.warn.slice(0,6).map(esc).join('<br>')+'</div>':'')+'</div>'+
+    setupCheckHTML(M)+
     '<div class="tot"><h3 style="font-size:13px">Map ↔ board</h3>'+mapLinksHTML()+'</div></div>'+
     '<div class="note" style="margin:6px 0 0">Terrain, movement and battle-terrain tables are in <a href="#" data-goto="reference#refTerrain">Reference ▸</a></div></details>';
   return h;}
@@ -5166,6 +5233,8 @@ def main():
         terrainRef={"terrain": ns.get("TERRAIN", {}), "movement": ns.get("MOVEMENT_MODIFIERS", {}),
                     "tactical": ns.get("TACTICAL_TERRAIN", {}), "tacticalGlobal": list(ns.get("TACTICAL_GLOBAL", []))},
         banditLoadouts=b_lo,
+        setupRules={"charterMin": ns.get("CHARTER_MIN_RANGE"), "hamletRange": ns.get("HAMLET_RANGE"),
+                    "outlawBuffer": ns.get("OUTLAW_BUFFER_RANGE"), "outlawStart": ns.get("OUTLAW_COUNTRY_START")},
         bandits={
             "campStart": ns.get("BANDIT_CAMP_START"), "armyThreshold": ns.get("BANDIT_ARMY_THRESHOLD"),
             "growth": ns.get("BANDIT_GROWTH_PER_ERA", {}), "equipment": ns.get("BANDIT_EQUIPMENT_PER_ERA", {}),
