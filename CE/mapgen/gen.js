@@ -1048,7 +1048,7 @@ function MATERIAL_TERRANS_HAS(t) { return MATERIAL_TERRAINS.indexOf(t) >= 0; }
 
 const HILL_SEP = 4;
 
-function markHills(m, minSep) {
+function markHills(m, minSep, pinned, blocked) {
   /* Hills, thinned so no two sit within minSep of each other.
 
      The raw rule — a plains hex ringed entirely by plains — measures how open
@@ -1058,13 +1058,20 @@ function markHills(m, minSep) {
      they sit, the deepest is taken as that plateau's summit, and everything
      within minSep of it is dropped. Sparse maps barely change; open ones
      collapse to a handful of summits. */
+  /* pinned: start-zone Town hills, kept first and unconditionally (they are
+     forced ring-hills, so they always qualify). blocked: start-zone hexes -
+     no other hill may form there, so every seat offers the same Town spots. */
   minSep = minSep === undefined ? HILL_SEP : minSep;
+  pinned = pinned || []; blocked = blocked || new Set();
   for (const h of m.all()) h.tactical = null;
-  const cand = m.all().filter(h => {
+  const isRingHill = (h) => {
     const ns = m.nbrs([h.col, h.row]);
-    return h.terrain === 'plains' && ns.length === 6
-      && ns.every(n => n.terrain === 'plains');
-  }).map(h => [h.col, h.row]);
+    return h.terrain === 'plains' && ns.length === 6 && ns.every(n => n.terrain === 'plains');
+  };
+  const kept = [];
+  for (const c of pinned) { const h = m.get(c); if (h && isRingHill(h)) { h.tactical = 'hill'; kept.push(c); } }
+  const cand = m.all().filter(h => isRingHill(h) && !blocked.has(key(h.col, h.row))
+    && !pinned.some(c => c[0] === h.col && c[1] === h.row)).map(h => [h.col, h.row]);
   if (!cand.length) return;
   if (minSep <= 1) { for (const c of cand) m.get(c).tactical = 'hill'; return; }
 
@@ -1083,7 +1090,6 @@ function markHills(m, minSep) {
   }
   const dep = (c) => depth.has(key(c[0], c[1])) ? depth.get(key(c[0], c[1])) : 99;
   cand.sort((a, b) => (dep(b) - dep(a)) || (a[0] - b[0]) || (a[1] - b[1]));
-  const kept = [];
   for (const c of cand) {
     if (kept.every(k => dist(c, k) >= minSep)) {
       kept.push(c); m.get(c).tactical = 'hill';
@@ -1183,6 +1189,24 @@ function validate(m, p) {
     }
   }
   if (p.require_hill && !m.all().some(h => h.tactical === 'hill')) v.push('no Hill on the board');
+  // start zones: K Town hills each, still hills, reachable, far enough apart
+  const R = rules(), K = p.start_towns || START_TOWNS, zones = m.startZones || [];
+  for (const n of (m.zoneNotes || [])) v.push(n);
+  zones.forEach(z => z.towns.forEach(t => {
+    if (m.get(t).tactical !== 'hill') v.push(`start zone ${z.seat}: Town spot ${t} is not a Hill`); }));
+  for (let i = 0; i < zones.length; i++) for (let j = i + 1; j < zones.length; j++) {
+    let dmin = Infinity;
+    for (const a of zones[i].hexes) for (const b of zones[j].hexes) dmin = Math.min(dmin, dist(a, b));
+    if (dmin < R.charter_min_range) v.push(`start zones ${i} and ${j} only ${dmin} apart (< ${R.charter_min_range})`);
+  }
+  if ((p.sea_crossing || 'base') !== 'shipyard') {
+    const pins = zonePins(zones);
+    if (pins.length) {
+      const reach = reachable(m, pins[0]);
+      const lost = pins.filter(t => !reach.has(key(t[0], t[1])));
+      if (lost.length) v.push(`${lost.length} start Town spot(s) unreachable`);
+    }
+  }
   const have = {};
   for (const h of m.all()) if (h.resource) have[h.resource] = (have[h.resource] || 0) + 1;
   for (const r of Object.keys(resMin))
@@ -1190,6 +1214,234 @@ function validate(m, p) {
       v.push(`resource ${r}: ${have[r] || 0}/${resMin[r]}`);
   return v;
 }
+
+/* ── starting settlement zones ──────────────────────────────────────────── */
+/* Each seat gets a zone: every hex within START_ZONE_RANGE of an anchor on the
+   board's corner / edge (inset 1, so the whole setup fits) or, for the odd
+   seat at 5 and 7 players, the board centre. A Town must go on a Hill inside
+   the zone, and the Village, Hamlet and Outlaw Country must fit inside it
+   too. The generator forces exactly START_TOWNS ring-hills per zone, checks a
+   legal full setup exists around each, and bars any other hill from forming
+   in a zone - so every seat has the same number of Town spots.
+   Rule numbers come from renown_data via presets.js (RenownRules). */
+const START_ZONE_RANGE = 3, START_TOWNS = 2, START_SLIDE = 3;
+const RULE_DEFAULTS = { charter_min_range: 4, hamlet_range: 2, outlaw_buffer: 2, outlaw_start: 3 };
+function rules() {
+  const r = (typeof RenownRules !== 'undefined') ? RenownRules
+          : ((typeof root !== 'undefined' && root.RenownRules) || {});
+  return Object.assign({}, RULE_DEFAULTS, r);
+}
+function seatAnchors(w, h, n, ZR) {
+  /* One anchor per seat. Corner seats sit in the corner, edge seats at an edge
+     midpoint, the odd seat at 5/7 players in the centre. Odd-q columns make
+     the four corners (and the two edges) different shapes, so a fixed inset
+     hands some seats a 20-hex zone and others 23. Each corner/edge seat
+     instead picks its inset (1-2 hexes each way) so every rim zone has the
+     SAME hex count; ties go to more legal two-Town layouts, then the shallower
+     inset. Pure geometry - terrain never moves an anchor. */
+  ZR = ZR || START_ZONE_RANGE;
+  const MC = Math.floor(w / 2), MR = Math.floor(h / 2), blank = new HexMap(w, h, 'plains');
+  const size = (a) => blank.within(a, ZR).length;
+  const spots = (a) => {               // empty-board legal Town pairs, tie-break only
+    const z = blank.within(a, ZR).map(x => [x.col, x.row]);
+    const ok = z.filter(c => blank.nbrs(c).length === 6 && setupFits(blank, z, c, rules()));
+    let n2 = 0; for (let i = 0; i < ok.length; i++) for (let j = i + 1; j < ok.length; j++)
+      if (dist(ok[i], ok[j]) >= HILL_SEP) n2++;
+    return n2;
+  };
+  const corner = (cx, cy) => {         // cx,cy in {0,1}: which corner
+    const out = [];
+    for (const i of [1, 2]) for (const j of [1, 2])
+      out.push([cx ? w - 1 - i : i, cy ? h - 1 - j : j, i + j]);
+    return out;
+  };
+  const edgeNS = (bottom) => {         // top/bottom edge midpoint
+    const out = [];
+    for (const c of [MC - 1, MC]) for (const j of [1, 2])
+      out.push([c, bottom ? h - 1 - j : j, j + Math.abs(c - MC)]);
+    return out;
+  };
+  const edgeEW = (right) => {          // left/right edge midpoint (2 players, landscape)
+    const out = [];
+    for (const r of [MR - 1, MR]) for (const i of [1, 2])
+      out.push([right ? w - 1 - i : i, r, i + Math.abs(r - MR)]);
+    return out;
+  };
+  const C = [MC, MR];
+  let seats;
+  if (n === 2) seats = h >= w ? [edgeNS(0), edgeNS(1)] : [edgeEW(0), edgeEW(1)];
+  else {
+    const TL = corner(0, 0), TR = corner(1, 0), BL = corner(0, 1), BR = corner(1, 1);
+    const six = [TL, edgeNS(0), TR, BL, edgeNS(1), BR];
+    const lay = { 1: [C], 3: [TL, TR, edgeNS(1)], 4: [TL, TR, BL, BR],
+      5: [TL, TR, BL, BR, C], 6: six, 7: six.concat([C]) };
+    seats = (lay[n] || six).slice(0, n);
+  }
+  // common rim zone size: the smallest size every rim seat can hit exactly,
+  // else each seat takes the size nearest the rim median
+  const rim = seats.filter(s => s !== C);
+  const sizes = rim.map(opts => new Set(opts.map(o => size(o))));
+  let common = null;
+  if (sizes.length) {
+    const all = Array.from(sizes[0]).sort((a, b) => a - b);
+    common = all.find(sz => sizes.every(S => S.has(sz)));
+    if (common === undefined) {
+      const flat = [].concat.apply([], rim.map(o => o.map(size))).sort((a, b) => a - b);
+      common = flat[Math.floor(flat.length / 2)];
+    }
+  }
+  return seats.map(opts => {
+    if (opts === C) return C.slice();
+    const ranked = opts.map(o => ({ a: [o[0], o[1]], d: Math.abs(size(o) - common), sp: spots(o), ins: o[2] }))
+      .sort((x, y) => (x.d - y.d) || (y.sp - x.sp) || (x.ins - y.ins));
+    return ranked[0].a;
+  });
+}
+const BUILDABLE = (t) => t !== 'water' && t !== 'mountain';
+function setupFits(m, zone, town, R) {
+  /* A legal opening around `town`, all inside `zone`: Village range
+     charter_min_range+ from the Town; Hamlet exactly hamlet_range from the
+     Town (a starting piece, exempt from charter spacing); outlaw_start
+     connected Outlaw Country hexes, outlaw_buffer+ from Town and Village and
+     not adjacent to the Hamlet. Returns one example or null. */
+  const Z = zone.filter(c => m.get(c).terrain !== 'water');
+  const ham = Z.filter(c => BUILDABLE(m.get(c).terrain) && dist(c, town) === R.hamlet_range);
+  const vil = Z.filter(c => BUILDABLE(m.get(c).terrain) && dist(c, town) >= R.charter_min_range);
+  for (const v of vil) for (const hm of ham) {
+    const ok = Z.filter(c => dist(c, town) >= R.outlaw_buffer && dist(c, v) >= R.outlaw_buffer
+      && dist(c, hm) > 1 && !(c[0] === v[0] && c[1] === v[1]));
+    const okK = new Set(ok.map(c => key(c[0], c[1])));
+    const seen = new Set();
+    for (const s of ok) {
+      if (seen.has(key(s[0], s[1]))) continue;
+      const comp = [s]; seen.add(key(s[0], s[1]));
+      for (let i = 0; i < comp.length; i++) for (const n of nbrCoords(comp[i][0], comp[i][1])) {
+        const nk = key(n[0], n[1]);
+        if (okK.has(nk) && !seen.has(nk)) { seen.add(nk); comp.push(n); }
+      }
+      if (comp.length >= R.outlaw_start)
+        return { village: v, hamlet: hm, outlaw: comp.slice(0, R.outlaw_start) };
+    }
+  }
+  return null;
+}
+function placeStartZones(m, p, rng) {
+  /* Strategy B, massaged to the terrain: the seat's rim anchor is tried first;
+     if its zone cannot hold START_TOWNS legal Town hills (sea, mountains),
+     the anchor slides up to START_SLIDE hexes toward the board centre and
+     tries again. The slide is recorded on the zone. */
+  const R = rules(), ZR = p.start_zone_range || START_ZONE_RANGE;
+  const K = p.start_towns || START_TOWNS, sep = p.hill_sep === undefined ? HILL_SEP : p.hill_sep;
+  const maxSlide = p.start_slide === undefined ? START_SLIDE : p.start_slide;
+  const MC = Math.floor(m.width / 2), MR = Math.floor(m.height / 2);
+  m.startZones = []; m.zoneNotes = [];
+  const pins = [];
+  const cost = (c) => {                // hexes that must become grassland; water never converts
+    const h = m.get(c), ns = m.nbrs(c);
+    if (ns.length !== 6) return Infinity;
+    let k = 0;
+    for (const x of [h].concat(ns)) {
+      if (x.terrain === 'water') return Infinity;
+      if (x.terrain === 'mountain') k += 3; else if (x.terrain !== 'plains') k += 1;
+    }
+    return k;
+  };
+  const choose = (a) => {
+    const zone = m.within(a, ZR).map(h => [h.col, h.row]);
+    // each candidate is tested alone (forcing grassland only ever adds legal
+    // ground, so one Town's setup can't be spoiled by another's rosette), then
+    // the cheapest set of K mutually >= hill_sep apart is taken.
+    const ok = [];
+    for (const c of zone) {
+      const k = cost(c);
+      if (k === Infinity || pins.some(t => dist(t, c) < sep)) continue;
+      const ros = [c].concat(m.nbrs(c).map(n => [n.col, n.row]));
+      const before = ros.map(x => m.get(x).terrain);
+      ros.forEach(x => { m.get(x).terrain = 'plains'; });
+      const fits = setupFits(m, zone, c, R);
+      ros.forEach((x, j) => { m.get(x).terrain = before[j]; });
+      if (fits) ok.push({ c, k: k + rng.random() * 0.5 });
+    }
+    ok.sort((x, y) => x.k - y.k);
+    let best = null, bestK = Infinity;
+    const pick = (start, chosen, tot) => {
+      if (tot >= bestK) return;
+      if (chosen.length === K) { best = chosen.slice(); bestK = tot; return; }
+      for (let i = start; i < ok.length; i++) {
+        if (chosen.some(o => dist(o.c, ok[i].c) < sep)) continue;
+        chosen.push(ok[i]); pick(i + 1, chosen, tot + ok[i].k); chosen.pop();
+      }
+    };
+    pick(0, [], 0);
+    if (best) return { zone, towns: best.map(o => o.c) };
+    const part = [];
+    for (const o of ok) if (part.length < K && part.every(t => dist(t, o.c) >= sep)) part.push(o.c);
+    return { zone, towns: part };
+  };
+  seatAnchors(m.width, m.height, p.players, ZR).forEach((a0, i) => {
+    const centre = a0[0] === MC && a0[1] === MR;
+    const dc = Math.sign(MC - a0[0]), dr = Math.sign(MR - a0[1]);
+    const edgeNS = Math.abs(a0[0] - MC) <= 1 && !centre, edgeEW = Math.abs(a0[1] - MR) <= 1 && !centre;
+    let got = null, slide = 0, anchor = a0;
+    for (let t = 0; t <= (centre ? 0 : maxSlide); t++) {
+      const a = [a0[0] + (edgeNS ? 0 : dc * t), a0[1] + (edgeEW ? 0 : dr * t)];
+      const r = choose(a);
+      if (!got || r.towns.length > got.towns.length) { got = r; slide = t; anchor = a; }
+      if (r.towns.length >= K) break;
+    }
+    for (const t of got.towns) for (const x of [t].concat(m.nbrs(t).map(n => [n.col, n.row])))
+      m.get(x).terrain = 'plains';
+    if (got.towns.length < K)
+      m.zoneNotes.push(`start zone ${i}: ${got.towns.length}/${K} Town hills with a legal setup`);
+    pins.push.apply(pins, got.towns);
+    m.startZones.push({ seat: i, anchor: anchor.slice(), slide: slide, range: ZR,
+                        hexes: got.zone, towns: got.towns });
+  });
+  return pins;
+}
+/* Start-zone overlay, shared by renown-maps and the settlement board so both
+   draw zones identically. ctr(c,r) -> [x,y] hex centre, R = hex radius
+   (flat-top). Returns SVG markup: tinted zone, dashed boundary, a ring on
+   each Town hill, seat number at the anchor. */
+function zoneOverlaySVG(zones, ctr, R, opt) {
+  opt = opt || {};
+  const col = opt.color || '#b3392f', sw = (opt.width || 0.11) * R;
+  let fill = '', edge = '', ring = '', lab = '';
+  const vtx = (cx, cy, k) => [cx + R * Math.cos(Math.PI / 3 * k), cy + R * Math.sin(Math.PI / 3 * k)];
+  for (const z of zones || []) {
+    const inz = new Set(z.hexes.map(c => key(c[0], c[1])));
+    for (const c of z.hexes) {
+      const [cx, cy] = ctr(c[0], c[1]);
+      fill += 'M' + [0, 1, 2, 3, 4, 5].map(k => vtx(cx, cy, k).map(v => v.toFixed(1)).join(' ')).join('L') + 'Z';
+      // boundary: every edge whose neighbour lies outside this zone (or off-board)
+      for (const n of nbrCoords(c[0], c[1])) {
+        if (inz.has(key(n[0], n[1]))) continue;
+        const [nx, ny] = ctr(n[0], n[1]);
+        const ang = Math.atan2(ny - cy, nx - cx) * 180 / Math.PI;
+        const k = ((Math.round((ang - 30) / 60) % 6) + 6) % 6;
+        const a = vtx(cx, cy, k), b = vtx(cx, cy, k + 1);
+        edge += 'M' + a[0].toFixed(1) + ' ' + a[1].toFixed(1) + 'L' + b[0].toFixed(1) + ' ' + b[1].toFixed(1);
+      }
+    }
+    for (const t of z.towns) {
+      const [cx, cy] = ctr(t[0], t[1]);
+      ring += '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + (R * 0.56).toFixed(1) +
+        '" fill="none" stroke="' + col + '" stroke-width="' + (sw * 1.2).toFixed(2) + '"/>';
+    }
+    const [ax, ay] = ctr(z.anchor[0], z.anchor[1]);
+    lab += '<circle cx="' + ax.toFixed(1) + '" cy="' + ay.toFixed(1) + '" r="' + (R * 0.42).toFixed(1) +
+      '" fill="' + col + '" stroke="#fff" stroke-width="' + (sw * 0.8).toFixed(2) + '"/>' +
+      '<text x="' + ax.toFixed(1) + '" y="' + (ay + R * 0.17).toFixed(1) + '" text-anchor="middle" font-size="' +
+      (R * 0.5).toFixed(1) + '" font-weight="700" fill="#fff" font-family="sans-serif">' + (z.seat + 1) + '</text>';
+  }
+  if (!fill) return '';
+  return '<g pointer-events="none"><path d="' + fill + '" fill="' + col + '" fill-opacity="0.13"/>' +
+    '<path d="' + edge + '" fill="none" stroke="' + col + '" stroke-width="' + sw.toFixed(2) +
+    '" stroke-dasharray="' + (R * 0.28).toFixed(1) + ' ' + (R * 0.18).toFixed(1) + '" stroke-linecap="round"/>' +
+    ring + lab + '</g>';
+}
+function zonePins(zones) { const p = []; for (const z of zones || []) for (const t of z.towns) p.push(t); return p; }
+function zoneBlock(zones) { const b = new Set(); for (const z of zones || []) for (const c of z.hexes) b.add(key(c[0], c[1])); return b; }
 
 /* ── pipeline ───────────────────────────────────────────────────────────── */
 function build(p, seed) {
@@ -1303,7 +1555,9 @@ function build(p, seed) {
       if (!reach.has(key(s[0], s[1]))) carveRoute(m, s, st[0], 1, 'plains', 0.6, rng);
   }
   ensureRegionMaterial(m, p);
-  markHills(m, p.hill_sep === undefined ? HILL_SEP : p.hill_sep);
+  placeStartZones(m, p, rng);
+  markHills(m, p.hill_sep === undefined ? HILL_SEP : p.hill_sep,
+            zonePins(m.startZones), zoneBlock(m.startZones));
   resources(m, palette, Object.assign({}, RESOURCE_MIN, p.resource_min || {}));
   return m;
 }
@@ -1311,6 +1565,7 @@ function build(p, seed) {
 function generateRegion(preset, over, attempts) {
   attempts = attempts || 12;
   const p = Object.assign({}, PARAMS, preset, over || {});
+  p.settlement_range = rules().charter_min_range;   // ruling: generator spacing = CHARTER_MIN_RANGE
   let best = null, bestV = null;
   for (let k = 0; k < attempts; k++) {
     const m = build(p, (p.seed + k * 1009) >>> 0);
@@ -1346,6 +1601,8 @@ function exportMap(m, p, seed, violations) {
     settlements: m.settlements.map(r => r.map(s => s.slice())),
     centers: m.centers.map(c => c.slice()),
     settlement_range: m.settlement_range, climate: p.climate || 'temperate',
+    start_zones: (m.startZones || []).map(z => ({ seat: z.seat, anchor: z.anchor.slice(),
+      slide: z.slide || 0, range: z.range, hexes: z.hexes.map(c => c.slice()), towns: z.towns.map(c => c.slice()) })),
     violations: violations || [] };
 }
 
@@ -1378,11 +1635,15 @@ function importMap(data) {
   m.settlement_range = data.settlement_range;
   m.borders = {};
   for (const k of Object.keys(data.borders || {})) m.borders[k] = data.borders[k].slice();
-  markHills(m, data.hill_sep === undefined ? HILL_SEP : data.hill_sep);
+  m.startZones = (data.start_zones || []).map(z => ({ seat: z.seat, anchor: z.anchor.slice(),
+    slide: z.slide || 0, range: z.range, hexes: z.hexes.map(c => c.slice()), towns: z.towns.map(c => c.slice()) }));
+  markHills(m, data.hill_sep === undefined ? HILL_SEP : data.hill_sep,
+            zonePins(m.startZones), zoneBlock(m.startZones));
   return m;
 }
 
 root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
-  validate, markHills, PARAMS, RESOURCE_MIN, MATERIAL_TERRAINS };
+  validate, markHills, PARAMS, RESOURCE_MIN, MATERIAL_TERRAINS,
+  seatAnchors, setupFits, rules, zoneOverlaySVG, START_ZONE_RANGE, START_TOWNS };
 
 })(typeof module !== 'undefined' && module.exports ? module.exports : (typeof window !== 'undefined' ? window : globalThis));

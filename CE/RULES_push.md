@@ -112,11 +112,11 @@ Each turn runs through five phases in order, then passes the Host and repeats:
 
 1. **Empire Phase** — start of turn: activate Standing effects, apply the Season, increment timers, resolve Bandit Mechanics, gain Influence & Envoys, collect income, and pay upkeep.
 2. **Council Phase** — a Council vote on a Domain; each player then performs one action of that Domain.
-3. **Envoy Phase** — Diplomacy Envoys first, then Domain Envoys (Prowess → Cunning → Piety → Industry).
+3. **Envoy Phase** — send all Envoys, a Forum, vote on every Envoy, then resolve them all (Diplomacy → Prowess → Cunning → Piety → Industry).
 4. **Battle Phase** — Skirmishes, Sieges, and Battles resolve.
 5. **Rest Phase** — cleanup, change Season, score Renown, spend one Domain Point, pass the Host.
 
-**The Host.** Each turn one player is the Host, and the starting player is the player directly clockwise from them. The role passes clockwise each Rest Phase (except in Spring). The Host runs most of that Empire Phase's administration: collecting and distributing Trade Income, resolving Bandit Mechanics, and breaking ties (Council vote, Bandit targeting, and anything not otherwise resolvable). The Host Card carries the step-by-step detail.
+**The Host.** Each turn except Spring, one player is the Host. The starting player is always the player directly clockwise from the Host token, including in Spring. The role passes clockwise each Rest Phase (except in Spring). The Host runs most of that Empire Phase's administration: collecting and distributing Trade Income, resolving Bandit Mechanics, and breaking ties (Council vote, Bandit targeting, and anything not otherwise resolvable). The Host Card carries the step-by-step detail.
 
 ### Timers
 
@@ -139,7 +139,7 @@ Many actions set a Timer to a number of turns. Each Empire Phase, every active T
 	- Perform Move actions.
 	- Spawn new Bandit Camps (in Spring, from Foster Rebellion, or from an Uprising).
 - **Gain Influence & Envoys:**
-	- Gain Influence from: Era, innate modifiers (Trade Partners, Alliances, At War, etc.), Pursuits, and Infrastructure.
+	- Gain Influence from (not in Spring): Era, innate modifiers (Trade Partners, Alliances, At War, etc.), Pursuits, and Infrastructure.
 	- Gain Envoys based on the Era.
 - **Winter:** if it's Winter, gain tax income equal to your Settlements' tiers, adjusted by any modifiers.
 - **Income & Upkeep:**
@@ -154,7 +154,11 @@ Many actions set a Timer to a number of turns. Each Empire Phase, every active T
 
 ### Council Phase
 
-Before players send personal Envoys, there's a Council vote on a Domain. Clockwise from the starting player, each player votes for a Domain; if the vote ties, the Host breaks it. Then, clockwise from the starting player, each player sends a free Envoy of that Domain, starting with innate Influence equal to their Domain Standing. A passed Council Envoy performs actions of that Domain equal to the Era's Council actions per Envoy (see Eras).
+Before players send personal Envoys, there's a Council vote on a Domain.
+
+1. **Forum** — a brief open discussion of which Domain the Council should choose.
+2. **Vote** — no talking. Clockwise from the starting player, each player votes for a Domain; if the vote ties, the Host breaks it.
+3. **Council actions** — clockwise from the starting player, each player sends a free Envoy of that Domain, starting with innate Influence equal to their Domain Standing. A passed Council Envoy performs actions of that Domain equal to the Era's Council actions per Envoy (see Eras).
 
 Council Envoys **auto-Abstain**: other players can't Support or Oppose them, though automatic Influence ±X modifiers still apply.
 
@@ -162,12 +166,14 @@ Council Envoys **auto-Abstain**: other players can't Support or Oppose them, tho
 
 ### Envoy Phase
 
-**Envoy Declaration.** All players place their Envoys in the Domains of their choice at the same time, then reveal them together.
+1. **Envoy Declaration** — all players place all of their Envoys in the Domains of their choice at the same time, then reveal them together. You must send every Envoy you have.
+2. **Forum** — a brief open discussion of every Envoy on the table: who should be Supported, Opposed, or left alone.
+3. **Vote** — no talking. Vote on every Envoy in this order (see Actions & Voting for how a vote works):
+	- **Diplomacy** — clockwise from the starting player.
+	- **Prowess → Cunning → Piety → Industry** — within each Domain, in descending order of the sender's Domain value: the player with the highest value has all of their Envoys of that Domain voted on, then the next highest, and so on. Ties go clockwise from the starting player.
+4. **Resolve** — once every vote is cast, resolve each Envoy in the same order: choose and perform its action according to its net Influence.
 
-Then resolve Envoys in order (see Actions & Voting for how a vote resolves):
-
-1. **Diplomacy** — clockwise from the starting player.
-2. **Prowess → Cunning → Piety → Industry** — within each Domain, in descending order of Domain value: the player with the highest value resolves all of their Envoys of that Domain, then the next highest, and so on. Ties go clockwise from the starting player.
+*All votes are cast before anything resolves, so At War status (for Opposing Industry Envoys) and treaties are as they stood during the vote.*
 
 ### Battle Phase
 
@@ -217,7 +223,7 @@ Envoys are the currency of actions: to perform an action you send an Envoy durin
 
 Your Envoy begins with Influence equal to your innate Influence in its Domain — Untested {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Untested}}, Rising {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Rising}}, Established {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Established}}, Sovereign {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Sovereign}} — plus any automatic Influence ±X modifiers. *(These come from your Pursuits, Infrastructure, and faction, and apply on their own; you never spend Influence for them.)* Diplomacy has no Standing; a Diplomacy Envoy begins with Influence set by the Era (Founding {{VAL:ERAS.Founding.innate_diplomacy_influence}}, Ascension {{VAL:ERAS.Ascension.innate_diplomacy_influence}}, Eminence {{VAL:ERAS.Eminence.innate_diplomacy_influence}}, Zenith {{VAL:ERAS.Zenith.innate_diplomacy_influence}}).
 
-Then, clockwise from the starting player, every other player may respond:
+Then, clockwise from the starting player and skipping the sender, every other player may respond, with no talking during the vote:
 
 - **Support X** — spend X of your Influence to raise the Envoy's net Influence.
 - **Oppose X** — spend X of your Influence to lower it.
@@ -225,7 +231,7 @@ Then, clockwise from the starting player, every other player may respond:
 
 You spend Influence only when you **Support** or **Oppose**; abstaining is free. You may let as much pass unopposed or unsupported as you like. **You can't vote on your own Envoy.** Each player may spend up to 1 + their Standing in that Domain on a single vote (Untested {{VAL:DOMAIN_BOARD.max_influence_per_vote.Untested}}, Rising {{VAL:DOMAIN_BOARD.max_influence_per_vote.Rising}}, Established {{VAL:DOMAIN_BOARD.max_influence_per_vote.Established}}, Sovereign {{VAL:DOMAIN_BOARD.max_influence_per_vote.Sovereign}}). On Diplomacy Envoys the cap is set by the Era instead (Founding {{VAL:ERAS.Founding.max_influence_per_diplomacy_vote}}, Ascension {{VAL:ERAS.Ascension.max_influence_per_diplomacy_vote}}, Eminence {{VAL:ERAS.Eminence.max_influence_per_diplomacy_vote}}, Zenith {{VAL:ERAS.Zenith.max_influence_per_diplomacy_vote}}). Pursuits, Infrastructure, and factions may raise these caps. At the end of each turn, unused Influence is discarded.
 
-*In practice this isn't a round-the-table poll. The Host simply asks "anyone support or oppose?" and resolves. The clockwise order is only there to settle the rare case where who-spends-first changes a decision.*
+*Each player declares in turn, so the running net Influence is public — later voters can react to it. The Host, sitting just before the starting player, votes last on every Envoy they didn't send.*
 
 *Why this is the heart of the game: at Untested your Envoy starts at {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Untested}}, and you can't support it yourself — so it can fail if another player opposes you, and be saved if another supports you. Unless players back each other, Envoys fall to cheap opposition; deciding whose actions to lift and whose to bury is the core of every turn.*
 

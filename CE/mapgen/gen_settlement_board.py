@@ -4270,8 +4270,9 @@ function mapSVG(M){
   s+=glyphs;
   if(coast)s+='<path d="'+coast+'" fill="none" stroke="'+(RS?RS.ink:"#2b241b")+'" stroke-width="'+((RS?RS.coast_w:4.2)*sc).toFixed(2)+'" stroke-linecap="round" pointer-events="none"/>';
   s+=over;
-  if(g&&M.showStarts)(g.settlements||[]).forEach(reg=>reg.forEach(st=>{const cx=R+st[0]*dx,cy=dy/2+st[1]*dy+(st[0]%2?dy/2:0),w=R*.42;
-    s+='<rect x="'+(cx-w).toFixed(1)+'" y="'+(cy-w).toFixed(1)+'" width="'+(w*2).toFixed(1)+'" height="'+(w*2).toFixed(1)+'" fill="none" stroke="#b3392f" stroke-width="1.6" stroke-dasharray="3 2" pointer-events="none"/>';}));
+  // start zones (gen.js start_zones): same overlay as renown-maps
+  if(g&&M.showStarts!==false&&MG&&MG.zoneOverlaySVG&&(g.start_zones||[]).length)
+    s+=MG.zoneOverlaySVG(g.start_zones,(c,r)=>[R+c*dx,dy/2+r*dy+(c%2?dy/2:0)],R);
   Object.keys(M.cells).forEach(k=>{const cell=M.cells[k],[c,r]=k.split(",").map(Number),cx=R+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0);
     const pl=D.players.find(pp=>pp.id===cell.player),col=pl?pl.color:"#888";
     const unl=pl&&!(cell.type==="Army"?cellArmy(k).a:cellSett(k).s);
@@ -4461,7 +4462,7 @@ function mapToolsHTML(){const M=mapState(),g=M.grid;
   h+='<div class="mtoolbar">tool <select id="mTool">'+tools.map(t=>'<option'+(t===mtool?' selected':'')+'>'+t+'</option>').join('')+'</select>'+
     ' <span class="note">placing as</span> <span class="pdot" style="display:inline-block;background:'+p.color+'"></span> '+esc(p.name)+
     ' <label class="note"><input type="checkbox" id="mRes"'+(M.showRes!==false?' checked':'')+'> resources</label>'+
-    ' <label class="note"><input type="checkbox" id="mStarts"'+(M.showStarts?' checked':'')+'> suggested settlement spots</label>'+
+    ' <label class="note"><input type="checkbox" id="mStarts"'+(M.showStarts!==false?' checked':'')+'> start zones</label>'+
     ' <button id="mClear">clear markers</button>'+
     ' <span class="mapzoom" style="display:inline-flex;margin:0"><button data-mz="-1" title="zoom out">−</button><button data-mz="1" title="zoom in">+</button><button data-mz="fit"'+(MAPZ.fit?' class="on"':'')+'>fit</button><span class="note">'+(MAPZ.fit?"fit":Math.round(MAPZ.z*100)+"%")+'</span></span></div>';
   const rep=outlawReport(M);

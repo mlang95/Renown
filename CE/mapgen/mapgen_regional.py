@@ -1140,7 +1140,7 @@ def _ensure_region_material(m, p, rng):
 HILL_SEP = 4
 
 
-def _mark_hills(m, min_sep=HILL_SEP):
+def _mark_hills(m, min_sep=HILL_SEP, pinned=(), blocked=frozenset()):
     """Hills, thinned so no two sit within `min_sep` of each other.
 
     The raw rule — a plains hex ringed entirely by plains — measures how open
@@ -1154,11 +1154,23 @@ def _mark_hills(m, min_sep=HILL_SEP):
     A sparse map keeps nearly all its hills because they were already far
     apart; an open map collapses from a plateau to a handful of summits.
     """
+    # pinned: start-zone Town hills, kept first. blocked: start-zone hexes, where
+    # no other hill may form (every seat gets the same Town spots).
     for h in m.all():
         h.tactical = None
+
+    def ring_hill(c):
+        h = m.get(c)
+        return (h.terrain == "plains" and len(m.neighbors(c)) == 6
+                and all(n.terrain == "plains" for n in m.neighbors(c)))
+    pinned = [tuple(c) for c in pinned]
+    kept = []
+    for c in pinned:
+        if m.get(c) is not None and ring_hill(c):
+            m.get(c).tactical = "hill"
+            kept.append(c)
     cand = [h.coord for h in m.all()
-            if h.terrain == "plains" and len(m.neighbors(h.coord)) == 6
-            and all(n.terrain == "plains" for n in m.neighbors(h.coord))]
+            if ring_hill(h.coord) and h.coord not in blocked and h.coord not in pinned]
     if not cand:
         return
     if min_sep <= 1:
@@ -1187,7 +1199,6 @@ def _mark_hills(m, min_sep=HILL_SEP):
                 dq.append(nb.coord)
 
     ranked = sorted(cand, key=lambda c: (-depth.get(c, 99), c))
-    kept = []
     for c in ranked:
         if all(distance(c, k) >= min_sep for k in kept):
             kept.append(c)
@@ -1290,6 +1301,207 @@ def _reachable(m, start, sea_hop=True):
     return seen
 
 
+# ── starting settlement zones (mirror of gen.js placeStartZones) ───────────
+START_ZONE_RANGE, START_TOWNS, START_SLIDE = 3, 2, 3
+RULE_DEFAULTS = {"charter_min_range": 4, "hamlet_range": 2,
+                 "outlaw_buffer": 2, "outlaw_start": 3}
+
+
+def rules():
+    """Setup numbers from renown_data (same keys build_mapapp ships to gen.js
+    as RenownRules). Falls back to the defaults if renown_data isn't importable."""
+    try:
+        import renown_data as rd
+        return {"charter_min_range": rd.CHARTER_MIN_RANGE,
+                "hamlet_range": rd.HAMLET_RANGE,
+                "outlaw_buffer": rd.OUTLAW_BUFFER_RANGE,
+                "outlaw_start": rd.OUTLAW_COUNTRY_START}
+    except Exception:
+        return dict(RULE_DEFAULTS)
+
+
+def _buildable(t):
+    return t not in ("water", "mountain")
+
+
+def setup_fits(m, zone, town, R):
+    """A legal opening around `town`, all inside `zone` (see gen.js setupFits)."""
+    Z = [c for c in zone if m.get(c).terrain != "water"]
+    ham = [c for c in Z if _buildable(m.get(c).terrain) and distance(c, town) == R["hamlet_range"]]
+    vil = [c for c in Z if _buildable(m.get(c).terrain) and distance(c, town) >= R["charter_min_range"]]
+    for v in vil:
+        for hm in ham:
+            ok = [c for c in Z if distance(c, town) >= R["outlaw_buffer"]
+                  and distance(c, v) >= R["outlaw_buffer"] and distance(c, hm) > 1 and c != v]
+            oks, seen = set(ok), set()
+            for s0 in ok:
+                if s0 in seen:
+                    continue
+                comp = [s0]
+                seen.add(s0)
+                i = 0
+                while i < len(comp):
+                    for n in m.neighbors(comp[i]):
+                        if n.coord in oks and n.coord not in seen:
+                            seen.add(n.coord)
+                            comp.append(n.coord)
+                    i += 1
+                if len(comp) >= R["outlaw_start"]:
+                    return {"village": v, "hamlet": hm, "outlaw": comp[:R["outlaw_start"]]}
+    return None
+
+
+def seat_anchors(w, h, n, zr=START_ZONE_RANGE):
+    """Mirror of gen.js seatAnchors: rim seats pick a 1-2 hex inset so every
+    rim zone has the same hex count; ties -> more legal Town pairs, shallower."""
+    MC, MR = w // 2, h // 2
+    blank = HexMap.blank(w, h, "plains")
+    size = lambda a: len(blank.within(a, zr))
+    R = rules()
+
+    def spots(a):
+        z = [x.coord for x in blank.within(a, zr)]
+        ok = [c for c in z if len(blank.neighbors(c)) == 6 and setup_fits(blank, z, c, R)]
+        return sum(1 for i in range(len(ok)) for j in range(i + 1, len(ok))
+                   if distance(ok[i], ok[j]) >= HILL_SEP)
+
+    def corner(cx, cy):
+        return [((w - 1 - i) if cx else i, (h - 1 - j) if cy else j, i + j)
+                for i in (1, 2) for j in (1, 2)]
+
+    def edge_ns(bottom):
+        return [(c, (h - 1 - j) if bottom else j, j + abs(c - MC))
+                for c in (MC - 1, MC) for j in (1, 2)]
+
+    def edge_ew(right):
+        return [((w - 1 - i) if right else i, r, i + abs(r - MR))
+                for r in (MR - 1, MR) for i in (1, 2)]
+
+    C = "centre"
+    if n == 2:
+        seats = [edge_ns(0), edge_ns(1)] if h >= w else [edge_ew(0), edge_ew(1)]
+    else:
+        TL, TR, BL, BR = corner(0, 0), corner(1, 0), corner(0, 1), corner(1, 1)
+        six = [TL, edge_ns(0), TR, BL, edge_ns(1), BR]
+        lay = {1: [C], 3: [TL, TR, edge_ns(1)], 4: [TL, TR, BL, BR],
+               5: [TL, TR, BL, BR, C], 6: six, 7: six + [C]}
+        seats = lay.get(n, six)[:n]
+    rim = [s for s in seats if s is not C]
+    common = None
+    if rim:
+        sets = [{size(o[:2]) for o in opts} for opts in rim]
+        both = sorted(set.intersection(*sets))
+        if both:
+            common = both[0]
+        else:
+            flat = sorted(size(o[:2]) for opts in rim for o in opts)
+            common = flat[len(flat) // 2]
+    out = []
+    for opts in seats:
+        if opts is C:
+            out.append((MC, MR))
+            continue
+        ranked = sorted(opts, key=lambda o: (abs(size(o[:2]) - common), -spots(o[:2]), o[2]))
+        out.append(tuple(ranked[0][:2]))
+    return out
+
+
+def _place_start_zones(m, p, rng):
+    """Mirror of gen.js placeStartZones (strategy B, massaged to terrain)."""
+    R = rules()
+    zr = p.get("start_zone_range") or START_ZONE_RANGE
+    K = p.get("start_towns") or START_TOWNS
+    sep = p.get("hill_sep", HILL_SEP)
+    max_slide = p.get("start_slide", START_SLIDE)
+    MC, MR = m.width // 2, m.height // 2
+    m.start_zones, m.zone_notes = [], []
+    pins = []
+
+    def cost(c):
+        ns = m.neighbors(c)
+        if len(ns) != 6:
+            return math.inf
+        k = 0
+        for x in [m.get(c)] + ns:
+            if x.terrain == "water":
+                return math.inf
+            k += 3 if x.terrain == "mountain" else (0 if x.terrain == "plains" else 1)
+        return k
+
+    def choose(a):
+        zone = [x.coord for x in m.within(a, zr)]
+        ok = []
+        for c in zone:
+            k = cost(c)
+            if k == math.inf or any(distance(t, c) < sep for t in pins):
+                continue
+            ros = [c] + [n.coord for n in m.neighbors(c)]
+            before = [m.get(x).terrain for x in ros]
+            for x in ros:
+                m.get(x).terrain = "plains"
+            fits = setup_fits(m, zone, c, R)
+            for x, t in zip(ros, before):
+                m.get(x).terrain = t
+            if fits:
+                ok.append((k + rng.random() * 0.5, c))
+        ok.sort()
+        best, best_k = [None], [math.inf]
+
+        def pick(start, chosen, tot):
+            if tot >= best_k[0]:
+                return
+            if len(chosen) == K:
+                best[0], best_k[0] = list(chosen), tot
+                return
+            for i in range(start, len(ok)):
+                if any(distance(o, ok[i][1]) < sep for o in chosen):
+                    continue
+                chosen.append(ok[i][1])
+                pick(i + 1, chosen, tot + ok[i][0])
+                chosen.pop()
+        pick(0, [], 0)
+        if best[0]:
+            return zone, best[0]
+        part = []
+        for _, c in ok:
+            if len(part) < K and all(distance(t, c) >= sep for t in part):
+                part.append(c)
+        return zone, part
+
+    for i, a0 in enumerate(seat_anchors(m.width, m.height, p["players"], zr)):
+        centre = a0 == (MC, MR)
+        dc = (MC > a0[0]) - (MC < a0[0])
+        dr = (MR > a0[1]) - (MR < a0[1])
+        edge_ns = abs(a0[0] - MC) <= 1 and not centre
+        edge_ew = abs(a0[1] - MR) <= 1 and not centre
+        got, slide, anchor = None, 0, a0
+        for t in range(0, 1 if centre else max_slide + 1):
+            a = (a0[0] + (0 if edge_ns else dc * t), a0[1] + (0 if edge_ew else dr * t))
+            z, towns = choose(a)
+            if got is None or len(towns) > len(got[1]):
+                got, slide, anchor = (z, towns), t, a
+            if len(towns) >= K:
+                break
+        zone, towns = got
+        for t in towns:
+            for x in [t] + [n.coord for n in m.neighbors(t)]:
+                m.get(x).terrain = "plains"
+        if len(towns) < K:
+            m.zone_notes.append(f"start zone {i}: {len(towns)}/{K} Town hills with a legal setup")
+        pins.extend(towns)
+        m.start_zones.append({"seat": i, "anchor": anchor, "slide": slide, "range": zr,
+                              "hexes": zone, "towns": towns})
+    return pins
+
+
+def _zone_pins(zones):
+    return [tuple(t) for z in zones or [] for t in z["towns"]]
+
+
+def _zone_block(zones):
+    return {tuple(c) for z in zones or [] for c in z["hexes"]}
+
+
 def validate(m, p):
     """Hard playability contract. Anything here that fails is a reseed, not a
     fixup — a preset that cannot satisfy these is mis-specified, and silently
@@ -1350,6 +1562,27 @@ def validate(m, p):
     if p.get("require_hill") and not any(h.tactical == "hill" for h in m.all()):
         v.append("no Hill on the board")
 
+    # 4b. start zones: K Town hills each, still hills, reachable, far apart
+    R = rules()
+    zones = getattr(m, "start_zones", [])
+    v.extend(getattr(m, "zone_notes", []))
+    for z in zones:
+        for t in z["towns"]:
+            if m.get(t).tactical != "hill":
+                v.append(f"start zone {z['seat']}: Town spot {t} is not a Hill")
+    for i in range(len(zones)):
+        for j in range(i + 1, len(zones)):
+            dmin = min(distance(a, b) for a in zones[i]["hexes"] for b in zones[j]["hexes"])
+            if dmin < R["charter_min_range"]:
+                v.append(f"start zones {i} and {j} only {dmin} apart (< {R['charter_min_range']})")
+    if p.get("sea_crossing", "base") != "shipyard":
+        pins = _zone_pins(zones)
+        if pins:
+            reach = _reachable(m, pins[0])
+            lost = [t for t in pins if t not in reach]
+            if lost:
+                v.append(f"{len(lost)} start Town spot(s) unreachable")
+
     # 5. resource floors, after preset overrides
     have = Counter(h.resource for h in m.all() if h.resource)
     for res, need in res_min.items():
@@ -1402,6 +1635,11 @@ def export_map(m, p, seed, violations=()):
         "centers": [list(c) for c in getattr(m, "centers", [])],
         "settlement_range": getattr(m, "settlement_range", None),
         "climate": p.get("climate", "temperate"),
+        "start_zones": [{"seat": z["seat"], "anchor": list(z["anchor"]),
+                         "slide": z.get("slide", 0), "range": z["range"],
+                         "hexes": [list(c) for c in z["hexes"]],
+                         "towns": [list(c) for c in z["towns"]]}
+                        for z in getattr(m, "start_zones", [])],
         "violations": list(violations),
     }
 
@@ -1425,7 +1663,14 @@ def import_map(data):
     m.centers = [tuple(c) for c in data.get("centers", [])]
     m.settlement_range = data.get("settlement_range")
     m.borders = {k: tuple(v) for k, v in data.get("borders", {}).items()}
-    _mark_hills(m)                       # derived, never stored
+    m.start_zones = [{"seat": z["seat"], "anchor": tuple(z["anchor"]),
+                      "slide": z.get("slide", 0), "range": z["range"],
+                      "hexes": [tuple(c) for c in z["hexes"]],
+                      "towns": [tuple(c) for c in z["towns"]]}
+                     for z in data.get("start_zones", [])]
+    # derived, never stored (start-zone Town hills pinned, zones barred)
+    _mark_hills(m, data.get("hill_sep", HILL_SEP),
+                _zone_pins(m.start_zones), _zone_block(m.start_zones))
     return m
 
 
@@ -1600,7 +1845,9 @@ def _build(p, seed):
                 if st not in _reachable(m, settles[0]):
                     _carve_route(m, st, settles[0], 1, temp=0.6, rng=rng)
     _ensure_region_material(m, p, rng)
-    _mark_hills(m, p.get("hill_sep", HILL_SEP))
+    _place_start_zones(m, p, rng)
+    _mark_hills(m, p.get("hill_sep", HILL_SEP),
+                _zone_pins(m.start_zones), _zone_block(m.start_zones))
     _resources(m, palette, {**mapgen.RESOURCE_MIN, **p.get("resource_min", {})})
     return m
 
@@ -1613,6 +1860,7 @@ def generate_region(region, *, attempts=12, **over):
     can see what the preset cannot satisfy rather than shipping a quiet lie.
     """
     p = {**mapgen.PARAMS, **region_presets.get(region), **over}
+    p["settlement_range"] = rules()["charter_min_range"]   # ruling: spacing = CHARTER_MIN_RANGE
     best, best_v = None, None
     for k in range(attempts):
         m = _build(p, p["seed"] + k * 1009)

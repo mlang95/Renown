@@ -139,8 +139,48 @@ def _trim_and_label(c, page_wmm, page_hmm, margin, label):
     c.drawString(x0, y1 + 2 * mm, label)
 
 
+def _zones_svg(zones, R, dx, dy, color="#b3392f"):
+    """Start-zone overlay (print mirror of gen.js zoneOverlaySVG, minus the
+    tint - svglib ignores fill-opacity): dashed boundary, ring on each Town
+    hill, seat number at the anchor."""
+    out, sw = [], 0.11 * R
+    v = lambda cx, cy, k: (cx + R * math.cos(math.radians(60 * k)),
+                           cy + R * math.sin(math.radians(60 * k)))
+    for z in zones or []:
+        inz = {tuple(c) for c in z["hexes"]}
+        seg = []
+        for (c, r) in inz:
+            cx, cy = _hex_center(c, r, R, dx, dy)
+            for (nc, nr) in _nbr_coords(c, r):
+                if (nc, nr) in inz:
+                    continue
+                nx, ny = _hex_center(nc, nr, R, dx, dy)
+                k = round((math.degrees(math.atan2(ny - cy, nx - cx)) - 30) / 60) % 6
+                (ax, ay), (bx, by) = v(cx, cy, k), v(cx, cy, k + 1)
+                seg.append(f"M{ax:.2f} {ay:.2f}L{bx:.2f} {by:.2f}")
+        out.append(f'<path d="{"".join(seg)}" fill="none" stroke="{color}" '
+                   f'stroke-width="{sw:.2f}" stroke-dasharray="{R*0.28:.1f} {R*0.18:.1f}" '
+                   f'stroke-linecap="round"/>')
+        for (c, r) in z["towns"]:
+            cx, cy = _hex_center(c, r, R, dx, dy)
+            out.append(f'<circle cx="{cx:.2f}" cy="{cy:.2f}" r="{R*0.56:.2f}" fill="none" '
+                       f'stroke="{color}" stroke-width="{sw*1.2:.2f}"/>')
+        ax, ay = _hex_center(z["anchor"][0], z["anchor"][1], R, dx, dy)
+        out.append(f'<circle cx="{ax:.2f}" cy="{ay:.2f}" r="{R*0.42:.2f}" fill="{color}" '
+                   f'stroke="#fff" stroke-width="{sw*0.8:.2f}"/>'
+                   f'<text x="{ax:.2f}" y="{ay + R*0.17:.2f}" text-anchor="middle" '
+                   f'font-size="{R*0.5:.2f}" font-family="Helvetica-Bold" fill="#fff">{z["seat"] + 1}</text>')
+    return "".join(out)
+
+
+def _nbr_coords(c, r):
+    d = ((1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (0, 1)) if c % 2 == 0 else \
+        ((1, 1), (1, 0), (0, -1), (-1, 0), (-1, 1), (0, 1))
+    return [(c + a, r + b) for a, b in d]
+
+
 def _render_board_png(placed, board_w, board_h, R, out_png, settlements=None,
-                      max_px=1600, overlay=""):
+                      max_px=1600, overlay="", zones=None):
     """Render the entire board to a single PNG (whole-map preview), with the
     settlement triangles drawn on top: capital = filled dot, others = hollow."""
     s = R / H_R
@@ -153,8 +193,10 @@ def _render_board_png(placed, board_w, board_h, R, out_png, settlements=None,
         gy = cy - H_CY * s
         parts.append(f'<g transform="translate({gx:.3f},{gy:.3f}) scale({s:.5f})">{body}</g>')
     parts.append(overlay)
-    # settlement overlays
-    if settlements:
+    if zones:                             # start zones replace the old suggestions
+        parts.append(_zones_svg(zones, R, 1.5 * R, math.sqrt(3) * R))
+    # settlement overlays (legacy maps without start zones)
+    if settlements and not zones:
         dx, dy = 1.5 * R, math.sqrt(3) * R
         rad, sw = R * 0.34, R * 0.10
         for settles in settlements:
@@ -340,7 +382,8 @@ def generate_board(width=None, height=None, *, seed=7, place_resources=True,
     out_png = os.path.splitext(out_pdf)[0] + ".png"
     try:
         _render_board_png(placed, board_w, board_h, R, out_png,
-                          settlements=getattr(m, "settlements", None), overlay=coast)
+                          settlements=getattr(m, "settlements", None), overlay=coast,
+                          zones=getattr(m, "start_zones", None))
     except Exception as e:                 # preview is non-essential; PDF is the deliverable
         out_png = f"(preview failed: {e})"
     terr, res, regions = mapgen.stats(m)

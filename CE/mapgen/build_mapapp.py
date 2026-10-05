@@ -22,7 +22,19 @@ import argparse, json, os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 
-def presets_js():
+def rules_of(data_dir):
+    """Setup/charter numbers the generator needs, from the located renown_data.
+    Shipped in presets.js as RenownRules so gen.js (app + settlement board)
+    places start zones against the live rules, not a copy."""
+    sys.path.insert(0, os.path.abspath(data_dir))
+    import renown_data as rd
+    return {"charter_min_range": rd.CHARTER_MIN_RANGE,
+            "hamlet_range": rd.HAMLET_RANGE,
+            "outlaw_buffer": rd.OUTLAW_BUFFER_RANGE,
+            "outlaw_start": rd.OUTLAW_COUNTRY_START}
+
+
+def presets_js(rules=None):
     sys.path.insert(0, HERE)
     import region_presets as rp
     out = {}
@@ -55,7 +67,8 @@ def presets_js():
         out[name] = q
     body = json.dumps(out, indent=1)
     return ("/* presets.js - GENERATED from region_presets.py. Do not hand-edit. */\n"
-            "(function(root){root.RenownPresets=" + body + ";})"
+            "(function(root){root.RenownPresets=" + body + ";"
+            "root.RenownRules=" + json.dumps(rules or {}) + ";})"
             "(typeof module!=='undefined'&&module.exports?module.exports:"
             "(typeof window!=='undefined'?window:globalThis));\n"), len(out)
 
@@ -114,9 +127,11 @@ def main():
 
     shell = open(os.path.join(HERE, "app_shell.html"), encoding="utf-8").read()
     gen = open(os.path.join(HERE, "gen.js"), encoding="utf-8").read()
-    pjs, npre = presets_js()
+    data_dir = find_data(a.data)
+    rules = rules_of(data_dir)
+    pjs, npre = presets_js(rules)
     open(os.path.join(HERE, "presets.js"), "w", encoding="utf-8").write(pjs)
-    ref = terrain_ref(find_data(a.data))
+    ref = terrain_ref(data_dir)
 
     sys.path.insert(0, HERE)
     import hexstyle

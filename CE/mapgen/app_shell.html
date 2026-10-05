@@ -191,7 +191,7 @@ button.ghost:hover{background:var(--edge)}
 
   <fieldset><legend>Overlays</legend>
     <label class="tog"><input type="checkbox" id="showRes"> Raw materials</label>
-    <label class="tog"><input type="checkbox" id="showSet"> Settlement sites</label>
+    <label class="tog"><input type="checkbox" id="showSet" checked> Start zones</label>
     <div id="legend" hidden></div>
   </fieldset>
 
@@ -226,6 +226,7 @@ button.ghost:hover{background:var(--edge)}
     <span><b id="stPreset">—</b></span>
     <span>hexes <b id="stHex">—</b></span>
     <span>hills <b id="stHills">—</b></span>
+    <span>start zones <b id="stZones">—</b></span>
     <span id="stTerr"></span>
     <span id="stRes"></span>
     <span id="viol"></span>
@@ -435,12 +436,7 @@ function render() {
   if (coast) s += `<path d="${coast}" fill="none" stroke="${STYLE.ink}" `
                 + `stroke-width="${(STYLE.coast_w * sc).toFixed(2)}" stroke-linecap="round"/>`;
   s += res;
-  if (showSet) for (const reg of m.settlements) for (const st of reg) {
-    const [cx, cy] = ctr(st[0], st[1]);
-    const w = R * .42;
-    s += `<rect x="${(cx-w).toFixed(1)}" y="${(cy-w).toFixed(1)}" width="${(w*2).toFixed(1)}" `
-      + `height="${(w*2).toFixed(1)}" fill="#b3392f" stroke="#fff" stroke-width="1.6"/>`;
-  }
+  if (showSet) s += RenownGen.zoneOverlaySVG(m.startZones, ctr, R);
   s += '</svg>';
   $('boardwrap').innerHTML = s;
   if (typeof updateCode === 'function' && $('seedCode')) updateCode();
@@ -459,6 +455,9 @@ function run() {
   $('stPreset').textContent = p.name;
   $('stHex').textContent = `${m.width}×${m.height} = ${tot}`;
   $('stHills').textContent = m.all().filter(h => h.tactical === 'hill').length;
+  { const z = m.startZones || [];
+    $('stZones').textContent = z.length ? z.length + ' × ' + Math.min.apply(null, z.map(q => q.towns.length))
+      + ' Town hills' + (z.some(q => q.slide) ? ' (slid: ' + z.filter(q => q.slide).map(q => (q.seat + 1) + '+' + q.slide).join(', ') + ')' : '') : '—'; }
   $('stTerr').textContent = Object.entries(c).sort((a, b) => b[1] - a[1])
     .map(([k, v]) => `${k} ${Math.round(v * 100 / tot)}%`).join('  ');
   const res = {};
@@ -546,6 +545,9 @@ function showImported(d) {
   $('stPreset').textContent = (d.preset || 'imported');
   $('stHex').textContent = `${m.width}×${m.height} = ${tot}`;
   $('stHills').textContent = m.all().filter(h => h.tactical === 'hill').length;
+  { const z = m.startZones || [];
+    $('stZones').textContent = z.length ? z.length + ' × ' + Math.min.apply(null, z.map(q => q.towns.length))
+      + ' Town hills' + (z.some(q => q.slide) ? ' (slid: ' + z.filter(q => q.slide).map(q => (q.seat + 1) + '+' + q.slide).join(', ') + ')' : '') : '—'; }
   $('stTerr').textContent = Object.entries(c).sort((a, b) => b[1] - a[1])
     .map(([k, v]) => `${k} ${Math.round(v * 100 / tot)}%`).join('  ');
   $('stRes').textContent = '';

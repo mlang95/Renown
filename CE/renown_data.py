@@ -1,6 +1,6 @@
 # renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
-VERSION = "0.4.9.9.1-d10"
+VERSION = "0.4.9.9.3-d10"
 
 # ── DICE ─────────────────────────────────────────────────────────────────────
 # Single source for die size, shared with the combat engines. Every threshold
@@ -183,14 +183,14 @@ GLOSSARY = {
     "Influence":     "The political currency of voting. Spend it to Support or Oppose Envoys. You gain it each turn from your Era, innate modifiers (trade partners, alliances, war), Pursuits, and Infrastructure.",
     "Influence X":   "An automatic +X (or -X) to an Envoy's net Influence from a Pursuit, Infrastructure, or Faction.",
     "Envoy":         "The currency of actions: send an Envoy to perform an action during the Envoy Phase. Council Envoys act on the voted Domain; Personal Envoys are sent by Era progression.",
-    "Vote":          "On each Envoy, every player in clockwise order from the starting player must Support, Oppose, or Abstain.",
+    "Vote":          "On each Envoy, every player except the sender, in clockwise order from the starting player, must Support, Oppose, or Abstain. No talking during a vote.",
     "Support X":     "Spend X Influence to increase an Envoy's net Influence.",
     "Oppose X":      "Spend X Influence to decrease an Envoy's net Influence.",
     "Abstain":       "Decline to spend Influence on a vote.",
     "Net Influence": "The sum of an Envoy's starting Influence (1+ by Standing) and all Support, Oppose, and Influence X. The total sets the outcome: -3 or less Condemned, 0 or less Failed (gain Doubt +1), 1+ passes.",
     "Endorsed":      "An Envoy that passes with 3+ net Influence, triggering its endorsed effect (and a Domain's Rising/Established/Sovereign endorsement).",
     "Condemned":     "An Envoy whose net Influence is -3 or less: it fails and you resolve that Domain's Condemn effect.",
-    "Council Phase": "Before Personal Envoys, all players vote on a Domain (clockwise; Host breaks ties). Each then sends a free Council Envoy of that Domain. Council Envoys auto-Abstain and their net Influence cannot drop below 1.",
+    "Council Phase": "Before Personal Envoys, a brief Forum, then all players vote on a Domain with no talking (clockwise; Host breaks ties). Each then sends a free Council Envoy of that Domain. Council Envoys auto-Abstain and their net Influence cannot drop below 1.",
     "Council Envoy": "A free Envoy resolved in the Council Phase on the voted Domain; auto-Abstained, net Influence floored at 1.",
     "Personal Envoy": "An Envoy you send in the Envoy Phase to perform an action; count and reach scale with Era.",
 	"Envoy Outcome": "How a Sent Envoy resolves, by Net Influence: Condemned (<= -3), "
@@ -1639,7 +1639,7 @@ NODES = {
         "type": "Monument",
         "unlock": "Sovereign Cunning",
         "mastery_req": "Smuggler's Nook + Toxicarium + Courier Network",
-        "innate": "Both Bandit Camps & you gain Influence +1 when performing Cunning actions.",
+        "innate": "Both Bandit Camps & you have Influence +1 on Cunning actions.",
         "mastery": "Endorsed Foster Rebellion places Bandit Camps with 25 retinues instead of 10.",
         "efficient": "Smuggler's Nook",
         "builds_into": [],
@@ -1726,7 +1726,7 @@ FACTIONS = {
         'feel': 'Sovereign Voice',
         'difficulty': 'Low',
         'strength': 'Medium',
-        'mechanic': "The Monarch: Each turn, you choose every Council Envoy's Domain. Every Envoy you send has Influence −1.",
+        'mechanic': "The Monarch: Each turn, you choose every Council Envoy's Domain. Every Envoy you send has Influence −1, except in Spring.",
         'pair': 'Senate Hall, Aristocratic Court',
         'complement': 'Royal Pavilion',
     },
@@ -1746,7 +1746,7 @@ FACTIONS = {
         'feel': 'Diplomatic, Inescapable',
         'difficulty': 'Low',
         'strength': 'Medium',
-        'mechanic': "Royal Marriage: Once per game, you may join an Alliance without unanimous consent, or form one with a player who isn't in an Alliance. While in that Alliance, each member gains Faith +1 and Influence +1 per turn.",
+        'mechanic': "Royal Marriage: Once per game, you may join an Alliance without unanimous consent, or form one with a player who isn't in an Alliance. While in that Alliance, each member gains Faith +1 and +1 Influence per turn.",
         'pair': 'Aristocratic Court, Senate Hall',
         'complement': 'Royal Pavilion',
     },
@@ -1796,7 +1796,7 @@ FACTIONS = {
         'feel': 'Independent',
         'difficulty': 'Low',
         'strength': 'Low',
-        'mechanic': "Independent, but Ambitious: You Abstain on every vote on other players' Envoys, and other players must spend 2 Influence to affect your Envoys by 1. Your Personal Envoys have Influence +1. You can't vote on Council Envoys.",
+        'mechanic': "Independent, but Ambitious: You Abstain on every vote on other players' Envoys, and other players must spend 2 Influence to affect your Envoys by 1. Your Personal Envoys have Influence +1, except in Spring. You can't vote on Council Envoys.",
         'pair': 'Studium Generale, Saddlery',
         'complement': 'Royal Pavilion',
     },
@@ -1806,7 +1806,7 @@ FACTIONS = {
         'feel': 'Knowledge is Power',
         'difficulty': 'Low',
         'strength': 'Medium',
-        'mechanic': 'Knowledge is Power: Each turn, gain Influence +1 for every 3 Pursuits you have.',
+        'mechanic': 'Knowledge is Power: Each turn, gain +1 Influence for every 3 Pursuits you have.',
         'pair': 'Studium Generale, Senate Hall',
         'complement': 'Royal Pavilion',
     },
@@ -1926,7 +1926,7 @@ FACTIONS = {
         'feel': 'Crusader Feel',
         'difficulty': 'Medium',
         'strength': 'High',
-        'mechanic': "Burning Cross: You begin the game with a Preceptory of the Knight's Templar (no Ward, no upkeep, always-active Mastery). When you Declared War via Sacred War, that player takes a Panic Check at the start of every Battle, after lines are formed. During the Prowess Envoy phase, if you don't have an Army of 25 Knight's Templars, you must attempt to send an Envoy; if it passes, you must muster an Army until it holds 25 Knight's Templar Retinues.",
+        'mechanic': "Burning Cross: You begin the game with a Preceptory of the Knight's Templar (no Ward, no upkeep, always-active Mastery). When you Declared War via Sacred War, that player takes a Panic Check at the start of every Battle, after lines are formed. During Envoy Declaration, if you don't have an Army of 25 Knight's Templars, you must send a Prowess Envoy; if it passes, you must muster an Army until it holds 25 Knight's Templar Retinues.",
         'pair': "Preceptory of the Knight's Templar, Royal Pavilion",
         'complement': 'Senate Hall',
     },
@@ -2281,7 +2281,7 @@ DOMAIN_BOARD = {
         "Sovereign":   "High Quartermaster: Upkeep -2000. May change equipment on your armies during any upkeep phase where that army is within Province. No longer lose Influence while at War.",
     },
     "Cunning": {
-        "Rising":      "Clandestine Councilor: Once per Envoy Phase, during a vote on an Envoy, target a player - that player Abstains that Envoy.",
+        "Rising":      "Clandestine Councilor: Once per Envoy Phase, when voting on an Envoy begins, target a player - that player Abstains that Envoy.",
         "Established": "Grand Vizier: Players may not target you with Cunning Envoys if your Cunning value is higher.",
         "Sovereign":   "Master Conspirator: Once per turn, if your non-Cunning Envoy passes or is endorsed, you may instead perform a Cunning action.",
     },
@@ -2302,7 +2302,7 @@ GLOSSARY["Standing"] = (f"Your tier in a Domain: Untested, Rising ({_ST['Rising'
 # Seasons (turn cycle of 4; Rest Phase advances Season +1).
 SEASONS = {
     "Winter": {"name": "Freezing",    "effect": "All Armies gain Speed -1; Sieges do not increment. Tax income collected."},
-    "Spring": {"name": "Planting",    "effect": "No Host, Bandit actions, Trade Income, Council Phase, or Diplomacy Actions. Gain +1 Envoy. Bandit Camps Spawn."},
+    "Spring": {"name": "Planting",    "effect": "No Host, Bandit actions, Trade Income, Council Phase, or Diplomacy Actions. Players don't gain Influence tokens. Bandit Camps Spawn."},
     "Summer": {"name": "Campaigning", "effect": "All Armies gain Speed +2"},
     "Fall":   {"name": "Harvest",     "effect": "Husbandry Mastery Effects are doubled."},
 }
@@ -2457,7 +2457,7 @@ GLOSSARY.update({
     "Within": "Range 0.",
     "Range X": "The amount of Territories you must move in order to get from your current position to the specific Territory.",
     "Reach X": "The Range X characteristic which determines what Territories you Control and are in your Province.",
-	"Host": "The turn's starting player, who holds the Host Card. The role passes clockwise each Rest Phase (there is no Host in Spring). The Host collects and distributes Trade Income, resolves Bandit Mechanics, and breaks ties (Council vote, bandit targeting, and any tie not otherwise resolved).",
+	"Host": "Holds the Host Card; the starting player is the player directly clockwise from the Host, including in Spring. The role passes clockwise each Rest Phase (there is no Host in Spring). The Host collects and distributes Trade Income, resolves Bandit Mechanics, and breaks ties (Council vote, bandit targeting, and any tie not otherwise resolved).",
     "Send an Envoy": "Declare a Domain, spend 1 Envoy.",
     "Perform": "When you Perform an action, immediately do the description of the action. Pay the action's normal Cost.",
     "Resolve": "Attempt to Perform an action.",

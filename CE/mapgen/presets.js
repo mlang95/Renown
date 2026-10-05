@@ -1388,4 +1388,4 @@
   "massif": {},
   "perimeter": {}
  }
-};})(typeof module!=='undefined'&&module.exports?module.exports:(typeof window!=='undefined'?window:globalThis));
+};root.RenownRules={"charter_min_range": 4, "hamlet_range": 2, "outlaw_buffer": 2, "outlaw_start": 3};})(typeof module!=='undefined'&&module.exports?module.exports:(typeof window!=='undefined'?window:globalThis));
