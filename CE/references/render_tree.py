@@ -3,7 +3,7 @@
 # Reads layout.json: each chart lists nodes with explicit [col,row].
 # Draws boxes + elbow/bus edges from renown_data mastery+builds graph.
 # Edit layout.json (or a vector tool) to move anything; positions are law.
-import sys, json, collections
+import sys, os, json, collections
 import renown_data as rd
 
 NODES = rd.NODES
@@ -57,6 +57,8 @@ def elbow(x1,y1,x2,y2):
     return (f'M{x1:.0f},{y1:.0f} L{mx-r:.0f},{y1:.0f} Q{mx:.0f},{y1:.0f} {mx:.0f},{y1+sg*r:.0f} '
             f'L{mx:.0f},{y2-sg*r:.0f} Q{mx:.0f},{y2:.0f} {mx+r:.0f},{y2:.0f} L{x2-7:.0f},{y2:.0f}')
 
+PAGE_ROWS = 16   # SIMPLE paging: total chart rows per landscape page
+
 def build(layout_path, out):
     charts=json.load(open(layout_path))
     for _c in charts:   # layout may list pursuits only one node set has (SIMPLE vs legacy)
@@ -68,8 +70,19 @@ def build(layout_path, out):
         cum+=t
         if cum>=half: split=i+1; break
     pages=[charts[:split], charts[split:]]
+    if getattr(rd, "SIMPLE", False):     # one chart per Monument: pack charts onto pages by row budget
+        pages, cur, used = [], [], 0
+        for c, t in zip(charts, tot):
+            if cur and used + t > PAGE_ROWS:
+                pages.append(cur); cur, used = [], 0
+            cur.append(c); used += t + 1
+        if cur: pages.append(cur)
     outs=[]
     base=out[:-4] if out.endswith(".svg") else out
+    import glob as _glob
+    for _old in _glob.glob(f"{base}_p*.svg"):   # no stale pages from a longer previous run
+        try: os.remove(_old)
+        except OSError: pass
     for pi,pg in enumerate(pages):
         po=f"{base}_p{pi+1}.svg"
         _build_page(pg, po); outs.append(po)
@@ -118,7 +131,7 @@ def _build_page(charts, out):
     for col in EDGE_COLORS+["#8f8672"]:
         defs.append(f'<marker id="arw-{col[1:]}" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="{col}"/></marker>')
     defs.append('</defs>'); body.append("".join(defs))
-    body.append(f'<text x="{PADL}" y="34" font-size="20" font-weight="bold" fill="#2b2620">Pursuit Paths</text>')
+    body.append(f'<text x="{PADL}" y="34" font-size="20" font-weight="bold" fill="#2b2620">{_esc("Pursuit Paths")}</text>')
     oy=60
     i=0
     while i < len(laid):

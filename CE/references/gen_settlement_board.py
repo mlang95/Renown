@@ -458,9 +458,20 @@ def font_faces():
                    "font-display:swap;src:url(data:font/woff;base64,%s) format('woff');}" % (style, b64))
     return "\n".join(out)
 
+def _pursuit_term_template(tpl, term):
+    """SIMPLE: board UI words Pursuit/Pursuits -> the display term. BUILD_TIMERS keys used as ids are kept."""
+    keep = ['BTM["Power Pursuit"]', 'BTM["Monument Pursuit"]', "BTM.Pursuit"]
+    for i, k in enumerate(keep): tpl = tpl.replace(k, f"\x00KEEP{i}\x00")
+    tpl = re.sub(r"\bPursuits\b", term[1], tpl); tpl = re.sub(r"\bPursuit\b", term[0], tpl)
+    for i, k in enumerate(keep): tpl = tpl.replace(f"\x00KEEP{i}\x00", k)
+    return tpl
+
 def render_html(**data):
     blob = json.dumps(data, ensure_ascii=False)
-    return (HTML_TEMPLATE.replace("/*__FONTS__*/", font_faces())
+    tpl = HTML_TEMPLATE
+    if data.get("simple") and data.get("pursuitTerm"):
+        tpl = _pursuit_term_template(tpl, data["pursuitTerm"])
+    return (tpl.replace("/*__FONTS__*/", font_faces())
             .replace("/*__MAPGEN__*/", MAPGEN_JS).replace("/*__DATA__*/", blob))
 
 def _style_js(d):
@@ -5263,7 +5274,7 @@ def main():
         print(f"  (rules file not found: {a.rules} - battle rules panel will be empty)")
     html = render_html(
         records=records, naturalNames=natural, externalTokens=external, simple=bool(ns.get("SIMPLE")),
-        chainTerm=ns.get("CHAIN_TERM", "Efficient"),
+        chainTerm=ns.get("CHAIN_TERM", "Efficient"), pursuitTerm=list(ns.get("PURSUIT_TERM", ("Pursuit", "Pursuits"))),
         infra=infra, wonders=wonders, armySrc=army_src, equip=equip, glossary=glossary,
         domainBoard=ns.get("DOMAIN_BOARD", {}), publicOrder=po, wikiBase=a.wiki_base,
         tree=tree_payload(ns, os.path.dirname(os.path.abspath(__file__))),

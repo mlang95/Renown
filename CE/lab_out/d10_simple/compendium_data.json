@@ -50,14 +50,14 @@
   "Tactic": "A choice both players make secretly and reveal together each Skirmish; it can shift Initiative, Strike, and Save rolls.",
   "Dual-equip": "Carry two weapons at once (e.g. melee + ranged). Granted by the Tiltyard.",
   "Edict": "A scoring achievement / win path: reach a Sovereign Standing, complete a Monument, or fulfill a victory condition (Wonder, wealth, Vassalize, Living Saints, Last Standing).",
-  "Monument": "A Domain's capstone Pursuit. Completing one scores its Edict and grants a powerful effect.",
+  "Monument": "A Domain's capstone Holding. Completing one scores its Edict and grants a powerful effect.",
   "Faith X": "Gain X Faith: each Faith raises your Public Order track by 1 when resolved.",
   "Doubt X": "Gain X Doubt: each Doubt lowers your Public Order track by 1 when resolved.",
   "Extort X": "Take X from the stated source: the gold goes to you instead of its owner.",
   "Recoup X": "Regain the stated cost in gold after paying it.",
   "Speed X": "An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 3",
-  "Influence": "The political currency of voting. Spend it to Support or Oppose Envoys. You gain it each turn from your Era, innate modifiers (trade partners, alliances, war), Pursuits, and Infrastructure.",
-  "Influence X": "An automatic +X (or -X) to an Envoy's net Influence from a Pursuit, Infrastructure, or Faction.",
+  "Influence": "The political currency of voting. Spend it to Support or Oppose Envoys. You gain it each turn from your Era, innate modifiers (trade partners, alliances, war), Holdings, and Infrastructure.",
+  "Influence X": "An automatic +X (or -X) to an Envoy's net Influence from a Holding, Infrastructure, or Faction.",
   "Envoy": "The currency of actions: send an Envoy to perform an action during the Envoy Phase. Council Envoys act on the voted Domain; Personal Envoys are sent by Era progression.",
   "Vote": "On each Envoy, every player except the sender, in clockwise order from the starting player, must Support, Oppose, or Abstain. No talking during a vote.",
   "Support X": "Spend X Influence to increase an Envoy's net Influence.",
@@ -72,7 +72,7 @@
   "Envoy Outcome": "How a Sent Envoy resolves, by Net Influence: Condemned (<= -3), Failed (-3 < Net <= 0, gain Doubt 1), Passed (>= 1), Endorsed (>= 3). The per-domain effect at each band is given by the Envoy Outcome Table; an action's own endorsed bonus overrides the domain default.",
   "Charter": "Found a new Settlement (Industry action).",
   "Muster": "Raise retinues into an Army, up to a Settlement's muster limit (Industry/Prowess).",
-  "Build": "Build a Pursuit, spending its purchase cost and a Settlement ward (Industry action).",
+  "Build": "Build a Holding, spending its purchase cost and a Settlement ward (Industry action).",
   "Improve": "Construct Infrastructure or Expand a Settlement one tier (Industry action).",
   "Repair": "Restore damaged Infrastructure or Settlements (Industry).",
   "Move": "Advance an Army up to its Speed in Territories (Prowess).",
@@ -115,12 +115,12 @@
   "Focused": "A natural 10, before modifiers.",
   "Sally Forth": "While a settlement you control is besieged and you have an army inside it, you may Sally Forth: Battle in the Battle Phase without performing an action.",
   "War Weariness": "gain Doubt 1 for each consecutive Battle you lose in the Empire Phase.",
-  "Ward": "A slot in a Settlement that holds one Pursuit; a Settlement has one Ward per tier (a Hamlet has 3 Husbandry Wards).",
-  "Mastery Chain X": "While this Pursuit occupies the same Settlement Ward as X (the Raw Material or Pursuit named on its tile), it uses no ward of its own — the two share one ward. Placed anywhere else, it fills a ward normally. (Core Principle 14.) Note: Two Pursuits that chain from the same Pursuit cannot share a Ward with each other.",
-  "Natural": "Natural Pursuits do not cost Upkeep & can be used in Hamlets.",
-  "Upkeep": "Gold you pay each Empire Phase for Armies, Pursuits and Infrastructure. Pursuit upkeep is fixed by type (Monument 300, Power 200, Energy/Natural 0, all others 100); a Pursuit pays no upkeep while its Build Timer is running. Army upkeep = Army count × Army cost − Upkeep modifiers.",
-  "Craft": "Craft Pursuits count toward how much income your Trade Agreements generate — any effect that grants Craft +X. For each active Trade Agreement, both players gain 100 × the Host's Craft X.",
-  "Mastery Chain": "A Pursuit's Mastery Chain is the line of Pursuits it builds from, usually running from a Raw Material up to a Monument. You may start building a Pursuit only while you control one complete line of its Mastery Chain, anywhere in your empire; this is checked only when you start it. A Pursuit placed in the same Settlement Ward as its immediate parent shares that Ward, and the chain can continue upward the same way. Each Pursuit carries at most one descendant in its Ward. (Core Principle 14.)",
+  "Ward": "A slot in a Settlement that holds one Holding; a Settlement has one Ward per tier (a Hamlet has 3 Husbandry Wards).",
+  "Mastery Chain X": "While this Holding occupies the same Settlement Ward as X (the Raw Material or Holding named on its tile), it uses no ward of its own — the two share one ward. Placed anywhere else, it fills a ward normally. (Core Principle 14.) Note: Two Holdings that chain from the same Holding cannot share a Ward with each other.",
+  "Natural": "Natural Holdings do not cost Upkeep & can be used in Hamlets.",
+  "Upkeep": "Gold you pay each Empire Phase for Armies, Holdings and Infrastructure. Holding upkeep is fixed by type (Monument 300, Power 200, Energy/Natural 0, all others 100); a Holding pays no upkeep while its Build Timer is running. Army upkeep = Army count × Army cost − Upkeep modifiers.",
+  "Craft": "Craft Holdings count toward how much income your Trade Agreements generate — any effect that grants Craft +X. For each active Trade Agreement, both players gain 100 × the Host's Craft X.",
+  "Mastery Chain": "A Holding's Mastery Chain is the line of Holdings it builds from, usually running from a Raw Material up to a Monument. You may start building a Holding only while you control one complete line of its Mastery Chain, anywhere in your empire; this is checked only when you start it. A Holding placed in the same Settlement Ward as its immediate parent shares that Ward, and the chain can continue upward the same way. Each Holding carries at most one descendant in its Ward. (Core Principle 14.)",
   "Build Timer": "Turns until an infrastructure/build completes and becomes Active.",
   "Repair Timer": "Turns until a Damaged piece is repaired and its effects return.",
   "Truce Timer": "Turns remaining until a Truce expires (and related diplomacy restrictions end).",
@@ -349,11 +349,11 @@
    "rows": [
     [
      "Influence",
-     "The political currency of voting. Spend it to Support or Oppose Envoys. You gain it each turn from your Era, innate modifiers (trade partners, alliances, war), Pursuits, and Infrastructure."
+     "The political currency of voting. Spend it to Support or Oppose Envoys. You gain it each turn from your Era, innate modifiers (trade partners, alliances, war), Holdings, and Infrastructure."
     ],
     [
      "Influence X",
-     "An automatic +X (or -X) to an Envoy's net Influence from a Pursuit, Infrastructure, or Faction."
+     "An automatic +X (or -X) to an Envoy's net Influence from a Holding, Infrastructure, or Faction."
     ],
     [
      "Envoy",
@@ -450,7 +450,7 @@
     ],
     [
      "Monument",
-     "A Domain's capstone Pursuit. Completing one scores its Edict and grants a powerful effect."
+     "A Domain's capstone Holding. Completing one scores its Edict and grants a powerful effect."
     ],
     [
      "Charter",
@@ -462,7 +462,7 @@
     ],
     [
      "Build",
-     "Build a Pursuit, spending its purchase cost and a Settlement ward (Industry action)."
+     "Build a Holding, spending its purchase cost and a Settlement ward (Industry action)."
     ],
     [
      "Improve",
@@ -506,11 +506,11 @@
     ],
     [
      "Ward",
-     "A slot in a Settlement that holds one Pursuit; a Settlement has one Ward per tier (a Hamlet has 3 Husbandry Wards)."
+     "A slot in a Settlement that holds one Holding; a Settlement has one Ward per tier (a Hamlet has 3 Husbandry Wards)."
     ],
     [
      "Mastery Chain X",
-     "While this Pursuit occupies the same Settlement Ward as X (the Raw Material or Pursuit named on its tile), it uses no ward of its own — the two share one ward. Placed anywhere else, it fills a ward normally. (Core Principle 14.) Note: Two Pursuits that chain from the same Pursuit cannot share a Ward with each other."
+     "While this Holding occupies the same Settlement Ward as X (the Raw Material or Holding named on its tile), it uses no ward of its own — the two share one ward. Placed anywhere else, it fills a ward normally. (Core Principle 14.) Note: Two Holdings that chain from the same Holding cannot share a Ward with each other."
     ],
     [
      "War Weariness",
@@ -596,7 +596,7 @@
     ],
     [
      "Craft",
-     "Craft Pursuits count toward how much income your Trade Agreements generate — any effect that grants Craft +X. For each active Trade Agreement, both players gain 100 × the Host's Craft X."
+     "Craft Holdings count toward how much income your Trade Agreements generate — any effect that grants Craft +X. For each active Trade Agreement, both players gain 100 × the Host's Craft X."
     ],
     [
      "Crude",
@@ -656,7 +656,7 @@
     ],
     [
      "Mastery Chain",
-     "A Pursuit's Mastery Chain is the line of Pursuits it builds from, usually running from a Raw Material up to a Monument. You may start building a Pursuit only while you control one complete line of its Mastery Chain, anywhere in your empire; this is checked only when you start it. A Pursuit placed in the same Settlement Ward as its immediate parent shares that Ward, and the chain can continue upward the same way. Each Pursuit carries at most one descendant in its Ward. (Core Principle 14.)"
+     "A Holding's Mastery Chain is the line of Holdings it builds from, usually running from a Raw Material up to a Monument. You may start building a Holding only while you control one complete line of its Mastery Chain, anywhere in your empire; this is checked only when you start it. A Holding placed in the same Settlement Ward as its immediate parent shares that Ward, and the chain can continue upward the same way. Each Holding carries at most one descendant in its Ward. (Core Principle 14.)"
     ],
     [
      "Muster Timer",
@@ -664,7 +664,7 @@
     ],
     [
      "Natural",
-     "Natural Pursuits do not cost Upkeep & can be used in Hamlets."
+     "Natural Holdings do not cost Upkeep & can be used in Hamlets."
     ],
     [
      "Negate Planishing",
@@ -764,7 +764,7 @@
     ],
     [
      "Upkeep",
-     "Gold you pay each Empire Phase for Armies, Pursuits and Infrastructure. Pursuit upkeep is fixed by type (Monument 300, Power 200, Energy/Natural 0, all others 100); a Pursuit pays no upkeep while its Build Timer is running. Army upkeep = Army count × Army cost − Upkeep modifiers."
+     "Gold you pay each Empire Phase for Armies, Holdings and Infrastructure. Holding upkeep is fixed by type (Monument 300, Power 200, Energy/Natural 0, all others 100); a Holding pays no upkeep while its Build Timer is running. Army upkeep = Army count × Army cost − Upkeep modifiers."
     ],
     [
      "Within",
@@ -1102,14 +1102,14 @@
      "Arable Land",
      "",
      "—",
-     "—",
+     "Hamlet",
      "+500, **Natural**; Craft +1"
     ],
     [
      "Common Land",
      "",
      "—",
-     "—",
+     "Hamlet",
      "+1000, **Natural**, **Doubt +1**"
     ]
    ]
@@ -1196,7 +1196,7 @@
      "Weavery",
      "",
      "—",
-     "Merchant Quarter",
+     "Market Square",
      "+1000; Craft +2"
     ],
     [
@@ -1341,7 +1341,7 @@
     ],
     [
      "Merchant Quarter",
-     "Rising Industry",
+     "Rising Cunning",
      "—",
      "Market Square, Courtyard",
      "+500; Trade Partners gain Craft +2"
@@ -1641,7 +1641,7 @@
    "rows": [
     [
      "Money Lending",
-     "Established Industry",
+     "Established Cunning",
      "—",
      "Court Artists, Merchant Quarter",
      "**Extort 1000**; May loan money to Trade Partners at 100 per 1000/turn interest(minimum 100); on Default: Perform **Demand Tribute**"
@@ -2323,7 +2323,7 @@
   ],
   [
    "The Illuminated Order",
-   "Knowledge is Power: Each turn, gain +1 Influence for every 3 Pursuits you have."
+   "Knowledge is Power: Each turn, gain +1 Influence for every 3 Holdings you have."
   ],
   [
    "The Iron Faith",
@@ -2347,7 +2347,7 @@
   ],
   [
    "The Tunnellers",
-   "Tunnellers: You treat mountain Territory as grassland for movement, and begin the game with a Mine Raw-Material Pursuit (no Ward, Natural)."
+   "Tunnellers: You treat mountain Territory as grassland for movement, and begin the game with a Mine Raw-Material Holding (no Ward, Natural)."
   ],
   [
    "The Undying Flame",
@@ -2355,7 +2355,7 @@
   ],
   [
    "The Verdant Kingdom",
-   "Peaceful & Inventive: You can't Declare War, enter Military Alliances, perform Cunning actions, or build Pursuits that require Prowess or Cunning Standing. Gain 100 gold per total Craft level across all active sources."
+   "Peaceful & Inventive: You can't Declare War, enter Military Alliances, perform Cunning actions, or build Holdings that require Prowess or Cunning Standing. Gain 100 gold per total Craft level across all active sources."
   ],
   [
    "The Winter Wolves",
@@ -2379,7 +2379,7 @@
   ],
   [
    "The Luminous Court",
-   "Arts & Humanities / Hearts & Minds: You can't pursue Craft Pursuits. Your Civic Pursuits have Craft +1 and cost no Upkeep. You must accept a Peace Treaty if one is offered."
+   "Arts & Humanities / Hearts & Minds: You can't pursue Craft Holdings. Your Civic Holdings have Craft +1 and cost no Upkeep. You must accept a Peace Treaty if one is offered."
   ],
   [
    "The Grand Compact",
@@ -2391,7 +2391,7 @@
   ],
   [
    "The Sublime Gate",
-   "Integrated Arms: When you perform a Muster action, you may muster Retinues and equipment from your Trade Partners' Pursuits, paying their cost."
+   "Integrated Arms: When you perform a Muster action, you may muster Retinues and equipment from your Trade Partners' Holdings, paying their cost."
   ],
   [
    "The Velvet Hand",
@@ -2419,11 +2419,11 @@
   ],
   [
    "The Squatters' Crown",
-   "Occupy: You start with an additional Army; all your Armies begin inside your Settlements. While you're outside a Settlement, you don't control it — to collect taxes or use its Pursuits, end your turn inside it. To Occupy a Settlement, begin a Battle adjacent to it as if Sieging, but instead Battle the Garrison and any Armies at War with you or sharing its owner; if you win (or there's no force to fight), move inside. In the Upkeep Phase, pay upkeep only on equipment. You count as having all Infrastructure of your Occupied Settlements, and always count as 3 Trading Pursuits. When you leave a Settlement, you can't re-enter it until you Occupy another Settlement and sign a Trade Agreement."
+   "Occupy: You start with an additional Army; all your Armies begin inside your Settlements. While you're outside a Settlement, you don't control it — to collect taxes or use its Holdings, end your turn inside it. To Occupy a Settlement, begin a Battle adjacent to it as if Sieging, but instead Battle the Garrison and any Armies at War with you or sharing its owner; if you win (or there's no force to fight), move inside. In the Upkeep Phase, pay upkeep only on equipment. You count as having all Infrastructure of your Occupied Settlements, and always count as 3 Trading Holdings. When you leave a Settlement, you can't re-enter it until you Occupy another Settlement and sign a Trade Agreement."
   ],
   [
    "The Wandering Crown",
-   "Wandering Nomads: Your Armies function as Settlements — a Band, Tribe, or Horde, upgraded accordingly — count as Settlements with Reach 3, and each has a Muster Field. You may have one additional Army per Era, starting with two. Your Armies don't require troops to exist and can't be besieged. You can't build Infrastructure, but may build Pursuits; Raw Material Pursuits within Reach are always active and take no Settlement Ward. You may trade so long as your border touches another player's. You may begin a new Army adjacent to any existing Army with a Charter Settlement or Muster Army action. When an Army is destroyed, so is its Settlement. Nomads pay no upkeep."
+   "Wandering Nomads: Your Armies function as Settlements — a Band, Tribe, or Horde, upgraded accordingly — count as Settlements with Reach 3, and each has a Muster Field. You may have one additional Army per Era, starting with two. Your Armies don't require troops to exist and can't be besieged. You can't build Infrastructure, but may build Holdings; Raw Material Holdings within Reach are always active and take no Settlement Ward. You may trade so long as your border touches another player's. You may begin a new Army adjacent to any existing Army with a Charter Settlement or Muster Army action. When an Army is destroyed, so is its Settlement. Nomads pay no upkeep."
   ],
   [
    "The Dukedom",
@@ -2447,7 +2447,7 @@
    "1",
    "3",
    "1",
-   "Natural pursuits only; exactly range 2 from capital; may always pursue Arable Land"
+   "Natural holdings only; exactly range 2 from capital; may always pursue Arable Land"
   ],
   [
    "Village",
@@ -2535,7 +2535,7 @@
  "domain_board": [
   [
    "Industry",
-   "Trade Secrets: Perform endorsed Pursuit.",
+   "Trade Secrets: Perform endorsed Holding.",
    "Grand Architect: May have an additional City. Perform endorsed Improve.",
    "Titan of Industry: Your capital may be improved to a Metropolis. Perform endorsed Improve."
   ],

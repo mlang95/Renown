@@ -1726,12 +1726,14 @@ SIMPLE_NODES = {
         "type": "Raw Materials",
         "unlock": "-",
         "innate": "+500, **Natural**; Craft +1",
+        "efficient": ["Hamlet"],          # may start a Hamlet (Hamlet = location token, not a Holding)
         "builds_into": ["Herb Garden", "Animal Husbandry", "Granary", "Orchard","Vineyard"],
         "monument": False},
     "Common Land": {
         "type": "Raw Materials",
         "unlock": "-",
         "innate": "+1000, **Natural**, **Doubt +1**",
+        "efficient": ["Hamlet"],          # may start a Hamlet (Hamlet = location token, not a Holding)
         "builds_into": ["Workyard", "Burgages"],
         "monument": False},
     "Herb Garden": {
@@ -1808,7 +1810,7 @@ SIMPLE_NODES = {
         "type": "Craft",
         "unlock": "-",
         "innate": "+1000; Craft +2",
-        "efficient": "Merchant Quarter",
+        "efficient": "Market Square",
         "builds_into": ["Artisan Workshop", "Mill"],
         "monument": False},
     "Fletchery": {
@@ -1954,14 +1956,14 @@ SIMPLE_NODES = {
         "monument": False},
     "Merchant Quarter": {
         "type": "Craft",
-        "unlock": "Rising Industry",
+        "unlock": "Rising Cunning",
         "innate": "+500; Trade Partners gain Craft +2",
         "efficient": ["Market Square","Courtyard"],
         "builds_into": ["Money Lending"],
         "monument": False},
     "Money Lending": {
         "type": "Power",
-        "unlock": "Established Industry",
+        "unlock": "Established Cunning",
         "innate": "**Extort 1000**; May loan money to Trade Partners at 100 per 1000/turn interest(minimum 100); on Default: Perform **Demand Tribute**",
         "efficient": ["Court Artists","Merchant Quarter"],
         "builds_into": ["Aristocratic Court"],
@@ -2057,7 +2059,7 @@ SIMPLE_NODES = {
         "unlock": "1 Rising",
         "innate": "First and second **Oppose** on an Envoy of yours each turn: reduce by 1",
         "efficient": "Courtyard",
-        "builds_into": ["Bell Tower", "Embassy"],
+        "builds_into": ["Bell Tower"],
         "monument": False},
     "Embassy": {
         "type": "Civic",
@@ -2080,7 +2082,7 @@ SIMPLE_NODES = {
         "infrastructure_req": "Library",
         "innate": "**Influence +1** to Council Envoys; gain +1 Influence per turn",
         "efficient": "Alchemy",
-        "builds_into": ["Abbey", "University", "Forgery Workshop", "War College"],
+        "builds_into": ["Abbey", "University", "Forgery Workshop"],
         "monument": False},
     "Courtyard": {
         "type": "Civic",
@@ -2448,6 +2450,11 @@ SIMPLE_NODES = {
         "builds_into": ["Secret Cellar"],
         "monument": True},
 }
+# builds_into is derived: exactly the Holdings that name this one in their `efficient` (Mastery Chain).
+for _bn, _bv in SIMPLE_NODES.items():
+    _bv["builds_into"] = [_c for _c, _cv in SIMPLE_NODES.items()
+                          if _bn in ([_cv["efficient"]] if isinstance(_cv.get("efficient"), str) else (_cv.get("efficient") or []))]
+
 LEGACY_NODES = NODES
 NODES = SIMPLE_NODES if SIMPLE else NODES
 # What a pursuit needs besides Standing. SIMPLE: infrastructure_req (settlement
@@ -2457,6 +2464,8 @@ REQ_KEY   = "infrastructure_req" if SIMPLE else "mastery_req"
 REQ_LABEL = "Infrastructure Req" if SIMPLE else "Mastery Req"
 # Display name for the `efficient` field (the data key stays `efficient`).
 CHAIN_TERM = "Mastery Chain" if SIMPLE else "Efficient"
+# Display name for Pursuits (singular, plural). Data keys, file names and wiki URLs keep "pursuit".
+PURSUIT_TERM = ("Holding", "Holdings") if SIMPLE else ("Pursuit", "Pursuits")
 
 def node_parents(name, nodes=None):
     """Prerequisite pursuits of `name` (names present in `nodes`).
@@ -3192,7 +3201,7 @@ TERRAIN = {
 	"Grassland": {"Effect": "—", "Raw Materials": ["Arable Land", "Apiary"]},
 	"Wetlands": {"Effect": "Speed -1", "Raw Materials": ["Peat Bog", "Forestry"]},
 	"Tundra": {"Effect": "gain Strained", "Raw Materials": ["Quarry", "Salt Works"]},
-	"Mountains": {"Effect": "Impassable", "Raw Materials": ["Mine"]},
+	"Mountains": {"Effect": "Impassable", "Raw Materials": ["Mine", "Quarry"]},
 	"Water": {"Effect": "Must end move after moving over 1 Water Territory (must end on land)", "Raw Materials": ["Fishmongery"]},
 	"Forest": {"Effect": "Speed -1", "Raw Materials": ["Forestry","Apiary"]},
 	"Hill":  {"Effect": "Gains Seize the Initiative. Where Settlements can be chartered."},
@@ -4075,3 +4084,32 @@ if SIMPLE:
     # whole effect (old innate + mastery), so this doubles more than before.
     # SEASONS["Fall"]["effect"] = "Natural Pursuit effects are doubled."
     #
+
+    # ── Pursuit -> PURSUIT_TERM (runs last). Rewrites player-facing string VALUES in the rules tables
+    # (dict keys stay: BUILD_TIMERS / COSTS / UPKEEP_TRACKS ids) and adds display aliases so literals in
+    # the wiki, compendium, rules docx and PDFs follow (display_html / display_md / display_pdf).
+    import re as _re_pt
+    _PS, _PP = PURSUIT_TERM
+    _PT_SUBS = [(_re_pt.compile(r"\bPursuits\b"), _PP), (_re_pt.compile(r"\bPursuit\b"), _PS),
+                (_re_pt.compile(r"(?<![/\w.#-])pursuits(?![\w/#-]|\.\w)"), _PP.lower()),
+                (_re_pt.compile(r"(?<![/\w.#-])pursuit(?![\w/#-]|\.\w)"), _PS.lower())]
+    def _pt(o):
+        if isinstance(o, str):
+            for _rx, _to in _PT_SUBS: o = _rx.sub(_to, o)
+            return o
+        if isinstance(o, dict):
+            for _k in list(o): o[_k] = _pt(o[_k])
+            return o
+        if isinstance(o, list):
+            o[:] = [_pt(x) for x in o]; return o
+        if isinstance(o, tuple):
+            return tuple(_pt(x) for x in o)
+        return o
+    for _name in [n for n in list(globals()) if n.isupper() and n not in ("LEGACY_NODES",)]:
+        _v = globals()[_name]
+        if isinstance(_v, (dict, list, tuple)) and _name not in ("NAME_DISPLAY", "TIER_DISPLAY", "ALIASES"):
+            globals()[_name] = _pt(_v)
+    NAME_DISPLAY.update({"Pursuit": _PS, "Pursuits": _PP, "PURSUIT": _PS.upper(), "PURSUITS": _PP.upper()})
+    ALIASES.update({"Pursuit": _PS, "Pursuits": _PP, "PURSUIT": _PS.upper(), "PURSUITS": _PP.upper()})
+    _ALIAS_RE = _re_disp.compile(
+        r"\b(" + "|".join(_re_disp.escape(k) for k in sorted(ALIASES, key=len, reverse=True)) + r")\b")

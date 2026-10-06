@@ -274,7 +274,9 @@ set TREE_LAYOUT=layout.json
 REM SIMPLE: rebuild the chart layout from builds_into (layout.json keeps the titles/anchors)
 if "%SIMPLE%"=="1" if exist "gen_layout.py" ( %PY% gen_layout.py layout.json layout_simple.json & set "TREE_LAYOUT=layout_simple.json" )
 if exist "render_tree.py"           %PY% render_tree.py %TREE_LAYOUT% "%OUT_DIR%\pursuit_tree.svg"
-if exist "svg_to_pdf.py"            %PY% svg_to_pdf.py "%OUT_DIR%\pursuit_tree.pdf" "%OUT_DIR%\pursuit_tree_p1.svg" "%OUT_DIR%\pursuit_tree_p2.svg"
+set "TREE_SVGS="
+for %%S in ("%OUT_DIR%\pursuit_tree_p*.svg") do call set TREE_SVGS=%%TREE_SVGS%% "%%~fS"
+if exist "svg_to_pdf.py"            %PY% svg_to_pdf.py "%OUT_DIR%\pursuit_tree.pdf" %TREE_SVGS%
 echo   Domain standing board...
 if exist "domain_board.py"          %PY% domain_board.py "%OUT_DIR%\domain_board.pdf"
 echo   Infrastructure board...

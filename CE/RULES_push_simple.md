@@ -8,11 +8,11 @@ Within the Realm, Empires expand, specialize, confer, and when diplomacy fails�
 
 ### Game Synopsis
 
-**Renown** is a turn-based political strategy game for 1–7 players (3+ preferred) set in a medieval world of competing lords. Each player controls a growing empire — settlements, armies, and pursuits — but the game’s central tension isn’t military. It’s political.
+**Renown** is a turn-based political strategy game for 1–7 players (3+ preferred) set in a medieval world of competing lords. Each player controls a growing empire — settlements, armies, and holdings — but the game’s central tension isn’t military. It’s political.
 
 Every action you want to take has to survive a vote. When you move your army, build a road, or sabotage a rival, every other player at the table gets to spend political influence to support or bury it. The strength of your relationships, the alliances you’ve built, and the favors you’re owed determine whether your plans succeed — not just your resources.
 
-Between turns, you’re managing a medieval economy: taxing settlements, building pursuit chains from Raw Materials into production into powerful pursuits and monuments, trading with neighbors, and keeping your Public Order stable enough that your people don’t descend into open rebellion. Stretch too thin and your armies can’t march, your tax income plummets, and your enemies smell blood.
+Between turns, you’re managing a medieval economy: taxing settlements, building holding chains from Raw Materials into production into powerful holdings and monuments, trading with neighbors, and keeping your Public Order stable enough that your people don’t descend into open rebellion. Stretch too thin and your armies can’t march, your tax income plummets, and your enemies smell blood.
 
 Combat exists and matters — sieging settlements, clashing armies in tactical skirmishes with a tactic-versus-tactic matrix — but war is expensive, politically punishing, and rarely the fastest path to victory. You can win by building a Wonder, generating {{VAL:WEALTH_EDICT_GOLD}} gold a turn for five consecutive turns, vassalizing a rival, sustaining Living Saints-level devotion for five turns, or simply outlasting every alliance but your own.
 
@@ -51,8 +51,8 @@ The game tracks a handful of core resources:
 - **Influence** — the weight you bring to Envoy votes. Base Influence comes from your Standing ({{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Untested}}/{{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Rising}}/{{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Established}}/{{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Sovereign}}); you may spend up to 1 + Standing to support or oppose other players' envoys of that Domain.
 - **Renown** — The score of the Table. Accumulated by completing Edicts and at the end of each turn; the player who has completed the most Edicts when the game ends wins.
 - **Public Order** — the stability of your realm, reduced by Doubt, improved by Faith. Low Public Order weakens your empire; certain effects key off it.
-- **Faith** — devotion, generated mostly by Piety pursuits; powers religious effects and offsets Doubt.
-- **Doubt** — instability. Lowers Public Order. Applied to yourself by some powerful pursuits as a cost, or to others as a Cunning/Piety weapon.
+- **Faith** — devotion, generated mostly by Piety holdings; powers religious effects and offsets Doubt.
+- **Doubt** — instability. Lowers Public Order. Applied to yourself by some powerful holdings as a cost, or to others as a Cunning/Piety weapon.
 
 # Core Rules
 
@@ -65,7 +65,7 @@ A few conventions make every rule in this book read the same way:
 - Effects are written by *when* they apply: **While X** is always on; **When X** / **At X** happens once, at that moment; an action's **Cost / Effect / Endorsed** happens when you take the action.
 - **Choose one:** marks a set of options from which you pick exactly one.
 - *Italic text is reminder, example, or strategy — it explains the rule but never changes it; the plain-text rule governs.*
-- Capitalized terms (Army, Envoy, Standing, Pursuit, Treaty…) are defined terms — look them up in the Compendium.
+- Capitalized terms (Army, Envoy, Standing, Holding, Treaty…) are defined terms — look them up in the Compendium.
 
 ## Core Principles
 
@@ -75,13 +75,13 @@ A few conventions make every rule in this book read the same way:
     - 2.1 *Example: Inquisitorial Palace ≥ Established Cunning > general Cunning rule.*
     - 2.2 When two effects conflict, the one that says can't (or doesn't) takes precedence over one that says you may or must.
 
-3. **Public information.** All information is public: resources, Domains, Treaties, Armies, Pursuits, and Garrisons are known to all players.
+3. **Public information.** All information is public: resources, Domains, Treaties, Armies, Holdings, and Garrisons are known to all players.
 
 4. **Once per turn, same target.** A once-per-turn effect can't be used on the same target twice in a turn.
 
-5. **One effect per Pursuit.** A Pursuit has a single effect, active while the Pursuit is active.
+5. **One effect per Holding.** A Holding has a single effect, active while the Holding is active.
 
-6. **Damaged means inactive.** A Damaged Pursuit or Infrastructure has no effect.
+6. **Damaged means inactive.** A Damaged Holding or Infrastructure has no effect.
 
 7. **Timer 0 resolves immediately.** Any timer whose initial value is 0 or less resolves at once.
 
@@ -102,9 +102,9 @@ A few conventions make every rule in this book read the same way:
 
 13. **Influence spending.** On a single vote, you may spend Influence equal to 1 + your Standing in that Domain (Untested = {{VAL:DOMAIN_BOARD.max_influence_per_vote.Untested}}, Rising = {{VAL:DOMAIN_BOARD.max_influence_per_vote.Rising}}, Established = {{VAL:DOMAIN_BOARD.max_influence_per_vote.Established}}, Sovereign = {{VAL:DOMAIN_BOARD.max_influence_per_vote.Sovereign}}).
 
-14. **Mastery Chain.** A Pursuit's Mastery Chain is the line of Pursuits it builds from, usually running from a Raw Material up to a Monument. You may start building a Pursuit only while you control one complete line of its Mastery Chain, anywhere in your empire; this is checked only when you start it. A Pursuit placed in the same Settlement Ward as its immediate parent shares that Ward, and the chain can continue upward the same way. Each Pursuit carries at most one descendant in its Ward.
+14. **Mastery Chain.** A Holding's Mastery Chain is the line of Holdings it builds from, usually running from a Raw Material up to a Monument. You may start building a Holding only while you control one complete line of its Mastery Chain, anywhere in your empire; this is checked only when you start it. A Holding placed in the same Settlement Ward as its immediate parent shares that Ward, and the chain can continue upward the same way. Each Holding carries at most one descendant in its Ward.
 
-15. **Monuments & Wonders are unique.** Only one Pursuit or Wonder of each name can exist in a game.
+15. **Monuments & Wonders are unique.** Only one Holding or Wonder of each name can exist in a game.
 
 ## The Turn
 
@@ -139,14 +139,14 @@ Many actions set a Timer to a number of turns. Each Empire Phase, every active T
 	- Perform Move actions.
 	- Spawn new Bandit Camps (in Spring, from Foster Rebellion, or from an Uprising).
 - **Gain Influence & Envoys:**
-	- Gain Influence from (not in Spring): Era, innate modifiers (Trade Partners, Alliances, At War, etc.), Pursuits, and Infrastructure.
+	- Gain Influence from (not in Spring): Era, innate modifiers (Trade Partners, Alliances, At War, etc.), Holdings, and Infrastructure.
 	- Gain Envoys based on the Era.
 - **Winter:** if it's Winter, gain tax income equal to your Settlements' tiers, adjusted by any modifiers.
 - **Income & Upkeep:**
-	- All players gain Pursuit income.
+	- All players gain Holding income.
 	- **Trade:** if there is a Host, the Host collects trade income and distributes it among their Trade Partners.
-	- Pay Army, Pursuit, Infrastructure, and any additional upkeep.
-	- **Extort:** any Pursuits or effects that trigger extort resolve now.
+	- Pay Army, Holding, Infrastructure, and any additional upkeep.
+	- **Extort:** any Holdings or effects that trigger extort resolve now.
 	- Determine Net Income for the Wealth Edict condition.
 - **Apply innate Public Order modifiers** — check each Faith/Doubt source in the Public Order tables and adjust your Public Order. *(Faith/Doubt from actions are already applied the moment they're generated; see Public Order.)*
 - Every Army without **Strained** gains +{{VAL:ENDURANCE_REGAIN}} Endurance; then remove Strained from all Armies. *(An Army can immediately regain these effects after losing them, if applicable.)*
@@ -200,7 +200,7 @@ If a player performed a Battle or Siege Move action this turn, resolve it now �
 - Domain Board: set Renown to {{VAL:ERAS.Founding.renown}}, set each player's Standing in each Domain to {{VAL:STANDING_THRESHOLDS.Untested}}, set Season to Summer, and set Public Order to 0.
 - Give the Host Card to the player who wants to Host first. If more than one, roll off.
 - Hex Map.
-- Tactic Decks, Equipment & Retinue Cards, Pursuit Tiles, Bandit Camps, and the various tokens.
+- Tactic Decks, Equipment & Retinue Cards, Holding Tiles, Bandit Camps, and the various tokens.
 
 ## Player Setup
 
@@ -221,7 +221,7 @@ Envoys are the currency of actions: to perform an action you send an Envoy durin
 
 ### Resolving an Envoy
 
-Your Envoy begins with Influence equal to your innate Influence in its Domain — Untested {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Untested}}, Rising {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Rising}}, Established {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Established}}, Sovereign {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Sovereign}} — plus any automatic Influence ±X modifiers. *(These come from your Pursuits, Infrastructure, and faction, and apply on their own; you never spend Influence for them.)* Diplomacy has no Standing; a Diplomacy Envoy begins with Influence set by the Era (Founding {{VAL:ERAS.Founding.innate_diplomacy_influence}}, Ascension {{VAL:ERAS.Ascension.innate_diplomacy_influence}}, Eminence {{VAL:ERAS.Eminence.innate_diplomacy_influence}}, Zenith {{VAL:ERAS.Zenith.innate_diplomacy_influence}}).
+Your Envoy begins with Influence equal to your innate Influence in its Domain — Untested {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Untested}}, Rising {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Rising}}, Established {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Established}}, Sovereign {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Sovereign}} — plus any automatic Influence ±X modifiers. *(These come from your Holdings, Infrastructure, and faction, and apply on their own; you never spend Influence for them.)* Diplomacy has no Standing; a Diplomacy Envoy begins with Influence set by the Era (Founding {{VAL:ERAS.Founding.innate_diplomacy_influence}}, Ascension {{VAL:ERAS.Ascension.innate_diplomacy_influence}}, Eminence {{VAL:ERAS.Eminence.innate_diplomacy_influence}}, Zenith {{VAL:ERAS.Zenith.innate_diplomacy_influence}}).
 
 Then, clockwise from the starting player and skipping the sender, every other player may respond, with no talking during the vote:
 
@@ -229,7 +229,7 @@ Then, clockwise from the starting player and skipping the sender, every other pl
 - **Oppose X** — spend X of your Influence to lower it.
 - **Abstain** — spend nothing.
 
-You spend Influence only when you **Support** or **Oppose**; abstaining is free. You may let as much pass unopposed or unsupported as you like. **You can't vote on your own Envoy.** Each player may spend up to 1 + their Standing in that Domain on a single vote (Untested {{VAL:DOMAIN_BOARD.max_influence_per_vote.Untested}}, Rising {{VAL:DOMAIN_BOARD.max_influence_per_vote.Rising}}, Established {{VAL:DOMAIN_BOARD.max_influence_per_vote.Established}}, Sovereign {{VAL:DOMAIN_BOARD.max_influence_per_vote.Sovereign}}). On Diplomacy Envoys the cap is set by the Era instead (Founding {{VAL:ERAS.Founding.max_influence_per_diplomacy_vote}}, Ascension {{VAL:ERAS.Ascension.max_influence_per_diplomacy_vote}}, Eminence {{VAL:ERAS.Eminence.max_influence_per_diplomacy_vote}}, Zenith {{VAL:ERAS.Zenith.max_influence_per_diplomacy_vote}}). Pursuits, Infrastructure, and factions may raise these caps. At the end of each turn, unused Influence is discarded.
+You spend Influence only when you **Support** or **Oppose**; abstaining is free. You may let as much pass unopposed or unsupported as you like. **You can't vote on your own Envoy.** Each player may spend up to 1 + their Standing in that Domain on a single vote (Untested {{VAL:DOMAIN_BOARD.max_influence_per_vote.Untested}}, Rising {{VAL:DOMAIN_BOARD.max_influence_per_vote.Rising}}, Established {{VAL:DOMAIN_BOARD.max_influence_per_vote.Established}}, Sovereign {{VAL:DOMAIN_BOARD.max_influence_per_vote.Sovereign}}). On Diplomacy Envoys the cap is set by the Era instead (Founding {{VAL:ERAS.Founding.max_influence_per_diplomacy_vote}}, Ascension {{VAL:ERAS.Ascension.max_influence_per_diplomacy_vote}}, Eminence {{VAL:ERAS.Eminence.max_influence_per_diplomacy_vote}}, Zenith {{VAL:ERAS.Zenith.max_influence_per_diplomacy_vote}}). Holdings, Infrastructure, and factions may raise these caps. At the end of each turn, unused Influence is discarded.
 
 *Each player declares in turn, so the running net Influence is public — later voters can react to it. The Host, sitting just before the starting player, votes last on every Envoy they didn't send.*
 
@@ -349,13 +349,13 @@ To vassalize a player:
 
 ## Settlements
 
-Settlements are the primary vehicle of your Empire. They come in tiers: villages, towns, cities, and a capital Metropolis. Each tier provides tax income each turn, Settlement Wards that a Pursuit can fill, and a per-turn muster limit of Retinues. The values per tier are below:
+Settlements are the primary vehicle of your Empire. They come in tiers: villages, towns, cities, and a capital Metropolis. Each tier provides tax income each turn, Settlement Wards that a Holding can fill, and a per-turn muster limit of Retinues. The values per tier are below:
 
 {{TABLE:settlements}}
 
 ### Settlement Wards
 
-A Settlement contains 1 Settlement Ward for each of its tiers. A Village has {{VAL:SETTLEMENTS.Village.wards}} central hub, which all other Settlement Wards must be adjacent to (range 1); a Town has {{VAL:SETTLEMENTS.Town.wards}} Wards, a City has {{VAL:SETTLEMENTS.City.wards}}, and a Metropolis may have {{VAL:SETTLEMENTS.Metropolis.wards}}. The one exception is a Hamlet: it can hold only Husbandry Pursuits, but contains {{VAL:SETTLEMENTS.Hamlet.wards}} Settlement Wards.
+A Settlement contains 1 Settlement Ward for each of its tiers. A Village has {{VAL:SETTLEMENTS.Village.wards}} central hub, which all other Settlement Wards must be adjacent to (range 1); a Town has {{VAL:SETTLEMENTS.Town.wards}} Wards, a City has {{VAL:SETTLEMENTS.City.wards}}, and a Metropolis may have {{VAL:SETTLEMENTS.Metropolis.wards}}. The one exception is a Hamlet: it can hold only Husbandry Holdings, but contains {{VAL:SETTLEMENTS.Hamlet.wards}} Settlement Wards.
 
 ### Chartering Settlements
 
@@ -367,7 +367,7 @@ Settlements have a Reach value set by their tier, from {{VAL:SETTLEMENTS.Village
 
 ### Hamlets
 
-Hamlets are unique Settlements, placed *exactly* range {{VAL:HAMLET_RANGE}} from your capital via a Charter Settlement action. These small farmland communities produce no tax income or muster limit, but have {{VAL:SETTLEMENTS.Hamlet.wards}} Settlement Wards. You may only pursue **Natural** Pursuits in a Hamlet, and a Pursuit in a Hamlet can only be efficient if it is itself Natural. You may also pursue Arable Land in a Hamlet even if that Raw Material isn't in the Hamlet's region.
+Hamlets are unique Settlements, placed *exactly* range {{VAL:HAMLET_RANGE}} from your capital via a Charter Settlement action. These small farmland communities produce no tax income or muster limit, but have {{VAL:SETTLEMENTS.Hamlet.wards}} Settlement Wards. You may only pursue **Natural** Holdings in a Hamlet, and a Holding in a Hamlet can only be efficient if it is itself Natural. You may also pursue Arable Land in a Hamlet even if that Raw Material isn't in the Hamlet's region.
 
 ## Infrastructure
 
@@ -375,7 +375,7 @@ Hamlets are unique Settlements, placed *exactly* range {{VAL:HAMLET_RANGE}} from
 
  	*Example: Wooden Walls protect all Settlements from Cunning Envoys, and a Cathedral raises your innate Faith by 2 each turn, regardless of how many Settlements you have.*
 
- 	Infrastructure comes in 4 ascending tiers. Primitive Infrastructure builds the basic blocks of your empire. Developed Infrastructure expands and replaces some primitive Infrastructure. Sophisticated Infrastructure allows more powerful effects and helps unlock unique Monument Pursuits.
+ 	Infrastructure comes in 4 ascending tiers. Primitive Infrastructure builds the basic blocks of your empire. Developed Infrastructure expands and replaces some primitive Infrastructure. Sophisticated Infrastructure allows more powerful effects and helps unlock unique Monument Holdings.
 
  	To build any Infrastructure, you need at least one active Infrastructure of the tier below it — so Developed needs one Primitive, and Sophisticated needs one Developed (and therefore one Primitive). *One Tier Primitive* means any one Primitive Infrastructure. Some Infrastructure also names its own requirement on top of this: a Library needs a Town Hall, and a Cathedral needs a Capital City — so a Cathedral needs one Primitive, one Developed, and a Capital City.
 
@@ -421,9 +421,9 @@ Your innate Public Order modifiers (below) are checked once each turn during the
 
 ## Treasury & Upkeep
 
-Your Treasury is the gold you Control. Each Empire Phase you gain your Revenue (tax, trade, and Pursuit income) and pay your Upkeep (Armies, Pursuits, and Infrastructure); the net lands in your Treasury. Costs you pay during the turn come out of the same Treasury.
+Your Treasury is the gold you Control. Each Empire Phase you gain your Revenue (tax, trade, and Holding income) and pay your Upkeep (Armies, Holdings, and Infrastructure); the net lands in your Treasury. Costs you pay during the turn come out of the same Treasury.
 
-**Pursuit upkeep** is fixed by Pursuit type: Monument {{VAL:PURSUIT_UPKEEP_BY_TYPE.Monument}}, Power {{VAL:PURSUIT_UPKEEP_BY_TYPE.Power}}, Energy {{VAL:PURSUIT_UPKEEP_BY_TYPE.Energy}}, all others {{VAL:PURSUIT_UPKEEP_BY_TYPE.Other}}. Pursuits and Infrastructure only pay upkeep while active: none while being built, Damaged, or under repair.
+**Holding upkeep** is fixed by Holding type: Monument {{VAL:PURSUIT_UPKEEP_BY_TYPE.Monument}}, Power {{VAL:PURSUIT_UPKEEP_BY_TYPE.Power}}, Energy {{VAL:PURSUIT_UPKEEP_BY_TYPE.Energy}}, all others {{VAL:PURSUIT_UPKEEP_BY_TYPE.Other}}. Holdings and Infrastructure only pay upkeep while active: none while being built, Damaged, or under repair.
 
 **Army upkeep** = Retinue count × (Retinue cost − Upkeep modifiers). Retinue costs: Levy {{VAL:RETINUES.Levy.cost}}, Man-at-Arms {{VAL:RETINUES.Man-at-Arms.cost}}, Sergeant {{VAL:RETINUES.Sergeant.cost}}, Knight Templar {{VAL:RETINUES.Knight Templar.cost}}.
 
@@ -436,9 +436,9 @@ Your Treasury is the gold you Control. Each Empire Phase you gain your Revenue (
 You go Insolvent the moment your Treasury can't cover a cost in full (at Upkeep, when paying for an action, or when an effect drains your gold). Pay what you can, then cut until the books balance, in this order:
 
 1. **Disband Armies**, one at a time, cheapest-upkeep first, until your Armies are gone.
-2. **Set buildings inactive**, highest-tier first (Monuments, then Power Pursuits, then other non-natural Pursuits).
+2. **Set buildings inactive**, highest-tier first (Monuments, then Power Holdings, then other non-natural Holdings).
 
-An inactive Pursuit gives no effect; Pursuits built from it are unaffected. An inactive piece is restored at any future Upkeep Step where you can pay its upkeep. Build Timers halt while you're Insolvent.
+An inactive Holding gives no effect; Holdings built from it are unaffected. An inactive piece is restored at any future Upkeep Step where you can pay its upkeep. Build Timers halt while you're Insolvent.
 
 If you've cut everything and a debt still remains, you're Bankrupt: your Treasury goes negative by the unpaid amount (a Debt Marker). While Bankrupt you can't spend gold or be Extorted, and Build Timers stay halted; Revenue pays down the debt first. When your Treasury reaches 0 or above, Bankruptcy ends. *(If you're Vassalized while Bankrupt, the debt is forgiven and your Suzerain pays your Treasury up to a minimum of 0.)*
 
@@ -448,7 +448,7 @@ If you've cut everything and a debt still remains, you're Bankrupt: your Treasur
 
 **Who can trade:** a player needs active dirt road Infrastructure and a signed Trade Agreement to take part in trade.
 
-**Craft X:** Craft Pursuits count toward how much income your Trade Agreements generate — any effect that grants Craft +X.
+**Craft X:** Craft Holdings count toward how much income your Trade Agreements generate — any effect that grants Craft +X.
 
 **Trade income:** for each active Trade Agreement, both players gain gold equal to {{VAL:TRADE_RULES.income_per_craft}} × the Host's Craft X.
 
@@ -461,7 +461,7 @@ If you've cut everything and a debt still remains, you're Bankrupt: your Treasur
 
 - **Taxes:** at the start of each Winter, gain tax income equal to your Settlement total, after modifiers.
 - **Trade:** see above.
-- **Pursuits:** gain Pursuit effect income at the start of the income phase.
+- **Holdings:** gain Holding effect income at the start of the income phase.
 
 # Armies
 
@@ -573,7 +573,7 @@ A Siege Timer is the sum of the besieged Settlement's defenses minus the attacke
 
 3. If you're attacked while sieging and you Fall Back, the Siege is broken and the Siege Timer is removed from play.
 
-4. While a Settlement is besieged: it can't count Pursuits toward Craft X; its Armies gain Blocked except to **sally forth**; timers targeting the Settlement don't increment; and Industry actions can't target it.
+4. While a Settlement is besieged: it can't count Holdings toward Craft X; its Armies gain Blocked except to **sally forth**; timers targeting the Settlement don't increment; and Industry actions can't target it.
 
 ### Resolving a Siege
 
@@ -585,8 +585,8 @@ When a Siege Timer reaches 0:
 
 3. If the besieging player wins, or there's no eligible Army or Garrison, choose one:
 
-- **Capture:** set a Capture Timer {{VAL:TIMERS.Capture Timer.default}}. When it resolves, the Settlement comes under your Control — it receives your active Infrastructure effects, and you gain its Pursuits, tax income, and Reach.
-- **Sack:** raze all Pursuits; extort {{VAL:SACK_EXTORT_PER_TIER}} per Settlement tier; reduce the Settlement by 1 tier. Its controller removes all Pursuits from one Settlement Ward of the sacking player's choice, then removes that Ward from play. Set a Sack Timer {{VAL:TIMERS.Sack Timer.default}} — you can't Lay Siege again until it resolves. Your Army gains Blocked and Strained until the Sack Timer resolves.
+- **Capture:** set a Capture Timer {{VAL:TIMERS.Capture Timer.default}}. When it resolves, the Settlement comes under your Control — it receives your active Infrastructure effects, and you gain its Holdings, tax income, and Reach.
+- **Sack:** raze all Holdings; extort {{VAL:SACK_EXTORT_PER_TIER}} per Settlement tier; reduce the Settlement by 1 tier. Its controller removes all Holdings from one Settlement Ward of the sacking player's choice, then removes that Ward from play. Set a Sack Timer {{VAL:TIMERS.Sack Timer.default}} — you can't Lay Siege again until it resolves. Your Army gains Blocked and Strained until the Sack Timer resolves.
 
 # Bandits
 

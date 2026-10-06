@@ -403,6 +403,8 @@ def build(out_path):
         k = ln.split("|", 1)[0].strip().lower()
         seen[k] = ln
     final = [seen[k] for k in sorted(seen)]
+    if getattr(rd, "SIMPLE", False):   # display layer (NAME_DISPLAY) — carries the Holdings term
+        final = [rd.display_text(ln) for ln in final]
     with open(out_path, "w", encoding="utf-8") as f:
         f.write("\n".join(final) + "\n")
     print(f"wrote {len(final)} FAQ entries -> {out_path}")
