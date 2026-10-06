@@ -1936,7 +1936,6 @@ SIMPLE_NODES = {
         "unlock": "-",
         "infrastructure_req": "Hitching Post",
         "innate": "**Faith +1** for trading partners with Craft 3+; **Faith +1**",
-        "efficient": ["Market Square", "Merchant Quarter"],
         "builds_into": ["Courier Network", "Smuggler's Nook"],
         "monument": False},
     "Spice Merchant": {
