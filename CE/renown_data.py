@@ -1934,6 +1934,7 @@ SIMPLE_NODES = {
     "Inn": {
         "type": "Craft",
         "unlock": "-",
+        "infrastructure_req": "Hitching Post",
         "innate": "**Faith +1** for trading partners with Craft 3+; **Faith +1**",
         "efficient": ["Market Square", "Merchant Quarter"],
         "builds_into": ["Courier Network", "Smuggler's Nook"],
@@ -2041,7 +2042,7 @@ SIMPLE_NODES = {
     "Execution Dock": {
         "type": "Civic",
         "unlock": "Established Piety",
-        "innate": "**Influence -1** to **Foster Rebellion actions** targeting your **settlements**; **Players** who **target** you or your **settlements** with **actions** that cause **doubt** gain **Doubt +1**",
+        "innate": "**Influence -2** to **Foster Rebellion actions** targeting your **settlements**; **Players** who **target** you or your **settlements** with **actions** that cause **doubt** gain **Doubt +1**",
         "efficient": "Interrogation Chambers",
         "builds_into": ["Inquisitorial Palace"],
         "monument": False},
