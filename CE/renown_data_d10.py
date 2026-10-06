@@ -1199,7 +1199,7 @@ NODES = {
         "mastery_req": "Masonry",
         "innate": "Craft +1",
         "mastery": "**Faith +1**",
-        "efficient": ["Masonry", "Common Land"],
+        "efficient": ["Masonry"],
         "builds_into": ["Conditioning Field", "Jester's Court", "Market Square"],
         "monument": False},
     "Episcopal Court": {
