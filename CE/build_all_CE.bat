@@ -227,7 +227,9 @@ if not exist "%MAP_DIR%\build_mapapp.py" (
   pushd "%MAP_DIR%"
   REM --data pins the terrain table to CE's rules. Without it the app could
   REM ship D6 terrain effects with nothing on screen to say so.
-  %PY% build_mapapp.py --data "%CODE_DIR%"
+  REM CE_ROOT holds the live renown_data.py (copied from DATA_SRC above);
+  REM CODE_DIR's renown_data.py is an old standalone copy.
+  %PY% build_mapapp.py --data "%CE_ROOT%"
   popd
 )
 if /i "%WHAT%"=="maps" goto end
