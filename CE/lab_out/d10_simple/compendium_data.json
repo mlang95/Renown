@@ -1,5 +1,5 @@
 {
- "version": "0.4.9.9.6-d10",
+ "version": "0.4.9.9.7-d10",
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
@@ -1314,7 +1314,7 @@
     [
      "Market Square",
      "Rising Industry",
-     "—",
+     "Hitching Post",
      "Courtyard",
      "Craft +2; +500"
     ],
@@ -1431,7 +1431,7 @@
     [
      "Embassy",
      "1 Established",
-     "—",
+     "Town Hall",
      "Bell Tower",
      "**Influence +1** to Diplomacy Envoys; Whenever a player performs a Diplomacy Envoy targeting you, that envoy cannot be Opposed."
     ],
@@ -1466,7 +1466,7 @@
     [
      "Conditioning Field",
      "Rising Prowess",
-     "—",
+     "Muster Field",
      "Courtyard, Common Land",
      "**Faith +1** while not at War; Armies gain **Nimble**"
     ],
@@ -1595,7 +1595,7 @@
     [
      "Pilgrimage Site",
      "Established Piety",
-     "—",
+     "Cathedral",
      "Reliquary Sanctum",
      "Natural; **Extort 500** every player without a Pilgrimage Site; **Doubt +1** to all other players without a Pilgrimage Site"
     ],
@@ -1649,7 +1649,7 @@
     [
      "Monastery",
      "Established Piety",
-     "—",
+     "Cathedral",
      "Abbey",
      "Reach +1; Other players can't Oppose your Piety Envoys"
     ],
@@ -1663,7 +1663,7 @@
     [
      "University",
      "1 Established",
-     "—",
+     "Library",
      "Academy",
      "May spend one additional **Influence** per Support or Oppose; +1 **Influence** per Domain you are Rising"
     ],
@@ -1698,15 +1698,15 @@
     [
      "Citadel",
      "Established Industry",
-     "—",
+     "Stone Walls",
      "Supply Depot",
      "**Siege Timer +3**, Controlled Settlements gain **Reach +1**"
     ],
     [
      "War College",
      "Established Prowess",
-     "—",
-     "University",
+     "Library",
+     "Levy Hall",
      "Gain **+2 Influence** while At War; Unlocks **Sergeants** for Muster"
     ],
     [

@@ -62,7 +62,7 @@ Charcoal Burner | [Charcoal Burner](https://mlang95.github.io/RenownWiki/pursuit
 Charter | [Charter](https://mlang95.github.io/RenownWiki/actions-ref.html): Industry action. Cost: 2000 gold. Charter a new Village — on in-province non-water, non-mountain Territory, range 4+ from any Settlement and range 2+ from Outlaw Country. Endorsed: Recoup 2000.
 Cidery | [Cidery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Effect: Natural; Faith +1; +800; Craft +1
 Cipher Chamber | [Cipher Chamber](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Secrecy). Effect: Once/turn when a player Sends an Envoy: that player must declare the specific Action & target they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action at the declared target. Once/turn: select any active Timer you did not select last turn; increase it by 2.
-Citadel | [Citadel](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Effect: Siege Timer +3, Controlled Settlements gain Reach +1
+Citadel | [Citadel](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Effect: Siege Timer +3, Controlled Settlements gain Reach +1 / Requires: Stone Walls
 City | [City](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 3). Tax 3000, muster 25, build 6, wards 3, reach 6. 
 Cleave | [Cleave](https://mlang95.github.io/RenownWiki/keywords-ref.html#cleave): On a Focused Strike: roll one extra Strike die at your modified to-Strike.
 Cloth | [Cloth](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (None). Save 10+. Keywords: none.
@@ -72,7 +72,7 @@ Colossus | [Colossus](https://mlang95.github.io/RenownWiki/wonders-ref.html) Won
 combat | See 'how to attack'.
 Common Land | [Common Land](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Raw Materials). Effect: +1000, Natural, Doubt +1
 Condemned | [Condemned](https://mlang95.github.io/RenownWiki/glossary.html#condemned): An Envoy whose net Influence is -3 or less: it fails and you resolve that Domain's Condemn effect.
-Conditioning Field | [Conditioning Field](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Effect: Faith +1 while not at War; Armies gain Nimble
+Conditioning Field | [Conditioning Field](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Effect: Faith +1 while not at War; Armies gain Nimble / Requires: Muster Field
 Contested | [Contested](https://mlang95.github.io/RenownWiki/glossary.html#contested): Territory that is within Reach of more than one player's settlement(s). Considered Controlled by all Players that have a Settlement within Reach.
 Controlled | [Controlled](https://mlang95.github.io/RenownWiki/glossary.html#controlled): Territory that is within Reach of a single Player's Settlement(s).
 Convert | [Convert](https://mlang95.github.io/RenownWiki/actions-ref.html): Piety action. Cost: Doubt 1. Choose another player's closest non-capital Settlement; its Public Order must be -5 or lower. Lay Siege using only Settlement-type Siege modifiers (Settlement Size and Citadel) and set a Convert Timer. When it reaches 0, the Settlement joins your empire (see Capture). Endorsed: Gain Faith 1.
@@ -116,7 +116,7 @@ easy factions | See 'low difficulty factions'.
 Edict | [Edict](https://mlang95.github.io/RenownWiki/glossary.html#edict): A scoring achievement / win path: reach a Sovereign Standing, complete a Monument, or fulfill a victory condition (Wonder, wealth, Vassalize, Living Saints, Last Standing).
 edict Monument | [Monument](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Build). Have a Monument pursuit.
 edicts | [Edicts](https://mlang95.github.io/RenownWiki/edicts-ref.html): the win paths. Sovereign Standing, Monument, Wonder, Wealth, Vassalize, Living Saints, Last Alliance Standing. Completing one raises Renown by 1; most-completed wins.
-Embassy | [Embassy](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Effect: Influence +1 to Diplomacy Envoys; Whenever a player performs a Diplomacy Envoy targeting you, that envoy cannot be Opposed.
+Embassy | [Embassy](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Effect: Influence +1 to Diplomacy Envoys; Whenever a player performs a Diplomacy Envoy targeting you, that envoy cannot be Opposed. / Requires: Town Hall
 Eminence | [Eminence](https://mlang95.github.io/RenownWiki/eras-ref.html) Era. Renown 18, armies 3, cities 2, influence/turn 3, envoys: 1 Council Envoy (2 actions each) + 1 Personal Envoy (2 actions each) per turn. Unlocks: May form Military Alliances
 End Treaty | [End Treaty](https://mlang95.github.io/RenownWiki/actions-ref.html): Diplomacy action. Cost: None. Choose a target with whom you have an active Treaty and no active Truce Timer; remove that Treaty. The target doesn't need to agree. Endorsed: Perform a Diplomacy action.
 Endorsed | [Endorsed](https://mlang95.github.io/RenownWiki/glossary.html#endorsed): An Envoy that passes with 3+ net Influence, triggering its endorsed effect (and a Domain's Rising/Established/Sovereign endorsement).
@@ -221,7 +221,7 @@ low difficulty factions | 23 factions: The Battering Ram, The Boundless Steppe, 
 low strength factions | 8 factions: The Bandit King, The Gilded Path, The Hermit Crown, The Tunnellers, The Undying Flame, The Pale Throne, The Ashen Vale, The Broken Banner
 Man-at-Arms | [Man-at-Arms](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 5+, Endurance 3, Morale 6+, cost 2000.
 Manor House | [Manor House](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Effect: Natural; Gain +200 gold for each active natural specialization. / Requires: Hamlet
-Market Square | [Market Square](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Effect: Craft +2; +500
+Market Square | [Market Square](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Effect: Craft +2; +500 / Requires: Hitching Post
 Masonry | [Masonry](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Effect: No Upkeep on Primitive Infrastructure; Build Timer −1
 Master Workshop | [Master Workshop](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Effect: Upkeep -200; Craft +1; Add Serrated to Weapons
 Mastery Chain | [Mastery Chain](https://mlang95.github.io/RenownWiki/glossary.html#mastery-chain): A Pursuit's Mastery Chain is the line of Pursuits it builds from, usually running from a Raw Material up to a Monument. You may start building a Pursuit only while you control one complete line of its Mastery Chain, anywhere in your empire; this is checked only when you start it. A Pursuit placed in the same Settlement Ward as its immediate parent shares that Ward, and the chain can continue upward the same way. Each Pursuit carries at most one descendant in its Ward. (Core Principle 14.)
@@ -235,7 +235,7 @@ Military Alliance | [Military Alliance](https://mlang95.github.io/RenownWiki/tre
 Mill | [Mill](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Energy). Effect: Natural; +500
 Mine | [Mine](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Raw Materials). Effect: +500, Natural; Craft +1
 Ministry of Military Strategy | [Ministry of Military Strategy](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Effect: Always gains Seize the Initiative, and your opponent doesn't; max initiative is increased to 3; Gain Drilled.
-Monastery | [Monastery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Effect: Reach +1; Other players can't Oppose your Piety Envoys
+Monastery | [Monastery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Effect: Reach +1; Other players can't Oppose your Piety Envoys / Requires: Cathedral
 Money Lending | [Money Lending](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Effect: Extort 1000; May loan money to Trade Partners at 100 per 1000/turn interest(minimum 100); on Default: Perform Demand Tribute
 Monument | [Monument](https://mlang95.github.io/RenownWiki/glossary.html#monument): A Domain's capstone Pursuit. Completing one scores its Edict and grants a powerful effect.
 monument cap | No numeric cap. Monuments & Wonders are unique: only one Pursuit or Wonder of each name can exist in a game.
@@ -272,7 +272,7 @@ Perform | [Perform](https://mlang95.github.io/RenownWiki/glossary.html#perform):
 Personal Envoy | [Personal Envoy](https://mlang95.github.io/RenownWiki/glossary.html#personal-envoy): An Envoy you send in the Envoy Phase to perform an action; count and reach scale with Era.
 Piety | [Piety](https://mlang95.github.io/RenownWiki/domain-board-ref.html) Domain standing. Rising: Divine Mandate: Faith +1 each Empire Phase.; Established: One True Gospel: Each Empire Phase, all other non-allied players with a lower Piety value gain Doubt +2.; Sovereign: Pillar of Faith: If your Public Order would be set below 3, set it to 3. In addition, may use the Sacred War action.
 Pike | [Pike](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP -1, Init +1. Keywords: 2H, Steady, Unwieldy, Deadly, Awkward.
-Pilgrimage Site | [Pilgrimage Site](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Energy). Effect: Natural; Extort 500 every player without a Pilgrimage Site; Doubt +1 to all other players without a Pilgrimage Site
+Pilgrimage Site | [Pilgrimage Site](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Energy). Effect: Natural; Extort 500 every player without a Pilgrimage Site; Doubt +1 to all other players without a Pilgrimage Site / Requires: Cathedral
 Pillage | [Pillage](https://mlang95.github.io/RenownWiki/actions-ref.html): Prowess action. Cost: None. Requires: Rising Prowess. Choose an army you control within Reach of an at-war player's Settlement that is not under Siege. Until cancelled, while that army remains within Reach of that Settlement and does not Lay Siege, Battle, or March, it may Extort half of that Settlement's [pursuit & tax income] in the Empire Phase. A Settlement may be Pillaged once per Empire Phase. Pillage ends if [war ends / army leaves Reach / Settlement is besieged]. Endorsed: Perform a Move action.
 Pilum | [Pilum](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Crafted). AP -5, Init +1. Keywords: Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One-Shot, Awkward.
 Pitchfork | [Pitchfork](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Crude). AP 0, Init +1. Keywords: 2H, Unwieldy, Awkward.
@@ -437,7 +437,7 @@ Tundra | [Tundra](https://mlang95.github.io/RenownWiki/reference-tables.html) Te
 turn order | See 'turn structure'.
 turn structure | [The Turn](https://mlang95.github.io/RenownWiki/rules-the-turn.html): five phases, then pass the Host. 1) Empire Phase: activate Standing effects, apply the Season, increment timers, resolve Bandit Mechanics, gain Influence & Envoys, collect income, pay upkeep. 2) Council Phase: Council vote on a Domain; each player performs one action of that Domain. 3) Envoy Phase: Diplomacy Envoys first, then Domain Envoys (Prowess -> Cunning -> Piety -> Industry). 4) Battle Phase: Skirmishes, Sieges, and Battles resolve. 5) Rest Phase: cleanup, change Season, score Renown, spend one Domain Point, pass the Host.
 Uncontrolled | [Uncontrolled](https://mlang95.github.io/RenownWiki/glossary.html#uncontrolled): Territory that is not within Reach of any Player Settlement.
-University | [University](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Effect: May spend one additional Influence per Support or Oppose; +1 Influence per Domain you are Rising
+University | [University](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Effect: May spend one additional Influence per Support or Oppose; +1 Influence per Domain you are Rising / Requires: Library
 Unstoppable | [Unstoppable](https://mlang95.github.io/RenownWiki/keywords-ref.html#unstoppable): -2 to the defender's Parry roll, to a maximum of 10+).
 Unwieldy | [Unwieldy](https://mlang95.github.io/RenownWiki/keywords-ref.html#unwieldy): Initiative cannot be improved by Tactics.
 upkeep | [Upkeep](https://mlang95.github.io/RenownWiki/economy-ref.html): three separate tracks — Pursuit (fixed by type), Army (retinue count x cost - reductions), and Infrastructure (per-settlement). See 'pursuit upkeep', 'army upkeep', 'infrastructure upkeep'.
@@ -449,7 +449,7 @@ Village | [Village](https://mlang95.github.io/RenownWiki/settlements-ref.html) S
 Vineyard | [Vineyard](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Husbandry). Effect: +500, Natural; +500 in Fall
 Vote | [Vote](https://mlang95.github.io/RenownWiki/glossary.html#vote): On each Envoy, every player except the sender, in clockwise order from the starting player, must Support, Oppose, or Abstain. No talking during a vote.
 vp | See 'escalation victory'.
-War College | [War College](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Effect: Gain +2 Influence while At War; Unlocks Sergeants for Muster
+War College | [War College](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Effect: Gain +2 Influence while At War; Unlocks Sergeants for Muster / Requires: Library
 War Hammer | [War Hammer](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP -10, Init -1. Keywords: 2H, Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield.
 War Weariness | [War Weariness](https://mlang95.github.io/RenownWiki/glossary.html#war-weariness): gain Doubt 1 for each consecutive Battle you lose in the Empire Phase.
 Ward | [Ward](https://mlang95.github.io/RenownWiki/glossary.html#ward): A slot in a Settlement that holds one Pursuit; a Settlement has one Ward per tier (a Hamlet has 3 Husbandry Wards).

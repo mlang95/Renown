@@ -1,6 +1,6 @@
 # renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
-VERSION = "0.4.9.9.6-d10"
+VERSION = "0.4.9.9.7-d10"
 import os as _os
 SIMPLE = _os.environ.get("RENOWN_SIMPLE", "1") == "1"   # build_all_CE.bat: set SIMPLE=1|0
 # ── DICE ─────────────────────────────────────────────────────────────────────
@@ -1926,6 +1926,7 @@ SIMPLE_NODES = {
     "Market Square": {
         "type": "Craft",
         "unlock": "Rising Industry",
+        "infrastructure_req": "Hitching Post",
         "innate": "Craft +2; +500",
         "efficient": "Courtyard",
         "builds_into": ["Inn", "Merchant Quarter", "Census Hall"],
@@ -2025,6 +2026,7 @@ SIMPLE_NODES = {
     "Monastery": {
         "type": "Power",
         "unlock": "Established Piety",
+        "infrastructure_req": "Cathedral",
         "innate": "Reach +1; Other players can't Oppose your Piety Envoys",
         "efficient": ["Abbey"],
         "builds_into": ["Papal Palace"],
@@ -2060,6 +2062,7 @@ SIMPLE_NODES = {
     "Embassy": {
         "type": "Civic",
         "unlock": "1 Established",
+        "infrastructure_req": "Town Hall",
         "innate": "**Influence +1** to Diplomacy Envoys; Whenever a player performs a Diplomacy Envoy targeting you, that envoy cannot be Opposed.",
         "efficient": "Bell Tower",
         "builds_into": ["Senate Hall"],
@@ -2096,6 +2099,7 @@ SIMPLE_NODES = {
     "Conditioning Field": {
         "type": "Civic",
         "unlock": "Rising Prowess",
+        "infrastructure_req": "Muster Field",
         "innate": "**Faith +1** while not at War; Armies gain **Nimble**",
         "efficient": ["Courtyard", "Common Land"],
         "builds_into": ["Coliseum"],
@@ -2138,9 +2142,10 @@ SIMPLE_NODES = {
     "University": {
         "type": "Power",
         "unlock": "1 Established",
+        "infrastructure_req": "Library",
         "innate": "May spend one additional **Influence** per Support or Oppose; +1 **Influence** per Domain you are Rising",
         "efficient": "Academy",
-        "builds_into": ["Forgery Workshop", "Ministry of Military Strategy","Studium Generale"],
+        "builds_into": ["Forgery Workshop","Studium Generale"],
         "monument": False},
     "Trade Guild": {
         "type": "Civic",
@@ -2215,6 +2220,7 @@ SIMPLE_NODES = {
     "Pilgrimage Site": {
         "type": "Energy",
         "unlock": "Established Piety",
+        "infrastructure_req": "Cathedral",
         "innate": "Natural; **Extort 500** every player without a Pilgrimage Site; **Doubt +1** to all other players without a Pilgrimage Site",
         "efficient": "Reliquary",
         "builds_into": ["Preceptory of the Knight's Templar"],
@@ -2267,7 +2273,7 @@ SIMPLE_NODES = {
         "infrastructure_req": "Garrison",
         "innate": "Natural; **Upkeep -2000 while an army is range 0 of controlled settlement**",
         "efficient": "Butchery",
-        "builds_into": [],
+        "builds_into": ["War College"],
         "monument": False},
     "Siege Works": {
         "type": "Power",
@@ -2286,6 +2292,7 @@ SIMPLE_NODES = {
     "Citadel": {
         "type": "Power",
         "unlock": "Established Industry",
+        "infrastructure_req": "Stone Walls",
         "innate": "**Siege Timer +3**, Controlled Settlements gain **Reach +1**",
         "efficient": ["Supply Depot"],
         "builds_into": ["Imperial Palace"],
@@ -2293,8 +2300,9 @@ SIMPLE_NODES = {
     "War College": {
         "type": "Power",
         "unlock": "Established Prowess",
+        "infrastructure_req": "Library",
         "innate": "Gain **+2 Influence** while At War; Unlocks **Sergeants** for Muster",
-        "efficient": "University",
+        "efficient": "Levy Hall",
         "builds_into": ["Ministry of Military Strategy"],
         "monument": False},
     "Forge": {

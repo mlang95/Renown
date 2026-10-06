@@ -133,12 +133,20 @@
   },
   "edges": [
    [
-    "Common Land",
-    "Workyard"
+    "Quarry",
+    "Masonry"
    ],
    [
-    "Salt Works",
-    "Workyard"
+    "Workyard",
+    "Burgages"
+   ],
+   [
+    "Masonry",
+    "Trade Guild"
+   ],
+   [
+    "Burgages",
+    "Census Hall"
    ],
    [
     "College of Engineering",
@@ -149,20 +157,12 @@
     "Office of Works"
    ],
    [
-    "Masonry",
-    "Trade Guild"
+    "Common Land",
+    "Workyard"
    ],
    [
-    "Workyard",
-    "Burgages"
-   ],
-   [
-    "Quarry",
-    "Masonry"
-   ],
-   [
-    "Burgages",
-    "Census Hall"
+    "Salt Works",
+    "Workyard"
    ],
    [
     "Trade Guild",
@@ -258,8 +258,8 @@
   },
   "edges": [
    [
-    "Masonry",
-    "Courtyard"
+    "Quarry",
+    "Masonry"
    ],
    [
     "Carpentry",
@@ -270,48 +270,24 @@
     "Siege Works"
    ],
    [
-    "Siege Camp",
-    "Artillery Park"
-   ],
-   [
-    "Forestry",
-    "Carpentry"
-   ],
-   [
-    "Coliseum",
-    "Grand Tournament"
-   ],
-   [
-    "Siege Works",
-    "Siege Camp"
+    "Masonry",
+    "Courtyard"
    ],
    [
     "Forge",
     "Master Workshop"
    ],
    [
-    "Blacksmith",
-    "Forge"
-   ],
-   [
-    "Mine",
-    "Furnace"
-   ],
-   [
-    "Grand Tournament",
-    "Royal Pavilion"
+    "Coliseum",
+    "Grand Tournament"
    ],
    [
     "Conditioning Field",
     "Coliseum"
    ],
    [
-    "Master Workshop",
-    "Advanced Blast Furnace"
-   ],
-   [
-    "Quarry",
-    "Masonry"
+    "Siege Works",
+    "Siege Camp"
    ],
    [
     "Courtyard",
@@ -322,8 +298,32 @@
     "Conditioning Field"
    ],
    [
+    "Grand Tournament",
+    "Royal Pavilion"
+   ],
+   [
+    "Mine",
+    "Furnace"
+   ],
+   [
+    "Blacksmith",
+    "Forge"
+   ],
+   [
     "Furnace",
     "Blacksmith"
+   ],
+   [
+    "Siege Camp",
+    "Artillery Park"
+   ],
+   [
+    "Forestry",
+    "Carpentry"
+   ],
+   [
+    "Master Workshop",
+    "Advanced Blast Furnace"
    ]
   ],
   "mode": "chain"
@@ -337,51 +337,47 @@
    "Outlaw Rookery"
   ],
   "nodes": {
-   "Quarry": [
-    0,
-    0
-   ],
    "Peat Bog": [
     0,
-    1
-   ],
-   "Masonry": [
-    1,
     0
+   ],
+   "Quarry": [
+    0,
+    1
    ],
    "Alchemy": [
     1,
-    1
-   ],
-   "Black Market": [
-    1,
-    2
-   ],
-   "Courtyard": [
-    2,
     0
+   ],
+   "Masonry": [
+    1,
+    1
    ],
    "Academy": [
     2,
-    1
-   ],
-   "Market Square": [
-    3,
     0
+   ],
+   "Courtyard": [
+    2,
+    1
    ],
    "University": [
     3,
-    1
-   ],
-   "Merchant Quarter": [
-    4,
     0
+   ],
+   "Market Square": [
+    3,
+    1
    ],
    "Forgery Workshop": [
     4,
+    0
+   ],
+   "Merchant Quarter": [
+    4,
     1
    ],
-   "Weavery": [
+   "Inn": [
     5,
     0
    ],
@@ -389,111 +385,71 @@
     5,
     1
    ],
-   "Inn": [
+   "Weavery": [
     5,
     2
    ],
-   "Artisan Workshop": [
+   "Courier Network": [
     6,
     0
    ],
-   "Courier Network": [
+   "Artisan Workshop": [
     6,
     1
+   ],
+   "Smuggler's Nook": [
+    7,
+    0
    ],
    "Court Artists": [
     7,
-    0
-   ],
-   "Secret Cellar": [
-    7,
     1
+   ],
+   "Black Market": [
+    8,
+    0
    ],
    "Money Lending": [
     8,
-    0
-   ],
-   "Smuggler's Nook": [
-    8,
-    1
-   ],
-   "Aristocratic Court": [
-    9,
-    0
-   ],
-   "Outrider Intercept Post": [
-    9,
     1
    ],
    "Outlaw Rookery": [
-    9,
-    2
+    10,
+    0
+   ],
+   "Outrider Intercept Post": [
+    10,
+    1
    ],
    "Thieves' Guild": [
-    9,
+    10,
+    2
+   ],
+   "Aristocratic Court": [
+    10,
     3
+   ],
+   "Secret Cellar": [
+    10,
+    4
    ]
   },
   "edges": [
+   [
+    "Quarry",
+    "Masonry"
+   ],
    [
     "Masonry",
     "Courtyard"
    ],
    [
-    "Smuggler's Nook",
-    "Outlaw Rookery"
-   ],
-   [
-    "Market Square",
-    "Merchant Quarter"
-   ],
-   [
-    "Courier Network",
-    "Smuggler's Nook"
-   ],
-   [
-    "Secret Cellar",
-    "Smuggler's Nook"
-   ],
-   [
-    "Weavery",
-    "Artisan Workshop"
-   ],
-   [
-    "University",
-    "Forgery Workshop"
-   ],
-   [
-    "Secret Cellar",
-    "Forgery Workshop"
-   ],
-   [
-    "Peat Bog",
-    "Alchemy"
-   ],
-   [
     "Court Artists",
-    "Money Lending"
+    "Aristocratic Court"
    ],
    [
-    "Merchant Quarter",
-    "Money Lending"
-   ],
-   [
-    "Artisan Workshop",
-    "Court Artists"
-   ],
-   [
-    "Merchant Quarter",
-    "Weavery"
-   ],
-   [
-    "Market Square",
-    "Inn"
-   ],
-   [
-    "Merchant Quarter",
-    "Inn"
+    "Money Lending",
+    "Aristocratic Court"
    ],
    [
     "Thieves' Guild",
@@ -509,19 +465,7 @@
    ],
    [
     "Smuggler's Nook",
-    "Black Market"
-   ],
-   [
-    "Secret Cellar",
-    "Black Market"
-   ],
-   [
-    "Academy",
-    "University"
-   ],
-   [
-    "Courtyard",
-    "Market Square"
+    "Outlaw Rookery"
    ],
    [
     "Alchemy",
@@ -529,15 +473,67 @@
    ],
    [
     "Court Artists",
-    "Aristocratic Court"
+    "Money Lending"
    ],
    [
-    "Money Lending",
-    "Aristocratic Court"
+    "Merchant Quarter",
+    "Money Lending"
+   ],
+   [
+    "Peat Bog",
+    "Alchemy"
+   ],
+   [
+    "Market Square",
+    "Inn"
+   ],
+   [
+    "Merchant Quarter",
+    "Inn"
+   ],
+   [
+    "Weavery",
+    "Artisan Workshop"
+   ],
+   [
+    "Courtyard",
+    "Market Square"
    ],
    [
     "Inn",
     "Courier Network"
+   ],
+   [
+    "Forgery Workshop",
+    "Cipher Chamber"
+   ],
+   [
+    "University",
+    "Forgery Workshop"
+   ],
+   [
+    "Secret Cellar",
+    "Forgery Workshop"
+   ],
+   [
+    "Artisan Workshop",
+    "Court Artists"
+   ],
+   [
+    "Cipher Chamber",
+    "Outrider Intercept Post"
+   ],
+   [
+    "Courier Network",
+    "Smuggler's Nook"
+   ],
+   [
+    "Secret Cellar",
+    "Smuggler's Nook"
+   ],
+   [
+    "Merchant Quarter",
+    "Weavery"
    ],
    [
     "Black Market",
@@ -548,16 +544,20 @@
     "Thieves' Guild"
    ],
    [
-    "Cipher Chamber",
-    "Outrider Intercept Post"
+    "Market Square",
+    "Merchant Quarter"
    ],
    [
-    "Quarry",
-    "Masonry"
+    "Smuggler's Nook",
+    "Black Market"
    ],
    [
-    "Forgery Workshop",
-    "Cipher Chamber"
+    "Secret Cellar",
+    "Black Market"
+   ],
+   [
+    "Academy",
+    "University"
    ]
   ],
   "mode": "chain"
@@ -597,20 +597,16 @@
   },
   "edges": [
    [
-    "Masonry",
-    "Courtyard"
-   ],
-   [
     "Courtyard",
     "Jester's Court"
    ],
    [
-    "Bell Tower",
-    "Embassy"
-   ],
-   [
     "Quarry",
     "Masonry"
+   ],
+   [
+    "Masonry",
+    "Courtyard"
    ],
    [
     "Embassy",
@@ -619,6 +615,10 @@
    [
     "Jester's Court",
     "Bell Tower"
+   ],
+   [
+    "Bell Tower",
+    "Embassy"
    ]
   ],
   "mode": "chain"
@@ -654,16 +654,16 @@
     "Supply Depot"
    ],
    [
+    "Citadel",
+    "Imperial Palace"
+   ],
+   [
     "Arable Land",
     "Granary"
    ],
    [
     "Supply Depot",
     "Citadel"
-   ],
-   [
-    "Citadel",
-    "Imperial Palace"
    ]
   ],
   "mode": "chain"
@@ -675,36 +675,108 @@
    "Studium Generale"
   ],
   "nodes": {
+   "Forestry": [
+    0,
+    0
+   ],
+   "Salt Works": [
+    0,
+    1
+   ],
    "Peat Bog": [
     0,
+    2
+   ],
+   "Kiln": [
+    1,
     0
    ],
    "Alchemy": [
     1,
+    1
+   ],
+   "Charcoal Burner": [
+    2,
     0
    ],
    "Academy": [
     2,
+    1
+   ],
+   "Smokehouse": [
+    3,
     0
    ],
    "University": [
     3,
-    0
+    1
    ],
-   "War College": [
+   "Butchery": [
     4,
     0
    ],
-   "Ministry of Military Strategy": [
+   "Levy Hall": [
     5,
     0
    ],
+   "War College": [
+    6,
+    0
+   ],
+   "Ministry of Military Strategy": [
+    7,
+    0
+   ],
    "Studium Generale": [
-    5,
+    7,
     1
    ]
   },
   "edges": [
+   [
+    "Smokehouse",
+    "Butchery"
+   ],
+   [
+    "Forestry",
+    "Kiln"
+   ],
+   [
+    "Salt Works",
+    "Smokehouse"
+   ],
+   [
+    "Charcoal Burner",
+    "Smokehouse"
+   ],
+   [
+    "War College",
+    "Ministry of Military Strategy"
+   ],
+   [
+    "Butchery",
+    "Levy Hall"
+   ],
+   [
+    "University",
+    "Studium Generale"
+   ],
+   [
+    "Levy Hall",
+    "War College"
+   ],
+   [
+    "Alchemy",
+    "Academy"
+   ],
+   [
+    "Forestry",
+    "Charcoal Burner"
+   ],
+   [
+    "Kiln",
+    "Charcoal Burner"
+   ],
    [
     "Peat Bog",
     "Alchemy"
@@ -712,22 +784,6 @@
    [
     "Academy",
     "University"
-   ],
-   [
-    "War College",
-    "Ministry of Military Strategy"
-   ],
-   [
-    "University",
-    "Studium Generale"
-   ],
-   [
-    "University",
-    "War College"
-   ],
-   [
-    "Alchemy",
-    "Academy"
    ]
   ],
   "mode": "chain"
@@ -815,44 +871,8 @@
   },
   "edges": [
    [
-    "Academy",
-    "Abbey"
-   ],
-   [
-    "Peat Bog",
-    "Alchemy"
-   ],
-   [
-    "Interrogation Chambers",
-    "Execution Dock"
-   ],
-   [
-    "Masonry",
-    "Courtyard"
-   ],
-   [
-    "Reliquary",
-    "Pilgrimage Site"
-   ],
-   [
-    "Chandlery",
-    "Reliquary"
-   ],
-   [
     "Quarry",
     "Masonry"
-   ],
-   [
-    "Episcopal Court",
-    "Interrogation Chambers"
-   ],
-   [
-    "Courtyard",
-    "Episcopal Court"
-   ],
-   [
-    "Execution Dock",
-    "Inquisitorial Palace"
    ],
    [
     "Monastery",
@@ -863,16 +883,52 @@
     "Preceptory of the Knight's Templar"
    ],
    [
+    "Masonry",
+    "Courtyard"
+   ],
+   [
+    "Academy",
+    "Abbey"
+   ],
+   [
+    "Chandlery",
+    "Reliquary"
+   ],
+   [
+    "Interrogation Chambers",
+    "Execution Dock"
+   ],
+   [
+    "Courtyard",
+    "Episcopal Court"
+   ],
+   [
+    "Alchemy",
+    "Academy"
+   ],
+   [
+    "Peat Bog",
+    "Alchemy"
+   ],
+   [
+    "Episcopal Court",
+    "Interrogation Chambers"
+   ],
+   [
     "Apiary",
     "Chandlery"
+   ],
+   [
+    "Reliquary",
+    "Pilgrimage Site"
    ],
    [
     "Abbey",
     "Monastery"
    ],
    [
-    "Alchemy",
-    "Academy"
+    "Execution Dock",
+    "Inquisitorial Palace"
    ]
   ],
   "mode": "chain"
@@ -910,14 +966,6 @@
     0,
     6
    ],
-   "Kiln": [
-    0,
-    7
-   ],
-   "Levy Hall": [
-    0,
-    8
-   ],
    "Stable": [
     1,
     0
@@ -945,10 +993,6 @@
    "Spice Merchant": [
     1,
     6
-   ],
-   "Charcoal Burner": [
-    1,
-    7
    ],
    "Caravanery": [
     2,
@@ -1063,10 +1107,6 @@
    [
     "Toll House",
     "Beacon Towers"
-   ],
-   [
-    "Kiln",
-    "Charcoal Burner"
    ],
    [
     "Fletchery",
