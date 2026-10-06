@@ -1189,7 +1189,7 @@
      "Bakery",
      "",
      "—",
-     "Mill",
+     "Meadery",
      "Natural; Faith +1; +500; Craft +2"
     ],
     [
@@ -1217,7 +1217,7 @@
      "Tannery",
      "",
      "—",
-     "Animal Husbandry",
+     "Animal Husbandry, Joinery",
      "Natural; Unlocks **Cast** armor & shield. **Upkeep -200**; Craft +1"
     ],
     [
@@ -1280,12 +1280,12 @@
      "Workyard",
      "",
      "—",
-     "Common Land",
+     "Common Land, Salt Works",
      "Natural; **Doubt +1**, +1000"
     ],
     [
      "Storehouse",
-     "Sovereign Industry",
+     "Established Industry",
      "—",
      "Shipyard",
      "**Doubt +1**, +1200; **Build Timer −2**"
@@ -1350,14 +1350,14 @@
      "Census Hall",
      "",
      "—",
-     "Market Square",
+     "Burgages",
      "**Doubt +1**; +1000"
     ],
     [
      "Caravanery",
      "",
      "—",
-     "Stable",
+     "Saddlery, Stable",
      "Natural; **Influence -1** to **Intercept Caravan actions** targeting your **settlements**; **Craft +2**; **Speed -2** to non-allied players in your Province."
     ],
     [
@@ -1426,13 +1426,13 @@
      "1 Rising",
      "—",
      "Courtyard",
-     "First and second **Oppose** on your Envoy each turn: reduce by 1"
+     "First and second **Oppose** on an Envoy of yours each turn: reduce by 1"
     ],
     [
      "Embassy",
      "1 Established",
      "—",
-     "Jester's Court",
+     "Bell Tower",
      "**Influence +1** to Diplomacy Envoys; Whenever a player performs a Diplomacy Envoy targeting you, that envoy cannot be Opposed."
     ],
     [
@@ -1517,7 +1517,7 @@
      "Established Industry",
      "—",
      "Artisan Workshop",
-     "**Extort 1000**; **Faith +1**; Targets of Extort from this Court Artist gain **Faith +1**"
+     "**Extort 500** twice; Targets of Extort from Court Artist gain **Faith +1**"
     ],
     [
      "Courier Network",
@@ -1542,7 +1542,7 @@
      "Smuggler's Nook",
      "Established Cunning",
      "—",
-     "Inn, Courier Network, Secret Cellar",
+     "Courier Network, Secret Cellar",
      "gain Immune Uprising (Bandit Camp Spawn at -5PO); Bandit Camps in your Outlaw Country don't target you and instead target other players randomly."
     ],
     [
@@ -1556,7 +1556,7 @@
      "Forgery Workshop",
      "Established Cunning",
      "—",
-     "Academy, University, Secret Cellar",
+     "University, Secret Cellar",
      "**Extort 300** anytime a player Opposes an Envoy of yours; Once/turn: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed"
     ],
     [
@@ -1631,7 +1631,7 @@
      "Burgages",
      "",
      "—",
-     "Common Land, Workyard",
+     "Workyard",
      "Natural; **Faith +1**"
     ]
    ]
@@ -1643,7 +1643,7 @@
      "Money Lending",
      "Established Industry",
      "—",
-     "Merchant Quarter",
+     "Court Artists, Merchant Quarter",
      "**Extort 1000**; May loan money to Trade Partners at 100 per 1000/turn interest(minimum 100); on Default: Perform **Demand Tribute**"
     ],
     [
@@ -1699,14 +1699,14 @@
      "Citadel",
      "Established Industry",
      "—",
-     "Granary, Supply Depot",
+     "Supply Depot",
      "**Siege Timer +3**, Controlled Settlements gain **Reach +1**"
     ],
     [
      "War College",
      "Established Prowess",
      "—",
-     "Academy",
+     "University",
      "Gain **+2 Influence** while At War; Unlocks **Sergeants** for Muster"
     ],
     [
@@ -1739,7 +1739,7 @@
      "Office of Works",
      "Sovereign Industry",
      "—",
-     "College of Engineering",
+     "College of Engineering, Census Hall",
      "Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions. Siege Timer +2; Build Timer -2"
     ],
     [
@@ -1795,7 +1795,7 @@
      "Inquisitorial Palace",
      "Sovereign Piety",
      "—",
-     "Monastery",
+     "Execution Dock",
      "**Doubt +1**; Unlocks **Grand Vizier** which uses your **Public Order** instead of your **Cunning** value. You may use your **Piety Value** as **Cunning Value** for **Grand Vizier**."
     ],
     [
@@ -1816,7 +1816,7 @@
      "Aristocratic Court",
      "Sovereign Cunning",
      "—",
-     "Court Artists",
+     "Court Artists, Money Lending",
      "Each Empire Phase, Extort 500 from each non-allied player with a lower Cunning value. Your Vote counts as 2 votes toward Domain selection during the Council Phase."
     ],
     [

@@ -83,7 +83,7 @@ Council Envoy | [Council Envoy](https://mlang95.github.io/RenownWiki/glossary.ht
 Council Phase | [Council Phase](https://mlang95.github.io/RenownWiki/glossary.html#council-phase): Before Personal Envoys, a brief Forum, then all players vote on a Domain with no talking (clockwise; Host breaks ties). Each then sends a free Council Envoy of that Domain. Council Envoys auto-Abstain and their net Influence cannot drop below 1.
 Courier Network | [Courier Network](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Effect: Once/turn: Influence −1 on Target Envoy; Once/turn: successfully Performed Personal Envoy can be Performed next turn; send 1 fewer Envoys next turn
 Court Armoury | [Court Armoury](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Effect: Planishing: Your to-Save can't be reduced beyond 10+. Upkeep -500; Crafted Armor & Shield Unlocked
-Court Artists | [Court Artists](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Effect: Extort 1000; Faith +1; Targets of Extort from this Court Artist gain Faith +1
+Court Artists | [Court Artists](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Effect: Extort 500 twice; Targets of Extort from Court Artist gain Faith +1
 Courtyard | [Courtyard](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Effect: Craft +1; Faith +1
 Craft | [Craft](https://mlang95.github.io/RenownWiki/glossary.html#craft): Craft Pursuits count toward how much income your Trade Agreements generate — any effect that grants Craft +X. For each active Trade Agreement, both players gain 100 × the Host's Craft X.
 crafted gear | Crafted tier: weapons [Estoc, Poleaxe, Arquebus, Pilum], shields [Heater Shield], armor [Gothic Plate].
@@ -203,7 +203,7 @@ Inquisitorial Palace | [Inquisitorial Palace](https://mlang95.github.io/RenownWi
 Intercept Caravan | [Intercept Caravan](https://mlang95.github.io/RenownWiki/actions-ref.html): Cunning action. Cost: 2000 gold. Choose a player. The next turn that player is Host, Extort their Trade Income. Endorsed: Extort 2000.
 Interrogation Chambers | [Interrogation Chambers](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Effect: Extort 500; Cunning actions targetting this player that cause Doubt are reduced by 1, to a minimum of 0.
 Javelin | [Javelin](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Wrought). AP -2, Init +1. Keywords: Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One-Shot, Awkward.
-Jester's Court | [Jester's Court](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Effect: First and second Oppose on your Envoy each turn: reduce by 1
+Jester's Court | [Jester's Court](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Effect: First and second Oppose on an Envoy of yours each turn: reduce by 1
 Jewelry Foundry | [Jewelry Foundry](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Effect: +1300; Influence +1 to Cunning envoys targeting this player; Craft +2
 Joinery | [Joinery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Effect: unlocks Shields; Upkeep -200
 Kiln | [Kiln](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Energy). Effect: Natural; +500

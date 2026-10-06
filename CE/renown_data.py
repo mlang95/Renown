@@ -1624,7 +1624,7 @@ NODES = {
         "mastery_req": "Money Lending + Forgery Workshop + Court Artists",
         "innate": "Each Empire Phase, Extort 500 from each non-allied player with a lower Cunning value.",
         "mastery": "Your Vote counts as 2 votes toward Domain selection during the Council Phase.",
-        "efficient": "Court Artists",
+        "efficient": ["Court Artists","Money Lending"],
         "builds_into": [],
         "monument": True},
     "Studium Generale": {
@@ -1690,7 +1690,7 @@ SIMPLE_NODES = {
         "type": "Raw Materials",
         "unlock": "-",
         "innate": "+500, **Natural**; Craft +1",
-        "builds_into": ["Smokehouse"],
+        "builds_into": ["Smokehouse","Workyard"],
         "monument": False},
     "Apiary": {
         "type": "Raw Materials",
@@ -1801,7 +1801,7 @@ SIMPLE_NODES = {
         "type": "Craft",
         "unlock": "-",
         "innate": "Natural; Faith +1; +500; Craft +2",
-        "efficient": "Mill",
+        "efficient": "Meadery",
         "builds_into": ["Mill"],
         "monument": False},
     "Weavery": {
@@ -1829,7 +1829,7 @@ SIMPLE_NODES = {
         "type": "Craft",
         "unlock": "-",
         "innate": "Natural; Unlocks **Cast** armor & shield. **Upkeep -200**; Craft +1",
-        "efficient": "Animal Husbandry",
+        "efficient": ["Animal Husbandry","Joinery"],
         "builds_into": ["Armory"],
         "monument": False},
     "Joinery": {
@@ -1837,7 +1837,7 @@ SIMPLE_NODES = {
         "unlock": "Rising Industry",
         "innate": "unlocks **Shields**; **Upkeep -200**",
         "efficient": "Carpentry",
-        "builds_into": [],
+        "builds_into": ["Tannery"],
         "monument": False},
     "Furnace": {
         "type": "Craft",
@@ -1864,7 +1864,7 @@ SIMPLE_NODES = {
         "type": "Craft",
         "unlock": "Rising Industry",
         "innate": "Unlock **Wrought** armor & shield; **Upkeep -300**; Craft +1",
-        "efficient": "Tannery",
+        "efficient": ["Tannery"],
         "builds_into": ["Gilded Foundry"],
         "monument": False},
     "Master Workshop": {
@@ -1892,12 +1892,12 @@ SIMPLE_NODES = {
         "type": "Craft",
         "unlock": "—",
         "innate": "Natural; **Doubt +1**, +1000",
-        "efficient": "Common Land",
-        "builds_into": [],
+        "efficient": ["Common Land","Salt Works"],
+        "builds_into": ["Burgages"],
         "monument": False},
     "Storehouse": {
         "type": "Craft",
-        "unlock": "Sovereign Industry",
+        "unlock": "Established Industry",
         "innate": "**Doubt +1**, +1200; **Build Timer −2**",
         "efficient": "Shipyard",
         "builds_into": [],
@@ -1907,7 +1907,7 @@ SIMPLE_NODES = {
         "unlock": "Established Industry",
         "innate": "Natural; **Faith +1**; **Speed +2** in **Winter**",
         "efficient": "Apiary",
-        "builds_into": [],
+        "builds_into": ["Bakery"],
         "monument": False},
     "Winery": {
         "type": "Craft",
@@ -1962,21 +1962,21 @@ SIMPLE_NODES = {
         "type": "Power",
         "unlock": "Established Industry",
         "innate": "**Extort 1000**; May loan money to Trade Partners at 100 per 1000/turn interest(minimum 100); on Default: Perform **Demand Tribute**",
-        "efficient": "Merchant Quarter",
-        "builds_into": [],
+        "efficient": ["Court Artists","Merchant Quarter"],
+        "builds_into": ["Aristocratic Court"],
         "monument": False},
     "Census Hall": {
         "type": "Craft",
         "unlock": "-",
         "innate": "**Doubt +1**; +1000",
-        "efficient": "Market Square",
-        "builds_into": [],
+        "efficient": "Burgages",
+        "builds_into": ["Office of Works"],
         "monument": False},
     "Caravanery": {
         "type": "Craft",
         "unlock": "-",
         "innate": "Natural; **Influence -1** to **Intercept Caravan actions** targeting your **settlements**; **Craft +2**; **Speed -2** to non-allied players in your Province.",
-        "efficient": "Stable",
+        "efficient": ["Saddlery", "Stable"],
         "builds_into": ["Saddlery", "Toll House"],
         "monument": False},
     "Stable": {
@@ -2034,7 +2034,7 @@ SIMPLE_NODES = {
         "unlock": "1 Established",
         "innate": "**+1 Influence**/turn; **Influence +1** to envoys sent during the Council Phase.",
         "efficient": "Jester's Court",
-        "builds_into": [],
+        "builds_into": ["Embassy"],
         "monument": False},
     "Execution Dock": {
         "type": "Civic",
@@ -2053,7 +2053,7 @@ SIMPLE_NODES = {
     "Jester's Court": {
         "type": "Civic",
         "unlock": "1 Rising",
-        "innate": "First and second **Oppose** on your Envoy each turn: reduce by 1",
+        "innate": "First and second **Oppose** on an Envoy of yours each turn: reduce by 1",
         "efficient": "Courtyard",
         "builds_into": ["Bell Tower", "Embassy"],
         "monument": False},
@@ -2061,7 +2061,7 @@ SIMPLE_NODES = {
         "type": "Civic",
         "unlock": "1 Established",
         "innate": "**Influence +1** to Diplomacy Envoys; Whenever a player performs a Diplomacy Envoy targeting you, that envoy cannot be Opposed.",
-        "efficient": "Jester's Court",
+        "efficient": "Bell Tower",
         "builds_into": ["Senate Hall"],
         "monument": False},
     "Granary": {
@@ -2140,7 +2140,7 @@ SIMPLE_NODES = {
         "unlock": "1 Established",
         "innate": "May spend one additional **Influence** per Support or Oppose; +1 **Influence** per Domain you are Rising",
         "efficient": "Academy",
-        "builds_into": ["Forgery Workshop", "Studium Generale"],
+        "builds_into": ["Forgery Workshop", "Ministry of Military Strategy","Studium Generale"],
         "monument": False},
     "Trade Guild": {
         "type": "Civic",
@@ -2152,9 +2152,9 @@ SIMPLE_NODES = {
     "Court Artists": {
         "type": "Civic",
         "unlock": "Established Industry",
-        "innate": "**Extort 1000**; **Faith +1**; Targets of Extort from this Court Artist gain **Faith +1**",
+        "innate": "**Extort 500** twice; Targets of Extort from Court Artist gain **Faith +1**",
         "efficient": "Artisan Workshop",
-        "builds_into": ["Aristocratic Court"],
+        "builds_into": ["Money Lending"],
         "monument": False},
     "Courier Network": {
         "type": "Civic",
@@ -2167,7 +2167,7 @@ SIMPLE_NODES = {
         "type": "Civic",
         "unlock": "—",
         "innate": "Natural; Once/turn when an Army ends a Move action within Province: Perform a Diplomacy action targeting that army's player; **Extort 2000** when non-Allied Army ends a Move action within Province",
-        "efficient": "Caravanery",
+        "efficient": ["Caravanery"],
         "builds_into": ["Beacon Towers"],
         "monument": False},
     "College of Engineering": {
@@ -2188,7 +2188,7 @@ SIMPLE_NODES = {
         "type": "Secrecy",
         "unlock": "Established Cunning",
         "innate": "gain Immune Uprising (Bandit Camp Spawn at -5PO); Bandit Camps in your Outlaw Country don't target you and instead target other players randomly.",
-        "efficient": ["Inn", "Courier Network", "Secret Cellar"],
+        "efficient": ["Courier Network", "Secret Cellar"],
         "builds_into": ["Black Market", "Outlaw Rookery"],
         "monument": False},
     "Black Market": {
@@ -2202,7 +2202,7 @@ SIMPLE_NODES = {
         "type": "Secrecy",
         "unlock": "Established Cunning",
         "innate": "**Extort 300** anytime a player Opposes an Envoy of yours; Once/turn: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed",
-        "efficient": ["Academy", "University", "Secret Cellar"],
+        "efficient": ["University", "Secret Cellar"],
         "builds_into": ["Cipher Chamber"],
         "monument": False},
     "Toxicarium": {
@@ -2258,8 +2258,8 @@ SIMPLE_NODES = {
         "type": "Energy",
         "unlock": "-",
         "innate": "Natural; **Faith +1**",
-        "efficient": ["Common Land","Workyard"],
-        "builds_into": [],
+        "efficient": ["Workyard"],
+        "builds_into": ["Census Hall"],
         "monument": False},
     "Levy Hall": {
         "type": "Power",
@@ -2287,14 +2287,14 @@ SIMPLE_NODES = {
         "type": "Power",
         "unlock": "Established Industry",
         "innate": "**Siege Timer +3**, Controlled Settlements gain **Reach +1**",
-        "efficient": ["Granary", "Supply Depot"],
+        "efficient": ["Supply Depot"],
         "builds_into": ["Imperial Palace"],
         "monument": False},
     "War College": {
         "type": "Power",
         "unlock": "Established Prowess",
         "innate": "Gain **+2 Influence** while At War; Unlocks **Sergeants** for Muster",
-        "efficient": "Academy",
+        "efficient": "University",
         "builds_into": ["Ministry of Military Strategy"],
         "monument": False},
     "Forge": {
@@ -2309,7 +2309,7 @@ SIMPLE_NODES = {
         "unlock": "Established Prowess",
         "innate": "Armies may be equipped with a Ranged and a Melee Weapon simultaneously; In addition, armies may equip two of the same 1H Melee Weapon to gain **Dual Wield**.",
         "efficient": "Fletchery",
-        "builds_into": ["Royal Pavilion"],
+        "builds_into": [],
         "monument": False},
     "Court Armoury": {
         "type": "Power",
@@ -2322,7 +2322,7 @@ SIMPLE_NODES = {
         "type": "Monument",
         "unlock": "Sovereign Industry",
         "innate": "Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions. Siege Timer +2; Build Timer -2",
-        "efficient": "College of Engineering",
+        "efficient": ["College of Engineering","Census Hall"],
         "builds_into": [],
         "monument": True},
     "Royal Pavilion": {
@@ -2379,7 +2379,7 @@ SIMPLE_NODES = {
         "type": "Monument",
         "unlock": "Sovereign Piety",
         "innate": "**Doubt +1**; Unlocks **Grand Vizier** which uses your **Public Order** instead of your **Cunning** value. You may use your **Piety Value** as **Cunning Value** for **Grand Vizier**.",
-        "efficient": "Monastery",
+        "efficient": "Execution Dock",
         "builds_into": [],
         "monument": True},
     "Preceptory of the Knight's Templar": {
@@ -2401,7 +2401,7 @@ SIMPLE_NODES = {
         "type": "Monument",
         "unlock": "Sovereign Cunning",
         "innate": "Each Empire Phase, Extort 500 from each non-allied player with a lower Cunning value. Your Vote counts as 2 votes toward Domain selection during the Council Phase.",
-        "efficient": "Court Artists",
+        "efficient": ["Court Artists","Money Lending"],
         "builds_into": [],
         "monument": True},
     "Studium Generale": {
@@ -3584,7 +3584,7 @@ STARTING_TURN_PHASE_OPENER = PHASES[1]
 # ACTIONS["Move"] says "March (move up to 2x Speed)"
 STANDING_ARMY_SIEGE_MODIFIER = 1
 # economy.py has this as a local constant (EMPIRE_START)
-EMPIRE_START_TIERS = ("Town", "Hamlet")
+EMPIRE_START_TIERS = ("Town", "Village", "Hamlet")
 STARTING_TREASURY = 10000
 
 BOARD_SIZES = {
