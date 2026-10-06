@@ -193,7 +193,7 @@ def _render_chart(body,c,w,h,PADL,oy):
         return [("h",round(y1),x1,mx),("v",round(mx),y1,y2),("h",round(y2),mx,x2-7)]
     edges=[]
     for n in nodes:
-        kids=[k for k in CH[n] if k in nodes and nodes[k][0] > nodes[n][0]]
+        kids=[k for k in CH[n] + [l[1] for l in c.get("links",[]) if l[0]==n] if k in nodes and nodes[k][0] > nodes[n][0]]
         if not kids: continue
         x1,y1=px(n); x1+=NW; y1+=NH/2
         if len(kids)==1:

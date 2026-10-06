@@ -307,7 +307,8 @@ def tree_payload(ns, here):
     for n, d in NODES.items():
         for r in parents(d):
             if n not in desc(r) and n not in CH[r]: CH[r].append(n)
-    return {"charts": [{"title": c.get("title", ""), "nodes": {k: v for k, v in c.get("nodes", {}).items() if k in NODES}} for c in charts],
+    return {"charts": [{"title": c.get("title", ""), "nodes": {k: v for k, v in c.get("nodes", {}).items() if k in NODES},
+                        "links": [l for l in c.get("links", []) if l[0] in NODES and l[1] in NODES]} for c in charts],
             "edges": {n: k for n, k in CH.items() if k}}
 
 def parse_effects(raw):
@@ -1430,9 +1431,10 @@ document.addEventListener("click",e=>{
   const b=e.target.closest("#refTree [data-tree]");if(b){e.preventDefault();const all=b.dataset.tree==="open";
     document.querySelectorAll("#refTree details.tchart").forEach(d=>{d.open=all;if(all)TREE_OPEN.add(d.dataset.t);else TREE_OPEN.delete(d.dataset.t);});treeSave();}});
 function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.json next to the generator — tree unavailable.</div>';
-  const NH=62,CG=44,RG=10,AV=Math.max(600,((document.getElementById("viewReference")||{}).clientWidth||window.innerWidth)-70),EC=["#2E5A8C","#9E2B25","#1c9c8c","#C6A024","#6A3D8F","#CC6A1A","#3a7d3a","#b5347a","#2b6f9e","#8a6d1a"],E=T.edges||{},DC={Industry:"#2E5A8C",Prowess:"#9E2B25",Cunning:"#3a3a40",Piety:"#C6A024"};
+  const NH=62,CG=44,RG=10,AV=Math.max(600,((document.getElementById("viewReference")||{}).clientWidth||window.innerWidth)-70),EC=["#2E5A8C","#9E2B25","#1c9c8c","#C6A024","#6A3D8F","#CC6A1A","#3a7d3a","#b5347a","#2b6f9e","#8a6d1a"],E0=T.edges||{},DC={Industry:"#2E5A8C",Prowess:"#9E2B25",Cunning:"#3a3a40",Piety:"#C6A024"};
   const dom=n=>{const u=(R[n]||{}).unlock_raw||"";return ["Industry","Prowess","Cunning","Piety"].find(d=>u.includes(d))||"";};
   return T.charts.map(c=>{const N=c.nodes,ks=Object.keys(N);if(!ks.length)return "";
+    const E={...E0};(c.links||[]).forEach(([p,k])=>{E[p]=(E[p]||[]).concat([k]);});   // chart-only links (e.g. Naturals into Manor House)
     const mc=Math.max(...ks.map(k=>N[k][0])),mr=Math.max(...ks.map(k=>N[k][1]));
     const NW=Math.round(Math.max(150,Math.min(200,(AV-mc*CG)/(mc+1)))),W=(mc+1)*NW+mc*CG,H=(mr+1)*(NH+RG);   // boxes shrink to fit the window
     const px=k=>[N[k][0]*(NW+CG),N[k][1]*(NH+RG)];let paths="";

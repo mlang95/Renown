@@ -1858,7 +1858,7 @@ SIMPLE_NODES = {
     "Jewelry Foundry": {
         "type": "Craft",
         "unlock": "-",
-        "innate": "+1300; **Influence +1** to Cunning envoys targeting this player; Craft +2",
+        "innate": "+2000; **Influence +1** to Cunning actions targeting this player; Craft +5",
         "efficient": "Gilded Foundry",
         "builds_into": [],
         "monument": False},
@@ -1902,7 +1902,7 @@ SIMPLE_NODES = {
         "unlock": "Established Industry",
         "innate": "**Doubt +1**, +1200; **Build Timer −2**",
         "efficient": "Shipyard",
-        "builds_into": [],
+        "builds_into": ["Office of Works"],
         "monument": False},
     "Meadery": {
         "type": "Craft",
@@ -1943,7 +1943,7 @@ SIMPLE_NODES = {
     "Spice Merchant": {
         "type": "Craft",
         "unlock": "-",
-        "innate": "Natural; +1000; Influence +1 to Cunning envoys targeting you; Craft +2",
+        "innate": "Natural; +1000; Influence +1 to Cunning actions targeting you; Craft +4",
         "efficient": "Herb Garden",
         "builds_into": [],
         "monument": False},
@@ -2232,7 +2232,7 @@ SIMPLE_NODES = {
         "unlock": "Rising Prowess",
         "innate": "Natural; Once per turn, you may select an Army within Province and move it up to its modified Speed. Whenever a non-allied Army ends a Move action within Province, you may immediately perform a Move action",
         "efficient": "Toll House",
-        "builds_into": [],
+        "builds_into": ["Outrider Intercept Post"],
         "monument": False},
     "Forgotten Catacombs": {
         "type": "Secrecy",
@@ -2332,7 +2332,7 @@ SIMPLE_NODES = {
         "type": "Monument",
         "unlock": "Sovereign Industry",
         "innate": "Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions. Siege Timer +2; Build Timer -2",
-        "efficient": ["College of Engineering","Census Hall"],
+        "efficient": ["College of Engineering","Census Hall","Storehouse"],
         "builds_into": [],
         "monument": True},
     "Royal Pavilion": {
@@ -2446,7 +2446,7 @@ SIMPLE_NODES = {
         "type": "Monument",
         "unlock": "Sovereign Cunning",
         "innate": "Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own.",
-        "efficient": "Cipher Chamber",
+        "efficient": ["Cipher Chamber","Beacon Towers"],
         "builds_into": ["Secret Cellar"],
         "monument": True},
 }

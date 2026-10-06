@@ -1246,7 +1246,7 @@
      "",
      "—",
      "Gilded Foundry",
-     "+1300; **Influence +1** to Cunning envoys targeting this player; Craft +2"
+     "+2000; **Influence +1** to Cunning actions targeting this player; Craft +5"
     ],
     [
      "Armory",
@@ -1330,7 +1330,7 @@
      "",
      "—",
      "Herb Garden",
-     "Natural; +1000; Influence +1 to Cunning envoys targeting you; Craft +2"
+     "Natural; +1000; Influence +1 to Cunning actions targeting you; Craft +4"
     ],
     [
      "Harbor",
@@ -1739,7 +1739,7 @@
      "Office of Works",
      "Sovereign Industry",
      "—",
-     "College of Engineering, Census Hall",
+     "College of Engineering, Census Hall, Storehouse",
      "Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions. Siege Timer +2; Build Timer -2"
     ],
     [
@@ -1844,7 +1844,7 @@
      "Outrider Intercept Post",
      "Sovereign Cunning",
      "—",
-     "Cipher Chamber",
+     "Cipher Chamber, Beacon Towers",
      "Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own."
     ]
    ]

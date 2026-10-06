@@ -91,12 +91,17 @@ def layout(nodes, anchors):
     return pos, edges
 
 
-def track_layout(nodes, sinks):
-    """SIMPLE: columns = depth from the roots; rows = tracks. Walking back from each sink, a Holding's
-    deepest parent continues its row and every other unplaced parent starts a new row, so alternative
-    lines into the same Holding (e.g. a market track and a merchant track) read as separate rows."""
+def track_layout(nodes, sinks, links=()):
+    """SIMPLE: rows = tracks, columns = as far right as each Holding can sit.
+    Walking back from each sink, a Holding's deepest parent continues its row and every other
+    parent starts a new row. Columns are placed right-to-left (one left of the earliest Holding it
+    feeds), so a side input sits next to what it feeds as its own block instead of being stretched
+    back to the roots. `links` = extra [parent, child] pairs (e.g. Naturals into Manor House)."""
     nodes = list(nodes)
     par = {n: [q for q in reqs(n) if q in nodes] for n in nodes}
+    for p_, c_ in links:
+        if p_ in par and c_ in par and p_ not in par[c_]: par[c_].append(p_)
+    kids = {n: [k for k in nodes if n in par[k]] for n in nodes}
     depth = {}
     def d(n, stack=()):
         if n in depth: return depth[n]
@@ -104,12 +109,32 @@ def track_layout(nodes, sinks):
         depth[n] = 0 if not par[n] else 1 + max(d(p, stack + (n,)) for p in par[n])
         return depth[n]
     for n in nodes: d(n)
+    top = max(depth.values()) if depth else 0
+    col = {}
+    for n in sorted(nodes, key=lambda n: -depth[n]):
+        ks = [col[k] for k in kids[n] if k in col]
+        col[n] = (min(ks) - 1) if ks else (top if n in sinks else depth[n])
+    lo = min(col.values()) if col else 0
+    for n in col: col[n] -= lo
+    anc = {}
+    def ancs(n, stack=()):
+        if n in anc: return anc[n]
+        out = set()
+        for p in par[n]:
+            if p in stack: continue
+            out |= {p} | ancs(p, stack + (n,))
+        anc[n] = out
+        return out
     row, nxt = {}, [0]
     def place(n, r):
         row[n] = r
         first = True
-        for q in sorted(par[n], key=lambda q: (-depth[q], q)):
-            if q in row or depth[q] >= depth[n]:
+        # the parent that other parents also build from (the fork) continues the row, so its link to
+        # n stays clear and the branch through the other parent gets its own row; then the deepest
+        ps = par[n]
+        fork = lambda q: any(q in ancs(o) for o in ps if o != q)
+        for q in sorted(ps, key=lambda q: (not fork(q), -depth[q], q)):
+            if q in row or col[q] >= col[n]:
                 continue
             if first:
                 first = False; place(q, r)
@@ -119,10 +144,10 @@ def track_layout(nodes, sinks):
         if snk in row: continue
         if row: nxt[0] += 1
         place(snk, nxt[0])
-    for n in sorted(nodes, key=lambda n: -depth[n]):          # anything a cycle left unplaced
+    for n in sorted(nodes, key=lambda n: -col[n]):          # anything a cycle left unplaced
         if n not in row:
             nxt[0] += 1; place(n, nxt[0])
-    pos = {n: [depth[n], row[n]] for n in sorted(nodes, key=lambda n: (depth[n], row[n]))}
+    pos = {n: [col[n], row[n]] for n in sorted(nodes, key=lambda n: (col[n], row[n]))}
     return pos, [[p, n] for n in nodes for p in par[n]]
 
 
@@ -154,17 +179,41 @@ def main_simple(out):
         print(f"{title}: {len(pos)} holdings, {max(v[1] for v in pos.values()) + 1} track(s)")
     shown = set().union(*[set(c["nodes"]) for c in charts]) if charts else set()
     loose = [n for n in N if n not in shown]
+
+    def families(pool):
+        out, seen = [], set()
+        for start in pool:
+            if start in seen: continue
+            comp, stack = set(), [start]
+            while stack:
+                x = stack.pop()
+                if x in comp: continue
+                comp.add(x)
+                stack += [q for q in reqs(x) if q in pool] + [k for k in pool if x in reqs(k)]
+            seen |= comp; out.append(comp)
+        return out
+    def natural(n): return "natural" in str(N[n].get("innate", "")).lower()
+    def chain_tokens(n):
+        e = N[n].get("efficient"); return [e] if isinstance(e, str) else list(e or [])
+    # A Monument chained from "Natural" (Manor House) gathers the loose families that end only in
+    # Natural Holdings; each family's end Holding links into it.
+    for c in charts:
+        ms = c["anchor"] if isinstance(c["anchor"], list) else [c["anchor"]]
+        if not any("Natural" in chain_tokens(m) for m in ms): continue
+        take = []
+        for comp in families(loose):
+            sinks = [n for n in comp if not [k for k in comp if n in reqs(k)]]
+            if sinks and all(natural(x) for x in sinks): take.append((comp, sinks))
+        if not take: continue
+        fam = set().union(*[t[0] for t in take])
+        links = [[x, m] for _, sk in take for x in sorted(sk) for m in ms if "Natural" in chain_tokens(m)]
+        nodes = set(c["nodes"]) | ancestry(sorted(fam))
+        pos, edges = track_layout(nodes, ms, links)
+        c["nodes"], c["edges"], c["links"] = pos, edges + links, links
+        loose = [n for n in loose if n not in fam]
+        print(f"{c['title']}: + {sorted(fam)} via Natural")
     # Holdings that feed no Monument: one chart per connected family (with the ancestors it builds from)
-    seen = set()
-    for start in loose:
-        if start in seen: continue
-        comp, stack = set(), [start]
-        while stack:
-            x = stack.pop()
-            if x in comp: continue
-            comp.add(x)
-            stack += [q for q in reqs(x) if q in loose] + [k for k in loose if x in reqs(k)]
-        seen |= comp
+    for comp in families(loose):
         nodes = ancestry(sorted(comp))
         kids = {n: [k for k in nodes if n in reqs(k)] for n in nodes}
         sinks = sorted([n for n in comp if not kids[n]])

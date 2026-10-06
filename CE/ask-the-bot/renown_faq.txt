@@ -204,7 +204,7 @@ Intercept Caravan | [Intercept Caravan](https://mlang95.github.io/RenownWiki/act
 Interrogation Chambers | [Interrogation Chambers](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: Extort 500; Cunning actions targetting this player that cause Doubt are reduced by 1, to a minimum of 0.
 Throwing Axe | [Throwing Axe](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Wrought). AP -2, Init +1. Keywords: Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One-Shot, Awkward.
 Jester's Court | [Jester's Court](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: First and second Oppose on an Envoy of yours each turn: reduce by 1
-Jewelry Foundry | [Jewelry Foundry](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: +1300; Influence +1 to Cunning envoys targeting this player; Craft +2
+Jewelry Foundry | [Jewelry Foundry](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: +2000; Influence +1 to Cunning actions targeting this player; Craft +5
 Joinery | [Joinery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: unlocks Shields; Upkeep -200
 Kiln | [Kiln](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Energy). Effect: Natural; +500
 Kite Shield | [Kite Shield](https://mlang95.github.io/RenownWiki/equipment-ref.html) Shield (Wrought). Save +1, Init +0. Keywords: Steady, Shielded.
@@ -346,7 +346,7 @@ Smuggler's Nook | [Smuggler's Nook](https://mlang95.github.io/RenownWiki/pursuit
 Sovereign Standing | [Sovereign Standing](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Standing). Reach a Sovereign Standing (Domain value 10) in any Domain.
 Spear | [Spear](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Cast). AP -1, Init +1. Keywords: Unwieldy.
 Speed X | [Speed X](https://mlang95.github.io/RenownWiki/glossary.html#speed-x): An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 3
-Spice Merchant | [Spice Merchant](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Natural; +1000; Influence +1 to Cunning envoys targeting you; Craft +2
+Spice Merchant | [Spice Merchant](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Natural; +1000; Influence +1 to Cunning actions targeting you; Craft +4
 Spread Truth | [Spread Truth](https://mlang95.github.io/RenownWiki/actions-ref.html): Piety action. Cost: Doubt 1. Each non-allied player gains Doubt 1. Each allied player gains Faith 1. Endorsed: Gain Faith 1.
 Spring | [Spring](https://mlang95.github.io/RenownWiki/seasons-ref.html) Season (Planting). No Host, Bandit actions, Trade Income, Council Phase, or Diplomacy Actions. Players don't gain Influence tokens. Bandit Camps Spawn.
 Stable | [Stable](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: Speed +2, Natural; Unlocks Cavalry Spear (Still requires Tier Unlock)
