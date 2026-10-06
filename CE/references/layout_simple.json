@@ -8,25 +8,65 @@
     0,
     0
    ],
+   "Forestry": [
+    0,
+    2
+   ],
    "Furnace": [
     1,
     0
+   ],
+   "Arable Land": [
+    1,
+    1
+   ],
+   "Carpentry": [
+    1,
+    2
    ],
    "Blacksmith": [
     2,
     0
    ],
+   "Animal Husbandry": [
+    2,
+    1
+   ],
+   "Joinery": [
+    2,
+    2
+   ],
    "Forge": [
     3,
     0
+   ],
+   "Tannery": [
+    3,
+    1
    ],
    "Master Workshop": [
     4,
     0
    ],
+   "Armory": [
+    4,
+    1
+   ],
    "Advanced Blast Furnace": [
     5,
     0
+   ],
+   "Gilded Foundry": [
+    5,
+    1
+   ],
+   "Court Armoury": [
+    6,
+    1
+   ],
+   "Jewelry Foundry": [
+    6,
+    2
    ]
   },
   "edges": [
@@ -35,20 +75,56 @@
     "Advanced Blast Furnace"
    ],
    [
+    "Arable Land",
+    "Animal Husbandry"
+   ],
+   [
+    "Tannery",
+    "Armory"
+   ],
+   [
     "Furnace",
     "Blacksmith"
+   ],
+   [
+    "Forestry",
+    "Carpentry"
+   ],
+   [
+    "Gilded Foundry",
+    "Court Armoury"
    ],
    [
     "Blacksmith",
     "Forge"
    ],
    [
+    "Mine",
+    "Furnace"
+   ],
+   [
+    "Armory",
+    "Gilded Foundry"
+   ],
+   [
+    "Gilded Foundry",
+    "Jewelry Foundry"
+   ],
+   [
+    "Carpentry",
+    "Joinery"
+   ],
+   [
     "Forge",
     "Master Workshop"
    ],
    [
-    "Mine",
-    "Furnace"
+    "Animal Husbandry",
+    "Tannery"
+   ],
+   [
+    "Joinery",
+    "Tannery"
    ]
   ]
  },
@@ -152,6 +228,38 @@
   },
   "edges": [
    [
+    "Meadery",
+    "Bakery"
+   ],
+   [
+    "Furnace",
+    "Blacksmith"
+   ],
+   [
+    "Forestry",
+    "Carpentry"
+   ],
+   [
+    "Orchard",
+    "Cidery"
+   ],
+   [
+    "Masonry",
+    "Courtyard"
+   ],
+   [
+    "Blacksmith",
+    "Forge"
+   ],
+   [
+    "Mine",
+    "Furnace"
+   ],
+   [
+    "Arable Land",
+    "Herb Garden"
+   ],
+   [
     "Spice Merchant",
     "Manor House"
    ],
@@ -168,20 +276,16 @@
     "Manor House"
    ],
    [
-    "Meadery",
-    "Bakery"
-   ],
-   [
-    "Forestry",
-    "Carpentry"
+    "Courtyard",
+    "Market Square"
    ],
    [
     "Quarry",
     "Masonry"
    ],
    [
-    "Market Square",
-    "Weavery"
+    "Apiary",
+    "Meadery"
    ],
    [
     "Bakery",
@@ -204,52 +308,24 @@
     "Mill"
    ],
    [
-    "Furnace",
-    "Blacksmith"
-   ],
-   [
-    "Masonry",
-    "Courtyard"
-   ],
-   [
     "Arable Land",
     "Orchard"
+   ],
+   [
+    "Herb Garden",
+    "Spice Merchant"
    ],
    [
     "Arable Land",
     "Vineyard"
    ],
    [
+    "Market Square",
+    "Weavery"
+   ],
+   [
     "Vineyard",
     "Winery"
-   ],
-   [
-    "Blacksmith",
-    "Forge"
-   ],
-   [
-    "Mine",
-    "Furnace"
-   ],
-   [
-    "Arable Land",
-    "Herb Garden"
-   ],
-   [
-    "Apiary",
-    "Meadery"
-   ],
-   [
-    "Orchard",
-    "Cidery"
-   ],
-   [
-    "Courtyard",
-    "Market Square"
-   ],
-   [
-    "Herb Garden",
-    "Spice Merchant"
    ],
    [
     "Spice Merchant",
@@ -351,6 +427,10 @@
   },
   "edges": [
    [
+    "Workyard",
+    "Burgages"
+   ],
+   [
     "Burgages",
     "Census Hall"
    ],
@@ -359,36 +439,12 @@
     "College of Engineering"
    ],
    [
-    "Shipyard",
-    "Storehouse"
-   ],
-   [
-    "Common Land",
-    "Workyard"
-   ],
-   [
-    "Salt Works",
-    "Workyard"
-   ],
-   [
-    "Quarry",
-    "Masonry"
-   ],
-   [
-    "Workyard",
-    "Burgages"
-   ],
-   [
-    "Harbor",
-    "Shipyard"
-   ],
-   [
     "Fishmongery",
     "Harbor"
    ],
    [
-    "Masonry",
-    "Trade Guild"
+    "Quarry",
+    "Masonry"
    ],
    [
     "College of Engineering",
@@ -401,6 +457,26 @@
    [
     "Storehouse",
     "Office of Works"
+   ],
+   [
+    "Harbor",
+    "Shipyard"
+   ],
+   [
+    "Shipyard",
+    "Storehouse"
+   ],
+   [
+    "Masonry",
+    "Trade Guild"
+   ],
+   [
+    "Common Land",
+    "Workyard"
+   ],
+   [
+    "Salt Works",
+    "Workyard"
    ]
   ]
  },
@@ -436,6 +512,14 @@
   },
   "edges": [
    [
+    "Siege Camp",
+    "Artillery Park"
+   ],
+   [
+    "Forestry",
+    "Carpentry"
+   ],
+   [
     "Siege Works",
     "Siege Camp"
    ],
@@ -446,14 +530,6 @@
    [
     "Mine",
     "Siege Works"
-   ],
-   [
-    "Siege Camp",
-    "Artillery Park"
-   ],
-   [
-    "Forestry",
-    "Carpentry"
    ]
   ]
  },
@@ -485,10 +561,6 @@
   },
   "edges": [
    [
-    "Granary",
-    "Supply Depot"
-   ],
-   [
     "Supply Depot",
     "Citadel"
    ],
@@ -499,6 +571,10 @@
    [
     "Citadel",
     "Imperial Palace"
+   ],
+   [
+    "Granary",
+    "Supply Depot"
    ]
   ]
  },
@@ -546,20 +622,8 @@
   },
   "edges": [
    [
-    "Salt Works",
-    "Smokehouse"
-   ],
-   [
-    "Charcoal Burner",
-    "Smokehouse"
-   ],
-   [
-    "Levy Hall",
-    "War College"
-   ],
-   [
-    "Forestry",
-    "Kiln"
+    "Smokehouse",
+    "Butchery"
    ],
    [
     "Forestry",
@@ -570,61 +634,28 @@
     "Charcoal Burner"
    ],
    [
-    "War College",
-    "Ministry of Military Strategy"
+    "Forestry",
+    "Kiln"
    ],
    [
     "Butchery",
     "Levy Hall"
    ],
    [
-    "Smokehouse",
-    "Butchery"
-   ]
-  ]
- },
- {
-  "title": "Sacred Preceptory",
-  "anchor": "Preceptory of the Knight's Templar",
-  "mode": "chain",
-  "nodes": {
-   "Apiary": [
-    0,
-    0
-   ],
-   "Chandlery": [
-    1,
-    0
-   ],
-   "Reliquary": [
-    2,
-    0
-   ],
-   "Pilgrimage Site": [
-    3,
-    0
-   ],
-   "Preceptory of the Knight's Templar": [
-    4,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Pilgrimage Site",
-    "Preceptory of the Knight's Templar"
+    "War College",
+    "Ministry of Military Strategy"
    ],
    [
-    "Reliquary",
-    "Pilgrimage Site"
+    "Salt Works",
+    "Smokehouse"
    ],
    [
-    "Apiary",
-    "Chandlery"
+    "Charcoal Burner",
+    "Smokehouse"
    ],
    [
-    "Chandlery",
-    "Reliquary"
+    "Levy Hall",
+    "War College"
    ]
   ]
  },
@@ -637,9 +668,17 @@
     0,
     0
    ],
+   "Forestry": [
+    0,
+    2
+   ],
    "Masonry": [
     1,
     0
+   ],
+   "Carpentry": [
+    1,
+    2
    ],
    "Courtyard": [
     2,
@@ -649,9 +688,17 @@
     2,
     1
    ],
+   "Fletchery": [
+    2,
+    2
+   ],
    "Conditioning Field": [
     3,
     0
+   ],
+   "Tiltyard": [
+    3,
+    2
    ],
    "Coliseum": [
     4,
@@ -668,6 +715,14 @@
   },
   "edges": [
    [
+    "Forestry",
+    "Carpentry"
+   ],
+   [
+    "Conditioning Field",
+    "Coliseum"
+   ],
+   [
     "Courtyard",
     "Conditioning Field"
    ],
@@ -676,24 +731,28 @@
     "Conditioning Field"
    ],
    [
+    "Masonry",
+    "Courtyard"
+   ],
+   [
+    "Carpentry",
+    "Fletchery"
+   ],
+   [
     "Coliseum",
     "Grand Tournament"
    ],
    [
-    "Conditioning Field",
-    "Coliseum"
+    "Quarry",
+    "Masonry"
    ],
    [
     "Grand Tournament",
     "Royal Pavilion"
    ],
    [
-    "Masonry",
-    "Courtyard"
-   ],
-   [
-    "Quarry",
-    "Masonry"
+    "Fletchery",
+    "Tiltyard"
    ]
   ]
  },
@@ -733,28 +792,28 @@
   },
   "edges": [
    [
-    "Interrogation Chambers",
-    "Execution Dock"
-   ],
-   [
     "Masonry",
     "Courtyard"
-   ],
-   [
-    "Execution Dock",
-    "Inquisitorial Palace"
    ],
    [
     "Courtyard",
     "Episcopal Court"
    ],
    [
-    "Quarry",
-    "Masonry"
+    "Interrogation Chambers",
+    "Execution Dock"
+   ],
+   [
+    "Execution Dock",
+    "Inquisitorial Palace"
    ],
    [
     "Episcopal Court",
     "Interrogation Chambers"
+   ],
+   [
+    "Quarry",
+    "Masonry"
    ]
   ]
  },
@@ -790,6 +849,10 @@
   },
   "edges": [
    [
+    "Academy",
+    "Abbey"
+   ],
+   [
     "Alchemy",
     "Academy"
    ],
@@ -798,16 +861,110 @@
     "Alchemy"
    ],
    [
-    "Academy",
-    "Abbey"
+    "Abbey",
+    "Monastery"
    ],
    [
     "Monastery",
     "Papal Palace"
+   ]
+  ]
+ },
+ {
+  "title": "Sacred Preceptory",
+  "anchor": "Preceptory of the Knight's Templar",
+  "mode": "chain",
+  "nodes": {
+   "Peat Bog": [
+    0,
+    0
+   ],
+   "Alchemy": [
+    1,
+    0
+   ],
+   "Apothecary": [
+    2,
+    0
+   ],
+   "Infirmary": [
+    3,
+    0
+   ],
+   "Hospitaller": [
+    4,
+    0
+   ],
+   "Preceptory of the Knight's Templar": [
+    5,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Peat Bog",
+    "Alchemy"
    ],
    [
-    "Abbey",
-    "Monastery"
+    "Alchemy",
+    "Apothecary"
+   ],
+   [
+    "Infirmary",
+    "Hospitaller"
+   ],
+   [
+    "Apothecary",
+    "Infirmary"
+   ],
+   [
+    "Hospitaller",
+    "Preceptory of the Knight's Templar"
+   ]
+  ]
+ },
+ {
+  "title": "Sepulchre of Truth",
+  "anchor": "Sepulchre of Truth",
+  "mode": "chain",
+  "nodes": {
+   "Apiary": [
+    0,
+    0
+   ],
+   "Chandlery": [
+    1,
+    0
+   ],
+   "Reliquary": [
+    2,
+    0
+   ],
+   "Pilgrimage Site": [
+    3,
+    0
+   ],
+   "Sepulchre of Truth": [
+    4,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Apiary",
+    "Chandlery"
+   ],
+   [
+    "Reliquary",
+    "Pilgrimage Site"
+   ],
+   [
+    "Chandlery",
+    "Reliquary"
+   ],
+   [
+    "Pilgrimage Site",
+    "Sepulchre of Truth"
    ]
   ]
  },
@@ -859,16 +1016,24 @@
   },
   "edges": [
    [
+    "Court Artists",
+    "Aristocratic Court"
+   ],
+   [
+    "Money Lending",
+    "Aristocratic Court"
+   ],
+   [
+    "Weavery",
+    "Artisan Workshop"
+   ],
+   [
     "Artisan Workshop",
     "Court Artists"
    ],
    [
-    "Market Square",
-    "Merchant Quarter"
-   ],
-   [
-    "Courtyard",
-    "Merchant Quarter"
+    "Masonry",
+    "Courtyard"
    ],
    [
     "Courtyard",
@@ -880,11 +1045,11 @@
    ],
    [
     "Market Square",
-    "Weavery"
+    "Merchant Quarter"
    ],
    [
-    "Weavery",
-    "Artisan Workshop"
+    "Courtyard",
+    "Merchant Quarter"
    ],
    [
     "Court Artists",
@@ -895,16 +1060,8 @@
     "Money Lending"
    ],
    [
-    "Court Artists",
-    "Aristocratic Court"
-   ],
-   [
-    "Money Lending",
-    "Aristocratic Court"
-   ],
-   [
-    "Masonry",
-    "Courtyard"
+    "Market Square",
+    "Weavery"
    ]
   ]
  },
@@ -936,20 +1093,20 @@
   },
   "edges": [
    [
-    "Courier Network",
-    "Smuggler's Nook"
-   ],
-   [
-    "Secret Cellar",
-    "Smuggler's Nook"
+    "Inn",
+    "Courier Network"
    ],
    [
     "Smuggler's Nook",
     "Outlaw Rookery"
    ],
    [
-    "Inn",
-    "Courier Network"
+    "Courier Network",
+    "Smuggler's Nook"
+   ],
+   [
+    "Secret Cellar",
+    "Smuggler's Nook"
    ]
   ]
  },
@@ -1006,6 +1163,10 @@
     5,
     2
    ],
+   "Forgotten Catacombs": [
+    5,
+    5
+   ],
    "Beacon Towers": [
     6,
     0
@@ -1014,12 +1175,32 @@
     6,
     2
    ],
+   "Toxicarium": [
+    6,
+    4
+   ],
    "Outrider Intercept Post": [
     7,
     0
    ]
   },
   "edges": [
+   [
+    "Alchemy",
+    "Academy"
+   ],
+   [
+    "Peat Bog",
+    "Alchemy"
+   ],
+   [
+    "Arable Land",
+    "Animal Husbandry"
+   ],
+   [
+    "Toll House",
+    "Beacon Towers"
+   ],
    [
     "Saddlery",
     "Caravanery"
@@ -1033,12 +1214,24 @@
     "Cipher Chamber"
    ],
    [
-    "Academy",
-    "University"
+    "University",
+    "Forgery Workshop"
    ],
    [
-    "Toll House",
-    "Beacon Towers"
+    "Secret Cellar",
+    "Forgery Workshop"
+   ],
+   [
+    "Secret Cellar",
+    "Forgotten Catacombs"
+   ],
+   [
+    "Cipher Chamber",
+    "Outrider Intercept Post"
+   ],
+   [
+    "Beacon Towers",
+    "Outrider Intercept Post"
    ],
    [
     "Stable",
@@ -1053,36 +1246,20 @@
     "Stable"
    ],
    [
-    "Alchemy",
-    "Academy"
-   ],
-   [
-    "Peat Bog",
-    "Alchemy"
-   ],
-   [
-    "Arable Land",
-    "Animal Husbandry"
-   ],
-   [
     "Caravanery",
     "Toll House"
    ],
    [
-    "University",
-    "Forgery Workshop"
+    "Alchemy",
+    "Toxicarium"
    ],
    [
-    "Secret Cellar",
-    "Forgery Workshop"
+    "Forgotten Catacombs",
+    "Toxicarium"
    ],
    [
-    "Cipher Chamber",
-    "Outrider Intercept Post"
-   ],
-   [
-    "Beacon Towers",
-    "Outrider Intercept Post"
+    "Academy",
+    "University"
    ]
   ]
  },
@@ -1118,22 +1295,6 @@
   },
   "edges": [
    [
-    "Black Market",
-    "Thieves' Guild"
-   ],
-   [
-    "Secret Cellar",
-    "Thieves' Guild"
-   ],
-   [
-    "Courier Network",
-    "Smuggler's Nook"
-   ],
-   [
-    "Secret Cellar",
-    "Smuggler's Nook"
-   ],
-   [
     "Smuggler's Nook",
     "Black Market"
    ],
@@ -1144,6 +1305,22 @@
    [
     "Inn",
     "Courier Network"
+   ],
+   [
+    "Courier Network",
+    "Smuggler's Nook"
+   ],
+   [
+    "Secret Cellar",
+    "Smuggler's Nook"
+   ],
+   [
+    "Black Market",
+    "Thieves' Guild"
+   ],
+   [
+    "Secret Cellar",
+    "Thieves' Guild"
    ]
   ]
  },
@@ -1183,14 +1360,6 @@
   },
   "edges": [
    [
-    "Embassy",
-    "Senate Hall"
-   ],
-   [
-    "Courtyard",
-    "Jester's Court"
-   ],
-   [
     "Jester's Court",
     "Bell Tower"
    ],
@@ -1203,8 +1372,16 @@
     "Embassy"
    ],
    [
+    "Courtyard",
+    "Jester's Court"
+   ],
+   [
     "Quarry",
     "Masonry"
+   ],
+   [
+    "Embassy",
+    "Senate Hall"
    ]
   ]
  },
@@ -1244,224 +1421,12 @@
     "Alchemy"
    ],
    [
-    "Academy",
-    "University"
-   ],
-   [
     "University",
     "Studium Generale"
-   ]
-  ]
- },
- {
-  "title": "Other Pursuits (feed no Monument) — Tiltyard",
-  "anchor": null,
-  "mode": "group",
-  "nodes": {
-   "Forestry": [
-    0,
-    0
-   ],
-   "Carpentry": [
-    1,
-    0
-   ],
-   "Fletchery": [
-    2,
-    0
-   ],
-   "Tiltyard": [
-    3,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Forestry",
-    "Carpentry"
    ],
    [
-    "Fletchery",
-    "Tiltyard"
-   ],
-   [
-    "Carpentry",
-    "Fletchery"
-   ]
-  ]
- },
- {
-  "title": "Other Pursuits (feed no Monument) — Court Armoury, Jewelry Foundry",
-  "anchor": null,
-  "mode": "group",
-  "nodes": {
-   "Forestry": [
-    0,
-    0
-   ],
-   "Carpentry": [
-    1,
-    0
-   ],
-   "Arable Land": [
-    1,
-    1
-   ],
-   "Joinery": [
-    2,
-    0
-   ],
-   "Animal Husbandry": [
-    2,
-    1
-   ],
-   "Tannery": [
-    3,
-    0
-   ],
-   "Armory": [
-    4,
-    0
-   ],
-   "Gilded Foundry": [
-    5,
-    0
-   ],
-   "Court Armoury": [
-    6,
-    0
-   ],
-   "Jewelry Foundry": [
-    6,
-    2
-   ]
-  },
-  "edges": [
-   [
-    "Animal Husbandry",
-    "Tannery"
-   ],
-   [
-    "Joinery",
-    "Tannery"
-   ],
-   [
-    "Tannery",
-    "Armory"
-   ],
-   [
-    "Forestry",
-    "Carpentry"
-   ],
-   [
-    "Carpentry",
-    "Joinery"
-   ],
-   [
-    "Arable Land",
-    "Animal Husbandry"
-   ],
-   [
-    "Gilded Foundry",
-    "Jewelry Foundry"
-   ],
-   [
-    "Gilded Foundry",
-    "Court Armoury"
-   ],
-   [
-    "Armory",
-    "Gilded Foundry"
-   ]
-  ]
- },
- {
-  "title": "Other Pursuits (feed no Monument) — Hospitaller",
-  "anchor": null,
-  "mode": "group",
-  "nodes": {
-   "Peat Bog": [
-    0,
-    0
-   ],
-   "Alchemy": [
-    1,
-    0
-   ],
-   "Apothecary": [
-    2,
-    0
-   ],
-   "Infirmary": [
-    3,
-    0
-   ],
-   "Hospitaller": [
-    4,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Apothecary",
-    "Infirmary"
-   ],
-   [
-    "Peat Bog",
-    "Alchemy"
-   ],
-   [
-    "Alchemy",
-    "Apothecary"
-   ],
-   [
-    "Infirmary",
-    "Hospitaller"
-   ]
-  ]
- },
- {
-  "title": "Other Pursuits (feed no Monument) — Toxicarium",
-  "anchor": null,
-  "mode": "group",
-  "nodes": {
-   "Peat Bog": [
-    0,
-    0
-   ],
-   "Secret Cellar": [
-    0,
-    1
-   ],
-   "Alchemy": [
-    1,
-    0
-   ],
-   "Forgotten Catacombs": [
-    1,
-    1
-   ],
-   "Toxicarium": [
-    2,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Alchemy",
-    "Toxicarium"
-   ],
-   [
-    "Forgotten Catacombs",
-    "Toxicarium"
-   ],
-   [
-    "Secret Cellar",
-    "Forgotten Catacombs"
-   ],
-   [
-    "Peat Bog",
-    "Alchemy"
+    "Academy",
+    "University"
    ]
   ]
  }

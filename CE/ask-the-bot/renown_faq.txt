@@ -329,6 +329,7 @@ Seize the Initiative | [Seize the Initiative](https://mlang95.github.io/RenownWi
 Senate Hall | [Senate Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Faith +1, gain +1 Influence per other player per Turn; Once/turn: Before players Support or Oppose, you may auto-Condemn an At War Envoy OR auto-Endorse an Ally's Envoy / Requires: Library + Town Hall
 Send an Envoy | [Send an Envoy](https://mlang95.github.io/RenownWiki/glossary.html#send-an-envoy): Declare a Domain, spend 1 Envoy.
 Send Missionaries | [Send Missionaries](https://mlang95.github.io/RenownWiki/actions-ref.html): Piety action. Cost: Doubt 1. Choose a target player or Alliance. If the target is outside your Alliance, each player in it gains Doubt 2. If the target is inside your Alliance, each other allied player gains Faith 2. Endorsed: Gain Faith 1.
+Sepulchre of Truth | [Sepulchre of Truth](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Your piety actions cause an additional doubt. Every turn, perform Endorsed Spread Truth.
 Sergeant | [Sergeant](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 3+, Endurance 2, Morale 5+, cost 2000.
 Serrated | [Serrated](https://mlang95.github.io/RenownWiki/keywords-ref.html#serrated): A cumulative -2 penalty to the defender's Heal roll.
 settlements | [Settlements](https://mlang95.github.io/RenownWiki/settlements-ref.html): Hamlet, Village, Town, City, Metropolis. Each has tax, muster, wards, and reach values.

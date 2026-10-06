@@ -1800,10 +1800,17 @@
     ],
     [
      "Sacred Preceptory",
-     "Sovereign Piety + Established Prowess",
+     "Sovereign Piety",
+     "—",
+     "Hospitaller",
+     "Armies gain **Righteous Fervour**: Automatically pass the first Panic Check of every Battle. Unlocks **Oathsworn** for Muster"
+    ],
+    [
+     "Sepulchre of Truth",
+     "Sovereign Piety",
      "—",
      "Pilgrimage Site",
-     "Armies gain **Righteous Fervour**: Automatically pass the first Panic Check of every Battle. Unlocks **Oathsworn** for Muster"
+     "Your piety actions cause an additional doubt. Every turn, perform Endorsed Spread Truth."
     ],
     [
      "Manor House",

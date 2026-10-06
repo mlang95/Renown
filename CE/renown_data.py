@@ -2225,7 +2225,7 @@ SIMPLE_NODES = {
         "infrastructure_req": "Cathedral",
         "innate": "Natural; **Extort 500** every player without a Pilgrimage Site; **Doubt +1** to all other players without a Pilgrimage Site",
         "efficient": "Reliquary",
-        "builds_into": ["Preceptory of the Knight's Templar"],
+        "builds_into": ["Sepulchre of Truth"],
         "monument": False},
     "Beacon Towers": {
         "type": "Energy",
@@ -2394,8 +2394,15 @@ SIMPLE_NODES = {
         "monument": True},
     "Preceptory of the Knight's Templar": {
         "type": "Monument",
-        "unlock": "Sovereign Piety + Established Prowess",
+        "unlock": "Sovereign Piety",
         "innate": f"Armies gain **{CRUSADER}**: Automatically pass the first Panic Check of every Battle. Unlocks **Knight's Templar** for Muster",
+        "efficient": "Hospitaller",
+        "builds_into": [],
+        "monument": True},
+    "Sepulchre of Truth": {
+        "type": "Monument",
+        "unlock": "Sovereign Piety",
+        "innate": "Your piety actions cause an additional doubt. Every turn, perform Endorsed Spread Truth.",
         "efficient": "Pilgrimage Site",
         "builds_into": [],
         "monument": True},

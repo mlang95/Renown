@@ -22,6 +22,15 @@ import json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 CATCH_ALL = "Other Pursuits (feed no Monument)"   # display layer renames Pursuits under SIMPLE
+# SIMPLE: Holdings that feed no Monument, shown as a side track under a Monument's chart instead
+# of their own chart. Monument (data name) -> end Holdings; each brings its full ancestry. The
+# Monument's own layout is kept as-is; no links are added, only real requirement edges are drawn.
+ATTACH = {
+    "Advanced Blast Furnace": ["Court Armoury", "Jewelry Foundry"],
+    "Preceptory of the Knight's Templar": ["Hospitaller"],
+    "Royal Pavilion": ["Tiltyard"],
+    "Outrider Intercept Post": ["Toxicarium"],
+}
 sys.path.insert(0, os.path.dirname(HERE))
 try:
     import ce_paths; ce_paths.install(verbose=False)
@@ -97,7 +106,7 @@ def track_layout(nodes, sinks, links=()):
     parent starts a new row. Columns are placed right-to-left (one left of the earliest Holding it
     feeds), so a side input sits next to what it feeds as its own block instead of being stretched
     back to the roots. `links` = extra [parent, child] pairs (e.g. Naturals into Manor House)."""
-    nodes = list(nodes)
+    nodes = sorted(nodes)                                   # set order varies per run; keep layouts stable
     par = {n: [q for q in reqs(n) if q in nodes] for n in nodes}
     for p_, c_ in links:
         if p_ in par and c_ in par and p_ not in par[c_]: par[c_].append(p_)
@@ -149,6 +158,61 @@ def track_layout(nodes, sinks, links=()):
             nxt[0] += 1; place(n, nxt[0])
     pos = {n: [col[n], row[n]] for n in sorted(nodes, key=lambda n: (col[n], row[n]))}
     return pos, [[p, n] for n in nodes for p in par[n]]
+
+
+def attach_layout(pos0, nodes, side, links=()):
+    """SIMPLE: add side tracks below an existing chart without moving its Holdings.
+    New Holdings sit one column left of the earliest Holding they feed (end Holdings: one right of
+    their rightmost parent). Each side end
+    Holding takes a new row; a parent that is new continues that row unless an already-placed parent
+    lies further left (its edge would run along the row), in which case new parents go on rows below.
+    An end Holding whose parents are all placed takes the first free row at its column."""
+    pos = {k: list(v) for k, v in pos0.items()}
+    new = sorted(n for n in nodes if n not in pos)
+    par = {n: [q for q in reqs(n) if q in nodes] for n in nodes}
+    col = {k: v[0] for k, v in pos.items()}
+    def c(n, stack=()):
+        if n in col: return col[n]
+        ps = [q for q in par[n] if q not in stack]
+        col[n] = 1 + max(c(q, stack + (n,)) for q in ps) if ps else 0
+        return col[n]
+    for n in new: c(n)
+    kids = {n: [k for k in new if n in par[k]] for n in new}
+    for n in sorted(new, key=lambda n: -col[n]):    # pull new feeders right, next to what they feed
+        if n in side or not kids[n]: continue
+        col[n] = max(col[n], min(col[k] for k in kids[n]) - 1)
+    base = max(v[1] for v in pos.values()) + 1 if pos else 0
+    nxt = [base - 1]
+    taken = {(v[0], v[1]) for v in pos.values()}
+    def put(n, r):
+        pos[n] = [col[n], r]; taken.add((col[n], r))
+    def place(n, r):
+        put(n, r)
+        ps = sorted(par[n], key=lambda q: (-col[q], q))
+        fresh = [q for q in ps if q not in pos and col[q] < col[n]]
+        if not fresh: return
+        left_placed = any(q in pos and col[q] < col[fresh[0]] for q in par[n])
+        for i, q in enumerate(fresh):
+            if q in pos: continue
+            if i == 0 and not left_placed:
+                place(q, r)
+            else:
+                nxt[0] += 1; place(q, nxt[0])
+    for s_ in side:
+        if s_ in pos: continue
+        if not [q for q in par[s_] if q not in pos]:
+            r = base
+            while (col[s_], r) in taken: r += 1
+            nxt[0] = max(nxt[0], r); put(s_, r)
+        else:
+            nxt[0] += 1; place(s_, nxt[0])
+    for n in new:                                   # anything not reached from a side end
+        if n not in pos:
+            nxt[0] += 1; place(n, nxt[0])
+    lo = min(v[0] for v in pos.values())
+    pos = {n: [v[0] - lo, v[1]] for n, v in sorted(pos.items(), key=lambda kv: (kv[1][0], kv[1][1]))}
+    edges = [[p, n] for n in sorted(nodes) for p in par[n]]
+    return pos, edges + [list(l) for l in links if list(l) not in edges]
 
 
 def _domain(unlock):
@@ -212,6 +276,18 @@ def main_simple(out):
         c["nodes"], c["edges"], c["links"] = pos, edges + links, links
         loose = [n for n in loose if n not in fam]
         print(f"{c['title']}: + {sorted(fam)} via Natural")
+    # attached side tracks (ATTACH): pulled out of the catch-all onto their Monument's chart
+    for c in charts:
+        ms = c["anchor"] if isinstance(c["anchor"], list) else [c["anchor"]]
+        side = [x for m in ms for x in ATTACH.get(m, []) if x in N]
+        if not side: continue
+        fam = ancestry(side)
+        c["nodes"], c["edges"] = attach_layout(c["nodes"], set(c["nodes"]) | fam, side, c.get("links", ()))
+        loose = [n for n in loose if n not in fam]
+        print(f"{c['title']}: + side track {side}")
+    for m, xs in ATTACH.items():
+        miss = [x for x in [m] + xs if x not in N]
+        if miss: print("ATTACH: unknown name(s)", miss)
     # Holdings that feed no Monument: one chart per connected family (with the ancestors it builds from)
     for comp in families(loose):
         nodes = ancestry(sorted(comp))
