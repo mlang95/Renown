@@ -1474,7 +1474,7 @@
      "Grand Tournament",
      "Established Prowess",
      "—",
-     "Castle Yard",
+     "Castle Yard, Tiltyard",
      "**Reach +1**, 3x/turn: exchange 500 gold for **1 Influence**; Armies gain **Riposte** & Improve Parry by +1."
     ],
     [
@@ -1806,7 +1806,7 @@
      "Armies gain **Righteous Fervour**: Automatically pass the first Panic Check of every Battle. Unlocks **Oathsworn** for Muster"
     ],
     [
-     "Sepulchre of Truth",
+     "Basilica of Truth",
      "Sovereign Piety",
      "—",
      "Pilgrimage Site",
@@ -2271,7 +2271,7 @@
    "All Infrastructure unlocked"
   ],
   [
-   "The Great Basilica",
+   "The Eternal Sepulchre",
    "If your **Public Order** would ever be less than 5 set it to 5 instead. Public Order Modifiers are doubled. Your **Settlements** gain **Reach +2**.",
    "10",
    "All Infrastructure unlocked"

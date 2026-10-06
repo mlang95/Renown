@@ -456,7 +456,7 @@ CULTURES = {
     'Trusteki': {
         'type': 'pure', 'domains': ['Industry'],
         'monuments': ['Office of Works', 'Manor House', 'Advanced Blast Furnace'],
-        'wonders':   ['Colossus', 'The Grand Exchange', 'The Great Basilica', 'High Chancery'],
+        'wonders':   ['Colossus', 'The Grand Exchange', 'The Eternal Sepulchre', 'High Chancery'],
         'actions':   ['Pursue', 'Repair', 'Build'],
         'factions':  ['The Verdant Kingdom', 'The Elder Grove', 'The Illuminated Order', 'The Hermit Crown'],
         'radar': {'military_solutions': 3, 'economy_generators': 5, 'faith_management': 3, 'doubt_warfare': 1,
@@ -483,7 +483,7 @@ CULTURES = {
     'Lenavorites': {
         'type': 'pure', 'domains': ['Piety'],
         'monuments': ['Papal Palace', 'Inquisitorial Palace'],
-        'wonders':   ['The Great Basilica'],
+        'wonders':   ['The Eternal Sepulchre'],
         'actions':   ['Tithe', 'Send Missionaries', 'Spread Truth'],
         'factions':  ['The Sacred Throne', 'The Undying Flame'],
         'radar': {'military_solutions': 2, 'economy_generators': 3, 'faith_management': 5, 'doubt_warfare': 3,
@@ -493,7 +493,7 @@ CULTURES = {
     'Belvareth': {
         'type': 'pair', 'domains': ['Piety', 'Prowess'],
         'monuments': ["Preceptory of the Knight's Templar", 'Royal Pavilion'],
-        'wonders':   ['The Great Basilica', 'Colossus'],
+        'wonders':   ['The Eternal Sepulchre', 'Colossus'],
         'actions':   ['Sacred War', 'Move: Battle', 'Spread Truth'],
         'factions':  ['The Bloodied Cross', 'The Blazing Standard', 'The Undying Flame', 'The Iron Faith'],
         'radar': {'military_solutions': 5, 'economy_generators': 2, 'faith_management': 4, 'doubt_warfare': 3,
@@ -538,7 +538,7 @@ CULTURES = {
     'Madekites': {
         'type': 'pair', 'domains': ['Piety', 'Industry'],
         'monuments': ['Office of Works', 'Papal Palace'],
-        'wonders':   ['The Great Basilica', 'The Grand Exchange'],
+        'wonders':   ['The Eternal Sepulchre', 'The Grand Exchange'],
         'actions':   ['Build', 'Pursue', 'Spread Truth'],
         'factions':  ['The Iron Faith', 'The Gilded Crescent', 'The Tunnellers', 'The Verdant Kingdom'],
         'radar': {'military_solutions': 3, 'economy_generators': 4, 'faith_management': 4, 'doubt_warfare': 3,
@@ -575,7 +575,7 @@ CULTURES = {
     'Voldrastel': {
         'type': 'triple', 'domains': ['Piety', 'Industry', 'Prowess'],
         'monuments': ['Senate Hall', 'Ministry of Military Strategy', "Preceptory of the Knight's Templar"],
-        'wonders':   ['The Grand Exchange', 'The Great Basilica'],
+        'wonders':   ['The Grand Exchange', 'The Eternal Sepulchre'],
         'actions':   ['Sign Treaty', 'Move: Muster', 'Repair'],
         'factions':  ['The Iron Throne', 'The Grand Compact', 'The Pale Throne'],
         'radar': {'military_solutions': 3, 'economy_generators': 4, 'faith_management': 3, 'doubt_warfare': 1,
@@ -2110,7 +2110,7 @@ SIMPLE_NODES = {
         "type": "Civic",
         "unlock": "Established Prowess",
         "innate": "**Reach +1**, 3x/turn: exchange 500 gold for **1 Influence**; Armies gain **Riposte** & Improve Parry by +1.",
-        "efficient": "Coliseum",
+        "efficient": ["Coliseum","Tiltyard"],
         "builds_into": [],
         "monument": False},
     "Apothecary": {
@@ -2225,7 +2225,7 @@ SIMPLE_NODES = {
         "infrastructure_req": "Cathedral",
         "innate": "Natural; **Extort 500** every player without a Pilgrimage Site; **Doubt +1** to all other players without a Pilgrimage Site",
         "efficient": "Reliquary",
-        "builds_into": ["Sepulchre of Truth"],
+        "builds_into": ["Basilica of Truth"],
         "monument": False},
     "Beacon Towers": {
         "type": "Energy",
@@ -2319,7 +2319,7 @@ SIMPLE_NODES = {
         "unlock": "Established Prowess",
         "innate": "Armies may be equipped with a Ranged and a Melee Weapon simultaneously; In addition, armies may equip two of the same 1H Melee Weapon to gain **Dual Wield**.",
         "efficient": "Fletchery",
-        "builds_into": [],
+        "builds_into": ["Grand Tournament"],
         "monument": False},
     "Court Armoury": {
         "type": "Power",
@@ -2399,7 +2399,7 @@ SIMPLE_NODES = {
         "efficient": "Hospitaller",
         "builds_into": [],
         "monument": True},
-    "Sepulchre of Truth": {
+    "Basilica of Truth": {
         "type": "Monument",
         "unlock": "Sovereign Piety",
         "innate": "Your piety actions cause an additional doubt. Every turn, perform Endorsed Spread Truth.",
@@ -3004,7 +3004,7 @@ WONDERS = {'Colossus': {'upkeep': 1000,
                         'tier': 'Wonder',
                         'build_time': 10,
                         'requirement': 'All Infrastructure unlocked'},
- 'The Great Basilica': {'upkeep': 1000,
+ 'The Eternal Sepulchre': {'upkeep': 1000,
                         'upkeep_frequency': 'per Wonder',
                         'empire_bonus': 'If your **Public Order** would ever be less than 5 set it to 5 '
                                         'instead. Public Order Modifiers are doubled. Your **Settlements** gain **Reach +2**.',

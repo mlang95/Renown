@@ -668,15 +668,11 @@
     0,
     0
    ],
-   "Forestry": [
-    0,
-    2
-   ],
    "Masonry": [
     1,
     0
    ],
-   "Carpentry": [
+   "Forestry": [
     1,
     2
    ],
@@ -688,7 +684,7 @@
     2,
     1
    ],
-   "Fletchery": [
+   "Carpentry": [
     2,
     2
    ],
@@ -696,13 +692,17 @@
     3,
     0
    ],
-   "Tiltyard": [
+   "Fletchery": [
     3,
     2
    ],
    "Coliseum": [
     4,
     0
+   ],
+   "Tiltyard": [
+    4,
+    2
    ],
    "Grand Tournament": [
     5,
@@ -743,6 +743,10 @@
     "Grand Tournament"
    ],
    [
+    "Tiltyard",
+    "Grand Tournament"
+   ],
+   [
     "Quarry",
     "Masonry"
    ],
@@ -753,6 +757,51 @@
    [
     "Fletchery",
     "Tiltyard"
+   ]
+  ]
+ },
+ {
+  "title": "Basilica of Truth",
+  "anchor": "Basilica of Truth",
+  "mode": "chain",
+  "nodes": {
+   "Apiary": [
+    0,
+    0
+   ],
+   "Chandlery": [
+    1,
+    0
+   ],
+   "Reliquary": [
+    2,
+    0
+   ],
+   "Pilgrimage Site": [
+    3,
+    0
+   ],
+   "Basilica of Truth": [
+    4,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Pilgrimage Site",
+    "Basilica of Truth"
+   ],
+   [
+    "Apiary",
+    "Chandlery"
+   ],
+   [
+    "Reliquary",
+    "Pilgrimage Site"
+   ],
+   [
+    "Chandlery",
+    "Reliquary"
    ]
   ]
  },
@@ -920,51 +969,6 @@
    [
     "Hospitaller",
     "Preceptory of the Knight's Templar"
-   ]
-  ]
- },
- {
-  "title": "Sepulchre of Truth",
-  "anchor": "Sepulchre of Truth",
-  "mode": "chain",
-  "nodes": {
-   "Apiary": [
-    0,
-    0
-   ],
-   "Chandlery": [
-    1,
-    0
-   ],
-   "Reliquary": [
-    2,
-    0
-   ],
-   "Pilgrimage Site": [
-    3,
-    0
-   ],
-   "Sepulchre of Truth": [
-    4,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Apiary",
-    "Chandlery"
-   ],
-   [
-    "Reliquary",
-    "Pilgrimage Site"
-   ],
-   [
-    "Chandlery",
-    "Reliquary"
-   ],
-   [
-    "Pilgrimage Site",
-    "Sepulchre of Truth"
    ]
   ]
  },
