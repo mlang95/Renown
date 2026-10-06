@@ -31,7 +31,7 @@ def desc(n):
             if c not in out: out.add(c); q.append(c)
     return out
 for n,d in NODES.items():
-    for r in parse_req(d.get("mastery_req")):
+    for r in (rd.node_parents(n) if getattr(rd, "SIMPLE", False) else parse_req(d.get("mastery_req"))):
         if n not in desc(r) and n not in CH[r]:
             CH[r].append(n)
 
@@ -59,6 +59,8 @@ def elbow(x1,y1,x2,y2):
 
 def build(layout_path, out):
     charts=json.load(open(layout_path))
+    for _c in charts:   # layout may list pursuits only one node set has (SIMPLE vs legacy)
+        _c["nodes"]={k:v for k,v in _c["nodes"].items() if k in NODES}
     # split into 2 landscape pages, balanced by total rows
     tot=[max(v[1] for v in c["nodes"].values())+1 for c in charts]
     cum=0; half=sum(tot)/2; split=len(charts)

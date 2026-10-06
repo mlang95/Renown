@@ -282,6 +282,8 @@ def rules_payload(ns, rules_path):
 def tree_payload(ns, here):
     """Tech-tree charts: layout.json positions + builds_into / mastery_req edges (same graph as render_tree.py)."""
     path = os.path.join(here, "layout.json")
+    if ns.get("SIMPLE") and os.path.exists(os.path.join(here, "layout_simple.json")):
+        path = os.path.join(here, "layout_simple.json")     # built by gen_layout.py from builds_into
     if not os.path.exists(path): return None
     try: charts = json.load(open(path, encoding="utf-8"))
     except Exception: return None
@@ -297,10 +299,15 @@ def tree_payload(ns, here):
             for c in CH.get(x, []):
                 if c not in out: out.add(c); q.append(c)
         return out
+    def parents(d):
+        if ns.get("SIMPLE"):   # SIMPLE: edges are the efficient links (builds_into already mirrors them)
+            e = d.get("efficient"); e = [e] if isinstance(e, str) else list(e or [])
+            return [p for p in e if p in NODES]
+        return parse_req(d.get("mastery_req"))
     for n, d in NODES.items():
-        for r in parse_req(d.get("mastery_req")):
+        for r in parents(d):
             if n not in desc(r) and n not in CH[r]: CH[r].append(n)
-    return {"charts": [{"title": c.get("title", ""), "nodes": c.get("nodes", {})} for c in charts],
+    return {"charts": [{"title": c.get("title", ""), "nodes": {k: v for k, v in c.get("nodes", {}).items() if k in NODES}} for c in charts],
             "edges": {n: k for n, k in CH.items() if k}}
 
 def parse_effects(raw):
@@ -338,7 +345,8 @@ def build(ns):
         mastery = parse_effects(v.get("mastery", ""))
         if any(a.get("natural") for a in innate):
             natural_names.add(name)
-        mreq = parse_mreq(v.get("mastery_req", ""))
+        req_src = v.get("infrastructure_req", "") if ns.get("SIMPLE") else v.get("mastery_req", "")
+        mreq = parse_mreq(req_src)
         for g in mreq:
             for opt in g:
                 if classify_req_token(opt, names, settle_names) == "external":
@@ -348,7 +356,7 @@ def build(ns):
             "monument": bool(v.get("monument")),
             "innate_raw": strip_md(v.get("innate", "")),
             "mastery_raw": strip_md(v.get("mastery", "")),
-            "mreq_raw": strip_md(v.get("mastery_req", "")),
+            "mreq_raw": strip_md(req_src),
             "unlock_raw": strip_md(str(v.get("unlock", "") or "")),
             "combo": combine_effects(v.get("innate", ""), v.get("mastery", "")),
             "combo_parts": combine_parts(v.get("innate", ""), v.get("mastery", "")),
@@ -1117,6 +1125,8 @@ const TIER_RANK = {Crude:0,Cast:1,Wrought:2,Forged:3,Crafted:4};
 const ARMOR_TAG = {Gambeson:"Gambeson",Leather:"Leather",Chainmail:"Chainmail",FullPlate:"Full Plate"};
 const NAMES = Object.keys(R).sort();
 const NATURAL = new Set(DATA.naturalNames);
+const SIMPLE=!!DATA.simple;   // SIMPLE pursuit graph (renown_data.SIMPLE)
+const CHAIN=DATA.chainTerm||"Efficient", CHAINL=CHAIN.toLowerCase();   // display name of the efficient field
 const PHASE = {gold:"income",scale:"income",extort:"income",recoup:"income",tax:"income",
   craft:"craft",influence:"influence",faith:"order",doubt:"order",upkeep:"upkeep",
   build_timer:"build",siege_timer:"battle",speed:"battle",combat:"battle",envoy:"envoy",
@@ -1950,6 +1960,10 @@ function settMeta(sid){const s=S.settlements.find(x=>x.id===sid);return s?DATA.s
 function settTier(sid){const s=S.settlements.find(x=>x.id===sid);return s?s.tier:null;}
 function occupants(sid){return S.placed.filter(p=>p.sid===sid);}
 function hamletOK(name){return NATURAL.has(name);}   // Hamlets take Natural Pursuits only (riders included: a rider must be Natural too)
+// SIMPLE: a Hamlet is started only by a Pursuit whose efficient list names "Hamlet"; anything else in a
+// Hamlet must have one of its efficient parents there. Faction pursuits count as Natural.
+function hamletRoot(name){return effLabel(name).some(e=>/^hamlet$/i.test(String(e)));}
+function hamletFits(name,present){return hamletRoot(name)||effList(name).some(h=>present.has(h));}
 // efficient forms CHAINS not branches: each pursuit hosts at most ONE efficient rider.
 // exemptionsOf(occ): set of occupant ids that ride free (one rider per source), for an explicit occupant list.
 // "efficient" may list several sources (efficient with ANY one of them). Each source hosts at most one rider;
@@ -1976,20 +1990,26 @@ function isFreeRider(p){ return p.sid!=null && wardExemptions(p.sid).has(p.id); 
 function wardUse(sid){ // {cap, used, free, typeBad}
   const meta=settMeta(sid), cap=meta?meta.wards:0, occ=occupants(sid), tier=settTier(sid);
   const exempt=exemptionsOf(occ);
-  let typeBad=false;const badNames=[]; occ.forEach(p=>{ if(tier==="Hamlet"&&!hamletOK(p.name)){typeBad=true;badNames.push(p.name);} });
-  const used=occ.length-exempt.size;
+  let typeBad=false;const badNames=[];
+  if(SIMPLE){const present=new Set(occ.map(o=>o.name));occ.forEach(p=>{if(tier==="Hamlet"&&!hamletFits(p.name,new Set([...present].filter(x=>x!==p.name)))){typeBad=true;badNames.push(p.name);}});}
+  else occ.forEach(p=>{ if(tier==="Hamlet"&&!hamletOK(p.name)){typeBad=true;badNames.push(p.name);} });
+  const used=occ.filter(o=>!o.fac&&!exempt.has(o.id)).length;   // faction pieces take no Ward
   return {cap, used, free:cap-used, typeBad,badNames};
 }
 // can pursuit `name` be placed into settlement sid?  simulate the resulting ward count,
 // so adding a PARENT later (which lets an existing tile ride it) is allowed even when full.
 function canPlace(name, sid){
   if(sid==null)return {ok:true};
+  if(sid==="faction"){const sim=occupants("faction").concat([{id:1e9,name}]),ex=exemptionsOf(sim);
+    return ex.has(1e9)?{ok:true,rider:true}:{ok:false,why:"not efficient with a free faction piece"};}
   const tier=settTier(sid);
   const meta=settMeta(sid), cap=meta?meta.wards:0;
   const sim=occupants(sid).concat([{id:1e9,name}]);   // hypothetical (high id → existing riders keep their slot)
   const exempt=exemptionsOf(sim);
-  if(tier==="Hamlet"&&!hamletOK(name))return {ok:false,why:"Hamlets hold Natural Pursuits only"};
-  const used=sim.length-exempt.size;
+  if(tier==="Hamlet"){
+    if(SIMPLE){if(!hamletFits(name,new Set(occupants(sid).map(o=>o.name))))return {ok:false,why:"Hamlets start with "+(Object.keys(R).filter(hamletRoot).join(" / ")||"efficient-Hamlet Pursuits")+"; others need an efficient parent there"};}
+    else if(!hamletOK(name))return {ok:false,why:"Hamlets hold Natural Pursuits only"};}
+  const used=sim.filter(o=>!o.fac&&!exempt.has(o.id)).length;
   if(used<=cap)return {ok:true, rider:exempt.has(1e9)};
   return {ok:false, why:"no free ward slot (efficient slot taken — chains, can't branch)"};
 }
@@ -2124,7 +2144,7 @@ function addItem(n){
   // pursuit — one of each name only (covers Monuments, Principle 15)
   if(onBoard(n)){flash(n+" already on board — one per name");return;}
   // Natural Pursuits fill Hamlets first (the only Pursuits a Hamlet takes); everything else: active settlement, capital, the rest
-  const hams=hamletOK(n)?S.settlements.filter(x=>x.tier==="Hamlet").map(x=>x.id):[];
+  const hams=(SIMPLE?hamletRoot(n):hamletOK(n))?S.settlements.filter(x=>x.tier==="Hamlet").map(x=>x.id):[];
   const order=hams.concat([activeSid],[capitalSett()&&capitalSett().id],S.settlements.map(x=>x.id)).filter((x,i,a)=>x!=null&&a.indexOf(x)===i);
   let target=null,host=null,note="",hosts=null;
   // 1) efficient pairing first — before a Natural goes solo into a Hamlet: pick the settlement where adding
@@ -2233,6 +2253,41 @@ function reqStatus(rec,have,craft,tc){
 }
 // Faction pieces: Mastery always counts as active, regardless of requirements.
 function instStatus(inst,r,have,craft,tc){return inst.fac?{earned:true,missing:[]}:reqStatus(r,have,craft,tc);}
+// SIMPLE requirements (flags, never blocks):
+//   UNLOCK  — you control (anywhere, active) one complete line of its Mastery Chain back to its root, plus its infrastructure_req.
+//             Checked when it is started: once met it stays met (a parent lost later changes nothing).
+//   FREE RIDE (Ward) — sharing a settlement with that parent; handled by exemptionsOf / the ⚡ badge.
+// One complete line of the Mastery Chain: a controlled, active parent whose own line is complete, back to a
+// root (a piece with no chain parent — Raw Materials — or a faction piece). Returns the line or null.
+function chainLine(name,own,seen){
+  seen=seen||new Set();if(seen.has(name))return null;seen.add(name);
+  const eff=effList(name),el=effLabel(name);
+  if(!eff.length&&!el.some(e=>/^natural$/i.test(String(e))))return [];          // root
+  const cands=own.filter(o=>eff.includes(o.name)||(o.fac&&el.some(e=>/^natural$/i.test(String(e)))));
+  for(const o of cands){if(o.fac)return [o.name];const up=chainLine(o.name,own,new Set(seen));if(up)return up.concat([o.name]);}
+  return null;
+}
+function simpleReq(inst,r,have,craft,tc){
+  if(inst.fac)return {ok:true,unl:true,infra:{earned:true,missing:[]},missing:[],sticky:false};
+  const own=S.placed.filter(o=>o.id!==inst.id&&o.sid!=null&&pActive(o));
+  const line=chainLine(inst.name,own),unl=!!line,via=line&&line.length?line.join(" → "):null;
+  const infra=reqStatus(r,have,craft,tc),ok=unl&&infra.earned;
+  if(ok&&!inst.unl){inst.unl=1;IGN_DIRTY=true;}          // met at start → stays met
+  if(inst.unl)return {ok:true,unl:true,via,infra:{earned:true,missing:[]},missing:[],sticky:!ok};
+  const missing=[];
+  if(!unl)missing.push("control a complete line of its "+CHAINL+": "+effLabel(inst.name).join(" or "));
+  if(!infra.earned)missing.push(...infra.missing);
+  return {ok:false,unl,via,infra,missing,sticky:false};
+}
+function simpleReqHTML(inst,sr){
+  const L=[];const el=effLabel(inst.name).filter(e=>!/^hamlet$/i.test(String(e)));
+  if(el.length)L.push('<div class="ireq"><span class="'+(sr.unl?'ok':'no')+'">'+(sr.unl?'✓':'✗')+'</span><span>unlock: '+esc(el.join(" or "))+'</span><span class="why">'+
+    (sr.sticky?'met when started':sr.unl?(sr.via?'line: '+esc(sr.via):'met'):'no complete line controlled')+'</span></div>');
+  if(inst.sid!=null&&effList(inst.name).length)L.push('<div class="ireq"><span class="'+(isFreeRider(inst)?'ok':'mn')+'">'+(isFreeRider(inst)?'⚡':'·')+'</span><span>Ward</span><span class="why">'+
+    (isFreeRider(inst)?'rides its parent here (free)':'uses its own Ward')+'</span></div>');
+  const r=R[inst.name]||{};if(r.mreq_raw)L.push('<div class="ireq"><span class="'+(sr.infra.earned?'ok':'no')+'">'+(sr.infra.earned?'✓':'✗')+'</span><span>infrastructure: '+esc(r.mreq_raw)+'</span>'+(sr.infra.earned||sr.sticky?'':'<span class="why">missing: '+esc(missTxt(sr.infra.missing))+'</span>')+'</div>');
+  return L.length?'<div class="lbl">REQUIRES</div>'+L.join(""):"";
+}
 function computeEarned(have){
   const tc={};Object.keys(PC).forEach(n=>tc[R[n].type]=(tc[R[n].type]||0)+PC[n]);
   let earned={},craft=0;
@@ -2633,12 +2688,15 @@ function timerCtl(kind,n,step){
 function placementSelect(inst){
   const n=inst.name, psel=document.createElement("select");psel.style.fontSize="11px";
   const uo=document.createElement("option");uo.value="";uo.textContent="Unplaced";psel.appendChild(uo);
+  // SIMPLE: each faction pursuit is its own Ward — efficient pursuits can be built onto it (riders only)
+  if(SIMPLE&&S.placed.some(p=>p.fac)){const fo=document.createElement("option");fo.value="faction";
+    const c=canPlace(n,"faction");fo.textContent="Faction"+(c.ok||inst.sid==="faction"?"":" (not efficient with a faction piece)");psel.appendChild(fo);}
   S.settlements.forEach(s=>{const c=canPlace(n,s.id);const o=document.createElement("option");
     o.value=s.id;const wu=wardUse(s.id);
     o.textContent=(s.capital?"★ ":"")+s.tier+" ("+wu.used+"/"+wu.cap+")";
     psel.appendChild(o);});
   psel.value=inst.sid==null?"":String(inst.sid);
-  psel.onchange=()=>moveInstance(inst.id, psel.value===""?null:+psel.value);
+  psel.onchange=()=>moveInstance(inst.id, psel.value===""?null:psel.value==="faction"?"faction":+psel.value);
   return psel;
 }
 function contribChips(r,masteryEarned){
@@ -2652,11 +2710,12 @@ function contribChips(r,masteryEarned){
     s.textContent=(catk==="gold"?"":cap(catk)+" ")+(acc[catk]>0?"+":"")+acc[catk];wrap.appendChild(s);});
   return wrap;
 }
-function pursuitDetail(r,hideCombat,me){
+function pursuitDetail(r,hideCombat,me,inst,have,craft,tc){
   const wrap=document.createElement("div");
-  const bi=document.createElement("div");bi.className="block";bi.innerHTML='<div class="lbl">INNATE</div>';
+  const bi=document.createElement("div");bi.className="block";bi.innerHTML='<div class="lbl">'+(SIMPLE?"EFFECT":"INNATE")+'</div>';
   bi.appendChild(atomsBlock(r.innate,hideCombat));
   wrap.appendChild(bi);
+  if(SIMPLE&&inst){const rh=simpleReqHTML(inst,simpleReq(inst,r,have,craft,tc));if(rh){const b=document.createElement("div");b.className="block";b.innerHTML=rh;wrap.appendChild(b);}}
   const bm=document.createElement("div");bm.className="block mastery"+(r.mastery_raw?(me.earned?" on":" off"):"");
   const badge=r.mastery_raw?('<span class="badge '+(me.earned?"earn":"noearn")+'">'+(me.earned?"earned ✓":"not earned ✗")+'</span>'):'<span class="badge nomast">none</span>';
   bm.innerHTML='<div class="lbl">MASTERY<span class="sp"></span>'+badge+'</div>';
@@ -2666,7 +2725,7 @@ function pursuitDetail(r,hideCombat,me){
     {const ih=masteryInfraHTML(r);if(ih){const d=document.createElement("div");d.innerHTML=ih;bm.appendChild(d);}}
     if(!me.earned){const mm=document.createElement("div");mm.className="miss";mm.textContent="missing: "+missTxt(me.missing);bm.appendChild(mm);}
   }
-  wrap.appendChild(bm);
+  if(!(SIMPLE&&!r.mastery_raw))wrap.appendChild(bm);
   const bl=nextLinksHTML(r);if(bl){const b=document.createElement("div");b.className="block";b.innerHTML=bl;wrap.appendChild(b);}
   return wrap;
 }
@@ -2688,7 +2747,7 @@ function nextLinksHTML(r){const chip=n=>{const have=(PC[n]||0)>0,us=unlockStatus
 function pursuitTable(occ,earned,craft,tc,hideCombat,have){
   occ.sort((a,b)=>R[a.name].type.localeCompare(R[b.name].type)||a.name.localeCompare(b.name));
   const tbl=document.createElement("table");tbl.className="dtable ptable";
-  tbl.innerHTML='<thead><tr><th>Pursuit</th><th>Type</th><th>Contribution</th><th>Mastery</th><th>Ward</th><th>Place</th><th></th></tr></thead>';
+  tbl.innerHTML='<thead><tr><th>Pursuit</th><th>Type</th><th>Contribution</th><th>'+(SIMPLE?"Req":"Mastery")+'</th><th>Ward</th><th>Place</th><th></th></tr></thead>';
   const tb=document.createElement("tbody");
   occ.forEach(inst=>{
     const n=inst.name,r=R[n],me=instStatus(inst,r,have,craft,tc),open=S.expanded.includes(inst.id);
@@ -2698,14 +2757,16 @@ function pursuitTable(occ,earned,craft,tc,hideCombat,have){
     c1.onclick=()=>{const i=S.expanded.indexOf(inst.id);if(i<0)S.expanded.push(inst.id);else S.expanded.splice(i,1);save();render();};
     const c2=document.createElement("td");c2.className="note";c2.textContent=r.type;
     const c3=document.createElement("td");c3.appendChild(contribChips(r,me.earned));
-    const c4=document.createElement("td");c4.innerHTML=r.mastery_raw?('<span class="badge '+(me.earned?"earn":"noearn")+'">'+(me.earned?"✓":"✗")+'</span>'):'<span class="note">—</span>';
-    if(!me.earned&&me.missing.length)c4.title="missing: "+missTxt(me.missing);
-    const c5=document.createElement("td");c5.innerHTML=(inst.sid!=null&&isFreeRider(inst))?'<span class="badge earn" title="efficient rider">⚡</span>':'<span class="note">·</span>';
+    const c4=document.createElement("td");
+    if(SIMPLE){const sr=simpleReq(inst,r,have,craft,tc);c4.innerHTML='<span class="badge '+(sr.ok?"earn":"noearn")+'">'+(sr.ok?"✓":"✗")+'</span>';if(!sr.ok)c4.title=sr.missing.join("\n");}
+    else c4.innerHTML=r.mastery_raw?('<span class="badge '+(me.earned?"earn":"noearn")+'">'+(me.earned?"✓":"✗")+'</span>'):'<span class="note">—</span>';
+    if(!SIMPLE&&!me.earned&&me.missing.length)c4.title="missing: "+missTxt(me.missing);
+    const c5=document.createElement("td");c5.innerHTML=(inst.sid!=null&&isFreeRider(inst))?'<span class="badge earn" title="'+CHAINL+' rider">⚡</span>':'<span class="note">·</span>';
     const c6=document.createElement("td");c6.appendChild(placementSelect(inst));
     const c7=document.createElement("td");const rm=document.createElement("button");rm.className="rm";rm.textContent="✕";rm.onclick=()=>removeInstance(inst.id);c7.appendChild(rm);
     [c1,c2,c3,c4,c5,c6,c7].forEach(td=>tr.appendChild(td));tb.appendChild(tr);
     if(open){const dr=document.createElement("tr");const dc=document.createElement("td");dc.colSpan=7;
-      dc.appendChild(pursuitDetail(r,hideCombat,me));dr.appendChild(dc);tb.appendChild(dr);}
+      dc.appendChild(pursuitDetail(r,hideCombat,me,inst,have,craft,tc));dr.appendChild(dc);tb.appendChild(dr);}
   });
   tbl.appendChild(tb);return tbl;
 }
@@ -2728,7 +2789,11 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
     b.textContent=us.ok?"unlock ?":"unlock ✗";b.title="Unlock: "+r.unlock_raw+"\n"+us.toks.map(x=>(x.ok===false?"✗ ":x.ok?"✓ ":"? ")+x.t+" — "+x.why).join("\n");h.appendChild(b);
     if(!us.ok)h.appendChild(ignBtn("u:"+inst.id,us.missing.join("|")));}}
   inst._mFlag=mFlag;
-  if(inst.sid!=null && inst.sid!=="faction" && isFreeRider(inst)){const b=document.createElement("span");b.className="badge earn";b.textContent="⚡";b.title="efficient rider";h.appendChild(b);}
+  if(!inst.fac&&r.type==="Raw Materials"){const rs=rawReachStatus(n),rf=flagState("r:"+inst.id,!rs.ok,"reach");
+    if(!rs.ok&&rf==="on"){const b=document.createElement("span");b.className="badge noearn";b.textContent="reach ✗";b.title="No "+n+" resource within your Reach on the map";h.appendChild(b);h.appendChild(ignBtn("r:"+inst.id,"reach"));}}
+  if(SIMPLE&&!inst.fac){const sr=simpleReq(inst,r,have,craft,tc),sf=flagState("s:"+inst.id,!sr.ok,sr.missing.join("|"));
+    if(!sr.ok&&sf==="on"){const b=document.createElement("span");b.className="badge noearn";b.textContent="req ✗";b.title=sr.missing.join("\n");h.appendChild(b);h.appendChild(ignBtn("s:"+inst.id,sr.missing.join("|")));}}
+  if(inst.sid!=null && !inst.fac && isFreeRider(inst)){const b=document.createElement("span");b.className="badge earn";b.textContent="⚡";b.title=CHAINL+" rider";h.appendChild(b);}
   if(inst.fac){const b=document.createElement("span");b.className="badge earn";b.textContent="Faction";h.appendChild(b);}
   if(inst.bt>0)h.appendChild(timerCtl("build",inst.bt,d=>{inst.bt=Math.max(0,inst.bt+d);save();render();}));
   if(inst.dmg>0)h.appendChild(timerCtl("repair",inst.dmg,d=>{inst.dmg=Math.max(0,inst.dmg+d);save();render();}));
@@ -2738,7 +2803,7 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
   card.appendChild(h);
 
   const sub=document.createElement("div");sub.className="sub";
-  sub.innerHTML=esc(r.type)+(effLabel(n).length?(" · efficient: "+effLabel(n).map(e=>R[e]?kwify(e):(/^natural$/i.test(e)?"any "+kwify("Natural")+" Pursuit":"any "+esc(e)+" Pursuit")).join(" or ")):"");card.appendChild(sub);
+  sub.innerHTML=esc(r.type)+(effLabel(n).length?(" · "+CHAINL+": "+effLabel(n).map(e=>R[e]?kwify(e):(/^natural$/i.test(e)?"any "+kwify("Natural")+" Pursuit":"any "+esc(e)+" Pursuit")).join(" or ")):"");card.appendChild(sub);
 
   // placement dropdown (always visible for quick moves)
   const place=document.createElement("div");place.className="sub";
@@ -2757,10 +2822,11 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
     return card;
   }
 
-  // INNATE
-  const bi=document.createElement("div");bi.className="block";bi.innerHTML='<div class="lbl">INNATE</div>';
+  // INNATE (SIMPLE: the whole effect)
+  const bi=document.createElement("div");bi.className="block";bi.innerHTML='<div class="lbl">'+(SIMPLE?"EFFECT":"INNATE")+'</div>';
   bi.appendChild(atomsBlock(r.innate,hideCombat));
   card.appendChild(bi);
+  if(SIMPLE){const rh=simpleReqHTML(inst,simpleReq(inst,r,have,craft,tc));if(rh){const b=document.createElement("div");b.className="block";b.innerHTML=rh;card.appendChild(b);}}
   // MASTERY
   const bm=document.createElement("div");bm.className="block mastery"+(r.mastery_raw?(me.earned?" on":" off"):"");
   const badge=r.mastery_raw?('<span class="badge '+(me.earned?"earn":"noearn")+'">'+(me.earned?"earned ✓":"not earned ✗")+'</span>'):'<span class="badge nomast">none</span>';
@@ -2781,7 +2847,7 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
     card.appendChild(cb);
     const det=document.createElement("details");det.className="block sep";det.innerHTML='<summary class="note">innate / mastery separately</summary>';
     det.appendChild(bi);det.appendChild(bm);card.appendChild(det);
-  } else card.appendChild(bm);
+  } else if(!(SIMPLE&&!r.mastery_raw)) card.appendChild(bm);
   {const bl=nextLinksHTML(r);if(bl){const b=document.createElement("details");b.className="block nxd";if(NX_OPEN)b.open=true;
     b.innerHTML='<summary>'+nextLinksSummary(r)+'</summary>'+bl;card.appendChild(b);}}
   return card;
@@ -3119,7 +3185,8 @@ function calcMetrics(have,earned,tc){
   let gold=0,reduce=0,craft=0,infl=0,faith=0,doubt=0,scale=0,infraUp=0,extort=0,extTrig=0;
   const seasonAdd={Spring:0,Summer:0,Fall:0,Winter:0};
   const phaseCount={};
-  const naturalCount=Object.keys(PC).filter(n=>NATURAL.has(n)).reduce((a,n)=>a+PC[n],0);
+  const naturalCount=Object.keys(PC).filter(n=>NATURAL.has(n)).reduce((a,n)=>a+PC[n],0)
+    +(SIMPLE?S.placed.filter(p=>p.fac&&pActive(p)&&!NATURAL.has(p.name)).length:0);   // SIMPLE: faction pursuits are Natural
   function eat(atoms,active,q){
     atoms.forEach(a=>{
       const ph=a.season?"season":(PHASE[a.cat]||"other");phaseCount[ph]=(phaseCount[ph]||0)+q;
@@ -4197,7 +4264,7 @@ function tSwatch(kind,fill,px){px=px||26;const g=tGlyph(kind,fill);
   return '<svg class="tswg" width="'+px+'" height="'+(px*0.9).toFixed(0)+'" viewBox="0 0 120 108" aria-hidden="true">'+
     '<polygon points="114,54 87,100.8 33,100.8 6,54 33,7.2 87,7.2" fill="'+fill+'" stroke="#2b241b" stroke-opacity=".45" stroke-width="3"/>'+
     (g?'<g fill="'+fill+'" stroke-width="'+(RS.glyph_w*1.25)+'" stroke-linecap="round" stroke-linejoin="round" opacity="'+RS.glyph_opacity+'">'+g+'</g>':'')+'</svg>';}
-const RCOL={mine:'#161616',quarry:'#8a3b2e',arable:'#7a4f2a',forestry:'#2f5d2f',apiary:'#e8c020',salt:'#ece6d6'};
+const RCOL={mine:'#161616',quarry:'#8a3b2e',arable:'#7a4f2a',forestry:'#2f5d2f',apiary:'#e8c020',salt:'#ece6d6',peat:'#4a3420',fish:'#2f6f8f'};
 const C2T={p:'plains',f:'forest',w:'wetland',t:'tundra',m:'mountain','~':'water'};
 let MAPVIEW=null;                                   // decoded grid cache {sig, hex:{key:{t,res,reg,hill}}}
 function mapState(){const M=D.map;M.cells=M.cells||{};M.outlaw=M.outlaw||{};M.camps=M.camps||{};return M;}
@@ -4236,6 +4303,42 @@ function mapZoom(k){if(k==="fit")MAPZ.fit=!MAPZ.fit;else{MAPZ.fit=false;MAPZ.z=M
   try{localStorage.setItem("renown_mapz",JSON.stringify({z:MAPZ.z,fit:MAPZ.fit}));}catch(e){}render();}
 let MAPSETUP_OPEN=null;   // null = open until terrain is loaded, then remember the player's choice (per device)
 document.addEventListener("click",e=>{const sm=e.target.closest("#mSetup > summary");if(sm)MAPSETUP_OPEN=!sm.parentElement.open;});   // user toggles only
+// ---- Reach overlay: tier reach (SETTLEMENTS[*].reach) + "Reach +N" on the owner's active pieces,
+// measured as a straight-line hex radius (Range as the crow flies). 1 owner = Controlled, 2+ = Contested.
+function reachBonus(p){
+  if(!p||!p.board)return {b:0,src:[]};
+  return withBoard(p.board,()=>{const rx=/Reach\s*\+\s*(\d+)/i,src=[];let b=0;
+    const earned=SIMPLE?{}:computeEarned(new Set(Object.keys(PC))).earned;
+    Object.keys(PC).forEach(n=>{const r=R[n]||{};const t=(r.innate_raw||"")+" "+(earned[n]?(r.mastery_raw||""):"");const m=t.match(rx);if(m){b+=+m[1];src.push(n+" +"+m[1]);}});
+    Object.keys(S.infra||{}).concat(Object.keys(S.wonders||{})).filter(infraOn).forEach(n=>{const m=JSON.stringify(INFRA[n]||WON[n]||{}).match(rx);if(m){b+=+m[1];src.push(n+" +"+m[1]);}});
+    const f=FAC[S.faction||""];if(f){const m=(f.mechanic||"").match(rx);if(m){b+=+m[1];src.push(S.faction+" +"+m[1]);}}
+    return {b,src};});
+}
+function reachOwners(M,cols,rows){
+  const own={},RB={};
+  Object.keys(M.cells).forEach(k=>{const cell=M.cells[k];if(cell.type==="Army")return;
+    const st=DATA.settlements[cell.type],pl=cellPlayer(cell);if(!st||!pl)return;
+    const rb=RB[pl.id]||(RB[pl.id]=reachBonus(pl)),rad=(+st.reach||0)+rb.b,a=k.split(",").map(Number);
+    for(let c=Math.max(0,a[0]-rad);c<=Math.min(cols-1,a[0]+rad);c++)for(let r=Math.max(0,a[1]-rad-1);r<=Math.min(rows-1,a[1]+rad+1);r++)
+      if(hexDist(a,[c,r])<=rad)(own[c+","+r]=own[c+","+r]||new Set()).add(String(pl.id));});
+  return own;
+}
+// Raw Materials need their resource within the owner's Reach. Map resources → pursuits;
+// Common Land has no map resource (buildable anywhere) and is not checked.
+const RES_NODE={mine:"Mine",quarry:"Quarry",arable:"Arable Land",forestry:"Forestry",apiary:"Apiary",salt:"Salt Works",peat:"Peat Bog",fish:"Fishmongery"};
+function reachResources(p){
+  const M=mapState(),g=M.grid;if(!g||!p)return null;
+  if(!Object.values(M.cells).some(c=>c.type!=="Army"&&String(c.player)===String(p.id)))return null;   // not on the map yet
+  const V=decodeGrid(g),own=reachOwners(M,g.width,g.height),have=new Set();
+  Object.keys(own).forEach(k=>{if(own[k].has(String(p.id))){const h=V.hex[k];if(h&&h.res&&RES_NODE[h.res])have.add(RES_NODE[h.res]);}});
+  return have;
+}
+function rawReachStatus(name,b){
+  if(!Object.values(RES_NODE).includes(name))return {ok:true,checked:false};
+  const p=D.players.find(pp=>pp.board===(b||S));const have=reachResources(p);
+  if(!have)return {ok:true,checked:false};
+  return {ok:have.has(name),checked:true};
+}
 function mapSVG(M){
   const V=decodeGrid(M.grid),g=M.grid,cols=g?g.width:(M.cols||16),rows=g?g.height:(M.rows||12);
   const R=15,dx=1.5*R,dy=Math.sqrt(3)*R,W=cols*dx+R*2,H=rows*dy+dy,PAL=mapPal(g);
@@ -4250,6 +4353,7 @@ function mapSVG(M){
       .replace(/fill="SHADE"/g,'style="fill:var(--shade)"').replace(/fill="DEEP"/g,'style="fill:var(--deep)"')+'</g></symbol>';});
   let s='<svg width="'+(W*z).toFixed(0)+'" height="'+(H*z).toFixed(0)+'" viewBox="0 0 '+W.toFixed(0)+' '+H.toFixed(0)+'" style="display:block"><defs><pattern id="olh" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="3" height="6" fill="rgba(120,20,20,.45)"/></pattern>'+defs+'</defs>';
   let glyphs='',coast='',over='';
+  s=s.replace('<defs>','<defs><pattern id="rch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><line x1="0" y1="0" x2="0" y2="5" stroke="#000" stroke-opacity=".28" stroke-width="1.2"/></pattern>');
   for(let c=0;c<cols;c++)for(let r=0;r<rows;r++){
     const k=c+","+r,cx=R+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0),h=V.hex[k];
     let fill=h?PAL[h.t]:"var(--chip)";if(h&&h.hill)fill=lighten(fill,1.16);
@@ -4269,6 +4373,19 @@ function mapSVG(M){
   }
   s+=glyphs;
   if(coast)s+='<path d="'+coast+'" fill="none" stroke="'+(RS?RS.ink:"#2b241b")+'" stroke-width="'+((RS?RS.coast_w:4.2)*sc).toFixed(2)+'" stroke-linecap="round" pointer-events="none"/>';
+  if(M.showReach!==false){
+    const own=reachOwners(M,cols,rows),colOf=id=>{const p=D.players.find(pp=>String(pp.id)===id);return p?p.color:"#888";};
+    const sig=k=>own[k]?[...own[k]].sort().join("|"):"";let tint="",edge="";
+    Object.keys(own).forEach(k=>{const [c,r]=k.split(",").map(Number),cx=R+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0),ids=[...own[k]];
+      ids.forEach(id=>{tint+='<polygon points="'+pts(cx,cy)+'" fill="'+colOf(id)+'" fill-opacity="'+(ids.length>1?0.12:0.2)+'"/>';});
+      if(ids.length>1)tint+='<polygon points="'+pts(cx,cy)+'" fill="url(#rch)"><title>'+k+' · Contested</title></polygon>';
+      const ec=ids.length>1?"#444":colOf(ids[0]),me=sig(k),ri=R*0.9,v=t=>[cx+ri*Math.cos(Math.PI/3*t),cy+ri*Math.sin(Math.PI/3*t)];
+      [[0,-1],[0,1],[1,c%2?0:-1],[1,c%2?1:0],[-1,c%2?0:-1],[-1,c%2?1:0]].forEach(([oc,orr])=>{
+        const nc=c+oc,nr=r+orr,nk=nc+","+nr;if(sig(nk)===me)return;
+        const nx=R+nc*dx,ny=dy/2+nr*dy+(nc%2?dy/2:0),ang=Math.atan2(ny-cy,nx-cx)*180/Math.PI,e=((Math.round((ang-30)/60)%6)+6)%6,a=v(e),b=v(e+1);
+        edge+='<path d="M'+a[0].toFixed(1)+' '+a[1].toFixed(1)+'L'+b[0].toFixed(1)+' '+b[1].toFixed(1)+'" stroke="'+ec+'"/>';});});
+    s+='<g pointer-events="none">'+tint+'</g><g fill="none" stroke-width="2" stroke-opacity=".8" stroke-linecap="round" pointer-events="none">'+edge+'</g>';
+  }
   s+=over;
   if(g&&M.showStarts)(g.settlements||[]).forEach(reg=>reg.forEach(st=>{const cx=R+st[0]*dx,cy=dy/2+st[1]*dy+(st[0]%2?dy/2:0),w=R*.42;
     s+='<rect x="'+(cx-w).toFixed(1)+'" y="'+(cy-w).toFixed(1)+'" width="'+(w*2).toFixed(1)+'" height="'+(w*2).toFixed(1)+'" fill="none" stroke="#b3392f" stroke-width="1.6" stroke-dasharray="3 2" pointer-events="none"/>';}));
@@ -4461,6 +4578,7 @@ function mapToolsHTML(){const M=mapState(),g=M.grid;
   h+='<div class="mtoolbar">tool <select id="mTool">'+tools.map(t=>'<option'+(t===mtool?' selected':'')+'>'+t+'</option>').join('')+'</select>'+
     ' <span class="note">placing as</span> <span class="pdot" style="display:inline-block;background:'+p.color+'"></span> '+esc(p.name)+
     ' <label class="note"><input type="checkbox" id="mRes"'+(M.showRes!==false?' checked':'')+'> resources</label>'+
+    ' <label class="note"><input type="checkbox" id="mReach"'+(M.showReach!==false?' checked':'')+'> reach borders</label>'+
     ' <label class="note"><input type="checkbox" id="mStarts"'+(M.showStarts?' checked':'')+'> suggested settlement spots</label>'+
     ' <button id="mClear">clear markers</button>'+
     ' <span class="mapzoom" style="display:inline-flex;margin:0"><button data-mz="-1" title="zoom out">−</button><button data-mz="1" title="zoom in">+</button><button data-mz="fit"'+(MAPZ.fit?' class="on"':'')+'>fit</button><span class="note">'+(MAPZ.fit?"fit":Math.round(MAPZ.z*100)+"%")+'</span></span></div>';
@@ -4499,6 +4617,7 @@ function wireMap(host){const M=mapState(),g=M.grid,era=currentEra(),$=id=>host.q
       catch(err){flash("not a renown-maps JSON export");}};rd.readAsText(f);};
   if($("mTool"))$("mTool").onchange=e=>{mtool=e.target.value;render();};
   if($("mRes"))$("mRes").onchange=e=>{M.showRes=e.target.checked;save();render();};
+  if($("mReach"))$("mReach").onchange=e=>{M.showReach=e.target.checked;save();render();};
   if($("mStarts"))$("mStarts").onchange=e=>{M.showStarts=e.target.checked;save();render();};
   if($("mClear"))$("mClear").onclick=()=>{if(confirm("Clear settlements, armies, Outlaw Country and camps? Terrain stays.")){M.cells={};M.outlaw={};M.camps={};save();render();}};
   host.querySelectorAll("[data-cell]").forEach(el=>el.onclick=()=>{
@@ -5143,7 +5262,8 @@ def main():
     if not os.path.exists(rules_path):
         print(f"  (rules file not found: {a.rules} - battle rules panel will be empty)")
     html = render_html(
-        records=records, naturalNames=natural, externalTokens=external,
+        records=records, naturalNames=natural, externalTokens=external, simple=bool(ns.get("SIMPLE")),
+        chainTerm=ns.get("CHAIN_TERM", "Efficient"),
         infra=infra, wonders=wonders, armySrc=army_src, equip=equip, glossary=glossary,
         domainBoard=ns.get("DOMAIN_BOARD", {}), publicOrder=po, wikiBase=a.wiki_base,
         tree=tree_payload(ns, os.path.dirname(os.path.abspath(__file__))),

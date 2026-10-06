@@ -24,8 +24,12 @@ def pursuit_sections():
             innate = v.get("innate", "") or ""
             # Efficient gets its own column (was prefixed onto the Innate text)
             eff_txt = (rd.display(eff) if isinstance(eff, str) else rd.display_list(eff)) if eff else "—"
-            rows.append([rd.display(n), rd.display_text(v.get("mastery_req", "")) or "—", eff_txt,
-                rd.display_text(innate) or "—", rd.display_text(v.get("mastery", "")) or "—"])
+            if getattr(rd, "SIMPLE", False):
+                rows.append([rd.display(n), rd.display_text(v.get("infrastructure_req", "")) or "—", eff_txt,
+                    rd.display_text(innate) or "—"])
+            else:
+                rows.append([rd.display(n), rd.display_text(v.get("mastery_req", "")) or "—", eff_txt,
+                    rd.display_text(innate) or "—", rd.display_text(v.get("mastery", "")) or "—"])
         if rows:
             secs.append({"title": t, "rows": rows})
     return secs
@@ -57,7 +61,8 @@ def faction_rows():
     return [[n, f.get("mechanic", "")] for n, f in rd.FACTIONS.items()]
 
 def settlement_rows():
-    return [[n, str(v["tier"]), v["sea_variant"] or "—", str(v["tax_income"]),
+    sea = any(v.get("sea_variant") for v in rd.SETTLEMENTS.values())      # no column when no Settlement has a sea variant (SIMPLE)
+    return [[n, str(v["tier"])] + ([v["sea_variant"] or "—"] if sea else []) + [str(v["tax_income"]),
              str(v["muster_limit"]), str(v["build_time"]), str(v["wards"]),
              str(v["reach"]), v["notes"] or "—"] for n, v in rd.SETTLEMENTS.items()]
 
@@ -92,8 +97,8 @@ GLOSSARY_CATEGORIES = [
         "Net Influence","Endorsed","Condemned","Council Phase","Council Envoy","Personal Envoy",
         "Diplomacy","Treaty","Alliance","Vassal","Suzerain"]),
     ("Empire & Economy", ["Faith X","Doubt X","Extort X","Recoup X","Speed X","Edict","Monument","Charter",
-        "Muster","Pursue","Build","Repair","Move","Demand Tribute","Renown","Domain","Domain Point",
-        "Standing","Public Order","Reach","Ward","Efficient X","War Weariness"]),
+        "Muster"] + (["Build","Improve"] if getattr(rd,"SIMPLE",False) else ["Pursue","Build"]) + ["Repair","Move","Demand Tribute","Renown","Domain","Domain Point",
+        "Standing","Public Order","Reach","Ward",getattr(rd,"CHAIN_TERM","Efficient")+" X","War Weariness"]),
     ("World", ["Bandit","Outlaw Country","Siege","Sally Forth"]),
 ]
 

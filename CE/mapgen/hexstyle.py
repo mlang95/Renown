@@ -186,6 +186,15 @@ def _icon(key):
                     f'L{cx-s} {cy+s/2} L{cx-s} {cy-s/2} Z M{cx-s} {cy-s/2} L{cx} {cy} L{cx+s} {cy-s/2} '
                     f'M{cx} {cy} V{cy+s}" fill="#f7f4ec" {I}/>')
         return cube(x - 5.5, y + 4, 5.5) + cube(x + 5.5, y + 4, 5.5) + cube(x, y - 5, 5.5)
+    if key == "peat":              # cut turves: three stacked dark bricks
+        return (f'<g fill="#5a3e24" {I}>'
+                f'<rect x="{x-11}" y="{y+2}" width="10" height="7" rx="1.5"/>'
+                f'<rect x="{x+1}" y="{y+2}" width="10" height="7" rx="1.5"/>'
+                f'<rect x="{x-5}" y="{y-6}" width="10" height="7" rx="1.5"/></g>')
+    if key == "fish":              # fish: body + tail + eye
+        return (f'<path d="M{x-10} {y} Q{x-2} {y-8} {x+7} {y} Q{x-2} {y+8} {x-10} {y} Z" fill="#7fb0c8" {I}/>'
+                f'<path d="M{x+7} {y} L{x+12} {y-5} L{x+12} {y+5} Z" fill="#7fb0c8" {I}/>'
+                f'<circle cx="{x-5}" cy="{y-1.5}" r="1.3" fill="{INK}"/>')
     if key == "mine":              # pick-axe
         return (f'<path fill="none" {I} stroke-width="2.6" d="M{x-8} {y+10} L{x+5} {y-5}"/>'
                 f'<path d="M{x-6} {y-9} Q{x+4} {y-12} {x+11} {y-3} Q{x+6} {y-7} {x+1} {y-6} '
@@ -200,6 +209,8 @@ RESOURCES = {
     "quarry":   {"name": "Quarry",      "color": "#a9a49a"},
     "salt":     {"name": "Salt Works",  "color": "#ece6d6"},
     "mine":     {"name": "Mine",        "color": "#4a4440"},
+    "peat":     {"name": "Peat Bog",    "color": "#5a3e24"},
+    "fish":     {"name": "Fishmongery", "color": "#7fb0c8"},
 }
 for _k, _v in RESOURCES.items():
     _v["icon"] = (f'<g transform="translate({BADGE[0]},{BADGE[1]}) scale({ICON_K:.4f}) '

@@ -1238,6 +1238,18 @@ def _resources(m, palette, res_min):
                 for c, t in zip(_spread_picks(comp, len(types)), types):
                     m.get(c).resource = t
 
+    if "water" in palette:      # fish on a coastal hex of each water body; +1 if large
+        seen = set()
+        for h in m.all():
+            if h.terrain == "water" and h.coord not in seen:
+                comp = _component(m, h, "water", seen)
+                shore = mapgen.coastal(m, comp)
+                if len(comp) < mapgen.MARK_MIN["water"] or not shore:
+                    continue
+                n = 2 if len(comp) >= mapgen.BIG_NODE else 1
+                for c in _spread_picks(shore, n):
+                    m.get(c).resource = "fish"
+
     for res, need in res_min.items():
         if need <= 0:
             continue
@@ -1254,6 +1266,8 @@ def _resources(m, palette, res_min):
             terrains = tuple(t for t in mapgen.TOPUP_TERRAINS[res] if t in palette)
             cands = [h.coord for h in m.all()
                      if h.terrain in terrains and not h.resource]
+            if res == "fish":
+                cands = mapgen.coastal(m, cands)
         existing = [h.coord for h in m.all() if h.resource == res]
         cands.sort(key=lambda c: -min([distance(c, e) for e in existing], default=999))
         for c in cands:
@@ -1586,7 +1600,7 @@ def validate(m, p):
     # 5. resource floors, after preset overrides
     have = Counter(h.resource for h in m.all() if h.resource)
     for res, need in res_min.items():
-        if need > 0 and have[res] < need:
+        if need > 0 and have[res] < need and mapgen.floor_applies(res, palette, m):
             v.append(f"resource {res}: {have[res]}/{need}")
 
     return v

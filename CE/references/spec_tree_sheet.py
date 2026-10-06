@@ -73,6 +73,15 @@ TREES = {
 }
 
 
+
+def _chain_term():
+    """Display name for the `efficient` field (renown_data.CHAIN_TERM)."""
+    try:
+        import renown_data as _r
+        return getattr(_r, "CHAIN_TERM", "Efficient")
+    except Exception:
+        return "Efficient"
+
 def load_specs(specs_csv=None):
     """Populate SPECS from renown_data.NODES — the single source of truth.
     Rows carry the same keys the CSV had, so the renderer is unchanged.
@@ -90,7 +99,9 @@ def load_specs(specs_csv=None):
             'Pursuits': display(name),
             'Type': n.get('type', ''),
             'Unlock Requirement': n.get('unlock', ''),
-            'Mastery Requirement': n.get('mastery_req', ''),
+            'Mastery Requirement': (' or '.join(__import__('renown_data').node_parents(name, NODES))
+                                    if getattr(__import__('renown_data'), 'SIMPLE', False)
+                                    else n.get('mastery_req', '')),
             'Innate Effects': n.get('innate', ''),
             'Mastery Effect': n.get('mastery', ''),
             'Builds Into': ', '.join(display(x) for x in n.get('builds_into', [])),
@@ -188,7 +199,7 @@ def _smart_combine(innate, mastery):
             continue
 
         # Efficient X (dedupe)
-        m_eff = re.match(r'^Efficient\s+(.+)$', cl_norm)
+        m_eff = re.match(r'^(?:Efficient|' + re.escape(_chain_term()) + r')\s+(.+)$', cl_norm)
         if m_eff:
             efficient_set.add(m_eff.group(1).strip())
             continue
@@ -235,7 +246,7 @@ def _smart_combine(innate, mastery):
     if natural_present:
         out_parts.append("Natural")
     for eff in sorted(efficient_set):
-        out_parts.append(f"Efficient {eff}")
+        out_parts.append(f"{_chain_term()} {eff}")
     out_parts.extend(other_clauses)
 
     return ', '.join(out_parts) if out_parts else '—'
@@ -571,6 +582,9 @@ def merge_buckets_in_tree(tree_name, nodes):
 def _rd_parse_parents(node, NODES):
     """Parse a node's mastery_req into a list of prerequisite spec names that
     exist in NODES. Splits on '+' and 'or'; drops numeric prefixes."""
+    import renown_data as _rd
+    if getattr(_rd, "SIMPLE", False):
+        return _rd.node_parents(node, NODES)
     req = (NODES.get(node, {}).get("mastery_req") or "").strip()
     if not req or req == "-":
         return []

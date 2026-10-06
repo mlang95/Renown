@@ -479,8 +479,10 @@ open(os.path.join(OUTDIR,"index.html"),"w",encoding="utf-8").write(
 # ── TYPE pages (canonical pursuit home: full stat table) ──
 by_type={}
 for n,d in rd.NODES.items(): by_type.setdefault(d.get("type","?"),[]).append(n)
-COLS=[("unlock","Gate"),("mastery_req","Build Req"),("innate","Innate"),
-      ("mastery","Mastery"),("efficient","Efficient"),("builds_into","Builds Into")]
+COLS=([("unlock","Gate"),("infrastructure_req","Infrastructure"),("innate","Effect"),
+       ("efficient",getattr(rd,"CHAIN_TERM","Efficient")),("builds_into","Builds Into")] if getattr(rd,"SIMPLE",False) else
+      [("unlock","Gate"),("mastery_req","Build Req"),("innate","Innate"),
+       ("mastery","Mastery"),("efficient","Efficient"),("builds_into","Builds Into")])
 def stat_table(names,current):
     head="".join(f"<th>{lbl}</th>" for _,lbl in COLS)
     rows=[]
@@ -790,9 +792,10 @@ if hasattr(rd, "TIMERS") or hasattr(rd, "INFLUENCE_GAIN") or hasattr(rd, "PO_MOD
 if hasattr(rd, "SETTLEMENTS"):
     u="settlements-ref.html"
     items=sorted(rd.SETTLEMENTS.items(), key=lambda kv: kv[1].get("tier",0))
-    rows=[[n, d.get("tax_income",""), d.get("muster_limit",""), d.get("wards",""), d.get("reach",""), d.get("build_time",""), d.get("sea_variant") or "—", d.get("notes","")] for n,d in items]
+    _sea=any(d.get("sea_variant") for _,d in items)
+    rows=[[n, d.get("tax_income",""), d.get("muster_limit",""), d.get("wards",""), d.get("reach",""), d.get("build_time","")]+([d.get("sea_variant") or "—"] if _sea else [])+[d.get("notes","")] for n,d in items]
     body=f"<h1>Settlements <span class='count'>{len(items)}</span></h1>"
-    body+=_grid(["Settlement","Tax","Muster","Wards","Reach","Build","Sea Variant","Notes"], rows, u)
+    body+=_grid(["Settlement","Tax","Muster","Wards","Reach","Build"]+(["Sea Variant"] if _sea else [])+["Notes"], rows, u)
     open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Settlements",body,u))
     search_index.append({"title":"Settlements","url":u,"text":"settlements hamlet village town city metropolis tax muster wards reach"})
 

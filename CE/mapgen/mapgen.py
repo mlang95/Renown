@@ -437,28 +437,50 @@ MIN_NODE = 5    # no terrain cluster smaller than this (culled to plains)
 BIG_NODE = 16   # large clusters drop BOTH their raw materials
 # size a cluster must reach to DROP a raw material (separate from the cull min);
 # forest/wetland set high so forestry stays scarce despite many woods
-MARK_MIN = {"forest": 12, "wetland": 12, "tundra": 5, "plains": 5}
+MARK_MIN = {"forest": 12, "wetland": 12, "tundra": 5, "plains": 5, "water": 3}
 
 # raw materials a terrain can drop (primary, secondary), per renown_data.TERRAIN
 RESOURCE_BY_TERRAIN = {
     "plains":   ("arable", "apiary"),
     "forest":   ("forestry", "apiary"),
-    "wetland":  ("forestry",),            # peat unused (no marker type)
+    "wetland":  ("peat", "forestry"),
+    "water":    ("fish",),                # placed on coastal water hexes only
     "tundra":   ("quarry", "salt"),
     "mountain": ("mine", "quarry"),
 }
 RESOURCE_MIN = {"mine": 3, "quarry": 3, "arable": 3, "forestry": 3,
-                "apiary": 2, "salt": 2}
+                "apiary": 2, "salt": 2, "peat": 2, "fish": 2}
 
 # canonical render attributes per resource (border colour + icon asset)
 RESOURCE_COLOR = {"mine": "#161616", "quarry": "#8a3b2e", "arable": "#7a4f2a",
-                  "forestry": "#2f5d2f", "apiary": "#e8c020", "salt": "#ece6d6"}
+                  "forestry": "#2f5d2f", "apiary": "#e8c020", "salt": "#ece6d6",
+                  "peat": "#4a3420", "fish": "#2f6f8f"}
 RESOURCE_ICON = {"mine": "ore", "quarry": "stone", "arable": "grain",
-                 "forestry": "wood", "apiary": "apiary", "salt": "salt"}
+                 "forestry": "wood", "apiary": "apiary", "salt": "salt",
+                 "peat": "peat", "fish": "fish"}
 # where a shortfall can be topped up
 TOPUP_TERRAINS = {"arable": ("plains",), "apiary": ("plains", "forest"),
                   "forestry": ("forest", "wetland"), "salt": ("tundra",),
-                  "quarry": ("tundra",), "mine": ()}
+                  "quarry": ("tundra",), "mine": (), "peat": ("wetland",), "fish": ("water",)}
+
+
+def coastal(m, coords):
+    """Water hexes with at least one land neighbour (where Fishmongery can sit)."""
+    return [c for c in coords if any(nb.terrain != "water" for nb in m.neighbors(c))]
+
+
+def floor_applies(res, palette, m=None):
+    """A resource floor only binds when the map (or palette) has a hex that can carry it.
+    Pass the map to test the board actually generated (fish also needs a coastal water hex)."""
+    if m is not None:
+        palette = {h.terrain for h in m.all()}
+        if res == "fish":
+            return bool(coastal(m, [h.coord for h in m.all() if h.terrain == "water"]))
+    if res == "mine":
+        return "mountain" in palette
+    if res == "quarry":
+        return "tundra" in palette or "mountain" in palette
+    return any(t in palette for t in TOPUP_TERRAINS.get(res, ()))
 
 
 def _cap_components(m, cap, terrains=("forest", "wetland", "tundra")):
@@ -671,6 +693,17 @@ def _resources(m, p, rng):
             types = ["mine"] + (["quarry"] if len(comp) >= BIG_NODE else [])
             for c, t in zip(_spread_picks(comp, len(types)), types):
                 m.get(c).resource = t
+    # water bodies (>= MARK_MIN water): fish on a coastal hex; +1 if large
+    seen = set()
+    for h in m.all():
+        if h.terrain == "water" and h.coord not in seen:
+            comp = _component(m, h, "water", seen)
+            shore = coastal(m, comp)
+            if len(comp) < MARK_MIN["water"] or not shore:
+                continue
+            n = 2 if len(comp) >= BIG_NODE else 1
+            for c in _spread_picks(shore, n):
+                m.get(c).resource = "fish"
     # global minimums
     for res, need in RESOURCE_MIN.items():
         have = sum(1 for h in m.all() if h.resource == res)
@@ -684,6 +717,8 @@ def _resources(m, p, rng):
                      if h.terrain in ("tundra", "mountain") and not h.resource]
         else:
             cands = [h.coord for h in m.all() if h.terrain in terrains and not h.resource]
+            if res == "fish":
+                cands = coastal(m, cands)
         existing = [h.coord for h in m.all() if h.resource == res]
         cands.sort(key=lambda c: -min([distance(c, e) for e in existing], default=999))
         for c in cands:

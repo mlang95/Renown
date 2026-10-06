@@ -334,7 +334,7 @@ def build(data, out_path):
     add_table(doc, *domain_standing_spec())
 
     h1(doc, "Empire")
-    h2(doc, "Settlements"); add_table(doc, ["Settlement","Tier","Sea Variant","Tax","Muster","Build","Wards","Reach","Notes"], data["settlements"])
+    h2(doc, "Settlements"); add_table(doc, ["Settlement","Tier"] + (["Sea Variant"] if data["settlements"] and len(data["settlements"][0]) == 9 else []) + ["Tax","Muster","Build","Wards","Reach","Notes"], data["settlements"])
     h2(doc, "Infrastructure"); add_table(doc, ["Infrastructure","Upkeep","Freq","Empire Bonus","Tier","Build","Requirement"], data["infrastructure"])
     h2(doc, "Wonders"); add_table(doc, ["Wonder","Empire Bonus","Build","Requirement"], data["wonders"])
     if rd is not None and getattr(rd, "TERRAIN", None):
@@ -342,7 +342,7 @@ def build(data, out_path):
 
     h1(doc, "Pursuits")
     for s in data["pursuit_sections"]:
-        h2(doc, s["title"]); add_table(doc, ["Pursuit","Domain","Mastery Unlock","Efficient","Innate Effect","Mastery Effect"], _alpha(s["rows"]))
+        h2(doc, s["title"]); add_table(doc, (["Pursuit","Domain","Infrastructure Req",getattr(__import__("renown_data"),"CHAIN_TERM","Efficient"),"Effect"] if getattr(__import__("renown_data"), "SIMPLE", False) else ["Pursuit","Domain","Mastery Unlock","Efficient","Innate Effect","Mastery Effect"]), _alpha(s["rows"]))
 
     h1(doc, "Economy")
     # Public Order ‖ Faith & Doubt (both narrow) — reclaim right half

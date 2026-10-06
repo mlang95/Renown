@@ -97,11 +97,12 @@ def retinues():
 
 def settlements():
     # 9-col form matching the authored Rules table; sourced from SETTLEMENTS.
-    rows = [[str(v["tier"]), n, v["sea_variant"] or "None", str(v["tax_income"]),
+    sea = any(v.get("sea_variant") for v in rd.SETTLEMENTS.values())      # no column when no Settlement has a sea variant (SIMPLE)
+    rows = [[str(v["tier"]), n] + ([v["sea_variant"] or "None"] if sea else []) + [str(v["tax_income"]),
              str(v["muster_limit"]), str(v["build_time"]), str(v["wards"]),
              str(v["reach"]), v["notes"] or "—"]
             for n, v in rd.SETTLEMENTS.items()]
-    return _table(["Tier", "Settlement", "Sea", "Tax", "Muster", "Build", "Wards", "Reach", "Notes"], rows)
+    return _table(["Tier", "Settlement"] + (["Sea"] if sea else []) + ["Tax", "Muster", "Build", "Wards", "Reach", "Notes"], rows)
 
 def eras():
     rows = [[n, str(v["renown"]), str(v["armies"]), str(v["cities"]),

@@ -51,11 +51,24 @@ REM USE_LAST_RUN : 1 = dice knobs come from lab_out\last_run.json (the most
 REM   recent tournament). 0 = dice_config file defaults. Set 0 before a print run.
 set USE_LAST_RUN=0
 
+REM ---- PURSUIT GRAPH ---------------------------------------------------------
+REM SIMPLE : 1 = SIMPLE_NODES (one-stage pursuits, efficient placement,
+REM          infrastructure_req), 0 = legacy NODES (innate + mastery).
+REM          Read by renown_data via the RENOWN_SIMPLE environment variable.
+REM          Only data files with a SIMPLE_NODES block honour it (d10 today).
+REM          SIMPLE=1 forces MODE=renown (Escalation
+REM          decks are built from the legacy nodes' escalation data).
+set SIMPLE=1
+set RENOWN_SIMPLE=%SIMPLE%
+
 REM LAB_DIR is tagged by variant so trials stay side-by-side.
 set LAB_DIR=%CE_ROOT%\%DIR_LAB%\%DIE%
+if "%SIMPLE%"=="1" set LAB_DIR=%CE_ROOT%\%DIR_LAB%\%DIE%_simple
 
 REM RULES : the CE rules markdown that feeds docs + wiki (lives in sheets\)
 set RULES_MD=%CE_ROOT%\RULES_push.md
+set BOARD_RULES=
+if "%SIMPLE%"=="1" if exist "%CE_ROOT%\RULES_push_simple.md" ( set "RULES_MD=%CE_ROOT%\RULES_push_simple.md" & set "BOARD_RULES=--rules %CE_ROOT%\RULES_push_simple.md" )
 
 REM ---- LORE (world documents from renown_worldlore.py) ----------------------
 REM BUILD_LORE : 1 = regenerate the world documents before the wiki, 0 = skip.
@@ -76,6 +89,7 @@ set MODE=both
 REM PLAYERS: table size (2-7) for card scaling
 set PLAYERS=2
 set OUT_DIR=%LAB_DIR%\cards
+if "%SIMPLE%"=="1" set MODE=renown
 
 REM WIKI_REPO : local clone GitHub Pages serves. Blank = build only.
 REM   Do NOT point this at the D6 RenownWiki clone or CE will overwrite it.
@@ -96,7 +110,7 @@ REM REPO_REMOTE : used ONLY to create 'origin' on first run (when REPO_DIR has
 REM   no .git yet). Ignored once a repo exists.
 set REPO_REMOTE=https://github.com/mlang95/Renown.git
 set REPO_BRANCH=main
-set REPO_MSG=CE build v%DIE%
+set REPO_MSG=CE build v%DIE% simple=%SIMPLE%
 REM REPO_TAG : 1 = also create + push tag v<VERSION>, 0 = commit/push only.
 set REPO_TAG=1
 
@@ -165,7 +179,7 @@ set /p VERSION=<"%TEMP%\ce_ver.txt"
 del "%TEMP%\ce_ver.txt"
 
 echo.
-echo === build_all_CE : v%VERSION%  DIE=%DIE%  WHAT=%WHAT%  PLAYERS=%PLAYERS%  PUSH_REPO=%PUSH_REPO% ===
+echo === build_all_CE : v%VERSION%  DIE=%DIE%  SIMPLE=%SIMPLE%  WHAT=%WHAT%  PLAYERS=%PLAYERS%  PUSH_REPO=%PUSH_REPO% ===
 echo     data   %DATA_SRC%  -^> renown_data.py in %CE_ROOT%
 echo     sheets %SHEET_DIR%
 echo     maps   %MAP_DIR%
@@ -256,7 +270,10 @@ if exist "playstyle_reference.py"   %PY% playstyle_reference.py "%OUT_DIR%\plays
 echo   Pursuit ward-tiles...
 if exist "pursuit_tiles.py"         %PY% pursuit_tiles.py "%OUT_DIR%\pursuit_tiles.pdf"
 echo   Pursuit tech tree...
-if exist "render_tree.py"           %PY% render_tree.py layout.json "%OUT_DIR%\pursuit_tree.svg"
+set TREE_LAYOUT=layout.json
+REM SIMPLE: rebuild the chart layout from builds_into (layout.json keeps the titles/anchors)
+if "%SIMPLE%"=="1" if exist "gen_layout.py" ( %PY% gen_layout.py layout.json layout_simple.json & set "TREE_LAYOUT=layout_simple.json" )
+if exist "render_tree.py"           %PY% render_tree.py %TREE_LAYOUT% "%OUT_DIR%\pursuit_tree.svg"
 if exist "svg_to_pdf.py"            %PY% svg_to_pdf.py "%OUT_DIR%\pursuit_tree.pdf" "%OUT_DIR%\pursuit_tree_p1.svg" "%OUT_DIR%\pursuit_tree_p2.svg"
 echo   Domain standing board...
 if exist "domain_board.py"          %PY% domain_board.py "%OUT_DIR%\domain_board.pdf"
@@ -266,7 +283,7 @@ echo   Settlement board...
 if exist "settlement_mats.py"       %PY% -c "import settlement_mats as s; s.build_board(r'%OUT_DIR%\settlement_board.pdf')"
 if exist "settlement_mats.py"       %PY% settlement_mats.py "%OUT_DIR%\settlement_mats.pdf"
 echo   Settlement board emulator (HTML)...
-if exist "gen_settlement_board.py" %PY% gen_settlement_board.py --data "%CE_ROOT%\%DATA_SRC%" --out "settlement_board.html"
+if exist "gen_settlement_board.py" %PY% gen_settlement_board.py --data "%CE_ROOT%\%DATA_SRC%" --out "settlement_board.html" %BOARD_RULES%
 echo   FAQ (ask-the-bot)...
 if not exist "%CE_ROOT%\ask-the-bot" mkdir "%CE_ROOT%\ask-the-bot"
 if exist "faq_export.py"            %PY% faq_export.py "%CE_ROOT%\ask-the-bot\renown_faq.txt"

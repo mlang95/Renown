@@ -34,7 +34,10 @@ _NAMES = sorted(N, key=len, reverse=True)
 
 
 def reqs(n):
-    """Pursuits named in n's Mastery requirement (AND parts and every 'or' option)."""
+    """Pursuits named in n's Mastery requirement (AND parts and every 'or' option).
+    SIMPLE: n's efficient parents (the inverse of builds_into)."""
+    if getattr(rd, "SIMPLE", False):
+        return [p for p in rd.node_parents(n) if p != n]
     t = re.sub(r"\*", "", str(N[n].get("mastery_req") or ""))
     out, t2 = [], t
     for x in _NAMES:
@@ -88,7 +91,9 @@ def layout(nodes, anchors):
     return pos, edges
 
 
-def main(path):
+def main(path, out=None):
+    """Read chart titles/anchors/modes from `path`; write the rebuilt layout to `out` (default: in place)."""
+    out = out or path
     charts = json.load(open(path, encoding="utf-8"))
     anchored = set()
     for c in charts:
@@ -118,9 +123,10 @@ def main(path):
     loose = [m for m in mons if m not in anchored]
     if loose:
         print("Monuments not anchored by any chart:", loose)
-    json.dump(charts, open(path, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    print("wrote", path)
+    json.dump(charts, open(out, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    print("wrote", out)
 
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "layout.json"))
+    main(sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "layout.json"),
+         sys.argv[2] if len(sys.argv) > 2 else None)

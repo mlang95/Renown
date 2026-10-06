@@ -1,7 +1,8 @@
 # renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
 VERSION = "0.4.9.9.5-d10"
-SIMPLE = True
+import os as _os
+SIMPLE = _os.environ.get("RENOWN_SIMPLE", "1") == "1"   # build_all_CE.bat: set SIMPLE=1|0
 # ── DICE ─────────────────────────────────────────────────────────────────────
 # Single source for die size, shared with the combat engines. Every threshold
 # string below is an f-string built from these, so changing the die rewrites the
@@ -1712,7 +1713,6 @@ SIMPLE_NODES = {
     "Fishmongery": {
         "type": "Raw Materials",
         "unlock": "-",
-        "infrastructure_req": "Water Settlement",
         "innate": "+500, **Natural**; Craft +2",
         "builds_into": ["Harbor"],
         "monument": False},
@@ -1786,7 +1786,7 @@ SIMPLE_NODES = {
     "Masonry": {
         "type": "Craft",
         "unlock": "-",
-        "innate": "**Build Timer −1**; Craft+1",
+        "innate": "No Upkeep on **Primitive Infrastructure**; **Build Timer −1**",
         "efficient": "Quarry",
         "builds_into": ["Courtyard", "Trade Guild", "Mill"],
         "monument": False},
@@ -1879,7 +1879,7 @@ SIMPLE_NODES = {
         "unlock": "Established Industry",
         "innate": "Unlock **Forged** armor and shield. Craft +1.",
         "efficient": "Armory",
-        "builds_into": ["Jewelry Foundry"],
+        "builds_into": ["Jewelry Foundry", "Court Armoury"],
         "monument": False},
     "Smokehouse": {
         "type": "Craft",
@@ -1947,7 +1947,6 @@ SIMPLE_NODES = {
     "Harbor": {
         "type": "Craft",
         "unlock": "-",
-        "infrastructure_req": "Water Settlement",
         "innate": "+500; Craft +2; **Extort 200** per **player** without **Harbor**",
         "efficient": "Fishmongery",
         "builds_into": ["Shipyard"],
@@ -1990,7 +1989,6 @@ SIMPLE_NODES = {
     "Shipyard": {
         "type": "Craft",
         "unlock": "Established Industry",
-        "infrastructure_req": "Water Settlement",
         "innate": "Craft +4; Water Territory treated as Grassland for movement",
         "efficient": "Harbor",
         "builds_into": ["Storehouse"],
@@ -2147,7 +2145,7 @@ SIMPLE_NODES = {
     "Trade Guild": {
         "type": "Civic",
         "unlock": "Rising Industry",
-        "innate": "No Upkeep on **Primitive Infrastructure**; No Upkeep on **Developed Infrastructure**",
+        "innate": "No Upkeep on **Developed Infrastructure**; **Build Timer −1**",
         "efficient": "Masonry",
         "builds_into": ["College of Engineering"],
         "monument": False},
@@ -2442,7 +2440,36 @@ SIMPLE_NODES = {
         "builds_into": ["Secret Cellar"],
         "monument": True},
 }
+LEGACY_NODES = NODES
 NODES = SIMPLE_NODES if SIMPLE else NODES
+# What a pursuit needs besides Standing. SIMPLE: infrastructure_req (settlement
+# infrastructure / tags) and placement next to an `efficient` parent.
+# Legacy: mastery_req. Outputs read these instead of hard-coding the field.
+REQ_KEY   = "infrastructure_req" if SIMPLE else "mastery_req"
+REQ_LABEL = "Infrastructure Req" if SIMPLE else "Mastery Req"
+# Display name for the `efficient` field (the data key stays `efficient`).
+CHAIN_TERM = "Mastery Chain" if SIMPLE else "Efficient"
+
+def node_parents(name, nodes=None):
+    """Prerequisite pursuits of `name` (names present in `nodes`).
+    SIMPLE: its efficient parent(s), any one of which allows placement.
+    Legacy: the pursuit names in its mastery_req."""
+    import re
+    nodes = NODES if nodes is None else nodes
+    d = nodes.get(name, {}) or {}
+    if SIMPLE:
+        e = d.get("efficient")
+        e = [e] if isinstance(e, str) else list(e or [])
+        return [p for p in e if p in nodes]
+    req = str(d.get("mastery_req") or "").strip()
+    out = []
+    if req and req not in ("-", "\u2014"):
+        for part in req.split("+"):
+            for q in re.split(r"\bor\b|/", part):
+                nm = re.sub(r"^\d+\s+", "", q.strip().rstrip(",").strip())
+                if nm in nodes and nm not in out:
+                    out.append(nm)
+    return out
 def get_data(mode="renown"):
     """Return the node set for a game mode. 'escalation' = the combat subset
     (nodes carrying an 'escalation' key); 'renown' = everything."""
@@ -3925,3 +3952,118 @@ GLOSSARY.setdefault("Ranged Weapons", "Ranged weapons: " + ", ".join(
 # ── Rest Phase gains (turn strip / Table End turn) ─────────────────────────────────────────────
 RENOWN_PER_TURN = 1          # Rest Phase step 3 "Gain Renown" — the rules don't state an amount; set here
 DOMAIN_POINTS_PER_TURN = 1   # Rest Phase step 4 / Key Resources: "Domain Points — earned 1 per turn"
+
+
+# ── SIMPLE overlay ──────────────────────────────────────────────────────────────
+# Rules text that changes with the simplified pursuit graph. Runs last so every
+# table above exists. Add further SIMPLE-only text overrides here.
+if SIMPLE:
+    EDICTS["Monument"]["requirement"] = "Have a Monument pursuit."
+
+    # Faction starters: no Mastery to keep active.
+    for _f in FACTIONS.values():
+        _m = _f.get("mechanic", "")
+        _m = _m.replace(", always-active Mastery that can't be deactivated)", ")")
+        _m = _m.replace(", always-active Mastery)", ")")
+        _m = _m.replace(" (and their Mastery Effects, if active)", "")
+        _m = _m.replace("(no Ward, no upkeep", "(no Ward, Natural")   # faction pursuits are Natural
+        _f["mechanic"] = _m
+
+    # Text that pointed at a node's Mastery.
+    WEAPONS["Cavalry Spear"]["note"] = WEAPONS["Cavalry Spear"]["note"].replace("Needs Stable Mastery", "Needs Stable")
+    WEAPONS["Lance"]["note"] = WEAPONS["Lance"]["note"].replace("Needs Saddlery Mastery", "Needs Saddlery")
+    GLOSSARY["Dual-equip"] = "Carry two weapons at once (e.g. melee + ranged). Granted by the Tiltyard."
+    UPKEEP_TRACKS["Infrastructure"] = UPKEEP_TRACKS["Infrastructure"].replace(
+        "Trade Guild removes Primitive (innate) + Developed (mastery)", "Masonry removes Primitive; Trade Guild removes Developed")
+    COSTS["Infrastructure upkeep"] = COSTS["Infrastructure upkeep"].replace(
+        "Trade Guild removes Primitive/Developed", "Masonry removes Primitive, Trade Guild removes Developed")
+    SIEGE_SOURCE_VALUES["Citadel"] = {"innate_value": 3}      # SIMPLE Citadel: Siege Timer +3
+    ACTIONS["Pursue"]["effect"] = ACTIONS["Pursue"]["effect"].replace(
+        "its innate effect activates immediately, and its mastery effect activates if all mastery requirements are met.",
+        "its effect activates immediately.")
+
+    # Mastery Chain = unlock + free ride (rulings): you may start a Pursuit only while you control one complete
+    # line of its chain back to the root, anywhere in your empire (checked only when you start it — carve-out
+    # wording pending); sharing a Ward with the immediate parent is the free Ward. A parent lost later just
+    # loses its own effect.
+    # Actions: Pursue -> Build (Pursuits); Build -> Improve (Infrastructure + Expand); Charter = new Settlement only.
+    _old = dict(ACTIONS)
+    _pursue = dict(_old["Pursue"]); _infra = dict(_old["Build"]); _charter = dict(_old["Charter"])
+    _pursue["effect"] = _pursue["effect"].replace(
+        "choose a Pursuit whose prerequisites you meet",
+        "choose a Pursuit with one complete line of its " + CHAIN_TERM + " under your control (and meet its other requirements)")
+    _improve = dict(_infra)
+    _improve["effect"] = ("Choose one: Infrastructure — choose an unlocked, available Infrastructure and set a Build Timer "
+        "equal to its build time; when it completes, the Infrastructure becomes active in every Settlement in your province. "
+        "Or Expand a Settlement one tier into an adjacent Territory (Village to Town, Town to City, "
+        "City to Metropolis), adding a Ward.")
+    _improve["notes"] = [n.replace("when the Build action is performed", "when the Improve action is performed")
+                         for n in _infra.get("notes", [])] + list(_charter.get("notes", []))
+    _charter["effect"] = ("Charter a new Village — on in-province non-water, non-mountain Territory, "
+        "range 4+ from any Settlement and range 2+ from Outlaw Country.")
+    _charter.pop("notes", None)
+    ACTIONS.clear()
+    for _k, _v in _old.items():
+        if _k == "Build":     ACTIONS["Improve"] = _improve
+        elif _k == "Pursue":  ACTIONS["Build"] = _pursue
+        elif _k == "Charter": ACTIONS["Charter"] = _charter
+        else:                 ACTIONS[_k] = _v
+    if "Improve" not in ACTIONS: ACTIONS["Improve"] = _improve
+    if "Pursue action" in COSTS:
+        _cs = dict(COSTS); COSTS.clear()
+        for _k, _v in _cs.items(): COSTS["Build action" if _k == "Pursue action" else _k] = _v
+    COSTS["Industry action"] = COSTS["Industry action"].replace("(Build / Repair / Pursue / Charter)", "(Build / Improve / Repair / Charter)")
+    for _c in CULTURES.values():
+        if "actions" in _c:
+            _c["actions"] = [{"Build": "Improve", "Pursue": "Build"}.get(a, a) for a in _c["actions"]]
+
+    # Glossary: action names + Efficient -> CHAIN_TERM (rulings: unlock anywhere, checked at start; same Settlement = free Ward)
+    _g = dict(GLOSSARY); GLOSSARY.clear()
+    for _k, _v in _g.items():
+        if _k == "Pursue":        GLOSSARY["Build"] = "Build a Pursuit, spending its purchase cost and a Settlement ward (Industry action)."
+        elif _k == "Build":       GLOSSARY["Improve"] = "Construct Infrastructure or Expand a Settlement one tier (Industry action)."
+        elif _k == "Charter":     GLOSSARY["Charter"] = "Found a new Settlement (Industry action)."
+        elif _k == "Efficient X": GLOSSARY[CHAIN_TERM + " X"] = (
+            "While this Pursuit occupies the same Settlement Ward as X (the Raw Material or Pursuit named on its tile), "
+            "it uses no ward of its own — the two share one ward. Placed anywhere else, it fills a ward normally. "
+            "(Core Principle 14.) Note: Two Pursuits that chain from the same Pursuit cannot share a Ward with each other.")
+        elif _k == "Efficient":   GLOSSARY[CHAIN_TERM] = (
+            "A Pursuit's " + CHAIN_TERM + " is the line of Pursuits it builds from, usually running from a Raw Material "
+            "up to a Monument. You may start building a Pursuit only while you control one complete line of its "
+            + CHAIN_TERM + ", anywhere in your empire; this is checked only when you start it. A Pursuit placed in the "
+            "same Settlement Ward as its immediate parent shares that Ward, and the chain can continue upward the same way. "
+            "Each Pursuit carries at most one descendant in its Ward. (Core Principle 14.)")
+        else:                     GLOSSARY[_k] = _v
+
+    # No sea variants: water access comes from Fishmongery (fish within Reach) and its Mastery Chain.
+    for _sv in SETTLEMENTS.values(): _sv["sea_variant"] = None
+    FACTIONS["The Crimson Tide"]["mechanic"] = FACTIONS["The Crimson Tide"]["mechanic"].replace(
+        " — even without a Water Settlement", "")
+
+    # Expand lives in Improve now: upgrade grants follow it.
+    for _st in ("Established", "Sovereign"):
+        DOMAIN_BOARD["Industry"][_st] = DOMAIN_BOARD["Industry"][_st].replace(
+            "Perform endorsed Charter.", "Perform endorsed Improve.").replace(
+            "may be chartered to a Metropolis", "may be improved to a Metropolis")
+    ERAS["Ascension"]["unlocks"] = ERAS["Ascension"]["unlocks"].replace("May resolve Charter Cities", "May Improve Towns to Cities")
+    EDICTS["Wonder"] = {**EDICTS["Wonder"], "type": "Improve", "requirement": "Improve Infrastructure via a Wonder."}
+
+    # ── DRAFTS — finish the wording, then uncomment ─────────────────────────
+    # Rules prose for SIMPLE lives in RULES_push_simple.md (build_all_CE.bat picks it when SIMPLE=1).
+    #
+    # Reach also gates Raw Materials (stated rule; board flags it). Draft glossary wording:
+    # GLOSSARY["Reach"] = GLOSSARY["Reach"] + " You can only build a Raw Material whose resource lies within your Reach."
+    #
+    # TODO (Gage): add "Reach +1" to a couple of thin nodes. Candidates from past data:
+    #   Interrogation Chambers — innate was empty through Combatv3 (CE now: Extort 500).
+    #   Charcoal Burner, Mill, Kiln — legacy innate is "Natural" only.
+    #   (Abbey had no empty slot in any version checked.) Board Reach overlay reads "Reach +N"
+    #   from active pieces automatically.
+    #
+    # Eureka (Public Order 5). Note: Piety's action cost is Doubt 1, not gold.
+    # PUBLIC_ORDER[5] = ("Eureka", "Once per turn, when you perform an action, you may Recoup its cost.")
+    #
+    # Fall / Harvest: Husbandry Mastery -> Natural. Natural Pursuits now carry their
+    # whole effect (old innate + mastery), so this doubles more than before.
+    # SEASONS["Fall"]["effect"] = "Natural Pursuit effects are doubled."
+    #

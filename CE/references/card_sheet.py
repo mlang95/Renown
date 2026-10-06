@@ -33,6 +33,9 @@ from reportlab.lib.units import inch
 from reportlab.lib.colors import black, grey, HexColor
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase.pdfmetrics import stringWidth
+import renown_data as _rd
+_REQ_KEY = getattr(_rd, "REQ_KEY", "mastery_req")
+_REQ_PREFIX = "Requires" if getattr(_rd, "SIMPLE", False) else "Mastery"
 
 # ---------- Symbol font ----------
 # Keyword symbols need glyphs Helvetica lacks (it renders missing glyphs as a
@@ -416,14 +419,14 @@ def draw_spec_card(c, x, y, row):
     # Mastery requirement (wraps; never truncates)
     if mast_req:
         m_size = 7.5
-        if stringWidth(f"Mastery: {mast_req}", "Helvetica", m_size) <= inner_w:
+        if stringWidth(f"{_REQ_PREFIX}: {mast_req}", "Helvetica", m_size) <= inner_w:
             cur_y -= m_size
             c.setFont("Helvetica", m_size)
-            c.drawCentredString(cx, cur_y, f"Mastery: {mast_req}")
+            c.drawCentredString(cx, cur_y, f"{_REQ_PREFIX}: {mast_req}")
             cur_y -= 2
         else:
             for m_try in [7.5, 7.0, 6.5]:
-                lines = _wrap_rich(f"Mastery: {mast_req}", "Helvetica", "Helvetica-Bold", m_try, inner_w)
+                lines = _wrap_rich(f"{_REQ_PREFIX}: {mast_req}", "Helvetica", "Helvetica-Bold", m_try, inner_w)
                 if len(lines) <= 3:
                     break
             for segs in lines:
@@ -594,7 +597,7 @@ def _eff_innate(n):
     eff = n.get("efficient"); innate = n.get("innate", "") or ""
     if not eff:
         return innate
-    txt = "**Efficient " + (eff if isinstance(eff, str) else ", ".join(eff)) + "**"
+    txt = "**" + getattr(_rd, "CHAIN_TERM", "Efficient") + " " + (eff if isinstance(eff, str) else ", ".join(eff)) + "**"
     return txt + ("; " + innate.lstrip("; ").strip() if innate else "")
 
 def _rows_from_renown_data(mode="renown", players=1):
@@ -630,7 +633,7 @@ def _rows_from_renown_data(mode="renown", players=1):
             row = _norm_row({
                 "Pursuits": display(name),
                 "Type": n.get("type", ""),
-                "Mastery Requirement": display_text(n.get("mastery_req", "")),
+                "Mastery Requirement": display_text(n.get(_REQ_KEY, "")),
                 "Innate Effects": display_text(_eff_innate(n)),
                 "Mastery Effect": display_text(n.get("mastery", "")),
                 "Builds Into": display_list(n.get("builds_into", [])),

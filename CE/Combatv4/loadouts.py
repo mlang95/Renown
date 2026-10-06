@@ -457,7 +457,8 @@ def _pursuits_info_from_renown_data():
     the single source of truth. Each engine entry carries the sim semantics
     (cost/prereqs/domain/innate_tags/mastery_tags/mastery_req/efficient/
     upkeep_effects); 'alias' is the short key the sim uses internally."""
-    from renown_data import NODES
+    import renown_data as _rd
+    NODES = getattr(_rd, "LEGACY_NODES", _rd.NODES)   # sim always reads the legacy graph (engine data)
     out = {}
     for node_name, node in NODES.items():
         eng = node.get("engine")
@@ -468,7 +469,9 @@ def _pursuits_info_from_renown_data():
     # Override 'efficient' from the canonical text-parsed graph (single source of
     # truth = the "**Efficient X**" markup), keyed by sim alias, so the MPC
     # discount sees ALL 46 links — not the partial engine.efficient mirror.
-    from renown_data import EFFICIENT, NODES as _N
+    _N = NODES
+    EFFICIENT = {n: (v["efficient"] if isinstance(v["efficient"], str) else v["efficient"][0])
+                 for n, v in _N.items() if v.get("efficient")}
     def _alias(name):
         return _N.get(name, {}).get("engine", {}).get("alias", name)
     for src, tgt in EFFICIENT.items():
@@ -581,9 +584,10 @@ def shield_satisfied(shield_name, pursuits):
         return True  # only Joinery needed (Wooden Shield)
     return bool(required_metal & pursuits)
 import renown_data as rd
+_SIM_NODES = getattr(rd, "LEGACY_NODES", rd.NODES)
 _POOL_MONUMENTS = frozenset(
-    (rd.NODES[n].get("engine", {}).get("alias", n))
-    for n, v in rd.NODES.items()
+    (_SIM_NODES[n].get("engine", {}).get("alias", n))
+    for n, v in _SIM_NODES.items()
     if (v.get("type") == "Monument" or v.get("monument"))
 ) | {"Ministry of Military Strategy"}  # canonical name (post-normalization)
 def _normalize_pool_tokens(pursuits):

@@ -13,6 +13,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 import re
 import renown_data as rd
+_INN_LBL = "EFFECT" if getattr(rd, "SIMPLE", False) else "INNATE"
 
 SERIF, SERIF_B, SERIF_I = "Helvetica", "Helvetica-Bold", "Helvetica-Oblique"
 for face, fn in [("EBG", "EBGaramond-Regular.ttf"), ("EBG-B", "EBGaramond-Bold.ttf"),
@@ -102,14 +103,14 @@ def body_layout(c, inn, mas, mas_req, gate, gate_col, x, y_top, y_floor, w, cap=
                 lines += len(wrap(c, txt, SERIF, size, w)); blocks += 1
         rs = max(5.0, size*0.72)
         req_lines = 0
-        if inn and gate:     req_lines += len(wrap(c, "INNATE: " + gate, SERIF_I, rs, w))
+        if inn and gate:     req_lines += len(wrap(c, _INN_LBL + ": " + gate, SERIF_I, rs, w))
         if mas and mas_req:  req_lines += len(wrap(c, "MASTERY: " + mas_req, SERIF_I, rs, w))
         needed = lines * lh + blocks * (size * 0.85 + 3) + req_lines * (rs + 1.4)
         if needed <= avail:
             break
         size -= 0.3
     y = y_top
-    for label, txt, req in (("INNATE", inn, gate), ("MASTERY", mas, mas_req)):
+    for label, txt, req in ((_INN_LBL, inn, gate), ("MASTERY", mas, mas_req)):
         if not txt:
             continue
         lab_sz = max(5.4, size * 0.66)
@@ -117,7 +118,7 @@ def body_layout(c, inn, mas, mas_req, gate, gate_col, x, y_top, y_floor, w, cap=
             # "LABEL:" then the requirement inline in italics, wrapping
             rs = max(5.0, size * 0.72)
             head = label + ": "
-            req_col = gate_col if (label == "INNATE" and gate_col) else MUTE
+            req_col = gate_col if (label == _INN_LBL and gate_col) else MUTE
             c.setFont(SERIF_B, lab_sz); c.setFillColor(TAG)
             c.drawString(x, y, head)
             hx = x + c.stringWidth(head, SERIF_B, lab_sz)
@@ -215,7 +216,7 @@ def tile(c, name, d, x, ytop):
         eff = (eff_raw or "").strip()
     if eff:
         c.setFont(SERIF_I, meta_sz*1.15); c.setFillColor(_c("#3f7d7a"))
-        c.drawString(x + pad, my, f"efficient: {eff}")
+        c.drawString(x + pad, my, f"{getattr(rd, 'CHAIN_TERM', 'Efficient').lower()}: {eff}")
     line_y = my - 5*s
     c.setStrokeColor(LINE); c.setLineWidth(0.6); c.line(x + 6*s, line_y, x + TW - 6*s, line_y)
 
@@ -235,9 +236,12 @@ def tile(c, name, d, x, ytop):
     floor_y = ytop - TH + 15*s          # leave room for the footer row
     inn = rd.display_text(_clean(d.get("innate")))
     mas = rd.display_text(_clean(d.get("mastery")))
-    mreq = d.get("mastery_req")
+    mreq = d.get(getattr(rd, "REQ_KEY", "mastery_req"))
     mreq = "" if not mreq or str(mreq).strip() in ("", "-", "\u2014") else rd.display_text(_clean(mreq))
     gate_txt = "" if not gate or str(gate).strip() in ("", "-", "\u2014") else rd.display_text(_clean(gate))
+    if getattr(rd, "SIMPLE", False) and mreq:   # no MASTERY block: infra req rides with the gate
+        gate_txt = (gate_txt + "; " if gate_txt else "") + "Requires " + mreq
+        mreq = ""
     _dom = _domain_of(d)
     gate_col = _c(DOMAIN_COLOR[_dom]) if _dom else None
     body_layout(c, inn, mas, mreq, gate_txt, gate_col, x + pad, y, floor_y, TW - 2*pad, cap=10.5, floor=5.5)

@@ -87,13 +87,30 @@ const PARAMS = { width: 32, height: 26, players: 6, seed: 7,
   settlement_range: 5, settlement_range_max: 7, first_settle_range: 4,
   region_core: 2, cluster_cap: 30 };
 const MIN_NODE = 5, BIG_NODE = 16;
-const MARK_MIN = { forest: 12, wetland: 12, tundra: 5, plains: 5 };
+const MARK_MIN = { forest: 12, wetland: 12, tundra: 5, plains: 5, water: 3 };
 const RESOURCE_BY_TERRAIN = {
   plains: ['arable', 'apiary'], forest: ['forestry', 'apiary'],
-  wetland: ['forestry'], tundra: ['quarry', 'salt'], mountain: ['mine', 'quarry'] };
-const RESOURCE_MIN = { mine: 3, quarry: 3, arable: 3, forestry: 3, apiary: 2, salt: 2 };
+  wetland: ['peat', 'forestry'], tundra: ['quarry', 'salt'], mountain: ['mine', 'quarry'],
+  water: ['fish'] };
+const RESOURCE_MIN = { mine: 3, quarry: 3, arable: 3, forestry: 3, apiary: 2, salt: 2, peat: 2, fish: 2 };
 const TOPUP_TERRAINS = { arable: ['plains'], apiary: ['plains', 'forest'],
-  forestry: ['forest', 'wetland'], salt: ['tundra'], quarry: ['tundra'], mine: [] };
+  forestry: ['forest', 'wetland'], salt: ['tundra'], quarry: ['tundra'], mine: [],
+  peat: ['wetland'], fish: ['water'] };
+/* water hexes with a land neighbour — where Fishmongery can sit */
+function coastal(m, coords) {
+  return coords.filter(c => m.nbrs(c).some(n => n.terrain !== 'water'));
+}
+/* a resource floor only binds when some terrain that can carry it is in the palette */
+function floorApplies(res, palette, m) {
+  if (m) {   // test the board actually generated (fish also needs a coastal water hex)
+    palette = [...new Set(m.all().map(h => h.terrain))];
+    if (res === 'fish') return coastal(m, m.all().filter(h => h.terrain === 'water').map(h => [h.col, h.row])).length > 0;
+  }
+  if (!palette) return true;
+  if (res === 'mine') return palette.indexOf('mountain') >= 0;
+  if (res === 'quarry') return palette.indexOf('tundra') >= 0 || palette.indexOf('mountain') >= 0;
+  return (TOPUP_TERRAINS[res] || []).some(t => palette.indexOf(t) >= 0);
+}
 const MATERIAL_TERRAINS = ['forest', 'mountain', 'tundra', 'wetland', 'water'];
 const PASSABLE = ['plains', 'forest', 'wetland', 'tundra'];
 
@@ -1119,6 +1136,14 @@ function resources(m, palette, resMin) {
       spreadPicks(comp, types.length).forEach((c, i) => { if (types[i]) m.get(c).resource = types[i]; });
     }
   }
+  if (palette.indexOf('water') >= 0) {      // fish on a coastal hex of each water body; +1 if large
+    const seen = new Set();
+    for (const h of m.all()) if (h.terrain === 'water' && !seen.has(key(h.col, h.row))) {
+      const comp = component(m, h, 'water', seen), shore = coastal(m, comp);
+      if (comp.length < MARK_MIN.water || !shore.length) continue;
+      spreadPicks(shore, comp.length >= BIG_NODE ? 2 : 1).forEach(c => { m.get(c).resource = 'fish'; });
+    }
+  }
   for (const res of Object.keys(resMin)) {
     const need = resMin[res];
     if (need <= 0) continue;
@@ -1131,6 +1156,8 @@ function resources(m, palette, resMin) {
     else {
       const ts = TOPUP_TERRAINS[res].filter(t => palette.indexOf(t) >= 0);
       cands = m.all().filter(h => ts.indexOf(h.terrain) >= 0 && !h.resource);
+      if (res === 'fish') { const ok = new Set(coastal(m, cands.map(h => [h.col, h.row])).map(c => key(c[0], c[1])));
+        cands = cands.filter(h => ok.has(key(h.col, h.row))); }
     }
     const existing = m.all().filter(h => h.resource === res).map(h => [h.col, h.row]);
     cands = cands.map(h => [h.col, h.row]).sort((a, b) => {
@@ -1210,7 +1237,7 @@ function validate(m, p) {
   const have = {};
   for (const h of m.all()) if (h.resource) have[h.resource] = (have[h.resource] || 0) + 1;
   for (const r of Object.keys(resMin))
-    if (resMin[r] > 0 && (have[r] || 0) < resMin[r])
+    if (resMin[r] > 0 && (have[r] || 0) < resMin[r] && floorApplies(r, p.palette, m))
       v.push(`resource ${r}: ${have[r] || 0}/${resMin[r]}`);
   return v;
 }

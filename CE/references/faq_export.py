@@ -156,8 +156,9 @@ def build(out_path):
         inn = (node.get("innate") or "").strip()
         mas = (node.get("mastery") or "").strip()
         parts = []
-        if inn: parts.append("Innate: " + inn)
+        if inn: parts.append(("Effect: " if getattr(rd, "SIMPLE", False) else "Innate: ") + inn)
         if mas: parts.append("Mastery: " + mas)
+        if node.get("infrastructure_req"): parts.append("Requires: " + node["infrastructure_req"])
         if parts:
             txt = " ".join(" / ".join(parts).split()).replace("|", "/").replace("**", "")
             page = "escalation-pursuits.html" if n in ESC_NODES else "pursuits.html"
