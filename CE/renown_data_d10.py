@@ -821,7 +821,7 @@ NODES = {
         "mastery_req": "Merchant Quarter + Animal Husbandry",
         "innate": "+500",
         "mastery": "+500; Craft +2",
-        "efficient": "Merchant Quarter",
+        "efficient": "Market Square",
         "builds_into": ["Artisan Workshop", "Mill"],
         "monument": False},
     "Fletchery": {
@@ -1957,7 +1957,7 @@ SIMPLE_NODES = {
         "unlock": "Rising Industry",
         "innate": "+500; Trade Partners gain Craft +2",
         "efficient": "Market Square",
-        "builds_into": ["Weavery", "Inn", "Money Lending"],
+        "builds_into": ["Money Lending"],
         "monument": False},
     "Money Lending": {
         "type": "Power",
