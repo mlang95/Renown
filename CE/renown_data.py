@@ -1,6 +1,6 @@
 # renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
-VERSION = "0.4.9.9.5-d10"
+VERSION = "0.4.9.9.6-d10"
 import os as _os
 SIMPLE = _os.environ.get("RENOWN_SIMPLE", "1") == "1"   # build_all_CE.bat: set SIMPLE=1|0
 # ── DICE ─────────────────────────────────────────────────────────────────────
@@ -2010,7 +2010,7 @@ SIMPLE_NODES = {
     "Abbey": {
         "type": "Civic",
         "unlock": "Established Piety",
-        "innate": "Once/turn: **Influence +1** another player's Piety Envoy; Morale +1",
+        "innate": "Once/turn: **Influence +1** another player's Piety Envoy; **Influence −1** to Piety envoys targeting you",
         "efficient": "Academy",
         "builds_into": ["Monastery"],
         "monument": False},
@@ -2025,9 +2025,9 @@ SIMPLE_NODES = {
     "Monastery": {
         "type": "Power",
         "unlock": "Established Piety",
-        "innate": "**Influence −1** to Piety envoys targeting you; Other players can't Oppose your Piety Envoys",
-        "efficient": "Abbey",
-        "builds_into": ["Papal Palace", "Inquisitorial Palace"],
+        "innate": "Reach +1; Other players can't Oppose your Piety Envoys",
+        "efficient": ["Abbey"],
+        "builds_into": ["Papal Palace"],
         "monument": False},
     "Bell Tower": {
         "type": "Civic",
@@ -2041,7 +2041,7 @@ SIMPLE_NODES = {
         "unlock": "Established Piety",
         "innate": "**Influence -1** to **Foster Rebellion actions** targeting your **settlements**; **Players** who **target** you or your **settlements** with **actions** that cause **doubt** gain **Doubt +1**",
         "efficient": "Interrogation Chambers",
-        "builds_into": [],
+        "builds_into": ["Inquisitorial Palace"],
         "monument": False},
     "Hospitaller": {
         "type": "Power",
@@ -2097,13 +2097,13 @@ SIMPLE_NODES = {
         "type": "Civic",
         "unlock": "Rising Prowess",
         "innate": "**Faith +1** while not at War; Armies gain **Nimble**",
-        "efficient": "Courtyard",
+        "efficient": ["Courtyard", "Common Land"],
         "builds_into": ["Coliseum"],
         "monument": False},
     "Grand Tournament": {
         "type": "Civic",
         "unlock": "Established Prowess",
-        "innate": "**Faith +1**; Improve Parry by +1. 3x/turn: exchange 500 gold for **1 Influence**; Armies gain **Riposte**",
+        "innate": "**Reach +1**, 3x/turn: exchange 500 gold for **1 Influence**; Armies gain **Riposte** & Improve Parry by +1.",
         "efficient": "Coliseum",
         "builds_into": [],
         "monument": False},
@@ -2257,8 +2257,8 @@ SIMPLE_NODES = {
     "Burgages": {
         "type": "Energy",
         "unlock": "-",
-        "innate": "+200, Natural; **Faith +1**",
-        "efficient": "Common Land",
+        "innate": "Natural; **Faith +1**",
+        "efficient": ["Common Land","Workyard"],
         "builds_into": [],
         "monument": False},
     "Levy Hall": {
@@ -2313,7 +2313,7 @@ SIMPLE_NODES = {
         "monument": False},
     "Court Armoury": {
         "type": "Power",
-        "unlock": "Sovereign Industry",
+        "unlock": "Established Industry",
         "innate": f"**{PLANISHING}**: Your to-Save can't be reduced beyond {CAP_THR}+. Upkeep -500; **Crafted** Armor & Shield Unlocked",
         "efficient": "Gilded Foundry",
         "builds_into": [],
@@ -2329,12 +2329,12 @@ SIMPLE_NODES = {
         "type": "Monument",
         "unlock": "Sovereign Prowess",
         "innate": "Armies gain **Immune Strained**, Improve Parry by +1; Gain +1 to Strike. Deadly, & Cleave also trigger Focused Strikes on a natural 8+.",
-        "efficient": "Tiltyard",
+        "efficient": "Grand Tournament",
         "builds_into": [],
         "monument": True},
     "Imperial Palace": {
         "type": "Monument",
-        "unlock": "Established Prowess",
+        "unlock": "Sovereign Prowess",
         "innate": "Each Empire Phase, all non-allied players with a lower Prowess value gain Doubt +2. If your Envoy would fail, it passes instead.",
         "efficient": "Citadel",
         "builds_into": [],
@@ -2391,7 +2391,7 @@ SIMPLE_NODES = {
         "monument": True},
     "Manor House": {
         "type": "Monument",
-        "unlock": "Established Industry",
+        "unlock": "Sovereign Industry",
         "infrastructure_req": "Hamlet",
         "innate": "Natural; Gain +200 gold for each active natural specialization.",
         "efficient": "Natural",
@@ -3008,10 +3008,10 @@ SETTLEMENTS = {
 
 # Era progression: shared-Renown thresholds; caps on armies/cities; influence.
 ERAS = {
-    "Founding":  {"renown": 1,  "armies": 1, "cities": 0, "max_settlements": 2, "influence_per_turn": 1, "max_influence_per_diplomacy_vote": 1, "innate_diplomacy_influence": 1, "council_envoys": 1, "council_actions_per_envoy": 1, "personal_envoys": 1, "actions_per_envoy": 1, "unlocks": ""},
-    "Ascension": {"renown": 8,  "armies": 2, "cities": 1, "max_settlements": 3, "influence_per_turn": 2, "max_influence_per_diplomacy_vote": 2, "innate_diplomacy_influence": 2, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 1, "actions_per_envoy": 1, "unlocks": "May resolve Charter Cities"},
-    "Eminence":  {"renown": 18, "armies": 3, "cities": 2, "max_settlements": 4, "influence_per_turn": 3, "max_influence_per_diplomacy_vote": 3, "innate_diplomacy_influence": 3, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 1, "actions_per_envoy": 2, "unlocks": "May form Military Alliances"},
-    "Zenith":    {"renown": 30, "armies": 4, "cities": 3, "max_settlements": 5, "influence_per_turn": 4, "max_influence_per_diplomacy_vote": 4, "innate_diplomacy_influence": 4, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 2, "actions_per_envoy": 2, "unlocks": "May form Defensive Alliances"},
+    "Founding":  {"renown": 1,  "armies": 1, "cities": 0, "max_settlements": 3, "influence_per_turn": 1, "max_influence_per_diplomacy_vote": 1, "innate_diplomacy_influence": 1, "council_envoys": 1, "council_actions_per_envoy": 1, "personal_envoys": 1, "actions_per_envoy": 1, "unlocks": ""},
+    "Ascension": {"renown": 8,  "armies": 2, "cities": 1, "max_settlements": 4, "influence_per_turn": 2, "max_influence_per_diplomacy_vote": 2, "innate_diplomacy_influence": 2, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 1, "actions_per_envoy": 1, "unlocks": "May resolve Charter Cities"},
+    "Eminence":  {"renown": 18, "armies": 3, "cities": 2, "max_settlements": 5, "influence_per_turn": 3, "max_influence_per_diplomacy_vote": 3, "innate_diplomacy_influence": 3, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 1, "actions_per_envoy": 2, "unlocks": "May form Military Alliances"},
+    "Zenith":    {"renown": 30, "armies": 4, "cities": 3, "max_settlements": 6, "influence_per_turn": 4, "max_influence_per_diplomacy_vote": 4, "innate_diplomacy_influence": 4, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 2, "actions_per_envoy": 2, "unlocks": "May form Defensive Alliances"},
 }
 for _e in ERAS.values():
     _e["envoys"] = (f"{_e['council_envoys']} Council Envoy{'s' if _e['council_envoys'] > 1 else ''}"

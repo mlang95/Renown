@@ -101,8 +101,6 @@
 <path d="M320,318 L367,318" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M320,354 L367,354" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M320,354 L367,354" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M320,390 L367,390" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M320,390 L367,390" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M492,210 L516,210" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M492,210 L516,210" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95"/>
 <path d="M516,210 L516,246" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -135,15 +133,15 @@
 <rect x="30" y="306" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="306" width="5" height="24" fill="#6a6a72"/>
 <text x="39" y="321" font-size="8.2" fill="#2b2620">Census Hall</text>
-<rect x="30" y="342" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
-<rect x="30" y="342" width="5" height="24" fill="#9E2B25"/>
-<text x="39" y="357" font-size="8.2" fill="#2b2620">Conditioning Field</text>
-<rect x="30" y="378" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
-<rect x="30" y="378" width="5" height="24" fill="#C6A024"/>
-<text x="39" y="393" font-size="8.2" fill="#2b2620">Episcopal Court</text>
+<rect x="30" y="342" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
+<rect x="30" y="342" width="5" height="24" fill="#C6A024"/>
+<text x="39" y="357" font-size="8.2" fill="#2b2620">Episcopal Court</text>
+<rect x="30" y="378" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="30" y="378" width="5" height="24" fill="#6a6a72"/>
+<text x="39" y="393" font-size="8.2" fill="#2b2620">Harbor</text>
 <rect x="30" y="414" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="414" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="429" font-size="8.2" fill="#2b2620">Harbor</text>
+<text x="39" y="429" font-size="8.2" fill="#2b2620">Fletchery</text>
 <rect x="30" y="450" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
 <rect x="30" y="450" width="5" height="24" fill="#1c1c20"/>
 <text x="39" y="465" font-size="8.2" fill="#2b2620">Forgotten Catacombs</text>
@@ -177,15 +175,15 @@
 <rect x="202" y="270" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="202" y="270" width="5" height="24" fill="#C6A024"/>
 <text x="211" y="285" font-size="8.2" fill="#2b2620">Infirmary</text>
-<rect x="202" y="306" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
-<rect x="202" y="306" width="5" height="24" fill="#9E2B25"/>
-<text x="211" y="321" font-size="8.2" fill="#2b2620">Castle Yard</text>
-<rect x="202" y="342" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
-<rect x="202" y="342" width="5" height="24" fill="#C6A024"/>
-<text x="211" y="357" font-size="8.2" fill="#2b2620">Interrogation Chambers</text>
-<rect x="202" y="378" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
-<rect x="202" y="378" width="5" height="24" fill="#2E5A8C"/>
-<text x="211" y="393" font-size="8.2" fill="#2b2620">Shipyard</text>
+<rect x="202" y="306" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
+<rect x="202" y="306" width="5" height="24" fill="#C6A024"/>
+<text x="211" y="321" font-size="8.2" fill="#2b2620">Interrogation Chambers</text>
+<rect x="202" y="342" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
+<rect x="202" y="342" width="5" height="24" fill="#2E5A8C"/>
+<text x="211" y="357" font-size="8.2" fill="#2b2620">Shipyard</text>
+<rect x="202" y="378" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
+<rect x="202" y="378" width="5" height="24" fill="#9E2B25"/>
+<text x="211" y="393" font-size="8.2" fill="#2b2620">Tiltyard</text>
 <rect x="202" y="414" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
 <rect x="202" y="414" width="5" height="24" fill="#1c1c20"/>
 <text x="211" y="429" font-size="8.2" fill="#2b2620">Toxicarium</text>
@@ -204,15 +202,12 @@
 <rect x="374" y="270" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="374" y="270" width="5" height="24" fill="#C6A024"/>
 <text x="383" y="285" font-size="8.2" fill="#2b2620">Hospitaller</text>
-<rect x="374" y="306" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
-<rect x="374" y="306" width="5" height="24" fill="#9E2B25"/>
-<text x="383" y="321" font-size="8.2" fill="#2b2620">Grand Tournament</text>
-<rect x="374" y="342" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
-<rect x="374" y="342" width="5" height="24" fill="#C6A024"/>
-<text x="383" y="357" font-size="8.2" fill="#2b2620">Execution Dock</text>
-<rect x="374" y="378" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
-<rect x="374" y="378" width="5" height="24" fill="#2E5A8C"/>
-<text x="383" y="393" font-size="8.2" fill="#2b2620">Storehouse</text>
+<rect x="374" y="306" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
+<rect x="374" y="306" width="5" height="24" fill="#C6A024"/>
+<text x="383" y="321" font-size="8.2" fill="#2b2620">Execution Dock</text>
+<rect x="374" y="342" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
+<rect x="374" y="342" width="5" height="24" fill="#2E5A8C"/>
+<text x="383" y="357" font-size="8.2" fill="#2b2620">Storehouse</text>
 <rect x="546" y="198" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="546" y="198" width="5" height="24" fill="#6a6a72"/>
 <text x="555" y="213" font-size="8.2" fill="#2b2620">Saddlery</text>

@@ -1,5 +1,5 @@
 {
- "version": "0.4.9.9.5-d10",
+ "version": "0.4.9.9.6-d10",
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
@@ -1398,7 +1398,7 @@
      "Established Piety",
      "—",
      "Academy",
-     "Once/turn: **Influence +1** another player's Piety Envoy; Morale +1"
+     "Once/turn: **Influence +1** another player's Piety Envoy; **Influence −1** to Piety envoys targeting you"
     ],
     [
      "Reliquary Sanctum",
@@ -1467,7 +1467,7 @@
      "Conditioning Field",
      "Rising Prowess",
      "—",
-     "Courtyard",
+     "Courtyard, Common Land",
      "**Faith +1** while not at War; Armies gain **Nimble**"
     ],
     [
@@ -1475,7 +1475,7 @@
      "Established Prowess",
      "—",
      "Castle Yard",
-     "**Faith +1**; Improve Parry by +1. 3x/turn: exchange 500 gold for **1 Influence**; Armies gain **Riposte**"
+     "**Reach +1**, 3x/turn: exchange 500 gold for **1 Influence**; Armies gain **Riposte** & Improve Parry by +1."
     ],
     [
      "Apothecary",
@@ -1631,8 +1631,8 @@
      "Burgages",
      "",
      "—",
-     "Common Land",
-     "+200, Natural; **Faith +1**"
+     "Common Land, Workyard",
+     "Natural; **Faith +1**"
     ]
    ]
   },
@@ -1651,7 +1651,7 @@
      "Established Piety",
      "—",
      "Abbey",
-     "**Influence −1** to Piety envoys targeting you; Other players can't Oppose your Piety Envoys"
+     "Reach +1; Other players can't Oppose your Piety Envoys"
     ],
     [
      "Hospitaller",
@@ -1725,7 +1725,7 @@
     ],
     [
      "Court Armoury",
-     "Sovereign Industry",
+     "Established Industry",
      "—",
      "Gilded Foundry",
      "**Planishing**: Your to-Save can't be reduced beyond 10+. Upkeep -500; **Tempered** Armor & Shield Unlocked"
@@ -1746,12 +1746,12 @@
      "Royal Pavilion",
      "Sovereign Prowess",
      "—",
-     "Tiltyard",
+     "Grand Tournament",
      "Armies gain **Immune Strained**, Improve Parry by +1; Gain +1 to Strike. Deadly, & Cleave also trigger Focused Strikes on a natural 8+."
     ],
     [
      "Imperial Palace",
-     "Established Prowess",
+     "Sovereign Prowess",
      "—",
      "Citadel",
      "Each Empire Phase, all non-allied players with a lower Prowess value gain Doubt +2. If your Envoy would fail, it passes instead."
@@ -1807,7 +1807,7 @@
     ],
     [
      "Manor House",
-     "Established Industry",
+     "Sovereign Industry",
      "Hamlet",
      "Natural",
      "Natural; Gain +200 gold for each active natural specialization."

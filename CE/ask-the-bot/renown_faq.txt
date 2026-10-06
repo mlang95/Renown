@@ -1,6 +1,6 @@
 2H | [2H](https://mlang95.github.io/RenownWiki/keywords-ref.html#2h): Cannot use a Shield: while a 2H weapon is Equipped, your Shield gives nothing that Skirmish (no Save bonus, Initiative or keywords).
 2HBastard | [2HBastard](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP -2, Init +0. Keywords: 2H, Unwieldy, Unstoppable, Cleave.
-Abbey | [Abbey](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Effect: Once/turn: Influence +1 another player's Piety Envoy; Morale +1
+Abbey | [Abbey](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Effect: Once/turn: Influence +1 another player's Piety Envoy; Influence −1 to Piety envoys targeting you
 Abstain | [Abstain](https://mlang95.github.io/RenownWiki/glossary.html#abstain): Decline to spend Influence on a vote.
 Academy | [Academy](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Effect: Influence +1 to Council Envoys; Influence +1 to non-Council Envoys / Requires: Library
 actions | [Actions](https://mlang95.github.io/RenownWiki/actions-ref.html): every Envoy action by Domain. Prowess (Move/Declare War/Pillage/Demand Tribute), Cunning (Intercept Caravan/Foster Rebellion/Raze/Destabilize/Sabotage), Piety (Spread Truth/Send Missionaries/Tithe/Convert/Sacred War), Industry (Improve/Repair/Build/Charter), Diplomacy (Sign Treaty/Negotiate/End Treaty).
@@ -42,7 +42,7 @@ Bridges | [Bridges](https://mlang95.github.io/RenownWiki/infrastructure-ref.html
 Buckler Shield | [Buckler Shield](https://mlang95.github.io/RenownWiki/equipment-ref.html) Shield (Crude). Save +1, Init +0. Keywords: none.
 Build | [Build](https://mlang95.github.io/RenownWiki/actions-ref.html): Industry action. Cost: 2000 gold. Choose an inactive Settlement Ward you control, then choose a Pursuit with one complete line of its Mastery Chain under your control (and meet its other requirements) and set a Build Timer equal to its build time (usually 1). When it completes, place the Pursuit in an available Ward slot; its effect activates immediately. Endorsed: Recoup 2000.
 Build Timer | [Build Timer](https://mlang95.github.io/RenownWiki/glossary.html#build-timer): Turns until an infrastructure/build completes and becomes Active.
-Burgages | [Burgages](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Energy). Effect: +200, Natural; Faith +1
+Burgages | [Burgages](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Energy). Effect: Natural; Faith +1
 Butchery | [Butchery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Effect: Natural; +500; Upkeep -200; Craft+1
 Capture Timer | [Capture Timer](https://mlang95.github.io/RenownWiki/glossary.html#capture-timer): Turns until a Captured Settlement becomes Controlled by the Player with the Capture Timer and applies the listed capture effects.
 Caravanery | [Caravanery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Effect: Natural; Influence -1 to Intercept Caravan actions targeting your settlements; Craft +2; Speed -2 to non-allied players in your Province.
@@ -169,7 +169,7 @@ Garrison | [Garrison](https://mlang95.github.io/RenownWiki/infrastructure-ref.ht
 Gilded Foundry | [Gilded Foundry](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Effect: Unlock Forged armor and shield. Craft +1.
 Gothic Plate | [Gothic Plate](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Crafted). Save 4+. Keywords: none.
 Granary | [Granary](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Effect: Upkeep -500, Natural; Armies and Garrisons gain Endurance while Besieged
-Grand Tournament | [Grand Tournament](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Effect: Faith +1; Improve Parry by +1. 3x/turn: exchange 500 gold for 1 Influence; Armies gain Riposte
+Grand Tournament | [Grand Tournament](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Effect: Reach +1, 3x/turn: exchange 500 gold for 1 Influence; Armies gain Riposte & Improve Parry by +1.
 Grassland | [Grassland](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: —. Raw Materials: Arable Land, Apiary.
 Halberd | [Halberd](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP -2, Init +0. Keywords: 2H, Unwieldy.
 Hamlet | [Hamlet](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 0). Tax 0, muster 0, build 1, wards 3, reach 1. Natural pursuits only; exactly range 2 from capital; may always pursue Arable Land
@@ -235,7 +235,7 @@ Military Alliance | [Military Alliance](https://mlang95.github.io/RenownWiki/tre
 Mill | [Mill](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Energy). Effect: Natural; +500
 Mine | [Mine](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Raw Materials). Effect: +500, Natural; Craft +1
 Ministry of Military Strategy | [Ministry of Military Strategy](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Effect: Always gains Seize the Initiative, and your opponent doesn't; max initiative is increased to 3; Gain Drilled.
-Monastery | [Monastery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Effect: Influence −1 to Piety envoys targeting you; Other players can't Oppose your Piety Envoys
+Monastery | [Monastery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Effect: Reach +1; Other players can't Oppose your Piety Envoys
 Money Lending | [Money Lending](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Power). Effect: Extort 1000; May loan money to Trade Partners at 100 per 1000/turn interest(minimum 100); on Default: Perform Demand Tribute
 Monument | [Monument](https://mlang95.github.io/RenownWiki/glossary.html#monument): A Domain's capstone Pursuit. Completing one scores its Edict and grants a powerful effect.
 monument cap | No numeric cap. Monuments & Wonders are unique: only one Pursuit or Wonder of each name can exist in a game.
