@@ -1956,7 +1956,7 @@ SIMPLE_NODES = {
         "type": "Craft",
         "unlock": "Rising Industry",
         "innate": "+500; Trade Partners gain Craft +2",
-        "efficient": "Market Square",
+        "efficient": ["Market Square","Courtyard"],
         "builds_into": ["Money Lending"],
         "monument": False},
     "Money Lending": {
