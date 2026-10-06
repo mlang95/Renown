@@ -1,12 +1,12 @@
 2H | [2H](https://mlang95.github.io/RenownWiki/keywords-ref.html#2h): Cannot use a Shield: while a 2H weapon is Equipped, your Shield gives nothing that Skirmish (no Save bonus, Initiative or keywords).
 2HBastard | [2HBastard](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP -2, Init +0. Keywords: 2H, Unwieldy, Unstoppable, Cleave.
-Abbey | [Abbey](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Effect: Once/turn: Influence +1 another player's Piety Envoy; Influence −1 to Piety envoys targeting you
+Abbey | [Abbey](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Effect: Once/turn: Influence +1 another player's Piety Envoy; Influence −1 to Piety actions targeting you
 Abstain | [Abstain](https://mlang95.github.io/RenownWiki/glossary.html#abstain): Decline to spend Influence on a vote.
-Academy | [Academy](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Effect: Influence +1 to Council Envoys; Influence +1 to non-Council Envoys / Requires: Library
+Academy | [Academy](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Effect: Influence +1 to Council Envoys; gain +1 Influence per turn / Requires: Library
 actions | [Actions](https://mlang95.github.io/RenownWiki/actions-ref.html): every Envoy action by Domain. Prowess (Move/Declare War/Pillage/Demand Tribute), Cunning (Intercept Caravan/Foster Rebellion/Raze/Destabilize/Sabotage), Piety (Spread Truth/Send Missionaries/Tithe/Convert/Sacred War), Industry (Improve/Repair/Build/Charter), Diplomacy (Sign Treaty/Negotiate/End Treaty).
 Adjacent | [Adjacent](https://mlang95.github.io/RenownWiki/glossary.html#adjacent): Range 1.
 Advanced Blast Furnace | [Advanced Blast Furnace](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Effect: Upkeep -500; Crafted Weapons Unlocked; Craft +2
-Alchemy | [Alchemy](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Effect: +500; Craft+1
+Alchemy | [Alchemy](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Effect: +500; Craft+2
 Alliance | [Alliance](https://mlang95.github.io/RenownWiki/glossary.html#alliance): A Treaty binding players to mutual support; Military and Defensive Alliances unlock by Era.
 alliances | See 'treaties'. Military Alliances unlock at Eminence, Defensive at Zenith.
 Animal Husbandry | [Animal Husbandry](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Husbandry). Effect: Natural, Unlock Crude armor and shield. +500
@@ -15,7 +15,7 @@ Apiary | [Apiary](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (R
 Apothecary | [Apothecary](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Civic). Effect: +300; Gain Recover 8, or improve Recover by +1.
 Aqueducts | [Aqueducts](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Sophisticated). Upkeep 300 (per Turn), build 4. Reach +1, Upkeep -500, Build Timer -1, +1 Influence
 Arable Land | [Arable Land](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Raw Materials). Effect: +500, Natural; Craft +1
-Aristocratic Court | [Aristocratic Court](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Effect: Each Empire Phase, Extort 500 from each non-allied player with a lower Cunning value. Your Vote counts as 2 votes toward Domain selection during the Council Phase.
+Aristocratic Court | [Aristocratic Court](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Effect: Each Empire Phase, Extort 1000 from each non-allied player with a lower Cunning value. Your Vote counts as 2 votes toward Domain selection during the Council Phase.
 Arming Sword | [Arming Sword](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP -1, Init +0. Keywords: Steady.
 Armory | [Armory](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Effect: Unlock Wrought armor & shield; Upkeep -300; Craft +1
 army upkeep | [Army upkeep](https://mlang95.github.io/RenownWiki/economy-ref.html): Σ(retinue costs x army) - Upkeep -X. Reduced by Levy Hall, Tannery, Saddlery, Butchery, Smokehouse, Advanced Blast Furnace, High Quartermaster, etc.
@@ -45,8 +45,8 @@ Build Timer | [Build Timer](https://mlang95.github.io/RenownWiki/glossary.html#b
 Burgages | [Burgages](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Energy). Effect: Natural; Faith +1
 Butchery | [Butchery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Effect: Natural; +500; Upkeep -200; Craft+1
 Capture Timer | [Capture Timer](https://mlang95.github.io/RenownWiki/glossary.html#capture-timer): Turns until a Captured Settlement becomes Controlled by the Player with the Capture Timer and applies the listed capture effects.
-Caravanery | [Caravanery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Effect: Natural; Influence -1 to Intercept Caravan actions targeting your settlements; Craft +2; Speed -2 to non-allied players in your Province.
-Carpentry | [Carpentry](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Effect: Build Timer −1; +300; Craft+1
+Caravanery | [Caravanery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Effect: Natural; Influence -2 to Intercept Caravan actions targeting your settlements; Craft +2; Speed -2 to non-allied players in your Province.
+Carpentry | [Carpentry](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Craft). Effect: Build Timer −1; +500, Craft+1
 Cast | [Cast](https://mlang95.github.io/RenownWiki/glossary.html#cast): Cast equipment tier. Weapons: Daggers, Short Sword, Spears; Ranged: Longbow; Armor: Leather; Shield: Targe Shield. Unlocked by: Tannery (armor & shield), Furnace (weapons).
 Cast Armor | [Cast Armor](https://mlang95.github.io/RenownWiki/glossary.html#cast-armor): Cast-tier armor: Leather. Unlocked by: Tannery.
 cast gear | Cast tier: weapons [Daggers, Short Sword, Spears, Longbow], shields [Targe Shield], armor [Leather].
@@ -258,9 +258,9 @@ Non-Aggression Pact | [Non-Aggression Pact](https://mlang95.github.io/RenownWiki
 Office of Works | [Office of Works](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Effect: Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions. Siege Timer +2; Build Timer -2
 One-Shot | [One-Shot](https://mlang95.github.io/RenownWiki/keywords-ref.html#one-shot): Must be Equipped in the first Skirmish of a Battle, and can't be Equipped after it. Requires a Tiltyard.
 Oppose X | [Oppose X](https://mlang95.github.io/RenownWiki/glossary.html#oppose-x): Spend X Influence to decrease an Envoy's net Influence.
-Orchard | [Orchard](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Husbandry). Effect: +800, Natural; +400 in Fall
+Orchard | [Orchard](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Husbandry). Effect: +800, Natural; +200 in Fall
 Outlaw Country | [Outlaw Country](https://mlang95.github.io/RenownWiki/glossary.html#outlaw-country): Uncontrollable territories in your starting region where Bandit Camps spawn, starting at 3 and expanding if there is no room to place new Bandit Camps.
-Outlaw Rookery | [Outlaw Rookery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Effect: Both Bandit Camps & you have Influence +1 on Cunning actions. Endorsed Foster Rebellion places Bandit Camps with 25 retinues instead of 10.
+Outlaw Rookery | [Outlaw Rookery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Effect: Both Bandit Camps & you have Influence +1 on Cunning Envoys. Endorsed Foster Rebellion instead places Bandit Armies with 25 retinues.
 Outrider Intercept Post | [Outrider Intercept Post](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Effect: Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own.
 Panic check | [Panic check](https://mlang95.github.io/RenownWiki/glossary.html#panic-check): Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish (Recovered Strikes count, unless Enduring), after both sides have Struck. Roll Morale (5 dice); Immune Panic auto-passes.
 Papal Palace | [Papal Palace](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Effect: You no longer pay cost for Piety Envoys. At the start of each turn, Tithe every other player with lower Piety, resolved in the Extort step.
