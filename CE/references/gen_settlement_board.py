@@ -1438,24 +1438,35 @@ function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.
     const mc=Math.max(...ks.map(k=>N[k][0])),mr=Math.max(...ks.map(k=>N[k][1]));
     const NW=Math.round(Math.max(150,Math.min(200,(AV-mc*CG)/(mc+1)))),W=(mc+1)*NW+mc*CG,H=(mr+1)*(NH+RG);   // boxes shrink to fit the window
     const px=k=>[N[k][0]*(NW+CG),N[k][1]*(NH+RG)];let paths="";
+    // edges: orthogonal routes with rounded corners; line stops at the arrow base so the head is a clean triangle touching the box
+    const AL=7,RAD=5,used=new Set(),slot={};
+    const rp=raw=>{const pts=raw.filter((p,i)=>!i||p[0]!==raw[i-1][0]||p[1]!==raw[i-1][1]).filter((p,i,a)=>!(i>0&&i<a.length-1&&((a[i-1][0]===p[0]&&p[0]===a[i+1][0])||(a[i-1][1]===p[1]&&p[1]===a[i+1][1]))));
+      let d='M'+pts[0][0]+','+pts[0][1];
+      for(let i=1;i<pts.length-1;i++){const [ax,ay]=pts[i-1],[bx,by]=pts[i],[cx,cy]=pts[i+1],l1=Math.hypot(bx-ax,by-ay),l2=Math.hypot(cx-bx,cy-by),r=Math.min(RAD,l1/2,l2/2);
+        d+=' L'+(bx-(bx-ax)/l1*r)+','+(by-(by-ay)/l1*r)+' Q'+bx+','+by+' '+(bx+(cx-bx)/l2*r)+','+(by+(cy-by)/l2*r);}
+      const e=pts[pts.length-1];return d+' L'+e[0]+','+e[1];};
+    const edge=(col,pts,extra)=>{used.add(col);return '<path stroke="'+col+'"'+(extra||'')+' d="'+rp(pts)+'" marker-end="url(#tarw-'+col.slice(1)+')"/>';};
+    // incoming forward links share a child's left edge: spread entry points only when there is more than one
+    ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]>N[n][0]).forEach(k=>{(slot[k]=slot[k]||[]).push(n);}));
+    const entryY=(k,n)=>{const L=slot[k].slice().sort((a,b)=>N[a][1]-N[b][1]||N[a][0]-N[b][0]),m=L.length,i=L.indexOf(n);return px(k)[1]+NH/2+(i-(m-1)/2)*9;};
     ks.forEach(n=>{const kids=(E[n]||[]).filter(k=>N[k]&&N[k][0]>N[n][0]);if(!kids.length)return;
       // each parent gets its own lane (x offset by row) and colour, so merging lines stay traceable
-      const [x0,y0]=px(n),x1=x0+NW,y1=y0+NH/2,fx=x1+8+(N[n][1]%5)*6,col=EC[N[n][1]%EC.length];
-      paths+='<g stroke="'+col+'"><path d="M'+x1+','+y1+' H'+fx+'"/>';
-      kids.forEach(k=>{const [bx,by]=px(k),cy=by+NH/2+((N[n][1]%3)-1)*4;paths+='<path d="M'+fx+','+y1+' V'+cy+' H'+(bx-5)+'" marker-end="url(#tarw)"/>';});paths+='</g>';});
+      const [x0,y0]=px(n),x1=x0+NW,y1=y0+NH/2,fx=x1+8+(N[n][1]%4)*5,col=EC[N[n][1]%EC.length];
+      kids.forEach(k=>{const bx=px(k)[0],ey=entryY(k,n),tip=bx-1-AL,lane=fx;
+        paths+=edge(col,[[x1,y1],[lane,y1],[lane,ey],[tip,ey]]);});});
     // same-column links: a lane in the gap left of the column
-    ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]===N[n][0]).forEach(k=>{const [x0,y0]=px(n),[,by]=px(k),lx=x0-12,col=EC[N[n][1]%EC.length];
-      paths+='<g stroke="'+col+'"><path d="M'+x0+','+(y0+NH/2)+' H'+lx+' V'+(by+NH/2)+' H'+(x0-5)+'" marker-end="url(#tarw)"/></g>';}));
+    ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]===N[n][0]).forEach(k=>{const [x0,y0]=px(n),[,by]=px(k),lx=x0-18,col=EC[N[n][1]%EC.length];
+      paths+=edge(col,[[x0,y0+NH/2],[lx,y0+NH/2],[lx,by+NH/2],[x0-1-AL,by+NH/2]]);}));
     // backward links (a Mastery that needs a later Pursuit): dashed, entering the child's right edge
-    ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]<N[n][0]).forEach(k=>{const [x0,y0]=px(n),[bx,by]=px(k),rx=bx+NW+10,col=EC[N[n][1]%EC.length];
-      paths+='<g stroke="'+col+'" stroke-dasharray="4 3"><title>'+esc(k)+' Mastery needs '+esc(n)+'</title><path d="M'+x0+','+(y0+NH-8)+' H'+(rx+8)+' V'+(by+NH-8)+' H'+(bx+NW+5)+'" marker-end="url(#tarw)"/></g>';}));
+    ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]<N[n][0]).forEach(k=>{const [x0,y0]=px(n),[bx,by]=px(k),rx=bx+NW+12,col=EC[N[n][1]%EC.length];
+      paths+='<g><title>'+esc(k)+' Mastery needs '+esc(n)+'</title>'+edge(col,[[x0,y0+NH-8],[rx+8,y0+NH-8],[rx+8,by+NH-8],[bx+NW+1+AL,by+NH-8]],' stroke-dasharray="4 3"')+'</g>';}));
     const nodes=ks.map(n=>{const [x,y]=px(n),r=R[n]||{},col=DC[dom(n)]||"#6a6a72",have=(PC[n]||0)>0,us=unlockStatus(n);
       return '<div class="tn'+(r.monument?' mon':'')+(have?' have':'')+'" style="left:'+x+'px;top:'+y+'px;width:'+NW+'px;height:'+NH+'px;border-color:'+col+'">'+
         '<div class="tnh"><span class="gk" data-gk="'+(GK_BY[esc(n)]??"")+'">'+esc(n)+'</span>'+(r.monument?' ◆':'')+(have?' <span class="tb-b">built</span>':'')+
         (r.unlock_raw&&r.unlock_raw!=="-"&&r.unlock_raw!=="\u2014"?' <span class="tnu'+(us.ok?'':' bad')+'" title="Unlock: '+esc(r.unlock_raw)+'">'+(us.ok?'':'🔒')+esc(r.unlock_raw)+'</span>':'')+'</div>'+
         '<div class="tnc">'+(r.combo?kwify(r.combo,n):"—")+'</div></div>';}).join("");
     return '<details class="tchart" data-t="'+esc(c.title)+'"'+(TREE_OPEN.has(c.title)?' open':'')+'><summary><b>'+esc(c.title)+'</b> <span class="note">'+ks.length+' Pursuits</span></summary><div class="tscroll"><div class="tcanvas" style="width:'+W+'px;height:'+H+'px">'+
-      '<svg width="'+W+'" height="'+H+'"><defs><marker id="tarw" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="context-stroke"/></marker></defs><g fill="none" stroke="#8f8672" stroke-width="1.4">'+paths+'</g></svg>'+nodes+'</div></div></details>';}).join("");}
+      '<svg width="'+W+'" height="'+H+'"><defs>'+[...used].map(c=>'<marker id="tarw-'+c.slice(1)+'" viewBox="0 0 7 6" refX="0" refY="3" markerWidth="7" markerHeight="6" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="'+c+'"/></marker>').join("")+'</defs><g fill="none" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt">'+paths+'</g></svg>'+nodes+'</div></div></details>';}).join("");}
 // rulebook (collapsible, per device); keywords inside the text get hover links
 let RB_OPEN=false;try{RB_OPEN=localStorage.getItem("renown_rb_open")==="1";}catch(e){}
 document.addEventListener("click",e=>{const sm=e.target.closest("#refRules > summary");if(sm){RB_OPEN=!sm.parentElement.open;try{localStorage.setItem("renown_rb_open",RB_OPEN?"1":"0");}catch(_){}}});
