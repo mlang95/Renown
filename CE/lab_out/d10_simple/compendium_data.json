@@ -1358,7 +1358,7 @@
      "",
      "—",
      "Saddlery, Stable",
-     "Natural; **Influence -2** to **Intercept Caravan actions** targeting your **settlements**; **Craft +2**; **Speed -2** to non-allied players in your Province."
+     "Natural; **Influence -2** to **Intercept Caravan actions** targeting your **settlements**; **Craft +2**; **Speed -2** to non-allied armies in your Province."
     ],
     [
      "Shipyard",
@@ -1546,6 +1546,13 @@
      "gain Immune Uprising (Bandit Camp Spawn at -5PO); Bandit Camps in your Outlaw Country don't target you and instead target other players randomly."
     ],
     [
+     "Syndicate Hub",
+     "Established Cunning",
+     "—",
+     "Smuggler's Nook, Secret Cellar",
+     "Whenever a Bandit Camp within Province Extorts, you Extort the Bandit Camp for half the amount."
+    ],
+    [
      "Black Market",
      "Established Cunning",
      "—",
@@ -1556,7 +1563,7 @@
      "Forgery Workshop",
      "Established Cunning",
      "—",
-     "University, Secret Cellar",
+     "University, Secret Cellar, Academy",
      "**Extort 300** anytime a player Opposes an Envoy of yours; Once/turn: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed"
     ],
     [
@@ -1706,7 +1713,7 @@
      "War College",
      "Established Prowess",
      "Library",
-     "Levy Hall",
+     "University",
      "Gain **+2 Influence** while At War; Unlocks **Sergeants** for Muster"
     ],
     [
@@ -1775,7 +1782,7 @@
      "Sovereign Cunning",
      "—",
      "Black Market, Secret Cellar",
-     "Whenever another player performs a Cunning action, you may recoup 1000 gold; **Extort 25%** of Trade Income from players who don't trade with you"
+     "Whenever another player performs a Cunning action, you may recoup 1000 gold; **Extort half** of Trade Income from players who don't trade with you"
     ],
     [
      "Senate Hall",
@@ -1837,7 +1844,7 @@
      "Outlaw Rookery",
      "Sovereign Cunning",
      "—",
-     "Smuggler's Nook",
+     "Syndicate Hub",
      "Both Bandit Camps & you have Influence +1 on Cunning Envoys. Endorsed Foster Rebellion instead places Bandit Armies with 25 retinues."
     ],
     [
@@ -1852,7 +1859,7 @@
      "Sovereign Cunning",
      "—",
      "Cipher Chamber, Beacon Towers",
-     "Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own."
+     "Natural; Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own."
     ]
    ]
   }

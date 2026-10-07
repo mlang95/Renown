@@ -1978,7 +1978,7 @@ SIMPLE_NODES = {
     "Caravanery": {
         "type": "Craft",
         "unlock": "-",
-        "innate": "Natural; **Influence -2** to **Intercept Caravan actions** targeting your **settlements**; **Craft +2**; **Speed -2** to non-allied players in your Province.",
+        "innate": "Natural; **Influence -2** to **Intercept Caravan actions** targeting your **settlements**; **Craft +2**; **Speed -2** to non-allied armies in your Province.",
         "efficient": ["Saddlery", "Stable"],
         "builds_into": ["Saddlery", "Toll House"],
         "monument": False},
@@ -2147,7 +2147,7 @@ SIMPLE_NODES = {
         "infrastructure_req": "Library",
         "innate": "May spend one additional **Influence** per Support or Oppose; +1 **Influence** per Domain you are Rising",
         "efficient": "Academy",
-        "builds_into": ["Forgery Workshop","Studium Generale"],
+        "builds_into": ["Forgery Workshop","Studium Generale","Ministry of Military Strategy"],
         "monument": False},
     "Trade Guild": {
         "type": "Civic",
@@ -2196,7 +2196,14 @@ SIMPLE_NODES = {
         "unlock": "Established Cunning",
         "innate": "gain Immune Uprising (Bandit Camp Spawn at -5PO); Bandit Camps in your Outlaw Country don't target you and instead target other players randomly.",
         "efficient": ["Courier Network", "Secret Cellar"],
-        "builds_into": ["Black Market", "Outlaw Rookery"],
+        "builds_into": ["Black Market", "Syndicate Hub"],
+        "monument": False},
+    "Syndicate Hub": {
+        "type": "Secrecy",
+        "unlock": "Established Cunning",
+        "innate": "Whenever a Bandit Camp within Province Extorts, you Extort the Bandit Camp for half the amount.",
+        "efficient": ["Smuggler's Nook", "Secret Cellar"],
+        "builds_into": ["Smuggler's Nook"],
         "monument": False},
     "Black Market": {
         "type": "Secrecy",
@@ -2209,7 +2216,7 @@ SIMPLE_NODES = {
         "type": "Secrecy",
         "unlock": "Established Cunning",
         "innate": "**Extort 300** anytime a player Opposes an Envoy of yours; Once/turn: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed",
-        "efficient": ["University", "Secret Cellar"],
+        "efficient": ["University", "Secret Cellar", "Academy"],
         "builds_into": ["Cipher Chamber"],
         "monument": False},
     "Toxicarium": {
@@ -2275,7 +2282,7 @@ SIMPLE_NODES = {
         "infrastructure_req": "Garrison",
         "innate": "Natural; **Upkeep -2000 while an army is range 0 of controlled settlement**",
         "efficient": "Butchery",
-        "builds_into": ["War College"],
+        "builds_into": [],
         "monument": False},
     "Siege Works": {
         "type": "Power",
@@ -2304,7 +2311,7 @@ SIMPLE_NODES = {
         "unlock": "Established Prowess",
         "infrastructure_req": "Library",
         "innate": "Gain **+2 Influence** while At War; Unlocks **Sergeants** for Muster",
-        "efficient": "Levy Hall",
+        "efficient": "University",
         "builds_into": ["Ministry of Military Strategy"],
         "monument": False},
     "Forge": {
@@ -2366,7 +2373,7 @@ SIMPLE_NODES = {
     "Thieves' Guild": {
         "type": "Monument",
         "unlock": "Sovereign Cunning",
-        "innate": "Whenever another player performs a Cunning action, you may recoup 1000 gold; **Extort 25%** of Trade Income from players who don't trade with you",
+        "innate": "Whenever another player performs a Cunning action, you may recoup 1000 gold; **Extort half** of Trade Income from players who don't trade with you",
         "efficient": ["Black Market", "Secret Cellar"],
         "builds_into": ["Secret Cellar"],
         "monument": True},
@@ -2432,7 +2439,7 @@ SIMPLE_NODES = {
         "type": "Monument",
         "unlock": "Sovereign Cunning",
         "innate": "Both Bandit Camps & you have Influence +1 on Cunning Envoys. Endorsed Foster Rebellion instead places Bandit Armies with 25 retinues.",
-        "efficient": "Smuggler's Nook",
+        "efficient": "Syndicate Hub",
         "builds_into": ["Secret Cellar"],
         "monument": True},
     "Advanced Blast Furnace": {
@@ -2452,7 +2459,7 @@ SIMPLE_NODES = {
     "Outrider Intercept Post": {
         "type": "Monument",
         "unlock": "Sovereign Cunning",
-        "innate": "Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own.",
+        "innate": "Natural; Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own.",
         "efficient": ["Cipher Chamber","Beacon Towers"],
         "builds_into": ["Secret Cellar"],
         "monument": True},

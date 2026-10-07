@@ -133,93 +133,117 @@
   "anchor": "Manor House",
   "mode": "chain",
   "nodes": {
-   "Quarry": [
+   "Forestry": [
     0,
     0
    ],
+   "Quarry": [
+    0,
+    3
+   ],
+   "Kiln": [
+    1,
+    1
+   ],
    "Masonry": [
     1,
-    0
+    3
    ],
    "Mine": [
     1,
+    5
+   ],
+   "Charcoal Burner": [
+    2,
+    0
+   ],
+   "Salt Works": [
+    2,
     2
    ],
    "Courtyard": [
     2,
-    1
+    4
    ],
    "Furnace": [
     2,
-    2
+    5
    ],
    "Apiary": [
     2,
-    3
+    6
+   ],
+   "Smokehouse": [
+    3,
+    0
    ],
    "Market Square": [
     3,
-    1
+    4
    ],
    "Blacksmith": [
     3,
-    2
+    5
    ],
    "Meadery": [
     3,
-    3
-   ],
-   "Forestry": [
-    3,
-    4
+    6
    ],
    "Arable Land": [
     3,
-    5
+    8
+   ],
+   "Butchery": [
+    4,
+    0
    ],
    "Weavery": [
     4,
-    1
+    4
    ],
    "Forge": [
     4,
-    2
+    5
    ],
    "Bakery": [
     4,
-    3
+    6
    ],
    "Carpentry": [
     4,
-    4
+    7
    ],
    "Orchard": [
     4,
-    5
+    8
    ],
    "Herb Garden": [
     4,
-    6
+    9
    ],
    "Vineyard": [
     4,
-    7
+    10
    ],
-   "Mill": [
+   "Levy Hall": [
     5,
     0
    ],
+   "Mill": [
+    5,
+    3
+   ],
    "Cidery": [
     5,
-    5
+    8
    ],
    "Spice Merchant": [
     5,
-    6
+    9
    ],
    "Winery": [
     5,
-    7
+    10
    ],
    "Manor House": [
     6,
@@ -236,8 +260,20 @@
     "Blacksmith"
    ],
    [
+    "Smokehouse",
+    "Butchery"
+   ],
+   [
     "Forestry",
     "Carpentry"
+   ],
+   [
+    "Forestry",
+    "Charcoal Burner"
+   ],
+   [
+    "Kiln",
+    "Charcoal Burner"
    ],
    [
     "Orchard",
@@ -260,6 +296,14 @@
     "Herb Garden"
    ],
    [
+    "Forestry",
+    "Kiln"
+   ],
+   [
+    "Butchery",
+    "Levy Hall"
+   ],
+   [
     "Spice Merchant",
     "Manor House"
    ],
@@ -269,6 +313,10 @@
    ],
    [
     "Cidery",
+    "Manor House"
+   ],
+   [
+    "Levy Hall",
     "Manor House"
    ],
    [
@@ -312,6 +360,14 @@
     "Orchard"
    ],
    [
+    "Salt Works",
+    "Smokehouse"
+   ],
+   [
+    "Charcoal Burner",
+    "Smokehouse"
+   ],
+   [
     "Herb Garden",
     "Spice Merchant"
    ],
@@ -340,6 +396,10 @@
     "Manor House"
    ],
    [
+    "Levy Hall",
+    "Manor House"
+   ],
+   [
     "Mill",
     "Manor House"
    ]
@@ -355,6 +415,10 @@
    ],
    [
     "Cidery",
+    "Manor House"
+   ],
+   [
+    "Levy Hall",
     "Manor House"
    ],
    [
@@ -583,78 +647,50 @@
   "anchor": "Ministry of Military Strategy",
   "mode": "chain",
   "nodes": {
-   "Forestry": [
+   "Peat Bog": [
     0,
     0
    ],
-   "Kiln": [
+   "Alchemy": [
     1,
-    1
+    0
    ],
-   "Charcoal Burner": [
+   "Academy": [
     2,
     0
    ],
-   "Salt Works": [
-    2,
-    2
-   ],
-   "Smokehouse": [
+   "University": [
     3,
     0
    ],
-   "Butchery": [
+   "War College": [
     4,
     0
    ],
-   "Levy Hall": [
-    5,
-    0
-   ],
-   "War College": [
-    6,
-    0
-   ],
    "Ministry of Military Strategy": [
-    7,
+    5,
     0
    ]
   },
   "edges": [
    [
-    "Smokehouse",
-    "Butchery"
+    "Alchemy",
+    "Academy"
    ],
    [
-    "Forestry",
-    "Charcoal Burner"
-   ],
-   [
-    "Kiln",
-    "Charcoal Burner"
-   ],
-   [
-    "Forestry",
-    "Kiln"
-   ],
-   [
-    "Butchery",
-    "Levy Hall"
+    "Peat Bog",
+    "Alchemy"
    ],
    [
     "War College",
     "Ministry of Military Strategy"
    ],
    [
-    "Salt Works",
-    "Smokehouse"
+    "Academy",
+    "University"
    ],
    [
-    "Charcoal Burner",
-    "Smokehouse"
-   ],
-   [
-    "Levy Hall",
+    "University",
     "War College"
    ]
   ]
@@ -1153,11 +1189,11 @@
    ],
    "University": [
     4,
-    2
+    3
    ],
    "Secret Cellar": [
     4,
-    3
+    4
    ],
    "Toll House": [
     5,
@@ -1169,7 +1205,7 @@
    ],
    "Forgotten Catacombs": [
     5,
-    5
+    6
    ],
    "Beacon Towers": [
     6,
@@ -1181,7 +1217,7 @@
    ],
    "Toxicarium": [
     6,
-    4
+    5
    ],
    "Outrider Intercept Post": [
     7,
@@ -1223,6 +1259,10 @@
    ],
    [
     "Secret Cellar",
+    "Forgery Workshop"
+   ],
+   [
+    "Academy",
     "Forgery Workshop"
    ],
    [

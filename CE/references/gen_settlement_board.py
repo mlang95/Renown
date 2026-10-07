@@ -1448,18 +1448,33 @@ function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.
     const edge=(col,pts,extra)=>{used.add(col);return '<path stroke="'+col+'"'+(extra||'')+' d="'+rp(pts)+'" marker-end="url(#tarw-'+col.slice(1)+')"/>';};
     // incoming forward links share a child's left edge: spread entry points only when there is more than one
     ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]>N[n][0]).forEach(k=>{(slot[k]=slot[k]||[]).push(n);}));
-    const entryY=(k,n)=>{const L=slot[k].slice().sort((a,b)=>N[a][1]-N[b][1]||N[a][0]-N[b][0]),m=L.length,i=L.indexOf(n);return px(k)[1]+NH/2+(i-(m-1)/2)*9;};
+    // each incoming line enters at its source's height when that falls on the box (straight, no jog), else at the nearest edge band;
+    // entries keep source order and stay >= 9px apart
+    const EY={};const entryY=(k,n)=>{if(!EY[k]){const by=px(k)[1],lo=by+14,hi=by+NH-10,L=slot[k].slice().sort((a,b)=>N[a][1]-N[b][1]||N[a][0]-N[b][0]),
+        y=L.map(q=>Math.min(hi,Math.max(lo,px(q)[1]+NH/2)));for(let i=1;i<y.length;i++)y[i]=Math.max(y[i],y[i-1]+9);
+        for(let i=y.length-1;i>=0;i--){if(y[i]>hi)y[i]=hi;if(i<y.length-1&&y[i]>y[i+1]-9)y[i]=y[i+1]-9;}
+        EY[k]={};L.forEach((q,i)=>EY[k][q]=y[i]);}return EY[k][n];};
+    // routing: try the short route first; if a straight run would cross another box, drop into the gap between rows instead
+    const box=ks.map(k=>{const [x,y]=px(k);return [k,x-2,y-2,x+NW+2,y+NH+2];});
+    const hit=(pts,skip)=>{for(let i=1;i<pts.length;i++){const [ax,ay]=pts[i-1],[bx_,by_]=pts[i],x0_=Math.min(ax,bx_),x1_=Math.max(ax,bx_),y0_=Math.min(ay,by_),y1_=Math.max(ay,by_);
+        for(const [k,l,t,r,b] of box){if(skip.includes(k))continue;if(x1_>l&&x0_<r&&y1_>t&&y0_<b)return true;}}return false;};
+    const gapY=(row,down)=>down?(row+1)*(NH+RG)-RG/2:row*(NH+RG)-RG/2;
+    const pick=(c,skip)=>c.find(p=>!hit(p,skip))||c[c.length-1];
     ks.forEach(n=>{const kids=(E[n]||[]).filter(k=>N[k]&&N[k][0]>N[n][0]);if(!kids.length)return;
       // each parent gets its own lane (x offset by row) and colour, so merging lines stay traceable
       const [x0,y0]=px(n),x1=x0+NW,y1=y0+NH/2,fx=x1+8+(N[n][1]%4)*5,col=EC[N[n][1]%EC.length];
-      kids.forEach(k=>{const bx=px(k)[0],ey=entryY(k,n),tip=bx-1-AL,lane=fx;
-        paths+=edge(col,[[x1,y1],[lane,y1],[lane,ey],[tip,ey]]);});});
-    // same-column links: a lane in the gap left of the column
-    ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]===N[n][0]).forEach(k=>{const [x0,y0]=px(n),[,by]=px(k),lx=x0-18,col=EC[N[n][1]%EC.length];
-      paths+=edge(col,[[x0,y0+NH/2],[lx,y0+NH/2],[lx,by+NH/2],[x0-1-AL,by+NH/2]]);}));
-    // backward links (a Mastery that needs a later Pursuit): dashed, entering the child's right edge
-    ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]<N[n][0]).forEach(k=>{const [x0,y0]=px(n),[bx,by]=px(k),rx=bx+NW+12,col=EC[N[n][1]%EC.length];
-      paths+='<g><title>'+esc(k)+' Mastery needs '+esc(n)+'</title>'+edge(col,[[x0,y0+NH-8],[rx+8,y0+NH-8],[rx+8,by+NH-8],[bx+NW+1+AL,by+NH-8]],' stroke-dasharray="4 3"')+'</g>';}));
+      kids.forEach(k=>{const [bx,by]=px(k),ey=entryY(k,n),tip=bx-1-AL,gx=bx-16-(N[n][1]%4)*5,down=ey>y1,gy=gapY(N[n][1],down);
+        paths+=edge(col,pick([[[x1,y1],[fx,y1],[fx,ey],[tip,ey]],[[x1,y1],[gx,y1],[gx,ey],[tip,ey]],
+          [[x1,y1],[fx,y1],[fx,gy],[gx,gy],[gx,ey],[tip,ey]]],[n,k]));});});
+    // same-column links: a lane in the gap left of the column (downward and upward links get separate lanes)
+    ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]===N[n][0]).forEach(k=>{const [x0,y0]=px(n),[,by]=px(k),dn=by>y0,lx=x0-(dn?14:26),col=EC[N[n][1]%EC.length],
+        sy=y0+NH/2+(dn?6:-6),ty=by+NH/2+(dn?-6:6);
+      paths+=edge(col,[[x0,sy],[lx,sy],[lx,ty],[x0-1-AL,ty]]);}));
+    // backward links (a Mastery that needs a later Holding): dashed, leaving left, running in the row gap, entering the child's right edge
+    ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]<N[n][0]).forEach(k=>{const [x0,y0]=px(n),[bx,by]=px(k),rx=bx+NW+12,col=EC[N[n][1]%EC.length],
+        sy=y0+NH-8,ty=by+NH-8,lx=x0-12,down=by>=y0,gy=gapY(N[n][1],down);
+      const pts=pick([[[x0,sy],[rx,sy],[rx,ty],[bx+NW+1+AL,ty]],[[x0,sy],[lx,sy],[lx,gy],[rx,gy],[rx,ty],[bx+NW+1+AL,ty]]],[n,k]);
+      paths+='<g><title>'+esc(k)+' Mastery needs '+esc(n)+'</title>'+edge(col,pts,' stroke-dasharray="4 3"')+'</g>';}));
     const nodes=ks.map(n=>{const [x,y]=px(n),r=R[n]||{},col=DC[dom(n)]||"#6a6a72",have=(PC[n]||0)>0,us=unlockStatus(n);
       return '<div class="tn'+(r.monument?' mon':'')+(have?' have':'')+'" style="left:'+x+'px;top:'+y+'px;width:'+NW+'px;height:'+NH+'px;border-color:'+col+'">'+
         '<div class="tnh"><span class="gk" data-gk="'+(GK_BY[esc(n)]??"")+'">'+esc(n)+'</span>'+(r.monument?' ◆':'')+(have?' <span class="tb-b">built</span>':'')+
