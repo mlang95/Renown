@@ -651,11 +651,11 @@
     2,
     2
    ],
-   "Smokehouse": [
+   "Butchery": [
     3,
     0
    ],
-   "Butchery": [
+   "Smokehouse": [
     4,
     0
    ],
@@ -674,7 +674,11 @@
     "Baggage Train"
    ],
    [
-    "Smokehouse",
+    "Salt Works",
+    "Butchery"
+   ],
+   [
+    "Charcoal Burner",
     "Butchery"
    ],
    [
@@ -690,15 +694,11 @@
     "Kiln"
    ],
    [
-    "Butchery",
+    "Smokehouse",
     "Levy Hall"
    ],
    [
-    "Salt Works",
-    "Smokehouse"
-   ],
-   [
-    "Charcoal Burner",
+    "Butchery",
     "Smokehouse"
    ]
   ]

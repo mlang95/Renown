@@ -3,7 +3,7 @@
 import os as _os
 SIMPLE = _os.environ.get("RENOWN_SIMPLE", "1") == "1"   # build_all_CE.bat: set SIMPLE=1|0
 vS = "-SIMPLE" if SIMPLE else ""
-VERSION = f"0.4.9.9.9-d10{vS}"
+VERSION = f"0.4.9.9.10-d10{vS}"
 # ── DICE ─────────────────────────────────────────────────────────────────────
 # Single source for die size, shared with the combat engines. Every threshold
 # string below is an f-string built from these, so changing the die rewrites the
@@ -1797,8 +1797,8 @@ SIMPLE_NODES = {
         "type": "Craft",
         "unlock": "-",
         "innate": "Natural; +500; **Upkeep -500**; Craft+1",
-        "efficient": "Smokehouse",
-        "builds_into": ["Levy Hall"],
+        "efficient": ["Salt Works", "Charcoal Burner"],
+        "builds_into": ["Smokehouse"],
         "monument": False},
     "Bakery": {
         "type": "Craft",
@@ -1888,8 +1888,8 @@ SIMPLE_NODES = {
         "type": "Craft",
         "unlock": "-",
         "innate": "Natural; Craft +2; **Upkeep -500**",
-        "efficient": ["Salt Works", "Charcoal Burner"],
-        "builds_into": ["Butchery"],
+        "efficient": ["Butchery"],
+        "builds_into": ["Levy Hall"],
         "monument": False},
     "Workyard": {
         "type": "Craft",
@@ -2034,13 +2034,6 @@ SIMPLE_NODES = {
         "efficient": ["Abbey"],
         "builds_into": ["Papal Palace"],
         "monument": False},
-    "Bell Tower": {
-        "type": "Civic",
-        "unlock": "1 Established",
-        "innate": "**+1 Influence**/turn; **Influence +1** to envoys sent during the Council Phase.",
-        "efficient": "Jester's Court",
-        "builds_into": ["Embassy"],
-        "monument": False},
     "Execution Dock": {
         "type": "Civic",
         "unlock": "Established Piety",
@@ -2062,11 +2055,18 @@ SIMPLE_NODES = {
         "efficient": "Courtyard",
         "builds_into": ["Bell Tower"],
         "monument": False},
+    "Bell Tower": {
+        "type": "Civic",
+        "unlock": "1 Established",
+        "innate": "**+1 Influence**/turn; **Influence +1** to envoys sent during the Council Phase.",
+        "efficient": "Jester's Court",
+        "builds_into": ["Embassy"],
+        "monument": False},
     "Embassy": {
         "type": "Civic",
         "unlock": "1 Established",
         "infrastructure_req": "Town Hall",
-        "innate": "**Influence +1** to Diplomacy Envoys; Whenever a player performs a Diplomacy Envoy targeting you, that envoy cannot be Opposed.",
+        "innate": "Diplomacy Envoys cannot Fail; Other non-vassal players gain Faith +1 per Signed Treaty with you besides Peace.",
         "efficient": "Bell Tower",
         "builds_into": ["Senate Hall"],
         "monument": False},
@@ -2295,8 +2295,8 @@ SIMPLE_NODES = {
         "type": "Power",
         "unlock": "Established Prowess",
         "infrastructure_req": "Garrison",
-        "innate": "Natural; **Upkeep -2000 while an army is range 0 of controlled settlement**",
-        "efficient": "Butchery",
+        "innate": "Natural, Speed +1; **Upkeep -2000** while an army is range 0 of controlled settlement",
+        "efficient": "Smokehouse",
         "builds_into": ["Baggage Train"],
         "monument": False},
     "Baggage Train": {
@@ -2481,7 +2481,7 @@ SIMPLE_NODES = {
     "Whispering Undercroft": {
         "type": "Monument",
         "unlock": "Sovereign Cunning",
-        "innate": "You always vote last. Once/turn when a player sends an Envoy: that player must declare the specific action & target they would Perform if the Envoy passes (including sub-Actions). If it passes, they must Perform that declared action at the declared target.",
+        "innate": "You always vote last, after the Host. Once/turn when a player sends an Envoy: that player must declare the specific action & target they would Perform if the Envoy passes (including sub-Actions). If it passes, they must Perform that declared action at the declared target.",
         "efficient": "Cipher Chamber",
         "builds_into": [],
         "monument": True},

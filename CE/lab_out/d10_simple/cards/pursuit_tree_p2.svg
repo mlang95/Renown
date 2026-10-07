@@ -134,10 +134,10 @@
 <text x="383" y="419" font-size="8.2" fill="#2b2620">Salt Works</text>
 <rect x="546" y="332" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="546" y="332" width="5" height="24" fill="#6a6a72"/>
-<text x="555" y="347" font-size="8.2" fill="#2b2620">Smokehouse</text>
+<text x="555" y="347" font-size="8.2" fill="#2b2620">Butchery</text>
 <rect x="718" y="332" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="718" y="332" width="5" height="24" fill="#6a6a72"/>
-<text x="727" y="347" font-size="8.2" fill="#2b2620">Butchery</text>
+<text x="727" y="347" font-size="8.2" fill="#2b2620">Smokehouse</text>
 <rect x="890" y="332" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
 <rect x="890" y="332" width="5" height="24" fill="#9E2B25"/>
 <text x="899" y="347" font-size="8.2" fill="#2b2620">Levy Hall</text>

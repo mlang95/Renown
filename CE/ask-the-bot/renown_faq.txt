@@ -118,7 +118,7 @@ easy factions | See 'low difficulty factions'.
 Edict | [Edict](https://mlang95.github.io/RenownWiki/glossary.html#edict): A scoring achievement / win path: reach a Sovereign Standing, complete a Monument, or fulfill a victory condition (Wonder, wealth, Vassalize, Living Saints, Last Standing).
 edict Monument | [Monument](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Build). Have a Monument holding.
 edicts | [Edicts](https://mlang95.github.io/RenownWiki/edicts-ref.html): the win paths. Sovereign Standing, Monument, Wonder, Wealth, Vassalize, Living Saints, Last Alliance Standing. Completing one raises Renown by 1; most-completed wins.
-Embassy | [Embassy](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: Influence +1 to Diplomacy Envoys; Whenever a player performs a Diplomacy Envoy targeting you, that envoy cannot be Opposed. / Requires: Town Hall
+Embassy | [Embassy](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: Diplomacy Envoys cannot Fail; Other non-vassal players gain Faith +1 per Signed Treaty with you besides Peace. / Requires: Town Hall
 Eminence | [Eminence](https://mlang95.github.io/RenownWiki/eras-ref.html) Era. Renown 18, armies 3, cities 2, influence/turn 3, envoys: 1 Council Envoy (2 actions each) + 1 Personal Envoy (2 actions each) per turn. Unlocks: May form Military Alliances
 End Treaty | [End Treaty](https://mlang95.github.io/RenownWiki/actions-ref.html): Diplomacy action. Cost: None. Choose a target with whom you have an active Treaty and no active Truce Timer; remove that Treaty. The target doesn't need to agree. Endorsed: Faith +1.
 Endorsed | [Endorsed](https://mlang95.github.io/RenownWiki/glossary.html#endorsed): An Envoy that passes with 3+ net Influence, triggering its endorsed effect (and a Domain's Rising/Established/Sovereign endorsement).
@@ -216,7 +216,7 @@ Lance | [Lance](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee w
 Last Alliance Standing | [Last Alliance Standing](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Endgame). Be the last alliance standing — the game-ending stop condition.
 Leather | [Leather](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Cast). Save 7+. Keywords: none.
 Levy | [Levy](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 6+, Endurance 2, Morale 7+, cost 1000.
-Levy Hall | [Levy Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Power). Effect: Natural; Upkeep -2000 while an army is range 0 of controlled settlement / Requires: Garrison
+Levy Hall | [Levy Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Power). Effect: Natural, Speed +1; Upkeep -2000 while an army is range 0 of controlled settlement / Requires: Garrison
 Library | [Library](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Sophisticated). Upkeep 300 (per Turn), build 4. Council Envoys you send are always Endorsed
 Living Saints | [Living Saints](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Piety). Sustain Public Order 10 (Living Saints) for five consecutive turns (Pious Timer).
 Longbow | [Longbow](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Cast). AP -1, Init +2. Keywords: 2H, Unstoppable, Deadly, Negate Riposte, Awkward.
@@ -464,7 +464,7 @@ Wealth | [Wealth](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (E
 weapon tiers | [Equipment](https://mlang95.github.io/RenownWiki/equipment-ref.html): Crude (start) -> Cast (Furnace) -> Wrought (Blacksmith) -> Forged (Forge) -> Tempered (Advanced Blast Furnace). Ask e.g. 'wrought weapons' for a tier's list.
 Weavery | [Weavery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: +1000; Craft +2
 Wetlands | [Wetlands](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: Speed -1. Raw Materials: Peat Bog, Forestry.
-Whispering Undercroft | [Whispering Undercroft](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: You always vote last. Once/turn when a player sends an Envoy: that player must declare the specific action & target they would Perform if the Envoy passes (including sub-Actions). If it passes, they must Perform that declared action at the declared target.
+Whispering Undercroft | [Whispering Undercroft](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: You always vote last, after the Host. Once/turn when a player sends an Envoy: that player must declare the specific action & target they would Perform if the Envoy passes (including sub-Actions). If it passes, they must Perform that declared action at the declared target.
 win | See 'how to win'.
 Winery | [Winery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Natural; +800; Craft +3
 Winter | [Winter](https://mlang95.github.io/RenownWiki/seasons-ref.html) Season (Freezing). All Armies gain Speed -1; Sieges do not increment. Tax income collected.

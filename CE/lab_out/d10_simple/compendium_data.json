@@ -1,5 +1,5 @@
 {
- "version": "0.4.9.9.9-d10-SIMPLE",
+ "version": "0.4.9.9.10-d10-SIMPLE",
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
@@ -1182,7 +1182,7 @@
      "Butchery",
      "",
      "—",
-     "Smokehouse",
+     "Salt Works, Charcoal Burner",
      "Natural; +500; **Upkeep -500**; Craft+1"
     ],
     [
@@ -1273,7 +1273,7 @@
      "Smokehouse",
      "",
      "—",
-     "Salt Works, Charcoal Burner",
+     "Butchery",
      "Natural; Craft +2; **Upkeep -500**"
     ],
     [
@@ -1408,13 +1408,6 @@
      "+500; First **Doubt** per turn reduced by 1 (min 0)"
     ],
     [
-     "Bell Tower",
-     "1 Established",
-     "—",
-     "Jester's Court",
-     "**+1 Influence**/turn; **Influence +1** to envoys sent during the Council Phase."
-    ],
-    [
      "Execution Dock",
      "Established Piety",
      "—",
@@ -1429,11 +1422,18 @@
      "First and second **Oppose** on an Envoy of yours each turn: reduce by 1"
     ],
     [
+     "Bell Tower",
+     "1 Established",
+     "—",
+     "Jester's Court",
+     "**+1 Influence**/turn; **Influence +1** to envoys sent during the Council Phase."
+    ],
+    [
      "Embassy",
      "1 Established",
      "Town Hall",
      "Bell Tower",
-     "**Influence +1** to Diplomacy Envoys; Whenever a player performs a Diplomacy Envoy targeting you, that envoy cannot be Opposed."
+     "Diplomacy Envoys cannot Fail; Other non-vassal players gain Faith +1 per Signed Treaty with you besides Peace."
     ],
     [
      "Granary",
@@ -1692,8 +1692,8 @@
      "Levy Hall",
      "Established Prowess",
      "Garrison",
-     "Butchery",
-     "Natural; **Upkeep -2000 while an army is range 0 of controlled settlement**"
+     "Smokehouse",
+     "Natural, Speed +1; **Upkeep -2000** while an army is range 0 of controlled settlement"
     ],
     [
      "Siege Works",
@@ -1880,7 +1880,7 @@
      "Sovereign Cunning",
      "—",
      "Cipher Chamber",
-     "You always vote last. Once/turn when a player sends an Envoy: that player must declare the specific action & target they would Perform if the Envoy passes (including sub-Actions). If it passes, they must Perform that declared action at the declared target."
+     "You always vote last, after the Host. Once/turn when a player sends an Envoy: that player must declare the specific action & target they would Perform if the Envoy passes (including sub-Actions). If it passes, they must Perform that declared action at the declared target."
     ],
     [
      "Outrider Intercept Post",
