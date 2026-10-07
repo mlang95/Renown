@@ -1,5 +1,5 @@
 {
- "version": "0.4.9.9.8-d10-SIMPLE",
+ "version": "0.4.9.9.9-d10-SIMPLE",
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
@@ -54,7 +54,7 @@
   "Faith X": "Gain X Faith: each Faith raises your Public Order track by 1 when resolved.",
   "Doubt X": "Gain X Doubt: each Doubt lowers your Public Order track by 1 when resolved.",
   "Extort X": "Take X from the stated source: the gold goes to you instead of its owner.",
-  "Recoup X": "Regain the stated cost in gold after paying it.",
+  "Recoup X": "Undo up to X of the cost you paid (refund gold, or remove Doubt gained).",
   "Speed X": "An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 3",
   "Influence": "The political currency of voting. Spend it to Support or Oppose Envoys. You gain it each turn from your Era, innate modifiers (trade partners, alliances, war), Holdings, and Infrastructure.",
   "Influence X": "An automatic +X (or -X) to an Envoy's net Influence from a Holding, Infrastructure, or Faction.",
@@ -438,7 +438,7 @@
     ],
     [
      "Recoup X",
-     "Regain the stated cost in gold after paying it."
+     "Undo up to X of the cost you paid (refund gold, or remove Doubt gained)."
     ],
     [
      "Speed X",
@@ -863,7 +863,7 @@
   [
    "5",
    "Eureka",
-   "Activate 1 inactive Mastery until end of turn."
+   "May perform an Endorsed Industry Action"
   ],
   [
    "10",
@@ -1341,7 +1341,7 @@
     ],
     [
      "Merchant Quarter",
-     "Rising Cunning",
+     "Rising Industry",
      "—",
      "Market Square, Courtyard",
      "+500; Trade Partners gain Craft +2"
@@ -1524,14 +1524,14 @@
      "",
      "—",
      "Inn",
-     "Once/turn: **Influence −1** on Target Envoy; Once/turn: successfully Performed Personal Envoy can be Performed next turn; send 1 fewer Envoys next turn"
+     "Once/turn before voting: **Influence −1** on Target Envoy; Once/turn: successfully Performed Personal Envoy can be Performed next turn; send 1 fewer Envoys next turn"
     ],
     [
      "Toll House",
-     "",
+     "Rising Cunning",
      "—",
      "Caravanery",
-     "Natural; Once/turn when an Army ends a Move action within Province: Perform a Diplomacy action targeting that army's player; **Extort 2000** when non-Allied Army ends a Move action within Province"
+     "Natural, **Extort 2000** when non-Allied Army ends a Move action within Province; Once/turn: when an Army ends a Move action within Province: Perform a Diplomacy action targeting that army's player"
     ]
    ]
   },
@@ -1571,14 +1571,21 @@
      "Rising Cunning",
      "—",
      "Alchemy, Forgotten Catacombs",
-     "Weapons gain **Poison**; All Endorsed Cunning actions give an additional **Doubt +1** to Target"
+     "Weapons gain **Poison**; Endorsed Cunning actions give an additional **Doubt +1** to Target"
+    ],
+    [
+     "Charnel House",
+     "Established Cunning",
+     "—",
+     "Toxicarium",
+     "Indecisive, Aimless, & Recession effects are doubled for all players"
     ],
     [
      "Forgotten Catacombs",
      "Rising Cunning",
      "—",
      "Secret Cellar",
-     "Whenever you are the target of **Extort**, reduce the Extort amount by 100. Cunning envoys against you can't be **Endorsed**"
+     "Cunning actions targeting you can't be **Endorsed**"
     ],
     [
      "Cipher Chamber",
@@ -1608,7 +1615,7 @@
     ],
     [
      "Beacon Towers",
-     "Rising Prowess",
+     "Established Cunning",
      "—",
      "Toll House",
      "Natural; Once per turn, you may select an Army within Province and move it up to its modified Speed. Whenever a non-allied Army ends a Move action within Province, you may immediately perform a Move action"
@@ -1648,7 +1655,7 @@
    "rows": [
     [
      "Money Lending",
-     "Established Cunning",
+     "Established Industry",
      "—",
      "Court Artists, Merchant Quarter",
      "**Extort 1000**; May loan money to Trade Partners at 100 per 1000/turn interest(minimum 100); on Default: Perform **Demand Tribute**"
@@ -1743,6 +1750,13 @@
    "title": "Monument",
    "rows": [
     [
+     "Plague Pit",
+     "Sovereign Cunning",
+     "—",
+     "Charnel House",
+     "Cunning actions give an additional **Doubt +1** to Target; No longer affected by all Public Order effects (positive or negative). This player cannot be the target of a Convert action."
+    ],
+    [
      "Office of Works",
      "Sovereign Industry",
      "—",
@@ -1828,10 +1842,10 @@
     ],
     [
      "Aristocratic Court",
-     "Sovereign Cunning",
+     "Sovereign Industry",
      "—",
      "Court Artists, Money Lending",
-     "Each Empire Phase, Extort 1000 from each non-allied player with a lower Cunning value. Your Vote counts as 2 votes toward Domain selection during the Council Phase."
+     "Each Empire Phase, Extort 1000 from each non-allied player with a lower Treasury. Your Vote counts as 2 votes toward Domain selection during the Council Phase."
     ],
     [
      "Studium Generale",
@@ -1856,7 +1870,7 @@
     ],
     [
      "Whispering Undercroft",
-     "Established Cunning",
+     "Sovereign Cunning",
      "—",
      "Cipher Chamber",
      "You always vote last. Once/turn when a player sends an Envoy: that player must declare the specific action & target they would Perform if the Envoy passes (including sub-Actions). If it passes, they must Perform that declared action at the declared target."
@@ -1865,7 +1879,7 @@
      "Outrider Intercept Post",
      "Sovereign Cunning",
      "—",
-     "Cipher Chamber, Beacon Towers",
+     "Beacon Towers",
      "Natural; Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own."
     ]
    ]

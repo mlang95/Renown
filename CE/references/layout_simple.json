@@ -129,6 +129,103 @@
   ]
  },
  {
+  "title": "Aristocratic Court",
+  "anchor": "Aristocratic Court",
+  "mode": "chain",
+  "nodes": {
+   "Quarry": [
+    0,
+    0
+   ],
+   "Masonry": [
+    1,
+    0
+   ],
+   "Courtyard": [
+    2,
+    0
+   ],
+   "Market Square": [
+    3,
+    0
+   ],
+   "Weavery": [
+    4,
+    0
+   ],
+   "Artisan Workshop": [
+    5,
+    0
+   ],
+   "Court Artists": [
+    6,
+    0
+   ],
+   "Merchant Quarter": [
+    6,
+    1
+   ],
+   "Money Lending": [
+    7,
+    1
+   ],
+   "Aristocratic Court": [
+    8,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Court Artists",
+    "Aristocratic Court"
+   ],
+   [
+    "Money Lending",
+    "Aristocratic Court"
+   ],
+   [
+    "Weavery",
+    "Artisan Workshop"
+   ],
+   [
+    "Artisan Workshop",
+    "Court Artists"
+   ],
+   [
+    "Masonry",
+    "Courtyard"
+   ],
+   [
+    "Courtyard",
+    "Market Square"
+   ],
+   [
+    "Quarry",
+    "Masonry"
+   ],
+   [
+    "Market Square",
+    "Merchant Quarter"
+   ],
+   [
+    "Courtyard",
+    "Merchant Quarter"
+   ],
+   [
+    "Court Artists",
+    "Money Lending"
+   ],
+   [
+    "Merchant Quarter",
+    "Money Lending"
+   ],
+   [
+    "Market Square",
+    "Weavery"
+   ]
+  ]
+ },
+ {
   "title": "Manor House",
   "anchor": "Manor House",
   "mode": "chain",
@@ -1009,103 +1106,6 @@
   ]
  },
  {
-  "title": "Aristocratic Court",
-  "anchor": "Aristocratic Court",
-  "mode": "chain",
-  "nodes": {
-   "Quarry": [
-    0,
-    0
-   ],
-   "Masonry": [
-    1,
-    0
-   ],
-   "Courtyard": [
-    2,
-    0
-   ],
-   "Market Square": [
-    3,
-    0
-   ],
-   "Weavery": [
-    4,
-    0
-   ],
-   "Artisan Workshop": [
-    5,
-    0
-   ],
-   "Court Artists": [
-    6,
-    0
-   ],
-   "Merchant Quarter": [
-    6,
-    1
-   ],
-   "Money Lending": [
-    7,
-    1
-   ],
-   "Aristocratic Court": [
-    8,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Court Artists",
-    "Aristocratic Court"
-   ],
-   [
-    "Money Lending",
-    "Aristocratic Court"
-   ],
-   [
-    "Weavery",
-    "Artisan Workshop"
-   ],
-   [
-    "Artisan Workshop",
-    "Court Artists"
-   ],
-   [
-    "Masonry",
-    "Courtyard"
-   ],
-   [
-    "Courtyard",
-    "Market Square"
-   ],
-   [
-    "Quarry",
-    "Masonry"
-   ],
-   [
-    "Market Square",
-    "Merchant Quarter"
-   ],
-   [
-    "Courtyard",
-    "Merchant Quarter"
-   ],
-   [
-    "Court Artists",
-    "Money Lending"
-   ],
-   [
-    "Merchant Quarter",
-    "Money Lending"
-   ],
-   [
-    "Market Square",
-    "Weavery"
-   ]
-  ]
- },
- {
   "title": "Outlaw Rookery",
   "anchor": "Outlaw Rookery",
   "mode": "chain",
@@ -1191,10 +1191,6 @@
     2,
     1
    ],
-   "Academy": [
-    2,
-    2
-   ],
    "Caravanery": [
     3,
     0
@@ -1203,17 +1199,9 @@
     3,
     1
    ],
-   "University": [
-    3,
-    2
-   ],
    "Toll House": [
     4,
     0
-   ],
-   "Forgery Workshop": [
-    4,
-    2
    ],
    "Forgotten Catacombs": [
     4,
@@ -1222,10 +1210,6 @@
    "Beacon Towers": [
     5,
     0
-   ],
-   "Cipher Chamber": [
-    5,
-    2
    ],
    "Toxicarium": [
     5,
@@ -1237,10 +1221,6 @@
    ]
   },
   "edges": [
-   [
-    "Alchemy",
-    "Academy"
-   ],
    [
     "Peat Bog",
     "Alchemy"
@@ -1262,28 +1242,8 @@
     "Caravanery"
    ],
    [
-    "Forgery Workshop",
-    "Cipher Chamber"
-   ],
-   [
-    "University",
-    "Forgery Workshop"
-   ],
-   [
-    "Secret Cellar",
-    "Forgery Workshop"
-   ],
-   [
-    "Academy",
-    "Forgery Workshop"
-   ],
-   [
     "Secret Cellar",
     "Forgotten Catacombs"
-   ],
-   [
-    "Cipher Chamber",
-    "Outrider Intercept Post"
    ],
    [
     "Beacon Towers",
@@ -1312,10 +1272,67 @@
    [
     "Forgotten Catacombs",
     "Toxicarium"
+   ]
+  ]
+ },
+ {
+  "title": "Plague Pit",
+  "anchor": "Plague Pit",
+  "mode": "chain",
+  "nodes": {
+   "Peat Bog": [
+    0,
+    0
+   ],
+   "Secret Cellar": [
+    0,
+    1
+   ],
+   "Alchemy": [
+    1,
+    0
+   ],
+   "Forgotten Catacombs": [
+    1,
+    1
+   ],
+   "Toxicarium": [
+    2,
+    0
+   ],
+   "Charnel House": [
+    3,
+    0
+   ],
+   "Plague Pit": [
+    4,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Peat Bog",
+    "Alchemy"
    ],
    [
-    "Academy",
-    "University"
+    "Toxicarium",
+    "Charnel House"
+   ],
+   [
+    "Secret Cellar",
+    "Forgotten Catacombs"
+   ],
+   [
+    "Charnel House",
+    "Plague Pit"
+   ],
+   [
+    "Alchemy",
+    "Toxicarium"
+   ],
+   [
+    "Forgotten Catacombs",
+    "Toxicarium"
    ]
   ]
  },

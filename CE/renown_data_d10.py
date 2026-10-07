@@ -2,8 +2,8 @@
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
 import os as _os
 SIMPLE = _os.environ.get("RENOWN_SIMPLE", "1") == "1"   # build_all_CE.bat: set SIMPLE=1|0
-vS = "" if SIMPLE is False else "-SIMPLE"
-VERSION = f"0.4.9.9.8-d10{vS}"
+vS = "-SIMPLE" if SIMPLE else ""
+VERSION = f"0.4.9.9.9-d10{vS}"
 # ── DICE ─────────────────────────────────────────────────────────────────────
 # Single source for die size, shared with the combat engines. Every threshold
 # string below is an f-string built from these, so changing the die rewrites the
@@ -178,8 +178,8 @@ GLOSSARY = {
     "Faith X":       "Gain X Faith: each Faith raises your Public Order track by 1 when resolved.",
     "Doubt X":       "Gain X Doubt: each Doubt lowers your Public Order track by 1 when resolved.",
     "Extort X":      "Take X from the stated source: the gold goes to you instead of its owner.",
-    "Recoup X":        "Regain the stated cost in gold after paying it.",
-    "Speed X":         f"An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 3",
+    "Recoup X":      "Undo up to X of the cost you paid (refund gold, or remove Doubt gained).",
+    "Speed X":       "An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 3",
 
     # ── Council, Influence & Envoys (from Rules; the political loop) ──
     "Influence":     "The political currency of voting. Spend it to Support or Oppose Envoys. You gain it each turn from your Era, innate modifiers (trade partners, alliances, war), Pursuits, and Infrastructure.",
@@ -1957,14 +1957,14 @@ SIMPLE_NODES = {
         "monument": False},
     "Merchant Quarter": {
         "type": "Craft",
-        "unlock": "Rising Cunning",
+        "unlock": "Rising Industry",
         "innate": "+500; Trade Partners gain Craft +2",
         "efficient": ["Market Square","Courtyard"],
         "builds_into": ["Money Lending"],
         "monument": False},
     "Money Lending": {
         "type": "Power",
-        "unlock": "Established Cunning",
+        "unlock": "Established Industry",
         "innate": "**Extort 1000**; May loan money to Trade Partners at 100 per 1000/turn interest(minimum 100); on Default: Perform **Demand Tribute**",
         "efficient": ["Court Artists","Merchant Quarter"],
         "builds_into": ["Aristocratic Court"],
@@ -2167,14 +2167,14 @@ SIMPLE_NODES = {
     "Courier Network": {
         "type": "Civic",
         "unlock": "-",
-        "innate": "Once/turn: **Influence −1** on Target Envoy; Once/turn: successfully Performed Personal Envoy can be Performed next turn; send 1 fewer Envoys next turn",
+        "innate": "Once/turn before voting: **Influence −1** on Target Envoy; Once/turn: successfully Performed Personal Envoy can be Performed next turn; send 1 fewer Envoys next turn",
         "efficient": "Inn",
         "builds_into": ["Smuggler's Nook"],
         "monument": False},
     "Toll House": {
         "type": "Civic",
-        "unlock": "—",
-        "innate": "Natural; Once/turn when an Army ends a Move action within Province: Perform a Diplomacy action targeting that army's player; **Extort 2000** when non-Allied Army ends a Move action within Province",
+        "unlock": "Rising Cunning",
+        "innate": "Natural, **Extort 2000** when non-Allied Army ends a Move action within Province; Once/turn: when an Army ends a Move action within Province: Perform a Diplomacy action targeting that army's player",
         "efficient": ["Caravanery"],
         "builds_into": ["Beacon Towers"],
         "monument": False},
@@ -2190,7 +2190,7 @@ SIMPLE_NODES = {
         "unlock": "Rising Cunning",
         "innate": "Natural; Failed Cunning envoys **Recoup 500 Gold**; Passed Cunning envoys **Recoup 500 Gold**",
         "efficient": ["Secrecy", "Thieves' Guild", "Outlaw Rookery", "Outrider Intercept Post"],
-        "builds_into": ["Smuggler's Nook", "Black Market", "Forgery Workshop", "Forgotten Catacombs", "Thieves' Guild"],
+        "builds_into": ["Secrecy"],
         "monument": False},
     "Smuggler's Nook": {
         "type": "Secrecy",
@@ -2223,10 +2223,24 @@ SIMPLE_NODES = {
     "Toxicarium": {
         "type": "Secrecy",
         "unlock": "Rising Cunning",
-        "innate": "Weapons gain **Poison**; All Endorsed Cunning actions give an additional **Doubt +1** to Target",
+        "innate": "Weapons gain **Poison**; Endorsed Cunning actions give an additional **Doubt +1** to Target",
         "efficient": ["Alchemy", "Forgotten Catacombs"],
-        "builds_into": [],
+        "builds_into": ["Charnel House"],
         "monument": False},
+    "Charnel House": {
+        "type": "Secrecy",
+        "unlock": "Established Cunning",
+        "innate": "Indecisive, Aimless, & Recession effects are doubled for all players",
+        "efficient": ["Toxicarium"],
+        "builds_into": ["Plague Pit"],
+        "monument": False},
+    "Plague Pit": {
+        "type": "Monument",
+        "unlock": "Sovereign Cunning",
+        "innate": "Cunning actions give an additional **Doubt +1** to Target; No longer affected by all Public Order effects (positive or negative). This player cannot be the target of a Convert action.",
+        "efficient": ["Charnel House"],
+        "builds_into": [],
+        "monument": True},
     "Pilgrimage Site": {
         "type": "Energy",
         "unlock": "Established Piety",
@@ -2237,7 +2251,7 @@ SIMPLE_NODES = {
         "monument": False},
     "Beacon Towers": {
         "type": "Energy",
-        "unlock": "Rising Prowess",
+        "unlock": "Established Cunning",
         "innate": "Natural; Once per turn, you may select an Army within Province and move it up to its modified Speed. Whenever a non-allied Army ends a Move action within Province, you may immediately perform a Move action",
         "efficient": "Toll House",
         "builds_into": ["Outrider Intercept Post"],
@@ -2245,7 +2259,7 @@ SIMPLE_NODES = {
     "Forgotten Catacombs": {
         "type": "Secrecy",
         "unlock": "Rising Cunning",
-        "innate": "Whenever you are the target of **Extort**, reduce the Extort amount by 100. Cunning envoys against you can't be **Endorsed**",
+        "innate": "Cunning actions targeting you can't be **Endorsed**",
         "efficient": "Secret Cellar",
         "builds_into": ["Toxicarium"],
         "monument": False},
@@ -2424,8 +2438,8 @@ SIMPLE_NODES = {
         "monument": True},
     "Aristocratic Court": {
         "type": "Monument",
-        "unlock": "Sovereign Cunning",
-        "innate": "Each Empire Phase, Extort 1000 from each non-allied player with a lower Cunning value. Your Vote counts as 2 votes toward Domain selection during the Council Phase.",
+        "unlock": "Sovereign Industry",
+        "innate": "Each Empire Phase, Extort 1000 from each non-allied player with a lower Treasury. Your Vote counts as 2 votes toward Domain selection during the Council Phase.",
         "efficient": ["Court Artists","Money Lending"],
         "builds_into": [],
         "monument": True},
@@ -2459,7 +2473,7 @@ SIMPLE_NODES = {
         "monument": False},
     "Whispering Undercroft": {
         "type": "Monument",
-        "unlock": "Established Cunning",
+        "unlock": "Sovereign Cunning",
         "innate": "You always vote last. Once/turn when a player sends an Envoy: that player must declare the specific action & target they would Perform if the Envoy passes (including sub-Actions). If it passes, they must Perform that declared action at the declared target.",
         "efficient": "Cipher Chamber",
         "builds_into": [],
@@ -2468,7 +2482,7 @@ SIMPLE_NODES = {
         "type": "Monument",
         "unlock": "Sovereign Cunning",
         "innate": "Natural; Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own.",
-        "efficient": ["Cipher Chamber","Beacon Towers"],
+        "efficient": ["Beacon Towers"],
         "builds_into": ["Secret Cellar"],
         "monument": True},
 }
@@ -3070,7 +3084,7 @@ PUBLIC_ORDER = {
      2: ("Confident",     "+1 Influence"),
      3: ("Motivated",     "Speed +1"),
      4: ("Economic Boom", "Tax income +500 per settlement"),
-     5: ("Eureka",        "Activate 1 inactive Mastery until end of turn."),
+     5: ("Eureka",        "May perform an Endorsed Industry Action"),
      #6: ("Devout",        "+1 Influence"),
 	 #7: ("Pious",         "Immune Deficit"),
 	 #8: ("Holy",          "Immune to Spread Gospel"),
@@ -3323,16 +3337,16 @@ ENVOY_OUTCOME_THRESHOLDS = {
 # (Strain; if already Strained, no Move this turn or next) rather than Doubt+Cost,
 # since Prowess actions carry no gold/doubt cost.
 ENVOY_OUTCOMES = {
-    "Prowess":   {"condemned": "Doubt 1 + Armies gain Strain; if already Strained, that army cannot perform a Move action this turn or next.",
+    "Prowess":   {"condemned": "Doubt 1 + Armies gain Strain; if already Strained, that army gains Blocked.",
                   "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Perform a Move action"},
     "Cunning":   {"condemned": "Doubt 1 + pay the action's cost",
                   "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Extort 2000"},
     "Piety":     {"condemned": "Doubt 1 + pay the action's cost",
-                  "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Faith 1"},
+                  "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Recoup Doubt"},
     "Industry":  {"condemned": "Doubt 1 + pay the action's cost",
                   "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Recoup 2000"},
     "Diplomacy": {"condemned": "Doubt 1 + pay the action's cost",
-                  "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Perform a Diplomacy action"},
+                  "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Faith 1"},
 }
 
 
@@ -3422,28 +3436,28 @@ ACTIONS = {
         'cost': 'Doubt 1',
         'requires': '',
         'effect': 'Each non-allied player gains Doubt 1. Each allied player gains Faith 1.',
-        'endorsed': 'Gain Faith 1.',
+        'endorsed': 'Recoup Doubt.',
     },
     'Send Missionaries': {
         'domain': 'Piety',
         'cost': 'Doubt 1',
         'requires': '',
         'effect': 'Choose a target player or Alliance. If the target is outside your Alliance, each player in it gains Doubt 2. If the target is inside your Alliance, each other allied player gains Faith 2.',
-        'endorsed': 'Gain Faith 1.',
+        'endorsed': 'Recoup Doubt.',
     },
     'Tithe': {
         'domain': 'Piety',
         'cost': 'Doubt 1',
         'requires': '',
         'effect': 'Choose a player. Extort 10% of their Treasury (round down to the nearest 100, minimum 0).',
-        'endorsed': 'Gain Faith 1.',
+        'endorsed': 'Recoup Doubt.',
     },
     'Convert': {
         'domain': 'Piety',
         'cost': 'Doubt 1',
         'requires': '',
         'effect': f"Choose another player's closest non-capital Settlement; its Public Order must be {PO_MIN} or lower. Lay Siege using only Settlement-type Siege modifiers (Settlement Size and Citadel) and set a Convert Timer. When it reaches 0, the Settlement joins your empire (see Capture).",
-        'endorsed': 'Gain Faith 1.',
+        'endorsed': 'Recoup Doubt.',
         'notes': ["If the target's Public Order rises to 1 or higher before the timer reaches 0, the Convert fails and the timer is removed."],
     },
     'Sacred War': {
@@ -3451,7 +3465,7 @@ ACTIONS = {
         'cost': 'Doubt 1',
         'requires': 'Sovereign Piety',
         'effect': 'Declare War on a non-ally you have no NAP or truce with, then immediately perform a Move action with one of your Armies.',
-        'endorsed': 'Gain Faith 1.',
+        'endorsed': 'Recoup Doubt.',
         'notes': [
             'While a Sacred War is active, neither player may Declare War on, Sign or End a Treaty with, Negotiate with, or Demand Tribute from the other. All previous treaties are immediately Ended.',
             'You may have only one active Sacred War at a time. It ends only when one of the two players is Vassalized or otherwise removed from the game.',
@@ -3472,7 +3486,7 @@ ACTIONS = {
         'cost': '0 gold',
         'requires': '',
         'effect': f'Choose a Damaged Pursuit or Infrastructure in a Settlement you control and set Build Timer {TIMERS["Repair Timer"]["default"]}. When it reaches 0, choose one: Restore — reactivate it with all effects; Demolish — remove the Pursuit tile from your Empire Tableau.',
-        'endorsed': 'Recoup 2000.',
+        'endorsed': 'Recoup 0.',
     },
     'Pursue': {
         'domain': 'Industry',
@@ -3495,7 +3509,7 @@ ACTIONS = {
         'cost': 'None',
         'requires': '',
         'effect': f'Ask players to agree, then choose one and both sign it: Peace Treaty — end the war, set Truce Timer {TIMERS["Truce Timer"]["default"]}; Trade Agreement — begin trading next turn; Non-Aggression Pact — no Declare War (ending it via End Treaty gives both Truce Timer {TIMERS["Truce Timer"]["default"]}); Alliance — join, form, or invite to a Defensive or Military Alliance.',
-        'endorsed': 'Perform a Diplomacy action.',
+        'endorsed': 'Faith +1.',
         'notes': ['When acting on behalf of an Alliance, End Treaty requires all allies to agree.', "A player can't be in more than one Alliance."],
     },
     'Negotiate': {
@@ -3503,7 +3517,7 @@ ACTIONS = {
         'cost': 'None',
         'requires': '',
         'effect': 'Propose terms to a target; they agree or refuse. Terms may include gold, Settlement ownership, Territory, signing or ending a Treaty, or promises (non-binding).',
-        'endorsed': 'Perform a Diplomacy action.',
+        'endorsed': 'Faith +1.',
         'notes': ['If a promise goes unfulfilled, the affected player may Declare War on the promiser.', 'Also used to resolve Demand Tribute and Siege surrenders.'],
     },
     'End Treaty': {
@@ -3511,7 +3525,7 @@ ACTIONS = {
         'cost': 'None',
         'requires': '',
         'effect': "Choose a target with whom you have an active Treaty and no active Truce Timer; remove that Treaty. The target doesn't need to agree.",
-        'endorsed': 'Perform a Diplomacy action.',
+        'endorsed': 'Faith +1.',
     },
 }
 
