@@ -1211,7 +1211,7 @@
      "",
      "—",
      "Apiary",
-     "Craft +1; **Influence −1** to Cunning envoys targeting you"
+     "Craft +1; **Influence −1** to Cunning actions targeting you"
     ],
     [
      "Tannery",
@@ -1391,7 +1391,7 @@
      "Rising Piety",
      "—",
      "Episcopal Court",
-     "Extort 500; Cunning actions targetting this player that cause Doubt are reduced by 1, to a minimum of 0."
+     "Extort 500; Cunning actions targeting this player that cause Doubt are reduced by 1, to a minimum of 0."
     ],
     [
      "Abbey",
@@ -1796,7 +1796,7 @@
      "Sovereign Piety",
      "—",
      "Execution Dock",
-     "**Doubt +1**; Unlocks **Grand Vizier** which uses your **Public Order** instead of your **Cunning** value. You may use your **Piety Value** as **Cunning Value** for **Grand Vizier**."
+     "**Doubt 1**; Unlocks **Grand Vizier** which uses your **Piety Value** instead of **Cunning.**; All player actions that cause Doubt are increased by 1. "
     ],
     [
      "Sacred Preceptory",
@@ -1810,7 +1810,7 @@
      "Sovereign Piety",
      "—",
      "Pilgrimage Site",
-     "Your piety actions cause an additional doubt. Every turn, perform Endorsed Spread Truth."
+     "Your piety actions cause an additional **Doubt** or an additional **Faith**. Every turn, perform Endorsed Spread Truth."
     ],
     [
      "Manor House",
@@ -2179,7 +2179,7 @@
    "Wooden Walls",
    "200",
    "per Turn",
-   "**Influence -2** to **Raze actions** from players targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**.",
+   "**Influence -2** to **Raze actions** from players targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targeting your **settlements**.",
    "Primitive",
    "2",
    "None"
@@ -2224,7 +2224,7 @@
    "Stone Walls",
    "300",
    "per Turn",
-   "**Influence -2** to **Destabilize actions** from players targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targetting your **settlements**.",
+   "**Influence -2** to **Destabilize actions** from players targeting your **settlements**. **Influence -1** to Bandit **Cunning actions** targeting your **settlements**.",
    "Sophisticated",
    "4",
    "One Tier Developed + Wooden Walls"

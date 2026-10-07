@@ -27,7 +27,7 @@ Attacker / Defender | [Attacker / Defender](https://mlang95.github.io/RenownWiki
 Awkward | [Awkward](https://mlang95.github.io/RenownWiki/glossary.html#awkward): While equipped with this weapon during a skirmish, you cannot Parry, and so cannot Riposte.
 Bakery | [Bakery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Natural; Faith +1; +500; Craft +2
 Bandit | [Bandit](https://mlang95.github.io/RenownWiki/glossary.html#bandit): Neutral hostile force; Bandit Camps spawn in Outlaw Country and on low Public Order.
-Basilica of Truth | [Basilica of Truth](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Your piety actions cause an additional doubt. Every turn, perform Endorsed Spread Truth.
+Basilica of Truth | [Basilica of Truth](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Your piety actions cause an additional Doubt or an additional Faith. Every turn, perform Endorsed Spread Truth.
 Bastard Sword | [Bastard Sword](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP -2, Init +0. Keywords: Steady.
 Battle | [Battle](https://mlang95.github.io/RenownWiki/glossary.html#battle): One fight between two players, resolved as a series of Skirmishes until a side is wiped out, Routs, or Falls Back.
 Battle Axe | [Battle Axe](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP -3, Init -1. Keywords: 2H, Unwieldy, Unstoppable, Cleave, Negate Shielded.
@@ -58,7 +58,7 @@ Cathedral | [Cathedral](https://mlang95.github.io/RenownWiki/infrastructure-ref.
 Cavalry Spear | [Cavalry Spear](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP -2, Init +1. Keywords: Steady, Unwieldy, Negate Riposte, Awkward.
 Census Hall | [Census Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Doubt +1; +1000
 Chainmail | [Chainmail](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Wrought). Save 6+. Keywords: none.
-Chandlery | [Chandlery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Craft +1; Influence −1 to Cunning envoys targeting you
+Chandlery | [Chandlery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Craft +1; Influence −1 to Cunning actions targeting you
 Charcoal Burner | [Charcoal Burner](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Energy). Effect: Natural; +500
 Charter | [Charter](https://mlang95.github.io/RenownWiki/actions-ref.html): Industry action. Cost: 2000 gold. Charter a new Village — on in-province non-water, non-mountain Territory, range 4+ from any Settlement and range 2+ from Outlaw Country. Endorsed: Recoup 2000.
 Cidery | [Cidery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Natural; Faith +1; +800; Craft +1
@@ -200,9 +200,9 @@ infrastructure | [Infrastructure](https://mlang95.github.io/RenownWiki/infrastru
 infrastructure upkeep | [Infrastructure upkeep](https://mlang95.github.io/RenownWiki/economy-ref.html): Per-Empire upkeep in INFRASTRUCTURE. Masonry removes Primitive; Trade Guild removes Developed; College of Engineering removes Sophisticated.
 Initiative | [Initiative](https://mlang95.github.io/RenownWiki/glossary.html#initiative): Decides who Strikes first each Skirmish (higher first). Runs -2 to +2 (Ministry can raise the maximum to +3). At -2 or lower you Blunder.
 Inn | [Inn](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Faith +1 for trading partners with Craft 3+; Faith +1 / Requires: Hitching Post
-Inquisitorial Palace | [Inquisitorial Palace](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Doubt +1; Unlocks Grand Vizier which uses your Public Order instead of your Cunning value. You may use your Piety Value as Cunning Value for Grand Vizier.
+Inquisitorial Palace | [Inquisitorial Palace](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Doubt 1; Unlocks Grand Vizier which uses your Piety Value instead of Cunning.; All player actions that cause Doubt are increased by 1.
 Intercept Caravan | [Intercept Caravan](https://mlang95.github.io/RenownWiki/actions-ref.html): Cunning action. Cost: 2000 gold. Choose a player. The next turn that player is Host, Extort their Trade Income. Endorsed: Extort 2000.
-Interrogation Chambers | [Interrogation Chambers](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: Extort 500; Cunning actions targetting this player that cause Doubt are reduced by 1, to a minimum of 0.
+Interrogation Chambers | [Interrogation Chambers](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: Extort 500; Cunning actions targeting this player that cause Doubt are reduced by 1, to a minimum of 0.
 Throwing Axe | [Throwing Axe](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Wrought). AP -2, Init +1. Keywords: Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One-Shot, Awkward.
 Jester's Court | [Jester's Court](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: First and second Oppose on an Envoy of yours each turn: reduce by 1
 Jewelry Foundry | [Jewelry Foundry](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: +2000; Influence +1 to Cunning actions targeting this player; Craft +5
@@ -355,7 +355,7 @@ Standing | [Standing](https://mlang95.github.io/RenownWiki/glossary.html#standin
 starting forces | [Escalation setup](https://mlang95.github.io/RenownWiki/escalation-rules.html): 25 Levy, Farm Tool, Cloth armor, no shield. Re-equip freely before each Battle with anything unlocked.
 Steady | [Steady](https://mlang95.github.io/RenownWiki/keywords-ref.html#steady): Initiative cannot be reduced by Tactics.
 Stone Roads | [Stone Roads](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Developed). Upkeep 200 (per Turn), build 3. If you start a Move action within Province, gain additional Speed +1
-Stone Walls | [Stone Walls](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Sophisticated). Upkeep 300 (per Turn), build 4. Influence -2 to Destabilize actions from players targeting your settlements. Influence -1 to Bandit Cunning actions targetting your settlements.
+Stone Walls | [Stone Walls](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Sophisticated). Upkeep 300 (per Turn), build 4. Influence -2 to Destabilize actions from players targeting your settlements. Influence -1 to Bandit Cunning actions targeting your settlements.
 Storehouse | [Storehouse](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Doubt +1, +1200; Build Timer −2
 Strained | [Strained](https://mlang95.github.io/RenownWiki/glossary.html#strained): -1 Initiative every Skirmish (negated by Immune Strain). Does not gain Endurance in the Empire Phase.
 Strike | [Strike](https://mlang95.github.io/RenownWiki/glossary.html#strike): A landed hit. Roll a D10, apply modifiers to the roll, and Strike on a result >= the to-Strike number. The target may then Parry, Save, and Heal.
@@ -466,7 +466,7 @@ Winter | [Winter](https://mlang95.github.io/RenownWiki/seasons-ref.html) Season 
 Within | [Within](https://mlang95.github.io/RenownWiki/glossary.html#within): Range 0.
 Wonder | [Wonder](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Improve). Improve Infrastructure via a Wonder.
 wonders | [Wonders](https://mlang95.github.io/RenownWiki/wonders-ref.html): Colossus, The Grand Exchange, The Eternal Sepulchre, High Chancery. Each grants a powerful empire bonus; completing one scores its Edict.
-Wooden Walls | [Wooden Walls](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Primitive). Upkeep 200 (per Turn), build 2. Influence -2 to Raze actions from players targeting your settlements. Influence -1 to Bandit Cunning actions targetting your settlements.
+Wooden Walls | [Wooden Walls](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Primitive). Upkeep 200 (per Turn), build 2. Influence -2 to Raze actions from players targeting your settlements. Influence -1 to Bandit Cunning actions targeting your settlements.
 Workyard | [Workyard](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Natural; Doubt +1, +1000
 Wrought | [Wrought](https://mlang95.github.io/RenownWiki/glossary.html#wrought): Wrought equipment tier. Weapons: Arming Sword, Pike, Flail, Halberd, Battle Axe, Cavalry Spear; Ranged: Throwing Axe; Armor: Chainmail; Shield: Kite Shield. Unlocked by: Blacksmith (weapons), Armory (armor & shield).
 Wrought Armor | [Wrought Armor](https://mlang95.github.io/RenownWiki/glossary.html#wrought-armor): Wrought-tier armor: Chainmail. Unlocked by: Armory.
