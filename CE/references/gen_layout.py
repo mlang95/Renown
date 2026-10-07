@@ -29,18 +29,13 @@ ATTACH = {
     "Advanced Blast Furnace": ["Court Armoury", "Jewelry Foundry"],
     "Preceptory of the Knight's Templar": ["Hospitaller"],
     "Royal Pavilion": ["Tiltyard"],
-    "Outrider Intercept Post": ["Toxicarium"],
 }
 # SIMPLE: hand placement, applied last. Monument (data name) -> {Holding: [col, row]}. Holdings not
 # listed keep their generated spot; pins naming a Holding not on the chart, or landing on an occupied
 # cell, are reported and skipped.
 PIN = {
     "Outrider Intercept Post": {
-        "Peat Bog": [0, 2], "Alchemy": [1, 2], "Academy": [2, 2], "University": [3, 2],
-        "Forgery Workshop": [4, 2], "Cipher Chamber": [5, 2],
         "Caravanery": [3, 0], "Toll House": [4, 0], "Beacon Towers": [5, 0], "Outrider Intercept Post": [6, 0],
-        "Secret Cellar": [2, 1],
-        "Toxicarium": [5, 3], "Forgotten Catacombs": [4, 4],
     },
 }
 sys.path.insert(0, os.path.dirname(HERE))

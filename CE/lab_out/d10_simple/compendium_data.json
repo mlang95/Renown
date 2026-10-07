@@ -1,5 +1,5 @@
 {
- "version": "0.4.9.9.11-d10-SIMPLE",
+ "version": "0.4.9.9.10-d10-SIMPLE",
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
@@ -150,7 +150,7 @@
   "Tempered Armor": "Tempered-tier armor: Gothic Plate.",
   "Tempered Shields": "Tempered-tier shields: Heater Shield.",
   "Gunpowder": "Gunpowder equipment: Arquebus. Unlocked by: Ordinance Yard, Fletchery.",
-  "Ranged Weapons": "Ranged weapons: Hunting Bow (Crude), Longbow (Cast), Throwing Axe (Wrought), Crossbow (Forged), Arquebus (Gunpowder), Throwing Spear (Tempered). Unlocked by: Fletchery."
+  "Ranged Weapons": "Ranged weapons: Hunting Bow (Crude), Longbow (Cast), Throwing Axe (Wrought), Crossbow (Forged), Throwing Spear (Tempered), Arquebus (Gunpowder). Unlocked by: Fletchery."
  },
  "glossary_categorized": [
   {
@@ -701,7 +701,7 @@
     ],
     [
      "Ranged Weapons",
-     "Ranged weapons: Hunting Bow (Crude), Longbow (Cast), Throwing Axe (Wrought), Crossbow (Forged), Arquebus (Gunpowder), Throwing Spear (Tempered). Unlocked by: Fletchery."
+     "Ranged weapons: Hunting Bow (Crude), Longbow (Cast), Throwing Axe (Wrought), Crossbow (Forged), Throwing Spear (Tempered), Arquebus (Gunpowder). Unlocked by: Fletchery."
     ],
     [
      "Reach X",
@@ -2097,18 +2097,18 @@
     "Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Awkward"
    ],
    [
-    "Arquebus",
-    "Gunpowder",
-    "-6",
-    "+2",
-    "2H, Unwieldy, Unstoppable, Negate Shielded, Negate Riposte, Negate Planishing, Awkward"
-   ],
-   [
     "Throwing Spear",
     "Tempered",
     "-5",
     "+1",
     "Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One-Shot, Awkward"
+   ],
+   [
+    "Arquebus",
+    "Gunpowder",
+    "-6",
+    "+2",
+    "2H, Unwieldy, Unstoppable, Negate Shielded, Negate Riposte, Negate Planishing, Awkward"
    ]
   ],
   "Shields": [

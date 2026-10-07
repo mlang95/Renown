@@ -215,8 +215,7 @@ class StaticArmy:
         # ── Weapon-imposed tactic restrictions ──────────────────────────────
         # A ranged profile may declare `tactics_allowed`; while that weapon is the
         # ACTIVE one, no other tactic may be picked. The Arquebus is the only user:
-        # "May only use the Fighting Formation, Defensive Formation, or Fall Back
-        # Tactics." Stored as a boolean mask over TACTICS (the canonical order the
+        # "May only use the Fighting Formation or Fall Back Tactics." Stored as a boolean mask over TACTICS (the canonical order the
         # weight arrays use) so the skirmish loop can zero disallowed weights and
         # let the rest renormalize, exactly as the Fall Back gate does.
         _allowed = (ranged_profile or {}).get("tactics_allowed")

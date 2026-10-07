@@ -3889,9 +3889,16 @@ function eqWeapon(a,e,shDest){if(!a)return {ap:0};const r=(a.ranged&&a.ranged!==
   return w;}
 // Random Tactic: uniform over the Tactics other than Fall Back (as the sim's Random mode), limited to
 // those an equipped weapon allows when its note says "May only use …" (e.g. Arquebus).
-function randomTacticPool(X){const B=battle(),{a}=sideArmy(B[X]);let pool=BT.tactics.filter(t=>t!=="Fall Back");
-  if(a){const w=eqWeapon(a,eqNow(X),!!((B.shDest||{})[X])),n=String(w.note||"");
-    if(/May only use/i.test(n)){const ok=BT.tactics.filter(t=>n.includes(t));const nf=ok.filter(t=>t!=="Fall Back");if(ok.length)pool=nf.length?nf:ok;}}
+// Weapon-imposed Tactic limit (RANGED[*].tactics_allowed, e.g. Arquebus): applies while that weapon is the one
+// Equipped this Skirmish — same rule as Combatv4 (tactic_mask_ranged). Returns the allowed list, or null.
+function tacAllowed(X){const B=battle(),{a}=sideArmy(B[X]||{});if(!a)return null;
+  const w=eqWeapon(a,eqNow(X),!!((B.shDest||{})[X]));
+  if(Array.isArray(w.tactics_allowed)&&w.tactics_allowed.length)return w.tactics_allowed.filter(t=>BT.tactics.includes(t));
+  const n=String(w.note||"");if(/May only use/i.test(n)){const ok=BT.tactics.filter(t=>n.includes(t));if(ok.length)return ok;}
+  return null;}
+function tacOK(X,t){const al=tacAllowed(X);return !al||al.includes(t);}
+function randomTacticPool(X){let pool=BT.tactics.filter(t=>t!=="Fall Back");const al=tacAllowed(X);
+  if(al){const nf=al.filter(t=>t!=="Fall Back");pool=nf.length?nf:al;}
   return pool;}
 function sideCalc(X){
   const B=battle(),sd=B[X],o=B[X==="A"?"B":"A"],{p,a}=sideArmy(sd);if(!a)return null;
@@ -3930,7 +3937,8 @@ function sideCalc(X){
   const rngPlus=eqX.mode==="ranged"?u.mods.filter(m=>m.tok==="Ranged Strike +1").length:0;   // e.g. "Ranged Weapons have +1 to Strike"
   const improve=strikePlus+rngPlus+th1+Math.max(tacTH,0);
   const fat=(a.fatigue||0)*(BT.fatigueStrike??1);
-  const esh=(eo&&!((B.shDest||{})[O]))?(EQ.shields[(eo.shield==="None"||!eo.shield)?"null":eo.shield]||{tags:[]}):{tags:[]};
+  const eShOff=(ewpn.tags||[]).includes("2H");                 // enemy's 2H Equipped: its Shield gives nothing this Skirmish
+  const esh=(eo&&!((B.shDest||{})[O])&&!eShOff)?(EQ.shields[(eo.shield==="None"||!eo.shield)?"null":eo.shield]||{tags:[]}):{tags:[]};
   const eShielded=(esh.tags||[]).includes("Shielded")&&!mt.has("Negate Shielded");
   const worsen=(eShielded?1:0)+((sh.tags||[]).includes("-1TH")?1:0)+(mt.has("Immune Tactic TH")?0:Math.max(-tacTH,0));
   let pre=Math.min((rt.to_hit||0)-improve+fat,CAP);if(blunder)pre=Math.max(pre,CAP);
@@ -4019,12 +4027,17 @@ async function loadPicks(){
 }
 async function pickTactic(side,t){
   const B=battle();
+  if(!tacOK(side,t)){flash(t+" not allowed with this weapon — "+tacAllowed(side).join(", "));return;}
   const tv=t+"|"+eqCode(side);                                   // Tactic and equipment are submitted together
   if(API.online){const r=await apiRaw("PUT","/api/battle/"+B.id+"/"+pickKey()+"/"+side,{tactic:tv});if(r&&r.status===409)flash("both sides already locked in");}
   else{const k=B.id+":"+pickKey();LOCAL_PICKS[k]=LOCAL_PICKS[k]||{};if(!(LOCAL_PICKS[k].A&&LOCAL_PICKS[k].B))LOCAL_PICKS[k][side]=tv;}
   await loadPicks();render();
 }
 function mdLite(t){return esc(t||"").replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\*(.+?)\*/g,"<i>$1</i>").replace(/\n/g,"<br>");}
+// long form for the side panel: "-1 Initiative, +1 to Strike" (the matrix table keeps the short codes)
+function fmtModLong(m){if(!m)return "—";const L={I:"Initiative",TH:"to Strike",TS:"to Save"},o=[];
+  ["I","TH","TS"].forEach(k=>{if(m[k])o.push((m[k]>0?"+":"")+m[k]+" "+L[k]);});
+  if(m.no_combat)o.push("no combat");if(m.end)o.push("ends");if(m.strain)o.push("Strained");return o.join(", ")||"no modifier";}
 function fmtMod(m){if(!m)return"—";const o=[];["I","TH","TS"].forEach(k=>{if(m[k])o.push(k+(m[k]>0?"+":"")+m[k]);});
   if(m.no_combat)o.push("no combat");if(m.end)o.push("ends");if(m.strain)o.push("Strained");return o.join(" ")||"·";}
 function dieRow(dice,target){return dice.map(v=>'<span style="display:inline-block;min-width:18px;text-align:center;border:1px solid var(--line);margin:1px;'+(v>=target?'background:var(--sel);font-weight:700':'opacity:.6')+'">'+v+'</span>').join('');}
@@ -4057,7 +4070,19 @@ function sideHTML(X){
     stat("SAVE vs enemy",(c.save>(BT.faces||10)?"auto-fail":c.save+"+")+(c.planOn&&c.saveRaw>c.save?" ⛨":""),"armor − enemy AP − shield − TS"+(c.planOn?" · Planishing cap":""))+
     ((oc=>oc&&oc.hasDeadly?stat("vs DEADLY",(c.deadlySave>(BT.faces||10)?"auto-fail":c.deadlySave+"+"),"Deadly strikes: save +"+(BT.deadlyAp??5)+(c.planOn?", Planishing cap":"")):"")(sideCalc(X==="A"?"B":"A")))+stat("PARRY",c.canParry?c.parryThr+"+":"—",c.canParry?"vs enemy Strikes; Deadly: "+(BT.focusedThr||10)+" only; vs Riposte "+c.parryThrMelee+"+":"no Parry")+stat("RECOVER",c.recThr!=null?c.recThr+"+":"—","after a failed Save; Deadly: "+(BT.focusedThr||10)+" only")+stat("MORALE",c.morale+"+"+(c.morale>=11?" ROUT":""))+
     stat("ENDURANCE",a.endurance||0)+stat("FATIGUE",a.fatigue||0)+'</div>';
-  h+='<div class="note">'+(c.seize?'Seize +1 I · ':'')+(a.strained?'Strained −1 I · ':'')+(c.cell?'Tactic '+fmtMod(c.tm):'Tactic mods apply once both reveal')+'</div>';
+  // base gear stats (before Tactic / enemy / keyword modifiers): Equipped weapon first, the carried alternative dimmed
+  {const sg=v=>(v>0?"+":"")+(v||0),rw=(a.ranged&&a.ranged!=="None")?EQ.ranged[a.ranged]:null,mw=EQ.weapons[a.weapon]||null,
+     ar=EQ.armors[a.armor]||{},sh=(a.shield&&a.shield!=="None")?EQ.shields[a.shield]:null,rt=EQ.retinues[a.retinue]||{},
+     tl=it=>it&&it.tier?(it.tier_label||it.tier):"",onR=c.eqX.mode==="ranged"&&!!rw;
+   const wchip=(nm,it,on)=>'<span class="stat" style="'+(on?'':'opacity:.55')+'" title="'+esc(tl(it)+((it.tags||[]).length?" · "+it.tags.join(", "):""))+'"><span class="k">'+(on?"EQUIPPED":"CARRIED")+'</span><b>'+esc(nm)+'</b> AP '+(it.ap||0)+' · Init '+sg(it.init)+'</span>';
+   let g='';
+   if(onR){g+=wchip(a.ranged,rw,true);if(mw&&a.weapon!=="Farm Tools")g+=wchip(a.weapon,mw,false);}
+   else{if(mw)g+=wchip(a.weapon+(c.eqX.b2h?" (2H)":""),c.eqX.b2h&&EQ.bastard2h?EQ.bastard2h:mw,true);if(rw)g+=wchip(a.ranged,rw,false);}
+   g+=stat("SHIELD",sh?esc(a.shield)+" +"+(sh.save_bonus||0)+(sh.init?" · Init "+sg(sh.init):"")+(c.shOff?" (off: 2H)":"")+(c.shDest?" (destroyed)":""):"—")+
+      stat("ARMOR",esc(a.armor||"Cloth")+" "+(ar.save!=null?ar.save+"+":"—"))+
+      stat("RETINUE",esc(a.retinue||"")+" · Strike "+(rt.to_hit??"?")+"+ · Morale "+(rt.shaking??"?")+"+");
+   h+='<div class="stats" style="margin-top:4px">'+g+'</div>';}
+  h+='<div class="note">'+(c.seize?'Seize: +1 Initiative · ':'')+(a.strained?'Strained: −1 Initiative · ':'')+(c.cell?'Tactic: '+fmtModLong(c.tm):'Tactic mods apply once both reveal')+'</div>';
   if(c.trig.length)h+='<div class="kwrow">'+c.trig.map(t=>'<span class="tb-b">'+esc(t)+'</span>').join(' ')+'</div>';
   if(c.tags.length)h+='<div class="kwrow">'+c.tags.map(t=>'<span class="kw" data-tok="'+esc(t)+'">'+esc(t)+'</span>').join('')+'</div>';
   if(B.id&&c.a&&c.a.shield&&c.a.shield!=="None")h+='<label class="note"><input type="checkbox" class="bshd" data-x="'+X+'"'+(c.shDest?' checked':'')+'> shield destroyed</label>';
@@ -4088,7 +4113,8 @@ function sideHTML(X){
         '<span class="note">submitted with your Tactic</span></div>';
       else if(eo_.one&&eo_.opts[0]==="ranged")h+='<div class="note" style="margin-top:4px">One-Shot: '+esc(a.ranged)+' is Equipped this Skirmish.</div>';}
     if(sideCalc(O)&&sideCalc(O).outrider&&!pk2.picked)h+='<div class="note" style="color:var(--order)">Opponent has Outrider: pick first — your Tactic is shown to them.</div>';
-    h+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">'+BT.tactics.map(t=>'<button class="btac" data-x="'+X+'" data-t="'+esc(t)+'"'+(pk2.tactic===t?' style="border-color:var(--income);color:var(--income)"':'')+'>'+esc(t)+'</button>').join('')+'</div>';
+    h+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">'+BT.tactics.map(t=>{const ok=tacOK(X,t);return '<button class="btac" data-x="'+X+'" data-t="'+esc(t)+'"'+(ok?'':' disabled title="not allowed with the Equipped weapon"')+(pk2.tactic===t?' style="border-color:var(--income);color:var(--income)"':'')+'>'+esc(t)+'</button>';}).join('')+'</div>'+
+      (tacAllowed(X)?'<div class="note">Equipped weapon allows only: '+tacAllowed(X).map(esc).join(", ")+'</div>':'');
     if(mine&&c.outrider)h+='<div style="margin-top:4px"><button id="bpeek"'+(PEEK?' disabled':'')+'>Outrider: reveal opponent'+(op.picked?'':' (once they pick)')+'</button> <span class="note">'+(c.outMastery?'mastery: every Skirmish':'innate: first Skirmish')+'</span></div>';
   }
   // dice

@@ -1180,25 +1180,13 @@
     0,
     0
    ],
-   "Peat Bog": [
-    0,
-    2
-   ],
    "Animal Husbandry": [
     1,
     0
    ],
-   "Alchemy": [
-    1,
-    2
-   ],
    "Stable": [
     2,
     0
-   ],
-   "Secret Cellar": [
-    2,
-    1
    ],
    "Caravanery": [
     3,
@@ -1212,17 +1200,9 @@
     4,
     0
    ],
-   "Forgotten Catacombs": [
-    4,
-    4
-   ],
    "Beacon Towers": [
     5,
     0
-   ],
-   "Toxicarium": [
-    5,
-    3
    ],
    "Outrider Intercept Post": [
     6,
@@ -1230,10 +1210,6 @@
    ]
   },
   "edges": [
-   [
-    "Peat Bog",
-    "Alchemy"
-   ],
    [
     "Arable Land",
     "Animal Husbandry"
@@ -1249,10 +1225,6 @@
    [
     "Stable",
     "Caravanery"
-   ],
-   [
-    "Secret Cellar",
-    "Forgotten Catacombs"
    ],
    [
     "Beacon Towers",
@@ -1273,14 +1245,6 @@
    [
     "Caravanery",
     "Toll House"
-   ],
-   [
-    "Alchemy",
-    "Toxicarium"
-   ],
-   [
-    "Forgotten Catacombs",
-    "Toxicarium"
    ]
   ]
  },
