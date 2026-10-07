@@ -6736,7 +6736,8 @@ function roll(X,kind,nOverride){
   }else{
     const n=Math.min(c.front,BT.moraleDiceMax||5),target=c.morale,dice=d10(n).sort((x,y)=>y-x),succ=dice.filter(v=>v>=target).length;
     B.rolls[X]={kind,target,dice,succ,nat10:0};
-    blog(X+" Morale "+n+"d10 vs "+target+"+ ["+dice.join(",")+"] → "+succ+" succeed, "+(n-succ)+" casualties");
+    const fail=n-succ;if(fail)setPendCas(X,pendCas(X)+fail);           // failed Morale dice are casualties: add to the pending count
+    blog(X+" Morale "+n+"d10 vs "+target+"+ ["+dice.join(",")+"] → "+succ+" succeed, "+fail+" casualties"+(fail?" (added to casualties to apply → "+pendCas(X)+")":""));
   }
   save();render();
 }

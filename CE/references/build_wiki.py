@@ -414,6 +414,18 @@ if os.path.isfile(_bsrc):
 else:
     print(f"  [board] {BOARD_ENTRY} not found in {_HERE} - run gen_settlement_board.py first")
 
+# ── holding trees by root (gen_layout_roots.py + render_tree.py, lives in references/) ──
+ROOTS_ENTRY = "holding_trees_by_root.pdf"
+ROOTS_TITLE = "Holding Trees"
+ROOTS_URL   = None
+_rsrc = os.path.join(_HERE, ROOTS_ENTRY)
+if os.path.isfile(_rsrc):
+    import shutil as _sh_r; _sh_r.copy2(_rsrc, os.path.join(OUTDIR, ROOTS_ENTRY))
+    ROOTS_URL = ROOTS_ENTRY
+    print(f"  [roots] {os.path.normpath(_rsrc)} -> {OUTDIR}/{ROOTS_URL}")
+else:
+    print(f"  [roots] {ROOTS_ENTRY} not found in {_HERE} - run gen_layout_roots.py + render_tree.py first")
+
 def board_link(name):
     """Deep link into the board emulator page: opens that Holding / Infrastructure / Wonder card."""
     if not BOARD_URL: return ""
@@ -458,6 +470,7 @@ def nav(current=""):
     _tools=[]
     if MAPGEN_URL: _tools.append(A(MAPGEN_PAGE, MAPGEN_TITLE))
     if BOARD_URL:  _tools.append(A(BOARD_PAGE,  BOARD_TITLE))
+    if ROOTS_URL:  _tools.append(A(ROOTS_URL,   ROOTS_TITLE))
     if _tools:
         groups.append(("tools","Tools",_tools))
 
