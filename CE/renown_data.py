@@ -2,7 +2,8 @@
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
 import os as _os
 SIMPLE = _os.environ.get("RENOWN_SIMPLE", "1") == "1"   # build_all_CE.bat: set SIMPLE=1|0
-VERSION = f"0.4.9.9.8-d10-{SIMPLE}"
+vS = "" if SIMPLE is False else "-SIMPLE"
+VERSION = f"0.4.9.9.8-d10{vS}"
 # ── DICE ─────────────────────────────────────────────────────────────────────
 # Single source for die size, shared with the combat engines. Every threshold
 # string below is an f-string built from these, so changing the die rewrites the
