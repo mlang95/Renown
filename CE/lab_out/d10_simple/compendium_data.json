@@ -1,5 +1,5 @@
 {
- "version": "0.4.9.9.7-d10",
+ "version": "0.4.9.9.8-d10-True",
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
@@ -1585,7 +1585,7 @@
      "Established Cunning",
      "—",
      "Forgery Workshop",
-     "Once/turn when a player Sends an Envoy: that player must declare the specific Action & target they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action at the declared target. Once/turn: select any active **Timer** you did not select last turn; increase it by 2."
+     "Once/turn: select an army you did not select last turn, that army gains Blocked. Once/turn: select any active **Timer** you did not select last turn; increase it by 2."
     ]
    ]
   },
@@ -1853,6 +1853,13 @@
      "—",
      "Master Workshop",
      "**Upkeep -500**; **Tempered** Weapons Unlocked; Craft +2"
+    ],
+    [
+     "Whispering Undercroft",
+     "Established Cunning",
+     "—",
+     "Cipher Chamber",
+     "You always vote last. Once/turn when a player sends an Envoy: that player must declare the specific action & target they would Perform if the Envoy passes (including sub-Actions). If it passes, they must Perform that declared action at the declared target."
     ],
     [
      "Outrider Intercept Post",

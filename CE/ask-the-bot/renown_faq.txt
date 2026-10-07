@@ -62,7 +62,7 @@ Chandlery | [Chandlery](https://mlang95.github.io/RenownWiki/pursuits.html) Hold
 Charcoal Burner | [Charcoal Burner](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Energy). Effect: Natural; +500
 Charter | [Charter](https://mlang95.github.io/RenownWiki/actions-ref.html): Industry action. Cost: 2000 gold. Charter a new Village — on in-province non-water, non-mountain Territory, range 4+ from any Settlement and range 2+ from Outlaw Country. Endorsed: Recoup 2000.
 Cidery | [Cidery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Natural; Faith +1; +800; Craft +1
-Cipher Chamber | [Cipher Chamber](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Secrecy). Effect: Once/turn when a player Sends an Envoy: that player must declare the specific Action & target they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action at the declared target. Once/turn: select any active Timer you did not select last turn; increase it by 2.
+Cipher Chamber | [Cipher Chamber](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Secrecy). Effect: Once/turn: select an army you did not select last turn, that army gains Blocked. Once/turn: select any active Timer you did not select last turn; increase it by 2.
 Citadel | [Citadel](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Power). Effect: Siege Timer +3, Controlled Settlements gain Reach +1 / Requires: Stone Walls
 City | [City](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 3). Tax 3000, muster 25, build 6, wards 3, reach 6. 
 Cleave | [Cleave](https://mlang95.github.io/RenownWiki/keywords-ref.html#cleave): On a Focused Strike: roll one extra Strike die at your modified to-Strike.
@@ -461,6 +461,7 @@ Wealth | [Wealth](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (E
 weapon tiers | [Equipment](https://mlang95.github.io/RenownWiki/equipment-ref.html): Crude (start) -> Cast (Furnace) -> Wrought (Blacksmith) -> Forged (Forge) -> Tempered (Advanced Blast Furnace). Ask e.g. 'wrought weapons' for a tier's list.
 Weavery | [Weavery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: +1000; Craft +2
 Wetlands | [Wetlands](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: Speed -1. Raw Materials: Peat Bog, Forestry.
+Whispering Undercroft | [Whispering Undercroft](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: You always vote last. Once/turn when a player sends an Envoy: that player must declare the specific action & target they would Perform if the Envoy passes (including sub-Actions). If it passes, they must Perform that declared action at the declared target.
 win | See 'how to win'.
 Winery | [Winery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Natural; +800; Craft +3
 Winter | [Winter](https://mlang95.github.io/RenownWiki/seasons-ref.html) Season (Freezing). All Armies gain Speed -1; Sieges do not increment. Tax income collected.

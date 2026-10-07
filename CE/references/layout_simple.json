@@ -1112,22 +1112,26 @@
   "nodes": {
    "Inn": [
     0,
-    0
+    1
    ],
-   "Courier Network": [
+   "Secret Cellar": [
     1,
     0
    ],
-   "Secret Cellar": [
+   "Courier Network": [
     1,
     1
    ],
    "Smuggler's Nook": [
     2,
+    1
+   ],
+   "Syndicate Hub": [
+    3,
     0
    ],
    "Outlaw Rookery": [
-    3,
+    4,
     0
    ]
   },
@@ -1137,7 +1141,7 @@
     "Courier Network"
    ],
    [
-    "Smuggler's Nook",
+    "Syndicate Hub",
     "Outlaw Rookery"
    ],
    [
@@ -1147,6 +1151,14 @@
    [
     "Secret Cellar",
     "Smuggler's Nook"
+   ],
+   [
+    "Smuggler's Nook",
+    "Syndicate Hub"
+   ],
+   [
+    "Secret Cellar",
+    "Syndicate Hub"
    ]
   ]
  },
@@ -1159,11 +1171,15 @@
     0,
     0
    ],
+   "Peat Bog": [
+    0,
+    2
+   ],
    "Animal Husbandry": [
     1,
     0
    ],
-   "Peat Bog": [
+   "Alchemy": [
     1,
     2
    ],
@@ -1171,56 +1187,52 @@
     2,
     0
    ],
-   "Alchemy": [
+   "Secret Cellar": [
+    2,
+    1
+   ],
+   "Academy": [
     2,
     2
+   ],
+   "Caravanery": [
+    3,
+    0
    ],
    "Saddlery": [
     3,
     1
    ],
-   "Academy": [
+   "University": [
     3,
     2
    ],
-   "Caravanery": [
-    4,
-    0
-   ],
-   "University": [
-    4,
-    3
-   ],
-   "Secret Cellar": [
-    4,
-    4
-   ],
    "Toll House": [
-    5,
+    4,
     0
    ],
    "Forgery Workshop": [
-    5,
+    4,
     2
    ],
    "Forgotten Catacombs": [
-    5,
-    6
+    4,
+    4
    ],
    "Beacon Towers": [
-    6,
+    5,
     0
    ],
    "Cipher Chamber": [
-    6,
+    5,
     2
    ],
    "Toxicarium": [
-    6,
-    5
+    5,
+    3
    ],
    "Outrider Intercept Post": [
-    7,
+    6,
     0
    ]
   },
@@ -1365,6 +1377,79 @@
    [
     "Secret Cellar",
     "Thieves' Guild"
+   ]
+  ]
+ },
+ {
+  "title": "Whispering Undercroft",
+  "anchor": "Whispering Undercroft",
+  "mode": "chain",
+  "nodes": {
+   "Peat Bog": [
+    0,
+    0
+   ],
+   "Alchemy": [
+    1,
+    0
+   ],
+   "Academy": [
+    2,
+    0
+   ],
+   "University": [
+    3,
+    1
+   ],
+   "Secret Cellar": [
+    3,
+    2
+   ],
+   "Forgery Workshop": [
+    4,
+    0
+   ],
+   "Cipher Chamber": [
+    5,
+    0
+   ],
+   "Whispering Undercroft": [
+    6,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Alchemy",
+    "Academy"
+   ],
+   [
+    "Peat Bog",
+    "Alchemy"
+   ],
+   [
+    "Forgery Workshop",
+    "Cipher Chamber"
+   ],
+   [
+    "University",
+    "Forgery Workshop"
+   ],
+   [
+    "Secret Cellar",
+    "Forgery Workshop"
+   ],
+   [
+    "Academy",
+    "Forgery Workshop"
+   ],
+   [
+    "Academy",
+    "University"
+   ],
+   [
+    "Cipher Chamber",
+    "Whispering Undercroft"
    ]
   ]
  },

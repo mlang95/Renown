@@ -185,26 +185,39 @@
 <rect x="1406" y="312" width="5" height="24" fill="#1c1c20"/>
 <text x="1415" y="327" font-size="8.2" fill="#2b2620">Aristocratic Court</text>
 <polygon points="1516.0,320.4 1519.6,324.0 1516.0,327.6 1512.4,324.0" fill="#8a6d1a"/>
-<path d="M148,422 L195,422" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M148,422 L195,422" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M320,422 L367,422" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M320,422 L367,422" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M320,458 L335,458 Q344,458 344,449 L344,431 Q344,422 353,422 L367,422" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M320,458 L335,458 Q344,458 344,449 L344,431 Q344,422 353,422 L367,422" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<rect x="30" y="410" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="30" y="410" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="425" font-size="8.2" fill="#2b2620">Inn</text>
-<rect x="202" y="410" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="202" y="410" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="425" font-size="8.2" fill="#2b2620">Courier Network</text>
-<rect x="202" y="446" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
-<rect x="202" y="446" width="5" height="24" fill="#1c1c20"/>
-<text x="211" y="461" font-size="8.2" fill="#2b2620">Secret Cellar</text>
-<rect x="374" y="410" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
-<rect x="374" y="410" width="5" height="24" fill="#1c1c20"/>
-<text x="383" y="425" font-size="8.2" fill="#2b2620">Smuggler's Nook</text>
-<rect x="546" y="410" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#1c1c20" stroke-width="2.2"/>
+<path d="M148,458 L195,458" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M148,458 L195,458" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M320,422 L344,422" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M320,422 L344,422" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95"/>
+<path d="M344,422 L344,458" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M344,422 L344,458" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95"/>
+<path d="M344,458 L368,458" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M344,458 L368,458" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M344,422 L540,422" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M344,422 L540,422" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M320,458 L367,458" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M320,458 L367,458" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M492,458 L507,458 Q516,458 516,449 L516,431 Q516,422 525,422 L539,422" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M492,458 L507,458 Q516,458 516,449 L516,431 Q516,422 525,422 L539,422" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M664,422 L711,422" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M664,422 L711,422" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<rect x="30" y="446" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="30" y="446" width="5" height="24" fill="#6a6a72"/>
+<text x="39" y="461" font-size="8.2" fill="#2b2620">Inn</text>
+<rect x="202" y="410" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
+<rect x="202" y="410" width="5" height="24" fill="#1c1c20"/>
+<text x="211" y="425" font-size="8.2" fill="#2b2620">Secret Cellar</text>
+<rect x="202" y="446" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="202" y="446" width="5" height="24" fill="#6a6a72"/>
+<text x="211" y="461" font-size="8.2" fill="#2b2620">Courier Network</text>
+<rect x="374" y="446" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
+<rect x="374" y="446" width="5" height="24" fill="#1c1c20"/>
+<text x="383" y="461" font-size="8.2" fill="#2b2620">Smuggler's Nook</text>
+<rect x="546" y="410" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
 <rect x="546" y="410" width="5" height="24" fill="#1c1c20"/>
-<text x="555" y="425" font-size="8.2" fill="#2b2620">Outlaw Rookery</text>
-<polygon points="656.0,418.4 659.6,422.0 656.0,425.6 652.4,422.0" fill="#8a6d1a"/>
+<text x="555" y="425" font-size="8.2" fill="#2b2620">Syndicate Hub</text>
+<rect x="718" y="410" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#1c1c20" stroke-width="2.2"/>
+<rect x="718" y="410" width="5" height="24" fill="#1c1c20"/>
+<text x="727" y="425" font-size="8.2" fill="#2b2620">Outlaw Rookery</text>
+<polygon points="828.0,418.4 831.6,422.0 828.0,425.6 824.4,422.0" fill="#8a6d1a"/>
 </svg>

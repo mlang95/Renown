@@ -1,8 +1,8 @@
 # renown_data — single source of truth (CSV/0.4.8 branch, card-verified)
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
-VERSION = "0.4.9.9.7-d10"
 import os as _os
 SIMPLE = _os.environ.get("RENOWN_SIMPLE", "1") == "1"   # build_all_CE.bat: set SIMPLE=1|0
+VERSION = f"0.4.9.9.8-d10-{SIMPLE}"
 # ── DICE ─────────────────────────────────────────────────────────────────────
 # Single source for die size, shared with the combat engines. Every threshold
 # string below is an f-string built from these, so changing the die rewrites the
@@ -2452,10 +2452,17 @@ SIMPLE_NODES = {
     "Cipher Chamber": {
         "type": "Secrecy",
         "unlock": "Established Cunning",
-        "innate": "Once/turn when a player Sends an Envoy: that player must declare the specific Action & target they would Perform if the Envoy Passes (including sub-Actions). If it Passes, they must Perform that declared Action at the declared target. Once/turn: select any active **Timer** you did not select last turn; increase it by 2.",
+        "innate": "Once/turn: select an army you did not select last turn, that army gains Blocked. Once/turn: select any active **Timer** you did not select last turn; increase it by 2.",
         "efficient": "Forgery Workshop",
-        "builds_into": ["Outrider Intercept Post"],
+        "builds_into": ["Whispering Undercroft"],
         "monument": False},
+    "Whispering Undercroft": {
+        "type": "Monument",
+        "unlock": "Established Cunning",
+        "innate": "You always vote last. Once/turn when a player sends an Envoy: that player must declare the specific action & target they would Perform if the Envoy passes (including sub-Actions). If it passes, they must Perform that declared action at the declared target.",
+        "efficient": "Cipher Chamber",
+        "builds_into": [],
+        "monument": True},
     "Outrider Intercept Post": {
         "type": "Monument",
         "unlock": "Sovereign Cunning",
