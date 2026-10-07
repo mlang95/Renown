@@ -22,7 +22,7 @@ Hunting Bow,Ranged,Crude,0,2,"2H, Unstoppable, Negate Riposte, Awkward"
 Longbow,Ranged,Cast,-1,2,"2H, Unstoppable, Deadly, Negate Riposte, Awkward"
 Javelin,Ranged,Wrought,-2,1,"Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One-Shot, Awkward"
 Crossbow,Ranged,Forged,-4,1,"Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Awkward"
-Arquebus,Ranged,Crafted,-6,2,"2H, Unwieldy, Unstoppable, Negate Shielded, Negate Riposte, Negate Planishing, Awkward"
+Arquebus,Ranged,Crude,-6,2,"2H, Unwieldy, Unstoppable, Negate Shielded, Negate Riposte, Negate Planishing, Awkward"
 Pilum,Ranged,Crafted,-5,1,"Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One-Shot, Awkward"
 Buckler Shield,Shield,Crude,+1,0,
 Targe Shield,Shield,Cast,+1,0,"Unwieldy, Shielded"

@@ -425,9 +425,9 @@ Your Treasury is the gold you Control. Each Empire Phase you gain your Revenue (
 
 **Pursuit upkeep** is fixed by Pursuit type: Monument {{VAL:PURSUIT_UPKEEP_BY_TYPE.Monument}}, Power {{VAL:PURSUIT_UPKEEP_BY_TYPE.Power}}, Energy {{VAL:PURSUIT_UPKEEP_BY_TYPE.Energy}}, all others {{VAL:PURSUIT_UPKEEP_BY_TYPE.Other}}. Pursuits and Infrastructure only pay upkeep while active: none while being built, Damaged, or under repair.
 
-**Army upkeep** = Retinue count × (Retinue cost − Upkeep modifiers). Retinue costs: Levy {{VAL:RETINUES.Levy.cost}}, Man-at-Arms {{VAL:RETINUES.Man-at-Arms.cost}}, Sergeant {{VAL:RETINUES.Sergeant.cost}}, Knight Templar {{VAL:RETINUES.Knight Templar.cost}}.
+**Army upkeep** = the sum of each Army's cost (by Retinue type) − Upkeep modifiers. Army costs by Retinue type: Levy {{VAL:RETINUES.Levy.cost}}, Man-at-Arms {{VAL:RETINUES.Man-at-Arms.cost}}, Sergeant {{VAL:RETINUES.Sergeant.cost}}, Knight Templar {{VAL:RETINUES.Knight Templar.cost}}.
 
-*Tracking tip: keep three small piles — Treasury, Revenue, Upkeep. When you build something with income or upkeep, add it to the matching pile; when it's damaged or an Army loses Retinues, subtract it. Each turn it's just Treasury + Revenue − Upkeep, with no recounting.*
+*Tracking tip: keep three small piles — Treasury, Revenue, Upkeep. When you build something with income or upkeep, add it to the matching pile; when it's damaged or an Army is disbanded, subtract it. Each turn it's just Treasury + Revenue − Upkeep, with no recounting.*
 
 ### Insolvency & Bankruptcy
 
@@ -469,9 +469,9 @@ If you've cut everything and a debt still remains, you're Bankrupt: your Treasur
 
 Armies are collections of Retinues on the realm, and are the target of Move actions. An Army holds up to {{VAL:ARMY_MAX_RETINUES}} Retinues and up to a single piece of equipment of each type (armor, weapon, shield, and Retinue).
 
- 	Armies cost upkeep, paid in the Empire Phase. To find an Army's upkeep, sum its Retinues by Retinue type cost, then subtract any upkeep modifiers.
+ 	Armies cost upkeep, paid in the Empire Phase. Each Army costs its Retinue type's cost; your Army upkeep is the total of all your Armies, minus any upkeep modifiers.
 
- 	*Example: Net Upkeep = Army Count × Retinue Cost − Upkeep Modifiers.*
+ 	*Example: Net Upkeep = Σ(each Army's cost by Retinue type) − Upkeep Modifiers.*
 
 While an Army has been engaged in a Battle or Lay Siege action started by another player's Army, neither Army can be the target of any actions until that Battle or Lay Siege resolves.
 

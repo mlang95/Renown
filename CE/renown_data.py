@@ -3,7 +3,7 @@
 import os as _os
 SIMPLE = _os.environ.get("RENOWN_SIMPLE", "1") == "1"   # build_all_CE.bat: set SIMPLE=1|0
 vS = "-SIMPLE" if SIMPLE else ""
-VERSION = f"0.4.9.9.10-d10{vS}"
+VERSION = f"0.4.9.9.11-d10{vS}"
 # ── DICE ─────────────────────────────────────────────────────────────────────
 # Single source for die size, shared with the combat engines. Every threshold
 # string below is an f-string built from these, so changing the die rewrites the
@@ -320,7 +320,7 @@ RANGED = {
     "Longbow":     {"ap": -1, "init":  2, "tier": "Cast",    "tags": [TWO_H, UNSTOPPABLE, SHATTER_ARMOR, NEGATE_RIPOSTE, NO_PARRY]},
     "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD, ONE_SHOT, NO_PARRY], 'note': 'Cannot Dual Wield'},
     "Crossbow":    {"ap": -4, "init":  1, "tier": "Forged",  "tags": [UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, NO_PARRY], 'note': "Tower Shield only (no other shield), cannot Dual Wield"},
-    "Arquebus":    {"ap": -6, "init":  2, "tier": "Crafted", "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, NEGATE_TEMPERED, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["ABF", "Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
+    "Arquebus":    {"ap": -6, "init":  2, "tier": "Crude", "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, NEGATE_TEMPERED, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
     "Pilum":       {"ap": -5, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD, ONE_SHOT, NO_PARRY]},
 }
 
@@ -3587,10 +3587,10 @@ BANDIT_BEHAVIOR = {
 #
 # 1) PURSUIT upkeep  — fixed by pursuit type (below). Zeroed for Civic pursuits
 #    by the Luminous Court faction. Not touched by "Upkeep -X" or Trade Guild.
-# 2) ARMY upkeep     — retinue count x (retinue cost - "Upkeep -X" modifiers).
-#    The "Upkeep -200 / -300 / -500" effects (Levy Hall, Tannery, Armory,
-#    Saddlery, Butchery, Fletchery, Smokehouse, ABF) and High Quartermaster
-#    (-2000) reduce the per-retinue cost here.
+# 2) ARMY upkeep     — sum of each Army's cost (RETINUES[type]["cost"], per Army)
+#    minus "Upkeep -X" modifiers. The "Upkeep -X" effects (Levy Hall, Tannery,
+#    Armory, Butchery, Fletchery, Smokehouse, ABF, ...) are summed and subtracted
+#    once from the total of all Armies (never below 0).
 # 3) INFRASTRUCTURE upkeep — the per-settlement upkeep in INFRASTRUCTURE.
 #    Trade Guild removes upkeep on Primitive (innate) and Developed (mastery)
 #    infrastructure; College of Engineering removes it on Sophisticated.
@@ -3607,7 +3607,7 @@ _PU_TEXT = (f"Monument {_PU['Monument']}, Power {_PU['Power']}, "
 
 UPKEEP_TRACKS = {
     "Pursuit":        f"Fixed by pursuit type: {_PU_TEXT}.",
-    "Army":           "Σ(retinue costs x army) - Upkeep -X. Reduced by Levy Hall, Tannery, Saddlery, Butchery, Smokehouse, Advanced Blast Furnace, High Quartermaster, etc.",
+    "Army":           "Σ(each Army's cost by Retinue type) - Upkeep -X. Reduced by Levy Hall, Tannery, Saddlery, Butchery, Smokehouse, Advanced Blast Furnace, High Quartermaster, etc.",
     "Infrastructure": "Per-Empire upkeep in INFRASTRUCTURE. Trade Guild removes Primitive (innate) + Developed (mastery); College of Engineering removes Sophisticated.",
 }
 
@@ -3619,14 +3619,14 @@ def pursuit_upkeep(node):
     return PURSUIT_UPKEEP_BY_TYPE.get(t, PURSUIT_UPKEEP_DEFAULT)
 
 # 2) ARMY upkeep — formula note (per-retinue costs in RETINUES[*]["cost"]).
-ARMY_UPKEEP_NOTE = "Net Army Upkeep = retinue count x (retinue cost - Upkeep -X modifiers)."
+ARMY_UPKEEP_NOTE = "Net Army Upkeep = the sum of each Army's cost (by Retinue type) - Upkeep -X modifiers."
 
 # ── ACTION / EMPIRE GOLD COSTS ───────────────────────────────────────────────
 # The flat costs the rules attach to actions and siege outcomes.
 COSTS = {
     "Pursue action":   "2000 gold (the envoy action; pursuit then costs per-turn upkeep by type)",
     "Pursuit upkeep":  f"Per turn by type (fixed): {_PU_TEXT}",
-    "Army upkeep":     "retinue count x (retinue cost - Upkeep -X modifiers)",
+    "Army upkeep":     "sum of each Army's cost (by Retinue type) - Upkeep -X modifiers",
     "Infrastructure upkeep": "Per-settlement (see INFRASTRUCTURE); Trade Guild removes Primitive/Developed, College of Engineering removes Sophisticated",
     "Cunning action":  "2000 gold (Intercept Caravan / Foster Rebellion / Raze / Destabilize)",
     "Industry action": "2000 gold (Build / Repair / Pursue / Charter)",
@@ -3722,6 +3722,12 @@ NAME_DISPLAY = {
 TIER_DISPLAY = {
     "Crafted": "Tempered",
 }
+# Per-item tier label, display only. The item keeps its real tier id for the engine
+# (Arquebus = Crude: no Industry gate, so Artillery Park + Fletchery are its only unlocks).
+# Labels here are never added to TIERS, so loadouts / the board's tier ladder are untouched.
+ITEM_TIER_DISPLAY = {
+    "Arquebus": "Gunpowder",
+}
 
 # One combined table for free-text rewriting. Keep ids unique across both maps.
 ALIASES = {**NAME_DISPLAY, **TIER_DISPLAY}
@@ -3739,8 +3745,11 @@ def display(name):
     return ALIASES.get(name, name)
 
 
-def display_tier(tier):
-    """Player-facing label for a tier id. Handles None/'' (shields)."""
+def display_tier(tier, item=None):
+    """Player-facing label for a tier id. Handles None/'' (shields).
+    Pass the item name to honour a per-item label (ITEM_TIER_DISPLAY)."""
+    if item is not None and item in ITEM_TIER_DISPLAY:
+        return ITEM_TIER_DISPLAY[item]
     return TIER_DISPLAY.get(tier, tier) if tier else tier
 
 
@@ -3963,8 +3972,8 @@ import re
 GLOSSARY.update({
     "Natural": "Natural Pursuits do not cost Upkeep & can be used in Hamlets.",
     "Upkeep":  (f"Gold you pay each Empire Phase for Armies, Pursuits and Infrastructure. Pursuit upkeep is fixed by type "
-                f"({_PU_TEXT}); a Pursuit pays no upkeep while its Build Timer is running. Army upkeep = Army count × "
-                f"Army cost − Upkeep modifiers."),
+                f"({_PU_TEXT}); a Pursuit pays no upkeep while its Build Timer is running. Army upkeep = the sum of each "
+                f"Army's cost (by Retinue type) − Upkeep modifiers."),
     "Craft":   (f"Craft Pursuits count toward how much income your Trade Agreements generate — any effect that grants Craft +X. "
                 f"For each active Trade Agreement, both players gain {TRADE_RULES['income_per_craft']} × the Host's Craft X."),
     "Efficient": ("A Pursuit is efficient with the Raw Material or Pursuit named on its tile. While it shares a Settlement Ward "
@@ -3975,7 +3984,7 @@ for _k, _v in TIMERS.items():                      # Build Timer, Repair Timer, 
     GLOSSARY.setdefault(_k, _v["tracks"])
 
 def _tier_items(src, t):
-    return [k for k, v in src.items() if k and v.get("tier") == t]
+    return [k for k, v in src.items() if k and v.get("tier") == t and k not in ITEM_TIER_DISPLAY]
 def _unlockers(tier):
     """[(pursuit, {'weapons','armor','shield'})] from Pursuit text: 'Unlocks Cast Weapons', 'Unlock Wrought armor & shield',
     'Unlocks Forged Tier', 'Crafted Tier Unlocked' (a whole Tier = all three)."""
@@ -4004,8 +4013,15 @@ for _t in TIERS:
         _uu = [n for n, c in _u if _cat in c]
         if _xs:
             GLOSSARY.setdefault(f"{_d} {_lab}", f"{_d}-tier {_lab.lower()}: {', '.join(_xs)}." + (f" Unlocked by: {', '.join(_uu)}." if _uu else ""))
+for _lbl in sorted(set(ITEM_TIER_DISPLAY.values())):           # label-only tiers (e.g. Gunpowder)
+    _its = [k for k, v in ITEM_TIER_DISPLAY.items() if v == _lbl]
+    _req = sorted({r for k in _its for src in (WEAPONS, RANGED, SHIELDS, ARMORS) for r in ((src.get(k) or {}).get("requires") or [])})
+    if any(k in RANGED for k in _its):                        # ranged items also need the Ranged Weapons unlock
+        _req += [n for n, d in NODES.items() if n not in _req and re.search(r"unlocks?\s+ranged weapons",
+                 re.sub(r"\*\*", "", (d.get("innate") or "") + " " + (d.get("mastery") or "")).lower())]
+    GLOSSARY.setdefault(_lbl, f"{_lbl} equipment: {', '.join(_its)}." + (f" Unlocked by: {', '.join(_req)}." if _req else ""))
 GLOSSARY.setdefault("Ranged Weapons", "Ranged weapons: " + ", ".join(
-    f"{k} ({TIER_DISPLAY.get(v.get('tier'), v.get('tier'))})" for k, v in RANGED.items()) + "."
+    f"{k} ({display_tier(v.get('tier'), k)})" for k, v in RANGED.items()) + "."
     + (lambda u: f" Unlocked by: {', '.join(u)}." if u else "")(
         [n for n, d in NODES.items() if re.search(r"unlocks?\s+ranged weapons", re.sub(r"\*\*", "", (d.get("innate") or "") + " " + (d.get("mastery") or "")).lower())]))
 

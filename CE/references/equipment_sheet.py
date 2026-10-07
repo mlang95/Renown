@@ -164,14 +164,15 @@ def _load_from_renown_data():
         return ", ".join(tags) if tags else "None"
 
     tier_unlock = {t: (rd.TIER_UNLOCK.get(t) or "None") for t in (rd.TIERS + [None])}
-    weapons = [(rd.display(n), str(w["ap"]), _i(w["init"]), _fx(w["tags"]), rd.display_tier(w["tier"]),
+    weapons = [(rd.display(n), str(w["ap"]), _i(w["init"]), _fx(w["tags"]), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(w["tier"])),
             tier_unlock.get(w["tier"], "None"), w.get("note", "")) for n, w in rd.WEAPONS.items()]
-    ranged = [(rd.display(n), str(w["ap"]), _i(w["init"]), _fx(w["tags"]), rd.display_tier(w["tier"]),
-               tier_unlock.get(w["tier"], "None"), w.get("note", "")) for n, w in rd.RANGED.items()]
-    shields = [(rd.display(n), f"+{sh['save_bonus']}", _i(sh["init"]), _fx(sh["tags"]), rd.display_tier(sh["tier"]) or "",
+    ranged = [(rd.display(n), str(w["ap"]), _i(w["init"]), _fx(w["tags"]), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(w["tier"])),
+               (", ".join(rd.display(r) for r in w["requires"]) if w.get("requires") else tier_unlock.get(w["tier"], "None")),
+               w.get("note", "")) for n, w in rd.RANGED.items()]
+    shields = [(rd.display(n), f"+{sh['save_bonus']}", _i(sh["init"]), _fx(sh["tags"]), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(sh["tier"])) or "",
                 tier_unlock.get(sh["tier"], "None"), "")
                for n, sh in rd.SHIELDS.items() if n]
-    armor = [(rd.display(n), f"{a['save']}+", _fx(a["tags"]), rd.display_tier(a["tier"]),
+    armor = [(rd.display(n), f"{a['save']}+", _fx(a["tags"]), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(a["tier"])),
               tier_unlock.get(a["tier"], "None"), "") for n, a in rd.ARMORS.items()]
     retinue_unlock = {"Levy": "None", "Man-at-Arms": rd.display("Coliseum"),
                       "Sergeant": "War College", "Knight Templar": "Preceptory"}

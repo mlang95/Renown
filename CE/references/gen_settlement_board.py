@@ -19,8 +19,8 @@ Notes / assumptions (also surfaced in the HTML):
   * Wards counted, not placed (adjacency not enforced); 'efficient' source in pool = free ward.
   * External mastery_req tokens (Cathedral/Keep/Library/Town Hall) are satisfied by
     adding that Infrastructure.
-  * ARMY UPKEEP IS ENTERED MANUALLY, PER ARMY.  Retinue per-unit costs are deprecated
-    and are NOT used.
+  * Army upkeep = the Army's Retinue-type cost (RETINUES[*]["cost"]) per Army; the
+    "Upkeep -X" pool from active pieces is subtracted once from the total of all Armies.
 """
 import argparse, json, re, sys, os
 
@@ -105,7 +105,13 @@ def classify(clause):
         return atom
 
     if EXTORT_RE.search(c):
-        return finish("extort", to_int(EXTORT_RE.search(c).group(1)), set())
+        v = to_int(EXTORT_RE.search(c).group(1))
+        m = re.fullmatch(r"Extort\s*\d+(\s+twice)?\.?", c, re.I)
+        if m:                                   # bare "Extort N" (or "twice") = every Empire Phase
+            atom.update(every=True); v = v * (2 if m.group(1) else 1)
+        m = re.search(r"Extort\s*\d+\s+(?:per|every)\s+player\s+without\s+(?:an?\s+)?(.+)$", c, re.I)
+        if m: atom.update(without=m.group(1).strip())
+        return finish("extort", v, set())
     if re.search(r"recoup|loan|tithe", c, re.I):
         atom.update(cat="recoup", cond=True); return atom
     if UPKEEP_RE.search(c):
@@ -171,6 +177,13 @@ def envoy_fx(raw):
         if re.search(r"additional Influence per Support or Oppose", c, re.I): out.append({"k": "cap", "val": 1}); continue
         m = re.search(r"(First|Second) Oppose on your Envoy(?: each turn| per turn)?: reduce by (\d+)", c, re.I)
         if m: out.append({"k": "jester", "n": 1 if m.group(1).lower() == "first" else 2, "val": int(m.group(2))}); continue
+        m = re.search(r"First and second Oppose on (?:an Envoy of yours|your Envoys?)(?: each turn| per turn)?: reduce by (\d+)", c, re.I)
+        if m: out += [{"k": "jester", "n": 1, "val": int(m.group(1))}, {"k": "jester", "n": 2, "val": int(m.group(1))}]; continue
+        m = re.search(r"^(" + _DOMS + r")? ?Envoys cannot Fail$", c, re.I)
+        if m: out.append({"k": "failPass", "dom": m.group(1).title() if m.group(1) else None}); continue
+        m = re.search(r"(" + _DOMS + r") actions targeting you can't be Endorsed", c, re.I)
+        if m: out.append({"k": "noEndorse", "dom": m.group(1).title()}); continue
+        if re.search(r"always vote last", c, re.I): out.append({"k": "voteLast"}); continue
         m = re.search(r"can't Oppose your (" + _DOMS + r") Envoys", c, re.I)
         if m: out.append({"k": "noOppose", "dom": m.group(1).title()}); continue
         if re.search(r"If your Envoy would fail", c, re.I): out.append({"k": "failPass"}); continue
@@ -315,7 +328,7 @@ def parse_effects(raw):
     raw = strip_md(raw or "")
     if not raw or raw in ("-", "—"):
         return []
-    return [a for a in (classify(cl) for cl in re.split(r"[;,]", raw)) if a]
+    return [a for a in (classify(cl) for cl in re.split(r"[;,]|\.\s+(?=[A-Z+\-])", raw)) if a]
 
 def parse_mreq(s):
     s = strip_md(s or "")
@@ -407,22 +420,60 @@ def build(ns):
         m = re.search(r"Unlocks?\s+(.+?)\s+for\s+Muster", t, re.I)
         if m: out.append("retinue:" + norm_ret(m.group(1)))
         return out
+    TIER_W = r"(Crude|Cast|Wrought|Forged|Crafted)"
+    def derived_combat(text):
+        """SIMPLE Holdings carry no engine tags: read the combat grants straight from the text,
+        using the same tokens the legacy engine tags use (so every consumer below works unchanged)."""
+        t = strip_md(text); out = []
+        for m in re.finditer(TIER_W + r"\s+armor\s*(?:and|&)\s*shields?", t, re.I):   # "Unlock Cast armor & shield"
+            x = m.group(1).title(); out += ["armor:" + x, "shield:" + x]
+        for m in re.finditer(r"(?:Unlocks?\s+)?" + TIER_W + r"(?:\s+Tier)?\s+Weapons", t, re.I):  # "Unlocks Forged Tier Weapons" / "Crafted Weapons Unlocked"
+            if re.search(r"unlock", t[m.start():m.end() + 12], re.I): out.append("tier:" + m.group(1).title())
+        if re.search(r"(?<![A-Za-z] )unlocks?\s+Shields\b", t, re.I): out.append("tier:Shields")
+        for pat, tok in ((r"\bPlanishing\b", "Planishing"), (r"\bSerrated\b", "Serrated"), (r"gain\s+Poison", "Poison"),
+                         (r"gain\s+Riposte", "Riposte"), (r"\bNimble\b", "Nimble"), (r"\bEnduring\b", "Enduring"),
+                         (r"\bDrilled\b", "Drilled"), (r"Immune Strained(?! during)", "Immune Strain"),
+                         (r"\+1 to Strike", "Strike +1"), (r"max initiative is increased to 3", "MaxInit3"),
+                         (r"Always gains Seize the Initiative", "Seize: first"), (r"Righteous Fervour", "Righteous Fervour"),
+                         (r"Unlocks Arquebus", "Artillery Park")):
+            if re.search(pat, t, re.I): out.append(tok)
+        out += ["Parry +1"] * len(re.findall(r"Improve Parry by \+1", t, re.I))
+        m = re.search(r"Focused Strikes on a natural (\d+)\+", t, re.I)
+        if m: out.append("Crit " + m.group(1))
+        m = re.search(r"Gain Recover (\d+)", t, re.I)
+        if m: out.append("Recover " + m.group(1))                # base; its "or improve" alternative is not a second grant
+        else: out += ["Recover +1"] * len(re.findall(r"(?:Improve Recover by|Recover improved by)\s*\+1", t, re.I))
+        return out
+    REQ_ALIAS = {}                                                 # weapon "requires" tokens -> Holding names (e.g. ABF)
+    for name, v in ns.get("LEGACY_NODES", N).items():
+        al = (v.get("engine") or {}).get("alias")
+        if al: REQ_ALIAS[al] = name
+    _used = {r for src in ("WEAPONS", "RANGED", "SHIELDS", "ARMORS") for it in (ns.get(src) or {}).values()
+             if isinstance(it, dict) for r in (it.get("requires") or [])}
+    REQ_ALIAS = {k: v for k, v in REQ_ALIAS.items() if k in _used}
     army_src = {}
     for name, v in N.items():
         e = v.get("engine") or {}
         inn = list(e.get("innate_tags", [])) + derived_unlocks(v.get("innate", ""))
         mas = list(e.get("mastery_tags", [])) + derived_unlocks(v.get("mastery", ""))
+        if not e:
+            inn += derived_combat(v.get("innate", "")); mas += derived_combat(v.get("mastery", ""))
+        if REQ_ALIAS and name in REQ_ALIAS.values() and not e:
+            inn += [k for k, nm in REQ_ALIAS.items() if nm == name]
         if inn or mas:
             army_src[name] = {"innate": inn, "mastery": mas}
 
     glossary = {k: (strip_md(v)[:220]) for k, v in ns.get("GLOSSARY", {}).items()}
     for k, v in ns.get("MORALE_GLOSSARY", {}).items():
         glossary.setdefault(k, strip_md(v)[:220])
-    equip = {"weapons": ns.get("WEAPONS", {}), "ranged": ns.get("RANGED", {}),
-             "shields": ns.get("SHIELDS", {}), "armors": ns.get("ARMORS", {}),
+    _itd = ns.get("ITEM_TIER_DISPLAY", {}) or {}
+    def _lab(src):   # per-item tier label (display only; the real tier still gates)
+        return {k: (dict(v, tier_label=_itd[k]) if (k in _itd and isinstance(v, dict)) else v) for k, v in (src or {}).items()}
+    equip = {"weapons": _lab(ns.get("WEAPONS", {})), "ranged": _lab(ns.get("RANGED", {})),
+             "shields": _lab(ns.get("SHIELDS", {})), "armors": _lab(ns.get("ARMORS", {})),
              "retinues": retinues, "tiers": ns.get("TIERS", []),
              "endurance_regain": ns.get("ENDURANCE_REGAIN", 2),
-             "army_max": ns.get("ARMY_MAX_RETINUES", 25)}
+             "army_max": ns.get("ARMY_MAX_RETINUES", 25), "reqAlias": REQ_ALIAS}
     return (records, sorted(natural_names), sorted(external), infra, wonders,
             army_src, equip, glossary)
 
@@ -1200,6 +1251,8 @@ function seatMap(){const n=tSeats(),m={};
     .forEach(o=>{if(!m[o.x.seat])m[o.x.seat]=o.p;});return m;}
 function seated(){const m=seatMap();return Object.keys(m).map(Number).sort((a,b)=>a-b).map(i=>m[i]);}
 function hostP(){const s=seated();return s.find(p=>String(p.id)===String(TB().host))||s[0]||null;}
+// "You always vote last, after the Host" (Whispering Undercroft): holders move behind the Host, keeping their relative order
+function voteOrd(ord){const last=ord.filter(p=>fxOf(p,"voteLast").length);return last.length?ord.filter(p=>!last.includes(p)).concat(last):ord;}
 function tOrder(){const s=seated();if(!s.length)return [];const i=s.indexOf(hostP());return s.slice(i+1).concat(s.slice(0,i+1));}
 function canHost(){const h=hostP();return HOTSEAT||ADMIN||!h||sameP(meP(),h);}
 function seatsLocked(){if(ADMIN)return false;const ph=tPhase();return (ph==="council"||ph==="envoy")&&!!TB().phaseTs;}
@@ -1234,7 +1287,9 @@ function fxLabel(f){const v=f.val*(f.q||1);
   if(f.k==="pool")return sgn(v)+" Influence/turn "+({Rising:"per Rising+ Domain",Established:"per Established+ Domain",others:"per other player",war:"while At War"}[f.per]||"");
   if(f.k==="jester")return (f.n===1?"First":"Second")+" Oppose on your Envoys: −"+f.val;
   if(f.k==="noOppose")return "No Oppose on your "+f.dom+" Envoys";
-  if(f.k==="failPass")return "Your Failed Envoys pass instead (not Condemned)";
+  if(f.k==="failPass")return "Your Failed "+(f.dom?f.dom+" ":"")+"Envoys pass instead (not Condemned)";
+  if(f.k==="noEndorse")return f.dom+" actions targeting you can't be Endorsed";
+  if(f.k==="voteLast")return "You vote last (after the Host)";
   return f.k;}
 function atWarPair(a,b){if(!a||!b)return false;return !!effPair(a.id,b.id).war;}
 function opposeBlock(v,E){  // reason v can't Oppose E, or ""
@@ -1289,7 +1344,7 @@ function tSim(){
   function envoyRun(E){
     E.innate=innateInf(E.owner,E.dom,E.council);E.votes=[];E.sup=0;E.opp=0;R.envoys.push(E);
     const jest={};fxOf(E.owner,"jester").forEach(f=>jest[f.n]=(jest[f.n]||0)+f.val);let oppN=0;
-    for(const v of (E.council?[]:ord)){if(sameP(v,E.owner))continue;   // Council Envoys auto-Abstain: no votes
+    for(const v of (E.council?[]:voteOrd(ord))){if(sameP(v,E.owner))continue;   // Council Envoys auto-Abstain: no votes
       const r=runSlot(E.id+">"+v.id,v,tCur(v).votes[E.id]);
       if(!r){R.curEnvoy=E;return false;}
       let a="A",x=0;
@@ -1302,11 +1357,11 @@ function tSim(){
       E.votes.push({who:v,a,x,eff,pre:!!r.pre,timeout:!!r.timeout,forced:!!r.forced,auto:!!r.auto});}
     let net=E.innate+E.sup-E.opp;if(E.council)net=Math.max(1,net);       // Council Envoys can't fail
     E.net=net;E.out=tOutcome(net);
-    if(E.out==="Failed"&&fxOf(E.owner,"failPass").length){E.out="Passed";E.saved=fxOf(E.owner,"failPass")[0].src;}   // not Condemned
+    const fp=failPassFx(E);if(E.out==="Failed"&&fp){E.out="Passed";E.saved=fp.src;}   // not Condemned
     E.done=true;R.log.push({kind:"envoy",E});return true;}
   if(ph==="council"){
     const tally={};
-    for(const p of ord){const r=runSlot("CV:"+p.id,p,tCur(p).council);if(!r)return R;
+    for(const p of voteOrd(ord)){const r=runSlot("CV:"+p.id,p,tCur(p).council);if(!r)return R;
       const d=r.rec&&T_DOMS.includes(r.rec.dom)?r.rec.dom:null;if(d)tally[d]=(tally[d]||0)+1;
       R.log.push({kind:"cvote",who:p,dom:d,pre:!!r.pre,timeout:!!r.timeout,forced:!!r.forced,auto:!!r.auto});}
     R.tally=tally;
@@ -1334,8 +1389,10 @@ function performEval(E){if(!(E.out==="Passed"||E.out==="Endorsed"))return null;
     .forEach(f=>parts.push({src:tgt.name+": "+f.src,val:f.val*f.q}));
   let adj=E.net+parts.reduce((a,x)=>a+x.val,0);if(E.council)adj=Math.max(1,adj);
   let out=tOutcome(adj);                                             // full thresholds: can reach Condemned
-  let saved=null;if(out==="Failed"&&fxOf(E.owner,"failPass").length){out="Passed";saved=fxOf(E.owner,"failPass")[0].src;}
-  return {rec,tgt,parts,adj,out,saved};}
+  let saved=null;const fp=failPassFx(E);if(out==="Failed"&&fp){out="Passed";saved=fp.src;}
+  let capped=null;if(out==="Endorsed"&&tgt){const ne=fxOf(tgt,"noEndorse").find(f=>f.dom===E.dom);if(ne){out="Passed";capped=tgt.name+": "+ne.src;}}   // "<Dom> actions targeting you can't be Endorsed"
+  return {rec,tgt,parts,adj,out,saved,capped};}
+function failPassFx(E){return fxOf(E.owner,"failPass").find(f=>!f.dom||f.dom===E.dom)||null;}
 function actionsOf(dom){return Object.keys(DATA.actions||{}).filter(k=>(DATA.actions[k]||{}).domain===dom);}
 // ---- optional auto-resolve: Faith/Doubt in the outcome text → owner's Public Order (owner's client applies once) ----
 function tApply(R){if(!TB().auto)return;let ch=false;
@@ -1401,7 +1458,7 @@ function tPerformHtml(E){if(!(E.out==="Passed"||E.out==="Endorsed"))return "";
   let h='<div class="tb-perf">';
   if(pe&&!rec.edit){h+='Performed <b>'+esc(pe.rec.action)+'</b>'+(pe.tgt?' → '+tName(pe.tgt):'')+
       (pe.parts.length?' · '+pe.parts.map(x=>esc(x.src)+' '+sgn(x.val)).join(', ')+' → net <b>'+pe.adj+'</b>':'')+
-      ' <b class="'+tOutCls(pe.out)+'">'+pe.out+'</b>'+(pe.saved?' <span class="tb-b">'+esc(pe.saved)+': Fail → Pass</span>':'');
+      ' <b class="'+tOutCls(pe.out)+'">'+pe.out+'</b>'+(pe.saved?' <span class="tb-b">'+esc(pe.saved)+': Fail → Pass</span>':'')+(pe.capped?' <span class="tb-b">'+esc(pe.capped)+': Endorsed → Passed</span>':'');
     if(pe.out==="Failed"&&mine)h+='<div class="note">Would fail — you may instead perform a different '+esc(E.dom)+' action against the same target. '+
       '<button data-perfedit="'+esc(E.id)+'" data-who="'+E.owner.id+'">change action</button></div>';
     else if(mine)h+=' <button class="tb-mini" data-perfedit="'+esc(E.id)+'" data-who="'+E.owner.id+'">edit</button>';}
@@ -2704,11 +2761,19 @@ function setFaction(fn){itm();
   factionFree(fn).forEach(x=>{if(x.kind==="pursuit")S.placed.push({id:pid++,name:x.name,sid:"faction",fac:true});
     else{(x.kind==="infra"?S.infra:S.wonders)[x.name]=1;S.facInfra.push(x.name);}});
 }
+// Faction gear rules read from the mechanic text (flags, never blocks): "must always equip a ranged weapon",
+// "can't equip <armor>[ or <armor>]", "can't use shields".
+function facGearFlags(a){const f=FAC[S.faction||""];if(!f)return [];const t=String(f.mechanic||""),out=[],lc=t.toLowerCase();
+  if(/must always equip a ranged weapon/i.test(t)&&(!a.ranged||a.ranged==="None"))out.push(S.faction+": must equip a Ranged weapon");
+  const m=t.match(/can't equip ([^,.;]+)/i);
+  if(m&&a.armor&&a.armor!=="Cloth"&&m[1].toLowerCase().includes(String(a.armor).toLowerCase()))out.push(S.faction+": can't equip "+a.armor);
+  if(/can't use shields/i.test(t)&&a.shield&&a.shield!=="None")out.push(S.faction+": can't use Shields");
+  return out;}
 function factionFlags(){const f=FAC[S.faction];if(!f)return [];const out=[];
   const types=[...new Set(Object.values(R).map(r=>r.type))];
   f.mechanic.split(/(?<=[.;])\s+/).forEach(sen=>{if(!/can't (pursue|build)/i.test(sen))return;
     S.placed.filter(p=>!p.fac).forEach(p=>{const r=R[p.name];
-      if(sen.includes(p.name)||types.some(t=>t===r.type&&new RegExp("\\b"+t+" Pursuits","i").test(sen)))out.push(S.faction+": "+p.name+" — "+sen.trim());});});
+      if(sen.includes(p.name)||types.some(t=>t===r.type&&new RegExp("\\b"+t+" (?:Pursuits|Holdings)","i").test(sen)))out.push(S.faction+": "+p.name+" — "+sen.trim());});});
   return out;}
 function renderFaction(){const box=document.getElementById("facBox");if(!box)return;const f=FAC[S.faction];
   const names=Object.keys(FAC),fin=names.filter(n=>FAC[n].final),oth=names.filter(n=>!FAC[n].final);
@@ -2947,6 +3012,7 @@ function armyUnlocks(earned){
   const tset=new Set(active.map(a=>a.tok));
   const wTiers=new Set(["Crude"]), armors=new Set(["Cloth"]);
   let shields=false, ranged=false, cavalry=false;const weaponsUnl=new Set();
+  const shieldTiers=new Set();let shieldByTier=SIMPLE;     // SIMPLE: shield tier from "X armor & shield" (plus Joinery for Shields)
   const retinues=new Set(["Levy"]); const mods=[];
   active.forEach(a=>{
     const t=a.tok;
@@ -2955,17 +3021,21 @@ function armyUnlocks(earned){
       if(TIER_RANK.hasOwnProperty(x)) wTiers.add(x);
       else if(ARMOR_TAG[x]) armors.add(ARMOR_TAG[x]);
       else if(x==="Shields") shields=true;
-    } else if(t==="ranged") ranged=true;
+    } else if(t.startsWith("armor:")){const x=t.slice(6);Object.keys(EQ.armors).forEach(k=>{if(EQ.armors[k]&&EQ.armors[k].tier===x)armors.add(k);});}
+    else if(t.startsWith("shield:")){shieldByTier=true;shieldTiers.add(t.slice(7));}
+    else if(t==="ranged") ranged=true;
     else if(t==="cavalry") cavalry=true;
     else if(t.startsWith("weapon:")){weaponsUnl.add(t.slice(7));cavalry=true;}
     else if(t.startsWith("retinue:")) retinues.add(t.slice(8));
     else mods.push(a);           // keyword / modifier
   });
   // armor also implied by weapon tiers? no — armor unlocked only by explicit armor tags.
-  return {set:tset,wTiers,armors,shields,ranged,cavalry,weaponsUnl,retinues,mods,active};
+  Object.keys(EQ.reqAlias||{}).forEach(al=>{if((PC[EQ.reqAlias[al]]||0)>0)tset.add(al);});   // legacy alias in "requires" (e.g. ABF)
+  Object.keys(PC).forEach(n=>{if(PC[n]>0)tset.add(n);});                                      // or the Holding's own name
+  return {set:tset,wTiers,armors,shields,shieldTiers,shieldByTier,ranged,cavalry,weaponsUnl,retinues,mods,active};
 }
-function unlockedShieldTiers(u){ // shields gated by weapon-tier progression when Shields unlocked
-  return u.shields ? u.wTiers : new Set();
+function unlockedShieldTiers(u){ // Shields (Joinery) + tier: SIMPLE = "X armor & shield" Holdings; legacy = weapon-tier progression
+  return u.shields ? (u.shieldByTier?u.shieldTiers:u.wTiers) : new Set();
 }
 
 function tierOK(tier,tiers){ return tier==null || tiers.has(tier); }
@@ -3020,7 +3090,7 @@ function inspectItem(kind,name){
   const src={weapon:EQ.weapons,ranged:EQ.ranged,armor:EQ.armors,shield:EQ.shields,retinue:EQ.retinues}[kind];
   const it=src&&src[name]; if(!it){openModal('<h3>'+esc(name)+'<button class="close" onclick="closeModal()">✕</button></h3>');return;}
   let h='<h3>'+esc(name);
-  if(it.tier)h+=' <span class="badge tier">'+it.tier+'</span>';
+  if(it.tier)h+=' <span class="badge tier">'+(it.tier_label||it.tier)+'</span>';
   h+='<button class="close" onclick="closeModal()">✕</button></h3>';
   const S_=[];
   const push=(k,v)=>{if(v!==undefined&&v!==null&&v!=="")S_.push('<span class="stat"><span class="k">'+k+'</span><b>'+v+'</b></span>');};
@@ -3046,7 +3116,7 @@ function optionList(sel, items, tierset, u, chosen, extra){
     const it=items[name]; const o=document.createElement("option"); o.value=name;
     let ok = tierOK(it.tier, tierset);
     if(extra) ok = ok && extra(name,it);
-    o.textContent=(ok?"":"🔒 ")+name+(it.tier?(" ["+it.tier+"]"):"");
+    o.textContent=(ok?"":"🔒 ")+name+(it.tier?(" ["+(it.tier_label||it.tier)+"]"):"");
     if(!ok) o.className="locked";
     sel.appendChild(o);
   });
@@ -3056,7 +3126,7 @@ function optionList(sel, items, tierset, u, chosen, extra){
 function renderArmy(){
   recomputePC();const have=new Set(Object.keys(PC));
   const {earned}=computeEarned(have);
-  const u=armyUnlocks(earned);
+  const u=armyUnlocks(earned);u.mods=u.mods.concat(facCombat(S));   // faction army mechanics shown with the Holding ones
 
 
   // top unlocks panel — everything the army can pull, in one place
@@ -3078,7 +3148,7 @@ function renderArmy(){
   // army cards
   const list=document.getElementById("armyList"); list.innerHTML="";
   S.armies.forEach(a=>list.appendChild(armyCard(a,u)));
-  const tot=S.armies.reduce((s,a)=>s+(+a.upkeep||0),0);
+  const tot=S.armies.reduce((s,a)=>s+armyUpkeep(a),0);
   document.getElementById("armyTotal").textContent=fmt(-tot);
   document.getElementById("c-army").textContent=S.armies.length?("· "+S.armies.length):"";
 }
@@ -3097,8 +3167,7 @@ function armyCard(a,u){
   const mor=document.createElement("span");mor.className="badge "+(routed?"noearn":"tier");
   mor.textContent="morale "+effMorale(a)+"+"+(a.fatigue?(" ("+moraleBase(a)+"+ +"+(2*a.fatigue)+")"):"");top.appendChild(mor);
   const upL=document.createElement("span");upL.className="note";upL.textContent="upkeep";top.appendChild(upL);
-  const up=document.createElement("input");up.type="number";up.step="100";up.style.width="80px";up.value=a.upkeep||0;
-  up.oninput=()=>{a.upkeep=+up.value||0;save();computeAll();};top.appendChild(up);
+  const up=document.createElement("b");up.textContent=fmt(-armyUpkeep(a));up.title=a.retinue+" Army cost";top.appendChild(up);
   const rm=document.createElement("button");rm.className="rm";rm.textContent="✕";
   rm.onclick=()=>{S.armies=S.armies.filter(x=>x!==a);save();render();};top.appendChild(rm);
   card.appendChild(top);
@@ -3120,7 +3189,7 @@ function armyCard(a,u){
   }
   const retItems={};Object.keys(EQ.retinues).forEach(k=>retItems[k]={tier:null});
   const rsel=field("Retinue","retinue",retItems,new Set(Object.keys(EQ.retinues)),(name)=>u.retinues.has(name));
-  rsel.onchange=()=>{a.retinue=rsel.value;const rt=EQ.retinues[a.retinue];if(rt){a.upkeep=rt.cost;a.endurance=rt.endurance;}save();render();};
+  rsel.onchange=()=>{a.retinue=rsel.value;const rt=EQ.retinues[a.retinue];if(rt){a.endurance=rt.endurance;}save();render();};
   fixBastard(a);
   field("Weapon","weapon",EQ.weapons,u.wTiers,(name,it)=>reqMet(it,u)&&weaponUnlockMet(name,u));
   const rangedItems=Object.assign({"None":{tier:null}},EQ.ranged);
@@ -3129,6 +3198,7 @@ function armyCard(a,u){
   const shieldItems={};Object.keys(EQ.shields).forEach(k=>shieldItems[k==="null"?"None":k]=EQ.shields[k]);
   field("Shield","shield",shieldItems,unlockedShieldTiers(u),(name)=>name==="None"||u.shields);
   card.appendChild(lo);
+  const gf=facGearFlags(a);if(gf.length){const fb=document.createElement("div");fb.className="flagbox";fb.style.marginTop="4px";fb.textContent="⚑ "+gf.join(" · ");card.appendChild(fb);}
 
   card.appendChild(armyStats(a,u));
 
@@ -3147,7 +3217,7 @@ function armyCard(a,u){
   const cnt=document.createElement("div");cnt.className="endr";
   cnt.innerHTML='<span class="stat"><span class="k">RETINUES</span></span>';
   const cin=document.createElement("input");cin.type="number";cin.min="0";cin.max=EQ.army_max;cin.style.width="52px";
-  cin.value=a.count||0;cin.oninput=()=>{a.count=Math.max(0,Math.min(EQ.army_max,+cin.value||0));save();};
+  cin.value=a.count||0;cin.oninput=()=>{a.count=Math.max(0,Math.min(EQ.army_max,+cin.value||0));up.textContent=fmt(-armyUpkeep(a));save();};cin.onchange=()=>computeAll();
   cnt.appendChild(cin);cnt.insertAdjacentHTML("beforeend",'<span class="note">/'+EQ.army_max+'</span>');
   line.appendChild(cnt);
   const end=document.createElement("div");end.className="endr";
@@ -3182,7 +3252,11 @@ const WEAPON_GATED=new Set(Object.values(ARMYSRC||{}).flatMap(v=>[].concat(v.inn
 function weaponUnlockMet(name,u){return !WEAPON_GATED.has(name)||(u.weaponsUnl&&u.weaponsUnl.has(name));}
 // morale characteristic = retinue Shaking + 2 per Fatigue token; >=11 = instant rout
 function moraleBase(a){const rt=EQ.retinues[a.retinue];return rt?rt.shaking:0;}
-function effMorale(a){return moraleBase(a)+(BT.fatigueMorale??2)*(a.fatigue||0);}
+function armyUpkeep(a){const rt=EQ.retinues[a.retinue]||{};return +rt.cost||0;}   // per Army: its Retinue type's cost
+// Faction "Armies' Morale can't be modified beyond N+" (The Undying Flame): Morale is capped, so it never reaches the Rout value
+function moraleCap(a){const b=(D.players||[]).map(p=>p.board).find(bb=>(bb.armies||[]).includes(a));const f=b&&FAC[b.faction||""];
+  const m=f&&String(f.mechanic||"").match(/Morale can't be modified beyond (\d+)\+/i);return m?+m[1]:null;}
+function effMorale(a){const v=moraleBase(a)+(BT.fatigueMorale??2)*(a.fatigue||0),c=moraleCap(a);return c!=null?Math.min(c,v):v;}
 function isRouted(a){return effMorale(a)>=(BT.routThr||11);}
 
 function armyStats(a,u){
@@ -3220,6 +3294,12 @@ function armyStats(a,u){
 }
 
 // ---- totals ----
+function noUpkeepTiers(){const out={};Object.keys(PC).forEach(n=>{if(!(PC[n]>0))return;
+  const re=/No Upkeep on (\w+) Infrastructure/gi,t=(R[n]||{}).innate_raw||"";let m;while((m=re.exec(t)))out[m[1]]=n;});return out;}
+function holdsActive(b,name){return withBoard(b,()=>(PC[name]||0)>0);}
+// other players (not this board's owner) without an active <name>
+function playersWithout(name){const me=playerOfBoard(S);if(!me)return 0;const nm=String(name).replace(/\.$/,"").trim();
+  return D.players.filter(q=>!sameP(q,me)&&!holdsActive(q.board,nm)).length;}
 function calcMetrics(have,earned,tc){
   let gold=0,reduce=0,craft=0,infl=0,faith=0,doubt=0,scale=0,infraUp=0,extort=0,extTrig=0;
   const seasonAdd={Spring:0,Summer:0,Fall:0,Winter:0};
@@ -3231,7 +3311,9 @@ function calcMetrics(have,earned,tc){
       const ph=a.season?"season":(PHASE[a.cat]||"other");phaseCount[ph]=(phaseCount[ph]||0)+q;
       if(!active)return;
       if(a.scale){const cnt=a.scale.of==="natural"?naturalCount:(tc[cap(a.scale.of)]||0);scale+=a.scale.per*cnt*q;return;}
-      if(a.cat==="extort"){if(a.val&&/^Extort\s*\d+\.?$/i.test((a.text||"").trim()))extort+=a.val*q;else extTrig+=q;return;}   // bare "Extort N" = every Empire Phase
+      if(a.cat==="extort"){if(a.val&&(a.every||/^Extort\s*\d+\.?$/i.test((a.text||"").trim())))extort+=a.val*q;   // bare "Extort N" (or "twice") = every Empire Phase
+        else if(a.val&&a.without)extort+=a.val*q*playersWithout(a.without);                                        // "Extort N per player without X"
+        else extTrig+=q;return;}
       if(!a.flat)return;
       if(a.season){seasonAdd[a.season]+=a.val*q;return;}
       if(a.cat==="gold")gold+=a.val*q;
@@ -3244,10 +3326,11 @@ function calcMetrics(have,earned,tc){
     eat(r.innate,true,q); if(r.mastery_raw)eat(r.mastery,!!earned[n],q);});
   itm();
   // Infrastructure / Wonders pay upkeep only while active (not building, Damaged or under repair)
-  Object.keys(S.infra).forEach(n=>{const on=infraOn(n);eat(INFRA[n].atoms,on,1);if(on&&!S.facInfra.includes(n))infraUp+=INFRA[n].upkeep;});
+  const freeT=noUpkeepTiers();   // "No Upkeep on <Tier> Infrastructure" (Masonry / Trade Guild / College of Engineering)
+  Object.keys(S.infra).forEach(n=>{const on=infraOn(n);eat(INFRA[n].atoms,on,1);if(on&&!S.facInfra.includes(n)&&!freeT[INFRA[n].tier])infraUp+=INFRA[n].upkeep;});
   Object.keys(S.wonders).forEach(n=>{const on=infraOn(n);eat(WON[n].atoms,on,1);if(on)infraUp+=WON[n].upkeep;});
   const pursUp=S.placed.reduce((a,p)=>a+pursuitUpkeep(p),0);
-  const armyGross=S.armies.reduce((s,a)=>s+(+a.upkeep||0),0);
+  const armyGross=S.armies.reduce((s,a)=>s+armyUpkeep(a),0);
   const netArmy=Math.max(0,armyGross-reduce);
   const unusedReduce=Math.max(0,reduce-armyGross);
   const baseNet=gold+scale-infraUp-pursUp-netArmy;
@@ -3282,16 +3365,16 @@ function computeTotals(have,earned,tc){
 // Winter tax (rules: "gain tax income equal to your Settlements' tiers, adjusted by any modifiers"):
 // SETTLEMENTS[tier].tax_income for each Settlement, plus the Public Order "Tax income ±X per settlement" effect at the board's PO level
 // (applied to each Settlement that pays tax; never below 0 per Settlement).
-function poTaxMod(v){let mod=0;const src=[];poActiveKeys(v||0).forEach(k=>{const e=PO[String(k)],txt=Array.isArray(e)?e.join(" "):String(e||"");
+function poTaxMod(v,b){let mod=0;const src=[],dbl=poDoubled();poActiveKeys(v||0,b).forEach(k=>{const e=PO[String(k)],txt=Array.isArray(e)?e.join(" "):String(e||"");
     const m=txt.match(/Tax income\s*([+\-\u2212]\s?\d+)\s*per settlement/i)||txt.match(/([+\-\u2212]\s?\d+)\s*Tax Income per Settlement/i);
-    if(m){const x=parseInt(m[1].replace(/\s/g,"").replace("\u2212","-"),10);mod+=x;src.push((Array.isArray(e)?e[0]:k)+" "+(x>0?"+":"")+x);}});
+    if(m){const bn=Array.isArray(e)?e[0]:String(k),x=parseInt(m[1].replace(/\s/g,"").replace("\u2212","-"),10)*(dbl[bn]?2:1);mod+=x;src.push(bn+" "+(x>0?"+":"")+x+(dbl[bn]?" (×2)":""));}});
   return {mod,src};}
-function winterTax(b){const sets=b.settlements||[],pm=poTaxMod(b.po||0),mod=pm.mod;let base=0,adj=0;
+function winterTax(b){const sets=b.settlements||[],pm=poTaxMod(b.po||0,b),mod=pm.mod;let base=0,adj=0;
   const pl=playerOfBoard(b),dest=(D.bandit||{}).dest||{};let destab=0;
   sets.forEach(s=>{const t=(((DATA.settlements||{})[s.tier]||{}).tax_income)||0;if(!t)return;
     if(pl&&dest[pl.id+":"+s.id]){destab+=t+Math.max(-t,mod);return;}base+=t;adj+=Math.max(-t,mod);});
   return {base,mod,adj,src:pm.src,destab,total:base+adj};}
-function settTax(b,s){const t=(((DATA.settlements||{})[s.tier]||{}).tax_income)||0;return t?t+Math.max(-t,poTaxMod(b.po||0).mod):0;}
+function settTax(b,s){const t=(((DATA.settlements||{})[s.tier]||{}).tax_income)||0;return t?t+Math.max(-t,poTaxMod(b.po||0,b).mod):0;}
 // Trade income (rules): for each active Trade Agreement, both players gain income_per_craft × the Host's Craft X —
 // only on turns when one of the two is the Host; both need active Dirt Roads; none in TRADE_RULES.no_trade_season (Spring).
 function tradeIncome(b,season){const sea=season||curSeason(),out=tradeRaw(b,sea),me=D.players.find(p=>p.board===b);if(!me)return out;
@@ -3319,15 +3402,25 @@ function boardMetrics(b){
 // ---- Public Order tracker ----
 function poBandName(v){let best=null;Object.keys(PO).map(Number).sort((a,b)=>a-b).forEach(k=>{if(k<=v)best=k;});return best!=null?PO[String(best)]:null;}
 // Public Order is cumulative in both directions: at +4 bands 1..4 are all active; at −3 bands −1..−3 are all active.
-function poActiveKeys(v){return Object.keys(PO).map(Number).filter(k=>v>0?(k>=1&&k<=v):v<0?(k<=-1&&k>=v):k===0).sort((a,b)=>Math.abs(a)-Math.abs(b));}
-function poActiveEffects(v){return poActiveKeys(v).map(k=>PO[String(k)]).filter(b=>b&&!/^no effect$/i.test(b[1]));}
+function poActiveKeys(v,b){if(b&&poImmune(b))return [];
+  return Object.keys(PO).map(Number).filter(k=>v>0?(k>=1&&k<=v):v<0?(k<=-1&&k>=v):k===0).sort((a,b)=>Math.abs(a)-Math.abs(b));}
+function poActiveEffects(v,b){const dbl=poDoubled();return poActiveKeys(v,b).map(k=>PO[String(k)]).filter(x=>x&&!/^no effect$/i.test(x[1]))
+  .map(x=>dbl[x[0]]?[x[0],x[1]+" ×2 ("+dbl[x[0]]+")"]:x);}
+// Holdings that change Public Order effects: "No longer affected by all Public Order effects" (this board) and
+// "<Band>, <Band>, & <Band> effects are doubled for all players" (any player's active Holding).
+const PO_IMM=Object.keys(R).filter(n=>/No longer affected by all Public Order effects/i.test(R[n].innate_raw||""));
+const PO_DBL={};Object.keys(R).forEach(n=>{const m=(R[n].innate_raw||"").match(/^(.+?) effects are doubled for all players/i);
+  if(m)PO_DBL[n]=m[1].split(/\s*(?:,|&|\band\b)\s*/).map(x=>x.trim()).filter(Boolean);});
+function poImmune(b){const n=PO_IMM.find(x=>holdsActive(b,x));return n||null;}
+function poDoubled(){const out={};Object.keys(PO_DBL).forEach(n=>{const q=(D.players||[]).find(p=>holdsActive(p.board,n));
+  if(q)PO_DBL[n].forEach(bn=>out[bn]=n+" · "+q.name);});return out;}
 function renderPO(){
   const v=Math.max(PO_MIN,Math.min(PO_MAX,S.po||0));S.po=v;
   set("poVal",v);const band=poBandName(v);
   document.getElementById("poBand").textContent=band?band[0]:"";
-  const act=poActiveEffects(v);
-  document.getElementById("poEffect").textContent=act.length?("active ("+act.length+"): "+act.map(b=>b[1]).join(" · ")):"no active effects";
-  const on=new Set(poActiveKeys(v)), curK=Math.max(...Object.keys(PO).map(Number).filter(k=>k<=v));
+  const act=poActiveEffects(v,S),imm=poImmune(S);
+  document.getElementById("poEffect").textContent=imm?("no effects — "+imm):act.length?("active ("+act.length+"): "+act.map(b=>b[1]).join(" · ")):"no active effects";
+  const on=new Set(poActiveKeys(v,S)), curK=Math.max(...Object.keys(PO).map(Number).filter(k=>k<=v));
   const lad=document.getElementById("poLadder");
   lad.innerHTML=Object.keys(PO).map(Number).sort((a,b)=>b-a).map(k=>{const b=PO[String(k)];
     return '<div class="pr'+(on.has(k)?' on '+(k<0?'neg':'pos'):'')+(k===curK?' cur':'')+'"><span class="v">'+(k>0?'+':'')+k+'</span><span>'+esc(b[0])+'</span><span>'+esc(b[1])+'</span></div>';}).join("");
@@ -3361,6 +3454,11 @@ function influenceRowsBase(b){
   const mw=withBoard(b,()=>S.placed.filter(q=>pActive(q)&&(R[q.name]||{}).type==="Monument").length+Object.keys(S.wonders).filter(infraOn).length);
   add("Monuments & Wonders",mw,mw*igVal("Monuments & Wonders"));
   const oth=boardMetrics(b).infl;add("Other sources",oth?1:0,oth);
+  // Public Order bands "±N Influence" apply when Influence is gained (cumulative bands; Plague Pit immune, Charnel House ×2)
+  {const dbl=poDoubled(),po=Math.max(PO_MIN,Math.min(PO_MAX,b.po||0));
+   poActiveKeys(po,b).forEach(k=>{const e=PO[String(k)];if(!Array.isArray(e))return;const m=String(e[1]).match(/^([+\-\u2212]\s?\d+)\s*Influence$/i);if(!m)return;
+     const v=parseInt(m[1].replace(/\s/g,"").replace("\u2212","-"),10)*(dbl[e[0]]?2:1);
+     rows.push({k:"Public Order: "+e[0]+(dbl[e[0]]?" ×2":""),cnt:1,val:v});});}
   if(p)fxOf(p,"pool").forEach(f=>{const dv=b.domains||{};
     const cnt=f.per==="Rising"?T_DOMS.filter(d=>(dv[d]||0)>=RIS).length:f.per==="Established"?T_DOMS.filter(d=>(dv[d]||0)>=EST).length:
       f.per==="others"?Math.max(0,D.players.length-1):f.per==="war"?(playerAtWar(pid)?1:0):0;
@@ -3380,7 +3478,7 @@ function poModRows(b){b.poMods=b.poMods||{};const p=playerOfBoard(b),pid=p?Strin
   ["faith","doubt"].forEach(side=>Object.keys(POM[side]||{}).forEach(k=>{const a=auto[k];
     rows.push({side,k,desc:POM[side][k],auto:!!a,n:a?a():(+b.poMods[k]||0)});}));
   return rows.concat(epRows(b));}
-const TOT_TIPS={"t_gold": "Unconditional gold (+X) from your active Pursuits (Innate, and Mastery once earned) and active Infrastructure / Wonders. Season-only gold, scaling gold, Winter tax and trade are counted separately.", "t_scale": "Gold that multiplies by a count — e.g. Manor House: +100 per active Natural Pursuit (its Mastery: +100 per active Energy Pursuit).", "t_upkeep": "Upkeep of your built Infrastructure and Wonders. Faction Infrastructure pays none.", "t_pupkeep": "PU_TEXT", "t_reduce": "The sum of “Upkeep −X” effects on your active pieces. The pool is spent against Army upkeep; anything left over is unused.", "t_army": "Army upkeep (Retinue count × Retinue cost) minus the reduction pool, never below 0.", "t_craft": "CRAFT", "t_trade": "Craft X × income per Craft: what each Trade Agreement pays both players on turns when you are the Host. None in Spring; both players need active Dirt Roads; none while at war.", "t_infl": "Unconditional “Influence +X” from your active pieces. Part of your Influence per turn — the full breakdown is on the Table.", "t_po": "Unconditional Faith minus Doubt from your active pieces, plus the Faith / Doubt modifiers under Public Order. Applied to Public Order at End turn.", "t_ext": "EXTORT"};
+const TOT_TIPS={"t_gold": "Unconditional gold (+X) from your active Pursuits (Innate, and Mastery once earned) and active Infrastructure / Wonders. Season-only gold, scaling gold, Winter tax and trade are counted separately.", "t_scale": "Gold that multiplies by a count — e.g. Manor House: +100 per active Natural Pursuit (its Mastery: +100 per active Energy Pursuit).", "t_upkeep": "Upkeep of your built Infrastructure and Wonders. Faction Infrastructure pays none.", "t_pupkeep": "PU_TEXT", "t_reduce": "The sum of “Upkeep −X” effects on your active pieces. The pool is spent against Army upkeep; anything left over is unused.", "t_army": "Army upkeep: each Army costs its Retinue type's cost; the total of all Armies minus the reduction pool, never below 0.", "t_craft": "CRAFT", "t_trade": "Craft X × income per Craft: what each Trade Agreement pays both players on turns when you are the Host. None in Spring; both players need active Dirt Roads; none while at war.", "t_infl": "Unconditional “Influence +X” from your active pieces. Part of your Influence per turn — the full breakdown is on the Table.", "t_po": "Unconditional Faith minus Doubt from your active pieces, plus the Faith / Doubt modifiers under Public Order. Applied to Public Order at End turn.", "t_ext": "EXTORT"};
 function totTip(k){let t=TOT_TIPS[k]||"";
   if(t==="PU_TEXT"){const bt=(PUP.byType||{});t="Fixed by Pursuit type: "+Object.keys(bt).filter(x=>x!=="Other").map(x=>x+" "+bt[x]).join(", ")+", all others "+(bt.Other??PUP.def??0)+". None for faction pieces or Pursuits still building.";}
   if(t==="CRAFT")t=GLOSS["Craft"]||"Craft +X from your active pieces.";
@@ -3415,6 +3513,13 @@ function epRows(b){const rows=[],me=playerOfBoard(b),mid=me?String(me.id):null,d
   if(mid)D.players.forEach(q=>{if(String(q.id)===mid||sameAlliance(String(q.id),mid))return;const qv=q.board.domains||{};
     epSources(q.board).filter(x=>x.kind==="lower"&&(dv[x.dom]||0)<(qv[x.dom]||0)).forEach(x=>
       rows.push({side:x.side,k:x.src+" · "+q.name,desc:q.name+"'s "+x.dom+" "+(qv[x.dom]||0)+" > your "+(dv[x.dom]||0)+", not allied",auto:true,n:x.val}));});
+  if(mid)D.players.forEach(q=>{if(String(q.id)===mid)return;          // other players' Holdings aimed at you
+    withBoard(q.board,()=>Object.keys(PC).filter(n=>PC[n]>0).map(n=>[n,(R[n]||{}).innate_raw||""]))
+    .forEach(([n,t])=>{let m=t.match(/(Faith|Doubt)\s*\+(\d+) to all other players without (?:an? )?([^.;]+)/i);
+      if(m&&!holdsActive(b,m[3].trim()))rows.push({side:m[1].toLowerCase(),k:n+" · "+q.name,desc:"no "+m[3].trim(),auto:true,n:+m[2]});
+      m=t.match(/Other non-vassal players gain (Faith|Doubt)\s*\+(\d+) per Signed Treaty with you besides Peace/i);
+      if(m&&!isVassal(mid)){const x=effPair(mid,q.id),c=x.household?0:(x.trade?1:0)+(x.nap?1:0)+(sameAlliance(mid,String(q.id))?1:0);
+        if(c)rows.push({side:m[1].toLowerCase(),k:n+" · "+q.name,desc:c+(c>1?" Treaties":" Treaty")+" with "+q.name+" (not Peace)",auto:true,n:+m[2]*c});}});});
   return rows;}
 function poModTotal(b){return poModRows(b).reduce((a,r)=>a+(r.side==="faith"?r.n:-r.n),0);}
 function dpButtons(p,i){const b=p.board,n=b.dp||0;if(n<=0)return "";
@@ -3537,7 +3642,7 @@ function renderDash(){
   D.players.forEach((p,i)=>{
     const b=p.board,m=boardMetrics(b);
     let wu=0,wa=0;withBoard(b,()=>{b.settlements.forEach(s=>{const w=wardUse(s.id);wu+=w.used;wa+=w.cap;});});
-    const po=Math.max(PO_MIN,Math.min(PO_MAX,b.po||0)),band=poBandName(po),poAct=poActiveEffects(po);
+    const po=Math.max(PO_MIN,Math.min(PO_MAX,b.po||0)),band=poBandName(po),poAct=poActiveEffects(po,b);
     const sov=DOMAINS.filter(d=>((b.domains||{})[d]||0)>=SOV);
     const dsum=DOMAINS.reduce((a,d)=>a+((b.domains||{})[d]||0),0),dmax=DOMAINS.reduce((a,d)=>a+((D.startDomains||{})[d]||0),0)+((D.renown||1)-1),dover=dsum>dmax;
     h+='<tr>'+
@@ -3739,8 +3844,22 @@ function sideArmy(sd){
   return {p,a:(p.board.armies||[]).find(x=>String(x.id)===String(sd.aid))};}
 function blog(msg){const B=battle();B.log.unshift("S"+B.sk+": "+msg);B.log=B.log.slice(0,80);}
 function d10(n){const r=[];for(let i=0;i<n;i++)r.push(1+Math.floor(Math.random()*10));return r;}
+function seizeForced(){const B=battle(),h=Y=>!!B&&!!B[Y]&&sideUnlocks(sideArmy(B[Y]).p).mods.some(m=>m.tok==="Seize: first");
+  const a=h("A"),b=h("B");return a&&!b?"A":b&&!a?"B":null;}   // "Always gains Seize the Initiative, and your opponent doesn't"
+// Faction mechanic text -> army tokens (same tokens as Holdings). Conditions in the text are honoured; nothing is named.
+function facCombat(b){const f=FAC[(b||{}).faction||""];if(!f)return [];const t=String(f.mechanic||""),out=[],src=(b.faction||"")+" (faction)";
+  const add=tok=>out.push({tok,node:src,via:"faction"});
+  if(/Armies always have Unwieldy/i.test(t))add("Always Unwieldy");
+  if(/can't gain Immune Unwieldy/i.test(t))add("No Immune Unwieldy");
+  if(/(?:Armies|they)[^.]*?\bRecover \+1/i.test(t))add("Recover +1");
+  if(/(?:Armies|they)[^.]*?\bImmune Panic/i.test(t))add("Immune Panic");
+  if(/Retinues have Poison/i.test(t))add("Poison");
+  if(/Ranged Weapons have \+1 to Strike/i.test(t))add("Ranged Strike +1");
+  const m=t.match(/While your Public Order is (-?\d+) or higher, your Armies have ([^.]+)/i);
+  if(m&&(b.po||0)>=+m[1]){if(/\+1 Initiative/i.test(m[2]))add("Init +1");if(/\bSteady\b/i.test(m[2]))add("Steady");}
+  return out;}
 function sideUnlocks(p){return p?withBoard(p.board,()=>{const have=new Set(Object.keys(PC));const {earned}=computeEarned(have);
-    return {mods:armyUnlocks(earned).mods,outInnate:(PC["Outrider Intercept Post"]||0)>0,outMastery:!!earned["Outrider Intercept Post"]};})
+    return {mods:armyUnlocks(earned).mods.concat(facCombat(p.board)),outInnate:(PC["Outrider Intercept Post"]||0)>0,outMastery:!!earned["Outrider Intercept Post"]};})
     :{mods:[],outInnate:false,outMastery:false};}
 // combat standing effects (STANDING_EFFECTS) by Domain value; bandits use their camp's Domain value (Prowess = Cunning = banditDomain)
 function sideDomains(sd,p){if(sd.kind==="bandit"){const cp=mapState().camps[sd.camp],v=cp?banditDomain(cp.n):0;return {Prowess:v,Cunning:v};}return (p&&p.board.domains)||{};}
@@ -3789,12 +3908,13 @@ function sideCalc(X){
   let ewpn={ap:0},ewm={ap:0};if(eo){ewpn=eqWeapon(eo,eqO,eShD);ewm=eqWeapon(eo,{mode:"melee",b2h:eqO.b2h},eShD);}   // Riposte = melee weapon
   const strikePlus=u.mods.filter(m=>m.tok==="Strike +1").length,initPlus=u.mods.filter(m=>m.tok==="Init +1").length;
   const rev=B.rev&&B.rev.sk===B.sk?B.rev:null,cell=rev?TMX[rev.A+"|"+rev.B]:null,tm=cell?(X==="A"?cell[0]:cell[1]):{I:0,TH:0,TS:0};
-  const seize=B.seize===X&&B.sk===1?1:0;
+  const forced=seizeForced(),seize=B.sk===1&&(forced?forced===X:B.seize===X)?1:0;
   // Unwieldy: Initiative can't be improved by Tactics (clamp a positive Tactic I to 0) unless Immune Unwieldy.
   // Steady: a negative Tactic I is clamped to 0. Same rule as Combatv4/batch_engine.py.
   const eqInfo=eqOptions(X),dualCarry=eqInfo.dual;                            // Tiltyard: carrying both ⇒ Unwieldy (mastery: Immune Unwieldy)
-  const eqTags=[].concat(wpn.tags||[],ar.tags||[],sh.tags||[],rt.tags||[],dualCarry?["Unwieldy"]:[]);
-  const unw=eqTags.includes("Unwieldy")&&!u.mods.some(m=>m.tok==="Immune Unwieldy"),stdy=eqTags.includes("Steady");
+  const hasM=tok=>u.mods.some(m=>m.tok===tok);
+  const eqTags=[].concat(wpn.tags||[],ar.tags||[],sh.tags||[],rt.tags||[],dualCarry||hasM("Always Unwieldy")?["Unwieldy"]:[],hasM("Steady")?["Steady"]:[]);
+  const unw=eqTags.includes("Unwieldy")&&(hasM("No Immune Unwieldy")||!hasM("Immune Unwieldy")),stdy=eqTags.includes("Steady");
   let tmI=tm.I||0,tmNote="";
   if(unw&&tmI>0){tmNote="Unwieldy: Tactic Init +"+tmI+" blocked";tmI=0;}
   if(stdy&&tmI<0){tmNote="Steady: Tactic Init "+tmI+" blocked";tmI=0;}
@@ -3807,24 +3927,25 @@ function sideCalc(X){
   // then worsening mods (enemy Shielded, own shield −1TH, negative Tactic TH) can push past CAP (auto-fail).
   const CAP=BT.capThr||10,tacTH=tm.TH||0;
   const th1=(mt.has("+1TH")?1:0)+(mt.has("+1TH first")&&B.sk===1?1:0)+(mt.has("+1TH after_first")&&B.sk>1?1:0);
-  const improve=strikePlus+th1+Math.max(tacTH,0);
+  const rngPlus=eqX.mode==="ranged"?u.mods.filter(m=>m.tok==="Ranged Strike +1").length:0;   // e.g. "Ranged Weapons have +1 to Strike"
+  const improve=strikePlus+rngPlus+th1+Math.max(tacTH,0);
   const fat=(a.fatigue||0)*(BT.fatigueStrike??1);
   const esh=(eo&&!((B.shDest||{})[O]))?(EQ.shields[(eo.shield==="None"||!eo.shield)?"null":eo.shield]||{tags:[]}):{tags:[]};
   const eShielded=(esh.tags||[]).includes("Shielded")&&!mt.has("Negate Shielded");
   const worsen=(eShielded?1:0)+((sh.tags||[]).includes("-1TH")?1:0)+(mt.has("Immune Tactic TH")?0:Math.max(-tacTH,0));
   let pre=Math.min((rt.to_hit||0)-improve+fat,CAP);if(blunder)pre=Math.max(pre,CAP);
   let toStrike=pre+worsen-sd.adj.TH;
-  // Save: Planishing (Gilded Foundry Mastery): incoming AP +1, and AP can't push the save past CAP+
+  // Save: Planishing: AP can't push the save past CAP+
   // (normal or Deadly) unless the attacker has Negate Planishing. Deadly strikes save at +DEADLY_AP.
   const FACES_=BT.faces||10,FOC=BT.focusedThr||10,DAP=BT.deadlyAp??5;
   const plan=mt.has("Planishing")||mt.has("GF Armor");
   const eTags=new Set([].concat(ewpn.tags||[]));
   const planOn=plan&&!eTags.has("Negate Planishing")&&!eTags.has("Negate Tempered");
-  const saveRaw=(ar.save||0)-((ewpn.ap||0)+(plan?1:0))-(sh.save_bonus||0)-(tm.TS||0)-sd.adj.TS;
+  const saveRaw=(ar.save||0)-(ewpn.ap||0)-(sh.save_bonus||0)-(tm.TS||0)-sd.adj.TS;
   const save=planOn?Math.min(saveRaw,CAP):Math.min(saveRaw,FACES_+1);   // FACES+1 = auto-fail
   const deadlyRaw=Math.min(saveRaw+DAP,FACES_+1),deadlySave=planOn?Math.min(deadlyRaw,CAP):deadlyRaw;
   const saveVs=wp=>{const tg=new Set([].concat(wp.tags||[])),po=plan&&!tg.has("Negate Planishing")&&!tg.has("Negate Tempered"),
-    raw=(ar.save||0)-((wp.ap||0)+(plan?1:0))-(sh.save_bonus||0)-(tm.TS||0)-sd.adj.TS;return po?Math.min(raw,CAP):Math.min(raw,FACES_+1);};
+    raw=(ar.save||0)-(wp.ap||0)-(sh.save_bonus||0)-(tm.TS||0)-sd.adj.TS;return po?Math.min(raw,CAP):Math.min(raw,FACES_+1);};
   const saveMelee=saveVs(ewm);                                  // vs a Riposte (always the riposting side's melee weapon)
   // own strike profile (Focused procs)
   const critN=[...mt].map(t=>(t.match(/^Crit (\d+)$/)||[])[1]).filter(Boolean).map(Number);
@@ -3838,15 +3959,17 @@ function sideCalc(X){
   else if((esh.tags||[]).includes("Shielded")&&mt.has("Negate Shielded"))trig.push("Negate Shielded: enemy Shielded ignored");
   if(mt.has("Immune Tactic TH")&&tacTH<0)trig.push("Immune Tactic TH: Tactic "+tacTH+" ignored");
   if(th1)trig.push("+"+th1+" to-Strike (Ministry)");
+  if(rngPlus)trig.push("+"+rngPlus+" to-Strike with Ranged (faction)");
+  if(hasM("Always Unwieldy"))trig.push("Faction: always Unwieldy"+(hasM("No Immune Unwieldy")?", can't gain Immune Unwieldy":""));
   if(fat)trig.push("Fatigue +"+fat+" to-Strike (capped "+CAP+"+)");
   if(blunder)trig.push("Blunder: to-Strike "+CAP+"+ before penalties");
   if(a.strained)trig.push(strainI?"Strained −1 Init":"Immune Strain: no Init loss");
   if(maxI>INIT_MAX)trig.push("Init ceiling +"+maxI);
-  if(plan)trig.push(planOn?"Planishing: incoming AP +1, save capped "+CAP+"+"+(saveRaw>CAP||deadlyRaw>CAP?" (was "+saveRaw+"+ / Deadly "+deadlyRaw+"+)":""):"Planishing negated by enemy weapon");
+  if(plan)trig.push(planOn?"Planishing: save capped "+CAP+"+"+(saveRaw>CAP||deadlyRaw>CAP?" (was "+saveRaw+"+ / Deadly "+deadlyRaw+"+)":""):"Planishing negated by enemy weapon");
   if(hasDeadly)trig.push("Deadly: strikes on "+critFloor+"+ save at +"+DAP);
   if(hasCleave)trig.push("Cleave: strikes on "+critFloor+"+ roll an extra die");
   if(hasDestroy)trig.push("Destroy Shield: any "+FOC+"+ strike destroys the enemy shield");
-  const morale=effMorale(a)+sd.adj.M;
+  const morale=(c=>c!=null?Math.min(c,effMorale(a)+sd.adj.M):effMorale(a)+sd.adj.M)(moraleCap(a));
   // ---- Parry / Riposte / Recover (defending against O's Strikes) — same model as Combatv4 build_parry_thr / build_regen_thr ----
   const eSd=o,eU=sideUnlocks(sideArmy(eSd).p),eTok=new Set(eU.mods.map(m=>m.tok)),eW=new Set([].concat(ewpn.tags||[])),eRanged=!!(eo&&eo.ranged&&eo.ranged!=="None");
   const sfx=standingFxOf(sideDomains(sd,p)),gainParry=sfx.find(x=>/Gain Parry/i.test(x.text));
@@ -3863,9 +3986,10 @@ function sideCalc(X){
   const recs=[...mt].map(t=>(t.match(/^Recover (\d+)$/)||[])[1]).filter(Boolean).map(Number);
   const enduring=mt.has("Enduring"),serrN=eU.mods.filter(m=>m.tok==="Serrated").length+(eW.has("Serrated")?1:0),SM=BT.serratedMod??2;
   let recThr=null,recNote="";
-  if(recs.length){const base=Math.min(CAP,Math.min(...recs)+serrN*SM);
+  const recPlus=[...u.mods].filter(m=>m.tok==="Recover +1").length;              // each "improve Recover +1" lowers the base by 1
+  if(recs.length){const rv=Math.min(...recs)-recPlus,base=Math.min(CAP,rv+serrN*SM);
     recThr=Math.min(CAP,base-adjR);                                                  // Fatigue no longer affects Recover
-    recNote="Recover "+Math.min(...recs)+"+"+(serrN?" · Serrated +"+serrN*SM:"")+(enduring?" · Enduring: Recovered Strikes don't count for Panic":"");}
+    recNote="Recover "+rv+"+"+(recPlus?" (base "+Math.min(...recs)+" −"+recPlus+")":"")+(serrN?" · Serrated +"+serrN*SM:"")+(enduring?" · Enduring: Recovered Strikes don't count for Panic":"");}
   if(canParry)trig.push("Parry "+parryThr+"+"+(parryPlus?" (Improved −"+parryPlus*IPM+")":"")+(eUnstop?" · enemy Unstoppable +"+UM:"")+(riposte?" · Riposte on "+FOC:""));
   else if(awkward)trig.push("No Parry: "+(eqX.mode==="ranged"?a.ranged:a.weapon)+" is Awkward");
   else trig.push("No Parry (needs "+(Object.keys(BT.standingFx||{}).find(k=>/Gain Parry/i.test(BT.standingFx[k]))||"Parry").replace("|"," ").split(" ").reverse().join(" ")+")");
@@ -3874,7 +3998,7 @@ function sideCalc(X){
   const front=Math.min(a.count||0,sd.front!=null?sd.front:(BT.frontMax||10));
   const tags=[...new Set([...eqTags,...u.mods.map(m=>m.tok)])];
   trig.unshift("Equipped: "+(eqX.mode==="ranged"?a.ranged:(a.weapon||"—")+(a.weapon==="Bastard Sword"?(eqX.b2h||shDest?" (2H)":" (1H)"):""))+(shOff?" · Shield not usable (2H)":"")+(dualCarry&&!eqInfo.tilt&&p?" · carrying both needs a Tiltyard":""));
-  return {eqX,shOff,enduring,canParry,parryThr,parryThrMelee,riposte,riposteMelee,saveMelee,poisoned,poisonedMelee,recThr,serrN,p,a,rt,I,rawI,tmNote,blunder,toStrike,save,saveRaw,deadlySave,planOn,critFloor,hasDeadly,hasCleave,hasDestroy,shDest,trig,morale,front,tags,tm,seize,cell:!!cell,outrider:(u.outMastery||(u.outInnate&&B.sk===1)),outMastery:u.outMastery};
+  return {immunePanic:mt.has("Immune Panic"),eqX,shOff,enduring,canParry,parryThr,parryThrMelee,riposte,riposteMelee,saveMelee,poisoned,poisonedMelee,recThr,serrN,p,a,rt,I,rawI,tmNote,blunder,toStrike,save,saveRaw,deadlySave,planOn,critFloor,hasDeadly,hasCleave,hasDestroy,shDest,trig,morale,front,tags,tm,seize,cell:!!cell,outrider:(u.outMastery||(u.outInnate&&B.sk===1)),outMastery:u.outMastery};
 }
 // hidden picks: server when online, in-page when not
 const LOCAL_PICKS={};let PICKS={A:{picked:false},B:{picked:false},revealed:false},PEEK=false,_pickT=null;
@@ -3981,7 +4105,8 @@ function sideHTML(X){
       '</div>'+rollHTML(X);
   }
   h+='<div style="display:flex;gap:4px;align-items:center;margin-top:6px"><span class="note">casualties</span><input type="number" min="0" value="'+pendCas(X)+'" class="bcas" data-x="'+X+'" style="width:52px"><button class="bcasgo" data-x="'+X+'">apply</button>'+
-    (()=>{const pn=(sd.cas||0)+(sd.rcv||0);return '<span class="note">this Skirmish: '+(sd.cas||0)+(sd.rcv?' + '+sd.rcv+' Recovered = '+pn+' for Panic':'')+((BT.panicThreshold&&pn>BT.panicThreshold)?' — <b style="color:var(--upkeep)">Panic check after both sides Strike</b>':'')+'</span>';})()+'</div>';
+    (()=>{const cc=sideCalc(X)||{},rc=cc.enduring?0:(sd.rcv||0),pn=(sd.cas||0)+rc,imP=!!cc.immunePanic;   // Enduring: Recovered Strikes don't count
+      return '<span class="note">this Skirmish: '+(sd.cas||0)+(sd.rcv?(cc.enduring?' ('+sd.rcv+' Recovered — Enduring, not counted)':' + '+sd.rcv+' Recovered = '+pn)+' for Panic':'')+(imP?' · Immune Panic':'')+((!imP&&BT.panicThreshold&&pn>BT.panicThreshold)?' — <b style="color:var(--upkeep)">Panic check after both sides Strike</b>':'')+'</span>';})()+'</div>';
   return h+'</div>';
 }
 function battleRulesHTML(){let h='';
@@ -3996,7 +4121,7 @@ function renderBattle(){
   let h='<div style="padding:14px;overflow-y:auto;height:100%"><h2 style="margin-bottom:6px">Battle</h2>'+
     '<div class="toolbar"><button id="bStart">'+(B.id?'restart battle':'start battle')+'</button>'+
     '<span class="note">Skirmish <b>'+(B.id?B.sk:'—')+'</b></span>'+
-    '<label class="note">Seize the Initiative: <select id="bSeize"><option value="">—</option><option value="A"'+(B.seize==="A"?" selected":"")+'>A</option><option value="B"'+(B.seize==="B"?" selected":"")+'>B</option></select></label>'+
+    (seizeForced()?'<span class="note">Seize the Initiative: '+seizeForced()+' (Ministry)</span> ':'')+'<label class="note">Seize the Initiative: <select id="bSeize"><option value="">—</option><option value="A"'+(B.seize==="A"?" selected":"")+'>A</option><option value="B"'+(B.seize==="B"?" selected":"")+'>B</option></select></label>'+
     '<label class="note"><input type="checkbox" id="bDice"'+(B.dice?' checked':'')+'> emulate dice</label>'+
     (B.id?'<button id="bReset">reset picks</button><button id="bEndSk" style="border-color:var(--order)">end Skirmish ▸</button><button id="bEndBattle" style="border-color:var(--upkeep)">end Battle</button>':'')+'</div>';
   const v=viewerSide();
@@ -4088,7 +4213,7 @@ function endSkirmish(){
       a.fatigue=(a.fatigue||0)+1;blog(X+" gains Fatigue token ("+a.fatigue+") → morale "+effMorale(a)+"+");}
     if(tm&&tm.strain){a.strained=true;blog(X+" becomes Strained");}
     if(tm&&tm.end)blog(X+" tactic ends the Battle (Fall Back)");
-    if(effMorale(a)>=11)blog(X+" ROUTS (morale "+effMorale(a)+"+)");
+    if(effMorale(a)>=(BT.routThr||11))blog(X+" ROUTS (morale "+effMorale(a)+"+)");
     if((a.count||0)===0)blog(X+" wiped out");
     B[X].cas=0;B[X].rcv=0;});
   B.sk++;B.round=0;B.rev=null;EQSEL={};B.rolls={};B.strk={};B.par={};PEEK=false;blog("— Skirmish begins —");save();loadPicks().then(render);
@@ -4955,7 +5080,11 @@ function kwify(text,self){const h=esc(text==null?"":text);if(!GK_RE)return h;con
     if(idx==null)return m;const key=GK_LIST[idx].t;
     if(seen.has(key)||key===self)return m;seen.add(key);
     return pre+'<span class="gk" data-gk="'+idx+'">'+term+'</span>';});}
-function wikiA(href){const base=DATA.wikiBase||"";return '<div><a href="'+esc(base+href)+'" target="_blank" rel="noopener">wiki ↗</a></div>';}
+// Wiki links: the wiki's own copy (build_wiki flips WIKI_LOCAL) uses sibling pages and opens them in the wiki frame;
+// anywhere else (server.py / a local file) they go to the hosted wiki in a new tab. --wiki-base overrides both.
+const WIKI_LOCAL=/*__WIKI_LOCAL__*/false;
+const WIKI_BASE=DATA.wikiBase||(WIKI_LOCAL?"":(DATA.wikiHome||""));
+function wikiA(href){return '<div><a href="'+esc(WIKI_BASE+href)+'" target="'+(WIKI_LOCAL&&window.top!==window?"_top":"_blank")+'" rel="noopener">wiki ↗</a></div>';}
 function gkHtml(e){
   if(e.k==="g"){return '<div class="gh">'+esc(e.t)+'</div><div>'+esc(GLOSS[e.t]||"")+'</div>'+wikiA("glossary.html#"+gslug(e.t));}
   if(e.k==="p"){const r=R[e.t]||{};return '<div class="gh">'+esc(e.t)+' <span class="note">'+esc(r.type||"")+(r.monument?" · Monument":"")+'</span></div>'+
@@ -4968,9 +5097,15 @@ function gkHtml(e){
   return '<div class="gh">'+esc(e.t)+' <span class="note">'+(e.k==="w"?"Wonder":esc(r.tier||"Infrastructure"))+'</span></div>'+
     (r.requirement?'<div class="note">Requires: '+esc(r.requirement)+'</div>':'')+
     '<div>'+esc(r.effect_raw||"")+'</div>'+(r.upkeep?'<div class="note">Upkeep '+esc(r.upkeep)+'</div>':'')+
+    wikiA((e.k==="w"?"wonders-ref.html#":"infrastructure-ref.html#")+gslug(e.t))+
     (((e.k==="w"?S.wonders:S.infra)||{})[e.t]?'<div class="note">✓ in your '+(e.k==="w"?'Wonders':'Infrastructure')+'</div>'
       :'<div><button data-addi="'+(e.k==="w"?"wonder":"infra")+'|'+esc(e.t)+'">+ add to '+(e.k==="w"?'Wonders':'Infrastructure')+'</button></div>');}
 const GKT=document.createElement("div");GKT.id="gkTip";document.body.appendChild(GKT);
+// Deep link from the wiki: settlement_board.html#h=<Holding | Infrastructure | Wonder | glossary term> opens its card.
+function openFromHash(){const m=(location.hash||"").match(/^#h=(.+)$/);if(!m)return;let n;try{n=decodeURIComponent(m[1]);}catch(e){return;}
+  const idx=GK_BY[esc(n)]!=null?GK_BY[esc(n)]:GK_LC[esc(n).toLowerCase()];if(idx==null)return;
+  openModal('<h3>'+esc(n)+'<button class="close" onclick="closeModal()">✕</button></h3>'+gkHtml(GK_LIST[idx]));}
+window.addEventListener("hashchange",openFromHash);setTimeout(openFromHash,0);
 // ---- Display layer (NAME_DISPLAY / ALIASES from the data): rename what players READ on the page. ----
 // Ids in the state, data-* attributes, select values and every lookup stay as engine ids; only visible text
 // nodes and title tooltips are rewritten, as they appear (MutationObserver), so it covers every view.
@@ -5278,7 +5413,9 @@ def main():
     ap.add_argument("--data", default="renown_data_d10.py")
     ap.add_argument("--out", default="settlement_board.html")
     ap.add_argument("--rules", default="RULES_reorganized_6.md")
-    ap.add_argument("--wiki-base", default="", help="URL/prefix of the rules wiki for hover links (default: same folder)")
+    ap.add_argument("--wiki-base", default="", help="URL/prefix of the rules wiki for hover links; overrides both defaults below")
+    ap.add_argument("--wiki-home", default="https://mlang95.github.io/RenownWiki/",
+                    help="hosted wiki used when the board is NOT the wiki's own copy (server.py, local file)")
     ap.add_argument("--mapgen", default="", help="folder with gen.js + presets.js (default: <data dir>/mapgen or ../mapgen)")
     ap.add_argument("--check-rules", action="store_true",
                     help="cross-check key constants in the rules doc against the data file, then exit")
@@ -5304,7 +5441,7 @@ def main():
         records=records, naturalNames=natural, externalTokens=external, simple=bool(ns.get("SIMPLE")),
         chainTerm=ns.get("CHAIN_TERM", "Efficient"), pursuitTerm=list(ns.get("PURSUIT_TERM", ("Pursuit", "Pursuits"))),
         infra=infra, wonders=wonders, armySrc=army_src, equip=equip, glossary=glossary,
-        domainBoard=ns.get("DOMAIN_BOARD", {}), publicOrder=po, wikiBase=a.wiki_base,
+        domainBoard=ns.get("DOMAIN_BOARD", {}), publicOrder=po, wikiBase=a.wiki_base, wikiHome=a.wiki_home,
         tree=tree_payload(ns, os.path.dirname(os.path.abspath(__file__))),
         rulebook=rules_payload(ns, rules_path if os.path.exists(rules_path) else None),
         limits={"poMin": ns.get("PO_MIN", -5), "poMax": ns.get("PO_MAX", 10),

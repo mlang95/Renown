@@ -206,12 +206,12 @@ def edicts():
     return _table(["Edict", "Type", "Requirement"], rows)
 
 def weapons():
-    rows = [[rd.display(n), rd.display_tier(x["tier"]), str(x["ap"]), f"{x['init']:+d}", ", ".join(x["tags"]) or "—"]
+    rows = [[rd.display(n), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(x["tier"])), str(x["ap"]), f"{x['init']:+d}", ", ".join(x["tags"]) or "—"]
            for n, x in rd.WEAPONS.items()]
     return _table(["Weapon", "Tier", "AP", "Init", "Keywords"], rows)
 
 def armor():
-    rows = [[rd.display(n), rd.display_tier(x["tier"]), f"{x['save']}+", ", ".join(x["tags"]) or "—"]
+    rows = [[rd.display(n), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(x["tier"])), f"{x['save']}+", ", ".join(x["tags"]) or "—"]
            for n, x in rd.ARMORS.items()]
     return _table(["Armor", "Tier", "Save", "Keywords"], rows)
 
@@ -220,12 +220,12 @@ def seasons():
     return _table(["Season", "Name", "Effect"], rows)
 
 def ranged():
-    rows = [[rd.display(n), rd.display_tier(x["tier"]), str(x["ap"]), f"{x['init']:+d}", ", ".join(x["tags"]) or "—"]
+    rows = [[rd.display(n), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(x["tier"])), str(x["ap"]), f"{x['init']:+d}", ", ".join(x["tags"]) or "—"]
            for n, x in rd.RANGED.items()]
     return _table(["Ranged Weapon", "Tier", "AP", "Init", "Keywords"], rows)
 
 def shields():
-    rows = [[rd.display(n) if n else "None", rd.display_tier(x["tier"]) or "—", f"+{x['save_bonus']}", f"{x['init']:+d}",
+    rows = [[rd.display(n) if n else "None", (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(x["tier"])) or "—", f"+{x['save_bonus']}", f"{x['init']:+d}",
              ", ".join(x["tags"]) or "—"] for n, x in rd.SHIELDS.items()]
     return _table(["Shield", "Tier", "Save Bonus", "Init", "Keywords"], rows)
 

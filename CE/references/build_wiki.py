@@ -152,11 +152,18 @@ for name, d in rd.NODES.items():
     _lbl = rd.display(name)
     if _lbl != name:
         TERMS.setdefault(_lbl, (_u, slug(name)))
-for term in rd.GLOSSARY:
+# the board's glossary = GLOSSARY + MORALE_GLOSSARY (GLOSSARY wins); the wiki glossary matches it
+GLOSS_ALL = {**getattr(rd, "MORALE_GLOSSARY", {}), **rd.GLOSSARY}
+for term in GLOSS_ALL:
     TERMS.setdefault(term, ("glossary.html", slug(term)))
+# Infrastructure / Wonders link to their row on the reference pages (registered before any page is rendered)
+for _n in getattr(rd, "INFRASTRUCTURE", {}):
+    TERMS.setdefault(_n, ("infrastructure-ref.html", slug(_n)))
+for _n in getattr(rd, "WONDERS", {}):
+    TERMS.setdefault(_n, ("wonders-ref.html", slug(_n)))
 FACTIONS = getattr(rd, "FACTIONS", {})
 for f in FACTIONS:
-    TERMS.setdefault(f, (f"faction-{slug(f)}.html", None))
+    TERMS.setdefault(f, ("factions.html", slug(f)))
 
 def _register_lore_terms():
     # culture demonyms link to their entry on the Fifteen page
@@ -184,7 +191,7 @@ for _dom, _tiers in getattr(rd, "DOMAIN_BOARD", {}).items():
 
 TERM_LIST = sorted(TERMS, key=lambda t:-len(t))
 TERM_RE = re.compile(r"\b(" + "|".join(re.escape(t) for t in TERM_LIST) + r")\b", re.IGNORECASE)
-def autolink(text, current=None, current_anchor=None):
+def _autolink_text(text, current=None, current_anchor=None):
     # case-insensitive resolution: matched text may differ in case from the TERMS key
     lower_map = {t.lower(): t for t in TERMS}
     def repl(m):
@@ -201,6 +208,21 @@ def autolink(text, current=None, current_anchor=None):
         href = url + (f"#{anchor}" if anchor else "")
         return f'<a class="term" href="{href}">{matched}</a>'
     return TERM_RE.sub(repl, text)
+
+_TAG_SPLIT = re.compile(r"(<[^>]+>)")
+def autolink_html(markup, current=None, current_anchor=None):
+    """autolink() for finished HTML: only text nodes are linked — never tags/attributes, never inside an <a>."""
+    out, in_a = [], 0
+    for part in _TAG_SPLIT.split(markup):
+        if part.startswith("<") and part.endswith(">"):
+            t = part[1:3].lower()
+            if t == "a " or t == "a>": in_a += 1
+            elif part[:3].lower() == "</a": in_a = max(0, in_a - 1)
+            out.append(part)
+        else:
+            out.append(part if in_a or not part.strip() else _autolink_text(part, current, current_anchor))
+    return "".join(out)
+autolink = autolink_html     # every caller gets the tag-safe version
 
 # ── markdown inline + block ──
 def md_inline(s):
@@ -384,11 +406,19 @@ BOARD_TITLE = "Board Emulator"
 BOARD_URL   = None
 _bsrc = os.path.join(_HERE, BOARD_ENTRY)
 if os.path.isfile(_bsrc):
-    _sh.copy2(_bsrc, os.path.join(OUTDIR, BOARD_ENTRY))
+    # the wiki's copy links to its sibling pages (relative); the standalone/server copy links to the hosted wiki
+    _bh = open(_bsrc, encoding="utf-8").read().replace("/*__WIKI_LOCAL__*/false", "/*__WIKI_LOCAL__*/true", 1)
+    open(os.path.join(OUTDIR, BOARD_ENTRY), "w", encoding="utf-8").write(_bh)
     BOARD_URL = BOARD_ENTRY
     print(f"  [board] {os.path.normpath(_bsrc)} -> {OUTDIR}/{BOARD_URL}")
 else:
     print(f"  [board] {BOARD_ENTRY} not found in {_HERE} - run gen_settlement_board.py first")
+
+def board_link(name):
+    """Deep link into the board emulator page: opens that Holding / Infrastructure / Wonder card."""
+    if not BOARD_URL: return ""
+    from urllib.parse import quote
+    return f" <a class='boardlink' href='{BOARD_PAGE}#h={quote(name, safe='')}' title='open on the Board Emulator'>board ↗</a>"
 
 # ── nav ──
 def nav(current=""):
@@ -492,8 +522,9 @@ def stat_table(names,current):
             v=d.get(k,""); v=rd.display_list(v) if isinstance(v,list) else rd.display_text(v or "")
             cells.append(f"<td>{autolink(md_inline(str(v)),current) if v else '<span class=dim>—</span>'}</td>")
         mon=" ◆" if d.get("monument") else ""
-        rows.append(f"<tr id='{slug(n)}'><td class='nm'>{html.escape(rd.display(n))}{mon}</td>"+"".join(cells)+"</tr>")
-    return f"<table class='pursuits'><thead><tr><th>Pursuit</th>{head}</tr></thead><tbody>{''.join(rows)}</tbody></table>"
+        rows.append(f"<tr id='{slug(n)}'><td class='nm'>{html.escape(rd.display(n))}{mon}{board_link(n)}</td>"+"".join(cells)+"</tr>")
+    term=(getattr(rd,"PURSUIT_TERM",None) or ("Pursuit",))[0]
+    return f"<table class='pursuits'><thead><tr><th>{html.escape(term)}</th>{head}</tr></thead><tbody>{''.join(rows)}</tbody></table>"
 for t in TYPE_ORDER:
     if t not in by_type: continue
     u=f"type-{slug(t)}.html"
@@ -597,10 +628,16 @@ def _kv_table(rows):
     """rows = list of (label, value_html)."""
     return "<table class='kv'>"+"".join(f"<tr><th>{html.escape(str(l))}</th><td>{v}</td></tr>" for l,v in rows)+"</table>"
 
-def _grid(headers, rows, current):
+def _grid(headers, rows, current, row_ids=False):
+    """row_ids: first column is the item name -> <tr id=slug(name)>, name cell unlinked (anchor target for the board)."""
     h="".join(f"<th>{html.escape(str(x))}</th>" for x in headers)
     body=[]
     for r in rows:
+        if row_ids:
+            cells=f"<td class='nm'>{html.escape(rd.display(str(r[0])) if hasattr(rd,'display') else str(r[0]))}{board_link(str(r[0]))}</td>"+"".join(
+                f"<td>{autolink(md_inline(str(c)), current, slug(str(r[0])))}</td>" for c in r[1:])
+            body.append(f"<tr id='{slug(str(r[0]))}'>{cells}</tr>")
+            continue
         cells="".join(f"<td>{autolink(md_inline(str(c)), current)}</td>" for c in r)
         body.append(f"<tr>{cells}</tr>")
     return f"<table class='pursuits'><thead><tr>{h}</tr></thead><tbody>{''.join(body)}</tbody></table>"
@@ -613,10 +650,10 @@ if hasattr(rd, "INFRASTRUCTURE"):
     rows=[[n, d.get("tier",""), d.get("upkeep",""), d.get("build_time",""), d.get("requirement",""), d.get("empire_bonus","")] for n,d in items]
     body=f"<h1>Infrastructure <span class='count'>{len(items)}</span></h1>"
     body+="<p>Per-settlement builds on a three-tier ladder. All four Wonders require <strong>all Infrastructure unlocked</strong>.</p>"
-    body+=_grid(["Build","Tier","Upkeep","Build Time","Requirement","Effect"], rows, u)
+    body+=_grid(["Build","Tier","Upkeep","Build Time","Requirement","Effect"], rows, u, row_ids=True)
     open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Infrastructure",body,u))
     for n,d in rd.INFRASTRUCTURE.items():
-        TERMS.setdefault(n,(u,None)); search_index.append({"title":n,"url":u,"text":f"{n} infrastructure {d.get('empire_bonus','')}"})
+        search_index.append({"title":n,"url":f"{u}#{slug(n)}","text":f"{n} infrastructure {d.get('empire_bonus','')}"})
 
 # Wonders
 if hasattr(rd, "WONDERS"):
@@ -624,10 +661,10 @@ if hasattr(rd, "WONDERS"):
     rows=[[n, d.get("build_time",""), d.get("upkeep",""), d.get("empire_bonus","")] for n,d in rd.WONDERS.items()]
     body=f"<h1>Wonders <span class='count'>{len(rd.WONDERS)}</span></h1>"
     body+="<p>The apex builds — one per Domain, each gated behind <strong>all Infrastructure unlocked</strong> (the Industry spine).</p>"
-    body+=_grid(["Wonder","Build Time","Upkeep","Effect"], rows, u)
+    body+=_grid(["Wonder","Build Time","Upkeep","Effect"], rows, u, row_ids=True)
     open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Wonders",body,u))
     for n,d in rd.WONDERS.items():
-        TERMS.setdefault(n,(u,None)); search_index.append({"title":n,"url":u,"text":f"{n} wonder {d.get('empire_bonus','')}"})
+        search_index.append({"title":n,"url":f"{u}#{slug(n)}","text":f"{n} wonder {d.get('empire_bonus','')}"})
 
 # Actions (grouped by domain) — data-driven from rd.ACTIONS
 if hasattr(rd, "ACTIONS"):
@@ -857,7 +894,7 @@ if hasattr(rd,"RETINUES"):
     eq.append("<h2>Retinues</h2>")
     eq.append(_grid(["Retinue","Cost","To-Hit","Endurance","Morale","Speed","Max Size"],
         [[rd.display(n),d.get("cost"),f"{d.get('to_hit')}+",d.get("endurance"),f"{d.get('shaking')}+",d.get("speed","—"),d.get("max_size","—")] for n,d in rd.RETINUES.items()], u))
-def _wrow(n,d): return [rd.display(n), d.get("ap"), (f"+{d['init']}" if d.get('init',0)>0 else d.get('init')), rd.display_tier(d.get("tier")), ", ".join(d.get("tags",[]))]
+def _wrow(n,d): return [rd.display(n), d.get("ap"), (f"+{d['init']}" if d.get('init',0)>0 else d.get('init')), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(d.get("tier"))), ", ".join(d.get("tags",[]))]
 if hasattr(rd,"WEAPONS"):
     eq.append("<h2>Melee Weapons</h2>")
     eq.append(_grid(["Weapon","AP","Init","Tier","Keywords"], [_wrow(n,d) for n,d in rd.WEAPONS.items()], u))
@@ -867,10 +904,10 @@ if hasattr(rd,"RANGED"):
 if hasattr(rd,"SHIELDS"):
     eq.append("<h2>Shields</h2>")
     eq.append(_grid(["Shield","Save Bonus","Init","Tier","Keywords"],
-        [[(rd.display(n) if n else "None"), f"+{d.get('save_bonus')}", d.get("init"), rd.display_tier(d.get("tier")) or "—", ", ".join(d.get("tags",[]))] for n,d in rd.SHIELDS.items()], u))
+        [[(rd.display(n) if n else "None"), f"+{d.get('save_bonus')}", d.get("init"), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(d.get("tier"))) or "—", ", ".join(d.get("tags",[]))] for n,d in rd.SHIELDS.items()], u))
 if hasattr(rd,"ARMORS"):
     eq.append("<h2>Armor</h2>")
-    eq.append(_grid(["Armor","Save","Tier","Keywords"], [[rd.display(n),f"{d.get('save')}+",rd.display_tier(d.get("tier")),", ".join(d.get("tags",[]))] for n,d in rd.ARMORS.items()], u))
+    eq.append(_grid(["Armor","Save","Tier","Keywords"], [[rd.display(n),f"{d.get('save')}+",(getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(d.get("tier"))),", ".join(d.get("tags",[]))] for n,d in rd.ARMORS.items()], u))
 open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Equipment","".join(eq),u))
 search_index.append({"title":"Equipment","url":u,"text":"equipment retinues weapons ranged shields armor stats"})
 
@@ -1063,7 +1100,7 @@ for _n in getattr(rd, "TREATIES", {}):
 for _n in getattr(rd, "EDICTS", {}):
     CONTEXT_PAGE.setdefault(_n, ("edicts-ref.html", None))
 for _n in getattr(rd, "FACTIONS", {}):
-    CONTEXT_PAGE[_n] = (f"faction-{slug(_n)}.html", None)
+    CONTEXT_PAGE[_n] = ("factions.html", slug(_n))
 # hand-mapped concept -> reference page for common glossary nouns
 _CONCEPT_PAGE = {
     "Reach":"settlements-ref.html","Reach X":"settlements-ref.html",
@@ -1079,9 +1116,9 @@ for _t,_pg in _CONCEPT_PAGE.items():
     CONTEXT_PAGE.setdefault(_t, (_pg, None))
 
 gl=["<h1>Glossary</h1><dl class='gloss'>"]
-for term in sorted(rd.GLOSSARY):
+for term in sorted(GLOSS_ALL):
     sl=slug(term)
-    body=autolink(md_inline(str(rd.GLOSSARY[term])),'glossary.html',sl)
+    body=autolink(md_inline(str(GLOSS_ALL[term])),'glossary.html',sl)
     # "Used in" backlink to a richer context page, when one exists and differs.
     used=""
     cp=CONTEXT_PAGE.get(term)
@@ -1091,8 +1128,8 @@ for term in sorted(rd.GLOSSARY):
     gl.append(f"<dt id='{sl}'>{html.escape(term)}</dt><dd>{body}{used}</dd>")
 gl.append("</dl>")
 open(os.path.join(OUTDIR,"glossary.html"),"w",encoding="utf-8").write(page("Glossary","".join(gl),"glossary.html"))
-for term in rd.GLOSSARY:
-    search_index.append({"title":term,"url":f"glossary.html#{slug(term)}","text":f"{term} {rd.GLOSSARY[term]}"})
+for term in GLOSS_ALL:
+    search_index.append({"title":term,"url":f"glossary.html#{slug(term)}","text":f"{term} {GLOSS_ALL[term]}"})
 
 # ── factions ──
 if FACTIONS:
@@ -1123,8 +1160,12 @@ if BOARD_URL:
           "<p>Interactive settlement-board emulator. Place pursuits into ward slots, "
           "track infrastructure, armies, Public Order, Renown &amp; domains, and see live totals. "
           f"<a class='term' href='{BOARD_URL}' target='_blank'>Open full screen \u2197</a></p>",
-          f"<iframe class='mapframe' src='{BOARD_URL}' loading='lazy' "
-          "title='Renown settlement-board emulator'></iframe>"]
+          f"<iframe id='boardframe' class='mapframe' src='{BOARD_URL}' "
+          "title='Renown settlement-board emulator'></iframe>"
+          "<script>(function(){var f=document.getElementById('boardframe'),go=function(){"
+          f"var h=location.hash||'';f.src='{BOARD_URL}'+h;}};"
+          "if(location.hash)go();window.addEventListener('hashchange',function(){"
+          "try{f.contentWindow.location.hash=location.hash;}catch(e){go();}});})();</script>"]
     open(os.path.join(OUTDIR, u), "w", encoding="utf-8").write(
         page(BOARD_TITLE, "".join(bd), u))
     search_index.append({"title": BOARD_TITLE, "url": u,
@@ -1143,7 +1184,7 @@ if WORLD_SECTIONS:
     def _emit_lore(url, title, body_html, search_text):
         # link the whole page body once (first-occurrence per page), suppressing
         # self-references to this page
-        linked = autolink(body_html, url)
+        linked = autolink_html(body_html, url)
         open(_os.path.join(OUTDIR, url), "w", encoding="utf-8").write(page(title, linked, url))
         search_index.append({"title": title, "url": url, "text": search_text})
 
@@ -1237,7 +1278,8 @@ main{flex:1;padding:8px 30px 80px;min-width:0}
 h1{font-size:26px;margin:.2em 0 .6em;border-bottom:2px solid var(--accent);padding-bottom:.2em}
 h1 .count,.count{font:13px sans-serif;background:var(--chip);color:var(--accent);padding:2px 9px;border-radius:11px;vertical-align:middle}
 h2{font-size:19px;margin:1.2em 0 .4em}h3{font-size:16px;margin:1em 0 .3em;color:var(--ink)}p{margin:.5em 0}
-a.term{color:var(--link);text-decoration:none;border-bottom:1px dotted var(--linkline)}a.term:hover{background:var(--hover)}
+a.term{color:var(--link);text-decoration:none;border-bottom:1px dotted var(--linkline)}
+a.boardlink{font:11px sans-serif;font-weight:400;color:var(--mut);text-decoration:none;white-space:nowrap}a.boardlink:hover{color:var(--link)}a.term:hover{background:var(--hover)}
 table.pursuits{border-collapse:collapse;width:100%;font:13px sans-serif;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
 table.pursuits th{background:var(--th);text-align:left;padding:7px 9px;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--mut)}
 table.pursuits td{padding:7px 9px;border-top:1px solid var(--rowline);vertical-align:top}table.pursuits tr:hover td{background:var(--rowhover)}

@@ -39,13 +39,13 @@ def equipment_tables():
     out["Retinues"] = [[n, f"{x['cost']}", f"{x['to_hit']}+", f"{x['endurance']}",
                         f"{x['shaking']}+", "Unbreakable" if x.get("unbreakable") else "—"]
                        for n, x in rd.RETINUES.items()]
-    out["Weapons"] = [[rd.display(n), rd.display_tier(x["tier"]), f"{x['ap']}", f"{x['init']:+d}",
+    out["Weapons"] = [[rd.display(n), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(x["tier"])), f"{x['ap']}", f"{x['init']:+d}",
                        ", ".join(x["tags"]) or "—"] for n, x in rd.WEAPONS.items()]
-    out["Ranged"] = [[rd.display(n), rd.display_tier(x["tier"]), f"{x['ap']}", f"{x['init']:+d}",
+    out["Ranged"] = [[rd.display(n), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(x["tier"])), f"{x['ap']}", f"{x['init']:+d}",
                       ", ".join(x["tags"]) or "—"] for n, x in rd.RANGED.items()]
-    out["Shields"] = [[rd.display(n), rd.display_tier(x["tier"]), f"+{x['save_bonus']}", f"{x['init']:+d}",
+    out["Shields"] = [[rd.display(n), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(x["tier"])), f"+{x['save_bonus']}", f"{x['init']:+d}",
                        ", ".join(x["tags"]) or "—"] for n, x in rd.SHIELDS.items() if n]
-    out["Armor"] = [[rd.display(n), rd.display_tier(x["tier"]), f"{x['save']}+", ", ".join(x["tags"]) or "—"]
+    out["Armor"] = [[rd.display(n), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(x["tier"])), f"{x['save']}+", ", ".join(x["tags"]) or "—"]
                     for n, x in rd.ARMORS.items()]
     return out
 

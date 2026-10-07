@@ -1,5 +1,5 @@
 {
- "version": "0.4.9.9.10-d10-SIMPLE",
+ "version": "0.4.9.9.11-d10-SIMPLE",
  "glossary": {
   "Steady": "Initiative cannot be reduced by Tactics.",
   "Unwieldy": "Initiative cannot be improved by Tactics.",
@@ -118,7 +118,7 @@
   "Ward": "A slot in a Settlement that holds one Holding; a Settlement has one Ward per tier (a Hamlet has 3 Husbandry Wards).",
   "Mastery Chain X": "While this Holding occupies the same Settlement Ward as X (the Raw Material or Holding named on its tile), it uses no ward of its own — the two share one ward. Placed anywhere else, it fills a ward normally. (Core Principle 14.) Note: Two Holdings that chain from the same Holding cannot share a Ward with each other.",
   "Natural": "Natural Holdings do not cost Upkeep & can be used in Hamlets.",
-  "Upkeep": "Gold you pay each Empire Phase for Armies, Holdings and Infrastructure. Holding upkeep is fixed by type (Monument 300, Power 200, Energy/Natural 0, all others 100); a Holding pays no upkeep while its Build Timer is running. Army upkeep = Army count × Army cost − Upkeep modifiers.",
+  "Upkeep": "Gold you pay each Empire Phase for Armies, Holdings and Infrastructure. Holding upkeep is fixed by type (Monument 300, Power 200, Energy/Natural 0, all others 100); a Holding pays no upkeep while its Build Timer is running. Army upkeep = the sum of each Army's cost (by Retinue type) − Upkeep modifiers.",
   "Craft": "Craft Holdings count toward how much income your Trade Agreements generate — any effect that grants Craft +X. For each active Trade Agreement, both players gain 100 × the Host's Craft X.",
   "Mastery Chain": "A Holding's Mastery Chain is the line of Holdings it builds from, usually running from a Raw Material up to a Monument. You may start building a Holding only while you control one complete line of its Mastery Chain, anywhere in your empire; this is checked only when you start it. A Holding placed in the same Settlement Ward as its immediate parent shares that Ward, and the chain can continue upward the same way. Each Holding carries at most one descendant in its Ward. (Core Principle 14.)",
   "Build Timer": "Turns until an infrastructure/build completes and becomes Active.",
@@ -145,11 +145,12 @@
   "Forged Weapons": "Forged-tier weapons: Morningstar, Bastard Sword, 2HBastard, War Hammer, Lance, Crossbow. Unlocked by: Forge.",
   "Forged Armor": "Forged-tier armor: Full Plate. Unlocked by: Gilded Foundry, Forge.",
   "Forged Shields": "Forged-tier shields: Tower Shield. Unlocked by: Gilded Foundry, Forge.",
-  "Tempered": "Tempered equipment tier. Weapons: Estoc, Poleaxe; Ranged: Arquebus, Throwing Spear; Armor: Gothic Plate; Shield: Heater Shield.",
-  "Tempered Weapons": "Tempered-tier weapons: Estoc, Poleaxe, Arquebus, Throwing Spear.",
+  "Tempered": "Tempered equipment tier. Weapons: Estoc, Poleaxe; Ranged: Throwing Spear; Armor: Gothic Plate; Shield: Heater Shield.",
+  "Tempered Weapons": "Tempered-tier weapons: Estoc, Poleaxe, Throwing Spear.",
   "Tempered Armor": "Tempered-tier armor: Gothic Plate.",
   "Tempered Shields": "Tempered-tier shields: Heater Shield.",
-  "Ranged Weapons": "Ranged weapons: Hunting Bow (Crude), Longbow (Cast), Throwing Axe (Wrought), Crossbow (Forged), Arquebus (Tempered), Throwing Spear (Tempered). Unlocked by: Fletchery."
+  "Gunpowder": "Gunpowder equipment: Arquebus. Unlocked by: Ordinance Yard, Fletchery.",
+  "Ranged Weapons": "Ranged weapons: Hunting Bow (Crude), Longbow (Cast), Throwing Axe (Wrought), Crossbow (Forged), Arquebus (Gunpowder), Throwing Spear (Tempered). Unlocked by: Fletchery."
  },
  "glossary_categorized": [
   {
@@ -651,6 +652,10 @@
      "Forged-tier weapons: Morningstar, Bastard Sword, 2HBastard, War Hammer, Lance, Crossbow. Unlocked by: Forge."
     ],
     [
+     "Gunpowder",
+     "Gunpowder equipment: Arquebus. Unlocked by: Ordinance Yard, Fletchery."
+    ],
+    [
      "Host",
      "Holds the Host Card; the starting player is the player directly clockwise from the Host, including in Spring. The role passes clockwise each Rest Phase (there is no Host in Spring). The Host collects and distributes Trade Income, resolves Bandit Mechanics, and breaks ties (Council vote, bandit targeting, and any tie not otherwise resolved)."
     ],
@@ -696,7 +701,7 @@
     ],
     [
      "Ranged Weapons",
-     "Ranged weapons: Hunting Bow (Crude), Longbow (Cast), Throwing Axe (Wrought), Crossbow (Forged), Arquebus (Tempered), Throwing Spear (Tempered). Unlocked by: Fletchery."
+     "Ranged weapons: Hunting Bow (Crude), Longbow (Cast), Throwing Axe (Wrought), Crossbow (Forged), Arquebus (Gunpowder), Throwing Spear (Tempered). Unlocked by: Fletchery."
     ],
     [
      "Reach X",
@@ -736,7 +741,7 @@
     ],
     [
      "Tempered",
-     "Tempered equipment tier. Weapons: Estoc, Poleaxe; Ranged: Arquebus, Throwing Spear; Armor: Gothic Plate; Shield: Heater Shield."
+     "Tempered equipment tier. Weapons: Estoc, Poleaxe; Ranged: Throwing Spear; Armor: Gothic Plate; Shield: Heater Shield."
     ],
     [
      "Tempered Armor",
@@ -748,7 +753,7 @@
     ],
     [
      "Tempered Weapons",
-     "Tempered-tier weapons: Estoc, Poleaxe, Arquebus, Throwing Spear."
+     "Tempered-tier weapons: Estoc, Poleaxe, Throwing Spear."
     ],
     [
      "Territory",
@@ -764,7 +769,7 @@
     ],
     [
      "Upkeep",
-     "Gold you pay each Empire Phase for Armies, Holdings and Infrastructure. Holding upkeep is fixed by type (Monument 300, Power 200, Energy/Natural 0, all others 100); a Holding pays no upkeep while its Build Timer is running. Army upkeep = Army count × Army cost − Upkeep modifiers."
+     "Gold you pay each Empire Phase for Armies, Holdings and Infrastructure. Holding upkeep is fixed by type (Monument 300, Power 200, Energy/Natural 0, all others 100); a Holding pays no upkeep while its Build Timer is running. Army upkeep = the sum of each Army's cost (by Retinue type) − Upkeep modifiers."
     ],
     [
      "Within",
@@ -2093,7 +2098,7 @@
    ],
    [
     "Arquebus",
-    "Tempered",
+    "Gunpowder",
     "-6",
     "+2",
     "2H, Unwieldy, Unstoppable, Negate Shielded, Negate Riposte, Negate Planishing, Awkward"

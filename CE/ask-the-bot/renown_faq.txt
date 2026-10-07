@@ -18,8 +18,8 @@ Arable Land | [Arable Land](https://mlang95.github.io/RenownWiki/pursuits.html) 
 Aristocratic Court | [Aristocratic Court](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Each Empire Phase, Extort 1000 from each non-allied player with a lower Treasury. Your Vote counts as 2 votes toward Domain selection during the Council Phase.
 Arming Sword | [Arming Sword](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP -1, Init +0. Keywords: Steady.
 Armory | [Armory](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Unlock Wrought armor & shield; Upkeep -500; Craft +1
-army upkeep | [Army upkeep](https://mlang95.github.io/RenownWiki/economy-ref.html): Σ(retinue costs x army) - Upkeep -X. Reduced by Levy Hall, Tannery, Saddlery, Butchery, Smokehouse, Advanced Blast Furnace, High Quartermaster, etc.
-Arquebus | [Arquebus](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Tempered). AP -6, Init +2. Keywords: 2H, Unwieldy, Unstoppable, Negate Shielded, Negate Riposte, Negate Planishing, Awkward.
+army upkeep | [Army upkeep](https://mlang95.github.io/RenownWiki/economy-ref.html): Σ(each Army's cost by Retinue type) - Upkeep -X. Reduced by Levy Hall, Tannery, Saddlery, Butchery, Smokehouse, Advanced Blast Furnace, High Quartermaster, etc.
+Arquebus | [Arquebus](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Crude). AP -6, Init +2. Keywords: 2H, Unwieldy, Unstoppable, Negate Shielded, Negate Riposte, Negate Planishing, Awkward.
 Ordinance Yard | [Ordinance Yard](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Siege Timers ignore Wooden & Stone Walls. Unlocks Arquebus; Settlements you Siege can't Sally Forth. Siege Timer −1.
 Artisan Workshop | [Artisan Workshop](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: +1000, Faith +1
 Ascension | [Ascension](https://mlang95.github.io/RenownWiki/eras-ref.html) Era. Renown 8, armies 2, cities 1, influence/turn 2, envoys: 1 Council Envoy (2 actions each) + 1 Personal Envoy (1 action each) per turn. Unlocks: May Improve Towns to Cities
@@ -88,14 +88,14 @@ Court Armoury | [Court Armoury](https://mlang95.github.io/RenownWiki/pursuits.ht
 Court Artists | [Court Artists](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: Extort 500 twice; Targets of Extort from Court Artist gain Faith +1
 Courtyard | [Courtyard](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: Craft +1; Faith +1
 Craft | [Craft](https://mlang95.github.io/RenownWiki/glossary.html#craft): Craft Holdings count toward how much income your Trade Agreements generate — any effect that grants Craft +X. For each active Trade Agreement, both players gain 100 × the Host's Craft X.
-crafted gear | Tempered tier: weapons [Estoc, Poleaxe, Arquebus, Throwing Spear], shields [Heater Shield], armor [Gothic Plate].
-crafted weapons | [Tempered tier](https://mlang95.github.io/RenownWiki/equipment-ref.html) (4): Estoc, Poleaxe, Arquebus, Throwing Spear
+crafted gear | Tempered tier: weapons [Estoc, Poleaxe, Throwing Spear], shields [Heater Shield], armor [Gothic Plate].
+crafted weapons | [Tempered tier](https://mlang95.github.io/RenownWiki/equipment-ref.html) (3): Estoc, Poleaxe, Throwing Spear
 Crossbow | [Crossbow](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Forged). AP -4, Init +1. Keywords: Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Awkward.
 Crude | [Crude](https://mlang95.github.io/RenownWiki/glossary.html#crude): Crude equipment tier. Weapons: Farm Tool, Cudgel, Pitchfork; Ranged: Hunting Bow; Armor: Padded; Shield: Buckler Shield. Unlocked by: Animal Husbandry (armor & shield).
 Crude Armor | [Crude Armor](https://mlang95.github.io/RenownWiki/glossary.html#crude-armor): Crude-tier armor: Padded. Unlocked by: Animal Husbandry.
-crude gear | Crude tier: weapons [Farm Tool, Cudgel, Pitchfork, Hunting Bow], shields [Buckler Shield], armor [Padded].
+crude gear | Crude tier: weapons [Farm Tool, Cudgel, Pitchfork, Hunting Bow, Arquebus], shields [Buckler Shield], armor [Padded].
 Crude Shields | [Crude Shields](https://mlang95.github.io/RenownWiki/glossary.html#crude-shields): Crude-tier shields: Buckler Shield. Unlocked by: Animal Husbandry.
-crude weapons | [Crude tier](https://mlang95.github.io/RenownWiki/equipment-ref.html) (4): Farm Tool, Cudgel, Pitchfork, Hunting Bow
+crude weapons | [Crude tier](https://mlang95.github.io/RenownWiki/equipment-ref.html) (5): Farm Tool, Cudgel, Pitchfork, Hunting Bow, Arquebus
 Cudgel | [Cudgel](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Crude). AP -1, Init -1. Keywords: 2H, Unwieldy, Awkward.
 Cunning | [Cunning](https://mlang95.github.io/RenownWiki/domain-board-ref.html) Domain standing. Rising: Clandestine Councilor: Once per Envoy Phase, when voting on an Envoy begins, target a player - that player Abstains that Envoy.; Established: Grand Vizier: Players may not target you with Cunning Envoys if your Cunning value is higher.; Sovereign: Master Conspirator: Once per turn, if your non-Cunning Envoy passes or is endorsed, you may instead perform a Cunning action.
 Daggers | [Daggers](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Cast). AP 0, Init +1. Keywords: 2H, Deadly.
@@ -174,6 +174,7 @@ Gothic Plate | [Gothic Plate](https://mlang95.github.io/RenownWiki/equipment-ref
 Granary | [Granary](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: Upkeep -500, Natural; Armies and Garrisons gain Endurance while Besieged
 Grand Tournament | [Grand Tournament](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: Reach +1, 3x/turn: exchange 500 gold for 1 Influence; Armies gain Riposte & Improve Parry by +1.
 Grassland | [Grassland](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: —. Raw Materials: Arable Land, Apiary.
+Gunpowder | [Gunpowder](https://mlang95.github.io/RenownWiki/glossary.html#gunpowder): Gunpowder equipment: Arquebus. Unlocked by: Ordinance Yard, Fletchery.
 Halberd | [Halberd](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP -2, Init +0. Keywords: 2H, Unwieldy.
 Hamlet | [Hamlet](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 0). Tax 0, muster 0, build 1, wards 3, reach 1. Natural holdings only; exactly range 2 from capital; may always pursue Arable Land
 Harbor | [Harbor](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Craft +2; Extort 500 per player without Harbor
@@ -303,7 +304,7 @@ public order | [Public Order](https://mlang95.github.io/RenownWiki/public-order-
 pursuit upkeep | [Holding upkeep](https://mlang95.github.io/RenownWiki/economy-ref.html): Fixed by holding type: Monument 300, Power 200, Energy/Natural 0, all others 100.
 Quarry | [Quarry](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Raw Materials). Effect: +500, Natural; Craft +1
 Range X | [Range X](https://mlang95.github.io/RenownWiki/glossary.html#range-x): The amount of Territories you must move in order to get from your current position to the specific Territory.
-Ranged Weapons | [Ranged Weapons](https://mlang95.github.io/RenownWiki/glossary.html#ranged-weapons): Ranged weapons: Hunting Bow (Crude), Longbow (Cast), Throwing Axe (Wrought), Crossbow (Forged), Arquebus (Tempered), Throwing Spear (Tempered). Unlocked by: Fletchery.
+Ranged Weapons | [Ranged Weapons](https://mlang95.github.io/RenownWiki/glossary.html#ranged-weapons): Ranged weapons: Hunting Bow (Crude), Longbow (Cast), Throwing Axe (Wrought), Crossbow (Forged), Arquebus (Gunpowder), Throwing Spear (Tempered). Unlocked by: Fletchery.
 Raze | [Raze](https://mlang95.github.io/RenownWiki/actions-ref.html): Cunning action. Cost: 2000 gold. Choose another player's Settlement, then choose one active Holding, active Infrastructure, or active Build Timer in it: that target becomes Damaged, and its effects are inactive until Repaired. A Damaged Build Timer doesn't increment until Repaired. Endorsed: Extort 2000.
 Reach | [Reach](https://mlang95.github.io/RenownWiki/glossary.html#reach): How far a Settlement projects control, in Territories (by tier). Calculated like Range X
 Reach X | [Reach X](https://mlang95.github.io/RenownWiki/glossary.html#reach-x): The Range X characteristic which determines what Territories you Control and are in your Province.
@@ -373,10 +374,10 @@ Tactic | [Tactic](https://mlang95.github.io/RenownWiki/glossary.html#tactic): A 
 Tannery | [Tannery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Natural; Unlocks Cast armor & shield. Upkeep -500; Craft +1
 Targe Shield | [Targe Shield](https://mlang95.github.io/RenownWiki/equipment-ref.html) Shield (Cast). Save +1, Init +0. Keywords: Unwieldy, Shielded.
 tax per tier | [Tax per tier](https://mlang95.github.io/RenownWiki/economy-ref.html): 500 gold per settlement tier per turn (collected in Winter)
-Tempered | [Tempered](https://mlang95.github.io/RenownWiki/glossary.html#tempered): Tempered equipment tier. Weapons: Estoc, Poleaxe; Ranged: Arquebus, Throwing Spear; Armor: Gothic Plate; Shield: Heater Shield.
+Tempered | [Tempered](https://mlang95.github.io/RenownWiki/glossary.html#tempered): Tempered equipment tier. Weapons: Estoc, Poleaxe; Ranged: Throwing Spear; Armor: Gothic Plate; Shield: Heater Shield.
 Tempered Armor | [Tempered Armor](https://mlang95.github.io/RenownWiki/glossary.html#tempered-armor): Tempered-tier armor: Gothic Plate.
 Tempered Shields | [Tempered Shields](https://mlang95.github.io/RenownWiki/glossary.html#tempered-shields): Tempered-tier shields: Heater Shield.
-Tempered Weapons | [Tempered Weapons](https://mlang95.github.io/RenownWiki/glossary.html#tempered-weapons): Tempered-tier weapons: Estoc, Poleaxe, Arquebus, Throwing Spear.
+Tempered Weapons | [Tempered Weapons](https://mlang95.github.io/RenownWiki/glossary.html#tempered-weapons): Tempered-tier weapons: Estoc, Poleaxe, Throwing Spear.
 terrain | [Terrain](https://mlang95.github.io/RenownWiki/reference-tables.html): Grassland, Wetlands, Tundra, Mountains, Water, Forest, Hill. Each Territory type has a movement effect and the Raw Material pursuits it supports.
 Territory | [Territory](https://mlang95.github.io/RenownWiki/glossary.html#territory): 1 Hex.
 The Ancient Wilds | [The Ancient Wilds](https://mlang95.github.io/RenownWiki/factions.html) Faction (Medium difficulty, High strength, Oathkeepers). Highlander Way: Enemy Armies have Speed −1 in your Province. You ignore all terrain Speed modifiers and may trade without Dirt Roads. You must accept the first Non-Aggression Pact each player or Alliance offers you. If that player later joins an Alliance, this is considered satisfied for that Alliance.
