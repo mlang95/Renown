@@ -178,7 +178,7 @@ GLOSSARY = {
     "Doubt X":       "Gain X Doubt: each Doubt lowers your Public Order track by 1 when resolved.",
     "Extort X":      "Take X from the stated source: the gold goes to you instead of its owner.",
     "Recoup X":        "Regain the stated cost in gold after paying it.",
-    "Speed X":         "An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 3",
+    "Speed X":         f"An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 3",
 
     # ── Council, Influence & Envoys (from Rules; the political loop) ──
     "Influence":     "The political currency of voting. Spend it to Support or Oppose Envoys. You gain it each turn from your Era, innate modifiers (trade partners, alliances, war), Pursuits, and Infrastructure.",
@@ -3933,6 +3933,7 @@ GLOSSARY.update({
                 f"For each active Trade Agreement, both players gain {TRADE_RULES['income_per_craft']} × the Host's Craft X."),
     "Efficient": ("A Pursuit is efficient with the Raw Material or Pursuit named on its tile. While it shares a Settlement Ward "
                   "with that piece, it doesn't consume a Ward of its own."),
+  "Speed X":         f"An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed {RETINUES["Levy"]["speed"]}",
 })
 for _k, _v in TIMERS.items():                      # Build Timer, Repair Timer, Truce Timer, …
     GLOSSARY.setdefault(_k, _v["tracks"])
