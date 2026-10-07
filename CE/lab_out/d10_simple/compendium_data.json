@@ -1129,7 +1129,7 @@
      "",
      "—",
      "Arable Land",
-     "**Natural**, Unlock **Crude** armor and shield. +500"
+     "**Natural**, Unlock **Crude** armor and shield. Upkeep -500"
     ],
     [
      "Saddlery",
@@ -1183,7 +1183,7 @@
      "",
      "—",
      "Smokehouse",
-     "Natural; +500; **Upkeep -200**; Craft+1"
+     "Natural; +500; **Upkeep -500**; Craft+1"
     ],
     [
      "Bakery",
@@ -1218,14 +1218,14 @@
      "",
      "—",
      "Animal Husbandry, Joinery",
-     "Natural; Unlocks **Cast** armor & shield. **Upkeep -200**; Craft +1"
+     "Natural; Unlocks **Cast** armor & shield. **Upkeep -500**; Craft +1"
     ],
     [
      "Joinery",
      "Rising Industry",
      "—",
      "Carpentry",
-     "unlocks **Shields**; **Upkeep -200**"
+     "unlocks **Shields**; **Upkeep -500**"
     ],
     [
      "Furnace",
@@ -1253,14 +1253,14 @@
      "Rising Industry",
      "—",
      "Tannery",
-     "Unlock **Wrought** armor & shield; **Upkeep -300**; Craft +1"
+     "Unlock **Wrought** armor & shield; **Upkeep -500**; Craft +1"
     ],
     [
      "Master Workshop",
      "Established Industry",
      "—",
      "Forge",
-     "**Upkeep -200**; Craft +1; Add **Serrated** to Weapons"
+     "**Upkeep -500**; Craft +1; Add **Serrated** to Weapons"
     ],
     [
      "Gilded Foundry",
@@ -1288,7 +1288,7 @@
      "Established Industry",
      "—",
      "Shipyard",
-     "**Doubt +1**, +1200; **Build Timer −2**"
+     "**Doubt +1**, +1500; **Build Timer −2**"
     ],
     [
      "Meadery",
@@ -1337,7 +1337,7 @@
      "",
      "—",
      "Fishmongery",
-     "+500; Craft +2; **Extort 200** per **player** without **Harbor**"
+     "Craft +2; **Extort 500** per **player** without **Harbor**"
     ],
     [
      "Merchant Quarter",
@@ -1351,7 +1351,7 @@
      "",
      "—",
      "Burgages",
-     "**Doubt +1**; +1000"
+     "Natural; **Doubt +1**; +1000"
     ],
     [
      "Caravanery",
@@ -1690,7 +1690,7 @@
     ],
     [
      "Levy Hall",
-     "Rising Prowess",
+     "Established Prowess",
      "Garrison",
      "Butchery",
      "Natural; **Upkeep -2000 while an army is range 0 of controlled settlement**"
@@ -1757,11 +1757,18 @@
      "Cunning actions give an additional **Doubt +1** to Target; No longer affected by all Public Order effects (positive or negative). This player cannot be the target of a Convert action."
     ],
     [
+     "Baggage Train",
+     "Sovereign Prowess",
+     "—",
+     "Levy Hall",
+     "Natural; Armies do not pay Upkeep while in Province. Upkeep -2000 while not in Province. Once/turn, you may perform a Move action."
+    ],
+    [
      "Office of Works",
      "Sovereign Industry",
      "—",
      "College of Engineering, Census Hall, Storehouse",
-     "Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions. Siege Timer +2; Build Timer -2"
+     "Natural; Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions. Siege Timer +2; Build Timer -2"
     ],
     [
      "Royal Pavilion",
@@ -1827,7 +1834,7 @@
      "Armies gain **Righteous Fervour**: Automatically pass the first Panic Check of every Battle. Unlocks **Oathsworn** for Muster"
     ],
     [
-     "Basilica of Truth",
+     "Exalted Basilica",
      "Sovereign Piety",
      "—",
      "Pilgrimage Site",

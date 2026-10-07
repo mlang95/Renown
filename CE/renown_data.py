@@ -1747,7 +1747,7 @@ SIMPLE_NODES = {
     "Animal Husbandry": {
         "type": "Husbandry",
         "unlock": "-",
-        "innate": "**Natural**, Unlock **Crude** armor and shield. +500",
+        "innate": "**Natural**, Unlock **Crude** armor and shield. Upkeep -500",
         "efficient": "Arable Land",
         "builds_into": ["Tannery", "Stable"],
         "monument": False},
@@ -1796,7 +1796,7 @@ SIMPLE_NODES = {
     "Butchery": {
         "type": "Craft",
         "unlock": "-",
-        "innate": "Natural; +500; **Upkeep -200**; Craft+1",
+        "innate": "Natural; +500; **Upkeep -500**; Craft+1",
         "efficient": "Smokehouse",
         "builds_into": ["Levy Hall"],
         "monument": False},
@@ -1831,14 +1831,14 @@ SIMPLE_NODES = {
     "Tannery": {
         "type": "Craft",
         "unlock": "-",
-        "innate": "Natural; Unlocks **Cast** armor & shield. **Upkeep -200**; Craft +1",
+        "innate": "Natural; Unlocks **Cast** armor & shield. **Upkeep -500**; Craft +1",
         "efficient": ["Animal Husbandry","Joinery"],
         "builds_into": ["Armory"],
         "monument": False},
     "Joinery": {
         "type": "Craft",
         "unlock": "Rising Industry",
-        "innate": "unlocks **Shields**; **Upkeep -200**",
+        "innate": "unlocks **Shields**; **Upkeep -500**",
         "efficient": "Carpentry",
         "builds_into": ["Tannery"],
         "monument": False},
@@ -1866,14 +1866,14 @@ SIMPLE_NODES = {
     "Armory": {
         "type": "Craft",
         "unlock": "Rising Industry",
-        "innate": "Unlock **Wrought** armor & shield; **Upkeep -300**; Craft +1",
+        "innate": "Unlock **Wrought** armor & shield; **Upkeep -500**; Craft +1",
         "efficient": ["Tannery"],
         "builds_into": ["Gilded Foundry"],
         "monument": False},
     "Master Workshop": {
         "type": "Craft",
         "unlock": "Established Industry",
-        "innate": "**Upkeep -200**; Craft +1; Add **Serrated** to Weapons",
+        "innate": "**Upkeep -500**; Craft +1; Add **Serrated** to Weapons",
         "efficient": "Forge",
         "builds_into": ["Advanced Blast Furnace"],
         "monument": False},
@@ -1901,7 +1901,7 @@ SIMPLE_NODES = {
     "Storehouse": {
         "type": "Craft",
         "unlock": "Established Industry",
-        "innate": "**Doubt +1**, +1200; **Build Timer −2**",
+        "innate": "**Doubt +1**, +1500; **Build Timer −2**",
         "efficient": "Shipyard",
         "builds_into": ["Office of Works"],
         "monument": False},
@@ -1951,7 +1951,7 @@ SIMPLE_NODES = {
     "Harbor": {
         "type": "Craft",
         "unlock": "-",
-        "innate": "+500; Craft +2; **Extort 200** per **player** without **Harbor**",
+        "innate": "Craft +2; **Extort 500** per **player** without **Harbor**",
         "efficient": "Fishmongery",
         "builds_into": ["Shipyard"],
         "monument": False},
@@ -1972,7 +1972,7 @@ SIMPLE_NODES = {
     "Census Hall": {
         "type": "Craft",
         "unlock": "-",
-        "innate": "**Doubt +1**; +1000",
+        "innate": "Natural; **Doubt +1**; +1000",
         "efficient": "Burgages",
         "builds_into": ["Office of Works"],
         "monument": False},
@@ -2247,7 +2247,7 @@ SIMPLE_NODES = {
         "infrastructure_req": "Cathedral",
         "innate": "Natural; **Extort 500** every player without a Pilgrimage Site; **Doubt +1** to all other players without a Pilgrimage Site",
         "efficient": "Reliquary",
-        "builds_into": ["Basilica of Truth"],
+        "builds_into": ["Exalted Basilica"],
         "monument": False},
     "Beacon Towers": {
         "type": "Energy",
@@ -2293,12 +2293,19 @@ SIMPLE_NODES = {
         "monument": False},
     "Levy Hall": {
         "type": "Power",
-        "unlock": "Rising Prowess",
+        "unlock": "Established Prowess",
         "infrastructure_req": "Garrison",
         "innate": "Natural; **Upkeep -2000 while an army is range 0 of controlled settlement**",
         "efficient": "Butchery",
-        "builds_into": [],
+        "builds_into": ["Baggage Train"],
         "monument": False},
+    "Baggage Train": {
+        "type": "Monument",
+        "unlock": "Sovereign Prowess",
+        "innate": "Natural; Armies do not pay Upkeep while in Province. Upkeep -2000 while not in Province. Once/turn, you may perform a Move action.",
+        "efficient": "Levy Hall",
+        "builds_into": [],
+        "monument": True},
     "Siege Works": {
         "type": "Power",
         "unlock": "Rising Prowess",
@@ -2353,7 +2360,7 @@ SIMPLE_NODES = {
     "Office of Works": {
         "type": "Monument",
         "unlock": "Sovereign Industry",
-        "innate": "Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions. Siege Timer +2; Build Timer -2",
+        "innate": "Natural; Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions. Siege Timer +2; Build Timer -2",
         "efficient": ["College of Engineering","Census Hall","Storehouse"],
         "builds_into": [],
         "monument": True},
@@ -2421,7 +2428,7 @@ SIMPLE_NODES = {
         "efficient": "Hospitaller",
         "builds_into": [],
         "monument": True},
-    "Basilica of Truth": {
+    "Exalted Basilica": {
         "type": "Monument",
         "unlock": "Sovereign Piety",
         "innate": "Your piety actions cause an additional **Doubt** or an additional **Faith**. Every turn, perform Endorsed Spread Truth.",

@@ -9,7 +9,7 @@ Advanced Blast Furnace | [Advanced Blast Furnace](https://mlang95.github.io/Reno
 Alchemy | [Alchemy](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: +500; Craft+2
 Alliance | [Alliance](https://mlang95.github.io/RenownWiki/glossary.html#alliance): A Treaty binding players to mutual support; Military and Defensive Alliances unlock by Era.
 alliances | See 'treaties'. Military Alliances unlock at Eminence, Defensive at Zenith.
-Animal Husbandry | [Animal Husbandry](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Husbandry). Effect: Natural, Unlock Crude armor and shield. +500
+Animal Husbandry | [Animal Husbandry](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Husbandry). Effect: Natural, Unlock Crude armor and shield. Upkeep -500
 AP | [AP](https://mlang95.github.io/RenownWiki/glossary.html#ap): Armor Penetration — a weapon's (negative) modifier to the defender's Save roll; the more negative, the harder to save.
 Apiary | [Apiary](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Raw Materials). Effect: +500, Natural; Craft +1
 Apothecary | [Apothecary](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: +300; Gain Heal 8, or improve Heal by +1.
@@ -17,7 +17,7 @@ Aqueducts | [Aqueducts](https://mlang95.github.io/RenownWiki/infrastructure-ref.
 Arable Land | [Arable Land](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Raw Materials). Effect: +500, Natural; Craft +1
 Aristocratic Court | [Aristocratic Court](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Each Empire Phase, Extort 1000 from each non-allied player with a lower Treasury. Your Vote counts as 2 votes toward Domain selection during the Council Phase.
 Arming Sword | [Arming Sword](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP -1, Init +0. Keywords: Steady.
-Armory | [Armory](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Unlock Wrought armor & shield; Upkeep -300; Craft +1
+Armory | [Armory](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Unlock Wrought armor & shield; Upkeep -500; Craft +1
 army upkeep | [Army upkeep](https://mlang95.github.io/RenownWiki/economy-ref.html): Σ(retinue costs x army) - Upkeep -X. Reduced by Levy Hall, Tannery, Saddlery, Butchery, Smokehouse, Advanced Blast Furnace, High Quartermaster, etc.
 Arquebus | [Arquebus](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Tempered). AP -6, Init +2. Keywords: 2H, Unwieldy, Unstoppable, Negate Shielded, Negate Riposte, Negate Planishing, Awkward.
 Ordinance Yard | [Ordinance Yard](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Siege Timers ignore Wooden & Stone Walls. Unlocks Arquebus; Settlements you Siege can't Sally Forth. Siege Timer −1.
@@ -25,9 +25,9 @@ Artisan Workshop | [Artisan Workshop](https://mlang95.github.io/RenownWiki/pursu
 Ascension | [Ascension](https://mlang95.github.io/RenownWiki/eras-ref.html) Era. Renown 8, armies 2, cities 1, influence/turn 2, envoys: 1 Council Envoy (2 actions each) + 1 Personal Envoy (1 action each) per turn. Unlocks: May Improve Towns to Cities
 Attacker / Defender | [Attacker / Defender](https://mlang95.github.io/RenownWiki/glossary.html#attacker-defender): Set by the roll-off. Each Skirmish the Attacker declares equipment first; the Defender then responds.
 Awkward | [Awkward](https://mlang95.github.io/RenownWiki/glossary.html#awkward): While equipped with this weapon during a skirmish, you cannot Parry, and so cannot Riposte.
+Baggage Train | [Baggage Train](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Natural; Armies do not pay Upkeep while in Province. Upkeep -2000 while not in Province. Once/turn, you may perform a Move action.
 Bakery | [Bakery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Natural; Faith +1; +500; Craft +2
 Bandit | [Bandit](https://mlang95.github.io/RenownWiki/glossary.html#bandit): Neutral hostile force; Bandit Camps spawn in Outlaw Country and on low Public Order.
-Basilica of Truth | [Basilica of Truth](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Your piety actions cause an additional Doubt or an additional Faith. Every turn, perform Endorsed Spread Truth.
 Bastard Sword | [Bastard Sword](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP -2, Init +0. Keywords: Steady.
 Battle | [Battle](https://mlang95.github.io/RenownWiki/glossary.html#battle): One fight between two players, resolved as a series of Skirmishes until a side is wiped out, Routs, or Falls Back.
 Battle Axe | [Battle Axe](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP -3, Init -1. Keywords: 2H, Unwieldy, Unstoppable, Cleave, Negate Shielded.
@@ -44,7 +44,7 @@ Buckler Shield | [Buckler Shield](https://mlang95.github.io/RenownWiki/equipment
 Build | [Build](https://mlang95.github.io/RenownWiki/actions-ref.html): Industry action. Cost: 2000 gold. Choose an inactive Settlement Ward you control, then choose a Holding with one complete line of its Mastery Chain under your control (and meet its other requirements) and set a Build Timer equal to its build time (usually 1). When it completes, place the Holding in an available Ward slot; its effect activates immediately. Endorsed: Recoup 2000.
 Build Timer | [Build Timer](https://mlang95.github.io/RenownWiki/glossary.html#build-timer): Turns until an infrastructure/build completes and becomes Active.
 Burgages | [Burgages](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Energy). Effect: Natural; Faith +1
-Butchery | [Butchery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Natural; +500; Upkeep -200; Craft+1
+Butchery | [Butchery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Natural; +500; Upkeep -500; Craft+1
 Capture Timer | [Capture Timer](https://mlang95.github.io/RenownWiki/glossary.html#capture-timer): Turns until a Captured Settlement becomes Controlled by the Player with the Capture Timer and applies the listed capture effects.
 Caravanery | [Caravanery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Natural; Influence -2 to Intercept Caravan actions targeting your settlements; Craft +2; Speed -2 to non-allied armies in your Province.
 Carpentry | [Carpentry](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Build Timer −1; +500, Craft+1
@@ -56,7 +56,7 @@ cast weapons | [Cast tier](https://mlang95.github.io/RenownWiki/equipment-ref.ht
 Casualty | [Casualty](https://mlang95.github.io/RenownWiki/glossary.html#casualty): A retinue removed from the field — from an unsaved Strike or a failed Panic or Break check.
 Cathedral | [Cathedral](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Sophisticated). Upkeep 300 (per Turn), build 4. Faith +2
 Cavalry Spear | [Cavalry Spear](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP -2, Init +1. Keywords: Steady, Unwieldy, Negate Riposte, Awkward.
-Census Hall | [Census Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Doubt +1; +1000
+Census Hall | [Census Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Natural; Doubt +1; +1000
 Chainmail | [Chainmail](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Wrought). Save 6+. Keywords: none.
 Chandlery | [Chandlery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Craft +1; Influence −1 to Cunning actions targeting you
 Charcoal Burner | [Charcoal Burner](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Energy). Effect: Natural; +500
@@ -136,6 +136,7 @@ escalation rules | [Escalation Battle Rules](https://mlang95.github.io/RenownWik
 escalation setup | [Escalation setup](https://mlang95.github.io/RenownWiki/escalation-rules.html): each player starts with 25 Levy retinues, Farm Tool, Cloth armor, no shield; all Domains Untested; 0 VP.
 escalation victory | [VP](https://mlang95.github.io/RenownWiki/escalation-rules.html): Decisive Win +3, Minor Victory (enemy Fell Back) +2, successful Fall Back +1, any other loss 0. Edicts (Sovereign Standing or mastered Monument) score VP too.
 Estoc | [Estoc](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Tempered). AP -3, Init +0. Keywords: Steady, Deadly, Unstoppable, Negate Riposte, Negate Planishing.
+Exalted Basilica | [Exalted Basilica](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Your piety actions cause an additional Doubt or an additional Faith. Every turn, perform Endorsed Spread Truth.
 Execution Dock | [Execution Dock](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: Influence -2 to Foster Rebellion actions targeting your settlements; Players who target you or your settlements with actions that cause doubt gain Doubt +1
 Extort X | [Extort X](https://mlang95.github.io/RenownWiki/glossary.html#extort-x): Take X from the stated source: the gold goes to you instead of its owner.
 factions | [40 factions](https://mlang95.github.io/RenownWiki/factions.html). Filter by 'low/medium/high difficulty factions' or 'low/medium/high strength factions', or ask a faction by name.
@@ -175,7 +176,7 @@ Grand Tournament | [Grand Tournament](https://mlang95.github.io/RenownWiki/pursu
 Grassland | [Grassland](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: —. Raw Materials: Arable Land, Apiary.
 Halberd | [Halberd](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP -2, Init +0. Keywords: 2H, Unwieldy.
 Hamlet | [Hamlet](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 0). Tax 0, muster 0, build 1, wards 3, reach 1. Natural holdings only; exactly range 2 from capital; may always pursue Arable Land
-Harbor | [Harbor](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: +500; Craft +2; Extort 200 per player without Harbor
+Harbor | [Harbor](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Craft +2; Extort 500 per player without Harbor
 hard factions | See 'high difficulty factions'.
 Heater Shield | [Heater Shield](https://mlang95.github.io/RenownWiki/equipment-ref.html) Shield (Tempered). Save +2, Init +0. Keywords: Shielded, Immune Destroy Shield.
 Herb Garden | [Herb Garden](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Husbandry). Effect: +500, Natural; Craft +1
@@ -207,7 +208,7 @@ Interrogation Chambers | [Interrogation Chambers](https://mlang95.github.io/Reno
 Throwing Axe | [Throwing Axe](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Wrought). AP -2, Init +1. Keywords: Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One-Shot, Awkward.
 Jester's Court | [Jester's Court](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: First and second Oppose on an Envoy of yours each turn: reduce by 1
 Jewelry Foundry | [Jewelry Foundry](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: +2000; Influence +1 to Cunning actions targeting this player; Craft +5
-Joinery | [Joinery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: unlocks Shields; Upkeep -200
+Joinery | [Joinery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: unlocks Shields; Upkeep -500
 Kiln | [Kiln](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Energy). Effect: Natural; +500
 Kite Shield | [Kite Shield](https://mlang95.github.io/RenownWiki/equipment-ref.html) Shield (Wrought). Save +1, Init +0. Keywords: Steady, Shielded.
 Oathsworn | [Oathsworn](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 4+, Endurance 2, Morale 4+, cost 2000.
@@ -225,7 +226,7 @@ Man-at-Arms | [Man-at-Arms](https://mlang95.github.io/RenownWiki/equipment-ref.h
 Manor House | [Manor House](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Natural; Gain +200 gold for each active natural specialization. / Requires: Hamlet
 Market Square | [Market Square](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Craft +2; +500 / Requires: Hitching Post
 Masonry | [Masonry](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: No Upkeep on Primitive Infrastructure; Build Timer −1
-Master Workshop | [Master Workshop](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Upkeep -200; Craft +1; Add Serrated to Weapons
+Master Workshop | [Master Workshop](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Upkeep -500; Craft +1; Add Serrated to Weapons
 Mastery Chain | [Mastery Chain](https://mlang95.github.io/RenownWiki/glossary.html#mastery-chain): A Holding's Mastery Chain is the line of Holdings it builds from, usually running from a Raw Material up to a Monument. You may start building a Holding only while you control one complete line of its Mastery Chain, anywhere in your empire; this is checked only when you start it. A Holding placed in the same Settlement Ward as its immediate parent shares that Ward, and the chain can continue upward the same way. Each Holding carries at most one descendant in its Ward. (Core Principle 14.)
 Mastery Chain X | [Mastery Chain X](https://mlang95.github.io/RenownWiki/glossary.html#mastery-chain-x): While this Holding occupies the same Settlement Ward as X (the Raw Material or Holding named on its tile), it uses no ward of its own — the two share one ward. Placed anywhere else, it fills a ward normally. (Core Principle 14.) Note: Two Holdings that chain from the same Holding cannot share a Ward with each other.
 Meadery | [Meadery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Natural; Faith +1; Speed +2 in Winter
@@ -257,7 +258,7 @@ Net Influence | [Net Influence](https://mlang95.github.io/RenownWiki/glossary.ht
 Next to | [Next to](https://mlang95.github.io/RenownWiki/glossary.html#next-to): Range 2.
 Nimble | [Nimble](https://mlang95.github.io/RenownWiki/keywords-ref.html#nimble): Gain +1 Initiative in the first Skirmish of each Battle.
 Non-Aggression Pact | [Non-Aggression Pact](https://mlang95.github.io/RenownWiki/treaties-ref.html) Treaty. Neither player may Declare War on the other. Ending it via End Treaty gives both a Truce Timer 5.
-Office of Works | [Office of Works](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions. Siege Timer +2; Build Timer -2
+Office of Works | [Office of Works](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Natural; Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions. Siege Timer +2; Build Timer -2
 One-Shot | [One-Shot](https://mlang95.github.io/RenownWiki/keywords-ref.html#one-shot): Must be Equipped in the first Skirmish of a Battle, and can't be Equipped after it. Requires a Tiltyard.
 Oppose X | [Oppose X](https://mlang95.github.io/RenownWiki/glossary.html#oppose-x): Spend X Influence to decrease an Envoy's net Influence.
 Orchard | [Orchard](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Husbandry). Effect: +800, Natural; +200 in Fall
@@ -358,7 +359,7 @@ starting forces | [Escalation setup](https://mlang95.github.io/RenownWiki/escala
 Steady | [Steady](https://mlang95.github.io/RenownWiki/keywords-ref.html#steady): Initiative cannot be reduced by Tactics.
 Stone Roads | [Stone Roads](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Developed). Upkeep 200 (per Turn), build 3. If you start a Move action within Province, gain additional Speed +1
 Stone Walls | [Stone Walls](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Sophisticated). Upkeep 300 (per Turn), build 4. Influence -2 to Destabilize actions from players targeting your settlements. Influence -1 to Bandit Cunning actions targeting your settlements.
-Storehouse | [Storehouse](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Doubt +1, +1200; Build Timer −2
+Storehouse | [Storehouse](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Doubt +1, +1500; Build Timer −2
 Strained | [Strained](https://mlang95.github.io/RenownWiki/glossary.html#strained): -1 Initiative every Skirmish (negated by Immune Strain). Does not gain Endurance in the Empire Phase.
 Strike | [Strike](https://mlang95.github.io/RenownWiki/glossary.html#strike): A landed hit. Roll a D10, apply modifiers to the roll, and Strike on a result >= the to-Strike number. The target may then Parry, Save, and Heal.
 strong factions | See 'high strength factions'.
@@ -369,7 +370,7 @@ Support X | [Support X](https://mlang95.github.io/RenownWiki/glossary.html#suppo
 Suzerain | [Suzerain](https://mlang95.github.io/RenownWiki/glossary.html#suzerain): The player who has Vassalized another; the vassal mirrors their Treaties.
 Syndicate Hub | [Syndicate Hub](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Secrecy). Effect: Whenever a Bandit Camp within Province Extorts, you Extort the Bandit Camp for half the amount.
 Tactic | [Tactic](https://mlang95.github.io/RenownWiki/glossary.html#tactic): A choice both players make secretly and reveal together each Skirmish; it can shift Initiative, Strike, and Save rolls.
-Tannery | [Tannery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Natural; Unlocks Cast armor & shield. Upkeep -200; Craft +1
+Tannery | [Tannery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Natural; Unlocks Cast armor & shield. Upkeep -500; Craft +1
 Targe Shield | [Targe Shield](https://mlang95.github.io/RenownWiki/equipment-ref.html) Shield (Cast). Save +1, Init +0. Keywords: Unwieldy, Shielded.
 tax per tier | [Tax per tier](https://mlang95.github.io/RenownWiki/economy-ref.html): 500 gold per settlement tier per turn (collected in Winter)
 Tempered | [Tempered](https://mlang95.github.io/RenownWiki/glossary.html#tempered): Tempered equipment tier. Weapons: Estoc, Poleaxe; Ranged: Arquebus, Throwing Spear; Armor: Gothic Plate; Shield: Heater Shield.
