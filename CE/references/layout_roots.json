@@ -1275,96 +1275,52 @@
   "anchor": "Manor House",
   "mode": "chain",
   "nodes": {
-   "Quarry": [
+   "Apiary": [
     0,
     0
    ],
-   "Masonry": [
+   "Meadery": [
     1,
     0
    ],
-   "Mine": [
-    1,
-    2
-   ],
-   "Courtyard": [
-    2,
-    1
-   ],
-   "Furnace": [
-    2,
-    2
-   ],
-   "Apiary": [
-    2,
-    3
-   ],
-   "Market Square": [
-    3,
-    1
-   ],
-   "Blacksmith": [
-    3,
-    2
-   ],
-   "Meadery": [
-    3,
-    3
-   ],
-   "Forestry": [
-    3,
-    4
-   ],
    "Arable Land": [
-    3,
-    5
-   ],
-   "Weavery": [
-    4,
+    1,
     1
-   ],
-   "Forge": [
-    4,
-    2
    ],
    "Bakery": [
-    4,
-    3
-   ],
-   "Carpentry": [
-    4,
-    4
+    2,
+    0
    ],
    "Orchard": [
-    4,
-    5
+    2,
+    1
    ],
    "Herb Garden": [
-    4,
-    6
+    2,
+    2
    ],
    "Vineyard": [
-    4,
-    7
+    2,
+    3
    ],
    "Mill": [
-    5,
+    3,
     0
    ],
    "Cidery": [
-    5,
-    5
+    3,
+    1
    ],
    "Spice Merchant": [
-    5,
-    6
+    3,
+    2
    ],
    "Winery": [
-    5,
-    7
+    3,
+    3
    ],
    "Manor House": [
-    6,
+    4,
     0
    ]
   },
@@ -1374,28 +1330,8 @@
     "Bakery"
    ],
    [
-    "Furnace",
-    "Blacksmith"
-   ],
-   [
-    "Forestry",
-    "Carpentry"
-   ],
-   [
     "Orchard",
     "Cidery"
-   ],
-   [
-    "Masonry",
-    "Courtyard"
-   ],
-   [
-    "Blacksmith",
-    "Forge"
-   ],
-   [
-    "Mine",
-    "Furnace"
    ],
    [
     "Arable Land",
@@ -1418,35 +1354,11 @@
     "Manor House"
    ],
    [
-    "Courtyard",
-    "Market Square"
-   ],
-   [
-    "Quarry",
-    "Masonry"
-   ],
-   [
     "Apiary",
     "Meadery"
    ],
    [
     "Bakery",
-    "Mill"
-   ],
-   [
-    "Weavery",
-    "Mill"
-   ],
-   [
-    "Forge",
-    "Mill"
-   ],
-   [
-    "Carpentry",
-    "Mill"
-   ],
-   [
-    "Masonry",
     "Mill"
    ],
    [
@@ -1460,10 +1372,6 @@
    [
     "Arable Land",
     "Vineyard"
-   ],
-   [
-    "Market Square",
-    "Weavery"
    ],
    [
     "Vineyard",

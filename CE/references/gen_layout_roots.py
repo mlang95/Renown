@@ -19,6 +19,20 @@ tmp = os.path.join(tempfile.gettempdir(), "_layout_mon.json")
 g.main_simple(tmp)
 mon = json.load(open(tmp, encoding="utf-8"))
 kept = [c for c in mon if c["anchor"] in KEEP or (isinstance(c["anchor"], list) and set(c["anchor"]) & set(KEEP))]
+def natural(n): return "natural" in str(N[n].get("innate", "")).lower()
+for c in kept:   # Natural-only: keep the Natural Holdings that reach the Monument through Natural Holdings alone
+    ms = c["anchor"] if isinstance(c["anchor"], list) else [c["anchor"]]
+    links = [l for l in c.get("links", []) if l[0] in c["nodes"]]
+    ok = {n for n in c["nodes"] if natural(n)} | set(ms)
+    up = {n: [q for q in g.reqs(n) if q in ok] + [a for a, b in links if b == n and a in ok] for n in ok}
+    keep, st = set(ms), list(ms)
+    while st:
+        for q in up[st.pop()]:
+            if q not in keep: keep.add(q); st.append(q)
+    links = [l for l in links if l[0] in keep and l[1] in keep]
+    pos, edges = g.track_layout(keep, ms, links)
+    print(f"{c['title']}: Natural only, dropped {sorted(set(c['nodes']) - keep)}")
+    c["nodes"], c["edges"], c["links"] = pos, edges + links, links
 claimed = set().union(*[set(c["nodes"]) for c in kept]) if kept else set()
 # a Holding leaves the root charts if every Holding it leads to is also on a kept chart
 own = {n for n in claimed if desc(n) <= claimed}

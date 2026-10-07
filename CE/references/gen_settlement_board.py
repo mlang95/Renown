@@ -295,8 +295,10 @@ def rules_payload(ns, rules_path):
 def tree_payload(ns, here):
     """Tech-tree charts: layout.json positions + builds_into / mastery_req edges (same graph as render_tree.py)."""
     path = os.path.join(here, "layout.json")
-    if ns.get("SIMPLE") and os.path.exists(os.path.join(here, "layout_simple.json")):
-        path = os.path.join(here, "layout_simple.json")     # built by gen_layout.py from builds_into
+    if ns.get("SIMPLE"):   # one chart per root (gen_layout_roots.py), else one per Monument (gen_layout.py)
+        for alt in ("layout_roots.json", "layout_simple.json"):
+            if os.path.exists(os.path.join(here, alt)):
+                path = os.path.join(here, alt); break
     if not os.path.exists(path): return None
     try: charts = json.load(open(path, encoding="utf-8"))
     except Exception: return None
@@ -915,7 +917,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .tn.have{box-shadow:0 0 0 2px var(--income)}
   .tnh{font-weight:600;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .tnu{font-weight:400;font-size:10px;color:var(--dim)}.tnu.bad{color:var(--upkeep)}
-  .tnc{color:var(--dim);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .tnc{color:var(--dim)}
   .bside-nav{display:none}
   .msetup{margin-bottom:6px}.msetup>summary{cursor:pointer;padding:4px 0}.msetup .mtoolbar{margin-top:6px}
   .mapzoom{display:flex;gap:4px;align-items:center;margin:0 0 6px}.mapzoom button.on{border-color:var(--ink);font-weight:600}
@@ -1488,12 +1490,21 @@ document.addEventListener("click",e=>{
   const b=e.target.closest("#refTree [data-tree]");if(b){e.preventDefault();const all=b.dataset.tree==="open";
     document.querySelectorAll("#refTree details.tchart").forEach(d=>{d.open=all;if(all)TREE_OPEN.add(d.dataset.t);else TREE_OPEN.delete(d.dataset.t);});treeSave();}});
 function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.json next to the generator — tree unavailable.</div>';
-  const NH=62,CG=44,RG=10,AV=Math.max(600,((document.getElementById("viewReference")||{}).clientWidth||window.innerWidth)-70),EC=["#2E5A8C","#9E2B25","#1c9c8c","#C6A024","#6A3D8F","#CC6A1A","#3a7d3a","#b5347a","#2b6f9e","#8a6d1a"],E0=T.edges||{},DC={Industry:"#2E5A8C",Prowess:"#9E2B25",Cunning:"#3a3a40",Piety:"#C6A024"};
+  const NH0=62,CG=44,RG=10,AV=Math.max(600,((document.getElementById("viewReference")||{}).clientWidth||window.innerWidth)-70),EC=["#2E5A8C","#9E2B25","#1c9c8c","#C6A024","#6A3D8F","#CC6A1A","#3a7d3a","#b5347a","#2b6f9e","#8a6d1a"],E0=T.edges||{},DC={Industry:"#2E5A8C",Prowess:"#9E2B25",Cunning:"#3a3a40",Piety:"#C6A024"};
   const dom=n=>{const u=(R[n]||{}).unlock_raw||"";return ["Industry","Prowess","Cunning","Piety"].find(d=>u.includes(d))||"";};
   return T.charts.map(c=>{const N=c.nodes,ks=Object.keys(N);if(!ks.length)return "";
     const E={...E0};(c.links||[]).forEach(([p,k])=>{E[p]=(E[p]||[]).concat([k]);});   // chart-only links (e.g. Naturals into Manor House)
     const mc=Math.max(...ks.map(k=>N[k][0])),mr=Math.max(...ks.map(k=>N[k][1]));
-    const NW=Math.round(Math.max(150,Math.min(200,(AV-mc*CG)/(mc+1)))),W=(mc+1)*NW+mc*CG,H=(mr+1)*(NH+RG);   // boxes shrink to fit the window
+    const NW=Math.round(Math.max(150,Math.min(200,(AV-mc*CG)/(mc+1)))),W=(mc+1)*NW+mc*CG;   // boxes shrink to fit the window
+    const inner=n=>{const r=R[n]||{},have=(PC[n]||0)>0,us=unlockStatus(n);
+      return '<div class="tnh"><span class="gk" data-gk="'+(GK_BY[esc(n)]??"")+'">'+esc(n)+'</span>'+(r.monument?' ◆':'')+(have?' <span class="tb-b">built</span>':'')+
+        (r.unlock_raw&&r.unlock_raw!=="-"&&r.unlock_raw!=="\u2014"?' <span class="tnu'+(us.ok?'':' bad')+'" title="Unlock: '+esc(r.unlock_raw)+'">'+(us.ok?'':'🔒')+esc(r.unlock_raw)+'</span>':'')+'</div>'+
+        '<div class="tnc">'+(r.combo?kwify(r.combo,n):"—")+'</div>';};
+    // one box height per chart: the tallest box at this width, so every row stays level and no effect text is cut
+    const NH=(()=>{const m=document.createElement("div");m.style.cssText="position:absolute;visibility:hidden;left:-9999px;top:0";
+      m.innerHTML=ks.map(n=>'<div class="tn" style="position:static;width:'+NW+'px;height:auto">'+inner(n)+'</div>').join("");
+      document.body.appendChild(m);const h=Math.max(NH0,...[...m.children].map(e=>Math.ceil(e.getBoundingClientRect().height)));m.remove();return h;})();
+    const H=(mr+1)*(NH+RG);
     const px=k=>[N[k][0]*(NW+CG),N[k][1]*(NH+RG)];let paths="";
     // edges: orthogonal routes with rounded corners; line stops at the arrow base so the head is a clean triangle touching the box
     const AL=7,RAD=5,used=new Set(),slot={};
@@ -1532,11 +1543,8 @@ function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.
         sy=y0+NH-8,ty=by+NH-8,lx=x0-12,down=by>=y0,gy=gapY(N[n][1],down);
       const pts=pick([[[x0,sy],[rx,sy],[rx,ty],[bx+NW+1+AL,ty]],[[x0,sy],[lx,sy],[lx,gy],[rx,gy],[rx,ty],[bx+NW+1+AL,ty]]],[n,k]);
       paths+='<g><title>'+esc(k)+' Mastery needs '+esc(n)+'</title>'+edge(col,pts,' stroke-dasharray="4 3"')+'</g>';}));
-    const nodes=ks.map(n=>{const [x,y]=px(n),r=R[n]||{},col=DC[dom(n)]||"#6a6a72",have=(PC[n]||0)>0,us=unlockStatus(n);
-      return '<div class="tn'+(r.monument?' mon':'')+(have?' have':'')+'" style="left:'+x+'px;top:'+y+'px;width:'+NW+'px;height:'+NH+'px;border-color:'+col+'">'+
-        '<div class="tnh"><span class="gk" data-gk="'+(GK_BY[esc(n)]??"")+'">'+esc(n)+'</span>'+(r.monument?' ◆':'')+(have?' <span class="tb-b">built</span>':'')+
-        (r.unlock_raw&&r.unlock_raw!=="-"&&r.unlock_raw!=="\u2014"?' <span class="tnu'+(us.ok?'':' bad')+'" title="Unlock: '+esc(r.unlock_raw)+'">'+(us.ok?'':'🔒')+esc(r.unlock_raw)+'</span>':'')+'</div>'+
-        '<div class="tnc">'+(r.combo?kwify(r.combo,n):"—")+'</div></div>';}).join("");
+    const nodes=ks.map(n=>{const [x,y]=px(n),r=R[n]||{},col=DC[dom(n)]||"#6a6a72",have=(PC[n]||0)>0;
+      return '<div class="tn'+(r.monument?' mon':'')+(have?' have':'')+'" style="left:'+x+'px;top:'+y+'px;width:'+NW+'px;height:'+NH+'px;border-color:'+col+'">'+inner(n)+'</div>';}).join("");
     return '<details class="tchart" data-t="'+esc(c.title)+'"'+(TREE_OPEN.has(c.title)?' open':'')+'><summary><b>'+esc(c.title)+'</b> <span class="note">'+ks.length+' Pursuits</span></summary><div class="tscroll"><div class="tcanvas" style="width:'+W+'px;height:'+H+'px">'+
       '<svg width="'+W+'" height="'+H+'"><defs>'+[...used].map(c=>'<marker id="tarw-'+c.slice(1)+'" viewBox="0 0 7 6" refX="0" refY="3" markerWidth="7" markerHeight="6" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="'+c+'"/></marker>').join("")+'</defs><g fill="none" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt">'+paths+'</g></svg>'+nodes+'</div></div></details>';}).join("");}
 // rulebook (collapsible, per device); keywords inside the text get hover links
@@ -4219,8 +4227,7 @@ function roll(X,kind,nOverride){
   }else{
     const n=Math.min(c.front,BT.moraleDiceMax||5),target=c.morale,dice=d10(n).sort((x,y)=>y-x),succ=dice.filter(v=>v>=target).length;
     B.rolls[X]={kind,target,dice,succ,nat10:0};
-    const fail=n-succ;if(fail)setPendCas(X,pendCas(X)+fail);           // failed Morale dice are casualties: add to the pending count
-    blog(X+" Morale "+n+"d10 vs "+target+"+ ["+dice.join(",")+"] → "+succ+" succeed, "+fail+" casualties"+(fail?" (added to casualties to apply → "+pendCas(X)+")":""));
+    blog(X+" Morale "+n+"d10 vs "+target+"+ ["+dice.join(",")+"] → "+succ+" succeed, "+(n-succ)+" casualties");
   }
   save();render();
 }
