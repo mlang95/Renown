@@ -228,6 +228,12 @@ def _render_chart(body,c,w,h,PADL,oy):
             if hit: flagged[i]=flagged[j]=True
     for idx,(pn,cn,d,sg,arrow) in enumerate(edges):
         _edge(body,d,"#8f8672",arrow=arrow)
+    # zag: a link into the box directly above/below (same column, next row) is a straight vertical step
+    for n in nodes:
+        for k in CH[n] + [l[1] for l in c.get("links",[]) if l[0]==n]:
+            if k in nodes and nodes[k][0]==nodes[n][0] and abs(nodes[k][1]-nodes[n][1])==1:
+                (x0,y0),(_,by)=px(n),px(k); cx=x0+NW/2; dn=by>y0
+                _edge(body,f"M{cx:.0f},{(y0+NH) if dn else y0:.0f} L{cx:.0f},{(by-7) if dn else (by+NH+7):.0f}","#8f8672",arrow=True)
     for n in nodes:
         x,y=px(n); _draw_node(body,x,y,n)
 

@@ -1,446 +1,88 @@
 [
  {
-  "title": "Quarry",
-  "anchor": "Quarry",
-  "mode": "root",
-  "nodes": {
-   "Quarry": [
-    0,
-    0
-   ],
-   "Masonry": [
-    1,
-    0
-   ],
-   "Courtyard": [
-    2,
-    0
-   ],
-   "Market Square": [
-    3,
-    0
-   ],
-   "Weavery": [
-    4,
-    0
-   ],
-   "Artisan Workshop": [
-    5,
-    0
-   ],
-   "Episcopal Court": [
-    5,
-    2
-   ],
-   "Conditioning Field": [
-    5,
-    4
-   ],
-   "Jester's Court": [
-    5,
-    5
-   ],
-   "Court Artists": [
-    6,
-    0
-   ],
-   "Merchant Quarter": [
-    6,
-    1
-   ],
-   "Interrogation Chambers": [
-    6,
-    2
-   ],
-   "Trade Guild": [
-    6,
-    3
-   ],
-   "Coliseum": [
-    6,
-    4
-   ],
-   "Bell Tower": [
-    6,
-    5
-   ],
-   "Money Lending": [
-    7,
-    1
-   ],
-   "Execution Dock": [
-    7,
-    2
-   ],
-   "College of Engineering": [
-    7,
-    3
-   ],
-   "Grand Tournament": [
-    7,
-    4
-   ],
-   "Embassy": [
-    7,
-    5
-   ],
-   "Aristocratic Court": [
-    8,
-    0
-   ],
-   "Inquisitorial Palace": [
-    8,
-    2
-   ],
-   "Office of Works": [
-    8,
-    3
-   ],
-   "Royal Pavilion": [
-    8,
-    4
-   ],
-   "Senate Hall": [
-    8,
-    5
-   ]
-  },
-  "edges": [
-   [
-    "Court Artists",
-    "Aristocratic Court"
-   ],
-   [
-    "Money Lending",
-    "Aristocratic Court"
-   ],
-   [
-    "Weavery",
-    "Artisan Workshop"
-   ],
-   [
-    "Jester's Court",
-    "Bell Tower"
-   ],
-   [
-    "Conditioning Field",
-    "Coliseum"
-   ],
-   [
-    "Trade Guild",
-    "College of Engineering"
-   ],
-   [
-    "Courtyard",
-    "Conditioning Field"
-   ],
-   [
-    "Artisan Workshop",
-    "Court Artists"
-   ],
-   [
-    "Masonry",
-    "Courtyard"
-   ],
-   [
-    "Bell Tower",
-    "Embassy"
-   ],
-   [
-    "Courtyard",
-    "Episcopal Court"
-   ],
-   [
-    "Interrogation Chambers",
-    "Execution Dock"
-   ],
-   [
-    "Coliseum",
-    "Grand Tournament"
-   ],
-   [
-    "Execution Dock",
-    "Inquisitorial Palace"
-   ],
-   [
-    "Episcopal Court",
-    "Interrogation Chambers"
-   ],
-   [
-    "Courtyard",
-    "Jester's Court"
-   ],
-   [
-    "Courtyard",
-    "Market Square"
-   ],
-   [
-    "Quarry",
-    "Masonry"
-   ],
-   [
-    "Market Square",
-    "Merchant Quarter"
-   ],
-   [
-    "Courtyard",
-    "Merchant Quarter"
-   ],
-   [
-    "Court Artists",
-    "Money Lending"
-   ],
-   [
-    "Merchant Quarter",
-    "Money Lending"
-   ],
-   [
-    "College of Engineering",
-    "Office of Works"
-   ],
-   [
-    "Grand Tournament",
-    "Royal Pavilion"
-   ],
-   [
-    "Embassy",
-    "Senate Hall"
-   ],
-   [
-    "Masonry",
-    "Trade Guild"
-   ],
-   [
-    "Market Square",
-    "Weavery"
-   ]
-  ]
- },
- {
-  "title": "Arable Land",
-  "anchor": "Arable Land",
-  "mode": "root",
-  "nodes": {
-   "Arable Land": [
-    0,
-    0
-   ],
-   "Animal Husbandry": [
-    1,
-    1
-   ],
-   "Stable": [
-    2,
-    2
-   ],
-   "Saddlery": [
-    3,
-    3
-   ],
-   "Granary": [
-    4,
-    0
-   ],
-   "Tannery": [
-    4,
-    1
-   ],
-   "Caravanery": [
-    4,
-    2
-   ],
-   "Supply Depot": [
-    5,
-    0
-   ],
-   "Armory": [
-    5,
-    1
-   ],
-   "Toll House": [
-    5,
-    2
-   ],
-   "Citadel": [
-    6,
-    0
-   ],
-   "Gilded Foundry": [
-    6,
-    1
-   ],
-   "Beacon Towers": [
-    6,
-    2
-   ],
-   "Imperial Palace": [
-    7,
-    0
-   ],
-   "Jewelry Foundry": [
-    7,
-    1
-   ],
-   "Outrider Intercept Post": [
-    7,
-    2
-   ]
-  },
-  "edges": [
-   [
-    "Arable Land",
-    "Animal Husbandry"
-   ],
-   [
-    "Tannery",
-    "Armory"
-   ],
-   [
-    "Toll House",
-    "Beacon Towers"
-   ],
-   [
-    "Saddlery",
-    "Caravanery"
-   ],
-   [
-    "Stable",
-    "Caravanery"
-   ],
-   [
-    "Supply Depot",
-    "Citadel"
-   ],
-   [
-    "Armory",
-    "Gilded Foundry"
-   ],
-   [
-    "Arable Land",
-    "Granary"
-   ],
-   [
-    "Citadel",
-    "Imperial Palace"
-   ],
-   [
-    "Gilded Foundry",
-    "Jewelry Foundry"
-   ],
-   [
-    "Beacon Towers",
-    "Outrider Intercept Post"
-   ],
-   [
-    "Stable",
-    "Saddlery"
-   ],
-   [
-    "Caravanery",
-    "Saddlery"
-   ],
-   [
-    "Animal Husbandry",
-    "Stable"
-   ],
-   [
-    "Granary",
-    "Supply Depot"
-   ],
-   [
-    "Animal Husbandry",
-    "Tannery"
-   ],
-   [
-    "Caravanery",
-    "Toll House"
-   ]
-  ]
- },
- {
   "title": "Forestry",
   "anchor": "Forestry",
   "mode": "root",
   "nodes": {
    "Forestry": [
     0,
-    0
+    1
    ],
    "Carpentry": [
     1,
-    0
+    1
    ],
    "Kiln": [
     1,
-    1
+    2
    ],
    "Charcoal Burner": [
     2,
-    1
+    2
    ],
    "Joinery": [
     2,
-    2
+    3
    ],
    "Butchery": [
     3,
-    1
+    2
    ],
    "Tannery": [
     3,
-    2
+    3
    ],
    "Fletchery": [
     3,
-    3
+    0
    ],
    "Siege Works": [
     4,
-    0
+    1
    ],
    "Smokehouse": [
     4,
-    1
+    2
    ],
    "Armory": [
     4,
-    2
+    3
    ],
    "Tiltyard": [
     4,
-    3
+    0
    ],
    "Siege Camp": [
     5,
-    0
+    1
    ],
    "Levy Hall": [
     5,
-    1
+    2
    ],
    "Gilded Foundry": [
     5,
-    2
+    3
    ],
    "Grand Tournament": [
     5,
-    3
+    0
    ],
    "Artillery Park": [
     6,
-    0
+    1
    ],
    "Baggage Train": [
     6,
-    1
+    2
    ],
    "Jewelry Foundry": [
     6,
-    2
+    3
    ],
    "Royal Pavilion": [
     6,
-    3
+    0
    ]
   },
   "edges": [
@@ -527,96 +169,366 @@
   ]
  },
  {
+  "title": "Courtyard",
+  "anchor": "Courtyard",
+  "mode": "root",
+  "nodes": {
+   "Courtyard": [
+    0,
+    2
+   ],
+   "Market Square": [
+    1,
+    2
+   ],
+   "Weavery": [
+    2,
+    2
+   ],
+   "Artisan Workshop": [
+    3,
+    2
+   ],
+   "Episcopal Court": [
+    3,
+    4
+   ],
+   "Conditioning Field": [
+    3,
+    0
+   ],
+   "Jester's Court": [
+    3,
+    1
+   ],
+   "Court Artists": [
+    4,
+    2
+   ],
+   "Merchant Quarter": [
+    4,
+    3
+   ],
+   "Interrogation Chambers": [
+    4,
+    4
+   ],
+   "Coliseum": [
+    4,
+    0
+   ],
+   "Bell Tower": [
+    4,
+    1
+   ],
+   "Money Lending": [
+    5,
+    3
+   ],
+   "Execution Dock": [
+    5,
+    4
+   ],
+   "Grand Tournament": [
+    5,
+    0
+   ],
+   "Embassy": [
+    5,
+    1
+   ],
+   "Aristocratic Court": [
+    6,
+    2
+   ],
+   "Inquisitorial Palace": [
+    6,
+    4
+   ],
+   "Royal Pavilion": [
+    6,
+    0
+   ],
+   "Senate Hall": [
+    6,
+    1
+   ]
+  },
+  "edges": [
+   [
+    "Court Artists",
+    "Aristocratic Court"
+   ],
+   [
+    "Money Lending",
+    "Aristocratic Court"
+   ],
+   [
+    "Weavery",
+    "Artisan Workshop"
+   ],
+   [
+    "Jester's Court",
+    "Bell Tower"
+   ],
+   [
+    "Conditioning Field",
+    "Coliseum"
+   ],
+   [
+    "Courtyard",
+    "Conditioning Field"
+   ],
+   [
+    "Artisan Workshop",
+    "Court Artists"
+   ],
+   [
+    "Bell Tower",
+    "Embassy"
+   ],
+   [
+    "Courtyard",
+    "Episcopal Court"
+   ],
+   [
+    "Interrogation Chambers",
+    "Execution Dock"
+   ],
+   [
+    "Coliseum",
+    "Grand Tournament"
+   ],
+   [
+    "Execution Dock",
+    "Inquisitorial Palace"
+   ],
+   [
+    "Episcopal Court",
+    "Interrogation Chambers"
+   ],
+   [
+    "Courtyard",
+    "Jester's Court"
+   ],
+   [
+    "Courtyard",
+    "Market Square"
+   ],
+   [
+    "Market Square",
+    "Merchant Quarter"
+   ],
+   [
+    "Courtyard",
+    "Merchant Quarter"
+   ],
+   [
+    "Court Artists",
+    "Money Lending"
+   ],
+   [
+    "Merchant Quarter",
+    "Money Lending"
+   ],
+   [
+    "Grand Tournament",
+    "Royal Pavilion"
+   ],
+   [
+    "Embassy",
+    "Senate Hall"
+   ],
+   [
+    "Market Square",
+    "Weavery"
+   ]
+  ]
+ },
+ {
+  "title": "Arable Land",
+  "anchor": "Arable Land",
+  "mode": "root",
+  "nodes": {
+   "Arable Land": [
+    0,
+    0
+   ],
+   "Animal Husbandry": [
+    1,
+    0
+   ],
+   "Stable": [
+    2,
+    1
+   ],
+   "Saddlery": [
+    3,
+    2
+   ],
+   "Tannery": [
+    4,
+    0
+   ],
+   "Caravanery": [
+    4,
+    1
+   ],
+   "Armory": [
+    5,
+    0
+   ],
+   "Toll House": [
+    5,
+    1
+   ],
+   "Gilded Foundry": [
+    6,
+    0
+   ],
+   "Beacon Towers": [
+    6,
+    1
+   ],
+   "Jewelry Foundry": [
+    7,
+    0
+   ],
+   "Outrider Intercept Post": [
+    7,
+    1
+   ]
+  },
+  "edges": [
+   [
+    "Arable Land",
+    "Animal Husbandry"
+   ],
+   [
+    "Tannery",
+    "Armory"
+   ],
+   [
+    "Toll House",
+    "Beacon Towers"
+   ],
+   [
+    "Saddlery",
+    "Caravanery"
+   ],
+   [
+    "Stable",
+    "Caravanery"
+   ],
+   [
+    "Armory",
+    "Gilded Foundry"
+   ],
+   [
+    "Gilded Foundry",
+    "Jewelry Foundry"
+   ],
+   [
+    "Beacon Towers",
+    "Outrider Intercept Post"
+   ],
+   [
+    "Stable",
+    "Saddlery"
+   ],
+   [
+    "Caravanery",
+    "Saddlery"
+   ],
+   [
+    "Animal Husbandry",
+    "Stable"
+   ],
+   [
+    "Animal Husbandry",
+    "Tannery"
+   ],
+   [
+    "Caravanery",
+    "Toll House"
+   ]
+  ]
+ },
+ {
   "title": "Peat Bog",
   "anchor": "Peat Bog",
   "mode": "root",
   "nodes": {
    "Peat Bog": [
     0,
-    0
+    2
    ],
    "Alchemy": [
     1,
-    0
+    2
    ],
    "Academy": [
     2,
-    0
+    2
+   ],
+   "Apothecary": [
+    2,
+    4
    ],
    "University": [
     3,
-    0
+    2
    ],
-   "Apothecary": [
+   "Toxicarium": [
     3,
     3
    ],
-   "Abbey": [
-    4,
-    1
-   ],
-   "Toxicarium": [
-    4,
-    2
-   ],
    "Infirmary": [
-    4,
-    3
-   ],
-   "Forgery Workshop": [
-    4,
-    5
-   ],
-   "War College": [
-    5,
-    0
-   ],
-   "Monastery": [
-    5,
-    1
-   ],
-   "Charnel House": [
-    5,
-    2
-   ],
-   "Hospitaller": [
-    5,
-    3
-   ],
-   "Cipher Chamber": [
-    5,
-    5
-   ],
-   "Ministry of Military Strategy": [
-    6,
-    0
-   ],
-   "Papal Palace": [
-    6,
-    1
-   ],
-   "Plague Pit": [
-    6,
-    2
-   ],
-   "Preceptory of the Knight's Templar": [
-    6,
-    3
-   ],
-   "Studium Generale": [
-    6,
+    3,
     4
    ],
+   "Forgery Workshop": [
+    3,
+    1
+   ],
+   "War College": [
+    4,
+    2
+   ],
+   "Charnel House": [
+    4,
+    3
+   ],
+   "Hospitaller": [
+    4,
+    4
+   ],
+   "Cipher Chamber": [
+    4,
+    1
+   ],
+   "Ministry of Military Strategy": [
+    5,
+    2
+   ],
+   "Plague Pit": [
+    5,
+    3
+   ],
+   "Preceptory of the Knight's Templar": [
+    5,
+    4
+   ],
+   "Studium Generale": [
+    5,
+    0
+   ],
    "Whispering Undercroft": [
-    6,
-    5
+    5,
+    1
    ]
   },
   "edges": [
-   [
-    "Academy",
-    "Abbey"
-   ],
    [
     "Alchemy",
     "Academy"
@@ -658,14 +570,6 @@
     "Ministry of Military Strategy"
    ],
    [
-    "Abbey",
-    "Monastery"
-   ],
-   [
-    "Monastery",
-    "Papal Palace"
-   ],
-   [
     "Charnel House",
     "Plague Pit"
    ],
@@ -696,202 +600,61 @@
   ]
  },
  {
-  "title": "Secret Cellar",
-  "anchor": "Secret Cellar",
-  "mode": "root",
-  "nodes": {
-   "Secret Cellar": [
-    0,
-    0
-   ],
-   "Forgotten Catacombs": [
-    1,
-    2
-   ],
-   "Smuggler's Nook": [
-    2,
-    1
-   ],
-   "Toxicarium": [
-    2,
-    2
-   ],
-   "Forgery Workshop": [
-    2,
-    4
-   ],
-   "Syndicate Hub": [
-    3,
-    0
-   ],
-   "Charnel House": [
-    3,
-    2
-   ],
-   "Black Market": [
-    3,
-    3
-   ],
-   "Cipher Chamber": [
-    3,
-    4
-   ],
-   "Outlaw Rookery": [
-    4,
-    0
-   ],
-   "Plague Pit": [
-    4,
-    2
-   ],
-   "Thieves' Guild": [
-    4,
-    3
-   ],
-   "Whispering Undercroft": [
-    4,
-    4
-   ]
-  },
-  "edges": [
-   [
-    "Smuggler's Nook",
-    "Black Market"
-   ],
-   [
-    "Secret Cellar",
-    "Black Market"
-   ],
-   [
-    "Toxicarium",
-    "Charnel House"
-   ],
-   [
-    "Forgery Workshop",
-    "Cipher Chamber"
-   ],
-   [
-    "Secret Cellar",
-    "Forgery Workshop"
-   ],
-   [
-    "Secret Cellar",
-    "Forgotten Catacombs"
-   ],
-   [
-    "Syndicate Hub",
-    "Outlaw Rookery"
-   ],
-   [
-    "Charnel House",
-    "Plague Pit"
-   ],
-   [
-    "Secret Cellar",
-    "Smuggler's Nook"
-   ],
-   [
-    "Smuggler's Nook",
-    "Syndicate Hub"
-   ],
-   [
-    "Secret Cellar",
-    "Syndicate Hub"
-   ],
-   [
-    "Black Market",
-    "Thieves' Guild"
-   ],
-   [
-    "Secret Cellar",
-    "Thieves' Guild"
-   ],
-   [
-    "Forgotten Catacombs",
-    "Toxicarium"
-   ],
-   [
-    "Cipher Chamber",
-    "Whispering Undercroft"
-   ]
-  ]
- },
- {
   "title": "Mine",
   "anchor": "Mine",
   "mode": "root",
   "nodes": {
    "Mine": [
     0,
-    0
-   ],
-   "Forestry": [
-    0,
-    3
+    2
    ],
    "Furnace": [
     1,
-    0
-   ],
-   "Arable Land": [
-    1,
     2
-   ],
-   "Carpentry": [
-    1,
-    3
    ],
    "Blacksmith": [
     2,
-    0
-   ],
-   "Animal Husbandry": [
-    2,
     2
-   ],
-   "Joinery": [
-    2,
-    3
    ],
    "Forge": [
     3,
-    0
+    2
    ],
    "Siege Works": [
     3,
-    1
+    3
    ],
-   "Tannery": [
+   "Armory": [
     3,
-    2
+    1
    ],
    "Master Workshop": [
     4,
-    0
+    2
    ],
    "Siege Camp": [
     4,
-    1
+    3
    ],
-   "Armory": [
+   "Gilded Foundry": [
     4,
-    2
+    1
    ],
    "Advanced Blast Furnace": [
     5,
-    0
+    2
    ],
    "Artillery Park": [
     5,
-    1
-   ],
-   "Gilded Foundry": [
-    5,
-    2
+    3
    ],
    "Court Armoury": [
-    6,
-    2
+    5,
+    1
+   ],
+   "Jewelry Foundry": [
+    5,
+    0
    ]
   },
   "edges": [
@@ -900,11 +663,7 @@
     "Advanced Blast Furnace"
    ],
    [
-    "Arable Land",
-    "Animal Husbandry"
-   ],
-   [
-    "Tannery",
+    "Blacksmith",
     "Armory"
    ],
    [
@@ -914,10 +673,6 @@
    [
     "Furnace",
     "Blacksmith"
-   ],
-   [
-    "Forestry",
-    "Carpentry"
    ],
    [
     "Gilded Foundry",
@@ -936,8 +691,8 @@
     "Gilded Foundry"
    ],
    [
-    "Carpentry",
-    "Joinery"
+    "Gilded Foundry",
+    "Jewelry Foundry"
    ],
    [
     "Forge",
@@ -948,20 +703,117 @@
     "Siege Camp"
    ],
    [
-    "Carpentry",
-    "Siege Works"
-   ],
-   [
     "Mine",
     "Siege Works"
+   ]
+  ]
+ },
+ {
+  "title": "Quarry",
+  "anchor": "Quarry",
+  "mode": "root",
+  "nodes": {
+   "Quarry": [
+    0,
+    1
+   ],
+   "Masonry": [
+    1,
+    1
+   ],
+   "Granary": [
+    2,
+    1
+   ],
+   "Supply Depot": [
+    3,
+    1
+   ],
+   "Citadel": [
+    4,
+    1
+   ],
+   "Trade Guild": [
+    4,
+    2
+   ],
+   "Abbey": [
+    4,
+    0
+   ],
+   "Castle Hall": [
+    5,
+    1
+   ],
+   "College of Engineering": [
+    5,
+    2
+   ],
+   "Monastery": [
+    5,
+    0
+   ],
+   "Imperial Palace": [
+    6,
+    1
+   ],
+   "Office of Works": [
+    6,
+    2
+   ],
+   "Papal Palace": [
+    6,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Masonry",
+    "Abbey"
    ],
    [
-    "Animal Husbandry",
-    "Tannery"
+    "Citadel",
+    "Castle Hall"
    ],
    [
-    "Joinery",
-    "Tannery"
+    "Supply Depot",
+    "Citadel"
+   ],
+   [
+    "Trade Guild",
+    "College of Engineering"
+   ],
+   [
+    "Masonry",
+    "Granary"
+   ],
+   [
+    "Castle Hall",
+    "Imperial Palace"
+   ],
+   [
+    "Quarry",
+    "Masonry"
+   ],
+   [
+    "Abbey",
+    "Monastery"
+   ],
+   [
+    "College of Engineering",
+    "Office of Works"
+   ],
+   [
+    "Monastery",
+    "Papal Palace"
+   ],
+   [
+    "Granary",
+    "Supply Depot"
+   ],
+   [
+    "Masonry",
+    "Trade Guild"
    ]
   ]
  },
@@ -1226,6 +1078,59 @@
   ]
  },
  {
+  "title": "Secret Cellar",
+  "anchor": "Secret Cellar",
+  "mode": "root",
+  "nodes": {
+   "Secret Cellar": [
+    0,
+    0
+   ],
+   "Forgotten Catacombs": [
+    1,
+    0
+   ],
+   "Toxicarium": [
+    2,
+    0
+   ],
+   "Charnel House": [
+    3,
+    0
+   ],
+   "Plague Pit": [
+    4,
+    0
+   ],
+   "Thieves' Guild": [
+    4,
+    1
+   ]
+  },
+  "edges": [
+   [
+    "Toxicarium",
+    "Charnel House"
+   ],
+   [
+    "Secret Cellar",
+    "Forgotten Catacombs"
+   ],
+   [
+    "Charnel House",
+    "Plague Pit"
+   ],
+   [
+    "Secret Cellar",
+    "Thieves' Guild"
+   ],
+   [
+    "Forgotten Catacombs",
+    "Toxicarium"
+   ]
+  ]
+ },
+ {
   "title": "Fishmongery",
   "anchor": "Fishmongery",
   "mode": "root",
@@ -1277,51 +1182,51 @@
   "nodes": {
    "Apiary": [
     0,
-    0
+    1
    ],
    "Meadery": [
     1,
-    0
+    1
    ],
    "Arable Land": [
     1,
-    1
+    2
    ],
    "Bakery": [
     2,
-    0
+    1
    ],
    "Orchard": [
     2,
-    1
+    2
    ],
    "Herb Garden": [
     2,
-    2
+    3
    ],
    "Vineyard": [
     2,
-    3
+    0
    ],
    "Mill": [
     3,
-    0
+    1
    ],
    "Cidery": [
     3,
-    1
+    2
    ],
    "Spice Merchant": [
     3,
-    2
+    3
    ],
    "Winery": [
     3,
-    3
+    0
    ],
    "Manor House": [
     4,
-    0
+    1
    ]
   },
   "edges": [

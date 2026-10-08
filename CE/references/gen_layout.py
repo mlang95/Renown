@@ -107,12 +107,13 @@ def layout(nodes, anchors):
     return pos, edges
 
 
-def track_layout(nodes, sinks, links=()):
+def track_layout(nodes, sinks, links=(), zag=()):
     """SIMPLE: rows = tracks, columns = as far right as each Holding can sit.
     Walking back from each sink, a Holding's deepest parent continues its row and every other
     parent starts a new row. Columns are placed right-to-left (one left of the earliest Holding it
     feeds), so a side input sits next to what it feeds as its own block instead of being stretched
-    back to the roots. `links` = extra [parent, child] pairs (e.g. Naturals into Manor House)."""
+    back to the roots. `links` = extra [parent, child] pairs (e.g. Naturals into Manor House).
+    `zag` = (parent, child) pairs drawn as a vertical step: the child sits in that parent's column."""
     nodes = sorted(nodes)                                   # set order varies per run; keep layouts stable
     par = {n: [q for q in reqs(n) if q in nodes] for n in nodes}
     for p_, c_ in links:
@@ -122,13 +123,14 @@ def track_layout(nodes, sinks, links=()):
     def d(n, stack=()):
         if n in depth: return depth[n]
         if n in stack: return 0
-        depth[n] = 0 if not par[n] else 1 + max(d(p, stack + (n,)) for p in par[n])
+        depth[n] = 0 if not par[n] else max(d(p, stack + (n,)) + (0 if (p, n) in zag else 1) for p in par[n])
         return depth[n]
     for n in nodes: d(n)
     top = max(depth.values()) if depth else 0
     col = {}
-    for n in sorted(nodes, key=lambda n: -depth[n]):
-        ks = [col[k] for k in kids[n] if k in col]
+    zc = {c_ for _, c_ in zag}                              # a zag child shares its parent's depth: place it first
+    for n in sorted(nodes, key=lambda n: (-depth[n], n not in zc)):
+        ks = [col[k] + (1 if (n, k) in zag else 0) for k in kids[n] if k in col]
         col[n] = (min(ks) - 1) if ks else (top if n in sinks else depth[n])
     lo = min(col.values()) if col else 0
     for n in col: col[n] -= lo

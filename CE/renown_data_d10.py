@@ -1792,7 +1792,7 @@ SIMPLE_NODES = {
         "unlock": "-",
         "innate": "No Upkeep on **Primitive Infrastructure**; **Build Timer −1**",
         "efficient": "Quarry",
-        "builds_into": ["Courtyard", "Trade Guild", "Mill"],
+        "builds_into": ["Granary", "Trade Guild", "Abbey","Mill"],
         "monument": False},
     "Butchery": {
         "type": "Craft",
@@ -1868,7 +1868,7 @@ SIMPLE_NODES = {
         "type": "Craft",
         "unlock": "Rising Industry",
         "innate": "Unlock **Wrought** armor & shield; **Upkeep -500**; Craft +1",
-        "efficient": ["Tannery"],
+        "efficient": ["Tannery", "Blacksmith"],
         "builds_into": ["Gilded Foundry"],
         "monument": False},
     "Master Workshop": {
@@ -1881,7 +1881,7 @@ SIMPLE_NODES = {
     "Gilded Foundry": {
         "type": "Craft",
         "unlock": "Established Industry",
-        "innate": "Unlock **Forged** armor and shield. Craft +1.",
+        "innate": "Upkeep -500; Unlock **Forged** armor & shield.",
         "efficient": "Armory",
         "builds_into": ["Jewelry Foundry", "Court Armoury"],
         "monument": False},
@@ -2016,7 +2016,7 @@ SIMPLE_NODES = {
         "type": "Civic",
         "unlock": "Established Piety",
         "innate": "Once/turn: **Influence +1** another player's Piety Envoy; **Influence −1** to Piety actions targeting you",
-        "efficient": "Academy",
+        "efficient": "Masonry",
         "builds_into": ["Monastery"],
         "monument": False},
     "Reliquary": {
@@ -2074,8 +2074,8 @@ SIMPLE_NODES = {
     "Granary": {
         "type": "Civic",
         "unlock": "Rising Industry",
-        "innate": "Upkeep -500, Natural; Armies and Garrisons gain **Endurance** while Besieged",
-        "efficient": "Arable Land",
+        "innate": "Upkeep -500; Armies and Garrisons gain **Endurance** while Besieged",
+        "efficient": "Masonry",
         "builds_into": ["Supply Depot", "Citadel"],
         "monument": False},
     "Academy": {
@@ -2084,13 +2084,13 @@ SIMPLE_NODES = {
         "infrastructure_req": "Library",
         "innate": "**Influence +1** to Council Envoys; gain +1 Influence per turn",
         "efficient": "Alchemy",
-        "builds_into": ["Abbey", "University", "Forgery Workshop"],
+        "builds_into": ["University", "Forgery Workshop"],
         "monument": False},
     "Courtyard": {
         "type": "Civic",
         "unlock": "-",
         "innate": "Craft +1; **Faith +1**",
-        "efficient": "Masonry",
+        #"efficient": "Masonry",
         "builds_into": ["Market Square", "Jester's Court", "Episcopal Court", "Conditioning Field"],
         "monument": False},
     "Episcopal Court": {
@@ -2197,28 +2197,28 @@ SIMPLE_NODES = {
         "type": "Secrecy",
         "unlock": "Established Cunning",
         "innate": "gain Immune Uprising (Bandit Camp Spawn at -5PO); Bandit Camps in your Outlaw Country don't target you and instead target other players randomly.",
-        "efficient": ["Courier Network", "Secret Cellar"],
+        "efficient": ["Courier Network"],
         "builds_into": ["Black Market", "Syndicate Hub"],
         "monument": False},
     "Syndicate Hub": {
         "type": "Secrecy",
         "unlock": "Established Cunning",
         "innate": "Whenever a Bandit Camp within Province Extorts, you Extort the Bandit Camp for half the amount.",
-        "efficient": ["Smuggler's Nook", "Secret Cellar"],
+        "efficient": ["Smuggler's Nook"],
         "builds_into": ["Smuggler's Nook"],
         "monument": False},
     "Black Market": {
         "type": "Secrecy",
         "unlock": "Established Cunning",
         "innate": "When another player **Extorts** gold from any source: **Extort 200** per 1000 (minimum 100) from that player at the end of that resolution. When another player **Recoups** gold from any source: **Extort 200** per 1000 (minimum 100) from that player at the end of that resolution.",
-        "efficient": ["Smuggler's Nook", "Secret Cellar"],
+        "efficient": ["Smuggler's Nook"],
         "builds_into": ["Thieves' Guild"],
         "monument": False},
     "Forgery Workshop": {
         "type": "Secrecy",
         "unlock": "Established Cunning",
         "innate": "**Extort 300** anytime a player Opposes an Envoy of yours; Once/turn: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed",
-        "efficient": ["University", "Secret Cellar", "Academy"],
+        "efficient": ["University", "Academy"],
         "builds_into": ["Cipher Chamber"],
         "monument": False},
     "Toxicarium": {
@@ -2327,6 +2327,13 @@ SIMPLE_NODES = {
         "infrastructure_req": "Stone Walls",
         "innate": "**Siege Timer +3**, Controlled Settlements gain **Reach +1**",
         "efficient": ["Supply Depot"],
+        "builds_into": ["Castle Hall"],
+        "monument": False},
+    "Castle Hall": {
+        "type": "Power",
+        "unlock": "Established Industry",
+        "innate": "Doubt +1; Tax Income is Doubled.",
+        "efficient": ["Citadel"],
         "builds_into": ["Imperial Palace"],
         "monument": False},
     "War College": {
@@ -2376,7 +2383,7 @@ SIMPLE_NODES = {
         "type": "Monument",
         "unlock": "Sovereign Prowess",
         "innate": "Each Empire Phase, all non-allied players with a lower Prowess value gain Doubt +2. If your Envoy would fail, it passes instead.",
-        "efficient": "Citadel",
+        "efficient": "Castle Hall",
         "builds_into": [],
         "monument": True},
     "Artillery Park": {
@@ -2468,7 +2475,7 @@ SIMPLE_NODES = {
     "Advanced Blast Furnace": {
         "type": "Monument",
         "unlock": "Sovereign Industry",
-        "innate": "**Upkeep -500**; **Crafted** Weapons Unlocked; Craft +2",
+        "innate": "**Upkeep -1000**; **Crafted** Weapons Unlocked; Craft +3",
         "efficient": "Master Workshop",
         "builds_into": [],
         "monument": True},

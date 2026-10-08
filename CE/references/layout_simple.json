@@ -10,7 +10,7 @@
    ],
    "Forestry": [
     0,
-    2
+    3
    ],
    "Furnace": [
     1,
@@ -18,11 +18,11 @@
    ],
    "Arable Land": [
     1,
-    1
+    2
    ],
    "Carpentry": [
     1,
-    2
+    3
    ],
    "Blacksmith": [
     2,
@@ -30,11 +30,11 @@
    ],
    "Animal Husbandry": [
     2,
-    1
+    2
    ],
    "Joinery": [
     2,
-    2
+    3
    ],
    "Forge": [
     3,
@@ -42,7 +42,7 @@
    ],
    "Tannery": [
     3,
-    1
+    2
    ],
    "Master Workshop": [
     4,
@@ -80,6 +80,10 @@
    ],
    [
     "Tannery",
+    "Armory"
+   ],
+   [
+    "Blacksmith",
     "Armory"
    ],
    [
@@ -133,44 +137,36 @@
   "anchor": "Aristocratic Court",
   "mode": "chain",
   "nodes": {
-   "Quarry": [
+   "Courtyard": [
     0,
     0
    ],
-   "Masonry": [
+   "Market Square": [
     1,
     0
    ],
-   "Courtyard": [
+   "Weavery": [
     2,
     0
    ],
-   "Market Square": [
+   "Artisan Workshop": [
     3,
     0
    ],
-   "Weavery": [
+   "Court Artists": [
     4,
     0
    ],
-   "Artisan Workshop": [
-    5,
-    0
-   ],
-   "Court Artists": [
-    6,
-    0
-   ],
    "Merchant Quarter": [
-    6,
+    4,
     1
    ],
    "Money Lending": [
-    7,
+    5,
     1
    ],
    "Aristocratic Court": [
-    8,
+    6,
     0
    ]
   },
@@ -192,16 +188,8 @@
     "Court Artists"
    ],
    [
-    "Masonry",
-    "Courtyard"
-   ],
-   [
     "Courtyard",
     "Market Square"
-   ],
-   [
-    "Quarry",
-    "Masonry"
    ],
    [
     "Market Square",
@@ -230,96 +218,96 @@
   "anchor": "Manor House",
   "mode": "chain",
   "nodes": {
-   "Quarry": [
+   "Mine": [
     0,
     0
    ],
-   "Masonry": [
+   "Furnace": [
     1,
     0
    ],
-   "Mine": [
+   "Apiary": [
+    1,
+    1
+   ],
+   "Courtyard": [
     1,
     2
    ],
-   "Courtyard": [
-    2,
-    1
-   ],
-   "Furnace": [
-    2,
-    2
-   ],
-   "Apiary": [
-    2,
-    3
-   ],
-   "Market Square": [
-    3,
-    1
-   ],
    "Blacksmith": [
-    3,
-    2
+    2,
+    0
    ],
    "Meadery": [
-    3,
-    3
+    2,
+    1
+   ],
+   "Market Square": [
+    2,
+    2
    ],
    "Forestry": [
-    3,
+    2,
+    3
+   ],
+   "Quarry": [
+    2,
     4
    ],
    "Arable Land": [
-    3,
+    2,
     5
    ],
-   "Weavery": [
-    4,
-    1
-   ],
    "Forge": [
-    4,
-    2
+    3,
+    0
    ],
    "Bakery": [
-    4,
-    3
+    3,
+    1
+   ],
+   "Weavery": [
+    3,
+    2
    ],
    "Carpentry": [
-    4,
+    3,
+    3
+   ],
+   "Masonry": [
+    3,
     4
    ],
    "Orchard": [
-    4,
+    3,
     5
    ],
    "Herb Garden": [
-    4,
+    3,
     6
    ],
    "Vineyard": [
-    4,
+    3,
     7
    ],
    "Mill": [
-    5,
+    4,
     0
    ],
    "Cidery": [
-    5,
+    4,
     5
    ],
    "Spice Merchant": [
-    5,
+    4,
     6
    ],
    "Winery": [
-    5,
+    4,
     7
    ],
    "Manor House": [
-    6,
+    5,
     0
    ]
   },
@@ -339,10 +327,6 @@
    [
     "Orchard",
     "Cidery"
-   ],
-   [
-    "Masonry",
-    "Courtyard"
    ],
    [
     "Blacksmith",
@@ -708,39 +692,55 @@
   "anchor": "Imperial Palace",
   "mode": "chain",
   "nodes": {
-   "Arable Land": [
+   "Quarry": [
     0,
     0
    ],
-   "Granary": [
+   "Masonry": [
     1,
     0
    ],
-   "Supply Depot": [
+   "Granary": [
     2,
     0
    ],
-   "Citadel": [
+   "Supply Depot": [
     3,
     0
    ],
-   "Imperial Palace": [
+   "Citadel": [
     4,
+    0
+   ],
+   "Castle Hall": [
+    5,
+    0
+   ],
+   "Imperial Palace": [
+    6,
     0
    ]
   },
   "edges": [
    [
+    "Citadel",
+    "Castle Hall"
+   ],
+   [
     "Supply Depot",
     "Citadel"
    ],
    [
-    "Arable Land",
+    "Masonry",
     "Granary"
    ],
    [
-    "Citadel",
+    "Castle Hall",
     "Imperial Palace"
+   ],
+   [
+    "Quarry",
+    "Masonry"
    ],
    [
     "Granary",
@@ -806,52 +806,44 @@
   "anchor": "Royal Pavilion",
   "mode": "chain",
   "nodes": {
-   "Quarry": [
+   "Forestry": [
     0,
     0
    ],
-   "Masonry": [
+   "Carpentry": [
     1,
-    0
-   ],
-   "Forestry": [
-    1,
-    2
-   ],
-   "Courtyard": [
-    2,
     0
    ],
    "Common Land": [
+    1,
+    1
+   ],
+   "Courtyard": [
+    1,
+    2
+   ],
+   "Fletchery": [
+    2,
+    0
+   ],
+   "Conditioning Field": [
     2,
     1
    ],
-   "Carpentry": [
-    2,
-    2
-   ],
-   "Conditioning Field": [
+   "Tiltyard": [
     3,
     0
-   ],
-   "Fletchery": [
-    3,
-    2
    ],
    "Coliseum": [
-    4,
-    0
-   ],
-   "Tiltyard": [
-    4,
-    2
+    3,
+    1
    ],
    "Grand Tournament": [
-    5,
+    4,
     0
    ],
    "Royal Pavilion": [
-    6,
+    5,
     0
    ]
   },
@@ -873,10 +865,6 @@
     "Conditioning Field"
    ],
    [
-    "Masonry",
-    "Courtyard"
-   ],
-   [
     "Carpentry",
     "Fletchery"
    ],
@@ -887,10 +875,6 @@
    [
     "Tiltyard",
     "Grand Tournament"
-   ],
-   [
-    "Quarry",
-    "Masonry"
    ],
    [
     "Grand Tournament",
@@ -952,40 +936,28 @@
   "anchor": "Inquisitorial Palace",
   "mode": "chain",
   "nodes": {
-   "Quarry": [
+   "Courtyard": [
     0,
     0
    ],
-   "Masonry": [
+   "Episcopal Court": [
     1,
     0
    ],
-   "Courtyard": [
+   "Interrogation Chambers": [
     2,
     0
    ],
-   "Episcopal Court": [
+   "Execution Dock": [
     3,
     0
    ],
-   "Interrogation Chambers": [
-    4,
-    0
-   ],
-   "Execution Dock": [
-    5,
-    0
-   ],
    "Inquisitorial Palace": [
-    6,
+    4,
     0
    ]
   },
   "edges": [
-   [
-    "Masonry",
-    "Courtyard"
-   ],
    [
     "Courtyard",
     "Episcopal Court"
@@ -1001,10 +973,6 @@
    [
     "Episcopal Court",
     "Interrogation Chambers"
-   ],
-   [
-    "Quarry",
-    "Masonry"
    ]
   ]
  },
@@ -1013,43 +981,35 @@
   "anchor": "Papal Palace",
   "mode": "chain",
   "nodes": {
-   "Peat Bog": [
+   "Quarry": [
     0,
     0
    ],
-   "Alchemy": [
+   "Masonry": [
     1,
     0
    ],
-   "Academy": [
+   "Abbey": [
     2,
     0
    ],
-   "Abbey": [
+   "Monastery": [
     3,
     0
    ],
-   "Monastery": [
-    4,
-    0
-   ],
    "Papal Palace": [
-    5,
+    4,
     0
    ]
   },
   "edges": [
    [
-    "Academy",
+    "Masonry",
     "Abbey"
    ],
    [
-    "Alchemy",
-    "Academy"
-   ],
-   [
-    "Peat Bog",
-    "Alchemy"
+    "Quarry",
+    "Masonry"
    ],
    [
     "Abbey",
@@ -1121,19 +1081,15 @@
   "nodes": {
    "Inn": [
     0,
-    1
-   ],
-   "Secret Cellar": [
-    1,
     0
    ],
    "Courier Network": [
     1,
-    1
+    0
    ],
    "Smuggler's Nook": [
     2,
-    1
+    0
    ],
    "Syndicate Hub": [
     3,
@@ -1158,15 +1114,7 @@
     "Smuggler's Nook"
    ],
    [
-    "Secret Cellar",
-    "Smuggler's Nook"
-   ],
-   [
     "Smuggler's Nook",
-    "Syndicate Hub"
-   ],
-   [
-    "Secret Cellar",
     "Syndicate Hub"
    ]
   ]
@@ -1316,21 +1264,21 @@
   "nodes": {
    "Inn": [
     0,
-    1
-   ],
-   "Secret Cellar": [
-    1,
     0
    ],
    "Courier Network": [
     1,
-    1
+    0
    ],
    "Smuggler's Nook": [
     2,
-    1
+    0
    ],
    "Black Market": [
+    3,
+    0
+   ],
+   "Secret Cellar": [
     3,
     1
    ],
@@ -1345,19 +1293,11 @@
     "Black Market"
    ],
    [
-    "Secret Cellar",
-    "Black Market"
-   ],
-   [
     "Inn",
     "Courier Network"
    ],
    [
     "Courier Network",
-    "Smuggler's Nook"
-   ],
-   [
-    "Secret Cellar",
     "Smuggler's Nook"
    ],
    [
@@ -1391,10 +1331,6 @@
     3,
     1
    ],
-   "Secret Cellar": [
-    3,
-    2
-   ],
    "Forgery Workshop": [
     4,
     0
@@ -1426,10 +1362,6 @@
     "Forgery Workshop"
    ],
    [
-    "Secret Cellar",
-    "Forgery Workshop"
-   ],
-   [
     "Academy",
     "Forgery Workshop"
    ],
@@ -1448,32 +1380,24 @@
   "anchor": "Senate Hall",
   "mode": "chain",
   "nodes": {
-   "Quarry": [
+   "Courtyard": [
     0,
     0
    ],
-   "Masonry": [
+   "Jester's Court": [
     1,
     0
    ],
-   "Courtyard": [
+   "Bell Tower": [
     2,
     0
    ],
-   "Jester's Court": [
+   "Embassy": [
     3,
     0
    ],
-   "Bell Tower": [
-    4,
-    0
-   ],
-   "Embassy": [
-    5,
-    0
-   ],
    "Senate Hall": [
-    6,
+    4,
     0
    ]
   },
@@ -1483,20 +1407,12 @@
     "Bell Tower"
    ],
    [
-    "Masonry",
-    "Courtyard"
-   ],
-   [
     "Bell Tower",
     "Embassy"
    ],
    [
     "Courtyard",
     "Jester's Court"
-   ],
-   [
-    "Quarry",
-    "Masonry"
    ],
    [
     "Embassy",

@@ -1257,7 +1257,7 @@
      "Armory",
      "Rising Industry",
      "—",
-     "Tannery",
+     "Tannery, Blacksmith",
      "Unlock **Wrought** armor & shield; **Upkeep -500**; Craft +1"
     ],
     [
@@ -1272,7 +1272,7 @@
      "Established Industry",
      "—",
      "Armory",
-     "Unlock **Forged** armor and shield. Craft +1."
+     "Upkeep -500; Unlock **Forged** armor & shield."
     ],
     [
      "Smokehouse",
@@ -1402,7 +1402,7 @@
      "Abbey",
      "Established Piety",
      "—",
-     "Academy",
+     "Masonry",
      "Once/turn: **Influence +1** another player's Piety Envoy; **Influence −1** to Piety actions targeting you"
     ],
     [
@@ -1444,8 +1444,8 @@
      "Granary",
      "Rising Industry",
      "—",
-     "Arable Land",
-     "Upkeep -500, Natural; Armies and Garrisons gain **Endurance** while Besieged"
+     "Masonry",
+     "Upkeep -500; Armies and Garrisons gain **Endurance** while Besieged"
     ],
     [
      "Academy",
@@ -1458,7 +1458,7 @@
      "Courtyard",
      "",
      "—",
-     "Masonry",
+     "—",
      "Craft +1; **Faith +1**"
     ],
     [
@@ -1547,28 +1547,28 @@
      "Smuggler's Nook",
      "Established Cunning",
      "—",
-     "Courier Network, Secret Cellar",
+     "Courier Network",
      "gain Immune Uprising (Bandit Camp Spawn at -5PO); Bandit Camps in your Outlaw Country don't target you and instead target other players randomly."
     ],
     [
      "Syndicate Hub",
      "Established Cunning",
      "—",
-     "Smuggler's Nook, Secret Cellar",
+     "Smuggler's Nook",
      "Whenever a Bandit Camp within Province Extorts, you Extort the Bandit Camp for half the amount."
     ],
     [
      "Black Market",
      "Established Cunning",
      "—",
-     "Smuggler's Nook, Secret Cellar",
+     "Smuggler's Nook",
      "When another player **Extorts** gold from any source: **Extort 200** per 1000 (minimum 100) from that player at the end of that resolution. When another player **Recoups** gold from any source: **Extort 200** per 1000 (minimum 100) from that player at the end of that resolution."
     ],
     [
      "Forgery Workshop",
      "Established Cunning",
      "—",
-     "University, Secret Cellar, Academy",
+     "University, Academy",
      "**Extort 300** anytime a player Opposes an Envoy of yours; Once/turn: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed"
     ],
     [
@@ -1722,6 +1722,13 @@
      "**Siege Timer +3**, Controlled Settlements gain **Reach +1**"
     ],
     [
+     "Castle Hall",
+     "Established Industry",
+     "—",
+     "Citadel",
+     "Doubt +1; Tax Income is Doubled."
+    ],
+    [
      "War College",
      "Established Prowess",
      "Library",
@@ -1786,7 +1793,7 @@
      "Imperial Palace",
      "Sovereign Prowess",
      "—",
-     "Citadel",
+     "Castle Hall",
      "Each Empire Phase, all non-allied players with a lower Prowess value gain Doubt +2. If your Envoy would fail, it passes instead."
     ],
     [
@@ -1878,7 +1885,7 @@
      "Sovereign Industry",
      "—",
      "Master Workshop",
-     "**Upkeep -500**; **Tempered** Weapons Unlocked; Craft +2"
+     "**Upkeep -1000**; **Tempered** Weapons Unlocked; Craft +3"
     ],
     [
      "Whispering Undercroft",

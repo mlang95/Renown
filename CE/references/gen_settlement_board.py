@@ -1535,7 +1535,10 @@ function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.
         paths+=edge(col,pick([[[x1,y1],[fx,y1],[fx,ey],[tip,ey]],[[x1,y1],[gx,y1],[gx,ey],[tip,ey]],
           [[x1,y1],[fx,y1],[fx,gy],[gx,gy],[gx,ey],[tip,ey]]],[n,k]));});});
     // same-column links: a lane in the gap left of the column (downward and upward links get separate lanes)
-    ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]===N[n][0]).forEach(k=>{const [x0,y0]=px(n),[,by]=px(k),dn=by>y0,lx=x0-(dn?14:26),col=EC[N[n][1]%EC.length],
+    // zag: a link into the box directly above/below (same column, next row) is a straight vertical step
+    ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]===N[n][0]&&Math.abs(N[k][1]-N[n][1])===1).forEach(k=>{const [x0,y0]=px(n),[,by]=px(k),dn=by>y0,cx=x0+Math.round(NW/2),col=EC[N[n][1]%EC.length];
+      paths+=edge(col,[[cx,dn?y0+NH:y0],[cx,dn?by-1-AL:by+NH+1+AL]]);}));
+    ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]===N[n][0]&&Math.abs(N[k][1]-N[n][1])!==1).forEach(k=>{const [x0,y0]=px(n),[,by]=px(k),dn=by>y0,lx=x0-(dn?14:26),col=EC[N[n][1]%EC.length],
         sy=y0+NH/2+(dn?6:-6),ty=by+NH/2+(dn?-6:6);
       paths+=edge(col,[[x0,sy],[lx,sy],[lx,ty],[x0-1-AL,ty]]);}));
     // backward links (a Mastery that needs a later Holding): dashed, leaving left, running in the row gap, entering the child's right edge

@@ -5,7 +5,7 @@ Abstain | [Abstain](https://mlang95.github.io/RenownWiki/glossary.html#abstain):
 Academy | [Academy](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: Influence +1 to Council Envoys; gain +1 Influence per turn / Requires: Library
 actions | [Actions](https://mlang95.github.io/RenownWiki/actions-ref.html): every Envoy action by Domain. Prowess (Move/Declare War/Pillage/Demand Tribute), Cunning (Intercept Caravan/Foster Rebellion/Raze/Destabilize/Sabotage), Piety (Spread Truth/Send Missionaries/Tithe/Convert/Sacred War), Industry (Improve/Repair/Build/Charter), Diplomacy (Sign Treaty/Negotiate/End Treaty).
 Adjacent | [Adjacent](https://mlang95.github.io/RenownWiki/glossary.html#adjacent): Range 1.
-Advanced Blast Furnace | [Advanced Blast Furnace](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Upkeep -500; Tempered Weapons Unlocked; Craft +2
+Advanced Blast Furnace | [Advanced Blast Furnace](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Upkeep -1000; Tempered Weapons Unlocked; Craft +3
 Alchemy | [Alchemy](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: +500; Craft+2
 Alliance | [Alliance](https://mlang95.github.io/RenownWiki/glossary.html#alliance): A Treaty binding players to mutual support; Military and Defensive Alliances unlock by Era.
 alliances | See 'treaties'. Military Alliances unlock at Eminence, Defensive at Zenith.
@@ -53,6 +53,7 @@ Cast Armor | [Cast Armor](https://mlang95.github.io/RenownWiki/glossary.html#cas
 cast gear | Cast tier: weapons [Daggers, Short Sword, Spear, Longbow], shields [Targe Shield], armor [Leather].
 Cast Shields | [Cast Shields](https://mlang95.github.io/RenownWiki/glossary.html#cast-shields): Cast-tier shields: Targe Shield. Unlocked by: Tannery.
 cast weapons | [Cast tier](https://mlang95.github.io/RenownWiki/equipment-ref.html) (4): Daggers, Short Sword, Spear, Longbow
+Castle Hall | [Castle Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Power). Effect: Doubt +1; Tax Income is Doubled.
 Casualty | [Casualty](https://mlang95.github.io/RenownWiki/glossary.html#casualty): A retinue removed from the field — from an unsaved Strike or a failed Panic or Break check.
 Cathedral | [Cathedral](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Sophisticated). Upkeep 300 (per Turn), build 4. Faith +2
 Cavalry Spear | [Cavalry Spear](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP -2, Init +1. Keywords: Steady, Unwieldy, Negate Riposte, Awkward.
@@ -169,9 +170,9 @@ Full Plate | [Full Plate](https://mlang95.github.io/RenownWiki/equipment-ref.htm
 Furnace | [Furnace](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Unlocks Cast Weapons; +500
 Padded | [Padded](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Crude). Save 8+. Keywords: none.
 Garrison | [Garrison](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Developed). Upkeep 200 (per Turn), build 3. Local Armies form (10/15/25/50 by Settlement size). All Garrisons share Retinues & Equipment. Can't be targeted; may not Sally Forth while under Siege. Do not pay upkeep.
-Gilded Foundry | [Gilded Foundry](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Unlock Forged armor and shield. Craft +1.
+Gilded Foundry | [Gilded Foundry](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Craft). Effect: Upkeep -500; Unlock Forged armor & shield.
 Gothic Plate | [Gothic Plate](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Tempered). Save 4+. Keywords: none.
-Granary | [Granary](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: Upkeep -500, Natural; Armies and Garrisons gain Endurance while Besieged
+Granary | [Granary](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: Upkeep -500; Armies and Garrisons gain Endurance while Besieged
 Grand Tournament | [Grand Tournament](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: Reach +1, 3x/turn: exchange 500 gold for 1 Influence; Armies gain Riposte & Improve Parry by +1.
 Grassland | [Grassland](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: —. Raw Materials: Arable Land, Apiary.
 Gunpowder | [Gunpowder](https://mlang95.github.io/RenownWiki/glossary.html#gunpowder): Gunpowder equipment: Arquebus. Unlocked by: Ordinance Yard, Fletchery.
