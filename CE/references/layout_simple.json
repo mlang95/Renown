@@ -457,52 +457,40 @@
     0,
     1
    ],
-   "Quarry": [
-    0,
-    2
-   ],
-   "Fishmongery": [
-    0,
-    3
-   ],
    "Workyard": [
     1,
     0
    ],
-   "Masonry": [
+   "Quarry": [
     1,
     2
-   ],
-   "Harbor": [
-    1,
-    3
    ],
    "Burgages": [
     2,
     0
    ],
-   "Trade Guild": [
+   "Masonry": [
     2,
     2
-   ],
-   "Shipyard": [
-    2,
-    3
    ],
    "Census Hall": [
     3,
     0
    ],
-   "College of Engineering": [
+   "Trade Guild": [
     3,
     2
    ],
    "Storehouse": [
-    3,
-    3
+    4,
+    0
+   ],
+   "College of Engineering": [
+    4,
+    2
    ],
    "Office of Works": [
-    4,
+    5,
     0
    ]
   },
@@ -520,10 +508,6 @@
     "College of Engineering"
    ],
    [
-    "Fishmongery",
-    "Harbor"
-   ],
-   [
     "Quarry",
     "Masonry"
    ],
@@ -532,19 +516,11 @@
     "Office of Works"
    ],
    [
-    "Census Hall",
-    "Office of Works"
-   ],
-   [
     "Storehouse",
     "Office of Works"
    ],
    [
-    "Harbor",
-    "Shipyard"
-   ],
-   [
-    "Shipyard",
+    "Census Hall",
     "Storehouse"
    ],
    [
@@ -558,6 +534,51 @@
    [
     "Salt Works",
     "Workyard"
+   ]
+  ]
+ },
+ {
+  "title": "Port Authority",
+  "anchor": "Port Authority",
+  "mode": "chain",
+  "nodes": {
+   "Fishmongery": [
+    0,
+    0
+   ],
+   "Harbor": [
+    1,
+    0
+   ],
+   "Shipyard": [
+    2,
+    0
+   ],
+   "Emporium": [
+    3,
+    0
+   ],
+   "Port Authority": [
+    4,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Shipyard",
+    "Emporium"
+   ],
+   [
+    "Fishmongery",
+    "Harbor"
+   ],
+   [
+    "Emporium",
+    "Port Authority"
+   ],
+   [
+    "Harbor",
+    "Shipyard"
    ]
   ]
  },

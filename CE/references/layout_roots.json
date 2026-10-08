@@ -830,15 +830,11 @@
     1,
     0
    ],
-   "Conditioning Field": [
-    1,
-    1
-   ],
    "Burgages": [
     2,
     0
    ],
-   "Coliseum": [
+   "Conditioning Field": [
     2,
     1
    ],
@@ -846,16 +842,24 @@
     3,
     0
    ],
-   "Grand Tournament": [
+   "Coliseum": [
     3,
     1
    ],
-   "Office of Works": [
+   "Storehouse": [
     4,
     0
    ],
-   "Royal Pavilion": [
+   "Grand Tournament": [
     4,
+    1
+   ],
+   "Office of Works": [
+    5,
+    0
+   ],
+   "Royal Pavilion": [
+    5,
     1
    ]
   },
@@ -881,12 +885,16 @@
     "Grand Tournament"
    ],
    [
-    "Census Hall",
+    "Storehouse",
     "Office of Works"
    ],
    [
     "Grand Tournament",
     "Royal Pavilion"
+   ],
+   [
+    "Census Hall",
+    "Storehouse"
    ],
    [
     "Common Land",
@@ -903,15 +911,11 @@
     0,
     0
    ],
-   "Butchery": [
-    1,
-    0
-   ],
    "Workyard": [
     1,
     1
    ],
-   "Smokehouse": [
+   "Butchery": [
     2,
     0
    ],
@@ -919,7 +923,7 @@
     2,
     1
    ],
-   "Levy Hall": [
+   "Smokehouse": [
     3,
     0
    ],
@@ -927,12 +931,20 @@
     3,
     1
    ],
-   "Baggage Train": [
+   "Levy Hall": [
     4,
     0
    ],
-   "Office of Works": [
+   "Storehouse": [
     4,
+    1
+   ],
+   "Baggage Train": [
+    5,
+    0
+   ],
+   "Office of Works": [
+    5,
     1
    ]
   },
@@ -958,12 +970,16 @@
     "Levy Hall"
    ],
    [
-    "Census Hall",
+    "Storehouse",
     "Office of Works"
    ],
    [
     "Butchery",
     "Smokehouse"
+   ],
+   [
+    "Census Hall",
+    "Storehouse"
    ],
    [
     "Salt Works",
@@ -1147,31 +1163,31 @@
     2,
     0
    ],
-   "Storehouse": [
+   "Emporium": [
     3,
     0
    ],
-   "Office of Works": [
+   "Port Authority": [
     4,
     0
    ]
   },
   "edges": [
    [
+    "Shipyard",
+    "Emporium"
+   ],
+   [
     "Fishmongery",
     "Harbor"
    ],
    [
-    "Storehouse",
-    "Office of Works"
+    "Emporium",
+    "Port Authority"
    ],
    [
     "Harbor",
     "Shipyard"
-   ],
-   [
-    "Shipyard",
-    "Storehouse"
    ]
   ]
  },

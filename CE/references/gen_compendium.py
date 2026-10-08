@@ -10,8 +10,7 @@ import json, sys
 sys.path.insert(0, ".")
 import renown_data as rd
 
-SECTION_ORDER = ["Raw Materials", "Husbandry", "Craft", "Civic", "Secrecy",
-                 "Energy", "Power", "Monument"]
+SECTION_ORDER = rd.TYPE_ORDER   # SIMPLE: Holding groups; legacy: pursuit types
 
 def pursuit_sections():
     secs = []
@@ -85,21 +84,23 @@ def standings_rows():
 
 
 GLOSSARY_CATEGORIES = [
-    ("Combat — Keyword Abilities", [rd.STEADY, rd.UNWIELDY, rd.TWO_H, rd.SHATTER_ARMOR, rd.UNSTOPPABLE,
-        rd.CLEAVE, rd.POISON, rd.NIMBLE, rd.DRILLED, rd.DESTROY_SHIELD, rd.ONE_SHOT, rd.PARRY,
-        rd.RIPOSTE, rd.RECOVER, rd.SERRATED, rd.PLANISHING, "Immune [keyword]"]),
-    ("Combat — States", [rd.BLUNDER, rd.FATIGUE_TOKEN, "Blocked", "Strained", "Seize the Initiative"]),
-    ("Combat — Terms", ["AP", rd.PIVOTAL]),
-    ("Battle Structure", ["Attacker / Defender","Battle","Skirmish","Casualty","Field","Endurance",
-        "Fatigued","Break check","Panic check","Morale","Rout","Fall Back","Strike",
-        "to-Strike number","Save","Natural roll","Initiative","Tactic","Dual-equip"]),
-    ("Council & Diplomacy", ["Influence","Influence X","Envoy","Vote","Support X","Oppose X","Abstain",
-        "Net Influence","Endorsed","Condemned","Council Phase","Council Envoy","Personal Envoy",
-        "Diplomacy","Treaty","Alliance","Vassal","Suzerain"]),
-    ("Empire & Economy", ["Faith X","Doubt X","Extort X","Recoup X","Speed X","Edict","Monument","Charter",
-        "Muster"] + (["Build","Improve"] if getattr(rd,"SIMPLE",False) else ["Pursue","Build"]) + ["Repair","Move","Demand Tribute","Renown","Domain","Domain Point",
-        "Standing","Public Order","Reach","Ward",getattr(rd,"CHAIN_TERM","Efficient")+" X","War Weariness"]),
-    ("World", ["Bandit","Outlaw Country","Siege","Sally Forth"]),
+    ('Reading the Rules', ['Natural roll', rd.PIVOTAL, 'Perform', 'Resolve', 'Cost / Pay', 'Fail', 'Host']),
+    ('Council & Envoys', ['Influence', 'Influence X', 'Envoy', 'Send an Envoy', 'Personal Envoy', 'Council Phase', 'Council Envoy', 'Vote', 'Support X', 'Oppose X', 'Abstain', 'Net Influence', 'Envoy Outcome', 'Passed', 'Failed', 'Endorsed', 'Condemned']),
+    ('Domains & Scoring', ['Renown', 'Domain', 'Domain Point', 'Standing', 'Edict', 'Monument']),
+    ('Actions', ['Charter', 'Muster', *( ["Build"] if getattr(rd,"SIMPLE",False) else ["Pursue"] ), *( ["Improve"] if getattr(rd,"SIMPLE",False) else ["Build"] ), 'Repair', 'Move', 'Demand Tribute', 'Diplomacy']),
+    ('Treaties', ['Treaty', 'Alliance', 'Vassal', 'Suzerain']),
+    ('Economy & Public Order', ['Public Order', 'Faith X', 'Doubt X', 'Extort X', 'Recoup X', 'Upkeep', 'Craft', 'War Weariness']),
+    ('Settlements & Pursuits', ['Ward', 'Natural', *(["Root"] if getattr(rd,"SIMPLE",False) else []), getattr(rd,"CHAIN_TERM","Efficient"), getattr(rd,"CHAIN_TERM","Efficient")+" X"]),
+    ('Timers', list(rd.TIMERS)),
+    ('Map & Range', ['Realm', 'Region', 'Territory', 'Province', 'Border', 'Controlled', 'Contested', 'Uncontrolled', 'Range X', 'Within', 'Adjacent', 'Next to', 'Reach', 'Reach X']),
+    ('World', ['Bandit', 'Outlaw Country', 'Siege', 'Sally Forth']),
+    ('Army States', ['Speed X', 'Blocked', 'Strained']),
+    ('Battle Structure', ['Battle', 'Skirmish', 'Attacker / Defender', 'Seize the Initiative', 'Tactic', 'Field', 'Casualty', 'Initiative', rd.BLUNDER, 'Strike', 'to-Strike number', 'AP', 'Save', 'Endurance', 'Fatigued', rd.FATIGUE_TOKEN, 'Morale', 'Break check', 'Panic check', 'Rout', 'Fall Back']),
+    ('Combat Keywords — Defense', [rd.PARRY, rd.RIPOSTE, rd.RECOVER, rd.ENDURING, rd.NO_PARRY, rd.MINUS_1_TBH, rd.PLANISHING]),
+    ('Combat Keywords — Offense', [rd.SHATTER_ARMOR, rd.CLEAVE, rd.POISON, rd.DESTROY_SHIELD, rd.UNSTOPPABLE, rd.SERRATED]),
+    ('Combat Keywords — Handling', [rd.STEADY, rd.UNWIELDY, rd.NIMBLE, rd.DRILLED, rd.TWO_H, rd.DUAL_WIELD, 'Dual-equip', rd.ONE_SHOT]),
+    ('Combat Keywords — Immune / Negate', ['Immune [keyword]', rd.NEGATE_TEMPERED, rd.NEGATE_RIPOSTE]),
+    ('Equipment Tiers', [k for k in map(str, rd.GLOSSARY) if k.split()[0] in {rd.display_tier(x) for x in rd.TIERS} | set(getattr(rd,"ITEM_TIER_DISPLAY",{}).values()) or k == "Ranged Weapons"]),
 ]
 
 def glossary_categorized():

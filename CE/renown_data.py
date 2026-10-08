@@ -635,7 +635,7 @@ FACTION_SUMMARIES = {
     'The Pale Throne':       'Unwieldy, Panic-immune Armies; Public Order capped at 1',
     'The Dukedom':           'Hosts the game; attacking the Duke unites the table',
     'The Eternal Court':     'Banks Influence; up to 5 per Envoy in Zenith',
-    'The Illuminated Order': 'Influence +1 per 3 Pursuits',
+    'The Illuminated Order': '+1 Influence per 3 Pursuits',
     'The Luminous Court':    'Civic Pursuits upgraded; no Craft Pursuits',
     'The Inner Circle':      "Allies' Envoys +1; may spend allies' Influence",
 }
@@ -1683,252 +1683,261 @@ NODES = {
 }
 SIMPLE_NODES = {
     "Quarry": {
-        "type": "Raw Materials",
+        "group": "g_raw",
+        "root": True,
         "unlock": "-",
         "innate": "+500, **Natural**; Craft +1",
         "builds_into": ["Masonry"],
         "monument": False},
     "Salt Works": {
-        "type": "Raw Materials",
+        "group": "g_raw",
+        "root": True,
         "unlock": "-",
         "innate": "+500, **Natural**; Craft +1",
         "builds_into": ["Smokehouse","Workyard"],
         "monument": False},
     "Apiary": {
-        "type": "Raw Materials",
+        "group": "g_raw",
+        "root": True,
         "unlock": "-",
         "innate": "+500, **Natural**; Craft +1",
         "builds_into": ["Chandlery", "Meadery"],
         "monument": False},
     "Peat Bog": {
-        "type": "Raw Materials",
+        "group": "g_raw",
+        "root": True,
         "unlock": "-",
         "innate": "+500, **Natural**; Craft +1",
         "builds_into": ["Alchemy"],
         "monument": False},
     "Forestry": {
-        "type": "Raw Materials",
+        "group": "g_raw",
+        "root": True,
         "unlock": "-",
         "innate": "+500, **Natural**; Craft +1",
         "builds_into": ["Carpentry", "Charcoal Burner", "Kiln"],
         "monument": False},
     "Fishmongery": {
-        "type": "Raw Materials",
+        "group": "g_raw",
+        "root": True,
         "unlock": "-",
         "innate": "+500, **Natural**; Craft +2",
         "builds_into": ["Harbor"],
         "monument": False},
     "Mine": {
-        "type": "Raw Materials",
+        "group": "g_raw",
+        "root": True,
         "unlock": "-",
         "innate": "+500, **Natural**; Craft +1",
         "builds_into": ["Furnace","Siege Works"],
         "monument": False},
     "Arable Land": {
-        "type": "Raw Materials",
+        "group": "g_raw",
+        "root": True,
         "unlock": "-",
         "innate": "+500, **Natural**; Craft +1",
         "efficient": ["Hamlet"],          # may start a Hamlet (Hamlet = location token, not a Holding)
         "builds_into": ["Herb Garden", "Animal Husbandry", "Granary", "Orchard","Vineyard"],
         "monument": False},
     "Common Land": {
-        "type": "Raw Materials",
+        "group": "g_raw",
+        "root": True,
         "unlock": "-",
         "innate": "+1000, **Natural**, **Doubt +1**",
         "efficient": ["Hamlet"],          # may start a Hamlet (Hamlet = location token, not a Holding)
         "builds_into": ["Workyard", "Burgages"],
         "monument": False},
     "Herb Garden": {
-        "type": "Husbandry",
+        "group": "g_husbandry",
         "unlock": "-",
         "innate": "+500, **Natural**; Craft +1",
         "efficient": "Arable Land",
         "builds_into": ["Spice Merchant"],
         "monument": False},
     "Animal Husbandry": {
-        "type": "Husbandry",
+        "group": "g_husbandry",
         "unlock": "-",
         "innate": "**Natural**, Unlock **Crude** armor and shield. Upkeep -500",
         "efficient": "Arable Land",
         "builds_into": ["Tannery", "Stable"],
         "monument": False},
     "Saddlery": {
-        "type": "Husbandry",
+        "group": "g_husbandry",
         "unlock": "-",
         "innate": "+500, **Natural**; Speed +1; Unlocks Lance (Still requires Tier Unlock)",
         "efficient": ["Stable", "Caravanery"],
         "builds_into": [],
         "monument": False},
     "Vineyard": {
-        "type": "Husbandry",
+        "group": "g_husbandry",
         "unlock": "-",
         "innate": "+500, **Natural**; +500 in **Fall**",
         "efficient": "Arable Land",
         "builds_into": ["Winery"],
         "monument": False},
     "Orchard": {
-        "type": "Husbandry",
+        "group": "g_husbandry",
         "unlock": "-",
         "innate": "+800, **Natural**; +200 in **Fall**",
         "efficient": "Arable Land",
         "builds_into": ["Cidery"],
         "monument": False},
     "Carpentry": {
-        "type": "Craft",
+        "group": "g_arms",
         "unlock": "-",
         "innate": "**Build Timer −1**; +500, Craft+1",
         "efficient": "Forestry",
         "builds_into": ["Fletchery", "Joinery", "Mill","Siege Works"],
         "monument": False},
     "Alchemy": {
-        "type": "Craft",
+        "group": "g_commerce",
         "unlock": "-",
         "innate": "+500; Craft+2",
         "efficient": "Peat Bog",
         "builds_into": ["Academy", "Apothecary", "Toxicarium"],
         "monument": False},
     "Masonry": {
-        "type": "Craft",
+        "group": "g_works",
         "unlock": "-",
         "innate": "No Upkeep on **Primitive Infrastructure**; **Build Timer −1**",
         "efficient": "Quarry",
         "builds_into": ["Granary", "Trade Guild", "Abbey","Mill"],
         "monument": False},
     "Butchery": {
-        "type": "Craft",
+        "group": "g_logistics",
         "unlock": "-",
         "innate": "Natural; +500; **Upkeep -500**; Craft+1",
         "efficient": ["Salt Works", "Charcoal Burner"],
         "builds_into": ["Smokehouse"],
         "monument": False},
     "Bakery": {
-        "type": "Craft",
+        "group": "g_husbandry",
         "unlock": "-",
         "innate": "Natural; Faith +1; +500; Craft +2",
         "efficient": "Meadery",
         "builds_into": ["Mill"],
         "monument": False},
     "Weavery": {
-        "type": "Craft",
+        "group": "g_commerce",
         "unlock": "-",
         "innate": "+1000; Craft +2",
         "efficient": "Market Square",
         "builds_into": ["Artisan Workshop", "Mill"],
         "monument": False},
     "Fletchery": {
-        "type": "Craft",
+        "group": "g_arms",
         "unlock": "-",
         "innate": "Unlocks **Ranged Weapons**; **Upkeep -200**",
         "efficient": "Carpentry",
         "builds_into": ["Tiltyard"],
         "monument": False},
     "Chandlery": {
-        "type": "Craft",
+        "group": "g_devotion",
         "unlock": "-",
         "innate": "Craft +1; **Influence −1** to Cunning actions targeting you",
         "efficient": "Apiary",
         "builds_into": ["Reliquary"],
         "monument": False},
     "Tannery": {
-        "type": "Craft",
+        "group": "g_arms",
         "unlock": "-",
         "innate": "Natural; Unlocks **Cast** armor & shield. **Upkeep -500**; Craft +1",
         "efficient": ["Animal Husbandry","Joinery"],
         "builds_into": ["Armory"],
         "monument": False},
     "Joinery": {
-        "type": "Craft",
+        "group": "g_arms",
         "unlock": "Rising Industry",
         "innate": "unlocks **Shields**; **Upkeep -500**",
         "efficient": "Carpentry",
         "builds_into": ["Tannery"],
         "monument": False},
     "Furnace": {
-        "type": "Craft",
+        "group": "g_arms",
         "unlock": "-",
         "innate": "Unlocks **Cast** Weapons; +500",
         "efficient": "Mine",
         "builds_into": ["Blacksmith"],
         "monument": False},
     "Blacksmith": {
-        "type": "Craft",
+        "group": "g_arms",
         "unlock": "Rising Industry",
         "innate": "Craft +1; Unlocks **Wrought** Weapons",
         "efficient": "Furnace",
         "builds_into": ["Forge"],
         "monument": False},
     "Jewelry Foundry": {
-        "type": "Craft",
+        "group": "g_commerce",
         "unlock": "-",
         "innate": "+2000; **Influence +1** to Cunning actions targeting this player; Craft +5",
         "efficient": "Gilded Foundry",
         "builds_into": [],
         "monument": False},
     "Armory": {
-        "type": "Craft",
+        "group": "g_arms",
         "unlock": "Rising Industry",
         "innate": "Unlock **Wrought** armor & shield; **Upkeep -500**; Craft +1",
         "efficient": ["Tannery", "Blacksmith"],
         "builds_into": ["Gilded Foundry"],
         "monument": False},
     "Master Workshop": {
-        "type": "Craft",
+        "group": "g_arms",
         "unlock": "Established Industry",
         "innate": "**Upkeep -500**; Craft +1; Add **Serrated** to Weapons",
         "efficient": "Forge",
         "builds_into": ["Advanced Blast Furnace"],
         "monument": False},
     "Gilded Foundry": {
-        "type": "Craft",
+        "group": "g_arms",
         "unlock": "Established Industry",
         "innate": "Upkeep -500; Unlock **Forged** armor & shield.",
         "efficient": "Armory",
         "builds_into": ["Jewelry Foundry", "Court Armoury"],
         "monument": False},
     "Smokehouse": {
-        "type": "Craft",
+        "group": "g_logistics",
         "unlock": "-",
         "innate": "Natural; Craft +2; **Upkeep -500**",
         "efficient": ["Butchery"],
         "builds_into": ["Levy Hall"],
         "monument": False},
     "Workyard": {
-        "type": "Craft",
+        "group": "g_works",
         "unlock": "—",
         "innate": "Natural; **Doubt +1**, +1000",
         "efficient": ["Common Land","Salt Works"],
         "builds_into": ["Burgages"],
         "monument": False},
     "Storehouse": {
-        "type": "Craft",
+        "group": "g_works",
         "unlock": "Established Industry",
-        "innate": "**Doubt +1**, +1500; **Build Timer −2**",
-        "efficient": "Shipyard",
+        "innate": "Natural; **Doubt +1**, +2000; **Build Timer −1**",
+        "efficient": ["Census Hall"],
         "builds_into": ["Office of Works"],
         "monument": False},
     "Meadery": {
-        "type": "Craft",
+        "group": "g_husbandry",
         "unlock": "Established Industry",
         "innate": "Natural; **Faith +1**; **Speed +2** in **Winter**",
         "efficient": "Apiary",
         "builds_into": ["Bakery"],
         "monument": False},
     "Winery": {
-        "type": "Craft",
+        "group": "g_husbandry",
         "unlock": "Established Industry",
         "innate": "Natural; +800; Craft +3",
         "efficient": "Vineyard",
         "builds_into": [],
         "monument": False},
     "Cidery": {
-        "type": "Craft",
+        "group": "g_husbandry",
         "unlock": "Established Industry",
         "innate": "Natural; **Faith +1**; +800; Craft +1",
         "efficient": "Orchard",
         "builds_into": [],
         "monument": False},
     "Market Square": {
-        "type": "Craft",
+        "group": "g_commerce",
         "unlock": "Rising Industry",
         "infrastructure_req": "Hitching Post",
         "innate": "Craft +2; +500",
@@ -1936,91 +1945,92 @@ SIMPLE_NODES = {
         "builds_into": ["Inn", "Merchant Quarter", "Census Hall"],
         "monument": False},
     "Inn": {
-        "type": "Craft",
+        "group": "g_court",
+        "root": True,
         "unlock": "-",
         "infrastructure_req": "Hitching Post",
         "innate": "**Faith +1** for trading partners with Craft 3+; **Faith +1**",
         "builds_into": ["Courier Network", "Smuggler's Nook"],
         "monument": False},
     "Spice Merchant": {
-        "type": "Craft",
+        "group": "g_commerce",
         "unlock": "-",
         "innate": "Natural; +1000; Influence +1 to Cunning actions targeting you; Craft +4",
         "efficient": "Herb Garden",
         "builds_into": [],
         "monument": False},
     "Harbor": {
-        "type": "Craft",
+        "group": "g_commerce",
         "unlock": "-",
         "innate": "Craft +2; **Extort 500** per **player** without **Harbor**",
         "efficient": "Fishmongery",
         "builds_into": ["Shipyard"],
         "monument": False},
     "Merchant Quarter": {
-        "type": "Craft",
+        "group": "g_commerce",
         "unlock": "Rising Industry",
         "innate": "+500; Trade Partners gain Craft +2",
         "efficient": ["Market Square","Courtyard"],
         "builds_into": ["Money Lending"],
         "monument": False},
     "Money Lending": {
-        "type": "Power",
+        "group": "g_commerce",
         "unlock": "Established Industry",
         "innate": "**Extort 1000**; May loan money to Trade Partners at 100 per 1000/turn interest(minimum 100); on Default: Perform **Demand Tribute**",
         "efficient": ["Court Artists","Merchant Quarter"],
         "builds_into": ["Aristocratic Court"],
         "monument": False},
     "Census Hall": {
-        "type": "Craft",
+        "group": "g_works",
         "unlock": "-",
         "innate": "Natural; **Doubt +1**; +1000",
         "efficient": "Burgages",
         "builds_into": ["Office of Works"],
         "monument": False},
     "Caravanery": {
-        "type": "Craft",
+        "group": "g_logistics",
         "unlock": "-",
         "innate": "Natural; **Influence -2** to **Intercept Caravan actions** targeting your **settlements**; **Craft +2**; **Speed -2** to non-allied armies in your Province.",
         "efficient": ["Saddlery", "Stable"],
         "builds_into": ["Saddlery", "Toll House"],
         "monument": False},
     "Stable": {
-        "type": "Civic",
+        "group": "g_arms",
         "unlock": "1 Rising",
         "innate": "**Speed +2**, Natural; Unlocks Cavalry Spear (Still requires Tier Unlock)",
         "efficient": "Animal Husbandry",
         "builds_into": ["Saddlery", "Caravanery"],
         "monument": False},
     "Shipyard": {
-        "type": "Craft",
+        "group": "g_commerce",
         "unlock": "Established Industry",
         "innate": "Craft +4; Water Territory treated as Grassland for movement",
         "efficient": "Harbor",
         "builds_into": ["Storehouse"],
         "monument": False},
     "Coliseum": {
-        "type": "Civic",
+        "group": "g_logistics",
         "unlock": "Rising Prowess",
         "innate": "**Faith +1** while at War; Unlocks **Man-at-Arms** for **Muster**",
         "efficient": "Conditioning Field",
         "builds_into": ["Grand Tournament"],
         "monument": False},
     "Interrogation Chambers": {
-        "type": "Civic",
+        "group": "g_devotion",
         "unlock": "Rising Piety",
         "innate": "Extort 500; Cunning actions targeting this player that cause Doubt are reduced by 1, to a minimum of 0.",
         "efficient": "Episcopal Court",
         "builds_into": ["Execution Dock"],
         "monument": False},
     "Abbey": {
-        "type": "Civic",
+        "group": "g_devotion",
         "unlock": "Established Piety",
         "innate": "Once/turn: **Influence +1** another player's Piety Envoy; **Influence −1** to Piety actions targeting you",
         "efficient": "Masonry",
         "builds_into": ["Monastery"],
         "monument": False},
     "Reliquary": {
-        "type": "Civic",
+        "group": "g_devotion",
         "unlock": "Rising Piety",
         "infrastructure_req": "Cathedral",
         "innate": "+500; First **Doubt** per turn reduced by 1 (min 0)",
@@ -2028,7 +2038,7 @@ SIMPLE_NODES = {
         "builds_into": ["Pilgrimage Site"],
         "monument": False},
     "Monastery": {
-        "type": "Power",
+        "group": "g_devotion",
         "unlock": "Established Piety",
         "infrastructure_req": "Cathedral",
         "innate": "Reach +1; Other players can't Oppose your Piety Envoys",
@@ -2036,35 +2046,35 @@ SIMPLE_NODES = {
         "builds_into": ["Papal Palace"],
         "monument": False},
     "Execution Dock": {
-        "type": "Civic",
+        "group": "g_devotion",
         "unlock": "Established Piety",
         "innate": "**Influence -2** to **Foster Rebellion actions** targeting your **settlements**; **Players** who **target** you or your **settlements** with **actions** that cause **doubt** gain **Doubt +1**",
         "efficient": "Interrogation Chambers",
         "builds_into": ["Inquisitorial Palace"],
         "monument": False},
     "Hospitaller": {
-        "type": "Power",
+        "group": "g_devotion",
         "unlock": "Established Piety",
         "innate": "**Recover** improved by +1; Enduring: Successful Recovered rolls do not count towards the panic check threshold.",
         "efficient": "Infirmary",
         "builds_into": [],
         "monument": False},
     "Jester's Court": {
-        "type": "Civic",
+        "group": "g_court",
         "unlock": "1 Rising",
         "innate": "First and second **Oppose** on an Envoy of yours each turn: reduce by 1",
         "efficient": "Courtyard",
         "builds_into": ["Bell Tower"],
         "monument": False},
     "Bell Tower": {
-        "type": "Civic",
+        "group": "g_court",
         "unlock": "1 Established",
         "innate": "**+1 Influence**/turn; **Influence +1** to envoys sent during the Council Phase.",
         "efficient": "Jester's Court",
         "builds_into": ["Embassy"],
         "monument": False},
     "Embassy": {
-        "type": "Civic",
+        "group": "g_court",
         "unlock": "1 Established",
         "infrastructure_req": "Town Hall",
         "innate": "Diplomacy Envoys cannot Fail; Other non-vassal players gain Faith +1 per Signed Treaty with you besides Peace.",
@@ -2072,14 +2082,14 @@ SIMPLE_NODES = {
         "builds_into": ["Senate Hall"],
         "monument": False},
     "Granary": {
-        "type": "Civic",
+        "group": "g_works",
         "unlock": "Rising Industry",
         "innate": "Upkeep -500; Armies and Garrisons gain **Endurance** while Besieged",
         "efficient": "Masonry",
         "builds_into": ["Supply Depot", "Citadel"],
         "monument": False},
     "Academy": {
-        "type": "Civic",
+        "group": "g_court",
         "unlock": "1 Rising",
         "infrastructure_req": "Library",
         "innate": "**Influence +1** to Council Envoys; gain +1 Influence per turn",
@@ -2087,7 +2097,8 @@ SIMPLE_NODES = {
         "builds_into": ["University", "Forgery Workshop"],
         "monument": False},
     "Courtyard": {
-        "type": "Civic",
+        "group": "g_commerce",
+        "root": True,
         "unlock": "-",
         "infrastructure_req": "Town Hall",
         "innate": "Craft +1; **Faith +1**",
@@ -2095,14 +2106,14 @@ SIMPLE_NODES = {
         "builds_into": ["Market Square", "Jester's Court", "Episcopal Court", "Conditioning Field"],
         "monument": False},
     "Episcopal Court": {
-        "type": "Civic",
+        "group": "g_devotion",
         "unlock": "Rising Piety",
         "innate": "**Faith +1**; Reduce the first instance of Doubt at start of turn by 1, min 0.",
         "efficient": "Courtyard",
         "builds_into": ["Interrogation Chambers"],
         "monument": False},
     "Conditioning Field": {
-        "type": "Civic",
+        "group": "g_logistics",
         "unlock": "Rising Prowess",
         "infrastructure_req": "Muster Field",
         "innate": "**Faith +1** while not at War; Armies gain **Nimble**",
@@ -2110,42 +2121,42 @@ SIMPLE_NODES = {
         "builds_into": ["Coliseum"],
         "monument": False},
     "Grand Tournament": {
-        "type": "Civic",
+        "group": "g_logistics",
         "unlock": "Established Prowess",
         "innate": "**Reach +1**, 3x/turn: exchange 500 gold for **1 Influence**; Armies gain **Riposte** & Improve Parry by +1.",
         "efficient": ["Coliseum","Tiltyard"],
         "builds_into": [],
         "monument": False},
     "Apothecary": {
-        "type": "Civic",
+        "group": "g_devotion",
         "unlock": "-",
         "innate": f'+300; Gain Recover {RECOVER_BASE}, or improve Recover by +1.',
         "efficient": "Alchemy",
         "builds_into": ["Infirmary"],
         "monument": False},
     "Infirmary": {
-        "type": "Civic",
+        "group": "g_devotion",
         "unlock": "Rising Piety",
         "innate": "+500; Improve Recover by +1",
         "efficient": "Apothecary",
         "builds_into": ["Hospitaller"],
         "monument": False},
     "Supply Depot": {
-        "type": "Civic",
+        "group": "g_works",
         "unlock": "Rising Industry",
         "innate": "**Craft +2**; May **Muster** an Army in a Settlement under Siege and increment Muster Timers.",
         "efficient": "Granary",
         "builds_into": ["Citadel"],
         "monument": False},
     "Artisan Workshop": {
-        "type": "Civic",
+        "group": "g_commerce",
         "unlock": "Established Industry",
         "innate": "+1000, **Faith +1**",
         "efficient": "Weavery",
         "builds_into": ["Court Artists"],
         "monument": False},
     "University": {
-        "type": "Power",
+        "group": "g_court",
         "unlock": "1 Established",
         "infrastructure_req": "Library",
         "innate": "May spend one additional **Influence** per Support or Oppose; +1 **Influence** per Domain you are Rising",
@@ -2153,98 +2164,98 @@ SIMPLE_NODES = {
         "builds_into": ["Forgery Workshop","Studium Generale","Ministry of Military Strategy"],
         "monument": False},
     "Trade Guild": {
-        "type": "Civic",
+        "group": "g_works",
         "unlock": "Rising Industry",
         "innate": "No Upkeep on **Developed Infrastructure**; **Build Timer −1**",
         "efficient": "Masonry",
         "builds_into": ["College of Engineering"],
         "monument": False},
     "Court Artists": {
-        "type": "Civic",
+        "group": "g_commerce",
         "unlock": "Established Industry",
         "innate": "**Extort 500** twice; Targets of Extort from Court Artist gain **Faith +1**",
         "efficient": "Artisan Workshop",
         "builds_into": ["Money Lending"],
         "monument": False},
     "Courier Network": {
-        "type": "Civic",
+        "group": "g_court",
         "unlock": "-",
         "innate": "Once/turn before voting: **Influence −1** on Target Envoy; Once/turn: successfully Performed Personal Envoy can be Performed next turn; send 1 fewer Envoys next turn",
         "efficient": "Inn",
         "builds_into": ["Smuggler's Nook"],
         "monument": False},
     "Toll House": {
-        "type": "Civic",
+        "group": "g_secrecy",
         "unlock": "Rising Cunning",
         "innate": "Natural, **Extort 2000** when non-Allied Army ends a Move action within Province; Once/turn: when an Army ends a Move action within Province: Perform a Diplomacy action targeting that army's player",
         "efficient": ["Caravanery"],
         "builds_into": ["Beacon Towers"],
         "monument": False},
     "College of Engineering": {
-        "type": "Power",
+        "group": "g_works",
         "unlock": "Established Industry",
-        "innate": "No Upkeep on **Sophisticated Infrastructure**; **Build Timer −2**",
+        "innate": "No Upkeep on **Sophisticated Infrastructure**; **Build Timer −1**",
         "efficient": "Trade Guild",
         "builds_into": ["Office of Works"],
         "monument": False},
     "Secret Cellar": {
-        "type": "Energy",
+        "group": "g_secrecy",
         "unlock": "Rising Cunning",
         "innate": "Natural; Failed Cunning envoys **Recoup 500 Gold**; Passed Cunning envoys **Recoup 500 Gold**",
         "efficient": ["Secrecy", "Thieves' Guild", "Outlaw Rookery", "Outrider Intercept Post"],
         "builds_into": ["Secrecy"],
         "monument": False},
     "Smuggler's Nook": {
-        "type": "Secrecy",
+        "group": "g_secrecy",
         "unlock": "Established Cunning",
         "innate": "gain Immune Uprising (Bandit Camp Spawn at -5PO); Bandit Camps in your Outlaw Country don't target you and instead target other players randomly.",
         "efficient": ["Courier Network"],
         "builds_into": ["Black Market", "Syndicate Hub"],
         "monument": False},
     "Syndicate Hub": {
-        "type": "Secrecy",
+        "group": "g_secrecy",
         "unlock": "Established Cunning",
         "innate": "Whenever a Bandit Camp within Province Extorts, you Extort the Bandit Camp for half the amount.",
         "efficient": ["Smuggler's Nook"],
         "builds_into": ["Smuggler's Nook"],
         "monument": False},
     "Black Market": {
-        "type": "Secrecy",
+        "group": "g_secrecy",
         "unlock": "Established Cunning",
         "innate": "When another player **Extorts** gold from any source: **Extort 200** per 1000 (minimum 100) from that player at the end of that resolution. When another player **Recoups** gold from any source: **Extort 200** per 1000 (minimum 100) from that player at the end of that resolution.",
         "efficient": ["Smuggler's Nook"],
         "builds_into": ["Thieves' Guild"],
         "monument": False},
     "Forgery Workshop": {
-        "type": "Secrecy",
+        "group": "g_secrecy",
         "unlock": "Established Cunning",
         "innate": "**Extort 300** anytime a player Opposes an Envoy of yours; Once/turn: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed",
         "efficient": ["University", "Academy"],
         "builds_into": ["Cipher Chamber"],
         "monument": False},
     "Toxicarium": {
-        "type": "Secrecy",
+        "group": "g_secrecy",
         "unlock": "Rising Cunning",
         "innate": "Weapons gain **Poison**; Endorsed Cunning actions give an additional **Doubt +1** to Target",
         "efficient": ["Alchemy", "Forgotten Catacombs"],
         "builds_into": ["Charnel House"],
         "monument": False},
     "Charnel House": {
-        "type": "Secrecy",
+        "group": "g_secrecy",
         "unlock": "Established Cunning",
         "innate": "Indecisive, Aimless, & Recession effects are doubled for all players",
         "efficient": ["Toxicarium"],
         "builds_into": ["Plague Pit"],
         "monument": False},
     "Plague Pit": {
-        "type": "Monument",
+        "group": "g_secrecy",
         "unlock": "Sovereign Cunning",
         "innate": "Cunning actions give an additional **Doubt +1** to Target; No longer affected by all Public Order effects (positive or negative). This player cannot be the target of a Convert action.",
         "efficient": ["Charnel House"],
         "builds_into": [],
         "monument": True},
     "Pilgrimage Site": {
-        "type": "Energy",
+        "group": "g_devotion",
         "unlock": "Established Piety",
         "infrastructure_req": "Cathedral",
         "innate": "Natural; **Extort 500** every player without a Pilgrimage Site; **Doubt +1** to all other players without a Pilgrimage Site",
@@ -2252,49 +2263,49 @@ SIMPLE_NODES = {
         "builds_into": ["Exalted Basilica"],
         "monument": False},
     "Beacon Towers": {
-        "type": "Energy",
+        "group": "g_secrecy",
         "unlock": "Established Cunning",
         "innate": "Natural; Once per turn, you may select an Army within Province and move it up to its modified Speed. Whenever a non-allied Army ends a Move action within Province, you may immediately perform a Move action",
         "efficient": "Toll House",
         "builds_into": ["Outrider Intercept Post"],
         "monument": False},
     "Forgotten Catacombs": {
-        "type": "Secrecy",
+        "group": "g_secrecy",
         "unlock": "Rising Cunning",
         "innate": "Cunning actions targeting you can't be **Endorsed**",
         "efficient": "Secret Cellar",
         "builds_into": ["Toxicarium"],
         "monument": False},
     "Charcoal Burner": {
-        "type": "Energy",
+        "group": "g_logistics",
         "unlock": "Established Industry",
         "innate": "Natural; +500",
         "efficient": ["Forestry", "Kiln"],
         "builds_into": ["Smokehouse"],
         "monument": False},
     "Mill": {
-        "type": "Energy",
+        "group": "g_husbandry",
         "unlock": "Rising Industry",
         "innate": "Natural; +500",
         "efficient": ["Bakery", "Weavery", "Forge", "Carpentry", "Masonry"],
         "builds_into": ["Bakery"],
         "monument": False},
     "Kiln": {
-        "type": "Energy",
+        "group": "g_logistics",
         "unlock": "Rising Industry",
         "innate": "Natural; +500",
         "efficient": "Forestry",
         "builds_into": ["Charcoal Burner"],
         "monument": False},
     "Burgages": {
-        "type": "Energy",
+        "group": "g_works",
         "unlock": "-",
         "innate": "Natural; **Faith +1**",
         "efficient": ["Workyard"],
         "builds_into": ["Census Hall"],
         "monument": False},
     "Levy Hall": {
-        "type": "Power",
+        "group": "g_logistics",
         "unlock": "Established Prowess",
         "infrastructure_req": "Garrison",
         "innate": "Natural, Speed +1; **Upkeep -2000** while an army is range 0 of controlled settlement",
@@ -2302,28 +2313,28 @@ SIMPLE_NODES = {
         "builds_into": ["Baggage Train"],
         "monument": False},
     "Baggage Train": {
-        "type": "Monument",
+        "group": "g_logistics",
         "unlock": "Sovereign Prowess",
         "innate": "Natural; Armies do not pay Upkeep while in Province. Upkeep -2000 while not in Province. Once/turn, you may perform a Move action.",
         "efficient": "Levy Hall",
         "builds_into": [],
         "monument": True},
     "Siege Works": {
-        "type": "Power",
+        "group": "g_logistics",
         "unlock": "Rising Prowess",
         "innate": "**Siege Timer −2**; Sieges Increment in **Winter**",
         "efficient": ["Carpentry","Mine"],
         "builds_into": ["Siege Camp"],
         "monument": False},
     "Siege Camp": {
-        "type": "Power",
+        "group": "g_logistics",
         "unlock": "Established Prowess",
         "innate": "**Siege Timer −1**; Armies gain **Immune Strained** during Lay Siege",
         "efficient": "Siege Works",
         "builds_into": ["Artillery Park"],
         "monument": False},
     "Citadel": {
-        "type": "Power",
+        "group": "g_works",
         "unlock": "Established Industry",
         "infrastructure_req": "Stone Walls",
         "innate": "**Siege Timer +3**, Controlled Settlements gain **Reach +1**",
@@ -2331,14 +2342,14 @@ SIMPLE_NODES = {
         "builds_into": ["Castle Hall"],
         "monument": False},
     "Castle Hall": {
-        "type": "Power",
+        "group": "g_works",
         "unlock": "Established Industry",
         "innate": "Doubt +1; Tax Income is Doubled.",
         "efficient": ["Citadel"],
         "builds_into": ["Imperial Palace"],
         "monument": False},
     "War College": {
-        "type": "Power",
+        "group": "g_logistics",
         "unlock": "Established Prowess",
         "infrastructure_req": "Library",
         "innate": "Gain **+2 Influence** while At War; Unlocks **Sergeants** for Muster",
@@ -2346,70 +2357,70 @@ SIMPLE_NODES = {
         "builds_into": ["Ministry of Military Strategy"],
         "monument": False},
     "Forge": {
-        "type": "Power",
+        "group": "g_arms",
         "unlock": "Established Industry",
         "innate": "Craft +2; Unlocks **Forged** Tier Weapons",
         "efficient": "Blacksmith",
         "builds_into": ["Master Workshop", "Mill"],
         "monument": False},
     "Tiltyard": {
-        "type": "Power",
+        "group": "g_arms",
         "unlock": "Established Prowess",
         "innate": "Armies may be equipped with a Ranged and a Melee Weapon simultaneously; In addition, armies may equip two of the same 1H Melee Weapon to gain **Dual Wield**.",
         "efficient": "Fletchery",
         "builds_into": ["Grand Tournament"],
         "monument": False},
     "Court Armoury": {
-        "type": "Power",
+        "group": "g_arms",
         "unlock": "Established Industry",
         "innate": f"**{PLANISHING}**: Your to-Save can't be reduced beyond {CAP_THR}+. Upkeep -500; **Crafted** Armor & Shield Unlocked",
         "efficient": "Gilded Foundry",
         "builds_into": [],
         "monument": False},
     "Office of Works": {
-        "type": "Monument",
+        "group": "g_works",
         "unlock": "Sovereign Industry",
-        "innate": "Natural; Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions. Siege Timer +2; Build Timer -2",
-        "efficient": ["College of Engineering","Census Hall","Storehouse"],
+        "innate": "Natural; Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions. Siege Timer +2; Build Timer -3",
+        "efficient": ["College of Engineering", "Storehouse"],
         "builds_into": [],
         "monument": True},
     "Royal Pavilion": {
-        "type": "Monument",
+        "group": "g_logistics",
         "unlock": "Sovereign Prowess",
         "innate": "Armies gain **Immune Strained**, Improve Parry by +1; Gain +1 to Strike. Deadly, & Cleave also trigger Focused Strikes on a natural 8+.",
         "efficient": "Grand Tournament",
         "builds_into": [],
         "monument": True},
     "Imperial Palace": {
-        "type": "Monument",
+        "group": "g_works",
         "unlock": "Sovereign Prowess",
         "innate": "Each Empire Phase, all non-allied players with a lower Prowess value gain Doubt +2. If your Envoy would fail, it passes instead.",
         "efficient": "Castle Hall",
         "builds_into": [],
         "monument": True},
     "Artillery Park": {
-        "type": "Monument",
+        "group": "g_logistics",
         "unlock": "Sovereign Prowess",
         "innate": "Siege Timers ignore Wooden & Stone Walls. Unlocks Arquebus; Settlements you Siege can't Sally Forth. Siege Timer −1.",
         "efficient": "Siege Camp",
         "builds_into": [],
         "monument": True},
     "Ministry of Military Strategy": {
-        "type": "Monument",
+        "group": "g_logistics",
         "unlock": "Sovereign Prowess",
         "innate": "Always gains **Seize the Initiative**, and your opponent doesn't; max initiative is increased to 3; Gain Drilled.",
         "efficient": "War College",
         "builds_into": [],
         "monument": True},
     "Thieves' Guild": {
-        "type": "Monument",
+        "group": "g_secrecy",
         "unlock": "Sovereign Cunning",
         "innate": "Whenever another player performs a Cunning action, you may recoup 1000 gold; **Extort half** of Trade Income from players who don't trade with you",
         "efficient": ["Black Market", "Secret Cellar"],
         "builds_into": ["Secret Cellar"],
         "monument": True},
     "Senate Hall": {
-        "type": "Monument",
+        "group": "g_court",
         "unlock": "1 Sovereign",
         "infrastructure_req": "Library + Town Hall",
         "innate": "**Faith +1**, gain **+1 Influence** per other player per Turn; Once/turn: Before players Support or Oppose, you may auto-**Condemn** an At War Envoy OR auto-**Endorse** an Ally's Envoy",
@@ -2417,35 +2428,35 @@ SIMPLE_NODES = {
         "builds_into": [],
         "monument": True},
     "Papal Palace": {
-        "type": "Monument",
+        "group": "g_devotion",
         "unlock": "Sovereign Piety",
         "innate": "You no longer pay cost for Piety Envoys. At the start of each turn, Tithe every other player with lower Piety, resolved in the Extort step.",
         "efficient": ["Monastery"],
         "builds_into": [],
         "monument": True},
     "Inquisitorial Palace": {
-        "type": "Monument",
+        "group": "g_devotion",
         "unlock": "Sovereign Piety",
         "innate": "**Doubt 1**; Unlocks **Grand Vizier** which uses your **Piety Value** instead of **Cunning.**; All player actions that cause Doubt are increased by 1. ",
         "efficient": "Execution Dock",
         "builds_into": [],
         "monument": True},
     "Preceptory of the Knight's Templar": {
-        "type": "Monument",
+        "group": "g_devotion",
         "unlock": "Sovereign Piety",
         "innate": f"Armies gain **{CRUSADER}**: Automatically pass the first Panic Check of every Battle. Unlocks **Knight's Templar** for Muster",
         "efficient": "Hospitaller",
         "builds_into": [],
         "monument": True},
     "Exalted Basilica": {
-        "type": "Monument",
+        "group": "g_devotion",
         "unlock": "Sovereign Piety",
         "innate": "Your piety actions cause an additional **Doubt** or an additional **Faith**. Every turn, perform Endorsed Spread Truth.",
         "efficient": "Pilgrimage Site",
         "builds_into": [],
         "monument": True},
     "Manor House": {
-        "type": "Monument",
+        "group": "g_husbandry",
         "unlock": "Sovereign Industry",
         "infrastructure_req": "Hamlet",
         "innate": "Natural; Gain +200 gold for each active natural specialization.",
@@ -2453,59 +2464,126 @@ SIMPLE_NODES = {
         "builds_into": [],
         "monument": True},
     "Aristocratic Court": {
-        "type": "Monument",
+        "group": "g_commerce",
         "unlock": "Sovereign Industry",
         "innate": "Each Empire Phase, Extort 1000 from each non-allied player with a lower Treasury. Your Vote counts as 2 votes toward Domain selection during the Council Phase.",
         "efficient": ["Court Artists","Money Lending"],
         "builds_into": [],
         "monument": True},
     "Studium Generale": {
-        "type": "Monument",
+        "group": "g_court",
         "unlock": "4 Established",
         "innate": "+1 **Influence** per **Established** Standing; May gain one **Sovereign Domain** effect without spending the Domain Points",
         "efficient": "University",
         "builds_into": [],
         "monument": True},
     "Outlaw Rookery": {
-        "type": "Monument",
+        "group": "g_secrecy",
         "unlock": "Sovereign Cunning",
         "innate": "Both Bandit Camps & you have Influence +1 on Cunning Envoys. Endorsed Foster Rebellion instead places Bandit Armies with 25 retinues.",
         "efficient": "Syndicate Hub",
         "builds_into": ["Secret Cellar"],
         "monument": True},
     "Advanced Blast Furnace": {
-        "type": "Monument",
+        "group": "g_arms",
         "unlock": "Sovereign Industry",
         "innate": "**Upkeep -1000**; **Crafted** Weapons Unlocked; Craft +3",
         "efficient": "Master Workshop",
         "builds_into": [],
         "monument": True},
     "Cipher Chamber": {
-        "type": "Secrecy",
+        "group": "g_secrecy",
         "unlock": "Established Cunning",
         "innate": "Once/turn: select an army you did not select last turn, that army gains Blocked. Once/turn: select any active **Timer** you did not select last turn; increase it by 2.",
         "efficient": "Forgery Workshop",
         "builds_into": ["Whispering Undercroft"],
         "monument": False},
     "Whispering Undercroft": {
-        "type": "Monument",
+        "group": "g_secrecy",
         "unlock": "Sovereign Cunning",
         "innate": "You always vote last, after the Host. Once/turn when a player sends an Envoy: that player must declare the specific action & target they would Perform if the Envoy passes (including sub-Actions). If it passes, they must Perform that declared action at the declared target.",
         "efficient": "Cipher Chamber",
         "builds_into": [],
         "monument": True},
     "Outrider Intercept Post": {
-        "type": "Monument",
+        "group": "g_secrecy",
         "unlock": "Sovereign Cunning",
         "innate": "Natural; Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own.",
         "efficient": ["Beacon Towers"],
         "builds_into": ["Secret Cellar"],
         "monument": True},
+    "Emporium": {
+        "group": "g_commerce",
+        "unlock": "Established Industry",
+        "innate": "+1000; Players who trade with you gain **Craft +3**",
+        "efficient": ["Shipyard"],
+        "builds_into": [],
+        "monument": False},
+    "Port Authority": {
+        "group": "g_commerce",
+        "unlock": "Sovereign Industry",
+        "innate": "Gain +100 per **Craft**",
+        "efficient": ["Emporium"],
+        "builds_into": [],
+        "monument": True}
 }
 # builds_into is derived: exactly the Holdings that name this one in their `efficient` (Mastery Chain).
 for _bn, _bv in SIMPLE_NODES.items():
     _bv["builds_into"] = [_c for _c, _cv in SIMPLE_NODES.items()
                           if _bn in ([_cv["efficient"]] if isinstance(_cv.get("efficient"), str) else (_cv.get("efficient") or []))]
+
+# ── HOLDING GROUPS (SIMPLE) — engine ids neutral; rename a group's label here only. ──
+# Each SIMPLE node carries "group" (id); "type" is derived from the label below, so every
+# reader of `type` (tiles, wiki, compendium, board) follows a rename. Monuments keep their
+# group (shown under the Monument category: type "Monument"); `monument: True` marks them. "root": may take its own Ward / start without a parent.
+HOLDING_GROUPS = {
+    "g_arms": "Arms",
+    "g_logistics": "Logistics",
+    "g_works": "Works",
+    "g_commerce": "Commerce",
+    "g_devotion": "Devotion",
+    "g_court": "Court",
+    "g_secrecy": "Secrecy",
+    "g_husbandry": "Husbandry",
+    "g_raw": "Raw Materials",
+}
+for _hn, _hv in SIMPLE_NODES.items():
+    _hv["type"] = "Monument" if _hv.get("monument") else HOLDING_GROUPS[_hv["group"]]
+# Lines: flavour labels for paths through the graph; a Holding may sit in several.
+LINE_LABELS = {
+    "l_engineering": {"label": "Engineering", "members": ["Quarry", "Masonry", "Trade Guild", "College of Engineering", "Office of Works"]},
+    "l_labor": {"label": "Labor", "members": ["Common Land", "Salt Works", "Workyard", "Burgages", "Census Hall", "Storehouse", "Office of Works"]},
+    "l_fortification": {"label": "Fortification", "members": ["Masonry", "Granary", "Supply Depot", "Citadel", "Castle Hall", "Imperial Palace"]},
+    "l_maritime": {"label": "Maritime", "members": ["Fishmongery", "Harbor", "Shipyard", "Emporium", "Port Authority"]},
+    "l_training": {"label": "Training", "members": ["Courtyard", "Common Land", "Conditioning Field", "Coliseum", "Grand Tournament", "Royal Pavilion"]},
+    "l_siege": {"label": "Siege", "members": ["Carpentry", "Mine", "Siege Works", "Siege Camp", "Artillery Park"]},
+    "l_command": {"label": "Command", "members": ["University", "War College", "Ministry of Military Strategy"]},
+    "l_supply": {"label": "Supply", "members": ["Forestry", "Kiln", "Charcoal Burner", "Salt Works", "Butchery", "Smokehouse", "Levy Hall", "Baggage Train"]},
+    "l_medical": {"label": "Medical", "members": ["Alchemy", "Apothecary", "Infirmary", "Hospitaller", "Preceptory of the Knight's Templar"]},
+    "l_smithing": {"label": "Smithing", "members": ["Mine", "Furnace", "Blacksmith", "Forge", "Master Workshop", "Advanced Blast Furnace"]},
+    "l_bulwark": {"label": "Bulwark", "members": ["Animal Husbandry", "Carpentry", "Joinery", "Tannery", "Armory", "Gilded Foundry", "Court Armoury"]},
+    "l_archery": {"label": "Archery", "members": ["Forestry", "Carpentry", "Fletchery", "Tiltyard"]},
+    "l_cavalry": {"label": "Cavalry", "members": ["Animal Husbandry", "Stable", "Saddlery", "Caravanery"]},
+    "l_statecraft": {"label": "Statecraft", "members": ["Courtyard", "Jester's Court", "Bell Tower", "Embassy", "Senate Hall"]},
+    "l_trivium": {"label": "Trivium", "members": ["Alchemy", "Academy", "University", "Studium Generale"]},
+    "l_smuggling": {"label": "Smuggling", "members": ["Inn", "Courier Network", "Smuggler's Nook", "Syndicate Hub", "Outlaw Rookery"]},
+    "l_thievery": {"label": "Thievery", "members": ["Smuggler's Nook", "Black Market", "Thieves' Guild"]},
+    "l_whispers": {"label": "Whispers", "members": ["Academy", "University", "Forgery Workshop", "Cipher Chamber", "Whispering Undercroft"]},
+    "l_pestilence": {"label": "Pestilence", "members": ["Secret Cellar", "Forgotten Catacombs", "Alchemy", "Toxicarium", "Charnel House", "Plague Pit"]},
+    "l_watch": {"label": "Watch", "members": ["Caravanery", "Toll House", "Beacon Towers", "Outrider Intercept Post"]},
+    "l_vintage": {"label": "Vintage", "members": ["Arable Land", "Vineyard", "Winery", "Orchard", "Cidery"]},
+    "l_hearth": {"label": "Hearth", "members": ["Apiary", "Meadery", "Bakery", "Mill"]},
+    "l_spice": {"label": "Spice", "members": ["Arable Land", "Herb Garden", "Spice Merchant"]},
+    "l_patronage": {"label": "Patronage", "members": ["Courtyard", "Market Square", "Weavery", "Artisan Workshop", "Court Artists", "Aristocratic Court"]},
+    "l_banking": {"label": "Banking", "members": ["Market Square", "Merchant Quarter", "Money Lending", "Aristocratic Court"]},
+    "l_pilgrimage": {"label": "Pilgrimage", "members": ["Apiary", "Chandlery", "Reliquary", "Pilgrimage Site", "Exalted Basilica"]},
+    "l_cloister": {"label": "Cloister", "members": ["Masonry", "Abbey", "Monastery", "Papal Palace"]},
+    "l_inquisition": {"label": "Inquisition", "members": ["Courtyard", "Episcopal Court", "Interrogation Chambers", "Execution Dock", "Inquisitorial Palace"]},
+}
+
+def lines_of(name):
+    """Line labels containing this Holding."""
+    return [d["label"] for d in LINE_LABELS.values() if name in d["members"]]
 
 LEGACY_NODES = NODES
 NODES = SIMPLE_NODES if SIMPLE else NODES
@@ -2514,6 +2592,9 @@ NODES = SIMPLE_NODES if SIMPLE else NODES
 # Legacy: mastery_req. Outputs read these instead of hard-coding the field.
 REQ_KEY   = "infrastructure_req" if SIMPLE else "mastery_req"
 REQ_LABEL = "Infrastructure Req" if SIMPLE else "Mastery Req"
+# Section/sort order for node `type` (tiles, wiki, compendium).
+TYPE_ORDER = (list(HOLDING_GROUPS.values()) + ["Monument"] if SIMPLE else
+              ["Raw Materials", "Husbandry", "Energy", "Craft", "Power", "Civic", "Secrecy", "Monument"])
 # Display name for the `efficient` field (the data key stays `efficient`).
 CHAIN_TERM = "Mastery Chain" if SIMPLE else "Efficient"
 # Display name for Pursuits (singular, plural). Data keys, file names and wiki URLs keep "pursuit".
@@ -3059,7 +3140,7 @@ WONDERS = {'Colossus': {'upkeep': 1000,
  'High Chancery': {'upkeep': 1000,
                    'upkeep_frequency': 'per Wonder',
                    'empire_bonus': 'Once per turn: automatically **Condemn** or **Endorse** one Envoy Sent '
-                                   'by any other player regardless of **Net Influence** after Influence has '
+                                   'by any other player regardless of **Authority** after Influence has '
                                    'been spent.',
                    'tier': 'Wonder',
                    'build_time': 10,
@@ -3620,8 +3701,41 @@ UPKEEP_TRACKS = {
     "Infrastructure": "Per-Empire upkeep in INFRASTRUCTURE. Trade Guild removes Primitive (innate) + Developed (mastery); College of Engineering removes Sophisticated.",
 }
 
+# SIMPLE: Holding upkeep & Build Timer by Standing tier of its unlock. Natural: no upkeep (Build Timer unchanged).
+HOLDING_TIER_COST = {                     # standing -> (upkeep, build timer)
+    None:          (PURSUIT_UPKEEP_DEFAULT, BUILD_TIMERS["Pursuit"]),
+    "Rising":      (200, 2),
+    "Established": (300, 3),
+    "Sovereign":   (400, 4),
+}
+_STANDINGS = ("Rising", "Established", "Sovereign")
+
+def holding_standing(node):
+    """Standing tier from an unlock string ('1 Rising', '4 Established', '-')."""
+    n = NODES.get(node, {}) if isinstance(node, str) else (node or {})
+    u = str(n.get("unlock", "") or "")
+    return next((t for t in _STANDINGS if t in u), None)
+
+def holding_cost(node):
+    """(upkeep, build timer) for a Holding — name or node dict."""
+    n = NODES.get(node, {}) if isinstance(node, str) else (node or {})
+    up, tm = HOLDING_TIER_COST[holding_standing(n)]
+    if re.search(r"\bNatural\b", re.sub(r"\*\*", "", str(n.get("innate", "")))):
+        up = 0
+    return up, tm
+
+def holding_build_time(node):
+    return holding_cost(node)[1]
+
+_HTC = HOLDING_TIER_COST
+_HOLDING_COST_TEXT = (f"by Standing: Untested {_HTC[None][0]} (Build Timer {_HTC[None][1]}), "
+    + ", ".join(f"{t} {_HTC[t][0]} (Build Timer {_HTC[t][1]})" for t in _STANDINGS) + "; Natural 0")
+
 def pursuit_upkeep(node):
-    """Per-turn upkeep for a node, fixed by its type. node = a NODES entry (dict) or a type string."""
+    """Per-turn upkeep for a node. SIMPLE: by Standing (holding_cost). Legacy: fixed by type.
+    node = a NODES entry (dict) or a type string."""
+    if SIMPLE and isinstance(node, dict):
+        return holding_cost(node)[0]
     if isinstance(node, dict) and re.search(r"\bNatural\b", re.sub(r"\*\*", "", str(node.get("innate", "")))):
         return 0                                   # GLOSSARY["Natural"]: Natural Pursuits do not cost Upkeep
     t = node.get("type") if isinstance(node, dict) else node
@@ -3738,6 +3852,26 @@ ITEM_TIER_DISPLAY = {
     "Arquebus": "Gunpowder",
 }
 
+# Envoy score term. "Influence" = spendable tokens (gain +X Influence, Support/Oppose X);
+# the Envoy's score (innate/net value, postfix "Influence ±X" modifiers) prints as TERM_ENVOY_SCORE.
+# Convention relied on: postfix "Influence +1" = score modifier; prefix "+1 Influence" = tokens.
+TERM_ENVOY_SCORE = "Authority"
+_SCORE_RES = [
+    (_re_disp.compile(r"\b([Nn]et|[Ii]nnate|[Ss]tarting|Envoy's net|Envoy's|action's) Influence\b"),
+     lambda m: f"{m.group(1)} {TERM_ENVOY_SCORE}"),
+    (_re_disp.compile(r"\bInfluence(\**\s?)([+\-\u2212\u00b1]\s?\d+|[+\-\u2212\u00b1]?X\b)"),
+     lambda m: f"{TERM_ENVOY_SCORE}{m.group(1)}{m.group(2)}"),
+]
+
+def display_score(s):
+    """Rewrite Envoy-score uses of 'Influence' to TERM_ENVOY_SCORE; token uses untouched."""
+    if not s or TERM_ENVOY_SCORE == "Influence":
+        return s
+    s = str(s)
+    for rx, rep in _SCORE_RES:
+        s = rx.sub(rep, s)
+    return s
+
 # One combined table for free-text rewriting. Keep ids unique across both maps.
 ALIASES = {**NAME_DISPLAY, **TIER_DISPLAY}
 
@@ -3766,7 +3900,10 @@ def display_text(s):
     """Rewrite every alias inside a free-text string — mastery_req, effect and
     note text, escalation ranks. Single pass over a combined pattern, so a
     rename can never cascade into another rename's output."""
-    if not s or _ALIAS_RE is None:
+    if not s:
+        return s
+    s = display_score(s)
+    if _ALIAS_RE is None:
         return s
     def _rep(m):
         k, v = m.group(1), ALIASES[m.group(1)]
@@ -4045,6 +4182,62 @@ DOMAIN_POINTS_PER_TURN = 1   # Rest Phase step 4 / Key Resources: "Domain Points
 # table above exists. Add further SIMPLE-only text overrides here.
 if SIMPLE:
     EDICTS["Monument"]["requirement"] = "Have a Monument pursuit."
+
+    # Reference-sheet recommendations (flavour only — CULTURES.monuments, FACTIONS pair/complement)
+    # pointed at the SIMPLE Monument set. Legacy keeps its own lists.
+    for _cn, _ml in {
+        "Trusteki":     ["Office of Works", "Manor House", "Advanced Blast Furnace", "Port Authority"],
+        "Kraghs":       ["Royal Pavilion", "Artillery Park", "Ministry of Military Strategy", "Baggage Train"],
+        "Ithiss":       ["Thieves' Guild", "Outlaw Rookery", "Whispering Undercroft", "Outrider Intercept Post"],
+        "Lenavorites":  ["Papal Palace", "Inquisitorial Palace", "Exalted Basilica"],
+        "Belvareth":    ["Preceptory of the Knight's Templar", "Royal Pavilion", "Exalted Basilica"],
+        "Vorghith":     ["Outrider Intercept Post", "Baggage Train", "Outlaw Rookery"],
+        "Prezish":      ["Aristocratic Court", "Thieves' Guild", "Port Authority"],
+        "Shassolin":    ["Senate Hall", "Inquisitorial Palace", "Plague Pit"],
+        "Cailendroffs": ["Imperial Palace", "Royal Pavilion", "Preceptory of the Knight's Templar", "Whispering Undercroft"],
+        "Sarkopekt":    ["Outrider Intercept Post", "Baggage Train", "Advanced Blast Furnace"],
+        "Ossensteins":  ["Office of Works", "Aristocratic Court", "Whispering Undercroft"],
+        "Voldrastel":   ["Senate Hall", "Imperial Palace", "Preceptory of the Knight's Templar"],
+    }.items():
+        CULTURES[_cn]["monuments"] = _ml
+    for _fn, (_pr, _cp) in {
+        "The Battering Ram":     ("Artillery Park, Royal Pavilion", None),
+        "The Boundless Steppe":  ("Baggage Train, Royal Pavilion", "Advanced Blast Furnace"),
+        "The Bandit King":       ("Thieves' Guild, Outlaw Rookery", None),
+        "The Crimson Tide":      ("Port Authority, Thieves' Guild", None),
+        "The Gilded Crescent":   ("Manor House, Studium Generale", None),
+        "The Gilded Path":       ("Manor House, Port Authority", None),
+        "The Hermit Crown":      ("Studium Generale, Manor House", None),
+        "The Iron Faith":        ("Imperial Palace, Preceptory of the Knight's Templar", None),
+        "The Iron Shore":        ("Royal Pavilion, Port Authority", "Advanced Blast Furnace"),
+        "The Merchant Republics":("Port Authority, Aristocratic Court", None),
+        "The Sacred Throne":     ("Papal Palace, Exalted Basilica", None),
+        "The Tunnellers":        ("Advanced Blast Furnace, Office of Works", None),
+        "The Undying Flame":     ("Preceptory of the Knight's Templar, Exalted Basilica", None),
+        "The Verdant Kingdom":   ("Port Authority, Manor House, Advanced Blast Furnace", None),
+        "The Winter Wolves":     ("Baggage Train, Royal Pavilion", "Advanced Blast Furnace"),
+        "The Ancient Wilds":     ("Royal Pavilion, Baggage Train", None),
+        "The Grand Compact":     ("Port Authority, Senate Hall", None),
+        "The Pale Throne":       ("Preceptory of the Knight's Templar, Advanced Blast Furnace", None),
+        "The Sublime Gate":      ("Advanced Blast Furnace, Artillery Park", None),
+        "The Ashen Vale":        ("Plague Pit, Inquisitorial Palace", None),
+        "The Broken Banner":     ("Royal Pavilion, Baggage Train", None),
+        "The Hall of Masks":     ("Whispering Undercroft, Senate Hall", None),
+        "The Squatters' Crown":  ("Royal Pavilion, Baggage Train", "Advanced Blast Furnace"),
+        "The Wandering Crown":   ("Baggage Train, Royal Pavilion", "Advanced Blast Furnace"),
+        "The Elder Grove":       ("Ministry of Military Strategy", None),
+    }.items():
+        FACTIONS[_fn]["pair"] = _pr
+        if _cp: FACTIONS[_fn]["complement"] = _cp
+
+    GLOSSARY["Root"] = "A Holding which can be placed in a Settlement Ward directly."
+    # Holding upkeep / Build Timer follow Standing (HOLDING_TIER_COST), not type.
+    UPKEEP_TRACKS["Pursuit"] = f"Per turn {_HOLDING_COST_TEXT}."
+    COSTS["Pursuit upkeep"] = f"Per turn {_HOLDING_COST_TEXT}"
+    GLOSSARY["Upkeep"] = GLOSSARY["Upkeep"].replace(f"fixed by type ({_PU_TEXT})", _HOLDING_COST_TEXT)
+    ACTIONS["Pursue"]["notes"] = [n for n in ACTIONS["Pursue"]["notes"] if not n.startswith("Power and unique")] + [
+        "Build Timer by Standing: Untested " + str(_HTC[None][1]) + ", "
+        + ", ".join(f"{t} {_HTC[t][1]}" for t in _STANDINGS) + "."]
 
     # Faction starters: no Mastery to keep active.
     for _f in FACTIONS.values():

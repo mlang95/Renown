@@ -46,7 +46,7 @@ def fan_out(name, nodes):
 
 def copies(name, nodes, players):
     n = nodes[name]
-    if n.get("type") == "Monument":
+    if n.get("monument") or n.get("type") == "Monument":
         return 1
     raw = fan_out(name, nodes) + (players - BASE_PLAYERS)
     return max(1, min(raw, 2 * players))

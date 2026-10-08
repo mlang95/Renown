@@ -35,13 +35,13 @@ WONDERS = getattr(rd, "WONDERS", {})
 FACT    = getattr(rd, "FACTIONS", {})
 DBOARD  = getattr(rd, "DOMAIN_BOARD", {})
 FSUM    = getattr(rd, "FACTION_SUMMARIES", {})
-MONS    = {k: v for k, v in rd.NODES.items() if v.get("type") == "Monument"}
+MONS    = {k: v for k, v in rd.NODES.items() if v.get("monument") or v.get("type") == "Monument"}
 
 DOMS  = ["Industry", "Prowess", "Cunning", "Piety"]
 LVL   = ["Untested", "Rising", "Established", "Sovereign"]
 PTS   = {"Untested": 0, "Rising": 3, "Established": 6, "Sovereign": 10}
 TYPE_LABEL = {"pure": "Pure", "pair": "Pair", "triple": "Triple", "centre": "Centre"}
-TYPE_ORDER = ["pure", "centre", "pair", "triple"]
+TYPE_ORDER = ["pure", "pair", "triple", "centre"]   # centre last: most complex
 
 AXES = [("military_solutions", "Military"), ("economy_generators", "Economy"),
         ("faith_management", "Faith"), ("doubt_warfare", "Disruption"),

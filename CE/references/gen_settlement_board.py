@@ -56,6 +56,7 @@ CRAFT_RE  = re.compile(r"Craft\s*\+?\s*(\d+)", re.I)
 FAITH_RE  = re.compile(r"Faith\s*\+?\s*(\d+)", re.I)
 DOUBT_RE  = re.compile(r"Doubt\s*\+?\s*(\d+)", re.I)
 UPKEEP_RE = re.compile(r"Upkeep\s*(-?\d{2,})", re.I)
+AUTH_RE   = re.compile(r"Influence\s*([+\-\u2212]\s?\d+)", re.I)   # postfix = Envoy score modifier (TERM_ENVOY_SCORE)
 INFL_RE   = re.compile(r"(?:Influence\s*([+-]\s?\d+))|(?:([+-]\s?\d+)\s*Influence)", re.I)
 EXTORT_RE = re.compile(r"Extort\s*(\d+)", re.I)
 BUILDT_RE = re.compile(r"Build Timer\s*(-?\d+)", re.I)
@@ -122,6 +123,8 @@ def classify(clause):
         return finish("doubt", to_int(DOUBT_RE.search(c).group(1)), {"doubt"})
     if CRAFT_RE.search(c) and "craft" in lc:
         return finish("craft", to_int(CRAFT_RE.search(c).group(1)), {"craft"})
+    if AUTH_RE.search(c):
+        return finish("authority", to_int(AUTH_RE.search(c).group(1).replace("\u2212", "-")), set())
     if INFL_RE.search(c):
         mm = INFL_RE.search(c); v = mm.group(1) or mm.group(2)
         return finish("influence", to_int(v), {"influence"})
@@ -368,13 +371,15 @@ def build(ns):
                 if classify_req_token(opt, names, settle_names) == "external":
                     external.add(opt)
         records[name] = {
-            "name": name, "type": v.get("type", "?"),
+            "name": name, "type": v.get("type", "?"), "group": (ns.get("HOLDING_GROUPS") or {}).get(v.get("group"), ""),
             "monument": bool(v.get("monument")),
+            # SIMPLE: upkeep / Build Timer by Standing (holding_cost); legacy leaves these out
+            **(dict(zip(("upkeep", "build_time"), ns["holding_cost"](v))) if ns.get("SIMPLE") and ns.get("holding_cost") else {}),
             "innate_raw": strip_md(v.get("innate", "")),
             "mastery_raw": strip_md(v.get("mastery", "")),
             "mreq_raw": strip_md(req_src),
             "unlock_raw": strip_md(str(v.get("unlock", "") or "")),
-            "combo": combine_effects(v.get("innate", ""), v.get("mastery", "")),
+            "combo": strip_md(v.get("innate", "")) if ns.get("SIMPLE") else combine_effects(v.get("innate", ""), v.get("mastery", "")),
             "combo_parts": combine_parts(v.get("innate", ""), v.get("mastery", "")),
             "builds_into": [b for b in (v.get("builds_into") or []) if b in N],
             "mastery_for": [m for m, mv in N.items() if m != name and name in re.split(r"\s*(?:\+|/|\bor\b)\s*", strip_md(str(mv.get("mastery_req") or "")))],
@@ -1191,9 +1196,13 @@ const ARMOR_TAG = {Gambeson:"Gambeson",Leather:"Leather",Chainmail:"Chainmail",F
 const NAMES = Object.keys(R).sort();
 const NATURAL = new Set(DATA.naturalNames);
 const SIMPLE=!!DATA.simple;   // SIMPLE pursuit graph (renown_data.SIMPLE)
+const SCORE=DATA.scoreTerm||"Influence";
+function dispScore(t){if(SCORE==="Influence"||!t)return t;
+  return String(t).replace(/\b([Nn]et|[Ii]nnate|[Ss]tarting|Envoy's net|Envoy's|action's) Influence\b/g,"$1 "+SCORE)
+    .replace(/\bInfluence(\**\s?)([+\-\u2212\u00b1]\s?\d+|[+\-\u2212\u00b1]?X\b)/g,SCORE+"$1$2");}
 const CHAIN=DATA.chainTerm||"Efficient", CHAINL=CHAIN.toLowerCase();   // display name of the efficient field
 const PHASE = {gold:"income",scale:"income",extort:"income",recoup:"income",tax:"income",
-  craft:"craft",influence:"influence",faith:"order",doubt:"order",upkeep:"upkeep",
+  craft:"craft",influence:"influence",authority:"envoy",faith:"order",doubt:"order",upkeep:"upkeep",
   build_timer:"build",siege_timer:"battle",speed:"battle",combat:"battle",envoy:"envoy",
   natural:"other",other:"other"};
 const PHASE_COLOR={income:"--income",craft:"--craft",influence:"--influence",order:"--order",
@@ -1567,7 +1576,7 @@ function renderReference(){const host=document.getElementById("viewReference");
       .map(x=>'<a href="#" data-goto="reference#'+x[0]+'">'+x[1]+'</a>').join(' · ')+'</div>';
   h+='<details id="refRules" class="tot"'+(RB_OPEN?' open':'')+'><summary><b style="font-size:14px">Rulebook</b> <span class="note">— RULES_push.md, values from the data</span></summary>'+rulebookHTML()+'</details>';
   h+='<details id="refTree" class="tot"'+(TREE_SEC?' open':'')+'><summary><b style="font-size:14px">Pursuit tree</b></summary>'+
-    '<div class="tb-row" style="margin:6px 0"><button data-tree="open">expand all</button><button data-tree="close">collapse all</button></div><div class="note">Innate + Mastery combined (Mastery assumed earned; same stats summed). Colour = unlock Domain; ◆ = Monument; 🔒 = your Standing doesn\'t meet the unlock yet. Hover a name for the full text.</div>'+treeHTML()+'</details>'+
+    '<div class="tb-row" style="margin:6px 0"><button data-tree="open">expand all</button><button data-tree="close">collapse all</button></div><div class="note">'+(SIMPLE?'':'Innate + Mastery combined (Mastery assumed earned; same stats summed). ')+'Colour = unlock Domain; ◆ = Monument; 🔒 = your Standing doesn\'t meet the unlock yet. Hover a name for the full text.</div>'+treeHTML()+'</details>'+
     '<div id="refSeasons">'+seasonsHTML()+'</div><div id="refCosts">'+costsHTML()+'</div>'+
     '<div id="refStanding">'+standingEffectsHTML()+'</div><div id="refTerrain">'+terrainTablesHTML(mapPal(g))+'</div>'+
     '<div id="refBattle">'+battleRulesHTML()+'</div></div>';
@@ -1904,7 +1913,7 @@ function buildTimerMod(){return withBoard(S,()=>{const have=new Set(Object.keys(
     const re=/Build Timer\s*([+\-\u2212])\s?(\d+)/gi;let x;while((x=re.exec(r[k]||""))){const v=(x[1]==="+"?1:-1)*(+x[2]);mod+=v;src.push(n+(k==="mastery_raw"?" (M)":"")+" "+(v>0?"+":"\u2212")+Math.abs(v));}});});
   return {mod,src};});}
 function withBuildMod(base){if(!(base>0))return {t:base||0,base:base||0,mod:0,src:[]};const m=buildTimerMod();return {t:Math.max(0,base+m.mod),base,mod:m.mod,src:m.src};}
-function pursuitBaseTime(n){const t=(R[n]||{}).type;return t==="Power"?(BTM["Power Pursuit"]??BTM.Pursuit):t==="Monument"?(BTM["Monument Pursuit"]??BTM.Pursuit):(BTM.Pursuit||0);}
+function pursuitBaseTime(n){const r=R[n]||{};if(r.build_time!=null)return r.build_time;const t=r.type;return t==="Power"?(BTM["Power Pursuit"]??BTM.Pursuit):t==="Monument"?(BTM["Monument Pursuit"]??BTM.Pursuit):(BTM.Pursuit||0);}
 function infraBaseTime(n){if(WON[n])return BTM.Wonder||0;const i=INFRA[n];return i?(((BTM.Infrastructure||{})[i.tier])||0):0;}
 function pursuitBuildTime(n){return withBuildMod(pursuitBaseTime(n)).t;}
 function infraBuildTime(n){return withBuildMod(infraBaseTime(n)).t;}
@@ -1932,7 +1941,7 @@ function tickTimers(b){const done=[];
 // pursuit upkeep: PURSUIT_UPKEEP_BY_TYPE, else PURSUIT_UPKEEP_DEFAULT; faction pieces pay none
 const PUP=DATA.pursuitUpkeep||{byType:{},def:0};
 function pursuitUpkeep(p){if(p.fac||!pActive(p)||NATURAL.has(p.name))return 0;   // faction, inactive (building / Damaged / repairing), or Natural
-  const t=(R[p.name]||{}).type;return (PUP.byType&&t in PUP.byType)?PUP.byType[t]:(PUP.def||0);}
+  const r=R[p.name]||{};if(r.upkeep!=null)return r.upkeep;const t=r.type;return (PUP.byType&&t in PUP.byType)?PUP.byType[t]:(PUP.def||0);}
 function withBoard(b,fn){const pS=S,pPC=PC;S=b;recomputePC();const r=fn();S=pS;PC=pPC;return r;}
 
 // ---- persistence: server API (same-origin) with localStorage fallback ----
@@ -5107,10 +5116,12 @@ const GK_LIST=[],GK_BY={},GK_LC={};
   Object.keys(GLOSS).filter(t=>/^[A-Z][A-Za-z' /-]{2,}$/.test(t)).forEach(t=>{
     const m=t.match(/^(.+?) X$/);                                   // "Extort X" → Extort, Extorts, Extorted…
     if(m){const b=m[1];[b,b+"s",b+"ed",b+"ing",b+"ion"].forEach(v=>add(t,"g",v));}else add(t,"g");
-    if(/^[A-Z][a-z]+$/.test(t))[t+"s",t+"ed"].forEach(v=>add(t,"g",v));});})();   // Recoup → Recoups, Recouped
+    if(/^[A-Z][a-z]+$/.test(t))[t+"s",t+"ed"].forEach(v=>add(t,"g",v));});
+  if(SCORE!=="Influence"){if(GLOSS["Net Influence"])add("Net Influence","g","Net "+SCORE);   // score text → score entries
+    if(GLOSS["Influence X"])add("Influence X","g",SCORE);}})();   // Recoup → Recoups, Recouped
 const GK_RE=GK_LIST.length?new RegExp("(^|[^A-Za-z0-9])("+Object.keys(GK_BY).sort((a,b)=>b.length-a.length)
   .map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")(?![A-Za-z0-9])","gi"):null;
-function kwify(text,self){const h=esc(text==null?"":text);if(!GK_RE)return h;const seen=new Set();
+function kwify(text,self){const h=esc(dispScore(text==null?"":text));if(!GK_RE)return h;const seen=new Set();
   return h.replace(GK_RE,(m,pre,term)=>{
     // single words must match case exactly (so "cast" in prose isn't linked); multi-word terms match any case ("Cast armor")
     const idx=GK_BY[term]!=null?GK_BY[term]:(/\s/.test(term)?GK_LC[term.toLowerCase()]:undefined);
@@ -5124,7 +5135,7 @@ const WIKI_BASE=DATA.wikiBase||(WIKI_LOCAL?"":(DATA.wikiHome||""));
 function wikiA(href){return '<div><a href="'+esc(WIKI_BASE+href)+'" target="'+(WIKI_LOCAL&&window.top!==window?"_top":"_blank")+'" rel="noopener">wiki ↗</a></div>';}
 function gkHtml(e){
   if(e.k==="g"){return '<div class="gh">'+esc(e.t)+'</div><div>'+esc(GLOSS[e.t]||"")+'</div>'+wikiA("glossary.html#"+gslug(e.t));}
-  if(e.k==="p"){const r=R[e.t]||{};return '<div class="gh">'+esc(e.t)+' <span class="note">'+esc(r.type||"")+(r.monument?" · Monument":"")+'</span></div>'+
+  if(e.k==="p"){const r=R[e.t]||{};return '<div class="gh">'+esc(e.t)+' <span class="note">'+esc(r.monument&&r.group?r.group:(r.type||""))+(r.monument?" · Monument":"")+'</span></div>'+
     (r.unlock_raw&&!/^[-\u2014]$/.test(r.unlock_raw.trim())?'<div class="note">Unlock: '+esc(r.unlock_raw)+'</div>':'')+
     '<div><b>Innate</b> '+esc(r.innate_raw||"—")+'</div>'+
     (r.mastery_raw?'<div><b>Mastery</b> '+esc(r.mastery_raw)+(r.mreq_raw?' <span class="note">(req: '+esc(r.mreq_raw)+')</span>':'')+'</div>':'')+
@@ -5146,11 +5157,11 @@ window.addEventListener("hashchange",openFromHash);setTimeout(openFromHash,0);
 // ---- Display layer (NAME_DISPLAY / ALIASES from the data): rename what players READ on the page. ----
 // Ids in the state, data-* attributes, select values and every lookup stay as engine ids; only visible text
 // nodes and title tooltips are rewritten, as they appear (MutationObserver), so it covers every view.
-(function(){const AL=DATA.aliases||{},keys=Object.keys(AL);if(!keys.length)return;
+(function(){const AL=DATA.aliases||{},keys=Object.keys(AL);
   const re=new RegExp("\\b("+keys.sort((a,b)=>b.length-a.length).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")\\b","g");
   // idempotent: skip a match that already sits inside its own new name ("Reliquary" in "Reliquary Sanctum"),
   // so re-processing text (this observer sees its own edits) can never stack renames
-  const disp=t=>t.replace(re,(m,_g,i,str)=>{const v=AL[m];let o=v.indexOf(m);while(o!==-1){if(str.substr(i-o,v.length)===v)return m;o=v.indexOf(m,o+1);}return v;});window.dispName=disp;
+  const disp=t=>!keys.length?dispScore(t):dispScore(t).replace(re,(m,_g,i,str)=>{const v=AL[m];let o=v.indexOf(m);while(o!==-1){if(str.substr(i-o,v.length)===v)return m;o=v.indexOf(m,o+1);}return v;});window.dispName=disp;
   const SKIP={SCRIPT:1,STYLE:1,TEXTAREA:1,INPUT:1};
   const fixText=n=>{const p=n.parentNode;if(!p||SKIP[p.nodeName]||(p.isContentEditable))return;const v=n.nodeValue,w=disp(v);if(w!==v)n.nodeValue=w;};
   const fixEl=el=>{if(el.nodeType===3){fixText(el);return;}if(el.nodeType!==1||SKIP[el.nodeName])return;
@@ -5515,7 +5526,7 @@ def main():
         pursuitUpkeep={"byType": ns.get("PURSUIT_UPKEEP_BY_TYPE", {}), "def": ns.get("PURSUIT_UPKEEP_DEFAULT", 0)},
         buildTimers=ns.get("BUILD_TIMERS", {}), timers=ns.get("TIMERS", {}), seasons=ns.get("SEASONS", {}),
         poModifiers=ns.get("PO_MODIFIERS", {}), vassalInfluenceTake=ns.get("VASSAL_INFLUENCE_TAKE", 0),
-        aliases=ns.get("ALIASES", {}) or {}, costs=ns.get("COSTS", {}), influenceGain=ns.get("INFLUENCE_GAIN", {}),
+        aliases=ns.get("ALIASES", {}) or {}, scoreTerm=ns.get("TERM_ENVOY_SCORE", "Influence"), costs=ns.get("COSTS", {}), influenceGain=ns.get("INFLUENCE_GAIN", {}),
         siege={"calculus": ns.get("SIEGE_CALCULUS", {}), "sources": ns.get("SIEGE_SOURCE_VALUES", {})},
         factions={k: {"final": bool(v.get("final_cut")), "difficulty": v.get("difficulty", ""), "strength": v.get("strength", ""),
                       "feel": v.get("feel", ""), "mechanic": v.get("mechanic", ""), "pair": v.get("pair", ""), "complement": v.get("complement", "")}

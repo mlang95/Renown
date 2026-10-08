@@ -130,7 +130,7 @@ if MAP_IMG_SRC:
         print(f"  [lore] map image found but copy failed: {_e}")
         MAP_IMG = None
 
-TYPE_ORDER = ["Raw Materials","Husbandry","Energy","Craft","Power","Civic","Secrecy","Monument"]
+TYPE_ORDER = rd.TYPE_ORDER
 DOMAINS = ["Industry","Prowess","Cunning","Piety"]
 TIERS = ["Rising","Established","Sovereign"]
 

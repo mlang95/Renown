@@ -69,7 +69,7 @@ A few conventions make every rule in this book read the same way:
 
 ## Core Principles
 
-1. **Granted Authority.** Any mechanic not explicitly described doesn't function.
+1. **Granted Power** Any mechanic not explicitly described doesn't function.
 
 2. **Specific over general.** A more specific rule overrides a general one.
     - 2.1 *Example: Inquisitorial Palace ≥ Established Cunning > general Cunning rule.*
@@ -221,7 +221,7 @@ Envoys are the currency of actions: to perform an action you send an Envoy durin
 
 ### Resolving an Envoy
 
-Your Envoy begins with Influence equal to your innate Influence in its Domain — Untested {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Untested}}, Rising {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Rising}}, Established {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Established}}, Sovereign {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Sovereign}} — plus any automatic Influence ±X modifiers. *(These come from your Holdings, Infrastructure, and faction, and apply on their own; you never spend Influence for them.)* Diplomacy has no Standing; a Diplomacy Envoy begins with Influence set by the Era (Founding {{VAL:ERAS.Founding.innate_diplomacy_influence}}, Ascension {{VAL:ERAS.Ascension.innate_diplomacy_influence}}, Eminence {{VAL:ERAS.Eminence.innate_diplomacy_influence}}, Zenith {{VAL:ERAS.Zenith.innate_diplomacy_influence}}).
+Your Envoy begins with Influence equal to your innate Authority in its Domain — Untested {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Untested}}, Rising {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Rising}}, Established {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Established}}, Sovereign {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Sovereign}} — plus any automatic Influence ±X modifiers. *(These come from your Holdings, Infrastructure, and faction, and apply on their own; you never spend Influence for them.)* Diplomacy has no Standing; a Diplomacy Envoy begins with Influence set by the Era (Founding {{VAL:ERAS.Founding.innate_diplomacy_influence}}, Ascension {{VAL:ERAS.Ascension.innate_diplomacy_influence}}, Eminence {{VAL:ERAS.Eminence.innate_diplomacy_influence}}, Zenith {{VAL:ERAS.Zenith.innate_diplomacy_influence}}).
 
 Then, clockwise from the starting player and skipping the sender, every other player may respond, with no talking during the vote:
 

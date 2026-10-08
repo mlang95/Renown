@@ -31,11 +31,14 @@ for face, fn in [("EBG", "EBGaramond-Regular.ttf"), ("EBG-B", "EBGaramond-Bold.t
             break
 
 # ── type palette + sort order ──
-TYPE_ORDER = ["Raw Materials", "Husbandry", "Energy", "Craft", "Power", "Civic", "Secrecy", "Monument"]
+TYPE_ORDER = rd.TYPE_ORDER
 TYPE_COLOR = {
     "Raw Materials": "#6b5330", "Husbandry": "#4f7a3a", "Energy": "#c8791f",
     "Craft": "#2E5A8C", "Power": "#9E2B25", "Civic": "#3f7d7a",
     "Secrecy": "#3a3a42", "Monument": "#B48A1E",
+    # SIMPLE Holding groups
+    "Arms": "#9E2B25", "Logistics": "#c8791f", "Works": "#5b6470", "Commerce": "#2E5A8C",
+    "Devotion": "#6a4c8c", "Court": "#3f7d7a",
 }
 INK = HexColor("#26262e"); MUTE = HexColor("#6f6f77"); TAG = HexColor("#8a8072")
 LINE = HexColor("#e6e2d8"); BODY = HexColor("#2b2b32")
@@ -171,7 +174,7 @@ def tile(c, name, d, x, ytop):
     pad = 7 * s
     t = d.get("type", "")
     mon = d.get("monument")
-    col = _c(TYPE_COLOR.get(t, "#555"))
+    col = _c(TYPE_COLOR["Monument"] if mon else TYPE_COLOR.get(t, "#555"))
     gate = (d.get("unlock") or "").strip()
     gate = "" if gate in ("", "-", "\u2014") else gate
 
@@ -186,7 +189,7 @@ def tile(c, name, d, x, ytop):
     # name (shadow + white), monument diamond
     c.setFont(SERIF_B, nm_sz)
     nm = _D(name)        # display name (NAME_DISPLAY) before any truncation
-    up_val = upkeep(t, bool(re.search(r"\bNatural\b", str(d.get("innate","")).replace("**",""))))
+    up_val = rd.pursuit_upkeep(d)
     reserve = 20
     if up_val: reserve += 16
     if mon: reserve += 14
@@ -197,7 +200,7 @@ def tile(c, name, d, x, ytop):
         nm = nm.rstrip() + "\u2026"
     c.setFillColor(Color(0, 0, 0, 0.28)); c.drawString(x + pad + 0.5, hy + head_h*0.31 - 0.4, nm)
     c.setFillColor(Color(1, 1, 1)); c.drawString(x + pad, hy + head_h*0.31, nm)
-    up = upkeep(t, bool(re.search(r"\bNatural\b", str(d.get("innate","")).replace("**",""))))
+    up = rd.pursuit_upkeep(d)
     corner_x = x + TW - pad
     if up:
         c.setFillColor(Color(1, 1, 1)); c.setFont(SERIF_B, nm_sz)
