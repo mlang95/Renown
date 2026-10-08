@@ -4,8 +4,14 @@ data tables generated live from renown_data wherever a marker appears.
 
 Single source of truth split:
   - prose          -> the .md (RULES_reorganized.md)
-  - data tables    -> renown_data.py, via docx_tables.{{TABLE:name}} / {{GLOSSARY}}
-  - inline subs    -> {{DEF:term}}, {{VERSION}}
+  - data tables    -> renown_data.py, via docx_tables.{{TABLE:name}} / {{GLOSSARY}} / {{GLOSSARY:Category}}
+  - inline subs    -> {{DEF:term}}, {{TERM:term}}, {{IDX:term}}, {{VERSION}}
+  - book furniture -> {{TOC}} (contents), {{INDEX}} (every glossary/IDX term with page numbers),
+                      "Renown vX · Page X of Y" footer on every section
+
+{{TERM:x}} prints "**x** — definition" inline; {{IDX:x}} is an invisible index entry for a term the
+prose defines itself. Every {{GLOSSARY:Category}} row and every TERM/IDX is an XE field, so the
+{{INDEX}} page numbers are built by Word (or LibreOffice) when fields update on open.
 
 This replaces the build_docs.py + Rules_authored.docx path: the prose now lives
 in the same .md the wiki consumes, so docx and wiki cannot diverge in wording,
@@ -32,6 +38,11 @@ HEAD_BEFORE = {1: 12, 2: 12, 3: 8, 4: 6, 5: 6, 6: 6}
 
 TABLE_MK    = re.compile(r"^\s*\{\{TABLE:([a-z_]+)\}\}\s*$")
 GLOSSARY_MK = re.compile(r"^\s*\{\{GLOSSARY\}\}\s*$")
+GLOSSCAT_MK = re.compile(r"^\s*\{\{GLOSSARY:([^}]+)\}\}\s*$")
+TOC_MK      = re.compile(r"^\s*\{\{TOC\}\}\s*$")
+INDEX_MK    = re.compile(r"^\s*\{\{INDEX\}\}\s*$")
+TERM_MK     = re.compile(r"\{\{TERM:([^}]+)\}\}")
+IDX_MK      = re.compile(r"\{\{IDX:([^}]+)\}\}")
 ACTIONS_MK  = re.compile(r"^\s*\{\{ACTIONS:([A-Za-z]+)\}\}\s*$")
 LIST_MK     = re.compile(r"^\s*\{\{LIST:([A-Z_]+)\}\}\s*$")
 COLS_MK     = re.compile(r"^\s*\{\{COLS:(\d)\}\}\s*$")
@@ -46,13 +57,32 @@ def _subs(text):
     text = VERSION_MK.sub(VERSION, text)
     text = VAL_MK.sub(lambda m: dt.value(m.group(1).strip()), text)
     text = DEF_MK.sub(lambda m: dt.definition(m.group(1).strip()) or m.group(0), text)
+    text = TERM_MK.sub(lambda m: _term(m.group(1).strip()), text)
+    text = IDX_MK.sub(lambda m: dt.xe_mark(m.group(1).strip()), text)
     # display layer (NAME_DISPLAY): rename what players read; markers already resolved above
     return getattr(dt.rd, "display_md", lambda x: x)(text)
 
 
+def _term(term):
+    key, d = dt.lookup(term)
+    if key is None:
+        raise KeyError(f"TERM '{term}' is not in GLOSSARY")
+    return f"**{term}** — {d}" + dt.xe_mark(key)
+
+
 def _runs(paragraph, text, base_bold=False, base_size=None):
-    """Add runs to a paragraph, parsing **bold**, *italic*, ***both***, `code`."""
+    """Add runs to a paragraph, parsing **bold**, *italic*, ***both***, `code`; XE sentinels -> index fields."""
     text = _subs(text)
+    chunks = dt.XE_RE.split(text)          # [text, term, text, term, ...]
+    for j, chunk in enumerate(chunks):
+        if j % 2:
+            for r in parse_xml(f'<w:root xmlns:w="{W_NS}">{dt.xe_field_xml(chunk)}</w:root>'):
+                paragraph._p.append(r)
+        else:
+            _plain_runs(paragraph, chunk, base_bold, base_size)
+
+
+def _plain_runs(paragraph, text, base_bold=False, base_size=None):
     for part in INLINE.split(text):
         if part == "":
             continue
@@ -100,6 +130,66 @@ def _inject(doc, ooxml):
             body.append(child)
 
 
+def _field_par(instr, placeholder, size=20):
+    rpr = f'<w:rPr><w:rFonts w:ascii="{FONT}" w:hAnsi="{FONT}"/><w:sz w:val="{size}"/></w:rPr>'
+    return (f'<w:p><w:r>{rpr}<w:fldChar w:fldCharType="begin" w:dirty="true"/></w:r>'
+            f'<w:r>{rpr}<w:instrText xml:space="preserve"> {instr} </w:instrText></w:r>'
+            f'<w:r>{rpr}<w:fldChar w:fldCharType="separate"/></w:r>'
+            f'<w:r>{rpr}<w:t xml:space="preserve">{placeholder}</w:t></w:r>'
+            f'<w:r>{rpr}<w:fldChar w:fldCharType="end"/></w:r></w:p>')
+
+
+def _toc():
+    return (_field_par('TOC \\o "1-2" \\h \\z \\u', "Update fields (F9) to build the table of contents.")
+            + '<w:p><w:r><w:br w:type="page"/></w:r></w:p>')
+
+
+def _index():
+    # \c 2 = two columns, \h "A" = letter group headings
+    return _field_par('INDEX \\c "2" \\h "A" \\e ", " \\z "1033"', "Update fields (F9) to build the index.")
+
+
+def _footers(doc):
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    for section in doc.sections:
+        section.footer.is_linked_to_previous = False
+        p = section.footer.paragraphs[0]
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        xml = (f'<w:r><w:rPr><w:rFonts w:ascii="{FONT}" w:hAnsi="{FONT}"/><w:sz w:val="16"/></w:rPr>'
+               f'<w:t xml:space="preserve">Renown v{VERSION}   \u00b7   Page </w:t></w:r>')
+        def fld(instr):
+            rpr = f'<w:rPr><w:rFonts w:ascii="{FONT}" w:hAnsi="{FONT}"/><w:sz w:val="16"/></w:rPr>'
+            return (f'<w:r>{rpr}<w:fldChar w:fldCharType="begin"/></w:r><w:r>{rpr}<w:instrText xml:space="preserve"> {instr} </w:instrText></w:r>'
+                    f'<w:r>{rpr}<w:fldChar w:fldCharType="separate"/></w:r><w:r>{rpr}<w:t>1</w:t></w:r><w:r>{rpr}<w:fldChar w:fldCharType="end"/></w:r>')
+        xml += fld("PAGE") + (f'<w:r><w:rPr><w:rFonts w:ascii="{FONT}" w:hAnsi="{FONT}"/><w:sz w:val="16"/></w:rPr>'
+                              f'<w:t xml:space="preserve"> of </w:t></w:r>') + fld("NUMPAGES")
+        for r in parse_xml(f'<w:root xmlns:w="{W_NS}">{xml}</w:root>'):
+            p._p.append(r)
+
+
+def _index_styles(doc):
+    """Index 1 / Index Heading: compact 9pt EB Garamond. No tab stop: Word renders 'Term, 12' (\\e ", "),
+    LibreOffice applies its own dotted right tab at the column edge."""
+    from docx.enum.style import WD_STYLE_TYPE
+    from docx.shared import Inches
+    names = {st.name for st in doc.styles}
+    for name, bold, size in (("Index 1", False, 9), ("Index Heading", True, 10)):
+        st = doc.styles[name] if name in names else doc.styles.add_style(name, WD_STYLE_TYPE.PARAGRAPH)
+        if qn("w:customStyle") in st.element.attrib:
+            del st.element.attrib[qn("w:customStyle")]
+        st.font.name = FONT; st.font.size = Pt(size); st.font.bold = bold
+        pf = st.paragraph_format
+        pf.space_before = Pt(4 if bold else 0); pf.space_after = Pt(0); pf.line_spacing = 1.0
+        if not bold:
+            pf.left_indent = Inches(0.15); pf.first_line_indent = Inches(-0.15)
+
+
+def _update_fields_on_open(doc):
+    st = doc.settings.element
+    if st.find(qn("w:updateFields")) is None:
+        uf = OxmlElement("w:updateFields"); uf.set(qn("w:val"), "true"); st.append(uf)
+
+
 def _gfm_cells(row):
     row = row.strip()
     if row.startswith("|"):
@@ -139,6 +229,19 @@ def render(md_path, out_path):
         m = TABLE_MK.match(ln)
         if m:
             _inject(doc, dt.get(m.group(1)))
+            i += 1
+            continue
+        gm = GLOSSCAT_MK.match(ln)
+        if gm:
+            _inject(doc, dt.glossary_category(gm.group(1).strip()))
+            i += 1
+            continue
+        if TOC_MK.match(ln):
+            _inject(doc, _toc())
+            i += 1
+            continue
+        if INDEX_MK.match(ln):
+            _inject(doc, _index())
             i += 1
             continue
         if GLOSSARY_MK.match(ln):
@@ -212,6 +315,9 @@ def render(md_path, out_path):
         _runs(p, s)
         i += 1
 
+    _footers(doc)
+    _index_styles(doc)
+    _update_fields_on_open(doc)
     doc.save(out_path)
     return out_path
 

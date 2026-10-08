@@ -83,25 +83,7 @@ def standings_rows():
             for n, v in rd.NODES.items() if "escalation" in v]
 
 
-GLOSSARY_CATEGORIES = [
-    ('Reading the Rules', ['Natural roll', rd.PIVOTAL, 'Perform', 'Resolve', 'Cost / Pay', 'Fail', 'Host']),
-    ('Council & Envoys', ['Influence', 'Influence X', 'Envoy', 'Send an Envoy', 'Personal Envoy', 'Council Phase', 'Council Envoy', 'Vote', 'Support X', 'Oppose X', 'Abstain', 'Net Influence', 'Envoy Outcome', 'Passed', 'Failed', 'Endorsed', 'Condemned']),
-    ('Domains & Scoring', ['Renown', 'Domain', 'Domain Point', 'Standing', 'Edict', 'Monument']),
-    ('Actions', ['Charter', 'Muster', *( ["Build"] if getattr(rd,"SIMPLE",False) else ["Pursue"] ), *( ["Improve"] if getattr(rd,"SIMPLE",False) else ["Build"] ), 'Repair', 'Move', 'Demand Tribute', 'Diplomacy']),
-    ('Treaties', ['Treaty', 'Alliance', 'Vassal', 'Suzerain']),
-    ('Economy & Public Order', ['Public Order', 'Faith X', 'Doubt X', 'Extort X', 'Recoup X', 'Upkeep', 'Craft', 'War Weariness']),
-    ('Settlements & Pursuits', ['Ward', 'Natural', *(["Root"] if getattr(rd,"SIMPLE",False) else []), getattr(rd,"CHAIN_TERM","Efficient"), getattr(rd,"CHAIN_TERM","Efficient")+" X"]),
-    ('Timers', list(rd.TIMERS)),
-    ('Map & Range', ['Realm', 'Region', 'Territory', 'Province', 'Border', 'Controlled', 'Contested', 'Uncontrolled', 'Range X', 'Within', 'Adjacent', 'Next to', 'Reach', 'Reach X']),
-    ('World', ['Bandit', 'Outlaw Country', 'Siege', 'Sally Forth']),
-    ('Army States', ['Speed X', 'Blocked', 'Strained']),
-    ('Battle Structure', ['Battle', 'Skirmish', 'Attacker / Defender', 'Seize the Initiative', 'Tactic', 'Field', 'Casualty', 'Initiative', rd.BLUNDER, 'Strike', 'to-Strike number', 'AP', 'Save', 'Endurance', 'Fatigued', rd.FATIGUE_TOKEN, 'Morale', 'Break check', 'Panic check', 'Rout', 'Fall Back']),
-    ('Combat Keywords — Defense', [rd.PARRY, rd.RIPOSTE, rd.RECOVER, rd.ENDURING, rd.NO_PARRY, rd.MINUS_1_TBH, rd.PLANISHING]),
-    ('Combat Keywords — Offense', [rd.SHATTER_ARMOR, rd.CLEAVE, rd.POISON, rd.DESTROY_SHIELD, rd.UNSTOPPABLE, rd.SERRATED]),
-    ('Combat Keywords — Handling', [rd.STEADY, rd.UNWIELDY, rd.NIMBLE, rd.DRILLED, rd.TWO_H, rd.DUAL_WIELD, 'Dual-equip', rd.ONE_SHOT]),
-    ('Combat Keywords — Immune / Negate', ['Immune [keyword]', rd.NEGATE_TEMPERED, rd.NEGATE_RIPOSTE]),
-    ('Equipment Tiers', [k for k in map(str, rd.GLOSSARY) if k.split()[0] in {rd.display_tier(x) for x in rd.TIERS} | set(getattr(rd,"ITEM_TIER_DISPLAY",{}).values()) or k == "Ranged Weapons"]),
-]
+GLOSSARY_CATEGORIES = rd.GLOSSARY_CATEGORIES   # one list, defined in renown_data
 
 def glossary_categorized():
     g = {str(k): v for k, v in rd.GLOSSARY.items()}

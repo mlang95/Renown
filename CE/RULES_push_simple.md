@@ -2,6 +2,8 @@
 {{VAL:DICE_PROVENANCE}}
  A turn-based strategy game of empire building, diplomacy, and domain mastery.
 
+{{TOC}}
+
 # Introduction
 
 Within the Realm, Empires expand, specialize, confer, and when diplomacy fails—battle. You will lead your humble Province to greatness. **Charter** new Settlements, **build** your economy, and **negotiate** your way to victory. Will your religion dominate the **Realm**? Will your economy grow until your wealth is undeniable? Can you build a **world wonder**? Can you **extort** your way to victory? Pick your Faction, command your Domain, and pursue your Craft in this political grand strategy, where every action you attempt can be **endorsed** or **condemned** by your allies and other players.
@@ -38,7 +40,7 @@ When an Edict is completed, increase the Renown tracker by 1. Any player may com
 
 ### Game Structure
 
-Renown takes place over multiple turns each game, separated into distinct Eras, representing four distinct phases of the game, that grant bonuses to all players once that Era becomes active. An Era becomes active once the Renown tracker equals the Era requirement.
+Renown takes place over multiple turns each game, separated into distinct Eras, representing four distinct phases of the game, that grant bonuses to all players once that Era becomes active. An Era becomes active once the Renown tracker equals the Era requirement.{{IDX:Era}}
 
 {{TABLE:eras}}
 
@@ -65,7 +67,9 @@ A few conventions make every rule in this book read the same way:
 - Effects are written by *when* they apply: **While X** is always on; **When X** / **At X** happens once, at that moment; an action's **Cost / Effect / Endorsed** happens when you take the action.
 - **Choose one:** marks a set of options from which you pick exactly one.
 - *Italic text is reminder, example, or strategy — it explains the rule but never changes it; the plain-text rule governs.*
-- Capitalized terms (Army, Envoy, Standing, Holding, Treaty…) are defined terms — look them up in the Compendium.
+- Capitalized terms (Army, Envoy, Standing, Holding, Treaty…) are defined terms — each section closes with a glossary of the terms it introduces, and the Index at the back lists every term with its page numbers.
+
+{{GLOSSARY:Reading the Rules}}
 
 ## Core Principles
 
@@ -110,11 +114,11 @@ A few conventions make every rule in this book read the same way:
 
 Each turn runs through five phases in order, then passes the Host and repeats:
 
-1. **Empire Phase** — start of turn: activate Standing effects, apply the Season, increment timers, resolve Bandit Mechanics, gain Influence & Envoys, collect income, and pay upkeep.
-2. **Council Phase** — a Council vote on a Domain; each player then performs one action of that Domain.
-3. **Envoy Phase** — send all Envoys, a Forum, vote on every Envoy, then resolve them all (Diplomacy → Prowess → Cunning → Piety → Industry).
-4. **Battle Phase** — Skirmishes, Sieges, and Battles resolve.
-5. **Rest Phase** — cleanup, change Season, score Renown, spend one Domain Point, pass the Host.
+1. **Empire Phase**{{IDX:Empire Phase}} — start of turn: activate Standing effects, apply the Season, increment timers, resolve Bandit Mechanics, gain Influence & Envoys, collect income, and pay upkeep.
+2. **Council Phase**{{IDX:Council Phase}} — a Council vote on a Domain; each player then performs one action of that Domain.
+3. **Envoy Phase**{{IDX:Envoy Phase}} — send all Envoys, a Forum, vote on every Envoy, then resolve them all (Diplomacy → Prowess → Cunning → Piety → Industry).
+4. **Battle Phase**{{IDX:Battle Phase}} — Skirmishes, Sieges, and Battles resolve.
+5. **Rest Phase**{{IDX:Rest Phase}} — cleanup, change Season, score Renown, spend one Domain Point, pass the Host.
 
 **The Host.** Each turn except Spring, one player is the Host. The starting player is always the player directly clockwise from the Host token, including in Spring. The role passes clockwise each Rest Phase (except in Spring). The Host runs most of that Empire Phase's administration: collecting and distributing Trade Income, resolving Bandit Mechanics, and breaking ties (Council vote, Bandit targeting, and anything not otherwise resolvable). The Host Card carries the step-by-step detail.
 
@@ -247,9 +251,11 @@ Each outcome resolves differently by Domain — what Condemned, Failed, Passed, 
 
 {{TABLE:envoy_outcomes}}
 
+{{GLOSSARY:Council & Envoys}}
+
 # Seasons
 
-The Realm cycles through four Seasons. The current Season's effect is applied during the Empire Phase, and the Rest Phase advances the Season by one.
+The Realm cycles through four Seasons.{{IDX:Season}} The current Season's effect is applied during the Empire Phase, and the Rest Phase advances the Season by one.
 
 {{TABLE:seasons}}
 
@@ -292,6 +298,8 @@ Unless you are at war with the player sending it, you can't Oppose an Industry E
 
 If your diplomacy envoy fails, or a treaty or agreement was not signed, you may send another envoy in another domain, resolved in the order it would be resolved alongside other envoys.
 
+{{GLOSSARY:Actions}}
+
 # Domains & Standings
 
 ### Domain Standings
@@ -314,6 +322,8 @@ Your Standing in a Domain sets how much Influence you bring to its Envoys:
 | Rising | {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Rising}} | {{VAL:DOMAIN_BOARD.max_influence_per_vote.Rising}} |
 | Established | {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Established}} | {{VAL:DOMAIN_BOARD.max_influence_per_vote.Established}} |
 | Sovereign | {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Sovereign}} | {{VAL:DOMAIN_BOARD.max_influence_per_vote.Sovereign}} |
+
+{{GLOSSARY:Domains & Scoring}}
 
 # Diplomacy & Treaties
 
@@ -345,11 +355,13 @@ To vassalize a player:
 
 *Note: if the Suzerain is vassalized, both the original Vassal and the Suzerain become vassals of the new Suzerain, and the new Suzerain gains the benefits of each Vassal.*
 
+{{GLOSSARY:Treaties}}
+
 # Empire Building
 
 ## Settlements
 
-Settlements are the primary vehicle of your Empire. They come in tiers: villages, towns, cities, and a capital Metropolis. Each tier provides tax income each turn, Settlement Wards that a Holding can fill, and a per-turn muster limit of Retinues. The values per tier are below:
+Settlements are the primary vehicle of your Empire.{{IDX:Settlement}} They come in tiers: villages, towns, cities, and a capital Metropolis. Each tier provides tax income each turn, Settlement Wards that a Holding can fill, and a per-turn muster limit of Retinues. The values per tier are below:
 
 {{TABLE:settlements}}
 
@@ -367,19 +379,21 @@ Settlements have a Reach value set by their tier, from {{VAL:SETTLEMENTS.Village
 
 ### Hamlets
 
-Hamlets are unique Settlements, placed *exactly* range {{VAL:HAMLET_RANGE}} from your capital via a Charter Settlement action. These small farmland communities produce no tax income or muster limit, but have {{VAL:SETTLEMENTS.Hamlet.wards}} Settlement Wards. You may only pursue **Natural** Holdings in a Hamlet, and a Holding in a Hamlet can only be efficient if it is itself Natural. You may also pursue Arable Land in a Hamlet even if that Raw Material isn't in the Hamlet's region.
+Hamlets are unique Settlements, placed *exactly* range {{VAL:HAMLET_RANGE}} from your capital via a Charter Settlement action. These small farmland communities produce no tax income or muster limit, but have {{VAL:SETTLEMENTS.Hamlet.wards}} Settlement Wards. You may only pursue **Natural** Holdings in a Hamlet, and a Holding in a Hamlet can only be efficient if it is itself Natural. You may also pursue Arable Land in a Hamlet even if that Raw Material isn't in the Hamlet's region.{{IDX:Hamlet}}
+
+{{GLOSSARY:Settlements & Holdings}}
 
 ## Infrastructure
 
- 	Infrastructure is the foundation of your Settlements. Each active Infrastructure provides an effect that applies to your entire empire and all its Settlements.
+ 	Infrastructure is the foundation of your Settlements.{{IDX:Infrastructure}} Each active Infrastructure provides an effect that applies to your entire empire and all its Settlements.
 
  	*Example: Wooden Walls protect all Settlements from Cunning Envoys, and a Cathedral raises your innate Faith by 2 each turn, regardless of how many Settlements you have.*
 
- 	Infrastructure comes in 4 ascending tiers. Primitive Infrastructure builds the basic blocks of your empire. Developed Infrastructure expands and replaces some primitive Infrastructure. Sophisticated Infrastructure allows more powerful effects and helps unlock unique Monument Holdings.
+ 	Infrastructure comes in 4 ascending tiers.{{IDX:Primitive}}{{IDX:Developed}}{{IDX:Sophisticated}} Primitive Infrastructure builds the basic blocks of your empire. Developed Infrastructure expands and replaces some primitive Infrastructure. Sophisticated Infrastructure allows more powerful effects and helps unlock unique Monument Holdings.
 
  	To build any Infrastructure, you need at least one active Infrastructure of the tier below it — so Developed needs one Primitive, and Sophisticated needs one Developed (and therefore one Primitive). *One Tier Primitive* means any one Primitive Infrastructure. Some Infrastructure also names its own requirement on top of this: a Library needs a Town Hall, and a Cathedral needs a Capital City — so a Cathedral needs one Primitive, one Developed, and a Capital City.
 
- 	Last are world Wonders. Wonders are unique Infrastructure, each built once per game, only once all other Infrastructure is built and active in your empire. They're Edict-satisfying buildings with very powerful effects. A Wonder exists inside your capital and can't be razed or damaged.
+ 	Last are world Wonders.{{IDX:Wonder}} Wonders are unique Infrastructure, each built once per game, only once all other Infrastructure is built and active in your empire. They're Edict-satisfying buildings with very powerful effects. A Wonder exists inside your capital and can't be razed or damaged.
 
 The full list of Infrastructure — their tiers, build times, upkeep, requirements, and effects:
 
@@ -397,11 +411,15 @@ Build times, in turns, by what you're building:
 
 Territory is the smallest unit of land. To move from one Territory to another, you move range 1. To be within a Territory is range 0; adjacent is range 1; next to is range 2.
 
+{{TERM:Speed X}}
+
  	Territories carry modifiers by hex type (grassland, forest, tundra, wetlands, water, mountain), and are uncontrolled, contested, or controlled. Territory begins uncontrolled. By chartering Settlements you Control Territories: each Settlement's Reach X adds every Territory within that range to your province. If another player's Settlement Reach reaches any Territory you Control, that Territory is contested.
 
  	To border another player, your Reach must be within or adjacent to their Territory.
 
 {{TABLE:terrain}}
+
+{{GLOSSARY:Map & Range}}
 
 # Economy
 
@@ -421,7 +439,7 @@ Your innate Public Order modifiers (below) are checked once each turn during the
 
 ## Treasury & Upkeep
 
-Your Treasury is the gold you Control. Each Empire Phase you gain your Revenue (tax, trade, and Holding income) and pay your Upkeep (Armies, Holdings, and Infrastructure); the net lands in your Treasury. Costs you pay during the turn come out of the same Treasury.
+Your Treasury is the gold you Control.{{IDX:Treasury}}{{IDX:Revenue}} Each Empire Phase you gain your Revenue (tax, trade, and Holding income) and pay your Upkeep (Armies, Holdings, and Infrastructure); the net lands in your Treasury. Costs you pay during the turn come out of the same Treasury.
 
 **Holding upkeep** is fixed by Holding type: Monument {{VAL:PURSUIT_UPKEEP_BY_TYPE.Monument}}, Power {{VAL:PURSUIT_UPKEEP_BY_TYPE.Power}}, Energy {{VAL:PURSUIT_UPKEEP_BY_TYPE.Energy}}, all others {{VAL:PURSUIT_UPKEEP_BY_TYPE.Other}}. Holdings and Infrastructure only pay upkeep while active: none while being built, Damaged, or under repair.
 
@@ -446,7 +464,7 @@ If you've cut everything and a debt still remains, you're Bankrupt: your Treasur
 
 ### Who Can Trade & Income
 
-**Who can trade:** a player needs active dirt road Infrastructure and a signed Trade Agreement to take part in trade.
+**Who can trade:** a player needs active dirt road Infrastructure and a signed Trade Agreement to take part in trade.{{IDX:Trade Agreement}}
 
 **Craft X:** Craft Holdings count toward how much income your Trade Agreements generate — any effect that grants Craft +X.
 
@@ -457,17 +475,21 @@ If you've cut everything and a debt still remains, you're Bankrupt: your Treasur
 - When you sign a Trade Agreement: the player who did *not* perform the Sign Treaty action gets trade income the next time they're Host. Afterwards, both get trade income each turn either of them is Host.
 - When you end a Trade Agreement: the player who ended it gets trade income the next time they're Host, then trading ceases.
 
+{{TABLE:trade_rules}}
+
 ### Income Types
 
 - **Taxes:** at the start of each Winter, gain tax income equal to your Settlement total, after modifiers.
 - **Trade:** see above.
 - **Holdings:** gain Holding effect income at the start of the income phase.
 
+{{GLOSSARY:Economy & Public Order}}
+
 # Armies
 
 ### Armies Overview
 
-Armies are collections of Retinues on the realm, and are the target of Move actions. An Army holds up to {{VAL:ARMY_MAX_RETINUES}} Retinues and up to a single piece of equipment of each type (armor, weapon, shield, and Retinue).
+Armies{{IDX:Army}} are collections of Retinues on the realm, and are the target of Move actions. An Army holds up to {{VAL:ARMY_MAX_RETINUES}} Retinues and up to a single piece of equipment of each type (armor, weapon, shield, and Retinue).
 
  	Armies cost upkeep, paid in the Empire Phase. Each Army costs its Retinue type's cost; your Army upkeep is the total of all your Armies, minus any upkeep modifiers.
 
@@ -475,17 +497,9 @@ Armies are collections of Retinues on the realm, and are the target of Move acti
 
 While an Army has been engaged in a Battle or Lay Siege action started by another player's Army, neither Army can be the target of any actions until that Battle or Lay Siege resolves.
 
-### Recruiting an Army
+### Mustering
 
-When you perform a Muster action and you have not reached your maximum Army allowance, you may place an Army within (range 0) a Settlement you Control that isn't being sieged by another player. When you do: muster Retinues up to the Settlement's combined muster limit, pay the cost for the Retinue type you're eligible to buy, choose their equipment from what you have available, and set a Muster Timer {{VAL:TIMERS.Muster Timer.default}}.
-
-To muster more Retinues than the muster limit, increment the Muster Timer +1 for each additional turn's worth of mustering. Each turn the Muster Timer increments, you recruit that many Retinues and begin paying upkeep on the army.
-
-While a Settlement is besieged, its muster limit is 0; an active Muster Timer doesn't increment and may be cancelled at any time.
-
-### Recruiting Retinues to an Existing Army
-
-If an existing Army performs a Muster action within range {{VAL:MUSTER_RANGE}} of any Settlement(s) you Control that aren't under Siege, you may muster Retinues up to the Settlement's muster limit, to the maximum an Army can hold ({{VAL:ARMY_MAX_RETINUES}}), and set a Muster Timer {{VAL:TIMERS.Muster Timer.default}}. When the Muster Timer resolves, you gain those Retinues, equipped the same as your existing Retinues.
+Armies are raised and reinforced with the Muster action (see Prowess Actions).
 
 During any Upkeep phase while an Army is within (range 0) a Settlement you Control, you may change that Army's equipment to any unlocked equipment.
 
@@ -495,7 +509,9 @@ Retinue types — cost, to-Strike, and base profile:
 
 ### Blocked Armies
 
-A Blocked Army can't be the target of actions until Blocked is removed. An Army gains **Blocked** while it's within a Settlement under Siege, or when it's selected as the result of a condemned Prowess Envoy.
+A Blocked Army has −1 Initiative in the first Skirmish and can't perform Move actions. An Army gains **Blocked** while it's within a Settlement under Siege, or when it's selected as the result of a condemned Prowess Envoy.
+
+{{GLOSSARY:Army States}}
 
 # Battles & Sieges
 
@@ -513,7 +529,7 @@ A Blocked Army can't be the target of actions until Blocked is removed. An Army 
 
 ### How a Battle Resolves
 
-A Battle is fought as a series of Skirmishes, run through the steps below until one side is wiped out, Routs, or successfully Falls Back. Full keyword detail is in the Compendium glossary.
+A Battle is fought as a series of Skirmishes, run through the steps below until one side is wiped out, Routs, or successfully Falls Back. Full keyword detail is in the glossary tables at the end of this section.
 
 ### Begin the Battle — Seize the Initiative
 
@@ -553,9 +569,23 @@ Determine who gains Seize the Initiative. Typically, the player who performed th
 
 ### End Battle
 
+### Tactic Matrix
+
+{{TABLE:tactic_matrix}}
+
+{{GLOSSARY:Battle Structure}}
+
+{{GLOSSARY:Combat Keywords — Defense}}
+
+{{GLOSSARY:Combat Keywords — Offense}}
+
+{{GLOSSARY:Combat Keywords — Handling}}
+
+{{GLOSSARY:Combat Keywords — Immune / Negate}}
+
 ## Siege Warfare
 
-- When you Lay Siege during the Envoy Phase, track the relevant Siege Timer(s).
+- When you Lay Siege{{IDX:Lay Siege}} during the Envoy Phase, track the relevant Siege Timer(s).
 - When a Siege Timer reaches 0, resolve the Siege before the Rest Phase: negotiate, then Battle if needed, then capture or sack.
 - For the full sequence, see the steps below.
 
@@ -585,8 +615,8 @@ When a Siege Timer reaches 0:
 
 3. If the besieging player wins, or there's no eligible Army or Garrison, choose one:
 
-- **Capture:** set a Capture Timer {{VAL:TIMERS.Capture Timer.default}}. When it resolves, the Settlement comes under your Control — it receives your active Infrastructure effects, and you gain its Holdings, tax income, and Reach.
-- **Sack:** raze all Holdings; extort {{VAL:SACK_EXTORT_PER_TIER}} per Settlement tier; reduce the Settlement by 1 tier. Its controller removes all Holdings from one Settlement Ward of the sacking player's choice, then removes that Ward from play. Set a Sack Timer {{VAL:TIMERS.Sack Timer.default}} — you can't Lay Siege again until it resolves. Your Army gains Blocked and Strained until the Sack Timer resolves.
+- **Capture:**{{IDX:Capture}} set a Capture Timer {{VAL:TIMERS.Capture Timer.default}}. When it resolves, the Settlement comes under your Control — it receives your active Infrastructure effects, and you gain its Holdings, tax income, and Reach.
+- **Sack:**{{IDX:Sack}} raze all Holdings; extort {{VAL:SACK_EXTORT_PER_TIER}} per Settlement tier; reduce the Settlement by 1 tier. Its controller removes all Holdings from one Settlement Ward of the sacking player's choice, then removes that Ward from play. Set a Sack Timer {{VAL:TIMERS.Sack Timer.default}} — you can't Lay Siege again until it resolves. Your Army gains Blocked and Strained until the Sack Timer resolves.
 
 # Bandits
 
@@ -604,7 +634,7 @@ At the start of the Bandit Mechanics step in Spring: place a Bandit Camp of {{VA
 
 ### Growing Bandit Camps
 
-A Bandit Camp becomes a Bandit Army when it reaches {{VAL:BANDIT_ARMY_THRESHOLD}} Retinues.
+A Bandit Camp{{IDX:Bandit Camp}} becomes a Bandit Army when it reaches {{VAL:BANDIT_ARMY_THRESHOLD}} Retinues.
 
 ### Bandit Armaments by Era
 
@@ -647,3 +677,37 @@ After Bandit Mechanics resolve, a Bandit Army performs a Move action based on, i
 ### Attacking a Bandit Camp
 
 Use the Move action to end adjacent to a Bandit Camp. Another player rolls for Bandit Tactics (See Bandit Info) and resolves the to-Strike and to-Save rolls. Resolve it as a Battle in the Battle Phase. Extort the Bandit Camp's gold if it's destroyed. Bandits never Fall Back, but they may flee.
+
+{{GLOSSARY:World}}
+
+# Holdings
+
+{{TABLE:holdings}}
+
+# Equipment
+
+## Melee Weapons
+
+{{TABLE:weapons}}
+
+## Ranged Weapons
+
+{{TABLE:ranged}}
+
+## Shields
+
+{{TABLE:shields}}
+
+## Armor
+
+{{TABLE:armor}}
+
+{{GLOSSARY:Equipment Tiers}}
+
+# Factions
+
+{{TABLE:factions}}
+
+# Index
+
+{{INDEX}}

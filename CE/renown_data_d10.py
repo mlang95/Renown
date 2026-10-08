@@ -149,7 +149,7 @@ GLOSSARY = {
     "Strained":      "-1 Initiative every Skirmish (negated by Immune Strain). Does not gain Endurance in the Empire Phase.",
     #"Improved Parry": "Your Parry succeeds on 4+ instead of 5+.",
     #"Heal X":        "At the end of each Skirmish, for every X casualties you took from Strikes, return 1 retinue to your Army.",
-    "Seize the Initiative": "Won by the roll-off at the start of the Battle — the winner of their last Battle adds +1 to the roll. You become the Attacker and gain +1 Initiative in the first Skirmish. Some Tactics and the Ministry monument also grant it.",
+    "Seize the Initiative": "Typically, the player who performed the Battle Action gains Seize the Initiative, but Terrain and the Ministry of Military Strategy can affect that. When a player gains Seize the Initiative, the player gains +1 Initiative in the first round of combat.",
 
     # ── Battle-structure terms (doc glossary, wording updated to current rules) ──
     "Attacker / Defender": "Set by the roll-off. Each Skirmish the Attacker declares equipment first; the Defender then responds.",
@@ -202,7 +202,7 @@ GLOSSARY = {
 
     # ── Empire actions ──
     "Charter":       "Found or upgrade a Settlement (Industry action).",
-    "Muster":        "Raise retinues into an Army, up to a Settlement's muster limit (Industry/Prowess).",
+    "Muster":        "Raise a new Army or Reinforce an existing one near a Muster Field; Retinues arrive each turn over a Muster Timer (Prowess action).",
     "Pursue":        "Build a Pursuit, spending its purchase cost and a Settlement ward (Industry).",
     "Build":         "Construct Infrastructure (Industry action).",
     "Repair":        "Restore damaged Infrastructure or Settlements (Industry).",
@@ -578,7 +578,7 @@ CULTURES = {
         'type': 'triple', 'domains': ['Piety', 'Industry', 'Prowess'],
         'monuments': ['Senate Hall', 'Ministry of Military Strategy', "Preceptory of the Knight's Templar"],
         'wonders':   ['The Grand Exchange', 'The Eternal Sepulchre'],
-        'actions':   ['Sign Treaty', 'Move: Muster', 'Repair'],
+        'actions':   ['Sign Treaty', 'Muster', 'Repair'],
         'factions':  ['The Iron Throne', 'The Grand Compact', 'The Pale Throne'],
         'radar': {'military_solutions': 3, 'economy_generators': 4, 'faith_management': 3, 'doubt_warfare': 1,
                   'political_control': 4, 'board_presence': 3, 'degenerate_punishment': 2},
@@ -3298,7 +3298,7 @@ TIMERS = {
     "Repair Timer":  {"where": "Damaged Pursuits / Infrastructure", "default": 2, "tracks": "Turns until a Damaged piece is repaired and its effects return."},
     "Truce Timer":   {"where": "Treaties / diplomacy outcomes", "default": 5, "tracks": "Turns remaining until a Truce expires (and related diplomacy restrictions end)."},
     "Siege Timer":   {"where": "Lay Siege", "default": None, "tracks": "Turns remaining until a Siege resolves."},
-    "Muster Timer":  {"where": "Muster effects (e.g., Garrison timing)", "default": 1, "tracks": "Turns remaining until Recruited Retinues become Active (or until a temporary Muster state ends)."},
+    "Muster Timer":  {"where": "Muster action", "default": 1, "tracks": "Turns remaining in a Muster; each turn it counts down, the Army gains Retinues up to the combined muster limit."},
     "Sack Timer":    {"where": "After Sacking a Settlement", "default": 2, "tracks": "Cooldown before the same force may Lay Siege again (per Sack rules)."},
     "Capture Timer": {"where": "Capturing a Settlement after Siege", "default": 1, "tracks": "Turns until a Captured Settlement becomes Controlled by the Player with the Capture Timer and applies the listed capture effects."},
     "Convert Timer": {"where": "Convert (Piety action)", "default": None, "tracks": "Turns until a Convert attempt resolves (or fails early if conditions change)."},
@@ -3332,20 +3332,20 @@ BUILD_TIMERS = {
 
 TERRAIN = {
 	"Grassland": {"Effect": "—", "Raw Materials": ["Arable Land", "Apiary"]},
-	"Wetlands": {"Effect": "Speed -1", "Raw Materials": ["Peat Bog", "Forestry"]},
+	"Wetlands": {"Effect": "Speed -1 per Territory moved through", "Raw Materials": ["Peat Bog", "Forestry"]},
 	"Tundra": {"Effect": "gain Strained", "Raw Materials": ["Quarry", "Salt Works"]},
 	"Mountains": {"Effect": "Impassable", "Raw Materials": ["Mine", "Quarry"]},
 	"Water": {"Effect": "Must end move after moving over 1 Water Territory (must end on land)", "Raw Materials": ["Fishmongery"]},
-	"Forest": {"Effect": "Speed -1", "Raw Materials": ["Forestry","Apiary"]},
+	"Forest": {"Effect": "Speed -1 per Territory moved through", "Raw Materials": ["Forestry","Apiary"]},
 	"Hill":  {"Effect": "Gains Seize the Initiative. Where Settlements can be chartered."},
 }
 
 MOVEMENT_MODIFIERS = {
-	"Dirt Roads" : {"Effect": "Immune Speed -1 from Terrain"},
-	"Stone Roads" : {"Effect": "Immune Speed -1 from Terrain. Gain Speed +2"},
+	"Dirt Roads" : {"Effect": "If you start a Move action within Province, gain Speed +1"},
+	"Stone Roads" : {"Effect": "If you start a Move action within Province, gain additional Speed +1"},
 	"Bridge" : {"Effect": "Immune Water Effect."},
 	"Tunneler": {"Effect": "Immune Mountain Effect"},
-	"Ancient Wilds": {"Effect": ["Immune Speed -X from Terrain", "Other armies gain Speed -2 in Province."]},
+	"Ancient Wilds": {"Effect": ["Ignore all Speed -X from Terrain", "Other armies gain Speed -2 in Province."]},
 	"Shipyard": {"Effect": "Immune Water Effect"}
 }
 
@@ -3460,9 +3460,9 @@ ACTIONS = {
         'domain': 'Prowess',
         'cost': 'None',
         'requires': '',
-        'effect': f'Move an Army up to its Speed in Territories. Then choose one: March — move up to {MARCH_MULTIPLIER}× Speed, lose 1 Endurance, take no other action; Battle — end adjacent to a non-allied Army not in a Settlement, then begin a Battle; Lay Siege — end adjacent to an at-war Settlement, then begin a Siege; Muster — end within range {MUSTER_RANGE} of your Settlements, not within range 1 of a non-ally, at an active Muster Field, then recruit up to your combined muster limit (you may swap Retinues between adjacent allied Armies and change equipment).',
+        'effect': f'Move an Army up to its Speed in Territories. Then choose one: March — move up to {MARCH_MULTIPLIER}× Speed, lose 1 Endurance, take no other action; Battle — end adjacent to an at-war Army not in a Settlement, then begin a Battle; Lay Siege — end adjacent to an at-war Settlement, then begin a Siege.',
         'endorsed': 'Perform another Move action (same or a different Army).',
-        'notes': ['An Army may be the target of only one Move action per turn.', "While an Army's Battle, Siege, or Muster Timer is running, it can't be the target of actions.", "When an Army performs the Battle mode, it has Seize the Initiative in that Battle's first Skirmish."],
+        'notes': ['Unless the move action was Endorsed, an Army may be the target of only one Move action per turn.', "While an Army's Battle or Siege Timer is active, it can't be the target of actions.", "When an Army performs the Battle action, it gains Seize the Initiative in that Battle's first Skirmish."],
     },
     'Declare War': {
         'domain': 'Prowess',
@@ -3478,6 +3478,22 @@ ACTIONS = {
         'requires': 'Rising Prowess',
         'effect': "Choose an army you control within Reach of an at-war player's Settlement that is not under Siege. Until cancelled, while that army remains within Reach of that Settlement and does not Lay Siege, Battle, or March, it may Extort half of that Settlement's [pursuit & tax income] in the Empire Phase. A Settlement may be Pillaged once per Empire Phase. Pillage ends if [war ends / army leaves Reach / Settlement is besieged].",
         'endorsed': 'Perform a Move action.',
+    },
+    'Muster': {
+        'domain': 'Prowess',
+        'cost': 'None',
+        'requires': '',
+        'effect': (f"Choose one: Raise — if you have fewer Armies than your Era allows, place a new Army; or "
+                   f"Reinforce — choose an Army you control. The Army must be within range {MUSTER_RANGE} of a Settlement "
+                   f"you Control with an active Muster Field, and at least range 2 from any non-allied Army unless it is "
+                   f"within (range 0) a Settlement you Control. Choose how many Retinues to recruit (an Army "
+                   f"can't exceed {ARMY_MAX_RETINUES}) and set a Muster Timer equal to that number ÷ your combined muster "
+                   f"limit, rounded up. Each turn the Muster Timer counts down, the Army gains Retinues up to your "
+                   f"combined muster limit and you begin paying their upkeep. You may change the Army's Retinue type "
+                   f"and equipment."),
+        'endorsed': 'Perform a Move action.',
+        'notes': [f"Combined muster limit: the total muster limit of your Settlements within range {MUSTER_RANGE} of the Army.",
+                  "While a Settlement is besieged, its muster limit is 0; an active Muster Timer doesn't count down and may be cancelled at any time."],
     },
     'Demand Tribute': {
         'domain': 'Prowess',
@@ -3807,7 +3823,7 @@ GLOSSARY.update({
     FATIGUE_TOKEN:  f"Each token reduces Morale  by {FATIGUE_MORALE} (uncapped); if your modified Morale is ever {ROUT_THR}+, your army Routs. Tokens stack.",
     "Sally Forth":  "While a settlement you control is besieged and you have an army inside it, you may Sally Forth: Battle in the Battle Phase without performing an action.",
     "War Weariness":"gain Doubt 1 for each consecutive Battle you lose in the Empire Phase.",
-    "Ward":         "A slot in a Settlement that holds one Pursuit; a Settlement has one Ward per tier (a Hamlet has 3 Husbandry Wards).",
+    "Settlement Ward": "A slot in a Settlement that holds one Pursuit; a Settlement has one Ward per tier (a Hamlet has 3 Husbandry Wards).",
     "Efficient X":  "While this Pursuit occupies the same Settlement Ward as X (the Raw Material or Pursuit named on its tile), it uses no ward of its own \u2014 the two share one ward. Placed anywhere else, it fills a ward normally. (Core Principle 14.) Note: Two Pursuits that are Efficient with the same Pursuit cannot share a Ward with each other.",
 })
 
@@ -4124,7 +4140,12 @@ GLOSSARY.update({
                 f"For each active Trade Agreement, both players gain {TRADE_RULES['income_per_craft']} × the Host's Craft X."),
     "Efficient": ("A Pursuit is efficient with the Raw Material or Pursuit named on its tile. While it shares a Settlement Ward "
                   "with that piece, it doesn't consume a Ward of its own."),
-    "Speed X":         f"An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed {RETINUES['Levy']['speed']}",
+    "Speed X":         f"An Army's movement range in Territories per Move action. Base Speed value of an army is Speed {RETINUES['Levy']['speed']}",
+    "Pursuit":   (f"An object that is placed into a Settlement Ward or onto a Root Pursuit as a result of a "
+                  f"{'Build' if SIMPLE else 'Pursue'} action, giving effects which affect your Empire in many ways."),
+    "Retinue":   "A single unit within an Army, represented by a single die roll for Strikes, Saves, etc.",
+    "At War":    "Cannot trade; can be the target of Siege, Battle, & Pillage actions from players At War with this player.",
+    "Equipped":  "The weapon chosen for the Skirmish.",
 })
 for _k, _v in TIMERS.items():                      # Build Timer, Repair Timer, Truce Timer, …
     GLOSSARY.setdefault(_k, _v["tracks"])
@@ -4375,3 +4396,25 @@ if SIMPLE:
     ALIASES.update({"Pursuit": _PS, "Pursuits": _PP, "PURSUIT": _PS.upper(), "PURSUITS": _PP.upper()})
     _ALIAS_RE = _re_disp.compile(
         r"\b(" + "|".join(_re_disp.escape(k) for k in sorted(ALIASES, key=len, reverse=True)) + r")\b")
+
+# ── Glossary categories: one ordering shared by the rules docx ({{GLOSSARY:Category}}), wiki and board ──
+# Constant-keyed terms use their constants; action names follow SIMPLE (Pursue->Build, Build->Improve).
+GLOSSARY_CATEGORIES = [
+    ('Reading the Rules', ['Natural roll', PIVOTAL, 'Perform', 'Resolve', 'Cost / Pay', 'Fail', 'Host']),
+    ('Council & Envoys', ['Influence', 'Influence X', 'Envoy', 'Send an Envoy', 'Personal Envoy', 'Council Phase', 'Council Envoy', 'Vote', 'Support X', 'Oppose X', 'Abstain', 'Net Influence', 'Envoy Outcome', 'Passed', 'Failed', 'Endorsed', 'Condemned']),
+    ('Domains & Scoring', ['Renown', 'Domain', 'Domain Point', 'Standing', 'Edict', 'Monument']),
+    ('Actions', ['Charter', 'Muster', *(["Build"] if SIMPLE else ["Pursue"]), *(["Improve"] if SIMPLE else ["Build"]), 'Repair', 'Move', 'Demand Tribute', 'Diplomacy']),
+    ('Treaties', ['Treaty', 'Alliance', 'At War', 'Vassal', 'Suzerain']),
+    ('Economy & Public Order', ['Public Order', 'Faith X', 'Doubt X', 'Extort X', 'Recoup X', 'Upkeep', 'Craft', 'War Weariness']),
+    ('Settlements & Holdings', ['Settlement Ward', 'Pursuit', *(["Root"] if SIMPLE else []), 'Natural', CHAIN_TERM, CHAIN_TERM + " X"]),
+    ('Timers', list(TIMERS)),
+    ('Map & Range', ['Realm', 'Region', 'Territory', 'Province', 'Border', 'Controlled', 'Contested', 'Uncontrolled', 'Range X', 'Within', 'Adjacent', 'Next to', 'Reach', 'Reach X']),
+    ('World', ['Bandit', 'Outlaw Country', 'Siege', 'Sally Forth']),
+    ('Army States', ['Retinue', 'Speed X', 'Blocked', 'Strained']),
+    ('Battle Structure', ['Battle', 'Skirmish', 'Attacker / Defender', 'Seize the Initiative', 'Tactic', 'Field', 'Casualty', 'Initiative', BLUNDER, 'Strike', 'to-Strike number', 'AP', 'Save', 'Endurance', 'Fatigued', FATIGUE_TOKEN, 'Morale', 'Break check', 'Panic check', 'Rout', 'Fall Back']),
+    ('Combat Keywords — Defense', [PARRY, RIPOSTE, RECOVER, ENDURING, NO_PARRY, MINUS_1_TBH, PLANISHING]),
+    ('Combat Keywords — Offense', [SHATTER_ARMOR, CLEAVE, POISON, DESTROY_SHIELD, UNSTOPPABLE, SERRATED]),
+    ('Combat Keywords — Handling', ['Equipped', STEADY, UNWIELDY, NIMBLE, DRILLED, TWO_H, DUAL_WIELD, 'Dual-equip', ONE_SHOT]),
+    ('Combat Keywords — Immune / Negate', ['Immune [keyword]', NEGATE_TEMPERED, NEGATE_RIPOSTE]),
+    ('Equipment Tiers', [k for k in map(str, GLOSSARY) if k.split()[0] in {display_tier(x) for x in TIERS} | set(globals().get("ITEM_TIER_DISPLAY", {}).values()) or k == "Ranged Weapons"]),
+]

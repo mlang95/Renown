@@ -139,7 +139,7 @@ CULTURES = {
         'type': 'triple', 'domains': ['Piety', 'Industry', 'Prowess'],
         'monuments': ['Senate Hall', 'Ministry of Military Strategy', "Preceptory of the Knight's Templar"],
         'wonders':   ['The Grand Exchange', 'The Great Basilica'],
-        'actions':   ['Sign Treaty', 'Move: Muster', 'Repair'],
+        'actions':   ['Sign Treaty', 'Muster', 'Repair'],
         'factions':  ['The Iron Throne', 'The Grand Compact', 'The Pale Throne'],
         'radar': {'military_solutions': 3, 'economy_generators': 4, 'faith_management': 3, 'doubt_warfare': 1,
                   'political_control': 4, 'board_presence': 3, 'degenerate_punishment': 2},

@@ -257,11 +257,9 @@ REM ============================================================================
 :docs
 echo --- Docs ---
 pushd "%SHEET_DIR%"
-echo   Compendium...
-if exist "gen_compendium.py"        %PY% gen_compendium.py "%LAB_DIR%\compendium_data.json"
-if exist "patch_pursuit_domains.py" %PY% patch_pursuit_domains.py "%LAB_DIR%\compendium_data.json"
-if exist "build_compendium.py"      %PY% build_compendium.py "%LAB_DIR%\compendium_data.json" "%LAB_DIR%\Compendium.docx"
-echo   Rules...
+REM Compendium retired: its chapters (Holdings, Equipment, Factions, Tactic Matrix, glossary) now render
+REM inside Rules.docx from {{TABLE:}} / {{GLOSSARY:Category}} markers. gen/build_compendium.py are no longer called.
+echo   Rules - with Holdings, Equipment, Factions, glossary, index...
 if exist "md_to_docx.py"            %PY% md_to_docx.py "%RULES_MD%" "%LAB_DIR%\Rules.docx"
 echo   Combat quick-reference sheet...
 if exist "combat_sheet.py"          %PY% combat_sheet.py "%OUT_DIR%\combat_sheet.pdf"

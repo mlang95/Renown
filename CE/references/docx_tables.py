@@ -30,8 +30,23 @@ SLACK    = 85
 
 _BOLD = _re.compile(r"\*\*(.+?)\*\*")
 
+XE_RE = _re.compile("\x00XE:([^\x00]+)\x00")
+
+def xe_mark(term):
+    """Sentinel a builder appends to cell/prose text; rendered as an invisible XE index field."""
+    return f"\x00XE:{term}\x00"
+
+def xe_field_xml(term):
+    """OOXML runs for one { XE "term" } index entry (Word + LibreOffice build {{INDEX}} from these)."""
+    t = getattr(rd, "display_text", lambda x: x)(str(term)).replace('"', "'").replace(":", "\\:")
+    return ('<w:r><w:fldChar w:fldCharType="begin"/></w:r>'
+            f'<w:r><w:instrText xml:space="preserve"> XE "{_esc(t)}" </w:instrText></w:r>'
+            '<w:r><w:fldChar w:fldCharType="end"/></w:r>')
+
 def _cell(text, bold=False, w_dxa=1000):
     text = getattr(rd, "display_text", lambda x: x)(str(text))   # display layer (keywords, names in cells)
+    xes = "".join(xe_field_xml(m) for m in XE_RE.findall(text))
+    text = XE_RE.sub("", text)
     def run(t, b):
         return (f'<w:r><w:rPr><w:rFonts w:ascii="{FONT}" w:hAnsi="{FONT}" w:cs="{FONT}"/>'
                 f'{"<w:b/><w:bCs/>" if b else ""}<w:sz w:val="{SZ}"/><w:szCs w:val="{SZ}"/></w:rPr>'
@@ -46,6 +61,7 @@ def _cell(text, bold=False, w_dxa=1000):
         runs += run(text[pos:], bold)
     if not runs:
         runs = run("", bold)
+    runs += xes
     return (f'<w:tc><w:tcPr><w:tcW w:w="{w_dxa}" w:type="dxa"/></w:tcPr>'
             f'<w:p><w:pPr><w:spacing w:before="0" w:after="0"/>'
             f'<w:rPr><w:rFonts w:ascii="{FONT}" w:hAnsi="{FONT}"/><w:sz w:val="{SZ}"/></w:rPr></w:pPr>'
@@ -91,9 +107,10 @@ def _table(headers, rows, widths=None):
 
 # ── table builders ──
 def retinues():
-    rows = [[n, f"{x['to_hit']}+", str(x['endurance']), f"{x['shaking']}+",
+    rows = [[n, str(x.get("cost", "")), f"{x['to_hit']}+", str(x['endurance']), f"{x['shaking']}+",
+             str(x.get("speed", "—")), str(x.get("max_size", "—")),
              "Unbreakable" if x.get("unbreakable") else "—"] for n, x in rd.RETINUES.items()]
-    return _table(["Retinue", "To Strike", "Endurance", "Morale", "Keyword"], rows)
+    return _table(["Retinue", "Cost", "To Strike", "Endurance", "Morale", "Speed", "Max Size", "Keyword"], rows)
 
 def settlements():
     # 9-col form matching the authored Rules table; sourced from SETTLEMENTS.
@@ -105,10 +122,11 @@ def settlements():
     return _table(["Tier", "Settlement"] + (["Sea"] if sea else []) + ["Tax", "Muster", "Build", "Wards", "Reach", "Notes"], rows)
 
 def eras():
-    rows = [[n, str(v["renown"]), str(v["armies"]), str(v["cities"]),
-             f"+{v['influence_per_turn']}", str(v["innate_diplomacy_influence"]), v["unlocks"] or "—"]
+    rows = [[n, str(v["renown"]), str(v["armies"]), str(v["cities"]), str(v.get("max_settlements", "—")),
+             f"+{v['influence_per_turn']}", str(v["innate_diplomacy_influence"]), v.get("envoys", "") or "—",
+             v["unlocks"] or "—"]
             for n, v in rd.ERAS.items()]
-    return _table(["Era", "Renown", "Armies", "Cities", "Infl/Turn", "Diplo Infl", "Unlocks"], rows)
+    return _table(["Era", "Renown", "Armies", "Cities", "Max Settlements", "Infl/Turn", "Diplo Infl", "Envoys", "Unlocks"], rows)
 
 def public_order():
     rows = [[str(k), name, eff] for k, (name, eff) in sorted(rd.PUBLIC_ORDER.items())]
@@ -241,10 +259,17 @@ def wonders():
             for n, v in rd.WONDERS.items()]
     return _table(["Wonder", "Upkeep", "Build Time", "Requirement", "Empire Bonus"], rows)
 
+_TAC_BASE = {"Hill": "Grassland", "Open Field": "Grassland", "Mire": "Wetlands", "Forest": "Forest",
+             "Tundra": "Tundra", "Mountains": "Mountains", "Water": "Water"}
+
 def terrain():
-    rows = [[t, v.get("Effect", ""), ", ".join(v.get("Raw Materials", [])) or "—"]
-            for t, v in rd.TERRAIN.items()]
-    return _table(["Terrain", "Effect", "Raw Materials"], rows)
+    battle = {}
+    for feat, fd in (getattr(rd, "TACTICAL_TERRAIN", {}) or {}).items():
+        base = _TAC_BASE.get(feat, feat); note = fd.get("effect", "")
+        battle.setdefault(base, []).append(f"{feat}: {note}" if feat != base else note)
+    rows = [[t, v.get("Effect", "") or "—", ", ".join(v.get("Raw Materials", [])) or "—",
+             "  ".join(battle.get(t, [])) or "—"] for t, v in rd.TERRAIN.items()]
+    return _table(["Terrain", "Map Effect", "Raw Materials", "Battle Effect"], rows)
 
 def tactical_terrain():
     rows = [[t, v.get("identify", ""), v.get("effect", "")] for t, v in rd.TACTICAL_TERRAIN.items()]
@@ -253,10 +278,11 @@ def tactical_terrain():
 def factions():
     rows = [[n, v.get("feel", ""), v.get("difficulty", ""), v.get("strength", ""), v.get("mechanic", "")]
             for n, v in rd.FACTIONS.items()]
-    return _table(["Faction", "Feel", "Difficulty", "Strength", "Mechanic"], rows)
+    w = [1700, 1500, 850, 850]; w.append(USABLE_TWIPS - sum(w))      # Mechanic takes the rest
+    return _table(["Faction", "Feel", "Difficulty", "Strength", "Mechanic"], rows, widths=w)
 
 def timers():
-    rows = [[n, ("—" if v.get("default") is None else str(v.get("default"))),
+    rows = [[n + xe_mark(n), ("—" if v.get("default") is None else str(v.get("default"))),
              v.get("where", ""), v.get("tracks", "")] for n, v in rd.TIMERS.items()]
     return _table(["Timer", "Default", "Where", "Tracks"], rows)
 
@@ -292,6 +318,64 @@ def siege_calculus(mode="Lay Siege"):
         rows.append(["Attacker effects","\u2212 varies",", ".join(sorted(red)) or "from effect text"])
     return _table(["Source","Timer","Note"], rows)
 
+def _heading_xml(text, level):
+    """A heading paragraph matching md_to_docx's heading style (outline level -> TOC)."""
+    size = {1: 40, 2: 36, 3: 32, 4: 28}.get(level, 24)
+    before = {1: 240, 2: 240, 3: 160}.get(level, 120)
+    return (f'<w:p><w:pPr><w:keepNext/><w:spacing w:before="{before}" w:after="80"/>'
+            f'<w:outlineLvl w:val="{level - 1}"/></w:pPr>'
+            f'<w:r><w:rPr><w:rFonts w:ascii="{FONT}" w:hAnsi="{FONT}"/><w:b/><w:bCs/>'
+            f'<w:sz w:val="{size}"/></w:rPr><w:t xml:space="preserve">{_esc(getattr(rd, "display_text", lambda x: x)(text))}</w:t></w:r></w:p>')
+
+def holdings():
+    """Every NODES entry, one sub-heading + table per TYPE_ORDER group (was the Compendium's Pursuits chapter)."""
+    simple = getattr(rd, "SIMPLE", False)
+    chain = getattr(rd, "CHAIN_TERM", "Efficient")
+    out = []
+    for t in rd.TYPE_ORDER:
+        rows = []
+        for n, v in rd.NODES.items():
+            if v.get("type") != t:
+                continue
+            eff = v.get("efficient")
+            eff_txt = (rd.display(eff) if isinstance(eff, str) else rd.display_list(eff)) if eff else "—"
+            gate = (v.get("unlock") or "").strip()
+            gate = "—" if gate in ("", "-", "\u2014") else gate
+            name = rd.display(n)
+            if simple:
+                rows.append([name, gate, rd.display_text(v.get("infrastructure_req", "")) or "—", eff_txt,
+                             rd.display_text(v.get("innate", "") or "") or "—"])
+            else:
+                rows.append([name, gate, rd.display_text(v.get("mastery_req", "")) or "—", eff_txt,
+                             rd.display_text(v.get("innate", "") or "") or "—", rd.display_text(v.get("mastery", "")) or "—"])
+        if not rows:
+            continue
+        rows.sort(key=lambda r: _re.sub(r"\*\*", "", r[0]).lower())
+        hdr = (["Pursuit", "Domain", "Infrastructure Req", chain, "Effect"] if simple
+               else ["Pursuit", "Domain", "Mastery Unlock", "Efficient", "Innate Effect", "Mastery Effect"])
+        out.append(_heading_xml(t, 2) + _table(hdr, rows))
+    return "".join(out)
+
+def tactic_matrix():
+    T = rd.TACTICS
+    def cell(a, b):
+        v = rd.TACTIC_MATRIX.get((a, b))
+        if not v: return ""
+        me = v[0]; bits = []
+        if me.get("I"):  bits.append(f"Initiative {me['I']:+d}")
+        if me.get("TH"): bits.append(f"Strike {me['TH']:+d}")
+        if me.get("TS"): bits.append(f"Save {me['TS']:+d}")
+        if me.get("no_combat"): bits.append("no combat")
+        return " ".join(bits) or "—"
+    return _table(["Your Tactic ↓  vs →"] + list(T), [[a] + [cell(a, b) for b in T] for a in T])
+
+def trade_rules():
+    t = rd.TRADE_RULES
+    return _table(["Rule", "Value"], [["Income per Craft", str(t["income_per_craft"])],
+                                      ["Requirements", t["requirements"]],
+                                      ["No-trade season", t["no_trade_season"]],
+                                      ["Tax season", t["tax_season"]]])
+
 
 REGISTRY = {
     "retinues": retinues, "settlements": settlements, "eras": eras,
@@ -305,6 +389,7 @@ REGISTRY = {
     "factions": factions, "timers": timers, "build_timers": build_timers, "siege_calculus": siege_calculus,
     "bandit_cunning": bandit_cunning, "bandit_tactics": bandit_tactics,
     "bandit_armaments": bandit_armaments,
+    "holdings": holdings, "tactic_matrix": tactic_matrix, "trade_rules": trade_rules,
 }
 
 # ── {{ACTIONS:Domain}} — render every ACTIONS entry of a domain as prose ──
@@ -394,10 +479,31 @@ def _gloss_lookup():
     """Return {lower_term: (display_term, definition)} from renown_data.GLOSSARY,
     resolving constant-keyed entries to their string form."""
     out = {}
+    disp = getattr(rd, "display_text", lambda x: x)
     for k, v in rd.GLOSSARY.items():
         term = str(k)
         out[term.lower()] = (term, v)
+        out.setdefault(disp(term).lower(), (term, v))     # "Holding" finds the "Pursuit" entry
     return out
+
+def lookup(term):
+    """(canonical key, definition) for a term or its display name; (None, '') if unknown."""
+    return _gloss_lookup().get(term.lower(), (None, ""))
+
+def glossary_categories():
+    """[(title, [canonical term, ...])] from renown_data.GLOSSARY_CATEGORIES (terms that exist only)."""
+    g = {str(k) for k in rd.GLOSSARY}
+    return [(title, [str(t) for t in terms if str(t) in g])
+            for title, terms in getattr(rd, "GLOSSARY_CATEGORIES", [])]
+
+def glossary_category(title):
+    """{{GLOSSARY:Category}} — one category as a Term | Definition table; each term is an index entry."""
+    cats = dict(glossary_categories())
+    if title not in cats:
+        raise KeyError(f"no glossary category '{title}'. available: {list(cats)}")
+    g = {str(k): v for k, v in rd.GLOSSARY.items()}
+    rows = [[t + xe_mark(t), g[t]] for t in cats[title]]
+    return _heading_xml(f"Glossary · {title}", 4) + _table(["Term", "Definition"], rows)
 
 def definition(term):
     """The definition string for a term (case-insensitive); '' if unknown."""

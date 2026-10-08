@@ -43,9 +43,19 @@ def _resolve_val(path):
             return "?"
     return str(cur)
 
+TERM_RE = re.compile(r"\{\{TERM:([^}]+)\}\}")
+IDX_RE = re.compile(r"\{\{IDX:([^}]+)\}\}")
+
+def _term(t):
+    import docx_tables as _dt
+    key, d = _dt.lookup(t)
+    return f"**{t}** — {d}" if key else t
+
 def preprocess_inline(md):
     md = VERSION_RE.sub(VERSION, md)
     md = VAL_RE.sub(lambda m: _resolve_val(m.group(1)), md)
+    md = TERM_RE.sub(lambda m: _term(m.group(1).strip()), md)      # {{TERM:x}} -> "**x** — definition"
+    md = IDX_RE.sub("", md)                                         # {{IDX:x}}: print-index entry only
     # display layer (NAME_DISPLAY): rename prose, leaving {{TABLE:}} / {{DEF:}} markers intact
     return getattr(rd, "display_md", lambda x: x)(md)
 
@@ -176,6 +186,8 @@ TABLE_RENDER = {
     "wonders": _t_wonders, "bandit_cunning": _t_bandit_cunning, "bandit_tactics": _t_bandit_tactics,
     "bandit_armaments": _t_bandit_armaments,
 }
+for _k in ("eras", "terrain"):        # shapes changed in docx_tables (Compendium columns folded in): read them from there
+    TABLE_RENDER.pop(_k, None)
 
 def _render_actions(domain):
     rows = []
@@ -192,7 +204,7 @@ def _render_actions(domain):
 
 _LIST_SRC = {"ALLIANCE_RULES": lambda: getattr(rd, "ALLIANCE_RULES", [])}
 
-BLOCK_MK = re.compile(r"^\s*\{\{(TABLE|ACTIONS|LIST|COLS):([^}]+)\}\}\s*$")
+BLOCK_MK = re.compile(r"^\s*\{\{(TABLE|ACTIONS|LIST|COLS|GLOSSARY|TOC|INDEX)(?::([^}]+))?\}\}\s*$")
 
 def _docx_table_fallback(name):
     """Render a {{TABLE:name}} that only docx_tables.py implements: read its WordprocessingML rows back into HTML,
@@ -203,16 +215,30 @@ def _docx_table_fallback(name):
         xml = _dt.get(name)
     except Exception:
         return None
-    rows = []
-    for tr in re.findall(r"<w:tr\b.*?</w:tr>", xml, re.S):
-        cells = []
-        for tc in re.findall(r"<w:tc\b.*?</w:tc>", tr, re.S):
-            paras = ["".join(re.findall(r"<w:t(?:\s[^>]*)?>(.*?)</w:t>", pp, re.S)) for pp in re.findall(r"<w:p\b.*?</w:p>", tc, re.S)]
-            txt = " ".join(x for x in paras if x.strip())
-            cells.append(html.unescape(txt))
-        if cells: rows.append(cells)
-    if not rows: return None
-    return _htable(rows[0], rows[1:])
+    return _ooxml_to_html(xml)
+
+def _ooxml_to_html(xml):
+    """Headings (<w:p> with outlineLvl) and tables, in order, from a docx_tables fragment."""
+    out = []
+    for blk in re.findall(r"<w:tbl>.*?</w:tbl>|<w:p\b.*?</w:p>", xml, re.S):
+        if blk.startswith("<w:p"):
+            lvl = re.search(r'<w:outlineLvl w:val="(\d)"', blk)
+            txt = html.unescape("".join(re.findall(r"<w:t(?:\s[^>]*)?>(.*?)</w:t>", blk, re.S))).strip()
+            if lvl and txt:
+                h = min(6, int(lvl.group(1)) + 2)
+                out.append(f"<h{h}>{_inline(txt)}</h{h}>")
+            continue
+        rows = []
+        for tr in re.findall(r"<w:tr\b.*?</w:tr>", blk, re.S):
+            cells = []
+            for tc in re.findall(r"<w:tc\b.*?</w:tc>", tr, re.S):
+                paras = ["".join(re.findall(r"<w:t(?:\s[^>]*)?>(.*?)</w:t>", pp, re.S)) for pp in re.findall(r"<w:p\b.*?</w:p>", tc, re.S)]
+                txt = " ".join(x for x in paras if x.strip())
+                cells.append(html.unescape(txt))
+            if cells: rows.append(cells)
+        if rows:
+            out.append(_htable(rows[0], rows[1:]))
+    return "".join(out) or None
 
 def block_html(line):
     """Return HTML for a block-marker line, "" for COLS (print-only), or None if
@@ -220,9 +246,15 @@ def block_html(line):
     m = BLOCK_MK.match(line)
     if not m:
         return None
-    kind, arg = m.group(1), m.group(2).strip()
-    if kind == "COLS":
-        return ""                       # column breaks are a print concern; drop
+    kind, arg = m.group(1), (m.group(2) or "").strip()
+    if kind in ("COLS", "TOC", "INDEX"):
+        return ""                       # print-only (column breaks, contents, page-number index); drop
+    if kind == "GLOSSARY":
+        try:
+            import docx_tables as _dt
+            return _ooxml_to_html(_dt.glossary_category(arg) if arg else "") or ""
+        except Exception as e:
+            return f"<p><em>[glossary: {html.escape(str(e))}]</em></p>"
     if kind == "TABLE":
         r = TABLE_RENDER.get(arg)
         if r: return r()
@@ -244,7 +276,7 @@ if __name__ == "__main__":
     text = preprocess_inline(text)
     leftover_val = VAL_RE.findall(text) + VERSION_RE.findall(text)
     print("unresolved inline markers:", leftover_val or "none")
-    blocks = re.findall(r"^\s*\{\{(?:TABLE|ACTIONS|LIST|COLS):[^}]+\}\}\s*$", text, re.M)
+    blocks = re.findall(r"^\s*\{\{(?:TABLE|ACTIONS|LIST|COLS|GLOSSARY|TOC|INDEX)(?::[^}]+)?\}\}\s*$", text, re.M)
     ok = 0
     for ln in blocks:
         h = block_html(ln)
