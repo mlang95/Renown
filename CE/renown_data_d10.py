@@ -321,7 +321,7 @@ RANGED = {
     "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD, ONE_SHOT, NO_PARRY], 'note': 'Cannot Dual Wield'},
     "Crossbow":    {"ap": -4, "init":  1, "tier": "Forged",  "tags": [UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, NO_PARRY], 'note': "Tower Shield only (no other shield), cannot Dual Wield"},
     "Pilum":       {"ap": -5, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD, ONE_SHOT, NO_PARRY]},
-    "Arquebus":    {"ap": -6, "init":  2, "tier": "Crude", "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, NEGATE_TEMPERED, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
+    "Arquebus":    {"ap": -6, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, NEGATE_TEMPERED, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
    
 }
 
@@ -2443,7 +2443,7 @@ SIMPLE_NODES = {
         "monument": True},
     "Preceptory of the Knight's Templar": {
         "group": "g_devotion",
-        "unlock": "Sovereign Piety",
+        "unlock": "Sovereign Piety + Established Prowess",
         "innate": f"Armies gain **{CRUSADER}**: Automatically pass the first Panic Check of every Battle. Unlocks **Knight's Templar** for Muster",
         "efficient": "Hospitaller",
         "builds_into": [],
@@ -2459,7 +2459,7 @@ SIMPLE_NODES = {
         "group": "g_husbandry",
         "unlock": "Sovereign Industry",
         "infrastructure_req": "Hamlet",
-        "innate": "Natural; Gain +200 gold for each active natural specialization.",
+        "innate": "Natural; Gain +200 gold for each active natural Holding.",
         "efficient": "Natural",
         "builds_into": [],
         "monument": True},
@@ -3158,10 +3158,10 @@ SETTLEMENTS = {
 
 # Era progression: shared-Renown thresholds; caps on armies/cities; influence.
 ERAS = {
-    "Founding":  {"renown": 1,  "armies": 1, "cities": 0, "max_settlements": 3, "influence_per_turn": 1, "max_influence_per_diplomacy_vote": 1, "innate_diplomacy_influence": 1, "council_envoys": 1, "council_actions_per_envoy": 1, "personal_envoys": 1, "actions_per_envoy": 1, "unlocks": ""},
-    "Ascension": {"renown": 8,  "armies": 2, "cities": 1, "max_settlements": 4, "influence_per_turn": 2, "max_influence_per_diplomacy_vote": 2, "innate_diplomacy_influence": 2, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 1, "actions_per_envoy": 1, "unlocks": "May resolve Charter Cities"},
-    "Eminence":  {"renown": 18, "armies": 3, "cities": 2, "max_settlements": 5, "influence_per_turn": 3, "max_influence_per_diplomacy_vote": 3, "innate_diplomacy_influence": 3, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 1, "actions_per_envoy": 2, "unlocks": "May form Military Alliances"},
-    "Zenith":    {"renown": 30, "armies": 4, "cities": 3, "max_settlements": 6, "influence_per_turn": 4, "max_influence_per_diplomacy_vote": 4, "innate_diplomacy_influence": 4, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 2, "actions_per_envoy": 2, "unlocks": "May form Defensive Alliances"},
+    "Founding":  {"renown": 1,  "armies": 1, "cities": 0, "max_settlements": 2, "influence_per_turn": 1, "max_influence_per_diplomacy_vote": 1, "innate_diplomacy_influence": 1, "council_envoys": 1, "council_actions_per_envoy": 1, "personal_envoys": 1, "actions_per_envoy": 1, "unlocks": ""},
+    "Ascension": {"renown": 8,  "armies": 2, "cities": 1, "max_settlements": 3, "influence_per_turn": 2, "max_influence_per_diplomacy_vote": 2, "innate_diplomacy_influence": 2, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 1, "actions_per_envoy": 1, "unlocks": "May resolve Charter Cities"},
+    "Eminence":  {"renown": 18, "armies": 3, "cities": 2, "max_settlements": 4, "influence_per_turn": 3, "max_influence_per_diplomacy_vote": 3, "innate_diplomacy_influence": 3, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 1, "actions_per_envoy": 2, "unlocks": "May form Military Alliances"},
+    "Zenith":    {"renown": 30, "armies": 4, "cities": 3, "max_settlements": 5, "influence_per_turn": 4, "max_influence_per_diplomacy_vote": 4, "innate_diplomacy_influence": 4, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 2, "actions_per_envoy": 2, "unlocks": "May form Defensive Alliances"},
 }
 for _e in ERAS.values():
     _e["envoys"] = (f"{_e['council_envoys']} Council Envoy{'s' if _e['council_envoys'] > 1 else ''}"
@@ -3345,7 +3345,7 @@ MOVEMENT_MODIFIERS = {
 	"Stone Roads" : {"Effect": "Immune Speed -1 from Terrain. Gain Speed +2"},
 	"Bridge" : {"Effect": "Immune Water Effect."},
 	"Tunneler": {"Effect": "Immune Mountain Effect"},
-	"Ancient Wilds": {"Effect": ["Immune Speed -1 from Terrain", "Other armies gain Speed -1 in Province."]},
+	"Ancient Wilds": {"Effect": ["Immune Speed -X from Terrain", "Other armies gain Speed -2 in Province."]},
 	"Shipyard": {"Effect": "Immune Water Effect"}
 }
 

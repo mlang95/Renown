@@ -226,7 +226,7 @@ Longbow | [Longbow](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ran
 low difficulty factions | 23 factions: The Battering Ram, The Boundless Steppe, The Bandit King, The Crowned Star, The Crimson Tide, The Entwined Crown, The Eternal Court, The Final Word, The Gilded Crescent, The Gilded Path, The Hermit Crown, The Illuminated Order, The Iron Faith, The Iron Shore, The Iron Throne, The Merchant Republics, The Sacred Throne, The Tunnellers, The Undying Flame, The Verdant Kingdom, The Winter Wolves, The Elder Grove, The Yew Heart
 low strength factions | 8 factions: The Bandit King, The Gilded Path, The Hermit Crown, The Tunnellers, The Undying Flame, The Pale Throne, The Ashen Vale, The Broken Banner
 Man-at-Arms | [Man-at-Arms](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 5+, Endurance 3, Morale 6+, cost 2000.
-Manor House | [Manor House](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Natural; Gain +200 gold for each active natural specialization. / Requires: Hamlet
+Manor House | [Manor House](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Natural; Gain +200 gold for each active natural Holding. / Requires: Hamlet
 Market Square | [Market Square](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Commerce). Effect: Craft +2; +500 / Requires: Hitching Post
 Masonry | [Masonry](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Works). Effect: No Upkeep on Primitive Infrastructure; Build Timer −1
 Master Workshop | [Master Workshop](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Arms). Effect: Upkeep -500; Craft +1; Add Serrated to Weapons

@@ -823,6 +823,59 @@
   ]
  },
  {
+  "title": "Sacred Preceptory",
+  "anchor": "Preceptory of the Knight's Templar",
+  "mode": "chain",
+  "nodes": {
+   "Peat Bog": [
+    0,
+    0
+   ],
+   "Alchemy": [
+    1,
+    0
+   ],
+   "Apothecary": [
+    2,
+    0
+   ],
+   "Infirmary": [
+    3,
+    0
+   ],
+   "Hospitaller": [
+    4,
+    0
+   ],
+   "Preceptory of the Knight's Templar": [
+    5,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Peat Bog",
+    "Alchemy"
+   ],
+   [
+    "Alchemy",
+    "Apothecary"
+   ],
+   [
+    "Infirmary",
+    "Hospitaller"
+   ],
+   [
+    "Apothecary",
+    "Infirmary"
+   ],
+   [
+    "Hospitaller",
+    "Preceptory of the Knight's Templar"
+   ]
+  ]
+ },
+ {
   "title": "Royal Pavilion",
   "anchor": "Royal Pavilion",
   "mode": "chain",
@@ -1039,59 +1092,6 @@
    [
     "Monastery",
     "Papal Palace"
-   ]
-  ]
- },
- {
-  "title": "Sacred Preceptory",
-  "anchor": "Preceptory of the Knight's Templar",
-  "mode": "chain",
-  "nodes": {
-   "Peat Bog": [
-    0,
-    0
-   ],
-   "Alchemy": [
-    1,
-    0
-   ],
-   "Apothecary": [
-    2,
-    0
-   ],
-   "Infirmary": [
-    3,
-    0
-   ],
-   "Hospitaller": [
-    4,
-    0
-   ],
-   "Preceptory of the Knight's Templar": [
-    5,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Peat Bog",
-    "Alchemy"
-   ],
-   [
-    "Alchemy",
-    "Apothecary"
-   ],
-   [
-    "Infirmary",
-    "Hospitaller"
-   ],
-   [
-    "Apothecary",
-    "Infirmary"
-   ],
-   [
-    "Hospitaller",
-    "Preceptory of the Knight's Templar"
    ]
   ]
  },

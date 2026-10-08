@@ -92,8 +92,8 @@
 <rect x="890" y="172" width="5" height="24" fill="#1c1c20"/>
 <text x="899" y="187" font-size="8.2" fill="#2b2620">Plague Pit</text>
 <polygon points="1000.0,180.4 1003.6,184.0 1000.0,187.6 996.4,184.0" fill="#8a6d1a"/>
-<rect x="890" y="208" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#C6A024" stroke-width="2.2"/>
-<rect x="890" y="208" width="5" height="24" fill="#C6A024"/>
+<rect x="890" y="208" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
+<rect x="890" y="208" width="5" height="24" fill="#9E2B25"/>
 <text x="899" y="223" font-size="8.2" fill="#2b2620">Sacred Preceptory</text>
 <polygon points="1000.0,216.4 1003.6,220.0 1000.0,223.6 996.4,220.0" fill="#8a6d1a"/>
 <rect x="890" y="64" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#6a6a72" stroke-width="2.2"/>
