@@ -126,7 +126,7 @@ def eras():
              f"+{v['influence_per_turn']}", str(v["innate_diplomacy_influence"]), v.get("envoys", "") or "—",
              v["unlocks"] or "—"]
             for n, v in rd.ERAS.items()]
-    return _table(["Era", "Renown", "Armies", "Cities", "Max Settlements", "Infl/Turn", "Diplo Infl", "Envoys", "Unlocks"], rows)
+    return _table(["Era", "Renown", "Armies", "Cities", "Max Settlements", "Infl/Turn", "Diplo Authority", "Envoys", "Unlocks"], rows)
 
 def public_order():
     rows = [[str(k), name, eff] for k, (name, eff) in sorted(rd.PUBLIC_ORDER.items())]

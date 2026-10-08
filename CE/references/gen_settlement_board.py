@@ -51,7 +51,7 @@ COND_WORDS = [
     " recoup", "another player", "every ", "may perform", "targeting", " move ",
 ]
 SEASON_RE = re.compile(r"([+-]?\d{2,})\s*(?:gold\s*)?in\s+(Fall|Winter|Spring|Summer)", re.I)
-SCALE_RE  = re.compile(r"\+?(\d+)\s*(?:gold\s*)?(?:for each|per)\s+active\s+(\w+)\s+special", re.I)
+SCALE_RE  = re.compile(r"\+?(\d+)\s*(?:gold\s*)?(?:for each|per)\s+active\s+(\w+)\s+(?:special\w*|holdings?|pursuits?)\b", re.I)
 CRAFT_RE  = re.compile(r"Craft\s*\+?\s*(\d+)", re.I)
 FAITH_RE  = re.compile(r"Faith\s*\+?\s*(\d+)", re.I)
 DOUBT_RE  = re.compile(r"Doubt\s*\+?\s*(\d+)", re.I)
@@ -152,7 +152,9 @@ def envoy_fx(raw):
     kinds: envoy (own Envoy ±X; scope council/personal/all), cap (vote cap), act (own action ±X, stage 2),
            defend (±X to actions targeting you, stage 2), pool (per-turn Influence), jester, noOppose, failPass."""
     out = []
-    for c in re.split(r"[;,]|\.\s+", strip_md(raw or "")):
+    raw = re.sub(r",\s*except in Spring", " except in Spring", strip_md(raw or ""), flags=re.I)
+    raw = re.sub(r"(While the Era is \w+),", r"\1", raw, flags=re.I)
+    for c in re.split(r"[;,]|\.\s+", raw):
         c = c.strip().rstrip(".")
         if not c: continue
         m = re.search(r"Influence\s*" + _N + r"\s+to\s+(non-)?Council Envoys$", c, re.I)
@@ -190,6 +192,34 @@ def envoy_fx(raw):
         m = re.search(r"can't Oppose your (" + _DOMS + r") Envoys", c, re.I)
         if m: out.append({"k": "noOppose", "dom": m.group(1).title()}); continue
         if re.search(r"If your Envoy would fail", c, re.I): out.append({"k": "failPass"}); continue
+        # faction / holding Envoy rules (fx kinds read by the board's Table)
+        m = re.search(r"Influence\s*" + _N + r"\s+to\s+envoys sent during the Council Phase", c, re.I)
+        if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "council", "dom": "All"}); continue
+        m = re.search(r"Every Envoy you send has Influence\s*" + _N + r"(,?\s*except in Spring)?", c, re.I)
+        if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "all", "dom": "All", "noSpring": bool(m.group(2))}); continue
+        m = re.search(r"Your Personal Envoys have Influence\s*" + _N + r"(,?\s*except in Spring)?", c, re.I)
+        if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "personal", "dom": "All", "noSpring": bool(m.group(2))}); continue
+        m = re.search(r"Your (" + _DOMS + r") Envoys have Influence\s*" + _N + r" when targeting a player with Public Order above (-?\d+)", c, re.I)
+        if m: out.append({"k": "act", "val": _iv(m.group(2)), "dom": m.group(1).title(), "tgtPOabove": int(m.group(3))}); continue
+        m = re.search(r"(?:^|\b)you have Influence\s*" + _N + r" on (" + _DOMS + r") Envoys", c, re.I)
+        if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "all", "dom": m.group(2).title()}); continue
+        m = re.search(r"A (" + _DOMS + r") Envoy you send can't fail", c, re.I)
+        if m: out.append({"k": "failPass", "dom": m.group(1).title(), "condemned": True}); continue
+        m = re.search(r"Each player allied with you has Influence\s*" + _N + r" on their Envoys", c, re.I)
+        if m: out.append({"k": "allyEnvoy", "val": _iv(m.group(1))}); continue
+        m = re.search(r"Your Vote counts as (\d+) votes toward Domain selection", c, re.I)
+        if m: out.append({"k": "councilVotes", "val": int(m.group(1))}); continue
+        if re.search(r"Council Envoys you send are always Endorsed", c, re.I): out.append({"k": "councilEndorse"}); continue
+        if re.search(r"you choose every Council Envoy's Domain", c, re.I): out.append({"k": "councilChoose"}); continue
+        m = re.search(r"While the Era is (\w+),? you may spend up to (\d+) Influence per Envoy", c, re.I)
+        if m: out.append({"k": "capEra", "era": m.group(1).title(), "val": int(m.group(2))}); continue
+        if re.search(r"unspent Influence isn't discarded", c, re.I): out.append({"k": "carry"}); continue
+        if re.search(r"You Abstain on every vote on other players' Envoys", c, re.I): out.append({"k": "alwaysAbstain"}); continue
+        m = re.search(r"other players must spend (\d+) Influence to affect your Envoys by 1", c, re.I)
+        if m: out.append({"k": "voteCost", "val": int(m.group(1))}); continue
+        if re.search(r"Ignore the innate Doubt and Influence modifiers for being At War", c, re.I): out.append({"k": "ignoreWar"}); continue
+        m = re.search(r"gain\s*" + _N + r"\s*Influence for every (\d+) Holdings", c, re.I)
+        if m: out.append({"k": "pool", "val": _iv(m.group(1)), "per": "holdings", "n": int(m.group(2))}); continue
     return out
 
 def combine_parts(innate, mastery):
@@ -899,6 +929,27 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .tstrip{width:100%;display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:4px 0 0;border-top:1px solid var(--line);font-size:13px}
   .tstrip .ts-i{display:inline-flex;gap:4px;align-items:center}.tstrip button{padding:1px 7px;min-height:0}
   .tstrip .ts-end{margin-left:auto;border-color:var(--order);font-weight:600}
+  /* HUD: resource bar (RTS style) */
+  .hud{width:100%;padding:6px 0 2px;border-top:1px solid var(--line)}
+  .hrow{display:flex;gap:6px;align-items:stretch;overflow-x:auto;scrollbar-width:thin}
+  .hc{flex:0 0 auto;display:flex;flex-direction:column;justify-content:center;min-width:72px;padding:3px 9px 4px;background:var(--panel);border:1px solid var(--line);
+      border-left:3px solid var(--hcol,var(--line2));border-radius:var(--radius-sm);cursor:pointer;line-height:1.15}
+  .hc:hover{background:var(--panel2)}
+  .hc .hl{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+  .hc .hv{font:600 17px var(--mono);white-space:nowrap}
+  .hc .hs{font:11px var(--mono);color:var(--dim);white-space:nowrap}
+  .hc .up{color:var(--income)}.hc .dn{color:var(--upkeep)}
+  .hc .hg{height:4px;background:var(--barbg);border-radius:2px;margin-top:3px;position:relative;overflow:hidden}
+  .hc .hg i{position:absolute;top:0;bottom:0;background:var(--hcol)}
+  .hc .hg b{position:absolute;top:-1px;bottom:-1px;width:2px;background:var(--ink)}
+  .hdom{display:flex;gap:4px;align-items:flex-end}
+  .hdom span{display:flex;flex-direction:column;align-items:center;font:600 13px var(--mono)}
+  .hdom em{font:normal 9px var(--serif);color:var(--dim);font-style:normal}
+  .hdom .st1{color:var(--income)}.hdom .st2{color:var(--craft)}.hdom .st3{color:var(--order)}
+  .hc.hflag{--hcol:var(--upkeep)}
+  .hothers{display:flex;gap:4px 16px;flex-wrap:wrap;align-items:center;font:11px var(--mono);color:var(--dim);padding:4px 2px 0}
+  .hothers span b{color:var(--ink);font-weight:600}
+  .hothers a{color:var(--dim);text-decoration:underline dotted}
   .tb-check div{padding:1px 0}.tb-check a,.refnav a{color:var(--build)}
   .refnav{margin-bottom:10px}
   .dpask{display:inline-flex;gap:4px;align-items:center;flex-wrap:wrap}.dpask button{font-size:11px;padding:1px 6px}
@@ -941,6 +992,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     .topbar .tbundo{order:2;margin-left:0!important}
     .tbmore{order:3;padding:6px 10px}
     .tstrip{order:6;flex-wrap:nowrap;overflow-x:auto;gap:10px;scrollbar-width:none}.tstrip::-webkit-scrollbar{display:none}
+    .hud{order:7}.hc{min-width:64px;padding:2px 7px}.hc .hv{font-size:15px}
     .tstrip .ts-i{flex:0 0 auto}.tstrip .ts-end{flex:0 0 auto;order:-1;margin-left:0}
     .appmenu{left:6px;right:6px;width:auto}
     .topbar .players{order:4;width:100%}
@@ -1008,6 +1060,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   </select>
   </span>
   <div class="tstrip" id="turnStrip"></div>
+  <div class="hud" id="hud"></div>
 </div>
 <div class="appmenu" id="appMenu">
   <details class="tot" id="adminBox" style="margin-top:0"><summary style="cursor:pointer" class="note">Duke <span id="adminState"></span></summary>
@@ -1261,6 +1314,7 @@ function seatMap(){const n=tSeats(),m={};
     .sort((a,b)=>(a.x.seatTs||0)-(b.x.seatTs||0)||String(a.p.id).localeCompare(String(b.p.id)))
     .forEach(o=>{if(!m[o.x.seat])m[o.x.seat]=o.p;});return m;}
 function seated(){const m=seatMap();return Object.keys(m).map(Number).sort((a,b)=>a-b).map(i=>m[i]);}
+function isSpring(){return curSeason()==="Spring";}   // SEASONS.Spring: no Host, Council Phase, Diplomacy actions or Influence gain
 function hostP(){const s=seated();return s.find(p=>String(p.id)===String(TB().host))||s[0]||null;}
 // "You always vote last, after the Host" (Whispering Undercroft): holders move behind the Host, keeping their relative order
 function voteOrd(ord){const last=ord.filter(p=>fxOf(p,"voteLast").length);return last.length?ord.filter(p=>!last.includes(p)).concat(last):ord;}
@@ -1277,7 +1331,7 @@ function eraActions(council){const e=eraRec();return Math.max(1,+(council?e.coun
 // ---- Pursuit / Infrastructure effects on Envoys (parsed server-side into innate_fx / mastery_fx / fx) ----
 const FX_CACHE={};
 function boardFx(p){if(!p)return [];const b=p.board;
-  const key=JSON.stringify([b.placed||[],b.infra||{},b.wonders||{},b.facInfra||[],b.domains||{}]);
+  const key=JSON.stringify([b.placed||[],b.infra||{},b.wonders||{},b.facInfra||[],b.domains||{},b.faction||""]);
   const c=FX_CACHE[p.id];if(c&&c.key===key)return c.fx;
   const fx=withBoard(b,()=>{const have=new Set(Object.keys(PC));const {earned}=computeEarned(have),L=[];
     Object.keys(PC).forEach(n=>{const r=R[n]||{},q=PC[n];
@@ -1285,6 +1339,7 @@ function boardFx(p){if(!p)return [];const b=p.board;
       if(earned[n])(r.mastery_fx||[]).forEach(f=>L.push(Object.assign({src:n+" (Mastery)",q},f)));});
     Object.keys(S.infra||{}).filter(infraOn).forEach(n=>((INFRA[n]||{}).fx||[]).forEach(f=>L.push(Object.assign({src:n,q:1},f))));
     Object.keys(S.wonders||{}).filter(infraOn).forEach(n=>((WON[n]||{}).fx||[]).forEach(f=>L.push(Object.assign({src:n,q:1},f))));
+    ((FAC[S.faction||""]||{}).fx||[]).forEach(f=>L.push(Object.assign({src:S.faction,q:1},f)));
     return L;});
   FX_CACHE[p.id]={key,fx};return fx;}
 function fxOf(p,k){return boardFx(p).filter(f=>f.k===k);}
@@ -1309,15 +1364,17 @@ function opposeBlock(v,E){  // reason v can't Oppose E, or ""
   return "";}
 function innateParts(p,dom,council){
   const parts=[{src:dom==="Diplomacy"?currentEra()+" (Era)":tStand(p,dom),val:dom==="Diplomacy"?diploInf():((DBOARD.innate_influence_own_envoys||{})[tStand(p,dom)]||0)}];
-  fxOf(p,"envoy").filter(f=>(f.dom==="All"||f.dom===dom)&&scopeOk(f,council)).forEach(f=>parts.push({src:f.src,val:f.val*f.q}));
+  fxOf(p,"envoy").filter(f=>(f.dom==="All"||f.dom===dom)&&scopeOk(f,council)&&!(f.noSpring&&isSpring())).forEach(f=>parts.push({src:f.src,val:f.val*f.q}));
+  D.players.forEach(q=>{if(sameP(q,p)||!sameAlliance(String(q.id),String(p.id)))return;fxOf(q,"allyEnvoy").forEach(f=>parts.push({src:q.name+": "+f.src,val:f.val*f.q}));});
   Object.values(PT(p).mods).filter(m=>m&&m.kind==="envoy"&&(m.dom==="All"||m.dom===dom)&&scopeOk(m,council)).forEach(m=>parts.push({src:m.label||"manual",val:+m.val||0}));
   return parts;}
 function modSum(p,kind,dom,council){return Object.values(PT(p).mods).filter(m=>m&&m.kind===kind&&(m.dom==="All"||m.dom===dom)&&(!m.scope||m.scope==="all"||(m.scope==="council")===!!council))
   .reduce((a,m)=>a+(+m.val||0),0);}
 function innateInf(p,dom,council){return innateParts(p,dom,council).reduce((a,x)=>a+x.val,0);}
 function voteCap(p,dom,council){const base=dom==="Diplomacy"?diploCap():((DBOARD.max_influence_per_vote||{})[tStand(p,dom)]||0);
-  return Math.max(0,base+modSum(p,"cap",dom,council)+fxOf(p,"cap").reduce((a,f)=>a+f.val*f.q,0));}
-function inflPool(p){return influenceTotal(p.board)+(+tCur(p).inflAdj||0);}
+  const v=Math.max(0,base+modSum(p,"cap",dom,council)+fxOf(p,"cap").reduce((a,f)=>a+f.val*f.q,0));
+  const ce=fxOf(p,"capEra").filter(f=>f.era===currentEra()).reduce((a,f)=>Math.max(a,f.val),0);return Math.max(v,ce);}
+function inflPool(p){const c=PT(p).carry;return influenceTotal(p.board)+(+tCur(p).inflAdj||0)+(c&&c.turn===tTurn()?+c.n||0:0);}
 function personalEnvoys(p){const e=eraRec();return Math.max(0,(+e.personal_envoys||1)+(+tCur(p).envAdj||0));}
 function councilEnvoys(){return Math.max(0,+eraRec().council_envoys||1);}
 function tOutcome(net){if(net<=ETH.Condemned)return "Condemned";if(net<=ETH.Failed)return "Failed";
@@ -1326,13 +1383,20 @@ function outText(dom,out){return ((EOUT[dom]||{})[String(out).toLowerCase()])||"
 
 // ---- the plan: ordered envoys for the current phase ----
 function tPlan(ph,ord,councilDom){const L=[];
+  if(ph==="council"&&isSpring())return L;
   if(ph==="council"){const nc=councilEnvoys();ord.forEach(p=>{for(let k=0;k<nc;k++)L.push({id:"C:"+p.id+(k?":"+k:""),owner:p,dom:councilDom||null,council:true,k});});return L;}
   if(ph!=="envoy"||!ord.every(p=>(tCur(p).decl||{}).lock))return L;
   const cnt=(p,d)=>Math.max(0,+(((tCur(p).decl||{}).n||{})[d])||0);
-  ord.forEach(p=>{for(let k=0;k<cnt(p,"Diplomacy");k++)L.push({id:"E:"+p.id+":Diplomacy:"+k,owner:p,dom:"Diplomacy",k});});
+  if(!isSpring())ord.forEach(p=>{for(let k=0;k<cnt(p,"Diplomacy");k++)L.push({id:"E:"+p.id+":Diplomacy:"+k,owner:p,dom:"Diplomacy",k});});
+  // Diplomatic Mission: an extra Envoy in another Domain, sent after a Diplomacy Envoy (rules: Rule: Diplomatic Mission)
+  const dip=new Set(L.map(E=>E.id));   // the source Envoy must exist this turn (its Failed outcome is checked when the Mission is chosen)
+  const mis=p=>Object.entries(tCur(p).mission||{}).filter(([src,d])=>T_DOMS.includes(d)&&dip.has(src)).map(([src,d])=>({src,d}));
   T_DOMS.forEach(d=>{ord.slice().sort((a,b)=>((b.board.domains||{})[d]||0)-((a.board.domains||{})[d]||0)||ord.indexOf(a)-ord.indexOf(b))
-    .forEach(p=>{for(let k=0;k<cnt(p,d);k++)L.push({id:"E:"+p.id+":"+d+":"+k,owner:p,dom:d,k});});});
+    .forEach(p=>{for(let k=0;k<cnt(p,d);k++)L.push({id:"E:"+p.id+":"+d+":"+k,owner:p,dom:d,k});
+      mis(p).filter(m=>m.d===d).forEach(m=>L.push({id:"M:"+m.src,owner:p,dom:d,k:0,mission:m.src}));});});
   return L;}
+// a Domain's Envoys have started voting once any of them is resolved or current
+function domStarted(R,d){return R.envoys.some(E=>E.dom===d&&!E.council&&(E.done||R.curEnvoy===E));}
 
 // ---- simulation: walk every slot in order, apply pre-votes / timeouts, stop at the first open slot ----
 function tSim(){
@@ -1340,6 +1404,7 @@ function tSim(){
   const R={ph,ord,log:[],envoys:[],cur:null,curEnvoy:null,spent:{},pool:{},resolved:new Set(),plan:[],councilDom:null};
   ord.forEach(p=>{R.spent[p.id]=0;R.pool[p.id]=inflPool(p);});
   if(ph!=="council"&&ph!=="envoy"){R.done=true;return R;}
+  if(ph==="council"&&isSpring()){R.done=true;R.spring=true;return R;}
   if(!ord.length){R.waiting="seat";return R;}
   if(!t.phaseTs){R.waiting="start";return R;}
   let clock=t.phaseTs;
@@ -1359,25 +1424,29 @@ function tSim(){
       const r=runSlot(E.id+">"+v.id,v,tCur(v).votes[E.id]);
       if(!r){R.curEnvoy=E;return false;}
       let a="A",x=0;
-      if(r.rec&&(r.rec.a==="S"||r.rec.a==="O")){
+      if(r.rec&&(r.rec.a==="S"||r.rec.a==="O")&&!fxOf(v,"alwaysAbstain").length){
         const room=Math.max(0,R.pool[v.id]-R.spent[v.id]);
         x=Math.max(0,Math.min(+r.rec.x||0,voteCap(v,E.dom,E.council),room));a=x>0?r.rec.a:"A";
         if(a==="O"&&opposeBlock(v,E)){a="A";x=0;}}
       let eff=x;if(a==="O"){oppN++;eff=Math.max(0,x-(jest[oppN]||0));}   // Jester's Court: Oppose X counts as X−1
-      if(a==="S")E.sup+=x;else if(a==="O")E.opp+=eff;R.spent[v.id]+=x;
+      const vc=fxOf(E.owner,"voteCost").reduce((m,f)=>Math.max(m,f.val),1);   // Hermit Crown: N Influence moves the Envoy by 1
+      const sx=Math.floor(x/vc);eff=Math.floor(eff/vc);
+      if(a==="S")E.sup+=sx;else if(a==="O")E.opp+=eff;R.spent[v.id]+=x;
       E.votes.push({who:v,a,x,eff,pre:!!r.pre,timeout:!!r.timeout,forced:!!r.forced,auto:!!r.auto});}
     let net=E.innate+E.sup-E.opp;if(E.council)net=Math.max(1,net);       // Council Envoys can't fail
     E.net=net;E.out=tOutcome(net);
-    const fp=failPassFx(E);if(E.out==="Failed"&&fp){E.out="Passed";E.saved=fp.src;}   // not Condemned
+    const fp=failPassFx(E);if(fp&&(E.out==="Failed"||(E.out==="Condemned"&&fp.condemned))){E.out="Passed";E.saved=fp.src;}   // Condemned only where the text says so
+    if(E.council&&fxOf(E.owner,"councilEndorse").length&&(E.out==="Passed"||E.out==="Endorsed")){E.out="Endorsed";E.saved=fxOf(E.owner,"councilEndorse")[0].src;}
     E.done=true;R.log.push({kind:"envoy",E});return true;}
   if(ph==="council"){
     const tally={};
     for(const p of voteOrd(ord)){const r=runSlot("CV:"+p.id,p,tCur(p).council);if(!r)return R;
-      const d=r.rec&&T_DOMS.includes(r.rec.dom)?r.rec.dom:null;if(d)tally[d]=(tally[d]||0)+1;
+      const d=r.rec&&T_DOMS.includes(r.rec.dom)?r.rec.dom:null,w=fxOf(p,"councilVotes").reduce((m,f)=>Math.max(m,f.val),1);
+      if(d)tally[d]=(tally[d]||0)+w;if(d&&fxOf(p,"councilChoose").length)R.chooser={p,d};
       R.log.push({kind:"cvote",who:p,dom:d,pre:!!r.pre,timeout:!!r.timeout,forced:!!r.forced,auto:!!r.auto});}
     R.tally=tally;
     const mx=Math.max(0,...Object.values(tally)),top=T_DOMS.filter(d=>mx>0&&tally[d]===mx);
-    let dom=top.length===1?top[0]:null;
+    let dom=R.chooser?R.chooser.d:(top.length===1?top[0]:null);
     if(!dom){const tie=t.councilTie,cand=top.length?top:T_DOMS.slice();
       if(tie&&tie.turn===tTurn()&&cand.includes(tie.dom)){dom=tie.dom;clock=Math.max(clock,+tie.ts||clock);}
       else{R.waiting="tie";R.tieCands=cand;return R;}}
@@ -1395,16 +1464,27 @@ function tSim(){
 function performEval(E){if(!(E.out==="Passed"||E.out==="Endorsed"))return null;
   const rec=((tCur(E.owner).perform)||{})[E.id];if(!rec||!rec.action)return null;
   const tgt=rec.target?D.players.find(p=>String(p.id)===String(rec.target)):null,parts=[];
-  fxOf(E.owner,"act").filter(f=>f.dom===E.dom).forEach(f=>parts.push({src:f.src,val:f.val*f.q}));
+  fxOf(E.owner,"act").filter(f=>f.dom===E.dom&&(f.tgtPOabove==null||(tgt&&(tgt.board.po||0)>f.tgtPOabove))).forEach(f=>parts.push({src:f.src,val:f.val*f.q}));
   if(tgt)fxOf(tgt,"defend").filter(f=>(f.dom&&f.dom===E.dom)||(f.action&&f.action.toLowerCase()===String(rec.action).toLowerCase()))
     .forEach(f=>parts.push({src:tgt.name+": "+f.src,val:f.val*f.q}));
   let adj=E.net+parts.reduce((a,x)=>a+x.val,0);if(E.council)adj=Math.max(1,adj);
   let out=tOutcome(adj);                                             // full thresholds: can reach Condemned
-  let saved=null;const fp=failPassFx(E);if(out==="Failed"&&fp){out="Passed";saved=fp.src;}
+  let saved=null;const fp=failPassFx(E);if(fp&&(out==="Failed"||(out==="Condemned"&&fp.condemned))){out="Passed";saved=fp.src;}
   let capped=null;if(out==="Endorsed"&&tgt){const ne=fxOf(tgt,"noEndorse").find(f=>f.dom===E.dom);if(ne){out="Passed";capped=tgt.name+": "+ne.src;}}   // "<Dom> actions targeting you can't be Endorsed"
   return {rec,tgt,parts,adj,out,saved,capped};}
 function failPassFx(E){return fxOf(E.owner,"failPass").find(f=>!f.dom||f.dom===E.dom)||null;}
 function actionsOf(dom){return Object.keys(DATA.actions||{}).filter(k=>(DATA.actions[k]||{}).domain===dom);}
+// "Rising Prowess" style requirement vs the player's Standing — a flag, not a lock
+function actReqFlag(p,name){const r=String(((DATA.actions||{})[name]||{}).requires||"").trim();if(!r)return "";
+  const m=/^(Rising|Established|Sovereign)\s+(\w+)$/.exec(r);if(!m)return r;
+  const ORD=["Untested","Rising","Established","Sovereign"],have=tStand(p,m[2]);
+  return ORD.indexOf(have)>=ORD.indexOf(m[1])?"":r+" (has "+have+")";}
+function actInfoHTML(p,name,tgt){const a=(DATA.actions||{})[name];if(!a)return "";const fl=actReqFlag(p,name),rs=actRestrict(p,name,tgt),rd=actRiders(p,name,tgt);
+  return (fl?'<div class="flagbox" style="margin-top:4px">⚑ requires '+esc(fl)+'</div>':'')+rs.map(x=>'<div class="flagbox" style="margin-top:4px">⚑ '+esc(x)+'</div>').join('')+
+    (rd.length?'<div class="note" style="margin-top:4px">'+rd.map(esc).join('<br>')+'</div>':'')+
+    '<div class="note" style="margin-top:4px">'+(a.cost&&a.cost!=="None"?'<b>Cost:</b> '+esc(a.cost)+' · ':'')+(a.requires?'<b>Requires:</b> '+esc(a.requires)+' · ':'')+
+    '<b>Effect:</b> '+mdLite(a.effect||"")+(a.endorsed?'<br><b>Endorsed:</b> '+mdLite(a.endorsed):'')+
+    ((a.notes||[]).length?'<br>'+a.notes.map(x=>'• '+mdLite(x)).join('<br>'):'')+'</div>';}
 // ---- optional auto-resolve: Faith/Doubt in the outcome text → owner's Public Order (owner's client applies once) ----
 function tApply(R){if(!TB().auto)return;let ch=false;
   R.log.forEach(l=>{if(l.kind!=="envoy")return;const E=l.E,p=E.owner;
@@ -1412,7 +1492,8 @@ function tApply(R){if(!TB().auto)return;let ch=false;
     const c=tCurW(p);c.applied=c.applied||{};if(c.applied[E.id])return;
     const pe=performEval(E);if(!pe&&!R.done&&(E.out==="Passed"||E.out==="Endorsed"))return;   // wait for Perform
     const fin=pe?pe.out:E.out,txt=outText(E.dom,fin),f=+((txt.match(/Faith (\d+)/)||[])[1]||0),dz=+((txt.match(/Doubt (\d+)/)||[])[1]||0);
-    if(f||dz)p.board.po=applyPOFloor(p.board,Math.max(PO_MIN,Math.min(PO_MAX,(p.board.po||0)+f-dz)));
+    if(f)p.board.po=applyPOFloor(p.board,Math.max(PO_MIN,Math.min(PO_MAX,(p.board.po||0)+f)));
+    if(dz)gainDoubt(p.board,dz);
     c.applied[E.id]={out:fin,f,d:dz};ch=true;});
   if(ch)save();}
 
@@ -1422,17 +1503,17 @@ function tSetPhase(ph){const t=TB();t.phase=ph;t.phaseTs=(ph==="council"||ph==="
 function tEndTurn(){const t=TB(),ord=tOrder();
   if(t.auto)D.players.forEach(p=>{const ap=tCur(p).applied||{};p.board.condemned=Object.values(ap).filter(a=>a.out==="Condemned").length;});
   const endedSeason=curSeason(),r0=D.renown||1;
-  D.renown=r0+(DATA.renownPerTurn??1);                                          // Rest Phase 3: gain Renown
+  D.renown=Math.min(+RC.RENOWN_MAX||30,r0+(DATA.renownPerTurn??1));            // Rest Phase 3: gain Renown (stops at RENOWN_MAX)
   D.players.forEach(p=>{p.board.dp=(p.board.dp||0)+(DATA.dpPerTurn??1);});     // Rest Phase 4: a Domain Point to spend
   stepSeason(1);                                                                // new turn's Season: its Empire Phase income applies below
   if(curSeason()!=="Spring"&&ord.length>1){t.host=String(ord[0].id);t.hostSet=true;}   // Host passes clockwise (not into Spring) — before income, so trade follows the new Host
-  let skims=[];if(BST().auto){BST()._t=tTurn()+1;runBanditMechanics();skims=banditSkims();}
-  if(boardEndOn()){const rows=D.players.map(p=>Object.assign({pid:String(p.id),name:p.name,color:p.color},boardEndTurn(p.board)));
-    t.hist=t.hist||{};t.hist[tTurn()]={turn:tTurn(),season:endedSeason,next:curSeason(),renown:[r0,D.renown],rows};
+  {const R0=tSim();D.players.forEach(p=>{if(fxOf(p,"carry").length)PT(p).carry={turn:tTurn()+1,n:Math.max(0,(R0.pool[p.id]||inflPool(p))-(R0.spent[p.id]||0))};});}
+  const ended=tTurn();t.turn=ended+1;t.phase="empire";t.phaseTs=0;t.skip={};t.councilTie=null;   // next turn begins: its Empire Phase
+  if(boardEndOn()){const E=empirePhase();
+    t.hist=t.hist||{};t.hist[ended]={turn:ended,season:endedSeason,next:curSeason(),renown:[r0,D.renown],rows:E.rows,realm:E.log};
     Object.keys(t.hist).map(Number).sort((a,b)=>b-a).slice(6).forEach(k=>delete t.hist[k]);}
-  if(boardEndOn()){const w=curSeason()==="Winter";realmTimers().forEach(x=>{if(w&&x.type==="Siege Timer")return;if(x.n>0)x.n--;});}
-  if(skims.length)creditSkims(skims);delete BST()._t;
-  t.turn=tTurn()+1;t.phase="empire";t.phaseTs=0;t.skip={};t.councilTie=null;save();render();}
+  else if(BST().auto){BST()._t=tTurn();runBanditMechanics();const sk=banditSkims();if(sk.length)creditSkims(sk);delete BST()._t;}
+  save();render();}
 function tAutoSeat(){const m=seatMap(),n=tSeats();let i=0;
   D.players.filter(p=>!Object.values(m).includes(p)).forEach(p=>{while(i<n&&m[i])i++;if(i<n){const x=PT(p);x.seat=i;x.seatTs=tnow();m[i]=p;}});
   save();render();}
@@ -1462,12 +1543,13 @@ function tHistHtml(){const H=TB().hist||{},ks=Object.keys(H).map(Number).sort((a
     (r.cleared?' · Strained cleared on '+r.cleared:'')+
     (r.done.length?'<div class="note">'+r.done.map(x=>kwify(x)).join(' · ')+'</div>':'')+'</div>').join("");
   const h0=H[ks[0]];
-  return '<div class="tot"><h3 style="font-size:13px">End of turn '+h0.turn+' — '+esc(h0.season)+'</h3>'+(h0.renown?'<div class="note">Renown '+h0.renown[0]+' → '+h0.renown[1]+' · each player gained '+(DATA.dpPerTurn??1)+' Domain Point</div>':'')+one(h0)+
+  return '<div class="tot"><h3 style="font-size:13px">End of turn '+h0.turn+' — '+esc(h0.season)+'</h3>'+(h0.renown?'<div class="note">Renown '+h0.renown[0]+' → '+h0.renown[1]+' · each player gained '+(DATA.dpPerTurn??1)+' Domain Point</div>':'')+((h0.realm||[]).length?'<div class="note">'+h0.realm.map(x=>kwify(x)).join(' · ')+'</div>':'')+one(h0)+
     ks.slice(1).map(k=>'<details><summary class="note">End of turn '+H[k].turn+' — '+esc(H[k].season)+'</summary>'+one(H[k])+'</details>').join("")+'</div>';}
 function tPerformHtml(E){if(!(E.out==="Passed"||E.out==="Endorsed"))return "";
   const pe=performEval(E),rec=((tCur(E.owner).perform)||{})[E.id]||{},mine=canAct(E.owner);
   let h='<div class="tb-perf">';
-  if(pe&&!rec.edit){h+='Performed <b>'+esc(pe.rec.action)+'</b>'+(pe.tgt?' → '+tName(pe.tgt):'')+
+  if(pe&&!rec.edit){const rf=actReqFlag(E.owner,pe.rec.action),rs=actRestrict(E.owner,pe.rec.action,pe.tgt),rd=actRiders(E.owner,pe.rec.action,pe.tgt);
+    h+=(rf?'<span class="tb-b">⚑ requires '+esc(rf)+'</span> ':'')+rs.map(x=>'<span class="tb-b">⚑ '+esc(x)+'</span> ').join('')+(rd.length?'<span class="note">'+rd.map(esc).join(' · ')+'</span> ':'')+'Performed <b>'+esc(pe.rec.action)+'</b>'+(pe.tgt?' → '+tName(pe.tgt):'')+
       (pe.parts.length?' · '+pe.parts.map(x=>esc(x.src)+' '+sgn(x.val)).join(', ')+' → net <b>'+pe.adj+'</b>':'')+
       ' <b class="'+tOutCls(pe.out)+'">'+pe.out+'</b>'+(pe.saved?' <span class="tb-b">'+esc(pe.saved)+': Fail → Pass</span>':'')+(pe.capped?' <span class="tb-b">'+esc(pe.capped)+': Endorsed → Passed</span>':'');
     if(pe.out==="Failed"&&mine)h+='<div class="note">Would fail — you may instead perform a different '+esc(E.dom)+' action against the same target. '+
@@ -1478,6 +1560,7 @@ function tPerformHtml(E){if(!(E.out==="Passed"||E.out==="Endorsed"))return "";
       '<select data-ptgt="'+esc(E.id)+'"'+(lockT?' disabled':'')+'><option value="">no player target</option>'+
       D.players.filter(p=>!sameP(p,E.owner)).map(p=>'<option value="'+p.id+'"'+(String(rec.target)===String(p.id)?' selected':'')+'>'+esc(p.name)+'</option>').join("")+'</select> '+
       '<button data-perf="'+esc(E.id)+'" data-who="'+E.owner.id+'">Perform</button>'+
+      '<div data-pinfo="'+esc(E.id)+'">'+actInfoHTML(E.owner,rec.action||acts[0])+'</div>'+
       (E.dom==="Diplomacy"&&(isVassal(E.owner.id)||(rec.target&&isVassal(rec.target)))?'<div class="flagbox" style="margin-top:4px">⚑ '+(isVassal(E.owner.id)?esc(E.owner.name)+' is a Vassal: can\u2019t perform Diplomacy actions':esc(pname(rec.target))+' is a Vassal: can\u2019t be targeted by Diplomacy actions')+'</div>':'');}
   else h+='<span class="note">awaiting '+esc(E.owner.name)+"'s action</span>";
   return h+'</div>';}
@@ -1485,7 +1568,7 @@ function empireChecklistHTML(){const sea=curSeason(),auto=boardEndOn();
   const L=[["Activate Domain Standing effects","realm","Realm"],["Apply the Season: "+sea,"reference#refSeasons","Reference"],
     ["Timers tick, finished builds resolve","board:board","Board"],["Host resolves Bandits","table#tBanditBox","Bandits"],
     ["Gain Influence & Envoys","",""],sea==="Winter"?["Winter: tax income","board:summary","Totals"]:null,
-    ["Income & upkeep","board:summary","Totals"],["Public Order (Faith − Doubt)","board:summary","Totals"],["Armies regain Endurance","board:board","Board"]].filter(Boolean);
+    ["Income & upkeep","board:summary","Totals"],["Extort (\u201cper player without\u201d is automatic at End turn)","",""],["Public Order (Faith − Doubt)","board:summary","Totals"],["Armies regain Endurance","board:board","Board"]].filter(Boolean);
   return '<div class="tb-check">'+L.map(x=>'<div>'+esc(x[0])+(x[1]?' <a href="#" data-goto="'+x[1]+'">'+x[2]+' ▸</a>':' <span class="note">(this panel)</span>')+'</div>').join("")+
     (auto?'<div class="note">End turn applies timers, income, PO and Endurance to every board.</div>':'')+'</div>';}
 // which tree charts are open (per device); the whole section's state too
@@ -1593,7 +1676,7 @@ function renderTable(){
     if(!p){seats+='<div class="tb-seat empty" style="left:'+x+'%;top:'+y+'%"><div class="note">Seat '+(i+1)+'</div>'+
       (seatsLocked()?'':'<button data-sit="'+i+'">sit here</button>')+'</div>';continue;}
     const cls=["tb-seat"];if(sameP(p,cw))cls.push("act");if(sameP(p,me))cls.push("me");
-    let body='<div class="tb-nm">'+tName(p)+(sameP(p,hp)?'<span class="tb-b h" title="Host">Host</span>':'')+
+    let body='<div class="tb-nm">'+tName(p)+(sameP(p,hp)?'<span class="tb-b h" title="'+(isSpring()?'Host token — no Host in Spring':'Host')+'">'+(isSpring()?'Host token':'Host')+'</span>':'')+
       (sameP(p,sp)?'<span class="tb-b s" title="Starting player">1st</span>':'')+'</div>';
     const pool=R.pool[p.id]??inflPool(p),left=pool-(R.spent[p.id]||0);
     body+='<div class="note">Influence <b>'+left+'</b>/'+pool+' · Envoys '+personalEnvoys(p)+'</div>';
@@ -1624,14 +1707,19 @@ function renderTable(){
       (cw?'<div class="note">'+tName(cw)+' to act</div><div class="tbcd tb-timer"></div>':'')+'</div>';}
   else if(R.done&&(ph==="council"||ph==="envoy")&&TB().phaseTs)ctr+='<div class="pos">All Envoys resolved.</div>';
   if(R.councilDom)ctr+='<div class="note">Council Domain: <b>'+R.councilDom+'</b></div>';
-  if(ph==="empire")ctr+=empireChecklistHTML();
+  if(ph==="council"&&isSpring())ctr+='<div>Spring — no Council Phase.</div>';
+  if(ph==="empire")ctr+=empireChecklistHTML()+'<div class="tb-row" style="flex-wrap:wrap;justify-content:center;margin-top:4px"><span class="note">Extort</span>'+
+    '<select id="exFrom">'+D.players.map(p=>'<option value="'+p.id+'">'+esc(p.name)+'</option>').join('')+'</select><span class="note">→</span>'+
+    '<select id="exTo">'+D.players.map((p,i)=>'<option value="'+p.id+'"'+(i===1?' selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select>'+
+    '<input id="exAmt" type="number" min="0" step="100" value="500" style="width:70px"><button id="exGo">extort</button></div>';
+  {const pr=(DATA.phaseRules||{})[ph];if(pr)ctr+='<details class="tb-rules"><summary class="note">Rules — '+esc(T_PHL[ph])+'</summary><div class="note" style="text-align:left;margin-top:4px">'+mdLite(pr)+'</div></details>';}
   if(ph==="battle")ctr+='<div class="note">Resolve Battles and Sieges'+(mods().battle?' in the Battle view':'')+'.</div>';
   if(ph==="rest")ctr+='<div class="note">Unused Envoys & Influence are discarded · Season +1 · gain Renown · spend a Domain Point · Host passes clockwise (not in Spring).</div>';
   // --- log ---
   let log="";
   R.log.forEach(l=>{
     if(l.kind==="cvote"){log+='<div>'+tName(l.who)+' Council vote: '+(l.dom?'<b>'+l.dom+'</b>':'<span class="note">'+(l.timeout?"timeout":l.forced?"skipped":"none")+'</span>')+(l.pre?' <span class="note">(queued)</span>':'')+'</div>';return;}
-    const E=l.E;log+='<div class="tb-lg">'+tName(E.owner)+' <b>'+esc(E.dom)+'</b>'+(E.council?' (Council)':'')+
+    const E=l.E;log+='<div class="tb-lg">'+tName(E.owner)+' <b>'+esc(E.dom)+'</b>'+(E.council?' (Council)':'')+(E.mission?' (Diplomatic Mission)':'')+
       ' — '+innateTxt(E)+(E.votes.length?'; '+E.votes.map(v=>esc(v.who.name)+' '+tVoteTxt(v)+(v.pre&&v.a!=="A"?'<span class="note">q</span>':'')).join(', '):'')+
       ' → net <b>'+E.net+'</b> <b class="'+tOutCls(E.out)+'">'+E.out+'</b>'+(eraActions(E.council)>1&&(E.out==="Passed"||E.out==="Endorsed")?' <span class="tb-b">×'+eraActions(E.council)+' actions</span>':'')+(E.saved?' <span class="tb-b">'+esc(E.saved)+': Fail → Pass</span>':'')+'<div class="note">'+kwify(outText(E.dom,E.out))+'</div>'+tPerformHtml(E)+'</div>';});
   // --- right panel ---
@@ -1666,7 +1754,7 @@ function tPanel(R){
     const targets=HOTSEAT?R.declPending:(R.declPending.some(p=>sameP(p,me))?[me]:[]);
     const lockedMe=!HOTSEAT&&(tCur(me).decl||{}).lock;
     targets.slice(0,1).forEach(p=>{const dc=tCur(p).decl||{},nn=dc.n||{},tot=T_ALL.reduce((a,d)=>a+(+nn[d]||0),0),mx=personalEnvoys(p);
-      act+='<div class="lbl">Declare Envoys — '+esc(p.name)+' ('+tot+'/'+mx+')</div>'+T_ALL.map(d=>'<div class="tb-row"><span style="min-width:80px">'+d+'</span>'+
+      act+='<div class="lbl">Declare Envoys — '+esc(p.name)+' ('+tot+'/'+mx+')</div>'+(isSpring()?T_DOMS:T_ALL).map(d=>'<div class="tb-row"><span style="min-width:80px">'+d+'</span>'+
         '<button data-dn="'+d+'" data-dv="-1" data-who="'+p.id+'">−</button><b style="min-width:16px;text-align:center">'+(+nn[d]||0)+'</b>'+
         '<button data-dn="'+d+'" data-dv="1" data-who="'+p.id+'"'+(tot>=mx?' disabled':'')+'>+</button></div>').join("")+
         '<div class="tb-row"><button data-lock="'+p.id+'" class="on">Submit</button><span class="note">Hidden until everyone submits.</span></div>';});
@@ -1680,6 +1768,12 @@ function tPanel(R){
       '<button data-vote="S" data-who="'+cw.id+'" class="pos">Support</button>'+(opposeBlock(cw,E)?'<span class="note">'+esc(opposeBlock(cw,E))+'</span>':'<button data-vote="O" data-who="'+cw.id+'" class="neg">Oppose</button>'):'<span class="note">no Influence available</span>')+'</div>'+
       (envBadges(E)?'<div>'+envBadges(E)+'</div>':'')+
       '<div class="note">Cap '+voteCap(cw,E.dom,E.council)+' ('+(E.dom==="Diplomacy"?currentEra():tStand(cw,E.dom))+') · '+room+' Influence left</div>';}
+  if(ph==="envoy"&&t.phaseTs){const own=R.envoys.filter(E2=>E2.dom==="Diplomacy"&&E2.done&&E2.out==="Failed"&&canAct(E2.owner)&&(HOTSEAT||sameP(E2.owner,me)));
+    own.forEach(E2=>{const ms=(tCur(E2.owner).mission||{})[E2.id],open=T_DOMS.filter(d=>!domStarted(R,d));
+      const why=E2.out;
+      act+='<div class="lbl">Diplomatic Mission — '+esc(E2.owner.name)+' <span class="note">('+esc(why)+')</span></div><div class="tb-row">'+
+        (ms?'<span>Mission: <b>'+esc(ms)+'</b></span>'+(domStarted(R,ms)?'':'<button data-mission="" data-src="'+esc(E2.id)+'" data-who="'+E2.owner.id+'">cancel</button>'):
+          open.length?open.map(d=>'<button data-mission="'+d+'" data-src="'+esc(E2.id)+'" data-who="'+E2.owner.id+'">'+d+'</button>').join(""):'<span class="note">every Domain has started voting</span>')+'</div>';});}
   if(act)h+='<div class="tot tb-act">'+act+'</div>';
   // queue (pre-votes) — upcoming envoys where I'm a voter
   const qp=HOTSEAT?(cw||me):me;
@@ -1749,6 +1843,10 @@ function tWire(host,R){
   host.querySelectorAll("[data-tie]").forEach(b=>b.onclick=()=>{TB().councilTie={dom:b.dataset.tie,turn:tTurn(),ts:tnow()};commit();});
   host.querySelectorAll("[data-dn]").forEach(b=>b.onclick=()=>{const p=byId(b.dataset.who),c=tCurW(p);c.decl=c.decl||{};c.decl.n=c.decl.n||{};
     const d=b.dataset.dn;c.decl.n[d]=Math.max(0,(+c.decl.n[d]||0)+(+b.dataset.dv));commit();});
+  {const eg=host.querySelector("#exGo");if(eg)eg.onclick=()=>{const f=byId(host.querySelector("#exFrom").value),to=byId(host.querySelector("#exTo").value),amt=+host.querySelector("#exAmt").value||0;
+    if(!f||!to||sameP(f,to))return;const t=extortGold({b:f.board},{b:to.board},amt);flash(to.name+" extorts "+t.toLocaleString()+" from "+f.name+(t<amt?" (all they had)":""));commit();};}
+  host.querySelectorAll("[data-mission]").forEach(b=>b.onclick=()=>{const c=tCurW(byId(b.dataset.who));c.mission=c.mission||{};
+    if(b.dataset.mission)c.mission[b.dataset.src]=b.dataset.mission;else delete c.mission[b.dataset.src];commit();});
   host.querySelectorAll("[data-lock]").forEach(b=>b.onclick=()=>{const c=tCurW(byId(b.dataset.lock));c.decl=c.decl||{n:{}};c.decl.lock=tnow();commit();});
   host.querySelectorAll("[data-unlock]").forEach(b=>b.onclick=()=>{const c=tCurW(byId(b.dataset.unlock));if(c.decl)delete c.decl.lock;commit();});
   host.querySelectorAll("[data-vote]").forEach(b=>b.onclick=()=>{const p=byId(b.dataset.who),E=R.curEnvoy;if(!E)return;
@@ -1762,6 +1860,8 @@ function tWire(host,R){
   host.querySelectorAll("[data-mk]").forEach(el=>el.onchange=()=>{const m=PT(mp).mods[el.dataset.mk];if(!m)return;
     m[el.dataset.mf]=el.dataset.mf==="val"?(+el.value||0):el.value;commit();});
   host.querySelectorAll("[data-mdel]").forEach(b=>b.onclick=()=>{delete PT(mp).mods[b.dataset.mdel];commit();});
+  host.querySelectorAll("[data-pact]").forEach(sl=>sl.onchange=()=>{const box=host.querySelector('[data-pinfo="'+sl.dataset.pact+'"]'),
+    btn=sl.parentElement&&sl.parentElement.querySelector("[data-perf]");if(box)box.innerHTML=actInfoHTML(btn?byId(btn.dataset.who):meP(),sl.value);});
   host.querySelectorAll("[data-perf]").forEach(b=>b.onclick=()=>{const p=byId(b.dataset.who),c=tCurW(p),id=b.dataset.perf;c.perform=c.perform||{};
     const a=host.querySelector('[data-pact="'+id+'"]'),t=host.querySelector('[data-ptgt="'+id+'"]'),old=c.perform[id]||{};
     c.perform[id]={action:a?a.value:"",target:old.edit&&old.target?old.target:(t?t.value:""),ts:tnow()};commit();});
@@ -1924,15 +2024,51 @@ function itm(){S.itimer=S.itimer||{};S.idmg=S.idmg||{};S.facInfra=S.facInfra||[]
 function infraOn(n){itm();return !!(S.infra[n]||S.wonders[n])&&!(S.itimer[n]>0)&&!(S.idmg[n]>0);}
 function gameStarted(){return (S.turn||0)>0;}
 // One player's end-of-turn bookkeeping (treasury button and the Table's End turn share this).
-function boardEndTurn(b){
-  b.turn=(b.turn||0)+1;const done=tickTimers(b);
-  const sn=seasonNet(b),m=sn.m,net=Math.round(sn.net||0),g0=b.treasury||0,p0=b.po||0;
-  if(b.autoNet)b.treasury=g0+net;                                               // this Season's net (incl. seasonal gold and Winter tax), if auto-apply is on
-  const fd=m.po||0,pm=poModTotal(b),dpo=fd+pm;                                 // Faith − Doubt this turn (incl. PO modifiers)
-  b.po=applyPOFloor(b,Math.max(PO_MIN,Math.min(PO_MAX,p0+dpo)));
-  let regained=0,cleared=0;
+// ---- Empire Phase, in rules order (RULES: The Turn › Empire Phase). Stages run per board; empirePhase() runs them
+// across every board so realm-wide steps (Siege / Muster / Sack / Capture timers, Bandits, Extort) fall in sequence.
+function empTimers(b){b.turn=(b.turn||0)+1;return tickTimers(b);}                        // Build, Repair
+function empEconomy(b){const sn=seasonNet(b),net=Math.round(sn.net||0),g0=b.treasury||0;
+  if(b.autoNet)b.treasury=g0+net;                                               // Winter tax, income, trade, upkeep (if auto-apply is on)
+  b.insolv=(b.treasury||0)<0?(+b.insolv||0)+1:0;                              // "Insolvency": consecutive Upkeep with negative Treasury
+  return {sn,net,g0};}
+function empPO(b,done){const m=boardMetrics(b),p0=b.po||0,fd=m.po||0,pm=poModTotal(b);let dpo=fd+pm;
+  const dz=(m.doubt||0)+poModRows(b).filter(r=>r.side==="doubt").reduce((a,r)=>a+r.n,0),fr=firstDoubtRed(b);   // first Doubt(s) of the turn
+  const cut=Math.min(dz,fr.r);if(cut>0){dpo+=cut;done.push("first Doubt −"+cut+" ("+fr.src.join(", ")+")");}
+  b.fd={turn:b.turn,left:fr.r-cut};
+  b.po=applyPOFloor(b,Math.max(PO_MIN,Math.min(PO_MAX,p0+dpo)));return {fd,pm,p0};}
+function empArmies(b){let regained=0,cleared=0;
   (b.armies||[]).forEach(a=>{if(!a.strained){a.endurance=(a.endurance||0)+EQ.endurance_regain;regained++;}else cleared++;a.strained=false;});
-  return {turn:b.turn,net,tax:sn.tax,seasonal:sn.seasonal,trade:sn.trade,season:curSeason(),applied:!!b.autoNet,g0,g1:b.treasury||0,fd,pm,p0,p1:b.po,done,regained,regain:EQ.endurance_regain,cleared};}
+  return {regained,cleared};}
+function endRow(b,done,ec,po,ar){return {turn:b.turn,net:ec.net,tax:ec.sn.tax,seasonal:ec.sn.seasonal,trade:ec.sn.trade,season:curSeason(),applied:!!b.autoNet,
+  g0:ec.g0,g1:b.treasury||0,fd:po.fd,pm:po.pm,p0:po.p0,p1:b.po,done,regained:ar.regained,regain:EQ.endurance_regain,cleared:ar.cleared};}
+// one board on its own (board view "End turn")
+function boardEndTurn(b){const done=empTimers(b);{const p=playerOfBoard(b);if(p)musterTick(p).forEach(x=>done.push(x));}
+  const ec=empEconomy(b),po=empPO(b,done),ar=empArmies(b);return endRow(b,done,ec,po,ar);}
+// realm timers of the given types count down (Siege Timers don't in Winter)
+function tickRealm(types){const w=curSeason()==="Winter";realmTimers().forEach(x=>{if(!types.includes(x.type))return;if(w&&x.type==="Siege Timer"&&!siegeWinterOK(x))return;if(x.n>0)x.n--;});}
+const TIMER_ORDER=["Build Timer","Repair Timer","Truce Timer","Siege Timer","Muster Timer","Sack Timer","Capture Timer"];
+function empirePhase(){const P=D.players,done={},log=[];P.forEach(p=>done[p.id]=[]);
+  // 1-2. Standing effects are live; the Season was set in the Rest Phase.
+  // 3. Timers, in order: Build, Repair (boards) · Truce, Siege (realm) · Muster (Armies) · Sack, Capture (realm) · any other realm timer
+  P.forEach(p=>empTimers(p.board).forEach(x=>done[p.id].push(x)));tickRealm(["Build Timer","Repair Timer"]);
+  tickRealm(["Truce Timer","Siege Timer"]);
+  P.forEach(p=>musterTick(p).forEach(x=>done[p.id].push(x)));tickRealm(["Muster Timer"]);
+  tickRealm(["Sack Timer","Capture Timer"]);
+  tickRealm(Object.keys(TMR).filter(k=>!TIMER_ORDER.includes(k)));
+  // 4. resolve timers that reached 0
+  resolveRealm().forEach(x=>log.push(x));
+  // 5. Host resolves Bandit Mechanics (diverted gold is measured before income, credited after)
+  let skims=[];if(BST().auto){BST()._t=tTurn();runBanditMechanics();skims=banditSkims();}
+  // 6. Influence & Envoys: computed live from the new Era / Season
+  // 7-8. Winter tax, income & upkeep (trade inside)
+  const ec={};P.forEach(p=>ec[p.id]=empEconomy(p.board));
+  // 9. Extort
+  runAutoExtort().forEach(x=>log.push(x));if(skims.length)creditSkims(skims);delete BST()._t;
+  // 10. innate Public Order modifiers (first Doubt reductions)
+  const po={};P.forEach(p=>po[p.id]=empPO(p.board,done[p.id]));
+  // 11. Endurance; Strained clears (Sack keeps its Army Strained)
+  const ar={};P.forEach(p=>ar[p.id]=empArmies(p.board));sackLocks();
+  return {rows:P.map(p=>Object.assign({pid:String(p.id),name:p.name,color:p.color},endRow(p.board,done[p.id],ec[p.id],po[p.id],ar[p.id]))),log};}
 function tickTimers(b){const done=[];
   (b.placed||[]).forEach(p=>{if(p.bt>0){p.bt--;if(!p.bt)done.push("built "+p.name);}if(p.dmg>0){p.dmg--;if(!p.dmg)done.push("repaired "+p.name);}});
   ["itimer","idmg"].forEach(k=>{const o=b[k]||{};Object.keys(o).forEach(n=>{o[n]--;if(o[n]<=0){delete o[n];done.push((k==="itimer"?"built ":"repaired ")+n);}});});
@@ -2152,13 +2288,19 @@ function eraAllows(t,id){
   if(t==="Metropolis"&&((S.domains||{}).Industry||0)<SOV)return {ok:false,why:"Metropolis requires Sovereign Industry"};
   return {ok:true};
 }
+// flags that point at a rules section (rulebook anchors use the same slug as rules_payload)
+const FLAG_RULE=[[/^Treasury negative/,"Insolvency & Bankruptcy"],[/^Charter:/,"Chartering Settlements"],[/Muster Field/,"Mustering"]];
+function rslug(t){return "rb-"+String(t).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");}
 function boardFlags(){
   const f=[],era=currentEra();
   const cc=cityCount(),cCap=eraCap("cities");if(cCap!=null&&cc>cCap)f.push("Cities "+cc+" / "+cCap+" allowed in "+era+capSrc("cities"));
   const sCap=eraCap("max_settlements");if(sCap!=null&&S.settlements.length>sCap)f.push("Settlements "+S.settlements.length+" / "+sCap+" allowed in "+era);
   const aCap=eraCap("armies");if(aCap!=null&&S.armies.length>aCap)f.push("Armies "+S.armies.length+" / "+aCap+" allowed in "+era+capSrc("armies"));
   if(!capitalSett())f.push("No capital set");
-  if((S.treasury||0)<0)f.push("Treasury negative");
+  if((S.treasury||0)<0)f.push("Treasury negative — Insolvency");
+  {const me=playerOfBoard(S);if(me){charterFlags(me).forEach(x=>f.push(x));
+    if((S.armies||[]).some(a=>a.muster&&a.muster.n>0)&&!hasMusterField(S))f.push("Mustering without an active Muster Field");
+    srcMatch(S,/(?:can.t|cannot) be in an Alliance/i).forEach(x=>{if(D.players.some(q=>sameAlliance(String(q.id),String(me.id))))f.push(x.n+": can't be in an Alliance");});}}
   if(S.settlements.filter(s=>s.tier==="Metropolis").length>1)f.push("More than one Metropolis");
   factionFlags().forEach(x=>f.push(x));
   {const pf=poFloor(S);if(pf&&(S.po||0)<pf.below)f.push("Public Order "+(S.po||0)+" below "+pf.src+" floor "+pf.to);}
@@ -2454,7 +2596,7 @@ function render(){
   if(D.view==="dash"||D.view==="renown")D.view="realm";
   if(D.view==="map")D.view="table";
   const view=D.view||"board";
-  renderTurnStrip();syncBoardEndBtn();
+  renderTurnStrip();syncBoardEndBtn();try{renderHUD();}catch(e){console.warn("HUD",e);}
   document.body.dataset.view=view;
   document.getElementById("vtabBattle").style.display=mods().battle?"":"none";
   document.querySelectorAll(".modcb").forEach(cb=>{cb.checked=!!mods()[cb.dataset.m];
@@ -2559,7 +2701,9 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
   const flags=flagsAll.filter(x=>flagState(fkey(x),true,x)==="on");
   if(flags.length){const fb=document.createElement("div");fb.className="flagbox";
     fb.innerHTML='<b>⚑ '+flags.length+' flag'+(flags.length>1?'s':'')+'</b><ul></ul>';
-    const ul=fb.querySelector("ul");flags.forEach(x=>{const li=document.createElement("li");li.textContent=x+" ";li.appendChild(ignBtn(fkey(x),x));ul.appendChild(li);});
+    const ul=fb.querySelector("ul");flags.forEach(x=>{const li=document.createElement("li");li.textContent=x+" ";
+      const rl=FLAG_RULE.find(([re])=>re.test(x));if(rl){const a=document.createElement("a");a.href="#";a.dataset.goto="reference#"+rslug(rl[1]);a.textContent="Rules: "+rl[1]+" ▸";li.appendChild(a);li.appendChild(document.createTextNode(" "));}
+      li.appendChild(ignBtn(fkey(x),x));ul.appendChild(li);});
     host.appendChild(fb);}
 
   const facP=S.placed.filter(p=>p.sid==="faction");
@@ -3192,6 +3336,18 @@ function armyCard(a,u){
   rm.onclick=()=>{S.armies=S.armies.filter(x=>x!==a);save();render();};top.appendChild(rm);
   card.appendChild(top);
 
+  {const p=playerOfBoard(S),ms=document.createElement("div");ms.className="bcrow";ms.style.margin="4px 0";
+    const L=p?musterLimit(p,a):{lim:0,src:[],paused:[],onMap:false},m=a.muster;
+    if(m&&m.n>0){ms.innerHTML='<span class="badge tier">Muster Timer '+(m.t||0)+'</span> <span class="note">+'+L.lim+'/turn · '+m.n+' to go'+(L.paused.length?' · besieged: '+esc(L.paused.join(", ")):'')+(L.onMap?'':' · not on the map: all Settlements count')+'</span> ';
+      const x=document.createElement("button");x.textContent="cancel";x.onclick=()=>{delete a.muster;save();render();};ms.appendChild(x);}
+    else{const room=Math.max(0,(EQ.army_max||25)-(a.count||0));
+      ms.innerHTML='<span class="note">Muster</span> ';const inp=document.createElement("input");inp.type="number";inp.min="1";inp.max=String(room);inp.value=String(room);inp.style.width="56px";
+      const go=document.createElement("button");go.textContent="start";
+      const nt=document.createElement("span");nt.className="note";const upd=()=>{const n=Math.max(0,Math.min(room,+inp.value||0));nt.textContent=L.lim?" Muster Timer "+Math.ceil(n/L.lim)+" (limit "+L.lim+(L.src.length?": "+L.src.join(", "):"")+")":" no muster limit in reach";};
+      inp.oninput=upd;upd();go.onclick=()=>{const n=Math.max(0,Math.min(room,+inp.value||0));if(!n)return;a.muster={n,t:L.lim?Math.ceil(n/L.lim):0};save();render();};
+      ms.appendChild(inp);ms.appendChild(go);ms.appendChild(nt);}
+    if(a.blocked||a.sackT){const bl=document.createElement("span");bl.className="badge noearn";bl.textContent="Blocked"+(a.sackT?" (Sack)":"");ms.appendChild(bl);}
+    card.appendChild(ms);}
   if(routed){const b=document.createElement("div");b.className="routebar";
     b.textContent="ROUTED — morale ≥ 11+, retinues drop to 0";card.appendChild(b);}
   if(!a.open) return card;
@@ -3349,6 +3505,21 @@ function calcMetrics(have,earned,tc){
   const freeT=noUpkeepTiers();   // "No Upkeep on <Tier> Infrastructure" (Masonry / Trade Guild / College of Engineering)
   Object.keys(S.infra).forEach(n=>{const on=infraOn(n);eat(INFRA[n].atoms,on,1);if(on&&!S.facInfra.includes(n)&&!freeT[INFRA[n].tier])infraUp+=INFRA[n].upkeep;});
   Object.keys(S.wonders).forEach(n=>{const on=infraOn(n);eat(WON[n].atoms,on,1);if(on)infraUp+=WON[n].upkeep;});
+  {const me=playerOfBoard(S),pid=me?String(me.id):null,war=playerAtWar(pid),cpg=[];
+   srcMatch(S,/Faith \+(\d+) while (not )?at War/i).forEach(x=>{if(!!x.m[2]!==war)faith+=+x.m[1];});
+   srcMatch(S,/Faith \+(\d+) for every player you.re At War with/i).forEach(x=>{faith+=(+x.m[1])*D.players.filter(q=>pid&&String(q.id)!==pid&&effPair(pid,q.id).war).length;});
+   srcMatch(S,/Gain \+?(\d+)(?: gold)? per (?:total )?Craft/i).forEach(x=>cpg.push(+x.m[1]));
+   if(pid)D.players.forEach(q=>{if(String(q.id)===pid||!effPair(pid,q.id).trade)return;
+     srcMatch(q.board,/(?:Trade Partners|Players who trade with you) gain Craft \+(\d+)/i).forEach(x=>{craft+=+x.m[1];});});
+   cpg.forEach(v=>{scale+=v*craft;});
+   if(me&&mapState().grid){const prov=provinceOf(me),bt=srcMatch(S,/Armies do not pay Upkeep while in Province/i).length,bo=srcMatch(S,/Upkeep -(\d+) while not in Province/i),
+       lh=srcMatch(S,/Upkeep -(\d+) while an army is range 0 of controlled settlement/i);
+     S.armies.forEach(a=>{const k=armyHex(me,a);if(!k)return;const c=armyUpkeep(a);
+       if(prov.has(k)){if(bt)reduce+=c;}else bo.forEach(x=>{reduce+=Math.min(c,+x.m[1]);});});
+     const dg=srcMatch(S,/While At War, your Armies pay no upkeep in Territory your at-war player controls/i).length;
+     if(dg){const g=mapState().grid,own=reachOwners(mapState(),g.width,g.height);S.armies.forEach(a=>{const k=armyHex(me,a);if(!k||!own[k])return;
+       if([...own[k]].some(id=>id!==pid&&effPair(pid,id).war))reduce+=armyUpkeep(a);});}
+     if(lh.length&&S.armies.some(a=>{const k=armyHex(me,a);return k&&(S.settlements||[]).some(s=>settHex(me,s)===k);}))lh.forEach(x=>{reduce+=+x.m[1];});}}
   const pursUp=S.placed.reduce((a,p)=>a+pursuitUpkeep(p),0);
   const armyGross=S.armies.reduce((s,a)=>s+armyUpkeep(a),0);
   const netArmy=Math.max(0,armyGross-reduce);
@@ -3363,14 +3534,14 @@ function computeTotals(have,earned,tc){
   set("t_army",fmt(-m.netArmy));set("t_craft",fmt(m.craft));
   set("t_ext",fmt(m.extort)+(m.extTrig?" · "+m.extTrig+" triggered":""));
   set("t_trade",fmt(m.craft*DATA.tradePerCraft)+" g");set("t_infl",fmt(m.infl));set("t_po",fmt(m.faith-m.doubt+poModTotal(S)));
-  const cs0=curSeason(),sa0=(m.seasonAdd||{})[cs0]||0,wt=winterTax(S),tx0=cs0==="Winter"?wt.total:0,tr0=tradeIncome(S,cs0),net0=m.baseNet+sa0+tx0+tr0.total;
+  const cs0=curSeason(),sa0=((m.seasonAdd||{})[cs0]||0)+(SEASON_DBL_TYPE(cs0)?husbandryGoldFor(S,cs0):0),wt=winterTax(S),tx0=cs0==="Winter"?wt.total:0,tr0=tradeIncome(S,cs0),net0=m.baseNet+sa0+tx0+tr0.total;
   const ng=document.getElementById("netgold");ng.textContent=fmt(net0);
   ng.className="n "+(net0<0?"neg":net0>0?"pos":"");
   document.getElementById("netnote").innerHTML=
     "gold "+fmt(m.gold)+(m.scale?(" · scaling "+fmt(m.scale)):"")+" · infra "+fmt(-m.infraUp)+" · pursuits "+fmt(-m.pursUp)+
     " · army ("+String(m.armyGross)+" cost − "+m.reduce+" reduce = "+fmt(-m.netArmy)+")"+
     (()=>{const nb=(S.placed||[]).filter(q=>q.bt>0).length;return nb?" · "+nb+" building (no income or effects until built)":"";})()+
-    (sa0?" · "+cs0+" "+fmt(sa0):"")+(cs0==="Winter"?" · Winter tax "+fmt(wt.base)+(wt.adj?" "+(wt.adj>0?"+":"−")+Math.abs(wt.adj)+" PO":""):"")+
+    (sa0?" · "+cs0+" "+fmt(sa0):"")+(cs0==="Winter"?" · Winter tax "+fmt(wt.base)+(wt.adj?" "+(wt.adj>0?"+":"−")+Math.abs(wt.adj)+" PO":"")+((wt.dbl||[]).length?" ×2 ("+wt.dbl.join(", ")+")":""):"")+
     (tr0.total?" · trade "+fmt(tr0.total)+" ("+tr0.lines.join(", ")+"; Host "+(hostP()?hostP().name:"?")+")":"");
   const sg=document.getElementById("seasons");sg.innerHTML="";
   const cse=curSeason();
@@ -3389,15 +3560,19 @@ function poTaxMod(v,b){let mod=0;const src=[],dbl=poDoubled();poActiveKeys(v||0,
     const m=txt.match(/Tax income\s*([+\-\u2212]\s?\d+)\s*per settlement/i)||txt.match(/([+\-\u2212]\s?\d+)\s*Tax Income per Settlement/i);
     if(m){const bn=Array.isArray(e)?e[0]:String(k),x=parseInt(m[1].replace(/\s/g,"").replace("\u2212","-"),10)*(dbl[bn]?2:1);mod+=x;src.push(bn+" "+(x>0?"+":"")+x+(dbl[bn]?" (×2)":""));}});
   return {mod,src};}
+// "Tax Income is Doubled" (e.g. Castle Hall) on an active piece doubles the Settlements' tax
+function taxDouble(b){return withBoard(b,()=>Object.keys(PC).filter(n=>/Tax Income is Doubled/i.test((R[n]||{}).innate_raw||"")));}
 function winterTax(b){const sets=b.settlements||[],pm=poTaxMod(b.po||0,b),mod=pm.mod;let base=0,adj=0;
   const pl=playerOfBoard(b),dest=(D.bandit||{}).dest||{};let destab=0;
   sets.forEach(s=>{const t=(((DATA.settlements||{})[s.tier]||{}).tax_income)||0;if(!t)return;
     if(pl&&dest[pl.id+":"+s.id]){destab+=t+Math.max(-t,mod);return;}base+=t;adj+=Math.max(-t,mod);});
-  return {base,mod,adj,src:pm.src,destab,total:base+adj};}
-function settTax(b,s){const t=(((DATA.settlements||{})[s.tier]||{}).tax_income)||0;return t?t+Math.max(-t,poTaxMod(b.po||0,b).mod):0;}
+  const dbl=taxDouble(b),k=dbl.length?2:1;
+  return {base,mod,adj,src:pm.src.concat(dbl.map(n=>n+" ×2")),destab,dbl,total:(base+adj)*k};}
+function settTax(b,s){const t=(((DATA.settlements||{})[s.tier]||{}).tax_income)||0;return t?(t+Math.max(-t,poTaxMod(b.po||0,b).mod))*(taxDouble(b).length?2:1):0;}
 // Trade income (rules): for each active Trade Agreement, both players gain income_per_craft × the Host's Craft X —
 // only on turns when one of the two is the Host; both need active Dirt Roads; none in TRADE_RULES.no_trade_season (Spring).
 function tradeIncome(b,season){const sea=season||curSeason(),out=tradeRaw(b,sea),me=D.players.find(p=>p.board===b);if(!me)return out;
+  {const m=srcMatch(b,/generate (thrice|twice) as much for yourself/i)[0];if(m&&out.total){const k=m.m[1].toLowerCase()==="thrice"?3:2,add=out.total*(k-1);out.total+=add;out.lines.push(m.n+" ×"+k+" +"+add);}}
   const icp=((D.bandit||{}).ic||{})[me.id];if(icp&&out.total&&sameP(hostP(),me)){out.lines.push("Intercept Caravan (bandits) −"+out.total);out.intercepted=out.total;out.total=0;}
   if(isVassal(me.id)&&out.total){const h=out.total/2;out.total-=h;out.lines.push("½ to Suzerain "+pname(diplo().suzerain[String(me.id)])+" −"+h);}
   vassalsOf(me.id).forEach(v=>{const h=tradeRaw(v.board,sea).total/2;if(h){out.total+=h;out.lines.push("½ of Vassal "+v.name+" +"+h);}});
@@ -3410,13 +3585,17 @@ function tradeRaw(b,season){const sea=season||curSeason(),out={total:0,lines:[]}
     if(!(sameP(h,me)||sameP(h,q)))return;if(!hasRoad(me.id)||!hasRoad(q.id))return;
     const g=rate*(boardMetrics(h.board).craft||0);out.total+=g;out.lines.push(q.name+" "+(g>=0?"+":"")+g);});
   return out;}
-function seasonNet(b,season){const m=boardMetrics(b),sea=season||curSeason(),sa=(m.seasonAdd||{})[sea]||0,tx=sea==="Winter"?winterTax(b).total:0,tr=tradeIncome(b,sea).total;
+function seasonNet(b,season){const m=boardMetrics(b),sea=season||curSeason(),sa=((m.seasonAdd||{})[sea]||0)+(SEASON_DBL_TYPE(sea)?husbandryGoldFor(b,sea):0),tx=sea==="Winter"?winterTax(b).total:0,tr=tradeIncome(b,sea).total;
   return {net:m.net+sa+tx+tr,base:m.net,seasonal:sa,tax:tx,trade:tr,m};}
 // metrics for any board (used by dashboards)
+// direct gold income from active Husbandry Holdings (SEASONS: "<Type> Income is doubled")
+function husbandryGoldFor(b,sea){const t=SEASON_DBL_TYPE(sea);if(!t)return 0;return withBoard(b,()=>{let g=0;const earned=SIMPLE?{}:computeEarned(new Set(Object.keys(PC))).earned;
+  Object.keys(PC).forEach(n=>{const r=R[n]||{};if(r.type!==t)return;const eat=at=>(at||[]).forEach(a=>{if(a.cat==="gold"&&a.flat&&!a.season&&!a.scale)g+=a.val*PC[n];});eat(r.innate);if(earned[n])eat(r.mastery);});return g;});}
+function SEASON_DBL_TYPE(sea){const m=/^(\w[\w ]*?) Income is doubled/i.exec(((SEAS[sea]||{}).effect)||"");return m?m[1]:null;}
 function boardMetrics(b){
   return withBoard(b,()=>{const have=new Set(Object.keys(PC));const {earned,tc}=computeEarned(have);
     const m=calcMetrics(have,earned,tc);
-    return {net:m.baseNet,gold:m.gold,craft:m.craft,infl:m.infl,po:m.faith-m.doubt,netArmy:m.netArmy,seasonAdd:m.seasonAdd};});
+    return {net:m.baseNet,gold:m.gold,craft:m.craft,infl:m.infl,po:m.faith-m.doubt,faith:m.faith,doubt:m.doubt,netArmy:m.netArmy,seasonAdd:m.seasonAdd};});
 }
 
 // ---- Public Order tracker ----
@@ -3469,7 +3648,7 @@ function influenceRowsBase(b){
   const cv=(b.domains||{}).Cunning||0,cs=Object.values(STAND_THRESH).filter(x=>cv>=x).length;add("Cunning Standing",cs,cs*igVal("Cunning Standing"));
   const fa=(b.armies||[]).filter(a=>(a.count||0)>=EQ.army_max).length;add("Fully Mustered Army",fa,fa*igVal("Fully Mustered Army"));
   const ce=+b.condemned||0;add("Condemned Envoy last turn",ce,ce*igVal("Condemned Envoy last turn"));
-  const war=playerAtWar(pid)?1:0,noLoss=dbActive(b).find(x=>/No longer lose Influence while at War/i.test(x.text));
+  const war=playerAtWar(pid)&&!(p&&fxOf(p,"ignoreWar").length)?1:0,noLoss=dbActive(b).find(x=>/No longer lose Influence while at War/i.test(x.text));
   if(IG["At War"])rows.push({k:"At War"+(war&&noLoss&&igVal("At War")<0?" ("+noLoss.name+": no loss)":""),cnt:war,val:(noLoss&&igVal("At War")<0)?0:war*igVal("At War")});
   const mw=withBoard(b,()=>S.placed.filter(q=>pActive(q)&&(R[q.name]||{}).type==="Monument").length+Object.keys(S.wonders).filter(infraOn).length);
   add("Monuments & Wonders",mw,mw*igVal("Monuments & Wonders"));
@@ -3481,7 +3660,8 @@ function influenceRowsBase(b){
      rows.push({k:"Public Order: "+e[0]+(dbl[e[0]]?" ×2":""),cnt:1,val:v});});}
   if(p)fxOf(p,"pool").forEach(f=>{const dv=b.domains||{};
     const cnt=f.per==="Rising"?T_DOMS.filter(d=>(dv[d]||0)>=RIS).length:f.per==="Established"?T_DOMS.filter(d=>(dv[d]||0)>=EST).length:
-      f.per==="others"?Math.max(0,D.players.length-1):f.per==="war"?(playerAtWar(pid)?1:0):0;
+      f.per==="others"?Math.max(0,D.players.length-1):f.per==="war"?(playerAtWar(pid)?1:0):
+      f.per==="holdings"?Math.floor(withBoard(b,()=>S.placed.filter(q=>pActive(q)).length)/(f.n||1)):0;
     rows.push({k:f.src,cnt,val:f.val*f.q*cnt});});
   return rows;}
 // Vassal: the Suzerain collects the first VASSAL_INFLUENCE_TAKE Influence the Vassal generates each turn
@@ -3490,13 +3670,17 @@ function influenceRows(b){const rows=influenceRowsBase(b),p=playerOfBoard(b),T=+
   if(sz){const t=take(b);if(t)rows.push({k:"Suzerain "+pname(sz)+" takes",cnt:1,val:-t});}
   vassalsOf(p.id).forEach(v=>{const t=take(v.board);if(t)rows.push({k:"Vassal "+v.name,cnt:1,val:t});});
   return rows;}
-function influenceTotal(b){return influenceRows(b).reduce((a,r)=>a+r.val,0);}
+function influenceTotal(b){return isSpring()?0:influenceRows(b).reduce((a,r)=>a+r.val,0);}
 // ---- Public Order modifiers (PO_MODIFIERS; 1 per instance) ----
 const POM=DATA.poModifiers||{faith:{},doubt:{}};
 function poModRows(b){b.poMods=b.poMods||{};const p=playerOfBoard(b),pid=p?String(p.id):null,rows=[];
-  const auto={"Deficit":()=>boardMetrics(b).net<0?1:0,"State of Alarm":()=>playerAtWar(pid)?1:0};
+  const auto={"Deficit":()=>boardMetrics(b).net<0?1:0,"State of Alarm":()=>playerAtWar(pid)&&!(p&&fxOf(p,"ignoreWar").length)?1:0,
+    "War Weariness":()=>srcHas(b,/Immune War Weariness/i)?0:(+b.lossStreak||0),"Lasting Legacy":()=>b.lastBattle==="won"?1:0,
+    "Insolvency":()=>+b.insolv||0,"Mounting Panic":()=>p?besiegedCount(p):0};
   ["faith","doubt"].forEach(side=>Object.keys(POM[side]||{}).forEach(k=>{const a=auto[k];
     rows.push({side,k,desc:POM[side][k],auto:!!a,n:a?a():(+b.poMods[k]||0)});}));
+  if(p)bordersOf(p).forEach(q=>srcMatch(q.board,/Each bordering player gains (Doubt|Faith) \+(\d+)/i).forEach(x=>
+    rows.push({side:x.m[1].toLowerCase(),k:x.n+" · "+q.name,desc:"bordering "+q.name,auto:true,n:+x.m[2]})));
   return rows.concat(epRows(b));}
 const TOT_TIPS={"t_gold": "Unconditional gold (+X) from your active Pursuits (Innate, and Mastery once earned) and active Infrastructure / Wonders. Season-only gold, scaling gold, Winter tax and trade are counted separately.", "t_scale": "Gold that multiplies by a count — e.g. Manor House: +100 per active Natural Pursuit (its Mastery: +100 per active Energy Pursuit).", "t_upkeep": "Upkeep of your built Infrastructure and Wonders. Faction Infrastructure pays none.", "t_pupkeep": "PU_TEXT", "t_reduce": "The sum of “Upkeep −X” effects on your active pieces. The pool is spent against Army upkeep; anything left over is unused.", "t_army": "Army upkeep: each Army costs its Retinue type's cost; the total of all Armies minus the reduction pool, never below 0.", "t_craft": "CRAFT", "t_trade": "Craft X × income per Craft: what each Trade Agreement pays both players on turns when you are the Host. None in Spring; both players need active Dirt Roads; none while at war.", "t_infl": "Unconditional “Influence +X” from your active pieces. Part of your Influence per turn — the full breakdown is on the Table.", "t_po": "Unconditional Faith minus Doubt from your active pieces, plus the Faith / Doubt modifiers under Public Order. Applied to Public Order at End turn.", "t_ext": "EXTORT"};
 function totTip(k){let t=TOT_TIPS[k]||"";
@@ -3526,8 +3710,8 @@ function topSuz(id){const d=diplo();let c=String(id),g=16;while(d.suzerain[c]&&g
 function sameAlliance(a,b){a=String(a);b=String(b);if(a===b)return false;const d=diplo(),ra=topSuz(a),rb=topSuz(b);
   if(ra===rb)return true;                                   // same Suzerain household
   const g=d.member[ra];return !!g&&g===d.member[rb];}
-function poFloor(b){const f=epSources(b).filter(x=>x.kind==="floor");return f.length?f.reduce((a,x)=>x.to>a.to?x:a):null;}
-function applyPOFloor(b,v){const f=poFloor(b);return f&&v<f.below?f.to:v;}
+function poFloor(b){const f=epSources(b).filter(x=>x.kind==="floor"),t=poTextFloor(b);if(t)f.push(t);return f.length?f.reduce((a,x)=>x.to>a.to?x:a):null;}
+function applyPOFloor(b,v){const f=poFloor(b);if(f&&v<f.below)v=f.to;const c=poCap(b);return c!=null&&v>c?c:v;}
 function epRows(b){const rows=[],me=playerOfBoard(b),mid=me?String(me.id):null,dv=b.domains||{};
   epSources(b).filter(x=>x.kind==="self").forEach(x=>rows.push({side:x.side,k:x.src,desc:x.side[0].toUpperCase()+x.side.slice(1)+" +"+x.val+" each Empire Phase",auto:true,n:x.val}));
   if(mid)D.players.forEach(q=>{if(String(q.id)===mid||sameAlliance(String(q.id),mid))return;const qv=q.board.domains||{};
@@ -3541,7 +3725,7 @@ function epRows(b){const rows=[],me=playerOfBoard(b),mid=me?String(me.id):null,d
       if(m&&!isVassal(mid)){const x=effPair(mid,q.id),c=x.household?0:(x.trade?1:0)+(x.nap?1:0)+(sameAlliance(mid,String(q.id))?1:0);
         if(c)rows.push({side:m[1].toLowerCase(),k:n+" · "+q.name,desc:c+(c>1?" Treaties":" Treaty")+" with "+q.name+" (not Peace)",auto:true,n:+m[2]*c});}});});
   return rows;}
-function poModTotal(b){return poModRows(b).reduce((a,r)=>a+(r.side==="faith"?r.n:-r.n),0);}
+function poModTotal(b){const t=poModRows(b).reduce((a,r)=>a+(r.side==="faith"?r.n:-r.n),0);return srcHas(b,/Public Order Modifiers are doubled/i)?t*2:t;}
 function dpButtons(p,i){const b=p.board,n=b.dp||0;if(n<=0)return "";
   return '<span class="dpask"><b>'+n+' Domain Point'+(n>1?'s':'')+'</b> to spend: '+DOMAINS.map(d=>'<button class="dpsp" data-pi="'+i+'" data-dom="'+d+'">'+d+' +1</button>').join('')+
     '<button class="dpsk" data-pi="'+i+'" title="drop one unspent point">skip</button></span>';}
@@ -3566,7 +3750,7 @@ function renderMiniStand(){const box=document.getElementById("miniStand");if(!bo
   document.getElementById("miniStandBody").innerHTML=h;
   box.querySelectorAll(".mdc").forEach(b=>b.onclick=()=>{S.domains=S.domains||{};const d=b.dataset.dom;S.domains[d]=Math.max(0,Math.min(SOV,(S.domains[d]||0)+(+b.dataset.d)));save();render();});}
 function renderInfluence(){renderDP();const box=document.getElementById("inflBox");if(!box)return;const tot=influenceTotal(S);
-  box.innerHTML='<div style="display:flex;align-items:center;gap:8px"><b>Influence / turn</b><span style="margin-left:auto;font-size:15px">'+(tot>0?'+':'')+tot+'</span></div>'+
+  box.innerHTML='<div style="display:flex;align-items:center;gap:8px"><b>Influence / turn</b><span style="margin-left:auto;font-size:15px">'+(tot>0?'+':'')+tot+'</span></div>'+(isSpring()?'<div class="note">Spring: no Influence gained</div>':'')+
     '<div class="note">Breakdown, Envoys and modifiers: <a href="#" data-goto="table">Table ▸</a></div>';}
 function renderPOMods(){const box=document.getElementById("poMods");if(!box)return;const rows=poModRows(S),tot=poModTotal(S),m=boardMetrics(S);
   box.innerHTML='<div class="pomh">'+['faith','doubt'].map(side=>'<div><div class="lbl tipk" data-tip="'+esc(GLOSS[side==='faith'?'Faith X':'Doubt X']||'')+'">'+side.toUpperCase()+'</div>'+
@@ -3589,6 +3773,9 @@ function siegeCalc(){const sg=siegeState(),C=(DATA.siege||{}).calculus||{},SV=(D
       else if(src==="Citadel"){const c=S.placed.find(q=>q.name==="Citadel"&&pActive(q)&&st&&q.sid===st.id);val=c?(v.innate_value||0)+(ce.Citadel?(v.mastery_value||0):0):0;}
       else val=infraOn(src)?(v.value||0):0;
       rows.push({src,val});});});
+  const tm=mode==="Convert"?{rows:[],noWalls:[]}:siegeTextMods(p,pById(sg.by)||D.players.find(q=>q!==p));
+  if(tm.noWalls.length)rows.forEach(r=>{if(/Walls$/.test(r.src)&&r.val){r.val=0;r.src+=" (ignored: "+tm.noWalls.join(", ")+")";}});
+  tm.rows.forEach(r=>rows.push(r));
   const base=rows.reduce((a,r)=>a+r.val,0),att=cfg.attacker_sources?(+sg.att||0):0,def=+sg.def||0;
   return {p,st,mode,cfg,rows,base,att,def,total:Math.max(cfg.floor||1,base+def-att)};}
 function siegeHTML(){const sg=siegeState(),c=siegeCalc(),C=(DATA.siege||{}).calculus||{};
@@ -3596,6 +3783,8 @@ function siegeHTML(){const sg=siegeState(),c=siegeCalc(),C=(DATA.siege||{}).calc
     '<select id="sgMode">'+Object.keys(C).map(m=>'<option'+(m===c.mode?' selected':'')+'>'+esc(m)+'</option>').join('')+'</select>'+
     '<select id="sgP">'+D.players.map(p=>'<option value="'+p.id+'"'+(p===c.p?' selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select>'+
     '<select id="sgS">'+(c.p.board.settlements||[]).map(x=>'<option value="'+x.id+'"'+(x===c.st?' selected':'')+'>'+(x.capital?'★ ':'')+esc(x.tier)+'</option>').join('')+'</select>'+
+    (c.mode!=="Convert"?'<span class="note">besieger</span><select id="sgBy">'+D.players.filter(p=>p!==c.p).map(p=>'<option value="'+p.id+'"'+(String(sg.by)===String(p.id)?' selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select>'+
+      (()=>{const bp=pById(sg.by)||D.players.find(p=>p!==c.p);return bp?'<select id="sgAid"><option value="">Army…</option>'+(bp.board.armies||[]).map(a=>'<option value="'+a.id+'"'+(String(sg.aid)===String(a.id)?' selected':'')+'>'+esc(armyName(a))+'</option>').join('')+'</select>':'';})():'')+
     ((c.cfg.settlement_sources||[]).includes("Standing Army")?'<label><input type="checkbox" id="sgArmy"'+(sg.army?' checked':'')+'> Standing Army</label>':'')+'</div>'+
     '<table class="dtable ttab" style="margin-top:6px;max-width:420px"><tbody>'+c.rows.map(r=>'<tr><td>'+esc(r.src)+'</td><td class="num">'+r.val+'</td></tr>').join('')+
     '<tr><td>defender modifiers</td><td class="num"><input id="sgDef" type="number" value="'+(+sg.def||0)+'" style="width:56px"></td></tr>'+
@@ -3615,15 +3804,20 @@ function boardTimerRows(){const R_=[];
     Object.keys(b.itimer||{}).forEach(n=>R_.push([p,"Build Timer",n,b.itimer[n]]));Object.keys(b.idmg||{}).forEach(n=>R_.push([p,"Repair Timer",n,b.idmg[n]]));
     (b.settlements||[]).forEach(s=>{if(s.bt>0)R_.push([p,"Build Timer",(s.name||s.tier)+" (settlement)",s.bt]);});});
   return R_;}
+function siegeResolveHTML(t,i){if(t.kind!=="siege"||t.n>0)return "";const from=pById(t.tp),s=from?(from.board.settlements||[]).find(x=>String(x.id)===String(t.sid)):null;
+  if(!s)return '<div class="note">Settlement not found</div>';
+  const hs=(from.board.placed||[]).filter(q=>q.sid===s.id&&!q.fac);
+  return '<div class="bcrow" style="flex-wrap:wrap"><button class="rtCap" data-i="'+i+'">Capture</button> <span class="note">or Sack — remove the Holdings of one Ward:</span> '+
+    hs.map(q=>'<label class="note"><input type="checkbox" class="rtSkH" data-i="'+i+'" value="'+q.id+'"> '+esc(q.name)+'</label>').join(' ')+' <button class="rtSack" data-i="'+i+'">Sack</button></div>';}
 function activeTimersHTML(){const T=realmTimers(),B_=boardTimerRows();
   return '<div class="tot"><h3 style="font-size:13px">Active timers</h3>'+
-    (T.length?'<table class="dtable ttab"><tbody>'+T.map((t,i)=>'<tr'+(t.n<=0?' class="broll"':'')+'><td>'+esc(t.type)+'</td><td>'+esc(t.label||'')+'</td><td class="num"><button class="rtd" data-i="'+i+'" data-d="-1">−</button> <b>'+t.n+'</b> <button class="rtd" data-i="'+i+'" data-d="1">+</button></td><td><button class="rtx" data-i="'+i+'">✕</button></td></tr>').join('')+'</tbody></table>':'<div class="note">No realm timers.</div>')+
+    (T.length?'<table class="dtable ttab"><tbody>'+T.map((t,i)=>'<tr'+(t.n<=0?' class="broll"':'')+'><td>'+esc(t.type)+'</td><td>'+esc(t.label||'')+siegeResolveHTML(t,i)+'</td><td class="num"><button class="rtd" data-i="'+i+'" data-d="-1">−</button> <b>'+t.n+'</b> <button class="rtd" data-i="'+i+'" data-d="1">+</button></td><td><button class="rtx" data-i="'+i+'">✕</button></td></tr>').join('')+'</tbody></table>':'<div class="note">No realm timers.</div>')+
     (T.length?'<div class="bcrow" style="margin-top:6px"><button id="rtTick">−1 all</button><span class="note">Sieges don\'t tick in Winter.'+(boardEndOn()?' End turn ticks these too.':'')+'</span></div>':'')+
     (B_.length?'<div class="lbl" style="margin-top:8px">Build & Repair (set on each Board)</div><table class="dtable ttab"><tbody>'+B_.map(r=>'<tr><td><span class="pdot" style="background:'+r[0].color+'"></span>'+esc(r[0].name)+'</td><td>'+esc(r[1])+'</td><td>'+kwify(r[2])+'</td><td class="num"><b>'+r[3]+'</b></td></tr>').join('')+'</tbody></table>':'')+
     '</div>';}
 function timersHTML(){const T=realmTimers(),keys=Object.keys(TMR);
   return '<div class="tot" style="margin-top:12px"><h3 style="font-size:13px">Timers</h3>'+
-    (T.length?'<table class="dtable ttab" style="max-width:640px"><tbody>'+T.map((t,i)=>'<tr'+(t.n<=0?' class="broll"':'')+'><td>'+esc(t.type)+'</td><td>'+esc(t.label||'')+'</td><td class="num"><button class="rtd" data-i="'+i+'" data-d="-1">−</button> '+t.n+' <button class="rtd" data-i="'+i+'" data-d="1">+</button></td><td><button class="rtx" data-i="'+i+'">✕</button></td></tr>').join('')+'</tbody></table>':'')+
+    (T.length?'<table class="dtable ttab" style="max-width:640px"><tbody>'+T.map((t,i)=>'<tr'+(t.n<=0?' class="broll"':'')+'><td>'+esc(t.type)+'</td><td>'+esc(t.label||'')+siegeResolveHTML(t,i)+'</td><td class="num"><button class="rtd" data-i="'+i+'" data-d="-1">−</button> '+t.n+' <button class="rtd" data-i="'+i+'" data-d="1">+</button></td><td><button class="rtx" data-i="'+i+'">✕</button></td></tr>').join('')+'</tbody></table>':'')+
     '<div class="bcrow" style="margin-top:6px"><select id="rtType">'+keys.map(k=>'<option>'+esc(k)+'</option>').join('')+'</select>'+
     '<input id="rtLabel" placeholder="label" style="width:160px"><input id="rtN" type="number" style="width:56px" value="'+(((TMR[keys[0]]||{}).default)||1)+'">'+
     '<button id="rtAdd">add</button><button id="rtTick">−1 all</button></div></div>';}
@@ -3642,11 +3836,19 @@ function wireDashExtras(host){const $=id=>host.querySelector("#"+id),sg=siegeSta
   on("sgArmy","onchange",e=>{sg.army=e.target.checked;save();render();});
   on("sgDef","onchange",e=>{sg.def=Math.round(+e.target.value)||0;save();setTimeout(render,0);});
   on("sgAtt","onchange",e=>{sg.att=Math.round(+e.target.value)||0;save();setTimeout(render,0);});
-  on("sgStart","onclick",()=>{const c=siegeCalc();realmTimers().push({type:c.mode==="Convert"?"Convert Timer":"Siege Timer",label:c.p.name+" · "+(c.st?c.st.tier:""),n:c.total});save();render();});
+  on("sgBy","onchange",e=>{sg.by=e.target.value;sg.aid=null;save();render();});on("sgAid","onchange",e=>{sg.aid=e.target.value;save();});
+  on("sgStart","onclick",()=>{const c=siegeCalc(),conv=c.mode==="Convert",by=sg.by||((D.players.find(p=>p!==c.p)||{}).id);
+    realmTimers().push(Object.assign({type:conv?"Convert Timer":"Siege Timer",label:(conv?"":(pById(by)||{name:"?"}).name+" → ")+c.p.name+" · "+(c.st?(c.st.name||c.st.tier):""),n:c.total},
+      conv?{}:{kind:"siege",tp:c.p.id,sid:c.st?c.st.id:null,by,aid:sg.aid||null}));save();render();});
   on("rtType","onchange",e=>{const d=(TMR[e.target.value]||{}).default;$("rtN").value=d==null?1:d;});
   on("rtAdd","onclick",()=>{const p=D.players[D.active]||{};realmTimers().push({type:$("rtType").value,label:($("rtLabel").value||"")+(p.name?" — "+p.name:""),pid:p.id,n:Math.round(+$("rtN").value)||0});save();render();});
-  on("rtTick","onclick",()=>{const w=curSeason()==="Winter";realmTimers().forEach(t=>{if(w&&t.type==="Siege Timer")return;if(t.n>0)t.n--;});save();render();});
-  host.querySelectorAll(".rtd").forEach(b=>b.onclick=()=>{const t=realmTimers()[+b.dataset.i];t.n=Math.max(0,t.n+(+b.dataset.d));save();render();});
+  on("rtTick","onclick",()=>{const w=curSeason()==="Winter";realmTimers().forEach(t=>{if(w&&t.type==="Siege Timer"&&!siegeWinterOK(t))return;if(t.n>0)t.n--;});resolveRealm().forEach(x=>flash(x));save();render();});
+  host.querySelectorAll(".rtd").forEach(b=>b.onclick=()=>{const t=realmTimers()[+b.dataset.i];t.n=Math.max(0,t.n+(+b.dataset.d));resolveRealm().forEach(x=>flash(x));save();render();});
+  host.querySelectorAll(".rtCap").forEach(b=>b.onclick=()=>{const T=realmTimers(),t=T[+b.dataset.i];if(!t)return;
+    T.splice(+b.dataset.i,1,{type:"Capture Timer",kind:"capture",tp:t.tp,sid:t.sid,by:t.by,label:t.label,n:+((TMR["Capture Timer"]||{}).default)||1});
+    resolveRealm().forEach(x=>flash(x));save();render();});
+  host.querySelectorAll(".rtSack").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,ids=[...host.querySelectorAll('.rtSkH[data-i="'+i+'"]:checked')].map(x=>x.value);
+    if(!confirm("Sack: remove "+ids.length+" Holding(s), raze the rest, drop a tier, extort and set a Sack Timer?"))return;sackApply(i,ids);save();render();});
   host.querySelectorAll(".rtx").forEach(b=>b.onclick=()=>{realmTimers().splice(+b.dataset.i,1);save();render();});}
 
 function renderDash(){
@@ -3729,7 +3931,7 @@ function mods(){D.modules=D.modules||{};return D.modules;}
 
 // ---- Diplomacy (Dashboards) ----
 const TREATIES=DATA.treaties||{};
-const TRUCE_LEN=(()=>{const m=/Truce Timer\s*(\d+)/i.exec((TREATIES["Peace Treaty"]||{}).effect||"");return m?+m[1]:0;})();
+const TRUCE_LEN=(()=>{const d=((DATA.timers||{})["Truce Timer"]||{}).default;if(d!=null)return +d;const m=/Truce Timer\s*(\d+)/i.exec((TREATIES["Peace Treaty"]||{}).effect||"");return m?+m[1]:0;})();
 function diplo(){D.diplo=D.diplo||{};const d=D.diplo;d.pairs=d.pairs||{};d.alliances=d.alliances||{};d.member=d.member||{};d.suzerain=d.suzerain||{};return d;}
 function pk(a,b){return [String(a),String(b)].sort().join("|");}
 // ---- Vassalage (RULES §Vassalization): a Vassal's Treaties mirror its Suzerain's → every pair resolves to the top Suzerains' pair ----
@@ -3742,7 +3944,8 @@ function pairOf(a,b){if(String(a)===String(b))return null;const d=diplo(),k=pk(a
 function pname(id){const p=D.players.find(q=>String(q.id)===String(id));return p?p.name:"?";}
 function allianceLabel(gid){const a=diplo().alliances[gid];return a?(a.type+" Alliance "+gid):"";}
 function pboard(id){const p=D.players.find(q=>String(q.id)===String(id));return p&&p.board||{};}
-function hasRoad(id){return !!((pboard(id).infra||{})["Dirt Roads"]);}
+function hasRoad(id){const b=pboard(id);if((b.infra||{})["Dirt Roads"])return true;if(srcHas(b,/may trade without Dirt Roads/i))return true;
+  if(srcHas(b,/may trade so long as your border touches another player/i)){const p=pById(id);return !!p&&bordersOf(p).length>0;}return false;}
 // alliance types locked by Era (TREATIES[<type> Alliance].era)
 function eraRank(e){const ks=Object.keys(ERAS).sort((a,b)=>ERAS[a].renown-ERAS[b].renown);return ks.indexOf(e);}
 function allianceEra(type){return ((TREATIES[type+" Alliance"]||{}).era)||"Any";}
@@ -4169,7 +4372,7 @@ function renderBattle(){
     '<span class="note">Skirmish <b>'+(B.id?B.sk:'—')+'</b></span>'+
     (seizeForced()?'<span class="note">Seize the Initiative: '+seizeForced()+' (Ministry)</span> ':'')+'<label class="note">Seize the Initiative: <select id="bSeize"><option value="">—</option><option value="A"'+(B.seize==="A"?" selected":"")+'>A</option><option value="B"'+(B.seize==="B"?" selected":"")+'>B</option></select></label>'+
     '<label class="note"><input type="checkbox" id="bDice"'+(B.dice?' checked':'')+'> emulate dice</label>'+
-    (B.id?'<button id="bReset">reset picks</button><button id="bEndSk" style="border-color:var(--order)">end Skirmish ▸</button><button id="bEndBattle" style="border-color:var(--upkeep)">end Battle</button>':'')+'</div>';
+    (B.id?'<button id="bReset">reset picks</button><button id="bEndSk" style="border-color:var(--order)">end Skirmish ▸</button><span class="note">end Battle:</span><button class="bEndB" data-w="A" style="border-color:var(--upkeep)">A won</button><button class="bEndB" data-w="B" style="border-color:var(--upkeep)">B won</button><button class="bEndB" data-w="" style="border-color:var(--upkeep)">no winner</button>':'')+'</div>';
   const v=viewerSide();
   h+='<div class="note" style="margin-bottom:6px">Viewing as <b>'+esc((D.players[D.active]||{}).name||"?")+'</b>'+(v==="-"?' (spectator — switch player in the top bar to pick)':' = side '+v)+(API.online?'':' · no server: picks stay on this device (pass-and-play)')+'</div>';
   if(B.rev&&B.rev.sk===B.sk){const cell=TMX[B.rev.A+"|"+B.rev.B];
@@ -4264,12 +4467,19 @@ function endSkirmish(){
     B[X].cas=0;B[X].rcv=0;});
   B.sk++;B.round=0;B.rev=null;EQSEL={};B.rolls={};B.strk={};B.par={};PEEK=false;blog("— Skirmish begins —");save();loadPicks().then(render);
 }
-function endBattle(){
-  const B=battle();
+function endBattle(win){
+  const B=battle(),side=X=>{const sa=sideArmy(B[X]);return sa.bandit?{camp:sa.camp,name:"Bandits"}:sa.p?{b:sa.p.board,name:sa.p.name}:null;};
   ["A","B"].forEach(X=>{const c=sideCalc(X);if(!c)return;c.a.fatigue=0;});
-  ["A","B"].forEach(X=>{const O=X==="A"?"B":"A",oc=sideCalc(O);if(!oc)return;
-    const lost=Math.max(0,(B.start[O]||0)-(oc.a.count||0)),cost=(oc.rt.cost||0)*lost;
-    blog(X+" destroyed "+lost+" "+(oc.a.retinue||"")+" — spoils if "+X+" won: "+cost.toLocaleString()+" gold");});
+  if(win==="A"||win==="B"){const O=win==="A"?"B":"A",oc=sideCalc(O),W=side(win),L=side(O);
+    if(oc&&W&&L){const lost=Math.max(0,(B.start[O]||0)-(oc.a.count||0)),cost=(oc.rt.cost||0)*lost,t=extortGold(L,W,cost);   // Spoils of War
+      blog(W.name+" won — Spoils of War: "+lost+" "+(oc.a.retinue||"")+" destroyed, extort "+t.toLocaleString()+(t<cost?" (of "+cost.toLocaleString()+")":""));
+      if(L.camp&&!(+L.camp.n>0)){const g=extortGold(L,W,L.camp.gold||0);if(g)blog(W.name+" extorts the destroyed camp's Treasury: "+g.toLocaleString());}}
+    if(W&&W.b){W.b.lossStreak=0;W.b.lastBattle="won";}if(L&&L.b){L.b.lossStreak=(+L.b.lossStreak||0)+1;L.b.lastBattle="lost";}
+    const wc=sideCalc(win);if(L&&L.b&&W&&wc&&srcHas(L.b,/collect the Spoils of War whether you win or lose/i)){
+      const lostW=Math.max(0,(B.start[win]||0)-(wc.a.count||0)),t2=extortGold(W,L,(wc.rt.cost||0)*lostW);if(t2)blog(L.name+" also collects Spoils of War: "+t2.toLocaleString());}
+    [[win,W],[O,L]].forEach(([X,sd])=>{const c=sideCalc(X);if(!sd||!sd.b||!c)return;const lost=Math.max(0,(B.start[X]||0)-(c.a.count||0));
+      srcMatch(sd.b,/Faith \+(\d+) in every Battle where you lose (\d+) or more Retinues/i).forEach(x=>{if(lost>=+x.m[2]){sd.b.po=applyPOFloor(sd.b,Math.max(PO_MIN,Math.min(PO_MAX,(sd.b.po||0)+(+x.m[1]))));blog(sd.name+" · "+x.n+": Faith +"+x.m[1]);}});});}
+  else blog("Battle ended with no winner");
   blog("Battle ended — Fatigue tokens removed");B.id=null;B.rev=null;B.rolls={};save();render();
 }
 function wireBattle(host){
@@ -4293,7 +4503,7 @@ function wireBattle(host){
   const dc=host.querySelector("#bDice");if(dc)dc.onchange=()=>{B.dice=dc.checked;save();render();};
   const rs=host.querySelector("#bReset");if(rs)rs.onclick=()=>{B.round=(B.round||0)+1;B.rev=null;PEEK=false;blog("Tactic picks reset");save();loadPicks().then(render);};
   const es=host.querySelector("#bEndSk");if(es)es.onclick=endSkirmish;
-  const eb=host.querySelector("#bEndBattle");if(eb)eb.onclick=()=>{if(confirm("End the battle? Removes Fatigue tokens."))endBattle();};
+  host.querySelectorAll(".bEndB").forEach(eb=>eb.onclick=()=>{if(confirm("End the battle"+(eb.dataset.w?" — "+eb.dataset.w+" won (Spoils of War)":" with no winner")+"? Removes Fatigue tokens."))endBattle(eb.dataset.w||null);});
   host.querySelectorAll(".btac").forEach(b=>b.onclick=()=>pickTactic(b.dataset.x,b.dataset.t));
   host.querySelectorAll(".btmode").forEach(b=>b.onclick=()=>{B[b.dataset.x].tmode=b.dataset.m;save();render();});
   host.querySelectorAll(".btrand").forEach(b=>b.onclick=()=>{const X=b.dataset.x,pool=randomTacticPool(X),t=pool[Math.floor(Math.random()*pool.length)];
@@ -4317,7 +4527,7 @@ setInterval(()=>{if((D.view==="battle")&&battle().id&&!editing()){const before=J
 // RULES: any Edict repeatable; each completion = +1 shared Renown; most Edicts wins.
 const EDICT_NAMES=Object.keys(EDICTS);
 const NUMWORD={one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10};
-function edictTimerLen(e){const m=/(\w+)\s+consecutive turns/i.exec(e.requirement||"");if(!m)return 0;
+function edictTimerLen(e){if(+e.turns>0)return +e.turns;const m=/(\w+)\s+consecutive turns/i.exec(e.requirement||"");if(!m)return 0;
   const w=m[1].toLowerCase();return NUMWORD[w]||(+w)||0;}
 function edictChoices(name,pi){const e=EDICTS[name]||{};
   if(e.type==="Standing")return DOMAINS.slice();
@@ -4327,7 +4537,7 @@ function edictChoices(name,pi){const e=EDICTS[name]||{};
   return null;}
 function edictTotal(p){const L=p.board.edictLog||{};return EDICT_NAMES.reduce((a,k)=>a+((L[k]||[]).length),0);}
 function edictOwners(name,label){const o=[];D.players.forEach((q,j)=>{if(((q.board.edictLog||{})[name]||[]).includes(label))o.push("P"+(j+1));});return o;}
-function bumpRenown(d){D.renown=Math.max(1,Math.min(30,(D.renown||1)+d));}
+function bumpRenown(d){D.renown=Math.max(1,Math.min(+RC.RENOWN_MAX||30,(D.renown||1)+d));}
 function edictBoardHTML(){
   const P=D.players,tot=P.map(edictTotal),best=Math.max(0,...tot);
   let h='<div class="tot" style="max-width:1000px"><h3 style="font-size:13px">Edicts — scoreboard</h3>'+
@@ -4597,13 +4807,15 @@ function mapSVG(M){
     s+='<g pointer-events="none">'+tint+'</g><g fill="none" stroke-width="2" stroke-opacity=".8" stroke-linecap="round" pointer-events="none">'+edge+'</g>';
   }
   s+=over;
+  if(mtool==="Move")s+=moveOverlay(R,dx,dy,pts);
   if(g&&M.showStarts)(g.settlements||[]).forEach(reg=>reg.forEach(st=>{const cx=R+st[0]*dx,cy=dy/2+st[1]*dy+(st[0]%2?dy/2:0),w=R*.42;
     s+='<rect x="'+(cx-w).toFixed(1)+'" y="'+(cy-w).toFixed(1)+'" width="'+(w*2).toFixed(1)+'" height="'+(w*2).toFixed(1)+'" fill="none" stroke="#b3392f" stroke-width="1.6" stroke-dasharray="3 2" pointer-events="none"/>';}));
   Object.keys(M.cells).forEach(k=>{const cell=M.cells[k],[c,r]=k.split(",").map(Number),cx=R+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0);
     const pl=D.players.find(pp=>pp.id===cell.player),col=pl?pl.color:"#888";
     const unl=pl&&!(cell.type==="Army"?cellArmy(k).a:cellSett(k).s);
     s+='<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+(R*.62).toFixed(1)+'" fill="'+col+'" stroke="'+(unl?'#b3392f':'#111')+'"'+(unl?' stroke-width="2" stroke-dasharray="3 2"':'')+' pointer-events="none"/>'+
-       '<text x="'+cx.toFixed(1)+'" y="'+(cy+4).toFixed(1)+'" text-anchor="middle" font-size="10" font-weight="700" fill="#fff" pointer-events="none">'+(letter[cell.type]||"?")+(cell.blocked?"⊘":"")+'</text>'+(cell.blocked?'<title>Blocked (Sabotage) — re-place or erase the Army to clear</title>':'');});
+       '<text x="'+cx.toFixed(1)+'" y="'+(cy+4).toFixed(1)+'" text-anchor="middle" font-size="10" font-weight="700" fill="#fff" pointer-events="none">'+(letter[cell.type]||"?")+(cell.blocked?"⊘":"")+'</text>'+
+       (()=>{if(cell.type!=="Army")return "";const ca=cellArmy(k).a;return ca&&ca.muster&&ca.muster.n>0?'<text x="'+(cx+R*.55).toFixed(1)+'" y="'+(cy-R*.45).toFixed(1)+'" font-size="8" font-weight="700" fill="#f3d38a" stroke="#111" stroke-width=".4" pointer-events="none">M'+(ca.muster.t||0)+'</text>':"";})()+(cell.blocked?'<title>Blocked (Sabotage) — re-place or erase the Army to clear</title>':'');});
   Object.keys(M.camps).forEach(k=>{const cp=M.camps[k],[c,r]=k.split(",").map(Number),cx=R+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0),army=cp.n>=(BAN.armyThreshold||25);
     s+='<rect x="'+(cx-R*.62).toFixed(1)+'" y="'+(cy-R*.5).toFixed(1)+'" width="'+(R*1.24).toFixed(1)+'" height="'+(R).toFixed(1)+'" fill="'+(army?"#5a0d0d":"#1b1b1b")+'" stroke="#e0b060" pointer-events="none"/>'+
        '<text x="'+cx.toFixed(1)+'" y="'+(cy+3.5).toFixed(1)+'" text-anchor="middle" font-size="9" font-weight="700" fill="#f3d38a" pointer-events="none">☠'+cp.n+'</text>';});
@@ -4769,7 +4981,7 @@ try{MTOOLS_OPEN=localStorage.getItem("renown_mtools")!=="0";BPANEL_OPEN=localSto
 document.addEventListener("click",e=>{const a=e.target.closest("#tMapTools > summary");if(a){MTOOLS_OPEN=!a.parentElement.open;try{localStorage.setItem("renown_mtools",MTOOLS_OPEN?"1":"0");}catch(_){}}
   const b=e.target.closest("#tBandits > summary");if(b){BPANEL_OPEN=!b.parentElement.open;try{localStorage.setItem("renown_bpanel",BPANEL_OPEN?"1":"0");}catch(_){}}});
 function mapToolsHTML(){const M=mapState(),g=M.grid;
-  const tools=["Army","Hamlet","Village","Town","City","Metropolis","Outlaw Country","Bandit Camp","Erase"];
+  const tools=["Move","Army","Hamlet","Village","Town","City","Metropolis","Outlaw Country","Bandit Camp","Erase"];
   const p=D.players[D.active];
   const presets=Object.keys(MP),np=D.players.length>=2?Math.min(7,D.players.length):4,def=BOARD_SIZE[np]||BOARD_SIZE[6];
   const setupOpen=MAPSETUP_OPEN===null?!g:MAPSETUP_OPEN,bad=mapLinkBad();
@@ -4798,6 +5010,7 @@ function mapToolsHTML(){const M=mapState(),g=M.grid;
     '<div style="margin-top:4px">'+(Object.keys(rep.by).length?Object.keys(rep.by).map(rg=>'<span class="badge tier">region '+esc(rg)+': '+rep.by[rg]+'</span>').join(' '):'<span class="note">none marked</span>')+'</div>'+
     (rep.warn.length?'<div class="note" style="color:var(--upkeep);margin-top:4px">'+rep.warn.slice(0,6).map(esc).join('<br>')+'</div>':'')+'</div>'+
     '<div class="tot"><h3 style="font-size:13px">Map ↔ board</h3>'+mapLinksHTML()+'</div></div>'+
+    movePanelHTML()+
     '<div class="note" style="margin:6px 0 0">Terrain, movement and battle-terrain tables are in <a href="#" data-goto="reference#refTerrain">Reference ▸</a></div></details>';
   return h;}
 function banditPanelHTML(){const M=mapState(),era=currentEra(),camps=Object.keys(M.camps);
@@ -4825,13 +5038,18 @@ function wireMap(host){const M=mapState(),g=M.grid,era=currentEra(),$=id=>host.q
   if($("mFile"))$("mFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();
     rd.onload=()=>{try{const j=JSON.parse(rd.result);if(!j.terrain||!j.width)throw 0;M.grid=j;M.cols=j.width;M.rows=j.height;M.seed=String(j.seed);MAPVIEW=null;save();render();}
       catch(err){flash("not a renown-maps JSON export");}};rd.readAsText(f);};
-  if($("mTool"))$("mTool").onchange=e=>{mtool=e.target.value;render();};
+  if($("mTool"))$("mTool").onchange=e=>{mtool=e.target.value;MOVESEL=null;render();};
+  if($("mvMarch"))$("mvMarch").onchange=e=>{MOVEMARCH=e.target.checked;render();};
+  if($("mvAdj"))$("mvAdj").onchange=e=>{MOVEADJ=Math.round(+e.target.value)||0;render();};
+  if($("mvCancel"))$("mvCancel").onclick=()=>{MOVESEL=null;render();};
   if($("mRes"))$("mRes").onchange=e=>{M.showRes=e.target.checked;save();render();};
   if($("mReach"))$("mReach").onchange=e=>{M.showReach=e.target.checked;save();render();};
   if($("mStarts"))$("mStarts").onchange=e=>{M.showStarts=e.target.checked;save();render();};
   if($("mClear"))$("mClear").onclick=()=>{if(confirm("Clear settlements, armies, Outlaw Country and camps? Terrain stays.")){M.cells={};M.outlaw={};M.camps={};save();render();}};
   host.querySelectorAll("[data-cell]").forEach(el=>el.onclick=()=>{
     const k=el.dataset.cell;MAPSEL=k;
+    if(mtool==="Move"){const c=M.cells[k];if(c&&c.type==="Army"){MOVESEL=MOVESEL===k?null:k;render();return;}
+      if(MOVESEL&&moveArmyTo(k)){save();render();}return;}
     if(mtool==="Erase"){delete M.cells[k];delete M.outlaw[k];delete M.camps[k];}
     else if(mtool==="Outlaw Country"){if(M.outlaw[k])delete M.outlaw[k];else M.outlaw[k]=true;}
     else if(mtool==="Bandit Camp"){if(!M.camps[k])M.camps[k]={n:BAN.campStart||5,gold:0};}
@@ -4849,6 +5067,243 @@ function wireMap(host){const M=mapState(),g=M.grid,era=currentEra(),$=id=>host.q
   host.querySelectorAll(".bcm").forEach(i=>i.onchange=()=>{const cp=M.camps[i.dataset.k];if(!cp)return;const nv=Math.round(+i.value)||0;
     if(nv===(+cp.cmod||0))return;cp.cmod=nv;save();setTimeout(render,0);});
 }
+// ===================== EFFECT PLUMBING: read rule text on a player's active pieces + faction =====================
+// srcText(b): [{n,t}] for active Holdings, active Infrastructure / Wonders and the faction mechanic.
+function srcText(b){if(!b)return [];return withBoard(b,()=>{const L=[];
+  Object.keys(PC).forEach(n=>L.push({n,t:(R[n]||{}).innate_raw||""}));
+  Object.keys(S.infra||{}).filter(infraOn).forEach(n=>L.push({n,t:(INFRA[n]||{}).effect_raw||""}));
+  Object.keys(S.wonders||{}).filter(infraOn).forEach(n=>L.push({n,t:(WON[n]||{}).effect_raw||""}));
+  const f=(FAC[S.faction||""]||{}).mechanic;if(f)L.push({n:S.faction,t:String(f).replace(/\*\*/g,"")});
+  return L;});}
+// every clause matching re: [{n, m}] (m = regex match)
+function srcMatch(b,re){const out=[];srcText(b).forEach(x=>String(x.t).split(/;|\.\s+|\.$/).forEach(c=>{const m=re.exec(c.trim());if(m)out.push({n:x.n,m});}));return out;}
+function srcHas(b,re){return srcMatch(b,re).length>0;}
+const NUMV=s=>parseInt(String(s).replace(/\s/g,"").replace("−","-"),10);
+// players whose Reach is within range 1 of this player's Reach (Border)
+function bordersOf(p){const M=mapState(),g=M.grid;if(!g||!p)return [];const own=reachOwners(M,g.width,g.height),mine=new Set(),by={};
+  Object.keys(own).forEach(k=>own[k].forEach(id=>{(by[id]=by[id]||new Set()).add(k);if(String(id)===String(p.id))mine.add(k);}));
+  return D.players.filter(q=>!sameP(q,p)&&by[q.id]&&[...by[q.id]].some(k=>mine.has(k)||hexNb(k).some(n=>mine.has(n))));}
+// ---- Public Order: caps and floors from text ("can't exceed N", "would ever be less than N set it to M") ----
+function poCap(b){const c=srcMatch(b,/Public Order can.t exceed (-?\d+)/i).map(x=>+x.m[1]);return c.length?Math.min(...c):null;}
+function poTextFloor(b){const f=srcMatch(b,/Public Order would ever be less than (-?\d+),? set it to (-?\d+)/i);
+  return f.length?f.map(x=>({src:x.n,kind:"floor",below:+x.m[1],to:+x.m[2]})).reduce((a,x)=>x.to>a.to?x:a):null;}
+// ---- Siege Timer modifiers from text ----
+function siegeTextMods(def,att){const rows=[];
+  if(def){srcMatch(def.board,/^(?!.*While your Public Order).*?Siege Timer\s*\+\s?(\d+)/i).filter(x=>x.n!=="Citadel").forEach(x=>rows.push({src:x.n+" (defender)",val:+x.m[1]}));
+    srcMatch(def.board,/While your Public Order is (-?\d+) or higher, Lay Siege actions targeting Settlements you Control have Siege Timer \+(\d+)/i)
+      .forEach(x=>{if((def.board.po||0)>=+x.m[1])rows.push({src:x.n+" (PO "+x.m[1]+"+)",val:+x.m[2]});});}
+  if(att)srcMatch(att.board,/Siege Timer\s*[\-−]\s?(\d+)/i).forEach(x=>rows.push({src:x.n+" (besieger)",val:-x.m[1]}));
+  const noWalls=att?srcMatch(att.board,/Siege Timers ignore ([\w &]+?) Walls/i).map(x=>x.n):[];
+  return {rows,noWalls};}
+function siegeWinterOK(t){const by=pById(t.by);return !!by&&srcHas(by.board,/Sieges Increment in Winter/i);}
+// ---- action restrictions & riders (flags / notes, never locks) ----
+function actRestrict(owner,action,target){const a=(DATA.actions||{})[action]||{},out=[];
+  const hit=(c)=>{const lc=c.toLowerCase();return lc.includes(action.toLowerCase())||(a.domain&&new RegExp("\\b"+a.domain+" actions","i").test(c));};
+  srcText(owner.board).forEach(x=>String(x.t).split(/;|\.\s+|\.$/).forEach(cl=>{const re=/(?:can.t|cannot)\s+(.+?)(?=,?\s+and\s+(?:can.t|cannot)\b|$)/gi;let m;
+    while((m=re.exec(cl))){const c=m[1];if(/^(?:be the target|be in an Alliance|pursue|build|equip|use shields|gain Immune|exceed|refuse|choose|vote|be modified)/i.test(c))continue;if(hit(c))out.push(x.n+": can't "+c.trim());}}));
+  if(target)srcMatch(target.board,/(?:can.t|cannot) be the target of (?:a |an )?([\w ]+?) action/i).forEach(x=>{if(x.m[1].toLowerCase().includes(action.toLowerCase()))out.push(target.name+" ("+x.n+"): can't be targeted by "+action);});
+  return out;}
+function actRiders(owner,action,target){const a=(DATA.actions||{})[action]||{},dom=a.domain||"",out=[];
+  srcMatch(owner.board,/((?:Endorsed )?(\w+) actions (?:give|cause) an additional (?:Doubt|Faith)[^.;]*)/i).forEach(x=>{if(x.m[2].toLowerCase()===dom.toLowerCase()||/piety actions cause/i.test(x.m[1])&&dom==="Piety")out.push(x.n+": "+x.m[1]);});
+  srcMatch(owner.board,/(Your (\w+) actions cause an additional[^.;]*)/i).forEach(x=>{if(x.m[2].toLowerCase()===dom.toLowerCase())out.push(x.n+": "+x.m[1]);});
+  srcMatch(owner.board,/no longer pay cost for (\w+) Envoys/i).forEach(x=>{if(x.m[1].toLowerCase()===dom.toLowerCase())out.push(x.n+": no cost");});
+  D.players.forEach(q=>srcMatch(q.board,/(All player actions that cause Doubt are increased by \d+)/i).forEach(x=>out.push(q.name+" · "+x.n+": "+x.m[1])));
+  if(target){srcMatch(target.board,/((\w+) actions targeting this player that cause Doubt are reduced by \d+[^.;]*)/i).forEach(x=>{if(x.m[2].toLowerCase()===dom.toLowerCase())out.push(target.name+" · "+x.n+": "+x.m[1]);});
+    srcMatch(target.board,/(Players who target you or your settlements with actions that cause doubt gain Doubt \+\d+)/i).forEach(x=>out.push(target.name+" · "+x.n+": "+x.m[1]));}
+  return [...new Set(out)];}
+
+// ===================== RULES MECHANICS: extort · siege outcomes · muster · first Doubt · movement =====================
+const RC=DATA.rulesConst||{};
+// ---- Extort: always a transfer of gold that exists; never takes the source below 0 ----
+// from / to: {b:board} or {camp:banditCamp}. Returns the amount moved.
+function extortGold(from,to,amt){
+  const have=Math.max(0,from.camp?(+from.camp.gold||0):(+from.b.treasury||0)),t=Math.max(0,Math.min(Math.round(+amt||0),have));
+  if(from.camp)from.camp.gold=have-t;else from.b.treasury=(+from.b.treasury||0)-t;
+  if(to){if(to.camp)to.camp.gold=(+to.camp.gold||0)+t;else to.b.treasury=(+to.b.treasury||0)+t;}
+  return t;}
+// "Extort N per player without X" on active pieces → the players without X pay (auto, Empire Phase)
+function autoExtortRows(b){const me=playerOfBoard(b);if(!me)return [];
+  return withBoard(b,()=>{const rows=[],have=new Set(Object.keys(PC)),earned=SIMPLE?{}:computeEarned(have).earned;
+    const scan=(atoms,q,src)=>(atoms||[]).forEach(a=>{if(a.cat==="extort"&&a.val&&a.without){
+      const nm=String(a.without).replace(/\.$/,"").trim();
+      D.players.filter(o=>!sameP(o,me)&&!holdsActive(o.board,nm)).forEach(o=>rows.push({from:o,amt:a.val*q,src}));}});
+    Object.keys(PC).forEach(n=>{const r=R[n]||{};scan(r.innate,PC[n],n);if(earned[n])scan(r.mastery,PC[n],n+" (Mastery)");});
+    Object.keys(S.infra||{}).filter(infraOn).forEach(n=>scan((INFRA[n]||{}).atoms,1,n));
+    return rows;});}
+function runAutoExtort(){const out=[];
+  {const tm=/Extort (\d+)% of their Treasury/i.exec(((DATA.actions||{}).Tithe||{}).effect||""),pct=tm?+tm[1]:0;
+   if(pct)D.players.forEach(p=>srcMatch(p.board,/Tithe every other player with lower (\w+)/i).forEach(x=>{const dm=x.m[1].replace(/^\w/,c=>c.toUpperCase());
+     D.players.forEach(q=>{if(sameP(q,p)||((q.board.domains||{})[dm]||0)>=((p.board.domains||{})[dm]||0))return;
+       const amt=Math.floor(Math.max(0,q.board.treasury||0)*pct/100/100)*100,t=extortGold({b:q.board},{b:p.board},amt);
+       if(t)out.push(p.name+" tithes "+t.toLocaleString()+" from "+q.name+" — "+x.n);});}));}
+  D.players.forEach(p=>srcMatch(p.board,/Extort half of Trade Income from players who don.t trade with you/i).forEach(x=>D.players.forEach(q=>{
+    if(sameP(q,p)||effPair(p.id,q.id).trade)return;const amt=Math.floor(tradeIncome(q.board).total/2/100)*100;if(amt<=0)return;
+    const t=extortGold({b:q.board},{b:p.board},amt);out.push(p.name+" extorts "+t.toLocaleString()+" from "+q.name+" — "+x.n);})));
+  D.players.forEach(p=>autoExtortRows(p.board).forEach(x=>{const t=extortGold({b:x.from.board},{b:p.board},x.amt);
+    out.push(p.name+" extorts "+t.toLocaleString()+(t<x.amt?" (of "+x.amt.toLocaleString()+")":"")+" from "+x.from.name+" — "+x.src);}));
+  return out;}
+
+// ---- First Doubt each turn: "First Doubt per turn reduced by N" / "Reduce the first instance of Doubt … by N" ----
+const FD_RE=/first\s+\**Doubt\**\s+per turn reduced by (\d+)|reduce the first instance of Doubt[^.;]*?by (\d+)/i;
+function firstDoubtRed(b){return withBoard(b,()=>{let r=0;const src=[];
+  Object.keys(PC).forEach(n=>{const m=((R[n]||{}).innate_raw||"").match(FD_RE);if(m){r+=+(m[1]||m[2])*PC[n];src.push(n);}});
+  return {r,src};});}
+// apply Doubt n to board b now; the turn's first Doubt is reduced (marker resets each Empire Phase)
+function gainDoubt(b,n,turn){n=Math.max(0,+n||0);if(!n)return 0;turn=turn??(b.turn||0);
+  if(!b.fd||b.fd.turn!==turn)b.fd={turn,left:firstDoubtRed(b).r};
+  const cut=Math.min(n,+b.fd.left||0);b.fd.left-=cut;n-=cut;
+  b.po=applyPOFloor(b,Math.max(PO_MIN,Math.min(PO_MAX,(b.po||0)-n)));return n;}
+
+// ---- Sieges (realm timers with kind:"siege"): besieged Settlements, Capture, Sack ----
+function siegeOn(pid,sid){return realmTimers().some(t=>t.kind==="siege"&&String(t.tp)===String(pid)&&String(t.sid)===String(sid));}
+function besiegedCount(p){return (p.board.settlements||[]).filter(s=>siegeOn(p.id,s.id)).length;}
+function pById(id){return D.players.find(q=>String(q.id)===String(id))||null;}
+function nextId(list){return list.reduce((m,x)=>typeof x.id==="number"&&x.id>=m?x.id+1:m,1);}
+function captureTransfer(t){const from=pById(t.tp),to=pById(t.by);if(!from||!to)return "Capture: player missing";
+  const fb=from.board,tb=to.board,s=(fb.settlements||[]).find(x=>String(x.id)===String(t.sid));if(!s)return "Capture: Settlement gone";
+  tb.settlements=tb.settlements||[];tb.placed=tb.placed||[];
+  const nid=nextId(tb.settlements),old=s.id;let pid0=nextId(tb.placed);
+  fb.settlements=fb.settlements.filter(x=>x!==s);s.id=nid;s.capital=false;tb.settlements.push(s);
+  const moved=(fb.placed||[]).filter(q=>q.sid===old);fb.placed=(fb.placed||[]).filter(q=>q.sid!==old);
+  moved.forEach(q=>{q.id=pid0++;q.sid=nid;tb.placed.push(q);});
+  const M=mapState();Object.keys(M.cells).forEach(k=>{const c=M.cells[k];if(c.type!=="Army"&&String(c.player)===String(from.id)&&String(c.sid)===String(old)){c.player=to.id;c.sid=nid;}});
+  if(D.players.indexOf(from)===D.active||D.players.indexOf(to)===D.active)reindex();
+  return to.name+" captures "+(s.name||s.tier)+" from "+from.name+" ("+moved.length+" Holding"+(moved.length===1?"":"s")+")";}
+function sackApply(i,removeIds){const T=realmTimers(),t=T[i];if(!t)return;const from=pById(t.tp),to=pById(t.by);if(!from||!to)return;
+  const fb=from.board,s=(fb.settlements||[]).find(x=>String(x.id)===String(t.sid));if(!s)return;
+  const tierN=+((DATA.settlements||{})[s.tier]||{}).tier||0,rm=new Set(removeIds.map(String)),log=[];
+  fb.placed=(fb.placed||[]).filter(q=>!(q.sid===s.id&&rm.has(String(q.id))));                         // the chosen Ward's Holdings leave play
+  (fb.placed||[]).filter(q=>q.sid===s.id&&!q.fac).forEach(q=>{q.dmg=REPAIR_T;});                         // raze the rest (Damaged)
+  const ti=TIER_CHAIN.indexOf(s.tier);if(ti>0){log.push(s.tier+" → "+TIER_CHAIN[ti-1]);s.tier=TIER_CHAIN[ti-1];}else log.push(s.tier+" stays "+s.tier);
+  const x=extortGold({b:fb},{b:to.board},(+RC.SACK_EXTORT_PER_TIER||0)*tierN);log.push("extort "+x.toLocaleString());
+  const a=(to.board.armies||[]).find(z=>String(z.id)===String(t.aid)),uid="sk"+Date.now();
+  if(a){a.blocked=true;a.strained=true;a.sackT=uid;}
+  T.splice(i,1);T.push({type:"Sack Timer",kind:"sack",uid,by:to.id,aid:t.aid,label:to.name+" · sacked "+from.name+"'s "+(s.name||s.tier),n:+((TMR["Sack Timer"]||{}).default)||1});
+  flash("Sack: "+log.join(" · "));}
+function resolveRealm(){const T=realmTimers(),out=[];
+  for(let i=T.length-1;i>=0;i--){const t=T[i];if(t.n>0)continue;
+    if(t.kind==="capture"){out.push(captureTransfer(t));T.splice(i,1);}
+    else if(t.kind==="sack"){D.players.forEach(p=>(p.board.armies||[]).forEach(a=>{if(a.sackT===t.uid){a.blocked=false;delete a.sackT;}}));out.push("Sack Timer resolved: "+t.label);T.splice(i,1);}}
+  return out;}
+function sackLocks(){const live=new Set(realmTimers().filter(t=>t.kind==="sack").map(t=>t.uid));
+  D.players.forEach(p=>(p.board.armies||[]).forEach(a=>{if(a.sackT&&live.has(a.sackT))a.strained=true;}));}
+
+// ---- Muster: timer = ceil(Retinues ÷ combined muster limit); each tick the Army gains up to the limit ----
+function armyHex(p,a){const M=mapState();return Object.keys(M.cells).find(k=>{const c=M.cells[k];return c.type==="Army"&&String(c.player)===String(p.id)&&cellArmy(k).a===a;})||null;}
+function settHex(p,s){const M=mapState();return Object.keys(M.cells).find(k=>{const c=M.cells[k];return c.type!=="Army"&&String(c.player)===String(p.id)&&cellSett(k).s===s;})||null;}
+function musterLimit(p,a){const k=armyHex(p,a),rb=reachBonus(p).b,out={lim:0,src:[],paused:[],onMap:!!k};
+  (p.board.settlements||[]).forEach(s=>{const st=(DATA.settlements||{})[s.tier]||{},ml=+st.muster_limit||0;if(!ml)return;
+    let ok=!k;if(k){const sk=settHex(p,s);ok=!!sk&&hexDist(hk(sk),hk(k))<=(+st.reach||0)+rb;}
+    if(!ok)return;if(siegeOn(p.id,s.id)&&!srcHas(p.board,/May Muster an Army in a Settlement under Siege|not affected by .Settlements being Besieged. restrictions/i)){out.paused.push(s.name||s.tier);return;}
+    out.lim+=ml;out.src.push((s.name||s.tier)+" "+ml);});
+  return out;}
+function musterTick(p){const out=[];(p.board.armies||[]).forEach(a=>{const m=a.muster;if(!m||!(m.n>0))return;
+  const L=musterLimit(p,a),room=Math.max(0,(EQ.army_max||25)-(a.count||0)),g=Math.min(L.lim,m.n,room);
+  if(g>0){a.count=(a.count||0)+g;m.n-=g;}
+  if(!room)m.n=0;
+  m.t=m.n>0&&L.lim>0?Math.ceil(m.n/L.lim):0;
+  out.push((a.label||("Army "+a.id))+": mustered +"+g+(m.n>0?" ("+m.n+" left"+(L.lim?"":" — paused, no muster limit")+")":" — done")+(L.paused.length?" · besieged: "+L.paused.join(", "):""));
+  if(!(m.n>0))delete a.muster;});
+  return out;}
+function hasMusterField(b){return withBoard(b,()=>Object.keys(S.infra||{}).some(n=>infraOn(n)&&/Can Muster/i.test((INFRA[n]||{}).effect_raw||"")));}
+
+// ---- Charter placement (flags): min range, Outlaw buffer, terrain, Hamlet range from the capital ----
+function charterFlags(p){const M=mapState(),g=M.grid,f=[];if(!g)return f;const V=decodeGrid(g);
+  const mine=mapSetts().filter(x=>String(x.cell.player)===String(p.id)),all=mapSetts(),cap=(p.board.settlements||[]).find(s=>s.capital);
+  const capK=cap?settHex(p,cap):null;
+  mine.forEach(x=>{const h=V.hex[x.k],nm=x.cell.type+" @ "+x.k;
+    if(h&&(h.t==="mountain"||h.t==="water"))f.push("Charter: "+nm+" is on "+(RULE_NAME[h.t]||h.t));
+    if(x.cell.type==="Hamlet"){if(capK&&RC.HAMLET_RANGE!=null&&hexDist(hk(x.k),hk(capK))!==+RC.HAMLET_RANGE)f.push("Charter: Hamlet @ "+x.k+" is range "+hexDist(hk(x.k),hk(capK))+" from the capital (must be "+RC.HAMLET_RANGE+")");}
+    else if(RC.CHARTER_MIN_RANGE!=null)all.forEach(y=>{if(y.k===x.k||y.cell.type==="Hamlet")return;const d=hexDist(hk(x.k),hk(y.k));
+      if(d<+RC.CHARTER_MIN_RANGE)f.push("Charter: "+[x.cell.type+" @ "+x.k,y.cell.type+" @ "+y.k].sort().join(" and ")+" are range "+d+" apart (min "+RC.CHARTER_MIN_RANGE+")");});
+    if(RC.OUTLAW_BUFFER_RANGE!=null)Object.keys(M.outlaw).forEach(o=>{const d=hexDist(hk(x.k),hk(o));if(d<+RC.OUTLAW_BUFFER_RANGE)f.push("Charter: "+nm+" is range "+d+" from Outlaw Country @ "+o+" (min "+RC.OUTLAW_BUFFER_RANGE+")");});});
+  return [...new Set(f)];}
+
+// ---- Movement: Speed from data, legal hexes by terrain (Speed −X per Territory, Impassable, Water stop) ----
+let MOVESEL=null,MOVEMARCH=false,MOVEADJ=0;
+const T_EFF=Object.fromEntries(Object.entries(TREF.terrain||{}).map(([k,v])=>[k,String(v.Effect||"")]));
+function terrPen(t){const m=/Speed\s*[-−](\d+)\s*per Territory/i.exec(T_EFF[RULE_NAME[t]]||"");return m?+m[1]:0;}
+function terrBlocked(t){return /Impassable/i.test(T_EFF[RULE_NAME[t]]||"");}
+function terrWaterStop(t){return /Must end move/i.test(T_EFF[RULE_NAME[t]]||"");}
+function terrStrain(t){return /gain Strained/i.test(T_EFF[RULE_NAME[t]]||"");}
+const SP_RE=/Speed\s*([+\-−])\s?(\d+)/i;
+function spClauses(text){return String(text||"").replace(/\*\*/g,"").split(/[;.]\s*/).filter(c=>SP_RE.test(c));}
+function spVal(c){const m=SP_RE.exec(c);return (m[1]==="+"?1:-1)*(+m[2]);}
+function provinceOf(p){const M=mapState(),g=M.grid;if(!g)return new Set();const own=reachOwners(M,g.width,g.height),s=new Set();
+  Object.keys(own).forEach(k=>{if(own[k].has(String(p.id)))s.add(k);});return s;}
+function moveTraits(p){return withBoard(p.board,()=>{const txt=[];
+  Object.keys(PC).forEach(n=>txt.push((R[n]||{}).innate_raw||""));Object.keys(S.infra||{}).filter(infraOn).forEach(n=>txt.push((INFRA[n]||{}).effect_raw||""));
+  const all=txt.join(" ; "),fac=(FAC[S.faction||""]||{}).mechanic||"";
+  return {shipyard:/Water Territory treated as Grassland/i.test(all),bridges:/cross Water Territory at full movement within Province/i.test(all),
+    ignoreTerrain:/ignore all terrain Speed modifiers/i.test(fac),fac};});}
+function speedOf(p,a,startK){const parts=[],notes=[],b=p.board,sea=curSeason(),base=+((EQ.retinues[a.retinue]||{}).speed)||0;
+  parts.push([a.retinue+" Speed",base]);
+  const tr=moveTraits(p),prov=provinceOf(p),inProv=!!startK&&prov.has(startK);
+  const sm=/All Armies gain Speed\s*([+\-−])\s?(\d+)/i.exec((SEAS[sea]||{}).effect||"");
+  if(sm){const v=(sm[1]==="+"?1:-1)*(+sm[2]),imm=new RegExp("don.t gain Speed\\s*[\\-\\u2212]\\s?"+Math.abs(v)+"\\s+in\\s+"+sea,"i").test(tr.fac);
+    if(imm)notes.push(sea+" "+v+" ignored ("+(b.faction||"faction")+")");else parts.push([sea,v]);}
+  withBoard(b,()=>{
+    const scan=(text,src)=>spClauses(text).forEach(c=>{const v=spVal(c);
+      if(/start a Move action within Province/i.test(c)){if(inProv)parts.push([src,v]);else notes.push(src+" "+(v>0?"+":"")+v+" (only starting in your Province)");return;}
+      if(/your Province|non-allied|Enemy/i.test(c))return;                                                    // affects other players' Armies
+      const ms=/in (Spring|Summer|Fall|Winter)/i.exec(c);if(ms){if(ms[1]===sea)parts.push([src,v]);else notes.push(src+" "+(v>0?"+":"")+v+" in "+ms[1]);return;}
+      if(/\b(while|if|when)\b/i.test(c)){notes.push(src+": "+c.trim()+" (not applied)");return;}
+      parts.push([src,v]);});
+    Object.keys(PC).forEach(n=>scan((R[n]||{}).innate_raw||"",n));
+    Object.keys(S.infra||{}).filter(infraOn).forEach(n=>scan((INFRA[n]||{}).effect_raw||"",n));
+    if(S.faction)scan(tr.fac.replace(/don.t gain Speed[^.;]*/ig,""),S.faction);});
+  // other players' "Speed −X to non-allied / Enemy Armies in your Province" where this Army starts
+  const M=mapState(),g=M.grid;
+  if(startK&&g){const own=reachOwners(M,g.width,g.height)[startK]||new Set();
+    own.forEach(id=>{if(String(id)===String(p.id))return;const o=pById(id);if(!o)return;
+      const war=!!effPair(p.id,o.id).war,ally=sameAlliance(p.id,o.id);
+      withBoard(o.board,()=>{const scanO=(text,src)=>spClauses(text).forEach(c=>{if(!/your Province/i.test(c))return;
+          if(/Enemy/i.test(c)&&!war)return;if(/non-allied/i.test(c)&&ally)return;parts.push([o.name+": "+src,spVal(c)]);});
+        Object.keys(PC).forEach(n=>scanO((R[n]||{}).innate_raw||"",n));if(S.faction)scanO((FAC[S.faction]||{}).mechanic||"",S.faction);});});}
+  if(MOVEADJ)parts.push(["adjust",MOVEADJ]);
+  let sp=Math.max(0,parts.reduce((s,x)=>s+x[1],0));
+  if(MOVEMARCH){sp*=(+RC.MARCH_MULTIPLIER||2);notes.unshift("March ×"+(+RC.MARCH_MULTIPLIER||2)+" — lose 1 Endurance, no other action");}
+  return {speed:sp,parts,notes,tr,prov};}
+function hexNb(k){const [c,r]=hk(k);return [[0,-1],[0,1],[1,c%2?0:-1],[1,c%2?1:0],[-1,c%2?0:-1],[-1,c%2?1:0]].map(([oc,orr])=>(c+oc)+","+(r+orr));}
+// Dijkstra over (hex, water state): 0 = land, 1 = on Water (must land next), 2 = landed after Water (move ends)
+function moveRange(p,a,startK){const M=mapState(),g=M.grid;if(!g||!startK)return null;const V=decodeGrid(g),S_=speedOf(p,a,startK),tr=S_.tr;
+  const key=(k,w)=>k+"|"+w,best={},prev={},Q=[[0,startK,0]],dest={};best[key(startK,0)]=0;
+  const waterOK=k=>tr.shipyard||(tr.bridges&&S_.prov.has(k));
+  while(Q.length){Q.sort((x,y)=>x[0]-y[0]);const [d,k,w]=Q.shift();if(d>best[key(k,w)])continue;
+    if(k!==startK&&w!==1){const h=V.hex[k];if(!M.cells[k]&&!M.camps[k]&&(!dest[k]||dest[k].cost>d))dest[k]={cost:d,w,from:key(k,w)};}
+    if(w===2)continue;
+    hexNb(k).forEach(nk=>{const h=V.hex[nk];if(!h)return;if(terrBlocked(h.t))return;
+      const water=terrWaterStop(h.t)&&!waterOK(nk),pen=tr.ignoreTerrain?0:terrPen(h.t);
+      let nw;if(w===1){if(water)return;nw=2;}else nw=water?1:0;
+      const nd=d+1+pen;if(nd>S_.speed)return;const kk=key(nk,nw);
+      if(best[kk]===undefined||nd<best[kk]){best[kk]=nd;prev[kk]=key(k,w);Q.push([nd,nk,nw]);}});}
+  Object.keys(dest).forEach(k=>{const path=[];let cur=dest[k].from;while(cur){path.unshift(cur.split("|")[0]);cur=prev[cur];}
+    dest[k].path=path;dest[k].strain=path.some(x=>{const h=V.hex[x];return h&&terrStrain(h.t)&&!tr.ignoreTerrain;});});
+  return {speed:S_,dest};}
+function moveInfo(){if(!MOVESEL)return null;const M=mapState(),c=M.cells[MOVESEL];if(!c||c.type!=="Army"){MOVESEL=null;return null;}
+  const {p,a}=cellArmy(MOVESEL);if(!p||!a)return {k:MOVESEL,err:"Army not linked to a board Army"};return Object.assign({k:MOVESEL,p,a},moveRange(p,a,MOVESEL)||{});}
+function moveArmyTo(dk){const mi=moveInfo();if(!mi||!mi.dest||!mi.dest[dk])return false;const M=mapState(),d=mi.dest[dk];
+  M.cells[dk]=M.cells[mi.k];delete M.cells[mi.k];
+  if(d.strain)mi.a.strained=true;if(MOVEMARCH)mi.a.endurance=Math.max(0,(mi.a.endurance||0)-1);
+  flash((mi.a.label||("Army "+mi.a.id))+" moved "+mi.k+" → "+dk+" ("+d.cost+" of "+mi.speed.speed+")"+(d.strain?" · Strained (Tundra)":"")+(d.w===2?" · Water: move ends":""));
+  MOVESEL=null;return true;}
+function moveOverlay(R_,dx,dy,pts){const mi=moveInfo();if(!mi||!mi.dest)return "";let s="";
+  Object.keys(mi.dest).forEach(k=>{const [c,r]=hk(k),cx=R_+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0),d=mi.dest[k];
+    s+='<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="#ffffff" fill-opacity=".38" stroke="#111" stroke-width="1.4" style="cursor:pointer"><title>'+k+' · cost '+d.cost+(d.w===2?' · after Water: move ends':'')+(d.strain?' · Tundra: Strained':'')+'</title></polygon>'+
+       '<text x="'+cx.toFixed(1)+'" y="'+(cy+3).toFixed(1)+'" text-anchor="middle" font-size="8" fill="#111" pointer-events="none">'+d.cost+'</text>';});
+  const [c,r]=hk(mi.k),cx=R_+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0);
+  s+='<polygon points="'+pts(cx,cy)+'" fill="none" stroke="#f3d38a" stroke-width="3" pointer-events="none"/>';
+  return s;}
+function movePanelHTML(){const mi=moveInfo();if(mtool!=="Move")return "";
+  if(!mi)return '<div class="note">Move: click an Army.</div>';
+  if(mi.err)return '<div class="flagbox">⚑ '+esc(mi.err)+'</div>';
+  const S_=mi.speed,blk=(mapState().cells[mi.k]||{}).blocked||mi.a.blocked;
+  return '<div class="tot" style="margin-top:6px"><b>'+esc(armyName(mi.a))+'</b> — Speed <b>'+S_.speed+'</b> <span class="note">('+S_.parts.map(x=>esc(x[0])+' '+(x[1]>0?'+':'')+x[1]).join(' · ')+')</span>'+
+    (S_.notes.length?'<div class="note">'+S_.notes.map(esc).join(' · ')+'</div>':'')+
+    (blk?'<div class="flagbox">⚑ Blocked: can’t perform Move actions</div>':'')+
+    '<div class="bcrow"><label class="note"><input type="checkbox" id="mvMarch"'+(MOVEMARCH?' checked':'')+'> March</label> adjust <input id="mvAdj" type="number" value="'+MOVEADJ+'" style="width:46px"> <button id="mvCancel">cancel</button>'+
+    ' <span class="note">'+Object.keys(mi.dest).length+' reachable hexes</span></div></div>';}
+
 let MAPSEL=null;
 function set(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
 function computeAll(){recomputePC();const have=new Set(Object.keys(PC));const {earned,craft,tc}=computeEarned(have);computeTotals(have,earned,tc);renderArmy();}
@@ -4935,6 +5390,44 @@ function firstHostBtn(){if(!firstHostOpen())return "";const me=meP(),hp=hostP(),
   if(t.hostSet&&sameP(hp,me))return '<button data-ts="host-off" title="hand the Host card back">give up Host</button>';
   if(t.hostSet)return "";                                   // someone has claimed it; they can give it up
   return '<button data-ts="host-on" title="take the Host card for the first turn">take first Host</button>';}
+// ---- HUD: the active player's currencies at a glance; click a tile to jump to its panel ----
+let HUD_OTHERS=true;try{HUD_OTHERS=localStorage.getItem("renown_hud_others")!=="0";}catch(e){}
+function hudSign(v){return (v>0?"+":v<0?"\u2212":"\u00b1")+Math.abs(Math.round(v)).toLocaleString();}
+function hudData(p){const b=p.board,sn=seasonNet(b),m=sn.m,pm=poModTotal(b),po=b.po||0;
+  const wu=withBoard(b,()=>(b.settlements||[]).reduce((a,s)=>{const w=wardUse(s.id);a.u+=w.used;a.c+=w.cap;return a;},{u:0,c:0}));
+  const caps=withBoard(b,()=>({a:eraCap("armies"),s:eraCap("max_settlements")}));
+  return {gold:b.treasury||0,net:sn.net,season:curSeason(),infl:influenceTotal(b),env:personalEnvoys(p),po,dpo:(m.po||0)+pm,
+    faith:m.faith||0,doubt:m.doubt||0,craft:m.craft||0,trade:sn.trade||0,band:(poBandName(po)||[])[0]||"",
+    armies:(b.armies||[]).length,armyCap:caps.a,ret:(b.armies||[]).reduce((a,x)=>a+(x.count||0),0),
+    setts:(b.settlements||[]).length,settCap:caps.s,wu,dom:b.domains||{},flags:p===D.players[D.active]?boardFlags().length:0};}
+function renderHUD(){const el=document.getElementById("hud");if(!el)return;const p=D.players[D.active];if(!p){el.innerHTML="";return;}
+  const h=hudData(p),RM=+RC.RENOWN_MAX||30,rn=D.renown||1,nxt=Object.values(ERAS).map(e=>e.renown).filter(x=>x>rn).sort((a,b)=>a-b)[0];
+  const tile=(col,lab,val,sub,go,tip,extra)=>'<div class="hc" style="--hcol:var('+col+')" data-goto="'+go+'" title="'+esc(tip||"")+'"><span class="hl">'+lab+'</span><span class="hv">'+val+'</span>'+(sub?'<span class="hs">'+sub+'</span>':'')+(extra||'')+'</div>';
+  const cls=v=>v>0?"up":v<0?"dn":"";
+  const pct=v=>Math.max(0,Math.min(100,(v-PO_MIN)/(PO_MAX-PO_MIN)*100));
+  const ST=["Untested","Rising","Established","Sovereign"],dom=DOMAINS.map(d=>{const v=h.dom[d]||0,i=ST.indexOf(domBand(v));
+    return '<span title="'+esc(d+" "+v+" · "+domBand(v))+'" class="st'+i+'">'+v+'<em>'+d.slice(0,3)+'</em></span>';}).join("");
+  let html='<div class="hrow">'+
+    tile("--order","Gold",h.gold.toLocaleString(),'<span class="'+cls(h.net)+'">'+hudSign(h.net)+'</span> /turn · '+esc(h.season),"board:summary","Treasury, and this Season's net (income, Winter tax, trade, upkeep)")+
+    tile("--influence","Influence",hudSign(h.infl).replace("\u00b1",""),isSpring()?"Spring: none":"per turn","table","Influence gained in the Empire Phase")+
+    tile("--envoy","Envoys",h.env,currentEra(),"table","Personal Envoys this Era")+
+    tile("--income","Public Order",(h.po>0?"+":"")+h.po,'<span class="'+cls(h.dpo)+'">'+hudSign(h.dpo)+'</span> · '+esc(h.band),"board:summary","Public Order, its change next Empire Phase (Faith − Doubt + modifiers) and band",
+      '<span class="hg"><i style="left:'+Math.min(pct(0),pct(h.po))+'%;width:'+Math.abs(pct(h.po)-pct(0))+'%"></i><b style="left:'+pct(0)+'%"></b></span>')+
+    tile("--income","Faith / Doubt",'<span class="up">'+h.faith+'</span>/<span class="dn">'+h.doubt+'</span>',"per turn","board:summary","Faith and Doubt from active pieces each Empire Phase")+
+    tile("--craft","Craft",h.craft,"trade "+hudSign(h.trade).replace("\u00b1",""),"board:summary","Craft X and this turn's trade income")+
+    '<div class="hc" style="--hcol:var(--build)" data-goto="realm" title="Domain values (colour = Standing)"><span class="hl">Domains</span><span class="hdom">'+dom+'</span></div>'+
+    tile("--battle","Armies",h.armies+(h.armyCap!=null?"/"+h.armyCap:""),h.ret+" Retinues","board:board","Armies / Era cap; total Retinues")+
+    tile("--season","Settlements",h.setts+(h.settCap!=null?"/"+h.settCap:""),"Wards "+h.wu.u+"/"+h.wu.c,"board:summary","Settlements / Era cap; Wards used / available")+
+    tile("--order","Renown",rn+"/"+RM,esc(currentEra())+(nxt?" · next "+nxt:""),"realm","Renown track and the next Era threshold",
+      '<span class="hg"><i style="left:0;width:'+(rn/RM*100)+'%"></i></span>')+
+    (h.flags?'<div class="hc hflag" data-goto="board:board" title="Rule flags on this board"><span class="hl">Flags</span><span class="hv dn">⚑ '+h.flags+'</span></div>':'')+'</div>';
+  if(D.players.length>1){
+    html+='<div class="hothers">'+(HUD_OTHERS?D.players.filter((q,i)=>i!==D.active).map(q=>{const o=hudData(q);
+      return '<span><span class="pdot" style="background:'+q.color+'"></span><b>'+esc(q.name)+'</b> gold <b>'+o.gold.toLocaleString()+'</b> ('+hudSign(o.net)+') · PO <b>'+o.po+'</b> · Infl <b>'+o.infl+'</b> · Armies <b>'+o.armies+'</b> · '+
+        DOMAINS.map(d=>d.slice(0,3)+" "+(o.dom[d]||0)).join(" ")+'</span>';}).join(""):'')+
+      '<a href="#" id="hudOthers">'+(HUD_OTHERS?"hide others":"show others")+'</a></div>';}
+  el.innerHTML=html;
+  const t=document.getElementById("hudOthers");if(t)t.onclick=e=>{e.preventDefault();HUD_OTHERS=!HUD_OTHERS;try{localStorage.setItem("renown_hud_others",HUD_OTHERS?"1":"0");}catch(_){}renderHUD();};}
 function renderTurnStrip(){const el=document.getElementById("turnStrip");if(!el)return;
   const ph=tPhase(),hp=hostP(),hc=canHost(),i=T_PH.indexOf(ph),nx=T_PH[(i+1)%T_PH.length];
   el.innerHTML='<span class="ts-i"><span class="note">Turn</span> <b>'+tTurn()+'</b></span>'+
@@ -4945,7 +5438,7 @@ function renderTurnStrip(){const el=document.getElementById("turnStrip");if(!el)
     (ADMIN?'<span class="ts-i"><b style="color:var(--order)">♛ DUKE</b></span>':'')+(hc?'<button class="ts-end" data-ts="end">End turn</button>':'');}
 document.addEventListener("click",e=>{const b=e.target.closest("#turnStrip [data-ts]");if(!b)return;const k=b.dataset.ts;
   if(k==="sea-"||k==="sea+"){stepSeason(k==="sea+"?1:-1);save();render();}
-  else if(k==="rn-"||k==="rn+"){D.renown=Math.max(1,Math.min(30,(D.renown||1)+(k==="rn+"?1:-1)));save();render();}
+  else if(k==="rn-"||k==="rn+"){D.renown=Math.max(1,Math.min(+RC.RENOWN_MAX||30,(D.renown||1)+(k==="rn+"?1:-1)));save();render();}
   else if(k==="ph"){const i=T_PH.indexOf(tPhase());tSetPhase(T_PH[(i+1)%T_PH.length]);}
   else if(k==="host-on"){const t=TB();t.host=String(meP().id);t.hostSet=true;save();render();flash(meP().name+" takes the Host card");}
   else if(k==="host-off"){const t=TB();delete t.host;t.hostSet=false;save();render();flash("Host card is free");}
@@ -5272,7 +5765,8 @@ def check_rules(ns, rules_path):
     txt = open(rules_path, encoding="utf-8").read().replace("\u2212", "-")   # normalise unicode minus
     WORD = {"one":1,"two":2,"three":3,"four":4,"five":5,"six":6,"seven":7,"eight":8,"nine":9,"ten":10}
     rows = []   # (name, data/tool value, rules value, status)
-    def add(name, dv, rv):
+    def add(name, dv, rv, path=None):
+        if path and ("{{VAL:" + path + "}}") in txt: rv = "templated"     # rules read the value from data
         if rv is None: status = "NOT IN RULES"
         elif rv == "templated": status = "templated (auto-synced)"; rv = "{{VAL}}"
         else: status = "MATCH" if str(dv) == str(rv) else "MISMATCH"
@@ -5288,12 +5782,12 @@ def check_rules(ns, rules_path):
     m = re.search(r"capped between\s*(-?\d+)\s*and\s*(\d+)", txt, re.I)
     po = ns.get("PUBLIC_ORDER", {})
     keys = [int(k) for k in po] if po else []
-    add("PO min", min(keys) if keys else "?", int(m.group(1)) if m else None)
-    add("PO max", max(keys) if keys else "?", int(m.group(2)) if m else None)
+    add("PO min", min(keys) if keys else "?", int(m.group(1)) if m else None, "PO_MIN")
+    add("PO max", max(keys) if keys else "?", int(m.group(2)) if m else None, "PO_MAX")
 
     # Endurance regain per turn
     add("Endurance regain / turn", ns.get("ENDURANCE_REGAIN", "?"),
-        find(r"gains?\s*\+(\d+)\s*Endurance"))
+        find(r"gains?\s*\+(\d+)\s*Endurance"), "ENDURANCE_REGAIN")
 
     # Army max retinues (templated in rules)
     add("Army max Retinues", ns.get("ARMY_MAX_RETINUES", "?"),
@@ -5307,24 +5801,26 @@ def check_rules(ns, rules_path):
     r_rising = find(r"reaches\s*\*?([a-z]+)\*?,?\s*you become Rising", cast=lambda w: WORD.get(w.lower()))
     r_est    = find(r"\*?([a-z]+)\*?\s*\(Established\)", cast=lambda w: WORD.get(w.lower()))
     r_sov    = find(r"\*?([a-z]+)\*?\s*\(Sovereign\)", cast=lambda w: WORD.get(w.lower()))
-    add("Standing: Rising at",     3,  r_rising)
-    add("Standing: Established at",6,  r_est)
-    add("Standing: Sovereign at",  10, r_sov)
+    _stt = ns.get("STANDING_THRESHOLDS", {})
+    add("Standing: Rising at",      _stt.get("Rising", 3),       r_rising, "STANDING_THRESHOLDS.Rising")
+    add("Standing: Established at", _stt.get("Established", 6),  r_est,    "STANDING_THRESHOLDS.Established")
+    add("Standing: Sovereign at",   _stt.get("Sovereign", 10),   r_sov,    "STANDING_THRESHOLDS.Sovereign")
 
     # Influence by standing (data DOMAIN_BOARD.max_influence_per_vote vs rules)
     mip = ns.get("DOMAIN_BOARD", {}).get("max_influence_per_vote", {})
     m = re.search(r"Untested\s*(\d+),?\s*Rising\s*(\d+),?\s*Established\s*(\d+),?\s*Sovereign\s*(\d+)", txt, re.I)
     for i, st in enumerate(["Untested", "Rising", "Established", "Sovereign"]):
-        add(f"Influence cap: {st}", mip.get(st, "?"), int(m.group(i+1)) if m else None)
+        add(f"Influence cap: {st}", mip.get(st, "?"), int(m.group(i+1)) if m else None, f"DOMAIN_BOARD.max_influence_per_vote.{st}")
 
     # Era thresholds (data ERAS vs rules — not present in doc)
     for e, x in ns.get("ERAS", {}).items():
         present = re.search(r"\b"+re.escape(e)+r"\b", txt)
-        add(f"Era {e} @ Renown", x.get("renown", "?"), find(r"\b"+re.escape(e)+r"\b.*?(\d+)") if present else None)
+        add(f"Era {e} @ Renown", x.get("renown", "?"), None if ("{{TABLE:eras}}" in txt) else (find(r"\b"+re.escape(e)+r"\b.*?(\d+)") if present else None), f"ERAS.{e}.renown")
+        if "{{TABLE:eras}}" in txt and rows[-1][3] == "NOT IN RULES": rows[-1] = rows[-1][:2] + ("{{TABLE}}", "templated (auto-synced)")
 
     # Tool combat logic vs rules (known drift point)
-    add("Fatigue: Morale penalty / token", 2, find(r"each token is\s*-(\d+)\s*to that Army"))
-    add("Fatigue: rout at modified Morale", 11, find(r"modified to\s*(\d+)\s*or more Routs"))
+    add("Fatigue: Morale penalty / token", ns.get("FATIGUE_MORALE", 2), find(r"each token is\s*-(\d+)\s*to that Army"), "FATIGUE_MORALE")
+    add("Fatigue: rout at modified Morale", ns.get("ROUT_THR", 11), find(r"modified to\s*(\d+)\s*or more Routs"), "ROUT_THR")
 
     # Dice system: data is d10, doc may still say D6
     data_d10 = ("d10" in str(ns.get("DICE_PROVENANCE","")).lower()) or (ns.get("BANDIT_FACES")==10)
@@ -5356,6 +5852,17 @@ def check_rules(ns, rules_path):
         rows.append(("VAL " + p, "—", "unresolved", "MISMATCH"))
     for p in sorted({x for k, x in ph if k == "TABLE" and not table_present(x)}):
         rows.append(("TABLE " + p, "—", "no builder", "MISMATCH"))
+    cats = {str(t) for t, _ in ns.get("GLOSSARY_CATEGORIES", [])}
+    for p in sorted(set(re.findall(r"\{\{GLOSSARY:([^}]+)\}\}", txt))):
+        if p.strip() not in cats: rows.append(("GLOSSARY " + p, "—", "no category", "MISMATCH"))
+    gk = {str(k).lower() for k in ns.get("GLOSSARY", {})}
+    for p in sorted(set(re.findall(r"\{\{TERM:([^}]+)\}\}", txt))):
+        if p.strip().lower() not in gk: rows.append(("TERM " + p, "—", "not in GLOSSARY", "MISMATCH"))
+    # board plumbing: phase rule sections the board reads by heading
+    for h in ("Empire Phase", "Council Phase", "Envoy Phase", "Battle Phase", "Rest Phase",
+              "The Skirmish Steps", "Begin the Battle — Seize the Initiative", "Resolve Battle"):
+        if not re.search(r"^#+\s*" + re.escape(h) + r"\s*$", txt, re.M):
+            rows.append(("heading '" + h + "'", "board reads", "missing", "MISMATCH"))
 
     w = max(len(r[0]) for r in rows)
     print(f"\nRules cross-check  ({rules_path})")
@@ -5405,7 +5912,7 @@ def battle_data(ns, rules_path):
         "moraleDiceMax": ns.get("MORALE_DICE_MAX"), "parryBase": ns.get("PARRY_BASE"),
         "unstoppableMod": ns.get("UNSTOPPABLE_MOD", 2), "improvedParryMod": ns.get("IMPROVED_PARRY_MOD", 1),
         "recoverBase": ns.get("RECOVER_BASE"),
-        "serratedMod": (lambda m: int(m.group(1)) if m else 2)(re.search(r"-(\d+) penalty to the defender's Recover", str(ns.get("GLOSSARY", {}).get(ns.get("SERRATED", "Serrated"), "")))),
+        "serratedMod": ns["SERRATED_MOD"] if "SERRATED_MOD" in ns else (lambda m: int(m.group(1)) if m else 2)(re.search(r"-(\d+) penalty to the defender's Recover", str(ns.get("GLOSSARY", {}).get(ns.get("SERRATED", "Serrated"), "")))),
         "standingFx": {f"{d}|{t}": v for (d, t), v in ns.get("STANDING_EFFECTS", {}).items()},
         "panicThreshold": ns.get("PANIC_CASUALTY_THRESHOLD"), "fatigueMorale": ns.get("FATIGUE_MORALE"),
         "fatigueStrike": ns.get("FATIGUE_STRIKE"), "capThr": ns.get("CAP_THR"), "routThr": ns.get("ROUT_THR"),
@@ -5456,6 +5963,13 @@ def bandit_loadouts(ns, equip):
         out[era] = lo
     return out, warns
 
+# Rule constants passed through to the board as DATA.rulesConst (plumbing for mechanics the board
+# shows or flags; anything the board hard-codes should read from here instead).
+RULES_CONSTS = ("PHASES", "MARCH_MULTIPLIER", "MUSTER_RANGE", "CHARTER_MIN_RANGE", "HAMLET_RANGE",
+                "OUTLAW_BUFFER_RANGE", "SACK_EXTORT_PER_TIER", "WEALTH_EDICT_GOLD", "VASSAL_EXCHANGE_CAP",
+                "BLUNDER_THR", "STANDING_ARMY_SIEGE_MODIFIER", "BANDIT_BEHAVIOR", "UPKEEP_TRACKS",
+                "GLOSSARY_CATEGORIES", "STARTING_TREASURY", "EMPIRE_START_TIERS", "TERM_ENVOY_SCORE", "RENOWN_MAX")
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", default="renown_data_d10.py")
@@ -5498,7 +6012,13 @@ def main():
         eras=ns.get("ERAS", {}), edicts=ns.get("EDICTS", {}),
         envoyOutcomes=ns.get("ENVOY_OUTCOMES", {}), outcomeThresh=ns.get("ENVOY_OUTCOME_THRESHOLDS", {}),
         startPhase=ns.get("STARTING_TURN_PHASE_OPENER", "Council"),
-        actions={k: {"domain": v.get("domain", ""), "cost": v.get("cost", ""), "endorsed": v.get("endorsed", "")} for k, v in ns.get("ACTIONS", {}).items()},
+        actions={k: {"domain": v.get("domain", ""), "cost": v.get("cost", ""), "endorsed": v.get("endorsed", ""),
+                     "requires": v.get("requires", ""), "effect": v.get("effect", ""), "notes": list(v.get("notes", []) or [])}
+                 for k, v in ns.get("ACTIONS", {}).items()},
+        phaseRules={k: rules_section(rules_path, h, ns) for k, h in
+                    (("empire", "Empire Phase"), ("council", "Council Phase"), ("envoy", "Envoy Phase"),
+                     ("battle", "Battle Phase"), ("rest", "Rest Phase"))},
+        rulesConst={k: ns.get(k) for k in RULES_CONSTS if k in ns},
         domains=["Industry", "Prowess", "Cunning", "Piety"],
         standings=["Rising", "Established", "Sovereign"],
         tradePerCraft=ns.get("TRADE_RULES", {}).get("income_per_craft", 100),
@@ -5529,7 +6049,8 @@ def main():
         aliases=ns.get("ALIASES", {}) or {}, scoreTerm=ns.get("TERM_ENVOY_SCORE", "Influence"), costs=ns.get("COSTS", {}), influenceGain=ns.get("INFLUENCE_GAIN", {}),
         siege={"calculus": ns.get("SIEGE_CALCULUS", {}), "sources": ns.get("SIEGE_SOURCE_VALUES", {})},
         factions={k: {"final": bool(v.get("final_cut")), "difficulty": v.get("difficulty", ""), "strength": v.get("strength", ""),
-                      "feel": v.get("feel", ""), "mechanic": v.get("mechanic", ""), "pair": v.get("pair", ""), "complement": v.get("complement", "")}
+                      "feel": v.get("feel", ""), "mechanic": v.get("mechanic", ""), "pair": v.get("pair", ""), "complement": v.get("complement", ""),
+                      "fx": envoy_fx(v.get("mechanic", ""))}
                   for k, v in ns.get("FACTIONS", {}).items()},
         warnings=b_warn, version=ns.get("VERSION", "?"),
     )

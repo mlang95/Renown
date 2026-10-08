@@ -304,7 +304,7 @@ def build(out):
                  f"+{e.get('innate_diplomacy_influence', 0)}"] for nm, e in rd.ERAS.items()]
     det_colw = [64, ew - 64 - 52, 52]
     # Envoys & Diplomacy table (no Seasons in the right column)
-    draw_table(c, ex, era_bot - 14, ew, ["Era", "Envoys", "Diplo Infl"],
+    draw_table(c, ex, era_bot - 14, ew, ["Era", "Envoys", "Diplo Authority"],
                det_rows, det_colw, "Envoys & Diplomacy", "#5a4f72", fs=6.6, hfs=7)
 
     # infrastructure tracker, then Seasons strip beneath it (full width)

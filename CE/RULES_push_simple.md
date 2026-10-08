@@ -16,7 +16,7 @@ Every action you want to take has to survive a vote. When you move your army, bu
 
 Between turns, you’re managing a medieval economy: taxing settlements, building holding chains from Raw Materials into production into powerful holdings and monuments, trading with neighbors, and keeping your Public Order stable enough that your people don’t descend into open rebellion. Stretch too thin and your armies can’t march, your tax income plummets, and your enemies smell blood.
 
-Combat exists and matters — sieging settlements, clashing armies in tactical skirmishes with a tactic-versus-tactic matrix — but war is expensive, politically punishing, and rarely the fastest path to victory. You can win by building a Wonder, generating {{VAL:WEALTH_EDICT_GOLD}} gold a turn for five consecutive turns, vassalizing a rival, sustaining Living Saints-level devotion for five turns, or simply outlasting every alliance but your own.
+Combat exists and matters — sieging settlements, clashing armies in tactical skirmishes with a tactic-versus-tactic matrix — but war is expensive, politically punishing, and rarely the fastest path to victory. You can win by building a Wonder, holding {{VAL:WEALTH_EDICT_GOLD}} gold in your Treasury for five consecutive turns, vassalizing a rival, sustaining Living Saints-level devotion for five turns, or simply outlasting every alliance but your own.
 
 The Duke variant adds a GM-like referee who manages bandits, resolves disputes, enables Private Actions and asymmetric information, creates global events and enemies, and keeps the world breathing around the players.
 
@@ -151,7 +151,7 @@ Many actions set a Timer to a number of turns. Each Empire Phase, every active T
 	- **Trade:** if there is a Host, the Host collects trade income and distributes it among their Trade Partners.
 	- Pay Army, Holding, Infrastructure, and any additional upkeep.
 	- **Extort:** any Holdings or effects that trigger extort resolve now.
-	- Determine Net Income for the Wealth Edict condition.
+	- Check your Treasury for the Wealth Edict condition.
 - **Apply innate Public Order modifiers** — check each Faith/Doubt source in the Public Order tables and adjust your Public Order. *(Faith/Doubt from actions are already applied the moment they're generated; see Public Order.)*
 - Every Army without **Strained** gains +{{VAL:ENDURANCE_REGAIN}} Endurance; then remove Strained from all Armies. *(An Army can immediately regain these effects after losing them, if applicable.)*
 - Resolve any remaining start-of-turn effects.
@@ -197,6 +197,12 @@ If a player performed a Battle or Siege Move action this turn, resolve it now �
 
 6. Start the next Empire Phase.
 
+# Seasons
+
+The Realm cycles through four Seasons.{{IDX:Season}} The current Season's effect is applied during the Empire Phase, and the Rest Phase advances the Season by one.
+
+{{TABLE:seasons}}
+
 # Setup
 
 ## Table Setup
@@ -225,7 +231,7 @@ Envoys are the currency of actions: to perform an action you send an Envoy durin
 
 ### Resolving an Envoy
 
-Your Envoy begins with Influence equal to your innate Authority in its Domain — Untested {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Untested}}, Rising {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Rising}}, Established {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Established}}, Sovereign {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Sovereign}} — plus any automatic Influence ±X modifiers. *(These come from your Holdings, Infrastructure, and faction, and apply on their own; you never spend Influence for them.)* Diplomacy has no Standing; a Diplomacy Envoy begins with Influence set by the Era (Founding {{VAL:ERAS.Founding.innate_diplomacy_influence}}, Ascension {{VAL:ERAS.Ascension.innate_diplomacy_influence}}, Eminence {{VAL:ERAS.Eminence.innate_diplomacy_influence}}, Zenith {{VAL:ERAS.Zenith.innate_diplomacy_influence}}).
+Your Envoy begins with Authority equal to your innate Authority in its Domain — Untested {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Untested}}, Rising {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Rising}}, Established {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Established}}, Sovereign {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Sovereign}} — plus any automatic Influence ±X modifiers. *(These come from your Holdings, Infrastructure, and faction, and apply on their own; you never spend Influence for them.)* Diplomacy has no Standing; a Diplomacy Envoy begins with Authority set by the Era (Founding {{VAL:ERAS.Founding.innate_diplomacy_influence}}, Ascension {{VAL:ERAS.Ascension.innate_diplomacy_influence}}, Eminence {{VAL:ERAS.Eminence.innate_diplomacy_influence}}, Zenith {{VAL:ERAS.Zenith.innate_diplomacy_influence}}).
 
 Then, clockwise from the starting player and skipping the sender, every other player may respond, with no talking during the vote:
 
@@ -253,11 +259,6 @@ Each outcome resolves differently by Domain — what Condemned, Failed, Passed, 
 
 {{GLOSSARY:Council & Envoys}}
 
-# Seasons
-
-The Realm cycles through four Seasons.{{IDX:Season}} The current Season's effect is applied during the Empire Phase, and the Rest Phase advances the Season by one.
-
-{{TABLE:seasons}}
 
 
 ## Influence
@@ -296,7 +297,7 @@ Unless you are at war with the player sending it, you can't Oppose an Industry E
 
 ### Rule: Diplomatic Mission
 
-If your diplomacy envoy fails, or a treaty or agreement was not signed, you may send another envoy in another domain, resolved in the order it would be resolved alongside other envoys.
+If your Diplomacy Envoy fails, you may send another Envoy in another Domain, resolved in the order it would be resolved alongside other envoys.
 
 {{GLOSSARY:Actions}}
 
@@ -387,7 +388,7 @@ Hamlets are unique Settlements, placed *exactly* range {{VAL:HAMLET_RANGE}} from
 
  	Infrastructure is the foundation of your Settlements.{{IDX:Infrastructure}} Each active Infrastructure provides an effect that applies to your entire empire and all its Settlements.
 
- 	*Example: Wooden Walls protect all Settlements from Cunning Envoys, and a Cathedral raises your innate Faith by 2 each turn, regardless of how many Settlements you have.*
+ 	*Example: Wooden Walls protect all Settlements from Bandits and Raze actions, and a Cathedral raises your innate Faith by 2 each turn, regardless of how many Settlements you have.*
 
  	Infrastructure comes in 4 ascending tiers.{{IDX:Primitive}}{{IDX:Developed}}{{IDX:Sophisticated}} Primitive Infrastructure builds the basic blocks of your empire. Developed Infrastructure expands and replaces some primitive Infrastructure. Sophisticated Infrastructure allows more powerful effects and helps unlock unique Monument Holdings.
 

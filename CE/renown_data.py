@@ -36,7 +36,7 @@ DICE_PROVENANCE = (f"d{FACES} | Focused {FOCUSED_THR}+ | Parry {PARRY_BASE}+ | "
                    f"Recover {RECOVER_BASE}+ | src {DICE_SOURCE}")
 # ── Balance constants (rules text + data strings read these) ─────────────────
 SACK_EXTORT_PER_TIER = 1000
-WEALTH_EDICT_GOLD    = 10000
+WEALTH_EDICT_GOLD    = 50000
 MUSTER_RANGE         = 2
 MARCH_MULTIPLIER     = 2
 PO_MIN               = -5
@@ -74,6 +74,7 @@ RIPOSTE         = "Riposte"
 NO_PARRY        = "Awkward"
 RECOVER         = "Recover"
 SERRATED        = "Serrated"
+SERRATED_MOD    = 2          # Serrated: cumulative penalty to the defender's Recover roll
 ENDURING        = "Enduring"   # successfully Recovered Strikes don't count toward the Panic check threshold
 STRAIN          = "Strain"
 MINUS_1_TBH     = "Shielded"
@@ -131,7 +132,7 @@ GLOSSARY = {
     NO_PARRY:       "While equipped with this weapon during a skirmish, you cannot Parry, and so cannot Riposte.",
     RECOVER:        f"If a to-Save roll fails, roll a D{FACES} & compare it to your Recover value: a result greater than or equal to your Recover value recovers the retinue. Recovered Strikes still count toward the Panic check threshold.",
     ENDURING:       "Successfully Recovered Strikes don't count toward the Panic check threshold.",
-    SERRATED:       "A cumulative -2 penalty to the defender's Recover roll.",
+    SERRATED:       f"A cumulative -{SERRATED_MOD} penalty to the defender's Recover roll.",
     PLANISHING:     f"A {PIVOTAL} Save succeeds, regardless of AP.",
     FATIGUE_TOKEN:  f"Each token reduces Morale -{FATIGUE_MORALE} by. If your modified Morale is ever {ROUT_THR}+, your army Routs. These effects are cumulative.",
     MINUS_1_TBH:    f"A cumulative -1 penalty to the Strike roll (to a maximum of {CAP_THR}+). Sources: a shield's -1 to Strike.",
@@ -152,7 +153,7 @@ GLOSSARY = {
     "Seize the Initiative": "Typically, the player who performed the Battle Action gains Seize the Initiative, but Terrain and the Ministry of Military Strategy can affect that. When a player gains Seize the Initiative, the player gains +1 Initiative in the first round of combat.",
 
     # ── Battle-structure terms (doc glossary, wording updated to current rules) ──
-    "Attacker / Defender": "Set by the roll-off. Each Skirmish the Attacker declares equipment first; the Defender then responds.",
+    "Attacker / Defender": "The Attacker performed the Move action that caused the Battle or Lay Siege; the other side is the Defender. Each Skirmish the Attacker declares equipment first; the Defender then responds.",
     "Battle":        "One fight between two players, resolved as a series of Skirmishes until a side is wiped out, Routs, or Falls Back.",
     "Skirmish":      "One round of a Battle, run through the numbered Battle steps; a Battle repeats Skirmishes until it ends.",
     "Casualty":      "A retinue removed from the field — from an unsaved Strike or a failed Panic or Break check.",
@@ -2847,7 +2848,7 @@ FACTIONS = {
         'feel': 'Oathkeepers',
         'difficulty': 'Medium',
         'strength': 'High',
-        'mechanic': 'Highlander Way: Enemy Armies have Speed −1 in your Province. You ignore all terrain Speed modifiers and may trade without Dirt Roads. You must accept the first Non-Aggression Pact each player or Alliance offers you. If that player later joins an Alliance, this is considered satisfied for that Alliance.',
+        'mechanic': 'Highlander Way: Enemy Armies have Speed −2 in your Province. You ignore all terrain Speed modifiers and may trade without Dirt Roads. You must accept the first Non-Aggression Pact each player or Alliance offers you. If that player later joins an Alliance, this is considered satisfied for that Alliance.',
         'pair': 'Royal Pavilion, Saddlery',
         'complement': 'Senate Hall',
     },
@@ -3246,7 +3247,7 @@ SEASONS = {
     "Winter": {"name": "Freezing",    "effect": "All Armies gain Speed -1; Sieges do not increment. Tax income collected."},
     "Spring": {"name": "Planting",    "effect": "No Host, Bandit actions, Trade Income, Council Phase, or Diplomacy Actions. Players don't gain Influence tokens. Bandit Camps Spawn."},
     "Summer": {"name": "Campaigning", "effect": "All Armies gain Speed +2"},
-    "Fall":   {"name": "Harvest",     "effect": "Husbandry Mastery Effects are doubled."},
+    "Fall":   {"name": "Harvest",     "effect": "Husbandry Income is doubled."},
 }
 
 # Trade & income constants (Rules: Trade & Income Rules).
@@ -3492,7 +3493,7 @@ ACTIONS = {
                    f"combined muster limit and you begin paying their upkeep. You may change the Army's Retinue type "
                    f"and equipment."),
         'endorsed': 'Perform a Move action.',
-        'notes': [f"Combined muster limit: the total muster limit of your Settlements within range {MUSTER_RANGE} of the Army.",
+        'notes': ["Combined muster limit: the total muster limit of your Settlements whose Reach includes the Army's Territory.",
                   "While a Settlement is besieged, its muster limit is 0; an active Muster Timer doesn't count down and may be cancelled at any time."],
     },
     'Demand Tribute': {
@@ -3663,13 +3664,15 @@ ALLIANCE_RULES = [
 # Completing an Edict raises the Renown tracker by 1. Any Edict may be completed
 # multiple times. Whoever has completed the most when the Last Alliance Standing
 # condition is met wins.
+EDICT_STREAK_TURNS = 5      # consecutive-turn Edicts (Wealth, Living Saints)
+_NUMWORD = {1:"one",2:"two",3:"three",4:"four",5:"five",6:"six",7:"seven",8:"eight",9:"nine",10:"ten"}
 EDICTS = {
     "Sovereign Standing": {"type": "Standing",  "requirement": f"Reach a Sovereign Standing (Domain value {_ST['Sovereign']}) in any Domain."},
     "Monument":           {"type": "Build",     "requirement": "Have an active Mastery Effect of a Monument pursuit."},
     "Wonder":             {"type": "Build",     "requirement": "Complete a World Wonder."},
-    "Wealth":             {"type": "Economy",   "requirement": f"Generate {WEALTH_EDICT_GOLD:,} gold per turn for five consecutive turns, net Upkeep costs."},
+    "Wealth":             {"type": "Economy",   "turns": EDICT_STREAK_TURNS, "requirement": f"Hold {WEALTH_EDICT_GOLD:,} gold in your Treasury for {_NUMWORD[EDICT_STREAK_TURNS]} consecutive turns."},
     "Vassalize":          {"type": "Conquest",  "requirement": "Vassalize a rival player (control their capital with no other settlements/armies under them)."},
-    "Living Saints":      {"type": "Piety",     "requirement": f"Sustain Public Order {PO_MAX} (Living Saints) for five consecutive turns (Pious Timer)."},
+    "Living Saints":      {"type": "Piety",     "turns": EDICT_STREAK_TURNS, "requirement": f"Sustain Public Order {PO_MAX} (Living Saints) for {_NUMWORD[EDICT_STREAK_TURNS]} consecutive turns (Pious Timer)."},
     "Last Alliance Standing": {"type": "Endgame", "requirement": "Be the last alliance standing — the game-ending stop condition."},
 }
 # Note: consecutive-turn Edicts require the timer to increment each turn; if it
@@ -4194,6 +4197,7 @@ GLOSSARY.setdefault("Ranged Weapons", "Ranged weapons: " + ", ".join(
 
 
 # ── Rest Phase gains (turn strip / Table End turn) ─────────────────────────────────────────────
+RENOWN_MAX = 30              # Renown stops here; the game continues but no more Renown is gained
 RENOWN_PER_TURN = 1          # Rest Phase step 3 "Gain Renown" — the rules don't state an amount; set here
 DOMAIN_POINTS_PER_TURN = 1   # Rest Phase step 4 / Key Resources: "Domain Points — earned 1 per turn"
 

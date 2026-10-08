@@ -856,7 +856,7 @@ if hasattr(rd, "ERAS"):
     rows=[[n, d.get("renown",""), d.get("armies",""), d.get("cities",""), d.get("max_settlements",""), d.get("influence_per_turn",""), d.get("innate_diplomacy_influence",""), d.get("envoys",""), d.get("unlocks","")] for n,d in items]
     body=f"<h1>Eras <span class='count'>{len(items)}</span></h1>"
     body+="<p>Shared-Renown thresholds raise everyone's Era, lifting army/city caps and influence.</p>"
-    body+=_grid(["Era","Renown","Armies","Cities","Max Settlements","Influence/Turn","Diplo Infl","Envoys","Unlocks"], rows, u)
+    body+=_grid(["Era","Renown","Armies","Cities","Max Settlements","Influence/Turn","Diplo Authority","Envoys","Unlocks"], rows, u)
     open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Eras",body,u))
     search_index.append({"title":"Eras","url":u,"text":"eras founding ascension eminence zenith renown army cap"})
 

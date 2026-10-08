@@ -352,6 +352,8 @@ REM    rejected for a large file that is ALREADY in history, that needs a
 REM    history rewrite - use push_github.bat with FIX_HISTORY=1.
 REM ============================================================================
 :pushrepo
+REM REPO_MAP.md (generated index for Claude / humans) - refresh before any push
+if exist "%CE_ROOT%\repo_map.py" %PY% "%CE_ROOT%\repo_map.py"
 if not "%PUSH_REPO%"=="1" goto end
 echo.
 echo --- Push repo (v%VERSION%, DIE=%DIE%) -^> %REPO_DIR% ---
