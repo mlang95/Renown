@@ -87,7 +87,7 @@ Council Phase | [Council Phase](https://mlang95.github.io/RenownWiki/glossary.ht
 Courier Network | [Courier Network](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: Once/turn before voting: Influence −1 on Target Envoy; Once/turn: successfully Performed Personal Envoy can be Performed next turn; send 1 fewer Envoys next turn
 Court Armoury | [Court Armoury](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Power). Effect: Planishing: Your to-Save can't be reduced beyond 10+. Upkeep -500; Tempered Armor & Shield Unlocked
 Court Artists | [Court Artists](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: Extort 500 twice; Targets of Extort from Court Artist gain Faith +1
-Courtyard | [Courtyard](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: Craft +1; Faith +1
+Courtyard | [Courtyard](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Civic). Effect: Craft +1; Faith +1 / Requires: Town Hall
 Craft | [Craft](https://mlang95.github.io/RenownWiki/glossary.html#craft): Craft Holdings count toward how much income your Trade Agreements generate — any effect that grants Craft +X. For each active Trade Agreement, both players gain 100 × the Host's Craft X.
 crafted gear | Tempered tier: weapons [Estoc, Poleaxe, Throwing Spear], shields [Heater Shield], armor [Gothic Plate].
 crafted weapons | [Tempered tier](https://mlang95.github.io/RenownWiki/equipment-ref.html) (3): Estoc, Poleaxe, Throwing Spear

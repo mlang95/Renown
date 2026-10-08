@@ -2089,6 +2089,7 @@ SIMPLE_NODES = {
     "Courtyard": {
         "type": "Civic",
         "unlock": "-",
+        "infrastructure_req": "Town Hall",
         "innate": "Craft +1; **Faith +1**",
         #"efficient": "Masonry",
         "builds_into": ["Market Square", "Jester's Court", "Episcopal Court", "Conditioning Field"],
