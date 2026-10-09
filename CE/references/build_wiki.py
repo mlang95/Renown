@@ -1147,8 +1147,8 @@ for term in GLOSS_ALL:
 # ── factions ──
 if FACTIONS:
     fi=["<h1>Factions</h1><dl class='gloss'>"]
-    for f in sorted(FACTIONS):
-        fd=FACTIONS[f]; desc=fd if isinstance(fd,str) else (fd.get("mechanic") or fd.get("feel") or "")
+    for f in sorted(FACTIONS, key=lambda k: rd.display(k)):
+        fd=FACTIONS[f]; desc=fd if isinstance(fd,str) else ((getattr(rd,"faction_body",None) and rd.faction_body(f)) or fd.get("mechanic") or fd.get("feel") or "")
         fi.append(f"<dt id='{slug(f)}'>{html.escape(f)}</dt><dd>{md_inline(str(desc))}</dd>")
     fi.append("</dl>")
     open(os.path.join(OUTDIR,"factions.html"),"w",encoding="utf-8").write(page("Factions","".join(fi),"factions.html"))

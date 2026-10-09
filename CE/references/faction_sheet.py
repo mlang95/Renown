@@ -275,6 +275,8 @@ def draw_faction_card(c, x, y, row):
     # ---- Mechanic body ----
     mechanic = row.get("Mechanic", "")
     mech_name, mech_body = _split_mechanic(mechanic)
+    if mech_name and _D(mech_name) == _D(row.get("AI Name", "")):   # the title is the faction's name: don't repeat it
+        mech_name = None
 
     chosen = None
     for body_size in [8.5, 8.0, 7.5, 7.0, 6.5, 6.0]:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""repo_map.py — write REPO_MAP.md at the repo root: a generated index of the Renown repo for
+"""repo_map.py — write REPO_MAP.md next to this file (CE/, beside CLAUDE.md): a generated index of the Renown repo for
 Claude (and humans) to read instead of crawling GitHub file by file.
 
 Contents (all derived, nothing hand-written — hand-written orientation lives in CLAUDE.md):
@@ -187,7 +187,7 @@ def main():
     version = next((str(v).strip("'") for n, _, _, v in di if n == "VERSION"), "")
     L = ["# REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`)", "",
          f"Generated {datetime.date.today().isoformat()} · data VERSION `{version}` · HEAD `{head}`", "",
-         "Hand-written orientation: `CLAUDE.md`. This file is derived from the files themselves.", ""]
+         "Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to the repo root.", ""]
 
     tr, files = tree(root)
     L += ["## 1. Folder tree", "", "```", *tr, "```", ""]
@@ -232,7 +232,7 @@ def main():
           f"JS functions ({len(funcs)}, name:line):", "", "```",
           " ".join(f"{n}:{i}" for i, n in funcs), "```", ""]
 
-    out = os.path.join(root, "REPO_MAP.md")
+    out = os.path.join(HERE, "REPO_MAP.md")
     with open(out, "w", encoding="utf-8", newline="\n") as fh: fh.write("\n".join(L))
     print(f"wrote {out}  ({len(files)} files walked, {len(di)} data names, {len(funcs)} board JS functions)")
 

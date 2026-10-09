@@ -276,7 +276,8 @@ def tactical_terrain():
     return _table(["Tactical Terrain", "Identify", "Effect"], rows)
 
 def factions():
-    rows = [[n, v.get("feel", ""), v.get("difficulty", ""), v.get("strength", ""), v.get("mechanic", "")]
+    fb = getattr(rd, "faction_body", lambda k: rd.FACTIONS[k].get("mechanic", ""))   # name = mechanic title; body without it
+    rows = [[n, v.get("feel", ""), v.get("difficulty", ""), v.get("strength", ""), fb(n)]
             for n, v in rd.FACTIONS.items()]
     w = [1700, 1500, 850, 850]; w.append(USABLE_TWIPS - sum(w))      # Mechanic takes the rest
     return _table(["Faction", "Feel", "Difficulty", "Strength", "Mechanic"], rows, widths=w)

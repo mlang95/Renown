@@ -2202,7 +2202,7 @@ SIMPLE_NODES = {
     "Secret Cellar": {
         "group": "g_secrecy",
         "unlock": "Rising Cunning",
-        "innate": "Natural; Failed Cunning envoys **Recoup 500 Gold**; Passed Cunning envoys **Recoup 500 Gold**",
+        "innate": "Natural; Passed Cunning envoys **Recoup 500 Gold**; Endorsed Cunning envoys **Recoup 1000 Gold**",
         "efficient": ["Secrecy", "Thieves' Guild", "Outlaw Rookery", "Outrider Intercept Post"],
         "builds_into": ["Secrecy"],
         "monument": False},
@@ -4400,6 +4400,22 @@ if SIMPLE:
     ALIASES.update({"Pursuit": _PS, "Pursuits": _PP, "PURSUIT": _PS.upper(), "PURSUITS": _PP.upper()})
     _ALIAS_RE = _re_disp.compile(
         r"\b(" + "|".join(_re_disp.escape(k) for k in sorted(ALIASES, key=len, reverse=True)) + r")\b")
+
+# ── Faction names: a faction is named by its mechanic's title ("The Decider: …"); the dict key (the AI name)
+# stays the engine id (saved games, CULTURES, pairings). Display layer only: NAME_DISPLAY / ALIASES.
+FACTION_NAMES = {k: v["mechanic"].split(":", 1)[0].strip() for k, v in FACTIONS.items()
+                 if ":" in str(v.get("mechanic", ""))[:60]}
+_FN_TXT = repr([NODES, FACTIONS, MOVEMENT_MODIFIERS, INFRASTRUCTURE, WONDERS, GLOSSARY, ACTIONS])
+for _k, _v in list(FACTION_NAMES.items()):
+    NAME_DISPLAY[_k] = _v; ALIASES[_k] = _v
+    if _k.startswith("The ") and _re_disp.search(r"(?<!The )\b" + _re_disp.escape(_k[4:]) + r"\b", _FN_TXT):
+        ALIASES[_k[4:]] = _v                                   # bare form where the data uses it ("Ancient Wilds")
+def faction_body(k):
+    """A faction's mechanic text without its title prefix (the title is the faction's displayed name)."""
+    m = str(FACTIONS.get(k, {}).get("mechanic", ""))
+    return m.split(":", 1)[1].strip() if k in FACTION_NAMES else m
+_ALIAS_RE = _re_disp.compile(
+    r"\b(" + "|".join(_re_disp.escape(k) for k in sorted(ALIASES, key=len, reverse=True)) + r")\b")
 
 # ── Glossary categories: one ordering shared by the rules docx ({{GLOSSARY:Category}}), wiki and board ──
 # Constant-keyed terms use their constants; action names follow SIMPLE (Pursue->Build, Build->Improve).

@@ -125,7 +125,7 @@ def build(out_path):
     for n, fac in rd.FACTIONS.items():
         if isinstance(fac, dict):
             feel = fac.get("feel", ""); diff = fac.get("difficulty", ""); stg = fac.get("strength", "")
-            mech = " ".join(str(fac.get("mechanic", "")).split())
+            mech = " ".join(str(rd.faction_body(n) if hasattr(rd, "faction_body") else fac.get("mechanic", "")).split())
             meta = f"Faction ({diff} difficulty, {stg} strength, {feel})." if diff else "Faction."
             lines.append(entry(n, wlink(n, "factions.html") + f" {meta} {mech}"))
         elif fac:
