@@ -237,6 +237,11 @@ def seasons():
     rows = [[s, v["name"], v["effect"]] for s, v in rd.SEASONS.items()]
     return _table(["Season", "Name", "Effect"], rows)
 
+def ages():
+    rows = [[n, a["rising"] or "Each player's choice", f"{a['years'][0]}\u2013{a['years'][1]}"]
+            for n, a in getattr(rd, "AGES", {}).items()]
+    return _table(["Age", "Starting Rising", "Starting Year"], rows)
+
 def ranged():
     rows = [[rd.display(n), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(x["tier"])), str(x["ap"]), f"{x['init']:+d}", ", ".join(x["tags"]) or "—"]
            for n, x in rd.RANGED.items()]
@@ -384,7 +389,7 @@ REGISTRY = {
     "domain_board": domain_board, "envoy_outcomes": envoy_outcomes,
     "net_influence": net_influence, "influence_gain": influence_gain,
     "treaties": treaties, "bandit_growth": bandit_growth, "edicts": edicts,
-    "weapons": weapons, "armor": armor, "seasons": seasons,
+    "weapons": weapons, "armor": armor, "seasons": seasons, "ages": ages,
     "ranged": ranged, "shields": shields, "infrastructure": infrastructure,
     "wonders": wonders, "terrain": terrain, "tactical_terrain": tactical_terrain,
     "factions": factions, "timers": timers, "build_timers": build_timers, "siege_calculus": siege_calculus,

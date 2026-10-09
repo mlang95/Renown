@@ -330,10 +330,10 @@ SPRITES["holding:Animal Husbandry"] = _s([   # barn and cow
     "kskkkkk.kbbbbbk.", "ksssksk.kbkdkbk.", ".kssssk.kbdddbk.", ".k.k.k..kbdddbk.", ".k.k.k..kkdddkk.",
 ], S16)
 
-SPRITES["holding:Saddlery"] = _s([   # workshop, saddle on rack
-    ".........kk.....", "........krrk....", ".......krrrrk...", "......krrrrrrk..", ".....krrrrrrrrk.",
-    "....kkkkkkkkkkkk", "kbbk.kwwwwwwwwk.", "bcbb.kwywywwdwk.", "kbbk.kwwwwwwdwk.", "k..k.kwwwwwwdwk.",
-    "k..k.kkkkkkkkkk.",
+SPRITES["holding:Saddlery"] = _s([   # finer stable: cupola + gold vane, timbered plaster, horses at the half-doors, saddle on a rack
+    "......y.........", ".....kmk........", ".....kyk........", "....krrrk.......", "...krrrrrk......",
+    "..krrrrrrrk.....", ".krrrrrrrrrk....", "krrrrrrrrrrrk...", "kkkkkkkkkkkkk...", "kwbwwbwbwwbwk...",
+    "kwbbbwwwbbbwk...", "kwdbdwywdbdwk.cc", "kwdsdwwwdsdwkccc", "kwbbbwdwbbbwkbcb", "kkkkkkkkkkkkkkbk",
 ], S16)
 
 SPRITES["holding:Vineyard"] = _s([   # trellised vines
@@ -359,10 +359,10 @@ SPRITES["holding:Meadery"] = _s([   # thatch, skep, casks
     "kbkkkkkkkkkkkkbk",
 ], S16)
 
-SPRITES["holding:Winery"] = _s([   # stone cellar, casks
-    ".....kk.........", "....krrk........", "...krrrrk.......", "..krrrrrrk......", ".krrrrrrrrk.....",
-    "kkkkkkkkkkkk....", ".kttttttttk.kkk.", ".ktaatttttk.bmb.", ".ktattttdtkkkkk.", ".kttttttdtkkbmk.",
-    ".kttttttdtkkbmk.", ".kkkkkkkkkkkkkk.",
+SPRITES["holding:Winery"] = _s([   # press house, grape-purple trim, barrels
+    "................", "................", "................", ".....kk.........", "....krrk........",
+    "...krrrrk.......", "..krrrrrrk......", ".krrrrrrrrk.....", "kkkkkkkkkkkk....", "kaaaaaaaaaak.kk.",
+    "kwyykwwyywwkkbbk", "kwyykwwyywwkkbbk", "kwwwkddkwwwkbkkb", "kwwwkddkwwwkkbbk", "kkkkkkkkkkkkkkkk",
 ], S16)
 
 SPRITES["holding:Cidery"] = _s([   # press shed, cider press
@@ -436,10 +436,10 @@ SPRITES["holding:Armory"] = _s([   # shield, spear rack
     "ktmccmttdtk.bbbb", "kttmmtttdtk.b.b.", "ktttttttdtk.b.b.", "kkkkkkkkkkk.b.b.",
 ], S16)
 
-SPRITES["holding:Master Workshop"] = _s([   # two storeys, gear sign
-    "....krrrrk......", "...krrrrrrk.....", "..krrrrrrrrk....", ".krrrrrrrrrrk...", "krrrrrrrrrrrrk..",
-    "kkkkkkkkkkkkkkk.", "kkkkkkkkkkkkkk..", "kwywwywwywwywk..", "kwwwwwwwwwwwwk..", "kkkkkkkkkkkkkk..",
-    "kwwwmwmwwwwwwk..", "kwwmmmmmwwwdwk..", "kwwwmkmwwwwdwk..", "kwwmmmmmwwwdwk..", "kkkkmkmkkkkkkk..",
+SPRITES["holding:Master Workshop"] = _s([   # the hall behind, the forge it grew from in front (stack, hearth)
+    "..........kk....", "..y......krrk...", ".kuk....krrrrk..", ".kuk...krrrrrrk.", ".kuk..krrrrrrrrk",
+    ".kuk..kkkkkkkkkk", ".kuk..kwywwywwyk", ".kuk..kwwwwwwwwk", "kkkkkkkkkkkkwwwk", "kuuuuuuuuuukwmwk",
+    "kuukkkkkuuukmmmk", "kuukfffkuuukwmwk", "kuukfyfkuuukwwdk", "kuukfyfkuuukwwdk", "kkkkfffkkkkkkkkk",
 ], S16)
 
 SPRITES["holding:Gilded Foundry"] = _s([   # gold trim, crucible, ingots
@@ -646,10 +646,10 @@ SPRITES["holding:Levy Hall"] = _s([   # muster hall, spear stack, banner
     "kbbbbdbbbbkb.b.b", "kbbbbdbbbbkb.b.b", "kbbbbdbbbbkb.b.b", "kkkkkkkkkkkb.b.b",
 ], S16)
 
-SPRITES["holding:Siege Works"] = _s([   # timber shed, battering ram
-    "kkkkkkk.........", "brrrrrb.........", "b.....b.........", "b.....b.........", "b.....b.........",
-    "b.....bb.....b..", "b.....kbbbbbbbbk", "b...mkbbbbbbbbbk", "b.....kkkkkkkkk.", "b.....kmk...kmk.",
-    "b.....bk.....k..",
+SPRITES["holding:Siege Works"] = _s([   # ram slung under a timber mantlet, on wheels
+    "................", "................", "....kkkkkkkk....", "..kkbbbbbbbbkk..", ".kbbbbbbbbbbbbk.",
+    "kbbbbbbbbbbbbbbk", "kkkkkkkkkkkkkkkk", ".b...s....s...b.", ".b...s....s...b.", "mmmbbbbbbbbbbbb.",
+    ".b............b.", "kkkkkkkkkkkkkkkk", "kbbbbbbbbbbbbbbk", ".kmk........kmk.", ".kkk........kkk.",
 ], S16)
 
 SPRITES["holding:Siege Camp"] = _s([   # palisade, tents, campfire
@@ -718,10 +718,10 @@ SPRITES["holding:Apothecary"] = _s([   # shop, jars, mortar sign, herbs
     "kwwwwwwwdwk.k.k.", "kwwwwwwwdwk.ktk.", "kwwwwwwwdwk..k..", "kkkkkkkkkkk.kkk.",
 ], S16)
 
-SPRITES["holding:Infirmary"] = _s([   # long ward, windows, basin
-    "......kk........", ".....krrk.......", "....krrrrk......", "...krrrrrrk.....", "..krrrrrrrrk....",
-    ".krrrrrrrrrrk...", "krrrrrrrrrrrrk..", "kkkkkkkkkkkkkkk.", "kwwwwwwwwwwwwk..", "kwywwywwywwdwk..",
-    "kwwwwwwwwwwdwkk.", "kwwwwwwwwwwdwke.", "kkkkkkkkkkkkkk..",
+SPRITES["holding:Infirmary"] = _s([   # long ward, red cross over the door, beds in the windows
+    "................", "................", "................", "....krrrrrrrk...", "...krrrrrrrrrk..",
+    "..krrrrrrrrrrrk.", ".krrrrrrrrrrrrrk", "kkkkkkkkkkkkkkkk", "kwwwwwwwcwwwwwwk", "kwkkkkwcccwkkkkk",
+    "kwksskwwcwwksskk", "kwkkkkwwwwwkkkkk", "kwwwwwwkddkwwwwk", "kwwwwwwkddkwwwwk", "kkkkkkkkkkkkkkkk",
 ], S16)
 
 SPRITES["holding:Pilgrimage Site"] = _s([   # stone cross on a mound, candles, pilgrim
@@ -1076,8 +1076,8 @@ SPRITES["feet:Fishmongery"] = _b([   # terrain at the holding's feet
     ".kk.............kk..", "kmbkeeeeeeeeeeeekbmk",
 ], 20, 3)
 
-SPRITES["feet:Mine"] = _b([   # terrain at the holding's feet
-    ".kk.......kkkk...kk.", "kuuk.m.m.kuyuk.kuuk.",
+SPRITES["feet:Mine"] = _b([   # terrain at the holding's feet: loose rubble and ore, no outline (reads as rubble, not a shadow)
+    ".tt.......tttt...tt.", "tuut.m.m.tuyut.tuut.",
 ], 20, 3)
 
 SPRITES["feet:Arable Land"] = _b([   # terrain at the holding's feet

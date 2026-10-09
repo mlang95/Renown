@@ -199,7 +199,7 @@ If a player performed a Battle or Siege Move action this turn, resolve it now �
 
 # Seasons
 
-The Realm cycles through four Seasons.{{IDX:Season}} The current Season's effect is applied during the Empire Phase, and the Rest Phase advances the Season by one.
+The Realm cycles through four Seasons.{{IDX:Season}} The current Season's effect is applied during the Empire Phase, and the Rest Phase advances the Season by one. Each time the Season changes to {{VAL:AGE_YEAR_SEASON}}, the Year advances by 1.
 
 {{TABLE:seasons}}
 
@@ -208,15 +208,25 @@ The Realm cycles through four Seasons.{{IDX:Season}} The current Season's effect
 ## Table Setup
 
 - Domain Board: set Renown to {{VAL:ERAS.Founding.renown}}, set each player's Standing in each Domain to {{VAL:STANDING_THRESHOLDS.Untested}}, set Season to Summer, and set Public Order to 0.
-- Give the Host Card to the player who wants to Host first. If more than one, roll off.
-- Hex Map.
 - Tactic Decks, Equipment & Retinue Cards, Holding Tiles, Bandit Camps, and the various tokens.
+
+## Setup Order
+
+1. **Select Map** — choose the Hex Map.
+2. **Select Age** — choose an Age and a starting Year within its range (see Ages). Every player starts Rising in that Age's Domain: set that Domain to {{VAL:STANDING_THRESHOLDS.Rising}}. In the Age of Renown, each player chooses their own Rising Domain. Turn 1 takes place in the starting Year.
+3. **Select Faction** — pick a Faction Card (optional for new players).
+4. **Determine Host** — give the Host Card to the most experienced player. If tied, to whoever wants to Host; if still tied, roll off.
+5. **Deploy** — taking turns from the starting player, each player places their capital Town within range {{VAL:CAPITAL_EDGE_RANGE}} of the board edge or corner. Then each player places their Hamlet exactly range {{VAL:HAMLET_RANGE}} from their Town. Then each player places their Outlaw Country: its first Territory exactly range {{VAL:OUTLAW_BUFFER_RANGE}} from their Town, and no Outlaw Country Territory within range {{VAL:OUTLAW_BUFFER_RANGE}} of their Hamlet.
+
+### Ages
+
+An Age{{IDX:Age}} sets the starting Year and which Domain every player starts Rising in.
+
+{{TABLE:ages}}
 
 ## Player Setup
 
-- Pick a Faction Card (optional for new players).
 - Empire Tableau.
-- Collect 1 Town and 1 Hamlet. Take turns placing Towns, starting with the Starting player. Then each player may place their Hamlet Range {{VAL:HAMLET_RANGE}} from their Town. Then place Outlaw Country Range {{VAL:OUTLAW_BUFFER_RANGE}} from their Town, but not adjacent to their Hamlet.
 - Collect {{VAL:STARTING_TREASURY}} Gold, 2 Influence Tokens, and 1 Envoy.
 - You don't begin the game with any Armies.
 - For the first turn, begin at the {{VAL:STARTING_TURN_PHASE_OPENER}} Phase instead of the Empire Phase.
@@ -623,7 +633,7 @@ When a Siege Timer reaches 0:
 
 ### Outlaw Country
 
-Outlaw Country is a cluster of Territory in your starting Settlement region that you can't Control. At the start of the game, demarcate {{VAL:OUTLAW_COUNTRY_START}} Territories in your starting region, each within range 1 of at least one other Outlaw Country Territory and at least range {{VAL:OUTLAW_BUFFER_RANGE}} from any Settlement.
+Outlaw Country is a cluster of Territory in your starting Settlement region that you can't Control. At the start of the game, demarcate {{VAL:OUTLAW_COUNTRY_START}} Territories in your starting region, each within range 1 of at least one other Outlaw Country Territory and at least range {{VAL:OUTLAW_BUFFER_RANGE}} from any Settlement — the first exactly range {{VAL:OUTLAW_BUFFER_RANGE}} from your Town, and none within range {{VAL:OUTLAW_BUFFER_RANGE}} of your Hamlet.
 
 If that's not possible, place them range 2 from your capital Settlement.
 

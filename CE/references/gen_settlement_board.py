@@ -154,9 +154,12 @@ def envoy_fx(raw):
     out = []
     raw = re.sub(r",\s*except in Spring", " except in Spring", strip_md(raw or ""), flags=re.I)
     raw = re.sub(r"(While the Era is \w+),", r"\1", raw, flags=re.I)
+    pend = (0, None)                       # each fx carries "t": the clause it was read from
     for c in re.split(r"[;,]|\.\s+", raw):
         c = c.strip().rstrip(".")
         if not c: continue
+        for f in out[pend[0]:]: f.setdefault("t", pend[1])
+        pend = (len(out), c)
         m = re.search(r"Influence\s*" + _N + r"\s+to\s+(non-)?Council Envoys$", c, re.I)
         if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "personal" if m.group(2) else "council", "dom": "All"}); continue
         m = re.search(r"Influence\s*" + _N + r"\s+to\s+(" + _DOMS + r")\s+Envoys$", c, re.I)
@@ -222,6 +225,7 @@ def envoy_fx(raw):
         if re.search(r"Ignore the innate Doubt and Influence modifiers for being At War", c, re.I): out.append({"k": "ignoreWar"}); continue
         m = re.search(r"gain\s*" + _N + r"\s*Influence for every (\d+) Holdings", c, re.I)
         if m: out.append({"k": "pool", "val": _iv(m.group(1)), "per": "holdings", "n": int(m.group(2))}); continue
+    for f in out[pend[0]:]: f.setdefault("t", pend[1])
     return out
 
 def combine_parts(innate, mastery):
@@ -579,7 +583,7 @@ def _style_js(d):
 
 def sprite_payload(ns, data_path):
     """sprites.py (next to the data file) -> {S: sprites, P: scene palette, key: name -> sprite key}.
-    None if absent (Pixel theme then has no scene)."""
+    None if absent (then there is no settlement scene)."""
     here = os.path.dirname(os.path.abspath(__file__))
     for d in (os.path.dirname(os.path.abspath(data_path)), os.path.join(here, ".."), here):
         p = os.path.join(d, "sprites.py")
@@ -596,7 +600,7 @@ def sprite_payload(ns, data_path):
                 "raw": raw, "skyline": {k: list(v) for k, v in getattr(mod, "SKYLINE", {}).items()},
                 "supersedes": dict(getattr(mod, "INFRA_SUPERSEDES", {})), "noInfra": list(getattr(mod, "PLATE_NO_INFRA", [])),
                 "style": dict(getattr(mod, "SCENE_STYLE", {}))}
-    print("  (sprites.py not found - Pixel theme has no settlement scene)")
+    print("  (sprites.py not found - no settlement scene)")
     return None
 
 def find_mapgen(explicit, data_path):
@@ -638,7 +642,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     font-size-adjust:0.47;                         /* scale Garamond's small x-height to the old stack's */
     font-variant-numeric:lining-nums tabular-nums} /* numbers align in columns */
   input,select,button,textarea{font-size-adjust:inherit;font-variant-numeric:inherit}
-  /* Pixel theme (THEMES.pixel sets data-look) + settlement scene */
+  /* Pixel theme (THEMES.pixel sets data-look); settlement scene (all themes) */
   .scenebox{margin:0 0 12px;overflow-x:auto}
   .scenebox canvas{display:block;image-rendering:pixelated;cursor:pointer}
   .scnlabels{position:relative;height:20px;margin-top:4px}
@@ -707,8 +711,23 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .wards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;align-items:start}
   .ward{border:1px solid var(--line);border-radius:var(--radius);padding:6px;background:var(--panel2);min-height:128px;display:flex;flex-direction:column}
   .ward-lbl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin:0 2px 5px;display:flex;justify-content:space-between;gap:6px}
-  .wtot{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 2px 6px;padding-bottom:5px;border-bottom:1px dashed var(--line)}
-  .wtot .lbl{margin:0;font-size:10px;letter-spacing:.08em;color:var(--dim)} .wtot .atoms{margin:0}
+  body.lk-board #appBoard :is(button,input,select,textarea):not(:is([data-nav],#export,#search,#hideCombat,.pcaret,.tab)),
+  body.lk-board #appBoard .emp,body.lk-board #appBoard .grip{opacity:.4}
+  body.lk-spec #viewTable :is(button,input,select):not([data-claim]),body.lk-spec #turnStrip :is(button,select,input):not(.ts-seat){opacity:.4}
+  #playerBar [data-claim]{white-space:nowrap}
+  .setuppanel{width:100%;border-top:1px solid var(--line);padding:4px 0;font-size:13px}
+  .setuppanel summary{cursor:pointer}
+  .su-grid{display:grid;grid-template-columns:auto auto auto 1fr;gap:3px 10px;align-items:baseline;margin-top:4px}
+  .su-n{color:var(--dim);font-size:11px}.su-t{white-space:nowrap}.su-ok{color:var(--income)}.su-no{color:var(--dim)}.su-fl{color:var(--upkeep)}
+  .su-d{color:var(--dim)}.su-d .pdot{display:inline-block;margin:0 3px 0 0}
+  .tstrip .ts-ready.on{border-color:var(--income);color:var(--income)}
+  .tstrip .ts-start{border-color:var(--income);color:var(--income);font-weight:700}
+  body.lk-on :is([data-ts="sea-"],[data-ts="sea+"],[data-ts="rn-"],[data-ts="rn+"],#rnMinus,#rnPlus,#rnVal,.sdbtn,#applyStart,#mGen,#mCodeGo,#mImp,#mClear){opacity:.4}
+  .stot{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap} .stot .lbl{font-size:11px;color:var(--dim)} .stot .atoms{margin:0}
+  .sfx{border:1px dashed var(--line);border-radius:var(--radius);padding:6px 8px;margin:0 0 8px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 16px;font-size:12px}
+  .sfx-h{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin:2px 0 3px}
+  .sfx-r{display:grid;grid-template-columns:1fr auto;gap:0 8px;padding:2px 0;border-bottom:1px dotted var(--line)}
+  .sfx-r b{text-align:right;white-space:nowrap} .sfx-r i{grid-column:1/-1;color:var(--dim);font-size:10px;font-style:normal}
   .ward.empty{border:2px dashed var(--line2);background:transparent;cursor:pointer;min-height:0;flex-direction:row;align-items:center;padding:6px 10px}
   .ward.empty .ward-lbl{margin:0}
   .ward.empty:hover{border-color:var(--income)}
@@ -1060,7 +1079,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     .topbar .tbundo{order:2;margin-left:0!important}
     .tbmore{order:3;padding:6px 10px}
     .tstrip{order:6;flex-wrap:nowrap;overflow-x:auto;gap:10px;scrollbar-width:none}.tstrip::-webkit-scrollbar{display:none}
-    .hud{order:7}.hc{min-width:64px;padding:2px 7px}.hc .hv{font-size:15px}
+    .hud{order:7}.setuppanel{order:6}.hc{min-width:64px;padding:2px 7px}.hc .hv{font-size:15px}
     .topbar{position:static}
     .hrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));overflow:visible;gap:4px}
     .hc{min-width:0}.hc .hs,.hc .hg{display:none}.hc .hv{font-size:14px}.hc .hl{font-size:8.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -1074,6 +1093,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     .topbar .players{order:4;width:100%}
     .tbextra{order:5;width:100%;display:none;gap:6px;align-items:center;flex-wrap:wrap;padding-top:4px}
     body.tbopen .tbextra{display:flex}
+    .appmenu .tbextra{display:flex;width:auto;padding:0 0 8px;margin-bottom:8px;border-bottom:1px solid var(--line)}
+    .appmenu #themeSel,.appmenu #shapeSel{max-width:none;flex:1}
     .bside-nav{display:flex;gap:4px;margin:8px 0}.bside-nav button{flex:1}.bside-nav button.on{border-color:var(--ink);font-weight:600}
     .bsides[data-bs="A"] .bside[data-side="B"],.bsides[data-bs="B"] .bside[data-side="A"]{display:none}
     .bside{min-width:0!important}
@@ -1137,6 +1158,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   </select>
   </span>
   <div class="tstrip" id="turnStrip"></div>
+  <div class="setuppanel" id="setupPanel" hidden></div>
   <div class="hud" id="hud"></div>
 </div>
 <div class="appmenu" id="appMenu">
@@ -1361,6 +1383,14 @@ function noteServerDate(r){try{const d=Date.parse(r.headers.get("date")||"");if(
 let HOTSEAT=false;try{HOTSEAT=localStorage.getItem("renown_hotseat")==="1";}catch(e){}
 // The Duke (admin; per browser session): acts for anyone and has every Host control. Unlocked by the server's RENOWN_DUKE_PIN.
 let ADMIN=false;try{ADMIN=sessionStorage.getItem("renown_admin")==="1";}catch(e){}
+// ---- player claims (server games): a device claims one player; only that device, or the Duke, can change that player.
+// A device with no claim is a spectator. Off-server (local file) nothing is locked.
+let DEV="";try{DEV=localStorage.getItem("renown_dev")||"";if(!DEV){DEV=Math.random().toString(36).slice(2,10)+Date.now().toString(36);localStorage.setItem("renown_dev",DEV);}}catch(e){DEV="t"+Math.random().toString(36).slice(2,10);}
+function lockOn(){try{return !!SYNC.ready&&!ADMIN&&!!D.started;}catch(e){return false;}}   // restrictions begin at Start game
+function claimOf(p){return (p&&p.board&&p.board.claim)||null;}
+function mine(p){const c=claimOf(p);return !!c&&c.dev===DEV;}
+function myClaimP(){return (D.players||[]).find(mine)||null;}
+function canEdit(p){return !lockOn()||mine(p);}
 
 function boardEndOn(){return TB().boardEnd!==false;}   // default ON
 function TB(){D.tbl=D.tbl||{};D.tbl.skip=D.tbl.skip||{};return D.tbl;}
@@ -1373,8 +1403,8 @@ function PT(p){const b=p.board;b.tbl=b.tbl||{};b.tbl.mods=b.tbl.mods||{};return 
 function tCur(p){const x=PT(p);return (x.cur&&x.cur.turn===tTurn())?x.cur:{turn:tTurn(),votes:{}};}
 function tCurW(p){const x=PT(p);if(!x.cur||x.cur.turn!==tTurn())x.cur={turn:tTurn(),votes:{}};x.cur.votes=x.cur.votes||{};return x.cur;}
 function sameP(a,b){return !!a&&!!b&&String(a.id)===String(b.id);}
-function meP(){return D.players[D.active];}
-function canAct(p){return HOTSEAT||ADMIN||sameP(meP(),p);}
+function meP(){return (lockOn()&&myClaimP())||D.players[D.active];}
+function canAct(p){return HOTSEAT||ADMIN||(lockOn()?mine(p):sameP(meP(),p));}
 
 // ---- seating (seat index increases clockwise; ties on a seat go to whoever sat first) ----
 function seatMap(){const n=tSeats(),m={};
@@ -1387,7 +1417,7 @@ function hostP(){const s=seated();return s.find(p=>String(p.id)===String(TB().ho
 // "You always vote last, after the Host" (Whispering Undercroft): holders move behind the Host, keeping their relative order
 function voteOrd(ord){const last=ord.filter(p=>fxOf(p,"voteLast").length);return last.length?ord.filter(p=>!last.includes(p)).concat(last):ord;}
 function tOrder(){const s=seated();if(!s.length)return [];const i=s.indexOf(hostP());return s.slice(i+1).concat(s.slice(0,i+1));}
-function canHost(){const h=hostP();return HOTSEAT||ADMIN||!h||sameP(meP(),h);}
+function canHost(){const h=hostP();return HOTSEAT||ADMIN||(!h&&(!lockOn()||!!myClaimP()))||(!!h&&(lockOn()?mine(h):sameP(meP(),h)));}
 function seatsLocked(){if(ADMIN)return false;const ph=tPhase();return (ph==="council"||ph==="envoy")&&!!TB().phaseTs;}
 
 // ---- influence, standings, envoys ----
@@ -1558,7 +1588,7 @@ function actInfoHTML(p,name,tgt){const a=(DATA.actions||{})[name];if(!a)return "
 // ---- optional auto-resolve: Faith/Doubt in the outcome text → owner's Public Order (owner's client applies once) ----
 function tApply(R){if(!TB().auto)return;let ch=false;
   R.log.forEach(l=>{if(l.kind!=="envoy")return;const E=l.E,p=E.owner;
-    if(!(HOTSEAT||sameP(meP(),p)))return;
+    if(!(HOTSEAT||(lockOn()?mine(p):sameP(meP(),p))))return;
     const c=tCurW(p);c.applied=c.applied||{};if(c.applied[E.id])return;
     const pe=performEval(E);if(!pe&&!R.done&&(E.out==="Passed"||E.out==="Endorsed"))return;   // wait for Perform
     const fin=pe?pe.out:E.out,txt=outText(E.dom,fin),f=+((txt.match(/Faith (\d+)/)||[])[1]||0),dz=+((txt.match(/Doubt (\d+)/)||[])[1]||0);
@@ -1576,6 +1606,7 @@ function tEndTurn(){const t=TB(),ord=tOrder();
   D.renown=Math.min(+RC.RENOWN_MAX||30,r0+(DATA.renownPerTurn??1));            // Rest Phase 3: gain Renown (stops at RENOWN_MAX)
   D.players.forEach(p=>{p.board.dp=(p.board.dp||0)+(DATA.dpPerTurn??1);});     // Rest Phase 4: a Domain Point to spend
   stepSeason(1);                                                                // new turn's Season: its Empire Phase income applies below
+  if(RC.AGE_YEAR_SEASON&&curSeason()===RC.AGE_YEAR_SEASON)D.yearsGone=(+D.yearsGone||0)+1;   // AGE_YEAR_SEASON: the Year advances
   if(curSeason()!=="Spring"&&ord.length>1){t.host=String(ord[0].id);t.hostSet=true;}   // Host passes clockwise (not into Spring) — before income, so trade follows the new Host
   {const R0=tSim();D.players.forEach(p=>{if(fxOf(p,"carry").length)PT(p).carry={turn:tTurn()+1,n:Math.max(0,(R0.pool[p.id]||inflPool(p))-(R0.spent[p.id]||0))};});}
   const ended=tTurn();t.turn=ended+1;t.phase="empire";t.phaseTs=0;t.skip={};t.councilTie=null;   // next turn begins: its Empire Phase
@@ -1809,7 +1840,7 @@ function renderTable(){
 function tPanel(R){
   const t=TB(),ph=tPhase(),me=meP(),E=R.curEnvoy,cw=R.cur?R.cur.who:null;let h="";
   // identity
-  h+='<div class="tot"><div class="tb-row"><span>You: '+tName(me)+'</span><label class="note" style="margin-left:auto"><input type="checkbox" id="tbHot"'+(HOTSEAT?" checked":"")+'> hot-seat (act for anyone)</label></div>'+
+  h+='<div class="tot"><div class="tb-row"><span>You: '+tName(me)+'</span><label class="note" style="margin-left:auto"><input type="checkbox" id="tbHot"'+(HOTSEAT?" checked":"")+(lockOn()?" disabled":"")+'> hot-seat (act for anyone)</label></div>'+
     '</div>';
   // action box
   let act="";
@@ -1985,6 +2016,14 @@ function applySkin(name){
 
 // ---- state: multiplayer dashboard ----
 function startDoms(){return (D&&D.startDomains)?D.startDomains:{Industry:1,Prowess:1,Piety:1,Cunning:1};}
+// ---- Ages (AGES): starting Year + the Domain every player starts Rising in (null rising = each player picks) ----
+const AGE_L=DATA.ages||[];
+function ageRec(){return AGE_L.find(a=>a.name===D.age)||null;}
+function ageRisingOf(p){const a=ageRec();if(!a)return "";return a.rising||((p&&p.board&&p.board.ageRising)||"");}
+function startDomsFor(p){const o=Object.assign({},startDoms()),d=ageRisingOf(p);if(d)o[d]=Math.max(o[d]||0,RIS);return o;}
+function startDomTotal(p){return DOMAINS.reduce((a,d)=>a+(startDomsFor(p)[d]||0),0);}
+function curYear(){const a=ageRec();if(!a)return null;return (D.year0!=null?+D.year0:a.years[0])+(+D.yearsGone||0);}
+function applyAgeStart(){D.players.forEach(p=>{p.board.domains=startDomsFor(p);});}
 // EMPIRE_START_TIERS; highest tier is the capital
 function startSettlements(){const t=(DATA.startTiers&&DATA.startTiers.length)?DATA.startTiers:["Town","Village","Hamlet"];
   const rank=x=>((DATA.settlements||{})[x]||{}).tier||0;let ci=0;t.forEach((x,i)=>{if(rank(x)>rank(t[ci]))ci=i;});
@@ -1998,8 +2037,8 @@ function reseedIfPristine(b){if(!b)return false;const tiers=(b.settlements||[]).
   if(b.startSig==null&&pristine)b.startSig=tiers;return false;}
 function newBoard(){return {startSig:startSig(),placed:[],settlements:startSettlements(),infra:{},wonders:{},armies:[],
   treasury:(DATA.startTreasury||0),turn:0,autoNet:true,expanded:[],po:0,domains:Object.assign({},startDoms()),edicts:{},edictLog:{},edictTimers:{}};}
-function newPlayer(i){return {id:i,name:"Player "+i,color:PLAYER_COLORS[(i-1)%PLAYER_COLORS.length],board:newBoard()};}
-let D={players:[],active:0,view:"board",renown:1,theme:"parchment",
+function newPlayer(i){const p={id:i,name:"Player "+i,color:PLAYER_COLORS[(i-1)%PLAYER_COLORS.length],board:newBoard()};p.board.domains=startDomsFor(p);return p;}
+let D={players:[],active:0,view:"board",renown:1,theme:"pixel",themeV:1,
        startDomains:{Industry:1,Prowess:1,Piety:1,Cunning:1},
        map:{seed:"",cols:16,rows:12,markers:[]}};
 D.players=[newPlayer(1)];
@@ -2017,7 +2056,8 @@ try{
 function normalizeD(){
   try{(D.players||[]).forEach(p=>reseedIfPristine(p.board));}catch(e){}
   D.startDomains=D.startDomains||{Industry:1,Prowess:1,Piety:1,Cunning:1};
-  D.theme=D.theme||"parchment"; D.shape=D.shape||"sharp"; D.pursuitView=D.pursuitView||"cards";
+  if(D.themeV!==1){D.theme="pixel";D.themeV=1;}   // Pixel is the default look: one-time switch for devices saved on the old default
+  D.theme=D.theme||"pixel"; D.shape=D.shape||"sharp"; D.pursuitView=D.pursuitView||"cards";
   D.players=(D.players&&D.players.length)?D.players:[newPlayer(1)];
   D.players.forEach(p=>{p.board=Object.assign(newBoard(),p.board);
     const dm=p.board.domains||{},nd={};
@@ -2180,7 +2220,7 @@ function setOnline(ok){if(API.online===ok)return;API.online=ok;
 // State splits into parts: "shared" (everything but per-browser UI keys + roster) and
 // "board:<id>" per player. Only changed parts are written, each against the version it
 // was based on; a stale write gets 409 and is 3-way merged. Polling pulls others' edits.
-const LOCAL_KEYS=new Set(["active","view","theme","shape","pursuitView"]);
+const LOCAL_KEYS=new Set(["active","view","theme","themeV","shape","pursuitView"]);
 const POLL_MS=2500;
 const SYNC={ready:false,rev:0,base:{},ver:{},pushing:false,dirty:false};
 function clone(o){return o===undefined?undefined:JSON.parse(JSON.stringify(o));}
@@ -2251,6 +2291,7 @@ async function push(){
         }else if(res.status===409){                       // someone wrote first: merge, retry
           const srv=res.json.data===null?undefined:res.json.data;
           const merged=merge3(SYNC.base[k],del?undefined:parts[k],srv);
+          if(merged&&srv&&k.startsWith("board:")&&srv.claim&&!jeq(srv.claim,(SYNC.base[k]||{}).claim))merged.claim=clone(srv.claim);   // first claim wins
           SYNC.base[k]=srv;SYNC.ver[k]=res.json.version;
           if(srv===undefined){delete SYNC.base[k];delete SYNC.ver[k];}
           const cur=splitD();if(merged===undefined)delete cur[k];else cur[k]=merged;
@@ -2708,16 +2749,20 @@ function atomsBlock(atoms,hideCombat){
 
 // ---- render ----
 function render(){
+  if(lockOn())HOTSEAT=false;                // claims replace hot-seat on a server game (the Duke keeps it)
+  document.body.classList.toggle("lk-board",lockOn()&&!mine(D.players[D.active]));
+  document.body.classList.toggle("lk-spec",lockOn()&&!myClaimP());
+  document.body.classList.toggle("lk-on",lockOn());
   IGN_N=0;setTimeout(ignNote,0);
   reindex();                    // S := active board, ids synced
-  applyTheme(D.theme||"parchment");
+  applyTheme(D.theme||"pixel");
   applySkin(D.shape||"sharp");
   renderTopBar();
   if(D.view==="battle"&&!mods().battle)D.view="board";
   if(D.view==="dash"||D.view==="renown")D.view="realm";
   if(D.view==="map")D.view="table";
   const view=D.view||"board";
-  renderTurnStrip();syncBoardEndBtn();try{renderHUD();}catch(e){console.warn("HUD",e);}
+  renderTurnStrip();try{renderSetup();}catch(e){console.warn("setup",e);}syncBoardEndBtn();try{renderHUD();}catch(e){console.warn("HUD",e);}
   document.body.dataset.view=view;
   document.getElementById("vtabBattle").style.display=mods().battle?"":"none";
   document.querySelectorAll(".modcb").forEach(cb=>{cb.checked=!!mods()[cb.dataset.m];
@@ -2758,14 +2803,17 @@ function render(){
 document.querySelectorAll(".vtab").forEach(t=>t.onclick=()=>{D.view=t.dataset.v;save();render();});
 function renderTopBar(){
   const ts=document.getElementById("themeSel");
-  if(ts){ts.value=D.theme||"parchment";if(!ts._wired){ts._wired=1;ts.onchange=()=>{D.theme=ts.value;applyTheme(D.theme);save();render();};}}
+  if(ts){ts.value=D.theme||"pixel";if(!ts._wired){ts._wired=1;ts.onchange=()=>{D.theme=ts.value;applyTheme(D.theme);save();render();};}}
   const sh=document.getElementById("shapeSel");
   if(sh){sh.value=D.shape||"sharp";if(!sh._wired){sh._wired=1;sh.onchange=()=>{D.shape=sh.value;applySkin(D.shape);save();render();};}}
   const bar=document.getElementById("playerBar");bar.innerHTML="";
   const chips=[];
   D.players.forEach((p,i)=>{
     const c=document.createElement("span");c.className="pchip"+(i===D.active?" on":"");
-    c.innerHTML='<span class="pdot" style="background:'+p.color+'"></span><span class="pname">'+esc(p.name)+'</span>';
+    const cl=claimOf(p);
+    c.innerHTML='<span class="pdot" style="background:'+p.color+'"></span><span class="pname">'+esc(p.name)+'</span>'+
+      (cl?'<span class="note" title="'+(mine(p)?"claimed by this device":"claimed")+'">'+(mine(p)?" \u2605":" \ud83d\udd12")+'</span>':'')+
+      (!D.started&&isReady(p)?'<span class="su-ok" title="ready"> \u2713</span>':'');
     c.onclick=()=>{D.active=i;reindex();render();renderList();};
     bar.appendChild(c);chips.push(c);
   });
@@ -2778,10 +2826,19 @@ function renderTopBar(){
   const col=document.createElement("input");col.type="color";col.value=p.color;col.style.width="30px";col.style.padding="0";col.title="player color";
   col.oninput=()=>{p.color=col.value;const d=chip&&chip.querySelector(".pdot");if(d)d.style.background=p.color;};
   col.onchange=()=>{p.color=col.value;save();render();};
+  const ed=canEdit(p);nm.disabled=col.disabled=!ed;
   bar.appendChild(nm);bar.appendChild(col);
-  {const w=document.createElement("span");w.innerHTML=facSelectHTML();const fs=w.firstChild;
+  {const w=document.createElement("span");w.innerHTML=facSelectHTML();const fs=w.firstChild;fs.disabled=!ed;
     fs.onchange=e=>{setFaction(e.target.value);save();render();renderList();};bar.appendChild(fs);}
-  if(D.players.length>1){const del=document.createElement("button");del.className="rm";del.textContent="✕ player";
+  {let on=false;try{on=!!SYNC.ready;}catch(e){}
+    if(on){const cl=claimOf(p),mc=myClaimP(),b=document.createElement("button");b.dataset.claim="1";
+      if(mine(p)){b.textContent="\u2605 yours \u00b7 release";b.onclick=()=>{if(!confirm("Release "+p.name+"?"))return;delete p.board.claim;if(TB().ready)delete TB().ready[p.id];save();render();};}
+      else if(cl){b.textContent=ADMIN?"\ud83d\udd12 clear claim":"\ud83d\udd12 claimed";b.disabled=!ADMIN;
+        if(ADMIN)b.onclick=()=>{if(!confirm("Clear the claim on "+p.name+"?"))return;delete p.board.claim;if(TB().ready)delete TB().ready[p.id];save();render();};}
+      else{b.textContent="claim";if(mc){b.disabled=true;b.title="release "+mc.name+" first";}
+        else b.onclick=()=>{p.board.claim={dev:DEV,ts:Date.now()};save();render();flash("you are "+p.name);};}
+      bar.appendChild(b);}}
+  if(D.players.length>1&&ed){const del=document.createElement("button");del.className="rm";del.textContent="✕ player";
     del.onclick=()=>{D.players.splice(D.active,1);D.active=0;reindex();save();render();renderList();};bar.appendChild(del);}
 }
 function toggleEmpty(k,n){const e=document.getElementById("e-"+k);if(e)e.style.display=n?"none":"block";
@@ -2796,6 +2853,51 @@ function settBar(sid){
   bar.appendChild(f);bar.appendChild(rest);wrap.appendChild(bar);return wrap;
 }
 
+// ---- settlement Σ: flat totals as header chips; the rest netted where parseable, clause text otherwise ----
+// active pieces only, Mastery when earned (Infrastructure is empire-wide: not counted)
+const SFX_NET=new Set(["envoy","act","defend","bandit","pool","cap","jester"]);
+const SFX_GRP=["Seasonal","Envoys & Influence","Extort","Timers & Speed","Combat & Unlocks","Conditional & Other"];
+const SFX_SEAS=/\bin (Winter|Spring|Summer|Fall)\b/i;
+function sfxNorm(t){return String(t||"").toLowerCase().replace(/[^a-z0-9+\-]+/g," ").trim();}
+function sfxLabel(f){const dm=f.dom&&f.dom!=="All"?f.dom:"";
+  if(f.k==="envoy")return SCORE+" on "+(dm?dm+" Envoys":f.scope==="council"?"Council Envoys":f.scope==="personal"?"Personal Envoys":"all Envoys")+(f.noSpring?" (not Spring)":"");
+  if(f.k==="act")return SCORE+" on your "+(dm?dm+" ":"")+"actions"+(f.tgtPOabove!=null?" vs Public Order above "+f.tgtPOabove:"");
+  if(f.k==="defend")return SCORE+" on "+(f.dom||f.action||"")+" actions targeting you";
+  if(f.k==="bandit")return SCORE+" on Bandit actions targeting you";
+  if(f.k==="pool")return "Influence "+({Rising:"per Rising Domain",Established:"per Established Standing",others:"per other player",war:"while At War",holdings:"per "+f.n+" Holdings"}[f.per]||f.per);
+  if(f.k==="cap")return "Influence spend cap per vote";
+  if(f.k==="jester")return (f.n===1?"1st":"2nd")+" Oppose on your Envoy reduced by";
+  return f.k;}
+function settFx(occ,have,craft,tc){const acc={},net={},txt={};
+  const add=(grp,label,val,src)=>{const k=grp+"|"+label,o=net[k]=net[k]||{grp,label,val:0,src:new Set()};o.val+=val;o.src.add(src);};
+  const addT=(grp,t,src)=>{const k=grp+"|"+t,o=txt[k]=txt[k]||{grp,text:t,n:0,src:new Set()};o.n++;o.src.add(src);};
+  occ.filter(pActive).forEach(p=>{const r=R[p.name];if(!r)return;const em=!!instStatus(p,r,have,craft,tc).earned;
+    contribAcc(r,em,acc);
+    const cov=[],tl=[];
+    (r.innate_fx||[]).concat(em?(r.mastery_fx||[]):[]).forEach(f=>{if(!SFX_NET.has(f.k)||f.val==null)return;
+      add("Envoys & Influence",sfxLabel(f),+f.val,p.name);cov.push(sfxNorm(f.t));});
+    (r.innate||[]).concat(em&&r.mastery_raw?(r.mastery||[]):[]).forEach(a=>{if(a.cat==="natural")return;
+      if(a.flat&&!a.season&&["gold","craft","faith","doubt","influence","upkeep"].includes(a.cat))return;      // header chips
+      const nt=sfxNorm(a.text);if(nt&&cov.some(c=>c&&c.includes(nt)))return;                                  // netted from Envoy fx
+      if(a.season&&a.val!=null&&a.cat==="gold"){add("Seasonal","Gold in "+a.season,a.val,p.name);return;}
+      const sm=SFX_SEAS.exec(a.text||""),sx=sm?" in "+sm[1][0].toUpperCase()+sm[1].slice(1).toLowerCase():"";
+      if(!a.cond&&a.val!=null){
+        if(a.cat==="extort"&&a.every){add("Extort","Extort each Empire Phase",a.val,p.name);return;}
+        if(a.cat==="build_timer"){add(sx?"Seasonal":"Timers & Speed","Build Timer"+sx,a.val,p.name);return;}
+        if(a.cat==="siege_timer"){add(sx?"Seasonal":"Timers & Speed","Siege Timer"+sx,a.val,p.name);return;}
+        if(a.cat==="speed"){add(sx?"Seasonal":"Timers & Speed","Speed"+sx,a.val,p.name);return;}}
+      const t=dispScore(a.text||""),rw=dispScore((r.innate_raw||"")+" "+(r.mastery_raw||""));
+      if(tl.length&&rw.includes(tl[tl.length-1].t+", "+t)){tl[tl.length-1].t+=", "+t;return;}   // comma-split tail ("…, to a minimum of 0") stays with its clause
+      tl.push({g:a.cat==="combat"?"Combat & Unlocks":"Conditional & Other",t});});
+    tl.forEach(x=>addT(x.g,x.t,p.name));});
+  return {acc,net:Object.values(net).filter(o=>o.val),txt:Object.values(txt)};}
+function settFxPanel(F){const el=document.createElement("div");el.className="sfx";
+  const fv=(l,v)=>(v>0?"+":"\u2212")+(/^(Gold|Extort)/.test(l)?Math.abs(v).toLocaleString():Math.abs(v));
+  const row=(a,b,src)=>'<div class="sfx-r"><span>'+esc(a)+'</span><b>'+b+'</b><i>'+esc([...src].join(", "))+'</i></div>';
+  el.innerHTML=SFX_GRP.map(g=>{const n=F.net.filter(o=>o.grp===g),t=F.txt.filter(o=>o.grp===g);if(!n.length&&!t.length)return "";
+    return '<div><div class="sfx-h">'+esc(g)+'</div>'+n.map(o=>row(o.label,fv(o.label,o.val),o.src)).join("")+
+      t.map(o=>row(o.text,o.n>1?"\u00d7"+o.n:"",o.src)).join("")+'</div>';}).join("");
+  return el;}
 function renderPursuitBoard(earned,craft,tc,hideCombat,have){
   const host=document.getElementById("board-pursuit");host.innerHTML="";
   // settlement builder toolbar
@@ -2808,12 +2910,12 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
   addB.onclick=()=>{
     const id=sid++;const ns={id,tier:sel.value};if(gameStarted()){const t=settBuildTime(sel.value);if(t>0)ns.bt=t;}S.settlements.push(ns);activeSid=id;autoFill();save();render();if(gameStarted()){const bn=buildNote(settBaseTime(sel.value));if(bn)flash(sel.value+bn);}};
   tb.appendChild(sel);tb.appendChild(addB);
-  const exAll=document.createElement("button");exAll.textContent="expand all";
+  const exAll=document.createElement("button");exAll.textContent="expand all";exAll.dataset.nav="1";
   exAll.onclick=()=>{S.expanded=S.placed.map(p=>p.id);save();render();};
-  const colAll=document.createElement("button");colAll.textContent="collapse all";
+  const colAll=document.createElement("button");colAll.textContent="collapse all";colAll.dataset.nav="1";
   colAll.onclick=()=>{S.expanded=[];save();render();};
   tb.appendChild(exAll);tb.appendChild(colAll);
-  const vt=document.createElement("button");vt.textContent=(D.pursuitView==="table")?"▤ cards":"▦ table";
+  const vt=document.createElement("button");vt.textContent=(D.pursuitView==="table")?"▤ cards":"▦ table";vt.dataset.nav="1";
   vt.title="toggle card / dense table view";
   vt.onclick=()=>{D.pursuitView=(D.pursuitView==="table")?"cards":"table";save();render();};
   tb.appendChild(vt);
@@ -2843,6 +2945,7 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
     any=any||occ.length>0||gid!=null;
     const closed=(S.settClosed||[]).includes(gid==null?"unplaced":gid);
     const key=(gid==null?"unplaced":gid);
+    let SFX=null;
     const grp=document.createElement("div");grp.className="sgroup"+(gid===activeSid?" active":"")+(unpEmpty?" unp-empty":"");
     grp.dataset.dropSid=(gid==null?"none":gid);
     const hd=document.createElement("div");hd.className="sgroup-hd";
@@ -2858,6 +2961,13 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
       t.innerHTML=(gid===activeSid?"● ":"")+(isCap?"★ ":"")+tier+(isCap?' <span class="badge earn">Capital</span>':'')+' <span class="note">wards '+wu.used+'/'+wu.cap+(wu.free>0?' · <b style="color:var(--income)">'+wu.free+' empty</b>':'')+(wu.free<0?' · <b style="color:var(--upkeep)">'+(-wu.free)+' over</b>':'')+' · '+occ.length+' pursuits'+(wu.typeBad?' · <span style="color:var(--upkeep)">type!</span>':'')+(tier==="Hamlet"?' · Natural only':'')+'</span>';
       hd.appendChild(t);
       {const so=S.settlements.find(x=>x.id===gid);if(so&&so.bt>0)hd.appendChild(timerCtl("build",so.bt,d=>{so.bt=Math.max(0,so.bt+d);save();render();}));}
+      SFX=settFx(occ,have,craft,tc);
+      {const ch=accChips(SFX.acc);if(ch.children.length){const w=document.createElement("span");w.className="stot";
+        const l=document.createElement("span");l.className="lbl";l.textContent="\u03a3";w.appendChild(l);w.appendChild(ch);hd.appendChild(w);}}
+      {const nx=SFX.net.length+SFX.txt.length;if(nx){const op=(S.settFx||[]).includes(gid),fb=document.createElement("button");fb.className="shb";fb.dataset.nav="1";
+        fb.textContent=(op?"\u25be":"\u25b8")+" effects "+nx;
+        fb.onclick=e=>{e.stopPropagation();S.settFx=S.settFx||[];const i=S.settFx.indexOf(gid);if(i<0)S.settFx.push(gid);else S.settFx.splice(i,1);save();render();};
+        hd.appendChild(fb);}}
       const cb=document.createElement("button");cb.className="shb";cb.style.marginLeft="auto";cb.textContent=isCap?"★ capital":"☆ capital";
 if(isCap)cb.style.color="var(--income)";
       cb.onclick=(e)=>{e.stopPropagation();if(isCap){flash("every player has a capital — set another to move it");return;}
@@ -2880,6 +2990,7 @@ if(isCap)cb.style.color="var(--income)";
       hd.appendChild(t);
     }
     grp.appendChild(hd);
+    if(!closed&&gid!=null&&SFX&&(SFX.net.length+SFX.txt.length)&&(S.settFx||[]).includes(gid))grp.appendChild(settFxPanel(SFX));
     if(!closed){
       if((D.pursuitView||"cards")==="table"){
         grp.appendChild(pursuitTable(occ,earned,craft,tc,hideCombat,have));
@@ -2919,10 +3030,6 @@ function wardGrid(gid,occ,earned,craft,tc,hideCombat,have){
     const lbl=document.createElement("div");lbl.className="ward-lbl";
     lbl.innerHTML='<span>Ward '+(i+1)+(i>=wu.cap?' · over cap':'')+'</span>'+(pile&&pile.length>1?'<span>⚡ '+(pile.length-1)+' stacked</span>':'');
     w.appendChild(lbl);
-    if(pile){   // ward total: active pieces only, Mastery when earned
-      const acc={};pile.forEach(p=>{if(pActive(p))contribAcc(R[p.name],instStatus(p,R[p.name],have,craft,tc).earned,acc);});
-      const ch=accChips(acc);if(ch.children.length){const t=document.createElement("div");t.className="wtot";
-        const l=document.createElement("span");l.className="lbl";l.textContent="WARD \u03a3";t.appendChild(l);t.appendChild(ch);w.appendChild(t);}}
     if(i>=wu.cap)w.classList.add("over");
     if(!pile){
       w.classList.add("empty");
@@ -3188,7 +3295,7 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
   const open=S.expanded.includes(inst.id);
   const card=document.createElement("div");card.className="card";
   card.style.borderLeftColor=cvar(PHASE_COLOR[PHASE[(r.innate[0]||{}).cat]||"other"]);
-  const h=document.createElement("h3");h.style.cursor="pointer";
+  const h=document.createElement("h3");h.style.cursor="pointer";h.dataset.nav="1";
   if(!inst.fac){const grip=document.createElement("span");grip.className="grip";grip.textContent="⋮⋮";
     grip.onclick=e=>e.stopPropagation();h.appendChild(grip);armDrag(grip,inst,0);armDrag(h,inst,6);}
   const car=document.createElement("span");car.className="pcaret";car.textContent=open?"▾":"▸";h.appendChild(car);
@@ -4040,13 +4147,13 @@ function renderDash(){
     (E.unlocks?' · '+esc(E.unlocks):'')+'</div>'+
     '<table class="dtable"><thead><tr>'+
     '<th>Player</th><th>Net gold/turn</th><th>Treasury</th><th>Public Order</th>'+
-    '<th>Influence/turn</th><th>Settlements</th><th>Wards</th><th>Armies</th><th>Craft</th><th>Domain pts</th><th>Sovereign domains</th></tr></thead><tbody>';
+    '<th>Influence/turn</th><th>Settlements</th><th>Wards</th><th>Armies</th><th>Craft</th><th>Domain pts</th><th>Sovereign domains</th><th>Edicts</th></tr></thead><tbody>';
   D.players.forEach((p,i)=>{
     const b=p.board,m=boardMetrics(b);
     let wu=0,wa=0;withBoard(b,()=>{b.settlements.forEach(s=>{const w=wardUse(s.id);wu+=w.used;wa+=w.cap;});});
     const po=Math.max(PO_MIN,Math.min(PO_MAX,b.po||0)),band=poBandName(po),poAct=poActiveEffects(po,b);
     const sov=DOMAINS.filter(d=>((b.domains||{})[d]||0)>=SOV);
-    const dsum=DOMAINS.reduce((a,d)=>a+((b.domains||{})[d]||0),0),dmax=DOMAINS.reduce((a,d)=>a+((D.startDomains||{})[d]||0),0)+((D.renown||1)-1),dover=dsum>dmax;
+    const dsum=DOMAINS.reduce((a,d)=>a+((b.domains||{})[d]||0),0),dmax=startDomTotal(p)+((D.renown||1)-1),dover=dsum>dmax;
     h+='<tr>'+
       '<td><span class="pdot" style="display:inline-block;background:'+p.color+'"></span> '+esc(p.name)+(i===D.active?' <span class="note">(active)</span>':'')+'</td>'+
       '<td class="num" style="color:'+(m.net<0?cvar("--upkeep"):cvar("--income"))+'">'+fmt(m.net)+'</td>'+
@@ -4058,7 +4165,8 @@ function renderDash(){
       '<td class="num">'+b.armies.length+'</td>'+
       '<td class="num">'+m.craft+'</td>'+
       '<td class="num"'+(dover?' style="color:var(--upkeep)"':'')+'>'+dsum+'/'+dmax+(dover?' ⚠':'')+'</td>'+
-      '<td class="note">'+(sov.length?sov.join(", "):"—")+'</td></tr>';
+      '<td class="note">'+(sov.length?sov.join(", "):"—")+'</td>'+
+      (()=>{const n=edictTotal(p),bst=Math.max(0,...D.players.map(edictTotal));return '<td class="num"'+(n===bst&&bst>0?' style="color:var(--income);font-weight:700"':'')+'>'+n+(n===bst&&bst>0?' ★':'')+'</td>';})()+'</tr>';
   });
   h+='</tbody></table>'+standingsBoardHTML();host.innerHTML=h;
   wireDashExtras(host);
@@ -4086,10 +4194,9 @@ function standingsBoardHTML(){
   });
   h+='<div class="bandrow"><span>0–'+(RIS-1)+' Untested</span><span>'+RIS+'–'+(EST-1)+' Rising</span><span>'+EST+'–'+(SOV-1)+' Established</span><span>'+SOV+' Sovereign</span></div>';
   // domain-point budget: total cube value ≤ setupTotal + (Renown − 1)   (setup pts + 1/turn)
-  const setupTotal=DOMAINS.reduce((a,d)=>a+((D.startDomains||{})[d]||0),0);
-  const maxAllowed=setupTotal+((D.renown||1)-1);
-  h+='<div class="budget"><span class="note">Domain points (max '+maxAllowed+'):</span>'+
-     D.players.map((p,i)=>{const sum=DOMAINS.reduce((a,d)=>a+((p.board.domains||{})[d]||0),0);const over=sum-maxAllowed;
+  const maxOf=p=>startDomTotal(p)+((D.renown||1)-1),mx=[...new Set(D.players.map(maxOf))];
+  h+='<div class="budget"><span class="note">Domain points'+(mx.length===1?' (max '+mx[0]+')':'')+':</span>'+
+     D.players.map((p,i)=>{const maxAllowed=maxOf(p),sum=DOMAINS.reduce((a,d)=>a+((p.board.domains||{})[d]||0),0);const over=sum-maxAllowed;
        return '<span class="bchip'+(over>0?' over':'')+'"><span class="pdotsm" style="background:'+p.color+'">'+(i+1)+'</span> '+sum+'/'+maxAllowed+(over>0?' ⚠ over by '+over:'')+'</span>';}).join('')+
      '</div>';
   // shared renown track
@@ -4824,7 +4931,7 @@ function renderRenown(){
     D.startDomains[dom]=Math.max(0,Math.min(SOV,(D.startDomains[dom]||0)+dl));save();render();});
   const ap2=document.getElementById("applyStart");if(ap2)ap2.onclick=()=>{
     if(confirm("Set every player's domains to the starting values?")){
-      D.players.forEach(p=>{p.board.domains=Object.assign({},D.startDomains);});save();render();}};
+      D.players.forEach(p=>{p.board.domains=startDomsFor(p);});save();render();}};
   wireEdicts(realm);
 }
 
@@ -5183,7 +5290,7 @@ function mapToolsHTML(){const M=mapState(),g=M.grid;
     ' <button id="mImp">import map JSON</button><input type="file" id="mFile" accept="application/json" style="display:none">'+
     '</div>'+(g?'<div class="note" style="margin:0 0 6px">generator '+esc(g.generator||'?')+' · climate '+esc(mapPal(g).label||mapClimate(g))+'</div>':'')+'</details>';
   h+='<div class="mtoolbar">tool <select id="mTool">'+tools.map(t=>'<option'+(t===mtool?' selected':'')+'>'+t+'</option>').join('')+'</select>'+
-    ' <span class="note">placing as</span> <span class="pdot" style="display:inline-block;background:'+p.color+'"></span> '+esc(p.name)+
+    ' <span class="note">placing as</span> <span class="pdot" style="display:inline-block;background:'+mapAsP().color+'"></span> '+esc(mapAsP().name)+
     ' <label class="note"><input type="checkbox" id="mRes"'+(M.showRes!==false?' checked':'')+'> resources</label>'+
     ' <label class="note"><input type="checkbox" id="mReach"'+(M.showReach!==false?' checked':'')+'> reach borders</label>'+
     ' <label class="note"><input type="checkbox" id="mStarts"'+(M.showStarts?' checked':'')+'> suggested settlement spots</label>'+
@@ -5213,6 +5320,19 @@ function banditPanelHTML(){const M=mapState(),era=currentEra(),camps=Object.keys
       (cp.last?'<div class="note">'+esc(cp.last)+'</div>':'')+'</div>';});
   c+='</details>';
   return '<div class="tot" id="tBanditBox"><h3 style="font-size:13px">Bandits</h3>'+banditAutoHTML(c)+'</div>';}
+// map edits on a server game: your own pieces only; Outlaw Country by players during setup only; camps by the Host
+function mapAsP(){return (lockOn()&&myClaimP())||D.players[D.active];}
+function mapEditBlock(k){if(!lockOn())return "";const M=mapState(),c=M.cells[k],me=myClaimP();
+  if(!me)return "claim a player to act";
+  const own=x=>!!x&&String(x.player)===String(me.id),who=x=>((x&&cellPlayer(x))||{}).name||"another player";
+  if(mtool==="Move"){if(c&&c.type==="Army"&&!own(c))return "\ud83d\udd12 "+who(c)+"'s army";
+    if(MOVESEL&&!own(M.cells[MOVESEL]))return "\ud83d\udd12 not your army";return "";}
+  if(mtool==="Bandit Camp")return canHost()?"":"Host only";
+  if(mtool==="Outlaw Country")return firstHostOpen()?"":"Outlaw Country: setup only";
+  if(mtool==="Erase"){if(c&&!own(c))return "\ud83d\udd12 "+who(c)+"'s piece";
+    if(M.camps[k]&&!canHost())return "Host only";if(M.outlaw[k]&&!firstHostOpen())return "Outlaw Country: setup only";return "";}
+  if(c&&!own(c))return "\ud83d\udd12 "+who(c)+"'s piece";
+  return "";}
 function wireMap(host){const M=mapState(),g=M.grid,era=currentEra(),$=id=>host.querySelector("#"+id);
   if(MG&&$("mGen")){$("mGen").onclick=()=>{if(g&&!confirm("Replace the current terrain? Markers stay."))return;
       if(generateMap($("mPreset").value,$("mSeedN").value,$("mPl").value,$("mW").value,$("mH").value)){save();render();}};
@@ -5232,13 +5352,13 @@ function wireMap(host){const M=mapState(),g=M.grid,era=currentEra(),$=id=>host.q
   if($("mStarts"))$("mStarts").onchange=e=>{M.showStarts=e.target.checked;save();render();};
   if($("mClear"))$("mClear").onclick=()=>{if(confirm("Clear settlements, armies, Outlaw Country and camps? Terrain stays.")){M.cells={};M.outlaw={};M.camps={};save();render();}};
   host.querySelectorAll("[data-cell]").forEach(el=>el.onclick=()=>{
-    const k=el.dataset.cell;MAPSEL=k;
+    const k=el.dataset.cell;MAPSEL=k;{const why=mapEditBlock(k);if(why){flash(why);render();return;}}
     if(mtool==="Move"){const c=M.cells[k];if(c&&c.type==="Army"){MOVESEL=MOVESEL===k?null:k;render();return;}
       if(MOVESEL&&moveArmyTo(k)){save();render();}return;}
     if(mtool==="Erase"){delete M.cells[k];delete M.outlaw[k];delete M.camps[k];}
     else if(mtool==="Outlaw Country"){if(M.outlaw[k])delete M.outlaw[k];else M.outlaw[k]=true;}
     else if(mtool==="Bandit Camp"){if(!M.camps[k])M.camps[k]={n:BAN.campStart||5,gold:0};}
-    else M.cells[k]={type:mtool,player:D.players[D.active].id};
+    else M.cells[k]={type:mtool,player:mapAsP().id};
     save();render();});
   if($("bGrow"))$("bGrow").onclick=()=>{const gr=(BAN.growth||{})[era]||0,cap=BAN.armyThreshold||25;Object.values(M.camps).forEach(cp=>{cp.n=Math.min(cap,cp.n+gr);});save();render();};
   if($("bSpawn"))$("bSpawn").onclick=()=>{if(!MAPSEL){flash("click a hex first");return;}if(!M.camps[MAPSEL])M.camps[MAPSEL]={n:BAN.campStart||5,gold:0};save();render();};
@@ -5498,6 +5618,16 @@ function charterFlags(p){const M=mapState(),g=M.grid,f=[];if(!g)return f;const V
     else if(RC.CHARTER_MIN_RANGE!=null)all.forEach(y=>{if(y.k===x.k||y.cell.type==="Hamlet")return;const d=hexDist(hk(x.k),hk(y.k));
       if(d<+RC.CHARTER_MIN_RANGE)f.push("Charter: "+[x.cell.type+" @ "+x.k,y.cell.type+" @ "+y.k].sort().join(" and ")+" are range "+d+" apart (min "+RC.CHARTER_MIN_RANGE+")");});
     if(RC.OUTLAW_BUFFER_RANGE!=null)Object.keys(M.outlaw).forEach(o=>{const d=hexDist(hk(x.k),hk(o));if(d<+RC.OUTLAW_BUFFER_RANGE)f.push("Charter: "+nm+" is range "+d+" from Outlaw Country @ "+o+" (min "+RC.OUTLAW_BUFFER_RANGE+")");});});
+  // Setup › Deploy (checked on Turn 1): capital near the board edge; Outlaw Country seeded off the capital, clear of the Hamlet
+  if(tTurn()===1&&capK){const ca=hk(capK),W=+g.width||0,H=+g.height||0,ob=+RC.OUTLAW_BUFFER_RANGE;
+    if(RC.CAPITAL_EDGE_RANGE!=null&&W&&H){let ed=1e9;
+      for(let c=0;c<W;c++)for(let r=0;r<H;r++){if(c>0&&r>0&&c<W-1&&r<H-1)continue;ed=Math.min(ed,hexDist(ca,[c,r]));}
+      if(ed>+RC.CAPITAL_EDGE_RANGE)f.push("Setup: capital @ "+capK+" is range "+ed+" from the board edge (max "+RC.CAPITAL_EDGE_RANGE+")");}
+    const oc=outlawOf(p);
+    if(oc.length&&RC.OUTLAW_BUFFER_RANGE!=null){
+      if(!oc.some(o=>hexDist(hk(o),ca)===ob))f.push("Setup: no Outlaw Country is exactly range "+ob+" from the capital @ "+capK);
+      mine.filter(x=>x.cell.type==="Hamlet").forEach(x=>oc.forEach(o=>{const d=hexDist(hk(o),hk(x.k));
+        if(d<=ob)f.push("Setup: Outlaw Country @ "+o+" is range "+d+" from Hamlet @ "+x.k+" (must be more than "+ob+")");}));}}
   return [...new Set(f)];}
 
 // ---- Movement: Speed from data, legal hexes by terrain (Speed −X per Territory, Impassable, Water stop) ----
@@ -5589,7 +5719,7 @@ let MAPSEL=null;
 function set(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
 function computeAll(){recomputePC();const have=new Set(Object.keys(PC));const {earned,craft,tc}=computeEarned(have);computeTotals(have,earned,tc);renderArmy();}
 
-// ---- pixel scene: every settlement of the active player, drawn from sprites.py (Pixel theme only) ----
+// ---- pixel scene: every settlement of the active player, drawn from sprites.py (every theme) ----
 // Each settlement is a skyline (sky:core + tiled sky:fill) behind its holdings, faded toward the sky. The player's
 // infrastructure is placed per sprites.SKYLINE (slot / edge / band / ground / gap / link / front); INFRA_SUPERSEDES
 // hides the replaced piece; PLATE_NO_INFRA tiers get no slot/edge/band/front pieces (the shared road, bridge and
@@ -5627,7 +5757,7 @@ function sceneLots(){
 }
 function renderScene(){
   const box=document.getElementById("sceneBox");if(!box)return;
-  const on=!!(SPR&&D.theme==="pixel"&&S.settlements.length);box.hidden=!on;if(!on){box.innerHTML="";return;}
+  const on=!!(SPR&&S.settlements.length);box.hidden=!on;if(!on){box.innerHTML="";return;}
   const sea=SCN.sky[curSeason()]?curSeason():"Summer",G=38,H=48,pal=Object.assign({},SPR.P),sky=SCN.sky[sea];
   pal.l=sea==="Winter"?null:SCN.leaf[sea];
   const INF=sceneInfra(),has=n=>!!INF[n],SW=k=>(SPR.S[k]||[""])[0].length;
@@ -5717,7 +5847,7 @@ function renderScene(){
     sp.style.left=(o.x0*z)+"px";sp.style.width=(o.Lw*z)+"px";sp.onclick=()=>{activeSid=s.id;render();};lb.appendChild(sp);});
   box.innerHTML="";box.appendChild(cv);box.appendChild(lb);
 }
-window.addEventListener("resize",()=>{if(D.theme==="pixel")renderScene();});
+window.addEventListener("resize",()=>{renderScene();});
 
 // ---- settlements overview (read-only; build/place happens in the Pursuits section) ----
 function renderSettlements(){
@@ -5775,6 +5905,35 @@ else document.getElementById("assump").closest("details").remove();
 
 // ---- top bar ⋯ (phones): modules, theme, shape ----
 document.getElementById("tbMore").onclick=()=>{document.body.classList.toggle("tbopen");mnavSync();};
+// ---- claim lock, enforced at the event level (capture phase, before any handler): on a server game you change only
+// your claimed player's board; spectators (no claim) can't act at the Table, turn strip or Realm. Browsing stays free.
+const LK_NAV='summary,.pcaret,.caret,.stitle,[data-nav],#export,#tabs .tab,#search,#typeFilters,#typeFilters *,#hideCombat,.kw,[data-tok],[data-goto],[data-mc],.vtab,.pchip,[data-claim]';
+const LK_EDIT='button,input,select,textarea,[draggable="true"]';
+// shared Table state: Duke only (Renown moves by Edicts and End turn; Season by End turn); Bandit controls: Host (or Duke)
+const LK_DUKE='[data-ts="sea-"],[data-ts="sea+"],[data-ts="rn-"],[data-ts="rn+"],#rnMinus,#rnPlus,#rnVal,.sdbtn,#applyStart';
+const LK_MAPSETUP='#mGen,#mCodeGo,#mImp,#mFile,#mClear,#mPreset,#mSeedN,#mPl,#mW,#mH,#mCode';   // Host during setup, Duke always
+const LK_HOST='.bcn,.bct,.bcx,.bcr,.bcv,.bcm,#bGrow,#bSpawn,.bAuto';
+function lockTarget(el){if(!lockOn())return null;
+  if(el.closest(LK_DUKE))return "duke";
+  if(el.closest(LK_MAPSETUP))return (firstHostOpen()&&canHost())?null:"duke";
+  if(el.closest(LK_HOST)&&!canHost())return "host";
+  if(el.closest("[data-claim],#viewTabs,#tbMore,#appMenu,.tbextra,#hud,.modalcard,#mnav"))return null;
+  const rp=el.closest("#viewRealm [data-pi]");if(rp){const q=D.players[+rp.dataset.pi];return q&&!mine(q)?q:null;}
+  if(el.closest("#appBoard,#playerBar")){const q=D.players[D.active];return q&&!mine(q)?q:null;}
+  if(!myClaimP()&&el.closest("#viewTable,#turnStrip,#setupPanel,#viewRealm,#viewBattle"))return "spectator";
+  return null;}
+function lockBlock(e){const el=e.target;if(!(el instanceof Element))return null;const t=lockTarget(el);if(!t)return null;
+  const hit=el.closest(LK_EDIT+","+LK_NAV);if(hit&&hit.matches(LK_NAV))return null;return t;}
+["pointerdown","click","change","input","keydown","dragstart","drop"].forEach(ty=>document.addEventListener(ty,e=>{
+  if(ty==="keydown"&&(e.key==="Tab"||e.key==="Escape"))return;
+  const t=lockBlock(e);if(!t)return;
+  e.stopImmediatePropagation();if(ty!=="pointerdown")e.preventDefault();
+  if(ty==="click")flash(t==="spectator"?"claim a player to act":t==="duke"?"Duke only":t==="host"?"Host only":"\ud83d\udd12 "+t.name+"'s board");
+  if(ty==="change"||ty==="input")setTimeout(render,0);},true));
+(()=>{const ex=document.getElementById("tbExtra"),m=document.getElementById("appMenu");if(!ex||!m)return;
+  const home=ex.parentNode,next=ex.nextSibling,mq=window.matchMedia("(max-width:700px)");
+  const place=()=>{if(mq.matches){if(ex.parentNode!==m)m.insertBefore(ex,m.firstChild);}else if(ex.parentNode!==home)home.insertBefore(ex,next);};
+  place();if(mq.addEventListener)mq.addEventListener("change",place);else if(mq.addListener)mq.addListener(place);})();
 document.addEventListener("click",e=>{if(document.body.classList.contains("tbopen")&&!e.target.closest("#appMenu,#tbMore,.tbextra"))document.body.classList.remove("tbopen");});
 document.addEventListener("click",e=>{const v=e.target.closest("#viewTable [data-mz]");if(v){mapZoom(v.dataset.mz==="fit"?"fit":+v.dataset.mz);}
   const b=e.target.closest("[data-bs]");if(b&&b.closest(".bside-nav")){BSIDE=b.dataset.bs;render();}});
@@ -5811,7 +5970,7 @@ function hudData(p){const b=p.board,sn=seasonNet(b),m=sn.m,pm=poModTotal(b),po=b
   return {gold:b.treasury||0,net:sn.net,season:curSeason(),infl:influenceTotal(b),env:personalEnvoys(p),po,dpo:(m.po||0)+pm,
     faith:m.faith||0,doubt:m.doubt||0,craft:m.craft||0,trade:sn.trade||0,band:(poBandName(po)||[])[0]||"",
     armies:(b.armies||[]).length,armyCap:caps.a,ret:(b.armies||[]).reduce((a,x)=>a+(x.count||0),0),
-    setts:(b.settlements||[]).length,settCap:caps.s,wu,dom:b.domains||{},flags:p===D.players[D.active]?boardFlags().length:0};}
+    setts:(b.settlements||[]).length,settCap:caps.s,wu,dom:b.domains||{},edicts:edictTotal(p),flags:p===D.players[D.active]?boardFlags().length:0};}
 function renderHUD(){const el=document.getElementById("hud");if(!el)return;const p=D.players[D.active];if(!p){el.innerHTML="";return;}
   const h=hudData(p),RM=+RC.RENOWN_MAX||30,rn=D.renown||1,nxt=Object.values(ERAS).map(e=>e.renown).filter(x=>x>rn).sort((a,b)=>a-b)[0];
   const tile=(col,lab,val,sub,go,tip,extra)=>'<div class="hc" style="--hcol:var('+col+')" data-goto="'+go+'" title="'+esc(tip||"")+'"><span class="hl">'+lab+'</span><span class="hv">'+val+'</span>'+(sub?'<span class="hs">'+sub+'</span>':'')+(extra||'')+'</div>';
@@ -5830,22 +5989,64 @@ function renderHUD(){const el=document.getElementById("hud");if(!el)return;const
     '<div class="hc" style="--hcol:var(--build)" data-goto="realm" title="Domain values (colour = Standing)"><span class="hl">Domains</span><span class="hdom">'+dom+'</span></div>'+
     tile("--battle","Armies",h.armies+(h.armyCap!=null?"/"+h.armyCap:""),h.ret+" Retinues","board:board","Armies / Era cap; total Retinues")+
     tile("--season","Settlements",h.setts+(h.settCap!=null?"/"+h.settCap:""),"Wards "+h.wu.u+"/"+h.wu.c,"board:summary","Settlements / Era cap; Wards used / available")+
+    (()=>{const bst=Math.max(0,...D.players.map(edictTotal)),lead=bst>0&&h.edicts===bst;
+      return tile("--order","Edicts",h.edicts+(lead?" ★":""),bst>0?(lead?"leading":"lead "+bst):"",
+        "realm","Completed Edicts; the most Edicts wins");})()+
     tile("--order","Renown",rn+"/"+RM,esc(currentEra())+(nxt?" · next "+nxt:""),"realm","Renown track and the next Era threshold",
       '<span class="hg"><i style="left:0;width:'+(rn/RM*100)+'%"></i></span>')+
     (h.flags?'<div class="hc hflag" data-goto="board:board" title="Rule flags on this board"><span class="hl">Flags</span><span class="hv dn">⚑ '+h.flags+'</span></div>':'')+'</div>';
   if(D.players.length>1){
     html+='<div class="hothers">'+(HUD_OTHERS?D.players.filter((q,i)=>i!==D.active).map(q=>{const o=hudData(q);
-      return '<span><span class="pdot" style="background:'+q.color+'"></span><b>'+esc(q.name)+'</b> gold <b>'+o.gold.toLocaleString()+'</b> ('+hudSign(o.net)+') · PO <b>'+o.po+'</b> · Infl <b>'+o.infl+'</b> · Armies <b>'+o.armies+'</b> · '+
+      return '<span><span class="pdot" style="background:'+q.color+'"></span><b>'+esc(q.name)+'</b> gold <b>'+o.gold.toLocaleString()+'</b> ('+hudSign(o.net)+') · PO <b>'+o.po+'</b> · Infl <b>'+o.infl+'</b> · Armies <b>'+o.armies+'</b> · Edicts <b>'+o.edicts+'</b> · '+
         DOMAINS.map(d=>d.slice(0,3)+" "+(o.dom[d]||0)).join(" ")+'</span>';}).join(""):'')+
       '<a href="#" id="hudOthers">'+(HUD_OTHERS?"hide others":"show others")+'</a></div>';}
   el.innerHTML=html;
   const t=document.getElementById("hudOthers");if(t)t.onclick=e=>{e.preventDefault();HUD_OTHERS=!HUD_OTHERS;try{localStorage.setItem("renown_hud_others",HUD_OTHERS?"1":"0");}catch(_){}renderHUD();};}
+// Turn · (Year) · Age — Age, starting Year and (Age of Renown) each player's Rising are picked during setup
+function ageStripHTML(){const a=ageRec(),y=curYear(),edit=firstHostOpen()&&canHost(),me=meP();
+  let h='<span class="ts-i"><span class="note">Turn</span> <b>'+tTurn()+'</b>'+(y!=null?' <span class="note">(Year '+y+')</span>':'');
+  if(edit){h+=' <select data-ts-age title="Age"><option value="">— Age —</option>'+AGE_L.map(x=>'<option'+(x.name===D.age?' selected':'')+'>'+esc(x.name)+'</option>').join('')+'</select>';
+    if(a)h+=' <input type="number" data-ts-year min="'+a.years[0]+'" max="'+a.years[1]+'" value="'+(D.year0!=null?D.year0:a.years[0])+'" style="width:64px" title="starting Year '+a.years[0]+'–'+a.years[1]+'">';}
+  else if(a)h+=' <b>'+esc(a.name)+'</b>';
+  if(a&&!a.rising&&firstHostOpen()&&me&&canAct(me))h+=' <span class="note">Rising</span> <select data-ts-rise><option value="">—</option>'+
+    DOMAINS.map(d=>'<option'+(d===me.board.ageRising?' selected':'')+'>'+d+'</option>').join('')+'</select>';
+  return h+'</span>';}
+document.addEventListener("change",e=>{const el=e.target;if(!el.closest||!el.closest("#turnStrip"))return;
+  if(el.hasAttribute("data-ts-age")){if(el.value)D.age=el.value;else delete D.age;delete D.year0;D.yearsGone=0;applyAgeStart();save();render();}
+  else if(el.hasAttribute("data-ts-year")){const a=ageRec();if(!a)return;D.year0=Math.max(a.years[0],Math.min(a.years[1],Math.round(+el.value||a.years[0])));save();render();}
+  else if(el.hasAttribute("data-ts-rise")){const me=meP();if(!me)return;if(el.value)me.board.ageRising=el.value;else delete me.board.ageRising;
+    me.board.domains=startDomsFor(me);save();render();}});
+// ---- Setup Order (RULES › Setup): shown from Start game until the Host begins Turn 1's first phase ----
+function setupOn(){return !!D.started&&firstHostOpen();}
+function renderSetup(){const el=document.getElementById("setupPanel");if(!el)return;
+  if(!setupOn()){el.hidden=true;el.innerHTML="";return;}el.hidden=false;
+  const M=mapState(),g=M.grid,a=ageRec(),hp=hostP(),P=D.players,need=+BAN.outlawStart||0;
+  const ok=v=>v?'<b class="su-ok">\u2713</b>':'<b class="su-no">\u00b7</b>',dot=p=>'<span class="pdot" style="background:'+p.color+'"></span>';
+  const rise=a&&!a.rising?P.map(p=>({p,d:p.board.ageRising||""})):null;
+  const dep=P.map(p=>{const st=mapSetts().filter(x=>String(x.cell.player)===String(p.id));
+    return {p,town:st.some(x=>x.cell.type==="Town"),ham:st.some(x=>x.cell.type==="Hamlet"),oc:outlawOf(p).length,fl:charterFlags(p).length};});
+  const rows=[
+    ["Select Map",!!g,g?esc(g.preset)+' · seed '+g.seed+' · '+g.width+'\u00d7'+g.height:'<a href="#" data-goto="table#tMapTools">map setup \u25b8</a>'],
+    ["Select Age",!!a&&(!rise||rise.every(x=>x.d)),a?esc(a.name)+' · Year '+curYear()+(rise?'<br>'+rise.map(x=>dot(x.p)+esc(x.p.name)+' '+esc(x.d||"\u2014")).join(' · '):''):'turn strip'],
+    ["Select Faction",P.every(p=>p.board.faction),P.map(p=>dot(p)+esc(p.name)+' '+esc(p.board.faction||"\u2014")).join(' · ')],
+    ["Determine Host",!!TB().hostSet,hp?dot(hp)+esc(hp.name)+(TB().hostSet?'':' (default)'):'\u2014'],
+    ["Deploy",dep.every(x=>x.town&&x.ham&&x.oc>=need&&!x.fl),dep.map(x=>dot(x.p)+esc(x.p.name)+' Town '+ok(x.town)+' Hamlet '+ok(x.ham)+' Outlaw '+x.oc+'/'+need+(x.fl?' <span class="su-fl">\u2691'+x.fl+'</span>':'')).join('<br>')]];
+  el.innerHTML='<details open><summary><b>Setup</b> <span class="note">'+rows.filter(r=>r[1]).length+'/'+rows.length+'</span></summary><div class="su-grid">'+
+    rows.map((r,i)=>'<span class="su-n">'+(i+1)+'</span><span class="su-t">'+r[0]+'</span>'+ok(r[1])+'<span class="su-d">'+r[2]+'</span>').join('')+
+    '</div><div style="margin-top:6px"><button data-setup-begin="1"'+(canHost()?'':' disabled')+'>Begin Turn 1 \u2014 '+esc(T_PHL[tPhase()])+'</button></div></details>';}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-setup-begin]");if(!b)return;if(!canHost()){flash("Host only");return;}tSetPhase(tPhase());});
 function renderTurnStrip(){const el=document.getElementById("turnStrip");if(!el)return;
   const ph=tPhase(),hp=hostP(),hc=canHost(),i=T_PH.indexOf(ph),nx=T_PH[(i+1)%T_PH.length];
   const me=meP(),unseated=me&&!seated().some(p=>sameP(p,me)),steps=(DATA.phaseSteps||{})[ph]||[];
   const cap=s=>s.length>28?s.slice(0,27).replace(/\s+\S*$/,"")+"…":s;
   el.innerHTML=(unseated?'<button class="ts-seat" data-goto="table">Take a seat ▸</button>':'')+
-    '<span class="ts-i"><span class="note">Turn</span> <b>'+tTurn()+'</b></span>'+
+    (()=>{let on=false;try{on=!!SYNC.ready;}catch(e){}if(!on||D.started)return "";
+      const rc=readyCheck(),mc=myClaimP(),rdy=mc&&isReady(mc);
+      let h='<span class="ts-i" title="'+esc(rc.seat.map(p=>p.name+": "+(isReady(p)?"ready":claimOf(p)?"not ready":"unclaimed")).join("\n"))+'"><span class="note">Ready</span> <b>'+rc.n+'/'+rc.seat.length+'</b></span>';
+      if(mc)h+='<button class="ts-ready'+(rdy?' on':'')+'" data-ts="ready">'+(rdy?'\u2713 ready':'ready up')+'</button>';
+      if(ADMIN||canHost())h+='<button class="ts-start" data-ts="start"'+(rc.all||ADMIN?'':' disabled')+' title="'+(rc.all?'wipe all but the map and turn on player restrictions':'every seated player must claim and ready up')+'">Start game</button>';
+      return h;})()+
+    ageStripHTML()+
     '<span class="ts-i"><button data-ts="sea-" title="previous Season">◂</button><b>'+esc(curSeason())+'</b><button data-ts="sea+" title="next Season">▸</button></span>'+
     '<span class="ts-i"><span class="note">Renown</span><button data-ts="rn-">−</button><b>'+(D.renown||1)+'</b><button data-ts="rn+">+</button><span class="note">'+esc(currentEra())+'</span></span>'+
     '<span class="ts-i"><span class="note">Host</span> <b>'+(hp?esc(hp.name):'—')+'</b>'+(hp&&!TB().hostSet?' <span class="note">(default)</span>':'')+(unseated?'':firstHostBtn())+'</span>'+
@@ -5853,9 +6054,15 @@ function renderTurnStrip(){const el=document.getElementById("turnStrip");if(!el)
     (steps.length?'<span class="ts-steps">'+steps.map((s,k)=>'<span class="ts-step" data-tip="'+esc(s[1])+'"><i>'+(k+1)+'</i>'+esc(cap(s[0]))+'</span>').join('')+'</span>':'')+
     (ADMIN?'<span class="ts-i"><b style="color:var(--order)">♛ DUKE</b></span>':'')+(hc?'<button class="ts-end" data-ts="end">End turn</button>':'');}
 document.addEventListener("click",e=>{const b=e.target.closest("#turnStrip [data-ts]");if(!b)return;const k=b.dataset.ts;
-  if(k==="sea-"||k==="sea+"){stepSeason(k==="sea+"?1:-1);save();render();}
+  if(k==="sea-"||k==="sea+"){const ys=RC.AGE_YEAR_SEASON,was=curSeason();stepSeason(k==="sea+"?1:-1);
+    if(ys&&k==="sea+"&&curSeason()===ys)D.yearsGone=(+D.yearsGone||0)+1;
+    else if(ys&&k==="sea-"&&was===ys)D.yearsGone=Math.max(0,(+D.yearsGone||0)-1);
+    save();render();}
   else if(k==="rn-"||k==="rn+"){D.renown=Math.max(1,Math.min(+RC.RENOWN_MAX||30,(D.renown||1)+(k==="rn+"?1:-1)));save();render();}
   else if(k==="ph"){const i=T_PH.indexOf(tPhase());tSetPhase(T_PH[(i+1)%T_PH.length]);}
+  else if(k==="start"){startGame();}
+  else if(k==="ready"){const mc=myClaimP();if(!mc)return;const t=TB();t.ready=t.ready||{};
+    if(t.ready[mc.id])delete t.ready[mc.id];else t.ready[mc.id]=true;save();render();}
   else if(k==="host-on"){const t=TB();t.host=String(meP().id);t.hostSet=true;save();render();flash(meP().name+" takes the Host card");}
   else if(k==="host-off"){const t=TB();delete t.host;t.hostSet=false;save();render();flash("Host card is free");}
   else if(k==="end"){if(tPhase()!=="rest"&&!confirm("End the turn now? (current phase: "+T_PHL[tPhase()]+")"))return;tEndTurn();}});
@@ -5995,9 +6202,11 @@ function gameReplace(nd){const keepV=D.view,keepA=D.active;UNDO.mute=true;
   }finally{UNDO.past=[];UNDO.future=[];UNDO.last=undoSnap();UNDO.mute=false;undoButtons();actRebase();}}
 function newGameState(){const o=gameData();
   o.players=o.players.map(p=>{const b=newBoard(),tb=(p.board&&p.board.tbl)||{};
-    b.tbl={seat:tb.seat,seatTs:tb.seatTs,mods:tb.mods||{}};return {id:p.id,name:p.name,color:p.color,board:b};});
-  o.renown=1;delete o.season;delete o.diplo;delete o.battle;
-  const t=o.tbl||{};o.tbl={seats:t.seats,timer:t.timer,auto:t.auto,boardEnd:t.boardEnd,host:t.host,skip:{}};
+    b.tbl={seat:tb.seat,seatTs:tb.seatTs,mods:tb.mods||{}};b.domains=startDomsFor({board:b});
+    if(p.board&&p.board.claim)b.claim=clone(p.board.claim);                       // claims are identity, not game state
+    return {id:p.id,name:p.name,color:p.color,board:b};});
+  o.renown=1;delete o.season;delete o.diplo;delete o.battle;delete o.yearsGone;delete o.started;delete o.bandit;
+  const t=o.tbl||{};o.tbl={seats:t.seats,timer:t.timer,auto:t.auto,boardEnd:t.boardEnd,host:t.host,hostSet:t.hostSet,skip:{}};
   return o;}
 document.getElementById("gameSave").onclick=async()=>{const nm=(document.getElementById("gameName").value||"").trim()||("Turn "+tTurn()+" "+new Date().toLocaleDateString());
   if(API.online){const r=await apiFetch("PUT","/api/builds/"+encodeURIComponent(GAME_PREFIX+nm),{data:gameData()});flash(r?"saved game “"+nm+"”":"save failed");refreshBuilds();}
@@ -6011,8 +6220,18 @@ document.getElementById("gameLoad").onclick=async()=>{const nm=document.getEleme
 document.getElementById("gameDel").onclick=async()=>{const nm=document.getElementById("gameList").value;if(!nm)return;
   if(!confirm("Delete saved game “"+nm.slice(GAME_PREFIX.length)+"”?"))return;
   await apiFetch("DELETE","/api/builds/"+encodeURIComponent(nm));refreshBuilds();};
+// Start game (Duke): boards, Table, Renown, Season and map pieces reset; terrain, players, seats and claims kept;
+// claims and Duke/Host locks take effect. Deploy (Setup step 5) then happens on the cleared map.
+// ready check (before Start): every seated player must be claimed and ready; the Duke can start regardless
+function isReady(p){return !!p&&!!claimOf(p)&&!!(TB().ready||{})[p.id];}
+function readyCheck(){const seat=seated(),n=seat.filter(isReady).length;return {seat,n,all:seat.length>0&&n===seat.length};}
+async function startGame(){if(!(ADMIN||canHost())){flash("Host or Duke only");return;}
+  if(!ADMIN&&!readyCheck().all){flash("every seated player must claim and ready up");return;}
+  if(!confirm("Start the game? Every board, the Table, Renown, Season and all map pieces are wiped (terrain, players, seats and claims stay). Player restrictions turn on."))return;
+  const o=newGameState();o.map=Object.assign({},o.map||{},{cells:{},outlaw:{},camps:{},markers:[]});o.started=true;
+  gameReplace(o);flash("game started");}
 document.getElementById("gameNew").onclick=async()=>{if(!gameAllowed()){flash("only the Host can start a new game");return;}
-  if(!confirm("Start a new game? Players, seats, map and settings are kept; every board, Renown, Season, diplomacy, battle and the Table reset."))return;
+  if(!confirm("Start a new game? Players, seats, claims, map and settings are kept; every board, Renown, Season, diplomacy, battle and the Table reset, and the game returns to setup (restrictions off until Start game)."))return;
   if(confirm("Save the current game first?"))await document.getElementById("gameSave").onclick();
   gameReplace(newGameState());flash("new game started");};
 
@@ -6160,7 +6379,7 @@ async function initServer(){
   const j=res.json;SYNC.base={};SYNC.ver={};SYNC.rev=j.rev;
   Object.keys(j.parts).forEach(k=>{SYNC.base[k]=j.parts[k].data;SYNC.ver[k]=j.parts[k].version;});
   if(j.parts.shared){joinD(Object.fromEntries(Object.keys(j.parts).map(k=>[k,j.parts[k].data])));reindex();render();renderList();}
-  SYNC.ready=true;
+  SYNC.ready=true;render();
   if(!j.parts.shared)push();                         // empty server: seed it from this browser
   refreshBuilds();
 }
@@ -6398,7 +6617,8 @@ def bandit_loadouts(ns, equip):
 RULES_CONSTS = ("PHASES", "MARCH_MULTIPLIER", "MUSTER_RANGE", "CHARTER_MIN_RANGE", "HAMLET_RANGE",
                 "OUTLAW_BUFFER_RANGE", "SACK_EXTORT_PER_TIER", "WEALTH_EDICT_GOLD", "VASSAL_EXCHANGE_CAP",
                 "BLUNDER_THR", "STANDING_ARMY_SIEGE_MODIFIER", "BANDIT_BEHAVIOR", "UPKEEP_TRACKS",
-                "GLOSSARY_CATEGORIES", "STARTING_TREASURY", "EMPIRE_START_TIERS", "TERM_ENVOY_SCORE", "RENOWN_MAX")
+                "GLOSSARY_CATEGORIES", "STARTING_TREASURY", "EMPIRE_START_TIERS", "TERM_ENVOY_SCORE", "RENOWN_MAX",
+                "CAPITAL_EDGE_RANGE", "AGE_YEAR_SEASON")
 
 def main():
     ap = argparse.ArgumentParser()
@@ -6452,6 +6672,8 @@ def main():
                     (("empire", "Empire Phase"), ("council", "Council Phase"), ("envoy", "Envoy Phase"),
                      ("battle", "Battle Phase"), ("rest", "Rest Phase"))},
         rulesConst={k: ns.get(k) for k in RULES_CONSTS if k in ns},
+        ages=[{"name": n, "rising": a.get("rising"), "years": list(a.get("years", (0, 0)))}
+              for n, a in ns.get("AGES", {}).items()],
         domains=["Industry", "Prowess", "Cunning", "Piety"],
         standings=["Rising", "Established", "Sovereign"],
         tradePerCraft=ns.get("TRADE_RULES", {}).get("income_per_craft", 100),

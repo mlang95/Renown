@@ -3,7 +3,7 @@
 import os as _os
 SIMPLE = _os.environ.get("RENOWN_SIMPLE", "1") == "1"   # build_all_CE.bat: set SIMPLE=1|0
 vS = "-SIMPLE" if SIMPLE else ""
-VERSION = f"0.4.9.9.10-d10{vS}"
+VERSION = f"0.4.9.9.11-d10{vS}"
 # ── DICE ─────────────────────────────────────────────────────────────────────
 # Single source for die size, shared with the combat engines. Every threshold
 # string below is an f-string built from these, so changing the die rewrites the
@@ -977,7 +977,7 @@ NODES = {
         "innate": "Natural; +800",
         "mastery": "Craft +3",
         "efficient": "Vineyard",
-        "builds_into": [],
+        "builds_into": ["Manor House"],
         "monument": False},
     "Cidery": {
         "type": "Craft",
@@ -1422,7 +1422,7 @@ NODES = {
         "innate": "Natural",
         "mastery": "+500",
         "efficient": ["Bakery", "Weavery", "Forge", "Carpentry","Masonry"],
-        "builds_into": ["Bakery"],
+        "builds_into": ["Bakery","Manor House"],
         "monument": False},
     "Kiln": {
         "type": "Energy",
@@ -1928,7 +1928,7 @@ SIMPLE_NODES = {
         "unlock": "Established Industry",
         "innate": "Natural; +800; Craft +3",
         "efficient": "Vineyard",
-        "builds_into": [],
+        "builds_into": ["Manor House"],
         "monument": False},
     "Cidery": {
         "group": "g_husbandry",
@@ -3788,6 +3788,20 @@ STANDING_ARMY_SIEGE_MODIFIER = 1
 # economy.py has this as a local constant (EMPIRE_START)
 EMPIRE_START_TIERS = ("Town", "Hamlet")
 STARTING_TREASURY = 10000
+
+# ── Setup: Ages (Setup step 2) ────────────────────────────────────────────────
+# Names/years mirror worldbuilding/renown_worldlore.py AGES["names"] + TIMELINE["age_starts"]
+# (Year 0 = the Great Fracture). "rising": the Domain every player starts Rising in;
+# None = each player chooses their own. "years": (first, last) starting Year players may pick.
+AGES = {
+    "Age of Fracture":       {"rising": "Prowess",  "years": (0, 1352)},
+    "Age of Plenty":         {"rising": "Industry", "years": (1352, 1942)},
+    "Age of the Tetramorph": {"rising": "Piety",    "years": (1942, 3066)},
+    "Age of Doubt":          {"rising": "Cunning",  "years": (3066, 4516)},
+    "Age of Renown":         {"rising": None,       "years": (4516, 4589)},
+}
+AGE_YEAR_SEASON = "Spring"   # the Year advances by 1 each time the Season changes to this Season
+CAPITAL_EDGE_RANGE = 4       # capital Town is deployed within this range of the board edge (or corner)
 
 BOARD_SIZES = {
     "Tight":    {3: (12,10), 4: (16,12), 5: (18,14), 6: (20,16)},
