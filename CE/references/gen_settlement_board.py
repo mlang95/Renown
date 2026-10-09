@@ -403,6 +403,7 @@ def build(ns):
         records[name] = {
             "name": name, "type": v.get("type", "?"), "group": (ns.get("HOLDING_GROUPS") or {}).get(v.get("group"), ""),
             "monument": bool(v.get("monument")),
+            "root": bool(v.get("root")),          # Root: no Mastery Chain check; efficient (if any) = optional Ward-sharing only
             # SIMPLE: upkeep / Build Timer by Standing (holding_cost); legacy leaves these out
             **(dict(zip(("upkeep", "build_time"), ns["holding_cost"](v))) if ns.get("SIMPLE") and ns.get("holding_cost") else {}),
             "innate_raw": strip_md(v.get("innate", "")),
@@ -2587,7 +2588,8 @@ function instStatus(inst,r,have,craft,tc){return inst.fac?{earned:true,missing:[
 function chainLine(name,own,seen){
   seen=seen||new Set();if(seen.has(name))return null;seen.add(name);
   const eff=effList(name),el=effLabel(name);
-  if(!eff.length&&!el.some(e=>/^natural$/i.test(String(e))))return [];          // root
+  if((R[name]||{}).root)return [];                                                // Root: exempt from the chain check
+  if(!eff.length&&!el.some(e=>/^natural$/i.test(String(e))))return [];          // no chain parent
   const cands=own.filter(o=>eff.includes(o.name)||(o.fac&&el.some(e=>/^natural$/i.test(String(e)))));
   for(const o of cands){if(o.fac)return [o.name];const up=chainLine(o.name,own,new Set(seen));if(up)return up.concat([o.name]);}
   return null;
@@ -2606,7 +2608,7 @@ function simpleReq(inst,r,have,craft,tc){
 }
 function simpleReqHTML(inst,sr){
   const L=[];const el=effLabel(inst.name).filter(e=>!/^hamlet$/i.test(String(e)));
-  if(el.length)L.push('<div class="ireq"><span class="'+(sr.unl?'ok':'no')+'">'+(sr.unl?'✓':'✗')+'</span><span>unlock: '+esc(el.join(" or "))+'</span><span class="why">'+
+  if(el.length&&!(R[inst.name]||{}).root)L.push('<div class="ireq"><span class="'+(sr.unl?'ok':'no')+'">'+(sr.unl?'✓':'✗')+'</span><span>unlock: '+esc(el.join(" or "))+'</span><span class="why">'+
     (sr.sticky?'met when started':sr.unl?(sr.via?'line: '+esc(sr.via):'met'):'no complete line controlled')+'</span></div>');
   if(inst.sid!=null&&effList(inst.name).length)L.push('<div class="ireq"><span class="'+(isFreeRider(inst)?'ok':'mn')+'">'+(isFreeRider(inst)?'⚡':'·')+'</span><span>Ward</span><span class="why">'+
     (isFreeRider(inst)?'rides its parent here (free)':'uses its own Ward')+'</span></div>');

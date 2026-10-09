@@ -4257,7 +4257,8 @@ if SIMPLE:
         FACTIONS[_fn]["pair"] = _pr
         if _cp: FACTIONS[_fn]["complement"] = _cp
 
-    GLOSSARY["Root"] = "A Holding which can be placed in a Settlement Ward directly."
+    GLOSSARY["Root"] = (f"A Holding with no {CHAIN_TERM} requirement: you may start it without controlling a parent. "
+                         f"If it is Efficient with a Holding, it may still share that Holding's Settlement Ward.")
     # Holding upkeep / Build Timer follow Standing (HOLDING_TIER_COST), not type.
     UPKEEP_TRACKS["Pursuit"] = f"Per turn {_HOLDING_COST_TEXT}."
     COSTS["Pursuit upkeep"] = f"Per turn {_HOLDING_COST_TEXT}"

@@ -106,7 +106,7 @@ A few conventions make every rule in this book read the same way:
 
 13. **Influence spending.** On a single vote, you may spend Influence equal to 1 + your Standing in that Domain (Untested = {{VAL:DOMAIN_BOARD.max_influence_per_vote.Untested}}, Rising = {{VAL:DOMAIN_BOARD.max_influence_per_vote.Rising}}, Established = {{VAL:DOMAIN_BOARD.max_influence_per_vote.Established}}, Sovereign = {{VAL:DOMAIN_BOARD.max_influence_per_vote.Sovereign}}).
 
-14. **Mastery Chain.** A Holding's Mastery Chain is the line of Holdings it builds from, usually running from a Raw Material up to a Monument. You may start building a Holding only while you control one complete line of its Mastery Chain, anywhere in your empire; this is checked only when you start it. A Holding placed in the same Settlement Ward as its immediate parent shares that Ward, and the chain can continue upward the same way. Each Holding carries at most one descendant in its Ward.
+14. **Mastery Chain.** A Holding's Mastery Chain is the line of Holdings it builds from, usually running from a Raw Material up to a Monument. You may start building a Holding only while you control one complete line of its Mastery Chain, anywhere in your empire; this is checked only when you start it. A Root Holding has no Mastery Chain requirement. A Holding placed in the same Settlement Ward as its immediate parent shares that Ward, and the chain can continue upward the same way. Each Holding carries at most one descendant in its Ward.
 
 15. **Monuments & Wonders are unique.** Only one Holding or Wonder of each name can exist in a game.
 
