@@ -3615,12 +3615,12 @@ function calcMetrics(have,earned,tc){
      let outside=false;S.armies.forEach(a=>{const k=armyHex(me,a);if(!k)return;const c=armyUpkeep(a);
        if(prov.has(k)){if(bt)reduce+=c;}else outside=true;});
      if(outside)bo.forEach(x=>{reduce+=+x.m[1];});                                    // once, while an Army is not in Province
-     danegeldRows(me).forEach(x=>{extort+=x.amt;});   // Danegeld: upkeep still owed here; the at-war controller pays it (Extort, Empire Phase)
      if(lh.length&&S.armies.some(a=>{const k=armyHex(me,a);return k&&(S.settlements||[]).some(s=>settHex(me,s)===k);}))lh.forEach(x=>{reduce+=+x.m[1];});}}
   const pursUp=S.placed.reduce((a,p)=>a+pursuitUpkeep(p),0);
   const armyGross=S.armies.reduce((s,a)=>s+armyUpkeep(a),0);
   const netArmy=Math.max(0,armyGross-reduce);
   const unusedReduce=Math.max(0,reduce-armyGross);
+  danegeldRows(playerOfBoard(S),netArmy).forEach(x=>{extort+=x.amt;});   // Danegeld: the at-war controller pays (Extort, Empire Phase)
   const baseNet=gold+scale-infraUp-pursUp-netArmy;
   return {gold,reduce,craft,infl,faith,doubt,scale,infraUp,pursUp,armyGross,netArmy,unusedReduce,baseNet,seasonAdd,phaseCount,extort,extTrig};
 }
@@ -5332,12 +5332,14 @@ function extortGold(from,to,amt){
   return t;}
 // Danegeld: "While At War, your Armies within reach of at-war Settlements Extort their upkeep from that settlement's controller".
 // One row per Army standing in Territory reached by an at-war player's Settlements; that player pays the Army's upkeep
-// (the first such player if several reach the hex).
+// (the first such player if several reach the hex). Paid from your modified upkeep: the total is capped at your net Army
+// upkeep after every reduction (Baggage Train etc.), so a fully covered upkeep leaves them nothing to pay.
 const DANEGELD_RE=/While At War, your Armies (?:within reach of at-war Settlements Extort their upkeep|pay no upkeep in Territory your at-war player controls)/i;
-function danegeldRows(me){if(!me||!mapState().grid||!srcHas(me.board,DANEGELD_RE))return [];const pid=String(me.id),g=mapState().grid,own=reachOwners(mapState(),g.width,g.height),rows=[];
+function danegeldRows(me,netArmy){if(!me||!mapState().grid||!srcHas(me.board,DANEGELD_RE))return [];const pid=String(me.id),g=mapState().grid,own=reachOwners(mapState(),g.width,g.height),rows=[];
   (me.board.armies||[]).forEach(a=>{const k=armyHex(me,a);if(!k||!own[k])return;const id=[...own[k]].find(x=>String(x)!==pid&&effPair(pid,x).war);
     const from=id!=null?pById(id):null,amt=armyUpkeep(a);if(from&&amt)rows.push({from,amt,army:a});});
-  return rows;}
+  let left=Math.max(0,netArmy==null?boardMetrics(me.board).netArmy:netArmy);   // cap at modified (net) upkeep
+  return rows.map(x=>{const t=Math.min(x.amt,left);left-=t;return Object.assign(x,{amt:t});}).filter(x=>x.amt>0);}
 // "Extort N per player without X" on active pieces → the players without X pay (auto, Empire Phase)
 function autoExtortRows(b){const me=playerOfBoard(b);if(!me)return [];
   return withBoard(b,()=>{const rows=[],have=new Set(Object.keys(PC)),earned=SIMPLE?{}:computeEarned(have).earned;
