@@ -14,7 +14,7 @@ REM one chart per root (board Holding tree) + its PDF; the board prefers layout_
 if exist "gen_layout_roots.py" %PY% gen_layout_roots.py layout_roots.json
 if errorlevel 1 (echo Root layout build FAILED & exit /b 1)
 if exist "gen_layout_roots.py" %PY% render_tree.py layout_roots.json "holding_trees_by_root.svg"
-%PY% gen_settlement_board.py --data "%CE_ROOT%\renown_data_d10.py" --rules "%CE_ROOT%\RULES_push.md" --out "settlement_board.html"
+%PY% gen_settlement_board.py --data "%CE_ROOT%\renown_data_d10.py" --rules "%CE_ROOT%\RULES_push_simple.md" --out "settlement_board.html"
 if errorlevel 1 (echo Board build FAILED & exit /b 1)
 echo Board rebuilt - refresh the browser.
 endlocal

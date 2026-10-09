@@ -633,10 +633,16 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     color:var(--dim);background:var(--panel2);cursor:pointer;user-select:none}
   .chip.on{color:var(--ink);border-color:var(--line2);background:var(--sel)}
   .typegroup{margin-bottom:6px}
-  .catctl{display:flex;gap:6px;margin-bottom:6px}
+  .catctl{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;align-items:center}
   .typegroup>.th{color:var(--dim);font-size:11px;letter-spacing:.03em;padding:4px 2px;
     border-bottom:1px solid var(--line);position:sticky;top:-14px;background:var(--bg);z-index:1}
-  .row{display:flex;align-items:center;gap:6px;padding:3px 2px}
+  .row{display:block;padding:4px 2px;border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+  .row .rtop{display:flex;align-items:center;gap:6px}
+  .row .rsub{display:flex;gap:6px;font-size:10.5px;color:var(--dim);margin-top:1px;min-width:0}
+  .row .rsub .rc{flex:0 0 auto;color:var(--dim2)}
+  .row .rsub .rfx{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .seg{display:inline-flex}.seg .chip{border-radius:0}.seg .chip:first-child{border-radius:var(--pill) 0 0 var(--pill)}
+  .seg .chip:last-child{border-radius:0 var(--pill) var(--pill) 0}.seg .chip+.chip{border-left:none}
   .row .nm{flex:1;cursor:pointer;overflow-wrap:anywhere}
   .row .nm:hover{color:var(--ink);text-decoration:underline}
   .row.mon .nm{color:var(--order)} .row.have .nm{color:var(--income)}
@@ -655,7 +661,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .flash{color:var(--order);font-size:11px;opacity:0;transition:opacity .2s;margin-left:6px}
   .sgroup{border:1px dashed var(--line);border-radius:var(--radius);padding:8px;margin-bottom:10px}
   .sgroup.active{border-color:var(--income);border-style:solid}
-  .sgroup-hd{display:flex;align-items:center;gap:10px;margin-bottom:8px;cursor:pointer;flex-wrap:wrap}
+  .sgroup-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer;flex-wrap:wrap}
+  .sgroup-hd .stitle{min-width:0}
+  .sgroup-hd .shb{padding:2px 8px;font-size:12px;min-height:0}
   .sgroup-hd .stitle{font-family:var(--serif);font-size:14px}
   .sgroup-hd .rm{font-size:11px}
   /* ward slots + solitaire piles (efficient riders stack on their host) */
@@ -663,9 +671,11 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .wards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;align-items:start}
   .ward{border:1px solid var(--line);border-radius:var(--radius);padding:6px;background:var(--panel2);min-height:128px;display:flex;flex-direction:column}
   .ward-lbl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin:0 2px 5px;display:flex;justify-content:space-between;gap:6px}
-  .ward.empty{border:2px dashed var(--line2);background:transparent;cursor:pointer}
+  .ward.empty{border:2px dashed var(--line2);background:transparent;cursor:pointer;min-height:0;flex-direction:row;align-items:center;padding:6px 10px}
+  .ward.empty .ward-lbl{margin:0}
   .ward.empty:hover{border-color:var(--income)}
-  .ward.empty .emp{flex:1;display:flex;align-items:center;justify-content:center;color:var(--dim2);font-family:var(--serif);font-size:13px;font-style:italic}
+  .ward.empty .emp{flex:1;display:flex;align-items:center;justify-content:flex-end;color:var(--dim);font-size:16px;line-height:1}
+  .ward.empty:hover .emp{color:var(--income)}
   .ward.over{border-color:var(--upkeep);background:rgba(239,83,80,.10)}
   .ward.over .ward-lbl{color:var(--upkeep)}
   .pile{position:relative}
@@ -718,7 +728,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .tmr{display:inline-flex;align-items:center;gap:2px} .tmr button{padding:0 5px;font-size:10px;line-height:14px}
   .card.inactive{opacity:.6}
   .facbox{border:1px solid var(--line);border-radius:var(--radius);padding:8px;margin-bottom:10px;background:var(--panel2)}
-  .facbox select{width:100%;margin-bottom:6px}
+  .facbox{padding:6px 8px}.facbox summary{cursor:pointer}.facbox .fm{margin-top:6px}
+  .facsel{max-width:180px}
   .facbox .fm{font-size:12px;line-height:1.35} .facbox .fk{font-size:11px;color:var(--dim);margin-top:4px}
   .ttab{font-size:11px;width:100%} .ttab td{vertical-align:top}
   .bcun{margin-top:5px;padding:5px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--panel2)}
@@ -746,6 +757,13 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .ireq .why{color:var(--dim)}
   .card.illegal{background:rgba(239,83,80,.08)}
   .poladder{margin-top:6px;display:flex;flex-direction:column;gap:1px;font-size:11px}
+  .lsec>summary{display:flex;align-items:baseline;gap:8px;cursor:pointer;list-style:none}
+  .lsec>summary::-webkit-details-marker{display:none}
+  .lsec>summary h3{font-size:13px;margin:0;flex:1}
+  .lsec>summary::before{content:"▸";color:var(--dim);font-size:10px}
+  .lsec[open]>summary{margin-bottom:6px}.lsec[open]>summary::before{content:"▾"}
+  .lsec>summary .n{font-size:20px}
+  .poladder .more{cursor:pointer;color:var(--dim);font-size:11px;padding:2px 4px}
   .poladder .pr{display:grid;grid-template-columns:22px 92px 1fr;gap:6px;padding:1px 4px;border-radius:var(--radius-sm);color:var(--dim2)}
   .poladder .pr.on.neg{color:var(--upkeep);background:rgba(239,83,80,.10)}
   .poladder .pr.on.pos{color:var(--income);background:rgba(102,187,106,.10)}
@@ -754,6 +772,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .rm{color:var(--dim2);border:none;background:none;font-size:14px;cursor:pointer;margin-left:auto}
   .rm:hover{color:var(--upkeep)}
   .empty{color:var(--dim2);text-align:center;padding:24px 10px}
+  .sectionbody>.empty,#list .empty{padding:6px 10px;text-align:left;font-size:12px}
 
   .toolbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
   .toolbar label{display:flex;align-items:center;gap:4px}
@@ -820,7 +839,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .tot{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px;margin-bottom:10px}
   .big{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
   .big .n{font-family:var(--serif);font-size:24px}
-  .big .n.neg{color:var(--upkeep)} .big .n.pos{color:var(--income)}
+  .big .n.neg,.lsec .n.neg{color:var(--upkeep)} .big .n.pos,.lsec .n.pos{color:var(--income)}
   .kv{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--line);gap:8px}
   .kv:last-child{border-bottom:none} .kv .k{color:var(--dim)} .kv .val{font-variant-numeric:tabular-nums;white-space:nowrap}
   .season-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
@@ -843,7 +862,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .kw,.stat.click{cursor:pointer}
   .gk{border-bottom:1px dotted currentColor;cursor:help}
   .tipk{cursor:help;border-bottom:1px dotted var(--line2)}
-  #gkTip{position:fixed;z-index:9999;max-width:360px;background:var(--panel);color:var(--ink);border:1px solid var(--line2);border-radius:var(--radius-sm);box-shadow:0 6px 18px rgba(0,0,0,.22);padding:8px 10px;font-size:12px;line-height:1.4;display:none}
+  #gkTip{white-space:pre-line;position:fixed;z-index:9999;max-width:360px;background:var(--panel);color:var(--ink);border:1px solid var(--line2);border-radius:var(--radius-sm);box-shadow:0 6px 18px rgba(0,0,0,.22);padding:8px 10px;font-size:12px;line-height:1.4;display:none}
   #gkTip .gh{font-weight:600;margin-bottom:3px} #gkTip div{margin-top:3px} #gkTip a{color:var(--build)}
   .kw:hover{filter:brightness(1.3)}
   .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;
@@ -929,6 +948,11 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .tstrip{width:100%;display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:4px 0 0;border-top:1px solid var(--line);font-size:13px}
   .tstrip .ts-i{display:inline-flex;gap:4px;align-items:center}.tstrip button{padding:1px 7px;min-height:0}
   .tstrip .ts-end{margin-left:auto;border-color:var(--order);font-weight:600}
+  .tstrip .ts-ph b{font-size:15px;color:var(--ink)}
+  .tstrip .ts-seat{border-color:var(--order);background:color-mix(in srgb,var(--order) 14%,var(--panel));font-weight:600}
+  .ts-steps{display:inline-flex;gap:4px;flex-wrap:wrap}
+  .ts-step{display:inline-flex;align-items:center;gap:4px;padding:1px 7px 1px 2px;border:1px solid var(--line);border-radius:var(--radius-sm,4px);background:var(--panel);font-size:12px;cursor:help;white-space:nowrap}
+  .ts-step i{font-style:normal;font-size:10px;min-width:15px;height:15px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:var(--line);color:var(--ink)}
   /* HUD: resource bar (RTS style) */
   .hud{width:100%;padding:6px 0 2px;border-top:1px solid var(--line)}
   .hrow{display:flex;gap:6px;align-items:stretch;overflow-x:auto;scrollbar-width:thin}
@@ -993,7 +1017,15 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     .tbmore{order:3;padding:6px 10px}
     .tstrip{order:6;flex-wrap:nowrap;overflow-x:auto;gap:10px;scrollbar-width:none}.tstrip::-webkit-scrollbar{display:none}
     .hud{order:7}.hc{min-width:64px;padding:2px 7px}.hc .hv{font-size:15px}
+    .topbar{position:static}
+    .hrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));overflow:visible;gap:4px}
+    .hc{min-width:0}.hc .hs,.hc .hg{display:none}.hc .hv{font-size:14px}.hc .hl{font-size:8.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .tstrip .ts-seat{white-space:nowrap;flex:0 0 auto;order:-3}
+    .tstrip{flex-wrap:wrap;row-gap:4px}.topbar .tstrip .ts-ph{order:-2}.topbar .tstrip .ts-end{order:-2;margin-left:auto}
+    .tstrip .ts-steps{order:-1;width:100%;overflow-x:auto;scrollbar-width:none}.tstrip .ts-steps::-webkit-scrollbar{display:none}
+    .facsel{flex:1 1 110px;min-width:0;max-width:none}
     .tstrip .ts-i{flex:0 0 auto}.tstrip .ts-end{flex:0 0 auto;order:-1;margin-left:0}
+    .ts-steps{flex:0 0 auto;flex-wrap:nowrap}.tstrip .ts-i{white-space:nowrap}
     .appmenu{left:6px;right:6px;width:auto}
     .topbar .players{order:4;width:100%}
     .tbextra{order:5;width:100%;display:none;gap:6px;align-items:center;flex-wrap:wrap;padding-top:4px}
@@ -1067,10 +1099,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center">
       <input id="adminPin" type="password" placeholder="Duke PIN" style="flex:1;min-width:90px" autocomplete="off">
       <button id="adminOn">unlock</button><button id="adminOff">lock</button></div>
-    <div class="note" style="margin-top:4px">The Duke can act for any player, run every Host control (phases, End turn, skips, seats), and load or start games. Per browser tab; set the PIN with RENOWN_DUKE_PIN on the server.</div>
   </details>
 </div>
-<div class="mnav" id="mnav"><button data-mc="board" class="on">Board</button><button data-mc="catalog">Catalog</button><button data-mc="summary">Totals</button></div>
+<div class="mnav" id="mnav"><button data-mc="board" class="on">Board</button><button data-mc="catalog">Catalog</button><button data-mc="summary">Ledger</button></div>
 <div class="app" id="appBoard" data-mc="board">
   <!-- CATALOG -->
   <div class="col" id="catalog">
@@ -1116,17 +1147,22 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       </div></details>
   </div>
 
-  <!-- SUMMARY -->
+  <!-- SUMMARY (ledger) -->
   <div class="col" id="summary">
-    <div class="hd"><h2>Totals</h2></div>
+    <div class="hd"><h2>Ledger</h2></div>
 
-    <div class="tot">
-      <div class="big"><span class="k">Net gold / turn</span><span class="n" id="netgold">0</span></div>
+    <details class="tot lsec" open id="lsGold"><summary><h3>Gold / turn</h3><span class="n" id="netgold">0</span></summary>
+      <div class="kv"><span class="k tipk" data-tipk="t_gold">Gold income (flat)</span><span class="val" id="t_gold">0</span></div>
+      <div class="kv"><span class="k tipk" data-tipk="t_scale">Scaling gold</span><span class="val" id="t_scale">0</span></div>
+      <div class="kv"><span class="k tipk" data-tipk="t_upkeep">Upkeep — infra/wonder</span><span class="val" id="t_upkeep">0</span></div>
+      <div class="kv"><span class="k tipk" data-tipk="t_pupkeep">Upkeep — pursuits</span><span class="val" id="t_pupkeep">0</span></div>
+      <div class="kv"><span class="k tipk" data-tipk="t_reduce">Upkeep reductions (pool)</span><span class="val" id="t_reduce">0</span></div>
+      <div class="kv"><span class="k tipk" data-tipk="t_army">Upkeep — army (net)</span><span class="val" id="t_army">0</span></div>
       <div class="note" id="netnote"></div>
-    </div>
+      <div class="season-grid" id="seasons" style="margin-top:8px"></div>
+    </details>
 
-    <div class="tot">
-      <h3 style="font-size:13px">Treasury</h3>
+    <details class="tot lsec" open id="lsTreas"><summary><h3>Treasury</h3></summary>
       <div class="treas">
         <span class="k">gold</span>
         <input type="number" id="treasury" step="100" value="0">
@@ -1139,10 +1175,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       <div class="kv" style="margin-top:6px"><span class="k">turn</span><span class="val" id="turn">0</span></div>
       <label class="note" style="display:flex;gap:6px;align-items:center;margin-top:4px">
         <input type="checkbox" id="autoNet" checked> auto-apply net gold on end turn</label>
-    </div>
+    </details>
 
-    <div class="tot">
-      <h3 style="font-size:13px">Public Order</h3>
+    <details class="tot lsec" open id="lsPO"><summary><h3>Public Order</h3><span class="note" id="poBandS"></span></summary>
       <div class="treas">
         <button id="poMinus">−</button>
         <span class="n" id="poVal" style="font-size:22px;min-width:36px;text-align:center">0</span>
@@ -1152,43 +1187,30 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       <div class="note" id="poEffect"></div>
       <div class="poladder" id="poLadder"></div>
       <div id="poMods" style="margin-top:8px"></div>
-    </div>
+    </details>
 
-    <div class="tot">
-      <div class="kv"><span class="k tipk" data-tipk="t_gold">Gold income (flat)</span><span class="val" id="t_gold">0</span></div>
-      <div class="kv"><span class="k tipk" data-tipk="t_scale">Scaling gold</span><span class="val" id="t_scale">0</span></div>
-      <div class="kv"><span class="k tipk" data-tipk="t_upkeep">Upkeep — infra/wonder</span><span class="val" id="t_upkeep">0</span></div>
-      <div class="kv"><span class="k tipk" data-tipk="t_pupkeep">Upkeep — pursuits</span><span class="val" id="t_pupkeep">0</span></div>
-      <div class="kv"><span class="k tipk" data-tipk="t_reduce">Upkeep reductions (pool)</span><span class="val" id="t_reduce">0</span></div>
-      <div class="kv"><span class="k tipk" data-tipk="t_army">Upkeep — army (net)</span><span class="val" id="t_army">0</span></div>
+    <details class="tot lsec" open id="lsYield"><summary><h3>Craft · Influence · Extort</h3></summary>
       <div class="kv"><span class="k tipk" data-tipk="t_craft">Craft X</span><span class="val" id="t_craft">0</span></div>
       <div class="kv"><span class="k tipk" data-tipk="t_trade">→ trade income / agreement</span><span class="val" id="t_trade">0</span></div>
       <div class="kv"><span class="k tipk" data-tipk="t_infl">Influence (flat)</span><span class="val" id="t_infl">0</span></div>
       <div class="kv"><span class="k tipk" data-tipk="t_po">Faith − Doubt (PO/turn)</span><span class="val" id="t_po">0</span></div>
       <div class="kv"><span class="k tipk" data-tipk="t_ext">Extort (flat)</span><span class="val" id="t_ext">0</span></div>
-    </div>
+    </details>
+
+    <details class="tot lsec" open id="lsSett"><summary><h3>Settlements (ward budget)</h3><span class="note" id="wardsS"></span></summary>
+      <div class="set-grid" id="setGrid"></div>
+      <div class="kv" style="margin-top:6px"><span class="k">Wards used / avail</span><span class="val" id="wards">0 / 0</span></div>
+      <div class="bar" id="wardbar"></div>
+      <div class="kv"><span class="k">Winter tax</span><span class="val" id="tax">0</span></div>
+    </details>
 
     <div class="tot dpbox" id="dpBox" style="display:none"></div>
     <div class="tot" id="inflBox"></div>
     <div class="tot" id="timerBox"></div>
 
-    <div class="tot">
-      <h3 style="font-size:13px">Net gold by season</h3>
-      <div class="season-grid" id="seasons"></div>
-    </div>
-
-    <div class="tot">
-      <h3 style="font-size:13px">Settlements (ward budget)</h3>
-      <div class="set-grid" id="setGrid"></div>
-      <div class="kv" style="margin-top:6px"><span class="k">Wards used / avail</span><span class="val" id="wards">0 / 0</span></div>
-      <div class="bar" id="wardbar"></div>
-      <div class="kv"><span class="k">Winter tax</span><span class="val" id="tax">0</span></div>
-    </div>
-
-    <div class="tot">
-      <h3 style="font-size:13px">Effects by phase</h3>
+    <details class="tot lsec" id="lsFx"><summary><h3>Effects by phase</h3></summary>
       <div class="legend" id="legend"></div>
-    </div>
+    </details>
 
     <details class="notes"><summary class="note">parser warnings</summary>
       <div class="note" id="assump"></div></details>
@@ -1204,7 +1226,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         <button id="gameLoad">load</button><button id="gameDel">del</button>
       </div>
       <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center">
-        <button id="gameNew">new game…</button><span class="note" id="gameNote">Host only when online. Export/import files still work.</span>
+        <button id="gameNew">new game…</button><span class="note" id="gameNote">Host only when online.</span>
       </div>
     </details>
 
@@ -1571,7 +1593,7 @@ function empireChecklistHTML(){const sea=curSeason(),auto=boardEndOn();
     ["Gain Influence & Envoys","",""],sea==="Winter"?["Winter: tax income","board:summary","Totals"]:null,
     ["Income & upkeep","board:summary","Totals"],["Extort (\u201cper player without\u201d is automatic at End turn)","",""],["Public Order (Faith − Doubt)","board:summary","Totals"],["Armies regain Endurance","board:board","Board"]].filter(Boolean);
   return '<div class="tb-check">'+L.map(x=>'<div>'+esc(x[0])+(x[1]?' <a href="#" data-goto="'+x[1]+'">'+x[2]+' ▸</a>':' <span class="note">(this panel)</span>')+'</div>').join("")+
-    (auto?'<div class="note">End turn applies timers, income, PO and Endurance to every board.</div>':'')+'</div>';}
+    '</div>';}
 // which tree charts are open (per device); the whole section's state too
 let TREE_OPEN=new Set(),TREE_SEC=true;
 try{TREE_OPEN=new Set(JSON.parse(localStorage.getItem("renown_tree_open")||"[]"));TREE_SEC=localStorage.getItem("renown_tree_sec")!=="0";}catch(e){}
@@ -1646,7 +1668,7 @@ function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.
 // rulebook (collapsible, per device); keywords inside the text get hover links
 let RB_OPEN=false;try{RB_OPEN=localStorage.getItem("renown_rb_open")==="1";}catch(e){}
 document.addEventListener("click",e=>{const sm=e.target.closest("#refRules > summary");if(sm){RB_OPEN=!sm.parentElement.open;try{localStorage.setItem("renown_rb_open",RB_OPEN?"1":"0");}catch(_){}}});
-function rulebookHTML(){const RBk=DATA.rulebook;if(!RBk)return '<div class="note">Rulebook not bundled — build with --rules RULES_push.md.</div>';
+function rulebookHTML(){const RBk=DATA.rulebook;if(!RBk)return '<div class="note">Rulebook not bundled — build with --rules RULES_push_simple.md.</div>';
   return '<div class="rbtoc note">'+RBk.toc.map(t=>'<a href="#" data-goto="reference#'+t[1]+'" class="l'+t[0]+'">'+esc(t[2])+'</a>').join("")+'</div>'+
     '<div class="rbody">'+RBk.html+'</div>';}
 function linkifyRules(root){if(!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>
@@ -1660,7 +1682,7 @@ function renderReference(){const host=document.getElementById("viewReference");
       .map(x=>'<a href="#" data-goto="reference#'+x[0]+'">'+x[1]+'</a>').join(' · ')+'</div>';
   h+='<details id="refRules" class="tot"'+(RB_OPEN?' open':'')+'><summary><b style="font-size:14px">Rulebook</b> <span class="note">— RULES_push.md, values from the data</span></summary>'+rulebookHTML()+'</details>';
   h+='<details id="refTree" class="tot"'+(TREE_SEC?' open':'')+'><summary><b style="font-size:14px">Pursuit tree</b></summary>'+
-    '<div class="tb-row" style="margin:6px 0"><button data-tree="open">expand all</button><button data-tree="close">collapse all</button></div><div class="note">'+(SIMPLE?'':'Innate + Mastery combined (Mastery assumed earned; same stats summed). ')+'Colour = unlock Domain; ◆ = Monument; 🔒 = your Standing doesn\'t meet the unlock yet. Hover a name for the full text.</div>'+treeHTML()+'</details>'+
+    '<div class="tb-row" style="margin:6px 0"><button data-tree="open">expand all</button><button data-tree="close">collapse all</button></div><div class="note">'+(SIMPLE?'':'Innate + Mastery combined (Mastery assumed earned; same stats summed). ')+'Colour = unlock Domain; ◆ = Monument; 🔒 = your Standing doesn\'t meet the unlock yet.</div>'+treeHTML()+'</details>'+
     '<div id="refSeasons">'+seasonsHTML()+'</div><div id="refCosts">'+costsHTML()+'</div>'+
     '<div id="refStanding">'+standingEffectsHTML()+'</div><div id="refTerrain">'+terrainTablesHTML(mapPal(g))+'</div>'+
     '<div id="refBattle">'+battleRulesHTML()+'</div></div>';
@@ -1731,7 +1753,7 @@ function renderTable(){
     '<div class="tot"><h3 style="font-size:13px">Log</h3>'+(log||'<div class="note">Nothing resolved yet this phase.</div>')+'</div>'+
     banditPanelHTML()+'</div>'+
     '<div><div class="tb-felt"><div class="tb-oval"></div><div class="tb-map'+(MAPZ.fit?'':' zm')+'">'+tmap+'</div>'+seats+'</div>'+
-    (D.players.some(p=>!Object.values(sm).includes(p))?'<div class="note">Not seated: '+D.players.filter(p=>!Object.values(sm).includes(p)).map(p=>esc(p.name)).join(", ")+' — seated players only take part.</div>':'')+
+    (D.players.some(p=>!Object.values(sm).includes(p))?'<div class="note">Not seated: '+D.players.filter(p=>!Object.values(sm).includes(p)).map(p=>esc(p.name)).join(", ")+'</div>':'')+
     activeTimersHTML()+tHistHtml()+activityHtml()+'</div>'+
     '<div class="tb-panel">'+pan+'</div></div>';wireBanditAuto(host);wireMap(host);
   tWire(host,R);wireDashExtras(host);tCountdown(R);}
@@ -1740,7 +1762,7 @@ function tPanel(R){
   const t=TB(),ph=tPhase(),me=meP(),E=R.curEnvoy,cw=R.cur?R.cur.who:null;let h="";
   // identity
   h+='<div class="tot"><div class="tb-row"><span>You: '+tName(me)+'</span><label class="note" style="margin-left:auto"><input type="checkbox" id="tbHot"'+(HOTSEAT?" checked":"")+'> hot-seat (act for anyone)</label></div>'+
-    '<div class="note">Switch players with the chips in the top bar.</div></div>';
+    '</div>';
   // action box
   let act="";
   if(ph==="council"&&t.phaseTs&&!R.councilDom&&R.waiting!=="tie"){
@@ -1790,7 +1812,7 @@ function tPanel(R){
       for(let i=1;i<=Math.max(1,capv);i++){opts.push('<option value="S'+i+'">Support '+i+'</option>');if(!blk)opts.push('<option value="O'+i+'">Oppose '+i+'</option>');}
       h+='<div class="tb-row"><span style="flex:1">'+tName(E2.owner)+' '+esc(E2.dom||"Council")+(E2.council?' (Council)':'')+'</span>'+
         '<select data-q="'+esc(E2.id)+'" data-who="'+qp.id+'">'+opts.join("").replace('value="'+val+'"','value="'+val+'" selected')+'</select></div>';});
-    h+='<div class="note">Queued responses fire the moment your turn comes. Others see them only once they apply.</div></div>';}
+    h+='</div>';}
   // my influence & envoys this turn
   const c=tCur(qp);
   h+='<div class="tot"><h3 style="font-size:13px">Influence & Envoys — '+esc(qp.name)+'</h3>'+
@@ -1805,7 +1827,7 @@ function tPanel(R){
   const afx=boardFx(qp);
   h+='<div class="tot"><h3 style="font-size:13px">From Pursuits & Infrastructure — '+esc(qp.name)+'</h3>'+
     (afx.length?afx.map(f=>'<div class="tb-row"><span style="flex:1">'+esc(fxLabel(f))+'</span><span class="note">'+esc(f.src)+(f.q>1?' ×'+f.q:'')+'</span></div>').join(""):'<div class="note">None active.</div>')+
-    '<div class="note">Automatic. Perform-stage effects apply after an Envoy passes and its action/target are chosen.</div></div>';
+    '</div>';
   h+='<div class="tot"><h3 style="font-size:13px">Manual modifiers — '+esc(qp.name)+'</h3>'+
     Object.keys(md).map(k=>{const m=md[k];return '<div class="tb-row">'+
       '<input data-mk="'+k+'" data-mf="label" value="'+esc(m.label||"")+'" placeholder="source" style="flex:1;min-width:80px">'+
@@ -1815,7 +1837,7 @@ function tPanel(R){
       '<input data-mk="'+k+'" data-mf="val" type="number" value="'+(+m.val||0)+'" style="width:52px">'+
       '<button data-mdel="'+k+'">✕</button></div>';}).join("")+
     '<div class="tb-row"><button id="tbMadd" data-who="'+qp.id+'">+ modifier</button></div>'+
-    '<div class="note">own Envoys: automatic ±X on Envoys you send · vote cap: raises the most you may spend on one vote. Applied automatically.</div></div>';
+    '</div>';
   h+=onceHTML(qp);
   // host controls
   const hc=canHost();
@@ -1831,7 +1853,7 @@ function tPanel(R){
     '<div class="tb-row"><label><input type="checkbox" id="tbBoardEnd"'+(boardEndOn()?" checked":"")+(hc?'':' disabled')+'> End turn also runs every board\'s end turn (timers, net gold if auto-apply is on, Public Order, Endurance)</label></div>'+
     '<div class="tb-row"><label><input type="checkbox" id="tbAutoRes"'+(t.auto?" checked":"")+(hc?'':' disabled')+'> Auto-resolve Faith/Doubt → Public Order</label></div>'+
     '<div class="tb-row"><button data-autoseat="1"'+(hc&&!seatsLocked()?'':' disabled')+'>Auto-seat unseated players</button></div>'+
-    '<div class="note">Turn '+tTurn()+(t.auto?' · outcomes apply Faith/Doubt only; gold, actions and “first Doubt” reductions stay manual':'')+'</div></div>';
+    '<div class="note">Turn '+tTurn()+'</div></div>';
   return h;}
 
 function tWire(host,R){
@@ -2347,53 +2369,92 @@ function buildFilters(){
     c.onclick=()=>{activeTypes.has(t)?activeTypes.delete(t):activeTypes.add(t);c.classList.toggle("on");renderList();};
     box.appendChild(c);});
 }
+// catalog view prefs: grouping (type | root chart) and Available / All
+let CAT={group:"type",avail:true};
+try{const c=JSON.parse(localStorage.getItem("renown_cat")||"null");if(c)CAT=Object.assign(CAT,c);}catch(_){}
+function catSave(){try{localStorage.setItem("renown_cat",JSON.stringify(CAT));}catch(_){}}
+const ROOTS=((DATA.tree&&DATA.tree.charts)||[]).map(c=>[c.title,Object.keys(c.nodes||{}).filter(n=>R[n])]).filter(x=>x[0]&&x[1].length);
+let FOR_SID=null;     // empty-ward click: catalog shows only what that settlement can take; next add goes there
+function catFor(gid){activeSid=gid;FOR_SID=gid;if(tab!=="pursuit"){const t=document.querySelector('.tab[data-k="pursuit"]');if(t)t.click();}
+  const ap=document.getElementById("appBoard");
+  if(window.innerWidth<=700&&ap){ap.dataset.mc="catalog";document.querySelectorAll("#mnav [data-mc]").forEach(x=>x.classList.toggle("on",x.dataset.mc==="catalog"));window.scrollTo(0,0);}
+  render();renderList();const c=document.getElementById("catalog");if(c)c.scrollTop=0;}
+function pAvail(n){return !onBoard(n)&&unlockStatus(n).ok;}
+function iAvail(kind,n){const src=kind==="infra"?INFRA:WON,have=kind==="infra"?S.infra:S.wonders;return !have[n]&&infraReqStatus(src[n]).ok;}
+function catUpkeep(n){if(NATURAL.has(n))return 0;const r=R[n]||{};if(r.upkeep!=null)return r.upkeep;const t=r.type;return (PUP.byType&&t in PUP.byType)?PUP.byType[t]:(PUP.def||0);}
+function seg(opts,cur,fn){const w=document.createElement("span");w.className="seg";
+  opts.forEach(([k,l])=>{const c=document.createElement("span");c.className="chip"+(k===cur?" on":"");c.textContent=l;c.onclick=()=>fn(k);w.appendChild(c);});return w;}
 function renderList(){
   const q=document.getElementById("search").value.toLowerCase();
   const list=document.getElementById("list"); list.innerHTML="";
+  const ctl=document.createElement("div");ctl.className="catctl";
+  if(tab==="pursuit"&&ROOTS.length)ctl.appendChild(seg([["type","Type"],["root","Root"]],CAT.group,k=>{CAT.group=k;catSave();renderList();}));
+  ctl.appendChild(seg([[true,"Available"],[false,"All"]],CAT.avail,k=>{CAT.avail=k;catSave();renderList();}));
+  if(tab==="pursuit"&&FOR_SID!=null){if(!S.settlements.some(s=>s.id===FOR_SID))FOR_SID=null;else{
+    const c=document.createElement("span");c.className="chip on forsid";c.textContent=settTier(FOR_SID)+" ✕";c.title="clear";
+    c.onclick=()=>{FOR_SID=null;renderList();};ctl.appendChild(c);}}
+  list.appendChild(ctl);
   if(tab==="pursuit"){
     const searching=q.length>0;
-    const shown=TYPES.filter(t=>!(activeTypes.size&&!activeTypes.has(t)) && NAMES.some(n=>R[n].type===t&&nameHit(n,q)));
-    // expand/collapse all row
-    const ctl=document.createElement("div");ctl.className="catctl";
-    const ea=document.createElement("span");ea.className="chip";ea.textContent="expand all";
-    ea.onclick=()=>{shown.forEach(t=>catOpen.add(t));renderList();};
-    const ca=document.createElement("span");ca.className="chip";ca.textContent="collapse all";
-    ca.onclick=()=>{catOpen.clear();renderList();};
-    const tl=document.createElement("span");tl.className="chip";tl.textContent="tree ▸";tl.dataset.goto="reference#refTree";
-    ctl.appendChild(ea);ctl.appendChild(ca);ctl.appendChild(tl);list.appendChild(ctl);
-    shown.forEach(t=>{
-      const mem=NAMES.filter(n=>R[n].type===t&&nameHit(n,q));
-      const openT=searching||catOpen.has(t);
+    const keep=n=>nameHit(n,q)&&!(activeTypes.size&&!activeTypes.has(R[n].type))&&(!CAT.avail||pAvail(n))&&(FOR_SID==null||canPlace(n,FOR_SID).ok);
+    const groups=(CAT.group==="root"&&ROOTS.length?ROOTS.map(([t,ns])=>[t,ns]):TYPES.map(t=>[t,NAMES.filter(n=>R[n].type===t)]))
+      .map(([t,ns])=>[t,ns.filter(keep)]).filter(g=>g[1].length);
+    const ctl2=document.createElement("div");ctl2.className="catctl";
+    const mk=(txt,fn,gt)=>{const c=document.createElement("span");c.className="chip";c.textContent=txt;if(fn)c.onclick=fn;if(gt)c.dataset.goto=gt;ctl2.appendChild(c);};
+    const gk=t=>CAT.group+":"+t;
+    mk("expand all",()=>{groups.forEach(g=>catOpen.add(gk(g[0])));renderList();});
+    mk("collapse all",()=>{catOpen.clear();renderList();});
+    mk("tree ▸",null,"reference#refTree");
+    list.appendChild(ctl2);
+    if(!groups.length){const e=document.createElement("div");e.className="empty";e.textContent=CAT.avail?"None available.":"No match.";list.appendChild(e);return;}
+    groups.forEach(([t,mem])=>{
+      const openT=searching||FOR_SID!=null||catOpen.has(gk(t));
       const g=document.createElement("div");g.className="typegroup";
       const th=document.createElement("div");th.className="th";th.style.cursor="pointer";
       th.textContent=(openT?"▾ ":"▸ ")+t+" ("+mem.length+")";
-      th.onclick=()=>{catOpen.has(t)?catOpen.delete(t):catOpen.add(t);renderList();};
+      th.onclick=()=>{catOpen.has(gk(t))?catOpen.delete(gk(t)):catOpen.add(gk(t));renderList();};
       g.appendChild(th);
-      if(openT) mem.forEach(n=>{const row=itemRow(n,R[n].monument,(PC[n]||0)>0),us=unlockStatus(n);
-        if(R[n].unlock_raw&&R[n].unlock_raw!=="-"&&R[n].unlock_raw!=="\u2014"){const m=document.createElement("span");m.className="meta";
-          m.textContent=(us.ok?(us.manual?"? ":""):"🔒 ")+R[n].unlock_raw;m.title=us.toks.map(x=>(x.ok===false?"✗ ":x.ok?"✓ ":"? ")+x.t+" — "+x.why).join("\n");
-          if(!us.ok)m.style.color="var(--upkeep)";row.insertBefore(m,row.lastChild);}
-        g.appendChild(row);});
+      if(openT) mem.forEach(n=>g.appendChild(pursuitRow(n)));
       list.appendChild(g);
     });
   } else {
-    const src=tab==="infra"?INFRA:WON, have=tab==="infra"?S.infra:S.wonders;
-    Object.keys(src).filter(n=>nameHit(n,q)).forEach(n=>{
+    const kind=tab,src=kind==="infra"?INFRA:WON,have=kind==="infra"?S.infra:S.wonders;
+    const ns=Object.keys(src).filter(n=>nameHit(n,q)&&(!CAT.avail||iAvail(kind,n)));
+    if(!ns.length){const e=document.createElement("div");e.className="empty";e.textContent=CAT.avail?"None available.":"No match.";list.appendChild(e);return;}
+    ns.forEach(n=>{
       const r=src[n];const row=itemRow(n,false,!!have[n]);
-      const meta=document.createElement("span");meta.className="meta";
       const rs=infraReqStatus(r);
-      meta.textContent=r.tier+(r.upkeep?(" · up "+r.upkeep):"")+(!rs.ok?" · 🔒":rs.manual?" · ?":"");
-      if(!rs.ok||rs.manual)meta.title=(!rs.ok?"missing: "+rs.missing.join(", "):"")+(rs.manual?(rs.ok?"":"\n")+"check manually: "+rs.toks.filter(x=>x.ok===null).map(x=>x.tok).join(", "):"");
-      row.insertBefore(meta,row.lastChild);list.appendChild(row);
+      if(!rs.ok||rs.manual){const meta=document.createElement("span");meta.className="meta";meta.textContent=!rs.ok?"🔒":"?";
+        meta.title=(!rs.ok?"missing: "+rs.missing.join(", "):"")+(rs.manual?(rs.ok?"":"\n")+"check manually: "+rs.toks.filter(x=>x.ok===null).map(x=>x.tok).join(", "):"");
+        if(!rs.ok)meta.style.color="var(--upkeep)";row.querySelector(".rtop").insertBefore(meta,row.querySelector(".addbtn"));}
+      const bt=infraBuildTime(n);
+      sub(row,[r.tier,"Upkeep "+(r.upkeep||0),"Build Timer "+bt].concat(r.requirement?["req: "+r.requirement]:[]).join(" · "),r.effect_raw);
+      tip(row,[r.effect_raw,r.requirement?"Requires: "+r.requirement:""]);
+      list.appendChild(row);
     });
   }
 }
+function pursuitRow(n){
+  const r=R[n],row=itemRow(n,r.monument,(PC[n]||0)>0),us=unlockStatus(n);
+  if(r.unlock_raw&&r.unlock_raw!=="-"&&r.unlock_raw!=="—"&&(!CAT.avail||us.manual)){const m=document.createElement("span");m.className="meta";
+    m.textContent=(us.ok?(us.manual?"? ":""):"🔒 ")+r.unlock_raw;m.title=us.toks.map(x=>(x.ok===false?"✗ ":x.ok?"✓ ":"? ")+x.t+" — "+x.why).join("\n");
+    if(!us.ok)m.style.color="var(--upkeep)";row.querySelector(".rtop").insertBefore(m,row.querySelector(".addbtn"));}
+  const parts=[NATURAL.has(n)?"Natural":"Upkeep "+catUpkeep(n),"Build Timer "+pursuitBuildTime(n)];
+  if(CAT.group==="root")parts.unshift(r.type);
+  sub(row,parts.join(" · "),NATURAL.has(n)?(r.innate_raw||"").replace(/^Natural\s*[;,.]\s*/i,""):r.innate_raw);
+  tip(row,[r.innate_raw,(r.efficient||[]).length?"Efficient: "+r.efficient.join(", "):"",r.unlock_raw&&r.unlock_raw!=="-"&&r.unlock_raw!=="—"?"Unlock: "+r.unlock_raw:""]);
+  return row;
+}
+function sub(row,cost,fx){const s=document.createElement("div");s.className="rsub";
+  s.innerHTML='<span class="rc">'+esc(cost)+'</span>'+(fx?'<span class="rfx">'+esc(fx)+'</span>':'');row.appendChild(s);}
+function tip(row,lines){const t=lines.filter(Boolean).join("\n");if(t)row.querySelector(".nm").dataset.tip=t;}
 function itemRow(n,mon,have){
   const row=document.createElement("div");row.className="row"+(mon?" mon":"")+(have?" have":"");
+  const top=document.createElement("div");top.className="rtop";
   const nm=document.createElement("span");nm.className="nm";nm.textContent=n;nm.onclick=()=>addItem(n);
   const b=document.createElement("button");b.className="addbtn";b.textContent="+";
   b.onclick=(e)=>{e.stopPropagation();addItem(n);};
-  row.appendChild(nm);row.appendChild(b);return row;
+  top.appendChild(nm);top.appendChild(b);row.appendChild(top);return row;
 }
 function flash(msg){const el=document.getElementById("flash");el.textContent=msg;el.style.opacity=1;
   clearTimeout(flash._t);flash._t=setTimeout(()=>el.style.opacity=0,2200);}
@@ -2406,7 +2467,8 @@ function addItem(n){
   if(onBoard(n)){flash(n+" already on board — one per name");return;}
   // Natural Pursuits fill Hamlets first (the only Pursuits a Hamlet takes); everything else: active settlement, capital, the rest
   const hams=(SIMPLE?hamletRoot(n):hamletOK(n))?S.settlements.filter(x=>x.tier==="Hamlet").map(x=>x.id):[];
-  const order=hams.concat([activeSid],[capitalSett()&&capitalSett().id],S.settlements.map(x=>x.id)).filter((x,i,a)=>x!=null&&a.indexOf(x)===i);
+  const forced=FOR_SID!=null&&S.settlements.some(s=>s.id===FOR_SID)&&canPlace(n,FOR_SID).ok;
+  const order=forced?[FOR_SID]:hams.concat([activeSid],[capitalSett()&&capitalSett().id],S.settlements.map(x=>x.id)).filter((x,i,a)=>x!=null&&a.indexOf(x)===i);
   let target=null,host=null,note="",hosts=null;
   // 1) efficient pairing first — before a Natural goes solo into a Hamlet: pick the settlement where adding
   //    it creates the most new efficient pairs (it rides a host there, or something already there rides it).
@@ -2422,6 +2484,8 @@ function addItem(n){
   const np={id:pid++,name:n,sid:target};if(gameStarted()){const t=pursuitBuildTime(n);if(t>0)np.bt=t;}
   if(host){np.rideOn=host;np.ride=1+Math.max(0,...S.placed.map(p=>p.ride||0));}
   S.placed.push(np);
+  if(forced){FOR_SID=null;const ap=document.getElementById("appBoard");
+    if(window.innerWidth<=700&&ap){ap.dataset.mc="board";document.querySelectorAll("#mnav [data-mc]").forEach(x=>x.classList.toggle("on",x.dataset.mc==="board"));}}
   save();render();renderList();
   flash(n+(target!=null?" → "+settTier(target)+(host?" (efficient with "+host+")":(hosts&&hosts.length?" ("+hosts.join(", ")+" efficient with it)":"")):"")+note+(gameStarted()?buildNote(pursuitBaseTime(n)):""));   // after render (it rebuilds the toolbar)
 }
@@ -2628,6 +2692,7 @@ function render(){
   computeTotals(have,earned,tc);
   renderSettlements();
   renderPO();
+  {const sig=JSON.stringify([D.active,S.domains,S.placed.map(p=>p.name+(p.bt||0)),S.infra,S.wonders,curSeason()]);if(sig!==renderList._sig){renderList._sig=sig;renderList();}}
   trIn.value=S.treasury;document.getElementById("turn").textContent=S.turn;document.getElementById("autoNet").checked=!!S.autoNet;
   const total=S.placed.length;
   document.getElementById("poolcount").textContent=total?(total+" placed · "+Object.keys(PC).length+" types"):"";
@@ -2659,6 +2724,8 @@ function renderTopBar(){
   col.oninput=()=>{p.color=col.value;const d=chip&&chip.querySelector(".pdot");if(d)d.style.background=p.color;};
   col.onchange=()=>{p.color=col.value;save();render();};
   bar.appendChild(nm);bar.appendChild(col);
+  {const w=document.createElement("span");w.innerHTML=facSelectHTML();const fs=w.firstChild;
+    fs.onchange=e=>{setFaction(e.target.value);save();render();renderList();};bar.appendChild(fs);}
   if(D.players.length>1){const del=document.createElement("button");del.className="rm";del.textContent="✕ player";
     del.onclick=()=>{D.players.splice(D.active,1);D.active=0;reindex();save();render();renderList();};bar.appendChild(del);}
 }
@@ -2734,21 +2801,21 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
       t.onclick=()=>{activeSid=gid;render();};
       const isCap=!!(S.settlements.find(x=>x.id===gid)||{}).capital;
       t.innerHTML=(gid===activeSid?"● ":"")+(isCap?"★ ":"")+tier+(isCap?' <span class="badge earn">Capital</span>':'')+' <span class="note">wards '+wu.used+'/'+wu.cap+(wu.free>0?' · <b style="color:var(--income)">'+wu.free+' empty</b>':'')+(wu.free<0?' · <b style="color:var(--upkeep)">'+(-wu.free)+' over</b>':'')+' · '+occ.length+' pursuits'+(wu.typeBad?' · <span style="color:var(--upkeep)">type!</span>':'')+(tier==="Hamlet"?' · Natural only':'')+'</span>';
-      hd.appendChild(t);hd.appendChild(settBar(gid));
+      hd.appendChild(t);
       {const so=S.settlements.find(x=>x.id===gid);if(so&&so.bt>0)hd.appendChild(timerCtl("build",so.bt,d=>{so.bt=Math.max(0,so.bt+d);save();render();}));}
-      const cb=document.createElement("button");cb.textContent=isCap?"★ capital":"☆ make capital";
+      const cb=document.createElement("button");cb.className="shb";cb.style.marginLeft="auto";cb.textContent=isCap?"★ capital":"☆ capital";
 if(isCap)cb.style.color="var(--income)";
       cb.onclick=(e)=>{e.stopPropagation();if(isCap){flash("every player has a capital — set another to move it");return;}
         setCapital(gid);save();render();};
       hd.appendChild(cb);
       const nt=nextTier(tier);
       if(nt){
-        const ex=document.createElement("button");ex.textContent="expand ▲ "+nt;
+        const ex=document.createElement("button");ex.className="shb";ex.textContent="▲ "+nt;ex.title="expand to "+nt;
         ex.onclick=(e)=>{e.stopPropagation();
           const s=S.settlements.find(x=>x.id===gid);s.tier=nt;if(gameStarted()){const t=settBuildTime(nt);if(t>0)s.bt=t;}autoFill();save();render();if(gameStarted()){const bn=buildNote(settBaseTime(nt));if(bn)flash(nt+bn);}};
         hd.appendChild(ex);
       }
-      const del=document.createElement("button");del.className="rm";del.textContent="✕ settlement";
+      const del=document.createElement("button");del.className="rm shb";del.textContent="✕";del.title="remove settlement";
       del.onclick=(e)=>{e.stopPropagation();occ.forEach(p=>p.sid=null);S.settlements=S.settlements.filter(s=>s.id!==gid);
         if(activeSid===gid)activeSid=S.settlements[0]?S.settlements[0].id:null;save();render();};
       hd.appendChild(del);
@@ -2800,8 +2867,8 @@ function wardGrid(gid,occ,earned,craft,tc,hideCombat,have){
     if(i>=wu.cap)w.classList.add("over");
     if(!pile){
       w.classList.add("empty");
-      const e=document.createElement("div");e.className="emp";e.textContent="empty ward";w.appendChild(e);
-      w.onclick=()=>{activeSid=gid;render();};
+      const e=document.createElement("div");e.className="emp";e.textContent="+";w.appendChild(e);
+      w.onclick=()=>catFor(gid);
     } else {
       const pl=document.createElement("div");pl.className="pile";
       pile.forEach((p,j)=>{const pc=document.createElement("div");pc.className="pc"+(j<pile.length-1?" buried":"");
@@ -2942,14 +3009,16 @@ function factionFlags(){const f=FAC[S.faction];if(!f)return [];const out=[];
     S.placed.filter(p=>!p.fac).forEach(p=>{const r=R[p.name];
       if(sen.includes(p.name)||types.some(t=>t===r.type&&new RegExp("\\b"+t+" (?:Pursuits|Holdings)","i").test(sen)))out.push(S.faction+": "+p.name+" — "+sen.trim());});});
   return out;}
+function facSelectHTML(){const names=Object.keys(FAC),fin=names.filter(n=>FAC[n].final),oth=names.filter(n=>!FAC[n].final);
+  const opt=n=>'<option value="'+esc(n)+'"'+(n===S.faction?' selected':'')+'>'+esc(n)+'</option>';
+  return '<select id="facSel" class="facsel" title="faction"><option value="">— faction —</option><optgroup label="Final cut">'+fin.map(opt).join('')+'</optgroup>'+
+    (oth.length?'<optgroup label="Other">'+oth.map(opt).join('')+'</optgroup>':'')+'</select>';}
 function renderFaction(){const box=document.getElementById("facBox");if(!box)return;const f=FAC[S.faction];
-  const names=Object.keys(FAC),fin=names.filter(n=>FAC[n].final),oth=names.filter(n=>!FAC[n].final);
-  const opt=n=>'<option'+(n===S.faction?' selected':'')+'>'+esc(n)+'</option>';
-  box.innerHTML='<select id="facSel"><option value="">— faction —</option><optgroup label="Final cut">'+fin.map(opt).join('')+'</optgroup>'+
-    (oth.length?'<optgroup label="Other">'+oth.map(opt).join('')+'</optgroup>':'')+'</select>'+
-    (f?'<div class="fm">'+esc(f.body||f.mechanic)+'</div><div class="fk">Difficulty '+esc(f.difficulty)+' · Strength '+esc(f.strength)+(f.feel?' · '+esc(f.feel):'')+
-      (f.pair?'<br>Pair: '+esc(f.pair):'')+(f.complement?'<br>Complement: '+esc(f.complement):'')+'</div>':'');
-  document.getElementById("facSel").onchange=e=>{setFaction(e.target.value);save();render();renderList();};
+  box.style.display=f?"":"none";
+  const was=box.querySelector("details"),open=was?was.open:false;
+  box.innerHTML=f?'<details'+(open?' open':'')+'><summary><b>'+esc(S.faction)+'</b> <span class="note">Difficulty '+esc(f.difficulty)+' · Strength '+esc(f.strength)+'</span></summary>'+
+    '<div class="fm">'+esc(f.body||f.mechanic)+'</div><div class="fk">'+(f.feel?esc(f.feel):'')+
+      (f.pair?'<br>Pair: '+esc(f.pair):'')+(f.complement?'<br>Complement: '+esc(f.complement):'')+'</div></details>':'';
 }
 function timerCtl(kind,n,step){
   const w=document.createElement("span");w.className="badge noearn tmr";w.onclick=e=>e.stopPropagation();
@@ -3304,13 +3373,15 @@ function renderArmy(){
     ? u.mods.map(m=>'<span class="kw mod" data-tok="'+m.tok.replace(/"/g,"&quot;")+'" title="'+gloss(m.tok).replace(/"/g,"&#39;")+'">'+m.tok+' <span style="opacity:.6">('+m.node+(m.via==="mastery"?"·M":"")+')</span></span>').join(" ")
     : '<span class="note">none</span>';
   up.className="block unlocks";
-  up.innerHTML='<div class="lbl">ARMY UNLOCKS &amp; MODIFIERS</div>'
+  const unlOpen=!!(up.querySelector("details")||{}).open;
+  up.innerHTML='<details'+(unlOpen?' open':'')+'><summary class="lbl" style="cursor:pointer">ARMY UNLOCKS &amp; MODIFIERS <span class="note" style="text-transform:none;letter-spacing:0">'
+    + esc([wt,[...u.armors].join(", "),[...u.retinues].join(", ")].filter(Boolean).join(" · ")+(u.mods.length?" · "+u.mods.length+" mod"+(u.mods.length>1?"s":""):""))+'</span></summary>'
     + g("Weapon tiers", wt)
     + g("Ranged", u.ranged?"yes":"no") + g("Cavalry", u.weaponsUnl&&u.weaponsUnl.size?[...u.weaponsUnl].join(", "):(u.cavalry?"yes":"no"))
     + g("Armor", [...u.armors].join(", "))
     + g("Shields", u.shields?("yes ("+[...unlockedShieldTiers(u)].sort((a,b)=>TIER_RANK[a]-TIER_RANK[b]).join(", ")+")"):"no")
     + g("Retinues", [...u.retinues].join(", "))
-    + '<div class="grp"><span class="h">Modifiers</span></div><div class="kwrow">'+modChips+'</div>';
+    + '<div class="grp"><span class="h">Modifiers</span></div><div class="kwrow">'+modChips+'</div></details>';
 
   // army cards
   const list=document.getElementById("armyList"); list.innerHTML="";
@@ -3474,9 +3545,6 @@ function armyStats(a,u){
     const s=document.createElement("span");s.className="kw mod";s.dataset.tok=m.tok;s.title=gloss(m.tok).replace(/"/g,"'");s.textContent=m.tok;kwrow.appendChild(s);});
   const wrap=document.createElement("div");wrap.appendChild(box);
   if(kwrow.children.length)wrap.appendChild(kwrow);
-  const note=document.createElement("div");note.className="note";note.style.marginTop="4px";
-  note.textContent="lower To-Strike/Save = better. Keyword interactions not resolved — reference only.";
-  wrap.appendChild(note);
   return wrap;
 }
 
@@ -3551,12 +3619,11 @@ function computeTotals(have,earned,tc){
   const cs0=curSeason(),sa0=((m.seasonAdd||{})[cs0]||0)+(SEASON_DBL_TYPE(cs0)?husbandryGoldFor(S,cs0):0),wt=winterTax(S),tx0=cs0==="Winter"?wt.total:0,tr0=tradeIncome(S,cs0),net0=m.baseNet+sa0+tx0+tr0.total;
   const ng=document.getElementById("netgold");ng.textContent=fmt(net0);
   ng.className="n "+(net0<0?"neg":net0>0?"pos":"");
-  document.getElementById("netnote").innerHTML=
-    "gold "+fmt(m.gold)+(m.scale?(" · scaling "+fmt(m.scale)):"")+" · infra "+fmt(-m.infraUp)+" · pursuits "+fmt(-m.pursUp)+
-    " · army ("+String(m.armyGross)+" cost − "+m.reduce+" reduce = "+fmt(-m.netArmy)+")"+
-    (()=>{const nb=(S.placed||[]).filter(q=>q.bt>0).length;return nb?" · "+nb+" building (no income or effects until built)":"";})()+
-    (sa0?" · "+cs0+" "+fmt(sa0):"")+(cs0==="Winter"?" · Winter tax "+fmt(wt.base)+(wt.adj?" "+(wt.adj>0?"+":"−")+Math.abs(wt.adj)+" PO":"")+((wt.dbl||[]).length?" ×2 ("+wt.dbl.join(", ")+")":""):"")+
-    (tr0.total?" · trade "+fmt(tr0.total)+" ("+tr0.lines.join(", ")+"; Host "+(hostP()?hostP().name:"?")+")":"");
+  document.getElementById("netnote").innerHTML=[
+    (()=>{const nb=(S.placed||[]).filter(q=>q.bt>0).length;return nb?nb+" building":"";})(),
+    sa0?cs0+" "+fmt(sa0):"",
+    cs0==="Winter"?"Winter tax "+fmt(wt.base)+(wt.adj?" "+(wt.adj>0?"+":"−")+Math.abs(wt.adj)+" PO":"")+((wt.dbl||[]).length?" ×2 ("+wt.dbl.join(", ")+")":""):"",
+    tr0.total?"trade "+fmt(tr0.total)+" ("+tr0.lines.join(", ")+"; Host "+(hostP()?hostP().name:"?")+")":""].filter(Boolean).join(" · ");
   const sg=document.getElementById("seasons");sg.innerHTML="";
   const cse=curSeason();
   SEASONS.forEach(s=>{const v=m.baseNet+m.seasonAdd[s]+(s==="Winter"?wt.total:0)+tradeIncome(S,s).total;const c=document.createElement("div");c.className="scell"+(s===cse?" cur":"");
@@ -3631,14 +3698,19 @@ function renderPO(){
   const v=Math.max(PO_MIN,Math.min(PO_MAX,S.po||0));S.po=v;
   set("poVal",v);const band=poBandName(v);
   document.getElementById("poBand").textContent=band?band[0]:"";
+  {const bs=document.getElementById("poBandS");if(bs)bs.textContent=(band?band[0]+" ":"")+(S.po>0?"+":"")+(S.po||0);}
   const act=poActiveEffects(v,S),imm=poImmune(S);
   document.getElementById("poEffect").textContent=imm?("no effects — "+imm):act.length?("active ("+act.length+"): "+act.map(b=>b[1]).join(" · ")):"no active effects";
   const on=new Set(poActiveKeys(v,S)), curK=Math.max(...Object.keys(PO).map(Number).filter(k=>k<=v));
   const lad=document.getElementById("poLadder");
-  lad.innerHTML=Object.keys(PO).map(Number).sort((a,b)=>b-a).map(k=>{const b=PO[String(k)];
-    return '<div class="pr'+(on.has(k)?' on '+(k<0?'neg':'pos'):'')+(k===curK?' cur':'')+'"><span class="v">'+(k>0?'+':'')+k+'</span><span>'+esc(b[0])+'</span><span>'+esc(b[1])+'</span></div>';}).join("");
+  const ks=Object.keys(PO).map(Number).sort((a,b)=>b-a),near=k=>PO_FULL||Math.abs(k-curK)<=2||(on.has(k)&&k!==0);
+  lad.innerHTML=ks.filter(near).map(k=>{const b=PO[String(k)];
+    return '<div class="pr'+(on.has(k)?' on '+(k<0?'neg':'pos'):'')+(k===curK?' cur':'')+'"><span class="v">'+(k>0?'+':'')+k+'</span><span>'+esc(b[0])+'</span><span>'+esc(b[1])+'</span></div>';}).join("")+
+    (ks.some(k=>!near(k))||PO_FULL?'<div class="more" id="poMore">'+(PO_FULL?'▴ less':'▾ full track')+'</div>':'');
+  {const mo=document.getElementById("poMore");if(mo)mo.onclick=()=>{PO_FULL=!PO_FULL;renderPO();};}
 }
 
+let PO_FULL=false;
 // ---- Dashboards view ----
 // ---- seasons ----
 const SEAS=DATA.seasons||{},SEAS_ORDER=Object.keys(SEAS);
@@ -3768,9 +3840,9 @@ function renderInfluence(){renderDP();const box=document.getElementById("inflBox
     '<div class="note">Breakdown, Envoys and modifiers: <a href="#" data-goto="table">Table ▸</a></div>';}
 function renderPOMods(){const box=document.getElementById("poMods");if(!box)return;const rows=poModRows(S),tot=poModTotal(S),m=boardMetrics(S);
   box.innerHTML='<div class="pomh">'+['faith','doubt'].map(side=>'<div><div class="lbl tipk" data-tip="'+esc(GLOSS[side==='faith'?'Faith X':'Doubt X']||'')+'">'+side.toUpperCase()+'</div>'+
-    rows.filter(r=>r.side===side).map(r=>'<div class="pomr"><span class="tipk" data-tip="'+esc(r.k+": "+r.desc+(r.auto?" (counted automatically)":" (set with − / +)"))+'">'+esc(r.k)+'</span><span>'+
+    rows.filter(r=>r.side===side).map(r=>'<div class="pomr"><span class="tipk" data-tip="'+esc(r.k+": "+r.desc)+'">'+esc(r.k)+'</span><span>'+
       (r.auto?'<b>'+r.n+'</b>':'<button class="pmd" data-k="'+esc(r.k)+'" data-d="-1">−</button><b>'+r.n+'</b><button class="pmd" data-k="'+esc(r.k)+'" data-d="1">+</button>')+'</span></div>').join('')+'</div>').join('')+'</div>'+
-    '<div class="kv"><span class="k tipk" data-tip="Public Order change at End turn: Faith \u2212 Doubt from your active pieces, then the modifiers above (Faith +1 each, Doubt \u22121 each). Public Order stays between the track\u2019s ends.">PO / turn</span><span class="val">'+fmt(m.po)+' '+(tot<0?'−':'+')+' '+Math.abs(tot)+' = '+fmt(m.po+tot)+'</span></div>'+
+    '<div class="kv"><span class="k">PO / turn</span><span class="val">'+fmt(m.po)+' '+(tot<0?'−':'+')+' '+Math.abs(tot)+' = '+fmt(m.po+tot)+'</span></div>'+
     (()=>{const pf=poFloor(S);return pf?'<div class="kv"><span class="k">'+esc(pf.src)+'</span><span class="val">floor '+pf.to+'</span></div>':'';})();
   box.querySelectorAll(".pmd").forEach(bt=>bt.onclick=()=>{S.poMods=S.poMods||{};const k=bt.dataset.k;S.poMods[k]=Math.max(0,(+S.poMods[k]||0)+(+bt.dataset.d));save();render();});}
 // ---- siege calculator (SIEGE_CALCULUS / SIEGE_SOURCE_VALUES) ----
@@ -3811,7 +3883,7 @@ function realmTimers(){D.rtimers=D.rtimers||[];return D.rtimers;}
 function timerAddHTML(){const keys=Object.keys(TMR),p=D.players[D.active]||{};
   return '<h3 style="font-size:13px">Start a timer</h3><div class="bcrow" style="margin-top:6px;flex-wrap:wrap"><select id="rtType">'+keys.map(k=>'<option>'+esc(k)+'</option>').join('')+'</select>'+
     '<input id="rtLabel" placeholder="label (e.g. target)" style="width:150px"><input id="rtN" type="number" style="width:56px" value="'+(((TMR[keys[0]]||{}).default)||1)+'">'+
-    '<button id="rtAdd">start</button></div><div class="note">Shared with everyone; listed on the Table under Active timers. Build and Repair timers are set on each Pursuit card.</div>';}
+    '<button id="rtAdd">start</button></div>';}
 function boardTimerRows(){const R_=[];
   D.players.forEach(p=>{const b=p.board,sn=id=>{const x=(b.settlements||[]).find(s=>s.id===id);return x?(x.name||x.tier):"";};
     (b.placed||[]).forEach(q=>{if(q.bt>0)R_.push([p,"Build Timer",q.name+" · "+sn(q.sid),q.bt]);if(q.dmg>0)R_.push([p,"Repair Timer",q.name+" · "+sn(q.sid),q.dmg]);});
@@ -3826,7 +3898,7 @@ function siegeResolveHTML(t,i){if(t.kind!=="siege"||t.n>0)return "";const from=p
 function activeTimersHTML(){const T=realmTimers(),B_=boardTimerRows();
   return '<div class="tot"><h3 style="font-size:13px">Active timers</h3>'+
     (T.length?'<table class="dtable ttab"><tbody>'+T.map((t,i)=>'<tr'+(t.n<=0?' class="broll"':'')+'><td>'+esc(t.type)+'</td><td>'+esc(t.label||'')+siegeResolveHTML(t,i)+'</td><td class="num"><button class="rtd" data-i="'+i+'" data-d="-1">−</button> <b>'+t.n+'</b> <button class="rtd" data-i="'+i+'" data-d="1">+</button></td><td><button class="rtx" data-i="'+i+'">✕</button></td></tr>').join('')+'</tbody></table>':'<div class="note">No realm timers.</div>')+
-    (T.length?'<div class="bcrow" style="margin-top:6px"><button id="rtTick">−1 all</button><span class="note">Sieges don\'t tick in Winter.'+(boardEndOn()?' End turn ticks these too.':'')+'</span></div>':'')+
+    (T.length?'<div class="bcrow" style="margin-top:6px"><button id="rtTick">−1 all</button><span class="note">Sieges don\'t tick in Winter.</span></div>':'')+
     (B_.length?'<div class="lbl" style="margin-top:8px">Build & Repair (set on each Board)</div><table class="dtable ttab"><tbody>'+B_.map(r=>'<tr><td><span class="pdot" style="background:'+r[0].color+'"></span>'+esc(r[0].name)+'</td><td>'+esc(r[1])+'</td><td>'+kwify(r[2])+'</td><td class="num"><b>'+r[3]+'</b></td></tr>').join('')+'</tbody></table>':'')+
     '</div>';}
 function timersHTML(){const T=realmTimers(),keys=Object.keys(TMR);
@@ -4294,7 +4366,7 @@ function sideHTML(X){
     D.players.map(p=>'<option value="'+p.id+'"'+(sd.kind!=="bandit"&&String(p.id)===String(sd.pid)?' selected':'')+'>'+esc(p.name)+'</option>').join('')+
     Object.keys(mapState().camps).map(k=>{const cp=mapState().camps[k];return '<option value="bandit:'+k+'"'+(sd.kind==="bandit"&&sd.camp===k?' selected':'')+'>☠ Bandit '+(cp.n>=(BAN.armyThreshold||25)?'Army':'Camp')+' @ '+k+' ('+cp.n+')</option>';}).join('')+'</select>';
   if(sd.kind==="bandit"){const {a}=sideArmy(sd),lo=BLO[currentEra()]||{};
-    h+=a?'<select class="bret" data-x="'+X+'"><option value="">retinue…</option>'+Object.keys(EQ.retinues).map(r=>'<option'+(a.retinue===r?' selected':'')+'>'+esc(r)+'</option>').join('')+'</select></div>'+
+    h+=a?'<select class="bret" data-x="'+X+'"><option value="">retinue…</option>'+Object.keys(EQ.retinues).map(r=>'<option value="'+esc(r)+'"'+(a.retinue===r?' selected':'')+'>'+esc(r)+'</option>').join('')+'</select></div>'+
       '<div class="note">Armed for '+esc(currentEra())+': '+esc(((BAN.equipment||{})[currentEra()])||'—')+' → '+esc([a.weapon,a.armor,a.shield].filter(x=>x&&x!=="None").join(', '))+
       ((lo.unmatched||[]).length?' <span style="color:var(--upkeep)">· not found in equipment data: '+esc(lo.unmatched.join(', '))+'</span>':'')+
       '<br>Retinue defaults to '+BANDIT_DEFAULT_RETINUE+'.</div>':'<div class="note">camp removed from map</div>';
@@ -5428,6 +5500,7 @@ function renderSettlements(){
   if(!S.settlements.length){const d=document.createElement("div");d.className="note";d.textContent="no settlements — add them in the Pursuits section";grid.appendChild(d);grid.appendChild(document.createElement("div"));}
   const unplaced=S.placed.filter(p=>p.sid==null).length;
   document.getElementById("wards").textContent=used+" / "+avail+(unplaced?("  ("+unplaced+" unplaced)"):"");
+  {const ws=document.getElementById("wardsS");if(ws)ws.textContent=used+" / "+avail;}
   document.getElementById("tax").textContent=fmt(tax)+(wtx.src.length?" ("+wtx.src.join(", ")+")":"");
   const bar=document.getElementById("wardbar");bar.innerHTML="";const pct=avail?Math.min(100,used/avail*100):0;
   const f=document.createElement("span");f.style.width=pct+"%";f.style.background=used>avail?cvar("--upkeep"):cvar("--income");
@@ -5534,11 +5607,15 @@ function renderHUD(){const el=document.getElementById("hud");if(!el)return;const
   const t=document.getElementById("hudOthers");if(t)t.onclick=e=>{e.preventDefault();HUD_OTHERS=!HUD_OTHERS;try{localStorage.setItem("renown_hud_others",HUD_OTHERS?"1":"0");}catch(_){}renderHUD();};}
 function renderTurnStrip(){const el=document.getElementById("turnStrip");if(!el)return;
   const ph=tPhase(),hp=hostP(),hc=canHost(),i=T_PH.indexOf(ph),nx=T_PH[(i+1)%T_PH.length];
-  el.innerHTML='<span class="ts-i"><span class="note">Turn</span> <b>'+tTurn()+'</b></span>'+
+  const me=meP(),unseated=me&&!seated().some(p=>sameP(p,me)),steps=(DATA.phaseSteps||{})[ph]||[];
+  const cap=s=>s.length>28?s.slice(0,27).replace(/\s+\S*$/,"")+"…":s;
+  el.innerHTML=(unseated?'<button class="ts-seat" data-goto="table">Take a seat ▸</button>':'')+
+    '<span class="ts-i"><span class="note">Turn</span> <b>'+tTurn()+'</b></span>'+
     '<span class="ts-i"><button data-ts="sea-" title="previous Season">◂</button><b>'+esc(curSeason())+'</b><button data-ts="sea+" title="next Season">▸</button></span>'+
     '<span class="ts-i"><span class="note">Renown</span><button data-ts="rn-">−</button><b>'+(D.renown||1)+'</b><button data-ts="rn+">+</button><span class="note">'+esc(currentEra())+'</span></span>'+
-    '<span class="ts-i"><span class="note">Phase</span> <b>'+T_PHL[ph].replace(" Phase","")+'</b>'+(hc?'<button data-ts="ph" title="advance to '+T_PHL[nx]+'">▸</button>':'')+'</span>'+
-    '<span class="ts-i"><span class="note">Host</span> <b>'+(hp?esc(hp.name):'—')+'</b>'+(hp&&!TB().hostSet?' <span class="note">(default)</span>':'')+firstHostBtn()+'</span>'+
+    '<span class="ts-i"><span class="note">Host</span> <b>'+(hp?esc(hp.name):'—')+'</b>'+(hp&&!TB().hostSet?' <span class="note">(default)</span>':'')+(unseated?'':firstHostBtn())+'</span>'+
+    '<span class="ts-i ts-ph"><b>'+esc(T_PHL[ph])+'</b>'+(hc?'<button data-ts="ph" title="'+esc(T_PHL[nx])+'">▸</button>':'')+'</span>'+
+    (steps.length?'<span class="ts-steps">'+steps.map((s,k)=>'<span class="ts-step" data-tip="'+esc(s[1])+'"><i>'+(k+1)+'</i>'+esc(cap(s[0]))+'</span>').join('')+'</span>':'')+
     (ADMIN?'<span class="ts-i"><b style="color:var(--order)">♛ DUKE</b></span>':'')+(hc?'<button class="ts-end" data-ts="end">End turn</button>':'');}
 document.addEventListener("click",e=>{const b=e.target.closest("#turnStrip [data-ts]");if(!b)return;const k=b.dataset.ts;
   if(k==="sea-"||k==="sea+"){stepSeason(k==="sea+"?1:-1);save();render();}
@@ -5549,7 +5626,7 @@ document.addEventListener("click",e=>{const b=e.target.closest("#turnStrip [data
   else if(k==="end"){if(tPhase()!=="rest"&&!confirm("End the turn now? (current phase: "+T_PHL[tPhase()]+")"))return;tEndTurn();}});
 // one End turn: with the Table's "every board" toggle on, the Treasury button defers to it
 function syncBoardEndBtn(){const b=document.getElementById("endturn");if(!b)return;const on=boardEndOn();
-  b.disabled=on;b.title=on?"The End turn button in the turn strip ends every board's turn":"";}
+  b.disabled=on;b.style.display=on?"none":"";b.title="";}
 // ⋯ menu: Game + server panels live here (moved once at startup, ids unchanged)
 (()=>{const m=document.getElementById("appMenu");["gameBox","srvBox"].forEach(id=>{const e=document.getElementById(id);if(e){e.style.marginTop="0";m.appendChild(e);}});})();
 // jump links: data-goto="view", "board:<board|catalog|summary>", "view#elementId"
@@ -5564,7 +5641,7 @@ document.addEventListener("click",e=>{const a=e.target.closest("[data-goto]");if
 // ---- phone section switcher (Board / Catalog / Totals) ----
 document.querySelectorAll("#mnav [data-mc]").forEach(b=>b.onclick=()=>{document.getElementById("appBoard").dataset.mc=b.dataset.mc;
   document.querySelectorAll("#mnav [data-mc]").forEach(x=>x.classList.toggle("on",x===b));window.scrollTo(0,0);});
-function mnavSync(){const tb=document.querySelector(".topbar");if(tb)document.documentElement.style.setProperty("--tbh",tb.offsetHeight+"px");
+function mnavSync(){const tb=document.querySelector(".topbar");if(tb)document.documentElement.style.setProperty("--tbh",(getComputedStyle(tb).position==="sticky"?tb.offsetHeight:0)+"px");
 }
 window.addEventListener("resize",mnavSync);setInterval(mnavSync,1000);
 
@@ -6007,6 +6084,20 @@ def rules_section(rules_path, heading, ns):
         return str(v) if v is not None else m.group(0)
     return re.sub(r"\{\{VAL:([^}]+)\}\}", sub, txt)
 
+def phase_steps(body):
+    """Top-level list items of a phase's rules section -> [[label, line]]; label = bold lead, else the line itself."""
+    out = []
+    for ln in (body or "").splitlines():
+        m = re.match(r"^(?:\d+\.|[-*])\s+(.*)$", ln)          # top level only (nested items are indented)
+        if not m: continue
+        line = m.group(1).strip()
+        b = re.match(r"^\*\*(.+?)\*\*", line)
+        plain = re.sub(r"\*\*|\*", "", line)
+        label = b.group(1) if b else re.split(r";|\.\s|\.$| \u2014 |\(", plain)[0]
+        label = label.rstrip(":").strip()
+        out.append([label, plain])
+    return out
+
 def battle_data(ns, rules_path):
     M = ns.get("TACTIC_MATRIX", {})
     return {
@@ -6120,6 +6211,9 @@ def main():
                      "requires": v.get("requires", ""), "effect": v.get("effect", ""), "notes": list(v.get("notes", []) or [])}
                  for k, v in ns.get("ACTIONS", {}).items()},
         phaseRules={k: rules_section(rules_path, h, ns) for k, h in
+                    (("empire", "Empire Phase"), ("council", "Council Phase"), ("envoy", "Envoy Phase"),
+                     ("battle", "Battle Phase"), ("rest", "Rest Phase"))},
+        phaseSteps={k: phase_steps(rules_section(rules_path, h, ns)) for k, h in
                     (("empire", "Empire Phase"), ("council", "Council Phase"), ("envoy", "Envoy Phase"),
                      ("battle", "Battle Phase"), ("rest", "Rest Phase"))},
         rulesConst={k: ns.get(k) for k in RULES_CONSTS if k in ns},
