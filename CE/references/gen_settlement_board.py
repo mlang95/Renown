@@ -3615,7 +3615,7 @@ function calcMetrics(have,earned,tc){
      let outside=false;S.armies.forEach(a=>{const k=armyHex(me,a);if(!k)return;const c=armyUpkeep(a);
        if(prov.has(k)){if(bt)reduce+=c;}else outside=true;});
      if(outside)bo.forEach(x=>{reduce+=+x.m[1];});                                    // once, while an Army is not in Province
-     const dg=srcMatch(S,/While At War, your Armies pay no upkeep in Territory your at-war player controls/i).length;
+     const dg=srcMatch(S,/While At War, your Armies (?:pay no upkeep in Territory your at-war player controls|within reach of at-war Settlements Extort their upkeep)/i).length;   // Danegeld (both wordings)
      if(dg){const g=mapState().grid,own=reachOwners(mapState(),g.width,g.height);S.armies.forEach(a=>{const k=armyHex(me,a);if(!k||!own[k])return;
        if([...own[k]].some(id=>id!==pid&&effPair(pid,id).war))reduce+=armyUpkeep(a);});}
      if(lh.length&&S.armies.some(a=>{const k=armyHex(me,a);return k&&(S.settlements||[]).some(s=>settHex(me,s)===k);}))lh.forEach(x=>{reduce+=+x.m[1];});}}
