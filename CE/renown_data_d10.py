@@ -2888,7 +2888,7 @@ FACTIONS = {
         'feel': 'Civic Soft Power',
         'difficulty': 'Medium',
         'strength': 'Medium',
-        'mechanic': "Arts & Humanities / Hearts & Minds: You can't build Craft Pursuits. Your Works & Devotion Pursuits have Craft +1 and cost no Upkeep. You must accept a Peace Treaty if one is offered.",
+        'mechanic': "Arts & Humanities / Hearts & Minds: You can't build Commerce Pursuits. Your Works & Devotion Pursuits have Craft +1 and cost no Upkeep. You must accept a Peace Treaty if one is offered.",
         'pair': 'Studium Generale, Aristocratic Court, Senate Hall',
         'complement': 'Royal Pavilion',
     },
@@ -4080,8 +4080,8 @@ def die_table_weights(table, faces=None):
 # ── CUNNING TABLE — what a camp of BANDIT_CUNNING_MIN+ retinues does each turn ─
 # Tune these ranges freely; die_table_verify() enforces full coverage of 1..FACES.
 BANDIT_CUNNING_TABLE = {
-    (1, 2):  "Intercept Caravan",
-    (3, 5):  "Raze",
+    (1, 3):  "Raze",
+    (4, 5):  "Intercept Caravan",
     (6, 7):  "Sabotage",
     (8, 9):  "Destabilize",
     10:      "Foster Rebellion",
@@ -4098,11 +4098,12 @@ def bandit_cunning_text(faces=None):
 
 # ── TACTIC TABLE — explicit ranges, same plumbing (replaces the even auto-split)
 BANDIT_TACTIC_TABLE = {
-    (1, 2):  "Ambush",
-    (3, 4):  "Flank",
-    (5, 6):  "Charge",
+         1:  "Scout",
+         2:  "Ambush",
+         3:  "Flank",
+    (4, 6):  "Charge",
     (7, 8):  "Fighting Formation",
-    (9, 10): "Defensive Formation",
+   (9, 10):  "Defensive Formation",
 }
 BANDIT_TACTICS = [a for _, _, a in die_table_ranges(BANDIT_TACTIC_TABLE)]
 

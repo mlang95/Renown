@@ -215,6 +215,8 @@ def envoy_fx(raw):
         if m: out.append({"k": "capEra", "era": m.group(1).title(), "val": int(m.group(2))}); continue
         if re.search(r"unspent Influence isn't discarded", c, re.I): out.append({"k": "carry"}); continue
         if re.search(r"You Abstain on every vote on other players' Envoys", c, re.I): out.append({"k": "alwaysAbstain"}); continue
+        if re.search(r"You abstain (?:on )?every Personal Envoy", c, re.I): out.append({"k": "alwaysAbstain"}); continue   # Council Envoys take no votes
+        if re.search(r"You can't vote nor send Council Envoys", c, re.I): out += [{"k": "noVote"}, {"k": "noCouncil"}]; continue
         m = re.search(r"other players must spend (\d+) Influence to affect your Envoys by 1", c, re.I)
         if m: out.append({"k": "voteCost", "val": int(m.group(1))}); continue
         if re.search(r"Ignore the innate Doubt and Influence modifiers for being At War", c, re.I): out.append({"k": "ignoreWar"}); continue
@@ -1407,7 +1409,7 @@ function outText(dom,out){return ((EOUT[dom]||{})[String(out).toLowerCase()])||"
 // ---- the plan: ordered envoys for the current phase ----
 function tPlan(ph,ord,councilDom){const L=[];
   if(ph==="council"&&isSpring())return L;
-  if(ph==="council"){const nc=councilEnvoys();ord.forEach(p=>{for(let k=0;k<nc;k++)L.push({id:"C:"+p.id+(k?":"+k:""),owner:p,dom:councilDom||null,council:true,k});});return L;}
+  if(ph==="council"){const nc=councilEnvoys();ord.forEach(p=>{if(fxOf(p,"noCouncil").length)return;for(let k=0;k<nc;k++)L.push({id:"C:"+p.id+(k?":"+k:""),owner:p,dom:councilDom||null,council:true,k});});return L;}
   if(ph!=="envoy"||!ord.every(p=>(tCur(p).decl||{}).lock))return L;
   const cnt=(p,d)=>Math.max(0,+(((tCur(p).decl||{}).n||{})[d])||0);
   if(!isSpring())ord.forEach(p=>{for(let k=0;k<cnt(p,"Diplomacy");k++)L.push({id:"E:"+p.id+":Diplomacy:"+k,owner:p,dom:"Diplomacy",k});});
@@ -1443,7 +1445,8 @@ function tSim(){
   function envoyRun(E){
     E.innate=innateInf(E.owner,E.dom,E.council);E.votes=[];E.sup=0;E.opp=0;R.envoys.push(E);
     const jest={};fxOf(E.owner,"jester").forEach(f=>jest[f.n]=(jest[f.n]||0)+f.val);let oppN=0;
-    for(const v of (E.council?[]:voteOrd(ord))){if(sameP(v,E.owner))continue;   // Council Envoys auto-Abstain: no votes
+    for(const v of (E.council?[]:voteOrd(ord))){if(sameP(v,E.owner))continue;
+      if(fxOf(v,"noVote").length){E.votes.push({who:v,a:"A",x:0,eff:0,auto:true});continue;}   // Council Envoys auto-Abstain: no votes
       const r=runSlot(E.id+">"+v.id,v,tCur(v).votes[E.id]);
       if(!r){R.curEnvoy=E;return false;}
       let a="A",x=0;
@@ -1463,7 +1466,8 @@ function tSim(){
     E.done=true;R.log.push({kind:"envoy",E});return true;}
   if(ph==="council"){
     const tally={};
-    for(const p of voteOrd(ord)){const r=runSlot("CV:"+p.id,p,tCur(p).council);if(!r)return R;
+    for(const p of voteOrd(ord)){if(fxOf(p,"noVote").length){R.log.push({kind:"cvote",who:p,dom:null,auto:true});continue;}
+      const r=runSlot("CV:"+p.id,p,tCur(p).council);if(!r)return R;
       const d=r.rec&&T_DOMS.includes(r.rec.dom)?r.rec.dom:null,w=fxOf(p,"councilVotes").reduce((m,f)=>Math.max(m,f.val),1);
       if(d)tally[d]=(tally[d]||0)+w;if(d&&fxOf(p,"councilChoose").length)R.chooser={p,d};
       R.log.push({kind:"cvote",who:p,dom:d,pre:!!r.pre,timeout:!!r.timeout,forced:!!r.forced,auto:!!r.auto});}
@@ -2102,7 +2106,11 @@ function tickTimers(b){const done=[],pl=playerOfBoard(b),bs=sid=>!!pl&&settBesie
   return done;}
 // pursuit upkeep: PURSUIT_UPKEEP_BY_TYPE, else PURSUIT_UPKEEP_DEFAULT; faction pieces pay none
 const PUP=DATA.pursuitUpkeep||{byType:{},def:0};
+// faction "Your <Type>[ & <Type>] Pursuits|Holdings have Craft +N[ and cost no Upkeep]" (Luminous Court)
+function facTypeBonus(b){const f=(FAC[(b||{}).faction||""]||{}).mechanic||"",m=String(f).replace(/\*\*/g,"").match(/Your ([\w &,]+?) (?:Pursuits|Holdings) have Craft \+(\d+)( and cost no Upkeep)?/i);
+  return m?{types:m[1].split(/\s*(?:&|,|\band\b)\s*/).map(x=>x.trim()).filter(Boolean),craft:+m[2],free:!!m[3]}:null;}
 function pursuitUpkeep(p){if(p.fac||!pActive(p)||NATURAL.has(p.name))return 0;   // faction, inactive (building / Damaged / repairing), or Natural
+  {const tb=facTypeBonus(S);if(tb&&tb.free&&tb.types.includes((R[p.name]||{}).type))return 0;}
   const r=R[p.name]||{};if(r.upkeep!=null)return r.upkeep;const t=r.type;return (PUP.byType&&t in PUP.byType)?PUP.byType[t]:(PUP.def||0);}
 function withBoard(b,fn){const pS=S,pPC=PC;S=b;recomputePC();const r=fn();S=pS;PC=pPC;return r;}
 
@@ -3593,6 +3601,8 @@ function calcMetrics(have,earned,tc){
   Object.keys(S.wonders).forEach(n=>{const on=infraOn(n);eat(WON[n].atoms,on,1);if(on)infraUp+=WON[n].upkeep;});
   {const me=playerOfBoard(S);if(me)S.placed.forEach(q=>{if(!pActive(q)||!settBesieged(me,q.sid))return;
      ((R[q.name]||{}).innate||[]).forEach(a=>{if(a.cat==="craft"&&a.flat&&!a.season)craft-=a.val;});});}   // besieged: no Craft X
+  {const tb=facTypeBonus(S),me=playerOfBoard(S);if(tb)S.placed.forEach(q=>{if(q.fac||!pActive(q)||!tb.types.includes((R[q.name]||{}).type))return;
+     if(me&&settBesieged(me,q.sid))return;craft+=tb.craft;});}
   {const me=playerOfBoard(S),pid=me?String(me.id):null,war=playerAtWar(pid),cpg=[];
    srcMatch(S,/Faith \+(\d+) while (not )?at War/i).forEach(x=>{if(!!x.m[2]!==war)faith+=+x.m[1];});
    srcMatch(S,/Faith \+(\d+) for every player you.re At War with/i).forEach(x=>{faith+=(+x.m[1])*D.players.filter(q=>pid&&String(q.id)!==pid&&effPair(pid,q.id).war).length;});
@@ -3746,6 +3756,7 @@ function influenceRowsBase(b){
   const mw=withBoard(b,()=>S.placed.filter(q=>pActive(q)&&(R[q.name]||{}).type==="Monument").length+Object.keys(S.wonders).filter(infraOn).length);
   add("Monuments & Wonders",mw,mw*igVal("Monuments & Wonders"));
   const oth=boardMetrics(b).infl;add("Other sources",oth?1:0,oth);
+  royalMarriage(b).forEach(x=>{if(x.infl)rows.push({k:x.src,cnt:1,val:x.infl});});
   // Public Order bands "±N Influence" apply when Influence is gained (cumulative bands; Plague Pit immune, Charnel House ×2)
   {const dbl=poDoubled(),po=Math.max(PO_MIN,Math.min(PO_MAX,b.po||0));
    poActiveKeys(po,b).forEach(k=>{const e=PO[String(k)];if(!Array.isArray(e))return;const m=String(e[1]).match(/^([+\-\u2212]\s?\d+)\s*Influence$/i);if(!m)return;
@@ -3772,6 +3783,15 @@ function poModRows(b){b.poMods=b.poMods||{};const p=playerOfBoard(b),pid=p?Strin
     "Insolvency":()=>+b.insolv||0,"Mounting Panic":()=>p?besiegedCount(p):0};
   ["faith","doubt"].forEach(side=>Object.keys(POM[side]||{}).forEach(k=>{const a=auto[k];
     rows.push({side,k,desc:POM[side][k],auto:!!a,n:a?a():(+b.poMods[k]||0)});}));
+  royalMarriage(b).forEach(x=>{if(x.faith)rows.push({side:"faith",k:x.src,desc:"Royal Marriage Alliance member",auto:true,n:x.faith});});
+  // faction "Gain Faith|Doubt +N per Empire Phase" (own faction only; "for every …" variants are counted in calcMetrics)
+  if(b.faction)srcMatch(b,/^(?:[^:]+:\s*)?(?:Gain )?(Faith|Doubt) \+(\d+) per Empire Phase$/i).filter(x=>x.n===b.faction).forEach(x=>
+    rows.push({side:x.m[1].toLowerCase(),k:b.faction,desc:x.m[1]+" +"+x.m[2]+" per Empire Phase",auto:true,n:+x.m[2]}));
+  // "Each player gains Doubt +N per Empire Phase per Sacred War you're on" (Prophets of War): its owner keeps the Sacred War count
+  D.players.forEach(q=>srcMatch(q.board,/Each player gains (Doubt|Faith) \+(\d+) per Empire Phase per Sacred War you.re on/i).filter(x=>x.n===q.board.faction).forEach(x=>{
+    const K="Sacred Wars · "+q.board.faction,cnt=+((q.board.poMods||{})[K])||0;
+    if(q.board===b)rows.push({side:x.m[1].toLowerCase(),k:K,desc:"Sacred Wars you're on (each player: "+x.m[1]+" +"+x.m[2]+" each)",auto:false,n:cnt*+x.m[2]});
+    else if(cnt)rows.push({side:x.m[1].toLowerCase(),k:x.n+" · "+q.name,desc:cnt+" Sacred War"+(cnt>1?"s":"")+" ("+q.name+")",auto:true,n:cnt*+x.m[2]});}));
   if(p)bordersOf(p).forEach(q=>srcMatch(q.board,/Each bordering player gains (Doubt|Faith) \+(\d+)/i).forEach(x=>
     rows.push({side:x.m[1].toLowerCase(),k:x.n+" · "+q.name,desc:"bordering "+q.name,auto:true,n:+x.m[2]})));
   return rows.concat(epRows(b));}
@@ -3800,6 +3820,13 @@ function epSources(b){const out=[],dv=b.domains||{},TIERS=[["Rising",RIS],["Esta
 // allied: a Vassal inherits every Treaty its (top) Suzerain holds → allied to that Suzerain, the Suzerain's other Vassals,
 // and the Suzerain's Alliance group. (Possible later carve-out: Trade Agreements.)
 function topSuz(id){const d=diplo();let c=String(id),g=16;while(d.suzerain[c]&&g--)c=String(d.suzerain[c]);return c;}
+// "While in that Alliance, each member gains Faith +N and +M Influence per turn" (Royal Marriage): applied to every member of
+// the Alliance the faction's owner is in (the board doesn't record which Alliance the once-per-game ability formed)
+function royalMarriage(b){const p=playerOfBoard(b),out=[];if(!p)return out;const d=diplo();
+  D.players.forEach(q=>{const f=(FAC[q.board.faction||""]||{}).mechanic||"",m=String(f).match(/While in that Alliance, each member gains Faith \+(\d+) and \+(\d+) Influence per turn/i);if(!m)return;
+    const inA=sameP(q,p)?!!d.member[topSuz(String(q.id))]:sameAlliance(String(p.id),String(q.id));
+    if(inA)out.push({src:q.board.faction+" · "+q.name,faith:+m[1],infl:+m[2]});});
+  return out;}
 function sameAlliance(a,b){a=String(a);b=String(b);if(a===b)return false;const d=diplo(),ra=topSuz(a),rb=topSuz(b);
   if(ra===rb)return true;                                   // same Suzerain household
   const g=d.member[ra];return !!g&&g===d.member[rb];}
