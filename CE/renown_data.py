@@ -3786,7 +3786,7 @@ STARTING_TURN_PHASE_OPENER = PHASES[1]
 # ACTIONS["Move"] says "March (move up to 2x Speed)"
 STANDING_ARMY_SIEGE_MODIFIER = 1
 # economy.py has this as a local constant (EMPIRE_START)
-EMPIRE_START_TIERS = ("Town", "Village", "Hamlet")
+EMPIRE_START_TIERS = ("Town", "Hamlet")
 STARTING_TREASURY = 10000
 
 BOARD_SIZES = {
