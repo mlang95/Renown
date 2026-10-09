@@ -216,7 +216,7 @@ The Realm cycles through four Seasons.{{IDX:Season}} The current Season's effect
 
 - Pick a Faction Card (optional for new players).
 - Empire Tableau.
-- Collect 1 Town, 1 Village, and 1 Hamlet. Take turns placing Towns, starting with the Starting player. Then each player may place their first Village Range {{VAL:CHARTER_MIN_RANGE}} from their Town, and their Hamlet Range {{VAL:HAMLET_RANGE}} from their Town. Then place Outlaw Country Range {{VAL:OUTLAW_BUFFER_RANGE}} from their Town or Village, but not adjacent to their Hamlet.
+- Collect 1 Town and 1 Hamlet. Take turns placing Towns, starting with the Starting player. Then each player may place their Hamlet Range {{VAL:HAMLET_RANGE}} from their Town. Then place Outlaw Country Range {{VAL:OUTLAW_BUFFER_RANGE}} from their Town, but not adjacent to their Hamlet.
 - Collect {{VAL:STARTING_TREASURY}} Gold, 2 Influence Tokens, and 1 Envoy.
 - You don't begin the game with any Armies.
 - For the first turn, begin at the {{VAL:STARTING_TURN_PHASE_OPENER}} Phase instead of the Empire Phase.
