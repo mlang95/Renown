@@ -3855,6 +3855,8 @@ NAME_DISPLAY = {
     "RECOVER": "HEAL",
     "Recovered" : "Healed",
     "Reliquary": "Reliquary Sanctum",
+    "TH": "To Strike",
+    "TS": "Armor Save",
 
     
 }
