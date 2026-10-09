@@ -3615,9 +3615,7 @@ function calcMetrics(have,earned,tc){
      let outside=false;S.armies.forEach(a=>{const k=armyHex(me,a);if(!k)return;const c=armyUpkeep(a);
        if(prov.has(k)){if(bt)reduce+=c;}else outside=true;});
      if(outside)bo.forEach(x=>{reduce+=+x.m[1];});                                    // once, while an Army is not in Province
-     const dg=srcMatch(S,/While At War, your Armies (?:pay no upkeep in Territory your at-war player controls|within reach of at-war Settlements Extort their upkeep)/i).length;   // Danegeld (both wordings)
-     if(dg){const g=mapState().grid,own=reachOwners(mapState(),g.width,g.height);S.armies.forEach(a=>{const k=armyHex(me,a);if(!k||!own[k])return;
-       if([...own[k]].some(id=>id!==pid&&effPair(pid,id).war))reduce+=armyUpkeep(a);});}
+     danegeldRows(me).forEach(x=>{extort+=x.amt;});   // Danegeld: upkeep still owed here; the at-war controller pays it (Extort, Empire Phase)
      if(lh.length&&S.armies.some(a=>{const k=armyHex(me,a);return k&&(S.settlements||[]).some(s=>settHex(me,s)===k);}))lh.forEach(x=>{reduce+=+x.m[1];});}}
   const pursUp=S.placed.reduce((a,p)=>a+pursuitUpkeep(p),0);
   const armyGross=S.armies.reduce((s,a)=>s+armyUpkeep(a),0);
@@ -5332,6 +5330,14 @@ function extortGold(from,to,amt){
   if(from.camp)from.camp.gold=have-t;else from.b.treasury=(+from.b.treasury||0)-t;
   if(to){if(to.camp)to.camp.gold=(+to.camp.gold||0)+t;else to.b.treasury=(+to.b.treasury||0)+t;}
   return t;}
+// Danegeld: "While At War, your Armies within reach of at-war Settlements Extort their upkeep from that settlement's controller".
+// One row per Army standing in Territory reached by an at-war player's Settlements; that player pays the Army's upkeep
+// (the first such player if several reach the hex).
+const DANEGELD_RE=/While At War, your Armies (?:within reach of at-war Settlements Extort their upkeep|pay no upkeep in Territory your at-war player controls)/i;
+function danegeldRows(me){if(!me||!mapState().grid||!srcHas(me.board,DANEGELD_RE))return [];const pid=String(me.id),g=mapState().grid,own=reachOwners(mapState(),g.width,g.height),rows=[];
+  (me.board.armies||[]).forEach(a=>{const k=armyHex(me,a);if(!k||!own[k])return;const id=[...own[k]].find(x=>String(x)!==pid&&effPair(pid,x).war);
+    const from=id!=null?pById(id):null,amt=armyUpkeep(a);if(from&&amt)rows.push({from,amt,army:a});});
+  return rows;}
 // "Extort N per player without X" on active pieces → the players without X pay (auto, Empire Phase)
 function autoExtortRows(b){const me=playerOfBoard(b);if(!me)return [];
   return withBoard(b,()=>{const rows=[],have=new Set(Object.keys(PC)),earned=SIMPLE?{}:computeEarned(have).earned;
@@ -5350,6 +5356,8 @@ function runAutoExtort(){const out=[];
   D.players.forEach(p=>srcMatch(p.board,/Extort half of Trade Income from players who don.t trade with you/i).forEach(x=>D.players.forEach(q=>{
     if(sameP(q,p)||effPair(p.id,q.id).trade)return;const amt=Math.floor(tradeIncome(q.board).total/2/100)*100;if(amt<=0)return;
     const t=extortGold({b:q.board},{b:p.board},amt);out.push(p.name+" extorts "+t.toLocaleString()+" from "+q.name+" — "+x.n);})));
+  D.players.forEach(p=>danegeldRows(p).forEach(x=>{const t=extortGold({b:x.from.board},{b:p.board},x.amt);
+    out.push(p.name+" extorts "+t.toLocaleString()+(t<x.amt?" (of "+x.amt.toLocaleString()+")":"")+" army upkeep from "+x.from.name+" — "+p.board.faction);}));
   D.players.forEach(p=>autoExtortRows(p.board).forEach(x=>{const t=extortGold({b:x.from.board},{b:p.board},x.amt);
     out.push(p.name+" extorts "+t.toLocaleString()+(t<x.amt?" (of "+x.amt.toLocaleString()+")":"")+" from "+x.from.name+" — "+x.src);}));
   return out;}
