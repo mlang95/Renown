@@ -199,7 +199,7 @@ def envoy_fx(raw):
         if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "all", "dom": "All", "noSpring": bool(m.group(2))}); continue
         m = re.search(r"Your Personal Envoys have Influence\s*" + _N + r"(,?\s*except in Spring)?", c, re.I)
         if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "personal", "dom": "All", "noSpring": bool(m.group(2))}); continue
-        m = re.search(r"Your (" + _DOMS + r") Envoys have Influence\s*" + _N + r" when targeting a player with Public Order above (-?\d+)", c, re.I)
+        m = re.search(r"Your (" + _DOMS + r") Envoys have Influence\s*" + _N + r" when targeting a player with Public Order (?:above|greater than) (-?\d+)", c, re.I)
         if m: out.append({"k": "act", "val": _iv(m.group(2)), "dom": m.group(1).title(), "tgtPOabove": int(m.group(3))}); continue
         m = re.search(r"(?:^|\b)you have Influence\s*" + _N + r" on (" + _DOMS + r") Envoys", c, re.I)
         if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "all", "dom": m.group(2).title()}); continue
@@ -3000,14 +3000,19 @@ function setFaction(fn){itm();
 // Faction gear rules read from the mechanic text (flags, never blocks): "must always equip a ranged weapon",
 // "can't equip <armor>[ or <armor>]", "can't use shields".
 function facGearFlags(a){const f=FAC[S.faction||""];if(!f)return [];const t=String(f.mechanic||""),out=[],lc=t.toLowerCase();
-  if(/must always equip a ranged weapon/i.test(t)&&(!a.ranged||a.ranged==="None"))out.push(S.faction+": must equip a Ranged weapon");
-  const m=t.match(/can't equip ([^,.;]+)/i);
-  if(m&&a.armor&&a.armor!=="Cloth"&&m[1].toLowerCase().includes(String(a.armor).toLowerCase()))out.push(S.faction+": can't equip "+a.armor);
-  if(/can't use shields/i.test(t)&&a.shield&&a.shield!=="None")out.push(S.faction+": can't use Shields");
+  if(/must always (?:equip|have) a ranged weapon/i.test(t)&&(!a.ranged||a.ranged==="None"))out.push(S.faction+": must equip a Ranged weapon");
+  const m=t.match(/can't equip ([^.;]+)/i),ban=m?m[1].split(/,\s*(?:or\s+)?|\s+or\s+/).map(x=>x.trim().toLowerCase()).filter(Boolean):[];
+  if(a.armor&&a.armor!=="Cloth"&&ban.some(x=>x!=="shields"&&x.includes(String(a.armor).toLowerCase())))out.push(S.faction+": can't equip "+a.armor);
+  if((/can't use shields/i.test(t)||ban.includes("shields"))&&a.shield&&a.shield!=="None")out.push(S.faction+": can't use Shields");
   return out;}
 function factionFlags(){const f=FAC[S.faction];if(!f)return [];const out=[];
   const types=[...new Set(Object.values(R).map(r=>r.type))];
-  f.mechanic.split(/(?<=[.;])\s+/).forEach(sen=>{if(!/can't (pursue|build)/i.test(sen))return;
+  f.mechanic.split(/(?<=[.;])\s+/).forEach(sen=>{
+    // "can't … build Holdings that require <Domain>[ or <Domain>] Standing": flag Holdings whose unlock names that Domain
+    const sd=sen.match(/can't\b[^.]*\bbuild (?:Holdings|Pursuits) that require (\w+)(?:,? or (\w+))? Standing/i);
+    if(sd){const ds=[sd[1],sd[2]].filter(Boolean);S.placed.filter(p=>!p.fac).forEach(p=>{const u=(R[p.name]||{}).unlock_raw||"";
+      if(ds.some(d=>u.includes(d)))out.push(S.faction+": "+p.name+" — "+sen.trim());});return;}
+    if(!/can't (pursue|build)/i.test(sen))return;
     S.placed.filter(p=>!p.fac).forEach(p=>{const r=R[p.name];
       if(sen.includes(p.name)||types.some(t=>t===r.type&&new RegExp("\\b"+t+" (?:Pursuits|Holdings)","i").test(sen)))out.push(S.faction+": "+p.name+" — "+sen.trim());});});
   return out;}
@@ -4164,10 +4169,11 @@ function facCombat(b){const f=FAC[(b||{}).faction||""];if(!f)return [];const t=S
   if(/Armies always have Unwieldy/i.test(t))add("Always Unwieldy");
   if(/can't gain Immune Unwieldy/i.test(t))add("No Immune Unwieldy");
   if(/(?:Armies|they)[^.]*?\bRecover \+1/i.test(t))add("Recover +1");
+  {const rm=t.match(/(?:Armies|they)[^.]*?\bRecover (\d+)\b/i);if(rm)add("Recover "+rm[1]);}         // set base ("gain Recover 8")
   if(/(?:Armies|they)[^.]*?\bImmune Panic/i.test(t))add("Immune Panic");
   if(/Retinues have Poison/i.test(t))add("Poison");
-  if(/Ranged Weapons have \+1 to Strike/i.test(t))add("Ranged Strike +1");
-  const m=t.match(/While your Public Order is (-?\d+) or higher, your Armies have ([^.]+)/i);
+  if(/Ranged Weapons (?:have|gain) \+1 to Strike/i.test(t))add("Ranged Strike +1");
+  const m=t.match(/While your Public Order is (-?\d+) or higher, your Armies (?:have|gain) ([^.]+)/i);
   if(m&&(b.po||0)>=+m[1]){if(/\+1 Initiative/i.test(m[2]))add("Init +1");if(/\bSteady\b/i.test(m[2]))add("Steady");}
   return out;}
 function sideUnlocks(p){return p?withBoard(p.board,()=>{const have=new Set(Object.keys(PC));const {earned}=computeEarned(have);
@@ -5413,7 +5419,7 @@ function moveTraits(p){return withBoard(p.board,()=>{const txt=[];
   Object.keys(PC).forEach(n=>txt.push((R[n]||{}).innate_raw||""));Object.keys(S.infra||{}).filter(infraOn).forEach(n=>txt.push((INFRA[n]||{}).effect_raw||""));
   const all=txt.join(" ; "),fac=(FAC[S.faction||""]||{}).mechanic||"";
   return {shipyard:/Water Territory treated as Grassland/i.test(all),bridges:/cross Water Territory at full movement within Province/i.test(all),
-    ignoreTerrain:/ignore all terrain Speed modifiers/i.test(fac),fac};});}
+    ignoreTerrain:/ignore all (?:negative )?terrain Speed modifiers/i.test(fac),fac};});}
 function speedOf(p,a,startK){const parts=[],notes=[],b=p.board,sea=curSeason(),base=+((EQ.retinues[a.retinue]||{}).speed)||0;
   parts.push([a.retinue+" Speed",base]);
   const tr=moveTraits(p),prov=provinceOf(p),inProv=!!startK&&prov.has(startK);
