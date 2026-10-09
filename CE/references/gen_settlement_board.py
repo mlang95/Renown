@@ -199,7 +199,7 @@ def envoy_fx(raw):
         if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "all", "dom": "All", "noSpring": bool(m.group(2))}); continue
         m = re.search(r"Your Personal Envoys have Influence\s*" + _N + r"(,?\s*except in Spring)?", c, re.I)
         if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "personal", "dom": "All", "noSpring": bool(m.group(2))}); continue
-        m = re.search(r"Your (" + _DOMS + r") Envoys have Influence\s*" + _N + r" when targeting a player with Public Order above (-?\d+)", c, re.I)
+        m = re.search(r"Your (" + _DOMS + r") Envoys have Influence\s*" + _N + r" when targeting a player with Public Order (?:above|greater than) (-?\d+)", c, re.I)
         if m: out.append({"k": "act", "val": _iv(m.group(2)), "dom": m.group(1).title(), "tgtPOabove": int(m.group(3))}); continue
         m = re.search(r"(?:^|\b)you have Influence\s*" + _N + r" on (" + _DOMS + r") Envoys", c, re.I)
         if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "all", "dom": m.group(2).title()}); continue
@@ -215,6 +215,8 @@ def envoy_fx(raw):
         if m: out.append({"k": "capEra", "era": m.group(1).title(), "val": int(m.group(2))}); continue
         if re.search(r"unspent Influence isn't discarded", c, re.I): out.append({"k": "carry"}); continue
         if re.search(r"You Abstain on every vote on other players' Envoys", c, re.I): out.append({"k": "alwaysAbstain"}); continue
+        if re.search(r"You abstain (?:on )?every Personal Envoy", c, re.I): out.append({"k": "alwaysAbstain"}); continue   # Council Envoys take no votes
+        if re.search(r"You can't vote nor send Council Envoys", c, re.I): out += [{"k": "noVote"}, {"k": "noCouncil"}]; continue
         m = re.search(r"other players must spend (\d+) Influence to affect your Envoys by 1", c, re.I)
         if m: out.append({"k": "voteCost", "val": int(m.group(1))}); continue
         if re.search(r"Ignore the innate Doubt and Influence modifiers for being At War", c, re.I): out.append({"k": "ignoreWar"}); continue
@@ -1407,7 +1409,7 @@ function outText(dom,out){return ((EOUT[dom]||{})[String(out).toLowerCase()])||"
 // ---- the plan: ordered envoys for the current phase ----
 function tPlan(ph,ord,councilDom){const L=[];
   if(ph==="council"&&isSpring())return L;
-  if(ph==="council"){const nc=councilEnvoys();ord.forEach(p=>{for(let k=0;k<nc;k++)L.push({id:"C:"+p.id+(k?":"+k:""),owner:p,dom:councilDom||null,council:true,k});});return L;}
+  if(ph==="council"){const nc=councilEnvoys();ord.forEach(p=>{if(fxOf(p,"noCouncil").length)return;for(let k=0;k<nc;k++)L.push({id:"C:"+p.id+(k?":"+k:""),owner:p,dom:councilDom||null,council:true,k});});return L;}
   if(ph!=="envoy"||!ord.every(p=>(tCur(p).decl||{}).lock))return L;
   const cnt=(p,d)=>Math.max(0,+(((tCur(p).decl||{}).n||{})[d])||0);
   if(!isSpring())ord.forEach(p=>{for(let k=0;k<cnt(p,"Diplomacy");k++)L.push({id:"E:"+p.id+":Diplomacy:"+k,owner:p,dom:"Diplomacy",k});});
@@ -1443,7 +1445,8 @@ function tSim(){
   function envoyRun(E){
     E.innate=innateInf(E.owner,E.dom,E.council);E.votes=[];E.sup=0;E.opp=0;R.envoys.push(E);
     const jest={};fxOf(E.owner,"jester").forEach(f=>jest[f.n]=(jest[f.n]||0)+f.val);let oppN=0;
-    for(const v of (E.council?[]:voteOrd(ord))){if(sameP(v,E.owner))continue;   // Council Envoys auto-Abstain: no votes
+    for(const v of (E.council?[]:voteOrd(ord))){if(sameP(v,E.owner))continue;
+      if(fxOf(v,"noVote").length){E.votes.push({who:v,a:"A",x:0,eff:0,auto:true});continue;}   // Council Envoys auto-Abstain: no votes
       const r=runSlot(E.id+">"+v.id,v,tCur(v).votes[E.id]);
       if(!r){R.curEnvoy=E;return false;}
       let a="A",x=0;
@@ -1463,7 +1466,8 @@ function tSim(){
     E.done=true;R.log.push({kind:"envoy",E});return true;}
   if(ph==="council"){
     const tally={};
-    for(const p of voteOrd(ord)){const r=runSlot("CV:"+p.id,p,tCur(p).council);if(!r)return R;
+    for(const p of voteOrd(ord)){if(fxOf(p,"noVote").length){R.log.push({kind:"cvote",who:p,dom:null,auto:true});continue;}
+      const r=runSlot("CV:"+p.id,p,tCur(p).council);if(!r)return R;
       const d=r.rec&&T_DOMS.includes(r.rec.dom)?r.rec.dom:null,w=fxOf(p,"councilVotes").reduce((m,f)=>Math.max(m,f.val),1);
       if(d)tally[d]=(tally[d]||0)+w;if(d&&fxOf(p,"councilChoose").length)R.chooser={p,d};
       R.log.push({kind:"cvote",who:p,dom:d,pre:!!r.pre,timeout:!!r.timeout,forced:!!r.forced,auto:!!r.auto});}
@@ -2102,7 +2106,11 @@ function tickTimers(b){const done=[],pl=playerOfBoard(b),bs=sid=>!!pl&&settBesie
   return done;}
 // pursuit upkeep: PURSUIT_UPKEEP_BY_TYPE, else PURSUIT_UPKEEP_DEFAULT; faction pieces pay none
 const PUP=DATA.pursuitUpkeep||{byType:{},def:0};
+// faction "Your <Type>[ & <Type>] Pursuits|Holdings have Craft +N[ and cost no Upkeep]" (Luminous Court)
+function facTypeBonus(b){const f=(FAC[(b||{}).faction||""]||{}).mechanic||"",m=String(f).replace(/\*\*/g,"").match(/Your ([\w &,]+?) (?:Pursuits|Holdings) have Craft \+(\d+)( and cost no Upkeep)?/i);
+  return m?{types:m[1].split(/\s*(?:&|,|\band\b)\s*/).map(x=>x.trim()).filter(Boolean),craft:+m[2],free:!!m[3]}:null;}
 function pursuitUpkeep(p){if(p.fac||!pActive(p)||NATURAL.has(p.name))return 0;   // faction, inactive (building / Damaged / repairing), or Natural
+  {const tb=facTypeBonus(S);if(tb&&tb.free&&tb.types.includes((R[p.name]||{}).type))return 0;}
   const r=R[p.name]||{};if(r.upkeep!=null)return r.upkeep;const t=r.type;return (PUP.byType&&t in PUP.byType)?PUP.byType[t]:(PUP.def||0);}
 function withBoard(b,fn){const pS=S,pPC=PC;S=b;recomputePC();const r=fn();S=pS;PC=pPC;return r;}
 
@@ -3000,14 +3008,19 @@ function setFaction(fn){itm();
 // Faction gear rules read from the mechanic text (flags, never blocks): "must always equip a ranged weapon",
 // "can't equip <armor>[ or <armor>]", "can't use shields".
 function facGearFlags(a){const f=FAC[S.faction||""];if(!f)return [];const t=String(f.mechanic||""),out=[],lc=t.toLowerCase();
-  if(/must always equip a ranged weapon/i.test(t)&&(!a.ranged||a.ranged==="None"))out.push(S.faction+": must equip a Ranged weapon");
-  const m=t.match(/can't equip ([^,.;]+)/i);
-  if(m&&a.armor&&a.armor!=="Cloth"&&m[1].toLowerCase().includes(String(a.armor).toLowerCase()))out.push(S.faction+": can't equip "+a.armor);
-  if(/can't use shields/i.test(t)&&a.shield&&a.shield!=="None")out.push(S.faction+": can't use Shields");
+  if(/must always (?:equip|have) a ranged weapon/i.test(t)&&(!a.ranged||a.ranged==="None"))out.push(S.faction+": must equip a Ranged weapon");
+  const m=t.match(/can't equip ([^.;]+)/i),ban=m?m[1].split(/,\s*(?:or\s+)?|\s+or\s+/).map(x=>x.trim().toLowerCase()).filter(Boolean):[];
+  if(a.armor&&a.armor!=="Cloth"&&ban.some(x=>x!=="shields"&&x.includes(String(a.armor).toLowerCase())))out.push(S.faction+": can't equip "+a.armor);
+  if((/can't use shields/i.test(t)||ban.includes("shields"))&&a.shield&&a.shield!=="None")out.push(S.faction+": can't use Shields");
   return out;}
 function factionFlags(){const f=FAC[S.faction];if(!f)return [];const out=[];
   const types=[...new Set(Object.values(R).map(r=>r.type))];
-  f.mechanic.split(/(?<=[.;])\s+/).forEach(sen=>{if(!/can't (pursue|build)/i.test(sen))return;
+  f.mechanic.split(/(?<=[.;])\s+/).forEach(sen=>{
+    // "can't … build Holdings that require <Domain>[ or <Domain>] Standing": flag Holdings whose unlock names that Domain
+    const sd=sen.match(/can't\b[^.]*\bbuild (?:Holdings|Pursuits) that require (\w+)(?:,? or (\w+))? Standing/i);
+    if(sd){const ds=[sd[1],sd[2]].filter(Boolean);S.placed.filter(p=>!p.fac).forEach(p=>{const u=(R[p.name]||{}).unlock_raw||"";
+      if(ds.some(d=>u.includes(d)))out.push(S.faction+": "+p.name+" — "+sen.trim());});return;}
+    if(!/can't (pursue|build)/i.test(sen))return;
     S.placed.filter(p=>!p.fac).forEach(p=>{const r=R[p.name];
       if(sen.includes(p.name)||types.some(t=>t===r.type&&new RegExp("\\b"+t+" (?:Pursuits|Holdings)","i").test(sen)))out.push(S.faction+": "+p.name+" — "+sen.trim());});});
   return out;}
@@ -3588,6 +3601,8 @@ function calcMetrics(have,earned,tc){
   Object.keys(S.wonders).forEach(n=>{const on=infraOn(n);eat(WON[n].atoms,on,1);if(on)infraUp+=WON[n].upkeep;});
   {const me=playerOfBoard(S);if(me)S.placed.forEach(q=>{if(!pActive(q)||!settBesieged(me,q.sid))return;
      ((R[q.name]||{}).innate||[]).forEach(a=>{if(a.cat==="craft"&&a.flat&&!a.season)craft-=a.val;});});}   // besieged: no Craft X
+  {const tb=facTypeBonus(S),me=playerOfBoard(S);if(tb)S.placed.forEach(q=>{if(q.fac||!pActive(q)||!tb.types.includes((R[q.name]||{}).type))return;
+     if(me&&settBesieged(me,q.sid))return;craft+=tb.craft;});}
   {const me=playerOfBoard(S),pid=me?String(me.id):null,war=playerAtWar(pid),cpg=[];
    srcMatch(S,/Faith \+(\d+) while (not )?at War/i).forEach(x=>{if(!!x.m[2]!==war)faith+=+x.m[1];});
    srcMatch(S,/Faith \+(\d+) for every player you.re At War with/i).forEach(x=>{faith+=(+x.m[1])*D.players.filter(q=>pid&&String(q.id)!==pid&&effPair(pid,q.id).war).length;});
@@ -3600,9 +3615,7 @@ function calcMetrics(have,earned,tc){
      let outside=false;S.armies.forEach(a=>{const k=armyHex(me,a);if(!k)return;const c=armyUpkeep(a);
        if(prov.has(k)){if(bt)reduce+=c;}else outside=true;});
      if(outside)bo.forEach(x=>{reduce+=+x.m[1];});                                    // once, while an Army is not in Province
-     const dg=srcMatch(S,/While At War, your Armies pay no upkeep in Territory your at-war player controls/i).length;
-     if(dg){const g=mapState().grid,own=reachOwners(mapState(),g.width,g.height);S.armies.forEach(a=>{const k=armyHex(me,a);if(!k||!own[k])return;
-       if([...own[k]].some(id=>id!==pid&&effPair(pid,id).war))reduce+=armyUpkeep(a);});}
+     danegeldRows(me).forEach(x=>{extort+=x.amt;});   // Danegeld: upkeep still owed here; the at-war controller pays it (Extort, Empire Phase)
      if(lh.length&&S.armies.some(a=>{const k=armyHex(me,a);return k&&(S.settlements||[]).some(s=>settHex(me,s)===k);}))lh.forEach(x=>{reduce+=+x.m[1];});}}
   const pursUp=S.placed.reduce((a,p)=>a+pursuitUpkeep(p),0);
   const armyGross=S.armies.reduce((s,a)=>s+armyUpkeep(a),0);
@@ -3741,6 +3754,7 @@ function influenceRowsBase(b){
   const mw=withBoard(b,()=>S.placed.filter(q=>pActive(q)&&(R[q.name]||{}).type==="Monument").length+Object.keys(S.wonders).filter(infraOn).length);
   add("Monuments & Wonders",mw,mw*igVal("Monuments & Wonders"));
   const oth=boardMetrics(b).infl;add("Other sources",oth?1:0,oth);
+  royalMarriage(b).forEach(x=>{if(x.infl)rows.push({k:x.src,cnt:1,val:x.infl});});
   // Public Order bands "±N Influence" apply when Influence is gained (cumulative bands; Plague Pit immune, Charnel House ×2)
   {const dbl=poDoubled(),po=Math.max(PO_MIN,Math.min(PO_MAX,b.po||0));
    poActiveKeys(po,b).forEach(k=>{const e=PO[String(k)];if(!Array.isArray(e))return;const m=String(e[1]).match(/^([+\-\u2212]\s?\d+)\s*Influence$/i);if(!m)return;
@@ -3767,6 +3781,15 @@ function poModRows(b){b.poMods=b.poMods||{};const p=playerOfBoard(b),pid=p?Strin
     "Insolvency":()=>+b.insolv||0,"Mounting Panic":()=>p?besiegedCount(p):0};
   ["faith","doubt"].forEach(side=>Object.keys(POM[side]||{}).forEach(k=>{const a=auto[k];
     rows.push({side,k,desc:POM[side][k],auto:!!a,n:a?a():(+b.poMods[k]||0)});}));
+  royalMarriage(b).forEach(x=>{if(x.faith)rows.push({side:"faith",k:x.src,desc:"Royal Marriage Alliance member",auto:true,n:x.faith});});
+  // faction "Gain Faith|Doubt +N per Empire Phase" (own faction only; "for every …" variants are counted in calcMetrics)
+  if(b.faction)srcMatch(b,/^(?:[^:]+:\s*)?(?:Gain )?(Faith|Doubt) \+(\d+) per Empire Phase$/i).filter(x=>x.n===b.faction).forEach(x=>
+    rows.push({side:x.m[1].toLowerCase(),k:b.faction,desc:x.m[1]+" +"+x.m[2]+" per Empire Phase",auto:true,n:+x.m[2]}));
+  // "Each player gains Doubt +N per Empire Phase per Sacred War you're on" (Prophets of War): its owner keeps the Sacred War count
+  D.players.forEach(q=>srcMatch(q.board,/Each player gains (Doubt|Faith) \+(\d+) per Empire Phase per Sacred War you.re on/i).filter(x=>x.n===q.board.faction).forEach(x=>{
+    const K="Sacred Wars · "+q.board.faction,cnt=+((q.board.poMods||{})[K])||0;
+    if(q.board===b)rows.push({side:x.m[1].toLowerCase(),k:K,desc:"Sacred Wars you're on (each player: "+x.m[1]+" +"+x.m[2]+" each)",auto:false,n:cnt*+x.m[2]});
+    else if(cnt)rows.push({side:x.m[1].toLowerCase(),k:x.n+" · "+q.name,desc:cnt+" Sacred War"+(cnt>1?"s":"")+" ("+q.name+")",auto:true,n:cnt*+x.m[2]});}));
   if(p)bordersOf(p).forEach(q=>srcMatch(q.board,/Each bordering player gains (Doubt|Faith) \+(\d+)/i).forEach(x=>
     rows.push({side:x.m[1].toLowerCase(),k:x.n+" · "+q.name,desc:"bordering "+q.name,auto:true,n:+x.m[2]})));
   return rows.concat(epRows(b));}
@@ -3795,6 +3818,13 @@ function epSources(b){const out=[],dv=b.domains||{},TIERS=[["Rising",RIS],["Esta
 // allied: a Vassal inherits every Treaty its (top) Suzerain holds → allied to that Suzerain, the Suzerain's other Vassals,
 // and the Suzerain's Alliance group. (Possible later carve-out: Trade Agreements.)
 function topSuz(id){const d=diplo();let c=String(id),g=16;while(d.suzerain[c]&&g--)c=String(d.suzerain[c]);return c;}
+// "While in that Alliance, each member gains Faith +N and +M Influence per turn" (Royal Marriage): applied to every member of
+// the Alliance the faction's owner is in (the board doesn't record which Alliance the once-per-game ability formed)
+function royalMarriage(b){const p=playerOfBoard(b),out=[];if(!p)return out;const d=diplo();
+  D.players.forEach(q=>{const f=(FAC[q.board.faction||""]||{}).mechanic||"",m=String(f).match(/While in that Alliance, each member gains Faith \+(\d+) and \+(\d+) Influence per turn/i);if(!m)return;
+    const inA=sameP(q,p)?!!d.member[topSuz(String(q.id))]:sameAlliance(String(p.id),String(q.id));
+    if(inA)out.push({src:q.board.faction+" · "+q.name,faith:+m[1],infl:+m[2]});});
+  return out;}
 function sameAlliance(a,b){a=String(a);b=String(b);if(a===b)return false;const d=diplo(),ra=topSuz(a),rb=topSuz(b);
   if(ra===rb)return true;                                   // same Suzerain household
   const g=d.member[ra];return !!g&&g===d.member[rb];}
@@ -4164,10 +4194,11 @@ function facCombat(b){const f=FAC[(b||{}).faction||""];if(!f)return [];const t=S
   if(/Armies always have Unwieldy/i.test(t))add("Always Unwieldy");
   if(/can't gain Immune Unwieldy/i.test(t))add("No Immune Unwieldy");
   if(/(?:Armies|they)[^.]*?\bRecover \+1/i.test(t))add("Recover +1");
+  {const rm=t.match(/(?:Armies|they)[^.]*?\bRecover (\d+)\b/i);if(rm)add("Recover "+rm[1]);}         // set base ("gain Recover 8")
   if(/(?:Armies|they)[^.]*?\bImmune Panic/i.test(t))add("Immune Panic");
   if(/Retinues have Poison/i.test(t))add("Poison");
-  if(/Ranged Weapons have \+1 to Strike/i.test(t))add("Ranged Strike +1");
-  const m=t.match(/While your Public Order is (-?\d+) or higher, your Armies have ([^.]+)/i);
+  if(/Ranged Weapons (?:have|gain) \+1 to Strike/i.test(t))add("Ranged Strike +1");
+  const m=t.match(/While your Public Order is (-?\d+) or higher, your Armies (?:have|gain) ([^.]+)/i);
   if(m&&(b.po||0)>=+m[1]){if(/\+1 Initiative/i.test(m[2]))add("Init +1");if(/\bSteady\b/i.test(m[2]))add("Steady");}
   return out;}
 function sideUnlocks(p){return p?withBoard(p.board,()=>{const have=new Set(Object.keys(PC));const {earned}=computeEarned(have);
@@ -5299,6 +5330,14 @@ function extortGold(from,to,amt){
   if(from.camp)from.camp.gold=have-t;else from.b.treasury=(+from.b.treasury||0)-t;
   if(to){if(to.camp)to.camp.gold=(+to.camp.gold||0)+t;else to.b.treasury=(+to.b.treasury||0)+t;}
   return t;}
+// Danegeld: "While At War, your Armies within reach of at-war Settlements Extort their upkeep from that settlement's controller".
+// One row per Army standing in Territory reached by an at-war player's Settlements; that player pays the Army's upkeep
+// (the first such player if several reach the hex).
+const DANEGELD_RE=/While At War, your Armies (?:within reach of at-war Settlements Extort their upkeep|pay no upkeep in Territory your at-war player controls)/i;
+function danegeldRows(me){if(!me||!mapState().grid||!srcHas(me.board,DANEGELD_RE))return [];const pid=String(me.id),g=mapState().grid,own=reachOwners(mapState(),g.width,g.height),rows=[];
+  (me.board.armies||[]).forEach(a=>{const k=armyHex(me,a);if(!k||!own[k])return;const id=[...own[k]].find(x=>String(x)!==pid&&effPair(pid,x).war);
+    const from=id!=null?pById(id):null,amt=armyUpkeep(a);if(from&&amt)rows.push({from,amt,army:a});});
+  return rows;}
 // "Extort N per player without X" on active pieces → the players without X pay (auto, Empire Phase)
 function autoExtortRows(b){const me=playerOfBoard(b);if(!me)return [];
   return withBoard(b,()=>{const rows=[],have=new Set(Object.keys(PC)),earned=SIMPLE?{}:computeEarned(have).earned;
@@ -5317,6 +5356,8 @@ function runAutoExtort(){const out=[];
   D.players.forEach(p=>srcMatch(p.board,/Extort half of Trade Income from players who don.t trade with you/i).forEach(x=>D.players.forEach(q=>{
     if(sameP(q,p)||effPair(p.id,q.id).trade)return;const amt=Math.floor(tradeIncome(q.board).total/2/100)*100;if(amt<=0)return;
     const t=extortGold({b:q.board},{b:p.board},amt);out.push(p.name+" extorts "+t.toLocaleString()+" from "+q.name+" — "+x.n);})));
+  D.players.forEach(p=>danegeldRows(p).forEach(x=>{const t=extortGold({b:x.from.board},{b:p.board},x.amt);
+    out.push(p.name+" extorts "+t.toLocaleString()+(t<x.amt?" (of "+x.amt.toLocaleString()+")":"")+" army upkeep from "+x.from.name+" — "+p.board.faction);}));
   D.players.forEach(p=>autoExtortRows(p.board).forEach(x=>{const t=extortGold({b:x.from.board},{b:p.board},x.amt);
     out.push(p.name+" extorts "+t.toLocaleString()+(t<x.amt?" (of "+x.amt.toLocaleString()+")":"")+" from "+x.from.name+" — "+x.src);}));
   return out;}
@@ -5413,7 +5454,7 @@ function moveTraits(p){return withBoard(p.board,()=>{const txt=[];
   Object.keys(PC).forEach(n=>txt.push((R[n]||{}).innate_raw||""));Object.keys(S.infra||{}).filter(infraOn).forEach(n=>txt.push((INFRA[n]||{}).effect_raw||""));
   const all=txt.join(" ; "),fac=(FAC[S.faction||""]||{}).mechanic||"";
   return {shipyard:/Water Territory treated as Grassland/i.test(all),bridges:/cross Water Territory at full movement within Province/i.test(all),
-    ignoreTerrain:/ignore all terrain Speed modifiers/i.test(fac),fac};});}
+    ignoreTerrain:/ignore all (?:negative )?terrain Speed modifiers/i.test(fac),fac};});}
 function speedOf(p,a,startK){const parts=[],notes=[],b=p.board,sea=curSeason(),base=+((EQ.retinues[a.retinue]||{}).speed)||0;
   parts.push([a.retinue+" Speed",base]);
   const tr=moveTraits(p),prov=provinceOf(p),inProv=!!startK&&prov.has(startK);
