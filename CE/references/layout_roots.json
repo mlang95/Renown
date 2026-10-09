@@ -818,6 +818,111 @@
   ]
  },
  {
+  "title": "Inn",
+  "anchor": "Inn",
+  "mode": "root",
+  "nodes": {
+   "Inn": [
+    0,
+    1
+   ],
+   "Courier Network": [
+    1,
+    1
+   ],
+   "Secret Cellar": [
+    1,
+    2
+   ],
+   "Forgotten Catacombs": [
+    2,
+    2
+   ],
+   "Smuggler's Nook": [
+    3,
+    1
+   ],
+   "Toxicarium": [
+    3,
+    2
+   ],
+   "Syndicate Hub": [
+    4,
+    1
+   ],
+   "Charnel House": [
+    4,
+    2
+   ],
+   "Black Market": [
+    4,
+    0
+   ],
+   "Outlaw Rookery": [
+    5,
+    1
+   ],
+   "Plague Pit": [
+    5,
+    2
+   ],
+   "Thieves' Guild": [
+    5,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Smuggler's Nook",
+    "Black Market"
+   ],
+   [
+    "Toxicarium",
+    "Charnel House"
+   ],
+   [
+    "Inn",
+    "Courier Network"
+   ],
+   [
+    "Secret Cellar",
+    "Forgotten Catacombs"
+   ],
+   [
+    "Syndicate Hub",
+    "Outlaw Rookery"
+   ],
+   [
+    "Charnel House",
+    "Plague Pit"
+   ],
+   [
+    "Inn",
+    "Secret Cellar"
+   ],
+   [
+    "Courier Network",
+    "Secret Cellar"
+   ],
+   [
+    "Courier Network",
+    "Smuggler's Nook"
+   ],
+   [
+    "Smuggler's Nook",
+    "Syndicate Hub"
+   ],
+   [
+    "Black Market",
+    "Thieves' Guild"
+   ],
+   [
+    "Forgotten Catacombs",
+    "Toxicarium"
+   ]
+  ]
+ },
+ {
   "title": "Common Land",
   "anchor": "Common Land",
   "mode": "root",
@@ -1029,120 +1134,6 @@
    [
     "Chandlery",
     "Reliquary"
-   ]
-  ]
- },
- {
-  "title": "Inn",
-  "anchor": "Inn",
-  "mode": "root",
-  "nodes": {
-   "Inn": [
-    0,
-    0
-   ],
-   "Courier Network": [
-    1,
-    0
-   ],
-   "Smuggler's Nook": [
-    2,
-    0
-   ],
-   "Syndicate Hub": [
-    3,
-    0
-   ],
-   "Black Market": [
-    3,
-    1
-   ],
-   "Outlaw Rookery": [
-    4,
-    0
-   ],
-   "Thieves' Guild": [
-    4,
-    1
-   ]
-  },
-  "edges": [
-   [
-    "Smuggler's Nook",
-    "Black Market"
-   ],
-   [
-    "Inn",
-    "Courier Network"
-   ],
-   [
-    "Syndicate Hub",
-    "Outlaw Rookery"
-   ],
-   [
-    "Courier Network",
-    "Smuggler's Nook"
-   ],
-   [
-    "Smuggler's Nook",
-    "Syndicate Hub"
-   ],
-   [
-    "Black Market",
-    "Thieves' Guild"
-   ]
-  ]
- },
- {
-  "title": "Secret Cellar",
-  "anchor": "Secret Cellar",
-  "mode": "root",
-  "nodes": {
-   "Secret Cellar": [
-    0,
-    0
-   ],
-   "Forgotten Catacombs": [
-    1,
-    0
-   ],
-   "Toxicarium": [
-    2,
-    0
-   ],
-   "Charnel House": [
-    3,
-    0
-   ],
-   "Plague Pit": [
-    4,
-    0
-   ],
-   "Thieves' Guild": [
-    4,
-    1
-   ]
-  },
-  "edges": [
-   [
-    "Toxicarium",
-    "Charnel House"
-   ],
-   [
-    "Secret Cellar",
-    "Forgotten Catacombs"
-   ],
-   [
-    "Charnel House",
-    "Plague Pit"
-   ],
-   [
-    "Secret Cellar",
-    "Thieves' Guild"
-   ],
-   [
-    "Forgotten Catacombs",
-    "Toxicarium"
    ]
   ]
  },

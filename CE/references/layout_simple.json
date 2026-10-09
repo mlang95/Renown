@@ -961,7 +961,7 @@
   ]
  },
  {
-  "title": "Exalted Basilica",
+  "title": "Unforgotten Shrine",
   "anchor": "Exalted Basilica",
   "mode": "chain",
   "nodes": {
@@ -1222,32 +1222,40 @@
   "anchor": "Plague Pit",
   "mode": "chain",
   "nodes": {
-   "Peat Bog": [
+   "Inn": [
     0,
     0
+   ],
+   "Courier Network": [
+    1,
+    1
    ],
    "Secret Cellar": [
-    0,
-    1
-   ],
-   "Alchemy": [
-    1,
-    0
-   ],
-   "Forgotten Catacombs": [
-    1,
-    1
-   ],
-   "Toxicarium": [
     2,
     0
    ],
-   "Charnel House": [
+   "Peat Bog": [
+    2,
+    2
+   ],
+   "Forgotten Catacombs": [
     3,
     0
    ],
-   "Plague Pit": [
+   "Alchemy": [
+    3,
+    2
+   ],
+   "Toxicarium": [
     4,
+    0
+   ],
+   "Charnel House": [
+    5,
+    0
+   ],
+   "Plague Pit": [
+    6,
     0
    ]
   },
@@ -1261,12 +1269,24 @@
     "Charnel House"
    ],
    [
+    "Inn",
+    "Courier Network"
+   ],
+   [
     "Secret Cellar",
     "Forgotten Catacombs"
    ],
    [
     "Charnel House",
     "Plague Pit"
+   ],
+   [
+    "Inn",
+    "Secret Cellar"
+   ],
+   [
+    "Courier Network",
+    "Secret Cellar"
    ],
    [
     "Alchemy",
@@ -1299,10 +1319,6 @@
     3,
     0
    ],
-   "Secret Cellar": [
-    3,
-    1
-   ],
    "Thieves' Guild": [
     4,
     0
@@ -1323,10 +1339,6 @@
    ],
    [
     "Black Market",
-    "Thieves' Guild"
-   ],
-   [
-    "Secret Cellar",
     "Thieves' Guild"
    ]
   ]

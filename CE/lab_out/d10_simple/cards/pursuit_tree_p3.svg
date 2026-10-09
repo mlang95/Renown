@@ -102,7 +102,7 @@
 <text x="555" y="275" font-size="8.2" fill="#2b2620">Pilgrimage Site</text>
 <rect x="718" y="260" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#C6A024" stroke-width="2.2"/>
 <rect x="718" y="260" width="5" height="24" fill="#C6A024"/>
-<text x="727" y="275" font-size="8.2" fill="#2b2620">Exalted Basilica</text>
+<text x="727" y="275" font-size="8.2" fill="#2b2620">Unforgotten Shrine</text>
 <polygon points="828.0,268.4 831.6,272.0 828.0,275.6 824.4,272.0" fill="#8a6d1a"/>
 <path d="M148,334 L195,334" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M148,334 L195,334" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>

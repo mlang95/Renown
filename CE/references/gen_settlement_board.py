@@ -536,8 +536,8 @@ def font_faces():
         print("  (fonttools not installed - board falls back to Georgia)"); return ""
     uni = [u for a, b in _FONT_RANGES for u in range(a, b + 1)]
     out = []
-    for fname, style in (("EBGaramond-VariableFont_wght.ttf", "normal"),
-                         ("EBGaramond-Italic-VariableFont_wght.ttf", "italic")):
+    for fname, family, style in (("EBGaramond-VariableFont_wght.ttf", "EB Garamond", "normal"),
+                                 ("EBGaramond-Italic-VariableFont_wght.ttf", "EB Garamond", "italic")):
         path = os.path.join(FONT_DIR, fname)
         if not os.path.exists(path):
             print(f"  (font missing: {path} - falls back to Georgia)"); continue
@@ -546,8 +546,8 @@ def font_faces():
         sub = Subsetter(opt); sub.populate(unicodes=uni); sub.subset(f)
         f.flavor = "woff"; buf = io.BytesIO(); f.save(buf)
         b64 = base64.b64encode(buf.getvalue()).decode("ascii")
-        out.append("@font-face{font-family:'EB Garamond';font-style:%s;font-weight:400 800;"
-                   "font-display:swap;src:url(data:font/woff;base64,%s) format('woff');}" % (style, b64))
+        out.append("@font-face{font-family:'%s';font-style:%s;font-weight:400 800;"
+                   "font-display:swap;src:url(data:font/woff;base64,%s) format('woff');}" % (family, style, b64))
     return "\n".join(out)
 
 def _pursuit_term_template(tpl, term):
@@ -576,6 +576,28 @@ def _style_js(d):
     spec = importlib.util.spec_from_file_location("hexstyle", p)
     mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
     return "var RenownStyle=" + json.dumps(mod.export(), separators=(",", ":")) + ";"
+
+def sprite_payload(ns, data_path):
+    """sprites.py (next to the data file) -> {S: sprites, P: scene palette, key: name -> sprite key}.
+    None if absent (Pixel theme then has no scene)."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    for d in (os.path.dirname(os.path.abspath(data_path)), os.path.join(here, ".."), here):
+        p = os.path.join(d, "sprites.py")
+        if not os.path.isfile(p): continue
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("renown_sprites", p)
+        mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+        for w in mod.check(ns): print("  WARN sprites: " + w)
+        names = set(ns.get("NODES", {})) | set(ns.get("WONDERS", {})) | set(ns.get("SETTLEMENTS", {})) | set(ns.get("INFRASTRUCTURE", {}))
+        keymap = {n: k for n in sorted(names) for k in [mod.sprite_key(n, ns)] if k in mod.SPRITES}
+        print(f"  sprites: {os.path.normpath(p)} ({len(mod.SPRITES)} sprites, {len(keymap)} names mapped)")
+        raw = sorted(n for n, v in ns.get("NODES", {}).items() if v.get("type") == "Raw Materials")
+        return {"S": mod.SPRITES, "P": mod.PALETTES.get("scene", {}), "key": keymap, "v": getattr(mod, "SPRITE_VERSION", "?"),
+                "raw": raw, "skyline": {k: list(v) for k, v in getattr(mod, "SKYLINE", {}).items()},
+                "supersedes": dict(getattr(mod, "INFRA_SUPERSEDES", {})), "noInfra": list(getattr(mod, "PLATE_NO_INFRA", [])),
+                "style": dict(getattr(mod, "SCENE_STYLE", {}))}
+    print("  (sprites.py not found - Pixel theme has no settlement scene)")
+    return None
 
 def find_mapgen(explicit, data_path):
     """Locate gen.js + presets.js (+ hexstyle.py) in CE/mapgen. Returns the JS or ''."""
@@ -616,6 +638,17 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     font-size-adjust:0.47;                         /* scale Garamond's small x-height to the old stack's */
     font-variant-numeric:lining-nums tabular-nums} /* numbers align in columns */
   input,select,button,textarea{font-size-adjust:inherit;font-variant-numeric:inherit}
+  /* Pixel theme (THEMES.pixel sets data-look) + settlement scene */
+  .scenebox{margin:0 0 12px;overflow-x:auto}
+  .scenebox canvas{display:block;image-rendering:pixelated;cursor:pointer}
+  .scnlabels{position:relative;height:20px;margin-top:4px}
+  .scnlabels span{position:absolute;top:0;text-align:center;font-size:12px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+  .scnlabels span.on{color:var(--ink)}
+  :root[data-look="pixel"]{--radius:0px!important;--radius-sm:0px!important;--pill:0px!important}
+  :root[data-look="pixel"] details.section,:root[data-look="pixel"] .tot,:root[data-look="pixel"] .modalcard{border-color:transparent;
+    box-shadow:0 -2px 0 var(--line2),0 2px 0 var(--line2),-2px 0 0 var(--line2),2px 0 0 var(--line2);margin-left:2px;margin-right:2px}
+  :root[data-look="pixel"] button{box-shadow:inset 0 -2px 0 rgba(0,0,0,.35)}
+  :root[data-look="pixel"] canvas{image-rendering:pixelated}
   h1,h2,h3{font-family:var(--serif);font-weight:600;margin:0}
   .app{display:grid;grid-template-columns:300px 1fr 340px;height:100vh}
   @media(max-width:1100px){.app{grid-template-columns:1fr;height:auto}}
@@ -674,6 +707,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .wards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;align-items:start}
   .ward{border:1px solid var(--line);border-radius:var(--radius);padding:6px;background:var(--panel2);min-height:128px;display:flex;flex-direction:column}
   .ward-lbl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin:0 2px 5px;display:flex;justify-content:space-between;gap:6px}
+  .wtot{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 2px 6px;padding-bottom:5px;border-bottom:1px dashed var(--line)}
+  .wtot .lbl{margin:0;font-size:10px;letter-spacing:.08em;color:var(--dim)} .wtot .atoms{margin:0}
   .ward.empty{border:2px dashed var(--line2);background:transparent;cursor:pointer;min-height:0;flex-direction:row;align-items:center;padding:6px 10px}
   .ward.empty .ward-lbl{margin:0}
   .ward.empty:hover{border-color:var(--income)}
@@ -989,6 +1024,12 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .nxrow{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}.nx{font-size:11px;padding:1px 6px;border:1px solid var(--line2);border-radius:var(--radius-sm);background:var(--panel)}
   .nx.have{border-color:var(--income);color:var(--income)}
   .nxadd{font-size:10px;padding:0 5px;min-height:0;line-height:14px;margin-left:2px}
+  .qrow{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:5px}
+  .qrow .lbl{display:inline;margin:0 2px 0 0}
+  .qchip{font:inherit;font-size:12px;line-height:18px;padding:1px 8px;border:1px solid var(--line2);border-radius:var(--radius-sm);background:var(--panel2);color:var(--ink);cursor:pointer}
+  .qchip:hover{border-color:var(--build)} .qchip.lock{border-style:dashed}
+  .qchip.have{cursor:default;color:var(--income);border-color:var(--income);background:transparent}
+  .psec{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:5px}
   .atom.cmb{border-color:var(--line2)} .atom.cmb.o-m{border-color:var(--income);border-style:dashed}
   .atom.cmb.o-im{border-color:var(--income);box-shadow:inset 3px 0 0 var(--ink)}
   .cmbS,.cmbM{font-size:9px;color:var(--income)} .cmbL{margin-top:3px;font-size:10px}
@@ -1086,6 +1127,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <option value="midnight">Midnight</option>
     <option value="slate">Slate (light)</option>
     <option value="royal">Royal</option>
+    <option value="pixel">Pixel</option>
   </select>
   <select id="shapeSel" title="shape">
     <option value="rounded">Rounded</option>
@@ -1131,6 +1173,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       <input type="file" id="file" accept="application/json" style="display:none">
       <label><input type="checkbox" id="hideCombat"> hide combat/other</label>
     </div>
+    <div class="scenebox" id="sceneBox" hidden></div>
 
     <details class="section" open id="sec-pursuit"><summary><span class="caret"></span>Pursuits <span class="cnt" id="c-pursuit"></span></summary>
       <div class="sectionbody"><div class="board" id="board-pursuit"></div><div class="empty" id="e-pursuit">No pursuits.</div></div></details>
@@ -1921,10 +1964,12 @@ const THEMES={
   slate:{"--bg":"#eef1f5","--panel":"#ffffff","--panel2":"#f3f5f9","--line":"#d6dbe3","--line2":"#c3ccd8","--ink":"#1f2430","--dim":"#5b6572","--dim2":"#93a0af","--chip":"#f3f5f9","--barbg":"#dfe4ec","--topbar":"#ffffff","--sel":"#e4e9f1","--income":"#2e7d32","--craft":"#0277bd","--influence":"#6a1b9a","--order":"#c77700","--upkeep":"#c62828","--season":"#795548","--build":"#3949ab","--battle":"#607d8b","--envoy":"#c2185b","--other":"#78889a","--serif":"'EB Garamond',Georgia,'Iowan Old Style',serif","--mono":"ui-monospace,'SF Mono',monospace"},
   royal:{"--bg":"#0c1024","--panel":"#141a38","--panel2":"#1b2450","--line":"#2a356b","--line2":"#37456f","--ink":"#eef1ff","--dim":"#9aa6d6","--dim2":"#5b6aa0","--chip":"#101632","--barbg":"#222c5e","--topbar":"#0a0e20","--sel":"#202a5a","--income":"#5bd6a0","--craft":"#5cc8ff","--influence":"#c9a0ff","--order":"#ffd166","--upkeep":"#ff7a85","--season":"#b0885f","--build":"#8aa0ff","--battle":"#8ea2c8","--envoy":"#ff8ac0","--other":"#8f9bc0"}
 };
+THEMES.pixel={"--bg":"#0e1220","--panel":"#1d2433","--panel2":"#262f42","--line":"#3b4660","--line2":"#56638a","--ink":"#e6e0d0","--dim":"#9aa6c0","--dim2":"#6a7690","--chip":"#161c28","--barbg":"#2c3548","--topbar":"#0b0e18","--sel":"#2c3548","--income":"#7ccf5a","--craft":"#5ad0e0","--influence":"#c08ae8","--order":"#ffd27a","--upkeep":"#ff6a5a","--season":"#c8946a","--build":"#8aa0ff","--battle":"#9aa6c0","--envoy":"#ff7aa8","--other":"#8a96b0"};
 const THEME_VARS=["--bg","--panel","--panel2","--line","--line2","--ink","--dim","--dim2","--income","--craft","--influence","--order","--upkeep","--season","--build","--battle","--envoy","--other","--chip","--barbg","--topbar","--sel","--serif","--mono"];
 function applyTheme(name){
   const root=document.documentElement.style;THEME_VARS.forEach(v=>root.removeProperty(v));
   const t=THEMES[name]||{};Object.keys(t).forEach(v=>root.setProperty(v,t[v]));
+  document.documentElement.dataset.look=name==="pixel"?"pixel":"";
 }
 const SKINS={
   rounded:{"--radius":"10px","--radius-sm":"6px","--pill":"999px"},
@@ -2616,10 +2661,9 @@ function simpleReq(inst,r,have,craft,tc){
 }
 function simpleReqHTML(inst,sr){
   const L=[];const el=effLabel(inst.name).filter(e=>!/^hamlet$/i.test(String(e)));
-  if(el.length&&!(R[inst.name]||{}).root)L.push('<div class="ireq"><span class="'+(sr.unl?'ok':'no')+'">'+(sr.unl?'✓':'✗')+'</span><span>unlock: '+esc(el.join(" or "))+'</span><span class="why">'+
+  if(el.length&&!(R[inst.name]||{}).root)L.push('<div class="ireq"><span class="'+(sr.unl?'ok':'no')+'">'+(sr.unl?'✓':'✗')+'</span><span>'+esc(CHAINL)+': '+
+    el.map(e=>R[e]?quickChip(e):(/^natural$/i.test(String(e))?"any "+kwify("Natural")+" Pursuit":"any "+esc(e)+" Pursuit")).join(" or ")+'</span><span class="why">'+
     (sr.sticky?'met when started':sr.unl?(sr.via?'line: '+esc(sr.via):'met'):'no complete line controlled')+'</span></div>');
-  if(inst.sid!=null&&effList(inst.name).length)L.push('<div class="ireq"><span class="'+(isFreeRider(inst)?'ok':'mn')+'">'+(isFreeRider(inst)?'⚡':'·')+'</span><span>Ward</span><span class="why">'+
-    (isFreeRider(inst)?'rides its parent here (free)':'uses its own Ward')+'</span></div>');
   const r=R[inst.name]||{};if(r.mreq_raw)L.push('<div class="ireq"><span class="'+(sr.infra.earned?'ok':'no')+'">'+(sr.infra.earned?'✓':'✗')+'</span><span>infrastructure: '+esc(r.mreq_raw)+'</span>'+(sr.infra.earned||sr.sticky?'':'<span class="why">missing: '+esc(missTxt(sr.infra.missing))+'</span>')+'</div>');
   return L.length?'<div class="lbl">REQUIRES</div>'+L.join(""):"";
 }
@@ -2701,6 +2745,7 @@ function render(){
   {const tb=document.getElementById("timerBox");if(tb){tb.innerHTML=timerAddHTML();wireDashExtras(tb);}}
   computeTotals(have,earned,tc);
   renderSettlements();
+  renderScene();
   renderPO();
   {const sig=JSON.stringify([D.active,S.domains,S.placed.map(p=>p.name+(p.bt||0)),S.infra,S.wonders,curSeason()]);if(sig!==renderList._sig){renderList._sig=sig;renderList();}}
   trIn.value=S.treasury;document.getElementById("turn").textContent=S.turn;document.getElementById("autoNet").checked=!!S.autoNet;
@@ -2874,6 +2919,10 @@ function wardGrid(gid,occ,earned,craft,tc,hideCombat,have){
     const lbl=document.createElement("div");lbl.className="ward-lbl";
     lbl.innerHTML='<span>Ward '+(i+1)+(i>=wu.cap?' · over cap':'')+'</span>'+(pile&&pile.length>1?'<span>⚡ '+(pile.length-1)+' stacked</span>':'');
     w.appendChild(lbl);
+    if(pile){   // ward total: active pieces only, Mastery when earned
+      const acc={};pile.forEach(p=>{if(pActive(p))contribAcc(R[p.name],instStatus(p,R[p.name],have,craft,tc).earned,acc);});
+      const ch=accChips(acc);if(ch.children.length){const t=document.createElement("div");t.className="wtot";
+        const l=document.createElement("span");l.className="lbl";l.textContent="WARD \u03a3";t.appendChild(l);t.appendChild(ch);w.appendChild(t);}}
     if(i>=wu.cap)w.classList.add("over");
     if(!pile){
       w.classList.add("empty");
@@ -3054,10 +3103,12 @@ function placementSelect(inst){
   psel.onchange=()=>moveInstance(inst.id, psel.value===""?null:psel.value==="faction"?"faction":+psel.value);
   return psel;
 }
-function contribChips(r,masteryEarned){
-  const acc={};
+// flat, unconditional, non-seasonal atoms only (the same rule as the headline totals)
+function contribAcc(r,masteryEarned,acc){acc=acc||{};
   const addA=(atoms,act)=>{if(!act)return;atoms.forEach(a=>{if(a.flat&&!a.season&&["gold","craft","faith","doubt","influence","upkeep"].includes(a.cat))acc[a.cat]=(acc[a.cat]||0)+a.val;});};
-  addA(r.innate,true); if(r.mastery_raw)addA(r.mastery,masteryEarned);
+  addA(r.innate,true); if(r.mastery_raw)addA(r.mastery,masteryEarned);return acc;}
+function contribChips(r,masteryEarned){return accChips(contribAcc(r,masteryEarned));}
+function accChips(acc){
   const wrap=document.createElement("div");wrap.className="atoms";
   ["gold","upkeep","craft","influence","faith","doubt"].forEach(catk=>{
     if(!acc[catk])return;const ph=PHASE[catk],col=cvar(PHASE_COLOR[ph]);
@@ -3089,6 +3140,12 @@ let NX_OPEN=true;try{NX_OPEN=localStorage.getItem("renown_nx_open")!=="0";}catch
 document.addEventListener("click",e=>{const sm=e.target.closest("details.nxd > summary");if(!sm)return;NX_OPEN=!sm.parentElement.open;
   try{localStorage.setItem("renown_nx_open",NX_OPEN?"1":"0");}catch(_){}
   document.querySelectorAll("details.nxd").forEach(d=>{if(d!==sm.parentElement)d.open=NX_OPEN;});});
+function quickChip(n){const have=(PC[n]||0)>0,us=unlockStatus(n);
+  if(have)return '<span class="qchip have" title="on your board">\u2713 '+esc(n)+'</span>';
+  return '<button class="qchip'+(us.ok?'':' lock')+'" data-addp="'+esc(n)+'" title="add '+esc(n)+' to your board'+
+    (us.ok?'':'\nUnlock not met: '+esc((R[n]||{}).unlock_raw||""))+'">+ '+esc(n)+'</button>';}
+function buildsIntoRow(r){const bi=r.builds_into||[];if(!bi.length)return "";
+  return '<div class="qrow"><span class="lbl">BUILDS INTO</span>'+bi.map(quickChip).join("")+'</div>';}
 function nextLinksSummary(r){const bi=r.builds_into||[],mf=(r.mastery_for||[]).filter(x=>!bi.includes(x));
   return '<span class="lbl" style="display:inline">BUILDS INTO '+bi.length+(mf.length?' · MASTERY NEEDED BY '+mf.length:'')+'</span>';}
 function nextLinksHTML(r){const chip=n=>{const have=(PC[n]||0)>0,us=unlockStatus(n),i=GK_BY[esc(n)];
@@ -3150,38 +3207,37 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
     if(!sr.ok&&sf==="on"){const b=document.createElement("span");b.className="badge noearn";b.textContent="req ✗";b.title=sr.missing.join("\n");h.appendChild(b);h.appendChild(ignBtn("s:"+inst.id,sr.missing.join("|")));}}
   if(inst.sid!=null && !inst.fac && isFreeRider(inst)){const b=document.createElement("span");b.className="badge earn";b.textContent="⚡";b.title=CHAINL+" rider";h.appendChild(b);}
   if(inst.fac){const b=document.createElement("span");b.className="badge earn";b.textContent="Faction";h.appendChild(b);}
-  if(inst.bt>0)h.appendChild(timerCtl("build",inst.bt,d=>{inst.bt=Math.max(0,inst.bt+d);save();render();}));
-  if(inst.dmg>0)h.appendChild(timerCtl("repair",inst.dmg,d=>{inst.dmg=Math.max(0,inst.dmg+d);save();render();}));
   if(!inst.fac){const rm=document.createElement("button");rm.className="rm";rm.textContent="✕";rm.onclick=(e)=>{e.stopPropagation();removeInstance(inst.id);};
     h.appendChild(rm);}
   h.onclick=()=>{if(h._suppressClick)return;const i=S.expanded.indexOf(inst.id);if(i<0)S.expanded.push(inst.id);else S.expanded.splice(i,1);save();render();};
   card.appendChild(h);
 
-  const sub=document.createElement("div");sub.className="sub";
-  sub.innerHTML=esc(r.type)+(effLabel(n).length?(" · "+CHAINL+": "+effLabel(n).map(e=>R[e]?kwify(e):(/^natural$/i.test(e)?"any "+kwify("Natural")+" Pursuit":"any "+esc(e)+" Pursuit")).join(" or ")):"");card.appendChild(sub);
-
-  // placement dropdown (always visible for quick moves)
-  const place=document.createElement("div");place.className="sub";
-  if(!inst.fac)place.appendChild(placementSelect(inst));
-  if(open){const bb=document.createElement("button");bb.textContent="build timer";bb.style.marginLeft="6px";
+  // secondary row: type · location · build / repair timers (and, when open, the timer / damage buttons)
+  const sec=document.createElement("div");sec.className="sub psec";
+  {const ty=document.createElement("span");ty.className="note";ty.textContent=r.type;sec.appendChild(ty);}
+  if(!inst.fac)sec.appendChild(placementSelect(inst));
+  if(inst.bt>0)sec.appendChild(timerCtl("build",inst.bt,d=>{inst.bt=Math.max(0,inst.bt+d);save();render();}));
+  if(inst.dmg>0)sec.appendChild(timerCtl("repair",inst.dmg,d=>{inst.dmg=Math.max(0,inst.dmg+d);save();render();}));
+  if(open){const bb=document.createElement("button");bb.textContent="build timer";
       bb.onclick=e=>{e.stopPropagation();const t=pursuitBuildTime(n);if(t>0){inst.bt=t;save();render();flash(n+" Build Timer "+t+buildNote(pursuitBaseTime(n)));}else flash(n+": Build Timer 0 — builds immediately"+buildNote(pursuitBaseTime(n)));};
-    const db=document.createElement("button");db.textContent=inst.dmg>0?"repaired":"damage";db.style.marginLeft="4px";
+    const db=document.createElement("button");db.textContent=inst.dmg>0?"repaired":"damage";
       db.onclick=e=>{e.stopPropagation();inst.dmg=inst.dmg>0?0:REPAIR_T;save();render();};
-    if(!(inst.bt>0))place.appendChild(bb);place.appendChild(db);}
-  card.appendChild(place);
+    if(!(inst.bt>0))sec.appendChild(bb);sec.appendChild(db);}
   if(!pActive(inst))card.classList.add("inactive");
+  const biRow=()=>{const h=buildsIntoRow(r);if(!h)return null;const d=document.createElement("div");d.innerHTML=h;return d.firstChild;};
 
-  if(!open){   // collapsed: header + placement + compact contribution summary
-    const sum=contribChips(r,me.earned);sum.style.marginTop="4px";
+  if(!open){   // cursory view: builds into, then effect, then type / location / timers
+    {const q=biRow();if(q)card.appendChild(q);}
+    const sum=contribChips(r,me.earned);sum.style.marginTop="5px";
     if(sum.children.length)card.appendChild(sum);
+    card.appendChild(sec);
     return card;
   }
 
-  // INNATE (SIMPLE: the whole effect)
+  // expanded view: EFFECT first
   const bi=document.createElement("div");bi.className="block";bi.innerHTML='<div class="lbl">'+(SIMPLE?"EFFECT":"INNATE")+'</div>';
   bi.appendChild(atomsBlock(r.innate,hideCombat));
   card.appendChild(bi);
-  if(SIMPLE){const rh=simpleReqHTML(inst,simpleReq(inst,r,have,craft,tc));if(rh){const b=document.createElement("div");b.className="block";b.innerHTML=rh;card.appendChild(b);}}
   // MASTERY
   const bm=document.createElement("div");bm.className="block mastery"+(r.mastery_raw?(me.earned?" on":" off"):"");
   const badge=r.mastery_raw?('<span class="badge '+(me.earned?"earn":"noearn")+'">'+(me.earned?"earned ✓":"not earned ✗")+'</span>'):'<span class="badge nomast">none</span>';
@@ -3203,8 +3259,14 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
     const det=document.createElement("details");det.className="block sep";det.innerHTML='<summary class="note">innate / mastery separately</summary>';
     det.appendChild(bi);det.appendChild(bm);card.appendChild(det);
   } else if(!(SIMPLE&&!r.mastery_raw)) card.appendChild(bm);
-  {const bl=nextLinksHTML(r);if(bl){const b=document.createElement("details");b.className="block nxd";if(NX_OPEN)b.open=true;
-    b.innerHTML='<summary>'+nextLinksSummary(r)+'</summary>'+bl;card.appendChild(b);}}
+  // BUILDS INTO (add chips) + MASTERY NEEDED BY
+  {const q=biRow();if(q){const b=document.createElement("div");b.className="block";b.appendChild(q);
+    const mf=(r.mastery_for||[]).filter(x=>!(r.builds_into||[]).includes(x));
+    if(mf.length){const d=document.createElement("div");d.className="qrow";d.innerHTML='<span class="lbl">MASTERY NEEDED BY</span>'+mf.map(quickChip).join("");b.appendChild(d);}
+    card.appendChild(b);}}
+  // REQUIRES (mastery chain with add chips, infrastructure)
+  if(SIMPLE){const rh=simpleReqHTML(inst,simpleReq(inst,r,have,craft,tc));if(rh){const b=document.createElement("div");b.className="block";b.innerHTML=rh;card.appendChild(b);}}
+  card.appendChild(sec);
   return card;
 }
 
@@ -5527,6 +5589,136 @@ let MAPSEL=null;
 function set(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
 function computeAll(){recomputePC();const have=new Set(Object.keys(PC));const {earned,craft,tc}=computeEarned(have);computeTotals(have,earned,tc);renderArmy();}
 
+// ---- pixel scene: every settlement of the active player, drawn from sprites.py (Pixel theme only) ----
+// Each settlement is a skyline (sky:core + tiled sky:fill) behind its holdings, faded toward the sky. The player's
+// infrastructure is placed per sprites.SKYLINE (slot / edge / band / ground / gap / link / front); INFRA_SUPERSEDES
+// hides the replaced piece; PLATE_NO_INFRA tiers get no slot/edge/band/front pieces (the shared road, bridge and
+// aqueduct still pass them). The aqueduct is the farthest layer: only the sky is behind it. Each ward shows only its frontmost holding, with the
+// raw material at the root of its chain as a terrain strip at its feet. Wonders stand on the capital's skyline.
+// Ground = the loaded map's Grassland colour (hexstyle climate / map swatch), snow in Winter.
+const SPR=DATA.sprites||null;
+const SPR_RAW=new Set((SPR&&SPR.raw)||[]);
+const SCN_STYLE=Object.assign({fade:0.2,sil:0,halo:0},(SPR&&SPR.style)||{});   // skyline fade, silhouette strength, holding halo
+const SCN={sky:{Winter:["#5a6a88","#7a88a4","#9aa6bc","#b8c2d2"],Spring:["#4a8ad8","#6aa4e4","#8abcee","#b0d4f4"],
+               Summer:["#1e6ad0","#3a86e0","#5aa2ea","#86c0f2"],Fall:["#3a3060","#7a4a6a","#c8705a","#e8a060"]},
+           ground:{Winter:["#c8d4e2","#e8eef5"]},leaf:{Spring:"#7cc44e",Summer:"#2f7a26",Fall:"#d8742a"}};
+function sceneInfra(){   // built infrastructure names, minus anything an upgrade replaces
+  const on=n=>!!(S.infra||{})[n],sup=SPR.supersedes||{},hidden=new Set(Object.keys(sup).filter(on).map(k=>sup[k]));
+  const out={};Object.keys(SPR.skyline||{}).forEach(n=>{if(on(n)&&!hidden.has(n))out[n]={kind:SPR.skyline[n][0],pos:SPR.skyline[n][1],
+    bt:((S.itimer||{})[n]>0)||((S.idmg||{})[n]>0)};});
+  return out;
+}
+function wardChains(sid){   // [{front, chain:[front..root], root}] using the board's own ward-sharing rule
+  const occ=occupants(sid),ex=exemptionsOf(occ),byName={};occ.forEach(o=>{byName[o.name]=o;});
+  const ridden=new Set(occ.filter(o=>ex.has(o.id)).map(o=>ex.hostOf[o.id]));
+  return occ.filter(o=>!ridden.has(o.name)).map(f=>{const chain=[f];let cur=f,g=32;
+    while(ex.has(cur.id)&&g--){const h=byName[ex.hostOf[cur.id]];if(!h)break;chain.push(h);cur=h;}
+    return {front:f,chain,root:cur};});
+}
+function sceneLots(){
+  const ord=S.settlements.filter(s=>s.capital).concat(S.settlements.filter(s=>!s.capital)),noInf=new Set(SPR.noInfra||[]);
+  return ord.map(s=>{const items=[];
+    wardChains(s.id).forEach(w=>{const k=SPR.key[w.front.name];if(!k)return;
+      const ft=SPR_RAW.has(w.root.name)&&SPR.S["feet:"+w.root.name]?"feet:"+w.root.name:null;
+      items.push({key:k,name:w.chain.map(x=>x.name).join(" ← "),bt:w.front.bt>0,ft});});
+    for(let i=0,f=Math.max(0,wardUse(s.id).free);i<f;i++)items.push({key:"scenery:plot",name:"Open ward"});
+    const wonders=s.capital?Object.keys(S.wonders||{}).filter(n=>S.wonders[n]&&SPR.key[n]).map(n=>({key:SPR.key[n],name:n,bt:(S.itimer||{})[n]>0})):[];
+    return {s,items,wonders,bare:noInf.has(s.tier)};});
+}
+function renderScene(){
+  const box=document.getElementById("sceneBox");if(!box)return;
+  const on=!!(SPR&&D.theme==="pixel"&&S.settlements.length);box.hidden=!on;if(!on){box.innerHTML="";return;}
+  const sea=SCN.sky[curSeason()]?curSeason():"Summer",G=38,H=48,pal=Object.assign({},SPR.P),sky=SCN.sky[sea];
+  pal.l=sea==="Winter"?null:SCN.leaf[sea];
+  const INF=sceneInfra(),has=n=>!!INF[n],SW=k=>(SPR.S[k]||[""])[0].length;
+  // ---- layout: lot width from its holdings and its skyline core
+  const lots=[],placed=[],gapW=has("Bridges")?18:12;let x=12;
+  sceneLots().forEach((L,i)=>{if(i)x+=gapW;
+    const core="sky:core:"+L.s.tier,cw=SW(core)||16,hw=L.items.reduce((a,it)=>a+SW(it.key)+2,0)-2;
+    const Lw=Math.max(hw+6,cw+(L.bare?12:28)+26*L.wonders.length,40),x0=x;let hx=x0+Math.floor((Lw-hw)/2);
+    L.items.forEach(it=>{const rows=SPR.S[it.key];if(!rows)return;placed.push({rows,x:hx,w:rows[0].length,it});hx+=rows[0].length+2;});
+    lots.push({x0,x1:x0+Lw-1,Lw,L});x+=Lw;});
+  const W=Math.max(x+12,120),cv=document.createElement("canvas");cv.width=W;cv.height=H;
+  const c=cv.getContext("2d");let seed=W*31+sea.length*977+placed.length;const R=()=>((seed=(seed*16807)%2147483647)/2147483647);
+  const px=(a,b,col)=>{c.fillStyle=col;c.fillRect(a,b,1,1);};
+  const rgb=h=>h[0]==="#"?[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)):h.match(/\d+/g).map(Number);
+  const mix=(a,b,t)=>{const A=rgb(a),B=rgb(b);return "rgb("+A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(",")+")";};
+  const skyAt=y=>sky[Math.max(0,Math.min(3,Math.floor(y/(G/4))))];
+  for(let y=0;y<G;y++){const i=Math.min(3,Math.floor(y/(G/4))),b0=Math.floor(i*G/4);
+    for(let q=0;q<W;q++)px(q,y,(i>0&&y===b0&&(q+y)%2)?sky[i-1]:sky[i]);}
+  if(sea==="Summer"){c.fillStyle="#fff4b0";c.fillRect(W-24,5,6,6);c.fillRect(W-25,6,8,4);c.fillRect(W-23,4,4,8);}
+  if(sea==="Fall"){c.fillStyle="#ffe8b0";c.fillRect(W-20,6,3,3);}
+  if(sea==="Spring"){c.fillStyle="#ffffff";for(let q=18;q<W;q+=70){c.fillRect(q,6,10,2);c.fillRect(q+4,5,5,1);}}
+  const occ=[];
+  const SHADE="#141a2a",DARK=new Set(["k","d","u"]);
+  // everything is drawn opaque, back to front, so nearer pieces hide whatever is behind them; a piece under
+  // construction or damaged (alpha<1) is drawn paler (more sky in it), never see-through
+  const draw=(rows,ox,alpha,tint,track,oyOverride)=>{if(!rows)return;const oy=oyOverride!=null?oyOverride:G-(rows.length-1);
+    if(alpha<1)tint=Math.min(.8,(tint||0)+.45);
+    rows.forEach((row,y)=>{for(let q=0;q<row.length;q++){const ch=row[q];if(ch==="."||ch==="g"||(ch==="l"&&!pal.l))continue;
+      let col=pal[ch]||"#f0f";if(ch==="l"&&sea==="Spring"&&R()<.15)col="#f4a8c8";
+      if(tint){if(SCN_STYLE.sil)col=mix(col,mix(skyAt(oy+y),SHADE,DARK.has(ch)?.55:.32),SCN_STYLE.sil);col=mix(col,skyAt(oy+y),tint);}
+      px(ox+q,oy+y,col);if(track)(occ[ox+q]=occ[ox+q]||[]).push(oy+y);}});};
+  const halo=(rows,ox)=>{const oy=G-(rows.length-1);c.fillStyle=pal.k;
+    rows.forEach((row,y)=>{for(let q=0;q<row.length;q++){const ch=row[q];if(ch==="."||ch==="g"||(ch==="l"&&!pal.l))continue;
+      [[1,0],[-1,0],[0,-1]].forEach(([dx,dy])=>c.fillRect(ox+q+dx,oy+y+dy,1,1));}});};
+  const al=n=>INF[n]&&INF[n].bt?0.45:1,T=SCN_STYLE.fade;
+  // ---- gaps between settlements: which one carries the single bridge
+  const gaps=[];for(let i=0;i<=lots.length;i++)gaps.push({i,x0:i?lots[i-1].x1+1:0,x1:i<lots.length?lots[i].x0-1:W-1,between:i>0&&i<lots.length});
+  const between=gaps.filter(g=>g.between),bridgeGap=has("Bridges")?(between.length?between[Math.floor((between.length-1)/2)]:gaps[gaps.length-1]):null;
+  // ---- span: one aqueduct, the farthest layer. It joins the first and last settlement that carries infrastructure
+  // (not PLATE_NO_INFRA), ends hidden behind their cores; with only one such settlement it runs off the right edge.
+  const anchors=lots.filter(o=>!o.L.bare);
+  if(has("Aqueducts")&&anchors.length){const k="inf:Aqueducts",w=SW(k),mid=o=>o.x0+Math.floor(o.Lw/2);
+    const a0=mid(anchors[0]),a1=anchors.length>1?mid(anchors[anchors.length-1]):W;
+    for(let q=a0;q<=a1;q+=w)draw(SPR.S[k],q,al("Aqueducts"),Math.min(.6,T+.2),false);}
+  // ---- skylines
+  lots.forEach(o=>{const t=o.L.s.tier,core="sky:core:"+t,fill="sky:fill:"+t,cw=SW(core),cx=o.x0+Math.floor((o.Lw-cw)/2),bare=o.L.bare,sa=o.L.s.bt>0?0.45:1;
+    const inf=n=>!bare&&has(n);
+    for(let q=o.x0,fw=SW(fill);fw&&q<=o.x1-fw+1;q+=fw+1)draw(SPR.S[fill],q,sa,T,true);
+    if(inf("Cathedral"))draw(SPR.S["inf:Cathedral"],o.x0+Math.floor((o.Lw-SW("inf:Cathedral"))/2),al("Cathedral"),T,true);
+    if(inf("Library"))draw(SPR.S["inf:Library"],Math.max(o.x0,cx-SW("inf:Library")+3),al("Library"),T,true);
+    if(inf("Town Hall"))draw(SPR.S["inf:Town Hall"],Math.min(o.x1-SW("inf:Town Hall")+1,cx+cw-3),al("Town Hall"),T,true);
+    o.L.wonders.forEach((wd,i)=>{const w=SW(wd.key),wx=i%2?Math.min(o.x1-w+1,cx+cw+2):Math.max(o.x0,cx-w-2);draw(SPR.S[wd.key],wx,wd.bt?0.45:1,T,true);});
+    draw(SPR.S[core],cx,sa,T,true);
+    if(inf("Muster Field"))draw(SPR.S["inf:Muster Field"],o.x0,al("Muster Field"),T,true);
+    if(inf("Garrison"))draw(SPR.S["inf:Garrison"],o.x1-SW("inf:Garrison")+1,al("Garrison"),T,true);
+    ["Wooden Walls","Stone Walls"].filter(inf).forEach(n=>{const k="inf:"+n,w=SW(k);for(let q=o.x0;q<=o.x1-w+1;q+=w)draw(SPR.S[k],q,al(n),T,true);
+      const tw="inf:"+n+":tower";if(SPR.S[tw]){draw(SPR.S[tw],o.x0,al(n),T,true);draw(SPR.S[tw],o.x1-SW(tw)+1,al(n),T,true);}});});
+  // ---- ground, roads, gaps (trees or stream + bridge)
+  const grass=(mapPal((D.map||{}).grid)||{}).plains||"#7fa452";
+  const gr=sea==="Winter"?SCN.ground.Winter:[mix(grass,"#ffffff",.18),grass];
+  c.fillStyle=gr[0];c.fillRect(0,G,W,1);c.fillStyle=gr[1];c.fillRect(0,G+1,W,H-G-1);
+  const road=Object.keys(INF).find(n=>INF[n].kind==="ground");
+  if(road&&lots.length){const stone=INF[road].pos==="stone",r0=lots[0].x0,r1=lots[lots.length-1].x1,rg=al(road)<1?.45:0,pv=col=>rg?mix(col,grass,rg):col;   // one road joining every settlement
+    for(let q=r0;q<=r1;q++)for(let y=G+2;y<=G+4;y++)px(q,y,pv(stone?((q+y)%3?pal.t:pal.u):((q*7+y)%5?pal.b:pal.d)));}
+  gaps.forEach(g=>{const mid=Math.floor((g.x0+g.x1)/2);
+    if(g===bridgeGap){const wc=al("Bridges")<1?mix(pal.e,grass,.45):pal.e;for(let q=mid-5;q<=mid+5;q++)for(let y=G;y<H;y++)px(q,y,wc);
+      draw(SPR.S["inf:Bridges"],mid-7,al("Bridges"),0,true);}
+    else draw(SPR.S["scenery:tree"],mid-8,1,0,true);});
+  // ---- holdings, then the terrain at their feet, then foreground pieces
+  if(SCN_STYLE.halo)placed.forEach(p=>halo(p.rows,p.x));
+  placed.forEach(p=>draw(p.rows,p.x,p.it.bt?0.45:1,0,true));
+  placed.forEach(p=>{if(p.it.ft){const f=SPR.S[p.it.ft];draw(f,p.x+Math.floor((p.w-f[0].length)/2),1,0,true);}});
+  lots.forEach(o=>{if(!o.L.bare&&has("Hitching Post"))draw(SPR.S["inf:Hitching Post"],o.x0,al("Hitching Post"),0,true);});
+  if(sea==="Winter"){occ.forEach((ys,q)=>{if(!ys)return;const t=Math.min(...ys);px(q,t,"#ffffff");});
+    for(let i=0;i<W/2;i++)px(Math.floor(R()*W),Math.floor(R()*G),"#ffffff");}
+  if(sea==="Spring")for(let i=0;i<W/10;i++)px(Math.floor(R()*W),G+2+Math.floor(R()*6),R()<.5?"#f4e04a":"#f4a8c8");
+  if(sea==="Summer")for(let i=0;i<W/14;i++)px(Math.floor(R()*W),G+2+Math.floor(R()*6),"#2a6a1e");
+  if(sea==="Fall")for(let i=0;i<W/8;i++)px(Math.floor(R()*W),Math.floor(R()*G),R()<.5?"#d8742a":"#b8432f");
+  const avail=box.clientWidth||600,z=Math.max(2,Math.min(4,Math.floor((avail-4)/W)));
+  cv.style.width=(W*z)+"px";cv.style.height=(H*z)+"px";
+  const hit=e=>{const q=Math.floor(e.offsetX/z),y=Math.floor(e.offsetY/z),h=placed.find(p=>q>=p.x&&q<p.x+p.w&&y>=G-p.rows.length);
+    if(h)return h.it.name;const L=lots.find(l=>q>=l.x0&&q<=l.x1);return L?(L.L.s.name||L.L.s.tier):"";};
+  cv.onmousemove=e=>{const t=hit(e);cv.title=window.dispName?window.dispName(t):t;};   // display names (NAME_DISPLAY), e.g. Castle Yard
+  cv.onclick=e=>{const q=Math.floor(e.offsetX/z),L=lots.find(l=>q>=l.x0&&q<=l.x1);if(L&&L.L.s.id!==activeSid){activeSid=L.L.s.id;render();}};
+  const lb=document.createElement("div");lb.className="scnlabels";lb.style.width=(W*z)+"px";
+  lots.forEach(o=>{const s=o.L.s,sp=document.createElement("span");sp.textContent=s.name||s.tier;sp.className=s.id===activeSid?"on":"";
+    sp.style.left=(o.x0*z)+"px";sp.style.width=(o.Lw*z)+"px";sp.onclick=()=>{activeSid=s.id;render();};lb.appendChild(sp);});
+  box.innerHTML="";box.appendChild(cv);box.appendChild(lb);
+}
+window.addEventListener("resize",()=>{if(D.theme==="pixel")renderScene();});
+
 // ---- settlements overview (read-only; build/place happens in the Pursuits section) ----
 function renderSettlements(){
   const grid=document.getElementById("setGrid");grid.innerHTML="";const SET=DATA.settlements;
@@ -6293,7 +6485,7 @@ def main():
                       "feel": v.get("feel", ""), "mechanic": v.get("mechanic", ""), "pair": v.get("pair", ""), "complement": v.get("complement", ""),
                       "fx": envoy_fx(v.get("mechanic", "")), "body": ns["faction_body"](k) if "faction_body" in ns else v.get("mechanic", "")}
                   for k, v in ns.get("FACTIONS", {}).items()},
-        warnings=b_warn, version=ns.get("VERSION", "?"),
+        warnings=b_warn, version=ns.get("VERSION", "?"), sprites=sprite_payload(ns, a.data),
     )
     with open(a.out, "w", encoding="utf-8") as fh:
         fh.write(html)

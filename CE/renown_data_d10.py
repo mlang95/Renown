@@ -2203,8 +2203,8 @@ SIMPLE_NODES = {
         "group": "g_secrecy",
         "unlock": "Rising Cunning",
         "innate": "Natural; Passed Cunning envoys **Recoup 500 Gold**; Endorsed Cunning envoys **Recoup 1000 Gold**",
-        "efficient": ["Secrecy", "Thieves' Guild", "Outlaw Rookery", "Outrider Intercept Post"],
-        "builds_into": ["Secrecy"],
+        "efficient": ["Inn","Courier Network"],
+        "builds_into": ["Courier Network","Forgotten Catacombs"],
         "monument": False},
     "Smuggler's Nook": {
         "group": "g_secrecy",
@@ -2417,8 +2417,8 @@ SIMPLE_NODES = {
         "group": "g_secrecy",
         "unlock": "Sovereign Cunning",
         "innate": "Whenever another player performs a Cunning action, you may recoup 1000 gold; **Extort half** of Trade Income from players who don't trade with you",
-        "efficient": ["Black Market", "Secret Cellar"],
-        "builds_into": ["Secret Cellar"],
+        "efficient": ["Black Market"],
+        "builds_into": [],
         "monument": True},
     "Senate Hall": {
         "group": "g_court",
@@ -2483,7 +2483,7 @@ SIMPLE_NODES = {
         "unlock": "Sovereign Cunning",
         "innate": "Both Bandit Camps & you have Influence +1 on Cunning Envoys. Endorsed Foster Rebellion instead places Bandit Armies with 25 retinues.",
         "efficient": "Syndicate Hub",
-        "builds_into": ["Secret Cellar"],
+        "builds_into": [],
         "monument": True},
     "Advanced Blast Furnace": {
         "group": "g_arms",
@@ -2511,7 +2511,7 @@ SIMPLE_NODES = {
         "unlock": "Sovereign Cunning",
         "innate": "Natural; Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own.",
         "efficient": ["Beacon Towers"],
-        "builds_into": ["Secret Cellar"],
+        "builds_into": [],
         "monument": True},
     "Emporium": {
         "group": "g_commerce",
@@ -3857,6 +3857,7 @@ NAME_DISPLAY = {
     "Reliquary": "Reliquary Sanctum",
     "TH": "To Strike",
     "TS": "Armor Save",
+    "Exalted Basilica":"Unforgotten Shrine",
 
     
 }
