@@ -3284,7 +3284,7 @@ EFFICIENT = {n: t[0] for n, t in EFFICIENT_MULTI.items()} # first target (1-part
 # (Regenerate/Steadfast/Unshakable/Shaking Test/Tripped/Maximum Endurance) are
 # intentionally excluded as deprecated relative to the combat model above.
 # ============================================================================
-BANDIT_CAMP_START = 5
+BANDIT_CAMP_START = 10
 BANDIT_ARMY_THRESHOLD = 25
 BANDIT_GROWTH_PER_ERA = {"Founding": 1, "Ascension": 2, "Eminence": 3, "Zenith": 4}
 BANDIT_EQUIPMENT_PER_ERA = {"Founding": "Levy: Cudgel + Cloth", "Ascension": "Levy: Arming Sword, Targe Shield, & Leather Armor" , "Eminence": "Man-at-Arms: Halberd + Chainmail", "Zenith": "Man-at-Arms: Battle Axe + Full Plate"}

@@ -107,19 +107,21 @@ def _table(headers, rows, widths=None):
 
 # ── table builders ──
 def retinues():
+    aura = any("aura" in x for x in rd.RETINUES.values())               # Aura column only when the data has it
     rows = [[n, str(x.get("cost", "")), f"{x['to_hit']}+", str(x['endurance']), f"{x['shaking']}+",
-             str(x.get("speed", "—")), str(x.get("max_size", "—")),
+             str(x.get("speed", "—"))] + ([str(x.get("aura", "—"))] if aura else []) + [str(x.get("max_size", "—")),
              "Unbreakable" if x.get("unbreakable") else "—"] for n, x in rd.RETINUES.items()]
-    return _table(["Retinue", "Cost", "To Strike", "Endurance", "Morale", "Speed", "Max Size", "Keyword"], rows)
+    return _table(["Retinue", "Cost", "To Strike", "Endurance", "Morale", "Speed"] + (["Aura"] if aura else []) + ["Max Size", "Keyword"], rows)
 
 def settlements():
     # 9-col form matching the authored Rules table; sourced from SETTLEMENTS.
     sea = any(v.get("sea_variant") for v in rd.SETTLEMENTS.values())      # no column when no Settlement has a sea variant (SIMPLE)
+    aura = any("aura" in v for v in rd.SETTLEMENTS.values())
     rows = [[str(v["tier"]), n] + ([v["sea_variant"] or "None"] if sea else []) + [str(v["tax_income"]),
              str(v["muster_limit"]), str(v["build_time"]), str(v["wards"]),
-             str(v["reach"]), v["notes"] or "—"]
+             str(v["reach"])] + ([str(v.get("aura", "—"))] if aura else []) + [v["notes"] or "—"]
             for n, v in rd.SETTLEMENTS.items()]
-    return _table(["Tier", "Settlement"] + (["Sea"] if sea else []) + ["Tax", "Muster", "Build", "Wards", "Reach", "Notes"], rows)
+    return _table(["Tier", "Settlement"] + (["Sea"] if sea else []) + ["Tax", "Muster", "Build", "Wards", "Reach"] + (["Aura"] if aura else []) + ["Notes"], rows)
 
 def eras():
     rows = [[n, str(v["renown"]), str(v["armies"]), str(v["cities"]), str(v.get("max_settlements", "—")),

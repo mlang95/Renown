@@ -156,9 +156,10 @@ def _t_eras():
 def _t_settlements():
     items = sorted(rd.SETTLEMENTS.items(), key=lambda kv: kv[1].get("tier", 0))
     sea = any(d.get("sea_variant") for _, d in items)
-    return _htable(["Settlement", "Tax", "Muster", "Wards", "Reach", "Build"] + (["Sea Variant"] if sea else []) + ["Notes"],
+    aura = any("aura" in d for _, d in items)
+    return _htable(["Settlement", "Tax", "Muster", "Wards", "Reach"] + (["Aura"] if aura else []) + ["Build"] + (["Sea Variant"] if sea else []) + ["Notes"],
                    [[n, d.get("tax_income", ""), d.get("muster_limit", ""), d.get("wards", ""),
-                     d.get("reach", ""), d.get("build_time", "")] + ([d.get("sea_variant") or "\u2014"] if sea else []) +
+                     d.get("reach", "")] + ([d.get("aura", "\u2014")] if aura else []) + [d.get("build_time", "")] + ([d.get("sea_variant") or "\u2014"] if sea else []) +
                     [d.get("notes", "")] for n, d in items])
 
 def _t_terrain():

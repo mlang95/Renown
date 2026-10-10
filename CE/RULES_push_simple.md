@@ -161,7 +161,7 @@ Many actions set a Timer to a number of turns. Each Empire Phase, every active T
 Before players send personal Envoys, there's a Council vote on a Domain.
 
 1. **Forum** — a brief open discussion of which Domain the Council should choose.
-2. **Vote** — no talking. Clockwise from the starting player, each player votes for a Domain; if the vote ties, the Host breaks it.
+2. **Vote** — no talking. Clockwise from the starting player, each player votes for a Domain; if the vote ties, the Host's vote breaks it (if the Host's vote isn't one of the tied Domains, the Host chooses among them).
 3. **Council actions** — clockwise from the starting player, each player sends a free Envoy of that Domain, starting with innate Influence equal to their Domain Standing. A passed Council Envoy performs actions of that Domain equal to the Era's Council actions per Envoy (see Eras).
 
 Council Envoys **auto-Abstain**: other players can't Support or Oppose them, though automatic Influence ±X modifiers still apply.

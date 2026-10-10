@@ -1596,6 +1596,8 @@ function tSim(){
     R.tally=tally;
     const mx=Math.max(0,...Object.values(tally)),top=T_DOMS.filter(d=>mx>0&&tally[d]===mx);
     let dom=R.chooser?R.chooser.d:(top.length===1?top[0]:null);
+    // a tie is broken by the Host's own vote; only when that vote isn't one of the tied Domains (or there's no Host) does the Host pick
+    if(!dom){const hp=hostP(),hv=hp?(R.log.find(x=>x.kind==="cvote"&&sameP(x.who,hp))||{}).dom:null;if(hv&&top.includes(hv)){dom=hv;R.tieBy={who:hp,dom:hv,cands:top.slice()};}}
     if(!dom){const tie=t.councilTie,cand=top.length?top:T_DOMS.slice();
       if(tie&&tie.turn===tTurn()&&cand.includes(tie.dom)){dom=tie.dom;clock=Math.max(clock,+tie.ts||clock);}
       else{R.waiting="tie";R.tieCands=cand;return R;}}
@@ -1852,7 +1854,7 @@ function renderTable(){
   if(R.waiting==="seat")ctr+='<div class="note">Take a seat to begin.</div>';
   else if(R.waiting==="start")ctr+='<div class="note">Waiting for the Host to begin.</div>';
   else if(R.waiting==="declare")ctr+='<div>Declare Envoys — '+(ord.length-R.declPending.length)+'/'+ord.length+' submitted</div>';
-  else if(R.waiting==="tie")ctr+='<div>Council vote tied — <b>'+R.tieCands.join(" / ")+'</b><br><span class="note">Host breaks the tie</span></div>';
+  else if(R.waiting==="tie")ctr+='<div>Council vote tied — <b>'+R.tieCands.join(" / ")+'</b><br><span class="note">'+(hostP()?"the Host's vote isn't one of them — Host breaks the tie":"no Host — break the tie")+'</span></div>';
   else if(ph==="council"&&!R.councilDom&&cw)ctr+='<div>Council vote: '+tName(cw)+' <span class="tbcd tb-timer"></span></div>';
   if(E){const net=E.council?Math.max(1,E.innate+E.sup-E.opp):E.innate+E.sup-E.opp,o=tOutcome(net);
     ctr+='<div class="tb-env">'+tName(E.owner)+' → <b>'+esc(E.dom)+'</b>'+(E.council?' <span class="tb-b">Council</span>':'')+(eraActions(E.council)>1?' <span class="tb-b">×'+eraActions(E.council)+' actions</span>':'')+
@@ -1861,7 +1863,7 @@ function renderTable(){
       '<div>net <b>'+net+'</b> → <b class="'+tOutCls(o)+'">'+o+'</b> <span class="note">(so far)</span></div>'+
       (cw?'<div class="note">'+tName(cw)+' to act</div><div class="tbcd tb-timer"></div>':'')+'</div>';}
   else if(R.done&&(ph==="council"||ph==="envoy")&&TB().phaseTs)ctr+='<div class="pos">All Envoys resolved.</div>';
-  if(R.councilDom)ctr+='<div class="note">Council Domain: <b>'+R.councilDom+'</b></div>';
+  if(R.councilDom)ctr+='<div class="note">Council Domain: <b>'+R.councilDom+'</b>'+(R.tieBy?' — tie ('+R.tieBy.cands.join(" / ")+') broken by the Host\u2019s vote ('+esc(R.tieBy.who.name)+')':'')+'</div>';
   if(ph==="council"&&isSpring())ctr+='<div>Spring — no Council Phase.</div>';
   if(ph==="empire")ctr+=empireChecklistHTML()+'<div class="tb-row" style="flex-wrap:wrap;justify-content:center;margin-top:4px"><span class="note">Extort</span>'+
     '<select id="exFrom">'+D.players.map(p=>'<option value="'+p.id+'">'+esc(p.name)+'</option>').join('')+'</select><span class="note">→</span>'+
