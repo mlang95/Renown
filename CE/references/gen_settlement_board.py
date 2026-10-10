@@ -865,7 +865,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .tb-phase{text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
   .tb-phase h2{font-size:22px}
   .tb-felt.sides{--seatband:10px;--seatcol:172px}
-  .mapbar{position:absolute;left:calc(var(--seatcol) + 20px);top:calc(var(--seatband) + 10px);z-index:3;display:flex;gap:4px;align-items:center;flex-wrap:wrap;max-width:calc(100% - 2*var(--seatcol) - 360px);
+  .mapbar{position:absolute;left:calc(var(--seatcol) + 20px);top:calc(var(--seatband) + 2px);z-index:3;display:flex;gap:4px;align-items:center;flex-wrap:wrap;max-width:calc(100% - 2*var(--seatcol) - 360px);
     background:color-mix(in srgb,var(--panel) 88%,transparent);border:1px solid var(--line2);border-radius:var(--radius-sm);padding:4px;font-size:12px}
   .mapbar button.on{border-color:var(--ink);font-weight:600}
   .sgroup-hd .snm{width:120px;font-size:12px;padding:2px 6px}
@@ -891,7 +891,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .bqrow .eqi{image-rendering:pixelated}.bqrow .rm{margin-left:0}
   .tb-felt.sides .tb-seat{left:var(--sx);top:var(--sy);max-height:none}
   .tb-felt.sides .tb-oval{left:calc(var(--seatcol) - 10px);right:calc(var(--seatcol) - 10px);top:0;bottom:0}
-  .tb-map{position:absolute;left:calc(var(--seatcol) + 10px);right:calc(var(--seatcol) + 10px);top:var(--seatband);bottom:var(--seatband);display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:18px}
+  .tb-map{position:absolute;left:calc(var(--seatcol) + 10px);right:calc(var(--seatcol) + 10px);top:calc(var(--seatband) + var(--barh));bottom:var(--seatband);display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:18px}
   .tb-map.zm{overflow:auto;align-items:flex-start;justify-content:flex-start;z-index:1}
   .tb-tools{padding:14px 14px 0}.tb-tools>details{margin:0}.tb-tools>details>summary{cursor:pointer}
   .tmrow{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}.tmrow>.tot{flex:1;min-width:260px;margin:0}
@@ -900,7 +900,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .tb-wrap.tb3.wide{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
   .tb-wrap.tb3.wide>.tb-felt-col{grid-column:1 / -1;order:-1}
   @media(max-width:1100px){.tb-wrap,.tb-wrap.tb3{grid-template-columns:1fr}}
-  .tb-felt{--seatband:96px;--seatcol:0px;position:relative;height:max(560px,calc(100vh - var(--tbh,60px) - 70px));margin-bottom:10px}
+  .tb-felt{--seatband:96px;--seatcol:0px;--barh:38px;position:relative;height:max(560px,calc(100vh - var(--tbh,60px) - 70px));margin-bottom:10px}
   .tb-oval{position:absolute;left:0;right:0;top:calc(var(--seatband) - 10px);bottom:calc(var(--seatband) - 10px);border-radius:26px;
     background:radial-gradient(ellipse at center,color-mix(in srgb,var(--income) 26%,var(--panel)) 0%,color-mix(in srgb,var(--income) 12%,var(--panel2)) 75%);
     border:7px solid var(--line2);box-shadow:inset 0 0 34px rgba(0,0,0,.18)}
@@ -1893,7 +1893,7 @@ function renderTable(){
 function tbFit(host){const f=host.querySelector(".tb-felt"),sv=host.querySelector(".tb-map svg");if(!f||!sv||!MAPZ.fit)return;
   const vb=(sv.getAttribute("viewBox")||"").split(/\s+/).map(Number);if(vb.length<4||!vb[2]||!vb[3])return;
   const ar=vb[2]/vb[3],W=f.clientWidth,H=f.clientHeight,sc=(w,h)=>Math.min(w/ar,h)*Math.min(w,h*ar);
-  const bands=sc(W-20,H-192),cols=sc(W-364,H-20);f.classList.toggle("sides",cols>bands);}
+  const bands=sc(W-20,H-192-38),cols=sc(W-364,H-20-38);f.classList.toggle("sides",cols>bands);}
 window.addEventListener("resize",()=>{const h=document.getElementById("viewTable");if(h&&D.view==="table")tbFit(h);});
 
 function tPanel(R){
@@ -6127,22 +6127,48 @@ function speedOf(p,a,startK){const parts=[],notes=[],b=p.board,sea=curSeason(),b
   return {speed:sp,parts,notes,tr,prov};}
 function hexNb(k){const [c,r]=hk(k);return [[0,-1],[0,1],[1,c%2?0:-1],[1,c%2?1:0],[-1,c%2?0:-1],[-1,c%2?1:0]].map(([oc,orr])=>(c+oc)+","+(r+orr));}
 // Dijkstra over (hex, water state): 0 = land, 1 = on Water (must land next), 2 = landed after Water (move ends)
+// ---- Aura (RETINUES / SETTLEMENTS "aura"): Territory within range of a non-allied Settlement, Army or Bandit Army can't be entered or
+// passed through — except by a Move that ends adjacent to that Settlement / Army to Battle or Lay Siege (its own Aura is lifted for that Move)
+function auraSources(p){const M=mapState(),out=[],RT=EQ.retinues||{},maxR=Math.max(0,...Object.values(RT).map(r=>+r.aura||0));
+  Object.keys(M.cells).forEach(k=>{const c=M.cells[k],q=cellPlayer(c);if(!q||sameP(q,p)||canEnterSett(p,q))return;const war=!!effPair(p.id,q.id).war;
+    if(c.type==="Army"){const x=cellArmy(k),rt=x.a&&RT[x.a.retinue],r=rt?(+rt.aura||0):maxR;
+      out.push({k,r,kind:"battle",war:war&&!!x.a,label:q.name+" · "+(x.a?(x.a.label||("Army "+x.a.id)):"Army"),B:x.a?{pid:String(q.id),aid:String(x.a.id)}:null});}
+    else{const cs=cellSett(k),r=+(((DATA.settlements||{})[c.type]||{}).aura)||0;
+      out.push({k,r,kind:"siege",war:war&&!!cs.s&&!siegeOn(q.id,cs.s.id),label:q.name+" · "+(cs.s?(cs.s.name||cs.s.tier):c.type),tp:q.id,sid:cs.s?cs.s.id:null});}});
+  Object.keys(M.camps).forEach(k=>{const cp=M.camps[k];if(+cp.n<(BAN.armyThreshold||25))return;const rn=((cp.army||{}).retinue)||BANDIT_DEFAULT_RETINUE,r=+((RT[rn]||{}).aura)||0;
+    out.push({k,r,kind:"battle",war:true,bandit:true,label:"Bandit Army @ "+k,B:{kind:"bandit",camp:k}});});
+  return out.filter(o=>o.r>0);}
 function moveRange(p,a,startK){const M=mapState(),g=M.grid;if(!g||!startK)return null;const V=decodeGrid(g),S_=speedOf(p,a,startK),tr=S_.tr;
-  const key=(k,w)=>k+"|"+w,best={},prev={},Q=[[0,startK,0]],dest={};best[key(startK,0)]=0;
   const waterOK=k=>tr.shipyard||(tr.bridges&&S_.prov.has(k));
-  while(Q.length){Q.sort((x,y)=>x[0]-y[0]);const [d,k,w]=Q.shift();if(d>best[key(k,w)])continue;
-    if(k!==startK&&w!==1){const h=V.hex[k];if(!M.cells[k]&&!M.camps[k]&&(!dest[k]||dest[k].cost>d))dest[k]={cost:d,w,from:key(k,w)};
-      else if(M.cells[k]&&M.cells[k].type!=="Army"&&!M.camps[k]&&(!dest[k]||dest[k].cost>d)){const cs=cellSett(k),ent=cs.s?enterCheck(p,a,cs.p,cs.s):null;
-        if(ent&&ent.ok)dest[k]={cost:d,w,from:key(k,w),enter:{pid:String(cs.p.id),sid:cs.s.id,name:cs.s.name||cs.s.tier,kick:ent.kick||null}};}}
-    if(w===2)continue;
-    hexNb(k).forEach(nk=>{const h=V.hex[nk];if(!h)return;if(terrBlocked(h.t))return;
-      const water=terrWaterStop(h.t)&&!waterOK(nk),pen=tr.ignoreTerrain?0:terrPen(h.t);
-      let nw;if(w===1){if(water)return;nw=2;}else nw=water?1:0;
-      const nd=d+1+pen;if(nd>S_.speed)return;const kk=key(nk,nw);
-      if(best[kk]===undefined||nd<best[kk]){best[kk]=nd;prev[kk]=key(k,w);Q.push([nd,nk,nw]);}});}
-  Object.keys(dest).forEach(k=>{const path=[];let cur=dest[k].from;while(cur){path.unshift(cur.split("|")[0]);cur=prev[cur];}
-    dest[k].path=path;dest[k].strain=path.some(x=>{const h=V.hex[x];return h&&terrStrain(h.t)&&!tr.ignoreTerrain;});});
-  return {speed:S_,dest};}
+  const AS=auraSources(p),cov={},hexes=Object.keys(V.hex);
+  AS.forEach((o,i)=>{const c=hk(o.k);o.set=new Set(hexes.filter(h=>hexDist(c,hk(h))<=o.r));o.set.forEach(h=>{(cov[h]=cov[h]||[]).push(i);});});
+  // ex = Aura(s) lifted for a run: a number or a Set. Starting inside non-allied Aura(s) (ruling): those may be crossed, but the Move must end outside every Aura
+  const startIn=new Set(cov[startK]||[]),lift=(...a)=>new Set([...startIn,...a]);
+  const blockedX=(h,ex)=>{const L=cov[h];if(!L)return false;const E=ex instanceof Set?ex:new Set([ex]);return L.some(i=>!E.has(i));};
+  // one Dijkstra over (hex, water state): 0 land, 1 on Water (must land next), 2 landed after Water (move ends); ex = the Aura lifted for this run
+  const run=ex=>{const key=(k,w)=>k+"|"+w,best={},prev={},Q=[[0,startK,0]],reach={};best[key(startK,0)]=0;
+    while(Q.length){Q.sort((x,y)=>x[0]-y[0]);const [d,k,w]=Q.shift();if(d>best[key(k,w)])continue;
+      if(k!==startK&&w!==1&&(!reach[k]||reach[k].cost>d))reach[k]={cost:d,w,from:key(k,w)};
+      if(w===2)continue;
+      hexNb(k).forEach(nk=>{const h=V.hex[nk];if(!h)return;if(terrBlocked(h.t))return;if(nk!==startK&&blockedX(nk,ex))return;
+        const water=terrWaterStop(h.t)&&!waterOK(nk),pen=tr.ignoreTerrain?0:terrPen(h.t);
+        let nw;if(w===1){if(water)return;nw=2;}else nw=water?1:0;
+        const nd=d+1+pen;if(nd>S_.speed)return;const kk=key(nk,nw);
+        if(best[kk]===undefined||nd<best[kk]){best[kk]=nd;prev[kk]=key(k,w);Q.push([nd,nk,nw]);}});}
+    const fin=(k,x)=>{const path=[];let cur=x.from;while(cur){path.unshift(cur.split("|")[0]);cur=prev[cur];}
+      return Object.assign({},x,{path,strain:path.some(z=>{const h=V.hex[z];return h&&terrStrain(h.t)&&!tr.ignoreTerrain;})});};
+    return {reach,fin};};
+  const dest={},base=run(lift());
+  Object.keys(base.reach).forEach(k=>{const x=base.reach[k];
+    if(startIn.size&&cov[k])return;                                                  // started inside an Aura: end outside all of them
+    if(!M.cells[k]&&!M.camps[k])dest[k]=base.fin(k,x);
+    else if(M.cells[k]&&M.cells[k].type!=="Army"&&!M.camps[k]){const cs=cellSett(k),ent=cs.s?enterCheck(p,a,cs.p,cs.s):null;
+      if(ent&&ent.ok)dest[k]=Object.assign(base.fin(k,x),{enter:{pid:String(cs.p.id),sid:cs.s.id,name:cs.s.name||cs.s.tier,kick:ent.kick||null}});}});
+  // Battle / Lay Siege: end adjacent to the target, through its own Aura (other non-allied Auras still block)
+  AS.forEach((o,i)=>{if(!o.war||(o.kind==="battle"&&!o.B)||hexDist(hk(startK),hk(o.k))>S_.speed+1)return;const R_=run(lift(i));
+    hexNb(o.k).forEach(k=>{const x=R_.reach[k];if(!x||k===startK||M.cells[k]||M.camps[k]||blockedX(k,lift(i)))return;   // already adjacent: use Engage in the panel
+      if(dest[k]&&dest[k].engage)return;dest[k]=Object.assign(R_.fin(k,x),{engage:o});});});
+  return {speed:S_,dest,aura:cov,inAura:startIn.size>0};}
 function moveInfo(){const x=selArmy();if(!x)return null;const k=armyHex(x.p,x.a);if(!k)return {p:x.p,a:x.a,k:null,err:"Army is not on the map"};
   return Object.assign({k,p:x.p,a:x.a},moveRange(x.p,x.a,k)||{});}
 function moveArmyTo(dk){const mi=moveInfo();if(!mi||!mi.dest||!mi.dest[dk])return false;const M=mapState(),d=mi.dest[dk],p=mi.p,a=mi.a;
@@ -6152,12 +6178,20 @@ function moveArmyTo(dk){const mi=moveInfo();if(!mi||!mi.dest||!mi.dest[dk])retur
   delete a.inAlly;delete a.sid;
   let kicked=[];if(d.enter){const eq=pById(d.enter.pid),es=eq&&settById(eq,d.enter.sid);if(d.enter.kick&&es)kicked=kickOut(eq,es,d.enter.kick);
     if(String(d.enter.pid)===String(p.id))a.sid=d.enter.sid;else a.inAlly={pid:d.enter.pid,sid:d.enter.sid};}
-  else M.cells[dk]=Object.assign({},old||{},{type:"Army",player:p.id,aid:a.id});
+  else if(dk!==ck||!old)M.cells[dk]=Object.assign({},old||{},{type:"Army",player:p.id,aid:a.id});else M.cells[dk]=old;
   if(d.strain)a.strained=true;if(MOVEMARCH){a.endurance=Math.max(0,(a.endurance||0)-1);delete a.pillage;}
   flash((a.label||("Army "+a.id))+" moved "+from+" → "+(d.enter?"inside "+d.enter.name:dk)+" ("+d.cost+" of "+mi.speed.speed+")"+(d.strain?" · Strained (Barrens)":"")+(d.w===2?" · Water: move ends":"")+(kicked.length?" · pushed out: "+kicked.join(", "):""));
-  SEL=null;INSP=dk;return true;}
+  SEL=null;INSP=dk;
+  if(d.engage){const o=d.engage;if(o.kind==="siege"){const sg=siegeState();sg.mode="Lay Siege";sg.tp=String(o.tp);sg.sid=o.sid;sg.by=String(p.id);sg.aid=String(a.id);
+      if(mods().battle)D.view="battle";flash("Lay Siege: "+o.label+(mods().battle?" — Siege calculator filled":" — Siege calculator is in the Battle tab"));}
+    else bqStart({kind:"battle",A:{pid:String(p.id),aid:String(a.id)},B:o.B,seize:o.bandit?"":"A",src:o.bandit?"vs Bandits":"Battle action"});}
+  return true;}
 function moveOverlay(R_,dx,dy,pts){const mi=moveInfo();if(!mi||!mi.dest)return "";let s="";
+  Object.keys(mi.aura||{}).forEach(k=>{if(mi.dest[k])return;const [c,r]=hk(k),cx=R_+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0);
+    s+='<polygon points="'+pts(cx,cy)+'" fill="#b3392f" fill-opacity=".16" stroke="#b3392f" stroke-opacity=".35" stroke-width=".8" pointer-events="none"/>';});
   Object.keys(mi.dest).forEach(k=>{const [c,r]=hk(k),cx=R_+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0),d=mi.dest[k];
+    if(d.engage){s+='<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="#ef5350" fill-opacity=".28" stroke="#ef5350" stroke-width="2.4" style="cursor:pointer"><title>'+k+' · '+(d.engage.kind==="siege"?"Lay Siege":"Battle")+': '+esc(d.engage.label)+' · cost '+d.cost+'</title></polygon>'+
+        '<text x="'+cx.toFixed(1)+'" y="'+(cy+3).toFixed(1)+'" text-anchor="middle" font-size="7.5" font-weight="700" fill="#fff" stroke="#111" stroke-width=".4" pointer-events="none">'+(d.engage.kind==="siege"?"siege ":"⚔ ")+d.cost+'</text>';return;}
     if(d.enter){s+='<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="#f3d38a" fill-opacity=".22" stroke="#f3d38a" stroke-width="2.6" style="cursor:pointer"><title>'+k+' · enter '+esc(d.enter.name)+' · cost '+d.cost+'</title></polygon>'+
         '<text x="'+cx.toFixed(1)+'" y="'+(cy-R_*.55).toFixed(1)+'" text-anchor="middle" font-size="8" font-weight="700" fill="#f3d38a" stroke="#111" stroke-width=".4" pointer-events="none">enter '+d.cost+'</text>';return;}
     s+='<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="#ffffff" fill-opacity=".38" stroke="#111" stroke-width="1.4" style="cursor:pointer"><title>'+k+' · cost '+d.cost+(d.w===2?' · after Water: move ends':'')+(d.strain?' · Barrens: Strained':'')+'</title></polygon>'+
@@ -6173,7 +6207,7 @@ function movePanelHTML(){const mi=moveInfo();if(!mi)return "";
     (S_.notes.length?'<div class="note">'+S_.notes.map(esc).join(' · ')+'</div>':'')+
     (blk?'<div class="flagbox">⚑ Blocked: can’t perform Move actions</div>':'')+
     '<div class="bcrow"><label class="note"><input type="checkbox" id="mvMarch" data-nav="1"'+(MOVEMARCH?' checked':'')+'> March</label> adjust <input id="mvAdj" data-nav="1" type="number" value="'+MOVEADJ+'" style="width:46px"> <button id="mvCancel" data-nav="1">cancel</button>'+
-    ' <span class="note">'+Object.keys(mi.dest).length+' reachable · click a lit hex'+(Object.values(mi.dest).some(d=>d.enter)?' · gold = enter Settlement':'')+'</span></div></div>';}
+    ' <span class="note">'+Object.keys(mi.dest).length+' reachable · click a lit hex'+(Object.values(mi.dest).some(d=>d.enter)?' · gold = enter Settlement':'')+(Object.values(mi.dest).some(d=>d.engage)?' · red = Battle / Lay Siege':'')+(Object.keys(mi.aura||{}).length?' · shaded = non-allied Aura':'')+'</span>'+(mi.inAura?'<div class="note">Inside a non-allied Aura: may only move out of it'+(Object.keys(mi.dest).length?'':' — no exit in reach, can\u2019t move')+'.</div>':'')+'</div></div>';}
 
 let MAPSEL=null;
 function set(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}

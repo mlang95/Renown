@@ -422,6 +422,8 @@ Build times, in turns, by what you're building:
 
 Territory is the smallest unit of land. To move from one Territory to another, you move range 1. To be within a Territory is range 0; adjacent is range 1; next to is range 2.
 
+**Aura.** Every Settlement and Army has an Aura, a range set by its Settlement tier or Retinue type. A Move can't enter or pass through Territory within the Aura of a non-allied Settlement or Army, unless the Move ends adjacent to that Settlement or Army to Battle or Lay Siege. Bandit Armies have an Aura; Bandit Camps don't. An Army that begins a Move within a non-allied Aura may only move to end outside every Aura (or, if at War, to Battle or Lay Siege); if it can't, it can't move.
+
 {{TERM:Speed X}}
 
  	Territories carry modifiers by hex type (grassland, forest, barrens, wetlands, water, mountain), and are uncontrolled, contested, or controlled. Territory begins uncontrolled. By chartering Settlements you Control Territories: each Settlement's Reach X adds every Territory within that range to your province. If another player's Settlement Reach reaches any Territory you Control, that Territory is contested.

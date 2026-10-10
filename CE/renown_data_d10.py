@@ -3,7 +3,7 @@
 import os as _os
 SIMPLE = _os.environ.get("RENOWN_SIMPLE", "1") == "1"   # build_all_CE.bat: set SIMPLE=1|0
 vS = "-SIMPLE" if SIMPLE else ""
-VERSION = f"0.4.9.9.11-d10{vS}"
+VERSION = f"0.4.9.9.12-d10{vS}"
 # ── DICE ─────────────────────────────────────────────────────────────────────
 # Single source for die size, shared with the combat engines. Every threshold
 # string below is an f-string built from these, so changing the die rewrites the
@@ -288,10 +288,10 @@ ENDURANCE_REGAIN    = 2    # +Endurance restored to non-Strained armies in the E
 
 
 RETINUES = {
-    "Levy":           {"cost": 1000, "to_hit": 6, "endurance": 2, "shaking": 7, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
-    "Man-at-Arms":    {"cost": 2000, "to_hit": 5, "endurance": 3, "shaking": 6, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
-    "Sergeant":       {"cost": 2000, "to_hit": 3, "endurance": 2, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
-    "Knight Templar": {"cost": 2000, "to_hit": 4, "endurance": 2, "shaking": 4, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
+    "Levy":           {"cost": 1000, "to_hit": 6, "endurance": 2, "shaking": 7, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES, "aura": 1},
+    "Man-at-Arms":    {"cost": 2000, "to_hit": 5, "endurance": 3, "shaking": 6, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES, "aura": 2},
+    "Sergeant":       {"cost": 2000, "to_hit": 3, "endurance": 2, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES, "aura": 2},
+    "Knight Templar": {"cost": 2000, "to_hit": 4, "endurance": 2, "shaking": 4, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES, "aura": 2},
 }
 
 WEAPONS = {
@@ -1765,7 +1765,7 @@ SIMPLE_NODES = {
     "Saddlery": {
         "group": "g_husbandry",
         "unlock": "-",
-        "innate": "+500, **Natural**; Speed +1; Unlocks Lance (Still requires Tier Unlock)",
+        "innate": "+500, **Natural**; Speed +2; Unlocks Lance (Still requires Tier Unlock)",
         "efficient": ["Stable", "Caravanery"],
         "builds_into": [],
         "monument": False},
@@ -1998,7 +1998,7 @@ SIMPLE_NODES = {
     "Stable": {
         "group": "g_arms",
         "unlock": "1 Rising",
-        "innate": "**Speed +2**, Natural; Unlocks Cavalry Spear (Still requires Tier Unlock)",
+        "innate": "**Speed +1**, Natural; Unlocks Cavalry Spear (Still requires Tier Unlock)",
         "efficient": "Animal Husbandry",
         "builds_into": ["Saddlery", "Caravanery"],
         "monument": False},
@@ -3149,12 +3149,14 @@ WONDERS = {'Colossus': {'upkeep': 1000,
 # ── EMPIRE RULES (ingested from Rules.docx — new data, nothing replaced) ─────
 # Settlement tiers: tax is the WINTER collection (once per 4 turns); wards =
 # pursuit slots (1 per tier; Hamlet exception); muster = retinues/turn.
+# aura = range around a Settlement / Army (by tier / Retinue type) that non-allied Armies can't enter or pass through,
+# except a Move that ends adjacent to it to Battle or Lay Siege (Bandit Armies use their Retinue's aura; Bandit Camps have none).
 SETTLEMENTS = {
-    "Hamlet":     {"tier": 0, "sea_variant": None,        "tax_income": 0,     "muster_limit":  0, "build_time": 1, "wards": 3, "reach": 1, "notes": "Natural pursuits only; exactly range 2 from capital; may always pursue Arable Land"},
-    "Village":    {"tier": 1, "sea_variant": None,        "tax_income": 1000,  "muster_limit":  5, "build_time": 2, "wards": 1, "reach": 2, "notes": ""},
-    "Town":       {"tier": 2, "sea_variant": "Sea Town",  "tax_income": 2000,  "muster_limit": 10, "build_time": 4, "wards": 2, "reach": 4, "notes": ""},
-    "City":       {"tier": 3, "sea_variant": "Port",      "tax_income": 3000,  "muster_limit": 25, "build_time": 6, "wards": 3, "reach": 6, "notes": ""},
-    "Metropolis": {"tier": 4, "sea_variant": "—",         "tax_income": 4000,  "muster_limit": 50, "build_time": 8, "wards": 4, "reach": 8, "notes": "Capital only, requires Sovereign Industry (Titan of Industry)"},
+    "Hamlet":     {"aura": 3, "tier": 0, "sea_variant": None,        "tax_income": 0,     "muster_limit":  0, "build_time": 1, "wards": 3, "reach": 1, "notes": "Natural pursuits only; exactly range 2 from capital; may always pursue Arable Land"},
+    "Village":    {"aura": 3, "tier": 1, "sea_variant": None,        "tax_income": 1000,  "muster_limit":  5, "build_time": 2, "wards": 1, "reach": 2, "notes": ""},
+    "Town":       {"aura": 3, "tier": 2, "sea_variant": "Sea Town",  "tax_income": 2000,  "muster_limit": 10, "build_time": 4, "wards": 2, "reach": 4, "notes": ""},
+    "City":       {"aura": 3, "tier": 3, "sea_variant": "Port",      "tax_income": 3000,  "muster_limit": 25, "build_time": 6, "wards": 3, "reach": 6, "notes": ""},
+    "Metropolis": {"aura": 3, "tier": 4, "sea_variant": "—",         "tax_income": 4000,  "muster_limit": 50, "build_time": 8, "wards": 4, "reach": 8, "notes": "Capital only, requires Sovereign Industry (Titan of Industry)"},
 }
 
 # Era progression: shared-Renown thresholds; caps on armies/cities; influence.
@@ -3464,7 +3466,7 @@ ACTIONS = {
         'requires': '',
         'effect': f'Move an Army up to its Speed in Territories. Then choose one: March — move up to {MARCH_MULTIPLIER}× Speed, lose 1 Endurance, take no other action; Battle — end adjacent to an at-war Army not in a Settlement, then begin a Battle; Lay Siege — end adjacent to an at-war Settlement, then begin a Siege.',
         'endorsed': 'Perform another Move action (same or a different Army).',
-        'notes': ['Unless the move action was Endorsed, an Army may be the target of only one Move action per turn.', "While an Army's Battle or Siege Timer is active, it can't be the target of actions.", "When an Army performs the Battle action, it gains Seize the Initiative in that Battle's first Skirmish."],
+        'notes': ['Unless the move action was Endorsed, an Army may be the target of only one Move action per turn.', "A Move can't enter or pass through Territory within the Aura of a non-allied Settlement or Army, unless it ends adjacent to that Settlement or Army to Battle or Lay Siege.", "An Army that begins a Move within a non-allied Aura may only move to end outside every Aura (or, if at War, to Battle or Lay Siege); if it can't, it can't move.", "While an Army's Battle or Siege Timer is active, it can't be the target of actions.", "When an Army performs the Battle action, it gains Seize the Initiative in that Battle's first Skirmish."],
     },
     'Declare War': {
         'domain': 'Prowess',

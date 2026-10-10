@@ -332,7 +332,7 @@ Sabotage | [Sabotage](https://mlang95.github.io/RenownWiki/actions-ref.html): Cu
 sack | [Sack](https://mlang95.github.io/RenownWiki/economy-ref.html): Extort 2000 per settlement tier; reduce settlement by 1 tier; Sack Timer 2
 Sack Timer | [Sack Timer](https://mlang95.github.io/RenownWiki/glossary.html#sack-timer): Cooldown before the same force may Lay Siege again (per Sack rules).
 Sacred War | [Sacred War](https://mlang95.github.io/RenownWiki/actions-ref.html): Piety action. Cost: Doubt 1. Requires: Sovereign Piety. Declare War on a non-ally you have no NAP or truce with, then immediately perform a Move action with one of your Armies. Endorsed: Recoup Doubt.
-Saddlery | [Saddlery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Husbandry). Effect: +500, Natural; Speed +1; Unlocks Lance (Still requires Tier Unlock)
+Saddlery | [Saddlery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Husbandry). Effect: +500, Natural; Speed +2; Unlocks Lance (Still requires Tier Unlock)
 Sally Forth | [Sally Forth](https://mlang95.github.io/RenownWiki/glossary.html#sally-forth): While a settlement you control is besieged and you have an army inside it, you may Sally Forth: Battle in the Battle Phase without performing an action.
 Salt Works | [Salt Works](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Raw Materials). Effect: +500, Natural; Craft +1
 Save | [Save](https://mlang95.github.io/RenownWiki/glossary.html#save): The defender's roll to avoid a casualty: roll a D10, add the weapon's AP (a negative) and the shield's Save bonus (a positive); the hit is saved on a result >= the armor value.
@@ -363,7 +363,7 @@ Speed X | [Speed X](https://mlang95.github.io/RenownWiki/glossary.html#speed-x):
 Spice Merchant | [Spice Merchant](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Commerce). Effect: Natural; +1000; Authority +1 to Cunning actions targeting you; Craft +4
 Spread Truth | [Spread Truth](https://mlang95.github.io/RenownWiki/actions-ref.html): Piety action. Cost: Doubt 1. Each non-allied player gains Doubt 1. Each allied player gains Faith 1. Endorsed: Recoup Doubt.
 Spring | [Spring](https://mlang95.github.io/RenownWiki/seasons-ref.html) Season (Planting). No Host, Bandit actions, Trade Income, Council Phase, or Diplomacy Actions. Players don't gain Influence tokens. Bandit Camps Spawn.
-Stable | [Stable](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Arms). Effect: Speed +2, Natural; Unlocks Cavalry Spear (Still requires Tier Unlock)
+Stable | [Stable](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Arms). Effect: Speed +1, Natural; Unlocks Cavalry Spear (Still requires Tier Unlock)
 Standing | [Standing](https://mlang95.github.io/RenownWiki/glossary.html#standing): Your tier in a Domain: Untested, Rising (3), Established (6), Sovereign (10). Sets max Influence per vote (1/2/3/4) and unlocks Domain effects.
 starting forces | [Escalation setup](https://mlang95.github.io/RenownWiki/escalation-rules.html): 25 Levy, Farm Tool, Cloth armor, no shield. Re-equip freely before each Battle with anything unlocked.
 Steady | [Steady](https://mlang95.github.io/RenownWiki/keywords-ref.html#steady): Initiative cannot be reduced by Tactics.
