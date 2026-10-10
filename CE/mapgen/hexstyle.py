@@ -70,7 +70,7 @@ GLYPHS = {
         f'M41 67 L35 62 L33 57 M41 62 L46 57 L47 52 M41 58 L37 52"/>'
         f'<path {_L} stroke-width="2.4" d="M74 54 l0 -9 M70 54 l-2 -7 M78 54 l2 -7"/>'),
 
-    # tundra (fell-field): monoline like the rest of the set - three faceted
+    # tundra = Barrens to players (fell-field): monoline like the rest of the set - three faceted
     # boulders (tile-fill, ink outline) with mountain-style flank hatching,
     # and low two-lobed shrub mounds. Boulder shapes seeded once, frozen.
     "tundra": (

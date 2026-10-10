@@ -763,7 +763,7 @@ def _ensure_hill(m):
 def generate_tactical(**over):
     """A single-sheet skirmish board: same terrain themes as generate(), but no
     settlements/regions/resources and no per-region guarantees. Terrain carries
-    the tactical modifiers (Hill / Open Field / Forest / Mire / Tundra /
+    the tactical modifiers (Hill / Open Field / Forest / Mire / Tundra (Barrens) /
     Mountains / Water). Deterministic per seed."""
     area = over.get("width", 16) * over.get("height", 11)
     # tactical tuning (small board): grassland-dominant so hills form and ranged

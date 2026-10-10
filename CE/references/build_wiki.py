@@ -789,7 +789,7 @@ if hasattr(rd, "TERRAIN"):
     open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Terrain & Movement",body,u))
     for t in rd.TERRAIN:
         TERMS.setdefault(t,(u,None)); search_index.append({"title":t,"url":u,"text":f"{t} terrain {rd.TERRAIN[t].get('Effect','')}"})
-    search_index.append({"title":"Terrain & Movement","url":u,"text":"terrain movement grassland wetland tundra mountain water forest roads bridge"})
+    search_index.append({"title":"Terrain & Movement","url":u,"text":"terrain movement grassland wetland barrens tundra mountain water forest roads bridge"})
 
 # Bandits — BANDITS + BANDIT_BEHAVIOR + BANDIT_GROWTH_PER_ERA
 if hasattr(rd, "BANDITS"):

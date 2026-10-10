@@ -368,7 +368,7 @@
    "apiary": 0
   },
   "climate": "wastes",
-  "notes": "Badlands. Tundra painted as salted earth. Strained everywhere; arable is scarce and contested \u2014 recursive scarcity.",
+  "notes": "Badlands. Barrens painted as salted earth. Strained everywhere; arable is scarce and contested \u2014 recursive scarcity.",
   "massif": {},
   "perimeter": {}
  },

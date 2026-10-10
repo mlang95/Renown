@@ -2282,7 +2282,7 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
    "apiary": 0
   },
   "climate": "wastes",
-  "notes": "Badlands. Tundra painted as salted earth. Strained everywhere; arable is scarce and contested \u2014 recursive scarcity.",
+  "notes": "Badlands. Barrens painted as salted earth. Strained everywhere; arable is scarce and contested \u2014 recursive scarcity.",
   "massif": {},
   "perimeter": {}
  },
@@ -3320,7 +3320,7 @@ const BASE = PALETTES[STYLE.default_climate];
 const TERRAIN_REF = {"terrain":{"Grassland":{"Effect":"\u2014","Raw Materials":["Arable Land","Apiary"]},"Wetlands":{"Effect":"Speed -1 per Territory moved through","Raw Materials":["Peat Bog","Forestry"]},"Tundra":{"Effect":"gain Strained","Raw Materials":["Quarry","Salt Works"]},"Mountains":{"Effect":"Impassable","Raw Materials":["Mine","Quarry"]},"Water":{"Effect":"Must end move after moving over 1 Water Territory (must end on land)","Raw Materials":["Fishmongery"]},"Forest":{"Effect":"Speed -1 per Territory moved through","Raw Materials":["Forestry","Apiary"]},"Hill":{"Effect":"Gains Seize the Initiative. Where Settlements can be chartered."}},"tactical":{"Hill":{"identify":"Grassland fully ringed by grassland","effect":"An army on a Hill Seizes the Initiative every Skirmish."},"Open Field":{"identify":"Any other grassland","effect":"Ranged Weapons gain +1 to Strike."},"Forest":{"identify":"Forest","effect":"You may only play Scout, Ambush, Flank, or Defensive Formation. The defending player Seizes the Initiative."},"Mire":{"identify":"Wetlands","effect":"Gain Unwieldy and Immune Steady; -1 to Save."},"Tundra":{"identify":"Tundra","effect":"Gain Strained."},"Mountains":{"identify":"Mountains","effect":"Impassable."},"Water":{"identify":"Water","effect":"Must end Move after moving 1 Water Territory. Cannot Skirmish or Siege move."}},"tactical_global":["Any player may Fall Back after the first Skirmish."],"movement":{"Dirt Roads":{"Effect":"If you start a Move action within Province, gain Speed +1"},"Stone Roads":{"Effect":"If you start a Move action within Province, gain additional Speed +1"},"Bridge":{"Effect":"Immune Water Effect."},"Tunneler":{"Effect":"Immune Mountain Effect"},"Ancient Wilds":{"Effect":["Ignore all Speed -X from Terrain","Other armies gain Speed -2 in Province."]},"Shipyard":{"Effect":"Immune Water Effect"}},"version":"0.4.9.9.11-d10-SIMPLE","source":"CE"};
 /* map generator terrain key -> the name the rules use */
 const RULE_NAME = { plains:'Grassland', forest:'Forest', wetland:'Wetlands',
-                    tundra:'Tundra', mountain:'Mountains', water:'Water' };
+                    tundra:'Barrens', mountain:'Mountains', water:'Water' };
 /* raw materials: names, colours and badge icons come from hexstyle.py */
 const RES = STYLE.resources;
 const resBadge = (k) => `<circle cx="${STYLE.badge[0]}" cy="${STYLE.badge[1]}" r="${STYLE.badge[2]}" `

@@ -596,7 +596,7 @@ def sprite_payload(ns, data_path):
         keymap = {n: k for n in sorted(names) for k in [mod.sprite_key(n, ns)] if k in mod.SPRITES}
         print(f"  sprites: {os.path.normpath(p)} ({len(mod.SPRITES)} sprites, {len(keymap)} names mapped)")
         raw = sorted(n for n, v in ns.get("NODES", {}).items() if v.get("type") == "Raw Materials")
-        return {"S": mod.SPRITES, "P": mod.PALETTES.get("scene", {}), "key": keymap, "v": getattr(mod, "SPRITE_VERSION", "?"),
+        return {"scatter": dict(getattr(mod, "SCATTER", {})), "S": mod.SPRITES, "P": mod.PALETTES.get("scene", {}), "key": keymap, "v": getattr(mod, "SPRITE_VERSION", "?"),
                 "raw": raw, "skyline": {k: list(v) for k, v in getattr(mod, "SKYLINE", {}).items()},
                 "supersedes": dict(getattr(mod, "INFRA_SUPERSEDES", {})), "noInfra": list(getattr(mod, "PLATE_NO_INFRA", [])),
                 "style": dict(getattr(mod, "SCENE_STYLE", {}))}
@@ -1122,6 +1122,22 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     #gkTip{max-width:92vw}
     .modalcard{max-width:96vw!important}
   }
+  /* chat dock (server games) */
+  #chatDock{position:fixed;right:12px;bottom:12px;z-index:60;display:none;font-size:12px}
+  body.chat-on #chatDock{display:block}
+  #chatBtn{background:var(--panel2);border:1px solid var(--line2);padding:7px 11px;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+  #chatBtn.unread{color:var(--order);border-color:var(--order)}
+  #chatPanel{display:none;width:min(340px,calc(100vw - 24px));height:min(420px,60vh);flex-direction:column;
+    background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius);box-shadow:0 8px 22px rgba(0,0,0,.5)}
+  #chatDock.open #chatPanel{display:flex} #chatDock.open #chatBtn{display:none}
+  #chatHead{display:flex;align-items:center;gap:6px;padding:6px 8px;border-bottom:1px solid var(--line)}
+  #chatHead .grow{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #chatHead button{padding:2px 7px}
+  #chatLog{flex:1;overflow-y:auto;padding:6px 8px;overflow-wrap:anywhere}
+  .cm{padding:2px 0;line-height:1.35} .cm .ct{color:var(--dim2);font-size:10px;margin-right:5px}
+  .cm .cs{color:var(--dim);font-size:10px} .cm.wh{font-style:italic;color:var(--dim)}
+  .cm.al{border-left:2px solid var(--order);padding-left:6px} .cm.sys{color:var(--upkeep);font-size:11px}
+  #chatForm{display:flex;gap:4px;padding:6px;border-top:1px solid var(--line)} #chatIn{flex:1;min-width:0}
 </style>
 </head>
 <body>
@@ -2304,7 +2320,7 @@ async function push(){
   }finally{SYNC.pushing=false;if(SYNC.dirty)push();}
 }
 function editing(){const a=document.activeElement;
-  return a&&(a.tagName==="TEXTAREA"||a.tagName==="SELECT"||(a.tagName==="INPUT"&&!["button","checkbox","radio","color","file"].includes(a.type)));}
+  return a&&!a.closest("#chatDock")&&(a.tagName==="TEXTAREA"||a.tagName==="SELECT"||(a.tagName==="INPUT"&&!["button","checkbox","radio","color","file"].includes(a.type)));}
 async function poll(){
   if(!SYNC.ready||SYNC.pushing||editing())return;
   const res=await apiRaw("GET","/api/state?since="+SYNC.rev);
@@ -2469,6 +2485,7 @@ let CAT={group:"type",avail:true};
 try{const c=JSON.parse(localStorage.getItem("renown_cat")||"null");if(c)CAT=Object.assign(CAT,c);}catch(_){}
 function catSave(){try{localStorage.setItem("renown_cat",JSON.stringify(CAT));}catch(_){}}
 const ROOTS=((DATA.tree&&DATA.tree.charts)||[]).map(c=>[c.title,Object.keys(c.nodes||{}).filter(n=>R[n])]).filter(x=>x[0]&&x[1].length);
+let WP=null;          // empty-ward picker: {gid, wi, q} while its modal is open
 let FOR_SID=null;     // empty-ward click: catalog shows only what that settlement can take; next add goes there
 function catFor(gid){activeSid=gid;FOR_SID=gid;if(tab!=="pursuit"){const t=document.querySelector('.tab[data-k="pursuit"]');if(t)t.click();}
   const ap=document.getElementById("appBoard");
@@ -2529,6 +2546,31 @@ function renderList(){
     });
   }
 }
+// ---- empty-ward picker: choose a holding for that settlement in place (catalog filters; Available/All shared) ----
+function wardPick(gid,wi){openModal("");WP={gid,wi,q:""};wpRender();
+  if(window.innerWidth>700){const i=document.getElementById("wpQ");if(i)i.focus();}}
+function wpRender(){if(!WP)return;const gid=WP.gid,card=document.getElementById("inspectCard");
+  if(!S.settlements.some(x=>x.id===gid)){closeModal();return;}
+  const q=WP.q.toLowerCase(),keep=n=>nameHit(n,q)&&(!CAT.avail||pAvail(n))&&canPlace(n,gid).ok;
+  const groups=TYPES.map(t=>[t,NAMES.filter(n=>R[n].type===t&&keep(n))]).filter(g=>g[1].length);
+  card.innerHTML='<h3>'+esc(settTier(gid))+' · Ward '+(WP.wi+1)+'<button class="close">×</button></h3>';
+  card.querySelector(".close").onclick=closeModal;
+  const ctl=document.createElement("div");ctl.className="catctl";
+  const inp=document.createElement("input");inp.id="wpQ";inp.placeholder="filter…";inp.value=WP.q;inp.style.flex="1";inp.style.minWidth="0";
+  inp.oninput=()=>{const pos=inp.selectionStart;WP.q=inp.value;wpRender();const n=document.getElementById("wpQ");if(n){n.focus();n.setSelectionRange(pos,pos);}};
+  ctl.appendChild(inp);
+  ctl.appendChild(seg([[true,"Available"],[false,"All"]],CAT.avail,k=>{CAT.avail=k;catSave();wpRender();renderList();}));
+  card.appendChild(ctl);
+  if(!groups.length){const e=document.createElement("div");e.className="empty";e.textContent=CAT.avail?"None available.":"No match.";card.appendChild(e);return;}
+  groups.forEach(([t,mem])=>{const g=document.createElement("div");g.className="typegroup";
+    const th=document.createElement("div");th.className="th";th.textContent=t+" ("+mem.length+")";g.appendChild(th);
+    mem.forEach(n=>{const row=pursuitRow(n),go=e=>{e.stopPropagation();wpPlace(n);};
+      row.querySelector(".nm").onclick=go;row.querySelector(".addbtn").onclick=go;g.appendChild(row);});
+    card.appendChild(g);});}
+function wpPlace(n){const gid=WP?WP.gid:null;closeModal();if(gid==null)return;
+  const pf=FOR_SID,pt=tab;FOR_SID=gid;activeSid=gid;tab="pursuit";
+  try{addItem(n);}finally{tab=pt;FOR_SID=pf===gid?null:pf;}
+  renderList();}
 function pursuitRow(n){
   const r=R[n],row=itemRow(n,r.monument,(PC[n]||0)>0),us=unlockStatus(n);
   if(r.unlock_raw&&r.unlock_raw!=="-"&&r.unlock_raw!=="—"&&(!CAT.avail||us.manual)){const m=document.createElement("span");m.className="meta";
@@ -3034,7 +3076,7 @@ function wardGrid(gid,occ,earned,craft,tc,hideCombat,have){
     if(!pile){
       w.classList.add("empty");
       const e=document.createElement("div");e.className="emp";e.textContent="+";w.appendChild(e);
-      w.onclick=()=>catFor(gid);
+      w.onclick=()=>wardPick(gid,i);
     } else {
       const pl=document.createElement("div");pl.className="pile";
       pile.forEach((p,j)=>{const pc=document.createElement("div");pc.className="pc"+(j<pile.length-1?" buried":"");
@@ -3481,7 +3523,7 @@ function openModal(html){
   document.getElementById("inspectCard").innerHTML=html;
   document.getElementById("inspect").style.display="flex";
 }
-function closeModal(){document.getElementById("inspect").style.display="none";}
+function closeModal(){WP=null;document.getElementById("inspect").style.display="none";}
 function kwChipHTML(tok,cls){return '<span class="kw '+(cls||"")+'" data-tok="'+esc(tok)+'">'+esc(tok)+'</span>';}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");}
 function inspectKeyword(tok){
@@ -5049,6 +5091,46 @@ function rawReachStatus(name,b){
   if(!have)return {ok:true,checked:false};
   return {ok:have.has(name),checked:true};
 }
+// pixel map pieces (sprites.py army:/map:): one <symbol> per sprite, built once; key 'p' = owner colour via currentColor
+let MAP_SPR_DEFS=null;
+function mapSprId(k){return "ms-"+k.replace(/[^A-Za-z0-9]/g,"_");}
+function mapSprDefs(){if(MAP_SPR_DEFS!=null)return MAP_SPR_DEFS;let d="";const P=SPR.P||{};
+  const TV={H:"var(--tH)",S:"var(--tS)",D:"var(--tD)",k:"currentColor"};
+  Object.keys(SPR.S).filter(k=>/^(army|map|prop):/.test(k)).forEach(k=>{const ter=k.startsWith("prop:");const rows=SPR.S[k].slice(0,-1),w=rows[0].length,by={};   // last row = ground, skipped
+    rows.forEach((r,y)=>{let x=0;while(x<w){const ch=r[x];let n=1;while(x+n<w&&r[x+n]===ch)n++;
+      if(ch!=="."&&ch!=="g")by[ch]=(by[ch]||"")+"M"+x+" "+y+"h"+n+"v1h-"+n+"z";x+=n;}});
+    d+='<symbol id="'+mapSprId(k)+'" viewBox="0 0 '+w+' '+rows.length+'" shape-rendering="crispEdges">'+
+      Object.keys(by).map(ch=>'<path d="'+by[ch]+'" fill="'+(ter&&TV[ch]?TV[ch]:ch==="p"?"currentColor":(P[ch]||"#f0f"))+'"/>').join("")+'</symbol>';});
+  return MAP_SPR_DEFS=d;}
+// pixel terrain: relief tones mixed toward white/black from the hex fill (multiplying barely moves dark climates)
+function tMix(hex,to,t){const a=parseInt(hex.slice(1),16),b=parseInt(to.slice(1),16),f=s=>Math.round((a>>s&255)*(1-t)+(b>>s&255)*t);
+  return "#"+[16,8,0].map(s=>f(s).toString(16).padStart(2,"0")).join("");}
+// scattered terrain props (sprites.py SCATTER): seeded per map + hex so every client draws the same scatter;
+// kept inside the hex, clear of the resource badge, and apart from each other (layer g = min gap, negative = overlap)
+const SCAT=((DATA.sprites||{}).scatter)||{};
+function hStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function rng32(a){return ()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function mapScatter(gk,key,cx,cy,R,fill,seed,badge){const sc=SCAT[gk];if(!sc)return "";
+  const pu=R*1.6/16,rnd=rng32(hStr(seed+"|"+key+"|"+gk)),tn=sc.tone||[.30,.20,.48],s3=Math.sqrt(3)/2,lim=R*.92*s3;
+  const inside=(x,y)=>{x=Math.abs(x);y=Math.abs(y);return y<=lim&&x*s3+y/2<=lim;},boxes=[],items=[];
+  (sc.layers||[]).forEach(L=>{const pool=[];(L.p||[]).forEach(([a,w])=>{for(let i=0;i<w;i++)pool.push(a);});if(!pool.length)return;
+    const n=L.n[0]+Math.floor(rnd()*(L.n[1]-L.n[0]+1)),G=L.g!=null?L.g:1;
+    for(let i=0;i<n;i++){const a=pool[Math.floor(rnd()*pool.length)],art=SPR.S["prop:"+a];if(!art)continue;
+      const w=art[0].length,h=art.length-1;
+      for(let t=0;t<40;t++){const ox=Math.round((rnd()*2-1)*L.r*R/pu),oy=Math.round((rnd()*2-1)*L.r*R/pu),
+          b=[ox-Math.floor(w/2),oy-Math.floor(h/2)];b.push(b[0]+w,b[1]+h);
+        if(![[b[0],b[1]],[b[2],b[1]],[b[0],b[3]],[b[2],b[3]]].every(([x,y])=>inside(x*pu,y*pu)))continue;
+        if(badge&&!(b[2]*pu<badge[0]-badge[2]||b[0]*pu>badge[0]+badge[2]||b[3]*pu<badge[1]-badge[2]||b[1]*pu>badge[1]+badge[2]))continue;
+        if(boxes.some(q=>!(b[2]+G<=q[0]||q[2]+G<=b[0]||b[3]+G<=q[1]||q[3]+G<=b[1])))continue;
+        boxes.push(b);items.push({a,b});break;}}});
+  items.sort((x,y)=>x.b[3]-y.b[3]);
+  return '<g style="--tH:'+tMix(fill,"#ffffff",tn[0])+';--tS:'+tMix(fill,"#000000",tn[1])+';--tD:'+tMix(fill,"#000000",tn[2])+'" color="'+tTone(fill)+'" pointer-events="none">'+
+    items.map(({a,b})=>'<use href="#'+mapSprId("prop:"+a)+'" x="'+(cx+b[0]*pu).toFixed(2)+'" y="'+(cy+b[1]*pu).toFixed(2)+'" width="'+((b[2]-b[0])*pu).toFixed(2)+'" height="'+((b[3]-b[1])*pu).toFixed(2)+'"/>').join("")+'</g>';}
+// sprite standing on an owner-coloured base (dashed red ring when unlinked); col null = unowned (bandits)
+function mapSpr(k,cx,cy,R,col,unl){const w=R*1.6,h=w*15/16,y0=cy+R*.62-h;
+  return '<ellipse cx="'+cx.toFixed(1)+'" cy="'+(cy+R*.55).toFixed(1)+'" rx="'+(R*.62).toFixed(1)+'" ry="'+(R*.2).toFixed(1)+'" fill="'+(col||"#7a1414")+'" fill-opacity="'+(col?.9:.8)+'"'+
+    (unl?' stroke="#b3392f" stroke-width="1.5" stroke-dasharray="3 2"':'')+' pointer-events="none"/>'+
+    '<use href="#'+mapSprId(k)+'" x="'+(cx-w/2).toFixed(1)+'" y="'+y0.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+h.toFixed(1)+'" color="'+(col||"#888")+'" pointer-events="none"/>';}
 function mapSVG(M){
   const V=decodeGrid(M.grid),g=M.grid,cols=g?g.width:(M.cols||16),rows=g?g.height:(M.rows||12);
   const R=15,dx=1.5*R,dy=Math.sqrt(3)*R,W=cols*dx+R*2,H=rows*dy+dy,PAL=mapPal(g);
@@ -5061,6 +5143,8 @@ function mapSVG(M){
   let defs='';if(RS)Object.keys(RS.glyphs).forEach(gk=>{if(RS.glyphs[gk])defs+='<symbol id="tg-'+gk+'" viewBox="0 0 120 108"><g stroke-width="'+RS.glyph_w+'" stroke-linecap="round" stroke-linejoin="round">'+
     RS.glyphs[gk].replace(/stroke="SHADE"/g,'style="stroke:var(--shade)"').replace(/stroke="HILITE"/g,'style="stroke:var(--hilite)"')
       .replace(/fill="SHADE"/g,'style="fill:var(--shade)"').replace(/fill="DEEP"/g,'style="fill:var(--deep)"')+'</g></symbol>';});
+  const pix=!!SPR&&document.documentElement.dataset.look==="pixel",pu=R*1.6/16;
+  if(pix)defs+=mapSprDefs()+'<pattern id="pxd" width="'+(4*pu).toFixed(2)+'" height="'+(4*pu).toFixed(2)+'" patternUnits="userSpaceOnUse"><rect width="'+pu.toFixed(2)+'" height="'+pu.toFixed(2)+'" fill="#000" fill-opacity=".09"/></pattern>';
   let s='<svg width="'+(W*z).toFixed(0)+'" height="'+(H*z).toFixed(0)+'" viewBox="0 0 '+W.toFixed(0)+' '+H.toFixed(0)+'" style="display:block"><defs><pattern id="olh" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="3" height="6" fill="rgba(120,20,20,.45)"/></pattern>'+defs+'</defs>';
   let glyphs='',coast='',over='';
   s=s.replace('<defs>','<defs><pattern id="rch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><line x1="0" y1="0" x2="0" y2="5" stroke="#000" stroke-opacity=".28" stroke-width="1.2"/></pattern>');
@@ -5068,7 +5152,8 @@ function mapSVG(M){
     const k=c+","+r,cx=R+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0),h=V.hex[k];
     let fill=h?PAL[h.t]:"var(--chip)";if(h&&h.hill)fill=lighten(fill,1.16);
     if(h&&RS){const gk=h.hill?'hill':h.t;
-      if(RS.glyphs[gk])glyphs+='<use href="#tg-'+gk+'" x="'+(cx-60*sc).toFixed(2)+'" y="'+(cy-54*sc).toFixed(2)+'" width="'+gw+'" height="'+gh+'" fill="'+fill+'" color="'+tTone(fill)+'" opacity="'+RS.glyph_opacity+'" '+
+      if(pix&&SCAT[gk])glyphs+=mapScatter(gk,k,cx,cy,R,fill,String((g&&g.seed)||M.seed||""),h.res&&M.showRes!==false?[26*sc,-24*sc,17*sc+pu]:null);
+      else if(RS.glyphs[gk]&&!(pix&&(gk==="plains"||gk==="water")))glyphs+='<use href="#tg-'+gk+'" x="'+(cx-60*sc).toFixed(2)+'" y="'+(cy-54*sc).toFixed(2)+'" width="'+gw+'" height="'+gh+'" fill="'+fill+'" color="'+tTone(fill)+'" opacity="'+RS.glyph_opacity+'" '+
         'style="--shade:'+tLighten(fill,RS.shade_k)+';--hilite:'+tLighten(fill,RS.hilite_k)+';--deep:'+tLighten(fill,RS.deep_k)+'" pointer-events="none"/>';
       if(h.t!=="water")[[0,-1],[0,1],[1,c%2?0:-1],[1,c%2?1:0],[-1,c%2?0:-1],[-1,c%2?1:0]].forEach(([oc,orr])=>{
         const nk=(c+oc)+","+(r+orr),n=V.hex[nk];if(!n||n.t!=="water")return;
@@ -5076,6 +5161,7 @@ function mapSVG(M){
         const e=((Math.round((ang-30)/60)%6)+6)%6,v=t=>[cx+R*Math.cos(Math.PI/3*t),cy+R*Math.sin(Math.PI/3*t)];
         const a=v(e),b=v(e+1);coast+='M'+a[0].toFixed(1)+' '+a[1].toFixed(1)+'L'+b[0].toFixed(1)+' '+b[1].toFixed(1);});}
     s+='<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="'+fill+'" stroke="#00000030" stroke-width="1" style="cursor:pointer"><title>'+k+(h?" · "+(RULE_NAME[h.t]||h.t)+(h.hill?" (Hill)":"")+(h.res?" · "+h.res:"")+(h.reg!=null?" · region "+h.reg:""):"")+(M.cells[k]?" · "+esc(cellTitle(k)):"")+'</title></polygon>';
+    if(pix&&h)s+='<polygon points="'+pts(cx,cy)+'" fill="url(#pxd)" pointer-events="none"/>';
     if(M.outlaw[k])over+='<polygon points="'+pts(cx,cy)+'" fill="url(#olh)" stroke="#7a1414" stroke-width="1.5" pointer-events="none"/>';
     if(h&&h.res&&M.showRes!==false){const bx=cx+26*sc,by=cy-24*sc;   // badge top-right, as renown-maps / print
       over+='<circle cx="'+bx.toFixed(1)+'" cy="'+by.toFixed(1)+'" r="'+(17*sc).toFixed(2)+'" fill="#e9ddc2" stroke="#2b241b" stroke-width="0.6" pointer-events="none"/>'+
@@ -5103,13 +5189,18 @@ function mapSVG(M){
   Object.keys(M.cells).forEach(k=>{const cell=M.cells[k],[c,r]=k.split(",").map(Number),cx=R+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0);
     const pl=D.players.find(pp=>pp.id===cell.player),col=pl?pl.color:"#888";
     const unl=pl&&!(cell.type==="Army"?cellArmy(k).a:cellSett(k).s);
-    s+='<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+(R*.62).toFixed(1)+'" fill="'+col+'" stroke="'+(unl?'#b3392f':'#111')+'"'+(unl?' stroke-width="2" stroke-dasharray="3 2"':'')+' pointer-events="none"/>'+
-       '<text x="'+cx.toFixed(1)+'" y="'+(cy+4).toFixed(1)+'" text-anchor="middle" font-size="10" font-weight="700" fill="#fff" pointer-events="none">'+(letter[cell.type]||"?")+(cell.blocked?"⊘":"")+'</text>'+
+    const sk=cell.type==="Army"?"army:"+(((cellArmy(k).a||{}).retinue)||BANDIT_DEFAULT_RETINUE):"map:"+cell.type;
+    s+=(pix&&SPR.S[sk]?mapSpr(sk,cx,cy,R,col,unl)+(cell.blocked?'<text x="'+(cx-R*.98).toFixed(1)+'" y="'+(cy-R*.5).toFixed(1)+'" font-size="9" font-weight="700" fill="#fff" stroke="#111" stroke-width=".4" pointer-events="none">⊘</text>':''):
+       '<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+(R*.62).toFixed(1)+'" fill="'+col+'" stroke="'+(unl?'#b3392f':'#111')+'"'+(unl?' stroke-width="2" stroke-dasharray="3 2"':'')+' pointer-events="none"/>'+
+       '<text x="'+cx.toFixed(1)+'" y="'+(cy+4).toFixed(1)+'" text-anchor="middle" font-size="10" font-weight="700" fill="#fff" pointer-events="none">'+(letter[cell.type]||"?")+(cell.blocked?"⊘":"")+'</text>')+
        (()=>{if(cell.type==="Army"||!pl)return "";const cs=cellSett(k).s;if(!cs)return "";const g=garrisonOf(pl,cs.id),ins=(pl.board.armies||[]).filter(a=>String(a.sid)===String(cs.id)).length;
          const t=(g?"G"+g.count:"")+(ins?(g?" ":"")+"A"+ins:"");return t?'<text x="'+(cx-R*.95).toFixed(1)+'" y="'+(cy+R*.85).toFixed(1)+'" font-size="7.5" font-weight="700" fill="#fff" stroke="#111" stroke-width=".35" pointer-events="none">'+t+'</text>':"";})()+
-       (()=>{if(cell.type!=="Army")return "";const ca=cellArmy(k).a;return ca&&ca.muster&&ca.muster.n>0?'<text x="'+(cx+R*.55).toFixed(1)+'" y="'+(cy-R*.45).toFixed(1)+'" font-size="8" font-weight="700" fill="#f3d38a" stroke="#111" stroke-width=".4" pointer-events="none">M'+(ca.muster.t||0)+'</text>':"";})()+(cell.blocked?'<title>Blocked (Sabotage) — re-place or erase the Army to clear</title>':'');});
+       (()=>{if(cell.type!=="Army")return "";const ca=cellArmy(k).a;return ca&&ca.muster&&ca.muster.n>0?'<text x="'+(cx+R*.55).toFixed(1)+'" y="'+(cy-R*.45).toFixed(1)+'" font-size="8" font-weight="700" fill="#f3d38a" stroke="#111" stroke-width=".4" pointer-events="none">M'+(ca.muster.t||0)+'</text>':"";})()+
+       (()=>{if(cell.type!=="Army")return "";const ca=cellArmy(k).a;return ca&&+ca.count>0?'<text x="'+(cx+R*.8).toFixed(1)+'" y="'+(cy+R*.8).toFixed(1)+'" text-anchor="end" font-size="8" font-weight="700" fill="#fff" stroke="#111" stroke-width=".4" pointer-events="none">'+ca.count+'</text>':"";})()+(cell.blocked?'<title>Blocked (Sabotage) — re-place or erase the Army to clear</title>':'');});
   Object.keys(M.camps).forEach(k=>{const cp=M.camps[k],[c,r]=k.split(",").map(Number),cx=R+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0),army=cp.n>=(BAN.armyThreshold||25);
-    s+='<rect x="'+(cx-R*.62).toFixed(1)+'" y="'+(cy-R*.5).toFixed(1)+'" width="'+(R*1.24).toFixed(1)+'" height="'+(R).toFixed(1)+'" fill="'+(army?"#5a0d0d":"#1b1b1b")+'" stroke="#e0b060" pointer-events="none"/>'+
+    const ck=army?"map:bandit_army":"map:camp";
+    s+=pix&&SPR.S[ck]?mapSpr(ck,cx,cy,R,null,false)+'<text x="'+(cx+R*.8).toFixed(1)+'" y="'+(cy+R*.8).toFixed(1)+'" text-anchor="end" font-size="8" font-weight="700" fill="#f3d38a" stroke="#111" stroke-width=".4" pointer-events="none">'+cp.n+'</text>':
+       '<rect x="'+(cx-R*.62).toFixed(1)+'" y="'+(cy-R*.5).toFixed(1)+'" width="'+(R*1.24).toFixed(1)+'" height="'+(R).toFixed(1)+'" fill="'+(army?"#5a0d0d":"#1b1b1b")+'" stroke="#e0b060" pointer-events="none"/>'+
        '<text x="'+cx.toFixed(1)+'" y="'+(cy+3.5).toFixed(1)+'" text-anchor="middle" font-size="9" font-weight="700" fill="#f3d38a" pointer-events="none">☠'+cp.n+'</text>';});
   return s+'</svg>';
 }
@@ -5696,11 +5787,11 @@ function moveInfo(){if(!MOVESEL)return null;const M=mapState(),c=M.cells[MOVESEL
 function moveArmyTo(dk){const mi=moveInfo();if(!mi||!mi.dest||!mi.dest[dk])return false;const M=mapState(),d=mi.dest[dk];
   M.cells[dk]=M.cells[mi.k];delete M.cells[mi.k];
   if(d.strain)mi.a.strained=true;if(MOVEMARCH)mi.a.endurance=Math.max(0,(mi.a.endurance||0)-1);
-  flash((mi.a.label||("Army "+mi.a.id))+" moved "+mi.k+" → "+dk+" ("+d.cost+" of "+mi.speed.speed+")"+(d.strain?" · Strained (Tundra)":"")+(d.w===2?" · Water: move ends":""));
+  flash((mi.a.label||("Army "+mi.a.id))+" moved "+mi.k+" → "+dk+" ("+d.cost+" of "+mi.speed.speed+")"+(d.strain?" · Strained (Barrens)":"")+(d.w===2?" · Water: move ends":""));
   MOVESEL=null;return true;}
 function moveOverlay(R_,dx,dy,pts){const mi=moveInfo();if(!mi||!mi.dest)return "";let s="";
   Object.keys(mi.dest).forEach(k=>{const [c,r]=hk(k),cx=R_+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0),d=mi.dest[k];
-    s+='<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="#ffffff" fill-opacity=".38" stroke="#111" stroke-width="1.4" style="cursor:pointer"><title>'+k+' · cost '+d.cost+(d.w===2?' · after Water: move ends':'')+(d.strain?' · Tundra: Strained':'')+'</title></polygon>'+
+    s+='<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="#ffffff" fill-opacity=".38" stroke="#111" stroke-width="1.4" style="cursor:pointer"><title>'+k+' · cost '+d.cost+(d.w===2?' · after Water: move ends':'')+(d.strain?' · Barrens: Strained':'')+'</title></polygon>'+
        '<text x="'+cx.toFixed(1)+'" y="'+(cy+3).toFixed(1)+'" text-anchor="middle" font-size="8" fill="#111" pointer-events="none">'+d.cost+'</text>';});
   const [c,r]=hk(mi.k),cx=R_+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0);
   s+='<polygon points="'+pts(cx,cy)+'" fill="none" stroke="#f3d38a" stroke-width="3" pointer-events="none"/>';
@@ -5917,7 +6008,7 @@ function lockTarget(el){if(!lockOn())return null;
   if(el.closest(LK_DUKE))return "duke";
   if(el.closest(LK_MAPSETUP))return (firstHostOpen()&&canHost())?null:"duke";
   if(el.closest(LK_HOST)&&!canHost())return "host";
-  if(el.closest("[data-claim],#viewTabs,#tbMore,#appMenu,.tbextra,#hud,.modalcard,#mnav"))return null;
+  if(el.closest("[data-claim],#viewTabs,#tbMore,#appMenu,.tbextra,#hud,.modalcard,#mnav,#chatDock"))return null;
   const rp=el.closest("#viewRealm [data-pi]");if(rp){const q=D.players[+rp.dataset.pi];return q&&!mine(q)?q:null;}
   if(el.closest("#appBoard,#playerBar")){const q=D.players[D.active];return q&&!mine(q)?q:null;}
   if(!myClaimP()&&el.closest("#viewTable,#turnStrip,#setupPanel,#viewRealm,#viewBattle"))return "spectator";
@@ -5942,13 +6033,13 @@ let BSIDE="";   // phone Battle view: which side card to show (per device, not s
 function adminUI(){const st=document.getElementById("adminState");if(st)st.innerHTML=ADMIN?'<b style="color:var(--order)">ON</b>':'off';
   document.body.classList.toggle("is-admin",ADMIN);}
 async function adminSet(on){
-  if(!on){ADMIN=false;try{sessionStorage.removeItem("renown_admin");}catch(e){}adminUI();render();flash("the Duke steps down");return;}
+  if(!on){ADMIN=false;try{sessionStorage.removeItem("renown_admin");sessionStorage.removeItem("renown_pin");}catch(e){}adminUI();render();flash("the Duke steps down");return;}
   const pin=(document.getElementById("adminPin")||{}).value||"";
   if(API.online){let ok=false,open=false;
     try{const h={"Content-Type":"application/json"};if(TOKEN)h["X-Renown-Token"]=TOKEN;
       const r=await fetch("/api/admin",{method:"POST",headers:h,body:JSON.stringify({pin})});const j=await r.json().catch(()=>({}));ok=!!j.ok;open=!!j.open;}catch(e){}
     if(!ok){flash("wrong Duke PIN");return;}if(open)flash("Duke unlocked (server has no PIN set)");}
-  ADMIN=true;try{sessionStorage.setItem("renown_admin","1");}catch(e){}const pi=document.getElementById("adminPin");if(pi)pi.value="";
+  ADMIN=true;try{sessionStorage.setItem("renown_admin","1");if(pin)sessionStorage.setItem("renown_pin",pin);}catch(e){}const pi=document.getElementById("adminPin");if(pi)pi.value="";
   adminUI();render();if(API.online)flash("the Duke presides");else flash("Duke unlocked (offline)");}
 document.getElementById("adminOn").onclick=()=>adminSet(true);document.getElementById("adminOff").onclick=()=>adminSet(false);
 document.getElementById("adminPin").onkeydown=e=>{if(e.key==="Enter")adminSet(true);};
@@ -6370,6 +6461,72 @@ document.getElementById("buildDel").onclick=async()=>{
   const name=document.getElementById("buildList").value;if(!name){flash("pick a build");return;}
   await apiFetch("DELETE","/api/builds/"+encodeURIComponent(name));refreshBuilds();flash("deleted “"+name+"”");
 };
+// ---- chat (server games): All · /whisper <player> <text> · /alliance <text>. The server filters recipients;
+// identity = this device's claim, proven by a per-device secret. The Duke sees everything.
+let DEVKEY="";try{DEVKEY=localStorage.getItem("renown_devkey")||"";if(!DEVKEY){const a=new Uint8Array(24);crypto.getRandomValues(a);
+  DEVKEY=Array.from(a,x=>x.toString(16).padStart(2,"0")).join("");localStorage.setItem("renown_devkey",DEVKEY);}}
+  catch(e){DEVKEY=DEVKEY||(Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)+Date.now().toString(36));}
+const CHAT={id:0,open:false,unread:0,msgs:[],me:null,busy:false,sig:null,first:true};
+function chatHdr(){const h={"X-Renown-Dev":DEV,"X-Renown-Key":DEVKEY};if(TOKEN)h["X-Renown-Token"]=TOKEN;
+  if(ADMIN){let pin="";try{pin=sessionStorage.getItem("renown_pin")||"";}catch(e){}if(pin)h["X-Renown-Pin"]=pin;else h["X-Renown-Duke"]="1";}
+  return h;}
+async function chatApi(method,body,q){try{const h=chatHdr();if(body!==undefined)h["Content-Type"]="application/json";
+  const r=await fetch("/api/chat"+(q||""),{method,headers:h,body:body!==undefined?JSON.stringify(body):undefined});
+  return {status:r.status,json:await r.json().catch(()=>null)};}catch(e){return null;}}
+function chatTargets(){const me=myClaimP(),t=(D.players||[]).filter(p=>!sameP(p,me)).map(p=>({id:String(p.id),name:String(p.name||"")}));
+  if(!t.some(x=>x.name.toLowerCase()==="duke"))t.push({id:"duke",name:"Duke"});return t;}
+function chatParse(raw){const s=raw.trim();if(!s)return null;
+  let m=/^\/whisper(?:\s+([\s\S]*))?$/i.exec(s);
+  if(m){const rest=m[1]||"",rl=rest.toLowerCase(),c=chatTargets().filter(t=>t.name&&rl.startsWith(t.name.toLowerCase()+" "))
+      .sort((a,b)=>b.name.length-a.name.length)[0];
+    if(!c)return {err:"/whisper <player> <text>"};return {scope:"whisper",to:c.id,text:rest.slice(c.name.length+1)};}
+  m=/^\/alliance(?:\s+([\s\S]*))?$/i.exec(s);if(m)return {scope:"alliance",text:m[1]||""};
+  if(s[0]==="/")return {err:"/whisper <player> <text> · /alliance <text>"};
+  return {scope:"all",text:s};}
+function chatColor(c){return /^#[0-9a-f]{3,8}$/i.test(c||"")?c:"var(--ink)";}
+function chatLine(m){if(m.sys)return '<div class="cm sys">'+esc(m.text)+'</div>';
+  const tag=m.scope==="whisper"?' <span class="cs">→ '+esc(m.toName||"?")+'</span>':m.scope==="alliance"?' <span class="cs">[Alliance]</span>':'';
+  return '<div class="cm'+(m.scope==="whisper"?" wh":m.scope==="alliance"?" al":"")+'"><span class="ct">'+esc((m.ts||"").slice(11,16))+'</span>'+
+    '<b style="color:'+chatColor(m.color)+'">'+esc(m.name||"?")+'</b>'+tag+': '+esc(m.text)+'</div>';}
+function chatRender(){const lg=document.getElementById("chatLog");if(!lg)return;
+  const atEnd=lg.scrollHeight-lg.scrollTop-lg.clientHeight<40;lg.innerHTML=CHAT.msgs.map(chatLine).join("");if(atEnd)lg.scrollTop=lg.scrollHeight;
+  const b=document.getElementById("chatBtn");b.textContent="💬"+(CHAT.unread?" "+CHAT.unread:"");b.classList.toggle("unread",!!CHAT.unread);
+  const me=CHAT.me||{};document.getElementById("chatWho").textContent=me.name?(me.duke&&me.pid?me.name+" · Duke":me.name):"";
+  document.getElementById("chatClr").style.display=ADMIN?"":"none";
+  const inp=document.getElementById("chatIn");inp.placeholder=me.pid||me.duke?"message · /whisper · /alliance":"message (All)";}
+function chatSys(t){CHAT.msgs.push({sys:true,text:t});chatRender();}
+async function chatPoll(){document.body.classList.toggle("chat-on",API.online===true);
+  if(API.online!==true||CHAT.busy)return;
+  const sig=(ADMIN?1:0)+"|"+String((myClaimP()||{}).id??"");
+  if(sig!==CHAT.sig){CHAT.sig=sig;CHAT.id=0;CHAT.msgs=[];CHAT.unread=0;CHAT.first=true;}
+  CHAT.busy=true;const r=await chatApi("GET",undefined,"?since="+CHAT.id);CHAT.busy=false;
+  if(!r||r.status!==200||!r.json||sig!==CHAT.sig)return;const j=r.json;CHAT.me=j.me;
+  if(j.last<CHAT.id){CHAT.id=0;CHAT.msgs=[];CHAT.unread=0;CHAT.first=true;chatRender();return;}   // log cleared by the Duke
+  if(j.msgs.length){CHAT.msgs=CHAT.msgs.concat(j.msgs).slice(-300);if(!CHAT.open&&!CHAT.first)CHAT.unread+=j.msgs.filter(m=>!m.mine).length;}
+  CHAT.id=j.last;CHAT.first=false;chatRender();}
+async function chatSend(){const inp=document.getElementById("chatIn"),p=chatParse(inp.value);if(!p)return;
+  if(p.err){chatSys(p.err);return;}if(!p.text.trim()){chatSys("empty message");return;}
+  const r=await chatApi("POST",p);if(!r){chatSys("not sent (offline)");return;}
+  if(r.status!==200){chatSys((r.json&&r.json.error)||"not sent");return;}
+  inp.value="";chatPoll();}
+function chatComplete(inp){const v=inp.value;let m=/^\/(\w*)$/.exec(v);
+  if(m){const c=["whisper","alliance"].filter(x=>x.startsWith(m[1].toLowerCase()));if(c.length===1)inp.value="/"+c[0]+" ";return;}
+  m=/^(\/whisper\s+)(.*)$/i.exec(v);if(!m||/\s$/.test(m[2])&&m[2].trim()&&chatTargets().some(t=>m[2].toLowerCase().startsWith(t.name.toLowerCase()+" ")))return;
+  const part=m[2].toLowerCase(),c=chatTargets().filter(t=>t.name.toLowerCase().startsWith(part));if(c.length)inp.value=m[1]+c[0].name+" ";}
+(()=>{const d=document.createElement("div");d.id="chatDock";
+  d.innerHTML='<button id="chatBtn">💬</button><div id="chatPanel"><div id="chatHead"><b>Chat</b><span class="note grow" id="chatWho"></span>'+
+    '<button id="chatClr">clear</button><button id="chatX">×</button></div><div id="chatLog"></div>'+
+    '<form id="chatForm" autocomplete="off"><input id="chatIn" maxlength="600"><button>send</button></form></div>';
+  document.body.appendChild(d);
+  document.getElementById("chatBtn").onclick=()=>{CHAT.open=true;CHAT.unread=0;d.classList.add("open");chatRender();
+    const lg=document.getElementById("chatLog");lg.scrollTop=lg.scrollHeight;document.getElementById("chatIn").focus();};
+  document.getElementById("chatX").onclick=()=>{CHAT.open=false;d.classList.remove("open");chatRender();};
+  document.getElementById("chatClr").onclick=async()=>{if(!confirm("Clear the chat log for everyone?"))return;
+    const r=await chatApi("DELETE");if(!r||r.status!==200){chatSys((r&&r.json&&r.json.error)||"not cleared");return;}chatPoll();};
+  document.getElementById("chatForm").onsubmit=e=>{e.preventDefault();chatSend();};
+  document.getElementById("chatIn").addEventListener("keydown",e=>{if(e.key==="Tab"){e.preventDefault();chatComplete(e.target);}
+    else if(e.key==="Escape")document.getElementById("chatX").click();});})();
+setInterval(chatPoll,POLL_MS);
 async function initServer(){
   const tok=document.getElementById("srvToken");
   if(tok){tok.value=TOKEN;tok.onchange=()=>{TOKEN=tok.value.trim();try{localStorage.setItem("renown_token",TOKEN);}catch(e){}initServer();};}
@@ -6381,7 +6538,7 @@ async function initServer(){
   if(j.parts.shared){joinD(Object.fromEntries(Object.keys(j.parts).map(k=>[k,j.parts[k].data])));reindex();render();renderList();}
   SYNC.ready=true;render();
   if(!j.parts.shared)push();                         // empty server: seed it from this browser
-  refreshBuilds();
+  refreshBuilds();chatPoll();
 }
 setInterval(poll,POLL_MS);
 

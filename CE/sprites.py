@@ -9,6 +9,13 @@ Art only. No mechanics. Which sprite a thing gets is decided by the data file:
     Settlement     -> a skyline behind its holdings: "sky:core:<tier>" centred, "sky:fill:<tier>" tiled
                       across the lot (fallback 16x16 "tier:<tier>")
     Infrastructure -> skyline pieces "inf:<name>", placed per SKYLINE; INFRA_SUPERSEDES hides the replaced one
+    Map pieces     -> "army:<Retinue>" per RETINUES, "map:<tier>" per SETTLEMENTS, "map:camp" / "map:bandit_army"
+                      (16x16). Key 'p' is the owner's colour, swapped in per player on the map.
+    Map terrain    -> small "prop:<name>" sprites (free size) scattered per hex by SCATTER[<kind>] for every
+                      kind in MAP_TERRAIN: deterministic per map seed + hex, kept inside the hex, clear of the
+                      resource badge and of each other (layer "g" = min gap in px; negative = may overlap).
+                      Drawn in the hex's own colour: H / S / D are relief tones the board derives from each
+                      hex fill (climate-safe); SCATTER[<kind>]["tone"] overrides the mix (tundra is muted).
 
 Format: each sprite is a list of equal-length strings, one char per pixel.
 '.' is transparent; every other char is a palette key (KEYS). The last row is ground ('g'),
@@ -26,19 +33,24 @@ KEYS = {
     "k": "outline", "w": "plaster wall", "t": "stone", "u": "dark stone", "r": "roof",
     "d": "door / shadow", "y": "lit window / gold", "f": "fire", "s": "pale (smoke, canvas, bone)",
     "m": "metal", "b": "wood", "l": "leaf (seasonal)", "n": "evergreen needles", "c": "red cloth", "a": "royal cloth", "e": "water",
+    "h": "skin", "p": "owner colour (map pieces; replaced per player)",
+    "H": "terrain hilite", "S": "terrain shade", "D": "terrain deep (map terrain; derived per hex fill)",
     "g": "ground (skipped in scene)",
 }
 
 PALETTES = {
     "farmstead":   {"k": "#3b2414", "w": "#f0d8a8", "t": "#b8b0a0", "u": "#7a7068", "r": "#b8432f", "d": "#4a2a16",
                     "y": "#ffd84a", "f": "#ff8a2a", "s": "#ece6da", "m": "#8a8f9a", "b": "#9a6a32", "l": "#5a9a32",
-                    "c": "#c8302a", "a": "#4a5ab8", "e": "#4a8ad8", "n": "#2f6a2a", "g": "#5a8a2e"},
+                    "c": "#c8302a", "a": "#4a5ab8", "e": "#4a8ad8", "n": "#2f6a2a", "g": "#5a8a2e",
+                    "h": "#f0c090", "p": "#9aa0a8", "H": "#a8c878", "S": "#5a7a3a", "D": "#34481f"},
     "blackletter": {"k": "#0a0807", "w": "#9a8e7c", "t": "#8a8070", "u": "#4a423a", "r": "#6b2a2a", "d": "#1a1410",
                     "y": "#d8b45a", "f": "#e0602a", "s": "#c8bca8", "m": "#a0a0a8", "b": "#6b4a2a", "l": "#4a6a2a",
-                    "c": "#9a2020", "a": "#3a3a7a", "e": "#3a5a7a", "n": "#2a4428", "g": "#2c2521"},
+                    "c": "#9a2020", "a": "#3a3a7a", "e": "#3a5a7a", "n": "#2a4428", "g": "#2c2521",
+                    "h": "#c8a07a", "p": "#8a8a90", "H": "#a8c878", "S": "#5a7a3a", "D": "#34481f"},
     "scene":       {"k": "#0e1220", "w": "#e8d8b0", "t": "#a8a0a0", "u": "#605a68", "r": "#a03a3a", "d": "#2a1f30",
                     "y": "#ffd27a", "f": "#ff9a3a", "s": "#e8e4dc", "m": "#8a96b0", "b": "#8a5a3a", "l": "#3a7a2a",
-                    "c": "#c83a3a", "a": "#5a4ab0", "e": "#3a7ac8", "n": "#24563a", "g": "#2f4a2a"},
+                    "c": "#c83a3a", "a": "#5a4ab0", "e": "#3a7ac8", "n": "#24563a", "g": "#2f4a2a",
+                    "h": "#e0b088", "p": "#9aa0b0", "H": "#a8c878", "S": "#5a7a3a", "D": "#34481f"},
 }
 
 
@@ -1368,6 +1380,219 @@ SPRITES["wonder:High Chancery"] = _s([    # tall seat of government, clock and s
 ], S24, mirror=True)
 
 
+# ---------------------------------------------------------------- map pieces (16): retinues, settlements, bandits
+SPRITES["army:Levy"] = _s([            # cloth cap, tunic in owner colour, spear
+    "..........m.....",
+    ".........kmk....",
+    "....kkk...b.....",
+    "...kbbbk..b.....",
+    "...khhhk..b.....",
+    "...khkhk..b.....",
+    "....khk...b.....",
+    "..kpppppk.b.....",
+    ".kpppppppkh.....",
+    ".khpppppk.b.....",
+    "..kpbbbpk.b.....",
+    "..kpppppk.b.....",
+    "...kdkdk..b.....",
+    "...kk.kk..b.....",
+], S16)
+SPRITES["army:Man-at-Arms"] = _s([     # kettle hat, mail, owner-colour heater shield, sword
+    "....kkkkk.......",
+    "...kmmmmmk......",
+    "..kkmmmmmkk.....",
+    "...khhhhk.....k.",
+    "...khkhkk....kmk",
+    "....khhk.....km.",
+    ".kkkmmmmmk..km..",
+    "kpppkmmmmmkkm...",
+    "kpyppkmmmmhk....",
+    "kpyppkmmmmk.....",
+    "kpppkmbbbmk.....",
+    ".kpk.kmmmmk.....",
+    "..k...kdkdk.....",
+    "......kk.kk.....",
+], S16)
+SPRITES["army:Sergeant"] = _s([        # open helm, owner-colour tabard over mail, halberd
+    "...........kmk..",
+    "...........kmmk.",
+    "....kkk....kmk..",
+    "...kmmmk...kb...",
+    "..kmmmmmk...b...",
+    "...khhhk....b...",
+    "...khkhk....b...",
+    "..kkmhmkk...b...",
+    ".kmkpppkmk.kb...",
+    ".kmkpppkmkkhb...",
+    ".khkpppk.k..b...",
+    "...kpbpk....b...",
+    "...kmmmk....b...",
+    "...kdkdk....b...",
+    "...kk.kk....b...",
+], S16)
+SPRITES["army:Knight Templar"] = _s([  # great helm, white surcoat + red cross, lance with owner pennant
+    "............kpk.",
+    "............kpp.",
+    "....kkkk....kp..",
+    "...kmmmmk...b...",
+    "...kmkkmk...b...",
+    "...kmmmmk...b...",
+    "...kkmmkk...b...",
+    "..kssssssk..b...",
+    ".kssscsssskkh...",
+    ".ksscccsssk.b...",
+    ".kssscsssk..b...",
+    "..ksscssk...b...",
+    "..kssssk....b...",
+    "...kdkdk....b...",
+    "...kk.kk....b...",
+], S16)
+SPRITES["map:bandit_army"] = _s([      # hooded raiders, ragged black banner with a skull, cudgel
+    "..b.............",
+    "..bkkkkk........",
+    "..bksssk........",
+    "..bkdsdk........",
+    "..bkkkk.k.......",
+    "..b..kkkk.......",
+    "..b.kdddk.......",
+    "..bkddhdk.....k.",
+    "..bkddddk....kbk",
+    "..kddddddk..kbk.",
+    ".khdddddkdkkbk..",
+    "..kdbdbdk..kk...",
+    "..kdddddk.......",
+    "...kdkdk........",
+    "...kk.kk........",
+], S16)
+SPRITES["map:camp"] = _s([             # canvas tent, campfire on its log pile
+    "......k.........",
+    ".....kbk........",
+    "....ksbsk.......",
+    "...kssbssk......",
+    "..kssbsbssk.....",
+    ".kssbsdsbssk....",
+    "kssbsdddsbssk.y.",
+    "ksbssdddssbsky.y",
+    "kkkkkkkkkkkkkyfy",
+    "...........kbfbk",
+], S16)
+SPRITES["map:Hamlet"] = _s([           # thatched hut + owner pennant
+    "...........kpp..",
+    "...........kpk..",
+    "...........k....",
+    "....kkkk...k....",
+    "...kbbbbk..k....",
+    "..kbbbbbbk.k....",
+    ".kbbbbbbbbkk....",
+    ".kkkkkkkkkkk....",
+    "..kwwwkdkwk.....",
+    "..kwywkdkwk.....",
+    "..kwwwkdkwk.....",
+    "..kkkkkkkkk.....",
+], S16)
+SPRITES["map:Village"] = _s([          # chapel + house, owner flag on the steeple
+    "..........kpp...",
+    "..........kpk...",
+    "..........k.....",
+    ".........kyk....",
+    "........krrrk...",
+    "...kkk.krrrrrk..",
+    "..krrrkkkkkkkkk.",
+    ".krrrrrk.kwywk..",
+    ".kkkkkkk.kwwwk..",
+    "..kwykk..kwdwk..",
+    "..kwwdk..kwdwk..",
+    "..kkkkk..kkkkk..",
+], S16)
+SPRITES["map:Town"] = _s([             # walled keep, owner banner
+    ".......kpp......",
+    ".......kpk......",
+    ".......k........",
+    ".....k.k.k......",
+    ".....kkkkk......",
+    ".....ktttk......",
+    ".k.k.ktytk.k.k..",
+    ".kkkkktttkkkkk..",
+    ".kttttttttttttk.",
+    ".kttkttttttkttk.",
+    ".kttttkddkttttk.",
+    ".kttttkddkttttk.",
+    ".kkkkkkkkkkkkkk.",
+], S16)
+SPRITES["map:City"] = _s([             # two towers, hall, walls, owner banners
+    "..kpp......kpp..",
+    "..kpk......kpk..",
+    "..k..........k..",
+    ".kkk.k.kk.k.kkk.",
+    ".ktk.kkrrkk.ktk.",
+    ".ktk.krrrrk.ktk.",
+    ".ktkkkkkkkkkktk.",
+    ".ktktttyytttktk.",
+    "kkkkkkkkkkkkkkkk",
+    "kttttttttttttttk",
+    "ktkttttddttttktk",
+    "kttttttddttttttk",
+    "kkkkkkkkkkkkkkkk",
+], S16)
+SPRITES["map:Metropolis"] = _s([       # spired hall, gold dome, towers, owner banners
+    ".......kk.......",
+    ".......kpk......",
+    ".......kpp......",
+    ".......k........",
+    "..kpp.kyk.kpp...",
+    "..k..kyyyk..k...",
+    ".kkk.kyyyk.kkk..",
+    ".ktk.kkkkk.ktk..",
+    ".ktkkkwwwkkktk..",
+    ".ktkkwywywkktk..",
+    "kkkkkkkkkkkkkkkk",
+    "kttttttttttttttk",
+    "ktkttttddttttktk",
+    "kttttttddttttttk",
+    "kkkkkkkkkkkkkkkk",
+], S16)
+
+# ---------------------------------------------------------------- map terrain: scattered props in the hex's own tones
+MAP_TERRAIN = ("plains", "hill", "forest", "wetland", "tundra", "mountain", "water")   # hexstyle kinds + hill; "tundra" = Barrens
+_P = {}
+_P["tuft_a"] = [".H.", "HSH"]
+_P["tuft_b"] = ["H.H", "SHS"]
+_P["tuft_c"] = ["H..H", ".HH."]
+_P["wave_a"] = ["HHH..", "...HH"]
+_P["wave_b"] = ["HH.", "..H"]
+_P["pine"] = ["...D...", "..DHD..", ".DHHSD.", "..DHD..", ".DHHSD.", "DHHHSSD", "DDDDDDD", "...D..."]
+_P["pine_s"] = ["..D..", ".DHD.", "DHHSD", ".DHD.", "DHHSD", "DDDDD", "..D.."]
+_P["peak"] = [".....D......", "....DHD.....", "...DHHSD....", "...DHHSSD...", "..DHHHSDSD..",
+             "..DHHHSSSD..", ".DHHHSSSDSD.", ".DHHSSSSSSD.", "DHHSSSSDSSSD", "DDDDDDDDDDDD"]
+_P["peak_s"] = ["...D...", "..DHD..", ".DHHSD.", "DHHSSSD", "DDDDDDD"]
+_P["hump"] = ["..DDDD..", ".DHHHSD.", "DHHHHSDD", "DDDDDDDD"]
+_P["pool"] = [".DDDDDD.", "DHHHDDDD", ".DDDDDD."]
+_P["pool_s"] = [".DDDD.", "DHHDDD", ".DDDD."]
+_P["reeds"] = ["H..H", "H.H.", "HH.H", ".HH."]
+_P["cattail"] = ["D..D", "D..D", "H.H.", "HHH."]
+_P["boulder"] = [".DDDD.", "DHHSSD", "DHSSSD", ".DDDD."]     # tundra: quarry stone
+_P["blocks"] = ["..DDDDD..", "..DHHSD..", "..DHSSD..", "DDDDDDDDD", "DHHSDHHSD", "DHSSDHSSD", "DDDDDDDDD"]   # tundra: stacked cut stone (quarry)
+_P["blocks_b"] = ["DDDDD....", "DHHSD....", "DHSSDDDDD", "DDDDDHHSD", "....DHSSD", "....DDDDD"]                # tundra: staggered cut stone (quarry)
+_P["saltpan"] = ["..DDDDD..", ".DHHHHHD.", "DHHHDHHHD", ".DDDDDDD."]   # tundra: salt crust (salt works)
+_P["crack_l"] = ["D......", ".DD....", "...D.DD", "....D.."]   # tundra: frost crack (Strained)
+_P["flower"] = ["y", "S"]                                       # plains: rare wildflower
+SCATTER = {
+    "plains":   {"layers": [{"p": [["tuft_a", 2], ["tuft_b", 2], ["tuft_c", 1]], "n": [3, 5], "r": 0.72}, {"p": [["flower", 1]], "n": [0, 1], "r": 0.7}]},
+    "water":    {"layers": [{"p": [["wave_a", 1], ["wave_b", 2]], "n": [1, 3], "r": 0.68}]},
+    "forest":   {"layers": [{"p": [["pine", 1], ["pine_s", 2]], "n": [4, 6], "r": 0.6, "g": -3}]},
+    "mountain": {"layers": [{"p": [["peak", 1]], "n": [1, 1], "r": 0.12}, {"p": [["peak_s", 1]], "n": [1, 2], "r": 0.68, "g": -4}]},
+    "hill":     {"layers": [{"p": [["hump", 1]], "n": [2, 2], "r": 0.42}, {"p": [["tuft_a", 1], ["tuft_b", 1]], "n": [1, 2], "r": 0.72}]},
+    "tundra":   {"tone": [0.16, 0.10, 0.42],   # muted fill tones, firm outlines: angular stone vs plains' soft tufts
+                 "layers": [{"p": [["boulder", 2], ["blocks", 1], ["blocks_b", 1]], "n": [1, 2], "r": 0.6},
+                            {"p": [["saltpan", 1]], "n": [0, 1], "r": 0.55},
+                            {"p": [["crack_l", 1]], "n": [1, 2], "r": 0.62}]},
+    "wetland":  {"layers": [{"p": [["pool", 2], ["pool_s", 2]], "n": [2, 3], "r": 0.6},
+                            {"p": [["reeds", 2], ["cattail", 2]], "n": [2, 3], "r": 0.66}]},
+}
+
+for _n, _r in _P.items():
+    SPRITES["prop:" + _n] = _r + ["g" * len(_r[0])]
+
 # ---------------------------------------------------------------- lookup
 def load_data(path):
     ns = {}
@@ -1431,7 +1656,7 @@ def feet_key(raw_name):
 
 
 def _dims(key):
-    if key.startswith(("sky:", "inf:", "feet:")):
+    if key.startswith(("sky:", "inf:", "feet:", "prop:")):
         return None          # free size: checked for consistency only
     if key.startswith(("monument:", "wonder:")):
         return S24, S24
@@ -1489,7 +1714,7 @@ def check(ns):
                 out.append(f"{key}: row {i} unknown keys {''.join(sorted(bad))}")
         if any(c != "g" for c in rows[-1]):
             out.append(f"{key}: last row is not ground")
-        elif all(len(r) == w for r in rows):
+        elif all(len(r) == w for r in rows) and not key.startswith("prop:"):   # props are tiny scattered marks by design
             for f in floating(rows):
                 out.append(f"{key}: floating {f}")
     for pal, cols in PALETTES.items():
@@ -1530,6 +1755,35 @@ def check(ns):
             out.append(f"raw material {n}: no holding sprite")
         if "feet:" + n not in SPRITES:
             out.append(f"raw material {n}: no feet strip")
+    for n in ns.get("RETINUES", {}):
+        if "army:" + n not in SPRITES:
+            out.append(f"no map sprite for retinue {n}")
+    for n in ns.get("SETTLEMENTS", {}):
+        if "map:" + n not in SPRITES:
+            out.append(f"no map sprite for settlement {n}")
+    used = set()
+    for n in MAP_TERRAIN:
+        if n not in SCATTER:
+            out.append(f"no SCATTER entry for map terrain {n}")
+    for n, sc in SCATTER.items():
+        if n not in MAP_TERRAIN:
+            out.append(f"SCATTER {n}: not in MAP_TERRAIN")
+        for L in sc.get("layers", []):
+            for a, _w in L.get("p", []):
+                used.add(a)
+                if "prop:" + a not in SPRITES:
+                    out.append(f"SCATTER {n}: no sprite prop:{a}")
+    for k in ("map:camp", "map:bandit_army"):
+        if k not in SPRITES:
+            out.append(f"no map sprite {k}")
+    for key in SPRITES:
+        kind, _, name = key.partition(":")
+        if kind == "prop" and name not in used:
+            out.append(f"{key}: not used by SCATTER")
+        if kind == "army" and name not in ns.get("RETINUES", {}):
+            out.append(f"{key}: not in RETINUES")
+        if kind == "map" and name not in ns.get("SETTLEMENTS", {}) and name not in ("camp", "bandit_army"):
+            out.append(f"{key}: not a settlement tier / camp / bandit_army")
     known = set(ns.get("NODES", {})) | set(ns.get("WONDERS", {})) | set(ns.get("SETTLEMENTS", {}))
     for key in SPRITES:
         kind, _, name = key.partition(":")

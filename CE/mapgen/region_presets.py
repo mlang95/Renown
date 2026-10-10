@@ -184,7 +184,7 @@ PRESETS = {
         border={"n": 0, "s": 0, "w": {"width": (0, 1), "span": (.2, .5)}, "e": 0},
         require_hill=True,
         resource_min={"forestry": 0, "apiary": 0},
-        notes=("Badlands. Tundra painted as salted earth. Strained everywhere; "
+        notes=("Badlands. Barrens painted as salted earth. Strained everywhere; "
                "arable is scarce and contested — recursive scarcity."),
     ),
 

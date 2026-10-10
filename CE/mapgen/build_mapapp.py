@@ -44,7 +44,7 @@ def check_resources(data_dir):
     sys.path.insert(0, HERE)
     import renown_data as rd, hexstyle
     rule = {"plains": "Grassland", "forest": "Forest", "wetland": "Wetlands",
-            "tundra": "Tundra", "mountain": "Mountains", "water": "Water"}
+            "tundra": "Barrens", "mountain": "Mountains", "water": "Water"}
     data = {k: set(rd.TERRAIN.get(v, {}).get("Raw Materials", [])) for k, v in rule.items()}
     names = {k: v["name"] for k, v in hexstyle.RESOURCES.items()}
     out = []

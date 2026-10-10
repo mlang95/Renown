@@ -397,7 +397,7 @@ Build times, in turns, by what you're building:
 
 Territory is the smallest unit of land. To move from one Territory to another, you move range 1. To be within a Territory is range 0; adjacent is range 1; next to is range 2.
 
- 	Territories carry modifiers by hex type (grassland, forest, tundra, wetlands, water, mountain), and are uncontrolled, contested, or controlled. Territory begins uncontrolled. By chartering Settlements you Control Territories: each Settlement's Reach X adds every Territory within that range to your province. If another player's Settlement Reach reaches any Territory you Control, that Territory is contested.
+ 	Territories carry modifiers by hex type (grassland, forest, barrens, wetlands, water, mountain), and are uncontrolled, contested, or controlled. Territory begins uncontrolled. By chartering Settlements you Control Territories: each Settlement's Reach X adds every Territory within that range to your province. If another player's Settlement Reach reaches any Territory you Control, that Territory is contested.
 
  	To border another player, your Reach must be within or adjacent to their Territory.
 

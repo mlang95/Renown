@@ -39,8 +39,20 @@ Hidden tactic picks (battle module) — kept out of shared state:
         -> {A:{picked,tactic?}, B:{picked,tactic?}, revealed}
         A side's tactic is returned only if: both picked, OR it is the viewer's own,
         OR peek=1 and it is the viewer's opponent (Outrider Intercept Post carve-out).
+
+Chat — kept out of shared state; recipients filtered here, never on the client:
+    GET    /api/chat?since=<id>              -> {me:{pid,name,duke}, msgs:[...]}  (visible to the caller only)
+    POST   /api/chat  {scope, to?, text}     -> {ok, id} | 400 {error}
+           scope "all"      everyone (spectators may post here only)
+           scope "whisper"  to=<pid>|"duke"  sender + that player (stored by pid: delivered once claimed)
+           scope "alliance" sender + every player allied to them (Military/Defensive Alliance or same
+                            Suzerain household), resolved at send time from shared.diplo
+    DELETE /api/chat                         -> Duke only: clear the log
+    Identity: X-Renown-Dev + X-Renown-Key (device secret, registered on first use); the sender/viewer
+    is the player whose board claim names that device. The Duke (X-Renown-Pin, or X-Renown-Duke:1
+    when no PIN is set) sees every message.
 """
-import http.server, socketserver, json, os, sqlite3, urllib.parse, datetime, threading, hmac, re
+import http.server, socketserver, json, os, sqlite3, urllib.parse, datetime, threading, hmac, re, hashlib
 
 HERE   = os.path.dirname(os.path.abspath(__file__))
 HTML   = os.path.join(HERE, "settlement_board.html")
@@ -53,6 +65,9 @@ ORIGIN = os.environ.get("RENOWN_ORIGIN", "*")
 LOCAL_KEYS = {"active", "view", "theme", "shape", "pursuitView"}   # per-browser UI, never shared
 BATTLE_RE = re.compile(r"^/api/battle/([A-Za-z0-9_-]{1,40})/(\d{1,4})(?:/([AB]))?$")
 PART_RE = re.compile(r"^(shared|board:[A-Za-z0-9_-]{1,40})$")
+DEV_RE = re.compile(r"^[A-Za-z0-9_-]{4,64}$")
+CHAT_MAX_LEN = 500       # characters per message
+CHAT_BACKLOG = 200       # messages returned on a full (since=0) load
 LOCK = threading.Lock()                                            # serialises part writes
 
 def db():
@@ -83,6 +98,10 @@ def init_db():
       CREATE TABLE IF NOT EXISTS snapshots(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, data TEXT, ts TEXT);
       CREATE TABLE IF NOT EXISTS battle_picks(bid TEXT, sk INTEGER, side TEXT, tactic TEXT, ts TEXT,
                                               PRIMARY KEY(bid, sk, side));
+      CREATE TABLE IF NOT EXISTS devices(dev TEXT PRIMARY KEY, key_hash TEXT, ts TEXT);
+      CREATE TABLE IF NOT EXISTS chat(id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT, dev TEXT, pid TEXT,
+                                      name TEXT, color TEXT, scope TEXT, to_pid TEXT, to_name TEXT,
+                                      recips TEXT, text TEXT);
     """)
     c.execute("INSERT OR IGNORE INTO meta(k,v) VALUES('rev',0)")
     # one-time migration: v1 single-blob state -> parts
@@ -117,6 +136,49 @@ def build_name(path, suffix=""):
         return None
     return urllib.parse.unquote(rest)
 
+# ---------------- chat helpers ----------------
+def load_part(c, key):
+    r = c.execute("SELECT data FROM parts WHERE key=?", (key,)).fetchone()
+    try:
+        return json.loads(r["data"]) if r else None
+    except Exception:
+        return None
+
+def roster(c):
+    return ((load_part(c, "shared") or {}).get("roster")) or {}
+
+def claimed_pid(c, dev):
+    """pid of the player whose board claim names this device, else None."""
+    for r in c.execute("SELECT key,data FROM parts WHERE key LIKE 'board:%'"):
+        try:
+            cl = (json.loads(r["data"]) or {}).get("claim") or {}
+        except Exception:
+            continue
+        if cl.get("dev") == dev:
+            return r["key"][len("board:"):]
+    return None
+
+def top_suz(diplo, pid):
+    """Mirrors topSuz() in the board: follow the Suzerain chain to its top."""
+    sz, cur = diplo.get("suzerain") or {}, str(pid)
+    for _ in range(16):
+        nxt = sz.get(cur)
+        if not nxt:
+            break
+        cur = str(nxt)
+    return cur
+
+def same_alliance(diplo, a, b):
+    """Mirrors sameAlliance() in the board: same Suzerain household, or tops share an Alliance group."""
+    a, b = str(a), str(b)
+    if a == b:
+        return False
+    ra, rb = top_suz(diplo, a), top_suz(diplo, b)
+    if ra == rb:
+        return True
+    g = (diplo.get("member") or {}).get(ra)
+    return bool(g) and g == (diplo.get("member") or {}).get(rb)
+
 def part_key(path):
     if not path.startswith("/api/part/"):
         return None
@@ -131,7 +193,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         self.send_header("Access-Control-Allow-Origin", ORIGIN)
         self.send_header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Renown-Token")
+        self.send_header("Access-Control-Allow-Headers",
+                         "Content-Type, X-Renown-Token, X-Renown-Dev, X-Renown-Key, X-Renown-Pin, X-Renown-Duke")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         if body:
@@ -157,6 +220,109 @@ class Handler(http.server.BaseHTTPRequestHandler):
     def log_message(self, *a):
         pass
 
+    # ---------------- chat ----------------
+    def _who(self, c):
+        """Verify the device secret (registered on first use) -> {dev, pid, name, color, duke}; None after an error reply."""
+        dev, key = self.headers.get("X-Renown-Dev", ""), self.headers.get("X-Renown-Key", "")
+        if not DEV_RE.match(dev) or not (16 <= len(key) <= 128):
+            self._send(400, {"error": "missing device identity"}); return None
+        h = hashlib.sha256(key.encode()).hexdigest()
+        with LOCK:
+            r = c.execute("SELECT key_hash FROM devices WHERE dev=?", (dev,)).fetchone()
+            if r is None:
+                c.execute("INSERT INTO devices(dev,key_hash,ts) VALUES(?,?,?)", (dev, h, now())); c.commit()
+            elif not hmac.compare_digest(r["key_hash"], h):
+                self._send(403, {"error": "device key mismatch"}); return None
+        pin = self.headers.get("X-Renown-Pin", "")
+        duke = hmac.compare_digest(pin, ADMIN_PIN) if ADMIN_PIN else self.headers.get("X-Renown-Duke") == "1"
+        pid = claimed_pid(c, dev)
+        ro = roster(c).get(pid) or {} if pid else {}
+        name = ro.get("name") if pid else ("Duke" if duke else "Spectator " + dev[:4])
+        return {"dev": dev, "pid": pid, "name": name or "?", "color": ro.get("color") or "", "duke": duke}
+
+    def _chat_get(self, u):
+        try:
+            since = int(urllib.parse.parse_qs(u.query).get("since", ["0"])[0])
+        except ValueError:
+            since = 0
+        c = db()
+        try:
+            me = self._who(c)
+            if not me:
+                return
+            out = []
+            last = c.execute("SELECT COALESCE(MAX(id),0) AS m FROM chat").fetchone()["m"]
+            for r in c.execute("SELECT * FROM chat WHERE id>? AND id<=? ORDER BY id", (since, last)):
+                rec = json.loads(r["recips"]) if r["recips"] else []
+                vis = (r["scope"] == "all" or me["duke"] or r["dev"] == me["dev"]
+                       or (me["pid"] is not None and (r["pid"] == me["pid"] or me["pid"] in rec)))
+                if vis:
+                    out.append({"id": r["id"], "ts": r["ts"], "pid": r["pid"], "name": r["name"], "color": r["color"],
+                                "scope": r["scope"], "to": r["to_pid"], "toName": r["to_name"], "text": r["text"],
+                                "mine": r["dev"] == me["dev"]})
+            self._send(200, {"me": {k: me[k] for k in ("pid", "name", "duke")}, "last": last,
+                             "msgs": out[-CHAT_BACKLOG:] if not since else out})
+        finally:
+            c.close()
+
+    def _chat_post(self, body):
+        c = db()
+        try:
+            me = self._who(c)
+            if not me:
+                return
+            text = re.sub(r"[\x00-\x08\x0b-\x1f\x7f]", "", str(body.get("text") or "")).strip()[:CHAT_MAX_LEN]
+            scope = body.get("scope") or "all"
+            if not text:
+                self._send(400, {"error": "empty message"}); return
+            if scope not in ("all", "whisper", "alliance"):
+                self._send(400, {"error": "unknown scope"}); return
+            if scope != "all" and not me["pid"] and not me["duke"]:
+                self._send(400, {"error": "spectators can post to All only"}); return
+            to_pid = to_name = None; recips = []
+            ro = roster(c)
+            if scope == "whisper":
+                to_pid = str(body.get("to") or "")
+                if to_pid == "duke":
+                    to_name = "Duke"
+                elif to_pid in ro:
+                    to_name = ro[to_pid].get("name") or "?"
+                else:
+                    self._send(400, {"error": "no such player"}); return
+                if to_pid == me["pid"]:
+                    self._send(400, {"error": "can't whisper yourself"}); return
+                recips = [to_pid]
+            elif scope == "alliance":
+                if not me["pid"]:
+                    self._send(400, {"error": "claim a player to use alliance chat"}); return
+                diplo = (load_part(c, "shared") or {}).get("diplo") or {}
+                recips = [q for q in ro if same_alliance(diplo, me["pid"], q)]
+                if not recips:
+                    self._send(400, {"error": "not in an alliance"}); return
+            with LOCK:
+                cur = c.execute("INSERT INTO chat(ts,dev,pid,name,color,scope,to_pid,to_name,recips,text) "
+                                "VALUES(?,?,?,?,?,?,?,?,?,?)",
+                                (now(), me["dev"], me["pid"], me["name"], me["color"], scope, to_pid, to_name,
+                                 json.dumps(recips) if recips else None, text))
+                c.commit()
+            self._send(200, {"ok": True, "id": cur.lastrowid})
+        finally:
+            c.close()
+
+    def _chat_clear(self):
+        c = db()
+        try:
+            me = self._who(c)
+            if not me:
+                return
+            if not me["duke"]:
+                self._send(403, {"error": "Duke only"}); return
+            with LOCK:
+                c.execute("DELETE FROM chat"); c.commit()
+            self._send(200, {"ok": True})
+        finally:
+            c.close()
+
     def do_OPTIONS(self):
         self._send(204)
 
@@ -172,6 +338,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             except FileNotFoundError:
                 self._send(404, {"error": "settlement_board.html not found next to server.py — generate it first"})
             return
+        if path == "/api/chat":
+            self._chat_get(u); return
         if path == "/api/state":
             try:
                 since = int(urllib.parse.parse_qs(u.query).get("since", ["0"])[0])
@@ -289,6 +457,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if not self._authed(path):
             return
         body = self._read()
+        if path == "/api/chat":
+            self._chat_post(body); return
         if path == "/api/admin":                     # {"pin": "..."} -> {"ok": bool, "open": bool}
             if not ADMIN_PIN:
                 self._send(200, {"ok": True, "open": True}); return
@@ -306,6 +476,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
         path = urllib.parse.urlparse(self.path).path
         if not self._authed(path):
             return
+        if path == "/api/chat":
+            self._chat_clear(); return
         key = part_key(path)
         if key:
             self._write_part(key, self._read(), delete=True); return

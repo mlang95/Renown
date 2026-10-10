@@ -3852,6 +3852,7 @@ import re as _re_disp
 
 # Entity ids -> printed label (weapons, ranged, shields, armor, nodes).
 NAME_DISPLAY = {
+    "Tundra": "Barrens",          # terrain: key stays Tundra (mapgen kind "tundra"); players read Barrens
     "Spears": "Spear",
     "Pilum": "Throwing Spear",
     "Farm Tools": "Farm Tool",
