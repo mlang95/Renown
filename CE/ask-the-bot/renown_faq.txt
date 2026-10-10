@@ -77,8 +77,8 @@ combat | See 'how to attack'.
 Common Land | [Common Land](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Raw Materials). Effect: +1000, Natural, Doubt +1
 Condemned | [Condemned](https://mlang95.github.io/RenownWiki/glossary.html#condemned): An Envoy whose net Authority is -3 or less: it fails and you resolve that Domain's Condemn effect.
 Conditioning Field | [Conditioning Field](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Faith +1 while not at War; Armies gain Nimble / Requires: Muster Field
-Contested | [Contested](https://mlang95.github.io/RenownWiki/glossary.html#contested): Territory that is within Reach of more than one player's settlement(s). Considered Controlled by all Players that have a Settlement within Reach.
-Controlled | [Controlled](https://mlang95.github.io/RenownWiki/glossary.html#controlled): Territory that is within Reach of a single Player's Settlement(s).
+Contested | [Contested](https://mlang95.github.io/RenownWiki/glossary.html#contested): Territory that is Controlled by more than one player's settlement(s).
+Controlled | [Controlled](https://mlang95.github.io/RenownWiki/glossary.html#controlled): Territory that is within Reach of a Player's Settlement(s).
 Convert | [Convert](https://mlang95.github.io/RenownWiki/actions-ref.html): Piety action. Cost: Doubt 1. Choose another player's closest non-capital Settlement; its Public Order must be -5 or lower. Lay Siege using only Settlement-type Siege modifiers (Settlement Size and Citadel) and set a Convert Timer. When it reaches 0, the Settlement joins your empire (see Capture). Endorsed: Recoup Doubt.
 Convert Timer | [Convert Timer](https://mlang95.github.io/RenownWiki/glossary.html#convert-timer): Turns until a Convert attempt resolves (or fails early if conditions change).
 Cost / Pay | [Cost / Pay](https://mlang95.github.io/RenownWiki/glossary.html#cost-pay): Cost to perform an action, usually in Gold or Doubt.
@@ -175,7 +175,7 @@ Padded | [Padded](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor
 Garrison | [Garrison](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Developed). Upkeep 200 (per Turn), build 3. Local Armies form (10/15/25/50 by Settlement size). All Garrisons share Retinues & Equipment. Can't be targeted; may not Sally Forth while under Siege. Do not pay upkeep.
 Gilded Foundry | [Gilded Foundry](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Arms). Effect: Upkeep -500; Unlock Forged armor & shield.
 Gothic Plate | [Gothic Plate](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Tempered). Save 4+. Keywords: none.
-Granary | [Granary](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Works). Effect: Upkeep -500; Armies and Garrisons gain Endurance while Besieged
+Granary | [Granary](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Works). Effect: Upkeep -500; Armies and Garrisons within controlled Settlements gain Immune Strained.
 Grand Tournament | [Grand Tournament](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Reach +1, 3x/turn: exchange 500 gold for 1 Influence; Armies gain Riposte & Improve Parry by +1.
 Grassland | [Grassland](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: —. Raw Materials: Arable Land, Apiary.
 Gunpowder | [Gunpowder](https://mlang95.github.io/RenownWiki/glossary.html#gunpowder): Gunpowder equipment: Arquebus. Unlocked by: Ordinance Yard, Fletchery.
@@ -328,7 +328,7 @@ Riposte | [Riposte](https://mlang95.github.io/RenownWiki/keywords-ref.html#ripos
 Root | [Root](https://mlang95.github.io/RenownWiki/glossary.html#root): A Holding with no Mastery Chain requirement: you may start it without controlling a parent. If it is Efficient with a Holding, it may still share that Holding's Settlement Ward.
 Rout | [Rout](https://mlang95.github.io/RenownWiki/glossary.html#rout): The army breaks and leaves the Battle (you lose it). Whenever an army's modified Morale value reaches 11+ or more, it Routs automatically.
 Royal Pavilion | [Royal Pavilion](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Armies gain Immune Strained, Improve Parry by +1; Gain +1 to Strike. Deadly, & Cleave also trigger Focused Strikes on a natural 8+.
-Sabotage | [Sabotage](https://mlang95.github.io/RenownWiki/actions-ref.html): Cunning action. Cost: 2000 gold. Choose an army, that army gains Blocked. Endorsed: Extort 2000.
+Sabotage | [Sabotage](https://mlang95.github.io/RenownWiki/actions-ref.html): Cunning action. Cost: 2000 gold. Choose an army, that army gains Blocked until the end of next turn. Endorsed: Extort 2000.
 sack | [Sack](https://mlang95.github.io/RenownWiki/economy-ref.html): Extort 2000 per settlement tier; reduce settlement by 1 tier; Sack Timer 2
 Sack Timer | [Sack Timer](https://mlang95.github.io/RenownWiki/glossary.html#sack-timer): Cooldown before the same force may Lay Siege again (per Sack rules).
 Sacred War | [Sacred War](https://mlang95.github.io/RenownWiki/actions-ref.html): Piety action. Cost: Doubt 1. Requires: Sovereign Piety. Declare War on a non-ally you have no NAP or truce with, then immediately perform a Move action with one of your Armies. Endorsed: Recoup Doubt.
@@ -359,7 +359,7 @@ Smokehouse | [Smokehouse](https://mlang95.github.io/RenownWiki/pursuits.html) Ho
 Smuggler's Nook | [Smuggler's Nook](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Secrecy). Effect: gain Immune Uprising (Bandit Camp Spawn at -5PO); Bandit Camps in your Outlaw Country don't target you and instead target other players randomly.
 Sovereign Standing | [Sovereign Standing](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Standing). Reach a Sovereign Standing (Domain value 10) in any Domain.
 Spear | [Spear](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Cast). AP -1, Init +1. Keywords: Unwieldy.
-Speed X | [Speed X](https://mlang95.github.io/RenownWiki/glossary.html#speed-x): An Army's movement range in Territories per Move action. Base Speed value of an army is Speed 3
+Speed X | [Speed X](https://mlang95.github.io/RenownWiki/glossary.html#speed-x): An Army's movement range in Territories per Move action. Base Speed value of an army is Speed 5
 Spice Merchant | [Spice Merchant](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Commerce). Effect: Natural; +1000; Authority +1 to Cunning actions targeting you; Craft +4
 Spread Truth | [Spread Truth](https://mlang95.github.io/RenownWiki/actions-ref.html): Piety action. Cost: Doubt 1. Each non-allied player gains Doubt 1. Each allied player gains Faith 1. Endorsed: Recoup Doubt.
 Spring | [Spring](https://mlang95.github.io/RenownWiki/seasons-ref.html) Season (Planting). No Host, Bandit actions, Trade Income, Council Phase, or Diplomacy Actions. Players don't gain Influence tokens. Bandit Camps Spawn.
@@ -451,6 +451,7 @@ Truce Timer | [Truce Timer](https://mlang95.github.io/RenownWiki/glossary.html#t
 Barrens | [Barrens](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: gain Strained. Raw Materials: Quarry, Salt Works.
 turn order | See 'turn structure'.
 turn structure | [The Turn](https://mlang95.github.io/RenownWiki/rules-the-turn.html): five phases, then pass the Host. 1) Empire Phase: activate Standing effects, apply the Season, increment timers, resolve Bandit Mechanics, gain Influence & Envoys, collect income, pay upkeep. 2) Council Phase: Council vote on a Domain; each player performs one action of that Domain. 3) Envoy Phase: Diplomacy Envoys first, then Domain Envoys (Prowess -> Cunning -> Piety -> Industry). 4) Battle Phase: Skirmishes, Sieges, and Battles resolve. 5) Rest Phase: cleanup, change Season, score Renown, spend one Domain Point, pass the Host.
+Uncontested | [Uncontested](https://mlang95.github.io/RenownWiki/glossary.html#uncontested): Territory that is Controlled by a single Player's Settlement(s).
 Uncontrolled | [Uncontrolled](https://mlang95.github.io/RenownWiki/glossary.html#uncontrolled): Territory that is not within Reach of any Player Settlement.
 University | [University](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Court). Effect: May spend one additional Influence per Support or Oppose; +1 Influence per Domain you are Rising / Requires: Library
 Unstoppable | [Unstoppable](https://mlang95.github.io/RenownWiki/keywords-ref.html#unstoppable): -2 to the defender's Parry roll, to a maximum of 10+).

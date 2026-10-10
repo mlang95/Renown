@@ -288,10 +288,10 @@ ENDURANCE_REGAIN    = 2    # +Endurance restored to non-Strained armies in the E
 
 
 RETINUES = {
-    "Levy":           {"cost": 1000, "to_hit": 6, "endurance": 2, "shaking": 7, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
-    "Man-at-Arms":    {"cost": 2000, "to_hit": 5, "endurance": 3, "shaking": 6, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
-    "Sergeant":       {"cost": 2000, "to_hit": 3, "endurance": 2, "shaking": 5, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
-    "Knight Templar": {"cost": 2000, "to_hit": 4, "endurance": 2, "shaking": 4, "unbreakable": False, "speed": 3, "max_size": ARMY_MAX_RETINUES},
+    "Levy":           {"cost": 1000, "to_hit": 6, "endurance": 2, "shaking": 7, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
+    "Man-at-Arms":    {"cost": 2000, "to_hit": 5, "endurance": 3, "shaking": 6, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
+    "Sergeant":       {"cost": 2000, "to_hit": 3, "endurance": 2, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
+    "Knight Templar": {"cost": 2000, "to_hit": 4, "endurance": 2, "shaking": 4, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
 }
 
 WEAPONS = {
@@ -2085,7 +2085,7 @@ SIMPLE_NODES = {
     "Granary": {
         "group": "g_works",
         "unlock": "Rising Industry",
-        "innate": "Upkeep -500; Armies and Garrisons gain **Endurance** while Besieged",
+        "innate": "Upkeep -500; Armies and Garrisons within controlled Settlements gain Immune Strained.",
         "efficient": "Masonry",
         "builds_into": ["Supply Depot", "Citadel"],
         "monument": False},
@@ -3200,11 +3200,11 @@ PO_MODIFIERS = {
         "Restored Order":  "Destroyed a Bandit Camp last turn",
     },
     "doubt": {
-        "Local Unrest":    "Per active Bandit Camp in your Territory",
+        "Local Unrest":    "Per active Bandit Camp in your Controlled Territory",
         "Deficit":         "Net Income is negative",
         "Insolvency":      "Per consecutive Upkeep Phase with negative Treasury",
-        "Border Tension":  "Per other player Army in your Territory (not Alliance or NAP)",
-        "Invasion":        "Additional per other player Army in your Territory at War",
+        "Border Tension":  "Per other player Army in your Uncontested Territory (not Alliance or NAP)",
+        "Invasion":        "Additional per other player Army in your Uncontested Territory at War",
         "State of Alarm":  "If at War",
         "Mounting Panic":  "Per Settlement being Besieged",
 		"War Weariness":    "Per consecutive Battle loss"
@@ -3392,8 +3392,9 @@ GLOSSARY.update({
     "Region": "A collection of Territories of the same Type.",
     "Realm": "The total collection of Regions.",
     "Territory": "1 Hex.",
-    "Contested": "Territory that is within Reach of more than one player's settlement(s). Considered Controlled by all Players that have a Settlement within Reach.",
-    "Controlled": "Territory that is within Reach of a single Player's Settlement(s).",
+    "Controlled": "Territory that is within Reach of a Player's Settlement(s).",
+    "Contested": "Territory that is Controlled by more than one player's settlement(s).",
+    "Uncontested": "Territory that is Controlled by a single Player's Settlement(s).",
     "Uncontrolled": "Territory that is not within Reach of any Player Settlement.",
     "Adjacent": "Range 1.",
     "Next to": "Range 2.",
@@ -3540,9 +3541,9 @@ ACTIONS = {
         'domain': 'Cunning',
         'cost': '2000 gold',
         'requires': '',
-        'effect': 'Choose an army, that army gains Blocked.',
+        'effect': 'Choose an army, that army gains Blocked until the end of next turn.',
         'endorsed': 'Extort 2000.',
-        'notes': ["This affects only the next single turn's tax income, when it's collected."],
+        'notes': [],
     },
     
     'Spread Truth': {

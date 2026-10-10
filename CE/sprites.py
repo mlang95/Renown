@@ -9,6 +9,7 @@ Art only. No mechanics. Which sprite a thing gets is decided by the data file:
     Settlement     -> a skyline behind its holdings: "sky:core:<tier>" centred, "sky:fill:<tier>" tiled
                       across the lot (fallback 16x16 "tier:<tier>")
     Infrastructure -> skyline pieces "inf:<name>", placed per SKYLINE; INFRA_SUPERSEDES hides the replaced one
+    Status / marks -> "st:<state>" per STATUS_ICONS (8x8), "mk:battle" / "mk:siege" (16x16): Inspect panel, Army plate, map
     Equipment      -> "eq:<item>" per WEAPONS / RANGED / SHIELDS / ARMORS (12x12, no ground row): loadout icons
     Map pieces     -> "army:<Retinue>" per RETINUES, "map:<tier>" per SETTLEMENTS, "map:camp" / "map:bandit_army"
                       (16x16). Key 'p' is the owner's colour, swapped in per player on the map.
@@ -28,7 +29,7 @@ _s() only pads (top rows and right edge); it never truncates, so oversize art fa
 """
 import argparse, json, os, sys
 
-SPRITE_VERSION = "0.5"
+SPRITE_VERSION = "0.6"
 
 KEYS = {
     "k": "outline", "w": "plaster wall", "t": "stone", "u": "dark stone", "r": "roof",
@@ -2059,6 +2060,188 @@ SPRITES["eq:Gothic Plate"] = [
     "...kkkkkk...",
 ]
 
+# ---------------------------------------------------------------- status icons (8x8) + map markers (16x16), no ground row
+# "st:<state>" for every STATUS_ICONS entry: Army / Settlement / Bandit states in the Inspect panel and on the Army plate.
+# "mk:battle" / "mk:siege": map markers on engaged Armies / besieged Settlements. Drawn on EQ_TILE like eq: icons.
+STATUS_ICONS = ["endurance", "strained", "blocked", "fatigue", "routed", "muster", "sieging", "besieged", "battle", "pillage", "destabilize", "tension", "invasion", "unrest"]
+
+SPRITES["st:endurance"] = [
+    "....yy..",
+    "...yy...",
+    "..yy....",
+    ".yyyyyy.",
+    "....yy..",
+    "...yy...",
+    "..yy....",
+    ".y......",
+]
+SPRITES["st:strained"] = [
+    "c...uu..",
+    ".c.uu...",
+    "..cu....",
+    ".uucuuu.",
+    "....cu..",
+    "...uuc..",
+    "..uu..c.",
+    ".u.....c",
+]
+SPRITES["st:blocked"] = [
+    "..cccc..",
+    ".c....c.",
+    "c....cc.",
+    "c...c..c",
+    "c..c...c",
+    ".cc....c",
+    ".c....c.",
+    "..cccc..",
+]
+SPRITES["st:fatigue"] = [
+    "...e....",
+    "...e....",
+    "..eee...",
+    "..ese...",
+    ".eesee..",
+    ".eeeee..",
+    "..eee...",
+    "........",
+]
+SPRITES["st:routed"] = [
+    ".bssss..",
+    ".bsssss.",
+    ".bssss..",
+    ".bsss...",
+    ".b......",
+    ".b......",
+    ".b......",
+    "bbb.....",
+]
+SPRITES["st:muster"] = [
+    "...ll...",
+    "...ll...",
+    "...ll...",
+    "llllllll",
+    "llllllll",
+    "...ll...",
+    "...ll...",
+    "...ll...",
+]
+SPRITES["st:sieging"] = [
+    ".b...b..",
+    ".bbbbb..",
+    ".b...b..",
+    ".bbbbb..",
+    ".b...b..",
+    ".bbbbb..",
+    ".b...b..",
+    ".b...b..",
+]
+SPRITES["st:besieged"] = [
+    ".t.t.t..",
+    ".ttttt..",
+    ".tuttt..",
+    ".ttttt..",
+    ".ttfft..",
+    ".tfyft..",
+    "..fyf...",
+    "...f....",
+]
+SPRITES["st:battle"] = [
+    "m......m",
+    ".m....m.",
+    "..m..m..",
+    "...mm...",
+    "...mm...",
+    "..y..y..",
+    ".b....b.",
+    "y......y",
+]
+SPRITES["st:pillage"] = [
+    "...f....",
+    "..ff..f.",
+    "..fff.f.",
+    ".ffyff..",
+    ".fyyyff.",
+    ".fyyyf..",
+    "..fyf...",
+    "..bbb...",
+]
+SPRITES["st:destabilize"] = [
+    "..yyyy..",
+    ".yyyyyy.",
+    "yyccccyy",
+    "yyyyyyyy",
+    "yyyyyyyy",
+    ".yyyyyy.",
+    "..yyyy..",
+    "........",
+]
+SPRITES["st:tension"] = [
+    "...ff...",
+    "...ff...",
+    "..fkkf..",
+    "..fkkf..",
+    ".ffkkff.",
+    ".ffffff.",
+    "fffkkfff",
+    "ffffffff",
+]
+SPRITES["st:invasion"] = [
+    "....u...",
+    "....uc..",
+    "....ucc.",
+    "cccccccc",
+    "cccccccc",
+    "....ucc.",
+    "....uc..",
+    "....u...",
+]
+SPRITES["st:unrest"] = [
+    "..ssss..",
+    ".ssssss.",
+    ".skssks.",
+    ".skssks.",
+    ".ssssss.",
+    "..ssss..",
+    "..s.s.s.",
+    "........",
+]
+SPRITES["mk:battle"] = [
+    ".kk..........kk.",
+    "kmsk........ksmk",
+    ".kmsk......ksmk.",
+    "..kmsk....ksmk..",
+    "...kmsk..ksmk...",
+    "....kmskksmk....",
+    ".....kmssmk.....",
+    "......ksmk......",
+    ".....ksmmsk.....",
+    "....ksmkkmsk.k..",
+    "...ksyk..kmskyk.",
+    "..ksyk....kmyk..",
+    "..kbk.....kybk..",
+    ".kbk.....kykkbk.",
+    "kbk.......k..kbk",
+    ".k............k.",
+]
+SPRITES["mk:siege"] = [
+    "..........kk....",
+    ".........kssk...",
+    "........ksbsk...",
+    ".......kbbkk....",
+    "......kbbk......",
+    "..kkkkbbk.......",
+    ".kuuubbbk.......",
+    ".kuuubbk........",
+    ".kuubyk.........",
+    "..kkbyk.........",
+    "..kbkkbk........",
+    ".kbk..kbk.......",
+    "kbkkkkkkbk......",
+    "bbbbbbbbbbk.....",
+    "kdkkkkkkdk......",
+    ".k......k.......",
+]
+
 # ---------------------------------------------------------------- map terrain: scattered props in the hex's own tones
 MAP_TERRAIN = ("plains", "hill", "forest", "wetland", "tundra", "mountain", "water")   # hexstyle kinds + hill; "tundra" = Barrens
 _P = {}
@@ -2169,6 +2352,10 @@ def _dims(key):
         return S24, S24
     if key.startswith("eq:"):
         return S12, S12
+    if key.startswith("st:"):
+        return 8, 8
+    if key.startswith("mk:"):
+        return S16, S16
     return S16, S16
 
 
@@ -2221,8 +2408,8 @@ def check(ns):
             bad = set(r) - set(KEYS) - {"."}
             if bad:
                 out.append(f"{key}: row {i} unknown keys {''.join(sorted(bad))}")
-        if key.startswith("eq:"):
-            continue                                   # icons: no ground row, may float
+        if key.startswith(("eq:", "st:", "mk:")):
+            continue                                   # icons / markers: no ground row, may float
         if any(c != "g" for c in rows[-1]):
             out.append(f"{key}: last row is not ground")
         elif all(len(r) == w for r in rows) and not key.startswith("prop:"):   # props are tiny scattered marks by design
@@ -2284,6 +2471,15 @@ def check(ns):
                 used.add(a)
                 if "prop:" + a not in SPRITES:
                     out.append(f"SCATTER {n}: no sprite prop:{a}")
+    for n in STATUS_ICONS:
+        if "st:" + n not in SPRITES:
+            out.append(f"no status icon st:{n}")
+    for key in SPRITES:
+        if key.startswith("st:") and key[3:] not in STATUS_ICONS:
+            out.append(f"{key}: not in STATUS_ICONS")
+    for k in ("mk:battle", "mk:siege"):
+        if k not in SPRITES:
+            out.append(f"no map marker {k}")
     gear = set()
     for t in ("WEAPONS", "RANGED", "SHIELDS", "ARMORS"):
         gear |= {n for n in ns.get(t, {}) if n not in (None, "None", "null")}

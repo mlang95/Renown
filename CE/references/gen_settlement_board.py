@@ -476,7 +476,7 @@ def build(ns):
         if re.search(r"(?<![A-Za-z] )unlocks?\s+Shields\b", t, re.I): out.append("tier:Shields")
         for pat, tok in ((r"\bPlanishing\b", "Planishing"), (r"\bSerrated\b", "Serrated"), (r"gain\s+Poison", "Poison"),
                          (r"gain\s+Riposte", "Riposte"), (r"\bNimble\b", "Nimble"), (r"\bEnduring\b", "Enduring"),
-                         (r"\bDrilled\b", "Drilled"), (r"Immune Strained(?! during)", "Immune Strain"),
+                         (r"\bDrilled\b", "Drilled"), (r"(?<!Settlements gain )Immune Strained(?! during)", "Immune Strain"),
                          (r"\+1 to Strike", "Strike +1"), (r"max initiative is increased to 3", "MaxInit3"),
                          (r"Always gains Seize the Initiative", "Seize: first"), (r"Righteous Fervour", "Righteous Fervour"),
                          (r"Unlocks Arquebus", "Artillery Park")):
@@ -864,20 +864,50 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .tb-wrap.tb3{grid-template-columns:280px minmax(0,1fr) 360px}
   .tb-phase{text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
   .tb-phase h2{font-size:22px}
-  .tb-map{position:absolute;left:16%;right:16%;top:18%;bottom:18%;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .tb-felt.sides{--seatband:10px;--seatcol:172px}
+  .mapbar{position:absolute;left:calc(var(--seatcol) + 20px);top:calc(var(--seatband) + 10px);z-index:3;display:flex;gap:4px;align-items:center;flex-wrap:wrap;max-width:calc(100% - 2*var(--seatcol) - 360px);
+    background:color-mix(in srgb,var(--panel) 88%,transparent);border:1px solid var(--line2);border-radius:var(--radius-sm);padding:4px;font-size:12px}
+  .mapbar button.on{border-color:var(--ink);font-weight:600}
+  .sgroup-hd .snm{width:120px;font-size:12px;padding:2px 6px}
+  .mapbar .mpal{display:flex;gap:3px;flex-wrap:wrap;align-items:center}
+  .insp .ist button{white-space:nowrap;padding:2px 7px}
+  .mapbar .mpal button{display:flex;align-items:center;gap:3px;padding:2px 6px}.mapbar .mpal .eqi{image-rendering:pixelated}
+  .mapbar .olh{display:inline-block;width:14px;height:14px;background:repeating-linear-gradient(45deg,#7a1414 0 2px,transparent 2px 5px);border:1px solid #7a1414}
+  /* Inspect panel: docked over the map's right edge; bottom sheet on phones */
+  .insp{position:absolute;right:calc(var(--seatcol) + 20px);top:calc(var(--seatband) + 10px);width:300px;max-height:calc(100% - 2*var(--seatband) - 20px);overflow:auto;z-index:3;
+    background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius-sm);box-shadow:0 6px 24px rgba(0,0,0,.45);padding:10px 12px;font-size:12px}
+  .insp .ih{display:flex;align-items:center;gap:8px;margin-bottom:4px}.insp .ih b{font-size:14px}.insp .ih .ix{margin-left:auto;display:flex;gap:4px;align-self:flex-start}
+  .insp .ih .ix button{white-space:nowrap;padding:2px 7px;min-height:0}
+  .insp .ig{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:6px 0}
+  .insp .ig>div{background:var(--panel2);border-radius:4px;padding:3px 4px;text-align:center;font-weight:700}.insp .ig .k{display:block;font-size:9px;font-weight:400;color:var(--dim2);letter-spacing:.04em}
+  .insp .ir{display:flex;align-items:center;gap:6px;margin:3px 0;flex-wrap:wrap}.insp .ir .k{color:var(--dim2)}
+  .insp .ist{display:flex;align-items:center;gap:6px;margin:3px 0}
+  .insp .eqi{image-rendering:pixelated;vertical-align:middle;flex:none}
+  .insp .sec{font-size:10px;color:var(--dim2);letter-spacing:.06em;margin:9px 0 3px;text-transform:uppercase}
+  .insp .pos{color:var(--income)}.insp .neg{color:var(--upkeep)}
+  .insp .kw{font-size:10px;padding:1px 6px}
+  .insp .ist button{flex:none}
+  .bqlist{margin-bottom:8px}.bqrow{display:flex;align-items:center;gap:8px;padding:4px 0;border-top:1px solid var(--line);flex-wrap:wrap}.bqrow.on{background:color-mix(in srgb,var(--order) 10%,transparent)}
+  .bqrow .eqi{image-rendering:pixelated}.bqrow .rm{margin-left:0}
+  .tb-felt.sides .tb-seat{left:var(--sx);top:var(--sy);max-height:none}
+  .tb-felt.sides .tb-oval{left:calc(var(--seatcol) - 10px);right:calc(var(--seatcol) - 10px);top:0;bottom:0}
+  .tb-map{position:absolute;left:calc(var(--seatcol) + 10px);right:calc(var(--seatcol) + 10px);top:var(--seatband);bottom:var(--seatband);display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:18px}
   .tb-map.zm{overflow:auto;align-items:flex-start;justify-content:flex-start;z-index:1}
   .tb-tools{padding:14px 14px 0}.tb-tools>details{margin:0}.tb-tools>details>summary{cursor:pointer}
   .tmrow{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}.tmrow>.tot{flex:1;min-width:260px;margin:0}
   @media(max-width:1300px){.tb-wrap.tb3{grid-template-columns:240px minmax(0,1fr)}.tb-wrap.tb3 .tb-panel{grid-column:1 / -1}}
+  /* wide table: the felt takes the whole row; phase / log / panel drop below it */
+  .tb-wrap.tb3.wide{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .tb-wrap.tb3.wide>.tb-felt-col{grid-column:1 / -1;order:-1}
   @media(max-width:1100px){.tb-wrap,.tb-wrap.tb3{grid-template-columns:1fr}}
-  .tb-felt{position:relative;height:560px;margin-bottom:10px}
-  .tb-oval{position:absolute;left:13%;right:13%;top:15%;bottom:15%;border-radius:50%;
+  .tb-felt{--seatband:96px;--seatcol:0px;position:relative;height:max(560px,calc(100vh - var(--tbh,60px) - 70px));margin-bottom:10px}
+  .tb-oval{position:absolute;left:0;right:0;top:calc(var(--seatband) - 10px);bottom:calc(var(--seatband) - 10px);border-radius:26px;
     background:radial-gradient(ellipse at center,color-mix(in srgb,var(--income) 26%,var(--panel)) 0%,color-mix(in srgb,var(--income) 12%,var(--panel2)) 75%);
     border:7px solid var(--line2);box-shadow:inset 0 0 34px rgba(0,0,0,.18)}
   .tb-center{position:absolute;left:24%;right:24%;top:27%;bottom:27%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px;overflow:auto}
   .tb-center h2{font-size:22px}
   .tb-env{background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius-sm);padding:6px 10px;margin-top:4px}
-  .tb-seat{position:absolute;transform:translate(-50%,-50%);width:150px;padding:6px 8px;border:1px solid var(--line2);border-radius:var(--radius-sm);
+  .tb-seat{position:absolute;left:var(--bx);top:var(--by);transform:translate(-50%,-50%);width:150px;max-height:calc(var(--seatband) - 6px);overflow:auto;padding:6px 8px;border:1px solid var(--line2);border-radius:var(--radius-sm);
     background:var(--panel);font-size:12px;box-shadow:0 2px 6px rgba(0,0,0,.12);z-index:1}
   .tb-seat.empty{opacity:.65;border-style:dashed;text-align:center}
   .tb-seat.act{outline:3px solid var(--order);outline-offset:1px}
@@ -1115,7 +1145,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     /* Table view: the oval becomes a seat list in turn order, phase card first */
     .tb-felt{height:auto;display:flex;flex-direction:column;gap:6px}
     .tb-oval{display:none}
-    .tb-map{position:static;height:300px;border-radius:var(--radius-sm)}
+    .tb-map{position:static;height:70vh;border-radius:var(--radius-sm)}
+    .insp{position:fixed;left:8px;right:8px;bottom:8px;top:auto;width:auto;max-height:55vh;z-index:40}
+    .mapbar{position:static;max-width:none;order:-1}
     .tb-center{position:static!important;order:-1;border:1px solid var(--line2);border-radius:var(--radius-sm);padding:10px;
       background:radial-gradient(ellipse at center,color-mix(in srgb,var(--income) 22%,var(--panel)) 0%,color-mix(in srgb,var(--income) 10%,var(--panel2)) 80%)}
     .tb-seat{position:static!important;transform:none!important;width:auto!important}
@@ -1630,7 +1662,7 @@ function tEndTurn(){const t=TB(),ord=tOrder();
   if(boardEndOn()){const E=empirePhase();
     t.hist=t.hist||{};t.hist[ended]={turn:ended,season:endedSeason,next:curSeason(),renown:[r0,D.renown],rows:E.rows,realm:E.log};
     Object.keys(t.hist).map(Number).sort((a,b)=>b-a).slice(6).forEach(k=>delete t.hist[k]);}
-  else if(BST().auto){BST()._t=tTurn();runBanditMechanics();const sk=banditSkims();if(sk.length)creditSkims(sk);delete BST()._t;}
+  else if(BST().auto){expireBlocks();BST()._t=tTurn();runBanditMechanics();const sk=banditSkims();if(sk.length)creditSkims(sk);delete BST()._t;}
   save();render();}
 function tAutoSeat(){const m=seatMap(),n=tSeats();let i=0;
   D.players.filter(p=>!Object.values(m).includes(p)).forEach(p=>{while(i<n&&m[i])i++;if(i<n){const x=PT(p);x.seat=i;x.seatTs=tnow();m[i]=p;}});
@@ -1791,8 +1823,12 @@ function renderTable(){
   // --- seats around the felt ---
   let seats="";
   for(let i=0;i<n;i++){
-    const a=(-90+i*360/n)*Math.PI/180,x=50+44*Math.cos(a),y=50+41*Math.sin(a),p=sm[i];
-    if(!p){seats+='<div class="tb-seat empty" style="left:'+x+'%;top:'+y+'%"><div class="note">Seat '+(i+1)+'</div>'+
+    // two layouts, picked after render by tbFit(): bands above/below the map, or columns left/right of it
+    const a=(-90+i*360/n)*Math.PI/180,sn=Math.sin(a),cs=Math.cos(a),p=sm[i],
+      bx=Math.max(9,Math.min(91,50+46*cs)),by=sn>1e-6?'calc(100% - var(--seatband)/2 + 4px)':'calc(var(--seatband)/2 - 4px)',
+      sx=cs>-1e-6?'calc(100% - var(--seatcol)/2)':'calc(var(--seatcol)/2)',sy=Math.max(9,Math.min(91,50+44*sn)),
+      pos='--bx:'+bx.toFixed(1)+'%;--by:'+by+';--sx:'+sx+';--sy:'+sy.toFixed(1)+'%';
+    if(!p){seats+='<div class="tb-seat empty" style="'+pos+'"><div class="note">Seat '+(i+1)+'</div>'+
       (seatsLocked()?'':'<button data-sit="'+i+'">sit here</button>')+'</div>';continue;}
     const cls=["tb-seat"];if(sameP(p,cw))cls.push("act");if(sameP(p,me))cls.push("me");
     let body='<div class="tb-nm">'+tName(p)+(sameP(p,hp)?'<span class="tb-b h" title="'+(isSpring()?'Host token — no Host in Spring':'Host')+'">'+(isSpring()?'Host token':'Host')+'</span>':'')+
@@ -1809,7 +1845,7 @@ function renderTable(){
     if(E){if(sameP(E.owner,p))body+='<div class="tb-vote">sending '+esc(E.dom)+'</div>';
       else{const v=E.votes.find(q=>sameP(q.who,p));body+='<div class="tb-vote">'+(v?tVoteTxt(v):sameP(p,cw)?'<span class="note">to act <span class="tbcd"></span></span>':'<span class="note">…</span>')+'</div>';}}
     if((!seatsLocked()&&sameP(p,me))||ADMIN)body+='<button data-stand="'+p.id+'" class="tb-mini">stand</button>';
-    seats+='<div class="'+cls.join(" ")+'" style="left:'+x+'%;top:'+y+'%">'+body+'</div>';}
+    seats+='<div class="'+cls.join(" ")+'" style="'+pos+'">'+body+'</div>';}
   // --- centre of the felt ---
   let ctr='<div class="note">Turn '+tTurn()+' · '+esc(curSeason())+' · '+esc(currentEra())+'</div><h2>'+T_PHL[ph]+'</h2>';
   const E=R.curEnvoy;
@@ -1845,14 +1881,20 @@ function renderTable(){
   const pan=tPanel(R);
   const MM=mapState(),hasMap=!!(MM.grid||Object.keys(MM.cells).length);
   const tmap=hasMap?(MAPZ.fit?mapSVG(MM).replace(/^<svg width="[^"]*" height="[^"]*"/,'<svg width="100%" height="100%" preserveAspectRatio="xMidYMid meet"'):mapSVG(MM)):'<div class="note">No map — Map ▸ Map setup above.</div>';
-  host.innerHTML='<div class="tb-tools">'+mapToolsHTML()+'</div><div class="tb-wrap tb3"><div class="tb-info"><div class="tot tb-phase">'+ctr+'</div>'+
+  host.innerHTML='<div class="tb-tools">'+mapToolsHTML()+'</div><div class="tb-wrap tb3'+(TB_WIDE?' wide':'')+'"><div class="tb-info"><div class="tot tb-phase">'+ctr+'</div>'+
     '<div class="tot"><h3 style="font-size:13px">Log</h3>'+(log||'<div class="note">Nothing resolved yet this phase.</div>')+'</div>'+
     banditPanelHTML()+'</div>'+
-    '<div><div class="tb-felt"><div class="tb-oval"></div><div class="tb-map'+(MAPZ.fit?'':' zm')+'">'+tmap+'</div>'+seats+'</div>'+
+    '<div class="tb-felt-col"><div class="tb-felt"><div class="tb-oval"></div><div class="tb-map'+(MAPZ.fit?'':' zm')+'">'+tmap+'</div>'+(hasMap?mapBarHTML():'')+seats+inspHTML()+'</div>'+
     (D.players.some(p=>!Object.values(sm).includes(p))?'<div class="note">Not seated: '+D.players.filter(p=>!Object.values(sm).includes(p)).map(p=>esc(p.name)).join(", ")+'</div>':'')+
     activeTimersHTML()+tHistHtml()+activityHtml()+'</div>'+
-    '<div class="tb-panel">'+pan+'</div></div>';wireBanditAuto(host);wireMap(host);
-  tWire(host,R);wireDashExtras(host);tCountdown(R);}
+    '<div class="tb-panel">'+pan+'</div></div>';wireBanditAuto(host);wireMap(host);wireInsp(host);
+  tWire(host,R);wireDashExtras(host);tCountdown(R);tbFit(host);}
+// pick the seat layout that leaves the map bigger (map keeps its aspect ratio inside .tb-map)
+function tbFit(host){const f=host.querySelector(".tb-felt"),sv=host.querySelector(".tb-map svg");if(!f||!sv||!MAPZ.fit)return;
+  const vb=(sv.getAttribute("viewBox")||"").split(/\s+/).map(Number);if(vb.length<4||!vb[2]||!vb[3])return;
+  const ar=vb[2]/vb[3],W=f.clientWidth,H=f.clientHeight,sc=(w,h)=>Math.min(w/ar,h)*Math.min(w,h*ar);
+  const bands=sc(W-20,H-192),cols=sc(W-364,H-20);f.classList.toggle("sides",cols>bands);}
+window.addEventListener("resize",()=>{const h=document.getElementById("viewTable");if(h&&D.view==="table")tbFit(h);});
 
 function tPanel(R){
   const t=TB(),ph=tPhase(),me=meP(),E=R.curEnvoy,cw=R.cur?R.cur.who:null;let h="";
@@ -2060,7 +2102,7 @@ let D={players:[],active:0,view:"board",renown:1,theme:"pixel",themeV:1,
        map:{seed:"",cols:16,rows:12,markers:[]}};
 D.players=[newPlayer(1)];
 let S=null;                              // alias to active player's board
-let tab="pursuit", activeTypes=new Set(), aid=1, pid=1, sid=1, activeSid=null, catOpen=new Set(), mid=1, mtool="Army";
+let tab="pursuit", activeTypes=new Set(), aid=1, pid=1, sid=1, activeSid=null, catOpen=new Set(), mid=1, mtool="Select";
 
 try{const d=JSON.parse(localStorage.getItem("renown_dash")||"null");if(d&&d.players)D=d;}catch(e){}
 // migrate single-board board3 -> player 1
@@ -2168,8 +2210,18 @@ function empPO(b,done){const m=boardMetrics(b),p0=b.po||0,fd=m.po||0,pm=poModTot
   const cut=Math.min(dz,fr.r);if(cut>0){dpo+=cut;done.push("first Doubt −"+cut+" ("+fr.src.join(", ")+")");}
   b.fd={turn:b.turn,left:fr.r-cut};
   b.po=applyPOFloor(b,Math.max(PO_MIN,Math.min(PO_MAX,p0+dpo)));return {fd,pm,p0};}
+// "Armies and Garrisons within controlled Settlements gain Immune Strained" (Granary): an Army inside one of its owner's Settlements, or a Garrison
+function immuneStrainIn(p,a){if(!p||!a||a.sackT)return null;const x=a.garrison?{q:p}:armyInside(p,a);if(!x)return null;   // whose Settlement it is decides
+  const m=srcMatch(x.q.board,/Armies and Garrisons within controlled Settlements gain\s+Immune Strained/i)[0];return m?m.n+(sameP(x.q,p)?"":" · "+x.q.name):null;}
+// a Settlement under Siege gives its Armies and Garrison Strained (ruling); Granary-type Immune Strained, or a faction not affected by
+// Besieged restrictions, prevents it. effStrained = what Strained means right now (Battle Init, Endurance regain, display).
+function siegeStrains(p,a){if(!p||!a||besiegeExempt(p))return false;return a.garrison?(a.sid!=null&&siegeOn(p.id,a.sid)):armyBesieged(p,a);}
+function effStrained(p,a){if(!a||immuneStrainIn(p,a))return false;return !!a.strained||siegeStrains(p,a);}
 function empArmies(b){let regained=0,cleared=0;const pl=playerOfBoard(b),isc=!!pl&&srcHas(b,/Immune Strained during Lay Siege/i);
-  (b.armies||[]).forEach(a=>{if(isc&&a.strained&&!a.sackT){const sg=armySieging(pl,a);if(sg&&sg.kind==="siege")a.strained=false;}if(!a.strained){a.endurance=(a.endurance||0)+EQ.endurance_regain;regained++;}else cleared++;a.strained=false;});
+  (b.armies||[]).forEach(a=>{if(isc&&a.strained&&!a.sackT){const sg=armySieging(pl,a);if(sg&&sg.kind==="siege")a.strained=false;}
+    if(a.strained&&pl&&immuneStrainIn(pl,a))a.strained=false;
+    if(pl&&siegeStrains(pl,a)&&!immuneStrainIn(pl,a))a.strained=true;if(!a.strained){a.endurance=(a.endurance||0)+EQ.endurance_regain;regained++;}else cleared++;a.strained=false;
+    if(pl&&siegeStrains(pl,a)&&!immuneStrainIn(pl,a))a.strained=true;});
   return {regained,cleared};}
 function endRow(b,done,ec,po,ar){return {turn:b.turn,net:ec.net,tax:ec.sn.tax,seasonal:ec.sn.seasonal,trade:ec.sn.trade,season:curSeason(),applied:!!b.autoNet,
   g0:ec.g0,g1:b.treasury||0,fd:po.fd,pm:po.pm,p0:po.p0,p1:b.po,done,regained:ar.regained,regain:EQ.endurance_regain,cleared:ar.cleared};}
@@ -2179,7 +2231,9 @@ function boardEndTurn(b){const done=empTimers(b);{const p=playerOfBoard(b);if(p)
 // realm timers of the given types count down (Siege Timers don't in Winter)
 function tickRealm(types){const w=curSeason()==="Winter";realmTimers().forEach(x=>{if(!types.includes(x.type))return;if(w&&x.type==="Siege Timer"&&!siegeWinterOK(x))return;if(x.n>0)x.n--;});}
 const TIMER_ORDER=["Build Timer","Repair Timer","Truce Timer","Siege Timer","Muster Timer","Sack Timer","Capture Timer"];
-function empirePhase(){const P=D.players,done={},log=[];P.forEach(p=>done[p.id]=[]);
+// Sabotage: "gains Blocked until the end of next turn" — set in turn T, gone when turn T+2's Empire Phase begins
+function expireBlocks(){const M=mapState(),out=[];Object.keys(M.cells).forEach(k=>{const c=M.cells[k];if(c.blocked&&c.blockedT!=null&&tTurn()-c.blockedT>=2){delete c.blocked;delete c.blockedT;out.push("Army @ "+k+": Blocked (Sabotage) ends");}});return out;}
+function empirePhase(){const P=D.players,done={},log=[];P.forEach(p=>done[p.id]=[]);expireBlocks().forEach(x=>log.push(x));
   // 1-2. Standing effects are live; the Season was set in the Rest Phase.
   // 3. Timers, in order: Build, Repair (boards) · Truce, Siege (realm) · Muster (Armies) · Sack, Capture (realm) · any other realm timer
   P.forEach(p=>empTimers(p.board).forEach(x=>done[p.id].push(x)));tickRealm(["Build Timer","Repair Timer"]);
@@ -2190,12 +2244,13 @@ function empirePhase(){const P=D.players,done={},log=[];P.forEach(p=>done[p.id]=
   // 4. resolve timers that reached 0
   resolveRealm().forEach(x=>log.push(x));
   // 5. Host resolves Bandit Mechanics (diverted gold is measured before income, credited after)
-  let skims=[];if(BST().auto){BST()._t=tTurn();runBanditMechanics();skims=banditSkims();}
+  if(BST().auto){BST()._t=tTurn();runBanditMechanics();}
+  const skims=banditSkims();   // Destabilize (bandit or player) / Intercept Caravan settle every Empire Phase, auto or not
   // 6. Influence & Envoys: computed live from the new Era / Season
   // 7-8. Winter tax, income & upkeep (trade inside)
   const ec={};P.forEach(p=>ec[p.id]=empEconomy(p.board));
   // 9. Extort
-  runAutoExtort().forEach(x=>log.push(x));if(skims.length)creditSkims(skims);delete BST()._t;
+  runAutoExtort().forEach(x=>log.push(x));runPillage().forEach(x=>log.push(x));if(skims.length)creditSkims(skims).forEach(x=>log.push(x));delete BST()._t;
   // 10. innate Public Order modifiers (first Doubt reductions)
   const po={};P.forEach(p=>po[p.id]=empPO(p.board,done[p.id]));
   // 11. Endurance; Strained clears (Sack keeps its Army Strained)
@@ -2432,6 +2487,7 @@ function boardFlags(){
   const f=[],era=currentEra();
   const cc=cityCount(),cCap=eraCap("cities");if(cCap!=null&&cc>cCap)f.push("Cities "+cc+" / "+cCap+" allowed in "+era+capSrc("cities"));
   const sCap=eraCap("max_settlements");if(sCap!=null&&S.settlements.length>sCap)f.push("Settlements "+S.settlements.length+" / "+sCap+" allowed in "+era);
+  {const pl=playerOfBoard(S);if(pl)(S.settlements||[]).forEach(st=>{const n=armiesInside(pl,st).length;if(n>1)f.push((st.name||st.tier)+": "+n+" Armies inside (1 allowed)");});}
   const aCap=eraCap("armies");if(aCap!=null&&S.armies.length>aCap)f.push("Armies "+S.armies.length+" / "+aCap+" allowed in "+era+capSrc("armies"));
   if(!capitalSett())f.push("No capital set");
   if((S.treasury||0)<0)f.push("Treasury negative — Insolvency");
@@ -3003,6 +3059,8 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
       const isCap=!!(S.settlements.find(x=>x.id===gid)||{}).capital;
       t.innerHTML=(gid===activeSid?"● ":"")+(isCap?"★ ":"")+tier+(isCap?' <span class="badge earn">Capital</span>':'')+' <span class="note">wards '+wu.used+'/'+wu.cap+(wu.free>0?' · <b style="color:var(--income)">'+wu.free+' empty</b>':'')+(wu.free<0?' · <b style="color:var(--upkeep)">'+(-wu.free)+' over</b>':'')+' · '+occ.length+' pursuits'+(wu.typeBad?' · <span style="color:var(--upkeep)">type!</span>':'')+(tier==="Hamlet"?' · Natural only':'')+'</span>';
       hd.appendChild(t);
+      {const so=S.settlements.find(x=>x.id===gid),ni=document.createElement("input");ni.className="snm";ni.placeholder="name";ni.value=(so&&so.name)||"";ni.title="Settlement name";
+        ni.onclick=e=>e.stopPropagation();ni.onchange=()=>{if(so){so.name=ni.value.trim()||undefined;if(!so.name)delete so.name;save();render();}};hd.appendChild(ni);}
       {const so=S.settlements.find(x=>x.id===gid);if(so&&so.bt>0)hd.appendChild(timerCtl("build",so.bt,d=>{so.bt=Math.max(0,so.bt+d);save();render();}));}
       SFX=settFx(occ,have,craft,tc);
       {const ch=accChips(SFX.acc);if(ch.children.length){const w=document.createElement("span");w.className="stot";
@@ -3651,8 +3709,9 @@ function armyCard(a,u){
     card.appendChild(ms);
     if(p){const st=document.createElement("div");st.className="bcrow";st.style.margin="2px 0";st.style.flexWrap="wrap";
       const lab=document.createElement("span");lab.className="note";lab.textContent="Inside";st.appendChild(lab);
-      const sel=document.createElement("select");sel.innerHTML='<option value="">— field —</option>'+(S.settlements||[]).map(x=>'<option value="'+x.id+'"'+(String(a.sid)===String(x.id)?' selected':'')+'>'+esc(x.name||x.tier)+'</option>').join('');
-      sel.onchange=()=>{const M=mapState();if(sel.value){const k=armyHex(p,Object.assign({},a,{sid:null}));if(k&&M.cells[k]&&M.cells[k].type==="Army")delete M.cells[k];a.sid=+sel.value;}else delete a.sid;save();render();};
+      const sel=document.createElement("select");sel.innerHTML='<option value="">— field —</option>'+(S.settlements||[]).map(x=>{const cur=String(a.sid)===String(x.id),ec=cur?{ok:true}:enterCheck(p,a,p,x);
+        return '<option value="'+x.id+'"'+(cur?' selected':'')+(ec.ok?'':' disabled')+'>'+esc(x.name||x.tier)+(ec.ok?(ec.kick?' (ally pushed out)':''):' (occupied)')+'</option>';}).join('');
+      sel.onchange=()=>{const M=mapState();if(sel.value){const k=armyHex(p,Object.assign({},a,{sid:null}));if(k&&M.cells[k]&&M.cells[k].type==="Army")delete M.cells[k];{const st=settById(p,sel.value),ec=st?enterCheck(p,a,p,st):null;if(ec&&ec.kick)kickOut(p,st,ec.kick);}a.sid=+sel.value;delete a.inAlly;}else{delete a.sid;delete a.inAlly;}save();render();};
       st.appendChild(sel);
       armyStateTags(p,a).filter(x=>x.k!=="in").forEach(x=>{const bd=document.createElement("span");bd.className="badge "+(x.k==="note"||x.k==="in"?"tier":"noearn");bd.textContent=x.txt;st.appendChild(bd);});
       if(a.blocked&&!a.sackT){const bl=document.createElement("span");bl.className="badge noearn";bl.textContent="Blocked";st.appendChild(bl);}
@@ -3876,11 +3935,16 @@ function poTaxMod(v,b){let mod=0;const src=[],dbl=poDoubled();poActiveKeys(v||0,
 function taxDouble(b){return withBoard(b,()=>Object.keys(PC).filter(n=>/Tax Income is Doubled/i.test((R[n]||{}).innate_raw||"")));}
 function winterTax(b){const sets=b.settlements||[],pm=poTaxMod(b.po||0,b),mod=pm.mod;let base=0,adj=0;
   const pl=playerOfBoard(b),dest=(D.bandit||{}).dest||{};let destab=0;
+  const occT=occupyTaxOnly(b),outside=[];
   sets.forEach(s=>{const t=(((DATA.settlements||{})[s.tier]||{}).tax_income)||0;if(!t)return;
+    if(occT&&!settInside(b,s)){outside.push(s.name||s.tier);return;}
     if(pl&&dest[pl.id+":"+s.id]){destab+=t+Math.max(-t,mod);return;}base+=t;adj+=Math.max(-t,mod);});
   const dbl=taxDouble(b),k=dbl.length?2:1;
-  return {base,mod,adj,src:pm.src.concat(dbl.map(n=>n+" ×2")),destab,dbl,total:(base+adj)*k};}
-function settTax(b,s){const t=(((DATA.settlements||{})[s.tier]||{}).tax_income)||0;return t?(t+Math.max(-t,poTaxMod(b.po||0,b).mod))*(taxDouble(b).length?2:1):0;}
+  return {base,mod,adj,src:pm.src.concat(dbl.map(n=>n+" ×2")).concat(outside.length?[(b.faction||"Occupy")+": not inside "+outside.join(", ")]:[]),destab,dbl,outside,total:(base+adj)*k};}
+// faction "to collect taxes … end your turn inside it" (The Squatters' Crown): a Settlement pays tax only with one of your Armies inside
+function occupyTaxOnly(b){return /to collect taxes[^.]*end your turn inside it/i.test(String((FAC[(b||{}).faction||""]||{}).mechanic||""));}
+function settInside(b,s){return (b.armies||[]).some(a=>String(a.sid)===String(s.id));}
+function settTax(b,s){const t=(((DATA.settlements||{})[s.tier]||{}).tax_income)||0;if(occupyTaxOnly(b)&&!settInside(b,s))return 0;return t?(t+Math.max(-t,poTaxMod(b.po||0,b).mod))*(taxDouble(b).length?2:1):0;}
 // Trade income (rules): for each active Trade Agreement, both players gain income_per_craft × the Host's Craft X —
 // only on turns when one of the two is the Host; both need active Dirt Roads; none in TRADE_RULES.no_trade_season (Spring).
 function tradeIncome(b,season){const sea=season||curSeason(),out=tradeRaw(b,sea),me=D.players.find(p=>p.board===b);if(!me)return out;
@@ -3994,7 +4058,9 @@ const POM=DATA.poModifiers||{faith:{},doubt:{}};
 function poModRows(b){b.poMods=b.poMods||{};const p=playerOfBoard(b),pid=p?String(p.id):null,rows=[];
   const auto={"Deficit":()=>boardMetrics(b).net<0?1:0,"State of Alarm":()=>playerAtWar(pid)&&!(p&&fxOf(p,"ignoreWar").length)?1:0,
     "War Weariness":()=>srcHas(b,/Immune War Weariness/i)?0:(+b.lossStreak||0),"Lasting Legacy":()=>b.lastBattle==="won"?1:0,
-    "Insolvency":()=>+b.insolv||0,"Mounting Panic":()=>p?besiegedCount(p):0};
+    "Insolvency":()=>+b.insolv||0,"Mounting Panic":()=>p?besiegedCount(p):0,
+    "Local Unrest":()=>p?unrestCamps(p).length:0,
+    "Border Tension":()=>p?intrudersOf(p).filter(x=>!x.ally).length:0,"Invasion":()=>p?intrudersOf(p).filter(x=>x.war).length:0};
   ["faith","doubt"].forEach(side=>Object.keys(POM[side]||{}).forEach(k=>{const a=auto[k];
     rows.push({side,k,desc:POM[side][k],auto:!!a,n:a?a():(+b.poMods[k]||0)});}));
   royalMarriage(b).forEach(x=>{if(x.faith)rows.push({side:"faith",k:x.src,desc:"Royal Marriage Alliance member",auto:true,n:x.faith});});
@@ -4010,7 +4076,11 @@ function poModRows(b){b.poMods=b.poMods||{};const p=playerOfBoard(b),pid=p?Strin
     rows.push({side:x.m[1].toLowerCase(),k:x.n+" · "+q.name,desc:"bordering "+q.name,auto:true,n:+x.m[2]})));
   return rows.concat(epRows(b));}
 const TOT_TIPS={"t_gold": "Unconditional gold (+X) from your active Pursuits (Innate, and Mastery once earned) and active Infrastructure / Wonders. Season-only gold, scaling gold, Winter tax and trade are counted separately.", "t_scale": "Gold that multiplies by a count — e.g. Manor House: +100 per active Natural Pursuit (its Mastery: +100 per active Energy Pursuit).", "t_upkeep": "Upkeep of your built Infrastructure and Wonders. Faction Infrastructure pays none.", "t_pupkeep": "PU_TEXT", "t_reduce": "The sum of “Upkeep −X” effects on your active pieces. The pool is spent against Army upkeep; anything left over is unused.", "t_army": "Army upkeep: each Army costs its Retinue type's cost; the total of all Armies minus the reduction pool, never below 0.", "t_craft": "CRAFT", "t_trade": "Craft X × income per Craft: what each Trade Agreement pays both players on turns when you are the Host. None in Spring; both players need active Dirt Roads; none while at war.", "t_infl": "Unconditional “Influence +X” from your active pieces. Part of your Influence per turn — the full breakdown is on the Table.", "t_po": "Unconditional Faith minus Doubt from your active pieces, plus the Faith / Doubt modifiers under Public Order. Applied to Public Order at End turn.", "t_ext": "EXTORT"};
-function totTip(k){let t=TOT_TIPS[k]||"";
+// SIMPLE has no Mastery: these two tips drop it, and the scaling example quotes the live Manor House text
+function totTipSimple(k){if(k==="t_gold")return "Unconditional gold (+X) from your active Pursuits and active Infrastructure / Wonders. Season-only gold, scaling gold, Winter tax and trade are counted separately.";
+  if(k==="t_scale"){const m=(R["Manor House"]||{}).innate_raw;return "Gold that multiplies by a count"+(m?" — e.g. Manor House: "+String(m).replace(/^\s*Natural;\s*/i,"").replace(/\*\*/g,"").replace(/\.\s*$/,""):"")+".";}
+  return null;}
+function totTip(k){let t=(SIMPLE&&totTipSimple(k))||TOT_TIPS[k]||"";
   if(t==="PU_TEXT"){const bt=(PUP.byType||{});t="Fixed by Pursuit type: "+Object.keys(bt).filter(x=>x!=="Other").map(x=>x+" "+bt[x]).join(", ")+", all others "+(bt.Other??PUP.def??0)+". None for faction pieces or Pursuits still building.";}
   if(t==="CRAFT")t=GLOSS["Craft"]||"Craft +X from your active pieces.";
   if(t==="EXTORT")t=(GLOSS["Extort X"]||"Take X from the stated source.")+" Flat Extort from your active pieces is summed here; conditional ones are counted as triggered. Not included in net gold \u2014 the gold comes from the stated source when it resolves (Empire Phase, Income & Upkeep).";
@@ -4116,7 +4186,7 @@ function siegeHTML(){const sg=siegeState(),c=siegeCalc(),C=(DATA.siege||{}).calc
   let h='<div class="tot" style="margin-top:12px"><h3 style="font-size:13px">Siege calculator</h3><div class="bcrow">'+
     '<select id="sgMode">'+Object.keys(C).map(m=>'<option'+(m===c.mode?' selected':'')+'>'+esc(m)+'</option>').join('')+'</select>'+
     '<select id="sgP">'+D.players.map(p=>'<option value="'+p.id+'"'+(p===c.p?' selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select>'+
-    '<select id="sgS">'+(c.p.board.settlements||[]).map(x=>'<option value="'+x.id+'"'+(x===c.st?' selected':'')+'>'+(x.capital?'★ ':'')+esc(x.tier)+'</option>').join('')+'</select>'+
+    '<select id="sgS">'+(c.p.board.settlements||[]).map(x=>'<option value="'+x.id+'"'+(x===c.st?' selected':'')+'>'+(x.capital?'★ ':'')+esc(x.name||x.tier)+'</option>').join('')+'</select>'+
     (c.mode!=="Convert"?'<span class="note">besieger</span><select id="sgBy">'+D.players.filter(p=>p!==c.p).map(p=>'<option value="'+p.id+'"'+(String(sg.by)===String(p.id)?' selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select>'+
       (()=>{const bp=pById(sg.by)||D.players.find(p=>p!==c.p);return bp?'<select id="sgAid"><option value="">Army…</option>'+(bp.board.armies||[]).map(a=>'<option value="'+a.id+'"'+(String(sg.aid)===String(a.id)?' selected':'')+'>'+esc(armyName(a))+'</option>').join('')+'</select>':'';})():'')+
     ((c.cfg.settlement_sources||[]).includes("Standing Army")?'<label><input type="checkbox" id="sgArmy"'+(sg.army?' checked':'')+'> Standing Army</label>':'')+'</div>'+
@@ -4385,6 +4455,21 @@ const BT=DATA.battle||{tactics:[],matrix:[]};
 const TMX={};(BT.matrix||[]).forEach(([a,b,ma,mb])=>{TMX[a+"|"+b]=[ma,mb];});
 function newSide(){return {pid:null,aid:null,front:null,adj:{I:0,TH:0,TS:0,M:0,P:0,R:0},cas:0};}
 function battle(){D.battle=D.battle||{id:null,sk:1,round:0,dice:true,seize:"",A:newSide(),B:newSide(),rev:null,rolls:{},log:[],start:{}};return D.battle;}
+// ---- Battle queue: "battle objects" made from the map (attacker = side A, defender = side B); the Battle view loads one ----
+function bq(){D.bqueue=D.bqueue||[];return D.bqueue;}
+function bqAdd(o){o.id=Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36);o.turn=tTurn();bq().push(o);return o;}
+function bqSideName(sd){if(sd.kind==="bandit")return "Bandits @ "+sd.camp;const q=pById(sd.pid);if(!q)return "?";
+  if(String(sd.aid||"").startsWith("g:")){const st=settById(q,String(sd.aid).slice(2));return q.name+" Garrison · "+(st?(st.name||st.tier):"?");}
+  const a=(q.board.armies||[]).find(x=>String(x.id)===String(sd.aid));return q.name+" · "+(a?(a.label||("Army "+a.id)):"?");}
+function bqLoad(o){const B=battle();if(B.id&&B.qid!==o.id&&!confirm("A Battle is in progress — replace it?"))return false;
+  D.battle=null;const N=battle();N.A=Object.assign(newSide(),JSON.parse(JSON.stringify(o.A)));N.B=Object.assign(newSide(),JSON.parse(JSON.stringify(o.B)));N.seize=o.seize||"";N.qid=o.id;return true;}
+// where a battle side stands on the map
+function sideHex(sd){if(!sd)return null;if(sd.kind==="bandit")return mapState().camps[sd.camp]?sd.camp:null;const q=pById(sd.pid);if(!q)return null;
+  if(String(sd.aid||"").startsWith("g:")){const st=settById(q,String(sd.aid).slice(2));return st?settHex(q,st):null;}
+  const a=(q.board.armies||[]).find(x=>String(x.id)===String(sd.aid));return a?armyHex(q,a):null;}
+// queue a battle from the map and open it in the Battle view when that view is on
+function bqStart(o){bqAdd(o);if(mods().battle){if(!battle().id)bqLoad(o);D.view="battle";flash("Battle queued: "+bqSideName(o.A)+" vs "+bqSideName(o.B));}
+  else flash("Battle queued — turn on modules ▸ Battle tab to resolve it");save();render();}
 const BLO=DATA.banditLoadouts||{};
 function banditArmy(camp){camp.army=camp.army||{retinue:"",endurance:0,fatigue:0,weapon:"",ranged:"None",armor:"",shield:"None",strained:false};
   return new Proxy(camp.army,{get:(t,k)=>k==="count"?camp.n:k==="label"?"Bandits":t[k],
@@ -4485,7 +4570,7 @@ function sideCalc(X){
   if(unw&&tmI>0){tmNote="Unwieldy: Tactic Init +"+tmI+" blocked";tmI=0;}
   if(stdy&&tmI<0){tmNote="Steady: Tactic Init "+tmI+" blocked";tmI=0;}
   const mt=new Set(u.mods.map(m=>m.tok).concat(eqTags));
-  const strainI=(a.strained&&!mt.has("Immune Strain"))?-1:0;                       // Strain: −1 Init unless Immune Strain
+  const strainI=(effStrained(p,a)&&!mt.has("Immune Strain"))?-1:0;   // Strain: −1 Init unless Immune Strain (or inside a controlled Settlement: Granary)
   const maxI=(mt.has("MaxInit3")||[...mt].some(t=>/^Crit /.test(t)))?INIT_MAX+1:INIT_MAX;   // Ministry: ceiling +1
   const rawI=(wpn.init||0)+(sh.init||0)+initPlus+tmI+seize+strainI+sd.adj.I;
   const I=Math.max(INIT_MIN,Math.min(maxI,rawI)),blunder=I<=INIT_MIN;
@@ -4530,7 +4615,7 @@ function sideCalc(X){
   if(hasM("Always Unwieldy"))trig.push("Faction: always Unwieldy"+(hasM("No Immune Unwieldy")?", can't gain Immune Unwieldy":""));
   if(fat)trig.push("Fatigue +"+fat+" to-Strike (capped "+CAP+"+)");
   if(blunder)trig.push("Blunder: to-Strike "+CAP+"+ before penalties");
-  if(a.strained)trig.push(strainI?"Strained −1 Init":"Immune Strain: no Init loss");
+  if(a.strained||siegeStrains(p,a))trig.push(strainI?"Strained −1 Init"+(!a.strained?" (Besieged)":""):"Immune Strain: no Init loss");
   if(maxI>INIT_MAX)trig.push("Init ceiling +"+maxI);
   if(plan)trig.push(planOn?"Planishing: save capped "+CAP+"+"+(saveRaw>CAP||deadlyRaw>CAP?" (was "+saveRaw+"+ / Deadly "+deadlyRaw+"+)":""):"Planishing negated by enemy weapon");
   if(hasDeadly)trig.push("Deadly: strikes on "+critFloor+"+ save at +"+DAP);
@@ -4642,7 +4727,7 @@ function sideHTML(X){
       stat("ARMOR",esc(a.armor||"Cloth")+" "+(ar.save!=null?ar.save+"+":"—"))+
       stat("RETINUE",esc(a.retinue||"")+" · Strike "+(rt.to_hit??"?")+"+ · Morale "+(rt.shaking??"?")+"+");
    h+='<div class="stats" style="margin-top:4px">'+g+'</div>';}
-  h+='<div class="note">'+(c.seize?'Seize: +1 Initiative · ':'')+(a.strained?'Strained: −1 Initiative · ':'')+(c.cell?'Tactic: '+fmtModLong(c.tm):'Tactic mods apply once both reveal')+'</div>';
+  h+='<div class="note">'+(c.seize?'Seize: +1 Initiative · ':'')+(effStrained(c.p,a)?'Strained: −1 Initiative · ':'')+(c.cell?'Tactic: '+fmtModLong(c.tm):'Tactic mods apply once both reveal')+'</div>';
   if(c.trig.length)h+='<div class="kwrow">'+c.trig.map(t=>'<span class="tb-b">'+esc(t)+'</span>').join(' ')+'</div>';
   if(c.tags.length)h+='<div class="kwrow">'+c.tags.map(t=>'<span class="kw" data-tok="'+esc(t)+'">'+esc(t)+'</span>').join('')+'</div>';
   if(B.id&&c.a&&c.a.shield&&c.a.shield!=="None")h+='<label class="note"><input type="checkbox" class="bshd" data-x="'+X+'"'+(c.shDest?' checked':'')+'> shield destroyed</label>';
@@ -4704,7 +4789,11 @@ function battleRulesHTML(){let h='';
   return h;}
 function renderBattle(){
   const host=document.getElementById("viewBattle"),B=battle();
+  const Q=bq();
   let h='<div style="padding:14px;overflow-y:auto;height:100%"><h2 style="margin-bottom:6px">Battle</h2>'+
+    (Q.length?'<div class="tot bqlist"><div class="lbl">BATTLES TO RESOLVE · '+Q.length+'</div>'+Q.map(o=>'<div class="bqrow'+(B.qid===o.id?' on':'')+'">'+stIcon(o.kind==="sally"?"besieged":o.kind==="siege"?"sieging":"battle",16)+
+      '<span><b>A</b> '+esc(bqSideName(o.A))+' <span class="note">vs</span> <b>B</b> '+esc(bqSideName(o.B))+'</span><span class="note">'+esc(o.src||"")+(o.seize?' · Seize: '+o.seize:'')+' · turn '+o.turn+'</span>'+
+      (B.qid===o.id?'<span class="badge earn">loaded</span>':'<button data-bq-load="'+o.id+'">load</button>')+'<button class="rm" data-bq-del="'+o.id+'" title="remove">✕</button></div>').join("")+'</div>':'')+
     '<div class="toolbar"><button id="bStart">'+(B.id?'restart battle':'start battle')+'</button>'+
     '<span class="note">Skirmish <b>'+(B.id?B.sk:'—')+'</b></span>'+
     (seizeForced()?'<span class="note">Seize the Initiative: '+seizeForced()+' (Ministry)</span> ':'')+'<label class="note">Seize the Initiative: <select id="bSeize"><option value="">—</option><option value="A"'+(B.seize==="A"?" selected":"")+'>A</option><option value="B"'+(B.seize==="B"?" selected":"")+'>B</option></select></label>'+
@@ -4808,18 +4897,21 @@ function endBattle(win){
   const B=battle(),side=X=>{const sa=sideArmy(B[X]);return sa.bandit?{camp:sa.camp,name:"Bandits"}:sa.p?{b:sa.p.board,name:sa.p.name}:null;};
   ["A","B"].forEach(X=>{const c=sideCalc(X);if(!c)return;c.a.fatigue=0;});
   if(win==="A"||win==="B"){const O=win==="A"?"B":"A",oc=sideCalc(O),W=side(win),L=side(O);
-    if(oc&&W&&L){const lost=Math.max(0,(B.start[O]||0)-(oc.a.count||0)),cost=(oc.rt.cost||0)*lost,t=extortGold(L,W,cost);   // Spoils of War
-      blog(W.name+" won — Spoils of War: "+lost+" "+(oc.a.retinue||"")+" destroyed, extort "+t.toLocaleString()+(t<cost?" (of "+cost.toLocaleString()+")":""));
+    if(oc&&W&&L){const cost=+oc.rt.cost||0,t=extortGold(L,W,cost);   // Spoils of War = the defeated Army's Retinue cost (per Army, as its upkeep)
+      blog(W.name+" won — Spoils of War: "+(oc.a.retinue||"")+" cost, extort "+t.toLocaleString()+(t<cost?" (of "+cost.toLocaleString()+")":""));
       if(L.camp&&!(+L.camp.n>0)){const g=extortGold(L,W,L.camp.gold||0);if(g)blog(W.name+" extorts the destroyed camp's Treasury: "+g.toLocaleString());}}
     if(W&&W.b){W.b.lossStreak=0;W.b.lastBattle="won";}if(L&&L.b){L.b.lossStreak=(+L.b.lossStreak||0)+1;L.b.lastBattle="lost";}
     const wc=sideCalc(win);if(L&&L.b&&W&&wc&&srcHas(L.b,/collect the Spoils of War whether you win or lose/i)){
-      const lostW=Math.max(0,(B.start[win]||0)-(wc.a.count||0)),t2=extortGold(W,L,(wc.rt.cost||0)*lostW);if(t2)blog(L.name+" also collects Spoils of War: "+t2.toLocaleString());}
+      const t2=extortGold(W,L,+wc.rt.cost||0);if(t2)blog(L.name+" also collects Spoils of War: "+t2.toLocaleString());}
     [[win,W],[O,L]].forEach(([X,sd])=>{const c=sideCalc(X);if(!sd||!sd.b||!c)return;const lost=Math.max(0,(B.start[X]||0)-(c.a.count||0));
       srcMatch(sd.b,/Faith \+(\d+) in every Battle where you lose (\d+) or more Retinues/i).forEach(x=>{if(lost>=+x.m[2]){sd.b.po=applyPOFloor(sd.b,Math.max(PO_MIN,Math.min(PO_MAX,(sd.b.po||0)+(+x.m[1]))));blog(sd.name+" · "+x.n+": Faith +"+x.m[1]);}});});}
   else blog("Battle ended with no winner");
+  if(B.qid){D.bqueue=bq().filter(x=>x.id!==B.qid);delete B.qid;}
   blog("Battle ended — Fatigue tokens removed");B.id=null;B.rev=null;B.rolls={};save();render();
 }
 function wireBattle(host){
+  host.querySelectorAll("[data-bq-load]").forEach(b=>b.onclick=()=>{const o=bq().find(x=>x.id===b.dataset.bqLoad);if(o&&bqLoad(o)){save();render();}});
+  host.querySelectorAll("[data-bq-del]").forEach(b=>b.onclick=()=>{D.bqueue=bq().filter(x=>x.id!==b.dataset.bqDel);if(battle().qid===b.dataset.bqDel)delete battle().qid;save();render();});
   const B=battle();
   host.querySelectorAll(".bsel").forEach(s=>s.onchange=()=>{const sd=B[s.dataset.x];
     if(s.dataset.f==="pid"&&s.value.startsWith("bandit:")){sd.kind="bandit";sd.camp=s.value.slice(7);sd.pid=null;sd.aid=null;
@@ -4834,6 +4926,7 @@ function wireBattle(host){
     if(!sideCalc("A")||!sideCalc("B")){flash("pick both armies first");return;}
     if(B.id&&!confirm("Restart the battle?"))return;
     ["A","B"].forEach(X=>{if(B[X].kind==="bandit"){const cp=mapState().camps[B[X].camp];if(cp)armBandits(cp);}});
+    ["A","B"].forEach(X=>{const sa=sideArmy(B[X]);if(sa&&sa.a&&!sa.bandit)delete sa.a.pillage;});
     B.id=Date.now().toString(36);B.sk=1;B.round=0;B.rev=null;B.rolls={};B.strk={};B.par={};B.shDest={};B.log=[];PEEK=false;
     B.start={A:sideCalc("A").a.count||0,B:sideCalc("B").a.count||0};B.A.cas=0;B.B.cas=0;B.A.rcv=0;B.B.rcv=0;blog("Battle begins");save();loadPicks().then(render);};
   const sz=host.querySelector("#bSeize");if(sz)sz.onchange=()=>{B.seize=sz.value;save();render();};
@@ -5054,6 +5147,8 @@ function parseSeedCode(s){ // Region/seed/players[/WxH]
   return {preset,seed:+seed,players:n,w:+wh[0]||def[0],h:+wh[1]||def[1]};
 }
 // map zoom (per device): +/−, or fit to the panel width
+let TB_WIDE=true;try{TB_WIDE=localStorage.getItem("renown_tbwide")!=="0";}catch(e){}
+document.addEventListener("click",e=>{if(!e.target.closest("#tbWide"))return;TB_WIDE=!TB_WIDE;try{localStorage.setItem("renown_tbwide",TB_WIDE?"1":"0");}catch(_){}render();});
 const MAPZ={z:1,fit:true,fitScale(W){const el=document.querySelector("#viewTable .tb-map");const w=el?el.clientWidth-4:window.innerWidth-24;return Math.max(0.3,Math.min(3,w/W));}};
 try{const mz=JSON.parse(localStorage.getItem("renown_mapz")||"null");if(mz){MAPZ.z=+mz.z||1;MAPZ.fit=!!mz.fit;}}catch(e){}
 function mapZoom(k){if(k==="fit")MAPZ.fit=!MAPZ.fit;else{MAPZ.fit=false;MAPZ.z=Math.max(0.5,Math.min(3,Math.round((MAPZ.z*(k>0?1.25:0.8))*100)/100));}
@@ -5101,7 +5196,7 @@ let MAP_SPR_DEFS=null;
 function mapSprId(k){return "ms-"+k.replace(/[^A-Za-z0-9]/g,"_");}
 function mapSprDefs(){if(MAP_SPR_DEFS!=null)return MAP_SPR_DEFS;let d="";const P=SPR.P||{};
   const TV={H:"var(--tH)",S:"var(--tS)",D:"var(--tD)",k:"currentColor"};
-  Object.keys(SPR.S).filter(k=>/^(army|map|prop|eq):/.test(k)).forEach(k=>{const ter=k.startsWith("prop:");const rows=k.startsWith("eq:")?SPR.S[k]:SPR.S[k].slice(0,-1),w=rows[0].length,by={};   // last row = ground, skipped (eq: icons have none)
+  Object.keys(SPR.S).filter(k=>/^(army|map|prop|eq|st|mk):/.test(k)).forEach(k=>{const ter=k.startsWith("prop:");const rows=/^(eq|st|mk):/.test(k)?SPR.S[k]:SPR.S[k].slice(0,-1),w=rows[0].length,by={};   // last row = ground, skipped (eq: / st: / mk: have none)
     rows.forEach((r,y)=>{let x=0;while(x<w){const ch=r[x];let n=1;while(x+n<w&&r[x+n]===ch)n++;
       if(ch!=="."&&ch!=="g")by[ch]=(by[ch]||"")+"M"+x+" "+y+"h"+n+"v1h-"+n+"z";x+=n;}});
     d+='<symbol id="'+mapSprId(k)+'" viewBox="0 0 '+w+' '+rows.length+'" shape-rendering="crispEdges">'+
@@ -5138,27 +5233,226 @@ function mapSpr(k,cx,cy,R,col,unl){const w=R*1.6,h=w*15/16,y0=cy+R*.62-h;
     '<use href="#'+mapSprId(k)+'" x="'+(cx-w/2).toFixed(1)+'" y="'+y0.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+h.toFixed(1)+'" color="'+(col||"#888")+'" pointer-events="none"/>';}
 // ---- loadout icons (sprites.py eq:<item>) + modified Army stats: Army card chips, map plate, hover title, Move panel
 const EQ_SVG={};
-function eqSVG(name,px,kind){const key=(kind||"eq")+":"+name,raw=SPR&&SPR.S[key];if(!raw)return "";const rows=kind==="army"?raw.slice(0,-1):raw,ck=key+"|"+px;if(EQ_SVG[ck])return EQ_SVG[ck];
+function eqSVG(name,px,kind){return sprSVG((kind||"eq")+":"+name,px,kind!=="army");}
+// any sprite as an inline <svg>: the ground row is dropped; tile = EQ_TILE backing square; col = owner colour for key 'p'
+function sprSVG(key,px,tile,col){const raw=SPR&&SPR.S[key];if(!raw)return "";const ck=key+"|"+px+"|"+(tile?1:0)+"|"+(col||"");if(EQ_SVG[ck])return EQ_SVG[ck];
+  const rows=/^g+$/.test(raw[raw.length-1])?raw.slice(0,-1):raw,kind=tile?"eq":"army";
   const P=SPR.P||{},w=rows[0].length,by={};
   rows.forEach((r,y)=>{let x=0;while(x<w){const ch=r[x];let n=1;while(x+n<w&&r[x+n]===ch)n++;if(ch!==".")by[ch]=(by[ch]||"")+"M"+x+" "+y+"h"+n+"v1h-"+n+"z";x+=n;}});
   return EQ_SVG[ck]='<svg class="eqi" width="'+px+'" height="'+px+'" viewBox="0 0 '+w+' '+rows.length+'" shape-rendering="crispEdges" aria-hidden="true">'+
     (kind==="army"?'':'<rect width="'+w+'" height="'+rows.length+'" rx=".8" fill="'+(SPR.eqTile||"#3a404c")+'"/>')+
-    Object.keys(by).map(ch=>'<path d="'+by[ch]+'" fill="'+(P[ch]||"#f0f")+'"/>').join("")+'</svg>';}
+    (col?'<g color="'+col+'">':'')+
+    Object.keys(by).map(ch=>'<path d="'+by[ch]+'" fill="'+(ch==="p"&&col?"currentColor":(P[ch]||"#f0f"))+'"/>').join("")+(col?'</g>':'')+'</svg>';}
+function stIcon(n,px){return sprSVG("st:"+n,px||14,true);}
 function armyGear(a){return [a.weapon,(a.ranged&&a.ranged!=="None")?a.ranged:null,(a.shield&&a.shield!=="None"&&a.shield!=="null")?a.shield:null,a.armor].filter(n=>n&&SPR&&SPR.S["eq:"+n]);}
 // the owner's army unlocks/modifiers, as renderArmy builds them for the active board
 function armyUFor(p){return withBoard(p.board,()=>{const {earned}=computeEarned(new Set(Object.keys(PC)));const u=armyUnlocks(earned);u.mods=u.mods.concat(facCombat(S));return u;});}
 function armyStatLine(v){return "To-Strike "+v.toStrike+"+ · Init "+(v.init>=0?"+":"")+v.init+" · Save "+v.save+"+ · Morale "+v.morale+"+"+(v.routed?" (Routed)":"");}
 function cellArmyVals(k){const {p,a}=cellArmy(k);if(!p||!a)return null;return {a,v:armyVals(a,armyUFor(p))};}
 // plate beside the sprite: loadout icons over modified To-Strike / Init / Save / Morale
-function mapPlate(k,cx,cy,R){const x=cellArmyVals(k);if(!x)return "";const g=armyGear(x.a),v=x.v,ic=R*.56,pad=R*.1,cw=R*.6,f1=R*.2,f2=R*.34,
+function mapPlate(k,cx,cy,R){const x=cellArmyVals(k);if(!x)return "";const g=armyGear(x.a),v=x.v,ic=R*.56,pad=R*.1,cw=R*.68,f1=R*.2,f2=R*.32,
+    sts=armyStatus(cellArmy(k).p,x.a,k).map(o=>o.st).filter((t,i,A)=>A.indexOf(t)===i),si=R*.34,
     cols=[["STK",v.toStrike+"+"],["INI",(v.init>=0?"+":"")+v.init],["SAV",v.save+"+"],["MOR",v.morale+"+"]],
-    w=Math.max(g.length*ic,cols.length*cw)+pad*2,h=pad*2+ic+f1+f2+R*.1,x0=cx+R*.72,y0=cy-R*1.1,ty=y0+pad+ic+R*.04;
-  return '<g pointer-events="none" font-family="ui-monospace,monospace"><rect x="'+x0.toFixed(1)+'" y="'+y0.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="'+(R*.12).toFixed(1)+'" fill="#111" fill-opacity=".85" stroke="#f3d38a" stroke-opacity=".5" stroke-width=".6"/>'+
+    w=Math.max(g.length*ic,cols.length*cw,sts.length*si)+pad*2,h=pad*2+ic+f1+f2+R*.1+(sts.length?si+pad*.6:0),
+    pos=PLATE_AT?PLATE_AT(cx,cy,w,h):{x:cx+R*.72,y:cy-R*1.1,lead:false},x0=pos.x,y0=pos.y,ty=y0+pad+ic+R*.04,sy=ty+f1+f2+R*.1;
+  return '<g pointer-events="none" font-family="ui-monospace,monospace">'+(pos.lead?'<line x1="'+cx.toFixed(1)+'" y1="'+cy.toFixed(1)+'" x2="'+Math.max(x0,Math.min(x0+w,cx)).toFixed(1)+'" y2="'+Math.max(y0,Math.min(y0+h,cy)).toFixed(1)+'" stroke="#f3d38a" stroke-opacity=".7" stroke-width=".7"/>':'')+'<rect x="'+x0.toFixed(1)+'" y="'+y0.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="'+(R*.12).toFixed(1)+'" fill="#111" fill-opacity=".85" stroke="#f3d38a" stroke-opacity=".5" stroke-width=".6"/>'+
     g.map((n,i)=>'<rect x="'+(x0+pad+i*ic+ic*.03).toFixed(2)+'" y="'+(y0+pad).toFixed(2)+'" width="'+(ic*.94).toFixed(2)+'" height="'+(ic*.94).toFixed(2)+'" rx="'+(ic*.07).toFixed(2)+'" fill="'+(SPR.eqTile||"#3a404c")+'"/>'+
       '<use href="#'+mapSprId("eq:"+n)+'" x="'+(x0+pad+i*ic).toFixed(1)+'" y="'+(y0+pad).toFixed(1)+'" width="'+ic.toFixed(1)+'" height="'+ic.toFixed(1)+'"/>').join("")+
     cols.map(([l,val],i)=>{const tx=(x0+pad+i*cw+cw/2).toFixed(1);
       return '<text x="'+tx+'" y="'+(ty+f1).toFixed(1)+'" text-anchor="middle" font-size="'+f1.toFixed(2)+'" fill="#a8a29a">'+l+'</text>'+
-        '<text x="'+tx+'" y="'+(ty+f1+f2).toFixed(1)+'" text-anchor="middle" font-size="'+f2.toFixed(2)+'" font-weight="700" fill="'+(i===3&&v.routed?"#ef5350":"#fff")+'">'+val+'</text>';}).join("")+'</g>';}
+        '<text x="'+tx+'" y="'+(ty+f1+f2).toFixed(1)+'" text-anchor="middle" font-size="'+f2.toFixed(2)+'" font-weight="700" fill="'+(i===3&&v.routed?"#ef5350":"#fff")+'">'+val+'</text>';}).join("")+
+    sts.map((t,i)=>'<rect x="'+(x0+pad+i*si).toFixed(2)+'" y="'+sy.toFixed(2)+'" width="'+(si*.92).toFixed(2)+'" height="'+(si*.92).toFixed(2)+'" fill="'+(SPR.eqTile||"#3a404c")+'"/>'+
+      '<use href="#'+mapSprId("st:"+t)+'" x="'+(x0+pad+i*si).toFixed(2)+'" y="'+sy.toFixed(2)+'" width="'+(si*.92).toFixed(2)+'" height="'+(si*.92).toFixed(2)+'"/>').join("")+'</g>';}
+// Armies inside a Settlement: up to 3 mini retinue banners in their owners' colours (+N), Garrison as a shield with its size
+// the (single) Army inside a Settlement stands behind it, peeking out at the right, in its owner's colour
+function settBehind(cell,k,cx,cy,R){if(cell.type==="Army")return "";const cs=cellSett(k);if(!cs.s)return "";const ins=armiesInside(cs.p,cs.s);if(!ins.length)return "";
+  const {p,a}=ins[0],key="army:"+(a.retinue||BANDIT_DEFAULT_RETINUE);if(!SPR.S[key])return "";const w=R*1.2,h=w*15/16;
+  return '<use href="#'+mapSprId(key)+'" x="'+(cx+R*.12).toFixed(1)+'" y="'+(cy+R*.5-h-R*.18).toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+h.toFixed(1)+'" color="'+p.color+'" pointer-events="none"/>';}
+// the first Army inside stands behind the Settlement (settBehind); any extra (flagged) shows in the tab
+function settInsideMarks(cx,cy,R,pix,g,ins){if(pix&&SPR)ins=ins.slice(1);let s="";const w=R*.6,st=w*.72,sh=ins.slice(0,3),bw=sh.length*st+w*.28+(ins.length>3?R*.42:0),y0=cy+R*.6,x0=cx-bw/2+R*.06;
+  if(pix&&SPR){
+    if(sh.length)s+='<rect x="'+(x0-R*.06).toFixed(1)+'" y="'+(y0+w*.04).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+(w*.98).toFixed(1)+'" rx="'+(R*.14).toFixed(1)+'" fill="#111" fill-opacity=".72" stroke="#f3d38a" stroke-opacity=".55" stroke-width=".5" pointer-events="none"/>';
+    sh.forEach(({p,a},i)=>{const k="army:"+(a.retinue||BANDIT_DEFAULT_RETINUE);if(!SPR.S[k])return;
+      s+='<use href="#'+mapSprId(k)+'" x="'+(x0+i*st).toFixed(1)+'" y="'+y0.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+w.toFixed(1)+'" color="'+p.color+'" pointer-events="none"/>';});
+    if(ins.length>3)s+='<text x="'+(x0+3*st+w*.2).toFixed(1)+'" y="'+(y0+w*.75).toFixed(1)+'" font-size="7" font-weight="700" fill="#fff" pointer-events="none">+'+(ins.length-3)+'</text>';
+    if(g&&SPR.S["eq:Kite Shield"]){const gw=R*.42,gx=cx+R*.42,gy=cy+R*.42;s+='<use href="#'+mapSprId("eq:Kite Shield")+'" x="'+gx.toFixed(1)+'" y="'+gy.toFixed(1)+'" width="'+gw.toFixed(1)+'" height="'+gw.toFixed(1)+'" pointer-events="none"/>'+
+      '<text x="'+(gx+gw).toFixed(1)+'" y="'+(gy+gw*.85).toFixed(1)+'" font-size="7" font-weight="700" fill="#fff" stroke="#111" stroke-width=".35" pointer-events="none">'+g.count+'</text>';}
+    return s;}
+  const t=(g?"G"+g.count:"")+(ins.length?(g?" ":"")+"A"+ins.length:"");
+  return t?'<text x="'+(cx-R*.95).toFixed(1)+'" y="'+(cy+R*.85).toFixed(1)+'" font-size="7.5" font-weight="700" fill="#fff" stroke="#111" stroke-width=".35" pointer-events="none">'+t+'</text>':"";}
+let PLATE_AT=null;
+// ---- map bar: Select, and a Place palette for setup pieces ----
+const PLACE_TOOLS=["Army","Hamlet","Village","Town","City","Metropolis","Outlaw Country","Bandit Camp","Erase"];
+let PLACE_OPEN=false;
+function mapBarHTML(){const P=mapAsP(),ic=t=>t==="Army"?sprSVG("army:Levy",18,false,P.color):SETT_TIERS_MAP.includes(t)?sprSVG("map:"+t,18,false,P.color):t==="Bandit Camp"?sprSVG("map:camp",18,false):
+    t==="Outlaw Country"?'<span class="olh"></span>':'✕';
+  const pl=PLACE_OPEN||mtool!=="Select";
+  return '<div class="mapbar"><button data-mt="Select" data-nav="1" class="'+(mtool==="Select"?"on":"")+'" title="click a piece to inspect it; click your Army, then a lit hex, to move">Select</button>'+
+    '<button data-mplace="1" data-nav="1" class="'+(pl?"on":"")+'" title="place / erase map pieces (setup)">Place '+(pl?'▾':'▸')+'</button>'+
+    (pl?'<span class="mpal">'+PLACE_TOOLS.map(t=>'<button data-mt="'+esc(t)+'" data-nav="1" title="'+esc(t)+'" class="'+(mtool===t?"on":"")+'">'+ic(t)+'<span>'+esc(t==="Outlaw Country"?"Outlaw":t==="Bandit Camp"?"Camp":t==="Metropolis"?"Metro":t)+'</span></button>').join("")+
+      '<span class="note">as <span class="pdot" style="display:inline-block;background:'+P.color+'"></span> '+esc(P.name)+'</span></span>':'')+'</div>';}
+const SETT_TIERS_MAP=["Hamlet","Village","Town","City","Metropolis"];
+// ================= Inspect tool =================
+let INSP=null;
+// Territory: hex -> Set of player ids whose Reach covers it
+function terrOwners(){const M=mapState(),g=M.grid;return g?reachOwners(M,g.width,g.height):{};}
+// how player p relates to the Territory owners of hex k: Border Tension (not Alliance / NAP / household), Invasion (at War)
+function terrFlags(p,k,own){own=own||terrOwners();const pid=String(p.id),out=[];
+  (own[k]&&own[k].size===1?[...own[k]]:[]).forEach(o=>{if(o===pid)return;const x=effPair(pid,o);if(x.household)return;const q=pById(o);
+    if(!(x.nap||sameAlliance(pid,o)))out.push({st:"tension",txt:"Border Tension → "+(q?q.name:"?")+" (Doubt +1)",to:o});
+    if(x.war)out.push({st:"invasion",txt:"Invasion → "+(q?q.name:"?")+" (Doubt +1)",to:o});});return out;}
+// Territory terms (GLOSSARY): Controlled = within Reach of a player's Settlement(s); Contested = Controlled by 2+ players; Uncontested = by one
+// Bandit Camps (any size) on hexes p Controls (PO_MODIFIERS "Local Unrest": per active Bandit Camp in your Controlled Territory)
+function unrestCamps(p,own){if(!p)return [];own=own||terrOwners();const M=mapState(),pid=String(p.id);return Object.keys(M.camps).filter(k=>+M.camps[k].n>0&&own[k]&&own[k].has(pid));}
+// other players' Armies standing in p's Uncontested Territory (PO_MODIFIERS "Border Tension" / "Invasion")
+function intrudersOf(p,own){if(!p)return [];own=own||terrOwners();const M=mapState(),pid=String(p.id),out=[];
+  Object.keys(M.cells).forEach(k=>{const c=M.cells[k];if(c.type!=="Army"||c.player==null)return;const o=String(c.player);
+    if(o===pid||!(own[k]&&own[k].size===1&&own[k].has(pid)))return;const x=effPair(pid,o);if(x.household)return;
+    out.push({k,pid:o,ally:!!x.nap||sameAlliance(pid,o),war:!!x.war});});return out;}
+function settReach(q,s){return (+((DATA.settlements||{})[s.tier]||{}).reach||0)+reachBonus(q).b;}
+// one Settlement's own numbers, from the Holdings in it (settFx) + its Winter tax
+function settEcon(p,s){return withBoard(p.board,()=>{const have=new Set(Object.keys(PC)),E=computeEarned(have),sea=curSeason();
+  const occ=S.placed.filter(q=>String(q.sid)===String(s.id)),F=settFx(occ,have,E.craft,E.tc),a=F.acc;
+  const seas=F.net.filter(o=>o.grp==="Seasonal"&&o.label==="Gold in "+sea).reduce((t,o)=>t+o.val,0);
+  const hUp=occ.reduce((t,q)=>t+pursuitUpkeep(q),0),tax=settTax(S,s),pl=playerOfBoard(S),dest=((D.bandit||{}).dest||{})[(pl?pl.id:"")+":"+s.id]||null;
+  const mons=occ.filter(q=>(R[q.name]||{}).type==="Monument").map(q=>({name:q.name,on:pActive(q)}));
+  const gold=(a.gold||0)+seas,winter=sea==="Winter";
+  return {gold:a.gold||0,seas,sea,hUp,upRed:a.upkeep||0,craft:a.craft||0,infl:a.influence||0,faith:a.faith||0,doubt:a.doubt||0,tax,dest,mons,occ:occ.length,
+    net:gold-hUp+(winter&&!dest?tax:0),pillageBase:gold+(winter&&!dest?tax:0)};});}
+// ---- Pillage (Prowess action): a.pillage={tp,sid}; Extort half the Settlement's holding & tax income each Empire Phase ----
+function pillageCheck(p,a){const pl=a.pillage;if(!pl)return null;const q=pById(pl.tp),s=q&&settById(q,pl.sid);
+  if(!q||!s)return "Settlement gone";if(!effPair(p.id,q.id).war)return "war ended";if(siegeOn(q.id,s.id))return "Settlement besieged";
+  if(armySieging(p,a))return "Army laid Siege";const ak=armyHex(p,a),sk=settHex(q,s);
+  if(!ak||!sk||hexDist(hk(ak),hk(sk))>settReach(q,s))return "Army left Reach";return "";}
+function pillageTargets(p,a){const ak=armyHex(p,a);if(!ak)return [];const out=[];
+  D.players.forEach(q=>{if(sameP(q,p)||!effPair(p.id,q.id).war)return;(q.board.settlements||[]).forEach(s=>{const sk=settHex(q,s);
+    if(sk&&!siegeOn(q.id,s.id)&&hexDist(hk(ak),hk(sk))<=settReach(q,s))out.push({q,s});});});return out;}
+function runPillage(){const out=[],seen=new Set();D.players.forEach(p=>(p.board.armies||[]).forEach(a=>{if(!a.pillage)return;
+  const q=pById(a.pillage.tp),s=q&&settById(q,a.pillage.sid),nm=s?(s.name||s.tier):"?",why=pillageCheck(p,a);
+  if(why){out.push(p.name+": Pillage of "+nm+" ends — "+why);delete a.pillage;return;}
+  const key=q.id+":"+s.id;if(seen.has(key))return;seen.add(key);                       // a Settlement may be Pillaged once per Empire Phase
+  const amt=Math.max(0,Math.floor(settEcon(q,s).pillageBase/2)),t=extortGold({b:q.board},{b:p.board},amt);
+  out.push(p.name+" pillages "+nm+" ("+q.name+"): extort "+t.toLocaleString()+(t<amt?" (of "+amt.toLocaleString()+")":""));}));return out;}
+// ---- Army states (Inspect rows + plate icons) ----
+function armyStatus(p,a,k){const L=[];if(!p||!a)return L;const cell=k?mapState().cells[k]:null,B=battle();
+  {const im=immuneStrainIn(p,a);if(effStrained(p,a))L.push({st:"strained",txt:"Strained"+(!a.strained&&siegeStrains(p,a)?" (Besieged)":"")});else if(im)L.push({st:"endurance",txt:"Immune Strained ("+im+")"});}
+  if(armyBlocked(p,a)||(cell&&cell.blocked))L.push({st:"blocked",txt:"Blocked"+(a.sackT?" (Sacking)":"")+(cell&&cell.blocked?" (Sabotage"+(cell.blockedT!=null?", until the end of turn "+(cell.blockedT+1):"")+")":"")});
+  if(+a.fatigue>0)L.push({st:"fatigue",txt:"Fatigue ×"+a.fatigue+" (Morale +"+((BT.fatigueMorale??2)*a.fatigue)+")"});
+  if(isRouted(a))L.push({st:"routed",txt:"Routed"});
+  if(a.muster&&a.muster.n>0)L.push({st:"muster",txt:"Mustering · Muster Timer "+(a.muster.t||0)+" · "+a.muster.n+" to go"});
+  const sg=armySieging(p,a);if(sg)L.push({st:"sieging",txt:(sg.kind==="capture"?"Capturing":"Laying Siege")+" · "+(sg.label||"")+" · "+(sg.n??"?")+" left"});
+  if(armyBesieged(p,a))L.push({st:"besieged",txt:"Besieged"+(besiegeExempt(p)?"":" · Blocked except Sally Forth")});
+  if(B.id&&["A","B"].some(X=>B[X].kind!=="bandit"&&String(B[X].pid)===String(p.id)&&String(B[X].aid)===String(a.id)))L.push({st:"battle",txt:"In Battle"});
+  if(a.pillage){const q=pById(a.pillage.tp),s2=q&&settById(q,a.pillage.sid);L.push({st:"pillage",txt:"Pillaging "+(s2?(s2.name||s2.tier):"?")+(q?" ("+q.name+")":"")});}
+  if(k)terrFlags(p,k).forEach(f=>L.push(f));
+  return L;}
+// ---- map markers: crossed swords on the Battle, a trebuchet + timer on each besieged / captured Settlement ----
+function mapMarkers(R,dx,dy,pix){if(!pix||!SPR)return "";let s="";const C=k=>{const [c,r]=hk(k);return [R+c*dx,dy/2+r*dy+(c%2?dy/2:0)];},M=mapState();
+  const B=battle(),fights=(B.id?[{A:B.A,B:B.B,on:1}]:[]).concat(bq().filter(o=>o.id!==B.qid||!B.id).map(o=>({A:o.A,B:o.B,on:0})));
+  fights.forEach(F=>{const at=[sideHex(F.A),sideHex(F.B)].filter(Boolean);if(!at.length)return;
+    let pts_=at.map(C);if(pts_.length===2&&hexDist(hk(at[0]),hk(at[1]))<=1)pts_=[[(pts_[0][0]+pts_[1][0])/2,(pts_[0][1]+pts_[1][1])/2]];
+    pts_.forEach(([x,y])=>{const w=R*1.15;s+='<use href="#'+mapSprId("mk:battle")+'" x="'+(x-w/2).toFixed(1)+'" y="'+(y-w/2-R*.15).toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+w.toFixed(1)+'"'+(F.on?'':' opacity=".55"')+' pointer-events="none"/>';});});
+  realmTimers().filter(t=>(t.kind==="siege"||t.kind==="capture")&&t.tp!=null&&t.sid!=null).forEach(t=>{const q=pById(t.tp),st=q&&settById(q,t.sid),k=st&&settHex(q,st);if(!k)return;
+    const [x,y]=C(k),w=R*.95,x0=x-R*1.05,y0=y-R*.95;
+    s+='<use href="#'+mapSprId("mk:siege")+'" x="'+x0.toFixed(1)+'" y="'+y0.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+w.toFixed(1)+'" pointer-events="none"/>'+
+      '<text x="'+(x0+w*.1).toFixed(1)+'" y="'+(y0+w*.32).toFixed(1)+'" font-size="'+(R*.42).toFixed(1)+'" font-weight="700" fill="#f3d38a" stroke="#111" stroke-width=".4" pointer-events="none">'+(t.n??"")+'</text>';});
+  return s;}
+// ---- the panel ----
+function inspHTML(){if(mtool!=="Select"||!INSP)return "";const M=mapState(),k=INSP,c=M.cells[k],cp=M.camps[k];
+  let h="";if(c&&c.type==="Army")h=inspArmy(k);else if(c)h=inspSett(k);else if(cp)h=inspCamp(k);else{INSP=null;return "";}
+  return '<div class="insp" id="inspPanel">'+h+'</div>';}
+function inspHead(art,title,sub,p){const i=p?D.players.indexOf(p):-1;
+  return '<div class="ih">'+art+'<div><b>'+esc(title)+'</b>'+(sub?'<div class="note">'+sub+'</div>':'')+'</div><span class="ix">'+
+    (i>=0?'<button data-insp-board="'+i+'" data-nav="1" title="open this board">board ▸</button>':'')+'<button data-insp-x="1" data-nav="1" title="close">✕</button></span></div>';}
+function inspCell(k,v,cls){return '<div'+(cls?' class="'+cls+'"':'')+'><span class="k">'+k+'</span>'+v+'</div>';}
+function g$(n){n=Math.round(+n||0);return n===0?"0":(n>0?"+":"")+n.toLocaleString();}
+function inspCan(pid){return !lockOn()||ADMIN||canHost()||(!!myClaimP()&&String(myClaimP().id)===String(pid));}
+function inspArmy(k){const {p,a}=cellArmy(k),cell=mapState().cells[k];if(!p)return inspHead("","Army","unowned",null);
+  if(!a)return inspHead(sprSVG("army:"+BANDIT_DEFAULT_RETINUE,36,false,p.color),"Army","Army — unlinked (link it under Map ↔ board)",p);
+  const rt=EQ.retinues[a.retinue]||{},u=armyUFor(p),v=armyVals(a,u),m=boardMetrics(p.board),sp=speedOf(p,a,k);
+  let h=inspHead(sprSVG("army:"+(a.retinue||BANDIT_DEFAULT_RETINUE),36,false,p.color),a.label||("Army "+a.id),'<span style="color:'+p.color+'">●</span> '+esc(p.name)+' · '+esc(a.retinue||"")+' ×'+(a.count||0)+'/'+(EQ.army_max||25),p);
+  h+='<div class="ir">'+armyGear(a).map(n=>'<span title="'+esc(n)+'">'+eqSVG(n,22)+'</span>').join("")+'</div>';
+  h+='<div class="ig">'+inspCell("STRIKE",v.toStrike+"+")+inspCell("INIT",(v.init>=0?"+":"")+v.init)+inspCell("SAVE",v.save+"+")+inspCell("MORALE",v.morale+"+",v.routed?"neg":"")+
+    inspCell("AP",v.ap)+inspCell("SPEED",sp.speed)+inspCell("END",(a.endurance??0)+"/"+(rt.endurance??"—"))+inspCell("SIZE",a.count||0)+'</div>';
+  const en=Math.max(0,a.endurance||0);h+='<div class="ir"><span class="k">Endurance</span>'+(en?(en<=8?stIcon("endurance",13).repeat(en):stIcon("endurance",13)+" ×"+en):'<span class="neg">0</span>')+'</div>';
+  const S_=armyStatus(p,a,k);h+='<div class="sec">Status</div>'+(S_.length?S_.map(o=>'<div class="ist">'+stIcon(o.st,16)+'<span>'+esc(o.txt)+'</span></div>').join(""):'<div class="note">—</div>');
+  const mods=u.mods||[];h+='<div class="sec">Effects</div>'+(mods.length?'<div class="ir">'+mods.map(md=>'<span class="kw mod" data-tok="'+esc(md.tok)+'" title="'+esc(gloss(md.tok)+" — "+(md.node||""))+'">'+esc(md.tok)+'</span>').join("")+'</div>':'<div class="note">—</div>');
+  h+='<div class="sec">Gold</div><div class="ir"><span class="k">Upkeep</span><b class="neg">'+g$(-armyUpkeep(a))+'</b><span class="k">· all Armies net</span><b class="neg">'+g$(-m.netArmy)+'</b></div>'+
+    '<div class="ir"><span class="k">Spoils of War (if defeated)</span><b>'+(+rt.cost||0).toLocaleString()+'</b></div>';
+  {const x=armyInside(p,a);if(x)h=h.replace('<div class="ir">','<div class="ir"><span class="badge tier">inside '+esc(x.s.name||x.s.tier)+(sameP(x.q,p)?'':' ('+esc(x.q.name)+')')+'</span>');}
+  {const sa=selArmy();if(sa&&sa.a===a)h+=movePanelHTML();else if(canMoveArmy(p))h+='<div class="ir"><button data-insp-sel="'+p.id+':'+a.id+'" data-nav="1">move ▸</button></div>';}
+  if(canMoveArmy(p)){const T=engageTargets(p,a);if(T.length)h+='<div class="sec">Engage</div>'+T.map((t,i)=>'<div class="ist">'+stIcon(t.kind==="siege"?"sieging":"battle",16)+'<span>'+esc(t.label)+'</span>'+
+    '<button data-insp-eng="'+p.id+':'+a.id+':'+i+'" data-nav="1" style="margin-left:auto">'+(t.kind==="siege"?"Lay Siege ▸":"Battle ▸")+'</button></div>').join("");}
+  if(!a.pillage){const T=pillageTargets(p,a);if(T.length&&inspCan(p.id))h+='<div class="ir"><span class="k">Pillage</span><select data-insp-pil="'+p.id+':'+a.id+'" data-nav="1"><option value="">—</option>'+
+    T.map(o=>'<option value="'+o.q.id+':'+o.s.id+'">'+esc((o.s.name||o.s.tier)+" ("+o.q.name+")")+'</option>').join("")+'</select></div>';}
+  else if(inspCan(p.id))h+='<div class="ir"><button data-insp-unpil="'+p.id+':'+a.id+'" data-nav="1">cancel Pillage</button></div>';
+  return h;}
+function inspSett(k){const {p,s}=cellSett(k),cell=mapState().cells[k];if(!p)return inspHead(sprSVG("map:"+cell.type,36,false),cell.type,"unowned",null);
+  if(!s)return inspHead(sprSVG("map:"+cell.type,36,false,p.color),cell.type,esc(p.name)+" · unlinked (link it under Map ↔ board)",p);
+  const e=settEcon(p,s),wt=winterTax(p.board),wu=withBoard(p.board,()=>wardUse(s.id)),g=garrisonOf(p,s.id),ins=(p.board.armies||[]).filter(x=>String(x.sid)===String(s.id));
+  let h=inspHead(sprSVG("map:"+s.tier,36,false,p.color),(s.capital?"★ ":"")+(s.name||s.tier),'<span style="color:'+p.color+'">●</span> '+esc(p.name)+' · '+esc(s.tier)+' · wards '+wu.used+'/'+wu.cap+' · Reach '+settReach(p,s),p);
+  if(inspCan(p.id))h+='<div class="ir"><span class="k">Name</span><input data-insp-name="'+p.id+':'+s.id+'" data-nav="1" value="'+esc(s.name||"")+'" placeholder="'+esc(s.tier)+'" style="flex:1;min-width:0"></div>';
+  h+='<div class="ig">'+inspCell("GOLD",g$(e.gold),e.gold<0?"neg":"pos")+inspCell(esc(e.sea.toUpperCase()),g$(e.seas))+inspCell("HLDG UPKEEP",g$(-e.hUp),"neg")+inspCell("NET",g$(e.net),e.net<0?"neg":"pos")+
+    inspCell("TAX",e.tax.toLocaleString())+inspCell("CRAFT",e.craft)+inspCell("ARMY UPK −",Math.abs(e.upRed||0).toLocaleString(),e.upRed?"pos":"")+inspCell(esc(SCORE.toUpperCase()),g$(e.infl))+'</div>';
+  h+='<div class="ir"><span class="k">Faith / Doubt</span><b>'+e.faith+' / '+e.doubt+'</b><span class="k">· Holdings</span><b>'+e.occ+'</b></div>';
+  const tm=wt.src.filter(x=>x);h+='<div class="ir"><span class="k">Winter tax</span><b>'+e.tax.toLocaleString()+'</b>'+(tm.length?'<span class="note">'+esc(tm.join(" · "))+'</span>':'')+'</div>';
+  if(e.mons.length)h+='<div class="sec">Monuments</div>'+e.mons.map(o=>{const sk=(SPR.key||{})[o.name];return '<div class="ist">'+(sk?sprSVG(sk,22,false):"")+'<span'+(o.on?'':' class="note"')+'>'+esc(o.name)+(o.on?'':' (inactive)')+'</span></div>';}).join("");
+  const st=[];if(s.bt>0)st.push({st:"muster",txt:"Building · Build Timer "+s.bt});
+  realmTimers().filter(t=>String(t.tp)===String(p.id)&&String(t.sid)===String(s.id)).forEach(t=>st.push({st:t.kind==="siege"||t.kind==="capture"?"besieged":"blocked",txt:(t.type||t.kind)+" · "+(t.label||"")+" · "+(t.n??"?")+" left"}));
+  if(e.dest)st.push({st:"destabilize",txt:"Destabilized next Winter → "+(e.dest.by!=null?pname(e.dest.by):"Bandits @ "+e.dest.camp)});
+  D.players.forEach(q=>(q.board.armies||[]).forEach(a=>{if(a.pillage&&String(a.pillage.tp)===String(p.id)&&String(a.pillage.sid)===String(s.id))st.push({st:"pillage",txt:"Pillaged by "+q.name+" ("+(a.label||"Army "+a.id)+")"});}));
+  if(occupyTaxOnly(p.board)&&!settInside(p.board,s))st.push({st:"blocked",txt:"No Army inside — no tax, Holdings unusable ("+p.board.faction+")"});
+  h+='<div class="sec">Status</div>'+(st.length?st.map(o=>'<div class="ist">'+stIcon(o.st,16)+'<span>'+esc(o.txt)+'</span></div>').join(""):'<div class="note">—</div>');
+  {const ai=armiesInside(p,s);h+='<div class="sec">Forces</div><div class="ir"><span class="k">Garrison</span><b>'+(g?g.count:0)+'</b></div>'+
+    ai.map(({p:q,a:x})=>'<div class="ist">'+sprSVG("army:"+(x.retinue||BANDIT_DEFAULT_RETINUE),22,false,q.color)+'<span>'+esc(x.label||("Army "+x.id))+' · '+esc(x.retinue||"")+' ×'+(x.count||0)+(sameP(q,p)?'':' ('+esc(q.name)+')')+'</span>'+
+      (canMoveArmy(q)?'<button data-insp-sel="'+q.id+':'+x.id+'" data-nav="1" style="margin-left:auto">move out ▸</button>':'')+'</div>').join("")+
+    (ai.length?'':'<div class="note">no Armies inside</div>');
+    {const sa=selArmy();if(sa&&ai.some(o=>o.a===sa.a))h+=movePanelHTML();}}
+  realmTimers().filter(t=>t.kind==="siege"&&String(t.tp)===String(p.id)&&String(t.sid)===String(s.id)&&t.by!=null&&t.aid!=null).forEach(t=>{const bp=pById(t.by);if(!bp)return;
+    const def=armiesInside(p,s)[0],gs=garrisonOf(p,s.id),dSide=def?{pid:String(def.p.id),aid:String(def.a.id)}:gs?{pid:String(p.id),aid:"g:"+s.id}:null,att={pid:String(bp.id),aid:String(t.aid)};
+    if(!dSide)return;const btn=(lbl,o,pid)=>(inspCan(pid)?'<button data-insp-sf="'+esc(JSON.stringify(o))+'" data-nav="1" style="margin-left:auto">'+lbl+'</button>':'');
+    h+='<div class="sec">Siege</div><div class="ist">'+stIcon("besieged",16)+'<span>'+esc(bp.name)+' · Siege Timer '+(t.n??"?")+'</span></div>'+
+      (def?'<div class="ist">'+stIcon("battle",16)+'<span>Sally Forth (no action)</span>'+btn("Sally Forth ▸",{kind:"sally",A:dSide,B:att,seize:"",src:"Sally Forth"},def.p.id)+'</div>':'')+
+      (+t.n<=0?'<div class="ist">'+stIcon("sieging",16)+'<span>Siege resolves: Battle</span>'+btn("Siege Battle ▸",{kind:"siege",A:att,B:dSide,seize:"",src:"Siege resolution"},bp.id)+'</div>':'');});
+  if(!e.dest){const can=D.players.filter(q=>!sameP(q,p)&&inspCan(q.id));if(can.length)h+='<div class="ir"><span class="k">Destabilize (next Winter)</span><select data-insp-dest="'+p.id+':'+s.id+'" data-nav="1"><option value="">—</option>'+can.map(q=>'<option value="'+q.id+'">'+esc(q.name)+'</option>').join("")+'</select></div>';}
+  else if(e.dest.by!=null&&inspCan(e.dest.by))h+='<div class="ir"><button data-insp-undest="'+p.id+':'+s.id+'" data-nav="1">cancel Destabilize</button></div>';
+  return h;}
+function inspCamp(k){const cp=mapState().camps[k],thr=BAN.armyThreshold||25,army=cp.n>=thr,cv=banditDomain(cp.n),sb=domBand(cv),inf=STAND_INF[sb]||1,mod=+cp.cmod||0,own=terrOwners()[k];
+  let h=inspHead(sprSVG(army?"map:bandit_army":"map:camp",36,false),army?"Bandit Army":"Bandit Camp","@ "+k+" · Retinues "+cp.n+(army?"":" / "+thr+" to become an Army"),null);
+  h+='<div class="ig">'+inspCell("TREASURY",(cp.gold||0).toLocaleString())+inspCell("PROWESS","+"+cv)+inspCell("CUNNING",cv)+inspCell(esc(SCORE.toUpperCase()),inf+mod)+'</div>';
+  h+='<div class="ir"><span class="k">Cunning Standing</span><b>'+sb+'</b>'+(mod?'<span class="note">mod '+g$(mod)+'</span>':'')+'</div>';
+  h+='<div class="ir"><span class="k">Armed ('+esc(currentEra())+')</span><span>'+esc(((BAN.equipment||{})[currentEra()])||"—")+'</span></div>';
+  const st=[];if(+cp.n>0)(own?[...own]:[]).forEach(o=>st.push({st:"unrest",txt:"Local Unrest → "+pname(o)+" (Doubt +1)"}));
+  const B=battle();if(B.id&&["A","B"].some(X=>B[X].kind==="bandit"&&B[X].camp===k))st.push({st:"battle",txt:"In Battle"});
+  h+='<div class="sec">Status</div>'+(st.length?st.map(o=>'<div class="ist">'+stIcon(o.st,16)+'<span>'+esc(o.txt)+'</span></div>').join(""):'<div class="note">—</div>');
+  if(cp.last)h+='<div class="note">last: '+esc(cp.last)+'</div>';
+  h+='<div class="sec">Gold</div><div class="ir"><span class="k">Destroyed: Extort its Treasury</span><b>'+(cp.gold||0).toLocaleString()+'</b></div>';
+  return h;}
+// adjacent targets for an Army on the map: at-war Armies (not in a Settlement), Bandit Camps / Armies, at-war Settlements not under Siege
+function engageTargets(p,a){const k=armyHex(p,a);if(!k||armyInside(p,a))return [];const M=mapState(),out=[];
+  hexNb(k).forEach(n=>{const c=M.cells[n];
+    if(c&&c.type==="Army"){const x=cellArmy(n);if(x.p&&x.a&&!sameP(x.p,p)&&effPair(p.id,x.p.id).war)out.push({kind:"battle",label:x.p.name+" · "+(x.a.label||("Army "+x.a.id)),B:{pid:String(x.p.id),aid:String(x.a.id)},seize:"A",src:"Battle action"});}
+    else if(c){const cs=cellSett(n);if(cs.s&&!sameP(cs.p,p)&&effPair(p.id,cs.p.id).war&&!siegeOn(cs.p.id,cs.s.id))out.push({kind:"siege",label:cs.p.name+" · "+(cs.s.name||cs.s.tier),tp:cs.p.id,sid:cs.s.id});}
+    if(M.camps[n])out.push({kind:"battle",label:(M.camps[n].n>=(BAN.armyThreshold||25)?"Bandit Army":"Bandit Camp")+" @ "+n,B:{kind:"bandit",camp:n},seize:"",src:"vs Bandits"});});
+  return out;}
+function wireInsp(host){const P=host.querySelector("#inspPanel");if(!P)return;
+  P.querySelectorAll("[data-insp-eng]").forEach(b=>b.onclick=()=>{const [pid,aid,i]=b.dataset.inspEng.split(":"),p=pById(pid),a=p&&(p.board.armies||[]).find(x=>String(x.id)===aid);
+    if(!a||!canMoveArmy(p))return;const t=engageTargets(p,a)[+i];if(!t)return;
+    if(t.kind==="siege"){const sg=siegeState();sg.mode="Lay Siege";sg.tp=String(t.tp);sg.sid=t.sid;sg.by=String(p.id);sg.aid=String(a.id);
+      if(mods().battle){D.view="battle";flash("Siege calculator filled: "+t.label);}else flash("Siege calculator is in the Battle tab (modules ▸ Battle tab)");save();render();return;}
+    bqStart({kind:"battle",A:{pid:String(p.id),aid:String(a.id)},B:t.B,seize:t.seize,src:t.src});});
+  P.querySelectorAll("[data-insp-sf]").forEach(b=>b.onclick=()=>{const o=JSON.parse(b.dataset.inspSf);bqStart(o);});
+  P.querySelectorAll("[data-insp-name]").forEach(inp=>inp.onchange=()=>{const [pid,sid]=inp.dataset.inspName.split(":"),q=pById(pid),st=q&&settById(q,sid);
+    if(!st||!inspCan(pid))return;const v=inp.value.trim();if(v)st.name=v;else delete st.name;save();render();});
+  P.querySelectorAll("[data-insp-sel]").forEach(b=>b.onclick=()=>{const [pid,aid]=b.dataset.inspSel.split(":");SEL={pid,aid};render();});
+  P.querySelectorAll("[data-insp-x]").forEach(b=>b.onclick=()=>{INSP=null;render();});
+  P.querySelectorAll("[data-insp-board]").forEach(b=>b.onclick=()=>{D.active=+b.dataset.inspBoard;reindex();D.view="board";save();render();if(typeof renderList==="function")renderList();});
+  P.querySelectorAll("[data-insp-dest]").forEach(sel=>sel.onchange=()=>{if(!sel.value)return;const [pid,sid]=sel.dataset.inspDest.split(":");if(!inspCan(sel.value)){flash("🔒 not your Destabilize");render();return;}
+    BST().dest[pid+":"+sid]={by:sel.value};save();render();});
+  P.querySelectorAll("[data-insp-undest]").forEach(b=>b.onclick=()=>{const key=b.dataset.inspUndest;delete BST().dest[key];save();render();});
+  P.querySelectorAll("[data-insp-pil]").forEach(sel=>sel.onchange=()=>{if(!sel.value)return;const [pid,aid]=sel.dataset.inspPil.split(":"),[tp,sid]=sel.value.split(":"),q=pById(pid);
+    if(!inspCan(pid)){flash("🔒 not your Army");render();return;}const a=q&&(q.board.armies||[]).find(x=>String(x.id)===aid);if(a){a.pillage={tp,sid};save();render();}});
+  P.querySelectorAll("[data-insp-unpil]").forEach(b=>b.onclick=()=>{const [pid,aid]=b.dataset.inspUnpil.split(":"),q=pById(pid),a=q&&(q.board.armies||[]).find(x=>String(x.id)===aid);if(a){delete a.pillage;save();render();}});}
 function mapSVG(M){
   const V=decodeGrid(M.grid),g=M.grid,cols=g?g.width:(M.cols||16),rows=g?g.height:(M.rows||12);
   const R=15,dx=1.5*R,dy=Math.sqrt(3)*R,W=cols*dx+R*2,H=rows*dy+dy,PAL=mapPal(g);
@@ -5211,21 +5505,32 @@ function mapSVG(M){
     s+='<g pointer-events="none">'+tint+'</g><g fill="none" stroke-width="2" stroke-opacity=".8" stroke-linecap="round" pointer-events="none">'+edge+'</g>';
   }
   s+=over;
-  if(mtool==="Move")s+=moveOverlay(R,dx,dy,pts);
+  if(mtool==="Select")s+=moveOverlay(R,dx,dy,pts);
   if(g&&M.showStarts)(g.settlements||[]).forEach(reg=>reg.forEach(st=>{const cx=R+st[0]*dx,cy=dy/2+st[1]*dy+(st[0]%2?dy/2:0),w=R*.42;
     s+='<rect x="'+(cx-w).toFixed(1)+'" y="'+(cy-w).toFixed(1)+'" width="'+(w*2).toFixed(1)+'" height="'+(w*2).toFixed(1)+'" fill="none" stroke="#b3392f" stroke-width="1.6" stroke-dasharray="3 2" pointer-events="none"/>';}));
   Object.keys(M.cells).forEach(k=>{const cell=M.cells[k],[c,r]=k.split(",").map(Number),cx=R+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0);
     const pl=D.players.find(pp=>pp.id===cell.player),col=pl?pl.color:"#888";
     const unl=pl&&!(cell.type==="Army"?cellArmy(k).a:cellSett(k).s);
     const sk=cell.type==="Army"?"army:"+(((cellArmy(k).a||{}).retinue)||BANDIT_DEFAULT_RETINUE):"map:"+cell.type;
-    s+=(pix&&SPR.S[sk]?mapSpr(sk,cx,cy,R,col,unl)+(cell.blocked?'<text x="'+(cx-R*.98).toFixed(1)+'" y="'+(cy-R*.5).toFixed(1)+'" font-size="9" font-weight="700" fill="#fff" stroke="#111" stroke-width=".4" pointer-events="none">⊘</text>':''):
+    s+=(pix&&SPR.S[sk]?settBehind(cell,k,cx,cy,R)+mapSpr(sk,cx,cy,R,col,unl)+(cell.blocked?'<text x="'+(cx-R*.98).toFixed(1)+'" y="'+(cy-R*.5).toFixed(1)+'" font-size="9" font-weight="700" fill="#fff" stroke="#111" stroke-width=".4" pointer-events="none">⊘</text>':''):
        '<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+(R*.62).toFixed(1)+'" fill="'+col+'" stroke="'+(unl?'#b3392f':'#111')+'"'+(unl?' stroke-width="2" stroke-dasharray="3 2"':'')+' pointer-events="none"/>'+
        '<text x="'+cx.toFixed(1)+'" y="'+(cy+4).toFixed(1)+'" text-anchor="middle" font-size="10" font-weight="700" fill="#fff" pointer-events="none">'+(letter[cell.type]||"?")+(cell.blocked?"⊘":"")+'</text>')+
-       (()=>{if(cell.type==="Army"||!pl)return "";const cs=cellSett(k).s;if(!cs)return "";const g=garrisonOf(pl,cs.id),ins=(pl.board.armies||[]).filter(a=>String(a.sid)===String(cs.id)).length;
-         const t=(g?"G"+g.count:"")+(ins?(g?" ":"")+"A"+ins:"");return t?'<text x="'+(cx-R*.95).toFixed(1)+'" y="'+(cy+R*.85).toFixed(1)+'" font-size="7.5" font-weight="700" fill="#fff" stroke="#111" stroke-width=".35" pointer-events="none">'+t+'</text>':"";})()+
+       (()=>{if(cell.type==="Army"||!pl)return "";const cs=cellSett(k).s;if(!cs)return "";const g=garrisonOf(pl,cs.id),ins=armiesInside(pl,cs);return settInsideMarks(cx,cy,R,pix,g,ins);})()+
        (()=>{if(cell.type!=="Army")return "";const ca=cellArmy(k).a;return ca&&ca.muster&&ca.muster.n>0?'<text x="'+(cx+R*.55).toFixed(1)+'" y="'+(cy-R*.45).toFixed(1)+'" font-size="8" font-weight="700" fill="#f3d38a" stroke="#111" stroke-width=".4" pointer-events="none">M'+(ca.muster.t||0)+'</text>':"";})()+
-       (()=>{if(cell.type!=="Army")return "";const ca=cellArmy(k).a;return ca&&+ca.count>0?'<text x="'+(cx+R*.8).toFixed(1)+'" y="'+(cy+R*.8).toFixed(1)+'" text-anchor="end" font-size="8" font-weight="700" fill="#fff" stroke="#111" stroke-width=".4" pointer-events="none">'+ca.count+'</text>':"";})()+(cell.blocked?'<title>Blocked (Sabotage) — re-place or erase the Army to clear</title>':'');});
-  let plates="";if(pix&&M.showPlates!==false)Object.keys(M.cells).forEach(k=>{if(M.cells[k].type!=="Army")return;const [c,r]=k.split(",").map(Number);plates+=mapPlate(k,R+c*dx,dy/2+r*dy+(c%2?dy/2:0),R);});
+       (()=>{if(cell.type!=="Army")return "";const ca=cellArmy(k).a;return ca&&+ca.count>0?'<text x="'+(cx+R*.8).toFixed(1)+'" y="'+(cy+R*.8).toFixed(1)+'" text-anchor="end" font-size="8" font-weight="700" fill="#fff" stroke="#111" stroke-width=".4" pointer-events="none">'+ca.count+'</text>':"";})()+(cell.blocked?'<title>Blocked (Sabotage)'+(cell.blockedT!=null?' until the end of turn '+(cell.blockedT+1):' — re-place or erase the Army to clear')+'</title>':'');});
+  s+=mapMarkers(R,dx,dy,pix);
+  if(mtool==="Select"&&INSP){const [c,r]=hk(INSP),cx=R+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0);s+='<polygon points="'+pts(cx,cy)+'" fill="none" stroke="#f3d38a" stroke-width="3" pointer-events="none"/>';}
+  let plates="";if(pix&&M.showPlates!==false){
+    // every piece's sprite box is an obstacle; each plate takes the first spot around its Army that clears sprites and earlier plates
+    const XY=k=>{const [c,r]=hk(k);return [R+c*dx,dy/2+r*dy+(c%2?dy/2:0)];},obs=[];
+    Object.keys(M.cells).concat(Object.keys(M.camps)).forEach(k=>{const [x,y]=XY(k);obs.push([x-R*.82,y-R*.9,x+R*.82,y+R*.9]);});
+    const ov=(a,b)=>Math.max(0,Math.min(a[2],b[2])-Math.max(a[0],b[0]))*Math.max(0,Math.min(a[3],b[3])-Math.max(a[1],b[1]));
+    PLATE_AT=(cx,cy,w,h)=>{const g=R*.08,C=[[cx+R*.85,cy-h-R*.1],[cx+R*.85,cy+R*.1],[cx-R*.85-w,cy-h-R*.1],[cx-R*.85-w,cy+R*.1],[cx-w/2,cy-R*.95-h],[cx-w/2,cy+R*.95],
+        [cx+R*.85,cy-h/2],[cx-R*.85-w,cy-h/2]];
+      [1.9,2.9].forEach(m=>{[[1,-1],[1,1],[-1,-1],[-1,1],[0,-1],[0,1]].forEach(([sx,sy])=>C.push([cx+sx*R*m*.9-(sx<0?w:sx===0?w/2:0),cy+sy*R*m*.6-(sy<0?h:0)]));});
+      let best=null;C.forEach(([x,y],i)=>{x=Math.max(1,Math.min(W-w-1,x));y=Math.max(1,Math.min(H-h-1,y));const b=[x-g,y-g,x+w+g,y+h+g],o=obs.reduce((t,q)=>t+ov(b,q),0);
+        if(!best||o<best.o-1e-6)best={x,y,o,lead:i>=8};});obs.push([best.x,best.y,best.x+w,best.y+h]);return best;};
+    Object.keys(M.cells).sort().forEach(k=>{if(M.cells[k].type!=="Army")return;const [x,y]=XY(k);plates+=mapPlate(k,x,y,R);});PLATE_AT=null;}
   Object.keys(M.camps).forEach(k=>{const cp=M.camps[k],[c,r]=k.split(",").map(Number),cx=R+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0),army=cp.n>=(BAN.armyThreshold||25);
     const ck=army?"map:bandit_army":"map:camp";
     s+=pix&&SPR.S[ck]?mapSpr(ck,cx,cy,R,null,false)+'<text x="'+(cx+R*.8).toFixed(1)+'" y="'+(cy+R*.8).toFixed(1)+'" text-anchor="end" font-size="8" font-weight="700" fill="#f3d38a" stroke="#111" stroke-width=".4" pointer-events="none">'+cp.n+'</text>':
@@ -5323,7 +5628,7 @@ function banditAct(k){const M=mapState(),cp=M.camps[k],B=BST(),F=BAN.faces||10,r
     q.dmg=rt;fx=q.name+" Damaged (Repair "+rt+")";}
   else if(act==="Destabilize"){B.dest[tgt.p.id+":"+tgt.s.id]={camp:k};fx="next Winter: "+(tgt.s.name||tgt.s.tier)+"'s tax → camp";}
   else if(act==="Intercept Caravan"){B.ic[tgt.p.id]={camp:k};fx="next turn "+tgt.p.name+" is Host: trade income → camp";}
-  else if(act==="Sabotage"){mapState().cells[tgt.k].blocked=true;fx=tgt.p.name+"'s "+(tgt.a?(tgt.a.label||"Army "+tgt.a.id):"Army")+" @ "+tgt.k+" gains Blocked";}
+  else if(act==="Sabotage"){mapState().cells[tgt.k].blocked=true;mapState().cells[tgt.k].blockedT=tTurn();fx=tgt.p.name+"'s "+(tgt.a?(tgt.a.label||"Army "+tgt.a.id):"Army")+" @ "+tgt.k+" gains Blocked";}
   else if(act==="Foster Rebellion"){B.foster.push({pid:String(tgt.p.id)});fx="next Bandit Mechanics: 10-Retinue camp in "+tgt.p.name+"'s Outlaw Country";}
   if(oc==="Endorsed"){const x=endorsedExtort(act),b=tgt.p.board,t=Math.min(x,Math.max(0,b.treasury||0));b.treasury=(b.treasury||0)-t;cp.gold=(cp.gold||0)+t;fx+=" · Endorsed: Extort "+t;}
   bLog(head+": "+fx);}
@@ -5340,12 +5645,14 @@ function runBanditMechanics(){const M=mapState(),B=BST(),sea=curSeason(),keys=Ob
 // gold diverted by Destabilize / Intercept Caravan, measured before income and credited after
 function banditSkims(){const B=BST(),out=[],w=curSeason()==="Winter";
   if(w)Object.keys(B.dest).forEach(key=>{const [pid,sid]=key.split(":"),p=D.players.find(q=>String(q.id)===pid),s=p&&(p.board.settlements||[]).find(x=>String(x.id)===sid);
-    out.push({kind:"dest",key,camp:B.dest[key].camp,p,amt:(p&&s)?settTax(p.board,s):0,what:s?(s.name||s.tier)+" tax":"tax"});});
+    out.push({kind:"dest",key,camp:B.dest[key].camp,by:B.dest[key].by,p,amt:(p&&s)?settTax(p.board,s):0,what:s?(s.name||s.tier)+" tax":"tax"});});
   const h=hostP();if(h&&B.ic[h.id]){const t=tradeRaw(h.board);out.push({kind:"ic",key:String(h.id),camp:B.ic[h.id].camp,p:h,amt:t.total,what:"trade income"});}
   return out;}
-function creditSkims(L){const M=mapState(),B=BST();L.forEach(x=>{const cp=M.camps[x.camp];
-  if(cp)cp.gold=(cp.gold||0)+x.amt;bLog((x.kind==="dest"?"Destabilize":"Intercept Caravan")+": "+(x.p?x.p.name:"?")+"'s "+x.what+" "+x.amt+(cp?" → camp @ "+x.camp:" (camp gone)"));
-  if(x.kind==="dest")delete B.dest[x.key];else delete B.ic[x.key];});}
+function creditSkims(L){const M=mapState(),B=BST(),out=[];L.forEach(x=>{const by=x.by!=null?pById(x.by):null,cp=by?null:M.camps[x.camp];
+  if(by)by.board.treasury=(+by.board.treasury||0)+x.amt;else if(cp)cp.gold=(cp.gold||0)+x.amt;
+  const line=(x.kind==="dest"?"Destabilize":"Intercept Caravan")+": "+(x.p?x.p.name:"?")+"'s "+x.what+" "+x.amt+(by?" → "+by.name:cp?" → camp @ "+x.camp:" (camp gone)");
+  if(by)out.push(line);else bLog(line);
+  if(x.kind==="dest")delete B.dest[x.key];else delete B.ic[x.key];});return out;}
 const STAND_INF={Untested:1,Rising:2,Established:3,Sovereign:4};
 function envoyOutcome(net){const T=BAN.outcomeThresh||{};
   if(T.Condemned!=null&&net<=T.Condemned)return "Condemned";
@@ -5394,7 +5701,7 @@ try{MTOOLS_OPEN=localStorage.getItem("renown_mtools")!=="0";BPANEL_OPEN=localSto
 document.addEventListener("click",e=>{const a=e.target.closest("#tMapTools > summary");if(a){MTOOLS_OPEN=!a.parentElement.open;try{localStorage.setItem("renown_mtools",MTOOLS_OPEN?"1":"0");}catch(_){}}
   const b=e.target.closest("#tBandits > summary");if(b){BPANEL_OPEN=!b.parentElement.open;try{localStorage.setItem("renown_bpanel",BPANEL_OPEN?"1":"0");}catch(_){}}});
 function mapToolsHTML(){const M=mapState(),g=M.grid;
-  const tools=["Move","Army","Hamlet","Village","Town","City","Metropolis","Outlaw Country","Bandit Camp","Erase"];
+  const tools=["Select"].concat(PLACE_TOOLS);
   const p=D.players[D.active];
   const presets=Object.keys(MP),np=D.players.length>=2?Math.min(7,D.players.length):4,def=BOARD_SIZE[np]||BOARD_SIZE[6];
   const setupOpen=MAPSETUP_OPEN===null?!g:MAPSETUP_OPEN,bad=mapLinkBad();
@@ -5410,21 +5717,19 @@ function mapToolsHTML(){const M=mapState(),g=M.grid;
     ' <input id="mCode" placeholder="Region/seed/players[/WxH]" style="width:210px" value="'+esc(seedCode(g))+'"><button id="mCodeGo">load code</button>'+
     ' <button id="mImp">import map JSON</button><input type="file" id="mFile" accept="application/json" style="display:none">'+
     '</div>'+(g?'<div class="note" style="margin:0 0 6px">generator '+esc(g.generator||'?')+' · climate '+esc(mapPal(g).label||mapClimate(g))+'</div>':'')+'</details>';
-  h+='<div class="mtoolbar">tool <select id="mTool">'+tools.map(t=>'<option'+(t===mtool?' selected':'')+'>'+t+'</option>').join('')+'</select>'+
-    ' <span class="note">placing as</span> <span class="pdot" style="display:inline-block;background:'+mapAsP().color+'"></span> '+esc(mapAsP().name)+
+  h+='<div class="mtoolbar"><span class="note">tool '+esc(mtool)+' · placing as</span> <span class="pdot" style="display:inline-block;background:'+mapAsP().color+'"></span> '+esc(mapAsP().name)+
     ' <label class="note"><input type="checkbox" id="mRes"'+(M.showRes!==false?' checked':'')+'> resources</label>'+
     ' <label class="note"><input type="checkbox" id="mReach"'+(M.showReach!==false?' checked':'')+'> reach borders</label>'+
     ' <label class="note"><input type="checkbox" id="mPlates"'+(M.showPlates!==false?' checked':'')+'> army plates</label>'+
     ' <label class="note"><input type="checkbox" id="mStarts"'+(M.showStarts?' checked':'')+'> suggested settlement spots</label>'+
     ' <button id="mClear">clear markers</button>'+
-    ' <span class="mapzoom" style="display:inline-flex;margin:0"><button data-mz="-1" title="zoom out">−</button><button data-mz="1" title="zoom in">+</button><button data-mz="fit"'+(MAPZ.fit?' class="on"':'')+'>fit</button><span class="note">'+(MAPZ.fit?"fit":Math.round(MAPZ.z*100)+"%")+'</span></span></div>';
+    ' <span class="mapzoom" style="display:inline-flex;margin:0"><button data-mz="-1" title="zoom out">−</button><button data-mz="1" title="zoom in">+</button><button data-mz="fit"'+(MAPZ.fit?' class="on"':'')+'>fit</button><button id="tbWide" data-nav="1" title="table across the whole width; phase, log and panel below"'+(TB_WIDE?' class="on"':'')+'>wide</button><span class="note">'+(MAPZ.fit?"fit":Math.round(MAPZ.z*100)+"%")+'</span></span></div>';
   const rep=outlawReport(M);
   h+='<div class="tmrow"><div class="tot"><h3 style="font-size:13px">Outlaw Country</h3>'+
     '<div class="note">'+(BAN.outlawStart?BAN.outlawStart+' per player at setup, within range 1 of each other, range '+BAN.outlawBuffer+'+ from any Settlement.':'')+'</div>'+
     '<div style="margin-top:4px">'+(Object.keys(rep.by).length?Object.keys(rep.by).map(rg=>'<span class="badge tier">region '+esc(rg)+': '+rep.by[rg]+'</span>').join(' '):'<span class="note">none marked</span>')+'</div>'+
     (rep.warn.length?'<div class="note" style="color:var(--upkeep);margin-top:4px">'+rep.warn.slice(0,6).map(esc).join('<br>')+'</div>':'')+'</div>'+
     '<div class="tot"><h3 style="font-size:13px">Map ↔ board</h3>'+mapLinksHTML()+'</div></div>'+
-    movePanelHTML()+
     '<div class="note" style="margin:6px 0 0">Terrain, movement and battle-terrain tables are in <a href="#" data-goto="reference#refTerrain">Reference ▸</a></div></details>';
   return h;}
 function banditPanelHTML(){const M=mapState(),era=currentEra(),camps=Object.keys(M.camps);
@@ -5447,8 +5752,6 @@ function mapAsP(){return (lockOn()&&myClaimP())||D.players[D.active];}
 function mapEditBlock(k){if(!lockOn())return "";const M=mapState(),c=M.cells[k],me=myClaimP();
   if(!me)return "claim a player to act";
   const own=x=>!!x&&String(x.player)===String(me.id),who=x=>((x&&cellPlayer(x))||{}).name||"another player";
-  if(mtool==="Move"){if(c&&c.type==="Army"&&!own(c))return "\ud83d\udd12 "+who(c)+"'s army";
-    if(MOVESEL&&!own(M.cells[MOVESEL]))return "\ud83d\udd12 not your army";return "";}
   if(mtool==="Bandit Camp")return canHost()?"":"Host only";
   if(mtool==="Outlaw Country")return firstHostOpen()?"":"Outlaw Country: setup only";
   if(mtool==="Erase"){if(c&&!own(c))return "\ud83d\udd12 "+who(c)+"'s piece";
@@ -5465,19 +5768,25 @@ function wireMap(host){const M=mapState(),g=M.grid,era=currentEra(),$=id=>host.q
   if($("mFile"))$("mFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();
     rd.onload=()=>{try{const j=JSON.parse(rd.result);if(!j.terrain||!j.width)throw 0;M.grid=j;M.cols=j.width;M.rows=j.height;M.seed=String(j.seed);MAPVIEW=null;save();render();}
       catch(err){flash("not a renown-maps JSON export");}};rd.readAsText(f);};
-  if($("mTool"))$("mTool").onchange=e=>{mtool=e.target.value;MOVESEL=null;render();};
+  host.querySelectorAll("[data-mt]").forEach(b=>b.onclick=()=>{mtool=b.dataset.mt;SEL=null;if(mtool!=="Select")INSP=null;render();});
+  host.querySelectorAll("[data-mplace]").forEach(b=>b.onclick=()=>{PLACE_OPEN=!PLACE_OPEN;if(!PLACE_OPEN&&mtool!=="Select"){mtool="Select";}render();});
   if($("mvMarch"))$("mvMarch").onchange=e=>{MOVEMARCH=e.target.checked;render();};
   if($("mvAdj"))$("mvAdj").onchange=e=>{MOVEADJ=Math.round(+e.target.value)||0;render();};
-  if($("mvCancel"))$("mvCancel").onclick=()=>{MOVESEL=null;render();};
+  if($("mvCancel"))$("mvCancel").onclick=()=>{SEL=null;render();};
   if($("mRes"))$("mRes").onchange=e=>{M.showRes=e.target.checked;save();render();};
   if($("mReach"))$("mReach").onchange=e=>{M.showReach=e.target.checked;save();render();};
   if($("mPlates"))$("mPlates").onchange=e=>{M.showPlates=e.target.checked;save();render();};
   if($("mStarts"))$("mStarts").onchange=e=>{M.showStarts=e.target.checked;save();render();};
   if($("mClear"))$("mClear").onclick=()=>{if(confirm("Clear settlements, armies, Outlaw Country and camps? Terrain stays.")){M.cells={};M.outlaw={};M.camps={};save();render();}};
   host.querySelectorAll("[data-cell]").forEach(el=>el.onclick=()=>{
-    const k=el.dataset.cell;MAPSEL=k;{const why=mapEditBlock(k);if(why){flash(why);render();return;}}
-    if(mtool==="Move"){const c=M.cells[k];if(c&&c.type==="Army"){MOVESEL=MOVESEL===k?null:k;render();return;}
-      if(MOVESEL&&moveArmyTo(k)){save();render();}return;}
+    const k=el.dataset.cell;MAPSEL=k;
+    if(mtool==="Select"){const mi=SEL?moveInfo():null;
+      if(mi&&mi.dest&&mi.dest[k]){if(!canMoveArmy(mi.p)){flash("\ud83d\udd12 not your army");return;}if(moveArmyTo(k)){save();render();}return;}
+      if(INSP===k){INSP=null;SEL=null;render();return;}
+      INSP=k;SEL=null;const c=M.cells[k];
+      if(c&&c.type==="Army"){const x=cellArmy(k);if(x.p&&x.a&&canMoveArmy(x.p))SEL={pid:String(x.p.id),aid:String(x.a.id)};}
+      render();return;}
+    {const why=mapEditBlock(k);if(why){flash(why);render();return;}}
     if(mtool==="Erase"){delete M.cells[k];delete M.outlaw[k];delete M.camps[k];}
     else if(mtool==="Outlaw Country"){if(M.outlaw[k])delete M.outlaw[k];else M.outlaw[k]=true;}
     else if(mtool==="Bandit Camp"){if(!M.camps[k])M.camps[k]={n:BAN.campStart||5,gold:0};}
@@ -5550,13 +5859,14 @@ function settBesieged(p,sid){return sid!=null&&siegeOn(p.id,sid)&&!besiegeExempt
 // the live Siege (or Sack) this Army is conducting
 function armySieging(p,a){return realmTimers().find(t=>(t.kind==="siege"||t.kind==="capture")&&String(t.by)===String(p.id)&&t.aid!=null&&String(t.aid)===String(a.id))||null;}
 // an Army inside (range 0) a Settlement under Siege
-function armyBesieged(p,a){return a.sid!=null&&siegeOn(p.id,a.sid);}
+function armyBesieged(p,a){return (a.sid!=null&&siegeOn(p.id,a.sid))||(!!a.inAlly&&siegeOn(a.inAlly.pid,a.inAlly.sid));}
 function armyStateTags(p,a){const t=[];
-  if(a.sid!=null){const s=settById(p,a.sid);t.push({k:"in",txt:"In "+(s?(s.name||s.tier):"?")});}
+  {const x=armyInside(p,a);if(x)t.push({k:"in",txt:"In "+(x.s.name||x.s.tier)+(sameP(x.q,p)?"":" ("+x.q.name+")")});else if(a.sid!=null)t.push({k:"in",txt:"In ?"});}
   const sg=armySieging(p,a);if(sg)t.push({k:"sieging",txt:(sg.kind==="capture"?"Capturing":"Laying Siege")+" — "+(sg.label||"")+
     (srcHas(p.board,/Immune Strained during Lay Siege/i)&&sg.kind==="siege"?" · Immune Strained":"")});
   if(armyBesieged(p,a)){t.push({k:"besieged",txt:"Besieged"+(besiegeExempt(p)?"":" · Blocked except Sally Forth")});
-    srcMatch(p.board,/(Armies and Garrisons gain Endurance while Besieged)/i).forEach(x=>t.push({k:"note",txt:x.n+": "+x.m[1]}));}
+  }
+  {const im=immuneStrainIn(p,a);if(im)t.push({k:"note",txt:im+": Immune Strained (inside a controlled Settlement)"});}
   if(a.sackT)t.push({k:"sack",txt:"Sacking · Blocked & Strained until the Sack Timer resolves"});
   return t;}
 function armyBlocked(p,a){return !!a.blocked||!!a.sackT||(armyBesieged(p,a)&&!besiegeExempt(p));}
@@ -5713,7 +6023,7 @@ function sackLocks(){const live=new Set(realmTimers().filter(t=>t.kind==="sack")
   D.players.forEach(p=>(p.board.armies||[]).forEach(a=>{if(a.sackT&&live.has(a.sackT))a.strained=true;}));}
 
 // ---- Muster: timer = ceil(Retinues ÷ combined muster limit); each tick the Army gains up to the limit ----
-function armyHex(p,a){if(a.sid!=null){const s=settById(p,a.sid),k=s?settHex(p,s):null;if(k)return k;}const M=mapState();return Object.keys(M.cells).find(k=>{const c=M.cells[k];return c.type==="Army"&&String(c.player)===String(p.id)&&cellArmy(k).a===a;})||null;}
+function armyHex(p,a){{const x=armyInside(p,a),k=x?settHex(x.q,x.s):null;if(k)return k;}const M=mapState();return Object.keys(M.cells).find(k=>{const c=M.cells[k];return c.type==="Army"&&String(c.player)===String(p.id)&&cellArmy(k).a===a;})||null;}
 function settHex(p,s){const M=mapState();return Object.keys(M.cells).find(k=>{const c=M.cells[k];return c.type!=="Army"&&String(c.player)===String(p.id)&&cellSett(k).s===s;})||null;}
 function musterLimit(p,a){const k=armyHex(p,a),rb=reachBonus(p).b,out={lim:0,src:[],paused:[],onMap:!!k};
   (p.board.settlements||[]).forEach(s=>{const st=(DATA.settlements||{})[s.tier]||{},ml=+st.muster_limit||0;if(!ml)return;
@@ -5754,7 +6064,24 @@ function charterFlags(p){const M=mapState(),g=M.grid,f=[];if(!g)return f;const V
   return [...new Set(f)];}
 
 // ---- Movement: Speed from data, legal hexes by terrain (Speed −X per Territory, Impassable, Water stop) ----
-let MOVESEL=null,MOVEMARCH=false,MOVEADJ=0;
+let SEL=null,MOVEMARCH=false,MOVEADJ=0;
+function selArmy(){if(!SEL)return null;const p=pById(SEL.pid),a=p&&(p.board.armies||[]).find(x=>String(x.id)===String(SEL.aid));if(!a){SEL=null;return null;}return {p,a};}
+function canMoveArmy(p){return !lockOn()||ADMIN||(!!myClaimP()&&String(myClaimP().id)===String(p.id));}
+// Settlements an Army may enter (ruling): its owner's, or an Alliance member's / same household
+function canEnterSett(p,q){if(!p||!q)return false;if(sameP(p,q))return true;const x=effPair(p.id,q.id);return !!x.household||sameAlliance(String(p.id),String(q.id));}
+// the Settlement an Army is inside: own (a.sid) or allied (a.inAlly = {pid, sid})
+function armyInside(p,a){if(a.sid!=null){const s=settById(p,a.sid);return s?{q:p,s}:null;}
+  if(a.inAlly){const q=pById(a.inAlly.pid),s=q&&settById(q,a.inAlly.sid);return s?{q,s}:null;}return null;}
+// one Army per Settlement (ruling): enter if empty; the controller's own Army may enter one an ally holds — the ally is pushed out (range 1)
+function enterCheck(p,a,q,s){if(!canEnterSett(p,q))return {ok:false};const occ=armiesInside(q,s).filter(o=>o.a!==a);if(!occ.length)return {ok:true};
+  if(sameP(p,q)&&occ.every(o=>!sameP(o.p,q)))return {ok:true,kick:occ.map(o=>({pid:String(o.p.id),aid:String(o.a.id)}))};return {ok:false,why:"occupied"};}
+function freeHexNear(k){const M=mapState(),V=decodeGrid(M.grid),seen=new Set([k]);let ring=[k];
+  for(let r=0;r<6&&ring.length;r++){const nx=[];for(const x of ring)for(const n of hexNb(x)){if(seen.has(n))continue;seen.add(n);const h=V.hex[n];if(!h)continue;
+      if(!terrBlocked(h.t)&&!terrWaterStop(h.t)&&!M.cells[n]&&!M.camps[n])return n;nx.push(n);}ring=nx;}return null;}
+function kickOut(q,s,list){const M=mapState(),sk=settHex(q,s),out=[];(list||[]).forEach(o=>{const p=pById(o.pid),a=p&&(p.board.armies||[]).find(x=>String(x.id)===String(o.aid));if(!a)return;
+  delete a.inAlly;
+  const k=sk?freeHexNear(sk):null;if(k)M.cells[k]={type:"Army",player:p.id,aid:a.id};out.push((a.label||("Army "+a.id))+" ("+p.name+")"+(k?" → "+k:" — no free hex: off the map"));});return out;}
+function armiesInside(q,s){const out=[];D.players.forEach(p=>(p.board.armies||[]).forEach(a=>{const x=armyInside(p,a);if(x&&sameP(x.q,q)&&String(x.s.id)===String(s.id))out.push({p,a});}));return out;}
 const T_EFF=Object.fromEntries(Object.entries(TREF.terrain||{}).map(([k,v])=>[k,String(v.Effect||"")]));
 function terrPen(t){const m=/Speed\s*[-−](\d+)\s*per Territory/i.exec(T_EFF[RULE_NAME[t]]||"");return m?+m[1]:0;}
 function terrBlocked(t){return /Impassable/i.test(T_EFF[RULE_NAME[t]]||"");}
@@ -5804,7 +6131,9 @@ function moveRange(p,a,startK){const M=mapState(),g=M.grid;if(!g||!startK)return
   const key=(k,w)=>k+"|"+w,best={},prev={},Q=[[0,startK,0]],dest={};best[key(startK,0)]=0;
   const waterOK=k=>tr.shipyard||(tr.bridges&&S_.prov.has(k));
   while(Q.length){Q.sort((x,y)=>x[0]-y[0]);const [d,k,w]=Q.shift();if(d>best[key(k,w)])continue;
-    if(k!==startK&&w!==1){const h=V.hex[k];if(!M.cells[k]&&!M.camps[k]&&(!dest[k]||dest[k].cost>d))dest[k]={cost:d,w,from:key(k,w)};}
+    if(k!==startK&&w!==1){const h=V.hex[k];if(!M.cells[k]&&!M.camps[k]&&(!dest[k]||dest[k].cost>d))dest[k]={cost:d,w,from:key(k,w)};
+      else if(M.cells[k]&&M.cells[k].type!=="Army"&&!M.camps[k]&&(!dest[k]||dest[k].cost>d)){const cs=cellSett(k),ent=cs.s?enterCheck(p,a,cs.p,cs.s):null;
+        if(ent&&ent.ok)dest[k]={cost:d,w,from:key(k,w),enter:{pid:String(cs.p.id),sid:cs.s.id,name:cs.s.name||cs.s.tier,kick:ent.kick||null}};}}
     if(w===2)continue;
     hexNb(k).forEach(nk=>{const h=V.hex[nk];if(!h)return;if(terrBlocked(h.t))return;
       const water=terrWaterStop(h.t)&&!waterOK(nk),pen=tr.ignoreTerrain?0:terrPen(h.t);
@@ -5814,30 +6143,37 @@ function moveRange(p,a,startK){const M=mapState(),g=M.grid;if(!g||!startK)return
   Object.keys(dest).forEach(k=>{const path=[];let cur=dest[k].from;while(cur){path.unshift(cur.split("|")[0]);cur=prev[cur];}
     dest[k].path=path;dest[k].strain=path.some(x=>{const h=V.hex[x];return h&&terrStrain(h.t)&&!tr.ignoreTerrain;});});
   return {speed:S_,dest};}
-function moveInfo(){if(!MOVESEL)return null;const M=mapState(),c=M.cells[MOVESEL];if(!c||c.type!=="Army"){MOVESEL=null;return null;}
-  const {p,a}=cellArmy(MOVESEL);if(!p||!a)return {k:MOVESEL,err:"Army not linked to a board Army"};return Object.assign({k:MOVESEL,p,a},moveRange(p,a,MOVESEL)||{});}
-function moveArmyTo(dk){const mi=moveInfo();if(!mi||!mi.dest||!mi.dest[dk])return false;const M=mapState(),d=mi.dest[dk];
-  M.cells[dk]=M.cells[mi.k];delete M.cells[mi.k];
-  if(d.strain)mi.a.strained=true;if(MOVEMARCH)mi.a.endurance=Math.max(0,(mi.a.endurance||0)-1);
-  flash((mi.a.label||("Army "+mi.a.id))+" moved "+mi.k+" → "+dk+" ("+d.cost+" of "+mi.speed.speed+")"+(d.strain?" · Strained (Barrens)":"")+(d.w===2?" · Water: move ends":""));
-  MOVESEL=null;return true;}
+function moveInfo(){const x=selArmy();if(!x)return null;const k=armyHex(x.p,x.a);if(!k)return {p:x.p,a:x.a,k:null,err:"Army is not on the map"};
+  return Object.assign({k,p:x.p,a:x.a},moveRange(x.p,x.a,k)||{});}
+function moveArmyTo(dk){const mi=moveInfo();if(!mi||!mi.dest||!mi.dest[dk])return false;const M=mapState(),d=mi.dest[dk],p=mi.p,a=mi.a;
+  const was=armyInside(p,a),from=was?(was.s.name||was.s.tier):mi.k;
+  const ck=Object.keys(M.cells).find(k=>{const c=M.cells[k];return c.type==="Army"&&String(c.player)===String(p.id)&&cellArmy(k).a===a;});
+  const old=ck?M.cells[ck]:null;if(ck)delete M.cells[ck];
+  delete a.inAlly;delete a.sid;
+  let kicked=[];if(d.enter){const eq=pById(d.enter.pid),es=eq&&settById(eq,d.enter.sid);if(d.enter.kick&&es)kicked=kickOut(eq,es,d.enter.kick);
+    if(String(d.enter.pid)===String(p.id))a.sid=d.enter.sid;else a.inAlly={pid:d.enter.pid,sid:d.enter.sid};}
+  else M.cells[dk]=Object.assign({},old||{},{type:"Army",player:p.id,aid:a.id});
+  if(d.strain)a.strained=true;if(MOVEMARCH){a.endurance=Math.max(0,(a.endurance||0)-1);delete a.pillage;}
+  flash((a.label||("Army "+a.id))+" moved "+from+" → "+(d.enter?"inside "+d.enter.name:dk)+" ("+d.cost+" of "+mi.speed.speed+")"+(d.strain?" · Strained (Barrens)":"")+(d.w===2?" · Water: move ends":"")+(kicked.length?" · pushed out: "+kicked.join(", "):""));
+  SEL=null;INSP=dk;return true;}
 function moveOverlay(R_,dx,dy,pts){const mi=moveInfo();if(!mi||!mi.dest)return "";let s="";
   Object.keys(mi.dest).forEach(k=>{const [c,r]=hk(k),cx=R_+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0),d=mi.dest[k];
+    if(d.enter){s+='<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="#f3d38a" fill-opacity=".22" stroke="#f3d38a" stroke-width="2.6" style="cursor:pointer"><title>'+k+' · enter '+esc(d.enter.name)+' · cost '+d.cost+'</title></polygon>'+
+        '<text x="'+cx.toFixed(1)+'" y="'+(cy-R_*.55).toFixed(1)+'" text-anchor="middle" font-size="8" font-weight="700" fill="#f3d38a" stroke="#111" stroke-width=".4" pointer-events="none">enter '+d.cost+'</text>';return;}
     s+='<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="#ffffff" fill-opacity=".38" stroke="#111" stroke-width="1.4" style="cursor:pointer"><title>'+k+' · cost '+d.cost+(d.w===2?' · after Water: move ends':'')+(d.strain?' · Barrens: Strained':'')+'</title></polygon>'+
        '<text x="'+cx.toFixed(1)+'" y="'+(cy+3).toFixed(1)+'" text-anchor="middle" font-size="8" fill="#111" pointer-events="none">'+d.cost+'</text>';});
   const [c,r]=hk(mi.k),cx=R_+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0);
   s+='<polygon points="'+pts(cx,cy)+'" fill="none" stroke="#f3d38a" stroke-width="3" pointer-events="none"/>';
   return s;}
-function movePanelHTML(){const mi=moveInfo();if(mtool!=="Move")return "";
-  if(!mi)return '<div class="note">Move: click an Army.</div>';
+function movePanelHTML(){const mi=moveInfo();if(!mi)return "";
   if(mi.err)return '<div class="flagbox">⚑ '+esc(mi.err)+'</div>';
   const S_=mi.speed,blk=(mapState().cells[mi.k]||{}).blocked||armyBlocked(mi.p,mi.a);
   const v=armyVals(mi.a,armyUFor(mi.p));
-  return '<div class="tot" style="margin-top:6px"><span class="eqrow">'+armyGear(mi.a).map(n=>eqSVG(n,22)).join("")+'</span> <span class="note">'+esc(armyStatLine(v))+'</span><br><b>'+esc(armyName(mi.a))+'</b> — Speed <b>'+S_.speed+'</b> <span class="note">('+S_.parts.map(x=>esc(x[0])+' '+(x[1]>0?'+':'')+x[1]).join(' · ')+')</span>'+
+  return '<div class="sec">Move</div><div><b>'+esc(armyName(mi.a))+'</b> — Speed <b>'+S_.speed+'</b> <span class="note">('+S_.parts.map(x=>esc(x[0])+' '+(x[1]>0?'+':'')+x[1]).join(' · ')+')</span>'+
     (S_.notes.length?'<div class="note">'+S_.notes.map(esc).join(' · ')+'</div>':'')+
     (blk?'<div class="flagbox">⚑ Blocked: can’t perform Move actions</div>':'')+
-    '<div class="bcrow"><label class="note"><input type="checkbox" id="mvMarch"'+(MOVEMARCH?' checked':'')+'> March</label> adjust <input id="mvAdj" type="number" value="'+MOVEADJ+'" style="width:46px"> <button id="mvCancel">cancel</button>'+
-    ' <span class="note">'+Object.keys(mi.dest).length+' reachable hexes</span></div></div>';}
+    '<div class="bcrow"><label class="note"><input type="checkbox" id="mvMarch" data-nav="1"'+(MOVEMARCH?' checked':'')+'> March</label> adjust <input id="mvAdj" data-nav="1" type="number" value="'+MOVEADJ+'" style="width:46px"> <button id="mvCancel" data-nav="1">cancel</button>'+
+    ' <span class="note">'+Object.keys(mi.dest).length+' reachable · click a lit hex'+(Object.values(mi.dest).some(d=>d.enter)?' · gold = enter Settlement':'')+'</span></div></div>';}
 
 let MAPSEL=null;
 function set(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
