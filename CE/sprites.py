@@ -9,6 +9,7 @@ Art only. No mechanics. Which sprite a thing gets is decided by the data file:
     Settlement     -> a skyline behind its holdings: "sky:core:<tier>" centred, "sky:fill:<tier>" tiled
                       across the lot (fallback 16x16 "tier:<tier>")
     Infrastructure -> skyline pieces "inf:<name>", placed per SKYLINE; INFRA_SUPERSEDES hides the replaced one
+    Equipment      -> "eq:<item>" per WEAPONS / RANGED / SHIELDS / ARMORS (12x12, no ground row): loadout icons
     Map pieces     -> "army:<Retinue>" per RETINUES, "map:<tier>" per SETTLEMENTS, "map:camp" / "map:bandit_army"
                       (16x16). Key 'p' is the owner's colour, swapped in per player on the map.
     Map terrain    -> small "prop:<name>" sprites (free size) scattered per hex by SCATTER[<kind>] for every
@@ -27,7 +28,7 @@ _s() only pads (top rows and right edge); it never truncates, so oversize art fa
 """
 import argparse, json, os, sys
 
-SPRITE_VERSION = "0.4"
+SPRITE_VERSION = "0.5"
 
 KEYS = {
     "k": "outline", "w": "plaster wall", "t": "stone", "u": "dark stone", "r": "roof",
@@ -73,7 +74,8 @@ def _b(rows, w=32, h=20, mirror=False):
     return ["." * w] * max(0, h - 1 - len(rows)) + rows + ["g" * w]
 
 
-S16, S24 = 16, 24
+S12, S16, S24 = 12, 16, 24
+EQ_TILE = "#3a404c"      # fixed backing square behind every eq: icon (board + sheet)
 SPRITES = {}
 
 # ---------------------------------------------------------------- settlement tiers (16)
@@ -1552,6 +1554,511 @@ SPRITES["map:Metropolis"] = _s([       # spired hall, gold dome, towers, owner b
     "kkkkkkkkkkkkkkkk",
 ], S16)
 
+# ---------------------------------------------------------------- equipment icons (12x12, no ground row)
+# "eq:<item>" for every WEAPONS / RANGED / SHIELDS / ARMORS item (not the 'None' shield). Loadout chips on the
+# Army card and the Army plate on the map. Keys are engine ids; players see NAME_DISPLAY labels.
+# Every icon is drawn on its own EQ_TILE square (any theme), so an icon may leave out its black outline where the
+# edge reads better without it (Poleaxe edge, bows, Flail, Arquebus). Weapons: grip bottom-left, point top-right. Shields front-on, armour as a torso.
+
+# weapons
+SPRITES["eq:Farm Tools"] = [      # shown as "Farm Tool" (NAME_DISPLAY)
+    "............",
+    ".......kkk..",
+    "......kmmmk.",
+    ".....kmkkkmk",
+    "....kmsk..k.",
+    "....kmsk....",
+    "....kmk.....",
+    "....kbk.....",
+    "...kbk......",
+    "..kbk.......",
+    ".kbk........",
+    "..k.........",
+]
+SPRITES["eq:Cudgel"] = [
+    "............",
+    ".......kkk..",
+    "......kbddk.",
+    ".....kbdbbk.",
+    ".....kbbbbk.",
+    ".....kdbkk..",
+    "....kbkk....",
+    "...kbk......",
+    "..kbk.......",
+    ".kbk........",
+    "kbk.........",
+    ".k..........",
+]
+SPRITES["eq:Pitchfork"] = [
+    "........k.k.",
+    ".......kmkmk",
+    "......kmkmk.",
+    ".....kmmmkmk",
+    "......kmmmk.",
+    ".....kbkmk..",
+    "....kbk.k...",
+    "...kbk......",
+    "..kbk.......",
+    ".kbk........",
+    "kbk.........",
+    ".k..........",
+]
+SPRITES["eq:Daggers"] = [
+    "......k.....",
+    ".....ksk....",
+    "..k.kmk.....",
+    ".ktkmk......",
+    "..ktk.......",
+    ".kbktk....k.",
+    "ktk.k....ksk",
+    ".k....k.kmk.",
+    ".....ktkmk..",
+    "......ktk...",
+    ".....kbktk..",
+    "....ktk.k...",
+]
+SPRITES["eq:Short Sword"] = [
+    "............",
+    ".........k..",
+    "........kmk.",
+    ".......kmsk.",
+    "......kmsk..",
+    "...k.kmsk...",
+    "..ktk.kk....",
+    "...ktk......",
+    "...kbtk.....",
+    "..kbkktk....",
+    ".ktk..k.....",
+    "..k.........",
+]
+SPRITES["eq:Spears"] = [      # shown as "Spear" (NAME_DISPLAY)
+    "..........k.",
+    "........kksk",
+    ".......kmmk.",
+    ".......kmmk.",
+    "......kbkk..",
+    ".....kbk....",
+    "....kbk.....",
+    "...kbk......",
+    "..kbk.......",
+    ".kbk........",
+    "kbk.........",
+    ".k..........",
+]
+SPRITES["eq:Arming Sword"] = [
+    "..........k.",
+    ".........kmk",
+    "........kmsk",
+    ".......kmsk.",
+    "..k...kmsk..",
+    ".kmk.kmsk...",
+    "..kmkmsk....",
+    "...kmkk.....",
+    "..kbkmk.....",
+    ".kbk.kmk....",
+    "kuk...k.....",
+    ".k..........",
+]
+SPRITES["eq:Pike"] = [
+    "..........ks",
+    ".........kmk",
+    "........kbk.",
+    ".......kbk..",
+    "......kbk...",
+    ".....kbk....",
+    "....kbk.....",
+    "...kbk......",
+    "..kbk.......",
+    ".kbk........",
+    "kbk.........",
+    "bk..........",
+]
+SPRITES["eq:Flail"] = [
+    "............",
+    "............",
+    "......t.....",
+    ".....t.t....",
+    "....b...t...",
+    "...b.....m..",
+    "..b.....mum.",
+    ".b......usu.",
+    "d.......mum.",
+    ".........m..",
+    "............",
+    "............",
+]
+SPRITES["eq:Halberd"] = [
+    ".....kmk....",
+    ".....kmkkk..",
+    "...k.kmkmmk.",
+    "..kmkkummmsk",
+    "...kmkummmsk",
+    "....kkukmmsk",
+    ".....kbkkmk.",
+    ".....kbk.k..",
+    ".....kbk....",
+    ".....kbk....",
+    ".....kbk....",
+    ".....kdk....",
+]
+SPRITES["eq:Battle Axe"] = [
+    ".k..kmk..k..",
+    "kskkkmkkksk.",
+    "ksmmkukmmsk.",
+    "ksmmmummmsk.",
+    "ksmmkukmmsk.",
+    "kskkkbkkksk.",
+    ".k..kbk..k..",
+    "....kbk.....",
+    "....kbk.....",
+    "....kbk.....",
+    "....kdk.....",
+    ".....k......",
+]
+SPRITES["eq:Cavalry Spear"] = [
+    "....k....kk.",
+    "...kckk.kmsk",
+    "....kcckkmmk",
+    "....kcckbkk.",
+    ".....kkck...",
+    ".....kbk....",
+    "....kbk.....",
+    "...kbk......",
+    "..kbk.......",
+    ".kbk........",
+    "kbk.........",
+    ".k..........",
+]
+SPRITES["eq:Morningstar"] = [
+    "............",
+    ".......k....",
+    "......kmk...",
+    ".....ksumk..",
+    "....kmumumk.",
+    ".....kuuuk..",
+    "....kbkmk...",
+    "...kbk.k....",
+    "..kbk.......",
+    ".kbk........",
+    "kdk.........",
+    ".k..........",
+]
+SPRITES["eq:Bastard Sword"] = [
+    "..........k.",
+    ".........kmk",
+    "........kmsk",
+    ".......kmsk.",
+    "..k...kmsk..",
+    ".kyk.kmsk...",
+    "..kykmsk....",
+    "...kykk.....",
+    "..kbkyk.....",
+    ".kbk.kyk....",
+    "kbk...k.....",
+    "yk..........",
+]
+SPRITES["eq:2HBastard"] = SPRITES["eq:Bastard Sword"]   # same sword, two-handed profile
+SPRITES["eq:War Hammer"] = [
+    "....kmk.....",
+    ".kkkkmk.....",
+    "ksuukukkk...",
+    "ksuuuummmk..",
+    "ksuukukkmmk.",
+    ".kkkkbk.kmk.",
+    "....kbk..k..",
+    "....kbk.....",
+    "....kbk.....",
+    "....kbk.....",
+    "....kdk.....",
+    ".....k......",
+]
+SPRITES["eq:Lance"] = [
+    ".........kkc",
+    "........kcck",
+    ".......kcsck",
+    "......kccck.",
+    ".....kcsck..",
+    "..kkkkcck...",
+    ".kmmmmkk....",
+    "..kmmmk.....",
+    "..kmmmk.....",
+    ".kbkkmk.....",
+    "kbk..k......",
+    "bk..........",
+]
+SPRITES["eq:Estoc"] = [
+    "..........km",
+    ".........kmk",
+    "........kmk.",
+    ".......kmk..",
+    "...k..kmk...",
+    "..kykkmk....",
+    "..kyymk.....",
+    "...kbyyk....",
+    "..kbkkyk....",
+    ".kak..k.....",
+    "kyk.........",
+    ".k..........",
+]
+SPRITES["eq:Poleaxe"] = [
+    ".ksk........",
+    ".kuk...s....",
+    ".kuk..kus...",
+    "kkyk.kkuds..",
+    "ykykkdduds..",
+    "uyyddddudds.",
+    "ykykkdduds..",
+    "kkyk.kkuds..",
+    ".kbk..kus...",
+    ".kyk...s....",
+    ".kbk........",
+    ".kdk........",
+]
+
+# ranged
+SPRITES["eq:Hunting Bow"] = [
+    "............",
+    "............",
+    "....bb......",
+    "...b..b.....",
+    "...s...b....",
+    "...s....b...",
+    "...s....b...",
+    "...s...b....",
+    "...b..b.....",
+    "....bb......",
+    "............",
+    "............",
+]
+SPRITES["eq:Longbow"] = [
+    "...b........",
+    "...sb.......",
+    "...s.b......",
+    "...s..b.....",
+    "...s..b.....",
+    "...s..c.....",
+    "...s..c.....",
+    "...s..b.....",
+    "...s..b.....",
+    "...s.b......",
+    "...sb.......",
+    "...b........",
+]
+SPRITES["eq:Javelin"] = [      # shown as "Throwing Axe" (NAME_DISPLAY)
+    "...kkkk.....",
+    "..kbmmskk...",
+    "..kbmmmmsk..",
+    "..kbmmmmmsk.",
+    "..kbdkmmmsk.",
+    "..kbk.kmmsk.",
+    "..kbk..ksk..",
+    "..kbk...k...",
+    "..kbk.......",
+    "..kbk.......",
+    "..kdk.......",
+    "...k........",
+]
+SPRITES["eq:Crossbow"] = [
+    "....kmk.....",
+    "....kbk.....",
+    ".kkkkbkkkkk.",
+    "kmmmmmmmmmmk",
+    "kmkkkbkkkkmk",
+    ".ksssbssssk.",
+    "..kkkbkkkk..",
+    "....kbuk....",
+    "....kbk.....",
+    "...kbbbk....",
+    "...kbbbk....",
+    "....kkk.....",
+]
+SPRITES["eq:Pilum"] = [      # shown as "Throwing Spear" (NAME_DISPLAY)
+    ".k........k.",
+    "ksk......ksk",
+    ".kmk....kmk.",
+    ".kmmk..kmmk.",
+    "..kkdkkdkk..",
+    "....kbbk....",
+    "....kbbk....",
+    "...kckkck...",
+    "..kbk..kbk..",
+    ".kbk....kbk.",
+    "kdk......kdk",
+    ".k........k.",
+]
+SPRITES["eq:Arquebus"] = [
+    "............",
+    "............",
+    "....f.......",
+    "...ymmmmmmmm",
+    "..buuuuuuuud",
+    "bbbbbbbbbbd.",
+    "bbdb.yy.....",
+    "bbd.........",
+    "dd..........",
+    "............",
+    "............",
+    "............",
+]
+
+# shields
+SPRITES["eq:Buckler Shield"] = [
+    "............",
+    "............",
+    "....kkkk....",
+    "...ksmmmk...",
+    "..ksmmmmmk..",
+    "..kmmuummk..",
+    "..kmmuummk..",
+    "..kmmmmmmk..",
+    "...kmmmmk...",
+    "....kkkk....",
+    "............",
+    "............",
+]
+SPRITES["eq:Targe Shield"] = [
+    ".....kk.....",
+    "...kkbbkk...",
+    "..kbbyybbk..",
+    ".kbbbbbbbbk.",
+    ".kbbbbbbbbk.",
+    "kbybbsmbbybk",
+    "kbybbmmbbybk",
+    ".kbbbbbbbbk.",
+    ".kbbbbbbbbk.",
+    "..kbbyybbk..",
+    "...kkbbkk...",
+    ".....kk.....",
+]
+SPRITES["eq:Kite Shield"] = [
+    "..kkkkkkkk..",
+    ".kaaayyaaak.",
+    ".kaaayyaaak.",
+    ".kyyyyyyyyk.",
+    ".kaaayyaaak.",
+    "..kaayyaak..",
+    "..kaayyaak..",
+    "...kayyak...",
+    "...kayyak...",
+    "....kyyk....",
+    "....kaak....",
+    ".....kk.....",
+]
+SPRITES["eq:Tower Shield"] = [
+    "kbbbbmmbbbbk",
+    "kbcccmmcccbk",
+    "kbcccmmcccbk",
+    "kbcccmmcccbk",
+    "kbcccmmcccbk",
+    "kmmmmssmmmmk",
+    "kbcccmmcccbk",
+    "kbcccmmcccbk",
+    "kbcccmmcccbk",
+    "kbcccmmcccbk",
+    "kbbbbmmbbbbk",
+    ".kkkkkkkkkk.",
+]
+SPRITES["eq:Heater Shield"] = [
+    ".kkkkkkkkkk.",
+    "kaaaaayyyyyk",
+    "kaaaaayyyyyk",
+    "kaaaaayyyyyk",
+    "kaaaaayyyyyk",
+    "kyyyyyaaaaak",
+    ".kyyyyaaaak.",
+    ".kyyyyaaaak.",
+    "..kyyyaaak..",
+    "..kyyyaaak..",
+    "...kkyakk...",
+    ".....kk.....",
+]
+
+# armour
+SPRITES["eq:Cloth"] = [
+    "............",
+    ".kkkk..kkkk.",
+    "kcccckkcccck",
+    "kccccddcccck",
+    "kcccccccccck",
+    "kcccccccccck",
+    "kckcccccckck",
+    "kckcccccckck",
+    ".kkbbbbbbkk.",
+    "..kcccccck..",
+    "..kcccccck..",
+    "...kkkkkk...",
+]
+SPRITES["eq:Gambeson"] = [      # shown as "Padded" (NAME_DISPLAY)
+    "............",
+    ".kkkk..kkkk.",
+    "kwwwwkkwwwwk",
+    "kwwwwdwwwwwk",
+    "kwwssdssswwk",
+    "kwwwwdwwwwwk",
+    "kwkssdssskwk",
+    "kwkwwdwwwkwk",
+    ".kkssdssskk.",
+    "..kwwdwwwk..",
+    "..kssdsssk..",
+    "...kkkkkk...",
+]
+SPRITES["eq:Leather"] = [
+    "............",
+    ".kkkk..kkkk.",
+    "kbbbbkkbbbbk",
+    "kbbbbddbbbbk",
+    "kbbbdbbdbbbk",
+    "kbbbbbbbbbbk",
+    "kbkbbbbbbkbk",
+    "kbkbbbbbbkbk",
+    ".kkddydddkk.",
+    "..kbbbbbbk..",
+    "..kbbbbbbk..",
+    "...kkkkkk...",
+]
+SPRITES["eq:Chainmail"] = [
+    "............",
+    ".kkkk..kkkk.",
+    "kmumukkmumuk",
+    "kumumumumumk",
+    "kmumumumumuk",
+    "kumumumumumk",
+    "kmkmumumukuk",
+    "kukumumumkmk",
+    ".kkbbbbbbkk.",
+    "..kumumumk..",
+    "..kmumumuk..",
+    "...kkkkkk...",
+]
+SPRITES["eq:Full Plate"] = [
+    "............",
+    ".kkkk..kkkk.",
+    "kssmmkkmmuuk",
+    "kssmmsmmmuuk",
+    "kmmmmsmmmmmk",
+    "kmmmmsmmmmmk",
+    "kmkmmsmmmkmk",
+    "kmkuuuuuukmk",
+    ".kkmmsmmmkk.",
+    "..kuuuuuuk..",
+    "..kmmmmmmk..",
+    "...kkkkkk...",
+]
+SPRITES["eq:Gothic Plate"] = [
+    "............",
+    ".kkkk..kkkk.",
+    "kyydykkydyyk",
+    "kyydududuyyk",
+    "kuddudududuk",
+    "kuddudududuk",
+    "kukdududukuk",
+    "kukduuuuukuk",
+    ".kkdududukk.",
+    "..kdududuk..",
+    "..kyyyyyyk..",
+    "...kkkkkk...",
+]
+
 # ---------------------------------------------------------------- map terrain: scattered props in the hex's own tones
 MAP_TERRAIN = ("plains", "hill", "forest", "wetland", "tundra", "mountain", "water")   # hexstyle kinds + hill; "tundra" = Barrens
 _P = {}
@@ -1660,6 +2167,8 @@ def _dims(key):
         return None          # free size: checked for consistency only
     if key.startswith(("monument:", "wonder:")):
         return S24, S24
+    if key.startswith("eq:"):
+        return S12, S12
     return S16, S16
 
 
@@ -1712,6 +2221,8 @@ def check(ns):
             bad = set(r) - set(KEYS) - {"."}
             if bad:
                 out.append(f"{key}: row {i} unknown keys {''.join(sorted(bad))}")
+        if key.startswith("eq:"):
+            continue                                   # icons: no ground row, may float
         if any(c != "g" for c in rows[-1]):
             out.append(f"{key}: last row is not ground")
         elif all(len(r) == w for r in rows) and not key.startswith("prop:"):   # props are tiny scattered marks by design
@@ -1773,6 +2284,15 @@ def check(ns):
                 used.add(a)
                 if "prop:" + a not in SPRITES:
                     out.append(f"SCATTER {n}: no sprite prop:{a}")
+    gear = set()
+    for t in ("WEAPONS", "RANGED", "SHIELDS", "ARMORS"):
+        gear |= {n for n in ns.get(t, {}) if n not in (None, "None", "null")}
+    for n in sorted(gear):
+        if "eq:" + n not in SPRITES:
+            out.append(f"no equipment icon for {n}")
+    for key in SPRITES:
+        if key.startswith("eq:") and key[3:] not in gear:
+            out.append(f"{key}: not in WEAPONS / RANGED / SHIELDS / ARMORS")
     for k in ("map:camp", "map:bandit_army"):
         if k not in SPRITES:
             out.append(f"no map sprite {k}")

@@ -599,7 +599,7 @@ def sprite_payload(ns, data_path):
         return {"scatter": dict(getattr(mod, "SCATTER", {})), "S": mod.SPRITES, "P": mod.PALETTES.get("scene", {}), "key": keymap, "v": getattr(mod, "SPRITE_VERSION", "?"),
                 "raw": raw, "skyline": {k: list(v) for k, v in getattr(mod, "SKYLINE", {}).items()},
                 "supersedes": dict(getattr(mod, "INFRA_SUPERSEDES", {})), "noInfra": list(getattr(mod, "PLATE_NO_INFRA", [])),
-                "style": dict(getattr(mod, "SCENE_STYLE", {}))}
+                "style": dict(getattr(mod, "SCENE_STYLE", {})), "eqTile": getattr(mod, "EQ_TILE", "#3a404c")}
     print("  (sprites.py not found - no settlement scene)")
     return None
 
@@ -938,6 +938,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .lochip{font-size:11px;padding:2px 8px;border-radius:var(--radius-sm);border:1px solid var(--battle);
     color:var(--battle);background:var(--chip);cursor:pointer}
   .lochip .k{color:var(--dim2);font-size:9px;margin-right:3px}
+  .lochip .eqi,.eqrow .eqi{vertical-align:middle;margin-right:4px;image-rendering:pixelated}.eqrow .eqi{margin-right:2px}
   .lochip:hover{filter:brightness(1.3)}
   /* top bar / views / players */
   .topbar{display:flex;align-items:center;gap:16px;padding:6px 12px;border-bottom:1px solid var(--line);background:var(--topbar);position:sticky;top:0;z-index:20;flex-wrap:wrap}
@@ -3692,7 +3693,7 @@ function armyCard(a,u){
    ["Armor","armor",a.armor],["Shield","shield",a.shield]].forEach(([lbl,kind,val])=>{
     if(!val||val==="None")return;
     const c=document.createElement("span");c.className="lochip";c.dataset.kind=kind;c.dataset.item=val;
-    c.innerHTML='<span class="k">'+lbl+'</span>'+esc(val);loch.appendChild(c);
+    c.innerHTML=eqSVG(val,16,kind==="retinue"?"army":"eq")+'<span class="k">'+lbl+'</span>'+esc(val);loch.appendChild(c);
   });
   card.appendChild(loch);
 
@@ -3743,18 +3744,22 @@ function moraleCap(a){const b=(D.players||[]).map(p=>p.board).find(bb=>(bb.armie
 function effMorale(a){const v=moraleBase(a)+(BT.fatigueMorale??2)*(a.fatigue||0),c=moraleCap(a);return c!=null?Math.min(c,v):v;}
 function isRouted(a){return effMorale(a)>=(BT.routThr||11);}
 
+// modified Army stats (shared by the Army card, map plate, hover title and Move panel)
+function armyVals(a,u){
+  const rt=EQ.retinues[a.retinue]||{}, w=EQ.weapons[a.weapon]||{},
+        r=(a.ranged&&a.ranged!=="None")?EQ.ranged[a.ranged]:null,
+        ar=EQ.armors[a.armor]||{}, shKey=(a.shield==="None"||!a.shield)?"null":a.shield,
+        sh=EQ.shields[shKey]||{save_bonus:0,init:0,tags:[]};
+  const strikePlus=u.mods.filter(m=>m.tok==="Strike +1").length,initPlus=u.mods.filter(m=>m.tok==="Init +1").length,wpn=r||w;
+  return {toStrike:(rt.to_hit!=null?rt.to_hit:0)-strikePlus,save:(ar.save!=null?ar.save:0)-(sh.save_bonus||0),
+    init:(wpn.init||0)+(sh.init||0)+initPlus,ap:(wpn.ap!=null?wpn.ap:0),morale:effMorale(a),routed:isRouted(a)};}
 function armyStats(a,u){
   const box=document.createElement("div");box.className="stats";
   const rt=EQ.retinues[a.retinue]||{}, w=EQ.weapons[a.weapon]||{},
         r=(a.ranged&&a.ranged!=="None")?EQ.ranged[a.ranged]:null,
         ar=EQ.armors[a.armor]||{}, shKey=(a.shield==="None"||!a.shield)?"null":a.shield,
         sh=EQ.shields[shKey]||{save_bonus:0,init:0,tags:[]};
-  const strikePlus=u.mods.filter(m=>m.tok==="Strike +1").length;
-  const initPlus=u.mods.filter(m=>m.tok==="Init +1").length;
-  const toStrike=(rt.to_hit!=null?rt.to_hit:0)-strikePlus;
-  const save=(ar.save!=null?ar.save:0)-(sh.save_bonus||0);
-  const wpn=r||w;
-  const init=(wpn.init||0)+(sh.init||0)+initPlus;
+  const V=armyVals(a,u),toStrike=V.toStrike,save=V.save,init=V.init,wpn=r||w;
   const stat=(k,v)=>{const s=document.createElement("span");s.className="stat";s.innerHTML='<span class="k">'+k+'</span><b>'+v+'</b>';box.appendChild(s);};
   stat("TO-STRIKE",toStrike+"+");
   stat("SAVE",save+"+");
@@ -5096,7 +5101,7 @@ let MAP_SPR_DEFS=null;
 function mapSprId(k){return "ms-"+k.replace(/[^A-Za-z0-9]/g,"_");}
 function mapSprDefs(){if(MAP_SPR_DEFS!=null)return MAP_SPR_DEFS;let d="";const P=SPR.P||{};
   const TV={H:"var(--tH)",S:"var(--tS)",D:"var(--tD)",k:"currentColor"};
-  Object.keys(SPR.S).filter(k=>/^(army|map|prop):/.test(k)).forEach(k=>{const ter=k.startsWith("prop:");const rows=SPR.S[k].slice(0,-1),w=rows[0].length,by={};   // last row = ground, skipped
+  Object.keys(SPR.S).filter(k=>/^(army|map|prop|eq):/.test(k)).forEach(k=>{const ter=k.startsWith("prop:");const rows=k.startsWith("eq:")?SPR.S[k]:SPR.S[k].slice(0,-1),w=rows[0].length,by={};   // last row = ground, skipped (eq: icons have none)
     rows.forEach((r,y)=>{let x=0;while(x<w){const ch=r[x];let n=1;while(x+n<w&&r[x+n]===ch)n++;
       if(ch!=="."&&ch!=="g")by[ch]=(by[ch]||"")+"M"+x+" "+y+"h"+n+"v1h-"+n+"z";x+=n;}});
     d+='<symbol id="'+mapSprId(k)+'" viewBox="0 0 '+w+' '+rows.length+'" shape-rendering="crispEdges">'+
@@ -5131,6 +5136,29 @@ function mapSpr(k,cx,cy,R,col,unl){const w=R*1.6,h=w*15/16,y0=cy+R*.62-h;
   return '<ellipse cx="'+cx.toFixed(1)+'" cy="'+(cy+R*.55).toFixed(1)+'" rx="'+(R*.62).toFixed(1)+'" ry="'+(R*.2).toFixed(1)+'" fill="'+(col||"#7a1414")+'" fill-opacity="'+(col?.9:.8)+'"'+
     (unl?' stroke="#b3392f" stroke-width="1.5" stroke-dasharray="3 2"':'')+' pointer-events="none"/>'+
     '<use href="#'+mapSprId(k)+'" x="'+(cx-w/2).toFixed(1)+'" y="'+y0.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+h.toFixed(1)+'" color="'+(col||"#888")+'" pointer-events="none"/>';}
+// ---- loadout icons (sprites.py eq:<item>) + modified Army stats: Army card chips, map plate, hover title, Move panel
+const EQ_SVG={};
+function eqSVG(name,px,kind){const key=(kind||"eq")+":"+name,raw=SPR&&SPR.S[key];if(!raw)return "";const rows=kind==="army"?raw.slice(0,-1):raw,ck=key+"|"+px;if(EQ_SVG[ck])return EQ_SVG[ck];
+  const P=SPR.P||{},w=rows[0].length,by={};
+  rows.forEach((r,y)=>{let x=0;while(x<w){const ch=r[x];let n=1;while(x+n<w&&r[x+n]===ch)n++;if(ch!==".")by[ch]=(by[ch]||"")+"M"+x+" "+y+"h"+n+"v1h-"+n+"z";x+=n;}});
+  return EQ_SVG[ck]='<svg class="eqi" width="'+px+'" height="'+px+'" viewBox="0 0 '+w+' '+rows.length+'" shape-rendering="crispEdges" aria-hidden="true">'+
+    (kind==="army"?'':'<rect width="'+w+'" height="'+rows.length+'" rx=".8" fill="'+(SPR.eqTile||"#3a404c")+'"/>')+
+    Object.keys(by).map(ch=>'<path d="'+by[ch]+'" fill="'+(P[ch]||"#f0f")+'"/>').join("")+'</svg>';}
+function armyGear(a){return [a.weapon,(a.ranged&&a.ranged!=="None")?a.ranged:null,(a.shield&&a.shield!=="None"&&a.shield!=="null")?a.shield:null,a.armor].filter(n=>n&&SPR&&SPR.S["eq:"+n]);}
+// the owner's army unlocks/modifiers, as renderArmy builds them for the active board
+function armyUFor(p){return withBoard(p.board,()=>{const {earned}=computeEarned(new Set(Object.keys(PC)));const u=armyUnlocks(earned);u.mods=u.mods.concat(facCombat(S));return u;});}
+function armyStatLine(v){return "To-Strike "+v.toStrike+"+ · Init "+(v.init>=0?"+":"")+v.init+" · Save "+v.save+"+ · Morale "+v.morale+"+"+(v.routed?" (Routed)":"");}
+function cellArmyVals(k){const {p,a}=cellArmy(k);if(!p||!a)return null;return {a,v:armyVals(a,armyUFor(p))};}
+// plate beside the sprite: loadout icons over modified To-Strike / Init / Save / Morale
+function mapPlate(k,cx,cy,R){const x=cellArmyVals(k);if(!x)return "";const g=armyGear(x.a),v=x.v,ic=R*.56,pad=R*.1,cw=R*.6,f1=R*.2,f2=R*.34,
+    cols=[["STK",v.toStrike+"+"],["INI",(v.init>=0?"+":"")+v.init],["SAV",v.save+"+"],["MOR",v.morale+"+"]],
+    w=Math.max(g.length*ic,cols.length*cw)+pad*2,h=pad*2+ic+f1+f2+R*.1,x0=cx+R*.72,y0=cy-R*1.1,ty=y0+pad+ic+R*.04;
+  return '<g pointer-events="none" font-family="ui-monospace,monospace"><rect x="'+x0.toFixed(1)+'" y="'+y0.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="'+(R*.12).toFixed(1)+'" fill="#111" fill-opacity=".85" stroke="#f3d38a" stroke-opacity=".5" stroke-width=".6"/>'+
+    g.map((n,i)=>'<rect x="'+(x0+pad+i*ic+ic*.03).toFixed(2)+'" y="'+(y0+pad).toFixed(2)+'" width="'+(ic*.94).toFixed(2)+'" height="'+(ic*.94).toFixed(2)+'" rx="'+(ic*.07).toFixed(2)+'" fill="'+(SPR.eqTile||"#3a404c")+'"/>'+
+      '<use href="#'+mapSprId("eq:"+n)+'" x="'+(x0+pad+i*ic).toFixed(1)+'" y="'+(y0+pad).toFixed(1)+'" width="'+ic.toFixed(1)+'" height="'+ic.toFixed(1)+'"/>').join("")+
+    cols.map(([l,val],i)=>{const tx=(x0+pad+i*cw+cw/2).toFixed(1);
+      return '<text x="'+tx+'" y="'+(ty+f1).toFixed(1)+'" text-anchor="middle" font-size="'+f1.toFixed(2)+'" fill="#a8a29a">'+l+'</text>'+
+        '<text x="'+tx+'" y="'+(ty+f1+f2).toFixed(1)+'" text-anchor="middle" font-size="'+f2.toFixed(2)+'" font-weight="700" fill="'+(i===3&&v.routed?"#ef5350":"#fff")+'">'+val+'</text>';}).join("")+'</g>';}
 function mapSVG(M){
   const V=decodeGrid(M.grid),g=M.grid,cols=g?g.width:(M.cols||16),rows=g?g.height:(M.rows||12);
   const R=15,dx=1.5*R,dy=Math.sqrt(3)*R,W=cols*dx+R*2,H=rows*dy+dy,PAL=mapPal(g);
@@ -5197,12 +5225,13 @@ function mapSVG(M){
          const t=(g?"G"+g.count:"")+(ins?(g?" ":"")+"A"+ins:"");return t?'<text x="'+(cx-R*.95).toFixed(1)+'" y="'+(cy+R*.85).toFixed(1)+'" font-size="7.5" font-weight="700" fill="#fff" stroke="#111" stroke-width=".35" pointer-events="none">'+t+'</text>':"";})()+
        (()=>{if(cell.type!=="Army")return "";const ca=cellArmy(k).a;return ca&&ca.muster&&ca.muster.n>0?'<text x="'+(cx+R*.55).toFixed(1)+'" y="'+(cy-R*.45).toFixed(1)+'" font-size="8" font-weight="700" fill="#f3d38a" stroke="#111" stroke-width=".4" pointer-events="none">M'+(ca.muster.t||0)+'</text>':"";})()+
        (()=>{if(cell.type!=="Army")return "";const ca=cellArmy(k).a;return ca&&+ca.count>0?'<text x="'+(cx+R*.8).toFixed(1)+'" y="'+(cy+R*.8).toFixed(1)+'" text-anchor="end" font-size="8" font-weight="700" fill="#fff" stroke="#111" stroke-width=".4" pointer-events="none">'+ca.count+'</text>':"";})()+(cell.blocked?'<title>Blocked (Sabotage) — re-place or erase the Army to clear</title>':'');});
+  let plates="";if(pix&&M.showPlates!==false)Object.keys(M.cells).forEach(k=>{if(M.cells[k].type!=="Army")return;const [c,r]=k.split(",").map(Number);plates+=mapPlate(k,R+c*dx,dy/2+r*dy+(c%2?dy/2:0),R);});
   Object.keys(M.camps).forEach(k=>{const cp=M.camps[k],[c,r]=k.split(",").map(Number),cx=R+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0),army=cp.n>=(BAN.armyThreshold||25);
     const ck=army?"map:bandit_army":"map:camp";
     s+=pix&&SPR.S[ck]?mapSpr(ck,cx,cy,R,null,false)+'<text x="'+(cx+R*.8).toFixed(1)+'" y="'+(cy+R*.8).toFixed(1)+'" text-anchor="end" font-size="8" font-weight="700" fill="#f3d38a" stroke="#111" stroke-width=".4" pointer-events="none">'+cp.n+'</text>':
        '<rect x="'+(cx-R*.62).toFixed(1)+'" y="'+(cy-R*.5).toFixed(1)+'" width="'+(R*1.24).toFixed(1)+'" height="'+(R).toFixed(1)+'" fill="'+(army?"#5a0d0d":"#1b1b1b")+'" stroke="#e0b060" pointer-events="none"/>'+
        '<text x="'+cx.toFixed(1)+'" y="'+(cy+3.5).toFixed(1)+'" text-anchor="middle" font-size="9" font-weight="700" fill="#f3d38a" pointer-events="none">☠'+cp.n+'</text>';});
-  return s+'</svg>';
+  return s+plates+'</svg>';
 }
 function outlawReport(M){
   const V=decodeGrid(M.grid),by={},warn=[];
@@ -5257,7 +5286,8 @@ function cellArmy(k){const cell=mapState().cells[k];if(!cell||cell.type!=="Army"
   return {p,a:as.length===1?as[0]:null};}
 function cellTitle(k){const cell=mapState().cells[k];if(!cell)return "";const p=cellPlayer(cell);
   const nm=cell.type==="Army"?(cellArmy(k).a?armyName(cellArmy(k).a):"Army — unlinked"):(cellSett(k).s?(cellSett(k).s.name||cellSett(k).s.tier):cell.type+" — unlinked");
-  return (p?p.name+" ":"")+nm+(cell.blocked?" · Blocked":"");}
+  const av=cell.type==="Army"?cellArmyVals(k):null;
+  return (p?p.name+" ":"")+nm+(av?" · "+armyStatLine(av.v)+" · "+armyGear(av.a).join(", "):"")+(cell.blocked?" · Blocked":"");}
 function byDist(k,list,randomTies){const a=hk(k);return list.map((x,i)=>({x,d:hexDist(a,hk(x.k)),r:randomTies?Math.random():i})).sort((u,v)=>u.d-v.d||u.r-v.r).map(o=>o.x);}
 function outlawOwner(k){const L=byDist(k,mapSetts(),false);return L.length?cellPlayer(L[0].cell):null;}   // Outlaw Country belongs to the closest settlement's owner
 function outlawOf(p){const M=mapState();return Object.keys(M.outlaw).filter(k=>M.outlaw[k]&&sameP(outlawOwner(k),p));}
@@ -5384,6 +5414,7 @@ function mapToolsHTML(){const M=mapState(),g=M.grid;
     ' <span class="note">placing as</span> <span class="pdot" style="display:inline-block;background:'+mapAsP().color+'"></span> '+esc(mapAsP().name)+
     ' <label class="note"><input type="checkbox" id="mRes"'+(M.showRes!==false?' checked':'')+'> resources</label>'+
     ' <label class="note"><input type="checkbox" id="mReach"'+(M.showReach!==false?' checked':'')+'> reach borders</label>'+
+    ' <label class="note"><input type="checkbox" id="mPlates"'+(M.showPlates!==false?' checked':'')+'> army plates</label>'+
     ' <label class="note"><input type="checkbox" id="mStarts"'+(M.showStarts?' checked':'')+'> suggested settlement spots</label>'+
     ' <button id="mClear">clear markers</button>'+
     ' <span class="mapzoom" style="display:inline-flex;margin:0"><button data-mz="-1" title="zoom out">−</button><button data-mz="1" title="zoom in">+</button><button data-mz="fit"'+(MAPZ.fit?' class="on"':'')+'>fit</button><span class="note">'+(MAPZ.fit?"fit":Math.round(MAPZ.z*100)+"%")+'</span></span></div>';
@@ -5440,6 +5471,7 @@ function wireMap(host){const M=mapState(),g=M.grid,era=currentEra(),$=id=>host.q
   if($("mvCancel"))$("mvCancel").onclick=()=>{MOVESEL=null;render();};
   if($("mRes"))$("mRes").onchange=e=>{M.showRes=e.target.checked;save();render();};
   if($("mReach"))$("mReach").onchange=e=>{M.showReach=e.target.checked;save();render();};
+  if($("mPlates"))$("mPlates").onchange=e=>{M.showPlates=e.target.checked;save();render();};
   if($("mStarts"))$("mStarts").onchange=e=>{M.showStarts=e.target.checked;save();render();};
   if($("mClear"))$("mClear").onclick=()=>{if(confirm("Clear settlements, armies, Outlaw Country and camps? Terrain stays.")){M.cells={};M.outlaw={};M.camps={};save();render();}};
   host.querySelectorAll("[data-cell]").forEach(el=>el.onclick=()=>{
@@ -5800,7 +5832,8 @@ function movePanelHTML(){const mi=moveInfo();if(mtool!=="Move")return "";
   if(!mi)return '<div class="note">Move: click an Army.</div>';
   if(mi.err)return '<div class="flagbox">⚑ '+esc(mi.err)+'</div>';
   const S_=mi.speed,blk=(mapState().cells[mi.k]||{}).blocked||armyBlocked(mi.p,mi.a);
-  return '<div class="tot" style="margin-top:6px"><b>'+esc(armyName(mi.a))+'</b> — Speed <b>'+S_.speed+'</b> <span class="note">('+S_.parts.map(x=>esc(x[0])+' '+(x[1]>0?'+':'')+x[1]).join(' · ')+')</span>'+
+  const v=armyVals(mi.a,armyUFor(mi.p));
+  return '<div class="tot" style="margin-top:6px"><span class="eqrow">'+armyGear(mi.a).map(n=>eqSVG(n,22)).join("")+'</span> <span class="note">'+esc(armyStatLine(v))+'</span><br><b>'+esc(armyName(mi.a))+'</b> — Speed <b>'+S_.speed+'</b> <span class="note">('+S_.parts.map(x=>esc(x[0])+' '+(x[1]>0?'+':'')+x[1]).join(' · ')+')</span>'+
     (S_.notes.length?'<div class="note">'+S_.notes.map(esc).join(' · ')+'</div>':'')+
     (blk?'<div class="flagbox">⚑ Blocked: can’t perform Move actions</div>':'')+
     '<div class="bcrow"><label class="note"><input type="checkbox" id="mvMarch"'+(MOVEMARCH?' checked':'')+'> March</label> adjust <input id="mvAdj" type="number" value="'+MOVEADJ+'" style="width:46px"> <button id="mvCancel">cancel</button>'+
