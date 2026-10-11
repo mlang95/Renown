@@ -887,6 +887,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .insp .pos{color:var(--income)}.insp .neg{color:var(--upkeep)}
   .insp .kw{font-size:10px;padding:1px 6px}
   .insp .ist button{flex:none}
+  .pform{display:flex;flex-direction:column;gap:4px;margin-top:2px}.pform .pfr{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .pform select{max-width:100%}.pform .pfx{font-size:11px;color:var(--dim)}.pform .pfx b{color:var(--ink)}
+  .apl{margin-top:3px;font-size:11px}.apl div{margin:1px 0}.apl .fl{color:var(--order)}
   .bqlist{margin-bottom:8px}.bqrow{display:flex;align-items:center;gap:8px;padding:4px 0;border-top:1px solid var(--line);flex-wrap:wrap}.bqrow.on{background:color-mix(in srgb,var(--order) 10%,transparent)}
   .bqrow .eqi{image-rendering:pixelated}.bqrow .rm{margin-left:0}
   .tb-felt.sides .tb-seat{left:var(--sx);top:var(--sy);max-height:none}
@@ -1176,7 +1179,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 <body>
 <div class="topbar">
   <div class="views" id="viewTabs">
-    <div class="vtab on" data-v="board">Board</div>
+    <div class="vtab on" data-v="board">Empire</div>
     <div class="vtab" data-v="table">Table</div>
     <div class="vtab" data-v="realm">Realm</div>
     <div class="vtab" data-v="battle" id="vtabBattle" style="display:none">Battle</div>
@@ -1613,16 +1616,20 @@ function tSim(){
 
 // ---- stage 2: Perform — action + target are chosen only after the Envoy passes ----
 function performEval(E){if(!(E.out==="Passed"||E.out==="Endorsed"))return null;
-  const rec=((tCur(E.owner).perform)||{})[E.id];if(!rec||!rec.action)return null;
-  const tgt=rec.target?D.players.find(p=>String(p.id)===String(rec.target)):null,parts=[];
+  const rec=((tCur(E.owner).perform)||{})[E.id];if(!rec)return null;
+  if(rec.failAccept)return {rec,tgt:rec.target?pById(rec.target):null,parts:[],adj:rec.failNet??E.net,out:rec.failOut||"Failed",accepted:true};   // the would-be fail stands
+  if(!rec.action)return null;
+  return Object.assign({rec},comboEval(E,rec.action,rec.target));}
+// post-Envoy Influence modifiers for one action + target (RULES: they apply once the action and target are chosen)
+function comboEval(E,action,tid){const tgt=tid&&!String(tid).startsWith("al:")?D.players.find(p=>String(p.id)===String(tid)):null,parts=[];
   fxOf(E.owner,"act").filter(f=>f.dom===E.dom&&(f.tgtPOabove==null||(tgt&&(tgt.board.po||0)>f.tgtPOabove))).forEach(f=>parts.push({src:f.src,val:f.val*f.q}));
-  if(tgt)fxOf(tgt,"defend").filter(f=>(f.dom&&f.dom===E.dom)||(f.action&&f.action.toLowerCase()===String(rec.action).toLowerCase()))
+  if(tgt)fxOf(tgt,"defend").filter(f=>(f.dom&&f.dom===E.dom)||(f.action&&f.action.toLowerCase()===String(action).toLowerCase()))
     .forEach(f=>parts.push({src:tgt.name+": "+f.src,val:f.val*f.q}));
   let adj=E.net+parts.reduce((a,x)=>a+x.val,0);if(E.council)adj=Math.max(1,adj);
   let out=tOutcome(adj);                                             // full thresholds: can reach Condemned
   let saved=null;const fp=failPassFx(E);if(fp&&(out==="Failed"||(out==="Condemned"&&fp.condemned))){out="Passed";saved=fp.src;}
   let capped=null;if(out==="Endorsed"&&tgt){const ne=fxOf(tgt,"noEndorse").find(f=>f.dom===E.dom);if(ne){out="Passed";capped=tgt.name+": "+ne.src;}}   // "<Dom> actions targeting you can't be Endorsed"
-  return {rec,tgt,parts,adj,out,saved,capped};}
+  return {tgt,parts,adj,out,saved,capped,ok:out==="Passed"||out==="Endorsed"};}
 function failPassFx(E){return fxOf(E.owner,"failPass").find(f=>!f.dom||f.dom===E.dom)||null;}
 function actionsOf(dom){return Object.keys(DATA.actions||{}).filter(k=>(DATA.actions[k]||{}).domain===dom);}
 // "Rising Prowess" style requirement vs the player's Standing — a flag, not a lock
@@ -1637,22 +1644,182 @@ function actInfoHTML(p,name,tgt){const a=(DATA.actions||{})[name];if(!a)return "
     '<b>Effect:</b> '+mdLite(a.effect||"")+(a.endorsed?'<br><b>Endorsed:</b> '+mdLite(a.endorsed):'')+
     ((a.notes||[]).length?'<br>'+a.notes.map(x=>'• '+mdLite(x)).join('<br>'):'')+'</div>';}
 // ---- optional auto-resolve: Faith/Doubt in the outcome text → owner's Public Order (owner's client applies once) ----
-function tApply(R){if(!TB().auto)return;let ch=false;
+// ===================== Action automation: Perform picker + resolution =====================
+// Resolves only what the rules state plainly; anything needing table agreement, a free choice or unclear wording is
+// left as a ⚑ note for the players. Effects apply once (marked in tCur(owner).applied), on the owner's client.
+const PF={};   // per-Envoy picker draft (this client only)
+function actCost(action){const c=String(((DATA.actions||{})[action]||{}).cost||"");const g=/(\d+)\s*gold/i.exec(c),d=/Doubt\s*(\d+)/i.exec(c);
+  return {gold:g?+g[1]:0,doubt:d?+d[1]:0,txt:c&&c!=="None"?c:""};}
+function domCost(dom){const L=actionsOf(dom).map(a=>JSON.stringify(actCost(a)));return L.length&&L.every(x=>x===L[0])?JSON.parse(L[0]):null;}   // same cost for every action
+function addFaith(b,n){if(n>0)b.po=applyPOFloor(b,Math.max(PO_MIN,Math.min(PO_MAX,(b.po||0)+n)));return n;}
+function alliedP(a,b){if(sameP(a,b))return true;return !!effPair(a.id,b.id).household||sameAlliance(String(a.id),String(b.id));}
+function allyGroup(gid){const d=diplo();return D.players.filter(q=>d.member[topSuz(q.id)]===gid);}
+function topPair(a,b){return pairOf(topSuz(a.id),topSuz(b.id));}
+const SM=(b,re)=>srcMatch(b,re);
+// Doubt an action causes to one player, with the rules-text riders that change it
+function actDoubt(o,dom,q,base,isTarget,notes){let n=base;if(n<=0)return 0;
+  if(dom==="Piety")SM(o.board,/Your Piety actions that cause doubt cause an additional doubt/i).forEach(x=>{n++;notes.push(x.n+": +1 Doubt to "+q.name);});
+  D.players.forEach(h=>SM(h.board,/All player actions that cause Doubt are increased by (\d+)/i).forEach(x=>{n+=+x.m[1];notes.push(h.name+" · "+x.n+": +"+x.m[1]+" Doubt to "+q.name);}));
+  if(isTarget)SM(q.board,/(\w+) actions targeting this player that cause Doubt are reduced by (\d+)/i).forEach(x=>{if(x.m[1].toLowerCase()===dom.toLowerCase()){n=Math.max(0,n-(+x.m[2]));notes.push(q.name+" · "+x.n+": −"+x.m[2]+" Doubt");}});
+  return n;}
+// ---- what each action needs and does ----
+const AA={
+  "Move":{tgt:"none",run:c=>c.flag("Move the Army on the map: Select ▸ your Army ▸ a lit hex")},
+  "Muster":{tgt:"none",run:c=>c.flag("Muster on the Army card (Raise or Reinforce)")},
+  "Demand Tribute":{tgt:"player",run:c=>c.flag("Negotiate terms with "+c.q.name+"; if refused, Declare War")},
+  "Declare War":{tgt:"player",elig:(o,q)=>{const x=effPair(o.id,q.id);return x.household||sameAlliance(String(o.id),String(q.id))?"allied":x.war?"already at war":x.nap?"Non-Aggression Pact":x.truce>0?"truce "+x.truce:"";},
+    run:c=>{warOn(c,c.o,c.q,true);const mil=diplo().member[topSuz(c.o.id)];if(mil&&(diplo().alliances[mil]||{}).type==="Military")c.flag("Military Alliance: next turn each member Declares War on "+c.q.name+" and sends 1 fewer Envoy");}},
+  "Pillage":{tgt:"player",elig:(o,q)=>effPair(o.id,q.id).war?"":"not at war",
+    sub:(o,q)=>(o.board.armies||[]).flatMap(a=>pillageTargets(o,a).filter(t=>sameP(t.q,q)).map(t=>({v:a.id+"|"+t.s.id,label:(a.label||("Army "+a.id))+" → "+(t.s.name||t.s.tier)}))),
+    run:c=>{const [aid,sid]=c.sub.split("|"),a=(c.o.board.armies||[]).find(x=>String(x.id)===aid);if(!a)return;a.pillage={tp:String(c.q.id),sid};c.log((a.label||"Army "+a.id)+" Pillages "+settName(c.q,sid)+" (each Empire Phase)");}},
+  "Intercept Caravan":{tgt:"player",elig:(o,q)=>BST().ic[q.id]?"already intercepted":"",
+    run:c=>{BST().ic[c.q.id]={by:String(c.o.id)};c.log(c.q.name+"'s trade income goes to "+c.o.name+" the next turn they're Host");}},
+  "Foster Rebellion":{tgt:"player",run:c=>{BST().foster.push({pid:String(c.q.id),by:String(c.o.id)});c.log("Next Bandit Mechanics: 10-Retinue Bandit Camp in "+c.q.name+"'s Outlaw Country");}},
+  "Raze":{tgt:"player",sub:(o,q)=>{const L=[];(q.board.placed||[]).filter(x=>!x.fac&&pActive(x)&&x.sid!=null&&x.sid!=="faction").forEach(x=>L.push({v:"h:"+x.id,label:x.name+" · "+settName(q,x.sid)}));
+      withBoard(q.board,()=>Object.keys(S.infra||{}).filter(infraOn).forEach(n=>L.push({v:"i:"+n,label:n+" (Infrastructure)"})));return L;},
+    run:c=>{const [k,v]=[c.sub.slice(0,1),c.sub.slice(2)],b=c.q.board;
+      if(k==="h"){const x=(b.placed||[]).find(y=>String(y.id)===v);if(x){x.dmg=REPAIR_T;c.log(c.q.name+"'s "+x.name+" is Damaged (Repair Timer "+REPAIR_T+")");}}
+      else{b.idmg=b.idmg||{};b.idmg[v]=REPAIR_T;c.log(c.q.name+"'s "+v+" is Damaged (Repair Timer "+REPAIR_T+")");}}},
+  "Destabilize":{tgt:"player",sub:(o,q)=>(q.board.settlements||[]).filter(st=>!BST().dest[q.id+":"+st.id]).map(st=>({v:String(st.id),label:(st.name||st.tier)+" · tax "+settTax(q.board,st).toLocaleString()})),
+    run:c=>{BST().dest[c.q.id+":"+c.sub]={by:String(c.o.id)};c.log("Next Winter: "+settName(c.q,c.sub)+"'s tax income goes to "+c.o.name);
+      if(Object.keys(BST().dest).some(k=>k.startsWith(c.q.id+":")&&k!==c.q.id+":"+c.sub))c.flag("Several Destabilizes on "+c.q.name+": highest Cunning chooses first; ties split the Extort");}},
+  "Sabotage":{tgt:"player",sub:(o,q)=>{const M=mapState(),L=[];Object.keys(M.cells).forEach(k=>{const x=M.cells[k];if(x.type!=="Army"||String(x.player)!==String(q.id)||x.blocked)return;const a=cellArmy(k).a;L.push({v:"c:"+k,label:(a?(a.label||"Army "+a.id):"Army")+" @ "+k});});
+      (q.board.armies||[]).filter(a=>armyInside(q,a)&&!a.blocked).forEach(a=>L.push({v:"a:"+a.id,label:(a.label||"Army "+a.id)+" (inside "+(armyInside(q,a).s.name||armyInside(q,a).s.tier)+")"}));return L;},
+    run:c=>{const k=c.sub.slice(2);if(c.sub[0]==="c"){const x=mapState().cells[k];if(x){x.blocked=true;x.blockedT=tTurn();}}else{const a=(c.q.board.armies||[]).find(y=>String(y.id)===k);if(a){a.blocked=true;a.blockedT=tTurn();}}
+      c.log(c.q.name+"'s Army is Blocked until the end of turn "+(tTurn()+1));}},
+  "Spread Truth":{tgt:"none",run:c=>D.players.forEach(q=>{if(sameP(q,c.o))return;if(alliedP(c.o,q))c.faith(q,1);else c.doubt(q,1,false);})},
+  "Send Missionaries":{tgt:"player+alliance",run:c=>{const d=diplo(),mine=d.member[topSuz(c.o.id)];
+      const inside=c.al?c.al===mine:(c.q&&sameAlliance(String(c.o.id),String(c.q.id)));
+      if(inside)D.players.forEach(q=>{if(!sameP(q,c.o)&&alliedP(c.o,q))c.faith(q,2);});
+      else (c.al?allyGroup(c.al):[c.q]).forEach(q=>c.doubt(q,2,true));}},
+  "Tithe":{tgt:"player",run:c=>{const m=/Extort (\d+)%/i.exec(((DATA.actions||{}).Tithe||{}).effect||""),pct=m?+m[1]:0,amt=Math.floor(Math.max(0,+c.q.board.treasury||0)*pct/100/100)*100,
+      t=extortGold({b:c.q.board},{b:c.o.board},amt);c.log("Tithe: extort "+t.toLocaleString()+" from "+c.q.name);}},
+  "Convert":{tgt:"player",run:c=>{const sg=siegeState();sg.mode="Convert";sg.tp=String(c.q.id);sg.sid=null;
+      c.flag("Set the Convert Timer in the Siege calculator (Battle tab): "+c.q.name+"'s closest non-capital Settlement, Public Order −5 or lower");}},
+  "Sacred War":{tgt:"player",elig:(o,q)=>AA["Declare War"].elig(o,q),
+    run:c=>{const x=topPair(c.o,c.q);if(x){x.war=true;x.trade=false;x.nap=false;}c.log(c.o.name+" and "+c.q.name+" are At War (Sacred War); their treaties end");
+      c.flag("Perform a Move action with one of your Armies");c.flag("Sacred War restrictions (no treaties, negotiation or tribute between you) aren't tracked");}},
+  "Improve":{tgt:"none",pend:"no Infrastructure or Settlement expansion placed yet"},
+  "Build":{tgt:"none",pend:"no Holding placed yet"},
+  "Charter":{tgt:"none",pend:"no Village chartered yet"},
+  "Repair":{tgt:"none",pend:"choose a Damaged Holding or Infrastructure (Build Timer 2)"},
+  "Sign Treaty":{tgt:"player",run:c=>c.flag("Agree a treaty with "+c.q.name+", then set it in the Diplomacy panel (Realm)")},
+  "Negotiate":{tgt:"player",run:c=>c.flag("Agree terms with "+c.q.name+" and apply them by hand")},
+  "End Treaty":{tgt:"player",elig:(o,q)=>{const x=effPair(o.id,q.id);return !(x.trade||x.nap)?"no Trade Agreement or NAP":x.truce>0?"truce "+x.truce:"";},
+    sub:(o,q)=>{const x=effPair(o.id,q.id),L=[];if(x.trade)L.push({v:"trade",label:"Trade Agreement"});if(x.nap)L.push({v:"nap",label:"Non-Aggression Pact (truce "+TRUCE_LEN+")"});return L;},
+    run:c=>{const x=topPair(c.o,c.q);if(!x)return;if(c.sub==="trade"){x.trade=false;c.log("Trade Agreement with "+c.q.name+" ends");}
+      else if(c.sub==="nap"){x.nap=false;x.truce=TRUCE_LEN;c.log("NAP with "+c.q.name+" ends · Truce Timer "+TRUCE_LEN);}}},
+};
+function settName(q,sid){const st=settById(q,sid);return st?(st.name||st.tier):"?";}
+function warOn(c,o,q,cascade){const x=topPair(o,q);if(!x)return;x.war=true;x.trade=false;c.log(o.name+" and "+q.name+" are At War"+(x.trade===false?"":""));
+  if(!cascade)return;const d=diplo(),g=d.member[topSuz(q.id)];if(g&&(d.alliances[g]||{}).type==="Defensive")allyGroup(g).forEach(m=>{if(sameP(m,q)||sameP(m,o))return;const y=topPair(o,m);if(y&&!y.war){y.war=true;y.trade=false;c.log(m.name+" (Defensive Alliance) is At War with "+o.name);}});}
+function pfSpec(a){return AA[a]||{tgt:"player",opt:true,run:c=>c.flag("Resolve "+a+" by hand")};}
+// candidate targets for one action, each with its post-Envoy Influence result
+function pfTargets(E,a){const sp=pfSpec(a),o=E.owner,dip=E.dom==="Diplomacy";
+  if(sp.tgt==="none")return [Object.assign({v:"",label:"—"},(()=>{const ev=comboEval(E,a,null);return {ok:ev.ok,ev,flag:""};})())];
+  const L=D.players.filter(q=>!sameP(q,o)).map(q=>{const ev=comboEval(E,a,q.id),fl=[sp.elig?sp.elig(o,q):""].concat(actRestrict(o,a,q));
+    if(dip&&(isVassal(o.id)||isVassal(q.id)))fl.push("Vassal: no Diplomacy actions");
+    if(sp.sub&&!sp.sub(o,q).length)fl.push("nothing eligible");
+    return {v:String(q.id),label:q.name,ok:ev.ok,ev,flag:fl.filter(Boolean).join("; ")};});
+  if(sp.tgt==="player+alliance")Object.keys(diplo().alliances).forEach(g=>{const ev=comboEval(E,a,"al:"+g);L.push({v:"al:"+g,label:allianceLabel(g)+(diplo().member[topSuz(o.id)]===g?" (yours)":""),ok:ev.ok,ev,flag:""});});
+  if(sp.opt)L.unshift(Object.assign({v:"",label:"no player target"},(()=>{const ev=comboEval(E,a,null);return {ok:ev.ok,ev,flag:""};})()));
+  return L;}
+function pfSubs(o,a,tid){const sp=pfSpec(a);if(!sp.sub)return null;const q=tid&&!String(tid).startsWith("al:")?pById(tid):null;return q?sp.sub(o,q):[];}
+function pfSubLabel(o,a,tid,v){const L=pfSubs(o,a,tid)||[],x=L.find(s=>s.v===v);if(x)return x.label;
+  const ap=AA[a];if(a==="Raze")return v.slice(2);if(a==="Destabilize"){const q=pById(tid);return q?settName(q,v):v;}return v;}
+function evTxt(ev){return 'net '+ev.adj+' <b class="'+tOutCls(ev.out)+'">'+ev.out+'</b>';}
+// RULES: post-Envoy modifiers apply once the action and target are chosen; on a would-be fail the player may instead perform a
+// different action of the same Domain against the same target. Unlocked: every option is open (its result is shown); a failing
+// choice locks the target (rec.lock = {target, tried:[actions], out, net}) and only other actions against it stay open.
+function pfForm(E,rec){const o=E.owner,id=E.id,acts=actionsOf(E.dom),d=PF[id]=PF[id]||{},L=rec&&rec.lock;
+  const tgtKind=a=>pfSpec(a).tgt==="none"?"none":"player";
+  if(L)d.target=String(L.target||"");
+  let st=acts.map(a=>{let tg=pfTargets(E,a);if(L)tg=tg.filter(t=>t.v===String(L.target||""));
+    const tried=L&&(L.tried||[]).includes(a),ok=L?(!tried&&tg.some(t=>t.ok)):tg.length>0;return {a,tg,ok,tried};});
+  if(L){const lk=L.target?"player":"none";st=st.filter(x=>tgtKind(x.a)===lk||(pfSpec(x.a).opt&&!L.target));}
+  if(!st.some(x=>x.a===d.action&&x.ok))d.action=(st.find(x=>x.ok)||st[0]||{}).a;
+  const cur=st.find(x=>x.a===d.action)||{tg:[]},sp=pfSpec(d.action);
+  if(!cur.tg.some(t=>t.v===d.target))d.target=((cur.tg.find(t=>t.ok&&!t.flag)||cur.tg.find(t=>t.ok)||cur.tg[0])||{v:""}).v;
+  const T=cur.tg.find(t=>t.v===d.target)||null,subs=pfSubs(o,d.action,d.target);
+  if(subs&&!subs.some(x=>x.v===d.sub))d.sub=(subs[0]||{v:""}).v;
+  const anyLeft=st.some(x=>x.ok);
+  let h='<div class="pform" data-pform="'+esc(id)+'">';
+  if(L)h+='<div class="flagbox">⚑ '+esc((L.tried||[]).join(", "))+(L.target?' against '+esc(pname(L.target)):'')+' would be <b>'+esc(L.out)+'</b> (net '+L.net+'). '+
+    (anyLeft?'Choose a different '+esc(E.dom)+' action against the same target, or ':'No other '+esc(E.dom)+' action against it passes — ')+
+    '<button data-pffail="'+esc(id)+'" data-who="'+o.id+'">accept '+esc(L.out)+'</button></div>';
+  if(!L||anyLeft){
+    h+='<div class="pfr"><span class="note">Perform</span><select data-pf="'+esc(id)+'|action">'+
+      st.map(x=>{const rq=actReqFlag(o,x.a);return '<option value="'+esc(x.a)+'"'+(x.a===d.action?' selected':'')+(x.ok?'':' disabled')+'>'+esc(x.a)+(x.tried?' — would fail':!x.ok&&L?' — fails':'')+(rq?' · ⚑ requires '+esc(rq):'')+'</option>';}).join("")+'</select>';
+    if(sp.tgt!=="none")h+='<select data-pf="'+esc(id)+'|target"'+(L?' disabled':'')+'>'+cur.tg.map(t=>'<option value="'+esc(t.v)+'"'+(t.v===d.target?' selected':'')+'>'+
+        esc(t.label)+' · net '+t.ev.adj+' '+t.ev.out+(t.flag?' · ⚑ '+esc(t.flag):'')+'</option>').join("")+'</select>';
+    if(subs)h+=subs.length?'<select data-pf="'+esc(id)+'|sub">'+subs.map(x=>'<option value="'+esc(x.v)+'"'+(x.v===d.sub?' selected':'')+'>'+esc(x.label)+'</option>').join("")+'</select>':'<span class="note">nothing eligible</span>';
+    const okGo=T&&(!L||T.ok)&&(!subs||subs.length);
+    h+='<button data-perf="'+esc(id)+'" data-who="'+o.id+'"'+(okGo?'':' disabled')+'>Perform</button></div>';
+    if(T){const ev=T.ev;h+='<div class="pfx">'+(ev.parts.length?ev.parts.map(x=>esc(x.src)+' '+sgn(x.val)).join(', ')+' → ':'')+evTxt(ev)+
+        (ev.saved?' · '+esc(ev.saved)+': Fail → Pass':'')+(ev.capped?' · '+esc(ev.capped)+': Endorsed → Passed':'')+
+        (actCost(d.action).txt?' · cost <b>'+esc(actCost(d.action).txt)+'</b>':'')+(T.flag?' · <span class="neg">⚑ '+esc(T.flag)+'</span>':'')+
+        (actReqFlag(o,d.action)?' · <span class="neg">⚑ requires '+esc(actReqFlag(o,d.action))+'</span>':'')+
+        (!ev.ok&&!L?' · <span class="neg">if chosen, only other '+esc(E.dom)+' actions against this target remain</span>':'')+'</div>';}
+    {const rd=actRiders(o,d.action,T&&T.ev.tgt);if(rd.length)h+='<div class="note">'+rd.map(esc).join(' · ')+'</div>';}
+    h+='<details><summary class="note">'+esc(d.action||"")+' — rules</summary>'+actInfoHTML(o,d.action||acts[0],T&&T.ev.tgt)+'</details>';}
+  return h+'</div>';}
+// ---- pending Industry flags: cleared when the build shows up on the board, or by hand ----
+function boardCounts(b){return {placed:(b.placed||[]).filter(x=>!x.fac).length,setts:(b.settlements||[]).length,
+  infra:Object.keys(b.infra||{}).length+Object.keys(b.wonders||{}).length,tiers:(b.settlements||[]).reduce((t,x)=>t+(+((DATA.settlements||{})[x.tier]||{}).tier||0),0)};}
+function pendingOf(b){const n=boardCounts(b);return (b.pending||[]).filter(x=>{const s=x.snap||{};
+  if(x.act==="Build")return n.placed<=s.placed;if(x.act==="Charter")return n.setts<=s.setts;if(x.act==="Improve")return n.infra<=s.infra&&n.tiers<=s.tiers;return true;});}
+function apLines(ap){const L=(ap.fx||[]).map(x=>'<div>'+esc(x)+'</div>').concat((ap.flags||[]).map(x=>'<div class="fl">⚑ '+esc(x)+'</div>'));
+  return L.length?'<div class="apl">'+L.join("")+'</div>':'';}
+// ---- resolve one Envoy: outcome Faith / Doubt, cost, action effect, Endorsed effect ----
+function resolveEnvoy(E,pe,fin){const o=E.owner,act=pe&&pe.rec&&pe.rec.action,A=(DATA.actions||{})[act]||{},fx=[],flags=[],res={f:0,d:0,fx,flags};
+  const txt=outText(E.dom,fin),f=+((txt.match(/Faith (\d+)/)||[])[1]||0),dz=+((txt.match(/Doubt (\d+)/)||[])[1]||0);
+  if(f){addFaith(o.board,f);res.f=f;fx.push(o.name+": Faith +"+f+" ("+fin+")");}
+  if(dz){const n=gainDoubt(o.board,dz);res.d=dz;fx.push(o.name+": Doubt +"+dz+" ("+fin+")"+(n<dz?" — "+(dz-n)+" reduced (first Doubt)":""));}
+  const noCost=SM(o.board,/no longer pay cost for (\w+) Envoys/i).filter(x=>x.m[1].toLowerCase()===E.dom.toLowerCase());
+  const pay=(cost,why,recoup)=>{if(noCost.length){fx.push(noCost[0].n+": no cost");return;}let g=cost.gold,dd=cost.doubt;const notes=[];
+    (recoup||[]).forEach(r=>{if(r.doubt&&dd){notes.push(r.src+": recoup Doubt");dd=0;}if(r.gold&&g){const k=Math.min(r.gold,g);g-=k;notes.push(r.src+": recoup "+k.toLocaleString());}});
+    if(g){o.board.treasury=(+o.board.treasury||0)-g;}if(dd)gainDoubt(o.board,dd);
+    if(cost.gold||cost.doubt)fx.push(o.name+" pays "+why+": "+[cost.gold?cost.gold.toLocaleString()+" gold":"",cost.doubt?"Doubt "+cost.doubt:""].filter(Boolean).join(" + ")+(notes.length?" ("+notes.join("; ")+")":""));};
+  if(fin==="Condemned"){const tried=pe&&pe.rec&&(pe.rec.tried||[])[0],c=act?actCost(act):tried?actCost(tried):domCost(E.dom);
+    if(c)pay(c,"the action's cost (Condemned)");else if(/pay the action/i.test(txt))flags.push("Condemned: pay the cost of the "+E.dom+" action you'd have performed");
+    if(E.dom==="Prowess")flags.push("Condemned: "+txt.replace(/^Doubt \d+\s*\+\s*/i,""));}
+  if((fin==="Passed"||fin==="Endorsed")&&act&&A.domain&&A.domain!==E.dom){flags.push(act+" isn't a "+E.dom+" action — resolve by hand");return res;}
+  if((fin==="Passed"||fin==="Endorsed")&&act){const sp=pfSpec(act),tid=pe.rec.target,al=String(tid||"").startsWith("al:")?String(tid).slice(3):null,q=al?null:(tid?pById(tid):null),notes=[],doubtTo={};
+    const recoup=[];{const rm=SM(o.board,/(Passed|Endorsed) (\w+) envoys \**Recoup (\d+) Gold/i).filter(x=>x.m[2].toLowerCase()===E.dom.toLowerCase());
+      const pk=(fin==="Endorsed"&&rm.find(x=>x.m[1]==="Endorsed"))||rm.find(x=>x.m[1]==="Passed");if(pk)recoup.push({src:pk.n,gold:+pk.m[3]});}
+    const end=fin==="Endorsed"?String(A.endorsed||((EOUT[E.dom]||{}).endorsed)||""):"";
+    if(/Recoup Doubt/i.test(end))recoup.push({src:"Endorsed",doubt:true});{const m=/Recoup (\d+)/i.exec(end);if(m)recoup.push({src:"Endorsed",gold:+m[1]});}
+    pay(actCost(act),act,recoup);
+    const ctx={o,q,al,sub:pe.rec.sub||"",E,out:fin,log:x=>fx.push(x),flag:x=>flags.push(x),faith:(p,n)=>{addFaith(p.board,n);fx.push(p.name+": Faith +"+n+" ("+act+")");},
+      doubt:(p,n,isT)=>{const k=actDoubt(o,E.dom,p,n,isT,notes),g=k?gainDoubt(p.board,k):0;doubtTo[p.id]=(doubtTo[p.id]||0)+k;if(k)fx.push(p.name+": Doubt +"+k+" ("+act+")"+(g<k?" — "+(k-g)+" reduced (first Doubt)":""));}};
+    if((sp.tgt==="player"&&!sp.opt&&!q)||(sp.sub&&!ctx.sub))flags.push(act+": no target recorded — resolve by hand");
+    else if(sp.pend){const b=o.board;b.pending=b.pending||[];b.pending.push({id:E.id,turn:tTurn(),act,msg:sp.pend,snap:boardCounts(b)});flags.push(act+": "+sp.pend);}
+    else if(sp.run)sp.run(ctx);
+    if(E.dom==="Cunning"&&q){SM(o.board,/^(?:All )?(Endorsed )?Cunning actions give an additional \**Doubt \+?(\d+)\** to Target/i).forEach(x=>{if(x.m[1]&&fin!=="Endorsed")return;notes.push(x.n+": +"+x.m[2]+" Doubt to "+q.name);ctx.doubt(q,+x.m[2],true);});
+      D.players.forEach(h=>{if(!sameP(h,o))SM(h.board,/Whenever another player performs a Cunning action, you may recoup (\d+) gold/i).forEach(x=>flags.push(h.name+" ("+x.n+") may recoup "+(+x.m[1]).toLocaleString()+" gold"));});}
+    if(E.dom==="Piety")SM(o.board,/Your piety actions cause an additional \**Doubt\** or an additional \**Faith\**/i).forEach(x=>flags.push(x.n+": add 1 Doubt or 1 Faith (your choice) by hand"));
+    if(q&&doubtTo[q.id]>0)SM(q.board,/Players who target you or your settlements with actions that cause doubt gain Doubt \+(\d+)/i).forEach(x=>{const g=gainDoubt(o.board,+x.m[1]);fx.push(o.name+": Doubt +"+x.m[1]+" ("+q.name+" · "+x.n+")");});
+    if(fin==="Endorsed"){const m=/Extort (\d+)/i.exec(end);if(m&&q){const t=extortGold({b:q.board},{b:o.board},+m[1]);fx.push("Endorsed: extort "+t.toLocaleString()+" from "+q.name);}
+      else if(m)flags.push("Endorsed: Extort "+m[1]+" — no player target");
+      if(/Perform (?:another|a) Move action/i.test(end))flags.push("Endorsed: perform a Move action (map)");}
+    notes.forEach(x=>fx.push(x));
+    if(eraActions(E.council)>1)flags.push("×"+eraActions(E.council)+" actions this Era: perform the others by hand");}
+  return res;}
+function autoRes(){return TB().auto!==false;}   // default on
+function tApply(R){if(!autoRes())return;let ch=false;
   R.log.forEach(l=>{if(l.kind!=="envoy")return;const E=l.E,p=E.owner;
     if(!(HOTSEAT||(lockOn()?mine(p):sameP(meP(),p))))return;
     const c=tCurW(p);c.applied=c.applied||{};if(c.applied[E.id])return;
-    const pe=performEval(E);if(!pe&&!R.done&&(E.out==="Passed"||E.out==="Endorsed"))return;   // wait for Perform
-    const fin=pe?pe.out:E.out,txt=outText(E.dom,fin),f=+((txt.match(/Faith (\d+)/)||[])[1]||0),dz=+((txt.match(/Doubt (\d+)/)||[])[1]||0);
-    if(f)p.board.po=applyPOFloor(p.board,Math.max(PO_MIN,Math.min(PO_MAX,(p.board.po||0)+f)));
-    if(dz)gainDoubt(p.board,dz);
-    c.applied[E.id]={out:fin,f,d:dz};ch=true;});
+    const pe=performEval(E);if(!pe&&(E.out==="Passed"||E.out==="Endorsed"))return;   // wait for Perform
+    const fin=pe?pe.out:E.out;c.applied[E.id]={out:fin,f:0,d:0,fx:[],flags:[]};    // marked first: never applied twice
+    Object.assign(c.applied[E.id],resolveEnvoy(E,pe,fin));ch=true;});
   if(ch)save();}
 
 // ---- host actions ----
 function tSetPhase(ph){const t=TB();t.phase=ph;t.phaseTs=(ph==="council"||ph==="envoy")?tnow():0;t.skip={};
   if(ph==="council")t.councilTie=null;save();render();}
 function tEndTurn(){const t=TB(),ord=tOrder();
-  if(t.auto)D.players.forEach(p=>{const ap=tCur(p).applied||{};p.board.condemned=Object.values(ap).filter(a=>a.out==="Condemned").length;});
+  if(autoRes())D.players.forEach(p=>{const ap=tCur(p).applied||{};p.board.condemned=Object.values(ap).filter(a=>a.out==="Condemned").length;});
   const endedSeason=curSeason(),r0=D.renown||1;
   D.renown=Math.min(+RC.RENOWN_MAX||30,r0+(DATA.renownPerTurn??1));            // Rest Phase 3: gain Renown (stops at RENOWN_MAX)
   D.players.forEach(p=>{p.board.dp=(p.board.dp||0)+(DATA.dpPerTurn??1);});     // Rest Phase 4: a Domain Point to spend
@@ -1666,6 +1833,13 @@ function tEndTurn(){const t=TB(),ord=tOrder();
     Object.keys(t.hist).map(Number).sort((a,b)=>b-a).slice(6).forEach(k=>delete t.hist[k]);}
   else if(BST().auto){expireBlocks();BST()._t=tTurn();runBanditMechanics();const sk=banditSkims();if(sk.length)creditSkims(sk);delete BST()._t;}
   save();render();}
+// change the seat count; never below the lobby's players (or those seated). Shrinking removes empty seats first —
+// the highest-numbered empty seat each time — shifting later seats down, so the clockwise order is kept and no one is unseated
+function setSeats(want){const cur=tSeats(),floor=Math.max(2,D.players.length,seated().length),n=Math.max(floor,Math.min(12,+want||floor));
+  if(n<cur){const m=seatMap(),row=[];for(let i=0;i<cur;i++)row.push(m[i]||null);
+    while(row.length>n){let j=-1;for(let i=row.length-1;i>=0;i--)if(!row[i]){j=i;break;}if(j<0)break;row.splice(j,1);}
+    row.forEach((p,i)=>{if(p){const x=PT(p);if(x.seat!==i)x.seat=i;}});}
+  TB().seats=n;return n;}
 function tAutoSeat(){const m=seatMap(),n=tSeats();let i=0;
   D.players.filter(p=>!Object.values(m).includes(p)).forEach(p=>{while(i<n&&m[i])i++;if(i<n){const x=PT(p);x.seat=i;x.seatTs=tnow();m[i]=p;}});
   save();render();}
@@ -1673,6 +1847,7 @@ function tAutoSeat(){const m=seatMap(),n=tSeats();let i=0;
 // ---- rendering ----
 let T_SIG="";
 function tSig(R){return [tPhase(),tTurn(),R.waiting||"",R.cur?R.cur.key:"",R.log.length,R.done?1:0,R.councilDom||"",
+  D.players.map(p=>Object.keys(tCur(p).applied||{}).length+"/"+Object.keys(tCur(p).perform||{}).length).join(","),
   JSON.stringify(R.spent)].join("|");}
 function tName(p){return '<span class="pdot" style="background:'+p.color+'"></span>'+esc(p.name);}
 function tVoteTxt(v){return v.a==="S"?'<span class="pos">+'+v.x+'</span>':v.a==="O"?'<span class="neg">−'+(v.eff!==undefined&&v.eff!==v.x?v.eff+'</span><span class="note"> (paid '+v.x+')</span>':v.x+'</span>'):'<span class="note">'+(v.timeout?"timeout":v.forced?"skipped":"abstain")+'</span>';}
@@ -1698,23 +1873,20 @@ function tHistHtml(){const H=TB().hist||{},ks=Object.keys(H).map(Number).sort((a
   return '<div class="tot"><h3 style="font-size:13px">End of turn '+h0.turn+' — '+esc(h0.season)+'</h3>'+(h0.renown?'<div class="note">Renown '+h0.renown[0]+' → '+h0.renown[1]+' · each player gained '+(DATA.dpPerTurn??1)+' Domain Point</div>':'')+((h0.realm||[]).length?'<div class="note">'+h0.realm.map(x=>kwify(x)).join(' · ')+'</div>':'')+one(h0)+
     ks.slice(1).map(k=>'<details><summary class="note">End of turn '+H[k].turn+' — '+esc(H[k].season)+'</summary>'+one(H[k])+'</details>').join("")+'</div>';}
 function tPerformHtml(E){if(!(E.out==="Passed"||E.out==="Endorsed"))return "";
-  const pe=performEval(E),rec=((tCur(E.owner).perform)||{})[E.id]||{},mine=canAct(E.owner);
+  const pe=performEval(E),rec=((tCur(E.owner).perform)||{})[E.id]||{},mine=canAct(E.owner),ap=(tCur(E.owner).applied||{})[E.id];
   let h='<div class="tb-perf">';
-  if(pe&&!rec.edit){const rf=actReqFlag(E.owner,pe.rec.action),rs=actRestrict(E.owner,pe.rec.action,pe.tgt),rd=actRiders(E.owner,pe.rec.action,pe.tgt);
-    const rc=recoupNote(E.owner,pe.rec.action,pe.out);
-    h+=(rc?'<span class="tb-b">'+esc(rc)+'</span> ':'')+(rf?'<span class="tb-b">⚑ requires '+esc(rf)+'</span> ':'')+rs.map(x=>'<span class="tb-b">⚑ '+esc(x)+'</span> ').join('')+(rd.length?'<span class="note">'+rd.map(esc).join(' · ')+'</span> ':'')+'Performed <b>'+esc(pe.rec.action)+'</b>'+(pe.tgt?' → '+tName(pe.tgt):'')+
+  if(pe&&pe.accepted){h+='<b class="neg">'+esc(pe.out)+'</b> <span class="note">— '+esc((rec.tried||[]).join(", ")||"no action")+(pe.tgt?' against '+esc(pe.tgt.name):'')+' would fail (net '+pe.adj+')</span>'+(ap?apLines(ap):'');}
+  else if(pe&&!rec.edit){const rf=actReqFlag(E.owner,pe.rec.action),rs=actRestrict(E.owner,pe.rec.action,pe.tgt),rd=actRiders(E.owner,pe.rec.action,pe.tgt);
+    const rc=recoupNote(E.owner,pe.rec.action,pe.out),sl=pe.rec.sub?pfSubLabel(E.owner,pe.rec.action,pe.rec.target,pe.rec.sub):"";
+    h+=(rc?'<span class="tb-b">'+esc(rc)+'</span> ':'')+(rf?'<span class="tb-b">⚑ requires '+esc(rf)+'</span> ':'')+rs.map(x=>'<span class="tb-b">⚑ '+esc(x)+'</span> ').join('')+(rd.length?'<span class="note">'+rd.map(esc).join(' · ')+'</span> ':'')+'Performed <b>'+esc(pe.rec.action)+'</b>'+
+      (pe.tgt?' → '+tName(pe.tgt):String(pe.rec.target||"").startsWith("al:")?' → '+esc(allianceLabel(pe.rec.target.slice(3))):'')+(sl?' · '+esc(sl):'')+
       (pe.parts.length?' · '+pe.parts.map(x=>esc(x.src)+' '+sgn(x.val)).join(', ')+' → net <b>'+pe.adj+'</b>':'')+
       ' <b class="'+tOutCls(pe.out)+'">'+pe.out+'</b>'+(pe.saved?' <span class="tb-b">'+esc(pe.saved)+': Fail → Pass</span>':'')+(pe.capped?' <span class="tb-b">'+esc(pe.capped)+': Endorsed → Passed</span>':'');
-    if(pe.out==="Failed"&&mine)h+='<div class="note">Would fail — you may instead perform a different '+esc(E.dom)+' action against the same target. '+
+    if(ap)h+=apLines(ap);
+    else if(pe.out==="Failed"&&mine)h+='<div class="note">Would fail — you may instead perform a different '+esc(E.dom)+' action against the same target. '+
       '<button data-perfedit="'+esc(E.id)+'" data-who="'+E.owner.id+'">change action</button></div>';
     else if(mine)h+=' <button class="tb-mini" data-perfedit="'+esc(E.id)+'" data-who="'+E.owner.id+'">edit</button>';}
-  else if(mine){const acts=actionsOf(E.dom),lockT=rec.edit&&rec.target;
-    h+='<span class="note">Perform: </span><select data-pact="'+esc(E.id)+'">'+acts.map(a=>'<option'+(a===rec.action?' selected':'')+'>'+esc(a)+'</option>').join("")+'</select> '+
-      '<select data-ptgt="'+esc(E.id)+'"'+(lockT?' disabled':'')+'><option value="">no player target</option>'+
-      D.players.filter(p=>!sameP(p,E.owner)).map(p=>'<option value="'+p.id+'"'+(String(rec.target)===String(p.id)?' selected':'')+'>'+esc(p.name)+'</option>').join("")+'</select> '+
-      '<button data-perf="'+esc(E.id)+'" data-who="'+E.owner.id+'">Perform</button>'+
-      '<div data-pinfo="'+esc(E.id)+'">'+actInfoHTML(E.owner,rec.action||acts[0])+'</div>'+
-      (E.dom==="Diplomacy"&&(isVassal(E.owner.id)||(rec.target&&isVassal(rec.target)))?'<div class="flagbox" style="margin-top:4px">⚑ '+(isVassal(E.owner.id)?esc(E.owner.name)+' is a Vassal: can\u2019t perform Diplomacy actions':esc(pname(rec.target))+' is a Vassal: can\u2019t be targeted by Diplomacy actions')+'</div>':'');}
+  else if(mine)h+=pfForm(E,rec);
   else h+='<span class="note">awaiting '+esc(E.owner.name)+"'s action</span>";
   return h+'</div>';}
 function empireChecklistHTML(){const sea=curSeason(),auto=boardEndOn();
@@ -1931,9 +2103,10 @@ function tPanel(R){
       '<button data-vote="S" data-who="'+cw.id+'" class="pos">Support</button>'+(opposeBlock(cw,E)?'<span class="note">'+esc(opposeBlock(cw,E))+'</span>':'<button data-vote="O" data-who="'+cw.id+'" class="neg">Oppose</button>'):'<span class="note">no Influence available</span>')+'</div>'+
       (envBadges(E)?'<div>'+envBadges(E)+'</div>':'')+
       '<div class="note">Cap '+voteCap(cw,E.dom,E.council)+' ('+(E.dom==="Diplomacy"?currentEra():tStand(cw,E.dom))+') · '+room+' Influence left</div>';}
-  if(ph==="envoy"&&t.phaseTs){const own=R.envoys.filter(E2=>E2.dom==="Diplomacy"&&E2.done&&E2.out==="Failed"&&canAct(E2.owner)&&(HOTSEAT||sameP(E2.owner,me)));
+  if(ph==="envoy"&&t.phaseTs){const dfail=E2=>{if(E2.out==="Failed"||E2.out==="Condemned")return E2.out;const pe=performEval(E2);return pe&&(pe.out==="Failed"||pe.out==="Condemned")?pe.out:"";};
+    const own=R.envoys.filter(E2=>E2.dom==="Diplomacy"&&E2.done&&dfail(E2)&&canAct(E2.owner)&&(HOTSEAT||sameP(E2.owner,me)));
     own.forEach(E2=>{const ms=(tCur(E2.owner).mission||{})[E2.id],open=T_DOMS.filter(d=>!domStarted(R,d));
-      const why=E2.out;
+      const why=dfail(E2);
       act+='<div class="lbl">Diplomatic Mission — '+esc(E2.owner.name)+' <span class="note">('+esc(why)+')</span></div><div class="tb-row">'+
         (ms?'<span>Mission: <b>'+esc(ms)+'</b></span>'+(domStarted(R,ms)?'':'<button data-mission="" data-src="'+esc(E2.id)+'" data-who="'+E2.owner.id+'">cancel</button>'):
           open.length?open.map(d=>'<button data-mission="'+d+'" data-src="'+esc(E2.id)+'" data-who="'+E2.owner.id+'">'+d+'</button>').join(""):'<span class="note">every Domain has started voting</span>')+'</div>';});}
@@ -1988,10 +2161,10 @@ function tPanel(R){
       (R.cur?'<button data-skip="1"'+(hc?'':' disabled')+'>Skip current (abstain)</button>':'')+'</div>':'')+
     (ph==="rest"?'<div class="tb-row"><button data-endturn="1"'+(hc?'':' disabled')+' class="on">End turn</button><span class="note">Season +1 · Host passes'+(boardEndOn()?' · every board ends its turn':'')+'</span></div>':'')+
     '<div class="tb-row"><span style="flex:1">Host</span><select id="tbHost"'+(hc?'':' disabled')+'>'+seated().map(p=>'<option value="'+p.id+'"'+(sameP(p,hostP())?' selected':'')+'>'+esc(p.name)+'</option>').join("")+'</select></div>'+
-    '<div class="tb-row"><span style="flex:1">Seats</span><input id="tbSeats" type="number" min="'+Math.max(2,D.players.length)+'" max="12" value="'+tSeats()+'" style="width:60px"'+(hc?'':' disabled')+'></div>'+
+    '<div class="tb-row"><span style="flex:1">Seats</span><input id="tbSeats" type="number" min="'+Math.max(2,D.players.length,seated().length)+'" max="12" value="'+tSeats()+'" style="width:60px"'+(hc?'':' disabled')+'></div>'+
     '<div class="tb-row"><span style="flex:1">Vote timer (s, 0 = off)</span><input id="tbTimer" type="number" min="0" max="300" value="'+tTimer()+'" style="width:60px"'+(hc?'':' disabled')+'></div>'+
     '<div class="tb-row"><label><input type="checkbox" id="tbBoardEnd"'+(boardEndOn()?" checked":"")+(hc?'':' disabled')+'> End turn also runs every board\'s end turn (timers, net gold if auto-apply is on, Public Order, Endurance)</label></div>'+
-    '<div class="tb-row"><label><input type="checkbox" id="tbAutoRes"'+(t.auto?" checked":"")+(hc?'':' disabled')+'> Auto-resolve Faith/Doubt → Public Order</label></div>'+
+    '<div class="tb-row"><label><input type="checkbox" id="tbAutoRes"'+(autoRes()?" checked":"")+(hc?'':' disabled')+'> Auto-resolve actions (costs, Faith / Doubt, effects)</label></div>'+
     '<div class="tb-row"><button data-autoseat="1"'+(hc&&!seatsLocked()?'':' disabled')+'>Auto-seat unseated players</button></div>'+
     '<div class="note">Turn '+tTurn()+'</div></div>';
   return h;}
@@ -2025,11 +2198,16 @@ function tWire(host,R){
   host.querySelectorAll("[data-mk]").forEach(el=>el.onchange=()=>{const m=PT(mp).mods[el.dataset.mk];if(!m)return;
     m[el.dataset.mf]=el.dataset.mf==="val"?(+el.value||0):el.value;commit();});
   host.querySelectorAll("[data-mdel]").forEach(b=>b.onclick=()=>{delete PT(mp).mods[b.dataset.mdel];commit();});
-  host.querySelectorAll("[data-pact]").forEach(sl=>sl.onchange=()=>{const box=host.querySelector('[data-pinfo="'+sl.dataset.pact+'"]'),
-    btn=sl.parentElement&&sl.parentElement.querySelector("[data-perf]");if(box)box.innerHTML=actInfoHTML(btn?byId(btn.dataset.who):meP(),sl.value);});
+  host.querySelectorAll("[data-pf]").forEach(sl=>sl.onchange=()=>{const [id,k]=sl.dataset.pf.split("|");const d=PF[id]=PF[id]||{};d[k]=sl.value;
+    if(k==="action"){delete d.target;delete d.sub;}if(k==="target")delete d.sub;renderTable();});
   host.querySelectorAll("[data-perf]").forEach(b=>b.onclick=()=>{const p=byId(b.dataset.who),c=tCurW(p),id=b.dataset.perf;c.perform=c.perform||{};
-    const a=host.querySelector('[data-pact="'+id+'"]'),t=host.querySelector('[data-ptgt="'+id+'"]'),old=c.perform[id]||{};
-    c.perform[id]={action:a?a.value:"",target:old.edit&&old.target?old.target:(t?t.value:""),ts:tnow()};commit();});
+    const d=PF[id]||{},old=c.perform[id]||{},E=(tSim().envoys||[]).find(x=>x.id===id),tg=old.lock?String(old.lock.target||""):old.edit&&old.target?old.target:(d.target||"");
+    const ev=E&&d.action?comboEval(E,d.action,tg):null;
+    if(ev&&!ev.ok){const L=old.lock||{target:tg,tried:[],out:ev.out,net:ev.adj};if(!L.tried.includes(d.action))L.tried.push(d.action);c.perform[id]={lock:L,ts:tnow()};delete PF[id];commit();return;}
+    c.perform[id]={action:d.action||"",target:tg,sub:d.sub||"",ts:tnow()};delete PF[id];commit();});
+  host.querySelectorAll("[data-pffail]").forEach(b=>b.onclick=()=>{const c=tCurW(byId(b.dataset.who));c.perform=c.perform||{};const L=(c.perform[b.dataset.pffail]||{}).lock||{};
+    c.perform[b.dataset.pffail]={failAccept:1,target:L.target||"",failOut:L.out||"Failed",failNet:L.net,tried:L.tried||[],ts:tnow()};commit();});
+  host.querySelectorAll("[data-pend-done]").forEach(b=>b.onclick=()=>{const p=byId(b.dataset.who);if(p){p.board.pending=(p.board.pending||[]).filter(x=>x.id!==b.dataset.pendDone);commit();}});
   host.querySelectorAll("[data-perfedit]").forEach(b=>b.onclick=()=>{const c=tCurW(byId(b.dataset.who));c.perform=c.perform||{};
     const r=c.perform[b.dataset.perfedit]||{};c.perform[b.dataset.perfedit]=Object.assign({},r,{edit:1});commit();});
   host.querySelectorAll("[data-ph]").forEach(b=>b.onclick=()=>tSetPhase(b.dataset.ph));
@@ -2038,7 +2216,7 @@ function tWire(host,R){
   host.querySelectorAll("[data-endturn]").forEach(b=>b.onclick=tEndTurn);
   host.querySelectorAll("[data-autoseat]").forEach(b=>b.onclick=tAutoSeat);
   const hs=host.querySelector("#tbHost");if(hs)hs.onchange=()=>{TB().host=hs.value;TB().hostSet=true;commit();};
-  const se=host.querySelector("#tbSeats");if(se)se.onchange=()=>{TB().seats=Math.max(D.players.length,Math.min(12,+se.value||D.players.length));commit();};
+  const se=host.querySelector("#tbSeats");if(se)se.onchange=()=>{const want=+se.value,n=setSeats(want);if(want<n)flash("Seats can't go below "+n+" (players in the game)");commit();};
   const tm=host.querySelector("#tbTimer");if(tm)tm.onchange=()=>{TB().timer=Math.max(0,Math.min(300,+tm.value||0));commit();};
   const be=host.querySelector("#tbBoardEnd");if(be)be.onchange=()=>{TB().boardEnd=be.checked;commit();};
   const ar=host.querySelector("#tbAutoRes");if(ar)ar.onchange=()=>{TB().auto=ar.checked;commit();};}
@@ -2234,7 +2412,8 @@ function boardEndTurn(b){const done=empTimers(b);{const p=playerOfBoard(b);if(p)
 function tickRealm(types){const w=curSeason()==="Winter";realmTimers().forEach(x=>{if(!types.includes(x.type))return;if(w&&x.type==="Siege Timer"&&!siegeWinterOK(x))return;if(x.n>0)x.n--;});}
 const TIMER_ORDER=["Build Timer","Repair Timer","Truce Timer","Siege Timer","Muster Timer","Sack Timer","Capture Timer"];
 // Sabotage: "gains Blocked until the end of next turn" — set in turn T, gone when turn T+2's Empire Phase begins
-function expireBlocks(){const M=mapState(),out=[];Object.keys(M.cells).forEach(k=>{const c=M.cells[k];if(c.blocked&&c.blockedT!=null&&tTurn()-c.blockedT>=2){delete c.blocked;delete c.blockedT;out.push("Army @ "+k+": Blocked (Sabotage) ends");}});return out;}
+function expireBlocks(){const M=mapState(),out=[];Object.keys(M.cells).forEach(k=>{const c=M.cells[k];if(c.blocked&&c.blockedT!=null&&tTurn()-c.blockedT>=2){delete c.blocked;delete c.blockedT;out.push("Army @ "+k+": Blocked (Sabotage) ends");}});
+  D.players.forEach(p=>(p.board.armies||[]).forEach(a=>{if(a.blocked&&a.blockedT!=null&&tTurn()-a.blockedT>=2){delete a.blocked;delete a.blockedT;out.push(p.name+" · "+(a.label||("Army "+a.id))+": Blocked (Sabotage) ends");}}));return out;}
 function empirePhase(){const P=D.players,done={},log=[];P.forEach(p=>done[p.id]=[]);expireBlocks().forEach(x=>log.push(x));
   // 1-2. Standing effects are live; the Season was set in the Rest Phase.
   // 3. Timers, in order: Build, Repair (boards) · Truce, Siege (realm) · Muster (Armies) · Sack, Capture (realm) · any other realm timer
@@ -2490,6 +2669,7 @@ function boardFlags(){
   const cc=cityCount(),cCap=eraCap("cities");if(cCap!=null&&cc>cCap)f.push("Cities "+cc+" / "+cCap+" allowed in "+era+capSrc("cities"));
   const sCap=eraCap("max_settlements");if(sCap!=null&&S.settlements.length>sCap)f.push("Settlements "+S.settlements.length+" / "+sCap+" allowed in "+era);
   {const pl=playerOfBoard(S);if(pl)(S.settlements||[]).forEach(st=>{const n=armiesInside(pl,st).length;if(n>1)f.push((st.name||st.tier)+": "+n+" Armies inside (1 allowed)");});}
+  pendingOf(S).forEach(x=>f.push(x.act+" performed (turn "+x.turn+") — "+x.msg));
   const aCap=eraCap("armies");if(aCap!=null&&S.armies.length>aCap)f.push("Armies "+S.armies.length+" / "+aCap+" allowed in "+era+capSrc("armies"));
   if(!capitalSett())f.push("No capital set");
   if((S.treasury||0)<0)f.push("Treasury negative — Insolvency");
@@ -5365,7 +5545,7 @@ function inspHTML(){if(mtool!=="Select"||!INSP)return "";const M=mapState(),k=IN
   return '<div class="insp" id="inspPanel">'+h+'</div>';}
 function inspHead(art,title,sub,p){const i=p?D.players.indexOf(p):-1;
   return '<div class="ih">'+art+'<div><b>'+esc(title)+'</b>'+(sub?'<div class="note">'+sub+'</div>':'')+'</div><span class="ix">'+
-    (i>=0?'<button data-insp-board="'+i+'" data-nav="1" title="open this board">board ▸</button>':'')+'<button data-insp-x="1" data-nav="1" title="close">✕</button></span></div>';}
+    (i>=0?'<button data-insp-board="'+i+'" data-nav="1" title="open this player\u2019s Empire view">empire ▸</button>':'')+'<button data-insp-x="1" data-nav="1" title="close">✕</button></span></div>';}
 function inspCell(k,v,cls){return '<div'+(cls?' class="'+cls+'"':'')+'><span class="k">'+k+'</span>'+v+'</div>';}
 function g$(n){n=Math.round(+n||0);return n===0?"0":(n>0?"+":"")+n.toLocaleString();}
 function inspCan(pid){return !lockOn()||ADMIN||canHost()||(!!myClaimP()&&String(myClaimP().id)===String(pid));}
@@ -5648,7 +5828,7 @@ function runBanditMechanics(){const M=mapState(),B=BST(),sea=curSeason(),keys=Ob
 function banditSkims(){const B=BST(),out=[],w=curSeason()==="Winter";
   if(w)Object.keys(B.dest).forEach(key=>{const [pid,sid]=key.split(":"),p=D.players.find(q=>String(q.id)===pid),s=p&&(p.board.settlements||[]).find(x=>String(x.id)===sid);
     out.push({kind:"dest",key,camp:B.dest[key].camp,by:B.dest[key].by,p,amt:(p&&s)?settTax(p.board,s):0,what:s?(s.name||s.tier)+" tax":"tax"});});
-  const h=hostP();if(h&&B.ic[h.id]){const t=tradeRaw(h.board);out.push({kind:"ic",key:String(h.id),camp:B.ic[h.id].camp,p:h,amt:t.total,what:"trade income"});}
+  const h=hostP();if(h&&B.ic[h.id]){const t=tradeRaw(h.board);out.push({kind:"ic",key:String(h.id),camp:B.ic[h.id].camp,by:B.ic[h.id].by,p:h,amt:t.total,what:"trade income"});}
   return out;}
 function creditSkims(L){const M=mapState(),B=BST(),out=[];L.forEach(x=>{const by=x.by!=null?pById(x.by):null,cp=by?null:M.camps[x.camp];
   if(by)by.board.treasury=(+by.board.treasury||0)+x.amt;else if(cp)cp.gold=(cp.gold||0)+x.amt;
