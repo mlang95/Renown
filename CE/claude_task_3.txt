@@ -2,7 +2,7 @@ github/mlang95/Renown/CE/claude.md (this is claude_task_3.txt)
 Review all objectives, organize them in such a manner that you can do as many at the same time as possible in a single pass.
 Ask any clarifying questions.
 This is a response from the TASK2_NOTES.
-
+There is also an issue where if you scroll down 1 single scroll down on the settlement board, the top header stuff and the map flip between two different sizes super quickly and gives a seizure effect, if that makes sense.please correct this and ensure it doesn't exist after UX overhaul.
 Questions.
 Before we get started, the objective with the outlaw countrys in the wild is that the outlaws behave the same as the non-wild outlaws. That is to say, the real only differences between them is that the initial outlaw country starts within an empire, while the other ones are in the wild.
 1. Yes, go ahead and try a placement methodology such that they're scattered about in the unclaimed regions post game start. They should be at least Range 5 from any player border and at least Range 5 from each other.

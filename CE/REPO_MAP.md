@@ -1,6 +1,6 @@
 # REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`)
 
-Generated 2026-10-15 · data VERSION `0.4.9.9.12-d10-SIMPLE` · HEAD `10e54cf 2026-10-15`
+Generated 2026-10-15 · data VERSION `0.4.9.9.13-d10-SIMPLE` · HEAD `abce216 2026-10-15`
 
 Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to the repo root.
 
@@ -72,7 +72,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\COMPREHENSIVE_RULES_OUTLINE.md` | 181 | Renown — Comprehensive Rules: outline |
 | `CE\MAPGEN_COVERAGE.md` | 28 | Map generator — Holding / Monument coverage by region preset |
 | `CE\PROPOSALS_new_things.md` | 275 | Proposals — "New things to consider" + rules syntax pass |
-| `CE\REPO_MAP.md` | 829 | REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`) |
+| `CE\REPO_MAP.md` | 843 | REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`) |
 | `CE\RULES_push.md` | 649 | Renown |
 | `CE\RULES_push_simple.md` | 733 | Renown |
 | `CE\RULES_reorganized_6.md` | 638 | Renown |
@@ -502,7 +502,7 @@ Copied to `CE/renown_data.py` by the build (DIE=d10); every script imports `reno
 | Name | Line | Type | Size / value |
 |---|---|---|---|
 | `SIMPLE` | 4 | bool | True |
-| `VERSION` | 6 | str | '0.4.9.9.12-d10-SIMPLE' |
+| `VERSION` | 6 | str | '0.4.9.9.13-d10-SIMPLE' |
 | `BLUNDER_THR` | 34 | int | 10 |
 | `DICE_PROVENANCE` | 35 | str | 'd10 / Focused 10+ / Parry 8+ / Recover  |
 | `SACK_EXTORT_PER_TIER` | 38 | int | 2000 |
