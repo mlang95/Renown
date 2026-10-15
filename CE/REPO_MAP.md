@@ -1,6 +1,6 @@
 # REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`)
 
-Generated 2026-10-14 · data VERSION `0.4.9.9.12-d10-SIMPLE` · HEAD `35c029a 2026-10-11`
+Generated 2026-10-14 · data VERSION `0.4.9.9.12-d10-SIMPLE` · HEAD `ad89efd 2026-10-14`
 
 Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to the repo root.
 
@@ -70,14 +70,14 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `0.4.8.1\verify_engine.py` | 253 | verify_engine.py — golden-case tests for the Escalation combat engine. |
 | `CE\CLAUDE.md` | 64 | CLAUDE.md — Renown repo orientation (lives in `CE/`; paths below are relative to `CE/`) |
 | `CE\COMPREHENSIVE_RULES_OUTLINE.md` | 181 | Renown — Comprehensive Rules: outline |
-| `CE\REPO_MAP.md` | 820 | REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`) |
+| `CE\REPO_MAP.md` | 823 | REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`) |
 | `CE\RULES_push.md` | 649 | Renown |
 | `CE\RULES_push_simple.md` | 726 | Renown |
 | `CE\RULES_reorganized_6.md` | 638 | Renown |
 | `CE\SIMPLE_NODES.PY` | 1 |  |
 | `CE\build_all_CE.bat` | 506 | build_all_CE.bat - regenerate everything downstream of the CE data file. |
 | `CE\ce_paths.py` | 161 | ce_paths.py — path bootstrap for the d10 build. |
-| `CE\claude_task.txt` | 81 |  |
+| `CE\claude_task.txt` | 85 |  |
 | `CE\infra.py` | 109 |  |
 | `CE\parity_d10.py` | 41 | parity_d10.py — batch_engine and vectorized_combat must agree within dice noise. |
 | `CE\patch_cultures.py` | 245 | patch_cultures.py - replace the PLAYSTYLES block (or an existing CULTURES block) |

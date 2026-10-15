@@ -46,6 +46,10 @@ Table pane:
 - Grassland / Plains is arable land.
 -Notification system for when things like jesters court are consumed or used
 -Summary log, to see what bandit camps did overall, what envoys / supports / opposes resolved, what actions were done, what timers finished, & what renown was spent on.
+---- Map generator app ---
+  raw materials: badge 'salt' is named 'Salt Works', which no TERRAIN lists
+  raw materials: Barrens: generator places ['Quarry', 'Salt Works'], data doesn't list it
+
 
 I.e. one line for all players renown choice. 
 
@@ -71,7 +75,7 @@ New things to consider:
 - auto Generate random town names based on the domain points being spent (their culture) or their culture choice if not self-made
 -way to summarise turns in a story-telling way, covering the macro events of a game as it happens. Obvious things are like constructions of monuments, wonders, wars declared, non-bandit battles fought, settlements sacked / converted / Captured, Condemned envoys, stuff like that.
 -Way to overhaul the UX design completely. It needs to be easier to play the game without constantly tab shifting. Empire pane is for reviewing your empire, Table is for playing the game, Realm needs to be brought into Empire / Table and likely destroyed (then table can be renamed to Realm once all of Realm exists everywhere), and Reference is just for reference.
-
+-Changing the map generation under the new principles of being able to build stuff based on reach and the rarity of raw materials being per settlement with otherwise empire restrictions. Can change the way that things are clumped, and may require adding in some more categories at smaller, thematic amounts that enable more chains, because if a zone like dreadwood is pure forest and grass, that's only arable, common, apiary, forestry, inn, & courtyard to build off of? is that enough? has to consider
 
 Rules:
 -Need to homogenise syntax, not just for regex grabbing info but for rules writing clarity
