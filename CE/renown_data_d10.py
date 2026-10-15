@@ -228,7 +228,7 @@ GLOSSARY = {
 
     # ── World ──
     "Bandit":        "Neutral hostile force; Bandit Camps spawn in Outlaw Country and on low Public Order.",
-    "Outlaw Country": "Uncontrollable territories in your starting region where Bandit Camps spawn, starting at 3 and expanding if there is no room to place new Bandit Camps.",
+    "Outlaw Country": "Uncontrollable territories in your starting region where Bandit Camps spawn, starting at 3. Foster Rebellion expands it when there is no room; otherwise, when there is no room, its Bandit Camps grow instead.",
     "Siege":         "Sieging a Settlement with an Army to capture it; does not increment in Winter.",
 }
 
@@ -441,6 +441,8 @@ TACTIC_MATRIX = {
 }
  
 TACTICS = ["Scout", "Ambush", "Flank", "Charge", "Fighting Formation", "Defensive Formation", "Fall Back"]
+# One line per tactic shown in the board's Tactics matchups panel (objective / risk, in your words). Empty = not shown.
+TACTIC_NOTES = {}
  
 
 
@@ -2557,6 +2559,14 @@ HOLDING_GROUPS = {
 }
 for _hn, _hv in SIMPLE_NODES.items():
     _hv["type"] = "Monument" if _hv.get("monument") else HOLDING_GROUPS[_hv["group"]]
+# ── RARITY SCOPE — how many of one Holding / Infrastructure may exist ─────────
+#   Settlement = one per Settlement · Empire = one per player · Realm = one per game
+# Raw Materials are Settlement, Monuments and Wonders are Realm, everything else is Empire.
+# A Realm piece is taken once any player has placed it (under construction included).
+SCOPES = ("Settlement", "Empire", "Realm")
+SCOPE_BY_TYPE = {"Raw Materials": "Settlement", "Monument": "Realm"}
+for _hn, _hv in SIMPLE_NODES.items():
+    _hv.setdefault("scope", SCOPE_BY_TYPE.get(_hv["type"], "Empire"))
 # Lines: flavour labels for paths through the graph; a Holding may sit in several.
 LINE_LABELS = {
     "l_engineering": {"label": "Engineering", "members": ["Quarry", "Masonry", "Trade Guild", "College of Engineering", "Office of Works"]},
@@ -3189,6 +3199,10 @@ WONDERS = {'Colossus': {'upkeep': 500,
                    'tier': 'Wondrous',
                    'build_time': 10,
                    'requirement': "Magistrate's Hall"}}
+for _n, _v in INFRASTRUCTURE.items():
+    _v.setdefault("scope", "Empire")
+for _n, _v in WONDERS.items():
+    _v.setdefault("scope", "Realm")
 # ── EMPIRE RULES (ingested from Rules.docx — new data, nothing replaced) ─────
 # Settlement tiers: tax is the WINTER collection (once per 4 turns); wards =
 # pursuit slots (1 per tier; Hamlet exception); muster = retinues/turn.
@@ -3269,9 +3283,9 @@ DOMAIN_BOARD = {
         "Sovereign":   "High Quartermaster: Upkeep -2000. May change equipment on your armies during any upkeep phase where that army is within Province. No longer lose Influence while at War.",
     },
     "Cunning": {
-        "Rising":      "Clandestine Councilor: Once per Envoy Phase, when voting on an Envoy begins, target a player with a lower Cunning value - that player Abstains that Envoy.",
-        "Established": "Grand Vizier: Players may not target you with Cunning Envoys if your Cunning value is higher.",
-        "Sovereign":   "Master Conspirator: Once per turn, if your non-Cunning Envoy passes or is endorsed, you may instead perform a Cunning action.",
+        "Rising":      "Clandestine Councilor: +1 Influence per turn. Once per Envoy Phase, when voting on an Envoy begins, target a player with a lower Cunning value - that player Abstains that Envoy.",
+        "Established": "Grand Vizier: +1 Influence per turn. Players may not target you with Cunning Envoys if your Cunning value is higher.",
+        "Sovereign":   "Master Conspirator: +1 Influence per turn. Once per turn, if your non-Cunning Envoy passes or is endorsed, you may instead perform a Cunning action.",
     },
     "Piety": {
         "Rising":      "Divine Mandate: Faith +1 each Empire Phase.",
@@ -3328,12 +3342,13 @@ EFFICIENT = {n: t[0] for n, t in EFFICIENT_MULTI.items()} # first target (1-part
 # intentionally excluded as deprecated relative to the combat model above.
 # ============================================================================
 BANDIT_CAMP_START = 10
+BANDIT_CAMP_GOLD = 2000    # gold in a Bandit Camp's treasury when it spawns
 BANDIT_ARMY_THRESHOLD = 25
 BANDIT_GROWTH_PER_ERA = {"Founding": 1, "Ascension": 2, "Eminence": 3, "Zenith": 4}
 BANDIT_EQUIPMENT_PER_ERA = {"Founding": "Levy: Cudgel + Cloth", "Ascension": "Levy: Arming Sword, Targe Shield, & Leather Armor" , "Eminence": "Man-at-Arms: Halberd + Chainmail", "Zenith": "Man-at-Arms: Battle Axe + Full Plate"}
 BANDITS = {
     "Bandit Domain Value": "For every 5 Retinues in the Bandit Camp or Army, the Bandit Camp has +2 Cunning and +2 Prowess.",
-    "Bandit Camp": f"A collection of Bandits in Outlaw Country, starting with {BANDIT_CAMP_START} Retinues.",
+    "Bandit Camp": f"A collection of Bandits in Outlaw Country, starting with {BANDIT_CAMP_START} Retinues and {BANDIT_CAMP_GOLD} gold.",
     "Bandit Growth": f"Bandit Camps gain ({'/'.join(str(v) for v in BANDIT_GROWTH_PER_ERA.values())}) Retinues a turn, based on the Era of the Realm.",
     "Bandit Army": f"A Bandit Camp becomes a Bandit Army at {BANDIT_ARMY_THRESHOLD} Retinues. Performs Move actions toward the closest Settlement or Army, laying Siege or Skirmishing if possible, in addition to Bandit Cunning Mechanics. Bandit Armies cannot exceed {BANDIT_ARMY_THRESHOLD}",
     "Spawn a Bandit Camp": "Each Spring, every player gains a Bandit Camp.",
@@ -3422,7 +3437,6 @@ INFLUENCE_GAIN = {
     "Trading Partners": {"change": "+1", "notes": "Per Trading Partner."},
     "Alliances": {"change": "+1", "notes": "Per Alliance Member."},
     "Infrastructure tier completed": {"change": "+1", "notes": "Per Infrastructure tier fully completed."},
-    "Cunning Standing": {"change": "+1", "notes": "per unlocked Cunning Standing."},
     "Fully Mustered Army": {"change": "+1", "notes": "Per active Army of 25 Retinues."},
     "Condemned Envoy last turn": {"change": "-1", "notes": "Per Condemned Envoy last turn."},
     "At War": {"change": "-3", "notes": "While at War."},
@@ -3639,7 +3653,7 @@ ACTIONS = {
         'requires': '',
         'effect': 'Choose an unlocked, available Infrastructure and set a Build Timer equal to its build time. When it completes, the Infrastructure becomes active in every Settlement in your province.',
         'endorsed': 'Recoup 2000.',
-        'notes': ['You must have at least one Infrastructure from the prior tier before building the next tier.', 'A Wonder is built in your capital and requires all other Infrastructure to be active when the Build action is performed.'],
+        'notes': ['You must have at least one Infrastructure from the prior tier before building the next tier.', 'A Wonder is built in your capital.'],
     },
     'Repair': {
         'domain': 'Industry',

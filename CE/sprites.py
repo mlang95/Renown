@@ -2063,7 +2063,7 @@ SPRITES["eq:Gothic Plate"] = [
 # ---------------------------------------------------------------- status icons (8x8) + map markers (16x16), no ground row
 # "st:<state>" for every STATUS_ICONS entry: Army / Settlement / Bandit states in the Inspect panel and on the Army plate.
 # "mk:battle" / "mk:siege": map markers on engaged Armies / besieged Settlements. Drawn on EQ_TILE like eq: icons.
-STATUS_ICONS = ["endurance", "strained", "blocked", "fatigue", "routed", "muster", "sieging", "besieged", "battle", "pillage", "destabilize", "tension", "invasion", "unrest"]
+STATUS_ICONS = ["endurance", "strained", "blocked", "fatigue", "routed", "muster", "sieging", "besieged", "battle", "pillage", "destabilize", "tension", "invasion", "unrest", "damaged", "intercept"]
 
 SPRITES["st:endurance"] = [
     "....yy..",
@@ -2204,6 +2204,26 @@ SPRITES["st:unrest"] = [
     "..ssss..",
     "..s.s.s.",
     "........",
+]
+SPRITES["st:damaged"] = [
+    "..k.....",
+    "ttktttut",
+    "tuktuttu",
+    "tttkkttt",
+    "uttttkut",
+    "ttuttktt",
+    "tttkuttu",
+    "uuukuuuu",
+]
+SPRITES["st:intercept"] = [
+    "...yy...",
+    "..yyyy..",
+    "bbbyybbb",
+    "bbbbbbbb",
+    "bdbbbbdb",
+    "bbbbbbbb",
+    ".kk..kk.",
+    ".kk..kk.",
 ]
 SPRITES["mk:battle"] = [
     ".kk..........kk.",

@@ -108,7 +108,7 @@ A few conventions make every rule in this book read the same way:
 
 14. **Mastery Chain.** A Holding's Mastery Chain is the line of Holdings it builds from, usually running from a Raw Material up to a Monument. You may start building a Holding only while you control one complete line of its Mastery Chain, anywhere in your empire; this is checked only when you start it. A Root Holding has no Mastery Chain requirement. A Holding placed in the same Settlement Ward as its immediate parent shares that Ward, and the chain can continue upward the same way. Each Holding carries at most one descendant in its Ward.
 
-15. **Monuments & Wonders are unique.** Only one Holding or Wonder of each name can exist in a game.
+15. **Scope.** Each Holding and Infrastructure has a Scope that limits how many of it can exist: *Settlement* — one per Settlement (Raw Materials); *Empire* — one per player (every other Holding and Infrastructure); *Realm* — one per game (Monuments and Wonders). A Realm piece is taken once any player has placed it, including while it's under construction.
 
 ## The Turn
 
@@ -400,11 +400,11 @@ Hamlets are unique Settlements, placed *exactly* range {{VAL:HAMLET_RANGE}} from
 
  	*Example: Wooden Walls protect all Settlements from Bandits and Raze actions, and a Cathedral raises your innate Faith by 2 each turn, regardless of how many Settlements you have.*
 
- 	Infrastructure comes in 4 ascending tiers.{{IDX:Primitive}}{{IDX:Developed}}{{IDX:Sophisticated}} Primitive Infrastructure builds the basic blocks of your empire. Developed Infrastructure expands and replaces some primitive Infrastructure. Sophisticated Infrastructure allows more powerful effects and helps unlock unique Monument Holdings.
+ 	Infrastructure comes in 4 ascending tiers.{{IDX:Primitive}}{{IDX:Developed}}{{IDX:Sophisticated}} Primitive Infrastructure builds the basic blocks of your empire. Developed Infrastructure expands and replaces some primitive Infrastructure. Sophisticated Infrastructure allows more powerful effects and helps unlock unique Monument Holdings. Prodigious Infrastructure is the highest tier.
 
  	To build any Infrastructure, you need at least one active Infrastructure of the tier below it — so Developed needs one Primitive, and Sophisticated needs one Developed (and therefore one Primitive). *One Tier Primitive* means any one Primitive Infrastructure. Some Infrastructure also names its own requirement on top of this: a Library needs a Town Hall, and a Cathedral needs a Capital City — so a Cathedral needs one Primitive, one Developed, and a Capital City.
 
- 	Last are world Wonders.{{IDX:Wonder}} Wonders are unique Infrastructure, each built once per game, only once all other Infrastructure is built and active in your empire. They're Edict-satisfying buildings with very powerful effects. A Wonder exists inside your capital and can't be razed or damaged.
+ 	Last are world Wonders.{{IDX:Wonder}} Wonders are Infrastructure with Realm Scope: each is built once per game and needs the Infrastructure named in its requirement. They're Edict-satisfying buildings with very powerful effects. A Wonder exists inside your capital and can't be razed or damaged.
 
 The full list of Infrastructure — their tiers, build times, upkeep, requirements, and effects:
 
@@ -641,9 +641,9 @@ If that's not possible, place them range 2 from your capital Settlement.
 
 ### Spawning Bandit Camps
 
-At the start of the Bandit Mechanics step in Spring: place a Bandit Camp of {{VAL:BANDIT_CAMP_START}} Bandits (Retinues) in each player's Outlaw Country.
+At the start of the Bandit Mechanics step in Spring: place a Bandit Camp of {{VAL:BANDIT_CAMP_START}} Bandits (Retinues) with {{VAL:BANDIT_CAMP_GOLD}} gold in each player's Outlaw Country.
 
-*Note: if an Outlaw Country is chosen to receive another Bandit Camp but there's no room to place one, instead each existing Bandit Camp grows according to the current Era.*
+*Note: if an Outlaw Country is chosen to receive another Bandit Camp but there's no room to place one, instead each existing Bandit Camp grows according to the current Era. Foster Rebellion is the exception: it expands that Outlaw Country by one Territory and places the camp there.*
 
 ### Growing Bandit Camps
 
