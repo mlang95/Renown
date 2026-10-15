@@ -260,12 +260,6 @@ def infrastructure():
             for n, v in rd.INFRASTRUCTURE.items()]
     return _table(["Infrastructure", "Tier", "Upkeep", "Build Time", "Requirement", "Empire Bonus"], rows)
 
-def wonders():
-    rows = [[n, str(v.get("upkeep", "")), str(v.get("build_time", "")),
-             v.get("requirement", ""), v.get("empire_bonus", "")]
-            for n, v in rd.WONDERS.items()]
-    return _table(["Wonder", "Upkeep", "Build Time", "Requirement", "Empire Bonus"], rows)
-
 _TAC_BASE = {"Hill": "Grassland", "Open Field": "Grassland", "Mire": "Wetlands", "Forest": "Forest",
              "Tundra": "Tundra", "Mountains": "Mountains", "Water": "Water"}
 
@@ -393,7 +387,7 @@ REGISTRY = {
     "treaties": treaties, "bandit_growth": bandit_growth, "edicts": edicts,
     "weapons": weapons, "armor": armor, "seasons": seasons, "ages": ages,
     "ranged": ranged, "shields": shields, "infrastructure": infrastructure,
-    "wonders": wonders, "terrain": terrain, "tactical_terrain": tactical_terrain,
+    "terrain": terrain, "tactical_terrain": tactical_terrain,
     "factions": factions, "timers": timers, "build_timers": build_timers, "siege_calculus": siege_calculus,
     "bandit_cunning": bandit_cunning, "bandit_tactics": bandit_tactics,
     "bandit_armaments": bandit_armaments,

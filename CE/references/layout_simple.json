@@ -1071,22 +1071,26 @@
     1,
     0
    ],
-   "Abbey": [
+   "Priory": [
     2,
     0
    ],
-   "Monastery": [
+   "Abbey": [
     3,
     0
    ],
-   "Papal Palace": [
+   "Monastery": [
     4,
+    0
+   ],
+   "Papal Palace": [
+    5,
     0
    ]
   },
   "edges": [
    [
-    "Masonry",
+    "Priory",
     "Abbey"
    ],
    [
@@ -1100,6 +1104,10 @@
    [
     "Monastery",
     "Papal Palace"
+   ],
+   [
+    "Masonry",
+    "Priory"
    ]
   ]
  },

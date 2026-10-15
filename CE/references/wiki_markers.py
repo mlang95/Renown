@@ -168,23 +168,18 @@ def _t_terrain():
                     for t, d in rd.TERRAIN.items()])
 
 def _t_infrastructure():
-    TIER_ORD = {"Primitive": 0, "Developed": 1, "Sophisticated": 2}
+    TIER_ORD = {t: i for i, t in enumerate(getattr(rd, "INFRA_TIERS", ["Primitive", "Developed", "Sophisticated"]))}
     items = sorted(rd.INFRASTRUCTURE.items(), key=lambda kv: (TIER_ORD.get(kv[1].get("tier"), 9), kv[0]))
     return _htable(["Build", "Tier", "Upkeep", "Build Time", "Requirement", "Effect"],
                    [[n, d.get("tier", ""), d.get("upkeep", ""), d.get("build_time", ""),
                      d.get("requirement", ""), d.get("empire_bonus", "")] for n, d in items])
-
-def _t_wonders():
-    return _htable(["Wonder", "Build Time", "Upkeep", "Effect"],
-                   [[n, d.get("build_time", ""), d.get("upkeep", ""), d.get("empire_bonus", "")]
-                    for n, d in rd.WONDERS.items()])
 
 TABLE_RENDER = {
     "public_order": _t_public_order, "po_modifiers": _t_po_modifiers, "domain_board": _t_domain_board,
     "net_influence": _t_net_influence, "influence_gain": _t_influence_gain, "bandit_growth": _t_bandit_growth,
     "treaties": _t_treaties, "edicts": _t_edicts, "seasons": _t_seasons, "eras": _t_eras,
     "settlements": _t_settlements, "terrain": _t_terrain, "infrastructure": _t_infrastructure,
-    "wonders": _t_wonders, "bandit_cunning": _t_bandit_cunning, "bandit_tactics": _t_bandit_tactics,
+    "bandit_cunning": _t_bandit_cunning, "bandit_tactics": _t_bandit_tactics,
     "bandit_armaments": _t_bandit_armaments,
 }
 for _k in ("eras", "terrain"):        # shapes changed in docx_tables (Compendium columns folded in): read them from there

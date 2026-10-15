@@ -10,11 +10,9 @@ Install:    pip install reportlab
 Use from a notebook:
     from reference_sheets import (
         make_infrastructure_pdf,
-        make_wonders_pdf,
         make_actions_pdf,
     )
     make_infrastructure_pdf(r"C:\\path\\infrastructure.pdf")
-    make_wonders_pdf(r"C:\\path\\wonders.pdf")
     make_actions_pdf(r"C:\\path\\actions.pdf")
 
 Print at 100% / "actual size".
@@ -50,7 +48,8 @@ TIER_COLORS = {
     "Primitive":     HexColor("#7A6A4A"),
     "Developed":     HexColor("#3A7A4A"),
     "Sophisticated": HexColor("#2A4D7F"),
-    "Wonder":        HexColor("#8C6A1A"),
+    "Prodigious":    HexColor("#5B3A8C"),
+    "Wondrous":      HexColor("#8C6A1A"),
 }
 HEADER_BG = HexColor("#F5F2EC")
 ACCENT = HexColor("#4A2E1F")
@@ -100,11 +99,10 @@ def _load_from_renown_data():
     infra = [(name, str(e["upkeep"]), e["upkeep_frequency"], e["empire_bonus"],
               e["tier"], str(e["build_time"]), e["requirement"])
              for name, e in rd.INFRASTRUCTURE.items()]
-    wonders = [(name, e["empire_bonus"]) for name, e in rd.WONDERS.items()]
-    return infra, wonders
+    return infra
 
 
-INFRASTRUCTURE, WONDERS = _load_from_renown_data()
+INFRASTRUCTURE = _load_from_renown_data()   # Wonders are its Wondrous tier
 
 # ============================================================
 # DATA — Actions per Domain
@@ -393,7 +391,7 @@ def make_infrastructure_pdf(pdf_path):
     c.setFillColor(HexColor("#555555"))
     c.drawString(table_x,
                  foot_y,
-                 "Wonders are Built in your Capital, have Immune Razed, and require ALL other Infrastructure Active when Build Action is Performed.")
+                 "Wonders (Wondrous tier) are built in your Capital, have Immune Razed, and are one per game.")
     c.setFillColor(black)
 
     c.save()
@@ -424,7 +422,7 @@ def make_infrastructure_cards_pdf(pdf_path):
 
         # Border (thicker for Wonder tier, normal for others)
         c.setStrokeColor(accent)
-        c.setLineWidth(2.0 if tier == "Wonder" else 1.2)
+        c.setLineWidth(2.0 if tier == "Wondrous" else 1.2)
         c.rect(x, y, CARD_W, CARD_H)
 
         cur_y = y + CARD_H - PAD
@@ -508,8 +506,7 @@ def make_buildings_pdf(pdf_path):
     page_slots = COLS * ROWS
 
     # Combine into a single iteration list, each entry tagged as 'infra' or 'wonder'
-    items = [('infra', tup) for tup in INFRASTRUCTURE] + \
-            [('wonder', tup) for tup in WONDERS]
+    items = [('infra', tup) for tup in INFRASTRUCTURE]
 
     for i, (kind, payload) in enumerate(items):
         slot = i % page_slots
@@ -530,7 +527,7 @@ def make_buildings_pdf(pdf_path):
 
             # Border
             c.setStrokeColor(accent)
-            c.setLineWidth(2.0 if tier == "Wonder" else 1.2)
+            c.setLineWidth(2.0 if tier == "Wondrous" else 1.2)
             c.rect(x, y, CARD_W, CARD_H)
 
             cur_y = y + CARD_H - PAD
@@ -661,84 +658,7 @@ def make_buildings_pdf(pdf_path):
     c.save()
     total_cards = len(items)
     pages = (total_cards + page_slots - 1) // page_slots
-    print(f"Wrote {pdf_path}  ({total_cards} cards: {len(INFRASTRUCTURE)} infrastructure + {len(WONDERS)} wonders, {pages} page(s))")
-
-
-def make_wonders_pdf(pdf_path):
-    c = canvas.Canvas(pdf_path, pagesize=letter)
-
-    accent = HexColor("#8C6A1A")  # bronze for Wonders
-
-    for i, (name, effect) in enumerate(WONDERS):
-        slot = i  # 0..3, all on one page (3x3 grid, only first 4 used)
-        col = slot % COLS
-        r = slot // COLS
-        x = MARGIN_X + col * CARD_W
-        y = PAGE_H - MARGIN_Y - (r + 1) * CARD_H
-
-        inner_w = CARD_W - 2 * PAD
-        cx = x + CARD_W / 2
-
-        # Border (thicker for Wonder)
-        c.setStrokeColor(accent)
-        c.setLineWidth(2.0)
-        c.rect(x, y, CARD_W, CARD_H)
-
-        cur_y = y + CARD_H - PAD
-
-        # WONDER label
-        cur_y -= 9
-        c.setFont("Helvetica-Bold", 7.5)
-        c.setFillColor(accent)
-        c.drawCentredString(cx, cur_y, "✦ WORLD WONDER ✦")
-        c.setFillColor(black)
-        cur_y -= 6
-
-        # Name
-        name_text, name_size = _fit(name, inner_w, "Helvetica-Bold", 14.0, 10.0)
-        cur_y -= name_size
-        c.setFont("Helvetica-Bold", name_size)
-        c.drawCentredString(cx, cur_y, name_text)
-        cur_y -= 6
-
-        # Accent rule
-        c.setFillColor(accent)
-        c.rect(x + PAD + 18, cur_y, inner_w - 36, 1.5, stroke=0, fill=1)
-        c.setFillColor(black)
-        cur_y -= 8
-
-        # Cost / Build info
-        c.setFont("Helvetica-Oblique", 7.5)
-        c.setFillColor(HexColor("#666666"))
-        c.drawCentredString(cx, cur_y, "Build Time 10 · Upkeep 200 · Built in Capital")
-        c.drawCentredString(cx, cur_y - 9, "Cannot be Razed · Unique (1 per game)")
-        c.setFillColor(black)
-        cur_y -= 24
-
-        # Effect — auto-fit
-        chosen = None
-        for size in [11.0, 10.0, 9.5, 9.0, 8.5]:
-            line_h = size + 2
-            lines = _wrap_rich(effect, "Helvetica", "Helvetica-Bold", size, inner_w)
-            if len(lines) * line_h <= (cur_y - y - PAD - 12):
-                chosen = (size, line_h, lines)
-                break
-        if chosen is None:
-            size = 8.5
-            line_h = size + 2
-            lines = _wrap_rich(effect, "Helvetica", "Helvetica-Bold", size, inner_w)
-            chosen = (size, line_h, lines)
-
-        size, line_h, lines = chosen
-        for segs in lines:
-            cur_y -= size
-            if segs:
-                _draw_rich_line(c, x + PAD, cur_y, segs, "Helvetica", "Helvetica-Bold", size)
-            cur_y -= (line_h - size)
-
-    draw_crop_marks(c)
-    c.save()
-    print(f"Wrote {pdf_path}  ({len(WONDERS)} cards, 1 page)")
+    print(f"Wrote {pdf_path}  ({total_cards} cards, {pages} page(s))")
 
 
 # ============================================================

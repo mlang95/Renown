@@ -43,7 +43,7 @@ _ST = getattr(rd, "STANDING_THRESHOLDS", {"Untested": 1, "Rising": 3, "Establish
 TIERS = [(_ST[k], k) for k in ("Rising", "Established", "Sovereign")]
 DOMAIN_MAX = _ST["Sovereign"]
 
-TIER_COL = {"Primitive": "#6f7a52", "Developed": "#5f7360", "Sophisticated": "#4f6a72"}
+TIER_COL = {"Primitive": "#6f7a52", "Developed": "#5f7360", "Sophisticated": "#4f6a72", "Prodigious": "#5e5478", "Wondrous": "#8c6a1a"}
 SLOTBG = HexColor("#efe9db")
 
 def infra_tracker(c, x, y, w):
@@ -53,10 +53,11 @@ def infra_tracker(c, x, y, w):
     c.setFont(SERIF_I, 8); c.setFillColor(MUTE)
     c.drawString(x + c.stringWidth("Infrastructure", SERIF_B, 11) + 8, y, "empire-wide \u00b7 build once")
     y -= 11
-    tiers = ["Primitive", "Developed", "Sophisticated"]
-    colw = (w - 2*18) / 3
-    xs = [x, x + colw + 18, x + 2*(colw + 18)]
-    efs = 5.8
+    tiers = list(getattr(rd, "INFRA_TIERS", ["Primitive", "Developed", "Sophisticated"]))   # Wonders = the Wondrous tier
+    gap = 18 if len(tiers) <= 3 else 8
+    colw = (w - (len(tiers) - 1)*gap) / len(tiers)
+    xs = [x + i*(colw + gap) for i in range(len(tiers))]
+    inline = False; tight = len(tiers) > 3; efs = 5.0 if tight else 5.8; lsp = efs + (0.7 if tight else 1.0); low = y
     for ci, tier in enumerate(tiers):
         cx = xs[ci]
         c.setFillColor(_c(TIER_COL[tier])); c.roundRect(cx, y - 13, colw, 13, 2, stroke=0, fill=1)
@@ -65,20 +66,37 @@ def infra_tracker(c, x, y, w):
         for n, d in [(n, d) for n, d in rd.INFRASTRUCTURE.items() if d.get("tier") == tier]:
             up = d.get("upkeep", 0)
             eff = " ".join(str(d.get("empire_bonus", "")).replace("**", "").split())
-            elines = wrap(c, eff, SERIF, efs, colw - 12)
-            rh = max(12, 9.5 + len(elines) * (efs + 1.0))
+            tag = f"u{up}" if up else "free"
+            if inline:   # name, effect and upkeep share the first line (five tiers in one row)
+                nw = c.stringWidth(_D(n), SERIF_B, 6.4) + 4; tw = c.stringWidth(tag, SERIF, 5.2) + 4
+                words = _D(eff).split(); first = ""
+                while words and c.stringWidth((first + " " + words[0]).strip(), SERIF, efs) <= colw - 12 - nw - tw:
+                    first = (first + " " + words.pop(0)).strip()
+                elines = [first] + (wrap(c, " ".join(words), SERIF, efs, colw - 12) if words else [])
+                rh = max(10, 4 + len(elines) * (efs + 1.0) + 2)
+            else:
+                elines = wrap(c, eff, SERIF, efs, colw - 12)
+                rh = max(12, (9 if tight else 9.5) + len(elines) * lsp)
             c.setFillColor(SLOTBG); c.setStrokeColor(FRAME); c.setLineWidth(0.5)
             c.roundRect(cx, ry - rh, colw, rh, 2, stroke=1, fill=1)
             c.setFillColor(_c(TIER_COL[tier])); c.rect(cx, ry - rh, 3, rh, stroke=0, fill=1)
-            c.setFont(SERIF_B, 6.8); c.setFillColor(INK); c.drawString(cx + 8, ry - 7.5, n)
-            c.setFont(SERIF, 5.4); c.setFillColor(TAG)
-            c.drawRightString(cx + colw - 5, ry - 7.5, f"u{up}" if up else "free")
-            ty = ry - 14
-            c.setFont(SERIF, efs); c.setFillColor(HexColor("#3a3a42"))
-            for ln in elines:
-                c.drawString(cx + 8, ty, ln); ty -= efs + 1.0
-            ry -= rh + 2.2
-    return ry
+            c.setFont(SERIF, 5.4 if not inline else 5.2); c.setFillColor(TAG)
+            c.drawRightString(cx + colw - 5, ry - 7.5, tag)
+            if inline:
+                c.setFont(SERIF_B, 6.4); c.setFillColor(INK); c.drawString(cx + 8, ry - 7.5, n)
+                c.setFont(SERIF, efs); c.setFillColor(HexColor("#3a3a42"))
+                c.drawString(cx + 8 + nw, ry - 7.5, elines[0]); ty = ry - 7.5 - (efs + 1.0)
+                for ln in elines[1:]:
+                    c.drawString(cx + 8, ty, ln); ty -= efs + 1.0
+            else:
+                c.setFont(SERIF_B, 6.8); c.setFillColor(INK); c.drawString(cx + 8, ry - 7.5, n)
+                ty = ry - (13.5 if tight else 14)
+                c.setFont(SERIF, efs); c.setFillColor(HexColor("#3a3a42"))
+                for ln in elines:
+                    c.drawString(cx + 8, ty, ln); ty -= lsp
+            ry -= rh + (1.6 if tight else 2.2)
+        low = min(low, ry)
+    return low
 
 def _wrap_runs(c, runs, size, maxw):
     """runs = [(text,bold),...] -> list of lines, each a list of (word,bold)."""
@@ -308,7 +326,9 @@ def build(out):
                det_rows, det_colw, "Envoys & Diplomacy", "#5a4f72", fs=6.6, hfs=7)
 
     # infrastructure tracker, then Seasons strip beneath it (full width)
-    infra_bot = infra_tracker(c, x, MY + 160, w)
+    import io                                               # tallest tier column decides the start: Seasons keep their room
+    low = infra_tracker(canvas.Canvas(io.BytesIO()), x, MY + 160, w)
+    infra_bot = infra_tracker(c, x, MY + 160 + max(0, (MY / 2 + 62) - low), w)
     _seasons_strip(c, x, infra_bot - 12, w)
 
     c.showPage(); c.save()

@@ -1015,6 +1015,20 @@ SPRITES["inf:Cathedral"] = _b([   # spire, rose window, nave
     ".tkttddttkt.", ".tkkkkkkkkt.",
 ], 12, 31)
 
+SPRITES["inf:Chapel"] = _b([   # small nave, gold cross, bell window
+    ".....yy.....", "....yyyy....", ".....yy.....", "....kkkk....",
+    "...krrrrk...", "..krrrrrrk..", ".krrrrrrrrk.", "kkkkkkkkkkkk",
+    ".kttttttttk.", ".kttyttyttk.", ".kttyttyttk.", ".kttttttttk.",
+    ".kttttttttk.", ".ktttddtttk.", ".ktttddtttk.", ".ktttddtttk.",
+    ".kkkkkkkkkk.",
+], 12, 18)
+
+SPRITES["inf:Magistrate's Hall"] = _b([   # pillared court, pediment, gilded finial
+    "......k", "......y", ".....kk", "....krr", "...krry", "..krrrr",
+    ".krrrrr", "kkkkkkk", ".kwkwkw", ".kwkwkw", ".kwkwkw", ".kwkwkw",
+    "kkkkkkk", ".kwwwwy", ".kwywwd", ".kwywwd", ".kwwwwd", "kkkkkkk",
+], 14, 19, mirror=True)
+
 SPRITES["inf:Library"] = _b([   # domed reading hall
     "....kkk.....", "...keeek....", "..keeeeek...", "..kkkkkkk...",
     "..ktttttk...", "..kkkkkkk...", "..ktttttk...", "..kytytyk...",
@@ -1028,6 +1042,14 @@ SPRITES["inf:Garrison"] = _b([   # tower, pennant
     "kttttk", "kttttk", "kttttk", "kttttk", "ktdttk", "kttttk",
     "kttttk", "kttttk", "kttttk", "kttttk", "kttttk", "kkkkkk",
 ], 6, 25)
+
+SPRITES["inf:Keep"] = _b([   # square keep, crenels, banner
+    "....kcc...", "....kc....", "....k.....", "k.k.k.k.kk", "kkkkkkkkkk",
+    "kttttttttk", "kttttttttk", "ktttddtttk", "ktttddtttk", "kttttttttk",
+    "kttttttttk", "kttttttttk", "ktyttttytk", "ktyttttytk", "kttttttttk",
+    "kttttttttk", "ktttddtttk", "kttttttttk", "kttttttttk", "kttttttttk",
+    "kttdddtttk", "kttdddtttk", "kttdddtttk", "kkkkkkkkkk",
+], 10, 25)
 
 SPRITES["inf:Muster Field"] = _b([   # flagpole, standard
     "kccc", "kccc", "kcc.", "kc..", "k...", "k...", "k...", "k...",
@@ -1051,6 +1073,19 @@ SPRITES["inf:Stone Walls:tower"] = _b([   # wall tower at each end
 SPRITES["inf:Hitching Post"] = _b([   # rail and ring (foreground)
     "bbbbb", "b.m.b", "b...b", "b...b", "b...b",
 ], 5, 6)
+
+SPRITES["inf:Road Wardens"] = _b([   # warden's hut and two tethered horses, one behind the other (foreground)
+    ".............kk........",
+    ".........kk.uuuk.......",
+    "..rr....bbbkuuuuk......",
+    ".rrrr..bbbbbk.uuuk.....",
+    "rrrrrr.bk.bbbk.uuuuuuuk",
+    ".wwww......bbbbbbbkuuuk",
+    ".wwyw......bbbbbbbkuuu.",
+    ".wwww......bbbbbbb..u.u",
+    ".wddw......b.b.ubub.u.u",
+    ".wddw......b.b..b.b....",
+], 23, 11)
 
 SPRITES["inf:Bridges"] = _b([   # stone arch over the stream between settlements
     "kkkkkkkkkkkkkk", "kttttttttttttk", "kt.kkkkkkkk.tk",
@@ -2343,11 +2378,13 @@ SKYLINE = {
     "Muster Field": ("edge", "left"), "Garrison": ("edge", "right"),
     "Wooden Walls": ("band", ""), "Stone Walls": ("band", ""),
     "Dirt Roads": ("ground", "dirt"), "Stone Roads": ("ground", "stone"),
-    "Bridges": ("gap", ""), "Aqueducts": ("span", ""), "Hitching Post": ("front", ""),
+    "Bridges": ("gap", ""), "Aqueducts": ("span", ""), "Hitching Post": ("front", "left"),
+    "Chapel": ("slot", "center"), "Magistrate's Hall": ("slot", "right"), "Keep": ("edge", "right"),
+    "Road Wardens": ("front", "right"),
 }
-# display only: when both are built, draw the upgrade (data: Stone Roads requires Dirt Roads,
-# Stone Walls requires Wooden Walls)
-INFRA_SUPERSEDES = {"Stone Roads": "Dirt Roads", "Stone Walls": "Wooden Walls"}
+# display only: when both are built, draw the upgrade in the same spot (frees skyline room)
+INFRA_SUPERSEDES = {"Stone Roads": "Dirt Roads", "Stone Walls": "Wooden Walls", "Cathedral": "Chapel",
+                    "Keep": "Garrison", "Magistrate's Hall": "Town Hall"}
 # display only: these tiers are drawn bare (no slot / edge / band / front pieces);
 # ground, gap and link pieces are shared between settlements and still pass by them
 PLATE_NO_INFRA = ["Hamlet", "Village"]
@@ -2448,7 +2485,7 @@ def check(ns):
         if "sky:core:" + n not in SPRITES or "sky:fill:" + n not in SPRITES:
             out.append(f"settlement {n}: needs sky:core and sky:fill")
     infra = set(ns.get("INFRASTRUCTURE", {}))
-    for n in infra - set(SKYLINE):
+    for n in infra - set(SKYLINE) - set(ns.get("WONDERS", {})):   # Wonders (Wondrous tier) draw as wonder: sprites, not skyline slots
         out.append(f"infrastructure {n} missing from SKYLINE")
     for n, (kind, _) in SKYLINE.items():
         if n not in infra:

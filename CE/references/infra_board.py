@@ -28,8 +28,8 @@ for face, fn in [("EBG", "EBGaramond-Regular.ttf"), ("EBG-B", "EBGaramond-Bold.t
             except Exception: pass
             break
 
-TIERS = ["Primitive", "Developed", "Sophisticated"]
-TIER_COL = {"Primitive": "#6f7a52", "Developed": "#5f7360", "Sophisticated": "#4f6a72"}
+TIERS = list(getattr(rd, "INFRA_TIERS", ["Primitive", "Developed", "Sophisticated"]))   # Wonders = the Wondrous tier
+TIER_COL = {"Primitive": "#6f7a52", "Developed": "#5f7360", "Sophisticated": "#4f6a72", "Prodigious": "#5e5478", "Wondrous": "#8c6a1a"}
 INK = HexColor("#2b2620"); MUTE = HexColor("#6f6f77"); TAG = HexColor("#8a8072")
 PARCH = HexColor("#f4efe4"); FRAME = HexColor("#c9bfa8"); LINE = HexColor("#e6e2d8")
 SLOTBG = HexColor("#efe9db")
@@ -56,7 +56,9 @@ def infra_row(c, x, y, w, name, tier, upkeep):
     c.setFillColor(SLOTBG); c.setStrokeColor(FRAME); c.setLineWidth(0.6)
     c.roundRect(x, y - rowh, w, rowh, 3, stroke=1, fill=1)
     c.setFillColor(col); c.rect(x, y - rowh, 4, rowh, stroke=0, fill=1)   # tier tab
-    c.setFont(SERIF_B, 9); c.setFillColor(INK); c.drawString(x + 10, y - 12, name)
+    fs = 9; room = w - 10 - 72                      # left of the 4 pips
+    while fs > 6 and c.stringWidth(_D(name), SERIF_B, fs) > room: fs -= 0.25
+    c.setFont(SERIF_B, fs); c.setFillColor(INK); c.drawString(x + 10, y - 12, name)
     c.setFont(SERIF, 6.5); c.setFillColor(TAG)
     c.drawString(x + 10, y - 21, f"upkeep {upkeep}" if upkeep else "free")
     # 4 player pip guides on the right
@@ -66,7 +68,7 @@ def infra_row(c, x, y, w, name, tier, upkeep):
         c.circle(px, y - rowh/2, 4.2, stroke=1, fill=0)
 
 def draw_effects(c, x, ytop, w):
-    """Two-column effects legend for all 12 infrastructure."""
+    """Two-column effects legend for every Infrastructure."""
     infra = [(n, d) for t in TIERS for n, d in rd.INFRASTRUCTURE.items() if d.get("tier") == t]
     c.setFont(SERIF_B, 11); c.setFillColor(INK); c.drawString(x, ytop, "Effects")
     colw = (w - 24) / 2
@@ -102,9 +104,11 @@ def build(out):
     c.drawRightString(x + w, y - 11, "empire-wide \u00b7 build once \u00b7 one pip per player who owns it")
     y -= 34
 
-    # tracker: 3 tier columns, 4 infra each, 4 pips per infra
-    colw = (w - 2*20) / 3
-    xs = [x, x + colw + 20, x + 2*(colw + 20)]
+    # tracker: one column per tier, 4 pips per infra
+    n = len(TIERS); gap = 12 if n > 3 else 20
+    colw = (w - (n - 1)*gap) / n
+    xs = [x + i*(colw + gap) for i in range(n)]
+    most = max(sum(1 for d in rd.INFRASTRUCTURE.values() if d.get("tier") == t) for t in TIERS)
     for ci, tier in enumerate(TIERS):
         cx = xs[ci]
         c.setFillColor(_c(TIER_COL[tier]))
@@ -115,7 +119,7 @@ def build(out):
         for n, d in items:
             infra_row(c, cx, ry, colw, n, tier, d.get("upkeep", 0))
             ry -= 30
-    y -= 18 + 4*30 + 16
+    y -= 18 + most*30 + 16
 
     draw_effects(c, x, y, w)
 

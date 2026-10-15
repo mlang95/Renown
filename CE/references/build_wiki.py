@@ -159,8 +159,6 @@ for term in GLOSS_ALL:
 # Infrastructure / Wonders link to their row on the reference pages (registered before any page is rendered)
 for _n in getattr(rd, "INFRASTRUCTURE", {}):
     TERMS.setdefault(_n, ("infrastructure-ref.html", slug(_n)))
-for _n in getattr(rd, "WONDERS", {}):
-    TERMS.setdefault(_n, ("wonders-ref.html", slug(_n)))
 FACTIONS = getattr(rd, "FACTIONS", {})
 for f in FACTIONS:
     TERMS.setdefault(f, ("factions.html", slug(f)))
@@ -458,7 +456,7 @@ def nav(current=""):
                      ("Terrain & Movement","terrain-ref.html"),("Bandits","bandits-ref.html"),
                      ("Timers, Influence & PO","systems-ref.html"),
                      ("Equipment","equipment-ref.html"),("Combat Keywords","keywords-ref.html"),
-                     ("Infrastructure","infrastructure-ref.html"),("Wonders","wonders-ref.html"),
+                     ("Infrastructure","infrastructure-ref.html"),
                      ("Settlements","settlements-ref.html"),("Eras","eras-ref.html"),
                      ("Public Order","public-order-ref.html"),("Domain Board","domain-board-ref.html"),
                      ("Seasons","seasons-ref.html"),("Tactic Matrix","tactic-matrix-ref.html"),("Reference Tables","reference-tables.html")]:
@@ -658,26 +656,15 @@ def _grid(headers, rows, current, row_ids=False):
 # Infrastructure
 if hasattr(rd, "INFRASTRUCTURE"):
     u="infrastructure-ref.html"
-    TIER_ORD={"Primitive":0,"Developed":1,"Sophisticated":2}
+    TIER_ORD={t:i for i,t in enumerate(getattr(rd,"INFRA_TIERS",["Primitive","Developed","Sophisticated"]))}
     items=sorted(rd.INFRASTRUCTURE.items(), key=lambda kv:(TIER_ORD.get(kv[1].get("tier"),9), kv[0]))
     rows=[[n, d.get("tier",""), d.get("upkeep",""), d.get("build_time",""), d.get("requirement",""), d.get("empire_bonus","")] for n,d in items]
     body=f"<h1>Infrastructure <span class='count'>{len(items)}</span></h1>"
-    body+="<p>Per-settlement builds on a three-tier ladder. All four Wonders require <strong>all Infrastructure unlocked</strong>.</p>"
+    body+="<p>Empire-wide builds in "+str(len(TIER_ORD))+" tiers ("+", ".join(TIER_ORD)+"); each needs one active Infrastructure of the tier below. Wonders are the Wondrous tier — one of each per game.</p>"
     body+=_grid(["Build","Tier","Upkeep","Build Time","Requirement","Effect"], rows, u, row_ids=True)
     open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Infrastructure",body,u))
     for n,d in rd.INFRASTRUCTURE.items():
         search_index.append({"title":n,"url":f"{u}#{slug(n)}","text":f"{n} infrastructure {d.get('empire_bonus','')}"})
-
-# Wonders
-if hasattr(rd, "WONDERS"):
-    u="wonders-ref.html"
-    rows=[[n, d.get("build_time",""), d.get("upkeep",""), d.get("empire_bonus","")] for n,d in rd.WONDERS.items()]
-    body=f"<h1>Wonders <span class='count'>{len(rd.WONDERS)}</span></h1>"
-    body+="<p>The apex builds — one per Domain, each gated behind <strong>all Infrastructure unlocked</strong> (the Industry spine).</p>"
-    body+=_grid(["Wonder","Build Time","Upkeep","Effect"], rows, u, row_ids=True)
-    open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Wonders",body,u))
-    for n,d in rd.WONDERS.items():
-        search_index.append({"title":n,"url":f"{u}#{slug(n)}","text":f"{n} wonder {d.get('empire_bonus','')}"})
 
 # Actions (grouped by domain) — data-driven from rd.ACTIONS
 if hasattr(rd, "ACTIONS"):

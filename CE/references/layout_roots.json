@@ -624,6 +624,10 @@
     3,
     2
    ],
+   "Priory": [
+    3,
+    0
+   ],
    "Citadel": [
     4,
     1
@@ -663,7 +667,7 @@
   },
   "edges": [
    [
-    "Masonry",
+    "Priory",
     "Abbey"
    ],
    [
@@ -705,6 +709,10 @@
    [
     "Monastery",
     "Papal Palace"
+   ],
+   [
+    "Masonry",
+    "Priory"
    ],
    [
     "Granary",

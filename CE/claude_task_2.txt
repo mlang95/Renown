@@ -1,0 +1,67 @@
+github/mlang95/Renown/CE/claude.md + comprehensive rules outline, then treat this as a prompt response. (this is claude_task_2.txt)
+Review all objectives, organize them in such a manner that you can do as many at the same time as possible in a single pass.
+Ask any clarifying questions.
+Prioritise board mechanics and interactions over the ui/ux overhaul, that can be theory crafted as part of your line of questioning and after the game mechanics are implemented correctly.
+
+
+-Make the statuses the only information gleanable on the status chart, alongside the name if it has one. Players can click in to see the other information. Do the same with the retinues. Strike / init/ save/ morale doesn't need to be shown, just the equipment and the statuses applied.
+-For some reason Peat Bog on Reference is only showing Toxicarium->PlaguePit, is that because there's no Peat Bog on the map but Toxicarium can go from forgotten catacombs?
+
+This is all a response from Proposals new things md
+1. Scale Negative PO by era
+I think for now, just make it scale the negatives, but add the plumbing for positive, as well. I want it to be a punishment to avoid. You already get a Edict, and avoid the negatives. The worse you make negative PO, the better positive PO gets by proxy. If you double it on both ends, things can really spiral.
+It also gives players time to get their faith generation under control while making doubt more impactful late game.
+So, do A.
+
+2. Merge Empire and Rest Phase
+I think for now we can keep things the way they are.
+
+3.Auras
+So I think Bandit Camps can have their own aura / reach characteristic that can determine target priority.
+Anyone within their reach will be a target, otherwise they will not target (unless carve outs like Smuggler's Nook).
+I'm not sure what you mean by B, since garrisons are per empire. But the idea is if this can be implemented for basically the wild camps in the middle, just scaling on their not doing actions or anything but when you build a settlement next to it, it will turn on at a larger strength because they've been left untouched most of the game. So it requires a "clearing" effect in the center and makes the world feel hostile. Also moving armies can be easily disrupted, and also gives armies something to do while in peace.
+I think the confusion is that the camps / armies would have their own aura they make choices off of what is inside their aura, it also allows you to avoid bandit camps if you move away from it. but maybe just using the reach / aura of settlements and armies is sufficient for this.
+
+4. Outlaw zones.
+I think C. And I think it should be players / 2, rounded up +1, or based on the size of the unclaimed board after deployment, as a final step before starting game.
+Local unrest and uprising would only key to outlaw country within control.
+Neutral zones would exist and grow every turn except spring, where a new one would spawn.
+
+5. Culture.
+It's just a view filter, basically, but a way to curate the game to new players based on the playstyle they want to lean into. so an industry trusteki player doesn't need to focus or be shown on prowess or cunning monuments while looking for something to read and build next. It's a way to focus a player who wants to focus. Self-made would just remove all of this and be the current standard view.
+It would have no game effect but be a dropdown on the player card that can even be changed at any time, and defaulted to self-made. make sure there's a variable i can use to change the name from self-made to something else.
+
+6. town names.
+for sure using the lore name banks to generate drafts for each culture. Have fun with it, no sweat, just try to follow the idea of the lores based on their vibe, tone, and linguistic styles chosen / word formation.
+
+7. story style summary. 
+grab tone guidance from RENOWN INTRO v1 09-03-26
+event list seems fine, make it easy to add / remove other triggers on the back end for future iteration
+
+8. Ux overhaul
+I like it, let's see what you come up with and iterate from there.
+
+9. Map gen
+Honestly, not much seems to be missing then. I say keep it as is for now and can do a better deep dive on it later. But this seems not too bad in terms of how much is missing, maybe you can do a quick analysis on the map gen regions and tell me what % of monuments (& their names) / holdings are missing from those regions to see if hey maybe this can be solved by just adding a type or two or terrain type in a region, even if it's a small % so players can chase it.
+Barrens are a rename of Tundra, just fyi.
+
+10. Rules Syntax pass.
+
+Most things are Stat +X, +1 Stat I think is just for gaining influence per turn.
+hyphen minus v unicode minus is probably just you and i using different keys.
+
+Pursuits and holdings are normalised via NAME_DISPLAY
+
+"per turn" / "each Empire Phase" / "per Empire Phase" / "every turn" : these definitely need to be homogenised
+"Range X" / "within range" / "in/within Reach" / within province / control / etc need to get a pass over too. Can likely drop some terms once it's been unified better.
+
+1. I think this works now that base influence has been renamed to authority.
+2. sounds good
+3. I like it, I wonder if once per turn can be reduced into once per <Phase> by gating actions into empire or envoy phase constraints based on their triggers anyways. Like grand tournament can be changed to envoy phase, since that's when it's relevant.
+4. that works and is well designed
+5. For sure, that's what I've been working towards, not sure where I've missed that.
+6. that sounds like drift, I agree
+7. Should be holding but is display changed i think. 
+
+go ahead and sweep it.
+

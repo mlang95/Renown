@@ -68,8 +68,8 @@ def build(out_path):
                      f"No trade in {tr.get('no_trade_season','Spring')}. "
                      f"Tax only in {tr.get('tax_season','Winter')}. "
                      f"Requirements: {tr.get('requirements','')}.")
-    lines.append("monument cap | No numeric cap. Monuments & Wonders are unique: only one "
-                 "Pursuit or Wonder of each name can exist in a game.")
+    lines.append("scope | Each Holding and Infrastructure has a Scope: Settlement (one per Settlement — Raw Materials), "
+                 "Empire (one per player), Realm (one per game — Monuments and Wonders).")
     _tu = getattr(rd, "TIER_UNLOCK", {})
     _ladder = " -> ".join(f"{t} ({_tu.get(t) or 'start'})" for t in rd.TIERS) if _tu else ""
     if _ladder:
@@ -239,16 +239,6 @@ def build(out_path):
                      ", ".join(real_domains) +
                      ". Standings (Rising/Established/Sovereign) grant empire effects.")
 
-    # 12) wonders
-    for n, w in (rd.WONDERS.items() if hasattr(rd, "WONDERS") else []):
-        bonus = " ".join(str(w.get("empire_bonus","")).split()).replace("**","").replace("|","/")
-        lines.append(f"{n} | " + wlink(n, "wonders-ref.html") +
-                     f" Wonder. Upkeep {w.get('upkeep')} ({w.get('upkeep_frequency','')}). {bonus}")
-    if hasattr(rd, "WONDERS"):
-        lines.append("wonders | " + wlink("Wonders", "wonders-ref.html") + ": " +
-                     ", ".join(rd.WONDERS.keys()) +
-                     ". Each grants a powerful empire bonus; completing one scores its Edict.")
-
     # 13) infrastructure
     for n, inf in (rd.INFRASTRUCTURE.items() if hasattr(rd, "INFRASTRUCTURE") else []):
         bonus = " ".join(str(inf.get("empire_bonus","")).split()).replace("**","").replace("|","/")
@@ -257,7 +247,8 @@ def build(out_path):
                      f"({inf.get('upkeep_frequency','')}), build {inf.get('build_time','')}. {bonus}")
     if hasattr(rd, "INFRASTRUCTURE"):
         lines.append("infrastructure | " + wlink("Infrastructure", "infrastructure-ref.html") +
-                     ": " + ", ".join(rd.INFRASTRUCTURE.keys()) + ".")
+                     ": " + ", ".join(rd.INFRASTRUCTURE.keys()) + ". Wonders are its Wondrous tier: " +
+                     ", ".join(getattr(rd, "WONDERS", {}).keys()) + ".")
 
     # 14) win conditions / Edicts
     if hasattr(rd, "EDICTS"):

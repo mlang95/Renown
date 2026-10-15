@@ -1952,7 +1952,7 @@ SIMPLE_NODES = {
         "root": True,
         "unlock": "-",
         "infrastructure_req": "Hitching Post",
-        "innate": "Faith +1 for trading partners with Craft 3+; Faith +1",
+        "innate": "Faith +1 per Trade Partner with Craft 3+, and each of those partners gains Faith +1; Faith +1",
         "builds_into": ["Courier Network", "Smuggler's Nook"],
         "monument": False},
     "Spice Merchant": {
@@ -2025,11 +2025,18 @@ SIMPLE_NODES = {
         "efficient": "Episcopal Court",
         "builds_into": ["Execution Dock"],
         "monument": False},
+    "Priory": {
+        "group": "g_devotion",
+        "unlock": "Rising Piety",
+        "innate": "Faith +2",
+        "efficient": "Masonry",
+        "builds_into": ["Abbey"],
+        "monument": False},
     "Abbey": {
         "group": "g_devotion",
         "unlock": "Established Piety",
-        "innate": "Once/turn: Influence +1 another player's Piety Envoy; Influence −1 to Piety actions targeting you",
-        "efficient": "Masonry",
+        "innate": "Once/turn: Influence +2 another player's Piety Envoy; Influence −1 to Piety actions targeting you",
+        "efficient": "Priory",
         "builds_into": ["Monastery"],
         "monument": False},
     "Reliquary": {
@@ -3063,8 +3070,8 @@ FACTIONS = {
 }
 
 
-# ── INFRASTRUCTURE & WONDERS ───────────────────────────────────────────────
-# Empire-level builds (per-settlement infrastructure + unique Wonders).
+# ── INFRASTRUCTURE (Wonders = the Wondrous tier) ───────────────────────────
+# Empire-level builds; Wonders are unique (Realm Scope).
 # Master source — edit HERE; reference sheets are generated from these dicts.
 # Tiered upkeep/build values (e.g. '50/100/200') are strings.
 INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
@@ -3166,10 +3173,9 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                'empire_bonus': 'Faith +2',
                'tier': 'Prodigious',
                'build_time': 4,
-               'requirement': 'One Tier Sophisticated + Chapel'}
-               }
-               
-WONDERS = {'Colossus': {'upkeep': 500,
+               'requirement': 'One Tier Sophisticated + Chapel'},
+ # ── Wondrous tier (Wonders): Realm Scope, one per game, built in your capital
+ 'Colossus': {'upkeep': 500,
               'upkeep_frequency': 'per Wonder',
               'empire_bonus': 'You may support your own prowess envoys before other players '
                               'vote. Speed +2, Siege Timer -2, & gain Immune '
@@ -3198,11 +3204,15 @@ WONDERS = {'Colossus': {'upkeep': 500,
                                    '',
                    'tier': 'Wondrous',
                    'build_time': 10,
-                   'requirement': "Magistrate's Hall"}}
+                   'requirement': "Magistrate's Hall"}
+}
+               
+# Wonders are the Wondrous tier of INFRASTRUCTURE (combined Oct 2026). WONDERS is a derived view for code
+# that needs just them; tables and cards list INFRASTRUCTURE only.
+WONDERS = {k: v for k, v in INFRASTRUCTURE.items() if v.get("tier") == "Wondrous"}
+INFRA_TIERS = ["Primitive", "Developed", "Sophisticated", "Prodigious", "Wondrous"]
 for _n, _v in INFRASTRUCTURE.items():
-    _v.setdefault("scope", "Empire")
-for _n, _v in WONDERS.items():
-    _v.setdefault("scope", "Realm")
+    _v.setdefault("scope", "Realm" if _v.get("tier") == "Wondrous" else "Empire")
 # ── EMPIRE RULES (ingested from Rules.docx — new data, nothing replaced) ─────
 # Settlement tiers: tax is the WINTER collection (once per 4 turns); wards =
 # pursuit slots (1 per tier; Hamlet exception); muster = retinues/turn.

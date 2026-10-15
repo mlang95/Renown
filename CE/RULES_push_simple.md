@@ -400,19 +400,15 @@ Hamlets are unique Settlements, placed *exactly* range {{VAL:HAMLET_RANGE}} from
 
  	*Example: Wooden Walls protect all Settlements from Bandits and Raze actions, and a Cathedral raises your innate Faith by 2 each turn, regardless of how many Settlements you have.*
 
- 	Infrastructure comes in 4 ascending tiers.{{IDX:Primitive}}{{IDX:Developed}}{{IDX:Sophisticated}} Primitive Infrastructure builds the basic blocks of your empire. Developed Infrastructure expands and replaces some primitive Infrastructure. Sophisticated Infrastructure allows more powerful effects and helps unlock unique Monument Holdings. Prodigious Infrastructure is the highest tier.
+ 	Infrastructure comes in 5 ascending tiers.{{IDX:Primitive}}{{IDX:Developed}}{{IDX:Sophisticated}}{{IDX:Prodigious}}{{IDX:Wondrous}} Primitive Infrastructure builds the basic blocks of your empire. Developed Infrastructure expands and replaces some primitive Infrastructure. Sophisticated Infrastructure allows more powerful effects and helps unlock unique Monument Holdings. Prodigious Infrastructure comes next, and Wondrous Infrastructure — the world Wonders — is the highest tier.
 
- 	To build any Infrastructure, you need at least one active Infrastructure of the tier below it — so Developed needs one Primitive, and Sophisticated needs one Developed (and therefore one Primitive). *One Tier Primitive* means any one Primitive Infrastructure. Some Infrastructure also names its own requirement on top of this: a Library needs a Town Hall, and a Cathedral needs a Capital City — so a Cathedral needs one Primitive, one Developed, and a Capital City.
+ 	To build any Infrastructure, you need at least one active Infrastructure of the tier below it — so Developed needs one Primitive, Sophisticated needs one Developed (and therefore one Primitive), and so on up to Wondrous. *One Tier Primitive* means any one Primitive Infrastructure. Some Infrastructure also names its own requirement on top of this: a Library needs a Town Hall, and a Cathedral needs a Capital City — so a Cathedral needs one Primitive, one Developed, and a Capital City.
 
- 	Last are world Wonders.{{IDX:Wonder}} Wonders are Infrastructure with Realm Scope: each is built once per game and needs the Infrastructure named in its requirement. They're Edict-satisfying buildings with very powerful effects. A Wonder exists inside your capital and can't be razed or damaged.
+ 	Wonders{{IDX:Wonder}} are the Wondrous tier, with Realm Scope: each is built once per game and needs the Infrastructure named in its requirement. They're Edict-satisfying buildings with very powerful effects. A Wonder exists inside your capital and can't be razed or damaged.
 
 The full list of Infrastructure — their tiers, build times, upkeep, requirements, and effects:
 
 {{TABLE:infrastructure}}
-
-World Wonders:
-
-{{TABLE:wonders}}
 
 Build times, in turns, by what you're building:
 
