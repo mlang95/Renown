@@ -1,0 +1,81 @@
+github/mlang95/Renown/CE/claude.md (this is claude_task.txt)
+Review all objectives, organize them in such a manner that you can do as many at the same time as possible in a single pass.
+Ask any clarifying questions.
+Prioritise board mechanics and interactions over the ui/ux overhaul, that can be theory crafted as part of your line of questioning and after the game mechanics are implemented correctly.
+
+
+Armies:
+-Add Armies to Empire Sprite board, not in front of settlements but on the grass that is between the settlements, put next to the one they are closest to on the map.
+-Make sure if an army actually moves, it cancels the muster timer or siege timer or pillage action.
+-Default army size to 0, default muster amount to 25.
+-Make muster action connect to army pane on Empire, then connect to placing army on Table.
+-Make the army plate larger, easier to see. Maybe place it off the map on the edges.
+Map:
+-Lock spectators from interacting with the map once game has started.
+-Have settlements & armies ugrade on map when upgraded in empire. I.e., muster to sergeants from levies, or upgrade town to city.
+
+Battle:
+-Make the tactics outcomes easier to understand. What are the objectives of Scouting, Ambushing, Charging, etc, and communicate the risks and rewards for choosing those, and then better illustrate how the other player's choice affects yours.
+
+Bandit Camps:
+-Start bandit camps with 2,000 gold.
+-Make sure that if the outlaw country is full, Bandit camps in that outlaw country instead grow.
+-Make sure bandit actions are automated alongside the bandit mechanics, bandit actions are bandit mechanics.
+-make sure bandit mechanics are firing on their own and applying modifiers, extorting gold, PO, and what not
+
+
+Settlements:
+-don't apply effects like reach / tax income to settlements until build timer is completed. i.e. a city is still a town until the improve build timer has completed & resolved.
+-make sure destabilize, etc visual flags are applied to settlements that are affected by it
+-Make a "rarity" scope for holdings and infrastructure: "Settlement" = one per settlement, "Empire"= one per player, & "Realm" = one per game.
+	Raw Materials would be "Settlement", Monuments & wondrous wonders would be Realm, and everything else would be "Empire"
+-Make sure new infrastructure tier is included, Masons' Guild applies to it, and all the updated holdings and infrastructure have triggers. Combine Infrastructure and wonders now that there's a rarity system.
+
+Head's up:
+-in 1-2 player games, you can support your own envoys, super low priority, can skip for now.
+
+Table pane:
+-⚑ Build: no Holding placed yet: doesn't check if placed.
+-Make a way to actually perform build / improve / repair actions on the Table pane, even if it's only available builds you can select like "builds_into" and other root holdings.
+-Make a way to spend domain point in rest phase, and don't end turn until points are spent.
+-Make reach check toggle for whether using nodes or not. If not, then just look for a territory of that type is in range.
+- Make a table for supporting / opposing on upcoming envoys, so you can pre-vote if you'd like. It won't be revealed or compelled until it actually gets to that step. Think of it like auto check / call.
+- Make host easier to identify when you are host and who is host. I couldn't really tell while I was in table view and trying to actually play the game.
+-Make flag for domain standing resolutions that are single triggers like Trade Secrest.
+- Faith / doubt per turn should show local unrest and the PO modifiers calculus.
+- Grassland / Plains is arable land.
+-Notification system for when things like jesters court are consumed or used
+-Summary log, to see what bandit camps did overall, what envoys / supports / opposes resolved, what actions were done, what timers finished, & what renown was spent on.
+
+I.e. one line for all players renown choice. 
+
+One line per outlaw country, one line per envoy
+
+-Testing mode where all the players choices are available / chronologically like the council envoy, but fix for standard games
+-Remove +1I per cunning / move it to domain standings 
+
+Empire pane:
+-Improve Empire Table, make holdings, infrastructure / wonders, & armies top bars  / toggleable underneath sprite empire. combine wonders into infrastructure.
+-bug where hitting ignore on a flag brings an old flag back.
+
+Reference pane:
+-Curtail references by available raw materials according to what is on the map (can make it a toggle, defaulted to on)
+-Add war standings to standing tables (STANDING_EFFECTS) 
+
+New things to consider:
+- Scaling negative PO modifiers by era to keep relevant? i.e., in ascension the negative modifiers would be -2 influence, -4 speed, -2000 tax income per settlement, & 2 bandit camps.
+-Consider pros / cons of combining Empire / Rest phase. The domain points would be the very first thing you do in Empire Phase. It would make a more natural flow of the game I think and is effectively the same order but with one fewer phase to consider. But then again the rest phase is nice because after all actions are completed, you can chill there for a second before moving onto the Empire (upkeep phase).
+-Give bandit camps & armies aura that decide targets
+-Consider making a placement strategy for Bandit camps in the wild, i.e., perhaps making more outlaw zones that exist in the middle parts of the map.
+-Incorporate culture / self-made filtering on decision tree/focus. I.e., players can select a culture that helps reduce all the things they need to consider because they're honing in on that playstyle.
+- auto Generate random town names based on the domain points being spent (their culture) or their culture choice if not self-made
+-way to summarise turns in a story-telling way, covering the macro events of a game as it happens. Obvious things are like constructions of monuments, wonders, wars declared, non-bandit battles fought, settlements sacked / converted / Captured, Condemned envoys, stuff like that.
+-Way to overhaul the UX design completely. It needs to be easier to play the game without constantly tab shifting. Empire pane is for reviewing your empire, Table is for playing the game, Realm needs to be brought into Empire / Table and likely destroyed (then table can be renamed to Realm once all of Realm exists everywhere), and Reference is just for reference.
+
+
+Rules:
+-Need to homogenise syntax, not just for regex grabbing info but for rules writing clarity
+
+Lore, for me:
+-Replace saints with new term for the world, needs lore
+-Tetramorph lives in the text itself, like a play on the eucharist. That's why it's so important to record everything.

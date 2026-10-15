@@ -449,45 +449,49 @@
   "anchor": "Office of Works",
   "mode": "chain",
   "nodes": {
-   "Common Land": [
+   "Quarry": [
     0,
     0
    ],
-   "Salt Works": [
+   "Common Land": [
     0,
     1
    ],
-   "Workyard": [
+   "Salt Works": [
+    0,
+    2
+   ],
+   "Masonry": [
     1,
     0
    ],
-   "Quarry": [
+   "Workyard": [
     1,
-    2
+    1
+   ],
+   "Trade Guild": [
+    2,
+    0
    ],
    "Burgages": [
     2,
-    0
+    1
    ],
-   "Masonry": [
-    2,
-    2
+   "College of Engineering": [
+    3,
+    0
    ],
    "Census Hall": [
     3,
-    0
+    1
    ],
-   "Trade Guild": [
-    3,
-    2
+   "Masons' Guild": [
+    4,
+    0
    ],
    "Storehouse": [
     4,
-    0
-   ],
-   "College of Engineering": [
-    4,
-    2
+    1
    ],
    "Office of Works": [
     5,
@@ -513,6 +517,10 @@
    ],
    [
     "College of Engineering",
+    "Masons' Guild"
+   ],
+   [
+    "Masons' Guild",
     "Office of Works"
    ],
    [

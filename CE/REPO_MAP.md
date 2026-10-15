@@ -1,6 +1,6 @@
 # REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`)
 
-Generated 2026-10-11 · data VERSION `0.4.9.9.12-d10-SIMPLE` · HEAD `45e11a9 2026-10-10`
+Generated 2026-10-14 · data VERSION `0.4.9.9.12-d10-SIMPLE` · HEAD `35c029a 2026-10-11`
 
 Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to the repo root.
 
@@ -11,7 +11,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
   0.4.8 Updated Docs/  (7 files)
   0.4.8.1/  (36 files)
   Assets/  (102 files, generated/assets — not indexed)
-  CE/  (25 files)
+  CE/  (28 files)
     Combatv4/  (18 files)
       shims/  (6 files)
     ask-the-bot/  (3 files)
@@ -74,14 +74,17 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\RULES_push.md` | 649 | Renown |
 | `CE\RULES_push_simple.md` | 726 | Renown |
 | `CE\RULES_reorganized_6.md` | 638 | Renown |
+| `CE\SIMPLE_NODES.PY` | 1 |  |
 | `CE\build_all_CE.bat` | 506 | build_all_CE.bat - regenerate everything downstream of the CE data file. |
 | `CE\ce_paths.py` | 161 | ce_paths.py — path bootstrap for the d10 build. |
+| `CE\claude_task.txt` | 81 |  |
+| `CE\infra.py` | 109 |  |
 | `CE\parity_d10.py` | 41 | parity_d10.py — batch_engine and vectorized_combat must agree within dice noise. |
 | `CE\patch_cultures.py` | 245 | patch_cultures.py - replace the PLAYSTYLES block (or an existing CULTURES block) |
 | `CE\rebuild_board.bat` | 20 | rebuild_board.bat - regenerate only the settlement board (no full build). |
-| `CE\renown_data.py` | 4479 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
+| `CE\renown_data.py` | 4522 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
 | `CE\renown_data_CE.py` | 2718 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
-| `CE\renown_data_d10.py` | 4479 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
+| `CE\renown_data_d10.py` | 4522 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
 | `CE\renown_data_d8.py` | 2801 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
 | `CE\renown_server.bat` | 16 | renown_server.bat - (re)start the Renown board server in WSL. |
 | `CE\repo_map.py` | 242 | repo_map.py — write REPO_MAP.md next to this file (CE/, beside CLAUDE.md): a generated index of the Renown repo for |
@@ -113,8 +116,8 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\Combatv4\shims\renown_data.py` | 15 | SHIM — do not edit. Redirects `import renown_data` to renown_data_d10. |
 | `CE\Combatv4\shims\vectorized_combat.py` | 15 | SHIM — do not edit. Redirects `import vectorized_combat` to vectorized_combat_d10. |
 | `CE\ask-the-bot\equipment_table.csv` | 38 | columns: Item,Type,Tier,AP_or_Save,Init,Keywords |
-| `CE\ask-the-bot\factions_table.csv` | 42 | columns: Faction,Difficulty,Strength,Mechanic |
-| `CE\ask-the-bot\renown_faq.txt` | 492 |  |
+| `CE\ask-the-bot\factions_table.csv` | 43 | columns: Faction,Difficulty,Strength,Mechanic |
+| `CE\ask-the-bot\renown_faq.txt` | 498 |  |
 | `CE\mapgen\app_shell.html` | 667 | Renown — Map Generator |
 | `CE\mapgen\build_board.py` | 442 | build_board.py - print-and-tape Renown board from a procedural map. |
 | `CE\mapgen\build_mapapp.py` | 192 | build_mapapp.py - assemble renown-maps.html from its sources. |
@@ -151,8 +154,8 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\references\host_sheet.py` | 452 | host_sheet.py - Host Card, front & back (landscape Letter), generated from |
 | `CE\references\infra_board.py` | 130 | infra_board.py - landscape Infrastructure Board. |
 | `CE\references\layout.json` | 1421 |  |
-| `CE\references\layout_roots.json` | 1328 |  |
-| `CE\references\layout_simple.json` | 1501 |  |
+| `CE\references\layout_roots.json` | 1336 |  |
+| `CE\references\layout_simple.json` | 1509 |  |
 | `CE\references\md_to_docx.py` | 329 | md_to_docx.py — render a prose Markdown rules doc to a styled .docx, injecting |
 | `CE\references\package-lock.json` | 205 |  |
 | `CE\references\package.json` | 6 |  |
@@ -162,7 +165,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\references\reference_sheets.py` | 891 | Renown — Reference sheet generators. |
 | `CE\references\render_tree.py` | 272 | render_tree.py - COORDINATE-DRIVEN tree renderer (no auto-layout). |
 | `CE\references\server.py` | 501 | Renown settlement-board server  —  stdlib only, no pip installs. |
-| `CE\references\settlement_board.html` | — | generated HTML (1193 KB) |
+| `CE\references\settlement_board.html` | — | generated HTML (1197 KB) |
 | `CE\references\settlement_mats.py` | 293 | settlement_mats.py - modular ward mats. One Settlement mat (Village -> City, 3 |
 | `CE\references\spec_tree_sheet.py` | 1183 | Renown — Specialization Tree renderer. |
 | `CE\references\svg_to_pdf.py` | 63 | svg_to_pdf.py - combine SVG pages into ONE PDF. |
@@ -455,7 +458,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `RenownWiki\rules-treasury-upkeep.html` | 32 | Treasury &amp; Upkeep — Renown |
 | `RenownWiki\search.js` | 7 |  |
 | `RenownWiki\seasons-ref.html` | 19 | Seasons — Renown |
-| `RenownWiki\settlement_board.html` | — | generated HTML (1193 KB) |
+| `RenownWiki\settlement_board.html` | — | generated HTML (1197 KB) |
 | `RenownWiki\settlements-ref.html` | 19 | Settlements — Renown |
 | `RenownWiki\standing-established.html` | 19 | Established Tier — Renown |
 | `RenownWiki\standing-rising.html` | 19 | Rising Tier — Renown |
@@ -569,119 +572,119 @@ Copied to `CE/renown_data.py` by the build (DIE=d10); every script imports `reno
 | `TACTICS` | 443 | list | 7 |
 | `CULTURES` | 457 | dict | 15 |
 | `FACTION_SUMMARIES` | 601 | dict | 40 |
-| `NODES` | 651 | dict | 118 |
-| `SIMPLE_NODES` | 1685 | dict | 118 |
-| `HOLDING_GROUPS` | 2540 | dict | 9 |
-| `LINE_LABELS` | 2554 | dict | 28 |
-| `lines_of` | 2585 | function |  |
-| `LEGACY_NODES` | 2589 | dict | 108 |
-| `REQ_KEY` | 2594 | str | 'infrastructure_req' |
-| `REQ_LABEL` | 2595 | str | 'Infrastructure Req' |
-| `TYPE_ORDER` | 2597 | list | 10 |
-| `CHAIN_TERM` | 2600 | str | 'Mastery Chain' |
-| `PURSUIT_TERM` | 2602 | tuple | 2 |
-| `node_parents` | 2604 | function |  |
-| `get_data` | 2624 | function |  |
-| `FACTIONS` | 2634 | dict | 40 |
-| `INFRASTRUCTURE` | 3042 | dict | 12 |
-| `WONDERS` | 3119 | dict | 4 |
-| `SETTLEMENTS` | 3154 | dict | 5 |
-| `ERAS` | 3163 | dict | 4 |
-| `PUBLIC_ORDER` | 3176 | dict | 12 |
-| `PO_MODIFIERS` | 3199 | dict | 2 |
-| `DOMAIN_BOARD` | 3217 | dict | 6 |
-| `SEASONS` | 3248 | dict | 4 |
-| `TRADE_RULES` | 3256 | dict | 4 |
-| `efficient_graph` | 3268 | function |  |
-| `EFFICIENT_MULTI` | 3278 | dict | 109 |
-| `EFFICIENT` | 3279 | dict | 109 |
-| `BANDIT_CAMP_START` | 3287 | int | 10 |
-| `BANDIT_ARMY_THRESHOLD` | 3288 | int | 25 |
-| `BANDIT_GROWTH_PER_ERA` | 3289 | dict | 4 |
-| `BANDIT_EQUIPMENT_PER_ERA` | 3290 | dict | 4 |
-| `BANDITS` | 3291 | dict | 5 |
-| `TIMERS` | 3299 | dict | 8 |
-| `CHARTER_MIN_RANGE` | 3311 | int | 4 |
-| `OUTLAW_BUFFER_RANGE` | 3312 | int | 2 |
-| `HAMLET_RANGE` | 3313 | int | 2 |
-| `OUTLAW_COUNTRY_START` | 3314 | int | 3 |
-| `VASSAL_EXCHANGE_CAP` | 3317 | int | 5000 |
-| `VASSAL_INFLUENCE_TAKE` | 3318 | int | 3 |
-| `BUILD_TIMERS` | 3322 | dict | 11 |
-| `TERRAIN` | 3336 | dict | 7 |
-| `MOVEMENT_MODIFIERS` | 3346 | dict | 6 |
-| `TACTICAL_TERRAIN` | 3358 | dict | 7 |
-| `TACTICAL_GLOBAL` | 3374 | list | 1 |
-| `INFLUENCE_GAIN` | 3376 | dict | 10 |
-| `ENVOY_OUTCOME_THRESHOLDS` | 3431 | dict | 4 |
-| `ENVOY_OUTCOMES` | 3440 | dict | 5 |
-| `ACTIONS` | 3462 | dict | 22 |
-| `TREATIES` | 3652 | dict | 5 |
-| `ALLIANCE_RULES` | 3660 | list | 3 |
-| `EDICT_STREAK_TURNS` | 3670 | int | 5 |
-| `EDICTS` | 3672 | dict | 7 |
-| `BANDIT_BEHAVIOR` | 3686 | dict | 7 |
-| `PURSUIT_UPKEEP_DEFAULT` | 3709 | int | 100 |
-| `PURSUIT_UPKEEP_BY_TYPE` | 3710 | dict | 4 |
-| `UPKEEP_TRACKS` | 3720 | dict | 3 |
-| `HOLDING_TIER_COST` | 3727 | dict | 4 |
-| `holding_standing` | 3735 | function |  |
-| `holding_cost` | 3741 | function |  |
-| `holding_build_time` | 3749 | function |  |
-| `pursuit_upkeep` | 3756 | function |  |
-| `ARMY_UPKEEP_NOTE` | 3767 | str | "Net Army Upkeep = the sum of each Army' |
-| `COSTS` | 3771 | dict | 12 |
-| `PHASES` | 3787 | tuple | 5 |
-| `STARTING_TURN_PHASE_OPENER` | 3788 | str | 'Council' |
-| `STANDING_ARMY_SIEGE_MODIFIER` | 3790 | int | 1 |
-| `EMPIRE_START_TIERS` | 3792 | tuple | 2 |
-| `STARTING_TREASURY` | 3793 | int | 10000 |
-| `AGES` | 3799 | dict | 5 |
-| `AGE_YEAR_SEASON` | 3806 | str | 'Spring' |
-| `CAPITAL_EDGE_RANGE` | 3807 | int | 4 |
-| `BOARD_SIZES` | 3809 | dict | 3 |
-| `SIEGE_CALCULUS` | 3815 | dict | 2 |
-| `SIEGE_SOURCE_VALUES` | 3830 | dict | 6 |
-| `NAME_DISPLAY` | 3857 | dict | 63 |
-| `TIER_DISPLAY` | 3885 | dict | 1 |
-| `ITEM_TIER_DISPLAY` | 3891 | dict | 1 |
-| `TERM_ENVOY_SCORE` | 3898 | str | 'Authority' |
-| `display_score` | 3906 | function |  |
-| `ALIASES` | 3916 | dict | 65 |
-| `display` | 3926 | function |  |
-| `display_tier` | 3931 | function |  |
-| `display_text` | 3939 | function |  |
-| `display_list` | 3962 | function |  |
-| `display_md` | 3972 | function |  |
-| `display_html` | 3979 | function |  |
-| `display_obj` | 3991 | function |  |
-| `undisplay` | 4004 | function |  |
-| `verify_aliases` | 4013 | function |  |
-| `BANDIT_FACES` | 4037 | int | 10 |
-| `BANDIT_CUNNING_MIN` | 4038 | int | 10 |
-| `die_table_ranges` | 4041 | function |  |
-| `die_table_rows` | 4049 | function |  |
-| `die_table_text` | 4057 | function |  |
-| `die_table_lookup` | 4065 | function |  |
-| `die_table_verify` | 4072 | function |  |
-| `die_table_weights` | 4091 | function |  |
-| `BANDIT_CUNNING_TABLE` | 4101 | dict | 5 |
-| `bandit_cunning_ranges` | 4109 | function |  |
-| `bandit_cunning_rows` | 4110 | function |  |
-| `bandit_cunning_lookup` | 4111 | function |  |
-| `bandit_cunning_text` | 4113 | function |  |
-| `BANDIT_TACTIC_TABLE` | 4119 | dict | 6 |
-| `BANDIT_TACTICS` | 4127 | list | 6 |
-| `bandit_tactic_ranges` | 4129 | function |  |
-| `bandit_tactic_rows` | 4130 | function |  |
-| `bandit_tactic_lookup` | 4131 | function |  |
-| `verify_bandit_tables` | 4134 | function |  |
-| `RENOWN_MAX` | 4222 | int | 30 |
-| `RENOWN_PER_TURN` | 4223 | int | 1 |
-| `DOMAIN_POINTS_PER_TURN` | 4224 | int | 1 |
-| `FACTION_NAMES` | 4445 | dict | 40 |
-| `faction_body` | 4452 | function |  |
-| `GLOSSARY_CATEGORIES` | 4461 | list | 17 |
+| `NODES` | 651 | dict | 119 |
+| `SIMPLE_NODES` | 1685 | dict | 119 |
+| `HOLDING_GROUPS` | 2547 | dict | 9 |
+| `LINE_LABELS` | 2561 | dict | 28 |
+| `lines_of` | 2592 | function |  |
+| `LEGACY_NODES` | 2596 | dict | 108 |
+| `REQ_KEY` | 2601 | str | 'infrastructure_req' |
+| `REQ_LABEL` | 2602 | str | 'Infrastructure Req' |
+| `TYPE_ORDER` | 2604 | list | 10 |
+| `CHAIN_TERM` | 2607 | str | 'Mastery Chain' |
+| `PURSUIT_TERM` | 2609 | tuple | 2 |
+| `node_parents` | 2611 | function |  |
+| `get_data` | 2631 | function |  |
+| `FACTIONS` | 2641 | dict | 41 |
+| `INFRASTRUCTURE` | 3060 | dict | 16 |
+| `WONDERS` | 3162 | dict | 4 |
+| `SETTLEMENTS` | 3197 | dict | 5 |
+| `ERAS` | 3206 | dict | 4 |
+| `PUBLIC_ORDER` | 3219 | dict | 12 |
+| `PO_MODIFIERS` | 3242 | dict | 2 |
+| `DOMAIN_BOARD` | 3260 | dict | 6 |
+| `SEASONS` | 3291 | dict | 4 |
+| `TRADE_RULES` | 3299 | dict | 4 |
+| `efficient_graph` | 3311 | function |  |
+| `EFFICIENT_MULTI` | 3321 | dict | 110 |
+| `EFFICIENT` | 3322 | dict | 110 |
+| `BANDIT_CAMP_START` | 3330 | int | 10 |
+| `BANDIT_ARMY_THRESHOLD` | 3331 | int | 25 |
+| `BANDIT_GROWTH_PER_ERA` | 3332 | dict | 4 |
+| `BANDIT_EQUIPMENT_PER_ERA` | 3333 | dict | 4 |
+| `BANDITS` | 3334 | dict | 5 |
+| `TIMERS` | 3342 | dict | 8 |
+| `CHARTER_MIN_RANGE` | 3354 | int | 4 |
+| `OUTLAW_BUFFER_RANGE` | 3355 | int | 2 |
+| `HAMLET_RANGE` | 3356 | int | 2 |
+| `OUTLAW_COUNTRY_START` | 3357 | int | 3 |
+| `VASSAL_EXCHANGE_CAP` | 3360 | int | 5000 |
+| `VASSAL_INFLUENCE_TAKE` | 3361 | int | 3 |
+| `BUILD_TIMERS` | 3365 | dict | 11 |
+| `TERRAIN` | 3379 | dict | 7 |
+| `MOVEMENT_MODIFIERS` | 3389 | dict | 6 |
+| `TACTICAL_TERRAIN` | 3401 | dict | 7 |
+| `TACTICAL_GLOBAL` | 3417 | list | 1 |
+| `INFLUENCE_GAIN` | 3419 | dict | 10 |
+| `ENVOY_OUTCOME_THRESHOLDS` | 3474 | dict | 4 |
+| `ENVOY_OUTCOMES` | 3483 | dict | 5 |
+| `ACTIONS` | 3505 | dict | 22 |
+| `TREATIES` | 3695 | dict | 5 |
+| `ALLIANCE_RULES` | 3703 | list | 3 |
+| `EDICT_STREAK_TURNS` | 3713 | int | 5 |
+| `EDICTS` | 3715 | dict | 7 |
+| `BANDIT_BEHAVIOR` | 3729 | dict | 7 |
+| `PURSUIT_UPKEEP_DEFAULT` | 3752 | int | 100 |
+| `PURSUIT_UPKEEP_BY_TYPE` | 3753 | dict | 4 |
+| `UPKEEP_TRACKS` | 3763 | dict | 3 |
+| `HOLDING_TIER_COST` | 3770 | dict | 4 |
+| `holding_standing` | 3778 | function |  |
+| `holding_cost` | 3784 | function |  |
+| `holding_build_time` | 3792 | function |  |
+| `pursuit_upkeep` | 3799 | function |  |
+| `ARMY_UPKEEP_NOTE` | 3810 | str | "Net Army Upkeep = the sum of each Army' |
+| `COSTS` | 3814 | dict | 12 |
+| `PHASES` | 3830 | tuple | 5 |
+| `STARTING_TURN_PHASE_OPENER` | 3831 | str | 'Council' |
+| `STANDING_ARMY_SIEGE_MODIFIER` | 3833 | int | 1 |
+| `EMPIRE_START_TIERS` | 3835 | tuple | 2 |
+| `STARTING_TREASURY` | 3836 | int | 10000 |
+| `AGES` | 3842 | dict | 5 |
+| `AGE_YEAR_SEASON` | 3849 | str | 'Spring' |
+| `CAPITAL_EDGE_RANGE` | 3850 | int | 4 |
+| `BOARD_SIZES` | 3852 | dict | 3 |
+| `SIEGE_CALCULUS` | 3858 | dict | 2 |
+| `SIEGE_SOURCE_VALUES` | 3873 | dict | 6 |
+| `NAME_DISPLAY` | 3900 | dict | 64 |
+| `TIER_DISPLAY` | 3928 | dict | 1 |
+| `ITEM_TIER_DISPLAY` | 3934 | dict | 1 |
+| `TERM_ENVOY_SCORE` | 3941 | str | 'Authority' |
+| `display_score` | 3949 | function |  |
+| `ALIASES` | 3959 | dict | 66 |
+| `display` | 3969 | function |  |
+| `display_tier` | 3974 | function |  |
+| `display_text` | 3982 | function |  |
+| `display_list` | 4005 | function |  |
+| `display_md` | 4015 | function |  |
+| `display_html` | 4022 | function |  |
+| `display_obj` | 4034 | function |  |
+| `undisplay` | 4047 | function |  |
+| `verify_aliases` | 4056 | function |  |
+| `BANDIT_FACES` | 4080 | int | 10 |
+| `BANDIT_CUNNING_MIN` | 4081 | int | 10 |
+| `die_table_ranges` | 4084 | function |  |
+| `die_table_rows` | 4092 | function |  |
+| `die_table_text` | 4100 | function |  |
+| `die_table_lookup` | 4108 | function |  |
+| `die_table_verify` | 4115 | function |  |
+| `die_table_weights` | 4134 | function |  |
+| `BANDIT_CUNNING_TABLE` | 4144 | dict | 5 |
+| `bandit_cunning_ranges` | 4152 | function |  |
+| `bandit_cunning_rows` | 4153 | function |  |
+| `bandit_cunning_lookup` | 4154 | function |  |
+| `bandit_cunning_text` | 4156 | function |  |
+| `BANDIT_TACTIC_TABLE` | 4162 | dict | 6 |
+| `BANDIT_TACTICS` | 4170 | list | 6 |
+| `bandit_tactic_ranges` | 4172 | function |  |
+| `bandit_tactic_rows` | 4173 | function |  |
+| `bandit_tactic_lookup` | 4174 | function |  |
+| `verify_bandit_tables` | 4177 | function |  |
+| `RENOWN_MAX` | 4265 | int | 30 |
+| `RENOWN_PER_TURN` | 4266 | int | 1 |
+| `DOMAIN_POINTS_PER_TURN` | 4267 | int | 1 |
+| `FACTION_NAMES` | 4488 | dict | 41 |
+| `faction_body` | 4495 | function |  |
+| `GLOSSARY_CATEGORIES` | 4504 | list | 17 |
 
 ## 4. Build steps — `CE\build_all_CE.bat`
 

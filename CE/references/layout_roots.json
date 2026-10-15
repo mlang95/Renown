@@ -600,6 +600,123 @@
   ]
  },
  {
+  "title": "Quarry",
+  "anchor": "Quarry",
+  "mode": "root",
+  "nodes": {
+   "Quarry": [
+    0,
+    1
+   ],
+   "Masonry": [
+    1,
+    1
+   ],
+   "Granary": [
+    2,
+    1
+   ],
+   "Supply Depot": [
+    3,
+    1
+   ],
+   "Trade Guild": [
+    3,
+    2
+   ],
+   "Citadel": [
+    4,
+    1
+   ],
+   "College of Engineering": [
+    4,
+    2
+   ],
+   "Abbey": [
+    4,
+    0
+   ],
+   "Castle Hall": [
+    5,
+    1
+   ],
+   "Masons' Guild": [
+    5,
+    2
+   ],
+   "Monastery": [
+    5,
+    0
+   ],
+   "Imperial Palace": [
+    6,
+    1
+   ],
+   "Office of Works": [
+    6,
+    2
+   ],
+   "Papal Palace": [
+    6,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Masonry",
+    "Abbey"
+   ],
+   [
+    "Citadel",
+    "Castle Hall"
+   ],
+   [
+    "Supply Depot",
+    "Citadel"
+   ],
+   [
+    "Trade Guild",
+    "College of Engineering"
+   ],
+   [
+    "Masonry",
+    "Granary"
+   ],
+   [
+    "Castle Hall",
+    "Imperial Palace"
+   ],
+   [
+    "Quarry",
+    "Masonry"
+   ],
+   [
+    "College of Engineering",
+    "Masons' Guild"
+   ],
+   [
+    "Abbey",
+    "Monastery"
+   ],
+   [
+    "Masons' Guild",
+    "Office of Works"
+   ],
+   [
+    "Monastery",
+    "Papal Palace"
+   ],
+   [
+    "Granary",
+    "Supply Depot"
+   ],
+   [
+    "Masonry",
+    "Trade Guild"
+   ]
+  ]
+ },
+ {
   "title": "Mine",
   "anchor": "Mine",
   "mode": "root",
@@ -705,115 +822,6 @@
    [
     "Mine",
     "Siege Works"
-   ]
-  ]
- },
- {
-  "title": "Quarry",
-  "anchor": "Quarry",
-  "mode": "root",
-  "nodes": {
-   "Quarry": [
-    0,
-    1
-   ],
-   "Masonry": [
-    1,
-    1
-   ],
-   "Granary": [
-    2,
-    1
-   ],
-   "Supply Depot": [
-    3,
-    1
-   ],
-   "Citadel": [
-    4,
-    1
-   ],
-   "Trade Guild": [
-    4,
-    2
-   ],
-   "Abbey": [
-    4,
-    0
-   ],
-   "Castle Hall": [
-    5,
-    1
-   ],
-   "College of Engineering": [
-    5,
-    2
-   ],
-   "Monastery": [
-    5,
-    0
-   ],
-   "Imperial Palace": [
-    6,
-    1
-   ],
-   "Office of Works": [
-    6,
-    2
-   ],
-   "Papal Palace": [
-    6,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Masonry",
-    "Abbey"
-   ],
-   [
-    "Citadel",
-    "Castle Hall"
-   ],
-   [
-    "Supply Depot",
-    "Citadel"
-   ],
-   [
-    "Trade Guild",
-    "College of Engineering"
-   ],
-   [
-    "Masonry",
-    "Granary"
-   ],
-   [
-    "Castle Hall",
-    "Imperial Palace"
-   ],
-   [
-    "Quarry",
-    "Masonry"
-   ],
-   [
-    "Abbey",
-    "Monastery"
-   ],
-   [
-    "College of Engineering",
-    "Office of Works"
-   ],
-   [
-    "Monastery",
-    "Papal Palace"
-   ],
-   [
-    "Granary",
-    "Supply Depot"
-   ],
-   [
-    "Masonry",
-    "Trade Guild"
    ]
   ]
  },
