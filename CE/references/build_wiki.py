@@ -853,7 +853,13 @@ if hasattr(rd, "PUBLIC_ORDER"):
     rows=[[k, v[0], v[1]] for k,v in sorted(rd.PUBLIC_ORDER.items(), reverse=True)]
     _lo,_hi=min(rd.PUBLIC_ORDER),max(rd.PUBLIC_ORDER)
     body=f"<h1>Public Order Track</h1><p>From {_lo} to {_hi}; Faith raises it, Doubt lowers it.</p>"
-    body+=_grid(["Value","State","Effect"], rows, u)
+    if hasattr(rd, "PO_BANDS"):   # X = the band's value in each Era
+        _eras=list(rd.ERAS)
+        rows=[[k, nm, t.replace("{n}","X").replace("{s}","(s)")]+[str(rd.po_value(k,e)) if rd.po_value(k,e) is not None else "—" for e in _eras]
+              for k,(nm,t,_b) in sorted(rd.PO_BANDS.items(), reverse=True)]
+        body+=_grid(["Value","State","Effect"]+[f"X: {e}" for e in _eras], rows, u)
+    else:
+        body+=_grid(["Value","State","Effect"], rows, u)
     if hasattr(rd,"PO_MODIFIERS"):
         body+="<h2>Faith sources</h2>"+_grid(["Source","Condition"], [[k,v] for k,v in rd.PO_MODIFIERS.get("faith",{}).items()], u)
         body+="<h2>Doubt sources</h2>"+_grid(["Source","Condition"], [[k,v] for k,v in rd.PO_MODIFIERS.get("doubt",{}).items()], u)

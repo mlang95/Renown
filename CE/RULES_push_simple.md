@@ -164,7 +164,7 @@ Before players send personal Envoys, there's a Council vote on a Domain.
 2. **Vote** — no talking. Clockwise from the starting player, each player votes for a Domain; if the vote ties, the Host's vote breaks it (if the Host's vote isn't one of the tied Domains, the Host chooses among them).
 3. **Council actions** — clockwise from the starting player, each player sends a free Envoy of that Domain, starting with innate Influence equal to their Domain Standing. A passed Council Envoy performs actions of that Domain equal to the Era's Council actions per Envoy (see Eras).
 
-Council Envoys **auto-Abstain**: other players can't Support or Oppose them, though automatic Influence ±X modifiers still apply.
+Council Envoys **auto-Abstain**: other players can't Support or Oppose them, though automatic Authority ±X modifiers still apply.
 
 *Note: a Council Envoy's net Influence can't be lower than 1, whatever the totalled value, so it can't fail or be Condemned.*
 
@@ -216,7 +216,8 @@ The Realm cycles through four Seasons.{{IDX:Season}} The current Season's effect
 2. **Select Age** — choose an Age and a starting Year within its range (see Ages). Every player starts Rising in that Age's Domain: set that Domain to {{VAL:STANDING_THRESHOLDS.Rising}}. In the Age of Renown, each player chooses their own Rising Domain. Turn 1 takes place in the starting Year.
 3. **Select Faction** — pick a Faction Card (optional for new players).
 4. **Determine Host** — give the Host Card to the most experienced player. If tied, to whoever wants to Host; if still tied, roll off.
-5. **Deploy** — taking turns from the starting player, each player places their capital Town within range {{VAL:CAPITAL_EDGE_RANGE}} of the board edge or corner. Then each player places their Hamlet exactly range {{VAL:HAMLET_RANGE}} from their Town. Then each player places their Outlaw Country: its first Territory exactly range {{VAL:OUTLAW_BUFFER_RANGE}} from their Town, and no Outlaw Country Territory within range {{VAL:OUTLAW_BUFFER_RANGE}} of their Hamlet.
+5. **Deploy** — taking turns from the starting player, each player places their capital Town within Range {{VAL:CAPITAL_EDGE_RANGE}} of the board edge or corner. Then each player places their Hamlet exactly Range {{VAL:HAMLET_RANGE}} from their Town. Then each player places their Outlaw Country: its first Territory exactly Range {{VAL:OUTLAW_BUFFER_RANGE}} from their Town, and no Outlaw Country Territory within Range {{VAL:OUTLAW_BUFFER_RANGE}} of their Hamlet.
+6. **Wild Outlaw Country** — the Host seeds the Wild Outlaw Country zones in the unclaimed interior (see Bandits).
 
 ### Ages
 
@@ -241,7 +242,7 @@ Envoys are the currency of actions: to perform an action you send an Envoy durin
 
 ### Resolving an Envoy
 
-Your Envoy begins with Authority equal to your innate Authority in its Domain — Untested {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Untested}}, Rising {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Rising}}, Established {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Established}}, Sovereign {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Sovereign}} — plus any automatic Influence ±X modifiers. *(These come from your Holdings, Infrastructure, and faction, and apply on their own; you never spend Influence for them.)* Diplomacy has no Standing; a Diplomacy Envoy begins with Authority set by the Era (Founding {{VAL:ERAS.Founding.innate_diplomacy_influence}}, Ascension {{VAL:ERAS.Ascension.innate_diplomacy_influence}}, Eminence {{VAL:ERAS.Eminence.innate_diplomacy_influence}}, Zenith {{VAL:ERAS.Zenith.innate_diplomacy_influence}}).
+Your Envoy begins with Authority equal to your innate Authority in its Domain — Untested {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Untested}}, Rising {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Rising}}, Established {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Established}}, Sovereign {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Sovereign}} — plus any automatic Authority ±X modifiers. *(These come from your Holdings, Infrastructure, and faction, and apply on their own; you never spend Influence for them.)* Diplomacy has no Standing; a Diplomacy Envoy begins with Authority set by the Era (Founding {{VAL:ERAS.Founding.innate_diplomacy_influence}}, Ascension {{VAL:ERAS.Ascension.innate_diplomacy_influence}}, Eminence {{VAL:ERAS.Eminence.innate_diplomacy_influence}}, Zenith {{VAL:ERAS.Zenith.innate_diplomacy_influence}}).
 
 Then, clockwise from the starting player and skipping the sender, every other player may respond, with no talking during the vote:
 
@@ -273,7 +274,7 @@ Each outcome resolves differently by Domain — what Condemned, Failed, Passed, 
 
 ## Influence
 
-Each turn, gain Influence from the following sources:
+Each Empire Phase, gain Influence from the following sources:
 
 {{TABLE:influence_gain}}
 
@@ -315,7 +316,7 @@ If your Diplomacy Envoy fails, you may send another Envoy in another Domain, res
 
 ### Domain Standings
 
- 	Domains are the identity of your character in Renown. As you gain Renown each turn, you gain a Domain Point, which you may spend in any of the four Domains. Each Domain Point raises your Domain value by 1 in that Domain. When your Domain value reaches *{{VAL:STANDING_THRESHOLDS.Rising}}*, you become Rising in that Domain — you may spend one extra Influence on another player's Envoy of that Domain, and your Envoys gain Influence +1. This continues at a Domain value of *{{VAL:STANDING_THRESHOLDS.Established}}* (Established) and again at *{{VAL:STANDING_THRESHOLDS.Sovereign}}* (Sovereign).
+ 	Domains are the identity of your character in Renown. As you gain Renown each turn, you gain a Domain Point, which you may spend in any of the four Domains. Each Domain Point raises your Domain value by 1 in that Domain. When your Domain value reaches *{{VAL:STANDING_THRESHOLDS.Rising}}*, you become Rising in that Domain — you may spend one extra Influence on another player's Envoy of that Domain, and your Envoys gain Authority +1. This continues at a Domain value of *{{VAL:STANDING_THRESHOLDS.Established}}* (Established) and again at *{{VAL:STANDING_THRESHOLDS.Sovereign}}* (Sovereign).
 
 Each Standing you gain in a Domain makes you harder to oppose there and lets you oppose others more easily with your Influence. You also gain a unique effect at each Standing that makes it easier to achieve that Domain's objectives.
 
@@ -378,19 +379,19 @@ Settlements are the primary vehicle of your Empire.{{IDX:Settlement}} They come 
 
 ### Settlement Wards
 
-A Settlement contains 1 Settlement Ward for each of its tiers. A Village has {{VAL:SETTLEMENTS.Village.wards}} central hub, which all other Settlement Wards must be adjacent to (range 1); a Town has {{VAL:SETTLEMENTS.Town.wards}} Wards, a City has {{VAL:SETTLEMENTS.City.wards}}, and a Metropolis may have {{VAL:SETTLEMENTS.Metropolis.wards}}. The one exception is a Hamlet: it can hold only Husbandry Holdings, but contains {{VAL:SETTLEMENTS.Hamlet.wards}} Settlement Wards.
+A Settlement contains 1 Settlement Ward for each of its tiers. A Village has {{VAL:SETTLEMENTS.Village.wards}} central hub, which all other Settlement Wards must be adjacent to (Range 1); a Town has {{VAL:SETTLEMENTS.Town.wards}} Wards, a City has {{VAL:SETTLEMENTS.City.wards}}, and a Metropolis may have {{VAL:SETTLEMENTS.Metropolis.wards}}. The one exception is a Hamlet: it can hold only Husbandry Holdings, but contains {{VAL:SETTLEMENTS.Hamlet.wards}} Settlement Wards.
 
 ### Chartering Settlements
 
-When chartering a new Settlement, place it in your province, at least range {{VAL:CHARTER_MIN_RANGE}} from all other Settlements and range {{VAL:OUTLAW_BUFFER_RANGE}} from any Outlaw Country. You can't charter a Settlement on mountain or water Territory.
+When chartering a new Settlement, place it in your Province, at least Range {{VAL:CHARTER_MIN_RANGE}} from all other Settlements and Range {{VAL:OUTLAW_BUFFER_RANGE}} from any Outlaw Country. You can't charter a Settlement on mountain or water Territory.
 
 ### Settlement Reach
 
-Settlements have a Reach value set by their tier, from {{VAL:SETTLEMENTS.Village.reach}} up to {{VAL:SETTLEMENTS.Metropolis.reach}}. Reach X determines which Territory you Control in your province: at Reach 1 you Control all Territory within range 1 of that Settlement. If more than one player controls a Territory, it's contested — controlled by both.
+Settlements have a Reach value set by their tier, from {{VAL:SETTLEMENTS.Village.reach}} up to {{VAL:SETTLEMENTS.Metropolis.reach}}. Reach X determines which Territory you Control in your Province: at Reach 1 you Control all Territory within Range 1 of that Settlement. If more than one player controls a Territory, it's contested — controlled by both.
 
 ### Hamlets
 
-Hamlets are unique Settlements, placed *exactly* range {{VAL:HAMLET_RANGE}} from your capital via a Charter Settlement action. These small farmland communities produce no tax income or muster limit, but have {{VAL:SETTLEMENTS.Hamlet.wards}} Settlement Wards. You may only pursue **Natural** Holdings in a Hamlet, and a Holding in a Hamlet can only be efficient if it is itself Natural. You may also pursue Arable Land in a Hamlet even if that Raw Material isn't in the Hamlet's region.{{IDX:Hamlet}}
+Hamlets are unique Settlements, placed *exactly* Range {{VAL:HAMLET_RANGE}} from your capital via a Charter Settlement action. These small farmland communities produce no tax income or muster limit, but have {{VAL:SETTLEMENTS.Hamlet.wards}} Settlement Wards. You may only pursue **Natural** Holdings in a Hamlet, and a Holding in a Hamlet can only be efficient if it is itself Natural. You may also pursue Arable Land in a Hamlet even if that Raw Material isn't in the Hamlet's region.{{IDX:Hamlet}}
 
 {{GLOSSARY:Settlements & Holdings}}
 
@@ -416,7 +417,7 @@ Build times, in turns, by what you're building:
 
 ## Territory & Terrain
 
-Territory is the smallest unit of land. To move from one Territory to another, you move range 1. To be within a Territory is range 0; adjacent is range 1; next to is range 2.
+Territory is the smallest unit of land. To move from one Territory to another, you move Range 1. To be within a Territory is Range 0; adjacent is Range 1; next to is Range 2.
 
 **Aura.** Every Settlement and Army has an Aura, a range set by its Settlement tier or Retinue type. A Move can't enter or pass through Territory within the Aura of a non-allied Settlement or Army, unless the Move ends adjacent to that Settlement or Army to Battle or Lay Siege. Bandit Armies have an Aura; Bandit Camps don't. An Army that begins a Move within a non-allied Aura may only move to end outside every Aura (or, if at War, to Battle or Lay Siege); if it can't, it can't move.
 
@@ -434,7 +435,7 @@ Territory is the smallest unit of land. To move from one Territory to another, y
 
 ## Public Order
 
-Faith and Doubt adjust your Public Order the moment they're generated — each Faith raises it by 1, each Doubt lowers it by 1, applied immediately. Public Order is capped between {{VAL:PO_MIN}} and {{VAL:PO_MAX}}, and your current band's effects (below) are always active at your current value.
+Faith and Doubt adjust your Public Order the moment they're generated — each Faith raises it by 1, each Doubt lowers it by 1, applied immediately. Public Order is capped between {{VAL:PO_MIN}} and {{VAL:PO_MAX}}, and your current band's effects (below) are always active at your current value. A band's X is its value in the current Era (the Era columns of the table).
 
 **First Doubt of the turn.** Some effects (e.g. Reliquary, Episcopal Court) reduce *the first Doubt you gain each turn, from any source.* Because Doubt now applies immediately, this is whichever Doubt lands first in the turn — usually your innate modifiers in the Empire Phase, but it can be an opponent's action if that resolves first. Track whether you've taken Doubt yet this turn; the marker resets at the start of each Empire Phase, before innate modifiers apply.
 
@@ -510,7 +511,7 @@ While an Army has been engaged in a Battle or Lay Siege action started by anothe
 
 Armies are raised and reinforced with the Muster action (see Prowess Actions).
 
-During any Upkeep phase while an Army is within (range 0) a Settlement you Control, you may change that Army's equipment to any unlocked equipment.
+During any Upkeep phase while an Army is within Range 0 of a Settlement you Control, you may change that Army's equipment to any unlocked equipment.
 
 Retinue types — cost, to-Strike, and base profile:
 
@@ -518,7 +519,7 @@ Retinue types — cost, to-Strike, and base profile:
 
 ### Blocked Armies
 
-A Blocked Army has −1 Initiative in the first Skirmish and can't perform Move actions. An Army gains **Blocked** while it's within a Settlement under Siege, or when it's selected as the result of a condemned Prowess Envoy.
+A Blocked Army has Initiative -1 in the first Skirmish and can't perform Move actions. An Army gains **Blocked** while it's within a Settlement under Siege, or when it's selected as the result of a condemned Prowess Envoy.
 
 {{GLOSSARY:Army States}}
 
@@ -542,7 +543,7 @@ A Battle is fought as a series of Skirmishes, run through the steps below until 
 
 ### Begin the Battle — Seize the Initiative
 
-Determine who gains Seize the Initiative. Typically, the player who performed the Battle Action gains Seize the Initiative, but Terrain and the Ministry of Military Strategy can affect that. When a player gains Seize the Initiative, the player gains +1 Initiative in the first round of combat.
+Determine who gains Seize the Initiative. Typically, the player who performed the Battle Action gains Seize the Initiative, but Terrain and the Ministry of Military Strategy can affect that. When a player gains Seize the Initiative, the player gains Initiative +1 in the first round of combat.
 
 ### The Skirmish Steps
 
@@ -631,9 +632,15 @@ When a Siege Timer reaches 0:
 
 ### Outlaw Country
 
-Outlaw Country is a cluster of Territory in your starting Settlement region that you can't Control. At the start of the game, demarcate {{VAL:OUTLAW_COUNTRY_START}} Territories in your starting region, each within range 1 of at least one other Outlaw Country Territory and at least range {{VAL:OUTLAW_BUFFER_RANGE}} from any Settlement — the first exactly range {{VAL:OUTLAW_BUFFER_RANGE}} from your Town, and none within range {{VAL:OUTLAW_BUFFER_RANGE}} of your Hamlet.
+Outlaw Country is a cluster of Territory in your starting Settlement region that you can't Control. At the start of the game, demarcate {{VAL:OUTLAW_COUNTRY_START}} Territories in your starting region, each within Range 1 of at least one other Outlaw Country Territory and at least Range {{VAL:OUTLAW_BUFFER_RANGE}} from any Settlement — the first exactly Range {{VAL:OUTLAW_BUFFER_RANGE}} from your Town, and none within Range {{VAL:OUTLAW_BUFFER_RANGE}} of your Hamlet.
 
-If that's not possible, place them range 2 from your capital Settlement.
+If that's not possible, place them Range 2 from your capital Settlement.
+
+### Wild Outlaw Country
+
+As the last Setup step, the Host seeds one Wild Outlaw Country zone per {{VAL:WILD_OUTLAW.per_players}} players (rounded up), plus {{VAL:WILD_OUTLAW.plus}}. Each zone is {{VAL:OUTLAW_COUNTRY_START}} connected Territories, at least Range {{VAL:OUTLAW_BUFFER_RANGE}} from any Settlement and any other Outlaw Country, placed as far from both as the map allows, and more than Range {{VAL:CAPITAL_EDGE_RANGE}} from the board edge where there's room.
+
+A Wild zone belongs to no player. Its Territories count as your Outlaw Country only while they're within your Reach. Each Spring, place a Bandit Camp of {{VAL:BANDIT_CAMP_START}} Bandits (Retinues) with {{VAL:BANDIT_CAMP_GOLD}} gold in each Wild zone; if there's no room, that zone's camps grow instead. Wild camps grow in every other Season, not in Spring.
 
 ### Spawning Bandit Camps
 
@@ -665,6 +672,8 @@ While there are {{VAL:BANDIT_CUNNING_MIN}}+ Bandits (Retinues) in a camp, roll a
 
 {{TABLE:bandit_cunning}}
 
+A camp's action targets only a player's Settlement or Army that has the camp within its Aura, the nearest first. If no piece is in range, the camp takes no action.
+
 When a player attacks a Bandit Camp or Army, another player rolls its tactic:
 
 {{TABLE:bandit_tactics}}
@@ -682,6 +691,8 @@ After Bandit Mechanics resolve, a Bandit Army performs a Move action based on, i
 3. **March** — toward the closest player's Army or Settlement.
 
 *Note: if range ties, the Host chooses the target.*
+
+A Wild Bandit Army Skirmishes or Lays Siege only. It never Marches.
 
 ### Attacking a Bandit Camp
 

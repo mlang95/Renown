@@ -2206,6 +2206,9 @@ DESIGN_ONLY = {
         "EXPANSION_HOOKS",      # product roadmap
         "OPEN_THREADS",         # unresolved design questions
         "PHONOLOGY",            # naming machinery
+        "PLACE_NAMES",          # settlement-name generator banks (board)
+        "PLACE_NAMES_EXCLUDE",
+        "CHRONICLE",            # board chronicle templates
         "WEALTH_SHAPES",        # economic analysis of the setting
         "SPECIALISATION_DEPTH", # the tech-depth rule
         "REPUTATION",           # the matrix as a matrix
@@ -3382,4 +3385,223 @@ REGISTER = {
     "Sarkopekt":       {"salutation": "State your contract.",              "farewell": "If you need us.",                   "toast": "Wealth and those left behind."},
     "Astravantheliad": {"salutation": "Knowledge is power.",               "farewell": "May your knowledge run deep.",      "toast": "May what we learn never be lost."},
     "Ossensteins":     {"salutation": None,                                "farewell": None,                                "toast": None},
+}
+
+# ===========================================================================
+# PLACE_NAMES — settlement-name generator banks, one per culture (DRAFT for Gage's review).
+# Built from PHONOLOGY (consonants_by_domain, vowel harmony, open/closed endings) and the MAP
+# naming_registers. The settlement board names a new Settlement from its owner's chosen culture,
+# or (Self-made) from the culture its Domain Standings match.
+#   patterns: format strings; {key} draws one entry from that key's list. Adjacent pieces concatenate
+#             ("{root}{end}" -> one word). A pattern may also be "@borrow": use one of the cultures in
+#             "borrow" instead (the Ossensteins don't officially exist, so their towns wear other names).
+#   Generated names never repeat an existing lore place (MAP regional_lore) or a name already in play.
+# ===========================================================================
+PLACE_NAMES_EXCLUDE = ["Shassith"]   # names a generator could produce that already mean something (Ithiss's old name)
+
+PLACE_NAMES = {
+    # ---- pure corners: one vowel class, closed endings ----
+    "Trusteki": {   # Industry — voiceless stops + clusters; named for what the place endured (Blighthold)
+        "patterns": ["{root}{end}", "{endured}{end}", "{endured}{end}", "{root}{end}"],
+        "root":    ["Trest", "Prett", "Stepp", "Kett", "Pist", "Teft", "Tripp", "Strick", "Spett", "Prest", "Fitt", "Twist"],
+        "endured": ["Blight", "Rust", "Frost", "Smoke", "Scald", "Drought", "Flint", "Ash", "Salt", "Slag", "Soot", "Tithe"],
+        "end":     ["hold", "stead", "kiln", "pit", "forge", "wick", "mill", "croft", "stack", "ditch", "yard", "works"],
+    },
+    "Kraghs": {     # Prowess — voiced stops + gutturals, the Drag- root; places named for warbands and their stands
+        "patterns": ["{root}{end}", "{root}{end}", "Glen of {warlord}", "{warlord}'s {stand}"],
+        "root":    ["Drag", "Grod", "Brag", "Khor", "Ghad", "Bard", "Gorb", "Drob", "Krag", "Rog", "Dur", "Grath"],
+        "end":     ["gath", "dor", "rok", "mag", "bor", "gol", "rak", "dun", "okh", "rad"],
+        "warlord": ["Gorvak", "Brodag", "Khardun", "Rodgar", "Ogdar", "Bragok", "Durgo", "Ghorm", "Dagrun", "Kodrab"],
+        "stand":   ["Stand", "Breach", "Ford", "Cairn", "Anvil", "Last Wall", "Gate", "Bones", "Hold", "Rampart"],
+    },
+    "Ithiss": {     # Cunning — sibilants, s -> hard stop (a blade drawn); overt-grim register (Dreadwood)
+        "patterns": ["{root}{end}", "{grim} {feature}", "{grim}{feature2}", "{root}{end}"],
+        "root":    ["Vrisk", "Skir", "Shiv", "Zesk", "Sissk", "Vix", "Shesk", "Tsiz", "Isk", "Skeld", "Sizt", "Skov"],
+        "end":     ["il", "ith", "esk", "ix", "ish", "et", "isk", "eth"],
+        "grim":    ["Dread", "Marrow", "Sallow", "Gallow", "Rot", "Thorn", "Blind", "Knife", "Gutter", "Cutthroat", "Leech"],
+        "feature": ["Wood", "Shoals", "Pass", "Warren", "Cellars", "Teeth", "Mire", "Slot", "Steps", "Sink"],
+        "feature2":["wood", "mere", "hole", "gate", "den", "hollow"],
+    },
+    "Lenavorites": {  # Piety — liquids, nasals, soft fricatives; flowing, sung (Lenaveron, Anumaranth, Ollanenor)
+        "patterns": ["{root}{end}", "{root}{end}", "{root}{end}", "{shrine} of St. {saint}"],
+        "root":    ["Len", "Mel", "Ollan", "Anum", "Vel", "Thal", "Nim", "Lum", "Mael", "Voll", "Ammel", "Thel"],
+        "end":     ["averon", "aranth", "enor", "iel", "ath", "onel", "emmon", "arel", "oth", "ivel"],
+        "shrine":  ["Vigil", "Cloister", "Steps", "Font", "Well", "Ossuary", "Hermitage", "Reliquary"],
+        "saint":   ["Mirren", "Olleth", "Vanel", "Thalm", "Lunen", "Ammonel", "Vell", "Nollan", "Emmeth"],
+    },
+    # ---- pairs: two vowel classes; the fusion takes a lead from one parent and a tail from the other ----
+    "Belvareth": {  # Piety x Prowess — martial saints of the Lost Woods treeline
+        "patterns": ["{lead}{tail}", "{lead}{tail}", "St. {saint}'s {martial}"],
+        "lead":    ["Bel", "Mel", "Thal", "Vel", "Lum", "Drav", "Gorm", "Bard", "Ner", "Gal"],
+        "tail":    ["vareth", "gath", "dor", "aranth", "mor", "enor", "rok", "ven"],
+        "saint":   ["Valdren", "Mordel", "Thalgar", "Benneth", "Varel", "Godmel"],
+        "martial": ["Stand", "Treeline", "Vigil", "Bulwark", "Pyre", "Watch", "Wrath"],
+    },
+    "Vorghith": {   # Prowess x Cunning — Vogen's people: gallows-names and grim bynames
+        "patterns": ["{lead}{tail}", "{warlord}'s {gallows}", "Bluffs of {lead}{tail}"],
+        "lead":    ["Vorg", "Skag", "Grisk", "Brask", "Drez", "Ghask", "Ruz", "Gesk", "Barz"],
+        "tail":    ["hast", "ith", "ask", "rik", "gash", "oz", "esh", "uk"],
+        "warlord": ["Vogrik", "Skarn", "Dreska", "Ghaz", "Bruss", "Kesk", "Zagor"],
+        "gallows": ["Gallows", "Gibbet", "Noose", "Pyre", "Ditch", "Square", "Hook"],
+    },
+    "Drakteni": {   # Prowess x Industry — siegemasters and colonists (Drakenheart, Heathport)
+        "patterns": ["{lead}{link}{tail}", "{lead}{link}{tail}", "{endured}{tail}"],
+        "lead":    ["Drak", "Drag", "Brakt", "Grept", "Dropt", "Gorst", "Bredt", "Krapt"],
+        "link":    ["en", "", "e"],
+        "tail":    ["heart", "port", "forge", "bastion", "works", "stack", "gate", "hold", "breach"],
+        "endured": ["Heath", "Cinder", "Iron", "Powder", "Shot", "Siege"],
+    },
+    "Prezish": {    # Cunning x Industry — weaponized false exonyms: mild, dismissive names that lower a merchant's guard
+        "patterns": ["{mild} {place}", "{animal}'s {place}", "Bay of {plural}", "{mild}{place2}"],
+        "mild":    ["Mud", "Tallow", "Cheap", "Low", "Gull", "Muck", "Sty", "Brine", "Rag", "Dull", "Slop"],
+        "place":   ["Wharf", "Quay", "Row", "Landing", "Market", "Steps", "Yard", "Bight", "Stalls"],
+        "place2":  ["water", "port", "side", "cove", "dock"],
+        "animal":  ["Pig", "Goat", "Gull", "Rat", "Eel", "Mule", "Crab"],
+        "plural":  ["Eels", "Goats", "Rags", "Gulls", "Mules", "Crabs", "Fleas"],
+    },
+    "Shassolin": {  # Cunning x Piety — stranded frontier clergy; understated-grim (Shallow Mire, Quiet Hollow)
+        "patterns": ["{quiet} {mire}", "{quiet} {mire}", "Mission of St. {saint}", "{lead}{tail}"],
+        "quiet":   ["Quiet", "Shallow", "Still", "Pale", "Soft", "Mild", "Patient", "Low", "Gentle"],
+        "mire":    ["Hollow", "Mire", "Reeds", "Fen", "Landing", "Chapel", "Font", "Bend", "Water"],
+        "saint":   ["Sollen", "Shael", "Mossiel", "Senneth", "Zelim", "Ossel"],
+        "lead":    ["Shass", "Sol", "Sael", "Ziv", "Mosh", "Ness"],
+        "tail":    ["olin", "iel", "enth", "ane", "ith", "amel"],
+    },
+    "Madekites": {  # Piety x Industry — quarry-cathedrals; the pain of building is devotion (Fair Whitewood)
+        "patterns": ["Fair {fair}", "{stone}{praise}", "{lead}{tail}"],
+        "fair":    ["Whitestone", "Coldspire", "Greywater", "Highquarry", "Stillforge", "Paleheath", "Frostchancel"],
+        "stone":   ["Quarry", "Chisel", "Mortar", "Lintel", "Plinth", "Ashlar", "Spire", "Kiln"],
+        "praise":  ["mass", "vigil", "hymn", "psalm", "bell", "chancel", "rood"],
+        "lead":    ["Madek", "Ment", "Lept", "Thrent", "Malt", "Nept", "Tamm"],
+        "tail":    ["ite", "ane", "el", "ath", "on", "enor"],
+    },
+    # ---- triples: harmony breaks (three vowel classes) ----
+    "Cailendroffs": {  # Piety x Prowess x Cunning — the exiled pretender's isles; every name a claim
+        "patterns": ["{royal} {seat}", "{lead}{tail}", "Isle of {lead}{tail}"],
+        "royal":   ["King's", "Crown", "Pretender's", "True", "Exile's", "Heir's", "Scion's"],
+        "seat":    ["Rest", "Landing", "Hall", "Harbour", "Oath", "Return", "Throne", "Vigil"],
+        "lead":    ["Cail", "Lendr", "Varos", "Gessil", "Thrak", "Mord", "Sullan"],
+        "tail":    ["droff", "essa", "ion", "uk", "avel", "irr", "oth"],
+    },
+    "Sarkopekt": {  # Cunning x Industry x Prowess — free companies and war-markets (Bay of Lost Hope)
+        "patterns": ["Bay of {lost} {hope}", "{lead}{tail}", "{byname}'s {camp}"],
+        "lost":    ["Lost", "Last", "Hired", "Spent", "Broken", "Paid", "Sold"],
+        "hope":    ["Hope", "Coin", "Muster", "Contract", "Anchor", "Wages", "Oaths"],
+        "lead":    ["Sark", "Pekt", "Kopr", "Zakt", "Gresk", "Brox", "Tusk"],
+        "tail":    ["opekt", "ast", "ex", "uk", "ett", "agh"],
+        "byname":  ["Tenpike", "Ironsmile", "Halfprice", "Twicepaid", "Gallowmouth", "Saltcoin", "Nineknives"],
+        "camp":    ["Camp", "Muster", "Yard", "Moorings", "Stockade", "Market"],
+    },
+    "Ossensteins": {   # Cunning x Piety x Industry — officially nonexistent: half their towns wear borrowed names
+        "patterns": ["@borrow", "@borrow", "The {office} {house}", "{lead}stein"],
+        "borrow":  ["Lenavorites", "Trusteki", "Prezish", "Shassolin", "Madekites", "Ithiss"],
+        "office":  ["Quiet", "Second", "Lesser", "Grey", "Locked", "Unlit", "Closed"],
+        "house":   ["Office", "Counting House", "Chapter", "Archive", "Vestry", "Ledger"],
+        "lead":    ["Oss", "Mett", "Grau", "Ziel", "Pell", "Nest", "Vell"],
+    },
+    "Voldrastel": {    # Piety x Industry x Prowess — wardens of the trade routes; tolls, moorings, the numbered Reaches
+        "patterns": ["{toll} of {lead}{tail}", "{lead}{tail}", "{ordinal} Reach"],
+        "toll":    ["Toll", "Weigh-house", "Lighthouse", "Ferry", "Bond-house", "Mooring", "Beacon"],
+        "lead":    ["Vold", "Drast", "Mel", "Brent", "Thrag", "Ost", "Gal"],
+        "tail":    ["rastel", "ane", "ord", "el", "ast", "ven"],
+        "ordinal": ["First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth", "Eleventh"],
+    },
+    # ---- centre: plain common-tongue, open endings (The Duchy's Mouth, Bay of Renown) ----
+    "Astravantheliad": {
+        "patterns": ["The {owner}'s {feature}", "{plain} {feature}", "Bay of {virtue}", "{plain} {feature}"],
+        "owner":   ["Duchy", "Senate", "Scholar", "Reeve", "Chancellor", "Dean", "Bursar"],
+        "feature": ["Mouth", "Crossing", "Commons", "Hall", "Ford", "Green", "Library", "Market", "Quad"],
+        "plain":   ["Fair", "Middle", "Old", "New", "Long", "Broad", "Common", "Upper"],
+        "virtue":  ["Learning", "Accord", "Plenty", "Measure", "Letters", "Reason"],
+    },
+}
+
+def place_name(culture, rng=None, taken=()):
+    """One generated settlement name for a culture (Python mirror of the board's generator)."""
+    import random
+    rng = rng or random.Random()
+    lore = set(MAP.get("regional_lore", {})) | set(PLACE_NAMES_EXCLUDE) | set(taken)
+    for _ in range(60):
+        bank = PLACE_NAMES[culture]
+        pat = rng.choice(bank["patterns"])
+        if pat == "@borrow":
+            bank = PLACE_NAMES[rng.choice(bank["borrow"])]
+            pat = rng.choice([p for p in bank["patterns"] if p != "@borrow"])
+        import re as _re
+        nm = _re.sub(r"\{(\w+)\}", lambda m: rng.choice(bank[m.group(1)]), pat)
+        nm = _re.sub(r"s's\b", "s'", nm[:1].upper() + nm[1:])
+        if nm not in lore:
+            return nm
+    return nm
+
+
+# ===========================================================================
+# CHRONICLE — the settlement board's story-style record of a game (DRAFT for Gage's review).
+# Voice taken from the reader intro (intro.txt / RENOWN INTRO): a chronicler's past tense, elevated but plain,
+# "&" for a beat, the realm as the witness. Entries are dated by Season & Year on the board, not in the line.
+# Each event: "on" turns it on/off; "lines" are variants (one is drawn at random). Variables per event below.
+# To add a trigger: add an entry here, then call chron("<key>", {...}) where the board detects it
+# (gen_settlement_board.py · CHRONICLE block lists every hook). Unknown keys are ignored, so removing one is safe.
+#   {player} {other} {settlement} {holding} {era} {domain} {winner} {loser} {near}
+# ===========================================================================
+CHRONICLE = {
+    "monument": {"on": True, "vars": "player, holding, settlement", "lines": [
+        "{player} raised the {holding} at {settlement}, & the realm took note.",
+        "At {settlement} the {holding} was finished. {player}'s masons would speak of nothing else for a generation.",
+        "The {holding} rose over {settlement}, and {player}'s name rose with it.",
+    ]},
+    "wonder": {"on": True, "vars": "player, holding", "lines": [
+        "{player} completed {holding}. There was nothing like it anywhere in Vaelohk.",
+        "{holding} stood finished, and every envoy at the Council found a reason to mention {player}.",
+        "The works of {player} were crowned with {holding} — a wonder, the chroniclers agreed, though they agreed on little else.",
+    ]},
+    "war": {"on": True, "vars": "player, other", "lines": [
+        "{player} declared war upon {other}.",
+        "{player} & {other} broke faith, and their banners turned to war.",
+        "Envoys left {other}'s court in a hurry: {player} had chosen war.",
+    ]},
+    "war_pair": {"on": True, "vars": "player, other (set by hand on the Diplomacy table: who declared isn't known)", "lines": [
+        "{player} & {other} went to war.",
+        "War, between {player} & {other}. Each blamed the other; the chroniclers declined to choose.",
+    ]},
+    "peace": {"on": True, "vars": "player, other", "lines": [
+        "{player} & {other} laid down their arms. The truce was signed, if not believed.",
+        "Peace between {player} & {other}, for now. Both kept their swords close.",
+    ]},
+    "battle": {"on": True, "vars": "winner, loser", "lines": [
+        "{winner} met {loser} in the field & carried the day.",
+        "{loser}'s host broke before {winner}.",
+        "The field belonged to {winner}. {loser} counted the dead and called it a lesson.",
+    ]},
+    "sack": {"on": True, "vars": "player (attacker), other (defender), settlement", "lines": [
+        "{player} broke the walls of {settlement} & put {other}'s holdings to the torch.",
+        "{settlement} was sacked. {other} would rebuild; {player} would remember the plunder.",
+    ]},
+    "capture": {"on": True, "vars": "player (new owner), other (old owner), settlement", "lines": [
+        "{settlement} passed from {other} to {player}.",
+        "{player} took {settlement} from {other}, and its people learned a new name for their lord.",
+    ]},
+    "condemned": {"on": True, "vars": "player, domain", "lines": [
+        "The Council condemned {player}'s {domain} envoy. It was not spoken of again — officially.",
+        "{player}'s envoy was condemned before the Council, & the {domain} cause went home shamed.",
+    ]},
+    "era": {"on": True, "vars": "era", "lines": [
+        "So ended one age, and the realm entered the {era}.",
+        "The {era} began. No one could say exactly when; everyone agreed it had.",
+    ]},
+    "besieged": {"on": True, "vars": "player (defender), other (besieger), settlement", "lines": [
+        "{other} laid siege to {settlement}, seat of {player}.",
+        "Siege engines ringed {settlement}. {player}'s capital waited behind its walls.",
+    ]},
+    "vassal": {"on": True, "vars": "player (vassal), other (suzerain)", "lines": [
+        "{player} bent the knee to {other}.",
+        "{player} swore fealty to {other}. The oath was public; the terms were not.",
+    ]},
+    "vassal_end": {"on": True, "vars": "player (former vassal), other (former suzerain)", "lines": [
+        "{player} threw off the yoke of {other}.",
+    ]},
+    "bandit_army": {"on": True, "vars": "near", "lines": [
+        "Outlaws near {near} gathered into an army.",
+        "The camp near {near} swelled past counting. What marched out of it was an army.",
+    ]},
 }

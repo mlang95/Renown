@@ -280,6 +280,9 @@ def build_board(out):
         band = rd.PUBLIC_ORDER.get(val)
         nm = band[0] if isinstance(band, (tuple, list)) else None
         eff = band[1] if isinstance(band, (tuple, list)) and len(band) > 1 else None
+        if hasattr(rd, "PO_BANDS") and val in rd.PO_BANDS and "{n}" in rd.PO_BANDS[val][1]:   # Era-scaled: X per Era
+            eff = rd.PO_BANDS[val][1].replace("{n}", "X").replace("{s}", "(s)") + " (X: " + "/".join(
+                str(rd.po_value(val, e)) for e in rd.ERAS) + ")"
         if nm:
             c.setFont(SERIF_B, 5.6); c.setFillColor(INK)
             c.drawCentredString(cx0 + cellw/2, y0 - 9, nm)

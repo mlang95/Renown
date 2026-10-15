@@ -215,6 +215,9 @@ def build(out_path):
     for k, v in (rd.PUBLIC_ORDER.items() if hasattr(rd, "PUBLIC_ORDER") else []):
         if isinstance(v, tuple):
             state, effect = v[0], v[1] if len(v) > 1 else ""
+            if hasattr(rd, "PO_BANDS") and k in rd.PO_BANDS and "{n}" in rd.PO_BANDS[k][1]:
+                effect = rd.PO_BANDS[k][1].replace("{n}", "X").replace("{s}", "(s)") + "; X by Era: " + ", ".join(
+                    f"{e} {rd.po_value(k, e)}" for e in rd.ERAS)
             lines.append(entry(f"PO {k}", wlink(f"Public Order {k}", "public-order-ref.html") +
                          f" ({state}): {effect}"))
     _po = rd.PUBLIC_ORDER if hasattr(rd, "PUBLIC_ORDER") else {}

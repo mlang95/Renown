@@ -42,7 +42,7 @@ def strip_md(s):
     return s.strip()
 
 COND_WORDS = [
-    " while ", " when ", " per ", " if ", "once/turn", "once /turn", " target",
+    " while ", " when ", " per ", " if ", "once/turn", "once /turn", "once per ", " target",
     "for trading", "at war", "besieged", "range 0", "other player", " players",
     "without", "trade partner", "endorsed", "first ", " oppose", " support",
     " vote", "council", "envoy", " action", " muster", " army", "armies", "cavalry",
@@ -56,8 +56,8 @@ CRAFT_RE  = re.compile(r"Craft\s*\+?\s*(\d+)", re.I)
 FAITH_RE  = re.compile(r"Faith\s*\+?\s*(\d+)", re.I)
 DOUBT_RE  = re.compile(r"Doubt\s*\+?\s*(\d+)", re.I)
 UPKEEP_RE = re.compile(r"Upkeep\s*(-?\d{2,})", re.I)
-AUTH_RE   = re.compile(r"Influence\s*([+\-\u2212]\s?\d+)", re.I)   # postfix = Envoy score modifier (TERM_ENVOY_SCORE)
-INFL_RE   = re.compile(r"(?:Influence\s*([+-]\s?\d+))|(?:([+-]\s?\d+)\s*Influence)", re.I)
+AUTH_RE   = re.compile(r"Authority\s*([+\-\u2212]\s?\d+)")   # Envoy score modifier (TERM_ENVOY_SCORE)
+INFL_RE   = re.compile(r"(?:Influence\s*([+-]\s?\d+))|(?:([+-]\s?\d+)\s*Influence)", re.I)   # Influence tokens (canon "Influence +N")
 EXTORT_RE = re.compile(r"Extort\s*(\d+)", re.I)
 BUILDT_RE = re.compile(r"Build Timer\s*(-?\d+)", re.I)
 SIEGET_RE = re.compile(r"Siege Timer\s*([+-]?\d+)", re.I)
@@ -84,7 +84,7 @@ def classify(clause):
     if not c:
         return None
     lc = " " + c.lower() + " "
-    lc2 = lc.replace("per turn", " ")     # "+1 Influence per turn" is flat, not conditional
+    lc2 = re.sub(r"(?<!once) per turn|(?<=\d) each empire phase", " ", lc)     # "Influence +1 each Empire Phase" is flat, not conditional
     atom = {"text": c, "cat": "other", "val": None, "season": None,
             "cond": False, "flat": False, "scale": None, "natural": False}
 
@@ -160,28 +160,27 @@ def envoy_fx(raw):
         if not c: continue
         for f in out[pend[0]:]: f.setdefault("t", pend[1])
         pend = (len(out), c)
-        m = re.search(r"Influence\s*" + _N + r"\s+to\s+(non-)?Council Envoys$", c, re.I)
+        m = re.search(r"(?:Authority|Influence)\s*" + _N + r"\s+to\s+(non-)?Council Envoys$", c, re.I)
         if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "personal" if m.group(2) else "council", "dom": "All"}); continue
-        m = re.search(r"Influence\s*" + _N + r"\s+to\s+(" + _DOMS + r")\s+Envoys$", c, re.I)
+        m = re.search(r"(?:Authority|Influence)\s*" + _N + r"\s+to\s+(" + _DOMS + r")\s+Envoys$", c, re.I)
         if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "all", "dom": m.group(2).title()}); continue
-        m = re.search(r"Influence\s*" + _N + r"\s+to\s+(.+?)\s+(?:Envoys|actions)(\s+from players)?\s+target+ing\s+(?:you|this player|your settlements)", c, re.I)
+        m = re.search(r"(?:Authority|Influence)\s*" + _N + r"\s+to\s+(.+?)\s+(?:Envoys|actions)(\s+from players)?\s+target+ing\s+(?:you|this player|your settlements)", c, re.I)
         if m and m.group(2).lower().startswith("bandit"):
             out.append({"k": "bandit", "val": _iv(m.group(1))}); continue   # Bandit (Cunning) actions targeting you
         if m:
             what = m.group(2).strip(); dm = re.fullmatch(_DOMS, what, re.I)
             out.append({"k": "defend", "val": _iv(m.group(1)), "dom": dm.group(0).title() if dm else None,
                         "action": None if dm else what.title(), "players": bool(m.group(3))}); continue
-        m = re.search(r"Influence\s*" + _N + r"\s+when performing\s+(" + _DOMS + r")\s+actions", c, re.I)
+        m = re.search(r"(?:Authority|Influence)\s*" + _N + r"\s+when performing\s+(" + _DOMS + r")\s+actions", c, re.I)
         if m: out.append({"k": "act", "val": _iv(m.group(1)), "dom": m.group(2).title()}); continue
-        m = re.search(r"Influence\s*" + _N + r"\s+to\s+(" + _DOMS + r")\s+actions$", c, re.I)
+        m = re.search(r"(?:Authority|Influence)\s*" + _N + r"\s+to\s+(" + _DOMS + r")\s+actions$", c, re.I)
         if m: out.append({"k": "act", "val": _iv(m.group(1)), "dom": m.group(2).title()}); continue
-        m = re.search(r"^(?:gain\s+)?" + _N + r"\s*Influence per (Domain you are Rising|Established Standing|other player per Turn)", c, re.I)
+        m = re.search(r"^(?:gain\s+)?(?:" + _N + r"\s*Influence|Influence\s*" + _N + r") per (Domain you are Rising|Established Standing|other player (?:per Turn|each Empire Phase))", c, re.I)
         if m:
-            per = {"domain you are rising": "Rising", "established standing": "Established",
-                   "other player per turn": "others"}[m.group(2).lower()]
-            out.append({"k": "pool", "val": _iv(m.group(1)), "per": per}); continue
-        m = re.search(r"Gain\s*" + _N + r"\s*Influence while At War", c, re.I)
-        if m: out.append({"k": "pool", "val": _iv(m.group(1)), "per": "war"}); continue
+            per = {"domain you are rising": "Rising", "established standing": "Established"}.get(m.group(3).lower(), "others")
+            out.append({"k": "pool", "val": _iv(m.group(1) or m.group(2)), "per": per}); continue
+        m = re.search(r"Gain\s*(?:" + _N + r"\s*Influence|Influence\s*" + _N + r") while At War", c, re.I)
+        if m: out.append({"k": "pool", "val": _iv(m.group(1) or m.group(2)), "per": "war"}); continue
         if re.search(r"additional Influence per Support or Oppose", c, re.I): out.append({"k": "cap", "val": 1}); continue
         m = re.search(r"(First|Second) Oppose on your Envoy(?: each turn| per turn)?: reduce by (\d+)", c, re.I)
         if m: out.append({"k": "jester", "n": 1 if m.group(1).lower() == "first" else 2, "val": int(m.group(2))}); continue
@@ -196,19 +195,19 @@ def envoy_fx(raw):
         if m: out.append({"k": "noOppose", "dom": m.group(1).title()}); continue
         if re.search(r"If your Envoy would fail", c, re.I): out.append({"k": "failPass"}); continue
         # faction / holding Envoy rules (fx kinds read by the board's Table)
-        m = re.search(r"Influence\s*" + _N + r"\s+to\s+envoys sent during the Council Phase", c, re.I)
+        m = re.search(r"(?:Authority|Influence)\s*" + _N + r"\s+to\s+envoys sent during the Council Phase", c, re.I)
         if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "council", "dom": "All"}); continue
-        m = re.search(r"Every Envoy you send has Influence\s*" + _N + r"(,?\s*except in Spring)?", c, re.I)
+        m = re.search(r"Every Envoy you send has (?:Authority|Influence)\s*" + _N + r"(,?\s*except in Spring)?", c, re.I)
         if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "all", "dom": "All", "noSpring": bool(m.group(2))}); continue
-        m = re.search(r"Your Personal Envoys have Influence\s*" + _N + r"(,?\s*except in Spring)?", c, re.I)
+        m = re.search(r"Your Personal Envoys have (?:Authority|Influence)\s*" + _N + r"(,?\s*except in Spring)?", c, re.I)
         if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "personal", "dom": "All", "noSpring": bool(m.group(2))}); continue
-        m = re.search(r"Your (" + _DOMS + r") Envoys have Influence\s*" + _N + r" when targeting a player with Public Order (?:above|greater than) (-?\d+)", c, re.I)
+        m = re.search(r"Your (" + _DOMS + r") Envoys have (?:Authority|Influence)\s*" + _N + r" when targeting a player with Public Order (?:above|greater than) (-?\d+)", c, re.I)
         if m: out.append({"k": "act", "val": _iv(m.group(2)), "dom": m.group(1).title(), "tgtPOabove": int(m.group(3))}); continue
-        m = re.search(r"(?:^|\b)you have Influence\s*" + _N + r" on (" + _DOMS + r") Envoys", c, re.I)
+        m = re.search(r"(?:^|\b)you have (?:Authority|Influence)\s*" + _N + r" on (" + _DOMS + r") Envoys", c, re.I)
         if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "all", "dom": m.group(2).title()}); continue
         m = re.search(r"A (" + _DOMS + r") Envoy you send can't fail", c, re.I)
         if m: out.append({"k": "failPass", "dom": m.group(1).title(), "condemned": True}); continue
-        m = re.search(r"Each player allied with you has Influence\s*" + _N + r" on their Envoys", c, re.I)
+        m = re.search(r"Each player allied with you has (?:Authority|Influence)\s*" + _N + r" on their Envoys", c, re.I)
         if m: out.append({"k": "allyEnvoy", "val": _iv(m.group(1))}); continue
         m = re.search(r"Your Vote counts as (\d+) votes toward Domain selection", c, re.I)
         if m: out.append({"k": "councilVotes", "val": int(m.group(1))}); continue
@@ -223,8 +222,8 @@ def envoy_fx(raw):
         m = re.search(r"other players must spend (\d+) Influence to affect your Envoys by 1", c, re.I)
         if m: out.append({"k": "voteCost", "val": int(m.group(1))}); continue
         if re.search(r"Ignore the innate Doubt and Influence modifiers for being At War", c, re.I): out.append({"k": "ignoreWar"}); continue
-        m = re.search(r"gain\s*" + _N + r"\s*Influence for every (\d+) Holdings", c, re.I)
-        if m: out.append({"k": "pool", "val": _iv(m.group(1)), "per": "holdings", "n": int(m.group(2))}); continue
+        m = re.search(r"gain\s*(?:" + _N + r"\s*Influence|Influence\s*" + _N + r") for every (\d+) Holdings", c, re.I)
+        if m: out.append({"k": "pool", "val": _iv(m.group(1) or m.group(2)), "per": "holdings", "n": int(m.group(3))}); continue
     for f in out[pend[0]:]: f.setdefault("t", pend[1])
     return out
 
@@ -583,6 +582,25 @@ def _style_js(d):
     spec = importlib.util.spec_from_file_location("hexstyle", p)
     mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
     return "var RenownStyle=" + json.dumps(mod.export(), separators=(",", ":")) + ";"
+
+def place_names_payload(data_path):
+    """PLACE_NAMES from worldbuilding/renown_worldlore.py (beside the data file) -> {banks, exclude}; None if absent."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    for d in (os.path.dirname(os.path.abspath(data_path)), os.path.join(here, ".."), here):
+        p = os.path.join(d, "worldbuilding", "renown_worldlore.py")
+        if not os.path.isfile(p): continue
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("renown_worldlore_pn", p)
+        m = importlib.util.module_from_spec(spec)
+        try: spec.loader.exec_module(m)
+        except Exception as e:
+            print(f"  (place names: {p} failed to load: {e})"); return None
+        banks = getattr(m, "PLACE_NAMES", None)
+        if not banks: return None
+        ex = list(getattr(m, "PLACE_NAMES_EXCLUDE", [])) + list((getattr(m, "MAP", {}) or {}).get("regional_lore", {}))
+        print(f"  place names: {p} ({len(banks)} cultures, chronicle {len(getattr(m, 'CHRONICLE', {}) or {})} events)")
+        return {"banks": banks, "exclude": ex, "chronicle": getattr(m, "CHRONICLE", None)}
+    return None
 
 def sprite_payload(ns, data_path):
     """sprites.py (next to the data file) -> {S: sprites, P: scene palette, key: name -> sprite key}.
@@ -1107,6 +1125,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .tn{position:absolute;box-sizing:border-box;border:1.5px solid;border-left-width:5px;border-radius:var(--radius-sm);background:var(--panel);padding:3px 6px;overflow:hidden;font-size:11px;line-height:1.25}
   .tn.mon{background:color-mix(in srgb,var(--sel) 45%,var(--panel));border-width:2px;border-left-width:5px}
   .tn.have{box-shadow:0 0 0 2px var(--income)}
+  .tn.off{opacity:.28}
   .tnh{font-weight:600;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .tnu{font-weight:400;font-size:10px;color:var(--dim)}.tnu.bad{color:var(--upkeep)}
   .tnc{color:var(--dim)}
@@ -1407,9 +1426,9 @@ const NAMES = Object.keys(R).sort();
 const NATURAL = new Set(DATA.naturalNames);
 const SIMPLE=!!DATA.simple;   // SIMPLE pursuit graph (renown_data.SIMPLE)
 const SCORE=DATA.scoreTerm||"Influence";
-function dispScore(t){if(SCORE==="Influence"||!t)return t;
+function dispScore(t){if(!t)return t;
   return String(t).replace(/\b([Nn]et|[Ii]nnate|[Ss]tarting|Envoy's net|Envoy's|action's) Influence\b/g,"$1 "+SCORE)
-    .replace(/\bInfluence(\**\s?)([+\-\u2212\u00b1]\s?\d+|[+\-\u2212\u00b1]?X\b)/g,SCORE+"$1$2");}
+    .replace(/\bAuthority(\**\s?)([+\-\u2212\u00b1]\s?\d+|[+\-\u2212\u00b1]?X\b)/g,SCORE+"$1$2");}
 const CHAIN=DATA.chainTerm||"Efficient", CHAINL=CHAIN.toLowerCase();   // display name of the efficient field
 const PHASE = {gold:"income",scale:"income",extort:"income",recoup:"income",tax:"income",
   craft:"craft",influence:"influence",authority:"envoy",faith:"order",doubt:"order",upkeep:"upkeep",
@@ -1425,6 +1444,9 @@ const DOMAINS=DATA.domains||["Industry","Prowess","Piety","Cunning"];
 const STANDINGS=DATA.standings||["Rising","Established","Sovereign"];
 const DBOARD=DATA.domainBoard||{};
 const PO=DATA.publicOrder||{};
+// Public Order bands in the current Era (negative bands scale with ERAS po_scale_neg; positive with po_scale_pos)
+function POB(k){const t=(DATA.poByEra||{})[currentEra()];return (t&&t[String(k)])||PO[String(k)];}
+function poNum(k){const e=POB(k),m=e&&String(e[1]).match(/(\d+)/);return m?+m[1]:0;}
 const LIM=DATA.limits||{};
 const PO_MIN=(LIM.poMin??-5),PO_MAX=(LIM.poMax??10),INIT_MIN=(LIM.initMin??-2),INIT_MAX=(LIM.initMax??2);
 const ST=LIM.standing||{Untested:1,Rising:3,Established:6,Sovereign:10};
@@ -1764,9 +1786,9 @@ function runImprove(c){const o=c.o,b=o.board,k=c.sub.slice(0,1),v=c.sub.slice(2)
   const blk=withBoard(b,()=>scopeBlock(v,null));if(blk){c.flag(blk);return;}
   const t=withBoard(b,()=>{(k==="w"?S.wonders:S.infra)[v]=1;itm();const t=gameStarted()?infraBuildTime(v):0;if(t>0)S.itimer[v]=t;return t;});
   c.log(o.name+" builds "+v+(t>0?" · Build Timer "+t:""));}
-function runCharter(c){const o=c.o,b=o.board;b.settlements=b.settlements||[];const s={id:nextId(b.settlements),tier:"Village"};
+function runCharter(c){const o=c.o,b=o.board;b.settlements=b.settlements||[];const s={id:nextId(b.settlements),tier:"Village"};nameSett(o,s);
   const t=withBoard(b,()=>gameStarted()?settBuildTime("Village"):0);if(t>0)s.bt=t;b.settlements.push(s);
-  c.log(o.name+" charters a Village"+(t>0?" · Build Timer "+t:""));c.flag("Place the Village on the map (Map ▸ Place ▸ Village)");
+  c.log(o.name+" charters a Village"+(s.name?" — "+s.name:"")+(t>0?" · Build Timer "+t:""));c.flag("Place the Village on the map (Map ▸ Place ▸ Village)");
   const cap=withBoard(b,()=>eraCap("max_settlements"));if(cap!=null&&b.settlements.length>cap)c.flag("Settlements "+b.settlements.length+" / "+cap+" allowed in "+currentEra());}
 // Repair: a Damaged piece stays inactive until Repaired; Repair sets its Repair Timer, which then counts down
 function repairOpts(o){const b=o.board,L=[];
@@ -1777,7 +1799,7 @@ function runRepair(c){const b=c.o.board,k=c.sub.slice(0,1),v=c.sub.slice(2);
   else{b.idmg=b.idmg||{};b.irep=b.irep||{};b.idmg[v]=REPAIR_T;b.irep[v]=1;c.log(v+": Repair Timer "+REPAIR_T);}
   c.flag("When it completes: Restore (automatic) or Demolish by hand");}
 function settName(q,sid){const st=settById(q,sid);return st?(st.name||st.tier):"?";}
-function warOn(c,o,q,cascade){const x=topPair(o,q);if(!x)return;x.war=true;x.trade=false;c.log(o.name+" and "+q.name+" are At War"+(x.trade===false?"":""));
+function warOn(c,o,q,cascade){const x=topPair(o,q);if(!x)return;if(!x.war)chron("war",{player:o.name,other:q.name,key:pk(topSuz(o.id),topSuz(q.id))});x.war=true;x.trade=false;c.log(o.name+" and "+q.name+" are At War"+(x.trade===false?"":""));
   if(!cascade)return;const d=diplo(),g=d.member[topSuz(q.id)];if(g&&(d.alliances[g]||{}).type==="Defensive")allyGroup(g).forEach(m=>{if(sameP(m,q)||sameP(m,o))return;const y=topPair(o,m);if(y&&!y.war){y.war=true;y.trade=false;c.log(m.name+" (Defensive Alliance) is At War with "+o.name);}});}
 // Grand Vizier: "Players may not target you with Cunning Envoys if your Cunning value is higher" — a Holding may unlock it
 // on another value ("Unlocks Grand Vizier which uses your Piety Value / Public Order instead of Cunning")
@@ -1852,6 +1874,7 @@ function resolveEnvoy(E,pe,fin){const o=E.owner,act=pe&&pe.rec&&pe.rec.action,A=
     (recoup||[]).forEach(r=>{if(r.doubt&&dd){notes.push(r.src+": recoup Doubt");dd=0;}if(r.gold&&g){const k=Math.min(r.gold,g);g-=k;notes.push(r.src+": recoup "+k.toLocaleString());}});
     if(g){o.board.treasury=(+o.board.treasury||0)-g;}if(dd)gainDoubt(o.board,dd);
     if(cost.gold||cost.doubt)fx.push(o.name+" pays "+why+": "+[cost.gold?cost.gold.toLocaleString()+" gold":"",cost.doubt?"Doubt "+cost.doubt:""].filter(Boolean).join(" + ")+(notes.length?" ("+notes.join("; ")+")":""));};
+  if(fin==="Condemned")chron("condemned",{player:o.name,domain:E.dom||""});
   if(fin==="Condemned"){const tried=pe&&pe.rec&&(pe.rec.tried||[])[0],c=act?actCost(act):tried?actCost(tried):domCost(E.dom);
     if(c)pay(c,"the action's cost (Condemned)");else if(/pay the action/i.test(txt))flags.push("Condemned: pay the cost of the "+E.dom+" action you'd have performed");
     if(E.dom==="Prowess")flags.push("Condemned: "+txt.replace(/^Doubt \d+\s*\+\s*/i,""));}
@@ -1987,6 +2010,40 @@ function summaryHTML(){const T=tTurn(),H=TB().hist||{},L=summaryLines(T);
   return '<details class="tot" id="tbSummary"'+(SUM_OPEN?' open':'')+'><summary><b style="font-size:13px">Summary — Turn '+T+'</b> <span class="note">'+L.length+'</span></summary>'+one(L)+
     past.map(k=>'<details><summary class="note">Turn '+k+'</summary>'+one(H[k].sum)+'</details>').join("")+'</details>';}
 let SUM_OPEN=true;document.addEventListener("click",e=>{const sm=e.target.closest("#tbSummary > summary");if(sm)SUM_OPEN=!sm.parentElement.open;});
+// ---- CHRONICLE: macro events as story lines (templates: worldbuilding CHRONICLE; on/off per event there) ----
+// Hooks: chronTick() diffs a snapshot on every save (monument, wonder, war_pair, peace, vassal, vassal_end, besieged, era);
+// direct calls: warOn (war, the declarer known), endBattle (battle), captureTransfer (capture), sackApply (sack), resolveEnvoy (condemned), growCamps (bandit_army).
+const CHR=(DATA.placeNames||{}).chronicle||null;
+function chronOn(){return !!D.started||tTurn()>1||(D.players||[]).some(p=>(p.board.turn||0)>0);}
+function chron(ev,v){if(!CHR||!chronOn())return;const E=CHR[ev];if(!E||E.on===false||!(E.lines||[]).length)return;
+  const vars=Object.assign({era:currentEra()},v||{}),txt=E.lines[Math.floor(Math.random()*E.lines.length)].replace(/\{(\w+)\}/g,(_,k)=>vars[k]!=null?String(vars[k]):"?");
+  D.chron=D.chron||[];D.chron.push({t:tTurn(),y:curYear(),s:curSeason(),ev,txt,k:vars.key||null});}
+function chronSnap(){const o={era:currentEra(),mon:{},won:{},war:{},vas:{},cap:{}};
+  D.players.forEach(p=>{const b=p.board;
+    (b.placed||[]).filter(q=>(R[q.name]||{}).monument&&!(q.bt>0)&&!q.fac).forEach(q=>{o.mon[p.id+"|"+q.name]=String(q.sid);});
+    Object.keys(b.wonders||{}).filter(n=>b.wonders[n]&&!((b.itimer||{})[n]>0)).forEach(n=>{o.won[p.id+"|"+n]=1;});});
+  const d=diplo();Object.keys(d.pairs).forEach(k=>{if(d.pairs[k].war)o.war[k]=1;});Object.keys(d.suzerain).forEach(k=>{if(d.suzerain[k])o.vas[k]=String(d.suzerain[k]);});
+  realmTimers().filter(t=>t.kind==="siege").forEach(t=>{const p=pById(t.tp),s=p&&settById(p,t.sid);if(s&&s.capital)o.cap[t.tp+"|"+t.sid]=t.by!=null?String(t.by):"b";});
+  return o;}
+function chronTick(){if(!CHR||!D.players)return;let n;try{n=chronSnap();}catch(e){return;}const o=D.chronSnap;D.chronSnap=n;if(!o||!chronOn())return;
+  const sn=(pid,sid)=>{const p=pById(pid),s=p&&settById(p,sid);return s?(s.name||s.tier):"?";};
+  Object.keys(n.mon).filter(k=>!o.mon[k]).forEach(k=>{const [pid,h]=k.split("|");chron("monument",{player:pname(pid),holding:h,settlement:sn(pid,n.mon[k])});});
+  Object.keys(n.won).filter(k=>!o.won[k]).forEach(k=>{const [pid,h]=k.split("|");chron("wonder",{player:pname(pid),holding:h});});
+  Object.keys(n.war).filter(k=>!o.war[k]&&!(D.chron||[]).some(e=>e.ev==="war"&&e.k===k&&e.t===tTurn())).forEach(k=>{const [a,b]=k.split("|");chron("war_pair",{player:pname(a),other:pname(b)});});
+  Object.keys(o.war).filter(k=>!n.war[k]).forEach(k=>{const [a,b]=k.split("|");chron("peace",{player:pname(a),other:pname(b)});});
+  Object.keys(n.vas).filter(k=>o.vas[k]!==n.vas[k]).forEach(k=>chron("vassal",{player:pname(k),other:pname(n.vas[k])}));
+  Object.keys(o.vas).filter(k=>!n.vas[k]).forEach(k=>chron("vassal_end",{player:pname(k),other:pname(o.vas[k])}));
+  Object.keys(n.cap).filter(k=>!o.cap[k]).forEach(k=>{const [pid,sid]=k.split("|");chron("besieged",{player:pname(pid),other:n.cap[k]==="b"?"Bandits":pname(n.cap[k]),settlement:sn(pid,sid)});});
+  if(o.era&&n.era!==o.era)chron("era",{era:n.era});}
+function chronDate(e){return (e.s||"")+(e.y!=null?", Year "+e.y:"")+" · Turn "+e.t;}
+function chronicleHTML(){if(!CHR)return "";const L=(D.chron||[]).slice().reverse();
+  return '<details class="tot" id="tbChron"'+(CHRON_OPEN?' open':'')+'><summary><b style="font-size:13px">Chronicle</b> <span class="note">'+L.length+'</span>'+
+    (L.length?' <button data-chron-md="1" data-nav="1" style="margin-left:6px">export .md</button>':'')+'</summary>'+
+    (L.length?L.map(e=>'<div class="tb-lg"><span class="tb-b">'+esc(chronDate(e))+'</span> '+esc(e.txt)+'</div>').join(""):'<div class="note">Nothing worth recording yet.</div>')+'</details>';}
+let CHRON_OPEN=false;document.addEventListener("click",e=>{const sm=e.target.closest("#tbChron > summary");if(sm&&!e.target.closest("[data-chron-md]"))CHRON_OPEN=!sm.parentElement.open;
+  const b=e.target.closest("[data-chron-md]");if(!b)return;e.preventDefault();
+  const md="# Chronicle\n\n"+(D.chron||[]).map(x=>"- **"+chronDate(x)+"** — "+x.txt).join("\n")+"\n",a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([md],{type:"text/markdown"}));a.download="chronicle.md";document.body.appendChild(a);a.click();a.remove();});
 function empireChecklistHTML(){const sea=curSeason(),auto=boardEndOn();
   const L=[["Activate Domain Standing effects","realm","Realm"],["Apply the Season: "+sea,"reference#refSeasons","Reference"],
     ["Timers tick, finished builds resolve","board:board","Board"],["Host resolves Bandits","table#tBanditBox","Bandits"],
@@ -2018,7 +2075,8 @@ function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.
   const NH0=62,CG=44,RG=10,AV=Math.max(600,((document.getElementById("viewReference")||{}).clientWidth||window.innerWidth)-70),EC=["#2E5A8C","#9E2B25","#1c9c8c","#C6A024","#6A3D8F","#CC6A1A","#3a7d3a","#b5347a","#2b6f9e","#8a6d1a"],E0=T.edges||{},DC={Industry:"#2E5A8C",Prowess:"#9E2B25",Cunning:"#3a3a40",Piety:"#C6A024"};
   const dom=n=>{const u=(R[n]||{}).unlock_raw||"";return ["Industry","Prowess","Cunning","Piety"].find(d=>u.includes(d))||"";};
   const AVS=refRawAvail();
-  return T.charts.map(c=>{const N=AVS?Object.fromEntries(Object.entries(c.nodes).filter(([k])=>AVS.has(k))):c.nodes,ks=Object.keys(N);if(!ks.length)return "";
+  return T.charts.map(c=>{if(AVS&&R[c.title]&&!AVS.has(c.title))return "";   // a root chart whose Raw Material is off the map: its reachable Holdings show under their other roots
+    const N=AVS?Object.fromEntries(Object.entries(c.nodes).filter(([k])=>AVS.has(k))):c.nodes,ks=Object.keys(N);if(!ks.length)return "";
     const E={...E0};(c.links||[]).forEach(([p,k])=>{E[p]=(E[p]||[]).concat([k]);});   // chart-only links (e.g. Naturals into Manor House)
     const mc=Math.max(...ks.map(k=>N[k][0])),mr=Math.max(...ks.map(k=>N[k][1]));
     const NW=Math.round(Math.max(150,Math.min(200,(AV-mc*CG)/(mc+1)))),W=(mc+1)*NW+mc*CG;   // boxes shrink to fit the window
@@ -2073,7 +2131,7 @@ function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.
       const pts=pick([[[x0,sy],[rx,sy],[rx,ty],[bx+NW+1+AL,ty]],[[x0,sy],[lx,sy],[lx,gy],[rx,gy],[rx,ty],[bx+NW+1+AL,ty]]],[n,k]);
       paths+='<g><title>'+esc(k)+' Mastery needs '+esc(n)+'</title>'+edge(col,pts,' stroke-dasharray="4 3"')+'</g>';}));
     const nodes=ks.map(n=>{const [x,y]=px(n),r=R[n]||{},col=DC[dom(n)]||"#6a6a72",have=(PC[n]||0)>0;
-      return '<div class="tn'+(r.monument?' mon':'')+(have?' have':'')+'" style="left:'+x+'px;top:'+y+'px;width:'+NW+'px;height:'+NH+'px;border-color:'+col+'">'+inner(n)+'</div>';}).join("");
+      return '<div class="tn'+(r.monument?' mon':'')+(have?' have':'')+(cultureKeep(n)?'':' off')+'" style="left:'+x+'px;top:'+y+'px;width:'+NW+'px;height:'+NH+'px;border-color:'+col+'">'+inner(n)+'</div>';}).join("");
     return '<details class="tchart" data-t="'+esc(c.title)+'"'+(TREE_OPEN.has(c.title)?' open':'')+'><summary><b>'+esc(c.title)+'</b> <span class="note">'+ks.length+' Pursuits</span></summary><div class="tscroll"><div class="tcanvas" style="width:'+W+'px;height:'+H+'px">'+
       '<svg width="'+W+'" height="'+H+'"><defs>'+[...used].map(c=>'<marker id="tarw-'+c.slice(1)+'" viewBox="0 0 7 6" refX="0" refY="3" markerWidth="7" markerHeight="6" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="'+c+'"/></marker>').join("")+'</defs><g fill="none" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt">'+paths+'</g></svg>'+nodes+'</div></div></details>';}).join("");}
 // rulebook (collapsible, per device); keywords inside the text get hover links
@@ -2168,7 +2226,7 @@ function renderTable(){
   const MM=mapState(),hasMap=!!(MM.grid||Object.keys(MM.cells).length);
   const tmap=hasMap?(MAPZ.fit?mapSVG(MM).replace(/^<svg width="[^"]*" height="[^"]*"/,'<svg width="100%" height="100%" preserveAspectRatio="xMidYMid meet"'):mapSVG(MM)):'<div class="note">No map — Map ▸ Map setup above.</div>';
   host.innerHTML='<div class="tb-tools">'+mapToolsHTML()+'</div><div class="tb-wrap tb3'+(TB_WIDE?' wide':'')+'"><div class="tb-info"><div class="tot tb-phase">'+ctr+'</div>'+
-    '<div class="tot"><h3 style="font-size:13px">Log</h3>'+(log||'<div class="note">Nothing resolved yet this phase.</div>')+'</div>'+summaryHTML()+
+    '<div class="tot"><h3 style="font-size:13px">Log</h3>'+(log||'<div class="note">Nothing resolved yet this phase.</div>')+'</div>'+summaryHTML()+chronicleHTML()+
     banditPanelHTML()+'</div>'+
     '<div class="tb-felt-col"><div class="tb-felt"><div class="tb-oval"></div><div class="tb-map'+(MAPZ.fit?'':' zm')+'">'+tmap+'</div>'+(hasMap?mapBarHTML():'')+seats+inspHTML()+'</div>'+
     (D.players.some(p=>!Object.values(sm).includes(p))?'<div class="note">Not seated: '+D.players.filter(p=>!Object.values(sm).includes(p)).map(p=>esc(p.name)).join(", ")+'</div>':'')+
@@ -2650,6 +2708,7 @@ async function apiRaw(method,path,body){
 }
 let _saveT=null;
 function save(){
+  try{chronTick();}catch(e){}
   undoRecord();if(!ACT.saving)actSchedule();
   try{localStorage.setItem("renown_dash",JSON.stringify(D));}catch(e){}
   clearTimeout(_saveT);_saveT=setTimeout(push,400);
@@ -2903,7 +2962,7 @@ function renderList(){
   list.appendChild(ctl);
   if(tab==="pursuit"){
     const searching=q.length>0;
-    const keep=n=>nameHit(n,q)&&!(activeTypes.size&&!activeTypes.has(R[n].type))&&(!CAT.avail||pAvail(n))&&(FOR_SID==null||canPlace(n,FOR_SID).ok);
+    const keep=n=>nameHit(n,q)&&!(activeTypes.size&&!activeTypes.has(R[n].type))&&(!CAT.avail||pAvail(n))&&(FOR_SID==null||canPlace(n,FOR_SID).ok)&&cultureKeep(n);
     const groups=(CAT.group==="root"&&ROOTS.length?ROOTS.map(([t,ns])=>[t,ns]):TYPES.map(t=>[t,NAMES.filter(n=>R[n].type===t)]))
       .map(([t,ns])=>[t,ns.filter(keep)]).filter(g=>g[1].length);
     const ctl2=document.createElement("div");ctl2.className="catctl";
@@ -2926,7 +2985,7 @@ function renderList(){
     });
   } else {
     const kindOf=n=>WON[n]?"wonder":"infra",srcOf=n=>WON[n]||INFRA[n],haveOf=n=>(WON[n]?S.wonders:S.infra)[n];
-    const ns=Object.keys(INFRA).concat(Object.keys(WON)).filter(n=>nameHit(n,q)&&(!CAT.avail||iAvail(kindOf(n),n)));
+    const ns=Object.keys(INFRA).concat(Object.keys(WON)).filter(n=>nameHit(n,q)&&(!CAT.avail||iAvail(kindOf(n),n))&&cultureKeepWonder(n));
     if(!ns.length){const e=document.createElement("div");e.className="empty";e.textContent=CAT.avail?"None available.":"No match.";list.appendChild(e);return;}
     ns.forEach(n=>{
       const r=srcOf(n);const row=itemRow(n,false,!!haveOf(n));
@@ -3276,6 +3335,8 @@ function renderTopBar(){
   bar.appendChild(nm);bar.appendChild(col);
   {const w=document.createElement("span");w.innerHTML=facSelectHTML();const fs=w.firstChild;fs.disabled=!ed;
     fs.onchange=e=>{setFaction(e.target.value);save();render();renderList();};bar.appendChild(fs);}
+  {const w=document.createElement("span");w.innerHTML=culSelectHTML(p.board);const cs=w.firstChild;
+    cs.onchange=e=>{p.board.culture=e.target.value||"";save();render();renderList();};bar.appendChild(cs);}
   {let on=false;try{on=!!SYNC.ready;}catch(e){}
     if(on){const cl=claimOf(p),mc=myClaimP(),b=document.createElement("button");b.dataset.claim="1";
       if(mine(p)){b.textContent="\u2605 yours \u00b7 release";b.onclick=()=>{if(!confirm("Release "+p.name+"?"))return;delete p.board.claim;if(TB().ready)delete TB().ready[p.id];save();render();};}
@@ -3634,6 +3695,36 @@ function facSelectHTML(){const names=Object.keys(FAC),fin=names.filter(n=>FAC[n]
   const opt=n=>'<option value="'+esc(n)+'"'+(n===S.faction?' selected':'')+'>'+esc(n)+'</option>';
   return '<select id="facSel" class="facsel" title="faction"><option value="">— faction —</option><optgroup label="Final cut">'+fin.map(opt).join('')+'</optgroup>'+
     (oth.length?'<optgroup label="Other">'+oth.map(opt).join('')+'</optgroup>':'')+'</select>';}
+// ---- Culture (view filter, no game effect) + generated Settlement names ----
+const CUL=DATA.cultures||{},CUL_SELF=DATA.cultureSelf||"Self-made",PN=DATA.placeNames||null,CUL_DOMS=["Industry","Prowess","Cunning","Piety"];
+function culSelectHTML(b){const by={};Object.keys(CUL).forEach(n=>{const t=CUL[n].type||"";(by[t]=by[t]||[]).push(n);});
+  const cur=(b&&b.culture&&CUL[b.culture])?b.culture:"";
+  return '<select id="culSel" class="facsel" title="culture — focuses the Holding catalog and tree; no game effect"><option value="">'+esc(CUL_SELF)+'</option>'+
+    Object.keys(by).map(t=>'<optgroup label="'+esc(t)+'">'+by[t].map(n=>'<option value="'+esc(n)+'"'+(n===cur?' selected':'')+'>'+esc(n)+' · '+esc(CUL[n].domains.join("/"))+'</option>').join("")+'</optgroup>').join("")+'</select>';}
+function cultureOf(b){return b&&b.culture&&CUL[b.culture]?b.culture:null;}
+function holdDom(n){const u=(R[n]||{}).unlock_raw||"";return CUL_DOMS.find(d=>u.includes(d))||"";}
+// the Holdings a culture focuses on: unlocks in its Domains, Domain-free Holdings (Raw Materials, Common Land…),
+// its Monuments and every Holding on their chains
+const CUL_SET={};
+function cultureSet(c){if(!c||!CUL[c])return null;if(CUL_SET[c])return CUL_SET[c];const C=CUL[c],ds=new Set(C.domains),out=new Set();
+  NAMES.forEach(n=>{const d=holdDom(n);if(!d||ds.has(d))out.add(n);});
+  const seen=new Set(),up=n=>{if(seen.has(n))return;seen.add(n);out.add(n);effList(n).forEach(up);};
+  C.monuments.filter(n=>R[n]).forEach(up);
+  return CUL_SET[c]=out;}
+function cultureKeep(n,b){const c=cultureOf(b||S);if(!c)return true;return cultureSet(c).has(n);}
+function cultureKeepWonder(n,b){const c=cultureOf(b||S);if(!c||!WON[n])return true;const W=CUL[c].wonders||[];return !W.length||W.includes(n);}
+// Self-made names follow the culture its Domain Standings match: the Domains at its highest value
+function derivedCulture(b){const dv=(b&&b.domains)||{},mx=Math.max(...CUL_DOMS.map(d=>+dv[d]||0)),top=CUL_DOMS.filter(d=>(+dv[d]||0)===mx).sort().join("|");
+  return Object.keys(CUL).find(n=>CUL[n].domains.slice().sort().join("|")===top)||null;}
+function nameCulture(b){return cultureOf(b)||derivedCulture(b)||Object.keys(CUL).find(n=>CUL[n].type==="centre")||Object.keys(PN?PN.banks:{})[0];}
+function usedSettNames(){const s=new Set();(D.players||[]).forEach(p=>(p.board.settlements||[]).forEach(x=>{if(x.name)s.add(x.name);}));return s;}
+function genPlaceName(cul){if(!PN||!PN.banks)return "";const ex=new Set((PN.exclude||[]).concat([...usedSettNames()])),pick=L=>L[Math.floor(Math.random()*L.length)];let nm="";
+  for(let t=0;t<60;t++){let B=PN.banks[cul]||PN.banks[pick(Object.keys(PN.banks))],pat=pick(B.patterns);
+    if(pat==="@borrow"){B=PN.banks[pick(B.borrow)]||B;pat=pick(B.patterns.filter(x=>x!=="@borrow"));}
+    nm=pat.replace(/\{(\w+)\}/g,(_,k)=>pick(B[k]||[""]));nm=(nm.charAt(0).toUpperCase()+nm.slice(1)).replace(/s's\b/g,"s'");
+    if(!ex.has(nm))return nm;}
+  return nm;}
+function nameSett(p,s){if(!s||s.name||!PN)return;const nm=genPlaceName(nameCulture(p.board));if(nm)s.name=nm;}
 function renderFaction(){const box=document.getElementById("facBox");if(!box)return;const f=FAC[S.faction];
   box.style.display=f?"":"none";
   const was=box.querySelector("details"),open=was?was.open:false;
@@ -4236,8 +4327,8 @@ function calcMetrics(have,earned,tc){
    if(pid)D.players.forEach(q=>{if(String(q.id)===pid||!effPair(pid,q.id).trade)return;
      srcMatch(q.board,/(?:Trade Partners|Players who trade with you) gain Craft \+(\d+)/i).forEach(x=>{craft+=+x.m[1];});});
    cpg.forEach(v=>{scale+=v*craft;});
-   if(me&&mapState().grid){const prov=provinceOf(me),bt=srcMatch(S,/Armies do not pay Upkeep while in Province/i).length,bo=srcMatch(S,/Upkeep -(\d+) while not in Province/i),
-       lh=srcMatch(S,/Upkeep -(\d+) while an army is range 0 of controlled settlement/i);
+   if(me&&mapState().grid){const prov=provinceOf(me),bt=srcMatch(S,/Armies do not pay Upkeep while in (?:your )?Province/i).length,bo=srcMatch(S,/Upkeep -(\d+) while not in (?:your )?Province/i),
+       lh=srcMatch(S,/Upkeep -(\d+) while an army is (?:within )?range 0 of (?:controlled settlement|a Settlement you Control)/i);
      let outside=false;S.armies.forEach(a=>{const k=armyHex(me,a);if(!k)return;const c=armyUpkeep(a);
        if(prov.has(k)){if(bt)reduce+=c;}else outside=true;});
      if(outside)bo.forEach(x=>{reduce+=+x.m[1];});                                    // once, while an Army is not in Province
@@ -4278,7 +4369,7 @@ function computeTotals(have,earned,tc){
 // Winter tax (rules: "gain tax income equal to your Settlements' tiers, adjusted by any modifiers"):
 // SETTLEMENTS[tier].tax_income for each Settlement, plus the Public Order "Tax income ±X per settlement" effect at the board's PO level
 // (applied to each Settlement that pays tax; never below 0 per Settlement).
-function poTaxMod(v,b){let mod=0;const src=[],dbl=poDoubled();poActiveKeys(v||0,b).forEach(k=>{const e=PO[String(k)],txt=Array.isArray(e)?e.join(" "):String(e||"");
+function poTaxMod(v,b){let mod=0;const src=[],dbl=poDoubled();poActiveKeys(v||0,b).forEach(k=>{const e=POB(k),txt=Array.isArray(e)?e.join(" "):String(e||"");
     const m=txt.match(/Tax income\s*([+\-\u2212]\s?\d+)\s*per settlement/i)||txt.match(/([+\-\u2212]\s?\d+)\s*Tax Income per Settlement/i);
     if(m){const bn=Array.isArray(e)?e[0]:String(k),x=parseInt(m[1].replace(/\s/g,"").replace("\u2212","-"),10)*(dbl[bn]?2:1);mod+=x;src.push(bn+" "+(x>0?"+":"")+x+(dbl[bn]?" (×2)":""));}});
   return {mod,src};}
@@ -4329,11 +4420,11 @@ function boardMetrics(b){
 }
 
 // ---- Public Order tracker ----
-function poBandName(v){let best=null;Object.keys(PO).map(Number).sort((a,b)=>a-b).forEach(k=>{if(k<=v)best=k;});return best!=null?PO[String(best)]:null;}
+function poBandName(v){let best=null;Object.keys(PO).map(Number).sort((a,b)=>a-b).forEach(k=>{if(k<=v)best=k;});return best!=null?POB(best):null;}
 // Public Order is cumulative in both directions: at +4 bands 1..4 are all active; at −3 bands −1..−3 are all active.
 function poActiveKeys(v,b){if(b&&poImmune(b))return [];
   return Object.keys(PO).map(Number).filter(k=>v>0?(k>=1&&k<=v):v<0?(k<=-1&&k>=v):k===0).sort((a,b)=>Math.abs(a)-Math.abs(b));}
-function poActiveEffects(v,b){const dbl=poDoubled();return poActiveKeys(v,b).map(k=>PO[String(k)]).filter(x=>x&&!/^no effect$/i.test(x[1]))
+function poActiveEffects(v,b){const dbl=poDoubled();return poActiveKeys(v,b).map(k=>POB(k)).filter(x=>x&&!/^no effect$/i.test(x[1]))
   .map(x=>dbl[x[0]]?[x[0],x[1]+" ×2 ("+dbl[x[0]]+")"]:x);}
 // Holdings that change Public Order effects: "No longer affected by all Public Order effects" (this board) and
 // "<Band>, <Band>, & <Band> effects are doubled for all players" (any player's active Holding).
@@ -4353,7 +4444,7 @@ function renderPO(){
   const on=new Set(poActiveKeys(v,S)), curK=Math.max(...Object.keys(PO).map(Number).filter(k=>k<=v));
   const lad=document.getElementById("poLadder");
   const ks=Object.keys(PO).map(Number).sort((a,b)=>b-a),near=k=>PO_FULL||Math.abs(k-curK)<=2||(on.has(k)&&k!==0);
-  lad.innerHTML=ks.filter(near).map(k=>{const b=PO[String(k)];
+  lad.innerHTML=ks.filter(near).map(k=>{const b=POB(k);
     return '<div class="pr'+(on.has(k)?' on '+(k<0?'neg':'pos'):'')+(k===curK?' cur':'')+'"><span class="v">'+(k>0?'+':'')+k+'</span><span>'+esc(b[0])+'</span><span>'+esc(b[1])+'</span></div>';}).join("")+
     (ks.some(k=>!near(k))||PO_FULL?'<div class="more" id="poMore">'+(PO_FULL?'▴ less':'▾ full track')+'</div>':'');
   {const mo=document.getElementById("poMore");if(mo)mo.onclick=()=>{PO_FULL=!PO_FULL;renderPO();};}
@@ -4381,7 +4472,7 @@ function influenceRowsBase(b){
   const am=pid?D.players.filter(q=>sameAlliance(pid,q.id)).length:0;add("Alliances",am,am*igVal("Alliances"));
   const tiers=withBoard(b,()=>{const T={};Object.keys(INFRA).forEach(n=>{(T[INFRA[n].tier]=T[INFRA[n].tier]||[]).push(n);});return Object.keys(T).filter(t=>T[t].every(infraOn)).length;});
   add("Infrastructure tier completed",tiers,tiers*igVal("Infrastructure tier completed"));
-  dbActive(b).forEach(x=>{const m=/\+(\d+) Influence per turn/i.exec(x.text);if(m)rows.push({k:x.name+" ("+x.tier+" "+x.dom+")",cnt:1,val:+m[1]});});
+  dbActive(b).forEach(x=>{const m=/(?:\+(\d+) Influence|Influence \+(\d+)) (?:per turn|each Empire Phase)/i.exec(x.text);if(m)rows.push({k:x.name+" ("+x.tier+" "+x.dom+")",cnt:1,val:+(m[1]||m[2])});});
   const fa=(b.armies||[]).filter(a=>(a.count||0)>=EQ.army_max).length;add("Fully Mustered Army",fa,fa*igVal("Fully Mustered Army"));
   const ce=+b.condemned||0;add("Condemned Envoy last turn",ce,ce*igVal("Condemned Envoy last turn"));
   const war=playerAtWar(pid)&&!(p&&fxOf(p,"ignoreWar").length)?1:0,noLoss=dbActive(b).find(x=>/No longer lose Influence while at War/i.test(x.text));
@@ -4392,7 +4483,7 @@ function influenceRowsBase(b){
   royalMarriage(b).forEach(x=>{if(x.infl)rows.push({k:x.src,cnt:1,val:x.infl});});
   // Public Order bands "±N Influence" apply when Influence is gained (cumulative bands; Plague Pit immune, Charnel House ×2)
   {const dbl=poDoubled(),po=Math.max(PO_MIN,Math.min(PO_MAX,b.po||0));
-   poActiveKeys(po,b).forEach(k=>{const e=PO[String(k)];if(!Array.isArray(e))return;const m=String(e[1]).match(/^([+\-\u2212]\s?\d+)\s*Influence$/i);if(!m)return;
+   poActiveKeys(po,b).forEach(k=>{const e=POB(k);if(!Array.isArray(e))return;const m=String(e[1]).match(/^([+\-\u2212]\s?\d+)\s*Influence$/i)||String(e[1]).match(/^Influence\s*([+\-\u2212]\s?\d+)$/i);if(!m)return;
      const v=parseInt(m[1].replace(/\s/g,"").replace("\u2212","-"),10)*(dbl[e[0]]?2:1);
      rows.push({k:"Public Order: "+e[0]+(dbl[e[0]]?" ×2":""),cnt:1,val:v});});}
   if(p)fxOf(p,"pool").forEach(f=>{const dv=b.domains||{};
@@ -4420,10 +4511,10 @@ function poModRows(b){b.poMods=b.poMods||{};const p=playerOfBoard(b),pid=p?Strin
     rows.push({side,k,desc:POM[side][k],auto:!!a,n:a?a():(+b.poMods[k]||0)});}));
   royalMarriage(b).forEach(x=>{if(x.faith)rows.push({side:"faith",k:x.src,desc:"Royal Marriage Alliance member",auto:true,n:x.faith});});
   // faction "Gain Faith|Doubt +N per Empire Phase" (own faction only; "for every …" variants are counted in calcMetrics)
-  if(b.faction)srcMatch(b,/^(?:[^:]+:\s*)?(?:Gain )?(Faith|Doubt) \+(\d+) per Empire Phase$/i).filter(x=>x.n===b.faction).forEach(x=>
+  if(b.faction)srcMatch(b,/^(?:[^:]+:\s*)?(?:Gain )?(Faith|Doubt) \+(\d+) (?:per|each) Empire Phase$/i).filter(x=>x.n===b.faction).forEach(x=>
     rows.push({side:x.m[1].toLowerCase(),k:b.faction,desc:x.m[1]+" +"+x.m[2]+" per Empire Phase",auto:true,n:+x.m[2]}));
   // "Each player gains Doubt +N per Empire Phase per Sacred War you're on" (Prophets of War): its owner keeps the Sacred War count
-  D.players.forEach(q=>srcMatch(q.board,/Each player gains (Doubt|Faith) \+(\d+) per Empire Phase per Sacred War you.re on/i).filter(x=>x.n===q.board.faction).forEach(x=>{
+  D.players.forEach(q=>srcMatch(q.board,/Each player gains (Doubt|Faith) \+(\d+) (?:per|each) Empire Phase per Sacred War you.re on/i).filter(x=>x.n===q.board.faction).forEach(x=>{
     const K="Sacred Wars · "+q.board.faction,cnt=+((q.board.poMods||{})[K])||0;
     if(q.board===b)rows.push({side:x.m[1].toLowerCase(),k:K,desc:"Sacred Wars you're on (each player: "+x.m[1]+" +"+x.m[2]+" each)",auto:false,n:cnt*+x.m[2]});
     else if(cnt)rows.push({side:x.m[1].toLowerCase(),k:x.n+" · "+q.name,desc:cnt+" Sacred War"+(cnt>1?"s":"")+" ("+q.name+")",auto:true,n:cnt*+x.m[2]});}));
@@ -4467,7 +4558,7 @@ function topSuz(id){const d=diplo();let c=String(id),g=16;while(d.suzerain[c]&&g
 // "While in that Alliance, each member gains Faith +N and +M Influence per turn" (Royal Marriage): applied to every member of
 // the Alliance the faction's owner is in (the board doesn't record which Alliance the once-per-game ability formed)
 function royalMarriage(b){const p=playerOfBoard(b),out=[];if(!p)return out;const d=diplo();
-  D.players.forEach(q=>{const f=(FAC[q.board.faction||""]||{}).mechanic||"",m=String(f).match(/While in that Alliance, each member gains Faith \+(\d+) and \+(\d+) Influence per turn/i);if(!m)return;
+  D.players.forEach(q=>{const f=(FAC[q.board.faction||""]||{}).mechanic||"",m=String(f).match(/While in that Alliance, each member gains Faith \+(\d+) and (?:\+(\d+) Influence|Influence \+(\d+)) (?:per turn|each Empire Phase)/i);if(!m)return;m[2]=m[2]||m[3];
     const inA=sameP(q,p)?!!d.member[topSuz(String(q.id))]:sameAlliance(String(p.id),String(q.id));
     if(inA)out.push({src:q.board.faction+" · "+q.name,faith:+m[1],infl:+m[2]});});
   return out;}
@@ -4866,7 +4957,7 @@ function facCombat(b){const f=FAC[(b||{}).faction||""];if(!f)return [];const t=S
   if(/Retinues have Poison/i.test(t))add("Poison");
   if(/Ranged Weapons (?:have|gain) \+1 to Strike/i.test(t))add("Ranged Strike +1");
   const m=t.match(/While your Public Order is (-?\d+) or higher, your Armies (?:have|gain) ([^.]+)/i);
-  if(m&&(b.po||0)>=+m[1]){if(/\+1 Initiative/i.test(m[2]))add("Init +1");if(/\bSteady\b/i.test(m[2]))add("Steady");}
+  if(m&&(b.po||0)>=+m[1]){if(/\+1 Initiative|Initiative \+1/i.test(m[2]))add("Init +1");if(/\bSteady\b/i.test(m[2]))add("Steady");}
   return out;}
 function sideUnlocks(p){return p?withBoard(p.board,()=>{const have=new Set(Object.keys(PC));const {earned}=computeEarned(have);
     return {mods:armyUnlocks(earned).mods.concat(facCombat(p.board)),outInnate:(PC["Outrider Intercept Post"]||0)>0,outMastery:!!earned["Outrider Intercept Post"]};})
@@ -5289,6 +5380,7 @@ function endBattle(win){
       blog(W.name+" won — Spoils of War: "+(oc.a.retinue||"")+" cost, extort "+t.toLocaleString()+(t<cost?" (of "+cost.toLocaleString()+")":""));
       if(L.camp&&!(+L.camp.n>0)){const g=extortGold(L,W,L.camp.gold||0);if(g)blog(W.name+" extorts the destroyed camp's Treasury: "+g.toLocaleString());}}
     if(W&&W.b){W.b.lossStreak=0;W.b.lastBattle="won";}if(L&&L.b){L.b.lossStreak=(+L.b.lossStreak||0)+1;L.b.lastBattle="lost";}
+    if(W&&W.b&&L&&L.b)chron("battle",{winner:W.name,loser:L.name});
     const wc=sideCalc(win);if(L&&L.b&&W&&wc&&srcHas(L.b,/collect the Spoils of War whether you win or lose/i)){
       const t2=extortGold(W,L,+wc.rt.cost||0);if(t2)blog(L.name+" also collects Spoils of War: "+t2.toLocaleString());}
     [[win,W],[O,L]].forEach(([X,sd])=>{const c=sideCalc(X);if(!sd||!sd.b||!c)return;const lost=Math.max(0,(B.start[X]||0)-(c.a.count||0));
@@ -5593,7 +5685,7 @@ function settReachHexes(p,s){
 // Terrain mode: each terrain type in a Settlement's Reach supplies at most one of its Raw Materials (max matching).
 // Nodes mode: a node of that resource within the Settlement's Reach.
 // Instances outside a Settlement (no Ward) fall back to Empire-wide Reach; the faction exemption skips claims.
-const RAW_NOCLAIM=/Raw Material\s+\w+\s+within Reach are always active/i;
+const RAW_NOCLAIM=/Raw Material\s+\w+\s+within (?:your )?Reach are always active/i;
 function rawClaims(p){
   const out={},M=mapState(),g=M.grid;if(!g||!p)return out;
   const V=decodeGrid(g),b=p.board,useN=!!M.useNodes,noClaim=RAW_NOCLAIM.test((FAC[b.faction||""]||{}).mechanic||"");
@@ -5672,37 +5764,32 @@ function armyGear(a){return [a.weapon,(a.ranged&&a.ranged!=="None")?a.ranged:nul
 function armyUFor(p){return withBoard(p.board,()=>{const {earned}=computeEarned(new Set(Object.keys(PC)));const u=armyUnlocks(earned);u.mods=u.mods.concat(facCombat(S));return u;});}
 function armyStatLine(v){return "To-Strike "+v.toStrike+"+ · Init "+(v.init>=0?"+":"")+v.init+" · Save "+v.save+"+ · Morale "+v.morale+"+"+(v.routed?" (Routed)":"");}
 function cellArmyVals(k){const {p,a}=cellArmy(k);if(!p||!a)return null;return {a,v:armyVals(a,armyUFor(p))};}
-// plate beside the sprite: loadout icons over modified To-Strike / Init / Save / Morale
+// plate beside the sprite: name (if set), loadout icons, status icons — the stat line lives in the inspector (click the Army)
 const PLATE_K=1.5;   // army plate scale vs the hex
-function mapPlate(k,cx,cy,R){const x=cellArmyVals(k);if(!x)return "";R=R*PLATE_K;const g=armyGear(x.a),v=x.v,ic=R*.56,pad=R*.1,cw=R*.68,f1=R*.2,f2=R*.32,
-    sts=armyStatus(cellArmy(k).p,x.a,k).map(o=>o.st).filter((t,i,A)=>A.indexOf(t)===i),si=R*.34,
-    cols=[["STK",v.toStrike+"+"],["INI",(v.init>=0?"+":"")+v.init],["SAV",v.save+"+"],["MOR",v.morale+"+"]],
-    w=Math.max(g.length*ic,cols.length*cw,sts.length*si)+pad*2,h=pad*2+ic+f1+f2+R*.1+(sts.length?si+pad*.6:0),
-    pos=PLATE_AT?PLATE_AT(cx,cy,w,h):{x:cx+R*.72,y:cy-R*1.1,lead:false},x0=pos.x,y0=pos.y,ty=y0+pad+ic+R*.04,sy=ty+f1+f2+R*.1;
-  return '<g pointer-events="none" font-family="ui-monospace,Consolas,\'DejaVu Sans Mono\',monospace">'+(pos.lead?'<line x1="'+cx.toFixed(1)+'" y1="'+cy.toFixed(1)+'" x2="'+Math.max(x0,Math.min(x0+w,cx)).toFixed(1)+'" y2="'+Math.max(y0,Math.min(y0+h,cy)).toFixed(1)+'" stroke="#f3d38a" stroke-opacity=".7" stroke-width=".7"/>':'')+'<rect x="'+x0.toFixed(1)+'" y="'+y0.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="'+(R*.12).toFixed(1)+'" fill="#111" fill-opacity=".85" stroke="#f3d38a" stroke-opacity=".5" stroke-width=".6"/>'+
-    g.map((n,i)=>'<rect x="'+(x0+pad+i*ic+ic*.03).toFixed(2)+'" y="'+(y0+pad).toFixed(2)+'" width="'+(ic*.94).toFixed(2)+'" height="'+(ic*.94).toFixed(2)+'" rx="'+(ic*.07).toFixed(2)+'" fill="'+(SPR.eqTile||"#3a404c")+'"/>'+
-      '<use href="#'+mapSprId("eq:"+n)+'" x="'+(x0+pad+i*ic).toFixed(1)+'" y="'+(y0+pad).toFixed(1)+'" width="'+ic.toFixed(1)+'" height="'+ic.toFixed(1)+'"/>').join("")+
-    cols.map(([l,val],i)=>{const tx=(x0+pad+i*cw+cw/2).toFixed(1);
-      return '<text x="'+tx+'" y="'+(ty+f1).toFixed(1)+'" text-anchor="middle" font-size="'+f1.toFixed(2)+'" fill="#a8a29a">'+l+'</text>'+
-        '<text x="'+tx+'" y="'+(ty+f1+f2).toFixed(1)+'" text-anchor="middle" font-size="'+f2.toFixed(2)+'" font-weight="700" fill="'+(i===3&&v.routed?"#ef5350":"#fff")+'">'+val+'</text>';}).join("")+
-    sts.map((t,i)=>'<rect x="'+(x0+pad+i*si).toFixed(2)+'" y="'+sy.toFixed(2)+'" width="'+(si*.92).toFixed(2)+'" height="'+(si*.92).toFixed(2)+'" fill="'+(SPR.eqTile||"#3a404c")+'"/>'+
-      '<use href="#'+mapSprId("st:"+t)+'" x="'+(x0+pad+i*si).toFixed(2)+'" y="'+sy.toFixed(2)+'" width="'+(si*.92).toFixed(2)+'" height="'+(si*.92).toFixed(2)+'"/>').join("")+'</g>';}
-// Settlement plate: name/tier, Tax · Reach · Wards · Garrison, then status icons (same look as the army plate)
-function settPlate(k,cx,cy,R){const {p,s}=cellSett(k);if(!p||!s)return "";R=R*PLATE_K;const pad=R*.1,cw=R*.68,f0=R*.24,f1=R*.2,f2=R*.32,si=R*.34;
-  const wu=withBoard(p.board,()=>wardUse(s.id)),g=garrisonOf(p,s.id),tx=settTax(p.board,s),
-    title=(s.capital?"★ ":"")+(s.name||s.tier)+(s.name?" · "+s.tier:"")+(settUnbuilt(s)?" (unbuilt)":s.up?" → "+s.up.to:""),
-    cols=[["TAX",tx>=1000?(tx/1000).toFixed(tx%1000?1:0)+"k":String(tx)],["RCH",String(settReach(p,s))],["WRD",wu.used+"/"+wu.cap],["GAR",g?String(g.count):"—"]],
-    sts=settStatus(p,s).map(o=>o.st).filter((t,i,A)=>A.indexOf(t)===i&&SPR.S["st:"+t]),
-    w=Math.max(title.length*f0*.62,cols.length*cw,sts.length*si)+pad*2,h=pad*2+f0+R*.06+f1+f2+R*.08+(sts.length?si+pad*.6:0),
-    pos=PLATE_AT?PLATE_AT(cx,cy,w,h):{x:cx+R*.72,y:cy-R*1.1,lead:false},x0=pos.x,y0=pos.y,ty=y0+pad+f0+R*.06,sy=ty+f1+f2+R*.08;
-  return '<g pointer-events="none" font-family="ui-monospace,Consolas,\'DejaVu Sans Mono\',monospace">'+(pos.lead?'<line x1="'+cx.toFixed(1)+'" y1="'+cy.toFixed(1)+'" x2="'+Math.max(x0,Math.min(x0+w,cx)).toFixed(1)+'" y2="'+Math.max(y0,Math.min(y0+h,cy)).toFixed(1)+'" stroke="'+p.color+'" stroke-opacity=".7" stroke-width=".7"/>':'')+
-    '<rect x="'+x0.toFixed(1)+'" y="'+y0.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="'+(R*.12).toFixed(1)+'" fill="#111" fill-opacity=".85" stroke="'+p.color+'" stroke-opacity=".8" stroke-width=".7"/>'+
-    '<text x="'+(x0+pad).toFixed(1)+'" y="'+(y0+pad+f0*.85).toFixed(1)+'" font-size="'+f0.toFixed(2)+'" font-weight="700" fill="#f3d38a">'+esc(title)+'</text>'+
-    cols.map(([l,val],i)=>{const tx=(x0+pad+i*cw+cw/2).toFixed(1);
-      return '<text x="'+tx+'" y="'+(ty+f1).toFixed(1)+'" text-anchor="middle" font-size="'+f1.toFixed(2)+'" fill="#a8a29a">'+l+'</text>'+
-        '<text x="'+tx+'" y="'+(ty+f1+f2).toFixed(1)+'" text-anchor="middle" font-size="'+f2.toFixed(2)+'" font-weight="700" fill="#fff">'+esc(val)+'</text>';}).join("")+
-    sts.map((t,i)=>'<rect x="'+(x0+pad+i*si).toFixed(2)+'" y="'+sy.toFixed(2)+'" width="'+(si*.92).toFixed(2)+'" height="'+(si*.92).toFixed(2)+'" fill="'+(SPR.eqTile||"#3a404c")+'"/>'+
-      '<use href="#'+mapSprId("st:"+t)+'" x="'+(x0+pad+i*si).toFixed(2)+'" y="'+sy.toFixed(2)+'" width="'+(si*.92).toFixed(2)+'" height="'+(si*.92).toFixed(2)+'"/>').join("")+'</g>';}
+function plateStatus(sts,x0,sy,pad,si){return sts.map((t,i)=>'<rect x="'+(x0+pad+i*si).toFixed(2)+'" y="'+sy.toFixed(2)+'" width="'+(si*.92).toFixed(2)+'" height="'+(si*.92).toFixed(2)+'" fill="'+(SPR.eqTile||"#3a404c")+'"/>'+
+      '<use href="#'+mapSprId("st:"+t)+'" x="'+(x0+pad+i*si).toFixed(2)+'" y="'+sy.toFixed(2)+'" width="'+(si*.92).toFixed(2)+'" height="'+(si*.92).toFixed(2)+'"/>').join("");}
+function plateBox(cx,cy,R,x0,y0,w,h,lead,col,op){return (lead?'<line x1="'+cx.toFixed(1)+'" y1="'+cy.toFixed(1)+'" x2="'+Math.max(x0,Math.min(x0+w,cx)).toFixed(1)+'" y2="'+Math.max(y0,Math.min(y0+h,cy)).toFixed(1)+'" stroke="'+col+'" stroke-opacity=".7" stroke-width=".7"/>':'')+
+    '<rect x="'+x0.toFixed(1)+'" y="'+y0.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="'+(R*.12).toFixed(1)+'" fill="#111" fill-opacity=".85" stroke="'+col+'" stroke-opacity="'+op+'" stroke-width=".7"/>';}
+function mapPlate(k,cx,cy,R){const {p,a}=cellArmy(k);if(!p||!a)return "";R=R*PLATE_K;const g=armyGear(a),ic=R*.56,pad=R*.1,f0=R*.24,si=R*.34,
+    title=a.label||"",sts=armyStatus(p,a,k).map(o=>o.st).filter((t,i,A)=>A.indexOf(t)===i&&SPR.S["st:"+t]);
+  if(!title&&!g.length&&!sts.length)return "";
+  const th=title?f0+R*.06:0,gh=g.length?ic:0,w=Math.max(title.length*f0*.62,g.length*ic,sts.length*si)+pad*2,h=pad*2+th+gh+(sts.length?(gh?pad*.6:0)+si:0),
+    pos=PLATE_AT?PLATE_AT(cx,cy,w,h):{x:cx+R*.72,y:cy-R*1.1,lead:false},x0=pos.x,y0=pos.y,gy=y0+pad+th,sy=gy+gh+(gh?pad*.6:0);
+  return '<g pointer-events="none" font-family="ui-monospace,Consolas,\'DejaVu Sans Mono\',monospace">'+plateBox(cx,cy,R,x0,y0,w,h,pos.lead,p.color,".8")+
+    (title?'<text x="'+(x0+pad).toFixed(1)+'" y="'+(y0+pad+f0*.85).toFixed(1)+'" font-size="'+f0.toFixed(2)+'" font-weight="700" fill="#f3d38a">'+esc(title)+'</text>':'')+
+    g.map((n,i)=>'<rect x="'+(x0+pad+i*ic+ic*.03).toFixed(2)+'" y="'+gy.toFixed(2)+'" width="'+(ic*.94).toFixed(2)+'" height="'+(ic*.94).toFixed(2)+'" rx="'+(ic*.07).toFixed(2)+'" fill="'+(SPR.eqTile||"#3a404c")+'"/>'+
+      '<use href="#'+mapSprId("eq:"+n)+'" x="'+(x0+pad+i*ic).toFixed(1)+'" y="'+gy.toFixed(1)+'" width="'+ic.toFixed(1)+'" height="'+ic.toFixed(1)+'"/>').join("")+
+    plateStatus(sts,x0,sy,pad,si)+'</g>';}
+// Settlement plate: name (if set), then status icons — Tax / Reach / Wards / Garrison live in the inspector (click the Settlement)
+function settPlate(k,cx,cy,R){const {p,s}=cellSett(k);if(!p||!s)return "";R=R*PLATE_K;const pad=R*.1,f0=R*.24,si=R*.34;
+  const title=s.name?(s.capital?"★ ":"")+s.name:"",
+    sts=settStatus(p,s).map(o=>o.st).filter((t,i,A)=>A.indexOf(t)===i&&SPR.S["st:"+t]);
+  if(!title&&!sts.length)return "";
+  const th=title?f0+R*.06:0,w=Math.max(title.length*f0*.62,sts.length*si)+pad*2,h=pad*2+th+(sts.length?si:0),
+    pos=PLATE_AT?PLATE_AT(cx,cy,w,h):{x:cx+R*.72,y:cy-R*1.1,lead:false},x0=pos.x,y0=pos.y,sy=y0+pad+th;
+  return '<g pointer-events="none" font-family="ui-monospace,Consolas,\'DejaVu Sans Mono\',monospace">'+plateBox(cx,cy,R,x0,y0,w,h,pos.lead,p.color,".8")+
+    (title?'<text x="'+(x0+pad).toFixed(1)+'" y="'+(y0+pad+f0*.85).toFixed(1)+'" font-size="'+f0.toFixed(2)+'" font-weight="700" fill="#f3d38a">'+esc(title)+'</text>':'')+
+    plateStatus(sts,x0,sy,pad,si)+'</g>';}
 // Armies inside a Settlement: up to 3 mini retinue banners in their owners' colours (+N), Garrison as a shield with its size
 // the (single) Army inside a Settlement stands behind it, peeking out at the right, in its owner's colour
 function settBehind(cell,k,cx,cy,R){if(cell.type==="Army")return "";const cs=cellSett(k);if(!cs.s)return "";const ins=armiesInside(cs.p,cs.s);if(!ins.length)return "";
@@ -5722,10 +5809,10 @@ function settInsideMarks(cx,cy,R,pix,g,ins){if(pix&&SPR)ins=ins.slice(1);let s="
   return t?'<text x="'+(cx-R*.95).toFixed(1)+'" y="'+(cy+R*.85).toFixed(1)+'" font-size="7.5" font-weight="700" fill="#fff" stroke="#111" stroke-width=".35" pointer-events="none">'+t+'</text>':"";}
 let PLATE_AT=null;
 // ---- map bar: Select, and a Place palette for setup pieces ----
-const PLACE_TOOLS=["Army","Hamlet","Village","Town","City","Metropolis","Outlaw Country","Bandit Camp","Erase"];
+const PLACE_TOOLS=["Army","Hamlet","Village","Town","City","Metropolis","Outlaw Country","Wild Outlaw","Bandit Camp","Erase"];
 let PLACE_OPEN=false;
 function mapBarHTML(){const P=mapAsP(),ic=t=>t==="Army"?sprSVG("army:Levy",18,false,P.color):SETT_TIERS_MAP.includes(t)?sprSVG("map:"+t,18,false,P.color):t==="Bandit Camp"?sprSVG("map:camp",18,false):
-    t==="Outlaw Country"?'<span class="olh"></span>':'✕';
+    t==="Outlaw Country"||t==="Wild Outlaw"?'<span class="olh"></span>':'✕';
   const pl=PLACE_OPEN||mtool!=="Select";
   return '<div class="mapbar"><button data-mt="Select" data-nav="1" class="'+(mtool==="Select"?"on":"")+'" title="click a piece to inspect it; click your Army, then a lit hex, to move">Select</button>'+
     '<button data-mplace="1" data-nav="1" class="'+(pl?"on":"")+'" title="place / erase map pieces (setup)">Place '+(pl?'▾':'▸')+'</button>'+
@@ -5846,7 +5933,8 @@ function inspSett(k){const {p,s}=cellSett(k),cell=mapState().cells[k];if(!p)retu
   if(!s)return inspHead(sprSVG("map:"+cell.type,36,false,p.color),cell.type,esc(p.name)+" · unlinked (link it under Map ↔ board)",p);
   const e=settEcon(p,s),wt=winterTax(p.board),wu=withBoard(p.board,()=>wardUse(s.id)),g=garrisonOf(p,s.id),ins=(p.board.armies||[]).filter(x=>String(x.sid)===String(s.id));
   let h=inspHead(sprSVG("map:"+s.tier,36,false,p.color),(s.capital?"★ ":"")+(s.name||s.tier),'<span style="color:'+p.color+'">●</span> '+esc(p.name)+' · '+esc(s.tier)+' · wards '+wu.used+'/'+wu.cap+' · Reach '+settReach(p,s),p);
-  if(inspCan(p.id))h+='<div class="ir"><span class="k">Name</span><input data-insp-name="'+p.id+':'+s.id+'" data-nav="1" value="'+esc(s.name||"")+'" placeholder="'+esc(s.tier)+'" style="flex:1;min-width:0"></div>';
+  if(inspCan(p.id))h+='<div class="ir"><span class="k">Name</span><input data-insp-name="'+p.id+':'+s.id+'" data-nav="1" value="'+esc(s.name||"")+'" placeholder="'+esc(s.tier)+'" style="flex:1;min-width:0">'+
+    (PN?'<button data-insp-rename="'+p.id+':'+s.id+'" data-nav="1" title="new name ('+esc(nameCulture(p.board)||"")+')">🎲</button>':'')+'</div>';
   h+='<div class="ig">'+inspCell("GOLD",g$(e.gold),e.gold<0?"neg":"pos")+inspCell(esc(e.sea.toUpperCase()),g$(e.seas))+inspCell("HLDG UPKEEP",g$(-e.hUp),"neg")+inspCell("NET",g$(e.net),e.net<0?"neg":"pos")+
     inspCell("TAX",e.tax.toLocaleString())+inspCell("CRAFT",e.craft)+inspCell("ARMY UPK −",Math.abs(e.upRed||0).toLocaleString(),e.upRed?"pos":"")+inspCell(esc(SCORE.toUpperCase()),g$(e.infl))+'</div>';
   h+='<div class="ir"><span class="k">Faith / Doubt</span><b>'+e.faith+' / '+e.doubt+'</b><span class="k">· Holdings</span><b>'+e.occ+'</b></div>';
@@ -5893,6 +5981,8 @@ function wireInsp(host){const P=host.querySelector("#inspPanel");if(!P)return;
       if(mods().battle){D.view="battle";flash("Siege calculator filled: "+t.label);}else flash("Siege calculator is in the Battle tab (modules ▸ Battle tab)");save();render();return;}
     bqStart({kind:"battle",A:{pid:String(p.id),aid:String(a.id)},B:t.B,seize:t.seize,src:t.src});});
   P.querySelectorAll("[data-insp-sf]").forEach(b=>b.onclick=()=>{const o=JSON.parse(b.dataset.inspSf);bqStart(o);});
+  P.querySelectorAll("[data-insp-rename]").forEach(b=>b.onclick=()=>{const [pid,sid]=b.dataset.inspRename.split(":"),q=pById(pid),st=q&&settById(q,sid);if(!st)return;
+    const nm=genPlaceName(nameCulture(q.board));if(nm){st.name=nm;save();render();}});
   P.querySelectorAll("[data-insp-name]").forEach(inp=>inp.onchange=()=>{const [pid,sid]=inp.dataset.inspName.split(":"),q=pById(pid),st=q&&settById(q,sid);
     if(!st||!inspCan(pid))return;const v=inp.value.trim();if(v)st.name=v;else delete st.name;save();render();});
   P.querySelectorAll("[data-insp-sel]").forEach(b=>b.onclick=()=>{const [pid,aid]=b.dataset.inspSel.split(":");SEL={pid,aid};render();});
@@ -5935,7 +6025,7 @@ function mapSVG(M){
         const a=v(e),b=v(e+1);coast+='M'+a[0].toFixed(1)+' '+a[1].toFixed(1)+'L'+b[0].toFixed(1)+' '+b[1].toFixed(1);});}
     s+='<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="'+fill+'" stroke="#00000030" stroke-width="1" style="cursor:pointer"><title>'+k+(h?" · "+(RULE_NAME[h.t]||h.t)+(h.hill?" (Hill)":"")+(h.res?" · "+h.res:"")+(h.reg!=null?" · region "+h.reg:""):"")+(M.cells[k]?" · "+esc(cellTitle(k)):"")+'</title></polygon>';
     if(pix&&h)s+='<polygon points="'+pts(cx,cy)+'" fill="url(#pxd)" pointer-events="none"/>';
-    if(M.outlaw[k])over+='<polygon points="'+pts(cx,cy)+'" fill="url(#olh)" stroke="#7a1414" stroke-width="1.5" pointer-events="none"/>';
+    if(M.outlaw[k])over+='<polygon points="'+pts(cx,cy)+'" fill="url(#olh)" stroke="'+(isWild(k)?"#3d1f5c":"#7a1414")+'" stroke-width="1.5"'+(isWild(k)?' stroke-dasharray="5 3"':'')+' pointer-events="none"/>';
     if(h&&h.res&&M.showRes!==false){const bx=cx+26*sc,by=cy-24*sc;   // badge top-right, as renown-maps / print
       over+='<circle cx="'+bx.toFixed(1)+'" cy="'+by.toFixed(1)+'" r="'+(17*sc).toFixed(2)+'" fill="#e9ddc2" stroke="#2b241b" stroke-width="0.6" pointer-events="none"/>'+
         '<circle cx="'+bx.toFixed(1)+'" cy="'+by.toFixed(1)+'" r="'+(10*sc).toFixed(2)+'" fill="'+RCOL[h.res]+'" stroke="#0006" stroke-width="0.5" pointer-events="none"/>';}
@@ -6055,17 +6145,49 @@ function cellArmy(k){const cell=mapState().cells[k];if(!cell||cell.type!=="Army"
   return {p,a:as.length===1?as[0]:null};}
 function cellTitle(k){const cell=mapState().cells[k];if(!cell)return "";const p=cellPlayer(cell);
   const nm=cell.type==="Army"?(cellArmy(k).a?armyName(cellArmy(k).a):"Army — unlinked"):(cellSett(k).s?(cellSett(k).s.name||cellSett(k).s.tier):cell.type+" — unlinked");
-  const av=cell.type==="Army"?cellArmyVals(k):null;
-  return (p?p.name+" ":"")+nm+(av?" · "+armyStatLine(av.v)+" · "+armyGear(av.a).join(", "):"")+(cell.blocked?" · Blocked":"");}
+  const ca=cell.type==="Army"?cellArmy(k):null,ast=ca&&ca.a?[...new Set(armyStatus(ca.p,ca.a,k).map(o=>o.txt))]:[];
+  return (p?p.name+" ":"")+nm+(ca&&ca.a?" · "+armyGear(ca.a).join(", "):"")+(ast.length?" · "+ast.join(" · "):"")+(cell.blocked?" · Blocked":"");}
 function byDist(k,list,randomTies){const a=hk(k);return list.map((x,i)=>({x,d:hexDist(a,hk(x.k)),r:randomTies?Math.random():i})).sort((u,v)=>u.d-v.d||u.r-v.r).map(o=>o.x);}
-function outlawOwner(k){const L=byDist(k,mapSetts(),false);return L.length?cellPlayer(L[0].cell):null;}   // Outlaw Country belongs to the closest settlement's owner
-function outlawOf(p){const M=mapState();return Object.keys(M.outlaw).filter(k=>M.outlaw[k]&&sameP(outlawOwner(k),p));}
+// Outlaw Country: M.outlaw[k] = true (a player's zone: belongs to the closest settlement's owner) or "w<n>" (Wild zone n: no owner)
+function isWild(k){return typeof mapState().outlaw[k]==="string";}
+function wildZones(){const M=mapState(),z={};Object.keys(M.outlaw).forEach(k=>{const v=M.outlaw[k];if(typeof v==="string")(z[v]=z[v]||[]).push(k);});return z;}
+function outlawOwner(k){if(isWild(k))return null;const L=byDist(k,mapSetts(),false);return L.length?cellPlayer(L[0].cell):null;}
+// a player's Outlaw Country: their own zone + Wild Territories within their Reach
+function outlawOf(p){const M=mapState(),pid=String(p.id),ks=Object.keys(M.outlaw).filter(k=>M.outlaw[k]);let own=null;
+  return ks.filter(k=>{if(!isWild(k))return sameP(outlawOwner(k),p);own=own||terrOwners();return !!(own[k]&&own[k].has(pid));});}
+// a camp is Wild while it sits on a Wild Territory or was spawned in one (Bandit Armies keep the tag when they move)
+function campWild(k){const M=mapState(),cp=M.camps[k];return (cp&&cp.wild)||(isWild(k)?M.outlaw[k]:null);}
+function wildCount(){const W=BAN.wild||{};return Math.ceil((D.players||[]).length/(+W.per_players||2))+(+(W.plus??1));}
+// Setup: seed the missing Wild zones in the unclaimed interior — each seed as far as possible from every piece and
+// Outlaw Country (centre breaks ties), grown to OUTLAW_COUNTRY_START connected Territories, range OUTLAW_BUFFER_RANGE+ clear
+function placeWildOutlaw(){const M=mapState();if(!M.grid)return 0;const V=decodeGrid(M.grid),size=+BAN.outlawStart||3,buf=+BAN.outlawBuffer||2;
+  let n=wildCount()-Object.keys(wildZones()).length;if(n<=0)return 0;
+  const cen=[(M.grid.width||0)/2,(M.grid.height||0)/2],land=k=>{const h=V.hex[k];return !!h&&h.t!=="water"&&!terrBlocked(h.t)&&hexFree(k)&&!M.outlaw[k];};
+  const dmin=(k,skipZ)=>{const a=hk(k);let d=1e9;Object.keys(M.cells).forEach(x=>{d=Math.min(d,hexDist(a,hk(x)));});
+    Object.keys(M.outlaw).forEach(x=>{if(skipZ&&M.outlaw[x]===skipZ)return;d=Math.min(d,hexDist(a,hk(x)));});return d;};
+  const score=(k,skipZ)=>dmin(k,skipZ)*1000-Math.hypot(hk(k)[0]-cen[0],hk(k)[1]-cen[1]);
+  let made=0;
+  while(n-->0){let id=1;while(Object.values(M.outlaw).includes("w"+id))id++;const z="w"+id;
+    // seeds stay off the capital band (beyond CAPITAL_EDGE_RANGE of the board edge) when the interior has room
+    const W_=+M.grid.width||0,H_=+M.grid.height||0,er=+RC.CAPITAL_EDGE_RANGE||0,inner=k=>{const [c,r]=hk(k);return Math.min(c,r,W_-1-c,H_-1-r)>er;};
+    let seeds=Object.keys(V.hex).filter(k=>land(k)&&dmin(k)>=buf);if(seeds.some(inner))seeds=seeds.filter(inner);
+    seeds.sort((a,b)=>score(b)-score(a));if(!seeds.length)break;
+    M.outlaw[seeds[0]]=z;let got=1;
+    while(got<size){const cand=new Set();Object.keys(M.outlaw).filter(k=>M.outlaw[k]===z).forEach(k=>hexNb(k).forEach(q=>{if(land(q)&&dmin(q,z)>=buf)cand.add(q);}));
+      const L=[...cand].sort((a,b)=>score(b,z)-score(a,z));if(!L.length)break;M.outlaw[L[0]]=z;got++;}
+    bLog("Wild Outlaw Country "+z+" seeded @ "+Object.keys(M.outlaw).filter(k=>M.outlaw[k]===z).join(" "));made++;}
+  return made;}
+// a piece's Aura (Settlement tier / Army Retinue), the range at which a Bandit Camp can target it
+function pieceAura(k){const c=mapState().cells[k];if(!c)return 0;if(c.type==="Army"){const a=cellArmy(k).a;return +(((EQ.retinues||{})[(a||{}).retinue]||{}).aura)||0;}
+  return +(((DATA.settlements||{})[c.type]||{}).aura)||0;}
+function campInRange(ck,tk){const r=BAN.campReach!=null?+BAN.campReach:pieceAura(tk);return hexDist(hk(ck),hk(tk))<=r;}
 function hexFree(k){const M=mapState();return !M.camps[k]&&!M.cells[k];}
 function spawnCamp(p,n,why){const M=mapState(),free=outlawOf(p).filter(hexFree);if(!free.length)return null;
-  const k=free[Math.floor(Math.random()*free.length)];M.camps[k]={n,gold:+BAN.campGold||0};armBandits(M.camps[k]);bLog("camp of "+n+" spawns @ "+k+" ("+why+")",k);return k;}
+  const k=free[Math.floor(Math.random()*free.length)];M.camps[k]={n,gold:+BAN.campGold||0};if(isWild(k))M.camps[k].wild=M.outlaw[k];armBandits(M.camps[k]);bLog("camp of "+n+" spawns @ "+k+" ("+why+")",k);return k;}
 function growCamps(keys,why){const M=mapState(),gr=(BAN.growth||{})[currentEra()]||0,cap=BAN.armyThreshold||25;
   keys.forEach(k=>{const cp=M.camps[k];if(!cp)return;const n0=cp.n;cp.n=Math.min(cap,cp.n+gr);
-    if(n0<cap&&cp.n>=cap)bLog("camp @ "+k+" reaches "+cap+" → Bandit Army",k);});if(keys.length)bLog("grow +"+gr+" ×"+keys.length+(why?" ("+why+")":""));}
+    if(n0<cap&&cp.n>=cap){bLog("camp @ "+k+" reaches "+cap+" → Bandit Army",k);const ns=byDist(k,mapSetts(),false)[0],q=ns&&cellSett(ns.k);
+      chron("bandit_army",{near:q&&q.s?(q.s.name||q.s.tier)+(q.p?" ("+q.p.name+")":""):k});}});if(keys.length)bLog("grow +"+gr+" ×"+keys.length+(why?" ("+why+")":""));}
 function expandOutlaw(p){const M=mapState(),V=decodeGrid(M.grid),own=outlawOf(p),cand=new Set();
   own.forEach(k=>{const a=hk(k);Object.keys(V.hex).forEach(q=>{if(!M.outlaw[q]&&hexFree(q)&&V.hex[q].t!=="water"&&hexDist(a,hk(q))===1)cand.add(q);});});
   const L=[...cand];if(!L.length)return null;const k=L[Math.floor(Math.random()*L.length)];M.outlaw[k]=true;bLog(p.name+"'s Outlaw Country expands to "+k);return k;}
@@ -6076,15 +6198,20 @@ function cunningAction(roll){const t=(BAN.cunningTable||[]).find(r=>roll>=r[0]&&
 function endorsedExtort(action){const m=String(((DATA.actions||{})[action]||{}).endorsed||"").match(/Extort\s*(\d+)/i);return m?+m[1]:0;}
 function banditAct(k){const M=mapState(),cp=M.camps[k],B=BST(),F=BAN.faces||10,roll=1+Math.floor(Math.random()*F),act=cunningAction(roll);
   cp.roll=roll;if(!act){bLog("camp @ "+k+" rolls "+roll+" → no action",k);return;}
-  const L=byDist(k,mapSetts(),true);let tgt=null;
+  // targets: only pieces with the camp in range (their Aura, or BANDIT_CAMP_REACH); Smuggler's Nook-style carve-out:
+  // camps in that player's Outlaw Country skip them and pick another player at random, at any range
+  const own=outlawOwner(k),nook=own&&srcHas(own.board,/Bandit Camps in your Outlaw Country don.t target you and instead target other players randomly/i),
+    okT=t=>{const p=cellPlayer(mapState().cells[t]);return !!p&&(nook?!sameP(p,own):campInRange(k,t));};
+  let L=byDist(k,mapSetts(),true).filter(x=>okT(x.k));if(nook)L=L.map(x=>({x,r:Math.random()})).sort((a,b)=>a.r-b.r).map(o=>o.x);
+  let tgt=null;
   if(act==="Raze")tgt=L.map(x=>Object.assign({k:x.k},cellSett(x.k))).find(t=>t.s&&t.p.board.placed.some(q=>q.sid===t.s.id&&!(q.bt>0)&&!(q.dmg>0)));
   else if(act==="Destabilize")tgt=L.map(x=>Object.assign({k:x.k},cellSett(x.k))).find(t=>t.s&&!B.dest[t.p.id+":"+t.s.id]);
   else if(act==="Intercept Caravan")tgt=L.map(x=>Object.assign({k:x.k},cellSett(x.k))).find(t=>t.p&&!B.ic[t.p.id]);
   else if(act==="Sabotage"){const M_=mapState(),arm=Object.keys(M_.cells).filter(q=>M_.cells[q].type==="Army"&&cellPlayer(M_.cells[q])&&!M_.cells[q].blocked).map(q=>({k:q,cell:M_.cells[q]}));
-    const A=byDist(k,arm,true)[0];tgt=A?{k:A.k,p:cellPlayer(A.cell),s:null,army:true,a:cellArmy(A.k).a}:null;}   // closest Army on the map
+    const AL=byDist(k,arm,true).filter(x=>okT(x.k)),A=nook?AL[Math.floor(Math.random()*AL.length)]:AL[0];tgt=A?{k:A.k,p:cellPlayer(A.cell),s:null,army:true,a:cellArmy(A.k).a}:null;}   // closest Army in range
   else tgt=L.length?Object.assign({k:L[0].k},cellSett(L[0].k)):null;
-  if(!tgt||!tgt.p){bLog("camp @ "+k+" rolls "+roll+" → "+act+": no valid target",k);return;}
-  const rk=[];D.players.forEach(q=>srcMatch(q.board,/Both Bandit Camps & you have Influence \+(\d+) on Cunning Envoys/i).forEach(x=>{rk.push({v:+x.m[1],src:x.n+" ("+q.name+")"});}));
+  if(!tgt||!tgt.p){bLog("camp @ "+k+" rolls "+roll+" → "+act+": no valid target in range"+(campWild(k)?" (Wild)":""),k);return;}
+  const rk=[];D.players.forEach(q=>srcMatch(q.board,/Both Bandit Camps & you have (?:Authority|Influence) \+(\d+) on Cunning Envoys/i).forEach(x=>{rk.push({v:+x.m[1],src:x.n+" ("+q.name+")"});}));
   const base=STAND_INF[domBand(banditDomain(cp.n))]||1,tm=banditTargetMods(tgt.p,act);tm.v+=rk.reduce((a,x)=>a+x.v,0);rk.forEach(x=>tm.src.push(x.src+" "+sgn(x.v)));
   const net=base+(+cp.cmod||0)+tm.v,oc=envoyOutcome(net);
   const head="camp @ "+k+" rolls "+roll+" → "+act+" vs "+tgt.p.name+(tgt.s?" ("+(tgt.s.name||tgt.s.tier)+")":tgt.army?" ("+(tgt.a?(tgt.a.label||"Army "+tgt.a.id):"Army")+" @ "+tgt.k+")":"")+" · Influence "+base+((+cp.cmod)?" "+sgn(+cp.cmod):"")+(tm.src.length?" "+tm.src.join(" "):"")+" = "+net+" → "+oc;
@@ -6099,16 +6226,21 @@ function banditAct(k){const M=mapState(),cp=M.camps[k],B=BST(),F=BAN.faces||10,r
   if(oc==="Endorsed"){const x=endorsedExtort(act),b=tgt.p.board,t=Math.min(x,Math.max(0,b.treasury||0));b.treasury=(b.treasury||0)-t;cp.gold=(cp.gold||0)+t;fx+=" · Endorsed: Extort "+t;}
   bLog(head+": "+fx,k);}
 function runBanditMechanics(){const M=mapState(),B=BST(),sea=curSeason(),keys=Object.keys(M.camps),queued=B.foster.slice();
-  if(sea==="Spring"){growCamps(keys,"Spring");
+  const W=BAN.wild||{};
+  if(sea==="Spring"){growCamps(keys.filter(k=>W.spring_growth!==false||!campWild(k)),"Spring");
     D.players.forEach(p=>{if(!spawnCamp(p,BAN.campStart||5,"Spring")){const mine=Object.keys(M.camps).filter(k=>outlawOf(p).includes(k));bLog(p.name+"'s Outlaw Country is full");growCamps(mine,"no room to spawn");}});
+    if(W.spring_spawn!==false)Object.entries(wildZones()).forEach(([z,hx])=>{const free=hx.filter(hexFree);
+      if(free.length){const k=free[Math.floor(Math.random()*free.length)];M.camps[k]={n:BAN.campStart||5,gold:+BAN.campGold||0,wild:z};armBandits(M.camps[k]);bLog("Wild camp of "+M.camps[k].n+" spawns @ "+k+" ("+z+", Spring)",k);}
+      else{bLog("Wild Outlaw Country "+z+" is full");growCamps(hx.filter(k=>M.camps[k]),"no room to spawn");}});
     return;}
   growCamps(keys,"");
   keys.forEach(k=>{const cp=M.camps[k];if(cp&&cp.n>=(BAN.cunningMin||10))banditAct(k);});
   B.foster=B.foster.filter(x=>!queued.includes(x));
   queued.forEach(x=>{const p=D.players.find(q=>String(q.id)===x.pid);if(!p)return;
     const fn=+x.n||10;if(!spawnCamp(p,fn,"Foster Rebellion")){if(expandOutlaw(p))spawnCamp(p,fn,"Foster Rebellion");else bLog("Foster Rebellion: no room for "+p.name);}});
-  D.players.forEach(p=>{if((p.board.po||0)<=PO_MIN&&!immuneUprising(p)&&!spawnCamp(p,BAN.campStart||5,"Uprising")){
-    bLog(p.name+"'s Outlaw Country is full (Uprising)");growCamps(Object.keys(M.camps).filter(k=>outlawOf(p).includes(k)),"Uprising, no room");}});
+  D.players.forEach(p=>{if((p.board.po||0)>PO_MIN||immuneUprising(p)||poImmune(p.board))return;const n=Math.max(1,poNum(PO_MIN))*(poDoubled()[(POB(PO_MIN)||[])[0]]?2:1);
+    for(let i=0;i<n;i++){if(!spawnCamp(p,BAN.campStart||5,"Uprising "+(i+1)+"/"+n)){
+      bLog(p.name+"'s Outlaw Country is full (Uprising)");growCamps(Object.keys(M.camps).filter(k=>outlawOf(p).includes(k)),"Uprising, no room");break;}}});
   banditMoves();}
 // ---- Bandit Army Move (BANDIT_BEHAVIOR "Army Behavior"), after the mechanics: Skirmish (a player Army in range) >
 // Lay Siege (a player Settlement in range) > March toward the closest Army or Settlement. Ties: random (the Host may redo it).
@@ -6153,6 +6285,7 @@ function banditMoves(){const M=mapState();if(!M.grid)return;const thr=BAN.armyTh
     if(sg){moveCamp(k0,sg.end);cp.uid=cp.uid||("b"+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36));const n=banditSiegeTimer(sg.p,sg.s);
       realmTimers().push({type:"Siege Timer",kind:"siege",tp:sg.p.id,sid:sg.s.id,by:null,aid:null,bandit:cp.uid,label:"Bandits → "+sg.p.name+" · "+(sg.s.name||sg.s.tier),n});
       bLog("Bandit Army "+(sg.end===k0?"@ "+k0:k0+" → "+sg.end)+": Lay Siege to "+sg.p.name+"'s "+(sg.s.name||sg.s.tier)+" · Siege Timer "+n+(sg.tie?" · tie broken at random":""),sg.end);return;}
+    if(campWild(k0)&&(BAN.wild||{}).march===false){bLog("Wild Bandit Army @ "+k0+": nothing in range — holds",k0);return;}
     const all=armies.concat(setts.map(t=>({k:t.k,p:t.p})));if(!all.length){bLog("Bandit Army @ "+k0+": no target",k0);return;}
     const d0=Math.min(...all.map(t=>hexDist(hk(k0),hk(t.k)))),tg=all.filter(t=>hexDist(hk(k0),hk(t.k))===d0),tgt=tg[Math.floor(Math.random()*tg.length)];
     let best=null;Object.keys(reach0).forEach(h=>{if(!free(h)||inAura(h,-1))return;const d=hexDist(hk(h),hk(tgt.k));
@@ -6273,6 +6406,7 @@ function mapEditBlock(k){if(!lockOn())return "";const M=mapState(),c=M.cells[k],
   const own=x=>!!x&&String(x.player)===String(me.id),who=x=>((x&&cellPlayer(x))||{}).name||"another player";
   if(mtool==="Bandit Camp")return canHost()?"":"Host only";
   if(mtool==="Outlaw Country")return firstHostOpen()?"":"Outlaw Country: setup only";
+  if(mtool==="Wild Outlaw")return !firstHostOpen()?"Outlaw Country: setup only":canHost()?"":"Host only";
   if(mtool==="Erase"){if(c&&!own(c))return "\ud83d\udd12 "+who(c)+"'s piece";
     if(M.camps[k]&&!canHost())return "Host only";if(M.outlaw[k]&&!firstHostOpen())return "Outlaw Country: setup only";return "";}
   if(c&&!own(c))return "\ud83d\udd12 "+who(c)+"'s piece";
@@ -6312,6 +6446,7 @@ function wireMap(host){const M=mapState(),g=M.grid,era=currentEra(),$=id=>host.q
     {const why=mapEditBlock(k);if(why){flash(why);render();return;}}
     if(mtool==="Erase"){delete M.cells[k];delete M.outlaw[k];delete M.camps[k];}
     else if(mtool==="Outlaw Country"){if(M.outlaw[k])delete M.outlaw[k];else M.outlaw[k]=true;}
+    else if(mtool==="Wild Outlaw"){if(M.outlaw[k])delete M.outlaw[k];else{const nz=hexNb(k).map(q=>M.outlaw[q]).find(v=>typeof v==="string");let id=1;while(Object.values(M.outlaw).includes("w"+id))id++;M.outlaw[k]=nz||("w"+id);}}
     else if(mtool==="Bandit Camp"){if(!M.camps[k])M.camps[k]={n:BAN.campStart||5,gold:+BAN.campGold||0};}
     else M.cells[k]={type:mtool,player:mapAsP().id};
     save();render();});
@@ -6544,7 +6679,7 @@ function runAutoExtort(){const out=[];
   return out;}
 
 // ---- First Doubt each turn: "First Doubt per turn reduced by N" / "Reduce the first instance of Doubt … by N" ----
-const FD_RE=/first\s+\**Doubt\**\s+per turn reduced by (\d+)|reduce the first instance of Doubt[^.;]*?by (\d+)/i;
+const FD_RE=/first\s+\**Doubt\**\s+(?:per|each) turn reduced by (\d+)|reduce the first instance of Doubt[^.;]*?by (\d+)/i;
 function firstDoubtRed(b){return withBoard(b,()=>{let r=0;const src=[];
   Object.keys(PC).forEach(n=>{const m=((R[n]||{}).innate_raw||"").match(FD_RE);if(m){r+=+(m[1]||m[2])*PC[n];src.push(n);}});
   return {r,src};});}
@@ -6568,10 +6703,11 @@ function captureTransfer(t){const from=pById(t.tp),to=pById(t.by);if(!from||!to)
   moved.forEach(q=>{q.id=pid0++;q.sid=nid;tb.placed.push(q);});
   const M=mapState();Object.keys(M.cells).forEach(k=>{const c=M.cells[k];if(c.type!=="Army"&&String(c.player)===String(from.id)&&String(c.sid)===String(old)){c.player=to.id;c.sid=nid;}});
   if(D.players.indexOf(from)===D.active||D.players.indexOf(to)===D.active)reindex();
+  chron("capture",{player:to.name,other:from.name,settlement:s.name||s.tier});
   return to.name+" captures "+(s.name||s.tier)+" from "+from.name+" ("+moved.length+" Holding"+(moved.length===1?"":"s")+")";}
 function sackApply(i,removeIds){const T=realmTimers(),t=T[i];if(!t)return;const from=pById(t.tp),to=pById(t.by);if(!from||!to)return;
   const fb=from.board,s=(fb.settlements||[]).find(x=>String(x.id)===String(t.sid));if(!s)return;
-  const tierN=+((DATA.settlements||{})[s.tier]||{}).tier||0,rm=new Set(removeIds.map(String)),log=[];
+  const tierN=+((DATA.settlements||{})[s.tier]||{}).tier||0,rm=new Set(removeIds.map(String)),log=[];chron("sack",{player:to.name,other:from.name,settlement:s.name||s.tier});
   fb.placed=(fb.placed||[]).filter(q=>!(q.sid===s.id&&rm.has(String(q.id))));                         // the chosen Ward's Holdings leave play
   (fb.placed||[]).filter(q=>q.sid===s.id&&!q.fac).forEach(q=>{q.dmg=REPAIR_T;});                         // raze the rest (Damaged)
   const ti=TIER_CHAIN.indexOf(s.tier);if(ti>0){log.push(s.tier+" → "+TIER_CHAIN[ti-1]);s.tier=TIER_CHAIN[ti-1];}else log.push(s.tier+" stays "+s.tier);
@@ -6622,7 +6758,7 @@ function charterFlags(p){const M=mapState(),g=M.grid,f=[];if(!g)return f;const V
     if(RC.CAPITAL_EDGE_RANGE!=null&&W&&H){let ed=1e9;
       for(let c=0;c<W;c++)for(let r=0;r<H;r++){if(c>0&&r>0&&c<W-1&&r<H-1)continue;ed=Math.min(ed,hexDist(ca,[c,r]));}
       if(ed>+RC.CAPITAL_EDGE_RANGE)f.push("Setup: capital @ "+capK+" is range "+ed+" from the board edge (max "+RC.CAPITAL_EDGE_RANGE+")");}
-    const oc=outlawOf(p);
+    const oc=outlawOf(p).filter(o=>!isWild(o));
     if(oc.length&&RC.OUTLAW_BUFFER_RANGE!=null){
       if(!oc.some(o=>hexDist(hk(o),ca)===ob))f.push("Setup: no Outlaw Country is exactly range "+ob+" from the capital @ "+capK);
       mine.filter(x=>x.cell.type==="Hamlet").forEach(x=>oc.forEach(o=>{const d=hexDist(hk(o),hk(x.k));
@@ -6661,7 +6797,7 @@ function provinceOf(p){const M=mapState(),g=M.grid;if(!g)return new Set();const 
 function moveTraits(p){return withBoard(p.board,()=>{const txt=[];
   Object.keys(PC).forEach(n=>txt.push((R[n]||{}).innate_raw||""));Object.keys(S.infra||{}).filter(infraOn).forEach(n=>txt.push((INFRA[n]||{}).effect_raw||""));
   const all=txt.join(" ; "),fac=(FAC[S.faction||""]||{}).mechanic||"";
-  return {shipyard:/Water Territory treated as Grassland/i.test(all),bridges:/cross Water Territory at full movement within Province/i.test(all),
+  return {shipyard:/Water Territory treated as Grassland/i.test(all),bridges:/cross Water Territory at full movement within (?:your )?Province/i.test(all),
     ignoreTerrain:/ignore all (?:negative )?terrain Speed modifiers/i.test(fac),fac};});}
 function speedOf(p,a,startK){const parts=[],notes=[],b=p.board,sea=curSeason(),base=+((EQ.retinues[a.retinue]||{}).speed)||0;
   parts.push([a.retinue+" Speed",base]);
@@ -6671,7 +6807,7 @@ function speedOf(p,a,startK){const parts=[],notes=[],b=p.board,sea=curSeason(),b
     if(imm)notes.push(sea+" "+v+" ignored ("+(b.faction||"faction")+")");else parts.push([sea,v]);}
   withBoard(b,()=>{
     const scan=(text,src)=>spClauses(text).forEach(c=>{const v=spVal(c);
-      if(/start a Move action within Province/i.test(c)){if(inProv)parts.push([src,v]);else notes.push(src+" "+(v>0?"+":"")+v+" (only starting in your Province)");return;}
+      if(/start a Move action within (?:your )?Province/i.test(c)){if(inProv)parts.push([src,v]);else notes.push(src+" "+(v>0?"+":"")+v+" (only starting in your Province)");return;}
       if(/your Province|non-allied|Enemy/i.test(c))return;                                                    // affects other players' Armies
       const ms=/in (Spring|Summer|Fall|Winter)/i.exec(c);if(ms){if(ms[1]===sea)parts.push([src,v]);else notes.push(src+" "+(v>0?"+":"")+v+" in "+ms[1]);return;}
       if(/\b(while|if|when)\b/i.test(c)){notes.push(src+": "+c.trim()+" (not applied)");return;}
@@ -6687,6 +6823,10 @@ function speedOf(p,a,startK){const parts=[],notes=[],b=p.board,sea=curSeason(),b
       withBoard(o.board,()=>{const scanO=(text,src)=>spClauses(text).forEach(c=>{if(!/your Province/i.test(c))return;
           if(/Enemy/i.test(c)&&!war)return;if(/non-allied/i.test(c)&&ally)return;parts.push([o.name+": "+src,spVal(c)]);});
         Object.keys(PC).forEach(n=>scanO((R[n]||{}).innate_raw||"",n));if(S.faction)scanO((FAC[S.faction]||{}).mechanic||"",S.faction);});});}
+  // Public Order "Speed ±N" bands (cumulative, Era-scaled; Charnel House-style doubling applies)
+  {const dbl=poDoubled(),po=Math.max(PO_MIN,Math.min(PO_MAX,b.po||0));poActiveKeys(po,b).forEach(k=>{const e=POB(k);if(!Array.isArray(e))return;
+    const m=String(e[1]).match(/^Speed\s*([+\-\u2212]\s?\d+)$/i);if(!m)return;const v=parseInt(m[1].replace(/\s/g,"").replace("\u2212","-"),10)*(dbl[e[0]]?2:1);
+    parts.push(["Public Order: "+e[0]+(dbl[e[0]]?" ×2":""),v]);});}
   if(MOVEADJ)parts.push(["adjust",MOVEADJ]);
   let sp=Math.max(0,parts.reduce((s,x)=>s+x[1],0));
   if(MOVEMARCH){sp*=(+RC.MARCH_MULTIPLIER||2);notes.unshift("March ×"+(+RC.MARCH_MULTIPLIER||2)+" — lose 1 Endurance, no other action");}
@@ -7114,17 +7254,20 @@ function renderSetup(){const el=document.getElementById("setupPanel");if(!el)ret
   const ok=v=>v?'<b class="su-ok">\u2713</b>':'<b class="su-no">\u00b7</b>',dot=p=>'<span class="pdot" style="background:'+p.color+'"></span>';
   const rise=a&&!a.rising?P.map(p=>({p,d:p.board.ageRising||""})):null;
   const dep=P.map(p=>{const st=mapSetts().filter(x=>String(x.cell.player)===String(p.id));
-    return {p,town:st.some(x=>x.cell.type==="Town"),ham:st.some(x=>x.cell.type==="Hamlet"),oc:outlawOf(p).length,fl:charterFlags(p).length};});
+    return {p,town:st.some(x=>x.cell.type==="Town"),ham:st.some(x=>x.cell.type==="Hamlet"),oc:outlawOf(p).filter(o=>!isWild(o)).length,fl:charterFlags(p).length};});
   const rows=[
     ["Select Map",!!g,g?esc(g.preset)+' · seed '+g.seed+' · '+g.width+'\u00d7'+g.height:'<a href="#" data-goto="table#tMapTools">map setup \u25b8</a>'],
     ["Select Age",!!a&&(!rise||rise.every(x=>x.d)),a?esc(a.name)+' · Year '+curYear()+(rise?'<br>'+rise.map(x=>dot(x.p)+esc(x.p.name)+' '+esc(x.d||"\u2014")).join(' · '):''):'turn strip'],
     ["Select Faction",P.every(p=>p.board.faction),P.map(p=>dot(p)+esc(p.name)+' '+esc(p.board.faction||"\u2014")).join(' · ')],
     ["Determine Host",!!TB().hostSet,hp?dot(hp)+esc(hp.name)+(TB().hostSet?'':' (default)'):'\u2014'],
-    ["Deploy",dep.every(x=>x.town&&x.ham&&x.oc>=need&&!x.fl),dep.map(x=>dot(x.p)+esc(x.p.name)+' Town '+ok(x.town)+' Hamlet '+ok(x.ham)+' Outlaw '+x.oc+'/'+need+(x.fl?' <span class="su-fl">\u2691'+x.fl+'</span>':'')).join('<br>')]];
+    ["Deploy",dep.every(x=>x.town&&x.ham&&x.oc>=need&&!x.fl),dep.map(x=>dot(x.p)+esc(x.p.name)+' Town '+ok(x.town)+' Hamlet '+ok(x.ham)+' Outlaw '+x.oc+'/'+need+(x.fl?' <span class="su-fl">\u2691'+x.fl+'</span>':'')).join('<br>')],
+    ["Wild Outlaw Country",Object.keys(wildZones()).length>=wildCount(),Object.keys(wildZones()).length+'/'+wildCount()+' zones'+(canHost()&&g&&Object.keys(wildZones()).length<wildCount()?' <button data-setup-wild="1">place \u25b8</button>':'')]];
   el.innerHTML='<details open><summary><b>Setup</b> <span class="note">'+rows.filter(r=>r[1]).length+'/'+rows.length+'</span></summary><div class="su-grid">'+
     rows.map((r,i)=>'<span class="su-n">'+(i+1)+'</span><span class="su-t">'+r[0]+'</span>'+ok(r[1])+'<span class="su-d">'+r[2]+'</span>').join('')+
     '</div><div style="margin-top:6px"><button data-setup-begin="1"'+(canHost()?'':' disabled')+'>Begin Turn 1 \u2014 '+esc(T_PHL[tPhase()])+'</button></div></details>';}
-document.addEventListener("click",e=>{const b=e.target.closest("[data-setup-begin]");if(!b)return;if(!canHost()){flash("Host only");return;}tSetPhase(tPhase());});
+document.addEventListener("click",e=>{const w=e.target.closest("[data-setup-wild]");if(w){if(!canHost()){flash("Host only");return;}const n=placeWildOutlaw();flash(n?n+" Wild Outlaw Country zone"+(n>1?"s":"")+" placed":"no room for Wild Outlaw Country");save();render();return;}
+  const b=e.target.closest("[data-setup-begin]");if(!b)return;if(!canHost()){flash("Host only");return;}if(Object.keys(wildZones()).length<wildCount()){placeWildOutlaw();save();}
+  D.players.forEach(p=>(p.board.settlements||[]).forEach(s=>nameSett(p,s)));save();tSetPhase(tPhase());});
 function renderTurnStrip(){const el=document.getElementById("turnStrip");if(!el)return;
   const ph=tPhase(),hp=hostP(),hc=canHost(),i=T_PH.indexOf(ph),nx=T_PH[(i+1)%T_PH.length];
   const me=meP(),unseated=me&&!seated().some(p=>sameP(p,me)),steps=(DATA.phaseSteps||{})[ph]||[];
@@ -7295,7 +7438,7 @@ function newGameState(){const o=gameData();
     b.tbl={seat:tb.seat,seatTs:tb.seatTs,mods:tb.mods||{}};b.domains=startDomsFor({board:b});
     if(p.board&&p.board.claim)b.claim=clone(p.board.claim);                       // claims are identity, not game state
     return {id:p.id,name:p.name,color:p.color,board:b};});
-  o.renown=1;delete o.season;delete o.diplo;delete o.battle;delete o.yearsGone;delete o.started;delete o.bandit;
+  o.renown=1;delete o.season;delete o.diplo;delete o.battle;delete o.yearsGone;delete o.started;delete o.bandit;delete o.chron;delete o.chronSnap;
   const t=o.tbl||{};o.tbl={seats:t.seats,timer:t.timer,auto:t.auto,boardEnd:t.boardEnd,host:t.host,hostSet:t.hostSet,skip:{}};
   return o;}
 document.getElementById("gameSave").onclick=async()=>{const nm=(document.getElementById("gameName").value||"").trim()||("Turn "+tTurn()+" "+new Date().toLocaleDateString());
@@ -7810,7 +7953,8 @@ def main():
         records=records, naturalNames=natural, externalTokens=external, simple=bool(ns.get("SIMPLE")),
         chainTerm=ns.get("CHAIN_TERM", "Efficient"), pursuitTerm=list(ns.get("PURSUIT_TERM", ("Pursuit", "Pursuits"))),
         infra=infra, wonders=wonders, armySrc=army_src, equip=equip, glossary=glossary,
-        domainBoard=ns.get("DOMAIN_BOARD", {}), publicOrder=po, wikiBase=a.wiki_base, wikiHome=a.wiki_home,
+        domainBoard=ns.get("DOMAIN_BOARD", {}), publicOrder=po,
+        poByEra={e: {str(k): v for k, v in t.items()} for e, t in ns.get("PUBLIC_ORDER_BY_ERA", {}).items()}, wikiBase=a.wiki_base, wikiHome=a.wiki_home,
         tree=tree_payload(ns, os.path.dirname(os.path.abspath(__file__))),
         rulebook=rules_payload(ns, rules_path if os.path.exists(rules_path) else None),
         limits={"poMin": ns.get("PO_MIN", -5), "poMax": ns.get("PO_MAX", 10),
@@ -7846,6 +7990,7 @@ def main():
             "growth": ns.get("BANDIT_GROWTH_PER_ERA", {}), "equipment": ns.get("BANDIT_EQUIPMENT_PER_ERA", {}),
             "cunningMin": ns.get("BANDIT_CUNNING_MIN"), "faces": ns.get("BANDIT_FACES"),
             "outlawStart": ns.get("OUTLAW_COUNTRY_START"), "outlawBuffer": ns.get("OUTLAW_BUFFER_RANGE"),
+            "wild": ns.get("WILD_OUTLAW", {}), "campReach": ns.get("BANDIT_CAMP_REACH"),
             "cunningTable": [list(x) for x in ns["die_table_ranges"](ns["BANDIT_CUNNING_TABLE"])] if "die_table_ranges" in ns and "BANDIT_CUNNING_TABLE" in ns else [],
             "tacticTable": [list(x) for x in ns["die_table_ranges"](ns["BANDIT_TACTIC_TABLE"])] if "die_table_ranges" in ns and "BANDIT_TACTIC_TABLE" in ns else [],
             "outcomeThresh": ns.get("ENVOY_OUTCOME_THRESHOLDS", {}),
@@ -7864,6 +8009,9 @@ def main():
                       "feel": v.get("feel", ""), "mechanic": v.get("mechanic", ""), "pair": v.get("pair", ""), "complement": v.get("complement", ""),
                       "fx": envoy_fx(v.get("mechanic", "")), "body": ns["faction_body"](k) if "faction_body" in ns else v.get("mechanic", "")}
                   for k, v in ns.get("FACTIONS", {}).items()},
+        cultures={k: {"type": v.get("type", ""), "domains": list(v.get("domains", [])), "monuments": list(v.get("monuments", [])),
+                      "wonders": list(v.get("wonders", []))} for k, v in ns.get("CULTURES", {}).items()},
+        cultureSelf=ns.get("CULTURE_SELF_MADE", "Self-made"), placeNames=place_names_payload(a.data),
         warnings=b_warn, version=ns.get("VERSION", "?"), sprites=sprite_payload(ns, a.data),
     )
     with open(a.out, "w", encoding="utf-8") as fh:

@@ -131,6 +131,13 @@ def eras():
     return _table(["Era", "Renown", "Armies", "Cities", "Max Settlements", "Infl/Turn", "Diplo Authority", "Envoys", "Unlocks"], rows)
 
 def public_order():
+    # X = the band's value in each Era (PO_BANDS / ERAS po_scale_*); bands without a number show "—"
+    if hasattr(rd, "PO_BANDS"):
+        eras = list(rd.ERAS)
+        rows = [[str(k), name, t.replace("{n}", "X").replace("{s}", "(s)")] +
+                [str(rd.po_value(k, e)) if rd.po_value(k, e) is not None else "—" for e in eras]
+                for k, (name, t, _b) in sorted(rd.PO_BANDS.items())]
+        return _table(["PO", "State", "Effect"] + [f"X: {e}" for e in eras], rows)
     rows = [[str(k), name, eff] for k, (name, eff) in sorted(rd.PUBLIC_ORDER.items())]
     return _table(["PO", "State", "Effect"], rows)
 
@@ -138,7 +145,7 @@ def po_modifiers():
     rows = []
     for sign in ("faith", "doubt"):
         for src, cond in rd.PO_MODIFIERS.get(sign, {}).items():
-            rows.append([f"{sign.title()} 1", src, cond])
+            rows.append([f"{sign.title()} +1", src, cond])
     return _table(["Type", "Source", "Condition"], rows)
     
 def bandit_armaments():

@@ -1,0 +1,24 @@
+github/mlang95/Renown/CE/claude.md (this is claude_task_3.txt)
+Review all objectives, organize them in such a manner that you can do as many at the same time as possible in a single pass.
+Ask any clarifying questions.
+This is a response from the TASK2_NOTES.
+
+Questions.
+Before we get started, the objective with the outlaw countrys in the wild is that the outlaws behave the same as the non-wild outlaws. That is to say, the real only differences between them is that the initial outlaw country starts within an empire, while the other ones are in the wild.
+1. Yes, go ahead and try a placement methodology such that they're scattered about in the unclaimed regions post game start. They should be at least Range 5 from any player border and at least Range 5 from each other.
+2. they behave just as other bandits. 
+3. just as other bandits.
+4. Do it by whose Reach/Province they are in. If more than one player covers the reach of that outlaw country, it will follow the algorithm of targets including all eligible player's settlements and armies.
+5. Yes, once they are in reach they are in reach.
+6. Keep it for now.
+7. Hide it for now in both.
+8. sounds okay, but haven't checked
+9. Haven't checked yet, so bank it
+10. yes, convert those too. Ambiguous ones can go into step 11 (Resolve any remaining start of turn effects).
+11. yes, costs should be pulled from the sources not hardcoded.
+12. same thing, although it does start at 3.
+13. so I'm actually thinking of reworking some of these to step 1 (active -> start of turn?).
+Like Exalted Basilica & Cipher Chamber. Not sure if there's any others that would better fit alongside in there. But automatic/may perform actions can be done in there, i think.
+Friend's in Low Places / Mimic can go into a "Start of Empire Phase" that either becomes step 1 (Activate) or in front of Activate and ACtivate becomes Step 2. But a lot of Activate stuff is like a "perform X action" anyways.
+
+Also, implement ux overhaul. I'd like to see it.
