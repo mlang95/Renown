@@ -1,6 +1,7 @@
 github/mlang95/Renown/CE/claude.md + comprehensive rules outline, then treat this as a prompt response. (this is claude_task_4.txt)
 Review all objectives, organize them in such a manner that you can do as many at the same time as possible in a single pass.
-Ask any clarifying questions.
+Ask any clarifying questions, do not push to github, write into zip for me.
+Most of this will apply to gen_settlement_board.py and renown_data_d10.py
 
 Outlaw country doesn't need to be different from wild and not. The only difference from outlaws is how they're placed before the game. The idea is that there's outlaws all over, but, there's guaranteed to only be 1 outlaw country within your province. I do think there needs to be more curtailed outlaw country outside of province. i.e., maybe that's where the playercount / 2, rounded down +1 is the amount of "wild" outlaw country outside of province.
 (task 2's "dormant until settled" no longer holds for Armies; Wild camps still can't act until inside a Province). This still does hold true because it requires them being in province to not be dormant. They can still roam the map once they've grown enough on their own though, which is very slowly.
@@ -27,4 +28,12 @@ So for the side swiping HUD:
 -Renown, Eras, & Edicts can remove the renown modifier, it's above in the header. I'm also thinking the only information that needs to be tracked for the Eras that isn't already placed in the header is the City allowance and Unlocks. Those can maybe be displayed next to the seats? 
 -Players & Standing. The table approach for the playerss should replace the part that has the "hide others" in the header, and can be immediately above the map, between the seating, perhaps. But use the data of the "hide others" table, just take the format of the Players & Standings player table. I'm wondering if the seating is needed at all at this point, may need to reconsider that. the STandings board is kinda redundant, very redundant. domain information is nauseatingly everywhere. I think this can be combined with the reference standing efects, where there's a player sprite of that colour that can go on the domain effect when a player fills in that standing. We already have rest phase mechanics for adding renown, so after merging this with the reference standing effects, and taking the player table up above and combining the header hide others table down with it, you can drop the players & standing category. 
 Wild Outlaw zones don't need to be different from the Outlaw country on the map.
+
+For the holdings, make Root the only way to stratify the holdings. so remove arms->works toggles for now. Keep a monument toggle though.
+Make sure all the updated holdings in renown_data_d10 function as described.
+Is there anyway you can make the Standings under catalog look better? More like the domain board, if that makes sense.
+can you move the Holdings / infrastructure / armies / all above the empire board, below the name / faction /self-made?
+And can you have a random name generator button "Generate" next to the name in the Empire pane?
+
+Last and not least, can you do a once over on the code of the settlement board itself for optimization / organization, describing the structure to me, and then take another stab at the UX overhaul in proposal, giving me a a myriad of ways to streamline things and make it easier to understand, drop things no longer needed or redundant?
 
