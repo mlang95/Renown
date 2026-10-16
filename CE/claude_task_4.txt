@@ -1,0 +1,30 @@
+github/mlang95/Renown/CE/claude.md + comprehensive rules outline, then treat this as a prompt response. (this is claude_task_4.txt)
+Review all objectives, organize them in such a manner that you can do as many at the same time as possible in a single pass.
+Ask any clarifying questions.
+
+Outlaw country doesn't need to be different from wild and not. The only difference from outlaws is how they're placed before the game. The idea is that there's outlaws all over, but, there's guaranteed to only be 1 outlaw country within your province. I do think there needs to be more curtailed outlaw country outside of province. i.e., maybe that's where the playercount / 2, rounded down +1 is the amount of "wild" outlaw country outside of province.
+(task 2's "dormant until settled" no longer holds for Armies; Wild camps still can't act until inside a Province). This still does hold true because it requires them being in province to not be dormant. They can still roam the map once they've grown enough on their own though, which is very slowly.
+Double Speak got a better rework.
+
+1. you can add in ossensteins
+2. I changed it, go ahead and check it out. change phrasing and capitalisation as needed.
+3. floor(player_count/2) +1 = wild_count.
+4. they march at the lowest priority action as it has been defined already.
+5. beacon towers-empire, Baggage Train-Empire. Toll house is a good example of why something should maybe be "Once per Turn" as it can apply to movement actions performed anywhere in either empire or envoy phase. I don't want phases to circumvent mechanics unless it's by design. so need to consider that. Or some sort of other way to parametise the trigger to be phase agnostic.
+I changed some other ones writing, make sure it's reflected in the board state for how it triggers.
+
+So for the side swiping HUD:
+-Gold doesn't need to say summer, that's reflected above next to the age / renown.
+- Influence doesn't need to say per turn, it can just be amount the influence you have.
+-Envoys don't need to say the era
+-Public Order and Faith Doubt can be combined. Why are mods +1 but the faith doubt is 0/0. What is the difference between those two? Don't need the net value.
+- Craft can just be the value.
+-Domains, fine for now
+-Armies can just be x/y, no need for retinue count.
+-settlements are fine.
+-renown 1/30 founding already exists above next to summer, don't need.
+-no longer need the "starting universe", the age does that. remove it.
+-Renown, Eras, & Edicts can remove the renown modifier, it's above in the header. I'm also thinking the only information that needs to be tracked for the Eras that isn't already placed in the header is the City allowance and Unlocks. Those can maybe be displayed next to the seats? 
+-Players & Standing. The table approach for the playerss should replace the part that has the "hide others" in the header, and can be immediately above the map, between the seating, perhaps. But use the data of the "hide others" table, just take the format of the Players & Standings player table. I'm wondering if the seating is needed at all at this point, may need to reconsider that. the STandings board is kinda redundant, very redundant. domain information is nauseatingly everywhere. I think this can be combined with the reference standing efects, where there's a player sprite of that colour that can go on the domain effect when a player fills in that standing. We already have rest phase mechanics for adding renown, so after merging this with the reference standing effects, and taking the player table up above and combining the header hide others table down with it, you can drop the players & standing category. 
+Wild Outlaw zones don't need to be different from the Outlaw country on the map.
+
