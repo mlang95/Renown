@@ -1,6 +1,6 @@
 # REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`)
 
-Generated 2026-10-16 · data VERSION `0.4.9.9.13-d10-SIMPLE` · HEAD `5bd3732 2026-10-16`
+Generated 2026-10-16 · data VERSION `0.4.9.9.13-d10-SIMPLE` · HEAD `999ca6f 2026-10-16`
 
 Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to the repo root.
 
@@ -85,7 +85,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\claude_task.txt` | 85 |  |
 | `CE\claude_task_2.txt` | 68 |  |
 | `CE\claude_task_3.txt` | 24 |  |
-| `CE\claude_task_4.txt` | 40 |  |
+| `CE\claude_task_4.txt` | 44 |  |
 | `CE\infra.py` | 109 |  |
 | `CE\parity_d10.py` | 41 | parity_d10.py — batch_engine and vectorized_combat must agree within dice noise. |
 | `CE\patch_cultures.py` | 245 | patch_cultures.py - replace the PLAYSTYLES block (or an existing CULTURES block) |

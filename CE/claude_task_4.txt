@@ -14,7 +14,7 @@ Double Speak got a better rework.
 5. beacon towers-empire, Baggage Train-Empire. Toll house is a good example of why something should maybe be "Once per Turn" as it can apply to movement actions performed anywhere in either empire or envoy phase. I don't want phases to circumvent mechanics unless it's by design. so need to consider that. Or some sort of other way to parametise the trigger to be phase agnostic.
 I changed some other ones writing, make sure it's reflected in the board state for how it triggers.
 
-So for the side swiping HUD:
+So for the side swiping HUD at the top:
 -Gold doesn't need to say summer, that's reflected above next to the age / renown.
 - Influence doesn't need to say per turn, it can just be amount the influence you have.
 -Envoys don't need to say the era
@@ -24,6 +24,10 @@ So for the side swiping HUD:
 -Armies can just be x/y, no need for retinue count.
 -settlements are fine.
 -renown 1/30 founding already exists above next to summer, don't need.
+If you want to make a more RTS like hud, please consider and implement it. Where the information is more condensed and table like and clear instead of verbose and sprawled.
+
+
+
 -no longer need the "starting universe", the age does that. remove it.
 -Renown, Eras, & Edicts can remove the renown modifier, it's above in the header. I'm also thinking the only information that needs to be tracked for the Eras that isn't already placed in the header is the City allowance and Unlocks. Those can maybe be displayed next to the seats? 
 -Players & Standing. The table approach for the playerss should replace the part that has the "hide others" in the header, and can be immediately above the map, between the seating, perhaps. But use the data of the "hide others" table, just take the format of the Players & Standings player table. I'm wondering if the seating is needed at all at this point, may need to reconsider that. the STandings board is kinda redundant, very redundant. domain information is nauseatingly everywhere. I think this can be combined with the reference standing efects, where there's a player sprite of that colour that can go on the domain effect when a player fills in that standing. We already have rest phase mechanics for adding renown, so after merging this with the reference standing effects, and taking the player table up above and combining the header hide others table down with it, you can drop the players & standing category. 
