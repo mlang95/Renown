@@ -182,15 +182,20 @@ def envoy_fx(raw):
         m = re.search(r"Gain\s*(?:" + _N + r"\s*Influence|Influence\s*" + _N + r") while At War", c, re.I)
         if m: out.append({"k": "pool", "val": _iv(m.group(1) or m.group(2)), "per": "war"}); continue
         if re.search(r"additional Influence per Support or Oppose", c, re.I): out.append({"k": "cap", "val": 1}); continue
-        m = re.search(r"(First|Second) Oppose on your Envoy(?: each turn| per turn)?: reduce by (\d+)", c, re.I)
+        m = re.search(r"(First|Second) Oppose on your Envoy(?: each turn| per turn| each Envoy Phase)?: reduce by (\d+)", c, re.I)
         if m: out.append({"k": "jester", "n": 1 if m.group(1).lower() == "first" else 2, "val": int(m.group(2))}); continue
-        m = re.search(r"First and second Oppose on (?:an Envoy of yours|your Envoys?)(?: each turn| per turn)?: reduce by (\d+)", c, re.I)
+        m = re.search(r"First and second Oppose on (?:an Envoy of yours|your Envoys?)(?: each turn| per turn| each Envoy Phase)?: reduce by (\d+)", c, re.I)
         if m: out += [{"k": "jester", "n": 1, "val": int(m.group(1))}, {"k": "jester", "n": 2, "val": int(m.group(1))}]; continue
         m = re.search(r"^(" + _DOMS + r")? ?Envoys cannot Fail$", c, re.I)
         if m: out.append({"k": "failPass", "dom": m.group(1).title() if m.group(1) else None}); continue
         m = re.search(r"(" + _DOMS + r") actions targeting you can't be Endorsed", c, re.I)
         if m: out.append({"k": "noEndorse", "dom": m.group(1).title()}); continue
         if re.search(r"always vote last", c, re.I): out.append({"k": "voteLast"}); continue
+        # "use your <Domain> value for all envoys when determining innate Influence/Authority" (The Illusionists)
+        m = re.search(r"use your (" + _DOMS + r") value for all envoys", c, re.I)
+        if m: out.append({"k": "domAs", "dom": m.group(1).title()}); continue
+        # "can't be in an Alliance" / "cannot form alliances" / "can't join Alliances" / "No Alliances" (flag only)
+        if re.search(r"(?:can(?:no|')t|may not) (?:be in an?|form|join) Alliances?\b|\bno Alliances\b", c, re.I): out.append({"k": "noAlliance"}); continue
         m = re.search(r"can't Oppose your (" + _DOMS + r") Envoys", c, re.I)
         if m: out.append({"k": "noOppose", "dom": m.group(1).title()}); continue
         if re.search(r"If your Envoy would fail", c, re.I): out.append({"k": "failPass"}); continue
@@ -736,20 +741,17 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   body.lk-board #appBoard .emp,body.lk-board #appBoard .grip{opacity:.4}
   body.lk-spec #viewTable :is(button,input,select):not([data-claim]),body.lk-spec #turnStrip :is(button,select,input):not(.ts-seat){opacity:.4}
   #playerBar [data-claim]{white-space:nowrap}
-  .setuppanel{width:100%;border-top:1px solid var(--line);padding:4px 0;font-size:13px}
+  .setuppanel{border-bottom:1px solid var(--line);padding:6px 12px;font-size:13px;background:var(--topbar)}
   .setuppanel summary{cursor:pointer}
   .su-grid{display:grid;grid-template-columns:auto auto auto 1fr;gap:3px 10px;align-items:baseline;margin-top:4px}
   .su-n{color:var(--dim);font-size:11px}.su-t{white-space:nowrap}.su-ok{color:var(--income)}.su-no{color:var(--dim)}.su-fl{color:var(--upkeep)}
   .su-d{color:var(--dim)}.su-d .pdot{display:inline-block;margin:0 3px 0 0}
   .tstrip .ts-ready.on{border-color:var(--income);color:var(--income)}
-  body.hdrc .topbar .players,body.hdrc .topbar .tbextra,body.hdrc .hothers,body.hdrc .tstrip .ts-steps,body.hdrc .hc .hs,body.hdrc .hc .hg,body.hdrc .setuppanel{display:none!important}
-  body.hdrc .topbar{padding-top:3px;padding-bottom:3px}body.hdrc .hud{padding:3px 0 1px}
   .tb-seat.host{box-shadow:0 0 0 2px var(--order)}
   .esbar{display:flex;gap:4px;margin:6px 0;flex-wrap:wrap}.esbar button{flex:1;min-width:80px}.esbar button.on{border-color:var(--ink);font-weight:700}
   #boardcol[data-es="h"] :is(#sec-infra,#sec-army),#boardcol[data-es="i"] :is(#sec-pursuit,#sec-army),#boardcol[data-es="a"] :is(#sec-pursuit,#sec-infra){display:none}
   .subhd{margin:10px 0 4px;font-family:var(--serif);color:var(--dim)}
   .tacx a{color:var(--ink);text-decoration:none}.tacx tr.on th a{color:var(--order);font-weight:700}
-  @media(max-width:700px){body.hdrc .hrow>.hc:nth-child(n+5){display:none}body.hdrc .tstrip .ts-i:not(.ts-ph){display:none}}
   .tb-hostline{font-weight:600;color:var(--order);margin:2px 0 4px}.tb-hostline.me{font-size:15px}
   .tb-prevote .pvt td,.tb-prevote .pvt th{padding:2px 4px}.tb-prevote .pvb{display:inline-flex;gap:2px;flex-wrap:wrap}
   .tb-prevote .pvb button{padding:1px 6px;min-height:0}.tb-prevote .pvb button.on{border-color:var(--ink);font-weight:700}
@@ -893,8 +895,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .unlocks .grp{margin:3px 0}
   .unlocks .grp .h{color:var(--dim2);font-size:10px;letter-spacing:.05em;margin-right:4px}
   /* summary */
-  .tb-wrap{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:14px;padding:14px}
-  .tb-wrap.tb3{grid-template-columns:280px minmax(0,1fr) 360px}
   .tb-phase{text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px}
   .tb-phase h2{font-size:22px}
   .tb-felt.sides{--seatband:10px;--seatcol:172px}
@@ -931,11 +931,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .tb-map.zm{overflow:auto;align-items:flex-start;justify-content:flex-start;z-index:1}
   .tb-tools{padding:14px 14px 0}.tb-tools>details{margin:0}.tb-tools>details>summary{cursor:pointer}
   .tmrow{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}.tmrow>.tot{flex:1;min-width:260px;margin:0}
-  @media(max-width:1300px){.tb-wrap.tb3{grid-template-columns:240px minmax(0,1fr)}.tb-wrap.tb3 .tb-panel{grid-column:1 / -1}}
   /* wide table: the felt takes the whole row; phase / log / panel drop below it */
-  .tb-wrap.tb3.wide{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
-  .tb-wrap.tb3.wide>.tb-felt-col{grid-column:1 / -1;order:-1}
-  @media(max-width:1100px){.tb-wrap,.tb-wrap.tb3{grid-template-columns:1fr}}
   .tb-felt{--seatband:96px;--seatcol:0px;--barh:38px;position:relative;height:max(560px,calc(100vh - var(--tbh,60px) - 70px));margin-bottom:10px}
   .tb-oval{position:absolute;left:0;right:0;top:calc(var(--seatband) - 10px);bottom:calc(var(--seatband) - 10px);border-radius:26px;
     background:radial-gradient(ellipse at center,color-mix(in srgb,var(--income) 26%,var(--panel)) 0%,color-mix(in srgb,var(--income) 12%,var(--panel2)) 75%);
@@ -954,7 +950,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .tb-vote{font-weight:600;margin-top:2px} .tb-timer{font-size:22px;font-weight:600}
   .tb-mini{font-size:10px;padding:0 5px;margin-top:3px}
   .tb-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:4px 0}
-  .tb-panel .lbl{font-weight:600;margin-bottom:4px} .tb-act{border-color:var(--order)}
+  .tb-panel .lbl,.rl-side .lbl{font-weight:600;margin-bottom:4px} .tb-act{border-color:var(--order)}
   .tb-lg{padding:4px 0;border-bottom:1px dashed var(--line)}
   .tb-perf{margin:3px 0 2px 12px;padding-left:8px;border-left:2px solid var(--line2)}
   #viewTable .pos{color:var(--income)} #viewTable .neg{color:var(--upkeep)}
@@ -1015,9 +1011,10 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .pchip{display:flex;align-items:center;gap:5px;padding:3px 8px;border:1px solid var(--line);border-radius:var(--pill);cursor:pointer;font-size:12px;color:var(--dim)}
   .pchip.on{color:var(--ink);border-color:var(--line2);background:var(--sel)}
   .pdot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:baseline}
-  .app{height:calc(100vh - 47px)}
+  /* header height is measured (ResizeObserver → --tbh), never changed by scrolling */
+  .app{height:calc(100vh - var(--tbh,150px))}
   @media(max-width:1100px){.app{height:auto}}
-  .viewpane{height:calc(100vh - 47px)}
+  .viewpane{min-height:calc(100vh - var(--tbh,150px))}
   .dtable{width:100%;border-collapse:collapse;font-size:13px;max-width:1000px}
   .dtable th,.dtable td{border:1px solid var(--line);padding:6px 9px;text-align:left}
   .dtable th{color:var(--dim);font-weight:600;font-family:var(--serif)}
@@ -1069,6 +1066,35 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .appmenu{display:none;position:fixed;right:10px;top:var(--tbh,60px);z-index:30;width:380px;max-width:calc(100vw - 20px);max-height:calc(100vh - var(--tbh,60px) - 10px);overflow:auto;
     background:var(--bg);border:1px solid var(--line2);border-radius:var(--radius);box-shadow:0 8px 24px rgba(0,0,0,.25);padding:8px}
   body.tbopen .appmenu{display:block}
+  .appmenu .tbextra{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:0 0 8px;margin-bottom:8px;border-bottom:1px solid var(--line)}
+  .appmenu .tbextra>details{flex-basis:100%}
+  .appmenu #themeSel,.appmenu #shapeSel{flex:1}
+  /* player card (Empire): name, colour, Faction, Culture, claim */
+  .pcard{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+  .pcard input[type=text],.pcard input:not([type]){width:120px}
+  /* ---------- Realm: map + action panel + drawers ---------- */
+  .rl{padding:12px 14px}
+  .rl-grid{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:14px;align-items:start}
+  .rl.wide .rl-grid{grid-template-columns:1fr}
+  .rl-main{min-width:0;display:flex;flex-direction:column;gap:8px}
+  .rl-side{position:sticky;top:calc(var(--tbh,0px) + 8px);max-height:calc(100vh - var(--tbh,0px) - 20px);overflow:auto;display:flex;flex-direction:column;gap:10px;min-width:0}
+  .rl-side>.tot{margin:0}
+  .rl-phase{text-align:center}
+  .rl-seats{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 4px;scrollbar-width:thin}
+  .rl-seats .tb-seat{position:static;transform:none;width:auto;min-width:150px;max-width:230px;max-height:none;flex:0 0 auto}
+  .rl-felt{position:relative;height:max(420px,calc(100vh - var(--tbh,0px) - 150px));--seatband:0px;--seatcol:0px;--barh:40px;margin:0}
+  .rl-felt .tb-map{top:var(--barh);left:0;right:0;bottom:0;border:1px solid var(--line);border-radius:var(--radius)}
+  .rl-felt .mapbar{left:6px;top:4px;max-width:calc(100% - 330px)}
+  .rl-felt .insp{right:10px;top:calc(var(--barh) + 8px);max-height:calc(100% - var(--barh) - 16px)}
+  .rl-maptog{display:none}
+  .rl-dr,#viewTable [id],#viewReference [id]{scroll-margin-top:calc(var(--tbh,0px) + 8px)}
+  .rl-dr{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);padding:6px 10px}
+  .rl-dr>summary{cursor:pointer;padding:2px 0;font-family:var(--serif)}
+  .rl-dr[open]>summary{margin-bottom:6px;border-bottom:1px solid var(--line);padding-bottom:6px}
+  .rl-db>.tot:first-child{margin-top:0}
+  .rl-db #viewDash>h2,.rl-db #viewRenown>h2{display:none}
+  .rl-more>summary{cursor:pointer}
+  @media(max-width:1100px){.rl-grid{grid-template-columns:1fr}.rl-side{position:static;max-height:none}}
   .tstrip{width:100%;display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:4px 0 0;border-top:1px solid var(--line);font-size:13px}
   .tstrip .ts-i{display:inline-flex;gap:4px;align-items:center}.tstrip button{padding:1px 7px;min-height:0}
   .tstrip .ts-end{margin-left:auto;border-color:var(--order);font-weight:600}
@@ -1078,20 +1104,20 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .ts-step{display:inline-flex;align-items:center;gap:4px;padding:1px 7px 1px 2px;border:1px solid var(--line);border-radius:var(--radius-sm,4px);background:var(--panel);font-size:12px;cursor:help;white-space:nowrap}
   .ts-step i{font-style:normal;font-size:10px;min-width:15px;height:15px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:var(--line);color:var(--ink)}
   /* HUD: resource bar (RTS style) */
-  .hud{width:100%;padding:6px 0 2px;border-top:1px solid var(--line)}
+  .hud{width:100%;padding:4px 0 0;border-top:1px solid var(--line)}
   .hrow{display:flex;gap:6px;align-items:stretch;overflow-x:auto;scrollbar-width:thin}
-  .hc{flex:0 0 auto;display:flex;flex-direction:column;justify-content:center;min-width:72px;padding:3px 9px 4px;background:var(--panel);border:1px solid var(--line);
+  .hc{flex:0 0 auto;display:flex;flex-direction:row;align-items:baseline;gap:6px;position:relative;padding:3px 9px 4px;background:var(--panel);border:1px solid var(--line);
       border-left:3px solid var(--hcol,var(--line2));border-radius:var(--radius-sm);cursor:pointer;line-height:1.15}
   .hc:hover{background:var(--panel2)}
   .hc .hl{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
-  .hc .hv{font:600 17px var(--mono);white-space:nowrap}
-  .hc .hs{font:11px var(--mono);color:var(--dim);white-space:nowrap}
+  .hc .hv{font:600 14px var(--mono);white-space:nowrap}
+  .hc .hs{font:10.5px var(--mono);color:var(--dim);white-space:nowrap}
   .hc .up{color:var(--income)}.hc .dn{color:var(--upkeep)}
-  .hc .hg{height:4px;background:var(--barbg);border-radius:2px;margin-top:3px;position:relative;overflow:hidden}
+  .hc .hg{position:absolute;left:4px;right:4px;bottom:1px;height:2px;background:var(--barbg);border-radius:2px;overflow:hidden}
   .hc .hg i{position:absolute;top:0;bottom:0;background:var(--hcol)}
   .hc .hg b{position:absolute;top:-1px;bottom:-1px;width:2px;background:var(--ink)}
   .hdom{display:flex;gap:4px;align-items:flex-end}
-  .hdom span{display:flex;flex-direction:column;align-items:center;font:600 13px var(--mono)}
+  .hdom span{display:flex;flex-direction:row;gap:2px;align-items:baseline;font:600 13px var(--mono)}
   .hdom em{font:normal 9px var(--serif);color:var(--dim);font-style:normal}
   .hdom .st1{color:var(--income)}.hdom .st2{color:var(--craft)}.hdom .st3{color:var(--order)}
   .hc.hflag{--hcol:var(--upkeep)}
@@ -1106,6 +1132,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .rbtoc a{color:var(--build)}.rbtoc a.l1{font-weight:600}
   .rbody{max-width:900px;line-height:1.5}.rbody h2{font-size:20px;margin:18px 0 6px}.rbody h3{font-size:16px;margin:14px 0 4px}.rbody h4{font-size:14px;margin:10px 0 4px}
   .rbody p{margin:6px 0}.rbody ul{margin:4px 0 4px 20px;padding:0}.rbody table{margin:8px 0}
+  .ph-tag{font-size:10px;padding:0 5px;margin-left:4px;border:1px solid var(--line2);border-radius:var(--radius-sm);color:var(--dim)}
+  .ph-tag.now{color:var(--order);border-color:var(--order)}
   .ignb{font-size:10px;padding:0 6px;min-height:0;margin-left:4px;opacity:.75}.ignb:hover{opacity:1}
   .nxrow{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}.nx{font-size:11px;padding:1px 6px;border:1px solid var(--line2);border-radius:var(--radius-sm);background:var(--panel)}
   .nx.have{border-color:var(--income);color:var(--income)}
@@ -1148,7 +1176,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     .tbmore{order:3;padding:6px 10px}
     .tstrip{order:6;flex-wrap:nowrap;overflow-x:auto;gap:10px;scrollbar-width:none}.tstrip::-webkit-scrollbar{display:none}
     .hud{order:7}.setuppanel{order:6}.hc{min-width:64px;padding:2px 7px}.hc .hv{font-size:15px}
-    .topbar{position:sticky;top:0}
+    .topbar{position:static}      /* phones: the header scrolls away with the page (a fixed-size block — never resized by scrolling) */
     .hrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));overflow:visible;gap:4px}
     .hc{min-width:0}.hc .hs,.hc .hg{display:none}.hc .hv{font-size:14px}.hc .hl{font-size:8.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .tstrip .ts-seat{white-space:nowrap;flex:0 0 auto;order:-3}
@@ -1158,11 +1186,13 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     .tstrip .ts-i{flex:0 0 auto}.tstrip .ts-end{flex:0 0 auto;order:-1;margin-left:0}
     .ts-steps{flex:0 0 auto;flex-wrap:nowrap}.tstrip .ts-i{white-space:nowrap}
     .appmenu{left:6px;right:6px;width:auto}
-    .topbar .players{order:4;width:100%}
-    .tbextra{order:5;width:100%;display:none;gap:6px;align-items:center;flex-wrap:wrap;padding-top:4px}
-    body.tbopen .tbextra{display:flex}
-    .appmenu .tbextra{display:flex;width:auto;padding:0 0 8px;margin-bottom:8px;border-bottom:1px solid var(--line)}
+    .topbar .players{order:4;width:100%;flex-wrap:nowrap;overflow-x:auto}
     .appmenu #themeSel,.appmenu #shapeSel{max-width:none;flex:1}
+    /* Realm on a phone: action panel first, map behind a toggle */
+    .rl{padding:8px}
+    .rl-side{order:-1}
+    .rl-maptog{display:block;width:100%}
+    .rl:not(.rl-mapon) .rl-felt{display:none}
     .bside-nav{display:flex;gap:4px;margin:8px 0}.bside-nav button{flex:1}.bside-nav button.on{border-color:var(--ink);font-weight:600}
     .bsides[data-bs="A"] .bside[data-side="B"],.bsides[data-bs="B"] .bside[data-side="A"]{display:none}
     .bside{min-width:0!important}
@@ -1178,7 +1208,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     .board,.wards{grid-template-columns:1fr}
     .viewpane{padding:8px!important;max-width:100vw;overflow-x:hidden}
     .viewpane table{display:block;overflow-x:auto;max-width:100%}
-    .tb-wrap{padding:8px;gap:8px}
     /* Table view: the oval becomes a seat list in turn order, phase card first */
     .tb-felt{height:auto;display:flex;flex-direction:column;gap:6px}
     .tb-oval{display:none}
@@ -1211,20 +1240,24 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 </style>
 </head>
 <body>
-<div class="topbar">
+<div class="topbar" id="topbar">
   <div class="views" id="viewTabs">
     <div class="vtab on" data-v="board">Empire</div>
-    <div class="vtab" data-v="table">Table</div>
-    <div class="vtab" data-v="realm">Realm</div>
+    <div class="vtab" data-v="table">Realm</div>
     <div class="vtab" data-v="battle" id="vtabBattle" style="display:none">Battle</div>
     <div class="vtab" data-v="reference">Reference</div>
   </div>
   <div class="players" id="playerBar"></div>
   <span class="tbundo" style="margin-left:auto;display:inline-flex;gap:4px"><button id="undoBtn" title="Undo (Ctrl+Z)" disabled>↶</button><button id="redoBtn" title="Redo (Ctrl+Shift+Z / Ctrl+Y)" disabled>↷</button></span>
   <button id="tbMore" class="tbmore" title="menu">⋯</button>
+  <div class="tstrip" id="turnStrip"></div>
+  <div class="hud" id="hud"></div>
+</div>
+<div class="setuppanel" id="setupPanel" hidden></div>
+<div class="appmenu" id="appMenu">
   <span class="tbextra" id="tbExtra">
-  <details id="modBox" style="position:relative"><summary class="note" style="cursor:pointer">modules</summary>
-    <div style="position:absolute;right:0;z-index:20;background:var(--panel);border:1px solid var(--line);padding:8px;min-width:190px">
+  <details id="modBox"><summary class="note" style="cursor:pointer">modules</summary>
+    <div style="padding:6px 0">
       <label style="display:block"><input type="checkbox" class="modcb" data-m="diplomacy"> Diplomacy (Dashboards)</label>
       <label style="display:block"><input type="checkbox" class="modcb" data-m="battle"> Battle tab</label>
     </div></details>
@@ -1243,11 +1276,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <option value="square">Square</option>
   </select>
   </span>
-  <div class="tstrip" id="turnStrip"></div>
-  <div class="setuppanel" id="setupPanel" hidden></div>
-  <div class="hud" id="hud"></div>
-</div>
-<div class="appmenu" id="appMenu">
   <details class="tot" id="adminBox" style="margin-top:0"><summary style="cursor:pointer" class="note">Duke <span id="adminState"></span></summary>
     <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center">
       <input id="adminPin" type="password" placeholder="Duke PIN" style="flex:1;min-width:90px" autocomplete="off">
@@ -1271,6 +1299,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
   <!-- BOARD -->
   <div class="col" id="boardcol">
+    <div class="pcard" id="playerCard"></div>
     <div class="facbox" id="facBox"></div>
     <div class="hd"><h2>Board</h2><span class="v" id="poolcount"></span><span class="v" id="ignNote"></span></div>
     <div class="toolbar">
@@ -1404,7 +1433,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   </div>
 </div>
 
-<div id="viewRealm" class="viewpane" style="display:none"><div id="viewDash"></div><div id="viewRenown"></div></div>
 <div id="viewReference" class="viewpane" style="display:none"></div>
 <div id="viewTable" class="viewpane" style="display:none"></div>
 <div id="viewBattle" class="viewpane" style="display:none"></div>
@@ -1543,14 +1571,19 @@ function fxLabel(f){const v=f.val*(f.q||1);
   if(f.k==="failPass")return "Your Failed "+(f.dom?f.dom+" ":"")+"Envoys pass instead (not Condemned)";
   if(f.k==="noEndorse")return f.dom+" actions targeting you can't be Endorsed";
   if(f.k==="voteLast")return "You vote last (after the Host)";
+  if(f.k==="domAs")return "Your "+f.dom+" Standing sets the innate "+SCORE+" of all your Domain Envoys";
+  if(f.k==="noAlliance")return "Can't be in an Alliance";
   return f.k;}
 function atWarPair(a,b){if(!a||!b)return false;return !!effPair(a.id,b.id).war;}
 function opposeBlock(v,E){  // reason v can't Oppose E, or ""
   if(E.dom==="Industry"&&!atWarPair(v,E.owner))return "Ulterior Motive: only while at war with "+E.owner.name;
   if(fxOf(E.owner,"noOppose").some(f=>f.dom===E.dom))return fxOf(E.owner,"noOppose").find(f=>f.dom===E.dom).src+": can't Oppose";
   return "";}
-function innateParts(p,dom,council){
-  const parts=[{src:dom==="Diplomacy"?currentEra()+" (Era)":tStand(p,dom),val:dom==="Diplomacy"?diploInf():((DBOARD.innate_influence_own_envoys||{})[tStand(p,dom)]||0)}];
+// Standing that sets an Envoy's innate value: its own Domain, unless an effect substitutes another ("domAs", e.g. Double Speak).
+// Diplomacy Envoys keep their Era value (they have no Domain value).
+function innateDom(p,dom){if(dom==="Diplomacy")return dom;const f=fxOf(p,"domAs")[0];return f?f.dom:dom;}
+function innateParts(p,dom,council){const idom=innateDom(p,dom);
+  const parts=[{src:dom==="Diplomacy"?currentEra()+" (Era)":tStand(p,idom)+(idom!==dom?" "+idom+" ("+fxOf(p,"domAs")[0].src+")":""),val:dom==="Diplomacy"?diploInf():((DBOARD.innate_influence_own_envoys||{})[tStand(p,idom)]||0)}];
   fxOf(p,"envoy").filter(f=>(f.dom==="All"||f.dom===dom)&&scopeOk(f,council)&&!(f.noSpring&&isSpring())).forEach(f=>parts.push({src:f.src,val:f.val*f.q}));
   D.players.forEach(q=>{if(sameP(q,p)||!sameAlliance(String(q.id),String(p.id)))return;fxOf(q,"allyEnvoy").forEach(f=>parts.push({src:q.name+": "+f.src,val:f.val*f.q}));});
   Object.values(PT(p).mods).filter(m=>m&&m.kind==="envoy"&&(m.dom==="All"||m.dom===dom)&&scopeOk(m,council)).forEach(m=>parts.push({src:m.label||"manual",val:+m.val||0}));
@@ -2045,7 +2078,7 @@ let CHRON_OPEN=false;document.addEventListener("click",e=>{const sm=e.target.clo
   const md="# Chronicle\n\n"+(D.chron||[]).map(x=>"- **"+chronDate(x)+"** — "+x.txt).join("\n")+"\n",a=document.createElement("a");
   a.href=URL.createObjectURL(new Blob([md],{type:"text/markdown"}));a.download="chronicle.md";document.body.appendChild(a);a.click();a.remove();});
 function empireChecklistHTML(){const sea=curSeason(),auto=boardEndOn();
-  const L=[["Activate Domain Standing effects","realm","Realm"],["Apply the Season: "+sea,"reference#refSeasons","Reference"],
+  const L=[["Start of the Empire Phase effects","",""],["Activate Domain Standing & Activate effects","table#rlPlayers","Players"],["Apply the Season: "+sea,"reference#refSeasons","Reference"],
     ["Timers tick, finished builds resolve","board:board","Board"],["Host resolves Bandits","table#tBanditBox","Bandits"],
     ["Gain Influence & Envoys","",""],sea==="Winter"?["Winter: tax income","board:summary","Totals"]:null,
     ["Income & upkeep","board:summary","Totals"],["Extort (\u201cper player without\u201d is automatic at End turn)","",""],["Public Order (Faith − Doubt)","board:summary","Totals"],["Armies regain Endurance","board:board","Board"]].filter(Boolean);
@@ -2076,7 +2109,8 @@ function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.
   const dom=n=>{const u=(R[n]||{}).unlock_raw||"";return ["Industry","Prowess","Cunning","Piety"].find(d=>u.includes(d))||"";};
   const AVS=refRawAvail();
   return T.charts.map(c=>{if(AVS&&R[c.title]&&!AVS.has(c.title))return "";   // a root chart whose Raw Material is off the map: its reachable Holdings show under their other roots
-    const N=AVS?Object.fromEntries(Object.entries(c.nodes).filter(([k])=>AVS.has(k))):c.nodes,ks=Object.keys(N);if(!ks.length)return "";
+    // culture view filter hides out-of-culture Holdings here too (catalog and tree agree)
+    const N=Object.fromEntries(Object.entries(c.nodes).filter(([k])=>(!AVS||AVS.has(k))&&cultureKeep(k))),ks=Object.keys(N);if(!ks.length)return "";
     const E={...E0};(c.links||[]).forEach(([p,k])=>{E[p]=(E[p]||[]).concat([k]);});   // chart-only links (e.g. Naturals into Manor House)
     const mc=Math.max(...ks.map(k=>N[k][0])),mr=Math.max(...ks.map(k=>N[k][1]));
     const NW=Math.round(Math.max(150,Math.min(200,(AV-mc*CG)/(mc+1)))),W=(mc+1)*NW+mc*CG;   // boxes shrink to fit the window
@@ -2131,7 +2165,7 @@ function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.
       const pts=pick([[[x0,sy],[rx,sy],[rx,ty],[bx+NW+1+AL,ty]],[[x0,sy],[lx,sy],[lx,gy],[rx,gy],[rx,ty],[bx+NW+1+AL,ty]]],[n,k]);
       paths+='<g><title>'+esc(k)+' Mastery needs '+esc(n)+'</title>'+edge(col,pts,' stroke-dasharray="4 3"')+'</g>';}));
     const nodes=ks.map(n=>{const [x,y]=px(n),r=R[n]||{},col=DC[dom(n)]||"#6a6a72",have=(PC[n]||0)>0;
-      return '<div class="tn'+(r.monument?' mon':'')+(have?' have':'')+(cultureKeep(n)?'':' off')+'" style="left:'+x+'px;top:'+y+'px;width:'+NW+'px;height:'+NH+'px;border-color:'+col+'">'+inner(n)+'</div>';}).join("");
+      return '<div class="tn'+(r.monument?' mon':'')+(have?' have':'')+'" style="left:'+x+'px;top:'+y+'px;width:'+NW+'px;height:'+NH+'px;border-color:'+col+'">'+inner(n)+'</div>';}).join("");
     return '<details class="tchart" data-t="'+esc(c.title)+'"'+(TREE_OPEN.has(c.title)?' open':'')+'><summary><b>'+esc(c.title)+'</b> <span class="note">'+ks.length+' Pursuits</span></summary><div class="tscroll"><div class="tcanvas" style="width:'+W+'px;height:'+H+'px">'+
       '<svg width="'+W+'" height="'+H+'"><defs>'+[...used].map(c=>'<marker id="tarw-'+c.slice(1)+'" viewBox="0 0 7 6" refX="0" refY="3" markerWidth="7" markerHeight="6" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="'+c+'"/></marker>').join("")+'</defs><g fill="none" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt">'+paths+'</g></svg>'+nodes+'</div></div></details>';}).join("");}
 // rulebook (collapsible, per device); keywords inside the text get hover links
@@ -2225,16 +2259,47 @@ function renderTable(){
   const pan=tPanel(R);
   const MM=mapState(),hasMap=!!(MM.grid||Object.keys(MM.cells).length);
   const tmap=hasMap?(MAPZ.fit?mapSVG(MM).replace(/^<svg width="[^"]*" height="[^"]*"/,'<svg width="100%" height="100%" preserveAspectRatio="xMidYMid meet"'):mapSVG(MM)):'<div class="note">No map — Map ▸ Map setup above.</div>';
-  host.innerHTML='<div class="tb-tools">'+mapToolsHTML()+'</div><div class="tb-wrap tb3'+(TB_WIDE?' wide':'')+'"><div class="tb-info"><div class="tot tb-phase">'+ctr+'</div>'+
-    '<div class="tot"><h3 style="font-size:13px">Log</h3>'+(log||'<div class="note">Nothing resolved yet this phase.</div>')+'</div>'+summaryHTML()+chronicleHTML()+
-    banditPanelHTML()+'</div>'+
-    '<div class="tb-felt-col"><div class="tb-felt"><div class="tb-oval"></div><div class="tb-map'+(MAPZ.fit?'':' zm')+'">'+tmap+'</div>'+(hasMap?mapBarHTML():'')+seats+inspHTML()+'</div>'+
-    (D.players.some(p=>!Object.values(sm).includes(p))?'<div class="note">Not seated: '+D.players.filter(p=>!Object.values(sm).includes(p)).map(p=>esc(p.name)).join(", ")+'</div>':'')+
-    activeTimersHTML()+tHistHtml()+activityHtml()+'</div>'+
-    '<div class="tb-panel">'+pan+'</div></div>';wireBanditAuto(host);wireMap(host);wireInsp(host);
-  tWire(host,R);wireDashExtras(host);tCountdown(R);tbFit(host);}
+  // Realm layout: seats + map (left), the phase card + your actions (right, sticky), everything else in drawers under the map
+  const keepSc=host.querySelector(".rl-side"),sideTop=keepSc?keepSc.scrollTop:0;
+  const dr=(id,title,body,sub)=>'<details class="rl-dr" id="'+id+'" data-keep="0"'+(rlOpen(id,false)?' open':'')+'><summary><b>'+title+'</b>'+(sub?' <span class="note">'+sub+'</span>':'')+'</summary><div class="rl-db">'+body+'</div></details>';
+  const unseatedP=D.players.filter(p=>!Object.values(sm).includes(p));
+  host.innerHTML='<div class="rl'+(TB_WIDE?' wide':'')+(RL_MAP?' rl-mapon':'')+'"><div class="rl-grid">'+
+    '<div class="rl-main">'+
+      '<div class="rl-seats">'+seats+'</div>'+
+      (unseatedP.length?'<div class="note">Not seated: '+unseatedP.map(p=>esc(p.name)).join(", ")+'</div>':'')+
+      '<button class="rl-maptog" data-rl-map="1">'+(RL_MAP?'Hide map':'Show map')+'</button>'+
+      '<div class="tb-felt rl-felt"><div class="tb-map'+(MAPZ.fit?'':' zm')+'">'+tmap+'</div>'+(hasMap?mapBarHTML():'')+inspHTML()+'</div>'+
+      '<div id="viewRealm">'+dr("rlPlayers","Players & Standings",'<div id="viewDash"></div>',D.players.length+" players")+
+        dr("rlRenown","Renown, Eras & Edicts",'<div id="viewRenown"></div>',"Renown "+(D.renown||1)+" · "+esc(currentEra()))+'</div>'+
+      dr("rlSummary","Summary",summaryHTML())+
+      dr("rlChron","Chronicle",chronicleHTML())+
+      dr("rlTimers","Timers & history",activeTimersHTML()+tHistHtml()+activityHtml())+
+      dr("rlBandits","Bandits",banditPanelHTML())+
+      dr("rlMap","Map setup & tools",'<div class="tb-tools">'+mapToolsHTML()+'</div>')+
+    '</div>'+
+    '<div class="rl-side"><div class="tot tb-phase rl-phase">'+ctr+'</div>'+pan.now+
+      '<details class="tot" id="rlLog" data-keep="1"'+(rlOpen("rlLog",true)?' open':'')+'><summary><h3 style="font-size:13px;display:inline">Log</h3></summary>'+(log||'<div class="note">Nothing resolved yet this phase.</div>')+'</details>'+pan.ref+'</div>'+
+    '</div></div>';
+  {const sd=host.querySelector(".rl-side");if(sd)sd.scrollTop=sideTop;}
+  if(RL_OPEN.has("rlPlayers"))try{renderDash();}catch(e){console.warn("players",e);}
+  if(RL_OPEN.has("rlRenown"))try{renderRenown();}catch(e){console.warn("renown",e);}
+  wireBanditAuto(host);wireMap(host);wireInsp(host);
+  tWire(host,R);wireDashExtras(host);tCountdown(R);}
+// Realm drawers: which are open (per device); the old Realm tab's Players / Renown views render only while open
+var RL_OPEN=new Set(["rlSummary"]),RL_SHUT=new Set(),RL_MAP=false;
+try{const v=localStorage.getItem("renown_rl_open");if(v)RL_OPEN=new Set(JSON.parse(v));const w=localStorage.getItem("renown_rl_shut");if(w)RL_SHUT=new Set(JSON.parse(w));
+  RL_MAP=localStorage.getItem("renown_rl_map")==="1";}catch(e){}
+// remembered open state of a Realm <details>; def = open unless the player closed it
+function rlOpen(id,def){return def?!RL_SHUT.has(id):RL_OPEN.has(id);}
+function rlToggle(d){if(d.open){RL_OPEN.add(d.id);RL_SHUT.delete(d.id);}else{RL_OPEN.delete(d.id);RL_SHUT.add(d.id);}
+  try{localStorage.setItem("renown_rl_open",JSON.stringify([...RL_OPEN]));localStorage.setItem("renown_rl_shut",JSON.stringify([...RL_SHUT]));}catch(e){}
+  if(d.open&&d.id==="rlPlayers")try{renderDash();}catch(e){}
+  if(d.open&&d.id==="rlRenown")try{renderRenown();}catch(e){}}
+document.addEventListener("toggle",e=>{const d=e.target;if(d&&d.dataset&&d.dataset.keep!=null&&d.id){if(rlOpen(d.id,d.dataset.keep==="1")!==d.open)rlToggle(d);}},true);
+document.addEventListener("click",e=>{const b=e.target.closest("[data-rl-map]");if(!b)return;RL_MAP=!RL_MAP;try{localStorage.setItem("renown_rl_map",RL_MAP?"1":"0");}catch(_){}
+  renderTable();});
 // pick the seat layout that leaves the map bigger (map keeps its aspect ratio inside .tb-map)
-function tbFit(host){const f=host.querySelector(".tb-felt"),sv=host.querySelector(".tb-map svg");if(!f||!sv||!MAPZ.fit)return;
+function tbFit(host){const f=host.querySelector(".tb-felt"),sv=host.querySelector(".tb-map svg");if(!f||!sv||!MAPZ.fit||f.classList.contains("rl-felt"))return;
   const vb=(sv.getAttribute("viewBox")||"").split(/\s+/).map(Number);if(vb.length<4||!vb[2]||!vb[3])return;
   const ar=vb[2]/vb[3],W=f.clientWidth,H=f.clientHeight,sc=(w,h)=>Math.min(w/ar,h)*Math.min(w,h*ar);
   const bands=sc(W-20,H-192-38),cols=sc(W-364,H-20-38);f.classList.toggle("sides",cols>bands);}
@@ -2288,9 +2353,13 @@ function tPanel(R){
   const plan=R.plan.length?R.plan:tPlan(ph,R.ord,R.councilDom);
   const up=plan.filter(E2=>!E2.council&&!sameP(E2.owner,qp)&&!R.resolved.has(E2.id+">"+qp.id)&&!(R.cur&&R.cur.key===E2.id+">"+qp.id));
   if((ph==="council"||ph==="envoy")&&t.phaseTs&&tOrder().some(p=>sameP(p,qp)))h+=preVoteHTML(R,qp,up,ph);
-  // my influence & envoys this turn
+  // phase-limited effects, loans, extort targets: what you can use right now
+  h+=onceHTML(qp);h+=loansHTML(qp);h+=extortTargetsHTML(qp);
+  // my influence & envoys this turn (reference: folded) — returned separately so the Log sits between "now" and reference
+  const now=h;h="";
   const c=tCur(qp);
-  h+='<div class="tot"><h3 style="font-size:13px">Influence & Envoys — '+esc(qp.name)+'</h3>'+
+  h+='<details class="tot rl-more" id="rlInfl" data-keep="0"'+(rlOpen("rlInfl",false)?' open':'')+'><summary><b style="font-size:13px">Influence, Envoys & modifiers — '+esc(qp.name)+'</b> <span class="note">'+inflPool(qp)+' Influence · '+personalEnvoys(qp)+' Envoys</span></summary>';
+  h+='<div class="tot"><h3 style="font-size:13px">Influence & Envoys</h3>'+
     '<div class="tb-row"><span style="flex:1">Influence this turn</span><b>'+inflPool(qp)+'</b></div>'+
     '<div class="tb-row"><span style="flex:1" class="note">gain '+influenceTotal(qp.board)+' + adjust</span><button data-adj="inflAdj" data-dv="-1" data-who="'+qp.id+'">−</button><b>'+(+c.inflAdj||0)+'</b><button data-adj="inflAdj" data-dv="1" data-who="'+qp.id+'">+</button></div>'+
     '<div class="tb-row"><span style="flex:1">Personal Envoys</span><b>'+personalEnvoys(qp)+'</b></div>'+
@@ -2300,10 +2369,10 @@ function tPanel(R){
   // influence modifiers
   const md=PT(qp).mods;
   const afx=boardFx(qp);
-  h+='<div class="tot"><h3 style="font-size:13px">From Pursuits & Infrastructure — '+esc(qp.name)+'</h3>'+
+  h+='<div class="tot"><h3 style="font-size:13px">From Pursuits & Infrastructure</h3>'+
     (afx.length?afx.map(f=>'<div class="tb-row"><span style="flex:1">'+esc(fxLabel(f))+'</span><span class="note">'+esc(f.src)+(f.q>1?' ×'+f.q:'')+'</span></div>').join(""):'<div class="note">None active.</div>')+
     '</div>';
-  h+='<div class="tot"><h3 style="font-size:13px">Manual modifiers — '+esc(qp.name)+'</h3>'+
+  h+='<div class="tot"><h3 style="font-size:13px">Manual modifiers</h3>'+
     Object.keys(md).map(k=>{const m=md[k];return '<div class="tb-row">'+
       '<input data-mk="'+k+'" data-mf="label" value="'+esc(m.label||"")+'" placeholder="source" style="flex:1;min-width:80px">'+
       '<select data-mk="'+k+'" data-mf="kind"><option value="envoy"'+(m.kind==="envoy"?" selected":"")+'>own Envoys</option><option value="cap"'+(m.kind==="cap"?" selected":"")+'>vote cap</option></select>'+
@@ -2312,11 +2381,10 @@ function tPanel(R){
       '<input data-mk="'+k+'" data-mf="val" type="number" value="'+(+m.val||0)+'" style="width:52px">'+
       '<button data-mdel="'+k+'">✕</button></div>';}).join("")+
     '<div class="tb-row"><button id="tbMadd" data-who="'+qp.id+'">+ modifier</button></div>'+
-    '</div>';
-  h+=onceHTML(qp);h+=loansHTML(qp);h+=extortTargetsHTML(qp);
-  // host controls
+    '</div></details>';
+  // host controls (open for whoever can run the table)
   const hc=canHost();
-  h+='<div class="tot"><h3 style="font-size:13px">Host'+(hostP()?' — '+esc(hostP().name):'')+'</h3>'+
+  h+='<details class="tot rl-more" id="rlHost" data-keep="1"'+(rlOpen("rlHost",hc)?' open':'')+'><summary><b style="font-size:13px">Host'+(hostP()?' — '+esc(hostP().name):'')+'</b></summary>'+
     (hc?'':'<div class="note">Only the Host (or hot-seat) can run the table.</div>')+
     '<div class="tb-row"><span style="flex:1">Phase</span>'+T_PH.map(p2=>'<button data-ph="'+p2+'"'+(p2===ph?' class="on"':'')+(hc?'':' disabled')+'>'+T_PHL[p2].replace(" Phase","")+'</button>').join("")+'</div>'+
     ((ph==="council"||ph==="envoy")?'<div class="tb-row"><button data-begin="1"'+(hc?'':' disabled')+'>'+(t.phaseTs?'Restart ':'Begin ')+T_PHL[ph]+'</button>'+
@@ -2328,8 +2396,8 @@ function tPanel(R){
     '<div class="tb-row"><label><input type="checkbox" id="tbBoardEnd"'+(boardEndOn()?" checked":"")+(hc?'':' disabled')+'> End turn also runs every board\'s end turn (timers, net gold if auto-apply is on, Public Order, Endurance)</label></div>'+
     '<div class="tb-row"><label><input type="checkbox" id="tbAutoRes"'+(autoRes()?" checked":"")+(hc?'':' disabled')+'> Auto-resolve actions (costs, Faith / Doubt, effects)</label></div>'+
     '<div class="tb-row"><button data-autoseat="1"'+(hc&&!seatsLocked()?'':' disabled')+'>Auto-seat unseated players</button></div>'+
-    '<div class="note">Turn '+tTurn()+'</div></div>';
-  return h;}
+    '<div class="note">Turn '+tTurn()+'</div></details>';
+  return {now,ref:h};}
 
 function preVoteHTML(R,qp,up,ph){const pool=R.pool[qp.id]??inflPool(qp),spent=R.spent[qp.id]||0,room=Math.max(0,pool-spent);
   let plan=0;const rows=up.map((E2,i)=>{const v=tCur(qp).votes[E2.id],a=v?v.a:"",x=v&&(a==="S"||a==="O")?(+v.x||1):0,capv=voteCap(qp,E2.dom||"Prowess",E2.council),blk=E2.dom?opposeBlock(qp,E2):"";
@@ -3263,7 +3331,7 @@ function render(){
   applySkin(D.shape||"sharp");
   renderTopBar();
   if(D.view==="battle"&&!mods().battle)D.view="board";
-  if(D.view==="dash"||D.view==="renown")D.view="realm";
+  if(D.view==="dash"||D.view==="renown"||D.view==="realm")D.view="table";
   if(D.view==="map")D.view="table";
   const view=D.view||"board";
   renderTurnStrip();try{renderSetup();}catch(e){console.warn("setup",e);}syncBoardEndBtn();try{renderHUD();}catch(e){console.warn("HUD",e);}
@@ -3273,11 +3341,9 @@ function render(){
     if(!cb._w){cb._w=1;cb.onchange=()=>{mods()[cb.dataset.m]=cb.checked;save();render();};}});
   document.getElementById("viewBattle").style.display = view==="battle"?"":"none";
   document.getElementById("appBoard").style.display = view==="board"?"":"none";
-  document.getElementById("viewRealm").style.display = view==="realm"?"":"none";
   document.getElementById("viewReference").style.display = view==="reference"?"":"none";
   document.getElementById("viewTable").style.display = view==="table"?"":"none";
   document.querySelectorAll(".vtab").forEach(t=>t.classList.toggle("on",t.dataset.v===view));
-  if(view==="realm"){renderDash();renderRenown();save();return;}
   if(view==="reference"){renderReference();save();return;}
   if(view==="table"){renderTable();save();return;}
   if(view==="battle"){renderBattle();save();return;}
@@ -3326,17 +3392,19 @@ function renderTopBar(){
   add.onclick=()=>{const np=newPlayer(D.players.length+1);np.id=Math.max(Date.now(),1+Math.max(0,...D.players.map(p=>+p.id||0)));D.players.push(np);D.active=D.players.length-1;reindex();save();render();renderList();};
   bar.appendChild(add);
   const p=D.players[D.active], chip=chips[D.active];
+  const card=document.getElementById("playerCard");if(card)card.innerHTML="";
+  const put=el=>(card||bar).appendChild(el);
   const nm=document.createElement("input");nm.value=p.name;nm.style.width="110px";nm.title="rename player";
   nm.oninput=()=>{p.name=nm.value;const l=chip&&chip.querySelector(".pname");if(l)l.textContent=p.name;save();};
   const col=document.createElement("input");col.type="color";col.value=p.color;col.style.width="30px";col.style.padding="0";col.title="player color";
   col.oninput=()=>{p.color=col.value;const d=chip&&chip.querySelector(".pdot");if(d)d.style.background=p.color;};
   col.onchange=()=>{p.color=col.value;save();render();};
   const ed=canEdit(p);nm.disabled=col.disabled=!ed;
-  bar.appendChild(nm);bar.appendChild(col);
+  put(nm);put(col);
   {const w=document.createElement("span");w.innerHTML=facSelectHTML();const fs=w.firstChild;fs.disabled=!ed;
-    fs.onchange=e=>{setFaction(e.target.value);save();render();renderList();};bar.appendChild(fs);}
+    fs.onchange=e=>{setFaction(e.target.value);save();render();renderList();};put(fs);}
   {const w=document.createElement("span");w.innerHTML=culSelectHTML(p.board);const cs=w.firstChild;
-    cs.onchange=e=>{p.board.culture=e.target.value||"";save();render();renderList();};bar.appendChild(cs);}
+    cs.onchange=e=>{p.board.culture=e.target.value||"";save();render();renderList();};put(cs);}
   {let on=false;try{on=!!SYNC.ready;}catch(e){}
     if(on){const cl=claimOf(p),mc=myClaimP(),b=document.createElement("button");b.dataset.claim="1";
       if(mine(p)){b.textContent="\u2605 yours \u00b7 release";b.onclick=()=>{if(!confirm("Release "+p.name+"?"))return;delete p.board.claim;if(TB().ready)delete TB().ready[p.id];save();render();};}
@@ -3344,9 +3412,9 @@ function renderTopBar(){
         if(ADMIN)b.onclick=()=>{if(!confirm("Clear the claim on "+p.name+"?"))return;delete p.board.claim;if(TB().ready)delete TB().ready[p.id];save();render();};}
       else{b.textContent="claim";if(mc){b.disabled=true;b.title="release "+mc.name+" first";}
         else b.onclick=()=>{p.board.claim={dev:DEV,ts:Date.now()};save();render();flash("you are "+p.name);};}
-      bar.appendChild(b);}}
+      put(b);}}
   if(D.players.length>1&&ed){const del=document.createElement("button");del.className="rm";del.textContent="✕ player";
-    del.onclick=()=>{D.players.splice(D.active,1);D.active=0;reindex();save();render();renderList();};bar.appendChild(del);}
+    del.onclick=()=>{D.players.splice(D.active,1);D.active=0;reindex();save();render();renderList();};put(del);}
 }
 function toggleEmpty(k,n){const e=document.getElementById("e-"+k);if(e)e.style.display=n?"none":"block";
   const c=document.getElementById("c-"+k);if(c)c.textContent=n?("· "+n):"";}
@@ -4815,6 +4883,7 @@ function pairFlags(a,b,x){const d=diplo(),f=[];const sameAl=sameAlliance(a,b);
   if(x.war&&x.nap)f.push("War with Non-Aggression Pact in force");
   if(x.war&&x.truce>0)f.push("War during truce ("+x.truce+")");
   if(x.war&&sameAl)f.push("War within the same alliance");
+  if(sameAl)[a,b].forEach(id=>{const q=pById(id),n=q?fxOf(q,"noAlliance")[0]:null;if(n)f.push(q.name+" can't be in an Alliance ("+n.src+")");});
   if(x.trade&&x.war)f.push("Trade Agreement while at war");
   if(x.trade&&(!hasRoad(a)||!hasRoad(b)))f.push("Trade Agreement without Dirt Roads ("+[a,b].filter(q=>!hasRoad(q)).map(pname).join(", ")+")");
   return f;}
@@ -5627,8 +5696,9 @@ function parseSeedCode(s){ // Region/seed/players[/WxH]
   return {preset,seed:+seed,players:n,w:+wh[0]||def[0],h:+wh[1]||def[1]};
 }
 // map zoom (per device): +/−, or fit to the panel width
-let TB_WIDE=true;try{TB_WIDE=localStorage.getItem("renown_tbwide")!=="0";}catch(e){}
-document.addEventListener("click",e=>{if(!e.target.closest("#tbWide"))return;TB_WIDE=!TB_WIDE;try{localStorage.setItem("renown_tbwide",TB_WIDE?"1":"0");}catch(_){}render();});
+// "wide": the Realm map takes the full width and the action panel drops below it (off by default)
+let TB_WIDE=false;try{TB_WIDE=localStorage.getItem("renown_rlwide")==="1";}catch(e){}
+document.addEventListener("click",e=>{if(!e.target.closest("#tbWide"))return;TB_WIDE=!TB_WIDE;try{localStorage.setItem("renown_rlwide",TB_WIDE?"1":"0");}catch(_){}render();});
 const MAPZ={z:1,fit:true,fitScale(W){const el=document.querySelector("#viewTable .tb-map");const w=el?el.clientWidth-4:window.innerWidth-24;return Math.max(0.3,Math.min(3,w/W));}};
 try{const mz=JSON.parse(localStorage.getItem("renown_mapz")||"null");if(mz){MAPZ.z=+mz.z||1;MAPZ.fit=!!mz.fit;}}catch(e){}
 function mapZoom(k){if(k==="fit")MAPZ.fit=!MAPZ.fit;else{MAPZ.fit=false;MAPZ.z=Math.max(0.5,Math.min(3,Math.round((MAPZ.z*(k>0?1.25:0.8))*100)/100));}
@@ -6157,30 +6227,44 @@ function outlawOf(p){const M=mapState(),pid=String(p.id),ks=Object.keys(M.outlaw
   return ks.filter(k=>{if(!isWild(k))return sameP(outlawOwner(k),p);own=own||terrOwners();return !!(own[k]&&own[k].has(pid));});}
 // a camp is Wild while it sits on a Wild Territory or was spawned in one (Bandit Armies keep the tag when they move)
 function campWild(k){const M=mapState(),cp=M.camps[k];return (cp&&cp.wild)||(isWild(k)?M.outlaw[k]:null);}
-function wildCount(){const W=BAN.wild||{};return Math.ceil((D.players||[]).length/(+W.per_players||2))+(+(W.plus??1));}
-// Setup: seed the missing Wild zones in the unclaimed interior — each seed as far as possible from every piece and
-// Outlaw Country (centre breaks ties), grown to OUTLAW_COUNTRY_START connected Territories, range OUTLAW_BUFFER_RANGE+ clear
-function placeWildOutlaw(){const M=mapState();if(!M.grid)return 0;const V=decodeGrid(M.grid),size=+BAN.outlawStart||3,buf=+BAN.outlawBuffer||2;
-  let n=wildCount()-Object.keys(wildZones()).length;if(n<=0)return 0;
-  const cen=[(M.grid.width||0)/2,(M.grid.height||0)/2],land=k=>{const h=V.hex[k];return !!h&&h.t!=="water"&&!terrBlocked(h.t)&&hexFree(k)&&!M.outlaw[k];};
-  const dmin=(k,skipZ)=>{const a=hk(k);let d=1e9;Object.keys(M.cells).forEach(x=>{d=Math.min(d,hexDist(a,hk(x)));});
-    Object.keys(M.outlaw).forEach(x=>{if(skipZ&&M.outlaw[x]===skipZ)return;d=Math.min(d,hexDist(a,hk(x)));});return d;};
-  const score=(k,skipZ)=>dmin(k,skipZ)*1000-Math.hypot(hk(k)[0]-cen[0],hk(k)[1]-cen[1]);
-  let made=0;
-  while(n-->0){let id=1;while(Object.values(M.outlaw).includes("w"+id))id++;const z="w"+id;
-    // seeds stay off the capital band (beyond CAPITAL_EDGE_RANGE of the board edge) when the interior has room
-    const W_=+M.grid.width||0,H_=+M.grid.height||0,er=+RC.CAPITAL_EDGE_RANGE||0,inner=k=>{const [c,r]=hk(k);return Math.min(c,r,W_-1-c,H_-1-r)>er;};
-    let seeds=Object.keys(V.hex).filter(k=>land(k)&&dmin(k)>=buf);if(seeds.some(inner))seeds=seeds.filter(inner);
-    seeds.sort((a,b)=>score(b)-score(a));if(!seeds.length)break;
-    M.outlaw[seeds[0]]=z;let got=1;
-    while(got<size){const cand=new Set();Object.keys(M.outlaw).filter(k=>M.outlaw[k]===z).forEach(k=>hexNb(k).forEach(q=>{if(land(q)&&dmin(q,z)>=buf)cand.add(q);}));
-      const L=[...cand].sort((a,b)=>score(b,z)-score(a,z));if(!L.length)break;M.outlaw[L[0]]=z;got++;}
-    bLog("Wild Outlaw Country "+z+" seeded @ "+Object.keys(M.outlaw).filter(k=>M.outlaw[k]===z).join(" "));made++;}
-  return made;}
+// zones to place: "formula" = ceil(players / per_players) + plus; "fill" = as many as the ranges allow (null = no fixed count)
+function wildCount(){const W=BAN.wild||{};if(W.count==="fill")return null;return Math.ceil((D.players||[]).length/(+W.per_players||2))+(+(W.plus??1));}
+function wildDone(){const M=mapState(),n=Object.keys(wildZones()).length,c=wildCount();return c==null?!!M.wildSeeded:n>=c;}
+// Setup (last step, after Deploy): scatter Wild zones over the unclaimed board. Every Wild hex is land (no Water / Mountains /
+// Impassable), free, at least Range border_range from every player's Province (Settlement Reach) and at least Range spacing from
+// every other Outlaw Country zone. Seeds go farthest-first (most open ground first, random ties) so zones spread out; each seed
+// grows to OUTLAW_COUNTRY_START connected Territories under the same ranges. Stops when no seed fits (or max / formula count).
+function placeWildOutlaw(){const M=mapState();if(!M.grid)return 0;const V=decodeGrid(M.grid),W=BAN.wild||{},size=+BAN.outlawStart||3;
+  const bR=+(W.border_range??5),sp=+(W.spacing??5),cnt=wildCount(),cap=cnt!=null?cnt-Object.keys(wildZones()).length:(W.max!=null?+W.max-Object.keys(wildZones()).length:1e9);
+  if(cap<=0){M.wildSeeded=true;return 0;}
+  const own=terrOwners(),prov=Object.keys(own).filter(k=>own[k]&&own[k].size).map(hk);
+  const land=k=>{const h=V.hex[k];return !!h&&h.t!=="water"&&h.t!=="mountain"&&!terrBlocked(h.t)&&hexFree(k)&&!M.outlaw[k];};
+  const dProv={};Object.keys(V.hex).forEach(k=>{const a=hk(k);let d=1e9;for(const q of prov){const x=hexDist(a,q);if(x<d)d=x;if(d===0)break;}dProv[k]=d;});
+  const dZone=(k,skipZ)=>{const a=hk(k);let d=1e9;Object.keys(M.outlaw).forEach(x=>{if(!M.outlaw[x]||(skipZ&&M.outlaw[x]===skipZ))return;d=Math.min(d,hexDist(a,hk(x)));});return d;};
+  const fits=(k,z)=>land(k)&&dProv[k]>=bR&&dZone(k,z)>=sp;
+  let made=0;const tried=new Set();
+  while(made<cap){let id=1;while(Object.values(M.outlaw).includes("w"+id))id++;const z="w"+id;
+    const seeds=Object.keys(V.hex).filter(k=>!tried.has(k)&&fits(k,null)).map(k=>({k,o:Math.min(dProv[k],dZone(k,null)),r:Math.random()})).sort((x,y)=>y.o-x.o||x.r-y.r);
+    if(!seeds.length)break;
+    let ok=false;
+    for(const sd of seeds){tried.add(sd.k);const zone=[sd.k];M.outlaw[sd.k]=z;
+      while(zone.length<size){const cand=new Set();zone.forEach(k=>hexNb(k).forEach(q=>{if(fits(q,z))cand.add(q);}));
+        const L=[...cand].map(q=>({q,o:dProv[q],r:Math.random()})).sort((x,y)=>y.o-x.o||x.r-y.r);if(!L.length)break;M.outlaw[L[0].q]=z;zone.push(L[0].q);}
+      if(zone.length>=size){ok=true;bLog("Wild Outlaw Country "+z+" placed @ "+zone.join(" "));break;}
+      zone.forEach(k=>delete M.outlaw[k]);}
+    if(!ok)break;made++;}
+  M.wildSeeded=true;return made;}
+// Host redo: clear the Wild zones that hold no Bandit Camp, then scatter again
+function rescatterWild(){const M=mapState();Object.entries(wildZones()).forEach(([z,hx])=>{if(hx.some(k=>M.camps[k]))return;hx.forEach(k=>delete M.outlaw[k]);});
+  M.wildSeeded=false;return placeWildOutlaw();}
 // a piece's Aura (Settlement tier / Army Retinue), the range at which a Bandit Camp can target it
 function pieceAura(k){const c=mapState().cells[k];if(!c)return 0;if(c.type==="Army"){const a=cellArmy(k).a;return +(((EQ.retinues||{})[(a||{}).retinue]||{}).aura)||0;}
   return +(((DATA.settlements||{})[c.type]||{}).aura)||0;}
-function campInRange(ck,tk){const r=BAN.campReach!=null?+BAN.campReach:pieceAura(tk);return hexDist(hk(ck),hk(tk))<=r;}
+// BANDIT_CAMP_REACH: "province" = the camp sits in the target's owner's Province (any of that player's pieces);
+// null = within the target piece's own Aura; N = within Range N of the camp
+function campInRange(ck,tk,own){const c=BAN.campReach;
+  if(c==="province"){const p=cellPlayer(mapState().cells[tk]);own=own||terrOwners();return !!p&&!!own[ck]&&own[ck].has(String(p.id));}
+  const r=c!=null?+c:pieceAura(tk);return hexDist(hk(ck),hk(tk))<=r;}
 function hexFree(k){const M=mapState();return !M.camps[k]&&!M.cells[k];}
 function spawnCamp(p,n,why){const M=mapState(),free=outlawOf(p).filter(hexFree);if(!free.length)return null;
   const k=free[Math.floor(Math.random()*free.length)];M.camps[k]={n,gold:+BAN.campGold||0};if(isWild(k))M.camps[k].wild=M.outlaw[k];armBandits(M.camps[k]);bLog("camp of "+n+" spawns @ "+k+" ("+why+")",k);return k;}
@@ -6198,10 +6282,10 @@ function cunningAction(roll){const t=(BAN.cunningTable||[]).find(r=>roll>=r[0]&&
 function endorsedExtort(action){const m=String(((DATA.actions||{})[action]||{}).endorsed||"").match(/Extort\s*(\d+)/i);return m?+m[1]:0;}
 function banditAct(k){const M=mapState(),cp=M.camps[k],B=BST(),F=BAN.faces||10,roll=1+Math.floor(Math.random()*F),act=cunningAction(roll);
   cp.roll=roll;if(!act){bLog("camp @ "+k+" rolls "+roll+" → no action",k);return;}
-  // targets: only pieces with the camp in range (their Aura, or BANDIT_CAMP_REACH); Smuggler's Nook-style carve-out:
+  // targets: pieces of the players whose Province covers the camp (BANDIT_CAMP_REACH); Smuggler's Nook-style carve-out:
   // camps in that player's Outlaw Country skip them and pick another player at random, at any range
   const own=outlawOwner(k),nook=own&&srcHas(own.board,/Bandit Camps in your Outlaw Country don.t target you and instead target other players randomly/i),
-    okT=t=>{const p=cellPlayer(mapState().cells[t]);return !!p&&(nook?!sameP(p,own):campInRange(k,t));};
+    TO=terrOwners(),okT=t=>{const p=cellPlayer(mapState().cells[t]);return !!p&&(nook?!sameP(p,own):campInRange(k,t,TO));};
   let L=byDist(k,mapSetts(),true).filter(x=>okT(x.k));if(nook)L=L.map(x=>({x,r:Math.random()})).sort((a,b)=>a.r-b.r).map(o=>o.x);
   let tgt=null;
   if(act==="Raze")tgt=L.map(x=>Object.assign({k:x.k},cellSett(x.k))).find(t=>t.s&&t.p.board.placed.some(q=>q.sid===t.s.id&&!(q.bt>0)&&!(q.dmg>0)));
@@ -6573,19 +6657,22 @@ function garrisonCard(u){const b=S,p=playerOfBoard(b);if(!p||!hasGarrisons(b))re
     tb.appendChild(row);});
   card.appendChild(tb);return card;}
 // ---- once-per-turn / "may" effects on a player's active pieces: a used-this-turn toggle each (no automation) ----
-const ONCE_RE=/\b(?:Once\s*\/\s*turn|Once per turn|Once per game|\d+x\s*\/\s*turn|Each turn|Every turn|Every Skirmish)\b|\bmay\b(?!\s+not)/i;
-const XCH_RE=/(\d+)x\s*\/\s*turn:?\s*exchange (\d+) gold for (\d+) Influence/i;
+const ONCE_RE=/\b(?:Once\s*\/\s*turn|Once per turn|Once per game|Once per \w+ Phase|\d+x\s*(?:\/\s*turn|per \w+ Phase)|Each turn|Every turn|Every Skirmish|At the Start of the Empire Phase)\b|\bEach Empire Phase \(Activate\)|\bmay\b(?!\s+not)/i;
+// the phase a limited effect belongs to (shown on its tracker row; highlighted while that phase is current)
+function oncePhase(c){const m=/per (\w+) Phase|At the (Start) of the Empire Phase|Empire Phase \((Activate)\)/i.exec(c);if(!m)return "";return m[1]?m[1].toLowerCase():"empire";}
+const XCH_RE=/(\d+)x\s*(?:\/\s*turn|per \w+ Phase):?\s*exchange (\d+) gold for (?:(\d+) Influence|Influence \+(\d+))/i;
 function onceEffects(p){const out=[];srcText(p.board).forEach(x=>String(x.t).split(/;|\.\s+|\.$/).forEach(c=>{c=c.trim();if(!c||!ONCE_RE.test(c))return;
   const i=c.search(ONCE_RE),cm=c.lastIndexOf(", ",i);if(cm>0)c=c.slice(cm+2);                     // "Reach +1, 3x/turn: …" → the per-turn part
-  out.push({n:x.n,c,key:(x.n+"|"+c).slice(0,90),game:/Once per game/i.test(c),x:XCH_RE.exec(c)});}));return out;}
+  out.push({n:x.n,c,key:(x.n+"|"+c).slice(0,90),game:/Once per game/i.test(c),x:XCH_RE.exec(c),ph:oncePhase(c)});}));return out;}
 function onceState(p,game){const t=PT(p);if(game){t.onceG=t.onceG||{};return t.onceG;}
   if(!t.once||t.once.turn!==tTurn())t.once={turn:tTurn(),u:{}};return t.once.u;}
 function onceHTML(p){const L=onceEffects(p);if(!L.length)return "";
+  const ph=tPhase(),tag=e=>e.ph?' <span class="ph-tag'+(e.ph===ph?' now':'')+'">'+esc((T_PHL[e.ph]||e.ph).replace(" Phase",""))+'</span>':'';
   return '<div class="tot"><h3 style="font-size:13px">Once per turn — '+esc(p.name)+'</h3>'+L.map(e=>{const st=onceState(p,e.game),u=+st[e.key]||0;
-    if(e.x){const mx=+e.x[1];return '<div class="tb-row"><span style="flex:1">'+esc(e.n)+': '+esc(e.c)+'</span><b>'+u+'/'+mx+'</b>'+
+    if(e.x){const mx=+e.x[1];return '<div class="tb-row"><span style="flex:1">'+esc(e.n)+': '+esc(e.c)+tag(e)+'</span><b>'+u+'/'+mx+'</b>'+
       '<button data-xch="'+esc(e.key)+'" data-who="'+p.id+'"'+(u>=mx||!canAct(p)?' disabled':'')+'>exchange</button></div>';}
     return '<div class="tb-row"><label style="flex:1"><input type="checkbox" data-once="'+esc(e.key)+'" data-game="'+(e.game?1:0)+'" data-who="'+p.id+'"'+(u?' checked':'')+(canAct(p)?'':' disabled')+'> '+
-      esc(e.n)+': '+esc(e.c)+(e.game?' <span class="note">(per game)</span>':'')+'</label></div>';}).join('')+'</div>';}
+      esc(e.n)+': '+esc(e.c)+(e.game?' <span class="note">(per game)</span>':'')+tag(e)+'</label></div>';}).join('')+'</div>';}
 function wireOnce(host,commit){const byId=id=>D.players.find(p=>String(p.id)===String(id));
   host.querySelectorAll("[data-once]").forEach(cb=>cb.onchange=()=>{const p=byId(cb.dataset.who);if(!p)return;const st=onceState(p,cb.dataset.game==="1");
     if(cb.checked){st[cb.dataset.once]=1;noteAdd(p,(cb.dataset.once.split("|")[0])+" used");flash(p.name+": "+cb.dataset.once.split("|")[0]+" used");}else delete st[cb.dataset.once];
@@ -6593,7 +6680,7 @@ function wireOnce(host,commit){const byId=id=>D.players.find(p=>String(p.id)===S
       if(fw){if(cb.checked)PT(p).envNext={turn:tTurn()+1,n:-(+fw.m[1]),src:nm};else delete PT(p).envNext;}}
     commit();});
   host.querySelectorAll("[data-xch]").forEach(b=>b.onclick=()=>{const p=byId(b.dataset.who);if(!p)return;const e=onceEffects(p).find(x=>x.key===b.dataset.xch);if(!e||!e.x)return;
-    const st=onceState(p,false),u=+st[e.key]||0,gold=+e.x[2],inf=+e.x[3];if(u>=+e.x[1])return;
+    const st=onceState(p,false),u=+st[e.key]||0,gold=+e.x[2],inf=+(e.x[3]||e.x[4]);if(u>=+e.x[1])return;
     if((p.board.treasury||0)<gold){flash(p.name+": not enough gold");return;}
     p.board.treasury-=gold;const c=tCurW(p);c.inflAdj=(+c.inflAdj||0)+inf;st[e.key]=u+1;flash(p.name+": −"+gold+" gold → +"+inf+" Influence");noteAdd(p,e.n+": −"+gold+" gold → +"+inf+" Influence");commit();});}
 function noteAdd(p,msg){const c=tCurW(p);c.notes=(c.notes||[]).concat([msg]).slice(-20);}
@@ -6679,7 +6766,7 @@ function runAutoExtort(){const out=[];
   return out;}
 
 // ---- First Doubt each turn: "First Doubt per turn reduced by N" / "Reduce the first instance of Doubt … by N" ----
-const FD_RE=/first\s+\**Doubt\**\s+(?:per|each) turn reduced by (\d+)|reduce the first instance of Doubt[^.;]*?by (\d+)/i;
+const FD_RE=/first\s+\**Doubt\**\s+(?:(?:per|each) turn|each Empire Phase) reduced by (\d+)|reduce the first instance of Doubt[^.;]*?by (\d+)/i;
 function firstDoubtRed(b){return withBoard(b,()=>{let r=0;const src=[];
   Object.keys(PC).forEach(n=>{const m=((R[n]||{}).innate_raw||"").match(FD_RE);if(m){r+=+(m[1]||m[2])*PC[n];src.push(n);}});
   return {r,src};});}
@@ -7076,7 +7163,8 @@ function renderScene(){
 }
 window.addEventListener("resize",()=>{renderScene();});
 // the header follows the page; past the first screen-top it drops its secondary rows so the Table stays usable
-{let hc=false;window.addEventListener("scroll",()=>{const on=window.scrollY>60;if(on===hc)return;hc=on;document.body.classList.toggle("hdrc",on);try{mnavSync();}catch(e){}},{passive:true});}
+// header: no scroll-driven resizing (a header that shrinks on scroll shortens the page, which un-scrolls it, which grows the
+// header again — the flicker). Its height is measured whenever its own size changes and published as --tbh.
 
 // ---- settlements overview (read-only; build/place happens in the Pursuits section) ----
 function renderSettlements(){
@@ -7159,10 +7247,6 @@ function lockBlock(e){const el=e.target;if(!(el instanceof Element))return null;
   e.stopImmediatePropagation();if(ty!=="pointerdown")e.preventDefault();
   if(ty==="click")flash(t==="spectator"?"claim a player to act":t==="duke"?"Duke only":t==="host"?"Host only":"\ud83d\udd12 "+t.name+"'s board");
   if(ty==="change"||ty==="input")setTimeout(render,0);},true));
-(()=>{const ex=document.getElementById("tbExtra"),m=document.getElementById("appMenu");if(!ex||!m)return;
-  const home=ex.parentNode,next=ex.nextSibling,mq=window.matchMedia("(max-width:700px)");
-  const place=()=>{if(mq.matches){if(ex.parentNode!==m)m.insertBefore(ex,m.firstChild);}else if(ex.parentNode!==home)home.insertBefore(ex,next);};
-  place();if(mq.addEventListener)mq.addEventListener("change",place);else if(mq.addListener)mq.addListener(place);})();
 document.addEventListener("click",e=>{if(document.body.classList.contains("tbopen")&&!e.target.closest("#appMenu,#tbMore,.tbextra"))document.body.classList.remove("tbopen");});
 document.addEventListener("click",e=>{const v=e.target.closest("#viewTable [data-mz]");if(v){mapZoom(v.dataset.mz==="fit"?"fit":+v.dataset.mz);}
   const b=e.target.closest("[data-bs]");if(b&&b.closest(".bside-nav")){BSIDE=b.dataset.bs;render();}});
@@ -7216,13 +7300,13 @@ function renderHUD(){const el=document.getElementById("hud");if(!el)return;const
     tile("--income","Faith / Doubt",'<span class="up">'+h.faith+'</span>/<span class="dn">'+h.doubt+'</span>',"mods "+hudSign(h.pm)+" · net "+hudSign(h.dpo),"board:summary",
       ["Pieces: Faith +"+h.faith+" / Doubt +"+h.doubt].concat(h.pmRows.map(r=>(r.side==="faith"?"Faith +":"Doubt +")+r.n+" · "+r.k+(r.desc?" ("+r.desc+")":""))).concat(["Net Public Order "+hudSign(h.dpo)+" next Empire Phase"]).join("\n"))+
     tile("--craft","Craft",h.craft,"trade "+hudSign(h.trade).replace("\u00b1",""),"board:summary","Craft X and this turn's trade income")+
-    '<div class="hc" style="--hcol:var(--build)" data-goto="realm" title="Domain values (colour = Standing)"><span class="hl">Domains</span><span class="hdom">'+dom+'</span></div>'+
+    '<div class="hc" style="--hcol:var(--build)" data-goto="table#rlPlayers" title="Domain values (colour = Standing)"><span class="hl">Domains</span><span class="hdom">'+dom+'</span></div>'+
     tile("--battle","Armies",h.armies+(h.armyCap!=null?"/"+h.armyCap:""),h.ret+" Retinues","board:board","Armies / Era cap; total Retinues")+
     tile("--season","Settlements",h.setts+(h.settCap!=null?"/"+h.settCap:""),"Wards "+h.wu.u+"/"+h.wu.c,"board:summary","Settlements / Era cap; Wards used / available")+
     (()=>{const bst=Math.max(0,...D.players.map(edictTotal)),lead=bst>0&&h.edicts===bst;
       return tile("--order","Edicts",h.edicts+(lead?" ★":""),bst>0?(lead?"leading":"lead "+bst):"",
-        "realm","Completed Edicts; the most Edicts wins");})()+
-    tile("--order","Renown",rn+"/"+RM,esc(currentEra())+(nxt?" · next "+nxt:""),"realm","Renown track and the next Era threshold",
+        "table#rlRenown","Completed Edicts; the most Edicts wins");})()+
+    tile("--order","Renown",rn+"/"+RM,esc(currentEra())+(nxt?" · next "+nxt:""),"table#rlRenown","Renown track and the next Era threshold",
       '<span class="hg"><i style="left:0;width:'+(rn/RM*100)+'%"></i></span>')+
     (h.flags?'<div class="hc hflag" data-goto="board:board" title="Rule flags on this board"><span class="hl">Flags</span><span class="hv dn">⚑ '+h.flags+'</span></div>':'')+'</div>';
   if(D.players.length>1){
@@ -7261,12 +7345,13 @@ function renderSetup(){const el=document.getElementById("setupPanel");if(!el)ret
     ["Select Faction",P.every(p=>p.board.faction),P.map(p=>dot(p)+esc(p.name)+' '+esc(p.board.faction||"\u2014")).join(' · ')],
     ["Determine Host",!!TB().hostSet,hp?dot(hp)+esc(hp.name)+(TB().hostSet?'':' (default)'):'\u2014'],
     ["Deploy",dep.every(x=>x.town&&x.ham&&x.oc>=need&&!x.fl),dep.map(x=>dot(x.p)+esc(x.p.name)+' Town '+ok(x.town)+' Hamlet '+ok(x.ham)+' Outlaw '+x.oc+'/'+need+(x.fl?' <span class="su-fl">\u2691'+x.fl+'</span>':'')).join('<br>')],
-    ["Wild Outlaw Country",Object.keys(wildZones()).length>=wildCount(),Object.keys(wildZones()).length+'/'+wildCount()+' zones'+(canHost()&&g&&Object.keys(wildZones()).length<wildCount()?' <button data-setup-wild="1">place \u25b8</button>':'')]];
+    ["Wild Outlaw Country",wildDone(),(()=>{const n=Object.keys(wildZones()).length,c=wildCount();return n+(c!=null?'/'+c:'')+' zones'+
+      (canHost()&&g?(wildDone()?' <button data-setup-wild="redo">redo</button>':' <button data-setup-wild="1">place \u25b8</button>'):'');})()]];
   el.innerHTML='<details open><summary><b>Setup</b> <span class="note">'+rows.filter(r=>r[1]).length+'/'+rows.length+'</span></summary><div class="su-grid">'+
     rows.map((r,i)=>'<span class="su-n">'+(i+1)+'</span><span class="su-t">'+r[0]+'</span>'+ok(r[1])+'<span class="su-d">'+r[2]+'</span>').join('')+
     '</div><div style="margin-top:6px"><button data-setup-begin="1"'+(canHost()?'':' disabled')+'>Begin Turn 1 \u2014 '+esc(T_PHL[tPhase()])+'</button></div></details>';}
-document.addEventListener("click",e=>{const w=e.target.closest("[data-setup-wild]");if(w){if(!canHost()){flash("Host only");return;}const n=placeWildOutlaw();flash(n?n+" Wild Outlaw Country zone"+(n>1?"s":"")+" placed":"no room for Wild Outlaw Country");save();render();return;}
-  const b=e.target.closest("[data-setup-begin]");if(!b)return;if(!canHost()){flash("Host only");return;}if(Object.keys(wildZones()).length<wildCount()){placeWildOutlaw();save();}
+document.addEventListener("click",e=>{const w=e.target.closest("[data-setup-wild]");if(w){if(!canHost()){flash("Host only");return;}const n=w.dataset.setupWild==="redo"?rescatterWild():placeWildOutlaw();flash(n?n+" Wild Outlaw Country zone"+(n>1?"s":"")+" placed":"no room for Wild Outlaw Country");save();render();return;}
+  const b=e.target.closest("[data-setup-begin]");if(!b)return;if(!canHost()){flash("Host only");return;}if(!wildDone()){placeWildOutlaw();save();}
   D.players.forEach(p=>(p.board.settlements||[]).forEach(s=>nameSett(p,s)));save();tSetPhase(tPhase());});
 function renderTurnStrip(){const el=document.getElementById("turnStrip");if(!el)return;
   const ph=tPhase(),hp=hostP(),hc=canHost(),i=T_PH.indexOf(ph),nx=T_PH[(i+1)%T_PH.length];
@@ -7310,15 +7395,16 @@ document.addEventListener("click",e=>{const a=e.target.closest("[data-goto]");if
   if(v==="board"&&sec){const ap=document.getElementById("appBoard");ap.dataset.mc=sec;
     document.querySelectorAll("#mnav [data-mc]").forEach(x=>x.classList.toggle("on",x.dataset.mc===sec));}
   render();setTimeout(()=>{const t=anchor?document.getElementById(anchor):(sec&&window.innerWidth<=700?null:document.getElementById(sec==="summary"?"summary":sec==="board"?"boardcol":""));
-    if(t&&t.tagName==="DETAILS"&&!t.open){t.open=true;if(t.id==="refTree"){TREE_SEC=true;treeSave();}}
+    if(t&&t.tagName==="DETAILS"&&!t.open){t.open=true;if(t.id==="refTree"){TREE_SEC=true;treeSave();}if(t.dataset.keep!=null)rlToggle(t);}
     {let pd=t&&t.parentElement&&t.parentElement.closest("details");while(pd){if(!pd.open)pd.open=true;pd=pd.parentElement&&pd.parentElement.closest("details");}}
     if(t)t.scrollIntoView({behavior:"smooth",block:"start"});else window.scrollTo(0,0);},60);});
 // ---- phone section switcher (Board / Catalog / Totals) ----
 document.querySelectorAll("#mnav [data-mc]").forEach(b=>b.onclick=()=>{document.getElementById("appBoard").dataset.mc=b.dataset.mc;
   document.querySelectorAll("#mnav [data-mc]").forEach(x=>x.classList.toggle("on",x===b));window.scrollTo(0,0);});
-function mnavSync(){const tb=document.querySelector(".topbar");if(tb)document.documentElement.style.setProperty("--tbh",(getComputedStyle(tb).position==="sticky"?tb.offsetHeight:0)+"px");
-}
-window.addEventListener("resize",mnavSync);setInterval(mnavSync,1000);
+function mnavSync(){const tb=document.querySelector(".topbar");if(!tb)return;const v=(getComputedStyle(tb).position==="sticky"?tb.offsetHeight:0)+"px";
+  if(document.documentElement.style.getPropertyValue("--tbh")!==v)document.documentElement.style.setProperty("--tbh",v);}
+try{new ResizeObserver(()=>mnavSync()).observe(document.querySelector(".topbar"));}catch(e){}
+window.addEventListener("resize",mnavSync);
 
 // ===================== UNDO / REDO =====================
 // Snapshots everything except Table data (votes are timestamped; undoing them would rewrite the sequence)

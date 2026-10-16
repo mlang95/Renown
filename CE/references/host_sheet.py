@@ -164,7 +164,7 @@ def table(c, x, y, w, headers, rows, size=8.2, rh=12.6, weights=None):
 def turn_flow(c, x, y_top, w):
     """Full-width horizontal turn-sequence flowchart. Returns bottom y."""
     phases = [
-        ("EMPIRE", "start of turn", "Activate Standing effects \u00b7 apply Season \u00b7 tick timers \u00b7 gain Income, Influence & Envoys"),
+        ("EMPIRE", "start of turn", "Start of the Empire Phase \u00b7 Activate Standing effects \u00b7 apply Season \u00b7 tick timers \u00b7 gain Income, Influence & Envoys"),
         ("COUNCIL", "", "Vote a Domain (clockwise; Host breaks ties) \u00b7 each resolves one free action of it"),
         ("ENVOY", "", "Declare envoys \u2192 Diplomacy first, then Domains (Prowess \u2192 Cunning \u2192 Piety \u2192 Industry)"),
         ("BATTLE", "", "Resolve any Skirmishes, Sieges, and Battles declared this turn"),

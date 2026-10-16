@@ -220,7 +220,7 @@ GLOSSARY = {
     # ── Empire state ──
     "Renown":        "The shared progress track. Gain 1 per Rest Phase; thresholds raise your Era (Ascension 8, Eminence 18, Zenith 30).",
     "Domain":        f"One of the four identities — Industry, Prowess, Cunning, Piety — raised by spending Domain points. Values {_ST['Rising']}/{_ST['Established']}/{_ST['Sovereign']} = Rising/Established/Sovereign Standing.",
-    "Domain Point":  "Gain 1 per Rest Phase; spend to raise a Domain value by 1.",
+    "Domain Point":  "Gain {DOMAIN_POINTS_PER_TURN} each Rest Phase; spend to raise a Domain value by 1.",
     "Standing":      f"Your tier in a Domain: Untested, Rising ({_ST['Rising']}), Established ({_ST['Established']}), Sovereign ({_ST['Sovereign']}). Sets max Influence per vote (1/2/3/4) and unlocks Domain effects.",
     "Public Order":  f"A track from {PO_MIN} to {PO_MAX}, adjusted each turn by Faith minus Doubt; its band applies cumulative effects (see the Public Order table).",
     "Reach":         "How far a Settlement projects control, in Territories (by tier). Calculated like Range X",
@@ -228,7 +228,7 @@ GLOSSARY = {
 
     # ── World ──
     "Bandit":        "Neutral hostile force; Bandit Camps spawn in Outlaw Country and on low Public Order.",
-    "Outlaw Country": "Uncontrollable territories where Bandit Camps spawn: your own zone (starting at 3, in your starting region) plus any Wild Outlaw Country within your Reach. Foster Rebellion expands it when there is no room; otherwise, when there is no room, its Bandit Camps grow instead.",
+    "Outlaw Country": "Uncontrollable territories where Bandit Camps spawn: your own zone (starting at {OUTLAW_COUNTRY_START}, in your starting region) plus any Wild Outlaw Country within your Reach. Foster Rebellion expands it when there is no room; otherwise, when there is no room, its Bandit Camps grow instead.",
     "Wild Outlaw Country": "A neutral Outlaw Country zone seeded in the unclaimed interior at Setup. It belongs to no player: its camps spawn each Spring and grow every other Season, and act only on pieces in range.",
     "Siege":         "Sieging a Settlement with an Army to capture it; does not increment in Winter.",
 }
@@ -486,7 +486,7 @@ CULTURES = {
         'monuments': ["Thieves' Guild", 'Aristocratic Court', 'Outlaw Rookery', 'Outrider Intercept Post'],
         'wonders':   ['High Chancery'],
         'actions':   ['Raze', 'Foster Rebellion', 'Intercept Caravan'],
-        'factions':  ['The Bandit King', 'The Crimson Tide', 'The Smoldering Crown'],
+        'factions':  ['The Bandit King', 'The Crimson Tide', 'The Smoldering Crown', 'The Illusionists'],
         'radar': {'military_solutions': 2, 'economy_generators': 3, 'faith_management': 1, 'doubt_warfare': 5,
                   'political_control': 3, 'board_presence': 2, 'degenerate_punishment': 5},
     },
@@ -636,6 +636,7 @@ FACTION_SUMMARIES = {
     'The Sublime Gate':      "Musters from Trade Partners' Pursuits",
     'The Iron Shore':        'Spoils win or lose; recoups lost Retinues',
     'The Hall of Masks':     "Takes another player's Faction each turn",
+    'The Illusionists':      'Cunning sets every Envoy\'s innate Authority; no Alliances',
     'The Forked Tongue':     'Unlimited, contradictory Treaties',
     'The Velvet Hand':       'Rewards players who support your Envoys',
     'The Iron Throne':       "Starts with a Citadel; your Alliance can't Declare War",
@@ -1123,7 +1124,7 @@ NODES = {
         "unlock": "Rising Piety",
         "mastery_req": "Salt Works + Chandlery + Cathedral",
         "innate": "+500",
-        "mastery": "First Doubt each turn reduced by 1 (min 0)",
+        "mastery": "First Doubt each Empire Phase reduced by 1 (min 0)",
         "efficient": "Chandlery",
         "builds_into": ["Pilgrimage Site"],
         "monument": False},
@@ -1217,7 +1218,7 @@ NODES = {
         "unlock": "Rising Piety",
         "mastery_req": "Masonry",
         "innate": "Faith +1",
-        "mastery": "Reduce the first instance of Doubt at start of turn by 1, min 0.",
+        "mastery": "Reduce the first instance of Doubt each Empire Phase by 1, min 0.",
         "builds_into": ["Interrogation Chambers", "Abbey"],
         "monument": False,
 		"efficient": "Courtyard"},
@@ -1237,7 +1238,7 @@ NODES = {
         "unlock": "Established Prowess",
         "mastery_req": "Coliseum + Conditioning Field",
         "innate": "Faith +1; Improve Parry by +1.",
-        "mastery": "3x/turn: exchange 500 gold for 1 Influence; Armies gain Riposte",
+        "mastery": "3x per Envoy Phase: exchange 500 gold for Influence +1; Armies gain Riposte",
         "efficient": "Coliseum",
         "builds_into": ["Royal Pavilion"],
         "monument": False,
@@ -1370,7 +1371,7 @@ NODES = {
         "unlock": "Established Cunning",
         "mastery_req": "Academy + Secret Cellar",
         "innate": "Extort 300 anytime a player Opposes an Envoy of yours",
-        "mastery": "Once per turn: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed",
+        "mastery": "Once per Envoy Phase: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed",
         "efficient": ["Academy", "University", "Secret Cellar"],
         "builds_into": ["Aristocratic Court", "Cipher Chamber"],
         "monument": False},
@@ -1399,7 +1400,7 @@ NODES = {
         "type": "Energy",
         "unlock": "Rising Prowess",
         "mastery_req": "Courier Network + Toll House",
-        "innate": "Natural; Once per turn, you may select an Army within your Province and move it up to its modified Speed.",
+        "innate": "Natural; Once per Envoy Phase, you may select an Army within your Province and move it up to its modified Speed.",
         "mastery": "Whenever a non-allied Army ends a Move action within your Province, you may immediately perform a Move action",
         "efficient": "Toll House",
         "builds_into": [],
@@ -1586,7 +1587,7 @@ NODES = {
         "unlock": "1 Sovereign",
         "mastery_req": "Embassy + Library + Town Hall",
         "innate": "Faith +1, gain Influence +1 per other player each Empire Phase",
-        "mastery": "Once per turn: Before players Support or Oppose, you may auto-Condemn an At War Envoy OR auto-Endorse an Ally's Envoy",
+        "mastery": "Once per Envoy Phase: Before players Support or Oppose, you may auto-Condemn an At War Envoy OR auto-Endorse an Ally's Envoy",
         "efficient": "Embassy",
         "builds_into": [],
         "monument": True},
@@ -1595,7 +1596,7 @@ NODES = {
         "unlock": "Sovereign Piety",
         "mastery_req": "Monastery + Pilgrimage Site",
         "innate": "Your Piety actions that cause doubt cause an additional doubt. You no longer pay cost for Piety Envoys.",
-        "mastery": "At the start of each turn, Tithe every other player with lower Piety, resolved in the Extort step.",
+        "mastery": "Each Empire Phase, Tithe every other player with lower Piety, resolved in the Extort step.",
         "efficient": ["Monastery"],
         "builds_into": [],
         "monument": True},
@@ -2040,7 +2041,7 @@ SIMPLE_NODES = {
     "Abbey": {
         "group": "g_devotion",
         "unlock": "Established Piety",
-        "innate": "Once per turn: Authority +2 another player's Piety Envoy; Authority -1 to Piety actions targeting you",
+        "innate": "Once per Envoy Phase: Authority +2 another player's Piety Envoy; Authority -1 to Piety actions targeting you",
         "efficient": "Priory",
         "builds_into": ["Monastery"],
         "monument": False},
@@ -2048,7 +2049,7 @@ SIMPLE_NODES = {
         "group": "g_devotion",
         "unlock": "Rising Piety",
         "infrastructure_req": "Cathedral",
-        "innate": "+500; First Doubt each turn reduced by 1 (min 0)",
+        "innate": "+500; First Doubt each Empire Phase reduced by 1 (min 0)",
         "efficient": "Chandlery",
         "builds_into": ["Pilgrimage Site"],
         "monument": False},
@@ -2077,7 +2078,7 @@ SIMPLE_NODES = {
     "Jester's Court": {
         "group": "g_court",
         "unlock": "1 Rising",
-        "innate": "First and second Oppose on an Envoy of yours each turn: reduce by 1",
+        "innate": "First and second Oppose on an Envoy of yours each Envoy Phase: reduce by 1",
         "efficient": "Courtyard",
         "builds_into": ["Bell Tower"],
         "monument": False},
@@ -2123,7 +2124,7 @@ SIMPLE_NODES = {
     "Episcopal Court": {
         "group": "g_devotion",
         "unlock": "Rising Piety",
-        "innate": "Faith +1; Reduce the first instance of Doubt at start of turn by 1, min 0.",
+        "innate": "Faith +1; Reduce the first instance of Doubt each Empire Phase by 1, min 0.",
         "efficient": "Courtyard",
         "builds_into": ["Interrogation Chambers"],
         "monument": False},
@@ -2138,7 +2139,7 @@ SIMPLE_NODES = {
     "Grand Tournament": {
         "group": "g_logistics",
         "unlock": "Established Prowess",
-        "innate": "Reach +1, 3x/turn: exchange 500 gold for 1 Influence; Armies gain Riposte & Improve Parry by +1.",
+        "innate": "Reach +1, 3x per Envoy Phase: exchange 500 gold for Influence +1; Armies gain Riposte & Improve Parry by +1.",
         "efficient": ["Coliseum","Tiltyard"],
         "builds_into": [],
         "monument": False},
@@ -2195,14 +2196,14 @@ SIMPLE_NODES = {
     "Courier Network": {
         "group": "g_court",
         "unlock": "-",
-        "innate": "Once per turn before voting: Authority -1 on Target Envoy; Once per turn: successfully Performed Personal Envoy can be Performed next turn; send 1 fewer Envoys next turn",
+        "innate": "Once per Envoy Phase before voting: Authority -1 on Target Envoy; Once per Envoy Phase: successfully Performed Personal Envoy can be Performed next turn; send 1 fewer Envoys next turn",
         "efficient": "Inn",
         "builds_into": ["Smuggler's Nook"],
         "monument": False},
     "Toll House": {
         "group": "g_secrecy",
         "unlock": "Rising Cunning",
-        "innate": "Natural, Extort 2000 when non-Allied Army ends a Move action within your Province; Once per turn: when an Army ends a Move action within your Province: Perform a Diplomacy action targeting that army's player",
+        "innate": "Natural, Extort 2000 when non-Allied Army ends a Move action within your Province; Once per Envoy Phase: when an Army ends a Move action within your Province: Perform a Diplomacy action targeting that army's player",
         "efficient": ["Caravanery"],
         "builds_into": ["Beacon Towers"],
         "monument": False},
@@ -2251,7 +2252,7 @@ SIMPLE_NODES = {
     "Forgery Workshop": {
         "group": "g_secrecy",
         "unlock": "Established Cunning",
-        "innate": "Extort 300 anytime a player Opposes an Envoy of yours; Once per turn: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed",
+        "innate": "Extort 300 anytime a player Opposes an Envoy of yours; Once per Envoy Phase: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed",
         "efficient": ["University", "Academy"],
         "builds_into": ["Cipher Chamber"],
         "monument": False},
@@ -2287,7 +2288,7 @@ SIMPLE_NODES = {
     "Beacon Towers": {
         "group": "g_secrecy",
         "unlock": "Established Cunning",
-        "innate": "Natural; Once per turn, you may select an Army within your Province and move it up to its modified Speed. Whenever a non-allied Army ends a Move action within your Province, you may immediately perform a Move action",
+        "innate": "Natural; Once per Envoy Phase, you may select an Army within your Province and move it up to its modified Speed. Whenever a non-allied Army ends a Move action within your Province, you may immediately perform a Move action",
         "efficient": "Toll House",
         "builds_into": ["Outrider Intercept Post"],
         "monument": False},
@@ -2337,7 +2338,7 @@ SIMPLE_NODES = {
     "Baggage Train": {
         "group": "g_logistics",
         "unlock": "Sovereign Prowess",
-        "innate": "Natural; Armies do not pay Upkeep while in your Province. Upkeep -2000 while not in your Province. Once per turn, you may perform a Move action.",
+        "innate": "Natural; Armies do not pay Upkeep while in your Province. Upkeep -2000 while not in your Province. Once per Envoy Phase, you may perform a Move action.",
         "efficient": "Levy Hall",
         "builds_into": [],
         "monument": True},
@@ -2445,14 +2446,14 @@ SIMPLE_NODES = {
         "group": "g_court",
         "unlock": "1 Sovereign",
         "infrastructure_req": "Library + Town Hall",
-        "innate": "Faith +1, gain Influence +1 per other player each Empire Phase; Once per turn: Before players Support or Oppose, you may auto-Condemn an At War Envoy OR auto-Endorse an Ally's Envoy",
+        "innate": "Faith +1, gain Influence +1 per other player each Empire Phase; Once per Envoy Phase: Before players Support or Oppose, you may auto-Condemn an At War Envoy OR auto-Endorse an Ally's Envoy",
         "efficient": "Embassy",
         "builds_into": [],
         "monument": True},
     "Papal Palace": {
         "group": "g_devotion",
         "unlock": "Sovereign Piety",
-        "innate": "You no longer pay cost for Piety Envoys. At the start of each turn, Tithe every other player with lower Piety, resolved in the Extort step.",
+        "innate": "You no longer pay cost for Piety Envoys. Each Empire Phase, Tithe every other player with lower Piety, resolved in the Extort step.",
         "efficient": ["Monastery"],
         "builds_into": [],
         "monument": True},
@@ -2473,7 +2474,7 @@ SIMPLE_NODES = {
     "Exalted Basilica": {
         "group": "g_devotion",
         "unlock": "Sovereign Piety",
-        "innate": "Your piety actions cause an additional Doubt or an additional Faith. Once per turn, perform an Endorsed Spread Truth.",
+        "innate": "Your piety actions cause an additional Doubt or an additional Faith. Each Empire Phase (Activate), you may perform an Endorsed Spread Truth.",
         "efficient": "Pilgrimage Site",
         "builds_into": [],
         "monument": True},
@@ -2516,14 +2517,14 @@ SIMPLE_NODES = {
     "Cipher Chamber": {
         "group": "g_secrecy",
         "unlock": "Established Cunning",
-        "innate": "Once per turn: select an army you did not select last turn, that army gains Blocked. Once per turn: select any active Timer you did not select last turn; increase it by 2.",
+        "innate": "Each Empire Phase (Activate): select an army you did not select last turn; that army gains Blocked. Each Empire Phase (Activate): select any active Timer you did not select last turn; increase it by 2.",
         "efficient": "Forgery Workshop",
         "builds_into": ["Whispering Undercroft"],
         "monument": False},
     "Whispering Undercroft": {
         "group": "g_secrecy",
         "unlock": "Sovereign Cunning",
-        "innate": "You always vote last, after the Host. Once per turn when a player sends an Envoy: that player must declare the specific action & target they would Perform if the Envoy passes (including sub-Actions). If it passes, they must Perform that declared action at the declared target.",
+        "innate": "You always vote last, after the Host. Once per Envoy Phase when a player sends an Envoy: that player must declare the specific action & target they would Perform if the Envoy passes (including sub-Actions). If it passes, they must Perform that declared action at the declared target.",
         "efficient": "Cipher Chamber",
         "builds_into": [],
         "monument": True},
@@ -2687,7 +2688,7 @@ FACTIONS = {
         'feel': 'Scrappy',
         'difficulty': 'Low',
         'strength': 'Low',
-        'mechanic': "Friends in Low Places: You begin the game with a Smuggler's Nook (no Ward, no upkeep, always-active Mastery that can't be deactivated). Each turn, you may control one Bandit Camp outside your Territory. When a Bandit Camp is generated, you may place it in your Outlaw Country instead.",
+        'mechanic': "Friends in Low Places: You begin the game with a Smuggler's Nook (no Ward, no upkeep, always-active Mastery that can't be deactivated). At the Start of the Empire Phase, you may control one Bandit Camp outside your Territory. When a Bandit Camp is generated, you may place it in your Outlaw Country instead.",
         'pair': "Thieves' Guild, Saddlery",
         'complement': 'Royal Pavilion',
     },
@@ -2697,7 +2698,7 @@ FACTIONS = {
         'feel': 'Sovereign Voice',
         'difficulty': 'Low',
         'strength': 'Medium',
-        'mechanic': "The Monarch: Each turn, you choose every Council Envoy's Domain. You abstain every Personal Envoy.",
+        'mechanic': "The Monarch: Each Council Phase, you choose every Council Envoy's Domain. You abstain every Personal Envoy.",
         'pair': 'Senate Hall, Aristocratic Court',
         'complement': 'Royal Pavilion',
     },
@@ -2907,7 +2908,7 @@ FACTIONS = {
         'feel': 'Strength Through Diplomacy',
         'difficulty': 'Medium',
         'strength': 'Medium',
-        'mechanic': "Palatine: Each player allied with you has Authority +1 on their Envoys. Each turn, you may spend 1 of an ally's Influence, targeting your own Envoys if you wish.",
+        'mechanic': "Palatine: Each player allied with you has Authority +1 on their Envoys. Once per Envoy Phase, you may spend 1 of an ally's Influence, targeting your own Envoys if you wish.",
         'pair': 'Senate Hall, Aristocratic Court',
         'complement': 'Royal Pavilion',
     },
@@ -2957,7 +2958,7 @@ FACTIONS = {
         'feel': 'Generous Sponsor',
         'difficulty': 'Medium',
         'strength': 'Medium',
-        'mechanic': 'Friends in High Places: At the start of the turn, a player who supported an Envoy you sent that passed gains Faith +1; if that Envoy was endorsed, they Extort 500 gold from you.',
+        'mechanic': 'Friends in High Places: Each Empire Phase, a player who supported an Envoy you sent that passed gains Faith +1; if that Envoy was endorsed, they Extort 500 gold from you.',
         'pair': 'Aristocratic Court, Senate Hall',
         'complement': 'Royal Pavilion',
     },
@@ -2977,7 +2978,7 @@ FACTIONS = {
         'feel': 'Always for Sale',
         'difficulty': 'High',
         'strength': 'Low',
-        'mechanic': "The Highest Bidder: You can't Declare War and can't be the target of a Declare War action. Each turn, you must sign the Military or Defensive Alliance offered by the highest-bidding player, and must be paid each turn. To overturn your current Alliance, a player must pay more than the prior agreement. You can't sign or end Alliances via a Diplomacy action.",
+        'mechanic': "The Highest Bidder: You can't Declare War and can't be the target of a Declare War action. Each Empire Phase, you must sign the Military or Defensive Alliance offered by the highest-bidding player, and must be paid each Empire Phase. To overturn your current Alliance, a player must pay more than the prior agreement. You can't sign or end Alliances via a Diplomacy action.",
         'pair': 'Royal Pavilion, Forge',
         'complement': 'Senate Hall',
     },
@@ -2997,7 +2998,7 @@ FACTIONS = {
         'feel': 'Shifting Identity',
         'difficulty': 'High',
         'strength': 'High',
-        'mechanic': "Mimic: At the start of each turn, choose another player's Faction; you have that Faction's mechanic this turn. You can't choose that same Faction next turn.",
+        'mechanic': "Mimic: At the Start of the Empire Phase, choose another player's Faction; you have that Faction's mechanic this turn. You can't choose that same Faction next turn.",
         'pair': 'Studium Generale, Senate Hall',
         'complement': 'Royal Pavilion',
     },
@@ -3204,7 +3205,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                         'requirement': 'Cathedral'},
  'High Chancery': {'upkeep': 500,
                    'upkeep_frequency': 'per Wonder',
-                   'empire_bonus': 'Once per turn, you may Endorse one Envoy Sent '
+                   'empire_bonus': 'Once per Envoy Phase, you may Endorse one Envoy Sent '
                                    'by yourself after voting.'
                                    '',
                    'tier': 'Wondrous',
@@ -3410,24 +3411,33 @@ OUTLAW_BUFFER_RANGE = 2   # new settlements must be at least this far from Outla
 HAMLET_RANGE        = 2   # exact range a Hamlet sits from the capital
 OUTLAW_COUNTRY_START = 3  # Outlaw Country territories demarcated at game start
 
-# Wild Outlaw Country: neutral zones seeded in the unclaimed interior as the last Setup step (after Deploy).
-# Count = ceil(players / per_players) + plus. Each zone is OUTLAW_COUNTRY_START connected Territories, range
-# OUTLAW_BUFFER_RANGE+ from every Settlement and other Outlaw Country, placed as far from both as the map allows.
+# Wild Outlaw Country: neutral zones scattered over the unclaimed board as the last Setup step (after Deploy).
+# Each zone is OUTLAW_COUNTRY_START connected Territories (no Water / Mountains), at least Range border_range from every
+# player's Province (Settlement Reach) and at least Range spacing from every other Outlaw Country zone.
+# count "fill" = as many zones as fit those ranges (capped by max, if set); "formula" = ceil(players / per_players) + plus.
 # A Wild zone belongs to no player; its Territories count as "your Outlaw Country" only while within your Reach.
+# Wild camps otherwise behave exactly like every other Bandit Camp (the three flags are plumbing; True = same as others).
 WILD_OUTLAW = {
-    "per_players": 2,        # ceil(players / 2)
-    "plus": 1,               # + 1
+    "count": "fill",         # "fill" | "formula"
+    "max": None,             # cap on zones in "fill" mode (None = no cap)
+    "border_range": 5,       # min Range from any player's Province
+    "spacing": 5,            # min Range from any other Outlaw Country zone
+    "per_players": 2,        # "formula": ceil(players / 2)
+    "plus": 1,               # "formula": + 1
     "spring_spawn": True,    # Spring: each Wild zone spawns a Bandit Camp (full zone -> its camps grow instead)
-    "spring_growth": False,  # Spring: Wild camps don't also grow (they grow every other Season)
-    "march": False,          # a Wild Bandit Army Skirmishes / Lays Siege in range but never Marches
+    "spring_growth": True,   # Spring: Wild camps also grow, like every other camp
+    "march": True,           # a Wild Bandit Army Marches like every other Bandit Army
 }
+# Glossary text that quotes a constant defined after GLOSSARY: fill it in here, so the number lives in one place.
+GLOSSARY["Outlaw Country"] = GLOSSARY["Outlaw Country"].replace("{OUTLAW_COUNTRY_START}", str(OUTLAW_COUNTRY_START))
 def wild_outlaw_count(players):
     return -(-int(players) // WILD_OUTLAW["per_players"]) + WILD_OUTLAW["plus"]
 
-# Bandit targeting by reach. A Bandit Camp's Cunning action only targets a player's Settlement or Army that has the
-# camp in range: within that piece's Aura (SETTLEMENTS / RETINUES "aura") when BANDIT_CAMP_REACH is None, else within
-# BANDIT_CAMP_REACH of the camp. Nearest first; the Host breaks ties. No piece in range: the camp takes no action.
-BANDIT_CAMP_REACH = None
+# Bandit targeting. "province": a camp targets the players whose Province (Settlement Reach) covers the camp's hex — any of
+# those players' Settlements and Armies, nearest first (the Host breaks ties); a camp in nobody's Province takes no action.
+# Alternatives kept as plumbing: None = only pieces whose own Aura (SETTLEMENTS / RETINUES "aura") covers the camp;
+# an integer N = only pieces within Range N of the camp.
+BANDIT_CAMP_REACH = "province"
 
 # ── Vassalage ─────────────────────────────────────────────────────────────────
 VASSAL_EXCHANGE_CAP = 5000  # max gold a Suzerain/vassal may exchange per Empire Phase
@@ -3884,19 +3894,23 @@ ARMY_UPKEEP_NOTE = "Net Army Upkeep = the sum of each Army's cost (by Retinue ty
 # ── ACTION / EMPIRE GOLD COSTS ───────────────────────────────────────────────
 # The flat costs the rules attach to actions and siege outcomes.
 COSTS = {
-    "Pursue action":   "2000 gold (the envoy action; pursuit then costs per-turn upkeep by type)",
+    "Pursue action":   f"{ACTIONS['Pursue']['cost']} (the envoy action; pursuit then costs upkeep by type each Empire Phase)",
     "Pursuit upkeep":  f"Each Empire Phase, by type (fixed): {_PU_TEXT}",
     "Army upkeep":     "sum of each Army's cost (by Retinue type) - Upkeep -X modifiers",
     "Infrastructure upkeep": "Per-settlement (see INFRASTRUCTURE); Trade Guild removes Primitive/Developed, College of Engineering removes Sophisticated",
-    "Cunning action":  "2000 gold (Intercept Caravan / Foster Rebellion / Raze / Destabilize)",
-    "Industry action": "2000 gold (Build / Repair / Pursue / Charter)",
-    "Piety action":    "Doubt 1 (Spread Truth / Send Missionaries / Tithe / Convert / Sacred War)",
-    "Prowess action":  "None (Move / Declare War / Demand Tribute)",
-    "Diplomacy action":"None (Sign Treaty / Negotiate / End Treaty)",
+
     "Sack":            f"Extort {SACK_EXTORT_PER_TIER} per settlement tier; reduce settlement by 1 tier; Sack Timer {TIMERS['Sack Timer']['default']}",
-    "Tax per tier":    "500 gold per settlement tier per turn (collected in Winter)",
+    "Tax per tier":    "Winter tax by Settlement tier: " + " / ".join(f"{k} {v['tax_income']}" for k, v in SETTLEMENTS.items()),
     "Trade Income":    "100 x host's Craft X per active Trade Agreement",
 }
+# "<Domain> action" cost lines are read from ACTIONS (grouped by cost); rerun after ACTIONS changes (SIMPLE overlay).
+def _action_costs():
+    for _dom in ("Cunning", "Industry", "Piety", "Prowess", "Diplomacy"):
+        _g = {}
+        for _a, _r in ACTIONS.items():
+            if _r.get("domain") == _dom: _g.setdefault(_r.get("cost") or "None", []).append(_a)
+        COSTS[f"{_dom} action"] = "; ".join(f"{_c} ({' / '.join(_n)})" for _c, _n in _g.items())
+_action_costs()
 
 # phase order (currently only in RULES_reorganized)
 PHASES = ("Empire", "Council", "Envoy", "Battle", "Rest")
@@ -4259,10 +4273,13 @@ def verify_bandit_tables(faces=None):
 # Place after BANDIT_BEHAVIOR is defined, or move the dict below this block.
 BANDIT_BEHAVIOR["Cunning Roll"] = bandit_cunning_text()
 BANDIT_BEHAVIOR["Targeting"] = (
-    "A camp's Cunning action targets only a player's Settlement or Army that has the camp within its Aura"
-    + (f" (range {BANDIT_CAMP_REACH} of the camp)" if BANDIT_CAMP_REACH is not None else "")
-    + ", nearest first; none in range: no action. Wild camps spawn each Spring" + ("" if WILD_OUTLAW["spring_growth"] else " and grow in every other Season")
-    + ("" if WILD_OUTLAW["march"] else "; a Wild Bandit Army never Marches") + ".")
+    ("A camp's Cunning action targets the Settlements and Armies of the players whose Province covers the camp"
+     if BANDIT_CAMP_REACH == "province" else
+     "A camp's Cunning action targets only a player's Settlement or Army that has the camp within its Aura"
+     if BANDIT_CAMP_REACH is None else
+     f"A camp's Cunning action targets only a player's Settlement or Army within Range {BANDIT_CAMP_REACH} of the camp")
+    + ", nearest first; none: no action. Wild Outlaw Country camps spawn, grow" + (" (not in Spring)" if not WILD_OUTLAW["spring_growth"] else "")
+    + " and " + ("March" if WILD_OUTLAW["march"] else "hold instead of Marching") + " like any other camp.")
 BANDIT_BEHAVIOR["Attacking"] = (
     f"Move to end adjacent to a camp; another player rolls bandit tactics on a "
     f"D{BANDIT_FACES} (see the bandit tactic table) and resolves to-strike/save as a "
@@ -4346,6 +4363,7 @@ GLOSSARY.setdefault("Ranged Weapons", "Ranged weapons: " + ", ".join(
 RENOWN_MAX = 30              # Renown stops here; the game continues but no more Renown is gained
 RENOWN_PER_TURN = 1          # Rest Phase step 3 "Gain Renown" — the rules don't state an amount; set here
 DOMAIN_POINTS_PER_TURN = 1   # Rest Phase step 4 / Key Resources: "Domain Points — earned 1 per turn"
+GLOSSARY["Domain Point"] = GLOSSARY["Domain Point"].replace("{DOMAIN_POINTS_PER_TURN}", str(DOMAIN_POINTS_PER_TURN))
 
 
 # ── SIMPLE overlay ──────────────────────────────────────────────────────────────
@@ -4479,7 +4497,7 @@ if SIMPLE:
     if "Pursue action" in COSTS:
         _cs = dict(COSTS); COSTS.clear()
         for _k, _v in _cs.items(): COSTS["Build action" if _k == "Pursue action" else _k] = _v
-    COSTS["Industry action"] = COSTS["Industry action"].replace("(Build / Repair / Pursue / Charter)", "(Build / Improve / Repair / Charter)")
+    _action_costs()
     for _c in CULTURES.values():
         if "actions" in _c:
             _c["actions"] = [{"Build": "Improve", "Pursue": "Build"}.get(a, a) for a in _c["actions"]]

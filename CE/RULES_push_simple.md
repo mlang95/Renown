@@ -49,7 +49,7 @@ Renown takes place over multiple turns each game, separated into distinct Eras, 
 The game tracks a handful of core resources:
 
 - **Gold / Treasury** — your spendable wealth. Pays the cost of Actions, upkeep, and muster recruitment. Running out triggers Insolvency.
-- **Domain Points** — earned 1 per turn, spent to raise Domain Standings. The currency of long-term growth.
+- **Domain Points** — earned {{VAL:DOMAIN_POINTS_PER_TURN}} each Rest Phase, spent to raise Domain Standings. The currency of long-term growth.
 - **Influence** — the weight you bring to Envoy votes. Base Influence comes from your Standing ({{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Untested}}/{{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Rising}}/{{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Established}}/{{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Sovereign}}); you may spend up to 1 + Standing to support or oppose other players' envoys of that Domain.
 - **Renown** — The score of the Table. Accumulated by completing Edicts and at the end of each turn; the player who has completed the most Edicts when the game ends wins.
 - **Public Order** — the stability of your realm, reduced by Doubt, improved by Faith. Low Public Order weakens your empire; certain effects key off it.
@@ -114,7 +114,7 @@ A few conventions make every rule in this book read the same way:
 
 Each turn runs through five phases in order, then passes the Host and repeats:
 
-1. **Empire Phase**{{IDX:Empire Phase}} — start of turn: activate Standing effects, apply the Season, increment timers, resolve Bandit Mechanics, gain Influence & Envoys, collect income, and pay upkeep.
+1. **Empire Phase**{{IDX:Empire Phase}} — start of turn: Start of the Empire Phase effects, activate Standing effects, apply the Season, increment timers, resolve Bandit Mechanics, gain Influence & Envoys, collect income, and pay upkeep.
 2. **Council Phase**{{IDX:Council Phase}} — a Council vote on a Domain; each player then performs one action of that Domain.
 3. **Envoy Phase**{{IDX:Envoy Phase}} — send all Envoys, a Forum, vote on every Envoy, then resolve them all (Diplomacy → Prowess → Cunning → Piety → Industry).
 4. **Battle Phase**{{IDX:Battle Phase}} — Skirmishes, Sieges, and Battles resolve.
@@ -132,7 +132,8 @@ Many actions set a Timer to a number of turns. Each Empire Phase, every active T
 
 ### Empire Phase
 
-- **Activate** any unlocked Domain Standing effects.
+- **Start of the Empire Phase** — resolve every effect that happens at the Start of the Empire Phase.
+- **Activate** any unlocked Domain Standing effects, then any Each Empire Phase (Activate) effects.
 - **Apply the Season** — check this turn's Season and apply its effect.
 - **Increment** all eligible active timers, in this order: Build, Repair, Truce, Siege, Muster, Sack, Capture.
 - **Resolve** any timers that reached 0.
@@ -154,7 +155,7 @@ Many actions set a Timer to a number of turns. Each Empire Phase, every active T
 	- Check your Treasury for the Wealth Edict condition.
 - **Apply innate Public Order modifiers** — check each Faith/Doubt source in the Public Order tables and adjust your Public Order. *(Faith/Doubt from actions are already applied the moment they're generated; see Public Order.)*
 - Every Army without **Strained** gains +{{VAL:ENDURANCE_REGAIN}} Endurance; then remove Strained from all Armies. *(An Army can immediately regain these effects after losing them, if applicable.)*
-- Resolve any remaining start-of-turn effects.
+- Resolve any remaining Each Empire Phase effects.
 
 ### Council Phase
 
@@ -217,7 +218,7 @@ The Realm cycles through four Seasons.{{IDX:Season}} The current Season's effect
 3. **Select Faction** — pick a Faction Card (optional for new players).
 4. **Determine Host** — give the Host Card to the most experienced player. If tied, to whoever wants to Host; if still tied, roll off.
 5. **Deploy** — taking turns from the starting player, each player places their capital Town within Range {{VAL:CAPITAL_EDGE_RANGE}} of the board edge or corner. Then each player places their Hamlet exactly Range {{VAL:HAMLET_RANGE}} from their Town. Then each player places their Outlaw Country: its first Territory exactly Range {{VAL:OUTLAW_BUFFER_RANGE}} from their Town, and no Outlaw Country Territory within Range {{VAL:OUTLAW_BUFFER_RANGE}} of their Hamlet.
-6. **Wild Outlaw Country** — the Host seeds the Wild Outlaw Country zones in the unclaimed interior (see Bandits).
+6. **Wild Outlaw Country** — the Host scatters the Wild Outlaw Country zones over the unclaimed board (see Bandits).
 
 ### Ages
 
@@ -638,9 +639,9 @@ If that's not possible, place them Range 2 from your capital Settlement.
 
 ### Wild Outlaw Country
 
-As the last Setup step, the Host seeds one Wild Outlaw Country zone per {{VAL:WILD_OUTLAW.per_players}} players (rounded up), plus {{VAL:WILD_OUTLAW.plus}}. Each zone is {{VAL:OUTLAW_COUNTRY_START}} connected Territories, at least Range {{VAL:OUTLAW_BUFFER_RANGE}} from any Settlement and any other Outlaw Country, placed as far from both as the map allows, and more than Range {{VAL:CAPITAL_EDGE_RANGE}} from the board edge where there's room.
+As the last Setup step, the Host scatters Wild Outlaw Country zones over the unclaimed board: as many as fit, each at least Range {{VAL:WILD_OUTLAW.border_range}} from every player's Province and at least Range {{VAL:WILD_OUTLAW.spacing}} from every other Outlaw Country zone. Each zone is {{VAL:OUTLAW_COUNTRY_START}} connected Territories, none on mountain or water Territory.
 
-A Wild zone belongs to no player. Its Territories count as your Outlaw Country only while they're within your Reach. Each Spring, place a Bandit Camp of {{VAL:BANDIT_CAMP_START}} Bandits (Retinues) with {{VAL:BANDIT_CAMP_GOLD}} gold in each Wild zone; if there's no room, that zone's camps grow instead. Wild camps grow in every other Season, not in Spring.
+A Wild zone belongs to no player. Its Territories count as your Outlaw Country only while they're within your Reach. Otherwise Wild camps behave like every other Bandit Camp: each Spring, place a Bandit Camp of {{VAL:BANDIT_CAMP_START}} Bandits (Retinues) with {{VAL:BANDIT_CAMP_GOLD}} gold in each Wild zone (if there's no room, that zone's camps grow instead), and Wild camps grow, act, and March like any other.
 
 ### Spawning Bandit Camps
 
@@ -672,7 +673,7 @@ While there are {{VAL:BANDIT_CUNNING_MIN}}+ Bandits (Retinues) in a camp, roll a
 
 {{TABLE:bandit_cunning}}
 
-A camp's action targets only a player's Settlement or Army that has the camp within its Aura, the nearest first. If no piece is in range, the camp takes no action.
+A camp's action targets the Settlements and Armies of every player whose Province covers the camp, the nearest first. If the camp is in no player's Province, it takes no action.
 
 When a player attacks a Bandit Camp or Army, another player rolls its tactic:
 
@@ -691,8 +692,6 @@ After Bandit Mechanics resolve, a Bandit Army performs a Move action based on, i
 3. **March** — toward the closest player's Army or Settlement.
 
 *Note: if range ties, the Host chooses the target.*
-
-A Wild Bandit Army Skirmishes or Lays Siege only. It never Marches.
 
 ### Attacking a Bandit Camp
 
