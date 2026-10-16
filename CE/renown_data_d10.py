@@ -2012,7 +2012,7 @@ SIMPLE_NODES = {
         "monument": False},
     "Shipyard": {
         "group": "g_commerce",
-        "unlock": "Established Industry",
+        "unlock": "Rising Industry",
         "innate": "Craft +4; Water Territory treated as Grassland for movement",
         "efficient": "Harbor",
         "builds_into": ["Storehouse"],
