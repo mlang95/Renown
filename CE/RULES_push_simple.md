@@ -65,6 +65,7 @@ A few conventions make every rule in this book read the same way:
 - **may** marks something optional. If a rule doesn't say *may*, it's mandatory.
 - **can't** and **doesn't** are hard stops, and always win over a *may* or a *must* (see Core Principle 2).
 - Effects are written by *when* they apply: **While X** is always on; **When X** / **At X** happens once, at that moment; an action's **Cost / Effect / Endorsed** happens when you take the action.
+- Limits are written by *window*: **At the Start of the Empire Phase** happens once, in that step; **Each <Phase>** happens every time that phase does; **Once per <Phase>** can be used once, only during that phase; **Once per turn** can be used once, in any phase — a trigger such as *when an Army ends a Move action* fires in whichever phase the Move happens.
 - **Choose one:** marks a set of options from which you pick exactly one.
 - *Italic text is reminder, example, or strategy — it explains the rule but never changes it; the plain-text rule governs.*
 - Capitalized terms (Army, Envoy, Standing, Holding, Treaty…) are defined terms — each section closes with a glossary of the terms it introduces, and the Index at the back lists every term with its page numbers.
@@ -218,7 +219,7 @@ The Realm cycles through four Seasons.{{IDX:Season}} The current Season's effect
 3. **Select Faction** — pick a Faction Card (optional for new players).
 4. **Determine Host** — give the Host Card to the most experienced player. If tied, to whoever wants to Host; if still tied, roll off.
 5. **Deploy** — taking turns from the starting player, each player places their capital Town within Range {{VAL:CAPITAL_EDGE_RANGE}} of the board edge or corner. Then each player places their Hamlet exactly Range {{VAL:HAMLET_RANGE}} from their Town. Then each player places their Outlaw Country: its first Territory exactly Range {{VAL:OUTLAW_BUFFER_RANGE}} from their Town, and no Outlaw Country Territory within Range {{VAL:OUTLAW_BUFFER_RANGE}} of their Hamlet.
-6. **Wild Outlaw Country** — the Host scatters the Wild Outlaw Country zones over the unclaimed board (see Bandits).
+6. **Wild Outlaw Country** — the Host scatters the remaining Outlaw Country zones over the unclaimed board (see Outlaw Country).
 
 ### Ages
 
@@ -438,7 +439,7 @@ Territory is the smallest unit of land. To move from one Territory to another, y
 
 Faith and Doubt adjust your Public Order the moment they're generated — each Faith raises it by 1, each Doubt lowers it by 1, applied immediately. Public Order is capped between {{VAL:PO_MIN}} and {{VAL:PO_MAX}}, and your current band's effects (below) are always active at your current value. A band's X is its value in the current Era (the Era columns of the table).
 
-**First Doubt of the turn.** Some effects (e.g. Reliquary, Episcopal Court) reduce *the first Doubt you gain each turn, from any source.* Because Doubt now applies immediately, this is whichever Doubt lands first in the turn — usually your innate modifiers in the Empire Phase, but it can be an opponent's action if that resolves first. Track whether you've taken Doubt yet this turn; the marker resets at the start of each Empire Phase, before innate modifiers apply.
+**First Doubt of the turn.** Some effects (e.g. Reliquary, Episcopal Court) reduce *the first Doubt (or first two) you gain each turn, from any source* — each instance of Doubt uses up one reduction. Because Doubt now applies immediately, this is whichever Doubt lands first in the turn — usually your innate modifiers in the Empire Phase, but it can be an opponent's action if that resolves first. Track whether you've taken Doubt yet this turn; the marker resets at the start of each Empire Phase, before innate modifiers apply.
 
 Your innate Public Order modifiers (below) are checked once each turn during the Empire Phase and applied like any other Faith/Doubt.
 
@@ -633,19 +634,16 @@ When a Siege Timer reaches 0:
 
 ### Outlaw Country
 
-Outlaw Country is a cluster of Territory in your starting Settlement region that you can't Control. At the start of the game, demarcate {{VAL:OUTLAW_COUNTRY_START}} Territories in your starting region, each within Range 1 of at least one other Outlaw Country Territory and at least Range {{VAL:OUTLAW_BUFFER_RANGE}} from any Settlement — the first exactly Range {{VAL:OUTLAW_BUFFER_RANGE}} from your Town, and none within Range {{VAL:OUTLAW_BUFFER_RANGE}} of your Hamlet.
+Outlaw Country is zones of Territory no player can Control, where Bandit Camps spawn. Setup places zones in two ways; after Setup, every zone works the same.
 
-If that's not possible, place them Range 2 from your capital Settlement.
+- **Your zone (Deploy):** demarcate {{VAL:OUTLAW_COUNTRY_START}} Territories in your starting region, each within Range 1 of at least one other Outlaw Country Territory and at least Range {{VAL:OUTLAW_BUFFER_RANGE}} from any Settlement — the first exactly Range {{VAL:OUTLAW_BUFFER_RANGE}} from your Town, and none within Range {{VAL:OUTLAW_BUFFER_RANGE}} of your Hamlet. If that's not possible, place them Range 2 from your capital Settlement.
+- **Wild zones (last Setup step):** the Host scatters more zones over the unclaimed board — the number of players ÷ {{VAL:WILD_OUTLAW.per_players}}, rounded down, + {{VAL:WILD_OUTLAW.plus}}. Each is {{VAL:OUTLAW_COUNTRY_START}} connected Territories, none on mountain or water Territory, at least Range {{VAL:WILD_OUTLAW.border_range}} from every player's Province and at least Range {{VAL:WILD_OUTLAW.spacing}} from every other Outlaw Country zone. Each Province starts the game with exactly one Outlaw Country zone.
 
-### Wild Outlaw Country
-
-As the last Setup step, the Host scatters Wild Outlaw Country zones over the unclaimed board: as many as fit, each at least Range {{VAL:WILD_OUTLAW.border_range}} from every player's Province and at least Range {{VAL:WILD_OUTLAW.spacing}} from every other Outlaw Country zone. Each zone is {{VAL:OUTLAW_COUNTRY_START}} connected Territories, none on mountain or water Territory.
-
-A Wild zone belongs to no player. Its Territories count as your Outlaw Country only while they're within your Reach. Otherwise Wild camps behave like every other Bandit Camp: each Spring, place a Bandit Camp of {{VAL:BANDIT_CAMP_START}} Bandits (Retinues) with {{VAL:BANDIT_CAMP_GOLD}} gold in each Wild zone (if there's no room, that zone's camps grow instead), and Wild camps grow, act, and March like any other.
+A zone is your Outlaw Country while any of its Territories is within your Province. A zone in no player's Province belongs to no one: its camps spawn and grow, but take no action until they're within a player's Province; a camp that grows into a Bandit Army Marches like any other.
 
 ### Spawning Bandit Camps
 
-At the start of the Bandit Mechanics step in Spring: place a Bandit Camp of {{VAL:BANDIT_CAMP_START}} Bandits (Retinues) with {{VAL:BANDIT_CAMP_GOLD}} gold in each player's Outlaw Country.
+At the start of the Bandit Mechanics step in Spring: place a Bandit Camp of {{VAL:BANDIT_CAMP_START}} Bandits (Retinues) with {{VAL:BANDIT_CAMP_GOLD}} gold in each Outlaw Country zone.
 
 *Note: if an Outlaw Country is chosen to receive another Bandit Camp but there's no room to place one, instead each existing Bandit Camp grows according to the current Era. Foster Rebellion is the exception: it expands that Outlaw Country by one Territory and places the camp there.*
 

@@ -228,8 +228,8 @@ GLOSSARY = {
 
     # ── World ──
     "Bandit":        "Neutral hostile force; Bandit Camps spawn in Outlaw Country and on low Public Order.",
-    "Outlaw Country": "Uncontrollable territories where Bandit Camps spawn: your own zone (starting at {OUTLAW_COUNTRY_START}, in your starting region) plus any Wild Outlaw Country within your Reach. Foster Rebellion expands it when there is no room; otherwise, when there is no room, its Bandit Camps grow instead.",
-    "Wild Outlaw Country": "A neutral Outlaw Country zone seeded in the unclaimed interior at Setup. It belongs to no player: its camps spawn each Spring and grow every other Season, and act only on pieces in range.",
+    "Outlaw Country": "Uncontrollable Territory zones where Bandit Camps spawn ({OUTLAW_COUNTRY_START} Territories each at Setup). A zone is your Outlaw Country while any of its Territories is within your Province. Foster Rebellion expands it when there is no room; otherwise, when there is no room, its Bandit Camps grow instead.",
+    "Wild Outlaw Country": "Outlaw Country the Host places outside every Province at Setup. After Setup it works like any other Outlaw Country zone.",
     "Siege":         "Sieging a Settlement with an Army to capture it; does not increment in Winter.",
 }
 
@@ -578,7 +578,7 @@ CULTURES = {
         'monuments': ['Office of Works', 'Inquisitorial Palace'],
         'wonders':   ['The Grand Exchange', 'High Chancery'],
         'actions':   ['Tithe', 'Destabilize', 'Intercept Caravan'],
-        'factions':  ['The Hall of Masks', 'The Forked Tongue', 'The Velvet Hand'],
+        'factions':  ['The Hall of Masks', 'The Forked Tongue', 'The Velvet Hand', 'The Illusionists'],
         'radar': {'military_solutions': 1, 'economy_generators': 5, 'faith_management': 3, 'doubt_warfare': 4,
                   'political_control': 4, 'board_presence': 1, 'degenerate_punishment': 4},
     },
@@ -636,7 +636,7 @@ FACTION_SUMMARIES = {
     'The Sublime Gate':      "Musters from Trade Partners' Pursuits",
     'The Iron Shore':        'Spoils win or lose; recoups lost Retinues',
     'The Hall of Masks':     "Takes another player's Faction each turn",
-    'The Illusionists':      'Cunning sets every Envoy\'s innate Authority; no Alliances',
+    'The Illusionists':      'Diplomacy Envoys run on Cunning Standing and may become Cunning actions; no wars or Alliances',
     'The Forked Tongue':     'Unlimited, contradictory Treaties',
     'The Velvet Hand':       'Rewards players who support your Envoys',
     'The Iron Throne':       "Starts with a Citadel; your Alliance can't Declare War",
@@ -1400,7 +1400,7 @@ NODES = {
         "type": "Energy",
         "unlock": "Rising Prowess",
         "mastery_req": "Courier Network + Toll House",
-        "innate": "Natural; Once per Start of Turn subphase, you may select an Army within your Province and move it up to its modified Speed.",
+        "innate": "Natural; At the Start of the Empire Phase, you may select an Army within your Province and move it up to its modified Speed.",
         "mastery": "Whenever a non-allied Army ends a Move action within your Province, you may immediately perform a Move action",
         "efficient": "Toll House",
         "builds_into": [],
@@ -1587,7 +1587,7 @@ NODES = {
         "unlock": "1 Sovereign",
         "mastery_req": "Embassy + Library + Town Hall",
         "innate": "Faith +1, gain Influence +1 per other player each Empire Phase",
-        "mastery": "Once per Envoy Phase: Before players Support or Oppose the Envoy chosen, you may Condemn an At War Envoy or Endorse an Ally's Envoy",
+        "mastery": "Once per Envoy Phase: before players vote on an Envoy you choose, you may Condemn it if it's an At War Envoy, or Endorse it if it's an Ally's Envoy",
         "efficient": "Embassy",
         "builds_into": [],
         "monument": True},
@@ -1985,7 +1985,7 @@ SIMPLE_NODES = {
     "Money Lending": {
         "group": "g_commerce",
         "unlock": "Established Industry",
-        "innate": "Extort 1000; Once per Turn, may loan money to Trade Partners at 100 per 1000/turn interest(minimum 100); on Default: Perform Demand Tribute",
+        "innate": "Extort 1000; Once per turn, you may loan money to Trade Partners at 100 per 1000/turn interest (minimum 100); on Default: Perform Demand Tribute",
         "efficient": ["Court Artists","Merchant Quarter"],
         "builds_into": ["Aristocratic Court"],
         "monument": False},
@@ -2064,7 +2064,7 @@ SIMPLE_NODES = {
     "Execution Dock": {
         "group": "g_devotion",
         "unlock": "Established Piety",
-        "innate": "Authority -2 to Foster Rebellion actions targeting your settlements; Players who target you or your settlements with actions that would cause doubt before modifiers gain Doubt +1",
+        "innate": "Authority -2 to Foster Rebellion actions targeting your settlements; Players who target you or your Settlements with actions that would cause Doubt before modifiers gain Doubt +1",
         "efficient": "Interrogation Chambers",
         "builds_into": ["Inquisitorial Palace"],
         "monument": False},
@@ -2203,7 +2203,7 @@ SIMPLE_NODES = {
     "Toll House": {
         "group": "g_secrecy",
         "unlock": "Rising Cunning",
-        "innate": "Natural, Extort 2000 when non-Allied Army ends a Move action within your Province; Once per Turn: when an Army ends a Move action within your Province: Perform a Diplomacy action targeting that army's player",
+        "innate": "Natural, Extort 2000 when non-Allied Army ends a Move action within your Province; Once per turn: when an Army ends a Move action within your Province, Perform a Diplomacy action targeting that army's player",
         "efficient": ["Caravanery"],
         "builds_into": ["Beacon Towers"],
         "monument": False},
@@ -2252,7 +2252,7 @@ SIMPLE_NODES = {
     "Forgery Workshop": {
         "group": "g_secrecy",
         "unlock": "Established Cunning",
-        "innate": "Extort 300 anytime a player Opposes an Envoy of yours; Once per Envoy Phase: attempt another Cunning Envoy if your Cunning Envoy Failed. If it passes or is endorsed, it must target a different player.",
+        "innate": "Extort 300 anytime a player Opposes an Envoy of yours; Once per Envoy Phase: attempt another Cunning Envoy if your Cunning Envoy Failed. If it Passes or is Endorsed, it must target a different player.",
         "efficient": ["University", "Academy"],
         "builds_into": ["Cipher Chamber"],
         "monument": False},
@@ -2288,7 +2288,7 @@ SIMPLE_NODES = {
     "Beacon Towers": {
         "group": "g_secrecy",
         "unlock": "Established Cunning",
-        "innate": "Natural; In the Start of Turn Phase, you may select an Army within your Province and move it up to its modified Speed. Whenever a non-allied Army ends a Move action within your Province, you may immediately perform a Move action",
+        "innate": "Natural; At the Start of the Empire Phase, you may select an Army within your Province and move it up to its modified Speed. Whenever a non-allied Army ends a Move action within your Province, you may immediately perform a Move action",
         "efficient": "Toll House",
         "builds_into": ["Outrider Intercept Post"],
         "monument": False},
@@ -2338,7 +2338,7 @@ SIMPLE_NODES = {
     "Baggage Train": {
         "group": "g_logistics",
         "unlock": "Sovereign Prowess",
-        "innate": "Natural; Armies do not pay Upkeep while in your Province. Upkeep -2000 while not in your Province. Once per Start of Turn subphase, you may perform a Move action.",
+        "innate": "Natural; Armies do not pay Upkeep while in your Province. Upkeep -2000 while not in your Province. At the Start of the Empire Phase, you may perform a Move action.",
         "efficient": "Levy Hall",
         "builds_into": [],
         "monument": True},
@@ -2446,7 +2446,7 @@ SIMPLE_NODES = {
         "group": "g_court",
         "unlock": "1 Sovereign",
         "infrastructure_req": "Library + Town Hall",
-        "innate": "Faith +1, gain Influence +1 per other player each Empire Phase; Once per Envoy Phase: Before players vote on the envoy you choose, you may Condemn an At War Envoy or Endorse an Ally's Envoy",
+        "innate": "Faith +1, gain Influence +1 per other player each Empire Phase; Once per Envoy Phase: before players vote on an Envoy you choose, you may Condemn it if it's an At War Envoy, or Endorse it if it's an Ally's Envoy",
         "efficient": "Embassy",
         "builds_into": [],
         "monument": True},
@@ -3009,7 +3009,7 @@ FACTIONS = {
         'feel': 'Subterfuge, Deception',
         'difficulty': 'High',
         'strength': 'High',
-        'mechanic': "Double Speak: you use your cunning standing for diplomacy envoys when determining innate Authority. Whenever a diplomacy envoy you send passes, you may instead perform a cunning action. You cannot declare war, sacred war, or be a member of an alliance.",
+        'mechanic': "Double Speak: Your Diplomacy Envoys use your Cunning Standing for their innate Authority. Whenever a Diplomacy Envoy you send Passes, you may instead perform a Cunning action. You can't perform Declare War or Sacred War actions, and you can't be a member of an Alliance.",
         'pair': "Aristocratic Court, Whispering Undercroft",
         'complement': 'Artillery Park',
     },
@@ -3414,15 +3414,15 @@ OUTLAW_COUNTRY_START = 3  # Outlaw Country territories demarcated at game start
 # Wild Outlaw Country: neutral zones scattered over the unclaimed board as the last Setup step (after Deploy).
 # Each zone is OUTLAW_COUNTRY_START connected Territories (no Water / Mountains), at least Range border_range from every
 # player's Province (Settlement Reach) and at least Range spacing from every other Outlaw Country zone.
-# count "fill" = as many zones as fit those ranges (capped by max, if set); "formula" = ceil(players / per_players) + plus.
-# A Wild zone belongs to no player; its Territories count as "your Outlaw Country" only while within your Reach.
+# count "formula" = floor(players / per_players) + plus; "fill" = as many zones as fit those ranges (capped by max, if set).
+# After Setup a Wild zone is ordinary Outlaw Country: a zone is a player's Outlaw Country while any of its Territories is within their Province.
 # Wild camps otherwise behave exactly like every other Bandit Camp (the three flags are plumbing; True = same as others).
 WILD_OUTLAW = {
-    "count": "fill",         # "fill" | "formula"
+    "count": "formula",      # "formula" | "fill"
     "max": None,             # cap on zones in "fill" mode (None = no cap)
     "border_range": 5,       # min Range from any player's Province
     "spacing": 5,            # min Range from any other Outlaw Country zone
-    "per_players": 2,        # "formula": ceil(players / 2)
+    "per_players": 2,        # "formula": floor(players / 2)
     "plus": 1,               # "formula": + 1
     "spring_spawn": True,    # Spring: each Wild zone spawns a Bandit Camp (full zone -> its camps grow instead)
     "spring_growth": True,   # Spring: Wild camps also grow, like every other camp
@@ -3431,7 +3431,7 @@ WILD_OUTLAW = {
 # Glossary text that quotes a constant defined after GLOSSARY: fill it in here, so the number lives in one place.
 GLOSSARY["Outlaw Country"] = GLOSSARY["Outlaw Country"].replace("{OUTLAW_COUNTRY_START}", str(OUTLAW_COUNTRY_START))
 def wild_outlaw_count(players):
-    return -(-int(players) // WILD_OUTLAW["per_players"]) + WILD_OUTLAW["plus"]
+    return int(players) // WILD_OUTLAW["per_players"] + WILD_OUTLAW["plus"]
 
 # Bandit targeting. "province": a camp targets the players whose Province (Settlement Reach) covers the camp's hex — any of
 # those players' Settlements and Armies, nearest first (the Host breaks ties); a camp in nobody's Province takes no action.
@@ -3605,7 +3605,7 @@ ACTIONS = {
         'domain': 'Prowess',
         'cost': 'None',
         'requires': 'Rising Prowess',
-        'effect': "Choose an army you control within Reach of an at-war player's Settlement without an active Siege Timer. While that army remains within Reach of that Settlement and does not Lay Siege, Battle, or March, it may Extort half of that Settlement's pursuit income in the Extort subphase. A Settlement may be Pillaged once per Empire Phase. Pillage ends if [war ends / army leaves Reach / Settlement is besieged].",
+        'effect': "Choose an army you control within Reach of an at-war player's Settlement without an active Siege Timer. While that army remains within Reach of that Settlement and does not Lay Siege, Battle, or March, it may Extort half of that Settlement's pursuit income in the Extort step. A Settlement may be Pillaged once per Empire Phase. Pillage ends if [war ends / army leaves Reach / Settlement is besieged].",
         'endorsed': 'Perform a Move action.',
     },
     'Muster': {

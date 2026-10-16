@@ -1,0 +1,23 @@
+github/mlang95/Renown/CE/claude.md + comprehensive rules outline, then treat this as a prompt response to TASK4_NOTES.
+Review all objectives, organize them in such a manner that you can do as many at the same time as possible in a single pass.
+Ask any clarifying questions, do not push to github, write into zip for me.
+Most of this will apply to gen_settlement_board.py and renown_data_d10.py
+
+Make sure Chapel Sprite exists and registers where the Cathedral would be and is replaced. I'm not seeing it.
+also, whenever you add a wonder, the width of the city widens, but nothing fills that space, all the wonders fill the same spots on top of each other.
+I want to make sure that Ulterior motive only works for passed and endorsed envoys. If the envoy fails or is condemned, no ulterior motive. The purpose of this is if they try to do diplomacy but no one wants to sign a treaty or whatever, causing the action to fail, they can then send a regular envoy.
+
+1. Double Speak, it should work for endorsed also, mirror Master Conspirator wording.
+2. Envoys that do not have a Personal or Council predicator are not limited to any specific phase. So give me a list of things I need to review and make sure the language can be altered at will.
+3. Corrrect.
+4. At war envoy = at war player's envoy, feel free to change.
+5. ha! make sure it's next to the settlement names, too. that was the original idea but i like that, too.
+6. default and lower bound to player count.
+7. sure, go ahead and keep.
+8. Yeah, why not make some sprites. Maybe some sprites for the cultures?
+
+
+I like all of the Ux overhaul ideas.
+go ahead.
+
+for optimisation, go ahead and do 1,2,3,4,5,6
