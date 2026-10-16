@@ -40,6 +40,11 @@ po_mod_double could be Charnel House? maybe replaced by era? idk
 no_season_slow was just re-worked via MEadery = Speed +2 in winter.
 
 Show me the list of things that are Start of turn phase and which are activate phase. I have an inkling they can be combined.
-
-
+it looks like if someone is the Duke, End turn drops down and vertically displaced itself. It could also be the give up host button.
+The hover over on the Player Table could emulate what the Public Order is doing in terms of how hover shows the descriptors.
+Wild Outlaw country are not centered at all. Range 5 from province may be too much. Maybe just Range 3.
+also, there's still a distinct wild outlaw placer.
+in spring don't allow council vote.
+End turn causes a 8/7 domain point status error that resolves after the turn ends.
+diplomacy envoy isn't a council vote option?
 

@@ -1,6 +1,6 @@
 # REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`)
 
-Generated 2026-10-16 · data VERSION `0.4.9.9.13-d10-SIMPLE` · HEAD `ffc0475 2026-10-16`
+Generated 2026-10-16 · data VERSION `0.4.9.9.13-d10-SIMPLE` · HEAD `2e43639 2026-10-16`
 
 Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to the repo root.
 
@@ -75,7 +75,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\ENVOY_WINDOW_REVIEW.md` | 102 | Envoy timing windows — review list |
 | `CE\MAPGEN_COVERAGE.md` | 28 | Map generator — Holding / Monument coverage by region preset |
 | `CE\PROPOSALS_new_things.md` | 275 | Proposals — "New things to consider" + rules syntax pass |
-| `CE\REPO_MAP.md` | 690 | REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`) |
+| `CE\REPO_MAP.md` | 866 | REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`) |
 | `CE\RULES_push.md` | 649 | Renown |
 | `CE\RULES_push_simple.md` | 730 | Renown |
 | `CE\RULES_reorganized_6.md` | 638 | Renown |
@@ -92,7 +92,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\claude_task_3.txt` | 24 |  |
 | `CE\claude_task_4.txt` | 44 |  |
 | `CE\claude_task_5.txt` | 23 |  |
-| `CE\claude_task_6.txt` | 46 |  |
+| `CE\claude_task_6.txt` | 51 |  |
 | `CE\infra.py` | 109 |  |
 | `CE\parity_d10.py` | 41 | parity_d10.py — batch_engine and vectorized_combat must agree within dice noise. |
 | `CE\patch_cultures.py` | 245 | patch_cultures.py - replace the PLAYSTYLES block (or an existing CULTURES block) |
