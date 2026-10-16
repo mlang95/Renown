@@ -82,7 +82,7 @@ Source = current heading in `RULES_push_simple.md` (line) or data name.
 | 505 | Performing an action; choosing targets | 248–256 | part |
 | 506 | Costs | `COSTS`, action `cost` | part |
 | 507 | Endorsed and Condemned effects | `{{TABLE:envoy_outcomes}}` | have |
-| 508 | Special rules: Ulterior Motive, Diplomatic Mission | 288, 298 | have |
+| 508 | Special rules: Ulterior Motive, Diplomatic Mission (only after a Passed / Endorsed Diplomacy Envoy whose action fails) | 288, 298 | have |
 | 509–513 | Action lists by Domain | `{{ACTIONS:*}}` | have |
 
 ### 600. Effects and Timing
@@ -170,7 +170,6 @@ Source = current heading in `RULES_push_simple.md` (line) or data name.
 | 401 | Inside one Empire Phase step, in what order do players / effects resolve (e.g. two Extorts, two timers hitting 0)? |
 | 402 / 406 | In Spring, does the Host token still set the starting player (board assumes yes)? |
 | 603 | When effects trigger at the same time, who orders them — active player, Host, each owner? |
-| 605 | Is Condemned a "fail" for Diplomatic Mission (board assumes yes)? |
 | 903 | Can an Army move through hexes holding other Armies, Settlements or Bandit Camps? Can it end on them? |
 | 903 | Tundra "gain Strained": on entering, passing through, or ending the move there (board: passing through)? |
 | 902 | Speed effects with conditions (e.g. Elder Grove) — any that should apply automatically? |

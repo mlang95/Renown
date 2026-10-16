@@ -44,12 +44,14 @@ The Compendium is retired: its chapters render inside Rules.docx.
 |---|---|
 | Rules.docx | `md_to_docx.py` + `docx_tables.py` |
 | Wiki | `build_wiki.py` + `wiki_markers.py` |
-| Settlement board | `gen_settlement_board.py` → `settlement_board.html`, served by `server.py` (stdlib, SQLite) |
+| Settlement board | `gen_settlement_board.py` → `settlement_board.html`, served by `server.py` (stdlib, SQLite). Page source: `board/board.css`, `board/body.html`, `board/js/*.js` (concatenated in name order into one script). Rules-text patterns the board acts on: `effect_registry.py` (matched at build time → `DATA.efx`) |
 | Cards / sheets / boards | `generate_cards.py`, `domain_board.py`, `infra_board.py`, `settlement_mats.py`, `host_sheet.py`, … |
 | Simulation | `Combatv4/` — `vectorized_combat_d10.py`, `batch_engine.py`, `loadouts.py`, `dice_config.py` (not `renown_combat*.py`) |
 
 Checks: `python gen_settlement_board.py --data ../renown_data_d10.py --rules ../RULES_push_simple.md --check-rules`
-(0 mismatches expected); `python wiki_markers.py ../RULES_push_simple.md` (no unresolved markers).
+(0 mismatches expected); `python wiki_markers.py ../RULES_push_simple.md` (no unresolved markers);
+`python gen_settlement_board.py --data ../renown_data_d10.py --effects-report ../ENVOY_WINDOW_REVIEW.md` (Envoy timing windows + unmatched registry patterns);
+`node parity_efx.js settlement_board.html` (registry patterns replayed in JavaScript = the Python hits shipped in the page).
 Run scripts from `references/` with `PYTHONPATH` set to this folder.
 
 ## Working rules

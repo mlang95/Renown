@@ -310,7 +310,7 @@ Unless you are at war with the player sending it, you can't Oppose an Industry E
 
 ### Rule: Diplomatic Mission
 
-If your Diplomacy Envoy fails, you may send another Envoy in another Domain, resolved in the order it would be resolved alongside other envoys.
+If your Diplomacy Envoy passes or is endorsed but its action fails, you may send another Envoy in another Domain, resolved in the order it would be resolved alongside other envoys. A Diplomacy Envoy that fails or is condemned doesn't allow one.
 
 {{GLOSSARY:Actions}}
 

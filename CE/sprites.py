@@ -2297,6 +2297,61 @@ SPRITES["mk:siege"] = [
     ".k......k.......",
 ]
 
+# ---------------------------------------------------------------- heraldry (16x16, no ground row): culture charges
+# Each culture's charge (worldbuilding CULTURES[*].heraldry.primary) on a heater shield. Field 'p' = the owner's colour
+# (swapped per player); the charge is 's' with 'k' / 'y' marks. The board swaps 's' for a dark tone on pale player colours.
+# Used on the Domain tracks (pawns), the Realm player table, the Empire header and the settlement banners on the map.
+HER_SHIELD = [
+    ".kkkkkkkkkkkkkk.",
+    ".kppppppppppppk.",
+    ".kppppppppppppk.",
+    ".kppppppppppppk.",
+    ".kppppppppppppk.",
+    ".kppppppppppppk.",
+    ".kppppppppppppk.",
+    ".kppppppppppppk.",
+    ".kppppppppppppk.",
+    ".kppppppppppppk.",
+    "..kppppppppppk..",
+    "..kppppppppppk..",
+    "...kppppppppk...",
+    "....kppppppk....",
+    ".....kppppk.....",
+    "......kkkk......",
+]
+# 10x10 charges, drawn at rows 2-11, columns 3-12 of the shield: '#' charge, 'o' dark mark, 'y' gold
+HER_CHARGES = {
+    "Pelican":   ["....##....", "...###....", "..####yyyy", "...###.yy.", "...###....", "..#####...", ".#######..", ".#######..", "..#####...", "...#..#..."],
+    "Lion":      ["..###.....", ".#####....", ".#o####...", "..####.#..", "..#####.#.", ".######.#.", ".#######..", "..######..", "..#...##..", ".##...##.."],
+    "Fox":       [".#...#....", ".##.##....", ".#####....", ".#o#o#....", "..###.....", "..####..#.", ".######.##", ".#######.#", ".#######.#", "..##.##.##"],
+    "Beaver":    [".........", "...####...", "..######..", ".#o######.", ".########.", "..#######.", "...######.", "....##.##o", ".....#oooo", "......ooo."],
+    "Tree":      ["...####...", "..######..", ".########.", ".########.", ".########.", "..######..", "....##....", "....##....", "...####...", "..######.."],
+    "Raven":     [".......##.", "......#o#y", ".....####.", "...######.", "..#######.", ".########.", "##.######.", "...#####..", "....#..#..", "...##.##.."],
+    "Ox":        ["#........#", "##......##", ".##....##.", "..######..", ".########.", ".#o####o#.", "..######..", "..######..", "...####...", "...#..#..."],
+    "Octopus":   ["...####...", "..######..", "..#o##o#..", "..######..", "..######..", ".#.#.#.#.#", "#.#.#.#.#.", "#.#.#.#.#.", ".#.#.#.#..", ".........."],
+    "Mantis":    [".....##...", "....#o#...", ".....##...", "..#..##...", ".##.###...", ".#..##....", "....##....", "...###....", "..##.##...", ".##...##.."],
+    "Stag":      ["#.#....#.#", "##.#..#.##", ".###..###.", "...#..#...", "...####...", "..######..", "..#o##o#..", "...####...", "...####...", "....##...."],
+    "Rooster":   ["....yy....", "...####...", "...#o##y..", "...###....", "#..####...", "##.#####..", ".########.", "..#######.", "...####...", "...y..y..."],
+    "Wolf":      ["...#......", "..##......", "..###.....", ".####.....", ".#o####...", "..#######.", "...######.", "...#####..", "..######..", ".###..###."],
+    "Spider":    ["#.......#.", ".#..#..#..", "..#.##.#..", "...####...", "#.######.#", ".########.", "#.######.#", "...####...", "..#.##.#..", ".#......#."],
+    "Sea Eagle": ["....##....", "...#o#y...", "#..####..#", "##.####.##", "##########", ".########.", "...####...", "...####...", "..#.##.#..", ".#..#..#.."],
+    "Owl":       [".#......#.", ".########.", ".##o##o##.", ".#oo##oo#.", ".###yy###.", ".########.", ".########.", "..######..", "..######..", "...#..#..."],
+}
+
+
+def _her(charge):
+    rows = [list(r) for r in HER_SHIELD]
+    for y, r in enumerate(charge):
+        for x, c in enumerate(r.ljust(10, ".")):
+            if c != ".":
+                rows[2 + y][3 + x] = {"#": "s", "o": "k", "y": "y"}[c]
+    return ["".join(r) for r in rows]
+
+
+for _n, _c in HER_CHARGES.items():
+    SPRITES["her:" + _n] = _her(_c)
+
+
 # ---------------------------------------------------------------- map terrain: scattered props in the hex's own tones
 MAP_TERRAIN = ("plains", "hill", "forest", "wetland", "tundra", "mountain", "water")   # hexstyle kinds + hill; "tundra" = Barrens
 _P = {}
@@ -2411,6 +2466,8 @@ def _dims(key):
         return S12, S12
     if key.startswith("st:"):
         return 8, 8
+    if key.startswith("her:"):
+        return S16, S16
     if key.startswith("mk:"):
         return S16, S16
     return S16, S16
@@ -2465,7 +2522,7 @@ def check(ns):
             bad = set(r) - set(KEYS) - {"."}
             if bad:
                 out.append(f"{key}: row {i} unknown keys {''.join(sorted(bad))}")
-        if key.startswith(("eq:", "st:", "mk:")):
+        if key.startswith(("eq:", "st:", "mk:", "her:")):
             continue                                   # icons / markers: no ground row, may float
         if any(c != "g" for c in rows[-1]):
             out.append(f"{key}: last row is not ground")
@@ -2596,19 +2653,19 @@ function sec(t){const h=document.createElement("h2");h.textContent=t;r.appendChi
 let g=sec("sprites \u00b7 "+D.pal);
 D.K.forEach(k=>{const rows=D.S[k];cell(g,rows[0].length,rows.length,k,c=>paint(c,rows,0,0));});
 function skyline(c,t,W,G,all){const at=(k,x)=>{const s=D.S[k];if(s)paint(c,s,x,G-(s.length-1),.2,true);},w=k=>(D.S[k]||[""])[0].length;
-  const hide=new Set(Object.keys(D.SUP).map(k=>D.SUP[k]));const on=n=>all&&!hide.has(n);
+  const hide=new Set(Object.keys(D.SUP).map(k=>D.SUP[k]));const on=n=>all==="chapel"?n==="Chapel":all&&!hide.has(n);
   for(let x=0;x<W;x+=w("sky:fill:"+t)+1)at("sky:fill:"+t,x);
   const cw=w("sky:core:"+t),cx=Math.floor((W-cw)/2);
-  if(on("Cathedral"))at("inf:Cathedral",Math.floor((W-w("inf:Cathedral"))/2));
   if(on("Library"))at("inf:Library",Math.max(0,cx-w("inf:Library")+3));
   if(on("Town Hall"))at("inf:Town Hall",Math.min(W-w("inf:Town Hall"),cx+cw-3));
   at("sky:core:"+t,cx);
+  ["Chapel","Cathedral"].filter(on).forEach(n=>at("inf:"+n,Math.floor((W-w("inf:"+n))/2)));   // centre slot in front of the core
   if(on("Muster Field"))at("inf:Muster Field",0);if(on("Garrison"))at("inf:Garrison",W-w("inf:Garrison"));
   ["Stone Walls","Wooden Walls"].filter(on).forEach(n=>{for(let x=0;x<W;x+=w("inf:"+n))at("inf:"+n,x);
     if(D.S["inf:"+n+":tower"]){at("inf:"+n+":tower",0);at("inf:"+n+":tower",W-w("inf:"+n+":tower"));}});}
 if(D.T.length){g=sec("settlement skylines (faded 20% toward the sky); Town+ also shown with every skyline infrastructure piece");
- D.T.forEach(t=>{const W=72,H=40,G=H-6;[false,true].forEach(all=>{if(all&&D.NI.includes(t))return;
-  cell(g,W,H,t+(all?" + infra":""),c=>{c.fillStyle=SKY;c.fillRect(0,0,W,G+1);c.fillStyle=GR;c.fillRect(0,G+1,W,H-G-1);skyline(c,t,W,G,all);});});});}
+ D.T.forEach(t=>{const W=72,H=40,G=H-6;[false,true,"chapel"].forEach(all=>{if(all&&D.NI.includes(t))return;
+  cell(g,W,H,t+(all==="chapel"?" + Chapel":all?" + infra":""),c=>{c.fillStyle=SKY;c.fillRect(0,0,W,G+1);c.fillStyle=GR;c.fillRect(0,G+1,W,H-G-1);skyline(c,t,W,G,all);});});});}
 if(D.C.length){g=sec("raw feet strip in front of its first builds_into holding");
  D.C.forEach(o=>{const ft=D.S[o.ft],fr=D.S[o.front];cell(g,24,22,o.label,c=>{c.fillStyle=SKY;c.fillRect(0,0,24,20);
   c.fillStyle=GR;c.fillRect(0,20,24,2);paint(c,fr,4,20-(fr.length-1),0,true);feetOn(c,ft,2,20);});});}

@@ -1,0 +1,206 @@
+<div class="topbar" id="topbar">
+  <div class="views" id="viewTabs">
+    <div class="vtab" data-v="table" title="play: the Table, the map, your actions">Realm</div>
+    <div class="vtab on" data-v="board" title="inspect and edit your Empire">Empire</div>
+    <div class="vtab" data-v="reference" title="rules">Reference</div>
+  </div>
+  <div class="players" id="playerBar"></div>
+  <span class="tbundo" style="margin-left:auto;display:inline-flex;gap:4px"><button id="undoBtn" title="Undo (Ctrl+Z)" disabled>↶</button><button id="redoBtn" title="Redo (Ctrl+Shift+Z / Ctrl+Y)" disabled>↷</button></span>
+  <span class="robadge" id="roBadge" hidden></span>
+  <button id="inboxBtn" class="inboxbtn" data-nav="1" title="Inbox: flags, prompts, once-per reminders, notices">⚑ <b id="inboxN">0</b></button>
+  <button id="tbMore" class="tbmore" title="menu">⋯</button>
+  <div class="tstrip" id="turnStrip"></div>
+  <div class="hud" id="hud"></div>
+</div>
+<div class="inbox" id="inbox" hidden></div>
+<div class="hudpop" id="hudPop" hidden></div>
+<div class="setuppanel" id="setupPanel" hidden></div>
+<div class="appmenu" id="appMenu">
+  <span class="tbextra" id="tbExtra">
+  <details id="modBox"><summary class="note" style="cursor:pointer">modules</summary>
+    <div style="padding:6px 0">
+      <label style="display:block"><input type="checkbox" class="modcb" data-m="diplomacy"> Diplomacy (Dashboards)</label>
+      <label style="display:block"><input type="checkbox" class="modcb" data-m="battle"> Battle tab</label>
+    </div></details>
+  <select id="themeSel" title="visual style">
+    <option value="ink">Ink (dark)</option>
+    <option value="parchment">Parchment</option>
+    <option value="midnight">Midnight</option>
+    <option value="slate">Slate (light)</option>
+    <option value="royal">Royal</option>
+    <option value="pixel">Pixel</option>
+  </select>
+  <select id="shapeSel" title="shape">
+    <option value="rounded">Rounded</option>
+    <option value="soft">Soft</option>
+    <option value="sharp">Sharp</option>
+    <option value="square">Square</option>
+  </select>
+  </span>
+  <details class="tot" id="boardBox" style="margin-top:0"><summary style="cursor:pointer" class="note">Board — clear · export · import</summary>
+    <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+      <button id="clear">clear this board</button>
+      <button id="export">export</button>
+      <button id="import">import</button>
+      <input type="file" id="file" accept="application/json" style="display:none">
+    </div>
+  </details>
+  <details class="tot" id="adminBox" style="margin-top:0"><summary style="cursor:pointer" class="note">Duke <span id="adminState"></span></summary>
+    <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center">
+      <input id="adminPin" type="password" placeholder="Duke PIN" style="flex:1;min-width:90px" autocomplete="off">
+      <button id="adminOn">unlock</button><button id="adminOff">lock</button></div>
+  </details>
+</div>
+<div class="mnav" id="mnav"><button data-mc="board" class="on">Board</button><button data-mc="catalog">Catalog</button><button data-mc="summary">Ledger</button></div>
+<div class="app" id="appBoard" data-mc="board">
+  <!-- CATALOG -->
+  <div class="col" id="catalog">
+    <div class="hd"><h2>Catalog</h2><span class="v" id="ver"></span></div>
+    <details class="tot ministand" id="miniStand"><summary class="note" style="cursor:pointer"><b>Standings</b> <span id="miniStandSum"></span></summary><div id="miniStandBody"></div></details>
+    <div class="tabs" id="tabs">
+      <div class="tab on" data-k="pursuit">Pursuits</div>
+      <div class="tab" data-k="infra">Infra</div>
+    </div>
+    <input class="search" id="search" placeholder="filter…">
+    <div class="filters" id="typeFilters"></div>
+    <div id="list"></div>
+  </div>
+
+  <!-- BOARD -->
+  <div class="col" id="boardcol">
+    <div class="pcard" id="playerCard"></div>
+    <div class="facbox" id="facBox"></div>
+    <div class="esbar" id="esBar"></div>
+    <input type="checkbox" id="hideCombat" hidden><span id="poolcount" hidden></span><span id="ignNote" hidden></span>
+    <div class="scenebox" id="sceneBox" hidden></div>
+
+    <details class="section" open id="sec-pursuit"><summary><span class="caret"></span>Pursuits <span class="cnt" id="c-pursuit"></span></summary>
+      <div class="sectionbody"><div class="board" id="board-pursuit"></div><div class="empty" id="e-pursuit">No pursuits.</div></div></details>
+
+    <details class="section" open id="sec-infra"><summary><span class="caret"></span>Infrastructure <span class="cnt" id="c-infra"></span></summary>
+      <div class="sectionbody"><div class="board" id="board-infra"></div><div class="empty" id="e-infra">No infrastructure.</div>
+        <div class="subhd" id="sub-wonder">Wonders <span class="cnt" id="c-wonder"></span></div>
+        <div class="board" id="board-wonder"></div><div class="empty" id="e-wonder">No wonders.</div></div></details>
+
+
+    <details class="section" open id="sec-army"><summary><span class="caret"></span>Army <span class="cnt" id="c-army"></span></summary>
+      <div class="sectionbody">
+        <div class="block" id="armyUnlocks" style="margin-top:0"></div>
+        <div id="armyList"></div>
+        <button id="addArmy" style="margin-top:8px">+ add army</button>
+        <div class="kv" style="margin-top:8px"><span class="k">Army cost (Σ, gross)</span><span class="val" id="armyTotal">0</span></div>
+      </div></details>
+  </div>
+
+  <!-- SUMMARY (ledger) -->
+  <div class="col" id="summary">
+    <div class="hd"><h2>Ledger</h2></div>
+
+    <details class="tot lsec" open id="lsTreas"><summary><h3>Treasury</h3></summary>
+      <div class="treas">
+        <span class="k">gold</span>
+        <input type="number" id="treasury" step="100" value="0">
+        <button id="endturn">end turn ▸</button>
+      </div>
+      <div class="goldbtns">
+        <button data-gold="-2000">−2k</button><button data-gold="-500">−500</button>
+        <button data-gold="500">+500</button><button data-gold="2000">+2k</button>
+      </div>
+      <div class="kv" style="margin-top:6px"><span class="k">turn</span><span class="val" id="turn">0</span></div>
+      <label class="note" style="display:flex;gap:6px;align-items:center;margin-top:4px">
+        <input type="checkbox" id="autoNet" checked> auto-apply net gold on end turn</label>
+    </details>
+
+    <details class="tot lsec" open id="lsPO"><summary><h3>Public Order</h3><span class="note" id="poBandS"></span></summary>
+      <div class="treas">
+        <button id="poMinus">−</button>
+        <span class="n" id="poVal" style="font-size:22px;min-width:36px;text-align:center">0</span>
+        <button id="poPlus">+</button>
+        <span class="note" id="poBand"></span>
+      </div>
+      <div class="note" id="poEffect"></div>
+      <div class="poladder" id="poLadder"></div>
+      <div id="poMods" style="margin-top:8px"></div>
+    </details>
+
+    <div class="tot dpbox" id="dpBox" style="display:none"></div>
+
+    <details class="tot" id="gameBox" style="margin-top:10px">
+      <summary style="cursor:pointer" class="note">Game — save · load · new</summary>
+      <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+        <input id="gameName" placeholder="game name" style="flex:1;min-width:90px">
+        <button id="gameSave">save game</button>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+        <select id="gameList" style="flex:1;min-width:90px"><option value="">— saved games —</option></select>
+        <button id="gameLoad">load</button><button id="gameDel">del</button>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center">
+        <button id="gameNew">new game…</button><span class="note" id="gameNote">Host only when online.</span>
+      </div>
+    </details>
+
+    <details class="tot" id="srvBox" style="margin-top:10px">
+      <summary style="cursor:pointer;display:flex;align-items:center;gap:6px">
+        <span id="srvDot" style="width:9px;height:9px;border-radius:50%;background:var(--dim2);display:inline-block"></span>
+        <span class="note" id="srvStat">local cache (no server)</span>
+      </summary>
+      <input id="srvToken" type="password" placeholder="access token (only if server requires one)" style="width:100%;margin-top:8px">
+      <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+        <input id="buildName" placeholder="build name" style="flex:1;min-width:90px">
+        <button id="buildSave">save</button>
+        <button id="buildSnap" title="save a timestamped snapshot">snapshot</button>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+        <select id="buildList" style="flex:1;min-width:90px"><option value="">— saved builds —</option></select>
+        <button id="buildLoad">load</button>
+        <button id="buildDel">del</button>
+      </div>
+    </details>
+  </div>
+</div>
+
+<div id="hudStore" hidden>
+    <details class="tot lsec" open id="lsGold"><summary><h3>Gold / turn</h3><span class="n" id="netgold">0</span></summary>
+      <div class="kv"><span class="k tipk" data-tipk="t_gold">Gold income (flat)</span><span class="val" id="t_gold">0</span></div>
+      <div class="kv"><span class="k tipk" data-tipk="t_scale">Scaling gold</span><span class="val" id="t_scale">0</span></div>
+      <div class="kv"><span class="k tipk" data-tipk="t_upkeep">Upkeep — infra/wonder</span><span class="val" id="t_upkeep">0</span></div>
+      <div class="kv"><span class="k tipk" data-tipk="t_pupkeep">Upkeep — pursuits</span><span class="val" id="t_pupkeep">0</span></div>
+      <div class="kv"><span class="k tipk" data-tipk="t_reduce">Upkeep reductions (pool)</span><span class="val" id="t_reduce">0</span></div>
+      <div class="kv"><span class="k tipk" data-tipk="t_army">Upkeep — army (net)</span><span class="val" id="t_army">0</span></div>
+      <div class="note" id="netnote"></div>
+      <div class="season-grid" id="seasons" style="margin-top:8px"></div>
+    </details>
+
+    <details class="tot lsec" open id="lsYield"><summary><h3>Craft · Influence · Extort</h3></summary>
+      <div class="kv"><span class="k tipk" data-tipk="t_craft">Craft X</span><span class="val" id="t_craft">0</span></div>
+      <div class="kv"><span class="k tipk" data-tipk="t_trade">→ trade income / agreement</span><span class="val" id="t_trade">0</span></div>
+      <div class="kv"><span class="k tipk" data-tipk="t_infl">Influence (flat)</span><span class="val" id="t_infl">0</span></div>
+      <div class="kv"><span class="k tipk" data-tipk="t_po">Faith − Doubt (PO/turn)</span><span class="val" id="t_po">0</span></div>
+      <div class="kv"><span class="k tipk" data-tipk="t_ext">Extort (flat)</span><span class="val" id="t_ext">0</span></div>
+    </details>
+
+    <details class="tot lsec" open id="lsSett"><summary><h3>Settlements (ward budget)</h3><span class="note" id="wardsS"></span></summary>
+      <div class="set-grid" id="setGrid"></div>
+      <div class="kv" style="margin-top:6px"><span class="k">Wards used / avail</span><span class="val" id="wards">0 / 0</span></div>
+      <div class="bar" id="wardbar"></div>
+      <div class="kv"><span class="k">Winter tax</span><span class="val" id="tax">0</span></div>
+    </details>
+
+    <div class="tot" id="inflBox"></div>
+    <details class="tot lsec" id="lsFx"><summary><h3>Effects by phase</h3></summary>
+      <div class="legend" id="legend"></div>
+    </details>
+
+    <details class="notes"><summary class="note">parser warnings</summary>
+      <div class="note" id="assump"></div></details>
+
+</div>
+<div id="viewReference" class="viewpane" style="display:none"></div>
+<div id="viewTable" class="viewpane" style="display:none"></div>
+<div id="viewBattle" class="viewpane" style="display:none"></div>
+
+<div id="inspect" class="modal" style="display:none"><div class="modalcard" id="inspectCard"></div></div>
+<div id="flash" class="flash toast" aria-live="polite"></div>
+<nav class="tabbar" id="tabbar"><button data-v="table">Realm</button><button data-v="board">Empire</button><button data-v="reference">Reference</button></nav>
+<div class="phpill" id="phPill"></div>

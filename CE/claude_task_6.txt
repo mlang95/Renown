@@ -1,0 +1,45 @@
+github/mlang95/Renown/CE/claude.md + comprehensive rules outline, then treat this as a prompt response to TASK4_NOTES.
+Review all objectives, organize them in such a manner that you can do as many at the same time as possible in a single pass.
+Ask any clarifying questions, do not push to github, write into zip for me.
+Most of this will apply to gen_settlement_board.py and renown_data_d10.py
+
+Can you make the Monument and Available/all next to each other on one line?
+Anyway you can do the same for the 3 domain standings in the catalog?
+spectators should be able to see all information like gold. Why did the upkeep breakdown disappear? I don't mind it being condensed but people should know what their income distribution and costs are, no?
+the factions need to be curated/culled by the cultures, as well.
+Make sure the generators don't repeat names that are actively displaying anywhere, and give settlements default names when board is reset or settlements are placed for setup. may already be the case but my cache is stopping it, if so no sweat.
+Keep the battle tab for before games start to mess around with the combat, or at least make it accessible somewhere.
+When you click on an empty holding, make sure it's either a root or something that can be placed because you already have it's root placed in empire. If it could be efficiently placed, place it. otherwise, place it in that ward. For example, I can click and add jester's court from the ward slot but I don't have a courtyard. You can still see it if you toggle "all" on the left hand side, but you want it to be easier to make choices when actually building something. Do the same fo rthe build action in the Realm sheet. It shouldn't just be roots but whatever can be legally built. It's also displaying options to build raw amterials that aren't even on the map, much less in province. And there's no courtyard or inn, for example, which acts as a root. The build action also doesn't target a holding, it doesn't have to, it can be intelligent and do it by if the material is in reach of that settlement, for example, and then by if it's efficient, and then by if it's natural -> Hamlet, otherwise fill the the settlement with the most empty wards, ties go to largest settlement, tie goes to newest settlement.
+The statuses for the sprites need to be at least 1.5x as big, maybe 2x. Also make sure that they make sense, I'm not sure intercept caravan is giving me information.
+
+Sepulchre: 'empire_bonus': 'If your Public Order would ever be less than 5, set it to 5 '
+                                        'instead. Your Settlements gain Reach +2.',
+Display-only: faction mechanic Holding-name parse (`30_empire.js`), Condemned "pay the action" check (`10_table.js`). Not in the registry | give example
+
+Abbey: Personal
+Jester's Court: Personal
+Grand Tournament: Personal
+Courier Network: Personal
+Forgery Workshop: Personal
+Senate Hall: Personal
+Undercoft: Personal
+High Chancery: Personal
+Prowess Rising: Personal
+Cunning Rising: Personal
+Cunning Sovereign: Personal
+
+Outlaw Rookery: Personal Cunning Envoys
+Colossus Personal Prowess Envoys
+Inner Circle: Personal Envoys
+Velvet Hand: Personal Envoys
+Illusionist: Personal Diplomacy Envoys 0> Cunning action
+
+piety_extra_doubt -> Exalted Basilica, also should be piety_extra_faith or basilica_amp
+po_floor should be sepulchre or Established Piety, no?
+po_mod_double could be Charnel House? maybe replaced by era? idk
+no_season_slow was just re-worked via MEadery = Speed +2 in winter.
+
+Show me the list of things that are Start of turn phase and which are activate phase. I have an inkling they can be combined.
+
+
+

@@ -164,15 +164,23 @@ def rules_markers(root):
     return kinds, vals, heads, registry
 
 
+BOARD_JS = os.path.join("CE", "references", "board", "js")
+
+
 def board_index(root):
+    """Payload keys + Python defs from the generator; JS sections / functions per file in references/board/js/ (file:line)."""
     text = read(os.path.join(root, BOARD))
     m = re.search(r"html = render_html\((.*?)\n    \)", text, re.S)
     keys = re.findall(r"(?:^|[\s,(])([a-zA-Z]\w*)=", m.group(1)) if m else []
-    funcs = [(i, mm.group(1)) for i, ln in enumerate(text.splitlines(), 1)
-             for mm in [re.match(r"^function ([A-Za-z_]\w*)", ln)] if mm]
-    secs = [(i, ln.strip("/ =").strip()) for i, ln in enumerate(text.splitlines(), 1) if re.match(r"^// =====", ln)]
     pyfuncs = [(i, mm.group(1)) for i, ln in enumerate(text.splitlines(), 1)
                for mm in [re.match(r"^def (\w+)", ln)] if mm]
+    funcs, secs = [], []
+    jd = os.path.join(root, BOARD_JS)
+    for f in sorted(os.listdir(jd)) if os.path.isdir(jd) else []:
+        if not f.endswith(".js"): continue
+        lines = read(os.path.join(jd, f)).splitlines()
+        funcs += [(f + ":" + str(i), mm.group(1)) for i, ln in enumerate(lines, 1) for mm in [re.match(r"^function ([A-Za-z_]\w*)", ln)] if mm]
+        secs += [(f + ":" + str(i), ln.strip("/ =").strip()) for i, ln in enumerate(lines, 1) if re.match(r"^// =====", ln)]
     return keys, funcs, secs, pyfuncs
 
 
@@ -225,11 +233,11 @@ def main():
     L += [f"| {i} | {h.replace('|','/')} |" for i, h in heads] + [""]
 
     keys, funcs, secs, pyfuncs = board_index(root)
-    L += [f"## 6. Settlement board — `{BOARD}`", "",
+    L += [f"## 6. Settlement board — `{BOARD}` + `{BOARD_JS}/*.js` (+ `board.css`, `body.html`)", "",
           f"Payload keys passed to the HTML as `DATA` ({len(keys)}): " + ", ".join(f"`{k}`" for k in keys), "",
           "Python: " + ", ".join(f"`{n}`:{i}" for i, n in pyfuncs), "",
           "JS sections: " + ", ".join(f"{n} :{i}" for i, n in secs), "",
-          f"JS functions ({len(funcs)}, name:line):", "", "```",
+          f"JS functions ({len(funcs)}, name:file:line):", "", "```",
           " ".join(f"{n}:{i}" for i, n in funcs), "```", ""]
 
     out = os.path.join(HERE, "REPO_MAP.md")
