@@ -29,11 +29,10 @@ F = re.I | re.A
 # id -> (scope, source kinds, pattern); kinds are letters: h i w f F, M = hm (Holding Mastery text)
 REG = {
     # ---- action riders / Doubt ----
-    "piety_extra_doubt":   ("clause", "hiwf", r"Your Piety actions that cause doubt cause an additional doubt"),
     "doubt_all_plus":      ("clause", "hiwf", r"All player actions that cause Doubt are increased by (\d+)"),
     "doubt_target_minus":  ("clause", "hiwf", r"^(?:(\w+) )?actions targeting this player that cause Doubt are reduced by (\d+)"),
     "cunning_extra_doubt": ("clause", "hiwf", r"^(?:All )?(Endorsed )?Cunning actions give an additional \**Doubt \+?(\d+)\** to Target"),
-    "piety_doubt_or_faith":("clause", "hiwf", r"Your piety actions cause an additional \**Doubt\** or an additional \**Faith\**"),
+    "basilica_amp":        ("clause", "hiwf", r"Your (\w+) actions cause an additional \**Faith \+(\d+)\** and \**Doubt \+(\d+)\** to the target"),
     "doubt_backlash":      ("clause", "hiwf", r"Players who target you or your settlements with actions that (?:would )?cause doubt( before modifiers)? gain Doubt \+(\d+)"),
     "rider_extra":         ("clause", "hiwf", r"((?:Endorsed )?(\w+) actions (?:give|cause) an additional (?:Doubt|Faith)[^.;]*)"),
     "rider_your_extra":    ("clause", "hiwf", r"(Your (\w+) actions cause an additional[^.;]*)"),
@@ -72,7 +71,6 @@ REG = {
     # ---- Public Order / Faith / Doubt ----
     "po_cap":              ("clause", "hiwf", r"Public Order can.t exceed (-?\d+)"),
     "po_floor":            ("clause", "hiwf", r"Public Order would ever be less than (-?\d+),? set it to (-?\d+)"),
-    "po_mod_double":       ("clause", "hiwf", r"Public Order Modifiers are doubled"),
     "immune_war_weariness":("clause", "hiwf", r"Immune War Weariness"),
     "fd_per_empire":       ("clause", "hiwf", r"^(?:[^:]+:\s*)?(?:Gain )?(Faith|Doubt) \+(\d+) (?:per|each) Empire Phase$"),
     "sacred_war_each":     ("clause", "hiwf", r"Each player gains (Doubt|Faith) \+(\d+) (?:per|each) Empire Phase per Sacred War you.re on"),
@@ -95,7 +93,7 @@ REG = {
     "extort_target_faith": ("clause", "hiwf", r"Targets of Extort from (.+?) gain Faith \+(\d+)"),
     # ---- bandits ----
     "bandit_redirect":     ("clause", "hiwf", r"Bandit Camps in your Outlaw Country don.t target you and instead target other players randomly"),
-    "bandit_cunning_auth": ("clause", "hiwf", r"Both Bandit Camps & you have (?:Authority|Influence) \+(\d+) on Cunning Envoys"),
+    "bandit_cunning_auth": ("clause", "hiwf", r"Both Bandit Camps & you have (?:Authority|Influence) \+(\d+) on (?:Personal )?Cunning Envoys"),
     # ---- direct text readers (whole text of one source kind) ----
     "first_doubt":         ("text", "h", r"first\s+(?:(one|two|three|four|five|\d+)\s+)?\**Doubt\**\s+(?:(?:per|each) turn|each Empire Phase) reduced by (\d+)|reduce the first instance of Doubt[^.;]*?by (\d+)"),
     "extort_slot":         ("craw", "h", r"^\s*Extort\s*(\d+)(\s+twice)?\.?\s*$"),
@@ -117,7 +115,6 @@ REG = {
     "bridges":             ("text", "hi", r"cross Water Territory at full movement within (?:your )?Province"),
     # ---- faction mechanic as written ----
     "ignore_terrain":      ("text", "F", r"ignore all (?:negative )?terrain Speed modifiers"),
-    "no_season_slow":      ("all", "F", "don.t gain Speed\\s*[\\-−]\\s?(\\d+)\\s+in\\s+(\\w+)"),
     "fac_type_bonus":      ("text", "f", r"Your ([\w &,]+?) (?:Pursuits|Holdings) have Craft \+(\d+)( and cost no Upkeep)?"),
     "occupy_tax":          ("text", "F", r"to collect taxes[^.]*end your turn inside it"),
     "morale_cap":          ("text", "F", r"Morale can't be modified beyond (\d+)\+"),
@@ -168,8 +165,11 @@ def window_of(c):
     m = re.search(r"\b(?:Whenever|When|If|Before|After)\b\s+([^,:]+)", c, F)
     if m: w["trig"] = m.group(1).strip()
     if w["envoy"]:
-        if re.search(r"\bPersonal (?:Actions?|Envoys?)\b|\bnon-Council Envoys?\b", c, F): w["scope"] = "personal"
+        if re.search(r"\bPersonal (?:\w+ )?(?:Actions?|Envoys?)\b|\bnon-Council Envoys?\b", c, F): w["scope"] = "personal"
         elif re.search(r"\bCouncil (?:Envoys?|Phase)\b|\bsent during the Council Phase\b", c, F): w["scope"] = "council"
+        # no predicate, but limited to one Phase: Envoy Phase = Personal Envoys, Council Phase = Council Envoys
+        elif w["win"] == "envoy": w.update(scope="personal", implied=True)
+        elif w["win"] == "council": w.update(scope="council", implied=True)
     return w
 
 
@@ -301,5 +301,5 @@ def envoy_window_review(ns, records, infra, wonders, strip_md):
             elif not w["scope"] and not w["win"]:
                 issue = "no window: applies in both Council and Envoy Phases"
             rows.append({"kind": label[kind], "name": name if kind != "s" else key[2:].replace(":", " "), "clause": c,
-                         "window": w["win"] or "-", "limit": w["lim"] or "-", "scope": w["scope"] or "-", "issue": issue})
+                         "window": w["win"] or "-", "limit": w["lim"] or "-", "scope": (w["scope"] + (" (by Phase)" if w.get("implied") else "")) or "-", "issue": issue})
     return rows

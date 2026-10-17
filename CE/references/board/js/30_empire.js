@@ -2,15 +2,13 @@
 const TYPES=[...new Set(NAMES.map(n=>R[n].type))].sort();
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
   tab=t.dataset.k; document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===t));
-  document.getElementById("typeFilters").style.display = tab==="pursuit"?"flex":"none";
+  document.getElementById("typeFilters").style.display = "none";
   renderList();
 });
-function buildFilters(){
-  const box=document.getElementById("typeFilters"); box.innerHTML="";
-  ["Monument"].filter(t=>TYPES.includes(t)).forEach(t=>{const c=document.createElement("span");c.className="chip"+(activeTypes.has(t)?" on":"");c.textContent=t;
-    c.onclick=()=>{activeTypes.has(t)?activeTypes.delete(t):activeTypes.add(t);c.classList.toggle("on");renderList();};
-    box.appendChild(c);});
-}
+function buildFilters(){const box=document.getElementById("typeFilters");box.innerHTML="";box.style.display="none";}
+// Monument toggle: sits on the Available / All line of the catalog
+function monChip(){const t="Monument";if(!TYPES.includes(t))return null;const c=document.createElement("span");c.className="chip"+(activeTypes.has(t)?" on":"");c.textContent=t;
+  c.onclick=()=>{activeTypes.has(t)?activeTypes.delete(t):activeTypes.add(t);renderList();};return c;}
 // catalog view prefs: grouping (type | root chart) and Available / All
 let CAT={group:"root",avail:true};
 try{const c=JSON.parse(localStorage.getItem("renown_cat")||"null");if(c)CAT=Object.assign(CAT,c);}catch(_){}
@@ -21,6 +19,33 @@ const ROOTS=((DATA.tree&&DATA.tree.charts)||[]).map(c=>[c.title,Object.keys(c.no
 let WP=null;          // empty-ward picker: {gid, wi, q} while its modal is open
 let FOR_SID=null;     // empty-ward click: catalog shows only what that settlement can take; next add goes there
 function pAvail(n){return !scopeBlock(n,null)&&(scopeOf(n)!=="Settlement"||!S.settlements.length||S.settlements.some(s=>!occupants(s.id).some(o=>o.name===n)))&&unlockStatus(n).ok;}
+// ---- legal to start now (catalog "Available", the empty-Ward picker, the Build action): Scope + Standing (pAvail), a Root or one
+// complete line of its Mastery Chain controlled (chainLine), its infrastructure_req, and — a Raw Material with a map resource — that
+// resource within Reach (of Settlement sid when given; Reach unchecked while there's no map or the player isn't deployed)
+function legalCtx(){const have=new Set(Object.keys(PC)),ce=computeEarned(have),me=playerOfBoard(S);
+  return {have,craft:ce.craft,tc:ce.tc,own:S.placed.filter(o=>o.sid!=null&&pActive(o)),me,res:me?reachResources(me):null,sr:{}};}
+function rawRes(n){return Object.values(RES_NODE).includes(n);}
+function rawInSett(ctx,n,sid){if(!(sid in ctx.sr)){const s=ctx.me?settById(ctx.me,sid):null,hx=s?settReachHexes(ctx.me,s):null;
+    if(!hx)ctx.sr[sid]=null;else{const M=mapState(),V=decodeGrid(M.grid),set=new Set();hx.forEach(k=>{const h=V.hex[k];if(!h)return;
+      if(M.useNodes){if(h.res&&RES_NODE[h.res])set.add(RES_NODE[h.res]);}else (((TREF.terrain||{})[RULE_NAME[h.t]]||{})["Raw Materials"]||[]).forEach(x=>set.add(x));});ctx.sr[sid]=set;}}
+  const st=ctx.sr[sid];return st?st.has(n):null;}
+function pLegal(n,sid,ctx){ctx=ctx||legalCtx();if(!pAvail(n))return false;const r=R[n]||{};
+  if(!r.root&&!chainLine(n,ctx.own))return false;
+  if((r.mreq||[]).length&&!reqStatus(r,ctx.have,ctx.craft,ctx.tc).earned)return false;
+  if(rawRes(n)&&ctx.me){if(sid!=null&&sid!=="faction"){if(rawInSett(ctx,n,sid)===false)return false;}else if(ctx.res&&!ctx.res.has(n))return false;}
+  return true;}
+// the Settlement where adding n gains the most efficient pairs (it rides a host there, or something there rides it); null = none
+function effSpot(n,prefer){let best=0,sd=null;const ids=S.settlements.map(s=>s.id);if(prefer!=null)ids.sort((a,b)=>(b===prefer)-(a===prefer));
+  ids.forEach(id=>{if(!canPlace(n,id).ok)return;const occ=occupants(id),g=exemptionsOf(occ.concat([{id:1e9,name:n}])).size-exemptionsOf(occ).size;if(g>best){best=g;sd=id;}});return sd;}
+// Build target (no Settlement chosen): Raw Materials go where the resource is in Reach; then an efficient pairing; then a Natural
+// Holding to a Hamlet; otherwise the Settlement with the most empty Wards (ties: largest tier, then newest)
+const SETT_SIZE=["Hamlet","Village","Town","City","Metropolis"];
+function smartSid(n,ctx){ctx=ctx||legalCtx();let C=S.settlements.filter(s=>canPlace(n,s.id).ok);if(!C.length)return null;
+  if(rawRes(n)&&ctx.me){const y=C.filter(s=>rawInSett(ctx,n,s.id)===true);if(y.length)C=y;else C=C.filter(s=>rawInSett(ctx,n,s.id)!==false);if(!C.length)return null;}
+  const ids=new Set(C.map(s=>s.id)),ef=effSpot(n);if(ef!=null&&ids.has(ef))return ef;
+  if(NATURAL.has(n)||(SIMPLE&&hamletRoot(n))){const h=C.filter(s=>s.tier==="Hamlet");if(h.length)C=h;}
+  C.sort((a,b)=>wardUse(b.id).free-wardUse(a.id).free||SETT_SIZE.indexOf(settTier(b.id))-SETT_SIZE.indexOf(settTier(a.id))||(+b.id||0)-(+a.id||0));
+  return C[0].id;}
 function iAvail(kind,n){const src=kind==="infra"?INFRA:WON,have=kind==="infra"?S.infra:S.wonders;return !have[n]&&!scopeBlock(n,null)&&infraReqStatus(src[n]).ok;}
 function catUpkeep(n){if(NATURAL.has(n))return 0;const r=R[n]||{};if(r.upkeep!=null)return r.upkeep;const t=r.type;return (PUP.byType&&t in PUP.byType)?PUP.byType[t]:(PUP.def||0);}
 function seg(opts,cur,fn){const w=document.createElement("span");w.className="seg";
@@ -29,6 +54,7 @@ function renderList(){
   const q=document.getElementById("search").value.toLowerCase();
   const list=document.getElementById("list"); list.innerHTML="";
   const ctl=document.createElement("div");ctl.className="catctl";
+  if(tab==="pursuit"){const mc=monChip();if(mc)ctl.appendChild(mc);}
   ctl.appendChild(seg([[true,"Available"],[false,"All"]],CAT.avail,k=>{CAT.avail=k;catSave();renderList();}));
   if(tab==="pursuit"&&FOR_SID!=null){if(!S.settlements.some(s=>s.id===FOR_SID))FOR_SID=null;else{
     const c=document.createElement("span");c.className="chip on forsid";c.textContent=settTier(FOR_SID)+" ✕";c.title="clear";
@@ -36,7 +62,8 @@ function renderList(){
   list.appendChild(ctl);
   if(tab==="pursuit"){
     const searching=q.length>0;
-    const keep=n=>nameHit(n,q)&&!(activeTypes.size&&!activeTypes.has(R[n].type))&&(!CAT.avail||pAvail(n))&&(FOR_SID==null||canPlace(n,FOR_SID).ok)&&cultureKeep(n);
+    const lc=CAT.avail?legalCtx():null;
+    const keep=n=>nameHit(n,q)&&!(activeTypes.size&&!activeTypes.has(R[n].type))&&(!CAT.avail||pLegal(n,FOR_SID,lc))&&(FOR_SID==null||canPlace(n,FOR_SID).ok)&&cultureKeep(n);
     const groups=(CAT.group==="root"&&ROOTS.length?ROOTS.map(([t,ns])=>[t,ns]):TYPES.map(t=>[t,NAMES.filter(n=>R[n].type===t)]))
       .map(([t,ns])=>[t,ns.filter(keep)]).filter(g=>g[1].length);
     const ctl2=document.createElement("div");ctl2.className="catctl";
@@ -79,7 +106,9 @@ function wardPick(gid,wi){openModal("");WP={gid,wi,q:""};wpRender();
   if(window.innerWidth>700){const i=document.getElementById("wpQ");if(i)i.focus();}}
 function wpRender(){if(!WP)return;const gid=WP.gid,card=document.getElementById("inspectCard");
   if(!S.settlements.some(x=>x.id===gid)){closeModal();return;}
-  const q=WP.q.toLowerCase(),keep=n=>nameHit(n,q)&&(!CAT.avail||pAvail(n))&&canPlace(n,gid).ok;
+  const q=WP.q.toLowerCase(),lc=CAT.avail?legalCtx():null,spot={};
+  const fits=n=>{const e=effSpot(n,gid);spot[n]=e;return e!=null||canPlace(n,gid).ok;};
+  const keep=n=>nameHit(n,q)&&(!CAT.avail||pLegal(n,null,lc))&&fits(n)&&(!CAT.avail||!rawRes(n)||pLegal(n,spot[n]!=null?spot[n]:gid,lc));
   const groups=(ROOTS.length?ROOTS.map(([t,ns])=>[t,ns.filter(keep)]):TYPES.map(t=>[t,NAMES.filter(n=>R[n].type===t&&keep(n))])).filter(g=>g[1].length);
   card.innerHTML='<h3>'+esc(settTier(gid))+' · Ward '+(WP.wi+1)+'<button class="close">×</button></h3>';
   card.querySelector(".close").onclick=closeModal;
@@ -93,11 +122,13 @@ function wpRender(){if(!WP)return;const gid=WP.gid,card=document.getElementById(
   groups.forEach(([t,mem])=>{const g=document.createElement("div");g.className="typegroup";
     const th=document.createElement("div");th.className="th";th.textContent=t+" ("+mem.length+")";g.appendChild(th);
     mem.forEach(n=>{const row=pursuitRow(n),go=e=>{e.stopPropagation();wpPlace(n);};
+      if(spot[n]!=null&&spot[n]!==gid){const m=document.createElement("span");m.className="meta";m.textContent="\u26a1 "+settTier(spot[n]);row.querySelector(".rtop").insertBefore(m,row.querySelector(".addbtn"));}
       row.querySelector(".nm").onclick=go;row.querySelector(".addbtn").onclick=go;g.appendChild(row);});
     card.appendChild(g);});}
 function wpPlace(n){const gid=WP?WP.gid:null;closeModal();if(gid==null)return;
-  const pf=FOR_SID,pt=tab;FOR_SID=gid;activeSid=gid;tab="pursuit";
-  try{addItem(n);}finally{tab=pt;FOR_SID=pf===gid?null:pf;}
+  const ef=effSpot(n,gid),to=ef!=null?ef:gid;
+  const pf=FOR_SID,pt=tab;FOR_SID=to;activeSid=to;tab="pursuit";
+  try{addItem(n);}finally{tab=pt;FOR_SID=pf===to?null:pf;}
   renderList();}
 function pursuitRow(n){
   const r=R[n],row=itemRow(n,r.monument,(PC[n]||0)>0),us=unlockStatus(n);
@@ -325,6 +356,7 @@ function render(){
   if(lockOn())HOTSEAT=false;                // claims replace hot-seat on a server game (the Duke keeps it)
   document.body.classList.toggle("lk-board",lockOn()&&!mine(D.players[D.active]));
   document.body.classList.toggle("lk-spec",lockOn()&&!myClaimP());
+  {const tr=document.getElementById("treasury");if(tr)tr.readOnly=(lockOn()&&!mine(D.players[D.active]))||spectating();}
   document.body.classList.toggle("lk-on",lockOn());
   IGN_N=0;setTimeout(ignNote,0);
   reindex();                    // S := active board, ids synced
@@ -332,7 +364,9 @@ function render(){
   applyTheme(D.theme||"pixel");
   applySkin(D.shape||"sharp");
   renderTopBar();
-  if(D.view==="battle"&&!mods().battle)D.view="table";
+  const batOK=!D.started||!!mods().battle;   // Battle sandbox: always before Start game; afterwards with the Battle module
+  if(D.view==="battle"&&!batOK)D.view="table";
+  {const vb=document.getElementById("vtBattle");if(vb)vb.hidden=!batOK;}
   if(D.view==="dash"||D.view==="renown"||D.view==="realm")D.view="table";
   if(D.view==="map")D.view="table";
   const view=D.view||"table";
@@ -347,7 +381,7 @@ function render(){
   document.getElementById("appBoard").style.display = base==="board"?"":"none";
   document.getElementById("viewReference").style.display = base==="reference"?"":"none";
   document.getElementById("viewTable").style.display = base==="table"?"":"none";
-  document.querySelectorAll(".vtab,#tabbar [data-v]").forEach(t=>t.classList.toggle("on",t.dataset.v===base));
+  document.querySelectorAll(".vtab,#tabbar [data-v]").forEach(t=>t.classList.toggle("on",t.dataset.v===(view==="battle"?"battle":base)));
   try{renderInbox();renderChrome();}catch(e){console.warn("inbox",e);}
   if(view==="battle"){renderTable();renderBattle();return;}
   if(base==="reference"){renderReference();return;}
@@ -392,7 +426,7 @@ function renderTopBar(){
     bar.appendChild(c);chips.push(c);
   });
   const add=document.createElement("span");add.className="pchip";add.textContent="+ player";
-  add.onclick=()=>{const np=newPlayer(D.players.length+1);np.id=Math.max(Date.now(),1+Math.max(0,...D.players.map(p=>+p.id||0)));D.players.push(np);D.active=D.players.length-1;reindex();save();render();renderList();};
+  add.onclick=()=>{const np=newPlayer(D.players.length+1);np.id=Math.max(Date.now(),1+Math.max(0,...D.players.map(p=>+p.id||0)));D.players.push(np);(np.board.settlements||[]).forEach(s=>nameSett(np,s));D.active=D.players.length-1;reindex();save();render();renderList();};
   bar.appendChild(add);
   const p=D.players[D.active], chip=chips[D.active];
   const card=document.getElementById("playerCard");if(card)card.innerHTML="";
@@ -402,15 +436,15 @@ function renderTopBar(){
   const col=document.createElement("input");col.type="color";col.value=p.color;col.style.width="30px";col.style.padding="0";col.title="player color";
   col.oninput=()=>{p.color=col.value;const d=chip&&chip.querySelector(".pdot");if(d)d.style.background=p.color;};
   col.onchange=()=>{p.color=col.value;save();render();};
-  const ed=canEdit(p);nm.disabled=col.disabled=!ed;
+  const ed=canEdit(p)&&!spectating();nm.disabled=col.disabled=!ed;nm.classList.add("keepval");
   const gen=document.createElement("button");gen.textContent="Generate";gen.title="random name ("+(nameCulture(p.board)||"")+")";gen.disabled=!ed;
   gen.onclick=()=>{const n=genPlaceName(nameCulture(p.board));if(!n)return;p.name=n;save();render();renderList();};
   {const h=heraldOf(p,26);if(h){const w=document.createElement("span");w.className="pc-her";w.innerHTML=h;put(w);}}
   put(nm);put(gen);put(col);
-  {const w=document.createElement("span");w.innerHTML=facSelectHTML();const fs=w.firstChild;fs.disabled=!ed;
-    fs.onchange=e=>{setFaction(e.target.value);save();render();renderList();};put(fs);}
-  {const w=document.createElement("span");w.innerHTML=culSelectHTML(p.board);const cs=w.firstChild;
+  {const w=document.createElement("span");w.innerHTML=culSelectHTML(p.board);const cs=w.firstChild;cs.disabled=!ed;cs.classList.add("keepval");
     cs.onchange=e=>{p.board.culture=e.target.value||"";save();render();renderList();};put(cs);}
+  {const w=document.createElement("span");w.innerHTML=facSelectHTML();const fs=w.firstChild;fs.disabled=!ed;fs.classList.add("keepval");
+    fs.onchange=e=>{setFaction(e.target.value);save();render();renderList();};put(fs);}
   {let on=false;try{on=!!SYNC.ready;}catch(e){}
     if(on){const cl=claimOf(p),mc=myClaimP(),b=document.createElement("button");b.dataset.claim="1";
       if(mine(p)){b.textContent="\u2605 yours \u00b7 release";b.onclick=()=>{if(!confirm("Release "+p.name+"?"))return;delete p.board.claim;if(TB().ready)delete TB().ready[p.id];save();render();};}
@@ -526,7 +560,7 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
           Array.from({length:fr},()=>'<span class="wchip open" data-nav="1">open</span>').join("");
         wc.querySelectorAll(".wchip.open").forEach((c,i)=>c.onclick=e=>{e.stopPropagation();wardPick(gid,W.length+i);});
         hd.appendChild(wc);}
-      {const so=S.settlements.find(x=>x.id===gid),ni=document.createElement("input");ni.className="snm";ni.placeholder="name";ni.value=(so&&so.name)||"";ni.title="Settlement name";
+      {const so=S.settlements.find(x=>x.id===gid),ni=document.createElement("input");ni.className="snm keepval";{const pb=playerOfBoard(S);ni.readOnly=(pb?!canEdit(pb):false)||spectating();}ni.placeholder="name";ni.value=(so&&so.name)||"";ni.title="Settlement name";
         ni.onclick=e=>e.stopPropagation();ni.onchange=()=>{if(so){so.name=ni.value.trim()||undefined;if(!so.name)delete so.name;save();render();}};hd.appendChild(ni);
         if(so&&PN){const gb=document.createElement("button");gb.className="shb";gb.textContent="Generate";gb.title="random name ("+(nameCulture(S)||"")+")";
           gb.onclick=e=>{e.stopPropagation();const nm=genPlaceName(nameCulture(S));if(nm){so.name=nm;save();render();}};hd.appendChild(gb);}}
@@ -739,7 +773,7 @@ function facGearFlags(a){const f=FAC[S.faction||""];if(!f)return [];const t=Stri
   if(a.armor&&a.armor!=="Cloth"&&ban.some(x=>x!=="shields"&&x.includes(String(a.armor).toLowerCase())))out.push(S.faction+": can't equip "+a.armor);
   if((/can't use shields/i.test(t)||ban.includes("shields"))&&a.shield&&a.shield!=="None")out.push(S.faction+": can't use Shields");
   return out;}
-function factionFlags(){const f=FAC[S.faction];if(!f)return [];const out=[];
+function factionFlags(){const f=FAC[S.faction];if(!f)return [];const out=[];{const k=cultureFactions(S);if(k&&!k.has(S.faction))out.push(S.faction+" isn't one of the "+S.culture+" factions");}
   const types=[...new Set(Object.values(R).map(r=>r.type))];
   f.mechanic.split(/(?<=[.;])\s+/).forEach(sen=>{
     // "can't … build Holdings that require <Domain>[ or <Domain>] Standing": flag Holdings whose unlock names that Domain
@@ -750,7 +784,9 @@ function factionFlags(){const f=FAC[S.faction];if(!f)return [];const out=[];
     S.placed.filter(p=>!p.fac).forEach(p=>{const r=R[p.name];
       if(sen.includes(p.name)||types.some(t=>t===r.type&&new RegExp("\\b"+t+" (?:Pursuits|Holdings)","i").test(sen)))out.push(S.faction+": "+p.name+" — "+sen.trim());});});
   return out;}
-function facSelectHTML(){const names=Object.keys(FAC),fin=names.filter(n=>FAC[n].final),oth=names.filter(n=>!FAC[n].final);
+// factions offered: the chosen culture's (CULTURES[*].factions); Self-made = every faction. The current pick always stays listed.
+function cultureFactions(b){const c=cultureOf(b||S),L=c?(CUL[c].factions||[]):[];return L.length?new Set(L):null;}
+function facSelectHTML(){const keep=cultureFactions(S),names=Object.keys(FAC).filter(n=>!keep||keep.has(n)||n===S.faction),fin=names.filter(n=>FAC[n].final),oth=names.filter(n=>!FAC[n].final);
   const opt=n=>'<option value="'+esc(n)+'"'+(n===S.faction?' selected':'')+'>'+esc(n)+'</option>';
   return '<select id="facSel" class="facsel" title="faction"><option value="">— faction —</option><optgroup label="Final cut">'+fin.map(opt).join('')+'</optgroup>'+
     (oth.length?'<optgroup label="Other">'+oth.map(opt).join('')+'</optgroup>':'')+'</select>';}
@@ -776,7 +812,8 @@ function cultureKeepWonder(n,b){const c=cultureOf(b||S);if(!c||!WON[n])return tr
 function derivedCulture(b){const dv=(b&&b.domains)||{},mx=Math.max(...CUL_DOMS.map(d=>+dv[d]||0)),top=CUL_DOMS.filter(d=>(+dv[d]||0)===mx).sort().join("|");
   return Object.keys(CUL).find(n=>CUL[n].domains.slice().sort().join("|")===top)||null;}
 function nameCulture(b){return cultureOf(b)||derivedCulture(b)||Object.keys(CUL).find(n=>CUL[n].type==="centre")||Object.keys(PN?PN.banks:{})[0];}
-function usedSettNames(){const s=new Set();(D.players||[]).forEach(p=>(p.board.settlements||[]).forEach(x=>{if(x.name)s.add(x.name);}));return s;}
+// every name on show (Settlement names on every board, player names): the generator never repeats one
+function usedSettNames(){const s=new Set();(D.players||[]).forEach(p=>{if(p.name)s.add(p.name);(p.board.settlements||[]).forEach(x=>{if(x.name)s.add(x.name);});});return s;}
 function genPlaceName(cul){if(!PN||!PN.banks)return "";const ex=new Set((PN.exclude||[]).concat([...usedSettNames()])),pick=L=>L[Math.floor(Math.random()*L.length)];let nm="";
   for(let t=0;t<60;t++){let B=PN.banks[cul]||PN.banks[pick(Object.keys(PN.banks))],pat=pick(B.patterns);
     if(pat==="@borrow"){B=PN.banks[pick(B.borrow)]||B;pat=pick(B.patterns.filter(x=>x!=="@borrow"));}
@@ -784,6 +821,8 @@ function genPlaceName(cul){if(!PN||!PN.banks)return "";const ex=new Set((PN.excl
     if(!ex.has(nm))return nm;}
   return nm;}
 function nameSett(p,s){if(!s||s.name||!PN)return;const nm=genPlaceName(nameCulture(p.board));if(nm)s.name=nm;}
+// default names for every unnamed Settlement on the boards this device may change (setup, reset, new player, new map piece)
+function nameAllSetts(){let ch=false;(D.players||[]).forEach(p=>{if(!canEdit(p))return;(p.board.settlements||[]).forEach(s=>{if(!s.name){nameSett(p,s);if(s.name)ch=true;}});});return ch;}
 function renderFaction(){const box=document.getElementById("facBox");if(!box)return;const f=FAC[S.faction];
   box.style.display=f?"":"none";
   const was=box.querySelector("details"),open=was?was.open:false;
@@ -1416,6 +1455,7 @@ function computeTotals(have,earned,tc){
   const leg=document.getElementById("legend");leg.innerHTML="";
   Object.keys(PHASE_LABEL).forEach(ph=>{const li=document.createElement("div");li.className="li";
     li.innerHTML='<span class="sw" style="background:'+cvar(PHASE_COLOR[ph])+'"></span>'+PHASE_LABEL[ph]+(m.phaseCount[ph]?(" ("+m.phaseCount[ph]+")"):"");leg.appendChild(li);});
+  {const gi=document.getElementById("goldItems");if(gi)gi.innerHTML=goldBreakHTML(goldBreak(S));}
   window._net=net0;
   renderInfluence();renderPOMods();renderMiniStand();
 }
@@ -1447,7 +1487,7 @@ function tradeIncome(b,season){const sea=season||curSeason(),out=tradeRaw(b,sea)
     if(ex&&sameP(hostP(),me)&&!(DATA.noTradeSeason&&sea===DATA.noTradeSeason)&&hasRoad(me.id)){const g=ex*(DATA.tradePerCraft||100)*(boardMetrics(b).craft||0);
       if(g){out.total+=g;out.lines.push("+"+ex+" partners (Host) +"+g);}}}
   {const m=srcMatch(b,"trade_mult")[0];if(m&&out.total){const k=m.m[1].toLowerCase()==="thrice"?3:2,add=out.total*(k-1);out.total+=add;out.lines.push(m.n+" ×"+k+" +"+add);}}
-  const icp=((D.bandit||{}).ic||{})[me.id];if(icp&&out.total&&sameP(hostP(),me)){out.lines.push("Intercept Caravan (bandits) −"+out.total);out.intercepted=out.total;out.total=0;}
+  const icp=((D.bandit||{}).ic||{})[me.id];if(icp&&out.total&&sameP(hostP(),me)){out.lines.push("Intercept Caravan ("+(icp.by!=null?pname(icp.by):"bandits")+") −"+out.total);out.intercepted=out.total;out.total=0;}
   if(isVassal(me.id)&&out.total){const h=out.total/2;out.total-=h;out.lines.push("½ to Suzerain "+pname(diplo().suzerain[String(me.id)])+" −"+h);}
   vassalsOf(me.id).forEach(v=>{const h=tradeRaw(v.board,sea).total/2;if(h){out.total+=h;out.lines.push("½ of Vassal "+v.name+" +"+h);}});
   return out;}
@@ -1459,6 +1499,25 @@ function tradeRaw(b,season){const sea=season||curSeason(),out={total:0,lines:[]}
     if(!(sameP(h,me)||sameP(h,q)))return;if(!hasRoad(me.id)||!hasRoad(q.id))return;
     const g=rate*(boardMetrics(h.board).craft||0);out.total+=g;out.lines.push(q.name+" "+(g>=0?"+":"")+g);});
   return out;}
+// income / costs by source for any board, this Season (Ledger, HUD Gold popover, player table): rows [label, gold]
+function goldBreak(b,season){return withBoard(b,()=>{const have=new Set(Object.keys(PC)),ce=computeEarned(have),m=calcMetrics(have,ce.earned,ce.tc),sea=season||curSeason();
+  const inc=[],cost=[],gAt=(atoms,q)=>(atoms||[]).reduce((a,x)=>a+(x.cat==="gold"&&x.flat&&!x.season&&!x.scale?x.val*q:0),0);let it=0;
+  Object.keys(PC).forEach(n=>{const r=R[n]||{},g=gAt(r.innate,PC[n])+(ce.earned[n]&&r.mastery_raw?gAt(r.mastery,PC[n]):0);if(g){inc.push([n,g]);it+=g;}});
+  Object.keys(S.infra||{}).filter(infraOn).forEach(n=>{const g=gAt(INFRA[n].atoms,1);if(g){inc.push([n,g]);it+=g;}});
+  Object.keys(S.wonders||{}).filter(infraOn).forEach(n=>{const g=gAt(WON[n].atoms,1);if(g){inc.push([n,g]);it+=g;}});
+  if(m.gold-it)inc.push(["Other",m.gold-it]);if(m.scale)inc.push(["Scaling gold",m.scale]);
+  const sa=((m.seasonAdd||{})[sea]||0)+(SEASON_DBL_TYPE(sea)?husbandryGoldFor(S,sea):0),tx=sea==="Winter"?winterTax(S).total:0,tr=tradeIncome(S,sea).total;
+  if(sa)inc.push([sea,sa]);if(tx)inc.push(["Winter tax",tx]);if(tr)inc.push(["Trade",tr]);
+  const nh=S.placed.filter(q=>pursuitUpkeep(q)>0).length,ni=Object.keys(S.infra||{}).concat(Object.keys(S.wonders||{})).filter(infraOn).length;
+  if(m.pursUp)cost.push(["Holdings ×"+nh,-m.pursUp]);if(m.infraUp)cost.push(["Infrastructure & Wonders ×"+ni,-m.infraUp]);
+  if(m.armyGross)cost.push(["Armies ×"+S.armies.length,-m.armyGross]);if(m.armyGross&&m.reduce)cost.push(["Army upkeep reductions",Math.min(m.reduce,m.armyGross)]);
+  return {inc,cost,sea,net:m.baseNet+sa+tx+tr};});}
+const gbV=v=>(v>0?"+":v<0?"\u2212":"")+Math.abs(v).toLocaleString();
+function goldBreakHTML(g){const row=([k,v])=>'<div class="kv"><span class="k">'+esc(k)+'</span><span class="val '+(v<0?"neg":"pos")+'">'+gbV(v)+'</span></div>';
+  return '<div class="lbl">INCOME · '+esc(g.sea)+'</div>'+(g.inc.length?g.inc.map(row).join(""):'<div class="note">none</div>')+
+    '<div class="lbl">COSTS</div>'+(g.cost.length?g.cost.map(row).join(""):'<div class="note">none</div>')+
+    '<div class="kv tot"><span class="k">Net</span><span class="val '+(g.net<0?"neg":"pos")+'">'+gbV(g.net)+'</span></div>';}
+function goldBreakTxt(g){return ["Gold "+g.sea+": net "+gbV(g.net)].concat(g.inc.map(([k,v])=>"  "+k+" "+gbV(v))).concat(g.cost.map(([k,v])=>"  "+k+" "+gbV(v))).join("\n");}
 function seasonNet(b,season){const m=boardMetrics(b),sea=season||curSeason(),sa=((m.seasonAdd||{})[sea]||0)+(SEASON_DBL_TYPE(sea)?husbandryGoldFor(b,sea):0),tx=sea==="Winter"?winterTax(b).total:0,tr=tradeIncome(b,sea).total;
   return {net:m.net+sa+tx+tr,base:m.net,seasonal:sa,tax:tx,trade:tr,m};}
 // metrics for any board (used by dashboards)

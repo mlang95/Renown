@@ -87,8 +87,11 @@
   .ward{border:1px solid var(--line);border-radius:var(--radius);padding:6px;background:var(--panel2);min-height:128px;display:flex;flex-direction:column}
   .ward-lbl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin:0 2px 5px;display:flex;justify-content:space-between;gap:6px}
   /* read-only: controls you can't use are hidden, not greyed (navigation stays) */
-  :is(body.lk-board,body.spectating) #appBoard :is(button,input,select,textarea,.addbtn):not(:is([data-nav],#export,#search,#hideCombat,.pcaret,.tab,[data-es],[data-hc])),
-  :is(body.lk-board,body.spectating) #appBoard :is(.emp,.grip),:is(body.lk-board,body.spectating) #playerCard :is(input,button,select):not([data-claim]){display:none!important}
+  :is(body.lk-board,body.spectating) #appBoard :is(button,input,select,textarea,.addbtn):not(:is([data-nav],#export,#search,#hideCombat,.pcaret,.tab,[data-es],[data-hc],.keepval)),
+  :is(body.lk-board,body.spectating) #appBoard :is(.emp,.grip),:is(body.lk-board,body.spectating) #playerCard :is(input,button,select):not(:is([data-claim],.keepval)){display:none!important}
+  /* values stay on show read-only (Treasury, names, faction, culture) */
+  :is(body.lk-board,body.spectating) .keepval{pointer-events:none;background:transparent!important;border-color:transparent!important;opacity:1!important;appearance:none;-webkit-appearance:none}
+  :is(body.lk-board,body.spectating) .snm.keepval:placeholder-shown{display:none}
   body.lk-spec #viewTable :is(button,input,select):not(:is([data-claim],[data-nav],.rl-maptog)),body.lk-spec #turnStrip :is(button,select,input):not(.ts-seat),body.lk-spec #phPill button{display:none!important}
   body.lk-spec #viewTable .rl-dock-spec{display:block}
   #playerBar [data-claim]{white-space:nowrap}
@@ -334,6 +337,8 @@
   .tipk{cursor:help;border-bottom:1px dotted var(--line2)}
   #gkTip{white-space:pre-line;position:fixed;z-index:9999;max-width:360px;background:var(--panel);color:var(--ink);border:1px solid var(--line2);border-radius:var(--radius-sm);box-shadow:0 6px 18px rgba(0,0,0,.22);padding:8px 10px;font-size:12px;line-height:1.4;display:none}
   #gkTip .gh{font-weight:600;margin-bottom:3px} #gkTip div{margin-top:3px} #gkTip a{color:var(--build)}
+  #gkTip .tl{margin-top:1px}#gkTip .tl.in{padding-left:10px;color:var(--dim)}
+  .gbrk{margin-top:6px}.gbrk .lbl{margin-top:4px}.gbrk .kv.tot{border-top:1px solid var(--line);margin-top:3px;padding-top:3px;font-weight:600}
   .kw:hover{filter:brightness(1.3)}
   .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;
     justify-content:center;z-index:50;padding:16px}
@@ -451,7 +456,8 @@
   .tstrip .ts-end{margin-left:auto;border-color:var(--order);font-weight:600}
   .tstrip .ts-ph b{font-size:15px;color:var(--ink)}
   .tstrip .ts-seat{border-color:var(--order);background:color-mix(in srgb,var(--order) 14%,var(--panel));font-weight:600}
-  .ts-steps{display:inline-flex;gap:4px;flex-wrap:wrap}
+  .ts-steps{display:inline-flex;gap:4px;flex:1 1 0;min-width:0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.ts-steps::-webkit-scrollbar{display:none}
+  .tstrip .ts-endg{display:inline-flex;gap:8px;align-items:center;margin-left:auto;flex:0 0 auto}.tstrip .ts-endg .ts-end{margin-left:0}
   .ts-step{display:inline-flex;align-items:center;gap:4px;padding:1px 7px 1px 2px;border:1px solid var(--line);border-radius:var(--radius-sm,4px);background:var(--panel);font-size:12px;cursor:help;white-space:nowrap}
   .ts-step i{font-style:normal;font-size:10px;min-width:15px;height:15px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:var(--line);color:var(--ink)}
   /* HUD: resource bar (RTS style) */
@@ -489,8 +495,8 @@
   .dbfx th.dbname{width:auto;background:color-mix(in srgb,var(--dc) 18%,transparent)}
   .dbk{margin:6px 0 8px}.dbk-h{display:flex;justify-content:space-between;align-items:baseline;color:var(--dc);margin-bottom:2px}
   .dbk .dbc{min-height:20px;padding:1px 0}.dbk .dbl{display:none}
-  .dbk-e{display:flex;gap:3px;flex-wrap:wrap;margin-top:3px}
-  .dbs{font-size:11px;padding:1px 5px;border:1px solid var(--line);border-radius:3px;color:var(--dim)}
+  .dbk-e{display:flex;gap:3px;flex-wrap:nowrap;margin-top:3px}
+  .dbs{font-size:11px;padding:1px 5px;border:1px solid var(--line);border-radius:3px;color:var(--dim);flex:1 1 0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
   .dbs.on{border-color:var(--dc);color:var(--ink);background:color-mix(in srgb,var(--dc) 20%,transparent)}
   .hc .up{color:var(--income)}.hc .dn{color:var(--upkeep)}
   .hc .hg{position:absolute;left:4px;right:4px;bottom:1px;height:2px;background:var(--barbg);border-radius:2px;overflow:hidden}
@@ -565,6 +571,7 @@
     .facsel{flex:1 1 110px;min-width:0;max-width:none}
     .tstrip .ts-i{flex:0 0 auto}.tstrip .ts-end{flex:0 0 auto;order:-1;margin-left:0}
     .ts-steps{flex:0 0 auto;flex-wrap:nowrap}.tstrip .ts-i{white-space:nowrap}
+    .tstrip .ts-endg{order:-1;margin-left:0}
     .appmenu{left:6px;right:6px;width:auto}
     .topbar .players{order:4;width:100%;flex-wrap:nowrap;overflow-x:auto}
     .appmenu #themeSel,.appmenu #shapeSel{max-width:none;flex:1}

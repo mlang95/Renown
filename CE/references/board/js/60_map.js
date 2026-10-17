@@ -201,12 +201,17 @@ function armyGear(a){return [a.weapon,(a.ranged&&a.ranged!=="None")?a.ranged:nul
 function armyUFor(p){return withBoard(p.board,()=>{const {earned}=computeEarned(new Set(Object.keys(PC)));const u=armyUnlocks(earned);u.mods=u.mods.concat(facCombat(S));return u;});}
 // plate beside the sprite: name (if set), loadout icons, status icons — the stat line lives in the inspector (click the Army)
 const PLATE_K=1.5;   // army plate scale vs the hex
-function plateStatus(sts,x0,sy,pad,si){return sts.map((t,i)=>'<rect x="'+(x0+pad+i*si).toFixed(2)+'" y="'+sy.toFixed(2)+'" width="'+(si*.92).toFixed(2)+'" height="'+(si*.92).toFixed(2)+'" fill="'+(SPR.eqTile||"#3a404c")+'"/>'+
-      '<use href="#'+mapSprId("st:"+t)+'" x="'+(x0+pad+i*si).toFixed(2)+'" y="'+sy.toFixed(2)+'" width="'+(si*.92).toFixed(2)+'" height="'+(si*.92).toFixed(2)+'"/>').join("");}
+const ST_K=2;        // status icon scale (plates and Settlement marks)
+// statuses → one icon per kind, its texts joined for the hover title
+function stDedup(L){const by={},out=[];L.forEach(o=>{if(!SPR.S["st:"+o.st])return;if(!by[o.st]){by[o.st]={st:o.st,txt:[]};out.push(by[o.st]);}by[o.st].txt.push(o.txt);});
+  return out.map(o=>({st:o.st,txt:o.txt.filter(Boolean).join("\n")}));}
+function stIconSVG(o,x,y,w){return '<g pointer-events="all" style="cursor:help"><title>'+esc(o.txt||o.st)+'</title><rect x="'+x.toFixed(2)+'" y="'+y.toFixed(2)+'" width="'+(w*.92).toFixed(2)+'" height="'+(w*.92).toFixed(2)+'" fill="'+(SPR.eqTile||"#3a404c")+'"/>'+
+  '<use href="#'+mapSprId("st:"+o.st)+'" x="'+x.toFixed(2)+'" y="'+y.toFixed(2)+'" width="'+(w*.92).toFixed(2)+'" height="'+(w*.92).toFixed(2)+'"/></g>';}
+function plateStatus(sts,x0,sy,pad,si){return sts.map((o,i)=>stIconSVG(o,x0+pad+i*si,sy,si)).join("");}
 function plateBox(cx,cy,R,x0,y0,w,h,lead,col,op){return (lead?'<line x1="'+cx.toFixed(1)+'" y1="'+cy.toFixed(1)+'" x2="'+Math.max(x0,Math.min(x0+w,cx)).toFixed(1)+'" y2="'+Math.max(y0,Math.min(y0+h,cy)).toFixed(1)+'" stroke="'+col+'" stroke-opacity=".7" stroke-width=".7"/>':'')+
     '<rect x="'+x0.toFixed(1)+'" y="'+y0.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="'+(R*.12).toFixed(1)+'" fill="#111" fill-opacity=".85" stroke="'+col+'" stroke-opacity="'+op+'" stroke-width=".7"/>';}
-function mapPlate(k,cx,cy,R){const {p,a}=cellArmy(k);if(!p||!a)return "";R=R*PLATE_K;const g=armyGear(a),ic=R*.56,pad=R*.1,f0=R*.24,si=R*.34,
-    title=a.label||"",sts=armyStatus(p,a,k).map(o=>o.st).filter((t,i,A)=>A.indexOf(t)===i&&SPR.S["st:"+t]);
+function mapPlate(k,cx,cy,R){const {p,a}=cellArmy(k);if(!p||!a)return "";R=R*PLATE_K;const g=armyGear(a),ic=R*.56,pad=R*.1,f0=R*.24,si=R*.34*ST_K,
+    title=a.label||"",sts=stDedup(armyStatus(p,a,k));
   if(!title&&!g.length&&!sts.length)return "";
   const th=title?f0+R*.06:0,gh=g.length?ic:0,w=Math.max(title.length*f0*.62,g.length*ic,sts.length*si)+pad*2,h=pad*2+th+gh+(sts.length?(gh?pad*.6:0)+si:0),
     pos=PLATE_AT?PLATE_AT(cx,cy,w,h):{x:cx+R*.72,y:cy-R*1.1,lead:false},x0=pos.x,y0=pos.y,gy=y0+pad+th,sy=gy+gh+(gh?pad*.6:0);
@@ -216,9 +221,9 @@ function mapPlate(k,cx,cy,R){const {p,a}=cellArmy(k);if(!p||!a)return "";R=R*PLA
       '<use href="#'+mapSprId("eq:"+n)+'" x="'+(x0+pad+i*ic).toFixed(1)+'" y="'+gy.toFixed(1)+'" width="'+ic.toFixed(1)+'" height="'+ic.toFixed(1)+'"/>').join("")+
     plateStatus(sts,x0,sy,pad,si)+'</g>';}
 // Settlement plate: name (if set), then status icons — Tax / Reach / Wards / Garrison live in the inspector (click the Settlement)
-function settPlate(k,cx,cy,R){const {p,s}=cellSett(k);if(!p||!s)return "";R=R*PLATE_K;const pad=R*.1,f0=R*.24,si=R*.34;
+function settPlate(k,cx,cy,R){const {p,s}=cellSett(k);if(!p||!s)return "";R=R*PLATE_K;const pad=R*.1,f0=R*.24,si=R*.34*ST_K;
   const title=s.name?(s.capital?"★ ":"")+s.name:"",
-    sts=settStatus(p,s).map(o=>o.st).filter((t,i,A)=>A.indexOf(t)===i&&SPR.S["st:"+t]);
+    sts=stDedup(settStatus(p,s));
   if(!title&&!sts.length)return "";
   const th=title?f0+R*.06:0,w=Math.max(title.length*f0*.62,sts.length*si)+pad*2,h=pad*2+th+(sts.length?si:0),
     pos=PLATE_AT?PLATE_AT(cx,cy,w,h):{x:cx+R*.72,y:cy-R*1.1,lead:false},x0=pos.x,y0=pos.y,sy=y0+pad+th;
@@ -244,10 +249,10 @@ function settInsideMarks(cx,cy,R,pix,g,ins){if(pix&&SPR)ins=ins.slice(1);let s="
   return t?'<text x="'+(cx-R*.95).toFixed(1)+'" y="'+(cy+R*.85).toFixed(1)+'" font-size="7.5" font-weight="700" fill="#fff" stroke="#111" stroke-width=".35" pointer-events="none">'+t+'</text>':"";}
 let PLATE_AT=null;
 // ---- map bar: Select, and a Place palette for setup pieces ----
-const PLACE_TOOLS=["Army","Hamlet","Village","Town","City","Metropolis","Outlaw Country","Wild Outlaw","Bandit Camp","Erase"];
+const PLACE_TOOLS=["Army","Hamlet","Village","Town","City","Metropolis","Outlaw Country","Bandit Camp","Erase"];
 let PLACE_OPEN=false;
 function mapBarHTML(){const P=mapAsP(),ic=t=>t==="Army"?sprSVG("army:Levy",18,false,P.color):SETT_TIERS_MAP.includes(t)?sprSVG("map:"+t,18,false,P.color):t==="Bandit Camp"?sprSVG("map:camp",18,false):
-    t==="Outlaw Country"||t==="Wild Outlaw"?'<span class="olh"></span>':'✕';
+    t==="Outlaw Country"?'<span class="olh"></span>':'✕';
   const pl=PLACE_OPEN||mtool!=="Select";
   return '<div class="mapbar"><button data-mt="Select" data-nav="1" class="'+(mtool==="Select"?"on":"")+'" title="click a piece to inspect it; click your Army, then a lit hex, to move">Select</button>'+
     '<button data-mplace="1" data-nav="1" class="'+(pl?"on":"")+'" title="place / erase map pieces (setup)">Place '+(pl?'▾':'▸')+'</button>'+
@@ -352,18 +357,17 @@ function inspArmy(k){const {p,a}=cellArmy(k),cell=mapState().cells[k];if(!p)retu
 function settStatus(p,s){const st=[],B=D.bandit||{};
   if(s.bt>0)st.push({st:"muster",txt:s.up?"Upgrading → "+s.up.to+" · Build Timer "+s.bt:"Building · Build Timer "+s.bt});
   realmTimers().filter(t=>String(t.tp)===String(p.id)&&String(t.sid)===String(s.id)).forEach(t=>st.push({st:t.kind==="siege"||t.kind==="capture"?"besieged":"blocked",txt:(t.type||t.kind)+" · "+(t.label||"")+" · "+(t.n??"?")+" left"}));
-  const d=(B.dest||{})[p.id+":"+s.id];if(d)st.push({st:"destabilize",txt:"Destabilized next Winter → "+(d.by!=null?pname(d.by):"Bandits @ "+d.camp)});
-  if(s.capital&&(B.ic||{})[p.id]){const ic=B.ic[p.id];st.push({st:"intercept",txt:"Caravan intercepted → "+(ic.by!=null?pname(ic.by):"Bandits @ "+ic.camp)+" (next turn as Host)"});}
+  const d=(B.dest||{})[p.id+":"+s.id];if(d)st.push({st:"destabilize",txt:"Destabilize: next Winter this Settlement's tax goes to "+(d.by!=null?pname(d.by):"Bandit Camp @ "+d.camp)});
+  if(s.capital&&(B.ic||{})[p.id]){const ic=B.ic[p.id];const who=ic.by!=null?pname(ic.by):"Bandit Camp @ "+ic.camp;st.push({st:"intercept",txt:"Intercept Caravan: the next turn "+p.name+" is Host, their Trade Income goes to "+who+(sameP(hostP(),p)?" (this turn)":"")});}
   D.players.forEach(q=>(q.board.armies||[]).forEach(a=>{if(a.pillage&&String(a.pillage.tp)===String(p.id)&&String(a.pillage.sid)===String(s.id))st.push({st:"pillage",txt:"Pillaged by "+q.name+" ("+(a.label||"Army "+a.id)+")"});}));
   const dm=(p.board.placed||[]).filter(q=>String(q.sid)===String(s.id)&&q.dmg>0);if(dm.length)st.push({st:"damaged",txt:"Damaged: "+dm.map(q=>q.name+" ("+q.dmg+")").join(", ")});
   if(s.capital){const idm=Object.keys(p.board.idmg||{}).filter(n=>p.board.idmg[n]>0);if(idm.length)st.push({st:"damaged",txt:"Damaged Infrastructure: "+idm.join(", ")});}
   if(occupyTaxOnly(p.board)&&!settInside(p.board,s))st.push({st:"blocked",txt:"No Army inside — no tax, Holdings unusable ("+p.board.faction+")"});
   return st;}
 function settStatusMarks(pl,k,cx,cy,R){const cs=cellSett(k).s;if(!pl||!cs)return "";
-  const L=[...new Set(settStatus(pl,cs).map(o=>o.st).filter(x=>x!=="besieged"&&SPR.S["st:"+x]))];if(!L.length)return "";
-  const w=R*.4,x0=cx+R*.55,y0=cy-R*.75;
-  return L.slice(0,4).map((t,i)=>'<rect x="'+x0.toFixed(1)+'" y="'+(y0+i*w).toFixed(1)+'" width="'+(w*.94).toFixed(1)+'" height="'+(w*.94).toFixed(1)+'" fill="'+(SPR.eqTile||"#3a404c")+'" pointer-events="none"/>'+
-    '<use href="#'+mapSprId("st:"+t)+'" x="'+x0.toFixed(1)+'" y="'+(y0+i*w).toFixed(1)+'" width="'+(w*.94).toFixed(1)+'" height="'+(w*.94).toFixed(1)+'" pointer-events="none"/>').join("");}
+  const L=stDedup(settStatus(pl,cs).filter(o=>o.st!=="besieged"));if(!L.length)return "";
+  const w=R*.4*ST_K,x0=cx+R*.55,y0=cy-R*.75-w;
+  return L.slice(0,4).map((o,i)=>stIconSVG(o,x0+i*w,y0,w)).join("");}
 function inspSett(k){const {p,s}=cellSett(k),cell=mapState().cells[k];if(!p)return inspHead(sprSVG("map:"+cell.type,36,false),cell.type,"unowned",null);
   if(!s)return inspHead(sprSVG("map:"+cell.type,36,false,p.color),cell.type,esc(p.name)+" · unlinked (link it under Map ↔ board)",p);
   const e=settEcon(p,s),wt=winterTax(p.board),wu=withBoard(p.board,()=>wardUse(s.id)),g=garrisonOf(p,s.id),ins=(p.board.armies||[]).filter(x=>String(x.sid)===String(s.id));
@@ -587,7 +591,7 @@ function armyName(a){return (a.label||("Army "+a.id))+' — '+(a.retinue||'')+' 
 function syncMapTiers(){const M=mapState();let ch=false;
   Object.keys(M.cells).forEach(k=>{const c=M.cells[k],cp=cellPlayer(c);if(!cp||(lockOn()&&!mine(cp)))return;   // each device keeps its own pieces in step
     if(c.type==="Army"){const a=cellArmy(k).a;if(a&&c.aid==null){c.aid=a.id;ch=true;}return;}
-    const s=cellSett(k).s;if(!s)return;if(c.sid==null){c.sid=s.id;ch=true;}
+    const s=cellSett(k).s;if(!s)return;if(c.sid==null){c.sid=s.id;ch=true;}if(!s.name){nameSett(cp,s);if(s.name)ch=true;}
     if(c.type!==s.tier&&(DATA.settlements||{})[s.tier]){c.type=s.tier;ch=true;}});
   return ch;}
 function mapLinkBad(){return mapSetts().filter(x=>cellPlayer(x.cell)&&!cellSett(x.k).s).length+mapArmies().filter(x=>cellPlayer(x.cell)&&!cellArmy(x.k).a).length;}
@@ -657,24 +661,26 @@ function wildCount(){const W=BAN.wild||{};if(W.count==="fill")return null;return
 function wildDone(){const M=mapState(),n=Object.keys(wildZones()).length,c=wildCount();return c==null?!!M.wildSeeded:n>=c;}
 // Setup (last step, after Deploy): scatter Wild zones over the unclaimed board. Every Wild hex is land (no Water / Mountains /
 // Impassable), free, at least Range border_range from every player's Province (Settlement Reach) and at least Range spacing from
-// every other Outlaw Country zone. Seeds go farthest-first (most open ground first, random ties) so zones spread out; each seed
-// grows to OUTLAW_COUNTRY_START connected Territories under the same ranges. Stops when no seed fits (or max / formula count).
+// every other Outlaw Country zone. Seeds go nearest the middle of the map first (random ties), so zones sit in the contested centre
+// and the spacing pushes later ones outward; each seed grows compactly round itself to OUTLAW_COUNTRY_START connected Territories
+// under the same ranges. Stops when no seed fits (or max / formula count).
 function placeWildOutlaw(){const M=mapState();if(!M.grid)return 0;const V=decodeGrid(M.grid),W=BAN.wild||{},size=+BAN.outlawStart||3;
-  const bR=+(W.border_range??5),sp=+(W.spacing??5),cnt=wildCount(),cap=cnt!=null?cnt-Object.keys(wildZones()).length:(W.max!=null?+W.max-Object.keys(wildZones()).length:1e9);
+  const bR=+(W.border_range??3),sp=+(W.spacing??5),cnt=wildCount(),cap=cnt!=null?cnt-Object.keys(wildZones()).length:(W.max!=null?+W.max-Object.keys(wildZones()).length:1e9);
   if(cap<=0){M.wildSeeded=true;return 0;}
   const own=terrOwners(),prov=Object.keys(own).filter(k=>own[k]&&own[k].size).map(hk);
   const land=k=>{const h=V.hex[k];return !!h&&h.t!=="water"&&h.t!=="mountain"&&!terrBlocked(h.t)&&hexFree(k)&&!M.outlaw[k];};
   const dProv={};Object.keys(V.hex).forEach(k=>{const a=hk(k);let d=1e9;for(const q of prov){const x=hexDist(a,q);if(x<d)d=x;if(d===0)break;}dProv[k]=d;});
   const dZone=(k,skipZ)=>{const a=hk(k);let d=1e9;Object.keys(M.outlaw).forEach(x=>{if(!M.outlaw[x]||(skipZ&&M.outlaw[x]===skipZ))return;d=Math.min(d,hexDist(a,hk(x)));});return d;};
   const fits=(k,z)=>land(k)&&dProv[k]>=bR&&dZone(k,z)>=sp;
+  const ctr=[Math.floor((M.grid.width-1)/2),Math.floor((M.grid.height-1)/2)],dC=k=>hexDist(hk(k),ctr);
   let made=0;const tried=new Set();
   while(made<cap){let id=1;while(Object.values(M.outlaw).includes("w"+id))id++;const z="w"+id;
-    const seeds=Object.keys(V.hex).filter(k=>!tried.has(k)&&fits(k,null)).map(k=>({k,o:Math.min(dProv[k],dZone(k,null)),r:Math.random()})).sort((x,y)=>y.o-x.o||x.r-y.r);
+    const seeds=Object.keys(V.hex).filter(k=>!tried.has(k)&&fits(k,null)).map(k=>({k,o:dC(k),r:Math.random()})).sort((x,y)=>x.o-y.o||x.r-y.r);
     if(!seeds.length)break;
     let ok=false;
     for(const sd of seeds){tried.add(sd.k);const zone=[sd.k];M.outlaw[sd.k]=z;
       while(zone.length<size){const cand=new Set();zone.forEach(k=>hexNb(k).forEach(q=>{if(fits(q,z))cand.add(q);}));
-        const L=[...cand].map(q=>({q,o:dProv[q],r:Math.random()})).sort((x,y)=>y.o-x.o||x.r-y.r);if(!L.length)break;M.outlaw[L[0].q]=z;zone.push(L[0].q);}
+        const L=[...cand].map(q=>({q,o:hexDist(hk(q),hk(sd.k)),r:Math.random()})).sort((x,y)=>x.o-y.o||x.r-y.r);if(!L.length)break;M.outlaw[L[0].q]=z;zone.push(L[0].q);}
       if(zone.length>=size){ok=true;bLog("Wild Outlaw Country "+z+" placed @ "+zone.join(" "));break;}
       zone.forEach(k=>delete M.outlaw[k]);}
     if(!ok)break;made++;}
@@ -914,8 +920,7 @@ function mapEditBlock(k){if(!lockOn())return "";const M=mapState(),c=M.cells[k],
   if(!me)return "claim a player to act";
   const own=x=>!!x&&String(x.player)===String(me.id),who=x=>((x&&cellPlayer(x))||{}).name||"another player";
   if(mtool==="Bandit Camp")return canHost()?"":"Host only";
-  if(mtool==="Outlaw Country")return firstHostOpen()?"":"Outlaw Country: setup only";
-  if(mtool==="Wild Outlaw")return !firstHostOpen()?"Outlaw Country: setup only":canHost()?"":"Host only";
+  if(mtool==="Outlaw Country"){if(!firstHostOpen())return "Outlaw Country: setup only";const o=terrOwners()[k];return (o&&o.size)||canHost()?"":"Host only (outside every Province)";}
   if(mtool==="Erase"){if(c&&!own(c))return "\ud83d\udd12 "+who(c)+"'s piece";
     if(M.camps[k]&&!canHost())return "Host only";if(M.outlaw[k]&&!firstHostOpen())return "Outlaw Country: setup only";return "";}
   if(c&&!own(c))return "\ud83d\udd12 "+who(c)+"'s piece";
@@ -933,8 +938,9 @@ function mapCellClick(k){const M=mapState();MAPSEL=k;
       render();return;}
     {const why=mapEditBlock(k);if(why){flash(why);render();return;}}
     if(mtool==="Erase"){delete M.cells[k];delete M.outlaw[k];delete M.camps[k];}
-    else if(mtool==="Outlaw Country"){if(M.outlaw[k])delete M.outlaw[k];else M.outlaw[k]=true;}
-    else if(mtool==="Wild Outlaw"){if(M.outlaw[k])delete M.outlaw[k];else{const nz=hexNb(k).map(q=>M.outlaw[q]).find(v=>typeof v==="string");let id=1;while(Object.values(M.outlaw).includes("w"+id))id++;M.outlaw[k]=nz||("w"+id);}}
+    else if(mtool==="Outlaw Country"){if(M.outlaw[k])delete M.outlaw[k];
+      else{const own=terrOwners(),nz=hexNb(k).map(q=>M.outlaw[q]).find(v=>typeof v==="string");   // joins a neighbouring Wild zone; outside every Province it starts one
+        if(nz)M.outlaw[k]=nz;else if(own[k]&&own[k].size)M.outlaw[k]=true;else{let id=1;while(Object.values(M.outlaw).includes("w"+id))id++;M.outlaw[k]="w"+id;}}}
     else if(mtool==="Bandit Camp"){if(!M.camps[k])M.camps[k]={n:BAN.campStart||5,gold:+BAN.campGold||0};}
     else M.cells[k]={type:mtool,player:mapAsP().id};
     save();render();}

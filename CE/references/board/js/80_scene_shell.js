@@ -200,7 +200,7 @@ document.getElementById("poPlus").onclick=()=>{S.po=Math.min(PO_MAX,(S.po||0)+1)
 document.querySelectorAll("[data-gold]").forEach(b=>b.onclick=()=>{S.treasury=(S.treasury||0)+(+b.dataset.gold);trIn.value=S.treasury;save();});
 
 // ---- toolbar ----
-document.getElementById("clear").onclick=()=>{const b=activeBoard();b.placed=[];b.settlements=startSettlements();b.startSig=startSig();b.infra={};b.wonders={};b.armies=[];reindex();save();render();renderList();};
+document.getElementById("clear").onclick=()=>{const b=activeBoard();b.placed=[];b.settlements=startSettlements();b.startSig=startSig();b.infra={};b.wonders={};b.armies=[];nameAllSetts();reindex();save();render();renderList();};
 document.getElementById("export").onclick=()=>{const b=new Blob([JSON.stringify(D,null,2)],{type:"application/json"});
   const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="renown_build.json";a.click();};
 document.getElementById("import").onclick=()=>document.getElementById("file").click();
@@ -272,7 +272,7 @@ function firstHostBtn(){if(!firstHostOpen())return "";const me=meP(),hp=hostP(),
   return '<button data-ts="host-on" title="take the Host card for the first turn">take first Host</button>';}
 // ---- HUD: the active player's numbers in one condensed row (label over value); click a cell to jump to its panel ----
 function hudSign(v){return (v>0?"+":v<0?"\u2212":"\u00b1")+Math.abs(Math.round(v)).toLocaleString();}
-function hudData(p){const b=p.board,sn=seasonNet(b),m=sn.m,rows=poModRows(b),po=b.po||0,dbl=srcHas(b,"po_mod_double")?2:1;
+function hudData(p){const b=p.board,sn=seasonNet(b),m=sn.m,rows=poModRows(b),po=b.po||0,dbl=1;
   const wu=withBoard(b,()=>(b.settlements||[]).reduce((a,s)=>{const w=wardUse(s.id);a.u+=w.used;a.c+=w.cap;return a;},{u:0,c:0}));
   const caps=withBoard(b,()=>({a:eraCap("armies"),s:eraCap("max_settlements")}));
   const fRows=rows.filter(r=>r.side==="faith"&&r.n),dRows=rows.filter(r=>r.side==="doubt"&&r.n);
@@ -280,6 +280,20 @@ function hudData(p){const b=p.board,sn=seasonNet(b),m=sn.m,rows=poModRows(b),po=
     faith:(m.faith||0)+fRows.reduce((a,r)=>a+r.n,0)*dbl,doubt:(m.doubt||0)+dRows.reduce((a,r)=>a+r.n,0)*dbl,pieceF:m.faith||0,pieceD:m.doubt||0,fRows,dRows,dbl,
     craft:m.craft||0,band:(poBandName(po)||[])[0]||"",armies:(b.armies||[]).length,armyCap:caps.a,
     setts:(b.settlements||[]).length,settCap:caps.s,wu,dom:b.domains||{},edicts:edictTotal(p),flags:p===D.players[D.active]?boardFlags().length:0};}
+// descriptor lines per HUD value for any player (HUD title, player table hover)
+function hudTips(p,h){h=h||hudData(p);const b=p.board,sg=v=>(v>0?"+":"")+v;
+  const po=["Public Order "+h.po+" · "+h.band,"Faith +"+h.faith+" / Doubt +"+h.doubt+" at the next Empire Phase"+(h.dbl>1?" (modifiers ×2)":""),
+    "  pieces: Faith +"+h.pieceF+" / Doubt +"+h.pieceD].concat(h.fRows.map(r=>"  Faith +"+r.n+" · "+r.k)).concat(h.dRows.map(r=>"  Doubt +"+r.n+" · "+r.k));
+  let infl=[];try{infl=influenceRows(b).filter(r=>r.val||r.cnt).map(r=>"  "+r.k+(r.cnt>1?" ×"+r.cnt:"")+" "+sg(r.val));}catch(e){}
+  const W=withBoard(b,()=>(b.settlements||[]).map(s=>{const w=wardUse(s.id);return "  "+(s.capital?"★ ":"")+(s.name?s.name+" · ":"")+s.tier+" · Wards "+w.used+"/"+w.cap;}));
+  return {gold:goldBreakTxt(goldBreak(b)),
+    infl:["Influence this turn "+inflPool(p)].concat(infl).join("\n"),
+    env:["Personal Envoys "+h.env,"  "+currentEra()+" (Era) "+(+eraRec().personal_envoys||1)].join("\n"),
+    po:po.join("\n"),
+    armies:["Armies "+h.armies+(h.armyCap!=null?" / "+h.armyCap+" ("+currentEra()+")":"")].concat((b.armies||[]).map(a=>"  "+(a.label||("Army "+a.id))+" · "+(a.retinue||"")+" ×"+(a.count||0))).join("\n"),
+    setts:["Settlements "+h.setts+(h.settCap!=null?" / "+h.settCap:"")+" · Wards "+h.wu.u+"/"+h.wu.c].concat(W).join("\n"),
+    edicts:"Completed Edicts "+h.edicts,
+    dom:DOMAINS.map(d=>d+" "+(+(h.dom[d])||0)+" · "+domBand(+(h.dom[d])||0)).join("\n")};}
 function renderHUD(){const el=document.getElementById("hud");if(!el)return;const p=D.players[D.active];if(!p){el.innerHTML="";return;}
   const h=hudData(p),cls=v=>v>0?"up":v<0?"dn":"";
   let left=null;try{const R=tSim();const pool=R.pool[p.id]??inflPool(p);left=pool-(R.spent[p.id]||0);}catch(e){}
@@ -344,7 +358,7 @@ document.addEventListener("click",e=>{const w=e.target.closest("[data-setup-wild
   const b=e.target.closest("[data-setup-begin]");if(!b)return;if(!canHost()){flash("Host only");return;}if(!wildDone()){placeWildOutlaw();save();}
   D.players.forEach(p=>(p.board.settlements||[]).forEach(s=>nameSett(p,s)));save();tSetPhase(tPhase());});
 function renderTurnStrip(){const el=document.getElementById("turnStrip");if(!el)return;
-  const ph=tPhase(),hp=hostP(),hc=canHost(),i=T_PH.indexOf(ph),nx=T_PH[(i+1)%T_PH.length];
+  const ph=tPhase(),hp=hostP(),hc=canHost(),nx=tNext(ph);
   const me=meP(),unseated=me&&!seated().some(p=>sameP(p,me)),steps=(DATA.phaseSteps||{})[ph]||[];
   const cap=s=>s.length>28?s.slice(0,27).replace(/\s+\S*$/,"")+"…":s;
   el.innerHTML=(unseated?'<button class="ts-seat" data-goto="table">Take a seat ▸</button>':'')+
@@ -360,14 +374,14 @@ function renderTurnStrip(){const el=document.getElementById("turnStrip");if(!el)
     '<span class="ts-i"><span class="note">Host</span> <b>'+(hp?esc(hp.name):'—')+'</b>'+(hp&&!TB().hostSet?' <span class="note">(default)</span>':'')+(unseated?'':firstHostBtn())+'</span>'+
     '<span class="ts-i ts-ph"><b>'+esc(T_PHL[ph])+'</b>'+(hc?'<button data-ts="ph" title="'+esc(T_PHL[nx])+'">▸</button>':'')+'</span>'+
     (steps.length?'<span class="ts-steps">'+steps.map((s,k)=>'<span class="ts-step" data-tip="'+esc(s[1])+'"><i>'+(k+1)+'</i>'+esc(cap(s[0]))+'</span>').join('')+'</span>':'')+
-    (ADMIN?'<span class="ts-i"><b style="color:var(--order)">♛ DUKE</b></span>':'')+(hc?'<button class="ts-end" data-ts="end">End turn</button>':'');}
+    ((ADMIN||hc)?'<span class="ts-endg">'+(ADMIN?'<b style="color:var(--order)">♛ DUKE</b>':'')+(hc?'<button class="ts-end" data-ts="end">End turn</button>':'')+'</span>':'');}
 document.addEventListener("click",e=>{const b=e.target.closest("#turnStrip [data-ts]");if(!b)return;const k=b.dataset.ts;
   if(k==="sea-"||k==="sea+"){const ys=RC.AGE_YEAR_SEASON,was=curSeason();stepSeason(k==="sea+"?1:-1);
     if(ys&&k==="sea+"&&curSeason()===ys)D.yearsGone=(+D.yearsGone||0)+1;
     else if(ys&&k==="sea-"&&was===ys)D.yearsGone=Math.max(0,(+D.yearsGone||0)-1);
     save();render();}
   else if(k==="rn-"||k==="rn+"){D.renown=Math.max(1,Math.min(+RC.RENOWN_MAX||30,(D.renown||1)+(k==="rn+"?1:-1)));save();render();}
-  else if(k==="ph"){const i=T_PH.indexOf(tPhase());tSetPhase(T_PH[(i+1)%T_PH.length]);}
+  else if(k==="ph"){tSetPhase(tNext(tPhase()));}
   else if(k==="start"){startGame();}
   else if(k==="ready"){const mc=myClaimP();if(!mc)return;const t=TB();t.ready=t.ready||{};
     if(t.ready[mc.id])delete t.ready[mc.id];else t.ready[mc.id]=true;save();render();}

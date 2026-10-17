@@ -1,0 +1,17 @@
+github/mlang95/Renown/CE/claude.md + comprehensive rules outline, then treat this as a prompt response to TASK6_NOTES.
+Review all objectives, organize them in such a manner that you can do as many at the same time as possible in a single pass.
+Ask any clarifying questions, do not push to github, write into zip for me.
+Most of this will apply to gen_settlement_board.py and renown_data_d10.py
+
+Check updated renown_data_d10 for updated effects for condemned and start of empire phase.
+1. Remove activate. add in rules that the one time domain standings are used at the start of the empire phase.
+2. Add them but make sure it says "requires X infrastructure" and dissallow them from making it, same with other roots. Don't let them perform a build action if there's no room to place it in empire once in the start_game.
+3. do not allow the action to be done.
+4. same rule for both. Hamlets are for natural chains, not things that don't end with natural stuff, basically. players can always move stuff around on their own, for now
+5. sounds good.
+6. I fixed.
+
+for the domain standings, shorten the text OR make them wrap text down to a second line, I'll take that over the sovereign being below the other 2.
+for the ledger, the 4 seasons aren't fitting.
+for the faith, there should be a toggle to not see the Faith / Doubt effects that aren't active. like Deficit or Insolvency.
+when treasury is collapsed, still show the treasury amount. default the gold to show like gold/ turn, and do the same for public order. the text is kinda small for how important it is. this is on the right hand side. may drop this another time because it's in the ehader bu I'm seeing a reason to do that yet. Maybe the ledger can show the in goings and outgoings of money, spent or extorted, too? so you can make sure that for example you didn't double pay for something or did recoup something you were supposed to.

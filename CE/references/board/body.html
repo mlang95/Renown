@@ -3,6 +3,7 @@
     <div class="vtab" data-v="table" title="play: the Table, the map, your actions">Realm</div>
     <div class="vtab on" data-v="board" title="inspect and edit your Empire">Empire</div>
     <div class="vtab" data-v="reference" title="rules">Reference</div>
+    <div class="vtab" data-v="battle" id="vtBattle" title="Battle: try out combat (before the game starts, or with the Battle module on)" hidden>Battle</div>
   </div>
   <div class="players" id="playerBar"></div>
   <span class="tbundo" style="margin-left:auto;display:inline-flex;gap:4px"><button id="undoBtn" title="Undo (Ctrl+Z)" disabled>↶</button><button id="redoBtn" title="Redo (Ctrl+Shift+Z / Ctrl+Y)" disabled>↷</button></span>
@@ -99,7 +100,7 @@
     <details class="tot lsec" open id="lsTreas"><summary><h3>Treasury</h3></summary>
       <div class="treas">
         <span class="k">gold</span>
-        <input type="number" id="treasury" step="100" value="0">
+        <input type="number" id="treasury" class="keepval" step="100" value="0">
         <button id="endturn">end turn ▸</button>
       </div>
       <div class="goldbtns">
@@ -109,6 +110,18 @@
       <div class="kv" style="margin-top:6px"><span class="k">turn</span><span class="val" id="turn">0</span></div>
       <label class="note" style="display:flex;gap:6px;align-items:center;margin-top:4px">
         <input type="checkbox" id="autoNet" checked> auto-apply net gold on end turn</label>
+    </details>
+
+    <details class="tot lsec" open id="lsGold"><summary><h3>Gold / turn</h3><span class="n" id="netgold">0</span></summary>
+      <div class="kv"><span class="k tipk" data-tipk="t_gold">Gold income (flat)</span><span class="val" id="t_gold">0</span></div>
+      <div class="kv"><span class="k tipk" data-tipk="t_scale">Scaling gold</span><span class="val" id="t_scale">0</span></div>
+      <div class="kv"><span class="k tipk" data-tipk="t_upkeep">Upkeep — infra/wonder</span><span class="val" id="t_upkeep">0</span></div>
+      <div class="kv"><span class="k tipk" data-tipk="t_pupkeep">Upkeep — pursuits</span><span class="val" id="t_pupkeep">0</span></div>
+      <div class="kv"><span class="k tipk" data-tipk="t_reduce">Upkeep reductions (pool)</span><span class="val" id="t_reduce">0</span></div>
+      <div class="kv"><span class="k tipk" data-tipk="t_army">Upkeep — army (net)</span><span class="val" id="t_army">0</span></div>
+      <div class="note" id="netnote"></div>
+      <div class="gbrk" id="goldItems"></div>
+      <div class="season-grid" id="seasons" style="margin-top:8px"></div>
     </details>
 
     <details class="tot lsec" open id="lsPO"><summary><h3>Public Order</h3><span class="note" id="poBandS"></span></summary>
@@ -161,16 +174,6 @@
 </div>
 
 <div id="hudStore" hidden>
-    <details class="tot lsec" open id="lsGold"><summary><h3>Gold / turn</h3><span class="n" id="netgold">0</span></summary>
-      <div class="kv"><span class="k tipk" data-tipk="t_gold">Gold income (flat)</span><span class="val" id="t_gold">0</span></div>
-      <div class="kv"><span class="k tipk" data-tipk="t_scale">Scaling gold</span><span class="val" id="t_scale">0</span></div>
-      <div class="kv"><span class="k tipk" data-tipk="t_upkeep">Upkeep — infra/wonder</span><span class="val" id="t_upkeep">0</span></div>
-      <div class="kv"><span class="k tipk" data-tipk="t_pupkeep">Upkeep — pursuits</span><span class="val" id="t_pupkeep">0</span></div>
-      <div class="kv"><span class="k tipk" data-tipk="t_reduce">Upkeep reductions (pool)</span><span class="val" id="t_reduce">0</span></div>
-      <div class="kv"><span class="k tipk" data-tipk="t_army">Upkeep — army (net)</span><span class="val" id="t_army">0</span></div>
-      <div class="note" id="netnote"></div>
-      <div class="season-grid" id="seasons" style="margin-top:8px"></div>
-    </details>
 
     <details class="tot lsec" open id="lsYield"><summary><h3>Craft · Influence · Extort</h3></summary>
       <div class="kv"><span class="k tipk" data-tipk="t_craft">Craft X</span><span class="val" id="t_craft">0</span></div>

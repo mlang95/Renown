@@ -2474,7 +2474,7 @@ SIMPLE_NODES = {
     "Exalted Basilica": {
         "group": "g_devotion",
         "unlock": "Sovereign Piety",
-        "innate": "Your piety actions cause an additional Faith +1 and Doubt +1 to the target of the action. Each Empire Phase (Activate), you may perform an Endorsed Spread Truth.",
+        "innate": "Your piety actions cause an additional Faith +1 and Doubt +1 to the target of the action. At the Start of the Empire Phase, you may perform an Endorsed Spread Truth.",
         "efficient": "Pilgrimage Site",
         "builds_into": [],
         "monument": True},
@@ -2503,7 +2503,7 @@ SIMPLE_NODES = {
     "Outlaw Rookery": {
         "group": "g_secrecy",
         "unlock": "Sovereign Cunning",
-        "innate": "Both Bandit Camps & you have Authority +1 on Cunning Envoys. Endorsed Foster Rebellion instead places Bandit Armies with 25 retinues.",
+        "innate": "Both Bandit Camps & you have Authority +1 on Personal Cunning Envoys. Endorsed Foster Rebellion instead places Bandit Armies with 25 retinues.",
         "efficient": "Syndicate Hub",
         "builds_into": [],
         "monument": True},
@@ -2517,7 +2517,7 @@ SIMPLE_NODES = {
     "Cipher Chamber": {
         "group": "g_secrecy",
         "unlock": "Established Cunning",
-        "innate": "Each Empire Phase (Activate): select an army you did not select last turn; that army gains Blocked. Each Empire Phase (Activate): select any active Timer you did not select last turn; increase it by 2.",
+        "innate": "At the Start of the Empire Phase: select an army you did not select last turn; that army gains Blocked. At the Start of the Empire Phase: select any active Timer you did not select last turn; increase it by 2.",
         "efficient": "Forgery Workshop",
         "builds_into": ["Whispering Undercroft"],
         "monument": False},
@@ -2908,7 +2908,7 @@ FACTIONS = {
         'feel': 'Strength Through Diplomacy',
         'difficulty': 'Medium',
         'strength': 'Medium',
-        'mechanic': "Palatine: Each player allied with you has Authority +1 on their Envoys. Once per Envoy Phase, you may spend 1 of an ally's Influence, targeting your own Envoys if you wish.",
+        'mechanic': "Palatine: Each player allied with you has Authority +1 on their Personal Envoys. Once per Envoy Phase, you may spend 1 of an ally's Influence, targeting your own Envoys if you wish.",
         'pair': 'Senate Hall, Aristocratic Court',
         'complement': 'Royal Pavilion',
     },
@@ -2958,7 +2958,7 @@ FACTIONS = {
         'feel': 'Generous Sponsor',
         'difficulty': 'Medium',
         'strength': 'Medium',
-        'mechanic': 'Friends in High Places: Each Empire Phase, a player who supported an Envoy you sent that passed gains Faith +1; if that Envoy was endorsed, they Extort 500 gold from you.',
+        'mechanic': 'Friends in High Places: Each Empire Phase, a player who supported a Personal Envoy you sent that passed gains Faith +1; if that Personal Envoy was endorsed, they Extort 500 gold from you.',
         'pair': 'Aristocratic Court, Senate Hall',
         'complement': 'Royal Pavilion',
     },
@@ -3009,7 +3009,7 @@ FACTIONS = {
         'feel': 'Subterfuge, Deception',
         'difficulty': 'High',
         'strength': 'High',
-        'mechanic': "Double Speak: Your Diplomacy Envoys use your Cunning Standing for their innate Authority. Whenever your Diplomacy Envoy passes or is endorsed, you may instead perform a Cunning action. You can't perform Declare War or Sacred War actions, and you can't be a member of an Alliance.",
+        'mechanic': "Double Speak: Your Diplomacy Envoys use your Cunning Standing for their innate Authority. Whenever your Personal Diplomacy Envoy passes or is endorsed, you may instead perform a Cunning action. You can't perform Declare War or Sacred War actions, and you can't be a member of an Alliance.",
         'pair': "Aristocratic Court, Whispering Undercroft",
         'complement': 'Artillery Park',
     },
@@ -3183,7 +3183,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
  # ── Wondrous tier (Wonders): Realm Scope, one per game, built in your capital
  'Colossus': {'upkeep': 500,
               'upkeep_frequency': 'per Wonder',
-              'empire_bonus': 'You may support your own prowess envoys before other players '
+              'empire_bonus': 'You may support your own Personal Prowess Envoys before other players '
                               'vote. Speed +2; Siege Timer -2, & gain Immune '
                               'Blunder.',
               'tier': 'Wondrous',
@@ -3420,7 +3420,7 @@ OUTLAW_COUNTRY_START = 3  # Outlaw Country territories demarcated at game start
 WILD_OUTLAW = {
     "count": "formula",      # "formula" | "fill"
     "max": None,             # cap on zones in "fill" mode (None = no cap)
-    "border_range": 5,       # min Range from any player's Province
+    "border_range": 3,       # min Range from any player's Province
     "spacing": 5,            # min Range from any other Outlaw Country zone
     "per_players": 2,        # "formula": floor(players / 2)
     "plus": 1,               # "formula": + 1
@@ -3562,16 +3562,16 @@ ENVOY_OUTCOME_THRESHOLDS = {
 # Per-domain effect at each outcome band. Prowess Condemn is a combat penalty
 # (Strain; if already Strained, no Move this turn or next) rather than Doubt+Cost,
 # since Prowess actions carry no gold/doubt cost.
-ENVOY_OUTCOMES = {
+ENVOY_OUTCOMES = { #Note, the condemned.split("+")[-1] is the "cost" for cunning piety and industry
     "Prowess":   {"condemned": "Doubt 1 + Armies gain Strain; if already Strained, that army gains Blocked.",
                   "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Perform a Move action"},
-    "Cunning":   {"condemned": "Doubt 1 + pay the action's cost",
+    "Cunning":   {"condemned": "Doubt 1 + pay 2000, & you cannot Recoup",
                   "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Extort 2000"},
-    "Piety":     {"condemned": "Doubt 1 + pay the action's cost",
+    "Piety":     {"condemned": "Doubt 1 + Doubt 1",
                   "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Recoup Doubt"},
-    "Industry":  {"condemned": "Doubt 1 + pay the action's cost",
+    "Industry":  {"condemned": "Doubt 1 + pay 2000, & you cannot Recoup",
                   "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Recoup 2000"},
-    "Diplomacy": {"condemned": "Doubt 1 + pay the action's cost",
+    "Diplomacy": {"condemned": "Doubt 1 + you cannot perform or be the target of a diplomacy action this turn or next, unless you are a target of an end treaty action.",
                   "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Faith 1"},
 }
 
@@ -3652,7 +3652,7 @@ ACTIONS = {
         'domain': 'Cunning',
         'cost': '2000 gold',
         'requires': '',
-        'effect': "Choose another player's Settlement, then choose one active Pursuit, active Infrastructure, or active Build Timer in it: that target becomes Damaged, and its effects are inactive until Repaired. A Damaged Build Timer doesn't increment until Repaired.",
+        'effect': "Choose another player's Settlement, then choose one active Pursuit, active Infrastructure, or active Build Timer in it: that target becomes Damaged, and its effects are inactive until Repaired. A Damaged Build Timer doesn't increment until Repaired. If an active Build Timer hasn't been completed, instead, increase the Timer by 2.",
         'endorsed': 'Extort 2000.',
         'notes': ["A Wonder has Immune Razed and can't be targeted."],
     },

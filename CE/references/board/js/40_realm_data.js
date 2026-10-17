@@ -127,7 +127,7 @@ function epRows(b){const rows=[],me=playerOfBoard(b),mid=me?String(me.id):null,d
       if(m&&!isVassal(mid)){const x=effPair(mid,q.id),c=x.household?0:(x.trade?1:0)+(x.nap?1:0)+(sameAlliance(mid,String(q.id))?1:0);
         if(c)rows.push({side:m[1].toLowerCase(),k:n+" · "+q.name,desc:c+(c>1?" Treaties":" Treaty")+" with "+q.name+" (not Peace)",auto:true,n:+m[2]*c});}});});
   return rows;}
-function poModTotal(b){const t=poModRows(b).reduce((a,r)=>a+(r.side==="faith"?r.n:-r.n),0);return srcHas(b,"po_mod_double")?t*2:t;}
+function poModTotal(b){const t=poModRows(b).reduce((a,r)=>a+(r.side==="faith"?r.n:-r.n),0);return t;}
 function dpButtons(p,i){const b=p.board,n=b.dp||0;if(n<=0)return "";
   return '<span class="dpask"><b>'+n+' Domain Point'+(n>1?'s':'')+'</b> to spend: '+DOMAINS.map(d=>'<button class="dpsp" data-pi="'+i+'" data-dom="'+d+'">'+d+' +1</button>').join('')+
     '<button class="dpsk" data-pi="'+i+'" title="drop one unspent point">skip</button></span>';}
@@ -149,7 +149,7 @@ function renderMiniStand(){const box=document.getElementById("miniStand");if(!bo
   h+=DOMAINS.map(d=>{const v=dv[d]||0,E=DBOARD[d]||{};
     return '<div class="dbk" style="--dc:'+DOMC[d]+'"><div class="dbk-h"><b>'+esc(d)+'</b><span class="note">'+v+' · '+domBand(v)+'</span></div>'+domTrackHTML(d,[p],canEdit(p))+
       '<div class="dbk-e">'+TI.map(([t,th])=>{const on=v>=th,nm=String(E[t]||"").split(":")[0].trim();
-        return '<span class="dbs'+(on?' on':'')+'" title="'+esc(t+" ("+th+"): "+(E[t]||"")+" · "+pu(d,t)+" Pursuits unlock")+'">'+(on?'✓ ':'')+esc(nm||t)+'</span>';}).join('')+'</div></div>';}).join('');
+        return '<span class="dbs'+(on?' on':'')+'" title="'+esc(t+" ("+th+"): "+(E[t]||"")+" · "+pu(d,t)+" Holdings unlock")+'">'+(on?'✓ ':'')+esc(nm||t)+'</span>';}).join('')+'</div></div>';}).join('');
   document.getElementById("miniStandBody").innerHTML=h;
   box.querySelectorAll("[data-dset]").forEach(c=>c.onclick=()=>{const [d,v]=c.dataset.dset.split("|");S.domains=S.domains||{};
     S.domains[d]=(S.domains[d]||0)===+v?Math.max(0,+v-1):+v;save();render();});}

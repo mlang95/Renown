@@ -57,14 +57,17 @@ DO.cell=el=>mapCellClick(el.dataset.cell);
 // ---- player table: one row per seat. Click a row: view that Empire (read-only unless it's yours). Hover: a mini card ----
 function domCells(b){const dv=b.domains||{};
   return DOMAINS.map(d=>{const v=+dv[d]||0,st=domBand(v),i=["Untested","Rising","Established","Sovereign"].indexOf(st);
-    return '<td class="num rt-d st'+i+'" title="'+esc(d+" "+v+" · "+st)+'">'+v+'</td>';}).join('');}
+    const L=[d+" "+v+" · "+st].concat(dbActive(b).filter(x=>x.dom===d).map(x=>"  "+x.tier+": "+x.text));
+    return '<td class="num rt-d st'+i+'" data-tipl="'+esc(L.join("\n"))+'">'+v+'</td>';}).join('');}
 function realmTableHTML(R){const sm=seatMap(),n=tSeats(),me=meP(),hp=hostP(),sp=R.ord[0]||null,cw=R.cur?R.cur.who:null,ph=tPhase(),E=R.curEnvoy,EE=ERAS[currentEra()]||{};
   const bst=Math.max(0,...D.players.map(edictTotal)),sg=v=>(v>0?"+":v<0?"−":"")+Math.abs(v).toLocaleString(),sl=seatsLocked();
   let rows='';
   for(let i=0;i<n;i++){const p=sm[i];
     if(!p){rows+='<tr class="rt-empty"><td class="num">'+(i+1)+'</td><td colspan="14"><span class="note">empty seat</span> '+(sl||!me?'':'<button data-do="sit" data-i="'+i+'" class="tb-mini">sit here</button>')+'</td></tr>';continue;}
     const h=hudData(p),pool=R.pool[p.id]??inflPool(p),left=pool-(R.spent[p.id]||0),dv=p.board.domains||{};
-    const dsum=DOMAINS.reduce((a,d)=>a+(+dv[d]||0),0),dmax=startDomTotal(p)+((D.renown||1)-1);
+    // Domain values allowed: start + 1 per Renown gained; the Rest Phase's Domain Point is spent before End turn raises Renown
+    const dsum=DOMAINS.reduce((a,d)=>a+(+dv[d]||0),0),dmax=startDomTotal(p)+((D.renown||1)-1)+(TB().dpGiven===tTurn()?(DATA.dpPerTurn??1):0);
+    const tp=hudTips(p,h),tl=k=>' data-tipl="'+esc(tp[k])+'"';
     let st='';
     if(ph==="envoy"&&TB().phaseTs){const dc=tCur(p).decl||{};
       if(R.waiting==="declare")st=dc.lock?'<span class="pos">declared ✓</span>':'<span class="note">declaring…</span>';
@@ -74,18 +77,18 @@ function realmTableHTML(R){const sm=seatMap(),n=tSeats(),me=meP(),hp=hostP(),sp=
     if(E){if(sameP(E.owner,p))st='sending <b>'+esc(E.dom)+'</b>';
       else{const v=E.votes.find(q=>sameP(q.who,p));st=v?tVoteTxt(v):sameP(p,cw)?'<b>to act</b> <span class="tbcd"></span>':'<span class="note">…</span>';}}
     const cls=["rt-row"];if(sameP(p,cw))cls.push("act");if(sameP(p,me))cls.push("me");
-    rows+='<tr class="'+cls.join(" ")+'" data-do="spectate" data-who="'+p.id+'" data-hov="'+p.id+'"><td class="num">'+(i+1)+'</td>'+
-      '<td class="rt-p">'+heraldOf(p,16)+tName(p)+
+    rows+='<tr class="'+cls.join(" ")+'" data-do="spectate" data-who="'+p.id+'"><td class="num">'+(i+1)+'</td>'+
+      '<td class="rt-p" data-hov="'+p.id+'">'+heraldOf(p,16)+tName(p)+
         (sameP(p,hp)?' <span class="tb-b h" title="'+(isSpring()?'Host token — no Host in Spring':'Host')+'">'+(isSpring()?'Host token':'♔ Host')+'</span>':'')+
         (sameP(p,sp)?' <span class="tb-b s" title="Starting player">1st</span>':'')+(sameP(p,me)?' <span class="tb-b">you</span>':'')+
         ((!sl&&sameP(p,me))||ADMIN?' <button data-do="stand" data-who="'+p.id+'" class="tb-mini">stand</button>':'')+'</td>'+
-      '<td class="num">'+fmtG(h.gold)+' <span class="'+(h.net<0?"neg":"pos")+'">'+sg(h.net)+'</span></td>'+
-      '<td class="num">'+left+'<span class="note">/'+pool+'</span></td>'+
-      '<td class="num">'+personalEnvoys(p)+'</td>'+
-      '<td class="num" title="'+esc(h.band)+'">'+(h.po>0?"+":"")+h.po+'</td>'+
-      '<td class="num">'+h.armies+(h.armyCap!=null?'<span class="note">/'+h.armyCap+'</span>':'')+'</td>'+
-      '<td class="num">'+h.setts+(h.settCap!=null?'<span class="note">/'+h.settCap+'</span>':'')+'</td>'+
-      '<td class="num"'+(h.edicts===bst&&bst>0?' style="color:var(--income);font-weight:700"':'')+'>'+h.edicts+(h.edicts===bst&&bst>0?' ★':'')+'</td>'+
+      '<td class="num"'+tl("gold")+'>'+fmtG(h.gold)+' <span class="'+(h.net<0?"neg":"pos")+'">'+sg(h.net)+'</span></td>'+
+      '<td class="num"'+tl("infl")+'>'+left+'<span class="note">/'+pool+'</span></td>'+
+      '<td class="num"'+tl("env")+'>'+personalEnvoys(p)+'</td>'+
+      '<td class="num"'+tl("po")+'>'+(h.po>0?"+":"")+h.po+'</td>'+
+      '<td class="num"'+tl("armies")+'>'+h.armies+(h.armyCap!=null?'<span class="note">/'+h.armyCap+'</span>':'')+'</td>'+
+      '<td class="num"'+tl("setts")+'>'+h.setts+(h.settCap!=null?'<span class="note">/'+h.settCap+'</span>':'')+'</td>'+
+      '<td class="num"'+tl("edicts")+(h.edicts===bst&&bst>0?' style="color:var(--income);font-weight:700"':'')+'>'+h.edicts+(h.edicts===bst&&bst>0?' ★':'')+'</td>'+
       domCells(p.board)+
       '<td class="rt-st">'+(dsum>dmax?'<span class="neg" title="Domain values '+dsum+' > '+dmax+' allowed">⚠ '+dsum+'/'+dmax+'</span> ':'')+st+'</td></tr>';}
   const unl=EE.unlocks&&EE.unlocks!=="—"?esc(EE.unlocks):'—',unseated=D.players.filter(p=>!Object.values(sm).includes(p));
@@ -102,11 +105,11 @@ DO.spectate=(el,e)=>{if(e.target.closest("button,select,input,a"))return;const p
   const me=meP();SPEC_FROM=me?String(me.id):null;SPECTATE=(sameP(p,me)||HOTSEAT||ADMIN)?null:String(p.id);D.active=D.players.indexOf(p);D.view="board";reindex();render();renderList();window.scrollTo(0,0);};
 DO.unspectate=()=>{SPECTATE=null;const me=pById(SPEC_FROM)||meP();if(me)D.active=D.players.indexOf(me);reindex();render();renderList();};
 // hover mini card
-document.addEventListener("mouseover",e=>{const tr=e.target.closest&&e.target.closest("#viewTable tr[data-hov]"),box=document.getElementById("rlHover");if(!box)return;
+document.addEventListener("mouseover",e=>{const tr=e.target.closest&&e.target.closest("#viewTable [data-hov]"),box=document.getElementById("rlHover");if(!box)return;
   if(!tr){if(!e.target.closest||!e.target.closest("#rlHover"))box.hidden=true;return;}
   const p=pById(tr.dataset.hov);if(!p){box.hidden=true;return;}
   if(box._p!==tr.dataset.hov){box.innerHTML=miniCardHTML(p);box._p=tr.dataset.hov;}
-  const r=tr.getBoundingClientRect(),hr=document.getElementById("viewTable").querySelector(".rl").getBoundingClientRect();
+  const r=tr.closest("tr").getBoundingClientRect(),hr=document.getElementById("viewTable").querySelector(".rl").getBoundingClientRect();
   box.style.left=Math.max(8,Math.min(r.left-hr.left+180,hr.width-300))+"px";box.style.top=(r.bottom-hr.top+4)+"px";box.hidden=false;});
 document.addEventListener("mouseleave",e=>{if(e.target&&e.target.id==="viewTable"){const b=document.getElementById("rlHover");if(b)b.hidden=true;}},true);
 function miniCardHTML(p){const b=p.board,S_=b.settlements||[],cul=b.culture||"";
@@ -139,13 +142,13 @@ function phaseCardHTML(R){
   if(ph==="council"&&isSpring())h+='<div>Spring — no Council Phase.</div>';
   if(ph==="rest")h+='<div class="note">Unused Envoys & Influence are discarded · Season +1 · gain Renown · spend a Domain Point · Host passes clockwise (not in Spring).</div>'+
     (dpOwed().length?'<div>Domain Points to spend: <b>'+dpOwed().map(p=>esc(p.name)+' '+p.board.dp).join(', ')+'</b></div>':'<div class="pos">Domain Points spent.</div>');
-  if(hc){const i=T_PH.indexOf(ph),nx=T_PH[(i+1)%T_PH.length],vt=ph==="council"||ph==="envoy";
+  if(hc){const nx=tNext(ph),vt=(ph==="council"&&!isSpring())||ph==="envoy";
     h+='<div class="rl-hostbar">'+(vt?'<button data-do="begin">'+(t.phaseTs?'Restart':'Begin')+' '+esc(T_PHL[ph].replace(" Phase",""))+'</button>':'')+
       (R.cur?'<button data-do="skip" title="current voter abstains">Skip current</button>':'')+
       '<button data-do="phase" data-ph="'+nx+'">'+esc(T_PHL[nx].replace(" Phase",""))+' ▸</button>'+
       (ph==="rest"?'<button data-do="endturn" class="on">End turn</button>':'')+'</div>'+
       '<details class="rl-hostset" id="rlHostSet" data-keep="0"'+(rlOpen("rlHostSet",false)?' open':'')+'><summary class="note">Host settings</summary>'+
-      '<div class="tb-row"><span class="note" style="flex:1">Phase</span>'+T_PH.map(p2=>'<button data-do="phase" data-ph="'+p2+'"'+(p2===ph?' class="on"':'')+'>'+T_PHL[p2].replace(" Phase","")+'</button>').join("")+'</div>'+
+      '<div class="tb-row"><span class="note" style="flex:1">Phase</span>'+T_PH.filter(p2=>!(p2==="council"&&isSpring())).map(p2=>'<button data-do="phase" data-ph="'+p2+'"'+(p2===ph?' class="on"':'')+'>'+T_PHL[p2].replace(" Phase","")+'</button>').join("")+'</div>'+
       '<div class="tb-row"><span style="flex:1">Host</span><select data-do="host">'+seated().map(p=>'<option value="'+p.id+'"'+(sameP(p,hostP())?' selected':'')+'>'+esc(p.name)+'</option>').join("")+'</select></div>'+
       '<div class="tb-row"><span style="flex:1">Seats</span><input data-do="seats" type="number" min="'+seatFloor()+'" max="12" value="'+tSeats()+'" style="width:60px"></div>'+
       '<div class="tb-row"><span style="flex:1">Vote timer (s, 0 = off)</span><input data-do="timer" type="number" min="0" max="300" value="'+tTimer()+'" style="width:60px"></div>'+
@@ -267,7 +270,7 @@ function inflCardHTML(qp){const c=tCur(qp),md=PT(qp).mods,afx=boardFx(qp);
       '<button data-do="moddel" data-mk="'+k+'" data-who="'+qp.id+'">✕</button></div>';}).join("")+
     '<div class="tb-row"><button data-do="modadd" data-who="'+qp.id+'">+ modifier</button></div></details>';
   return dockCard("Influence &amp; Envoys — "+esc(qp.name),b);}
-DO.cvote=el=>{const c=tCurW(pOf(el));if(el.dataset.dom)c.council={dom:el.dataset.dom,ts:tnow()};else delete c.council;rlCommit();};
+DO.cvote=el=>{if(isSpring()){flash("Spring — no Council Phase");return;}const c=tCurW(pOf(el));if(el.dataset.dom)c.council={dom:el.dataset.dom,ts:tnow()};else delete c.council;rlCommit();};
 DO.tie=el=>{TB().councilTie={dom:el.dataset.dom,turn:tTurn(),ts:tnow()};rlCommit();};
 DO.decl=el=>{const c=tCurW(pOf(el));c.decl=c.decl||{};c.decl.n=c.decl.n||{};const d=el.dataset.dom;c.decl.n[d]=Math.max(0,(+c.decl.n[d]||0)+(+el.dataset.dv));rlCommit();};
 DO.declock=el=>{const c=tCurW(pOf(el));c.decl=c.decl||{n:{}};c.decl.lock=tnow();rlCommit();};

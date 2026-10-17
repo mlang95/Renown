@@ -51,14 +51,15 @@ DO.ibskip=el=>{onceState(D.players[D.active],false)["skip|"+el.dataset.k]=1;save
 // ---- HUD drill-down: click a HUD cell → its breakdown in a popover. The Ledger's Gold, Craft / Influence / Extort,
 // Settlements and Effects sections live here now (moved in from #hudStore while open, so their renderers keep working).
 let HPOP=null;
-const HPOP_NODES={gold:["lsGold","lsFx"],craft:["lsYield"],setts:["lsSett"]};
+const HPOP_NODES={craft:["lsYield","lsFx"],setts:["lsSett"]};
 function hudPopBack(){const st=document.getElementById("hudStore"),pop=document.getElementById("hudPop");if(!st||!pop)return;
   pop.querySelectorAll(":scope > .hp-body > .lsec, :scope > .hp-body > #inflBox").forEach(n=>st.appendChild(n));}
 function hudPopFill(){const pop=document.getElementById("hudPop");if(!pop||!HPOP)return;hudPopBack();const p=D.players[D.active];if(!p)return;
   try{computeAll();renderSettlements();renderInfluence();}catch(e){console.warn("hud pop",e);}
   const h=hudData(p),k=HPOP,T={gold:"Gold",infl:"Influence",env:"Envoys",po:"Public Order",craft:"Craft · Influence · Extort",dom:"Domains",armies:"Armies",setts:"Settlements",edicts:"Edicts"};
   let body="";
-  if(k==="infl")body=influenceRows(p.board).filter(r=>r.val||r.cnt).map(r=>'<div class="hp-r"><span>'+kwify(r.k)+(r.cnt>1?' <span class="note">×'+r.cnt+'</span>':'')+'</span><b>'+(r.val>0?'+':'')+r.val+'</b></div>').join("")+
+  if(k==="gold")body=goldBreakHTML(goldBreak(p.board));
+  else if(k==="infl")body=influenceRows(p.board).filter(r=>r.val||r.cnt).map(r=>'<div class="hp-r"><span>'+kwify(r.k)+(r.cnt>1?' <span class="note">×'+r.cnt+'</span>':'')+'</span><b>'+(r.val>0?'+':'')+r.val+'</b></div>').join("")+
     '<div class="hp-r tot"><span>Influence this turn</span><b>'+inflPool(p)+'</b></div>'+(isSpring()?'<div class="note">Spring: no Influence gained</div>':'');
   else if(k==="env"){const e=eraRec(),c=tCur(p),nx=PT(p).envNext;body='<div class="hp-r"><span>'+esc(currentEra())+' (Era)</span><b>'+(+e.personal_envoys||1)+'</b></div>'+
     (+c.envAdj?'<div class="hp-r"><span>adjust</span><b>'+(+c.envAdj>0?'+':'')+c.envAdj+'</b></div>':'')+(nx&&nx.turn===tTurn()?'<div class="hp-r"><span>'+esc(nx.src||"next turn")+'</span><b>'+nx.n+'</b></div>':'')+
@@ -89,7 +90,7 @@ window.addEventListener("resize",()=>{if(HPOP)hudPopFill();});
 function renderChrome(){const rb=document.getElementById("roBadge");
   if(rb){const sp=spectating(),lk=lockOn()&&!myClaimP(),lb=lockOn()&&D.view==="board"&&!mine(D.players[D.active]);
     rb.hidden=!(sp||lk||lb);rb.innerHTML=sp?'read-only · '+esc((D.players[D.active]||{}).name||"")+' <button data-do="unspectate" data-nav="1" class="tb-mini">back to yours</button>':lk?'spectator · read-only':lb?'read-only · '+esc((D.players[D.active]||{}).name||""):'';}
-  const pill=document.getElementById("phPill");if(pill){const ph=tPhase(),hc=canHost(),i=T_PH.indexOf(ph),nx=T_PH[(i+1)%T_PH.length];
+  const pill=document.getElementById("phPill");if(pill){const ph=tPhase(),hc=canHost(),nx=tNext(ph);
     pill.innerHTML='<b>'+esc(T_PHL[ph].replace(" Phase",""))+'</b> <span class="note">T'+tTurn()+' · '+esc(curSeason())+'</span>'+
       (hc?(ph==="rest"?'<button data-do="endturn">End turn</button>':'<button data-do="phase" data-ph="'+nx+'">'+esc(T_PHL[nx].replace(" Phase",""))+' ▸</button>'):'');}
   if(HPOP)hudPopFill();}

@@ -105,7 +105,7 @@ function domAsFx(p,dom){return fxOf(p,"domAs").find(f=>(f.for||"All")===dom||((f
 function innateParts(p,dom,council){const f0=domAsFx(p,dom),idom=f0?f0.dom:dom,era=dom==="Diplomacy"&&!f0;
   const parts=[{src:era?currentEra()+" (Era)":tStand(p,idom)+(f0?" "+idom+" ("+f0.src+")":""),val:era?diploInf():((DBOARD.innate_influence_own_envoys||{})[tStand(p,idom)]||0)}];
   fxOf(p,"envoy").filter(f=>(f.dom==="All"||f.dom===dom)&&scopeOk(f,council)&&!(f.noSpring&&isSpring())).forEach(f=>parts.push({src:f.src,val:f.val*f.q}));
-  D.players.forEach(q=>{if(sameP(q,p)||!sameAlliance(String(q.id),String(p.id)))return;fxOf(q,"allyEnvoy").forEach(f=>parts.push({src:q.name+": "+f.src,val:f.val*f.q}));});
+  D.players.forEach(q=>{if(sameP(q,p)||!sameAlliance(String(q.id),String(p.id)))return;fxOf(q,"allyEnvoy").filter(f=>scopeOk(f,council)).forEach(f=>parts.push({src:q.name+": "+f.src,val:f.val*f.q}));});
   Object.values(PT(p).mods).filter(m=>m&&m.kind==="envoy"&&(m.dom==="All"||m.dom===dom)&&scopeOk(m,council)).forEach(m=>parts.push({src:m.label||"manual",val:+m.val||0}));
   return parts;}
 function modSum(p,kind,dom,council){return Object.values(PT(p).mods).filter(m=>m&&m.kind===kind&&(m.dom==="All"||m.dom===dom)&&(!m.scope||m.scope==="all"||(m.scope==="council")===!!council))
@@ -253,7 +253,6 @@ function topPair(a,b){return pairOf(topSuz(a.id),topSuz(b.id));}
 const SM=(b,re)=>srcMatch(b,re);
 // Doubt an action causes to one player, with the rules-text riders that change it
 function actDoubt(o,dom,q,base,isTarget,notes){let n=base;if(n<=0)return 0;
-  if(dom==="Piety")SM(o.board,"piety_extra_doubt").forEach(x=>{n++;notes.push(x.n+": +1 Doubt to "+q.name);});
   D.players.forEach(h=>SM(h.board,"doubt_all_plus").forEach(x=>{n+=+x.m[1];notes.push(h.name+" · "+x.n+": +"+x.m[1]+" Doubt to "+q.name);}));
   if(isTarget)SM(q.board,"doubt_target_minus").forEach(x=>{if(!x.m[1]||x.m[1].toLowerCase()===dom.toLowerCase()){n=Math.max(0,n-(+x.m[2]));notes.push(q.name+" · "+x.n+": −"+x.m[2]+" Doubt");}});
   return n;}
@@ -323,14 +322,16 @@ function runMuster(c){const o=c.o,b=o.board,k=c.sub.slice(0,1),v=c.sub.slice(2),
   const L=musterLimit(o,a),n=Math.min(MUSTER_DEFAULT,Math.max(0,mx-(a.count||0)));a.muster={n,t:L.lim?Math.ceil(n/L.lim):0};
   c.log((a.label||("Army "+a.id))+": Muster "+n+" · Muster Timer "+a.muster.t+(L.lim?" (limit "+L.lim+")":" · no muster limit in reach"));
   if(!hasMusterField(b))c.flag("Mustering without an active Muster Field");}
-// Build: Root Holdings and the Holdings your board builds into (Scope + Standing checked); or place it by hand (pending flag)
-function buildOpts(o){return withBoard(o.board,()=>{const on=new Set(S.placed.map(q=>q.name)),L=[];
-  NAMES.filter(n=>pAvail(n)&&effList(n).some(h=>on.has(h))).forEach(n=>L.push({v:"b:"+n,label:n+" · builds from "+effList(n).filter(h=>on.has(h)).join(" / ")}));
-  NAMES.filter(n=>pAvail(n)&&(R[n]||{}).root&&!L.some(x=>x.v==="b:"+n)).forEach(n=>L.push({v:"b:"+n,label:n+" · Root"}));
+// Build: every Holding you may legally start now (pLegal: Scope, Standing, Mastery Chain line or Root, infrastructure_req, Raw
+// Material in Reach), with the Settlement it would go to (smartSid); or place it by hand (pending flag)
+function buildOpts(o){return withBoard(o.board,()=>{const ctx=legalCtx(),L=[],sn=id=>{const s=S.settlements.find(x=>x.id===id);return s?(s.name||s.tier):"no free Ward";};
+  NAMES.filter(n=>pLegal(n,null,ctx)).forEach(n=>{const r=R[n]||{},ln=r.root?null:chainLine(n,ctx.own),sd=smartSid(n,ctx);
+    L.push({v:"b:"+n,root:!!r.root,label:n+" · "+(r.root?(rawRes(n)?"Raw Material":"Root"):"from "+(ln&&ln.length?ln[ln.length-1]:"?"))+" → "+sn(sd)});});
+  L.sort((a,b)=>a.root-b.root);
   L.push({v:"hand",label:"place it by hand"});return L;});}
 function runBuild(c){const b=c.o.board;if(c.sub==="hand"){c.pend("no Holding placed yet");return;}
   const n=c.sub.slice(2),blk=withBoard(b,()=>scopeBlock(n,null));if(blk){c.flag(blk);return;}
-  const r=withBoard(b,()=>placeHolding(n,null,null)),st=r.target!=null?settById(c.o,r.target):null;
+  const r=withBoard(b,()=>{const sd=smartSid(n);return placeHolding(n,null,sd);}),st=r.target!=null?settById(c.o,r.target):null;
   c.log(c.o.name+" builds "+n+(st?" in "+(st.name||st.tier):" — no eligible free Ward, Unplaced")+(r.np.bt>0?" · Build Timer "+r.np.bt:"")+(r.host?" (with "+r.host+")":""));}
 function improveOpts(o){return withBoard(o.board,()=>{const L=[];
   Object.keys(INFRA).filter(n=>iAvail("infra",n)).forEach(n=>L.push({v:"i:"+n,label:n+" · "+INFRA[n].tier+" · Build Timer "+infraBuildTime(n)}));
@@ -457,7 +458,7 @@ function resolveEnvoy(E,pe,fin){const o=E.owner,act=pe&&pe.rec&&pe.rec.action,A=
     else if(sp.run)sp.run(ctx);
     if(AD==="Cunning"&&q){SM(o.board,"cunning_extra_doubt").forEach(x=>{if(x.m[1]&&fin!=="Endorsed")return;notes.push(x.n+": +"+x.m[2]+" Doubt to "+q.name);ctx.doubt(q,+x.m[2],true);});
       D.players.forEach(h=>{if(!sameP(h,o))SM(h.board,"recoup_on_cunning").forEach(x=>flags.push(h.name+" ("+x.n+") may recoup "+(+x.m[1]).toLocaleString()+" gold"));});}
-    if(AD==="Piety")SM(o.board,"piety_doubt_or_faith").forEach(x=>flags.push(x.n+": add 1 Doubt or 1 Faith (your choice) by hand"));
+    if(q)SM(o.board,"basilica_amp").forEach(x=>{if(x.m[1].toLowerCase()!==AD.toLowerCase())return;ctx.faith(q,+x.m[2]);ctx.doubt(q,+x.m[3],true);notes.push(x.n+": Faith +"+x.m[2]+" and Doubt +"+x.m[3]+" to "+q.name);});
     if(q)SM(q.board,"doubt_backlash").forEach(x=>{if(!((x.m[1]?rawTo:doubtTo)[q.id]>0))return;x.m[1]=x.m[2];const g=gainDoubt(o.board,+x.m[1]);fx.push(o.name+": Doubt +"+x.m[1]+" ("+q.name+" · "+x.n+")");});
     if(fin==="Endorsed"){const m=/Extort (\d+)/i.exec(end);if(m&&q){const t=extortGold({b:q.board},{b:o.board},+m[1]);fx.push("Endorsed: extort "+t.toLocaleString()+" from "+q.name);}
       else if(m)flags.push("Endorsed: Extort "+m[1]+" — no player target");
@@ -476,7 +477,9 @@ function tApply(R){if(!autoRes())return;let ch=false;
   if(ch)save();}
 
 // ---- host actions ----
-function tSetPhase(ph){const t=TB();t.phase=ph;t.phaseTs=(ph==="council"||ph==="envoy")?tnow():0;t.skip={};if(ph==="rest")grantDP();
+// Spring has no Council Phase (SEASONS.Spring): the phase after the Empire Phase is the Envoy Phase
+function tNext(ph){const i=T_PH.indexOf(ph);let nx=T_PH[(i+1)%T_PH.length];if(nx==="council"&&isSpring())nx="envoy";return nx;}
+function tSetPhase(ph){if(ph==="council"&&isSpring())ph="envoy";const t=TB();t.phase=ph;t.phaseTs=(ph==="council"||ph==="envoy")?tnow():0;t.skip={};if(ph==="rest")grantDP();
   if(ph==="council")t.councilTie=null;save();render();}
 function grantDP(){const t=TB();if(t.dpGiven===tTurn())return false;t.dpGiven=tTurn();D.players.forEach(p=>{p.board.dp=(p.board.dp||0)+(DATA.dpPerTurn??1);});return true;}
 function dpOwed(){return D.players.filter(p=>(p.board.dp||0)>0);}
