@@ -361,7 +361,7 @@ TIER_UNLOCK = {
 # Standings: Rising = 3, Established = 6, Sovereign = 10 domain points.
 STANDING_EFFECTS = {
     ("Prowess", "Established"): "Gain Parry.", #Remove "Parry"
-    ("Piety",   "Established"): "Shake +1",
+    ("Piety",   "Rising"): "Shake +1",
     ("Cunning", "Established"): "Opponent gains Blunder in the first Skirmish.", #Remove "Foes gain Blunder in first Skirmish"
     ("Cunning", "Sovereign"):   "Opponent gains Strain.", #Remove "Foes gain Strain"
 }
@@ -2686,9 +2686,9 @@ FACTIONS = {
         'final_cut': True,
         'inspiration': 'Brigands',
         'feel': 'Scrappy',
-        'difficulty': 'Low',
-        'strength': 'Low',
-        'mechanic': "Friends in Low Places: You begin the game with a Smuggler's Nook (no Ward, no upkeep, always-active Mastery that can't be deactivated). At the Start of the Empire Phase, you may control one Bandit Camp outside your Territory. When a Bandit Camp is generated, you may place it in your Outlaw Country instead.",
+        'difficulty': 'High',
+        'strength': 'High',
+        'mechanic': "Friends in Low Places: You begin the game with a Smuggler's Nook (no Ward, no upkeep, always-active Mastery that can't be deactivated). At the Start of the Empire Phase, you may control one Bandit Camp outside your Territory. When a Bandit Camp is spawned, you may place it in your Outlaw Country instead. You cannot Build Holdings which require Piety or Prowess Standing.",
         'pair': "Thieves' Guild, Saddlery",
         'complement': 'Royal Pavilion',
     },
@@ -2903,7 +2903,7 @@ FACTIONS = {
         'complement': 'Senate Hall',
     },
     'The Inner Circle': {
-        'final_cut': True,
+        'final_cut': False,
         'inspiration': 'Natural Leader',
         'feel': 'Strength Through Diplomacy',
         'difficulty': 'Medium',
@@ -2918,12 +2918,12 @@ FACTIONS = {
         'feel': 'Civic Soft Power',
         'difficulty': 'Medium',
         'strength': 'Medium',
-        'mechanic': "Arts & Humanities / Hearts & Minds: You can't build Commerce Pursuits. Your Works & Devotion Pursuits have Craft +1 and cost no Upkeep. You must accept a Peace Treaty if one is offered.",
+        'mechanic': "Arts & Humanities / Hearts & Minds: You can't build Commerce Pursuits. Your Holdings which require Piety have Craft +1 and cost no Upkeep. You must accept a Peace Treaty if one is offered.",
         'pair': 'Studium Generale, Aristocratic Court, Senate Hall',
         'complement': 'Royal Pavilion',
     },
     'The Grand Compact': {
-        'final_cut': True,
+        'final_cut': False,
         'inspiration': 'Hanseatic League',
         'feel': 'Peace Through Trade',
         'difficulty': 'Medium',
@@ -2943,7 +2943,7 @@ FACTIONS = {
         'complement': 'Advanced Blast Furnace',
     },
     'The Sublime Gate': {
-        'final_cut': True,
+        'final_cut': False,
         'inspiration': 'Ottoman Empire',
         'feel': 'Mercantile Military',
         'difficulty': 'Medium',
@@ -2983,7 +2983,7 @@ FACTIONS = {
         'complement': 'Senate Hall',
     },
     'The Forked Tongue': {
-        'final_cut': True,
+        'final_cut': False,
         'inspiration': 'Deceptive',
         'feel': 'Two-Faced',
         'difficulty': 'High',
@@ -3004,7 +3004,7 @@ FACTIONS = {
     },
     
     'The Illusionists': {
-        'final_cut': True,
+        'final_cut': False,
         'inspiration': 'Political Masterminds',
         'feel': 'Subterfuge, Deception',
         'difficulty': 'High',
@@ -3018,8 +3018,8 @@ FACTIONS = {
         'inspiration': 'Terrorists',
         'feel': 'Aggressive, Destructive',
         'difficulty': 'High',
-        'strength': 'Medium',
-        'mechanic': "Reckless: Your Cunning Envoys have Authority +2 when targeting a player with Public Order greater than 0. You begin the game with a Secret Cellar (no Ward, no upkeep, always-active Mastery). You can't be in an Alliance and can't perform Diplomacy actions. A Prowess Envoy you send can't fail or be condemned & will instead pass.",
+        'strength': 'High',
+        'mechanic': "Reckless: Your Cunning Envoys have Authority +2 when targeting a player with Public Order greater than 1. You begin the game with a Secret Cellar (no Ward, no upkeep). You can't be in an Alliance or perform Diplomacy actions. A Prowess Envoy you send can't fail or be condemned & will instead pass. You cannot put Renown into Piety, nor have more than 3 in Industry.",
         'pair': "Thieves' Guild, Inquisitorial Palace",
         'complement': 'Royal Pavilion',
     },
@@ -3034,7 +3034,7 @@ FACTIONS = {
         'complement': 'Forge',
     },
     'The Wandering Crown': {
-        'final_cut': True,
+        'final_cut': False,
         'inspiration': 'Nomadic',
         'feel': 'Nomads',
         'difficulty': 'High',
@@ -3313,7 +3313,7 @@ PO_MODIFIERS = {
 # Domain board: empire-side standing effects (combat-side lives in STANDING_EFFECTS).
 DOMAIN_BOARD = {
     "Industry": {
-        "Rising":      "Trade Secrets: Perform endorsed Pursuit.",
+        "Rising":      "Trade Secrets: Perform endorsed Build.",
         "Established": "Grand Architect: May have an additional City. Perform endorsed Charter.",
         "Sovereign":   "Titan of Industry: Your capital may be chartered to a Metropolis. Perform endorsed Charter.",
     },
@@ -3343,10 +3343,10 @@ GLOSSARY["Standing"] = (f"Your tier in a Domain: Untested, Rising ({_ST['Rising'
 
 # Seasons (turn cycle of 4; Rest Phase advances Season +1).
 SEASONS = {
-    "Winter": {"name": "Freezing",    "effect": "All Armies gain Speed -1; Sieges do not increment. Tax income collected."},
-    "Spring": {"name": "Planting",    "effect": "No Host, Bandit actions, Trade Income, Council Phase, or Diplomacy Actions. Players don't gain Influence tokens. Bandit Camps Spawn."},
+    "Winter": {"name": "Freezing",    "effect": "All Armies gain Speed -5; Sieges do not increment. Tax income collected."},
+    "Spring": {"name": "Planting",    "effect": "No Host, Bandit Actions, Trade Income, Council Phase, or Diplomacy Actions. Players don't gain or spend Influence tokens. Bandit Camps Spawn."},
     "Summer": {"name": "Campaigning", "effect": "All Armies gain Speed +2"},
-    "Fall":   {"name": "Harvest",     "effect": "Husbandry Income is doubled."},
+    "Fall":   {"name": "Harvest",     "effect": "Income from Holdings in Hamlets are doubled."},
 }
 
 # Trade & income constants (Rules: Trade & Income Rules).
@@ -4004,7 +4004,8 @@ NAME_DISPLAY = {
     "Reliquary": "Reliquary Sanctum",
     "TH": "To Strike",
     "TS": "Armor Save",
-    "Exalted Basilica":"Unforgotten Shrine",
+    "The Eternal Sepulchre": "The Exalted Archbasilica",
+    "Exalted Basilica":"Eternal Sepulchre",
 
     
 }

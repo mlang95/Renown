@@ -1,7 +1,7 @@
 Faction,Difficulty,Strength,Mechanic
 The Battering Ram,Low,Medium,Siege Specialist
 The Boundless Steppe,Low,Medium,Horsemasters
-The Bandit King,Low,Low,Friends in Low Places
+The Bandit King,High,High,Friends in Low Places
 The Crowned Star,Low,Medium,The Monarch
 The Crimson Tide,Low,Medium,Sea Lanes
 The Entwined Crown,Low,Medium,Royal Marriage
@@ -34,7 +34,7 @@ The Broken Banner,High,Low,The Highest Bidder
 The Forked Tongue,High,High,Masters of Duplicity
 The Hall of Masks,High,High,Mimic
 The Illusionists,High,High,Double Speak
-The Smoldering Crown,High,Medium,Reckless
+The Smoldering Crown,High,High,Reckless
 The Squatters' Crown,High,Medium,Occupy
 The Wandering Crown,High,Medium,Wandering Nomads
 The Dukedom,High,High,The Great Arbiter

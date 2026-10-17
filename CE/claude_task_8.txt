@@ -1,0 +1,16 @@
+github/mlang95/Renown/CE/claude.md + comprehensive rules outline, then treat this as a prompt response to TASK(n-1)_NOTES.
+Review all objectives, organize them in such a manner that you can do as many at the same time as possible in a single pass.
+Ask any clarifying questions, do not push to github, write into zip for me.
+Most of this will apply to gen_settlement_board.py and renown_data_d10.py
+
+Update the terrain battle table to use the pixel sprites for the terrain examples.
+CAn you make the coloured pips -> the heraldry flags? and make sure they aren't side by side like the example of the player table in realm where it is <player_heraldry> <player_colour_pip> <player name>
+you can remove the tactic matrix collapsable now that you replaced it with Tactics in reference.
+combine standings table and domain table in reference. underlay the 1,2,3 behind the Trade Secrets in Rising Industry, for example. When the 3rd point is allocated, trade secrets would flag it positively with illumination or some methodology.
+hide factions that aren't final cut true from the selector
+make sure updated SEASONS dict works with small changes i made.
+Based on all the information you have, should any radar values, monument / wonder recommendations, factions be adjusted in CULTURES dict?
+Make sure all Faction_summaries are in dict, make sure their mechanic name is an attribute as well, and then when the faction is hovered in the drop down or when it's selected and collapsed, place that summary there.
+Also make sure the FACTIONS are updated for their mechanics.
+I also want if possible for the Name_display to swap the names basically of "The Eternal Sepulchre" -> "The Exalted Basilica" (wonder) and "Exalted Basilica" -> "Eternal Sepulchre" (monument from pilgrimage site), but the wonder is an archbasilica to prevent any possible issues.
+

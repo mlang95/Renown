@@ -1,6 +1,6 @@
 # REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`)
 
-Generated 2026-10-17 · data VERSION `0.4.9.9.13-d10-SIMPLE` · HEAD `50c07d8 2026-10-17`
+Generated 2026-10-17 · data VERSION `0.4.9.9.13-d10-SIMPLE` · HEAD `2c61369 2026-10-17`
 
 Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to the repo root.
 
@@ -11,7 +11,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
   0.4.8 Updated Docs/  (7 files)
   0.4.8.1/  (36 files)
   Assets/  (102 files, generated/assets — not indexed)
-  CE/  (46 files)
+  CE/  (47 files)
     Combatv4/  (18 files)
       shims/  (6 files)
     ask-the-bot/  (3 files)
@@ -75,7 +75,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\ENVOY_WINDOW_REVIEW.md` | 84 | Envoy timing windows — review list |
 | `CE\MAPGEN_COVERAGE.md` | 28 | Map generator — Holding / Monument coverage by region preset |
 | `CE\PROPOSALS_new_things.md` | 275 | Proposals — "New things to consider" + rules syntax pass |
-| `CE\REPO_MAP.md` | 868 | REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`) |
+| `CE\REPO_MAP.md` | 869 | REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`) |
 | `CE\RULES_push.md` | 649 | Renown |
 | `CE\RULES_push_simple.md` | 729 | Renown |
 | `CE\RULES_reorganized_6.md` | 638 | Renown |
@@ -96,13 +96,14 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\claude_task_5.txt` | 23 |  |
 | `CE\claude_task_6.txt` | 51 |  |
 | `CE\claude_task_7.txt` | 18 |  |
+| `CE\claude_task_8.txt` | 17 |  |
 | `CE\infra.py` | 109 |  |
 | `CE\parity_d10.py` | 41 | parity_d10.py — batch_engine and vectorized_combat must agree within dice noise. |
 | `CE\patch_cultures.py` | 245 | patch_cultures.py - replace the PLAYSTYLES block (or an existing CULTURES block) |
 | `CE\rebuild_board.bat` | 20 | rebuild_board.bat - regenerate only the settlement board (no full build). |
-| `CE\renown_data.py` | 4621 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
+| `CE\renown_data.py` | 4622 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
 | `CE\renown_data_CE.py` | 2718 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
-| `CE\renown_data_d10.py` | 4621 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
+| `CE\renown_data_d10.py` | 4622 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
 | `CE\renown_data_d8.py` | 2801 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
 | `CE\renown_server.bat` | 16 | renown_server.bat - (re)start the Renown board server in WSL. |
 | `CE\repo_map.py` | 250 | repo_map.py — write REPO_MAP.md next to this file (CE/, beside CLAUDE.md): a generated index of the Renown repo for |
@@ -185,7 +186,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\references\reference_sheets.py` | 811 | Renown — Reference sheet generators. |
 | `CE\references\render_tree.py` | 272 | render_tree.py - COORDINATE-DRIVEN tree renderer (no auto-layout). |
 | `CE\references\server.py` | 501 | Renown settlement-board server  —  stdlib only, no pip installs. |
-| `CE\references\settlement_board.html` | — | generated HTML (1395 KB) |
+| `CE\references\settlement_board.html` | — | generated HTML (1396 KB) |
 | `CE\references\settlement_mats.py` | 296 | settlement_mats.py - modular ward mats. One Settlement mat (Village -> City, 3 |
 | `CE\references\spec_tree_sheet.py` | 1183 | Renown — Specialization Tree renderer. |
 | `CE\references\svg_to_pdf.py` | 63 | svg_to_pdf.py - combine SVG pages into ONE PDF. |
@@ -491,7 +492,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `RenownWiki\rules-treasury-upkeep.html` | 32 | Treasury &amp; Upkeep — Renown |
 | `RenownWiki\search.js` | 7 |  |
 | `RenownWiki\seasons-ref.html` | 19 | Seasons — Renown |
-| `RenownWiki\settlement_board.html` | — | generated HTML (1395 KB) |
+| `RenownWiki\settlement_board.html` | — | generated HTML (1396 KB) |
 | `RenownWiki\settlements-ref.html` | 19 | Settlements — Renown |
 | `RenownWiki\standing-established.html` | 19 | Established Tier — Renown |
 | `RenownWiki\standing-rising.html` | 19 | Rising Tier — Renown |
@@ -691,46 +692,46 @@ Copied to `CE/renown_data.py` by the build (DIE=d10); every script imports `reno
 | `BOARD_SIZES` | 3938 | dict | 3 |
 | `SIEGE_CALCULUS` | 3944 | dict | 2 |
 | `SIEGE_SOURCE_VALUES` | 3959 | dict | 6 |
-| `NAME_DISPLAY` | 3986 | dict | 64 |
-| `TIER_DISPLAY` | 4014 | dict | 1 |
-| `ITEM_TIER_DISPLAY` | 4020 | dict | 1 |
-| `TERM_ENVOY_SCORE` | 4027 | str | 'Authority' |
-| `display_score` | 4037 | function |  |
-| `ALIASES` | 4047 | dict | 66 |
-| `display` | 4057 | function |  |
-| `display_tier` | 4062 | function |  |
-| `display_text` | 4072 | function |  |
-| `display_list` | 4095 | function |  |
-| `display_md` | 4105 | function |  |
-| `display_html` | 4112 | function |  |
-| `display_obj` | 4124 | function |  |
-| `undisplay` | 4137 | function |  |
-| `verify_aliases` | 4146 | function |  |
-| `BANDIT_FACES` | 4170 | int | 10 |
-| `BANDIT_CUNNING_MIN` | 4171 | int | 10 |
-| `die_table_ranges` | 4174 | function |  |
-| `die_table_rows` | 4182 | function |  |
-| `die_table_text` | 4190 | function |  |
-| `die_table_lookup` | 4198 | function |  |
-| `die_table_verify` | 4205 | function |  |
-| `die_table_weights` | 4224 | function |  |
-| `BANDIT_CUNNING_TABLE` | 4234 | dict | 5 |
-| `bandit_cunning_ranges` | 4242 | function |  |
-| `bandit_cunning_rows` | 4243 | function |  |
-| `bandit_cunning_lookup` | 4244 | function |  |
-| `bandit_cunning_text` | 4246 | function |  |
-| `BANDIT_TACTIC_TABLE` | 4252 | dict | 6 |
-| `BANDIT_TACTICS` | 4260 | list | 6 |
-| `bandit_tactic_ranges` | 4262 | function |  |
-| `bandit_tactic_rows` | 4263 | function |  |
-| `bandit_tactic_lookup` | 4264 | function |  |
-| `verify_bandit_tables` | 4267 | function |  |
-| `RENOWN_MAX` | 4363 | int | 30 |
-| `RENOWN_PER_TURN` | 4364 | int | 1 |
-| `DOMAIN_POINTS_PER_TURN` | 4365 | int | 1 |
-| `FACTION_NAMES` | 4587 | dict | 41 |
-| `faction_body` | 4594 | function |  |
-| `GLOSSARY_CATEGORIES` | 4603 | list | 17 |
+| `NAME_DISPLAY` | 3986 | dict | 65 |
+| `TIER_DISPLAY` | 4015 | dict | 1 |
+| `ITEM_TIER_DISPLAY` | 4021 | dict | 1 |
+| `TERM_ENVOY_SCORE` | 4028 | str | 'Authority' |
+| `display_score` | 4038 | function |  |
+| `ALIASES` | 4048 | dict | 67 |
+| `display` | 4058 | function |  |
+| `display_tier` | 4063 | function |  |
+| `display_text` | 4073 | function |  |
+| `display_list` | 4096 | function |  |
+| `display_md` | 4106 | function |  |
+| `display_html` | 4113 | function |  |
+| `display_obj` | 4125 | function |  |
+| `undisplay` | 4138 | function |  |
+| `verify_aliases` | 4147 | function |  |
+| `BANDIT_FACES` | 4171 | int | 10 |
+| `BANDIT_CUNNING_MIN` | 4172 | int | 10 |
+| `die_table_ranges` | 4175 | function |  |
+| `die_table_rows` | 4183 | function |  |
+| `die_table_text` | 4191 | function |  |
+| `die_table_lookup` | 4199 | function |  |
+| `die_table_verify` | 4206 | function |  |
+| `die_table_weights` | 4225 | function |  |
+| `BANDIT_CUNNING_TABLE` | 4235 | dict | 5 |
+| `bandit_cunning_ranges` | 4243 | function |  |
+| `bandit_cunning_rows` | 4244 | function |  |
+| `bandit_cunning_lookup` | 4245 | function |  |
+| `bandit_cunning_text` | 4247 | function |  |
+| `BANDIT_TACTIC_TABLE` | 4253 | dict | 6 |
+| `BANDIT_TACTICS` | 4261 | list | 6 |
+| `bandit_tactic_ranges` | 4263 | function |  |
+| `bandit_tactic_rows` | 4264 | function |  |
+| `bandit_tactic_lookup` | 4265 | function |  |
+| `verify_bandit_tables` | 4268 | function |  |
+| `RENOWN_MAX` | 4364 | int | 30 |
+| `RENOWN_PER_TURN` | 4365 | int | 1 |
+| `DOMAIN_POINTS_PER_TURN` | 4366 | int | 1 |
+| `FACTION_NAMES` | 4588 | dict | 41 |
+| `faction_body` | 4595 | function |  |
+| `GLOSSARY_CATEGORIES` | 4604 | list | 17 |
 
 ## 4. Build steps — `CE\build_all_CE.bat`
 
