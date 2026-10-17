@@ -413,7 +413,10 @@ window.addEventListener("resize",mnavSync);
 // ---- heraldry (sprites.py her:<charge>): each culture's charge (worldbuilding CULTURES heraldry.primary) on a shield in
 // the player's colour. Pale player colours get a dark charge. Shown on Domain tracks, the Realm table, the Empire header, map banners.
 const HER=((DATA.placeNames||{}).heraldry)||{};
-function herKey(p){const c=p&&p.board&&p.board.culture,a=c&&HER[c];return a&&SPR&&SPR.S["her:"+a]?"her:"+a:null;}
+// every charge sprites.py draws (the self-made heraldry picker); a culture's own charge wins over the player's pick
+const HER_ALL=SPR&&SPR.S?Object.keys(SPR.S).filter(k=>k.startsWith("her:")).map(k=>k.slice(4)):[];
+function herName(p){const b=p&&p.board,c=b&&b.culture;return (c&&HER[c])||(b&&b.heraldry)||null;}
+function herKey(p){const a=herName(p);return a&&SPR&&SPR.S["her:"+a]?"her:"+a:null;}
 function lumOf(hex){const m=/^#?([0-9a-f]{6})$/i.exec(String(hex||""));if(!m)return 0;const n=parseInt(m[1],16);return (0.299*(n>>16&255)+0.587*(n>>8&255)+0.114*(n&255))/255;}
 const HER_SVG={};
 // inner markup (paths) of a heraldry sprite in colour col: 'p' = col, 'P' / 'q' = its shade / hilite,
@@ -427,7 +430,10 @@ function herPaths(key,col){const ck=key+"|"+col;if(HER_SVG[ck])return HER_SVG[ck
     s:dark?"#1d1a17":pale,x:dark?"#463e36":herMix(pale,col,.35)},fill=ch=>T[ch]||P[ch]||"#f0f";
   return HER_SVG[ck]=Object.keys(by).map(ch=>'<path d="'+by[ch]+'" fill="'+fill(ch)+'"/>').join("");}
 function heraldOf(p,px){const k=herKey(p);if(!k)return "";
-  return '<svg class="her" width="'+px+'" height="'+px+'" viewBox="0 0 '+herN(k)+' '+herN(k)+'" aria-hidden="true"><title>'+esc(p.board.culture+" · "+HER[p.board.culture])+'</title>'+herPaths(k,p.color)+'</svg>';}
+  return '<svg class="her" width="'+px+'" height="'+px+'" viewBox="0 0 '+herN(k)+' '+herN(k)+'" aria-hidden="true"><title>'+esc((p.board.culture&&HER[p.board.culture]?p.board.culture+" · ":"")+herName(p))+'</title>'+herPaths(k,p.color)+'</svg>';}
 // map: a small banner on each of the player's Settlements
 function mapBanner(p,cx,cy,R){const k=herKey(p);if(!k)return "";const w=R*.62;
   return '<svg x="'+(cx-R*1.02).toFixed(1)+'" y="'+(cy-R*1.0).toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+w.toFixed(1)+'" viewBox="0 0 '+herN(k)+' '+herN(k)+'" pointer-events="none">'+herPaths(k,p.color)+'</svg>';}
+// player token: heraldry when the player has one, else a dot in the player's colour
+function pTok(p,px){if(!p)return "";const h=heraldOf(p,px);if(h)return '<span class="ptok her">'+h+'</span>';
+  const r=(px/2-1).toFixed(1);return '<span class="ptok" style="display:inline-flex;vertical-align:-2px;margin-right:4px;line-height:0"><svg width="'+px+'" height="'+px+'" viewBox="0 0 '+px+' '+px+'"><circle cx="'+px/2+'" cy="'+px/2+'" r="'+r+'" fill="'+esc(p.color||"#888")+'" stroke="#000a" stroke-width="1"/></svg></span>';}

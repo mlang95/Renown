@@ -776,7 +776,7 @@ function herPicker(p,ed){const w=document.createElement("span");w.className="her
   const close=()=>{const m=w.querySelector(".hermenu");if(m)m.remove();document.removeEventListener("mousedown",out,true);},out=e=>{if(!w.contains(e.target))close();};
   b.onclick=()=>{if(w.querySelector(".hermenu")){close();return;}const m=document.createElement("div");m.className="hermenu";
     m.innerHTML='<div class="hm0 note">Heraldry</div>'+HER_ALL.map(a=>'<button type="button" data-h="'+esc(a)+'" title="'+esc(a)+'"'+(p.board.heraldry===a?' class="on"':'')+'>'+
-      '<svg width="26" height="26" viewBox="0 0 16 16" shape-rendering="crispEdges">'+herPaths("her:"+a,p.color)+'</svg></button>').join("");
+      '<svg width="26" height="26" viewBox="0 0 '+herN("her:"+a)+' '+herN("her:"+a)+'">'+herPaths("her:"+a,p.color)+'</svg></button>').join("");
     m.onclick=e=>{const x=e.target.closest("[data-h]");if(!x)return;p.board.heraldry=x.dataset.h;close();save();render();renderList();};
     w.appendChild(m);document.addEventListener("mousedown",out,true);};
   return w;}
