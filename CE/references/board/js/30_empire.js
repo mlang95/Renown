@@ -783,7 +783,7 @@ function herPicker(p,ed){const w=document.createElement("span");w.className="her
 // ---- factions ----
 const FAC=DATA.factions||{};
 function factionFree(fn){const f=FAC[fn];if(!f)return [];const out=[],re=/begin the game with (?:an? )?([^(.;]+?)\s*\((?:no Ward|no upkeep)/gi;let m;
-  while((m=re.exec(f.mechanic))){const n=m[1].trim().replace(/\s+Raw-Material Pursuit$/i,"").replace(/\s+Pursuit$/i,"");
+  while((m=re.exec(f.mechanic))){const n=m[1].trim().replace(/\s+Raw-Material (?:Pursuit|Holding)$/i,"").replace(/\s+(?:Pursuit|Holding)$/i,"");
     if(R[n])out.push({kind:"pursuit",name:n});else if(INFRA[n])out.push({kind:"infra",name:n});else if(WON[n])out.push({kind:"wonder",name:n});}
   return out;}
 function setFaction(fn){itm();

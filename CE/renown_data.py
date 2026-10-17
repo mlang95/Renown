@@ -2634,7 +2634,7 @@ FACTIONS = {
         'difficulty': 'Low',
         'strength': 'Medium',
         'mechanic_name': 'Siege Specialists',
-        'summary': 'Starts with Siege Works; must Siege new Citadels',
+        'summary': 'Starts with Siege Works',
         'mechanic': 'You begin the game with a Siege Works (no Ward, no upkeep).',
         'pair': 'Siege Camp, Royal Pavilion',
         'complement': 'Senate Hall',
