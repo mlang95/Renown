@@ -1,14 +1,14 @@
 Faction,Difficulty,Strength,Mechanic
-The Battering Ram,Low,Medium,Siege Specialist
+The Battering Ram,Low,Medium,Siege Specialists
 The Boundless Steppe,Low,Medium,Horsemasters
 The Bandit King,High,High,Friends in Low Places
 The Crowned Star,Low,Medium,The Monarch
-The Crimson Tide,Low,Medium,Sea Lanes
+The Crimson Tide,Low,Medium,Uncharted Sea Lanes
 The Entwined Crown,Low,Medium,Royal Marriage
 The Eternal Court,Low,Medium,Patient Court
 The Final Word,Low,Medium,The Decider
 The Gilded Crescent,Low,Medium,Prosperity For All
-The Gilded Path,Low,Low,Silk Road
+The Gilded Path,Low,Low,Luxury Trades
 The Hermit Crown,Low,Low,"Independent, but Ambitious"
 The Illuminated Order,Low,Medium,Knowledge is Power
 The Iron Faith,Low,Medium,Fortress of Faith
@@ -19,8 +19,8 @@ The Sacred Throne,Low,High,Sacrosanct
 The Tunnellers,Low,Low,Tunnellers
 The Undying Flame,Low,Low,Martyrdom
 The Verdant Kingdom,Low,High,Peaceful & Inventive
-The Winter Wolves,Low,Medium,Danegeld
-The Ancient Wilds,Medium,High,Highlander Way
+The Winter Wolves,Low,Medium,Pillagers
+The Ancient Wilds,Medium,High,Terrain Negotiators
 The Bloodied Cross,Medium,High,Prophets of War
 The Blazing Standard,Medium,High,Burning Cross
 The Inner Circle,Medium,Medium,Palatine
@@ -37,6 +37,6 @@ The Illusionists,High,High,Double Speak
 The Smoldering Crown,High,High,Reckless
 The Squatters' Crown,High,Medium,Occupy
 The Wandering Crown,High,Medium,Wandering Nomads
-The Dukedom,High,High,The Great Arbiter
+The Dukedom,High,High,The Duke
 The Elder Grove,Low,Medium,Wise & Suspicious
 The Yew Heart,Low,Medium,Archery is a Way of Life
