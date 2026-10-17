@@ -24,10 +24,10 @@ can't reach the other Phase's Envoys: it is read as that Phase's Envoys (Envoy P
 | Imperial Palace | Holding | If your Envoy would fail, it passes instead |
 | Papal Palace | Holding | You no longer pay cost for Piety Envoys |
 | The Eternal Court | Faction | While the Era is Zenith, you may spend up to 5 Influence per Envoy while voting, regardless of your Domain Standing |
-| The Hermit Crown | Faction | Independent, but Ambitious: You Abstain on every vote on other players' Envoys, and other players must spend 2 Influence to affect your Envoys by 1 |
+| The Hermit Crown | Faction | You Abstain on every vote on other players' Envoys, and other players must spend 2 Influence to affect your Envoys by 1 |
 | The Blazing Standard | Faction | During Envoy Declaration, if you don't have an Army of 25 Knight's Templars, you must send a Prowess Envoy |
-| The Illusionists | Faction | Double Speak: Your Diplomacy Envoys use your Cunning Standing for their innate Authority |
-| The Smoldering Crown | Faction | Reckless: Your Cunning Envoys have Authority +2 when targeting a player with Public Order greater than 0 |
+| The Illusionists | Faction | Your Diplomacy Envoys use your Cunning Standing for their innate Authority |
+| The Smoldering Crown | Faction | Your Cunning Envoys have Authority +2 when targeting a player with Public Order greater than 1 |
 | The Smoldering Crown | Faction | A Prowess Envoy you send can't fail or be condemned & will instead pass |
 | Cunning Established | Standing | Players may not target you with Cunning Envoys if your Cunning value is higher |
 
@@ -57,20 +57,20 @@ can't reach the other Phase's Envoys: it is read as that Phase's Envoys (Envoy P
 | Library | Infrastructure | Council Envoys you send are always Endorsed | - | - | council |
 | Colossus | Wonder | You may support your own Personal Prowess Envoys before other players vote | - | - | personal |
 | High Chancery | Wonder | Once per Envoy Phase, you may Endorse one Envoy Sent by yourself after voting | envoy | once | personal (by Phase) |
-| The Crowned Star | Faction | The Monarch: Each Council Phase, you choose every Council Envoy's Domain | council | each | council |
+| The Crowned Star | Faction | Each Council Phase, you choose every Council Envoy's Domain | council | each | council |
 | The Crowned Star | Faction | You abstain every Personal Envoy | - | - | personal |
 | The Eternal Court | Faction | While the Era is Zenith, you may spend up to 5 Influence per Envoy while voting, regardless of your Domain Standing | - | - | - |
-| The Hermit Crown | Faction | Independent, but Ambitious: You Abstain on every vote on other players' Envoys, and other players must spend 2 Influence to affect your Envoys by 1 | - | - | - |
+| The Hermit Crown | Faction | You Abstain on every vote on other players' Envoys, and other players must spend 2 Influence to affect your Envoys by 1 | - | - | - |
 | The Hermit Crown | Faction | Your Personal Envoys have Authority +1 | - | - | personal |
 | The Hermit Crown | Faction | You can't vote nor send Council Envoys | - | - | council |
 | The Blazing Standard | Faction | During Envoy Declaration, if you don't have an Army of 25 Knight's Templars, you must send a Prowess Envoy | - | - | - |
-| The Inner Circle | Faction | Palatine: Each player allied with you has Authority +1 on their Personal Envoys | - | - | personal |
+| The Inner Circle | Faction | Each player allied with you has Authority +1 on their Personal Envoys | - | - | personal |
 | The Inner Circle | Faction | Once per Envoy Phase, you may spend 1 of an ally's Influence, targeting your own Envoys if you wish | envoy | once | personal (by Phase) |
-| The Velvet Hand | Faction | Friends in High Places: Each Empire Phase, a player who supported a Personal Envoy you sent that passed gains Faith +1 | empire | each | personal |
+| The Velvet Hand | Faction | Each Empire Phase, a player who supported a Personal Envoy you sent that passed gains Faith +1 | empire | each | personal |
 | The Velvet Hand | Faction | if that Personal Envoy was endorsed, they Extort 500 gold from you | - | - | personal |
-| The Illusionists | Faction | Double Speak: Your Diplomacy Envoys use your Cunning Standing for their innate Authority | - | - | - |
+| The Illusionists | Faction | Your Diplomacy Envoys use your Cunning Standing for their innate Authority | - | - | - |
 | The Illusionists | Faction | Whenever your Personal Diplomacy Envoy passes or is endorsed, you may instead perform a Cunning action | - | - | personal |
-| The Smoldering Crown | Faction | Reckless: Your Cunning Envoys have Authority +2 when targeting a player with Public Order greater than 0 | - | - | - |
+| The Smoldering Crown | Faction | Your Cunning Envoys have Authority +2 when targeting a player with Public Order greater than 1 | - | - | - |
 | The Smoldering Crown | Faction | A Prowess Envoy you send can't fail or be condemned & will instead pass | - | - | - |
 | Prowess Rising | Standing | Indomitable: Once per Envoy Phase, you may spend influence on your own Prowess Envoy after all players have voted | envoy | once | personal (by Phase) |
 | Cunning Rising | Standing | Clandestine Councilor: Once per Envoy Phase, when voting on an Envoy begins, target a player with a lower Cunning value - that player Abstains that Envoy | envoy | once | personal (by Phase) |
@@ -79,5 +79,7 @@ can't reach the other Phase's Envoys: it is read as that Phase's Envoys (Envoy P
 
 ## Registry coverage
 
-83 of 83 registry patterns match at least one piece.
+92 of 94 registry patterns match at least one piece.
+
+Patterns with no match in the current data (wording changed, or the piece is gone): `rider_your_extra`, `fac_type_bonus`
 

@@ -32,7 +32,9 @@ REG = {
     "doubt_all_plus":      ("clause", "hiwf", r"All player actions that cause Doubt are increased by (\d+)"),
     "doubt_target_minus":  ("clause", "hiwf", r"^(?:(\w+) )?actions targeting this player that cause Doubt are reduced by (\d+)"),
     "cunning_extra_doubt": ("clause", "hiwf", r"^(?:All )?(Endorsed )?Cunning actions give an additional \**Doubt \+?(\d+)\** to Target"),
-    "basilica_amp":        ("clause", "hiwf", r"Your (\w+) actions cause an additional \**Faith \+(\d+)\** and \**Doubt \+(\d+)\** to the target"),
+    # "When your Piety actions give their target Faith, it gains Faith +1 more; when they give Doubt, it gains Doubt +1 more" (Unforgotten Shrine):
+    # whole text (the clause split would cut it at the ";"); m[1] Domain, m[2] extra Faith, m[3] extra Doubt — each only where the action gave it
+    "basilica_amp":        ("text", "hiwf", r"When your (\w+) actions give their target \**Faith\**, it gains \**Faith \+(\d+)\** more; when they give \**Doubt\**, it gains \**Doubt \+(\d+)\** more"),
     "doubt_backlash":      ("clause", "hiwf", r"Players who target you or your settlements with actions that (?:would )?cause doubt( before modifiers)? gain Doubt \+(\d+)"),
     "rider_extra":         ("clause", "hiwf", r"((?:Endorsed )?(\w+) actions (?:give|cause) an additional (?:Doubt|Faith)[^.;]*)"),
     "rider_your_extra":    ("clause", "hiwf", r"(Your (\w+) actions cause an additional[^.;]*)"),
@@ -47,7 +49,7 @@ REG = {
     "recoup_envoy":        ("clause", "hiwf", r"(Passed|Endorsed) (\w+) envoys \**Recoup (\d+) Gold"),
     "recoup_on_cunning":   ("clause", "hiwf", r"Whenever another player performs a Cunning action, you may recoup (\d+) gold"),
     "envoy_next_fewer":    ("clause", "hiwf", r"send (\d+) fewer Envoys? next turn"),
-    "no_alliance":         ("clause", "hiwf", r"(?:can.t|cannot) be in an Alliance"),
+    "no_alliance":         ("clause", "hiwf", r"(?:can.t|cannot) (?:be in|join) an Alliance"),
     # ---- armies / sieges ----
     "immune_strain_home":  ("clause", "hiwf", r"Armies and Garrisons within controlled Settlements gain\s+Immune Strained"),
     "immune_strain_siege": ("clause", "hiwf", r"Immune Strained during Lay Siege"),
@@ -116,17 +118,28 @@ REG = {
     # ---- faction mechanic as written ----
     "ignore_terrain":      ("text", "F", r"ignore all (?:negative )?terrain Speed modifiers"),
     "fac_type_bonus":      ("text", "f", r"Your ([\w &,]+?) (?:Pursuits|Holdings) have Craft \+(\d+)( and cost no Upkeep)?"),
+    "fac_dom_bonus":       ("text", "f", r"Your (?:Pursuits|Holdings) (?:which|that) require (\w+)(?: Standing)? have Craft \+(\d+)( and cost no Upkeep)?"),
     "occupy_tax":          ("text", "F", r"to collect taxes[^.]*end your turn inside it"),
     "morale_cap":          ("text", "F", r"Morale can't be modified beyond (\d+)\+"),
     "raw_noclaim":         ("text", "F", r"Raw Material\s+\w+\s+within (?:your )?Reach are always active"),
     "royal_marriage":      ("text", "F", r"While in that Alliance, each member gains Faith \+(\d+) and (?:\+(\d+) Influence|Influence \+(\d+)) (?:per turn|each Empire Phase)"),
+    "mountain_grass":      ("text", "F", r"treat mountain Territory as grassland for movement"),
+    "war_on_you_doubt":    ("text", "F", r"When a player Declares War on you, that player and their allies gain Doubt \+(\d+)"),
+    "raze_extort":         ("text", "F", r"When you are the target of a Raze action, Extort (\d+) from the (?:target|player) that performed the Raze action"),
+    "trade_gate":          ("text", "F", r"No player may trade unless they first hold a Trade Agreement with you(, or are At War with you)?"),
+    "build_edict":         ("text", "F", r"When a player builds an? ([\w ]+?), you must (\w+) it as an Edict"),
+    "ally_cant":           ("text", "F", r"You \(and your Alliance\) can.t perform ([\w ]+?) actions"),
+    "cant_on_you":         ("text", "F", r"Other players can.t perform ([\w ]+?) on you"),
+    "no_renown_into":      ("text", "F", r"(?:can.t|cannot) put Renown into (\w+)"),
+    "domain_max":          ("text", "F", r"(?:nor|can.t|cannot) have more than (\d+) in (\w+)"),
+    "duke_war":            ("text", "F", r"When a player Declares War on the Duke"),
 }
 
 # ---- once-per / "may" tracker rows (the board's Once-per card) ----
 ONCE_RE = re.compile(r"\b(?:Once\s*/\s*turn|Once per turn|Once per game|Once per \w+ Phase|\d+x\s*(?:/\s*turn|per \w+ Phase)|Each turn|Every turn|Every Skirmish|At the Start of the Empire Phase)\b|\bmay\b(?!\s+not)", F)
 XCH_RE = re.compile(r"(\d+)x\s*(?:/\s*turn|per \w+ Phase):?\s*exchange (\d+) gold for (?:(\d+) Influence|Influence \+(\d+))", F)
 CANT_RE = re.compile(r"(?:can.t|cannot)\s+(.+?)(?=,?\s+and\s+(?:you\s+)?(?:can.t|cannot)\b|$)", F)
-CANT_SKIP = re.compile(r"^(?:be the target|be in an Alliance|pursue|build|equip|use shields|gain Immune|exceed|refuse|choose|vote|be modified)", F)
+CANT_SKIP = re.compile(r"^(?:be the target|be in an Alliance|pursue|build|equip|use shields|gain Immune|exceed|refuse|choose|vote|be modified|be Razed)|\bon you$", F)
 SP_RE = re.compile("Speed\\s*([+\\-−])\\s?(\\d+)", F)
 
 

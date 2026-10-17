@@ -262,7 +262,7 @@ const AA={
   "Muster":{tgt:"none",sub:o=>musterOpts(o),run:c=>runMuster(c)},
   "Demand Tribute":{tgt:"player",run:c=>c.flag("Negotiate terms with "+c.q.name+"; if refused, Declare War")},
   "Declare War":{tgt:"player",elig:(o,q)=>{const x=effPair(o.id,q.id);return x.household||sameAlliance(String(o.id),String(q.id))?"allied":x.war?"already at war":x.nap?"Non-Aggression Pact":x.truce>0?"truce "+x.truce:"";},
-    run:c=>{warOn(c,c.o,c.q,true);const mil=diplo().member[topSuz(c.o.id)];if(mil&&(diplo().alliances[mil]||{}).type==="Military")c.flag("Military Alliance: next turn each member Declares War on "+c.q.name+" and sends 1 fewer Envoy");}},
+    run:c=>{warOn(c,c.o,c.q,true);warOnFac(c);const mil=diplo().member[topSuz(c.o.id)];if(mil&&(diplo().alliances[mil]||{}).type==="Military")c.flag("Military Alliance: next turn each member Declares War on "+c.q.name+" and sends 1 fewer Envoy");}},
   "Pillage":{tgt:"player",elig:(o,q)=>effPair(o.id,q.id).war?"":"not at war",
     sub:(o,q)=>(o.board.armies||[]).flatMap(a=>pillageTargets(o,a).filter(t=>sameP(t.q,q)).map(t=>({v:a.id+"|"+t.s.id,label:(a.label||("Army "+a.id))+" → "+(t.s.name||t.s.tier)}))),
     run:c=>{const [aid,sid]=c.sub.split("|"),a=(c.o.board.armies||[]).find(x=>String(x.id)===aid);if(!a)return;a.pillage={tp:String(c.q.id),sid};c.log((a.label||"Army "+a.id)+" Pillages "+settName(c.q,sid)+" (each Empire Phase)");}},
@@ -274,7 +274,8 @@ const AA={
       withBoard(q.board,()=>Object.keys(S.infra||{}).filter(infraOn).forEach(n=>L.push({v:"i:"+n,label:n+" (Infrastructure)"})));return L;},
     run:c=>{const [k,v]=[c.sub.slice(0,1),c.sub.slice(2)],b=c.q.board;
       if(k==="h"){const x=(b.placed||[]).find(y=>String(y.id)===v);if(x){x.dmg=REPAIR_T;delete x.rep;c.log(c.q.name+"'s "+x.name+" is Damaged (inactive until Repaired)");}}
-      else{b.idmg=b.idmg||{};b.idmg[v]=REPAIR_T;if(b.irep)delete b.irep[v];c.log(c.q.name+"'s "+v+" is Damaged (inactive until Repaired)");}}},
+      else{b.idmg=b.idmg||{};b.idmg[v]=REPAIR_T;if(b.irep)delete b.irep[v];c.log(c.q.name+"'s "+v+" is Damaged (inactive until Repaired)");}
+      const rx=facHit(b,"raze_extort");if(rx){const t=extortGold({b:c.o.board},{b},+rx[1],c.q.board.faction);c.log(c.q.name+" ("+c.q.board.faction+") extorts "+t.toLocaleString()+" from "+c.o.name);}}},
   "Destabilize":{tgt:"player",sub:(o,q)=>(q.board.settlements||[]).filter(st=>!BST().dest[q.id+":"+st.id]).map(st=>({v:String(st.id),label:(st.name||st.tier)+" · tax "+settTax(q.board,st).toLocaleString()})),
     run:c=>{BST().dest[c.q.id+":"+c.sub]={by:String(c.o.id)};c.log("Next Winter: "+settName(c.q,c.sub)+"'s tax income goes to "+c.o.name);
       if(Object.keys(BST().dest).some(k=>k.startsWith(c.q.id+":")&&k!==c.q.id+":"+c.sub))c.flag("Several Destabilizes on "+c.q.name+": highest Cunning chooses first; ties split the Extort");}},
@@ -292,7 +293,7 @@ const AA={
   "Convert":{tgt:"player",run:c=>{const sg=siegeState();sg.mode="Convert";sg.tp=String(c.q.id);sg.sid=null;
       c.flag("Set the Convert Timer in the Siege calculator (Battle tab): "+c.q.name+"'s closest non-capital Settlement, Public Order −5 or lower");}},
   "Sacred War":{tgt:"player",elig:(o,q)=>AA["Declare War"].elig(o,q),
-    run:c=>{const x=topPair(c.o,c.q);if(x){x.war=true;x.trade=false;x.nap=false;}c.log(c.o.name+" and "+c.q.name+" are At War (Sacred War); their treaties end");
+    run:c=>{const x=topPair(c.o,c.q);if(x){x.war=true;x.trade=false;x.nap=false;}c.log(c.o.name+" and "+c.q.name+" are At War (Sacred War); their treaties end");warOnFac(c);
       c.flag("Perform a Move action with one of your Armies");c.flag("Sacred War restrictions (no treaties, negotiation or tribute between you) aren't tracked");}},
   "Improve":{tgt:"none",sub:o=>improveOpts(o),run:c=>runImprove(c)},
   "Build":{tgt:"none",sub:o=>buildOpts(o),place:(o,sub)=>buildPlaces(o,sub),run:c=>runBuild(c)},
@@ -353,7 +354,8 @@ function runImprove(c){const o=c.o,b=o.board,k=c.sub.slice(0,1),v=c.sub.slice(2)
     withBoard(b,()=>settExpand(o,s,nt));c.log(o.name+" expands "+(s.name||s.tier)+" → "+nt+(s.bt>0?" · Build Timer "+s.bt:""));return;}
   const blk=withBoard(b,()=>scopeBlock(v,null));if(blk){c.flag(blk);return;}
   const t=withBoard(b,()=>{(k==="w"?S.wonders:S.infra)[v]=1;itm();const t=gameStarted()?infraBuildTime(v):0;if(t>0)S.itimer[v]=t;return t;});
-  c.log(o.name+" builds "+v+(t>0?" · Build Timer "+t:""));}
+  c.log(o.name+" builds "+v+(t>0?" · Build Timer "+t:""));
+  D.players.forEach(q=>{const h=facHit(q.board,"build_edict");if(h&&h[1]===v&&!sameP(q,o))c.flag(q.name+" ("+q.board.faction+"): must "+h[2]+" "+o.name+"'s "+v+" as an Edict");});}
 function runCharter(c){const o=c.o,b=o.board;b.settlements=b.settlements||[];const s={id:nextId(b.settlements),tier:"Village"};nameSett(o,s);
   const t=withBoard(b,()=>gameStarted()?settBuildTime("Village"):0);if(t>0)s.bt=t;b.settlements.push(s);
   c.log(o.name+" charters a Village"+(s.name?" — "+s.name:"")+(t>0?" · Build Timer "+t:""));c.flag("Place the Village on the map (Map ▸ Place ▸ Village)");
@@ -367,6 +369,12 @@ function runRepair(c){const b=c.o.board,k=c.sub.slice(0,1),v=c.sub.slice(2);
   else{b.idmg=b.idmg||{};b.irep=b.irep||{};b.idmg[v]=REPAIR_T;b.irep[v]=1;c.log(v+": Repair Timer "+REPAIR_T);}
   c.flag("When it completes: Restore (automatic) or Demolish by hand");}
 function settName(q,sid){const st=settById(q,sid);return st?(st.name||st.tier):"?";}
+// the target's faction: "When a player Declares War on you, that player and their allies gain Doubt +N" (Sacrosanct);
+// "When a player Declares War on the Duke, …" (The Great Arbiter) — flagged, resolved by hand
+function warOnFac(c){const h=facHit(c.q.board,"war_on_you_doubt");
+  if(h)D.players.filter(p=>sameP(p,c.o)||(!sameP(p,c.q)&&sameAlliance(String(p.id),String(c.o.id)))).forEach(p=>{const g=gainDoubt(p.board,+h[1]);
+    c.log(p.name+": Doubt +"+h[1]+" ("+c.q.name+" · "+c.q.board.faction+")"+(g<+h[1]?" — "+(+h[1]-g)+" reduced (first Doubt)":""));});
+  if(facHit(c.q.board,"duke_war"))c.flag(c.q.name+" ("+c.q.board.faction+"): "+c.o.name+"'s Trade Agreements, Non-Aggression Pacts and Defensive Alliances are void; every other player Declares War on "+c.o.name+" and their Military Alliance");}
 function warOn(c,o,q,cascade){const x=topPair(o,q);if(!x)return;if(!x.war)chron("war",{player:o.name,other:q.name,key:pk(topSuz(o.id),topSuz(q.id))});x.war=true;x.trade=false;c.log(o.name+" and "+q.name+" are At War"+(x.trade===false?"":""));
   if(!cascade)return;const d=diplo(),g=d.member[topSuz(q.id)];if(g&&(d.alliances[g]||{}).type==="Defensive")allyGroup(g).forEach(m=>{if(sameP(m,q)||sameP(m,o))return;const y=topPair(o,m);if(y&&!y.war){y.war=true;y.trade=false;c.log(m.name+" (Defensive Alliance) is At War with "+o.name);}});}
 // Grand Vizier: "Players may not target you with Cunning Envoys if your Cunning value is higher" — a Holding may unlock it
@@ -458,20 +466,23 @@ function resolveEnvoy(E,pe,fin){const o=E.owner,act=pe&&pe.rec&&pe.rec.action,A=
   const iv=act?pfInsteadSrc(E,act):null,AD=A.domain||E.dom;
   if((fin==="Passed"||fin==="Endorsed")&&act&&A.domain&&A.domain!==E.dom&&!iv){flags.push(act+" isn't a "+E.dom+" action — resolve by hand");return res;}
   if(iv&&(fin==="Passed"||fin==="Endorsed")){fx.push(iv.src+": "+act+" ("+AD+") instead of a "+E.dom+" action");if(iv.once)flags.push(iv.src+": once per "+(iv.once==="turn"?"turn":(T_PHL[iv.once]||iv.once)));}
-  if((fin==="Passed"||fin==="Endorsed")&&act){const sp=pfSpec(act),tid=pe.rec.target,al=String(tid||"").startsWith("al:")?String(tid).slice(3):null,q=al?null:(tid?pById(tid):null),notes=[],doubtTo={};
+  if((fin==="Passed"||fin==="Endorsed")&&act){const sp=pfSpec(act),tid=pe.rec.target,al=String(tid||"").startsWith("al:")?String(tid).slice(3):null,q=al?null:(tid?pById(tid):null),notes=[],doubtTo={},faithTo={};
     const recoup=[],rawTo={};{const rm=SM(o.board,"recoup_envoy").filter(x=>x.m[2].toLowerCase()===E.dom.toLowerCase());
       const pk=(fin==="Endorsed"&&rm.find(x=>x.m[1]==="Endorsed"))||rm.find(x=>x.m[1]==="Passed");if(pk)recoup.push({src:pk.n,gold:+pk.m[3]});}
     const end=fin==="Endorsed"?String(A.endorsed||((EOUT[E.dom]||{}).endorsed)||""):"";
     if(/Recoup Doubt/i.test(end))recoup.push({src:"Endorsed",doubt:true});{const m=/Recoup (\d+)/i.exec(end);if(m)recoup.push({src:"Endorsed",gold:+m[1]});}
     pay(actCost(act),act,recoup);
     const ctx={o,q,al,sub:pe.rec.sub||"",place:pe.rec.place||"",E,out:fin,log:x=>fx.push(x),flag:x=>flags.push(x),
-      pend:msg=>{const b=o.board;b.pending=b.pending||[];b.pending.push({id:E.id,turn:tTurn(),act,msg,snap:boardCounts(b)});},faith:(p,n)=>{addFaith(p.board,n);fx.push(p.name+": Faith +"+n+" ("+act+")");},
+      pend:msg=>{const b=o.board;b.pending=b.pending||[];b.pending.push({id:E.id,turn:tTurn(),act,msg,snap:boardCounts(b)});},faith:(p,n)=>{addFaith(p.board,n);faithTo[p.id]=(faithTo[p.id]||0)+(+n||0);fx.push(p.name+": Faith +"+n+" ("+act+")");},
       doubt:(p,n,isT)=>{const k=actDoubt(o,AD,p,n,isT,notes),g=k?gainDoubt(p.board,k):0;doubtTo[p.id]=(doubtTo[p.id]||0)+k;rawTo[p.id]=(rawTo[p.id]||0)+(+n||0);if(k)fx.push(p.name+": Doubt +"+k+" ("+act+")"+(g<k?" — "+(k-g)+" reduced (first Doubt)":""));}};
     if((sp.tgt==="player"&&!sp.opt&&!q)||(sp.sub&&!ctx.sub))flags.push(act+": no target recorded — resolve by hand");
     else if(sp.run)sp.run(ctx);
     if(AD==="Cunning"&&q){SM(o.board,"cunning_extra_doubt").forEach(x=>{if(x.m[1]&&fin!=="Endorsed")return;notes.push(x.n+": +"+x.m[2]+" Doubt to "+q.name);ctx.doubt(q,+x.m[2],true);});
       D.players.forEach(h=>{if(!sameP(h,o))SM(h.board,"recoup_on_cunning").forEach(x=>flags.push(h.name+" ("+x.n+") may recoup "+(+x.m[1]).toLocaleString()+" gold"));});}
-    if(q)SM(o.board,"basilica_amp").forEach(x=>{if(x.m[1].toLowerCase()!==AD.toLowerCase())return;ctx.faith(q,+x.m[2]);ctx.doubt(q,+x.m[3],true);notes.push(x.n+": Faith +"+x.m[2]+" and Doubt +"+x.m[3]+" to "+q.name);});
+    // "…give their target Faith, it gains Faith +N more; …give Doubt, it gains Doubt +N more": only what the action itself gave, per player it gave it to
+    SM(o.board,"basilica_amp").forEach(x=>{if(x.m[1].toLowerCase()!==AD.toLowerCase())return;const gf=Object.assign({},faithTo),gd=Object.assign({},rawTo);
+      D.players.forEach(p=>{if(gf[p.id]>0){ctx.faith(p,+x.m[2]);notes.push(x.n+": Faith +"+x.m[2]+" more to "+p.name);}
+        if(gd[p.id]>0){ctx.doubt(p,+x.m[3],sameP(p,q));notes.push(x.n+": Doubt +"+x.m[3]+" more to "+p.name);}});});
     if(q)SM(q.board,"doubt_backlash").forEach(x=>{if(!((x.m[1]?rawTo:doubtTo)[q.id]>0))return;x.m[1]=x.m[2];const g=gainDoubt(o.board,+x.m[1]);fx.push(o.name+": Doubt +"+x.m[1]+" ("+q.name+" · "+x.n+")");});
     if(fin==="Endorsed"){const m=/Extort (\d+)/i.exec(end);if(m&&q){const t=extortGold({b:q.board},{b:o.board},+m[1],"Endorsed "+E.dom);fx.push("Endorsed: extort "+t.toLocaleString()+" from "+q.name);}
       else if(m)flags.push("Endorsed: Extort "+m[1]+" — no player target");
@@ -530,7 +541,7 @@ let T_SIG="";
 function tSig(R){return [tPhase(),tTurn(),R.waiting||"",R.cur?R.cur.key:"",R.log.length,R.done?1:0,R.councilDom||"",
   D.players.map(p=>Object.keys(tCur(p).applied||{}).length+"/"+Object.keys(tCur(p).perform||{}).length).join(","),
   JSON.stringify(R.spent)].join("|");}
-function tName(p){return '<span class="pdot" style="background:'+p.color+'"></span>'+esc(p.name);}
+function tName(p){return pTok(p,14)+esc(p.name);}
 function tVoteTxt(v){return v.a==="S"?'<span class="pos">+'+v.x+'</span>':v.a==="O"?'<span class="neg">−'+(v.eff!==undefined&&v.eff!==v.x?v.eff+'</span><span class="note"> (paid '+v.x+')</span>':v.x+'</span>'):'<span class="note">'+(v.timeout?"timeout":v.forced?"skipped":"abstain")+'</span>';}
 function envBadges(E){const b=[];
   if(E.dom==="Industry")b.push("Ulterior Motive: Oppose only if at war with "+esc(E.owner.name));
@@ -705,7 +716,7 @@ function linkifyRules(root){if(!root)return;const w=document.createTreeWalker(ro
 function renderReference(){const host=document.getElementById("viewReference");
   const g=(D.map||{}).grid;
   let h='<div style="padding:14px"><h2 style="margin-bottom:8px">Reference</h2>'+
-    '<div class="refnav note">'+[["refRules","Rulebook"],["refTree","Pursuit tree"],["refSeasons","Seasons"],["refCosts","Costs"],["refStanding","Standings"],["refTerrain","Terrain & movement"],["refBattle","Skirmish rules & Tactic matrix"]]
+    '<div class="refnav note">'+[["refRules","Rulebook"],["refTree","Pursuit tree"],["refSeasons","Seasons"],["refCosts","Costs"],["refStanding","Standings"],["refTerrain","Terrain & movement"],["refBattle","Tactics & Skirmish rules"]]
       .map(x=>'<a href="#" data-goto="reference#'+x[0]+'">'+x[1]+'</a>').join(' · ')+'</div>';
   h+='<details id="refRules" class="tot"'+(RB_OPEN?' open':'')+'><summary><b style="font-size:14px">Rulebook</b> <span class="note">— RULES_push.md, values from the data</span></summary>'+rulebookHTML()+'</details>';
   h+='<details id="refTree" class="tot"'+(TREE_SEC?' open':'')+'><summary><b style="font-size:14px">Pursuit tree</b></summary>'+

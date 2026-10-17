@@ -989,8 +989,12 @@
     3,
     0
    ],
-   "Exalted Basilica": [
+   "Unforgotten Shrine": [
     4,
+    0
+   ],
+   "Exalted Basilica": [
+    5,
     0
    ]
   },
@@ -1000,7 +1004,7 @@
     "Chandlery"
    ],
    [
-    "Pilgrimage Site",
+    "Unforgotten Shrine",
     "Exalted Basilica"
    ],
    [
@@ -1010,6 +1014,10 @@
    [
     "Chandlery",
     "Reliquary"
+   ],
+   [
+    "Pilgrimage Site",
+    "Unforgotten Shrine"
    ]
   ]
  },

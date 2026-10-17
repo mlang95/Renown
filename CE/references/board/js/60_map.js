@@ -162,7 +162,7 @@ function tMix(hex,to,t){const a=parseInt(hex.slice(1),16),b=parseInt(to.slice(1)
 const SCAT=((DATA.sprites||{}).scatter)||{};
 function hStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
 function rng32(a){return ()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
-function mapScatter(gk,key,cx,cy,R,fill,seed,badge){const sc=SCAT[gk];if(!sc)return "";
+function mapScatter(gk,key,cx,cy,R,fill,seed,badge,inline){const sc=SCAT[gk];if(!sc)return "";
   const pu=R*1.6/16,rnd=rng32(hStr(seed+"|"+key+"|"+gk)),tn=sc.tone||[.30,.20,.48],s3=Math.sqrt(3)/2,lim=R*.92*s3;
   const inside=(x,y)=>{x=Math.abs(x);y=Math.abs(y);return y<=lim&&x*s3+y/2<=lim;},boxes=[],items=[];
   (sc.layers||[]).forEach(L=>{const pool=[];(L.p||[]).forEach(([a,w])=>{for(let i=0;i<w;i++)pool.push(a);});if(!pool.length)return;
@@ -177,7 +177,18 @@ function mapScatter(gk,key,cx,cy,R,fill,seed,badge){const sc=SCAT[gk];if(!sc)ret
         boxes.push(b);items.push({a,b});break;}}});
   items.sort((x,y)=>x.b[3]-y.b[3]);
   return '<g style="--tH:'+tMix(fill,"#ffffff",tn[0])+';--tS:'+tMix(fill,"#000000",tn[1])+';--tD:'+tMix(fill,"#000000",tn[2])+'" color="'+tTone(fill)+'" pointer-events="none">'+
-    items.map(({a,b})=>'<use href="#'+mapSprId("prop:"+a)+'" x="'+(cx+b[0]*pu).toFixed(2)+'" y="'+(cy+b[1]*pu).toFixed(2)+'" width="'+((b[2]-b[0])*pu).toFixed(2)+'" height="'+((b[3]-b[1])*pu).toFixed(2)+'"/>').join("")+'</g>';}
+    items.map(({a,b})=>{const at='x="'+(cx+b[0]*pu).toFixed(2)+'" y="'+(cy+b[1]*pu).toFixed(2)+'" width="'+((b[2]-b[0])*pu).toFixed(2)+'" height="'+((b[3]-b[1])*pu).toFixed(2)+'"';
+      return inline?'<svg '+at+' viewBox="0 0 '+(b[2]-b[0])+' '+(b[3]-b[1])+'" shape-rendering="crispEdges">'+propPaths(a)+'</svg>':'<use href="#'+mapSprId("prop:"+a)+'" '+at+'/>';}).join("")+'</g>';}
+// a prop sprite's paths, for drawing outside the map (no shared <symbol> defs): relief tones from the enclosing --tH / --tS / --tD
+const PROP_PATHS={};
+function propPaths(a){if(PROP_PATHS[a])return PROP_PATHS[a];const rows=SPR.S["prop:"+a].slice(0,-1),w=rows[0].length,by={},P=SPR.P||{},TV={H:"var(--tH)",S:"var(--tS)",D:"var(--tD)",k:"currentColor"};
+  rows.forEach((r,y)=>{let x=0;while(x<w){const ch=r[x];let n=1;while(x+n<w&&r[x+n]===ch)n++;if(ch!=="."&&ch!=="g")by[ch]=(by[ch]||"")+"M"+x+" "+y+"h"+n+"v1h-"+n+"z";x+=n;}});
+  return PROP_PATHS[a]=Object.keys(by).map(ch=>'<path d="'+by[ch]+'" fill="'+(TV[ch]||P[ch]||"#f0f")+'"/>').join("");}
+// pixel hex swatch for the terrain tables: the map's own fill + its scattered pixel props (sprites.py SCATTER)
+function pxSwatch(kind,fill,px){px=px||30;
+  return '<svg class="tswg" width="'+px+'" height="'+(px*0.9).toFixed(0)+'" viewBox="0 0 120 108" aria-hidden="true">'+
+    '<polygon points="114,54 87,100.8 33,100.8 6,54 33,7.2 87,7.2" fill="'+fill+'" stroke="#2b241b" stroke-opacity=".45" stroke-width="3"/>'+
+    mapScatter(kind,"ref",60,54,52,fill,"terrain-ref",null,true)+'</svg>';}
 // sprite standing on an owner-coloured base (dashed red ring when unlinked); col null = unowned (bandits)
 function mapSpr(k,cx,cy,R,col,unl){const w=R*1.6,h=w*15/16,y0=cy+R*.62-h;
   return '<ellipse cx="'+cx.toFixed(1)+'" cy="'+(cy+R*.55).toFixed(1)+'" rx="'+(R*.62).toFixed(1)+'" ry="'+(R*.2).toFixed(1)+'" fill="'+(col||"#7a1414")+'" fill-opacity="'+(col?.9:.8)+'"'+
@@ -257,7 +268,7 @@ function mapBarHTML(){const P=mapAsP(),ic=t=>t==="Army"?sprSVG("army:Levy",18,fa
   return '<div class="mapbar"><button data-mt="Select" data-nav="1" class="'+(mtool==="Select"?"on":"")+'" title="click a piece to inspect it; click your Army, then a lit hex, to move">Select</button>'+
     '<button data-mplace="1" data-nav="1" class="'+(pl?"on":"")+'" title="place / erase map pieces (setup)">Place '+(pl?'▾':'▸')+'</button>'+
     (pl?'<span class="mpal">'+PLACE_TOOLS.map(t=>'<button data-mt="'+esc(t)+'" data-nav="1" title="'+esc(t)+'" class="'+(mtool===t?"on":"")+'">'+ic(t)+'<span>'+esc(t==="Outlaw Country"?"Outlaw":t==="Bandit Camp"?"Camp":t==="Metropolis"?"Metro":t)+'</span></button>').join("")+
-      '<span class="note">as <span class="pdot" style="display:inline-block;background:'+P.color+'"></span> '+esc(P.name)+'</span></span>':'')+'</div>';}
+      '<span class="note">as '+pTok(P,12)+' '+esc(P.name)+'</span></span>':'')+'</div>';}
 const SETT_TIERS_MAP=["Hamlet","Village","Town","City","Metropolis"];
 // ================= Inspect tool =================
 let INSP=null;
@@ -337,7 +348,7 @@ function inspCan(pid){return !lockOn()||ADMIN||canHost()||(!!myClaimP()&&String(
 function inspArmy(k){const {p,a}=cellArmy(k),cell=mapState().cells[k];if(!p)return inspHead("","Army","unowned",null);
   if(!a)return inspHead(sprSVG("army:"+BANDIT_DEFAULT_RETINUE,36,false,p.color),"Army","Army — unlinked (link it under Map ↔ board)",p);
   const rt=EQ.retinues[a.retinue]||{},u=armyUFor(p),v=armyVals(a,u),m=boardMetrics(p.board),sp=speedOf(p,a,k);
-  let h=inspHead(sprSVG("army:"+(a.retinue||BANDIT_DEFAULT_RETINUE),36,false,p.color),a.label||("Army "+a.id),'<span style="color:'+p.color+'">●</span> '+esc(p.name)+' · '+esc(a.retinue||"")+' ×'+(a.count||0)+'/'+(EQ.army_max||25),p);
+  let h=inspHead(sprSVG("army:"+(a.retinue||BANDIT_DEFAULT_RETINUE),36,false,p.color),a.label||("Army "+a.id),pTok(p,12)+esc(p.name)+' · '+esc(a.retinue||"")+' ×'+(a.count||0)+'/'+(EQ.army_max||25),p);
   h+='<div class="ir">'+armyGear(a).map(n=>'<span title="'+esc(n)+'">'+eqSVG(n,22)+'</span>').join("")+'</div>';
   h+='<div class="ig">'+inspCell("STRIKE",v.toStrike+"+")+inspCell("INIT",(v.init>=0?"+":"")+v.init)+inspCell("SAVE",v.save+"+")+inspCell("MORALE",v.morale+"+",v.routed?"neg":"")+
     inspCell("AP",v.ap)+inspCell("SPEED",sp.speed)+inspCell("END",(a.endurance??0)+"/"+(rt.endurance??"—"))+inspCell("SIZE",a.count||0)+'</div>';
@@ -371,7 +382,7 @@ function settStatusMarks(pl,k,cx,cy,R){const cs=cellSett(k).s;if(!pl||!cs)return
 function inspSett(k){const {p,s}=cellSett(k),cell=mapState().cells[k];if(!p)return inspHead(sprSVG("map:"+cell.type,36,false),cell.type,"unowned",null);
   if(!s)return inspHead(sprSVG("map:"+cell.type,36,false,p.color),cell.type,esc(p.name)+" · unlinked (link it under Map ↔ board)",p);
   const e=settEcon(p,s),wt=winterTax(p.board),wu=withBoard(p.board,()=>wardUse(s.id)),g=garrisonOf(p,s.id),ins=(p.board.armies||[]).filter(x=>String(x.sid)===String(s.id));
-  let h=inspHead(sprSVG("map:"+s.tier,36,false,p.color),(s.capital?"★ ":"")+(s.name||s.tier),'<span style="color:'+p.color+'">●</span> '+esc(p.name)+' · '+esc(s.tier)+' · wards '+wu.used+'/'+wu.cap+' · Reach '+settReach(p,s),p);
+  let h=inspHead(sprSVG("map:"+s.tier,36,false,p.color),(s.capital?"★ ":"")+(s.name||s.tier),pTok(p,12)+esc(p.name)+' · '+esc(s.tier)+' · wards '+wu.used+'/'+wu.cap+' · Reach '+settReach(p,s),p);
   if(inspCan(p.id))h+='<div class="ir"><span class="k">Name</span><input data-insp-name="'+p.id+':'+s.id+'" data-nav="1" value="'+esc(s.name||"")+'" placeholder="'+esc(s.tier)+'" style="flex:1;min-width:0">'+
     (PN?'<button data-insp-rename="'+p.id+':'+s.id+'" data-nav="1" title="new name ('+esc(nameCulture(p.board)||"")+')">🎲</button>':'')+'</div>';
   h+=settActionsHTML(p,s);
@@ -855,8 +866,10 @@ function terrainTablesHTML(PAL){
   h+='</tbody></table></div>';
   if(Object.keys(MV).length)h+='<div class="tot"><h3 style="font-size:13px">Movement</h3><table class="dtable ttab"><thead><tr><th>Source</th><th>Effect</th></tr></thead><tbody>'+
     Object.keys(MV).map(k=>'<tr><td>'+esc(k)+'</td><td>'+esc(fx((MV[k]||{}).Effect))+'</td></tr>').join('')+'</tbody></table></div>';
+  // battle tiles: pixel hex (map fill + scattered sprites) when the sprites are loaded, else the glyph swatch
+  const bsw=kd=>{const hill=kd==='hill',c=PAL[hill?'plains':kd];if(!c)return '';return SPR&&SCAT[kd]?pxSwatch(kd,hill?tLighten(c,1.16):c,46):RS?sw(c,hill,kd):'';};
   if(Object.keys(X).length){h+='<div class="tot"><h3 style="font-size:13px">Battle terrain</h3><table class="dtable ttab"><thead><tr><th>Tile</th><th>Map</th><th>Effect</th></tr></thead><tbody>'+
-    Object.keys(X).map(k=>'<tr><td>'+(RS&&BT_KIND[k]?sw(PAL[BT_KIND[k]==='hill'?'plains':BT_KIND[k]],BT_KIND[k]==='hill',BT_KIND[k]):'')+esc(k)+'</td><td>'+esc(X[k].identify||'')+'</td><td>'+esc(X[k].effect||'')+'</td></tr>').join('')+'</tbody></table>';
+    Object.keys(X).map(k=>'<tr><td>'+(BT_KIND[k]?bsw(BT_KIND[k]):'')+esc(k)+'</td><td>'+esc(X[k].identify||'')+'</td><td>'+esc(X[k].effect||'')+'</td></tr>').join('')+'</tbody></table>';
     if((TREF.tacticalGlobal||[]).length)h+='<div class="note" style="margin-top:4px">'+TREF.tacticalGlobal.map(esc).join(' ')+'</div>';h+='</div>';}
   return h+'</div>';
 }
@@ -882,7 +895,7 @@ function mapToolsHTML(){const M=mapState(),g=M.grid;
     ' <input id="mCode" placeholder="Region/seed/players[/WxH]" style="width:210px" value="'+esc(seedCode(g))+'"><button id="mCodeGo">load code</button>'+
     ' <button id="mImp">import map JSON</button><input type="file" id="mFile" accept="application/json" style="display:none">'+
     '</div>'+(g?'<div class="note" style="margin:0 0 6px">generator '+esc(g.generator||'?')+' · climate '+esc(mapPal(g).label||mapClimate(g))+'</div>':'')+'</details>';
-  h+='<div class="mtoolbar"><span class="note">tool '+esc(mtool)+' · placing as</span> <span class="pdot" style="display:inline-block;background:'+mapAsP().color+'"></span> '+esc(mapAsP().name)+
+  h+='<div class="mtoolbar"><span class="note">tool '+esc(mtool)+' · placing as</span> '+pTok(mapAsP(),12)+' '+esc(mapAsP().name)+
     ' <label class="note"><input type="checkbox" id="mRes"'+(M.showRes!==false?' checked':'')+'> resources</label>'+
     ' <label class="note"><input type="checkbox" id="mReach"'+(M.showReach!==false?' checked':'')+'> reach borders</label>'+
     ' <label class="note"><input type="checkbox" id="mPlates"'+(M.showPlates!==false?' checked':'')+'> army plates</label>'+

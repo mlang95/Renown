@@ -45,3 +45,4 @@ const PLAYER_COLORS=["#4caf50","#ef5350","#42a5f5","#ffb300","#ab47bc","#26c6da"
 const EFX=DATA.efx||{};
 function efxOf(key,id){const o=EFX[key];return (o&&o[id])||[];}
 function hitOf(key,id){return efxOf(key,id)[0]||null;}   // a source's first hit of pattern id, or null
+function facHit(b,id){return hitOf("F:"+((b||{}).faction||""),id);}   // the board's faction mechanic (as written): first hit of pattern id

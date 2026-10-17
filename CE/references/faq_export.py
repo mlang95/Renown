@@ -411,8 +411,7 @@ def build(out_path):
         w.writerow(["Faction", "Difficulty", "Strength", "Mechanic"])
         for n, fac in rd.FACTIONS.items():
             if isinstance(fac, dict):
-                mech = str(fac.get("mechanic",""))
-                mname = mech.split(":",1)[0].strip() if ":" in mech else ""
+                mname = str(fac.get("mechanic_name",""))
                 w.writerow([n, fac.get("difficulty",""), fac.get("strength",""), mname])
     print(f"wrote faction table -> {csv_path}")
 

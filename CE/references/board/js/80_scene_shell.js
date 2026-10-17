@@ -416,13 +416,18 @@ const HER=((DATA.placeNames||{}).heraldry)||{};
 function herKey(p){const c=p&&p.board&&p.board.culture,a=c&&HER[c];return a&&SPR&&SPR.S["her:"+a]?"her:"+a:null;}
 function lumOf(hex){const m=/^#?([0-9a-f]{6})$/i.exec(String(hex||""));if(!m)return 0;const n=parseInt(m[1],16);return (0.299*(n>>16&255)+0.587*(n>>8&255)+0.114*(n&255))/255;}
 const HER_SVG={};
-// inner markup (paths) of a heraldry sprite in colour col: 'p' = col, 's' = pale or dark by col's lightness
+// inner markup (paths) of a heraldry sprite in colour col: 'p' = col, 'P' / 'q' = its shade / hilite,
+// 's' / 'x' = charge and charge shade, pale or dark by col's lightness
+function herMix(a,b,t){if(!/^#[0-9a-f]{6}$/i.test(a)||!/^#[0-9a-f]{6}$/i.test(b))return a;const p=x=>[1,3,5].map(i=>parseInt(x.slice(i,i+2),16));const A=p(a),B=p(b);
+  return "#"+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,"0")).join("");}
+function herN(k){return SPR.S[k].length;}
 function herPaths(key,col){const ck=key+"|"+col;if(HER_SVG[ck])return HER_SVG[ck];const P=SPR.P||{},rows=SPR.S[key],w=rows[0].length,by={};
   rows.forEach((r,y)=>{let x=0;while(x<w){const ch=r[x];let n=1;while(x+n<w&&r[x+n]===ch)n++;if(ch!=="."&&ch!=="g")by[ch]=(by[ch]||"")+"M"+x+" "+y+"h"+n+"v1h-"+n+"z";x+=n;}});
-  const dark=lumOf(col)>0.62,fill=ch=>ch==="p"?col:ch==="s"?(dark?"#1d1a17":(P.s||"#eee")):(P[ch]||"#f0f");
+  const dark=lumOf(col)>0.62,pale=P.s||"#eee",T={p:col,P:herMix(col,"#000000",.32),q:herMix(col,"#ffffff",.3),
+    s:dark?"#1d1a17":pale,x:dark?"#463e36":herMix(pale,col,.35)},fill=ch=>T[ch]||P[ch]||"#f0f";
   return HER_SVG[ck]=Object.keys(by).map(ch=>'<path d="'+by[ch]+'" fill="'+fill(ch)+'"/>').join("");}
 function heraldOf(p,px){const k=herKey(p);if(!k)return "";
-  return '<svg class="her" width="'+px+'" height="'+px+'" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><title>'+esc(p.board.culture+" · "+HER[p.board.culture])+'</title>'+herPaths(k,p.color)+'</svg>';}
+  return '<svg class="her" width="'+px+'" height="'+px+'" viewBox="0 0 '+herN(k)+' '+herN(k)+'" aria-hidden="true"><title>'+esc(p.board.culture+" · "+HER[p.board.culture])+'</title>'+herPaths(k,p.color)+'</svg>';}
 // map: a small banner on each of the player's Settlements
 function mapBanner(p,cx,cy,R){const k=herKey(p);if(!k)return "";const w=R*.62;
-  return '<svg x="'+(cx-R*1.02).toFixed(1)+'" y="'+(cy-R*1.0).toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+w.toFixed(1)+'" viewBox="0 0 16 16" shape-rendering="crispEdges" pointer-events="none">'+herPaths(k,p.color)+'</svg>';}
+  return '<svg x="'+(cx-R*1.02).toFixed(1)+'" y="'+(cy-R*1.0).toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+w.toFixed(1)+'" viewBox="0 0 '+herN(k)+' '+herN(k)+'" pointer-events="none">'+herPaths(k,p.color)+'</svg>';}

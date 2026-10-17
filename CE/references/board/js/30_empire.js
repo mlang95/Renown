@@ -82,6 +82,9 @@ function renderList(){
     mk("tree ▸",null,"reference#refTree");
     list.appendChild(ctl2);
     if(!groups.length){const e=document.createElement("div");e.className="empty";e.textContent=CAT.avail?"None available.":"No match.";list.appendChild(e);return;}
+    // Monument toggle on: one flat list of every Monument, no Root grouping
+    if(activeTypes.size===1&&activeTypes.has("Monument")){[...new Set(groups.flatMap(g=>g[1]))].sort((a,b)=>{const d=x=>window.dispName?dispName(x):x;return d(a).localeCompare(d(b));})   // by the name players read
+      .forEach(n=>list.appendChild(CAT.avail&&!pLegal(n,FOR_SID,lc)?reqRow(n,pReqMiss(n,FOR_SID,lc)):pursuitRow(n)));return;}
     groups.forEach(([t,mem])=>{
       const openT=searching||FOR_SID!=null||catOpen.has(gk(t));
       const g=document.createElement("div");g.className="typegroup";
@@ -434,7 +437,7 @@ function renderTopBar(){
   D.players.forEach((p,i)=>{
     const c=document.createElement("span");c.className="pchip"+(i===D.active?" on":"");
     const cl=claimOf(p);
-    c.innerHTML='<span class="pdot" style="background:'+p.color+'"></span><span class="pname">'+esc(p.name)+'</span>'+
+    c.innerHTML=pTok(p,14)+'<span class="pname">'+esc(p.name)+'</span>'+
       (cl?'<span class="note" title="'+(mine(p)?"claimed by this device":"claimed")+'">'+(mine(p)?" \u2605":" \ud83d\udd12")+'</span>':'')+
       (!D.started&&isReady(p)?'<span class="su-ok" title="ready"> \u2713</span>':'');
     c.onclick=()=>{D.active=i;SPECTATE=null;reindex();render();renderList();};
@@ -449,17 +452,17 @@ function renderTopBar(){
   const nm=document.createElement("input");nm.value=p.name;nm.style.width="110px";nm.title="rename player";
   nm.oninput=()=>{p.name=nm.value;const l=chip&&chip.querySelector(".pname");if(l)l.textContent=p.name;save();};
   const col=document.createElement("input");col.type="color";col.value=p.color;col.style.width="30px";col.style.padding="0";col.title="player color";
-  col.oninput=()=>{p.color=col.value;const d=chip&&chip.querySelector(".pdot");if(d)d.style.background=p.color;};
+  col.oninput=()=>{p.color=col.value;const d=chip&&chip.querySelector(".ptok");if(d)d.outerHTML=pTok(p,14);};
   col.onchange=()=>{p.color=col.value;save();render();};
   const ed=canEdit(p)&&!spectating();nm.disabled=col.disabled=!ed;nm.classList.add("keepval");
   const gen=document.createElement("button");gen.textContent="Generate";gen.title="random name ("+(nameCulture(p.board)||"")+")";gen.disabled=!ed;
   gen.onclick=()=>{const n=genPlaceName(nameCulture(p.board));if(!n)return;p.name=n;save();render();renderList();};
-  {const h=heraldOf(p,26);if(h){const w=document.createElement("span");w.className="pc-her";w.innerHTML=h;put(w);}}
+  if(!cultureOf(p.board)&&HER_ALL.length)put(herPicker(p,ed));
+  else{const h=heraldOf(p,26);if(h){const w=document.createElement("span");w.className="pc-her";w.innerHTML=h;put(w);}}
   put(nm);put(gen);put(col);
   {const w=document.createElement("span");w.innerHTML=culSelectHTML(p.board);const cs=w.firstChild;cs.disabled=!ed;cs.classList.add("keepval");
     cs.onchange=e=>{p.board.culture=e.target.value||"";save();render();renderList();};put(cs);}
-  {const w=document.createElement("span");w.innerHTML=facSelectHTML();const fs=w.firstChild;fs.disabled=!ed;fs.classList.add("keepval");
-    fs.onchange=e=>{setFaction(e.target.value);save();render();renderList();};put(fs);}
+  put(facPicker(ed,v=>{setFaction(v);save();render();renderList();}));
   {let on=false;try{on=!!SYNC.ready;}catch(e){}
     if(on){const cl=claimOf(p),mc=myClaimP(),b=document.createElement("button");b.dataset.claim="1";
       if(mine(p)){b.textContent="\u2605 yours \u00b7 release";b.onclick=()=>{if(!confirm("Release "+p.name+"?"))return;delete p.board.claim;if(TB().ready)delete TB().ready[p.id];save();render();};}
@@ -767,6 +770,16 @@ function dragEnd(drop){
   else if(drop&&d.res&&!d.res.ok&&d.res.why)flash(d.res.why);
 }
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&DRAG)dragEnd(false);});
+// Self-made heraldry: the player picks any charge (board.heraldry); a culture's own charge replaces it while a culture is chosen
+function herPicker(p,ed){const w=document.createElement("span");w.className="herpick";const b=document.createElement("button");b.type="button";b.className="herbtn";b.disabled=!ed;
+  b.title="heraldry";b.innerHTML=heraldOf(p,22)||'<span class="note">heraldry ▾</span>';w.appendChild(b);
+  const close=()=>{const m=w.querySelector(".hermenu");if(m)m.remove();document.removeEventListener("mousedown",out,true);},out=e=>{if(!w.contains(e.target))close();};
+  b.onclick=()=>{if(w.querySelector(".hermenu")){close();return;}const m=document.createElement("div");m.className="hermenu";
+    m.innerHTML='<div class="hm0 note">Heraldry</div>'+HER_ALL.map(a=>'<button type="button" data-h="'+esc(a)+'" title="'+esc(a)+'"'+(p.board.heraldry===a?' class="on"':'')+'>'+
+      '<svg width="26" height="26" viewBox="0 0 16 16" shape-rendering="crispEdges">'+herPaths("her:"+a,p.color)+'</svg></button>').join("");
+    m.onclick=e=>{const x=e.target.closest("[data-h]");if(!x)return;p.board.heraldry=x.dataset.h;close();save();render();renderList();};
+    w.appendChild(m);document.addEventListener("mousedown",out,true);};
+  return w;}
 // ---- factions ----
 const FAC=DATA.factions||{};
 function factionFree(fn){const f=FAC[fn];if(!f)return [];const out=[],re=/begin the game with (?:an? )?([^(.;]+?)\s*\((?:no Ward|no upkeep)/gi;let m;
@@ -792,19 +805,38 @@ function factionFlags(){const f=FAC[S.faction];if(!f)return [];const out=[];{con
   const types=[...new Set(Object.values(R).map(r=>r.type))];
   f.mechanic.split(/(?<=[.;])\s+/).forEach(sen=>{
     // "can't … build Holdings that require <Domain>[ or <Domain>] Standing": flag Holdings whose unlock names that Domain
-    const sd=sen.match(/can't\b[^.]*\bbuild (?:Holdings|Pursuits) that require (\w+)(?:,? or (\w+))? Standing/i);
+    const sd=sen.match(/(?:can't|cannot)\b[^.]*\bbuild (?:Holdings|Pursuits) (?:that|which) require (\w+)(?:,? or (\w+))? Standing/i);
     if(sd){const ds=[sd[1],sd[2]].filter(Boolean);S.placed.filter(p=>!p.fac).forEach(p=>{const u=(R[p.name]||{}).unlock_raw||"";
       if(ds.some(d=>u.includes(d)))out.push(S.faction+": "+p.name+" — "+sen.trim());});return;}
-    if(!/can't (pursue|build)/i.test(sen))return;
+    if(!/(?:can't|cannot) (pursue|build)/i.test(sen))return;
     S.placed.filter(p=>!p.fac).forEach(p=>{const r=R[p.name];
       if(sen.includes(p.name)||types.some(t=>t===r.type&&new RegExp("\\b"+t+" (?:Pursuits|Holdings)","i").test(sen)))out.push(S.faction+": "+p.name+" — "+sen.trim());});});
+  {const dv=S.domains||{},u=+ST.Untested||1,nr=facHit(S,"no_renown_into"),mx=facHit(S,"domain_max");    // Renown → Domain limits
+    if(nr&&(+dv[nr[1]]||0)>u)out.push(S.faction+": no Renown into "+nr[1]+" ("+nr[1]+" "+dv[nr[1]]+")");
+    if(mx&&(+dv[mx[2]]||0)>+mx[1])out.push(S.faction+": "+mx[2]+" "+dv[mx[2]]+" > "+mx[1]);}
   return out;}
 // factions offered: the chosen culture's (CULTURES[*].factions); Self-made = every faction. The current pick always stays listed.
 function cultureFactions(b){const c=cultureOf(b||S),L=c?(CUL[c].factions||[]):[];return L.length?new Set(L):null;}
-function facSelectHTML(){const keep=cultureFactions(S),names=Object.keys(FAC).filter(n=>!keep||keep.has(n)||n===S.faction),fin=names.filter(n=>FAC[n].final),oth=names.filter(n=>!FAC[n].final);
-  const opt=n=>'<option value="'+esc(n)+'"'+(n===S.faction?' selected':'')+'>'+esc(n)+'</option>';
-  return '<select id="facSel" class="facsel" title="faction"><option value="">— faction —</option><optgroup label="Final cut">'+fin.map(opt).join('')+'</optgroup>'+
-    (oth.length?'<optgroup label="Other">'+oth.map(opt).join('')+'</optgroup>':'')+'</select>';}
+// only final-cut factions (FACTIONS[*].final_cut) are offered; a non-final current pick stays listed
+// FAC_ALL (per device): offer every final-cut faction whatever the culture
+let FAC_ALL=false;try{FAC_ALL=localStorage.getItem("renown_facall")==="1";}catch(_){}
+function facOffered(){const keep=FAC_ALL?null:cultureFactions(S);return Object.keys(FAC).filter(n=>n===S.faction||(FAC[n].final&&(!keep||keep.has(n))));}
+// faction picker: a list (not a native select) so each faction's summary shows on hover / focus
+function facPicker(ed,onPick){const w=document.createElement("span");w.className="facpick";const f=FAC[S.faction];
+  const btn=document.createElement("button");btn.type="button";btn.className="facsel facbtn";btn.disabled=!ed;btn.title="faction";
+  btn.innerHTML=f?'<b>'+esc(S.faction)+'</b>':'— faction —';btn.innerHTML+=' <span class="note">▾</span>';w.appendChild(btn);
+  const close=()=>{const m=w.querySelector(".facmenu");if(m)m.remove();document.removeEventListener("mousedown",out,true);};
+  const out=e=>{if(!w.contains(e.target))close();};
+  btn.onclick=()=>{if(w.querySelector(".facmenu")){close();return;}const L=facOffered(),m=document.createElement("div");m.className="facmenu";m.setAttribute("role","listbox");
+    m.innerHTML=(cultureOf(S)?'<label class="fmall note"><input type="checkbox"'+(FAC_ALL?' checked':'')+'> all cultures</label>':'')+
+      '<div class="fmi" data-f="" tabindex="0" role="option"><b>— none —</b></div>'+(L.length?L.map(n=>'<div class="fmi'+(n===S.faction?' on':'')+'" data-f="'+esc(n)+'" tabindex="0" role="option"><b>'+esc(n)+'</b>'+
+      (FAC[n].final?'':' <span class="note">(not final cut)</span>')+(FAC[n].summary?'<div class="fms note">'+esc(FAC[n].summary)+'</div>':'')+'</div>').join(''):'<div class="note fmi0">no final-cut factions for '+esc(S.culture||"")+'</div>');
+    m.onclick=e=>{const it=e.target.closest(".fmi");if(!it)return;close();onPick(it.dataset.f);};
+    {const cb=m.querySelector(".fmall input");if(cb)cb.onchange=()=>{FAC_ALL=cb.checked;try{localStorage.setItem("renown_facall",FAC_ALL?"1":"0");}catch(_){}close();btn.click();};}
+    m.onkeydown=e=>{const it=e.target.closest(".fmi");if(e.key==="Escape"){close();btn.focus();}else if(it&&(e.key==="Enter"||e.key===" ")){e.preventDefault();close();onPick(it.dataset.f);}
+      else if(it&&(e.key==="ArrowDown"||e.key==="ArrowUp")){e.preventDefault();const n=e.key==="ArrowDown"?it.nextElementSibling:it.previousElementSibling;if(n&&n.classList.contains("fmi"))n.focus();}};
+    w.appendChild(m);document.addEventListener("mousedown",out,true);(m.querySelector(".fmi.on")||m.querySelector(".fmi")).focus();};
+  return w;}
 // ---- Culture (view filter, no game effect) + generated Settlement names ----
 const CUL=DATA.cultures||{},CUL_SELF=DATA.cultureSelf||"Self-made",PN=DATA.placeNames||null,CUL_DOMS=["Industry","Prowess","Cunning","Piety"];
 function culSelectHTML(b){const by={};Object.keys(CUL).forEach(n=>{const t=CUL[n].type||"";(by[t]=by[t]||[]).push(n);});
@@ -841,7 +873,8 @@ function nameAllSetts(){let ch=false;(D.players||[]).forEach(p=>{if(!canEdit(p))
 function renderFaction(){const box=document.getElementById("facBox");if(!box)return;const f=FAC[S.faction];
   box.style.display=f?"":"none";
   const was=box.querySelector("details"),open=was?was.open:false;
-  box.innerHTML=f?'<details'+(open?' open':'')+'><summary><b>'+esc(S.faction)+'</b> <span class="note">Difficulty '+esc(f.difficulty)+' · Strength '+esc(f.strength)+'</span></summary>'+
+  box.innerHTML=f?'<details'+(open?' open':'')+'><summary><b>'+esc(S.faction)+'</b> <span class="note">Difficulty '+esc(f.difficulty)+' · Strength '+esc(f.strength)+'</span>'+
+    (f.summary?'<div class="fsum">'+esc(f.summary)+'</div>':'')+'</summary>'+
     '<div class="fm">'+esc(f.body||f.mechanic)+'</div><div class="fk">'+(f.feel?esc(f.feel):'')+
       (f.pair?'<br>Pair: '+esc(f.pair):'')+(f.complement?'<br>Complement: '+esc(f.complement):'')+'</div></details>':'';
 }
@@ -1425,7 +1458,7 @@ function calcMetrics(have,earned,tc){
   Object.keys(S.wonders).forEach(n=>{const on=infraOn(n);eat(WON[n].atoms,on,1);if(on)infraUp+=WON[n].upkeep;});
   {const me=playerOfBoard(S);if(me)S.placed.forEach(q=>{if(!pActive(q)||!settBesieged(me,q.sid))return;
      ((R[q.name]||{}).innate||[]).forEach(a=>{if(a.cat==="craft"&&a.flat&&!a.season)craft-=a.val;});});}   // besieged: no Craft X
-  {const tb=facTypeBonus(S),me=playerOfBoard(S);if(tb)S.placed.forEach(q=>{if(q.fac||!pActive(q)||!tb.types.includes((R[q.name]||{}).type))return;
+  {const tb=facTypeBonus(S),me=playerOfBoard(S);if(tb)S.placed.forEach(q=>{if(q.fac||!pActive(q)||!tb.has(q.name))return;
      if(me&&settBesieged(me,q.sid))return;craft+=tb.craft;});}
   {const me=playerOfBoard(S),pid=me?String(me.id):null,war=playerAtWar(pid),cpg=[];
    srcMatch(S,"faith_war").forEach(x=>{if(!!x.m[2]!==war)faith+=+x.m[1];});
@@ -1455,7 +1488,7 @@ function computeTotals(have,earned,tc){
   set("t_army",fmt(-m.netArmy));set("t_craft",fmt(m.craft));
   set("t_ext",fmt(m.extort)+(m.extTrig?" · "+m.extTrig+" triggered":""));
   set("t_trade",fmt(m.craft*DATA.tradePerCraft)+" g");set("t_infl",fmt(m.infl));set("t_po",fmt(m.faith-m.doubt+poModTotal(S)));
-  const cs0=curSeason(),sa0=((m.seasonAdd||{})[cs0]||0)+(SEASON_DBL_TYPE(cs0)?husbandryGoldFor(S,cs0):0),wt=winterTax(S),tx0=cs0==="Winter"?wt.total:0,tr0=tradeIncome(S,cs0),net0=m.baseNet+sa0+tx0+tr0.total;
+  const cs0=curSeason(),sa0=((m.seasonAdd||{})[cs0]||0)+seasonDblGold(S,cs0),wt=winterTax(S),tx0=cs0==="Winter"?wt.total:0,tr0=tradeIncome(S,cs0),net0=m.baseNet+sa0+tx0+tr0.total;
   const ng=document.getElementById("netgold");ng.textContent=fmt(net0);
   ng.className="n "+(net0<0?"neg":net0>0?"pos":"");
   treasLive();{const tp=document.getElementById("treasPT");if(tp)tp.textContent=fmt(net0)+" / turn";}
@@ -1466,7 +1499,7 @@ function computeTotals(have,earned,tc){
     tr0.total?"trade "+fmt(tr0.total)+" ("+tr0.lines.join(", ")+"; Host "+(hostP()?hostP().name:"?")+")":""].filter(Boolean).join(" · ");
   const sg=document.getElementById("seasons");sg.innerHTML="";
   const cse=curSeason();
-  SEASONS.forEach(s=>{const v=m.baseNet+m.seasonAdd[s]+(s==="Winter"?wt.total:0)+tradeIncome(S,s).total;const c=document.createElement("div");c.className="scell"+(s===cse?" cur":"");
+  SEASONS.forEach(s=>{const v=m.baseNet+m.seasonAdd[s]+seasonDblGold(S,s)+(s==="Winter"?wt.total:0)+tradeIncome(S,s).total;const c=document.createElement("div");c.className="scell"+(s===cse?" cur":"");
     c.title=s+": "+fmt(v)+" gold";c.innerHTML='<div class="sn">'+s+'</div><div class="sv" style="color:'+(v<0?cvar("--upkeep"):v>m.baseNet?cvar("--income"):cvar("--ink"))+'">'+fmtK(v)+'</div>';sg.appendChild(c);});
   const leg=document.getElementById("legend");leg.innerHTML="";
   Object.keys(PHASE_LABEL).forEach(ph=>{const li=document.createElement("div");li.className="li";
@@ -1512,7 +1545,12 @@ function tradeRaw(b,season){const sea=season||curSeason(),out={total:0,lines:[]}
   if(DATA.noTradeSeason&&sea===DATA.noTradeSeason)return out;
   const me=D.players.find(p=>p.board===b),h=hostP();if(!me||!h)return out;
   const rate=DATA.tradePerCraft||100;
-  D.players.forEach(q=>{if(sameP(q,me))return;const x=effPair(me.id,q.id);if(x.household||!x.trade||x.war)return;
+  // "No player may trade unless they first hold a Trade Agreement with you, or are At War with you" (Heart of Trade)
+  const gates=D.players.filter(g=>facHit(g.board,"trade_gate")),
+    gateFor=(p,g)=>{if(sameP(g,p))return true;const y=effPair(p.id,g.id);return !!y.trade||(!!facHit(g.board,"trade_gate")[1]&&!!y.war);},
+    gateOK=p=>gates.every(g=>gateFor(p,g));
+  if(!gateOK(me)){const miss=gates.filter(g=>!gateFor(me,g));out.lines.push("no trade: no Trade Agreement with "+miss.map(g=>g.name+" ("+g.board.faction+")").join(", "));return out;}
+  D.players.forEach(q=>{if(sameP(q,me))return;const x=effPair(me.id,q.id);if(x.household||!x.trade||x.war)return;if(!gateOK(q))return;
     if(!(sameP(h,me)||sameP(h,q)))return;if(!hasRoad(me.id)||!hasRoad(q.id))return;
     const g=rate*(boardMetrics(h.board).craft||0);out.total+=g;out.lines.push(q.name+" "+(g>=0?"+":"")+g);});
   return out;}
@@ -1523,7 +1561,7 @@ function goldBreak(b,season){return withBoard(b,()=>{const have=new Set(Object.k
   Object.keys(S.infra||{}).filter(infraOn).forEach(n=>{const g=gAt(INFRA[n].atoms,1);if(g){inc.push([n,g]);it+=g;}});
   Object.keys(S.wonders||{}).filter(infraOn).forEach(n=>{const g=gAt(WON[n].atoms,1);if(g){inc.push([n,g]);it+=g;}});
   if(m.gold-it)inc.push(["Other",m.gold-it]);if(m.scale)inc.push(["Scaling gold",m.scale]);
-  const sa=((m.seasonAdd||{})[sea]||0)+(SEASON_DBL_TYPE(sea)?husbandryGoldFor(S,sea):0),tx=sea==="Winter"?winterTax(S).total:0,tr=tradeIncome(S,sea).total;
+  const sa=((m.seasonAdd||{})[sea]||0)+seasonDblGold(S,sea),tx=sea==="Winter"?winterTax(S).total:0,tr=tradeIncome(S,sea).total;
   if(sa)inc.push([sea,sa]);if(tx)inc.push(["Winter tax",tx]);if(tr)inc.push(["Trade",tr]);
   const nh=S.placed.filter(q=>pursuitUpkeep(q)>0).length,ni=Object.keys(S.infra||{}).concat(Object.keys(S.wonders||{})).filter(infraOn).length;
   if(m.pursUp)cost.push(["Holdings ×"+nh,-m.pursUp]);if(m.infraUp)cost.push(["Infrastructure & Wonders ×"+ni,-m.infraUp]);
@@ -1547,12 +1585,21 @@ function goldBreakHTML(g){const row=([k,v])=>'<div class="kv"><span class="k">'+
     '<div class="lbl">COSTS</div>'+(g.cost.length?g.cost.map(row).join(""):'<div class="note">none</div>')+
     '<div class="kv tot"><span class="k">Net</span><span class="val '+(g.net<0?"neg":"pos")+'">'+gbV(g.net)+'</span></div>';}
 function goldBreakTxt(g){return ["Gold "+g.sea+": net "+gbV(g.net)].concat(g.inc.map(([k,v])=>"  "+k+" "+gbV(v))).concat(g.cost.map(([k,v])=>"  "+k+" "+gbV(v))).join("\n");}
-function seasonNet(b,season){const m=boardMetrics(b),sea=season||curSeason(),sa=((m.seasonAdd||{})[sea]||0)+(SEASON_DBL_TYPE(sea)?husbandryGoldFor(b,sea):0),tx=sea==="Winter"?winterTax(b).total:0,tr=tradeIncome(b,sea).total;
+function seasonNet(b,season){const m=boardMetrics(b),sea=season||curSeason(),sa=((m.seasonAdd||{})[sea]||0)+seasonDblGold(b,sea),tx=sea==="Winter"?winterTax(b).total:0,tr=tradeIncome(b,sea).total;
   return {net:m.net+sa+tx+tr,base:m.net,seasonal:sa,tax:tx,trade:tr,m};}
 // metrics for any board (used by dashboards)
 // direct gold income from active Husbandry Holdings (SEASONS: "<Type> Income is doubled")
 function husbandryGoldFor(b,sea){const t=SEASON_DBL_TYPE(sea);if(!t)return 0;return withBoard(b,()=>{let g=0;const earned=SIMPLE?{}:computeEarned(new Set(Object.keys(PC))).earned;
   Object.keys(PC).forEach(n=>{const r=R[n]||{};if(r.type!==t)return;const eat=at=>(at||[]).forEach(a=>{if(a.cat==="gold"&&a.flat&&!a.season&&!a.scale)g+=a.val*PC[n];});eat(r.innate);if(earned[n])eat(r.mastery);});return g;});}
+// SEASONS "Income from Holdings in <Settlement tier>s is doubled" (Fall: Hamlets): each active Holding placed in a Settlement of
+// that tier earns its unconditional gold (+X, Innate and earned Mastery) and its gold for this Season once more. Scaling gold not included.
+function SEASON_DBL_TIER(sea){const m=/^Income from Holdings in (\w+?)s? (?:are|is) doubled/i.exec(((SEAS[sea]||{}).effect)||"");if(!m)return null;
+  const t=m[1].charAt(0).toUpperCase()+m[1].slice(1).toLowerCase();return (DATA.settlements||{})[t]?t:null;}
+function tierGoldFor(b,sea){const t=SEASON_DBL_TIER(sea);if(!t)return 0;return withBoard(b,()=>{const earned=SIMPLE?{}:computeEarned(new Set(Object.keys(PC))).earned;let g=0;
+  const gAt=at=>(at||[]).reduce((a,x)=>a+(x.cat==="gold"&&x.flat&&!x.scale&&(!x.season||x.season===sea)?x.val:0),0);
+  (S.placed||[]).forEach(p=>{if(p.fac||!pActive(p)||p.sid==null)return;const st=(S.settlements||[]).find(x=>String(x.id)===String(p.sid));if(!st||st.tier!==t)return;
+    const r=R[p.name]||{};g+=gAt(r.innate)+(earned[p.name]&&r.mastery_raw?gAt(r.mastery):0);});return g;});}
+function seasonDblGold(b,sea){return husbandryGoldFor(b,sea)+tierGoldFor(b,sea);}
 function SEASON_DBL_TYPE(sea){const m=/^(\w[\w ]*?) Income is doubled/i.exec(((SEAS[sea]||{}).effect)||"");return m?m[1]:null;}
 function boardMetrics(b){
   return withBoard(b,()=>{const have=new Set(Object.keys(PC));const {earned,tc}=computeEarned(have);

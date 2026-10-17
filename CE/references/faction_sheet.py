@@ -406,7 +406,7 @@ def _rows_from_renown_data():
             "Feel": f.get("feel", ""),
             "Difficulty": f.get("difficulty", ""),
             "Strength": f.get("strength", ""),
-            "Mechanic": f.get("mechanic", ""),
+            "Mechanic": (f.get("mechanic_name", "") + ": " if f.get("mechanic_name") else "") + f.get("mechanic", ""),
             "Pair": f.get("pair", ""),
             "Complement": f.get("complement", ""),
         })

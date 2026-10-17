@@ -34,7 +34,7 @@ ACTIONS = rd.ACTIONS
 WONDERS = getattr(rd, "WONDERS", {})
 FACT    = getattr(rd, "FACTIONS", {})
 DBOARD  = getattr(rd, "DOMAIN_BOARD", {})
-FSUM    = getattr(rd, "FACTION_SUMMARIES", {})
+FSUM    = {k: v.get("summary", "") for k, v in FACT.items() if isinstance(v, dict)}
 MONS    = {k: v for k, v in rd.NODES.items() if v.get("monument") or v.get("type") == "Monument"}
 
 DOMS  = ["Industry", "Prowess", "Cunning", "Piety"]
@@ -79,7 +79,7 @@ def validate():
         for k, _ in AXES:
             if k not in c.get("radar", {}): warn.append(f"{cn}: radar missing {k}")
     for f in FACT:
-        if f not in FSUM: warn.append(f"faction {f!r} has no FACTION_SUMMARIES entry")
+        if not FSUM.get(f): warn.append(f"faction {f!r} has no FACTIONS summary")
     for f in FACT:
         if f not in seen: warn.append(f"faction {f!r} not mapped to a culture")
     for w in warn: print("  WARN", w)
@@ -127,8 +127,7 @@ def unlock_short(s):
 
 
 def mech_name(f):
-    m = str((FACT.get(f) or {}).get("mechanic", ""))
-    return m.split(":")[0].strip() if ":" in m else disp(f)
+    return str((FACT.get(f) or {}).get("mechanic_name", "")) or disp(f)
 
 
 def standing_title(d, lvl):

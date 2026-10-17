@@ -88,6 +88,8 @@
 <path d="M492,272 L539,272" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M664,272 L711,272" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M664,272 L711,272" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M836,272 L883,272" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M836,272 L883,272" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <rect x="30" y="260" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="260" width="5" height="24" fill="#6a6a72"/>
 <text x="39" y="275" font-size="8.2" fill="#2b2620">Apiary</text>
@@ -100,10 +102,13 @@
 <rect x="546" y="260" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="546" y="260" width="5" height="24" fill="#C6A024"/>
 <text x="555" y="275" font-size="8.2" fill="#2b2620">Pilgrimage Site</text>
-<rect x="718" y="260" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#C6A024" stroke-width="2.2"/>
+<rect x="718" y="260" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="718" y="260" width="5" height="24" fill="#C6A024"/>
-<text x="727" y="275" font-size="8.2" fill="#2b2620">Eternal Sepulchre</text>
-<polygon points="828.0,268.4 831.6,272.0 828.0,275.6 824.4,272.0" fill="#8a6d1a"/>
+<text x="727" y="275" font-size="8.2" fill="#2b2620">Unforgotten Shrine</text>
+<rect x="890" y="260" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#C6A024" stroke-width="2.2"/>
+<rect x="890" y="260" width="5" height="24" fill="#C6A024"/>
+<text x="899" y="275" font-size="8.2" fill="#2b2620">Eternal Sepulchre</text>
+<polygon points="1000.0,268.4 1003.6,272.0 1000.0,275.6 996.4,272.0" fill="#8a6d1a"/>
 <path d="M148,334 L195,334" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M148,334 L195,334" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M320,334 L367,334" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>

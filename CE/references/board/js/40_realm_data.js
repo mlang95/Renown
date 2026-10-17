@@ -223,7 +223,7 @@ function activeTimersHTML(){const T=realmTimers(),B_=boardTimerRows();
   return '<div class="tot"><h3 style="font-size:13px">Active timers</h3>'+
     (T.length?'<table class="dtable ttab"><tbody>'+T.map((t,i)=>'<tr'+(t.n<=0?' class="broll"':'')+'><td>'+esc(t.type)+'</td><td>'+esc(t.label||'')+siegeResolveHTML(t,i)+'</td><td class="num"><button class="rtd" data-i="'+i+'" data-d="-1">−</button> <b>'+t.n+'</b> <button class="rtd" data-i="'+i+'" data-d="1">+</button></td><td><button class="rtx" data-i="'+i+'">✕</button></td></tr>').join('')+'</tbody></table>':'<div class="note">No realm timers.</div>')+
     (T.length?'<div class="bcrow" style="margin-top:6px"><button id="rtTick">−1 all</button><span class="note">Sieges don\'t tick in Winter.</span></div>':'')+
-    (B_.length?'<div class="lbl" style="margin-top:8px">Build & Repair (set on each Board)</div><table class="dtable ttab"><tbody>'+B_.map(r=>'<tr><td><span class="pdot" style="background:'+r[0].color+'"></span>'+esc(r[0].name)+'</td><td>'+esc(r[1])+'</td><td>'+kwify(r[2])+'</td><td class="num"><b>'+r[3]+'</b></td></tr>').join('')+'</tbody></table>':'')+
+    (B_.length?'<div class="lbl" style="margin-top:8px">Build & Repair (set on each Board)</div><table class="dtable ttab"><tbody>'+B_.map(r=>'<tr><td>'+pTok(r[0],12)+esc(r[0].name)+'</td><td>'+esc(r[1])+'</td><td>'+kwify(r[2])+'</td><td class="num"><b>'+r[3]+'</b></td></tr>').join('')+'</tbody></table>':'')+
     '</div>';}
 function seasonsHTML(){const cs=curSeason();
   return '<div class="tot" style="margin-top:12px"><h3 style="font-size:13px">Season <button id="seaPrev">◂</button> <b>'+esc(cs)+'</b> — '+esc((SEAS[cs]||{}).name||'')+' <button id="seaNext">▸</button></h3>'+
@@ -304,9 +304,9 @@ function diploHTML(){
   const d=diplo(),P=D.players;
   let h='<div class="tot" style="margin-top:12px"><h3 style="font-size:13px">Diplomacy</h3>'+
     '<div class="note" style="margin-bottom:6px">'+Object.keys(DCODE).map(k=>'<b>'+k+'</b> '+DCODE[k]).join(' · ')+'</div>'+
-    '<div style="overflow-x:auto"><table class="dtable"><thead><tr><th></th>'+P.map(p=>'<th><span class="pdotsm" style="background:'+p.color+'"></span> '+esc(p.name)+'</th>').join('')+'</tr></thead><tbody>';
+    '<div style="overflow-x:auto"><table class="dtable"><thead><tr><th></th>'+P.map(p=>'<th>'+pTok(p,15)+' '+esc(p.name)+'</th>').join('')+'</tr></thead><tbody>';
   P.forEach(r=>{
-    h+='<tr><th style="text-align:left"><span class="pdotsm" style="background:'+r.color+'"></span> '+esc(r.name)+'</th>';
+    h+='<tr><th style="text-align:left">'+pTok(r,15)+' '+esc(r.name)+'</th>';
     P.forEach(c=>{
       if(r.id===c.id){const g=d.member[r.id],sz=d.suzerain[r.id];
         h+='<td class="note" style="background:var(--chip);text-align:center">self'+(g?'<br>AL '+esc(allianceLabel(g)):'')+(sz?'<br>VS of '+esc(pname(sz)):'')+'</td>';return;}
@@ -347,7 +347,7 @@ function diploHTML(){
   h+='<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:8px">'+P.map(p=>{
       const g=d.member[p.id]||"",opts=Object.keys(d.alliances).map(k=>'<option value="'+k+'"'+(k===g?' selected':'')+(!allianceOK(d.alliances[k].type)?' style="color:var(--upkeep)"':'')+'>'+esc(allianceLabel(k))+'</option>').join('');
       const sz=d.suzerain[p.id]||"",ig=d.member[topSuz(p.id)];
-      return '<div><span class="pdotsm" style="background:'+p.color+'"></span> '+esc(p.name)+'<br>'+
+      return '<div>'+pTok(p,15)+' '+esc(p.name)+'<br>'+
         (sz?'<span class="note">inherits '+(ig?esc(allianceLabel(ig)):'no alliance')+'</span> ':'<select class="dal" data-p="'+p.id+'"><option value="">no alliance</option>'+opts+''+["Military","Defensive"].map(t=>'<option value="+'+t+'"'+(allianceOK(t)?'':' style="color:var(--upkeep)"')+'>+ new '+t+(allianceOK(t)?'':' ('+allianceEra(t)+')')+'</option>').join('')+'</select> ')+
         '<select class="dvs" data-p="'+p.id+'"><option value="">not a vassal</option>'+P.filter(q=>q.id!==p.id).map(q=>'<option value="'+q.id+'"'+(String(sz)===String(q.id)?' selected':'')+'>vassal of '+esc(q.name)+'</option>').join('')+'</select></div>';}).join('')+'</div>'+
     (()=>{const bad=Object.keys(d.alliances).filter(k=>!allianceOK(d.alliances[k].type));

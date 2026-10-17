@@ -358,9 +358,6 @@ document.addEventListener("click",e=>{const a=e.target.closest("[data-tac]");if(
 function battleRulesHTML(){let h=tacticExplainHTML();
   h+='<details class="tot"><summary><b>Rules — Skirmish steps</b></summary><div class="note" style="margin-top:6px">'+mdLite(BT.seize)+'<br><br>'+mdLite(BT.steps)+'<br><br><b>Resolve Battle</b><br>'+mdLite(BT.resolve)+
     ((BT.tacticalGlobal||[]).length?'<br><br>'+BT.tacticalGlobal.map(esc).join('<br>'):'')+'</div></details>';
-  h+='<details class="tot"><summary><b>Tactic matrix</b> <span class="note">(row = A, column = B; cell = A mods | B mods)</span></summary><div style="overflow-x:auto"><table class="dtable" style="font-size:11px"><thead><tr><th>A \\ B</th>'+
-    BT.tactics.map(t=>'<th>'+esc(t)+'</th>').join('')+'</tr></thead><tbody>'+BT.tactics.map(a=>'<tr><th>'+esc(a)+'</th>'+BT.tactics.map(b=>{const c=TMX[a+"|"+b];
-      return '<td>'+(c?fmtMod(c[0])+' | '+fmtMod(c[1]):'')+'</td>';}).join('')+'</tr>').join('')+'</tbody></table></div></details>';
   return h;}
 function renderBattle(){
   const host=document.getElementById("viewBattle"),B=battle();
@@ -548,7 +545,7 @@ function edictBoardHTML(){
   const P=D.players,tot=P.map(edictTotal),best=Math.max(0,...tot);
   let h='<div class="tot" style="max-width:1000px"><h3 style="font-size:13px">Edicts — scoreboard</h3>'+
     '<div style="overflow-x:auto"><table class="dtable edb"><thead><tr><th>Edict</th>'+
-    P.map((p,i)=>'<th style="min-width:130px"><span class="pdotsm" style="background:'+p.color+'">'+(i+1)+'</span> '+esc(p.name)+'</th>').join('')+
+    P.map((p,i)=>'<th style="min-width:130px">'+pTok(p,15)+' <span class="note">'+(i+1)+'</span> '+esc(p.name)+'</th>').join('')+
     '</tr></thead><tbody>';
   EDICT_NAMES.forEach((name,ek)=>{const e=EDICTS[name],tl=edictTimerLen(e);
     h+='<tr><td title="'+esc(e.requirement||"")+'"><b>'+esc(name)+'</b><div class="note">'+esc(e.type||"")+(tl?' · '+tl+'-turn timer':'')+'</div></td>';
@@ -602,17 +599,22 @@ function domTrackHTML(d,ps,editable){const TH={[RIS]:"Rising",[EST]:"Established
     h+='<div class="dbc'+(TH[v]?' th':'')+(one!=null&&v<=one?' on':'')+'"'+(editable?' data-dset="'+d+'|'+v+'"':'')+' title="'+esc(d+" "+v+(TH[v]?" · "+TH[v]:""))+'"><span class="dbn">'+v+'</span>'+
       (one==null&&at.length?'<span class="dbm">'+at.map(([p,i])=>pMark(p,i)).join('')+'</span>':'')+(TH[v]?'<span class="dbl">'+TH[v]+'</span>':'')+'</div>';}
   return h+'</div>';}
-function standingEffectsHTML(){const ps=D.players,ST3=["Rising","Established","Sovereign"];
-  let h='<div class="tot dboard"><h3 style="font-size:13px">Standings</h3>';
-  const un=ps.filter(p=>DOMAINS.some(d=>((p.board.domains||{})[d]||0)<1));
-  DOMAINS.forEach(d=>{h+='<div class="dbrow"><div class="dbname" style="--dc:'+DOMC[d]+'">'+d+'</div>'+domTrackHTML(d,ps,false)+'</div>';});
-  h+='<table class="dtable dbfx"><thead><tr><th>Domain</th>'+ST3.map(t=>'<th>'+t+' ('+STAND_THRESH[t]+')</th>').join('')+'</tr></thead><tbody>'+
-    DOMAINS.map(d=>'<tr style="--dc:'+DOMC[d]+'"><th class="dbname">'+d+'</th>'+ST3.map(t=>{const eff=String((DBOARD[d]||{})[t]||""),ix=eff.indexOf(":"),
-      who=ps.map((p,i)=>[p,i]).filter(([p])=>((p.board.domains||{})[d]||0)>=STAND_THRESH[t]),bfx=(BT.standingFx||{})[d+"|"+t];
-      return '<td class="'+(who.length?'on':'')+'"><div class="dbe">'+(ix>0?'<b>'+esc(eff.slice(0,ix))+'</b>'+esc(eff.slice(ix)):esc(eff))+'</div>'+
-        (bfx?'<div class="note">Battle: '+esc(bfx)+'</div>':'')+(who.length?'<div class="dbm">'+who.map(([p,i])=>pMark(p,i)).join('')+'</div>':'')+'</td>';}).join('')+'</tr>').join('')+
-    '</tbody></table>';
-  return h+'</div>';}
+// Standings: one table — each Domain row's three Standings, the track points underlaid behind each effect (Rising 1–3,
+// Established 4–6, Sovereign 7–10). Points up to the viewer's value fill; the cell lights when the viewer reaches its threshold.
+// Every player's marker sits under its point; "held" = some player has reached it.
+function standingEffectsHTML(){const ps=D.players,me=meP(),ST3=["Rising","Established","Sovereign"],lo={Rising:1,Established:RIS+1,Sovereign:EST+1};
+  let h='<div class="tot dboard"><h3 style="font-size:13px">Standings'+(me?' <span class="note">· lit = '+esc(me.name)+'</span>':'')+'</h3>'+
+    '<div class="dbxw"><table class="dtable dbfx dbx"><thead><tr><th>Domain</th>'+ST3.map(t=>'<th>'+t+' ('+STAND_THRESH[t]+')</th>').join('')+'</tr></thead><tbody>';
+  DOMAINS.forEach(d=>{const mv=me?((me.board.domains||{})[d]||0):0;
+    h+='<tr style="--dc:'+DOMC[d]+'"><th class="dbname">'+d+'</th>'+ST3.map(t=>{const a=lo[t],z=STAND_THRESH[t],n=z-a+1,eff=String((DBOARD[d]||{})[t]||""),ix=eff.indexOf(":"),
+      held=ps.some(p=>((p.board.domains||{})[d]||0)>=z),lit=mv>=z,bfx=(BT.standingFx||{})[d+"|"+t];let u='',mk='';
+      for(let v=a;v<=z;v++){const at=ps.filter(p=>((p.board.domains||{})[d]||0)===v);
+        u+='<span class="dbu'+(v<=mv?' f':'')+(v===z?' th':'')+'">'+v+'</span>';
+        mk+='<span class="dbum">'+at.map(p=>pMark(p,D.players.indexOf(p))).join('')+'</span>';}
+      return '<td class="dbxc'+(held?' on':'')+(lit?' lit':'')+'"><div class="dbug" style="--n:'+n+'">'+u+'</div>'+
+        '<div class="dbe">'+(ix>0?'<b>'+esc(eff.slice(0,ix))+'</b>'+esc(eff.slice(ix)):esc(eff))+'</div>'+(bfx?'<div class="note">Battle: '+esc(bfx)+'</div>':'')+
+        '<div class="dbmk" style="--n:'+n+'">'+mk+'</div></td>';}).join('')+'</tr>';});
+  return h+'</tbody></table></div></div>';}
 function renderRenown(){const host=document.getElementById("viewRenown");if(!host)return;
   host.innerHTML=edictBoardHTML();wireEdicts(document.getElementById("viewRealm")||host);}
 

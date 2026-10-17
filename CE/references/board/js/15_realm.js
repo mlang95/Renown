@@ -78,7 +78,7 @@ function realmTableHTML(R){const sm=seatMap(),n=tSeats(),me=meP(),hp=hostP(),sp=
       else{const v=E.votes.find(q=>sameP(q.who,p));st=v?tVoteTxt(v):sameP(p,cw)?'<b>to act</b> <span class="tbcd"></span>':'<span class="note">…</span>';}}
     const cls=["rt-row"];if(sameP(p,cw))cls.push("act");if(sameP(p,me))cls.push("me");
     rows+='<tr class="'+cls.join(" ")+'" data-do="spectate" data-who="'+p.id+'"><td class="num">'+(i+1)+'</td>'+
-      '<td class="rt-p" data-hov="'+p.id+'">'+heraldOf(p,16)+tName(p)+
+      '<td class="rt-p" data-hov="'+p.id+'">'+tName(p)+
         (sameP(p,hp)?' <span class="tb-b h" title="'+(isSpring()?'Host token — no Host in Spring':'Host')+'">'+(isSpring()?'Host token':'♔ Host')+'</span>':'')+
         (sameP(p,sp)?' <span class="tb-b s" title="Starting player">1st</span>':'')+(sameP(p,me)?' <span class="tb-b">you</span>':'')+
         ((!sl&&sameP(p,me))||ADMIN?' <button data-do="stand" data-who="'+p.id+'" class="tb-mini">stand</button>':'')+'</td>'+
@@ -275,7 +275,8 @@ DO.tie=el=>{TB().councilTie={dom:el.dataset.dom,turn:tTurn(),ts:tnow()};rlCommit
 DO.decl=el=>{const c=tCurW(pOf(el));c.decl=c.decl||{};c.decl.n=c.decl.n||{};const d=el.dataset.dom;c.decl.n[d]=Math.max(0,(+c.decl.n[d]||0)+(+el.dataset.dv));rlCommit();};
 DO.declock=el=>{const c=tCurW(pOf(el));c.decl=c.decl||{n:{}};c.decl.lock=tnow();rlCommit();};
 DO.declunlock=el=>{const c=tCurW(pOf(el));if(c.decl)delete c.decl.lock;rlCommit();};
-DO.vote=el=>{const p=pOf(el),E=tSim().curEnvoy;if(!E)return;const x=el.dataset.a==="A"?0:+(document.getElementById("tbAmt")||{}).value||1;tCurW(p).votes[E.id]={a:el.dataset.a,x,ts:tnow()};rlCommit();};
+DO.vote=el=>{const p=pOf(el),E=tSim().curEnvoy;if(!E)return;const x=el.dataset.a==="A"?0:+(document.getElementById("tbAmt")||{}).value||1;tCurW(p).votes[E.id]={a:el.dataset.a,x,ts:tnow()};
+  if(x>0&&isSpring())flash("Spring — players don't spend Influence tokens");rlCommit();};   // SEASONS.Spring: flag, not a lock
 DO.pv=el=>{const c=tCurW(pOf(el)),id=el.dataset.env,a=el.dataset.a,old=c.votes[id];if(!a)delete c.votes[id];else c.votes[id]={a,x:a==="A"?0:Math.max(1,+(old&&old.x)||1),ts:tnow()};rlCommit();};
 DO.pvx=el=>{const p=pOf(el),c=tCurW(p),v=c.votes[el.dataset.env];if(!v||v.a==="A")return;
   const E2=tPlan(tPhase(),tOrder(),tSim().councilDom).find(x=>x.id===el.dataset.env),capv=E2?voteCap(p,E2.dom||"Prowess",E2.council):99;
@@ -333,7 +334,7 @@ function turnLogItems(R){const T=tTurn(),H=TB().hist||{},out=[],me=meP(),idOf=na
       add(t,"envoys",[p.id],esc(p.name)+' · '+esc(a.dom||"Council")+' · <b class="'+tOutCls(a.out)+'">'+esc(a.out)+'</b>'+(a.act?' · '+esc(a.act)+(a.sub?' ('+esc(a.sub)+')':''):'')+((a.fx||[]).length?'<div class="note">'+a.fx.map(kwify).join(' · ')+'</div>':''));});});
     sumOf(t).forEach(x=>{if(x.k==="Envoy"&&t===T)return;const ty=x.k==="Bandits"?"bandits":x.k==="Timers"||x.k==="Empire"?"timers":x.k==="Envoy"?"envoys":"notice";
       const who=D.players.filter(p=>String(x.t).includes(p.name)).map(p=>p.id);add(t,ty,who,'<span class="tb-b">'+esc(x.k)+'</span> '+kwify(x.t));});
-    const h=H[t];if(h&&h.rows)h.rows.forEach(r=>add(t,"timers",[r.pid],'<span class="pdot" style="background:'+r.color+'"></span><b>'+esc(r.name)+'</b> end of turn: Gold '+(r.net<0?'':'+')+(+r.net||0).toLocaleString()+' · PO '+r.p0+' → '+r.p1+((r.done||[]).length?' · '+r.done.map(kwify).join(' · '):'')));});
+    const h=H[t];if(h&&h.rows)h.rows.forEach(r=>add(t,"timers",[r.pid],pTok(pById(r.pid)||r,12)+'<b>'+esc(r.name)+'</b> end of turn: Gold '+(r.net<0?'':'+')+(+r.net||0).toLocaleString()+' · PO '+r.p0+' → '+r.p1+((r.done||[]).length?' · '+r.done.map(kwify).join(' · '):'')));});
   (D.chron||[]).filter(e=>turns.includes(e.t)).forEach(e=>add(e.t,"story",[],'<span class="tb-b">'+esc(chronDate(e))+'</span> '+esc(e.txt)));
   D.players.forEach(p=>(p.board.act||[]).filter(e=>turns.includes(e.turn)).forEach(e=>add(e.turn,"edits",[p.id],'<span class="note">'+new Date(e.ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})+' · '+esc(p.name)+(e.by?' (by '+esc(e.by)+')':'')+'</span> '+e.lines.map(kwify).join(' · '))));
   return out;}

@@ -207,7 +207,7 @@ def envoy_fx(raw):
         m = re.search(r"(" + _DOMS + r") Envoys use your (" + _DOMS + r") Standing for their innate", c, re.I)
         if m: out.append({"k": "domAs", "dom": m.group(2).title(), "for": m.group(1).title()}); continue
         # "can't be in an Alliance" / "cannot form alliances" / "can't join Alliances" / "No Alliances" (flag only)
-        if re.search(r"(?:can(?:no|')t|may not) (?:be in an?|be a member of an?|form|join) Alliances?\b|\bno Alliances\b", c, re.I): out.append({"k": "noAlliance"}); continue
+        if re.search(r"(?:can(?:no|')t|may not) (?:be in an?|be a member of an?|form|join(?: an?)?) Alliances?\b|\bno Alliances\b", c, re.I): out.append({"k": "noAlliance"}); continue
         m = re.search(r"(?:with lower (" + _DOMS + r") (?:value|Standing) )?can't Oppose your (" + _DOMS + r") Envoys", c, re.I)
         if m:
             f = {"k": "noOppose", "dom": m.group(2).title()}
@@ -1033,7 +1033,8 @@ def main():
         siege={"calculus": ns.get("SIEGE_CALCULUS", {}), "sources": ns.get("SIEGE_SOURCE_VALUES", {})},
         factions={k: {"final": bool(v.get("final_cut")), "difficulty": v.get("difficulty", ""), "strength": v.get("strength", ""),
                       "feel": v.get("feel", ""), "mechanic": v.get("mechanic", ""), "pair": v.get("pair", ""), "complement": v.get("complement", ""),
-                      "fx": envoy_fx(v.get("mechanic", "")), "body": ns["faction_body"](k) if "faction_body" in ns else v.get("mechanic", "")}
+                      "fx": envoy_fx(v.get("mechanic", "")), "body": ns["faction_body"](k) if "faction_body" in ns else v.get("mechanic", ""),
+                      "mname": v.get("mechanic_name", ""), "summary": v.get("summary", "")}
                   for k, v in ns.get("FACTIONS", {}).items()},
         cultures={k: {"type": v.get("type", ""), "domains": list(v.get("domains", [])), "monuments": list(v.get("monuments", [])),
                       "wonders": list(v.get("wonders", [])), "factions": list(v.get("factions", []))} for k, v in ns.get("CULTURES", {}).items()},

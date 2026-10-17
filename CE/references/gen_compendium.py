@@ -57,7 +57,8 @@ def infra_tables():
     return infra, wonders
 
 def faction_rows():
-    return [[n, f.get("mechanic", "")] for n, f in rd.FACTIONS.items()]
+    return [[n, (f.get("mechanic_name", "") + ": " if f.get("mechanic_name") else "") + f.get("mechanic", "")]
+            for n, f in rd.FACTIONS.items()]
 
 def settlement_rows():
     sea = any(v.get("sea_variant") for v in rd.SETTLEMENTS.values())      # no column when no Settlement has a sea variant (SIMPLE)

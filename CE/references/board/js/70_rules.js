@@ -40,10 +40,14 @@ function actRestrict(owner,action,target){const a=(DATA.actions||{})[action]||{}
   if(target&&a.domain==="Industry"){const bs=(target.board.settlements||[]).filter(s=>settBesieged(target,s.id));
     if(bs.length)out.push(target.name+": "+bs.map(s=>s.name||s.tier).join(", ")+" besieged — Industry actions can't target "+(bs.length>1?"them":"it"));}
   if(target)srcMatch(target.board,"cant_target").forEach(x=>{if(x.m[1].toLowerCase().includes(action.toLowerCase()))out.push(target.name+" ("+x.n+"): can't be targeted by "+action);});
+  if(target){const h=facHit(target.board,"cant_on_you");if(h&&h[1].toLowerCase().includes(action.toLowerCase()))out.push(target.name+" ("+target.board.faction+"): can't be targeted by "+action);}
+  D.players.forEach(q=>{if(sameP(q,owner)||!sameAlliance(String(q.id),String(owner.id)))return;const h=facHit(q.board,"ally_cant");
+    if(h&&h[1].toLowerCase().includes(action.toLowerCase()))out.push(q.name+" ("+q.board.faction+"): your Alliance can't perform "+action);});
   return out;}
 function actRiders(owner,action,target){const a=(DATA.actions||{})[action]||{},dom=a.domain||"",out=[];
   srcMatch(owner.board,"rider_extra").forEach(x=>{if(x.m[2].toLowerCase()===dom.toLowerCase()||/piety actions cause/i.test(x.m[1])&&dom==="Piety")out.push(x.n+": "+x.m[1]);});
   srcMatch(owner.board,"rider_your_extra").forEach(x=>{if(x.m[2].toLowerCase()===dom.toLowerCase())out.push(x.n+": "+x.m[1]);});
+  srcMatch(owner.board,"basilica_amp").forEach(x=>{if(x.m[1].toLowerCase()===dom.toLowerCase())out.push(x.n+": Faith +"+x.m[2]+" more where it gives Faith, Doubt +"+x.m[3]+" more where it gives Doubt");});
   srcMatch(owner.board,"no_envoy_cost").forEach(x=>{if(x.m[1].toLowerCase()===dom.toLowerCase())out.push(x.n+": no cost");});
   D.players.forEach(q=>srcMatch(q.board,"doubt_all_plus_t").forEach(x=>out.push(q.name+" · "+x.n+": "+x.m[1])));
   if(target){srcMatch(target.board,"doubt_target_minus_t").forEach(x=>{if(!x.m[2]||x.m[2].toLowerCase()===dom.toLowerCase())out.push(target.name+" · "+x.n+": "+x.m[1]);});
@@ -335,7 +339,7 @@ function provinceOf(p){const M=mapState(),g=M.grid;if(!g)return new Set();const 
   Object.keys(own).forEach(k=>{if(own[k].has(String(p.id)))s.add(k);});return s;}
 function moveTraits(p){return withBoard(p.board,()=>{const ks=Object.keys(PC).map(n=>"h:"+n).concat(Object.keys(S.infra||{}).filter(infraOn).map(n=>"i:"+n)),fk="F:"+(S.faction||"");
   const any=id=>ks.some(k=>efxOf(k,id).length);
-  return {shipyard:any("shipyard"),bridges:any("bridges"),ignoreTerrain:!!hitOf(fk,"ignore_terrain"),fk};});}
+  return {shipyard:any("shipyard"),bridges:any("bridges"),ignoreTerrain:!!hitOf(fk,"ignore_terrain"),mtnGrass:!!hitOf(fk,"mountain_grass"),fk};});}
 function speedOf(p,a,startK){const parts=[],notes=[],b=p.board,sea=curSeason(),base=+((EQ.retinues[a.retinue]||{}).speed)||0;
   parts.push([a.retinue+" Speed",base]);
   const tr=moveTraits(p),prov=provinceOf(p),inProv=!!startK&&prov.has(startK);
@@ -393,13 +397,14 @@ function moveRange(p,a,startK){const M=mapState(),g=M.grid;if(!g||!startK)return
     while(Q.length){Q.sort((x,y)=>x[0]-y[0]);const [d,k,w]=Q.shift();if(d>best[key(k,w)])continue;
       if(k!==startK&&w!==1&&(!reach[k]||reach[k].cost>d))reach[k]={cost:d,w,from:key(k,w)};
       if(w===2)continue;
-      hexNb(k).forEach(nk=>{const h=V.hex[nk];if(!h)return;if(terrBlocked(h.t))return;if(nk!==startK&&blockedX(nk,ex))return;
-        const water=terrWaterStop(h.t)&&!waterOK(nk),pen=tr.ignoreTerrain?0:terrPen(h.t);
+      hexNb(k).forEach(nk=>{const h=V.hex[nk];if(!h)return;const ht=tr.mtnGrass&&h.t==="mountain"?"plains":h.t;   // Tunnellers: mountain moves as grassland
+        if(terrBlocked(ht))return;if(nk!==startK&&blockedX(nk,ex))return;
+        const water=terrWaterStop(ht)&&!waterOK(nk),pen=tr.ignoreTerrain?0:terrPen(ht);
         let nw;if(w===1){if(water)return;nw=2;}else nw=water?1:0;
         const nd=d+1+pen;if(nd>S_.speed)return;const kk=key(nk,nw);
         if(best[kk]===undefined||nd<best[kk]){best[kk]=nd;prev[kk]=key(k,w);Q.push([nd,nk,nw]);}});}
     const fin=(k,x)=>{const path=[];let cur=x.from;while(cur){path.unshift(cur.split("|")[0]);cur=prev[cur];}
-      return Object.assign({},x,{path,strain:path.some(z=>{const h=V.hex[z];return h&&terrStrain(h.t)&&!tr.ignoreTerrain;})});};
+      return Object.assign({},x,{path,strain:path.some(z=>{const h=V.hex[z];return h&&terrStrain(tr.mtnGrass&&h.t==="mountain"?"plains":h.t)&&!tr.ignoreTerrain;})});};
     return {reach,fin};};
   const dest={},base=run(lift());
   Object.keys(base.reach).forEach(k=>{const x=base.reach[k];

@@ -206,10 +206,12 @@ function tickTimers(b){const done=[],pl=playerOfBoard(b),bs=sid=>!!pl&&settBesie
 // pursuit upkeep: PURSUIT_UPKEEP_BY_TYPE, else PURSUIT_UPKEEP_DEFAULT; faction pieces pay none
 const PUP=DATA.pursuitUpkeep||{byType:{},def:0};
 // faction "Your <Type>[ & <Type>] Pursuits|Holdings have Craft +N[ and cost no Upkeep]" (Luminous Court)
-function facTypeBonus(b){const m=hitOf("f:"+((b||{}).faction||""),"fac_type_bonus");
-  return m?{types:m[1].split(/\s*(?:&|,|\band\b)\s*/).map(x=>x.trim()).filter(Boolean),craft:+m[2],free:!!m[3]}:null;}
+// or "Your Holdings which require <Domain> have Craft +N[ and cost no Upkeep]" (Luminous Court, current wording); has(name) = the bonus applies
+function facTypeBonus(b){const fk="f:"+((b||{}).faction||""),m=hitOf(fk,"fac_type_bonus");
+  if(m){const types=m[1].split(/\s*(?:&|,|\band\b)\s*/).map(x=>x.trim()).filter(Boolean);return {types,has:n=>types.includes((R[n]||{}).type),craft:+m[2],free:!!m[3]};}
+  const d=hitOf(fk,"fac_dom_bonus");return d?{dom:d[1],has:n=>holdDom(n).toLowerCase()===d[1].toLowerCase(),craft:+d[2],free:!!d[3]}:null;}
 function pursuitUpkeep(p){if(p.fac||!pActive(p)||NATURAL.has(p.name))return 0;   // faction, inactive (building / Damaged / repairing), or Natural
-  {const tb=facTypeBonus(S);if(tb&&tb.free&&tb.types.includes((R[p.name]||{}).type))return 0;}
+  {const tb=facTypeBonus(S);if(tb&&tb.free&&tb.has(p.name))return 0;}
   const r=R[p.name]||{};if(r.upkeep!=null)return r.upkeep;const t=r.type;return (PUP.byType&&t in PUP.byType)?PUP.byType[t]:(PUP.def||0);}
 function withBoard(b,fn){const pS=S,pPC=PC;S=b;recomputePC();const r=fn();S=pS;PC=pPC;return r;}
 
