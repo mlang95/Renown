@@ -287,16 +287,16 @@ DO.modadd=el=>{PT(pOf(el)).mods["m"+Date.now()]={label:"",kind:"envoy",scope:"al
 DO.mod=el=>{const m=PT(pOf(el)).mods[el.dataset.mk];if(!m)return;m[el.dataset.mf]=el.dataset.mf==="val"?(+el.value||0):el.value;rlCommit();};
 DO.moddel=el=>{delete PT(pOf(el)).mods[el.dataset.mk];rlCommit();};
 DO.extort=()=>{const f=pById(document.getElementById("exFrom").value),to=pById(document.getElementById("exTo").value),amt=+document.getElementById("exAmt").value||0;
-  if(!f||!to||sameP(f,to))return;const t=extortGold({b:f.board},{b:to.board},amt);flash(to.name+" extorts "+t.toLocaleString()+" from "+f.name+(t<amt?" (all they had)":""));rlCommit();};
+  if(!f||!to||sameP(f,to))return;const t=extortGold({b:f.board},{b:to.board},amt,"by hand");flash(to.name+" extorts "+t.toLocaleString()+" from "+f.name+(t<amt?" (all they had)":""));rlCommit();};
 DO.exto=el=>{const p=pOf(el);if(!p)return;p.board.exTo=p.board.exTo||{};if(el.value)p.board.exTo[el.dataset.exto]=el.value;else delete p.board.exTo[el.dataset.exto];rlCommit();};
 DO.battleopen=el=>{const o=bq().find(x=>x.id===el.dataset.q);if(o&&!bqLoad(o))return;D.view="battle";save();render();};
 // Perform (stage 2): picker, Perform, accept a fail, edit, pending done, declined at the table (Diplomatic Mission)
-DO.pf=el=>{const [id,k]=el.dataset.pf.split("|");const d=PF[id]=PF[id]||{};d[k]=el.value;if(k==="action"){delete d.target;delete d.sub;}if(k==="target")delete d.sub;renderTable();};
+DO.pf=el=>{const [id,k]=el.dataset.pf.split("|");const d=PF[id]=PF[id]||{};d[k]=el.value;if(k==="action"){delete d.target;delete d.sub;}if(k==="target")delete d.sub;if(k!=="place")delete d.place;renderTable();};
 DO.perf=el=>{const p=pOf(el),c=tCurW(p),id=el.dataset.env;c.perform=c.perform||{};
   const d=PF[id]||{},old=c.perform[id]||{},E=(tSim().envoys||[]).find(x=>x.id===id),tg=old.lock?String(old.lock.target||""):old.edit&&old.target?old.target:(d.target||"");
   const ev=E&&d.action?comboEval(E,d.action,tg):null;
   if(ev&&!ev.ok){const L=old.lock||{target:tg,tried:[],out:ev.out,net:ev.adj};if(!L.tried.includes(d.action))L.tried.push(d.action);c.perform[id]={lock:L,ts:tnow()};delete PF[id];rlCommit();return;}
-  c.perform[id]={action:d.action||"",target:tg,sub:d.sub||"",ts:tnow()};delete PF[id];rlCommit();};
+  c.perform[id]={action:d.action||"",target:tg,sub:d.sub||"",place:d.place||"",ts:tnow()};delete PF[id];rlCommit();};
 DO.pffail=el=>{const c=tCurW(pOf(el));c.perform=c.perform||{};const L=(c.perform[el.dataset.env]||{}).lock||{};
   c.perform[el.dataset.env]={failAccept:1,target:L.target||"",failOut:L.out||"Failed",failNet:L.net,tried:L.tried||[],ts:tnow()};rlCommit();};
 DO.pendone=el=>{const p=pOf(el);if(p){p.board.pending=(p.board.pending||[]).filter(x=>x.id!==el.dataset.env);rlCommit();}};

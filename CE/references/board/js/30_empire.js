@@ -29,21 +29,29 @@ function rawInSett(ctx,n,sid){if(!(sid in ctx.sr)){const s=ctx.me?settById(ctx.m
     if(!hx)ctx.sr[sid]=null;else{const M=mapState(),V=decodeGrid(M.grid),set=new Set();hx.forEach(k=>{const h=V.hex[k];if(!h)return;
       if(M.useNodes){if(h.res&&RES_NODE[h.res])set.add(RES_NODE[h.res]);}else (((TREF.terrain||{})[RULE_NAME[h.t]]||{})["Raw Materials"]||[]).forEach(x=>set.add(x));});ctx.sr[sid]=set;}}
   const st=ctx.sr[sid];return st?st.has(n):null;}
+function rawOK(n,sid,ctx){if(!rawRes(n)||!ctx.me)return true;if(sid!=null&&sid!=="faction")return rawInSett(ctx,n,sid)!==false;return !(ctx.res&&!ctx.res.has(n));}
 function pLegal(n,sid,ctx){ctx=ctx||legalCtx();if(!pAvail(n))return false;const r=R[n]||{};
   if(!r.root&&!chainLine(n,ctx.own))return false;
   if((r.mreq||[]).length&&!reqStatus(r,ctx.have,ctx.craft,ctx.tc).earned)return false;
-  if(rawRes(n)&&ctx.me){if(sid!=null&&sid!=="faction"){if(rawInSett(ctx,n,sid)===false)return false;}else if(ctx.res&&!ctx.res.has(n))return false;}
-  return true;}
+  return rawOK(n,sid,ctx);}
+// a Holding (Root or with a complete Mastery Chain line) that passes every check but its infrastructure_req: listed (Available, empty-Ward picker, Build) as "requires X", can't be started
+function pReqMiss(n,sid,ctx){ctx=ctx||legalCtx();const r=R[n]||{};if(!(r.mreq||[]).length||!pAvail(n)||(!r.root&&!chainLine(n,ctx.own))||!rawOK(n,sid,ctx))return "";
+  const st=reqStatus(r,ctx.have,ctx.craft,ctx.tc);return st.earned?"":st.missing.map(x=>String(x).replace(/\s*\[[^\]]*\]/g,"")).join(" + ");}
+// Hamlets take auto-placed Holdings from Natural chains only (anything may still be moved there by hand)
+function autoHamlet(n){return NATURAL.has(n)||(SIMPLE&&hamletRoot(n));}
+function autoOK(n,id){return canPlace(n,id).ok&&(autoHamlet(n)||settTier(id)!=="Hamlet");}
 // the Settlement where adding n gains the most efficient pairs (it rides a host there, or something there rides it); null = none
 function effSpot(n,prefer){let best=0,sd=null;const ids=S.settlements.map(s=>s.id);if(prefer!=null)ids.sort((a,b)=>(b===prefer)-(a===prefer));
-  ids.forEach(id=>{if(!canPlace(n,id).ok)return;const occ=occupants(id),g=exemptionsOf(occ.concat([{id:1e9,name:n}])).size-exemptionsOf(occ).size;if(g>best){best=g;sd=id;}});return sd;}
-// Build target (no Settlement chosen): Raw Materials go where the resource is in Reach; then an efficient pairing; then a Natural
-// Holding to a Hamlet; otherwise the Settlement with the most empty Wards (ties: largest tier, then newest)
+  ids.forEach(id=>{if(!autoOK(n,id))return;const occ=occupants(id),g=exemptionsOf(occ.concat([{id:1e9,name:n}])).size-exemptionsOf(occ).size;if(g>best){best=g;sd=id;}});return sd;}
+// Target for the Build action and the empty-Ward picker (prefer = the clicked Settlement): Raw Materials go where the resource is in
+// Reach; then an efficient pairing; then a Natural-chain Holding to a Hamlet; then the clicked Settlement; otherwise the Settlement
+// with the most empty Wards (ties: largest tier, then newest). Hamlets only take Natural chains. null = no free Ward
 const SETT_SIZE=["Hamlet","Village","Town","City","Metropolis"];
-function smartSid(n,ctx){ctx=ctx||legalCtx();let C=S.settlements.filter(s=>canPlace(n,s.id).ok);if(!C.length)return null;
+function smartSid(n,ctx,prefer){ctx=ctx||legalCtx();let C=S.settlements.filter(s=>autoOK(n,s.id));if(!C.length)return null;
   if(rawRes(n)&&ctx.me){const y=C.filter(s=>rawInSett(ctx,n,s.id)===true);if(y.length)C=y;else C=C.filter(s=>rawInSett(ctx,n,s.id)!==false);if(!C.length)return null;}
-  const ids=new Set(C.map(s=>s.id)),ef=effSpot(n);if(ef!=null&&ids.has(ef))return ef;
-  if(NATURAL.has(n)||(SIMPLE&&hamletRoot(n))){const h=C.filter(s=>s.tier==="Hamlet");if(h.length)C=h;}
+  const ids=new Set(C.map(s=>s.id)),ef=effSpot(n,prefer);if(ef!=null&&ids.has(ef))return ef;
+  if(autoHamlet(n)){const h=C.filter(s=>s.tier==="Hamlet");if(h.length)C=h;}
+  if(prefer!=null&&C.some(s=>s.id===prefer))return prefer;
   C.sort((a,b)=>wardUse(b.id).free-wardUse(a.id).free||SETT_SIZE.indexOf(settTier(b.id))-SETT_SIZE.indexOf(settTier(a.id))||(+b.id||0)-(+a.id||0));
   return C[0].id;}
 function iAvail(kind,n){const src=kind==="infra"?INFRA:WON,have=kind==="infra"?S.infra:S.wonders;return !have[n]&&!scopeBlock(n,null)&&infraReqStatus(src[n]).ok;}
@@ -63,7 +71,7 @@ function renderList(){
   if(tab==="pursuit"){
     const searching=q.length>0;
     const lc=CAT.avail?legalCtx():null;
-    const keep=n=>nameHit(n,q)&&!(activeTypes.size&&!activeTypes.has(R[n].type))&&(!CAT.avail||pLegal(n,FOR_SID,lc))&&(FOR_SID==null||canPlace(n,FOR_SID).ok)&&cultureKeep(n);
+    const keep=n=>nameHit(n,q)&&!(activeTypes.size&&!activeTypes.has(R[n].type))&&(!CAT.avail||pLegal(n,FOR_SID,lc)||pReqMiss(n,FOR_SID,lc))&&(FOR_SID==null||canPlace(n,FOR_SID).ok)&&cultureKeep(n);
     const groups=(CAT.group==="root"&&ROOTS.length?ROOTS.map(([t,ns])=>[t,ns]):TYPES.map(t=>[t,NAMES.filter(n=>R[n].type===t)]))
       .map(([t,ns])=>[t,ns.filter(keep)]).filter(g=>g[1].length);
     const ctl2=document.createElement("div");ctl2.className="catctl";
@@ -81,7 +89,7 @@ function renderList(){
       th.textContent=(openT?"▾ ":"▸ ")+t+" ("+mem.length+")";
       th.onclick=()=>{catOpen.has(gk(t))?catOpen.delete(gk(t)):catOpen.add(gk(t));renderList();};
       g.appendChild(th);
-      if(openT) mem.forEach(n=>g.appendChild(pursuitRow(n)));
+      if(openT) mem.forEach(n=>g.appendChild(CAT.avail&&!pLegal(n,FOR_SID,lc)?reqRow(n,pReqMiss(n,FOR_SID,lc)):pursuitRow(n)));
       list.appendChild(g);
     });
   } else {
@@ -106,9 +114,9 @@ function wardPick(gid,wi){openModal("");WP={gid,wi,q:""};wpRender();
   if(window.innerWidth>700){const i=document.getElementById("wpQ");if(i)i.focus();}}
 function wpRender(){if(!WP)return;const gid=WP.gid,card=document.getElementById("inspectCard");
   if(!S.settlements.some(x=>x.id===gid)){closeModal();return;}
-  const q=WP.q.toLowerCase(),lc=CAT.avail?legalCtx():null,spot={};
-  const fits=n=>{const e=effSpot(n,gid);spot[n]=e;return e!=null||canPlace(n,gid).ok;};
-  const keep=n=>nameHit(n,q)&&(!CAT.avail||pLegal(n,null,lc))&&fits(n)&&(!CAT.avail||!rawRes(n)||pLegal(n,spot[n]!=null?spot[n]:gid,lc));
+  const q=WP.q.toLowerCase(),sc=legalCtx(),lc=CAT.avail?sc:null,spot={};
+  const fits=n=>{const t=smartSid(n,sc,gid);spot[n]=t;return t!=null||(!CAT.avail&&canPlace(n,gid).ok);};
+  const keep=n=>nameHit(n,q)&&(!CAT.avail||pLegal(n,null,lc)||pReqMiss(n,null,lc))&&fits(n);
   const groups=(ROOTS.length?ROOTS.map(([t,ns])=>[t,ns.filter(keep)]):TYPES.map(t=>[t,NAMES.filter(n=>R[n].type===t&&keep(n))])).filter(g=>g[1].length);
   card.innerHTML='<h3>'+esc(settTier(gid))+' · Ward '+(WP.wi+1)+'<button class="close">×</button></h3>';
   card.querySelector(".close").onclick=closeModal;
@@ -121,15 +129,21 @@ function wpRender(){if(!WP)return;const gid=WP.gid,card=document.getElementById(
   if(!groups.length){const e=document.createElement("div");e.className="empty";e.textContent=CAT.avail?"None available.":"No match.";card.appendChild(e);return;}
   groups.forEach(([t,mem])=>{const g=document.createElement("div");g.className="typegroup";
     const th=document.createElement("div");th.className="th";th.textContent=t+" ("+mem.length+")";g.appendChild(th);
-    mem.forEach(n=>{const row=pursuitRow(n),go=e=>{e.stopPropagation();wpPlace(n);};
-      if(spot[n]!=null&&spot[n]!==gid){const m=document.createElement("span");m.className="meta";m.textContent="\u26a1 "+settTier(spot[n]);row.querySelector(".rtop").insertBefore(m,row.querySelector(".addbtn"));}
+    mem.forEach(n=>{const miss=CAT.avail&&!pLegal(n,null,lc)?pReqMiss(n,null,lc):"";if(miss){g.appendChild(reqRow(n,miss));return;}
+      const row=pursuitRow(n),go=e=>{e.stopPropagation();wpPlace(n);};
+      if(spot[n]!=null&&spot[n]!==gid){const m=document.createElement("span");m.className="meta";const ef=effSpot(n,gid)===spot[n];
+        m.textContent=(ef?"\u26a1 ":"\u2192 ")+settLbl(spot[n]);row.querySelector(".rtop").insertBefore(m,row.querySelector(".addbtn"));}
       row.querySelector(".nm").onclick=go;row.querySelector(".addbtn").onclick=go;g.appendChild(row);});
     card.appendChild(g);});}
 function wpPlace(n){const gid=WP?WP.gid:null;closeModal();if(gid==null)return;
-  const ef=effSpot(n,gid),to=ef!=null?ef:gid;
+  const t=smartSid(n,null,gid),to=t!=null?t:gid;
   const pf=FOR_SID,pt=tab;FOR_SID=to;activeSid=to;tab="pursuit";
   try{addItem(n);}finally{tab=pt;FOR_SID=pf===to?null:pf;}
   renderList();}
+function settLbl(id){const st=S.settlements.find(x=>x.id===id);return st?(st.name||st.tier):"";}
+// Available-list row for a Root whose infrastructure_req is unmet: shown, can't be added
+function reqRow(n,miss){const row=pursuitRow(n);row.classList.add("reqmiss");const b=row.querySelector(".addbtn");b.disabled=true;b.onclick=e=>e.stopPropagation();
+  row.querySelector(".nm").onclick=null;const m=document.createElement("span");m.className="meta neg";m.textContent="requires "+miss;row.querySelector(".rtop").insertBefore(m,b);return row;}
 function pursuitRow(n){
   const r=R[n],row=itemRow(n,r.monument,(PC[n]||0)>0),us=unlockStatus(n);
   if(r.unlock_raw&&r.unlock_raw!=="-"&&r.unlock_raw!=="—"&&(!CAT.avail||us.manual)){const m=document.createElement("span");m.className="meta";
@@ -166,7 +180,7 @@ function placeHolding(n,pref,forcedSid){
   // Natural Pursuits fill Hamlets first (the only Pursuits a Hamlet takes); everything else: active settlement, capital, the rest
   const hams=(SIMPLE?hamletRoot(n):hamletOK(n))?S.settlements.filter(x=>x.tier==="Hamlet").map(x=>x.id):[];
   const forced=forcedSid!=null&&S.settlements.some(s=>s.id===forcedSid)&&canPlace(n,forcedSid).ok;
-  const order=forced?[forcedSid]:hams.concat([pref],[capitalSett()&&capitalSett().id],S.settlements.map(x=>x.id)).filter((x,i,a)=>x!=null&&a.indexOf(x)===i);
+  const order=forced?[forcedSid]:hams.concat([pref],[capitalSett()&&capitalSett().id],S.settlements.map(x=>x.id)).filter((x,i,a)=>x!=null&&a.indexOf(x)===i&&(autoHamlet(n)||settTier(x)!=="Hamlet"));
   let target=null,host=null,note="",hosts=null;
   // 1) efficient pairing first — before a Natural goes solo into a Hamlet: pick the settlement where adding
   //    it creates the most new efficient pairs (it rides a host there, or something already there rides it).
@@ -188,6 +202,7 @@ function addItem(n){
   // pursuit — Scope: Settlement / Empire / Realm (Principle 15)
   {const blk=scopeBlock(n,null);if(blk){flash(blk);return;}}
   const P_=placeHolding(n,activeSid,FOR_SID),target=P_.target,host=P_.host,hosts=P_.hosts,note=P_.note,forced=P_.forced;
+  if(target==null&&gameStarted()){S.placed=S.placed.filter(p=>p!==P_.np);flash(n+": no free Ward");renderList();return;}
   if(forced){FOR_SID=null;const ap=document.getElementById("appBoard");
     if(window.innerWidth<=700&&ap){ap.dataset.mc="board";document.querySelectorAll("#mnav [data-mc]").forEach(x=>x.classList.toggle("on",x.dataset.mc==="board"));}}
   save();render();renderList();
@@ -1443,6 +1458,7 @@ function computeTotals(have,earned,tc){
   const cs0=curSeason(),sa0=((m.seasonAdd||{})[cs0]||0)+(SEASON_DBL_TYPE(cs0)?husbandryGoldFor(S,cs0):0),wt=winterTax(S),tx0=cs0==="Winter"?wt.total:0,tr0=tradeIncome(S,cs0),net0=m.baseNet+sa0+tx0+tr0.total;
   const ng=document.getElementById("netgold");ng.textContent=fmt(net0);
   ng.className="n "+(net0<0?"neg":net0>0?"pos":"");
+  treasLive();{const tp=document.getElementById("treasPT");if(tp)tp.textContent=fmt(net0)+" / turn";}
   document.getElementById("netnote").innerHTML=[
     (()=>{const nb=(S.placed||[]).filter(q=>q.bt>0).length;return nb?nb+" building":"";})(),
     sa0?cs0+" "+fmt(sa0):"",
@@ -1451,11 +1467,12 @@ function computeTotals(have,earned,tc){
   const sg=document.getElementById("seasons");sg.innerHTML="";
   const cse=curSeason();
   SEASONS.forEach(s=>{const v=m.baseNet+m.seasonAdd[s]+(s==="Winter"?wt.total:0)+tradeIncome(S,s).total;const c=document.createElement("div");c.className="scell"+(s===cse?" cur":"");
-    c.innerHTML='<div class="sn">'+s+'</div><div class="sv" style="color:'+(v<0?cvar("--upkeep"):v>m.baseNet?cvar("--income"):cvar("--ink"))+'">'+fmt(v)+'</div>';sg.appendChild(c);});
+    c.title=s+": "+fmt(v)+" gold";c.innerHTML='<div class="sn">'+s+'</div><div class="sv" style="color:'+(v<0?cvar("--upkeep"):v>m.baseNet?cvar("--income"):cvar("--ink"))+'">'+fmtK(v)+'</div>';sg.appendChild(c);});
   const leg=document.getElementById("legend");leg.innerHTML="";
   Object.keys(PHASE_LABEL).forEach(ph=>{const li=document.createElement("div");li.className="li";
     li.innerHTML='<span class="sw" style="background:'+cvar(PHASE_COLOR[ph])+'"></span>'+PHASE_LABEL[ph]+(m.phaseCount[ph]?(" ("+m.phaseCount[ph]+")"):"");leg.appendChild(li);});
   {const gi=document.getElementById("goldItems");if(gi)gi.innerHTML=goldBreakHTML(goldBreak(S));}
+  renderGlog();
   window._net=net0;
   renderInfluence();renderPOMods();renderMiniStand();
 }
@@ -1513,6 +1530,18 @@ function goldBreak(b,season){return withBoard(b,()=>{const have=new Set(Object.k
   if(m.armyGross)cost.push(["Armies ×"+S.armies.length,-m.armyGross]);if(m.armyGross&&m.reduce)cost.push(["Army upkeep reductions",Math.min(m.reduce,m.armyGross)]);
   return {inc,cost,sea,net:m.baseNet+sa+tx+tr};});}
 const gbV=v=>(v>0?"+":v<0?"\u2212":"")+Math.abs(v).toLocaleString();
+// Treasury figure in the Ledger header + the Gold log (also after typing / ± buttons, which don't re-render)
+function treasLive(){const ts=document.getElementById("treasS");if(ts){const tv=+S.treasury||0;ts.textContent=tv.toLocaleString();ts.className="n"+(tv<0?" neg":"");}renderGlog();}
+// compact gold for tight cells: 4,500 → +4.5k
+function fmtK(n){n=Math.round(+n||0);const a=Math.abs(n);if(a<1000)return fmt(n);const k=(a/1000).toFixed(a%1000?1:0).replace(/\.0$/,"");return (n<0?"\u2212":"+")+k+"k";}
+// Gold log: this board's Treasury changes, newest first, grouped by turn
+function renderGlog(){const box=document.getElementById("glog");if(!box)return;const L=(S.glog||[]).slice().reverse(),sum=document.getElementById("glogS");
+  if(sum)sum.textContent=L.length?L.length+" entries":"";
+  if(!L.length){box.innerHTML='<div class="note">No Treasury changes yet.</div>';return;}
+  let h="",t=null;L.forEach(e=>{if(e.t!==t){t=e.t;const tin=L.filter(x=>x.t===t&&x.d>0).reduce((a,x)=>a+x.d,0),tout=L.filter(x=>x.t===t&&x.d<0).reduce((a,x)=>a+x.d,0);
+      h+='<div class="glt">Turn '+t+(e.s?' · '+esc(e.s):'')+'<span class="note">in '+fmt(tin)+' · out '+fmt(tout)+'</span></div>';}
+    h+='<div class="kv glr"><span class="k">'+esc(e.why||"")+'</span><span class="val '+(e.d<0?"neg":"pos")+'">'+fmt(e.d)+'</span><span class="val note">'+(+e.bal||0).toLocaleString()+'</span></div>';});
+  box.innerHTML=h;}
 function goldBreakHTML(g){const row=([k,v])=>'<div class="kv"><span class="k">'+esc(k)+'</span><span class="val '+(v<0?"neg":"pos")+'">'+gbV(v)+'</span></div>';
   return '<div class="lbl">INCOME · '+esc(g.sea)+'</div>'+(g.inc.length?g.inc.map(row).join(""):'<div class="note">none</div>')+
     '<div class="lbl">COSTS</div>'+(g.cost.length?g.cost.map(row).join(""):'<div class="note">none</div>')+
@@ -1550,7 +1579,7 @@ function renderPO(){
   const v=Math.max(PO_MIN,Math.min(PO_MAX,S.po||0));S.po=v;
   set("poVal",v);const band=poBandName(v);
   document.getElementById("poBand").textContent=band?band[0]:"";
-  {const bs=document.getElementById("poBandS");if(bs)bs.textContent=(band?band[0]+" ":"")+(S.po>0?"+":"")+(S.po||0);}
+  {const bs=document.getElementById("poBandS");if(bs)bs.textContent=band?band[0]:"";const ps=document.getElementById("poS");if(ps){ps.textContent=(v>0?"+":"")+v;ps.className="n"+(v<0?" neg":v>0?" pos":"");}}
   const act=poActiveEffects(v,S),imm=poImmune(S);
   document.getElementById("poEffect").textContent=imm?("no effects — "+imm):act.length?("active ("+act.length+"): "+act.map(b=>b[1]).join(" · ")):"no active effects";
   const on=new Set(poActiveKeys(v,S)), curK=Math.max(...Object.keys(PO).map(Number).filter(k=>k<=v));

@@ -123,12 +123,25 @@ function settBuildTime(t){return withBuildMod(settBaseTime(t)).t;}
 function itm(){S.itimer=S.itimer||{};S.idmg=S.idmg||{};S.facInfra=S.facInfra||[];}
 function infraOn(n){itm();return !!(S.infra[n]||S.wonders[n])&&!(S.itimer[n]>0)&&!(S.idmg[n]>0);}
 function gameStarted(){return (S.turn||0)>0;}
+// ---- Gold log (Ledger): every Treasury change with its reason. tGold() records a change; changes made any other way (typing the
+// Treasury, the ± buttons, an older client) are picked up by glogSync() as "adjusted" (quick successive ones merge) ----
+const GLOG_MAX=150;
+function glogTurn(){try{return tTurn();}catch(e){return 0;}}
+function glogSea(){try{return curSeason();}catch(e){return "";}}
+function glogPush(b,d,why){b.glog=b.glog||[];const t=glogTurn(),last=b.glog[b.glog.length-1],now=Date.now();
+  if(why==="adjusted"&&last&&last.why==="adjusted"&&last.t===t&&now-(last.ts||0)<8000){last.d+=d;last.bal=+b.treasury||0;last.ts=now;if(!last.d)b.glog.pop();}
+  else b.glog.push({t,s:glogSea(),d,why:String(why||""),bal:+b.treasury||0,ts:now});
+  if(b.glog.length>GLOG_MAX)b.glog.splice(0,b.glog.length-GLOG_MAX);b.gseen=+b.treasury||0;}
+function glogSync(b){if(!b)return;const t=+b.treasury||0;if(b.gseen==null){b.gseen=t;return;}if(t!==b.gseen)glogPush(b,t-b.gseen,"adjusted");}
+function tGold(b,d,why){d=Math.round(+d||0);if(!b||!d)return 0;glogSync(b);b.treasury=(+b.treasury||0)+d;glogPush(b,d,why);return d;}
+function boardOwnerName(b){const p=(D.players||[]).find(q=>q.board===b);return p?p.name:"";}
 // One player's end-of-turn bookkeeping (treasury button and the Table's End turn share this).
 // ---- Empire Phase, in rules order (RULES: The Turn › Empire Phase). Stages run per board; empirePhase() runs them
 // across every board so realm-wide steps (Siege / Muster / Sack / Capture timers, Bandits, Extort) fall in sequence.
 function empTimers(b){b.turn=(b.turn||0)+1;return tickTimers(b);}                        // Build, Repair
 function empEconomy(b){const sn=seasonNet(b),net=Math.round(sn.net||0),g0=b.treasury||0;
-  if(b.autoNet)b.treasury=g0+net;                                               // Winter tax, income, trade, upkeep (if auto-apply is on)
+  if(b.autoNet){const sea=curSeason(),part=[["Income & upkeep",Math.round(sn.base||0)],[sea+" (Season)",Math.round(sn.seasonal||0)],["Winter tax",Math.round(sn.tax||0)],["Trade",Math.round(sn.trade||0)]];
+    part[0][1]+=net-part.reduce((t,x)=>t+x[1],0);part.forEach(([k,v])=>tGold(b,v,k));}   // Winter tax, income, trade, upkeep (if auto-apply is on)
   b.insolv=(b.treasury||0)<0?(+b.insolv||0)+1:0;                              // "Insolvency": consecutive Upkeep with negative Treasury
   return {sn,net,g0};}
 function empPO(b,done){const m=boardMetrics(b),p0=b.po||0,fd=m.po||0,pm=poModTotal(b);let dpo=fd+pm;
@@ -271,6 +284,7 @@ async function apiRaw(method,path,body){
 let _saveT=null,_savedSig=null;
 function save(){
   try{chronTick();}catch(e){}
+  try{(D.players||[]).forEach(p=>glogSync(p.board));}catch(e){}
   undoRecord();if(!ACT.saving)actSchedule();
   try{_savedSig=JSON.stringify(D);localStorage.setItem("renown_dash",_savedSig);}catch(e){}
   clearTimeout(_saveT);_saveT=setTimeout(push,400);

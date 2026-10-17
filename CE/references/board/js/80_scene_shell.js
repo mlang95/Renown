@@ -190,14 +190,14 @@ function renderSettlements(){
 const trIn=document.getElementById("treasury");
 trIn.value=S.treasury;document.getElementById("turn").textContent=S.turn;
 document.getElementById("autoNet").checked=S.autoNet;
-trIn.oninput=()=>{S.treasury=+trIn.value||0;save();};
+trIn.oninput=()=>{S.treasury=+trIn.value||0;save();treasLive();};
 document.getElementById("autoNet").onchange=e=>{S.autoNet=e.target.checked;save();};
 document.getElementById("endturn").onclick=()=>{
   boardEndTurn(S);trIn.value=S.treasury;document.getElementById("turn").textContent=S.turn;save();render();
 };
 document.getElementById("poMinus").onclick=()=>{S.po=Math.max(PO_MIN,(S.po||0)-1);save();render();};
 document.getElementById("poPlus").onclick=()=>{S.po=Math.min(PO_MAX,(S.po||0)+1);save();render();};
-document.querySelectorAll("[data-gold]").forEach(b=>b.onclick=()=>{S.treasury=(S.treasury||0)+(+b.dataset.gold);trIn.value=S.treasury;save();});
+document.querySelectorAll("[data-gold]").forEach(b=>b.onclick=()=>{S.treasury=(S.treasury||0)+(+b.dataset.gold);trIn.value=S.treasury;save();treasLive();});
 
 // ---- toolbar ----
 document.getElementById("clear").onclick=()=>{const b=activeBoard();b.placed=[];b.settlements=startSettlements();b.startSig=startSig();b.infra={};b.wonders={};b.armies=[];nameAllSetts();reindex();save();render();renderList();};

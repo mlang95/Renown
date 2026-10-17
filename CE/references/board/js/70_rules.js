@@ -126,7 +126,7 @@ DO.once=el=>{const p=pById(el.dataset.who);if(!p)return;onceUse(p,el.dataset.k,e
 DO.xch=el=>{const p=pById(el.dataset.who);if(!p)return;const e=onceEffects(p).find(x=>x.key===el.dataset.k);if(!e||!e.x)return;
   const st=onceState(p,false),u=+st[e.key]||0,gold=+e.x[2],inf=+(e.x[3]||e.x[4]);if(u>=+e.x[1])return;
   if((p.board.treasury||0)<gold){flash(p.name+": not enough gold");return;}
-  p.board.treasury-=gold;const c=tCurW(p);c.inflAdj=(+c.inflAdj||0)+inf;st[e.key]=u+1;flash(p.name+": −"+gold+" gold → +"+inf+" Influence");noteAdd(p,e.n+": −"+gold+" gold → +"+inf+" Influence");save();render();};
+  tGold(p.board,-gold,e.n+": exchange for Influence +"+inf);const c=tCurW(p);c.inflAdj=(+c.inflAdj||0)+inf;st[e.key]=u+1;flash(p.name+": −"+gold+" gold → +"+inf+" Influence");noteAdd(p,e.n+": −"+gold+" gold → +"+inf+" Influence");save();render();};
 function noteAdd(p,msg){const c=tCurW(p);c.notes=(c.notes||[]).concat([msg]).slice(-20);}
 // ---- Recoup on a performed action ("Passed / Endorsed <Domain> envoys Recoup N Gold"); capped at the gold cost paid ----
 function recoupNote(owner,action,out){const a=(DATA.actions||{})[action]||{},dom=a.domain||"",cm=/(\d+)\s*gold/i.exec(a.cost||""),cost=cm?+cm[1]:0;
@@ -138,10 +138,11 @@ function recoupNote(owner,action,out){const a=(DATA.actions||{})[action]||{},dom
 const RC=DATA.rulesConst||{};
 // ---- Extort: always a transfer of gold that exists; never takes the source below 0 ----
 // from / to: {b:board} or {camp:banditCamp}. Returns the amount moved.
-function extortGold(from,to,amt){
+function extortGold(from,to,amt,why){
   const have=Math.max(0,from.camp?(+from.camp.gold||0):(+from.b.treasury||0)),t=Math.max(0,Math.min(Math.round(+amt||0),have));
-  if(from.camp)from.camp.gold=have-t;else from.b.treasury=(+from.b.treasury||0)-t;
-  if(to){if(to.camp)to.camp.gold=(+to.camp.gold||0)+t;else to.b.treasury=(+to.b.treasury||0)+t;}
+  const nm=x=>!x?"":x.camp?"Bandits":(x.name||boardOwnerName(x.b)),w=why?" ("+why+")":"";
+  if(from.camp)from.camp.gold=have-t;else tGold(from.b,-t,"Extorted"+(to?" by "+nm(to):"")+w);
+  if(to){if(to.camp)to.camp.gold=(+to.camp.gold||0)+t;else tGold(to.b,t,"Extort from "+nm(from)+w);}
   return t;}
 // Danegeld: "While At War, your Armies within reach of at-war Settlements Extort their upkeep from that settlement's controller".
 // One row per Army standing in Territory reached by an at-war player's Settlements; that player pays the Army's upkeep
@@ -159,7 +160,7 @@ function loanTerms(b){const x=srcMatch(b,"loan_terms")[0];
 function loanInterest(L){const lp=pById(L.from),t=lp?loanTerms(lp.board):null;if(!t)return 0;return Math.max(t.min,Math.floor(L.amt/t.of)*t.per);}
 function runLoans(){const out=[];loans().forEach(L=>{const lp=pById(L.from),bp=pById(L.to);if(!lp||!bp)return;const t=loanTerms(lp.board);
   if(!t){out.push("Loan "+lp.name+" → "+bp.name+": no active lending Holding — no interest");return;}
-  const due=loanInterest(L),pay=Math.min(due,Math.max(0,+bp.board.treasury||0));bp.board.treasury=(+bp.board.treasury||0)-pay;lp.board.treasury=(+lp.board.treasury||0)+pay;
+  const due=loanInterest(L),pay=Math.min(due,Math.max(0,+bp.board.treasury||0));tGold(bp.board,-pay,"Loan interest to "+lp.name);tGold(lp.board,pay,"Loan interest from "+bp.name);
   if(pay<due){lp.board.loanDefaults=(lp.board.loanDefaults||[]).concat([{turn:tTurn(),pid:String(bp.id),short:due-pay}]).slice(-10);
     out.push(bp.name+" defaults on "+lp.name+"'s loan (paid "+pay.toLocaleString()+" of "+due.toLocaleString()+") — "+lp.name+": Perform "+t.def);}
   else out.push(bp.name+" pays "+lp.name+" "+pay.toLocaleString()+" interest ("+t.src+")");});return out;}
@@ -175,10 +176,10 @@ function loansHTML(qp){const t=loanTerms(qp.board),mine=loans().filter(L=>String
   return h+'</div>';}
 DO.lend=el=>{const lp=pById(el.dataset.who),bp=pById(document.getElementById("lnTo").value),amt=Math.max(0,Math.round(+document.getElementById("lnAmt").value||0));
   if(!lp||!bp||!amt)return;if((+lp.board.treasury||0)<amt){flash(lp.name+": not enough gold");return;}
-  lp.board.treasury-=amt;bp.board.treasury=(+bp.board.treasury||0)+amt;loans().push({id:"ln"+Date.now().toString(36),from:String(lp.id),to:String(bp.id),amt,turn:tTurn()});
+  tGold(lp.board,-amt,"Loan to "+bp.name);tGold(bp.board,amt,"Loan from "+lp.name);loans().push({id:"ln"+Date.now().toString(36),from:String(lp.id),to:String(bp.id),amt,turn:tTurn()});
   noteAdd(lp,"lent "+amt.toLocaleString()+" to "+bp.name);save();render();};
 DO.lnrepay=el=>{const L=loans().find(x=>x.id===el.dataset.ln);if(!L)return;const lp=pById(L.from),bp=pById(L.to);
-  if((+bp.board.treasury||0)<L.amt){flash(bp.name+": not enough gold to repay");return;}bp.board.treasury-=L.amt;lp.board.treasury=(+lp.board.treasury||0)+L.amt;
+  if((+bp.board.treasury||0)<L.amt){flash(bp.name+": not enough gold to repay");return;}tGold(bp.board,-L.amt,"Loan repaid to "+lp.name);tGold(lp.board,+L.amt,"Loan repaid by "+bp.name);
   D.loans=loans().filter(x=>x!==L);noteAdd(bp,"repaid "+(+L.amt).toLocaleString()+" to "+lp.name);save();render();};
 DO.lnforgive=el=>{const L=loans().find(x=>x.id===el.dataset.ln);if(!L)return;D.loans=loans().filter(x=>x!==L);noteAdd(pById(L.from),"forgave the loan to "+((pById(L.to)||{}).name||"?"));save();render();};
 function autoExtortRows(b){const me=playerOfBoard(b);if(!me)return [];
@@ -201,18 +202,18 @@ function runAutoExtort(){const out=[];
   {const tm=/Extort (\d+)% of their Treasury/i.exec(((DATA.actions||{}).Tithe||{}).effect||""),pct=tm?+tm[1]:0;
    if(pct)D.players.forEach(p=>srcMatch(p.board,"tithe_lower").forEach(x=>{const dm=x.m[1].replace(/^\w/,c=>c.toUpperCase());
      D.players.forEach(q=>{if(sameP(q,p)||((q.board.domains||{})[dm]||0)>=((p.board.domains||{})[dm]||0))return;
-       const amt=Math.floor(Math.max(0,q.board.treasury||0)*pct/100/100)*100,t=extortGold({b:q.board},{b:p.board},amt);
+       const amt=Math.floor(Math.max(0,q.board.treasury||0)*pct/100/100)*100,t=extortGold({b:q.board},{b:p.board},amt,x.n);
        if(t)out.push(p.name+" tithes "+t.toLocaleString()+" from "+q.name+" — "+x.n);});}));}
   D.players.forEach(p=>srcMatch(p.board,"extort_half_trade").forEach(x=>D.players.forEach(q=>{
     if(sameP(q,p)||effPair(p.id,q.id).trade)return;const amt=Math.floor(tradeIncome(q.board).total/2/100)*100;if(amt<=0)return;
-    const t=extortGold({b:q.board},{b:p.board},amt);out.push(p.name+" extorts "+t.toLocaleString()+" from "+q.name+" — "+x.n);})));
-  D.players.forEach(p=>danegeldRows(p).forEach(x=>{const t=extortGold({b:x.from.board},{b:p.board},x.amt);
+    const t=extortGold({b:q.board},{b:p.board},amt,x.n);out.push(p.name+" extorts "+t.toLocaleString()+" from "+q.name+" — "+x.n);})));
+  D.players.forEach(p=>danegeldRows(p).forEach(x=>{const t=extortGold({b:x.from.board},{b:p.board},x.amt,"army upkeep");
     out.push(p.name+" extorts "+t.toLocaleString()+(t<x.amt?" (of "+x.amt.toLocaleString()+")":"")+" army upkeep from "+x.from.name+" — "+p.board.faction);}));
   D.players.forEach(p=>{const T=exTargets(p.board),hit={};extortSlots(p.board).forEach(x=>{const q=pById(T[x.key]);
       if(!q||sameP(q,p)){out.push(p.name+": "+x.src+" Extort "+x.amt.toLocaleString()+" — no target chosen");return;}
-      const t=extortGold({b:q.board},{b:p.board},x.amt);out.push(p.name+" extorts "+t.toLocaleString()+(t<x.amt?" (of "+x.amt.toLocaleString()+")":"")+" from "+q.name+" — "+x.src);(hit[x.src]=hit[x.src]||[]).push(q);});
+      const t=extortGold({b:q.board},{b:p.board},x.amt,x.src);out.push(p.name+" extorts "+t.toLocaleString()+(t<x.amt?" (of "+x.amt.toLocaleString()+")":"")+" from "+q.name+" — "+x.src);(hit[x.src]=hit[x.src]||[]).push(q);});
     Object.keys(hit).forEach(n=>srcMatch(p.board,"extort_target_faith").filter(x=>x.n===n).forEach(x=>hit[n].forEach(q=>{addFaith(q.board,+x.m[2]);out.push(q.name+": Faith +"+x.m[2]+" ("+n+")");})));});
-  D.players.forEach(p=>autoExtortRows(p.board).forEach(x=>{const t=extortGold({b:x.from.board},{b:p.board},x.amt);
+  D.players.forEach(p=>autoExtortRows(p.board).forEach(x=>{const t=extortGold({b:x.from.board},{b:p.board},x.amt,x.src);
     out.push(p.name+" extorts "+t.toLocaleString()+(t<x.amt?" (of "+x.amt.toLocaleString()+")":"")+" from "+x.from.name+" — "+x.src);}));
   return out;}
 
@@ -251,7 +252,7 @@ function sackApply(i,removeIds){const T=realmTimers(),t=T[i];if(!t)return;const 
   fb.placed=(fb.placed||[]).filter(q=>!(q.sid===s.id&&rm.has(String(q.id))));                         // the chosen Ward's Holdings leave play
   (fb.placed||[]).filter(q=>q.sid===s.id&&!q.fac).forEach(q=>{q.dmg=REPAIR_T;});                         // raze the rest (Damaged)
   const ti=TIER_CHAIN.indexOf(s.tier);if(ti>0){log.push(s.tier+" → "+TIER_CHAIN[ti-1]);s.tier=TIER_CHAIN[ti-1];}else log.push(s.tier+" stays "+s.tier);
-  const x=extortGold({b:fb},{b:to.board},(+RC.SACK_EXTORT_PER_TIER||0)*tierN);log.push("extort "+x.toLocaleString());
+  const x=extortGold({b:fb},{b:to.board},(+RC.SACK_EXTORT_PER_TIER||0)*tierN,"Sack");log.push("extort "+x.toLocaleString());
   const a=(to.board.armies||[]).find(z=>String(z.id)===String(t.aid)),uid="sk"+Date.now();
   if(a){a.blocked=true;a.strained=true;a.sackT=uid;}
   T.splice(i,1);T.push({type:"Sack Timer",kind:"sack",uid,by:to.id,aid:t.aid,label:to.name+" · sacked "+from.name+"'s "+(s.name||s.tier),n:+((TMR["Sack Timer"]||{}).default)||1});
@@ -421,7 +422,7 @@ function moveStops(p,a){const out=[];if(a.muster&&a.muster.n>0){delete a.muster;
 // an Army ended a Move action at hex k: other players' "ends a Move action within your Province" effects (Toll House, Beacon Towers)
 function moveEndTriggers(p,k){const own=terrOwners()[k],out=[];if(!own)return out;
   D.players.forEach(q=>{if(sameP(q,p)||!own.has(String(q.id)))return;const ally=alliedP(p,q);
-    if(!ally)srcMatch(q.board,"toll_extort").forEach(x=>{const t=extortGold({b:p.board},{b:q.board},+x.m[1]);
+    if(!ally)srcMatch(q.board,"toll_extort").forEach(x=>{const t=extortGold({b:p.board},{b:q.board},+x.m[1],x.n);
       const m=q.name+" extorts "+t.toLocaleString()+" from "+p.name+" ("+x.n+")";out.push(m);noteAdd(q,m);});
     srcMatch(q.board,"toll_diplomacy").forEach(x=>{
       const m=x.n+" ("+q.name+"): may Perform a Diplomacy action targeting "+p.name+" (once per turn)";out.push(m);noteAdd(q,m);});

@@ -12,7 +12,7 @@ can't reach the other Phase's Envoys: it is read as that Phase's Envoys (Envoy P
 | Piece | Kind | Clause | Window | Limit |
 |---|---|---|---|---|
 
-## No window, no predicate: applies to Council and Personal Envoys alike (15)
+## No window, no predicate: applies to Council and Personal Envoys alike (14)
 
 | Piece | Kind | Clause |
 |---|---|---|
@@ -26,7 +26,6 @@ can't reach the other Phase's Envoys: it is read as that Phase's Envoys (Envoy P
 | The Eternal Court | Faction | While the Era is Zenith, you may spend up to 5 Influence per Envoy while voting, regardless of your Domain Standing |
 | The Hermit Crown | Faction | Independent, but Ambitious: You Abstain on every vote on other players' Envoys, and other players must spend 2 Influence to affect your Envoys by 1 |
 | The Blazing Standard | Faction | During Envoy Declaration, if you don't have an Army of 25 Knight's Templars, you must send a Prowess Envoy |
-| The Velvet Hand | Faction | if that Envoy was endorsed, they Extort 500 gold from you |
 | The Illusionists | Faction | Double Speak: Your Diplomacy Envoys use your Cunning Standing for their innate Authority |
 | The Smoldering Crown | Faction | Reckless: Your Cunning Envoys have Authority +2 when targeting a player with Public Order greater than 0 |
 | The Smoldering Crown | Faction | A Prowess Envoy you send can't fail or be condemned & will instead pass |
@@ -68,7 +67,7 @@ can't reach the other Phase's Envoys: it is read as that Phase's Envoys (Envoy P
 | The Inner Circle | Faction | Palatine: Each player allied with you has Authority +1 on their Personal Envoys | - | - | personal |
 | The Inner Circle | Faction | Once per Envoy Phase, you may spend 1 of an ally's Influence, targeting your own Envoys if you wish | envoy | once | personal (by Phase) |
 | The Velvet Hand | Faction | Friends in High Places: Each Empire Phase, a player who supported a Personal Envoy you sent that passed gains Faith +1 | empire | each | personal |
-| The Velvet Hand | Faction | if that Envoy was endorsed, they Extort 500 gold from you | - | - | - |
+| The Velvet Hand | Faction | if that Personal Envoy was endorsed, they Extort 500 gold from you | - | - | personal |
 | The Illusionists | Faction | Double Speak: Your Diplomacy Envoys use your Cunning Standing for their innate Authority | - | - | - |
 | The Illusionists | Faction | Whenever your Personal Diplomacy Envoy passes or is endorsed, you may instead perform a Cunning action | - | - | personal |
 | The Smoldering Crown | Faction | Reckless: Your Cunning Envoys have Authority +2 when targeting a player with Public Order greater than 0 | - | - | - |

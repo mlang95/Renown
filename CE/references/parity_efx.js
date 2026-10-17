@@ -29,9 +29,9 @@ src.forEach(([key,name,kind,text])=>{const E=EFX[key]||{};
     cmp(key,id,hits,E[id]);});
   if("hiwf".includes(kind)&&kind.length===1){
     // once-per tracker rows (old onceEffects)
-    const ONCE_RE=/\b(?:Once\s*\/\s*turn|Once per turn|Once per game|Once per \w+ Phase|\d+x\s*(?:\/\s*turn|per \w+ Phase)|Each turn|Every turn|Every Skirmish|At the Start of the Empire Phase)\b|\bEach Empire Phase \(Activate\)|\bmay\b(?!\s+not)/i;
+    const ONCE_RE=/\b(?:Once\s*\/\s*turn|Once per turn|Once per game|Once per \w+ Phase|\d+x\s*(?:\/\s*turn|per \w+ Phase)|Each turn|Every turn|Every Skirmish|At the Start of the Empire Phase)\b|\bmay\b(?!\s+not)/i;
     const XCH_RE=/(\d+)x\s*(?:\/\s*turn|per \w+ Phase):?\s*exchange (\d+) gold for (?:(\d+) Influence|Influence \+(\d+))/i;
-    const oncePhase=c=>{if(/\bOnce per turn\b/i.test(c))return "turn";const m=/per (\w+) Phase|At the (Start) of the Empire Phase|Empire Phase \((Activate)\)|\bin the (\w+) Phase\b/i.exec(c);if(!m)return "";return m[1]?m[1].toLowerCase():m[4]?m[4].toLowerCase():"empire";};
+    const oncePhase=c=>{if(/\bOnce per turn\b/i.test(c))return "turn";const m=/per (\w+) Phase|At the (Start) of the Empire Phase|\bin the (\w+) Phase\b/i.exec(c);if(!m)return "";return m[1]?m[1].toLowerCase():m[3]?m[3].toLowerCase():"empire";};
     const once=[];String(text).split(/;|\.\s+|\.$/).forEach(c=>{c=c.trim();if(!c||!ONCE_RE.test(c))return;const i=c.search(ONCE_RE),cm=c.lastIndexOf(", ",i);if(cm>0)c=c.slice(cm+2);
       const x=XCH_RE.exec(c);once.push({c,ph:oncePhase(c),game:/Once per game/i.test(c),x:x?arr(x):null});});
     cmp(key,"_once",once,(E._once||[]).map(o=>({c:o.c,ph:o.ph,game:o.game,x:o.x})));

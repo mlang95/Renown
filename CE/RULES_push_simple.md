@@ -115,7 +115,7 @@ A few conventions make every rule in this book read the same way:
 
 Each turn runs through five phases in order, then passes the Host and repeats:
 
-1. **Empire Phase**{{IDX:Empire Phase}} — start of turn: Start of the Empire Phase effects, activate Standing effects, apply the Season, increment timers, resolve Bandit Mechanics, gain Influence & Envoys, collect income, and pay upkeep.
+1. **Empire Phase**{{IDX:Empire Phase}} — start of turn: Start of the Empire Phase effects (including Domain Standing effects), apply the Season, increment timers, resolve Bandit Mechanics, gain Influence & Envoys, collect income, and pay upkeep.
 2. **Council Phase**{{IDX:Council Phase}} — a Council vote on a Domain; each player then performs one action of that Domain.
 3. **Envoy Phase**{{IDX:Envoy Phase}} — send all Envoys, a Forum, vote on every Envoy, then resolve them all (Diplomacy → Prowess → Cunning → Piety → Industry).
 4. **Battle Phase**{{IDX:Battle Phase}} — Skirmishes, Sieges, and Battles resolve.
@@ -133,8 +133,7 @@ Many actions set a Timer to a number of turns. Each Empire Phase, every active T
 
 ### Empire Phase
 
-- **Start of the Empire Phase** — resolve every effect that happens at the Start of the Empire Phase.
-- **Activate** any unlocked Domain Standing effects, then any Each Empire Phase (Activate) effects.
+- **Start of the Empire Phase** — resolve every effect that happens at the Start of the Empire Phase, including Domain Standing effects (see Domain Standings).
 - **Apply the Season** — check this turn's Season and apply its effect.
 - **Increment** all eligible active timers, in this order: Build, Repair, Truce, Siege, Muster, Sack, Capture.
 - **Resolve** any timers that reached 0.
@@ -320,7 +319,7 @@ If your Diplomacy Envoy passes or is endorsed but its action fails, you may send
 
  	Domains are the identity of your character in Renown. As you gain Renown each turn, you gain a Domain Point, which you may spend in any of the four Domains. Each Domain Point raises your Domain value by 1 in that Domain. When your Domain value reaches *{{VAL:STANDING_THRESHOLDS.Rising}}*, you become Rising in that Domain — you may spend one extra Influence on another player's Envoy of that Domain, and your Envoys gain Authority +1. This continues at a Domain value of *{{VAL:STANDING_THRESHOLDS.Established}}* (Established) and again at *{{VAL:STANDING_THRESHOLDS.Sovereign}}* (Sovereign).
 
-Each Standing you gain in a Domain makes you harder to oppose there and lets you oppose others more easily with your Influence. You also gain a unique effect at each Standing that makes it easier to achieve that Domain's objectives.
+Each Standing you gain in a Domain makes you harder to oppose there and lets you oppose others more easily with your Influence. You also gain a unique effect at each Standing that makes it easier to achieve that Domain's objectives. A Standing effect that lets you perform an action (*Perform …*) is one-time: you use it at the Start of the next Empire Phase after you reach that Standing (a Standing you start the game with: Turn 1). Every other Standing effect applies for as long as you hold that Standing; its *Each Empire Phase* effects resolve at the Start of the Empire Phase.
 
  Domain Identities & Traits
 

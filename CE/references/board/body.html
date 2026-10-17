@@ -97,7 +97,7 @@
   <div class="col" id="summary">
     <div class="hd"><h2>Ledger</h2></div>
 
-    <details class="tot lsec" open id="lsTreas"><summary><h3>Treasury</h3></summary>
+    <details class="tot lsec" open id="lsTreas"><summary><h3>Treasury</h3><span class="n" id="treasS">0</span><span class="note pt" id="treasPT"></span></summary>
       <div class="treas">
         <span class="k">gold</span>
         <input type="number" id="treasury" class="keepval" step="100" value="0">
@@ -124,7 +124,11 @@
       <div class="season-grid" id="seasons" style="margin-top:8px"></div>
     </details>
 
-    <details class="tot lsec" open id="lsPO"><summary><h3>Public Order</h3><span class="note" id="poBandS"></span></summary>
+    <details class="tot lsec" id="lsGlog"><summary><h3>Gold log</h3><span class="note" id="glogS"></span></summary>
+      <div id="glog"></div>
+    </details>
+
+    <details class="tot lsec" open id="lsPO"><summary><h3>Public Order</h3><span class="note" id="poBandS"></span><span class="n" id="poS">0</span><span class="note pt" id="poPT"></span></summary>
       <div class="treas">
         <button id="poMinus">−</button>
         <span class="n" id="poVal" style="font-size:22px;min-width:36px;text-align:center">0</span>

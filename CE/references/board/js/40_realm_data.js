@@ -156,12 +156,17 @@ function renderMiniStand(){const box=document.getElementById("miniStand");if(!bo
 function renderInfluence(){renderDP();const box=document.getElementById("inflBox");if(!box)return;const tot=influenceTotal(S);
   box.innerHTML='<div style="display:flex;align-items:center;gap:8px"><b>Influence / turn</b><span style="margin-left:auto;font-size:15px">'+(tot>0?'+':'')+tot+'</span></div>'+(isSpring()?'<div class="note">Spring: no Influence gained</div>':'')+
     '<div class="note">Breakdown, Envoys and modifiers: <a href="#" data-goto="table">Table ▸</a></div>';}
+let PO_ACTIVE_ONLY=true;try{PO_ACTIVE_ONLY=localStorage.getItem("renown_po_active")!=="0";}catch(e){}
 function renderPOMods(){const box=document.getElementById("poMods");if(!box)return;const rows=poModRows(S),tot=poModTotal(S),m=boardMetrics(S);
-  box.innerHTML='<div class="pomh">'+['faith','doubt'].map(side=>'<div><div class="lbl tipk" data-tip="'+esc(GLOSS[side==='faith'?'Faith X':'Doubt X']||'')+'">'+side.toUpperCase()+'</div>'+
-    rows.filter(r=>r.side===side).map(r=>'<div class="pomr"><span class="tipk" data-tip="'+esc(r.k+": "+r.desc)+'">'+esc(r.k)+'</span><span>'+
+  {const pt=document.getElementById("poPT");if(pt)pt.textContent=fmt(m.po+tot)+" / turn";}
+  const shown=r=>!PO_ACTIVE_ONLY||+r.n!==0,hid=rows.filter(r=>!shown(r)).length;
+  box.innerHTML='<label class="note pomtog"><input type="checkbox" id="poActOnly"'+(PO_ACTIVE_ONLY?' checked':'')+'> active only'+(PO_ACTIVE_ONLY&&hid?' ('+hid+' hidden)':'')+'</label>'+
+    '<div class="pomh">'+['faith','doubt'].map(side=>'<div><div class="lbl tipk" data-tip="'+esc(GLOSS[side==='faith'?'Faith X':'Doubt X']||'')+'">'+side.toUpperCase()+'</div>'+
+    rows.filter(r=>r.side===side&&shown(r)).map(r=>'<div class="pomr"><span class="tipk" data-tip="'+esc(r.k+": "+r.desc)+'">'+esc(r.k)+'</span><span>'+
       (r.auto?'<b>'+r.n+'</b>':'<button class="pmd" data-k="'+esc(r.k)+'" data-d="-1">−</button><b>'+r.n+'</b><button class="pmd" data-k="'+esc(r.k)+'" data-d="1">+</button>')+'</span></div>').join('')+'</div>').join('')+'</div>'+
     '<div class="kv"><span class="k">PO / turn</span><span class="val">'+fmt(m.po)+' '+(tot<0?'−':'+')+' '+Math.abs(tot)+' = '+fmt(m.po+tot)+'</span></div>'+
     (()=>{const pf=poFloor(S);return pf?'<div class="kv"><span class="k">'+esc(pf.src)+'</span><span class="val">floor '+pf.to+'</span></div>':'';})();
+  {const cb=box.querySelector("#poActOnly");if(cb)cb.onchange=()=>{PO_ACTIVE_ONLY=cb.checked;try{localStorage.setItem("renown_po_active",PO_ACTIVE_ONLY?"1":"0");}catch(e){}renderPOMods();};}
   box.querySelectorAll(".pmd").forEach(bt=>bt.onclick=()=>{S.poMods=S.poMods||{};const k=bt.dataset.k;S.poMods[k]=Math.max(0,(+S.poMods[k]||0)+(+bt.dataset.d));save();render();});}
 // ---- siege calculator (SIEGE_CALCULUS / SIEGE_SOURCE_VALUES) ----
 function siegeState(){D.siege=D.siege||{tp:null,sid:null,mode:"Lay Siege",army:false,att:0,def:0};return D.siege;}

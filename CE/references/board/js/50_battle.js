@@ -472,13 +472,13 @@ function endBattle(win){
   const B=battle(),side=X=>{const sa=sideArmy(B[X]);return sa.bandit?{camp:sa.camp,name:"Bandits"}:sa.p?{b:sa.p.board,name:sa.p.name}:null;};
   ["A","B"].forEach(X=>{const c=sideCalc(X);if(!c)return;c.a.fatigue=0;});
   if(win==="A"||win==="B"){const O=win==="A"?"B":"A",oc=sideCalc(O),W=side(win),L=side(O);
-    if(oc&&W&&L){const cost=+oc.rt.cost||0,t=extortGold(L,W,cost);   // Spoils of War = the defeated Army's Retinue cost (per Army, as its upkeep)
+    if(oc&&W&&L){const cost=+oc.rt.cost||0,t=extortGold(L,W,cost,"Spoils of War");   // Spoils of War = the defeated Army's Retinue cost (per Army, as its upkeep)
       blog(W.name+" won — Spoils of War: "+(oc.a.retinue||"")+" cost, extort "+t.toLocaleString()+(t<cost?" (of "+cost.toLocaleString()+")":""));
-      if(L.camp&&!(+L.camp.n>0)){const g=extortGold(L,W,L.camp.gold||0);if(g)blog(W.name+" extorts the destroyed camp's Treasury: "+g.toLocaleString());}}
+      if(L.camp&&!(+L.camp.n>0)){const g=extortGold(L,W,L.camp.gold||0,"destroyed camp");if(g)blog(W.name+" extorts the destroyed camp's Treasury: "+g.toLocaleString());}}
     if(W&&W.b){W.b.lossStreak=0;W.b.lastBattle="won";}if(L&&L.b){L.b.lossStreak=(+L.b.lossStreak||0)+1;L.b.lastBattle="lost";}
     if(W&&W.b&&L&&L.b)chron("battle",{winner:W.name,loser:L.name});
     const wc=sideCalc(win);if(L&&L.b&&W&&wc&&srcHas(L.b,"spoils_always")){
-      const t2=extortGold(W,L,+wc.rt.cost||0);if(t2)blog(L.name+" also collects Spoils of War: "+t2.toLocaleString());}
+      const t2=extortGold(W,L,+wc.rt.cost||0,"Spoils of War");if(t2)blog(L.name+" also collects Spoils of War: "+t2.toLocaleString());}
     [[win,W],[O,L]].forEach(([X,sd])=>{const c=sideCalc(X);if(!sd||!sd.b||!c)return;const lost=Math.max(0,(B.start[X]||0)-(c.a.count||0));
       srcMatch(sd.b,"faith_battle_loss").forEach(x=>{if(lost>=+x.m[2]){sd.b.po=applyPOFloor(sd.b,Math.max(PO_MIN,Math.min(PO_MAX,(sd.b.po||0)+(+x.m[1]))));blog(sd.name+" · "+x.n+": Faith +"+x.m[1]);}});});}
   else blog("Battle ended with no winner");

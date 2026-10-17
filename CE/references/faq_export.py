@@ -271,7 +271,7 @@ def build(out_path):
                  "they're Host; afterwards both get it each turn either is Host. "
                  f"No trade in {tr.get('no_trade_season','Spring')}.")
     lines.append("turn structure | " + wlink("The Turn", "rules-the-turn.html") +
-                 ": five phases, then pass the Host. 1) Empire Phase: activate Standing effects, "
+                 ": five phases, then pass the Host. 1) Empire Phase: Start of the Empire Phase effects (incl. Domain Standing effects), "
                  "apply the Season, increment timers, resolve Bandit Mechanics, gain Influence & "
                  "Envoys, collect income, pay upkeep. 2) Council Phase: Council vote on a Domain; "
                  "each player performs one action of that Domain. 3) Envoy Phase: Diplomacy Envoys "

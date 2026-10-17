@@ -123,7 +123,7 @@ REG = {
 }
 
 # ---- once-per / "may" tracker rows (the board's Once-per card) ----
-ONCE_RE = re.compile(r"\b(?:Once\s*/\s*turn|Once per turn|Once per game|Once per \w+ Phase|\d+x\s*(?:/\s*turn|per \w+ Phase)|Each turn|Every turn|Every Skirmish|At the Start of the Empire Phase)\b|\bEach Empire Phase \(Activate\)|\bmay\b(?!\s+not)", F)
+ONCE_RE = re.compile(r"\b(?:Once\s*/\s*turn|Once per turn|Once per game|Once per \w+ Phase|\d+x\s*(?:/\s*turn|per \w+ Phase)|Each turn|Every turn|Every Skirmish|At the Start of the Empire Phase)\b|\bmay\b(?!\s+not)", F)
 XCH_RE = re.compile(r"(\d+)x\s*(?:/\s*turn|per \w+ Phase):?\s*exchange (\d+) gold for (?:(\d+) Influence|Influence \+(\d+))", F)
 CANT_RE = re.compile(r"(?:can.t|cannot)\s+(.+?)(?=,?\s+and\s+(?:you\s+)?(?:can.t|cannot)\b|$)", F)
 CANT_SKIP = re.compile(r"^(?:be the target|be in an Alliance|pursue|build|equip|use shields|gain Immune|exceed|refuse|choose|vote|be modified)", F)
@@ -132,9 +132,9 @@ SP_RE = re.compile("Speed\\s*([+\\-−])\\s?(\\d+)", F)
 
 def once_phase(c):
     if re.search(r"\bOnce per turn\b", c, F): return "turn"
-    m = re.search(r"per (\w+) Phase|At the (Start) of the Empire Phase|Empire Phase \((Activate)\)|\bin the (\w+) Phase\b", c, F)
+    m = re.search(r"per (\w+) Phase|At the (Start) of the Empire Phase|\bin the (\w+) Phase\b", c, F)
     if not m: return ""
-    return m.group(1).lower() if m.group(1) else m.group(4).lower() if m.group(4) else "empire"
+    return m.group(1).lower() if m.group(1) else m.group(3).lower() if m.group(3) else "empire"
 
 
 PHASES = ("empire", "council", "envoy", "battle", "rest")
@@ -148,7 +148,7 @@ def window_of(c):
       scope Envoy predicate: personal | council | '' (the clause names Envoys without either)"""
     w = {"win": "", "lim": "", "may": bool(re.search(r"\bmay\b(?!\s+not)", c, F)), "trig": "", "envoy": bool(re.search(r"\benvoys?\b", c, F)), "scope": ""}
     if re.search(r"\bOnce per game\b", c, F): w.update(win="game", lim="once")
-    elif re.search(r"\bAt the Start of the Empire Phase\b|\bEach Empire Phase \(Activate\)", c, F): w.update(win="start-empire", lim="each")
+    elif re.search(r"\bAt the Start of the Empire Phase\b", c, F): w.update(win="start-empire", lim="each")
     elif re.search(r"\bOnce per turn\b|\bOnce\s*/\s*turn\b", c, F): w.update(win="turn", lim="once")
     else:
         m = re.search(r"\b(\d+)x\s*/\s*turn\b", c, F)

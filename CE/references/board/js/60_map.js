@@ -298,7 +298,7 @@ function runPillage(){const out=[],seen=new Set();D.players.forEach(p=>(p.board.
   const q=pById(a.pillage.tp),s=q&&settById(q,a.pillage.sid),nm=s?(s.name||s.tier):"?",why=pillageCheck(p,a);
   if(why){out.push(p.name+": Pillage of "+nm+" ends — "+why);delete a.pillage;return;}
   const key=q.id+":"+s.id;if(seen.has(key))return;seen.add(key);                       // a Settlement may be Pillaged once per Empire Phase
-  const amt=Math.max(0,Math.floor(settEcon(q,s).pillageBase/2)),t=extortGold({b:q.board},{b:p.board},amt);
+  const amt=Math.max(0,Math.floor(settEcon(q,s).pillageBase/2)),t=extortGold({b:q.board},{b:p.board},amt,"Pillage of "+nm);
   out.push(p.name+" pillages "+nm+" ("+q.name+"): extort "+t.toLocaleString()+(t<amt?" (of "+amt.toLocaleString()+")":""));}));return out;}
 // ---- Army states (Inspect rows + plate icons) ----
 function armyStatus(p,a,k){const L=[];if(!p||!a)return L;const cell=k?mapState().cells[k]:null,B=battle();
@@ -404,7 +404,7 @@ function envoyFor(p,action){if(!p)return null;const R=tSim();
     (()=>{const rec=((tCur(p).perform)||{})[E.id];return !rec||rec.edit;})())||null;}
 function settActionsHTML(p,s){if(!inspCan(p.id)||settUnbuilt(s))return "";
   const sid=s.id,opt=(L)=>L.map(x=>'<option value="'+esc(x.v)+'">'+esc(x.label)+'</option>').join("");
-  const build=withBoard(p.board,()=>buildOpts(p).filter(x=>x.v!=="hand"&&canPlace(x.v.slice(2),sid).ok));
+  const build=withBoard(p.board,()=>buildOpts(p).filter(x=>x.v!=="hand"&&!x.dis&&canPlace(x.v.slice(2),sid).ok));
   const imp=improveOpts(p).filter(x=>x.v!=="hand"&&(x.v[0]!=="x"||x.v.slice(2)===String(sid)));
   const rep=repairOpts(p).filter(x=>x.v[0]==="i"?!!s.capital:(p.board.placed||[]).some(q=>String(q.id)===x.v.slice(2)&&String(q.sid)===String(sid)));
   const row=(act,L)=>{const E=envoyFor(p,act);return '<div class="ia-r"><span class="ia-l">'+act+'</span>'+(L.length?'<select data-ia="'+act+'" data-nav="1">'+opt(L)+'</select>'+
@@ -417,7 +417,7 @@ function armyMusterBtn(p,a){if(!inspCan(p.id))return "";const E=envoyFor(p,"Must
   return '<button data-do="mapact" data-act="Muster" data-who="'+p.id+'" data-aid="'+a.id+'" data-env="'+(E?esc(E.id):"")+'" data-nav="1">Muster'+(E?' (Envoy) ▸':' ▸')+'</button>';}
 DO.mapact=el=>{const p=pById(el.dataset.who),act=el.dataset.act;if(!p)return;
   const sel=el.parentElement.querySelector("[data-ia]"),sub=act==="Muster"?"r:"+el.dataset.aid:sel?sel.value:"";
-  if(el.dataset.env){const c=tCurW(p);c.perform=c.perform||{};c.perform[el.dataset.env]={action:act,target:"",sub,ts:tnow()};
+  if(el.dataset.env){const c=tCurW(p);c.perform=c.perform||{};c.perform[el.dataset.env]={action:act,target:"",sub,place:act==="Build"?String(el.dataset.sid):"",ts:tnow()};
     if(act==="Charter")mtool="Village";save();D.view="table";render();flash(p.name+": "+act+" performed with the "+el.dataset.env.split(":")[2]+" Envoy");return;}
   const log=[],ctx={o:p,q:null,sub,log:x=>log.push(x),flag:x=>log.push("⚑ "+x),pend:()=>{},E:null,out:"Passed"};
   if(act==="Build"){const n=sub.slice(2),r=withBoard(p.board,()=>placeHolding(n,+el.dataset.sid,+el.dataset.sid));log.push(p.name+" builds "+n+(r.np.bt>0?" · Build Timer "+r.np.bt:""));}
@@ -738,7 +738,7 @@ function banditAct(k){const M=mapState(),cp=M.camps[k],B=BST(),F=BAN.faces||10,r
   else if(act==="Intercept Caravan"){B.ic[tgt.p.id]={camp:k};fx="next turn "+tgt.p.name+" is Host: trade income → camp";}
   else if(act==="Sabotage"){mapState().cells[tgt.k].blocked=true;mapState().cells[tgt.k].blockedT=tTurn();fx=tgt.p.name+"'s "+(tgt.a?(tgt.a.label||"Army "+tgt.a.id):"Army")+" @ "+tgt.k+" gains Blocked";}
   else if(act==="Foster Rebellion"){B.foster.push({pid:String(tgt.p.id)});fx="next Bandit Mechanics: 10-Retinue camp in "+tgt.p.name+"'s Outlaw Country";}
-  if(oc==="Endorsed"){const x=endorsedExtort(act),b=tgt.p.board,t=Math.min(x,Math.max(0,b.treasury||0));b.treasury=(b.treasury||0)-t;cp.gold=(cp.gold||0)+t;fx+=" · Endorsed: Extort "+t;}
+  if(oc==="Endorsed"){const x=endorsedExtort(act),b=tgt.p.board,t=Math.min(x,Math.max(0,b.treasury||0));tGold(b,-t,"Extorted by Bandits (Endorsed "+act+")");cp.gold=(cp.gold||0)+t;fx+=" · Endorsed: Extort "+t;}
   bLog(head+": "+fx,k);}
 function runBanditMechanics(){const M=mapState(),B=BST(),sea=curSeason(),keys=Object.keys(M.camps),queued=B.foster.slice();
   const W=BAN.wild||{};
@@ -814,7 +814,7 @@ function banditSkims(){const B=BST(),out=[],w=curSeason()==="Winter";
   const h=hostP();if(h&&B.ic[h.id]){const t=tradeRaw(h.board);out.push({kind:"ic",key:String(h.id),camp:B.ic[h.id].camp,by:B.ic[h.id].by,p:h,amt:t.total,what:"trade income"});}
   return out;}
 function creditSkims(L){const M=mapState(),B=BST(),out=[];L.forEach(x=>{const by=x.by!=null?pById(x.by):null,cp=by?null:M.camps[x.camp];
-  if(by)by.board.treasury=(+by.board.treasury||0)+x.amt;else if(cp)cp.gold=(cp.gold||0)+x.amt;
+  if(by)tGold(by.board,x.amt,(x.kind==="dest"?"Destabilize":"Intercept Caravan")+": "+(x.p?x.p.name+" · ":"")+x.what);else if(cp)cp.gold=(cp.gold||0)+x.amt;
   const line=(x.kind==="dest"?"Destabilize":"Intercept Caravan")+": "+(x.p?x.p.name:"?")+"'s "+x.what+" "+x.amt+(by?" → "+by.name:cp?" → camp @ "+x.camp:" (camp gone)");
   if(by)out.push(line);else bLog(line);
   if(x.kind==="dest")delete B.dest[x.key];else delete B.ic[x.key];});return out;}
