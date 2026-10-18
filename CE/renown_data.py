@@ -4640,6 +4640,14 @@ for _k, _v in list(FACTION_NAMES.items()):
     NAME_DISPLAY[_k] = _v; ALIASES[_k] = _v
     if _k.startswith("The ") and _re_disp.search(r"(?<!The )\b" + _re_disp.escape(_k[4:]) + r"\b", _FN_TXT):
         ALIASES[_k[4:]] = _v                                   # bare form where the data uses it ("Ancient Wilds")
+# ── Faction -> FACTION_TERM: what players read for "Faction" (cards, rules, wiki, board). Engine ids stay
+# (FACTIONS, CULTURES[*]['factions'], board state 'faction', {{TABLE:factions}}); display layer only.
+FACTION_TERM = ("Heritage", "Heritages")
+if FACTION_TERM[0] != "Faction":
+    _FS, _FP = FACTION_TERM
+    for _k, _v in {"Faction": _FS, "Factions": _FP, "faction": _FS.lower(), "factions": _FP.lower(),
+                   "FACTION": _FS.upper(), "FACTIONS": _FP.upper()}.items():
+        NAME_DISPLAY[_k] = _v; ALIASES[_k] = _v
 def faction_body(k):
     """A faction's mechanic text (its title is FACTIONS[k]['mechanic_name'], the faction's displayed name)."""
     return str(FACTIONS.get(k, {}).get("mechanic", ""))

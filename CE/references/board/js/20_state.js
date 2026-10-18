@@ -426,8 +426,8 @@ function setCapital(id){S.settlements.forEach(s=>{s.capital=(s.id===id);});}
 function isCityPlus(t){return TIER_CHAIN.indexOf(t)>=TIER_CHAIN.indexOf("City");}
 function dbActive(b){const out=[],dv=(b||S).domains||{};[["Rising",RIS],["Established",EST],["Sovereign",SOV]].forEach(([t,th])=>
   DOMAINS.forEach(d=>{const e=DBOARD[d];if(e&&typeof e==="object"&&e[t]&&(dv[d]||0)>=th)out.push({dom:d,tier:t,name:String(e[t]).split(":")[0].trim(),text:String(e[t])});}));return out;}
-// DOMAIN_BOARD "May have an additional City / Army" → +1 to the Era cap
-const DB_CAP={cities:/additional City/i,armies:/additional Army/i};
+// DOMAIN_BOARD "May have an additional City / Settlement / Army" → +1 to the Era cap
+const DB_CAP={cities:/additional City/i,max_settlements:/additional Settlement/i,armies:/additional Army/i};
 function capBonus(k,b){const re=DB_CAP[k];return re?dbActive(b).filter(x=>re.test(x.text)):[];}
 function eraCapBase(k){const E=ERAS[currentEra()]||{};return typeof E[k]==="number"?E[k]:null;}
 function eraCap(k){const c=eraCapBase(k);return c==null?null:c+capBonus(k).length;}
@@ -446,7 +446,7 @@ function rslug(t){return "rb-"+String(t).toLowerCase().replace(/[^a-z0-9]+/g,"-"
 function boardFlags(){
   const f=[],era=currentEra();
   const cc=cityCount(),cCap=eraCap("cities");if(cCap!=null&&cc>cCap)f.push("Cities "+cc+" / "+cCap+" allowed in "+era+capSrc("cities"));
-  const sCap=eraCap("max_settlements");if(sCap!=null&&S.settlements.length>sCap)f.push("Settlements "+S.settlements.length+" / "+sCap+" allowed in "+era);
+  const sCap=eraCap("max_settlements");if(sCap!=null&&S.settlements.length>sCap)f.push("Settlements "+S.settlements.length+" / "+sCap+" allowed in "+era+capSrc("max_settlements"));
   {const pl=playerOfBoard(S);if(pl)(S.settlements||[]).forEach(st=>{const n=armiesInside(pl,st).length;if(n>1)f.push((st.name||st.tier)+": "+n+" Armies inside (1 allowed)");});}
   pendingOf(S).forEach(x=>f.push(x.act+" performed (turn "+x.turn+") — "+x.msg));
   const aCap=eraCap("armies");if(aCap!=null&&S.armies.length>aCap)f.push("Armies "+S.armies.length+" / "+aCap+" allowed in "+era+capSrc("armies"));

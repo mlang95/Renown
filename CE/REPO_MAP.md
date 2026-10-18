@@ -1,6 +1,6 @@
 # REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`)
 
-Generated 2026-10-17 · data VERSION `0.4.9.9.13-d10-SIMPLE` · HEAD `58b6145 2026-10-17`
+Generated 2026-10-18 · data VERSION `0.4.9.9.13-d10-SIMPLE` · HEAD `49204d0 2026-10-17`
 
 Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to the repo root.
 
@@ -86,9 +86,9 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\parity_d10.py` | 41 | parity_d10.py — batch_engine and vectorized_combat must agree within dice noise. |
 | `CE\patch_cultures.py` | 245 | patch_cultures.py - replace the PLAYSTYLES block (or an existing CULTURES block) |
 | `CE\rebuild_board.bat` | 20 | rebuild_board.bat - regenerate only the settlement board (no full build). |
-| `CE\renown_data.py` | 4669 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
+| `CE\renown_data.py` | 4677 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
 | `CE\renown_data_CE.py` | 2718 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
-| `CE\renown_data_d10.py` | 4669 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
+| `CE\renown_data_d10.py` | 4677 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
 | `CE\renown_data_d8.py` | 2801 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
 | `CE\renown_server.bat` | 16 | renown_server.bat - (re)start the Renown board server in WSL. |
 | `CE\repo_map.py` | 250 | repo_map.py — write REPO_MAP.md next to this file (CE/, beside CLAUDE.md): a generated index of the Renown repo for |
@@ -445,7 +445,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `RenownWiki\escalation-pursuits.html` | 19 | Escalation Combat Holdings — Renown |
 | `RenownWiki\escalation-rules.html` | 19 | Escalation Battle Rules — Renown |
 | `RenownWiki\escalation.html` | 19 | Escalation Campaign — Renown |
-| `RenownWiki\factions.html` | 19 | Factions — Renown |
+| `RenownWiki\factions.html` | 19 | Heritages — Renown |
 | `RenownWiki\glossary.html` | 19 | Glossary — Renown |
 | `RenownWiki\index.html` | 19 | Renown Rules — Renown |
 | `RenownWiki\infrastructure-ref.html` | 19 | Infrastructure — Renown |
@@ -470,7 +470,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `RenownWiki\rules-diplomacy-actions.html` | 24 | Diplomacy Actions — Renown |
 | `RenownWiki\rules-diplomacy-treaties.html` | 44 | Diplomacy &amp; Treaties — Renown |
 | `RenownWiki\rules-domains-standings.html` | 28 | Domains &amp; Standings — Renown |
-| `RenownWiki\rules-factions.html` | 20 | Factions — Renown |
+| `RenownWiki\rules-factions.html` | 20 | Heritages — Renown |
 | `RenownWiki\rules-holdings.html` | 20 | Holdings — Renown |
 | `RenownWiki\rules-index.html` | 20 | Index — Renown |
 | `RenownWiki\rules-industry-actions.html` | 22 | Industry Actions — Renown |
@@ -696,12 +696,12 @@ Copied to `CE/renown_data.py` by the build (DIE=d10); every script imports `reno
 | `BOARD_SIZES` | 3985 | dict | 3 |
 | `SIEGE_CALCULUS` | 3991 | dict | 2 |
 | `SIEGE_SOURCE_VALUES` | 4006 | dict | 6 |
-| `NAME_DISPLAY` | 4033 | dict | 65 |
+| `NAME_DISPLAY` | 4033 | dict | 71 |
 | `TIER_DISPLAY` | 4062 | dict | 1 |
 | `ITEM_TIER_DISPLAY` | 4068 | dict | 1 |
 | `TERM_ENVOY_SCORE` | 4075 | str | 'Authority' |
 | `display_score` | 4085 | function |  |
-| `ALIASES` | 4095 | dict | 67 |
+| `ALIASES` | 4095 | dict | 73 |
 | `display` | 4105 | function |  |
 | `display_tier` | 4110 | function |  |
 | `display_text` | 4120 | function |  |
@@ -734,8 +734,9 @@ Copied to `CE/renown_data.py` by the build (DIE=d10); every script imports `reno
 | `RENOWN_PER_TURN` | 4412 | int | 1 |
 | `DOMAIN_POINTS_PER_TURN` | 4413 | int | 1 |
 | `FACTION_NAMES` | 4637 | dict | 41 |
-| `faction_body` | 4643 | function |  |
-| `GLOSSARY_CATEGORIES` | 4651 | list | 17 |
+| `FACTION_TERM` | 4645 | tuple | 2 |
+| `faction_body` | 4651 | function |  |
+| `GLOSSARY_CATEGORIES` | 4659 | list | 17 |
 
 ## 4. Build steps — `CE\build_all_CE.bat`
 
