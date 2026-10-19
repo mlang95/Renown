@@ -392,7 +392,7 @@ Settlements have a Reach value set by their tier, from {{VAL:SETTLEMENTS.Village
 
 ### Hamlets
 
-Hamlets are unique Settlements, placed *exactly* Range {{VAL:HAMLET_RANGE}} from your capital via a Charter Settlement action. These small farmland communities produce no tax income or muster limit, but have {{VAL:SETTLEMENTS.Hamlet.wards}} Settlement Wards. You may only pursue **Natural** Holdings in a Hamlet, and a Holding in a Hamlet can only be efficient if it is itself Natural. You may also pursue Arable Land in a Hamlet even if that Raw Material isn't in the Hamlet's region.{{IDX:Hamlet}}
+Hamlets are unique Settlements, placed *exactly* Range {{VAL:HAMLET_RANGE}} from your capital at the start of the game. These small farmland communities produce no tax income or muster limit, but have {{VAL:SETTLEMENTS.Hamlet.wards}} Settlement Wards. You may only pursue **Natural** Holdings in a Hamlet, and a Holding in a Hamlet can only be efficient if it is itself Natural. You may also pursue Arable Land in a Hamlet even if that Raw Material isn't in the Hamlet's region.{{IDX:Hamlet}}
 
 {{GLOSSARY:Settlements & Holdings}}
 

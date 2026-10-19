@@ -142,7 +142,8 @@ GLOSSARY = {
     #MINUS_1_PARRY: "A stacking -1 penalty to the defender's Parry roll (to a maximum of 6+). Sources: Unstoppable, Deflect, and each Fatigue token.",
     DUAL_WIELD: "A failed Strike is rerolled once; the rerolled Strike can be Focused. Dual Wield confers Two-Handed. You cannot reroll successful Strikes.",
     #FLORENTINE: "Only active while Dual Wielding.",
-    "Immune [keyword]": "Cancels that keyword as it applies to you (e.g. Immune Unwieldy, Strain, Destroy Shield).",
+    "Immune [keyword]": "Can't gain that keyword's effect as it applies to your Army (e.g. Immune Strain, Destroy Shield, Steady, etc.).",
+    "Negate [keyword]": "Your opponent can't gain that keyword's effect as it applies to their Army (e.g. Negate Shielded, Riposte, Planishing, etc.).",
 
     # ── Combat keywords ported from the Escalation Campaign glossary ──
     "AP":            "Armor Penetration — a weapon's (negative) modifier to the defender's Save roll; the more negative, the harder to save.",
@@ -154,7 +155,7 @@ GLOSSARY = {
 
     # ── Battle-structure terms (doc glossary, wording updated to current rules) ──
     "Attacker / Defender": "The Attacker performed the Move action that caused the Battle or Lay Siege; the other side is the Defender. Each Skirmish the Attacker declares equipment first; the Defender then responds.",
-    "Battle":        "One fight between two players, resolved as a series of Skirmishes until a side is wiped out, Routs, or Falls Back.",
+    "Battle":        "A collection of Skirmishes between two players, continuing until a side's Retinue count is reduced to 0, Routs, or successfully Falls Back, ending the Battle.",
     "Skirmish":      "One round of a Battle, run through the numbered Battle steps; a Battle repeats Skirmishes until it ends.",
     "Casualty":      "A retinue removed from the field — from an unsaved Strike or a failed Panic or Break check.",
     "Field":         "Your retinues in play — front line (up to 10) plus reserve (up to 5). Casualties leave the field at once, lowering its count.",
@@ -195,7 +196,7 @@ GLOSSARY = {
     "Condemned":     "An Envoy whose net Influence is -3 or less: it fails and you resolve that Domain's Condemn effect.",
     "Council Phase": "Before Personal Envoys, a brief Forum, then all players vote on a Domain with no talking (clockwise; Host breaks ties). Each then sends a free Council Envoy of that Domain. Council Envoys auto-Abstain and their net Influence cannot drop below 1.",
     "Council Envoy": "A free Envoy resolved in the Council Phase on the voted Domain; auto-Abstained, net Influence floored at 1.",
-    "Personal Envoy": "An Envoy you send in the Envoy Phase to perform an action; count and reach scale with Era.",
+    "Personal Envoy": "An Envoy you send in the Envoy Phase to attempt to perform an action; the amount of Envoys you can spend and the volume of actions you can perform with one scales with Era.",
 	"Envoy Outcome": "How a Sent Envoy resolves, by Net Influence: Condemned (<= -3), "
                     "Failed (-3 < Net <= 0, gain Doubt 1), Passed (>= 1), Endorsed (>= 3). The per-domain "
                     "effect at each band is given by the Envoy Outcome Table; an action's own endorsed bonus overrides "
@@ -291,8 +292,8 @@ ENDURANCE_REGAIN    = 2    # +Endurance restored to non-Strained armies in the E
 RETINUES = {
     "Levy":           {"cost": 1000, "to_hit": 6, "endurance": 2, "shaking": 7, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES, "aura": 1},
     "Man-at-Arms":    {"cost": 2000, "to_hit": 5, "endurance": 3, "shaking": 6, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES, "aura": 2},
-    "Sergeant":       {"cost": 2000, "to_hit": 3, "endurance": 2, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES, "aura": 2},
-    "Knight Templar": {"cost": 2000, "to_hit": 4, "endurance": 2, "shaking": 4, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES, "aura": 2},
+    "Sergeant":       {"cost": 3000, "to_hit": 3, "endurance": 2, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES, "aura": 2},
+    "Knight Templar": {"cost": 3000, "to_hit": 4, "endurance": 2, "shaking": 4, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES, "aura": 2},
 }
 
 WEAPONS = {
@@ -1970,7 +1971,7 @@ SIMPLE_NODES = {
     "Shipyard": {
         "group": "g_commerce",
         "unlock": "Rising Industry",
-        "innate": "Craft +4; Water Territory treated as Grassland for movement",
+        "innate": "Craft +4; Can Trade; Water Territory treated as Grassland for movement",
         "efficient": "Harbor",
         "builds_into": ["Storehouse"],
         "monument": False},
@@ -3578,11 +3579,13 @@ GLOSSARY.update({
 	"Host": "Holds the Host Card; the starting player is the player directly clockwise from the Host, including in Spring. The role passes clockwise each Rest Phase (there is no Host in Spring). The Host collects and distributes Trade Income, resolves Bandit Mechanics, and breaks ties (Council vote, bandit targeting, and any tie not otherwise resolved).",
     "Send an Envoy": "Declare a Domain, spend 1 Envoy.",
     "Perform": "When you Perform an action, immediately do the description of the action. Pay the action's normal Cost.",
-    "Resolve": "Attempt to Perform an action.",
+    "Resolve": "Determine modified Authority and follow Envoy Resolution Table.",
     "Cost / Pay": "Cost to perform an action, usually in Gold or Doubt.",
-    "Fail": "An unsuccessful to Hit or to Save.",
-    "Failed": "Net Influence 0 or less.",
-    "Passed": "Net Influence 1 or more.",
+    "Fail": "An unsuccessful Combat roll.",
+    "Failed": "Net Authority 0, -1, or -2.",
+    "Passed": "Net Authority 1 or 2.",
+    "Endorsed": "Net Authority 3+.",
+    "Condemned": "Net Authority -3 or less.",
 })
 # ============================================================================
 # NEW STRUCTURES — paste into renown_data.py and modify as needed.

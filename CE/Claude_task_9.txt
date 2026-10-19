@@ -1,0 +1,27 @@
+This is for working on and making rules.docx behave and function more like a high quality rulebook.
+Consider what sort of updates it could have in terms of the text itself, the organisation, the tables / data.
+What things aren't clear, need to use more homogenised writing, uses terms that aren't in line with the motif of the writing, etc.
+Considerations first, then do things in batches that optimise token usage.
+
+Rules re-writes / implementations:
+Consider the order of terms within a table as well.
+(pass on this for now) Remove Diplomacy Envoys & diplomatic authority, make a Diplomacy phase instead where each player can participate in a single signed treaty, end treaty, or negotiate.
+Make Envoy column wider on era table on rules.
+Faith is Fickle: Cannot target players with piety actions if po < 0
+Organise Holdings by Standing Requirement(s) instead of works commerce etc. If in multiple, place it in both.
+Consider allowing Harbors to also behave as a Trade enabler, alongside dirt roads. "Can Trade"
+Fail -> unsuccessful combat rolls or envoy resolutions
+Resolve -> Determine modified Authority and follow Envoy Resolution Table.
+Remove Aura, make it just a range 2 conditional rule. Give it some sort of term like Control: "Cannot move within Range 2 of a non-allied settlement or army unless performing a lay siege or battle action. That can be the special rule for Prowess?
+Add logic to the tables where you can wrap text on columns that tend to only have words like "Established X" or "Alchemy,Forgotten Catacombs" to allow the "effect" column to take up more space.
+Consider removing the Range 1 settlement ward placing, keeping it an abstract concept that exists inside the settlement, or something that physically exists within range 1 of the settlement itself, adding flavor to the board and expanding the zone of control / reach.
+make sure siege timer table is grabbing all things that give Siege Timer +X, looks like Keep is missing.
+combine / deduplicate Key Rouses / Reading these rules / core [principles. Make sure that sub effects are indented, make sure there aren't bullet points and x.y ( * 9.1)
+Empire phase on page 6 of rules needs better indenting / numbering to make it easier to read.
+
+Combine Bandit Armaments and growth by era tables.
+I added Negate [keyword] so you can drop the 2 negate examples in the immune / negate table.
+Remove tax seaon from the trade and income table.
+
+
+

@@ -31,7 +31,7 @@ Baggage Train | [Baggage Train](https://mlang95.github.io/RenownWiki/pursuits.ht
 Bakery | [Bakery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Husbandry). Effect: Natural; Faith +1; +1000; Craft +2
 Bandit | [Bandit](https://mlang95.github.io/RenownWiki/glossary.html#bandit): Neutral hostile force; Bandit Camps spawn in Outlaw Country and on low Public Order.
 Bastard Sword | [Bastard Sword](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP −2, Init +0. Keywords: Steady.
-Battle | [Battle](https://mlang95.github.io/RenownWiki/glossary.html#battle): One fight between two players, resolved as a series of Skirmishes until a side is wiped out, Routs, or Falls Back.
+Battle | [Battle](https://mlang95.github.io/RenownWiki/glossary.html#battle): A collection of Skirmishes between two players, continuing until a side's Retinue count is reduced to 0, Routs, or successfully Falls Back, ending the Battle.
 Battle Axe | [Battle Axe](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP −3, Init −1. Keywords: 2H, Unwieldy, Unstoppable, Cleave, Negate Shielded.
 Beacon Towers | [Beacon Towers](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Secrecy). Effect: Natural; At the Start of the Empire Phase, you may select an Army within your Province and move it up to its modified Speed. Whenever a non-allied Army ends a Move action within your Province, you may immediately perform a Move action
 Bell Tower | [Bell Tower](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Court). Effect: Influence +1 each Empire Phase; Authority +1 to envoys sent during the Council Phase.
@@ -77,7 +77,7 @@ College of Engineering | [College of Engineering](https://mlang95.github.io/Reno
 Colossus | [Colossus](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Wondrous). Upkeep 500 (per Wonder), build 10. You may support your own Personal Prowess Envoys before other players vote. Speed +2; Siege Timer −2, & gain Immune Blunder.
 combat | See 'how to attack'.
 Common Land | [Common Land](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Raw Materials). Effect: +1000; Natural, Doubt +1
-Condemned | [Condemned](https://mlang95.github.io/RenownWiki/glossary.html#condemned): An Envoy whose net Authority is −3 or less: it fails and you resolve that Domain's Condemn effect.
+Condemned | [Condemned](https://mlang95.github.io/RenownWiki/glossary.html#condemned): Net Authority −3 or less.
 Conditioning Field | [Conditioning Field](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Faith +1 while not at War; Armies gain Nimble / Requires: Muster Field
 Contested | [Contested](https://mlang95.github.io/RenownWiki/glossary.html#contested): Territory that is Controlled by more than one player's settlement(s).
 Controlled | [Controlled](https://mlang95.github.io/RenownWiki/glossary.html#controlled): Territory that is within Reach of a Player's Settlement(s).
@@ -126,7 +126,7 @@ Embassy | [Embassy](https://mlang95.github.io/RenownWiki/pursuits.html) Holding 
 Eminence | [Eminence](https://mlang95.github.io/RenownWiki/eras-ref.html) Era. Renown 18, armies 3, cities 2, influence/turn 3, envoys: 1 Council Envoy (2 actions each) + 1 Personal Envoy (2 actions each) per turn. Unlocks: May form Military Alliances
 Emporium | [Emporium](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Commerce). Effect: +1000; Players who trade with you gain Craft +3
 End Treaty | [End Treaty](https://mlang95.github.io/RenownWiki/actions-ref.html): Diplomacy action. Cost: None. Choose a target with whom you have an active Treaty and no active Truce Timer; remove that Treaty. The target doesn't need to agree. Endorsed: Faith +1.
-Endorsed | [Endorsed](https://mlang95.github.io/RenownWiki/glossary.html#endorsed): An Envoy that passes with 3+ net Authority, triggering its endorsed effect (and a Domain's Rising/Established/Sovereign endorsement).
+Endorsed | [Endorsed](https://mlang95.github.io/RenownWiki/glossary.html#endorsed): Net Authority 3+.
 Endurance | [Endurance](https://mlang95.github.io/RenownWiki/glossary.html#endurance): A side's stamina. Each side that fights loses 1 per Skirmish; at 0 it becomes Fatigued.
 Enduring | [Enduring](https://mlang95.github.io/RenownWiki/glossary.html#enduring): Successfully Healed Strikes don't count toward the Panic check threshold.
 Envoy | [Envoy](https://mlang95.github.io/RenownWiki/glossary.html#envoy): The currency of actions: send an Envoy to perform an action during the Envoy Phase. Council Envoys act on the voted Domain; Personal Envoys are sent by Era progression.
@@ -146,8 +146,8 @@ Eternal Sepulchre | [Eternal Sepulchre](https://mlang95.github.io/RenownWiki/pur
 Execution Dock | [Execution Dock](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Devotion). Effect: Authority −2 to Foster Rebellion actions targeting your settlements; Players who target you or your Settlements with actions that would cause Doubt before modifiers gain Doubt +1
 Extort X | [Extort X](https://mlang95.github.io/RenownWiki/glossary.html#extort-x): Take X from the stated source: the gold goes to you instead of its owner.
 heritages | [41 heritages](https://mlang95.github.io/RenownWiki/heritages.html). Filter by 'low/medium/high difficulty heritages' or 'low/medium/high strength heritages', or ask a heritage by name.
-Fail | [Fail](https://mlang95.github.io/RenownWiki/glossary.html#fail): An unsuccessful to Hit or to Save.
-Failed | [Failed](https://mlang95.github.io/RenownWiki/glossary.html#failed): Net Authority 0 or less.
+Fail | [Fail](https://mlang95.github.io/RenownWiki/glossary.html#fail): An unsuccessful Combat roll.
+Failed | [Failed](https://mlang95.github.io/RenownWiki/glossary.html#failed): Net Authority 0, −1, or −2.
 Faith X | [Faith X](https://mlang95.github.io/RenownWiki/glossary.html#faith-x): Gain X Faith: each Faith raises your Public Order track by 1 when resolved.
 Fall | [Fall](https://mlang95.github.io/RenownWiki/seasons-ref.html) Season (Harvest). Income from Holdings in Hamlets is doubled.
 Fall Back | [Fall Back](https://mlang95.github.io/RenownWiki/glossary.html#fall-back): A controlled retreat that ends the Battle with at least one retinue left — a partial success.
@@ -198,7 +198,7 @@ how to attack | [Battle Phase](https://mlang95.github.io/RenownWiki/rules-battle
 how to trade | [Trade](https://mlang95.github.io/RenownWiki/rules-trade-income.html): have active Dirt Road Infrastructure and sign a Trade Agreement (Sign Treaty). Per agreement, both players gain 100 x the Host's Craft X. After signing, the player who did not perform Sign Treaty gets income the next time they're Host; afterwards both get it each turn either is Host. No trade in Spring.
 how to win | [Edicts](https://mlang95.github.io/RenownWiki/edicts-ref.html): whichever player has accomplished the most Edicts before the last Alliance standing condition is met wins. Completing an Edict raises the Renown tracker by 1; any Edict may be completed multiple times. Edicts: Sovereign Standing (Reach a Sovereign Standing (Domain value 10) in any Domain.); Monument (Have a Monument holding.); Wonder (Improve Infrastructure via a Wonder.); Wealth (Hold 50,000 gold in your Treasury for five consecutive turns.); Vassalize (Vassalize a rival player (control their capital with no other settlements/armies under them).); Living Saints (Sustain Public Order 10 (Living Saints) for five consecutive turns (Pious Timer).); Last Alliance Standing (Be the last alliance standing — the game-ending stop condition.)
 Hunting Bow | [Hunting Bow](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Crude). AP 0, Init +2. Keywords: 2H, Unstoppable, Negate Riposte, Awkward.
-Immune [keyword] | [Immune [keyword]](https://mlang95.github.io/RenownWiki/glossary.html#immune-keyword): Cancels that keyword as it applies to you (e.g. Immune Unwieldy, Strain, Destroy Shield).
+Immune [keyword] | [Immune [keyword]](https://mlang95.github.io/RenownWiki/glossary.html#immune-keyword): Can't gain that keyword's effect as it applies to your Army (e.g. Immune Strain, Destroy Shield, Steady, etc.).
 Imperial Palace | [Imperial Palace](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Each Empire Phase, all non-allied players with a lower Prowess value gain Doubt +2. If your Envoy would fail, it passes instead.
 Improve | [Improve](https://mlang95.github.io/RenownWiki/actions-ref.html): Industry action. Cost: 2000 gold. Choose one: Infrastructure — choose an unlocked, available Infrastructure and set a Build Timer equal to its build time; when it completes, the Infrastructure becomes active in every Settlement in your Province. Or Expand a Settlement one tier into an adjacent Territory (Village to Town, Town to City, City to Metropolis), adding a Ward. Endorsed: Recoup 2000.
 Industry | [Industry](https://mlang95.github.io/RenownWiki/domain-board-ref.html) Domain standing. Rising: Trade Secrets: Perform endorsed Build.; Established: Grand Architect: May have an additional Settlement. Perform endorsed Improve.; Sovereign: Titan of Industry: Your capital may be improved to a Metropolis. Perform endorsed Improve.
@@ -218,7 +218,7 @@ Joinery | [Joinery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding 
 Keep | [Keep](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Prodigious). Upkeep 400 (each Empire Phase), build 4. When you Muster, reduce the Muster Timer by 1 and immediately gain Retinues equal to the combined muster limit. Siege Timer +2.
 Kiln | [Kiln](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Natural; +500
 Kite Shield | [Kite Shield](https://mlang95.github.io/RenownWiki/equipment-ref.html) Shield (Wrought). Save +1, Init +0. Keywords: Steady, Shielded.
-Oathsworn | [Oathsworn](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 4+, Endurance 2, Morale 4+, cost 2000.
+Oathsworn | [Oathsworn](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 4+, Endurance 2, Morale 4+, cost 3000.
 Lance | [Lance](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP −5, Init +1. Keywords: Steady, Unwieldy, Deadly, Unstoppable, Awkward, Negate Riposte, Destroy Shield.
 Last Alliance Standing | [Last Alliance Standing](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Endgame). Be the last alliance standing — the game-ending stop condition.
 Leather | [Leather](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Cast). Save 7+. Keywords: none.
@@ -259,6 +259,7 @@ Muster Field | [Muster Field](https://mlang95.github.io/RenownWiki/infrastructur
 Muster Timer | [Muster Timer](https://mlang95.github.io/RenownWiki/glossary.html#muster-timer): Turns remaining in a Muster; each turn it counts down, the Army gains Retinues up to the combined muster limit.
 Natural | [Natural](https://mlang95.github.io/RenownWiki/glossary.html#natural): Natural Holdings do not cost Upkeep & can be used in Hamlets.
 Natural roll | [Natural roll](https://mlang95.github.io/RenownWiki/glossary.html#natural-roll): The number on the die before any modifiers. Modifiers never change what counts as 'natural'.
+Negate [keyword] | [Negate [keyword]](https://mlang95.github.io/RenownWiki/glossary.html#negate-keyword): Your opponent can't gain that keyword's effect as it applies to their Army (e.g. Negate Shielded, Riposte, Planishing, etc.).
 Negate Planishing | [Negate Planishing](https://mlang95.github.io/RenownWiki/glossary.html#negate-planishing): Ignores Planishing: this weapon's AP can reduce the target's Save beyond 10+ (to auto-fail).
 Negate Riposte | [Negate Riposte](https://mlang95.github.io/RenownWiki/glossary.html#negate-riposte): The target's Parry can never Riposte this weapon's Strikes (a natural 10 Parry still cancels the Strike, but no counter-Strike follows).
 Negotiate | [Negotiate](https://mlang95.github.io/RenownWiki/actions-ref.html): Diplomacy action. Cost: None. Propose terms to a target; they agree or refuse. Terms may include gold, Settlement ownership, Territory, signing or ending a Treaty, or promises (non-binding). Endorsed: Faith +1.
@@ -276,11 +277,11 @@ Outrider Intercept Post | [Outrider Intercept Post](https://mlang95.github.io/Re
 Panic check | [Panic check](https://mlang95.github.io/RenownWiki/glossary.html#panic-check): Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish (Healed Strikes count, unless Enduring), after both sides have Struck. Roll Morale (5 dice); Immune Panic auto-passes.
 Papal Palace | [Papal Palace](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: You no longer pay cost for Piety Envoys. Each Empire Phase, Tithe every other player with lower Piety, resolved in the Extort step.
 Parry | [Parry](https://mlang95.github.io/RenownWiki/keywords-ref.html#parry): Roll a D10 to attempt to Parry a Strike before an Armor Save. On a 8+ (Improved by Improved Parry), the Strike is Parried and has no further effect.
-Passed | [Passed](https://mlang95.github.io/RenownWiki/glossary.html#passed): Net Authority 1 or more.
+Passed | [Passed](https://mlang95.github.io/RenownWiki/glossary.html#passed): Net Authority 1 or 2.
 Peace Treaty | [Peace Treaty](https://mlang95.github.io/RenownWiki/treaties-ref.html) Treaty. Ends war between the two players; sets Truce Timer 5.
 Peat Bog | [Peat Bog](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Raw Materials). Effect: +500; Natural; Craft +1
 Perform | [Perform](https://mlang95.github.io/RenownWiki/glossary.html#perform): When you Perform an action, immediately do the description of the action. Pay the action's normal Cost.
-Personal Envoy | [Personal Envoy](https://mlang95.github.io/RenownWiki/glossary.html#personal-envoy): An Envoy you send in the Envoy Phase to perform an action; count and reach scale with Era.
+Personal Envoy | [Personal Envoy](https://mlang95.github.io/RenownWiki/glossary.html#personal-envoy): An Envoy you send in the Envoy Phase to attempt to perform an action; the amount of Envoys you can spend and the volume of actions you can perform with one scales with Era.
 Piety | [Piety](https://mlang95.github.io/RenownWiki/domain-board-ref.html) Domain standing. Rising: Divine Mandate: Faith +1 each Empire Phase.; Established: One True Gospel: Each Empire Phase, all other non-allied players with a lower Piety value gain Doubt +2.; Sovereign: Pillar of Faith: If your Public Order would be set below 3, set it to 3. In addition, may use the Sacred War action.
 Pike | [Pike](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP −1, Init +1. Keywords: 2H, Steady, Unwieldy, Deadly, Awkward.
 Pilgrimage Site | [Pilgrimage Site](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Devotion). Effect: Natural; Extort 500 every player without a Pilgrimage Site; Doubt +1 to all other players without a Pilgrimage Site / Requires: Cathedral
@@ -326,7 +327,7 @@ Reliquary Sanctum | [Reliquary Sanctum](https://mlang95.github.io/RenownWiki/pur
 Renown | [Renown](https://mlang95.github.io/RenownWiki/glossary.html#renown): The shared progress track. Gain 1 per Rest Phase; thresholds raise your Era (Ascension 8, Eminence 18, Zenith 30).
 Repair | [Repair](https://mlang95.github.io/RenownWiki/actions-ref.html): Industry action. Cost: 0 gold. Choose a Damaged Holding or Infrastructure in a Settlement you control and set Build Timer 2. When it reaches 0, choose one: Restore — reactivate it with all effects; Demolish — remove the Holding tile from your Empire Tableau. Endorsed: Recoup 0.
 Repair Timer | [Repair Timer](https://mlang95.github.io/RenownWiki/glossary.html#repair-timer): Turns until a Damaged piece is repaired and its effects return.
-Resolve | [Resolve](https://mlang95.github.io/RenownWiki/glossary.html#resolve): Attempt to Perform an action.
+Resolve | [Resolve](https://mlang95.github.io/RenownWiki/glossary.html#resolve): Determine modified Authority and follow Envoy Resolution Table.
 Retinue | [Retinue](https://mlang95.github.io/RenownWiki/glossary.html#retinue): A single unit within an Army, represented by a single die roll for Strikes, Saves, etc.
 Riposte | [Riposte](https://mlang95.github.io/RenownWiki/keywords-ref.html#riposte): If you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.
 Road Wardens | [Road Wardens](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Sophisticated). Upkeep 300 (each Empire Phase), build 3. Authority −1 to Bandit Cunning & Prowess actions targeting your settlements or armies.
@@ -348,12 +349,12 @@ Seize the Initiative | [Seize the Initiative](https://mlang95.github.io/RenownWi
 Senate Hall | [Senate Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Faith +1, gain Influence +1 per other player each Empire Phase; Once per Envoy Phase: before players vote on an Envoy you choose, you may Condemn it if it's an At War player's Envoy, or Endorse it if it's an Ally's Envoy / Requires: Library + Town Hall
 Send an Envoy | [Send an Envoy](https://mlang95.github.io/RenownWiki/glossary.html#send-an-envoy): Declare a Domain, spend 1 Envoy.
 Send Missionaries | [Send Missionaries](https://mlang95.github.io/RenownWiki/actions-ref.html): Piety action. Cost: Doubt 1. Choose a target player or Alliance. If the target is outside your Alliance, each player in it gains Doubt 2. If the target is inside your Alliance, each other allied player gains Faith 2. Endorsed: Recoup Doubt.
-Sergeant | [Sergeant](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 3+, Endurance 2, Morale 5+, cost 2000.
+Sergeant | [Sergeant](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 3+, Endurance 2, Morale 5+, cost 3000.
 Serrated | [Serrated](https://mlang95.github.io/RenownWiki/keywords-ref.html#serrated): A cumulative −2 penalty to the defender's Heal roll.
 Settlement Ward | [Settlement Ward](https://mlang95.github.io/RenownWiki/glossary.html#settlement-ward): A slot in a Settlement that holds one Holding; a Settlement has one Ward per tier (a Hamlet has 3 Husbandry Wards).
 settlements | [Settlements](https://mlang95.github.io/RenownWiki/settlements-ref.html): Hamlet, Village, Town, City, Metropolis. Each has tax, muster, wards, and reach values.
 Shielded | [Shielded](https://mlang95.github.io/RenownWiki/keywords-ref.html#shielded): A cumulative −1 penalty to the Strike roll (to a maximum of 10+). Sources: a shield's −1 to Strike.
-Shipyard | [Shipyard](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Commerce). Effect: Craft +4; Water Territory treated as Grassland for movement
+Shipyard | [Shipyard](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Commerce). Effect: Craft +4; Can Trade; Water Territory treated as Grassland for movement
 Short Sword | [Short Sword](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Cast). AP 0, Init +0. Keywords: Steady.
 Siege | [Siege](https://mlang95.github.io/RenownWiki/glossary.html#siege): Sieging a Settlement with an Army to capture it; does not increment in Winter.
 Siege Camp | [Siege Camp](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Siege Timer −1; Armies gain Immune Strained during Lay Siege
