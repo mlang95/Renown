@@ -19,7 +19,7 @@ Aristocratic Court | [Aristocratic Court](https://mlang95.github.io/RenownWiki/p
 Arming Sword | [Arming Sword](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP −1, Init +0. Keywords: Steady.
 Armory | [Armory](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Arms). Effect: Unlock Wrought armor & shield; Upkeep −500; Craft +1
 army upkeep | [Army upkeep](https://mlang95.github.io/RenownWiki/economy-ref.html): Σ(each Army's cost by Retinue type) - Upkeep −X. Reduced by Levy Hall, Tannery, Saddlery, Butchery, Smokehouse, Advanced Blast Furnace, High Quartermaster, etc.
-Arquebus | [Arquebus](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Crude). AP −6, Init +2. Keywords: 2H, Unwieldy, Unstoppable, Negate Shielded, Negate Riposte, Negate Planishing, Awkward.
+Arquebus | [Arquebus](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Crude). AP −6, Init +2. Keywords: 2H, Unwieldy, Unstoppable, Negate Shielded, Awkward.
 Ordinance Yard | [Ordinance Yard](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Siege Timers ignore Wooden & Stone Walls. Unlocks Arquebus; Settlements you Siege can't Sally Forth. Siege Timer −1.
 Artisan Workshop | [Artisan Workshop](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Commerce). Effect: +1000; Faith +1
 Ascension | [Ascension](https://mlang95.github.io/RenownWiki/eras-ref.html) Era. Renown 8, armies 2, cities 1, influence/turn 2, envoys: 1 Council Envoy (2 actions each) + 1 Personal Envoy (1 action each) per turn. Unlocks: May Declare War
@@ -59,7 +59,7 @@ cast weapons | [Cast tier](https://mlang95.github.io/RenownWiki/equipment-ref.ht
 Castle Hall | [Castle Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Works). Effect: Doubt +1; Tax Income is Doubled.
 Casualty | [Casualty](https://mlang95.github.io/RenownWiki/glossary.html#casualty): A retinue removed from the field — from an unsaved Strike or a failed Panic or Break check.
 Cathedral | [Cathedral](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Prodigious). Upkeep 400 (each Empire Phase), build 4. Faith +2
-Cavalry Spear | [Cavalry Spear](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP −2, Init +1. Keywords: Steady, Unwieldy, Negate Riposte, Awkward.
+Cavalry Spear | [Cavalry Spear](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP −2, Init +1. Keywords: Steady, Unwieldy, Awkward.
 Census Hall | [Census Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Works). Effect: Natural; Doubt +1; +1000
 Chainmail | [Chainmail](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Wrought). Save 6+. Keywords: none.
 Chandlery | [Chandlery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Devotion). Effect: Craft +1; Authority −1 to Cunning actions targeting you
@@ -95,7 +95,7 @@ Courtyard | [Courtyard](https://mlang95.github.io/RenownWiki/pursuits.html) Hold
 Craft | [Craft](https://mlang95.github.io/RenownWiki/glossary.html#craft): Craft Holdings count toward how much income your Trade Agreements generate — any effect that grants Craft +X. For each active Trade Agreement, both players gain 100 × the Host's Craft X.
 crafted gear | Tempered tier: weapons [Estoc, Poleaxe, Throwing Spear], shields [Heater Shield], armor [Gothic Plate].
 crafted weapons | [Tempered tier](https://mlang95.github.io/RenownWiki/equipment-ref.html) (3): Estoc, Poleaxe, Throwing Spear
-Crossbow | [Crossbow](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Forged). AP −4, Init +1. Keywords: Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Awkward.
+Crossbow | [Crossbow](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Forged). AP −4, Init +1. Keywords: Unwieldy, Deadly, Unstoppable, Negate Shielded, Awkward.
 Crude | [Crude](https://mlang95.github.io/RenownWiki/glossary.html#crude): Crude equipment tier. Weapons: Farm Tool, Cudgel, Pitchfork; Ranged: Hunting Bow; Armor: Padded; Shield: Buckler Shield. Unlocked by: Animal Husbandry (armor & shield).
 Crude Armor | [Crude Armor](https://mlang95.github.io/RenownWiki/glossary.html#crude-armor): Crude-tier armor: Padded. Unlocked by: Animal Husbandry.
 crude gear | Crude tier: weapons [Farm Tool, Cudgel, Pitchfork, Hunting Bow, Arquebus], shields [Buckler Shield], armor [Padded].
@@ -142,7 +142,7 @@ escalation pursuits | [Combat Holdings](https://mlang95.github.io/RenownWiki/esc
 escalation rules | [Escalation Battle Rules](https://mlang95.github.io/RenownWiki/escalation-rules.html): setup, turn sequence, victory points, and the 12-step Skirmish walkthrough.
 escalation setup | [Escalation setup](https://mlang95.github.io/RenownWiki/escalation-rules.html): each player starts with 25 Levy retinues, Farm Tool, Cloth armor, no shield; all Domains Untested; 0 VP.
 escalation victory | [VP](https://mlang95.github.io/RenownWiki/escalation-rules.html): Decisive Win +3, Minor Victory (enemy Fell Back) +2, successful Fall Back +1, any other loss 0. Edicts (Sovereign Standing or mastered Monument) score VP too.
-Estoc | [Estoc](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Tempered). AP −3, Init +0. Keywords: Steady, Deadly, Unstoppable, Negate Riposte, Negate Planishing.
+Estoc | [Estoc](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Tempered). AP −3, Init +0. Keywords: Steady, Deadly, Unstoppable.
 Eternal Sepulchre | [Eternal Sepulchre](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: At the Start of the Empire Phase, you may perform an Endorsed Spread Truth.
 Execution Dock | [Execution Dock](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Devotion). Effect: Authority −2 to Foster Rebellion actions targeting your settlements; Players who target you or your Settlements with actions that would cause Doubt before modifiers gain Doubt +1
 Extort X | [Extort X](https://mlang95.github.io/RenownWiki/glossary.html#extort-x): Take X from the stated source: the gold goes to you instead of its owner.
@@ -198,7 +198,7 @@ Host | [Host](https://mlang95.github.io/RenownWiki/glossary.html#host): Holds th
 how to attack | [Battle Phase](https://mlang95.github.io/RenownWiki/rules-battle-phase.html): Move action (Prowess): Move an Army up to its Speed in Territories. Then choose one: March — move up to 2× Speed, lose 1 Endurance, take no other action; Battle — end adjacent to an at-war Army not in a Settlement, then begin a Battle; Lay Siege — end adjacent to an at-war Settlement, then begin a Siege. A Battle is fought as a series of Skirmishes until one side is wiped out, Routs, or successfully Falls Back.
 how to trade | [Trade](https://mlang95.github.io/RenownWiki/rules-trade-income.html): have active Dirt Road Infrastructure and sign a Trade Agreement (Sign Treaty). Per agreement, both players gain 100 x the Host's Craft X. After signing, the player who did not perform Sign Treaty gets income the next time they're Host; afterwards both get it each turn either is Host. No trade in Spring.
 how to win | [Edicts](https://mlang95.github.io/RenownWiki/edicts-ref.html): whichever player has accomplished the most Edicts before the last Alliance standing condition is met wins. Completing an Edict raises the Renown tracker by 1; any Edict may be completed multiple times. Edicts: Sovereign Standing (Reach a Sovereign Standing (Domain value 10) in any Domain.); Monument (Have a Monument holding.); Wonder (Improve Infrastructure via a Wonder.); Wealth (Hold 50,000 gold in your Treasury for five consecutive turns.); Vassalize (Vassalize a rival player (control their capital with no other settlements/armies under them).); Living Saints (Sustain Public Order 10 (Living Saints) for five consecutive turns (Pious Timer).); Last Alliance Standing (Be the last alliance standing — the game-ending stop condition.)
-Hunting Bow | [Hunting Bow](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Crude). AP 0, Init +2. Keywords: 2H, Unstoppable, Negate Riposte, Awkward.
+Hunting Bow | [Hunting Bow](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Crude). AP 0, Init +2. Keywords: 2H, Unstoppable, Awkward.
 Immune [keyword] | [Immune [keyword]](https://mlang95.github.io/RenownWiki/glossary.html#immune-keyword): Can't gain that keyword's effect as it applies to your Army (e.g. Immune Strain, Destroy Shield, Steady, etc.).
 Imperial Palace | [Imperial Palace](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Each Empire Phase, all non-allied players with a lower Prowess value gain Doubt +2. If your Envoy would fail, it passes instead.
 Improve | [Improve](https://mlang95.github.io/RenownWiki/actions-ref.html): Industry action. Cost: 2000 gold. Choose one: Infrastructure — choose an unlocked, available Infrastructure and set a Build Timer equal to its build time; when it completes, the Infrastructure becomes active in every Settlement in your Province. Or Expand a Settlement one tier (Village to Town, Town to City, City to Metropolis), adding a Ward. Endorsed: Recoup 2000.
@@ -212,7 +212,7 @@ Inn | [Inn](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Court).
 Inquisitorial Palace | [Inquisitorial Palace](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Doubt 1; Unlocks Grand Vizier which uses your Piety Value instead of Cunning.; All player actions that cause Doubt are increased by 1.
 Intercept Caravan | [Intercept Caravan](https://mlang95.github.io/RenownWiki/actions-ref.html): Cunning action. Cost: 2000 gold. Choose a player. The next turn that player is Host, Extort their Trade Income. Endorsed: Extort 2000.
 Interrogation Chambers | [Interrogation Chambers](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Devotion). Effect: Extort 500; Actions targeting this player that cause Doubt are reduced by 1, to a minimum of 0.
-Throwing Axe | [Throwing Axe](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Wrought). AP −2, Init +1. Keywords: Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One-Shot, Awkward.
+Throwing Axe | [Throwing Axe](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Wrought). AP −2, Init +1. Keywords: Steady, Deadly, Unstoppable, Negate Shielded, Destroy Shield, One-Shot, Awkward.
 Jester's Court | [Jester's Court](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Court). Effect: First and second Oppose on an Envoy of yours each Envoy Phase: reduce by 1
 Jewelry Foundry | [Jewelry Foundry](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Commerce). Effect: +2000; Authority +1 to Cunning actions targeting this player; Craft +5
 Joinery | [Joinery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Arms). Effect: unlocks Shields; Upkeep −500
@@ -220,14 +220,14 @@ Keep | [Keep](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infr
 Kiln | [Kiln](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Natural; +500
 Kite Shield | [Kite Shield](https://mlang95.github.io/RenownWiki/equipment-ref.html) Shield (Wrought). Save +1, Init +0. Keywords: Steady, Shielded.
 Oathsworn | [Oathsworn](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 4+, Endurance 2, Morale 4+, cost 3000.
-Lance | [Lance](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP −5, Init +1. Keywords: Steady, Unwieldy, Deadly, Unstoppable, Awkward, Negate Riposte, Destroy Shield.
+Lance | [Lance](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP −5, Init +1. Keywords: Steady, Unwieldy, Deadly, Unstoppable, Awkward, Destroy Shield.
 Last Alliance Standing | [Last Alliance Standing](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Endgame). Be the last alliance standing — the game-ending stop condition.
 Leather | [Leather](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Cast). Save 7+. Keywords: none.
 Levy | [Levy](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 6+, Endurance 2, Morale 7+, cost 1000.
 Levy Hall | [Levy Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Natural, Speed +1; Upkeep −2000 while an Army is within Range 0 of a Settlement you Control / Requires: Garrison
 Library | [Library](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Sophisticated). Upkeep 300 (each Empire Phase), build 3. Council Envoys you send are always Endorsed
 Living Saints | [Living Saints](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Piety). Sustain Public Order 10 (Living Saints) for five consecutive turns (Pious Timer).
-Longbow | [Longbow](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Cast). AP −1, Init +2. Keywords: 2H, Unstoppable, Deadly, Negate Riposte, Awkward.
+Longbow | [Longbow](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Cast). AP −1, Init +2. Keywords: 2H, Unstoppable, Deadly, Awkward.
 low difficulty heritages | 22 heritages: Siege Specialists, Horsemasters, The Monarch, Uncharted Sea Lanes, Royal Marriage, Patient Court, The Decider, Prosperity For All, Luxury Trades, Independent, but Ambitious, Knowledge is Power, Fortress of Faith, Scavengers, Unimpeachable, Heart of Trade, Sacrosanct, Tunnellers, Martyrdom, Peaceful & Inventive, Pillagers, Wise & Suspicious, Archery is a Way of Life
 low strength heritages | 7 heritages: Luxury Trades, Independent, but Ambitious, Tunnellers, Martyrdom, Inexorable, Pestilence, The Highest Bidder
 Magistrate's Hall | [Magistrate's Hall](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Prodigious). Upkeep 400 (each Empire Phase), build 4. Gain Tax Income +1000 per Settlement.
@@ -260,9 +260,7 @@ Muster Field | [Muster Field](https://mlang95.github.io/RenownWiki/infrastructur
 Muster Timer | [Muster Timer](https://mlang95.github.io/RenownWiki/glossary.html#muster-timer): Turns remaining in a Muster; each turn it counts down, the Army gains Retinues up to the combined muster limit.
 Natural | [Natural](https://mlang95.github.io/RenownWiki/glossary.html#natural): Natural Holdings do not cost Upkeep & can be used in Hamlets.
 Natural roll | [Natural roll](https://mlang95.github.io/RenownWiki/glossary.html#natural-roll): The number on the die before any modifiers. Modifiers never change what counts as 'natural'.
-Negate [keyword] | [Negate [keyword]](https://mlang95.github.io/RenownWiki/glossary.html#negate-keyword): Your opponent can't gain that keyword's effect as it applies to their Army (e.g. Negate Shielded, Riposte, Planishing, etc.).
-Negate Planishing | [Negate Planishing](https://mlang95.github.io/RenownWiki/glossary.html#negate-planishing): Ignores Planishing: this weapon's AP can reduce the target's Save beyond 10+ (to auto-fail).
-Negate Riposte | [Negate Riposte](https://mlang95.github.io/RenownWiki/glossary.html#negate-riposte): The target's Parry can never Riposte this weapon's Strikes (a natural 10 Parry still cancels the Strike, but no counter-Strike follows).
+Negate [keyword] | [Negate [keyword]](https://mlang95.github.io/RenownWiki/glossary.html#negate-keyword): Your opponent can't gain that keyword's effect as it applies to their Army (e.g. Negate Shielded).
 Negotiate | [Negotiate](https://mlang95.github.io/RenownWiki/actions-ref.html): Diplomacy action. Cost: None. Propose terms to a target; they agree or refuse. Terms may include gold, Settlement ownership, Territory, signing or ending a Treaty, or promises (non-binding). Endorsed: Faith +1.
 Net Authority | [Net Authority](https://mlang95.github.io/RenownWiki/glossary.html#net-influence): The sum of an Envoy's starting Authority (1+ by Standing) and all Support, Oppose, and Authority X. The total sets the outcome: −3 or less Condemned, 0 or less Failed (gain Doubt +1), 1+ passes.
 Next to | [Next to](https://mlang95.github.io/RenownWiki/glossary.html#next-to): Range 2.
@@ -287,7 +285,7 @@ Piety | [Piety](https://mlang95.github.io/RenownWiki/domain-board-ref.html) Doma
 Pike | [Pike](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP −1, Init +1. Keywords: 2H, Steady, Unwieldy, Deadly, Awkward.
 Pilgrimage Site | [Pilgrimage Site](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Devotion). Effect: Natural; Extort 500 every player without a Pilgrimage Site; Doubt +1 to all other players without a Pilgrimage Site / Requires: Cathedral
 Pillage | [Pillage](https://mlang95.github.io/RenownWiki/actions-ref.html): Prowess action. Cost: None. Requires: Rising Prowess. Choose an army you control within Reach of an at-war player's Settlement without an active Siege Timer. While that army remains within Reach of that Settlement and does not Lay Siege, Battle, or March, it may Extort half of that Settlement's holding income in the Extort step. A Settlement may be Pillaged once per Empire Phase. Pillage ends if [war ends / army leaves Reach / Settlement is besieged]. Endorsed: Perform a Move action.
-Throwing Spear | [Throwing Spear](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Tempered). AP −5, Init +1. Keywords: Steady, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield, One-Shot, Awkward.
+Throwing Spear | [Throwing Spear](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Tempered). AP −5, Init +1. Keywords: Steady, Deadly, Unstoppable, Negate Shielded, Destroy Shield, One-Shot, Awkward.
 Pitchfork | [Pitchfork](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Crude). AP 0, Init +1. Keywords: 2H, Unwieldy, Awkward.
 Plague Pit | [Plague Pit](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Cunning actions give an additional Doubt +1 to Target; No longer affected by all Public Order effects (positive or negative). This player cannot be the target of a Convert action.
 Planishing | [Planishing](https://mlang95.github.io/RenownWiki/keywords-ref.html#planishing): A Focused Save succeeds, regardless of AP.
@@ -304,7 +302,7 @@ PO 3 | [Public Order 3](https://mlang95.github.io/RenownWiki/public-order-ref.ht
 PO 4 | [Public Order 4](https://mlang95.github.io/RenownWiki/public-order-ref.html) (Economic Boom): Tax Income +X per Settlement; X by Era: Founding 500, Ascension 500, Eminence 500, Zenith 500
 PO 5 | [Public Order 5](https://mlang95.github.io/RenownWiki/public-order-ref.html) (Eureka): May perform an Endorsed Industry Action
 Poison | [Poison](https://mlang95.github.io/RenownWiki/keywords-ref.html#poison): When the Defender receives a Strike and rolls a Focused Save, it fails; the resulting wound may only be Healed with a Focused Heal.
-Poleaxe | [Poleaxe](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Tempered). AP −5, Init +0. Keywords: 2H, Steady, Cleave, Unstoppable, Negate Shielded, Negate Planishing.
+Poleaxe | [Poleaxe](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Tempered). AP −5, Init +0. Keywords: 2H, Steady, Cleave, Unstoppable, Negate Shielded.
 Port Authority | [Port Authority](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Gain +100 per Craft
 powerful heritages | See 'high strength heritages'.
 Sacred Preceptory | [Sacred Preceptory](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Armies gain Righteous Fervour: Automatically pass the first Panic Check of every Battle. Unlocks Oathsworn for Muster
@@ -465,7 +463,7 @@ Uncontested | [Uncontested](https://mlang95.github.io/RenownWiki/glossary.html#u
 Uncontrolled | [Uncontrolled](https://mlang95.github.io/RenownWiki/glossary.html#uncontrolled): Territory that is not within Reach of any Player Settlement.
 Unforgotten Shrine | [Unforgotten Shrine](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Devotion). Effect: When your Piety actions give their target Faith, it gains Faith +1 more; when they give Doubt, it gains Doubt +1 more. / Requires: Cathedral
 University | [University](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Court). Effect: May spend one additional Influence per Support or Oppose; Influence +1 per Domain you are Rising / Requires: Library
-Unstoppable | [Unstoppable](https://mlang95.github.io/RenownWiki/keywords-ref.html#unstoppable): −2 to the defender's Parry roll, to a maximum of 10+).
+Unstoppable | [Unstoppable](https://mlang95.github.io/RenownWiki/keywords-ref.html#unstoppable): −2 to the defender's Parry roll (to a maximum of 10+); a Parry against it can't Riposte.
 Unwieldy | [Unwieldy](https://mlang95.github.io/RenownWiki/keywords-ref.html#unwieldy): Initiative cannot be improved by Tactics.
 upkeep | [Upkeep](https://mlang95.github.io/RenownWiki/economy-ref.html): three separate tracks — Holding (fixed by type), Army (retinue count x cost - reductions), and Infrastructure (per-settlement). See 'pursuit upkeep', 'army upkeep', 'infrastructure upkeep'.
 Vassal | [Vassal](https://mlang95.github.io/RenownWiki/glossary.html#vassal): A player subordinated via Vassalization: their chartered settlements return to them, they mirror the Suzerain's Treaties, count as allied to the Suzerain, and cannot perform or be targeted by Diplomacy actions.
@@ -477,7 +475,7 @@ Vineyard | [Vineyard](https://mlang95.github.io/RenownWiki/pursuits.html) Holdin
 Vote | [Vote](https://mlang95.github.io/RenownWiki/glossary.html#vote): On each Envoy, every player except the sender, in clockwise order from the starting player, must Support, Oppose, or Abstain. No talking during a vote.
 vp | See 'escalation victory'.
 War College | [War College](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Gain Influence +2 while At War; Unlocks Sergeants for Muster / Requires: Library
-War Hammer | [War Hammer](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP −10, Init −1. Keywords: 2H, Unwieldy, Deadly, Unstoppable, Negate Shielded, Negate Riposte, Destroy Shield.
+War Hammer | [War Hammer](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP −10, Init −1. Keywords: 2H, Unwieldy, Deadly, Unstoppable, Negate Shielded, Destroy Shield.
 War Weariness | [War Weariness](https://mlang95.github.io/RenownWiki/glossary.html#war-weariness): gain Doubt 1 for each consecutive Battle you lose in the Empire Phase.
 Water | [Water](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: Must end move after moving over 1 Water Territory (must end on land). Raw Materials: Fishmongery.
 weak heritages | See 'low strength heritages'.

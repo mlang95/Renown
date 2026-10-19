@@ -21,13 +21,10 @@ from loadouts import archetype_pool
 from vectorized_combat import run_matchup_vec, invalidate_tactic_tables
 
 
-# Unique in-game MONUMENTS (CSV Type == "Monument"): only ONE of each can be built in the entire
-# game, so two loadouts that BOTH contain the same monument can never coexist as opponents. Skipping
-# these matchups removes nonsensical mirror comparisons. Names are the PURSUITS_INFO keys (which differ
-# from the CSV display names): ABF=Advanced Blast Furnaces, Preceptory=Preceptory of the Knight's
-# Templar, Outrider Intercept Post=Outrider Station.
-UNIQUE_BUILDINGS = ("ABF", "Royal Pavilion", "Preceptory",
-                    "Ministry of Military Strategy", "Outrider Intercept Post", "Cipher Chamber")
+# Realm-scope Holdings (Monuments): only ONE of each can exist in a game, so two loadouts that BOTH
+# hold the same one can never meet as opponents. Read from renown_data.HOLDING_SIM (SIMPLE_NODES).
+import renown_data as _rd
+UNIQUE_BUILDINGS = tuple(sorted(n for n, h in _rd.HOLDING_SIM.items() if h["monument"]))
 
 def _unique_conflict(ld_a, ld_b):
     """True if A and B share any unique-only-one-in-game building (can't both exist)."""

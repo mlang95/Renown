@@ -470,63 +470,13 @@ def build(ns):
     wonders = infra_records(_wondrous or ns.get("WONDERS", {}), "wonder")
     retinues = ns.get("RETINUES", {})
 
-    # ---- army source tokens: engine tags (curated) + unlocks derived from text ----
-    ret_keys = set(retinues.keys())
-    RET_NORM = {"Sergeants": "Sergeant", "Knight's Templar": "Knight Templar",
-                "Knights Templar": "Knight Templar", "Man at Arms": "Man-at-Arms"}
-    def norm_ret(x):
-        x = x.strip()
-        return RET_NORM.get(x, x if x in ret_keys else x)
-    def derived_unlocks(text):
-        t = strip_md(text)
-        out = []
-        if re.search(r"Unlocks?\s+Ranged\s+Weapons", t, re.I): out.append("ranged")
-        if re.search(r"Unlocks?\s+Cavalry\s+Weapons", t, re.I): out.append("cavalry")
-        for wm in re.finditer(r"Unlocks?\s+(Cavalry Spear|Lance)\b", t, re.I):   # e.g. Stable / Saddlery Mastery
-            out.append("weapon:" + wm.group(1).title())
-        m = re.search(r"Unlocks?\s+(.+?)\s+for\s+Muster", t, re.I)
-        if m: out.append("retinue:" + norm_ret(m.group(1)))
-        return out
-    TIER_W = r"(Crude|Cast|Wrought|Forged|Crafted)"
-    def derived_combat(text):
-        """SIMPLE Holdings carry no engine tags: read the combat grants straight from the text,
-        using the same tokens the legacy engine tags use (so every consumer below works unchanged)."""
-        t = strip_md(text); out = []
-        for m in re.finditer(TIER_W + r"\s+armor\s*(?:and|&)\s*shields?", t, re.I):   # "Unlock Cast armor & shield"
-            x = m.group(1).title(); out += ["armor:" + x, "shield:" + x]
-        for m in re.finditer(r"(?:Unlocks?\s+)?" + TIER_W + r"(?:\s+Tier)?\s+Weapons", t, re.I):  # "Unlocks Forged Tier Weapons" / "Crafted Weapons Unlocked"
-            if re.search(r"unlock", t[m.start():m.end() + 12], re.I): out.append("tier:" + m.group(1).title())
-        if re.search(r"(?<![A-Za-z] )unlocks?\s+Shields\b", t, re.I): out.append("tier:Shields")
-        for pat, tok in ((r"\bPlanishing\b", "Planishing"), (r"\bSerrated\b", "Serrated"), (r"gain\s+Poison", "Poison"),
-                         (r"gain\s+Riposte", "Riposte"), (r"\bNimble\b", "Nimble"), (r"\bEnduring\b", "Enduring"),
-                         (r"\bDrilled\b", "Drilled"), (r"(?<!Settlements gain )Immune Strained(?! during)", "Immune Strain"),
-                         (r"\+1 to Strike", "Strike +1"), (r"max initiative is increased to 3", "MaxInit3"),
-                         (r"Always gains Seize the Initiative", "Seize: first"), (r"Righteous Fervour", "Righteous Fervour"),
-                         (r"Unlocks Arquebus", "Artillery Park")):
-            if re.search(pat, t, re.I): out.append(tok)
-        out += ["Parry +1"] * len(re.findall(r"Improve Parry by \+1", t, re.I))
-        m = re.search(r"Focused Strikes on a natural (\d+)\+", t, re.I)
-        if m: out.append("Crit " + m.group(1))
-        m = re.search(r"Gain Recover (\d+)", t, re.I)
-        if m: out.append("Recover " + m.group(1))                # base; its "or improve" alternative is not a second grant
-        else: out += ["Recover +1"] * len(re.findall(r"(?:Improve Recover by|Recover improved by)\s*\+1", t, re.I))
-        return out
-    REQ_ALIAS = {}                                                 # weapon "requires" tokens -> Holding names (e.g. ABF)
-    for name, v in ns.get("LEGACY_NODES", N).items():
-        al = (v.get("engine") or {}).get("alias")
-        if al: REQ_ALIAS[al] = name
-    _used = {r for src in ("WEAPONS", "RANGED", "SHIELDS", "ARMORS") for it in (ns.get(src) or {}).values()
-             if isinstance(it, dict) for r in (it.get("requires") or [])}
-    REQ_ALIAS = {k: v for k, v in REQ_ALIAS.items() if k in _used}
+    # ---- army source tokens: read from each Holding's text by the data file's shared parser ----
+    # (renown_data.holding_combat_tags — the same parser the combat sim's HOLDING_SIM uses)
+    htags = ns["holding_combat_tags"]
+    REQ_ALIAS = {}                                                 # weapon "requires" tokens are Holding names
     army_src = {}
     for name, v in N.items():
-        e = v.get("engine") or {}
-        inn = list(e.get("innate_tags", [])) + derived_unlocks(v.get("innate", ""))
-        mas = list(e.get("mastery_tags", [])) + derived_unlocks(v.get("mastery", ""))
-        if not e:
-            inn += derived_combat(v.get("innate", "")); mas += derived_combat(v.get("mastery", ""))
-        if REQ_ALIAS and name in REQ_ALIAS.values() and not e:
-            inn += [k for k, nm in REQ_ALIAS.items() if nm == name]
+        inn, mas = htags(v.get("innate", "")), htags(v.get("mastery", ""))
         if inn or mas:
             army_src[name] = {"innate": inn, "mastery": mas}
 

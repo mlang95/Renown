@@ -59,11 +59,7 @@ HEAD_H = 20
 DOMAIN_COLOR = {"Industry": "#2E5A8C", "Prowess": "#9E2B25",
                 "Cunning": "#1c1c20", "Piety": "#C6A024"}
 def _domain_of(d):
-    eng = d.get("engine") or {}
-    dd = eng.get("domain") or {}
-    if dd:
-        return max(dd, key=dd.get)
-    u = d.get("unlock") or ""
+    u = d.get("unlock") or ""                  # Standing requirement text (the 'engine' field is retired)
     for x in ("Industry", "Prowess", "Cunning", "Piety"):
         if x in u:
             return x

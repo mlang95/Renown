@@ -139,7 +139,7 @@ def assert_d10():
     problems = []
     if getattr(rd, "FACES", None) != dc.FACES:
         problems.append(f"renown_data.FACES={getattr(rd, 'FACES', None)} vs dice_config.FACES={dc.FACES}")
-    if not str(getattr(rd, "VERSION", "")).endswith("-d10"):
+    if not "-d10" in str(getattr(rd, "VERSION", "")):
         problems.append(f"renown_data.VERSION={getattr(rd, 'VERSION', None)!r} (expected a -d10 build)")
 
     lo = dc.AUTO_PASS_FLOOR if dc.AUTO_PASS_FLOOR is not None else 1

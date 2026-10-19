@@ -3,16 +3,13 @@
 
     python sync_derived.py [path/to/renown_data_d10.py]        # rewrites the file in place
 
-The node TEXT is the source of truth. This rewrites two derived fields from each node's
-"mastery_req" text, and reports (never edits) anything it can't derive:
+The node TEXT is the source of truth. This rewrites one derived field from each node's
+"mastery_req" text:
 
   builds_into          A lists B exactly when A is named in B's Mastery requirement
                        ("2 Raw Materials" → every Raw Materials pursuit feeds it).
-  engine.mastery_req   the AND-list the sim uses to decide Mastery, in sim names (engine.alias).
-                       "A or B" parts and non-pursuits (Library, Keep, Hamlet…) can't be written
-                       as an AND-list, so they are left out (the sim treats them as met) and listed.
 
-Reported only: engine.prereqs entries that no longer appear in the node's Mastery requirement.
+(The legacy 'engine' field is retired: the sim reads renown_data.HOLDING_SIM, derived from text.)
 Everything else in the file is left byte-for-byte as it was.
 """
 import importlib.util, json, re, sys, os
@@ -41,7 +38,6 @@ def node_span(src, name, order, i, start):
 def main():
     rd = load(PATH); N = rd.NODES
     names = sorted(N, key=len, reverse=True)
-    alias = {k: (v.get("engine") or {}).get("alias", k) for k, v in N.items() if v.get("engine")}
 
     def find(t):
         out, t2 = [], t
@@ -63,24 +59,7 @@ def main():
             if a != b and b not in feeds[a]:
                 feeds[a].append(b)
 
-    # engine mastery_req from mastery_req text
-    eng_new, notes = {}, []
-    for k, v in N.items():
-        if not v.get("engine"): continue
-        txt = re.sub(r"\*", "", str(v.get("mastery_req") or "")).strip()
-        new = []
-        for g in ([x.strip() for x in txt.split("+")] if txt not in ("", "-", "\u2014") else []):
-            if len(re.split(r"\s+or\s+|/", g)) > 1:
-                notes.append(f"  {k}: '{g}' is either/or — left out of engine.mastery_req"); continue
-            f = find(g)
-            if not f:
-                notes.append(f"  {k}: '{g}' is not a pursuit — left out of engine.mastery_req"); continue
-            new += [alias.get(n, n) for n in f]
-        eng_new[k] = new
-        rev = {a: n for n, a in alias.items()}
-        stale = [p for p in v["engine"].get("prereqs", []) if rev.get(p, p) not in txt]
-        if stale:
-            notes.append(f"  {k}: engine.prereqs {stale} not in its Mastery requirement ('{txt}') — check")
+    notes = []   # the sim no longer has an engine field to sync (HOLDING_SIM is derived from text)
 
     src = open(PATH, encoding="utf-8").read()
     order = list(N); pos = src.index("NODES = {"); changed = []
@@ -94,13 +73,6 @@ def main():
             if m:
                 blk = blk[:m.start()] + '"builds_into": ' + json.dumps(newb, ensure_ascii=False) + blk[m.end():]
                 changed.append(f"  builds_into  {name}: -{[x for x in old if x not in newb]} +{[x for x in newb if x not in old]}")
-        if name in eng_new and list(N[name]["engine"].get("mastery_req", [])) != eng_new[name]:
-            j = blk.find('"engine":'); jl = blk.find("\n", j); line = blk[j:jl]
-            m = re.search(r'"mastery_req":\s*\[[^\]]*\]', line)
-            if m:
-                line = line[:m.start()] + '"mastery_req": ' + json.dumps(eng_new[name], ensure_ascii=False) + line[m.end():]
-                blk = blk[:j] + line + blk[jl:]
-                changed.append(f"  engine.mastery_req  {name}: {N[name]['engine'].get('mastery_req', [])} -> {eng_new[name]}")
         if blk != blk0:
             src = src[:s0] + blk + src[e:]
     open(PATH, "w", encoding="utf-8").write(src)

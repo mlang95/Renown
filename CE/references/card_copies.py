@@ -33,8 +33,7 @@ def _terminals(name, nodes):
 def _style(node):
     """A terminal's 'style' = (type, dominant domain) — defines dissimilarity."""
     t = node.get("type", "")
-    dom = node.get("engine", {}).get("domain") or {}
-    d = max(dom, key=dom.get) if dom else node.get("unlock", "").split()[-1] if node.get("unlock") else ""
+    d = node.get("unlock", "").split()[-1] if node.get("unlock") else ""   # Standing requirement text
     return (t, d)
 
 def fan_out(name, nodes):

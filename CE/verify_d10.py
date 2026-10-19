@@ -70,7 +70,7 @@ except Exception as e:
     check("nothing loaded from outside CE", False, str(e))
 
 print(f"\n2. DICE CONFIG  ({dc.describe()})")
-check("renown_data is the -d10 build", str(rd.VERSION).endswith("-d10"), rd.VERSION)
+check("renown_data is the -d10 build", "-d10" in str(rd.VERSION), rd.VERSION)   # VERSION may carry -SIMPLE
 check("renown_data.FACES matches dice_config", rd.FACES == dc.FACES, f"{rd.FACES} vs {dc.FACES}")
 
 print("\n3. DATA VALUES  (structural — these do not hard-code your tuning)")
@@ -103,23 +103,22 @@ print(f"      shields: " + ", ".join(
     f"{n.replace(' Shield','')} +{d['save_bonus']}/{d['init']:+d}" for n, d in sh)
     + ("" if _mono_sh else "   <- save ladder dips; check the dipping shield earns it elsewhere"))
 
-# Recover ladder: one tag per rung, no collisions
+# Recover ladder (read from the Holdings' text via HOLDING_SIM): one base rung, the rest improve it
 rec = {}
-for n, d in rd.NODES.items():
-    e = d.get("engine", {}) or {}
-    for t in (e.get("innate_tags") or []) + (e.get("mastery_tags") or []):
+for n, h in rd.HOLDING_SIM.items():
+    for t in h["tags"]:
         if str(t).startswith("Recover "):
             rec.setdefault(str(t), []).append(n)
-dupes = {t: ns for t, ns in rec.items() if len(ns) > 1}
-check("no duplicate Recover rungs", not dupes, dupes)
-print(f"      Recover ladder: " + ", ".join(f"{t} ({ns[0]})" for t, ns in sorted(rec.items())))
+bases = {t: ns for t, ns in rec.items() if t != "Recover +1"}
+check("one Recover base rung", len(bases) == 1 and all(len(ns) == 1 for ns in bases.values()), bases)
+print(f"      Recover ladder: " + ", ".join(f"{t} ({', '.join(ns)})" for t, ns in sorted(rec.items())))
 
 # spelling / gating of the gunpowder weapon
 check("Arquebus spelled correctly", "Arquebus" in rd.RANGED,
       "found " + str([k for k in rd.RANGED if "rq" in k.lower()]))
 arq = rd.RANGED.get("Arquebus", {})
-check("Arquebus gated on ABF + Artillery Park",
-      set(arq.get("requires", [])) >= {"ABF", "Artillery Park"}, arq.get("requires"))
+check("Arquebus gated on Artillery Park",                      # ruling: Artillery Park (+ Fletchery), not ABF
+      "Artillery Park" in set(arq.get("requires", [])), arq.get("requires"))
 check("Arquebus tactic restriction present", bool(arq.get("tactics_allowed")),
       arq.get("tactics_allowed"))
 
