@@ -127,10 +127,10 @@ GLOSSARY = {
     #DEFLECT:        "-1 to Parry and Negate Riposte against this weapon's Strikes. (All Ranged weapons have Deflect.)",
     #IMMUNE_PANIC:   "Automatically passes Panic checks.",
     #UNBREAKABLE:    "Immune Break: does not take Break checks while Fatigued.",
-    PARRY:          f"Roll a D{FACES} to attempt to Parry a Strike before an Armor Save. On a {PARRY_BASE}+ (Improved by Improved Parry), the Strike is Parried and has no further effect.",
-    RIPOSTE:        "If you Focused a Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
+    PARRY:          f"If your Army has gained {PARRY}, roll a D{FACES} to attempt to Parry a Strike before an Armor Save. On a {PARRY_BASE}+ (Improved by Improved Parry), the Strike is Parried and has no further effect.",
+    RIPOSTE:        f"If your Army has gained {RIPOSTE} and rolls a Focused Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
     NO_PARRY:       "While equipped with this weapon during a skirmish, you cannot Parry, and so cannot Riposte.",
-    RECOVER:        f"If a to-Save roll fails, roll a D{FACES} & compare it to your Recover value: a result greater than or equal to your Recover value recovers the retinue. Recovered Strikes still count toward the Panic check threshold.",
+    RECOVER:        f"If your Army has gained {RECOVER} and a to-Save roll fails, roll a D{FACES} & compare it to your Recover value: a result greater than or equal to your Recover value recovers the retinue. Recovered Strikes still count toward the Panic check threshold.",
     ENDURING:       "Successfully Recovered Strikes don't count toward the Panic check threshold.",
     SERRATED:       f"A cumulative -{SERRATED_MOD} penalty to the defender's Recover roll.",
     PLANISHING:     f"A {PIVOTAL} Save succeeds, regardless of AP.",
@@ -154,7 +154,7 @@ GLOSSARY = {
     "Seize the Initiative": "Typically, the player who performed the Battle Action gains Seize the Initiative, but Terrain and the Ministry of Military Strategy can affect that. When a player gains Seize the Initiative, the player gains Initiative +1 in the first skirmish.",
 
     # ── Battle-structure terms (doc glossary, wording updated to current rules) ──
-    "Attacker / Defender": "The Attacker performed the Move action that caused the Battle or Lay Siege; the other side is the Defender. Each Skirmish the Attacker declares equipment first; the Defender then responds.",
+    "Attacker / Defender": "The Attacker performed the Move action that caused the Battle or Lay Siege; the other side is the Defender.",
     "Battle":        "A collection of Skirmishes between two players, continuing until a side's Retinue count is reduced to 0, Routs, or successfully Falls Back, ending the Battle.",
     "Skirmish":      "One round of a Battle, run through the numbered Battle steps; a Battle repeats Skirmishes until it ends.",
     "Casualty":      "A retinue removed from the field — from an unsaved Strike or a failed Panic or Break check.",
@@ -173,7 +173,6 @@ GLOSSARY = {
     "Initiative":    f"Decides who Strikes first each Skirmish (higher first). Runs {INITIATIVE_MIN} to +{INITIATIVE_MAX} (Ministry can raise the maximum to +3). At {INITIATIVE_MIN} or lower you Blunder.",
     "Tactic":        "A choice both players make secretly and reveal together each Skirmish; it can shift Initiative, Strike, and Save rolls.",
     "Dual-equip":    "Carry two weapons at once (e.g. melee + ranged). Granted by the Tiltyard, which also gives Unwieldy until its mastery removes it.",
-    "Edict":         "A scoring achievement: reach a Sovereign Standing, or complete a Monument.",
     "Monument":      "A Domain's capstone Pursuit. Completing one scores its Edict and grants a powerful effect.",
 
     # ── Empire keywords (referenced by Pursuits/Factions; DRAFTED — review wording) ──
@@ -225,7 +224,7 @@ GLOSSARY = {
     "Standing":      f"Your tier in a Domain: Untested, Rising ({_ST['Rising']}), Established ({_ST['Established']}), Sovereign ({_ST['Sovereign']}). Sets max Influence per vote (1/2/3/4) and unlocks Domain effects.",
     "Public Order":  f"A track from {PO_MIN} to {PO_MAX}, adjusted each turn by Faith minus Doubt; its band applies cumulative effects (see the Public Order table).",
     "Reach":         "How far a Settlement projects control, in Territories (by tier). Calculated like Range X",
-    "Edict":         "A scoring achievement / win path: reach a Sovereign Standing, complete a Monument, or fulfill a victory condition (Wonder, wealth, Vassalize, Living Saints, Last Standing).",
+    "Edict":         "A scoring achievement. Grants the Realm +1 Renown every time one is achieved.",
 
     # ── World ──
     "Bandit":        "Neutral hostile force; Bandit Camps spawn in Outlaw Country and on low Public Order.",
@@ -308,12 +307,12 @@ WEAPONS = {
     "Flail":          {"ap": -1, "init":  0, "tier": "Wrought", "tags": [UNWIELDY, UNSTOPPABLE, CLEAVE, NO_PARRY], 'note': 'Cannot Dual Wield'},
     "Halberd":        {"ap": -2, "init":  0, "tier": "Wrought", "tags": [TWO_H, UNWIELDY]},
     "Battle Axe":     {"ap": -3, "init": -1, "tier": "Wrought", "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, CLEAVE, NEGATE_SHIELDED]},
-    "Cavalry Spear":  {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, UNWIELDY, NEGATE_RIPOSTE, NO_PARRY], 'note': "Needs Stable Mastery; no Tower Shield or Dual Wield or Ranged Weapon; cannot Parry"},
+    "Cavalry Spear":  {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, UNWIELDY, NEGATE_RIPOSTE, NO_PARRY], 'note': "Needs Stable Mastery; no Tower Shield or Dual Wield or Ranged Weapon"},
     "Morningstar":    {"ap": -4, "init": -1, "tier": "Forged",  "tags": [CLEAVE, DESTROY_SHIELD], 'note': 'Cannot Dual Wield'},
     "Bastard Sword":  {"ap": -2, "init":  0, "tier": "Forged",  "tags": [STEADY], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile.'},
     "2HBastard":      {"ap": -2, "init":  0, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, CLEAVE]},
     "War Hammer":     {"ap":-10, "init": -1, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, DESTROY_SHIELD]},
-    "Lance":          {"ap": -5, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY,SHATTER_ARMOR, UNSTOPPABLE, NO_PARRY,        NEGATE_RIPOSTE, DESTROY_SHIELD], 'note': "Needs Saddlery; no Tower Shield, Dual Wield, Ranged weapon, or Parry."},
+    "Lance":          {"ap": -5, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY,SHATTER_ARMOR, UNSTOPPABLE, NO_PARRY,        NEGATE_RIPOSTE, DESTROY_SHIELD], 'note': "Needs Saddlery; no Tower Shield, Dual Wield, Ranged weapon."},
     "Estoc":          {"ap": -3, "init":  0, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_RIPOSTE, NEGATE_TEMPERED]},
     "Poleaxe":        {"ap": -5, "init":  0, "tier": "Crafted", "tags": [TWO_H, STEADY, CLEAVE, UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_TEMPERED]},
 }
@@ -2912,7 +2911,7 @@ FACTIONS = {
         'strength': 'High',
         'mechanic_name': 'Burning Cross',
         'summary': "Starts with a Preceptory; must field 25 Knight's Templar",
-        'mechanic': "You begin the game with a Preceptory of the Knight's Templar (no Ward, no upkeep, always-active Mastery). When you Declared War via Sacred War, that player takes a Panic Check at the start of every Battle, after lines are formed. During Envoy Declaration, if you don't have an Army of 25 Knight's Templars, you must send a Prowess Envoy; if it passes, you must muster an Army until it holds 25 Knight's Templar Retinues.",
+        'mechanic': "You begin the game with a Preceptory of the Knight's Templar (no Ward, no upkeep, always-active Mastery). When you Declared War via Sacred War, that player takes a Panic Check at the start of every Battle, after lines are formed. During Envoy Declaration, if you don't have an Army of 25 Knight's Templar, you must send a Prowess Envoy; if it passes, you must muster an Army until it holds 25 Knight's Templar Retinues.",
         'pair': "Preceptory of the Knight's Templar, Royal Pavilion",
         'complement': 'Senate Hall',
     },
@@ -2936,7 +2935,7 @@ FACTIONS = {
         'strength': 'Medium',
         'mechanic_name': 'Arts & Humanities / Hearts & Minds',
         'summary': 'Civic Pursuits upgraded; no Craft Pursuits',
-        'mechanic': "You can't build Commerce Pursuits. Your Holdings which require Piety have Craft +1 and cost no Upkeep. You must accept a Peace Treaty if one is offered.",
+        'mechanic': "You can't build Industry Pursuits. Your Holdings which require Piety have Craft +2 and cost no Upkeep. You must accept a Peace Treaty if one is offered.",
         'pair': 'Studium Generale, Aristocratic Court, Senate Hall',
         'complement': 'Royal Pavilion',
     },
@@ -3057,7 +3056,7 @@ FACTIONS = {
         'strength': 'High',
         'mechanic_name': 'Reckless',
         'summary': 'Strong Cunning Envoys; Secret Cellar; Prowess Envoys always pass; no Alliances, Diplomacy or Renown into Piety; Industry 3 max',
-        'mechanic': "Your Cunning Envoys have Authority +2 when targeting a player with Public Order greater than 1. You begin the game with a Secret Cellar (no Ward, no upkeep). You can't be in an Alliance or perform Diplomacy actions. A Prowess Envoy you send can't fail or be condemned & will instead pass. You cannot put Renown into Piety, nor have more than 3 in Industry.",
+        'mechanic': "Your Cunning Envoys have Authority +2 when targeting a player with Public Order greater than 1. You begin the game with a Secret Cellar (no Ward, no upkeep). You can't be in an Alliance or perform Diplomacy actions. A Prowess Envoy you send can't fail or be condemned & will instead pass. You cannot put Domain Points into Piety, nor have more than 3 in Industry.",
         'pair': "Thieves' Guild, Inquisitorial Palace",
         'complement': 'Royal Pavilion',
     },
@@ -3081,7 +3080,7 @@ FACTIONS = {
         'strength': 'Medium',
         'mechanic_name': 'Wandering Nomads',
         'summary': 'Armies are Settlements; no Infrastructure, no upkeep',
-        'mechanic': "Your Armies function as Settlements — a Band, Tribe, or Horde, upgraded accordingly — count as Settlements with Reach 3, and each has a Muster Field. You may have one additional Army per Era, starting with two. Your Armies don't require troops to exist and can't be besieged. You can't build Infrastructure, but may build Pursuits; Raw Material Pursuits within your Reach are always active and take no Settlement Ward. You may trade so long as your border touches another player's. You may begin a new Army adjacent to any existing Army with a Charter Settlement or Muster Army action. When an Army is destroyed, so is its Settlement. Nomads pay no upkeep.",
+        'mechanic': "Your Armies function as Settlements — a Band, Tribe, or Horde, upgraded accordingly — count as Settlements with Reach 3, and each has a Muster Field. You may have one additional Army per Era, starting with two. Your Armies don't require troops to exist and can't be besieged. You can't build Infrastructure, but may build Pursuits; Raw Material Pursuits within your Reach are always active and take no Settlement Ward. You may trade so long as your border touches another player's. You may begin a new Army adjacent to any existing Army with a Charter or Muster action. When an Army is destroyed, so is its Settlement. Nomads pay no upkeep.",
         'pair': 'Saddlery, Royal Pavilion',
         'complement': 'Forge',
     },
@@ -3117,7 +3116,7 @@ FACTIONS = {
         'strength': 'Medium',
         'mechanic_name': 'Archery is a Way of Life',
         'summary': 'Ranged +1 to Strike; no heavy plate or shields',
-        'mechanic': "You begin the game with a Fletchery (no Ward, no upkeep). Your Armies must always have a ranged weapon, and Ranged Weapons gain +1 to Strike. Your Armies can't equip full plate, articulated gothic plate, or shields.",
+        'mechanic': "You begin the game with a Fletchery (no Ward, no upkeep). Your Armies must always have a ranged weapon, and Ranged Weapons gain +1 to Strike. Your Armies can't equip full plate, gothic plate, or shields.",
         'pair': 'Royal Pavilion',
         'complement': 'Senate Hall',
     },
@@ -3514,10 +3513,10 @@ VASSAL_INFLUENCE_TAKE = 3   # first N Influence the vassal generates each turn g
 # Build durations in turns. Infrastructure keyed by its tier name.
 BUILD_TIMERS = {
     "Pursuit": 1,
-    "Power Pursuit": 2,
-    "Monument Pursuit": 3,
+    "Rising Pursuit": 2,
+    "Established Pursuit": 3,
+    "Monument Pursuit": 4,
     "Village": SETTLEMENTS["Village"]["build_time"],
-    "Hamlet": SETTLEMENTS["Hamlet"]["build_time"],
     "Town": SETTLEMENTS["Town"]["build_time"],
     "City": SETTLEMENTS["City"]["build_time"],
     "Metropolis": SETTLEMENTS["Metropolis"]["build_time"],
@@ -3581,7 +3580,7 @@ INFLUENCE_GAIN = {
 
 # --- Glossary additions (map/spatial, action, and outcome terms) ---
 GLOSSARY.update({
-    "Border": "Your Settlement's Reach is Range 1 or within Reach of another Player's Reach.",
+    "Border": "Your Province is within or adjacent to another player's Province",
     "Province": "The collection of Contested Territory and Controlled Territory by your Settlement's Reach.",
     "Region": "A collection of Territories of the same Type.",
     "Realm": "The total collection of Regions.",
@@ -3798,7 +3797,7 @@ ACTIONS = {
         'domain': 'Industry',
         'cost': '0 gold',
         'requires': '',
-        'effect': f'Choose a Damaged Pursuit or Infrastructure in a Settlement you control and set Build Timer {TIMERS["Repair Timer"]["default"]}. When it reaches 0, choose one: Restore — reactivate it with all effects; Demolish — remove the Pursuit tile from your Empire Tableau.',
+        'effect': f'Choose a Damaged Pursuit or Infrastructure in a Settlement you control and set Repair Timer {TIMERS["Repair Timer"]["default"]}. When it reaches 0, choose one: Restore — reactivate it with all effects; Demolish — remove the Pursuit tile from your Empire Tableau.',
         'endorsed': 'Recoup 0.',
     },
     'Pursue': {
@@ -3807,7 +3806,7 @@ ACTIONS = {
         'requires': '',
         'effect': 'Choose an inactive Settlement Ward you control, then choose a Pursuit whose prerequisites you meet and set a Build Timer equal to its build time (usually 1). When it completes, place the Pursuit in an available Ward slot; its innate effect activates immediately, and its mastery effect activates if all mastery requirements are met.',
         'endorsed': 'Recoup 2000.',
-        'notes': ['You may have only 2 Monument Pursuits across your empire.', f'Power and unique Pursuits have Build Timer +{BUILD_TIMERS["Power Pursuit"] - BUILD_TIMERS["Pursuit"]}; Monuments +{BUILD_TIMERS["Monument Pursuit"] - BUILD_TIMERS["Pursuit"]}; all others Build Timer {BUILD_TIMERS["Pursuit"]}.'],
+        'notes': ['You may have only 2 Monument Pursuits across your empire.', f'Pursuits have Build Timers according to their required Standing. Ungated: 1, Rising: 2, Established: 3, & Sovereign: 4.'],
     },
     'Charter': {
         'domain': 'Industry',
@@ -4702,3 +4701,40 @@ GLOSSARY_CATEGORIES = [
     ('Combat Keywords — Immune / Negate', ['Immune [keyword]', 'Negate [keyword]']),
     ('Equipment Tiers', [k for k in map(str, GLOSSARY) if k.split()[0] in {display_tier(x) for x in TIERS} | set(globals().get("ITEM_TIER_DISPLAY", {}).values()) or k == "Ranged Weapons"]),
 ]
+
+# ── GLOSSARY_SEE: glossary terms whose full rule lives in the rules prose ──
+# The rules-doc / wiki glossary tables print the term's first sentence + "See <rule> (<section>)" instead of
+# repeating the rule; GLOSSARY keeps the full text for cards, board tooltips and {{TERM:}}/{{DEF:}}.
+# Value = anchor id: a {{RULE:id}} marker in the rules md, or a heading slug ("council-phase").
+# A (short text, anchor) tuple overrides the first-sentence default. Checked by
+# `rule_numbers.py <rules.md> --check` and gen_settlement_board --check-rules. The {{RULE:}} anchors live in
+# RULES_push_simple.md only, so the legacy (SIMPLE=0) build keeps full glossary definitions.
+GLOSSARY_SEE = {} if not SIMPLE else {
+    'Host': 'host',
+    'Influence': 'influence', 'Envoy': 'sending-an-envoy', 'Send an Envoy': 'sending-an-envoy',
+    'Council Phase': 'council-phase', 'Council Envoy': 'council-envoy',
+    'Vote': 'vote', 'Support X': 'vote', 'Oppose X': 'vote', 'Abstain': 'vote',
+    **{t: 'envoy-resolution-table' for t in ('Net Influence', 'Envoy Outcome', 'Condemned', 'Failed', 'Passed', 'Endorsed')},
+    'Renown': 'renown-track', 'Domain': 'domain-standings', 'Domain Point': 'domain-standings',
+    'Standing': 'domain-standings', 'Edict': 'how-to-win-edicts',
+    'Charter': 'industry-actions', ("Build" if SIMPLE else "Pursue"): 'industry-actions',
+    ("Improve" if SIMPLE else "Build"): 'industry-actions', 'Repair': 'industry-actions',
+    'Muster': 'prowess-actions', 'Move': 'prowess-actions', 'Demand Tribute': 'prowess-actions',
+    'Diplomacy': 'diplomacy-actions',
+    'Treaty': 'treaties-alliances', 'Alliance': 'treaties-alliances', 'Vassal': 'vassalization', 'Suzerain': 'vassalization',
+    'Public Order': 'public-order', 'Faith X': 'public-order', 'Doubt X': 'public-order',
+    'Upkeep': 'treasury-upkeep', 'Craft': 'who-can-trade', 'Can Trade': 'who-can-trade',
+    'War Weariness': 'innate-public-order-modifiers',
+    'Settlement Ward': 'settlement-wards', CHAIN_TERM: 'mastery-chain', CHAIN_TERM + " X": 'mastery-chain',
+    **({'Root': 'root'} if SIMPLE else {}),
+    **{t: 'timers' for t in TIMERS},
+    **{t: 'territory-terrain' for t in ('Territory', 'Province', 'Border', 'Controlled', 'Contested', 'Uncontested',
+                                         'Uncontrolled', 'Range X', 'Within', 'Adjacent', 'Next to')},
+    'Reach': 'settlement-reach', 'Reach X': 'settlement-reach',
+    'Bandit': 'bandits', 'Outlaw Country': 'outlaw-country', 'Wild Outlaw Country': 'outlaw-country', 'Siege': 'siege-warfare',
+    'Speed X': 'speed', 'Presence': 'rule-presence', 'Blocked': 'blocked-armies',
+    'Skirmish': 'the-skirmish-steps', 'Seize the Initiative': 'seize', 'Tactic': 'tactic-matrix', 'Field': 'form-line',
+    'Initiative': 'initiative', BLUNDER: 'initiative', 'Strike': 'strike', 'to-Strike number': 'strike',
+    'Save': 'defend', 'Panic check': 'panic', 'Endurance': 'fatigue', 'Fatigued': 'fatigue', FATIGUE_TOKEN: 'fatigue',
+    'Break check': 'fatigue', 'Rout': 'end-skirmish',
+}

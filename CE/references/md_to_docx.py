@@ -25,6 +25,7 @@ from docx.shared import Pt, Twips
 from docx.oxml import parse_xml, OxmlElement
 from docx.oxml.ns import qn
 import docx_tables as dt
+import rule_numbers as rn
 try:
     import renown_data as _rd
     VERSION = str(getattr(_rd, "VERSION", ""))
@@ -199,8 +200,11 @@ def _gfm_cells(row):
     return [c.strip() for c in row.split("|")]
 
 
-def render(md_path, out_path):
-    lines = open(md_path, encoding="utf-8").read().split("\n")
+def render(md_path, out_path, numbered=True):
+    # rule numbers (rule_numbers.py): headings, rules and {{SEE:}} refs numbered from structure;
+    # also fills rn.ANCHORS, which the GLOSSARY_SEE glossary rows read
+    text, _ = rn.number_md(open(md_path, encoding="utf-8").read(), mode="docx" if numbered else "plain")
+    lines = text.split("\n")
     doc = Document()
     sec = doc.sections[0]
     sec.page_width = Twips(11906); sec.page_height = Twips(16838)   # A4
@@ -294,7 +298,7 @@ def render(md_path, out_path):
 
         # list item — nesting from leading whitespace (a tab or 4 spaces per level).
         # "- 2.1 text" / "2.1 text" (sub-rule numbers) print the number with no bullet, indented under the parent.
-        lm = re.match(r"^([ \t]*)([-*]|\d+\.(?:\d+\.?)*)\s+(.*)$", raw)
+        lm = re.match(r"^([ \t]*)([-*]|\d+\.(?:\d+\.?)*[a-z]*|[A-Z]\.\d+(?:\.\d+)*[a-z]*)\s+(.*)$", raw)
         if lm:
             ws = lm.group(1).replace("\t", "    ")
             lvl = len(ws) // 4 + (1 if len(ws) % 4 >= 2 else 0)
@@ -302,11 +306,11 @@ def render(md_path, out_path):
             sub = re.match(r"^(\d+\.\d+[a-z]?\.?)\s+(.*)$", body) if marker in ("-", "*") else None
             if sub:
                 marker, body = sub.group(1), sub.group(2)
-            if marker[0].isdigit():
+            if marker[0].isdigit() or marker[0].isupper():
                 # Keep the source's own numbering. Word's "List Number" style uses
                 # one document-wide counter, so successive lists would read 34,35…
                 # instead of restarting at 1; emit the authored number as text.
-                hang = 26 if "." in marker.rstrip(".") else 18
+                hang = max(18, 5 * len(marker) + 6)          # room for rule numbers like 11.1.3.7 / 2.2.13b
                 p = doc.add_paragraph()
                 p.paragraph_format.left_indent = Pt(18 * lvl + hang)
                 p.paragraph_format.first_line_indent = Pt(-hang)
@@ -333,6 +337,6 @@ def render(md_path, out_path):
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        sys.exit("usage: python md_to_docx.py RULES_reorganized.md Rules.docx")
-    out = render(sys.argv[1], sys.argv[2])
+        sys.exit("usage: python md_to_docx.py RULES_reorganized.md Rules.docx [--no-numbers]")
+    out = render(sys.argv[1], sys.argv[2], numbered="--no-numbers" not in sys.argv)
     print("wrote " + out)

@@ -312,7 +312,8 @@ def rules_payload(ns, rules_path):
         t = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", t)
         t = re.sub(r"\*(.+?)\*", r"<em>\1</em>", t)
         return re.sub(r"`(.+?)`", r"<code>\1</code>", t)
-    md = wm.preprocess_inline(open(rules_path, encoding="utf-8").read())
+    import rule_numbers as _rn
+    md = wm.preprocess_inline(_rn.number_md(open(rules_path, encoding="utf-8").read(), mode="plain")[0])
     out, toc, stack, lines, i, seen = [], [], [], md.split("\n"), 0, {}
     def close():
         while stack: out.append("</ul>"); stack.pop()
@@ -774,6 +775,15 @@ def check_rules(ns, rules_path):
     gk = {str(k).lower() for k in ns.get("GLOSSARY", {})}
     for p in sorted(set(re.findall(r"\{\{TERM:([^}]+)\}\}", txt))):
         if p.strip().lower() not in gk: rows.append(("TERM " + p, "—", "not in GLOSSARY", "MISMATCH"))
+    # rule anchors: duplicate {{RULE:}} ids, unresolved {{SEE:}} ids and GLOSSARY_SEE anchors (rule_numbers.py)
+    try:
+        here = os.path.dirname(os.path.abspath(__file__))
+        if here not in sys.path: sys.path.insert(0, here)
+        import rule_numbers as _rn
+        for p in _rn.check(rules_path):
+            rows.append(("anchor " + p, "—", "—", "MISMATCH"))
+    except Exception as e:
+        rows.append(("rule anchors", "—", f"check failed: {e}", "MISMATCH"))
     # board plumbing: phase rule sections the board reads by heading
     for h in ("Empire Phase", "Council Phase", "Envoy Phase", "Battle Phase", "Rest Phase",
               "The Skirmish Steps", "Beginning a Battle", "Ending a Battle"):
@@ -813,7 +823,7 @@ def rules_section(rules_path, heading, ns):
             break
         if on:
             out.append(ln)
-    txt = "\n".join(out).strip()
+    txt = re.sub(r"\s*\{\{RULE:[^}]*\}\}", "", "\n".join(out)).strip()   # rule anchors are print/wiki plumbing
     def sub(m):
         v = _val(ns, m.group(1).strip())
         return str(v) if v is not None else m.group(0)

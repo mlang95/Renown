@@ -636,8 +636,29 @@ def glossary_category(title):
     if title not in cats:
         raise KeyError(f"no glossary category '{title}'. available: {list(cats)}")
     g = {str(k): v for k, v in rd.GLOSSARY.items()}
-    rows = [[t + xe_mark(t), g[t]] for t in cats[title]]
+    rows = [[t + xe_mark(t), see_definition(t, g[t])] for t in cats[title]]
     return _heading_xml(f"Glossary · {title}", 4) + _table(["Term", "Definition"], rows)
+
+_SENT_END = _re.compile(r"(?<!\be\.g)(?<!\bi\.e)(?<!\betc)(?<!\bvs)\.(?=\s+[A-Z(])")
+
+def _first_sentence(text):
+    m = _SENT_END.search(str(text))
+    return str(text)[:m.end()] if m else str(text)
+
+def see_definition(term, full):
+    """GLOSSARY_SEE terms: first sentence (or the given short text) + "See <rule> (<section>)"; else the full text.
+    Rule numbers come from rule_numbers.ANCHORS (filled when the rules md is numbered)."""
+    v = getattr(rd, "GLOSSARY_SEE", {}).get(term)
+    if not v:
+        return full
+    short, aid = v if isinstance(v, tuple) else (_first_sentence(full), v)
+    import rule_numbers as rn
+    r = rn.ref(aid)
+    if not r:
+        print(f"  docx_tables: GLOSSARY_SEE '{term}' -> '{aid}' unresolved; printing the full definition", file=sys.stderr)
+        return full
+    short = short.strip()
+    return f"{short}{'' if short.endswith(('.', ')')) else '.'} See {r[0]} ({r[1]})."
 
 def definition(term):
     """The definition string for a term (case-insensitive); '' if unknown."""

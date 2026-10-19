@@ -52,6 +52,8 @@ def _term(t):
     return f"**{t}** — {d}" if key else t
 
 def preprocess_inline(md):
+    import rule_numbers as _rn
+    md = _rn.resolve_plain(md)                                      # strip {{RULE:id}}, {{SEE:id}} -> "3.6 (Council Phase)"
     md = VERSION_RE.sub(VERSION, md)
     md = VAL_RE.sub(lambda m: _resolve_val(m.group(1)), md)
     md = TERM_RE.sub(lambda m: _term(m.group(1).strip()), md)      # {{TERM:x}} -> "**x** — definition"

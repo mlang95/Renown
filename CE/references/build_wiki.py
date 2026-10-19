@@ -297,6 +297,8 @@ def md_to_html(md,current=None):
 
 # ── split RULES.md ──
 raw=open(SRC,encoding="utf-8").read()
+import rule_numbers as _rn
+raw=_rn.number_md(raw,mode="plain")[0]   # anchors from the whole file before it's split into pages; strips {{RULE:}}, resolves {{SEE:}}
 parts=re.split(r"(?m)^#{1,2}\s+",raw)
 intro=parts[0]; sections=[]
 for c in parts[1:]:

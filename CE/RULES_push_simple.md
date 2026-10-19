@@ -1,5 +1,4 @@
 # Renown
-{{VAL:DICE_PROVENANCE}}
  A turn-based strategy game of empire building, diplomacy, and domain mastery.
 
 {{TOC}}
@@ -36,7 +35,7 @@ When an Edict is completed, increase the Renown tracker by 1. Any player may com
 
 {{TABLE:edicts}}
 
-*Note: an Edict that requires consecutive turns uses a timer that must advance each turn. If for any reason it doesn't advance, remove the timer until it's restarted.*
+An Edict that requires consecutive turns uses a timer that must advance each turn. If for any reason it doesn't advance, remove the timer until it's restarted.
 
 ### Game Structure
 
@@ -93,9 +92,9 @@ A few conventions make every rule in this book read the same way:
 
 12. **Equal values.** If one value equals a second, and the second equals a third, then the first and third are equal.
 
-13. **Mastery Chain.** A Holding's Mastery Chain is the line of Holdings it builds from, usually running from a Raw Material up to a Monument.
+13. **Mastery Chain.** A Holding's Mastery Chain is the line of Holdings it builds from, usually running from a Raw Material up to a Monument. {{RULE:mastery-chain}}
     13.1 You may start building a Holding only while you control one complete line of its Mastery Chain, anywhere in your empire; this is checked only when you start it.
-    13.2 A Root Holding has no Mastery Chain requirement.
+    13.2 A Root Holding has no Mastery Chain requirement. {{RULE:root}}
     13.3 A Holding placed in the same Settlement Ward as its immediate parent shares that Ward, and the chain can continue upward the same way. Each Holding carries at most one descendant in its Ward.
 
 14. **Scope.** Each Holding and Infrastructure has a Scope that limits how many of it can exist.
@@ -108,7 +107,7 @@ A few conventions make every rule in this book read the same way:
 - **Gold / Treasury** — your spendable wealth. Pays for Actions, upkeep, and Muster recruitment. Running out triggers Insolvency (see Treasury & Upkeep).
 - **Domain Points** — gain {{VAL:DOMAIN_POINTS_PER_TURN}} each Rest Phase and spend it to raise a Domain value by 1 (see Domains & Standings).
 - **Influence** — the weight you bring to Envoy votes: spend it to Support or Oppose other players' Envoys (see Actions & Voting).
-- **Renown** — the score of the table. Gained each Rest Phase and by completing Edicts; it sets the Era.
+- **Renown** — the score of the table. Gained each Rest Phase and by completing Edicts; it sets the Era. {{RULE:renown-track}}
 - **Public Order** — the stability of your realm, raised by Faith and lowered by Doubt. Its band sets ongoing effects (see Public Order).
 - **Faith** — devotion, generated mostly by Piety Holdings; each Faith raises your Public Order by 1.
 - **Doubt** — instability; each Doubt lowers your Public Order by 1. Some powerful Holdings cost you Doubt; Cunning and Piety actions give it to others.
@@ -123,7 +122,7 @@ Each turn runs through five phases in order, then passes the Host and repeats:
 4. **Battle Phase**{{IDX:Battle Phase}} — Skirmishes, Sieges, and Battles resolve.
 5. **Rest Phase**{{IDX:Rest Phase}} — cleanup, advance the Season, score Renown, spend one Domain Point, pass the Host.
 
-**The Host.** Each turn except Spring, one player is the Host. The starting player is always the player directly clockwise from the Host token, including in Spring. The role passes clockwise each Rest Phase (except in Spring). The Host runs most of the Empire Phase's administration: collecting and distributing Trade Income, resolving Bandit Mechanics, and breaking ties (Council vote, Bandit targeting, and anything not otherwise resolvable). The Host Card carries the step-by-step detail.
+**The Host.** Each turn except Spring, one player is the Host. The starting player is always the player directly clockwise from the Host token, including in Spring. The role passes clockwise each Rest Phase (except in Spring). The Host runs most of the Empire Phase's administration: collecting and distributing Trade Income, resolving Bandit Mechanics, and breaking ties (Council vote, Bandit targeting, and anything not otherwise resolvable). The Host Card carries the step-by-step detail. {{RULE:host}}
 
 ### Timers
 
@@ -136,49 +135,26 @@ Many actions set a Timer to a number of turns. Each Empire Phase, every active T
 ### Empire Phase
 
 1. **Start of the Empire Phase** — resolve every effect that happens at the Start of the Empire Phase, including Domain Standing effects (see Domain Standings).
-2. **Season** — check this turn's Season and apply its effect.
-3. **Timers**
-    3.1 Count down every eligible active Timer by 1, in this order: Build, Repair, Truce, Siege, Muster, Sack, Capture.
-    3.2 Resolve every Timer that reached 0.
-4. **Bandit Mechanics** (the Host resolves)
-    4.1 Grow existing Bandit Camps according to the Era.
-    4.2 Convert any camp that reaches {{VAL:BANDIT_ARMY_THRESHOLD}} Retinues into a Bandit Army.
-    4.3 Bandit Camps perform Cunning actions.
-    4.4 Bandit Armies perform Move actions.
-    4.5 Spawn new Bandit Camps (in Spring, from Foster Rebellion, or from an Uprising).
-5. **Influence & Envoys**
-    5.1 Gain Influence (not in Spring) from the Era, innate modifiers (Trade Partners, Alliances, At War, etc.), Holdings, and Infrastructure.
-    5.2 Gain Envoys based on the Era.
-6. **Taxes** — in Winter only, gain tax income from each of your Settlements by tier (see Settlements), adjusted by any modifiers.
-7. **Income & Upkeep**
-    7.1 All players gain Holding income.
-    7.2 Trade: if there is a Host, the Host collects trade income and distributes it among their Trade Partners.
-    7.3 Pay Army, Holding, Infrastructure, and any other upkeep.
-    7.4 Extort: Holdings and effects that Extort resolve now.
-    7.5 Check your Treasury for the Wealth Edict condition.
-8. **Public Order** — check each innate Faith / Doubt source in the Public Order tables and adjust your Public Order. *(Faith and Doubt from actions are applied the moment they're generated; see Public Order.)*
-9. **Endurance** — every Army without **Strained** gains +{{VAL:ENDURANCE_REGAIN}} Endurance; then remove Strained from all Armies. *(An Army can immediately regain these effects after losing them, if applicable.)*
-10. **Remaining effects** — resolve any remaining Each Empire Phase effects.
+2. **Season** — apply this turn's Season effect.
+3. **Timers** — count down every active Timer by 1 (Build, Repair, Truce, Siege, Muster, Sack, Capture, in that order), then resolve each Timer that reached 0.
+4. **Bandit Mechanics** (the Host resolves) — grow Bandit Camps by the Era; convert any camp of {{VAL:BANDIT_ARMY_THRESHOLD}} Retinues into a Bandit Army; Bandit Camps perform Cunning actions; Bandit Armies perform Move actions; spawn new Bandit Camps (in Spring, from Foster Rebellion, or from an Uprising).
+5. **Influence & Envoys** — gain Influence (not in Spring) from the Era, innate modifiers (Trade Partners, Alliances, At War, etc.), Holdings, and Infrastructure; then gain the Era's Envoys.
+6. **Income & Upkeep** — in this order: in Winter only, gain tax income from each of your Settlements by tier (see Settlements); gain Holding income; if there is a Host, the Host collects trade income and distributes it among their Trade Partners; pay Army, Holding, Infrastructure, and any other upkeep; resolve Extort effects; check your Treasury for the Wealth Edict condition.
+7. **Public Order** — check each innate Faith / Doubt source in the Public Order tables and adjust your Public Order. *(Faith and Doubt from actions are applied the moment they're generated; see Public Order.)*
+8. **Endurance** — every Army without **Strained** gains +{{VAL:ENDURANCE_REGAIN}} Endurance; then remove Strained from all Armies. *(An Army can immediately regain these effects after losing them, if applicable.)*
+9. **Remaining effects** — resolve any remaining Each Empire Phase effects.
 
 ### Council Phase
 
-Before players send Personal Envoys, the Council votes on a Domain.
-
 1. **Forum** — a brief open discussion of which Domain the Council should choose.
-2. **Vote** — no talking. Clockwise from the starting player, each player votes for a Domain; if the vote ties, the Host's vote breaks it (if the Host's vote isn't one of the tied Domains, the Host chooses among them).
-3. **Council actions** — clockwise from the starting player, each player sends a free Envoy of that Domain, starting with innate Influence equal to their Domain Standing. A passed Council Envoy performs actions of that Domain equal to the Era's Council actions per Envoy (see Eras).
-
-Council Envoys **auto-Abstain**: other players can't Support or Oppose them, though automatic Authority ±X modifiers still apply.
-
-*Note: a Council Envoy's net Influence can't be lower than 1, whatever the totalled value, so it can't fail or be Condemned.*
+2. **Vote** — no talking. Clockwise from the starting player, each player votes for a Domain. The Host's vote breaks a tie; if the Host's vote isn't one of the tied Domains, the Host chooses among them.
+3. **Council actions** — clockwise from the starting player, each player sends a free Envoy of that Domain, starting with innate Influence equal to their Domain Standing. Council Envoys **auto-Abstain** — other players can't Support or Oppose them, though automatic Authority ±X modifiers still apply — and their net Influence can't be lower than 1, so they can't fail or be Condemned. A passed Council Envoy performs actions of that Domain equal to the Era's Council actions per Envoy (see Eras). {{RULE:council-envoy}}
 
 ### Envoy Phase
 
-1. **Envoy Declaration** — all players place all of their Envoys in the Domains of their choice at the same time, then reveal them together. You must send every Envoy you have.
+1. **Envoy Declaration** — all players place every Envoy they have in the Domains of their choice at the same time, then reveal them together.
 2. **Forum** — a brief open discussion of every Envoy on the table: who should be Supported, Opposed, or left alone.
-3. **Vote** — no talking. Vote on every Envoy in this order (see Actions & Voting for how a vote works):
-    3.1 **Diplomacy** — clockwise from the starting player.
-    3.2 **Prowess → Cunning → Piety → Industry** — within each Domain, in descending order of the sender's Domain value: the player with the highest value has all of their Envoys of that Domain voted on, then the next highest, and so on. Ties go clockwise from the starting player.
+3. **Vote** — no talking. Vote on every Envoy (see Resolving an Envoy): Diplomacy first, clockwise from the starting player; then Prowess → Cunning → Piety → Industry, where within each Domain the sender with the highest Domain value has all of their Envoys of that Domain voted on, then the next highest, and so on (ties clockwise from the starting player).
 4. **Resolve** — once every vote is cast, resolve each Envoy in the same order: choose and perform its action according to its net Influence.
 
 *All votes are cast before anything resolves, so At War status (for Opposing Industry Envoys) and Treaties are as they stood during the vote.*
@@ -189,17 +165,10 @@ If a player performed a Battle or Lay Siege Move action this turn, resolve it no
 
 ### Rest Phase
 
-1. Discard any unused Envoy and Influence tokens.
-
-2. Advance the Season by 1.
-
-3. Gain {{VAL:RENOWN_PER_TURN}} Renown.
-
-4. Gain and spend {{VAL:DOMAIN_POINTS_PER_TURN}} Domain Point.
-
-5. **Change Host** — rotate the Host token clockwise to the starting player, unless it's Spring.
-
-6. Start the next Empire Phase.
+1. **Discard** any unused Envoy and Influence tokens.
+2. **Season** — advance the Season by 1.
+3. **Score** — gain {{VAL:RENOWN_PER_TURN}} Renown, then gain and spend {{VAL:DOMAIN_POINTS_PER_TURN}} Domain Point.
+4. **Change Host** — rotate the Host token clockwise to the starting player, unless it's Spring.
 
 # Seasons
 
@@ -248,13 +217,13 @@ Envoys are the currency of actions: to perform an action you send an Envoy durin
 
 Your Envoy begins with Authority equal to your innate Authority in its Domain — Untested {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Untested}}, Rising {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Rising}}, Established {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Established}}, Sovereign {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Sovereign}} — plus any automatic Authority ±X modifiers. *(These come from your Holdings, Infrastructure, and Faction, and apply on their own; you never spend Influence for them.)* Diplomacy has no Standing; a Diplomacy Envoy begins with Authority set by the Era (Founding {{VAL:ERAS.Founding.innate_diplomacy_influence}}, Ascension {{VAL:ERAS.Ascension.innate_diplomacy_influence}}, Eminence {{VAL:ERAS.Eminence.innate_diplomacy_influence}}, Zenith {{VAL:ERAS.Zenith.innate_diplomacy_influence}}).
 
-Then, clockwise from the starting player and skipping the sender, every other player may respond, with no talking during the vote:
+Then, clockwise from the starting player and skipping the sender, every other player may respond, with no talking during the vote: {{RULE:vote}}
 
 - **Support X** — spend X of your Influence to raise the Envoy's net Influence.
 - **Oppose X** — spend X of your Influence to lower it.
 - **Abstain** — spend nothing.
 
-You spend Influence only when you **Support** or **Oppose**; abstaining is free. **You can't vote on your own Envoy.** On a single vote, each player may spend up to 1 + their Standing in that Domain (Untested {{VAL:DOMAIN_BOARD.max_influence_per_vote.Untested}}, Rising {{VAL:DOMAIN_BOARD.max_influence_per_vote.Rising}}, Established {{VAL:DOMAIN_BOARD.max_influence_per_vote.Established}}, Sovereign {{VAL:DOMAIN_BOARD.max_influence_per_vote.Sovereign}}). On Diplomacy Envoys the cap is set by the Era instead (Founding {{VAL:ERAS.Founding.max_influence_per_diplomacy_vote}}, Ascension {{VAL:ERAS.Ascension.max_influence_per_diplomacy_vote}}, Eminence {{VAL:ERAS.Eminence.max_influence_per_diplomacy_vote}}, Zenith {{VAL:ERAS.Zenith.max_influence_per_diplomacy_vote}}). Holdings, Infrastructure, and Factions may raise these caps. Unused Influence is discarded in the Rest Phase.
+You spend Influence only when you **Support** or **Oppose**; abstaining is free. **You can't vote on your own Envoy.** On a single vote, each player may spend up to their Standing in that Domain (Untested {{VAL:DOMAIN_BOARD.max_influence_per_vote.Untested}}, Rising {{VAL:DOMAIN_BOARD.max_influence_per_vote.Rising}}, Established {{VAL:DOMAIN_BOARD.max_influence_per_vote.Established}}, Sovereign {{VAL:DOMAIN_BOARD.max_influence_per_vote.Sovereign}}). On Diplomacy Envoys the cap is set by the Era instead (Founding {{VAL:ERAS.Founding.max_influence_per_diplomacy_vote}}, Ascension {{VAL:ERAS.Ascension.max_influence_per_diplomacy_vote}}, Eminence {{VAL:ERAS.Eminence.max_influence_per_diplomacy_vote}}, Zenith {{VAL:ERAS.Zenith.max_influence_per_diplomacy_vote}}). Holdings, Infrastructure, and Factions may raise these caps. Unused Influence is discarded in the Rest Phase.
 
 *Each player declares in turn, so the running net Influence is public — later voters can react to it. The Host, sitting just before the starting player, votes last on every Envoy they didn't send.*
 
@@ -266,7 +235,7 @@ Add everything together for the net Influence, then read the outcome:
 
 {{TABLE:net_influence}}
 
-*Effects that modify a specific action's Influence — including effects on actions targeting a player — apply after the net Influence is totalled, once the action and its target are chosen. They can raise or lower the result: a would-be pass can become a fail, or be Condemned. On a would-be fail, the player may instead perform a different action of the same Domain targeting the same player or Settlement.*
+Effects that modify a specific action's Influence — including effects on actions targeting a player — apply after the net Influence is totalled, once the action and its target are chosen. They can raise or lower the result: a would-be pass can become a fail, or be Condemned. On a would-be fail, the player may instead perform a different action of the same Domain targeting the same player or Settlement.
 
 When you perform an action, pay its cost (gold or Doubt) and follow the pass effect. If the action is **endorsed**, also perform the Domain's endorsed effect.
 
@@ -375,9 +344,9 @@ To vassalize a player:
     - Half of the Vassal's trade income from trading with other players.
     - The first {{VAL:VASSAL_INFLUENCE_TAKE}} Influence the Vassal generates each turn.
 
-*Note (mutual exchange, each Empire Phase): if both players agree, either player may exchange up to {{VAL:VASSAL_EXCHANGE_CAP}} gold, exchange ownership of Settlements, or transfer forces (so long as the Armies are adjacent to each other, or an Army is adjacent to a Garrison), in either direction.*
+**Mutual exchange.** Each Empire Phase, if both players agree, either player may exchange up to {{VAL:VASSAL_EXCHANGE_CAP}} gold, exchange ownership of Settlements, or transfer forces (so long as the Armies are adjacent to each other, or an Army is adjacent to a Garrison), in either direction.
 
-*Note: if the Suzerain is vassalized, both the original Vassal and the Suzerain become Vassals of the new Suzerain, and the new Suzerain gains the benefits of each Vassal.*
+If the Suzerain is vassalized, both the original Vassal and the Suzerain become Vassals of the new Suzerain, and the new Suzerain gains the benefits of each Vassal.
 
 {{GLOSSARY:Treaties}}
 
@@ -431,7 +400,7 @@ Build times, in turns, by what you're building:
 
 Territory is the smallest unit of land. To move from one Territory to another, you move Range 1. To be within a Territory is Range 0; adjacent is Range 1; next to is Range 2.
 
-{{TERM:Speed X}}
+{{TERM:Speed X}} {{RULE:speed}}
 
 Territories carry modifiers by hex type (grassland, forest, barrens, wetlands, water, mountain), and are Uncontrolled, Contested, or Controlled. Territory begins Uncontrolled. By chartering Settlements you Control Territories: each Settlement's Reach X adds every Territory within that Range to your Province. If another player's Settlement Reach reaches any Territory you Control, that Territory is Contested.
 
@@ -469,12 +438,12 @@ Your Treasury is the gold you Control.{{IDX:Treasury}}{{IDX:Revenue}} Each Empir
 
 ### Insolvency & Bankruptcy
 
-> *This is an exception path — skip it until it happens.*
+*This is an exception path — skip it until it happens.*
 
 You go Insolvent the moment your Treasury can't cover a cost in full (at Upkeep, when paying for an action, or when an effect drains your gold). Pay what you can, then cut until the books balance, in this order:
 
 1. **Disband Armies**, one at a time, cheapest-upkeep first, until your Armies are gone.
-2. **Set buildings inactive**, highest-tier first (Monuments, then Power Holdings, then other non-Natural Holdings).
+2. **Set buildings inactive**, highest-tier first (Monuments, then Established & Rising, then all other non-Natural Holdings).
 
 An inactive Holding gives no effect; Holdings built from it are unaffected. An inactive piece is restored at any future Income & Upkeep step where you can pay its upkeep. Build Timers halt while you're Insolvent.
 
@@ -499,7 +468,7 @@ If you've cut everything and a debt still remains, you're Bankrupt: your Treasur
 
 ### Income Types
 
-- **Taxes:** each Winter, in the Taxes step of the Empire Phase, gain tax income from each of your Settlements by tier, after modifiers.
+- **Taxes:** each Winter, in the Income & Upkeep step of the Empire Phase, gain tax income from each of your Settlements by tier, after modifiers.
 - **Trade:** see above.
 - **Holdings:** gain Holding income in the Income & Upkeep step of the Empire Phase.
 
@@ -539,39 +508,30 @@ A Battle is fought as a series of Skirmishes, run through the steps below until 
 
 1. **Declare Army** — declare which Army will Skirmish (if more than one is adjacent to either Army in the Battle).
 
-2. **Seize the Initiative** — the player who performed the Battle action usually gains Seize the Initiative, but Terrain and the Ministry of Military Strategy can change that. That player gains Initiative +1 in the first Skirmish.
+2. **Seize the Initiative** — the player who performed the Battle action usually gains Seize the Initiative, but Terrain and the Ministry of Military Strategy can change that. That player gains Initiative +1 in the first Skirmish. {{RULE:seize}}
 
 ### The Skirmish Steps
 
-1. **Form the line.** Each side places up to {{VAL:FRONT_LINE_MAX}} Retinues in its front line — one Strike die each — and may keep up to {{VAL:RESERVE_MAX}} in reserve to replace losses as they fall. An Army of {{VAL:ARMY_MAX_RETINUES}} keeps the remainder in camp; between Skirmishes, camp and reserves refill the front line and reserve to their maximums.
+1. **Form the line.** Each side places up to {{VAL:FRONT_LINE_MAX}} Retinues in its front line — one Strike die each — and may keep up to {{VAL:RESERVE_MAX}} in reserve to replace losses as they fall. An Army of {{VAL:ARMY_MAX_RETINUES}} keeps the remainder in camp; between Skirmishes, camp and reserves refill the front line and reserve to their maximums. {{RULE:form-line}}
 
 2. **Choose Tactics and equipment.** Both players secretly pick one Tactic and, if they have a choice, the equipment they'll use this Skirmish (a Tiltyard Army picks its Ranged or Melee weapon; a Bastard Sword picks its 1H or 2H profile), then reveal together. A One-Shot weapon must be Equipped in the first Skirmish and can't be Equipped after. Only Equipped gear counts: while a 2H weapon is Equipped your Shield gives nothing that Skirmish.
 
-3. **Initiative.** Apply the Initiative and any other modifiers from both Tactics and weapon profiles. Initiative ranges from {{VAL:INITIATIVE_MIN}} to +{{VAL:INITIATIVE_MAX}}. The higher Initiative Strikes first this Skirmish. At {{VAL:INITIATIVE_MIN}} or lower you Blunder — your to-Strike is set to {{VAL:BLUNDER_THR}}+, before other negative modifiers.
+3. **Initiative.** Apply the Initiative and any other modifiers from both Tactics and weapon profiles. Initiative ranges from {{VAL:INITIATIVE_MIN}} to +{{VAL:INITIATIVE_MAX}}. The higher Initiative Strikes first this Skirmish. If tied, both armies strike simultaneously. Resolve this taking turns rolling strikes and saves, but do not apply casualties until both sides have fought. At {{VAL:INITIATIVE_MIN}} or lower you Blunder — your to-Strike is set to {{VAL:BLUNDER_THR}}+, before other negative modifiers. {{RULE:initiative}}
 
-4. **Roll to Strike.** Roll a D{{VAL:FACES}} for each front-line Retinue, applying its modifiers. It Strikes on a result ≥ its to-Strike number (Levy {{VAL:RETINUES.Levy.to_hit}}+, Man-at-Arms {{VAL:RETINUES.Man-at-Arms.to_hit}}+, Sergeant {{VAL:RETINUES.Sergeant.to_hit}}+, Knight Templar {{VAL:RETINUES.Knight Templar.to_hit}}+). A natural {{VAL:FOCUSED_THR}} may trigger Cleave, Deadly, or Destroy Shield.
+4. **Strike.** The side with the higher Initiative rolls a D{{VAL:FACES}} for each front-line Retinue, applying its modifiers. It Strikes on a result ≥ its to-Strike number (Levy {{VAL:RETINUES.Levy.to_hit}}+, Man-at-Arms {{VAL:RETINUES.Man-at-Arms.to_hit}}+, Sergeant {{VAL:RETINUES.Sergeant.to_hit}}+, Knight Templar {{VAL:RETINUES.Knight Templar.to_hit}}+). A natural {{VAL:FOCUSED_THR}} may trigger Cleave, Deadly, or Destroy Shield. {{RULE:strike}}
 
-5. **Strike and defend.** Resolve the first side's Strikes — the defender may Parry (D{{VAL:FACES}}, {{VAL:PARRY_BASE}}+ cancels; a natural {{VAL:FOCUSED_THR}} is a Riposte), then Save (D{{VAL:FACES}} + the weapon's AP + the shield's bonus ≥ the armor value), then Recover (after a failed Save, a final D{{VAL:FACES}} ≥ the Recover value). Unsaved, unrecovered Strikes are casualties, and leave the field at once.
+5. **Defend.** For each Strike, a defender with Parry may Parry (D{{VAL:FACES}}, {{VAL:PARRY_BASE}}+ cancels; a natural {{VAL:FOCUSED_THR}} Ripostes if the defender has Riposte), then Saves (D{{VAL:FACES}} + the weapon's AP + the shield's bonus ≥ the armor value), then a defender with Recover may Recover (after a failed Save, a final D{{VAL:FACES}} ≥ the Recover value). Unsaved, unrecovered Strikes are casualties, and leave the field at once. Then the other side Strikes, and is defended against, the same way, if able. {{RULE:defend}}
 
-6. **Strike back.** The other side Strikes the same way, if able.
+6. **Panic check.** After both sides have Struck, each side that took more than {{VAL:PANIC_CASUALTY_THRESHOLD}} casualties this Skirmish (Strikes it Recovered still count, unless it has Enduring) takes a Panic check: roll its Morale, up to {{VAL:MORALE_DICE_MAX}} dice; failures are casualties. A check ever modified to {{VAL:ROUT_THR}} or more Routs the whole Army. {{RULE:panic}}
 
-7. **Panic check.** After both sides have Struck, each side that took more than {{VAL:PANIC_CASUALTY_THRESHOLD}} casualties this Skirmish (Strikes it Recovered still count, unless it has Enduring) takes a Panic check: roll its Morale, up to {{VAL:MORALE_DICE_MAX}} dice; failures are casualties. A check ever modified to {{VAL:ROUT_THR}} or more Routs the whole Army.
+7. **Fatigue.** Each side that fought loses 1 Endurance; a side at 0 Endurance is Fatigued. Each Fatigued side's field then takes a Break check — roll a D{{VAL:FACES}} per Retinue in the field, up to {{VAL:MORALE_DICE_MAX}} dice, each ≥ its modified Morale value; failures are casualties, and a Break check never triggers a Panic check — and then gains a Fatigue token: each token is −{{VAL:FATIGUE_MORALE}} to that Army's Morale rolls; tokens stack and last until the Battle ends. A check ever modified to {{VAL:ROUT_THR}} or more Routs the whole Army. {{RULE:fatigue}}
 
-8. **Lose Endurance.** Each side that fought loses 1 Endurance. A side at 0 Endurance is Fatigued.
-
-9. **Break check.** Before gaining its token, each Fatigued side's field takes a Break check: roll a D{{VAL:FACES}} per Retinue in the field, up to {{VAL:MORALE_DICE_MAX}} dice, each ≥ its modified Morale value; failures are casualties. A Break check never triggers a Panic check. A check ever modified to {{VAL:ROUT_THR}} or more Routs the whole Army.
-
-10. **Fatigue token.** Each Fatigued side then gains a Fatigue token — each token is −{{VAL:FATIGUE_MORALE}} to that Army's Morale rolls; Tokens stack and last until the Battle ends.
-
-11. **End the Skirmish.** The Battle ends if a side is wiped out, Routs (modified Morale {{VAL:ROUT_THR}}+), or successfully Falls Back. Otherwise refill the lines and begin the next Skirmish.
+8. **End the Skirmish.** The Battle ends if a side is wiped out, Routs (modified Morale {{VAL:ROUT_THR}}+), or successfully Falls Back. Otherwise refill the lines and begin the next Skirmish. {{RULE:end-skirmish}}
 
 ### Ending a Battle
 
-1. Remove all Fatigue tokens.
-
-2. The player who won **extorts spoils of war.**
-
-*Spoils of War: extort the total cost of the Retinues, by type, you destroyed in the Battle.*
+1. **Clean up** — remove all Fatigue tokens.
+2. **Spoils of War** — the player who won Extorts the unmodified cost of the opposing Army, by its Retinue type.
 
 ### Tactic Matrix
 
@@ -633,9 +593,9 @@ A zone is your Outlaw Country while any of its Territories is within your Provin
 
 ### Spawning Bandit Camps
 
-At the start of the Bandit Mechanics step in Spring: place a Bandit Camp of {{VAL:BANDIT_CAMP_START}} Bandits (Retinues) with {{VAL:BANDIT_CAMP_GOLD}} gold in each Outlaw Country zone.
+In the Empire Phase each Spring: place a Bandit Camp of {{VAL:BANDIT_CAMP_START}} Bandits (Retinues) with {{VAL:BANDIT_CAMP_GOLD}} gold in each Outlaw Country zone.
 
-*Note: if an Outlaw Country is chosen to receive another Bandit Camp but there's no room to place one, instead each existing Bandit Camp grows according to the current Era. Foster Rebellion is the exception: it expands that Outlaw Country by one Territory and places the camp there.*
+*Note: if an Outlaw Country is chosen to receive another Bandit Camp but there's no room to place one, instead each existing Bandit Camp within that outlaw country grows according to the current Era. Foster Rebellion is the exception: it expands that Outlaw Country by one Territory and places the camp there.*
 
 ### Growing Bandit Camps
 

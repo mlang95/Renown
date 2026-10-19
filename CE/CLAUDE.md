@@ -37,6 +37,7 @@ Display layer: `NAME_DISPLAY` / `ALIASES` / `TERM_ENVOY_SCORE` rename what playe
 | `{{GLOSSARY:Category}}` | `GLOSSARY_CATEGORIES` (in data) |
 | `{{TERM:x}}` / `{{IDX:x}}` | inline definition / index entry |
 | `{{TOC}}` / `{{INDEX}}` / `{{COLS:n}}` | print furniture |
+| `{{RULE:id}}` / `{{SEE:id}}` | rule anchor / cross-ref — numbered by `references/rule_numbers.py` (headings auto-anchor by slug); `GLOSSARY_SEE` points glossary rows at them |
 The Compendium is retired: its chapters render inside Rules.docx.
 
 ## Main pipelines (`references/` unless noted)
