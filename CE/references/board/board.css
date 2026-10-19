@@ -48,6 +48,7 @@
     color:var(--dim);background:var(--panel2);cursor:pointer;user-select:none}
   .chip.on{color:var(--ink);border-color:var(--line2);background:var(--sel)}
   .typegroup{margin-bottom:6px}
+  .typegroup>.catstd{font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:4px 4px 1px;opacity:.85}
   .catctl{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;align-items:center}
   .typegroup>.th{color:var(--dim);font-size:11px;letter-spacing:.03em;padding:4px 2px;
     border-bottom:1px solid var(--line);position:sticky;top:-14px;background:var(--bg);z-index:1}

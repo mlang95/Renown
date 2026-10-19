@@ -10,12 +10,30 @@ function buildFilters(){const box=document.getElementById("typeFilters");box.inn
 function monChip(){const t="Monument";if(!TYPES.includes(t))return null;const c=document.createElement("span");c.className="chip"+(activeTypes.has(t)?" on":"");c.textContent=t;
   c.onclick=()=>{activeTypes.has(t)?activeTypes.delete(t):activeTypes.add(t);renderList();};return c;}
 // catalog view prefs: grouping (type | root chart) and Available / All
-let CAT={group:"root",avail:true};
+let CAT={group:"domain",avail:true};
 try{const c=JSON.parse(localStorage.getItem("renown_cat")||"null");if(c)CAT=Object.assign(CAT,c);}catch(_){}
-CAT.group="root";                                     // Root charts are the only grouping (Type chips removed; Monument toggle kept)
+CAT.group="domain";                                   // catalog grouped like the rules' Holdings chapter (Roots first); Monument toggle kept
 function catSave(){try{localStorage.setItem("renown_cat",JSON.stringify(CAT));}catch(_){}}
 const ROOTS=((DATA.tree&&DATA.tree.charts)||[]).map(c=>[c.title,Object.keys(c.nodes||{}).filter(n=>R[n])]).filter(x=>x[0]&&x[1].length);
 {const inR=new Set(ROOTS.flatMap(x=>x[1])),rest=NAMES.filter(n=>!inR.has(n));if(ROOTS.length&&rest.length)ROOTS.push(["Other",rest]);}   // nothing drops out of the catalog
+// Catalog groups (as the rules' Holdings chapter): Roots (no Mastery Chain requirement; Available still checks Raw Materials
+// within Reach) · No Standing · Prowess · Cunning · Piety · Industry (Rising → Sovereign) · Any Domain ("1 Rising", "4 Established").
+// A Holding with two Standing requirements is listed under both. DOM_STD[group|name] = the Standing sub-label.
+const DOM_STD={};
+const DOM_GROUPS=(()=>{const ORD=["Prowess","Cunning","Piety","Industry"],RK={Rising:1,Established:2,Sovereign:3},G={},put=(g,n,lab,rk)=>{(G[g]=G[g]||[]).push([n,rk]);DOM_STD[g+"|"+n]=lab;};
+  NAMES.forEach(n=>{const r=R[n]||{};if(r.root){put("Roots",n,"",0);return;}
+    const raw=String(r.unlock_raw||"").trim(),toks=raw&&raw!=="-"&&raw!=="\u2014"?raw.split(/\s*[+,]\s*/).filter(Boolean):[];
+    if(!toks.length){put("No Standing",n,"",0);return;}
+    toks.forEach(t=>{let m;const tc=w=>w[0].toUpperCase()+w.slice(1).toLowerCase();
+      if(m=t.match(/^(Rising|Established|Sovereign)\s+(Prowess|Cunning|Piety|Industry)$/i))put(tc(m[2]),n,tc(m[1])+" "+tc(m[2]),RK[tc(m[1])]);
+      else if(m=t.match(/^(\d+)\s+(Rising|Established|Sovereign)$/i))put("Any Domain",n,m[1]+" Domain"+(+m[1]===1?"":"s")+" at "+tc(m[2]),RK[tc(m[2])]*10+ +m[1]);
+      else put("Other",n,t,99);});});
+  const dn=x=>window.dispName?dispName(x):x;
+  return ["Roots","No Standing",...ORD,"Any Domain","Other"].filter(g=>G[g]).map(g=>[g,G[g].sort((a,b)=>a[1]-b[1]||dn(a[0]).localeCompare(dn(b[0]))).map(x=>x[0])]);})();
+function catGroups(keep){return DOM_GROUPS.map(([t,ns])=>[t,ns.filter(keep)]).filter(g=>g[1].length);}
+// rows of one catalog group, with a Standing sub-label wherever it changes
+function catRows(t,mem,rowFn,host){let last=null;mem.forEach(n=>{const lab=DOM_STD[t+"|"+n]||"";
+  if(lab&&lab!==last){const h=document.createElement("div");h.className="note catstd";h.textContent=lab;host.appendChild(h);}last=lab;host.appendChild(rowFn(n));});}
 let WP=null;          // empty-ward picker: {gid, wi, q} while its modal is open
 let FOR_SID=null;     // empty-ward click: catalog shows only what that settlement can take; next add goes there
 function pAvail(n){return !scopeBlock(n,null)&&(scopeOf(n)!=="Settlement"||!S.settlements.length||S.settlements.some(s=>!occupants(s.id).some(o=>o.name===n)))&&unlockStatus(n).ok;}
@@ -72,8 +90,7 @@ function renderList(){
     const searching=q.length>0;
     const lc=CAT.avail?legalCtx():null;
     const keep=n=>nameHit(n,q)&&!(activeTypes.size&&!activeTypes.has(R[n].type))&&(!CAT.avail||pLegal(n,FOR_SID,lc)||pReqMiss(n,FOR_SID,lc))&&(FOR_SID==null||canPlace(n,FOR_SID).ok)&&cultureKeep(n);
-    const groups=(CAT.group==="root"&&ROOTS.length?ROOTS.map(([t,ns])=>[t,ns]):TYPES.map(t=>[t,NAMES.filter(n=>R[n].type===t)]))
-      .map(([t,ns])=>[t,ns.filter(keep)]).filter(g=>g[1].length);
+    const groups=catGroups(keep);
     const ctl2=document.createElement("div");ctl2.className="catctl";
     const mk=(txt,fn,gt)=>{const c=document.createElement("span");c.className="chip";c.textContent=txt;if(fn)c.onclick=fn;if(gt)c.dataset.goto=gt;ctl2.appendChild(c);};
     const gk=t=>CAT.group+":"+t;
@@ -92,7 +109,7 @@ function renderList(){
       th.textContent=(openT?"▾ ":"▸ ")+t+" ("+mem.length+")";
       th.onclick=()=>{catOpen.has(gk(t))?catOpen.delete(gk(t)):catOpen.add(gk(t));renderList();};
       g.appendChild(th);
-      if(openT) mem.forEach(n=>g.appendChild(CAT.avail&&!pLegal(n,FOR_SID,lc)?reqRow(n,pReqMiss(n,FOR_SID,lc)):pursuitRow(n)));
+      if(openT) catRows(t,mem,n=>CAT.avail&&!pLegal(n,FOR_SID,lc)?reqRow(n,pReqMiss(n,FOR_SID,lc)):pursuitRow(n),g);
       list.appendChild(g);
     });
   } else {
@@ -120,7 +137,7 @@ function wpRender(){if(!WP)return;const gid=WP.gid,card=document.getElementById(
   const q=WP.q.toLowerCase(),sc=legalCtx(),lc=CAT.avail?sc:null,spot={};
   const fits=n=>{const t=smartSid(n,sc,gid);spot[n]=t;return t!=null||(!CAT.avail&&canPlace(n,gid).ok);};
   const keep=n=>nameHit(n,q)&&(!CAT.avail||pLegal(n,null,lc)||pReqMiss(n,null,lc))&&fits(n);
-  const groups=(ROOTS.length?ROOTS.map(([t,ns])=>[t,ns.filter(keep)]):TYPES.map(t=>[t,NAMES.filter(n=>R[n].type===t&&keep(n))])).filter(g=>g[1].length);
+  const groups=catGroups(keep);
   card.innerHTML='<h3>'+esc(settTier(gid))+' · Ward '+(WP.wi+1)+'<button class="close">×</button></h3>';
   card.querySelector(".close").onclick=closeModal;
   const ctl=document.createElement("div");ctl.className="catctl";
@@ -132,11 +149,11 @@ function wpRender(){if(!WP)return;const gid=WP.gid,card=document.getElementById(
   if(!groups.length){const e=document.createElement("div");e.className="empty";e.textContent=CAT.avail?"None available.":"No match.";card.appendChild(e);return;}
   groups.forEach(([t,mem])=>{const g=document.createElement("div");g.className="typegroup";
     const th=document.createElement("div");th.className="th";th.textContent=t+" ("+mem.length+")";g.appendChild(th);
-    mem.forEach(n=>{const miss=CAT.avail&&!pLegal(n,null,lc)?pReqMiss(n,null,lc):"";if(miss){g.appendChild(reqRow(n,miss));return;}
+    catRows(t,mem,n=>{const miss=CAT.avail&&!pLegal(n,null,lc)?pReqMiss(n,null,lc):"";if(miss)return reqRow(n,miss);
       const row=pursuitRow(n),go=e=>{e.stopPropagation();wpPlace(n);};
       if(spot[n]!=null&&spot[n]!==gid){const m=document.createElement("span");m.className="meta";const ef=effSpot(n,gid)===spot[n];
         m.textContent=(ef?"\u26a1 ":"\u2192 ")+settLbl(spot[n]);row.querySelector(".rtop").insertBefore(m,row.querySelector(".addbtn"));}
-      row.querySelector(".nm").onclick=go;row.querySelector(".addbtn").onclick=go;g.appendChild(row);});
+      row.querySelector(".nm").onclick=go;row.querySelector(".addbtn").onclick=go;return row;},g);
     card.appendChild(g);});}
 function wpPlace(n){const gid=WP?WP.gid:null;closeModal();if(gid==null)return;
   const t=smartSid(n,null,gid),to=t!=null?t:gid;
@@ -153,7 +170,7 @@ function pursuitRow(n){
     m.textContent=(us.ok?(us.manual?"? ":""):"🔒 ")+r.unlock_raw;m.title=us.toks.map(x=>(x.ok===false?"✗ ":x.ok?"✓ ":"? ")+x.t+" — "+x.why).join("\n");
     if(!us.ok)m.style.color="var(--upkeep)";row.querySelector(".rtop").insertBefore(m,row.querySelector(".addbtn"));}
   const parts=[NATURAL.has(n)?"Natural":"Upkeep "+catUpkeep(n),"Build Timer "+pursuitBuildTime(n)];
-  if(CAT.group==="root")parts.unshift(r.type);
+  parts.unshift(r.type);
   sub(row,parts.join(" · "),NATURAL.has(n)?(r.innate_raw||"").replace(/^Natural\s*[;,.]\s*/i,""):r.innate_raw);
   tip(row,[r.innate_raw,(r.efficient||[]).length?"Efficient: "+r.efficient.join(", "):"",r.unlock_raw&&r.unlock_raw!=="-"&&r.unlock_raw!=="—"?"Unlock: "+r.unlock_raw:""]);
   return row;
