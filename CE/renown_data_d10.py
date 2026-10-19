@@ -151,7 +151,7 @@ GLOSSARY = {
     "Strained":      "Initiative -1 every Skirmish (negated by Immune Strain). Does not gain Endurance in the Empire Phase.",
     #"Improved Parry": "Your Parry succeeds on 4+ instead of 5+.",
     #"Heal X":        "At the end of each Skirmish, for every X casualties you took from Strikes, return 1 retinue to your Army.",
-    "Seize the Initiative": "Typically, the player who performed the Battle Action gains Seize the Initiative, but Terrain and the Ministry of Military Strategy can affect that. When a player gains Seize the Initiative, the player gains Initiative +1 in the first round of combat.",
+    "Seize the Initiative": "Typically, the player who performed the Battle Action gains Seize the Initiative, but Terrain and the Ministry of Military Strategy can affect that. When a player gains Seize the Initiative, the player gains Initiative +1 in the first skirmish.",
 
     # ── Battle-structure terms (doc glossary, wording updated to current rules) ──
     "Attacker / Defender": "The Attacker performed the Move action that caused the Battle or Lay Siege; the other side is the Defender. Each Skirmish the Attacker declares equipment first; the Defender then responds.",
@@ -231,7 +231,7 @@ GLOSSARY = {
     "Bandit":        "Neutral hostile force; Bandit Camps spawn in Outlaw Country and on low Public Order.",
     "Outlaw Country": "Uncontrollable Territory zones where Bandit Camps spawn ({OUTLAW_COUNTRY_START} Territories each at Setup). A zone is your Outlaw Country while any of its Territories is within your Province. Foster Rebellion expands it when there is no room; otherwise, when there is no room, its Bandit Camps grow instead.",
     "Wild Outlaw Country": "Outlaw Country the Host places outside every Province at Setup. After Setup it works like any other Outlaw Country zone.",
-    "Siege":         "Sieging a Settlement with an Army to capture it; does not increment in Winter.",
+    "Siege":         "Sieging a Settlement with an Army to capture it; Siege Timers don't count down in Winter.",
 }
 
 # ── Pivotal: one word for "a natural FOCUSED_THR" across all combat effects ─────────────
@@ -290,10 +290,10 @@ ENDURANCE_REGAIN    = 2    # +Endurance restored to non-Strained armies in the E
 
 
 RETINUES = {
-    "Levy":           {"cost": 1000, "to_hit": 6, "endurance": 2, "shaking": 7, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES, "aura": 1},
-    "Man-at-Arms":    {"cost": 2000, "to_hit": 5, "endurance": 3, "shaking": 6, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES, "aura": 2},
-    "Sergeant":       {"cost": 3000, "to_hit": 3, "endurance": 2, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES, "aura": 2},
-    "Knight Templar": {"cost": 3000, "to_hit": 4, "endurance": 2, "shaking": 4, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES, "aura": 2},
+    "Levy":           {"cost": 1000, "to_hit": 6, "endurance": 2, "shaking": 7, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
+    "Man-at-Arms":    {"cost": 2000, "to_hit": 5, "endurance": 3, "shaking": 6, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
+    "Sergeant":       {"cost": 3000, "to_hit": 3, "endurance": 2, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
+    "Knight Templar": {"cost": 3000, "to_hit": 4, "endurance": 2, "shaking": 4, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
 }
 
 WEAPONS = {
@@ -362,7 +362,7 @@ TIER_UNLOCK = {
 # Standings: Rising = 3, Established = 6, Sovereign = 10 domain points.
 STANDING_EFFECTS = {
     ("Prowess", "Established"): "Gain Parry.", #Remove "Parry"
-    ("Piety",   "Rising"): "Shake +1",
+    ("Piety",   "Rising"): "Morale +1",
     ("Cunning", "Established"): "Opponent gains Blunder in the first Skirmish.", #Remove "Foes gain Blunder in first Skirmish"
     ("Cunning", "Sovereign"):   "Opponent gains Strain.", #Remove "Foes gain Strain"
 }
@@ -1229,7 +1229,7 @@ NODES = {
         "unlock": "Rising Industry",
         "mastery_req": "Granary or Smokehouse + Salt Works",
         "innate": "Craft +2",
-        "mastery": "May Muster an Army in a Settlement under Siege and increment Muster Timers.",
+        "mastery": "May Muster an Army in a Settlement under Siege and its Muster Timers count down.",
         "efficient": "Granary",
         "builds_into": ["Citadel"],
         "monument": False},
@@ -1423,7 +1423,7 @@ NODES = {
         "unlock": "Rising Prowess",
         "mastery_req": "Blacksmith",
         "innate": "Siege Timer -1",
-        "mastery": "Siege Timer -1; Sieges Increment in Winter",
+        "mastery": "Siege Timer -1; Siege Timers count down in Winter",
         "builds_into": ["Siege Camp"],
         "monument": False},
     "Siege Camp": {
@@ -1929,7 +1929,7 @@ SIMPLE_NODES = {
     "Harbor": {
         "group": "g_commerce",
         "unlock": "-",
-        "innate": "Craft +2; Extort 500 per player without Harbor",
+        "innate": "Craft +2; Can Trade; Extort 500 per player without Harbor",
         "efficient": "Fishmongery",
         "builds_into": ["Shipyard"],
         "monument": False},
@@ -2118,7 +2118,7 @@ SIMPLE_NODES = {
     "Supply Depot": {
         "group": "g_works",
         "unlock": "Rising Industry",
-        "innate": "Craft +2; May Muster an Army in a Settlement under Siege and increment Muster Timers.",
+        "innate": "Craft +2; May Muster an Army in a Settlement under Siege and its Muster Timers count down.",
         "efficient": "Granary",
         "builds_into": ["Citadel"],
         "monument": False},
@@ -2311,7 +2311,7 @@ SIMPLE_NODES = {
     "Siege Works": {
         "group": "g_logistics",
         "unlock": "Rising Prowess",
-        "innate": "Siege Timer -2; Sieges Increment in Winter",
+        "innate": "Siege Timer -2; Siege Timers count down in Winter",
         "efficient": ["Carpentry","Mine"],
         "builds_into": ["Siege Camp"],
         "monument": False},
@@ -3270,15 +3270,34 @@ for _n, _v in INFRASTRUCTURE.items():
 # ── EMPIRE RULES (ingested from Rules.docx — new data, nothing replaced) ─────
 # Settlement tiers: tax is the WINTER collection (once per 4 turns); wards =
 # pursuit slots (1 per tier; Hamlet exception); muster = retinues/turn.
-# aura = range around a Settlement / Army (by tier / Retinue type) that non-allied Armies can't enter or pass through,
-# except a Move that ends adjacent to it to Battle or Lay Siege (Bandit Armies use their Retinue's aura; Bandit Camps have none).
+# Presence (PRESENCE_RANGE, below SETTLEMENTS) replaced the per-tier / per-Retinue "aura" values: one flat range for every
+# Settlement, Army and Bandit Army (Bandit Camps have none).
 SETTLEMENTS = {
-    "Hamlet":     {"aura": 3, "tier": 0, "sea_variant": None,        "tax_income": 0,     "muster_limit":  0, "build_time": 1, "wards": 3, "reach": 1, "notes": "Natural pursuits only; exactly Range 2 from your capital; may always pursue Arable Land"},
-    "Village":    {"aura": 3, "tier": 1, "sea_variant": None,        "tax_income": 2000,  "muster_limit":  5, "build_time": 2, "wards": 1, "reach": 2, "notes": ""},
-    "Town":       {"aura": 3, "tier": 2, "sea_variant": "Sea Town",  "tax_income": 4000,  "muster_limit": 10, "build_time": 4, "wards": 2, "reach": 4, "notes": ""},
-    "City":       {"aura": 3, "tier": 3, "sea_variant": "Port",      "tax_income": 6000,  "muster_limit": 25, "build_time": 6, "wards": 3, "reach": 6, "notes": ""},
-    "Metropolis": {"aura": 3, "tier": 4, "sea_variant": "—",         "tax_income": 8000,  "muster_limit": 50, "build_time": 8, "wards": 4, "reach": 8, "notes": "Capital only, requires Sovereign Industry (Titan of Industry)"},
+    "Hamlet":     {"tier": 0, "sea_variant": None,        "tax_income": 0,     "muster_limit":  0, "build_time": 1, "wards": 3, "reach": 1, "notes": "Natural pursuits only; exactly Range 2 from your capital; may always build Arable Land"},
+    "Village":    {"tier": 1, "sea_variant": None,        "tax_income": 2000,  "muster_limit":  5, "build_time": 2, "wards": 1, "reach": 2, "notes": ""},
+    "Town":       {"tier": 2, "sea_variant": "Sea Town",  "tax_income": 4000,  "muster_limit": 10, "build_time": 4, "wards": 2, "reach": 4, "notes": ""},
+    "City":       {"tier": 3, "sea_variant": "Port",      "tax_income": 6000,  "muster_limit": 25, "build_time": 6, "wards": 3, "reach": 6, "notes": ""},
+    "Metropolis": {"tier": 4, "sea_variant": "—",         "tax_income": 8000,  "muster_limit": 50, "build_time": 8, "wards": 4, "reach": 8, "notes": "Capital only, requires Sovereign Industry (Titan of Industry)"},
 }
+
+# Presence (Prowess rule): an Army can't move within PRESENCE_RANGE of a non-allied Settlement or Army (Bandit Armies
+# included, Bandit Camps not) unless that Move performs a Battle or Lay Siege against it. Board: DATA.rulesConst.PRESENCE_RANGE.
+PRESENCE_RANGE = 2
+# Settlement Wards. "abstract" (live): Wards are slots inside the Settlement, never placed on the map.
+# "range1" (audit variant): each Ward beyond the first occupies a Territory within Range 1 of the Settlement.
+# Flip WARD_MODEL to audit; the rules prose reads WARD_RULE ({{VAL:WARD_RULE}}), the board reads DATA.rulesConst.WARD_MODEL.
+WARD_MODEL = "abstract"
+WARD_RULES = {
+    "abstract": ("A Settlement Ward is a slot inside a Settlement that holds one Holding; Wards are never placed on the map. "
+                 "A Settlement has one Ward per tier: a Village has {Village}, a Town {Town}, a City {City} and a Metropolis {Metropolis}. "
+                 "A Hamlet has {Hamlet} Wards."),
+    "range1":   ("A Settlement Ward is a slot that holds one Holding. A Settlement's first Ward is the Settlement itself; each further "
+                 "Ward occupies a Territory within Range 1 of the Settlement and extends its Presence from there. A Settlement has one "
+                 "Ward per tier: a Village has {Village}, a Town {Town}, a City {City} and a Metropolis {Metropolis}. A Hamlet has {Hamlet} Wards."),
+}
+WARD_RULE = WARD_RULES[WARD_MODEL].format(**{k: v["wards"] for k, v in SETTLEMENTS.items()})
+# Faith is Fickle (Piety rule): while your Public Order is below this value, you can't target players with Piety actions.
+FAITH_FICKLE_PO = 0
 
 # Era progression: shared-Renown thresholds; caps on armies/cities; influence.
 ERAS = {
@@ -3391,7 +3410,7 @@ GLOSSARY["Standing"] = (f"Your tier in a Domain: Untested, Rising ({_ST['Rising'
 
 # Seasons (turn cycle of 4; Rest Phase advances Season +1).
 SEASONS = {
-    "Winter": {"name": "Freezing",    "effect": "All Armies gain Speed -5; Sieges do not increment. Tax income collected."},
+    "Winter": {"name": "Freezing",    "effect": "All Armies gain Speed -5; Siege Timers don't count down. Tax income collected."},
     "Spring": {"name": "Planting",    "effect": "No Host, Bandit Actions, Trade Income, Council Phase, or Diplomacy Actions. Players don't gain or spend Influence tokens. Bandit Camps Spawn."},
     "Summer": {"name": "Campaigning", "effect": "All Armies gain Speed +2"},
     "Fall":   {"name": "Harvest",     "effect": "Income from Holdings in Hamlets is doubled."},
@@ -3400,7 +3419,7 @@ SEASONS = {
 # Trade & income constants (Rules: Trade & Income Rules).
 TRADE_RULES = {
     "income_per_craft": 100,                # Trade Income = 100 x host's Craft X, per active agreement
-    "requirements": "Players must have active Dirt Road infrastructure, and a signed Trade Agreement",
+    "requirements": "A signed Trade Agreement, and each player has active Dirt Roads or a Can Trade effect (e.g. Harbor, Shipyard)",
     "no_trade_season": "Spring",            # no trade income in Spring
     "tax_season": "Winter",                 # tax collected only in Winter
 }
@@ -3483,7 +3502,7 @@ def wild_outlaw_count(players):
 
 # Bandit targeting. "province": a camp targets the players whose Province (Settlement Reach) covers the camp's hex — any of
 # those players' Settlements and Armies, nearest first (the Host breaks ties); a camp in nobody's Province takes no action.
-# Alternatives kept as plumbing: None = only pieces whose own Aura (SETTLEMENTS / RETINUES "aura") covers the camp;
+# Alternatives kept as plumbing: None = only pieces within Presence (PRESENCE_RANGE) of the camp;
 # an integer N = only pieces within Range N of the camp.
 BANDIT_CAMP_REACH = "province"
 
@@ -3581,11 +3600,13 @@ GLOSSARY.update({
     "Perform": "When you Perform an action, immediately do the description of the action. Pay the action's normal Cost.",
     "Resolve": "Determine modified Authority and follow Envoy Resolution Table.",
     "Cost / Pay": "Cost to perform an action, usually in Gold or Doubt.",
-    "Fail": "An unsuccessful Combat roll.",
+    "Fail": "An unsuccessful combat roll or Envoy resolution.",
     "Failed": "Net Authority 0, -1, or -2.",
     "Passed": "Net Authority 1 or 2.",
     "Endorsed": "Net Authority 3+.",
     "Condemned": "Net Authority -3 or less.",
+    "Presence": f"Territory within Range {PRESENCE_RANGE} of a Settlement or Army (Bandit Armies included, Bandit Camps not). An Army can't move within the Presence of a non-allied Settlement or Army unless that Move performs a Battle or Lay Siege against it.",
+    "Can Trade": "You may take part in trade without active Dirt Roads (you still need a signed Trade Agreement).",
 })
 # ============================================================================
 # NEW STRUCTURES — paste into renown_data.py and modify as needed.
@@ -3641,7 +3662,7 @@ ACTIONS = {
         'requires': '',
         'effect': f'Move an Army up to its Speed in Territories. Then choose one: March — move up to {MARCH_MULTIPLIER}× Speed, lose 1 Endurance, take no other action; Battle — end adjacent to an at-war Army not in a Settlement, then begin a Battle; Lay Siege — end adjacent to an at-war Settlement, then begin a Siege.',
         'endorsed': 'Perform another Move action (same or a different Army).',
-        'notes': ['Unless the move action was Endorsed, an Army may be the target of only one Move action per turn.', "A Move can't enter or pass through Territory within the Aura of a non-allied Settlement or Army, unless it ends adjacent to that Settlement or Army to Battle or Lay Siege.", "An Army that begins a Move within a non-allied Aura may only move to end outside every Aura (or, if at War, to Battle or Lay Siege); if it can't, it can't move.", "While an Army's Battle or Siege Timer is active, it can't be the target of actions.", "When an Army performs the Battle action, it gains Seize the Initiative in that Battle's first Skirmish."],
+        'notes': ['Unless the move action was Endorsed, an Army may be the target of only one Move action per turn.', "Presence limits where the Army may move (see Rule: Presence).", "While an Army's Battle or Siege Timer is active, it can't be the target of actions.", "When an Army performs the Battle action, it gains Seize the Initiative in that Battle's first Skirmish."],
     },
     'Declare War': {
         'domain': 'Prowess',
@@ -3667,7 +3688,7 @@ ACTIONS = {
                    f"you Control with an active Muster Field, and at least Range 2 from any non-allied Army unless it is "
                    f"within Range 0 of a Settlement you Control. Choose how many Retinues to recruit (an Army "
                    f"can't exceed {ARMY_MAX_RETINUES}) and set a Muster Timer equal to that number ÷ your combined muster "
-                   f"limit, rounded up. Each turn the Muster Timer increments down, the Army gains Retinues up to your "
+                   f"limit, rounded up. Each turn the Muster Timer counts down, the Army gains Retinues up to your "
                    f"combined muster limit and you begin paying their upkeep. You may change the Army's Retinue type "
                    f"and equipment while an army has an active Muster Timer."),
         'endorsed': 'Perform a Move action.',
@@ -3702,7 +3723,7 @@ ACTIONS = {
         'domain': 'Cunning',
         'cost': '2000 gold',
         'requires': '',
-        'effect': "Choose another player's Settlement, then choose one active Pursuit, active Infrastructure, or active Build Timer in it: that target becomes Damaged, and its effects are inactive until Repaired. A Damaged Build Timer doesn't increment until Repaired. If an active Build Timer hasn't been completed, instead, increase the Timer by 2.",
+        'effect': "Choose another player's Settlement, then choose one active Pursuit, active Infrastructure, or active Build Timer in it: that target becomes Damaged, and its effects are inactive until Repaired. A Damaged Build Timer doesn't count down until Repaired. If an active Build Timer hasn't been completed, instead, increase the Timer by 2.",
         'endorsed': 'Extort 2000.',
         'notes': ["A Wonder has Immune Razed and can't be targeted."],
     },
@@ -3826,7 +3847,7 @@ ACTIONS = {
 # notes how it ends; era is when it unlocks (alliances scale with Era).
 TREATIES = {
     "Peace Treaty":      {"signed_via": "Sign Treaty", "effect": f"Ends war between the two players; sets Truce Timer {TIMERS['Truce Timer']['default']}.", "era": "Any"},
-    "Trade Agreement":   {"signed_via": "Sign Treaty", "effect": "Begin trading (Trade Income flows from next turn). Requires bordering + active Dirt Road.", "era": "Any"},
+    "Trade Agreement":   {"signed_via": "Sign Treaty", "effect": "Begin trading (Trade Income flows from next turn). Requires bordering, and each player has active Dirt Roads or a Can Trade effect.", "era": "Any"},
     "Non-Aggression Pact": {"signed_via": "Sign Treaty", "effect": f"Neither player may Declare War on the other. Ending it via End Treaty gives both a Truce Timer {TIMERS['Truce Timer']['default']}.", "era": "Any"},
     "Military Alliance":  {"signed_via": "Sign Treaty", "effect": "Mutual offensive pact: if a member Declares War, all members Declare War on the target next turn (and send 1 fewer envoy).", "era": "Eminence"},
     "Defensive Alliance": {"signed_via": "Sign Treaty", "effect": "Mutual defense: attacking one member puts all members at war with the attacker.", "era": "Zenith"},
@@ -3853,8 +3874,8 @@ EDICTS = {
     "Living Saints":      {"type": "Piety",     "turns": EDICT_STREAK_TURNS, "requirement": f"Sustain Public Order {PO_MAX} (Living Saints) for {_NUMWORD[EDICT_STREAK_TURNS]} consecutive turns (Pious Timer)."},
     "Last Alliance Standing": {"type": "Endgame", "requirement": "Be the last alliance standing — the game-ending stop condition."},
 }
-# Note: consecutive-turn Edicts require the timer to increment each turn; if it
-# fails to increment for any reason, remove the timer until restarted.
+# Note: consecutive-turn Edicts require the timer to advance each turn; if it
+# fails to advance for any reason, remove the timer until restarted.
 
 # ── BANDIT BEHAVIOR ──────────────────────────────────────────────────────────
 # Extends BANDITS with the Cunning-mechanic + army-behavior tables from Rules.
@@ -3927,6 +3948,7 @@ def holding_build_time(node):
 _HTC = HOLDING_TIER_COST
 _HOLDING_COST_TEXT = (f"by Standing: Untested {_HTC[None][0]} (Build Timer {_HTC[None][1]}), "
     + ", ".join(f"{t} {_HTC[t][0]} (Build Timer {_HTC[t][1]})" for t in _STANDINGS) + "; Natural 0")
+HOLDING_COST_TEXT = _HOLDING_COST_TEXT    # rules prose: {{VAL:HOLDING_COST_TEXT}} (SIMPLE: upkeep + Build Timer by Standing)
 
 def pursuit_upkeep(node):
     """Per-turn upkeep for a node. SIMPLE: by Standing (holding_cost). Legacy: fixed by type.
@@ -3949,7 +3971,7 @@ COSTS = {
     "Army upkeep":     "sum of each Army's cost (by Retinue type) - Upkeep -X modifiers",
     "Infrastructure upkeep": "Per-settlement (see INFRASTRUCTURE); Trade Guild removes Primitive/Developed, College of Engineering removes Sophisticated",
 
-    "Sack":            f"Extort {SACK_EXTORT_PER_TIER} per settlement tier; reduce settlement by 1 tier; Sack Timer {TIMERS['Sack Timer']['default']}",
+    "Sack":            f"Raze the top-most Holding of each Ward; Extort {SACK_EXTORT_PER_TIER} per settlement tier; reduce settlement by 1 tier; the controller removes one Ward (sacker's choice) and its Holdings; Sack Timer {TIMERS['Sack Timer']['default']}",
     "Tax per tier":    "Winter tax by Settlement tier: " + " / ".join(f"{k} {v['tax_income']}" for k, v in SETTLEMENTS.items()),
     "Trade Income":    "100 x host's Craft X per active Trade Agreement",
 }
@@ -4022,8 +4044,9 @@ GLOSSARY.update({
     FATIGUE_TOKEN:  f"Each token reduces Morale  by {FATIGUE_MORALE} (uncapped); if your modified Morale is ever {ROUT_THR}+, your army Routs. Tokens stack.",
     "Sally Forth":  "While a settlement you control is besieged and you have an army inside it, you may Sally Forth: Battle in the Battle Phase without performing an action.",
     "War Weariness":"gain Doubt 1 for each consecutive Battle you lose in the Empire Phase.",
-    "Settlement Ward": "A slot in a Settlement that holds one Pursuit; a Settlement has one Ward per tier (a Hamlet has 3 Husbandry Wards).",
-    "Efficient X":  "While this Pursuit occupies the same Settlement Ward as X (the Raw Material or Pursuit named on its tile), it uses no ward of its own \u2014 the two share one ward. Placed anywhere else, it fills a ward normally. (Core Principle 14.) Note: Two Pursuits that are Efficient with the same Pursuit cannot share a Ward with each other.",
+    "Settlement Ward": ("A slot in a Settlement that holds one Pursuit; a Settlement has one Ward per tier (a Hamlet has 3 Wards, Natural Pursuits only)."
+                        + (" Wards are not placed on the map." if WARD_MODEL == "abstract" else " Each Ward beyond the first occupies a Territory within Range 1 of the Settlement.")),
+    "Efficient X":  "While this Pursuit occupies the same Settlement Ward as X (the Raw Material or Pursuit named on its tile), it uses no ward of its own \u2014 the two share one ward. Placed anywhere else, it fills a ward normally. (Core Principle 13.) Note: Two Pursuits that are Efficient with the same Pursuit cannot share a Ward with each other.",
 })
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -4056,6 +4079,7 @@ NAME_DISPLAY = {
     "TS": "Armor Save",
     "The Eternal Sepulchre": "The Exalted Archbasilica",
     "Exalted Basilica":"Eternal Sepulchre",
+    
 
     
 }
@@ -4326,7 +4350,7 @@ BANDIT_BEHAVIOR["Cunning Roll"] = bandit_cunning_text()
 BANDIT_BEHAVIOR["Targeting"] = (
     ("A camp's Cunning action targets the Settlements and Armies of the players whose Province covers the camp"
      if BANDIT_CAMP_REACH == "province" else
-     "A camp's Cunning action targets only a player's Settlement or Army that has the camp within its Aura"
+     f"A camp's Cunning action targets only a player's Settlement or Army within Range {PRESENCE_RANGE} (Presence) of the camp"
      if BANDIT_CAMP_REACH is None else
      f"A camp's Cunning action targets only a player's Settlement or Army within Range {BANDIT_CAMP_REACH} of the camp")
     + ", nearest first; none: no action. Wild Outlaw Country camps spawn, grow" + (" (not in Spring)" if not WILD_OUTLAW["spring_growth"] else "")
@@ -4532,7 +4556,7 @@ if SIMPLE:
     _improve = dict(_infra)
     _improve["effect"] = ("Choose one: Infrastructure — choose an unlocked, available Infrastructure and set a Build Timer "
         "equal to its build time; when it completes, the Infrastructure becomes active in every Settlement in your Province. "
-        "Or Expand a Settlement one tier into an adjacent Territory (Village to Town, Town to City, "
+        "Or Expand a Settlement one tier" + (" into an adjacent Territory" if WARD_MODEL == "range1" else "") + " (Village to Town, Town to City, "
         "City to Metropolis), adding a Ward.")
     _improve["notes"] = [n.replace("when the Build action is performed", "when the Improve action is performed")
                          for n in _infra.get("notes", [])] + list(_charter.get("notes", []))
@@ -4563,13 +4587,13 @@ if SIMPLE:
         elif _k == "Efficient X": GLOSSARY[CHAIN_TERM + " X"] = (
             "While this Pursuit occupies the same Settlement Ward as X (the Raw Material or Pursuit named on its tile), "
             "it uses no ward of its own — the two share one ward. Placed anywhere else, it fills a ward normally. "
-            "(Core Principle 14.) Note: Two Pursuits that chain from the same Pursuit cannot share a Ward with each other.")
+            "(Core Principle 13.) Note: Two Pursuits that chain from the same Pursuit cannot share a Ward with each other.")
         elif _k == "Efficient":   GLOSSARY[CHAIN_TERM] = (
             "A Pursuit's " + CHAIN_TERM + " is the line of Pursuits it builds from, usually running from a Raw Material "
             "up to a Monument. You may start building a Pursuit only while you control one complete line of its "
             + CHAIN_TERM + ", anywhere in your empire; this is checked only when you start it. A Pursuit placed in the "
             "same Settlement Ward as its immediate parent shares that Ward, and the chain can continue upward the same way. "
-            "Each Pursuit carries at most one descendant in its Ward. (Core Principle 14.)")
+            "Each Pursuit carries at most one descendant in its Ward. (Core Principle 13.)")
         else:                     GLOSSARY[_k] = _v
 
     # No sea variants: water access comes from Fishmongery (fish within Reach) and its Mastery Chain.
@@ -4660,21 +4684,21 @@ _ALIAS_RE = _re_disp.compile(
 # ── Glossary categories: one ordering shared by the rules docx ({{GLOSSARY:Category}}), wiki and board ──
 # Constant-keyed terms use their constants; action names follow SIMPLE (Pursue->Build, Build->Improve).
 GLOSSARY_CATEGORIES = [
-    ('Reading the Rules', ['Natural roll', PIVOTAL, 'Perform', 'Resolve', 'Cost / Pay', 'Fail', 'Host']),
-    ('Council & Envoys', ['Influence', 'Authority X', 'Envoy', 'Send an Envoy', 'Personal Envoy', 'Council Phase', 'Council Envoy', 'Vote', 'Support X', 'Oppose X', 'Abstain', 'Net Influence', 'Envoy Outcome', 'Passed', 'Failed', 'Endorsed', 'Condemned']),
+    ('Reading the Rules', ['Perform', 'Resolve', 'Cost / Pay', 'Fail', 'Natural roll', PIVOTAL, 'Host']),
+    ('Council & Envoys', ['Influence', 'Authority X', 'Envoy', 'Send an Envoy', 'Personal Envoy', 'Council Phase', 'Council Envoy', 'Vote', 'Support X', 'Oppose X', 'Abstain', 'Net Influence', 'Envoy Outcome', 'Condemned', 'Failed', 'Passed', 'Endorsed']),
     ('Domains & Scoring', ['Renown', 'Domain', 'Domain Point', 'Standing', 'Edict', 'Monument']),
     ('Actions', ['Charter', 'Muster', *(["Build"] if SIMPLE else ["Pursue"]), *(["Improve"] if SIMPLE else ["Build"]), 'Repair', 'Move', 'Demand Tribute', 'Diplomacy']),
     ('Treaties', ['Treaty', 'Alliance', 'At War', 'Vassal', 'Suzerain']),
-    ('Economy & Public Order', ['Public Order', 'Faith X', 'Doubt X', 'Extort X', 'Recoup X', 'Upkeep', 'Craft', 'War Weariness']),
+    ('Economy & Public Order', ['Public Order', 'Faith X', 'Doubt X', 'Extort X', 'Recoup X', 'Upkeep', 'Craft', 'Can Trade', 'War Weariness']),
     ('Settlements & Holdings', ['Settlement Ward', 'Pursuit', *(["Root"] if SIMPLE else []), 'Natural', CHAIN_TERM, CHAIN_TERM + " X"]),
     ('Timers', list(TIMERS)),
-    ('Map & Range', ['Realm', 'Region', 'Territory', 'Province', 'Border', 'Controlled', 'Contested', 'Uncontrolled', 'Range X', 'Within', 'Adjacent', 'Next to', 'Reach', 'Reach X']),
+    ('Map & Range', ['Realm', 'Region', 'Territory', 'Province', 'Border', 'Controlled', 'Contested', 'Uncontested', 'Uncontrolled', 'Range X', 'Within', 'Adjacent', 'Next to', 'Reach', 'Reach X']),
     ('World', ['Bandit', 'Outlaw Country', 'Wild Outlaw Country', 'Siege', 'Sally Forth']),
-    ('Army States', ['Retinue', 'Speed X', 'Blocked', 'Strained']),
+    ('Army States', ['Retinue', 'Speed X', 'Presence', 'Blocked', 'Strained']),
     ('Battle Structure', ['Battle', 'Skirmish', 'Attacker / Defender', 'Seize the Initiative', 'Tactic', 'Field', 'Casualty', 'Initiative', BLUNDER, 'Strike', 'to-Strike number', 'AP', 'Save', 'Endurance', 'Fatigued', FATIGUE_TOKEN, 'Morale', 'Break check', 'Panic check', 'Rout', 'Fall Back']),
     ('Combat Keywords — Defense', [PARRY, RIPOSTE, RECOVER, ENDURING, NO_PARRY, MINUS_1_TBH, PLANISHING]),
     ('Combat Keywords — Offense', [SHATTER_ARMOR, CLEAVE, POISON, DESTROY_SHIELD, UNSTOPPABLE, SERRATED]),
     ('Combat Keywords — Handling', ['Equipped', STEADY, UNWIELDY, NIMBLE, DRILLED, TWO_H, DUAL_WIELD, 'Dual-equip', ONE_SHOT]),
-    ('Combat Keywords — Immune / Negate', ['Immune [keyword]', NEGATE_TEMPERED, NEGATE_RIPOSTE]),
+    ('Combat Keywords — Immune / Negate', ['Immune [keyword]', 'Negate [keyword]']),
     ('Equipment Tiers', [k for k in map(str, GLOSSARY) if k.split()[0] in {display_tier(x) for x in TIERS} | set(globals().get("ITEM_TIER_DISPLAY", {}).values()) or k == "Ranged Weapons"]),
 ]

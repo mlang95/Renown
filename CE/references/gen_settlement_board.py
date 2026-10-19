@@ -776,7 +776,7 @@ def check_rules(ns, rules_path):
         if p.strip().lower() not in gk: rows.append(("TERM " + p, "—", "not in GLOSSARY", "MISMATCH"))
     # board plumbing: phase rule sections the board reads by heading
     for h in ("Empire Phase", "Council Phase", "Envoy Phase", "Battle Phase", "Rest Phase",
-              "The Skirmish Steps", "Begin the Battle — Seize the Initiative", "Resolve Battle"):
+              "The Skirmish Steps", "Beginning a Battle", "Ending a Battle"):
         if not re.search(r"^#+\s*" + re.escape(h) + r"\s*$", txt, re.M):
             rows.append(("heading '" + h + "'", "board reads", "missing", "MISMATCH"))
 
@@ -823,6 +823,9 @@ def phase_steps(body):
     """Top-level list items of a phase's rules section -> [[label, line]]; label = bold lead, else the line itself."""
     out = []
     for ln in (body or "").splitlines():
+        sub = re.match(r"^[ \t]+(?:\d+\.\d+[a-z]?|[-*])\s+(.*)$", ln)   # nested step (3.1 …): folded into its parent's tip
+        if sub and out:
+            out[-1][1] += " \u00b7 " + re.sub(r"\*\*|\*", "", sub.group(1).strip()); continue
         m = re.match(r"^(?:\d+\.|[-*])\s+(.*)$", ln)          # top level only (nested items are indented)
         if not m: continue
         line = m.group(1).strip()
@@ -850,8 +853,8 @@ def battle_data(ns, rules_path):
         "faces": ns.get("FACES"), "focusedThr": ns.get("FOCUSED_THR"), "deadlyAp": ns.get("DEADLY_AP"),
         "tacticalGlobal": list(ns.get("TACTICAL_GLOBAL", [])),
         "steps": rules_section(rules_path, "The Skirmish Steps", ns),
-        "seize": rules_section(rules_path, "Begin the Battle — Seize the Initiative", ns),
-        "resolve": rules_section(rules_path, "Resolve Battle", ns),
+        "seize": rules_section(rules_path, "Beginning a Battle", ns),
+        "resolve": rules_section(rules_path, "Ending a Battle", ns),
     }
 
 def bandit_loadouts(ns, equip):
@@ -900,7 +903,8 @@ RULES_CONSTS = ("PHASES", "MARCH_MULTIPLIER", "MUSTER_RANGE", "CHARTER_MIN_RANGE
                 "OUTLAW_BUFFER_RANGE", "SACK_EXTORT_PER_TIER", "WEALTH_EDICT_GOLD", "VASSAL_EXCHANGE_CAP",
                 "BLUNDER_THR", "STANDING_ARMY_SIEGE_MODIFIER", "BANDIT_BEHAVIOR", "UPKEEP_TRACKS",
                 "GLOSSARY_CATEGORIES", "STARTING_TREASURY", "EMPIRE_START_TIERS", "TERM_ENVOY_SCORE", "RENOWN_MAX",
-                "CAPITAL_EDGE_RANGE", "AGE_YEAR_SEASON")
+                "CAPITAL_EDGE_RANGE", "AGE_YEAR_SEASON",
+                "PRESENCE_RANGE", "FAITH_FICKLE_PO", "WARD_MODEL")
 
 def effects_report(ns, records, infra, wonders, out_md):
     """ENVOY_WINDOW_REVIEW.md: every clause that names Envoys, its timing window and Personal / Council predicate

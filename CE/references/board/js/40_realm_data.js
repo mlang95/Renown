@@ -216,9 +216,10 @@ function boardTimerRows(){const R_=[];
 function siegeResolveHTML(t,i){if(t.kind!=="siege"||t.n>0)return "";
   if(t.bandit)return '<div class="bcrow"><button class="rtBsb" data-i="'+i+'">Siege Battle vs Bandits ▸</button></div>';const from=pById(t.tp),s=from?(from.board.settlements||[]).find(x=>String(x.id)===String(t.sid)):null;
   if(!s)return '<div class="note">Settlement not found</div>';
-  const hs=(from.board.placed||[]).filter(q=>q.sid===s.id&&!q.fac);
-  return '<div class="bcrow" style="flex-wrap:wrap"><button class="rtCap" data-i="'+i+'">Capture</button> <span class="note">or Sack — remove the Holdings of one Ward:</span> '+
-    hs.map(q=>'<label class="note"><input type="checkbox" class="rtSkH" data-i="'+i+'" value="'+q.id+'"> '+esc(q.name)+'</label>').join(' ')+' <button class="rtSack" data-i="'+i+'">Sack</button></div>';}
+  const W=sackWards(from,s);
+  return '<div class="bcrow" style="flex-wrap:wrap"><button class="rtCap" data-i="'+i+'">Capture</button> <span class="note">or Sack — raze the top Holding of each Ward; choose the Ward that leaves play:</span> '+
+    (W.length?W.map((w,k)=>'<label class="note"><input type="radio" name="rtSkW'+i+'" class="rtSkW" data-i="'+i+'" value="'+k+'"'+(k?'':' checked')+'> '+esc(w.map(q=>q.name).join(" → "))+'</label>').join(' '):'<span class="note">(no Wards in use)</span>')+
+    ' <button class="rtSack" data-i="'+i+'">Sack</button></div>';}
 function activeTimersHTML(){const T=realmTimers(),B_=boardTimerRows();
   return '<div class="tot"><h3 style="font-size:13px">Active timers</h3>'+
     (T.length?'<table class="dtable ttab"><tbody>'+T.map((t,i)=>'<tr'+(t.n<=0?' class="broll"':'')+'><td>'+esc(t.type)+'</td><td>'+esc(t.label||'')+siegeResolveHTML(t,i)+'</td><td class="num"><button class="rtd" data-i="'+i+'" data-d="-1">−</button> <b>'+t.n+'</b> <button class="rtd" data-i="'+i+'" data-d="1">+</button></td><td><button class="rtx" data-i="'+i+'">✕</button></td></tr>').join('')+'</tbody></table>':'<div class="note">No realm timers.</div>')+
@@ -251,8 +252,8 @@ function wireDashExtras(host){const $=id=>host.querySelector("#"+id),sg=siegeSta
   host.querySelectorAll(".rtCap").forEach(b=>b.onclick=()=>{const T=realmTimers(),t=T[+b.dataset.i];if(!t)return;
     T.splice(+b.dataset.i,1,{type:"Capture Timer",kind:"capture",tp:t.tp,sid:t.sid,by:t.by,aid:t.aid,label:t.label,n:+((TMR["Capture Timer"]||{}).default)||1});
     resolveRealm().forEach(x=>flash(x));save();render();});
-  host.querySelectorAll(".rtSack").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,ids=[...host.querySelectorAll('.rtSkH[data-i="'+i+'"]:checked')].map(x=>x.value);
-    if(!confirm("Sack: remove "+ids.length+" Holding(s), raze the rest, drop a tier, extort and set a Sack Timer?"))return;sackApply(i,ids);save();render();});
+  host.querySelectorAll(".rtSack").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,c=host.querySelector('.rtSkW[data-i="'+i+'"]:checked'),k=c?+c.value:-1;
+    if(!confirm("Sack: raze the top Holding of each Ward, remove the chosen Ward, drop a tier, extort and set a Sack Timer?"))return;sackApply(i,k);save();render();});
   host.querySelectorAll(".rtx").forEach(b=>b.onclick=()=>{realmTimers().splice(+b.dataset.i,1);save();render();});
   host.querySelectorAll(".rtBsb").forEach(b=>b.onclick=()=>{const t=realmTimers()[+b.dataset.i];if(!t)return;const M=mapState(),ck=Object.keys(M.camps).find(k=>M.camps[k].uid===t.bandit),q=pById(t.tp),s=q&&settById(q,t.sid);
     if(!ck||!s){flash("Bandit Army or Settlement gone");return;}const def=armiesInside(q,s)[0],gs=garrisonOf(q,s.id);
@@ -294,7 +295,7 @@ function pairFlags(a,b,x){const d=diplo(),f=[];const sameAl=sameAlliance(a,b);
   if(x.war&&sameAl)f.push("War within the same alliance");
   if(sameAl)[a,b].forEach(id=>{const q=pById(id),n=q?fxOf(q,"noAlliance")[0]:null;if(n)f.push(q.name+" can't be in an Alliance ("+n.src+")");});
   if(x.trade&&x.war)f.push("Trade Agreement while at war");
-  if(x.trade&&(!hasRoad(a)||!hasRoad(b)))f.push("Trade Agreement without Dirt Roads ("+[a,b].filter(q=>!hasRoad(q)).map(pname).join(", ")+")");
+  if(x.trade&&(!hasRoad(a)||!hasRoad(b)))f.push("Trade Agreement without Dirt Roads or Can Trade ("+[a,b].filter(q=>!hasRoad(q)).map(pname).join(", ")+")");
   return f;}
 function dStatus(x){return x.war?"W":x.truce>0?"TR":"P";}
 // letter codes (no emoji)
@@ -330,7 +331,7 @@ function diploHTML(){
     const sameAl=sameAlliance(a,b);
     const warNo=x.war?"already at war":x.truce>0?"truce active ("+x.truce+")":x.nap?"Non-Aggression Pact in force":sameAl?"same alliance":"";
     const warFlag="";
-    const trNo=x.trade?"":(!hasRoad(a)||!hasRoad(b))?"needs active Dirt Road ("+[a,b].filter(q=>!hasRoad(q)).map(pname).join(", ")+" missing)":"";
+    const trNo=x.trade?"":(!hasRoad(a)||!hasRoad(b))?"needs active Dirt Roads or Can Trade ("+[a,b].filter(q=>!hasRoad(q)).map(pname).join(", ")+" missing)":"";
     const btn=(act,label,dis)=>'<button class="dpa'+(dis?' flagged':'')+'" data-act="'+act+'"'+(dis?' title="'+esc(dis)+'"':'')+'>'+esc(label)+'</button> ';
     const pf=pairFlags(a,b,x);
     h+='<div class="tot" style="margin-top:8px;background:var(--panel2)"><b>'+esc(pname(a))+' – '+esc(pname(b))+'</b> '+

@@ -699,11 +699,11 @@ function placeWildOutlaw(){const M=mapState();if(!M.grid)return 0;const V=decode
 // Host redo: clear the Wild zones that hold no Bandit Camp, then scatter again
 function rescatterWild(){const M=mapState();Object.entries(wildZones()).forEach(([z,hx])=>{if(hx.some(k=>M.camps[k]))return;hx.forEach(k=>delete M.outlaw[k]);});
   M.wildSeeded=false;return placeWildOutlaw();}
-// a piece's Aura (Settlement tier / Army Retinue), the range at which a Bandit Camp can target it
-function pieceAura(k){const c=mapState().cells[k];if(!c)return 0;if(c.type==="Army"){const a=cellArmy(k).a;return +(((EQ.retinues||{})[(a||{}).retinue]||{}).aura)||0;}
-  return +(((DATA.settlements||{})[c.type]||{}).aura)||0;}
+// a piece's Presence (PRESENCE_RANGE, one flat range for Settlements and Armies), the range at which a Bandit Camp can target it
+function pieceAura(k){const c=mapState().cells[k];if(!c)return 0;if(c.type==="Army"){return presR();}
+  const s=cellSett(k).s;return s&&settUnbuilt(s)?0:presR();}
 // BANDIT_CAMP_REACH: "province" = the camp sits in the target's owner's Province (any of that player's pieces);
-// null = within the target piece's own Aura; N = within Range N of the camp
+// null = within the target piece's Presence; N = within Range N of the camp
 function campInRange(ck,tk,own){const c=BAN.campReach;
   if(c==="province"){const p=cellPlayer(mapState().cells[tk]);own=own||terrOwners();return !!p&&!!own[ck]&&own[ck].has(String(p.id));}
   const r=c!=null?+c:pieceAura(tk);return hexDist(hk(ck),hk(tk))<=r;}
@@ -774,11 +774,11 @@ function banditSpeed(cp){const a=banditArmy(cp);if(!a.retinue)armBandits(cp);con
   const sm=/All Armies gain Speed\s*([+\-\u2212])\s?(\d+)/i.exec((SEAS[curSeason()]||{}).effect||"");return Math.max(0,base+(sm?(sm[1]==="+"?1:-1)*(+sm[2]):0));}
 function banditAuraList(){const M=mapState(),RT=EQ.retinues||{},out=[],hexes=Object.keys(decodeGrid(M.grid).hex);
   Object.keys(M.cells).forEach(k=>{const c=M.cells[k];if(!cellPlayer(c))return;let r=0;
-    if(c.type==="Army"){const a=cellArmy(k).a;r=+((RT[(a||{}).retinue]||{}).aura)||0;}
-    else{const s=cellSett(k).s;r=s&&settUnbuilt(s)?0:(+(((DATA.settlements||{})[c.type]||{}).aura)||0);}
+    if(c.type==="Army")r=presR();
+    else{const s=cellSett(k).s;r=s&&settUnbuilt(s)?0:presR();}
     if(r>0)out.push({k,set:new Set(hexes.filter(h=>hexDist(hk(k),hk(h))<=r))});});
   return out;}
-// cheapest cost to each hex; auras block (the start's own auras and the lifted target's excepted), Water: one hex then land
+// cheapest cost to each hex; Presence blocks (the start's own auras and the lifted target's excepted), Water: one hex then land
 function banditRun(k0,speed,AU,lift){const M=mapState(),V=decodeGrid(M.grid),best={},Q=[[0,k0,0]],reach={},key=(k,w)=>k+"|"+w;best[key(k0,0)]=0;
   const blocked=h=>AU.some((o,i)=>i!==lift&&!o.set.has(k0)&&o.set.has(h));
   while(Q.length){Q.sort((x,y)=>x[0]-y[0]);const [d,k,w]=Q.shift();if(d>best[key(k,w)])continue;

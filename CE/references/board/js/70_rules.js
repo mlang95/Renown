@@ -37,6 +37,9 @@ function siegeWinterOK(t){const by=pById(t.by);return !!by&&srcHas(by.board,"sie
 function actRestrict(owner,action,target){const a=(DATA.actions||{})[action]||{},out=[];
   const hit=(c)=>{const lc=c.toLowerCase();return lc.includes(action.toLowerCase())||(a.domain&&new RegExp("\\b"+a.domain+" actions","i").test(c));};
   srcRows(owner.board,"_cant").forEach(x=>{if(hit(x.r))out.push(x.n+": can't "+x.r.trim());});
+  // Faith is Fickle: while your Public Order is below FAITH_FICKLE_PO you can't target players or their Settlements with Piety actions
+  if(target&&!sameP(target,owner)&&a.domain==="Piety"&&RC.FAITH_FICKLE_PO!=null&&(+owner.board.po||0)<+RC.FAITH_FICKLE_PO)
+    out.push("Faith is Fickle: "+owner.name+"'s Public Order is below "+RC.FAITH_FICKLE_PO+" — can't target players or their Settlements with Piety actions");
   if(target&&a.domain==="Industry"){const bs=(target.board.settlements||[]).filter(s=>settBesieged(target,s.id));
     if(bs.length)out.push(target.name+": "+bs.map(s=>s.name||s.tier).join(", ")+" besieged — Industry actions can't target "+(bs.length>1?"them":"it"));}
   if(target)srcMatch(target.board,"cant_target").forEach(x=>{if(x.m[1].toLowerCase().includes(action.toLowerCase()))out.push(target.name+" ("+x.n+"): can't be targeted by "+action);});
@@ -250,11 +253,21 @@ function captureTransfer(t){const from=pById(t.tp),to=pById(t.by);if(!from||!to)
   if(D.players.indexOf(from)===D.active||D.players.indexOf(to)===D.active)reindex();
   chron("capture",{player:to.name,other:from.name,settlement:s.name||s.tier});
   return to.name+" captures "+(s.name||s.tier)+" from "+from.name+" ("+moved.length+" Holding"+(moved.length===1?"":"s")+")";}
-function sackApply(i,removeIds){const T=realmTimers(),t=T[i];if(!t)return;const from=pById(t.tp),to=pById(t.by);if(!from||!to)return;
+// a Settlement's Wards: each Ward is the Holding in its slot plus the chain riding it (bottom → top); faction pieces take no Ward
+function sackWards(p,s){return withBoard(p.board,()=>{const occ=occupants(s.id),ex=exemptionsOf(occ),host=ex.hostOf||{},on={};
+  occ.forEach(o=>{if(ex.has(o.id)){const h=host[o.id];(on[h]=on[h]||[]).push(o);}});
+  return occ.filter(o=>!o.fac&&!ex.has(o.id)).map(b=>{const ch=[b];let c=b,g=64;while(g--){const r=(on[c.name]||[]).find(x=>!x.fac&&!ch.includes(x));if(!r)break;ch.push(r);c=r;}return ch;});});}
+// Sack: raze (Damage) the top-most Holding of each Ward; the controller removes every Holding of one Ward the sacker chooses,
+// then that Ward leaves play; extort SACK_EXTORT_PER_TIER per tier; the Settlement drops a tier; Sack Timer; the Army is Blocked & Strained
+function sackApply(i,wardIdx){const T=realmTimers(),t=T[i];if(!t)return;const from=pById(t.tp),to=pById(t.by);if(!from||!to)return;
   const fb=from.board,s=(fb.settlements||[]).find(x=>String(x.id)===String(t.sid));if(!s)return;
-  const tierN=+((DATA.settlements||{})[s.tier]||{}).tier||0,rm=new Set(removeIds.map(String)),log=[];chron("sack",{player:to.name,other:from.name,settlement:s.name||s.tier});
-  fb.placed=(fb.placed||[]).filter(q=>!(q.sid===s.id&&rm.has(String(q.id))));                         // the chosen Ward's Holdings leave play
-  (fb.placed||[]).filter(q=>q.sid===s.id&&!q.fac).forEach(q=>{q.dmg=REPAIR_T;});                         // raze the rest (Damaged)
+  const tierN=+((DATA.settlements||{})[s.tier]||{}).tier||0,log=[];chron("sack",{player:to.name,other:from.name,settlement:s.name||s.tier});
+  const W=sackWards(from,s),gone=W[+wardIdx]||[],rm=new Set(gone.map(q=>String(q.id)));
+  const razed=W.filter((w,k)=>k!==+wardIdx&&w.length).map(w=>w[w.length-1]);
+  razed.forEach(q=>{q.dmg=REPAIR_T;});                                                                    // top-most Holding of each Ward: Damaged
+  if(razed.length)log.push("razed "+razed.map(q=>q.name).join(", "));
+  fb.placed=(fb.placed||[]).filter(q=>!rm.has(String(q.id)));                                            // the chosen Ward's Holdings leave play
+  if(gone.length)log.push("Ward removed: "+gone.map(q=>q.name).join(" + "));
   const ti=TIER_CHAIN.indexOf(s.tier);if(ti>0){log.push(s.tier+" → "+TIER_CHAIN[ti-1]);s.tier=TIER_CHAIN[ti-1];}else log.push(s.tier+" stays "+s.tier);
   const x=extortGold({b:fb},{b:to.board},(+RC.SACK_EXTORT_PER_TIER||0)*tierN,"Sack");log.push("extort "+x.toLocaleString());
   const a=(to.board.armies||[]).find(z=>String(z.id)===String(t.aid)),uid="sk"+Date.now();
@@ -374,25 +387,25 @@ function speedOf(p,a,startK){const parts=[],notes=[],b=p.board,sea=curSeason(),b
   return {speed:sp,parts,notes,tr,prov};}
 function hexNb(k){const [c,r]=hk(k);return [[0,-1],[0,1],[1,c%2?0:-1],[1,c%2?1:0],[-1,c%2?0:-1],[-1,c%2?1:0]].map(([oc,orr])=>(c+oc)+","+(r+orr));}
 // Dijkstra over (hex, water state): 0 = land, 1 = on Water (must land next), 2 = landed after Water (move ends)
-// ---- Aura (RETINUES / SETTLEMENTS "aura"): Territory within range of a non-allied Settlement, Army or Bandit Army can't be entered or
-// passed through — except by a Move that ends adjacent to that Settlement / Army to Battle or Lay Siege (its own Aura is lifted for that Move)
-function auraSources(p){const M=mapState(),out=[],RT=EQ.retinues||{},maxR=Math.max(0,...Object.values(RT).map(r=>+r.aura||0));
+// ---- Presence (PRESENCE_RANGE): Territory within that Range of a non-allied Settlement, Army or Bandit Army can't be entered or
+// passed through — except by a Move that ends adjacent to that Settlement / Army to Battle or Lay Siege (its own Presence is lifted for that Move)
+function auraSources(p){const M=mapState(),out=[],PR=presR();
   Object.keys(M.cells).forEach(k=>{const c=M.cells[k],q=cellPlayer(c);if(!q||sameP(q,p)||canEnterSett(p,q))return;const war=!!effPair(p.id,q.id).war;
-    if(c.type==="Army"){const x=cellArmy(k),rt=x.a&&RT[x.a.retinue],r=rt?(+rt.aura||0):maxR;
+    if(c.type==="Army"){const x=cellArmy(k),r=PR;
       out.push({k,r,kind:"battle",war:war&&!!x.a,label:q.name+" · "+(x.a?(x.a.label||("Army "+x.a.id)):"Army"),B:x.a?{pid:String(q.id),aid:String(x.a.id)}:null});}
-    else{const cs=cellSett(k),r=cs.s&&settUnbuilt(cs.s)?0:(+(((DATA.settlements||{})[c.type]||{}).aura)||0);
+    else{const cs=cellSett(k),r=cs.s&&settUnbuilt(cs.s)?0:PR;
       out.push({k,r,kind:"siege",war:war&&!!cs.s&&!siegeOn(q.id,cs.s.id),label:q.name+" · "+(cs.s?(cs.s.name||cs.s.tier):c.type),tp:q.id,sid:cs.s?cs.s.id:null});}});
-  Object.keys(M.camps).forEach(k=>{const cp=M.camps[k];if(+cp.n<(BAN.armyThreshold||25))return;const rn=((cp.army||{}).retinue)||BANDIT_DEFAULT_RETINUE,r=+((RT[rn]||{}).aura)||0;
-    out.push({k,r,kind:"battle",war:true,bandit:true,label:"Bandit Army @ "+k,B:{kind:"bandit",camp:k}});});
+  Object.keys(M.camps).forEach(k=>{const cp=M.camps[k];if(+cp.n<(BAN.armyThreshold||25))return;
+    out.push({k,r:PR,kind:"battle",war:true,bandit:true,label:"Bandit Army @ "+k,B:{kind:"bandit",camp:k}});});
   return out.filter(o=>o.r>0);}
 function moveRange(p,a,startK){const M=mapState(),g=M.grid;if(!g||!startK)return null;const V=decodeGrid(g),S_=speedOf(p,a,startK),tr=S_.tr;
   const waterOK=k=>tr.shipyard||(tr.bridges&&S_.prov.has(k));
   const AS=auraSources(p),cov={},hexes=Object.keys(V.hex);
   AS.forEach((o,i)=>{const c=hk(o.k);o.set=new Set(hexes.filter(h=>hexDist(c,hk(h))<=o.r));o.set.forEach(h=>{(cov[h]=cov[h]||[]).push(i);});});
-  // ex = Aura(s) lifted for a run: a number or a Set. Starting inside non-allied Aura(s) (ruling): those may be crossed, but the Move must end outside every Aura
+  // ex = Presence(s) lifted for a run: a number or a Set. Starting inside non-allied Presence (ruling): it may be crossed, but the Move must end outside every Presence
   const startIn=new Set(cov[startK]||[]),lift=(...a)=>new Set([...startIn,...a]);
   const blockedX=(h,ex)=>{const L=cov[h];if(!L)return false;const E=ex instanceof Set?ex:new Set([ex]);return L.some(i=>!E.has(i));};
-  // one Dijkstra over (hex, water state): 0 land, 1 on Water (must land next), 2 landed after Water (move ends); ex = the Aura lifted for this run
+  // one Dijkstra over (hex, water state): 0 land, 1 on Water (must land next), 2 landed after Water (move ends); ex = the Presence lifted for this run
   const run=ex=>{const key=(k,w)=>k+"|"+w,best={},prev={},Q=[[0,startK,0]],reach={};best[key(startK,0)]=0;
     while(Q.length){Q.sort((x,y)=>x[0]-y[0]);const [d,k,w]=Q.shift();if(d>best[key(k,w)])continue;
       if(k!==startK&&w!==1&&(!reach[k]||reach[k].cost>d))reach[k]={cost:d,w,from:key(k,w)};
@@ -408,11 +421,11 @@ function moveRange(p,a,startK){const M=mapState(),g=M.grid;if(!g||!startK)return
     return {reach,fin};};
   const dest={},base=run(lift());
   Object.keys(base.reach).forEach(k=>{const x=base.reach[k];
-    if(startIn.size&&cov[k])return;                                                  // started inside an Aura: end outside all of them
+    if(startIn.size&&cov[k])return;                                                  // started inside a Presence: end outside all of them
     if(!M.cells[k]&&!M.camps[k])dest[k]=base.fin(k,x);
     else if(M.cells[k]&&M.cells[k].type!=="Army"&&!M.camps[k]){const cs=cellSett(k),ent=cs.s?enterCheck(p,a,cs.p,cs.s):null;
       if(ent&&ent.ok)dest[k]=Object.assign(base.fin(k,x),{enter:{pid:String(cs.p.id),sid:cs.s.id,name:cs.s.name||cs.s.tier,kick:ent.kick||null}});}});
-  // Battle / Lay Siege: end adjacent to the target, through its own Aura (other non-allied Auras still block)
+  // Battle / Lay Siege: end adjacent to the target, through its own Presence (other non-allied Presence still blocks)
   AS.forEach((o,i)=>{if(!o.war||(o.kind==="battle"&&!o.B)||hexDist(hk(startK),hk(o.k))>S_.speed+1)return;const R_=run(lift(i));
     hexNb(o.k).forEach(k=>{const x=R_.reach[k];if(!x||k===startK||M.cells[k]||M.camps[k]||blockedX(k,lift(i)))return;   // already adjacent: use Engage in the panel
       if(dest[k]&&dest[k].engage)return;dest[k]=Object.assign(R_.fin(k,x),{engage:o});});});
@@ -471,7 +484,7 @@ function movePanelHTML(){const mi=moveInfo();if(!mi)return "";
     (S_.notes.length?'<div class="note">'+S_.notes.map(esc).join(' · ')+'</div>':'')+
     (blk?'<div class="flagbox">⚑ Blocked: can’t perform Move actions</div>':'')+
     '<div class="bcrow"><label class="note"><input type="checkbox" id="mvMarch" data-nav="1"'+(MOVEMARCH?' checked':'')+'> March</label> adjust <input id="mvAdj" data-nav="1" type="number" value="'+MOVEADJ+'" style="width:46px"> <button id="mvCancel" data-nav="1">cancel</button>'+
-    ' <span class="note">'+Object.keys(mi.dest).length+' reachable · click a lit hex'+(Object.values(mi.dest).some(d=>d.enter)?' · gold = enter Settlement':'')+(Object.values(mi.dest).some(d=>d.engage)?' · red = Battle / Lay Siege':'')+(Object.keys(mi.aura||{}).length?' · shaded = non-allied Aura':'')+'</span>'+(mi.inAura?'<div class="note">Inside a non-allied Aura: may only move out of it'+(Object.keys(mi.dest).length?'':' — no exit in reach, can\u2019t move')+'.</div>':'')+'</div></div>';}
+    ' <span class="note">'+Object.keys(mi.dest).length+' reachable · click a lit hex'+(Object.values(mi.dest).some(d=>d.enter)?' · gold = enter Settlement':'')+(Object.values(mi.dest).some(d=>d.engage)?' · red = Battle / Lay Siege':'')+(Object.keys(mi.aura||{}).length?' · shaded = non-allied Presence':'')+'</span>'+(mi.inAura?'<div class="note">Inside a non-allied Presence: may only move out of it'+(Object.keys(mi.dest).length?'':' — no exit in reach, can\u2019t move')+'.</div>':'')+'</div></div>';}
 
 let MAPSEL=null;
 function set(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}

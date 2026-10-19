@@ -26,7 +26,7 @@ import re as _re
 USABLE_TWIPS = 10466   # A4 portrait, 0.5" margins -> 11906 - 720 - 720
 CHAR_W   = 105         # ~twips per char, EB Garamond 8.5pt (generous, bold headers)
 CELL_PAD = 180         # left+right cell margin (90+90)
-SLACK    = 85
+SLACK    = 120
 
 _BOLD = _re.compile(r"\*\*(.+?)\*\*")
 
@@ -67,26 +67,94 @@ def _cell(text, bold=False, w_dxa=1000):
             f'<w:rPr><w:rFonts w:ascii="{FONT}" w:hAnsi="{FONT}"/><w:sz w:val="{SZ}"/></w:rPr></w:pPr>'
             f'{runs}</w:p></w:tc>')
 
-def _col_widths(headers, rows, cap_chars=34):
+# Text measurement: the real EB Garamond metrics when references/fonts is present (PIL), else CHAR_W per character.
+_FONTS = {}
+def _font(bold):
+    if bold not in _FONTS:
+        try:
+            import os
+            from PIL import ImageFont
+            fn = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fonts",
+                              "EBGaramond-Bold.ttf" if bold else "EBGaramond-Regular.ttf")
+            _FONTS[bold] = ImageFont.truetype(fn, 400)
+        except Exception:
+            _FONTS[bold] = None
+    return _FONTS[bold]
+
+_TW = {}
+def _tw(text, bold=False):
+    """Width of text in twips at the table size (SZ half-points)."""
+    k = (text, bold)
+    if k not in _TW:
+        f = _font(bold)
+        pt = int(SZ) / 2
+        _TW[k] = (f.getlength(text) / 400 * pt * 20) if f else len(text) * CHAR_W
+    return _TW[k]
+
+def _wrap_lines(text, avail, bold=False):
+    """Lines a cell needs in `avail` twips of text width (greedy word wrap; an over-long word takes extra lines)."""
+    sp = _tw(" ", bold)
+    lines, cur = 1, 0.0
+    for w in _re.split(r"\s+", text.strip()):
+        if not w:
+            continue
+        L = _tw(w, bold)
+        if cur == 0:
+            cur = L
+        elif cur + sp + L <= avail:
+            cur += sp + L
+        else:
+            lines += 1; cur = L
+        while cur > avail and avail > 0:
+            lines += 1; cur -= avail
+    return lines
+
+def _col_widths(headers, rows, step=60):
     """Absolute column widths (twips) summing to the usable page width.
-    Each column is at least wide enough for its longest single word (so no word
-    wraps mid-token), then leftover space is shared out to columns that hold the
-    longest text (so multi-line cells stay short). Numeric/short columns collapse."""
-    cols = list(zip(*([list(headers)] + [list(r) for r in rows]))) if rows else [(h,) for h in headers]
-    mins, want = [], []
-    for col in cols:
-        cells = [str(c).replace("**", "") for c in col]
-        lword = max((max((len(w) for w in _re.split(r"\s+", c) if w), default=1)) for c in cells)
-        lcell = max(len(c) for c in cells)
-        mins.append(lword * CHAR_W + CELL_PAD + SLACK)
-        want.append(max(1, min(lcell, cap_chars) - lword))   # appetite for wrap room
-    smin = sum(mins)
-    if smin >= USABLE_TWIPS:                                  # too many columns: scale to fit
-        scale = USABLE_TWIPS / smin
-        w = [max(300, int(m * scale)) for m in mins]
-    else:
-        extra, sw = USABLE_TWIPS - smin, float(sum(want))
-        w = [mins[i] + int(round(extra * want[i] / sw)) for i in range(len(mins))]
+    Each column starts wide enough for its longest single word (no word breaks mid-token). The rest of the page
+    width goes, a step at a time, to whichever column most reduces the table's total height (sum over rows of the
+    row's tallest cell). Columns of short names / lists ("Established Industry", "Alchemy, Forgotten Catacombs")
+    therefore wrap to two lines when that lets a long Effect column shrink by more."""
+    table = [list(headers)] + [list(r) for r in rows]
+    ncol = len(headers)
+    cells = [[_re.sub(XE_RE, "", str(r[c]) if c < len(r) else "").replace("**", "") for c in range(ncol)] for r in table]
+    bold = lambda k: k == 0
+    lword = [max(max((_tw(w, bold(k)) for w in _re.split(r"\s+", row[c]) if w), default=0) for k, row in enumerate(cells))
+             for c in range(ncol)]
+    w = [int(lw + CELL_PAD + SLACK) for lw in lword]
+    if sum(w) >= USABLE_TWIPS:                                # too many columns: scale to fit
+        scale = USABLE_TWIPS / sum(w)
+        w = [max(300, int(x * scale)) for x in w]
+        w[-1] += USABLE_TWIPS - sum(w)
+        return w
+    avail = lambda x: x - CELL_PAD - SLACK / 2
+    lines = [[_wrap_lines(row[c], avail(w[c]), bold(k)) for c in range(ncol)] for k, row in enumerate(cells)]
+    spare = USABLE_TWIPS - sum(w)
+    def lines_at(c, width):
+        return [_wrap_lines(row[c], avail(width), bold(k)) for k, row in enumerate(cells)]
+    while spare >= step:
+        base = sum(max(r) for r in lines)
+        best = None
+        for c in range(ncol):
+            cur_c = sum(r[c] for r in lines)
+            for k in range(1, int(spare // step) + 1):          # smallest widening that saves a line somewhere
+                col = lines_at(c, w[c] + k * step)
+                trial = sum(max(max(r[:c] + r[c + 1:], default=0), col[q]) for q, r in enumerate(lines))
+                if base - trial > 0 or cur_c - sum(col) > 0:
+                    key = ((base - trial) / k, (cur_c - sum(col)) / k)
+                    if best is None or key > best[0]:
+                        best = (key, c, k, col)
+                    break
+        if best is None:
+            break                                              # every cell already as short as it can get
+        _, c, k, col = best
+        w[c] += k * step; spare -= k * step
+        for q, r in enumerate(lines):
+            r[c] = col[q]
+    if spare > 0:                                              # leftover: share by each column's one-line width
+        nat = [max(_tw(row[c], bold(k)) for k, row in enumerate(cells)) + 1 for c in range(ncol)]
+        tot = sum(nat)
+        w = [w[c] + int(spare * nat[c] / tot) for c in range(ncol)]
     w[-1] += USABLE_TWIPS - sum(w)                            # absorb rounding
     return w
 
@@ -101,8 +169,8 @@ def _table(headers, rows, widths=None):
     tblpr = (f'<w:tblPr><w:tblW w:w="{USABLE_TWIPS}" w:type="dxa"/><w:jc w:val="center"/>{bd}'
              f'<w:tblLayout w:type="fixed"/>{cm}{look}</w:tblPr>')
     grid = '<w:tblGrid>' + ''.join(f'<w:gridCol w:w="{d}"/>' for d in dxa) + '</w:tblGrid>'
-    head = '<w:tr><w:trPr><w:tblHeader/></w:trPr>' + ''.join(_cell(h, True, d) for h, d in zip(headers, dxa)) + '</w:tr>'
-    body = ''.join('<w:tr>' + ''.join(_cell(c, False, d) for c, d in zip(r, dxa)) + '</w:tr>' for r in rows)
+    head = '<w:tr><w:trPr><w:cantSplit/><w:tblHeader/></w:trPr>' + ''.join(_cell(h, True, d) for h, d in zip(headers, dxa)) + '</w:tr>'
+    body = ''.join('<w:tr><w:trPr><w:cantSplit/></w:trPr>' + ''.join(_cell(c, False, d) for c, d in zip(r, dxa)) + '</w:tr>' for r in rows)
     return f'<w:tbl>{tblpr}{grid}{head}{body}</w:tbl>'
 
 # ── table builders ──
@@ -148,9 +216,8 @@ def po_modifiers():
             rows.append([f"{sign.title()} +1", src, cond])
     return _table(["Type", "Source", "Condition"], rows)
     
-def bandit_armaments():
-    rows = [[k, v] for k, v in rd.BANDIT_EQUIPMENT_PER_ERA.items()]
-    return _table(["Era", "Armaments"], rows)
+
+DOMAIN_ORDER = ["Prowess", "Cunning", "Piety", "Industry"]   # Envoy resolution order (Diplomacy first where it appears)
 
 def _standing_headers():
     """Domain-board header row; tier numbers from STANDING_THRESHOLDS."""
@@ -169,17 +236,13 @@ def domain_board():
         if cmb:
             base = (base + " " if base else "") + str(cmb).strip()
         return base
-    rows = [[d, "—", cell(d, "Rising"), cell(d, "Established"), cell(d, "Sovereign")]
-            for d in ["Industry", "Prowess", "Cunning", "Piety"]]
-    order = ["Untested", "Rising", "Established", "Sovereign"]
-    mi = b.get("max_influence_per_vote", {})
-    inn = b.get("innate_influence_own_envoys", {})
-    rows.append(["Max Influence Per Vote"] + [str(mi.get(t, "")) for t in order])
-    rows.append(["Innate Influence on Own Envoys"] + [str(inn.get(t, "")) for t in order])
-    return _table(_standing_headers(), rows)
+    rows = [[d, cell(d, "Rising"), cell(d, "Established"), cell(d, "Sovereign")]
+            for d in DOMAIN_ORDER if d in b]                        # Untested has no Standing effect: no column
+    # Influence-by-Standing rows live in the rules' own "Standing & Influence" table (not repeated here)
+    return _table([h for h in _standing_headers() if h != "Untested"], rows)
 
 def envoy_outcomes():
-    DOM = ["Prowess", "Cunning", "Piety", "Industry", "Diplomacy"]
+    DOM = ["Diplomacy"] + DOMAIN_ORDER
     rows = [[d,
              rd.ENVOY_OUTCOMES[d].get("condemned", ""),
              rd.ENVOY_OUTCOMES[d].get("failed", ""),
@@ -228,6 +291,12 @@ def bandit_armaments():
     return _table(["Era", "Armament"],
                   [[k, v] for k, v in rd.BANDIT_EQUIPMENT_PER_ERA.items()])
 
+def bandits_by_era():
+    """Bandit growth + armaments in one table (one row per Era)."""
+    eras = list(dict.fromkeys(list(rd.BANDIT_GROWTH_PER_ERA) + list(rd.BANDIT_EQUIPMENT_PER_ERA)))
+    return _table(["Era", "Retinues Gained per Turn", "Armament"],
+                  [[e, str(rd.BANDIT_GROWTH_PER_ERA.get(e, "\u2014")), rd.BANDIT_EQUIPMENT_PER_ERA.get(e, "\u2014")] for e in eras])
+
 def edicts():
     rows = [[n, d.get("type", ""), d.get("requirement", "")] for n, d in rd.EDICTS.items()]
     return _table(["Edict", "Type", "Requirement"], rows)
@@ -243,7 +312,9 @@ def armor():
     return _table(["Armor", "Tier", "Save", "Keywords"], rows)
 
 def seasons():
-    rows = [[s, v["name"], v["effect"]] for s, v in rd.SEASONS.items()]
+    ks = list(rd.SEASONS); y = getattr(rd, "AGE_YEAR_SEASON", ks[0])
+    ks = ks[ks.index(y):] + ks[:ks.index(y)] if y in ks else ks      # cycle order, starting with the Season that turns the Year
+    rows = [[s, rd.SEASONS[s]["name"], rd.SEASONS[s]["effect"]] for s in ks]
     return _table(["Season", "Name", "Effect"], rows)
 
 def ages():
@@ -287,8 +358,7 @@ def factions():
     fb = getattr(rd, "faction_body", lambda k: rd.FACTIONS[k].get("mechanic", ""))   # name = mechanic title; body without it
     rows = [[n, v.get("feel", ""), v.get("difficulty", ""), v.get("strength", ""), fb(n)]
             for n, v in rd.FACTIONS.items()]
-    w = [1700, 1500, 850, 850]; w.append(USABLE_TWIPS - sum(w))      # Mechanic takes the rest
-    return _table(["Faction", "Feel", "Difficulty", "Strength", "Mechanic"], rows, widths=w)
+    return _table(["Faction", "Feel", "Difficulty", "Strength", "Mechanic"], rows)
 
 def timers():
     rows = [[n + xe_mark(n), ("—" if v.get("default") is None else str(v.get("default"))),
@@ -305,6 +375,21 @@ def build_timers():
             rows.append([k, str(v)])
     return _table(["Build", "Turns"], rows)
 
+def _siege_text_sources(sign):
+    """[(name, kind, value, condition)] for every 'Siege Timer +X' (sign '+') or '-X' (sign '-') in Holding,
+    Infrastructure / Wonder and Heritage text. Condition = the clause's leading 'While ...' text, if any."""
+    pat = _re.compile(r"Siege Timers?\s*" + (r"\+" if sign == "+" else "[\u2212-]") + r"\s*(\d+)")
+    srcs = [("Holding", n, f"{v.get('innate', '')}; {'' if getattr(rd, 'SIMPLE', False) else v.get('mastery', '')}") for n, v in rd.NODES.items()]
+    srcs += [("Infrastructure", n, str(v.get("empire_bonus", ""))) for n, v in rd.INFRASTRUCTURE.items()]
+    srcs += [("Faction", n, str(v.get("mechanic", ""))) for n, v in rd.FACTIONS.items()]
+    out = []
+    for kind, name, txt in srcs:
+        for m in pat.finditer(txt.replace("**", "")):
+            head = txt[:m.start()].replace("**", "")
+            cond = _re.search(r"(While [^.;]*?),[^.;]*$", head)
+            out.append((name, kind, int(m.group(1)), cond.group(1) if cond else ""))
+    return out
+
 def siege_calculus(mode="Lay Siege"):
     spec = rd.SIEGE_CALCULUS[mode]; vals = rd.SIEGE_SOURCE_VALUES
     def fmt(src):
@@ -318,13 +403,20 @@ def siege_calculus(mode="Lay Siege"):
         if v.get("from")=="board_state": return f"+{v['value']}", v.get("rule","")
         if "value" in v: return f"+{v['value']}", ""
         return "\u2014","value undefined"
-    rows=[[src,*fmt(src)] for src in spec["settlement_sources"]]
+    kinds = {n: "Infrastructure" for n in rd.INFRASTRUCTURE}
+    kinds.update({n: "Holding" for n in rd.NODES})
+    def note(src, n):
+        return "; ".join(x for x in (kinds.get(src, ""), n) if x)
+    listed = list(spec["settlement_sources"])
+    rows = [[src, t, note(src, n)] for src in listed for t, n in [fmt(src)]]
+    if mode == "Lay Siege":
+        for name, kind, val, cond in _siege_text_sources("+"):
+            if name in listed:
+                continue
+            rows.append([name, f"+{val}", "; ".join(x for x in (kind, cond) if x)])
     if spec.get("attacker_sources"):
-        import re as _re; red=set()
-        for name,n in rd.NODES.items():
-            txt=f"{n.get('innate','')} {n.get('mastery','')}"
-            for m in _re.finditer(r"Siege Timer\s*[\u2212-]\s*(\d+)",txt): red.add(f"{name} \u2212{m.group(1)}")
-        rows.append(["Attacker effects","\u2212 varies",", ".join(sorted(red)) or "from effect text"])
+        red = sorted(f"{name} \u2212{val}" for name, kind, val, cond in _siege_text_sources("-"))
+        rows.append(["Attacker effects","\u2212 varies",", ".join(red) or "from effect text"])
     return _table(["Source","Timer","Note"], rows)
 
 def _heading_xml(text, level):
@@ -336,33 +428,67 @@ def _heading_xml(text, level):
             f'<w:r><w:rPr><w:rFonts w:ascii="{FONT}" w:hAnsi="{FONT}"/><w:b/><w:bCs/>'
             f'<w:sz w:val="{size}"/></w:rPr><w:t xml:space="preserve">{_esc(getattr(rd, "display_text", lambda x: x)(text))}</w:t></w:r></w:p>')
 
+_REQ_TOK = _re.compile(r"^(Rising|Established|Sovereign)\s+(Prowess|Cunning|Piety|Industry)$", _re.I)
+_REQ_ANY = _re.compile(r"^(\d+)\s+(Rising|Established|Sovereign)$", _re.I)
+_ST_RANK = {"Rising": 1, "Established": 2, "Sovereign": 3}
+
+def _req_groups(unlock):
+    """Standing-requirement groups for one unlock string: [] (none), ['Rising Industry'], or one per '+' part."""
+    u = (unlock or "").strip()
+    if u in ("", "-", "\u2014"):
+        return []
+    return [t.strip() for t in _re.split(r"\s*[+,]\s*", u) if t.strip()]
+
+def _req_label(tok):
+    m = _REQ_ANY.match(tok)
+    if m:
+        n = int(m.group(1)); return f"{n} Domain{'s' if n != 1 else ''} at {m.group(2).title()}"
+    return tok
+
+def _req_key(tok):
+    m = _REQ_TOK.match(tok)
+    if m:
+        return (0, DOMAIN_ORDER.index(m.group(2).title()), _ST_RANK[m.group(1).title()])
+    m = _REQ_ANY.match(tok)
+    if m:
+        return (1, int(m.group(1)), _ST_RANK[m.group(2).title()])
+    return (2, 0, 0)
+
 def holdings():
-    """Every NODES entry, one sub-heading + table per TYPE_ORDER group (was the Compendium's Pursuits chapter)."""
+    """Every NODES entry, grouped by Standing requirement (a Holding with two requirements appears under both);
+    Domain sub-headings in Envoy resolution order. Monuments sit in their Standing group, marked (Monument)."""
     simple = getattr(rd, "SIMPLE", False)
     chain = getattr(rd, "CHAIN_TERM", "Efficient")
-    out = []
-    for t in rd.TYPE_ORDER:
-        rows = []
-        for n, v in rd.NODES.items():
-            if v.get("type") != t:
-                continue
-            eff = v.get("efficient")
-            eff_txt = (rd.display(eff) if isinstance(eff, str) else rd.display_list(eff)) if eff else "—"
-            gate = (v.get("unlock") or "").strip()
-            gate = "—" if gate in ("", "-", "\u2014") else gate
-            name = rd.display(n)
-            if simple:
-                rows.append([name, gate, rd.display_text(v.get("infrastructure_req", "")) or "—", eff_txt,
-                             rd.display_text(v.get("innate", "") or "") or "—"])
-            else:
-                rows.append([name, gate, rd.display_text(v.get("mastery_req", "")) or "—", eff_txt,
-                             rd.display_text(v.get("innate", "") or "") or "—", rd.display_text(v.get("mastery", "")) or "—"])
-        if not rows:
-            continue
-        rows.sort(key=lambda r: _re.sub(r"\*\*", "", r[0]).lower())
-        hdr = (["Pursuit", "Domain", "Infrastructure Req", chain, "Effect"] if simple
-               else ["Pursuit", "Domain", "Mastery Unlock", "Efficient", "Innate Effect", "Mastery Effect"])
-        out.append(_heading_xml(t, 2) + _table(hdr, rows))
+    term = getattr(rd, "PURSUIT_TERM", ("Pursuit", "Pursuits"))[0]
+    def row(n, v, extra=None):
+        eff = v.get("efficient")
+        eff_txt = (rd.display(eff) if isinstance(eff, str) else rd.display_list(eff)) if eff else "\u2014"
+        mon = v.get("type") == "Monument" or v.get("monument")
+        name = rd.display(n) + (" (Monument)" if mon else "") + (f" (also {extra})" if extra else "")
+        if simple:
+            return [name, rd.display_text(v.get("infrastructure_req", "")) or "\u2014", eff_txt,
+                    rd.display_text(v.get("innate", "") or "") or "\u2014"]
+        return [name, rd.display_text(v.get("mastery_req", "")) or "\u2014", eff_txt,
+                rd.display_text(v.get("innate", "") or "") or "\u2014", rd.display_text(v.get("mastery", "")) or "\u2014"]
+    hdr = ([term, "Infrastructure Req", chain, "Effect"] if simple
+           else [term, "Mastery Unlock", "Efficient", "Innate Effect", "Mastery Effect"])
+    groups = {}
+    for n, v in rd.NODES.items():
+        reqs = _req_groups(v.get("unlock"))
+        for t in (reqs or ["None"]):
+            others = [x for x in reqs if x != t]
+            groups.setdefault(t, []).append(row(n, v, " + ".join(others) if others else None))
+    out, last_dom = [], None
+    sortk = lambda r: _re.sub(r"\*\*", "", r[0]).lower()
+    widths = _col_widths(hdr, [r for g in groups.values() for r in g])    # one column grid for every Holding table
+    for t in sorted(groups, key=lambda t: (-1, 0, 0) if t == "None" else _req_key(t)):
+        m = _REQ_TOK.match(t)
+        dom = m.group(2).title() if m else ("No Requirement" if t == "None" else "Any Domain")
+        if dom != last_dom:
+            out.append(_heading_xml(dom, 2)); last_dom = dom
+        if t != "None":
+            out.append(_heading_xml(_req_label(t), 3))
+        out.append(_table(hdr, sorted(groups[t], key=sortk), widths=widths))
     return "".join(out)
 
 def tactic_matrix():
@@ -382,8 +508,7 @@ def trade_rules():
     t = rd.TRADE_RULES
     return _table(["Rule", "Value"], [["Income per Craft", str(t["income_per_craft"])],
                                       ["Requirements", t["requirements"]],
-                                      ["No-trade season", t["no_trade_season"]],
-                                      ["Tax season", t["tax_season"]]])
+                                      ["No-trade Season", t["no_trade_season"]]])
 
 
 REGISTRY = {
@@ -397,7 +522,7 @@ REGISTRY = {
     "terrain": terrain, "tactical_terrain": tactical_terrain,
     "factions": factions, "timers": timers, "build_timers": build_timers, "siege_calculus": siege_calculus,
     "bandit_cunning": bandit_cunning, "bandit_tactics": bandit_tactics,
-    "bandit_armaments": bandit_armaments,
+    "bandit_armaments": bandit_armaments, "bandits_by_era": bandits_by_era,
     "holdings": holdings, "tactic_matrix": tactic_matrix, "trade_rules": trade_rules,
 }
 

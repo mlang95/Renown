@@ -79,7 +79,7 @@ can't reach the other Phase's Envoys: it is read as that Phase's Envoys (Envoy P
 
 ## Registry coverage
 
-92 of 94 registry patterns match at least one piece.
+91 of 94 registry patterns match at least one piece.
 
-Patterns with no match in the current data (wording changed, or the piece is gone): `rider_your_extra`, `fac_type_bonus`
+Patterns with no match in the current data (wording changed, or the piece is gone): `rider_your_extra`, `fac_type_bonus`, `build_edict`
 

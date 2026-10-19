@@ -29,6 +29,8 @@ const SEASONS=["Spring","Summer","Fall","Winter"];
 const DOMAINS=DATA.domains||["Industry","Prowess","Piety","Cunning"];
 const STANDINGS=DATA.standings||["Rising","Established","Sovereign"];
 const DBOARD=DATA.domainBoard||{};
+// Presence (PRESENCE_RANGE): one flat range for every Settlement / Army / Bandit Army
+function presR(){return +((DATA.rulesConst||{}).PRESENCE_RANGE)||0;}
 const PO=DATA.publicOrder||{};
 // Public Order bands in the current Era (negative bands scale with ERAS po_scale_neg; positive with po_scale_pos)
 function POB(k){const t=(DATA.poByEra||{})[currentEra()];return (t&&t[String(k)])||PO[String(k)];}

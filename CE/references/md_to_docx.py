@@ -292,21 +292,30 @@ def render(md_path, out_path):
             _inject(doc, dt._table(header, body))   # same dense style as data tables
             continue
 
-        # list item
-        lm = re.match(r"^(\s*)([-*]|\d+\.)\s+(.*)$", raw)
+        # list item — nesting from leading whitespace (a tab or 4 spaces per level).
+        # "- 2.1 text" / "2.1 text" (sub-rule numbers) print the number with no bullet, indented under the parent.
+        lm = re.match(r"^([ \t]*)([-*]|\d+\.(?:\d+\.?)*)\s+(.*)$", raw)
         if lm:
-            marker = lm.group(2)
+            ws = lm.group(1).replace("\t", "    ")
+            lvl = len(ws) // 4 + (1 if len(ws) % 4 >= 2 else 0)
+            marker, body = lm.group(2), lm.group(3)
+            sub = re.match(r"^(\d+\.\d+[a-z]?\.?)\s+(.*)$", body) if marker in ("-", "*") else None
+            if sub:
+                marker, body = sub.group(1), sub.group(2)
             if marker[0].isdigit():
                 # Keep the source's own numbering. Word's "List Number" style uses
                 # one document-wide counter, so successive lists would read 34,35…
                 # instead of restarting at 1; emit the authored number as text.
+                hang = 26 if "." in marker.rstrip(".") else 18
                 p = doc.add_paragraph()
-                p.paragraph_format.left_indent = Pt(18)
-                p.paragraph_format.first_line_indent = Pt(-18)
-                _runs(p, f"{marker} {lm.group(3)}")
+                p.paragraph_format.left_indent = Pt(18 * lvl + hang)
+                p.paragraph_format.first_line_indent = Pt(-hang)
+                p.paragraph_format.space_after = Pt(3 if lvl else 6)
+                _runs(p, f"{marker} {body}")
             else:
-                p = doc.add_paragraph(style="List Bullet")
-                _runs(p, lm.group(3))
+                p = doc.add_paragraph(style="List Bullet" if lvl == 0 else ("List Bullet 2" if lvl == 1 else "List Bullet 3"))
+                p.paragraph_format.space_after = Pt(2 if lvl else 3)
+                _runs(p, body)
             i += 1
             continue
 

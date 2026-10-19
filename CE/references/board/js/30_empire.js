@@ -202,7 +202,7 @@ function placeHolding(n,pref,forcedSid){
   return {np,target,host,hosts,note,forced};}
 function addItem(n){
   if(tab==="infra"||tab==="wonder"){addInfraByName(tab,n);return;}
-  // pursuit — Scope: Settlement / Empire / Realm (Principle 15)
+  // pursuit — Scope: Settlement / Empire / Realm (Principle 14)
   {const blk=scopeBlock(n,null);if(blk){flash(blk);return;}}
   const P_=placeHolding(n,activeSid,FOR_SID),target=P_.target,host=P_.host,hosts=P_.hosts,note=P_.note,forced=P_.forced;
   if(target==null&&gameStarted()){S.placed=S.placed.filter(p=>p!==P_.np);flash(n+": no free Ward");renderList();return;}
@@ -1531,7 +1531,7 @@ function occupyTaxOnly(b){return !!hitOf("F:"+((b||{}).faction||""),"occupy_tax"
 function settInside(b,s){return (b.armies||[]).some(a=>String(a.sid)===String(s.id));}
 function settTax(b,s){if(settUnbuilt(s))return 0;const t=(((DATA.settlements||{})[s.tier]||{}).tax_income)||0;if(occupyTaxOnly(b)&&!settInside(b,s))return 0;return t?(t+Math.max(-t,poTaxMod(b.po||0,b).mod))*(taxDouble(b).length?2:1):0;}
 // Trade income (rules): for each active Trade Agreement, both players gain income_per_craft × the Host's Craft X —
-// only on turns when one of the two is the Host; both need active Dirt Roads; none in TRADE_RULES.no_trade_season (Spring).
+// only on turns when one of the two is the Host; both need active Dirt Roads (or a Can Trade effect); none in TRADE_RULES.no_trade_season (Spring).
 function tradeIncome(b,season){const sea=season||curSeason(),out=tradeRaw(b,sea),me=D.players.find(p=>p.board===b);if(!me)return out;
   {const ex=srcMatch(b,"trade_extra").reduce((a,x)=>a+(+x.m[1]),0);
     if(ex&&sameP(hostP(),me)&&!(DATA.noTradeSeason&&sea===DATA.noTradeSeason)&&hasRoad(me.id)){const g=ex*(DATA.tradePerCraft||100)*(boardMetrics(b).craft||0);

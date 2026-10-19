@@ -356,7 +356,7 @@ function tacticExplainHTML(){const T=BT.tactics||[],N=BT.tacticNotes||{};if(!T.l
   return h;}
 document.addEventListener("click",e=>{const a=e.target.closest("[data-tac]");if(!a)return;e.preventDefault();TAC_PICK=a.dataset.tac;render();});
 function battleRulesHTML(){let h=tacticExplainHTML();
-  h+='<details class="tot"><summary><b>Rules — Skirmish steps</b></summary><div class="note" style="margin-top:6px">'+mdLite(BT.seize)+'<br><br>'+mdLite(BT.steps)+'<br><br><b>Resolve Battle</b><br>'+mdLite(BT.resolve)+
+  h+='<details class="tot"><summary><b>Rules — Skirmish steps</b></summary><div class="note" style="margin-top:6px">'+mdLite(BT.seize)+'<br><br>'+mdLite(BT.steps)+'<br><br><b>Ending a Battle</b><br>'+mdLite(BT.resolve)+
     ((BT.tacticalGlobal||[]).length?'<br><br>'+BT.tacticalGlobal.map(esc).join('<br>'):'')+'</div></details>';
   return h;}
 function renderBattle(){
