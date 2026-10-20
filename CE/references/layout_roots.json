@@ -1,5 +1,182 @@
 [
  {
+  "title": "Forestry",
+  "anchor": "Forestry",
+  "mode": "root",
+  "nodes": {
+   "Forestry": [
+    0,
+    1
+   ],
+   "Carpentry": [
+    1,
+    1
+   ],
+   "Kiln": [
+    1,
+    2
+   ],
+   "Charcoal Burner": [
+    2,
+    2
+   ],
+   "Joinery": [
+    2,
+    3
+   ],
+   "Siege Camp": [
+    3,
+    1
+   ],
+   "Butchery": [
+    3,
+    2
+   ],
+   "Tannery": [
+    3,
+    3
+   ],
+   "Fletchery": [
+    3,
+    0
+   ],
+   "Siege Works": [
+    4,
+    1
+   ],
+   "Smokehouse": [
+    4,
+    2
+   ],
+   "Armory": [
+    4,
+    3
+   ],
+   "Tiltyard": [
+    4,
+    0
+   ],
+   "Battery Park": [
+    5,
+    1
+   ],
+   "Levy Hall": [
+    5,
+    2
+   ],
+   "Gilded Foundry": [
+    5,
+    3
+   ],
+   "Grand Tournament": [
+    5,
+    0
+   ],
+   "Artillery Park": [
+    6,
+    1
+   ],
+   "Baggage Train": [
+    6,
+    2
+   ],
+   "Jewelry Foundry": [
+    6,
+    3
+   ],
+   "Royal Pavilion": [
+    6,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Tannery",
+    "Armory"
+   ],
+   [
+    "Battery Park",
+    "Artillery Park"
+   ],
+   [
+    "Levy Hall",
+    "Baggage Train"
+   ],
+   [
+    "Siege Works",
+    "Battery Park"
+   ],
+   [
+    "Charcoal Burner",
+    "Butchery"
+   ],
+   [
+    "Forestry",
+    "Carpentry"
+   ],
+   [
+    "Forestry",
+    "Charcoal Burner"
+   ],
+   [
+    "Kiln",
+    "Charcoal Burner"
+   ],
+   [
+    "Carpentry",
+    "Fletchery"
+   ],
+   [
+    "Armory",
+    "Gilded Foundry"
+   ],
+   [
+    "Tiltyard",
+    "Grand Tournament"
+   ],
+   [
+    "Gilded Foundry",
+    "Jewelry Foundry"
+   ],
+   [
+    "Carpentry",
+    "Joinery"
+   ],
+   [
+    "Forestry",
+    "Kiln"
+   ],
+   [
+    "Smokehouse",
+    "Levy Hall"
+   ],
+   [
+    "Grand Tournament",
+    "Royal Pavilion"
+   ],
+   [
+    "Carpentry",
+    "Siege Camp"
+   ],
+   [
+    "Siege Camp",
+    "Siege Works"
+   ],
+   [
+    "Butchery",
+    "Smokehouse"
+   ],
+   [
+    "Joinery",
+    "Tannery"
+   ],
+   [
+    "Fletchery",
+    "Tiltyard"
+   ]
+  ]
+ },
+ {
   "title": "Courtyard",
   "anchor": "Courtyard",
   "mode": "root",
@@ -173,167 +350,6 @@
    [
     "Market Square",
     "Weavery"
-   ]
-  ]
- },
- {
-  "title": "Forestry",
-  "anchor": "Forestry",
-  "mode": "root",
-  "nodes": {
-   "Forestry": [
-    0,
-    1
-   ],
-   "Carpentry": [
-    1,
-    1
-   ],
-   "Kiln": [
-    1,
-    2
-   ],
-   "Charcoal Burner": [
-    2,
-    2
-   ],
-   "Joinery": [
-    2,
-    3
-   ],
-   "Butchery": [
-    3,
-    2
-   ],
-   "Tannery": [
-    3,
-    3
-   ],
-   "Fletchery": [
-    3,
-    0
-   ],
-   "Smokehouse": [
-    4,
-    2
-   ],
-   "Armory": [
-    4,
-    3
-   ],
-   "Tiltyard": [
-    4,
-    0
-   ],
-   "Siege Camp": [
-    5,
-    1
-   ],
-   "Levy Hall": [
-    5,
-    2
-   ],
-   "Gilded Foundry": [
-    5,
-    3
-   ],
-   "Grand Tournament": [
-    5,
-    0
-   ],
-   "Artillery Park": [
-    6,
-    1
-   ],
-   "Baggage Train": [
-    6,
-    2
-   ],
-   "Jewelry Foundry": [
-    6,
-    3
-   ],
-   "Royal Pavilion": [
-    6,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Tannery",
-    "Armory"
-   ],
-   [
-    "Siege Camp",
-    "Artillery Park"
-   ],
-   [
-    "Levy Hall",
-    "Baggage Train"
-   ],
-   [
-    "Charcoal Burner",
-    "Butchery"
-   ],
-   [
-    "Forestry",
-    "Carpentry"
-   ],
-   [
-    "Forestry",
-    "Charcoal Burner"
-   ],
-   [
-    "Kiln",
-    "Charcoal Burner"
-   ],
-   [
-    "Carpentry",
-    "Fletchery"
-   ],
-   [
-    "Armory",
-    "Gilded Foundry"
-   ],
-   [
-    "Tiltyard",
-    "Grand Tournament"
-   ],
-   [
-    "Gilded Foundry",
-    "Jewelry Foundry"
-   ],
-   [
-    "Carpentry",
-    "Joinery"
-   ],
-   [
-    "Forestry",
-    "Kiln"
-   ],
-   [
-    "Smokehouse",
-    "Levy Hall"
-   ],
-   [
-    "Grand Tournament",
-    "Royal Pavilion"
-   ],
-   [
-    "Carpentry",
-    "Siege Camp"
-   ],
-   [
-    "Butchery",
-    "Smokehouse"
-   ],
-   [
-    "Joinery",
-    "Tannery"
-   ],
-   [
-    "Fletchery",
-    "Tiltyard"
    ]
   ]
  },
@@ -733,9 +749,17 @@
     2,
     2
    ],
+   "Siege Camp": [
+    2,
+    3
+   ],
    "Forge": [
     3,
     2
+   ],
+   "Siege Works": [
+    3,
+    3
    ],
    "Armory": [
     3,
@@ -745,7 +769,7 @@
     4,
     2
    ],
-   "Siege Camp": [
+   "Battery Park": [
     4,
     3
    ],
@@ -780,8 +804,12 @@
     "Armory"
    ],
    [
-    "Siege Camp",
+    "Battery Park",
     "Artillery Park"
+   ],
+   [
+    "Siege Works",
+    "Battery Park"
    ],
    [
     "Furnace",
@@ -814,6 +842,10 @@
    [
     "Mine",
     "Siege Camp"
+   ],
+   [
+    "Siege Camp",
+    "Siege Works"
    ]
   ]
  },
@@ -1187,27 +1219,6 @@
    [
     "Harbor",
     "Shipyard"
-   ]
-  ]
- },
- {
-  "title": "Siege Works",
-  "anchor": "Siege Works",
-  "mode": "root",
-  "nodes": {
-   "Siege Works": [
-    0,
-    0
-   ],
-   "Battery Park": [
-    1,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Siege Works",
-    "Battery Park"
    ]
   ]
  },

@@ -33,6 +33,7 @@ function siegeTextMods(def,att){const rows=[];
   const noWalls=att?srcMatch(att.board,"siege_ignore_walls").map(x=>x.n):[];
   return {rows,noWalls};}
 function siegeWinterOK(t){const by=pById(t.by);return !!by&&srcHas(by.board,"siege_winter");}
+function siegeDoubleOK(t){const by=pById(t.by);return !!by&&srcHas(by.board,"siege_double");}   // Battery Park: the besieger's Siege Timers count down twice each turn
 // ---- action restrictions & riders (flags / notes, never locks) ----
 function actRestrict(owner,action,target){const a=(DATA.actions||{})[action]||{},out=[];
   const hit=(c)=>{const lc=c.toLowerCase();return lc.includes(action.toLowerCase())||(a.domain&&new RegExp("\\b"+a.domain+" actions","i").test(c));};

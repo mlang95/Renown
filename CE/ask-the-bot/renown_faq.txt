@@ -1,5 +1,5 @@
 2H | [2H](https://mlang95.github.io/RenownWiki/keywords-ref.html#2h): Cannot use a Shield: while a 2H weapon is Equipped, your Shield gives nothing that Skirmish (no Save bonus, Initiative or keywords).
-2HBastard | [2HBastard](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP −3, Init +0. Keywords: 2H, Unstoppable, Cleave.
+2HBastard | [2HBastard](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP −2, Init +0. Keywords: 2H, Unstoppable, Cleave.
 Abbey | [Abbey](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Devotion). Effect: Once per Envoy Phase: Authority +2 another player's Piety Envoy; Authority −1 to Piety actions targeting you
 Abstain | [Abstain](https://mlang95.github.io/RenownWiki/glossary.html#abstain): Decline to spend Influence on a vote.
 Academy | [Academy](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Court). Effect: Authority +1 to Council Envoys; gain Influence +1 each Empire Phase / Requires: Library
@@ -60,7 +60,7 @@ cast weapons | [Cast tier](https://mlang95.github.io/RenownWiki/equipment-ref.ht
 Castle Hall | [Castle Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Works). Effect: Doubt +1; Tax Income is Doubled.
 Casualty | [Casualty](https://mlang95.github.io/RenownWiki/glossary.html#casualty): A retinue removed from the field — from an unsaved Strike or a failed Panic or Break check.
 Cathedral | [Cathedral](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Prodigious). Upkeep 400 (each Empire Phase), build 4. Faith +2
-Cavalry Spear | [Cavalry Spear](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP −2, Init +1. Keywords: Steady, Unwieldy, Awkward.
+Cavalry Spear | [Cavalry Spear](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP −2, Init +1. Keywords: Steady, Unstoppable, Unwieldy, Awkward.
 Census Hall | [Census Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Works). Effect: Natural; Doubt +1; +1000
 Chainmail | [Chainmail](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Wrought). Save 6+. Keywords: none.
 Chandlery | [Chandlery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Devotion). Effect: Craft +1; Authority −1 to Cunning actions targeting you
@@ -104,7 +104,7 @@ Crude Shields | [Crude Shields](https://mlang95.github.io/RenownWiki/glossary.ht
 crude weapons | [Crude tier](https://mlang95.github.io/RenownWiki/equipment-ref.html) (5): Farm Tool, Cudgel, Pitchfork, Hunting Bow, Arquebus
 Cudgel | [Cudgel](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Crude). AP −1, Init −1. Keywords: 2H, Unwieldy, Awkward.
 Cunning | [Cunning](https://mlang95.github.io/RenownWiki/domain-board-ref.html) Domain standing. Rising: Clandestine Councilor: Once per Envoy Phase, when voting on an Envoy begins, target a player with a lower Cunning value - that player Abstains that Envoy.; Established: Grand Vizier: Influence +1 each Empire Phase. Players may not target you with Cunning Envoys if your Cunning value is higher.; Sovereign: Master Conspirator: Once per Envoy Phase, if your non-Cunning Envoy passes or is endorsed, you may instead perform a Cunning action.
-Daggers | [Daggers](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Cast). AP 0, Init +1. Keywords: 2H, Deadly, Awkward.
+Daggers | [Daggers](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Cast). AP 0, Init +0. Keywords: 2H, Deadly, Awkward.
 Deadly | [Deadly](https://mlang95.github.io/RenownWiki/keywords-ref.html#deadly): On a Focused Strike: that strike's AP is increased by 5, and the defender may Parry or Heal only with a Focused roll.
 Declare War | [Declare War](https://mlang95.github.io/RenownWiki/actions-ref.html): Prowess action. Cost: None. Requires: Rising Prowess. Choose a non-allied player you have no NAP or active truce with. You and that player are now At War, and any Trade Agreements between you end. If the target is in a Defensive Alliance, every member is now At War with you. Endorsed: Perform a Move action.
 Defensive Alliance | [Defensive Alliance](https://mlang95.github.io/RenownWiki/treaties-ref.html) Treaty (unlocks: Zenith). Mutual defense: attacking one member puts all members at war with the attacker.
@@ -220,7 +220,7 @@ Joinery | [Joinery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding 
 Keep | [Keep](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Prodigious). Upkeep 400 (each Empire Phase), build 4. When you Muster, reduce the Muster Timer by 1 and immediately gain Retinues equal to the combined muster limit. Siege Timer +1.
 Kiln | [Kiln](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Natural; +500
 Kite Shield | [Kite Shield](https://mlang95.github.io/RenownWiki/equipment-ref.html) Shield (Wrought). Save +1, Init +0. Keywords: Steady, Shielded.
-Oathsworn | [Oathsworn](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 4+, Endurance 2, Morale 4+, cost 3000.
+Oathsworn | [Oathsworn](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 4+, Endurance 3, Morale 4+, cost 3000.
 Lance | [Lance](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP −4, Init +1. Keywords: Steady, Unwieldy, Unstoppable, Awkward, Destroy Shield.
 Last Alliance Standing | [Last Alliance Standing](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Endgame). Be the last alliance standing — the game-ending stop condition.
 Leather | [Leather](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Cast). Save 7+. Keywords: none.

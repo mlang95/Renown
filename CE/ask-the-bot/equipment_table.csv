@@ -2,7 +2,7 @@ Item,Type,Tier,AP_or_Save,Init,Keywords
 Farm Tools,Melee,Crude,0,0,Awkward
 Cudgel,Melee,Crude,-1,-1,"2H, Unwieldy, Awkward"
 Pitchfork,Melee,Crude,0,1,"2H, Unwieldy, Awkward"
-Daggers,Melee,Cast,0,1,"2H, Deadly, Awkward"
+Daggers,Melee,Cast,0,0,"2H, Deadly, Awkward"
 Short Sword,Melee,Cast,0,0,Steady
 Spears,Melee,Cast,-1,1,Unwieldy
 Arming Sword,Melee,Wrought,-1,0,Steady
@@ -10,10 +10,10 @@ Pike,Melee,Wrought,-2,1,"2H, Steady, Unwieldy, Deadly, Awkward"
 Flail,Melee,Wrought,-1,0,"Unwieldy, Unstoppable, Cleave, Awkward"
 Halberd,Melee,Wrought,-2,0,"2H, Steady"
 Battle Axe,Melee,Wrought,-3,-1,"2H, Unstoppable, Cleave, Negate Shielded"
-Cavalry Spear,Melee,Wrought,-2,1,"Steady, Unwieldy, Awkward"
+Cavalry Spear,Melee,Wrought,-2,1,"Steady, Unstoppable, Unwieldy, Awkward"
 Morningstar,Melee,Forged,-4,-1,"Cleave, Destroy Shield"
 Bastard Sword,Melee,Forged,-2,0,Steady
-2HBastard,Melee,Forged,-3,0,"2H, Unstoppable, Cleave"
+2HBastard,Melee,Forged,-2,0,"2H, Unstoppable, Cleave"
 War Hammer,Melee,Forged,-10,-1,"2H, Steady, Unstoppable, Negate Shielded, Destroy Shield"
 Lance,Melee,Forged,-4,1,"Steady, Unwieldy, Unstoppable, Awkward, Destroy Shield"
 Estoc,Melee,Crafted,-3,0,"Steady, Deadly, Unstoppable"

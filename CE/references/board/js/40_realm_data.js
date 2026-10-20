@@ -247,7 +247,7 @@ function wireDashExtras(host){const $=id=>host.querySelector("#"+id),sg=siegeSta
       conv?{}:{kind:"siege",tp:c.p.id,sid:c.st?c.st.id:null,by,aid:sg.aid||null}));save();render();});
   on("rtType","onchange",e=>{const d=(TMR[e.target.value]||{}).default;$("rtN").value=d==null?1:d;});
   on("rtAdd","onclick",()=>{const p=D.players[D.active]||{};realmTimers().push({type:$("rtType").value,label:($("rtLabel").value||"")+(p.name?" — "+p.name:""),pid:p.id,n:Math.round(+$("rtN").value)||0});save();render();});
-  on("rtTick","onclick",()=>{const w=curSeason()==="Winter";realmTimers().forEach(t=>{if(w&&t.type==="Siege Timer"&&!siegeWinterOK(t))return;if(t.n>0)t.n--;});resolveRealm().forEach(x=>flash(x));save();render();});
+  on("rtTick","onclick",()=>{const w=curSeason()==="Winter";realmTimers().forEach(t=>stepRealmTimer(t,w));resolveRealm().forEach(x=>flash(x));save();render();});
   host.querySelectorAll(".rtd").forEach(b=>b.onclick=()=>{const t=realmTimers()[+b.dataset.i];t.n=Math.max(0,t.n+(+b.dataset.d));resolveRealm().forEach(x=>flash(x));save();render();});
   host.querySelectorAll(".rtCap").forEach(b=>b.onclick=()=>{const T=realmTimers(),t=T[+b.dataset.i];if(!t)return;
     T.splice(+b.dataset.i,1,{type:"Capture Timer",kind:"capture",tp:t.tp,sid:t.sid,by:t.by,aid:t.aid,label:t.label,n:+((TMR["Capture Timer"]||{}).default)||1});
