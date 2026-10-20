@@ -29,7 +29,7 @@ _s() only pads (top rows and right edge); it never truncates, so oversize art fa
 """
 import argparse, json, os, sys
 
-SPRITE_VERSION = "0.7"
+SPRITE_VERSION = "0.7.1"
 
 KEYS = {
     "k": "outline", "w": "plaster wall", "t": "stone", "u": "dark stone", "r": "roof",
@@ -558,6 +558,12 @@ SPRITES["holding:Masonry"] = _s([   # lodge, half-built wall, blocks
     "ktttttk.bttutb..", "ktttdtk.bkkkkb..", "ktttdtk.bttttkk.", "ktttdtk.kkkkktt.", "kkkkkkk.tutt.tt.",
 ], S16)
 
+SPRITES["holding:Masons' Guild"] = _s([   # stone guildhall, slate roof, hanging hammer sign
+    ".....kk.........", ".....ks.........", "....kuuk........", "...kuuuuk.......", "..kuuuuuuk......",
+    ".kuuuuuuuuk.....", "kkkkkkkkkkkkkkk.", "kttttttttttk..k.", "ktyttyttyttk.kbk", "kttttttttttk.kmk",
+    "kkkkkkkkkkkk.kbk", "kttttttttttk..k.", "ktyttdtttytk....", "kttttdtttttk....", "kkkkkkkkkkkk....",
+], S16)
+
 SPRITES["holding:Workyard"] = _s([   # A-frame hoist, lumber, handcart
     "...........kkk..", "............m...", "............m...", "............m...", "...........bmb..",
     "...........bmb..", "...........bmb..", "..........kbbbk.", "..........b...b.", "..........b...b.",
@@ -669,6 +675,12 @@ SPRITES["holding:Siege Works"] = _s([   # ram slung under a timber mantlet, on w
     ".b............b.", "kkkkkkkkkkkkkkkk", "kbbbbbbbbbbbbbbk", ".kmk........kmk.", ".kkk........kkk.",
 ], S16)
 
+SPRITES["holding:Battery Park"] = _s([   # bombards on timber carriages behind wicker gabions, shot pile, smoke
+    ".............s..", "...........s..s.", "..........kkk...", "........kkmmdk..", "......kkmmmmk...",
+    "....kkmmmmmk....", "...kmmmmmkk.kkkk", "...kmmmkk..kbkbk", "..kbkkkk...kkbkk", ".kbbbbbbk..kbkbk",
+    "kbkbkkkbk..kkbkk", "kbkbk.kbk.mkbkbk", "kkkkk.kkkmmmkkkk",
+], S16)
+
 SPRITES["holding:Siege Camp"] = _s([   # palisade, tents, campfire
     "...k........k...", "..ksk......ksk..", ".kssdk....kssdk.", ".kssdk.f.kssssdk", ".kkkkkfy.kkkkkkk",
     "k.k.k.k.k.k.k.k.", "bbbbbbbbbbbbbbbb", "kbkbkbkbkbkbkbkb", "bbbbbbbbbbbbbbbb", "bbbbbbbbbbbbbbbb",
@@ -697,6 +709,18 @@ SPRITES["holding:Abbey"] = _s([   # nave, bell tower, cross
     "...........kkk..", "...........krk..", "....kk....kkkkk.", "...krrk...ktttk.", "..krrrrk..ktttk.",
     ".krrrrrrk.ktytk.", "krrrrrrrrkktttk.", "kkkkkkkkkkktttk.", "kkkkkkkkkkktdtk.", "kttttttttkktttk.",
     "kttyttyttkktttk.", "kttttttttkktttkt", "ktttdttttkktttkt", "ktttdttttkktttkt", "kkkkkkkkkkkkkkkt",
+], S16)
+
+SPRITES["holding:Priory"] = _s([   # chapel with bellcote and cross, cloister arcade
+    "..k.............", ".kkk............", "..k.............", ".kyk............", ".krk............",
+    "krrrk...........", "krrrrkkkkkkkkkk.", "krrrrrkrrrrrrrrk", "kkkkkkkkkkkkkkkk", "kwwwwkktttttttk.",
+    "kwywwkktdtdtdtk.", "kwwwwkktdtdtdtk.", "kwwdwkktdtdtdtk.", "kwwdwkktttttttk.", "kkkkkkkkkkkkkkk.",
+], S16)
+
+SPRITES["holding:Unforgotten Shrine"] = _s([   # wayside shrine on a plinth, lit niche, candles, offerings
+    "......k.........", ".....krk........", "....krrrk.......", "...krrrrrk......", "...kkkkkkk......",
+    "....kdydk.......", "....kyyyk.......", "....kdydk.......", "....kkkkk.......", ".....ktk..y.....",
+    ".y...ktk..s..y..", ".s...ktk..s..s..", ".s.ckkkkkc.s.s..", "kkkkkttttkkkkkk.",
 ], S16)
 
 SPRITES["holding:Reliquary"] = _s([   # shrine, glowing niche, gold casket
