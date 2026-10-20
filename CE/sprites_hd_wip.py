@@ -3232,3 +3232,470 @@ HD["mk:siege"] = [
     "........................",
     "........................",
 ]
+
+
+# ================================================================ BATCH 13: equipment icons (18x18, no ground row; drawn on EQ_TILE)
+def ic():
+    return [list("." * 18) for _ in range(18)]
+
+
+def icon(c):
+    return ["".join(r) for r in c]
+
+
+def diag(c, x, y, n, mid="m", lo="k", hi="k"):
+    """Outlined 1-px diagonal stroke running down-left from (x, y), n steps."""
+    for i in range(n):
+        xx, yy = x - i, y + i
+        if 0 <= yy < 18:
+            for dx, ch in ((-1, lo), (0, mid), (1, hi)):
+                if 0 <= xx + dx < 18 and (c[yy][xx + dx] == "." or dx == 0):
+                    c[yy][xx + dx] = ch
+
+
+def sword(c, tip_x, blade, grip, guard="m", pommel="u", hi="s", edge="m", grip_ch="b"):
+    """Diagonal sword, tip at (tip_x, 0): 2-px blade with edge highlight, cross-guard, grip, pommel."""
+    for i in range(blade):
+        x, y = tip_x - i, i
+        put(c, ["k" + hi + edge + "k"], x - 2, y) if i else put(c, ["k" + "k"], x - 1, y)
+    gx, gy = tip_x - blade, blade
+    for d in range(-3, 4):                      # cross-guard: perpendicular bar, 2 px thick, outlined
+        for t in (0, 1):
+            x, y = gx - 1 + d + t, gy + d
+            if 0 <= x < 18 and 0 <= y < 18:
+                c[y][x] = guard
+    for d in (-4, 4):
+        for t in (0, 1):
+            x, y = gx - 1 + d + t, gy + d
+            if 0 <= x < 18 and 0 <= y < 18 and c[y][x] == ".":
+                c[y][x] = "k"
+    for i in range(grip):
+        x, y = gx - 2 - i, gy + 1 + i
+        if 0 <= y < 18 and 0 <= x < 18:
+            c[y][x] = grip_ch
+            if x + 1 < 18 and c[y][x + 1] == ".":
+                c[y][x + 1] = "k"
+            if x - 1 >= 0 and c[y][x - 1] == ".":
+                c[y][x - 1] = "k"
+    x, y = gx - 2 - grip, gy + 1 + grip
+    if 0 <= y < 18 and 0 <= x < 18:
+        c[y][x] = pommel
+
+
+def shaft(c, x, y, n, ch="b"):
+    diag(c, x, y, n, ch)
+
+
+def torso(fill_fn, belt="b"):
+    rows = ["..................",
+            "....kkkk..kkkk....",
+            "..kkFFFFkkFFFFkk..",
+            ".kFFFFFFFFFFFFFFk.",
+            "kFFFFFFFFFFFFFFFFk",
+            "kFFFFFFFFFFFFFFFFk",
+            "kFFkFFFFFFFFFFkFFk",
+            "kFFkFFFFFFFFFFkFFk",
+            "kFFkFFFFFFFFFFkFFk",
+            "kkkkFFFFFFFFFFkkkk",
+            "...kFFFFFFFFFFk...",
+            "...kFFFFFFFFFFk...",
+            "...kBBBBBBBBBBk...",
+            "...kFFFFFFFFFFk...",
+            "...kFFFFFFFFFFk...",
+            "...kFFFFFFFFFFk...",
+            "....kkkkkkkkkk....",
+            ".................."]
+    out = []
+    for y, r in enumerate(rows):
+        out.append("".join(fill_fn(x, y) if ch == "F" else (belt if ch == "B" else ch) for x, ch in enumerate(r)))
+    return out
+
+
+# ---- melee
+c = ic()                                   # Farm Tool: sickle
+for (x, y) in ((9, 1), (10, 1), (11, 1), (12, 2), (13, 3), (13, 4), (13, 5), (12, 6), (11, 7)):
+    c[y][x] = "m"
+for (x, y) in ((8, 2), (9, 2), (10, 2), (11, 2), (12, 3), (12, 4), (12, 5), (11, 6)):
+    c[y][x] = "s"
+for (x, y) in ((8, 1), (12, 1), (13, 2), (14, 3), (14, 4), (14, 5), (14, 6), (13, 7), (10, 7), (11, 8), (12, 7), (7, 2)):
+    c[y][x] = "k"
+shaft(c, 10, 8, 9)
+HD["eq:Farm Tools"] = icon(c)
+
+c = ic()                                   # Cudgel: knotted club
+put(c, ["....kkkk", "...kbbbbk", "..kbbdbbbk", "..kbbbbdbk", "..kbdbbbbk", "..kbbbbbk.", "...kbdbk..", "....kkk..."], 9, 0)
+shaft(c, 10, 8, 10)
+HD["eq:Cudgel"] = icon(c)
+
+c = ic()                                   # Pitchfork
+put(c, ["...k...k...k",
+        "..kmk.kmk.kmk",
+        "..kmk.kmk.kmk",
+        "..kmk.kmk.kmk",
+        "..kmkkkmkkkmk",
+        "..kmmmmmmmmmk",
+        "..kkkkkbkkkkk"], 3, 0)
+for y in range(7, 18):
+    c[y][9] = "b"; c[y][8] = "k"; c[y][10] = "k"
+HD["eq:Pitchfork"] = icon(c)
+
+c = ic()                                   # Daggers: two crossed
+for flip in (False, True):
+    d = ic()
+    put(d, ["...........kk",
+            "..........ksk",
+            ".........ksmk",
+            "........ksmk.",
+            ".......ksmk..",
+            "......ksmk...",
+            "..k..ksmk....",
+            "..kykkmk.....",
+            "...kyyk......",
+            "...kbkyk.....",
+            "..kbk.kk.....",
+            ".kbk.........",
+            "kuk.........."], 2, 2)
+    for y in range(18):
+        for x in range(18):
+            ch = d[y][17 - x] if flip else d[y][x]
+            if ch != ".":
+                c[y][x] = ch
+HD["eq:Daggers"] = icon(c)
+
+c = ic(); sword(c, 15, 8, 4)                              # Short Sword
+HD["eq:Short Sword"] = icon(c)
+c = ic()                                   # Spear: leaf blade on an ash shaft
+put(c, ["...kk", "..kssk", ".ksmmk", "kmmmk.", "kmmk..", ".kk..."], 12, 0)
+shaft(c, 12, 5, 13)
+HD["eq:Spears"] = icon(c)
+c = ic(); sword(c, 16, 11, 4)                             # Arming Sword
+HD["eq:Arming Sword"] = icon(c)
+c = ic()                                   # Pike: long, slim head
+put(c, ["...k", "..km", ".kmk", "kmk."], 14, 0)
+shaft(c, 15, 3, 16)
+HD["eq:Pike"] = icon(c)
+
+c = ic()                                   # Flail: haft, chain, spiked ball
+shaft(c, 6, 9, 9)
+for (x, y) in ((7, 8), (8, 7), (9, 6), (10, 5)):
+    c[y][x] = "m"
+put(c, ["...k...", "..kmk..", ".kmumk.", "kmusumk", ".kmumk.", "..kmk..", "...k..."], 10, 0)
+HD["eq:Flail"] = icon(c)
+
+c = ic()                                   # Halberd: blade, top spike, back hook, long haft
+put(c, ["........k.........",
+        ".......kmk........",
+        ".......kmk........",
+        "...k...kmkkkk.....",
+        "..kmk..kmkmmmk....",
+        "...kmkkumkmmmsk...",
+        "....kmkumkmmmmsk..",
+        ".....kkumkmmmmsk..",
+        ".......kbkkmmmsk..",
+        ".......kbk.kkkk...",
+        ".......kbk........",
+        ".......kbk........",
+        ".......kbk........",
+        ".......kbk........",
+        ".......kbk........",
+        ".......kbk........",
+        ".......kdk........",
+        "........k........."], 0, 0)
+HD["eq:Halberd"] = icon(c)
+
+c = ic()                                   # Battle Axe: double bit
+put(c, ["........kk........",
+        ".kk....kmmk....kk.",
+        "kssk..kkmmkk..kssk",
+        "ksmmkkmmuummkkmmsk",
+        "ksmmmmmmuummmmmmsk",
+        "ksmmmmmmuummmmmmsk",
+        "ksmmkkmmuummkkmmsk",
+        "kssk..kkbbkk..kssk",
+        ".kk....kbbk....kk.",
+        "........bb........",
+        ".......kbbk.......",
+        ".......kbbk.......",
+        ".......kbbk.......",
+        ".......kbbk.......",
+        ".......kbbk.......",
+        ".......kddk.......",
+        "........kk........"], 0, 0)
+HD["eq:Battle Axe"] = icon(c)
+
+c = ic()                                   # Cavalry Spear: pennon below the head
+put(c, ["...kk", "..kssk", ".kmmsk", "kmmk.", ".kk.."], 12, 0)
+shaft(c, 12, 4, 14)
+put(c, ["kcck", "kccck", ".kcck", "..kk"], 6, 5)
+HD["eq:Cavalry Spear"] = icon(c)
+
+c = ic()                                   # Morningstar
+put(c, ["......k....", "...k.kmk.k.", "..kmkmumkmk", "...kmuuumk.", "..kmusuumk.", ".kmuuuuumk.", "..kmuuumk..", "...kmkmk...", "....kbk....", "....k.k...."], 6, 0)
+shaft(c, 10, 9, 9)
+HD["eq:Morningstar"] = icon(c)
+
+c = ic(); sword(c, 16, 10, 4, guard="y", pommel="y")      # Bastard Sword
+HD["eq:Bastard Sword"] = icon(c)
+c = ic(); sword(c, 17, 10, 6, guard="y", pommel="y", grip_ch="c")   # 2HBastard: long wrapped grip
+HD["eq:2HBastard"] = icon(c)
+
+c = ic()                                   # War Hammer: head with a back spike
+put(c, ["......kmk.........",
+        "..kkkkkmkkk.......",
+        ".ksuuukukmmk......",
+        ".ksuuuuuummmk.....",
+        ".ksuuukukkmmmk....",
+        "..kkkkkbk.kkmmk...",
+        "......kbk...kk....",
+        "......kbk.........",
+        "......kbk.........",
+        "......kbk.........",
+        "......kbk.........",
+        "......kbk.........",
+        "......kbk.........",
+        "......kbk.........",
+        "......kbk.........",
+        "......kdk.........",
+        ".......k.........."], 2, 0)
+HD["eq:War Hammer"] = icon(c)
+
+c = ic()                                   # Lance: striped cone, vamplate
+put(c, ["...............kk",
+        ".............kksk",
+        "............kcsk.",
+        "...........kscck.",
+        "..........kcsck..",
+        ".........kssck...",
+        "........kccsk....",
+        ".......kcssk.....",
+        "....kkkcck.......",
+        "...kmmmkk........",
+        "...kmmmk.........",
+        "..kmmkmk.........",
+        ".kbk.kk..........",
+        "kbk..............",
+        "bk..............."], 0, 0)
+HD["eq:Lance"] = icon(c)
+
+c = ic()                                   # Estoc: stiff thrusting blade, ring guard
+for i in range(12):
+    x, y = 16 - i, i
+    put(c, ["kmk"], x - 1, y)
+c[0][17] = "k"
+put(c, [".kyk.", "kyky", ".kyk."], 2, 11)
+put(c, ["..kyk", ".kbk.", "kbk..", "yk..."], 1, 13)
+HD["eq:Estoc"] = icon(c)
+
+c = ic()                                   # Poleaxe: axe, hammer back, top spike
+put(c, ["........k.........",
+        ".......kmk........",
+        ".......kmk........",
+        "...kkkkkmkkk......",
+        "..kuuukmmkmmk.....",
+        "..kuuuummkmmmk....",
+        "..kuuukmmkmmmsk...",
+        "...kkkkbbkmmmsk...",
+        ".......kbkkmmsk...",
+        ".......kbk.kkk....",
+        ".......kbk........",
+        ".......kbk........",
+        ".......kyk........",
+        ".......kbk........",
+        ".......kbk........",
+        ".......kbk........",
+        ".......kdk........",
+        "........k........."], 0, 0)
+HD["eq:Poleaxe"] = icon(c)
+
+# ---- ranged
+c = ic()                                   # Hunting Bow: short recurve, nocked arrow
+put(c, ["......kk..........",
+        ".....kbbk.........",
+        "....kbk.k.........",
+        "....kbk..k........",
+        "...kbk....k.......",
+        "...kbk.....k......",
+        "...kbk......k.....",
+        "..kbkmmmmmmmmkkk..",
+        "...kbk......kskk..",
+        "...kbk.....k......",
+        "....kbk...k.......",
+        "....kbk..k........",
+        ".....kbkk.........",
+        "......kk.........."], 0, 2)
+for y in range(2, 16):
+    pass
+HD["eq:Hunting Bow"] = icon(c)
+
+c = ic()                                   # Longbow: tall self bow, leather grip
+put(c, ["kk......", "kbk.....", "kbbk....", ".kbk....", ".kbbk...", "..kbk...", "..kbk...", "..kck...", "..kck...",
+        "..kbk...", "..kbk...", ".kbbk...", ".kbk....", "kbbk....", "kbk.....", "kk......"], 6, 1)
+for y in range(2, 16):
+    c[y][6] = "s"
+c[1][6] = "k"; c[16][6] = "k"
+HD["eq:Longbow"] = icon(c)
+
+c = ic()                                   # Throwing Axe (key: Javelin): bearded francisca
+put(c, ["....kkkkk.....",
+        "...kbmmmskk...",
+        "...kbmmmmmsk..",
+        "...kbmmmmmmsk.",
+        "...kbkkmmmmsk.",
+        "...kbk.kmmmsk.",
+        "...kbk..kmsk..",
+        "...kbk...kk...",
+        "...kbk........",
+        "...kbk........",
+        "...kbk........",
+        "...kbk........",
+        "...kbk........",
+        "...kbk........",
+        "...kdk........",
+        "....k........."], 2, 1)
+HD["eq:Javelin"] = icon(c)
+
+c = ic()                                   # Crossbow: steel prod, tiller, stirrup, trigger
+put(c, ["......kmmmk.......",
+        "......kmkmk.......",
+        "..kkkkkkbkkkkkk...",
+        ".kmmmmmmmmmmmmmk..",
+        "kmmkkkkkbkkkkkmmk.",
+        "kmk.s...b...s.kmk.",
+        "kk...s..b..s...kk.",
+        "......s.b.s.......",
+        ".......sbs........",
+        "........b.........",
+        ".......kbk........",
+        ".......kbuk.......",
+        ".......kbk........",
+        ".......kbk........",
+        "......kbbbk.......",
+        "......kbbbk.......",
+        "......kbbbk.......",
+        ".......kkk........"], 0, 0)
+HD["eq:Crossbow"] = icon(c)
+
+c = ic()                                   # Throwing Spear (key: Pilum): two light spears, long iron shanks
+for flip in (False, True):
+    d = ic()
+    put(d, ["...k", "..ksk", ".kmk", "kmk."], 13, 0)
+    diag(d, 14, 3, 5, "m")
+    diag(d, 9, 8, 10, "b")
+    for y in range(18):
+        for x in range(18):
+            ch = d[y][17 - x] if flip else d[y][x]
+            if ch != "." and c[y][x] == ".":
+                c[y][x] = ch
+HD["eq:Pilum"] = icon(c)
+
+c = ic()                                   # Arquebus: barrel, smouldering match, stock
+put(c, ["......f...........",
+        ".....kyk..........",
+        "....kkkkkkkkkkkkkk",
+        "...kmmmmmmmmmmmmdk",
+        "..kbuuuuuuuuuuuuuk",
+        ".kbbbbbbbbbbbbbbk.",
+        "kbbbbkkkbbkkkkkk..",
+        "kbbbk..kyk........",
+        "kbbk....k.........",
+        "kbbk..............",
+        "kkk..............."], 0, 4)
+HD["eq:Arquebus"] = icon(c)
+
+# ---- shields
+c = ic()                                   # Buckler
+put(c, ["....kkkkk....",
+        "..kksmmmmkk..",
+        ".ksmmmmmmmmk.",
+        ".kmmmkkkmmmk.",
+        "kmmmkuuukmmmk",
+        "kmmmkusukmmmk",
+        "kmmmkuuukmmmk",
+        ".kmmmkkkmmmk.",
+        ".kmmmmmmmmuk.",
+        "..kkmmmmukk..",
+        "....kkkkk...."], 2, 3)
+HD["eq:Buckler Shield"] = icon(c)
+
+c = ic()                                   # Targe: round wooden, studded, boss
+put(c, [".....kkkkkk.....",
+        "...kkbbbbbbkk...",
+        "..kbbybbbbybbk..",
+        ".kbbbbbbbbbbbbk.",
+        ".kbybbbkkbbbybk.",
+        "kbbbbbkmmkbbbbbk",
+        "kbbbbkmssmkbbbbk",
+        "kbbbbkmmmmkbbbbk",
+        "kbbbbbkmmkbbbbbk",
+        ".kbybbbkkbbbybk.",
+        ".kbbbbbbbbbbbbk.",
+        "..kbbybbbbybbk..",
+        "...kkbbbbbbkk...",
+        ".....kkkkkk....."], 1, 2)
+HD["eq:Targe Shield"] = icon(c)
+
+c = ic()                                   # Kite
+put(c, ["kkkkkkkkkkkk",
+        "kaaaaayyaaaak",
+        "kaaaaayyaaaak",
+        "kaaaaayyaaaak",
+        "kyyyyyyyyyyyk",
+        "kaaaaayyaaaak",
+        ".kaaaayyaaak.",
+        ".kaaaayyaaak.",
+        "..kaaayyaak..",
+        "..kaaayyaak..",
+        "...kaayyak...",
+        "...kaayyak...",
+        "....kayak....",
+        "....kayak....",
+        ".....kyk.....",
+        "......k......"], 2, 1)
+for y in range(1, 17):
+    c[y] = c[y][:15] + c[y][15:]
+HD["eq:Kite Shield"] = icon(c)
+
+c = ic()                                   # Tower (pavise): boarded, iron-banded, central ridge
+put(c, ["kkkkkkkkkkkkkk",
+        "kbbbbbmmbbbbbk",
+        "kbcccbmmbcccbk",
+        "kbcccbmmbcccbk",
+        "kbcccbmmbcccbk",
+        "kbcccbmmbcccbk",
+        "kmmmmmssmmmmmk",
+        "kbcccbmmbcccbk",
+        "kbcccbmmbcccbk",
+        "kbcccbmmbcccbk",
+        "kbcccbmmbcccbk",
+        "kmmmmmssmmmmmk",
+        "kbcccbmmbcccbk",
+        "kbcccbmmbcccbk",
+        "kbbbbbmmbbbbbk",
+        ".kkkkkkkkkkkk."], 2, 1)
+HD["eq:Tower Shield"] = icon(c)
+
+c = ic()                                   # Heater: quartered
+put(c, ["kkkkkkkkkkkkkk",
+        "kaaaaaakyyyyyyk"[:14],
+        "kaaaaaakyyyyyk",
+        "kaaaaaakyyyyyk",
+        "kaaaaaakyyyyyk",
+        "kaaaaaakyyyyyk",
+        "kkkkkkkkkkkkkk",
+        "kyyyyyykaaaaak",
+        "kyyyyyykaaaaak",
+        ".kyyyyykaaaak.",
+        ".kyyyyykaaaak.",
+        "..kyyyykaaak..",
+        "...kyyykaak...",
+        "....kkykak....",
+        "......kk......"], 2, 1)
+HD["eq:Heater Shield"] = icon(c)
+
+# ---- armour (torsos)
+HD["eq:Cloth"] = torso(lambda x, y: "d" if y == 15 or (y == 2 and x in (5, 6, 11, 12)) else "c")
+HD["eq:Gambeson"] = torso(lambda x, y: "d" if x == 9 else ("s" if y % 3 == 0 else "w"))
+HD["eq:Leather"] = torso(lambda x, y: "d" if (x in (5, 12) and y < 9) else "b", belt="y")
+HD["eq:Chainmail"] = torso(lambda x, y: "m" if (x + y) % 2 else "u")
+HD["eq:Full Plate"] = torso(lambda x, y: "s" if x in (8, 9) else ("u" if y in (10, 13) else ("s" if x < 5 and y < 6 else "m")), belt="u")
+HD["eq:Gothic Plate"] = torso(lambda x, y: "y" if y in (3, 15) else ("u" if x % 3 == 0 else "d"), belt="y")
