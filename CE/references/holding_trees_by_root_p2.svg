@@ -190,8 +190,8 @@
 <path d="M172,488 L172,524" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95"/>
 <path d="M172,488 L196,488" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M172,488 L196,488" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M172,524 L540,524" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M172,524 L540,524" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M172,524 L712,524" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M172,524 L712,524" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M320,488 L367,488" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M320,488 L367,488" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M492,488 L516,488" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -204,8 +204,6 @@
 <path d="M516,488 L540,488" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M664,488 L711,488" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M664,488 L711,488" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M664,524 L711,524" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M664,524 L711,524" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M664,452 L711,452" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M664,452 L711,452" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M836,488 L883,488" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -232,9 +230,6 @@
 <rect x="546" y="476" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="546" y="476" width="5" height="24" fill="#2E5A8C"/>
 <text x="555" y="491" font-size="8.2" fill="#2b2620">Forge</text>
-<rect x="546" y="512" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
-<rect x="546" y="512" width="5" height="24" fill="#9E2B25"/>
-<text x="555" y="527" font-size="8.2" fill="#2b2620">Siege Works</text>
 <rect x="546" y="440" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="546" y="440" width="5" height="24" fill="#2E5A8C"/>
 <text x="555" y="455" font-size="8.2" fill="#2b2620">Armory</text>

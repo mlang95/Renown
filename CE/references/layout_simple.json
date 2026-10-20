@@ -607,16 +607,12 @@
     1,
     1
    ],
-   "Siege Works": [
+   "Siege Camp": [
     2,
     0
    ],
-   "Siege Camp": [
-    3,
-    0
-   ],
    "Artillery Park": [
-    4,
+    3,
     0
    ]
   },
@@ -630,16 +626,12 @@
     "Carpentry"
    ],
    [
-    "Siege Works",
+    "Carpentry",
     "Siege Camp"
    ],
    [
-    "Carpentry",
-    "Siege Works"
-   ],
-   [
     "Mine",
-    "Siege Works"
+    "Siege Camp"
    ]
   ]
  },
@@ -1519,6 +1511,27 @@
    [
     "Academy",
     "University"
+   ]
+  ]
+ },
+ {
+  "title": "Other Pursuits (feed no Monument) — Battery Park",
+  "anchor": null,
+  "mode": "group",
+  "nodes": {
+   "Siege Works": [
+    0,
+    0
+   ],
+   "Battery Park": [
+    1,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Siege Works",
+    "Battery Park"
    ]
   ]
  }

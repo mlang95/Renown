@@ -162,7 +162,7 @@ GLOSSARY = {
     "Break check":   "Taken by each Fatigued side's field every Skirmish, just before it gains its Fatigue token. Roll Morale (5 dice, modified by Fatigue tokens); failures are casualties, but a Break check never triggers a Panic check. Unbreakable auto-passes.",
     "Panic check":   "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish (Recovered Strikes count, unless Enduring), after both sides have Struck. Roll Morale (5 dice); Immune Panic auto-passes.",
     "Morale":        f"How steady a retinue is when tested (lower is steadier; see the retinue table). Break and Panic checks roll it: a D{FACES} per retinue in the field, up to 5 dice, each must meet its modified value; failures are casualties. If the modified value is ever {ROUT_THR}+, the army Routs.",
-    "Rout":          f"The army breaks and leaves the Battle (you lose it). Whenever an army's modified Morale value reaches {ROUT_THR}+ or more, it Routs automatically.",
+    "Rout":          f"The army breaks and leaves the Battle. Apply casualties equal to the remaining retinues. Whenever an army's modified Morale value reaches {ROUT_THR}+ or more, it Routs automatically.",
     "Fall Back":     "A controlled retreat that ends the Battle with at least one retinue left — a partial success.",
     "Strike":        f"A landed hit. Roll a D{FACES}, apply modifiers to the roll, and Strike on a result >= the to-Strike number. The target may then Parry, Save, and Recover.",
     "to-Strike number": f"The D{FACES} result a retinue needs to Strike (see the retinue table; lower is better). Bonuses add to the roll; penalties and Fatigue tokens subtract.",
@@ -287,9 +287,9 @@ ENDURANCE_REGAIN    = 2    # +Endurance restored to non-Strained armies in the E
 
 
 RETINUES = {
-    "Levy":           {"cost": 1000, "to_hit": 6, "endurance": 2, "shaking": 7, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
-    "Man-at-Arms":    {"cost": 2000, "to_hit": 5, "endurance": 3, "shaking": 6, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
-    "Sergeant":       {"cost": 3000, "to_hit": 3, "endurance": 2, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
+    "Levy":           {"cost": 1000, "to_hit": 6, "endurance": 3, "shaking": 7, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
+    "Man-at-Arms":    {"cost": 2000, "to_hit": 5, "endurance": 4, "shaking": 6, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
+    "Sergeant":       {"cost": 3000, "to_hit": 3, "endurance": 3, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
     "Knight Templar": {"cost": 3000, "to_hit": 4, "endurance": 2, "shaking": 4, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
 }
 
@@ -297,20 +297,20 @@ WEAPONS = {
     "Farm Tools":     {"ap":  0, "init":  0, "tier": "Crude",   "tags": [NO_PARRY]},
     "Cudgel":         {"ap": -1, "init": -1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, NO_PARRY]},
     "Pitchfork":      {"ap":  0, "init":  1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, NO_PARRY]},
-    "Daggers":        {"ap":  0, "init":  1, "tier": "Cast",    "tags": [TWO_H, SHATTER_ARMOR]},
+    "Daggers":        {"ap":  0, "init":  1, "tier": "Cast",    "tags": [TWO_H, SHATTER_ARMOR, NO_PARRY]},
     "Short Sword":    {"ap":  0, "init":  0, "tier": "Cast",    "tags": [STEADY]},
     "Spears":         {"ap": -1, "init":  1, "tier": "Cast",    "tags": [UNWIELDY]},
     "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY]},
-    "Pike":           {"ap": -1, "init":  1, "tier": "Wrought", "tags": [TWO_H, STEADY, UNWIELDY, SHATTER_ARMOR, NO_PARRY]},
+    "Pike":           {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, STEADY, UNWIELDY, SHATTER_ARMOR, NO_PARRY]},
     "Flail":          {"ap": -1, "init":  0, "tier": "Wrought", "tags": [UNWIELDY, UNSTOPPABLE, CLEAVE, NO_PARRY], 'note': 'Cannot Dual Wield'},
-    "Halberd":        {"ap": -2, "init":  0, "tier": "Wrought", "tags": [TWO_H, UNWIELDY]},
-    "Battle Axe":     {"ap": -3, "init": -1, "tier": "Wrought", "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, CLEAVE, NEGATE_SHIELDED]},
+    "Halberd":        {"ap": -2, "init":  0, "tier": "Wrought", "tags": [TWO_H, STEADY]},
+    "Battle Axe":     {"ap": -3, "init": -1, "tier": "Wrought", "tags": [TWO_H, UNSTOPPABLE, CLEAVE, NEGATE_SHIELDED]},
     "Cavalry Spear":  {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, UNWIELDY, NO_PARRY], 'note': "Needs Stable Mastery; no Tower Shield or Dual Wield or Ranged Weapon"},
     "Morningstar":    {"ap": -4, "init": -1, "tier": "Forged",  "tags": [CLEAVE, DESTROY_SHIELD], 'note': 'Cannot Dual Wield'},
     "Bastard Sword":  {"ap": -2, "init":  0, "tier": "Forged",  "tags": [STEADY], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile.'},
-    "2HBastard":      {"ap": -2, "init":  0, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, CLEAVE]},
-    "War Hammer":     {"ap":-10, "init": -1, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD]},
-    "Lance":          {"ap": -5, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY,SHATTER_ARMOR, UNSTOPPABLE, NO_PARRY, DESTROY_SHIELD], 'note': "Needs Saddlery; no Tower Shield, Dual Wield, Ranged weapon."},
+    "2HBastard":      {"ap": -3, "init":  0, "tier": "Forged",  "tags": [TWO_H, UNSTOPPABLE, CLEAVE]},
+    "War Hammer":     {"ap":-10, "init": -1, "tier": "Forged",  "tags": [TWO_H, STEADY, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD]},
+    "Lance":          {"ap": -4, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY, DESTROY_SHIELD], 'note': "Needs Saddlery; no Tower Shield, Dual Wield, Ranged weapon."},
     "Estoc":          {"ap": -3, "init":  0, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE]},
     "Poleaxe":        {"ap": -5, "init":  0, "tier": "Crafted", "tags": [TWO_H, STEADY, CLEAVE, UNSTOPPABLE, NEGATE_SHIELDED]},
 }
@@ -319,7 +319,7 @@ RANGED = {
     "Hunting Bow": {"ap":  0, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNSTOPPABLE, NO_PARRY]},
     "Longbow":     {"ap": -1, "init":  2, "tier": "Cast",    "tags": [TWO_H, UNSTOPPABLE, SHATTER_ARMOR, NO_PARRY]},
     "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD, ONE_SHOT, NO_PARRY], 'note': 'Cannot Dual Wield'},
-    "Crossbow":    {"ap": -4, "init":  1, "tier": "Forged",  "tags": [UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NO_PARRY], 'note': "Tower Shield only (no other shield), cannot Dual Wield"},
+    "Crossbow":    {"ap": -4, "init":  1, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NO_PARRY], 'note': "Cannot Dual Wield"},#'note': "Tower Shield only (no other shield), cannot Dual Wield"
     "Pilum":       {"ap": -5, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD, ONE_SHOT, NO_PARRY]},
     "Arquebus":    {"ap": -6, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
    
@@ -1506,7 +1506,7 @@ NODES = {
         "mastery_req": "Siege Camp + Master Workshop",
         "innate": "Siege Timers ignore Wooden & Stone Walls. Unlocks Arquebus",
         "mastery": "Settlements you Siege can't Sally Forth. Siege Timer -1.",
-        "efficient": "Siege Camp",
+        "efficient": "Battery Park",
         "builds_into": [],
         "monument": True,
     },
@@ -2298,18 +2298,25 @@ SIMPLE_NODES = {
         "efficient": "Levy Hall",
         "builds_into": [],
         "monument": True},
-    "Siege Works": {
-        "group": "g_logistics",
-        "unlock": "Rising Prowess",
-        "innate": "Siege Timer -2; Siege Timers count down in Winter",
-        "efficient": ["Carpentry","Mine"],
-        "builds_into": ["Siege Camp"],
-        "monument": False},
     "Siege Camp": {
         "group": "g_logistics",
-        "unlock": "Established Prowess",
+        "unlock": "Rising Prowess",
         "innate": "Siege Timer -1; Armies gain Immune Strained during Lay Siege",
+        "efficient": ["Carpentry","Mine"],
+        "builds_into": ["Battery Park"],
+        "monument": False},
+    "Siege Works": {
+        "group": "g_logistics",
+        "unlock": "Established Prowess",
+        "innate": "Siege Timer -2; Siege Timers count down in Winter",
         "efficient": "Siege Works",
+        "builds_into": ["Battery Park"],
+        "monument": False},
+    "Battery Park": {
+        "group": "g_logistics",
+        "unlock": "Established Prowess",
+        "innate": "Your Siege Timers increment twice each turn.",
+        "efficient": ["Siege Works"],
         "builds_into": ["Artillery Park"],
         "monument": False},
     "Citadel": {
@@ -2380,7 +2387,7 @@ SIMPLE_NODES = {
     "Artillery Park": {
         "group": "g_logistics",
         "unlock": "Sovereign Prowess",
-        "innate": "Siege Timers ignore Wooden & Stone Walls. Unlocks Arquebus; Settlements you Siege can't Sally Forth. Siege Timer -1.",
+        "innate": "Siege Timers ignore Wooden & Stone Walls. Unlocks Arquebus; Settlements you Siege can't Sally Forth. Siege Timer -2.",
         "efficient": "Siege Camp",
         "builds_into": [],
         "monument": True},
@@ -2423,7 +2430,7 @@ SIMPLE_NODES = {
     "Preceptory of the Knight's Templar": {
         "group": "g_devotion",
         "unlock": "Sovereign Piety + Established Prowess",
-        "innate": f"Armies gain {CRUSADER}: Automatically pass the first Panic Check of every Battle. Unlocks Knight's Templar for Muster",
+        "innate": f"Unlocks Knight's Templar for Muster", #Armies gain {CRUSADER}: Automatically pass the first Panic Check of every Battle. 
         "efficient": "Hospitaller",
         "builds_into": [],
         "monument": True},
@@ -3200,7 +3207,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                  'requirement': 'Library'},
  'Keep': {'upkeep': 400,
           'upkeep_frequency': 'each Empire Phase',
-          'empire_bonus': "When you Muster, reduce the Muster Timer by 1 and immediately gain Retinues equal to the combined muster limit. Siege Timer +2."
+          'empire_bonus': "When you Muster, reduce the Muster Timer by 1 and immediately gain Retinues equal to the combined muster limit. Siege Timer +1."
                           '',
           'tier': 'Prodigious',
           'build_time': 4,
@@ -3402,7 +3409,7 @@ GLOSSARY["Standing"] = (f"Your tier in a Domain: Untested, Rising ({_ST['Rising'
 SEASONS = {
     "Winter": {"name": "Freezing",    "effect": "All Armies gain Speed -5; Siege Timers don't count down. Tax income collected."},
     "Spring": {"name": "Planting",    "effect": "No Host, Bandit Actions, Trade Income, Council Phase, or Diplomacy Actions. Players don't gain or spend Influence tokens. Bandit Camps Spawn."},
-    "Summer": {"name": "Campaigning", "effect": "All Armies gain Speed +2"},
+    "Summer": {"name": "Campaigning", "effect": "All Armies gain Speed +3"},
     "Fall":   {"name": "Harvest",     "effect": "Income from Holdings in Hamlets is doubled."},
 }
 
@@ -4024,14 +4031,14 @@ SIEGE_SOURCE_VALUES = {
                         "rule": "Army within Range 0 of the Settlement"},
     "Garrison":        {"value": 1},
     "Wooden Walls":    {"value": 1},
-    "Stone Walls":     {"value": 2},
+    "Stone Walls":     {"value": 1},
     "Citadel":         {"innate_value": 1, "mastery_value": 1},
 }
 
 # ── Missing glossary definitions (CE) ────────────────────────────────────────
 GLOSSARY.update({
     PIVOTAL:        f"A natural {FOCUSED_THR}, before modifiers." if FOCUSED_THR == FACES else f"A natural {FOCUSED_THR} or higher, before modifiers.",
-    FATIGUE_TOKEN:  f"Each token reduces Morale  by {FATIGUE_MORALE} (uncapped); if your modified Morale is ever {ROUT_THR}+, your army Routs. Tokens stack.",
+    FATIGUE_TOKEN:  f"Each token reduces Morale by {FATIGUE_MORALE}; if your modified Morale is ever {ROUT_THR}+, your army Routs. Tokens stack.",
     "Sally Forth":  "While a settlement you control is besieged and you have an army inside it, you may Sally Forth: Battle in the Battle Phase without performing an action.",
     "War Weariness":"gain Doubt 1 for each consecutive Battle you lose in the Empire Phase.",
     "Settlement Ward": ("A slot in a Settlement that holds one Pursuit; a Settlement has one Ward per tier (a Hamlet has 3 Wards, Natural Pursuits only)."

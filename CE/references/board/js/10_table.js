@@ -644,8 +644,8 @@ function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.
   const dom=n=>{const u=(R[n]||{}).unlock_raw||"";return ["Industry","Prowess","Cunning","Piety"].find(d=>u.includes(d))||"";};
   const AVS=refRawAvail();
   return T.charts.map(c=>{if(AVS&&R[c.title]&&!AVS.has(c.title))return "";   // a root chart whose Raw Material is off the map: its reachable Holdings show under their other roots
-    // culture view filter hides out-of-culture Holdings here too (catalog and tree agree)
-    const N=Object.fromEntries(Object.entries(c.nodes).filter(([k])=>(!AVS||AVS.has(k))&&cultureKeep(k))),ks=Object.keys(N);if(!ks.length)return "";
+    // the reference tree is the full tree: the culture view filter applies to the catalog only
+    const N=Object.fromEntries(Object.entries(c.nodes).filter(([k])=>!AVS||AVS.has(k))),ks=Object.keys(N);if(!ks.length)return "";
     const E={...E0};(c.links||[]).forEach(([p,k])=>{E[p]=(E[p]||[]).concat([k]);});   // chart-only links (e.g. Naturals into Manor House)
     const mc=Math.max(...ks.map(k=>N[k][0])),mr=Math.max(...ks.map(k=>N[k][1]));
     const NW=Math.round(Math.max(150,Math.min(200,(AV-mc*CG)/(mc+1)))),W=(mc+1)*NW+mc*CG;   // boxes shrink to fit the window
@@ -757,4 +757,3 @@ function applySkin(name){
   const root=document.documentElement.style;SKIN_VARS.forEach(v=>root.removeProperty(v));
   const t=SKINS[name]||SKINS.rounded;Object.keys(t).forEach(v=>root.setProperty(v,t[v]));
 }
-
