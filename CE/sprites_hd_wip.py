@@ -1736,3 +1736,287 @@ for y in range(30, 34):
         if c[y][x] == ".":
             c[y][x] = "t"
 HD["monument:Manor House"] = fin(c)
+
+
+# ================================================================ BATCH 7: secrecy
+LAMPPOST = [".kkk.", "kyyyk", ".kkk.", "..k..", "..k..", "..k..", "..k..", "..k..", "..k..", ".kkk."]
+SKULL = [".kkk.", "ksssk", "kdsdk", ".sss.", ".kdk."]
+
+
+# group: shuttered dark house, lantern post
+c = cv()
+gable(c, 7, 4, 7, "u")
+box(c, 0, 11, 15, 12, "u")
+for o in (2, 10):
+    put(c, ["kkk", "kdk", "kbk", "kkk"], o, 12)
+put(c, ["kkk", "kdk", "kkk"], 6, 7)
+put(c, ["kkkkk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"], 5, 17)
+c[19][8] = "y"
+put(c, LAMPPOST, 17, 13)
+HD["group:g_secrecy"] = fin(c)
+
+# Toll House: tower-house over the road, striped toll boom, strongbox
+c = cv()
+gable(c, 4, 0, 4)
+box(c, 0, 4, 9, 19, "t")
+put(c, WIN, 3, 6)
+put(c, WIN, 3, 11)
+put(c, ["kkk", "kdk", "kdk", "kdk", "kdk"], 3, 18)
+put(c, ["kkkkkkkkkkkkkkk", "kcsscssccsscssk"[:15], "kkkkkkkkkkkkkkk"], 9, 13)
+put(c, ["k", "b", "b", "b", "b", "b", "b", "k"][:7], 9, 16)
+put(c, ["kk", "kb", "kb", "kb", "kb", "kb", "kk"], 22, 16)
+put(c, ["kkkkk", "kbybk", "kmmmk", "kbbbk", "kkkkk"], 13, 18)
+HD["holding:Toll House"] = fin(c)
+
+# Secret Cellar: cottage, cellar bulkhead doors open on steps going down, lantern
+c = cv()
+house(c, 0, 12, 13, 11, door=8, wins=(1,))
+put(c, [".kk.......",
+        "kbbk......",
+        "kbbbk.....",
+        "kbbbbk....",
+        ".kbbbbk...",
+        "..kdddddk.",
+        "..kdkkkdk.",
+        "..kddkkdk.",
+        "..kdddkkkk",
+        "kkkkkkkkkk"], 13, 13)
+put(c, ["k", "y"], 22, 17)
+HD["holding:Secret Cellar"] = fin(c)
+
+# Smuggler's Nook: sea cave under a cliff, lantern in the mouth, rowboat with contraband
+c = cv()
+water(c, 20)
+put(c, ["......kkkkkk............",
+        "....kkuuuuuukk..........",
+        "...kuuuuuuuuuukk........",
+        "..kuuuuuuuuuuuuuk.......",
+        ".kuuuukkkkkuuuuuuk......",
+        ".kuuukdddddkuuuuuuk.....",
+        "kuuukdddddddkuuuuuuk....",
+        "kuukddddydddkuuuuuuuk...",
+        "kuukddkkkdddkuuuuuuuuk..",
+        "kuukdkbbbkddkuuuuuuuuuk.",
+        "kuukdddddddddkuuuuuuuuuk",
+        "kuukdddddddddkuuuuuuuuuk"], 0, 8)
+put(c, ["kkk.....", "kbbk....", "kkkkkkkkk"[:0] + ".kbkbkbk", "kkkkkkkk"][1:], 14, 18)
+put(c, ["k.......k", "kbkbbkbbk", ".kbbbbbk."], 14, 19)
+HD["holding:Smuggler's Nook"] = fin(c)
+
+# Syndicate Hub: huddle of tall narrow dark houses, single lit windows, connecting bridge
+c = cv()
+for x0, top, w in ((0, 2, 7), (8, 7, 7), (16, 0, 8)):
+    gable(c, x0 + (w - 1) // 2, top, (w - 1) // 2, "u")
+    box(c, x0, top + (w - 1) // 2, w, 23 - top - (w - 1) // 2, "u")
+for x0, y0 in ((2, 9), (10, 13), (19, 7), (19, 13)):
+    put(c, ["kkk", "kyk", "kkk"], x0, y0)
+for x0, y0 in ((2, 14), (10, 18)):
+    put(c, ["kkk", "kdk", "kkk"], x0, y0)
+hline(c, 7, 16, 11, "k")
+hline(c, 7, 16, 12, "b")
+put(c, ["kkk", "kdk", "kdk", "kdk"], 19, 19)
+put(c, ["kkk", "kdk", "kdk", "kdk"], 2, 19)
+HD["holding:Syndicate Hub"] = fin(c)
+
+# Black Market: dark-curtained canopy, hooded dealer, contraband on the board, lantern
+c = cv()
+put(c, ["kkkkkkkkkkkkkkkkkkkkkkkk",
+        "kaaaaaaaaaaaaaaaaaaaaaak",
+        "kakakakakakakakakakakaka",
+        ".b....................b."], 0, 8)
+for y in range(12, 22):
+    c[y][1] = "b"; c[y][22] = "b"
+put(c, ["k", "y"], 19, 11)
+put(c, ["..kkk..", ".kdddk.", ".kdhdk.", "kdddddk", "kdddddk", "kdddddk"], 8, 12)
+put(c, ["kkkkkkkkkkkkkkkkkkkk", "kycmkyakcmykaymkcayk", "kkkkkkkkkkkkkkkkkkkk", ".kd................."[:0] + "kdddddddddddddddddk", "kkkkkkkkkkkkkkkkkkkk"[:0] + "kdddddddddddddddddk"], 2, 18)
+put(c, ["kkkkkkkkkkkkkkkkkkkk"], 2, 22)
+HD["holding:Black Market"] = fin(c)
+
+# Forgery Workshop: cottage, screw press with sheets, wax seal, drying pages
+c = cv()
+house(c, 0, 12, 13, 11, door=8, wins=(1,))
+put(c, ["kkkkkkk",
+        "kbbbbbk",
+        "kk.m.kk",
+        "kb.m.bk",
+        "kbkkkbk",
+        "kbsssbk",
+        "kbkkkbk",
+        "kb...bk",
+        "kb...bk",
+        "kk...kk"], 13, 13)
+put(c, [".cc.", "cyyc", ".cc.", "kkkk"][:3], 20, 19)
+put(c, ["kkkk"], 20, 22)
+HD["holding:Forgery Workshop"] = fin(c)
+
+# Toxicarium: glasshouse with a blue glazed roof, poison plants, warning skull, vials
+c = cv()
+gable(c, 11, 4, 9, "e")
+for i in range(2, 9, 2):
+    for x in range(11 - i + 1, 11 + i):
+        if (x - 11) % 3 == 0:
+            c[4 + i][x] = "k"
+box(c, 2, 13, 19, 10, "d")
+for x in (5, 8, 11, 14, 17):
+    vline(c, x, 14, 21, "k")
+for x0, a in ((3, "c"), (6, "a"), (9, "l"), (12, "c"), (15, "a"), (18, "l")):
+    put(c, [a + ".", "ll", ".l", "ll"], x0, 17)
+hline(c, 3, 19, 21, "b")
+put(c, SKULL, 20, 18)
+HD["holding:Toxicarium"] = fin(c)
+
+# Charnel House: stone bone-house, skull over the door, bone stack against the wall
+c = cv()
+house(c, 0, 12, 15, 11, wall="t", timber=False)
+put(c, SKULL, 5, 12)
+put(c, ["kkkkk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"][:6], 5, 17)
+put(c, ["..k.k..", ".ksksk.", "kskskskk"[:7], "ksssssk", "kskskskk"[:7], "ksssssk", "kkkkkkk"], 15, 16)
+put(c, [".kkk.", "ksssk", "kdsdk", ".kkk."], 16, 12)
+HD["holding:Charnel House"] = fin(c)
+
+# Beacon Towers: tall beacon tower with a fire basket, smaller relay tower, signal smoke
+c = cv()
+put(c, ["..s....", ".s.s...", "..f....", ".fyf...", "kfyyfk.", "kmmmmk.", ".kmmk.."], 4, 0)
+box(c, 3, 7, 9, 16, "t")
+put(c, ["k.k.k.k.k", "kkkkkkkkk"], 3, 6)
+put(c, SLIT, 7, 9)
+put(c, WIN, 6, 14)
+put(c, ["kkk", "kdk", "kdk", "kdk"], 6, 19)
+put(c, [".f.", "kyk", "kmk"], 16, 7)
+put(c, ["k.k.k", "kkkkk"], 15, 10)
+box(c, 15, 12, 5, 11, "t")
+put(c, SLIT, 17, 14)
+HD["holding:Beacon Towers"] = fin(c)
+
+# Forgotten Catacombs: ivy-hung arch sunk in a grassy mound, steps into the dark
+c = cv()
+put(c, ["......kkkkkkkkkk........",
+        "....kklllllllllllkk.....",
+        "...klllkkkkkkkklllllk...",
+        "..kllkkttttttttkklllllk.",
+        "..klkttkkkkkkkkttklllllk",
+        ".kllkttkddddddkttklllllk",
+        ".kllktkddddddddktklllllk",
+        "kllllktkddddddddkkllllnk",
+        "klnllktkdkkkkkkdktklllllk"[:24],
+        "kllllktkddkkkkddktklllnk"[:24],
+        "kllllktkdddkkdddktklllk."[:24],
+        "kllllktkkkkkkkkkktkllllk"[:24]], 0, 10)
+put(c, ["l", "l", "l"], 9, 15)
+put(c, ["l", "l"], 15, 15)
+HD["holding:Forgotten Catacombs"] = fin(c)
+
+# Cipher Chamber: narrow stone tower, cipher wheel blazon, lit study, scroll rack
+c = cv()
+put(c, ["k.k.k.k.k", "kkkkkkkkk"], 6, 1)
+box(c, 6, 3, 9, 20, "t")
+put(c, ["..kkkkk..", ".kyykyyk.", "kykkykkyk", "kyykyyyyk"[:9], "kykkykkyk", ".kyykyyk.", "..kkkkk.."][::1], 6, 4)
+put(c, WIN, 9, 12)
+put(c, ["kkk", "kdk", "kdk", "kdk", "kdk"], 9, 18)
+put(c, ["kkkkkkk", "kskskok"[:5] + "sk", "kkkkkkk", "kskskok"[:5] + "sk", "kkkkkkk", "kb...bk", "kb...bk"], 16, 16)
+HD["holding:Cipher Chamber"] = fin(c)
+
+
+# ---------------------------------------------------------------- secrecy monuments (36)
+# Plague Pit: open lime pit of bones, warning post with red cloth, body cart, crows
+c = cv(36, 35)
+put(c, ["k.k......k.k", ".k........k."], 6, 10)
+put(c, ["kkkkkkkkk", "kcccccccck"[:9], "kcccccccck"[:9], "kkkkkkkkk", "....b....", "....b....", "....b....", "....b....", "....b....", "....b....", "....b....", "....b....", "...kbk..."], 3, 16)
+put(c, ["......kkkkkkkkkkkkkkkkkk......",
+        "....kksssssssssssssssssskk....",
+        "..kkssskssdsskssssdssksssskk..",
+        ".kssksssskssssdsskssssksssssk.",
+        "kuuuuuuuuuuuuuuuuuuuuuuuuuuuuk",
+        "kuddddddddddddddddddddddddddduk"[:30],
+        "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"], 3, 28)
+put(c, ["kkkkkkkk", "kbbbbbbk", "kbksskbk"[:8], "kkkkkkkk"], 26, 23)
+put(c, WHEEL5, 28, 27)
+HD["monument:Plague Pit"] = fin(c)
+
+# Thieves' Guild: crooked dark guildhall, leaning tower, purse sign, lantern, hidden back door
+c = cv(36, 35)
+put(c, ["....k....", "...kuk...", "..kuuuk..", ".kuuuuuk.", "kuuuuuuuk", "kkkkkkkkk"], 9, 0)
+box(c, 9, 6, 9, 28, "u")
+for y0 in (8, 14, 20):
+    put(c, ["kkk", "kyk", "kkk"], 12, y0)
+gable(c, 7, 11, 7, "u")
+box(c, 0, 18, 15, 16, "u")
+for o in (2, 10):
+    put(c, ["kkk", "kdk", "kbk", "kkk"], o, 20)
+put(c, ["kkkkk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"], 5, 27)
+gable(c, 25, 14, 7, "u")
+box(c, 18, 21, 15, 13, "u")
+put(c, ["kkkkkkk", "......k", "....kkk", "...kyyk", "...kymk", "....kk."], 26, 18)
+put(c, ["kkk", "kyk", "kkk"], 21, 23)
+put(c, ["kkkk", "kddk", "kddk", "kddk", "kddk"], 22, 29)
+put(c, LAMPPOST, 32, 24)
+HD["monument:Thieves' Guild"] = fin(c)
+
+# Outlaw Rookery: timber huts on stilts among bare trees, rope bridges, crows
+c = cv(36, 35)
+put(c, ["k.k.....k.k", ".k.......k."], 12, 0)
+for x0, y0 in ((1, 12), (13, 6), (25, 12)):
+    gable(c, x0 + 5, y0, 5, "b")
+    box(c, x0, y0 + 5, 11, 6, "b")
+    put(c, ["kkk", "kyk", "kkk"], x0 + 4, y0 + 6)
+    for x in (x0 + 2, x0 + 8):
+        vline(c, x, y0 + 11, 33, "b")
+        c[33][x - 1] = "k"; c[33][x + 1] = "k"
+    for yy in range(y0 + 13, 33, 4):
+        hline(c, x0 + 3, x0 + 7, yy, "b")
+for x in range(11, 14):
+    c[18][x] = "b"
+for x in range(23, 26):
+    c[18][x] = "b"
+HD["monument:Outlaw Rookery"] = fin(c)
+
+# Whispering Undercroft: half-sunk vaulted crypt, ribbed arches, small chapel cap, lit grilles
+c = cv(36, 35)
+put(c, [".k.", "kkk", ".k."], 16, 4)
+gable(c, 17, 7, 6, "u")
+box(c, 11, 13, 13, 8, "t")
+put(c, WINT, 16, 15)
+put(c, ["kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
+        "kuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuk",
+        "kukkkkkuukkkkkuukkkkkuukkkkkuukkkk"[:34],
+        "kukdddkuukdddkuukdddkuukdddkuukddk"[:34],
+        "kukdydkuukdddkuukdddkuukdddkuukydk"[:34],
+        "kukdddkuukdddkuukdddkuukdydkuukddk"[:34],
+        "kukkkkkuukkkkkuukkkkkuukkkkkuukkkk"[:34],
+        "kuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuk",
+        "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"], 1, 21)
+for x in range(0, 36):
+    for y in (30, 31, 32, 33):
+        if c[y][x] == ".":
+            c[y][x] = "l" if (x + y) % 4 else "n"
+    c[30][x] = "k" if c[30][x] in "ln" else c[30][x]
+put(c, ["kkkkkk", "kddddk", "kdkkdk", "kddddk"], 15, 30)
+HD["monument:Whispering Undercroft"] = fin(c)
+
+# Outrider Intercept Post: stilted timber watchtower, ladder, signal flag, tethered horse, fence
+c = cv(36, 35)
+put(c, ["k...", "kcc.", "kcc.", "k..."], 15, 0)
+gable(c, 15, 4, 7, "b")
+box(c, 8, 11, 15, 6, "b")
+put(c, ["kkkkkkkkkkkkk", "kdydddddddydk", "kkkkkkkkkkkkk"], 9, 12)
+for x in (9, 21):
+    vline(c, x, 17, 33, "b")
+for yy in range(19, 33, 3):
+    hline(c, 13, 17, yy, "b")
+vline(c, 13, 17, 33, "k")
+vline(c, 17, 17, 33, "k")
+put(c, ["..........kk..",
+        ".........kbbk.",
+        "........kbbbbk",
+        "........kbkbbk",
+        ".......kbbk.kk",
+        ".kkkkkkbbk....",
+        "kbbbbbbbbk....",
+        "kbbbbbbbbk....",
+        "kbbcccbbbk....",
+        ".kbkkkkbk.....",
+        ".kb....kb.....",
+        ".kb....kb.....",
+        ".kk....kk....."], 22, 21)
+fence(c, 0, 7, 30)
+HD["monument:Outrider Intercept Post"] = fin(c)
