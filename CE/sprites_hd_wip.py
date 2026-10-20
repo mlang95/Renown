@@ -1517,3 +1517,222 @@ for x0 in (6, 10, 25, 29):
     put(c, ["y", "s", "s"], x0, 25)
 put(c, ["ss", "ss", "ss", "ss", "ss", "ss"], 17, 29)
 HD["monument:Exalted Basilica"] = fin(c)
+
+
+# ================================================================ BATCH 6: husbandry
+BARREL = [".kkk.", "kbbbk", "kmmmk", "kbbbk", "kmmmk", "kbbbk", ".kkk."]
+HAY = [".kkkk.", "kyyyyk", "kybyyk", "kyyyyk", "kkkkkk"]
+SKEP = [".kk.", "kyyk", "kkkk", "kyyk", "kydk"]
+
+
+def tree(c, x, y, fruit=None):
+    """Round deciduous tree 11 wide, 15 tall, top-left (x, y); fruit key dots the canopy."""
+    put(c, ["...kkkkk...",
+            ".kklllllkk.",
+            "klllllllllk",
+            "klllllllllk",
+            "klllllllllk",
+            "klllllllllk",
+            ".klllllllk.",
+            "..kkkbkkk..",
+            ".....b.....",
+            ".....b.....",
+            ".....b.....",
+            ".....b.....",
+            ".....b.....",
+            "....kbk....",
+            "....kbk...."], x, y)
+    if fruit:
+        for dx, dy in ((2, 2), (6, 1), (8, 3), (4, 4), (1, 4), (7, 5)):
+            c[y + dy][x + dx] = fruit
+
+
+def fence(c, x0, x1, y):
+    """Post-and-rail fence, 4 tall, from x0 to x1, top at y."""
+    for x in range(x0, x1 + 1):
+        c[y + 1][x] = "b"
+        c[y + 3][x] = "b" if c[y + 3][x] == "." else c[y + 3][x]
+    for x in range(x0, x1 + 1, 4):
+        for j in range(4):
+            c[y + j][x] = "k"
+
+
+# group: barn with braced doors, hay bale
+c = cv()
+gable(c, 9, 3, 9)
+box(c, 0, 12, 19, 11, "b")
+put(c, ["kkkkkkk", "kbkbkbk", "kkbbbkk", "kbkbkbk"][:1], 6, 13)
+put(c, ["kkkkkkk", "kbbkbbk", "kbkbkbk", "kkbbbkk", "kbkbkbk", "kbbkbbk", "kbbkbbk", "kbbkbbk"][:8], 6, 14)
+put(c, ["kkk", "kyk", "kkk"], 8, 8)
+put(c, HAY, 18, 18)
+HD["group:g_husbandry"] = fin(c)
+
+# Herb Garden: cottage, raised beds of herbs and flowers, wattle fence
+c = cv()
+house(c, 0, 13, 9, 10, door=5)
+put(c, WIN, 1, 14)
+for x0, flw in ((10, "a"), (17, "y")):
+    put(c, ["l" + flw + "l" + flw + "l" + flw,
+            "llllll",
+            "l" + flw + "l" + "l" + flw + "l",
+            "kkkkkk",
+            "kbbbbk"], x0, 16)
+fence(c, 9, 23, 19)
+HD["holding:Herb Garden"] = fin(c)
+
+# Animal Husbandry: byre with a hayloft, cow in the paddock, fence
+c = cv()
+house(c, 11, 12, 13, 11, wall="b", timber=False)
+put(c, ["kkkk", "kyyk", "kkkk"], 15, 13)
+put(c, ["kkkkk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"], 15, 17)
+put(c, ["kk..........",
+        "ksk.kkkkkk..",
+        "kssksskssk..",
+        ".kssssskssk.",
+        "..kskssssskk",
+        "..kssssssk..",
+        "..ks.k.ks...",
+        "..kk.k.kk...",
+        "..kk...kk..."][:9], 0, 14)
+fence(c, 0, 10, 19)
+HD["holding:Animal Husbandry"] = fin(c)
+
+# Saddlery: half-timber shop, saddle on a trestle, bridle hanging from the sign
+c = cv()
+house(c, 0, 12, 13, 11, door=8, wins=(1,))
+put(c, ["kkkk", "...k", "..kbk", "..kbk", "...m"], 12, 10)
+put(c, ["..kkk...",
+        ".kbbbkk.",
+        "kcbbbbck",
+        "kcccccck",
+        ".kkkkkk.",
+        ".kb..bk.",
+        ".kb..bk.",
+        ".kb..bk."], 15, 15)
+HD["holding:Saddlery"] = fin(c)
+
+# Vineyard: trellised vines in three tiers, grape bunches, end posts
+c = cv()
+for x in (0, 8, 15, 23):
+    vline(c, x, 7, 22, "b")
+    c[6][x] = "k"
+for y0 in (7, 12, 17):
+    hline(c, 0, 23, y0, "b")
+    for x in range(1, 23):
+        if x in (8, 15):
+            continue
+        c[y0 + 1][x] = "l"
+        c[y0 + 2][x] = "l" if x % 3 else "n"
+    for x0 in (2, 10, 17, 20):
+        put(c, ["aa", "aa", ".a"], x0 + (y0 // 5) % 2, y0 + 2)
+hline(c, 0, 23, 22, "k")
+HD["holding:Vineyard"] = fin(c)
+
+# Orchard: two apple trees, ladder, basket of apples
+c = cv()
+tree(c, 0, 8, "c")
+tree(c, 11, 8, "c")
+put(c, ["k.k", "kkk", "k.k", "kkk", "k.k", "kkk", "k.k"], 9, 16)
+put(c, [".c.c.", "kckck", "kbbbk", "kbbbk", ".kkk."], 19, 18)
+HD["holding:Orchard"] = fin(c)
+
+# Bakery: house with a domed bread oven glowing, smoke, loaves on the sill
+c = cv()
+house(c, 0, 12, 13, 11, door=8, chimney=9)
+put(c, ["kkkkk", "kyyyk", "kkkkk"], 1, 14)
+put(c, ["...s....",
+        "..s.....",
+        "..kk....",
+        "..ku.kk.",
+        ".kkkkuuk",
+        "kuuuuuuuk"[:8] + "k",
+        "kuukkkuuk",
+        "kukfffkuk",
+        "kukfyfkuk",
+        "kkkkkkkkk"], 14, 13)
+HD["holding:Bakery"] = fin(c)
+
+# Meadery: cottage, row of straw skeps on a bench, mead barrel
+c = cv()
+house(c, 0, 12, 13, 11, door=8, wins=(1,))
+for x0 in (13, 17):
+    put(c, SKEP, x0, 13)
+put(c, ["kkkkkkkk", "b......b", "b......b", "b......b", "b......b"], 13, 18)
+put(c, BARREL, 21, 16)
+HD["holding:Meadery"] = fin(c)
+
+# Winery: cellar house with arched door, barrels stacked on racks, grapes on the eave
+c = cv()
+house(c, 0, 12, 15, 11, wall="t", timber=False, door=6)
+put(c, ["lalal", "laall", ".lal."], 1, 12)
+put(c, WIN, 11, 13)
+put(c, BARREL, 15, 9)
+put(c, BARREL, 15, 16)
+put(c, BARREL, 19, 16)
+put(c, ["kkkkkkkkk"], 15, 15)
+HD["holding:Winery"] = fin(c)
+
+# Cidery: cottage, twin-screw cider press, basket of apples, barrel
+c = cv()
+house(c, 0, 12, 13, 11, door=8, wins=(1,))
+put(c, ["kkkkkkkkk",
+        "kbbbbbbbk",
+        "kkkmkmkkk",
+        "..km.mk..",
+        ".kkkkkkk.",
+        ".kbbbbbk.",
+        ".kccyckk."[:9],
+        "kkkkkkkkk",
+        "kb.....bk",
+        "kb.....bk"], 14, 13)
+put(c, [".c.", "kck", "kbk"], 21, 20)
+HD["holding:Cidery"] = fin(c)
+
+# Mill: stone tower windmill, cap, four lattice sails, door and window
+c = cv()
+box(c, 7, 9, 9, 14, "t")
+put(c, WIN, 10, 12)
+put(c, ["kkk", "kdk", "kdk", "kdk", "kdk"], 10, 18)
+for y0 in (11, 14, 17, 20):
+    c[y0][8] = "u"
+    c[y0 + 1][14] = "u"
+put(c, ["..kkkkk..", ".krrrrrk.", "krrrrrrrk", "kkkkkkkkk"], 7, 5)
+SAIL = ["kk.......", "ksk......", "kssk.....", ".kssk....", "..kssk...", "...ksbk..", "....kbbk."]
+for flipx in (False, True):
+    for flipy in (False, True):
+        rows = SAIL[::-1] if flipy else SAIL
+        rows = [r[::-1] for r in rows] if flipx else rows
+        put(c, rows, 12 if flipx else 3, 7 if flipy else 0)
+put(c, [".kk.", "kbbk", "kbbk", ".kk."], 10, 5)
+HD["holding:Mill"] = fin(c)
+
+
+# ---------------------------------------------------------------- husbandry monument (36)
+# Manor House: hall with gabled cross-wings, chimneys, porch, hedged garden and gate
+c = cv(36, 35)
+for x0 in (11, 23):
+    put(c, [".s.", "s..", "kk.", "uk.", "uk."], x0, 5)
+gable(c, 5, 9, 5)
+gable(c, 30, 9, 5)
+put(c, ["k" * 20, "k" + "r" * 18 + "k", "k" + "r" * 18 + "k", "k" + "r" * 18 + "k", "k" * 20], 8, 10)
+box(c, 0, 14, 11, 16, "w")
+box(c, 25, 14, 11, 16, "w")
+box(c, 10, 15, 16, 15, "w")
+for x0 in (0, 25):
+    for xx in (x0 + 3, x0 + 7):
+        vline(c, xx, 15, 28, "b")
+    hline(c, x0 + 1, x0 + 9, 20, "b")
+    put(c, WIN2, x0 + 4, 16)
+    put(c, WIN2, x0 + 4, 22)
+for o in (11, 21):
+    put(c, WIN2, o, 17)
+put(c, [".kkkkk.", "kkrrrkk", "kdddddk"[:0] + ".kdddk.", ".kdddk.", ".kdddk.", ".kdddk.", ".kdddk.", ".kdddk."], 15, 21)
+for x0 in (1, 24):
+    put(c, ["kkkkkkkkkkk", "knnnnnnnnnk", "knnnnnnnnnk", "kkkkkkkkkkk"], x0, 30)
+put(c, ["kmk", ".m.", "kmk"], 13, 31)
+put(c, ["kmk", ".m.", "kmk"], 20, 31)
+for y in range(30, 34):
+    for x in range(14, 22):
+        if c[y][x] == ".":
+            c[y][x] = "t"
+HD["monument:Manor House"] = fin(c)
