@@ -797,3 +797,265 @@ put(c, ["....kkkkk....",
         "....kkkkk...."], 23, 21)
 put(c, ["kkkkkkkkkkkk", "keeeeeeeeeek", "keeeeeeeeeek", "kkkkkkkkkkkk"], 24, 30)
 HD["monument:Advanced Blast Furnace"] = fin(c)
+
+
+# ================================================================ BATCH 3: commerce
+def stall(c, x, y, w, a="c", b="s", goods="yfl", h=9):
+    """Market stall w wide: striped awning, counter of goods, posts. h tall (>= 9)."""
+    put(c, ["k" * w], x, y)
+    put(c, ["k" + "".join(a if (i // 2) % 2 == 0 else b for i in range(w - 2)) + "k"], x, y + 1)
+    put(c, ["k" + "".join(a if (i // 2) % 2 == 0 else b for i in range(w - 2)) + "k"], x, y + 2)
+    put(c, ["".join("k" if i % 2 == 0 else a if (i // 2) % 2 == 0 else b for i in range(w))], x, y + 3)
+    for j in range(4, h):
+        c[y + j][x + 1] = "b"
+        c[y + j][x + w - 2] = "b"
+    g = y + h - 6
+    gd = "".join(goods[(i // 3) % len(goods)] if i % 3 else "k" for i in range(w - 4))
+    put(c, ["." + "".join("k" if ch != "k" else "." for ch in gd)], x + 1, g)
+    put(c, ["k" + gd + "k"], x + 1, g + 1)
+    put(c, ["k" * (w - 2)], x + 1, g + 2)
+    put(c, ["k" + "b" * (w - 4) + "k"], x + 1, g + 3)
+    put(c, ["k" + "".join("k" if i % 5 == 4 else "b" for i in range(w - 4)) + "k"], x + 1, g + 4)
+    put(c, ["k" * (w - 2)], x + 1, g + 5)
+
+
+def water(c, y, x0=0, x1=None):
+    x1 = len(c[0]) - 1 if x1 is None else x1
+    for j in range(y, len(c)):
+        for x in range(x0, x1 + 1):
+            c[j][x] = "s" if (j == y and x % 5 == 1) else "e"
+
+
+# group: market stall with striped awning and goods
+c = cv()
+stall(c, 1, 9, 22, h=14)
+put(c, ["kkkk", "kbbk", "kbbk"], 5, 20)
+put(c, [".kk.", "kssk", "kyyk"], 15, 20)
+HD["group:g_commerce"] = fin(c)
+
+# Alchemy: tower workshop with purple roof, alembic on a stand bubbling fumes, crates
+c = cv()
+house(c, 0, 10, 11, 13, roof="a", wall="t", timber=False, door=6)
+put(c, WIN, 2, 11)
+put(c, WIN, 2, 15)
+put(c, [".l..e.", "..l.e.", ".l.e..", "..kk..", ".kllk.", "kllllk", "kllllk", ".kkkk.", "..bb..", ".kbbk.", "kb..bk"], 12, 9)
+put(c, ["kkkk", "kemk", "kkkk", "keek"], 19, 15)
+put(c, ["kkkkk", "kbkbk", "kkbkk", "kbkbk", "kkkkk"], 18, 18)
+HD["holding:Alchemy"] = fin(c)
+
+# Weavery: workshop, loom with warp threads, bolts of dyed cloth hanging
+c = cv()
+house(c, 0, 12, 11, 11, door=6, wins=(1,))
+put(c, ["bbbbbbbbbbbbb",
+        "b.k.k.k.k.k.b",
+        "bccakkyyaccab",
+        "bccakkyyaccab",
+        "bccakkyyaccab",
+        "bccakkyyaccab",
+        "bc.a..y..c.ab",
+        "b...........b",
+        "bbbbbbbbbbbbb",
+        "b...........b",
+        "b...........b"], 11, 12)
+HD["holding:Weavery"] = fin(c)
+
+# Jewelry Foundry: gilded-roof shop, gem sign, crucible furnace with chimney
+c = cv()
+house(c, 0, 12, 13, 11, roof="y", wall="t", timber=False, door=8)
+put(c, [".kak.", "kaaak", ".kak.", "..k.."], 1, 14)
+put(c, [".s.", "s..", "kk.", "uk.", "uk.", "uk."], 17, 9)
+put(c, ["..kkkkk..", ".kuuuuuk.", "kuuuuuuuk", "kuukkkuuk", "kukfyfkuk", "kukfffkuk", "kuuuuuuuk", "kkkkkkkkk"], 14, 15)
+HD["holding:Jewelry Foundry"] = fin(c)
+
+# Market Square: two stalls flanking a stone market cross
+c = cv()
+stall(c, 0, 13, 10, "c", "s", "yfl")
+stall(c, 14, 13, 10, "a", "s", "ysf")
+put(c, ["..k..", ".kmk.", "..k..", "..k..", "..t..", "..t..", ".ktk.", ".ktk.", "kkkkk", "kttttk"[:5]], 9, 12)
+HD["holding:Market Square"] = fin(c)
+
+# Spice Merchant: great orange tent, open front, sacks of spice
+c = cv()
+put(c, ["..........k.........", ".........kck........"], 2, 4)
+for i in range(10):
+    for x in range(11 - i - 1, 11 + i + 2):
+        edge = x in (11 - i - 1, 11 + i + 1)
+        c[6 + i][x] = "k" if edge else ("f" if (x + i) % 4 else "c")
+hline(c, 0, 22, 16, "k")
+box(c, 1, 16, 21, 7, "f")
+put(c, ["kkkkkkk", "kdddddk", "kdddddk", "kdddddk", "kdddddk", "kdddddk"], 8, 17)
+for x0, col in ((1, "y"), (16, "c"), (19, "f")):
+    put(c, [".kk.", "kssk", "k" + col + col + "k", "kssk", "kkkk"], x0, 18)
+HD["holding:Spice Merchant"] = fin(c)
+
+# Harbor: stone quay, bollard, moored cog with furled sail, water
+c = cv()
+water(c, 19)
+put(c, ["kkkkkkkkkk", "kttttttttk", "ktuttuttuk", "kttttttttk"], 0, 15)
+put(c, [".kk.", "kmmk", "kkkk"], 2, 12)
+put(c, ["......k......",
+        "......kcc....",
+        "......k......",
+        "...kkkkkkk...",
+        "...kssssssk..",
+        "...kssssssk..",
+        "....kkkkkk...",
+        "......k......",
+        "kk....k....kk",
+        "kbkkkkkkkkkbk",
+        ".kbbbbbbbbbk.",
+        "..kbbbbbbbk..",
+        "...kkkkkkk..."], 11, 7)
+HD["holding:Harbor"] = fin(c)
+
+# Merchant Quarter: three tall townhouses, stepped gables, shop windows
+c = cv()
+for x0, h0, col in ((0, 7, "w"), (8, 3, "w"), (16, 6, "w")):
+    put(c, ["..kkk...", ".kkrkk..", ".krrrk..", "kkrrrkk.", "krrrrrk."], x0, h0)
+    box(c, x0, h0 + 5, 7, 18 - h0, col)
+    for yy in range(h0 + 6, 19, 4):
+        put(c, WIN, x0 + 2, yy)
+    put(c, ["kkkk", "kydk", "kydk", "kydk"][:4], x0 + 1, 19)
+HD["holding:Merchant Quarter"] = fin(c)
+
+# Money Lending: pillared counting house, stone pediment with a coin, steps
+c = cv()
+put(c, ["..........kk..........",
+        "........kkttkk........",
+        "......kktttttt kk......"[:22],
+        "....kkttttkyktttkk....",
+        "..kkttttttkyykttttkk..",
+        "kkttttttttkkkttttttttkk"[:22],
+        "kkkkkkkkkkkkkkkkkkkkkk"], 1, 4)
+c[6][1 + 14] = "t"
+box(c, 1, 11, 22, 9, "w")
+for x0 in (3, 7, 15, 19):
+    put(c, ["kk", "tt", "tt", "tt", "tt", "tt", "tt"], x0, 12)
+put(c, ["kkkk", "kyyk", "kyyk", "kyyk", "kyyk", "kyyk", "kyyk"], 10, 12)
+put(c, ["kkkkkkkkkkkkkkkkkkkkkkkk", "kuuuuuuuuuuuuuuuuuuuuuuk", "kkkkkkkkkkkkkkkkkkkkkkkk"], 0, 20)
+HD["holding:Money Lending"] = fin(c)
+
+# Shipyard: hull ribs on a slipway, scaffold crane with hoisted plank
+c = cv()
+put(c, ["kkkkkkkkkk", "........kb", "........kb", "........m.", ".......kbbk", "........m.", ".........."], 13, 3)
+for y0 in range(4, 22):
+    c[y0][22] = "b"
+c[3][22] = "k"
+put(c, ["k.k.k.k.k.k.k.k.k",
+        "kbkbkbkbkbkbkbkbk",
+        "kbkbkbkbkbkbkbkbk",
+        ".kbkbkbkbkbkbkbk.",
+        ".kbbbbbbbbbbbbbk.",
+        "..kbbbbbbbbbbbk..",
+        "...kkkkkkkkkkk..."], 1, 12)
+put(c, ["kkkkkkkkkkkkkkkkkkkkkkkk", "kbbbbbbbbbbbbbbbbbbbbbbk", "kbkbbbbkbbbbkbbbbkbbbbkk"[:24], "kkkkkkkkkkkkkkkkkkkkkkkk"], 0, 19)
+HD["holding:Shipyard"] = fin(c)
+
+# Courtyard: arcaded walls round a garden court with a fountain
+c = cv()
+put(c, ["kkkkkkkkkkkkkkkkkkkkkkkk", "krrrrrrrrrrrrrrrrrrrrrrk", "kkkkkkkkkkkkkkkkkkkkkkkk"], 0, 7)
+box(c, 0, 10, 24, 13, "w")
+for x0 in range(2, 22, 4):
+    put(c, ["kk", "dd", "dd"], x0, 11)
+hline(c, 1, 22, 14, "b")
+for x0 in range(1, 23):
+    c[15][x0] = "l" if x0 % 3 else "n"
+put(c, ["..e..", ".kek.", "..t..", "kkkkk", "keeek", "kkkkk"], 9, 15)
+for x0 in (2, 18):
+    put(c, [".ll.", "llnl", ".lb.", "..b."], x0, 16)
+hline(c, 1, 22, 21, "t")
+HD["holding:Courtyard"] = fin(c)
+
+# Artisan Workshop: workshop with hanging sign, potter's wheel and glazed vases
+c = cv()
+house(c, 0, 12, 13, 11, door=8, wins=(1,))
+put(c, ["kkkk", ".kbk", ".kak"], 12, 13)
+put(c, [".kk.", "kcck", "kcck", ".kk."], 14, 19)
+put(c, [".k.", "kak", "kak", "kak", ".k."], 18, 18)
+put(c, [".kk..", "kyyk.", ".kyyk", ".kkk."], 19, 19)
+HD["holding:Artisan Workshop"] = fin(c)
+
+# Court Artists: purple-roofed studio, easel with a painted canvas, marble bust on a plinth
+c = cv()
+house(c, 0, 12, 13, 11, roof="a", door=8, wins=(1,))
+put(c, ["..k..",
+        ".kkkkk",
+        ".klyek",
+        ".kycak",
+        ".klllk",
+        ".kkkkk",
+        ".k.k.k",
+        "k..k..k",
+        "k..k..k"], 13, 13)
+put(c, [".kk.", "kssk", "kssk", ".kk.", "kssk", "ktttk"[:4], "kttk", "kttk"], 20, 14)
+HD["holding:Court Artists"] = fin(c)
+
+# Emporium: tall warehouse with loading doors, hoist beam with a bale over the quay
+c = cv()
+water(c, 21)
+put(c, ["...kk.....", "..krrk....", ".krrrrk...", "krrrrrrk.."], 3, 2)
+gable(c, 7, 2, 7)
+box(c, 0, 9, 15, 12, "w")
+for xx in (3, 11):
+    vline(c, xx, 10, 19, "b")
+put(c, ["kkkk", "kbbk", "kbbk", "kkkk"], 6, 10)
+put(c, ["kkkkk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"], 5, 15)
+put(c, WIN, 1, 11)
+put(c, WIN, 12, 11)
+put(c, ["kkkkkkkkk", "bbbbbbbbb", "........m", "........m", ".......kk", ".......kbk", ".......kkk"], 13, 6)
+put(c, ["kkkkkkkkkk", "kbbbbbbbbk"], 14, 19)
+HD["holding:Emporium"] = fin(c)
+
+
+# ---------------------------------------------------------------- commerce monuments (36)
+# Aristocratic Court: palatial manor, gilded cornices, central pavilion, banners
+c = cv(36, 35)
+put(c, ["k..", "kaa", "kaa", "k..", "k..", "k.."], 3, 3)
+put(c, ["k..", "kaa", "kaa", "k..", "k..", "k.."], 31, 3)
+for x0 in (2, 30):
+    box(c, x0, 9, 4, 25, "w")
+    put(c, ["kk", "yy"], x0 + 1, 9)
+gable(c, 17, 6, 9)
+put(c, ["kyk"], 16, 9)
+box(c, 6, 15, 24, 19, "w")
+hline(c, 6, 29, 15, "k")
+for x in range(7, 29):
+    c[16][x] = "y" if x % 2 else "r"
+hline(c, 7, 28, 17, "k")
+for row in (19, 25):
+    for x0 in range(8, 28, 4):
+        if x0 in (16,) and row == 25:
+            continue
+        put(c, WINT, x0, row)
+put(c, ["kkkkkk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk"], 15, 28)
+for x0 in (2, 30):
+    for row in (12, 18, 24):
+        put(c, ["kk", "ky"], x0 + 1, row)
+hline(c, 0, 35, 34, "k")
+HD["monument:Aristocratic Court"] = fin(c)
+
+# Port Authority: customs tower with flag, counting hall, long quay with a moored ship
+c = cv(36, 35)
+water(c, 30)
+put(c, ["k...", "kaa.", "kaa.", "k..."], 6, 0)
+put(c, ["..kkk..", ".krrrk.", "krrrrrk", "kkkkkkk"], 3, 4)
+box(c, 3, 8, 7, 22, "t")
+put(c, WIN, 5, 10)
+put(c, WINT, 5, 15)
+put(c, WINT, 5, 21)
+house(c, 9, 17, 13, 13, wall="w", door=5, wins=(1, 9))
+put(c, ["kkkkkkkkkkkkkkkkkkkkkkk", "kbbbbbbbbbbbbbbbbbbbbbk", ".kb.....kb.....kb...kb."], 0, 29)
+put(c, ["......k......",
+        "......kcc....",
+        "...kkkkkkk...",
+        "...kssssssk..",
+        "...kssssssk..",
+        "...kssssssk..",
+        "....kkkkkk...",
+        "......k......",
+        "......k......",
+        "kk....k....kk",
+        "kbkkkkkkkkkbk",
+        ".kbbbbbbbbbk.",
+        "..kkkkkkkkk.."], 23, 20)
+HD["monument:Port Authority"] = fin(c)
