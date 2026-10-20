@@ -1059,3 +1059,158 @@ put(c, ["......k......",
         ".kbbbbbbbbbk.",
         "..kkkkkkkkk.."], 23, 20)
 HD["monument:Port Authority"] = fin(c)
+
+
+# ================================================================ BATCH 4: court
+# group: hall between two banner turrets
+c = cv()
+for x0 in (0, 18):
+    put(c, ["k...", "kaa.", "kaa.", "k...", "k..."], x0 + 2, 1)
+    put(c, ["k.k.k.", "kkkkkk"], x0, 6)
+    box(c, x0, 8, 6, 15, "t")
+    put(c, SLIT, x0 + 2, 10)
+    put(c, WIN, x0 + 1, 16)
+gable(c, 11, 6, 6)
+box(c, 5, 12, 14, 11, "t")
+for o in (7, 14):
+    put(c, WINT, o, 13)
+put(c, ["kkkk", "kddk", "kddk", "kddk", "kddk", "kddk"], 10, 17)
+put(c, ["kak", "kak", ".k."], 10, 13)
+HD["group:g_court"] = fin(c)
+
+# Inn: two-storey half-timber with jettied upper floor, hanging sign, lantern, barrels
+c = cv()
+gable(c, 8, 2, 8)
+box(c, 0, 10, 17, 6, "w")
+for xx in (4, 8, 12):
+    vline(c, xx, 11, 14, "b")
+for o in (1, 5, 13):
+    put(c, WIN, o, 11)
+hline(c, 0, 16, 15, "k")
+box(c, 1, 16, 15, 7, "w")
+put(c, ["kkkk", "kddk", "kddk", "kddk", "kddk", "kddk"], 7, 16)
+put(c, WIN2[:3], 2, 17)
+put(c, WIN, 12, 17)
+put(c, ["kkkkk", "....k", "..kkkk", "..kyyk", "..kbbk", "..kkkk"][:6], 16, 9)
+put(c, ["k.", "y."], 6, 18)
+put(c, [".kkk.", "kbbbk", "kmmmk", "kbbbk", ".kkk."], 18, 18)
+HD["holding:Inn"] = fin(c)
+
+# Jester's Court: purple-roofed hall, harlequin facade, belled pennant pole
+c = cv()
+gable(c, 8, 1, 8, "a")
+put(c, [".y."], 7, 0)
+box(c, 0, 9, 17, 14, "a")
+for j in range(10, 22):
+    for x in range(1, 16):
+        q = ((x // 2) + (j // 2)) % 3
+        c[j][x] = "cay"[q]
+put(c, ["kkkkk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"], 6, 16)
+put(c, ["kc..", "kccy", "kc..", "kyy.", "ka..", "kaay", "k...", "kcc.", "k..y", "k...", "k...", "k...", "k...", "k...", "k...", "k...", "k...", "k...", "k...", "kk.."], 19, 3)
+HD["holding:Jester's Court"] = fin(c)
+
+# Bell Tower: stone campanile, open belfry with the bell, spire, clock face
+c = cv()
+put(c, ["....k.....", "....kk....", "...krrk...", "...krrk...", "..krrrrk..", "..krrrrk..", ".krrrrrrk.", "krrrrrrrrk", "kkkkkkkkkk"], 7, 0)
+box(c, 7, 9, 10, 14, "t")
+put(c, ["kkkkkk", "kddddk", "kdkkdk", "kdyydk", "kyyyyk", "kyyyyk", "kkkkkk"], 9, 9)
+put(c, ["kk", "kk"], 11, 16)
+put(c, ["kkkk", "kddk", "kddk", "kddk"], 10, 19)
+for y0 in (11, 14, 17, 20):
+    c[y0][8] = "u"
+    c[y0 + 1][15] = "u"
+HD["holding:Bell Tower"] = fin(c)
+
+# Embassy: colonnaded residence, flags of many houses along the cornice
+c = cv()
+for x0, col in ((1, "c"), (6, "a"), (11, "l"), (16, "e"), (20, "y")):
+    put(c, ["k" + col + col, "k" + col + col, "k..", "k..", "k.."], x0, 3)
+hline(c, 0, 23, 8, "k")
+hline(c, 0, 23, 9, "t")
+hline(c, 0, 23, 10, "k")
+box(c, 1, 11, 22, 12, "w")
+for x0 in (3, 7, 15, 19):
+    put(c, ["kk"] + ["tt"] * 9, x0, 11)
+put(c, ["kkkk", "kddk", "kddk", "kddk", "kddk", "kddk", "kddk"], 10, 16)
+put(c, WIN, 10, 12)
+HD["holding:Embassy"] = fin(c)
+
+# Academy: lecture hall under a gilded lantern dome, open-book roundel
+c = cv()
+put(c, ["..k..", ".kyk.", "..k..", ".kyk.", "kyyyk"], 9, 0)
+put(c, ["...kkkkkkk...", "..kyyyyyyyk..", ".kyyyyyyyyyk.", "kkkkkkkkkkkkk"], 5, 5)
+box(c, 2, 9, 20, 14, "t")
+hline(c, 2, 21, 11, "k")
+put(c, ["kkkkk", "kswsk", "kswsk", "kkkkk"][:4], 9, 12)
+c[13][11] = "k"; c[14][11] = "k"
+for o in (4, 16):
+    put(c, WINT, o, 13)
+put(c, ["kkkkk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"], 9, 17)
+hline(c, 0, 23, 22, "u")
+HD["holding:Academy"] = fin(c)
+
+# University: tall central gate tower, two wings with purple roofs, rows of lit windows
+c = cv()
+put(c, ["..kk..", ".kaak.", "kaaaak", "kkkkkk"], 9, 0)
+box(c, 9, 4, 6, 19, "t")
+put(c, ["kkkk", "kyyk", "kkkk"], 10, 6)
+put(c, WINT, 10, 10)
+put(c, ["kkkk", "kddk", "kddk", "kddk", "kddk", "kddk", "kddk"], 10, 16)
+for x0 in (0, 15):
+    gable(c, x0 + 4, 7, 4, "a")
+    box(c, x0, 11, 9, 12, "t")
+    for o in (1, 5):
+        put(c, WINT, x0 + o, 12)
+        put(c, WIN, x0 + o, 17)
+HD["holding:University"] = fin(c)
+
+# Courier Network: dovecote tower with birds, post stable with a saddled horse at the door
+c = cv()
+put(c, ["s...s..", ".s.s...", "......s"], 1, 0)
+put(c, ["..kk..", ".kaak.", "kaaaak", "kkkkkk"], 1, 3)
+box(c, 1, 7, 6, 16, "w")
+for y0 in (8, 11, 14):
+    put(c, ["kdk", "kkk"][:1], 2, y0)
+    put(c, ["d.d"], 2, y0 + 1)
+put(c, ["kkkk", "kddk", "kddk", "kddk", "kddk"], 2, 18)
+house(c, 7, 13, 11, 10, door=None, wins=(1,))
+put(c, ["kkkkk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"], 11, 17)
+put(c, ["..kk..", ".kbbk.", "kbbk..", "kbbbbbk"[:6], ".kbbbbk", ".kb..kb", ".kb..kb"][:7], 17, 16)
+HD["holding:Courier Network"] = fin(c)
+
+
+# ---------------------------------------------------------------- court monuments (36)
+# Senate Hall: temple front, pediment with a laurel boss, eight columns, broad steps
+c = cv(36, 35)
+for i in range(7):
+    for x in range(17 - 2 * i - 1, 19 + 2 * i + 1):
+        edge = x in (17 - 2 * i - 1, 19 + 2 * i) or i == 6
+        c[6 + i][x] = "k" if edge else "t"
+put(c, [".kk.", "kyyk", ".kk."], 16, 9)
+hline(c, 1, 34, 13, "k")
+hline(c, 1, 34, 14, "y")
+hline(c, 1, 34, 15, "k")
+box(c, 2, 16, 32, 13, "d")
+for x0 in range(3, 33, 4):
+    put(c, ["kkk"] + ["sts"] * 11 + ["kkk"], x0, 16)
+put(c, ["kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk", "ktttttttttttttttttttttttttttttttk", "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"[:33]], 1, 29)
+put(c, ["kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk", "kuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuk"], 0, 32)
+c[34] = list("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
+HD["monument:Senate Hall"] = fin(c)
+
+# Studium Generale: grand college, clock tower over the gate, long red-roofed ranges, quad arch
+c = cv(36, 35)
+put(c, ["...k...", "..kyk..", "..kyk..", ".krrrk.", "krrrrrk", "kkkkkkk"], 14, 0)
+box(c, 14, 6, 8, 28, "t")
+put(c, [".kkkk.", "kyyyyk", "kykkyk"[:6], "kyyyyk", ".kkkk."], 15, 8)
+put(c, WINT, 16, 15)
+put(c, ["kkkkkk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk"], 15, 26)
+for x0, x1 in ((0, 14), (22, 36)):
+    w = x1 - x0
+    put(c, ["k" * w, "k" + "r" * (w - 2) + "k", "k" + "r" * (w - 2) + "k", "k" * w], x0, 12)
+    box(c, x0, 16, w, 18, "w")
+    for o in range(1, w - 3, 4):
+        put(c, WINT, x0 + o, 18)
+        put(c, WIN, x0 + o, 25)
+    hline(c, x0 + 1, x1 - 2, 30, "b")
+HD["monument:Studium Generale"] = fin(c)
