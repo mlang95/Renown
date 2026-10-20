@@ -184,7 +184,7 @@ put(c, WHEEL5, 15, 17)
 put(c, ["kk", "kbk"], 21, 21)
 HD["holding:Caravanery"] = fin(c)
 
-# Castle Yard (Coliseum): keep tower, curtain wall with arcade, yard with a pell and banner
+# Castle Yard (key: Coliseum): keep tower, curtain wall with arcade, yard with a pell and banner
 c = cv()
 put(c, ["k.k.k.", "kkkkkk"], 0, 0)
 box(c, 0, 2, 6, 21, "t")
@@ -476,7 +476,7 @@ put(c, ["k..", "kcc", "kcc", "k..", "k..", "k..", "k.."], 2, 12)
 put(c, ["k..", "kcc", "kcc", "k..", "k..", "k..", "k.."], 33, 12)
 HD["monument:Royal Pavilion"] = fin(c)
 
-# Ordnance Yard (Artillery Park): hooped bombard with flared muzzle on a timber bed, kegs, shot pyramid
+# Ordnance Yard (key: Artillery Park; NAME_DISPLAY spells it 'Ordinance Yard'): hooped bombard with flared muzzle on a timber bed, kegs, shot pyramid
 c = cv(36, 35)
 put(c, ["............................kkkk....",
         "...........kkkkkkkkkkkkkkkkkmmmmk...",
@@ -713,7 +713,6 @@ gable(c, 10, 3, 10)
 box(c, 0, 13, 21, 10, "b")
 for x0 in (1, 8, 15):
     put(c, ["kkkkk", "kdddk", "kdbbk", "kdbhk", "kkkkk", "kbkbk", "kkbkk", "kbkbk", "kkkkk"][:9], x0, 13)
-put(c, ["kkk", "kyk", "kyk"][:3], 22, 20) if False else None
 put(c, ["kkkk", "kyyk", "kyyk"], 20, 20)
 HD["holding:Stable"] = fin(c)
 
@@ -1214,3 +1213,307 @@ for x0, x1 in ((0, 14), (22, 36)):
         put(c, WIN, x0 + o, 25)
     hline(c, x0 + 1, x1 - 2, 30, "b")
 HD["monument:Studium Generale"] = fin(c)
+
+
+# ================================================================ BATCH 5: devotion
+CROSS = [".k.", "kkk", ".k.", ".k."]
+
+
+def steeple(c, x, y, h=6, roof="r"):
+    """Narrow spire 5 wide topped by a cross, apex cross at (x+2, y); h rows of roof."""
+    put(c, CROSS, x + 1, y)
+    for i in range(h):
+        hw = i // 2
+        for xx in range(x + 2 - hw, x + 3 + hw):
+            c[y + 4 + i][xx] = "k" if xx in (x + 2 - hw, x + 2 + hw) else roof
+
+
+# group: chapel, steeple and cross, lit lancets, arched door
+c = cv()
+steeple(c, 9, 0, 6)
+box(c, 9, 10, 5, 4, "t")
+gable(c, 11, 8, 6)
+box(c, 4, 14, 15, 9, "w")
+put(c, WINT, 6, 15)
+put(c, WINT, 14, 15)
+put(c, [".kkk.", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"][:7], 9, 16)
+HD["group:g_devotion"] = fin(c)
+
+# Chandlery: shop with dipped-candle racks, great candle sign
+c = cv()
+house(c, 0, 12, 13, 11, door=8, wins=(1,))
+put(c, ["k.k.k", "s.s.s", "s.s.s"], 2, 16)
+put(c, ["..y..", "..f..", ".kkk.", ".kwk.", ".kwk.", ".kwk.", ".kwk.", ".kwk.", ".kwk.", ".kwk.", "kkkkk", "kbbbk", "kbbbk", "kkkkk"][::1], 14, 9)
+put(c, [".y.y.", ".s.s.", ".s.s.", "kkkkk", "kbbbk"], 19, 18)
+HD["holding:Chandlery"] = fin(c)
+
+# Interrogation Chambers: squat dark keep, barred windows, iron-studded door, red lantern
+c = cv()
+put(c, ["k.k.k.k.k.k.k.k.k.", "kkkkkkkkkkkkkkkkkk"], 1, 7)
+box(c, 1, 9, 18, 14, "u")
+for x0 in (3, 13):
+    put(c, ["kkkk", "kmdm"[:4], "kdmd"[:4], "kkkk"], x0, 11)
+put(c, ["kkkkkk", "kmdmdk", "kdmdmk", "kmdmdk", "kdmdmk", "kmdmdk"], 7, 17)
+put(c, ["kkk", "..k", "..k", ".kck", ".kck", "..k"], 19, 9)
+HD["holding:Interrogation Chambers"] = fin(c)
+
+# Priory: bellcote chapel with cross, cloister arcade range
+c = cv()
+put(c, ["...k....................",
+        "..kkk...................",
+        "...k....................",
+        "..kkk...................",
+        "..kyk...................",
+        "..kkk...................",
+        ".krrrk..................",
+        ".krrrk..................",
+        "krrrrrk.................",
+        "krrrrrrk.kkkkkkkkkkkkkkk",
+        "krrrrrrrkrrrrrrrrrrrrrrk",
+        "krrrrrrrrkrrrrrrrrrrrrrk",
+        "kkkkkkkkkkkkkkkkkkkkkkkk",
+        "kwwwwwwwkttttttttttttttk",
+        "kwwkykwwktkdktkdktkdkttk",
+        "kwwkykwwkkdddkdddkdddktk",
+        "kwwwwwwwkkdddkdddkdddktk",
+        "kwwwwwwwkkdddkdddkdddktk",
+        "kwwwkdwwkkdddkdddkdddktk",
+        "kwwkddkwktttttttttttttk.",
+        "kwwkddkwkuuuuuuuuuuuuuk.",
+        "kkkkkkkkkkkkkkkkkkkkkkk."], 0, 1)
+HD["holding:Priory"] = fin(c)
+
+# Abbey: long nave with rose window, west tower with belfry and cross
+c = cv()
+gable(c, 7, 6, 7)
+box(c, 0, 13, 15, 10, "t")
+put(c, [".kkk.", "kaycak"[:5], "kyyyk", "kcyak", ".kkk."], 5, 7)
+for o in (1, 11):
+    put(c, WINT, o, 15)
+put(c, [".kkk.", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"], 5, 17)
+put(c, CROSS, 17, 0)
+put(c, ["..k..", ".krk.", "krrrk"], 16, 4)
+box(c, 15, 7, 7, 16, "t")
+put(c, ["kkk", "kyk", "kkk"], 17, 9)
+put(c, SLIT, 18, 14)
+put(c, ["kkk", "kdk", "kdk"], 17, 19)
+HD["holding:Abbey"] = fin(c)
+
+# Reliquary Sanctum (key: Reliquary): gilded shrine-house, open door showing a glowing casket, candles
+c = cv()
+put(c, CROSS, 10, 0)
+gable(c, 11, 4, 9, "y")
+box(c, 3, 13, 17, 10, "t")
+put(c, ["kkkkkkk", "kdddddk", "kdyyydk", "kykkkyk", "kyyyyyk", "kdddddk", "kdddddk", "kdddddk", "kdddddk"], 8, 14)
+for x0 in (4, 16):
+    put(c, ["y", "s", "s", "k"], x0, 18)
+HD["holding:Reliquary"] = fin(c)
+
+# Monastery: dormitory range, chapel with bellcote, garden wall with herb beds
+c = cv()
+house(c, 0, 12, 13, 11, wall="t", timber=False, door=5)
+for o in (1, 9):
+    put(c, WIN, o, 13)
+put(c, ["..k...", ".kyk..", "kkkkk.", ".kak..", ".k.k.."][:3], 15, 0)
+gable(c, 17, 3, 6, "r")
+box(c, 12, 9, 11, 14, "w")
+put(c, WINT, 16, 11)
+put(c, [".kkk.", "kdddk", "kdddk", "kdddk", "kdddk"], 15, 18)
+put(c, ["ktkt"], 19, 21)
+HD["holding:Monastery"] = fin(c)
+
+# Execution Dock: gallows on a pier over the water, noose, warning cage
+c = cv()
+water(c, 19)
+put(c, ["kkkkkkkkkkkkkk",
+        "bbbbbbbbbbbbbk",
+        "bk.........m..",
+        "b..........m..",
+        "b..........m..",
+        "b.........kmk.",
+        "b.........m.m.",
+        "b.........kmk.",
+        "b.............",
+        "b.............",
+        "b.............",
+        "b............."], 4, 3)
+put(c, ["k.", "bk", "b.", "b."], 5, 4)
+put(c, ["kkkkkkkkkkkkkkkkkkkkkk", "kbbbbbbbbbbbbbbbbbbbbk", ".kb....kb....kb....kb.", ".kb....kb....kb....kb.", ".kb....kb....kb....kb."], 1, 15)
+put(c, [".kkk.", "kmkmk", "kmkmk", ".kkk.", "..k.."], 18, 10)
+HD["holding:Execution Dock"] = fin(c)
+
+# Hospitaller: hall with tall windows, black banner with a white cross
+c = cv()
+house(c, 0, 12, 15, 11, wall="t", timber=False, door=6)
+for o in (2, 10):
+    put(c, WINT, o, 13)
+put(c, ["kkkkkkk", "bdddddd", "bddsddd", "bdssssd", "bddsddd", "bddsddd", "bdddddd", "b.ddd..", "b......", "b......", "b......", "b......", "b......", "b......", "b......", "b......", "b......", "kk....."], 16, 5)
+HD["holding:Hospitaller"] = fin(c)
+
+# Episcopal Court: purple-roofed hall, mitre finial, tall windows, banners of the see
+c = cv()
+put(c, [".k.", "kyk", "kyk", "kak"], 10, 0)
+gable(c, 11, 3, 10, "a")
+box(c, 1, 13, 21, 10, "t")
+put(c, ["aa", "aa", "ay", "aa", "a."], 2, 14)
+put(c, ["aa", "aa", "ay", "aa", "a."], 19, 14)
+for o in (5, 15):
+    put(c, WINT, o, 14)
+put(c, ["kkkkk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"], 9, 17)
+put(c, [".kkk.", "kyyyk", ".kkk."], 9, 8)
+HD["holding:Episcopal Court"] = fin(c)
+
+# Apothecary: shop with drying herbs under the eaves, jars in the window, mortar-and-pestle sign
+c = cv()
+house(c, 0, 12, 13, 11, door=8)
+put(c, ["l.n.l.", "l.n.l.", "..n..."][:2], 2, 12)
+put(c, ["kkkkk", "kekak", "kkkkk", "kclyk", "kkkkk"], 1, 15)
+put(c, ["kkkkk", "....k", "..kkkk"[:6], ".kmmk.", ".kmmmk"[:6], "..kk.."], 12, 10)
+put(c, ["l.l..", "lllll", ".kkk.", "kbbbk", "kbbbk", "kkkkk"], 18, 17)
+HD["holding:Apothecary"] = fin(c)
+
+# Infirmary: long ward with red cross over the door, row of lit windows, bench
+c = cv()
+gable(c, 11, 4, 11)
+box(c, 0, 15, 23, 8, "w")
+for o in (1, 5, 15, 19):
+    put(c, WIN, o, 16)
+put(c, ["..k..", ".kck.", "kcccck"[:5], ".kck.", "..k.."], 9, 8)
+put(c, ["kkkkk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"], 9, 17)
+HD["holding:Infirmary"] = fin(c)
+
+# Pilgrimage Site: grassy mound, tall stone cross, path of pilgrims' candles
+c = cv()
+put(c, ["...kkk...",
+        "...ktk...",
+        "kkkktkkkk",
+        "kttttttttk"[:9],
+        "kkkktkkkk",
+        "...ktk...",
+        "...ktk...",
+        "...ktk...",
+        "...ktk...",
+        "...ktk...",
+        "..kkkkk..",
+        "..kuuuk.."], 7, 1)
+for i, w in enumerate((8, 12, 16, 20, 24)):
+    x0 = (24 - w) // 2
+    for x in range(x0, x0 + w):
+        c[13 + i * 2][x] = "k" if x in (x0, x0 + w - 1) else "l"
+        c[14 + i * 2][x] = "k" if x in (x0, x0 + w - 1) else ("n" if (x + i) % 5 == 0 else "l")
+for x0, y0 in ((5, 17), (17, 17), (3, 21), (19, 21)):
+    put(c, ["y", "s"], x0, y0 - 1)
+put(c, ["ss", "ss", "ss"], 13, 19)
+HD["holding:Pilgrimage Site"] = fin(c)
+
+# Unforgotten Shrine: wayside shrine on a plinth, lit niche, candles, offerings
+c = cv()
+put(c, ["........k...............",
+        ".......krk..............",
+        "......krrrk.............",
+        ".....krrrrrk............",
+        "....krrrrrrrk...........",
+        "....kkkkkkkkk...........",
+        ".....kdddddk............",
+        ".....kdyyydk............",
+        ".....kykkkyk............",
+        ".....kdyyydk............",
+        ".....kkkkkkk............",
+        ".......ktk..............",
+        ".......ktk......y.......",
+        "..y....ktk......s...y...",
+        "..s....ktk......s...s...",
+        "..s....ktk...c..s...s...",
+        "..s..cktttkc.cc.s...s...",
+        "kkkkkkkkkkkkkkkkkkkkkkk.",
+        "kuuuuuuuuuuuuuuuuuuuuuk.",
+        "kkkkkkkkkkkkkkkkkkkkkkk."], 0, 3)
+HD["holding:Unforgotten Shrine"] = fin(c)
+
+
+# ---------------------------------------------------------------- devotion monuments (36)
+# Papal Palace: gilded dome with tiara finial, pillared front, twin bell turrets
+c = cv(36, 35)
+put(c, ["..k..", ".kyk.", "kyyyk", ".kyk.", "..k.."], 16, 0)
+put(c, ["....kkkkk....", "..kkyyyyykk..", ".kyyyyyyyyyk.", "kyyyyyyyyyyyk", "kkkkkkkkkkkkk"], 12, 5)
+box(c, 11, 10, 15, 6, "w")
+for o in (13, 17, 21):
+    put(c, WIN, o, 11)
+hline(c, 4, 31, 16, "k")
+hline(c, 4, 31, 17, "y")
+box(c, 4, 18, 28, 16, "w")
+for x0 in (6, 10, 23, 27):
+    put(c, ["kk"] + ["tt"] * 13, x0, 19)
+for o in (13, 20):
+    put(c, WINT, o, 19)
+put(c, ["kkkkkk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk"], 15, 27)
+for x0 in (0, 31):
+    put(c, ["..k..", ".kyk.", "kkkkk"], x0, 8)
+    box(c, x0, 11, 5, 23, "w")
+    put(c, ["kkk", "kyk", "kkk"], x0 + 1, 13)
+    put(c, SLIT, x0 + 2, 20)
+HD["monument:Papal Palace"] = fin(c)
+
+# Inquisitorial Palace: dark gothic hall, crocketed spires, red banners, iron gate
+c = cv(36, 35)
+for x0, top in ((4, 5), (11, 1), (18, 0), (25, 1), (32, 5)):
+    put(c, ["k"], x0, top)
+    for y in range(top + 1, 14):
+        hw = min(2, (y - top) // 3)
+        for x in range(x0 - hw, x0 + hw + 1):
+            c[y][x] = "k" if x in (x0 - hw, x0 + hw) else "u"
+box(c, 2, 13, 33, 21, "u")
+hline(c, 2, 34, 13, "k")
+for x0 in (4, 31):
+    put(c, ["cc", "cc", "cc", "cc", "cc", "cc", "c."], x0, 15)
+for o in (8, 25):
+    put(c, ["kkkk", "kdmk", "kmdk", "kdmk", "kkkk"], o, 15)
+put(c, [".kkkkk.", "kdddddk", "kmdddmk", "kdmdmdk", "kddmddk", "kdmdmdk", "kmdddmk", "kdddddk", "kmdmdmk", "kdddddk"], 15, 24)
+put(c, [".kkkkk.", "kcccck"[:0] + "kccccck", "kckkkck", "kccccck", ".kkkkk."], 15, 15)
+HD["monument:Inquisitorial Palace"] = fin(c)
+
+# Sacred Preceptory (key: Preceptory of the Knight's Templar): fortress house of the Oathsworn, oath-sword banner and blazon, crenellations
+c = cv(36, 35)
+put(c, ["k....", "kssms", "kskmk", "kssms", "kssms", "kssss", "k....", "k...."], 17, 0)
+put(c, ["k.k.k.k.k", "kkkkkkkkk"], 13, 8)
+box(c, 13, 10, 9, 24, "t")
+put(c, ["kkkkk", "kcmck", "kmmmk", "kcmck", "kcmck", "kkkkk"], 15, 11)
+put(c, ["kkkkk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"], 15, 26)
+for x0, x1 in ((0, 13), (22, 36)):
+    put(c, ["".join("k" if (i % 2 == 0) else "." for i in range(x1 - x0)), "k" * (x1 - x0)], x0, 14)
+    box(c, x0, 16, x1 - x0, 18, "t")
+    for o in range(2, x1 - x0 - 3, 5):
+        put(c, WIN, x0 + o, 18)
+        put(c, SLIT, x0 + o + 1, 25)
+for x0 in (0, 33):
+    put(c, ["k.k", "kkk"], x0, 10)
+    box(c, x0, 12, 3, 22, "t")
+HD["monument:Preceptory of the Knight's Templar"] = fin(c)
+
+# Eternal Sepulchre (key: Exalted Basilica): tomb-shrine on the pilgrims' mound, stone cross, glowing niche, candles
+c = cv(36, 35)
+put(c, ["...kkk...",
+        "...ktk...",
+        "kkkktkkkk",
+        "ktttttttk",
+        "kkkktkkkk",
+        "...ktk...",
+        "...ktk..."], 13, 0)
+gable(c, 17, 7, 10, "t")
+for j in range(9, 17, 2):
+    for x in range(17 - (j - 7) + 1, 17 + (j - 7)):
+        if (x + j) % 4 == 0:
+            c[j][x] = "u"
+box(c, 7, 17, 21, 10, "t")
+put(c, [".kkkkk.", "kdyyydk", "kyyyyyk", "kyykyyk", "kyyyyyk", "kdyyydk", "kkkkkkk"], 14, 18)
+for x0 in (9, 24):
+    put(c, ["kkk", "kyk", "kkk"], x0, 19)
+for i, w in enumerate((26, 30, 34, 36)):
+    x0 = (36 - w) // 2
+    for x in range(x0, x0 + w):
+        c[27 + i * 2][x] = "k" if x in (x0, x0 + w - 1) else "l"
+        c[28 + i * 2][x] = "k" if x in (x0, x0 + w - 1) else ("n" if (x + i) % 6 == 0 else "l")
+for x0 in (6, 10, 25, 29):
+    put(c, ["y", "s", "s"], x0, 25)
+put(c, ["ss", "ss", "ss", "ss", "ss", "ss"], 17, 29)
+HD["monument:Exalted Basilica"] = fin(c)
