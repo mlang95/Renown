@@ -2461,3 +2461,490 @@ put(c, ["kkkkkkkkkk", "kbbbbbbbbk", "kbsssssbbk"[:10], "kkkkkkkkkk", "....kbk...
 put(c, ["k", "b", "b"], 1, 20)
 put(c, ["k", "b", "b"], 22, 20)
 HD["scenery:plot"] = fin(c)
+
+
+# ================================================================ BATCH 10: settlement tiers (fallback), wonders
+# tier:<name> — 24x24 fallback when a skyline piece is missing
+c = cv()
+gable(c, 7, 9, 6, "b")
+box(c, 1, 15, 13, 8, "w")
+put(c, WIN, 3, 16)
+put(c, ["kkk", "kdk", "kdk", "kdk", "kdk"], 8, 17)
+fence(c, 15, 23, 19)
+HD["tier:Hamlet"] = fin(c)
+
+c = cv()
+gable(c, 5, 10, 5)
+box(c, 0, 15, 11, 8, "w")
+put(c, WIN, 1, 16)
+put(c, ["kkk", "kdk", "kdk", "kdk", "kdk"], 6, 17)
+gable(c, 17, 6, 6)
+box(c, 11, 12, 13, 11, "w")
+put(c, WIN, 13, 13)
+put(c, WIN, 19, 13)
+put(c, ["kkk", "kdk", "kdk", "kdk", "kdk"], 16, 17)
+HD["tier:Village"] = fin(c)
+
+c = cv()
+for x0 in (1, 18):
+    put(c, ["k.k.k", "kkkkk"], x0, 2)
+    box(c, x0, 4, 5, 19, "t")
+    put(c, SLIT, x0 + 2, 6)
+put(c, ["k.k.k.k.k.k.k.k", "kkkkkkkkkkkkkkk"], 5, 9)
+box(c, 5, 11, 14, 12, "t")
+for o in (7, 15):
+    put(c, WIN, o, 12)
+put(c, ["kkkk", "kddk", "kddk", "kddk", "kddk", "kddk"], 10, 17)
+HD["tier:Town"] = fin(c)
+
+c = cv()
+for x0 in (0, 20):
+    put(c, ["k.k.", "kkkk"], x0, 1)
+    box(c, x0, 3, 4, 20, "t")
+gable(c, 11, 3, 5)
+put(c, ["kcc", "kcc", "k.."], 11, 0)
+box(c, 4, 8, 16, 15, "t")
+hline(c, 4, 19, 8, "k")
+for o in (6, 15):
+    put(c, WINT, o, 10)
+put(c, ["kkkkkk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk"], 9, 16)
+put(c, ["kkkk", "kyyk", "kkkk"], 10, 10)
+HD["tier:City"] = fin(c)
+
+c = cv()
+put(c, CROSS, 10, 0)
+put(c, [".kkk.", "kyyyk", "kkkkk"], 9, 4)
+gable(c, 11, 7, 6)
+for x0 in (0, 20):
+    put(c, ["k.k.", "kkkk"], x0, 4)
+    box(c, x0, 6, 4, 17, "t")
+box(c, 4, 13, 16, 10, "w")
+for o in (5, 9, 13, 16):
+    put(c, WIN, o, 14)
+put(c, ["kkkk", "kddk", "kddk", "kddk", "kddk"], 10, 18)
+HD["tier:Metropolis"] = fin(c)
+
+
+# ---------------------------------------------------------------- wonders (36)
+# Colossus: crowned bronze figure, torch raised, spear grounded, stone plinth
+c = cv(36, 35)
+put(c, [".y.", "fyf", ".f.", "kmk", "kmk", "kmk", "kmk", "kmk"], 8, 0)
+put(c, ["...y.y.y...",
+        "...yyyyy...",
+        "...kmmmk...",
+        "..kmmkmmk..",
+        "..kmmmmmk..",
+        "...kmmmk...",
+        "..kkkmkkk..",
+        ".kmmmmmmmk.",
+        "kmkmmmmmmmkk",
+        "km.kmmmmmk.km",
+        "kk.kmmmmmk..km",
+        "...kmmmmmk...km"[:14],
+        "...kmmmmmk....k",
+        "...kmmmmmk....m"[:15],
+        "...kmmkmmk....m",
+        "...kmmkmmk....m",
+        "..kmmk.kmmk...m",
+        "..kmmk.kmmk...m",
+        "..kmmk.kmmk...m",
+        ".kmmmk.kmmmk..m",
+        ".kkkkk.kkkkk..m"], 10, 3)
+for y in range(8, 24):
+    c[y][8] = "k" if c[y][8] == "." else c[y][8]
+put(c, ["kmk"], 9, 8)
+put(c, ["kkkkkkkkkkkkkkkkkk", "kttttttttttttttttk", "ktuttttttttttuttk"[:17] + "k", "kttttkkkkkkkttttk"[:17] + "k",
+        "ktttkyyyyyykttttk"[:17] + "k", "kttttkkkkkkkttttk"[:17] + "k", "kttttttttttttttttk", "kkkkkkkkkkkkkkkkkk"], 6, 24)
+put(c, ["kkkkkkkkkkkkkkkkkkkkkk", "kuuuuuuuuuuuuuuuuuuuuk", "kkkkkkkkkkkkkkkkkkkkkk"], 4, 32)
+HD["wonder:Colossus"] = fin(c)
+
+# The Grand Exchange: gilded dome on a drum, colonnaded trading hall, broad steps
+c = cv(36, 35)
+put(c, ["..k..", ".kyk.", "..k.."], 15, 0)
+put(c, ["......kkkkk......",
+        "....kkyyyyykk....",
+        "...kyyyyyyyyyk...",
+        "..kyyyyyyyyyyyk..",
+        ".kyyyyyyyyyyyyyk.",
+        "kkkkkkkkkkkkkkkkk"], 9, 3)
+box(c, 10, 9, 15, 5, "w")
+for o in (12, 16, 20):
+    put(c, ["kkk", "kyk", "kkk"], o, 10)
+for i in range(4):
+    for x in range(17 - 5 * i - 4, 18 + 5 * i + 4):
+        if 0 <= x < 36:
+            c[13 + i][x] = "k" if x in (17 - 5 * i - 4, 17 + 5 * i + 4) or i == 3 else "t"
+hline(c, 1, 34, 17, "y")
+hline(c, 1, 34, 18, "k")
+box(c, 2, 19, 32, 11, "d")
+for x0 in range(3, 33, 4):
+    put(c, ["kkk"] + ["sws"] * 9 + ["kkk"], x0, 19)
+put(c, ["kkkkkk", "kyyyyk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk"], 15, 23)
+put(c, ["kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk", "kttttttttttttttttttttttttttttttttttk", "kuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuk", "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"], 0, 30)
+HD["wonder:The Grand Exchange"] = fin(c)
+
+# The Exalted Archbasilica (key: The Eternal Sepulchre): twin spired bell towers, nave gable, rose window, great door
+c = cv(36, 35)
+for x0 in (1, 25):
+    put(c, ["....k.....", "...kkk....", "....k.....", "....k.....", "...krk....", "...krk....", "..krrrk...", "..krrrk...", ".krrrrrk..", "krrrrrrrk.", "kkkkkkkkk."], x0, 0)
+    box(c, x0, 11, 9, 23, "t")
+    put(c, ["kkkkk", "kdyyk"[:4] + "k", "kyyyk", "kkkkk"], x0 + 2, 13)
+    put(c, WINT, x0 + 3, 19)
+    put(c, SLIT, x0 + 4, 26)
+put(c, CROSS, 16, 1)
+gable(c, 17, 5, 8)
+box(c, 10, 13, 15, 21, "w")
+put(c, ["..kkkkk..",
+        ".kcayack.",
+        "kaykkkyak",
+        "kcykyykck",
+        "kaykkkyak",
+        ".kcayack.",
+        "..kkkkk.."], 13, 14)
+put(c, ["...kkk...", "..kdddk..", ".kdddddk.", ".kdddddk.", ".kdddddk.", ".kdddddk.", ".kdddydk."[:9], ".kdddddk.", ".kdddddk.", ".kdddddk."], 13, 24)
+HD["wonder:The Eternal Sepulchre"] = fin(c)
+
+# High Chancery: clock tower with gilt face and spire, long chancery wings, many lit windows
+c = cv(36, 35)
+put(c, ["..y..", "..k..", ".krk.", ".krk.", "krrrk", "krrrk"], 15, 0)
+put(c, ["kkkkkkkkk"], 13, 6)
+box(c, 13, 7, 9, 27, "t")
+put(c, ["..kkkkk..", ".kyyyyyk.", "kyyykyyyk", "kyyykkkyk", "kyyyyyyyk", ".kyyyyyk.", "..kkkkk.."], 13, 8)
+put(c, WINT, 16, 17)
+put(c, ["kkkkk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"], 15, 26)
+for x0, x1 in ((0, 13), (22, 36)):
+    w = x1 - x0
+    put(c, ["k" * w, "k" + "r" * (w - 2) + "k", "k" + "r" * (w - 2) + "k", "k" * w], x0, 14)
+    box(c, x0, 18, w, 16, "w")
+    for o in range(2, w - 3, 4):
+        put(c, WIN, x0 + o, 20)
+        put(c, WIN, x0 + o, 25)
+    hline(c, x0 + 1, x1 - 2, 29, "b")
+    for x in (x0 + 2, x1 - 3):
+        put(c, ["k", "u", "u"], x, 11)
+HD["wonder:High Chancery"] = fin(c)
+
+
+# ================================================================ BATCH 11: skylines + infrastructure (x1.5)
+def sky(w, h):
+    """Canvas for a free-size skyline / infrastructure piece: w wide, h total rows incl. ground."""
+    return cv(w, h - 1)
+
+
+def cypress(c, x, y, h):
+    """Tall narrow seasonal tree, 3 wide, top at y, trunk 2 rows."""
+    put(c, [".l."], x, y)
+    for j in range(1, h - 2):
+        put(c, ["lll"], x, y + j)
+    put(c, [".b.", ".b."], x, y + h - 2)
+
+
+# Hamlet core: thatched longhouse on a knoll, cypress, haystack
+c = sky(39, 34)
+cypress(c, 0, 3, 30)
+put(c, [".s", "s.", "kk", "kb"], 18, 0)
+gable(c, 18, 4, 12, "b")
+for i in range(3, 12, 2):
+    for x in range(18 - i + 1, 18 + i):
+        if (x + i) % 4 == 0:
+            c[4 + i][x] = "y"
+box(c, 9, 16, 19, 10, "w")
+for o in (11, 23):
+    put(c, WIN, o, 17)
+put(c, ["kkk", "kdk", "kdk", "kdk", "kdk", "kdk"], 16, 20)
+put(c, ["....kk....", "...kyyk...", "..kyyyyk..", ".kyyyyyyk.", ".kyyyyyyk.", "kyyyyyyyyk", "kyyyyyyyyk", "kyyyyyyyyk", "kyyyyyyyyk", "kyyyyyyyyk", "kyyyyyyyyk", "kkkkkkkkkk"], 29, 15)
+for y in range(26, 33):
+    for x in range(3, 39):
+        if c[y][x] == ".":
+            inset = (32 - y) * 0
+            c[y][x] = "l"
+for y in range(26, 33):
+    c[y][3] = "k" if y == 26 else c[y][3]
+put(c, [".b.", ".b."], 1, 31)
+HD["sky:core:Hamlet"] = fin(c)
+
+c = sky(15, 28)
+cypress(c, 6, 0, 22)
+fence(c, 0, 14, 22)
+c[22][7] = "l"
+for y in range(23, 27):
+    c[y][7] = "b"
+HD["sky:fill:Hamlet"] = fin(c)
+
+# Village core: church with a tall tower between two cottages
+c = sky(39, 40)
+put(c, ["kk", "kk"], 18, 0)
+box(c, 17, 2, 4, 2, "t")
+box(c, 16, 4, 6, 14, "t")
+put(c, ["kkkk", "kyyk", "kyyk", "kkkk"], 17, 7)
+put(c, SLIT, 18, 13)
+gable(c, 19, 17, 9)
+box(c, 11, 26, 17, 13, "t")
+for o in (13, 23):
+    put(c, WINT, o, 28)
+put(c, ["kkkk", "kddk", "kddk", "kddk", "kddk", "kddk"], 17, 33)
+for x0, half in ((0, 5), (28, 5)):
+    gable(c, x0 + half, 19, half)
+    box(c, x0, 25, 2 * half + 1, 14, "w")
+    put(c, WIN, x0 + 2, 27)
+    put(c, ["kkk", "kdk", "kdk", "kdk", "kdk", "kdk"], x0 + 5, 33)
+HD["sky:core:Village"] = fin(c)
+
+c = sky(15, 28)
+gable(c, 7, 0, 7)
+box(c, 1, 7, 13, 20, "w")
+put(c, WIN, 3, 10)
+put(c, WIN, 9, 10)
+put(c, WIN, 3, 16)
+put(c, ["kkk", "kdk", "kdk", "kdk", "kdk", "kdk"], 7, 21)
+HD["sky:fill:Village"] = fin(c)
+
+# Town core: crenellated stone hall between gabled houses
+c = sky(36, 30)
+put(c, ["k.k.k.k.k.k.k.k.k", "kkkkkkkkkkkkkkkkk"], 9, 0)
+box(c, 9, 2, 17, 27, "t")
+for o in (11, 21):
+    put(c, WINT, o, 7)
+    put(c, WINT, o, 15)
+put(c, ["kkkkk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"], 15, 21)
+for x0 in (0, 26):
+    gable(c, x0 + 4, 7, 4)
+    box(c, x0, 12, 9, 17, "w")
+    put(c, WIN, x0 + 3, 14)
+    put(c, ["kkk", "kdk", "kdk", "kdk", "kdk"], x0 + 3, 24)
+HD["sky:core:Town"] = fin(c)
+
+c = sky(15, 21)
+gable(c, 7, 0, 6)
+box(c, 1, 6, 13, 14, "w")
+put(c, WIN, 3, 8)
+put(c, WIN, 9, 8)
+put(c, ["kkk", "kdk", "kdk", "kdk", "kdk"], 6, 15)
+HD["sky:fill:Town"] = fin(c)
+
+# City core: tall red-roofed hall between twin crenellated towers
+c = sky(45, 39)
+for x0 in (3, 34):
+    put(c, ["k.k.k.k.", "kkkkkkkk"], x0, 0)
+    box(c, x0, 2, 8, 36, "t")
+    for y0 in (6, 15, 24):
+        put(c, SLIT, x0 + 3, y0)
+gable(c, 22, 1, 10)
+put(c, ["kk"], 22, 0)
+box(c, 11, 11, 23, 27, "t")
+hline(c, 11, 33, 12, "k")
+for o in (14, 28):
+    put(c, WINT, o, 15)
+    put(c, WINT, o, 24)
+put(c, ["kkkkkk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk"], 20, 29)
+put(c, ["kkkk", "kyyk", "kkkk"], 21, 15)
+HD["sky:core:City"] = fin(c)
+
+c = sky(12, 26)
+put(c, ["....kk....", "...krrk...", "..krrrrk.."], 1, 0)
+box(c, 1, 3, 10, 22, "w")
+for y0 in (5, 12):
+    put(c, WIN, 4, y0)
+put(c, ["kkk", "kdk", "kdk", "kdk", "kdk"], 4, 19)
+HD["sky:fill:City"] = fin(c)
+
+# Metropolis core: spired central tower with gilt finial, domed side halls, bastion
+c = sky(51, 46)
+put(c, ["ky", "kk", "kk", "kk", "kk"], 24, 0)
+gable2(c, 24, 4, 5)
+put(c, ["kkkkkkkkkkkkkk"], 18, 10)
+box(c, 19, 11, 12, 34, "t")
+for y0 in (14, 22):
+    put(c, ["kkk", "kyk", "kyk", "kkk"], 21, y0)
+    put(c, ["kkk", "kyk", "kyk", "kkk"], 26, y0)
+put(c, ["kkkkkk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk"], 22, 37)
+for x0 in (4, 36):
+    put(c, ["...kkk...", "..kyyyk..", ".kyyyyyk.", "kyyyyyyyk", "kkkkkkkkk"], x0, 15)
+    box(c, x0, 20, 9, 25, "w")
+    for y0 in (22, 30):
+        put(c, WIN, x0 + 3, y0)
+    put(c, ["kkk", "kdk", "kdk", "kdk", "kdk"], x0 + 3, 40)
+box(c, 0, 30, 5, 15, "t")
+put(c, ["k.k.k"], 0, 29)
+box(c, 45, 27, 6, 18, "t")
+put(c, ["k.k.kk"], 45, 26)
+HD["sky:core:Metropolis"] = fin(c)
+
+c = sky(12, 30)
+put(c, ["......k.....", "......k.....", ".....kkk....", "....krrk....", "...krrrrk..."], 0, 0)
+box(c, 2, 5, 9, 24, "w")
+for y0 in (8, 16):
+    put(c, WIN, 4, y0)
+put(c, ["kkk", "kdk", "kdk", "kdk", "kdk"], 4, 23)
+HD["sky:fill:Metropolis"] = fin(c)
+
+
+# ---------------------------------------------------------------- infrastructure pieces
+c = sky(18, 25)
+put(c, ["kk", "ky"], 8, 0)
+gable2(c, 8, 1, 7)
+put(c, ["kkkk", "kyyk", "kkkk"], 7, 4)
+box(c, 1, 9, 16, 15, "w")
+hline(c, 2, 15, 13, "b")
+for o in (2, 13):
+    put(c, WIN, o, 10)
+put(c, ["kkkk", "kddk", "kddk", "kddk", "kddk", "kddk"], 7, 18)
+HD["inf:Town Hall"] = fin(c)
+
+c = sky(18, 46)
+put(c, CROSS, 7, 0)
+put(c, ["kk", "kk", "kk", "kk", "kk"], 8, 4)
+put(c, ["kttk", "kttk", "kttk", "kkkk"], 7, 9)
+put(c, ["kk", "kk"], 8, 13)
+put(c, ["kttk", "kttk", "kttk", "kkkk"], 7, 15)
+gable2(c, 8, 18, 4)
+box(c, 3, 23, 12, 22, "t")
+put(c, ["kkkk", "kyyk", "kyyk", "kyyk", "kkkk"], 7, 26)
+for x0 in (1, 15):
+    box(c, x0, 31, 2, 14, "t")
+put(c, ["kkkk", "kddk", "kddk", "kddk", "kddk", "kddk", "kddk"], 7, 38)
+HD["inf:Cathedral"] = fin(c)
+
+c = sky(18, 27)
+put(c, ["..y..", ".yyy.", "..y..", "..k..", ".kkk."], 6, 0)
+gable2(c, 8, 4, 7)
+box(c, 1, 12, 16, 14, "t")
+for o in (4, 12):
+    put(c, WINT, o, 14)
+put(c, ["kkkk", "kddk", "kddk", "kddk", "kddk", "kddk"], 7, 20)
+HD["inf:Chapel"] = fin(c)
+
+c = sky(21, 28)
+put(c, ["kk", "yy", "kk"], 10, 0)
+gable(c, 10, 2, 9)
+put(c, ["kkk", "kyk", "kkk"], 9, 6)
+hline(c, 0, 20, 11, "k")
+box(c, 1, 12, 19, 7, "w")
+for x in range(2, 19, 3):
+    vline(c, x, 13, 17, "k")
+hline(c, 0, 20, 18, "k")
+box(c, 1, 19, 19, 8, "w")
+for o in (3, 15):
+    put(c, WIN, o, 20)
+put(c, ["kkkk", "kyyk", "kddk", "kddk", "kddk", "kddk"], 8, 21)
+HD["inf:Magistrate's Hall"] = fin(c)
+
+c = sky(18, 25)
+put(c, ["..kkkkk..", ".keeeeek.", "keeeeeeek", "kkkkkkkkk"], 4, 0)
+box(c, 4, 4, 9, 20, "t")
+for y0 in (6, 12):
+    put(c, ["kkkkk", "kyyyk", "kyyyk", "kkkkk"][:4], 6, y0)
+    for x in (7, 9):
+        c[y0 + 1][x] = "k"; c[y0 + 2][x] = "k"
+put(c, ["kkk", "kdk", "kdk", "kdk", "kdk"], 7, 19)
+HD["inf:Library"] = fin(c)
+
+c = sky(9, 37)
+put(c, ["...kcc..", "...kc...", "...k....", "k.k.k.k.k"[:9]], 0, 0)
+put(c, ["kkkkkkkkk"], 0, 4)
+box(c, 0, 5, 9, 31, "t")
+for y0 in (8, 17, 26):
+    put(c, SLIT, 4, y0)
+put(c, ["kkk", "kdk", "kdk"], 3, 33)
+HD["inf:Garrison"] = fin(c)
+
+c = sky(15, 37)
+put(c, ["......kccc", "......kcc.", "......k..."], 0, 0)
+put(c, ["k.kk.kk.kk.kk.k", "kkkkkkkkkkkkkkk"], 0, 3)
+box(c, 0, 5, 15, 31, "t")
+put(c, ["kkkk", "kddk", "kddk", "kkkk"], 6, 8)
+for o in (2, 10):
+    put(c, WINT, o, 16)
+put(c, SLIT, 7, 22)
+put(c, ["kkkkk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"], 5, 30)
+HD["inf:Keep"] = fin(c)
+
+c = sky(6, 34)
+put(c, ["kcccc", "kcccc", "kccc.", "kcc..", "kc..."], 0, 0)
+for y in range(5, 33):
+    c[y][0] = "k"
+HD["inf:Muster Field"] = fin(c)
+
+HD["inf:Wooden Walls"] = art(["k..k..", "kb.kb.", "bbbbbb", "bbbbbb", "kkkkkk", "bbbbbb", "bkbbkb", "bbbbbb", "bbbbbb", "kkkkkk", "bbbbbb"], 6, 12)
+HD["inf:Stone Walls"] = art(["kk..kk", "kk..kk", "kkkkkk", "tttttt", "tutttt", "kkkkkk", "tttutt", "tttttt", "kkkkkk", "tuttt t".replace(" ", "t")[:6], "tttttt", "tttttt"], 6, 13)
+HD["inf:Stone Walls:tower"] = art(["k.kk.kk.k",
+                                    "kkkkkkkkk",
+                                    "ktttttttk",
+                                    "kttkdkttk",
+                                    "kttkdkttk",
+                                    "ktttttttk",
+                                    "ktuttttuk",
+                                    "ktttttttk",
+                                    "ktttdtttk",
+                                    "ktttdtttk",
+                                    "ktttttttk",
+                                    "kttuttttk",
+                                    "ktttttttk",
+                                    "ktttttutk",
+                                    "ktttttttk",
+                                    "kkkkkkkkk"], 9, 17)
+HD["inf:Hitching Post"] = art(["kkkkkkkk", "bbbbbbbb", "b..m...b", "b..m...b", "b.kmk..b", "b......b", "b......b", "b......b"], 8, 9)
+
+# Road Wardens: wardens' lodge, two mounts at the rail
+c = sky(35, 16)
+gable(c, 4, 0, 4)
+box(c, 0, 4, 9, 11, "w")
+put(c, WIN, 3, 5)
+put(c, ["kkk", "kdk", "kdk", "kdk"], 3, 11)
+put(c, ["..........kk..",
+        ".........kbbk.",
+        "........kbbbbk",
+        "........kbkbbk",
+        ".......kbbk.kk",
+        ".kkkkkkbbk....",
+        "kbbbbbbbbk....",
+        "kbbbbbbbbk....",
+        "kbbcccbbbk....",
+        ".kbkkkkbk.....",
+        ".kb....kb.....",
+        ".kb....kb.....",
+        ".kk....kk....."], 10, 2)
+put(c, ["..........kk..",
+        ".........kuuk.",
+        "........kuuuuk",
+        "........kukuuk",
+        ".......kuuk.kk",
+        ".kkkkkkuuk....",
+        "kuuuuuuuuk....",
+        "kuuuuuuuuk....",
+        "kuuaaauuuk....",
+        ".kukkkkuk.....",
+        ".ku....ku.....",
+        ".ku....ku.....",
+        ".kk....kk....."], 21, 2)
+HD["inf:Road Wardens"] = fin(c)
+
+HD["inf:Bridges"] = art(["kkkkkkkkkkkkkkkkkkkkk",
+                         "ktttttttttttttttttttk",
+                         "ktuttttttttttttttuttk",
+                         "ktttkkkkkkkkkkkkktttk",
+                         "kttk.............kttk",
+                         "ktk...............ktk",
+                         "kk.................kk",
+                         "k...................k"], 21, 9)
+HD["inf:Aqueducts"] = art(["kkkkkkkkkkkk",
+                           "eeeeeeeeeeee",
+                           "kkkkkkkkkkkk",
+                           "tttttttttttt",
+                           "tuttttttuttt",
+                           "tttttttt.ttt"[:0] + "ttttttttttt.",
+                           "tttkkkk..ttt"[:0] + "tttt.....ttt"[:12],
+                           "ttt.......tt",
+                           "ttt........t",
+                           "tt.........t",
+                           "tt..........",
+                           "tt..........",
+                           "tt..........",
+                           "tt..........",
+                           "tt..........",
+                           "tt..........",
+                           "tt..........",
+                           "tt..........",
+                           "tt..........",
+                           "tt..........",
+                           "tt.........."], 12, 22)
