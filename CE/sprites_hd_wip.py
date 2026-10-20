@@ -2020,3 +2020,253 @@ put(c, ["..........kk..",
         ".kk....kk....."], 22, 21)
 fence(c, 0, 7, 30)
 HD["monument:Outrider Intercept Post"] = fin(c)
+
+
+# ================================================================ BATCH 8: works
+CRATE = ["kkkkk", "kbkbk", "kkbkk", "kbkbk", "kkkkk"]
+SACK = [".kk.", "kssk", "kssk", "kkkk"]
+
+
+def treadwheel(c, x, y):
+    """Treadwheel crane: jib over a wheel, 12 wide, top-left (x, y), 22 tall."""
+    put(c, ["kkkkkkkkkkkk", "kbbbbbbbbbbk", ".kb......m..", ".kb......m..", ".kb.....kuk.", ".kb.....kuk."], x, y)
+    for yy in range(y + 6, y + 22):
+        c[yy][x + 2] = "b"
+        c[yy][x + 1] = "k"
+    put(c, ["..kkkkk..", ".kbkbkbk.", "kbkbbbkbk", "kkbbkbbkk", "kbkbbbkbk", ".kbkbkbk.", "..kkkkk.."], x, y + 14)
+
+
+# group: crane over a workshop
+c = cv()
+treadwheel(c, 0, 1)
+house(c, 9, 13, 15, 10, door=10, wins=(1, 5))
+HD["group:g_works"] = fin(c)
+
+# Masonry: masons' lodge, half-built wall in a scaffold, dressed blocks and mallet
+c = cv()
+house(c, 0, 12, 11, 11, wall="t", timber=False, door=6)
+put(c, WIN, 2, 13)
+put(c, ["b.......b...",
+        "bbbbbbbbbb..",
+        "b.......b...",
+        "b.kkkkkkbk..",
+        "b.kttuttbk..",
+        "bbkkkkkkbk..",
+        "b.kutttubk..",
+        "b.kkkkkkbkkk",
+        "b.kttuttbktk",
+        "b.kkkkkkbkkk"], 11, 13)
+put(c, ["kkkk", "kttk", "kkkk"], 20, 20)
+HD["holding:Masonry"] = fin(c)
+
+# Workyard: log stack, sawpit trestle with a two-man saw, A-frame hoist
+c = cv()
+put(c, ["....kk....",
+        "....kb....",
+        "...kmkk...",
+        "...b..b...",
+        "..b....b..",
+        "..b..m.b..",
+        ".b...m..b.",
+        ".bbbbubbb.",
+        "b........b",
+        "b........b",
+        "b........b",
+        "b........b",
+        "b........b",
+        "k........k"], 14, 9)
+put(c, [".kk.kk.kk.",
+        "kbbkbbkbbk",
+        "kbkkbkkbkk",
+        ".kkbkkbkk.",
+        "..kbbkbbk.",
+        "..kbkkbkk.",
+        "...kk.kk..",
+        "kkkkkkkkkk"][:7], 0, 16)
+put(c, ["kbkkbkkbk."], 0, 22)
+put(c, ["kkkkkkk", "bb...bb"], 10, 19)
+HD["holding:Workyard"] = fin(c)
+
+# Storehouse: big gabled warehouse, loft door with hoist, braced doors, sacks and crates
+c = cv()
+gable(c, 11, 1, 11)
+put(c, ["kkkk", "kddk", "kkkk"], 10, 6)
+box(c, 0, 12, 23, 11, "b")
+put(c, ["kkkkkkkkk", "kbkbbbkbk", "kkbkbkbkk", "kbbkbkbbk", "kbbbkbbbk", "kbbkbkbbk", "kkbkbkbkk", "kbkbbbkbk", "kbkbbbkbk"], 7, 14)
+put(c, SACK, 1, 19)
+put(c, CRATE, 17, 18)
+HD["holding:Storehouse"] = fin(c)
+
+# Census Hall: civic hall, ledger board over the door, clerk's lit window, scroll rolls
+c = cv()
+house(c, 0, 10, 19, 13, wall="t", timber=False, door=8)
+put(c, ["kkkkkkkkk", "kswswswsk"[:9], "kssssssk"[:0] + "kswswswsk", "kkkkkkkkk"], 5, 12)
+put(c, WIN2, 1, 15)
+put(c, WIN2, 14, 15)
+put(c, [".kk..", "kssk.", "kssk.", "kkkkk", "kskssk"[:5], "kkkkk"], 19, 17)
+HD["holding:Census Hall"] = fin(c)
+
+# Granary: thatched granary raised on staddle stones, ladder, grain sacks
+c = cv()
+gable(c, 10, 2, 9, "y")
+for i in range(2, 9, 2):
+    for x in range(10 - i + 1, 10 + i):
+        if (x + i) % 3 == 0:
+            c[2 + i][x] = "b"
+box(c, 2, 11, 17, 7, "b")
+for x in (6, 10, 14):
+    vline(c, x, 12, 16, "k")
+put(c, ["kkkk", "kddk", "kddk", "kkkk"], 9, 12)
+hline(c, 1, 19, 18, "k")
+for x0 in (2, 9, 16):
+    put(c, ["kttk", ".kk.", ".tt.", ".kk."], x0, 19)
+put(c, ["k.k", "kkk", "k.k", "kkk", "k.k"], 19, 18)
+HD["holding:Granary"] = fin(c)
+
+# Supply Depot: canvas store tent, stacked crates, barrels, sacks
+c = cv()
+put(c, ["......k.......",
+        ".....kskk.....",
+        "....ksssdk....",
+        "...ksssssdk...",
+        "..ksssssssdk..",
+        ".ksssskksssdk.",
+        "ksssskddksssdk",
+        "kssskddddksssk",
+        "kssskddddkssdk",
+        "kkkkkkkkkkkkkk"], 0, 13)
+put(c, CRATE, 14, 13)
+put(c, CRATE, 14, 18)
+put(c, CRATE, 19, 18)
+put(c, [".kkk.", "kbbbk", "kmmmk", "kbbbk", ".kkk."], 19, 13)
+HD["holding:Supply Depot"] = fin(c)
+
+# Trade Guild: guildhall over an open arcade, jettied timbered upper floor, guild banner
+c = cv()
+gable(c, 10, 0, 10)
+box(c, 0, 10, 21, 6, "w")
+for xx in (4, 8, 12, 16):
+    vline(c, xx, 11, 14, "b")
+for o in (1, 5, 13, 17):
+    put(c, WIN, o, 11)
+put(c, ["kkk", "kyk", "kkk"], 9, 11)
+box(c, 1, 16, 19, 7, "t")
+for x0 in (2, 7, 12, 16):
+    put(c, ["kkk", "ddd", "ddd", "ddd", "ddd"], x0, 17)
+put(c, ["k...", "kaa.", "kya.", "kaa.", "k...", "k..."], 21, 8)
+HD["holding:Trade Guild"] = fin(c)
+
+# College of Engineering: hall with a great gear blazon in the gable, arch model on a trestle
+c = cv()
+gable(c, 8, 1, 8)
+put(c, [".k.k.", "kmmmk", ".mkm.", "kmmmk", ".k.k."], 6, 4)
+box(c, 0, 9, 17, 14, "t")
+for o in (1, 13):
+    put(c, WINT, o, 11)
+put(c, ["kkkkk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"], 6, 16)
+put(c, [".kkkk.", "kttttk", "kt..tk", "kt..tk", "kkkkkkk"[:6], "kb..bk", "kb..bk", "kb..bk"], 17, 15)
+HD["holding:College of Engineering"] = fin(c)
+
+# Masons' Guild: stone guildhall, slate roof, upper hall windows, hanging hammer sign
+c = cv()
+put(c, [".kk", ".ks"], 5, 0)
+gable(c, 8, 2, 8, "u")
+box(c, 0, 10, 17, 13, "t")
+hline(c, 1, 15, 15, "k")
+for o in (1, 7, 13):
+    put(c, WIN, o, 11)
+put(c, WIN, 2, 17)
+put(c, WIN, 12, 17)
+put(c, ["kkkkk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"][:6], 6, 17)
+put(c, ["kkkkk", "....k", "...kbk", "..kbmbk"[:7], "..kbmbk"[:7], "...kbk", "....m."], 17, 10)
+HD["holding:Masons' Guild"] = fin(c)
+
+# Burgages: three narrow plot-houses, gable end to the street, garden strips behind
+c = cv()
+for x0, col in ((0, "w"), (8, "t"), (16, "w")):
+    gable(c, x0 + 3, 6, 3)
+    box(c, x0, 9, 7, 14, col)
+    put(c, WIN, x0 + 2, 10)
+    put(c, ["kkk", "kdk", "kdk", "kdk", "kdk"], x0 + 2, 18)
+    put(c, ["k" if x0 != 16 else "k"], x0 + 7, 22)
+for x in (7, 15):
+    put(c, [".", "l", "n", "l", "b", "b"][1:], x, 17)
+HD["holding:Burgages"] = fin(c)
+
+# Citadel: white-stone stepped fortress, inner keep, banner
+c = cv()
+put(c, ["k...", "kcc.", "kc..", "k..."], 12, 0)
+put(c, ["k.k.k.k", "kkkkkkk"], 9, 4)
+box(c, 9, 6, 7, 5, "s")
+put(c, SLIT, 12, 7)
+put(c, ["k.k.k.k.k.k.k.k", "kkkkkkkkkkkkkkk"], 5, 10)
+box(c, 5, 12, 15, 4, "s")
+for o in (7, 12, 17):
+    c[13][o] = "k"; c[14][o] = "k"
+put(c, ["k.k.k.k.k.k.k.k.k.k.k.k.", "kkkkkkkkkkkkkkkkkkkkkkkk"], 0, 15)
+box(c, 0, 17, 24, 6, "s")
+put(c, ["kkkk", "kddk", "kddk", "kddk", "kddk"], 10, 18)
+for o in (3, 19):
+    put(c, SLIT, o, 18)
+HD["holding:Citadel"] = fin(c)
+
+# Castle Hall: great hall with tall windows, round stair tower with banner, porch
+c = cv()
+gable(c, 7, 6, 7)
+box(c, 0, 13, 15, 10, "t")
+for o in (2, 10):
+    put(c, WINT, o, 14)
+put(c, ["kkkkk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"], 5, 17)
+put(c, ["k...", "kcc.", "kcc.", "k..."], 19, 0)
+put(c, ["..kkkk..", ".krrrrk.", "krrrrrrk", "kkkkkkkk"], 15, 3)
+box(c, 15, 7, 8, 16, "t")
+for y0 in (9, 14):
+    put(c, SLIT, 18, y0)
+put(c, ["kkk", "kdk", "kdk", "kdk"], 17, 19)
+HD["holding:Castle Hall"] = fin(c)
+
+
+# ---------------------------------------------------------------- works monuments (36)
+# Office of Works: stone tower rising in scaffolding, treadwheel crane lifting a block, plans table
+c = cv(36, 35)
+box(c, 10, 10, 15, 24, "t")
+for y0 in range(12, 34, 3):
+    for x0 in range(11, 24, 3):
+        c[y0][x0 + (y0 % 2)] = "u"
+put(c, ["k.k.k.k.k.k.k.k", "kkkkkkkkkkkkkkk"], 10, 8)
+put(c, ["kkkkk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"], 15, 27)
+for x in (8, 26):
+    vline(c, x, 6, 33, "b")
+for yy in (6, 13, 20, 27):
+    hline(c, 7, 27, yy, "b")
+for yy in (6, 13, 20, 27):
+    for x in range(7, 28, 3):
+        c[yy + 1][x] = "b" if c[yy + 1][x] == "." else c[yy + 1][x]
+c[5][8] = "k"; c[5][26] = "k"
+treadwheel(c, 24, 12)
+put(c, ["kkkkkk", "kswssk", "kkkkkk", ".kb.kb"[:0] + "kb..bk", "kb..bk"], 0, 29)
+HD["monument:Office of Works"] = fin(c)
+
+# Imperial Palace: gilded central dome with crown, colonnaded wings, corner pavilions, purple banners
+c = cv(36, 35)
+put(c, [".y.y.y.", ".yyyyy.", "..kyk.."], 14, 0)
+put(c, ["....kkkkk....", "..kkyyyyykk..", ".kyyyyyyyyyk.", "kyyyyyyyyyyyk", "kkkkkkkkkkkkk"], 11, 3)
+box(c, 11, 8, 13, 8, "w")
+for o in (13, 17, 21):
+    put(c, WINT, o, 9)
+for x0 in (1, 30):
+    put(c, ["k..", "kaa", "kaa", "kay", "k..", "k.."], x0 + 2, 2)
+    put(c, ["..k..", ".kyk.", "kyyyk", "kkkkk"], x0, 8)
+    box(c, x0, 12, 5, 22, "w")
+    for y0 in (14, 20, 26):
+        put(c, ["kkk", "kyk", "kkk"], x0 + 1, y0)
+hline(c, 5, 30, 15, "k")
+hline(c, 5, 30, 16, "y")
+hline(c, 5, 30, 17, "k")
+box(c, 5, 17, 26, 17, "w")
+for x0 in (6, 9, 12, 22, 25, 28):
+    put(c, ["kk"] + ["tt"] * 15, x0, 18)
+put(c, ["kkkkkkkk", "kddddddk", "kddyyddk", "kddddddk", "kddddddk", "kddddddk", "kddddddk", "kddddddk"], 14, 26)
+for o in (15, 19):
+    put(c, WIN, o, 20)
+HD["monument:Imperial Palace"] = fin(c)
