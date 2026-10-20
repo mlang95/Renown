@@ -539,3 +539,261 @@ put(c, ["ccc", "ccc", "ccc", "ccc", "c.c"], 25, 11)
 put(c, ["ccc", "ccc", "ccc", "ccc", "c.c"], 30, 19)
 put(c, ["kkk", "kdk", "kdk"], 27, 31)
 HD["monument:Ministry of Military Strategy"] = fin(c)
+
+
+# ---------------------------------------------------------------- kit: buildings
+def house(c, x, y, w, h, wall="w", roof="r", timber=True, door=None, wins=(), chimney=None):
+    """Gabled building: walls w x h with top-left (x, y); roof sits above y. w odd.
+    door = column offset of a 3-wide door; wins = column offsets of 3x3 windows (row y+1);
+    chimney = column offset of a 2-wide chimney with smoke."""
+    half = (w - 1) // 2
+    if chimney is not None:
+        put(c, [".s.", "s..", ".s.", "kk.", "uk.", "uk.", "uk."], x + chimney, y - half - 2)
+    gable(c, x + half, y - half, half, roof)
+    box(c, x, y, w, h, wall)
+    if timber and wall == "w":
+        for xx in range(x + 3, x + w - 2, 4):
+            vline(c, xx, y + 1, y + h - 2, "b")
+        hline(c, x + 1, x + w - 2, y + 4, "b")
+    for o in wins:
+        put(c, WIN, x + o, y + 1)
+    if door is not None:
+        put(c, ["kkk"] + ["kdk"] * 4, x + door, y + h - 6)
+
+
+ANVIL = ["kkkkkk.", "kmmmmmk", ".kkmk..", "..kmk..", ".kkkkk."]
+
+
+# ================================================================ BATCH 2: arms
+# group: smithy — chimney smoke, shield on the wall, glowing forge door, anvil
+c = cv()
+house(c, 0, 12, 17, 11, chimney=12)
+put(c, [".kkk.", "kcack", "kcack", ".kck.", "..k.."], 2, 13)
+put(c, ["kkkkk", "kfffk", "kfyfk", "kfyfk", "kfffk"], 10, 17)
+put(c, ANVIL, 17, 17)
+HD["group:g_arms"] = fin(c)
+
+# Carpentry: timber workshop, sawhorse with a log and saw, plank stack
+c = cv()
+house(c, 0, 12, 13, 11, wall="b", timber=False, door=8)
+for xx in (3, 6):
+    vline(c, xx, 13, 21, "k")
+put(c, WIN, 1, 14)
+put(c, ["..kkkkkkkk",
+        ".kbbbbbbbbk",
+        "kbkbbbbbbkbk",
+        ".kkkkkkkkkk.",
+        "..k.k...k.k.",
+        ".k...k.k...k",
+        "k.....k.....k"[:11]], 13, 16)
+put(c, ["m.", "mm", "mm", "m."], 18, 13)
+HD["holding:Carpentry"] = fin(c)
+
+# Fletchery: workshop, arrow sheaf in a barrel, straw target
+c = cv()
+house(c, 0, 12, 13, 11, door=8, wins=(1,))
+put(c, ["s.s.s",
+        ".mmm.",
+        "..b..",
+        ".kkk.",
+        "kbbbk",
+        "kmmmk",
+        "kbbbk",
+        ".kkk."], 13, 14)
+put(c, [".kkkk.",
+        "kssssk",
+        "ksccsk",
+        "kscysk",
+        "ksccsk",
+        "kssssk",
+        ".kkkk.",
+        ".b..b.",
+        "b....b"], 18, 13)
+HD["holding:Fletchery"] = fin(c)
+
+# Tannery: workshop, hide stretched on a frame, steaming vat
+c = cv()
+house(c, 0, 12, 13, 11, door=8, wins=(1,))
+put(c, ["bbbbbbb",
+        "bk.k.kb",
+        "b.sss.b",
+        "bksssk" + "b",
+        "b.sss.b",
+        "bk.k.kb",
+        "bbbbbbb",
+        "b.....b",
+        "b.....b",
+        "b.....b"], 13, 9)
+put(c, [".s.", "s..", "kkkk", "kuek"[:4], "kuuk", "kkkk"], 20, 17)
+HD["holding:Tannery"] = fin(c)
+
+# Joinery: workshop, bench with clamp and a finished chair
+c = cv()
+house(c, 0, 12, 13, 11, door=8, wins=(1,))
+put(c, ["..mm.....",
+        "kkkkkkkk.",
+        "kbbbbbbk.",
+        "kkkkkkkk.",
+        "kb....kb.",
+        "kb....kb.",
+        "kb....kb."], 13, 16)
+put(c, ["k..", "b..", "b..", "bbb", "b.b", "b.b"][::1], 21, 16)
+HD["holding:Joinery"] = fin(c)
+
+# Furnace: stone furnace house, tall chimney with smoke, glowing mouth, ore heap
+c = cv()
+put(c, [".s.", "..s", ".s.", "s.."], 13, 0)
+box(c, 12, 4, 4, 10, "u")
+box(c, 0, 10, 16, 13, "t")
+for y0 in (12, 15, 18):
+    for x0 in range(1, 15, 3):
+        c[y0][x0 + (y0 // 3) % 2] = "u"
+put(c, [".kkkkk.", "kkfffkk", "kfyyyfk", "kfyyyfk", "kfffffk"], 5, 17)
+put(c, ["..kk..", ".kuuk.", "kuumuk", "kumuuuk"[:6], "kkkkkk"], 17, 18)
+HD["holding:Furnace"] = fin(c)
+
+# Blacksmith: open-fronted smithy, hearth glow, hood and chimney, anvil with hammer
+c = cv()
+house(c, 0, 12, 15, 11, wall="t", timber=False, chimney=9)
+put(c, ["kkkkkkkkkkk",
+        "kdddddddddk",
+        "kdkkkkkkddk",
+        "kdkfffkdddk",
+        "kdkfyfkdmdk",
+        "kdkkkkkdmdk",
+        "kdddddddddk"], 2, 15)
+put(c, ANVIL, 16, 18)
+put(c, ["mm", ".b", ".b"], 18, 15)
+HD["holding:Blacksmith"] = fin(c)
+
+# Armory: stone store, shield blazon over the door, weapon rack
+c = cv()
+house(c, 0, 12, 15, 11, wall="t", timber=False, door=6)
+put(c, ["kkkkk", "kcack", "kcack", ".kck.", "..k.."], 5, 13)
+put(c, ["m.m.m.m",
+        "m.m.m.m",
+        "b.b.b.b",
+        "bbbbbbb",
+        "b.b.b.b",
+        "b.bkkkk"[:7],
+        "b.kmmmk",
+        "bbkmmmk",
+        "b.kmmmk",
+        "b.b.b.b"], 16, 13)
+HD["holding:Armory"] = fin(c)
+
+# Master Workshop: forge wing with chimney, gabled hall with a great gear
+c = cv()
+put(c, [".y.", "y..", ".y."], 1, 2)
+box(c, 1, 5, 3, 9, "u")
+box(c, 0, 12, 12, 11, "u")
+put(c, ["kkkk", "kffk", "kfyk", "kfyk", "kffk"], 3, 17)
+house(c, 11, 11, 13, 12, door=16)
+put(c, [".k.k.", "kmmmk", ".mkm.", "kmmmk", ".k.k."], 12, 12)
+put(c, WIN, 19, 12)
+HD["holding:Master Workshop"] = fin(c)
+
+# Gilded Foundry: thatch-gold roof workshop, crucible pouring gold into a mould, ingot stack
+c = cv()
+house(c, 0, 12, 13, 11, roof="y", wall="t", timber=False, door=8, wins=(1,))
+put(c, ["kkkkk..",
+        "kmmmk..",
+        ".kmmyk.",
+        "..kkky.",
+        ".....y.",
+        "....kyk",
+        "....kyk",
+        "...kkkkk"], 14, 12)
+put(c, [".kkk.", "kyyyk", "kkkkkk", "kyykyyk"[:6]], 18, 19)
+HD["holding:Gilded Foundry"] = fin(c)
+
+# Stable: long timber stable, three stall doors with horse heads, hay bale
+c = cv()
+gable(c, 10, 3, 10)
+box(c, 0, 13, 21, 10, "b")
+for x0 in (1, 8, 15):
+    put(c, ["kkkkk", "kdddk", "kdbbk", "kdbhk", "kkkkk", "kbkbk", "kkbkk", "kbkbk", "kkkkk"][:9], x0, 13)
+put(c, ["kkk", "kyk", "kyk"][:3], 22, 20) if False else None
+put(c, ["kkkk", "kyyk", "kyyk"], 20, 20)
+HD["holding:Stable"] = fin(c)
+
+# Forge: twin chimneys with sparks, great hearth, quench trough
+c = cv()
+put(c, ["y......y.", ".y....y..", "y.....y.y"], 3, 0)
+box(c, 3, 3, 3, 9, "u")
+box(c, 12, 3, 3, 9, "u")
+put(c, ["..kkkkkkkkkkkkk..",
+        ".kuuuuuuuuuuuuuk.",
+        "kuuuuuuuuuuuuuuuk"], 0, 9)
+box(c, 0, 12, 18, 11, "u")
+put(c, ["..kkkkkkk..",
+        ".kkfffffkk.",
+        "kkfffyfffkk",
+        "kfffyyyfffk",
+        "kffyyyyyffk",
+        "kfffyyyfffk"], 3, 16)
+put(c, ["kkkkkk", "keeeek", "kkkkkk"], 18, 20)
+HD["holding:Forge"] = fin(c)
+
+# Tiltyard: tilt barrier with list posts, pennants, viewing stand
+c = cv()
+put(c, ["kcc.......kaa."] * 2 + ["k.........k..."] * 9, 0, 6)
+put(c, ["kkkkkkkkkkkkkkkkkkkkkkkk",
+        "kscscscscscscscscscscsck",
+        "kkkkkkkkkkkkkkkkkkkkkkkk",
+        ".kb...kb...kb...kb...kb.",
+        ".kb...kb...kb...kb...kb.",
+        ".kb...kb...kb...kb...kb."], 0, 17)
+put(c, ["kkkkkkkk", "kaayyaak", "kbbbbbbk", "khhhhhhk", "kbbbbbbk"], 14, 7)
+put(c, ["k......k", "k......k", "k......k", "k......k", "k......k"], 14, 12)
+HD["holding:Tiltyard"] = fin(c)
+
+# Court Armoury: stone hall, royal hangings, crest with crossed blades over the door, tall windows
+c = cv()
+house(c, 0, 10, 23, 13, wall="t", timber=False, door=10)
+put(c, ["aa", "aa", "aa", "aa", "a."], 2, 12)
+put(c, ["aa", "aa", "aa", "aa", "a."], 19, 12)
+for o in (5, 10, 15):
+    put(c, WINT, o, 11)
+put(c, ["m...m", ".kak.", ".kak.", "m.k.m"], 9, 4)
+HD["holding:Court Armoury"] = fin(c)
+
+# Advanced Blast Furnace (36): stone stack, water-driven bellows wheel, tapping glow, ore cart
+c = cv(36, 35)
+put(c, [".s..s.", "s..s..", ".s..s.", "..s..."], 9, 0)
+put(c, ["..kkkkkkk..",
+        "..kuuuuuk..",
+        "..kuuuuuk..",
+        "..kuuuuuk..",
+        "..kuuuuuk..",
+        ".kuuuuuuuk.",
+        ".kuuuuuuuk.",
+        ".kuuuuuuuk.",
+        "kuuuuuuuuuk",
+        "kuuuuuuuuuk",
+        "kuuuuuuuuuk"], 7, 4)
+box(c, 2, 15, 22, 19, "t")
+for y0 in range(17, 33, 3):
+    for x0 in range(3, 23, 4):
+        c[y0][x0 + (y0 % 2) * 2] = "u"
+put(c, ["...kkkkkkk...",
+        "..kkfffffkk..",
+        ".kkfffffffkk.",
+        ".kffffyffffk.",
+        ".kfffyyyfffk.",
+        ".kffyyyyyffk.",
+        ".kfffyyyfffk.",
+        ".kkkkkkkkkkk."], 6, 25)
+put(c, ["....kkkkk....",
+        "..kkbbbbbkk..",
+        ".kbbk.k.kbbk.",
+        ".kbkbbbbbkbk.",
+        "kbb.kbkbk.bbk",
+        "kbkbbbkbbbkbk",
+        "kbb.kbkbk.bbk",
+        ".kbkbbbbbkbk.",
+        ".kbbk.k.kbbk.",
+        "..kkbbbbbkk..",
+        "....kkkkk...."], 23, 21)
+put(c, ["kkkkkkkkkkkk", "keeeeeeeeeek", "keeeeeeeeeek", "kkkkkkkkkkkk"], 24, 30)
+HD["monument:Advanced Blast Furnace"] = fin(c)
