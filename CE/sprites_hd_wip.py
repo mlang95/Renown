@@ -2270,3 +2270,194 @@ put(c, ["kkkkkkkk", "kddddddk", "kddyyddk", "kddddddk", "kddddddk", "kddddddk", 
 for o in (15, 19):
     put(c, WIN, o, 20)
 HD["monument:Imperial Palace"] = fin(c)
+
+
+# ================================================================ BATCH 9: raw materials, feet strips, scenery
+def mound(c, x, y, w, h, fill="t", spot="u"):
+    """Rounded rock / earth mound w wide, h tall, base on row y+h-1."""
+    for j in range(h):
+        inset = max(0, (h - 1 - j) * (w // 2) // max(1, h) - 0)
+        inset = int(round((1 - ((j + 1) / h) ** 0.5) * (w / 2)))
+        x0, x1 = x + inset, x + w - 1 - inset
+        for xx in range(x0, x1 + 1):
+            c[y + j][xx] = "k" if xx in (x0, x1) or j == 0 else (spot if (xx * 7 + j * 3) % 11 == 0 else fill)
+
+
+def pine(c, x, y, h=12):
+    """Tiered evergreen, 11 wide, h tall (>= 8), tip at (x+5, y); trunk 2 rows."""
+    c[y][x + 5] = "k"
+    for j in range(1, h - 2):
+        p = (j - 1) % 4
+        hw = 1 + int(4 * j / (h - 3)) - (1 if p == 0 and j > 1 else 0)
+        hw = max(1, min(5, hw))
+        for xx in range(x + 5 - hw, x + 6 + hw):
+            if 0 <= xx < len(c[0]):
+                c[y + j][xx] = "k" if xx in (x + 5 - hw, x + 5 + hw) or p == 3 and abs(xx - x - 5) > hw - 2 else "n"
+    for j in range(h - 2, h):
+        c[y + j][x + 5] = "b"
+
+
+# group: timbered adit in a rock mound
+c = cv()
+mound(c, 1, 9, 22, 14)
+put(c, ["kkkkkkkk", "kbbbbbbk", "kbkkkkbk", "kbkddkbk", "kbkddkbk", "kbkddkbk", "kbkddkbk", "kkkddkkk"], 8, 15)
+HD["group:g_raw"] = fin(c)
+
+# Quarry: terraced rock face, dressed blocks, shear-legs hoisting a stone
+c = cv()
+put(c, ["kkkkkkkkkk..............",
+        "kttuttttuk..............",
+        "kttttuttttkkkkk.........",
+        "ktuttttkkktttuk.........",
+        "kttttutkttttttkkkk......",
+        "ktttttkkttuttttttk......",
+        "kttuttkttttkkkkkkkk.....",
+        "ktttttktttkttuttttk.....",
+        "kttttkktttkttttuttk.....",
+        "kkkkkkkkkkkkkkkkkkk....."], 0, 10)
+put(c, ["kkkk.kkkk", "kttk.ktuk", "kkkkkkkkk", "kttkkttuk", "kkkkkkkkk"][:5], 0, 18)
+put(c, ["kkk", "ktk", "kkk"], 10, 20)
+put(c, ["...k...", "..k.k..", "..km.k.", ".k.m.k.", ".kkkkk.", ".kttuk.", ".kkkkk.", "k.....k", "k.....k"][:9], 15, 14)
+HD["holding:Quarry"] = fin(c)
+
+# Salt Works: boiling house with smoke, shallow pans of brine, white salt heaps
+c = cv()
+put(c, [".s.", "s..", ".s."], 15, 2)
+put(c, ["kk", "uk", "uk"], 15, 5)
+house(c, 9, 13, 11, 6, wall="w", door=None)
+put(c, WIN, 10, 14)
+put(c, ["kkk", "kfk"], 15, 16)
+put(c, ["..k.....", ".ksk....", "kssskk..", "ksssssk."], 0, 15)
+put(c, ["kkkkkkkkkkkkkkkkkkkkkkkk",
+        "keesekeeeeskeeeseekesek"[:23] + "k",
+        "kkkkkkkkkkkkkkkkkkkkkkkk",
+        "kuuuuuuuuuuuuuuuuuuuuuuk"], 0, 19)
+put(c, [".k.", "ksk", "kkk"][:2], 20, 17)
+HD["holding:Salt Works"] = fin(c)
+
+# Apiary: three box hives on a stand, bees, flowering meadow
+c = cv()
+put(c, ["y.....y......y....", "...y......y.....y."], 3, 6)
+for x0 in (1, 9, 17):
+    put(c, [".kkkkk.", "krrrrrk", "kkkkkkk", "kbbbbbk", "kbkkkbk", "kbbbbbk", "kbbdbbk", "kkkkkkk"], x0, 11)
+put(c, ["kkkkkkkkkkkkkkkkkkkkkkkk", ".kb...kb.......kb...kb.", ".kb...kb.......kb...kb.", ]  , 0, 19)
+for x in range(24):
+    c[22][x] = "l" if x % 3 else ("a" if x % 2 else "y")
+HD["holding:Apiary"] = fin(c)
+
+# Peat Bog: reeds, stacked cut peat, bog water, spade
+c = cv()
+for x0 in (0, 3, 19, 22):
+    put(c, ["l.", "l.", "ll", ".l", ".l", "ll", ".l"], x0, 13)
+put(c, ["..kkkk..", ".kbbbbk.", "kkkkkkkk", "kbbkbbbk", "kkkkkkkk", "kbbbkbbk", "kkkkkkkk"], 7, 13)
+put(c, ["k", "b", "b", "b", "m", "m"], 16, 14)
+put(c, ["kkkkkkkkkkkkkkkkkkkkkkkk", "kddeddeddddeddddeddeddek", "deeddeeddeeddeeddeeddeed"], 0, 20)
+HD["holding:Peat Bog"] = fin(c)
+
+# Forestry: two firs, forester's log pile, axe in a stump
+c = cv()
+pine(c, 0, 3, 20)
+pine(c, 13, 1, 22)
+put(c, [".kk.kk.", "kbbkbbk", "kbkkbkk", ".kkbkk.", "kbbkbbk", "kbkkbkk", "kkkkkkk"], 8, 16)
+HD["holding:Forestry"] = fin(c)
+
+# Fishmongery: quayside shop, fish strung under the eave, creel, water
+c = cv()
+water(c, 21)
+house(c, 1, 11, 13, 9, door=8, wins=(1,))
+put(c, ["kkkkkkkk", "k.k.k.k.", "e.e.e.e.", "eee.eee."[:0] + "e.e.e.e.", "s.s.s.s."], 14, 11)
+put(c, ["kkkkkkkkkkkkkkkkkkkkkkkk", "kbbbbbbbbbbbbbbbbbbbbbbk"], 0, 19)
+put(c, [".kkkk.", "kbebek", "kbbbbk", "kkkkkk"], 16, 15)
+HD["holding:Fishmongery"] = fin(c)
+
+# Mine: hill with a timbered entrance, rails, ore cart, pick
+c = cv()
+mound(c, 0, 7, 20, 16, "u", "t")
+put(c, ["kkkkkkkkk", "kbbbbbbbk", "kbkkkkkbk", "kbkdddkbk", "kbkdddkbk", "kbkdddkbk", "kbkdddkbk", "kkkdddkkk"], 3, 15)
+put(c, ["kkkkkkk", "kumyumk", "kkkkkkk", ".kmk.kmk"[:7]], 14, 18)
+put(c, ["kkkkkkkkkkkkkkkkkkkkkkkk"], 0, 22)
+put(c, ["m.", "mm", ".b", ".b"], 22, 18)
+HD["holding:Mine"] = fin(c)
+
+# Arable Land: ploughed strips with three wheat stooks
+c = cv()
+for x0 in (1, 9, 17):
+    put(c, ["...y...", "..yyy..", "..yyy..", ".yykyy.", ".yyyyy.", "yykyyky", "yyyyyyy", "ybykyby"], x0, 11)
+for x in range(24):
+    c[19][x] = "b"
+    c[20][x] = "y" if x % 2 else "b"
+    c[21][x] = "b"
+    c[22][x] = "k" if x % 3 == 0 else "b"
+HD["holding:Arable Land"] = fin(c)
+
+# Common Land: grazing sheep, shepherd's hurdle fence, rough grass
+c = cv()
+for x0, y0 in ((0, 14), (10, 16)):
+    put(c, ["kk......",
+            "ksk.kkkk.",
+            "kssksssskk"[:9],
+            ".ksssssssk",
+            ".kssssssk.",
+            "..kk..kk..",
+            "..kk..kk.."], x0, y0)
+fence(c, 18, 23, 18)
+for x in range(0, 24, 3):
+    c[22][x] = "l" if c[22][x] == "." else c[22][x]
+HD["holding:Common Land"] = fin(c)
+
+
+# ---------------------------------------------------------------- feet strips (30 wide; ground row skipped)
+def strip(rows):
+    w = 30
+    rows = [r.ljust(w, ".")[:w] for r in rows]
+    return rows + ["g" * w]
+
+
+HD["feet:Quarry"] = strip(["..kk..............kkk.........",
+                           ".kttk..kk........kttuk...kk.k.",
+                           "kttutkkttk.....kktttttk.kttktk",
+                           "kttttkkttuk...kttuttttkkttkttk"])
+HD["feet:Salt Works"] = strip(["..k.......................k...",
+                               ".ksk.......k.............ksk..",
+                               "ksssk.eeeeskeeeseeeeesee.ksssk",
+                               "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"])
+HD["feet:Apiary"] = strip(["..y.......y.........y.....y...",
+                           ".l.a..l.y....a..l.....a..l...l",
+                           "lllallllallllllallllyllllallll",
+                           "llllllllllllllllllllllllllllll"])
+HD["feet:Peat Bog"] = strip([".l.l..................l..l.l..",
+                             ".l.l...kkk........kkk.l..l.l..",
+                             "dllddeekbbkddeeddkbbkdeelddeed",
+                             "deeddeeddeeddeeddeeddeeddeedde"])
+HD["feet:Forestry"] = strip(["..kkkk..................kkkk..",
+                             ".kbbbbk...l.......l....kbbbbk.",
+                             "kbkbbkbk.lll.....lll..kbkbbkbk",
+                             "kkkkkkkk..b.......b...kkkkkkkk"])
+HD["feet:Fishmongery"] = strip([".kk.......................kk..",
+                                "kmbk.....................kbmk.",
+                                "kbbkeeeeeeseeeeeeeeseeeeekbbk.",
+                                "kkkkeeeeeeeeeeeeeeeeeeeeekkkk."])
+HD["feet:Mine"] = strip(["..tt.........ttt.........tt...",
+                         ".tuut..m.m..tuyut.......tuut..",
+                         "tuuutkkkkkktuuuuut.m.m.tuuuut.",
+                         "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"])
+HD["feet:Arable Land"] = strip(["y.y.y...................y.y.y.",
+                                "yyyyy...................yyyyy.",
+                                "bybyb.bbbbbbbbbbbbbbbbb.bybyb.",
+                                "bbbbbbybybybybybybybybybbbbbbb"])
+HD["feet:Common Land"] = strip([".kkk...................kkk....",
+                                "ksssk.....l..l..l.....ksssk...",
+                                "kssssk..l..l..l..l...kssssk...",
+                                ".k.k.....................k.k.."])
+
+# ---------------------------------------------------------------- scenery
+c = cv()
+pine(c, 0, 3, 20)
+pine(c, 11, 8, 15)
+HD["scenery:tree"] = fin(c)
+
+c = cv()
+put(c, ["kkkkkkkkkk", "kbbbbbbbbk", "kbsssssbbk"[:10], "kkkkkkkkkk", "....kbk...", "....kbk...", "....kbk...", "....kbk...", "....kbk..."], 7, 14)
+put(c, ["k", "b", "b"], 1, 20)
+put(c, ["k", "b", "b"], 22, 20)
+HD["scenery:plot"] = fin(c)
