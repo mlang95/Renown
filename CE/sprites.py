@@ -675,10 +675,10 @@ SPRITES["holding:Siege Works"] = _s([   # ram slung under a timber mantlet, on w
     ".b............b.", "kkkkkkkkkkkkkkkk", "kbbbbbbbbbbbbbbk", ".kmk........kmk.", ".kkk........kkk.",
 ], S16)
 
-SPRITES["holding:Battery Park"] = _s([   # bombards on timber carriages behind wicker gabions, shot pile, smoke
-    ".............s..", "...........s..s.", "..........kkk...", "........kkmmdk..", "......kkmmmmk...",
-    "....kkmmmmmk....", "...kmmmmmkk.kkkk", "...kmmmkk..kbkbk", "..kbkkkk...kkbkk", ".kbbbbbbk..kbkbk",
-    "kbkbkkkbk..kkbkk", "kbkbk.kbk.mkbkbk", "kkkkk.kkkmmmkkkk",
+SPRITES["holding:Battery Park"] = _s([   # trebuchet, cocked: counterweight raised, arm down, shot in the sling
+    "kkkk............", "kuuk............", "kuuk............", "kkkkb...........", "....bb..........",
+    ".....mb.........", ".....kbb........", "....kbkbb.......", "....kb.kbb......", "...kb...kbb.....",
+    "...kbbbbbkbb....", "..kb.....kb.b...", "..kb......kb.k..", "kkkkkkkkkkkkkkuk", "kmk.kbk..kbk.kkk",
 ], S16)
 
 SPRITES["holding:Siege Camp"] = _s([   # palisade, tents, campfire
