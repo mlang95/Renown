@@ -420,7 +420,7 @@ if "%REPO_TAG%"=="1" %GIT% tag -a v%VERSION% -m "%REPO_MSG%" 2>nul || echo   (ta
 
 %GIT% rev-parse --abbrev-ref --symbolic-full-name @{u} >nul 2>&1
 if errorlevel 1 ( %GIT% push -u origin HEAD:%REPO_BRANCH% ) else ( %GIT% push )
-if "%REPO_TAG%"=="1" %GIT% push origin v%VERSION% 2>nul
+if "%REPO_TAG%"=="1" %GIT% push origin v%VERSION% --force 2>nul
 popd
 
 :end
