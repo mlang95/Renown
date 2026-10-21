@@ -418,8 +418,14 @@ if "%AUTO_LFS_BIG%"=="1" (
 
 if "%REPO_TAG%"=="1" %GIT% tag -a v%VERSION% -m "%REPO_MSG%" 2>nul || echo   (tag v%VERSION% already exists - keeping it)
 
+REM --- Force push to completely overwrite remote with local state ---
 %GIT% rev-parse --abbrev-ref --symbolic-full-name @{u} >nul 2>&1
-if errorlevel 1 ( %GIT% push -u origin HEAD:%REPO_BRANCH% ) else ( %GIT% push )
+if errorlevel 1 ( 
+    %GIT% push -u origin HEAD:%REPO_BRANCH% --force 
+) else ( 
+    %GIT% push --force 
+)
+
 if "%REPO_TAG%"=="1" %GIT% push origin v%VERSION% --force 2>nul
 popd
 
