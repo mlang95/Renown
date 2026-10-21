@@ -63,7 +63,7 @@ function eraActions(council){const e=eraRec();return Math.max(1,+(council?e.coun
 // ---- Pursuit / Infrastructure effects on Envoys (parsed server-side into innate_fx / mastery_fx / fx) ----
 const FX_CACHE={};
 function boardFx(p){if(!p)return [];const b=p.board;
-  const key=JSON.stringify([b.placed||[],b.infra||{},b.wonders||{},b.facInfra||[],b.domains||{},b.faction||""]);
+  const key=JSON.stringify([b.placed||[],b.infra||{},b.wonders||{},b.facInfra||[],b.domains||{},b.faction||"",(b.tbl||{}).studiumEffects||{}]);
   const c=FX_CACHE[p.id];if(c&&c.key===key)return c.fx;
   const fx=withBoard(b,()=>{const have=new Set(Object.keys(PC));const {earned}=computeEarned(have),L=[];
     Object.keys(PC).forEach(n=>{const r=R[n]||{},q=PC[n];
@@ -72,7 +72,7 @@ function boardFx(p){if(!p)return [];const b=p.board;
     Object.keys(S.infra||{}).filter(infraOn).forEach(n=>((INFRA[n]||{}).fx||[]).forEach(f=>L.push(Object.assign({src:n,q:1},f))));
     Object.keys(S.wonders||{}).filter(infraOn).forEach(n=>((WON[n]||{}).fx||[]).forEach(f=>L.push(Object.assign({src:n,q:1},f))));
     ((FAC[S.faction||""]||{}).fx||[]).forEach(f=>L.push(Object.assign({src:S.faction,q:1},f)));
-    dbActive(b).forEach(x=>(((DATA.domainBoardFx||{})[x.dom]||{})[x.tier]||[]).forEach(f=>L.push(Object.assign({src:x.name,q:1},f))));   // unlocked Standing effects
+    dbActive(b).forEach(x=>(((DATA.domainBoardFx||{})[x.dom]||{})[x.tier]||[]).forEach(f=>L.push(Object.assign({src:x.free?"Studium Generale · "+x.name:x.name,q:1},f))));   // unlocked Standing effects
     return L;});
   FX_CACHE[p.id]={key,fx};return fx;}
 function fxOf(p,k){return boardFx(p).filter(f=>f.k===k);}
@@ -134,6 +134,8 @@ function tPlan(ph,ord,councilDom){const L=[];
   T_DOMS.forEach(d=>{ord.slice().sort((a,b)=>((b.board.domains||{})[d]||0)-((a.board.domains||{})[d]||0)||ord.indexOf(a)-ord.indexOf(b))
     .forEach(p=>{for(let k=0;k<cnt(p,d);k++)L.push({id:"E:"+p.id+":"+d+":"+k,owner:p,dom:d,k});
       mis(p).filter(m=>m.d===d).forEach(m=>L.push({id:"M:"+m.src,owner:p,dom:d,k:0,mission:m.src}));});});
+  ord.forEach(p=>{const f=PT(p).forgeRetry;if(!f||f.turn!==tTurn())return;const i=L.findIndex(E=>E.id===f.from&&sameP(E.owner,p));if(i<0)return;
+    L.splice(i+1,0,{id:"FR:"+f.from,owner:p,dom:"Cunning",k:0,retry:true,excludeTarget:f.excludeTarget||""});});
   return L;}
 // a Domain's Envoys have started voting once any of them is resolved or current
 // Diplomatic Mission (RULES › Rule: Diplomatic Mission): the Diplomacy Envoy passed or was endorsed but its action failed —
@@ -142,6 +144,7 @@ function missionWhy(E2){if(!E2||E2.dom!=="Diplomacy"||!(E2.out==="Passed"||E2.ou
   const rec=((tCur(E2.owner).perform)||{})[E2.id]||{};if(rec.declined)return "action declined";
   const pe=performEval(E2);return pe&&(pe.out==="Failed"||pe.out==="Condemned")?"action "+pe.out.toLowerCase():"";}
 function domStarted(R,d){return R.envoys.some(E=>E.dom===d&&!E.council&&(E.done||R.curEnvoy===E));}
+function whisperEligibleEnvoys(R){return (R.plan||[]).filter(E=>!E.council&&!PT(E.owner).whisperDeclare&&!(((tCur(E.owner).perform||{})[E.id]||{}).whisperLock));}
 
 // ---- simulation: walk every slot in order, apply pre-votes / timeouts, stop at the first open slot ----
 function tSim(){
@@ -154,7 +157,7 @@ function tSim(){
   if(!t.phaseTs){R.waiting="start";return R;}
   let clock=t.phaseTs;
   function runSlot(key,who,rec){
-    const start=clock,dl=TM>0?start+TM:Infinity,sk=t.skip[key];let res=null;
+    const start=clock,ov=(t.deadlines||{})[key],ext=(t.extraTime||{})[key]||0,dl=ov!=null?+ov:(TM>0?start+TM+ext:Infinity),sk=t.skip[key];let res=null;
     if(rec&&rec.ts<=start)res={rec,end:start,pre:true};
     else if(rec&&rec.ts<=dl&&!(sk&&sk>=start&&rec.ts>sk))res={rec,end:rec.ts};
     else if(sk&&sk>=start)res={rec:null,end:sk,forced:true};
@@ -164,6 +167,10 @@ function tSim(){
     R.resolved.add(key);clock=Math.max(clock,res.end);return res;}
   function envoyRun(E){
     E.innate=innateInf(E.owner,E.dom,E.council);E.votes=[];E.sup=0;E.opp=0;R.envoys.push(E);
+    const courier=D.players.map(p=>({p,x:PT(p).courierTarget})).find(o=>o.x&&o.x.turn===tTurn()&&o.x.envoy===E.id);
+    if(courier){E.innate-=1;(E.notes=E.notes||[]).push("Courier Network ("+courier.p.name+"): Authority −1");}
+    const senate=ph==="envoy"&&!E.council&&D.players.map(p=>({p,x:PT(p).senateChoice})).find(o=>o.x&&o.x.turn===tTurn()&&o.x.envoy===E.id);
+    if(senate){E.net=senate.x.out==="Condemned"?ETH.Condemned:ETH.Endorsed;E.out=senate.x.out;E.done=true;E.saved=senate.x.src;E.notes=(E.notes||[]).concat([senate.x.src+" ("+senate.p.name+"): "+senate.x.out+" before voting"]);R.log.push({kind:"envoy",E});return true;}
     const jest={};fxOf(E.owner,"jester").forEach(f=>jest[f.n]=(jest[f.n]||0)+f.val);let oppN=0;
     for(const v of (E.council?[]:voteOrd(ord))){if(sameP(v,E.owner))continue;
       if(fxOf(v,"noVote").length){E.votes.push({who:v,a:"A",x:0,eff:0,auto:true});continue;}   // Council Envoys auto-Abstain: no votes
@@ -206,6 +213,10 @@ function tSim(){
   if(pend.length){R.waiting="declare";R.declPending=pend;return R;}
   clock=Math.max(clock,...ord.map(p=>+tCur(p).decl.lock||0));
   R.plan=tPlan(ph,ord,null);
+  const whisperReq=D.players.map(p=>({p,x:PT(p).whisperDeclare})).find(o=>o.x&&o.x.turn===tTurn()&&R.plan.some(E=>E.id===o.x.envoy));
+  if(whisperReq){R.waiting="whisper-declare";R.whisperEnvoy=R.plan.find(E=>E.id===whisperReq.x.envoy);R.whisperBy=pById(whisperReq.x.by);return R;}
+  const wholder=D.players.find(p=>srcMatch(p.board,"whisper_declare").length&&(!PT(p).whisperUse||PT(p).whisperUse.turn!==tTurn())&&whisperEligibleEnvoys(R).length);
+  if(wholder){R.waiting="whisper-select";R.whisperHolder=wholder;return R;}
   for(const E of R.plan)if(!envoyRun(E))return R;
   R.done=true;return R;}
 
@@ -293,7 +304,7 @@ const AA={
   "Convert":{tgt:"player",run:c=>{const sg=siegeState();sg.mode="Convert";sg.tp=String(c.q.id);sg.sid=null;
       c.flag("Set the Convert Timer in the Siege calculator (Battle tab): "+c.q.name+"'s closest non-capital Settlement, Public Order −5 or lower");}},
   "Sacred War":{tgt:"player",elig:(o,q)=>AA["Declare War"].elig(o,q),
-    run:c=>{const x=topPair(c.o,c.q);if(x){x.war=true;x.trade=false;x.nap=false;}c.log(c.o.name+" and "+c.q.name+" are At War (Sacred War); their treaties end");warOnFac(c);
+    run:c=>{const x=topPair(c.o,c.q);if(x){x.war=true;x.sacredWar=true;x.trade=false;x.nap=false;}c.log(c.o.name+" and "+c.q.name+" are At War (Sacred War); their treaties end");warOnFac(c);
       c.flag("Perform a Move action with one of your Armies");c.flag("Sacred War restrictions (no treaties, negotiation or tribute between you) aren't tracked");}},
   "Improve":{tgt:"none",sub:o=>improveOpts(o),run:c=>runImprove(c)},
   "Build":{tgt:"none",sub:o=>buildOpts(o),place:(o,sub)=>buildPlaces(o,sub),run:c=>runBuild(c)},
@@ -375,24 +386,34 @@ function warOnFac(c){const h=facHit(c.q.board,"war_on_you_doubt");
   if(h)D.players.filter(p=>sameP(p,c.o)||(!sameP(p,c.q)&&sameAlliance(String(p.id),String(c.o.id)))).forEach(p=>{const g=gainDoubt(p.board,+h[1]);
     c.log(p.name+": Doubt +"+h[1]+" ("+c.q.name+" · "+c.q.board.faction+")"+(g<+h[1]?" — "+(+h[1]-g)+" reduced (first Doubt)":""));});
   if(facHit(c.q.board,"duke_war"))c.flag(c.q.name+" ("+c.q.board.faction+"): "+c.o.name+"'s Trade Agreements, Non-Aggression Pacts and Defensive Alliances are void; every other player Declares War on "+c.o.name+" and their Military Alliance");}
-function warOn(c,o,q,cascade){const x=topPair(o,q);if(!x)return;if(!x.war)chron("war",{player:o.name,other:q.name,key:pk(topSuz(o.id),topSuz(q.id))});x.war=true;x.trade=false;c.log(o.name+" and "+q.name+" are At War"+(x.trade===false?"":""));
-  if(!cascade)return;const d=diplo(),g=d.member[topSuz(q.id)];if(g&&(d.alliances[g]||{}).type==="Defensive")allyGroup(g).forEach(m=>{if(sameP(m,q)||sameP(m,o))return;const y=topPair(o,m);if(y&&!y.war){y.war=true;y.trade=false;c.log(m.name+" (Defensive Alliance) is At War with "+o.name);}});}
+function warOn(c,o,q,cascade){const x=topPair(o,q);if(!x)return;if(!x.war)chron("war",{player:o.name,other:q.name,key:pk(topSuz(o.id),topSuz(q.id))});x.war=true;x.sacredWar=false;x.trade=false;c.log(o.name+" and "+q.name+" are At War"+(x.trade===false?"":""));
+  if(!cascade)return;const d=diplo(),g=d.member[topSuz(q.id)];if(g&&(d.alliances[g]||{}).type==="Defensive")allyGroup(g).forEach(m=>{if(sameP(m,q)||sameP(m,o))return;const y=topPair(o,m);if(y&&!y.war){y.war=true;y.sacredWar=false;y.trade=false;c.log(m.name+" (Defensive Alliance) is At War with "+o.name);}});}
 // Grand Vizier: "Players may not target you with Cunning Envoys if your Cunning value is higher" — a Holding may unlock it
 // on another value ("Unlocks Grand Vizier which uses your Piety Value / Public Order instead of Cunning")
 function grandVizier(q){const b=q.board,h=srcMatch(b,"grand_vizier_alt")[0];
   if(h){const piety=/Piety/i.test(h.m[1]);return {val:piety?((b.domains||{}).Piety||0):(b.po||0),what:piety?"Piety":"Public Order",src:h.n};}
   const g=dbActive(b).find(x=>/^Grand Vizier/i.test(x.name));return g?{val:(b.domains||{}).Cunning||0,what:"Cunning",src:g.name}:null;}
 function pfSpec(a){return AA[a]||{tgt:"player",opt:true,run:c=>c.flag("Resolve "+a+" by hand")};}
+function pfHardFlags(E,a,target){if(!gameStarted()||ADMIN)return [];const o=E.owner,sp=pfSpec(a),qs=typeof target==="string"?(target.startsWith("al:")?allyGroup(target.slice(3)):(pById(target)?[pById(target)]:[])):target?[target]:[],out=actRestrict(o,a,null).slice();
+  if(E.retry&&E.excludeTarget&&target&&String(target)===String(E.excludeTarget))out.push("Forgery Workshop: retry must target a different player");
+  qs.forEach(q=>{out.push(...actRestrict(o,a,q));if(sp.elig){const why=sp.elig(o,q);if(why)out.push(why);}
+    if(actDom(a,E)==="Diplomacy"&&(isVassal(o.id)||isVassal(q.id)))out.push("Vassal: no Diplomacy actions");
+    if(actDom(a,E)==="Cunning"){const gv=grandVizier(q),mine_=(o.board.domains||{}).Cunning||0;
+      if(gv&&gv.val>mine_)out.push("Grand Vizier ("+gv.src+"): "+q.name+"'s "+gv.what+" "+gv.val+" > your Cunning "+mine_);}});
+  const req=String(((DATA.actions||{})[a]||{}).requires||"").trim(),m=/^(Rising|Established|Sovereign)\s+(\w+)$/.exec(req);
+  if(m){const ORD=["Untested","Rising","Established","Sovereign"],have=tStand(o,m[2]),freeSov=m[1]==="Sovereign"&&dbActive(o.board).some(x=>x.dom===m[2]&&x.tier==="Sovereign"&&x.free);if(ORD.indexOf(have)<ORD.indexOf(m[1])&&!freeSov)out.push(req+" (has "+have+")");}
+  return [...new Set(out.filter(Boolean))];}
 // candidate targets for one action, each with its post-Envoy Influence result
 function pfTargets(E,a){const sp=pfSpec(a),o=E.owner,dip=actDom(a,E)==="Diplomacy";
-  if(sp.tgt==="none")return [Object.assign({v:"",label:"—"},(()=>{const ev=comboEval(E,a,null);return {ok:ev.ok,ev,flag:""};})())];
+  if(sp.tgt==="none")return [Object.assign({v:"",label:"—"},(()=>{const ev=comboEval(E,a,null),fl=pfHardFlags(E,a,null);return {legal:!fl.length,ok:ev.ok&&!fl.length,ev,flag:fl.join("; ")};})())];
   const L=D.players.filter(q=>!sameP(q,o)).map(q=>{const ev=comboEval(E,a,q.id),fl=[sp.elig?sp.elig(o,q):""].concat(actRestrict(o,a,q));
+    if(E.retry&&E.excludeTarget&&String(q.id)===String(E.excludeTarget))fl.push("Forgery Workshop: retry must target a different player");
     if(dip&&(isVassal(o.id)||isVassal(q.id)))fl.push("Vassal: no Diplomacy actions");
     if(sp.sub&&!sp.sub(o,q).length)fl.push("nothing eligible");
     if(actDom(a,E)==="Cunning"){const gv=grandVizier(q),mine_=(o.board.domains||{}).Cunning||0;if(gv&&gv.val>mine_)fl.push("Grand Vizier ("+gv.src+"): "+q.name+"'s "+gv.what+" "+gv.val+" > your Cunning "+mine_);}
-    return {v:String(q.id),label:q.name,ok:ev.ok,ev,flag:fl.filter(Boolean).join("; ")};});
-  if(sp.tgt==="player+alliance")Object.keys(diplo().alliances).forEach(g=>{const ev=comboEval(E,a,"al:"+g);L.push({v:"al:"+g,label:allianceLabel(g)+(diplo().member[topSuz(o.id)]===g?" (yours)":""),ok:ev.ok,ev,flag:""});});
-  if(sp.opt)L.unshift(Object.assign({v:"",label:"no player target"},(()=>{const ev=comboEval(E,a,null);return {ok:ev.ok,ev,flag:""};})()));
+    const hard=pfHardFlags(E,a,q);return {v:String(q.id),label:q.name,legal:!hard.length,ok:ev.ok&&!hard.length,ev,flag:[...new Set(fl.filter(Boolean))].join("; ")};});
+  if(sp.tgt==="player+alliance")Object.keys(diplo().alliances).forEach(g=>{const tid="al:"+g,ev=comboEval(E,a,tid),fl=pfHardFlags(E,a,tid);L.push({v:tid,label:allianceLabel(g)+(diplo().member[topSuz(o.id)]===g?" (yours)":""),legal:!fl.length,ok:ev.ok&&!fl.length,ev,flag:fl.join("; ")});});
+  if(sp.opt&&!E.retry)L.unshift(Object.assign({v:"",label:"no player target"},(()=>{const ev=comboEval(E,a,null),fl=pfHardFlags(E,a,null);return {legal:!fl.length,ok:ev.ok&&!fl.length,ev,flag:fl.join("; ")};})()));
   return L;}
 function pfSubs(o,a,tid){const sp=pfSpec(a);if(!sp.sub)return null;if(sp.tgt==="none")return sp.sub(o,null);const q=tid&&!String(tid).startsWith("al:")?pById(tid):null;return q?sp.sub(o,q):[];}
 function pfSubLabel(o,a,tid,v){const L=pfSubs(o,a,tid)||[],x=L.find(s=>s.v===v);if(x)return x.label;
@@ -404,17 +425,17 @@ function evTxt(ev){return 'net '+ev.adj+' <b class="'+tOutCls(ev.out)+'">'+ev.ou
 // "you may instead perform a <Domain> action" (Double Speak, Master Conspirator): effects that open another Domain's actions to this Envoy
 function insteadFx(E){if(!E||!E.owner)return [];return fxOf(E.owner,"instead").filter(f=>(f.notFrom?E.dom!==f.from:E.dom===f.from)&&(f.outs||["Passed"]).includes(E.out));}
 function actDom(a,E){return ((DATA.actions||{})[a]||{}).domain||(E?E.dom:"");}
-function pfActs(E){const L=actionsOf(E.dom),x=[];insteadFx(E).forEach(f=>actionsOf(f.to).forEach(a=>{if(!L.includes(a)&&!x.includes(a))x.push(a);}));return L.concat(x);}
+function pfActs(E){if(E&&E.standingAction)return actionsOf(E.dom).filter(a=>a.toLowerCase()===String(E.standingAction).toLowerCase());const L=actionsOf(E.dom),x=[];insteadFx(E).forEach(f=>actionsOf(f.to).forEach(a=>{if(!L.includes(a)&&!x.includes(a))x.push(a);}));const all=L.concat(x);return E.retry?all.filter(a=>pfSpec(a).tgt==="player"):all;}
 function pfInsteadSrc(E,a){if(actDom(a,E)===E.dom)return null;const f=insteadFx(E).find(f=>f.to===actDom(a,E));return f||null;}
-function pfForm(E,rec){const o=E.owner,id=E.id,acts=pfActs(E),d=PF[id]=PF[id]||{},L=rec&&rec.lock;
+function pfForm(E,rec,mode){const o=E.owner,id=E.id,acts=pfActs(E),d=PF[id]=PF[id]||{},L=rec&&rec.lock,W=mode==="whisper",M=mode==="empire";
   const tgtKind=a=>pfSpec(a).tgt==="none"?"none":"player";
   if(L)d.target=String(L.target||"");
   let st=acts.map(a=>{let tg=pfTargets(E,a);if(L)tg=tg.filter(t=>t.v===String(L.target||""));
-    const tried=L&&(L.tried||[]).includes(a),ok=L?(!tried&&tg.some(t=>t.ok)):tg.length>0;return {a,tg,ok,tried};});
+    const tried=L&&(L.tried||[]).includes(a),ok=L?(!tried&&tg.some(t=>t.ok)):tg.some(t=>t.legal);return {a,tg,ok,tried};});
   if(L){const lk=L.target?"player":"none";st=st.filter(x=>tgtKind(x.a)===lk||(pfSpec(x.a).opt&&!L.target));}
   if(!st.some(x=>x.a===d.action&&x.ok))d.action=(st.find(x=>x.ok)||st[0]||{}).a;
   const cur=st.find(x=>x.a===d.action)||{tg:[]},sp=pfSpec(d.action);
-  if(!cur.tg.some(t=>t.v===d.target))d.target=((cur.tg.find(t=>t.ok&&!t.flag)||cur.tg.find(t=>t.ok)||cur.tg[0])||{v:""}).v;
+  if(!cur.tg.some(t=>t.v===d.target))d.target=((cur.tg.find(t=>t.legal&&!t.flag)||cur.tg.find(t=>t.legal)||cur.tg[0])||{v:""}).v;
   const T=cur.tg.find(t=>t.v===d.target)||null,subs=pfSubs(o,d.action,d.target);
   if(subs&&!subs.some(x=>x.v===d.sub&&!x.dis))d.sub=(subs.find(x=>!x.dis)||{v:""}).v;
   const pls=sp.place?sp.place(o,d.sub):null;if(pls&&!pls.some(x=>x.v===d.place&&!x.dis))d.place=((pls.find(x=>x.auto&&!x.dis)||pls.find(x=>!x.dis))||{v:""}).v;
@@ -424,15 +445,15 @@ function pfForm(E,rec){const o=E.owner,id=E.id,acts=pfActs(E),d=PF[id]=PF[id]||{
     (anyLeft?'Choose a different '+esc(E.dom)+' action against the same target, or ':'No other '+esc(E.dom)+' action against it passes — ')+
     '<button data-do="pffail" data-env="'+esc(id)+'" data-who="'+o.id+'">accept '+esc(L.out)+'</button></div>';
   if(!L||anyLeft){
-    h+='<div class="pfr"><span class="note">Perform</span><select data-do="pf" data-pf="'+esc(id)+'|action">'+
+    h+='<div class="pfr"><span class="note">'+(W?'Declare':'Perform')+'</span><select data-do="pf" data-pf="'+esc(id)+'|action">'+
       st.map(x=>{const rq=actReqFlag(o,x.a),iv=pfInsteadSrc(E,x.a);return '<option value="'+esc(x.a)+'"'+(x.a===d.action?' selected':'')+(x.ok?'':' disabled')+'>'+esc(x.a)+(iv?' ('+esc(actDom(x.a,E))+' · '+esc(iv.src)+')':'')+(x.tried?' — would fail':!x.ok&&L?' — fails':'')+(rq?' · ⚑ requires '+esc(rq):'')+'</option>';}).join("")+'</select>';
-    if(sp.tgt!=="none")h+='<select data-do="pf" data-pf="'+esc(id)+'|target"'+(L?' disabled':'')+'>'+cur.tg.map(t=>'<option value="'+esc(t.v)+'"'+(t.v===d.target?' selected':'')+'>'+
-        esc(t.label)+' · net '+t.ev.adj+' '+t.ev.out+(t.flag?' · ⚑ '+esc(t.flag):'')+'</option>').join("")+'</select>';
+    if(sp.tgt!=="none")h+='<select data-do="pf" data-pf="'+esc(id)+'|target"'+(L?' disabled':'')+'>'+cur.tg.map(t=>'<option value="'+esc(t.v)+'"'+(t.v===d.target?' selected':'')+(t.legal?'':' disabled')+'>'+
+        esc(t.label)+(W||M?'':' · net '+t.ev.adj+' '+t.ev.out)+(t.flag?' · ⚑ '+esc(t.flag):'')+'</option>').join("")+'</select>';
     if(subs)h+=subs.length?'<select data-do="pf" data-pf="'+esc(id)+'|sub">'+subs.map(x=>'<option value="'+esc(x.v)+'"'+(x.v===d.sub?' selected':'')+(x.dis?' disabled':'')+'>'+esc(x.label)+'</option>').join("")+'</select>':'<span class="note">nothing eligible</span>';
     if(pls&&pls.length)h+='<select data-do="pf" data-pf="'+esc(id)+'|place" title="where it is placed">'+pls.map(x=>'<option value="'+esc(x.v)+'"'+(x.v===d.place?' selected':'')+(x.dis?' disabled':'')+'>'+esc(x.label)+'</option>').join("")+'</select>';
-    const okGo=T&&(!L||T.ok)&&(!subs||subs.some(x=>x.v===d.sub&&!x.dis))&&(!pls||!pls.length||pls.some(x=>x.v===d.place&&!x.dis)||!gameStarted());
-    h+='<button data-do="perf" data-env="'+esc(id)+'" data-who="'+o.id+'"'+(okGo?'':' disabled')+'>Perform</button></div>';
-    if(T){const ev=T.ev;h+='<div class="pfx">'+(ev.parts.length?ev.parts.map(x=>esc(x.src)+' '+sgn(x.val)).join(', ')+' → ':'')+evTxt(ev)+
+    const okGo=T&&T.legal&&(!L||T.ok)&&(!subs||subs.some(x=>x.v===d.sub&&!x.dis))&&(!pls||!pls.length||pls.some(x=>x.v===d.place&&!x.dis)||!gameStarted());
+    h+='<button data-do="'+(W?'whisperDeclare':M?'standingPerform':'perf')+'" data-env="'+esc(id)+'" data-who="'+o.id+'"'+(okGo?'':' disabled')+'>'+(W?'Declare action &amp; target':M?'resolve effect':'Perform')+'</button></div>';
+    if(T&&!W&&!M){const ev=T.ev;h+='<div class="pfx">'+(ev.parts.length?ev.parts.map(x=>esc(x.src)+' '+sgn(x.val)).join(', ')+' → ':'')+evTxt(ev)+
         (ev.saved?' · '+esc(ev.saved)+': Fail → Pass':'')+(ev.capped?' · '+esc(ev.capped)+': Endorsed → Passed':'')+
         (actCost(d.action).txt?' · cost <b>'+esc(actCost(d.action).txt)+'</b>':'')+(T.flag?' · <span class="neg">⚑ '+esc(T.flag)+'</span>':'')+
         (actReqFlag(o,d.action)?' · <span class="neg">⚑ requires '+esc(actReqFlag(o,d.action))+'</span>':'')+
@@ -449,13 +470,15 @@ function apLines(ap){const L=(ap.fx||[]).map(x=>'<div>'+esc(x)+'</div>').concat(
   return L.length?'<div class="apl">'+L.join("")+'</div>':'';}
 // ---- resolve one Envoy: outcome Faith / Doubt, cost, action effect, Endorsed effect ----
 function resolveEnvoy(E,pe,fin){const o=E.owner,act=pe&&pe.rec&&pe.rec.action,A=(DATA.actions||{})[act]||{},fx=[],flags=[],res={f:0,d:0,fx,flags};
+  E.votes.filter(v=>v.a==="O").forEach(v=>srcMatch(o.board,"forge_oppose_extort").forEach(x=>{const t=extortGold({b:v.who.board},{b:o.board},+x.m[1],x.n);if(t)fx.push(o.name+" extorts "+t.toLocaleString()+" from "+v.who.name+" ("+x.n+")");}));
   const txt=outText(E.dom,fin),f=+((txt.match(/Faith (\d+)/)||[])[1]||0),dz=+((txt.match(/Doubt (\d+)/)||[])[1]||0);
   if(f){addFaith(o.board,f);res.f=f;fx.push(o.name+": Faith +"+f+" ("+fin+")");}
   if(dz){const n=gainDoubt(o.board,dz);res.d=dz;fx.push(o.name+": Doubt +"+dz+" ("+fin+")"+(n<dz?" — "+(dz-n)+" reduced (first Doubt)":""));}
   const noCost=SM(o.board,"no_envoy_cost").filter(x=>x.m[1].toLowerCase()===E.dom.toLowerCase());
-  const pay=(cost,why,recoup)=>{if(noCost.length){fx.push(noCost[0].n+": no cost");return;}let g=cost.gold,dd=cost.doubt;const notes=[];
-    (recoup||[]).forEach(r=>{if(r.doubt&&dd){notes.push(r.src+": recoup Doubt");dd=0;}if(r.gold&&g){const k=Math.min(r.gold,g);g-=k;notes.push(r.src+": recoup "+k.toLocaleString());}});
+  const pay=(cost,why,recoup)=>{if(noCost.length){fx.push(noCost[0].n+": no cost");return;}let g=cost.gold,dd=cost.doubt,recoupedGold=0;const notes=[];
+    (recoup||[]).forEach(r=>{if(r.doubt&&dd){notes.push(r.src+": recoup Doubt");dd=0;}if(r.gold&&g){const k=Math.min(r.gold,g);g-=k;recoupedGold+=k;notes.push(r.src+": recoup "+k.toLocaleString());}});
     if(g)tGold(o.board,-g,(E.dom?E.dom+" Envoy · ":"")+why+(notes.length?" ("+notes.join("; ")+")":""));if(dd)gainDoubt(o.board,dd);
+    if(recoupedGold)blackMarketReact(o,recoupedGold,"black_market_recoup","Recoup").forEach(x=>fx.push(x));
     if(cost.gold||cost.doubt)fx.push(o.name+" pays "+why+": "+[cost.gold?cost.gold.toLocaleString()+" gold":"",cost.doubt?"Doubt "+cost.doubt:""].filter(Boolean).join(" + ")+(notes.length?" ("+notes.join("; ")+")":""));};
   if(fin==="Condemned")chron("condemned",{player:o.name,domain:E.dom||""});
   if(fin==="Condemned"){const rest=txt.replace(/^\s*Doubt \d+\s*\+\s*/i,""),gm=/\bpay\s+([\d,]+)/i.exec(rest),dm=/^Doubt (\d+)/i.exec(rest);   // after the "+": the Condemn cost
@@ -465,24 +488,37 @@ function resolveEnvoy(E,pe,fin){const o=E.owner,act=pe&&pe.rec&&pe.rec.action,A=
     else if(rest&&rest!==txt)flags.push("Condemned: "+rest);}
   const iv=act?pfInsteadSrc(E,act):null,AD=A.domain||E.dom;
   if((fin==="Passed"||fin==="Endorsed")&&act&&A.domain&&A.domain!==E.dom&&!iv){flags.push(act+" isn't a "+E.dom+" action — resolve by hand");return res;}
+  if((fin==="Passed"||fin==="Endorsed")&&act&&gameStarted()){
+    const tid=pe.rec.target,blocked=pfHardFlags(E,act,tid||null);
+    if(blocked.length){flags.push(act+" blocked: "+blocked.join("; "));return res;}}
   if(iv&&(fin==="Passed"||fin==="Endorsed")){fx.push(iv.src+": "+act+" ("+AD+") instead of a "+E.dom+" action");if(iv.once)flags.push(iv.src+": once per "+(iv.once==="turn"?"turn":(T_PHL[iv.once]||iv.once)));}
-  if((fin==="Passed"||fin==="Endorsed")&&act){const sp=pfSpec(act),tid=pe.rec.target,al=String(tid||"").startsWith("al:")?String(tid).slice(3):null,q=al?null:(tid?pById(tid):null),notes=[],doubtTo={},faithTo={};
+  if((fin==="Passed"||fin==="Endorsed")&&act){const sp=pfSpec(act),tid=pe.rec.target,al=String(tid||"").startsWith("al:")?String(tid).slice(3):null,q=al?null:(tid?pById(tid):null),notes=[],doubtTo={},faithTo={},actionTargets=new Map();
     const recoup=[],rawTo={};{const rm=SM(o.board,"recoup_envoy").filter(x=>x.m[2].toLowerCase()===E.dom.toLowerCase());
       const pk=(fin==="Endorsed"&&rm.find(x=>x.m[1]==="Endorsed"))||rm.find(x=>x.m[1]==="Passed");if(pk)recoup.push({src:pk.n,gold:+pk.m[3]});}
     const end=fin==="Endorsed"?String(A.endorsed||((EOUT[E.dom]||{}).endorsed)||""):"";
     if(/Recoup Doubt/i.test(end))recoup.push({src:"Endorsed",doubt:true});{const m=/Recoup (\d+)/i.exec(end);if(m)recoup.push({src:"Endorsed",gold:+m[1]});}
     pay(actCost(act),act,recoup);
+    const markActionTarget=p=>{if(p&&p.id!=null)actionTargets.set(String(p.id),p);};
     const ctx={o,q,al,sub:pe.rec.sub||"",place:pe.rec.place||"",E,out:fin,log:x=>fx.push(x),flag:x=>flags.push(x),
-      pend:msg=>{const b=o.board;b.pending=b.pending||[];b.pending.push({id:E.id,turn:tTurn(),act,msg,snap:boardCounts(b)});},faith:(p,n)=>{addFaith(p.board,n);faithTo[p.id]=(faithTo[p.id]||0)+(+n||0);fx.push(p.name+": Faith +"+n+" ("+act+")");},
-      doubt:(p,n,isT)=>{const k=actDoubt(o,AD,p,n,isT,notes),g=k?gainDoubt(p.board,k):0;doubtTo[p.id]=(doubtTo[p.id]||0)+k;rawTo[p.id]=(rawTo[p.id]||0)+(+n||0);if(k)fx.push(p.name+": Doubt +"+k+" ("+act+")"+(g<k?" — "+(k-g)+" reduced (first Doubt)":""));}};
+      pend:msg=>{const b=o.board;b.pending=b.pending||[];b.pending.push({id:E.id,turn:tTurn(),act,msg,snap:boardCounts(b)});},faith:(p,n,src)=>{markActionTarget(p);addFaith(p.board,n);faithTo[p.id]=(faithTo[p.id]||0)+(+n||0);fx.push(p.name+": Faith +"+n+" ("+act+(src?" · "+src:"")+")");},
+      doubt:(p,n,isT,src)=>{markActionTarget(p);const k=actDoubt(o,AD,p,n,isT,notes),g=k?gainDoubt(p.board,k):0;doubtTo[p.id]=(doubtTo[p.id]||0)+k;rawTo[p.id]=(rawTo[p.id]||0)+(+n||0);if(k)fx.push(p.name+": Doubt +"+k+" ("+act+(src?" · "+src:"")+")"+(g<k?" — "+(k-g)+" reduced (first Doubt)":""));}};
     if((sp.tgt==="player"&&!sp.opt&&!q)||(sp.sub&&!ctx.sub))flags.push(act+": no target recorded — resolve by hand");
     else if(sp.run)sp.run(ctx);
-    if(AD==="Cunning"&&q){SM(o.board,"cunning_extra_doubt").forEach(x=>{if(x.m[1]&&fin!=="Endorsed")return;notes.push(x.n+": +"+x.m[2]+" Doubt to "+q.name);ctx.doubt(q,+x.m[2],true);});
-      D.players.forEach(h=>{if(!sameP(h,o))SM(h.board,"recoup_on_cunning").forEach(x=>flags.push(h.name+" ("+x.n+") may recoup "+(+x.m[1]).toLocaleString()+" gold"));});}
+    if(AD==="Cunning"){if(q)SM(o.board,"cunning_extra_doubt").forEach(x=>{if(x.m[1]&&fin!=="Endorsed")return;ctx.doubt(q,+x.m[2],true,x.n);});
+      D.players.forEach(h=>{if(!sameP(h,o))SM(h.board,"recoup_on_cunning").forEach(x=>{const hc=tCurW(h);hc.cunningRecoups=hc.cunningRecoups||[];const key=E.id+"|"+o.id+"|"+x.n;
+        if(!hc.cunningRecoups.some(r=>r.key===key))hc.cunningRecoups.push({key,turn:tTurn(),from:String(o.id),act,src:x.n,amount:+x.m[1],claimed:false});
+        flags.push(h.name+" ("+x.n+") may recoup "+(+x.m[1]).toLocaleString()+" gold");});});}
+    if(AD==="Piety"){
+      // Piety actions can affect a selected player, an Alliance, or several players (e.g. Spread Truth).
+      if(q)markActionTarget(q);if(al)allyGroup(al).forEach(markActionTarget);
+      D.players.forEach(h=>SM(h.board,"piety_extra_doubt").forEach(x=>actionTargets.forEach(p=>{
+        ctx.doubt(p,+x.m[1],true,x.n+" · "+h.name);
+      })));
+    }
     // "…give their target Faith, it gains Faith +N more; …give Doubt, it gains Doubt +N more": only what the action itself gave, per player it gave it to
     SM(o.board,"basilica_amp").forEach(x=>{if(x.m[1].toLowerCase()!==AD.toLowerCase())return;const gf=Object.assign({},faithTo),gd=Object.assign({},rawTo);
-      D.players.forEach(p=>{if(gf[p.id]>0){ctx.faith(p,+x.m[2]);notes.push(x.n+": Faith +"+x.m[2]+" more to "+p.name);}
-        if(gd[p.id]>0){ctx.doubt(p,+x.m[3],sameP(p,q));notes.push(x.n+": Doubt +"+x.m[3]+" more to "+p.name);}});});
+      D.players.forEach(p=>{if(gf[p.id]>0)ctx.faith(p,+x.m[2],x.n);
+        if(gd[p.id]>0)ctx.doubt(p,+x.m[3],sameP(p,q),x.n);});});
     if(q)SM(q.board,"doubt_backlash").forEach(x=>{if(!((x.m[1]?rawTo:doubtTo)[q.id]>0))return;x.m[1]=x.m[2];const g=gainDoubt(o.board,+x.m[1]);fx.push(o.name+": Doubt +"+x.m[1]+" ("+q.name+" · "+x.n+")");});
     if(fin==="Endorsed"){const m=/Extort (\d+)/i.exec(end);if(m&&q){const t=extortGold({b:q.board},{b:o.board},+m[1],"Endorsed "+E.dom);fx.push("Endorsed: extort "+t.toLocaleString()+" from "+q.name);}
       else if(m)flags.push("Endorsed: Extort "+m[1]+" — no player target");
@@ -503,8 +539,17 @@ function tApply(R){if(!autoRes())return;let ch=false;
 // ---- host actions ----
 // Spring has no Council Phase (SEASONS.Spring): the phase after the Empire Phase is the Envoy Phase
 function tNext(ph){const i=T_PH.indexOf(ph);let nx=T_PH[(i+1)%T_PH.length];if(nx==="council"&&isSpring())nx="envoy";return nx;}
-function tSetPhase(ph){if(ph==="council"&&isSpring())ph="envoy";const t=TB();t.phase=ph;t.phaseTs=(ph==="council"||ph==="envoy")?tnow():0;t.skip={};if(ph==="rest")grantDP();
+function tSetPhase(ph){if(ph==="council"&&isSpring())ph="envoy";const t=TB(),old=tPhase();if(ph!==old||!t.phaseTs){let snap;try{snap=JSON.parse(JSON.stringify(D));if(snap.tbl)delete snap.tbl.phaseStart;}catch(e){snap=null;}t.phaseStart=snap?{phase:ph,turn:tTurn(),data:snap}:null;}
+  t.phase=ph;t.phaseTs=(ph==="council"||ph==="envoy")?tnow():0;t.skip={};t.extraTime={};t.deadlines={};if(ph==="rest")grantDP();
   if(ph==="council")t.councilTie=null;save();render();}
+function tRestartPhase(){const t=TB(),s=t.phaseStart,ph=tPhase();if(!s||s.phase!==ph||s.turn!==tTurn()||!s.data){flash("This phase has no saved restart point");return;}
+  if(!confirm("Restart the "+T_PHL[ph]+" from its starting state? Votes, declarations, and effects from this phase will be undone."))return;
+  const keep={view:D.view,active:D.active,theme:D.theme,themeV:D.themeV};try{D=JSON.parse(JSON.stringify(s.data));}catch(e){flash("Could not restore the phase start");return;}
+  Object.keys(keep).forEach(k=>{if(keep[k]!==undefined)D[k]=keep[k];});normalizeD();reindex();Object.keys(PF).forEach(k=>delete PF[k]);const rt=TB();rt.phase=ph;rt.phaseTs=tnow();rt.skip={};rt.extraTime={};rt.deadlines={};rt.councilTie=null;rt.phaseStart=s;
+  save();render();flash(T_PHL[ph]+" restarted from its saved starting state");}
+function tAdd30(){const R=tSim();if(!R.cur)return;const t=TB(),key=R.cur.key;if(t.deadlines&&t.deadlines[key]!=null)t.deadlines[key]=+t.deadlines[key]+30000;
+  else if(isFinite(R.cur.deadline)){t.extraTime=t.extraTime||{};t.extraTime[key]=(+t.extraTime[key]||0)+30000;}
+  else{t.deadlines=t.deadlines||{};t.deadlines[key]=tnow()+30000;}save();renderTable();}
 function grantDP(){const t=TB();if(t.dpGiven===tTurn())return false;t.dpGiven=tTurn();D.players.forEach(p=>{p.board.dp=(p.board.dp||0)+(DATA.dpPerTurn??1);});return true;}
 function dpOwed(){return D.players.filter(p=>(p.board.dp||0)>0);}
 function tEndTurn(){{const g=grantDP(),ow=dpOwed();
@@ -564,10 +609,11 @@ function tPerformHtml(E){if(!(E.out==="Passed"||E.out==="Endorsed"))return "";
       ' <b class="'+tOutCls(pe.out)+'">'+pe.out+'</b>'+(pe.saved?' <span class="tb-b">'+esc(pe.saved)+': Fail → Pass</span>':'')+(pe.capped?' <span class="tb-b">'+esc(pe.capped)+': Endorsed → Passed</span>':'');
     if(ap)h+=apLines(ap)+pendingOf(E.owner.board).filter(x=>x.id===E.id).map(x=>'<div class="apl"><div class="fl">⚑ '+esc(x.act+": "+x.msg)+
       (canAct(E.owner)?' <button class="tb-mini" data-do="pendone" data-env="'+esc(x.id)+'" data-who="'+E.owner.id+'">done</button>':'')+'</div></div>').join("");
-    else if(pe.out==="Failed"&&mine)h+='<div class="note">Would fail — you may instead perform a different '+esc(E.dom)+' action against the same target. '+
+    else if(pe.out==="Failed"&&mine&&!rec.whisperLock)h+='<div class="note">Would fail — you may instead perform a different '+esc(E.dom)+' action against the same target. '+
       '<button data-do="perfedit" data-env="'+esc(E.id)+'" data-who="'+E.owner.id+'">change action</button></div>';
-    else if(mine)h+=' <button class="tb-mini" data-do="perfedit" data-env="'+esc(E.id)+'" data-who="'+E.owner.id+'">edit</button>';
-    if(E.dom==="Diplomacy"&&(mine||rec.declined))h+=' <button class="tb-mini'+(rec.declined?' on':'')+'" data-do="declined" data-env="'+esc(E.id)+'" data-who="'+E.owner.id+'"'+(mine?'':' disabled')+
+    else if(mine&&!rec.whisperLock)h+=' <button class="tb-mini" data-do="perfedit" data-env="'+esc(E.id)+'" data-who="'+E.owner.id+'">edit</button>';
+    else if(rec.whisperLock)h+='<div class="note">Declared and locked by Whispering Undercroft.</div>';
+    if(E.dom==="Diplomacy"&&(mine||rec.declined)&&!rec.whisperLock)h+=' <button class="tb-mini'+(rec.declined?' on':'')+'" data-do="declined" data-env="'+esc(E.id)+'" data-who="'+E.owner.id+'"'+(mine?'':' disabled')+
       ' title="no one agreed: the action fails (Diplomatic Mission)">'+(rec.declined?'declined ✓':'declined')+'</button>';}
   else if(mine)h+=pfForm(E,rec);
   else h+='<span class="note">awaiting '+esc(E.owner.name)+"'s action</span>";
@@ -727,8 +773,8 @@ function renderReference(){const host=document.getElementById("viewReference");
     '<div id="refBattle">'+battleRulesHTML()+'</div></div>';
   host.innerHTML=h;wireDashExtras(host);linkifyRules(host.querySelector('#refRules .rbody'));}
 function tCountdown(R){const els=document.querySelectorAll("#viewTable .tbcd");if(!els.length)return;
-  let txt="";if(R.cur&&isFinite(R.cur.deadline)){const s=Math.max(0,Math.ceil((R.cur.deadline-tnow())/1000));txt=s+"s";}
-  els.forEach(e=>{e.textContent=txt;e.classList.toggle("neg",!!txt&&parseInt(txt)<=5);});}
+  let txt="",near=false;if(R.cur){if(isFinite(R.cur.deadline)){const s=Math.max(0,Math.ceil((R.cur.deadline-tnow())/1000));txt=s+"s remaining";near=s<=5;}else txt="No time limit";}
+  els.forEach(e=>{e.textContent=txt;e.classList.toggle("neg",near);});}
 setInterval(()=>{if(D.view!=="table")return;const R=tSim();tApply(R);
   if(tSig(R)!==T_SIG&&!editing()){renderTable();return;}tCountdown(R);},500);
 

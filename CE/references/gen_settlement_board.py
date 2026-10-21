@@ -476,7 +476,7 @@ def build(ns):
     REQ_ALIAS = {}                                                 # weapon "requires" tokens are Holding names
     army_src = {}
     for name, v in N.items():
-        inn, mas = htags(v.get("innate", "")), htags(v.get("mastery", ""))
+        inn, mas = htags(v.get("innate", ""), sim=True), htags(v.get("mastery", ""), sim=True)
         if inn or mas:
             army_src[name] = {"innate": inn, "mastery": mas}
 
@@ -615,7 +615,8 @@ def _board_template():
     """The page: board/board.css + board/body.html + board/js/*.js (sorted by name, one <script>).
     Edit those files; this only concatenates them (the output stays one self-contained HTML file)."""
     rd = lambda *p: open(os.path.join(BOARD_DIR, *p), encoding="utf-8").read()
-    js = "".join(rd("js", f) for f in sorted(os.listdir(os.path.join(BOARD_DIR, "js"))) if f.endswith(".js"))
+    js = "".join(rd("js", f) for f in sorted(os.listdir(os.path.join(BOARD_DIR, "js")))
+                 if f.endswith(".js") and not f.startswith("parity_"))
     return ('<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
             '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
             '<title>Renown — Settlement Board Emulator</title>\n<style>\n/*__FONTS__*/\n' + rd("board.css") +
@@ -1001,7 +1002,8 @@ def main():
                       "mname": v.get("mechanic_name", ""), "summary": v.get("summary", "")}
                   for k, v in ns.get("FACTIONS", {}).items()},
         cultures={k: {"type": v.get("type", ""), "domains": list(v.get("domains", [])), "monuments": list(v.get("monuments", [])),
-                      "wonders": list(v.get("wonders", [])), "factions": list(v.get("factions", []))} for k, v in ns.get("CULTURES", {}).items()},
+                      "wonders": list(v.get("wonders", [])), "mechanics": list(v.get("mechanic_name", [])),
+                      "factions": list(v.get("factions", []))} for k, v in ns.get("CULTURES", {}).items()},
         cultureSelf=ns.get("CULTURE_SELF_MADE", "Self-made"), placeNames=pn_payload,
         warnings=b_warn, version=ns.get("VERSION", "?"), sprites=_spr, efx=efx,
     )

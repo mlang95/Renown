@@ -12,8 +12,8 @@
 <path d="M344,148 L368,148" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M344,220 L368,220" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M344,220 L368,220" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M344,184 L540,184" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M344,184 L540,184" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M344,184 L368,184" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M344,184 L368,184" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M492,148 L516,148" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M492,148 L516,148" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95"/>
 <path d="M516,112 L516,148" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -22,6 +22,8 @@
 <path d="M516,148 L540,148" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M516,112 L540,112" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M516,112 L540,112" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M492,184 L539,184" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M492,184 L539,184" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M492,220 L539,220" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M492,220 L539,220" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M664,148 L688,148" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -57,6 +59,9 @@
 <rect x="374" y="136" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="374" y="136" width="5" height="24" fill="#6a6a72"/>
 <text x="383" y="151" font-size="8.2" fill="#2b2620">Academy</text>
+<rect x="374" y="172" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
+<rect x="374" y="172" width="5" height="24" fill="#1c1c20"/>
+<text x="383" y="187" font-size="8.2" fill="#2b2620">Toxicarium</text>
 <rect x="374" y="208" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="374" y="208" width="5" height="24" fill="#6a6a72"/>
 <text x="383" y="223" font-size="8.2" fill="#2b2620">Apothecary</text>
@@ -65,7 +70,7 @@
 <text x="555" y="151" font-size="8.2" fill="#2b2620">University</text>
 <rect x="546" y="172" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
 <rect x="546" y="172" width="5" height="24" fill="#1c1c20"/>
-<text x="555" y="187" font-size="8.2" fill="#2b2620">Toxicarium</text>
+<text x="555" y="187" font-size="8.2" fill="#2b2620">Charnel House</text>
 <rect x="546" y="208" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="546" y="208" width="5" height="24" fill="#C6A024"/>
 <text x="555" y="223" font-size="8.2" fill="#2b2620">Infirmary</text>
@@ -77,7 +82,7 @@
 <text x="727" y="151" font-size="8.2" fill="#2b2620">War College</text>
 <rect x="718" y="172" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
 <rect x="718" y="172" width="5" height="24" fill="#1c1c20"/>
-<text x="727" y="187" font-size="8.2" fill="#2b2620">Charnel House</text>
+<text x="727" y="187" font-size="8.2" fill="#2b2620">Plague Pit</text>
 <rect x="718" y="208" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="718" y="208" width="5" height="24" fill="#C6A024"/>
 <text x="727" y="223" font-size="8.2" fill="#2b2620">Hospitaller</text>
@@ -90,7 +95,7 @@
 <polygon points="1000.0,144.4 1003.6,148.0 1000.0,151.6 996.4,148.0" fill="#8a6d1a"/>
 <rect x="890" y="172" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#1c1c20" stroke-width="2.2"/>
 <rect x="890" y="172" width="5" height="24" fill="#1c1c20"/>
-<text x="899" y="187" font-size="8.2" fill="#2b2620">Plague Pit</text>
+<text x="899" y="187" font-size="8.2" fill="#2b2620">Ossuary Crypt</text>
 <polygon points="1000.0,180.4 1003.6,184.0 1000.0,187.6 996.4,184.0" fill="#8a6d1a"/>
 <rect x="890" y="208" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
 <rect x="890" y="208" width="5" height="24" fill="#9E2B25"/>
@@ -258,7 +263,7 @@
 <polygon points="1000.0,484.4 1003.6,488.0 1000.0,491.6 996.4,488.0" fill="#8a6d1a"/>
 <rect x="890" y="512" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
 <rect x="890" y="512" width="5" height="24" fill="#9E2B25"/>
-<text x="899" y="527" font-size="8.2" fill="#2b2620">Ordinance Yard</text>
+<text x="899" y="527" font-size="8.2" fill="#2b2620">Ordnance Yard</text>
 <polygon points="1000.0,520.4 1003.6,524.0 1000.0,527.6 996.4,524.0" fill="#8a6d1a"/>
 <rect x="890" y="440" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="890" y="440" width="5" height="24" fill="#2E5A8C"/>

@@ -196,10 +196,6 @@
     "Merchant Quarter"
    ],
    [
-    "Courtyard",
-    "Merchant Quarter"
-   ],
-   [
     "Court Artists",
     "Money Lending"
    ],
@@ -591,7 +587,7 @@
   ]
  },
  {
-  "title": "Ordinance Yard",
+  "title": "Ordnance Yard",
   "anchor": "Artillery Park",
   "mode": "chain",
   "nodes": {
@@ -896,44 +892,44 @@
   "anchor": "Royal Pavilion",
   "mode": "chain",
   "nodes": {
+   "Common Land": [
+    0,
+    0
+   ],
+   "Courtyard": [
+    0,
+    1
+   ],
    "Forestry": [
     0,
+    2
+   ],
+   "Conditioning Field": [
+    1,
     0
    ],
    "Carpentry": [
     1,
-    0
-   ],
-   "Common Land": [
-    1,
-    1
-   ],
-   "Courtyard": [
-    1,
     2
+   ],
+   "Coliseum": [
+    2,
+    0
    ],
    "Fletchery": [
     2,
-    0
+    2
    ],
-   "Conditioning Field": [
-    2,
-    1
+   "Grand Tournament": [
+    3,
+    0
    ],
    "Tiltyard": [
     3,
-    0
-   ],
-   "Coliseum": [
-    3,
-    1
-   ],
-   "Grand Tournament": [
-    4,
-    0
+    2
    ],
    "Royal Pavilion": [
-    5,
+    4,
     0
    ]
   },
@@ -963,11 +959,11 @@
     "Grand Tournament"
    ],
    [
-    "Tiltyard",
-    "Grand Tournament"
+    "Grand Tournament",
+    "Royal Pavilion"
    ],
    [
-    "Grand Tournament",
+    "Tiltyard",
     "Royal Pavilion"
    ],
    [
@@ -1128,6 +1124,95 @@
   ]
  },
  {
+  "title": "Ossuary Crypt",
+  "anchor": "Ossuary Crypt",
+  "mode": "chain",
+  "nodes": {
+   "Inn": [
+    0,
+    0
+   ],
+   "Courier Network": [
+    1,
+    1
+   ],
+   "Secret Cellar": [
+    2,
+    0
+   ],
+   "Peat Bog": [
+    2,
+    2
+   ],
+   "Forgotten Catacombs": [
+    3,
+    0
+   ],
+   "Alchemy": [
+    3,
+    2
+   ],
+   "Toxicarium": [
+    4,
+    0
+   ],
+   "Charnel House": [
+    5,
+    0
+   ],
+   "Plague Pit": [
+    6,
+    0
+   ],
+   "Ossuary Crypt": [
+    7,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Peat Bog",
+    "Alchemy"
+   ],
+   [
+    "Toxicarium",
+    "Charnel House"
+   ],
+   [
+    "Inn",
+    "Courier Network"
+   ],
+   [
+    "Secret Cellar",
+    "Forgotten Catacombs"
+   ],
+   [
+    "Plague Pit",
+    "Ossuary Crypt"
+   ],
+   [
+    "Charnel House",
+    "Plague Pit"
+   ],
+   [
+    "Inn",
+    "Secret Cellar"
+   ],
+   [
+    "Courier Network",
+    "Secret Cellar"
+   ],
+   [
+    "Alchemy",
+    "Toxicarium"
+   ],
+   [
+    "Forgotten Catacombs",
+    "Toxicarium"
+   ]
+  ]
+ },
+ {
   "title": "Outlaw Rookery",
   "anchor": "Outlaw Rookery",
   "mode": "chain",
@@ -1246,87 +1331,6 @@
    [
     "Caravanery",
     "Toll House"
-   ]
-  ]
- },
- {
-  "title": "Plague Pit",
-  "anchor": "Plague Pit",
-  "mode": "chain",
-  "nodes": {
-   "Inn": [
-    0,
-    0
-   ],
-   "Courier Network": [
-    1,
-    1
-   ],
-   "Secret Cellar": [
-    2,
-    0
-   ],
-   "Peat Bog": [
-    2,
-    2
-   ],
-   "Forgotten Catacombs": [
-    3,
-    0
-   ],
-   "Alchemy": [
-    3,
-    2
-   ],
-   "Toxicarium": [
-    4,
-    0
-   ],
-   "Charnel House": [
-    5,
-    0
-   ],
-   "Plague Pit": [
-    6,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Peat Bog",
-    "Alchemy"
-   ],
-   [
-    "Toxicarium",
-    "Charnel House"
-   ],
-   [
-    "Inn",
-    "Courier Network"
-   ],
-   [
-    "Secret Cellar",
-    "Forgotten Catacombs"
-   ],
-   [
-    "Charnel House",
-    "Plague Pit"
-   ],
-   [
-    "Inn",
-    "Secret Cellar"
-   ],
-   [
-    "Courier Network",
-    "Secret Cellar"
-   ],
-   [
-    "Alchemy",
-    "Toxicarium"
-   ],
-   [
-    "Forgotten Catacombs",
-    "Toxicarium"
    ]
   ]
  },

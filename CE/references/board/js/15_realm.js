@@ -12,6 +12,112 @@ document.addEventListener("change",e=>{const el=e.target;if(!el.matches||!el.mat
 function patch(el,html){if(!el||el._h===html)return false;el.innerHTML=html;el._h=html;return true;}
 function rlCommit(){save();renderTable();}
 function pOf(el,k){return pById(el.dataset[k||"who"]);}
+function standingPhaseActions(p){const pt=p&&PT(p),pending=pt&&pt.standingPending||{};Object.keys(pending).forEach(k=>{if(pending[k].due<tTurn())delete pending[k];});return dbActive(p&&p.board).flatMap(x=>{const m=String(x.text||"").match(/\bPerform endorsed (Build|Charter)\b|\bPerform (?:a )?(Move|Muster) Action\b/i);if(!m)return [];
+  const action=m[1]||m[2],source=x.free?"Studium Generale · "+x.name:x.name,key="standing:"+(x.free?"studium:"+x.id:x.dom+":"+x.tier),id="STANDING:"+key;
+  if(!pending[key]||pending[key].due!==tTurn())return [];
+  return [{x,action,fin:m[1]?"Endorsed":"Passed",source,key,id,env:{id,owner:p,dom:x.dom,council:false,votes:[],net:3,out:m[1]?"Endorsed":"Passed",done:true,standingAction:action,standingSource:source}}];});}
+function activeCipherTimers(){const out=[];realmTimers().forEach((t,i)=>{if(t.n>0)out.push({ref:{kind:"realm",i},key:"realm:"+String(t.id!=null?t.id:[t.type,t.kind,t.by,t.tp,t.sid,t.aid,t.uid,t.label].join("|")),label:(t.label||t.type)+" · "+t.n});});
+  D.players.forEach(p=>{const b=p.board;(b.placed||[]).forEach(x=>{if(x.bt>0)out.push({ref:{kind:"placed",pid:String(p.id),id:String(x.id),field:"bt"},key:"placed:"+p.id+":"+x.id+":bt",label:p.name+" · "+x.name+" Build · "+x.bt});
+      if(x.dmg>0&&x.rep)out.push({ref:{kind:"placed",pid:String(p.id),id:String(x.id),field:"dmg"},key:"placed:"+p.id+":"+x.id+":dmg",label:p.name+" · "+x.name+" Repair · "+x.dmg});});
+    (b.settlements||[]).forEach(x=>{if(x.bt>0)out.push({ref:{kind:"settlement",pid:String(p.id),id:String(x.id),field:"bt"},key:"settlement:"+p.id+":"+x.id,label:p.name+" · "+(x.name||x.tier)+" Build · "+x.bt});});
+    Object.keys(b.itimer||{}).forEach(n=>{if(b.itimer[n]>0)out.push({ref:{kind:"infra",pid:String(p.id),name:n,field:"itimer"},key:"infra:"+p.id+":"+n+":itimer",label:p.name+" · "+n+" Build · "+b.itimer[n]});});
+    Object.keys(b.idmg||{}).forEach(n=>{if(b.idmg[n]>0&&b.irep&&b.irep[n])out.push({ref:{kind:"infra",pid:String(p.id),name:n,field:"idmg"},key:"infra:"+p.id+":"+n+":idmg",label:p.name+" · "+n+" Repair · "+b.idmg[n]});});});return out;}
+function cipherTimerResolve(ref){if(!ref)return null;if(ref.kind==="realm")return realmTimers()[+ref.i]||null;const p=pById(ref.pid);if(!p)return null;let x;
+  if(ref.kind==="placed")x=(p.board.placed||[]).find(y=>String(y.id)===String(ref.id));
+  else if(ref.kind==="settlement")x=(p.board.settlements||[]).find(y=>String(y.id)===String(ref.id));
+  else if(ref.kind==="infra")return {get n(){return +(p.board[ref.field]||{})[ref.name]||0;},set n(v){p.board[ref.field]=p.board[ref.field]||{};p.board[ref.field][ref.name]=v;}};
+  if(!x)return null;return {get n(){return +x[ref.field]||0;},set n(v){x[ref.field]=v;}};}
+function empireHoldingHTML(p){if(!p||tPhase()!=="empire")return "";const pt=PT(p),used=pt.holdingActs||{},out=[],allArmies=D.players.flatMap(q=>(q.board.armies||[]).map(a=>({p:q,a,k:armyHex(q,a)}))).filter(x=>x.k),ownArmies=allArmies.filter(x=>sameP(x.p,p)),territory=terrOwners();
+  const moves=srcMatch(p.board,"start_empire_move").map(x=>({src:x.n,key:"move:"+x.n,province:false})).concat(srcMatch(p.board,"beacon_start_move").map(x=>({src:x.n,key:"beacon:"+x.n,province:true})));
+  moves.forEach(m=>{if(+used[m.key]===tTurn())return;const avail=ownArmies.filter(x=>!armyBlocked(x.p,x.a)&&(!m.province||(territory[x.k]&&territory[x.k].has(String(p.id)))));
+    out.push('<div class="tb-row"><span style="flex:1">'+esc(m.src)+(m.province?' · Army in your Province':' · Move action')+'</span>'+ (avail.length?avail.map(x=>'<button data-do="holdMove" data-who="'+p.id+'" data-key="'+esc(m.key)+'" data-pid="'+x.p.id+'" data-aid="'+esc(x.a.id)+'">'+esc(x.p.name)+' · '+esc(armyName(x.a))+' ▸</button>').join(""):'<span class="note">No eligible unblocked Army on the map.</span>')+'</div>');});
+  const cb=srcMatch(p.board,"cipher_block_army"),ct=srcMatch(p.board,"cipher_timer_plus");if(cb.length&&+used.cipherArmy!==tTurn()){
+    const last=pt.cipherArmy||{},opts=allArmies.filter(x=>!(last.turn===tTurn()-1&&last.id===String(x.p.id)+":"+String(x.a.id)));
+    out.push('<div class="tb-row"><span style="flex:1">Cipher Chamber · give an Army Blocked</span>'+ (opts.length?'<select id="cipherArmyPick">'+opts.map(x=>'<option value="'+x.p.id+':'+esc(x.a.id)+'">'+esc(x.p.name)+' · '+esc(armyName(x.a))+'</option>').join("")+'</select><button data-do="cipherArmy" data-who="'+p.id+'">apply</button>':'<span class="note">No different Army from last turn.</span>')+'</div>');}
+  if(ct.length&&+used.cipherTimer!==tTurn()){
+    const last=pt.cipherTimer||{},timers=activeCipherTimers().filter(x=>!(last.turn===tTurn()-1&&last.id===x.key));
+    out.push('<div class="tb-row"><span style="flex:1">Cipher Chamber · increase an active Timer by '+(+ct[0].m[1]||2)+'</span>'+ (timers.length?'<select id="cipherTimerPick">'+timers.map(x=>'<option value="'+esc(JSON.stringify(x.ref))+'">'+esc(x.label)+'</option>').join("")+'</select><button data-do="cipherTimer" data-who="'+p.id+'" data-n="'+(+ct[0].m[1]||2)+'">increase</button>':'<span class="note">No different active Timer from last turn.</span>')+'</div>');}
+  const cd=pt.courierDeferred;if(cd&&cd.due<=tTurn()&&!cd.done)out.push('<div class="tb-row"><span style="flex:1">Courier Network · perform deferred '+esc(cd.act)+(cd.target?' → '+esc(pById(cd.target)?.name||'target'):'')+'</span><button data-do="courierDeferred" data-who="'+p.id+'">perform ▸</button></div>');
+  const bs=srcMatch(p.board,"start_empire_spread");if(bs.length&&+used.exaltedSpread!==tTurn())out.push('<div class="tb-row"><span style="flex:1">Exalted Basilica · Endorsed Spread Truth</span><button data-do="basilicaSpread" data-who="'+p.id+'">perform ▸</button></div>');
+  const st=(p.board.placed||[]).filter(x=>x.name==="Studium Generale"&&pActive(x)&&!x.fac),chosen=pt.studiumEffects||{};
+  st.filter(x=>!chosen[String(x.id)]).forEach(x=>{const avail=T_DOMS.filter(d=>((p.board.domains||{})[d]||0)<SOV&&!Object.keys(chosen).some(k=>chosen[k]===d));
+    out.push('<div class="tb-row"><span style="flex:1">Studium Generale · choose one free Sovereign Domain effect</span>'+ (avail.length?'<select id="studiumDomain-'+esc(x.id)+'">'+avail.map(d=>'<option value="'+d+'">'+d+' · '+esc(String((DBOARD[d]||{}).Sovereign||"").split(":").slice(1).join(":").trim())+'</option>').join("")+'</select><button data-do="studiumChoose" data-who="'+p.id+'" data-id="'+esc(x.id)+'">gain effect</button>':'<span class="note">No unselected Sovereign Domain effects available.</span>')+'</div>');});
+  standingPhaseActions(p).forEach(z=>{let control;if(z.action==="Move"){const pick="stMovePick-"+String(p.id).replace(/[^A-Za-z0-9_-]/g,"")+"-"+z.key.replace(/[^A-Za-z0-9_-]/g,"-"),arms=ownArmies.filter(x=>!armyBlocked(x.p,x.a));
+      control=arms.length?'<select id="'+pick+'">'+arms.map(x=>'<option value="'+esc(x.a.id)+'">'+esc(x.p.name)+' · '+esc(armyName(x.a))+'</option>').join("")+'</select><button data-do="standingMove" data-who="'+p.id+'" data-key="'+esc(z.key)+'" data-pick="'+pick+'">choose Army ▸</button>':'<span class="note">No eligible unblocked Army on the map.</span>';
+    }else control=pfForm(z.env,null,"empire");
+    out.push('<div class="tb-row"><span style="flex:1">'+esc(z.source)+' · '+esc(z.fin)+" "+esc(z.action)+" (Domain Standing)"+'</span>'+control+'</div>');});
+  const automatic=epRows(p.board).filter(x=>x.auto&&x.n>0);if(automatic.length)out.push('<details class="tb-row"><summary class="note">Automatic Empire Phase Faith/Doubt effects ('+automatic.length+')</summary>'+automatic.map(x=>'<div class="note">'+esc(x.k)+': '+esc(x.side)+" +"+x.n+(x.desc?' · '+esc(x.desc):'')+'</div>').join("")+'</details>');
+  const ds=dbActive(p.board);if(ds.length)out.push('<details class="tb-row"><summary class="note">Active Domain Standing effects ('+ds.length+')</summary>'+ds.map(x=>'<div class="note">'+esc(x.free?'Studium Generale · '+x.name:x.name+' ('+x.tier+' '+x.dom+')')+': '+esc(x.text)+'</div>').join("")+'</details>');
+  return out.length?dockCard("Empire Phase effect stack — "+esc(p.name),out.join("")):"";}
+function whisperGateHTML(R){if(R.waiting==="whisper-select"){const p=R.whisperHolder;if(!p||!canAct(p))return dockCard("Whispering Undercroft",'<div class="note">Waiting for '+esc(p?p.name:"a holder")+' to select an Envoy or skip.</div>');
+    const L=whisperEligibleEnvoys(R);return dockCard("Whispering Undercroft — "+esc(p.name),'<div class="note">Select one Personal Envoy. Its sender must declare the action and target before voting, or skip this trigger.</div>'+L.map(E=>'<div class="tb-row"><span style="flex:1">'+esc(E.owner.name)+" · "+esc(E.dom)+" Envoy"+'</span><button data-do="whisperSelect" data-who="'+p.id+'" data-env="'+esc(E.id)+'">select</button></div>').join("")+'<div class="tb-row"><button data-do="whisperSkip" data-who="'+p.id+'">skip</button></div>',"now");}
+  if(R.waiting==="whisper-declare"){const E=R.whisperEnvoy;if(!E)return "";const p=E.owner;if(!canAct(p))return dockCard("Whispering Undercroft",'<div class="note">Waiting for '+esc(p.name)+' to declare '+esc(E.dom)+' action and target.</div>');
+    return dockCard("Whispering Undercroft — declaration required",'<div class="note">'+esc(R.whisperBy&&R.whisperBy.name||"A player")+' selected '+esc(p.name)+"'s "+esc(E.dom)+" Envoy. Declare the specific action, target, and sub-action now. If it passes or is endorsed, this choice will be locked in."+'</div>'+pfForm(E,null,"whisper"),"now");}
+  return "";}
+function forgeRetryHTML(R,p){if(!p||tPhase()!=="envoy"||!canAct(p))return "";const pt=PT(p);if(pt.forgeRetry&&pt.forgeRetry.turn===tTurn())return "";
+  const fails=R.envoys.filter(E=>sameP(E.owner,p)&&E.dom==="Cunning"&&E.done&&E.out==="Failed"&&srcMatch(p.board,"forge_retry").length);
+  if(!fails.length)return "";return dockCard("Forgery Workshop — retry a Failed Cunning Envoy",fails.map(E=>'<div class="tb-row"><span style="flex:1">'+esc(E.dom)+" Envoy failed · "+esc(E.id)+'</span><button data-do="forgeRetry" data-who="'+p.id+'" data-env="'+esc(E.id)+'">send another Cunning Envoy</button></div>').join(""));}
+function courierDeferHTML(R,p){if(!p||tPhase()!=="envoy"||!canAct(p)||!srcMatch(p.board,"courier_defer").length)return "";const pt=PT(p);if((pt.holdingActs||{}).courierDefer===tTurn()||(pt.courierDeferred&&!pt.courierDeferred.done))return "";
+  const rows=R.envoys.filter(E=>sameP(E.owner,p)&&!E.council&&E.done&&E.out!=="Failed"&&E.out!=="Condemned").map(E=>{const pe=performEval(E);if(!pe||!(pe.out==="Passed"||pe.out==="Endorsed")||!pe.rec.action)return "";
+    const target=pe.tgt?" → "+pe.tgt.name:"";return '<div class="tb-row"><span style="flex:1">'+esc(E.dom)+" · "+esc(pe.rec.action)+esc(target)+"</span><button data-do=\"courierDeferChoose\" data-who=\""+p.id+"\" data-env=\""+esc(E.id)+"\">defer to next Empire Phase</button></div>";}).filter(Boolean);
+  return rows.length?dockCard("Courier Network — choose a Performed Personal Envoy",rows.join("")):"";}
+DO.holdMove=el=>{const p=pOf(el),q=pById(el.dataset.pid),a=q&&(q.board.armies||[]).find(x=>String(x.id)===String(el.dataset.aid)),key=el.dataset.key;
+  if(!p||!q||!a||!canAct(p)||tPhase()!=="empire")return;const pt=PT(p),used=pt.holdingActs||{};if(+used[key]===tTurn())return;
+  if(key.startsWith("beacon:")&&!(terrOwners()[armyHex(q,a)]||new Set()).has(String(p.id))){flash("Beacon Towers can only move an Army in your Province");return;}
+  if(armyBlocked(q,a)){flash("That Army is Blocked");return;}pt.holdMove={turn:tTurn(),key,aid:String(a.id),armyPid:String(q.id),holderPid:String(p.id)};SEL={pid:String(q.id),aid:String(a.id)};INSP=armyHex(q,a);save();render();flash(p.name+": select a lit hex to perform the Move");};
+DO.cipherArmy=el=>{const p=pOf(el),v=(document.getElementById("cipherArmyPick")||{}).value||"",[pid,aid]=v.split(":"),q=pById(pid),a=q&&(q.board.armies||[]).find(x=>String(x.id)===aid);if(!p||!a||!canAct(p)||tPhase()!=="empire")return;
+  const pt=PT(p),last=pt.cipherArmy||{};if(last.turn===tTurn()-1&&last.id===v){flash("Choose a different Army than last turn");return;}a.blocked=true;a.blockedT=tTurn();pt.cipherArmy={turn:tTurn(),id:v};pt.holdingActs=pt.holdingActs||{};pt.holdingActs.cipherArmy=tTurn();noteAdd(p,"Cipher Chamber: "+armyName(a)+" gains Blocked");save();render();};
+DO.cipherTimer=el=>{const p=pOf(el),raw=(document.getElementById("cipherTimerPick")||{}).value;if(!p||!canAct(p)||tPhase()!=="empire")return;let ref;try{ref=JSON.parse(raw);}catch(e){return;}const t=cipherTimerResolve(ref);if(!t||!(t.n>0))return;
+  const key=activeCipherTimers().find(x=>JSON.stringify(x.ref)===JSON.stringify(ref))?.key||JSON.stringify(ref),pt=PT(p),last=pt.cipherTimer||{};if(last.turn===tTurn()-1&&last.id===key){flash("Choose a different Timer than last turn");return;}
+  const n=Math.max(1,+el.dataset.n||2);t.n+=n;pt.cipherTimer={turn:tTurn(),id:key};pt.holdingActs=pt.holdingActs||{};pt.holdingActs.cipherTimer=tTurn();noteAdd(p,"Cipher Chamber: Timer +"+n);save();render();};
+DO.cunningRecoup=el=>{const p=pOf(el),key=el.dataset.key;if(!p)return;const c=tCurW(p),r=(c.cunningRecoups||[]).find(x=>x.key===key);if(!r||r.claimed||r.turn!==tTurn()||!canAct(p))return;
+  if(!srcMatch(p.board,"recoup_on_cunning").some(x=>x.n===r.src))return;tGold(p.board,+r.amount,"Thieves' Guild Recoup · "+r.act);r.claimed=true;noteAdd(p,"Thieves' Guild: Recoup "+(+r.amount).toLocaleString()+" gold after "+r.act);save();render();};
+DO.basilicaSpread=el=>{const p=pOf(el);if(!p||!canAct(p)||tPhase()!=="empire"||!srcMatch(p.board,"start_empire_spread").length)return;
+  const pt=PT(p);pt.holdingActs=pt.holdingActs||{};if(+pt.holdingActs.exaltedSpread===tTurn())return;
+  const E={id:"BASILICA:"+p.id+":"+tTurn(),owner:p,dom:"Piety",council:false,votes:[],net:3,out:"Endorsed",done:true},res=resolveEnvoy(E,{rec:{action:"Spread Truth",target:""}},"Endorsed"),c=tCurW(p);c.applied=c.applied||{};
+  c.applied[E.id]={out:"Endorsed",dom:"Piety · Exalted Basilica",act:"Spread Truth",fx:res.fx,flags:res.flags};pt.holdingActs.exaltedSpread=tTurn();save();render();};
+DO.studiumChoose=el=>{const p=pOf(el),id=String(el.dataset.id),d=(document.getElementById("studiumDomain-"+id)||{}).value,st=p&&(p.board.placed||[]).find(x=>String(x.id)===id&&x.name==="Studium Generale"&&pActive(x)&&!x.fac);
+  if(!p||!st||!T_DOMS.includes(d)||((p.board.domains||{})[d]||0)>=SOV||Object.keys(PT(p).studiumEffects||{}).some(k=>PT(p).studiumEffects[k]===d)||!canAct(p)||tPhase()!=="empire"||((PT(p).studiumEffects||{})[id]))return;
+  const fx=(DBOARD[d]||{}).Sovereign;if(!fx)return;const pt=PT(p);pt.studiumEffects=pt.studiumEffects||{};pt.studiumEffects[id]=d;
+  if(/\bPerform (?:endorsed (?:Build|Charter)|(?:a )?(?:Move|Muster) Action)\b/i.test(String(fx))){pt.standingPending=pt.standingPending||{};pt.standingPending["standing:studium:"+id]={due:tTurn()};}
+  noteAdd(p,"Studium Generale: gained "+String(fx).split(":")[0]+" (free Sovereign "+d+" effect)");save();render();};
+DO.standingMove=el=>{const p=pOf(el),key=el.dataset.key,z=p&&standingPhaseActions(p).find(x=>x.key===key),raw=(document.getElementById(el.dataset.pick)||{}).value,a=p&&(p.board.armies||[]).find(x=>String(x.id)===String(raw));
+  if(!p||!z||z.action!=="Move"||!a||!canAct(p)||tPhase()!=="empire"||armyBlocked(p,a))return;
+  const pt=PT(p);if(pt.holdMove&&pt.holdMove.turn===tTurn()){flash("Finish the pending Move action first");return;}
+  pt.holdMove={turn:tTurn(),key:z.key,aid:String(a.id),armyPid:String(p.id),holderPid:String(p.id)};SEL={pid:String(p.id),aid:String(a.id)};INSP=armyHex(p,a);save();render();flash(p.name+": select a lit hex to perform the Domain Standing Move");};
+DO.standingPerform=el=>{const p=pOf(el),z=p&&standingPhaseActions(p).find(x=>x.id===el.dataset.env);if(!p||!z||!canAct(p)||tPhase()!=="empire")return;
+  const pt=PT(p);pt.holdingActs=pt.holdingActs||{};if(+pt.holdingActs[z.key]===tTurn())return;const d=PF[z.id]||{},a=d.action||"",sp=pfSpec(a),tg=String(d.target||""),T=pfTargets(z.env,a).find(x=>x.v===tg);
+  const subs=pfSubs(p,a,tg),pls=sp.place?sp.place(p,d.sub):null;if(a!==z.action||!T||!T.legal||(subs&&!subs.some(x=>x.v===d.sub&&!x.dis))||(pls&&pls.length&&!pls.some(x=>x.v===d.place&&!x.dis))){flash("Choose a legal "+z.action+" action before resolving this Standing effect");return;}
+  const rec={action:a,target:tg,sub:d.sub||"",place:d.place||""},res=resolveEnvoy(z.env,{rec},z.fin),c=tCurW(p);c.applied=c.applied||{};
+  c.applied[z.id]={out:z.fin,dom:z.source+" (Domain Standing)",act:a,fx:res.fx,flags:res.flags};pt.holdingActs[z.key]=tTurn();delete pt.standingPending[z.key];noteAdd(p,z.source+": "+z.fin+" "+a+(T.label&&T.label!=="—"?" → "+T.label:""));delete PF[z.id];save();render();};
+DO.whisperSelect=el=>{const holder=pOf(el),R=tSim(),E=whisperEligibleEnvoys(R).find(x=>x.id===el.dataset.env);if(!holder||!E||R.waiting!=="whisper-select"||!sameP(holder,R.whisperHolder)||!canAct(holder)||!srcMatch(holder.board,"whisper_declare").length)return;
+  PT(holder).whisperUse={turn:tTurn(),envoy:E.id,done:false};PT(E.owner).whisperDeclare={turn:tTurn(),envoy:E.id,by:String(holder.id)};save();render();};
+DO.whisperSkip=el=>{const p=pOf(el),R=tSim();if(!p||R.waiting!=="whisper-select"||!sameP(p,R.whisperHolder)||!canAct(p))return;PT(p).whisperUse={turn:tTurn(),done:true,skip:true};save();render();};
+DO.whisperDeclare=el=>{const p=pOf(el),R=tSim(),E=R.whisperEnvoy;if(!p||!E||!sameP(p,E.owner)||R.waiting!=="whisper-declare"||!canAct(p))return;const d=PF[E.id]||{},a=d.action||"",sp=pfSpec(a),tg=String(d.target||""),T=pfTargets(E,a).find(x=>x.v===tg);
+  const subs=pfSubs(p,a,tg),pls=sp.place?sp.place(p,d.sub):null;if(!a||!T||!T.legal||(subs&&!subs.some(x=>x.v===d.sub&&!x.dis))||(pls&&pls.length&&!pls.some(x=>x.v===d.place&&!x.dis))){flash("Choose a legal action, target, and sub-action before declaring");return;}
+  const c=tCurW(p);c.perform=c.perform||{};c.perform[E.id]={action:a,target:tg,sub:d.sub||"",place:d.place||"",whisperLock:{by:R.whisperBy&&String(R.whisperBy.id)||"",turn:tTurn()},ts:tnow()};
+  const h=R.whisperBy;if(h){const u=PT(h).whisperUse;if(u&&u.turn===tTurn())u.done=true;}delete PT(p).whisperDeclare;delete PF[E.id];save();render();};
+DO.forgeRetry=el=>{const p=pOf(el),R=tSim(),E=R.envoys.find(x=>x.id===el.dataset.env&&p&&sameP(x.owner,p));if(!p||!E||!canAct(p)||tPhase()!=="envoy"||E.dom!=="Cunning"||!E.done||E.out!=="Failed"||!srcMatch(p.board,"forge_retry").length||(PT(p).forgeRetry&&PT(p).forgeRetry.turn===tTurn()))return;
+  const failedRec=(tCur(p).perform||{})[E.id]||{},old=failedRec.target?String(failedRec.target):R.envoys.filter(x=>sameP(x.owner,p)&&x.dom==="Cunning"&&x.id!==E.id).map(x=>{const z=(tCur(p).perform||{})[x.id];return z&&z.target?String(z.target):"";}).filter(Boolean).pop()||"";
+  PT(p).forgeRetry={turn:tTurn(),from:E.id,excludeTarget:old,src:srcMatch(p.board,"forge_retry")[0].n};save();render();};
+function envoyInterventionHTML(R){if(tPhase()!=="envoy"||!R.curEnvoy||R.curEnvoy.council)return "";const E=R.curEnvoy,hasVotes=E.votes.some(v=>v.a==="S"||v.a==="O");if(hasVotes)return "";const rows=[];
+  D.players.filter(canAct).forEach(p=>{const pt=PT(p),used=pt.holdingActs||{};if(srcMatch(p.board,"courier_auth_minus").length&&+used.courierAuth!==tTurn()&&!(pt.courierTarget&&pt.courierTarget.turn===tTurn()))
+      rows.push(`<div class="tb-row"><span style="flex:1">Courier Network · Authority −1 on ${esc(E.owner.name)}'s ${esc(E.dom)} Envoy</span><button data-do="courierAuth" data-who="${p.id}">apply</button></div>`);
+    if(srcMatch(p.board,"senate_intervene").length&&+used.senateHall!==tTurn()&&!sameP(p,E.owner)){
+      if(atWarPair(p,E.owner))rows.push(`<div class="tb-row"><span style="flex:1">Senate Hall · Condemn ${esc(E.owner.name)}'s Envoy before voting</span><button data-do="senateIntervene" data-out="Condemned" data-who="${p.id}">Condemn</button></div>`);
+      else if(alliedP(p,E.owner))rows.push(`<div class="tb-row"><span style="flex:1">Senate Hall · Endorse ${esc(E.owner.name)}'s Envoy before voting</span><button data-do="senateIntervene" data-out="Endorsed" data-who="${p.id}">Endorse</button></div>`);}});
+  return rows.length?dockCard("Before the vote — "+esc(E.owner.name)+"'s "+esc(E.dom)+" Envoy",rows.join("")):"";}
+DO.courierAuth=el=>{const p=pOf(el),R=tSim(),E=R.curEnvoy;if(!p||!E||E.council||!canAct(p)||tPhase()!=="envoy"||E.votes.some(v=>v.a==="S"||v.a==="O")||!srcMatch(p.board,"courier_auth_minus").length)return;
+  PT(p).courierTarget={turn:tTurn(),envoy:E.id,src:srcMatch(p.board,"courier_auth_minus")[0].n};PT(p).holdingActs=PT(p).holdingActs||{};PT(p).holdingActs.courierAuth=tTurn();save();render();};
+DO.courierDeferChoose=el=>{const p=pOf(el),R=tSim(),E=R.envoys.find(x=>x.id===el.dataset.env&&p&&sameP(x.owner,p)),pe=E&&performEval(E);if(!p||!E||!pe||!pe.rec.action||!canAct(p)||tPhase()!=="envoy"||!srcMatch(p.board,"courier_defer").length)return;
+  if(!(pe.out==="Passed"||pe.out==="Endorsed"))return;const pt=PT(p);pt.courierDeferred={due:tTurn()+1,act:pe.rec.action,dom:E.dom,target:pe.rec.target||"",sub:pe.rec.sub||"",place:pe.rec.place||"",src:srcMatch(p.board,"courier_defer")[0].n,from:E.id,done:false};
+  const oe=onceEffects(p).find(x=>/Performed next turn/i.test(x.c));if(oe)onceUse(p,oe.key,oe.game,true);else{const f=srcMatch(p.board,"envoy_next_fewer")[0];if(f)pt.envNext={turn:tTurn()+1,n:-(+f.m[1]),src:f.n};}
+  pt.holdingActs=pt.holdingActs||{};pt.holdingActs.courierDefer=tTurn();save();render();};
+DO.courierDeferred=el=>{const p=pOf(el);if(!p||!canAct(p)||tPhase()!=="empire")return;const pt=PT(p),cd=pt.courierDeferred;if(!cd||cd.done||cd.due>tTurn())return;
+  const E={id:"COURIER:"+p.id+":"+tTurn(),owner:p,dom:cd.dom,council:false,votes:[],net:1,out:"Passed",done:true},rec={action:cd.act,target:cd.target,sub:cd.sub,place:cd.place},res=resolveEnvoy(E,{rec},"Passed"),c=tCurW(p);c.applied=c.applied||{};
+  c.applied[E.id]={out:"Passed",dom:cd.dom+" · Courier Network",act:cd.act,fx:res.fx,flags:res.flags};cd.done=true;save();render();};
+DO.senateIntervene=el=>{const p=pOf(el),R=tSim(),E=R.curEnvoy,out=el.dataset.out;if(!p||!E||E.council||!canAct(p)||tPhase()!=="envoy"||E.votes.some(v=>v.a==="S"||v.a==="O")||!srcMatch(p.board,"senate_intervene").length)return;
+  if((out==="Condemned"&&!atWarPair(p,E.owner))||(out==="Endorsed"&&!alliedP(p,E.owner)))return;const src=srcMatch(p.board,"senate_intervene")[0].n;PT(p).senateChoice={turn:tTurn(),envoy:E.id,out,src};PT(p).holdingActs=PT(p).holdingActs||{};PT(p).holdingActs.senateHall=tTurn();save();render();};
 
 // ---- drawers: open state per device; bodies render only while open ----
 var RL_OPEN=new Set(["rlLog"]),RL_SHUT=new Set(),RL_MAP=false;
@@ -143,7 +249,8 @@ function phaseCardHTML(R){
   if(ph==="rest")h+='<div class="note">Unused Envoys & Influence are discarded · Season +1 · gain Renown · spend a Domain Point · Host passes clockwise (not in Spring).</div>'+
     (dpOwed().length?'<div>Domain Points to spend: <b>'+dpOwed().map(p=>esc(p.name)+' '+p.board.dp).join(', ')+'</b></div>':'<div class="pos">Domain Points spent.</div>');
   if(hc){const nx=tNext(ph),vt=(ph==="council"&&!isSpring())||ph==="envoy";
-    h+='<div class="rl-hostbar">'+(vt?'<button data-do="begin">'+(t.phaseTs?'Restart':'Begin')+' '+esc(T_PHL[ph].replace(" Phase",""))+'</button>':'')+
+    h+='<div class="rl-hostbar">'+(vt?'<button data-do="begin">'+(t.phaseTs?'Restart Phase':'Begin')+'</button>':'')+
+      (vt&&R.cur?'<button data-do="add30" title="Give the current voter 30 more seconds; if the timer is off, start a 30-second timer for this vote">Add 30s</button>':'')+
       (R.cur?'<button data-do="skip" title="current voter abstains">Skip current</button>':'')+
       '<button data-do="phase" data-ph="'+nx+'">'+esc(T_PHL[nx].replace(" Phase",""))+' ▸</button>'+
       (ph==="rest"?'<button data-do="endturn" class="on">End turn</button>':'')+'</div>'+
@@ -158,8 +265,9 @@ function phaseCardHTML(R){
   {const pr=(DATA.phaseRules||{})[ph];if(pr)h+='<details class="tb-rules"><summary class="note">Rules — '+esc(T_PHL[ph])+'</summary><div class="note" style="text-align:left;margin-top:4px">'+mdLite(pr)+'</div></details>';}
   h+='<div class="rl-you note">You: '+(me?tName(me):'—')+(lockOn()?'':' · <label><input type="checkbox" data-do="hotseat"'+(HOTSEAT?" checked":"")+'> hot-seat (act for anyone)</label>')+'</div>';
   return h+'</div>';}
-DO.begin=()=>tSetPhase(tPhase());
-DO.phase=el=>tSetPhase(el.dataset.ph);
+DO.begin=()=>{if(TB().phaseTs)tRestartPhase();else tSetPhase(tPhase());};
+DO.add30=()=>tAdd30();
+DO.phase=el=>{if(el.dataset.ph===tPhase()&&TB().phaseTs)tRestartPhase();else tSetPhase(el.dataset.ph);};
 DO.skip=()=>{const R=tSim();if(R.cur){TB().skip[R.cur.key]=Math.max(tnow(),R.cur.start);rlCommit();}};
 DO.endturn=()=>tEndTurn();
 DO.autoseat=()=>tAutoSeat();
@@ -176,6 +284,13 @@ function dockHTML(R){
   const t=TB(),ph=tPhase(),me=meP(),E=R.curEnvoy,cw=R.cur?R.cur.who:null,qp=HOTSEAT?(cw||me):me,vt=(ph==="council"||ph==="envoy")&&t.phaseTs;
   if(!me)return dockCard("Spectating",'<div class="note">Claim a player to act.</div>');
   let h="";
+  // Put once-per controls at the top of the action dock, before the current response/action prompts.
+  h+=whisperGateHTML(R);
+  h+=onceHTML(qp,ph);
+  h+=envoyInterventionHTML(R);
+  h+=courierDeferHTML(R,qp);
+  h+=forgeRetryHTML(R,qp);
+  {const RCP=(tCur(qp).cunningRecoups||[]).filter(x=>x.turn===tTurn()&&!x.claimed);if(RCP.length)h+=dockCard("Thieves' Guild — Recoup",RCP.map(x=>'<div class="tb-row"><span style="flex:1">'+esc(x.src)+': after '+esc(pById(x.from)?.name||"another player")+"'s "+esc(x.act)+' Cunning action</span><button data-do="cunningRecoup" data-who="'+qp.id+'" data-key="'+esc(x.key)+'">recoup '+(+x.amount).toLocaleString()+'</button></div>').join(""));}
   // 1. Council vote
   if(ph==="council"&&t.phaseTs&&!R.councilDom&&R.waiting!=="tie"){const who=(cw&&canAct(cw)&&R.cur.key.startsWith("CV:"))?cw:me;
     if(!R.resolved.has("CV:"+who.id)&&tOrder().some(p=>sameP(p,who))){const cv=tCur(who).council;
@@ -217,7 +332,7 @@ function dockHTML(R){
   // 7. Influence & Envoys (Council and Envoy Phases)
   if(ph==="council"||ph==="envoy")h+=inflCardHTML(qp);
   // 8. Empire Phase: checklist, Extort targets, Extort by hand
-  if(ph==="empire"){h+=dockCard("Empire Phase",empireChecklistHTML());h+=extortTargetsHTML(qp);
+  if(ph==="empire"){h+=empireHoldingHTML(qp);h+=dockCard("Empire Phase",empireChecklistHTML());h+=extortTargetsHTML(qp);
     h+=dockCard("Extort",'<div class="tb-row"><select id="exFrom">'+D.players.map(p=>'<option value="'+p.id+'">'+esc(p.name)+'</option>').join('')+'</select><span class="note">→</span>'+
       '<select id="exTo">'+D.players.map((p,i)=>'<option value="'+p.id+'"'+(i===1?' selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select>'+
       '<input id="exAmt" type="number" min="0" step="100" value="500" style="width:70px"><button data-do="extort">extort</button></div>');}
@@ -230,8 +345,8 @@ function dockHTML(R){
   // 10. Rest Phase: Domain Points
   if(ph==="rest"){const L=(HOTSEAT||ADMIN?D.players:[me]).filter(p=>p&&(p.board.dp||0)>0);
     L.forEach(p=>{h+=dockCard("Domain Point — "+esc(p.name),'<div class="tb-row" style="flex-wrap:wrap">'+dpButtons(p,D.players.indexOf(p))+'</div>',"now");});}
-  // 11. once-per effects usable now, loans
-  h+=onceHTML(qp,ph);h+=loansHTML(qp);
+  // 11. Loans
+  h+=loansHTML(qp);
   return h||dockCard("Nothing to do",'<div class="note">Waiting on other players.</div>');}
 // the Envoy queue: every Envoy of this phase in resolution order; resolved ones show their result (expand for the votes),
 // the current one is highlighted, upcoming ones carry your pre-vote (applied when its turn comes, hidden until then)
@@ -292,17 +407,19 @@ DO.extort=()=>{const f=pById(document.getElementById("exFrom").value),to=pById(d
 DO.exto=el=>{const p=pOf(el);if(!p)return;p.board.exTo=p.board.exTo||{};if(el.value)p.board.exTo[el.dataset.exto]=el.value;else delete p.board.exTo[el.dataset.exto];rlCommit();};
 DO.battleopen=el=>{const o=bq().find(x=>x.id===el.dataset.q);if(o&&!bqLoad(o))return;D.view="battle";save();render();};
 // Perform (stage 2): picker, Perform, accept a fail, edit, pending done, declined at the table (Diplomatic Mission)
-DO.pf=el=>{const [id,k]=el.dataset.pf.split("|");const d=PF[id]=PF[id]||{};d[k]=el.value;if(k==="action"){delete d.target;delete d.sub;}if(k==="target")delete d.sub;if(k!=="place")delete d.place;renderTable();};
+DO.pf=el=>{const [id,k]=el.dataset.pf.split("|");if(D.players.some(p=>(tCur(p).perform||{})[id]?.whisperLock)){flash("Whispering Undercroft locked this declared action and target");return;}const d=PF[id]=PF[id]||{};d[k]=el.value;if(k==="action"){delete d.target;delete d.sub;}if(k==="target")delete d.sub;if(k!=="place")delete d.place;renderTable();};
 DO.perf=el=>{const p=pOf(el),c=tCurW(p),id=el.dataset.env;c.perform=c.perform||{};
-  const d=PF[id]||{},old=c.perform[id]||{},E=(tSim().envoys||[]).find(x=>x.id===id),tg=old.lock?String(old.lock.target||""):old.edit&&old.target?old.target:(d.target||"");
+  const d=PF[id]||{},old=c.perform[id]||{},E=(tSim().envoys||[]).find(x=>x.id===id),tg=old.lock?String(old.lock.target||""):old.edit&&old.target?old.target:(d.target||"");if(old.whisperLock&&(d.action!==old.action||tg!==String(old.target||"")||String(d.sub||"")!==String(old.sub||"")||String(d.place||"")!==String(old.place||""))){flash("Whispering Undercroft locked this declared action and target");return;}
+  const blocked=E&&d.action?pfHardFlags(E,d.action,tg):[];
+  if(blocked.length){flash("Action blocked: "+blocked.join("; "));return;}
   const ev=E&&d.action?comboEval(E,d.action,tg):null;
   if(ev&&!ev.ok){const L=old.lock||{target:tg,tried:[],out:ev.out,net:ev.adj};if(!L.tried.includes(d.action))L.tried.push(d.action);c.perform[id]={lock:L,ts:tnow()};delete PF[id];rlCommit();return;}
   c.perform[id]={action:d.action||"",target:tg,sub:d.sub||"",place:d.place||"",ts:tnow()};delete PF[id];rlCommit();};
 DO.pffail=el=>{const c=tCurW(pOf(el));c.perform=c.perform||{};const L=(c.perform[el.dataset.env]||{}).lock||{};
   c.perform[el.dataset.env]={failAccept:1,target:L.target||"",failOut:L.out||"Failed",failNet:L.net,tried:L.tried||[],ts:tnow()};rlCommit();};
 DO.pendone=el=>{const p=pOf(el);if(p){p.board.pending=(p.board.pending||[]).filter(x=>x.id!==el.dataset.env);rlCommit();}};
-DO.perfedit=el=>{const c=tCurW(pOf(el));c.perform=c.perform||{};const r=c.perform[el.dataset.env]||{};c.perform[el.dataset.env]=Object.assign({},r,{edit:1});rlCommit();};
-DO.declined=el=>{const c=tCurW(pOf(el));c.perform=c.perform||{};const r=c.perform[el.dataset.env]||{};
+DO.perfedit=el=>{const c=tCurW(pOf(el));c.perform=c.perform||{};const r=c.perform[el.dataset.env]||{};if(r.whisperLock){flash("Whispering Undercroft locked this declared action and target");return;}c.perform[el.dataset.env]=Object.assign({},r,{edit:1});rlCommit();};
+DO.declined=el=>{const c=tCurW(pOf(el));c.perform=c.perform||{};const r=c.perform[el.dataset.env]||{};if(r.whisperLock){flash("Whispering Undercroft requires the declared action if the Envoy passes");return;}
   if(r.declined)delete r.declined;else r.declined=tnow();c.perform[el.dataset.env]=r;rlCommit();};
 
 // ---- drawers: Turn log · Edicts · Tools ----

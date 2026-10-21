@@ -832,8 +832,15 @@ function factionFlags(){const f=FAC[S.faction];if(!f)return [];const out=[];{con
     if(nr&&(+dv[nr[1]]||0)>u)out.push(S.faction+": no Renown into "+nr[1]+" ("+nr[1]+" "+dv[nr[1]]+")");
     if(mx&&(+dv[mx[2]]||0)>+mx[1])out.push(S.faction+": "+mx[2]+" "+dv[mx[2]]+" > "+mx[1]);}
   return out;}
-// factions offered: the chosen culture's (CULTURES[*].factions); Self-made = every faction. The current pick always stays listed.
-function cultureFactions(b){const c=cultureOf(b||S),L=c?(CUL[c].factions||[]):[];return L.length?new Set(L):null;}
+// Factions offered by a culture are resolved from its mechanic_name list; legacy faction IDs fill only unmatched labels.
+// Self-made = every faction. The current pick always stays listed.
+const CULTURE_MECHANIC_ALIASES={"fiends in low places":"friends in low places"};
+function cultureFactions(b){const c=cultureOf(b||S),row=c&&CUL[c];if(!row)return null;const L=row.mechanics||[];
+  if(L.length){const norm=x=>CULTURE_MECHANIC_ALIASES[String(x).trim().toLowerCase()]||String(x).trim().toLowerCase(),want=new Set(L.map(norm)),out=new Set();
+    Object.keys(FAC).forEach(n=>{if(want.has(norm(FAC[n].mname||"")))out.add(n);});
+    (row.factions||[]).forEach(n=>{const f=FAC[n];if(f&&!want.has(norm(f.mname||"")))out.add(n);});
+    return out.size?out:null;}
+  const old=row.factions||[];return old.length?new Set(old):null;}
 // only final-cut factions (FACTIONS[*].final_cut) are offered; a non-final current pick stays listed
 // FAC_ALL (per device): offer every final-cut faction whatever the culture
 let FAC_ALL=false;try{FAC_ALL=localStorage.getItem("renown_facall")==="1";}catch(_){}
@@ -1479,6 +1486,8 @@ function calcMetrics(have,earned,tc){
      if(me&&settBesieged(me,q.sid))return;craft+=tb.craft;});}
   {const me=playerOfBoard(S),pid=me?String(me.id):null,war=playerAtWar(pid),cpg=[];
    srcMatch(S,"faith_war").forEach(x=>{if(!!x.m[2]!==war)faith+=+x.m[1];});
+   if(me&&D.players.some(q=>!sameP(q,me)&&effPair(me.id,q.id).war&&effPair(me.id,q.id).sacredWar))
+     srcMatch(S,"faith_sacred_war").forEach(x=>{faith+=+x.m[1];});
    srcMatch(S,"faith_per_war").forEach(x=>{faith+=(+x.m[1])*D.players.filter(q=>pid&&String(q.id)!==pid&&effPair(pid,q.id).war).length;});
    srcMatch(S,"gold_per_craft").forEach(x=>cpg.push(+x.m[1]));
    if(pid)D.players.forEach(q=>{if(String(q.id)===pid||!effPair(pid,q.id).trade)return;
@@ -1491,6 +1500,7 @@ function calcMetrics(have,earned,tc){
      if(outside)bo.forEach(x=>{reduce+=+x.m[1];});                                    // once, while an Army is not in Province
      danegeldRows(me).forEach(x=>{extort+=x.amt;});   // Danegeld: upkeep still owed here; the at-war controller pays it (Extort, Empire Phase)
      if(lh.length&&S.armies.some(a=>{const k=armyHex(me,a);return k&&(S.settlements||[]).some(s=>settHex(me,s)===k);}))lh.forEach(x=>{reduce+=+x.m[1];});}}
+  dbActive(S).filter(x=>x.free&&x.dom==="Prowess"&&x.tier==="Sovereign").forEach(x=>{const m=String(x.text).match(/Upkeep\s*[−-]\s*([\d,]+)/i);if(m)reduce+=+m[1].replace(/,/g,"");});
   const pursUp=S.placed.reduce((a,p)=>a+pursuitUpkeep(p),0);
   const armyGross=S.armies.reduce((s,a)=>s+armyUpkeep(a),0);
   const netArmy=Math.max(0,armyGross-reduce);

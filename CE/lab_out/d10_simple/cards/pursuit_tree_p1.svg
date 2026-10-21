@@ -89,14 +89,8 @@
 <rect x="1062" y="136" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="1062" y="136" width="5" height="24" fill="#6a6a72"/>
 <text x="1071" y="151" font-size="8.2" fill="#2b2620">Jewelry Foundry</text>
-<path d="M148,246 L172,246" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M148,246 L172,246" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95"/>
-<path d="M172,246 L172,282" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M172,246 L172,282" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95"/>
-<path d="M172,246 L196,246" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M172,246 L196,246" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M172,282 L712,282" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M172,282 L712,282" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M148,246 L195,246" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M148,246 L195,246" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M320,246 L344,246" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M320,246 L344,246" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95"/>
 <path d="M344,246 L344,282" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>

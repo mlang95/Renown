@@ -34,12 +34,12 @@ function siegeTextMods(def,att){const rows=[];
   return {rows,noWalls};}
 function siegeWinterOK(t){const by=pById(t.by);return !!by&&srcHas(by.board,"siege_winter");}
 function siegeDoubleOK(t){const by=pById(t.by);return !!by&&srcHas(by.board,"siege_double");}   // Battery Park: the besieger's Siege Timers count down twice each turn
-// ---- action restrictions & riders (flags / notes, never locks) ----
+// ---- action restrictions & riders (shown as flags; hard restrictions are enforced after game start) ----
 function actRestrict(owner,action,target){const a=(DATA.actions||{})[action]||{},out=[];
   const hit=(c)=>{const lc=c.toLowerCase();return lc.includes(action.toLowerCase())||(a.domain&&new RegExp("\\b"+a.domain+" actions","i").test(c));};
   srcRows(owner.board,"_cant").forEach(x=>{if(hit(x.r))out.push(x.n+": can't "+x.r.trim());});
   // Faith is Fickle: while your Public Order is below FAITH_FICKLE_PO you can't target players or their Settlements with Piety actions
-  if(target&&!sameP(target,owner)&&a.domain==="Piety"&&RC.FAITH_FICKLE_PO!=null&&(+owner.board.po||0)<+RC.FAITH_FICKLE_PO)
+  if(target&&!sameP(target,owner)&&a.domain==="Piety"&&!srcHas(owner.board,"piety_target_bypass")&&RC.FAITH_FICKLE_PO!=null&&(+owner.board.po||0)<+RC.FAITH_FICKLE_PO)
     out.push("Faith is Fickle: "+owner.name+"'s Public Order is below "+RC.FAITH_FICKLE_PO+" — can't target players or their Settlements with Piety actions");
   if(target&&a.domain==="Industry"){const bs=(target.board.settlements||[]).filter(s=>settBesieged(target,s.id));
     if(bs.length)out.push(target.name+": "+bs.map(s=>s.name||s.tier).join(", ")+" besieged — Industry actions can't target "+(bs.length>1?"them":"it"));}
@@ -50,6 +50,7 @@ function actRestrict(owner,action,target){const a=(DATA.actions||{})[action]||{}
   return out;}
 function actRiders(owner,action,target){const a=(DATA.actions||{})[action]||{},dom=a.domain||"",out=[];
   srcMatch(owner.board,"rider_extra").forEach(x=>{if(x.m[2].toLowerCase()===dom.toLowerCase()||/piety actions cause/i.test(x.m[1])&&dom==="Piety")out.push(x.n+": "+x.m[1]);});
+  if(dom==="Piety")D.players.forEach(p=>srcMatch(p.board,"piety_extra_doubt").forEach(x=>out.push(x.n+" · "+p.name+": +"+x.m[1]+" Doubt to target")));
   srcMatch(owner.board,"rider_your_extra").forEach(x=>{if(x.m[2].toLowerCase()===dom.toLowerCase())out.push(x.n+": "+x.m[1]);});
   srcMatch(owner.board,"basilica_amp").forEach(x=>{if(x.m[1].toLowerCase()===dom.toLowerCase())out.push(x.n+": Faith +"+x.m[2]+" more where it gives Faith, Doubt +"+x.m[3]+" more where it gives Doubt");});
   srcMatch(owner.board,"no_envoy_cost").forEach(x=>{if(x.m[1].toLowerCase()===dom.toLowerCase())out.push(x.n+": no cost");});
@@ -71,12 +72,12 @@ function armyStateTags(p,a){const t=[];
   {const x=armyInside(p,a);if(x)t.push({k:"in",txt:"In "+(x.s.name||x.s.tier)+(sameP(x.q,p)?"":" ("+x.q.name+")")});else if(a.sid!=null)t.push({k:"in",txt:"In ?"});}
   const sg=armySieging(p,a);if(sg)t.push({k:"sieging",txt:(sg.kind==="capture"?"Capturing":"Laying Siege")+" — "+(sg.label||"")+
     (srcHas(p.board,"immune_strain_siege")&&sg.kind==="siege"?" · Immune Strained":"")});
-  if(armyBesieged(p,a)){t.push({k:"besieged",txt:"Besieged"+(besiegeExempt(p)?"":" · Blocked except Sally Forth")});
+  if(armyBesieged(p,a)){t.push({k:"besieged",txt:"Besieged"+(armyBesiegeExempt(p,a)?"":" · Blocked except Sally Forth")});
   }
   {const im=immuneStrainIn(p,a);if(im)t.push({k:"note",txt:im+": Immune Strained (inside a controlled Settlement)"});}
   if(a.sackT)t.push({k:"sack",txt:"Sacking · Blocked & Strained until the Sack Timer resolves"});
   return t;}
-function armyBlocked(p,a){return !!a.blocked||!!a.sackT||(armyBesieged(p,a)&&!besiegeExempt(p));}
+function armyBlocked(p,a){return !!a.blocked||!!a.sackT||(armyBesieged(p,a)&&!armyBesiegeExempt(p,a));}
 // ---- Garrisons: local Armies inside each Settlement while Garrison Infrastructure is active ----
 // sizes from the Garrison text "Local Armies form (10/15/25/50 by Settlement size)", in Settlement tier order
 function garrisonSizes(){const m=hitOf("i:Garrison","garrison_sizes");if(!m)return {};
@@ -144,6 +145,12 @@ function recoupNote(owner,action,out){const a=(DATA.actions||{})[action]||{},dom
 
 // ===================== RULES MECHANICS: extort · siege outcomes · muster · first Doubt · movement =====================
 const RC=DATA.rulesConst||{};
+function blackMarketReact(p,amount,id,kind){if(!p||amount<=0)return [];const out=[];
+  D.players.forEach(h=>{if(sameP(h,p))return;srcMatch(h.board,id).forEach(x=>{
+    const fee=Math.max(+x.m[3]||0,Math.floor(amount/(+x.m[2]||1))*(+x.m[1]||0)),paid=Math.min(fee,Math.max(0,+p.board.treasury||0));
+    if(paid){tGold(p.board,-paid,"Black Market "+kind+" reaction · "+x.n);tGold(h.board,paid,"Black Market "+kind+" reaction · "+x.n);
+      out.push(h.name+" extorts "+paid.toLocaleString()+" from "+p.name+" ("+x.n+")");}
+  });});return out;}
 // ---- Extort: always a transfer of gold that exists; never takes the source below 0 ----
 // from / to: {b:board} or {camp:banditCamp}. Returns the amount moved.
 function extortGold(from,to,amt,why){
@@ -151,6 +158,8 @@ function extortGold(from,to,amt,why){
   const nm=x=>!x?"":x.camp?"Bandits":(x.name||boardOwnerName(x.b)),w=why?" ("+why+")":"";
   if(from.camp)from.camp.gold=have-t;else tGold(from.b,-t,"Extorted"+(to?" by "+nm(to):"")+w);
   if(to){if(to.camp)to.camp.gold=(+to.camp.gold||0)+t;else tGold(to.b,t,"Extort from "+nm(from)+w);}
+  // Reaction transfers are ledgered directly and tagged, so they cannot recurse.
+  if(t&&to&&!to.camp&&to.b){const extorter=D.players.find(p=>p.board===to.b);if(extorter)blackMarketReact(extorter,t,"black_market_extort","Extort");}
   return t;}
 // Danegeld: "While At War, your Armies within reach of at-war Settlements Extort their upkeep from that settlement's controller".
 // One row per Army standing in Territory reached by an at-war player's Settlements; that player pays the Army's upkeep
@@ -206,12 +215,17 @@ function exTargets(b){const T=b.exTo||{},o={};let last=null;extortSlots(b).forEa
 function extortTargetsHTML(qp){const L=extortSlots(qp.board);if(!L.length)return "";const T=exTargets(qp.board);
   return '<div class="tot dock"><div class="dk-h">Extort targets — '+esc(qp.name)+' <span class="note">each Empire Phase</span></div>'+L.map(x=>'<div class="tb-row"><span style="flex:1">'+esc(x.src)+' · '+x.amt.toLocaleString()+'</span>'+
     '<select data-do="exto" data-exto="'+esc(x.key)+'" data-who="'+qp.id+'"'+(canAct(qp)?'':' disabled')+'><option value="">— choose —</option>'+D.players.filter(q=>!sameP(q,qp)).map(q=>'<option value="'+q.id+'"'+(String(T[x.key])===String(q.id)?' selected':'')+'>'+esc(q.name)+'</option>').join("")+'</select></div>').join("")+'</div>';}
-function runAutoExtort(){const out=[];
+function runAutoExtort(){const out=[],treasuryAtStart=new Map(D.players.map(p=>[String(p.id),Math.max(0,+p.board.treasury||0)]));
   {const tm=/Extort (\d+)% of their Treasury/i.exec(((DATA.actions||{}).Tithe||{}).effect||""),pct=tm?+tm[1]:0;
-   if(pct)D.players.forEach(p=>srcMatch(p.board,"tithe_lower").forEach(x=>{const dm=x.m[1].replace(/^\w/,c=>c.toUpperCase());
-     D.players.forEach(q=>{if(sameP(q,p)||((q.board.domains||{})[dm]||0)>=((p.board.domains||{})[dm]||0))return;
+   if(pct)D.players.forEach(p=>srcMatch(p.board,"tithe_lower").forEach(x=>{const metrics=x.m[1].split(/\s+or\s+/i).map(m=>m.toLowerCase()),metricValue=(q,m)=>m==="public order"?(+q.board.po||0):(+((q.board.domains||{})[m.replace(/^\w/,c=>c.toUpperCase())])||0);
+     D.players.forEach(q=>{if(sameP(q,p)||!metrics.some(m=>metricValue(q,m)<metricValue(p,m)))return;
        const amt=Math.floor(Math.max(0,q.board.treasury||0)*pct/100/100)*100,t=extortGold({b:q.board},{b:p.board},amt,x.n);
        if(t)out.push(p.name+" tithes "+t.toLocaleString()+" from "+q.name+" — "+x.n);});}));}
+  D.players.forEach(p=>srcMatch(p.board,"extort_lower_treasury").forEach(x=>D.players.forEach(q=>{
+    if(sameP(q,p)||alliedP(p,q)||(treasuryAtStart.get(String(q.id))||0)>=(treasuryAtStart.get(String(p.id))||0))return;
+    const t=extortGold({b:q.board},{b:p.board},+x.m[1],x.n);
+    if(t)out.push(p.name+" extorts "+t.toLocaleString()+" from "+q.name+" — "+x.n);
+  })));
   D.players.forEach(p=>srcMatch(p.board,"extort_half_trade").forEach(x=>D.players.forEach(q=>{
     if(sameP(q,p)||effPair(p.id,q.id).trade)return;const amt=Math.floor(tradeIncome(q.board).total/2/100)*100;if(amt<=0)return;
     const t=extortGold({b:q.board},{b:p.board},amt,x.n);out.push(p.name+" extorts "+t.toLocaleString()+" from "+q.name+" — "+x.n);})));
@@ -240,6 +254,7 @@ function gainDoubt(b,n,turn){n=Math.max(0,+n||0);if(!n)return 0;turn=turn??(b.tu
 
 // ---- Sieges (realm timers with kind:"siege"): besieged Settlements, Capture, Sack ----
 function siegeOn(pid,sid){return realmTimers().some(t=>t.kind==="siege"&&String(t.tp)===String(pid)&&String(t.sid)===String(sid));}
+function endSettlementSieges(pid,sid){const T=realmTimers();for(let i=T.length-1;i>=0;i--)if(T[i].kind==="siege"&&String(T[i].tp)===String(pid)&&String(T[i].sid)===String(sid))T.splice(i,1);}
 function besiegedCount(p){return (p.board.settlements||[]).filter(s=>siegeOn(p.id,s.id)).length;}
 function pById(id){return D.players.find(q=>String(q.id)===String(id))||null;}
 function nextId(list){return list.reduce((m,x)=>typeof x.id==="number"&&x.id>=m?x.id+1:m,1);}
@@ -273,12 +288,27 @@ function sackApply(i,wardIdx){const T=realmTimers(),t=T[i];if(!t)return;const fr
   const x=extortGold({b:fb},{b:to.board},(+RC.SACK_EXTORT_PER_TIER||0)*tierN,"Sack");log.push("extort "+x.toLocaleString());
   const a=(to.board.armies||[]).find(z=>String(z.id)===String(t.aid)),uid="sk"+Date.now();
   if(a){a.blocked=true;a.strained=true;a.sackT=uid;}
-  T.splice(i,1);T.push({type:"Sack Timer",kind:"sack",uid,by:to.id,aid:t.aid,label:to.name+" · sacked "+from.name+"'s "+(s.name||s.tier),n:+((TMR["Sack Timer"]||{}).default)||1});
+  T.push({type:"Sack Timer",kind:"sack",uid,by:to.id,aid:t.aid,label:to.name+" · sacked "+from.name+"'s "+(s.name||s.tier),n:+((TMR["Sack Timer"]||{}).default)||1});endSettlementSieges(t.tp,t.sid);
   flash("Sack: "+log.join(" · "));}
+// Bandit sieges always sack after winning their resolution battle; use the first Ward as the automatic choice.
+function banditSack(t){if(!t||!t.bandit)return "";const from=pById(t.tp),s=from&&(from.board.settlements||[]).find(x=>String(x.id)===String(t.sid));
+  const M=mapState(),camp=Object.values(M.camps||{}).find(c=>String(c.uid)===String(t.bandit));if(!from||!s||!camp)return "Bandit Sack: target or camp missing";
+  const fb=from.board,tierN=+((DATA.settlements||{})[s.tier]||{}).tier||0,log=[],W=sackWards(from,s),gone=W[0]||[],rm=new Set(gone.map(q=>String(q.id)));
+  const razed=W.slice(1).filter(w=>w.length).map(w=>w[w.length-1]);razed.forEach(q=>{q.dmg=REPAIR_T;});
+  if(razed.length)log.push("razed "+razed.map(q=>q.name).join(", "));
+  fb.placed=(fb.placed||[]).filter(q=>!rm.has(String(q.id)));if(gone.length)log.push("Ward removed: "+gone.map(q=>q.name).join(" + "));
+  const ti=TIER_CHAIN.indexOf(s.tier);if(ti>0){log.push(s.tier+" → "+TIER_CHAIN[ti-1]);s.tier=TIER_CHAIN[ti-1];}
+  const extorted=extortGold({b:fb},{camp},(+RC.SACK_EXTORT_PER_TIER||0)*tierN,"Bandit Sack");log.push("extort "+extorted.toLocaleString()+" to Bandit Treasury");
+  camp.sackTarget=String(t.tp)+":"+String(t.sid);
+  const a=banditArmy(camp),uid="bsk"+Date.now();a.blocked=true;a.strained=true;a.sackT=uid;
+  T.push({type:"Sack Timer",kind:"sack",uid,bandit:t.bandit,label:"Bandits · sacked "+from.name+"'s "+(s.name||s.tier),n:+((TMR["Sack Timer"]||{}).default)||1});
+  return "Bandit Sack: "+log.join(" · ");}
 function resolveRealm(){const T=realmTimers(),out=[];
   for(let i=T.length-1;i>=0;i--){const t=T[i];if(t.n>0)continue;
     if(t.kind==="capture"){out.push(captureTransfer(t));T.splice(i,1);}
-    else if(t.kind==="sack"){D.players.forEach(p=>(p.board.armies||[]).forEach(a=>{if(a.sackT===t.uid){a.blocked=false;delete a.sackT;}}));out.push("Sack Timer resolved: "+t.label);T.splice(i,1);}}
+    else if(t.kind==="sack"){D.players.forEach(p=>(p.board.armies||[]).forEach(a=>{if(a.sackT===t.uid){a.blocked=false;delete a.sackT;}}));
+      if(t.bandit)Object.values(mapState().camps||{}).forEach(c=>{const a=c.army;if(a&&a.sackT===t.uid){a.blocked=false;delete a.sackT;}});
+      out.push("Sack Timer resolved: "+t.label);T.splice(i,1);}}
   return out;}
 function sackLocks(){const live=new Set(realmTimers().filter(t=>t.kind==="sack").map(t=>t.uid));
   D.players.forEach(p=>(p.board.armies||[]).forEach(a=>{if(a.sackT&&live.has(a.sackT))a.strained=true;}));}
@@ -328,6 +358,8 @@ function charterFlags(p){const M=mapState(),g=M.grid,f=[];if(!g)return f;const V
 let SEL=null,MOVEMARCH=false,MOVEADJ=0;
 function selArmy(){if(!SEL)return null;const p=pById(SEL.pid),a=p&&(p.board.armies||[]).find(x=>String(x.id)===String(SEL.aid));if(!a){SEL=null;return null;}return {p,a};}
 function canMoveArmy(p){return !lockOn()||ADMIN||(!!myClaimP()&&String(myClaimP().id)===String(p.id));}
+// Office of Works protects allied Armies while they occupy one of its protected Settlements.
+function armyBesiegeExempt(p,a){const inside=armyInside(p,a);return !!inside&&besiegeExempt(inside.q);}
 // Settlements an Army may enter (ruling): its owner's, or an Alliance member's / same household
 function canEnterSett(p,q){if(!p||!q)return false;if(sameP(p,q))return true;const x=effPair(p.id,q.id);return !!x.household||sameAlliance(String(p.id),String(q.id));}
 // the Settlement an Army is inside: own (a.sid) or allied (a.inAlly = {pid, sid})
@@ -448,7 +480,7 @@ function moveEndTriggers(p,k){const own=terrOwners()[k],out=[];if(!own)return ou
     if(!ally)srcMatch(q.board,"beacon_move").forEach(x=>{
       const m=x.n+" ("+q.name+"): may immediately perform a Move action";out.push(m);noteAdd(q,m);});});
   return out;}
-function moveArmyTo(dk){const mi=moveInfo();if(!mi||!mi.dest||!mi.dest[dk])return false;const M=mapState(),d=mi.dest[dk],p=mi.p,a=mi.a;
+function moveArmyTo(dk){const mi=moveInfo();if(!mi||!mi.dest||!mi.dest[dk])return false;if(armyBlocked(mi.p,mi.a)){flash("Blocked: this Army cannot perform a Move action");return false;}const M=mapState(),d=mi.dest[dk],p=mi.p,a=mi.a;
   const was=armyInside(p,a),from=was?(was.s.name||was.s.tier):mi.k;
   const ck=Object.keys(M.cells).find(k=>{const c=M.cells[k];return c.type==="Army"&&String(c.player)===String(p.id)&&cellArmy(k).a===a;});
   const old=ck?M.cells[ck]:null;if(ck)delete M.cells[ck];
@@ -458,6 +490,10 @@ function moveArmyTo(dk){const mi=moveInfo();if(!mi||!mi.dest||!mi.dest[dk])retur
   else if(dk!==ck||!old)M.cells[dk]=Object.assign({},old||{},{type:"Army",player:p.id,aid:a.id});else M.cells[dk]=old;
   if(d.strain)a.strained=true;if(MOVEMARCH){a.endurance=Math.max(0,(a.endurance||0)-1);}
   const stopped=(d.enter||dk!==ck)?moveStops(p,a):[],trig=(d.enter||dk!==ck)?moveEndTriggers(p,dk):[];
+  const owner=pById(PT(p).holdMove&&PT(p).holdMove.holderPid),hp=owner&&PT(owner).holdMove;if(hp&&hp.turn===tTurn()&&String(hp.aid)===String(a.id)){
+    if(String(hp.key).startsWith("standing:"))delete (PT(owner).standingPending||{})[hp.key];
+    else{PT(owner).holdingActs=PT(owner).holdingActs||{};PT(owner).holdingActs[hp.key]=tTurn();}
+    delete PT(owner).holdMove;noteAdd(owner,hp.key.split(":")[1]+": Move performed by "+armyName(a));}
   flash((a.label||("Army "+a.id))+" moved "+from+" → "+(d.enter?"inside "+d.enter.name:dk)+" ("+d.cost+" of "+mi.speed.speed+")"+(d.strain?" · Strained (Barrens)":"")+(d.w===2?" · Water: move ends":"")+(kicked.length?" · pushed out: "+kicked.join(", "):"")+(stopped.length?" · ends "+stopped.join(", "):"")+(trig.length?" · "+trig.join(" · "):""));
   SEL=null;INSP=dk;
   if(d.engage){const o=d.engage;if(o.kind==="siege"){const sg=siegeState();sg.mode="Lay Siege";sg.tp=String(o.tp);sg.sid=o.sid;sg.by=String(p.id);sg.aid=String(a.id);

@@ -265,7 +265,7 @@ If your Diplomacy Envoy passes or is endorsed but its action fails, you may send
 
 {{ACTIONS:Prowess}}
 
-### Rule: Presence
+### Rule: Commanding Presence
 
 An Army can't move within Range {{VAL:PRESENCE_RANGE}} of a non-allied Settlement or Army — its **Presence** — unless that Move performs a Battle or Lay Siege against it. Bandit Armies have Presence; Bandit Camps don't. An Army that begins a Move within a non-allied Presence may only move to end outside every Presence (or, if at War, to Battle or Lay Siege); if it can't, it can't move.
 
@@ -277,9 +277,9 @@ An Army can't move within Range {{VAL:PRESENCE_RANGE}} of a non-allied Settlemen
 
 {{ACTIONS:Piety}}
 
-### Rule: Faith is Fickle
+### Rule: Wavering Devotion
 
-While your Public Order is below {{VAL:FAITH_FICKLE_PO}}, you can't target players or their settlements with Piety actions.
+While your Public Order is below {{VAL:FAITH_FICKLE_PO}}, you can only perform Spread Truth when sending a Piety envoy.
 
 ## Industry Actions
 

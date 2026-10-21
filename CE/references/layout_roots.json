@@ -36,10 +36,6 @@
     3,
     3
    ],
-   "Fletchery": [
-    3,
-    0
-   ],
    "Siege Works": [
     4,
     1
@@ -52,7 +48,7 @@
     4,
     3
    ],
-   "Tiltyard": [
+   "Fletchery": [
     4,
     0
    ],
@@ -68,7 +64,7 @@
     5,
     3
    ],
-   "Grand Tournament": [
+   "Tiltyard": [
     5,
     0
    ],
@@ -131,10 +127,6 @@
     "Gilded Foundry"
    ],
    [
-    "Tiltyard",
-    "Grand Tournament"
-   ],
-   [
     "Gilded Foundry",
     "Jewelry Foundry"
    ],
@@ -151,7 +143,7 @@
     "Levy Hall"
    ],
    [
-    "Grand Tournament",
+    "Tiltyard",
     "Royal Pavilion"
    ],
    [
@@ -328,10 +320,6 @@
     "Merchant Quarter"
    ],
    [
-    "Courtyard",
-    "Merchant Quarter"
-   ],
-   [
     "Court Artists",
     "Money Lending"
    ],
@@ -479,6 +467,10 @@
     2,
     2
    ],
+   "Toxicarium": [
+    2,
+    3
+   ],
    "Apothecary": [
     2,
     4
@@ -487,7 +479,7 @@
     3,
     2
    ],
-   "Toxicarium": [
+   "Charnel House": [
     3,
     3
    ],
@@ -503,7 +495,7 @@
     4,
     2
    ],
-   "Charnel House": [
+   "Plague Pit": [
     4,
     3
    ],
@@ -519,7 +511,7 @@
     5,
     2
    ],
-   "Plague Pit": [
+   "Ossuary Crypt": [
     5,
     3
    ],
@@ -576,6 +568,10 @@
    [
     "War College",
     "Ministry of Military Strategy"
+   ],
+   [
+    "Plague Pit",
+    "Ossuary Crypt"
    ],
    [
     "Charnel House",
@@ -856,51 +852,55 @@
   "nodes": {
    "Inn": [
     0,
-    1
+    0
+   ],
+   "Secret Cellar": [
+    1,
+    0
    ],
    "Courier Network": [
     1,
     1
    ],
-   "Secret Cellar": [
-    1,
-    2
-   ],
    "Forgotten Catacombs": [
     2,
-    2
-   ],
-   "Smuggler's Nook": [
-    3,
-    1
+    0
    ],
    "Toxicarium": [
     3,
-    2
-   ],
-   "Syndicate Hub": [
-    4,
-    1
+    0
    ],
    "Charnel House": [
     4,
-    2
-   ],
-   "Black Market": [
-    4,
     0
    ],
-   "Outlaw Rookery": [
-    5,
+   "Smuggler's Nook": [
+    4,
     1
    ],
    "Plague Pit": [
     5,
+    0
+   ],
+   "Syndicate Hub": [
+    5,
+    1
+   ],
+   "Black Market": [
+    5,
     2
    ],
-   "Thieves' Guild": [
-    5,
+   "Ossuary Crypt": [
+    6,
     0
+   ],
+   "Outlaw Rookery": [
+    6,
+    1
+   ],
+   "Thieves' Guild": [
+    6,
+    2
    ]
   },
   "edges": [
@@ -919,6 +919,10 @@
    [
     "Secret Cellar",
     "Forgotten Catacombs"
+   ],
+   [
+    "Plague Pit",
+    "Ossuary Crypt"
    ],
    [
     "Syndicate Hub",

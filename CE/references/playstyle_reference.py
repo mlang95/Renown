@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # playstyle_reference.py - culture playstyle reference (landscape Letter, banner per culture).
-# Reads CULTURES, NODES (Monuments), ACTIONS, WONDERS, FACTIONS, DOMAIN_BOARD from renown_data.
+# Reads CULTURES, NODES (Monuments), ACTIONS, WONDERS, FACTIONS, DOMAIN_BOARD from renown_data_d10.
 # Standing path is derived from each culture's Monument unlocks.
 # Usage:  python playstyle_reference.py [out.pdf] [--per-page N]   (default: cards/playstyle_reference.pdf, 5)
 import sys, os, re, math
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import display_pdf; display_pdf.install()   # NAME_DISPLAY on every drawn/measured string (before reportlab imports)
 from display_pdf import D as _D
 from reportlab.pdfgen import canvas
@@ -11,7 +12,7 @@ from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib.colors import HexColor, Color
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-import renown_data as rd
+import renown_data_d10 as rd
 
 # ---- fonts (EB Garamond; Helvetica fallback) ----
 SERIF, SERIF_B, SERIF_I = "Helvetica", "Helvetica-Bold", "Helvetica-Oblique"
@@ -60,6 +61,35 @@ def _c(h): return HexColor(h)
 def disp(x): return x[4:] if x.startswith("The ") else x
 
 
+MECH_ALIASES = {"fiends in low places": "friends in low places"}
+
+
+def _mech_key(s):
+    key = " ".join(str(s or "").split()).casefold()
+    return MECH_ALIASES.get(key, key)
+
+
+def culture_faction_rows(c):
+    """Resolve a culture's mechanic_name labels to faction records for their summaries."""
+    by_mechanic = {_mech_key(mech_name(f)): f for f in FACT}
+    labels = c.get("mechanic_name", [])
+    if isinstance(labels, str):
+        labels = [labels]
+    rows, represented = [], set()
+    for label in labels:
+        f = by_mechanic.get(_mech_key(label))
+        if f:
+            rows.append((str(label), f))
+            represented.add(f)
+        else:
+            rows.append((str(label), None))
+    label_keys = {_mech_key(x) for x in labels}
+    for f in c.get("factions", []):
+        if f in FACT and f not in represented and _mech_key(mech_name(f)) not in label_keys:
+            rows.append((mech_name(f), f))
+    return rows
+
+
 # ---------------------------------------------------------------- validation
 def validate():
     warn = []
@@ -73,8 +103,10 @@ def validate():
             if w not in WONDERS: warn.append(f"{cn}: {w!r} not in WONDERS")
         for a in c.get("actions", []):
             if a.split(":")[0].strip() not in ACTIONS: warn.append(f"{cn}: action {a!r} not in ACTIONS")
-        for f in c.get("factions", []):
-            if f not in FACT: warn.append(f"{cn}: faction {f!r} not in FACTIONS")
+        for label, f in culture_faction_rows(c):
+            if f is None:
+                warn.append(f"{cn}: mechanic_name {label!r} has no FACTIONS match")
+                continue
             seen.setdefault(f, []).append(cn)
         for k, _ in AXES:
             if k not in c.get("radar", {}): warn.append(f"{cn}: radar missing {k}")
@@ -317,28 +349,12 @@ def banner(c, name, x, ytop, bh):
     flow(c, x2, yy, COLW[1], [("\u25c6 " + disp(w), SERIF, WONINK) for w in cu.get("wonders", [])],
          SZ, LEAD, sep=("   ", SERIF, WONINK))
 
-    # col 3: factions (mechanic name + summary), shrink to fit
-    tag(c, x3, top, "Factions")
-    floor = ybot + 5
-    fl = cu.get("factions", [])
-    for size in (8.0, 7.7, 7.4, 7.1, 6.8, 6.5):
-        lead = size + 1.0
-        rows = []
-        for f in fl:
-            fc = (FACT.get(f) or {}).get("final_cut", True)
-            nm = mech_name(f)
-            lines = wrap(c, FSUM.get(f, ""), SERIF, size - 0.6, w3 - 6)
-            rows.append((nm, fc, lines))
-        need = sum(lead + len(r[2])*(lead - 0.6) + 1.5 for r in rows)
-        if top - 10.5 - need >= floor - lead: break
-    yy = top - 10.5
-    for nm, fc, lines in rows:
-        c.setFont(SERIF_B, size); c.setFillColor(META)
-        c.drawString(x3, yy, _D(nm)); yy -= lead
-        c.setFont(SERIF, size - 0.6); c.setFillColor(MUTE)
-        for ln in lines:
-            c.drawString(x3 + 6, yy, ln); yy -= lead - 0.6
-        yy -= 1.5
+    # col 3: culture mechanic names, wrapped compactly to fit
+    tag(c, x3, top, "Faction Mechanics")
+    fl = culture_faction_rows(cu)
+    flow(c, x3, top - 10.5, w3,
+         [(nm, SERIF_B, META) for nm, _ in fl], 7.4, 8.4,
+         sep=("  ·  ", SERIF, MUTE))
 
     # border
     c.setStrokeColor(GRIDC); c.setLineWidth(0.8)

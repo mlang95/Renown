@@ -111,7 +111,7 @@ function newGameState(){const o=gameData();
     b.tbl={seat:tb.seat,seatTs:tb.seatTs,mods:tb.mods||{}};b.domains=startDomsFor({board:b});
     if(p.board&&p.board.claim)b.claim=clone(p.board.claim);                       // claims are identity, not game state
     return {id:p.id,name:p.name,color:p.color,board:b};});
-  o.renown=1;delete o.season;delete o.diplo;delete o.battle;delete o.yearsGone;delete o.started;delete o.bandit;delete o.chron;delete o.chronSnap;
+  o.renown=1;delete o.season;delete o.diplo;delete o.battle;delete o.bqueue;delete o.rtimers;delete o.siege;delete o.yearsGone;delete o.started;delete o.bandit;delete o.chron;delete o.chronSnap;
   const t=o.tbl||{};o.tbl={seats:t.seats,timer:t.timer,auto:t.auto,boardEnd:t.boardEnd,host:t.host,hostSet:t.hostSet,skip:{}};
   return o;}
 document.getElementById("gameSave").onclick=async()=>{const nm=(document.getElementById("gameName").value||"").trim()||("Turn "+tTurn()+" "+new Date().toLocaleDateString());

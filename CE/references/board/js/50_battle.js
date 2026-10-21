@@ -23,13 +23,16 @@ function banditArmy(camp){camp.army=camp.army||{retinue:"",endurance:0,fatigue:0
   return new Proxy(camp.army,{get:(t,k)=>k==="count"?camp.n:k==="label"?"Bandits":t[k],
     set:(t,k,v)=>{if(k==="count")camp.n=v;else t[k]=v;return true;}});}
 const BANDIT_DEFAULT_RETINUE="Levy";   // ruling: bandits default to Levies, changeable per battle
-function armBandits(camp){const a=banditArmy(camp),lo=BLO[currentEra()];
-  // Retinue + gear from BANDIT_EQUIPMENT_PER_ERA ("Retinue: weapon + armor…"); Levy if the era names none
-  const rn=(lo&&lo.retinue&&EQ.retinues[lo.retinue])?lo.retinue:(a.retinue||BANDIT_DEFAULT_RETINUE);
-  if(EQ.retinues[rn]&&a.retinue!==rn){a.retinue=rn;a.endurance=EQ.retinues[rn].endurance;}
-  if(!lo)return;a.weapon=lo.weapon;a.armor=lo.armor;a.shield=lo.shield;}
+function armBandits(camp){const a=banditArmy(camp),era=currentEra(),lo=BLO[era];
+  // Apply the configured era loadout when this camp first gets armed or the game enters a new era.
+  // A battle's manual retinue choice then persists for the rest of that era.
+  if(a.loadoutEra===era)return;
+  const rn=(lo&&lo.retinue&&EQ.retinues[lo.retinue])?lo.retinue:BANDIT_DEFAULT_RETINUE,rt=EQ.retinues[rn];
+  if(rt){a.retinue=rn;a.endurance=rt.endurance;}
+  if(lo){a.weapon=lo.weapon||"";a.armor=lo.armor||"";a.shield=lo.shield||"None";}
+  a.loadoutEra=era;}
 function sideArmy(sd){
-  if(sd.kind==="bandit"){const camp=mapState().camps[sd.camp];return camp?{p:null,a:banditArmy(camp),camp,bandit:true}:{};}
+  if(sd.kind==="bandit"){const camp=mapState().camps[sd.camp];if(!camp)return {};armBandits(camp);return {p:null,a:banditArmy(camp),camp,bandit:true};}
   const p=D.players.find(q=>String(q.id)===String(sd.pid));if(!p)return {};
   if(String(sd.aid||"").startsWith("g:"))return {p,a:garrisonOf(p,String(sd.aid).slice(2)),garrison:true};
   return {p,a:(p.board.armies||[]).find(x=>String(x.id)===String(sd.aid))};}
@@ -256,13 +259,12 @@ function sideHTML(X){
     h+=a?'<select class="bret" data-x="'+X+'"><option value="">retinue…</option>'+Object.keys(EQ.retinues).map(r=>'<option value="'+esc(r)+'"'+(a.retinue===r?' selected':'')+'>'+esc(r)+'</option>').join('')+'</select></div>'+
       '<div class="note">Armed for '+esc(currentEra())+': '+esc(((BAN.equipment||{})[currentEra()])||'—')+' → '+esc([a.weapon,a.armor,a.shield].filter(x=>x&&x!=="None").join(', '))+
       ((lo.unmatched||[]).length?' <span style="color:var(--upkeep)">· not found in equipment data: '+esc(lo.unmatched.join(', '))+'</span>':'')+
-      '<br>Retinue defaults to '+BANDIT_DEFAULT_RETINUE+'.</div>':'<div class="note">camp removed from map</div>';
+      '<br>Retinue follows the era loadout; you can change it for this era.</div>':'<div class="note">camp removed from map</div>';
     if(!c)return h+'</div>';}
   const pl=sd.kind==="bandit"?null:D.players.find(p=>String(p.id)===String(sd.pid));
-  h+='<select class="bsel" data-x="'+X+'" data-f="aid"><option value="">army…</option>'+(pl?(pl.board.armies||[]).map(a=>'<option value="'+a.id+'"'+(String(a.id)===String(sd.aid)?' selected':'')+'>'+esc(a.label||("Army "+a.id))+' — '+esc(a.retinue||"")+' ×'+(a.count||0)+'</option>').join('')+
+  if(sd.kind!=="bandit")h+='<select class="bsel" data-x="'+X+'" data-f="aid"><option value="">army…</option>'+(pl?(pl.board.armies||[]).map(a=>'<option value="'+a.id+'"'+(String(a.id)===String(sd.aid)?' selected':'')+'>'+esc(a.label||("Army "+a.id))+' — '+esc(a.retinue||"")+' ×'+(a.count||0)+'</option>').join('')+
       garrisonsOf(pl).map(g=>'<option value="g:'+g.sid+'"'+(String(sd.aid)==="g:"+g.sid?' selected':'')+'>'+esc(g.label)+' — '+esc(g.retinue||"")+' ×'+(g.count||0)+'</option>').join(''):'')+'</select></div>';
   h+=battleSprites(sd,pl);
-  if(sd.kind==="bandit")h=h.replace(/<select class="bsel" data-x="[AB]" data-f="aid">[\s\S]*?<\/select><\/div>$/,'');
   if(!c)return h+'<div class="note">Pick a player and one of their armies.</div></div>';
   const a=c.a,stat=(k,v,t)=>'<span class="stat" title="'+esc(t||"")+'"><span class="k">'+k+'</span><b>'+v+'</b></span>';
   h+='<div class="stats">'+stat("INIT",(c.I>=0?"+":"")+c.I+(c.rawI!==c.I?" ("+c.rawI+")":"")+(c.tmNote?" ⚠":""),"clamped "+INIT_MIN+"..+"+INIT_MAX+(c.tmNote?" · "+c.tmNote:""))+stat("TO-STRIKE",c.toStrike+"+"+(c.blunder?" BLUNDER":""))+
@@ -467,11 +469,17 @@ function endSkirmish(){
 }
 function endBattle(win){
   const B=battle(),side=X=>{const sa=sideArmy(B[X]);return sa.bandit?{camp:sa.camp,name:"Bandits"}:sa.p?{b:sa.p.board,name:sa.p.name}:null;};
+  const queued=B.qid&&bq().find(x=>x.id===B.qid),banditSiege=queued&&queued.kind==="siege"&&queued.A&&queued.A.kind==="bandit",
+    siegeCamp=banditSiege&&mapState().camps[queued.A.camp],siegeUid=siegeCamp&&siegeCamp.uid;
   ["A","B"].forEach(X=>{const c=sideCalc(X);if(!c)return;c.a.fatigue=0;});
   if(win==="A"||win==="B"){const O=win==="A"?"B":"A",oc=sideCalc(O),W=side(win),L=side(O);
     if(oc&&W&&L){const cost=+oc.rt.cost||0,t=extortGold(L,W,cost,"Spoils of War");   // Spoils of War = the defeated Army's Retinue cost (per Army, as its upkeep)
       blog(W.name+" won — Spoils of War: "+(oc.a.retinue||"")+" cost, extort "+t.toLocaleString()+(t<cost?" (of "+cost.toLocaleString()+")":""));
-      if(L.camp&&!(+L.camp.n>0)){const g=extortGold(L,W,L.camp.gold||0,"destroyed camp");if(g)blog(W.name+" extorts the destroyed camp's Treasury: "+g.toLocaleString());}}
+      if(L.camp&&!(+L.camp.n>0)){const M=mapState(),k=Object.keys(M.camps).find(k=>M.camps[k]===L.camp),g=extortGold(L,W,L.camp.gold||0,"destroyed camp");
+        blog(W.name+" extorts the destroyed camp's Treasury: "+g.toLocaleString());
+        if(k!=null){delete M.camps[k];blog("Bandit Camp @ "+k+" destroyed and removed from play");}
+        const uid=L.camp.uid;if(uid){const timers=realmTimers();for(let i=timers.length-1;i>=0;i--)if(timers[i].bandit&&String(timers[i].bandit)===String(uid))timers.splice(i,1);}
+        if(k!=null)D.bqueue=bq().filter(o=>![o.A,o.B].some(s=>s&&s.kind==="bandit"&&String(s.camp)===String(k)));}}
     if(W&&W.b){W.b.lossStreak=0;W.b.lastBattle="won";}if(L&&L.b){L.b.lossStreak=(+L.b.lossStreak||0)+1;L.b.lastBattle="lost";}
     if(W&&W.b&&L&&L.b)chron("battle",{winner:W.name,loser:L.name});
     const wc=sideCalc(win);if(L&&L.b&&W&&wc&&srcHas(L.b,"spoils_always")){
@@ -480,6 +488,8 @@ function endBattle(win){
       srcMatch(sd.b,"faith_battle_loss").forEach(x=>{if(lost>=+x.m[2]){sd.b.po=applyPOFloor(sd.b,Math.max(PO_MIN,Math.min(PO_MAX,(sd.b.po||0)+(+x.m[1]))));blog(sd.name+" · "+x.n+": Faith +"+x.m[1]);}});});}
   else blog("Battle ended with no winner");
   if(B.qid){D.bqueue=bq().filter(x=>x.id!==B.qid);delete B.qid;}
+  if(banditSiege){const T=realmTimers(),i=T.findIndex(t=>t.kind==="siege"&&t.bandit&&String(t.bandit)===String(siegeUid));
+    if(i>=0){const t=T[i];if(win==="A"){blog(banditSack(t));endSettlementSieges(t.tp,t.sid);}else T.splice(i,1);}}
   blog("Battle ended — Fatigue tokens removed");B.id=null;B.rev=null;B.rolls={};save();render();
 }
 function wireBattle(host){

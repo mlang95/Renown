@@ -10,7 +10,7 @@ Pike,Melee,Wrought,-2,1,"2H, Steady, Unwieldy, Deadly, Awkward"
 Flail,Melee,Wrought,-1,0,"Unwieldy, Unstoppable, Cleave, Awkward"
 Halberd,Melee,Wrought,-2,0,"2H, Steady"
 Battle Axe,Melee,Wrought,-3,-1,"2H, Unstoppable, Cleave, Negate Shielded"
-Cavalry Spear,Melee,Wrought,-2,1,"Steady, Unstoppable, Unwieldy, Awkward"
+Cavalry Spear,Melee,Wrought,-2,1,"Steady, Unwieldy, Unstoppable, Awkward"
 Morningstar,Melee,Forged,-4,-1,"Cleave, Destroy Shield"
 Bastard Sword,Melee,Forged,-2,0,Steady
 2HBastard,Melee,Forged,-2,0,"2H, Unstoppable, Cleave"

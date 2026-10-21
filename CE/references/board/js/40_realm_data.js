@@ -95,6 +95,7 @@ function epSources(b){const out=[],dv=b.domains||{},TIERS=[["Rising",RIS],["Esta
     if(m1)out.push({src:nm,kind:"lower",dom:m1[1],side:m1[2].toLowerCase(),val:+m1[3]});
     if(m2)out.push({src:nm,kind:"self",side:m2[1].toLowerCase(),val:+m2[2]});
     if(m3)out.push({src:nm,kind:"floor",below:+m3[1],to:+m3[2]});});});
+  dbActive(b).filter(x=>x.free&&x.tier==="Sovereign").forEach(x=>{const m=String(x.text).match(EP_FLOOR);if(m)out.push({src:"Studium Generale · "+x.name,kind:"floor",below:+m[1],to:+m[2]});});
   withBoard(b,()=>{const have=new Set(Object.keys(PC)),{earned}=computeEarned(have);
     Object.keys(PC).forEach(n=>{[["h:",true],["hm:",!!earned[n]]].forEach(([k,on])=>{if(!on)return;
       const m=hitOf(k+n,"ep_lower");if(m)out.push({src:n,kind:"lower",dom:m[1],side:m[2].toLowerCase(),val:+m[3]});});});});
@@ -134,7 +135,10 @@ function dpButtons(p,i){const b=p.board,n=b.dp||0;if(n<=0)return "";
 function renderDP(){const box=document.getElementById("dpBox");if(!box)return;const i=D.active,h=dpButtons(D.players[i]||{board:S},i);
   box.style.display=h?"":"none";box.innerHTML=h;}
 document.addEventListener("click",e=>{const b=e.target.closest(".dpsp,.dpsk");if(!b)return;const p=D.players[+b.dataset.pi];if(!p||!(p.board.dp>0))return;
-  if(b.classList.contains("dpsp")){const bd=p.board;bd.domains=bd.domains||{};bd.domains[b.dataset.dom]=Math.min(SOV,(bd.domains[b.dataset.dom]||0)+1);}
+  if(b.classList.contains("dpsp")){const bd=p.board,d=b.dataset.dom;bd.domains=bd.domains||{};const old=+(bd.domains[d]||0),next=Math.min(SOV,old+1);bd.domains[d]=next;
+    [["Rising",RIS],["Established",EST],["Sovereign",SOV]].forEach(([tier,threshold])=>{if(old>=threshold||next<threshold)return;const text=String((DBOARD[d]||{})[tier]||"");
+      if(!/\bPerform (?:endorsed (?:Build|Charter)|(?:a )?(?:Move|Muster) Action)\b/i.test(text))return;
+      const pt=PT(p);pt.standingPending=pt.standingPending||{};pt.standingPending["standing:"+d+":"+tier]={due:tTurn()+1};});}
   {const bd=p.board;bd.dpLog=(bd.dpLog||[]).concat([{turn:tTurn(),dom:b.classList.contains("dpsp")?b.dataset.dom:"(skipped)"}]).slice(-12);}
   p.board.dp--;save();render();});
 // ---- mini standings (Board, left column): active player's Domains, Rest-Phase points, unlocked Domain effects + Pursuits ----
@@ -314,6 +318,7 @@ function diploHTML(){
       const x=effPair(r.id,c.id),b=[];
       const st=dStatus(x);
       b.push(st==="W"?'<b style="color:var(--upkeep)">W</b>':st==="TR"?'<b style="color:var(--order)">TR'+x.truce+'</b>':'<span style="color:var(--income)">P</span>');
+      if(x.sacredWar)b.push('<span title="Sacred War">SW</span>');
       if(x.trade)b.push('TA');if(x.nap)b.push('NAP');
       if(sameAlliance(r.id,c.id))b.push('AL');if(x.mirror&&!x.household)b.push('<span class="note" title="mirrors '+esc(pname(x.ra)+' – '+pname(x.rb))+'">m</span>');
       if(String(d.suzerain[r.id])===String(c.id)||String(d.suzerain[c.id])===String(r.id))b.push('VS');
@@ -364,8 +369,8 @@ function wireDiplo(host){
   host.querySelectorAll(".dpt").forEach(b=>b.onclick=()=>{const x=cur();x.truce=Math.max(0,x.truce+(+b.dataset.d));save();render();});
   host.querySelectorAll(".dpa").forEach(b=>b.onclick=()=>{const x=cur();
     const act=b.dataset.act;
-    if(act==="war"){x.war=true;x.trade=false;}   // declaring war ends trade
-    if(act==="peace"){x.war=false;x.truce=TRUCE_LEN;}
+    if(act==="war"){x.war=true;x.sacredWar=false;x.trade=false;}   // declaring war ends trade
+    if(act==="peace"){x.war=false;x.sacredWar=false;x.truce=TRUCE_LEN;}
     if(act==="trade")x.trade=true;
     if(act==="endtrade")x.trade=false;
     if(act==="nap")x.nap=true;

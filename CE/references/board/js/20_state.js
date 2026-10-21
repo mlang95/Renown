@@ -133,7 +133,11 @@ function glogPush(b,d,why){b.glog=b.glog||[];const t=glogTurn(),last=b.glog[b.gl
   else b.glog.push({t,s:glogSea(),d,why:String(why||""),bal:+b.treasury||0,ts:now});
   if(b.glog.length>GLOG_MAX)b.glog.splice(0,b.glog.length-GLOG_MAX);b.gseen=+b.treasury||0;}
 function glogSync(b){if(!b)return;const t=+b.treasury||0;if(b.gseen==null){b.gseen=t;return;}if(t!==b.gseen)glogPush(b,t-b.gseen,"adjusted");}
-function tGold(b,d,why){d=Math.round(+d||0);if(!b||!d)return 0;glogSync(b);b.treasury=(+b.treasury||0)+d;glogPush(b,d,why);return d;}
+function tGold(b,d,why){d=Math.round(+d||0);if(!b||!d)return 0;glogSync(b);b.treasury=(+b.treasury||0)+d;glogPush(b,d,why);
+  // Direct Recoup credits also trigger Black Market mastery. Envoy cost discounts
+  // are handled where the Recoup is calculated because those are not credit entries.
+  if(d>0&&/recoup/i.test(String(why||""))&&!/black market/i.test(String(why||""))){const recouper=D.players.find(p=>p.board===b);if(recouper)blackMarketReact(recouper,d,"black_market_recoup","Recoup");}
+  return d;}
 function boardOwnerName(b){const p=(D.players||[]).find(q=>q.board===b);return p?p.name:"";}
 // One player's end-of-turn bookkeeping (treasury button and the Table's End turn share this).
 // ---- Empire Phase, in rules order (RULES: The Turn › Empire Phase). Stages run per board; empirePhase() runs them
@@ -145,6 +149,7 @@ function empEconomy(b){const sn=seasonNet(b),net=Math.round(sn.net||0),g0=b.trea
   b.insolv=(b.treasury||0)<0?(+b.insolv||0)+1:0;                              // "Insolvency": consecutive Upkeep with negative Treasury
   return {sn,net,g0};}
 function empPO(b,done){const m=boardMetrics(b),p0=b.po||0,fd=m.po||0,pm=poModTotal(b);let dpo=fd+pm;
+  epRows(b).filter(r=>r.auto&&r.n>0).forEach(r=>done.push(r.k+": "+r.side[0].toUpperCase()+r.side.slice(1)+" +"+r.n+(r.desc?" ("+r.desc+")":"")));
   // each Doubt source is one instance; the turn's first-Doubt slots reduce the first instances, one slot each
   const inst=[m.doubt||0].concat(poModRows(b).filter(r=>r.side==="doubt").map(r=>r.n)).filter(n=>n>0),fr=firstDoubtRed(b),sl=fr.slots.slice();
   let cut=0;inst.forEach(n=>{if(sl.length)cut+=Math.min(n,sl.shift());});
@@ -156,7 +161,7 @@ function immuneStrainIn(p,a){if(!p||!a||a.sackT)return null;const x=a.garrison?{
   const m=srcMatch(x.q.board,"immune_strain_home")[0];return m?m.n+(sameP(x.q,p)?"":" · "+x.q.name):null;}
 // a Settlement under Siege gives its Armies and Garrison Strained (ruling); Granary-type Immune Strained, or a faction not affected by
 // Besieged restrictions, prevents it. effStrained = what Strained means right now (Battle Init, Endurance regain, display).
-function siegeStrains(p,a){if(!p||!a||besiegeExempt(p))return false;return a.garrison?(a.sid!=null&&siegeOn(p.id,a.sid)):armyBesieged(p,a);}
+function siegeStrains(p,a){if(!p||!a||besiegeExempt(p)||armyBesiegeExempt(p,a))return false;return a.garrison?(a.sid!=null&&siegeOn(p.id,a.sid)):armyBesieged(p,a);}
 function effStrained(p,a){if(!a||immuneStrainIn(p,a))return false;return !!a.strained||siegeStrains(p,a);}
 function empArmies(b){let regained=0,cleared=0;const pl=playerOfBoard(b),isc=!!pl&&srcHas(b,"immune_strain_siege");
   (b.armies||[]).forEach(a=>{if(isc&&a.strained&&!a.sackT){const sg=armySieging(pl,a);if(sg&&sg.kind==="siege")a.strained=false;}
@@ -426,8 +431,9 @@ function capitalSett(){return S.settlements.find(s=>s.capital)||null;}
 function setCapital(id){S.settlements.forEach(s=>{s.capital=(s.id===id);});}
 // ---- era / legality flags (ERAS caps; SETTLEMENTS notes) ----
 function isCityPlus(t){return TIER_CHAIN.indexOf(t)>=TIER_CHAIN.indexOf("City");}
-function dbActive(b){const out=[],dv=(b||S).domains||{};[["Rising",RIS],["Established",EST],["Sovereign",SOV]].forEach(([t,th])=>
-  DOMAINS.forEach(d=>{const e=DBOARD[d];if(e&&typeof e==="object"&&e[t]&&(dv[d]||0)>=th)out.push({dom:d,tier:t,name:String(e[t]).split(":")[0].trim(),text:String(e[t])});}));return out;}
+function dbActive(b){b=b||S;const out=[],dv=b.domains||{};[["Rising",RIS],["Established",EST],["Sovereign",SOV]].forEach(([t,th])=>
+  DOMAINS.forEach(d=>{const e=DBOARD[d];if(e&&typeof e==="object"&&e[t]&&(dv[d]||0)>=th)out.push({dom:d,tier:t,name:String(e[t]).split(":")[0].trim(),text:String(e[t])});}));
+  (b.placed||[]).filter(x=>x.name==="Studium Generale"&&pActive(x)&&!x.fac).forEach(x=>{const d=((b.tbl||{}).studiumEffects||{})[String(x.id)],e=DBOARD[d];if(d&&e&&e.Sovereign&&(dv[d]||0)<SOV&&!out.some(y=>y.dom===d&&y.tier==="Sovereign"))out.push({dom:d,tier:"Sovereign",name:String(e.Sovereign).split(":")[0].trim(),text:String(e.Sovereign),free:true,via:"Studium Generale",id:String(x.id)});});return out;}
 // DOMAIN_BOARD "May have an additional City / Settlement / Army" → +1 to the Era cap
 const DB_CAP={cities:/additional City/i,max_settlements:/additional Settlement/i,armies:/additional Army/i};
 function capBonus(k,b){const re=DB_CAP[k];return re?dbActive(b).filter(x=>re.test(x.text)):[];}
@@ -439,7 +445,7 @@ function cityCount(exceptId){return S.settlements.filter(s=>isCityPlus(s.up?s.up
 function eraAllows(t,id){
   if(isCityPlus(t)&&!(id!=null&&isCityPlus(settTier(id)))){const c=eraCap("cities");
     if(c!=null&&cityCount(id)+1>c)return {ok:false,why:currentEra()+" allows "+c+" Cit"+(c===1?"y":"ies")+capSrc("cities")+(c===0?" — reach Ascension (Renown "+((ERAS.Ascension||{}).renown||"?")+") first":"")};}
-  if(t==="Metropolis"&&((S.domains||{}).Industry||0)<SOV)return {ok:false,why:"Metropolis requires Sovereign Industry"};
+  if(t==="Metropolis"&&((S.domains||{}).Industry||0)<SOV&&!dbActive(S).some(x=>x.dom==="Industry"&&x.tier==="Sovereign"&&x.free))return {ok:false,why:"Metropolis requires Sovereign Industry"};
   return {ok:true};
 }
 // flags that point at a rules section (rulebook anchors use the same slug as rules_payload)
@@ -471,7 +477,7 @@ function boardFlags(){
   {const pf=poFloor(S);if(pf&&(S.po||0)<pf.below)f.push("Public Order "+(S.po||0)+" below "+pf.src+" floor "+pf.to);}
   const m=S.settlements.find(s=>s.tier==="Metropolis");
   if(m&&!m.capital)f.push("Metropolis is not the capital (capital only)");
-  if(m&&((S.domains||{}).Industry||0)<SOV)f.push("Metropolis without Sovereign Industry");
+  if(m&&((S.domains||{}).Industry||0)<SOV&&!dbActive(S).some(x=>x.dom==="Industry"&&x.tier==="Sovereign"&&x.free))f.push("Metropolis without Sovereign Industry");
   S.settlements.forEach(s=>{const wu=wardUse(s.id);if(wu.typeBad)f.push(s.tier+": "+wu.badNames.join(", ")+(wu.badNames.length>1?" aren't":" isn't")+" Natural — Hamlets hold Natural Pursuits only");});
   S.settlements.forEach(s=>{const w=wardUse(s.id);if(w.free<0)f.push(s.tier+": "+(-w.free)+" ward(s) over cap");});
   Object.keys(S.infra).forEach(n=>{const st=infraReqStatus(INFRA[n]);if(!st.ok)f.push(n+": req unmet ("+st.missing.join(", ")+")");});
