@@ -1,6 +1,6 @@
 # REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`)
 
-Generated 2026-10-21 · data VERSION `0.4.9.9.13-d10-SIMPLE` · HEAD `91be3f2 2026-10-21`
+Generated 2026-10-22 · data VERSION `0.4.9.9.13-d10-S` · HEAD `ae21ff7 2026-10-21`
 
 Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to the repo root.
 
@@ -101,7 +101,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\repo_map.py` | 250 | repo_map.py — write REPO_MAP.md next to this file (CE/, beside CLAUDE.md): a generated index of the Renown repo for |
 | `CE\run_tournament_d10.bat` | 108 | Renown d10 tournament runner  —  CE build |
 | `CE\run_tournament_d10.py` | 131 | run_tournament_d10.py — run the Renown tournament against the d10 build. |
-| `CE\sprites.py` | 3051 | sprites.py — pixel sprites for the settlement board scene (skins: farmstead, blackletter, scene). |
+| `CE\sprites.py` | 5401 | sprites.py — pixel sprites for the settlement board scene (skins: farmstead, blackletter, scene). |
 | `CE\verify_d10.py` | 168 | verify_d10.py — prove the CE wiring is live before spending hours on a run. |
 | `CE\Combatv4\analysis.py` | 2125 | Analysis module for tournament results. |
 | `CE\Combatv4\batch_engine.py` | 1633 | Batched matchup engine (v3) — resolves MANY matchups x n_runs in one set of arrays, |
@@ -200,7 +200,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\references\render_tree.py` | 272 | render_tree.py - COORDINATE-DRIVEN tree renderer (no auto-layout). |
 | `CE\references\rule_numbers.py` | 250 | rule_numbers.py — MTG-style rule numbers for the rules markdown, computed at render time. |
 | `CE\references\server.py` | 501 | Renown settlement-board server  —  stdlib only, no pip installs. |
-| `CE\references\settlement_board.html` | — | generated HTML (1475 KB) |
+| `CE\references\settlement_board.html` | — | generated HTML (1580 KB) |
 | `CE\references\settlement_mats.py` | 296 | settlement_mats.py - modular ward mats. One Settlement mat (Village -> City, 3 |
 | `CE\references\spec_tree_sheet.py` | 1183 | Renown — Specialization Tree renderer. |
 | `CE\references\svg_to_pdf.py` | 63 | svg_to_pdf.py - combine SVG pages into ONE PDF. |
@@ -510,7 +510,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `RenownWiki\rules-treasury-upkeep.html` | 32 | Treasury &amp; Upkeep — Renown |
 | `RenownWiki\search.js` | 7 |  |
 | `RenownWiki\seasons-ref.html` | 19 | Seasons — Renown |
-| `RenownWiki\settlement_board.html` | — | generated HTML (1475 KB) |
+| `RenownWiki\settlement_board.html` | — | generated HTML (1580 KB) |
 | `RenownWiki\settlements-ref.html` | 19 | Settlements — Renown |
 | `RenownWiki\standing-established.html` | 19 | Established Tier — Renown |
 | `RenownWiki\standing-rising.html` | 19 | Rising Tier — Renown |
@@ -548,7 +548,7 @@ Copied to `CE/renown_data.py` by the build (DIE=d10); every script imports `reno
 | Name | Line | Type | Size / value |
 |---|---|---|---|
 | `SIMPLE` | 4 | bool | True |
-| `VERSION` | 6 | str | '0.4.9.9.13-d10-SIMPLE' |
+| `VERSION` | 6 | str | '0.4.9.9.13-d10-S' |
 | `BLUNDER_THR` | 34 | int | 10 |
 | `DICE_PROVENANCE` | 35 | str | 'd10 / Focused 10+ / Parry 8+ / Recover  |
 | `SACK_EXTORT_PER_TIER` | 38 | int | 2000 |

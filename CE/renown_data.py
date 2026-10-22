@@ -2,7 +2,7 @@
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
 import os as _os
 SIMPLE = _os.environ.get("RENOWN_SIMPLE", "1") == "1"   # build_all_CE.bat: set SIMPLE=1|0
-vS = "-SIMPLE" if SIMPLE else ""
+vS = "-S" if SIMPLE else ""
 VERSION = f"0.4.9.9.13-d10{vS}"
 # ── DICE ─────────────────────────────────────────────────────────────────────
 # Single source for die size, shared with the combat engines. Every threshold
@@ -518,7 +518,7 @@ CULTURES = {
         'wonders':   ['Colossus'],
         'actions':   ['Pillage', 'Intercept Caravan', 'Move: March'],
         'factions':  ["The Squatters' Crown", 'The Winter Wolves', 'The Bandit King','The Smoldering Crown'],
-        'mechanic_name': ['Friends in Low Places', 'Pillagers', 'Reckless', 'Wandering Nomads', 'Occupy', 'Horsemasters', 'The Decider'],
+        'mechanic_name': ['Pillagers', 'Reckless', 'Wandering Nomads', 'Occupy', 'Horsemasters', 'The Decider'],
         'radar': {'military_solutions': 4, 'economy_generators': 2, 'faith_management': 1, 'doubt_warfare': 4,
                   'political_control': 3, 'board_presence': 4, 'degenerate_punishment': 5},
     },
@@ -3292,7 +3292,7 @@ for _n, _v in INFRASTRUCTURE.items():
 # Presence (PRESENCE_RANGE, below SETTLEMENTS) replaced the per-tier / per-Retinue "aura" values: one flat range for every
 # Settlement, Army and Bandit Army (Bandit Camps have none).
 SETTLEMENTS = {
-    "Hamlet":     {"tier": 0, "sea_variant": None,        "tax_income": 0,     "muster_limit":  0, "build_time": 1, "wards": 3, "reach": 1, "notes": "Natural pursuits only; exactly Range 2 from your capital; may always build Arable Land"},
+    "Hamlet":     {"tier": 0, "sea_variant": None,        "tax_income": 0,     "muster_limit":  0, "build_time": 1, "wards": 3, "reach": 1, "notes": "Natural pursuits only; Placed at start of game Range 2 from capital."},
     "Village":    {"tier": 1, "sea_variant": None,        "tax_income": 2000,  "muster_limit":  5, "build_time": 2, "wards": 1, "reach": 2, "notes": ""},
     "Town":       {"tier": 2, "sea_variant": "Sea Town",  "tax_income": 4000,  "muster_limit": 10, "build_time": 4, "wards": 2, "reach": 4, "notes": ""},
     "City":       {"tier": 3, "sea_variant": "Port",      "tax_income": 6000,  "muster_limit": 25, "build_time": 6, "wards": 3, "reach": 6, "notes": ""},

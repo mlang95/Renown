@@ -184,7 +184,7 @@ Grand Tournament | [Grand Tournament](https://mlang95.github.io/RenownWiki/pursu
 Grassland | [Grassland](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: —. Raw Materials: Arable Land, Apiary.
 Gunpowder | [Gunpowder](https://mlang95.github.io/RenownWiki/glossary.html#gunpowder): Gunpowder equipment: Arquebus. Unlocked by: Ordnance Yard, Fletchery.
 Halberd | [Halberd](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP −2, Init +0. Keywords: 2H, Steady.
-Hamlet | [Hamlet](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 0). Tax 0, muster 0, build 1, wards 3, reach 1. Natural holdings only; exactly Range 2 from your capital; may always build Arable Land
+Hamlet | [Hamlet](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 0). Tax 0, muster 0, build 1, wards 3, reach 1. Natural holdings only; Placed at start of game Range 2 from capital.
 Harbor | [Harbor](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Commerce). Effect: Craft +2; Can Trade; Extort 500 per player without Harbor
 hard heritages | See 'high difficulty heritages'.
 Heater Shield | [Heater Shield](https://mlang95.github.io/RenownWiki/equipment-ref.html) Shield (Tempered). Save +2, Init +0. Keywords: Shielded, Immune Destroy Shield.
