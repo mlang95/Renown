@@ -51,24 +51,26 @@ function sceneArmies(SL){const p=playerOfBoard(S),out=SL.map(()=>[]);if(!p)retur
     else{const k=armyHex(p,a);if(k){let bd=1e9;SL.forEach((L,j)=>{const sk=settHex(p,L.s);if(!sk)return;const d=hexDist(hk(k),hk(sk));if(d<bd){bd=d;i=j;}});}}
     if(i>=0)out[i].push(a);});
   return out;}
-const WON_GAP=12;   // px between the core and the first Wonder on each side (clears the left / right slot pieces)
+// scene unit: every layout number below was tuned for 16 px holdings; U scales it to the sprite set's holding size (24 px = 1.5)
+const U=((SPR&&SPR.S["scenery:plot"])||["................"])[0].length/16,u=n=>Math.round(n*U);
+const WON_GAP=u(12);   // px between the core and the first Wonder on each side (clears the left / right slot pieces)
 function renderScene(){
   const box=document.getElementById("sceneBox");if(!box)return;
   const on=!!(SPR&&S.settlements.length);box.hidden=!on;if(!on){box.innerHTML="";return;}
-  const sea=SCN.sky[curSeason()]?curSeason():"Summer",G=38,H=48,pal=Object.assign({},SPR.P),sky=SCN.sky[sea];
+  const sea=SCN.sky[curSeason()]?curSeason():"Summer",G=u(38),H=u(48),pal=Object.assign({},SPR.P),sky=SCN.sky[sea];
   pal.l=sea==="Winter"?null:SCN.leaf[sea];
   const INF=sceneInfra(),has=n=>!!INF[n],SW=k=>(SPR.S[k]||[""])[0].length;
   // ---- layout: lot width from its holdings and its skyline core
-  const lots=[],placed=[],gapW=has("Bridges")?18:12;let x=12;
-  const SL=sceneLots(),AR=sceneArmies(SL),GW=SL.map((L,i)=>Math.max(gapW,(AR[i]||[]).length*18+6));
+  const lots=[],placed=[],gapW=has("Bridges")?u(18):u(12);let x=u(12);
+  const SL=sceneLots(),AR=sceneArmies(SL),GW=SL.map((L,i)=>Math.max(gapW,(AR[i]||[]).length*u(18)+u(6)));
   SL.forEach((L,i)=>{if(i)x+=GW[i-1];
-    const core="sky:core:"+L.s.tier,cw=SW(core)||16,hw=L.items.reduce((a,it)=>a+SW(it.key)+2,0)-2;
+    const core="sky:core:"+L.s.tier,cw=SW(core)||u(16),hw=L.items.reduce((a,it)=>a+SW(it.key)+u(2),0)-u(2);
     // Wonders stand outward of the core and its left / right slot pieces, alternating left, right, left …, 26 px apart
     const wn=L.wonders.length,wside=Math.ceil(wn/2);
-    const Lw=Math.max(hw+6,cw+(L.bare?12:28)+(wn?2*(WON_GAP+wside*26):0),40),x0=x;let hx=x0+Math.floor((Lw-hw)/2);
-    L.items.forEach(it=>{const rows=SPR.S[it.key];if(!rows)return;placed.push({rows,x:hx,w:rows[0].length,it});hx+=rows[0].length+2;});
+    const Lw=Math.max(hw+u(6),cw+(L.bare?u(12):u(28))+(wn?2*(WON_GAP+wside*u(26)):0),u(40)),x0=x;let hx=x0+Math.floor((Lw-hw)/2);
+    L.items.forEach(it=>{const rows=SPR.S[it.key];if(!rows)return;placed.push({rows,x:hx,w:rows[0].length,it});hx+=rows[0].length+u(2);});
     lots.push({x0,x1:x0+Lw-1,Lw,L});x+=Lw;});
-  const W=Math.max(x+(SL.length?Math.max(12,GW[SL.length-1]):12),120),cv=document.createElement("canvas");cv.width=W;cv.height=H;
+  const W=Math.max(x+(SL.length?Math.max(u(12),GW[SL.length-1]):u(12)),u(120)),cv=document.createElement("canvas");cv.width=W;cv.height=H;
   const c=cv.getContext("2d");let seed=W*31+sea.length*977+placed.length;const R=()=>((seed=(seed*16807)%2147483647)/2147483647);
   const px=(a,b,col)=>{c.fillStyle=col;c.fillRect(a,b,1,1);};
   const rgb=h=>h[0]==="#"?[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)):h.match(/\d+/g).map(Number);
@@ -76,9 +78,9 @@ function renderScene(){
   const skyAt=y=>sky[Math.max(0,Math.min(3,Math.floor(y/(G/4))))];
   for(let y=0;y<G;y++){const i=Math.min(3,Math.floor(y/(G/4))),b0=Math.floor(i*G/4);
     for(let q=0;q<W;q++)px(q,y,(i>0&&y===b0&&(q+y)%2)?sky[i-1]:sky[i]);}
-  if(sea==="Summer"){c.fillStyle="#fff4b0";c.fillRect(W-24,5,6,6);c.fillRect(W-25,6,8,4);c.fillRect(W-23,4,4,8);}
-  if(sea==="Fall"){c.fillStyle="#ffe8b0";c.fillRect(W-20,6,3,3);}
-  if(sea==="Spring"){c.fillStyle="#ffffff";for(let q=18;q<W;q+=70){c.fillRect(q,6,10,2);c.fillRect(q+4,5,5,1);}}
+  if(sea==="Summer"){c.fillStyle="#fff4b0";c.fillRect(W-u(24),u(5),u(6),u(6));c.fillRect(W-u(25),u(6),u(8),u(4));c.fillRect(W-u(23),u(4),u(4),u(8));}
+  if(sea==="Fall"){c.fillStyle="#ffe8b0";c.fillRect(W-u(20),u(6),u(3),u(3));}
+  if(sea==="Spring"){c.fillStyle="#ffffff";for(let q=u(18);q<W;q+=u(70)){c.fillRect(q,u(6),u(10),u(2));c.fillRect(q+u(4),u(5),u(5),u(1));}}
   const occ=[];
   const SHADE="#141a2a",DARK=new Set(["k","d","u"]);
   // everything is drawn opaque, back to front, so nearer pieces hide whatever is behind them; a piece under
@@ -107,9 +109,9 @@ function renderScene(){
     const inf=n=>!bare&&has(n);
     for(let q=o.x0,fw=SW(fill);fw&&q<=o.x1-fw+1;q+=fw+1)draw(SPR.S[fill],q,sa,T,true);
     const by=(kd,ps)=>Object.keys(INF).filter(n=>INF[n].kind===kd&&(ps==null||INF[n].pos===ps)&&inf(n)&&SPR.S["inf:"+n]);
-    by("slot","left").forEach(n=>{const k="inf:"+n;draw(SPR.S[k],Math.max(o.x0,cx-SW(k)+3),al(n),T,true);});
-    by("slot","right").forEach(n=>{const k="inf:"+n;draw(SPR.S[k],Math.min(o.x1-SW(k)+1,cx+cw-3),al(n),T,true);});
-    o.L.wonders.forEach((wd,i)=>{const w=SW(wd.key),j=Math.floor(i/2),wx=i%2?cx+cw+WON_GAP+j*26:cx-WON_GAP-w-j*26;
+    by("slot","left").forEach(n=>{const k="inf:"+n;draw(SPR.S[k],Math.max(o.x0,cx-SW(k)+u(3)),al(n),T,true);});
+    by("slot","right").forEach(n=>{const k="inf:"+n;draw(SPR.S[k],Math.min(o.x1-SW(k)+1,cx+cw-u(3)),al(n),T,true);});
+    o.L.wonders.forEach((wd,i)=>{const w=SW(wd.key),j=Math.floor(i/2),wx=i%2?cx+cw+WON_GAP+j*u(26):cx-WON_GAP-w-j*u(26);
       draw(SPR.S[wd.key],Math.max(o.x0,Math.min(o.x1-w+1,wx)),wd.bt?0.45:1,T,true);});
     draw(SPR.S[core],cx,sa,T,true);
     // centre slot (Chapel, then the Cathedral that replaces it) stands in front of the core, so a Chapel shorter than the core shows
@@ -124,27 +126,27 @@ function renderScene(){
   c.fillStyle=gr[0];c.fillRect(0,G,W,1);c.fillStyle=gr[1];c.fillRect(0,G+1,W,H-G-1);
   const road=Object.keys(INF).find(n=>INF[n].kind==="ground");
   if(road&&lots.length){const stone=INF[road].pos==="stone",r0=lots[0].x0,r1=lots[lots.length-1].x1,rg=al(road)<1?.45:0,pv=col=>rg?mix(col,grass,rg):col;   // one road joining every settlement
-    for(let q=r0;q<=r1;q++)for(let y=G+2;y<=G+4;y++)px(q,y,pv(stone?((q+y)%3?pal.t:pal.u):((q*7+y)%5?pal.b:pal.d)));}
+    for(let q=r0;q<=r1;q++)for(let y=G+u(2);y<=G+u(4);y++)px(q,y,pv(stone?((q+y)%3?pal.t:pal.u):((q*7+y)%5?pal.b:pal.d)));}
   gaps.forEach(g=>{const mid=Math.floor((g.x0+g.x1)/2);
-    if(g===bridgeGap){const wc=al("Bridges")<1?mix(pal.e,grass,.45):pal.e;for(let q=mid-5;q<=mid+5;q++)for(let y=G;y<H;y++)px(q,y,wc);
-      draw(SPR.S["inf:Bridges"],mid-7,al("Bridges"),0,true);}
-    else if(!(g.i>0&&(AR[g.i-1]||[]).length))draw(SPR.S["scenery:tree"],mid-8,1,0,true);});
+    if(g===bridgeGap){const wc=al("Bridges")<1?mix(pal.e,grass,.45):pal.e;for(let q=mid-u(5);q<=mid+u(5);q++)for(let y=G;y<H;y++)px(q,y,wc);
+      draw(SPR.S["inf:Bridges"],mid-Math.floor(SW("inf:Bridges")/2),al("Bridges"),0,true);}
+    else if(!(g.i>0&&(AR[g.i-1]||[]).length))draw(SPR.S["scenery:tree"],mid-Math.floor(SW("scenery:tree")/2),1,0,true);});
   // ---- holdings, then the terrain at their feet, then foreground pieces
   if(SCN_STYLE.halo)placed.forEach(p=>halo(p.rows,p.x));
   placed.forEach(p=>draw(p.rows,p.x,p.it.bt?0.45:1,0,true));
   placed.forEach(p=>{if(p.it.ft){const f=SPR.S[p.it.ft];draw(f,p.x+Math.floor((p.w-f[0].length)/2),1,0,true);}});
   const SCA=[];{const own=playerOfBoard(S),keepP=pal.p;if(own)pal.p=own.color;
-    lots.forEach((o,i)=>{let ax=o.x1+3;(AR[i]||[]).forEach(a=>{const rows=SPR.S["army:"+(a.retinue||BANDIT_DEFAULT_RETINUE)];if(!rows)return;
-      draw(rows,ax,1,0,true);SCA.push({x:ax,w:rows[0].length,h:rows.length,name:(a.label||("Army "+a.id))+" · "+(a.retinue||"")+" ×"+(a.count||0)});ax+=rows[0].length+2;});});
+    lots.forEach((o,i)=>{let ax=o.x1+u(3);(AR[i]||[]).forEach(a=>{const rows=SPR.S["army:"+(a.retinue||BANDIT_DEFAULT_RETINUE)];if(!rows)return;
+      draw(rows,ax,1,0,true);SCA.push({x:ax,w:rows[0].length,h:rows.length,name:(a.label||("Army "+a.id))+" · "+(a.retinue||"")+" ×"+(a.count||0)});ax+=rows[0].length+u(2);});});
     pal.p=keepP;}
   lots.forEach(o=>{if(o.L.bare)return;Object.keys(INF).filter(n=>INF[n].kind==="front"&&SPR.S["inf:"+n]).forEach(n=>{const k="inf:"+n;
     draw(SPR.S[k],INF[n].pos==="right"?o.x1-SW(k)+1:o.x0,al(n),0,true);});});
   if(sea==="Winter"){occ.forEach((ys,q)=>{if(!ys)return;const t=Math.min(...ys);px(q,t,"#ffffff");});
     for(let i=0;i<W/2;i++)px(Math.floor(R()*W),Math.floor(R()*G),"#ffffff");}
-  if(sea==="Spring")for(let i=0;i<W/10;i++)px(Math.floor(R()*W),G+2+Math.floor(R()*6),R()<.5?"#f4e04a":"#f4a8c8");
-  if(sea==="Summer")for(let i=0;i<W/14;i++)px(Math.floor(R()*W),G+2+Math.floor(R()*6),"#2a6a1e");
+  if(sea==="Spring")for(let i=0;i<W/10;i++)px(Math.floor(R()*W),G+u(2)+Math.floor(R()*u(6)),R()<.5?"#f4e04a":"#f4a8c8");
+  if(sea==="Summer")for(let i=0;i<W/14;i++)px(Math.floor(R()*W),G+u(2)+Math.floor(R()*u(6)),"#2a6a1e");
   if(sea==="Fall")for(let i=0;i<W/8;i++)px(Math.floor(R()*W),Math.floor(R()*G),R()<.5?"#d8742a":"#b8432f");
-  const avail=box.clientWidth||600,z=Math.max(2,Math.min(4,Math.floor((avail-4)/W)));
+  const avail=box.clientWidth||600,z=Math.max(Math.max(1,Math.round(2/U)),Math.min(Math.max(2,Math.round(4/U)),Math.floor((avail-4)/W)));   // same on-screen size range as the 16 px set
   cv.style.width=(W*z)+"px";cv.style.height=(H*z)+"px";
   const hit=e=>{const q=Math.floor(e.offsetX/z),y=Math.floor(e.offsetY/z),h=placed.find(p=>q>=p.x&&q<p.x+p.w&&y>=G-p.rows.length);
     {const ah=SCA.find(a=>q>=a.x&&q<a.x+a.w&&y>=G-a.h);if(ah)return ah.name;}
