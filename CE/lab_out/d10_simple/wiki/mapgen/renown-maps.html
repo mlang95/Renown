@@ -1042,6 +1042,68 @@ function stampMassif(m, terrain, count, lo, hi, minSep, bbox, keepout, ok, rng) 
   return seeds.length;
 }
 
+function stampCore(m, terrain, count, lo, hi, radiusFrac, minSep, target, ok, rng) {
+  /* Small blobs seeded near the board centre - a bog or a few lakes in the
+     middle of a region rather than along its margins. Stops at `count` seeds
+     or once the terrain's share target is reached. */
+  const mid = [Math.floor(m.width / 2), Math.floor(m.height / 2)];
+  const r = Math.max(2, Math.round(radiusFrac * Math.min(m.width, m.height) / 2));
+  const seeds = []; let guard = 0;
+  while (seeds.length < count && m.count(terrain) < target && guard < 2000) {
+    guard++;
+    const cands = m.all().filter(h => ok(h) && dist([h.col, h.row], mid) <= r)
+      .map(h => [h.col, h.row]);
+    if (!cands.length) break;
+    const c = rng.choice(cands);
+    if (seeds.some(s => dist(c, s) < minSep)) continue;
+    seeds.push(c);
+    blob(m, c, Math.max(1, Math.min(rng.randint(lo, hi), target - m.count(terrain))),
+         terrain, ok, new Set(), terrain);
+  }
+  return seeds.length;
+}
+
+function stampRidge(m, terrain, count, lo, hi, ok, rng) {
+  /* Straight ridges: from a random free hex, walk both ways along each of the
+     six hex directions while the ground stays free, and keep the direction
+     with the longest run (capped at `hi`). Runs shorter than `lo` are skipped,
+     so on an island map the line lies along a landmass, not across the sea. */
+  const pc = c => [c[0] * 1.5, c[1] * Math.sqrt(3) + (c[0] % 2 ? Math.sqrt(3) / 2 : 0)];
+  const walk = (start, ang, cap) => {
+    const out = []; let cur = start;
+    const ux = Math.cos(ang), uy = Math.sin(ang);
+    while (out.length < cap) {
+      const p0 = pc(cur); let best = null, bs = 0.8;
+      for (const n of m.nbrs(cur)) {
+        const p1 = pc([n.col, n.row]), dx = p1[0] - p0[0], dy = p1[1] - p0[1];
+        const s = (dx * ux + dy * uy) / Math.hypot(dx, dy);
+        if (s > bs) { bs = s; best = n; }
+      }
+      if (!best || !ok(best)) break;
+      cur = [best.col, best.row]; out.push(cur);
+    }
+    return out;
+  };
+  let laid = 0;
+  for (let i = 0; i < count; i++) {
+    let best = null;
+    for (let t = 0; t < 40; t++) {
+      const cands = m.all().filter(ok); if (!cands.length) break;
+      const h = rng.choice(cands), st = [h.col, h.row];
+      for (let k = 0; k < 3; k++) {
+        const a = Math.PI / 6 + k * Math.PI / 3, want = rng.randint(lo, hi);
+        const fw = walk(st, a, want - 1), bw = walk(st, a + Math.PI, want - 1 - fw.length);
+        const run = bw.reverse().concat([st], fw);
+        if (!best || run.length > best.length) best = run;
+      }
+      if (best && best.length >= hi) break;
+    }
+    if (!best || best.length < lo) continue;
+    for (const c of best) { m.get(c).terrain = terrain; laid++; }
+  }
+  return laid;
+}
+
 function stampPerimeter(m, terrain, count, length, width, depth, ok, rng, jitter) {
   /* Long thin ranges running PARALLEL to the nearest board edge and set back
      from it, so they frame a region along its margins instead of crossing it. */
@@ -1778,6 +1840,12 @@ function build(p, seed) {
     } else if (morph === 'perimeter') {
       const pm = (p.perimeter || {})[terrain] || [4, [8, 16], [1, 2], [1, 6]];
       stampPerimeter(m, terrain, pm[0], pm[1], pm[2], pm[3], free, rng);
+    } else if (morph === 'ridge') {
+      const rd = (p.ridge || {})[terrain] || [1, 6, 10];
+      stampRidge(m, terrain, rd[0], rd[1], rd[2], free, rng);
+    } else if (morph === 'core') {
+      const c = (p.core || {})[terrain] || [3, 3, 6, 0.5, 4];
+      stampCore(m, terrain, c[0], c[1], c[2], c[3], c[4], target, free, rng);
     } else if (morph === 'fringe') {
       stampFringe(m, terrain, target, free, rng);
     } else {
@@ -1794,7 +1862,8 @@ function build(p, seed) {
   if (st.compartments) {
     stampCompartments(m, rng, st.compartments.cells, st.compartments.wall,
                       st.compartments.gate, st.compartments,
-                      h => !m.reserved.has(key(h.col, h.row)));
+                      h => !m.reserved.has(key(h.col, h.row))
+                        && (st.compartments.keep || []).indexOf(h.terrain) < 0);
     // a Voronoi seam is two hexes wide where cells meet obliquely, so a river
     // along one comes out as open water and breaks the one-hex-strait rule
     thinWater(m, m.rim || new Set());
@@ -1970,7 +2039,9 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   "climate": "wastes",
   "notes": "Herding clans under a chief \u2014 the line Vogen reached in 1136 and got no further. Broken country rather than a wall: peaks stand alone or join in short ridges, occasionally two hexes thick. Every route exists and none is fast, so an army bleeds tempo everywhere instead of being stopped in one pass. No forest, so forestry is unavailable.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Blighthold": {
   "name": "Blighthold",
@@ -2036,7 +2107,9 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
     6
    ]
   },
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Coloured Mountains": {
   "name": "Coloured Mountains",
@@ -2105,7 +2178,9 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   "climate": "uplands",
   "notes": "The ancient continent. Wider valleys than Crag Pass \u2014 this is where a people farmed, not a labyrinth.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Crag Pass": {
   "name": "Crag Pass",
@@ -2152,7 +2227,9 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   "climate": "uplands",
   "notes": "Labyrinth. Everything is impassable except the carved network. Chokepoint warfare; movement is the whole game.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Default": {
   "name": "Default",
@@ -2224,7 +2301,9 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   "climate": "temperate",
   "notes": "Terrain stays out of the way. Baseline.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Draggath Wastes": {
   "name": "Draggath Wastes",
@@ -2284,7 +2363,9 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   "climate": "wastes",
   "notes": "Badlands. Barrens painted as salted earth. Strained everywhere; arable is scarce and contested \u2014 recursive scarcity.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Drakenheart": {
   "name": "Drakenheart",
@@ -2382,7 +2463,9 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   "climate": "steppe",
   "notes": "Drakteni seat. Land is the scarce resource and the engine of everything they do \u2014 heavily channelled, mine-rich. Straits stay one hex so expansion is possible without a Shipyard, but every crossing ends your Move.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Dreadwood": {
   "name": "Dreadwood",
@@ -2394,10 +2477,12 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
    "wetland"
   ],
   "shares": {
-   "wetland": 0.1
+   "wetland": 0.1,
+   "water": 0.03
   },
   "morphology": {
-   "wetland": "blob"
+   "wetland": "blob",
+   "water": "core"
   },
   "buffers": [],
   "band": {},
@@ -2450,8 +2535,18 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   },
   "climate": "lush",
   "notes": "Ithiss heartland. Woodland matrix; settlements sit in clearings linked by narrow grass passages. No tundra, no mountain: quarry/salt/mine are unavailable by design. Lanes branch and dead-end rather than joining up, so a limb is a commitment and a defender has ground that cannot be flanked through.",
+  "core": {
+   "water": [
+    5,
+    2,
+    4,
+    0.6,
+    5
+   ]
+  },
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "ridge": {}
  },
  "Fair Whitewood": {
   "name": "Fair Whitewood",
@@ -2526,7 +2621,9 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   "climate": "frozen",
   "notes": "Madekite. Wintery forested mountain pass. Ridges run part-way down the map rather than sealing it, so the passes are between the ranges instead of through them. Strained is the default condition; quarry-rich, arable-poor.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Glen of Pravak": {
   "name": "Glen of Pravak",
@@ -2582,7 +2679,9 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   "climate": "wastes",
   "notes": "A glen ringed by rock - the one piece of tillable land left, and the middle of the map is the thing worth taking rather than the thing in the way. Three passes through the ring, so every approach is known ground and can be watched.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Hermit's Row": {
   "name": "Hermit's Row",
@@ -2635,7 +2734,9 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   "climate": "steppe",
   "notes": "A narrow pair of ranges. Two walls, one contested narrows between them.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Lenaveron": {
   "name": "Lenaveron",
@@ -2645,15 +2746,18 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
    "mountain",
    "plains",
    "tundra",
-   "water"
+   "water",
+   "wetland"
   ],
   "shares": {
    "tundra": 0.12,
-   "mountain": 0.1
+   "mountain": 0.1,
+   "wetland": 0.03
   },
   "morphology": {
    "tundra": "blob",
-   "mountain": "perimeter"
+   "mountain": "perimeter",
+   "wetland": "core"
   },
   "buffers": [],
   "band": {},
@@ -2701,7 +2805,10 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
     "wall": {
      "mountain": 0.45,
      "forest": 0.55
-    }
+    },
+    "keep": [
+     "wetland"
+    ]
    }
   },
   "require_hill": true,
@@ -2710,6 +2817,15 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   },
   "climate": "frozen",
   "notes": "Papacy heartland. Open and buildable in the middle \u2014 Piety wants Public Order, not chokepoints \u2014 with long thin ranges running along the margins. Ridges and rivers close the interior into walled compartments with one gate each - a Piety region should be held by knowing the ground, not by meeting in the open. Forest belongs to the walls rather than being scattered loose across the fields.",
+  "core": {
+   "wetland": [
+    3,
+    6,
+    10,
+    0.45,
+    5
+   ]
+  },
   "perimeter": {
    "mountain": [
     7,
@@ -2727,7 +2843,8 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
     ]
    ]
   },
-  "massif": {}
+  "massif": {},
+  "ridge": {}
  },
  "Lost Woods": {
   "name": "Lost Woods",
@@ -2791,7 +2908,9 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   "climate": "deepwood",
   "notes": "The only land untouched by the Great Fracture. Denser than Dreadwood and barely carved: one or two passages, everything else is wood. Defender Seizes the Initiative almost always.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Marrow Shoals": {
   "name": "Marrow Shoals",
@@ -2853,7 +2972,9 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   "notes": "A true archipelago \u2014 one small isle per player plus scattered islets to expand onto. Deep water between them: you reach anyone else only once a Shipyard is mastered. Land is the scarcest thing on the board.",
   "sea_crossing": "shipyard",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Scarlet Forest": {
   "name": "Scarlet Forest",
@@ -2917,7 +3038,9 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   "climate": "scarlet",
   "notes": "Best wood in the world. Woodland matrix but wider passages than Dreadwood; forestry saturated.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Shallow Mire": {
   "name": "Shallow Mire",
@@ -2997,13 +3120,16 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   "climate": "mire",
   "notes": "Shassolin territory. Mire everywhere: Unwieldy, Immune Steady, -1 Save is the default battle condition. No tundra.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "The Twelfth Reach": {
   "name": "The Twelfth Reach",
   "substrate": "water",
   "palette": [
    "forest",
+   "mountain",
    "plains",
    "tundra",
    "water",
@@ -3012,12 +3138,14 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   "shares": {
    "forest": 0.14,
    "wetland": 0.06,
-   "tundra": 0.04
+   "tundra": 0.04,
+   "mountain": 0.02
   },
   "morphology": {
    "forest": "blob",
    "wetland": "blob",
-   "tundra": "blob"
+   "tundra": "blob",
+   "mountain": "ridge"
   },
   "buffers": [],
   "band": {},
@@ -3051,9 +3179,17 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   },
   "climate": "temperate",
   "notes": "Two to four substantial islands rather than a scatter \u2014 a diaspora zone, not a reef. Players share an island with a neighbour and must cross open water to reach the rest.",
+  "ridge": {
+   "mountain": [
+    1,
+    6,
+    10
+   ]
+  },
   "sea_crossing": "shipyard",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {}
  },
  "Tombs of the Old Gods": {
   "name": "Tombs of the Old Gods",
@@ -3078,16 +3214,22 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   "band": {},
   "scatter": {
    "mountain": [
-    40,
-    1,
+    16,
     3,
-    3
+    6,
+    4,
+    0.6,
+    5,
+    0.3
    ],
    "forest": [
-    25,
-    1,
-    2,
-    3
+    10,
+    3,
+    6,
+    3,
+    0.5,
+    4,
+    0.3
    ]
   },
   "border": {
@@ -3106,13 +3248,13 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
    "w": 0
   },
   "carve": {
-   "routes": 2,
+   "routes": 4,
    "width": 1,
    "clearing_radius": 1,
    "temp": 0.8,
    "mazes": [
-    2,
-    3
+    3,
+    4
    ],
    "maze_temp": 1.1,
    "junction_p": 0.4,
@@ -3129,7 +3271,9 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   "climate": "frozen",
   "notes": "Frozen tundra the Lenavorites abandoned. Strained is the default state; quarry and salt are abundant, food is not.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Vaelohk": {
   "name": "Vaelohk",
@@ -3229,7 +3373,9 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   "climate": "temperate",
   "notes": "The centre island and the world's name. Deliberately the most even preset \u2014 no dominant terrain, everything available. The Sullen Lake is the one inland water body. One lane runs from every region to the centre island's heart, so the middle is what everyone is equidistant from and committed toward - the question is when to march down your spoke, not which way.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Wheat Fields": {
   "name": "Wheat Fields",
@@ -3300,7 +3446,9 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   "climate": "olive",
   "notes": "Proving ground. Open field: ranged +1 Strike almost everywhere, Hills decide initiative. Never paved.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  }
 };root.RenownRules={"charter_min_range": 4, "hamlet_range": 2, "outlaw_buffer": 2, "outlaw_start": 3, "start_tiers": ["Town", "Hamlet"]};})(typeof module!=='undefined'&&module.exports?module.exports:(typeof window!=='undefined'?window:globalThis));
 </script>
@@ -3318,6 +3466,10 @@ for (const k of Object.keys(STYLE.climates)) {
 }
 const BASE = PALETTES[STYLE.default_climate];
 const TERRAIN_REF = {"terrain":{"Grassland":{"Effect":"\u2014","Raw Materials":["Arable Land","Apiary"]},"Wetlands":{"Effect":"Speed -1 per Territory moved through","Raw Materials":["Peat Bog","Forestry"]},"Tundra":{"Effect":"gain Strained","Raw Materials":["Quarry","Salt Works"]},"Mountains":{"Effect":"Impassable","Raw Materials":["Mine","Quarry"]},"Water":{"Effect":"Must end move after moving over 1 Water Territory (must end on land)","Raw Materials":["Fishmongery"]},"Forest":{"Effect":"Speed -1 per Territory moved through","Raw Materials":["Forestry","Apiary"]},"Hill":{"Effect":"Gains Seize the Initiative. Where Settlements can be chartered."}},"tactical":{"Hill":{"identify":"Grassland fully ringed by grassland","effect":"An army on a Hill Seizes the Initiative every Skirmish."},"Open Field":{"identify":"Any other grassland","effect":"Ranged Weapons gain +1 to Strike."},"Forest":{"identify":"Forest","effect":"You may only play Scout, Ambush, Flank, or Defensive Formation. The defending player Seizes the Initiative."},"Mire":{"identify":"Wetlands","effect":"Gain Unwieldy and Immune Steady; -1 to Save."},"Tundra":{"identify":"Tundra","effect":"Gain Strained."},"Mountains":{"identify":"Mountains","effect":"Impassable."},"Water":{"identify":"Water","effect":"Must end Move after moving 1 Water Territory. Cannot Skirmish or Siege move."}},"tactical_global":["Any player may Fall Back after the first Skirmish."],"movement":{"Dirt Roads":{"Effect":"If you start a Move action within your Province, gain Speed +1"},"Stone Roads":{"Effect":"If you start a Move action within your Province, gain additional Speed +1"},"Bridge":{"Effect":"Immune Water Effect."},"Tunneler":{"Effect":"Immune Mountain Effect"},"Ancient Wilds":{"Effect":["Ignore all Speed -X from Terrain","Other armies gain Speed -2 in your Province."]},"Shipyard":{"Effect":"Immune Water Effect"}},"version":"0.4.9.9.13-d10-S","source":"CE"};
+/* pixel terrain props: GENERATED from sprites.py (prop: sprites + SCATTER), the
+   same art and scatter the settlement board's map draws */
+const SPR = {"scatter":{"plains":{"layers":[{"p":[["tuft_a",2],["tuft_b",2],["tuft_c",1]],"n":[3,5],"r":0.72},{"p":[["flower",1]],"n":[0,1],"r":0.7}]},"water":{"layers":[{"p":[["wave_a",1],["wave_b",2]],"n":[1,3],"r":0.68}]},"forest":{"layers":[{"p":[["pine",1],["pine_s",2]],"n":[4,6],"r":0.6,"g":-3}]},"mountain":{"layers":[{"p":[["peak",1]],"n":[1,1],"r":0.12},{"p":[["peak_s",1]],"n":[1,2],"r":0.68,"g":-4}]},"hill":{"layers":[{"p":[["hump",1]],"n":[2,2],"r":0.42},{"p":[["tuft_a",1],["tuft_b",1]],"n":[1,2],"r":0.72}]},"tundra":{"tone":[0.16,0.1,0.42],"layers":[{"p":[["boulder",2],["blocks",1],["blocks_b",1]],"n":[1,2],"r":0.6},{"p":[["saltpan",1]],"n":[0,1],"r":0.55},{"p":[["crack_l",1]],"n":[1,2],"r":0.62}]},"wetland":{"layers":[{"p":[["pool",2],["pool_s",2]],"n":[2,3],"r":0.6},{"p":[["reeds",2],["cattail",2]],"n":[2,3],"r":0.66}]}},"S":{"prop:tuft_a":[".H.","HSH","ggg"],"prop:tuft_b":["H.H","SHS","ggg"],"prop:tuft_c":["H..H",".HH.","gggg"],"prop:wave_a":["HHH..","...HH","ggggg"],"prop:wave_b":["HH.","..H","ggg"],"prop:pine":["...D...","..DHD..",".DHHSD.","..DHD..",".DHHSD.","DHHHSSD","DDDDDDD","...D...","ggggggg"],"prop:pine_s":["..D..",".DHD.","DHHSD",".DHD.","DHHSD","DDDDD","..D..","ggggg"],"prop:peak":[".....D......","....DHD.....","...DHHSD....","...DHHSSD...","..DHHHSDSD..","..DHHHSSSD..",".DHHHSSSDSD.",".DHHSSSSSSD.","DHHSSSSDSSSD","DDDDDDDDDDDD","gggggggggggg"],"prop:peak_s":["...D...","..DHD..",".DHHSD.","DHHSSSD","DDDDDDD","ggggggg"],"prop:hump":["..DDDD..",".DHHHSD.","DHHHHSDD","DDDDDDDD","gggggggg"],"prop:pool":[".DDDDDD.","DHHHDDDD",".DDDDDD.","gggggggg"],"prop:pool_s":[".DDDD.","DHHDDD",".DDDD.","gggggg"],"prop:reeds":["H..H","H.H.","HH.H",".HH.","gggg"],"prop:cattail":["D..D","D..D","H.H.","HHH.","gggg"],"prop:boulder":[".DDDD.","DHHSSD","DHSSSD",".DDDD.","gggggg"],"prop:blocks":["..DDDDD..","..DHHSD..","..DHSSD..","DDDDDDDDD","DHHSDHHSD","DHSSDHSSD","DDDDDDDDD","ggggggggg"],"prop:blocks_b":["DDDDD....","DHHSD....","DHSSDDDDD","DDDDDHHSD","....DHSSD","....DDDDD","ggggggggg"],"prop:saltpan":["..DDDDD..",".DHHHHHD.","DHHHDHHHD",".DDDDDDD.","ggggggggg"],"prop:crack_l":["D......",".DD....","...D.DD","....D..","ggggggg"],"prop:flower":["y","S","g"]},"P":{"k":"#0e1220","w":"#e8d8b0","t":"#a8a0a0","u":"#605a68","r":"#a03a3a","d":"#2a1f30","y":"#ffd27a","f":"#ff9a3a","s":"#e8e4dc","m":"#8a96b0","b":"#8a5a3a","l":"#3a7a2a","c":"#c83a3a","a":"#5a4ab0","e":"#3a7ac8","n":"#24563a","g":"#2f4a2a","h":"#e0b088","p":"#9aa0b0","P":"#686e7c","q":"#c4c8d2","x":"#c8c0b4","H":"#a8c878","S":"#5a7a3a","D":"#34481f"}};
+const SCAT = (SPR && SPR.scatter) || {};
 /* map generator terrain key -> the name the rules use */
 const RULE_NAME = { plains:'Grassland', forest:'Forest', wetland:'Wetlands',
                     tundra:'Barrens', mountain:'Mountains', water:'Water' };
@@ -3454,6 +3606,60 @@ function lighten(hex, k) {
   return '#' + [f(n >> 16 & 255), f(n >> 8 & 255), f(n & 255)]
     .map(v => v.toString(16).padStart(2, '0')).join('');
 }
+/* ── pixel terrain (ported from references/board/js/60_map.js) ─────────── */
+const sprId = k => 'ms-' + k.replace(/[^A-Za-z0-9]/g, '_');
+function sprDefs() {
+  /* one <symbol> per prop sprite; H / S / D are relief tones from the hex fill */
+  const P = (SPR && SPR.P) || {}, TV = { H: 'var(--tH)', S: 'var(--tS)', D: 'var(--tD)', k: 'currentColor' };
+  let d = '';
+  for (const k of Object.keys((SPR && SPR.S) || {})) {
+    const rows = SPR.S[k].slice(0, -1), w = rows[0].length, by = {};   // last row = ground, skipped
+    rows.forEach((r, y) => { let x = 0; while (x < w) { const ch = r[x]; let n = 1;
+      while (x + n < w && r[x + n] === ch) n++;
+      if (ch !== '.' && ch !== 'g') by[ch] = (by[ch] || '') + 'M' + x + ' ' + y + 'h' + n + 'v1h-' + n + 'z'; x += n; } });
+    d += `<symbol id="${sprId(k)}" viewBox="0 0 ${w} ${rows.length}" shape-rendering="crispEdges">`
+       + Object.keys(by).map(ch => `<path d="${by[ch]}" fill="${TV[ch] || P[ch] || '#f0f'}"/>`).join('') + '</symbol>';
+  }
+  return d;
+}
+function tMix(hex, to, t) {
+  const a = parseInt(hex.slice(1), 16), b = parseInt(to.slice(1), 16),
+        f = s => Math.round((a >> s & 255) * (1 - t) + (b >> s & 255) * t);
+  return '#' + [16, 8, 0].map(s => f(s).toString(16).padStart(2, '0')).join('');
+}
+function hStr(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function rng32(a) { return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function pixScatter(gk, key, cx, cy, R, fill, seed, badge) {
+  /* scattered props, seeded per map + hex; kept inside the hex, clear of the
+     resource badge, and apart from each other (layer g = min gap) */
+  const sc = SCAT[gk]; if (!sc) return '';
+  const pu = R * 1.6 / 16, rnd = rng32(hStr(seed + '|' + key + '|' + gk)), tn = sc.tone || [.30, .20, .48],
+        s3 = Math.sqrt(3) / 2, lim = R * .92 * s3, boxes = [], items = [];
+  const inside = (x, y) => { x = Math.abs(x); y = Math.abs(y); return y <= lim && x * s3 + y / 2 <= lim; };
+  for (const L of sc.layers || []) {
+    const pool = []; for (const [a, w] of L.p || []) for (let i = 0; i < w; i++) pool.push(a);
+    if (!pool.length) continue;
+    const n = L.n[0] + Math.floor(rnd() * (L.n[1] - L.n[0] + 1)), G = L.g != null ? L.g : 1;
+    for (let i = 0; i < n; i++) {
+      const a = pool[Math.floor(rnd() * pool.length)], art = SPR.S['prop:' + a]; if (!art) continue;
+      const w = art[0].length, h = art.length - 1;
+      for (let t = 0; t < 40; t++) {
+        const ox = Math.round((rnd() * 2 - 1) * L.r * R / pu), oy = Math.round((rnd() * 2 - 1) * L.r * R / pu),
+              b = [ox - Math.floor(w / 2), oy - Math.floor(h / 2)]; b.push(b[0] + w, b[1] + h);
+        if (![[b[0], b[1]], [b[2], b[1]], [b[0], b[3]], [b[2], b[3]]].every(([x, y]) => inside(x * pu, y * pu))) continue;
+        if (badge && !(b[2] * pu < badge[0] - badge[2] || b[0] * pu > badge[0] + badge[2]
+                    || b[3] * pu < badge[1] - badge[2] || b[1] * pu > badge[1] + badge[2])) continue;
+        if (boxes.some(q => !(b[2] + G <= q[0] || q[2] + G <= b[0] || b[3] + G <= q[1] || q[3] + G <= b[1]))) continue;
+        boxes.push(b); items.push({ a, b }); break;
+      }
+    }
+  }
+  items.sort((x, y) => x.b[3] - y.b[3]);
+  return `<g style="--tH:${tMix(fill, '#ffffff', tn[0])};--tS:${tMix(fill, '#000000', tn[1])};--tD:${tMix(fill, '#000000', tn[2])}" color="${glyphTone(fill)}">`
+    + items.map(({ a, b }) => `<use href="#${sprId('prop:' + a)}" xlink:href="#${sprId('prop:' + a)}" x="${(cx + b[0] * pu).toFixed(2)}" y="${(cy + b[1] * pu).toFixed(2)}" `
+        + `width="${((b[2] - b[0]) * pu).toFixed(2)}" height="${((b[3] - b[1]) * pu).toFixed(2)}"/>`).join('') + '</g>';
+}
 function render() {
   const m = current.map, R = 15, sc = R / 54;
   const showRes = $('showRes').checked, showSet = $('showSet').checked;
@@ -3475,7 +3681,11 @@ function render() {
          .replace(/fill="DEEP"/g, 'style="fill:var(--deep)"')}</g></symbol>`;
   for (const k of Object.keys(RES))
     s += `<symbol id="r-${k}" viewBox="0 0 120 108">${resBadge(k)}</symbol>`;
+  const pix = Object.keys(SCAT).length > 0;
+  if (pix) s += sprDefs();
   s += `</defs><rect width="100%" height="100%" fill="#f7f5ef"/>`;
+  const seedKey = String((current.params && current.params.seed) || '');
+  const badgeAt = [(STYLE.badge[0] - 60) * sc, (STYLE.badge[1] - 54) * sc, STYLE.badge[2] * sc + R * 1.6 / 16];
   const gw = (120 * sc).toFixed(2), gh = (108 * sc).toFixed(2);
   let tiles = '', glyphs = '', coast = '', res = '';
   for (const h of m.all()) {
@@ -3485,7 +3695,9 @@ function render() {
     tiles += `<polygon points="${pts(cx, cy)}" fill="${fill}" stroke="${STYLE.grid}" `
            + `stroke-opacity="${STYLE.grid_opacity}" stroke-width="0.6"/>`;
     const g = hill ? 'hill' : h.terrain;
-    if (STYLE.glyphs[g]) glyphs += `<use href="#g-${g}" xlink:href="#g-${g}" x="${(cx - 60 * sc).toFixed(2)}" `
+    if (pix && SCAT[g]) glyphs += pixScatter(g, h.col + ',' + h.row, cx, cy, R, fill, seedKey,
+                                             h.resource && showRes ? badgeAt : null);
+    else if (STYLE.glyphs[g]) glyphs += `<use href="#g-${g}" xlink:href="#g-${g}" x="${(cx - 60 * sc).toFixed(2)}" `
             + `y="${(cy - 54 * sc).toFixed(2)}" width="${gw}" height="${gh}" `
             + `fill="${fill}" color="${glyphTone(fill)}" opacity="${STYLE.glyph_opacity}" `
             + `style="--shade:${lighten(fill, STYLE.shade_k)};--hilite:${lighten(fill, STYLE.hilite_k)};--deep:${lighten(fill, STYLE.deep_k)}"/>`;

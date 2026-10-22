@@ -14,12 +14,16 @@ palette      set of terrains permitted to appear AT ALL. Anything outside the
              palette is never stamped and is stripped from resource logic.
              Closing the palette is what makes a region read as itself.
 shares       {terrain: fraction-of-board} targets for non-substrate terrain.
-morphology   {terrain: "blob"|"band"|"scatter"|"fringe"} shaper per terrain.
+morphology   {terrain: "blob"|"band"|"scatter"|"fringe"|"core"|...} shaper per terrain.
 buffers      list of terrain PAIRS that must stay one plains hex apart.
              Replaces mapgen's global all-biomes-buffer rule.
 band         {terrain: (edge, thickness_frac, jitter)} for "band" morphology.
              edge in ("n","s","e","w").
 scatter      {terrain: (count, size_lo, size_hi, min_sep)} for "scatter".
+ridge        {terrain: (count, length_lo, length_hi)} for "ridge": straight
+             lines along the longest free run (an island's length).
+core         {terrain: (count, size_lo, size_hi, radius_frac, min_sep)} for
+             "core": small blobs seeded within radius_frac of the board centre.
 border       width in hexes of the water rim. 0 = landlocked.
 carve        matrix presets only:
                routes           number of corridors linking clearings
@@ -73,8 +77,9 @@ PRESETS = {
         climate="lush",
         substrate="forest",
         palette={"forest", "plains", "wetland", "water"},
-        shares={"wetland": 0.10},
-        morphology={"wetland": "blob"},
+        shares={"wetland": 0.10, "water": 0.03},
+        morphology={"wetland": "blob", "water": "core"},
+        core={"water": (5, 2, 4, 0.6, 5)},   # a few small lakes, centre-ish
         buffers=[],                      # forest touches everything here
         border={"n": 0, "s": 0, "w": {"width": 1, "span": (.3, .6)}, "e": 0},
         carve=dict(routes=0, width=1, clearing_radius=1, temp=0.9,
@@ -268,16 +273,18 @@ PRESETS = {
         name="Lenaveron",
         climate="frozen",
         substrate="plains",
-        palette={"plains", "tundra", "mountain", "water", "forest"},
-        shares={"tundra": 0.12, "mountain": 0.10},
-        morphology={"tundra": "blob", "mountain": "perimeter"},
+        palette={"plains", "tundra", "mountain", "water", "forest", "wetland"},
+        shares={"tundra": 0.12, "mountain": 0.10, "wetland": 0.03},
+        morphology={"tundra": "blob", "mountain": "perimeter", "wetland": "core"},
+        core={"wetland": (3, 6, 10, 0.45, 5)},   # a small peat bog in the centre
         # count, length, width, depth-from-edge band
         perimeter={"mountain": (7, (14, 26), (1, 2), (1, 6))},
         carve=dict(rivers=(1, 2), river_temp=1.0),
         structure=dict(compartments=dict(
             cells=7, gate=(1, 1), site_inset=5, water_seam_p=0.15,
             mountain_run=(6, 12), forest_run=(3, 5), forest_thick=0.75,
-            wall={"mountain": 0.45, "forest": 0.55})),
+            wall={"mountain": 0.45, "forest": 0.55},
+            keep=["wetland"])),          # walls route around the central peat bog
         buffers=[],
         border={"n": 0, "s": 0, "e": {"width": (1, 2), "span": (.5, .9)}, "w": 0},
         require_hill=True,
@@ -427,11 +434,12 @@ PRESETS = {
         palette={"tundra", "plains", "mountain", "water", "forest"},
         shares={"mountain": 0.12, "plains": 0.0, "forest": 0.06},
         morphology={"mountain": "scatter", "forest": "scatter"},
-        scatter={"mountain": (40, 1, 3, 3), "forest": (25, 1, 2, 3)},
+        # fewer, bigger seeds, chained into short runs: clumps, not confetti
+        scatter={"mountain": (16, 3, 6, 4, 0.6, 5, 0.3), "forest": (10, 3, 6, 3, 0.5, 4, 0.3)},
         buffers=[],
         border={"n": 0, "s": 0, "e": {"width": (0, 1), "span": (.3, .6)}, "w": 0},
-        carve=dict(routes=2, width=1, clearing_radius=1, temp=0.8,
-                   mazes=(2, 3), maze_temp=1.1, junction_p=0.4,
+        carve=dict(routes=4, width=1, clearing_radius=1, temp=0.8,
+                   mazes=(3, 4), maze_temp=1.1, junction_p=0.4,
                    connect="spanning"),
         require_hill=False,
         resource_min={"arable": 1, "forestry": 1, "quarry": 4, "salt": 3},
@@ -444,9 +452,11 @@ PRESETS = {
         name="The Twelfth Reach",
         climate="temperate",
         substrate="water",
-        palette={"water", "plains", "forest", "wetland", "tundra"},
-        shares={"forest": 0.14, "wetland": 0.06, "tundra": 0.04},
-        morphology={"forest": "blob", "wetland": "blob", "tundra": "blob"},
+        palette={"water", "plains", "forest", "wetland", "tundra", "mountain"},
+        shares={"forest": 0.14, "wetland": 0.06, "tundra": 0.04, "mountain": 0.02},
+        morphology={"forest": "blob", "wetland": "blob", "tundra": "blob",
+                    "mountain": "ridge"},
+        ridge={"mountain": (1, 6, 10)},      # one short range in a line, along an island
         buffers=[],
         border=0,
         sea_crossing="shipyard",

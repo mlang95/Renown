@@ -36,6 +36,7 @@ DICE_PROVENANCE = (f"d{FACES} | Focused {FOCUSED_THR}+ | Parry {PARRY_BASE}+ | "
                    f"Recover {RECOVER_BASE}+ | src {DICE_SOURCE}")
 # ── Balance constants (rules text + data strings read these) ─────────────────
 SACK_EXTORT_PER_TIER = 2000
+INTERCEPT_EXTORT_PER_CRAFT = 100   # Intercept Caravan: Extort this x target's Craft when they have no Trade Income
 WEALTH_EDICT_GOLD    = 50000
 MUSTER_RANGE         = 2
 MARCH_MULTIPLIER     = 2
@@ -455,6 +456,7 @@ TACTIC_NOTES = {}
 # actions   : "Action" or "Action: mode" - Action must be a key of ACTIONS
 # factions  : keys of FACTIONS; every faction maps to at least one culture (duplicates allowed)
 # radar     : relative emphasis 1-5 on the seven reference axes
+# archetype : playstyle label (tempo x style) (playstyle reference; board culture picker once chosen)
 # Culture view filter (settlement board): a player may pick a culture to focus the Holding tree / catalog on its
 # Domains, Monuments and Wonders. No game effect. CULTURE_SELF_MADE is the name of "no culture" (everything shown).
 CULTURE_SELF_MADE = "Self-made"
@@ -462,7 +464,7 @@ CULTURE_SELF_MADE = "Self-made"
 CULTURES = {
     # ---- pure ----
     'Trusteki': {
-        'type': 'pure', 'domains': ['Industry'],
+        'type': 'pure', 'domains': ['Industry'], 'archetype': 'Pure Engine',
         'monuments': ["Manor House", "Aristocratic Court", "Port Authority", "Office of Works"],
         'wonders':   ['Colossus', 'The Grand Exchange', 'The Eternal Sepulchre', 'High Chancery'],
         'actions':   ['Pursue', 'Repair', 'Build'],
@@ -472,7 +474,7 @@ CULTURES = {
                   'political_control': 3, 'board_presence': 3, 'degenerate_punishment': 2},
     },
     'Kraghs': {
-        'type': 'pure', 'domains': ['Prowess'],
+        'type': 'pure', 'domains': ['Prowess'], 'archetype': 'Pure Aggro',
         'monuments': ['Royal Pavilion', 'Artillery Park', 'Ministry of Military Strategy', 'Baggage Train'],
         'wonders':   ['Colossus'],
         'actions':   ['Move: Battle', 'Declare War', 'Demand Tribute'],
@@ -482,7 +484,7 @@ CULTURES = {
                   'political_control': 2, 'board_presence': 5, 'degenerate_punishment': 4},
     },
     'Ithiss': {
-        'type': 'pure', 'domains': ['Cunning'],
+        'type': 'pure', 'domains': ['Cunning'], 'archetype': 'Pure Tempo',
         'monuments': ["Thieves' Guild", 'Whispering Undercroft', 'Outlaw Rookery', 'Outrider Intercept Post'],
         'wonders':   ['High Chancery'],
         'actions':   ['Raze', 'Foster Rebellion', 'Intercept Caravan'],
@@ -492,7 +494,7 @@ CULTURES = {
                   'political_control': 3, 'board_presence': 2, 'degenerate_punishment': 5},
     },
     'Lenavorites': {
-        'type': 'pure', 'domains': ['Piety'],
+        'type': 'pure', 'domains': ['Piety'], 'archetype': 'Pure Control',
         'monuments': ['Papal Palace', 'Inquisitorial Palace', 'Exalted Basilica', 'Senate Hall'],
         'wonders':   ['The Eternal Sepulchre'],
         'actions':   ['Tithe', 'Send Missionaries', 'Spread Truth'],
@@ -503,7 +505,7 @@ CULTURES = {
     },
     # ---- pairs ----
     'Belvareth': {
-        'type': 'pair', 'domains': ['Piety', 'Prowess'],
+        'type': 'pair', 'domains': ['Piety', 'Prowess'], 'archetype': 'Sustained Tempo',
         'monuments': ["Preceptory of the Knight's Templar", 'Royal Pavilion', 'Ministry of Military Strategy', 'Exalted Basilica'],
         'wonders':   ['The Eternal Sepulchre', 'Colossus'],
         'actions':   ['Sacred War', 'Move: Battle', 'Spread Truth'],
@@ -513,7 +515,7 @@ CULTURES = {
                   'political_control': 2, 'board_presence': 3, 'degenerate_punishment': 2},
     },
     'Vorghith': {
-        'type': 'pair', 'domains': ['Prowess', 'Cunning'],
+        'type': 'pair', 'domains': ['Prowess', 'Cunning'], 'archetype': 'Fluid Aggro',
         'monuments': ['Ministry of Military Strategy', 'Outrider Intercept Post', 'Royal Pavilion', 'Baggage Train'],
         'wonders':   ['Colossus'],
         'actions':   ['Pillage', 'Intercept Caravan', 'Move: March'],
@@ -523,7 +525,7 @@ CULTURES = {
                   'political_control': 3, 'board_presence': 4, 'degenerate_punishment': 5},
     },
     'Drakteni': {
-        'type': 'pair', 'domains': ['Prowess', 'Industry'],
+        'type': 'pair', 'domains': ['Prowess', 'Industry'], 'archetype': 'Scaling Aggro',
         'monuments': ['Advanced Blast Furnace', 'Ministry of Military Strategy', 'Artillery Park', 'Imperial Palace'],
         'wonders':   ['Colossus'],
         'actions':   ['Move: Lay Siege', 'Build', 'Demand Tribute'],
@@ -533,7 +535,7 @@ CULTURES = {
                   'political_control': 3, 'board_presence': 4, 'degenerate_punishment': 2},
     },
     'Prezish': {
-        'type': 'pair', 'domains': ['Cunning', 'Industry'],
+        'type': 'pair', 'domains': ['Cunning', 'Industry'], 'archetype': 'Sustained Engine',
         'monuments': ['Aristocratic Court', "Thieves' Guild", 'Whispering Undercroft', 'Port Authority'],
         'wonders':   ['The Grand Exchange', 'High Chancery'],
         'actions':   ['Intercept Caravan', 'Sign Treaty: Trade Agreement', 'Pursue'],
@@ -543,7 +545,7 @@ CULTURES = {
                   'political_control': 3, 'board_presence': 1, 'degenerate_punishment': 3},
     },
     'Shassolin': {
-        'type': 'pair', 'domains': ['Cunning', 'Piety'],
+        'type': 'pair', 'domains': ['Cunning', 'Piety'], 'archetype': 'Sustained Control',
         'monuments': ['Exalted Basilica', 'Inquisitorial Palace', 'Ossuary Crypt', 'Papal Palace'],
         'wonders':   ['High Chancery', 'The Eternal Sepulchre'],
         'actions':   ['Send Missionaries', 'Tithe', 'Destabilize'],
@@ -553,7 +555,7 @@ CULTURES = {
                   'political_control': 4, 'board_presence': 1, 'degenerate_punishment': 5},
     },
     'Madekites': {
-        'type': 'pair', 'domains': ['Piety', 'Industry'],
+        'type': 'pair', 'domains': ['Piety', 'Industry'], 'archetype': 'Scaling Control',
         'monuments': ['Office of Works', 'Papal Palace', 'Port Authority', 'Inquisitorial Palace'],
         'wonders':   ['The Eternal Sepulchre', 'The Grand Exchange'],
         'actions':   ['Build', 'Pursue', 'Spread Truth'],
@@ -564,7 +566,7 @@ CULTURES = {
     },
     # ---- triples ----
     'Cailendroffs': {
-        'type': 'triple', 'domains': ['Piety', 'Prowess', 'Cunning'],
+        'type': 'triple', 'domains': ['Piety', 'Prowess', 'Cunning'], 'archetype': 'Fluid Control',
         'monuments': ['Imperial Palace', 'Royal Pavilion', "Preceptory of the Knight's Templar", 'Whispering Undercroft'],
         'wonders':   ['Colossus', 'High Chancery'],
         'actions':   ['Sacred War', 'Declare War', 'Negotiate'],
@@ -574,7 +576,7 @@ CULTURES = {
                   'political_control': 4, 'board_presence': 4, 'degenerate_punishment': 3},
     },
     'Sarkopekt': {
-        'type': 'triple', 'domains': ['Cunning', 'Industry', 'Prowess'],
+        'type': 'triple', 'domains': ['Cunning', 'Industry', 'Prowess'], 'archetype': 'Scaling Tempo',
         'monuments': ['Outrider Intercept Post', 'Ministry of Military Strategy', 'Advanced Blast Furnace', 'Baggage Train'],
         'wonders':   ['Colossus', 'The Grand Exchange'],
         'actions':   ['Move: Battle', 'Demand Tribute', 'Sabotage'],
@@ -585,7 +587,7 @@ CULTURES = {
                   'political_control': 2, 'board_presence': 5, 'degenerate_punishment': 5},
     },
     'Ossensteins': {
-        'type': 'triple', 'domains': ['Cunning', 'Piety', 'Industry'],
+        'type': 'triple', 'domains': ['Cunning', 'Piety', 'Industry'], 'archetype': 'Scaling Engine',
         'monuments': ['Office of Works', 'Inquisitorial Palace', 'Whispering Undercroft', 'Ossuary Crypt'],
         'wonders':   ['The Grand Exchange', 'High Chancery'],
         'actions':   ['Tithe', 'Destabilize', 'Build'],
@@ -596,7 +598,7 @@ CULTURES = {
                   'political_control': 5, 'board_presence': 1, 'degenerate_punishment': 4},
     },
     'Voldrastel': {
-        'type': 'triple', 'domains': ['Piety', 'Industry', 'Prowess'],
+        'type': 'triple', 'domains': ['Piety', 'Industry', 'Prowess'], 'archetype': 'Sustained Aggro',
         'monuments': ['Baggage Train', 'Ministry of Military Strategy', "Preceptory of the Knight's Templar", 'Port Authority'],
         'wonders':   ['The Grand Exchange', 'The Eternal Sepulchre'],
         'actions':   ['Sacred War', 'Muster', 'Repair'],
@@ -607,7 +609,7 @@ CULTURES = {
     },
     # ---- centre ----
     'Astravantheliad': {
-        'type': 'centre', 'domains': ['Piety', 'Prowess', 'Cunning', 'Industry'],
+        'type': 'centre', 'domains': ['Piety', 'Prowess', 'Cunning', 'Industry'], 'archetype': 'Fluid Tempo',
         'monuments': ['Senate Hall', 'Studium Generale', 'Aristocratic Court', 'Office of Works'],
         'wonders':   ['High Chancery', 'The Grand Exchange', 'The Eternal Sepulchre'],
         'actions':   ['Negotiate', 'Sign Treaty', 'End Treaty'],
@@ -3726,7 +3728,7 @@ ACTIONS = {
         'domain': 'Cunning',
         'cost': '2000 gold',
         'requires': '',
-        'effect': 'Choose a player. The next turn that player is Host, Extort their Trade Income.',
+        'effect': f'Choose a player. The next turn that player is Host, Extort their Trade Income. If they have no Trade Income that turn, instead Extort {INTERCEPT_EXTORT_PER_CRAFT} per their Craft.',
         'endorsed': 'Extort 2000.',
         'notes': ["This affects only a single turn's trade income; normal income resumes afterward."],
     },

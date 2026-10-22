@@ -378,6 +378,7 @@ function hamletFits(name,present){return hamletRoot(name)||effList(name).some(h=
 // exemptionsOf(occ): set of occupant ids that ride free (one rider per source), for an explicit occupant list.
 // "efficient" may list several sources (efficient with ANY one of them). Each source hosts at most one rider;
 // riders claim hosts newest-drop first (then oldest id), preferring the host they were dropped onto.
+// A host with an active Build Timer carries no rider (a Damaged host under Repair still does).
 // entries may name a Pursuit, or a group: "Natural" (any Natural Pursuit) or a Pursuit type ("Husbandry", "Raw Materials"…)
 const EFF_CACHE={};
 function effList(n){if(EFF_CACHE[n])return EFF_CACHE[n];const e=(R[n]||{}).efficient,raw=Array.isArray(e)?e:(e?[e]:[]),out=[];
@@ -387,7 +388,7 @@ function effList(n){if(EFF_CACHE[n])return EFF_CACHE[n];const e=(R[n]||{}).effic
   return EFF_CACHE[n]=out.filter((x,i,a)=>x!==n&&a.indexOf(x)===i);}
 function effLabel(n){const e=(R[n]||{}).efficient;return (Array.isArray(e)?e:(e?[e]:[]));}
 function exemptionsOf(occ){
-  const present=new Set(occ.map(o=>o.name)),taken={__by:{}},free=new Set();free.hostOf={};
+  const present=new Set(occ.filter(o=>!(o.bt>0)).map(o=>o.name)),taken={__by:{}},free=new Set();free.hostOf={};
   occ.filter(o=>effList(o.name).some(h=>h!==o.name&&present.has(h)))
      .sort((a,b)=>(b.ride||0)-(a.ride||0)||a.id-b.id)
      .forEach(o=>{const loops=h=>{let c=h,g=64;while(c&&g--){if(c===o.name)return true;const rid=taken.__by[c];c=rid!=null?free.hostOf[rid]:null;}return false;};

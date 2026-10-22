@@ -96,6 +96,7 @@ A few conventions make every rule in this book read the same way:
     13.1 You may start building a Holding only while you control one complete line of its Mastery Chain, anywhere in your empire; this is checked only when you start it.
     13.2 A Root Holding has no Mastery Chain requirement. {{RULE:root}}
     13.3 A Holding placed in the same Settlement Ward as its immediate parent shares that Ward, and the chain can continue upward the same way. Each Holding carries at most one descendant in its Ward.
+    13.4 You can't build a Holding onto one whose Build Timer is still active. A Damaged Holding under a Repair Timer can still be built onto.
 
 14. **Scope.** Each Holding and Infrastructure has a Scope that limits how many of it can exist.
     14.1 *Settlement* — one per Settlement (Raw Materials).

@@ -77,7 +77,7 @@ def presets_js(rules=None):
         q = rp.get(name)
         q["palette"] = sorted(q["palette"])
         q["buffers"] = [list(b) for b in q.get("buffers", [])]
-        for f in ("band", "scatter", "massif", "perimeter"):
+        for f in ("band", "scatter", "massif", "perimeter", "core", "ridge"):
             q[f] = {k: [list(x) if isinstance(x, tuple) else x for x in v]
                     if isinstance(v, (list, tuple)) else v
                     for k, v in (q.get(f) or {}).items()}
@@ -154,6 +154,24 @@ def terrain_ref(data_dir):
     }
 
 
+def sprite_props():
+    """Pixel terrain props from sprites.py (CE root): the prop: sprites, their
+    SCATTER recipe per terrain and the scene palette - the art the settlement
+    board's map draws. None if sprites.py is not found (app falls back to glyphs)."""
+    import importlib.util
+    for d in (os.path.join(HERE, ".."), HERE):
+        p = os.path.join(d, "sprites.py")
+        if not os.path.isfile(p):
+            continue
+        spec = importlib.util.spec_from_file_location("renown_sprites", p)
+        mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+        return {"scatter": dict(getattr(mod, "SCATTER", {})),
+                "S": {k: v for k, v in mod.SPRITES.items() if k.startswith("prop:")},
+                "P": mod.PALETTES.get("scene", {})}
+    print("  (sprites.py not found - map app draws glyphs, not pixel props)")
+    return None
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", default=None,
@@ -175,11 +193,13 @@ def main():
     sys.path.insert(0, HERE)
     import hexstyle
     style = json.dumps(hexstyle.export(), separators=(",", ":"))
-    for token in ("/*__GEN__*/", "/*__PRESETS__*/", "/*__TERRAIN__*/", "/*__STYLE__*/"):
+    spr = json.dumps(sprite_props(), separators=(",", ":"))
+    for token in ("/*__GEN__*/", "/*__PRESETS__*/", "/*__TERRAIN__*/", "/*__STYLE__*/", "/*__SPRITES__*/"):
         if token not in shell:
             raise SystemExit(f"app_shell.html is missing {token}")
     html = (shell.replace("/*__TERRAIN__*/", json.dumps(ref, separators=(",", ":")))
                  .replace("/*__STYLE__*/", style)
+                 .replace("/*__SPRITES__*/", spr)
                  .replace("/*__GEN__*/", gen)
                  .replace("/*__PRESETS__*/", pjs))
     open(a.out, "w", encoding="utf-8").write(html)

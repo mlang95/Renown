@@ -964,6 +964,74 @@ def _stamp_massif(m, terrain, count, size_lo, size_hi, min_sep, bbox,
     return len(seeds)
 
 
+def _stamp_core(m, terrain, count, size_lo, size_hi, radius_frac, min_sep,
+                target, ok, rng):
+    """Small blobs seeded near the board centre - a bog or a few lakes in the
+    middle of a region rather than along its margins. Stops at `count` seeds
+    or once the terrain's share target is reached (gen.js stampCore)."""
+    mid = (m.width // 2, m.height // 2)
+    r = max(2, round(radius_frac * min(m.width, m.height) / 2))
+    count_t = lambda: sum(1 for h in m.all() if h.terrain == terrain)
+    seeds, guard = [], 0
+    while len(seeds) < count and count_t() < target and guard < 2000:
+        guard += 1
+        cands = [h.coord for h in m.all() if ok(h) and distance(h.coord, mid) <= r]
+        if not cands:
+            break
+        c = rng.choice(cands)
+        if any(distance(c, s) < min_sep for s in seeds):
+            continue
+        seeds.append(c)
+        _blob(m, c, max(1, min(rng.randint(size_lo, size_hi), target - count_t())),
+              terrain, ok, set(), terrain)
+    return len(seeds)
+
+
+def _stamp_ridge(m, terrain, count, lo, hi, ok, rng):
+    """Straight ridges along the longest free run in a hex direction (gen.js
+    stampRidge): on an island map the line lies along a landmass."""
+    s3 = math.sqrt(3)
+    pc = lambda c: (c[0] * 1.5, c[1] * s3 + (s3 / 2 if c[0] % 2 else 0))
+
+    def walk(start, ang, cap):
+        out, cur = [], start
+        ux, uy = math.cos(ang), math.sin(ang)
+        while len(out) < cap:
+            p0 = pc(cur); best, bs = None, 0.8
+            for n in m.neighbors(cur):
+                p1 = pc(n.coord); dx, dy = p1[0] - p0[0], p1[1] - p0[1]
+                sc = (dx * ux + dy * uy) / math.hypot(dx, dy)
+                if sc > bs:
+                    bs, best = sc, n
+            if best is None or not ok(best):
+                break
+            cur = best.coord; out.append(cur)
+        return out
+
+    laid = 0
+    for _ in range(count):
+        best = None
+        for _t in range(40):
+            cands = [h for h in m.all() if ok(h)]
+            if not cands:
+                break
+            st = rng.choice(cands).coord
+            for k in range(3):
+                a, want = math.pi / 6 + k * math.pi / 3, rng.randint(lo, hi)
+                fw = walk(st, a, want - 1)
+                bw = walk(st, a + math.pi, want - 1 - len(fw))
+                run = bw[::-1] + [st] + fw
+                if best is None or len(run) > len(best):
+                    best = run
+            if best and len(best) >= hi:
+                break
+        if not best or len(best) < lo:
+            continue
+        for c in best:
+            m.get(c).terrain = terrain; laid += 1
+    return laid
+
+
 def _stamp_perimeter(m, terrain, count, length, width, depth, ok, rng,
                      jitter=0.30):
     """Long, thin ranges running PARALLEL to the board edge, set back from it.
@@ -1801,6 +1869,13 @@ def _build(p, seed):
             pm = p.get("perimeter", {}).get(terrain, (4, (8, 16), (1, 2), (1, 6)))
             _stamp_perimeter(m, terrain, pm[0], tuple(pm[1]), tuple(pm[2]),
                              tuple(pm[3]), free, rng)
+        elif morph == "ridge":
+            rd = p.get("ridge", {}).get(terrain, (1, 6, 10))
+            _stamp_ridge(m, terrain, rd[0], rd[1], rd[2], free, rng)
+        elif morph == "core":
+            cr = p.get("core", {}).get(terrain, (3, 3, 6, 0.5, 4))
+            _stamp_core(m, terrain, cr[0], cr[1], cr[2], cr[3], cr[4], target,
+                        free, rng)
         elif morph == "fringe":
             _stamp_fringe(m, terrain, target, free, rng)
         else:
@@ -1823,7 +1898,8 @@ def _build(p, seed):
                             mountain_run=tuple(c.get("mountain_run", (6, 12))),
                             forest_run=tuple(c.get("forest_run", (3, 5))),
                             forest_thick=c.get("forest_thick", 0.75),
-                            ok=lambda h: h.coord not in m.reserved)
+                            ok=lambda h: h.coord not in m.reserved
+                            and h.terrain not in c.get("keep", ()))
         # a Voronoi seam is two hexes wide where cells meet obliquely, so a
         # river laid along one comes out as open water and breaks the
         # one-hex-strait rule. Same thinning the rivers use.

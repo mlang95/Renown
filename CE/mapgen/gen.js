@@ -805,6 +805,68 @@ function stampMassif(m, terrain, count, lo, hi, minSep, bbox, keepout, ok, rng) 
   return seeds.length;
 }
 
+function stampCore(m, terrain, count, lo, hi, radiusFrac, minSep, target, ok, rng) {
+  /* Small blobs seeded near the board centre - a bog or a few lakes in the
+     middle of a region rather than along its margins. Stops at `count` seeds
+     or once the terrain's share target is reached. */
+  const mid = [Math.floor(m.width / 2), Math.floor(m.height / 2)];
+  const r = Math.max(2, Math.round(radiusFrac * Math.min(m.width, m.height) / 2));
+  const seeds = []; let guard = 0;
+  while (seeds.length < count && m.count(terrain) < target && guard < 2000) {
+    guard++;
+    const cands = m.all().filter(h => ok(h) && dist([h.col, h.row], mid) <= r)
+      .map(h => [h.col, h.row]);
+    if (!cands.length) break;
+    const c = rng.choice(cands);
+    if (seeds.some(s => dist(c, s) < minSep)) continue;
+    seeds.push(c);
+    blob(m, c, Math.max(1, Math.min(rng.randint(lo, hi), target - m.count(terrain))),
+         terrain, ok, new Set(), terrain);
+  }
+  return seeds.length;
+}
+
+function stampRidge(m, terrain, count, lo, hi, ok, rng) {
+  /* Straight ridges: from a random free hex, walk both ways along each of the
+     six hex directions while the ground stays free, and keep the direction
+     with the longest run (capped at `hi`). Runs shorter than `lo` are skipped,
+     so on an island map the line lies along a landmass, not across the sea. */
+  const pc = c => [c[0] * 1.5, c[1] * Math.sqrt(3) + (c[0] % 2 ? Math.sqrt(3) / 2 : 0)];
+  const walk = (start, ang, cap) => {
+    const out = []; let cur = start;
+    const ux = Math.cos(ang), uy = Math.sin(ang);
+    while (out.length < cap) {
+      const p0 = pc(cur); let best = null, bs = 0.8;
+      for (const n of m.nbrs(cur)) {
+        const p1 = pc([n.col, n.row]), dx = p1[0] - p0[0], dy = p1[1] - p0[1];
+        const s = (dx * ux + dy * uy) / Math.hypot(dx, dy);
+        if (s > bs) { bs = s; best = n; }
+      }
+      if (!best || !ok(best)) break;
+      cur = [best.col, best.row]; out.push(cur);
+    }
+    return out;
+  };
+  let laid = 0;
+  for (let i = 0; i < count; i++) {
+    let best = null;
+    for (let t = 0; t < 40; t++) {
+      const cands = m.all().filter(ok); if (!cands.length) break;
+      const h = rng.choice(cands), st = [h.col, h.row];
+      for (let k = 0; k < 3; k++) {
+        const a = Math.PI / 6 + k * Math.PI / 3, want = rng.randint(lo, hi);
+        const fw = walk(st, a, want - 1), bw = walk(st, a + Math.PI, want - 1 - fw.length);
+        const run = bw.reverse().concat([st], fw);
+        if (!best || run.length > best.length) best = run;
+      }
+      if (best && best.length >= hi) break;
+    }
+    if (!best || best.length < lo) continue;
+    for (const c of best) { m.get(c).terrain = terrain; laid++; }
+  }
+  return laid;
+}
+
 function stampPerimeter(m, terrain, count, length, width, depth, ok, rng, jitter) {
   /* Long thin ranges running PARALLEL to the nearest board edge and set back
      from it, so they frame a region along its margins instead of crossing it. */
@@ -1541,6 +1603,12 @@ function build(p, seed) {
     } else if (morph === 'perimeter') {
       const pm = (p.perimeter || {})[terrain] || [4, [8, 16], [1, 2], [1, 6]];
       stampPerimeter(m, terrain, pm[0], pm[1], pm[2], pm[3], free, rng);
+    } else if (morph === 'ridge') {
+      const rd = (p.ridge || {})[terrain] || [1, 6, 10];
+      stampRidge(m, terrain, rd[0], rd[1], rd[2], free, rng);
+    } else if (morph === 'core') {
+      const c = (p.core || {})[terrain] || [3, 3, 6, 0.5, 4];
+      stampCore(m, terrain, c[0], c[1], c[2], c[3], c[4], target, free, rng);
     } else if (morph === 'fringe') {
       stampFringe(m, terrain, target, free, rng);
     } else {
@@ -1557,7 +1625,8 @@ function build(p, seed) {
   if (st.compartments) {
     stampCompartments(m, rng, st.compartments.cells, st.compartments.wall,
                       st.compartments.gate, st.compartments,
-                      h => !m.reserved.has(key(h.col, h.row)));
+                      h => !m.reserved.has(key(h.col, h.row))
+                        && (st.compartments.keep || []).indexOf(h.terrain) < 0);
     // a Voronoi seam is two hexes wide where cells meet obliquely, so a river
     // along one comes out as open water and breaks the one-hex-strait rule
     thinWater(m, m.rim || new Set());

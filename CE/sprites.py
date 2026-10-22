@@ -30,7 +30,7 @@ row and stand the art on it). Nothing is truncated silently: oversize art fails 
 """
 import argparse, json, os, sys
 
-SPRITE_VERSION = "0.9.4"
+SPRITE_VERSION = "0.9.5"
 
 KEYS = {
     "k": "outline", "w": "plaster wall", "t": "stone", "u": "dark stone", "r": "roof",
@@ -4504,34 +4504,30 @@ SPRITES["st:intercept"] = [      # barrier with warning light
     "kbbbk..kbbbk"]
 
 
-# ---------------------------------------------------------------- map terrain props (free size, x1.5)
-_PHD = {
-    "tuft_a": ["..H..", ".HSH.", "HSHSH"],
-    "tuft_b": ["H...H", "SH.HS", "HSHSH"],
-    "tuft_c": ["H....H", ".H..H.", "..HH.."],
-    "wave_a": ["HHHH....", "....HHHH"],
-    "wave_b": ["HHH..", "...HH"],
-    "pine": ["....D.....", "...DHD....", "..DHHSD...", "...DHSD...", "..DHHHSD..", ".DHHHSSD..", "..DHHHSD..",
-             ".DHHHSSSD.", "DHHHHSSSSD", "DDDDDDDDDD", "....DD....", "....DD...."],
-    "pine_s": ["...D...", "..DHD..", ".DHHSD.", "..DHSD.", ".DHHSSD", "DHHHSSD", "DDDDDDD", "...D...", "...D..."],
-    "peak": ["........D.........", ".......DHD........", "......DHHSD.......", ".....DHHSSD.......", ".....DHHHSSD......",
-             "....DHHHSDSSD.....", "....DHHHSSSSD.....", "...DHHHSSSDSSD....", "...DHHHSSSSSSDD...", "..DHHHSSSSDSSSSD..",
-             "..DHHSSSSSSSSDSSD.", ".DHHHSSSSDSSSSSSD.", "DHHSSSSSSSSDSSSSSD", "DDDDDDDDDDDDDDDDDD"],
-    "peak_s": ["....D.....", "...DHD....", "..DHHSD...", "..DHHSSD..", ".DHHSSSSD.", "DHHSSSDSSD", "DDDDDDDDDD"],
-    "hump": ["...DDDDDD...", "..DHHHHHSD..", ".DHHHHHHSSD.", "DHHHHHHSSSDD", "DDDDDDDDDDDD"],
-    "pool": ["..DDDDDDD...", ".DHHHHDDDDD.", "DHHHDDDDDDDD", ".DDDDDDDDDD."],
-    "pool_s": [".DDDDD..", "DHHDDDDD", ".DDDDDD."],
-    "reeds": ["H...H.", "H..H..", "H.H..H", "HH..H.", ".HHH..", "..HH.."],
-    "cattail": ["D....D", "D....D", "D...D.", "H..H..", "HH.H..", ".HHH.."],
-    "boulder": ["..DDDD...", ".DHHHSD..", "DHHHSSSD.", "DHHSSSSD.", ".DDDDDDD."],
-    "blocks": ["....DDDDDD....", "....DHHHSD....", "....DHHSSD....", "....DDDDDD....",
-               "DDDDDDDDDDDDDD", "DHHHSDDHHHSDDD"[:13] + "D", "DHHSSDDHHSSD.D"[:12] + "DD", "DDDDDDDDDDDDDD"],
-    "blocks_b": ["DDDDDD........", "DHHHSD........", "DHHSSDDDDDD...", "DDDDDDHHHSD...", ".....DHHSSD...", ".....DDDDDD..."],
-    "saltpan": ["...DDDDDDD...", "..DHHHHHHHD..", ".DHHHHDHHHHD.", "DHHHDHHHDHHHD", ".DDDDDDDDDDD."],
-    "crack_l": ["D..........", ".DD........", "...DD...DD.", ".....D.D...", "......D...."],
-    "flower": [".y.", "yyy", ".S.", ".S."],
-}
-for _n, _r in _PHD.items():
+# ---------------------------------------------------------------- map terrain props (original 0.7 art; the x1.5 redraw was reverted)
+_P = {}
+_P["tuft_a"] = [".H.", "HSH"]
+_P["tuft_b"] = ["H.H", "SHS"]
+_P["tuft_c"] = ["H..H", ".HH."]
+_P["wave_a"] = ["HHH..", "...HH"]
+_P["wave_b"] = ["HH.", "..H"]
+_P["pine"] = ["...D...", "..DHD..", ".DHHSD.", "..DHD..", ".DHHSD.", "DHHHSSD", "DDDDDDD", "...D..."]
+_P["pine_s"] = ["..D..", ".DHD.", "DHHSD", ".DHD.", "DHHSD", "DDDDD", "..D.."]
+_P["peak"] = [".....D......", "....DHD.....", "...DHHSD....", "...DHHSSD...", "..DHHHSDSD..",
+             "..DHHHSSSD..", ".DHHHSSSDSD.", ".DHHSSSSSSD.", "DHHSSSSDSSSD", "DDDDDDDDDDDD"]
+_P["peak_s"] = ["...D...", "..DHD..", ".DHHSD.", "DHHSSSD", "DDDDDDD"]
+_P["hump"] = ["..DDDD..", ".DHHHSD.", "DHHHHSDD", "DDDDDDDD"]
+_P["pool"] = [".DDDDDD.", "DHHHDDDD", ".DDDDDD."]
+_P["pool_s"] = [".DDDD.", "DHHDDD", ".DDDD."]
+_P["reeds"] = ["H..H", "H.H.", "HH.H", ".HH."]
+_P["cattail"] = ["D..D", "D..D", "H.H.", "HHH."]
+_P["boulder"] = [".DDDD.", "DHHSSD", "DHSSSD", ".DDDD."]     # tundra: quarry stone
+_P["blocks"] = ["..DDDDD..", "..DHHSD..", "..DHSSD..", "DDDDDDDDD", "DHHSDHHSD", "DHSSDHSSD", "DDDDDDDDD"]   # tundra: stacked cut stone (quarry)
+_P["blocks_b"] = ["DDDDD....", "DHHSD....", "DHSSDDDDD", "DDDDDHHSD", "....DHSSD", "....DDDDD"]                # tundra: staggered cut stone (quarry)
+_P["saltpan"] = ["..DDDDD..", ".DHHHHHD.", "DHHHDHHHD", ".DDDDDDD."]   # tundra: salt crust (salt works)
+_P["crack_l"] = ["D......", ".DD....", "...D.DD", "....D.."]   # tundra: frost crack (Strained)
+_P["flower"] = ["y", "S"]                                       # plains: rare wildflower
+for _n, _r in _P.items():
     SPRITES["prop:" + _n] = _r + ["g" * len(_r[0])]
 
 

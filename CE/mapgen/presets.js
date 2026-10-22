@@ -56,7 +56,9 @@
   "climate": "wastes",
   "notes": "Herding clans under a chief \u2014 the line Vogen reached in 1136 and got no further. Broken country rather than a wall: peaks stand alone or join in short ridges, occasionally two hexes thick. Every route exists and none is fast, so an army bleeds tempo everywhere instead of being stopped in one pass. No forest, so forestry is unavailable.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Blighthold": {
   "name": "Blighthold",
@@ -122,7 +124,9 @@
     6
    ]
   },
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Coloured Mountains": {
   "name": "Coloured Mountains",
@@ -191,7 +195,9 @@
   "climate": "uplands",
   "notes": "The ancient continent. Wider valleys than Crag Pass \u2014 this is where a people farmed, not a labyrinth.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Crag Pass": {
   "name": "Crag Pass",
@@ -238,7 +244,9 @@
   "climate": "uplands",
   "notes": "Labyrinth. Everything is impassable except the carved network. Chokepoint warfare; movement is the whole game.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Default": {
   "name": "Default",
@@ -310,7 +318,9 @@
   "climate": "temperate",
   "notes": "Terrain stays out of the way. Baseline.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Draggath Wastes": {
   "name": "Draggath Wastes",
@@ -370,7 +380,9 @@
   "climate": "wastes",
   "notes": "Badlands. Barrens painted as salted earth. Strained everywhere; arable is scarce and contested \u2014 recursive scarcity.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Drakenheart": {
   "name": "Drakenheart",
@@ -468,7 +480,9 @@
   "climate": "steppe",
   "notes": "Drakteni seat. Land is the scarce resource and the engine of everything they do \u2014 heavily channelled, mine-rich. Straits stay one hex so expansion is possible without a Shipyard, but every crossing ends your Move.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Dreadwood": {
   "name": "Dreadwood",
@@ -480,10 +494,12 @@
    "wetland"
   ],
   "shares": {
-   "wetland": 0.1
+   "wetland": 0.1,
+   "water": 0.03
   },
   "morphology": {
-   "wetland": "blob"
+   "wetland": "blob",
+   "water": "core"
   },
   "buffers": [],
   "band": {},
@@ -536,8 +552,18 @@
   },
   "climate": "lush",
   "notes": "Ithiss heartland. Woodland matrix; settlements sit in clearings linked by narrow grass passages. No tundra, no mountain: quarry/salt/mine are unavailable by design. Lanes branch and dead-end rather than joining up, so a limb is a commitment and a defender has ground that cannot be flanked through.",
+  "core": {
+   "water": [
+    5,
+    2,
+    4,
+    0.6,
+    5
+   ]
+  },
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "ridge": {}
  },
  "Fair Whitewood": {
   "name": "Fair Whitewood",
@@ -612,7 +638,9 @@
   "climate": "frozen",
   "notes": "Madekite. Wintery forested mountain pass. Ridges run part-way down the map rather than sealing it, so the passes are between the ranges instead of through them. Strained is the default condition; quarry-rich, arable-poor.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Glen of Pravak": {
   "name": "Glen of Pravak",
@@ -668,7 +696,9 @@
   "climate": "wastes",
   "notes": "A glen ringed by rock - the one piece of tillable land left, and the middle of the map is the thing worth taking rather than the thing in the way. Three passes through the ring, so every approach is known ground and can be watched.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Hermit's Row": {
   "name": "Hermit's Row",
@@ -721,7 +751,9 @@
   "climate": "steppe",
   "notes": "A narrow pair of ranges. Two walls, one contested narrows between them.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Lenaveron": {
   "name": "Lenaveron",
@@ -731,15 +763,18 @@
    "mountain",
    "plains",
    "tundra",
-   "water"
+   "water",
+   "wetland"
   ],
   "shares": {
    "tundra": 0.12,
-   "mountain": 0.1
+   "mountain": 0.1,
+   "wetland": 0.03
   },
   "morphology": {
    "tundra": "blob",
-   "mountain": "perimeter"
+   "mountain": "perimeter",
+   "wetland": "core"
   },
   "buffers": [],
   "band": {},
@@ -787,7 +822,10 @@
     "wall": {
      "mountain": 0.45,
      "forest": 0.55
-    }
+    },
+    "keep": [
+     "wetland"
+    ]
    }
   },
   "require_hill": true,
@@ -796,6 +834,15 @@
   },
   "climate": "frozen",
   "notes": "Papacy heartland. Open and buildable in the middle \u2014 Piety wants Public Order, not chokepoints \u2014 with long thin ranges running along the margins. Ridges and rivers close the interior into walled compartments with one gate each - a Piety region should be held by knowing the ground, not by meeting in the open. Forest belongs to the walls rather than being scattered loose across the fields.",
+  "core": {
+   "wetland": [
+    3,
+    6,
+    10,
+    0.45,
+    5
+   ]
+  },
   "perimeter": {
    "mountain": [
     7,
@@ -813,7 +860,8 @@
     ]
    ]
   },
-  "massif": {}
+  "massif": {},
+  "ridge": {}
  },
  "Lost Woods": {
   "name": "Lost Woods",
@@ -877,7 +925,9 @@
   "climate": "deepwood",
   "notes": "The only land untouched by the Great Fracture. Denser than Dreadwood and barely carved: one or two passages, everything else is wood. Defender Seizes the Initiative almost always.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Marrow Shoals": {
   "name": "Marrow Shoals",
@@ -939,7 +989,9 @@
   "notes": "A true archipelago \u2014 one small isle per player plus scattered islets to expand onto. Deep water between them: you reach anyone else only once a Shipyard is mastered. Land is the scarcest thing on the board.",
   "sea_crossing": "shipyard",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Scarlet Forest": {
   "name": "Scarlet Forest",
@@ -1003,7 +1055,9 @@
   "climate": "scarlet",
   "notes": "Best wood in the world. Woodland matrix but wider passages than Dreadwood; forestry saturated.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Shallow Mire": {
   "name": "Shallow Mire",
@@ -1083,13 +1137,16 @@
   "climate": "mire",
   "notes": "Shassolin territory. Mire everywhere: Unwieldy, Immune Steady, -1 Save is the default battle condition. No tundra.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "The Twelfth Reach": {
   "name": "The Twelfth Reach",
   "substrate": "water",
   "palette": [
    "forest",
+   "mountain",
    "plains",
    "tundra",
    "water",
@@ -1098,12 +1155,14 @@
   "shares": {
    "forest": 0.14,
    "wetland": 0.06,
-   "tundra": 0.04
+   "tundra": 0.04,
+   "mountain": 0.02
   },
   "morphology": {
    "forest": "blob",
    "wetland": "blob",
-   "tundra": "blob"
+   "tundra": "blob",
+   "mountain": "ridge"
   },
   "buffers": [],
   "band": {},
@@ -1137,9 +1196,17 @@
   },
   "climate": "temperate",
   "notes": "Two to four substantial islands rather than a scatter \u2014 a diaspora zone, not a reef. Players share an island with a neighbour and must cross open water to reach the rest.",
+  "ridge": {
+   "mountain": [
+    1,
+    6,
+    10
+   ]
+  },
   "sea_crossing": "shipyard",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {}
  },
  "Tombs of the Old Gods": {
   "name": "Tombs of the Old Gods",
@@ -1164,16 +1231,22 @@
   "band": {},
   "scatter": {
    "mountain": [
-    40,
-    1,
+    16,
     3,
-    3
+    6,
+    4,
+    0.6,
+    5,
+    0.3
    ],
    "forest": [
-    25,
-    1,
-    2,
-    3
+    10,
+    3,
+    6,
+    3,
+    0.5,
+    4,
+    0.3
    ]
   },
   "border": {
@@ -1192,13 +1265,13 @@
    "w": 0
   },
   "carve": {
-   "routes": 2,
+   "routes": 4,
    "width": 1,
    "clearing_radius": 1,
    "temp": 0.8,
    "mazes": [
-    2,
-    3
+    3,
+    4
    ],
    "maze_temp": 1.1,
    "junction_p": 0.4,
@@ -1215,7 +1288,9 @@
   "climate": "frozen",
   "notes": "Frozen tundra the Lenavorites abandoned. Strained is the default state; quarry and salt are abundant, food is not.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Vaelohk": {
   "name": "Vaelohk",
@@ -1315,7 +1390,9 @@
   "climate": "temperate",
   "notes": "The centre island and the world's name. Deliberately the most even preset \u2014 no dominant terrain, everything available. The Sullen Lake is the one inland water body. One lane runs from every region to the centre island's heart, so the middle is what everyone is equidistant from and committed toward - the question is when to march down your spoke, not which way.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  },
  "Wheat Fields": {
   "name": "Wheat Fields",
@@ -1386,6 +1463,8 @@
   "climate": "olive",
   "notes": "Proving ground. Open field: ranged +1 Strike almost everywhere, Hills decide initiative. Never paved.",
   "massif": {},
-  "perimeter": {}
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
  }
 };root.RenownRules={"charter_min_range": 4, "hamlet_range": 2, "outlaw_buffer": 2, "outlaw_start": 3, "start_tiers": ["Town", "Hamlet"]};})(typeof module!=='undefined'&&module.exports?module.exports:(typeof window!=='undefined'?window:globalThis));

@@ -369,7 +369,7 @@ function settStatus(p,s){const st=[],B=D.bandit||{};
   if(s.bt>0)st.push({st:"muster",txt:s.up?"Upgrading → "+s.up.to+" · Build Timer "+s.bt:"Building · Build Timer "+s.bt});
   realmTimers().filter(t=>String(t.tp)===String(p.id)&&String(t.sid)===String(s.id)).forEach(t=>st.push({st:t.kind==="siege"||t.kind==="capture"?"besieged":"blocked",txt:(t.type||t.kind)+" · "+(t.label||"")+" · "+(t.n??"?")+" left"}));
   const d=(B.dest||{})[p.id+":"+s.id];if(d)st.push({st:"destabilize",txt:"Destabilize: next Winter this Settlement's tax goes to "+(d.by!=null?pname(d.by):"Bandit Camp @ "+d.camp)});
-  if(s.capital&&(B.ic||{})[p.id]){const ic=B.ic[p.id];const who=ic.by!=null?pname(ic.by):"Bandit Camp @ "+ic.camp;st.push({st:"intercept",txt:"Intercept Caravan: the next turn "+p.name+" is Host, their Trade Income goes to "+who+(sameP(hostP(),p)?" (this turn)":"")});}
+  if(s.capital&&(B.ic||{})[p.id]){const ic=B.ic[p.id];const who=ic.by!=null?pname(ic.by):"Bandit Camp @ "+ic.camp;st.push({st:"intercept",txt:"Intercept Caravan: the next turn "+p.name+" is Host, their Trade Income goes to "+who+((DATA.rulesConst||{}).INTERCEPT_EXTORT_PER_CRAFT?" (none: Extort "+DATA.rulesConst.INTERCEPT_EXTORT_PER_CRAFT+" × Craft)":"")+(sameP(hostP(),p)?" (this turn)":"")});}
   D.players.forEach(q=>(q.board.armies||[]).forEach(a=>{if(a.pillage&&String(a.pillage.tp)===String(p.id)&&String(a.pillage.sid)===String(s.id))st.push({st:"pillage",txt:"Pillaged by "+q.name+" ("+(a.label||"Army "+a.id)+")"});}));
   const dm=(p.board.placed||[]).filter(q=>String(q.sid)===String(s.id)&&q.dmg>0);if(dm.length)st.push({st:"damaged",txt:"Damaged: "+dm.map(q=>q.name+" ("+q.dmg+")").join(", ")});
   if(s.capital){const idm=Object.keys(p.board.idmg||{}).filter(n=>p.board.idmg[n]>0);if(idm.length)st.push({st:"damaged",txt:"Damaged Infrastructure: "+idm.join(", ")});}
@@ -824,10 +824,14 @@ function banditMoves(){const M=mapState();if(!M.grid)return;const thr=BAN.armyTh
 function banditSkims(){const B=BST(),out=[],w=curSeason()==="Winter";
   if(w)Object.keys(B.dest).forEach(key=>{const [pid,sid]=key.split(":"),p=D.players.find(q=>String(q.id)===pid),s=p&&(p.board.settlements||[]).find(x=>String(x.id)===sid);
     out.push({kind:"dest",key,camp:B.dest[key].camp,by:B.dest[key].by,p,amt:(p&&s)?settTax(p.board,s):0,what:s?(s.name||s.tier)+" tax":"tax"});});
-  const h=hostP();if(h&&B.ic[h.id]){const t=tradeRaw(h.board);out.push({kind:"ic",key:String(h.id),camp:B.ic[h.id].camp,by:B.ic[h.id].by,p:h,amt:t.total,what:"trade income"});}
+  // no Trade Income that turn → Extort INTERCEPT_EXTORT_PER_CRAFT × the target's Craft instead
+  const h=hostP();if(h&&B.ic[h.id]){const t=tradeRaw(h.board),pc=+((DATA.rulesConst||{}).INTERCEPT_EXTORT_PER_CRAFT)||0,cr=boardMetrics(h.board).craft||0;
+    out.push(t.total||!pc?{kind:"ic",key:String(h.id),camp:B.ic[h.id].camp,by:B.ic[h.id].by,p:h,amt:t.total,what:"trade income"}
+      :{kind:"ic",ext:true,key:String(h.id),camp:B.ic[h.id].camp,by:B.ic[h.id].by,p:h,amt:pc*cr,what:"no trade income · Extort "+pc+" × Craft "+cr});}
   return out;}
 function creditSkims(L){const M=mapState(),B=BST(),out=[];L.forEach(x=>{const by=x.by!=null?pById(x.by):null,cp=by?null:M.camps[x.camp];
-  if(by)tGold(by.board,x.amt,(x.kind==="dest"?"Destabilize":"Intercept Caravan")+": "+(x.p?x.p.name+" · ":"")+x.what);else if(cp)cp.gold=(cp.gold||0)+x.amt;
+  if(x.ext){if(x.p)x.amt=extortGold({b:x.p.board},by?{b:by.board}:cp?{camp:cp}:null,x.amt,"Intercept Caravan");}
+  else if(by)tGold(by.board,x.amt,(x.kind==="dest"?"Destabilize":"Intercept Caravan")+": "+(x.p?x.p.name+" · ":"")+x.what);else if(cp)cp.gold=(cp.gold||0)+x.amt;
   const line=(x.kind==="dest"?"Destabilize":"Intercept Caravan")+": "+(x.p?x.p.name:"?")+"'s "+x.what+" "+x.amt+(by?" → "+by.name:cp?" → camp @ "+x.camp:" (camp gone)");
   if(by)out.push(line);else bLog(line);
   if(x.kind==="dest")delete B.dest[x.key];else delete B.ic[x.key];});return out;}

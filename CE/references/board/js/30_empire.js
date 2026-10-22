@@ -702,6 +702,7 @@ function tryMove(unit,t,commit){
     onto=S.placed.find(p=>p.id===t.pid);
     if(!onto||ids.has(onto.id)||onto.sid==null)return {ok:false,why:""};
     if(!effList(root.name).includes(onto.name))return {ok:false,why:root.name+" is not efficient with "+onto.name};
+    if(onto.bt>0)return {ok:false,why:onto.name+" is still being built (Build Timer "+onto.bt+")"};
     tsid=onto.sid;
     const ex=exemptionsOf(occupants(tsid));
     displaced=occupants(tsid).find(o=>ex.has(o.id)&&ex.hostOf[o.id]===onto.name&&!ids.has(o.id))||null;
@@ -866,7 +867,7 @@ const CUL=DATA.cultures||{},CUL_SELF=DATA.cultureSelf||"Self-made",PN=DATA.place
 function culSelectHTML(b){const by={};Object.keys(CUL).forEach(n=>{const t=CUL[n].type||"";(by[t]=by[t]||[]).push(n);});
   const cur=(b&&b.culture&&CUL[b.culture])?b.culture:"";
   return '<select id="culSel" class="facsel" title="culture — focuses the Holding catalog and tree; no game effect"><option value="">'+esc(CUL_SELF)+'</option>'+
-    Object.keys(by).map(t=>'<optgroup label="'+esc(t)+'">'+by[t].map(n=>'<option value="'+esc(n)+'"'+(n===cur?' selected':'')+'>'+esc(n)+' · '+esc(CUL[n].domains.join("/"))+'</option>').join("")+'</optgroup>').join("")+'</select>';}
+    Object.keys(by).map(t=>'<optgroup label="'+esc(t)+'">'+by[t].map(n=>'<option value="'+esc(n)+'"'+(n===cur?' selected':'')+'>'+esc(n)+' · '+esc(n===cur&&CUL[n].archetype?CUL[n].archetype:CUL[n].domains.join("/"))+'</option>').join("")+'</optgroup>').join("")+'</select>';}
 function cultureOf(b){return b&&b.culture&&CUL[b.culture]?b.culture:null;}
 function holdDom(n){const u=(R[n]||{}).unlock_raw||"";return CUL_DOMS.find(d=>u.includes(d))||"";}
 // the Holdings a culture focuses on: unlocks in its Domains, Domain-free Holdings (Raw Materials, Common Land…),

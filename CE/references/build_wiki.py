@@ -318,6 +318,48 @@ EMPTY_SECTIONS = {t for t, b in sections if _section_is_empty(b)}
 # Sections we actually build pages for / show in nav.
 sections_live = [(t, b) for t, b in sections if t not in EMPTY_SECTIONS]
 
+# ── WIKI_ORDER: the wiki's reading order for the rule pages (RULES.md keeps its own order; the docx is unaffected).
+# (group id, nav label, entries); an entry is a section title, (title, breadcrumb note), or a page url.
+# Front to back: what you need before play, what's on your board, one turn in order, then reference.
+WIKI_ORDER = [
+    ("rules", "Rules \u00b7 Before You Play", [
+        "Renown", "Introduction", "Reading These Rules", "Core Principles",
+        ("Table Setup", "Setup"), ("Setup Order", "Setup"), ("Player Setup", "Setup")]),
+    ("rules-empire", "Rules \u00b7 Your Empire", [
+        "Resources", "Domains & Standings", "Settlements", "Holdings", "Infrastructure",
+        "Territory & Terrain", "Armies"]),
+    ("rules-turn", "Rules \u00b7 Playing a Turn", [
+        "turn-sequence.html", "The Turn", "Seasons",
+        ("Bandits", "Empire Phase \u00b7 step 4"), ("Treasury & Upkeep", "Empire Phase \u00b7 step 6"),
+        ("Trade & Income", "Empire Phase \u00b7 step 6"), ("Public Order", "Empire Phase \u00b7 step 7"),
+        ("Action Mechanics", "Council & Envoy Phases"), ("Influence", "Council & Envoy Phases"),
+        ("Diplomacy Actions", "Actions \u00b7 resolved 1st"), ("Diplomacy & Treaties", "Actions \u00b7 Diplomacy"),
+        ("Prowess Actions", "Actions \u00b7 resolved 2nd"), ("Cunning Actions", "Actions \u00b7 resolved 3rd"),
+        ("Piety Actions", "Actions \u00b7 resolved 4th"), ("Industry Actions", "Actions \u00b7 resolved 5th"),
+        ("Battle Phase", "Battle Phase"), ("Siege Warfare", "Battle Phase")]),
+    ("rules-ref", "Rules \u00b7 Reference", [
+        ("Melee Weapons", "Equipment"), ("Ranged Weapons", "Equipment"), ("Shields", "Equipment"),
+        ("Armor", "Equipment"), "Factions", "Index"]),
+]
+_live_titles = [t for t, _ in sections_live]
+RULE_PARTS, RULE_CRUMB, _placed = [], {}, set()   # [(gid, label, [(url, title)])]; url -> (part label, note)
+for _gid, _lbl, _ents in WIKI_ORDER:
+    _rows = []
+    for _e in _ents:
+        _t, _note = (_e if isinstance(_e, tuple) else (_e, ""))
+        if _t.endswith(".html"):
+            _rows.append((_t, "\u2605 Turn Sequence" if _t == "turn-sequence.html" else _t)); RULE_CRUMB[_t] = (_lbl, _note); continue
+        if _t not in _live_titles:
+            print(f"  WARN WIKI_ORDER: no rule section {_t!r}"); continue
+        _u = f"rules-{slug(_t)}.html"; _rows.append((_u, _t)); RULE_CRUMB[_u] = (_lbl, _note); _placed.add(_t)
+    RULE_PARTS.append((_gid, _lbl, _rows))
+_unplaced = [t for t in _live_titles if t not in _placed]
+if _unplaced:   # never drop a page: anything WIKI_ORDER doesn't name goes in a last group, loudly
+    print("  WARN WIKI_ORDER: not placed: " + ", ".join(_unplaced))
+    RULE_PARTS.append(("rules-other", "Rules \u00b7 Other", [(f"rules-{slug(t)}.html", t) for t in _unplaced]))
+    for t in _unplaced: RULE_CRUMB[f"rules-{slug(t)}.html"] = ("Rules \u00b7 Other", "")
+RULE_SEQ = [u for _, _, rows in RULE_PARTS for u, _ in rows]
+
 # register rule-section titles + aliases as linkable terms (now that sections exist)
 _section_slugs = {slug(t) for t,_ in sections_live}
 _SECTION_ALIASES = {
@@ -371,7 +413,7 @@ for _d in MAPGEN_DIRS:
         print(f"  [map generator] build_mapapp.py -> rc={_sp.run(_cmd, cwd=_d).returncode}")
     _srcf = os.path.join(_d, MAPGEN_ENTRY)
     # stale check: output older than any of its inputs
-    _ins = [p for p in ("app_shell.html","gen.js","presets.js","build_mapapp.py")
+    _ins = [p for p in ("app_shell.html","gen.js","presets.js","build_mapapp.py","region_presets.py","../sprites.py")
             if os.path.isfile(os.path.join(_d, p))
             and os.path.getmtime(os.path.join(_d, p)) > os.path.getmtime(_srcf)]
     if _ins:
@@ -438,10 +480,8 @@ def nav(current=""):
         return f"<a href='{u}'{' class=active' if u==current else ''}>{label}</a>"
     groups=[]  # (group_id, label, [link_html,...])
 
-    rules=[A("turn-sequence.html","\u2605 Turn Sequence")]
-    for t,_ in sections_live:
-        rules.append(A(f"rules-{slug(t)}.html", html.escape(t)))
-    groups.append(("rules","Rules",rules))
+    for gid,label,rows in RULE_PARTS:   # WIKI_ORDER parts, one collapsible group each
+        groups.append((gid,label,[A(u,html.escape(t)) for u,t in rows]))
 
     pursuits=[A("pursuits.html","Overview")]
     for t in TYPE_ORDER:
@@ -490,6 +530,15 @@ def nav(current=""):
                    f"<div class='navlinks'>{''.join(links)}</div></div>")
     return "\n".join(out)
 
+def crumbs(current):
+    """Breadcrumb for a rule page: its WIKI_ORDER part, then the step / group it belongs to, and its place in the order."""
+    if current not in RULE_CRUMB: return ""
+    part, note = RULE_CRUMB[current]
+    bits = [html.escape(part)] + ([html.escape(note)] if note else [])
+    sep = " <span class='sep'>\u203a</span> "
+    return (f"<div class='crumbs'>{sep.join(bits)}"
+            f"<span class='pos'>{RULE_SEQ.index(current) + 1} / {len(RULE_SEQ)}</span></div>")
+
 def page(title,body,current=""):
     # display layer (NAME_DISPLAY) over the finished page text — tags, hrefs, anchors and scripts untouched
     return getattr(rd, "display_html", lambda x: x)(_page_raw(title, body, current))
@@ -505,7 +554,7 @@ def _page_raw(title,body,current=""):
 <button id="gamemode" type="button" aria-label="Game mode" title="Game mode: rules + reference only">♟</button>
 <button id="theme" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">◐</button>
 </div>
-<div class="wrap"><nav>{nav(current)}</nav><main>{body}</main></div>
+<div class="wrap"><nav>{nav(current)}</nav><main>{crumbs(current)}{body}</main></div>
 <script src="search.js"></script><script src="ui.js"></script>
 <div class="versionstamp">Renown v{_VERSION}</div></body></html>"""
 
@@ -1319,6 +1368,8 @@ code{background:var(--rowline);padding:1px 5px;border-radius:4px;font-size:.9em}
 .related{font-size:13px;margin-bottom:16px}
 .related .rl{color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-size:11px;font-weight:700;margin-right:6px}
 .related a{display:inline-block;margin:3px 6px 3px 0;padding:3px 10px;background:var(--chip);border-radius:12px;border:0!important}
+.crumbs{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px;font:12px sans-serif;color:var(--mut);margin:0 0 10px}
+.crumbs .sep{opacity:.6}.crumbs .pos{margin-left:auto;opacity:.7}
 .prevnext{display:flex;justify-content:space-between;gap:12px;font-size:14px}
 .pn{padding:8px 14px;border:1px solid var(--line);border-radius:7px;text-decoration:none;color:var(--ink);max-width:46%;border-bottom:1px solid var(--line)!important}
 .pn:hover{border-color:var(--accent);background:var(--hover)}
@@ -1344,8 +1395,8 @@ figure.lore-map figcaption{font:12px sans-serif;color:var(--mut);margin-top:.5em
 .topbtns button{height:32px;min-width:34px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:7px;font-size:15px;cursor:pointer;line-height:1}
 .topbtns button:hover{border-color:var(--accent)}
 .topbtns button.on{background:var(--accent);color:var(--panel);border-color:var(--accent)}
-body.game-mode .navgroup:not([data-group=rules]):not([data-group=reference]){display:none}
-html.game-pending .navgroup:not([data-group=rules]):not([data-group=reference]){display:none}
+body.game-mode .navgroup:not([data-group^=rules]):not([data-group=reference]){display:none}
+html.game-pending .navgroup:not([data-group^=rules]):not([data-group=reference]){display:none}
 #q{padding-right:92px}
 #navtoggle{display:none}
 @media(max-width:760px){
@@ -1398,8 +1449,7 @@ open(os.path.join(OUTDIR,"ui.js"),"w",encoding="utf-8").write(r"""
 import glob, collections
 
 # reading order for prev/next = the rule section order (from RULES.md) + key pages
-order = ["index.html", "turn-sequence.html"]
-order += [f"rules-{slug(t)}.html" for t,_ in sections_live]
+order = ["index.html"] + RULE_SEQ   # rule pages in WIKI_ORDER
 order += ["pursuits.html"] + [f"type-{slug(t)}.html" for t in TYPE_ORDER if t in by_type]
 order += [f"domain-{slug(d)}.html" for d in DOMAINS]
 order += [f"standing-{slug(t)}.html" for t in TIERS]

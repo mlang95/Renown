@@ -274,7 +274,7 @@ def banner(c, name, x, ytop, bh):
     c.setFillColor(Color(0, 0, 0, 0.35)); c.drawString(tx + 0.6, ty - 0.6, name)
     c.setFillColor(Color(1, 1, 1));       c.drawString(tx, ty, name)
     c.setFont(SERIF_I, 8.6); c.setFillColor(Color(1, 1, 1, 0.92))
-    c.drawString(tx, ty - 12, TYPE_LABEL.get(cu.get("type"), "") )
+    c.drawString(tx, ty - 12, cu.get("archetype") or TYPE_LABEL.get(cu.get("type"), ""))
     c.setFont(SERIF, 8.6)
     yy = ty - 23
     for ln in wrap(c, " \u00d7 ".join(doms), SERIF, 8.6, HW - 18):

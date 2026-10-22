@@ -278,7 +278,7 @@ const AA={
     sub:(o,q)=>(o.board.armies||[]).flatMap(a=>pillageTargets(o,a).filter(t=>sameP(t.q,q)).map(t=>({v:a.id+"|"+t.s.id,label:(a.label||("Army "+a.id))+" → "+(t.s.name||t.s.tier)}))),
     run:c=>{const [aid,sid]=c.sub.split("|"),a=(c.o.board.armies||[]).find(x=>String(x.id)===aid);if(!a)return;a.pillage={tp:String(c.q.id),sid};c.log((a.label||"Army "+a.id)+" Pillages "+settName(c.q,sid)+" (each Empire Phase)");}},
   "Intercept Caravan":{tgt:"player",elig:(o,q)=>BST().ic[q.id]?"already intercepted":"",
-    run:c=>{BST().ic[c.q.id]={by:String(c.o.id)};c.log(c.q.name+"'s trade income goes to "+c.o.name+" the next turn they're Host");}},
+    run:c=>{BST().ic[c.q.id]={by:String(c.o.id)};c.log(c.q.name+"'s trade income goes to "+c.o.name+" the next turn they're Host"+((DATA.rulesConst||{}).INTERCEPT_EXTORT_PER_CRAFT?" (none: Extort "+DATA.rulesConst.INTERCEPT_EXTORT_PER_CRAFT+" × Craft)":""));}},
   "Foster Rebellion":{tgt:"player",run:c=>{const rk=c.out==="Endorsed"?srcMatch(c.o.board,"foster_endorsed")[0]:null,n=rk?+rk.m[1]:10;
     BST().foster.push({pid:String(c.q.id),by:String(c.o.id),n});c.log("Next Bandit Mechanics: "+n+"-Retinue Bandit "+(n>=(BAN.armyThreshold||25)?"Army":"Camp")+" in "+c.q.name+"'s Outlaw Country"+(rk?" ("+rk.n+")":""));}},
   "Raze":{tgt:"player",sub:(o,q)=>{const L=[];(q.board.placed||[]).filter(x=>!x.fac&&pActive(x)&&x.sid!=null&&x.sid!=="faction").forEach(x=>L.push({v:"h:"+x.id,label:x.name+" · "+settName(q,x.sid)}));

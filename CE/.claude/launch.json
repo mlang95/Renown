@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "renown-board",
+      "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
+      "runtimeArgs": ["references/server.py"],
+      "env": { "PORT": "8765" },
+      "port": 8765
+    },
+    {
+      "name": "wiki-preview",
+      "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
+      "runtimeArgs": ["-m", "http.server", "8766", "--directory", "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\0f577a86-8980-47a4-acd2-a08c1e537067\\scratchpad\\wiki"],
+      "port": 8766
+    }
+  ]
+}

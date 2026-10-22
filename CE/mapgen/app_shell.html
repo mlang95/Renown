@@ -251,6 +251,10 @@ for (const k of Object.keys(STYLE.climates)) {
 }
 const BASE = PALETTES[STYLE.default_climate];
 const TERRAIN_REF = /*__TERRAIN__*/;
+/* pixel terrain props: GENERATED from sprites.py (prop: sprites + SCATTER), the
+   same art and scatter the settlement board's map draws */
+const SPR = /*__SPRITES__*/;
+const SCAT = (SPR && SPR.scatter) || {};
 /* map generator terrain key -> the name the rules use */
 const RULE_NAME = { plains:'Grassland', forest:'Forest', wetland:'Wetlands',
                     tundra:'Barrens', mountain:'Mountains', water:'Water' };
@@ -387,6 +391,60 @@ function lighten(hex, k) {
   return '#' + [f(n >> 16 & 255), f(n >> 8 & 255), f(n & 255)]
     .map(v => v.toString(16).padStart(2, '0')).join('');
 }
+/* ── pixel terrain (ported from references/board/js/60_map.js) ─────────── */
+const sprId = k => 'ms-' + k.replace(/[^A-Za-z0-9]/g, '_');
+function sprDefs() {
+  /* one <symbol> per prop sprite; H / S / D are relief tones from the hex fill */
+  const P = (SPR && SPR.P) || {}, TV = { H: 'var(--tH)', S: 'var(--tS)', D: 'var(--tD)', k: 'currentColor' };
+  let d = '';
+  for (const k of Object.keys((SPR && SPR.S) || {})) {
+    const rows = SPR.S[k].slice(0, -1), w = rows[0].length, by = {};   // last row = ground, skipped
+    rows.forEach((r, y) => { let x = 0; while (x < w) { const ch = r[x]; let n = 1;
+      while (x + n < w && r[x + n] === ch) n++;
+      if (ch !== '.' && ch !== 'g') by[ch] = (by[ch] || '') + 'M' + x + ' ' + y + 'h' + n + 'v1h-' + n + 'z'; x += n; } });
+    d += `<symbol id="${sprId(k)}" viewBox="0 0 ${w} ${rows.length}" shape-rendering="crispEdges">`
+       + Object.keys(by).map(ch => `<path d="${by[ch]}" fill="${TV[ch] || P[ch] || '#f0f'}"/>`).join('') + '</symbol>';
+  }
+  return d;
+}
+function tMix(hex, to, t) {
+  const a = parseInt(hex.slice(1), 16), b = parseInt(to.slice(1), 16),
+        f = s => Math.round((a >> s & 255) * (1 - t) + (b >> s & 255) * t);
+  return '#' + [16, 8, 0].map(s => f(s).toString(16).padStart(2, '0')).join('');
+}
+function hStr(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function rng32(a) { return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function pixScatter(gk, key, cx, cy, R, fill, seed, badge) {
+  /* scattered props, seeded per map + hex; kept inside the hex, clear of the
+     resource badge, and apart from each other (layer g = min gap) */
+  const sc = SCAT[gk]; if (!sc) return '';
+  const pu = R * 1.6 / 16, rnd = rng32(hStr(seed + '|' + key + '|' + gk)), tn = sc.tone || [.30, .20, .48],
+        s3 = Math.sqrt(3) / 2, lim = R * .92 * s3, boxes = [], items = [];
+  const inside = (x, y) => { x = Math.abs(x); y = Math.abs(y); return y <= lim && x * s3 + y / 2 <= lim; };
+  for (const L of sc.layers || []) {
+    const pool = []; for (const [a, w] of L.p || []) for (let i = 0; i < w; i++) pool.push(a);
+    if (!pool.length) continue;
+    const n = L.n[0] + Math.floor(rnd() * (L.n[1] - L.n[0] + 1)), G = L.g != null ? L.g : 1;
+    for (let i = 0; i < n; i++) {
+      const a = pool[Math.floor(rnd() * pool.length)], art = SPR.S['prop:' + a]; if (!art) continue;
+      const w = art[0].length, h = art.length - 1;
+      for (let t = 0; t < 40; t++) {
+        const ox = Math.round((rnd() * 2 - 1) * L.r * R / pu), oy = Math.round((rnd() * 2 - 1) * L.r * R / pu),
+              b = [ox - Math.floor(w / 2), oy - Math.floor(h / 2)]; b.push(b[0] + w, b[1] + h);
+        if (![[b[0], b[1]], [b[2], b[1]], [b[0], b[3]], [b[2], b[3]]].every(([x, y]) => inside(x * pu, y * pu))) continue;
+        if (badge && !(b[2] * pu < badge[0] - badge[2] || b[0] * pu > badge[0] + badge[2]
+                    || b[3] * pu < badge[1] - badge[2] || b[1] * pu > badge[1] + badge[2])) continue;
+        if (boxes.some(q => !(b[2] + G <= q[0] || q[2] + G <= b[0] || b[3] + G <= q[1] || q[3] + G <= b[1]))) continue;
+        boxes.push(b); items.push({ a, b }); break;
+      }
+    }
+  }
+  items.sort((x, y) => x.b[3] - y.b[3]);
+  return `<g style="--tH:${tMix(fill, '#ffffff', tn[0])};--tS:${tMix(fill, '#000000', tn[1])};--tD:${tMix(fill, '#000000', tn[2])}" color="${glyphTone(fill)}">`
+    + items.map(({ a, b }) => `<use href="#${sprId('prop:' + a)}" xlink:href="#${sprId('prop:' + a)}" x="${(cx + b[0] * pu).toFixed(2)}" y="${(cy + b[1] * pu).toFixed(2)}" `
+        + `width="${((b[2] - b[0]) * pu).toFixed(2)}" height="${((b[3] - b[1]) * pu).toFixed(2)}"/>`).join('') + '</g>';
+}
 function render() {
   const m = current.map, R = 15, sc = R / 54;
   const showRes = $('showRes').checked, showSet = $('showSet').checked;
@@ -408,7 +466,11 @@ function render() {
          .replace(/fill="DEEP"/g, 'style="fill:var(--deep)"')}</g></symbol>`;
   for (const k of Object.keys(RES))
     s += `<symbol id="r-${k}" viewBox="0 0 120 108">${resBadge(k)}</symbol>`;
+  const pix = Object.keys(SCAT).length > 0;
+  if (pix) s += sprDefs();
   s += `</defs><rect width="100%" height="100%" fill="#f7f5ef"/>`;
+  const seedKey = String((current.params && current.params.seed) || '');
+  const badgeAt = [(STYLE.badge[0] - 60) * sc, (STYLE.badge[1] - 54) * sc, STYLE.badge[2] * sc + R * 1.6 / 16];
   const gw = (120 * sc).toFixed(2), gh = (108 * sc).toFixed(2);
   let tiles = '', glyphs = '', coast = '', res = '';
   for (const h of m.all()) {
@@ -418,7 +480,9 @@ function render() {
     tiles += `<polygon points="${pts(cx, cy)}" fill="${fill}" stroke="${STYLE.grid}" `
            + `stroke-opacity="${STYLE.grid_opacity}" stroke-width="0.6"/>`;
     const g = hill ? 'hill' : h.terrain;
-    if (STYLE.glyphs[g]) glyphs += `<use href="#g-${g}" xlink:href="#g-${g}" x="${(cx - 60 * sc).toFixed(2)}" `
+    if (pix && SCAT[g]) glyphs += pixScatter(g, h.col + ',' + h.row, cx, cy, R, fill, seedKey,
+                                             h.resource && showRes ? badgeAt : null);
+    else if (STYLE.glyphs[g]) glyphs += `<use href="#g-${g}" xlink:href="#g-${g}" x="${(cx - 60 * sc).toFixed(2)}" `
             + `y="${(cy - 54 * sc).toFixed(2)}" width="${gw}" height="${gh}" `
             + `fill="${fill}" color="${glyphTone(fill)}" opacity="${STYLE.glyph_opacity}" `
             + `style="--shade:${lighten(fill, STYLE.shade_k)};--hilite:${lighten(fill, STYLE.hilite_k)};--deep:${lighten(fill, STYLE.deep_k)}"/>`;

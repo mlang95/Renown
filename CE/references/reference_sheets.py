@@ -115,7 +115,7 @@ ACTIONS = {
         ("Demand Tribute", "Choose a non-Allied Player without a NAP. Negotiate: if **Agree**, sign NAP or Alliance. If **Refuse** or **Fail to Fulfill Terms**, immediately **Declare War**."),
     ],
     "Cunning": [
-        ("Intercept Caravan", "Cost **2000 gold**. Choose another Player. The next turn that Player is Host, **Extort** their Trade Income."),
+        ("Intercept Caravan", "Cost **2000 gold**. Choose another Player. The next turn that Player is Host, **Extort** their Trade Income; if they have none, **Extort** " + f"{__import__('renown_data').INTERCEPT_EXTORT_PER_CRAFT} per Craft."),
         ("Foster Rebellion", "Cost **2000 gold**. Choose another Player. At the next Bandit Mechanics Phase, place a **Bandit Camp** with 10 Retinues in that Player's Outlaw Country."),
         ("Raze", "Cost **2000 gold**. Choose another Player's Settlement. Select one Active Specialization or Active Infrastructure — it becomes **Damaged**. Innate and Mastery effects inactive until Repaired."),
         ("Destabilize", "Cost **2000 gold**. Choose another Player. **Extort** their Tax Income at the beginning of next turn."),

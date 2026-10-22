@@ -861,7 +861,7 @@ def bandit_loadouts(ns, equip):
 # Rule constants passed through to the board as DATA.rulesConst (plumbing for mechanics the board
 # shows or flags; anything the board hard-codes should read from here instead).
 RULES_CONSTS = ("PHASES", "MARCH_MULTIPLIER", "MUSTER_RANGE", "CHARTER_MIN_RANGE", "HAMLET_RANGE",
-                "OUTLAW_BUFFER_RANGE", "SACK_EXTORT_PER_TIER", "WEALTH_EDICT_GOLD", "VASSAL_EXCHANGE_CAP",
+                "OUTLAW_BUFFER_RANGE", "SACK_EXTORT_PER_TIER", "INTERCEPT_EXTORT_PER_CRAFT", "WEALTH_EDICT_GOLD", "VASSAL_EXCHANGE_CAP",
                 "BLUNDER_THR", "STANDING_ARMY_SIEGE_MODIFIER", "BANDIT_BEHAVIOR", "UPKEEP_TRACKS",
                 "GLOSSARY_CATEGORIES", "STARTING_TREASURY", "EMPIRE_START_TIERS", "TERM_ENVOY_SCORE", "RENOWN_MAX",
                 "CAPITAL_EDGE_RANGE", "AGE_YEAR_SEASON",
@@ -1001,7 +1001,7 @@ def main():
                       "fx": envoy_fx(v.get("mechanic", "")), "body": ns["faction_body"](k) if "faction_body" in ns else v.get("mechanic", ""),
                       "mname": v.get("mechanic_name", ""), "summary": v.get("summary", "")}
                   for k, v in ns.get("FACTIONS", {}).items()},
-        cultures={k: {"type": v.get("type", ""), "domains": list(v.get("domains", [])), "monuments": list(v.get("monuments", [])),
+        cultures={k: {"type": v.get("type", ""), "domains": list(v.get("domains", [])), "archetype": v.get("archetype", ""), "monuments": list(v.get("monuments", [])),
                       "wonders": list(v.get("wonders", [])), "mechanics": list(v.get("mechanic_name", [])),
                       "factions": list(v.get("factions", []))} for k, v in ns.get("CULTURES", {}).items()},
         cultureSelf=ns.get("CULTURE_SELF_MADE", "Self-made"), placeNames=pn_payload,
