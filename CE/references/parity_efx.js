@@ -3,7 +3,7 @@
 //   node parity_efx.js settlement_board.html [python]      (run from references/; python defaults to "python")
 // The board's DATA is read from the built page; the patterns from effect_registry.REG (via python).
 const fs=require("fs"),path=require("path"),{execFileSync}=require("child_process");
-const html=fs.readFileSync(process.argv[2],"utf8"),m=/const DATA = (\{[\s\S]*?\});\nconst R = DATA/.exec(html);
+const html=fs.readFileSync(process.argv[2],"utf8"),m=/const DATA = (\{[\s\S]*?\});\r?\nconst R = DATA/.exec(html);
 if(!m){console.log("DATA not found in "+process.argv[2]);process.exit(2);}
 const D=JSON.parse(m[1]);
 const REG=JSON.parse(execFileSync(process.argv[3]||"python",["-c","import sys,json;sys.path.insert(0,sys.argv[1]);import effect_registry as E;print(json.dumps({k:list(v) for k,v in E.REG.items()}))",__dirname],{encoding:"utf8"}));
@@ -29,10 +29,10 @@ src.forEach(([key,name,kind,text])=>{const E=EFX[key]||{};
     cmp(key,id,hits,E[id]);});
   if("hiwf".includes(kind)&&kind.length===1){
     // once-per tracker rows (old onceEffects)
-    const ONCE_RE=/\b(?:Once\s*\/\s*turn|Once per turn|Once per game|Once per \w+ Phase|\d+x\s*(?:\/\s*turn|per \w+ Phase)|Each turn|Every turn|Every Skirmish|At the Start of the Empire Phase)\b|\bmay\b(?!\s+not)/i;
-    const XCH_RE=/(\d+)x\s*(?:\/\s*turn|per \w+ Phase):?\s*exchange (\d+) gold for (?:(\d+) Influence|Influence \+(\d+))/i;
+    const ONCE_RE=/\b(?:Once\s*\/\s*turn|Once per turn|Once per game|Once per \w+ Phase|\d+x\s*(?:\/\s*turn|per \w+ Phase|in the \w+ Phase)|Each turn|Every turn|Every Skirmish|At the Start of the Empire Phase)\b|\bmay\b(?!\s+not)/i;
+    const XCH_RE=/(\d+)x\s*(?:\/\s*turn|per \w+ Phase|in the \w+ Phase):?\s*exchange (\d+) gold for (?:(\d+) Influence|Influence \+(\d+))/i;
     const oncePhase=c=>{if(/\bOnce per turn\b/i.test(c))return "turn";const m=/per (\w+) Phase|At the (Start) of the Empire Phase|\bin the (\w+) Phase\b/i.exec(c);if(!m)return "";return m[1]?m[1].toLowerCase():m[3]?m[3].toLowerCase():"empire";};
-    const once=[];String(text).split(/;|\.\s+|\.$/).forEach(c=>{c=c.trim();if(!c||!ONCE_RE.test(c))return;const i=c.search(ONCE_RE),cm=c.lastIndexOf(", ",i);if(cm>0)c=c.slice(cm+2);
+    const once=[];String(text).split(/;|\.\s+|\.$/).forEach(c=>{c=c.trim();if(!c||!ONCE_RE.test(c)||new RegExp(REG.siege_double[2]+"|"+REG.first_doubt[2]+"|"+REG.forge_retry[2],"i").test(c))return;const i=c.search(ONCE_RE),cm=c.lastIndexOf(", ",i);if(cm>0)c=c.slice(cm+2);
       const x=XCH_RE.exec(c);once.push({c,ph:oncePhase(c),game:/Once per game/i.test(c),x:x?arr(x):null});});
     cmp(key,"_once",once,(E._once||[]).map(o=>({c:o.c,ph:o.ph,game:o.game,x:o.x})));
     // can't-restrictions (old actRestrict scan, before its per-action filter)

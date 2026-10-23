@@ -136,9 +136,7 @@ function renderDP(){const box=document.getElementById("dpBox");if(!box)return;co
   box.style.display=h?"":"none";box.innerHTML=h;}
 document.addEventListener("click",e=>{const b=e.target.closest(".dpsp,.dpsk");if(!b)return;const p=D.players[+b.dataset.pi];if(!p||!(p.board.dp>0))return;
   if(b.classList.contains("dpsp")){const bd=p.board,d=b.dataset.dom;bd.domains=bd.domains||{};const old=+(bd.domains[d]||0),next=Math.min(SOV,old+1);bd.domains[d]=next;
-    [["Rising",RIS],["Established",EST],["Sovereign",SOV]].forEach(([tier,threshold])=>{if(old>=threshold||next<threshold)return;const text=String((DBOARD[d]||{})[tier]||"");
-      if(!/\bPerform (?:endorsed (?:Build|Charter)|(?:a )?(?:Move|Muster) Action)\b/i.test(text))return;
-      const pt=PT(p);pt.standingPending=pt.standingPending||{};pt.standingPending["standing:"+d+":"+tier]={due:tTurn()+1};});}
+    armStanding(p,d,old,next);}
   {const bd=p.board;bd.dpLog=(bd.dpLog||[]).concat([{turn:tTurn(),dom:b.classList.contains("dpsp")?b.dataset.dom:"(skipped)"}]).slice(-12);}
   p.board.dp--;save();render();});
 // ---- mini standings (Board, left column): active player's Domains, Rest-Phase points, unlocked Domain effects + Pursuits ----
@@ -156,7 +154,7 @@ function renderMiniStand(){const box=document.getElementById("miniStand");if(!bo
         return '<span class="dbs'+(on?' on':'')+'" title="'+esc(t+" ("+th+"): "+(E[t]||"")+" · "+pu(d,t)+" Holdings unlock")+'">'+(on?'✓ ':'')+esc(nm||t)+'</span>';}).join('')+'</div></div>';}).join('');
   document.getElementById("miniStandBody").innerHTML=h;
   box.querySelectorAll("[data-dset]").forEach(c=>c.onclick=()=>{const [d,v]=c.dataset.dset.split("|");S.domains=S.domains||{};
-    S.domains[d]=(S.domains[d]||0)===+v?Math.max(0,+v-1):+v;save();render();});}
+    const old=+(S.domains[d]||0);S.domains[d]=old===+v?Math.max(0,+v-1):+v;armStanding(playerOfBoard(S),d,old,S.domains[d]);save();render();});}
 function renderInfluence(){renderDP();const box=document.getElementById("inflBox");if(!box)return;const tot=influenceTotal(S);
   box.innerHTML='<div style="display:flex;align-items:center;gap:8px"><b>Influence / turn</b><span style="margin-left:auto;font-size:15px">'+(tot>0?'+':'')+tot+'</span></div>'+(isSpring()?'<div class="note">Spring: no Influence gained</div>':'')+
     '<div class="note">Breakdown, Envoys and modifiers: <a href="#" data-goto="table">Table ▸</a></div>';}

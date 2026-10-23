@@ -49,7 +49,8 @@ function seated(){const m=seatMap();return Object.keys(m).map(Number).sort((a,b)
 function isSpring(){return curSeason()==="Spring";}   // SEASONS.Spring: no Host, Council Phase, Diplomacy actions or Influence gain
 function hostP(){const s=seated();return s.find(p=>String(p.id)===String(TB().host))||s[0]||null;}
 // "You always vote last, after the Host" (Whispering Undercroft): holders move behind the Host, keeping their relative order
-function voteOrd(ord){const last=ord.filter(p=>fxOf(p,"voteLast").length);return last.length?ord.filter(p=>!last.includes(p)).concat(last):ord;}
+// players who vote in the Tally Phase (Whispering Undercroft) go last on an Envoy voted then (a Forgery Workshop retry)
+function voteOrd(ord){const last=ord.filter(p=>fxOf(p,"voteLast").length||tallyVoter(p));return last.length?ord.filter(p=>!last.includes(p)).concat(last):ord;}
 function tOrder(){const s=seated();if(!s.length)return [];const i=s.indexOf(hostP());return s.slice(i+1).concat(s.slice(0,i+1));}
 function canHost(){const h=hostP();return HOTSEAT||ADMIN||(!h&&(!lockOn()||!!myClaimP()))||(!!h&&(lockOn()?mine(h):sameP(meP(),h)));}
 function seatsLocked(){if(ADMIN)return false;const ph=tPhase();return (ph==="council"||ph==="envoy")&&!!TB().phaseTs;}
@@ -149,7 +150,7 @@ function whisperEligibleEnvoys(R){return (R.plan||[]).filter(E=>!E.council&&!PT(
 // ---- simulation: walk every slot in order, apply pre-votes / timeouts, stop at the first open slot ----
 function tSim(){
   const t=TB(),ph=tPhase(),ord=tOrder(),now=tnow(),TM=tTimer()*1000;
-  const R={ph,ord,log:[],envoys:[],cur:null,curEnvoy:null,spent:{},pool:{},resolved:new Set(),plan:[],councilDom:null};
+  const R={ph,ord,log:[],envoys:[],cur:null,curEnvoy:null,spent:{},pool:{},resolved:new Set(),plan:[],councilDom:null,selfSup:{},stage:""};
   ord.forEach(p=>{R.spent[p.id]=0;R.pool[p.id]=inflPool(p);});
   if(ph!=="council"&&ph!=="envoy"){R.done=true;return R;}
   if(ph==="council"&&isSpring()){R.done=true;R.spring=true;return R;}
@@ -165,32 +166,41 @@ function tSim(){
     else if(now>=dl)res={rec:null,end:dl,timeout:true};
     if(!res){R.cur={key,who,start,deadline:dl};return null;}
     R.resolved.add(key);clock=Math.max(clock,res.end);return res;}
+  // one vote on E (Support / Oppose / Abstain), clamped to the voter's cap and the Influence left; the Tally Phase reuses it
+  function applyVote(E,v,r){let a="A",x=0;
+    if(r.rec&&(r.rec.a==="S"||r.rec.a==="O")&&!fxOf(v,"alwaysAbstain").length){
+      const room=Math.max(0,R.pool[v.id]-R.spent[v.id]);
+      x=Math.max(0,Math.min(+r.rec.x||0,voteCap(v,E.dom,E.council),room));a=x>0?r.rec.a:"A";
+      if(a==="O"&&opposeBlock(v,E)){a="A";x=0;}}
+    let eff=x;if(a==="O"){E.oppN++;const j=E.jest[E.oppN]||0;eff=Math.max(0,x-j);if(j&&x>0){const js=fxOf(E.owner,"jester").find(f=>f.n===E.oppN);(E.notes=E.notes||[]).push((js?js.src:"Jester's Court")+": "+v.name+"'s Oppose "+x+" counts "+eff);}}
+    const vc=fxOf(E.owner,"voteCost").reduce((m,f)=>Math.max(m,f.val),1);   // Hermit Crown: N Influence moves the Envoy by 1
+    const sx=Math.floor(x/vc);eff=Math.floor(eff/vc);
+    if(a==="S")E.sup+=sx;else if(a==="O")E.opp+=eff;R.spent[v.id]+=x;
+    E.votes.push({who:v,a,x,eff,pre:!!r.pre,timeout:!!r.timeout,forced:!!r.forced,auto:!!r.auto,tally:R.stage==="tally"});}
+  // E's net and outcome from its votes so far (run again after every Tally Phase change)
+  function finish(E){let net=E.innate+E.sup-E.opp;if(E.council)net=Math.max(1,net);       // Council Envoys can't fail
+    E.net=net;E.out=tOutcome(net);delete E.saved;
+    const fp=failPassFx(E);if(fp&&(E.out==="Failed"||(E.out==="Condemned"&&fp.condemned))){E.out="Passed";E.saved=fp.src;}   // Condemned only where the text says so
+    if(E.council&&fxOf(E.owner,"councilEndorse").length&&(E.out==="Passed"||E.out==="Endorsed")){E.out="Endorsed";E.saved=fxOf(E.owner,"councilEndorse")[0].src;}
+    if(E.endorsedBy){E.out="Endorsed";E.saved=E.endorsedBy;}                                // Tally Phase Endorse (High Chancery)
+    E.done=true;}
   function envoyRun(E){
-    E.innate=innateInf(E.owner,E.dom,E.council);E.votes=[];E.sup=0;E.opp=0;R.envoys.push(E);
+    E.innate=innateInf(E.owner,E.dom,E.council);E.votes=[];E.sup=0;E.opp=0;E.oppN=0;R.envoys.push(E);
     const courier=D.players.map(p=>({p,x:PT(p).courierTarget})).find(o=>o.x&&o.x.turn===tTurn()&&o.x.envoy===E.id);
     if(courier){E.innate-=1;(E.notes=E.notes||[]).push("Courier Network ("+courier.p.name+"): Authority −1");}
     const senate=ph==="envoy"&&!E.council&&D.players.map(p=>({p,x:PT(p).senateChoice})).find(o=>o.x&&o.x.turn===tTurn()&&o.x.envoy===E.id);
-    if(senate){E.net=senate.x.out==="Condemned"?ETH.Condemned:ETH.Endorsed;E.out=senate.x.out;E.done=true;E.saved=senate.x.src;E.notes=(E.notes||[]).concat([senate.x.src+" ("+senate.p.name+"): "+senate.x.out+" before voting"]);R.log.push({kind:"envoy",E});return true;}
-    const jest={};fxOf(E.owner,"jester").forEach(f=>jest[f.n]=(jest[f.n]||0)+f.val);let oppN=0;
+    if(senate){E.net=senate.x.out==="Condemned"?ETH.Condemned:ETH.Endorsed;E.out=senate.x.out;E.done=true;E.fixed=true;E.saved=senate.x.src;E.notes=(E.notes||[]).concat([senate.x.src+" ("+senate.p.name+"): "+senate.x.out+" in the Intrigue Phase"]);R.log.push({kind:"envoy",E});return true;}
+    E.jest={};fxOf(E.owner,"jester").forEach(f=>E.jest[f.n]=(E.jest[f.n]||0)+f.val);
+    (R.selfSup[E.id]||[]).forEach(s=>{E.sup+=s.x;E.votes.push({who:E.owner,a:"S",x:s.x,eff:s.x,self:true,src:s.src});});   // Intrigue Phase: Colossus
+    const silent=intrigueSilenced(E);                                                    // Intrigue Phase: Clandestine Councilor
     for(const v of (E.council?[]:voteOrd(ord))){if(sameP(v,E.owner))continue;
       if(fxOf(v,"noVote").length){E.votes.push({who:v,a:"A",x:0,eff:0,auto:true});continue;}   // Council Envoys auto-Abstain: no votes
+      const sl=silent.find(s=>sameP(s.who,v));if(sl){E.votes.push({who:v,a:"A",x:0,eff:0,auto:true,silenced:sl.src});continue;}
+      if(!E.retry&&tallyVoter(v))continue;                                               // casts this vote in the Tally Phase
       const r=runSlot(E.id+">"+v.id,v,tCur(v).votes[E.id]);
       if(!r){R.curEnvoy=E;return false;}
-      let a="A",x=0;
-      if(r.rec&&(r.rec.a==="S"||r.rec.a==="O")&&!fxOf(v,"alwaysAbstain").length){
-        const room=Math.max(0,R.pool[v.id]-R.spent[v.id]);
-        x=Math.max(0,Math.min(+r.rec.x||0,voteCap(v,E.dom,E.council),room));a=x>0?r.rec.a:"A";
-        if(a==="O"&&opposeBlock(v,E)){a="A";x=0;}}
-      let eff=x;if(a==="O"){oppN++;eff=Math.max(0,x-(jest[oppN]||0));if(jest[oppN]&&x>0){const js=fxOf(E.owner,"jester").find(f=>f.n===oppN);(E.notes=E.notes||[]).push((js?js.src:"Jester's Court")+": "+v.name+"'s Oppose "+x+" counts "+eff);}}
-      const vc=fxOf(E.owner,"voteCost").reduce((m,f)=>Math.max(m,f.val),1);   // Hermit Crown: N Influence moves the Envoy by 1
-      const sx=Math.floor(x/vc);eff=Math.floor(eff/vc);
-      if(a==="S")E.sup+=sx;else if(a==="O")E.opp+=eff;R.spent[v.id]+=x;
-      E.votes.push({who:v,a,x,eff,pre:!!r.pre,timeout:!!r.timeout,forced:!!r.forced,auto:!!r.auto});}
-    let net=E.innate+E.sup-E.opp;if(E.council)net=Math.max(1,net);       // Council Envoys can't fail
-    E.net=net;E.out=tOutcome(net);
-    const fp=failPassFx(E);if(fp&&(E.out==="Failed"||(E.out==="Condemned"&&fp.condemned))){E.out="Passed";E.saved=fp.src;}   // Condemned only where the text says so
-    if(E.council&&fxOf(E.owner,"councilEndorse").length&&(E.out==="Passed"||E.out==="Endorsed")){E.out="Endorsed";E.saved=fxOf(E.owner,"councilEndorse")[0].src;}
-    E.done=true;R.log.push({kind:"envoy",E});return true;}
+      applyVote(E,v,r);}
+    finish(E);R.log.push({kind:"envoy",E});return true;}
   if(ph==="council"){
     const tally={};
     for(const p of voteOrd(ord)){if(fxOf(p,"noVote").length){R.log.push({kind:"cvote",who:p,dom:null,auto:true});continue;}
@@ -213,11 +223,9 @@ function tSim(){
   if(pend.length){R.waiting="declare";R.declPending=pend;return R;}
   clock=Math.max(clock,...ord.map(p=>+tCur(p).decl.lock||0));
   R.plan=tPlan(ph,ord,null);
-  const whisperReq=D.players.map(p=>({p,x:PT(p).whisperDeclare})).find(o=>o.x&&o.x.turn===tTurn()&&R.plan.some(E=>E.id===o.x.envoy));
-  if(whisperReq){R.waiting="whisper-declare";R.whisperEnvoy=R.plan.find(E=>E.id===whisperReq.x.envoy);R.whisperBy=pById(whisperReq.x.by);return R;}
-  const wholder=D.players.find(p=>srcMatch(p.board,"whisper_declare").length&&(!PT(p).whisperUse||PT(p).whisperUse.turn!==tTurn())&&whisperEligibleEnvoys(R).length);
-  if(wholder){R.waiting="whisper-select";R.whisperHolder=wholder;return R;}
-  for(const E of R.plan)if(!envoyRun(E))return R;
+  if(!intrigueRun(R,ord,runSlot))return R;                         // 3. Intrigue Phase
+  for(const E of R.plan){if(E.retry)continue;if(!envoyRun(E))return R;}   // 4. Vote (retries are voted at the end of the Tally Phase)
+  if(!tallyRun(R,ord,runSlot,applyVote,finish,envoyRun))return R; // 5. Tally Phase
   R.done=true;return R;}
 
 // ---- stage 2: Perform — action + target are chosen only after the Envoy passes ----
@@ -308,7 +316,8 @@ const AA={
       c.flag("Perform a Move action with one of your Armies");c.flag("Sacred War restrictions (no treaties, negotiation or tribute between you) aren't tracked");}},
   "Improve":{tgt:"none",sub:o=>improveOpts(o),run:c=>runImprove(c)},
   "Build":{tgt:"none",sub:o=>buildOpts(o),place:(o,sub)=>buildPlaces(o,sub),run:c=>runBuild(c)},
-  "Charter":{tgt:"none",run:c=>runCharter(c)},
+  "Settle":{tgt:"none",run:c=>runSettle(c)},
+  "Expand":{tgt:"none",sub:o=>expandOpts(o),run:c=>runExpand(c)},
   "Repair":{tgt:"none",sub:o=>repairOpts(o),run:c=>runRepair(c)},
   "Sign Treaty":{tgt:"player",run:c=>c.flag("Agree a treaty with "+c.q.name+", then set it in the Diplomacy panel (Realm)")},
   "Negotiate":{tgt:"player",run:c=>c.flag("Agree terms with "+c.q.name+" and apply them by hand")},
@@ -357,19 +366,24 @@ function runBuild(c){const b=c.o.board;if(c.sub==="hand"){c.pend("no Holding pla
 function improveOpts(o){return withBoard(o.board,()=>{const L=[];
   Object.keys(INFRA).filter(n=>iAvail("infra",n)).forEach(n=>L.push({v:"i:"+n,label:n+" · "+INFRA[n].tier+" · Build Timer "+infraBuildTime(n)}));
   Object.keys(WON).filter(n=>iAvail("wonder",n)).forEach(n=>L.push({v:"w:"+n,label:n+" · Wonder · Build Timer "+infraBuildTime(n)}));
-  S.settlements.forEach(s=>{if(s.up||settUnbuilt(s))return;const nt=nextTier(s.tier);if(!nt)return;const ea=eraAllows(nt,s.id)||{ok:true};
-    L.push({v:"x:"+s.id,label:"Expand "+(s.name||s.tier)+" → "+nt+" · Build Timer "+settBuildTime(nt)+(ea.ok?"":" · ⚑ "+ea.why)});});
   L.push({v:"hand",label:"by hand"});return L;});}
-function runImprove(c){const o=c.o,b=o.board,k=c.sub.slice(0,1),v=c.sub.slice(2);if(c.sub==="hand"){c.pend("no Infrastructure or Settlement expansion placed yet");return;}
-  if(k==="x"){const s=settById(o,v);if(!s){c.flag("Improve: Settlement not found");return;}const nt=nextTier(s.tier);
-    withBoard(b,()=>settExpand(o,s,nt));c.log(o.name+" expands "+(s.name||s.tier)+" → "+nt+(s.bt>0?" · Build Timer "+s.bt:""));return;}
+// Expand: a Settlement up one tier (Village → Town → City → Metropolis), Era and Standing limits shown as flags
+function expandOpts(o){return withBoard(o.board,()=>{const L=[];
+  S.settlements.forEach(s=>{if(s.up||settUnbuilt(s))return;const nt=nextTier(s.tier);if(!nt)return;const ea=eraAllows(nt,s.id)||{ok:true};
+    L.push({v:"x:"+s.id,label:(s.name||s.tier)+" → "+nt+" · Build Timer "+settBuildTime(nt)+(ea.ok?"":" · ⚑ "+ea.why)});});
+  L.push({v:"hand",label:"by hand"});return L;});}
+function runExpand(c){const o=c.o,b=o.board,v=c.sub.slice(2);if(c.sub==="hand"||!c.sub){c.pend("no Settlement expanded yet");return;}
+  const s=settById(o,v);if(!s){c.flag("Expand: Settlement not found");return;}const nt=nextTier(s.tier);if(!nt){c.flag("Expand: "+(s.name||s.tier)+" is already a Metropolis");return;}
+  const ea=withBoard(b,()=>eraAllows(nt,s.id))||{ok:true};if(!ea.ok)c.flag("Expand: "+ea.why);
+  withBoard(b,()=>settExpand(o,s,nt));c.log(o.name+" expands "+(s.name||s.tier)+" → "+nt+(s.bt>0?" · Build Timer "+s.bt:""));}
+function runImprove(c){const o=c.o,b=o.board,k=c.sub.slice(0,1),v=c.sub.slice(2);if(c.sub==="hand"){c.pend("no Infrastructure placed yet");return;}
   const blk=withBoard(b,()=>scopeBlock(v,null));if(blk){c.flag(blk);return;}
   const t=withBoard(b,()=>{(k==="w"?S.wonders:S.infra)[v]=1;itm();const t=gameStarted()?infraBuildTime(v):0;if(t>0)S.itimer[v]=t;return t;});
   c.log(o.name+" builds "+v+(t>0?" · Build Timer "+t:""));
   D.players.forEach(q=>{const h=facHit(q.board,"build_edict");if(h&&h[1]===v&&!sameP(q,o))c.flag(q.name+" ("+q.board.faction+"): must "+h[2]+" "+o.name+"'s "+v+" as an Edict");});}
-function runCharter(c){const o=c.o,b=o.board;b.settlements=b.settlements||[];const s={id:nextId(b.settlements),tier:"Village"};nameSett(o,s);
+function runSettle(c){const o=c.o,b=o.board;b.settlements=b.settlements||[];const s={id:nextId(b.settlements),tier:"Village"};nameSett(o,s);
   const t=withBoard(b,()=>gameStarted()?settBuildTime("Village"):0);if(t>0)s.bt=t;b.settlements.push(s);
-  c.log(o.name+" charters a Village"+(s.name?" — "+s.name:"")+(t>0?" · Build Timer "+t:""));c.flag("Place the Village on the map (Map ▸ Place ▸ Village)");
+  c.log(o.name+" settles a new Village"+(s.name?" — "+s.name:"")+(t>0?" · Build Timer "+t:""));c.flag("Place the Village on the map (Map ▸ Place ▸ Village)");
   const cap=withBoard(b,()=>eraCap("max_settlements"));if(cap!=null&&b.settlements.length>cap)c.flag("Settlements "+b.settlements.length+" / "+cap+" allowed in "+currentEra());}
 // Repair: a Damaged piece stays inactive until Repaired; Repair sets its Repair Timer, which then counts down
 function repairOpts(o){const b=o.board,L=[];
@@ -388,7 +402,7 @@ function warOnFac(c){const h=facHit(c.q.board,"war_on_you_doubt");
   if(facHit(c.q.board,"duke_war"))c.flag(c.q.name+" ("+c.q.board.faction+"): "+c.o.name+"'s Trade Agreements, Non-Aggression Pacts and Defensive Alliances are void; every other player Declares War on "+c.o.name+" and their Military Alliance");}
 function warOn(c,o,q,cascade){const x=topPair(o,q);if(!x)return;if(!x.war)chron("war",{player:o.name,other:q.name,key:pk(topSuz(o.id),topSuz(q.id))});x.war=true;x.sacredWar=false;x.trade=false;c.log(o.name+" and "+q.name+" are At War"+(x.trade===false?"":""));
   if(!cascade)return;const d=diplo(),g=d.member[topSuz(q.id)];if(g&&(d.alliances[g]||{}).type==="Defensive")allyGroup(g).forEach(m=>{if(sameP(m,q)||sameP(m,o))return;const y=topPair(o,m);if(y&&!y.war){y.war=true;y.sacredWar=false;y.trade=false;c.log(m.name+" (Defensive Alliance) is At War with "+o.name);}});}
-// Grand Vizier: "Players may not target you with Cunning Envoys if your Cunning value is higher" — a Holding may unlock it
+// Grand Vizier: "Players may not target you with Cunning actions if your Cunning value is higher" — a Holding may unlock it
 // on another value ("Unlocks Grand Vizier which uses your Piety Value / Public Order instead of Cunning")
 function grandVizier(q){const b=q.board,h=srcMatch(b,"grand_vizier_alt")[0];
   if(h){const piety=/Piety/i.test(h.m[1]);return {val:piety?((b.domains||{}).Piety||0):(b.po||0),what:piety?"Piety":"Public Order",src:h.n};}
@@ -465,7 +479,7 @@ function pfForm(E,rec,mode){const o=E.owner,id=E.id,acts=pfActs(E),d=PF[id]=PF[i
 function boardCounts(b){return {placed:(b.placed||[]).filter(x=>!x.fac).length,setts:(b.settlements||[]).length,
   infra:Object.keys(b.infra||{}).length+Object.keys(b.wonders||{}).length,tiers:(b.settlements||[]).reduce((t,x)=>t+(+((DATA.settlements||{})[x.tier]||{}).tier||0),0)};}
 function pendingOf(b){const n=boardCounts(b);return (b.pending||[]).filter(x=>{const s=x.snap||{};
-  if(x.act==="Build")return n.placed<=s.placed;if(x.act==="Charter")return n.setts<=s.setts;if(x.act==="Improve")return n.infra<=s.infra&&n.tiers<=s.tiers;return true;});}
+  if(x.act==="Build")return n.placed<=s.placed;if(x.act==="Settle")return n.setts<=s.setts;if(x.act==="Improve")return n.infra<=s.infra;if(x.act==="Expand")return n.tiers<=s.tiers;return true;});}
 function apLines(ap){const L=(ap.fx||[]).map(x=>'<div>'+esc(x)+'</div>').concat((ap.flags||[]).map(x=>'<div class="fl">⚑ '+esc(x)+'</div>'));
   return L.length?'<div class="apl">'+L.join("")+'</div>':'';}
 // ---- resolve one Envoy: outcome Faith / Doubt, cost, action effect, Endorsed effect ----
@@ -481,7 +495,7 @@ function resolveEnvoy(E,pe,fin){const o=E.owner,act=pe&&pe.rec&&pe.rec.action,A=
     if(recoupedGold)blackMarketReact(o,recoupedGold,"black_market_recoup","Recoup").forEach(x=>fx.push(x));
     if(cost.gold||cost.doubt)fx.push(o.name+" pays "+why+": "+[cost.gold?cost.gold.toLocaleString()+" gold":"",cost.doubt?"Doubt "+cost.doubt:""].filter(Boolean).join(" + ")+(notes.length?" ("+notes.join("; ")+")":""));};
   if(fin==="Condemned")chron("condemned",{player:o.name,domain:E.dom||""});
-  if(fin==="Condemned"){const rest=txt.replace(/^\s*Doubt \d+\s*\+\s*/i,""),gm=/\bpay\s+([\d,]+)/i.exec(rest),dm=/^Doubt (\d+)/i.exec(rest);   // after the "+": the Condemn cost
+  if(fin==="Condemned"){const rest=txt.replace(/^\s*Doubt \d+\s*\+\s*/i,""),gm=/\bpay\s+([\d,]+)/i.exec(rest),dm=/^(?:pay\s+)?Doubt (\d+)/i.exec(rest);   // after the "+": the Condemn cost ("pay 2000", "pay Doubt 1")
     if(/pay the action/i.test(rest)){const tried=pe&&pe.rec&&(pe.rec.tried||[])[0],c=act?actCost(act):tried?actCost(tried):domCost(E.dom);
       if(c)pay(c,"the action's cost (Condemned)");else flags.push("Condemned: pay the cost of the "+E.dom+" action you'd have performed");}
     else if(gm||dm)pay({gold:gm?+gm[1].replace(/,/g,""):0,doubt:dm?+dm[1]:0},"Condemned"+(/cannot Recoup/i.test(rest)?" (no Recoup)":""));
@@ -531,6 +545,7 @@ function tApply(R){if(!autoRes())return;let ch=false;
   R.log.forEach(l=>{if(l.kind!=="envoy")return;const E=l.E,p=E.owner;
     if(!(HOTSEAT||(lockOn()?mine(p):sameP(meP(),p))))return;
     const c=tCurW(p);c.applied=c.applied||{};if(c.applied[E.id])return;
+    if(!resolveOpen(R,E))return;                                                       // Resolve waits for the end of the Tally Phase
     const pe=performEval(E);if(!pe&&(E.out==="Passed"||E.out==="Endorsed"))return;   // wait for Perform
     const fin=pe?pe.out:E.out;c.applied[E.id]={out:fin,f:0,d:0,fx:[],flags:[],dom:E.dom+(E.council?" (Council)":""),act:pe&&pe.rec&&pe.rec.action||"",sub:pe&&pe.rec&&pe.rec.sub?pfSubLabel(p,pe.rec.action,pe.rec.target,pe.rec.sub):""};    // marked first: never applied twice
     Object.assign(c.applied[E.id],resolveEnvoy(E,pe,fin));ch=true;});

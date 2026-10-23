@@ -189,36 +189,98 @@ for _dom, _tiers in getattr(rd, "DOMAIN_BOARD", {}).items():
 
 TERM_LIST = sorted(TERMS, key=lambda t:-len(t))
 TERM_RE = re.compile(r"\b(" + "|".join(re.escape(t) for t in TERM_LIST) + r")\b", re.IGNORECASE)
-def _autolink_text(text, current=None, current_anchor=None):
+# ── term links: once per section, never to the page / section being read, quiet, with a hover definition ──
+# A term links at its first mention in each heading section (and once per table); later mentions stay plain.
+# Mentions that share a target or a singular (Settlement / Settlements) count as one. Headings are never linked.
+# Plain, too: terms whose home is this page (HOME, from GLOSSARY_SEE), terms named by the page or section heading,
+# and WIKI_NOLINK (everyday words that are glossary keys). Each link carries its definition's first sentence (data-def).
+WIKI_NOLINK = {str(x).lower() for x in getattr(rd, "WIKI_NOLINK", ())}
+HOME = {}            # term -> rule page that defines it (filled once the rules are split)
+SECTION_LEAD = {}    # rule page url -> (section title, first sentence)
+_LOWER = {"n": -1, "map": {}}
+def _lower_map():
+    if _LOWER["n"] != len(TERMS): _LOWER.update(n=len(TERMS), map={t.lower(): t for t in TERMS})
+    return _LOWER["map"]
+def _norm(t):                                     # one key per term family: Settlements -> settlement, Reach X -> reach
+    t = re.sub(r"\s+x$", "", t.lower().strip())
+    return t[:-1] if t.endswith("s") and not t.endswith("ss") else t
+def _first_sentence(s):
+    s = re.sub(r"\{\{[^}]*\}\}", "", str(s or "")); s = re.sub(r"\*\*|__|\*|`", "", s); s = " ".join(s.split())
+    m = re.match(r"(.+?[.!?])(?:\s|$)", s)
+    s = m.group(1) if m else s
+    return getattr(rd, "display_text", lambda x: x)(s if len(s) <= 240 else s[:237].rstrip() + "…")
+_DEF_CACHE = {}
+def _term_def(key, url):
+    """(first sentence, where it lives) for a term's hover card, or None."""
+    ck = (key, url)
+    if ck in _DEF_CACHE: return _DEF_CACHE[ck]
+    d = None
+    if url == "glossary.html" and key in GLOSS_ALL: d = (GLOSS_ALL[key], "Glossary")
+    elif url.startswith("type-"):
+        n = key if key in rd.NODES else next((x for x in rd.NODES if rd.display(x) == key), None)
+        if n: d = (rd.NODES[n].get("innate") or "", "Holding")
+    elif url == "infrastructure-ref.html" and key in getattr(rd, "INFRASTRUCTURE", {}): d = (rd.INFRASTRUCTURE[key].get("empire_bonus"), "Infrastructure")
+    elif url == "factions.html" and key in FACTIONS: d = (FACTIONS[key].get("summary") or FACTIONS[key].get("mechanic"), "Faction")
+    elif url == "domain-board-ref.html":
+        for _tiers in getattr(rd, "DOMAIN_BOARD", {}).values():
+            for _txt in (_tiers.values() if isinstance(_tiers, dict) else ()):
+                if isinstance(_txt, str) and _txt.split(":", 1)[0].strip() == key: d = (_txt.split(":", 1)[1], "Domain Standing")
+    elif url in SECTION_LEAD: d = (SECTION_LEAD[url][1], "Rules · " + SECTION_LEAD[url][0])
+    out = (_first_sentence(d[0]), d[1]) if d and str(d[0] or "").strip() else None
+    _DEF_CACHE[ck] = out
+    return out
+def _heading_names(matched, heads):
+    base = re.escape(_norm(matched))
+    return any(re.search(r"\b" + base + r"(?:s|es)?\b", h.lower()) for h in heads if h)
+def _autolink_text(text, current=None, current_anchor=None, ctx=None):
     # case-insensitive resolution: matched text may differ in case from the TERMS key
-    lower_map = {t.lower(): t for t in TERMS}
+    lower_map = _lower_map()
     def repl(m):
         matched = m.group(1)
         key = lower_map.get(matched.lower())
-        if key is None:
+        if key is None or key.lower() in WIKI_NOLINK:
             return matched
         url, anchor = TERMS[key]
-        # suppress only a true self-reference (same page AND same anchor, or
-        # same page with no anchor target) — otherwise allow same-page anchor jumps.
-        if url == current:
-            if anchor is None or anchor == current_anchor:
-                return matched
+        # a true self-reference (same page AND same anchor, or same page with no anchor target) stays plain;
+        # same-page jumps to another anchor are allowed (glossary entries pointing at each other)
+        if url == current and (anchor is None or anchor == current_anchor):
+            return matched
         href = url + (f"#{anchor}" if anchor else "")
-        return f'<a class="term" href="{href}">{matched}</a>'
+        if ctx is not None:
+            if HOME.get(key) == current or _heading_names(matched, (ctx.get("sec"), ctx.get("page"))):
+                return matched                                        # this page / section is the term's home
+            nk = _norm(matched)
+            if href in ctx["seen"] or nk in ctx["seen"]:
+                return matched                                        # already linked in this section
+            ctx["seen"].update((href, nk))
+        dd = _term_def(key, url)
+        tip = f' data-def="{html.escape(dd[0], quote=True)}" data-where="{html.escape(dd[1], quote=True)}"' if dd else ""
+        return f'<a class="term" href="{href}"{tip}>{matched}</a>'
     return TERM_RE.sub(repl, text)
 
 _TAG_SPLIT = re.compile(r"(<[^>]+>)")
+_H_OPEN, _H_CLOSE = re.compile(r"<h[1-6][\s>]", re.I), re.compile(r"</h[1-6]>", re.I)
 def autolink_html(markup, current=None, current_anchor=None):
-    """autolink() for finished HTML: only text nodes are linked — never tags/attributes, never inside an <a>."""
-    out, in_a = [], 0
+    """autolink() for finished HTML: only text nodes are linked — never tags/attributes, never inside an <a> or a heading.
+    Scope for "once": each heading starts a section; each table is its own scope."""
+    out, in_a, in_h, htext, saved = [], 0, 0, [], []
+    ctx = {"seen": set(), "sec": "", "page": ""}
     for part in _TAG_SPLIT.split(markup):
         if part.startswith("<") and part.endswith(">"):
             t = part[1:3].lower()
             if t == "a " or t == "a>": in_a += 1
             elif part[:3].lower() == "</a": in_a = max(0, in_a - 1)
+            elif _H_OPEN.match(part): in_h += 1; htext = []
+            elif _H_CLOSE.match(part):
+                in_h = max(0, in_h - 1); title = html.unescape("".join(htext)).strip()
+                ctx["sec"] = title; ctx["page"] = ctx["page"] or title; ctx["seen"] = set()
+            elif part[:6].lower() == "<table": saved.append(ctx["seen"]); ctx["seen"] = set()
+            elif part[:7].lower() == "</table": ctx["seen"] = saved.pop() if saved else set()
             out.append(part)
+        elif in_h:
+            htext.append(part); out.append(part)
         else:
-            out.append(part if in_a or not part.strip() else _autolink_text(part, current, current_anchor))
+            out.append(part if in_a or not part.strip() else _autolink_text(part, current, current_anchor, ctx))
     return "".join(out)
 autolink = autolink_html     # every caller gets the tag-safe version
 
@@ -378,6 +440,20 @@ _SECTION_ALIASES = {
 for alias, section in _SECTION_ALIASES.items():
     if slug(section) in _section_slugs:
         TERMS.setdefault(alias, (f"rules-{slug(section)}.html", None))
+# for the linker: each heading's rule page, each page's opening sentence (hover card for links to the page), and each
+# GLOSSARY_SEE term's home page (where its rule lives — the term isn't linked there)
+_HEAD_PAGE = {}
+for _t, _b in sections_live:
+    _u = f"rules-{slug(_t)}.html"
+    for _h in re.findall(r"(?m)^#{1,6}\s+(.+?)\s*$", _b): _HEAD_PAGE.setdefault(_h.strip(), _u)
+    for _ln in _b.split("\n")[1:]:
+        _s = _ln.strip()
+        if not _s or _s.startswith(("#", "{{", "|", "*(", ">")): continue
+        _s = re.sub(r"^(?:[-*]|\d+(?:\.\d+)*\.?)\s+", "", _s)
+        if len(_s.split()) >= 6: SECTION_LEAD[_u] = (_t, _s); break
+for _term, _rid in (getattr(rd, "GLOSSARY_SEE", None) or {}).items():
+    _a = _rn.ANCHORS.get(_rid)
+    if _a and _a[1] in _HEAD_PAGE: HOME[_term] = _HEAD_PAGE[_a[1]]
 
 # Envoy Outcomes page — register early so rule pages can link to it.
 TERMS.setdefault("Envoy Outcome",       ("envoy-outcomes-ref.html", None))
@@ -1335,7 +1411,9 @@ main{flex:1;padding:8px 30px 80px;min-width:0}
 h1{font-size:26px;margin:.2em 0 .6em;border-bottom:2px solid var(--accent);padding-bottom:.2em}
 h1 .count,.count{font:13px sans-serif;background:var(--chip);color:var(--accent);padding:2px 9px;border-radius:11px;vertical-align:middle}
 h2{font-size:19px;margin:1.2em 0 .4em}h3{font-size:16px;margin:1em 0 .3em;color:var(--ink)}p{margin:.5em 0}
-a.term{color:var(--link);text-decoration:none;border-bottom:1px dotted var(--linkline)}
+a.term{color:inherit;text-decoration:none;border-bottom:1px dotted var(--linkline)}a.term:hover,a.term:focus{color:var(--link);border-bottom-color:var(--link)}
+.termtip{position:absolute;z-index:40;max-width:300px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:8px 11px;font:13px/1.45 sans-serif;box-shadow:0 6px 18px var(--shadow);pointer-events:none}
+.termtip b{display:block;margin-bottom:2px}.termtip small{display:block;margin-top:5px;color:var(--mut);font-size:11.5px}
 a.boardlink{font:11px sans-serif;font-weight:400;color:var(--mut);text-decoration:none;white-space:nowrap}a.boardlink:hover{color:var(--link)}a.term:hover{background:var(--hover)}
 table.pursuits{border-collapse:collapse;width:100%;font:13px sans-serif;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
 table.pursuits th{background:var(--th);text-align:left;padding:7px 9px;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--mut)}
@@ -1442,6 +1520,22 @@ open(os.path.join(OUTDIR,"ui.js"),"w",encoding="utf-8").write(r"""
   function persist(){var c=groups.filter(function(g){return g.classList.contains('collapsed')}).map(function(g){return g.dataset.group});try{localStorage.setItem(KEY,JSON.stringify(c))}catch(e){}}
   if(first)persist();
   groups.forEach(function(g){var h=g.querySelector('.navhead'); if(h)h.addEventListener('click',function(){g.classList.toggle('collapsed');persist();});});
+  // term hover cards: the definition's first sentence + where it lives; on touch, first tap shows it, second follows the link
+  var tip=null, shown=null, touch=window.matchMedia&&window.matchMedia('(hover: none)').matches;
+  function hide(){if(tip)tip.remove();tip=null;shown=null;}
+  function show(a){hide();if(!a.dataset.def)return;tip=document.createElement('div');tip.className='termtip';
+    var b=document.createElement('b');b.textContent=a.textContent;var p=document.createElement('div');p.textContent=a.dataset.def;
+    var w=document.createElement('small');w.textContent=a.dataset.where||'';tip.appendChild(b);tip.appendChild(p);tip.appendChild(w);body.appendChild(tip);
+    var r=a.getBoundingClientRect(),x=Math.max(8,Math.min(r.left+window.scrollX,window.scrollX+document.documentElement.clientWidth-tip.offsetWidth-8)),
+        y=r.bottom+window.scrollY+6;if(r.bottom+tip.offsetHeight+12>window.innerHeight)y=r.top+window.scrollY-tip.offsetHeight-6;
+    tip.style.left=x+'px';tip.style.top=y+'px';shown=a;}
+  document.addEventListener('mouseover',function(e){var a=e.target.closest&&e.target.closest('a.term');if(!touch&&a&&a!==shown)show(a);});
+  document.addEventListener('mouseout',function(e){var a=e.target.closest&&e.target.closest('a.term');if(!touch&&a&&!a.contains(e.relatedTarget))hide();});
+  document.addEventListener('focusin',function(e){if(e.target.matches&&e.target.matches('a.term'))show(e.target);});
+  document.addEventListener('focusout',function(e){if(e.target.matches&&e.target.matches('a.term'))hide();});
+  document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a.term');
+    if(touch&&a&&a.dataset.def&&shown!==a){e.preventDefault();show(a);return;} if(!a)hide();});
+  window.addEventListener('scroll',function(){if(!touch)hide();},{passive:true});
 })();
 """)
 

@@ -194,6 +194,8 @@ GLOSSARY = {
     "Condemned":     "An Envoy whose net Influence is -3 or less: it fails and you resolve that Domain's Condemn effect.",
     "Council Phase": "Before Personal Envoys, a brief Forum, then all players vote on a Domain with no talking (clockwise; Host breaks ties). Each then sends a free Council Envoy of that Domain. Council Envoys auto-Abstain and their net Influence cannot drop below 1.",
     "Council Envoy": "A free Envoy resolved in the Council Phase on the voted Domain; auto-Abstained, net Influence floored at 1.",
+    "Intrigue Phase": "The Envoy Phase step after the Forum, before the first vote. No talking: the starting player uses all of their Intrigue Phase effects, then each player clockwise, ending with the Host. Each choice takes effect at once.",
+    "Tally Phase": "The Envoy Phase step after every Envoy has been voted on: Supports, then the votes of players who vote in the Tally Phase, then Endorsements, then effects that send another Envoy (voted at once). Resolve begins when it ends.",
     "Personal Envoy": "An Envoy you send in the Envoy Phase to attempt to perform an action; the amount of Envoys you can spend and the volume of actions you can perform with one scales with Era.",
 	"Envoy Outcome": "How a Sent Envoy resolves, by Net Influence: Condemned (<= -3), "
                     "Failed (-3 < Net <= 0, gain Doubt 1), Passed (>= 1), Endorsed (>= 3). The per-domain "
@@ -201,7 +203,8 @@ GLOSSARY = {
                     "the domain default.",
 
     # ── Empire actions ──
-    "Charter":       "Found or upgrade a Settlement (Industry action).",
+    "Settle":        "Found a new Village (Industry action).",
+    "Expand":        "Raise a Settlement one tier: Village to Town, Town to City, City to Metropolis (Industry action).",
     "Muster":        "Raise a new Army or Reinforce an existing one near a Muster Field; Retinues arrive each Empire Phase over a Muster Timer (Prowess action).",
     "Pursue":        "Build a Pursuit, spending its purchase cost and a Settlement ward (Industry).",
     "Build":         "Construct Infrastructure (Industry action).",
@@ -1093,7 +1096,7 @@ NODES = {
         "unlock": "Rising Piety",
         "mastery_req": "Salt Works + Chandlery + Cathedral",
         "innate": "+500",
-        "mastery": "First Doubt each Empire Phase reduced by 1 (min 0)",
+        "mastery": "First Doubt each turn reduced by 1 (min 0)",
         "efficient": "Chandlery",
         "builds_into": ["Pilgrimage Site"],
         "monument": False},
@@ -1187,7 +1190,7 @@ NODES = {
         "unlock": "Rising Piety",
         "mastery_req": "Masonry",
         "innate": "Faith +1",
-        "mastery": "Reduce the first instance of Doubt each Empire Phase by 1, min 0.",
+        "mastery": "Reduce the first instance of Doubt each turn by 1, min 0.",
         "builds_into": ["Interrogation Chambers", "Abbey"],
         "monument": False,
 		"efficient": "Courtyard"},
@@ -1340,7 +1343,7 @@ NODES = {
         "unlock": "Established Cunning",
         "mastery_req": "Academy + Secret Cellar",
         "innate": "Extort 300 anytime a player Opposes an Envoy of yours",
-        "mastery": "Once per Envoy Phase: attempt another Cunning Envoy targeting a different player if your Cunning Envoy Failed",
+        "mastery": "At the end of the Tally Phase, if a Cunning Envoy you sent Failed, you may send another Cunning Envoy targeting a different player",
         "efficient": ["Academy", "University", "Secret Cellar"],
         "builds_into": ["Aristocratic Court", "Cipher Chamber"],
         "monument": False},
@@ -1552,7 +1555,7 @@ NODES = {
         "unlock": "1 Sovereign",
         "mastery_req": "Embassy + Library + Town Hall",
         "innate": "Faith +1, gain Influence +1 per other player each Empire Phase",
-        "mastery": "Once per Envoy Phase: before players vote on an Envoy you choose, you may Condemn it if it's an At War player's Envoy, or Endorse it if it's an Ally's Envoy",
+        "mastery": "In the Intrigue Phase, you may Condemn an At War player's Envoy or Endorse an Ally's Envoy",
         "efficient": "Embassy",
         "builds_into": [],
         "monument": True},
@@ -2014,7 +2017,7 @@ SIMPLE_NODES = {
         "group": "g_devotion",
         "unlock": "Rising Piety",
         "infrastructure_req": "Cathedral",
-        "innate": "Faith +1; First two Doubt each Empire Phase reduced by 1",
+        "innate": "Faith +1; First two Doubt each turn reduced by 1",
         "efficient": "Chandlery",
         "builds_into": ["Pilgrimage Site"],
         "monument": False},
@@ -2089,7 +2092,7 @@ SIMPLE_NODES = {
     "Episcopal Court": {
         "group": "g_devotion",
         "unlock": "Rising Piety",
-        "innate": "Faith +1; Reduce the first instance of Doubt each Empire Phase by 1, min 0.",
+        "innate": "Faith +1; Reduce the first instance of Doubt each turn by 1, min 0.",
         "efficient": "Courtyard",
         "builds_into": ["Interrogation Chambers"],
         "monument": False},
@@ -2104,7 +2107,7 @@ SIMPLE_NODES = {
     "Grand Tournament": {
         "group": "g_logistics",
         "unlock": "Established Prowess",
-        "innate": "Reach +1, 3x per Envoy Phase: exchange 500 gold for Influence +1; Armies gain Riposte & Improve Parry by +1.",
+        "innate": "Reach +1, 3x in the Intrigue Phase: exchange 500 gold for Influence +1; Armies gain Riposte & Improve Parry by +1.",
         "efficient": ["Coliseum"],
         "builds_into": ["Royal Pavilion"],
         "monument": False},
@@ -2161,7 +2164,7 @@ SIMPLE_NODES = {
     "Courier Network": {
         "group": "g_court",
         "unlock": "-",
-        "innate": "Once per Envoy Phase before voting: Authority -1 on Target Envoy; Once per Envoy Phase: select a Personal Action you performed this turn. Next turn, you may perform that action in the Empire Phase, but you send 1 fewer Envoy next turn.",
+        "innate": "In the Intrigue Phase: Authority -1 on one Envoy; Once per Envoy Phase: select a Personal Action you performed this turn. Next turn, you may perform that action in the Empire Phase, but you send 1 fewer Envoy next turn.",
         "efficient": "Inn",
         "builds_into": ["Smuggler's Nook"],
         "monument": False},
@@ -2217,7 +2220,7 @@ SIMPLE_NODES = {
     "Forgery Workshop": {
         "group": "g_secrecy",
         "unlock": "Established Cunning",
-        "innate": "Extort 300 anytime a player Opposes an Envoy of yours; Once per Envoy Phase: attempt another Cunning Envoy if your Cunning Envoy Failed. If it Passes or is Endorsed, it must target a different player.",
+        "innate": "Extort 300 anytime a player Opposes an Envoy of yours; At the end of the Tally Phase, if a Cunning Envoy you sent Failed, you may send another Cunning Envoy. If it Passes or is Endorsed, it must target a different player.",
         "efficient": ["University", "Academy"],
         "builds_into": ["Cipher Chamber"],
         "monument": False},
@@ -2339,7 +2342,7 @@ SIMPLE_NODES = {
     "Battery Park": {
         "group": "g_logistics",
         "unlock": "Established Prowess",
-        "innate": "Your Siege Timers increment twice each turn.",
+        "innate": "Your Siege Timers count down twice each turn instead of once.",
         "efficient": ["Siege Works"],
         "builds_into": ["Artillery Park"],
         "monument": False},
@@ -2433,7 +2436,7 @@ SIMPLE_NODES = {
         "group": "g_court",
         "unlock": "1 Sovereign",
         "infrastructure_req": "Library + Town Hall",
-        "innate": "Faith +1, gain Influence +1 per other player each Empire Phase; Once per Envoy Phase: before players vote on an Envoy you choose, you may Condemn it if it's an At War player's Envoy, or Endorse it if it's an Ally's Envoy",
+        "innate": "Faith +1, gain Influence +1 per other player each Empire Phase; In the Intrigue Phase, you may Condemn an At War player's Envoy or Endorse an Ally's Envoy",
         "efficient": "Embassy",
         "builds_into": [],
         "monument": True},
@@ -2511,7 +2514,7 @@ SIMPLE_NODES = {
     "Whispering Undercroft": {
         "group": "g_secrecy",
         "unlock": "Sovereign Cunning",
-        "innate": "You always vote last, after the Host. Once per Personal Envoy Phase when a player sends an Envoy: that player must declare the specific action & target they would Perform if the Envoy passes (including sub-Actions). If it passes, they must Perform that declared action at the declared target.",
+        "innate": "You cast all of your votes in the Tally Phase. In the Intrigue Phase, choose a Personal Envoy: its sender must declare the specific action & target they would Perform if it passes (including sub-Actions). If it passes, they must Perform that declared action at the declared target.",
         "efficient": "Cipher Chamber",
         "builds_into": [],
         "monument": True},
@@ -2644,6 +2647,32 @@ def get_data(mode="renown"):
     if mode == "escalation":
         return {k: v for k, v in NODES.items() if "escalation" in v}
     return dict(NODES)
+
+# One-line Monument summaries (playstyle reference). Condensed from each Monument's
+# innate text — edit the Monument first, then this line.
+MONUMENT_SUMMARY = {
+    "Ossuary Crypt":                      "Every Piety action adds Doubt +1; your Piety actions ignore your Public Order",
+    "Baggage Train":                      "No Army upkeep at home, -2000 abroad; Move at the start of the Empire Phase",
+    "Office of Works":                    "Ignore 'Besieged' restrictions; Siege Timer +2; Build Timer -2",
+    "Royal Pavilion":                     "Armies Immune Strained; Parry +1, Strike +1; Deadly & Cleave Focus on 8+",
+    "Imperial Palace":                    "Lower-Prowess rivals gain Doubt +2; your failing Envoys pass",
+    "Artillery Park":                     "Sieges ignore Wooden & Stone Walls; Siege Timer -2; no Sally Forth; Arquebus",
+    "Ministry of Military Strategy":      "You always Seize the Initiative, opponents never; max initiative 3; Drilled",
+    "Thieves' Guild":                     "Recoup 1000 on others' Cunning actions; Extort half of non-traders' Trade Income",
+    "Senate Hall":                        "Faith +1; Influence +1 per player; Condemn at-war or Endorse allied Envoys",
+    "Papal Palace":                       "Free Piety Envoys; Tithe every lower-Piety player each Empire Phase",
+    "Inquisitorial Palace":               "All Doubt-causing actions +1; Grand Vizier runs on Piety",
+    "Preceptory of the Knight's Templar": "Muster Knight's Templar; Faith +3 each Empire Phase during Sacred War",
+    "Exalted Basilica":                   "Endorsed Spread Truth at the start of the Empire Phase",
+    "Manor House":                        "+200 gold per active natural Holding",
+    "Aristocratic Court":                 "Extort 1000 from poorer rivals; your Council vote counts twice",
+    "Studium Generale":                   "Influence +1 per Established Standing; one free Sovereign Domain effect",
+    "Outlaw Rookery":                     "You & Bandit Camps +1 Authority on Cunning Envoys; Foster Rebellion spawns Bandits",
+    "Advanced Blast Furnace":             "Upkeep -1000; Crafted Weapons; Craft +3",
+    "Whispering Undercroft":              "Vote in the Tally Phase; one Personal Envoy must pre-declare action & target",
+    "Outrider Intercept Post":            "Opponents reveal their Tactic Card before you choose yours",
+    "Port Authority":                     "+100 gold per Craft",
+}
 
 # ── FACTIONS ────────────────────────────────────────────────────────────────
 # Master source for the 38+ asymmetric factions. Edit HERE; faction cards and
@@ -3102,7 +3131,7 @@ FACTIONS = {
         'strength': 'Medium',
         'mechanic_name': 'Wandering Nomads',
         'summary': 'Armies are Settlements; no Infrastructure, no upkeep',
-        'mechanic': "Your Armies function as Settlements — a Band, Tribe, or Horde, upgraded accordingly — count as Settlements with Reach 3, and each has a Muster Field. You may have one additional Army per Era, starting with two. Your Armies don't require troops to exist and can't be besieged. You can't build Infrastructure, but may build Pursuits; Raw Material Pursuits within your Reach are always active and take no Settlement Ward. You may trade so long as your border touches another player's. You may begin a new Army adjacent to any existing Army with a Charter or Muster action. When an Army is destroyed, so is its Settlement. Nomads pay no upkeep.",
+        'mechanic': "Your Armies function as Settlements — a Band, Tribe, or Horde, upgraded accordingly — count as Settlements with Reach 3, and each has a Muster Field. You may have one additional Army per Era, starting with two. Your Armies don't require troops to exist and can't be besieged. You can't build Infrastructure, but may build Pursuits; Raw Material Pursuits within your Reach are always active and take no Settlement Ward. You may trade so long as your border touches another player's. You may begin a new Army adjacent to any existing Army with a Settle or Muster action. When an Army is destroyed, so is its Settlement. Nomads pay no upkeep.",
         'pair': 'Saddlery, Royal Pavilion',
         'complement': 'Forge',
     },
@@ -3252,7 +3281,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
  # ── Wondrous tier (Wonders): Realm Scope, one per game, built in your capital
  'Colossus': {'upkeep': 500,
               'upkeep_frequency': 'per Wonder',
-              'empire_bonus': 'You may support your own Personal Prowess Envoys before other players '
+              'empire_bonus': 'In the Intrigue Phase, you may support your own Personal Prowess Envoys before other players '
                               'vote. Speed +2; Siege Timer -2, & gain Immune '
                               'Blunder.',
               'tier': 'Wondrous',
@@ -3274,8 +3303,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                         'requirement': 'Cathedral'},
  'High Chancery': {'upkeep': 500,
                    'upkeep_frequency': 'per Wonder',
-                   'empire_bonus': 'Once per Envoy Phase, you may Endorse one Envoy Sent '
-                                   'by yourself after voting.'
+                   'empire_bonus': 'In the Tally Phase, you may Endorse one Envoy you sent.'
                                    '',
                    'tier': 'Wondrous',
                    'build_time': 10,
@@ -3402,17 +3430,17 @@ PO_MODIFIERS = {
 DOMAIN_BOARD = {
     "Industry": {
         "Rising":      "Trade Secrets: Perform endorsed Build.",
-        "Established": "Grand Architect: May have an additional Settlement. Perform endorsed Charter.",
-        "Sovereign":   "Titan of Industry: Your capital may be chartered to a Metropolis. Perform endorsed Charter.",
+        "Established": "Grand Architect: May have an additional Settlement. Perform endorsed Settle.",
+        "Sovereign":   "Titan of Industry: Your capital may Expand to a Metropolis. Perform endorsed Expand.",
     },
     "Prowess": {
-        "Rising":      "Indomitable: Once per Envoy Phase, you may spend influence on your own Prowess Envoy after all players have voted.",
+        "Rising":      "Indomitable: In the Tally Phase, you may Support one of your own Prowess Envoys.",
         "Established": "Edict of War: May have an additional Army. Perform a Muster Action.",
-        "Sovereign":   "High Quartermaster: Upkeep -2000. May change equipment on your armies during any upkeep phase where that army is within your Province. No longer lose Influence while at War.",
+        "Sovereign":   "High Quartermaster: Upkeep -2000. May change equipment on your armies during any upkeep phase where that army is within Province. No longer lose Influence while at War.",
     },
     "Cunning": {
-        "Rising":      "Clandestine Councilor: Once per Envoy Phase, when voting on an Envoy begins, target a player with a lower Cunning value - that player Abstains that Envoy.",
-        "Established": "Grand Vizier: Influence +1 each Empire Phase. Players may not target you with Cunning Envoys if your Cunning value is higher.",
+        "Rising":      "Clandestine Councilor: In the Intrigue Phase, target an Envoy and a player with a lower Cunning value - that player Abstains that Envoy.",
+        "Established": "Grand Vizier: Influence +1 each Empire Phase. Players may not target you with Cunning actions if your Cunning value is higher.",
         "Sovereign":   "Master Conspirator: Once per Envoy Phase, if your non-Cunning Envoy passes or is endorsed, you may instead perform a Cunning action.",
     },
     "Piety": {
@@ -3659,7 +3687,7 @@ ENVOY_OUTCOMES = { #Note, the condemned.split("+")[-1] is the "cost" for cunning
                   "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Perform a Move action"},
     "Cunning":   {"condemned": "Doubt 1 + pay 2000, & you cannot Recoup",
                   "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Extort 2000"},
-    "Piety":     {"condemned": "Doubt 1 + Doubt 1",
+    "Piety":     {"condemned": "Doubt 1 + pay Doubt 1, & you cannot Recoup",
                   "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Recoup Doubt"},
     "Industry":  {"condemned": "Doubt 1 + pay 2000, & you cannot Recoup",
                   "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Recoup 2000"},
@@ -3683,7 +3711,7 @@ ACTIONS = {
         'requires': '',
         'effect': f'Move an Army up to its Speed in Territories. Then choose one: March — move up to {MARCH_MULTIPLIER}× Speed, lose 1 Endurance, take no other action; Battle — end adjacent to an at-war Army not in a Settlement, then begin a Battle; Lay Siege — end adjacent to an at-war Settlement, then begin a Siege.',
         'endorsed': 'Perform another Move action (same or a different Army).',
-        'notes': ['Unless the move action was Endorsed, an Army may be the target of only one Move action per turn.', "Presence limits where the Army may move (see Rule: Presence).", "While an Army's Battle or Siege Timer is active, it can't be the target of actions.", "When an Army performs the Battle action, it gains Seize the Initiative in that Battle's first Skirmish."],
+        'notes': ['Unless the move action was Endorsed, an Army may be the target of only one Move action per turn.', "Presence limits where the Army may move (see Rule: Commanding Presence).", "While an Army's Battle or Siege Timer is active, it can't be the target of actions.", "When an Army performs the Battle action, it gains Seize the Initiative in that Battle's first Skirmish."],
     },
     'Declare War': {
         'domain': 'Prowess',
@@ -3828,15 +3856,23 @@ ACTIONS = {
         'requires': '',
         'effect': 'Choose an inactive Settlement Ward you control, then choose a Pursuit whose prerequisites you meet and set a Build Timer equal to its build time (usually 1). When it completes, place the Pursuit in an available Ward slot; its innate effect activates immediately, and its mastery effect activates if all mastery requirements are met.',
         'endorsed': 'Recoup 2000.',
-        'notes': ['You may have only 2 Monument Pursuits across your empire.', f'Pursuits have Build Timers according to their required Standing. Ungated: 1, Rising: 2, Established: 3, & Sovereign: 4.'],
+        'notes': ['You may have only 1 Monument Pursuits per settlement.', f'Pursuits have Build Timers according to their required Standing. Ungated: 1, Rising: 2, Established: 3, & Sovereign: 4.'],
     },
-    'Charter': {
+    'Settle': {
         'domain': 'Industry',
         'cost': '2000 gold',
         'requires': 'Rising Industry',
-        'effect': f'Choose one: Charter a new Village — on uncontrolled or in-province non-water, non-mountain Territory, range {CHARTER_MIN_RANGE}+ from any Settlement and range {OUTLAW_BUFFER_RANGE}+ from Outlaw Country; or Expand a non-City Settlement one tier into an adjacent Territory (Village to Sea/Town, Sea/Town to Port/City, Port/City to Metropolis), adding a Ward.',
+        'effect': f'Charter a new Village within province on grassland, range {CHARTER_MIN_RANGE}+ from any Settlement and range {OUTLAW_BUFFER_RANGE}+ from Outlaw Country, and set a Build Timer 2.',
         'endorsed': 'Recoup 2000.',
-        'notes': ["To upgrade to City or Metropolis you must meet that tier's requirements; otherwise set Build Timer 1."],
+        'notes': [],
+    },
+    'Expand': {
+        'domain': 'Industry',
+        'cost': '2000 gold',
+        'requires': 'Rising Industry',
+        'effect': "Increase a Settlement by one tier (Village to Town, Town to City, City to Metropolis), raising its Wards, Tax income, Muster Limit and Reach.",
+        'endorsed': 'Recoup 2000.',
+        'notes': ["To upgrade to City or Metropolis you must meet that era requirement; otherwise set Build Timer 1."],
     },
     'Sign Treaty': {
         'domain': 'Diplomacy',
@@ -4568,29 +4604,20 @@ if SIMPLE:
     # line of its chain back to the root, anywhere in your empire (checked only when you start it — carve-out
     # wording pending); sharing a Ward with the immediate parent is the free Ward. A parent lost later just
     # loses its own effect.
-    # Actions: Pursue -> Build (Pursuits); Build -> Improve (Infrastructure + Expand); Charter = new Settlement only.
+    # Actions: Pursue -> Build (Holdings); Build -> Improve (Infrastructure). Repair, Settle (a new Village) and
+    # Expand (a Settlement up one tier) stay as written in ACTIONS.
     _old = dict(ACTIONS)
-    _pursue = dict(_old["Pursue"]); _infra = dict(_old["Build"]); _charter = dict(_old["Charter"])
+    _pursue = dict(_old["Pursue"]); _improve = dict(_old["Build"])
     _pursue["effect"] = _pursue["effect"].replace(
         "choose a Pursuit whose prerequisites you meet",
         "choose a Pursuit with one complete line of its " + CHAIN_TERM + " under your control (and meet its other requirements)")
-    _improve = dict(_infra)
-    _improve["effect"] = ("Choose one: Infrastructure — choose an unlocked, available Infrastructure and set a Build Timer "
-        "equal to its build time; when it completes, the Infrastructure becomes active in every Settlement in your Province. "
-        "Or Expand a Settlement one tier" + (" into an adjacent Territory" if WARD_MODEL == "range1" else "") + " (Village to Town, Town to City, "
-        "City to Metropolis), adding a Ward.")
     _improve["notes"] = [n.replace("when the Build action is performed", "when the Improve action is performed")
-                         for n in _infra.get("notes", [])] + list(_charter.get("notes", []))
-    _charter["effect"] = ("Charter a new Village — on in-province non-water, non-mountain Territory, "
-        "Range 4+ from any Settlement and Range 2+ from Outlaw Country.")
-    _charter.pop("notes", None)
+                         for n in _improve.get("notes", [])]
     ACTIONS.clear()
     for _k, _v in _old.items():
         if _k == "Build":     ACTIONS["Improve"] = _improve
         elif _k == "Pursue":  ACTIONS["Build"] = _pursue
-        elif _k == "Charter": ACTIONS["Charter"] = _charter
         else:                 ACTIONS[_k] = _v
-    if "Improve" not in ACTIONS: ACTIONS["Improve"] = _improve
     if "Pursue action" in COSTS:
         _cs = dict(COSTS); COSTS.clear()
         for _k, _v in _cs.items(): COSTS["Build action" if _k == "Pursue action" else _k] = _v
@@ -4603,8 +4630,7 @@ if SIMPLE:
     _g = dict(GLOSSARY); GLOSSARY.clear()
     for _k, _v in _g.items():
         if _k == "Pursue":        GLOSSARY["Build"] = "Build a Pursuit, spending its purchase cost and a Settlement ward (Industry action)."
-        elif _k == "Build":       GLOSSARY["Improve"] = "Construct Infrastructure or Expand a Settlement one tier (Industry action)."
-        elif _k == "Charter":     GLOSSARY["Charter"] = "Found a new Settlement (Industry action)."
+        elif _k == "Build":       GLOSSARY["Improve"] = "Construct Infrastructure (Industry action)."
         elif _k == "Efficient X": GLOSSARY[CHAIN_TERM + " X"] = (
             "While this Pursuit occupies the same Settlement Ward as X (the Raw Material or Pursuit named on its tile), "
             "it uses no ward of its own — the two share one ward. Placed anywhere else, it fills a ward normally. "
@@ -4622,12 +4648,6 @@ if SIMPLE:
     FACTIONS["The Crimson Tide"]["mechanic"] = FACTIONS["The Crimson Tide"]["mechanic"].replace(
         " — even without a Water Settlement", "")
 
-    # Expand lives in Improve now: upgrade grants follow it.
-    for _st in ("Established", "Sovereign"):
-        DOMAIN_BOARD["Industry"][_st] = DOMAIN_BOARD["Industry"][_st].replace(
-            "Perform endorsed Charter.", "Perform endorsed Improve.").replace(
-            "may be chartered to a Metropolis", "may be improved to a Metropolis")
-    ERAS["Ascension"]["unlocks"] = ERAS["Ascension"]["unlocks"].replace("May resolve Charter Cities", "May Improve Towns to Cities")
     EDICTS["Wonder"] = {**EDICTS["Wonder"], "type": "Improve", "requirement": "Improve Infrastructure via a Wonder."}
 
     # ── DRAFTS — finish the wording, then uncomment ─────────────────────────
@@ -4706,9 +4726,9 @@ _ALIAS_RE = _re_disp.compile(
 # Constant-keyed terms use their constants; action names follow SIMPLE (Pursue->Build, Build->Improve).
 GLOSSARY_CATEGORIES = [
     ('Reading the Rules', ['Perform', 'Resolve', 'Cost / Pay', 'Fail', 'Natural roll', PIVOTAL, 'Host']),
-    ('Council & Envoys', ['Influence', 'Authority X', 'Envoy', 'Send an Envoy', 'Personal Envoy', 'Council Phase', 'Council Envoy', 'Vote', 'Support X', 'Oppose X', 'Abstain', 'Net Influence', 'Envoy Outcome', 'Condemned', 'Failed', 'Passed', 'Endorsed']),
+    ('Council & Envoys', ['Influence', 'Authority X', 'Envoy', 'Send an Envoy', 'Personal Envoy', 'Council Phase', 'Council Envoy', 'Intrigue Phase', 'Vote', 'Support X', 'Oppose X', 'Abstain', 'Tally Phase', 'Net Influence', 'Envoy Outcome', 'Condemned', 'Failed', 'Passed', 'Endorsed']),
     ('Domains & Scoring', ['Renown', 'Domain', 'Domain Point', 'Standing', 'Edict', 'Monument']),
-    ('Actions', ['Charter', 'Muster', *(["Build"] if SIMPLE else ["Pursue"]), *(["Improve"] if SIMPLE else ["Build"]), 'Repair', 'Move', 'Demand Tribute', 'Diplomacy']),
+    ('Actions', ['Muster', *(["Build"] if SIMPLE else ["Pursue"]), *(["Improve"] if SIMPLE else ["Build"]), 'Repair', 'Settle', 'Expand', 'Move', 'Demand Tribute', 'Diplomacy']),
     ('Treaties', ['Treaty', 'Alliance', 'At War', 'Vassal', 'Suzerain']),
     ('Economy & Public Order', ['Public Order', 'Faith X', 'Doubt X', 'Extort X', 'Recoup X', 'Upkeep', 'Craft', 'Can Trade', 'War Weariness']),
     ('Settlements & Holdings', ['Settlement Ward', 'Pursuit', *(["Root"] if SIMPLE else []), 'Natural', CHAIN_TERM, CHAIN_TERM + " X"]),
@@ -4724,6 +4744,10 @@ GLOSSARY_CATEGORIES = [
     ('Equipment Tiers', [k for k in map(str, GLOSSARY) if k.split()[0] in {display_tier(x) for x in TIERS} | set(globals().get("ITEM_TIER_DISPLAY", {}).values()) or k == "Ranged Weapons"]),
 ]
 
+# ── WIKI_NOLINK: glossary terms that read as everyday words; the wiki never auto-links them in prose ──
+# (they keep their glossary entry; link them by hand if a sentence needs it)
+WIKI_NOLINK = ["Within", "Adjacent", "Next to", "Perform", "Save", "Field"]
+
 # ── GLOSSARY_SEE: glossary terms whose full rule lives in the rules prose ──
 # The rules-doc / wiki glossary tables print the term's first sentence + "See <rule> (<section>)" instead of
 # repeating the rule; GLOSSARY keeps the full text for cards, board tooltips and {{TERM:}}/{{DEF:}}.
@@ -4734,12 +4758,12 @@ GLOSSARY_CATEGORIES = [
 GLOSSARY_SEE = {} if not SIMPLE else {
     'Host': 'host',
     'Influence': 'influence', 'Envoy': 'sending-an-envoy', 'Send an Envoy': 'sending-an-envoy',
-    'Council Phase': 'council-phase', 'Council Envoy': 'council-envoy',
+    'Council Phase': 'council-phase', 'Council Envoy': 'council-envoy', 'Intrigue Phase': 'intrigue', 'Tally Phase': 'tally',
     'Vote': 'vote', 'Support X': 'vote', 'Oppose X': 'vote', 'Abstain': 'vote',
     **{t: 'envoy-resolution-table' for t in ('Net Influence', 'Envoy Outcome', 'Condemned', 'Failed', 'Passed', 'Endorsed')},
     'Renown': 'renown-track', 'Domain': 'domain-standings', 'Domain Point': 'domain-standings',
     'Standing': 'domain-standings', 'Edict': 'how-to-win-edicts',
-    'Charter': 'industry-actions', ("Build" if SIMPLE else "Pursue"): 'industry-actions',
+    'Settle': 'industry-actions', 'Expand': 'industry-actions', ("Build" if SIMPLE else "Pursue"): 'industry-actions',
     ("Improve" if SIMPLE else "Build"): 'industry-actions', 'Repair': 'industry-actions',
     'Muster': 'prowess-actions', 'Move': 'prowess-actions', 'Demand Tribute': 'prowess-actions',
     'Diplomacy': 'diplomacy-actions',
@@ -4754,7 +4778,7 @@ GLOSSARY_SEE = {} if not SIMPLE else {
                                          'Uncontrolled', 'Range X', 'Within', 'Adjacent', 'Next to')},
     'Reach': 'settlement-reach', 'Reach X': 'settlement-reach',
     'Bandit': 'bandits', 'Outlaw Country': 'outlaw-country', 'Wild Outlaw Country': 'outlaw-country', 'Siege': 'siege-warfare',
-    'Speed X': 'speed', 'Presence': 'rule-presence', 'Blocked': 'blocked-armies',
+    'Speed X': 'speed', 'Presence': 'rule-commanding-presence', 'Blocked': 'blocked-armies',
     'Skirmish': 'the-skirmish-steps', 'Seize the Initiative': 'seize', 'Tactic': 'tactic-matrix', 'Field': 'form-line',
     'Initiative': 'initiative', BLUNDER: 'initiative', 'Strike': 'strike', 'to-Strike number': 'strike',
     'Save': 'defend', 'Panic check': 'panic', 'Endurance': 'fatigue', 'Fatigued': 'fatigue', FATIGUE_TOKEN: 'fatigue',

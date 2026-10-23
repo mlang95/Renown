@@ -297,64 +297,109 @@ def _center_zones(m, p, rng):
         _blob_compact(m, sd, want, terrain, ok=is_central_plain)
 
 
-# ── starting regions ─────────────────────────────────────────────────────────
+# ── the seat ring: N seats evenly spaced around the board's edge ───────────────
+# Players place their own Towns, so the board owes them N starting places as nearly
+# equidistant as the terrain allows, all on the rim (no centre seat). Perimeter
+# position s runs clockwise from the top-left corner: top edge, right, bottom, left.
+def ring_length(w, h):
+    return 2 * (w - 1) + 2 * (h - 1)
+
+
+def ring_point(w, h, s):
+    """The board-edge point at perimeter position s (wraps)."""
+    L = ring_length(w, h)
+    s %= L
+    if s <= w - 1:
+        return (s, 0.0)
+    s -= w - 1
+    if s <= h - 1:
+        return (w - 1.0, s)
+    s -= h - 1
+    if s <= w - 1:
+        return (w - 1.0 - s, h - 1.0)
+    return (0.0, h - 1.0 - (s - (w - 1)))
+
+
+def edge_span(w, h, edge, lo, hi):
+    """Perimeter range covered by [lo, hi] along one edge (columns for n/s, rows for e/w)."""
+    if edge == "n":
+        return (lo, hi)
+    if edge == "e":
+        return ((w - 1) + lo, (w - 1) + hi)
+    if edge == "s":
+        b = (w - 1) + (h - 1)
+        return (b + (w - 1 - hi), b + (w - 1 - lo))
+    b = 2 * (w - 1) + (h - 1)
+    return (b + (h - 1 - hi), b + (h - 1 - lo))
+
+
+def ring_rotation(w, h, n, keepout, rng, margin=2.0):
+    """Rotation of the seat ring that puts the fewest seats in a keep-out span (the mouth of a
+    gulf, a water rim) — the ring turns as one, so the spacing stays even. Ties are rolled."""
+    L = ring_length(w, h)
+    step = L / max(1, n)
+    best, rots = None, []
+    for k in range(int(step * 2) + 1):
+        r = k * 0.5
+        bad = 0
+        for i in range(n):
+            s = (r + i * step) % L
+            for lo, hi in keepout:
+                if lo - margin <= s <= hi + margin or lo - margin <= s + L <= hi + margin:
+                    bad += 1
+                    break
+        if best is None or bad < best:
+            best, rots = bad, [r]
+        elif bad == best:
+            rots.append(r)
+    return rng.choice(rots) if rots else 0.0
+
+
+def seat_positions(w, h, n, rot):
+    """Perimeter position of each seat."""
+    L = ring_length(w, h)
+    return [(rot + i * L / n) % L for i in range(n)]
+
+
 def _place_regions(m, p, rng):
     n = p["players"]
-    # balanced anchor layouts per player count (fractions of width/height)
-    layouts = {
-        1: [(0.5, 0.5)],
-        2: [(0.18, 0.5), (0.82, 0.5)],
-        3: [(0.18, 0.2), (0.82, 0.2), (0.5, 0.82)],
-        4: [(0.16, 0.18), (0.84, 0.18), (0.16, 0.82), (0.84, 0.82)],
-        5: [(0.16, 0.18), (0.84, 0.18), (0.16, 0.82), (0.84, 0.82), (0.5, 0.5)],
-        6: [(0.16, 0.2), (0.5, 0.16), (0.84, 0.2),
-            (0.16, 0.8), (0.5, 0.84), (0.84, 0.8)],
-        7: [(0.16, 0.2), (0.5, 0.16), (0.84, 0.2),
-            (0.16, 0.8), (0.5, 0.84), (0.84, 0.8), (0.5, 0.5)],
-    }
-    fracs = layouts.get(n, layouts[6])[:n]
-    if n == 2:                            # 2p: capitals on the two SHORT edges
-        if m.height >= m.width:           # portrait -> top & bottom
-            fracs = [(0.5, 0.12), (0.5, 0.88)]
-        else:                             # landscape -> left & right
-            fracs = [(0.12, 0.5), (0.88, 0.5)]
-    slots = [(int(m.width * fc), int(m.height * fr)) for (fc, fr) in fracs]
+    W, H = m.width, m.height
+    L = ring_length(W, H)
+    if n == 1:
+        m.seat_rot, ring = 0.0, None
+    else:
+        m.seat_rot = ring_rotation(W, H, n, p.get("_seat_keepout", []), rng)
+        ring = seat_positions(W, H, n, m.seat_rot)
+    clampi = lambda v, lo, hi: max(lo, min(hi, int(round(v))))
+
+    def edge_hex(s):
+        x, y = ring_point(W, H, s)
+        return (clampi(x, 0, W - 1), clampi(y, 0, H - 1))
+
     anchors = []
-    for (c, r) in slots:
-        c = min(m.width - 3, max(2, c + rng.randint(-1, 1)))
-        r = min(m.height - 3, max(2, r + rng.randint(-1, 1)))
-        anchors.append((c, r))
+    for i in range(n):
+        if ring is None:
+            anchors.append((W // 2, H // 2))
+        else:
+            c, r = edge_hex(ring[i])
+            anchors.append((min(W - 3, max(2, c)), min(H - 3, max(2, r))))
 
     SEP = p["settlement_range"]           # min distance between settlements (5)
     SMAX = p["settlement_range_max"]      # max distance between settlements (7)
-    FIRST = p["first_settle_range"]       # capital within this of the board corner (4)
+    FIRST = p["first_settle_range"]       # capital within this of the board edge (4)
     buildable = lambda c: (m.in_bounds(c)
                            and m.get(c).terrain not in ("water", "mountain"))
     m.settlements, m.centers = [], []
     placed_all = []                       # every settlement across regions (spacing)
 
-    for rid, (a, (fx, fy)) in enumerate(zip(anchors, fracs)):
-        # settlement targets: [capital, corner-settle, centre-settle].
-        #  - edge region (left/right or top/bottom mid): capital at the EDGE
-        #    CENTRE, one settlement toward the near corner, one toward the board
-        #    centre (the two players meet in the middle).
-        #  - corner region: all three aim at the board corner (cornered cluster).
-        #  - dead-centre region: all three aim at the anchor.
-        cx0, cy0 = m.width // 2, m.height // 2
-        vmid = abs(fy - 0.5) < 0.12          # mid-height -> left/right edge
-        hmid = abs(fx - 0.5) < 0.12          # mid-width  -> top/bottom edge
-        if vmid and not hmid:
-            ex = 0 if fx < 0.5 else m.width - 1
-            targets = [(ex, cy0), (ex, 0), (ex, m.height - 1)]
-        elif hmid and not vmid:
-            ey = 0 if fy < 0.5 else m.height - 1
-            targets = [(cx0, ey), (0, ey), (m.width - 1, ey)]
-        elif vmid and hmid:
+    for rid, a in enumerate(anchors):
+        # settlement targets: the capital at the seat's edge point, the other two along the rim
+        # toward the neighbouring seats, so each region lies along its own stretch of edge
+        if ring is None:
             targets = [a, a, a]
         else:
-            corner = (0 if fx < 0.5 else m.width - 1,
-                      0 if fy < 0.5 else m.height - 1)
-            targets = [corner, corner, corner]
+            d = 0.3 * L / n
+            targets = [edge_hex(ring[rid]), edge_hex(ring[rid] + d), edge_hex(ring[rid] - d)]
         t_cap, t2, t3 = targets
 
         # capital: nearest fully-interior hex to its target (all 6 neighbours

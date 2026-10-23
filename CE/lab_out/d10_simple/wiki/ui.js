@@ -22,4 +22,20 @@
   function persist(){var c=groups.filter(function(g){return g.classList.contains('collapsed')}).map(function(g){return g.dataset.group});try{localStorage.setItem(KEY,JSON.stringify(c))}catch(e){}}
   if(first)persist();
   groups.forEach(function(g){var h=g.querySelector('.navhead'); if(h)h.addEventListener('click',function(){g.classList.toggle('collapsed');persist();});});
+  // term hover cards: the definition's first sentence + where it lives; on touch, first tap shows it, second follows the link
+  var tip=null, shown=null, touch=window.matchMedia&&window.matchMedia('(hover: none)').matches;
+  function hide(){if(tip)tip.remove();tip=null;shown=null;}
+  function show(a){hide();if(!a.dataset.def)return;tip=document.createElement('div');tip.className='termtip';
+    var b=document.createElement('b');b.textContent=a.textContent;var p=document.createElement('div');p.textContent=a.dataset.def;
+    var w=document.createElement('small');w.textContent=a.dataset.where||'';tip.appendChild(b);tip.appendChild(p);tip.appendChild(w);body.appendChild(tip);
+    var r=a.getBoundingClientRect(),x=Math.max(8,Math.min(r.left+window.scrollX,window.scrollX+document.documentElement.clientWidth-tip.offsetWidth-8)),
+        y=r.bottom+window.scrollY+6;if(r.bottom+tip.offsetHeight+12>window.innerHeight)y=r.top+window.scrollY-tip.offsetHeight-6;
+    tip.style.left=x+'px';tip.style.top=y+'px';shown=a;}
+  document.addEventListener('mouseover',function(e){var a=e.target.closest&&e.target.closest('a.term');if(!touch&&a&&a!==shown)show(a);});
+  document.addEventListener('mouseout',function(e){var a=e.target.closest&&e.target.closest('a.term');if(!touch&&a&&!a.contains(e.relatedTarget))hide();});
+  document.addEventListener('focusin',function(e){if(e.target.matches&&e.target.matches('a.term'))show(e.target);});
+  document.addEventListener('focusout',function(e){if(e.target.matches&&e.target.matches('a.term'))hide();});
+  document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a.term');
+    if(touch&&a&&a.dataset.def&&shown!==a){e.preventDefault();show(a);return;} if(!a)hide();});
+  window.addEventListener('scroll',function(){if(!touch)hide();},{passive:true});
 })();

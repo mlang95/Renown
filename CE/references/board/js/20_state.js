@@ -150,11 +150,10 @@ function empEconomy(b){const sn=seasonNet(b),net=Math.round(sn.net||0),g0=b.trea
   return {sn,net,g0};}
 function empPO(b,done){const m=boardMetrics(b),p0=b.po||0,fd=m.po||0,pm=poModTotal(b);let dpo=fd+pm;
   epRows(b).filter(r=>r.auto&&r.n>0).forEach(r=>done.push(r.k+": "+r.side[0].toUpperCase()+r.side.slice(1)+" +"+r.n+(r.desc?" ("+r.desc+")":"")));
-  // each Doubt source is one instance; the turn's first-Doubt slots reduce the first instances, one slot each
-  const inst=[m.doubt||0].concat(poModRows(b).filter(r=>r.side==="doubt").map(r=>r.n)).filter(n=>n>0),fr=firstDoubtRed(b),sl=fr.slots.slice();
+  // each Doubt source is one instance; it draws on the same per-turn first-Doubt slots as Doubt from actions (gainDoubt)
+  const inst=[m.doubt||0].concat(poModRows(b).filter(r=>r.side==="doubt").map(r=>r.n)).filter(n=>n>0),fr=firstDoubtRed(b),sl=fdState(b,tTurn()).slots;
   let cut=0;inst.forEach(n=>{if(sl.length)cut+=Math.min(n,sl.shift());});
   if(cut>0){dpo+=cut;done.push("first Doubt −"+cut+" ("+fr.src.join(", ")+")");}
-  b.fd={turn:b.turn,slots:sl};
   b.po=applyPOFloor(b,Math.max(PO_MIN,Math.min(PO_MAX,p0+dpo)));return {fd,pm,p0};}
 // "Armies and Garrisons within controlled Settlements gain Immune Strained" (Granary): an Army inside one of its owner's Settlements, or a Garrison
 function immuneStrainIn(p,a){if(!p||!a||a.sackT)return null;const x=a.garrison?{q:p}:armyInside(p,a);if(!x)return null;   // whose Settlement it is decides
@@ -435,6 +434,13 @@ function isCityPlus(t){return TIER_CHAIN.indexOf(t)>=TIER_CHAIN.indexOf("City");
 function dbActive(b){b=b||S;const out=[],dv=b.domains||{};[["Rising",RIS],["Established",EST],["Sovereign",SOV]].forEach(([t,th])=>
   DOMAINS.forEach(d=>{const e=DBOARD[d];if(e&&typeof e==="object"&&e[t]&&(dv[d]||0)>=th)out.push({dom:d,tier:t,name:String(e[t]).split(":")[0].trim(),text:String(e[t])});}));
   (b.placed||[]).filter(x=>x.name==="Studium Generale"&&pActive(x)&&!x.fac).forEach(x=>{const d=((b.tbl||{}).studiumEffects||{})[String(x.id)],e=DBOARD[d];if(d&&e&&e.Sovereign&&(dv[d]||0)<SOV&&!out.some(y=>y.dom===d&&y.tier==="Sovereign"))out.push({dom:d,tier:"Sovereign",name:String(e.Sovereign).split(":")[0].trim(),text:String(e.Sovereign),free:true,via:"Studium Generale",id:String(x.id)});});return out;}
+// One-shot Standing actions ("Perform endorsed Build", "Perform a Muster Action"): armed when the Standing is reached,
+// offered in the next Empire Phase, cleared when performed (standingPending[key] = {due: turn})
+const STANDING_ACT_RE=/\bPerform endorsed (Build|Improve|Settle|Expand)\b|\bPerform (?:a )?(Move|Muster) Action\b/i;
+function standingKey(x){return "standing:"+(x.free?"studium:"+x.id:x.dom+":"+x.tier);}
+function armStanding(p,d,old,next){if(!p||!(next>old))return;[["Rising",RIS],["Established",EST],["Sovereign",SOV]].forEach(([tier,th])=>{
+  if(old>=th||next<th||!STANDING_ACT_RE.test(String((DBOARD[d]||{})[tier]||"")))return;
+  const pt=PT(p);pt.standingPending=pt.standingPending||{};pt.standingPending[standingKey({dom:d,tier})]={due:tTurn()+1};});}
 // DOMAIN_BOARD "May have an additional City / Settlement / Army" → +1 to the Era cap
 const DB_CAP={cities:/additional City/i,max_settlements:/additional Settlement/i,armies:/additional Army/i};
 function capBonus(k,b){const re=DB_CAP[k];return re?dbActive(b).filter(x=>re.test(x.text)):[];}
@@ -450,7 +456,7 @@ function eraAllows(t,id){
   return {ok:true};
 }
 // flags that point at a rules section (rulebook anchors use the same slug as rules_payload)
-const FLAG_RULE=[[/^Treasury negative/,"Insolvency & Bankruptcy"],[/^Charter:/,"Chartering Settlements"],[/Muster Field/,"Mustering"]];
+const FLAG_RULE=[[/^Treasury negative/,"Insolvency & Bankruptcy"],[/^Settle:/,"Chartering Settlements"],[/Muster Field/,"Mustering"]];
 function rslug(t){return "rb-"+String(t).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");}
 function boardFlags(){
   const f=[],era=currentEra();
@@ -474,7 +480,8 @@ function boardFlags(){
   factionFlags().forEach(x=>f.push(x));
   {const T=exTargets(S),n=extortSlots(S).filter(x=>!T[x.key]).length;if(n)f.push("Extort: "+n+" target"+(n>1?"s":"")+" not chosen (Table ▸ Extort targets)");}
   (S.loanDefaults||[]).forEach(x=>{const t=loanTerms(S);f.push("Loan default (turn "+x.turn+"): "+pname(x.pid)+" — Perform "+(t?t.def:"Demand Tribute"));});
-  dbActive(S).forEach(x=>{const m=/(?:^|[.:]\s*)(Perform [^.]+)\./.exec(x.text);if(m)f.push(x.name+" ("+x.tier+" "+x.dom+"): "+m[1]);});
+  {const me=playerOfBoard(S),pend=me?(PT(me).standingPending||{}):{};   // one-shot Standing actions: flagged only until performed or expired
+    dbActive(S).forEach(x=>{const m=/(?:^|[.:]\s*)(Perform [^.]+)\./.exec(x.text),k=pend[standingKey(x)];if(m&&k&&k.due>=tTurn())f.push(x.name+" ("+x.tier+" "+x.dom+"): "+m[1]+(k.due>tTurn()?" (next Empire Phase)":""));});}
   {const pf=poFloor(S);if(pf&&(S.po||0)<pf.below)f.push("Public Order "+(S.po||0)+" below "+pf.src+" floor "+pf.to);}
   const m=S.settlements.find(s=>s.tier==="Metropolis");
   if(m&&!m.capital)f.push("Metropolis is not the capital (capital only)");

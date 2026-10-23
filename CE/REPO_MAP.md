@@ -1,6 +1,6 @@
 # REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`)
 
-Generated 2026-10-22 · data VERSION `0.4.9.9.13-d10-S` · HEAD `0474832 2026-10-22`
+Generated 2026-10-23 · data VERSION `0.4.9.9.13-d10-S` · HEAD `7990144 2026-10-22`
 
 Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to the repo root.
 
@@ -23,7 +23,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
       maps/  (20 files)
     references/  (53 files)
       board/  (2 files)
-        js/  (15 files)
+        js/  (13 files)
       fonts/  (16 files, generated/assets — not indexed)
     tmp/  (0 files)
     wiki/  (0 files)
@@ -80,9 +80,9 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\COMPREHENSIVE_RULES_OUTLINE.md` | 180 | Renown — Comprehensive Rules: outline |
 | `CE\ENVOY_WINDOW_REVIEW.md` | 86 | Envoy timing windows — review list |
 | `CE\HOLDING_MECHANICS_AUDIT.md` | 54 | Holding Mechanics Audit |
-| `CE\REPO_MAP.md` | 902 | REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`) |
+| `CE\REPO_MAP.md` | 899 | REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`) |
 | `CE\RULES_push.md` | 649 | Renown |
-| `CE\RULES_push_simple.md` | 678 | Renown |
+| `CE\RULES_push_simple.md` | 684 | Renown |
 | `CE\RULES_reorganized_6.md` | 638 | Renown |
 | `CE\SIMPLE_NODES.PY` | 1 |  |
 | `CE\TASK8_NOTES.md` | 152 | claude_task_8 — what changed, open items |
@@ -94,9 +94,9 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\parity_d10.py` | 41 | parity_d10.py — batch_engine and vectorized_combat must agree within dice noise. |
 | `CE\patch_cultures.py` | 245 | patch_cultures.py - replace the PLAYSTYLES block (or an existing CULTURES block) |
 | `CE\rebuild_board.bat` | 20 | rebuild_board.bat - regenerate only the settlement board (no full build). |
-| `CE\renown_data.py` | 4866 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
+| `CE\renown_data.py` | 4890 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
 | `CE\renown_data_CE.py` | 2718 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
-| `CE\renown_data_d10.py` | 4866 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
+| `CE\renown_data_d10.py` | 4890 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
 | `CE\renown_data_d8.py` | 2801 | renown_data — single source of truth (CSV/0.4.8 branch, card-verified) |
 | `CE\renown_server.bat` | 16 | renown_server.bat - (re)start the Renown board server in WSL. |
 | `CE\repo_map.py` | 250 | repo_map.py — write REPO_MAP.md next to this file (CE/, beside CLAUDE.md): a generated index of the Renown repo for |
@@ -104,7 +104,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\run_tournament_d10.py` | 131 | run_tournament_d10.py — run the Renown tournament against the d10 build. |
 | `CE\sprites.py` | 5397 | sprites.py — pixel sprites for the settlement board scene (skins: farmstead, blackletter, scene). |
 | `CE\verify_d10.py` | 168 | verify_d10.py — prove the CE wiring is live before spending hours on a run. |
-| `CE\.claude\launch.json` | 19 |  |
+| `CE\.claude\launch.json` | 37 |  |
 | `CE\Combatv4\analysis.py` | 2125 | Analysis module for tournament results. |
 | `CE\Combatv4\batch_engine.py` | 1633 | Batched matchup engine (v3) — resolves MANY matchups x n_runs in one set of arrays, |
 | `CE\Combatv4\combat_kernel_d10.py` | 268 | combat_kernel.py — SHARED numba kernels for both combat engines. |
@@ -151,23 +151,23 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\Tasks\claude_task_8.txt` | 17 |  |
 | `CE\ask-the-bot\equipment_table.csv` | 38 | columns: Item,Type,Tier,AP_or_Save,Init,Keywords |
 | `CE\ask-the-bot\factions_table.csv` | 43 | columns: Faction,Difficulty,Strength,Mechanic |
-| `CE\ask-the-bot\renown_faq.txt` | 503 |  |
+| `CE\ask-the-bot\renown_faq.txt` | 506 |  |
 | `CE\mapgen\app_shell.html` | 731 | Renown — Map Generator |
 | `CE\mapgen\build_board.py` | 442 | build_board.py - print-and-tape Renown board from a procedural map. |
 | `CE\mapgen\build_mapapp.py` | 212 | build_mapapp.py - assemble renown-maps.html from its sources. |
-| `CE\mapgen\gen.js` | 1746 | gen.js — Renown regional map generator, JS port. |
+| `CE\mapgen\gen.js` | 1958 | gen.js — Renown regional map generator, JS port. |
 | `CE\mapgen\gen_settlement_board.py` | 5268 | gen_settlement_board.py  --  Renown settlement-board emulator generator. |
 | `CE\mapgen\hexgen.py` | 258 | hexgen.py — generate the Renown hex asset set as standalone SVGs. |
 | `CE\mapgen\hexmap.py` | 85 | hexmap.py — the territory graph (C1). |
 | `CE\mapgen\hexstyle.py` | 270 | hexstyle.py - the ONE source for how a board looks. |
-| `CE\mapgen\mapgen.py` | 863 | mapgen.py — procedural Renown map generator. |
-| `CE\mapgen\mapgen_regional.py` | 2006 | mapgen_regional.py — preset-driven map generation for Renown. |
-| `CE\mapgen\presets.js` | 1471 | presets.js - GENERATED from region_presets.py. Do not hand-edit. */ |
-| `CE\mapgen\region_presets.py` | 481 | region_presets.py — regional map-generation presets for Renown. |
-| `CE\mapgen\renown-maps.html` | 3946 | Renown — Map Generator |
+| `CE\mapgen\mapgen.py` | 908 | mapgen.py — procedural Renown map generator. |
+| `CE\mapgen\mapgen_regional.py` | 2209 | mapgen_regional.py — preset-driven map generation for Renown. |
+| `CE\mapgen\presets.js` | 1609 | presets.js - GENERATED from region_presets.py. Do not hand-edit. */ |
+| `CE\mapgen\region_presets.py` | 514 | region_presets.py — regional map-generation presets for Renown. |
+| `CE\mapgen\renown-maps.html` | 4296 | Renown — Map Generator |
 | `CE\references\build_compendium.js` | 133 | build_compendium.js — render the Compendium .docx from renown_data JSON, |
 | `CE\references\build_compendium.py` | 394 | build_compendium2.py — redesigned Compendium .docx from compendium_data.json. |
-| `CE\references\build_wiki.py` | 1550 | build_wiki.py — multi-page linked HTML wiki from RULES.md + renown_data. |
+| `CE\references\build_wiki.py` | 1644 | build_wiki.py — multi-page linked HTML wiki from RULES.md + renown_data. |
 | `CE\references\card_copies.py` | 68 | card_copies.py — print-quantity logic for pursuit cards, driven by the spec |
 | `CE\references\card_sheet.py` | 679 | Renown — Specialization card sheet generator. |
 | `CE\references\ce_paths.py` | 123 | ce_paths.py — path bootstrap for the d10 build. |
@@ -177,7 +177,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\references\display_pdf.py` | 90 | display_pdf.py — NAME_DISPLAY for every reportlab sheet (cards, tiles, equipment, combat). |
 | `CE\references\docx_tables.py` | 686 | docx_tables.py — generate Word table fragments (OOXML) from renown_data. |
 | `CE\references\domain_board.py` | 341 | domain_board.py - landscape Domain Standing Board. |
-| `CE\references\effect_registry.py` | 339 | effect_registry.py -- every rules-text pattern the settlement board acts on, matched once at build time. |
+| `CE\references\effect_registry.py` | 356 | effect_registry.py -- every rules-text pattern the settlement board acts on, matched once at build time. |
 | `CE\references\equipment_sheet.py` | 691 | Renown — Equipment, Infrastructure, Alliance & Retinue card sheet generator. |
 | `CE\references\faction_sheet.py` | 447 | Renown — Faction card sheet generator. |
 | `CE\references\faq_export.py` | 439 | faq_export.py — dump renown_data.GLOSSARY (and a few key rules) into a flat |
@@ -197,13 +197,13 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\references\package.json` | 6 |  |
 | `CE\references\parity_efx.js` | 54 | parity_efx.js — replays effect_registry.py's patterns with JavaScript RegExp, the way the board used to read text at |
 | `CE\references\patch_pursuit_domains.py` | 58 | patch_pursuit_domains.py |
-| `CE\references\playstyle_reference.py` | 412 | playstyle_reference.py - culture playstyle reference (landscape Letter, banner per culture). |
+| `CE\references\playstyle_reference.py` | 450 | playstyle_reference.py - culture playstyle reference (landscape Letter, banner per culture). |
 | `CE\references\pursuit_tiles.py` | 278 | pursuit_tiles.py - print-and-play ward tiles for every pursuit, from renown_data. |
-| `CE\references\reference_sheets.py` | 811 | Renown — Reference sheet generators. |
+| `CE\references\reference_sheets.py` | 873 | Renown — Reference sheet generators. |
 | `CE\references\render_tree.py` | 272 | render_tree.py - COORDINATE-DRIVEN tree renderer (no auto-layout). |
 | `CE\references\rule_numbers.py` | 250 | rule_numbers.py — MTG-style rule numbers for the rules markdown, computed at render time. |
 | `CE\references\server.py` | 501 | Renown settlement-board server  —  stdlib only, no pip installs. |
-| `CE\references\settlement_board.html` | — | generated HTML (1585 KB) |
+| `CE\references\settlement_board.html` | — | generated HTML (1621 KB) |
 | `CE\references\settlement_mats.py` | 296 | settlement_mats.py - modular ward mats. One Settlement mat (Village -> City, 3 |
 | `CE\references\spec_tree_sheet.py` | 1183 | Renown — Specialization Tree renderer. |
 | `CE\references\svg_to_pdf.py` | 63 | svg_to_pdf.py - combine SVG pages into ONE PDF. |
@@ -214,20 +214,18 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\references\worldtxt.py` | 328 | worldtxt.py — parse the hand-maintained world.txt lore book into structured |
 | `CE\references\board\body.html` | 214 |  |
 | `CE\references\board\js\00_core.js` | 51 | __DATA__*/; |
-| `CE\references\board\js\10_table.js` | 806 | ===================== TABLE: seating, Council & Envoy phases ===================== |
-| `CE\references\board\js\15_realm.js` | 470 | ===================== REALM: the play surface ===================== |
-| `CE\references\board\js\20_state.js` | 513 | ---- state: multiplayer dashboard ---- |
-| `CE\references\board\js\30_empire.js` | 1670 | ---- catalog ---- |
-| `CE\references\board\js\40_realm_data.js` | 394 | ---- Dashboards view ---- |
-| `CE\references\board\js\50_battle.js` | 633 | ---- Battle ---- |
+| `CE\references\board\js\10_table.js` | 821 | ===================== TABLE: seating, Council & Envoy phases ===================== |
+| `CE\references\board\js\15_realm.js` | 459 | ===================== REALM: the play surface ===================== |
+| `CE\references\board\js\16_tally.js` | 132 | ===================== INTRIGUE & TALLY PHASES (RULES: Envoy Phase steps 3 and 5) ===================== |
+| `CE\references\board\js\20_state.js` | 520 | ---- state: multiplayer dashboard ---- |
+| `CE\references\board\js\30_empire.js` | 1674 | ---- catalog ---- |
+| `CE\references\board\js\40_realm_data.js` | 392 | ---- Dashboards view ---- |
+| `CE\references\board\js\50_battle.js` | 637 | ---- Battle ---- |
 | `CE\references\board\js\60_map.js` | 1008 | ---- Map view ---- |
-| `CE\references\board\js\70_rules.js` | 530 | ===================== EFFECT PLUMBING: the effect registry (references/effect_registry.py) ===================== |
+| `CE\references\board\js\70_rules.js` | 535 | ===================== EFFECT PLUMBING: the effect registry (references/effect_registry.py) ===================== |
 | `CE\references\board\js\80_scene_shell.js` | 440 | ---- pixel scene: every settlement of the active player, drawn from sprites.py (every theme) ---- |
 | `CE\references\board\js\85_ux.js` | 97 | ===================== CHROME: Inbox · HUD drill-down · read-only badge · phone phase pill · setup stepper ===================== |
 | `CE\references\board\js\90_app.js` | 363 | ===================== UNDO / REDO ===================== |
-| `CE\references\board\js\effect_registry.py` | 338 | effect_registry.py -- every rules-text pattern the settlement board acts on, matched once at build time. |
-| `CE\references\board\js\parity_efx.js` | 54 | parity_efx.js — replays effect_registry.py's patterns with JavaScript RegExp, the way the board used to read text at |
-| `CE\references\board\js\settlement_board.html` | — | generated HTML (1938 KB) |
 | `CE\worldbuilding\book.json` | 2070 |  |
 | `CE\worldbuilding\build_docx.js` | 147 | map image: RENOWN_MAP (set by build_all_CE.bat), else map7.png beside this |
 | `CE\worldbuilding\draft.txt` | 220 |  |
@@ -508,12 +506,12 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `RenownWiki\rules-siege-warfare.html` | 57 | Siege Warfare — Renown |
 | `RenownWiki\rules-table-setup.html` | 26 | Table Setup — Renown |
 | `RenownWiki\rules-territory-terrain.html` | 28 | Territory &amp; Terrain — Renown |
-| `RenownWiki\rules-the-turn.html` | 70 | The Turn — Renown |
+| `RenownWiki\rules-the-turn.html` | 78 | The Turn — Renown |
 | `RenownWiki\rules-trade-income.html` | 39 | Trade &amp; Income — Renown |
 | `RenownWiki\rules-treasury-upkeep.html` | 35 | Treasury &amp; Upkeep — Renown |
 | `RenownWiki\search.js` | 7 |  |
 | `RenownWiki\seasons-ref.html` | 22 | Seasons — Renown |
-| `RenownWiki\settlement_board.html` | — | generated HTML (1585 KB) |
+| `RenownWiki\settlement_board.html` | — | generated HTML (1621 KB) |
 | `RenownWiki\settlements-ref.html` | 22 | Settlements — Renown |
 | `RenownWiki\standing-established.html` | 22 | Established Tier — Renown |
 | `RenownWiki\standing-rising.html` | 22 | Rising Tier — Renown |
@@ -533,8 +531,8 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `RenownWiki\type-raw-materials.html` | 22 | Raw Materials — Renown |
 | `RenownWiki\type-secrecy.html` | 22 | Secrecy — Renown |
 | `RenownWiki\type-works.html` | 22 | Works — Renown |
-| `RenownWiki\ui.js` | 26 | theme toggle (head script already applied the stored/default theme) |
-| `RenownWiki\mapgen\renown-maps.html` | 3946 | Renown — Map Generator |
+| `RenownWiki\ui.js` | 42 | theme toggle (head script already applied the stored/default theme) |
+| `RenownWiki\mapgen\renown-maps.html` | 4296 | Renown — Map Generator |
 | `generators\equipment.csv` | 38 | columns: Name,Category,Tier,AP,Initiative,Save,Effects,Cost,Strike,Endurance,Morale,Pursuit Unlock,Note |
 | `generators\factions.csv` | 42 | columns: Inspiration,AI Name,Feel,Difficulty,Strength,Mechanic,Pair,Complement |
 | `generators\infrastructure.csv` | 18 | columns: Name,Category,Upkeep,Upkeep Frequency,Empire Bonus,Tier,Build Time,Requirement |
@@ -607,165 +605,167 @@ Copied to `CE/renown_data.py` by the build (DIE=d10); every script imports `reno
 | `DUAL_WIELD` | 110 | str | 'Dual Wield' |
 | `FLORENTINE` | 111 | str | 'Florentine' |
 | `PIVOTAL` | 112 | str | 'Focused' |
-| `GLOSSARY` | 115 | dict | 158 |
-| `MORALE_GLOSSARY` | 255 | dict | 4 |
-| `ARMY_MAX_RETINUES` | 281 | int | 25 |
-| `FRONT_LINE_MAX` | 282 | int | 10 |
-| `RESERVE_MAX` | 283 | int | 5 |
-| `MORALE_DICE_MAX` | 284 | int | 5 |
-| `PANIC_CASUALTY_THRESHOLD` | 285 | int | 5 |
-| `ENDURANCE_REGAIN` | 286 | int | 2 |
-| `RETINUES` | 290 | dict | 4 |
-| `WEAPONS` | 297 | dict | 19 |
-| `RANGED` | 319 | dict | 6 |
-| `SHIELDS` | 329 | dict | 6 |
-| `ARMORS` | 338 | dict | 6 |
-| `TIERS` | 349 | list | 5 |
-| `TIER_UNLOCK` | 350 | dict | 5 |
-| `STANDING_EFFECTS` | 361 | dict | 4 |
-| `TACTIC_MATRIX` | 384 | dict | 49 |
-| `TACTICS` | 443 | list | 7 |
-| `TACTIC_NOTES` | 445 | dict | 0 |
-| `CULTURE_SELF_MADE` | 462 | str | 'Self-made' |
-| `CULTURES` | 464 | dict | 15 |
-| `NODES` | 630 | dict | 123 |
-| `SIMPLE_NODES` | 1658 | dict | 123 |
-| `HOLDING_GROUPS` | 2549 | dict | 9 |
-| `SCOPES` | 2566 | tuple | 3 |
-| `SCOPE_BY_TYPE` | 2567 | dict | 2 |
-| `LINE_LABELS` | 2571 | dict | 28 |
-| `lines_of` | 2602 | function |  |
-| `LEGACY_NODES` | 2606 | dict | 108 |
-| `REQ_KEY` | 2611 | str | 'infrastructure_req' |
-| `REQ_LABEL` | 2612 | str | 'Infrastructure Req' |
-| `TYPE_ORDER` | 2614 | list | 10 |
-| `CHAIN_TERM` | 2617 | str | 'Mastery Chain' |
-| `PURSUIT_TERM` | 2619 | tuple | 2 |
-| `node_parents` | 2621 | function |  |
-| `get_data` | 2641 | function |  |
-| `FACTIONS` | 2651 | dict | 41 |
-| `INFRASTRUCTURE` | 3152 | dict | 20 |
-| `WONDERS` | 3287 | dict | 4 |
-| `INFRA_TIERS` | 3288 | list | 5 |
-| `SETTLEMENTS` | 3296 | dict | 5 |
-| `PRESENCE_RANGE` | 3306 | int | 2 |
-| `WARD_MODEL` | 3310 | str | 'abstract' |
-| `WARD_RULES` | 3311 | dict | 2 |
-| `WARD_RULE` | 3319 | str | 'A Settlement Ward is a slot inside a Se |
-| `FAITH_FICKLE_PO` | 3321 | int | 0 |
-| `ERAS` | 3324 | dict | 4 |
-| `PO_BANDS` | 3339 | dict | 12 |
-| `po_scale` | 3358 | function |  |
-| `po_value` | 3365 | function |  |
-| `po_effect` | 3370 | function |  |
-| `PUBLIC_ORDER` | 3377 | dict | 12 |
-| `PUBLIC_ORDER_BY_ERA` | 3378 | dict | 4 |
-| `PO_MODIFIERS` | 3384 | dict | 2 |
-| `DOMAIN_BOARD` | 3402 | dict | 6 |
-| `SEASONS` | 3433 | dict | 4 |
-| `TRADE_RULES` | 3441 | dict | 4 |
-| `efficient_graph` | 3453 | function |  |
-| `EFFICIENT_MULTI` | 3463 | dict | 114 |
-| `EFFICIENT` | 3464 | dict | 114 |
-| `BANDIT_CAMP_START` | 3472 | int | 10 |
-| `BANDIT_CAMP_GOLD` | 3473 | int | 2000 |
-| `BANDIT_ARMY_THRESHOLD` | 3474 | int | 25 |
-| `BANDIT_GROWTH_PER_ERA` | 3475 | dict | 4 |
-| `BANDIT_EQUIPMENT_PER_ERA` | 3476 | dict | 4 |
-| `BANDITS` | 3477 | dict | 5 |
-| `TIMERS` | 3485 | dict | 8 |
-| `CHARTER_MIN_RANGE` | 3497 | int | 4 |
-| `OUTLAW_BUFFER_RANGE` | 3498 | int | 2 |
-| `HAMLET_RANGE` | 3499 | int | 2 |
-| `OUTLAW_COUNTRY_START` | 3500 | int | 3 |
-| `WILD_OUTLAW` | 3508 | dict | 9 |
-| `wild_outlaw_count` | 3521 | function |  |
-| `BANDIT_CAMP_REACH` | 3528 | str | 'province' |
-| `VASSAL_EXCHANGE_CAP` | 3531 | int | 5000 |
-| `VASSAL_INFLUENCE_TAKE` | 3532 | int | 3 |
-| `BUILD_TIMERS` | 3536 | dict | 11 |
-| `TERRAIN` | 3550 | dict | 7 |
-| `MOVEMENT_MODIFIERS` | 3560 | dict | 6 |
-| `TACTICAL_TERRAIN` | 3572 | dict | 7 |
-| `TACTICAL_GLOBAL` | 3588 | list | 1 |
-| `INFLUENCE_GAIN` | 3590 | dict | 9 |
-| `ENVOY_OUTCOME_THRESHOLDS` | 3648 | dict | 4 |
-| `ENVOY_OUTCOMES` | 3657 | dict | 5 |
-| `ACTIONS` | 3679 | dict | 22 |
-| `TREATIES` | 3869 | dict | 5 |
-| `ALLIANCE_RULES` | 3877 | list | 3 |
-| `EDICT_STREAK_TURNS` | 3887 | int | 5 |
-| `EDICTS` | 3889 | dict | 7 |
-| `BANDIT_BEHAVIOR` | 3903 | dict | 8 |
-| `PURSUIT_UPKEEP_DEFAULT` | 3926 | int | 100 |
-| `PURSUIT_UPKEEP_BY_TYPE` | 3927 | dict | 4 |
-| `UPKEEP_TRACKS` | 3937 | dict | 3 |
-| `HOLDING_TIER_COST` | 3944 | dict | 4 |
-| `holding_standing` | 3952 | function |  |
-| `holding_cost` | 3958 | function |  |
-| `holding_build_time` | 3966 | function |  |
-| `HOLDING_COST_TEXT` | 3972 | str | 'by Standing: Untested 100 (Build Timer  |
-| `pursuit_upkeep` | 3974 | function |  |
-| `ARMY_UPKEEP_NOTE` | 3985 | str | "Net Army Upkeep = the sum of each Army' |
-| `COSTS` | 3989 | dict | 12 |
-| `PHASES` | 4009 | tuple | 5 |
-| `STARTING_TURN_PHASE_OPENER` | 4010 | str | 'Council' |
-| `STANDING_ARMY_SIEGE_MODIFIER` | 4012 | int | 1 |
-| `EMPIRE_START_TIERS` | 4014 | tuple | 2 |
-| `STARTING_TREASURY` | 4015 | int | 10000 |
-| `AGES` | 4021 | dict | 5 |
-| `AGE_YEAR_SEASON` | 4028 | str | 'Spring' |
-| `CAPITAL_EDGE_RANGE` | 4029 | int | 4 |
-| `BOARD_SIZES` | 4031 | dict | 3 |
-| `SIEGE_CALCULUS` | 4037 | dict | 2 |
-| `SIEGE_SOURCE_VALUES` | 4052 | dict | 6 |
-| `NAME_DISPLAY` | 4080 | dict | 71 |
-| `TIER_DISPLAY` | 4110 | dict | 1 |
-| `ITEM_TIER_DISPLAY` | 4116 | dict | 1 |
-| `TERM_ENVOY_SCORE` | 4123 | str | 'Authority' |
-| `display_score` | 4133 | function |  |
-| `ALIASES` | 4143 | dict | 73 |
-| `display` | 4153 | function |  |
-| `display_tier` | 4158 | function |  |
-| `display_text` | 4168 | function |  |
-| `display_list` | 4191 | function |  |
-| `display_md` | 4201 | function |  |
-| `display_html` | 4208 | function |  |
-| `display_obj` | 4220 | function |  |
-| `undisplay` | 4233 | function |  |
-| `verify_aliases` | 4242 | function |  |
-| `BANDIT_FACES` | 4266 | int | 10 |
-| `BANDIT_CUNNING_MIN` | 4267 | int | 10 |
-| `die_table_ranges` | 4270 | function |  |
-| `die_table_rows` | 4278 | function |  |
-| `die_table_text` | 4286 | function |  |
-| `die_table_lookup` | 4294 | function |  |
-| `die_table_verify` | 4301 | function |  |
-| `die_table_weights` | 4320 | function |  |
-| `BANDIT_CUNNING_TABLE` | 4330 | dict | 5 |
-| `bandit_cunning_ranges` | 4338 | function |  |
-| `bandit_cunning_rows` | 4339 | function |  |
-| `bandit_cunning_lookup` | 4340 | function |  |
-| `bandit_cunning_text` | 4342 | function |  |
-| `BANDIT_TACTIC_TABLE` | 4348 | dict | 6 |
-| `BANDIT_TACTICS` | 4356 | list | 6 |
-| `bandit_tactic_ranges` | 4358 | function |  |
-| `bandit_tactic_rows` | 4359 | function |  |
-| `bandit_tactic_lookup` | 4360 | function |  |
-| `verify_bandit_tables` | 4363 | function |  |
-| `RENOWN_MAX` | 4459 | int | 30 |
-| `RENOWN_PER_TURN` | 4460 | int | 1 |
-| `DOMAIN_POINTS_PER_TURN` | 4461 | int | 1 |
-| `FACTION_NAMES` | 4685 | dict | 41 |
-| `FACTION_TERM` | 4693 | tuple | 2 |
-| `faction_body` | 4699 | function |  |
-| `GLOSSARY_CATEGORIES` | 4707 | list | 17 |
-| `GLOSSARY_SEE` | 4734 | dict | 87 |
-| `COND_UPKEEP_FACTOR` | 4774 | float | 0.5 |
-| `holding_combat_tags` | 4784 | function |  |
-| `holding_upkeep` | 4825 | function |  |
-| `holding_domain` | 4838 | function |  |
-| `HOLDING_SIM` | 4857 | dict | 123 |
+| `GLOSSARY` | 115 | dict | 161 |
+| `MORALE_GLOSSARY` | 258 | dict | 4 |
+| `ARMY_MAX_RETINUES` | 284 | int | 25 |
+| `FRONT_LINE_MAX` | 285 | int | 10 |
+| `RESERVE_MAX` | 286 | int | 5 |
+| `MORALE_DICE_MAX` | 287 | int | 5 |
+| `PANIC_CASUALTY_THRESHOLD` | 288 | int | 5 |
+| `ENDURANCE_REGAIN` | 289 | int | 2 |
+| `RETINUES` | 293 | dict | 4 |
+| `WEAPONS` | 300 | dict | 19 |
+| `RANGED` | 322 | dict | 6 |
+| `SHIELDS` | 332 | dict | 6 |
+| `ARMORS` | 341 | dict | 6 |
+| `TIERS` | 352 | list | 5 |
+| `TIER_UNLOCK` | 353 | dict | 5 |
+| `STANDING_EFFECTS` | 364 | dict | 4 |
+| `TACTIC_MATRIX` | 387 | dict | 49 |
+| `TACTICS` | 446 | list | 7 |
+| `TACTIC_NOTES` | 448 | dict | 0 |
+| `CULTURE_SELF_MADE` | 465 | str | 'Self-made' |
+| `CULTURES` | 467 | dict | 15 |
+| `NODES` | 633 | dict | 123 |
+| `SIMPLE_NODES` | 1661 | dict | 123 |
+| `HOLDING_GROUPS` | 2552 | dict | 9 |
+| `SCOPES` | 2569 | tuple | 3 |
+| `SCOPE_BY_TYPE` | 2570 | dict | 2 |
+| `LINE_LABELS` | 2574 | dict | 28 |
+| `lines_of` | 2605 | function |  |
+| `LEGACY_NODES` | 2609 | dict | 108 |
+| `REQ_KEY` | 2614 | str | 'infrastructure_req' |
+| `REQ_LABEL` | 2615 | str | 'Infrastructure Req' |
+| `TYPE_ORDER` | 2617 | list | 10 |
+| `CHAIN_TERM` | 2620 | str | 'Mastery Chain' |
+| `PURSUIT_TERM` | 2622 | tuple | 2 |
+| `node_parents` | 2624 | function |  |
+| `get_data` | 2644 | function |  |
+| `MONUMENT_SUMMARY` | 2653 | dict | 21 |
+| `FACTIONS` | 2680 | dict | 41 |
+| `INFRASTRUCTURE` | 3181 | dict | 20 |
+| `WONDERS` | 3315 | dict | 4 |
+| `INFRA_TIERS` | 3316 | list | 5 |
+| `SETTLEMENTS` | 3324 | dict | 5 |
+| `PRESENCE_RANGE` | 3334 | int | 2 |
+| `WARD_MODEL` | 3338 | str | 'abstract' |
+| `WARD_RULES` | 3339 | dict | 2 |
+| `WARD_RULE` | 3347 | str | 'A Settlement Ward is a slot inside a Se |
+| `FAITH_FICKLE_PO` | 3349 | int | 0 |
+| `ERAS` | 3352 | dict | 4 |
+| `PO_BANDS` | 3367 | dict | 12 |
+| `po_scale` | 3386 | function |  |
+| `po_value` | 3393 | function |  |
+| `po_effect` | 3398 | function |  |
+| `PUBLIC_ORDER` | 3405 | dict | 12 |
+| `PUBLIC_ORDER_BY_ERA` | 3406 | dict | 4 |
+| `PO_MODIFIERS` | 3412 | dict | 2 |
+| `DOMAIN_BOARD` | 3430 | dict | 6 |
+| `SEASONS` | 3461 | dict | 4 |
+| `TRADE_RULES` | 3469 | dict | 4 |
+| `efficient_graph` | 3481 | function |  |
+| `EFFICIENT_MULTI` | 3491 | dict | 114 |
+| `EFFICIENT` | 3492 | dict | 114 |
+| `BANDIT_CAMP_START` | 3500 | int | 10 |
+| `BANDIT_CAMP_GOLD` | 3501 | int | 2000 |
+| `BANDIT_ARMY_THRESHOLD` | 3502 | int | 25 |
+| `BANDIT_GROWTH_PER_ERA` | 3503 | dict | 4 |
+| `BANDIT_EQUIPMENT_PER_ERA` | 3504 | dict | 4 |
+| `BANDITS` | 3505 | dict | 5 |
+| `TIMERS` | 3513 | dict | 8 |
+| `CHARTER_MIN_RANGE` | 3525 | int | 4 |
+| `OUTLAW_BUFFER_RANGE` | 3526 | int | 2 |
+| `HAMLET_RANGE` | 3527 | int | 2 |
+| `OUTLAW_COUNTRY_START` | 3528 | int | 3 |
+| `WILD_OUTLAW` | 3536 | dict | 9 |
+| `wild_outlaw_count` | 3549 | function |  |
+| `BANDIT_CAMP_REACH` | 3556 | str | 'province' |
+| `VASSAL_EXCHANGE_CAP` | 3559 | int | 5000 |
+| `VASSAL_INFLUENCE_TAKE` | 3560 | int | 3 |
+| `BUILD_TIMERS` | 3564 | dict | 11 |
+| `TERRAIN` | 3578 | dict | 7 |
+| `MOVEMENT_MODIFIERS` | 3588 | dict | 6 |
+| `TACTICAL_TERRAIN` | 3600 | dict | 7 |
+| `TACTICAL_GLOBAL` | 3616 | list | 1 |
+| `INFLUENCE_GAIN` | 3618 | dict | 9 |
+| `ENVOY_OUTCOME_THRESHOLDS` | 3676 | dict | 4 |
+| `ENVOY_OUTCOMES` | 3685 | dict | 5 |
+| `ACTIONS` | 3707 | dict | 23 |
+| `TREATIES` | 3905 | dict | 5 |
+| `ALLIANCE_RULES` | 3913 | list | 3 |
+| `EDICT_STREAK_TURNS` | 3923 | int | 5 |
+| `EDICTS` | 3925 | dict | 7 |
+| `BANDIT_BEHAVIOR` | 3939 | dict | 8 |
+| `PURSUIT_UPKEEP_DEFAULT` | 3962 | int | 100 |
+| `PURSUIT_UPKEEP_BY_TYPE` | 3963 | dict | 4 |
+| `UPKEEP_TRACKS` | 3973 | dict | 3 |
+| `HOLDING_TIER_COST` | 3980 | dict | 4 |
+| `holding_standing` | 3988 | function |  |
+| `holding_cost` | 3994 | function |  |
+| `holding_build_time` | 4002 | function |  |
+| `HOLDING_COST_TEXT` | 4008 | str | 'by Standing: Untested 100 (Build Timer  |
+| `pursuit_upkeep` | 4010 | function |  |
+| `ARMY_UPKEEP_NOTE` | 4021 | str | "Net Army Upkeep = the sum of each Army' |
+| `COSTS` | 4025 | dict | 12 |
+| `PHASES` | 4045 | tuple | 5 |
+| `STARTING_TURN_PHASE_OPENER` | 4046 | str | 'Council' |
+| `STANDING_ARMY_SIEGE_MODIFIER` | 4048 | int | 1 |
+| `EMPIRE_START_TIERS` | 4050 | tuple | 2 |
+| `STARTING_TREASURY` | 4051 | int | 10000 |
+| `AGES` | 4057 | dict | 5 |
+| `AGE_YEAR_SEASON` | 4064 | str | 'Spring' |
+| `CAPITAL_EDGE_RANGE` | 4065 | int | 4 |
+| `BOARD_SIZES` | 4067 | dict | 3 |
+| `SIEGE_CALCULUS` | 4073 | dict | 2 |
+| `SIEGE_SOURCE_VALUES` | 4088 | dict | 6 |
+| `NAME_DISPLAY` | 4116 | dict | 71 |
+| `TIER_DISPLAY` | 4146 | dict | 1 |
+| `ITEM_TIER_DISPLAY` | 4152 | dict | 1 |
+| `TERM_ENVOY_SCORE` | 4159 | str | 'Authority' |
+| `display_score` | 4169 | function |  |
+| `ALIASES` | 4179 | dict | 73 |
+| `display` | 4189 | function |  |
+| `display_tier` | 4194 | function |  |
+| `display_text` | 4204 | function |  |
+| `display_list` | 4227 | function |  |
+| `display_md` | 4237 | function |  |
+| `display_html` | 4244 | function |  |
+| `display_obj` | 4256 | function |  |
+| `undisplay` | 4269 | function |  |
+| `verify_aliases` | 4278 | function |  |
+| `BANDIT_FACES` | 4302 | int | 10 |
+| `BANDIT_CUNNING_MIN` | 4303 | int | 10 |
+| `die_table_ranges` | 4306 | function |  |
+| `die_table_rows` | 4314 | function |  |
+| `die_table_text` | 4322 | function |  |
+| `die_table_lookup` | 4330 | function |  |
+| `die_table_verify` | 4337 | function |  |
+| `die_table_weights` | 4356 | function |  |
+| `BANDIT_CUNNING_TABLE` | 4366 | dict | 5 |
+| `bandit_cunning_ranges` | 4374 | function |  |
+| `bandit_cunning_rows` | 4375 | function |  |
+| `bandit_cunning_lookup` | 4376 | function |  |
+| `bandit_cunning_text` | 4378 | function |  |
+| `BANDIT_TACTIC_TABLE` | 4384 | dict | 6 |
+| `BANDIT_TACTICS` | 4392 | list | 6 |
+| `bandit_tactic_ranges` | 4394 | function |  |
+| `bandit_tactic_rows` | 4395 | function |  |
+| `bandit_tactic_lookup` | 4396 | function |  |
+| `verify_bandit_tables` | 4399 | function |  |
+| `RENOWN_MAX` | 4495 | int | 30 |
+| `RENOWN_PER_TURN` | 4496 | int | 1 |
+| `DOMAIN_POINTS_PER_TURN` | 4497 | int | 1 |
+| `FACTION_NAMES` | 4705 | dict | 41 |
+| `FACTION_TERM` | 4713 | tuple | 2 |
+| `faction_body` | 4719 | function |  |
+| `GLOSSARY_CATEGORIES` | 4727 | list | 17 |
+| `WIKI_NOLINK` | 4749 | list | 6 |
+| `GLOSSARY_SEE` | 4758 | dict | 90 |
+| `COND_UPKEEP_FACTOR` | 4798 | float | 0.5 |
+| `holding_combat_tags` | 4808 | function |  |
+| `holding_upkeep` | 4849 | function |  |
+| `holding_domain` | 4862 | function |  |
+| `HOLDING_SIM` | 4881 | dict | 123 |
 
 ## 4. Build steps — `CE\build_all_CE.bat`
 
@@ -788,7 +788,7 @@ Copied to `CE/renown_data.py` by the build (DIE=d10); every script imports `reno
 - **{{ACTIONS}}** (5): `Diplomacy`, `Prowess`, `Cunning`, `Piety`, `Industry`
 - **{{LIST}}** (1): `ALLIANCE_RULES`
 - **{{TERM}}** (1): `Speed X`
-- **{{IDX}}** (25): `Era`, `Empire Phase`, `Council Phase`, `Envoy Phase`, `Battle Phase`, `Rest Phase`, `Season`, `Age`, `Settlement`, `Hamlet`, `Infrastructure`, `Primitive`, `Developed`, `Sophisticated`, `Prodigious`, `Wondrous`, `Wonder`, `Treasury`, `Revenue`, `Trade Agreement`, `Army`, `Lay Siege`, `Capture`, `Sack`, `Bandit Camp`
+- **{{IDX}}** (27): `Era`, `Empire Phase`, `Council Phase`, `Envoy Phase`, `Battle Phase`, `Rest Phase`, `Intrigue Phase`, `Tally Phase`, `Season`, `Age`, `Settlement`, `Hamlet`, `Infrastructure`, `Primitive`, `Developed`, `Sophisticated`, `Prodigious`, `Wondrous`, `Wonder`, `Treasury`, `Revenue`, `Trade Agreement`, `Army`, `Lay Siege`, `Capture`, `Sack`, `Bandit Camp`
 - **{{VAL}}** (83): `AGE_YEAR_SEASON`, `ARMY_MAX_RETINUES`, `BANDITS.Bandit Domain Value`, `BANDIT_ARMY_THRESHOLD`, `BANDIT_CAMP_GOLD`, `BANDIT_CAMP_START`, `BANDIT_CUNNING_MIN`, `BANDIT_FACES`, `BLUNDER_THR`, `CAPITAL_EDGE_RANGE`, `CAP_THR`, `CHARTER_MIN_RANGE`, `DOMAIN_BOARD.innate_influence_own_envoys.Established`, `DOMAIN_BOARD.innate_influence_own_envoys.Rising`, `DOMAIN_BOARD.innate_influence_own_envoys.Sovereign`, `DOMAIN_BOARD.innate_influence_own_envoys.Untested`, `DOMAIN_BOARD.max_influence_per_vote.Established`, `DOMAIN_BOARD.max_influence_per_vote.Rising`, `DOMAIN_BOARD.max_influence_per_vote.Sovereign`, `DOMAIN_BOARD.max_influence_per_vote.Untested`, `DOMAIN_POINTS_PER_TURN`, `ENDURANCE_REGAIN`, `ERAS.Ascension.innate_diplomacy_influence`, `ERAS.Ascension.max_influence_per_diplomacy_vote`, `ERAS.Eminence.innate_diplomacy_influence`, `ERAS.Eminence.max_influence_per_diplomacy_vote`, `ERAS.Founding.innate_diplomacy_influence`, `ERAS.Founding.max_influence_per_diplomacy_vote`, `ERAS.Founding.renown`, `ERAS.Zenith.innate_diplomacy_influence`, `ERAS.Zenith.max_influence_per_diplomacy_vote`, `FACES`, `FAITH_FICKLE_PO`, `FATIGUE_MORALE`, `FOCUSED_THR`, `FRONT_LINE_MAX`, `HAMLET_RANGE`, `HOLDING_COST_TEXT`, `INITIATIVE_MAX`, `INITIATIVE_MIN`, `MORALE_DICE_MAX`, `OUTLAW_BUFFER_RANGE`, `OUTLAW_COUNTRY_START`, `PANIC_CASUALTY_THRESHOLD`, `PARRY_BASE`, `PO_MAX`, `PO_MIN`, `PRESENCE_RANGE`, `RENOWN_PER_TURN`, `RESERVE_MAX`, `RETINUES.Knight Templar.cost`, `RETINUES.Knight Templar.to_hit`, `RETINUES.Levy.cost`, `RETINUES.Levy.to_hit`, `RETINUES.Man-at-Arms.cost`, `RETINUES.Man-at-Arms.to_hit`, `RETINUES.Sergeant.cost`, `RETINUES.Sergeant.to_hit`, `ROUT_THR`, `SACK_EXTORT_PER_TIER`, `SETTLEMENTS.Hamlet.wards`, `SETTLEMENTS.Metropolis.reach`, `SETTLEMENTS.Village.reach`, `SIEGE_CALCULUS.Lay Siege.floor`, `SIEGE_SOURCE_VALUES.Stone Walls.value`, `SIEGE_SOURCE_VALUES.Wooden Walls.value`, `STANDING_THRESHOLDS.Established`, `STANDING_THRESHOLDS.Rising`, `STANDING_THRESHOLDS.Sovereign`, `STANDING_THRESHOLDS.Untested`, `STARTING_TREASURY`, `STARTING_TURN_PHASE_OPENER`, `TIMERS.Capture Timer.default`, `TIMERS.Sack Timer.default`, `TRADE_RULES.income_per_craft`, `VASSAL_EXCHANGE_CAP`, `VASSAL_INFLUENCE_TAKE`, `WARD_RULE`, `WEALTH_EDICT_GOLD`, `WILD_OUTLAW.border_range`, `WILD_OUTLAW.per_players`, `WILD_OUTLAW.plus`, `WILD_OUTLAW.spacing`
 - **docx_tables.REGISTRY** (32): `ages`, `armor`, `bandit_armaments`, `bandit_cunning`, `bandit_growth`, `bandit_tactics`, `bandits_by_era`, `build_timers`, `domain_board`, `edicts`, `envoy_outcomes`, `eras`, `factions`, `holdings`, `influence_gain`, `infrastructure`, `net_influence`, `po_modifiers`, `public_order`, `ranged`, `retinues`, `seasons`, `settlements`, `shields`, `siege_calculus`, `tactic_matrix`, `tactical_terrain`, `terrain`, `timers`, `trade_rules`, `treaties`, `weapons`
 
@@ -810,81 +810,81 @@ Headings:
 | 136 | ### Empire Phase |
 | 148 | ### Council Phase |
 | 154 | ### Envoy Phase |
-| 163 | ### Battle Phase |
-| 167 | ### Rest Phase |
-| 174 | # Seasons |
-| 180 | # Setup |
-| 182 | ## Table Setup |
-| 187 | ## Setup Order |
-| 196 | ### Ages |
-| 202 | ## Player Setup |
-| 209 | # Actions & Voting |
-| 211 | ## Action Mechanics |
-| 213 | ### Sending an Envoy |
-| 217 | ### Resolving an Envoy |
-| 233 | ### Envoy Resolution Table |
-| 249 | ## Influence |
-| 257 | ## Diplomacy Actions |
-| 261 | ### Rule: Diplomatic Mission |
-| 265 | ## Prowess Actions |
-| 269 | ### Rule: Commanding Presence |
-| 273 | ## Cunning Actions |
-| 277 | ## Piety Actions |
-| 281 | ### Rule: Wavering Devotion |
-| 285 | ## Industry Actions |
-| 289 | ### Rule: Ulterior Motive |
-| 297 | # Domains & Standings |
-| 299 | ### Domain Standings |
-| 305 | ### Standing & Influence |
-| 316 | ### Domain Identities & Traits |
-| 322 | # Diplomacy & Treaties |
-| 324 | ### Treaties & Alliances |
-| 332 | ### Vassalization |
-| 354 | # Empire Building |
-| 356 | ## Settlements |
-| 362 | ### Settlement Wards |
-| 366 | ### Chartering Settlements |
-| 370 | ### Settlement Reach |
-| 374 | ### Hamlets |
-| 380 | ## Infrastructure |
-| 400 | ## Territory & Terrain |
-| 414 | # Economy |
-| 416 | ## Public Order |
-| 426 | ### Innate Public Order Modifiers |
-| 430 | ## Treasury & Upkeep |
-| 440 | ### Insolvency & Bankruptcy |
-| 453 | ## Trade & Income |
-| 455 | ### Who Can Trade |
-| 470 | ### Income Types |
-| 478 | # Armies |
-| 480 | ### Armies Overview |
-| 486 | ### Mustering |
-| 496 | ### Blocked Armies |
-| 502 | # Battles & Sieges |
-| 504 | ## Battle Phase |
-| 508 | ### Beginning a Battle |
-| 514 | ### The Skirmish Steps |
-| 532 | ### Ending a Battle |
-| 537 | ### Tactic Matrix |
-| 551 | ## Siege Warfare |
-| 556 | ### Siege Timer |
-| 562 | ### Beginning a Siege |
-| 572 | ### Resolving a Siege |
-| 584 | # Bandits |
-| 586 | ### Outlaw Country |
-| 595 | ### Spawning Bandit Camps |
-| 601 | ### Growing Bandit Camps |
-| 607 | ### Bandit Rules |
-| 623 | ### Bandit Army Behavior |
-| 635 | ### Attacking a Bandit Camp |
-| 645 | # Holdings |
-| 651 | # Equipment |
-| 653 | ## Melee Weapons |
-| 657 | ## Ranged Weapons |
-| 661 | ## Shields |
-| 665 | ## Armor |
-| 671 | # Factions |
-| 675 | # Index |
+| 169 | ### Battle Phase |
+| 173 | ### Rest Phase |
+| 180 | # Seasons |
+| 186 | # Setup |
+| 188 | ## Table Setup |
+| 193 | ## Setup Order |
+| 202 | ### Ages |
+| 208 | ## Player Setup |
+| 215 | # Actions & Voting |
+| 217 | ## Action Mechanics |
+| 219 | ### Sending an Envoy |
+| 223 | ### Resolving an Envoy |
+| 239 | ### Envoy Resolution Table |
+| 255 | ## Influence |
+| 263 | ## Diplomacy Actions |
+| 267 | ### Rule: Diplomatic Mission |
+| 271 | ## Prowess Actions |
+| 275 | ### Rule: Commanding Presence |
+| 279 | ## Cunning Actions |
+| 283 | ## Piety Actions |
+| 287 | ### Rule: Wavering Devotion |
+| 291 | ## Industry Actions |
+| 295 | ### Rule: Ulterior Motive |
+| 303 | # Domains & Standings |
+| 305 | ### Domain Standings |
+| 311 | ### Standing & Influence |
+| 322 | ### Domain Identities & Traits |
+| 328 | # Diplomacy & Treaties |
+| 330 | ### Treaties & Alliances |
+| 338 | ### Vassalization |
+| 360 | # Empire Building |
+| 362 | ## Settlements |
+| 368 | ### Settlement Wards |
+| 372 | ### Chartering Settlements |
+| 376 | ### Settlement Reach |
+| 380 | ### Hamlets |
+| 386 | ## Infrastructure |
+| 406 | ## Territory & Terrain |
+| 420 | # Economy |
+| 422 | ## Public Order |
+| 432 | ### Innate Public Order Modifiers |
+| 436 | ## Treasury & Upkeep |
+| 446 | ### Insolvency & Bankruptcy |
+| 459 | ## Trade & Income |
+| 461 | ### Who Can Trade |
+| 476 | ### Income Types |
+| 484 | # Armies |
+| 486 | ### Armies Overview |
+| 492 | ### Mustering |
+| 502 | ### Blocked Armies |
+| 508 | # Battles & Sieges |
+| 510 | ## Battle Phase |
+| 514 | ### Beginning a Battle |
+| 520 | ### The Skirmish Steps |
+| 538 | ### Ending a Battle |
+| 543 | ### Tactic Matrix |
+| 557 | ## Siege Warfare |
+| 562 | ### Siege Timer |
+| 568 | ### Beginning a Siege |
+| 578 | ### Resolving a Siege |
+| 590 | # Bandits |
+| 592 | ### Outlaw Country |
+| 601 | ### Spawning Bandit Camps |
+| 607 | ### Growing Bandit Camps |
+| 613 | ### Bandit Rules |
+| 629 | ### Bandit Army Behavior |
+| 641 | ### Attacking a Bandit Camp |
+| 651 | # Holdings |
+| 657 | # Equipment |
+| 659 | ## Melee Weapons |
+| 663 | ## Ranged Weapons |
+| 667 | ## Shields |
+| 671 | ## Armor |
+| 677 | # Factions |
+| 681 | # Index |
 
 ## 6. Settlement board — `CE\references\gen_settlement_board.py` + `CE\references\board\js/*.js` (+ `board.css`, `body.html`)
 
@@ -892,10 +892,10 @@ Payload keys passed to the HTML as `DATA` (65): `records`, `naturalNames`, `exte
 
 Python: `load`:27, `strip_md`:34, `has_cond`:76, `to_int`:79, `classify`:82, `_iv`:149, `envoy_fx`:150, `combine_parts`:250, `combine_effects`:291, `rules_payload`:295, `tree_payload`:354, `parse_effects`:388, `parse_mreq`:394, `classify_req_token`:402, `build`:411, `font_faces`:505, `_pursuit_term_template`:530, `render_html`:538, `_style_js`:546, `place_names_payload`:557, `sprite_payload`:577, `find_mapgen`:599, `_board_template`:614, `check_rules`:628, `_val`:755, `rules_section`:764, `phase_steps`:783, `battle_data`:800, `bandit_loadouts`:821, `effects_report`:870, `main`:901
 
-JS sections: TABLE: seating, Council & Envoy phases :10_table.js:1, Action automation: Perform picker + resolution :10_table.js:253, REALM: the play surface :15_realm.js:1,  :40_realm_data.js:271, Inspect tool :60_map.js:273, EFFECT PLUMBING: the effect registry (references/effect_registry.py) :70_rules.js:1, ARMY STATES · GARRISONS · ONCE-PER-TURN EFFECTS :70_rules.js:62, RULES MECHANICS: extort · siege outcomes · muster · first Doubt · movement :70_rules.js:146, CHROME: Inbox · HUD drill-down · read-only badge · phone phase pill · setup stepper :85_ux.js:1, UNDO / REDO :90_app.js:1, ACTIVITY LOG :90_app.js:39, GAME: save · load · new :90_app.js:98, HOVER KEYWORDS :90_app.js:144
+JS sections: TABLE: seating, Council & Envoy phases :10_table.js:1, Action automation: Perform picker + resolution :10_table.js:261, REALM: the play surface :15_realm.js:1, INTRIGUE & TALLY PHASES (RULES: Envoy Phase steps 3 and 5) :16_tally.js:1,  :40_realm_data.js:269, Inspect tool :60_map.js:273, EFFECT PLUMBING: the effect registry (references/effect_registry.py) :70_rules.js:1, ARMY STATES · GARRISONS · ONCE-PER-TURN EFFECTS :70_rules.js:62, RULES MECHANICS: extort · siege outcomes · muster · first Doubt · movement :70_rules.js:150, CHROME: Inbox · HUD drill-down · read-only badge · phone phase pill · setup stepper :85_ux.js:1, UNDO / REDO :90_app.js:1, ACTIVITY LOG :90_app.js:39, GAME: save · load · new :90_app.js:98, HOVER KEYWORDS :90_app.js:144
 
-JS functions (862, name:file:line):
+JS functions (886, name:file:line):
 
 ```
-fixBastard:00_core.js:8 dispScore:00_core.js:15 presR:00_core.js:33 POB:00_core.js:36 poNum:00_core.js:37 efxOf:00_core.js:48 hitOf:00_core.js:49 facHit:00_core.js:50 tnow:10_table.js:12 noteServerDate:10_table.js:13 lockOn:10_table.js:21 claimOf:10_table.js:22 mine:10_table.js:23 myClaimP:10_table.js:24 canEdit:10_table.js:25 boardEndOn:10_table.js:27 TB:10_table.js:28 seatFloor:10_table.js:30 tSeats:10_table.js:31 tTimer:10_table.js:32 tTurn:10_table.js:33 tPhase:10_table.js:34 PT:10_table.js:36 tCur:10_table.js:37 tCurW:10_table.js:38 sameP:10_table.js:39 meP:10_table.js:40 canAct:10_table.js:41 seatMap:10_table.js:44 seated:10_table.js:48 isSpring:10_table.js:49 hostP:10_table.js:50 voteOrd:10_table.js:52 tOrder:10_table.js:53 canHost:10_table.js:54 seatsLocked:10_table.js:55 tStand:10_table.js:58 eraRec:10_table.js:59 diploInf:10_table.js:60 diploCap:10_table.js:61 eraActions:10_table.js:62 boardFx:10_table.js:65 fxOf:10_table.js:78 scopeOk:10_table.js:79 sgn:10_table.js:80 fxLabel:10_table.js:81 atWarPair:10_table.js:96 opposeBlock:10_table.js:97 domAsFx:10_table.js:104 innateParts:10_table.js:105 modSum:10_table.js:111 innateInf:10_table.js:113 voteCap:10_table.js:114 inflPool:10_table.js:117 personalEnvoys:10_table.js:118 councilEnvoys:10_table.js:119 tOutcome:10_table.js:120 outText:10_table.js:122 tPlan:10_table.js:125 missionWhy:10_table.js:143 domStarted:10_table.js:146 whisperEligibleEnvoys:10_table.js:147 tSim:10_table.js:150 performEval:10_table.js:224 comboEval:10_table.js:230 failPassFx:10_table.js:239 actionsOf:10_table.js:240 actReqFlag:10_table.js:242 actInfoHTML:10_table.js:246 actCost:10_table.js:257 domCost:10_table.js:259 addFaith:10_table.js:260 alliedP:10_table.js:261 allyGroup:10_table.js:262 topPair:10_table.js:263 actDoubt:10_table.js:266 musterOpts:10_table.js:321 runMuster:10_table.js:326 buildOpts:10_table.js:339 buildPlaces:10_table.js:347 runBuild:10_table.js:351 improveOpts:10_table.js:357 runImprove:10_table.js:363 runCharter:10_table.js:370 repairOpts:10_table.js:375 runRepair:10_table.js:378 settName:10_table.js:382 warOnFac:10_table.js:385 warOn:10_table.js:389 grandVizier:10_table.js:393 pfSpec:10_table.js:396 pfHardFlags:10_table.js:397 pfTargets:10_table.js:407 pfSubs:10_table.js:418 pfSubLabel:10_table.js:419 evTxt:10_table.js:421 insteadFx:10_table.js:426 actDom:10_table.js:427 pfActs:10_table.js:428 pfInsteadSrc:10_table.js:429 pfForm:10_table.js:430 boardCounts:10_table.js:465 pendingOf:10_table.js:467 apLines:10_table.js:469 resolveEnvoy:10_table.js:472 autoRes:10_table.js:529 tApply:10_table.js:530 tNext:10_table.js:541 tSetPhase:10_table.js:542 tRestartPhase:10_table.js:545 tAdd30:10_table.js:550 grantDP:10_table.js:553 dpOwed:10_table.js:554 tEndTurn:10_table.js:555 setSeats:10_table.js:575 tAutoSeat:10_table.js:580 tSig:10_table.js:586 tName:10_table.js:589 tVoteTxt:10_table.js:590 envBadges:10_table.js:591 innateTxt:10_table.js:597 tOutCls:10_table.js:599 tPerformHtml:10_table.js:600 summaryLines:10_table.js:622 chronOn:10_table.js:639 chron:10_table.js:640 chronSnap:10_table.js:643 chronTick:10_table.js:650 chronDate:10_table.js:660 empireChecklistHTML:10_table.js:661 treeSave:10_table.js:671 mapRaws:10_table.js:681 refRawAvail:10_table.js:684 treeHTML:10_table.js:688 rulebookHTML:10_table.js:755 linkifyRules:10_table.js:758 renderReference:10_table.js:762 tCountdown:10_table.js:775 applyTheme:10_table.js:790 applySkin:10_table.js:802 doFire:15_realm.js:8 patch:15_realm.js:12 rlCommit:15_realm.js:13 pOf:15_realm.js:14 standingPhaseActions:15_realm.js:15 activeCipherTimers:15_realm.js:19 cipherTimerResolve:15_realm.js:25 empireHoldingHTML:15_realm.js:30 whisperGateHTML:15_realm.js:52 forgeRetryHTML:15_realm.js:57 courierDeferHTML:15_realm.js:60 envoyInterventionHTML:15_realm.js:103 rlOpen:15_realm.js:126 rlToggle:15_realm.js:127 renderTable:15_realm.js:132 renderRealmMap:15_realm.js:152 domCells:15_realm.js:164 realmTableHTML:15_realm.js:168 spectating:15_realm.js:209 miniCardHTML:15_realm.js:221 phaseCardHTML:15_realm.js:231 dockCard:15_realm.js:282 dockHTML:15_realm.js:283 envoyQueueHTML:15_realm.js:353 inflCardHTML:15_realm.js:372 drawersHTML:15_realm.js:426 turnLogItems:15_realm.js:438 turnLogHTML:15_realm.js:458 realmTimersBrief:15_realm.js:467 startDoms:20_state.js:2 ageRec:20_state.js:5 ageRisingOf:20_state.js:6 startDomsFor:20_state.js:7 startDomTotal:20_state.js:8 curYear:20_state.js:9 applyAgeStart:20_state.js:10 startSettlements:20_state.js:12 startSig:20_state.js:15 reseedIfPristine:20_state.js:17 newBoard:20_state.js:22 newPlayer:20_state.js:24 normalizeD:20_state.js:39 activeBoard:20_state.js:59 reindex:20_state.js:60 pActive:20_state.js:73 ignHas:20_state.js:77 flagState:20_state.js:78 ignBtn:20_state.js:83 ignNote:20_state.js:86 unlockStatus:20_state.js:92 nameHit:20_state.js:103 missTxt:20_state.js:104 recomputePC:20_state.js:106 buildTimerMod:20_state.js:111 withBuildMod:20_state.js:115 pursuitBaseTime:20_state.js:116 infraBaseTime:20_state.js:117 pursuitBuildTime:20_state.js:118 infraBuildTime:20_state.js:119 buildNote:20_state.js:120 settBaseTime:20_state.js:121 settBuildTime:20_state.js:122 itm:20_state.js:123 infraOn:20_state.js:124 gameStarted:20_state.js:125 glogTurn:20_state.js:129 glogSea:20_state.js:130 glogPush:20_state.js:131 glogSync:20_state.js:135 tGold:20_state.js:136 boardOwnerName:20_state.js:141 empTimers:20_state.js:145 empEconomy:20_state.js:146 empPO:20_state.js:151 immuneStrainIn:20_state.js:160 siegeStrains:20_state.js:164 effStrained:20_state.js:165 empArmies:20_state.js:166 endRow:20_state.js:172 boardEndTurn:20_state.js:175 stepRealmTimer:20_state.js:179 tickRealm:20_state.js:180 expireBlocks:20_state.js:183 empirePhase:20_state.js:185 tickTimers:20_state.js:208 facTypeBonus:20_state.js:217 pursuitUpkeep:20_state.js:220 withBoard:20_state.js:223 setOnline:20_state.js:239 clone:20_state.js:249 jeq:20_state.js:250 isObj:20_state.js:251 merge3:20_state.js:253 splitD:20_state.js:262 joinD:20_state.js:268 save:20_state.js:294 saveIfDirty:20_state.js:301 editing:20_state.js:336 cvar:20_state.js:356 fmt:20_state.js:357 cap:20_state.js:358 settUnbuilt:20_state.js:362 unbuiltMeta:20_state.js:363 settMeta:20_state.js:364 pinSettCell:20_state.js:365 settExpand:20_state.js:366 settFinish:20_state.js:367 settTier:20_state.js:370 occupants:20_state.js:371 hamletOK:20_state.js:372 hamletRoot:20_state.js:375 hamletFits:20_state.js:376 effList:20_state.js:384 effLabel:20_state.js:389 exemptionsOf:20_state.js:390 wardExemptions:20_state.js:399 isFreeRider:20_state.js:400 wardUse:20_state.js:401 canPlace:20_state.js:412 capitalSett:20_state.js:431 setCapital:20_state.js:432 isCityPlus:20_state.js:434 dbActive:20_state.js:435 capBonus:20_state.js:440 eraCapBase:20_state.js:441 eraCap:20_state.js:442 capSrc:20_state.js:443 cityCount:20_state.js:444 eraAllows:20_state.js:446 rslug:20_state.js:454 boardFlags:20_state.js:455 onBoard:20_state.js:488 scopeOf:20_state.js:490 realmHolder:20_state.js:491 scopeBlock:20_state.js:492 nextTier:20_state.js:497 autoFill:20_state.js:499 buildFilters:30_empire.js:8 monChip:30_empire.js:10 catSave:30_empire.js:16 catGroups:30_empire.js:33 catRows:30_empire.js:35 pAvail:30_empire.js:39 legalCtx:30_empire.js:43 rawRes:30_empire.js:45 rawInSett:30_empire.js:46 rawOK:30_empire.js:50 pLegal:30_empire.js:51 pReqMiss:30_empire.js:56 autoHamlet:30_empire.js:59 autoOK:30_empire.js:60 effSpot:30_empire.js:62 smartSid:30_empire.js:68 iAvail:30_empire.js:75 catUpkeep:30_empire.js:76 seg:30_empire.js:77 renderList:30_empire.js:79 wardPick:30_empire.js:133 wpRender:30_empire.js:135 wpPlace:30_empire.js:158 settLbl:30_empire.js:163 reqRow:30_empire.js:165 pursuitRow:30_empire.js:167 sub:30_empire.js:178 tip:30_empire.js:180 itemRow:30_empire.js:181 flash:30_empire.js:191 addInfraByName:30_empire.js:193 placeHolding:30_empire.js:199 addItem:30_empire.js:220 removeInstance:30_empire.js:231 addPursuitByName:30_empire.js:232 moveInstance:30_empire.js:233 infraReqToks:30_empire.js:249 infraTokStatus:30_empire.js:255 infraReqStatus:30_empire.js:269 infraValid:30_empire.js:274 infraActive:30_empire.js:281 infraReqLinesHTML:30_empire.js:282 masteryInfraToks:30_empire.js:286 masteryInfraHTML:30_empire.js:287 annotReqTok:30_empire.js:294 optionMet:30_empire.js:299 reqStatus:30_empire.js:307 instStatus:30_empire.js:314 chainLine:30_empire.js:321 simpleReq:30_empire.js:330 simpleReqHTML:30_empire.js:342 computeEarned:30_empire.js:350 atomEl:30_empire.js:368 atomsBlock:30_empire.js:377 render:30_empire.js:390 renderTopBar:30_empire.js:447 toggleEmpty:30_empire.js:494 sfxNorm:30_empire.js:503 sfxLabel:30_empire.js:504 settFx:30_empire.js:513 settFxPanel:30_empire.js:536 renderPursuitBoard:30_empire.js:543 wardPiles:30_empire.js:652 wardGrid:30_empire.js:664 unitFor:30_empire.js:691 tryMove:30_empire.js:696 scrollHost:30_empire.js:730 dropTargetAt:30_empire.js:731 clearDropHL:30_empire.js:739 armDrag:30_empire.js:740 beginDrag:30_empire.js:757 dragMove:30_empire.js:771 dragEnd:30_empire.js:783 herPicker:30_empire.js:792 factionFree:30_empire.js:803 setFaction:30_empire.js:807 facGearFlags:30_empire.js:816 factionFlags:30_empire.js:822 cultureFactions:30_empire.js:839 facOffered:30_empire.js:848 facPicker:30_empire.js:850 culSelectHTML:30_empire.js:867 cultureOf:30_empire.js:871 holdDom:30_empire.js:872 cultureSet:30_empire.js:876 cultureKeep:30_empire.js:881 cultureKeepWonder:30_empire.js:882 derivedCulture:30_empire.js:884 nameCulture:30_empire.js:886 usedSettNames:30_empire.js:888 genPlaceName:30_empire.js:889 nameSett:30_empire.js:895 nameAllSetts:30_empire.js:897 renderFaction:30_empire.js:898 timerCtl:30_empire.js:906 placementSelect:30_empire.js:911 contribAcc:30_empire.js:926 contribChips:30_empire.js:929 accChips:30_empire.js:930 pursuitDetail:30_empire.js:938 quickChip:30_empire.js:962 buildsIntoRow:30_empire.js:966 nextLinksHTML:30_empire.js:968 pursuitTable:30_empire.js:976 pursuitCard:30_empire.js:1003 renderInfraSection:30_empire.js:1091 armyUnlocks:30_empire.js:1136 unlockedShieldTiers:30_empire.js:1168 tierOK:30_empire.js:1172 gloss:30_empire.js:1173 glossLookup:30_empire.js:1182 openModal:30_empire.js:1191 closeModal:30_empire.js:1195 kwChipHTML:30_empire.js:1196 esc:30_empire.js:1197 inspectKeyword:30_empire.js:1198 inspectItem:30_empire.js:1220 optionList:30_empire.js:1243 loadoutFields:30_empire.js:1259 renderArmy:30_empire.js:1273 armyCard:30_empire.js:1306 reqMet:30_empire.js:1400 weaponUnlockMet:30_empire.js:1403 moraleBase:30_empire.js:1405 armyUpkeep:30_empire.js:1406 moraleCap:30_empire.js:1408 effMorale:30_empire.js:1410 isRouted:30_empire.js:1411 armyVals:30_empire.js:1414 armyStats:30_empire.js:1422 noUpkeepTiers:30_empire.js:1449 holdsActive:30_empire.js:1451 playersWithout:30_empire.js:1453 calcMetrics:30_empire.js:1455 computeTotals:30_empire.js:1512 poTaxMod:30_empire.js:1543 taxDouble:30_empire.js:1548 winterTax:30_empire.js:1549 occupyTaxOnly:30_empire.js:1558 settInside:30_empire.js:1559 settTax:30_empire.js:1560 tradeIncome:30_empire.js:1563 tradeRaw:30_empire.js:1572 goldBreak:30_empire.js:1586 treasLive:30_empire.js:1600 fmtK:30_empire.js:1602 renderGlog:30_empire.js:1604 goldBreakHTML:30_empire.js:1611 goldBreakTxt:30_empire.js:1615 seasonNet:30_empire.js:1616 husbandryGoldFor:30_empire.js:1620 SEASON_DBL_TIER:30_empire.js:1624 tierGoldFor:30_empire.js:1626 seasonDblGold:30_empire.js:1630 SEASON_DBL_TYPE:30_empire.js:1631 boardMetrics:30_empire.js:1632 poBandName:30_empire.js:1639 poActiveKeys:30_empire.js:1641 poActiveEffects:30_empire.js:1643 poImmune:30_empire.js:1650 poDoubled:30_empire.js:1651 renderPO:30_empire.js:1653 curSeason:40_realm_data.js:4 stepSeason:40_realm_data.js:5 playerOfBoard:40_realm_data.js:8 igVal:40_realm_data.js:9 eraIdx:40_realm_data.js:10 playerAtWar:40_realm_data.js:11 influenceRowsBase:40_realm_data.js:12 influenceRows:40_realm_data.js:43 influenceTotal:40_realm_data.js:48 poModRows:40_realm_data.js:51 totTipSimple:40_realm_data.js:78 totTip:40_realm_data.js:81 epSources:40_realm_data.js:92 topSuz:40_realm_data.js:105 royalMarriage:40_realm_data.js:108 sameAlliance:40_realm_data.js:113 poFloor:40_realm_data.js:116 applyPOFloor:40_realm_data.js:117 epRows:40_realm_data.js:118 poModTotal:40_realm_data.js:131 dpButtons:40_realm_data.js:132 renderDP:40_realm_data.js:135 renderMiniStand:40_realm_data.js:146 renderInfluence:40_realm_data.js:160 renderPOMods:40_realm_data.js:164 siegeState:40_realm_data.js:176 siegeCalc:40_realm_data.js:177 siegeHTML:40_realm_data.js:194 realmTimers:40_realm_data.js:209 timerAddHTML:40_realm_data.js:210 boardTimerRows:40_realm_data.js:214 siegeResolveHTML:40_realm_data.js:220 activeTimersHTML:40_realm_data.js:227 seasonsHTML:40_realm_data.js:233 costsHTML:40_realm_data.js:236 wireDashExtras:40_realm_data.js:239 renderDash:40_realm_data.js:267 domBand:40_realm_data.js:270 mods:40_realm_data.js:273 diplo:40_realm_data.js:278 pk:40_realm_data.js:279 isVassal:40_realm_data.js:281 vassalsOf:40_realm_data.js:282 effPair:40_realm_data.js:283 pairOf:40_realm_data.js:286 pname:40_realm_data.js:287 allianceLabel:40_realm_data.js:288 pboard:40_realm_data.js:289 hasRoad:40_realm_data.js:290 eraRank:40_realm_data.js:293 allianceEra:40_realm_data.js:294 allianceOK:40_realm_data.js:295 pairFlags:40_realm_data.js:296 dStatus:40_realm_data.js:304 diploHTML:40_realm_data.js:308 wireDiplo:40_realm_data.js:365 newSide:50_battle.js:4 battle:50_battle.js:5 bq:50_battle.js:7 bqAdd:50_battle.js:8 bqSideName:50_battle.js:9 bqLoad:50_battle.js:12 sideHex:50_battle.js:15 bqStart:50_battle.js:19 banditArmy:50_battle.js:22 armBandits:50_battle.js:26 sideArmy:50_battle.js:34 blog:50_battle.js:39 d10:50_battle.js:40 seizeForced:50_battle.js:41 facCombat:50_battle.js:44 sideUnlocks:50_battle.js:56 sideDomains:50_battle.js:60 standingFxOf:50_battle.js:61 hasTiltyard:50_battle.js:65 eqOptions:50_battle.js:66 eqCode:50_battle.js:75 eqNow:50_battle.js:78 eqWeapon:50_battle.js:81 tacAllowed:50_battle.js:89 tacOK:50_battle.js:94 randomTacticPool:50_battle.js:95 sideCalc:50_battle.js:98 pickKey:50_battle.js:208 viewerSide:50_battle.js:209 mdLite:50_battle.js:231 fmtModLong:50_battle.js:233 fmtMod:50_battle.js:236 dieRow:50_battle.js:238 rollHTML:50_battle.js:239 battleSprites:50_battle.js:248 sideHTML:50_battle.js:252 tacEdge:50_battle.js:340 tacticExplainHTML:50_battle.js:346 battleRulesHTML:50_battle.js:360 renderBattle:50_battle.js:364 incoming:50_battle.js:390 roll:50_battle.js:393 ripN:50_battle.js:449 addRip:50_battle.js:450 setPendCas:50_battle.js:451 pendCas:50_battle.js:452 applyCas:50_battle.js:453 endSkirmish:50_battle.js:454 endBattle:50_battle.js:470 wireBattle:50_battle.js:495 edictTimerLen:50_battle.js:543 edictChoices:50_battle.js:545 edictTotal:50_battle.js:551 edictOwners:50_battle.js:552 bumpRenown:50_battle.js:553 edictBoardHTML:50_battle.js:554 wireEdicts:50_battle.js:582 currentEra:50_battle.js:596 pMark:50_battle.js:604 domTrackHTML:50_battle.js:606 standingEffectsHTML:50_battle.js:615 renderRenown:50_battle.js:628 mapClimate:60_map.js:17 mapPal:60_map.js:22 tLum:60_map.js:25 tTone:60_map.js:27 tLighten:60_map.js:28 tGlyph:60_map.js:31 tSwatch:60_map.js:36 mapState:60_map.js:43 hexDist:60_map.js:44 decodeGrid:60_map.js:47 seedCode:60_map.js:57 generateMap:60_map.js:58 parseSeedCode:60_map.js:66 mapZoom:60_map.js:78 reachBonus:60_map.js:84 reachOwners:60_map.js:93 reachResources:60_map.js:105 settReachHexes:60_map.js:115 rawClaims:60_map.js:126 mapSprId:60_map.js:148 mapSprDefs:60_map.js:149 tMix:60_map.js:158 hStr:60_map.js:163 rng32:60_map.js:164 mapScatter:60_map.js:165 propPaths:60_map.js:184 pxSwatch:60_map.js:188 mapSpr:60_map.js:193 eqSVG:60_map.js:199 sprSVG:60_map.js:201 stIcon:60_map.js:209 armyGear:60_map.js:210 armyUFor:60_map.js:212 stDedup:60_map.js:217 stIconSVG:60_map.js:219 plateStatus:60_map.js:221 plateBox:60_map.js:222 mapPlate:60_map.js:224 settPlate:60_map.js:235 settBehind:60_map.js:246 settInsideMarks:60_map.js:250 mapBarHTML:60_map.js:265 terrOwners:60_map.js:276 terrFlags:60_map.js:278 unrestCamps:60_map.js:284 intrudersOf:60_map.js:286 settReach:60_map.js:290 settEcon:60_map.js:292 pillageCheck:60_map.js:301 pillageTargets:60_map.js:305 runPillage:60_map.js:308 armyStatus:60_map.js:315 mapMarkers:60_map.js:328 inspHTML:60_map.js:339 inspHead:60_map.js:342 inspCell:60_map.js:345 g:60_map.js:346 inspCan:60_map.js:347 inspArmy:60_map.js:348 settStatus:60_map.js:368 settStatusMarks:60_map.js:378 inspSett:60_map.js:382 envoyFor:60_map.js:413 settActionsHTML:60_map.js:416 armyMusterBtn:60_map.js:427 inspCamp:60_map.js:438 engageTargets:60_map.js:450 wireInsp:60_map.js:456 mapLayers:60_map.js:481 mapSVG:60_map.js:578 outlawReport:60_map.js:580 banditDomain:60_map.js:591 banditAutoHTML:60_map.js:592 armyName:60_map.js:601 syncMapTiers:60_map.js:603 mapLinkBad:60_map.js:609 mapLinksHTML:60_map.js:610 wireBanditAuto:60_map.js:621 banditAuto:60_map.js:627 BST:60_map.js:628 bLog:60_map.js:629 hk:60_map.js:631 mapSetts:60_map.js:632 cellPlayer:60_map.js:633 cellSett:60_map.js:635 mapArmies:60_map.js:638 cellArmy:60_map.js:639 cellTitle:60_map.js:642 byDist:60_map.js:646 isWild:60_map.js:650 wildZones:60_map.js:651 outlawZones:60_map.js:653 zoneOf:60_map.js:658 zoneOwners:60_map.js:659 outlawOwners:60_map.js:664 outlawOwner:60_map.js:666 outlawOf:60_map.js:668 campWild:60_map.js:670 wildCount:60_map.js:672 wildDone:60_map.js:673 placeWildOutlaw:60_map.js:679 rescatterWild:60_map.js:701 pieceAura:60_map.js:704 campInRange:60_map.js:708 hexFree:60_map.js:711 spawnCamp:60_map.js:712 growCamps:60_map.js:714 expandOutlaw:60_map.js:718 immuneUprising:60_map.js:721 banditTargetMods:60_map.js:722 cunningAction:60_map.js:724 endorsedExtort:60_map.js:725 banditAct:60_map.js:726 runBanditMechanics:60_map.js:756 banditSpeed:60_map.js:775 banditAuraList:60_map.js:777 banditRun:60_map.js:784 moveCamp:60_map.js:792 banditSiegeTimer:60_map.js:793 banditMoves:60_map.js:795 banditSkims:60_map.js:824 creditSkims:60_map.js:832 envoyOutcome:60_map.js:839 banditCunningHTML:60_map.js:844 dieLookup:60_map.js:861 terrainTablesHTML:60_map.js:864 mapToolsHTML:60_map.js:887 banditPanelHTML:60_map.js:921 mapAsP:60_map.js:937 mapEditBlock:60_map.js:938 mapGuard:60_map.js:947 guarded:60_map.js:949 mapCellClick:60_map.js:951 wireMap:60_map.js:969 srcKeys:70_rules.js:6 srcMatch:70_rules.js:13 srcHas:70_rules.js:14 srcRows:70_rules.js:16 bordersOf:70_rules.js:20 poCap:70_rules.js:24 poTextFloor:70_rules.js:25 siegeTextMods:70_rules.js:28 siegeWinterOK:70_rules.js:35 siegeDoubleOK:70_rules.js:36 actRestrict:70_rules.js:38 actRiders:70_rules.js:51 settById:70_rules.js:63 besiegeExempt:70_rules.js:65 settBesieged:70_rules.js:66 armySieging:70_rules.js:68 armyBesieged:70_rules.js:70 armyStateTags:70_rules.js:71 armyBlocked:70_rules.js:80 garrisonSizes:70_rules.js:83 hasGarrisons:70_rules.js:86 garrisonGear:70_rules.js:88 garrisonOf:70_rules.js:89 garrisonsOf:70_rules.js:93 garrisonCard:70_rules.js:94 onceEffects:70_rules.js:113 onceState:70_rules.js:114 onceWindowNow:70_rules.js:118 onceHTML:70_rules.js:119 onceUse:70_rules.js:130 noteAdd:70_rules.js:139 recoupNote:70_rules.js:141 blackMarketReact:70_rules.js:148 extortGold:70_rules.js:156 danegeldRows:70_rules.js:167 loans:70_rules.js:173 loanTerms:70_rules.js:174 loanInterest:70_rules.js:177 runLoans:70_rules.js:178 loansHTML:70_rules.js:184 autoExtortRows:70_rules.js:202 extortSlots:70_rules.js:211 exTargets:70_rules.js:214 extortTargetsHTML:70_rules.js:215 runAutoExtort:70_rules.js:218 firstDoubtRed:70_rules.js:244 fdState:70_rules.js:248 gainDoubt:70_rules.js:251 siegeOn:70_rules.js:256 endSettlementSieges:70_rules.js:257 besiegedCount:70_rules.js:258 pById:70_rules.js:259 nextId:70_rules.js:260 captureTransfer:70_rules.js:261 sackWards:70_rules.js:273 sackApply:70_rules.js:278 banditSack:70_rules.js:294 resolveRealm:70_rules.js:306 sackLocks:70_rules.js:313 armyHex:70_rules.js:317 settHex:70_rules.js:318 musterLimit:70_rules.js:319 musterTick:70_rules.js:325 hasMusterField:70_rules.js:333 charterFlags:70_rules.js:336 selArmy:70_rules.js:359 canMoveArmy:70_rules.js:360 armyBesiegeExempt:70_rules.js:362 canEnterSett:70_rules.js:364 armyInside:70_rules.js:366 enterCheck:70_rules.js:369 freeHexNear:70_rules.js:371 kickOut:70_rules.js:374 armiesInside:70_rules.js:377 terrPen:70_rules.js:379 terrBlocked:70_rules.js:380 terrWaterStop:70_rules.js:381 terrStrain:70_rules.js:382 provinceOf:70_rules.js:384 moveTraits:70_rules.js:386 speedOf:70_rules.js:389 hexNb:70_rules.js:421 auraSources:70_rules.js:425 moveRange:70_rules.js:434 moveInfo:70_rules.js:466 moveStops:70_rules.js:469 moveEndTriggers:70_rules.js:474 moveArmyTo:70_rules.js:483 moveOverlay:70_rules.js:503 movePanelHTML:70_rules.js:516 set:70_rules.js:527 computeAll:70_rules.js:528 sceneInfra:80_scene_shell.js:14 wardChains:80_scene_shell.js:20 sceneLots:80_scene_shell.js:27 renderEsBar:80_scene_shell.js:40 sceneArmies:80_scene_shell.js:48 renderScene:80_scene_shell.js:55 renderSettlements:80_scene_shell.js:166 lockTarget:80_scene_shell.js:229 lockBlock:80_scene_shell.js:238 adminUI:80_scene_shell.js:251 firstHostOpen:80_scene_shell.js:267 firstHostBtn:80_scene_shell.js:268 hudSign:80_scene_shell.js:274 hudData:80_scene_shell.js:275 hudTips:80_scene_shell.js:284 renderHUD:80_scene_shell.js:297 ageStripHTML:80_scene_shell.js:317 setupOn:80_scene_shell.js:331 renderSetup:80_scene_shell.js:332 renderTurnStrip:80_scene_shell.js:360 syncBoardEndBtn:80_scene_shell.js:392 mnavSync:80_scene_shell.js:408 herName:80_scene_shell.js:418 herKey:80_scene_shell.js:419 lumOf:80_scene_shell.js:420 herMix:80_scene_shell.js:424 herN:80_scene_shell.js:426 herPaths:80_scene_shell.js:427 heraldOf:80_scene_shell.js:432 mapBanner:80_scene_shell.js:435 pTok:80_scene_shell.js:438 inboxItems:85_ux.js:10 renderInbox:85_ux.js:23 evIn:85_ux.js:41 hudPopBack:85_ux.js:55 hudPopFill:85_ux.js:57 hudPop:85_ux.js:83 hudPopClose:85_ux.js:84 renderChrome:85_ux.js:90 undoSnap:90_app.js:5 undoRecord:90_app.js:7 undoRebase:90_app.js:13 undoScoped:90_app.js:14 undoApply:90_app.js:15 doUndo:90_app.js:28 doRedo:90_app.js:29 undoButtons:90_app.js:30 actSnap:90_app.js:43 actRebase:90_app.js:44 actJoin:90_app.js:46 actSchedule:90_app.js:49 fmtG:90_app.js:50 boardDiff:90_app.js:51 actFlush:90_app.js:83 gameAllowed:90_app.js:100 gameData:90_app.js:101 refreshGames:90_app.js:102 gameReplace:90_app.js:105 newGameState:90_app.js:109 isReady:90_app.js:132 readyCheck:90_app.js:133 gslug:90_app.js:146 kwify:90_app.js:158 wikiA:90_app.js:169 gkHtml:90_app.js:170 openFromHash:90_app.js:187 setLift:90_app.js:213 gkShow:90_app.js:222 gkHide:90_app.js:226 gkFor:90_app.js:227 chatHdr:90_app.js:286 chatTargets:90_app.js:292 chatParse:90_app.js:294 chatColor:90_app.js:302 chatLine:90_app.js:303 chatRender:90_app.js:307 chatSys:90_app.js:313 chatComplete:90_app.js:328 cmp:parity_efx.js:19
+fixBastard:00_core.js:8 dispScore:00_core.js:15 presR:00_core.js:33 POB:00_core.js:36 poNum:00_core.js:37 efxOf:00_core.js:48 hitOf:00_core.js:49 facHit:00_core.js:50 tnow:10_table.js:12 noteServerDate:10_table.js:13 lockOn:10_table.js:21 claimOf:10_table.js:22 mine:10_table.js:23 myClaimP:10_table.js:24 canEdit:10_table.js:25 boardEndOn:10_table.js:27 TB:10_table.js:28 seatFloor:10_table.js:30 tSeats:10_table.js:31 tTimer:10_table.js:32 tTurn:10_table.js:33 tPhase:10_table.js:34 PT:10_table.js:36 tCur:10_table.js:37 tCurW:10_table.js:38 sameP:10_table.js:39 meP:10_table.js:40 canAct:10_table.js:41 seatMap:10_table.js:44 seated:10_table.js:48 isSpring:10_table.js:49 hostP:10_table.js:50 voteOrd:10_table.js:53 tOrder:10_table.js:54 canHost:10_table.js:55 seatsLocked:10_table.js:56 tStand:10_table.js:59 eraRec:10_table.js:60 diploInf:10_table.js:61 diploCap:10_table.js:62 eraActions:10_table.js:63 boardFx:10_table.js:66 fxOf:10_table.js:79 scopeOk:10_table.js:80 sgn:10_table.js:81 fxLabel:10_table.js:82 atWarPair:10_table.js:97 opposeBlock:10_table.js:98 domAsFx:10_table.js:105 innateParts:10_table.js:106 modSum:10_table.js:112 innateInf:10_table.js:114 voteCap:10_table.js:115 inflPool:10_table.js:118 personalEnvoys:10_table.js:119 councilEnvoys:10_table.js:120 tOutcome:10_table.js:121 outText:10_table.js:123 tPlan:10_table.js:126 missionWhy:10_table.js:144 domStarted:10_table.js:147 whisperEligibleEnvoys:10_table.js:148 tSim:10_table.js:151 performEval:10_table.js:232 comboEval:10_table.js:238 failPassFx:10_table.js:247 actionsOf:10_table.js:248 actReqFlag:10_table.js:250 actInfoHTML:10_table.js:254 actCost:10_table.js:265 domCost:10_table.js:267 addFaith:10_table.js:268 alliedP:10_table.js:269 allyGroup:10_table.js:270 topPair:10_table.js:271 actDoubt:10_table.js:274 musterOpts:10_table.js:330 runMuster:10_table.js:335 buildOpts:10_table.js:348 buildPlaces:10_table.js:356 runBuild:10_table.js:360 improveOpts:10_table.js:366 expandOpts:10_table.js:371 runExpand:10_table.js:375 runImprove:10_table.js:379 runSettle:10_table.js:384 repairOpts:10_table.js:389 runRepair:10_table.js:392 settName:10_table.js:396 warOnFac:10_table.js:399 warOn:10_table.js:403 grandVizier:10_table.js:407 pfSpec:10_table.js:410 pfHardFlags:10_table.js:411 pfTargets:10_table.js:421 pfSubs:10_table.js:432 pfSubLabel:10_table.js:433 evTxt:10_table.js:435 insteadFx:10_table.js:440 actDom:10_table.js:441 pfActs:10_table.js:442 pfInsteadSrc:10_table.js:443 pfForm:10_table.js:444 boardCounts:10_table.js:479 pendingOf:10_table.js:481 apLines:10_table.js:483 resolveEnvoy:10_table.js:486 autoRes:10_table.js:543 tApply:10_table.js:544 tNext:10_table.js:556 tSetPhase:10_table.js:557 tRestartPhase:10_table.js:560 tAdd30:10_table.js:565 grantDP:10_table.js:568 dpOwed:10_table.js:569 tEndTurn:10_table.js:570 setSeats:10_table.js:590 tAutoSeat:10_table.js:595 tSig:10_table.js:601 tName:10_table.js:604 tVoteTxt:10_table.js:605 envBadges:10_table.js:606 innateTxt:10_table.js:612 tOutCls:10_table.js:614 tPerformHtml:10_table.js:615 summaryLines:10_table.js:637 chronOn:10_table.js:654 chron:10_table.js:655 chronSnap:10_table.js:658 chronTick:10_table.js:665 chronDate:10_table.js:675 empireChecklistHTML:10_table.js:676 treeSave:10_table.js:686 mapRaws:10_table.js:696 refRawAvail:10_table.js:699 treeHTML:10_table.js:703 rulebookHTML:10_table.js:770 linkifyRules:10_table.js:773 renderReference:10_table.js:777 tCountdown:10_table.js:790 applyTheme:10_table.js:805 applySkin:10_table.js:817 doFire:15_realm.js:8 patch:15_realm.js:12 rlCommit:15_realm.js:13 pOf:15_realm.js:14 standingPhaseActions:15_realm.js:15 activeCipherTimers:15_realm.js:19 cipherTimerResolve:15_realm.js:25 empireHoldingHTML:15_realm.js:30 whisperGateHTML:15_realm.js:52 forgeRetryHTML:15_realm.js:56 courierDeferHTML:15_realm.js:60 rlOpen:15_realm.js:113 rlToggle:15_realm.js:114 renderTable:15_realm.js:119 renderRealmMap:15_realm.js:139 domCells:15_realm.js:151 realmTableHTML:15_realm.js:155 spectating:15_realm.js:196 miniCardHTML:15_realm.js:208 phaseCardHTML:15_realm.js:218 dockCard:15_realm.js:269 dockHTML:15_realm.js:270 envoyQueueHTML:15_realm.js:341 inflCardHTML:15_realm.js:360 drawersHTML:15_realm.js:415 turnLogItems:15_realm.js:427 turnLogHTML:15_realm.js:447 realmTimersBrief:15_realm.js:456 tallyVoter:16_tally.js:7 standingHit:16_tally.js:9 tallySupportOf:16_tally.js:10 tallyEndorseOf:16_tally.js:11 resolveOpen:16_tally.js:13 intrigueKinds:16_tally.js:15 intrigueSilenced:16_tally.js:24 whisperPending:16_tally.js:25 intrigueRun:16_tally.js:27 tallyRun:16_tally.js:38 envLabel:16_tally.js:61 tsId:16_tally.js:62 tRow:16_tally.js:63 envSel:16_tally.js:64 amtSel:16_tally.js:65 intrigueHTML:16_tally.js:66 tallyHTML:16_tally.js:94 inTurn:16_tally.js:109 selVal:16_tally.js:110 tallyTurn:16_tally.js:125 startDoms:20_state.js:2 ageRec:20_state.js:5 ageRisingOf:20_state.js:6 startDomsFor:20_state.js:7 startDomTotal:20_state.js:8 curYear:20_state.js:9 applyAgeStart:20_state.js:10 startSettlements:20_state.js:12 startSig:20_state.js:15 reseedIfPristine:20_state.js:17 newBoard:20_state.js:22 newPlayer:20_state.js:24 normalizeD:20_state.js:39 activeBoard:20_state.js:59 reindex:20_state.js:60 pActive:20_state.js:73 ignHas:20_state.js:77 flagState:20_state.js:78 ignBtn:20_state.js:83 ignNote:20_state.js:86 unlockStatus:20_state.js:92 nameHit:20_state.js:103 missTxt:20_state.js:104 recomputePC:20_state.js:106 buildTimerMod:20_state.js:111 withBuildMod:20_state.js:115 pursuitBaseTime:20_state.js:116 infraBaseTime:20_state.js:117 pursuitBuildTime:20_state.js:118 infraBuildTime:20_state.js:119 buildNote:20_state.js:120 settBaseTime:20_state.js:121 settBuildTime:20_state.js:122 itm:20_state.js:123 infraOn:20_state.js:124 gameStarted:20_state.js:125 glogTurn:20_state.js:129 glogSea:20_state.js:130 glogPush:20_state.js:131 glogSync:20_state.js:135 tGold:20_state.js:136 boardOwnerName:20_state.js:141 empTimers:20_state.js:145 empEconomy:20_state.js:146 empPO:20_state.js:151 immuneStrainIn:20_state.js:159 siegeStrains:20_state.js:163 effStrained:20_state.js:164 empArmies:20_state.js:165 endRow:20_state.js:171 boardEndTurn:20_state.js:174 stepRealmTimer:20_state.js:178 tickRealm:20_state.js:179 expireBlocks:20_state.js:182 empirePhase:20_state.js:184 tickTimers:20_state.js:207 facTypeBonus:20_state.js:216 pursuitUpkeep:20_state.js:219 withBoard:20_state.js:222 setOnline:20_state.js:238 clone:20_state.js:248 jeq:20_state.js:249 isObj:20_state.js:250 merge3:20_state.js:252 splitD:20_state.js:261 joinD:20_state.js:267 save:20_state.js:293 saveIfDirty:20_state.js:300 editing:20_state.js:335 cvar:20_state.js:355 fmt:20_state.js:356 cap:20_state.js:357 settUnbuilt:20_state.js:361 unbuiltMeta:20_state.js:362 settMeta:20_state.js:363 pinSettCell:20_state.js:364 settExpand:20_state.js:365 settFinish:20_state.js:366 settTier:20_state.js:369 occupants:20_state.js:370 hamletOK:20_state.js:371 hamletRoot:20_state.js:374 hamletFits:20_state.js:375 effList:20_state.js:383 effLabel:20_state.js:388 exemptionsOf:20_state.js:389 wardExemptions:20_state.js:398 isFreeRider:20_state.js:399 wardUse:20_state.js:400 canPlace:20_state.js:411 capitalSett:20_state.js:430 setCapital:20_state.js:431 isCityPlus:20_state.js:433 dbActive:20_state.js:434 standingKey:20_state.js:440 armStanding:20_state.js:441 capBonus:20_state.js:446 eraCapBase:20_state.js:447 eraCap:20_state.js:448 capSrc:20_state.js:449 cityCount:20_state.js:450 eraAllows:20_state.js:452 rslug:20_state.js:460 boardFlags:20_state.js:461 onBoard:20_state.js:495 scopeOf:20_state.js:497 realmHolder:20_state.js:498 scopeBlock:20_state.js:499 nextTier:20_state.js:504 autoFill:20_state.js:506 buildFilters:30_empire.js:8 monChip:30_empire.js:10 catSave:30_empire.js:16 catGroups:30_empire.js:33 catRows:30_empire.js:35 pAvail:30_empire.js:39 legalCtx:30_empire.js:43 rawRes:30_empire.js:45 rawInSett:30_empire.js:46 rawOK:30_empire.js:50 pLegal:30_empire.js:51 pReqMiss:30_empire.js:56 autoHamlet:30_empire.js:59 autoOK:30_empire.js:60 effSpot:30_empire.js:62 smartSid:30_empire.js:68 iAvail:30_empire.js:75 catUpkeep:30_empire.js:76 seg:30_empire.js:77 renderList:30_empire.js:79 wardPick:30_empire.js:133 wpRender:30_empire.js:135 wpPlace:30_empire.js:158 settLbl:30_empire.js:163 reqRow:30_empire.js:165 pursuitRow:30_empire.js:167 sub:30_empire.js:178 tip:30_empire.js:180 itemRow:30_empire.js:181 flash:30_empire.js:191 addInfraByName:30_empire.js:193 placeHolding:30_empire.js:199 addItem:30_empire.js:220 removeInstance:30_empire.js:231 addPursuitByName:30_empire.js:232 moveInstance:30_empire.js:233 infraReqToks:30_empire.js:249 infraTokStatus:30_empire.js:255 infraReqStatus:30_empire.js:269 infraValid:30_empire.js:274 infraActive:30_empire.js:281 infraReqLinesHTML:30_empire.js:282 masteryInfraToks:30_empire.js:286 masteryInfraHTML:30_empire.js:287 annotReqTok:30_empire.js:294 optionMet:30_empire.js:299 reqStatus:30_empire.js:307 instStatus:30_empire.js:314 chainLine:30_empire.js:321 simpleReq:30_empire.js:330 simpleReqHTML:30_empire.js:342 computeEarned:30_empire.js:350 atomEl:30_empire.js:368 atomsBlock:30_empire.js:377 render:30_empire.js:390 renderTopBar:30_empire.js:447 toggleEmpty:30_empire.js:494 sfxNorm:30_empire.js:503 sfxLabel:30_empire.js:504 settFx:30_empire.js:513 settFxPanel:30_empire.js:536 renderPursuitBoard:30_empire.js:543 wardPiles:30_empire.js:652 wardGrid:30_empire.js:664 unitFor:30_empire.js:691 tryMove:30_empire.js:696 scrollHost:30_empire.js:730 dropTargetAt:30_empire.js:731 clearDropHL:30_empire.js:739 armDrag:30_empire.js:740 beginDrag:30_empire.js:757 dragMove:30_empire.js:771 dragEnd:30_empire.js:783 herPicker:30_empire.js:792 factionFree:30_empire.js:803 setFaction:30_empire.js:807 facGearFlags:30_empire.js:816 factionFlags:30_empire.js:822 cultureFactions:30_empire.js:839 facOffered:30_empire.js:848 facPicker:30_empire.js:850 culSelectHTML:30_empire.js:867 cultureOf:30_empire.js:871 holdDom:30_empire.js:872 cultureSet:30_empire.js:876 cultureKeep:30_empire.js:881 cultureKeepWonder:30_empire.js:882 derivedCulture:30_empire.js:884 nameCulture:30_empire.js:886 usedSettNames:30_empire.js:888 genPlaceName:30_empire.js:889 nameSett:30_empire.js:895 nameAllSetts:30_empire.js:897 renderFaction:30_empire.js:898 timerCtl:30_empire.js:906 placementSelect:30_empire.js:911 contribAcc:30_empire.js:926 contribChips:30_empire.js:929 accChips:30_empire.js:930 pursuitDetail:30_empire.js:938 quickChip:30_empire.js:962 buildsIntoRow:30_empire.js:966 nextLinksHTML:30_empire.js:968 pursuitTable:30_empire.js:976 pursuitCard:30_empire.js:1003 renderInfraSection:30_empire.js:1091 armyUnlocks:30_empire.js:1136 unlockedShieldTiers:30_empire.js:1168 tierOK:30_empire.js:1172 gloss:30_empire.js:1173 glossLookup:30_empire.js:1182 openModal:30_empire.js:1191 closeModal:30_empire.js:1195 kwChipHTML:30_empire.js:1196 esc:30_empire.js:1197 inspectKeyword:30_empire.js:1198 inspectItem:30_empire.js:1220 optionList:30_empire.js:1243 loadoutFields:30_empire.js:1259 renderArmy:30_empire.js:1273 armyCard:30_empire.js:1306 reqMet:30_empire.js:1400 weaponUnlockMet:30_empire.js:1403 moraleBase:30_empire.js:1405 armyUpkeep:30_empire.js:1406 moraleCap:30_empire.js:1408 moraleStanding:30_empire.js:1411 effMorale:30_empire.js:1413 isRouted:30_empire.js:1414 armyVals:30_empire.js:1417 armyStats:30_empire.js:1425 noUpkeepTiers:30_empire.js:1452 holdsActive:30_empire.js:1454 playersWithout:30_empire.js:1456 calcMetrics:30_empire.js:1458 computeTotals:30_empire.js:1516 poTaxMod:30_empire.js:1547 taxDouble:30_empire.js:1552 winterTax:30_empire.js:1553 occupyTaxOnly:30_empire.js:1562 settInside:30_empire.js:1563 settTax:30_empire.js:1564 tradeIncome:30_empire.js:1567 tradeRaw:30_empire.js:1576 goldBreak:30_empire.js:1590 treasLive:30_empire.js:1604 fmtK:30_empire.js:1606 renderGlog:30_empire.js:1608 goldBreakHTML:30_empire.js:1615 goldBreakTxt:30_empire.js:1619 seasonNet:30_empire.js:1620 husbandryGoldFor:30_empire.js:1624 SEASON_DBL_TIER:30_empire.js:1628 tierGoldFor:30_empire.js:1630 seasonDblGold:30_empire.js:1634 SEASON_DBL_TYPE:30_empire.js:1635 boardMetrics:30_empire.js:1636 poBandName:30_empire.js:1643 poActiveKeys:30_empire.js:1645 poActiveEffects:30_empire.js:1647 poImmune:30_empire.js:1654 poDoubled:30_empire.js:1655 renderPO:30_empire.js:1657 curSeason:40_realm_data.js:4 stepSeason:40_realm_data.js:5 playerOfBoard:40_realm_data.js:8 igVal:40_realm_data.js:9 eraIdx:40_realm_data.js:10 playerAtWar:40_realm_data.js:11 influenceRowsBase:40_realm_data.js:12 influenceRows:40_realm_data.js:43 influenceTotal:40_realm_data.js:48 poModRows:40_realm_data.js:51 totTipSimple:40_realm_data.js:78 totTip:40_realm_data.js:81 epSources:40_realm_data.js:92 topSuz:40_realm_data.js:105 royalMarriage:40_realm_data.js:108 sameAlliance:40_realm_data.js:113 poFloor:40_realm_data.js:116 applyPOFloor:40_realm_data.js:117 epRows:40_realm_data.js:118 poModTotal:40_realm_data.js:131 dpButtons:40_realm_data.js:132 renderDP:40_realm_data.js:135 renderMiniStand:40_realm_data.js:144 renderInfluence:40_realm_data.js:158 renderPOMods:40_realm_data.js:162 siegeState:40_realm_data.js:174 siegeCalc:40_realm_data.js:175 siegeHTML:40_realm_data.js:192 realmTimers:40_realm_data.js:207 timerAddHTML:40_realm_data.js:208 boardTimerRows:40_realm_data.js:212 siegeResolveHTML:40_realm_data.js:218 activeTimersHTML:40_realm_data.js:225 seasonsHTML:40_realm_data.js:231 costsHTML:40_realm_data.js:234 wireDashExtras:40_realm_data.js:237 renderDash:40_realm_data.js:265 domBand:40_realm_data.js:268 mods:40_realm_data.js:271 diplo:40_realm_data.js:276 pk:40_realm_data.js:277 isVassal:40_realm_data.js:279 vassalsOf:40_realm_data.js:280 effPair:40_realm_data.js:281 pairOf:40_realm_data.js:284 pname:40_realm_data.js:285 allianceLabel:40_realm_data.js:286 pboard:40_realm_data.js:287 hasRoad:40_realm_data.js:288 eraRank:40_realm_data.js:291 allianceEra:40_realm_data.js:292 allianceOK:40_realm_data.js:293 pairFlags:40_realm_data.js:294 dStatus:40_realm_data.js:302 diploHTML:40_realm_data.js:306 wireDiplo:40_realm_data.js:363 newSide:50_battle.js:4 battle:50_battle.js:5 bq:50_battle.js:7 bqAdd:50_battle.js:8 bqSideName:50_battle.js:9 bqLoad:50_battle.js:12 sideHex:50_battle.js:15 bqStart:50_battle.js:19 banditArmy:50_battle.js:22 armBandits:50_battle.js:26 sideArmy:50_battle.js:34 blog:50_battle.js:39 d10:50_battle.js:40 seizeForced:50_battle.js:41 facCombat:50_battle.js:44 sideUnlocks:50_battle.js:56 sideDomains:50_battle.js:60 standingFxOf:50_battle.js:61 hasTiltyard:50_battle.js:65 eqOptions:50_battle.js:66 eqCode:50_battle.js:75 eqNow:50_battle.js:78 eqWeapon:50_battle.js:81 tacAllowed:50_battle.js:89 tacOK:50_battle.js:94 randomTacticPool:50_battle.js:95 sideCalc:50_battle.js:98 pickKey:50_battle.js:212 viewerSide:50_battle.js:213 mdLite:50_battle.js:235 fmtModLong:50_battle.js:237 fmtMod:50_battle.js:240 dieRow:50_battle.js:242 rollHTML:50_battle.js:243 battleSprites:50_battle.js:252 sideHTML:50_battle.js:256 tacEdge:50_battle.js:344 tacticExplainHTML:50_battle.js:350 battleRulesHTML:50_battle.js:364 renderBattle:50_battle.js:368 incoming:50_battle.js:394 roll:50_battle.js:397 ripN:50_battle.js:453 addRip:50_battle.js:454 setPendCas:50_battle.js:455 pendCas:50_battle.js:456 applyCas:50_battle.js:457 endSkirmish:50_battle.js:458 endBattle:50_battle.js:474 wireBattle:50_battle.js:499 edictTimerLen:50_battle.js:547 edictChoices:50_battle.js:549 edictTotal:50_battle.js:555 edictOwners:50_battle.js:556 bumpRenown:50_battle.js:557 edictBoardHTML:50_battle.js:558 wireEdicts:50_battle.js:586 currentEra:50_battle.js:600 pMark:50_battle.js:608 domTrackHTML:50_battle.js:610 standingEffectsHTML:50_battle.js:619 renderRenown:50_battle.js:632 mapClimate:60_map.js:17 mapPal:60_map.js:22 tLum:60_map.js:25 tTone:60_map.js:27 tLighten:60_map.js:28 tGlyph:60_map.js:31 tSwatch:60_map.js:36 mapState:60_map.js:43 hexDist:60_map.js:44 decodeGrid:60_map.js:47 seedCode:60_map.js:57 generateMap:60_map.js:58 parseSeedCode:60_map.js:66 mapZoom:60_map.js:78 reachBonus:60_map.js:84 reachOwners:60_map.js:93 reachResources:60_map.js:105 settReachHexes:60_map.js:115 rawClaims:60_map.js:126 mapSprId:60_map.js:148 mapSprDefs:60_map.js:149 tMix:60_map.js:158 hStr:60_map.js:163 rng32:60_map.js:164 mapScatter:60_map.js:165 propPaths:60_map.js:184 pxSwatch:60_map.js:188 mapSpr:60_map.js:193 eqSVG:60_map.js:199 sprSVG:60_map.js:201 stIcon:60_map.js:209 armyGear:60_map.js:210 armyUFor:60_map.js:212 stDedup:60_map.js:217 stIconSVG:60_map.js:219 plateStatus:60_map.js:221 plateBox:60_map.js:222 mapPlate:60_map.js:224 settPlate:60_map.js:235 settBehind:60_map.js:246 settInsideMarks:60_map.js:250 mapBarHTML:60_map.js:265 terrOwners:60_map.js:276 terrFlags:60_map.js:278 unrestCamps:60_map.js:284 intrudersOf:60_map.js:286 settReach:60_map.js:290 settEcon:60_map.js:292 pillageCheck:60_map.js:301 pillageTargets:60_map.js:305 runPillage:60_map.js:308 armyStatus:60_map.js:315 mapMarkers:60_map.js:328 inspHTML:60_map.js:339 inspHead:60_map.js:342 inspCell:60_map.js:345 g:60_map.js:346 inspCan:60_map.js:347 inspArmy:60_map.js:348 settStatus:60_map.js:368 settStatusMarks:60_map.js:378 inspSett:60_map.js:382 envoyFor:60_map.js:413 settActionsHTML:60_map.js:416 armyMusterBtn:60_map.js:427 inspCamp:60_map.js:438 engageTargets:60_map.js:450 wireInsp:60_map.js:456 mapLayers:60_map.js:481 mapSVG:60_map.js:578 outlawReport:60_map.js:580 banditDomain:60_map.js:591 banditAutoHTML:60_map.js:592 armyName:60_map.js:601 syncMapTiers:60_map.js:603 mapLinkBad:60_map.js:609 mapLinksHTML:60_map.js:610 wireBanditAuto:60_map.js:621 banditAuto:60_map.js:627 BST:60_map.js:628 bLog:60_map.js:629 hk:60_map.js:631 mapSetts:60_map.js:632 cellPlayer:60_map.js:633 cellSett:60_map.js:635 mapArmies:60_map.js:638 cellArmy:60_map.js:639 cellTitle:60_map.js:642 byDist:60_map.js:646 isWild:60_map.js:650 wildZones:60_map.js:651 outlawZones:60_map.js:653 zoneOf:60_map.js:658 zoneOwners:60_map.js:659 outlawOwners:60_map.js:664 outlawOwner:60_map.js:666 outlawOf:60_map.js:668 campWild:60_map.js:670 wildCount:60_map.js:672 wildDone:60_map.js:673 placeWildOutlaw:60_map.js:679 rescatterWild:60_map.js:701 pieceAura:60_map.js:704 campInRange:60_map.js:708 hexFree:60_map.js:711 spawnCamp:60_map.js:712 growCamps:60_map.js:714 expandOutlaw:60_map.js:718 immuneUprising:60_map.js:721 banditTargetMods:60_map.js:722 cunningAction:60_map.js:724 endorsedExtort:60_map.js:725 banditAct:60_map.js:726 runBanditMechanics:60_map.js:756 banditSpeed:60_map.js:775 banditAuraList:60_map.js:777 banditRun:60_map.js:784 moveCamp:60_map.js:792 banditSiegeTimer:60_map.js:793 banditMoves:60_map.js:795 banditSkims:60_map.js:824 creditSkims:60_map.js:832 envoyOutcome:60_map.js:839 banditCunningHTML:60_map.js:844 dieLookup:60_map.js:861 terrainTablesHTML:60_map.js:864 mapToolsHTML:60_map.js:887 banditPanelHTML:60_map.js:921 mapAsP:60_map.js:937 mapEditBlock:60_map.js:938 mapGuard:60_map.js:947 guarded:60_map.js:949 mapCellClick:60_map.js:951 wireMap:60_map.js:969 srcKeys:70_rules.js:6 srcMatch:70_rules.js:13 srcHas:70_rules.js:14 srcRows:70_rules.js:16 bordersOf:70_rules.js:20 poCap:70_rules.js:24 poTextFloor:70_rules.js:25 siegeTextMods:70_rules.js:28 siegeWinterOK:70_rules.js:35 siegeDoubleOK:70_rules.js:36 actRestrict:70_rules.js:38 actRiders:70_rules.js:51 settById:70_rules.js:63 besiegeExempt:70_rules.js:65 settBesieged:70_rules.js:66 armySieging:70_rules.js:68 armyBesieged:70_rules.js:70 armyStateTags:70_rules.js:71 armyBlocked:70_rules.js:80 garrisonSizes:70_rules.js:83 hasGarrisons:70_rules.js:86 garrisonGear:70_rules.js:88 garrisonOf:70_rules.js:89 garrisonsOf:70_rules.js:93 garrisonCard:70_rules.js:94 standingOnceRows:70_rules.js:115 onceEffects:70_rules.js:117 onceState:70_rules.js:118 onceWindowNow:70_rules.js:122 onceHTML:70_rules.js:123 onceUse:70_rules.js:134 noteAdd:70_rules.js:143 recoupNote:70_rules.js:145 blackMarketReact:70_rules.js:152 extortGold:70_rules.js:160 danegeldRows:70_rules.js:171 loans:70_rules.js:177 loanTerms:70_rules.js:178 loanInterest:70_rules.js:181 runLoans:70_rules.js:182 loansHTML:70_rules.js:188 autoExtortRows:70_rules.js:206 extortSlots:70_rules.js:215 exTargets:70_rules.js:218 extortTargetsHTML:70_rules.js:219 runAutoExtort:70_rules.js:222 firstDoubtRed:70_rules.js:248 fdState:70_rules.js:252 gainDoubt:70_rules.js:255 siegeOn:70_rules.js:260 endSettlementSieges:70_rules.js:261 besiegedCount:70_rules.js:262 pById:70_rules.js:263 nextId:70_rules.js:264 captureTransfer:70_rules.js:265 sackWards:70_rules.js:277 sackApply:70_rules.js:282 banditSack:70_rules.js:298 resolveRealm:70_rules.js:310 sackLocks:70_rules.js:317 armyHex:70_rules.js:321 settHex:70_rules.js:322 musterLimit:70_rules.js:323 musterTick:70_rules.js:329 hasMusterField:70_rules.js:337 charterFlags:70_rules.js:340 selArmy:70_rules.js:364 canMoveArmy:70_rules.js:365 armyBesiegeExempt:70_rules.js:367 canEnterSett:70_rules.js:369 armyInside:70_rules.js:371 enterCheck:70_rules.js:374 freeHexNear:70_rules.js:376 kickOut:70_rules.js:379 armiesInside:70_rules.js:382 terrPen:70_rules.js:384 terrBlocked:70_rules.js:385 terrWaterStop:70_rules.js:386 terrStrain:70_rules.js:387 provinceOf:70_rules.js:389 moveTraits:70_rules.js:391 speedOf:70_rules.js:394 hexNb:70_rules.js:426 auraSources:70_rules.js:430 moveRange:70_rules.js:439 moveInfo:70_rules.js:471 moveStops:70_rules.js:474 moveEndTriggers:70_rules.js:479 moveArmyTo:70_rules.js:488 moveOverlay:70_rules.js:508 movePanelHTML:70_rules.js:521 set:70_rules.js:532 computeAll:70_rules.js:533 sceneInfra:80_scene_shell.js:14 wardChains:80_scene_shell.js:20 sceneLots:80_scene_shell.js:27 renderEsBar:80_scene_shell.js:40 sceneArmies:80_scene_shell.js:48 renderScene:80_scene_shell.js:55 renderSettlements:80_scene_shell.js:166 lockTarget:80_scene_shell.js:229 lockBlock:80_scene_shell.js:238 adminUI:80_scene_shell.js:251 firstHostOpen:80_scene_shell.js:267 firstHostBtn:80_scene_shell.js:268 hudSign:80_scene_shell.js:274 hudData:80_scene_shell.js:275 hudTips:80_scene_shell.js:284 renderHUD:80_scene_shell.js:297 ageStripHTML:80_scene_shell.js:317 setupOn:80_scene_shell.js:331 renderSetup:80_scene_shell.js:332 renderTurnStrip:80_scene_shell.js:360 syncBoardEndBtn:80_scene_shell.js:392 mnavSync:80_scene_shell.js:408 herName:80_scene_shell.js:418 herKey:80_scene_shell.js:419 lumOf:80_scene_shell.js:420 herMix:80_scene_shell.js:424 herN:80_scene_shell.js:426 herPaths:80_scene_shell.js:427 heraldOf:80_scene_shell.js:432 mapBanner:80_scene_shell.js:435 pTok:80_scene_shell.js:438 inboxItems:85_ux.js:10 renderInbox:85_ux.js:23 evIn:85_ux.js:41 hudPopBack:85_ux.js:55 hudPopFill:85_ux.js:57 hudPop:85_ux.js:83 hudPopClose:85_ux.js:84 renderChrome:85_ux.js:90 undoSnap:90_app.js:5 undoRecord:90_app.js:7 undoRebase:90_app.js:13 undoScoped:90_app.js:14 undoApply:90_app.js:15 doUndo:90_app.js:28 doRedo:90_app.js:29 undoButtons:90_app.js:30 actSnap:90_app.js:43 actRebase:90_app.js:44 actJoin:90_app.js:46 actSchedule:90_app.js:49 fmtG:90_app.js:50 boardDiff:90_app.js:51 actFlush:90_app.js:83 gameAllowed:90_app.js:100 gameData:90_app.js:101 refreshGames:90_app.js:102 gameReplace:90_app.js:105 newGameState:90_app.js:109 isReady:90_app.js:132 readyCheck:90_app.js:133 gslug:90_app.js:146 kwify:90_app.js:158 wikiA:90_app.js:169 gkHtml:90_app.js:170 openFromHash:90_app.js:187 setLift:90_app.js:213 gkShow:90_app.js:222 gkHide:90_app.js:226 gkFor:90_app.js:227 chatHdr:90_app.js:286 chatTargets:90_app.js:292 chatParse:90_app.js:294 chatColor:90_app.js:302 chatLine:90_app.js:303 chatRender:90_app.js:307 chatSys:90_app.js:313 chatComplete:90_app.js:328
 ```

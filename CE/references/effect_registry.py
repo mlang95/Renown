@@ -8,7 +8,7 @@ Sources (the same text the board used to read; keys in DATA.efx):
     h:<Holding>   NODES[*].innate (strip_md)         hm:<Holding>  NODES[*].mastery (strip_md)
     i:<Infra>     INFRASTRUCTURE[*].empire_bonus     w:<Wonder>    Wondrous-tier empire_bonus
     f:<Faction>   FACTIONS[*].mechanic, ** removed   F:<Faction>   FACTIONS[*].mechanic as written
-    s:<Domain>:<Standing>  DOMAIN_BOARD text (windows report only)
+    s:<Domain>:<Standing>  DOMAIN_BOARD text (windows report + _once rows for "Once per <Phase>" clauses)
 
 Scopes:
     clause  text split like the board (/;|\\.\\s+|\\.$/), each clause trimmed, first match per clause -> [m0, m1, ...]
@@ -55,12 +55,18 @@ REG = {
     "black_market_recoup": ("clause", "hiwf", r"When another player Recoups gold from any source: Extort (\d+) per (\d+) \(minimum (\d+)\) from that player"),
     "syndicate_camp_extort":("clause", "hiwf", r"Whenever a Bandit Camp within your Province Extorts, you Extort the Bandit Camp for half the amount"),
     "forge_oppose_extort":("clause", "hiwf", r"Extort (\d+) anytime a player Opposes an Envoy of yours"),
-    "forge_retry":         ("clause", "hiwf", r"Once per Envoy Phase: attempt another Cunning Envoy if your Cunning Envoy Failed"),
-    "whisper_declare":     ("clause", "hiwf", r"Once per Personal Envoy Phase when a player sends an Envoy: that player must declare the specific Action & target they would Perform if the Envoy passes \(including sub-Actions\)"),
+    "forge_retry":         ("clause", "hiwf", r"Once per Envoy Phase: attempt another Cunning Envoy if your Cunning Envoy Failed|At the end of the Tally Phase, if a Cunning Envoy you sent Failed, you may send another Cunning Envoy"),
+    "whisper_declare":   ("clause", "hiwf", r"Once per Personal Envoy Phase when a player sends an Envoy: that player must declare the specific Action & target they would Perform if the Envoy passes \(including sub-Actions\)|In the Intrigue Phase, choose a Personal Envoy: its sender must declare the specific action & target they would Perform if it passes \(including sub-Actions\)"),
     "envoy_next_fewer":    ("clause", "hiwf", r"send (\d+) fewer Envoys? next turn"),
-    "courier_defer":       ("clause", "hiwf", r"successfully Performed Personal Envoy can be Performed next turn"),
-    "courier_auth_minus":  ("clause", "hiwf", r"Once per turn: Authority (?:−|-)1 on Target Envoy"),
-    "senate_intervene":    ("clause", "hiwf", r"Once per Envoy Phase: before players vote on an Envoy you choose, you may Condemn it if it's an At War player's Envoy, or Endorse it if it's an Ally's Envoy"),
+    "courier_defer":       ("clause", "hiwf", r"successfully Performed Personal Envoy can be Performed next turn|select a Personal Action you performed this turn"),
+    "courier_auth_minus":  ("clause", "hiwf", r"(?:Once per (?:turn|Envoy Phase)(?: before voting)?|In the Intrigue Phase): Authority (?:−|-)1 on (?:Target|one) Envoy"),
+    "senate_intervene":    ("clause", "hiwf", r"Once per Envoy Phase: before players vote on an Envoy you choose, you may Condemn it if it's an At War player's Envoy, or Endorse it if it's an Ally's Envoy|In the Intrigue Phase, you may Condemn an At War player's Envoy or Endorse an Ally's Envoy"),
+    # ---- Intrigue / Tally Phase effects (RULES: Envoy Phase steps 3 and 5); kind s = Domain Standing text ----
+    "colossus_self":       ("clause", "hiwf", r"In the Intrigue Phase, you may support your own (Personal )?(\w+) Envoys"),
+    "intrigue_silence":    ("clause", "s", r"In the Intrigue Phase, target an Envoy and a player with a lower (\w+) value"),
+    "tally_support":       ("clause", "s", r"In the Tally Phase, you may Support one of your own (\w+) Envoys"),
+    "tally_endorse":       ("clause", "hiwf", r"In the Tally Phase, you may Endorse one Envoy you sent"),
+    "tally_votes":         ("clause", "hiwf", r"You cast all of your votes in the Tally Phase"),
     "no_alliance":         ("clause", "hiwf", r"(?:can.t|cannot) (?:be in|join) an Alliance"),
     # ---- armies / sieges ----
     "immune_strain_home":  ("clause", "hiwf", r"Armies and Garrisons within controlled Settlements gain\s+Immune Strained"),
@@ -72,6 +78,7 @@ REG = {
     "siege_att_minus":     ("clause", "hiwf", "Siege Timer\\s*[\\-−]\\s?(\\d+)"),
     "siege_ignore_walls":  ("clause", "hiwf", r"Siege Timers ignore ([\w &]+?) Walls"),
     "siege_winter":        ("clause", "hiwf", r"Sieges Increment in Winter|Siege Timers count down in Winter"),
+    "siege_double":        ("clause", "hiwf", r"Siege Timers (?:increment|count down) twice each turn"),
     "spoils_always":       ("clause", "hiwf", r"collect the Spoils of War whether you win or lose"),
     "faith_battle_loss":   ("clause", "hiwf", r"Faith \+(\d+) in every Battle where you lose (\d+) or more Retinues"),
     "army_free_province":  ("clause", "hiwf", r"Armies do not pay Upkeep while in (?:your )?Province"),
@@ -150,14 +157,15 @@ REG = {
     "build_edict":         ("text", "F", r"When a player builds an? ([\w ]+?), you must (\w+) it as an Edict"),
     "ally_cant":           ("text", "F", r"You \(and your Alliance\) can.t perform ([\w ]+?) actions"),
     "cant_on_you":         ("text", "F", r"Other players can.t perform ([\w ]+?) on you"),
-    "no_renown_into":      ("text", "F", r"(?:can.t|cannot) put Renown into (\w+)"),
+    "no_renown_into":      ("text", "F", r"(?:can.t|cannot) put (?:Renown|Domain Points) into (\w+)"),
     "domain_max":          ("text", "F", r"(?:nor|can.t|cannot) have more than (\d+) in (\w+)"),
     "duke_war":            ("text", "F", r"When a player Declares War on the Duke"),
 }
 
 # ---- once-per / "may" tracker rows (the board's Once-per card) ----
-ONCE_RE = re.compile(r"\b(?:Once\s*/\s*turn|Once per turn|Once per game|Once per \w+ Phase|\d+x\s*(?:/\s*turn|per \w+ Phase)|Each turn|Every turn|Every Skirmish|At the Start of the Empire Phase)\b|\bmay\b(?!\s+not)", F)
-XCH_RE = re.compile(r"(\d+)x\s*(?:/\s*turn|per \w+ Phase):?\s*exchange (\d+) gold for (?:(\d+) Influence|Influence \+(\d+))", F)
+ONCE_RE = re.compile(r"\b(?:Once\s*/\s*turn|Once per turn|Once per game|Once per \w+ Phase|\d+x\s*(?:/\s*turn|per \w+ Phase|in the \w+ Phase)|Each turn|Every turn|Every Skirmish|At the Start of the Empire Phase)\b|\bmay\b(?!\s+not)", F)
+ONCE_AUTO = re.compile(REG["siege_double"][2] + "|" + REG["first_doubt"][2] + "|" + REG["forge_retry"][2], F)   # clauses the board applies or prompts itself: no Once-per tracker row
+XCH_RE = re.compile(r"(\d+)x\s*(?:/\s*turn|per \w+ Phase|in the \w+ Phase):?\s*exchange (\d+) gold for (?:(\d+) Influence|Influence \+(\d+))", F)
 CANT_RE = re.compile(r"(?:can.t|cannot)\s+(.+?)(?=,?\s+and\s+(?:you\s+)?(?:can.t|cannot)\b|$)", F)
 CANT_SKIP = re.compile(r"^(?:be the target|be in an Alliance|pursue|build|equip|use shields|gain Immune|exceed|refuse|choose|vote|be modified|be Razed)|\bon you$", F)
 SP_RE = re.compile("Speed\\s*([+\\-−])\\s?(\\d+)", F)
@@ -170,7 +178,7 @@ def once_phase(c):
     return m.group(1).lower() if m.group(1) else m.group(3).lower() if m.group(3) else "empire"
 
 
-PHASES = ("empire", "council", "envoy", "battle", "rest")
+PHASES = ("empire", "council", "envoy", "intrigue", "tally", "battle", "rest")
 
 
 def window_of(c):
@@ -189,6 +197,10 @@ def window_of(c):
         else:
             m = re.search(r"\b(Once|\d+x) per (\w+) Phase\b", c, F)
             if m and m.group(2).lower() in PHASES: w.update(win=m.group(2).lower(), lim="once" if m.group(1).lower() == "once" else m.group(1).lower())
+            # Intrigue / Tally: Envoy Phase steps that happen once, so an effect placed in one is once unless it says Nx
+            elif re.search(r"\b(?:in|during|at the (?:start|end) of) the (?:Intrigue|Tally) Phase\b", c, F):
+                n = re.search(r"\b(\d+)x in the (?:Intrigue|Tally) Phase\b", c, F)
+                w.update(win=re.search(r"\b(Intrigue|Tally) Phase\b", c, F).group(1).lower(), lim=n.group(1) + "x" if n else "once")
             elif re.search(r"\bEach turn\b|\bEvery turn\b|\bper turn\b", c, F): w.update(win="turn", lim="each")
             elif re.search(r"\bEvery Skirmish\b", c, F): w.update(win="skirmish", lim="each")
             else:
@@ -201,7 +213,7 @@ def window_of(c):
         if re.search(r"\bPersonal (?:\w+ )?(?:Actions?|Envoys?)\b|\bnon-Council Envoys?\b", c, F): w["scope"] = "personal"
         elif re.search(r"\bCouncil (?:Envoys?|Phase)\b|\bsent during the Council Phase\b", c, F): w["scope"] = "council"
         # no predicate, but limited to one Phase: Envoy Phase = Personal Envoys, Council Phase = Council Envoys
-        elif w["win"] == "envoy": w.update(scope="personal", implied=True)
+        elif w["win"] in ("envoy", "intrigue", "tally"): w.update(scope="personal", implied=True)
         elif w["win"] == "council": w.update(scope="council", implied=True)
     return w
 
@@ -290,7 +302,7 @@ def build_efx(ns, records, infra, wonders, strip_md):
         if kind in "hiwf":
             once, cant = [], []
             for c in _clauses(text):
-                if c and ONCE_RE.search(c):
+                if c and ONCE_RE.search(c) and not ONCE_AUTO.search(c):
                     i = ONCE_RE.search(c).start(); cm = c.rfind(", ", 0, i + 2)
                     cc = c[cm + 2:] if cm > 0 else c
                     x = XCH_RE.search(cc)
@@ -301,6 +313,11 @@ def build_efx(ns, records, infra, wonders, strip_md):
                     if not CANT_SKIP.search(m.group(1)): cant.append(m.group(1))
             if once: e["_once"] = once
             if cant: e["_cant"] = cant
+        if kind == "s":   # Standing: once-per rows only where the clause names its window ("Once per Envoy Phase"), name prefix dropped
+            body = text.split(":", 1)[1] if ":" in text else text
+            once = [{"c": c, "ph": once_phase(c), "game": bool(re.search(r"Once per game", c, F)), "x": None, "w": window_of(c)}
+                    for c in _clauses(body) if c and re.search(r"\bOnce per\b", c, F) and once_phase(c)]
+            if once: e["_once"] = once
         if kind in ("h", "i"):
             sp = _speed_rows(text)
             if sp: e["_sp"] = sp

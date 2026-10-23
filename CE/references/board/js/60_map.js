@@ -407,33 +407,33 @@ function inspSett(k){const {p,s}=cellSett(k),cell=mapState().cells[k];if(!p)retu
   if(!e.dest){const can=D.players.filter(q=>!sameP(q,p)&&inspCan(q.id));if(can.length)h+='<div class="ir"><span class="k">Destabilize (next Winter)</span><select data-insp-dest="'+p.id+':'+s.id+'" data-nav="1"><option value="">—</option>'+can.map(q=>'<option value="'+q.id+'">'+esc(q.name)+'</option>').join("")+'</select></div>';}
   else if(e.dest.by!=null&&inspCan(e.dest.by))h+='<div class="ir"><button data-insp-undest="'+p.id+':'+s.id+'" data-nav="1">cancel Destabilize</button></div>';
   return h;}
-// ---- map-first actions: a Settlement card offers Build / Improve / Repair / Charter; an Army card Move / Muster / Lay Siege / Pillage.
+// ---- map-first actions: a Settlement card offers Build / Improve / Expand / Repair / Settle; an Army card Move / Muster / Lay Siege / Pillage.
 // When the player has a Passed or Endorsed Envoy waiting whose actions include it, the action is Performed with that Envoy
 // (cost, outcome and riders as on the Table); otherwise it is placed by hand (no cost).
 function envoyFor(p,action){if(!p)return null;const R=tSim();
-  return R.envoys.find(E=>sameP(E.owner,p)&&(E.out==="Passed"||E.out==="Endorsed")&&canAct(p)&&pfActs(E).includes(action)&&
+  return R.envoys.find(E=>sameP(E.owner,p)&&(E.out==="Passed"||E.out==="Endorsed")&&resolveOpen(R,E)&&canAct(p)&&pfActs(E).includes(action)&&
     (()=>{const rec=((tCur(p).perform)||{})[E.id];return !rec||rec.edit;})())||null;}
 function settActionsHTML(p,s){if(!inspCan(p.id)||settUnbuilt(s))return "";
   const sid=s.id,opt=(L)=>L.map(x=>'<option value="'+esc(x.v)+'">'+esc(x.label)+'</option>').join("");
   const build=withBoard(p.board,()=>buildOpts(p).filter(x=>x.v!=="hand"&&!x.dis&&canPlace(x.v.slice(2),sid).ok));
-  const imp=improveOpts(p).filter(x=>x.v!=="hand"&&(x.v[0]!=="x"||x.v.slice(2)===String(sid)));
+  const imp=improveOpts(p).filter(x=>x.v!=="hand"),exp=expandOpts(p).filter(x=>x.v!=="hand"&&x.v.slice(2)===String(sid));
   const rep=repairOpts(p).filter(x=>x.v[0]==="i"?!!s.capital:(p.board.placed||[]).some(q=>String(q.id)===x.v.slice(2)&&String(q.sid)===String(sid)));
   const row=(act,L)=>{const E=envoyFor(p,act);return '<div class="ia-r"><span class="ia-l">'+act+'</span>'+(L.length?'<select data-ia="'+act+'" data-nav="1">'+opt(L)+'</select>'+
       '<button data-do="mapact" data-act="'+act+'" data-who="'+p.id+'" data-sid="'+sid+'" data-env="'+(E?esc(E.id):"")+'" data-nav="1">'+(E?'Perform ▸':'by hand ▸')+'</button>'+(E?'<span class="note">'+esc(E.dom)+' Envoy</span>':''):'<span class="note">nothing eligible</span>')+'</div>';};
-  const ch=envoyFor(p,"Charter");
-  return '<div class="sec">Actions</div><div class="ia">'+row("Build",build)+row("Improve",imp)+row("Repair",rep)+
-    '<div class="ia-r"><span class="ia-l">Charter</span><button data-do="mapact" data-act="Charter" data-who="'+p.id+'" data-sid="'+sid+'" data-env="'+(ch?esc(ch.id):"")+'" data-nav="1">'+(ch?'Perform ▸':'by hand ▸')+'</button>'+
+  const ch=envoyFor(p,"Settle");
+  return '<div class="sec">Actions</div><div class="ia">'+row("Build",build)+row("Improve",imp)+row("Expand",exp)+row("Repair",rep)+
+    '<div class="ia-r"><span class="ia-l">Settle</span><button data-do="mapact" data-act="Settle" data-who="'+p.id+'" data-sid="'+sid+'" data-env="'+(ch?esc(ch.id):"")+'" data-nav="1">'+(ch?'Perform ▸':'by hand ▸')+'</button>'+
       '<span class="note">then place the Village on the map</span></div></div>';}
 function armyMusterBtn(p,a){if(!inspCan(p.id))return "";const E=envoyFor(p,"Muster"),room=Math.max(0,(EQ.army_max||25)-(a.count||0));if(!room||(a.muster&&a.muster.n>0))return "";
   return '<button data-do="mapact" data-act="Muster" data-who="'+p.id+'" data-aid="'+a.id+'" data-env="'+(E?esc(E.id):"")+'" data-nav="1">Muster'+(E?' (Envoy) ▸':' ▸')+'</button>';}
 DO.mapact=el=>{const p=pById(el.dataset.who),act=el.dataset.act;if(!p)return;
   const sel=el.parentElement.querySelector("[data-ia]"),sub=act==="Muster"?"r:"+el.dataset.aid:sel?sel.value:"";
   if(el.dataset.env){const c=tCurW(p);c.perform=c.perform||{};c.perform[el.dataset.env]={action:act,target:"",sub,place:act==="Build"?String(el.dataset.sid):"",ts:tnow()};
-    if(act==="Charter")mtool="Village";save();D.view="table";render();flash(p.name+": "+act+" performed with the "+el.dataset.env.split(":")[2]+" Envoy");return;}
+    if(act==="Settle")mtool="Village";save();D.view="table";render();flash(p.name+": "+act+" performed with the "+el.dataset.env.split(":")[2]+" Envoy");return;}
   const log=[],ctx={o:p,q:null,sub,log:x=>log.push(x),flag:x=>log.push("⚑ "+x),pend:()=>{},E:null,out:"Passed"};
   if(act==="Build"){const n=sub.slice(2),r=withBoard(p.board,()=>placeHolding(n,+el.dataset.sid,+el.dataset.sid));log.push(p.name+" builds "+n+(r.np.bt>0?" · Build Timer "+r.np.bt:""));}
-  else if(act==="Improve")runImprove(ctx);else if(act==="Repair")runRepair(ctx);else if(act==="Muster")runMuster(ctx);
-  else if(act==="Charter"){runCharter(ctx);mtool="Village";PLACE_OPEN=true;}
+  else if(act==="Improve")runImprove(ctx);else if(act==="Expand")runExpand(ctx);else if(act==="Repair")runRepair(ctx);else if(act==="Muster")runMuster(ctx);
+  else if(act==="Settle"){runSettle(ctx);mtool="Village";PLACE_OPEN=true;}
   save();render();flash(log.join(" · ")||act);};
 function inspCamp(k){const cp=mapState().camps[k],thr=BAN.armyThreshold||25,army=cp.n>=thr,cv=banditDomain(cp.n),sb=domBand(cv),inf=STAND_INF[sb]||1,mod=+cp.cmod||0,own=terrOwners()[k];
   let h=inspHead(sprSVG(army?"map:bandit_army":"map:camp",36,false),army?"Bandit Army":"Bandit Camp","@ "+k+" · Retinues "+cp.n+(army?"":" / "+thr+" to become an Army"),null);

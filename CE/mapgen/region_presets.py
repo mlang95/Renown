@@ -447,6 +447,39 @@ PRESETS = {
                "default state; quarry and salt are abundant, food is not."),
     ),
 
+    # ── two shores of the Sea of Damnation, a sheltered harbour and a lone isle ──
+    "Wharf of St. Brannoch": preset(
+        name="Wharf of St. Brannoch",
+        climate="deepwood",
+        substrate="plains",
+        palette={"plains", "forest", "tundra", "mountain", "water", "wetland"},
+        shares={"forest": 0.12, "mountain": 0.06, "wetland": 0.02},
+        morphology={"forest": "blob", "mountain": "scatter", "wetland": "blob"},
+        scatter={"mountain": (20, 1, 2, 4)},
+        buffers=[],
+        border={"n": 0, "s": 0, "w": 0, "e": {"width": (0, 1), "span": (.2, .4)}},
+        border_mirror="none",            # the two shores are different places on purpose
+        sea_crossing="shipyard",
+        structure=dict(gulf=dict(
+            edge="w", reach=(0.84, 0.90), width=(7, 8), centre=(0.44, 0.50),
+            shores={"n": ("tundra", (1, 4), 0.55), "s": ("forest", (2, 5), 0.6)},
+            head=("tundra", 0.8),
+            harbour=dict(at=(0.40, 0.62), radius=(2, 2), depth=(2, 3), quay="plains", arms="forest", p=0.5),
+            isle=dict(at=(0.12, 0.30), size=(7, 10), cliff="mountain", quarry=True, p=0.5),
+            islets=(2, 3), islet_size=(1, 3))),
+        require_hill=True,
+        resource_min={"quarry": 2, "forestry": 2},
+        notes=("The Sarkopekt war-market: a U of sea between two shores, closed by one "
+               "narrow land bridge. The Sea of Damnation runs in from the west almost to "
+               "the east edge; the shores meet only across the barrens at its head "
+               "(Dead Waters), so every march between them funnels through the bridge "
+               "or waits on a Shipyard. North: the Bluffs of Vorghast, barren and "
+               "peaked. South: a forested coast. Some boards add the Wharf of St. "
+               "Brannoch, a basin with a quay ring and one narrow mouth between wooded "
+               "arms, or the Ivory Isle out in the sea: Karalius's citadel island with "
+               "a buildable middle and a quarried cliff."),
+    ),
+
     # ── twelve islands ─────────────────────────────────────────────────────
     "The Twelfth Reach": preset(
         name="The Twelfth Reach",

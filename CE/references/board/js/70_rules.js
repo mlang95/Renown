@@ -110,7 +110,11 @@ function garrisonCard(u){const b=S,p=playerOfBoard(b);if(!p||!hasGarrisons(b))re
 // ---- once-per-turn / "may" effects on a player's active pieces: a used-this-turn toggle each (no automation) ----
 // rows from the registry (_once): c = the limited part of the clause ("Reach +1, 3x/turn: …" → the per-turn part),
 // ph = the phase it belongs to ("turn" = any phase, resets when the turn ends), x = an exchange's numbers, w = its timing window
-function onceEffects(p){return srcRows(p.board,"_once").map(({n,r})=>({n,c:r.c,key:(n+"|"+r.c).slice(0,90),game:r.game,x:r.x,ph:r.ph,w:r.w}));}
+// Active Domain Standings add their "Once per <Phase>" rows (s:<Domain>:<Standing>), except those the Table already
+// tracks itself (domainBoardFx "instead": Master Conspirator)
+function standingOnceRows(b){const out=[];dbActive(b).forEach(x=>{if((((DATA.domainBoardFx||{})[x.dom]||{})[x.tier]||[]).some(f=>f.k==="instead"))return;
+  efxOf("s:"+x.dom+":"+x.tier,"_once").forEach(r=>out.push({n:x.free?"Studium Generale · "+x.name:x.name,r}));});return out;}
+function onceEffects(p){return srcRows(p.board,"_once").concat(standingOnceRows(p.board)).map(({n,r})=>({n,c:r.c,key:(n+"|"+r.c).slice(0,90),game:r.game,x:r.x,ph:r.ph,w:r.w}));}
 function onceState(p,game){const t=PT(p);if(game){t.onceG=t.onceG||{};return t.onceG;}
   if(!t.once||t.once.turn!==tTurn())t.once={turn:tTurn(),u:{}};return t.once.u;}
 // Once-per / "may" card for the action dock: rows whose window is this phase, or any phase ("turn"); rows without a window
@@ -247,8 +251,8 @@ function firstDoubtRed(b){return withBoard(b,()=>{let r=0;const src=[],slots=[];
   return {r,src,slots};});}
 function fdState(b,turn){if(!b.fd||b.fd.turn!==turn)b.fd={turn,slots:firstDoubtRed(b).slots};
   if(!Array.isArray(b.fd.slots))b.fd.slots=(+b.fd.left>0)?[+b.fd.left]:[];return b.fd;}
-// apply Doubt n to board b now; the turn's first Doubt instance(s) are reduced (slots reset each Empire Phase)
-function gainDoubt(b,n,turn){n=Math.max(0,+n||0);if(!n)return 0;turn=turn??(b.turn||0);
+// apply Doubt n to board b now; the turn's first Doubt instance(s) are reduced, whatever the phase (slots reset each turn)
+function gainDoubt(b,n,turn){n=Math.max(0,+n||0);if(!n)return 0;turn=turn??tTurn();
   const st=fdState(b,turn);if(st.slots.length){const cut=Math.min(n,st.slots.shift());n-=cut;}
   b.po=applyPOFloor(b,Math.max(PO_MIN,Math.min(PO_MAX,(b.po||0)-n)));return n;}
 
@@ -332,16 +336,17 @@ function musterTick(p){const out=[];(p.board.armies||[]).forEach(a=>{const m=a.m
   return out;}
 function hasMusterField(b){return withBoard(b,()=>Object.keys(S.infra||{}).some(n=>infraOn(n)&&!!hitOf("i:"+n,"muster_field")));}
 
-// ---- Charter placement (flags): min range, Outlaw buffer, terrain, Hamlet range from the capital ----
+// ---- Settle placement (flags): min range, Outlaw buffer, terrain, Hamlet range from the capital ----
 function charterFlags(p){const M=mapState(),g=M.grid,f=[];if(!g)return f;const V=decodeGrid(g);
   const mine=mapSetts().filter(x=>String(x.cell.player)===String(p.id)),all=mapSetts(),cap=(p.board.settlements||[]).find(s=>s.capital);
   const capK=cap?settHex(p,cap):null;
   mine.forEach(x=>{const h=V.hex[x.k],nm=x.cell.type+" @ "+x.k;
-    if(h&&(h.t==="mountain"||h.t==="water"))f.push("Charter: "+nm+" is on "+(RULE_NAME[h.t]||h.t));
-    if(x.cell.type==="Hamlet"){if(capK&&RC.HAMLET_RANGE!=null&&hexDist(hk(x.k),hk(capK))!==+RC.HAMLET_RANGE)f.push("Charter: Hamlet @ "+x.k+" is range "+hexDist(hk(x.k),hk(capK))+" from the capital (must be "+RC.HAMLET_RANGE+")");}
+    if(h&&(h.t==="mountain"||h.t==="water"))f.push("Settle: "+nm+" is on "+(RULE_NAME[h.t]||h.t));
+    else if(h&&x.cell.type==="Village"&&h.t!=="plains")f.push("Settle: "+nm+" is on "+(RULE_NAME[h.t]||h.t)+" (Villages are settled on grassland only)");
+    if(x.cell.type==="Hamlet"){if(capK&&RC.HAMLET_RANGE!=null&&hexDist(hk(x.k),hk(capK))!==+RC.HAMLET_RANGE)f.push("Settle: Hamlet @ "+x.k+" is range "+hexDist(hk(x.k),hk(capK))+" from the capital (must be "+RC.HAMLET_RANGE+")");}
     else if(RC.CHARTER_MIN_RANGE!=null)all.forEach(y=>{if(y.k===x.k||y.cell.type==="Hamlet")return;const d=hexDist(hk(x.k),hk(y.k));
-      if(d<+RC.CHARTER_MIN_RANGE)f.push("Charter: "+[x.cell.type+" @ "+x.k,y.cell.type+" @ "+y.k].sort().join(" and ")+" are range "+d+" apart (min "+RC.CHARTER_MIN_RANGE+")");});
-    if(RC.OUTLAW_BUFFER_RANGE!=null)Object.keys(M.outlaw).forEach(o=>{const d=hexDist(hk(x.k),hk(o));if(d<+RC.OUTLAW_BUFFER_RANGE)f.push("Charter: "+nm+" is range "+d+" from Outlaw Country @ "+o+" (min "+RC.OUTLAW_BUFFER_RANGE+")");});});
+      if(d<+RC.CHARTER_MIN_RANGE)f.push("Settle: "+[x.cell.type+" @ "+x.k,y.cell.type+" @ "+y.k].sort().join(" and ")+" are range "+d+" apart (min "+RC.CHARTER_MIN_RANGE+")");});
+    if(RC.OUTLAW_BUFFER_RANGE!=null)Object.keys(M.outlaw).forEach(o=>{const d=hexDist(hk(x.k),hk(o));if(d<+RC.OUTLAW_BUFFER_RANGE)f.push("Settle: "+nm+" is range "+d+" from Outlaw Country @ "+o+" (min "+RC.OUTLAW_BUFFER_RANGE+")");});});
   // Setup › Deploy (checked on Turn 1): capital near the board edge; Outlaw Country seeded off the capital, clear of the Hamlet
   if(tTurn()===1&&capK){const ca=hk(capK),W=+g.width||0,H=+g.height||0,ob=+RC.OUTLAW_BUFFER_RANGE;
     if(RC.CAPITAL_EDGE_RANGE!=null&&W&&H){let ed=1e9;

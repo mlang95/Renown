@@ -4,7 +4,7 @@ Renown — Reference sheet generators.
 Contains:
 1. Infrastructure single-page reference (one US Letter page, all 13 buildings)
 2. Wonder cards (4 cards, 1 page)
-3. Action reference cards (5 domain cards: Prowess, Cunning, Piety, Industry, Nobility)
+3. Action reference cards (one card per Domain, two when its text won't fit; read from renown_data.ACTIONS)
 
 Install:    pip install reportlab
 Use from a notebook:
@@ -42,7 +42,7 @@ DOMAIN_COLORS = {
     "cunning":  HexColor("#5B3A8C"),
     "piety":    HexColor("#C9A227"),
     "industry": HexColor("#3A7A4A"),
-    "nobility": HexColor("#2A4D7F"),
+    "diplomacy": HexColor("#2A4D7F"),
 }
 TIER_COLORS = {
     "Primitive":     HexColor("#7A6A4A"),
@@ -105,49 +105,48 @@ def _load_from_renown_data():
 INFRASTRUCTURE = _load_from_renown_data()   # Wonders are its Wondrous tier
 
 # ============================================================
-# DATA — Actions per Domain
+# DATA — Actions per Domain (from renown_data: ACTIONS, ENVOY_OUTCOMES)
 # ============================================================
-# Each entry: (action_name, description). Cost noted inline if applicable.
-ACTIONS = {
-    "Prowess": [
-        ("Move", "Choose an Army you Control; move it up to its Move Range. Then choose: **March** (move again, -1 Endurance, no Skirmish/Lay Siege/Muster this turn), **Skirmish** (Battle adjacent non-allied Army outside a Settlement), **Lay Siege** (begin Siege on adjacent Settlement at War), or **Muster** (Range 3 of a Settlement you Control, with active Muster Field)."),
-        ("Declare War", "**Requires Rising Prowess.** Choose a non-Allied Player without a NAP or Truce Timer. Both Players are now **At War**. Trade Agreements between you immediately end. Defensive Allies of target are also at war; Military Allies must Declare War next turn."),
-        ("Demand Tribute", "Choose a non-Allied Player without a NAP. Negotiate: if **Agree**, sign NAP or Alliance. If **Refuse** or **Fail to Fulfill Terms**, immediately **Declare War**."),
-    ],
-    "Cunning": [
-        ("Intercept Caravan", "Cost **2000 gold**. Choose another Player. The next turn that Player is Host, **Extort** their Trade Income; if they have none, **Extort** " + f"{__import__('renown_data').INTERCEPT_EXTORT_PER_CRAFT} per Craft."),
-        ("Foster Rebellion", "Cost **2000 gold**. Choose another Player. At the next Bandit Mechanics Phase, place a **Bandit Camp** with 10 Retinues in that Player's Outlaw Country."),
-        ("Raze", "Cost **2000 gold**. Choose another Player's Settlement. Select one Active Specialization or Active Infrastructure — it becomes **Damaged**. Innate and Mastery effects inactive until Repaired."),
-        ("Destabilize", "Cost **2000 gold**. Choose another Player. **Extort** their Tax Income at the beginning of next turn."),
-    ],
-    "Piety": [
-        ("Spread Gospel", "Cost **Doubt 1**. All non-Allied Players gain **Doubt 1**. All Allied Players gain **Faith 1**."),
-        ("Send Missionaries", "Cost **Doubt 1**. Choose a target Player or Alliance. **Outside your Alliance:** all members gain **Doubt 2**. **Inside your Alliance:** all other Allied Players gain **Faith 2**."),
-        ("Tithe", "Cost **Doubt 1**. Choose another Player. **Extort 10%** of their Treasury (rounded down to nearest 100)."),
-        ("Convert", "Cost **Doubt 1**. Choose another Player's closest non-Capital Settlement whose owner has Public Order -5 or lower. Perform a **Lay Siege** using only Settlement-type modifiers; set a **Convert Timer**. On 0: Settlement joins your Empire. Fails if target's PO rises to 1+."),
-        ("Crusade", "Cost **Doubt 1**. **Requires Sovereign Piety.** Declare War on a target who is not Ally, NAP, or under Truce. Then **Perform a Move action**."),
-    ],
-    "Industry": [
-        ("Build", "Cost **2000 gold**. Choose an Unlocked Infrastructure; set a **Build Timer** equal to its Build Time. Requires at least one prior-tier Infrastructure to build the next tier. Only one active Build Timer at a time."),
-        ("Repair", "Cost **2000 gold**. Choose a Damaged Specialization or Infrastructure in a Settlement you Control. Set **Repair Timer 2**. On resolve, choose: **Restore** (reactivate) or **Demolish** (free the slot)."),
-        ("Specialize", "Cost **2000 gold**. Choose an Inactive Settlement Slot in a Settlement you Control. Pick a Specialization whose prerequisites you meet; set a **Build Timer** equal to its Build Time (standard 1; Power/Unique +1; Monument +2)."),
-        ("Charter", "Cost **2000 gold**. Either **(A)** Charter a new Village on an uncontrolled or in-Province territory at Range 4+ from other Settlements and Range 2+ from Outlaw Country, **(A)** Charter a new Hamlet on a in-Province territory at Range 2 from other Capital, **or (C)** Expand a Settlement you Control by one tier into an adjacent territory."),
-    ],
-    "Nobility": [
-        ("Sign Treaty", "Ask other Players to agree. Choose one agreeing Player and sign one: **Peace Treaty** (end war, Truce Timer 5), **Trade Agreement** (begin trading), **NAP** (no Declare War), or **Defensive/Military Alliance**. Endorsed: perform another Nobility action."),
-        ("Negotiate", "Propose terms to a target Player: gold transfers, Settlement/Territory transfers, treaty changes, or non-binding Promises. Target agrees or refuses. Used in Demand Tribute and siege Negotiate. Endorsed: perform another Nobility action."),
-        ("End Treaty", "Choose an active treaty you signed and remove it. Does not require target's agreement. Acting on behalf of an Alliance requires all Allies agree. Endorsed: perform another Nobility action."),
-    ],
-}
+# Each entry: (action_name, description). Description = cost and requirement (when there is one), the effect, and the
+# action's own Endorsed bonus when it differs from its Domain's. Domains in resolution order.
+ACTION_DOMAINS = ["Diplomacy", "Prowess", "Cunning", "Piety", "Industry"]
+_GLYPHS = {"→": "to", "−": "-", "≥": ">=", "≤": "<=", "×": "x"}   # outside Helvetica's WinAnsi set
 
-# Domain → resolve effects (Condemned / Endorsed)
-DOMAIN_RESOLVE = {
-    "Prowess":  ("Player with highest Cunning targets an Army you Control; it gains **Blocked + Doubt 1**", "Perform **Move** Action"),
-    "Cunning":  ("Doubt 1 + Pay Cost", "**Extort 2000**"),
-    "Piety":    ("Doubt 1 + Pay Cost", "Gain **Faith 1**"),
-    "Industry": ("Doubt 1 + Pay Cost", "**Recoup 2000**"),
-    "Nobility": ("Doubt 1 + Pay Cost", "Perform **Nobility** Action"),
-}
+
+def _plain(s):
+    s = str(s or "").strip()
+    for a, b in _GLYPHS.items():
+        s = s.replace(a, b)
+    return s
+
+
+def _load_actions():
+    import renown_data as rd
+    out = {d: [] for d in ACTION_DOMAINS}
+    outcomes = getattr(rd, "ENVOY_OUTCOMES", {})
+    for name, a in rd.ACTIONS.items():
+        d = a.get("domain")
+        if d not in out:
+            continue
+        parts = []
+        cost = _plain(a.get("cost"))
+        if cost and cost.lower() not in ("none", "0 gold", "0", "-", "—"):
+            parts.append(f"Cost **{cost}.**")
+        req = _plain(a.get("requires"))
+        if req:
+            parts.append(f"**Requires {req}.**")
+        parts.append(_plain(a.get("effect")))
+        end = _plain(a.get("endorsed")).rstrip(".")
+        dom_end = _plain((outcomes.get(d) or {}).get("endorsed")).rstrip(".")
+        if end and end.lower() != dom_end.lower():
+            parts.append(f"**Endorsed:** {end}.")
+        out[d].append((name, " ".join(x for x in parts if x)))
+    resolve = {d: (_plain((outcomes.get(d) or {}).get("condemned")), _plain((outcomes.get(d) or {}).get("endorsed")))
+               for d in ACTION_DOMAINS}
+    return out, resolve
+
+
+ACTIONS, DOMAIN_RESOLVE = _load_actions()
 
 # ============================================================
 # Text helpers
@@ -664,7 +663,7 @@ def make_buildings_pdf(pdf_path):
 # ============================================================
 # 3. Action reference cards (5 cards, one per Domain)
 # ============================================================
-def _draw_action_card(c, x, y, domain, actions, condemn, endorsed):
+def _draw_action_card(c, x, y, domain, actions, condemn, endorsed, part=""):
     inner_w = CARD_W - 2 * PAD
     cx = x + CARD_W / 2
     accent = DOMAIN_COLORS[domain.lower()]
@@ -680,7 +679,7 @@ def _draw_action_card(c, x, y, domain, actions, condemn, endorsed):
     cur_y -= 14
     c.setFont("Helvetica-Bold", 14)
     c.setFillColor(accent)
-    c.drawCentredString(cx, cur_y, domain.upper())
+    c.drawCentredString(cx, cur_y, domain.upper() + ("  " + part if part else ""))
     c.setFillColor(black)
     cur_y -= 4
 
@@ -793,18 +792,81 @@ def _draw_action_card(c, x, y, domain, actions, condemn, endorsed):
                             "Helvetica", "Helvetica-Bold", footer_size)
 
 
+MIN_ACTION_SIZE = 6.5   # a Domain whose actions need smaller type than this is split across cards
+
+
+def _card_room(condemn, endorsed):
+    """Height left for the actions on one card (same layout as _draw_action_card)."""
+    inner_w = CARD_W - 2 * PAD
+    footer_h = (len(_wrap_rich(condemn, "Helvetica", "Helvetica-Bold", 6.5, inner_w - 50)) +
+                len(_wrap_rich(endorsed, "Helvetica", "Helvetica-Bold", 6.5, inner_w - 50))) * (6.5 + 1.5) + 14
+    return (CARD_H - PAD - 36) - (PAD + footer_h)
+
+
+def _card_need(actions, size=MIN_ACTION_SIZE):
+    inner_w = CARD_W - 2 * PAD
+    return sum(size + 2 + len(_wrap_rich(desc, "Helvetica", "Helvetica-Bold", size, inner_w)) * (size + 1.4) + 4
+               for _, desc in actions) - 4
+
+
+def _partitions(items):
+    """Every way to group items (each group keeps the items' order); small n only (5 actions -> 52 groupings)."""
+    if not items:
+        yield []
+        return
+    first, rest = items[0], items[1:]
+    for p in _partitions(rest):
+        yield [[first]] + p
+        for i in range(len(p)):
+            yield p[:i] + [[first] + p[i]] + p[i + 1:]
+
+
+def _split_domain(actions, room):
+    """Fewest cards that each fit at MIN_ACTION_SIZE; among those, the most even split. Cards follow the first
+    action they hold, and each card lists its actions in data order."""
+    best = None
+    for groups in _partitions(list(actions)):
+        groups = sorted(groups, key=lambda g: actions.index(g[0]))
+        needs = [_card_need(g) for g in groups]
+        if any(nd > room and len(g) > 1 for g, nd in zip(groups, needs)):
+            continue                                 # a card may overrun only when one action alone is too long
+        key = (len(groups), max(needs))
+        if best is None or key < best[0]:
+            best = (key, groups)
+    return best[1] if best else [[a] for a in actions]
+
+
+def _action_cards():
+    """[(domain, part label, actions)]: each Domain on as few cards as keep its type at MIN_ACTION_SIZE or larger."""
+    cards = []
+    for domain in ACTION_DOMAINS:
+        condemn, endorsed = DOMAIN_RESOLVE[domain]
+        groups = _split_domain(ACTIONS[domain], _card_room(condemn, endorsed))
+        for i, g in enumerate(groups):
+            cards.append((domain, f"{i + 1}/{len(groups)}" if len(groups) > 1 else "", g))
+    return cards
+
+
 def make_actions_pdf(pdf_path):
     c = canvas.Canvas(pdf_path, pagesize=letter)
-    domains = ["Prowess", "Cunning", "Piety", "Industry", "Nobility"]
-
-    for i, domain in enumerate(domains):
-        col = i % COLS
-        r = i // COLS
-        x = MARGIN_X + col * CARD_W
-        y = PAGE_H - MARGIN_Y - (r + 1) * CARD_H
+    cards = _action_cards()
+    per_page = COLS * ROWS
+    for i, (domain, part, acts) in enumerate(cards):
+        if i and i % per_page == 0:
+            draw_crop_marks(c)
+            c.showPage()
+        k = i % per_page
+        x = MARGIN_X + (k % COLS) * CARD_W
+        y = PAGE_H - MARGIN_Y - (k // COLS + 1) * CARD_H
         condemn, endorsed = DOMAIN_RESOLVE[domain]
-        _draw_action_card(c, x, y, domain, ACTIONS[domain], condemn, endorsed)
+        _draw_action_card(c, x, y, domain, acts, condemn, endorsed, part)
 
     draw_crop_marks(c)
     c.save()
-    print(f"Wrote {pdf_path}  ({len(domains)} cards, 1 page)")
+    pages = (len(cards) + per_page - 1) // per_page
+    print(f"Wrote {pdf_path}  ({len(cards)} cards, {pages} page{'s' if pages > 1 else ''})")
+
+
+if __name__ == "__main__":
+    import sys
+    make_actions_pdf(sys.argv[1] if len(sys.argv) > 1 else "action_cards.pdf")

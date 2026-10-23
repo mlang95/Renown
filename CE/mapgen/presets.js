@@ -1394,6 +1394,144 @@
   "core": {},
   "ridge": {}
  },
+ "Wharf of St. Brannoch": {
+  "name": "Wharf of St. Brannoch",
+  "substrate": "plains",
+  "palette": [
+   "forest",
+   "mountain",
+   "plains",
+   "tundra",
+   "water",
+   "wetland"
+  ],
+  "shares": {
+   "forest": 0.12,
+   "mountain": 0.06,
+   "wetland": 0.02
+  },
+  "morphology": {
+   "forest": "blob",
+   "mountain": "scatter",
+   "wetland": "blob"
+  },
+  "buffers": [],
+  "band": {},
+  "scatter": {
+   "mountain": [
+    20,
+    1,
+    2,
+    4
+   ]
+  },
+  "border": {
+   "n": 0,
+   "s": 0,
+   "w": 0,
+   "e": {
+    "width": [
+     0,
+     1
+    ],
+    "span": [
+     0.2,
+     0.4
+    ]
+   }
+  },
+  "carve": null,
+  "structure": {
+   "gulf": {
+    "edge": "w",
+    "reach": [
+     0.84,
+     0.9
+    ],
+    "width": [
+     7,
+     8
+    ],
+    "centre": [
+     0.44,
+     0.5
+    ],
+    "shores": {
+     "n": [
+      "tundra",
+      [
+       1,
+       4
+      ],
+      0.55
+     ],
+     "s": [
+      "forest",
+      [
+       2,
+       5
+      ],
+      0.6
+     ]
+    },
+    "head": [
+     "tundra",
+     0.8
+    ],
+    "harbour": {
+     "at": [
+      0.4,
+      0.62
+     ],
+     "radius": [
+      2,
+      2
+     ],
+     "depth": [
+      2,
+      3
+     ],
+     "quay": "plains",
+     "arms": "forest",
+     "p": 0.5
+    },
+    "isle": {
+     "at": [
+      0.12,
+      0.3
+     ],
+     "size": [
+      7,
+      10
+     ],
+     "cliff": "mountain",
+     "quarry": true,
+     "p": 0.5
+    },
+    "islets": [
+     2,
+     3
+    ],
+    "islet_size": [
+     1,
+     3
+    ]
+   }
+  },
+  "require_hill": true,
+  "resource_min": {
+   "quarry": 2,
+   "forestry": 2
+  },
+  "climate": "deepwood",
+  "notes": "The Sarkopekt war-market: a U of sea between two shores, closed by one narrow land bridge. The Sea of Damnation runs in from the west almost to the east edge; the shores meet only across the barrens at its head (Dead Waters), so every march between them funnels through the bridge or waits on a Shipyard. North: the Bluffs of Vorghast, barren and peaked. South: a forested coast. Some boards add the Wharf of St. Brannoch, a basin with a quay ring and one narrow mouth between wooded arms, or the Ivory Isle out in the sea: Karalius's citadel island with a buildable middle and a quarried cliff.",
+  "border_mirror": "none",
+  "sea_crossing": "shipyard",
+  "massif": {},
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
+ },
  "Wheat Fields": {
   "name": "Wheat Fields",
   "substrate": "plains",

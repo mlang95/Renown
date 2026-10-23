@@ -696,6 +696,173 @@ def _stamp_ring(m, terrain, radius, thickness, gaps, rng, ok=None):
     return laid
 
 
+def _stamp_gulf(m, rng, edge="w", reach=(0.62, 0.74), width=(7, 8), centre=(0.46, 0.54),
+                shores=None, head=None, harbour=None, isle=None, islets=(0, 0), islet_size=(1, 3), ok=None):
+    """An arm of the sea entering from `edge` (w or e) across the middle of the board and stopping
+    short of the far side, so the two shores meet by land at its head. Optional, inside it:
+
+    shores   {"n"|"s": (terrain, (depth_lo, depth_hi), fill)} a coastal belt on that shore: every
+             plains hex within depth_lo of the gulf takes the terrain, and hexes out to depth_hi
+             take it with probability `fill` — the shore reads as one coast, not a scatter
+    head     (terrain, fill) the land bridge at the gulf's head and everything beyond it: plains and
+             forest there take the terrain with probability `fill`
+
+    harbour  a basin cut into the south shore and joined to the gulf by a one-hex mouth, ringed by
+             quay (plains) with forest arms flanking the mouth: dict(at=(lo, hi), radius=(2, 2),
+             depth=(2, 3), quay="plains", arms="forest", p=1.0) — `p` is the chance a board has one
+    isle     a lone island at least two water hexes off both shores, plains round a buildable
+             middle with one rim cliff that carries a quarry: dict(at=(lo, hi), size=(7, 10),
+             cliff="mountain", quarry=True, p=1.0)
+    islets   (lo, hi) count of small uninhabited islands of islet_size hexes
+
+    `at` values are fractions of the board width. Returns the gulf's water coords; the isle's
+    cells and cliff are kept on m (m.isle, m.isle_cliff) for the resource pass.
+    """
+    ok = ok or (lambda h: True)
+    W, H = m.width, m.height
+    span = int(round(W * rng.uniform(*reach)))
+    cols = range(span) if edge == "w" else range(W - 1, W - 1 - span, -1)
+    cy = H * rng.uniform(*centre)
+    half = rng.randint(*width) / 2.0
+    top_j = bot_j = 0.0
+    water = set()
+    for i, col in enumerate(cols):
+        # the gulf narrows over its last quarter, so its head is a bay rather than a wall
+        taper = max(0.0, (i - 0.75 * span) / max(1.0, 0.25 * span))
+        hw = max(0.6, half * (1.0 - 0.8 * taper))
+        top_j = max(-1.5, min(1.5, top_j + rng.uniform(-0.6, 0.6)))
+        bot_j = max(-1.5, min(1.5, bot_j + rng.uniform(-0.6, 0.6)))
+        lo, hi = int(round(cy - hw + top_j)), int(round(cy + hw + bot_j))
+        for row in range(max(0, lo), min(H - 1, hi) + 1):
+            h = m.get((col, row))
+            if h and ok(h):
+                h.terrain = "water"
+                water.add((col, row))
+    if not water:
+        return water
+    shore_rows = {}                                      # col -> (northmost, southmost) gulf row
+    for c, r in water:
+        a, b = shore_rows.get(c, (r, r))
+        shore_rows[c] = (min(a, r), max(b, r))
+
+    def steps_from(sources):
+        """hex steps from the nearest source, one breadth-first pass (within() scans the board)"""
+        seen = {c: 0 for c in sources}
+        q = list(sources)
+        for c in q:
+            for n in m.neighbors(c):
+                if n.coord not in seen:
+                    seen[n.coord] = seen[c] + 1
+                    q.append(n.coord)
+        return seen
+
+    def land_steps():
+        return steps_from([h.coord for h in m.all() if h.terrain != "water"])
+
+    to_water = steps_from(list(water))
+    if head:
+        h_terrain, h_fill = head[0], head[1]
+        beyond = (lambda c: c >= span - 2) if edge == "w" else (lambda c: c <= W - span + 1)
+        for h in m.all():
+            if h.terrain in ("plains", "forest") and ok(h) and beyond(h.col) and rng.random() < h_fill:
+                h.terrain = h_terrain
+    for side, spec in (shores or {}).items():
+        terrain, (d_lo, d_hi), fill = spec[0], tuple(spec[1]), spec[2]
+        for h in m.all():
+            if h.terrain != "plains" or not ok(h):
+                continue
+            rows = shore_rows.get(h.col)
+            if not rows or (side == "n" and h.row >= rows[0]) or (side == "s" and h.row <= rows[1]):
+                continue
+            d = to_water.get(h.coord, 99)
+            if d <= d_lo or (d <= d_hi and rng.random() < fill):
+                h.terrain = terrain
+
+    m.isle, m.isle_cliff = set(), None
+    if isle and rng.random() < isle.get("p", 1.0):
+        lo, hi = isle.get("at", (0.18, 0.32))
+        want = rng.randint(*isle.get("size", (7, 10)))
+        gap = land_steps()                            # measured before the isle exists
+        seeds = [c for c in water if W * lo <= c[0] <= W * hi and gap.get(c, 0) >= 3]
+        if seeds:
+            seed = max(seeds, key=lambda c: (gap[c], -abs(c[1] - cy), rng.random()))
+            cells = {seed}
+            while len(cells) < want:
+                front = {n.coord for c in cells for n in m.neighbors(c)
+                         if n.coord in water and n.coord not in cells and gap.get(n.coord, 0) >= 3}
+                if not front:
+                    break
+                cells.add(min(front, key=lambda c: distance(c, seed) + rng.random()))
+            for c in cells:
+                m.get(c).terrain = "plains"
+                water.discard(c)
+            rim = [c for c in cells if any(n.coord not in cells for n in m.neighbors(c))]
+            if rim and isle.get("cliff"):
+                cliff = max(rim, key=lambda c: (distance(c, seed), rng.random()))
+                m.get(cliff).terrain = isle["cliff"]
+                m.isle_cliff = cliff if isle.get("quarry", True) else None
+            m.isle = cells
+    if harbour and rng.random() < harbour.get("p", 1.0):
+        lo, hi = harbour.get("at", (0.45, 0.6))
+        r = rng.randint(*harbour.get("radius", (2, 2)))
+        depth = rng.randint(*harbour.get("depth", (2, 3)))
+        # only where the whole basin and its quay fit above the bottom edge with ground to spare
+        span_cols = [c for c in shore_rows if W * lo <= c <= W * hi]
+        cands = [c for c in span_cols if shore_rows[c][1] + depth + 2 * r + 3 <= H - 1]
+        while not cands and r > 1:                      # a short board: a smaller basin rather than none
+            r -= 1
+            cands = [c for c in span_cols if shore_rows[c][1] + depth + 2 * r + 3 <= H - 1]
+        if not cands and span_cols:                     # a low-lying gulf: the shallowest shore that still fits
+            c0 = min(span_cols, key=lambda c: shore_rows[c][1])
+            cands = [c0] if shore_rows[c0][1] + depth + 2 * r + 1 <= H - 1 else []
+        if cands:
+            mc = rng.choice(cands)
+            south = shore_rows[mc][1]
+            centre_h = (mc, south + depth + r)
+            basin = {h.coord for h in m.within(centre_h, r) if ok(h)}
+            mouth, cur = [], (mc, south + 1)            # one-hex channel from the basin up to the gulf
+            while cur[1] < centre_h[1] - r + 1 and m.in_bounds(cur):
+                mouth.append(cur)
+                cur = (cur[0], cur[1] + 1)
+            # the quay ring is land all the way round, gulf included, so the basin opens only by its
+            # mouth; the arms either side of the mouth jut out into the gulf
+            quay = {n.coord for c in basin for n in m.neighbors(c)} - basin - set(mouth)
+            arms = {n.coord for c in mouth for n in m.neighbors(c)} - basin - set(mouth)
+            for c in quay - arms:
+                h = m.get(c)
+                if h and ok(h):
+                    h.terrain = harbour.get("quay", "plains")
+                    water.discard(c)
+            for c in arms:
+                h = m.get(c)
+                if h and ok(h):
+                    h.terrain = harbour.get("arms", "forest")
+                    water.discard(c)
+            for c in basin | set(mouth):
+                h = m.get(c)
+                if h and ok(h):
+                    h.terrain = "water"
+                    water.add(c)
+            m.harbour = basin
+    for _ in range(rng.randint(*islets)):
+        gap = land_steps()                            # this islet's own hexes come after
+        open_sea = [c for c in water if gap.get(c, 0) >= 2 and all(distance(c, i) > 3 for i in m.isle)]
+        if not open_sea:
+            break
+        cells = {rng.choice(open_sea)}
+        want = rng.randint(*islet_size)
+        while len(cells) < want:
+            front = [n.coord for c in cells for n in m.neighbors(c)
+                     if n.coord in water and n.coord not in cells and gap.get(n.coord, 0) >= 2]
+            if not front:
+                break
+            cells.add(rng.choice(front))
+        for c in cells:
+            m.get(c).terrain = "plains"
+            water.discard(c)
+    return water
+
+
 def _carve_maze(m, count, rng, temp=1.7, junction_p=0.5, terrain="plains"):
     """Extra single-hex passages threaded through the matrix, independent of
     the settlement network.
@@ -1433,10 +1600,35 @@ def setup_fits(m, zone, town, R):
     return None
 
 
-def seat_anchors(w, h, n, zr=START_ZONE_RANGE):
-    """Mirror of gen.js seatAnchors: rim seats pick a 1-2 hex inset so every
-    rim zone has the same hex count; ties -> more legal Town pairs, shallower."""
-    MC, MR = w // 2, h // 2
+def _inset_opts(w, h, s):
+    """Anchor candidates for the seat at perimeter position s: 1-2 hexes in from each edge it is
+    near (a corner seat varies both), with a second column / row for the odd-q parity.
+    Each is (col, row, inset)."""
+    x, y = mapgen.ring_point(w, h, s)
+    xi, yi = int(round(x)), int(round(y))
+    if xi <= 2 or xi >= w - 3:
+        xs = [((i if xi < w / 2 else w - 1 - i), i) for i in (1, 2)]
+    else:
+        xs = [(xi, 0), (max(3, min(w - 4, xi + (1 if xi < w // 2 else -1))), 0)]
+    if yi <= 2 or yi >= h - 3:
+        ys = [((j if yi < h / 2 else h - 1 - j), j) for j in (1, 2)]
+    else:
+        ys = [(yi, 0), (max(3, min(h - 4, yi + (1 if yi < h // 2 else -1))), 0)]
+    out = []
+    for cx, dx in xs:
+        for cy, dy in ys:
+            if (cx, cy, dx + dy) not in out:
+                out.append((cx, cy, dx + dy))
+    return out
+
+
+def _seat_layout(w, h, n, zr=START_ZONE_RANGE, rot=0.0):
+    """(anchors, common zone size, perimeter positions). Seats sit evenly round the rim at
+    rotation `rot`; each picks the inset that gives the common zone hex count (odd-q columns make
+    a fixed inset hand some seats more hexes than others); ties -> more legal Town pairs, then the
+    shallower inset. Pure geometry: terrain never moves an anchor here."""
+    if n <= 1:
+        return [(w // 2, h // 2)], None, []
     blank = HexMap.blank(w, h, "plains")
     size = lambda a: len(blank.within(a, zr))
     R = rules()
@@ -1447,45 +1639,25 @@ def seat_anchors(w, h, n, zr=START_ZONE_RANGE):
         return sum(1 for i in range(len(ok)) for j in range(i + 1, len(ok))
                    if distance(ok[i], ok[j]) >= HILL_SEP)
 
-    def corner(cx, cy):
-        return [((w - 1 - i) if cx else i, (h - 1 - j) if cy else j, i + j)
-                for i in (1, 2) for j in (1, 2)]
-
-    def edge_ns(bottom):
-        return [(c, (h - 1 - j) if bottom else j, j + abs(c - MC))
-                for c in (MC - 1, MC) for j in (1, 2)]
-
-    def edge_ew(right):
-        return [((w - 1 - i) if right else i, r, i + abs(r - MR))
-                for r in (MR - 1, MR) for i in (1, 2)]
-
-    C = "centre"
-    if n == 2:
-        seats = [edge_ns(0), edge_ns(1)] if h >= w else [edge_ew(0), edge_ew(1)]
+    pos = mapgen.seat_positions(w, h, n, rot)
+    opts = [_inset_opts(w, h, s) for s in pos]
+    sets = [{size(o[:2]) for o in op} for op in opts]
+    both = sorted(set.intersection(*sets))
+    if both:
+        common = both[0]
     else:
-        TL, TR, BL, BR = corner(0, 0), corner(1, 0), corner(0, 1), corner(1, 1)
-        six = [TL, edge_ns(0), TR, BL, edge_ns(1), BR]
-        lay = {1: [C], 3: [TL, TR, edge_ns(1)], 4: [TL, TR, BL, BR],
-               5: [TL, TR, BL, BR, C], 6: six, 7: six + [C]}
-        seats = lay.get(n, six)[:n]
-    rim = [s for s in seats if s is not C]
-    common = None
-    if rim:
-        sets = [{size(o[:2]) for o in opts} for opts in rim]
-        both = sorted(set.intersection(*sets))
-        if both:
-            common = both[0]
-        else:
-            flat = sorted(size(o[:2]) for opts in rim for o in opts)
-            common = flat[len(flat) // 2]
+        flat = sorted(size(o[:2]) for op in opts for o in op)
+        common = flat[len(flat) // 2]
     out = []
-    for opts in seats:
-        if opts is C:
-            out.append((MC, MR))
-            continue
-        ranked = sorted(opts, key=lambda o: (abs(size(o[:2]) - common), -spots(o[:2]), o[2]))
+    for op in opts:
+        ranked = sorted(op, key=lambda o: (abs(size(o[:2]) - common), -spots(o[:2]), o[2]))
         out.append(tuple(ranked[0][:2]))
-    return out
+    return out, common, pos
+
+
+def seat_anchors(w, h, n, zr=START_ZONE_RANGE, rot=0.0):
+    """Mirror of gen.js seatAnchors: one rim anchor per seat, evenly round the edge."""
+    return _seat_layout(w, h, n, zr, rot)[0]
 
 
 def _place_start_zones(m, p, rng):
@@ -1550,18 +1722,23 @@ def _place_start_zones(m, p, rng):
                 part.append(c)
         return zone, part
 
-    for i, a0 in enumerate(seat_anchors(m.width, m.height, p["players"], zr)):
-        centre = a0 == (MC, MR)
-        dc = (MC > a0[0]) - (MC < a0[0])
-        dr = (MR > a0[1]) - (MR < a0[1])
-        edge_ns = abs(a0[0] - MC) <= 1 and not centre
-        edge_ew = abs(a0[1] - MR) <= 1 and not centre
+    # each seat starts at its place on the ring; if its zone can't hold K legal Town hills (sea,
+    # mountains), it slides ALONG the rim, nearest first, up to 2 x start_slide hexes each way
+    blank = HexMap.blank(m.width, m.height, "plains")
+    base, common, pos = _seat_layout(m.width, m.height, p["players"], zr, getattr(m, "seat_rot", 0.0))
+
+    def inset_at(s):
+        op = _inset_opts(m.width, m.height, s)
+        return tuple(min(op, key=lambda o: (abs(len(blank.within(o[:2], zr)) - common), o[2]))[:2])
+
+    for i, a0 in enumerate(base):
         got, slide, anchor = None, 0, a0
-        for t in range(0, 1 if centre else max_slide + 1):
-            a = (a0[0] + (0 if edge_ns else dc * t), a0[1] + (0 if edge_ew else dr * t))
+        offsets = [0] if not pos else [0] + [d for k in range(1, 2 * max_slide + 1) for d in (k, -k)]
+        for off in offsets:
+            a = a0 if off == 0 else inset_at(pos[i] + off)
             z, towns = choose(a)
             if got is None or len(towns) > len(got[1]):
-                got, slide, anchor = (z, towns), t, a
+                got, slide, anchor = (z, towns), off, a
             if len(towns) >= K:
                 break
         zone, towns = got
@@ -1775,6 +1952,18 @@ def _build(p, seed):
     m.borders = bw
     m.rim = {h.coord for h in m.all() if h.terrain == "water"}
 
+    # the seat ring turns to keep seats off edges that will be water: rolled water rims, and the
+    # mouth of a gulf (its rows, plus a margin for the jagged coast)
+    W_, H_ = p["width"], p["height"]
+    keep = [mapgen.edge_span(W_, H_, e, lo, hi) for e, (wd, lo, hi) in bw.items() if wd > 0]
+    g = (p.get("structure") or {}).get("gulf")
+    if g:
+        c0, c1 = g.get("centre", (0.46, 0.54))
+        half = max(g.get("width", (7, 8))) / 2.0
+        keep.append(mapgen.edge_span(W_, H_, g.get("edge", "w"),
+                                     max(0, int(H_ * c0 - half - 2)), min(H_ - 1, int(H_ * c1 + half + 2))))
+    p["_seat_keepout"] = keep
+
     # settlements first, on open ground — legality never fights the matrix
     anchors = mapgen._place_regions(m, p, rng)
     m.anchors = anchors
@@ -1882,6 +2071,13 @@ def _build(p, seed):
             _stamp_blobs(m, terrain, target, free, buffers, substrate, rng)
 
     st = p.get("structure") or {}
+    if st.get("gulf"):
+        g = st["gulf"]
+        _stamp_gulf(m, rng, edge=g.get("edge", "w"), reach=tuple(g.get("reach", (0.62, 0.74))),
+                    width=tuple(g.get("width", (7, 8))), centre=tuple(g.get("centre", (0.46, 0.54))),
+                    shores=g.get("shores"), head=g.get("head"), harbour=g.get("harbour"), isle=g.get("isle"),
+                    islets=tuple(g.get("islets", (0, 0))), islet_size=tuple(g.get("islet_size", (1, 3))),
+                    ok=lambda h: h.coord not in m.reserved)
     if st.get("ring"):
         r = st["ring"]
         _stamp_ring(m, r.get("terrain", "mountain"),
@@ -1917,6 +2113,10 @@ def _build(p, seed):
 
     scattered = tuple(t for t, mo in p.get("morphology", {}).items()
                       if mo == "scatter")
+    # a gulf's shore belts are coastlines, not clusters: the cull and the size cap leave them whole
+    scattered += tuple(s[0] for s in ((st.get("gulf") or {}).get("shores") or {}).values())
+    if (st.get("gulf") or {}).get("head"):
+        scattered += (st["gulf"]["head"][0],)
     _cull_small(m, substrate, palette, exempt=scattered)
     _cap_components(m, p["cluster_cap"], substrate, palette, exempt=scattered)
 
@@ -1939,6 +2139,9 @@ def _build(p, seed):
     _mark_hills(m, p.get("hill_sep", HILL_SEP),
                 _zone_pins(m.start_zones), _zone_block(m.start_zones))
     _resources(m, palette, {**mapgen.RESOURCE_MIN, **p.get("resource_min", {})})
+    cliff = getattr(m, "isle_cliff", None)                # the isle's citadel quarry (gulf structure)
+    if cliff and m.get(cliff).terrain == "mountain":
+        m.get(cliff).resource = "quarry"
     return m
 
 

@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # playstyle_reference.py - culture playstyle reference (landscape Letter, banner per culture).
-# Reads CULTURES, NODES (Monuments), ACTIONS, WONDERS, FACTIONS, DOMAIN_BOARD from renown_data_d10.
-# Standing path is derived from each culture's Monument unlocks.
-# Usage:  python playstyle_reference.py [out.pdf] [--per-page N]   (default: cards/playstyle_reference.pdf, 5)
+# Reads CULTURES, NODES (Monuments), MONUMENT_SUMMARY, WONDERS, FACTIONS, DOMAIN_BOARD from renown_data_d10.
+# Standing path is derived from each culture's Monument unlocks. Path names come from spec_tree_sheet.TREES.
+# Faction mechanics are listed rarest-first (fewest cultures sharing them) until the banner is full.
+# Usage:  python playstyle_reference.py [out.pdf] [--per-page N]   (default: cards/playstyle_reference.pdf, 4)
 import sys, os, re, math
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import display_pdf; display_pdf.install()   # NAME_DISPLAY on every drawn/measured string (before reportlab imports)
@@ -37,6 +38,11 @@ FACT    = getattr(rd, "FACTIONS", {})
 DBOARD  = getattr(rd, "DOMAIN_BOARD", {})
 FSUM    = {k: v.get("summary", "") for k, v in FACT.items() if isinstance(v, dict)}
 MONS    = {k: v for k, v in rd.NODES.items() if v.get("monument") or v.get("type") == "Monument"}
+MSUM    = getattr(rd, "MONUMENT_SUMMARY", {})
+try:
+    from spec_tree_sheet import TREES
+except Exception:
+    TREES = {}
 
 DOMS  = ["Industry", "Prowess", "Cunning", "Piety"]
 LVL   = ["Untested", "Rising", "Established", "Sovereign"]
@@ -78,6 +84,8 @@ def culture_faction_rows(c):
     rows, represented = [], set()
     for label in labels:
         f = by_mechanic.get(_mech_key(label))
+        if f in represented:
+            continue
         if f:
             rows.append((str(label), f))
             represented.add(f)
@@ -90,6 +98,26 @@ def culture_faction_rows(c):
     return rows
 
 
+def mech_counts():
+    """{faction (or label key): number of cultures listing it}"""
+    n = {}
+    for c in CULT.values():
+        for label, f in culture_faction_rows(c):
+            k = f or _mech_key(label)
+            n[k] = n.get(k, 0) + 1
+    return n
+
+
+def rarest_first(c):
+    """culture_faction_rows ordered by how few cultures share each mechanic (ties keep data order)."""
+    rows, n = culture_faction_rows(c), mech_counts()
+    return sorted(rows, key=lambda r: (n.get(r[1] or _mech_key(r[0]), 0), rows.index(r)))
+
+
+def path_name(m):
+    return TREES.get(m) or f"Path of {disp(m)}"
+
+
 # ---------------------------------------------------------------- validation
 def validate():
     warn = []
@@ -99,10 +127,18 @@ def validate():
             if d not in DOMS: warn.append(f"{cn}: unknown domain {d!r}")
         for m in c.get("monuments", []):
             if m not in MONS: warn.append(f"{cn}: {m!r} is not a Monument in NODES")
+            elif not MSUM.get(m): warn.append(f"{cn}: Monument {m!r} has no MONUMENT_SUMMARY")
         for w in c.get("wonders", []):
             if w not in WONDERS: warn.append(f"{cn}: {w!r} not in WONDERS")
         for a in c.get("actions", []):
             if a.split(":")[0].strip() not in ACTIONS: warn.append(f"{cn}: action {a!r} not in ACTIONS")
+        labels = c.get("mechanic_name", [])
+        labels = [labels] if isinstance(labels, str) else labels
+        keys = [_mech_key(x) for x in labels]
+        for k in sorted({k for k in keys if keys.count(k) > 1}):
+            warn.append(f"{cn}: mechanic_name {k!r} listed {keys.count(k)} times")
+        for x in labels:
+            if str(x) != str(x).strip(): warn.append(f"{cn}: mechanic_name {x!r} has stray whitespace")
         for label, f in culture_faction_rows(c):
             if f is None:
                 warn.append(f"{cn}: mechanic_name {label!r} has no FACTIONS match")
@@ -198,6 +234,31 @@ def wrap(c, text, font, size, maxw):
     return lines
 
 
+def layout(c, runs, size, maxw, indent=0):
+    """Word-wrap styled runs [(text, font, color)] -> lines of [(dx, word, font, color)].
+    Lines after the first start at `indent`."""
+    lines, cur, cx = [], [], 0
+    for txt, font, col in runs:
+        for i, w in enumerate(_D(txt).split(" ")):
+            if not w: continue
+            lead = " " if (cur and (i > 0 or txt.startswith(" "))) else ""
+            ww = c.stringWidth(lead + w, font, size)
+            if cur and cx + ww > maxw:
+                lines.append(cur); cur = []; cx = indent; lead = ""
+                ww = c.stringWidth(w, font, size)
+            cur.append((cx + c.stringWidth(lead, font, size), w, font, col)); cx += ww
+    if cur: lines.append(cur)
+    return lines
+
+
+def draw_lines(c, x, y, lines, size, lead):
+    for ln in lines:
+        for dx, w, font, col in ln:
+            c.setFont(font, size); c.setFillColor(col); c.drawString(x + dx, y, w)
+        y -= lead
+    return y
+
+
 def chip(c, x, y, dom, s=5.2):
     c.setFillColor(_c(DOMC.get(dom, "#888888"))); c.rect(x, y + 0.6, s, s, stroke=0, fill=1)
 
@@ -245,9 +306,11 @@ W   = PAGE_W - 2*MX
 HW  = 118          # header block width
 RW  = 104          # radar block width
 PAD = 9
-COLW = [160, 160]  # detail columns 1 and 2; column 3 takes the rest
-LEAD = 9.2
+COLW = 262        # Monuments & Wonders column; Faction Mechanics takes the rest
+LEAD = 9.0
 SZ   = 8.3
+SSZ  = 7.2        # summary text
+SLEAD = 8.2
 
 
 def banner(c, name, x, ytop, bh):
@@ -280,7 +343,16 @@ def banner(c, name, x, ytop, bh):
     for ln in wrap(c, " \u00d7 ".join(doms), SERIF, 8.6, HW - 18):
         c.setFillColor(Color(0, 0, 0, 0.35)); c.drawString(tx + 0.4, yy - 0.4, ln)
         c.setFillColor(Color(1, 1, 1)); c.drawString(tx, yy, ln); yy -= 10
+    # standing path (minimum Standings to unlock every Monument)
     req, open_any, _ = standing_path(cu)
+    yy -= 4
+    c.setFont(SERIF_B, 6.4); c.setFillColor(Color(1, 1, 1, 0.75)); c.drawString(tx, yy, "STANDING")
+    yy -= 9.5
+    st = [f"{req[d]} {d}" for d in DOMS if req[d] != "Untested"] + [f"+{n} {lvl} (any)" for n, lvl, _ in open_any]
+    c.setFont(SERIF, 8.0)
+    for ln in st:
+        c.setFillColor(Color(0, 0, 0, 0.35)); c.drawString(tx + 0.4, yy - 0.4, ln)
+        c.setFillColor(Color(1, 1, 1)); c.drawString(tx, yy, ln); yy -= 9.2
 
     # radar
     vals = [cu.get("radar", {}).get(k, 0) for k, _ in AXES]
@@ -288,73 +360,39 @@ def banner(c, name, x, ytop, bh):
 
     # detail columns
     x1 = x + HW + RW + 2
-    x2 = x1 + COLW[0] + PAD
-    x3 = x2 + COLW[1] + PAD
-    w3 = x + W - PAD - x3
-    for sx in (x1 - 3, x2 - PAD/2, x3 - PAD/2):
+    x2 = x1 + COLW + PAD
+    w2 = x + W - PAD - x2
+    for sx in (x1 - 3, x2 - PAD/2):
         c.setStrokeColor(SEP); c.setLineWidth(0.6); c.line(sx, ybot + 6, sx, ytop - 6)
     top = ytop - 12
+    floor = ybot + 6
 
-    # col 1: monuments + actions
+    # col 1: monuments (path + summary) + wonders
     tag(c, x1, top, "Monuments")
     yy = top - 10.5
     for m in cu.get("monuments", []):
-        u = unlock_short(MONS.get(m, {}).get("unlock", ""))
+        u = unlock_short(MONS.get(m, {}).get("unlock", "")).strip()
         c.setFont(SERIF_B, SZ); c.setFillColor(META); c.drawString(x1, yy, _D(m))
         mw = c.stringWidth(_D(m), SERIF_B, SZ)
         c.setFont(SERIF_I, 7.0); c.setFillColor(MUTE)
-        if mw + 4 + c.stringWidth(u, SERIF_I, 7.0) <= COLW[0]:
+        if mw + 4 + c.stringWidth(u, SERIF_I, 7.0) <= COLW:
             c.drawString(x1 + mw + 4, yy, u)
-        else:
-            yy -= 7.6; c.drawString(x1 + 6, yy, u)
-        yy -= LEAD
-    yy -= 3
-    tag(c, x1, yy, "Actions"); yy -= 10.5
-    for a in cu.get("actions", []):
-        base, _, mode = a.partition(":")
-        base = base.strip(); mode = mode.strip()
-        ad = ACTIONS.get(base, {})
-        chip(c, x1, yy, ad.get("domain", ""))
-        c.setFont(SERIF_B, SZ); c.setFillColor(META)
-        c.drawString(x1 + 8, yy, _D(base))
-        cx = x1 + 8 + c.stringWidth(_D(base), SERIF_B, SZ)
-        if mode:
-            extra = " \u2014 " + mode
-            c.setFont(SERIF, SZ); c.drawString(cx, yy, extra); cx += c.stringWidth(extra, SERIF, SZ)
-        rq = ad.get("requires", "")
-        if rq:
-            c.setFont(SERIF_I, 7.0); c.setFillColor(MUTE); c.drawString(cx + 4, yy, unlock_short(rq))
-        yy -= LEAD
-
-    # col 2: standing path + wonders
-    tag(c, x2, top, "Standing")
-    yy = top - 10.5
-    for d in DOMS:
-        lvl = req[d]
-        if lvl == "Untested": continue
-        chip(c, x2, yy, d)
-        c.setFont(SERIF_B, SZ); c.setFillColor(META)
-        st = f"{lvl} {d}"; c.drawString(x2 + 8, yy, st)
-        t = standing_title(d, lvl)
-        if t:
-            c.setFont(SERIF_I, 7.0); c.setFillColor(MUTE)
-            c.drawString(x2 + 12 + c.stringWidth(st, SERIF_B, SZ), yy, t)
-        yy -= LEAD
-    for n, lvl, cost in open_any:
-        c.setFont(SERIF_B, SZ); c.setFillColor(META)
-        c.drawString(x2 + 8, yy, f"+{n} {lvl} (any)")
-        yy -= LEAD
-    yy -= 3
-    tag(c, x2, yy, "Wonders"); yy -= 10.5
-    flow(c, x2, yy, COLW[1], [("\u25c6 " + disp(w), SERIF, WONINK) for w in cu.get("wonders", [])],
+        yy -= SLEAD
+        runs = [(path_name(m) + ":", SERIF_I, WONINK), (" " + MSUM.get(m, ""), SERIF, INK)]
+        yy = draw_lines(c, x1 + 6, yy, layout(c, runs, SSZ, COLW - 6, 0), SSZ, SLEAD) - 2.2
+    yy -= 1
+    flow(c, x1, yy, COLW, [("◆ " + disp(w), SERIF, WONINK) for w in cu.get("wonders", [])],
          SZ, LEAD, sep=("   ", SERIF, WONINK))
 
-    # col 3: culture mechanic names, wrapped compactly to fit
-    tag(c, x3, top, "Faction Mechanics")
-    fl = culture_faction_rows(cu)
-    flow(c, x3, top - 10.5, w3,
-         [(nm, SERIF_B, META) for nm, _ in fl], 7.4, 8.4,
-         sep=("  ·  ", SERIF, MUTE))
+    # col 2: faction mechanics, rarest first, while they fit
+    tag(c, x2, top, "Faction Mechanics")
+    yy = top - 10.5
+    for label, f in rarest_first(cu):
+        runs = [(label.strip(), SERIF_B, META)]
+        if f and FSUM.get(f): runs.append((" — " + FSUM[f], SERIF, INK))
+        lines = layout(c, runs, SSZ + 0.2, w2, 6)
+        if yy - (len(lines) - 1)*SLEAD < floor: continue
+        yy = draw_lines(c, x2, yy, lines, SSZ + 0.2, SLEAD) - 2.6
 
     # border
     c.setStrokeColor(GRIDC); c.setLineWidth(0.8)
@@ -385,7 +423,7 @@ def page_chrome(c, pg, npg):
     c.drawRightString(PAGE_W - MX, FOOT_Y, f"{pg}/{npg}")
 
 
-def build(out, per_page=5):
+def build(out, per_page=4):
     validate()
     names = order()
     pages = [names[i:i+per_page] for i in range(0, len(names), per_page)]
@@ -402,7 +440,7 @@ def build(out, per_page=5):
 
 if __name__ == "__main__":
     args = [a for a in sys.argv[1:]]
-    per = 5
+    per = 4
     if "--per-page" in args:
         i = args.index("--per-page"); per = int(args[i+1]); del args[i:i+2]
     out = args[0] if args else os.path.join("cards", "playstyle_reference.pdf")

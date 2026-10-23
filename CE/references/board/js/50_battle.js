@@ -121,10 +121,13 @@ function sideCalc(X){
   if(unw&&tmI>0){tmNote="Unwieldy: Tactic Init +"+tmI+" blocked";tmI=0;}
   if(stdy&&tmI<0){tmNote="Steady: Tactic Init "+tmI+" blocked";tmI=0;}
   const mt=new Set(u.mods.map(m=>m.tok).concat(eqTags));
-  const strainI=(effStrained(p,a)&&!mt.has("Immune Strain"))?-1:0;   // Strain: −1 Init unless Immune Strain (or inside a controlled Settlement: Granary)
+  // the opponent's Standing effects aimed at this side (STANDING_EFFECTS: "Opponent gains Strain" / "… Blunder in the first Skirmish")
+  const oFx=standingFxOf(sideDomains(o,sideArmy(o).p)),oStrain=oFx.find(f=>/Opponent gains Strain/i.test(f.text)),
+        oBlunder=(B.sk||1)===1?oFx.find(f=>/Opponent gains Blunder in the first Skirmish/i.test(f.text)):null;
+  const strainI=((effStrained(p,a)||(oStrain&&!immuneStrainIn(p,a)))&&!mt.has("Immune Strain"))?-1:0;   // Strain: −1 Init unless Immune Strain (or inside a controlled Settlement: Granary)
   const maxI=(mt.has("MaxInit3")||[...mt].some(t=>/^Crit /.test(t)))?INIT_MAX+1:INIT_MAX;   // Ministry: ceiling +1
   const rawI=(wpn.init||0)+(sh.init||0)+initPlus+tmI+seize+strainI+sd.adj.I;
-  const I=Math.max(INIT_MIN,Math.min(maxI,rawI)),blunder=I<=INIT_MIN;
+  const I=Math.max(INIT_MIN,Math.min(maxI,rawI)),blunder=I<=INIT_MIN||!!oBlunder;
   // to-Strike (same order as Combatv4): base − improving + Fatigue, capped at CAP; Blunder clamps to CAP;
   // then worsening mods (enemy Shielded, own shield −1TH, negative Tactic TH) can push past CAP (auto-fail).
   const CAP=BT.capThr||10,tacTH=tm.TH||0;
@@ -165,8 +168,9 @@ function sideCalc(X){
   if(rngPlus)trig.push("+"+rngPlus+" to-Strike with Ranged (faction)");
   if(hasM("Always Unwieldy"))trig.push("Faction: always Unwieldy"+(hasM("No Immune Unwieldy")?", can't gain Immune Unwieldy":""));
   if(fat)trig.push("Fatigue +"+fat+" to-Strike (capped "+CAP+"+)");
-  if(blunder)trig.push("Blunder: to-Strike "+CAP+"+ before penalties");
-  if(a.strained||siegeStrains(p,a))trig.push(strainI?"Strained −1 Init"+(!a.strained?" (Besieged)":""):"Immune Strain: no Init loss");
+  if(blunder)trig.push("Blunder: to-Strike "+CAP+"+ before penalties"+(oBlunder&&I>INIT_MIN?" (enemy "+oBlunder.t+" "+oBlunder.d+", first Skirmish)":""));
+  if(a.strained||siegeStrains(p,a)||oStrain)trig.push(strainI?"Strained −1 Init"+(a.strained?"":siegeStrains(p,a)?" (Besieged)":" (enemy "+oStrain.t+" "+oStrain.d+")"):"Immune Strain: no Init loss");
+  {const ms=moraleStanding(a);if(ms)trig.push(ms.src+" Morale +"+ms.n+": Morale value −"+ms.n+" (steadier)");}
   if(maxI>INIT_MAX)trig.push("Init ceiling +"+maxI);
   if(plan)trig.push(planOn?"Planishing: save capped "+CAP+"+"+(saveRaw>CAP||deadlyRaw>CAP?" (was "+saveRaw+"+ / Deadly "+deadlyRaw+"+)":""):"Planishing negated by enemy weapon");
   if(hasDeadly)trig.push("Deadly: strikes on "+critFloor+"+ save at +"+DAP);

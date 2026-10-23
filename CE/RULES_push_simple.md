@@ -5,7 +5,7 @@
 
 # Introduction
 
-Within the Realm, Empires expand, specialize, confer, and when diplomacy fails—battle. You will lead your humble Province to greatness. **Charter** new Settlements, **build** your economy, and **negotiate** your way to victory. Will your religion dominate the **Realm**? Will your economy grow until your wealth is undeniable? Can you build a **world wonder**? Can you **extort** your way to victory? Pick your Faction, command your Domain, and pursue your Craft in this political grand strategy, where every action you attempt can be **endorsed** or **condemned** by your allies and other players.
+Within the Realm, Empires expand, specialize, confer, and when diplomacy fails—battle. You will lead your humble Province to greatness. **Settle** new Villages and **Expand** them, **build** your economy, and **negotiate** your way to victory. Will your religion dominate the **Realm**? Will your economy grow until your wealth is undeniable? Can you build a **world wonder**? Can you **extort** your way to victory? Pick your Faction, command your Domain, and pursue your Craft in this political grand strategy, where every action you attempt can be **endorsed** or **condemned** by your allies and other players.
 
 ### Game Synopsis
 
@@ -119,7 +119,7 @@ Each turn runs through five phases in order, then passes the Host and repeats:
 
 1. **Empire Phase**{{IDX:Empire Phase}} — Start of the Empire Phase effects, the Season, Timers, Bandit Mechanics, Influence & Envoys, income and upkeep, Public Order.
 2. **Council Phase**{{IDX:Council Phase}} — a Council vote on a Domain; each player then performs one action of that Domain.
-3. **Envoy Phase**{{IDX:Envoy Phase}} — send all Envoys, a Forum, vote on every Envoy, then resolve them all (Diplomacy → Prowess → Cunning → Piety → Industry).
+3. **Envoy Phase**{{IDX:Envoy Phase}} — send all Envoys, a Forum, the Intrigue Phase, vote on every Envoy, the Tally Phase, then resolve them all (Diplomacy → Prowess → Cunning → Piety → Industry).
 4. **Battle Phase**{{IDX:Battle Phase}} — Skirmishes, Sieges, and Battles resolve.
 5. **Rest Phase**{{IDX:Rest Phase}} — cleanup, advance the Season, score Renown, spend one Domain Point, pass the Host.
 
@@ -155,8 +155,14 @@ Many actions set a Timer to a number of turns. Each Empire Phase, every active T
 
 1. **Envoy Declaration** — all players place every Envoy they have in the Domains of their choice at the same time, then reveal them together.
 2. **Forum** — a brief open discussion of every Envoy on the table: who should be Supported, Opposed, or left alone.
-3. **Vote** — no talking. Vote on every Envoy (see Resolving an Envoy): Diplomacy first, clockwise from the starting player; then Prowess → Cunning → Piety → Industry, where within each Domain the sender with the highest Domain value has all of their Envoys of that Domain voted on, then the next highest, and so on (ties clockwise from the starting player).
-4. **Resolve** — once every vote is cast, resolve each Envoy in the same order: choose and perform its action according to its net Influence.
+3. **Intrigue Phase**{{IDX:Intrigue Phase}} — no talking. The starting player uses all of their Intrigue Phase effects, then each player clockwise does the same, ending with the Host. Each choice is announced and takes effect at once, before the first vote. {{RULE:intrigue}}
+4. **Vote** — no talking. Vote on every Envoy (see Resolving an Envoy): Diplomacy first, clockwise from the starting player; then Prowess → Cunning → Piety → Industry, where within each Domain the sender with the highest Domain value has all of their Envoys of that Domain voted on, then the next highest, and so on (ties clockwise from the starting player). A player whose effect says they cast their votes in the Tally Phase skips this step.
+5. **Tally Phase**{{IDX:Tally Phase}} — once every Envoy has been voted on, in this order: {{RULE:tally}}
+    5.1 **Supports** — the starting player resolves all of their Tally Phase Supports, then each player clockwise, ending with the Host. Each Support is its own vote, with its own per-vote limit.
+    5.2 **Tally votes** — each player who casts their votes in the Tally Phase now votes on every Envoy, in the Vote order.
+    5.3 **Endorsements** — the starting player resolves all of their Tally Phase Endorse effects, then each player clockwise, ending with the Host.
+    5.4 **End of the Tally Phase** — effects that send another Envoy do so now. Each such Envoy is voted on at once, with players who vote in the Tally Phase voting last, then resolves with the others.
+6. **Resolve** — once the Tally Phase ends, resolve each Envoy in the same order: choose and perform its action according to its net Influence.
 
 *All votes are cast before anything resolves, so At War status (for Opposing Industry Envoys) and Treaties are as they stood during the vote.*
 
@@ -365,7 +371,7 @@ Settlements are the primary vehicle of your Empire.{{IDX:Settlement}} They come 
 
 ### Chartering Settlements
 
-When chartering a new Settlement, place it in your Province, at least Range {{VAL:CHARTER_MIN_RANGE}} from all other Settlements and Range {{VAL:OUTLAW_BUFFER_RANGE}} from any Outlaw Country. You can't charter a Settlement on mountain or water Territory.
+When you Settle a new Village, place it in your Province, at least Range {{VAL:CHARTER_MIN_RANGE}} from all other Settlements and Range {{VAL:OUTLAW_BUFFER_RANGE}} from any Outlaw Country. You may only Settle on grassland Territory.
 
 ### Settlement Reach
 

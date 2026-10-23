@@ -351,57 +351,103 @@ function floorApplies(res, palette, m) {
 const MATERIAL_TERRAINS = ['forest', 'mountain', 'tundra', 'wetland', 'water'];
 const PASSABLE = ['plains', 'forest', 'wetland', 'tundra'];
 
-const LAYOUTS = {
-  1: [[0.5, 0.5]], 2: [[0.18, 0.5], [0.82, 0.5]],
-  3: [[0.18, 0.2], [0.82, 0.2], [0.5, 0.82]],
-  4: [[0.16, 0.18], [0.84, 0.18], [0.16, 0.82], [0.84, 0.82]],
-  5: [[0.16, 0.18], [0.84, 0.18], [0.16, 0.82], [0.84, 0.82], [0.5, 0.5]],
-  6: [[0.16, 0.2], [0.5, 0.16], [0.84, 0.2], [0.16, 0.8], [0.5, 0.84], [0.84, 0.8]],
-  7: [[0.16, 0.2], [0.5, 0.16], [0.84, 0.2], [0.16, 0.8], [0.5, 0.84], [0.84, 0.8], [0.5, 0.5]] };
+/* ── the seat ring (port of mapgen.ring_*): N seats evenly round the edge ──
+   Players place their own Towns, so the board owes them N starting places as
+   nearly equidistant as the terrain allows, all on the rim (no centre seat).
+   Perimeter position s runs clockwise from the top-left corner. */
+function ringLength(w, h) { return 2 * (w - 1) + 2 * (h - 1); }
+function ringPoint(w, h, s) {
+  const L = ringLength(w, h);
+  s = ((s % L) + L) % L;
+  if (s <= w - 1) return [s, 0];
+  s -= w - 1;
+  if (s <= h - 1) return [w - 1, s];
+  s -= h - 1;
+  if (s <= w - 1) return [w - 1 - s, h - 1];
+  return [0, h - 1 - (s - (w - 1))];
+}
+function edgeSpan(w, h, edge, lo, hi) {   // perimeter range of [lo,hi] along one edge
+  if (edge === 'n') return [lo, hi];
+  if (edge === 'e') return [(w - 1) + lo, (w - 1) + hi];
+  if (edge === 's') { const b = (w - 1) + (h - 1); return [b + (w - 1 - hi), b + (w - 1 - lo)]; }
+  const b = 2 * (w - 1) + (h - 1);
+  return [b + (h - 1 - hi), b + (h - 1 - lo)];
+}
+function ringRotation(w, h, n, keepout, rng, margin) {
+  /* Rotation that puts the fewest seats in a keep-out span (a gulf mouth, a
+     water rim); the ring turns as one, so the spacing stays even. Ties rolled. */
+  margin = margin === undefined ? 2 : margin;
+  const L = ringLength(w, h), step = L / Math.max(1, n);
+  let best = null, rots = [];
+  for (let k = 0; k <= Math.floor(step * 2); k++) {
+    const r = k * 0.5;
+    let bad = 0;
+    for (let i = 0; i < n; i++) {
+      const s = (r + i * step) % L;
+      if (keepout.some(([lo, hi]) => (lo - margin <= s && s <= hi + margin) ||
+                                     (lo - margin <= s + L && s + L <= hi + margin))) bad++;
+    }
+    if (best === null || bad < best) { best = bad; rots = [r]; }
+    else if (bad === best) rots.push(r);
+  }
+  return rots.length ? rng.choice(rots) : 0;
+}
+function seatPositions(w, h, n, rot) {
+  const L = ringLength(w, h), out = [];
+  for (let i = 0; i < n; i++) out.push((rot + i * L / n) % L);
+  return out;
+}
 
 /* ── settlement placement (port of mapgen._place_regions) ───────────────── */
 function placeRegions(m, p, rng) {
-  const n = p.players;
-  const fracs = (LAYOUTS[n] || LAYOUTS[6]).slice(0, n);
-  const anchors = fracs.map(([fc, fr]) => {
-    let c = Math.floor(m.width * fc), r = Math.floor(m.height * fr);
-    c = Math.min(m.width - 3, Math.max(2, c + rng.randint(-1, 1)));
-    r = Math.min(m.height - 3, Math.max(2, r + rng.randint(-1, 1)));
-    return [c, r];
-  });
+  const n = p.players, W = m.width, H = m.height, L = ringLength(W, H);
+  let ring = null;
+  if (n === 1) m.seatRot = 0;
+  else { m.seatRot = ringRotation(W, H, n, p._seat_keepout || [], rng); ring = seatPositions(W, H, n, m.seatRot); }
+  const clampi = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.round(v)));
+  const edgeHex = (s) => { const [x, y] = ringPoint(W, H, s); return [clampi(x, 0, W - 1), clampi(y, 0, H - 1)]; };
+  const anchors = [];
+  for (let i = 0; i < n; i++) {
+    if (!ring) { anchors.push([Math.floor(W / 2), Math.floor(H / 2)]); continue; }
+    const [c, r] = edgeHex(ring[i]);
+    anchors.push([Math.min(W - 3, Math.max(2, c)), Math.min(H - 3, Math.max(2, r))]);
+  }
   const SEP = p.settlement_range, SMAX = p.settlement_range_max,
         FIRST = p.first_settle_range;
   const buildable = (c) => m.inb(c) && ['water', 'mountain'].indexOf(m.get(c).terrain) < 0;
   m.settlements = []; m.centers = [];
+  const placedAll = [];                // every settlement across regions (spacing)
 
-  fracs.forEach(([fx, fy], rid) => {
-    const a = anchors[rid];
-    const corner = (Math.abs(fx - 0.5) < 0.12 || Math.abs(fy - 0.5) < 0.12) ? a
-      : [fx < 0.5 ? 0 : m.width - 1, fy < 0.5 ? 0 : m.height - 1];
-    const interior = m.within(corner, FIRST + 1)
+  anchors.forEach((a, rid) => {
+    // the capital at the seat's edge point, the other two along the rim toward
+    // the neighbouring seats, so each region lies along its own stretch of edge
+    let targets = [a, a, a];
+    if (ring) { const d = 0.3 * L / n; targets = [edgeHex(ring[rid]), edgeHex(ring[rid] + d), edgeHex(ring[rid] - d)]; }
+    const [tCap, t2, t3] = targets;
+    const interior = m.within(tCap, FIRST + 1)
       .filter(h => m.nbrs([h.col, h.row]).length === 6).map(h => [h.col, h.row]);
-    let cap = corner;
-    if (interior.length) {
-      cap = interior.reduce((b, c) => dist(c, corner) < dist(b, corner) ? c : b);
-    }
+    let cap = tCap;
+    if (interior.length) cap = interior.reduce((b, c) => dist(c, tCap) < dist(b, tCap) ? c : b);
     [cap].concat(m.nbrs(cap).map(h => [h.col, h.row]))
       .forEach(c => { m.get(c).terrain = 'plains'; });
 
-    const pick = (existing) => {
-      const cells = m.within(corner, FIRST + SMAX)
-        .map(h => [h.col, h.row])
-        .filter(c => buildable(c) && existing.every(o => {
-          const d = dist(c, o); return d >= SEP && d <= SMAX; }));
-      if (!cells.length) return null;
+    const pick = (target, others) => {
+      // buildable hex [SEP,SMAX] from the capital, >= SEP from siblings; nearest
+      // target. Cross-region spacing preferred, relaxed if it leaves nothing.
+      const cands = (cross) => m.all().map(h => [h.col, h.row]).filter(c => {
+        if (!buildable(c) || m.nbrs(c).length !== 6) return false;
+        const dc = dist(c, cap);
+        return dc >= SEP && dc <= SMAX && others.every(o => dist(c, o) >= SEP) &&
+          (!cross || placedAll.every(o => dist(c, o) >= SEP));
+      });
+      let cells = cands(true);
+      if (!cells.length) cells = cands(false);
       let best = null, bs = Infinity;
-      for (const c of cells) {
-        const s = dist(c, corner) + rng.random();
-        if (s < bs) { bs = s; best = c; }
-      }
+      for (const c of cells) { const s = dist(c, target) + rng.random(); if (s < bs) { bs = s; best = c; } }
       return best;
     };
-    let s2 = pick([cap]);
-    let s3 = s2 ? pick([cap, s2]) : null;
+    let s2 = pick(t2, []);
+    let s3 = s2 ? pick(t3, [s2]) : null;
     if (!s2) s2 = cap;
     if (!s3) s3 = s2;
     const settles = [cap, s2, s3];
@@ -413,6 +459,7 @@ function placeRegions(m, p, rng) {
     m.settlements.push(settles);
     m.centers.push([Math.round((settles[0][0] + settles[1][0] + settles[2][0]) / 3),
                     Math.round((settles[0][1] + settles[1][1] + settles[2][1]) / 3)]);
+    placedAll.push.apply(placedAll, settles);
     for (const s of settles)
       for (const h of m.within(s, 1)) m.reserved.add(key(h.col, h.row));
     for (const s of settles)
@@ -818,6 +865,168 @@ function stampRing(m, terrain, radius, thickness, gaps, rng, ok) {
     if (passes.some(pp => dist([h.col, h.row], pp) <= 2)) continue;
     h.terrain = terrain;
   }
+}
+
+function stampGulf(m, rng, g, ok) {
+  /* An arm of the sea entering from g.edge (w|e) across the middle of the board, stopping short of
+     the far side so the two shores meet by land at its head. Optional: g.shores (coastal belts,
+     {n|s: [terrain, [dLo, dHi], fill]}), g.head ([terrain, fill] over the land bridge and beyond),
+     g.harbour (a basin in the south shore with a one-hex mouth,
+     quay ring and forest arms), g.isle (a lone island two water hexes off both shores, with a quarried
+     cliff), g.islets. Port of mapgen_regional._stamp_gulf. */
+  ok = ok || (() => true);
+  const W = m.width, H = m.height, edge = g.edge || 'w';
+  const reach = g.reach || [0.62, 0.74], width = g.width || [7, 8], centre = g.centre || [0.46, 0.54];
+  const span = Math.round(W * rng.uniform(reach[0], reach[1]));
+  const cy = H * rng.uniform(centre[0], centre[1]), half = rng.randint(width[0], width[1]) / 2;
+  const water = new Map();                       // key -> [col, row]
+  let topJ = 0, botJ = 0;
+  for (let i = 0; i < span; i++) {
+    const col = edge === 'w' ? i : W - 1 - i;
+    // the gulf narrows over its last quarter, so its head is a bay rather than a wall
+    const taper = Math.max(0, (i - 0.75 * span) / Math.max(1, 0.25 * span));
+    const hw = Math.max(0.6, half * (1 - 0.8 * taper));
+    topJ = Math.max(-1.5, Math.min(1.5, topJ + rng.uniform(-0.6, 0.6)));
+    botJ = Math.max(-1.5, Math.min(1.5, botJ + rng.uniform(-0.6, 0.6)));
+    const lo = Math.round(cy - hw + topJ), hi = Math.round(cy + hw + botJ);
+    for (let row = Math.max(0, lo); row <= Math.min(H - 1, hi); row++) {
+      const h = m.get([col, row]);
+      if (h && ok(h)) { h.terrain = 'water'; water.set(key(col, row), [col, row]); }
+    }
+  }
+  if (!water.size) return water;
+  const shoreRows = new Map();                   // col -> [northmost, southmost] gulf row
+  for (const [c, r] of water.values()) {
+    const a = shoreRows.get(c) || [r, r];
+    shoreRows.set(c, [Math.min(a[0], r), Math.max(a[1], r)]);
+  }
+  const stepsFrom = srcs => {                    // hex steps from the nearest source, one breadth-first pass
+    const seen = new Map(), q = [];
+    for (const s of srcs) { seen.set(key(s[0], s[1]), 0); q.push(s); }
+    for (let i = 0; i < q.length; i++) {
+      const c = q[i], d = seen.get(key(c[0], c[1]));
+      for (const n of m.nbrs(c)) {
+        const k = key(n.col, n.row);
+        if (!seen.has(k)) { seen.set(k, d + 1); q.push([n.col, n.row]); }
+      }
+    }
+    return seen;
+  };
+  const landSteps = () => stepsFrom(m.all().filter(h => h.terrain !== 'water').map(h => [h.col, h.row]));
+  const toWater = stepsFrom(Array.from(water.values()));
+  if (g.head) {
+    const beyond = edge === 'w' ? (c => c >= span - 2) : (c => c <= W - span + 1);
+    for (const h of m.all())
+      if ((h.terrain === 'plains' || h.terrain === 'forest') && ok(h) && beyond(h.col) && rng.random() < g.head[1])
+        h.terrain = g.head[0];
+  }
+  for (const side of Object.keys(g.shores || {})) {
+    const [terrain, depth, fill] = g.shores[side];
+    for (const h of m.all()) {
+      if (h.terrain !== 'plains' || !ok(h)) continue;
+      const rows = shoreRows.get(h.col);
+      if (!rows || (side === 'n' && h.row >= rows[0]) || (side === 's' && h.row <= rows[1])) continue;
+      const d = toWater.has(key(h.col, h.row)) ? toWater.get(key(h.col, h.row)) : 99;
+      if (d <= depth[0] || (d <= depth[1] && rng.random() < fill)) h.terrain = terrain;
+    }
+  }
+  m.isle = new Set(); m.isleCliff = null;
+  if (g.isle && rng.random() < (g.isle.p === undefined ? 1 : g.isle.p)) {
+    const at = g.isle.at || [0.18, 0.32], size = g.isle.size || [7, 10];
+    const want = rng.randint(size[0], size[1]), gap = landSteps();   // measured before the isle exists
+    const gp = c => gap.get(key(c[0], c[1])) || 0;
+    const seeds = Array.from(water.values()).filter(c => c[0] >= W * at[0] && c[0] <= W * at[1] && gp(c) >= 3);
+    if (seeds.length) {
+      let seed = null, best = null;
+      for (const c of seeds) {
+        const sc = [gp(c), -Math.abs(c[1] - cy), rng.random()];
+        if (!best || sc[0] > best[0] || (sc[0] === best[0] && (sc[1] > best[1] || (sc[1] === best[1] && sc[2] > best[2])))) { best = sc; seed = c; }
+      }
+      const cells = new Map([[key(seed[0], seed[1]), seed]]);
+      while (cells.size < want) {
+        const front = new Map();
+        for (const c of cells.values()) for (const n of m.nbrs(c)) {
+          const k = key(n.col, n.row);
+          if (water.has(k) && !cells.has(k) && gp([n.col, n.row]) >= 3) front.set(k, [n.col, n.row]);
+        }
+        if (!front.size) break;
+        let pick = null, pv = Infinity;
+        for (const c of front.values()) { const v = dist(c, seed) + rng.random(); if (v < pv) { pv = v; pick = c; } }
+        cells.set(key(pick[0], pick[1]), pick);
+      }
+      for (const [k, c] of cells) { m.get(c).terrain = 'plains'; water.delete(k); }
+      const rim = Array.from(cells.values()).filter(c => m.nbrs(c).some(n => !cells.has(key(n.col, n.row))));
+      if (rim.length && g.isle.cliff) {
+        let cliff = null, cv = -1;
+        for (const c of rim) { const v = dist(c, seed) + rng.random() * 0.5; if (v > cv) { cv = v; cliff = c; } }
+        m.get(cliff).terrain = g.isle.cliff;
+        m.isleCliff = g.isle.quarry === false ? null : cliff;
+      }
+      m.isle = new Set(cells.keys());
+    }
+  }
+  if (g.harbour && rng.random() < (g.harbour.p === undefined ? 1 : g.harbour.p)) {
+    const hb = g.harbour, at = hb.at || [0.45, 0.6], rr = hb.radius || [2, 2], dd = hb.depth || [2, 3];
+    let r = rng.randint(rr[0], rr[1]);
+    const depth = rng.randint(dd[0], dd[1]);
+    const spanCols = Array.from(shoreRows.keys()).filter(c => c >= W * at[0] && c <= W * at[1]);
+    let cands = spanCols.filter(c => shoreRows.get(c)[1] + depth + 2 * r + 3 <= H - 1);
+    while (!cands.length && r > 1) {             // a short board: a smaller basin rather than none
+      r--;
+      cands = spanCols.filter(c => shoreRows.get(c)[1] + depth + 2 * r + 3 <= H - 1);
+    }
+    if (!cands.length && spanCols.length) {   // a low-lying gulf: the shallowest shore that still fits
+      const c0 = spanCols.reduce((a, c) => shoreRows.get(c)[1] < shoreRows.get(a)[1] ? c : a);
+      cands = shoreRows.get(c0)[1] + depth + 2 * r + 1 <= H - 1 ? [c0] : [];
+    }
+    if (cands.length) {
+      const mc = rng.choice(cands), south = shoreRows.get(mc)[1], ctr = [mc, south + depth + r];
+      const basin = new Map(m.within(ctr, r).filter(ok).map(h => [key(h.col, h.row), [h.col, h.row]]));
+      const mouth = new Map();                   // one-hex channel from the basin up to the gulf
+      for (let row = south + 1; row < ctr[1] - r + 1 && row < H; row++) mouth.set(key(mc, row), [mc, row]);
+      const ring = src => {
+        const out = new Map();
+        for (const c of src.values()) for (const n of m.nbrs(c)) {
+          const k = key(n.col, n.row);
+          if (!basin.has(k) && !mouth.has(k)) out.set(k, [n.col, n.row]);
+        }
+        return out;
+      };
+      // the quay ring is land all the way round, gulf included, so the basin opens only by its mouth;
+      // the arms either side of the mouth jut out into the gulf
+      const quay = ring(basin), arms = ring(mouth);
+      for (const [k, c] of quay) if (!arms.has(k)) {
+        const h = m.get(c); if (h && ok(h)) { h.terrain = hb.quay || 'plains'; water.delete(k); }
+      }
+      for (const [k, c] of arms) {
+        const h = m.get(c); if (h && ok(h)) { h.terrain = hb.arms || 'forest'; water.delete(k); }
+      }
+      for (const [k, c] of [...basin, ...mouth]) {
+        const h = m.get(c); if (h && ok(h)) { h.terrain = 'water'; water.set(k, c); }
+      }
+      m.harbour = new Set(basin.keys());
+    }
+  }
+  const isl = g.islets || [0, 0], isz = g.isletSize || g.islet_size || [1, 3];
+  const isleCells = Array.from(m.isle).map(k => { const h = m.cells.get(k); return [h.col, h.row]; });
+  for (let n = rng.randint(isl[0], isl[1]); n > 0; n--) {
+    const gap = landSteps(), gp = c => gap.get(key(c[0], c[1])) || 0;   // this islet's own hexes come after
+    const open = Array.from(water.values()).filter(c => gp(c) >= 2 && isleCells.every(i => dist(c, i) > 3));
+    if (!open.length) break;
+    const first = rng.choice(open), cells = new Map([[key(first[0], first[1]), first]]);
+    const want = rng.randint(isz[0], isz[1]);
+    while (cells.size < want) {
+      const front = [];
+      for (const c of cells.values()) for (const nb of m.nbrs(c)) {
+        const k = key(nb.col, nb.row);
+        if (water.has(k) && !cells.has(k) && gp([nb.col, nb.row]) >= 2) front.push([nb.col, nb.row]);
+      }
+      if (!front.length) break;
+      const c = rng.choice(front); cells.set(key(c[0], c[1]), c);
+    }
+    for (const [k, c] of cells) { m.get(c).terrain = 'plains'; water.delete(k); }
+  }
+  return water;
 }
 
 function carveMaze(m, count, rng, temp, junctionP) {
@@ -1557,16 +1766,31 @@ function rules() {
           : ((typeof root !== 'undefined' && root.RenownRules) || {});
   return Object.assign({}, RULE_DEFAULTS, r);
 }
-function seatAnchors(w, h, n, ZR) {
-  /* One anchor per seat. Corner seats sit in the corner, edge seats at an edge
-     midpoint, the odd seat at 5/7 players in the centre. Odd-q columns make
-     the four corners (and the two edges) different shapes, so a fixed inset
-     hands some seats a 20-hex zone and others 23. Each corner/edge seat
-     instead picks its inset (1-2 hexes each way) so every rim zone has the
-     SAME hex count; ties go to more legal two-Town layouts, then the shallower
-     inset. Pure geometry - terrain never moves an anchor. */
+function insetOpts(w, h, s) {
+  /* Anchor candidates for the seat at perimeter position s: 1-2 hexes in from
+     each edge it is near (a corner seat varies both), with a second column /
+     row for the odd-q parity. Each is [col, row, inset]. */
+  const [x, y] = ringPoint(w, h, s), xi = Math.round(x), yi = Math.round(y);
+  const xs = (xi <= 2 || xi >= w - 3) ? [1, 2].map(i => [xi < w / 2 ? i : w - 1 - i, i])
+    : [[xi, 0], [Math.max(3, Math.min(w - 4, xi + (xi < Math.floor(w / 2) ? 1 : -1))), 0]];
+  const ys = (yi <= 2 || yi >= h - 3) ? [1, 2].map(j => [yi < h / 2 ? j : h - 1 - j, j])
+    : [[yi, 0], [Math.max(3, Math.min(h - 4, yi + (yi < Math.floor(h / 2) ? 1 : -1))), 0]];
+  const out = [], seen = new Set();
+  for (const [cx, dx] of xs) for (const [cy, dy] of ys) {
+    const k = cx + ',' + cy + ',' + (dx + dy);
+    if (!seen.has(k)) { seen.add(k); out.push([cx, cy, dx + dy]); }
+  }
+  return out;
+}
+function seatLayout(w, h, n, ZR, rot) {
+  /* {anchors, common, pos}. Seats sit evenly round the rim at rotation `rot`;
+     odd-q columns make a fixed inset hand some seats more hexes than others, so
+     each picks the inset that gives the common zone hex count; ties go to more
+     legal two-Town layouts, then the shallower inset. Pure geometry - terrain
+     never moves an anchor here. */
   ZR = ZR || START_ZONE_RANGE;
-  const MC = Math.floor(w / 2), MR = Math.floor(h / 2), blank = new HexMap(w, h, 'plains');
+  if (n <= 1) return { anchors: [[Math.floor(w / 2), Math.floor(h / 2)]], common: null, pos: [] };
+  const blank = new HexMap(w, h, 'plains');
   const size = (a) => blank.within(a, ZR).length;
   const spots = (a) => {               // empty-board legal Town pairs, tie-break only
     const z = blank.within(a, ZR).map(x => [x.col, x.row]);
@@ -1575,54 +1799,22 @@ function seatAnchors(w, h, n, ZR) {
       if (dist(ok[i], ok[j]) >= HILL_SEP) n2++;
     return n2;
   };
-  const corner = (cx, cy) => {         // cx,cy in {0,1}: which corner
-    const out = [];
-    for (const i of [1, 2]) for (const j of [1, 2])
-      out.push([cx ? w - 1 - i : i, cy ? h - 1 - j : j, i + j]);
-    return out;
-  };
-  const edgeNS = (bottom) => {         // top/bottom edge midpoint
-    const out = [];
-    for (const c of [MC - 1, MC]) for (const j of [1, 2])
-      out.push([c, bottom ? h - 1 - j : j, j + Math.abs(c - MC)]);
-    return out;
-  };
-  const edgeEW = (right) => {          // left/right edge midpoint (2 players, landscape)
-    const out = [];
-    for (const r of [MR - 1, MR]) for (const i of [1, 2])
-      out.push([right ? w - 1 - i : i, r, i + Math.abs(r - MR)]);
-    return out;
-  };
-  const C = [MC, MR];
-  let seats;
-  if (n === 2) seats = h >= w ? [edgeNS(0), edgeNS(1)] : [edgeEW(0), edgeEW(1)];
-  else {
-    const TL = corner(0, 0), TR = corner(1, 0), BL = corner(0, 1), BR = corner(1, 1);
-    const six = [TL, edgeNS(0), TR, BL, edgeNS(1), BR];
-    const lay = { 1: [C], 3: [TL, TR, edgeNS(1)], 4: [TL, TR, BL, BR],
-      5: [TL, TR, BL, BR, C], 6: six, 7: six.concat([C]) };
-    seats = (lay[n] || six).slice(0, n);
+  const pos = seatPositions(w, h, n, rot || 0);
+  const opts = pos.map(s => insetOpts(w, h, s));
+  const sizes = opts.map(op => new Set(op.map(o => size(o))));
+  let common = Array.from(sizes[0]).sort((a, b) => a - b).find(sz => sizes.every(S => S.has(sz)));
+  if (common === undefined) {
+    const flat = [].concat.apply([], opts.map(op => op.map(size))).sort((a, b) => a - b);
+    common = flat[Math.floor(flat.length / 2)];
   }
-  // common rim zone size: the smallest size every rim seat can hit exactly,
-  // else each seat takes the size nearest the rim median
-  const rim = seats.filter(s => s !== C);
-  const sizes = rim.map(opts => new Set(opts.map(o => size(o))));
-  let common = null;
-  if (sizes.length) {
-    const all = Array.from(sizes[0]).sort((a, b) => a - b);
-    common = all.find(sz => sizes.every(S => S.has(sz)));
-    if (common === undefined) {
-      const flat = [].concat.apply([], rim.map(o => o.map(size))).sort((a, b) => a - b);
-      common = flat[Math.floor(flat.length / 2)];
-    }
-  }
-  return seats.map(opts => {
-    if (opts === C) return C.slice();
-    const ranked = opts.map(o => ({ a: [o[0], o[1]], d: Math.abs(size(o) - common), sp: spots(o), ins: o[2] }))
+  const anchors = opts.map(op => {
+    const ranked = op.map(o => ({ a: [o[0], o[1]], d: Math.abs(size(o) - common), sp: spots(o), ins: o[2] }))
       .sort((x, y) => (x.d - y.d) || (y.sp - x.sp) || (x.ins - y.ins));
     return ranked[0].a;
   });
+  return { anchors, common, pos };
 }
+function seatAnchors(w, h, n, ZR, rot) { return seatLayout(w, h, n, ZR, rot).anchors; }
 const BUILDABLE = (t) => t !== 'water' && t !== 'mountain';
 function setupFits(m, zone, town, R) {
   /* A legal opening around `town`, all inside `zone`: Village range
@@ -1652,14 +1844,13 @@ function setupFits(m, zone, town, R) {
   return null;
 }
 function placeStartZones(m, p, rng) {
-  /* Strategy B, massaged to the terrain: the seat's rim anchor is tried first;
-     if its zone cannot hold START_TOWNS legal Town hills (sea, mountains),
-     the anchor slides up to START_SLIDE hexes toward the board centre and
-     tries again. The slide is recorded on the zone. */
+  /* Strategy B, massaged to the terrain: each seat starts at its place on the
+     ring; if its zone cannot hold START_TOWNS legal Town hills (sea,
+     mountains), it slides ALONG the rim, nearest first, up to 2 x START_SLIDE
+     hexes each way. The slide is recorded on the zone. */
   const R = rules(), ZR = p.start_zone_range || START_ZONE_RANGE;
   const K = p.start_towns || START_TOWNS, sep = p.hill_sep === undefined ? HILL_SEP : p.hill_sep;
   const maxSlide = p.start_slide === undefined ? START_SLIDE : p.start_slide;
-  const MC = Math.floor(m.width / 2), MR = Math.floor(m.height / 2);
   m.startZones = []; m.zoneNotes = [];
   const pins = [];
   const cost = (c) => {                // hexes that must become grassland; water never converts
@@ -1704,15 +1895,21 @@ function placeStartZones(m, p, rng) {
     for (const o of ok) if (part.length < K && part.every(t => dist(t, o.c) >= sep)) part.push(o.c);
     return { zone, towns: part };
   };
-  seatAnchors(m.width, m.height, p.players, ZR).forEach((a0, i) => {
-    const centre = a0[0] === MC && a0[1] === MR;
-    const dc = Math.sign(MC - a0[0]), dr = Math.sign(MR - a0[1]);
-    const edgeNS = Math.abs(a0[0] - MC) <= 1 && !centre, edgeEW = Math.abs(a0[1] - MR) <= 1 && !centre;
+  const blank = new HexMap(m.width, m.height, 'plains');
+  const lay = seatLayout(m.width, m.height, p.players, ZR, m.seatRot || 0);
+  const insetAt = (s) => {
+    const op = insetOpts(m.width, m.height, s);
+    const sc = (o) => [Math.abs(blank.within(o, ZR).length - lay.common), o[2]];
+    return op.reduce((b, o) => { const x = sc(o), y = sc(b); return (x[0] - y[0] || x[1] - y[1]) < 0 ? o : b; }).slice(0, 2);
+  };
+  lay.anchors.forEach((a0, i) => {
+    const offsets = [0];
+    if (lay.pos.length) for (let k = 1; k <= 2 * maxSlide; k++) offsets.push(k, -k);
     let got = null, slide = 0, anchor = a0;
-    for (let t = 0; t <= (centre ? 0 : maxSlide); t++) {
-      const a = [a0[0] + (edgeNS ? 0 : dc * t), a0[1] + (edgeEW ? 0 : dr * t)];
+    for (const off of offsets) {
+      const a = off === 0 ? a0 : insetAt(lay.pos[i] + off);
       const r = choose(a);
-      if (!got || r.towns.length > got.towns.length) { got = r; slide = t; anchor = a; }
+      if (!got || r.towns.length > got.towns.length) { got = r; slide = off; anchor = a; }
       if (r.towns.length >= K) break;
     }
     for (const t of got.towns) for (const x of [t].concat(m.nbrs(t).map(n => [n.col, n.row])))
@@ -1783,6 +1980,16 @@ function build(p, seed) {
   borderWater(m, m.borders);
   m.rim = new Set(m.all().filter(h => h.terrain === 'water').map(h => key(h.col, h.row)));
 
+  // seat keep-outs: water rims and a gulf mouth (the seat ring turns to miss them)
+  const keep = [];
+  for (const e of 'nsew') { const b = m.borders[e]; if (b && b[0] > 0) keep.push(edgeSpan(p.width, p.height, e, b[1], b[2])); }
+  const gulf = (p.structure || {}).gulf;
+  if (gulf) {
+    const c = gulf.centre || [0.46, 0.54], half = Math.max.apply(null, gulf.width || [7, 8]) / 2;
+    keep.push(edgeSpan(p.width, p.height, gulf.edge || 'w', Math.max(0, Math.floor(p.height * c[0] - half - 2)),
+                       Math.min(p.height - 1, Math.floor(p.height * c[1] + half + 2))));
+  }
+  p._seat_keepout = keep;
   placeRegions(m, p, rng);
   m.settlement_range = p.settlement_range;
 
@@ -1856,6 +2063,7 @@ function build(p, seed) {
   /* Structural pass: these cut through the FINISHED terrain, because a lane
      or a seam only means something once there is terrain for it to cut. */
   const st = p.structure || {};
+  if (st.gulf) stampGulf(m, rng, st.gulf, h => !m.reserved.has(key(h.col, h.row)));
   if (st.ring) stampRing(m, st.ring.terrain || 'mountain', st.ring.radius || 7,
                          st.ring.thickness || 2, st.ring.gaps || 3, rng,
                          h => !m.reserved.has(key(h.col, h.row)));
@@ -1873,6 +2081,9 @@ function build(p, seed) {
   if (st.radial) carveRadial(m, rng, st.radial.hub_radius, st.radial.width, st.radial.temp);
 
   const scattered = Object.keys(p.morphology || {}).filter(t => p.morphology[t] === 'scatter');
+  // a gulf's shore belts are coastlines, not clusters: the cull and the size cap leave them whole
+  for (const s of Object.values((st.gulf || {}).shores || {})) scattered.push(s[0]);
+  if ((st.gulf || {}).head) scattered.push(st.gulf.head[0]);
   cullSmall(m, substrate, palette, scattered);
   capComponents(m, p.cluster_cap, substrate, palette, scattered);
 
@@ -1892,6 +2103,7 @@ function build(p, seed) {
   markHills(m, p.hill_sep === undefined ? HILL_SEP : p.hill_sep,
             zonePins(m.startZones), zoneBlock(m.startZones));
   resources(m, palette, Object.assign({}, RESOURCE_MIN, p.resource_min || {}));
+  if (m.isleCliff && m.get(m.isleCliff).terrain === 'mountain') m.get(m.isleCliff).resource = 'quarry';   // the isle's citadel quarry
   return m;
 }
 
@@ -3372,6 +3584,144 @@ root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
   "resource_min": {},
   "climate": "temperate",
   "notes": "The centre island and the world's name. Deliberately the most even preset \u2014 no dominant terrain, everything available. The Sullen Lake is the one inland water body. One lane runs from every region to the centre island's heart, so the middle is what everyone is equidistant from and committed toward - the question is when to march down your spoke, not which way.",
+  "massif": {},
+  "perimeter": {},
+  "core": {},
+  "ridge": {}
+ },
+ "Wharf of St. Brannoch": {
+  "name": "Wharf of St. Brannoch",
+  "substrate": "plains",
+  "palette": [
+   "forest",
+   "mountain",
+   "plains",
+   "tundra",
+   "water",
+   "wetland"
+  ],
+  "shares": {
+   "forest": 0.12,
+   "mountain": 0.06,
+   "wetland": 0.02
+  },
+  "morphology": {
+   "forest": "blob",
+   "mountain": "scatter",
+   "wetland": "blob"
+  },
+  "buffers": [],
+  "band": {},
+  "scatter": {
+   "mountain": [
+    20,
+    1,
+    2,
+    4
+   ]
+  },
+  "border": {
+   "n": 0,
+   "s": 0,
+   "w": 0,
+   "e": {
+    "width": [
+     0,
+     1
+    ],
+    "span": [
+     0.2,
+     0.4
+    ]
+   }
+  },
+  "carve": null,
+  "structure": {
+   "gulf": {
+    "edge": "w",
+    "reach": [
+     0.84,
+     0.9
+    ],
+    "width": [
+     7,
+     8
+    ],
+    "centre": [
+     0.44,
+     0.5
+    ],
+    "shores": {
+     "n": [
+      "tundra",
+      [
+       1,
+       4
+      ],
+      0.55
+     ],
+     "s": [
+      "forest",
+      [
+       2,
+       5
+      ],
+      0.6
+     ]
+    },
+    "head": [
+     "tundra",
+     0.8
+    ],
+    "harbour": {
+     "at": [
+      0.4,
+      0.62
+     ],
+     "radius": [
+      2,
+      2
+     ],
+     "depth": [
+      2,
+      3
+     ],
+     "quay": "plains",
+     "arms": "forest",
+     "p": 0.5
+    },
+    "isle": {
+     "at": [
+      0.12,
+      0.3
+     ],
+     "size": [
+      7,
+      10
+     ],
+     "cliff": "mountain",
+     "quarry": true,
+     "p": 0.5
+    },
+    "islets": [
+     2,
+     3
+    ],
+    "islet_size": [
+     1,
+     3
+    ]
+   }
+  },
+  "require_hill": true,
+  "resource_min": {
+   "quarry": 2,
+   "forestry": 2
+  },
+  "climate": "deepwood",
+  "notes": "The Sarkopekt war-market: a U of sea between two shores, closed by one narrow land bridge. The Sea of Damnation runs in from the west almost to the east edge; the shores meet only across the barrens at its head (Dead Waters), so every march between them funnels through the bridge or waits on a Shipyard. North: the Bluffs of Vorghast, barren and peaked. South: a forested coast. Some boards add the Wharf of St. Brannoch, a basin with a quay ring and one narrow mouth between wooded arms, or the Ivory Isle out in the sea: Karalius's citadel island with a buildable middle and a quarried cliff.",
+  "border_mirror": "none",
+  "sea_crossing": "shipyard",
   "massif": {},
   "perimeter": {},
   "core": {},

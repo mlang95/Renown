@@ -830,7 +830,7 @@ function factionFlags(){const f=FAC[S.faction];if(!f)return [];const out=[];{con
     S.placed.filter(p=>!p.fac).forEach(p=>{const r=R[p.name];
       if(sen.includes(p.name)||types.some(t=>t===r.type&&new RegExp("\\b"+t+" (?:Pursuits|Holdings)","i").test(sen)))out.push(S.faction+": "+p.name+" — "+sen.trim());});});
   {const dv=S.domains||{},u=+ST.Untested||1,nr=facHit(S,"no_renown_into"),mx=facHit(S,"domain_max");    // Renown → Domain limits
-    if(nr&&(+dv[nr[1]]||0)>u)out.push(S.faction+": no Renown into "+nr[1]+" ("+nr[1]+" "+dv[nr[1]]+")");
+    if(nr&&(+dv[nr[1]]||0)>u)out.push(S.faction+": no Domain Points into "+nr[1]+" ("+nr[1]+" "+dv[nr[1]]+")");
     if(mx&&(+dv[mx[2]]||0)>+mx[1])out.push(S.faction+": "+mx[2]+" "+dv[mx[2]]+" > "+mx[1]);}
   return out;}
 // Factions offered by a culture are resolved from its mechanic_name list; legacy faction IDs fill only unmatched labels.
@@ -1315,7 +1315,7 @@ function armyCard(a,u){
   const lab=document.createElement("input");lab.className="lab";lab.placeholder="army label";lab.value=a.label||"";
   lab.oninput=()=>{a.label=lab.value;save();};top.appendChild(lab);
   const mor=document.createElement("span");mor.className="badge "+(routed?"noearn":"tier");
-  mor.textContent="morale "+effMorale(a)+"+"+(a.fatigue?(" ("+moraleBase(a)+"+ +"+(2*a.fatigue)+")"):"");top.appendChild(mor);
+  {const ms=moraleStanding(a);mor.textContent="morale "+effMorale(a)+"+"+(a.fatigue||ms?(" ("+moraleBase(a)+"+"+(a.fatigue?" +"+((BT.fatigueMorale??2)*a.fatigue):"")+(ms?" −"+ms.n+" "+ms.src:"")+")"):"");}top.appendChild(mor);
   const upL=document.createElement("span");upL.className="note";upL.textContent="upkeep";top.appendChild(upL);
   const up=document.createElement("b");up.textContent=fmt(-armyUpkeep(a));up.title=a.retinue+" Army cost";top.appendChild(up);
   const rm=document.createElement("button");rm.className="rm";rm.textContent="✕";
@@ -1407,7 +1407,10 @@ function armyUpkeep(a){const rt=EQ.retinues[a.retinue]||{};return +rt.cost||0;} 
 // Faction "Armies' Morale can't be modified beyond N+" (The Undying Flame): Morale is capped, so it never reaches the Rout value
 function moraleCap(a){const b=(D.players||[]).map(p=>p.board).find(bb=>(bb.armies||[]).includes(a));const f=b&&FAC[b.faction||""];
   const m=f&&hitOf("F:"+b.faction,"morale_cap");return m?+m[1]:null;}
-function effMorale(a){const v=moraleBase(a)+(BT.fatigueMorale??2)*(a.fatigue||0),c=moraleCap(a);return c!=null?Math.min(c,v):v;}
+// Standing "Morale +N" (STANDING_EFFECTS, Piety Rising): read as N steadier (lower Morale value), like Combatv4's "Shake +1"
+function moraleStanding(a){const b=(D.players||[]).map(p=>p.board).find(bb=>(bb.armies||[]).includes(a));if(!b)return null;
+  const x=standingFxOf(b.domains||{}).find(f=>/Morale\s*\+(\d+)/i.test(f.text));return x?{n:+x.text.match(/Morale\s*\+(\d+)/i)[1],src:x.t+" "+x.d}:null;}
+function effMorale(a){const ms=moraleStanding(a),v=moraleBase(a)+(BT.fatigueMorale??2)*(a.fatigue||0)-(ms?ms.n:0),c=moraleCap(a);return c!=null?Math.min(c,v):v;}
 function isRouted(a){return effMorale(a)>=(BT.routThr||11);}
 
 // modified Army stats (shared by the Army card, map plate, hover title and Move panel)
@@ -1501,7 +1504,8 @@ function calcMetrics(have,earned,tc){
      if(outside)bo.forEach(x=>{reduce+=+x.m[1];});                                    // once, while an Army is not in Province
      danegeldRows(me).forEach(x=>{extort+=x.amt;});   // Danegeld: upkeep still owed here; the at-war controller pays it (Extort, Empire Phase)
      if(lh.length&&S.armies.some(a=>{const k=armyHex(me,a);return k&&(S.settlements||[]).some(s=>settHex(me,s)===k);}))lh.forEach(x=>{reduce+=+x.m[1];});}}
-  dbActive(S).filter(x=>x.free&&x.dom==="Prowess"&&x.tier==="Sovereign").forEach(x=>{const m=String(x.text).match(/Upkeep\s*[−-]\s*([\d,]+)/i);if(m)reduce+=+m[1].replace(/,/g,"");});
+  // Standing "Upkeep -N" (High Quartermaster), earned or via Studium Generale
+  dbActive(S).forEach(x=>{const m=String(x.text).match(/Upkeep\s*[−-]\s*([\d,]+)/i);if(m)reduce+=+m[1].replace(/,/g,"");});
   const pursUp=S.placed.reduce((a,p)=>a+pursuitUpkeep(p),0);
   const armyGross=S.armies.reduce((s,a)=>s+armyUpkeep(a),0);
   const netArmy=Math.max(0,armyGross-reduce);
