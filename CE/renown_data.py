@@ -482,7 +482,7 @@ CULTURES = {
         'wonders':   ['Colossus'],
         'actions':   ['Move: Battle', 'Declare War', 'Demand Tribute'],
         'factions':  ['The Boundless Steppe', 'The Final Word', 'The Wandering Crown', 'The Ancient Wilds', 'The Winter Wolves','The Yew Heart'],
-        'mechanic_name': ['Horsemasters', 'The Decider', 'Pillagers', 'Archery is a Way of Life', 'Terrain Negotiators', 'Occupy', 'Scavengers', 'Siege Specialists', 'Occupy', 'The Highest Bidder'],
+        'mechanic_name': ['Horsemasters', 'The Decider', 'Pillagers', 'Archery is a Way of Life', 'Terrain Negotiators', 'Occupy', 'Scavengers', 'Siege Specialists', 'The Highest Bidder'],
         'radar': {'military_solutions': 5, 'economy_generators': 1, 'faith_management': 3, 'doubt_warfare': 2,
                   'political_control': 2, 'board_presence': 5, 'degenerate_punishment': 4},
     },
@@ -2672,6 +2672,15 @@ MONUMENT_SUMMARY = {
     "Whispering Undercroft":              "Vote in the Tally Phase; one Personal Envoy must pre-declare action & target",
     "Outrider Intercept Post":            "Opponents reveal their Tactic Card before you choose yours",
     "Port Authority":                     "+100 gold per Craft",
+}
+
+# One-line Wonder summaries (playstyle reference). Condensed from each Wonder's
+# empire_bonus — edit the Wonder first, then this line.
+WONDER_SUMMARY = {
+    "Colossus":              "Back your own Prowess Envoys before the vote; Speed +2, Siege Timer -2, Immune Blunder",
+    "The Grand Exchange":    "Count as Trading with 2 more players; your own Trade Income doubled",
+    "The Eternal Sepulchre": "Public Order never below 5; Settlements Reach +2",
+    "High Chancery":         "Endorse one Envoy you sent in the Tally Phase",
 }
 
 # ── FACTIONS ────────────────────────────────────────────────────────────────

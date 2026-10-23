@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # playstyle_reference.py - culture playstyle reference (landscape Letter, banner per culture).
-# Reads CULTURES, NODES (Monuments), MONUMENT_SUMMARY, WONDERS, FACTIONS, DOMAIN_BOARD from renown_data_d10.
+# Reads CULTURES, NODES (Monuments), MONUMENT_SUMMARY, WONDERS, WONDER_SUMMARY, FACTIONS, DOMAIN_BOARD from renown_data_d10.
 # Standing path is derived from each culture's Monument unlocks. Path names come from spec_tree_sheet.TREES.
 # Faction mechanics are listed rarest-first (fewest cultures sharing them) until the banner is full.
 # Usage:  python playstyle_reference.py [out.pdf] [--per-page N]   (default: cards/playstyle_reference.pdf, 4)
@@ -39,6 +39,7 @@ DBOARD  = getattr(rd, "DOMAIN_BOARD", {})
 FSUM    = {k: v.get("summary", "") for k, v in FACT.items() if isinstance(v, dict)}
 MONS    = {k: v for k, v in rd.NODES.items() if v.get("monument") or v.get("type") == "Monument"}
 MSUM    = getattr(rd, "MONUMENT_SUMMARY", {})
+WSUM    = getattr(rd, "WONDER_SUMMARY", {})
 try:
     from spec_tree_sheet import TREES
 except Exception:
@@ -64,7 +65,9 @@ META  = HexColor("#33333b"); SEP = HexColor("#efece4")
 
 
 def _c(h): return HexColor(h)
-def disp(x): return x[4:] if x.startswith("The ") else x
+def disp(x):
+    x = _D(x)   # display name first: NAME_DISPLAY keys carry the leading "The "
+    return x[4:] if x.startswith("The ") else x
 
 
 MECH_ALIASES = {"fiends in low places": "friends in low places"}
@@ -130,6 +133,7 @@ def validate():
             elif not MSUM.get(m): warn.append(f"{cn}: Monument {m!r} has no MONUMENT_SUMMARY")
         for w in c.get("wonders", []):
             if w not in WONDERS: warn.append(f"{cn}: {w!r} not in WONDERS")
+            elif not WSUM.get(w): warn.append(f"{cn}: Wonder {w!r} has no WONDER_SUMMARY")
         for a in c.get("actions", []):
             if a.split(":")[0].strip() not in ACTIONS: warn.append(f"{cn}: action {a!r} not in ACTIONS")
         labels = c.get("mechanic_name", [])
@@ -310,7 +314,7 @@ COLW = 262        # Monuments & Wonders column; Faction Mechanics takes the rest
 LEAD = 9.0
 SZ   = 8.3
 SSZ  = 7.2        # summary text
-SLEAD = 8.2
+SLEAD = 8.0
 
 
 def banner(c, name, x, ytop, bh):
@@ -379,7 +383,7 @@ def banner(c, name, x, ytop, bh):
             c.drawString(x1 + mw + 4, yy, u)
         yy -= SLEAD
         runs = [(path_name(m) + ":", SERIF_I, WONINK), (" " + MSUM.get(m, ""), SERIF, INK)]
-        yy = draw_lines(c, x1 + 6, yy, layout(c, runs, SSZ, COLW - 6, 0), SSZ, SLEAD) - 2.2
+        yy = draw_lines(c, x1 + 6, yy, layout(c, runs, SSZ, COLW - 6, 0), SSZ, SLEAD) - 0.9
     yy -= 1
     flow(c, x1, yy, COLW, [("◆ " + disp(w), SERIF, WONINK) for w in cu.get("wonders", [])],
          SZ, LEAD, sep=("   ", SERIF, WONINK))
@@ -423,16 +427,32 @@ def page_chrome(c, pg, npg):
     c.drawRightString(PAGE_W - MX, FOOT_Y, f"{pg}/{npg}")
 
 
+KEY_H = 27        # Wonder key strip above the footer
+
+
+def wonder_key(c, names):
+    """Two-column key: every Wonder held by a culture on this page, with its summary."""
+    ws = [w for w in WONDERS if any(w in CULT[n].get("wonders", []) for n in names)]
+    cw = (W - PAD) / 2
+    ytop = BOT + KEY_H - 11
+    for i, w in enumerate(ws):
+        runs = [("◆ " + disp(w), SERIF_B, WONINK)]
+        if WSUM.get(w): runs.append((" — " + WSUM[w], SERIF, INK))
+        draw_lines(c, MX + (i % 2)*(cw + PAD), ytop - (i // 2)*SLEAD * 1.25,
+                   layout(c, runs, SSZ, cw, 8)[:1], SSZ, SLEAD)
+
+
 def build(out, per_page=4):
     validate()
     names = order()
     pages = [names[i:i+per_page] for i in range(0, len(names), per_page)]
-    bh = (TOP - BOT - (per_page - 1)*GAP) / per_page
+    bh = (TOP - BOT - KEY_H - (per_page - 1)*GAP) / per_page
     c = canvas.Canvas(out, pagesize=(PAGE_W, PAGE_H))
     for pi, pg in enumerate(pages, 1):
         page_chrome(c, pi, len(pages))
         for i, n in enumerate(pg):
             banner(c, n, MX, TOP - i*(bh + GAP), bh)
+        wonder_key(c, pg)
         c.showPage()
     c.save()
     print("playstyle reference ->", out)
