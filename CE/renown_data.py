@@ -2648,30 +2648,30 @@ def get_data(mode="renown"):
         return {k: v for k, v in NODES.items() if "escalation" in v}
     return dict(NODES)
 
-# One-line Monument summaries (playstyle reference). Condensed from each Monument's
-# innate text — edit the Monument first, then this line.
+# One-line Monument summaries (playstyle reference). The gist of each Monument's
+# innate text, for choosing a playstyle (no numbers) — edit the Monument first, then this line.
 MONUMENT_SUMMARY = {
-    "Ossuary Crypt":                      "Every Piety action adds Doubt +1; your Piety actions ignore your Public Order",
-    "Baggage Train":                      "No Army upkeep at home, -2000 abroad; Move at the start of the Empire Phase",
-    "Office of Works":                    "Ignore 'Besieged' restrictions; Siege Timer +2; Build Timer -2",
-    "Royal Pavilion":                     "Armies Immune Strained; Parry +1, Strike +1; Deadly & Cleave Focus on 8+",
-    "Imperial Palace":                    "Lower-Prowess rivals gain Doubt +2; your failing Envoys pass",
-    "Artillery Park":                     "Sieges ignore Wooden & Stone Walls; Siege Timer -2; no Sally Forth; Arquebus",
-    "Ministry of Military Strategy":      "You always Seize the Initiative, opponents never; max initiative 3; Drilled",
-    "Thieves' Guild":                     "Recoup 1000 on others' Cunning actions; Extort half of non-traders' Trade Income",
-    "Senate Hall":                        "Faith +1; Influence +1 per player; Condemn at-war or Endorse allied Envoys",
-    "Papal Palace":                       "Free Piety Envoys; Tithe every lower-Piety player each Empire Phase",
-    "Inquisitorial Palace":               "All Doubt-causing actions +1; Grand Vizier runs on Piety",
-    "Preceptory of the Knight's Templar": "Muster Knight's Templar; Faith +3 each Empire Phase during Sacred War",
-    "Exalted Basilica":                   "Endorsed Spread Truth at the start of the Empire Phase",
-    "Manor House":                        "+200 gold per active natural Holding",
-    "Aristocratic Court":                 "Extort 1000 from poorer rivals; your Council vote counts twice",
-    "Studium Generale":                   "Influence +1 per Established Standing; one free Sovereign Domain effect",
-    "Outlaw Rookery":                     "You & Bandit Camps +1 Authority on Cunning Envoys; Foster Rebellion spawns Bandits",
-    "Advanced Blast Furnace":             "Upkeep -1000; Crafted Weapons; Craft +3",
-    "Whispering Undercroft":              "Vote in the Tally Phase; one Personal Envoy must pre-declare action & target",
-    "Outrider Intercept Post":            "Opponents reveal their Tactic Card before you choose yours",
-    "Port Authority":                     "+100 gold per Craft",
+    "Ossuary Crypt":                      "Piety Actions Spread Doubt, Target Anyone with Piety",
+    "Baggage Train":                      "Cheaper Armies, Free Move Each Empire Phase",
+    "Office of Works":                    "Ignores Siege Restrictions, Harder to Siege, Builds Faster",
+    "Royal Pavilion":                     "Tireless, Deadlier Armies",
+    "Imperial Palace":                    "Weaker Rivals Gain Doubt, Your Envoys Can't Fail",
+    "Artillery Park":                     "Ignores Walls, Faster Sieges, No Sallies, Unlocks Arquebus",
+    "Ministry of Military Strategy":      "Always Seizes the Initiative, Drilled Armies",
+    "Thieves' Guild":                     "Profits from Rivals' Cunning, Extorts Non-Traders",
+    "Senate Hall":                        "Faith & Influence Income, Sways Envoys for Allies",
+    "Papal Palace":                       "Free Piety Envoys, Tithes Less Pious Rivals",
+    "Inquisitorial Palace":               "Amplifies All Doubt, Piety-Powered Grand Vizier",
+    "Preceptory of the Knight's Templar": "Unlocks Knight's Templar, Faith from Sacred War",
+    "Exalted Basilica":                   "Spreads Truth Every Turn",
+    "Manor House":                        "Gold from Natural Holdings",
+    "Aristocratic Court":                 "Extorts Poorer Rivals, Double Council Vote",
+    "Studium Generale":                   "Influence from Broad Standing, Free Sovereign Effect",
+    "Outlaw Rookery":                     "Bandit Allies, Rebellions Raise Bandit Armies",
+    "Advanced Blast Furnace":             "Cheaper Upkeep, Crafted Weapons, More Craft",
+    "Whispering Undercroft":              "Votes Last, Forces Rivals to Show Their Hand",
+    "Outrider Intercept Post":            "Sees Opponents' Tactic Cards First",
+    "Port Authority":                     "Gold from Craft",
 }
 
 # One-line Wonder summaries (playstyle reference). Condensed from each Wonder's

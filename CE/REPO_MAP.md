@@ -1,6 +1,6 @@
 # REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`)
 
-Generated 2026-10-23 · data VERSION `0.4.9.9.13-d10-S` · HEAD `ad78771 2026-10-23`
+Generated 2026-10-23 · data VERSION `0.4.9.9.13-d10-S` · HEAD `b8397d6 2026-10-23`
 
 Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to the repo root.
 
@@ -80,7 +80,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\COMPREHENSIVE_RULES_OUTLINE.md` | 180 | Renown — Comprehensive Rules: outline |
 | `CE\ENVOY_WINDOW_REVIEW.md` | 86 | Envoy timing windows — review list |
 | `CE\HOLDING_MECHANICS_AUDIT.md` | 54 | Holding Mechanics Audit |
-| `CE\REPO_MAP.md` | 902 | REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`) |
+| `CE\REPO_MAP.md` | 903 | REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`) |
 | `CE\RULES_push.md` | 649 | Renown |
 | `CE\RULES_push_simple.md` | 684 | Renown |
 | `CE\RULES_reorganized_6.md` | 638 | Renown |
