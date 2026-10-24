@@ -708,26 +708,31 @@ function rescatterWild(){const M=mapState();Object.entries(wildZones()).forEach(
 // a piece's Presence (PRESENCE_RANGE, one flat range for Settlements and Armies), the range at which a Bandit Camp can target it
 function pieceAura(k){const c=mapState().cells[k];if(!c)return 0;if(c.type==="Army"){return presR();}
   const s=cellSett(k).s;return s&&settUnbuilt(s)?0:presR();}
-// ---- Settlement Wards on the map (WARD_MODEL "range1"): the first Ward is the Settlement itself; each further Ward occupies a
-// Territory within Range 1 of it (M.wards[hex] = {player, sid}) and extends the Settlement's Presence from there
+// ---- Settlement Wards on the map (WARD_MODEL "range1"): each Ward occupies a Territory within Range 1 of its Settlement
+// (M.wards[hex] = {player, sid}) and extends the Settlement's Presence from there
 let WARDPICK=null;   // {pid, sid} while the player picks Ward Territories on the map
 function wardMap(){return (DATA.rulesConst||{}).WARD_MODEL==="range1";}
 function wardsOf(p,s){const W=mapState().wards;return Object.keys(W).filter(k=>String(W[k].player)===String(p.id)&&String(W[k].sid)===String(s.id));}
-function wardRoom(p,s){return settUnbuilt(s)?0:Math.max(0,withBoard(p.board,()=>wardUse(s.id).cap)-1);}
+function wardRoom(p,s){return settUnbuilt(s)?0:withBoard(p.board,()=>wardUse(s.id).cap);}
 function wardCand(p,s){const sk=settHex(p,s);if(!sk)return [];const V=decodeGrid(mapState().grid);
   return hexNb(sk).filter(k=>{const h=V.hex[k];return !!h&&h.t!=="water"&&!terrBlocked(h.t)&&hexFree(k);});}
 // the hexes a piece's Presence radiates from: the piece, plus its Settlement's Wards
 function presHexes(k){const c=mapState().cells[k];if(!wardMap()||!c||c.type==="Army")return [k];const cs=cellSett(k);return cs.s?[k].concat(wardsOf(cs.p,cs.s)):[k];}
 // drop Wards whose Settlement is no longer on the map
 function wardPrune(){const W=mapState().wards;Object.keys(W).forEach(k=>{const p=pById(W[k].player),s=p&&settById(p,W[k].sid);if(!s||!settHex(p,s))delete W[k];});}
-function wardMarks(R,XY,pts){if(!wardMap())return "";const W=mapState().wards;let s="";
+// Ward n on the board (wardChains order) = the n-th Ward hex placed; the hex shows that Ward's top-most Holding, else a keep
+function wardMarks(R,XY,pts){if(!wardMap())return "";const W=mapState().wards;let s="";const CH={};
   Object.keys(W).forEach(k=>{const p=pById(W[k].player),st=p&&settById(p,W[k].sid),sk=st&&settHex(p,st);if(!sk)return;const [cx,cy]=XY(k),[sx,sy]=XY(sk),w=R*.34;
+    const ck=p.id+":"+st.id,chains=CH[ck]=CH[ck]||withBoard(p.board,()=>wardChains(st.id)),wc=chains[wardsOf(p,st).indexOf(k)],sp=wc&&(SPR.key||{})[wc.front.name];
     const inset=pts(cx,cy).split(" ").map(v=>{const [x,y]=v.split(",").map(Number);return (cx+(x-cx)*.8).toFixed(1)+","+(cy+(y-cy)*.8).toFixed(1);}).join(" ");
     s+='<line x1="'+sx.toFixed(1)+'" y1="'+sy.toFixed(1)+'" x2="'+cx.toFixed(1)+'" y2="'+cy.toFixed(1)+'" stroke="'+p.color+'" stroke-width="2" stroke-opacity=".55" pointer-events="none"/>'+
       '<polygon points="'+inset+'" fill="'+p.color+'" fill-opacity=".3" stroke="#111" stroke-width="3.6" stroke-opacity=".75" pointer-events="none"/>'+
       '<polygon points="'+inset+'" fill="none" stroke="'+p.color+'" stroke-width="2" pointer-events="none"/>'+
+      (sp?sprSVG(sp,R*1.15,true).replace('<svg class="eqi"','<svg x="'+(cx-R*.575).toFixed(1)+'" y="'+(cy-R*.575).toFixed(1)+'" pointer-events="none"'):
       '<path d="M'+(cx-w).toFixed(1)+' '+(cy+w).toFixed(1)+'V'+(cy-w*.6).toFixed(1)+'h'+(w*.5).toFixed(1)+'v'+(w*.4).toFixed(1)+'h'+(w*.5).toFixed(1)+'v'+(-w*.4).toFixed(1)+
-        'h'+(w*.5).toFixed(1)+'v'+(w*.4).toFixed(1)+'h'+(w*.5).toFixed(1)+'V'+(cy+w).toFixed(1)+'Z" fill="'+p.color+'" stroke="#111" stroke-width=".8" pointer-events="none"/>';});
+        'h'+(w*.5).toFixed(1)+'v'+(w*.4).toFixed(1)+'h'+(w*.5).toFixed(1)+'V'+(cy+w).toFixed(1)+'Z" fill="'+p.color+'" stroke="#111" stroke-width=".8" pointer-events="none"/>')+
+      '<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="#000" fill-opacity="0" style="cursor:pointer"><title>'+k+' · '+esc(p.name+" · "+(st.name||st.tier)+" · Ward "+(wardsOf(p,st).indexOf(k)+1)+": "+
+        (wc?wc.chain.slice().reverse().map(x=>x.name).join(" → "):"open"))+'</title></polygon>';});
   if(WARDPICK){const p=pById(WARDPICK.pid),st=p&&settById(p,WARDPICK.sid);if(st)wardCand(p,st).forEach(k=>{const [cx,cy]=XY(k);
     s+='<polygon points="'+pts(cx,cy)+'" fill="#f3d38a" fill-opacity=".25" stroke="#f3d38a" stroke-width="2" stroke-dasharray="4 3" pointer-events="none"/>';});}
   return s;}

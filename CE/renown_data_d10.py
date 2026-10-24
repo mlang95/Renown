@@ -3342,15 +3342,15 @@ SETTLEMENTS = {
 # included, Bandit Camps not) unless that Move performs a Battle or Lay Siege against it. Board: DATA.rulesConst.PRESENCE_RANGE.
 PRESENCE_RANGE = 2
 # Settlement Wards. "abstract": Wards are slots inside the Settlement, never placed on the map.
-# "range1" (live): each Ward beyond the first occupies a Territory within Range 1 of the Settlement.
+# "range1" (live): each Ward occupies a Territory within Range 1 of the Settlement.
 # Switch WARD_MODEL between them; the rules prose reads WARD_RULE ({{VAL:WARD_RULE}}), the board reads DATA.rulesConst.WARD_MODEL.
 WARD_MODEL = "range1"
 WARD_RULES = {
     "abstract": ("A Settlement Ward is a slot inside a Settlement that holds one Holding; Wards are never placed on the map. "
                  "A Settlement has one Ward per tier: a Village has {Village}, a Town {Town}, a City {City} and a Metropolis {Metropolis}. "
                  "A Hamlet has {Hamlet} Wards."),
-    "range1":   ("A Settlement Ward is a slot that holds one Holding. A Settlement's first Ward is the Settlement itself; each further "
-                 "Ward occupies a Territory within Range 1 of the Settlement and extends its Presence from there. A Settlement has one "
+    "range1":   ("A Settlement Ward is a slot that holds one Holding. Each Ward occupies a Territory within Range 1 of its "
+                 "Settlement and extends the Settlement's Presence from there. A Settlement has one "
                  "Ward per tier: a Village has {Village}, a Town {Town}, a City {City} and a Metropolis {Metropolis}. A Hamlet has {Hamlet} Wards."),
 }
 WARD_RULE = WARD_RULES[WARD_MODEL].format(**{k: v["wards"] for k, v in SETTLEMENTS.items()})
@@ -4111,7 +4111,7 @@ GLOSSARY.update({
     "Sally Forth":  "While a settlement you control is besieged and you have an army inside it, you may Sally Forth: Battle in the Battle Phase without performing an action.",
     "War Weariness":"gain Doubt 1 for each consecutive Battle you lose in the Empire Phase.",
     "Settlement Ward": ("A slot in a Settlement that holds one Pursuit; a Settlement has one Ward per tier (a Hamlet has 3 Wards, Natural Pursuits only)."
-                        + (" Wards are not placed on the map." if WARD_MODEL == "abstract" else " Each Ward beyond the first occupies a Territory within Range 1 of the Settlement.")),
+                        + (" Wards are not placed on the map." if WARD_MODEL == "abstract" else " Each Ward occupies a Territory within Range 1 of the Settlement.")),
     "Efficient X":  "While this Pursuit occupies the same Settlement Ward as X (the Raw Material or Pursuit named on its tile), it uses no ward of its own \u2014 the two share one ward. Placed anywhere else, it fills a ward normally. (Core Principle 13.) Note: Two Pursuits that are Efficient with the same Pursuit cannot share a Ward with each other.",
 })
 
