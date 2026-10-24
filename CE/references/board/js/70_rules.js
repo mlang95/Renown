@@ -432,7 +432,8 @@ function auraSources(p){const M=mapState(),out=[],PR=presR();
     if(c.type==="Army"){const x=cellArmy(k),r=PR;
       out.push({k,r,kind:"battle",war:war&&!!x.a,label:q.name+" · "+(x.a?(x.a.label||("Army "+x.a.id)):"Army"),B:x.a?{pid:String(q.id),aid:String(x.a.id)}:null});}
     else{const cs=cellSett(k),r=cs.s&&settUnbuilt(cs.s)?0:PR;
-      out.push({k,r,kind:"siege",war:war&&!!cs.s&&!siegeOn(q.id,cs.s.id),label:q.name+" · "+(cs.s?(cs.s.name||cs.s.tier):c.type),tp:q.id,sid:cs.s?cs.s.id:null});}});
+      const o={k,r,grp:k,kind:"siege",war:war&&!!cs.s&&!siegeOn(q.id,cs.s.id),label:q.name+" · "+(cs.s?(cs.s.name||cs.s.tier):c.type),tp:q.id,sid:cs.s?cs.s.id:null};
+      out.push(o);presHexes(k).slice(1).forEach(w=>out.push(Object.assign({},o,{k:w,ward:true})));}});   // its Wards on the map carry the same Presence
   Object.keys(M.camps).forEach(k=>{const cp=M.camps[k];if(+cp.n<(BAN.armyThreshold||25))return;
     out.push({k,r:PR,kind:"battle",war:true,bandit:true,label:"Bandit Army @ "+k,B:{kind:"bandit",camp:k}});});
   return out.filter(o=>o.r>0);}
@@ -441,7 +442,9 @@ function moveRange(p,a,startK){const M=mapState(),g=M.grid;if(!g||!startK)return
   const AS=auraSources(p),cov={},hexes=Object.keys(V.hex);
   AS.forEach((o,i)=>{const c=hk(o.k);o.set=new Set(hexes.filter(h=>hexDist(c,hk(h))<=o.r));o.set.forEach(h=>{(cov[h]=cov[h]||[]).push(i);});});
   // ex = Presence(s) lifted for a run: a number or a Set. Starting inside non-allied Presence (ruling): it may be crossed, but the Move must end outside every Presence
-  const startIn=new Set(cov[startK]||[]),lift=(...a)=>new Set([...startIn,...a]);
+  // lifting a Settlement's Presence lifts its Wards' too (same grp)
+  const grp=i=>AS.map((o,j)=>j).filter(j=>j===i||(AS[i].grp!=null&&AS[j].grp===AS[i].grp));
+  const startIn=new Set(cov[startK]||[]),lift=(...a)=>new Set([...startIn,...a.flatMap(grp)]);
   const blockedX=(h,ex)=>{const L=cov[h];if(!L)return false;const E=ex instanceof Set?ex:new Set([ex]);return L.some(i=>!E.has(i));};
   // one Dijkstra over (hex, water state): 0 land, 1 on Water (must land next), 2 landed after Water (move ends); ex = the Presence lifted for this run
   const run=ex=>{const key=(k,w)=>k+"|"+w,best={},prev={},Q=[[0,startK,0]],reach={};best[key(startK,0)]=0;
@@ -457,15 +460,16 @@ function moveRange(p,a,startK){const M=mapState(),g=M.grid;if(!g||!startK)return
     const fin=(k,x)=>{const path=[];let cur=x.from;while(cur){path.unshift(cur.split("|")[0]);cur=prev[cur];}
       return Object.assign({},x,{path,strain:path.some(z=>{const h=V.hex[z];return h&&terrStrain(tr.mtnGrass&&h.t==="mountain"?"plains":h.t)&&!tr.ignoreTerrain;})});};
     return {reach,fin};};
+  const foe=k=>{const w=M.wards[k];return !!w&&String(w.player)!==String(p.id);};   // another player's Ward: no Move ends there
   const dest={},base=run(lift());
   Object.keys(base.reach).forEach(k=>{const x=base.reach[k];
     if(startIn.size&&cov[k])return;                                                  // started inside a Presence: end outside all of them
-    if(!M.cells[k]&&!M.camps[k])dest[k]=base.fin(k,x);
+    if(!M.cells[k]&&!M.camps[k]&&!foe(k))dest[k]=base.fin(k,x);
     else if(M.cells[k]&&M.cells[k].type!=="Army"&&!M.camps[k]){const cs=cellSett(k),ent=cs.s?enterCheck(p,a,cs.p,cs.s):null;
       if(ent&&ent.ok)dest[k]=Object.assign(base.fin(k,x),{enter:{pid:String(cs.p.id),sid:cs.s.id,name:cs.s.name||cs.s.tier,kick:ent.kick||null}});}});
   // Battle / Lay Siege: end adjacent to the target, through its own Presence (other non-allied Presence still blocks)
-  AS.forEach((o,i)=>{if(!o.war||(o.kind==="battle"&&!o.B)||hexDist(hk(startK),hk(o.k))>S_.speed+1)return;const R_=run(lift(i));
-    hexNb(o.k).forEach(k=>{const x=R_.reach[k];if(!x||k===startK||M.cells[k]||M.camps[k]||blockedX(k,lift(i)))return;   // already adjacent: use Engage in the panel
+  AS.forEach((o,i)=>{if(o.ward||!o.war||(o.kind==="battle"&&!o.B)||hexDist(hk(startK),hk(o.k))>S_.speed+1)return;const R_=run(lift(i));
+    hexNb(o.k).forEach(k=>{const x=R_.reach[k];if(!x||k===startK||M.cells[k]||M.camps[k]||foe(k)||blockedX(k,lift(i)))return;   // already adjacent: use Engage in the panel
       if(dest[k]&&dest[k].engage)return;dest[k]=Object.assign(R_.fin(k,x),{engage:o});});});
   return {speed:S_,dest,aura:cov,inAura:startIn.size>0};}
 function moveInfo(){const x=selArmy();if(!x)return null;const k=armyHex(x.p,x.a);if(!k)return {p:x.p,a:x.a,k:null,err:"Army is not on the map"};

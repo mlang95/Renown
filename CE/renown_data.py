@@ -3341,10 +3341,10 @@ SETTLEMENTS = {
 # Presence (Prowess rule): an Army can't move within PRESENCE_RANGE of a non-allied Settlement or Army (Bandit Armies
 # included, Bandit Camps not) unless that Move performs a Battle or Lay Siege against it. Board: DATA.rulesConst.PRESENCE_RANGE.
 PRESENCE_RANGE = 2
-# Settlement Wards. "abstract" (live): Wards are slots inside the Settlement, never placed on the map.
-# "range1" (audit variant): each Ward beyond the first occupies a Territory within Range 1 of the Settlement.
-# Flip WARD_MODEL to audit; the rules prose reads WARD_RULE ({{VAL:WARD_RULE}}), the board reads DATA.rulesConst.WARD_MODEL.
-WARD_MODEL = "abstract"
+# Settlement Wards. "abstract": Wards are slots inside the Settlement, never placed on the map.
+# "range1" (live): each Ward beyond the first occupies a Territory within Range 1 of the Settlement.
+# Switch WARD_MODEL between them; the rules prose reads WARD_RULE ({{VAL:WARD_RULE}}), the board reads DATA.rulesConst.WARD_MODEL.
+WARD_MODEL = "range1"
 WARD_RULES = {
     "abstract": ("A Settlement Ward is a slot inside a Settlement that holds one Holding; Wards are never placed on the map. "
                  "A Settlement has one Ward per tier: a Village has {Village}, a Town {Town}, a City {City} and a Metropolis {Metropolis}. "

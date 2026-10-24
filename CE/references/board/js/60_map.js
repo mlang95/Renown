@@ -40,7 +40,7 @@ function tSwatch(kind,fill,px){px=px||26;const g=tGlyph(kind,fill);
 const RCOL={mine:'#161616',quarry:'#8a3b2e',arable:'#7a4f2a',forestry:'#2f5d2f',apiary:'#e8c020',salt:'#ece6d6',peat:'#4a3420',fish:'#2f6f8f'};
 const C2T={p:'plains',f:'forest',w:'wetland',t:'tundra',m:'mountain','~':'water'};
 let MAPVIEW=null;                                   // decoded grid cache {sig, hex:{key:{t,res,reg,hill}}}
-function mapState(){const M=D.map;M.cells=M.cells||{};M.outlaw=M.outlaw||{};M.camps=M.camps||{};return M;}
+function mapState(){const M=D.map;M.cells=M.cells||{};M.outlaw=M.outlaw||{};M.camps=M.camps||{};M.wards=M.wards||{};return M;}
 function hexDist(a,b){if(MG)return MG.dist(a,b);
   const cu=(c,r)=>{const x=c,z=r-((c-(c&1))>>1);return [x,-x-z,z];},A=cu(a[0],a[1]),B=cu(b[0],b[1]);
   return (Math.abs(A[0]-B[0])+Math.abs(A[1]-B[1])+Math.abs(A[2]-B[2]))/2;}
@@ -386,6 +386,9 @@ function inspSett(k){const {p,s}=cellSett(k),cell=mapState().cells[k];if(!p)retu
   if(inspCan(p.id))h+='<div class="ir"><span class="k">Name</span><input data-insp-name="'+p.id+':'+s.id+'" data-nav="1" value="'+esc(s.name||"")+'" placeholder="'+esc(s.tier)+'" style="flex:1;min-width:0">'+
     (PN?'<button data-insp-rename="'+p.id+':'+s.id+'" data-nav="1" title="new name ('+esc(nameCulture(p.board)||"")+')">🎲</button>':'')+'</div>';
   h+=settActionsHTML(p,s);
+  if(wardMap()){const n=wardsOf(p,s).length,rm=wardRoom(p,s),on=WARDPICK&&String(WARDPICK.pid)===String(p.id)&&String(WARDPICK.sid)===String(s.id);
+    h+='<div class="ir"><span class="k">Wards on the map</span><b>'+n+' / '+rm+'</b>'+(n>rm?' <b class="note" style="color:var(--upkeep)">'+(n-rm)+' over</b>':'')+
+      (inspCan(p.id)&&(rm>0||n>0)?'<button data-insp-ward="'+p.id+':'+s.id+'" data-nav="1" style="margin-left:auto">'+(on?'Done':'Place Wards ▸')+'</button>':'')+'</div>';}
   h+='<div class="ig">'+inspCell("GOLD",g$(e.gold),e.gold<0?"neg":"pos")+inspCell(esc(e.sea.toUpperCase()),g$(e.seas))+inspCell("HLDG UPKEEP",g$(-e.hUp),"neg")+inspCell("NET",g$(e.net),e.net<0?"neg":"pos")+
     inspCell("TAX",e.tax.toLocaleString())+inspCell("CRAFT",e.craft)+inspCell("ARMY UPK −",Math.abs(e.upRed||0).toLocaleString(),e.upRed?"pos":"")+inspCell(esc(SCORE.toUpperCase()),g$(e.infl))+'</div>';
   h+='<div class="ir"><span class="k">Faith / Doubt</span><b>'+e.faith+' / '+e.doubt+'</b><span class="k">· Holdings</span><b>'+e.occ+'</b></div>';
@@ -466,6 +469,8 @@ function wireInsp(host){const P=host.querySelector("#inspPanel");if(!P)return;
   P.querySelectorAll("[data-insp-name]").forEach(inp=>inp.onchange=()=>{const [pid,sid]=inp.dataset.inspName.split(":"),q=pById(pid),st=q&&settById(q,sid);
     if(!st||!inspCan(pid))return;const v=inp.value.trim();if(v)st.name=v;else delete st.name;save();render();});
   P.querySelectorAll("[data-insp-sel]").forEach(b=>b.onclick=()=>{const [pid,aid]=b.dataset.inspSel.split(":");SEL={pid,aid};render();});
+  P.querySelectorAll("[data-insp-ward]").forEach(b=>b.onclick=()=>{const [pid,sid]=b.dataset.inspWard.split(":");
+    WARDPICK=WARDPICK&&String(WARDPICK.pid)===pid&&String(WARDPICK.sid)===sid?null:{pid,sid};render();});
   P.querySelectorAll("[data-insp-x]").forEach(b=>b.onclick=()=>{INSP=null;render();});
   P.querySelectorAll("[data-insp-board]").forEach(b=>b.onclick=()=>{D.active=+b.dataset.inspBoard;reindex();D.view="board";save();render();if(typeof renderList==="function")renderList();});
   P.querySelectorAll("[data-insp-dest]").forEach(sel=>sel.onchange=()=>{if(!sel.value)return;const [pid,sid]=sel.dataset.inspDest.split(":");if(!inspCan(sel.value)){flash("🔒 not your Destabilize");render();return;}
@@ -536,7 +541,7 @@ function mapLayers(M){
         edge+='<path d="M'+a[0].toFixed(1)+' '+a[1].toFixed(1)+'L'+b[0].toFixed(1)+' '+b[1].toFixed(1)+'" stroke="'+ec+'"/>';});});
     s+='<g pointer-events="none">'+tint+'</g><g fill="none" stroke-width="2" stroke-opacity=".8" stroke-linecap="round" pointer-events="none">'+edge+'</g>';
   }
-  s+=over;
+  s+=over+wardMarks(R,XY,pts);
   if(mtool==="Select")s+=moveOverlay(R,dx,dy,pts);
   if(g&&M.showStarts)(g.settlements||[]).forEach(reg=>reg.forEach(st=>{const cx=R+st[0]*dx,cy=dy/2+st[1]*dy+(st[0]%2?dy/2:0),w=R*.42;
     s+='<rect x="'+(cx-w).toFixed(1)+'" y="'+(cy-w).toFixed(1)+'" width="'+(w*2).toFixed(1)+'" height="'+(w*2).toFixed(1)+'" fill="none" stroke="#b3392f" stroke-width="1.6" stroke-dasharray="3 2" pointer-events="none"/>';}));
@@ -703,12 +708,35 @@ function rescatterWild(){const M=mapState();Object.entries(wildZones()).forEach(
 // a piece's Presence (PRESENCE_RANGE, one flat range for Settlements and Armies), the range at which a Bandit Camp can target it
 function pieceAura(k){const c=mapState().cells[k];if(!c)return 0;if(c.type==="Army"){return presR();}
   const s=cellSett(k).s;return s&&settUnbuilt(s)?0:presR();}
+// ---- Settlement Wards on the map (WARD_MODEL "range1"): the first Ward is the Settlement itself; each further Ward occupies a
+// Territory within Range 1 of it (M.wards[hex] = {player, sid}) and extends the Settlement's Presence from there
+let WARDPICK=null;   // {pid, sid} while the player picks Ward Territories on the map
+function wardMap(){return (DATA.rulesConst||{}).WARD_MODEL==="range1";}
+function wardsOf(p,s){const W=mapState().wards;return Object.keys(W).filter(k=>String(W[k].player)===String(p.id)&&String(W[k].sid)===String(s.id));}
+function wardRoom(p,s){return settUnbuilt(s)?0:Math.max(0,withBoard(p.board,()=>wardUse(s.id).cap)-1);}
+function wardCand(p,s){const sk=settHex(p,s);if(!sk)return [];const V=decodeGrid(mapState().grid);
+  return hexNb(sk).filter(k=>{const h=V.hex[k];return !!h&&h.t!=="water"&&!terrBlocked(h.t)&&hexFree(k);});}
+// the hexes a piece's Presence radiates from: the piece, plus its Settlement's Wards
+function presHexes(k){const c=mapState().cells[k];if(!wardMap()||!c||c.type==="Army")return [k];const cs=cellSett(k);return cs.s?[k].concat(wardsOf(cs.p,cs.s)):[k];}
+// drop Wards whose Settlement is no longer on the map
+function wardPrune(){const W=mapState().wards;Object.keys(W).forEach(k=>{const p=pById(W[k].player),s=p&&settById(p,W[k].sid);if(!s||!settHex(p,s))delete W[k];});}
+function wardMarks(R,XY,pts){if(!wardMap())return "";const W=mapState().wards;let s="";
+  Object.keys(W).forEach(k=>{const p=pById(W[k].player),st=p&&settById(p,W[k].sid),sk=st&&settHex(p,st);if(!sk)return;const [cx,cy]=XY(k),[sx,sy]=XY(sk),w=R*.34;
+    const inset=pts(cx,cy).split(" ").map(v=>{const [x,y]=v.split(",").map(Number);return (cx+(x-cx)*.8).toFixed(1)+","+(cy+(y-cy)*.8).toFixed(1);}).join(" ");
+    s+='<line x1="'+sx.toFixed(1)+'" y1="'+sy.toFixed(1)+'" x2="'+cx.toFixed(1)+'" y2="'+cy.toFixed(1)+'" stroke="'+p.color+'" stroke-width="2" stroke-opacity=".55" pointer-events="none"/>'+
+      '<polygon points="'+inset+'" fill="'+p.color+'" fill-opacity=".3" stroke="#111" stroke-width="3.6" stroke-opacity=".75" pointer-events="none"/>'+
+      '<polygon points="'+inset+'" fill="none" stroke="'+p.color+'" stroke-width="2" pointer-events="none"/>'+
+      '<path d="M'+(cx-w).toFixed(1)+' '+(cy+w).toFixed(1)+'V'+(cy-w*.6).toFixed(1)+'h'+(w*.5).toFixed(1)+'v'+(w*.4).toFixed(1)+'h'+(w*.5).toFixed(1)+'v'+(-w*.4).toFixed(1)+
+        'h'+(w*.5).toFixed(1)+'v'+(w*.4).toFixed(1)+'h'+(w*.5).toFixed(1)+'V'+(cy+w).toFixed(1)+'Z" fill="'+p.color+'" stroke="#111" stroke-width=".8" pointer-events="none"/>';});
+  if(WARDPICK){const p=pById(WARDPICK.pid),st=p&&settById(p,WARDPICK.sid);if(st)wardCand(p,st).forEach(k=>{const [cx,cy]=XY(k);
+    s+='<polygon points="'+pts(cx,cy)+'" fill="#f3d38a" fill-opacity=".25" stroke="#f3d38a" stroke-width="2" stroke-dasharray="4 3" pointer-events="none"/>';});}
+  return s;}
 // BANDIT_CAMP_REACH: "province" = the camp sits in the target's owner's Province (any of that player's pieces);
 // null = within the target piece's Presence; N = within Range N of the camp
 function campInRange(ck,tk,own){const c=BAN.campReach;
   if(c==="province"){const p=cellPlayer(mapState().cells[tk]);own=own||terrOwners();return !!p&&!!own[ck]&&own[ck].has(String(p.id));}
-  const r=c!=null?+c:pieceAura(tk);return hexDist(hk(ck),hk(tk))<=r;}
-function hexFree(k){const M=mapState();return !M.camps[k]&&!M.cells[k];}
+  if(c!=null)return hexDist(hk(ck),hk(tk))<=+c;const r=pieceAura(tk);return presHexes(tk).some(h=>hexDist(hk(ck),hk(h))<=r);}
+function hexFree(k){const M=mapState();return !M.camps[k]&&!M.cells[k]&&!M.wards[k];}
 function spawnCamp(p,n,why){const M=mapState(),free=outlawOf(p).filter(hexFree);if(!free.length)return null;
   const k=free[Math.floor(Math.random()*free.length)];M.camps[k]={n,gold:+BAN.campGold||0};if(isWild(k))M.camps[k].wild=M.outlaw[k];armBandits(M.camps[k]);bLog("camp of "+n+" spawns @ "+k+" ("+why+")",k);return k;}
 function growCamps(keys,why){const M=mapState(),gr=(BAN.growth||{})[currentEra()]||0,cap=BAN.armyThreshold||25;
@@ -778,11 +806,11 @@ function banditAuraList(){const M=mapState(),RT=EQ.retinues||{},out=[],hexes=Obj
   Object.keys(M.cells).forEach(k=>{const c=M.cells[k];if(!cellPlayer(c))return;let r=0;
     if(c.type==="Army")r=presR();
     else{const s=cellSett(k).s;r=s&&settUnbuilt(s)?0:presR();}
-    if(r>0)out.push({k,set:new Set(hexes.filter(h=>hexDist(hk(k),hk(h))<=r))});});
+    if(r>0)presHexes(k).forEach(q=>out.push({k:q,grp:k,set:new Set(hexes.filter(h=>hexDist(hk(q),hk(h))<=r))}));});
   return out;}
 // cheapest cost to each hex; Presence blocks (the start's own auras and the lifted target's excepted), Water: one hex then land
 function banditRun(k0,speed,AU,lift){const M=mapState(),V=decodeGrid(M.grid),best={},Q=[[0,k0,0]],reach={},key=(k,w)=>k+"|"+w;best[key(k0,0)]=0;
-  const blocked=h=>AU.some((o,i)=>i!==lift&&!o.set.has(k0)&&o.set.has(h));
+  const off=i=>lift instanceof Set?lift.has(i):i===lift,blocked=h=>AU.some((o,i)=>!off(i)&&!o.set.has(k0)&&o.set.has(h));
   while(Q.length){Q.sort((x,y)=>x[0]-y[0]);const [d,k,w]=Q.shift();if(d>best[key(k,w)])continue;
     if(k!==k0&&w!==1&&(reach[k]===undefined||reach[k]>d))reach[k]=d;if(w===2)continue;
     hexNb(k).forEach(nk=>{const h=V.hex[nk];if(!h||terrBlocked(h.t)||blocked(nk))return;
@@ -796,11 +824,11 @@ function banditMoves(){const M=mapState();if(!M.grid)return;const thr=BAN.armyTh
   Object.keys(M.camps).filter(k=>+M.camps[k].n>=thr).forEach(k0=>{const cp=M.camps[k0];if(!cp)return;
     if(cp.uid&&realmTimers().some(t=>t.kind==="siege"&&t.bandit===cp.uid)){bLog("Bandit Army @ "+k0+" holds its Siege",k0);return;}
     if(bq().some(o=>[o.A,o.B].some(sd=>sd&&sd.kind==="bandit"&&sd.camp===k0))){bLog("Bandit Army @ "+k0+" is in a queued Battle",k0);return;}
-    const AU=banditAuraList(),sp=banditSpeed(cp),V=decodeGrid(M.grid),free=h=>!!V.hex[h]&&!M.cells[h]&&!M.camps[h];
-    const inAura=(h,lift)=>AU.some((o,i)=>i!==lift&&o.set.has(h));
+    const AU=banditAuraList(),sp=banditSpeed(cp),V=decodeGrid(M.grid),free=h=>!!V.hex[h]&&!M.cells[h]&&!M.camps[h]&&!M.wards[h];
+    const inAura=(h,lift)=>AU.some((o,i)=>!(lift instanceof Set?lift.has(i):i===lift)&&o.set.has(h));
     const reach0=banditRun(k0,sp,AU,-1);
     const pick=L=>{if(!L.length)return null;const m=Math.min(...L.map(x=>x.cost)),T=L.filter(x=>x.cost===m),c=T[Math.floor(Math.random()*T.length)];c.tie=T.length>1;return c;};
-    const reachOf=tk=>{const li=AU.findIndex(o=>o.k===tk),R0=li<0?reach0:banditRun(k0,sp,AU,li),out=[];
+    const reachOf=tk=>{const G=new Set(AU.map((o,i)=>o.grp===tk?i:-1).filter(i=>i>=0)),li=G.size?G:-1,R0=li===-1?reach0:banditRun(k0,sp,AU,li),out=[];
       if(hexDist(hk(k0),hk(tk))===1)out.push({end:k0,cost:0});
       hexNb(tk).forEach(h=>{if(R0[h]!==undefined&&free(h)&&!inAura(h,li))out.push({end:h,cost:R0[h]});});
       return out.sort((a,b)=>a.cost-b.cost)[0]||null;};
@@ -949,6 +977,12 @@ function mapGuard(kind){if(!lockOn())return "";if(kind==="setup")return ADMIN?""
 function guarded(kind,fn){return function(...a){const w=mapGuard(kind);if(w){flash(w);render();return;}return fn.apply(this,a);};}
 // a map hex was clicked (one delegated listener; the overlay redraws without re-wiring)
 function mapCellClick(k){const M=mapState();MAPSEL=k;
+    if(mtool==="Select"&&WARDPICK){const p=pById(WARDPICK.pid),st=p&&settById(p,WARDPICK.sid);
+      if(st&&inspCan(p.id)){const W=M.wards[k];
+        if(W&&String(W.player)===String(p.id)&&String(W.sid)===String(st.id)){delete M.wards[k];save();render();return;}
+        if(wardCand(p,st).includes(k)){if(wardsOf(p,st).length>=wardRoom(p,st)){flash((st.name||st.tier)+": no Ward left to place");return;}
+          M.wards[k]={player:p.id,sid:st.id};if(wardsOf(p,st).length>=wardRoom(p,st))WARDPICK=null;save();render();return;}}
+      WARDPICK=null;}
     if(mtool==="Select"){const mi=SEL?moveInfo():null;
       if(mi&&mi.dest&&mi.dest[k]){if(!canMoveArmy(mi.p)){flash("\ud83d\udd12 not your army");return;}if(moveArmyTo(k)){save();render();}return;}
       const hold=D.players.find(q=>{const x=PT(q).holdMove;return x&&x.turn===tTurn()&&SEL&&String(x.armyPid)===String(SEL.pid)&&String(x.aid)===String(SEL.aid);});
@@ -958,12 +992,12 @@ function mapCellClick(k){const M=mapState();MAPSEL=k;
       if(c&&c.type==="Army"){const x=cellArmy(k);if(x.p&&x.a&&canMoveArmy(x.p))SEL={pid:String(x.p.id),aid:String(x.a.id)};}
       render();return;}
     {const why=mapEditBlock(k);if(why){flash(why);render();return;}}
-    if(mtool==="Erase"){delete M.cells[k];delete M.outlaw[k];delete M.camps[k];}
+    if(mtool==="Erase"){delete M.cells[k];delete M.outlaw[k];delete M.camps[k];delete M.wards[k];wardPrune();}
     else if(mtool==="Outlaw Country"){if(M.outlaw[k])delete M.outlaw[k];
       else{const own=terrOwners(),nz=hexNb(k).map(q=>M.outlaw[q]).find(v=>typeof v==="string");   // joins a neighbouring Wild zone; outside every Province it starts one
         if(nz)M.outlaw[k]=nz;else if(own[k]&&own[k].size)M.outlaw[k]=true;else{let id=1;while(Object.values(M.outlaw).includes("w"+id))id++;M.outlaw[k]="w"+id;}}}
     else if(mtool==="Bandit Camp"){if(!M.camps[k])M.camps[k]={n:BAN.campStart||5,gold:+BAN.campGold||0};}
-    else M.cells[k]={type:mtool,player:mapAsP().id};
+    else{if(M.wards[k]){flash("a Settlement Ward stands there");return;}M.cells[k]={type:mtool,player:mapAsP().id};}
     save();render();}
 document.addEventListener("click",e=>{const el=e.target.closest&&e.target.closest("#rlMap [data-cell]");if(el)mapCellClick(el.dataset.cell);});
 function wireMap(host){const M=mapState(),g=M.grid,era=currentEra(),$=id=>host.querySelector("#"+id);
