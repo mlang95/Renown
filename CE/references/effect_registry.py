@@ -120,6 +120,9 @@ REG = {
     "extort_lower_treasury":("clause", "hiwf", r"Each Empire Phase,? Extort (\d+) from each non-allied player with a lower Treasury"),
     "extort_target_faith": ("clause", "hiwf", r"Targets of Extort from (.+?) gain Faith \+(\d+)"),
     "no_sally_forth":     ("clause", "hiwf", r"Settlements you Siege can.t Sally Forth"),
+    # ---- Presence (Commanding Presence): Settlements via Garrison, Wards via Keep; Armies always ----
+    "settlement_presence": ("clause", "hiwf", r"Your Settlements have Presence"),
+    "ward_presence":       ("clause", "hiwf", r"Your Settlement Wards have Presence"),
     # ---- bandits ----
     "bandit_redirect":     ("clause", "hiwf", r"Bandit Camps in your Outlaw Country don.t target you and instead target other players randomly"),
     "bandit_cunning_auth": ("clause", "hiwf", r"Both Bandit Camps & you have (?:Authority|Influence) \+(\d+) on (?:Personal )?Cunning Envoys"),

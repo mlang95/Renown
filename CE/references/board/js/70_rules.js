@@ -432,7 +432,7 @@ function auraSources(p){const M=mapState(),out=[],PR=presR();
       out.push({k,r,kind:"battle",war:war&&!!x.a,label:q.name+" · "+(x.a?(x.a.label||("Army "+x.a.id)):"Army"),B:x.a?{pid:String(q.id),aid:String(x.a.id)}:null});}
     else{const cs=cellSett(k),r=cs.s&&settUnbuilt(cs.s)?0:PR;
       const o={k,r,grp:k,kind:"siege",war:war&&!!cs.s&&!siegeOn(q.id,cs.s.id),label:q.name+" · "+(cs.s?(cs.s.name||cs.s.tier):c.type),tp:q.id,sid:cs.s?cs.s.id:null};
-      out.push(o);presHexes(k).slice(1).forEach(w=>out.push(Object.assign({},o,{k:w,ward:true})));}});   // its Wards on the map carry the same Presence
+      presHexes(k).forEach(h=>out.push(h===k?o:Object.assign({},o,{k:h,ward:true})));}});   // Garrison: the Settlement's hex; Keep: its Wards
   Object.keys(M.camps).forEach(k=>{const cp=M.camps[k];if(+cp.n<(BAN.armyThreshold||25))return;
     out.push({k,r:PR,kind:"battle",war:true,bandit:true,label:"Bandit Army @ "+k,B:{kind:"bandit",camp:k}});});
   return out.filter(o=>o.r>0);}

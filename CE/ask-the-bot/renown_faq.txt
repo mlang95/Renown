@@ -176,7 +176,7 @@ Founding | [Founding](https://mlang95.github.io/RenownWiki/eras-ref.html) Era. R
 Full Plate | [Full Plate](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Forged). Save 5+. Keywords: none.
 Furnace | [Furnace](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Arms). Effect: Unlocks Cast Weapons; +500
 Padded | [Padded](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Crude). Save 8+. Keywords: none.
-Garrison | [Garrison](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Developed). Upkeep 200 (each Empire Phase), build 2. Local Armies form (10/15/25/50 by Settlement size). All Garrisons share Retinues & Equipment. Can't be targeted; may not Sally Forth while under Siege. Do not pay upkeep.
+Garrison | [Garrison](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Developed). Upkeep 200 (each Empire Phase), build 2. Local Armies form (10/15/25/50 by Settlement size). All Garrisons share Retinues & Equipment. Can't be targeted; may not Sally Forth while under Siege. Do not pay upkeep. Your Settlements have Presence.
 Gilded Foundry | [Gilded Foundry](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Arms). Effect: Upkeep −500; Unlock Forged armor & shield.
 Gothic Plate | [Gothic Plate](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Tempered). Save 4+. Keywords: none.
 Granary | [Granary](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Works). Effect: Upkeep −500; Armies and Garrisons within controlled Settlements gain Immune Strained.
@@ -218,7 +218,7 @@ Throwing Axe | [Throwing Axe](https://mlang95.github.io/RenownWiki/equipment-ref
 Jester's Court | [Jester's Court](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Court). Effect: First and second Oppose on an Envoy of yours each Envoy Phase: reduce by 1
 Jewelry Foundry | [Jewelry Foundry](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Commerce). Effect: +2000; Authority +1 to Cunning actions targeting this player; Craft +5
 Joinery | [Joinery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Arms). Effect: unlocks Shields; Upkeep −500
-Keep | [Keep](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Prodigious). Upkeep 400 (each Empire Phase), build 4. When you Muster, reduce the Muster Timer by 1 and immediately gain Retinues equal to the combined muster limit. Siege Timer +1.
+Keep | [Keep](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Prodigious). Upkeep 400 (each Empire Phase), build 4. When you Muster, reduce the Muster Timer by 1 and immediately gain Retinues equal to the combined muster limit. Siege Timer +1. Your Settlement Wards have Presence.
 Kiln | [Kiln](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Natural; +500
 Kite Shield | [Kite Shield](https://mlang95.github.io/RenownWiki/equipment-ref.html) Shield (Wrought). Save +1, Init +0. Keywords: Steady, Shielded.
 Oathsworn | [Oathsworn](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 4+, Endurance 3, Morale 4+, cost 3000.

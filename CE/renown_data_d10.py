@@ -3232,7 +3232,8 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
  'Garrison': {'upkeep': 200,
               'upkeep_frequency': 'each Empire Phase',
               'empire_bonus': 'Local Armies form (10/15/25/50 by Settlement size). All Garrisons share '
-                              "Retinues & Equipment. Can't be targeted; may not Sally Forth while under Siege. Do not pay upkeep.",
+                              "Retinues & Equipment. Can't be targeted; may not Sally Forth while under Siege. Do not pay upkeep. "
+                              "Your Settlements have Presence.",
               'tier': 'Developed',
               'build_time': 2,
               'requirement': 'One Tier Primitive'},
@@ -3260,7 +3261,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
              'empire_bonus': 'Authority -1 to Bandit Cunning & Prowess actions targeting your settlements or armies.',
              'tier': 'Sophisticated',
              'build_time': 3,
-             'requirement': 'Stone Walls'},
+             'requirement': 'Stone Roads'},
  "Magistrate's Hall": {'upkeep': 400,
                  'upkeep_frequency': 'each Empire Phase',
                  'empire_bonus': 'Gain Tax Income +1000 per Settlement.',
@@ -3269,11 +3270,11 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                  'requirement': 'Library'},
  'Keep': {'upkeep': 400,
           'upkeep_frequency': 'each Empire Phase',
-          'empire_bonus': "When you Muster, reduce the Muster Timer by 1 and immediately gain Retinues equal to the combined muster limit. Siege Timer +1."
-                          '',
+          'empire_bonus': "When you Muster, reduce the Muster Timer by 1 and immediately gain Retinues equal to the combined muster limit. Siege Timer +1. "
+                          'Your Settlement Wards have Presence.',
           'tier': 'Prodigious',
           'build_time': 4,
-          'requirement': 'Road Wardens'},
+          'requirement': 'Stone Walls + Garrison'},
  'Aqueducts': {'upkeep': 400,
           'upkeep_frequency': 'each Empire Phase',
           'empire_bonus': 'Reach +1; Upkeep -500; Build Timer -1; Influence +1'
@@ -3338,8 +3339,9 @@ SETTLEMENTS = {
     "Metropolis": {"tier": 4, "sea_variant": "—",         "tax_income": 8000,  "muster_limit": 50, "build_time": 8, "wards": 4, "reach": 8, "notes": "Capital only, requires Sovereign Industry (Titan of Industry)"},
 }
 
-# Presence (Prowess rule): an Army can't move within PRESENCE_RANGE of a non-allied Settlement or Army (Bandit Armies
-# included, Bandit Camps not) unless that Move performs a Battle or Lay Siege against it. Board: DATA.rulesConst.PRESENCE_RANGE.
+# Presence (Prowess rule): an Army can't move within PRESENCE_RANGE of a non-allied Army (Bandit Armies included, Bandit
+# Camps not), a non-allied Settlement whose owner has a Garrison, or a Ward whose owner has a Keep, unless that Move performs
+# a Battle or Lay Siege against it. Board: DATA.rulesConst.PRESENCE_RANGE; Garrison / Keep via effect_registry.
 PRESENCE_RANGE = 2
 # Settlement Wards. "abstract": Wards are slots inside the Settlement, never placed on the map.
 # "range1" (live): each Ward occupies a Territory within Range 1 of the Settlement.
@@ -3350,7 +3352,7 @@ WARD_RULES = {
                  "A Settlement has one Ward per tier: a Village has {Village}, a Town {Town}, a City {City} and a Metropolis {Metropolis}. "
                  "A Hamlet has {Hamlet} Wards."),
     "range1":   ("A Settlement Ward is a slot that holds one Holding. Each Ward occupies a Territory within Range 1 of its "
-                 "Settlement and extends the Settlement's Presence from there. A Settlement has one "
+                 "Settlement; while you have a Keep, your Wards have Presence. A Settlement has one "
                  "Ward per tier: a Village has {Village}, a Town {Town}, a City {City} and a Metropolis {Metropolis}. A Hamlet has {Hamlet} Wards."),
 }
 WARD_RULE = WARD_RULES[WARD_MODEL].format(**{k: v["wards"] for k, v in SETTLEMENTS.items()})

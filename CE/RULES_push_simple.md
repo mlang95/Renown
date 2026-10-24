@@ -274,7 +274,7 @@ If your Diplomacy Envoy passes or is endorsed but its action fails, you may send
 
 ### Rule: Commanding Presence
 
-An Army can't move within Range {{VAL:PRESENCE_RANGE}} of a non-allied Settlement or Army — its **Presence** — unless that Move performs a Battle or Lay Siege against it. Bandit Armies have Presence; Bandit Camps don't. An Army that begins a Move within a non-allied Presence may only move to end outside every Presence (or, if at War, to Battle or Lay Siege); if it can't, it can't move.
+An Army can't move within Range {{VAL:PRESENCE_RANGE}} of a non-allied Army — its **Presence** — unless that Move performs a Battle against it. Settlements have Presence while their owner has a Garrison, and Settlement Wards while their owner has a Keep; a Move that performs a Battle or Lay Siege against a Settlement may pass through the Presence of that Settlement and its Wards. Bandit Armies have Presence; Bandit Camps don't. An Army that begins a Move within a non-allied Presence may only move to end outside every Presence (or, if at War, to Battle or Lay Siege); if it can't, it can't move.
 
 ## Cunning Actions
 

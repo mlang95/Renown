@@ -386,6 +386,8 @@ function inspSett(k){const {p,s}=cellSett(k),cell=mapState().cells[k];if(!p)retu
   if(inspCan(p.id))h+='<div class="ir"><span class="k">Name</span><input data-insp-name="'+p.id+':'+s.id+'" data-nav="1" value="'+esc(s.name||"")+'" placeholder="'+esc(s.tier)+'" style="flex:1;min-width:0">'+
     (PN?'<button data-insp-rename="'+p.id+':'+s.id+'" data-nav="1" title="new name ('+esc(nameCulture(p.board)||"")+')">🎲</button>':'')+'</div>';
   h+=settActionsHTML(p,s);
+  {const sp=srcHas(p.board,"settlement_presence"),wp=wardMap()&&srcHas(p.board,"ward_presence");
+    h+='<div class="ir"><span class="k">Presence</span><b>'+(settUnbuilt(s)||!(sp||wp)?'none':[sp?'Settlement':'',wp?'Wards':''].filter(Boolean).join(' · ')+' · Range '+presR())+'</b></div>';}
   if(wardMap()){const n=wardsOf(p,s).length,rm=wardRoom(p,s),on=WARDPICK&&String(WARDPICK.pid)===String(p.id)&&String(WARDPICK.sid)===String(s.id);
     h+='<div class="ir"><span class="k">Wards on the map</span><b>'+n+' / '+rm+'</b>'+(n>rm?' <b class="note" style="color:var(--upkeep)">'+(n-rm)+' over</b>':'')+
       (inspCan(p.id)&&(rm>0||n>0)?'<button data-insp-ward="'+p.id+':'+s.id+'" data-nav="1" style="margin-left:auto">'+(on?'Done':'Place Wards ▸')+'</button>':'')+'</div>';}
@@ -705,9 +707,10 @@ function placeWildOutlaw(){const M=mapState();if(!M.grid)return 0;const V=decode
 // Host redo: clear the Wild zones that hold no Bandit Camp, then scatter again
 function rescatterWild(){const M=mapState();Object.entries(wildZones()).forEach(([z,hx])=>{if(hx.some(k=>M.camps[k]))return;hx.forEach(k=>delete M.outlaw[k]);});
   M.wildSeeded=false;return placeWildOutlaw();}
-// a piece's Presence (PRESENCE_RANGE, one flat range for Settlements and Armies), the range at which a Bandit Camp can target it
+// a piece's Presence (PRESENCE_RANGE, one flat range), the range at which a Bandit Camp can target it: Armies always;
+// a Settlement only while it radiates Presence (Garrison: from the Settlement, Keep: from its Wards)
 function pieceAura(k){const c=mapState().cells[k];if(!c)return 0;if(c.type==="Army"){return presR();}
-  const s=cellSett(k).s;return s&&settUnbuilt(s)?0:presR();}
+  const s=cellSett(k).s;return s&&settUnbuilt(s)?0:presHexes(k).length?presR():0;}
 // ---- Settlement Wards on the map (WARD_MODEL "range1"): each Ward occupies a Territory within Range 1 of its Settlement
 // (M.wards[hex] = {player, sid}) and extends the Settlement's Presence from there
 let WARDPICK=null;   // {pid, sid} while the player picks Ward Territories on the map
@@ -716,8 +719,10 @@ function wardsOf(p,s){const W=mapState().wards;return Object.keys(W).filter(k=>S
 function wardRoom(p,s){return settUnbuilt(s)?0:withBoard(p.board,()=>wardUse(s.id).cap);}
 function wardCand(p,s){const sk=settHex(p,s);if(!sk)return [];const V=decodeGrid(mapState().grid);
   return hexNb(sk).filter(k=>{const h=V.hex[k];return !!h&&h.t!=="water"&&!terrBlocked(h.t)&&hexFree(k);});}
-// the hexes a piece's Presence radiates from: the piece, plus its Settlement's Wards
-function presHexes(k){const c=mapState().cells[k];if(!wardMap()||!c||c.type==="Army")return [k];const cs=cellSett(k);return cs.s?[k].concat(wardsOf(cs.p,cs.s)):[k];}
+// the hexes a piece's Presence radiates from: an Army's own hex; a Settlement's hex while its owner has a Garrison
+// ("Your Settlements have Presence"), its Wards while they have a Keep ("Your Settlement Wards have Presence")
+function presHexes(k){const c=mapState().cells[k];if(!c||c.type==="Army")return [k];const cs=cellSett(k),p=cs.p||cellPlayer(c);if(!p)return [];
+  return (srcHas(p.board,"settlement_presence")?[k]:[]).concat(wardMap()&&cs.s&&settHex(p,cs.s)===k&&srcHas(p.board,"ward_presence")?wardsOf(p,cs.s):[]);}
 // drop Wards whose Settlement is no longer on the map
 function wardPrune(){const W=mapState().wards;Object.keys(W).forEach(k=>{const p=pById(W[k].player),s=p&&settById(p,W[k].sid);if(!s||!settHex(p,s))delete W[k];});}
 // Ward n on the board (wardChains order) = the n-th Ward hex placed; the hex shows that Ward's top-most Holding, else a keep
@@ -817,7 +822,7 @@ function banditAuraList(){const M=mapState(),RT=EQ.retinues||{},out=[],hexes=Obj
   Object.keys(M.cells).forEach(k=>{const c=M.cells[k];if(!cellPlayer(c))return;let r=0;
     if(c.type==="Army")r=presR();
     else{const s=cellSett(k).s;r=s&&settUnbuilt(s)?0:presR();}
-    if(r>0)presHexes(k).forEach(q=>out.push({k:q,grp:k,set:new Set(hexes.filter(h=>hexDist(hk(q),hk(h))<=r))}));});
+    if(r>0)presHexes(k).forEach(q=>out.push({k:q,grp:k,set:new Set(hexes.filter(h=>hexDist(hk(q),hk(h))<=r))}));});   // grp: lifted together
   return out;}
 // cheapest cost to each hex; Presence blocks (the start's own auras and the lifted target's excepted), Water: one hex then land
 function banditRun(k0,speed,AU,lift){const M=mapState(),V=decodeGrid(M.grid),best={},Q=[[0,k0,0]],reach={},key=(k,w)=>k+"|"+w;best[key(k0,0)]=0;
