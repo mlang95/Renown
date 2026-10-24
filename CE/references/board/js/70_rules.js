@@ -336,16 +336,15 @@ function musterTick(p){const out=[];(p.board.armies||[]).forEach(a=>{const m=a.m
   return out;}
 function hasMusterField(b){return withBoard(b,()=>Object.keys(S.infra||{}).some(n=>infraOn(n)&&!!hitOf("i:"+n,"muster_field")));}
 
-// ---- Settle placement (flags): min range, Outlaw buffer, terrain, Hamlet range from the capital ----
+// ---- Settle placement (flags): Hill, Province or Army Presence (checked when placed), Outlaw buffer, Hamlet range from the capital ----
 function charterFlags(p){const M=mapState(),g=M.grid,f=[];if(!g)return f;const V=decodeGrid(g);
   const mine=mapSetts().filter(x=>String(x.cell.player)===String(p.id)),all=mapSetts(),cap=(p.board.settlements||[]).find(s=>s.capital);
   const capK=cap?settHex(p,cap):null;
   mine.forEach(x=>{const h=V.hex[x.k],nm=x.cell.type+" @ "+x.k;
     if(h&&(h.t==="mountain"||h.t==="water"))f.push("Settle: "+nm+" is on "+(RULE_NAME[h.t]||h.t));
-    else if(h&&x.cell.type==="Village"&&h.t!=="plains")f.push("Settle: "+nm+" is on "+(RULE_NAME[h.t]||h.t)+" (Villages are settled on grassland only)");
+    else if(h&&x.cell.type==="Village"&&!h.hill)f.push("Settle: "+nm+" is not on a Hill (Villages are settled on Hills only)");
+    if(x.cell.settleWhy)f.push("Settle: "+nm+" "+x.cell.settleWhy);
     if(x.cell.type==="Hamlet"){if(capK&&RC.HAMLET_RANGE!=null&&hexDist(hk(x.k),hk(capK))!==+RC.HAMLET_RANGE)f.push("Settle: Hamlet @ "+x.k+" is range "+hexDist(hk(x.k),hk(capK))+" from the capital (must be "+RC.HAMLET_RANGE+")");}
-    else if(RC.CHARTER_MIN_RANGE!=null)all.forEach(y=>{if(y.k===x.k||y.cell.type==="Hamlet")return;const d=hexDist(hk(x.k),hk(y.k));
-      if(d<+RC.CHARTER_MIN_RANGE)f.push("Settle: "+[x.cell.type+" @ "+x.k,y.cell.type+" @ "+y.k].sort().join(" and ")+" are range "+d+" apart (min "+RC.CHARTER_MIN_RANGE+")");});
     if(RC.OUTLAW_BUFFER_RANGE!=null)Object.keys(M.outlaw).forEach(o=>{const d=hexDist(hk(x.k),hk(o));if(d<+RC.OUTLAW_BUFFER_RANGE)f.push("Settle: "+nm+" is range "+d+" from Outlaw Country @ "+o+" (min "+RC.OUTLAW_BUFFER_RANGE+")");});});
   // Setup › Deploy (checked on Turn 1): capital near the board edge; Outlaw Country seeded off the capital, clear of the Hamlet
   if(tTurn()===1&&capK){const ca=hk(capK),W=+g.width||0,H=+g.height||0,ob=+RC.OUTLAW_BUFFER_RANGE;

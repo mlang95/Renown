@@ -1965,6 +1965,50 @@ function zoneOverlaySVG(zones, ctr, R, opt) {
 }
 function zonePins(zones) { const p = []; for (const z of zones || []) for (const t of z.towns) p.push(t); return p; }
 function zoneBlock(zones) { const b = new Set(); for (const z of zones || []) for (const c of z.hexes) b.add(key(c[0], c[1])); return b; }
+/* ── carved Hills ──────────────────────────────────────────────────────── */
+/* Settlements are chartered on Hills, so the board is topped up to
+   hills_per_player x players Hills (start-zone Town hills and natural ones
+   count first). Each carve massages LAND into a ring-hill: the site and its 6
+   neighbours become grassland, at most hill_carve_budget conversions
+   (mountain = 3). Water is never converted and a site touching water is
+   never used. The site taken is the one farthest from every Hill (start-zone
+   Towns included), cheapest on ties, then column / row - no randomness, so
+   gen.js and mapgen_regional.py carve the same way. */
+const HILLS_PER_PLAYER = 4, HILL_CARVE_BUDGET = 6;
+function carveHills(m, p, sep) {
+  const target = (p.hills_per_player === undefined ? HILLS_PER_PLAYER : p.hills_per_player) * (p.players || 0);
+  const budget = p.hill_carve_budget === undefined ? HILL_CARVE_BUDGET : p.hill_carve_budget;
+  const block = zoneBlock(m.startZones);
+  markHills(m, sep, zonePins(m.startZones), block);
+  const hills = m.all().filter(h => h.tactical === 'hill').map(h => [h.col, h.row]);
+  const carved = [];
+  const cost = (c) => {
+    const ns = m.nbrs(c);
+    if (ns.length !== 6) return Infinity;
+    let k = 0;
+    for (const x of [m.get(c)].concat(ns)) {
+      if (x.terrain === 'water' || block.has(key(x.col, x.row))) return Infinity;
+      if (x.terrain === 'mountain') k += 3; else if (x.terrain !== 'plains') k += 1;
+    }
+    return k;
+  };
+  while (hills.length < target) {
+    let best = null;
+    for (const h of m.all()) {
+      const c = [h.col, h.row], k = cost(c);
+      if (k > budget) continue;
+      let d = Infinity; for (const t of hills) { const x = dist(t, c); if (x < d) d = x; }
+      if (d < sep) continue;
+      if (!best || d > best.d || (d === best.d && k < best.k)) best = { c, d, k };
+    }
+    if (!best) break;
+    for (const x of [best.c].concat(m.nbrs(best.c).map(n => [n.col, n.row]))) m.get(x).terrain = 'plains';
+    hills.push(best.c); carved.push(best.c);
+  }
+  m.carvedHills = carved;
+  return carved;
+}
+function hillPins(m) { return zonePins(m.startZones).concat(m.carvedHills || []); }
 
 /* ── pipeline ───────────────────────────────────────────────────────────── */
 function build(p, seed) {
@@ -2100,8 +2144,9 @@ function build(p, seed) {
   }
   ensureRegionMaterial(m, p);
   placeStartZones(m, p, rng);
+  carveHills(m, p, p.hill_sep === undefined ? HILL_SEP : p.hill_sep);
   markHills(m, p.hill_sep === undefined ? HILL_SEP : p.hill_sep,
-            zonePins(m.startZones), zoneBlock(m.startZones));
+            hillPins(m), zoneBlock(m.startZones));
   resources(m, palette, Object.assign({}, RESOURCE_MIN, p.resource_min || {}));
   if (m.isleCliff && m.get(m.isleCliff).terrain === 'mountain') m.get(m.isleCliff).resource = 'quarry';   // the isle's citadel quarry
   return m;
@@ -2148,6 +2193,7 @@ function exportMap(m, p, seed, violations) {
     settlement_range: m.settlement_range, climate: p.climate || 'temperate',
     start_zones: (m.startZones || []).map(z => ({ seat: z.seat, anchor: z.anchor.slice(),
       slide: z.slide || 0, range: z.range, hexes: z.hexes.map(c => c.slice()), towns: z.towns.map(c => c.slice()) })),
+    hills: (m.carvedHills || []).map(c => c.slice()),
     violations: violations || [] };
 }
 
@@ -2182,13 +2228,14 @@ function importMap(data) {
   for (const k of Object.keys(data.borders || {})) m.borders[k] = data.borders[k].slice();
   m.startZones = (data.start_zones || []).map(z => ({ seat: z.seat, anchor: z.anchor.slice(),
     slide: z.slide || 0, range: z.range, hexes: z.hexes.map(c => c.slice()), towns: z.towns.map(c => c.slice()) }));
+  m.carvedHills = (data.hills || []).map(c => c.slice());
   markHills(m, data.hill_sep === undefined ? HILL_SEP : data.hill_sep,
-            zonePins(m.startZones), zoneBlock(m.startZones));
+            hillPins(m), zoneBlock(m.startZones));
   return m;
 }
 
 root.RenownGen = { RNG, HexMap, dist, key, generateRegion, exportMap, importMap,
-  validate, markHills, PARAMS, RESOURCE_MIN, MATERIAL_TERRAINS,
+  validate, markHills, carveHills, PARAMS, RESOURCE_MIN, MATERIAL_TERRAINS,
   seatAnchors, setupFits, rules, zoneOverlaySVG, START_ZONE_RANGE, START_TOWNS };
 
 })(typeof module !== 'undefined' && module.exports ? module.exports : (typeof window !== 'undefined' ? window : globalThis));

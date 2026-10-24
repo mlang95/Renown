@@ -741,6 +741,12 @@ function wardMarks(R,XY,pts){if(!wardMap())return "";const W=mapState().wards;le
 function campInRange(ck,tk,own){const c=BAN.campReach;
   if(c==="province"){const p=cellPlayer(mapState().cells[tk]);own=own||terrOwners();return !!p&&!!own[ck]&&own[ck].has(String(p.id));}
   if(c!=null)return hexDist(hk(ck),hk(tk))<=+c;const r=pieceAura(tk);return presHexes(tk).some(h=>hexDist(hk(ck),hk(h))<=r);}
+// Settle: a new Village must be in its owner's Province (without its own Reach) or within the Presence of one of their Armies.
+// Checked once, when it is placed — Province and Armies move afterwards. "" = fine, else the flag text
+function settleWhere(p,k){const M=mapState(),g=M.grid;if(!g)return "";const own=reachOwners(M,g.width,g.height)[k];
+  if(own&&own.has(String(p.id)))return "";
+  if(mapArmies().some(x=>String(x.cell.player)===String(p.id)&&hexDist(hk(x.k),hk(k))<=presR()))return "";
+  return "was placed outside your Province and beyond the Presence of your Armies";}
 function hexFree(k){const M=mapState();return !M.camps[k]&&!M.cells[k]&&!M.wards[k];}
 function spawnCamp(p,n,why){const M=mapState(),free=outlawOf(p).filter(hexFree);if(!free.length)return null;
   const k=free[Math.floor(Math.random()*free.length)];M.camps[k]={n,gold:+BAN.campGold||0};if(isWild(k))M.camps[k].wild=M.outlaw[k];armBandits(M.camps[k]);bLog("camp of "+n+" spawns @ "+k+" ("+why+")",k);return k;}
@@ -1002,7 +1008,8 @@ function mapCellClick(k){const M=mapState();MAPSEL=k;
       else{const own=terrOwners(),nz=hexNb(k).map(q=>M.outlaw[q]).find(v=>typeof v==="string");   // joins a neighbouring Wild zone; outside every Province it starts one
         if(nz)M.outlaw[k]=nz;else if(own[k]&&own[k].size)M.outlaw[k]=true;else{let id=1;while(Object.values(M.outlaw).includes("w"+id))id++;M.outlaw[k]="w"+id;}}}
     else if(mtool==="Bandit Camp"){if(!M.camps[k])M.camps[k]={n:BAN.campStart||5,gold:+BAN.campGold||0};}
-    else{if(M.wards[k]){flash("a Settlement Ward stands there");return;}M.cells[k]={type:mtool,player:mapAsP().id};}
+    else{if(M.wards[k]){flash("a Settlement Ward stands there");return;}const P=mapAsP(),why=mtool==="Village"?settleWhere(P,k):"";M.cells[k]={type:mtool,player:P.id};
+      if(why){M.cells[k].settleWhy=why;flash("Settle: "+why);}}
     save();render();}
 document.addEventListener("click",e=>{const el=e.target.closest&&e.target.closest("#rlMap [data-cell]");if(el)mapCellClick(el.dataset.cell);});
 function wireMap(host){const M=mapState(),g=M.grid,era=currentEra(),$=id=>host.querySelector("#"+id);

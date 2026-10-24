@@ -137,6 +137,8 @@ set BOARD_W=13
 set BOARD_H=16
 set BOARD_PLAYERS=2
 set BOARD_SEED=56
+REM BOARD_REGION : regional preset (gen.js, same board as the map app for this seed code); empty = legacy mapgen.generate
+set BOARD_REGION=Default
 set BOARD_HEX=20
 set BOARD_PAPER=A4
 REM BOARD_RES : 1 = stamp raw-material toppers, 0 = terrain only
@@ -200,7 +202,7 @@ if /i "%BUILD_LORE%"=="1" (
     if not exist "%LORE_DIR%\%%F" ( echo   MISSING  %DIR_LORE%\%%F & set MISSING=1 )
   )
 )
-for %%F in (hexmap.py mapgen.py hexgen.py build_board.py mapgen_regional.py region_presets.py gen.js app_shell.html build_mapapp.py) do (
+for %%F in (hexmap.py mapgen.py hexgen.py build_board.py mapgen_regional.py region_presets.py gen.js gen_cli.js app_shell.html build_mapapp.py) do (
   if not exist "%MAP_DIR%\%%F" ( echo   MISSING  mapgen\%%F & set MISSING=1 )
 )
 if "%MISSING%"=="1" (
@@ -448,6 +450,7 @@ if not exist "%MAP_DIR%\build_board.py" (
 %PY% -c "import svglib" 2>nul || %PY% -m pip install svglib
 set BOARD_FLAGS=
 if /i "%BOARD_RES%"=="0" set BOARD_FLAGS=--no-resources
+if not "%BOARD_REGION%"=="" set BOARD_FLAGS=%BOARD_FLAGS% --region "%BOARD_REGION%"
 pushd "%MAP_DIR%"
 %PY% build_board.py %BOARD_W% %BOARD_H% --seed %BOARD_SEED% --hex %BOARD_HEX% --paper %BOARD_PAPER% --param players=%BOARD_PLAYERS% %BOARD_FLAGS% --out "%BOARD_OUT%"
 popd

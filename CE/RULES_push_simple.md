@@ -371,7 +371,7 @@ Settlements are the primary vehicle of your Empire.{{IDX:Settlement}} They come 
 
 ### Chartering Settlements
 
-When you Settle a new Village, place it in your Province, at least Range {{VAL:CHARTER_MIN_RANGE}} from all other Settlements and Range {{VAL:OUTLAW_BUFFER_RANGE}} from any Outlaw Country. You may only Settle on grassland Territory.
+When you Settle a new Village, place it on a Hill that is in your Province or within the Presence of one of your Armies, and at least Range {{VAL:OUTLAW_BUFFER_RANGE}} from any Outlaw Country.
 
 ### Settlement Reach
 

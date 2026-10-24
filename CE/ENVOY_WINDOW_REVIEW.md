@@ -12,11 +12,10 @@ can't reach the other Phase's Envoys: it is read as that Phase's Envoys (Envoy P
 | Piece | Kind | Clause | Window | Limit |
 |---|---|---|---|---|
 
-## No window, no predicate: applies to Council and Personal Envoys alike (14)
+## No window, no predicate: applies to Council and Personal Envoys alike (12)
 
 | Piece | Kind | Clause |
 |---|---|---|
-| Monastery | Holding | Other players with lower Piety value can't Oppose your Piety Envoys |
 | Embassy | Holding | Diplomacy Envoys cannot Fail |
 | Secret Cellar | Holding | Passed Cunning envoys Recoup 500 Gold |
 | Secret Cellar | Holding | Endorsed Cunning envoys Recoup 1000 Gold |
@@ -25,45 +24,41 @@ can't reach the other Phase's Envoys: it is read as that Phase's Envoys (Envoy P
 | Papal Palace | Holding | You no longer pay cost for Piety Envoys |
 | The Eternal Court | Faction | While the Era is Zenith, you may spend up to 5 Influence per Envoy while voting, regardless of your Domain Standing |
 | The Hermit Crown | Faction | You Abstain on every vote on other players' Envoys, and other players must spend 2 Influence to affect your Envoys by 1 |
-| The Blazing Standard | Faction | During Envoy Declaration, if you don't have an Army of 25 Knight's Templars, you must send a Prowess Envoy |
+| The Blazing Standard | Faction | During Envoy Declaration, if you don't have an Army of 25 Knight's Templar, you must send a Prowess Envoy |
 | The Illusionists | Faction | Your Diplomacy Envoys use your Cunning Standing for their innate Authority |
 | The Smoldering Crown | Faction | Your Cunning Envoys have Authority +2 when targeting a player with Public Order greater than 1 |
 | The Smoldering Crown | Faction | A Prowess Envoy you send can't fail or be condemned & will instead pass |
-| Cunning Established | Standing | Players may not target you with Cunning Envoys if your Cunning value is higher |
 
-## Every Envoy clause (41)
+## Every Envoy clause (37)
 
 | Piece | Kind | Clause | Window | Limit | Predicate |
 |---|---|---|---|---|---|
-| Abbey | Holding | Once per Envoy Phase: Authority +2 another player's Piety Envoy | envoy | once | personal (by Phase) |
-| Monastery | Holding | Other players with lower Piety value can't Oppose your Piety Envoys | - | - | - |
 | Jester's Court | Holding | First and second Oppose on an Envoy of yours each Envoy Phase: reduce by 1 | envoy | each | personal (by Phase) |
 | Bell Tower | Holding | Authority +1 to envoys sent during the Council Phase | council | each | council |
 | Embassy | Holding | Diplomacy Envoys cannot Fail | - | - | - |
 | Academy | Holding | Authority +1 to Council Envoys | - | - | council |
-| Grand Tournament | Holding | Reach +1, 3x per Envoy Phase: exchange 500 gold for Influence +1 | envoy | 3x | personal (by Phase) |
-| Courier Network | Holding | Once per Envoy Phase before voting: Authority -1 on Target Envoy | envoy | once | personal (by Phase) |
+| Courier Network | Holding | In the Intrigue Phase: Authority -1 on one Envoy | intrigue | once | personal (by Phase) |
 | Courier Network | Holding | Once per Envoy Phase: select a Personal Action you performed this turn | envoy | once | personal |
 | Courier Network | Holding | Next turn, you may perform that action in the Empire Phase, but you send 1 fewer Envoy next turn | empire | each | - |
 | Secret Cellar | Holding | Passed Cunning envoys Recoup 500 Gold | - | - | - |
 | Secret Cellar | Holding | Endorsed Cunning envoys Recoup 1000 Gold | - | - | - |
 | Forgery Workshop | Holding | Extort 300 anytime a player Opposes an Envoy of yours | - | - | - |
-| Forgery Workshop | Holding | Once per Envoy Phase: attempt another Cunning Envoy if your Cunning Envoy Failed | envoy | once | personal (by Phase) |
+| Forgery Workshop | Holding | At the end of the Tally Phase, if a Cunning Envoy you sent Failed, you may send another Cunning Envoy | tally | once | personal (by Phase) |
 | Imperial Palace | Holding | If your Envoy would fail, it passes instead | - | - | - |
-| Senate Hall | Holding | Once per Envoy Phase: before players vote on an Envoy you choose, you may Condemn it if it's an At War player's Envoy, or Endorse it if it's an Ally's Envoy | envoy | once | personal (by Phase) |
+| Senate Hall | Holding | In the Intrigue Phase, you may Condemn an At War player's Envoy or Endorse an Ally's Envoy | intrigue | once | personal (by Phase) |
 | Papal Palace | Holding | You no longer pay cost for Piety Envoys | - | - | - |
 | Outlaw Rookery | Holding | Both Bandit Camps & you have Authority +1 on Personal Cunning Envoys | - | - | personal |
-| Whispering Undercroft | Holding | Once per Envoy Phase when a player sends an Envoy: that player must declare the specific action & target they would Perform if the Envoy passes (including sub-Actions) | envoy | once | personal (by Phase) |
+| Whispering Undercroft | Holding | In the Intrigue Phase, choose a Personal Envoy: its sender must declare the specific action & target they would Perform if it passes (including sub-Actions) | intrigue | once | personal |
 | Library | Infrastructure | Council Envoys you send are always Endorsed | - | - | council |
-| Colossus | Wonder | You may support your own Personal Prowess Envoys before other players vote | - | - | personal |
-| High Chancery | Wonder | Once per Envoy Phase, you may Endorse one Envoy Sent by yourself after voting | envoy | once | personal (by Phase) |
+| Colossus | Wonder | In the Intrigue Phase, you may support your own Personal Prowess Envoys before other players vote | intrigue | once | personal |
+| High Chancery | Wonder | In the Tally Phase, you may Endorse one Envoy you sent | tally | once | personal (by Phase) |
 | The Crowned Star | Faction | Each Council Phase, you choose every Council Envoy's Domain | council | each | council |
 | The Crowned Star | Faction | You abstain every Personal Envoy | - | - | personal |
 | The Eternal Court | Faction | While the Era is Zenith, you may spend up to 5 Influence per Envoy while voting, regardless of your Domain Standing | - | - | - |
 | The Hermit Crown | Faction | You Abstain on every vote on other players' Envoys, and other players must spend 2 Influence to affect your Envoys by 1 | - | - | - |
 | The Hermit Crown | Faction | Your Personal Envoys have Authority +1 | - | - | personal |
 | The Hermit Crown | Faction | You can't vote nor send Council Envoys | - | - | council |
-| The Blazing Standard | Faction | During Envoy Declaration, if you don't have an Army of 25 Knight's Templars, you must send a Prowess Envoy | - | - | - |
+| The Blazing Standard | Faction | During Envoy Declaration, if you don't have an Army of 25 Knight's Templar, you must send a Prowess Envoy | - | - | - |
 | The Inner Circle | Faction | Each player allied with you has Authority +1 on their Personal Envoys | - | - | personal |
 | The Inner Circle | Faction | Once per Envoy Phase, you may spend 1 of an ally's Influence, targeting your own Envoys if you wish | envoy | once | personal (by Phase) |
 | The Velvet Hand | Faction | Each Empire Phase, a player who supported a Personal Envoy you sent that passed gains Faith +1 | empire | each | personal |
@@ -72,14 +67,13 @@ can't reach the other Phase's Envoys: it is read as that Phase's Envoys (Envoy P
 | The Illusionists | Faction | Whenever your Personal Diplomacy Envoy passes or is endorsed, you may instead perform a Cunning action | - | - | personal |
 | The Smoldering Crown | Faction | Your Cunning Envoys have Authority +2 when targeting a player with Public Order greater than 1 | - | - | - |
 | The Smoldering Crown | Faction | A Prowess Envoy you send can't fail or be condemned & will instead pass | - | - | - |
-| Prowess Rising | Standing | Indomitable: Once per Envoy Phase, you may spend influence on your own Prowess Envoy after all players have voted | envoy | once | personal (by Phase) |
-| Cunning Rising | Standing | Clandestine Councilor: Once per Envoy Phase, when voting on an Envoy begins, target a player with a lower Cunning value - that player Abstains that Envoy | envoy | once | personal (by Phase) |
-| Cunning Established | Standing | Players may not target you with Cunning Envoys if your Cunning value is higher | - | - | - |
+| Prowess Rising | Standing | Indomitable: In the Tally Phase, you may Support one of your own Prowess Envoys | tally | once | personal (by Phase) |
+| Cunning Rising | Standing | Clandestine Councilor: In the Intrigue Phase, target an Envoy and a player with a lower Cunning value - that player Abstains that Envoy | intrigue | once | personal (by Phase) |
 | Cunning Sovereign | Standing | Master Conspirator: Once per Envoy Phase, if your non-Cunning Envoy passes or is endorsed, you may instead perform a Cunning action | envoy | once | personal (by Phase) |
 
 ## Registry coverage
 
-91 of 94 registry patterns match at least one piece.
+116 of 119 registry patterns match at least one piece.
 
 Patterns with no match in the current data (wording changed, or the piece is gone): `rider_your_extra`, `fac_type_bonus`, `build_edict`
 

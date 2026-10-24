@@ -422,6 +422,8 @@ if __name__ == "__main__":
                     help="one-sheet skirmish board (landscape, terrain only, hills)")
     ap.add_argument("--climate", default=None, choices=sorted(hexstyle.CLIMATES),
                     help="colour set (default: the board's preset climate)")
+    ap.add_argument("--region", default=None,
+                    help="regional preset: generate with gen.js (same board as the map app for this seed)")
     ap.add_argument("--out", default="renown_board.pdf", dest="out_pdf")
     a = ap.parse_args()
     mparams = {}
@@ -433,6 +435,13 @@ if __name__ == "__main__":
                                        paper=a.paper, margin_mm=a.margin_mm,
                                        out_pdf=a.out_pdf, mapgen_params=mparams,
                                        climate=a.climate)
+    elif a.region:
+        import mapgen_regional
+        rm, _, _ = mapgen_regional.generate_region(a.region, seed=a.seed, width=a.width, height=a.height,
+                                                   players=int(mparams.get("players", 2)))
+        info = generate_board(hex_mm=a.hex_mm, paper=a.paper, margin_mm=a.margin_mm,
+                              place_resources=not a.no_resources, out_pdf=a.out_pdf,
+                              map=rm.export, climate=a.climate)
     else:
         info = generate_board(a.width, a.height, seed=a.seed, hex_mm=a.hex_mm,
                               paper=a.paper, margin_mm=a.margin_mm,

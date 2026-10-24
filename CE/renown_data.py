@@ -3531,7 +3531,7 @@ TIMERS = {
 }
 
 # ── Chartering / map placement constants (prose-only before; tunable balance) ──
-CHARTER_MIN_RANGE   = 4   # min range a new settlement must be from any other settlement
+CHARTER_MIN_RANGE   = 4   # map generator spacing for start-zone Towns (Settle itself needs a Hill, which the generator keeps this far apart)
 OUTLAW_BUFFER_RANGE = 2   # new settlements must be at least this far from Outlaw Country
 HAMLET_RANGE        = 2   # exact range a Hamlet sits from the capital
 OUTLAW_COUNTRY_START = 3  # Outlaw Country territories demarcated at game start
@@ -3871,7 +3871,7 @@ ACTIONS = {
         'domain': 'Industry',
         'cost': '2000 gold',
         'requires': 'Rising Industry',
-        'effect': f'Charter a new Village within province on grassland, range {CHARTER_MIN_RANGE}+ from any Settlement and range {OUTLAW_BUFFER_RANGE}+ from Outlaw Country, and set a Build Timer 2.',
+        'effect': f'Charter a new Village on a Hill in your Province or within the Presence of one of your Armies, range {OUTLAW_BUFFER_RANGE}+ from Outlaw Country, and set a Build Timer 2.',
         'endorsed': 'Recoup 2000.',
         'notes': [],
     },
