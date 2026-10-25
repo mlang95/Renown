@@ -448,7 +448,7 @@ DO.mapact=el=>{const p=pById(el.dataset.who),act=el.dataset.act;if(!p)return;
   else if(act==="Settle"){runSettle(ctx);mtool="Village";PLACE_OPEN=true;}
   save();render();flash(log.join(" · ")||act);};
 function inspCamp(k){const cp=mapState().camps[k],thr=BAN.armyThreshold||25,army=cp.n>=thr,cv=banditDomain(cp.n),sb=domBand(cv),inf=STAND_INF[sb]||1,mod=+cp.cmod||0,own=terrOwners()[k];
-  let h=inspHead(sprSVG(army?"map:bandit_army":"map:camp",36,false),army?"Bandit Army":"Bandit Camp","@ "+k+" · Retinues "+cp.n+(army?"":" / "+thr+" to become an Army"),null);
+  let h=inspHead(sprSVG(army?"map:bandit_army":campKey(cp),36,false),army?"Bandit Army":"Bandit Camp","@ "+k+" · Retinues "+cp.n+(army?"":" / "+thr+" to become an Army"),null);
   h+='<div class="ig">'+inspCell("TREASURY",(cp.gold||0).toLocaleString())+inspCell("PROWESS","+"+cv)+inspCell("CUNNING",cv)+inspCell(esc(SCORE.toUpperCase()),inf+mod)+'</div>';
   h+='<div class="ir"><span class="k">Cunning Standing</span><b>'+sb+'</b>'+(mod?'<span class="note">mod '+g$(mod)+'</span>':'')+'</div>';
   h+='<div class="ir"><span class="k">Armed ('+esc(currentEra())+')</span><span>'+esc(((BAN.equipment||{})[currentEra()])||"—")+'</span></div>';
@@ -583,7 +583,7 @@ function mapLayers(M){
         if(!best||o<best.o-1e-6)best={x,y,o,lead:i>=8};});obs.push([best.x,best.y,best.x+w,best.y+h]);return best;};
     Object.keys(M.cells).sort().forEach(k=>{const isA=M.cells[k].type==="Army";if(isA?M.showPlates===false:M.showSPlates===false)return;const [x,y]=XY(k);plates+=isA?mapPlate(k,x,y,R):settPlate(k,x,y,R);});PLATE_AT=null;}
   Object.keys(M.camps).forEach(k=>{const cp=M.camps[k],[c,r]=k.split(",").map(Number),cx=R+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0),army=cp.n>=(BAN.armyThreshold||25);
-    const ck=army?"map:bandit_army":"map:camp";
+    const ck=army?"map:bandit_army":campKey(cp);
     s+=pix&&SPR.S[ck]?mapSpr(ck,cx,cy,R,null,false)+'<text x="'+(cx+R*.8).toFixed(1)+'" y="'+(cy+R*.8).toFixed(1)+'" text-anchor="end" font-size="8" font-weight="700" fill="#f3d38a" stroke="#111" stroke-width=".4" pointer-events="none">'+cp.n+'</text>':
        '<rect x="'+(cx-R*.62).toFixed(1)+'" y="'+(cy-R*.5).toFixed(1)+'" width="'+(R*1.24).toFixed(1)+'" height="'+(R).toFixed(1)+'" fill="'+(army?"#5a0d0d":"#1b1b1b")+'" stroke="#e0b060" pointer-events="none"/>'+
        '<text x="'+cx.toFixed(1)+'" y="'+(cy+3.5).toFixed(1)+'" text-anchor="middle" font-size="9" font-weight="700" fill="#f3d38a" pointer-events="none">☠'+cp.n+'</text>';});
@@ -603,6 +603,9 @@ function outlawReport(M){
   return {by,warn};
 }
 function banditDomain(n){return Math.floor(n/5)*2;}
+// camp sprite grows with the camp's Authority (Standing from its size, plus its modifier): map:camp, map:camp:2 .. :4
+function campKey(cp){const a=(STAND_INF[domBand(banditDomain(cp.n))]||1)+(+cp.cmod||0),t=Math.max(1,Math.min(4,a));
+  return t>1&&SPR&&SPR.S["map:camp:"+t]?"map:camp:"+t:"map:camp";}
 function banditAutoHTML(full){const B=BST();
   let h='<label class="note" style="display:flex;gap:6px;align-items:center"><input type="checkbox" class="bAuto"'+(B.auto!==false?' checked':'')+'> auto Bandit Mechanics at Empire Phase</label>';
   if(full)h+=full;

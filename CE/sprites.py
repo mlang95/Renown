@@ -11,7 +11,8 @@ Art only. No mechanics. Which sprite a thing gets is decided by the data file:
     Infrastructure -> skyline pieces "inf:<name>", placed per SKYLINE; INFRA_SUPERSEDES hides the replaced one
     Status / marks -> "st:<state>" per STATUS_ICONS (12x12), "mk:battle" / "mk:siege" (24x24): Inspect panel, Army plate, map
     Equipment      -> "eq:<item>" per WEAPONS / RANGED / SHIELDS / ARMORS (18x18, no ground row): loadout icons
-    Map pieces     -> "army:<Retinue>" per RETINUES, "map:<tier>" per SETTLEMENTS, "map:camp" / "map:bandit_army"
+    Map pieces     -> "army:<Retinue>" per RETINUES, "map:<tier>" per SETTLEMENTS, "map:camp" (+ "map:camp:2".."4" by
+                      the camp's Authority) / "map:bandit_army"
                       (24x24). Key 'p' is the owner's colour, swapped in per player on the map.
     Map terrain    -> small "prop:<name>" sprites (free size) scattered per hex by SCATTER[<kind>] for every
                       kind in MAP_TERRAIN: deterministic per map seed + hex, kept inside the hex, clear of the
@@ -2573,49 +2574,43 @@ SPRITES["holding:Common Land"] = fin32(c)
 
 
 # ---------------------------------------------------------------- feet strips (38 wide; ground row skipped)
-def strip(rows):
-    """Rows drawn 30 wide; the middle 8 columns repeat to 38 so the strip still overhangs a 32px holding by 3 a side."""
-    rows = [r.ljust(30, ".")[:30] for r in rows]
-    rows = [r[:19] + r[11:19] + r[19:] for r in rows]
+def strip(left, mid, right):
+    """4-row terrain strip, 38 wide (overhangs a 32px holding by 3 a side): left and right clusters (up to 8 wide,
+    right one right-aligned) and a middle unit repeated between them. Lit from the upper left like everything else."""
+    rows = []
+    for i in range(4):
+        m = (mid[i] * 38)[:22]
+        rows.append(left[i].ljust(8, ".")[:8] + m + right[i].rjust(8, ".")[-8:])
     return rows + ["g" * 38]
 
 
-SPRITES["feet:Quarry"] = strip(["..kk..............kkk.........",
-                           ".kttk..kk........kttuk...kk.k.",
-                           "kttutkkttk.....kktttttk.kttktk",
-                           "kttttkkttuk...kttuttttkkttkttk"])
-SPRITES["feet:Salt Works"] = strip(["..k.......................k...",
-                               ".ksk.......k.............ksk..",
-                               "ksssk.eeeeskeeeseeeeesee.ksssk",
-                               "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"])
-SPRITES["feet:Apiary"] = strip(["..y.......y.........y.....y...",
-                           ".l.a..l.y....a..l.....a..l...l",
-                           "lllallllallllllallllyllllallll",
-                           "llllllllllllllllllllllllllllll"])
-SPRITES["feet:Peat Bog"] = strip([".l.l..................l..l.l..",
-                             ".l.l...kkk........kkk.l..l.l..",
-                             "dllddeekbbkddeeddkbbkdeelddeed",
-                             "deeddeeddeeddeeddeeddeeddeedde"])
-SPRITES["feet:Forestry"] = strip(["..kkkk..................kkkk..",
-                             ".kbbbbk...l.......l....kbbbbk.",
-                             "kbkbbkbk.lll.....lll..kbkbbkbk",
-                             "kkkkkkkk..b.......b...kkkkkkkk"])
-SPRITES["feet:Fishmongery"] = strip([".kk.......................kk..",
-                                "kmbk.....................kbmk.",
-                                "kbbkeeeeeeseeeeeeeeseeeeekbbk.",
-                                "kkkkeeeeeeeeeeeeeeeeeeeeekkkk."])
-SPRITES["feet:Mine"] = strip(["..tt.........ttt.........tt...",
-                         ".tuut..m.m..tuyut.......tuut..",
-                         "tuuutkkkkkktuuuuut.m.m.tuuuut.",
-                         "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"])
-SPRITES["feet:Arable Land"] = strip(["y.y.y...................y.y.y.",
-                                "yyyyy...................yyyyy.",
-                                "bybyb.bbbbbbbbbbbbbbbbb.bybyb.",
-                                "bbbbbbybybybybybybybybybbbbbbb"])
-SPRITES["feet:Common Land"] = strip([".kkk...................kkk....",
-                                "ksssk.....l..l..l.....ksssk...",
-                                "kssssk..l..l..l..l...kssssk...",
-                                ".k.k.....................k.k.."])
+SPRITES["feet:Quarry"] = strip(["..kk....", ".kttk.kk", "kttTkktk", "kTTTkkTk"],
+                               ["......", "......", "...k..", "..ktk."],
+                               [".kk.....", "kttk.kk.", "kttTkttk", "kTTTkTTk"])
+SPRITES["feet:Salt Works"] = strip(["..k.....", ".ksk....", "ksssk...", "kZZZk..."],
+                                   [".......", ".......", "eeseeeE", "kkkkkkk"],
+                                   [".....k..", "....ksk.", "...ksssk", "...kZZZk"])
+SPRITES["feet:Apiary"] = strip(["", "", "", ""],
+                               ["..y....", ".l.a..l", "lalLlyl", "LlLLlLL"],
+                               ["", "", "", ""])
+SPRITES["feet:Peat Bog"] = strip([".l.l....", ".lLl.kkk", "dlLdkbBk", "deedkkkk"],
+                                 ["....", "....", "eedE", "deeE"],
+                                 ["....l.l.", "kkk.lLl.", "kbBkdlLd", "kkkkdeed"])
+SPRITES["feet:Forestry"] = strip(["..kkkk..", ".kbYbBk.", "kbYbYbBk", "kkkkkkkk"],
+                                 ["...l.......", "..lLl......", "...b.......", "..kBk......"],
+                                 ["..kkkk..", ".kbYbBk.", "kbYbYbBk", "kkkkkkkk"])
+SPRITES["feet:Fishmongery"] = strip([".kk.....", "kmMk....", "kbBkeeee", "kkkkeeee"],
+                                    [".........", ".........", "eeeeseeeE", "eEeeeeEee"],
+                                    [".....kk.", "....kMmk", "eeeekBbk", "eeeekkkk"])
+SPRITES["feet:Mine"] = strip(["..tt....", ".tuUt...", "tuuyUt..", "kkkkkkkk"],
+                             ["......", "......", "mmmmmm", "kbkbkb"],
+                             ["....tt..", "...tuUt.", "..tuyuUt", "kkkkkkkk"])
+SPRITES["feet:Arable Land"] = strip(["y.y.y...", "yyyYY...", "bybYB...", "BBBBBbyb"],
+                                    ["..", "..", "bB", "yB"],
+                                    ["...y.y.y", "...yyYYY", "...bybYB", "ybBBBBBB"])
+SPRITES["feet:Common Land"] = strip([".kkk....", "ksssk...", "ksZZk...", ".k.k...."],
+                                    [".....", ".....", "..l..", ".lLl."],
+                                    ["....kkk.", "...ksssk", "...kZZsk", "....k.k."])
 
 # ---------------------------------------------------------------- scenery (front row, holding scale)
 # tree: two firs in the gap between settlements
@@ -3800,23 +3795,67 @@ SPRITES["map:bandit_army"] = art([
     "..B..kkddk.kddk.kkkkk...",
     "..k..kkkkk.kkkkk........",
 ])
-SPRITES["map:camp"] = art([
-    ".........k..............",
-    "........kbk.............",
-    ".......ksbsk............",
-    "......kssbssk...........",
-    ".....ksssbsssk..........",
-    "....kssssbssssk.........",
-    "...ksssbsbsbsssk........",
-    "..ksssbssdssbsssk.......",
-    ".ksssbsssdddsssbsk......",
-    "kssssbssdddddsssbsk.....",
-    "ksssbsssdddddssssbsk..y.",
-    "kssbssssdddddsssssbk.yfy",
-    "kkkkkkkkkkkkkkkkkkkkkfyf",
-    "..................kbkfbk",
-    "..................kkkkkk",
-])
+# Bandit camps: one size per point of the camp's Authority (map:camp = 1, then map:camp:2 .. map:camp:4); the board
+# picks by the camp's current Authority, so a camp visibly grows on the map as it musters.
+def _tent(c, cx, top, h, cloth="s"):
+    """A-frame tent, apex at (cx, top), h rows; lit side left, shaded right, dark door, ridge pole tip above."""
+    c[top - 1][cx] = "b"
+    for i in range(h):
+        for x in range(cx - i, cx + i + 1):
+            if x in (cx - i, cx + i) or i == h - 1:
+                c[top + i][x] = "k"
+            elif i >= h // 2 and abs(x - cx) <= (i - h // 2) // 2:
+                c[top + i][x] = "d"
+            else:
+                c[top + i][x] = SHADE[cloth] if x > cx else cloth
+
+
+def _campfire(c, x, y):
+    put(c, [".y.", "yfy", "fYf", "kbk"], x, y)
+
+
+def _skullflag(c, x, top, h):
+    vline(c, x, top, top + h - 1, "b")
+    put(c, ["kkkkkk", "ksssZk", "kskksk", "ksssZk", "kkkkkk"], x + 1, top)
+    c[top + 3][x + 3] = "k"
+
+
+c = cv(24, 23)
+_tent(c, 10, 16, 7)
+_campfire(c, 17, 19)
+SPRITES["map:camp"] = fin(c)        # outlines kept at map scale; shade_rim adds the light below
+
+c = cv(24, 23)
+_tent(c, 8, 12, 11)
+_tent(c, 18, 17, 6, "b")
+_campfire(c, 13, 19)
+SPRITES["map:camp:2"] = fin(c)        # outlines kept at map scale; shade_rim adds the light below
+
+c = cv(24, 23)
+_skullflag(c, 1, 4, 19)
+_tent(c, 11, 10, 13)
+_tent(c, 18, 17, 6, "b")
+_campfire(c, 7, 19)
+for x in (16, 23):
+    put(c, ["k", "b", "B"], x, 20)
+SPRITES["map:camp:3"] = fin(c)        # outlines kept at map scale; shade_rim adds the light below
+
+c = cv(24, 23)
+_skullflag(c, 1, 0, 17)
+put(c, ["kkkkkk", "kbbbBk", "kkkkkk"], 17, 3)
+for y in range(6, 17):
+    c[y][18] = "b"
+    c[y][21] = "B"
+line(c, 18, 7, 21, 15, "b")
+_tent(c, 10, 6, 10)
+for x in range(24):
+    if x % 3 == 1:
+        c[16][x] = "k"
+    for y in range(17, 23):
+        c[y][x] = "k" if x % 3 == 0 else ("b" if x % 3 == 1 else "B")
+    c[19][x] = "k"
+put(c, ["kkkkk", "kdddk", "kdddk", "kdddk"], 9, 19)
+SPRITES["map:camp:4"] = fin(c)        # outlines kept at map scale; shade_rim adds the light below
 SPRITES["map:Hamlet"] = art([
     "................kpppp...",
     "................kpppk...",
@@ -5659,7 +5698,7 @@ def check(ns):
             out.append(f"{key}: not used by SCATTER")
         if kind == "army" and name not in ns.get("RETINUES", {}):
             out.append(f"{key}: not in RETINUES")
-        if kind == "map" and name not in ns.get("SETTLEMENTS", {}) and name not in ("camp", "bandit_army"):
+        if kind == "map" and name not in ns.get("SETTLEMENTS", {}) and name not in ("camp", "bandit_army")                 and not (name.startswith("camp:") and name[5:] in ("2", "3", "4")):
             out.append(f"{key}: not a settlement tier / camp / bandit_army")
     known = set(ns.get("NODES", {})) | set(ns.get("WONDERS", {})) | set(ns.get("SETTLEMENTS", {}))
     for key in SPRITES:
