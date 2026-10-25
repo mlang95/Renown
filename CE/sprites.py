@@ -41,6 +41,10 @@ KEYS = {
     "x": "heraldic charge shade (darkened on pale player colours)",
     "H": "terrain hilite", "S": "terrain shade", "D": "terrain deep (map terrain; derived per hex fill)",
     "g": "ground (skipped in scene)",
+    # 32px shading ramp: capital = shade of the lower-case key (light from the upper left); 'K' = hard line selout keeps
+    "W": "plaster shade", "R": "roof shade", "B": "wood shade", "T": "stone shade", "Y": "lamplight shade", "M": "metal shade",
+    "C": "red cloth shade", "L": "leaf shade (seasonal)", "E": "water shade", "Z": "pale shade", "A": "royal cloth shade",
+    "F": "fire shade", "K": "hard outline (kept by selout)",
 }
 
 PALETTES = {
@@ -57,6 +61,21 @@ PALETTES = {
                     "c": "#c83a3a", "a": "#5a4ab0", "e": "#3a7ac8", "n": "#24563a", "g": "#2f4a2a",
                     "h": "#e0b088", "p": "#9aa0b0", "P": "#686e7c", "q": "#c4c8d2", "x": "#c8c0b4", "H": "#a8c878", "S": "#5a7a3a", "D": "#34481f"},
 }
+
+
+SHADE = {"w": "W", "r": "R", "b": "B", "t": "T", "y": "Y", "m": "M", "c": "C", "l": "L", "e": "E", "s": "Z", "a": "A", "f": "F"}
+SHADE_TOWARD = {"y": "c", "f": "c"}     # lights shade warm (toward red), everything else toward the skin's shadow 'd'
+
+
+def _mix(a, b, t):
+    A, B = (tuple(int(h[i:i + 2], 16) for i in (1, 3, 5)) for h in (a, b))
+    return "#" + "".join(f"{round(u + (v - u) * t):02x}" for u, v in zip(A, B))
+
+
+for _p in PALETTES.values():            # derived; a hand value written in PALETTES above wins
+    for _b, _sh in SHADE.items():
+        _p.setdefault(_sh, _mix(_p[_b], _p[SHADE_TOWARD.get(_b, "d")], .35 if _b in SHADE_TOWARD else .3))
+    _p.setdefault("K", _p["k"])
 
 
 def _s(rows, size, mirror=False):
@@ -78,7 +97,7 @@ def _b(rows, w=32, h=20, mirror=False):
     return ["." * w] * max(0, h - 1 - len(rows)) + rows + ["g" * w]
 
 
-S12, S18, S24, S36, S48 = 12, 18, 24, 36, 48
+S12, S18, S24, S32, S36, S48 = 12, 18, 24, 32, 36, 48
 EQ_TILE = "#3a404c"      # fixed backing square behind every eq: icon (board + sheet)
 SPRITES = {}
 
@@ -159,6 +178,124 @@ WIN = ["kkk", "kyk", "kkk"]
 WIN2 = ["kkkk", "kyyk", "kyyk", "kkkk"]
 WINT = ["kkk", "kyk", "kyk", "kkk"]
 SLIT = ["k", "d", "d", "k"]
+
+
+# ---------------------------------------------------------------- kit: 32px holdings (2-tone ramp + selective outline)
+# Draw with base keys and 'k' lines; shade with the helpers; fin32() turns interior outlines into the shade of the
+# material around them (silhouette edge, door/shadow edges and frames round lamplight / fire stay black).
+def cv32():
+    return cv(S32, S32 - 1)
+
+
+def shade_rect(c, x0, y0, x1, y1):
+    for y in range(y0, y1 + 1):
+        for x in range(x0, x1 + 1):
+            if c[y][x] in SHADE:
+                c[y][x] = SHADE[c[y][x]]
+
+
+def wall(c, x, y, w, h, fill="w"):
+    """Outlined box, lit from the upper left: right 2 columns and the row under the top edge in shade."""
+    box(c, x, y, w, h, fill)
+    shade_rect(c, x + w - 3, y + 1, x + w - 2, y + h - 2)
+    shade_rect(c, x + 1, y + 1, x + w - 2, y + 1)
+
+
+def roof(c, cx, y, half, fill="r"):
+    """Gable (draw after its wall): right slope in shade, courses every 3rd row on the lit slope, hard eave."""
+    gable(c, cx, y, half, fill)
+    for i in range(1, half):
+        for x in range(cx + 1, cx + i):
+            c[y + i][x] = SHADE[fill]
+        if i % 3 == 0:
+            for x in range(cx - i + 1, cx + 1, 2):
+                c[y + i][x] = SHADE[fill]
+    hline(c, cx - half, cx + half, y + half, "K")
+
+
+def courses(c, x0, y0, x1, y1):
+    """Mortar marks on a stone face (offset bond)."""
+    for y in range(y0, y1 + 1, 3):
+        for x in range(x0 + (y // 3) % 2 * 2, x1 + 1, 4):
+            if c[y][x] == "t":
+                c[y][x] = "T"
+
+
+def win4(c, x, y):
+    put(c, ["kkkk", "kyyk", "kyYk", "kkkk"], x, y)
+
+
+def door4(c, x, y, h=7):
+    put(c, [".kk.", "kddk"] + ["kddk"] * (h - 2), x, y)
+
+
+def selout(c):
+    """Interior 'k' -> shade of the material it sits in (8-neighbour vote). Kept black: silhouette edge, next to
+    door/shadow 'd', round lamplight / fire. 'K' is never touched."""
+    H, W_ = len(c), len(c[0])
+    base = {v: k for k, v in SHADE.items()}
+    out = [r[:] for r in c]
+    for y in range(H):
+        for x in range(W_):
+            if c[y][x] != "k":
+                continue
+            n4 = [c[y + dy][x + dx] if 0 <= y + dy < H and 0 <= x + dx < W_ else "." for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))]
+            if any(ch in ".dyYfF" for ch in n4):
+                continue
+            votes = {}
+            for dy in (-1, 0, 1):
+                for dx in (-1, 0, 1):
+                    if 0 <= y + dy < H and 0 <= x + dx < W_:
+                        b = base.get(c[y + dy][x + dx], c[y + dy][x + dx])
+                        if b in SHADE:
+                            votes[b] = votes.get(b, 0) + 1
+            if votes:
+                out[y][x] = SHADE[max(votes, key=votes.get)]
+    c[:] = out
+
+
+def fin32(c):
+    selout(c)
+    return fin(c)
+
+
+BARREL8 = [".kkkk.", "kbbbBk", "kmmmMk", "kbbbBk", "kbbbBk", "kmmmMk", "kbbbBk", ".kkkk."]
+SKEP8 = ["..kk..", ".kyyk.", "kyyyYk", "kkkkkk", "kyyyYk", "kkkkkk", "kydyYk", "kkkkkk"]
+
+
+def tree32(c, x, y, fruit=None):
+    """Round deciduous tree 13 wide, 18 tall, top-left (x, y), shaded lower right; fruit dots the canopy."""
+    put(c, ["....kkkkk....",
+            "..kklllllkk..",
+            ".klllllllllk.",
+            "kllllllllllLk",
+            "klllllllllLLk",
+            "kllllllllLLLk",
+            "klllllllLLLLk",
+            ".kllllLLLLLk.",
+            "..kkLLLLLkk..",
+            "....kkbBkk...",
+            ".....kbBk....",
+            ".....kbBk....",
+            ".....kbBk....",
+            ".....kbBk....",
+            ".....kbBk....",
+            ".....kbBk....",
+            "....kbbBBk...",
+            "....kkkkkk..."], x, y)
+    if fruit:
+        for dx, dy in ((3, 2), (7, 1), (9, 4), (5, 5), (2, 6), (8, 7), (10, 2)):
+            c[y + dy][x + dx] = fruit
+
+
+def fence32(c, x0, x1, y):
+    """Wattle fence 4 tall from x0 to x1, top at y: woven rows, a post every 5 px."""
+    for x in range(x0, x1 + 1):
+        c[y + 1][x] = "b" if x % 2 else "B"
+        c[y + 2][x] = "B" if x % 2 else "b"
+    for x in range(x0, x1 + 1, 5):
+        for j in range(4):
+            c[y + j][x] = "k"
 
 
 # ================================================================ BATCH 1: logistics
@@ -1813,161 +1950,216 @@ def fence(c, x0, x1, y):
             c[y + j][x] = "k"
 
 
-# group: plaster barn, braced double doors, loft hatch, hay bale (original: plaster walls)
-c = cv()
-gable(c, 10, 2, 10)
-box(c, 1, 12, 19, 11, "w")
-put(c, ["kkk", "kdk", "kkk"], 9, 8)
-put(c, ["kkkkkkkkk",
-        "kbbbkbbbk",
-        "kbkbkbkbk",
-        "kbbkkkbbk",
-        "kbkbkbkbk",
-        "kbbbkbbbk",
-        "kbbbkbbbk",
-        "kbbbkbbbk",
-        "kbbbkbbbk"], 6, 14)
-put(c, ["kkkkk", "kyyyk", "kybyk", "kyyyk", "kkkkk"], 19, 18)
-SPRITES["group:g_husbandry"] = fin(c)
+# group: plaster barn, braced double doors, loft hatch, hay bale
+c = cv32()
+wall(c, 1, 17, 23, 14, "w")
+roof(c, 12, 6, 11)
+put(c, ["kkkk", "kddk", "kddk", "kkkk"], 11, 11)                                         # loft hatch
+put(c, ["kkkkkkkkkkk"] + ["k" + "".join("k" if j in (i // 2, 3 - i // 2) else ("B" if j == 3 else "b") for j in range(4))
+        + "k" + "".join("k" if j in (i // 2, 3 - i // 2) else ("B" if j == 3 else "b") for j in range(4)) + "k" for i in range(8)]
+    + ["kkkkkkkkkkk"], 7, 20)                                                           # X-braced double doors
+put(c, [".kkkkkk.", "kyyyyyYk", "kybbyyYk", "kyyyyyYk", "kYYYYYYk", "kkkkkkkk"], 24, 25)  # hay bale
+SPRITES["group:g_husbandry"] = fin32(c)
 
-# Herb Garden: cottage, raised beds of herbs and flowers, wattle fence
-c = cv()
-house(c, 0, 13, 9, 10, door=5)
-put(c, WIN, 1, 14)
-for x0, flw in ((10, "a"), (17, "y")):
-    put(c, ["l" + flw + "l" + flw + "l" + flw,
-            "llllll",
-            "l" + flw + "l" + "l" + flw + "l",
-            "kkkkkk",
-            "kbbbbk"], x0, 16)
-fence(c, 9, 23, 19)
-SPRITES["holding:Herb Garden"] = fin(c)
+# Herb Garden: cottage, two raised beds of herbs in flower, wattle fence
+c = cv32()
+wall(c, 0, 19, 13, 12, "w")
+hline(c, 1, 11, 23, "b")
+roof(c, 6, 13, 6)
+win4(c, 2, 20)
+door4(c, 7, 24)
+for x0, flw in ((14, "a"), (23, "y")):
+    put(c, [".l..l..l",
+            "l" + flw + "lLl" + flw + "lL",
+            "lLl" + flw + "LlLl",
+            "LlLLlLLL",
+            "kkkkkkkk",
+            "kbbbbbBk",
+            "kkkkkkkk"], x0, 20)
+fence32(c, 13, 31, 27)
+SPRITES["holding:Herb Garden"] = fin32(c)
 
-# Animal Husbandry: byre with a hayloft, cow in the paddock, fence
-c = cv()
-house(c, 11, 12, 13, 11, wall="b", timber=False)
-put(c, ["kkkk", "kyyk", "kkkk"], 15, 13)
-put(c, ["kkkkk", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"], 15, 17)
-put(c, ["kk..........",
-        "ksk.kkkkkk..",
-        "kssksskssk..",
-        ".kssssskssk.",
-        "..kskssssskk",
-        "..kssssssk..",
-        "..ks.k.ks...",
-        "..kk.k.kk...",
-        "..kk...kk..."][:9], 0, 14)
-fence(c, 0, 10, 19)
-SPRITES["holding:Animal Husbandry"] = fin(c)
+# Animal Husbandry: plank byre with a hayloft, cow in the paddock, wattle fence
+c = cv32()
+wall(c, 14, 17, 17, 14, "b")
+for xx in range(17, 29, 3):
+    vline(c, xx, 19, 29, "B")
+roof(c, 22, 9, 8)
+put(c, ["kkkk", "kyyk", "kyYk", "kkkk"], 20, 12)                                         # hayloft
+put(c, ["kkkkkk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk"], 19, 23)
+put(c, ["kk..............",
+        "kskk..kkkkkkkk..",
+        "ksdsk.ksssddsk..",
+        "ksssskssssdddsk.",
+        ".khhsssssssssskk",
+        "..kkkssssssssk.k",
+        "....kZZZZZZZZk..",
+        "....kZk.kZkZk...",
+        "....kdk..kdkdk..",
+        "....kk...kkkk..."], 0, 19)                                                     # cow
+fence32(c, 0, 13, 27)
+SPRITES["holding:Animal Husbandry"] = fin32(c)
 
-# Saddlery: half-timber shop, saddle on a trestle, bridle hanging from the sign
-c = cv()
-house(c, 0, 12, 13, 11, door=8, wins=(1,))
-put(c, ["kkkk", "...k", "..kbk", "..kbk", "...m"], 12, 10)
-put(c, ["..kkk...",
-        ".kbbbkk.",
-        "kcbbbbck",
-        "kcccccck",
-        ".kkkkkk.",
-        ".kb..bk.",
-        ".kb..bk.",
-        ".kb..bk."], 15, 15)
-SPRITES["holding:Saddlery"] = fin(c)
+# Saddlery: half-timber shop, bridle on the sign bracket, saddle on a trestle
+c = cv32()
+wall(c, 0, 17, 17, 14, "w")
+for xx in (5, 11):
+    vline(c, xx, 18, 29, "b")
+hline(c, 1, 15, 22, "b")
+roof(c, 8, 9, 8)
+win4(c, 1, 18)
+win4(c, 12, 18)
+door4(c, 6, 24)
+put(c, ["kkkkkk", ".....k", "....kbk", "....kbk", "....kbk", "...kmkmk", "....kbk"], 16, 17)   # bracket + bridle
+put(c, ["..kk.......kk",
+        ".kbbk.....kbbk",
+        ".kbbbkkkkkbbBk",
+        "kcbbbbbbbbbbBck",
+        "kcccccccccccCCk",
+        ".kkkkkkkkkkkkk.",
+        "..kbk.....kbk..",
+        ".kbk.......kbk.",
+        ".kbk.......kbk.",
+        "kbk.........kbk"], 17, 21)                                                     # saddle on a trestle
+SPRITES["holding:Saddlery"] = fin32(c)
 
-# Vineyard: trellised vines in three tiers, grape bunches, end posts
-c = cv()
-for x in (0, 8, 15, 23):
-    vline(c, x, 7, 22, "b")
+# Vineyard: trellised vines in three tiers on four posts, grape bunches
+c = cv32()
+for x in (0, 10, 21, 31):
+    vline(c, x, 7, 30, "b")
     c[6][x] = "k"
-for y0 in (7, 12, 17):
-    hline(c, 0, 23, y0, "b")
-    for x in range(1, 23):
-        if x in (8, 15):
+for y0 in (7, 15, 23):
+    hline(c, 0, 31, y0, "k")
+    for x in range(1, 31):
+        if x in (10, 21):
             continue
         c[y0 + 1][x] = "l"
-        c[y0 + 2][x] = "l" if x % 3 else "n"
-    for x0 in (2, 10, 17, 20):
-        put(c, ["aa", "aa", ".a"], x0 + (y0 // 5) % 2, y0 + 2)
-hline(c, 0, 23, 22, "k")
-SPRITES["holding:Vineyard"] = fin(c)
+        c[y0 + 2][x] = "l" if x % 3 else "L"
+        c[y0 + 3][x] = "L" if x % 2 else "."
+    for x0 in (2, 13, 24) if y0 != 15 else (6, 16, 26):
+        put(c, ["aaA", "aAA", ".A."], x0, y0 + 3)
+SPRITES["holding:Vineyard"] = fin32(c)
 
-# Orchard: two apple trees, ladder, basket of apples
-c = cv()
-tree(c, 0, 8, "c")
-tree(c, 11, 8, "c")
-put(c, ["k.k", "kkk", "k.k", "kkk", "k.k", "kkk", "k.k"], 9, 16)
-put(c, [".c.c.", "kckck", "kbbbk", "kbbbk", ".kkk."], 19, 18)
-SPRITES["holding:Orchard"] = fin(c)
+# Orchard: two apple trees, ladder against one, basket of apples
+c = cv32()
+tree32(c, 0, 13, "c")
+tree32(c, 13, 11, "c")
+for y in range(18, 31):
+    c[y][12] = c[y][15] = "k"
+    if y % 3 == 0:
+        hline(c, 12, 15, y, "b")
+put(c, [".c.c.c.", "kcCkcCk", "kbbbbBk", "kbBbBBk", ".kkkkk."], 25, 26)
+SPRITES["holding:Orchard"] = fin32(c)
 
-# Bakery: house with a domed bread oven glowing, smoke, loaves on the sill
-c = cv()
-house(c, 0, 12, 13, 11, door=8, chimney=9)
-put(c, ["kkkkk", "kyyyk", "kkkkk"], 1, 14)
-put(c, ["...s....",
-        "..s.....",
-        "..kk....",
-        "..ku.kk.",
-        ".kkkkuuk",
-        "kuuuuuuuk"[:8] + "k",
-        "kuukkkuuk",
-        "kukfffkuk",
-        "kukfyfkuk",
-        "kkkkkkkkk"], 14, 13)
-SPRITES["holding:Bakery"] = fin(c)
+# Bakery: half-timber shop, awning over a window of loaves, domed bread oven glowing, peel
+c = cv32()
+put(c, [".s.", "s..", ".s.", "kkk", "kTk", "kTk", "kTk", "kTk", "kTk"], 10, 3)
+wall(c, 0, 17, 17, 14, "w")
+hline(c, 1, 15, 22, "b")
+vline(c, 8, 18, 21, "b")
+roof(c, 8, 9, 8)
+win4(c, 2, 18)
+win4(c, 11, 18)
+put(c, ["ccccccccc", "csccsccsc"], 1, 23)                                               # awning
+put(c, ["kkkkkkk", "kyyyyyk", "kbByBbk", "kkkkkkk", ".kbbBk."], 2, 25)                  # loaves in the window
+door4(c, 11, 24)
+put(c, ["....s.....",
+        "...s......",
+        "...kkk....",
+        "...kTk....",
+        "..kkkkkk..",
+        ".kttttTTk.",
+        "kttttttTTk",
+        "kttkkkkTTk",
+        "kttkfyfkTk",
+        "kttkyyykTk",
+        "kttkFFFkTk",
+        "kkkkkkkkkk"], 18, 19)                                                         # domed bread oven
+put(c, ["kkk", "kYk", ".b.", ".b.", ".b.", ".b.", ".b.", ".kk"], 28, 23)                  # peel
+SPRITES["holding:Bakery"] = fin32(c)
 
-# Meadery: cottage, row of straw skeps on a bench, mead barrel
-c = cv()
-house(c, 0, 12, 13, 11, door=8, wins=(1,))
-for x0 in (13, 17):
-    put(c, SKEP, x0, 13)
-put(c, ["kkkkkkkk", "b......b", "b......b", "b......b", "b......b"], 13, 18)
-put(c, BARREL, 21, 16)
-SPRITES["holding:Meadery"] = fin(c)
+# Meadery: cottage, straw skeps on a bench, mead barrel, bees
+c = cv32()
+wall(c, 0, 17, 15, 14, "w")
+hline(c, 1, 13, 22, "b")
+roof(c, 7, 10, 7)
+win4(c, 2, 18)
+door4(c, 9, 24)
+put(c, ["y...y", "..y..y", "y...."], 17, 12)
+for x0 in (16, 22):
+    put(c, SKEP8, x0, 17)
+put(c, ["kkkkkkkkkkkkk", "kbbbbbbbbbbBk", "kkkkkkkkkkkkk", ".kb.......kb.", ".kb.......kb.", ".kb.......kb."], 15, 25)
+put(c, BARREL8, 26, 23)
+SPRITES["holding:Meadery"] = fin32(c)
 
-# Winery: cellar house with arched door, barrels stacked on racks, grapes on the eave
-c = cv()
-house(c, 0, 12, 15, 11, wall="t", timber=False, door=6)
-put(c, ["lalal", "laall", ".lal."], 1, 12)
-put(c, WIN, 11, 13)
-put(c, BARREL, 15, 9)
-put(c, BARREL, 15, 16)
-put(c, BARREL, 19, 16)
-put(c, ["kkkkkkkkk"], 15, 15)
-SPRITES["holding:Winery"] = fin(c)
+# Winery: stone cellar house, arched door, vine and grapes over the eave, barrels racked two-and-one
+c = cv32()
+wall(c, 0, 17, 17, 14, "t")
+courses(c, 1, 19, 13, 29)
+roof(c, 8, 9, 8)
+put(c, ["lLlaAlLlLaAlL", "l.aA.Ll..aAl.", "...A.......A."], 2, 17)                        # vine on the eave
+put(c, ["..kkkk..", ".kddddk.", "kddddddk", "kddddddk", "kddddddk", "kddddddk", "kddddddk", "kddddddk"], 2, 23)
+win4(c, 11, 21)
+put(c, BARREL8, 18, 23)
+put(c, BARREL8, 25, 23)
+put(c, ["kkkkkkkkkkkkk", "kbbbbbbbbbbBk", "kkkkkkkkkkkkk"], 18, 20)                          # rack
+put(c, BARREL8, 21, 12)
+for x in (18, 30):
+    vline(c, x, 23, 30, "k")
+SPRITES["holding:Winery"] = fin32(c)
 
-# Cidery: cottage, twin-screw cider press, basket of apples, barrel
-c = cv()
-house(c, 0, 12, 13, 11, door=8, wins=(1,))
-put(c, ["kkkkkkkkk",
-        "kbbbbbbbk",
-        "kkkmkmkkk",
-        "..km.mk..",
-        ".kkkkkkk.",
-        ".kbbbbbk.",
-        ".kccyckk."[:9],
-        "kkkkkkkkk",
-        "kb.....bk",
-        "kb.....bk"], 14, 13)
-put(c, [".c.", "kck", "kbk"], 21, 20)
-SPRITES["holding:Cidery"] = fin(c)
+# Cidery: cottage, twin-screw cider press over a tub of apples, basket, barrel
+c = cv32()
+wall(c, 0, 17, 15, 14, "w")
+hline(c, 1, 13, 22, "b")
+roof(c, 7, 10, 7)
+win4(c, 2, 18)
+door4(c, 9, 24)
+put(c, ["kkkkkkkkkkkk",
+        "kbbbbbbbbbBk",
+        "kkkmkkkkmkkk",
+        ".kbmb..bmbk.",
+        ".kbmb..bmbk.",
+        ".kbmkkkkmbk.",
+        ".kbkbbbbkbk.",
+        ".kbkkkkkkbk.",
+        ".kbkcCcCkbk.",
+        ".kbkBbBbkbk.",
+        ".kbkbBbBkbk.",
+        ".kbkkkkkkbk.",
+        "kkkkkkkkkkkk"], 15, 18)                                                       # screw press
+put(c, [".c.c.", "kcCcC", "kbBbB"[:5] + "k", ".kkk."], 27, 27)
+SPRITES["holding:Cidery"] = fin32(c)
 
-# Mill: stone tower windmill, cap, four lattice sails, door and window
-c = cv()
-box(c, 7, 9, 9, 14, "t")
-put(c, WIN, 10, 12)
-put(c, ["kkk", "kdk", "kdk", "kdk", "kdk"], 10, 18)
-for y0 in (11, 14, 17, 20):
-    c[y0][8] = "u"
-    c[y0 + 1][14] = "u"
-put(c, ["..kkkkk..", ".krrrrrk.", "krrrrrrrk", "kkkkkkkkk"], 7, 5)
-SAIL = ["kk.......", "ksk......", "kssk.....", ".kssk....", "..kssk...", "...ksbk..", "....kbbk."]
-for flipx in (False, True):
-    for flipy in (False, True):
-        rows = SAIL[::-1] if flipy else SAIL
-        rows = [r[::-1] for r in rows] if flipx else rows
-        put(c, rows, 12 if flipx else 3, 7 if flipy else 0)
-put(c, [".kk.", "kbbk", "kbbk", ".kk."], 10, 5)
-SPRITES["holding:Mill"] = fin(c)
+# Mill: tapering stone tower windmill, cap, four cloth sails on spars, door, flour sacks
+c = cv32()
+for i, y in enumerate(range(12, 31)):
+    w = 9 + (i // 5) * 2
+    x0 = 16 - w // 2
+    for x in range(x0, x0 + w):
+        c[y][x] = "k" if x in (x0, x0 + w - 1) or y == 30 else ("T" if x >= x0 + w - 3 else "t")
+courses(c, 13, 14, 19, 29)
+put(c, ["...kkkkkkk...", "..krrrrrrRRk.", ".krrrrrrrrRRk", "KKKKKKKKKKKKK"], 10, 8)        # cap
+win4(c, 14, 15)
+put(c, [".kkkk.", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk"], 13, 24)
+MSAIL = ["kkk........",
+         "kssk.......",
+         "kssbk......",
+         ".kssbk.....",
+         "..kssbk....",
+         "...kssbk...",
+         "....kssbk..",
+         ".....kssbk.",
+         "......kkbBk"]
+for fx in (False, True):
+    for fy in (False, True):
+        rows = MSAIL[::-1] if fy else MSAIL
+        rows = [r[::-1] for r in rows] if fx else rows
+        put(c, rows, 17 if fx else 4, 10 if fy else 0)
+put(c, [".kkk.", "kbbBk", "kbmBk", "kbbBk", ".kkk."], 14, 7)                              # hub
+put(c, [".kk.", "kZZk", "kssk", "ksZk", "kkkk"], 23, 26)                                  # flour sacks
+put(c, [".kk.", "kZZk", "kssk", "ksZk", "kkkk"], 27, 26)
+SPRITES["holding:Mill"] = fin32(c)
 
 
 # ---------------------------------------------------------------- husbandry monument (36)
@@ -3269,7 +3461,7 @@ SPRITES["inf:Stone Walls:tower"] = art(["k.kk.kk.k",
                                     "ktttttutk",
                                     "ktttttttk",
                                     "kkkkkkkkk"], 9, 17)
-SPRITES["inf:Hitching Post"] = art(["kkkkkkkk", "bbbbbbbb", "b..m...b", "b..m...b", "b.kmk..b", "b......b", "b......b", "b......b"], 8, 9)
+SPRITES["inf:Town Square"] = art(["kkkkkkkk", "bbbbbbbb", "b..m...b", "b..m...b", "b.kmk..b", "b......b", "b......b", "b......b"], 8, 9)
 
 # Road Wardens: wardens' lodge, two mounts at the rail
 c = sky(35, 16)
@@ -5134,7 +5326,7 @@ SKYLINE = {
     "Muster Field": ("edge", "left"), "Garrison": ("edge", "right"),
     "Wooden Walls": ("band", ""), "Stone Walls": ("band", ""),
     "Dirt Roads": ("ground", "dirt"), "Stone Roads": ("ground", "stone"),
-    "Bridges": ("gap", ""), "Aqueducts": ("span", ""), "Hitching Post": ("front", "left"),
+    "Bridges": ("gap", ""), "Aqueducts": ("span", ""), "Town Square": ("front", "left"),
     "Chapel": ("slot", "center"), "Magistrate's Hall": ("slot", "right"), "Keep": ("edge", "right"),
     "Road Wardens": ("front", "right"),
 }
@@ -5149,7 +5341,8 @@ PLATE_NO_INFRA = ["Hamlet", "Village"]
 #   fade - blend of skyline colours toward the sky (0..1)
 #   sil  - flatten the skyline toward two sky-derived tones (0 = full colour, 1 = silhouette)
 #   halo - 1 = dark 1px edge around each holding
-SCENE_STYLE = {"fade": 0.15, "sil": 0.6, "halo": 1}
+#   lift - the skyline stands this many px up a rise behind the holdings (clears 32px holdings)
+SCENE_STYLE = {"fade": 0.15, "sil": 0.6, "halo": 1, "lift": 8}
 
 
 def feet_key(raw_name):
@@ -5171,6 +5364,8 @@ def _dims(key):
         return S48, S48
     if key.startswith("mk:"):
         return S24, S24
+    if key.startswith(("holding:", "group:")) and len(SPRITES[key][0]) == S32:
+        return S32, S32      # redrawn at 32 (2-tone ramp); the rest are still 24 until their group is redrawn
     return S24, S24
 
 
@@ -5329,12 +5524,16 @@ def sheet_html(path, ns, palette="scene", only=None):
     """Preview sheet (no dependencies): sprites in one palette, then a skyline per tier (bare, and with every
     skyline infrastructure piece), then each raw feet strip under its first builds_into holding."""
     keys = [k for k in SPRITES if not only or k.startswith(tuple(only))]
+    nd = ns.get("NAME_DISPLAY", {})
+    dn = lambda n: nd.get(n, n)                      # what players read (Coliseum -> Castle Yard); keys stay canonical
     comps = []
     for n, v in ns.get("NODES", {}).items():
         if v.get("type") == "Raw Materials" and feet_key(n):
             kids = [c for c in (v.get("builds_into") or []) if c in ns.get("NODES", {})]
-            comps.append({"ft": feet_key(n), "front": sprite_key(kids[0] if kids else n, ns), "label": n + " \u2192 " + (kids[0] if kids else n)})
-    data = json.dumps({"S": SPRITES, "K": keys, "P": PALETTES[palette], "C": comps, "pal": palette,
+            kid = kids[0] if kids else n
+            comps.append({"ft": feet_key(n), "front": sprite_key(kid, ns), "label": dn(n) + " \u2192 " + dn(kid)})
+    lab = {k: ":".join(dn(p) for p in k.split(":")) for k in keys}
+    data = json.dumps({"S": SPRITES, "K": keys, "L": lab, "P": PALETTES[palette], "C": comps, "pal": palette,
                        "T": [t for t in ns.get("SETTLEMENTS", {}) if "sky:core:" + t in SPRITES],
                        "SK": SKYLINE, "NI": PLATE_NO_INFRA, "SUP": INFRA_SUPERSEDES})
     html = """<!doctype html><meta charset="utf-8"><title>Sprite Sheet</title>
@@ -5352,7 +5551,7 @@ function cell(g,w,h,label,fn,bg){const cv=document.createElement("canvas");cv.wi
   const l=document.createElement("span");l.textContent=label;d.appendChild(l);g.appendChild(d);}
 function sec(t){const h=document.createElement("h2");h.textContent=t;r.appendChild(h);const g=document.createElement("div");g.className="g";r.appendChild(g);return g;}
 let g=sec("sprites \u00b7 "+D.pal);
-D.K.forEach(k=>{const rows=D.S[k];cell(g,rows[0].length,rows.length,k,c=>paint(c,rows,0,0));});
+D.K.forEach(k=>{const rows=D.S[k];cell(g,rows[0].length,rows.length,D.L[k]||k,c=>paint(c,rows,0,0));});
 function skyline(c,t,W,G,all){const at=(k,x)=>{const s=D.S[k];if(s)paint(c,s,x,G-(s.length-1),.2,true);},w=k=>(D.S[k]||[""])[0].length;
   const hide=new Set(Object.keys(D.SUP).map(k=>D.SUP[k]));const on=n=>all==="chapel"?n==="Chapel":all&&!hide.has(n);
   for(let x=0;x<W;x+=w("sky:fill:"+t)+1)at("sky:fill:"+t,x);

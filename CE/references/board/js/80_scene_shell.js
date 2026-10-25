@@ -7,7 +7,7 @@
 // Ground = the loaded map's Grassland colour (hexstyle climate / map swatch), snow in Winter.
 const SPR=DATA.sprites||null;
 const SPR_RAW=new Set((SPR&&SPR.raw)||[]);
-const SCN_STYLE=Object.assign({fade:0.2,sil:0,halo:0},(SPR&&SPR.style)||{});   // skyline fade, silhouette strength, holding halo
+const SCN_STYLE=Object.assign({fade:0.2,sil:0,halo:0,lift:0},(SPR&&SPR.style)||{});   // skyline fade, silhouette strength, holding halo, skyline rise
 const SCN={sky:{Winter:["#5a6a88","#7a88a4","#9aa6bc","#b8c2d2"],Spring:["#4a8ad8","#6aa4e4","#8abcee","#b0d4f4"],
                Summer:["#1e6ad0","#3a86e0","#5aa2ea","#86c0f2"],Fall:["#3a3060","#7a4a6a","#c8705a","#e8a060"]},
            ground:{Winter:["#c8d4e2","#e8eef5"]},leaf:{Spring:"#7cc44e",Summer:"#2f7a26",Fall:"#d8742a"}};
@@ -55,8 +55,8 @@ const WON_GAP=12;   // px between the core and the first Wonder on each side (cl
 function renderScene(){
   const box=document.getElementById("sceneBox");if(!box)return;
   const on=!!(SPR&&S.settlements.length);box.hidden=!on;if(!on){box.innerHTML="";return;}
-  const sea=SCN.sky[curSeason()]?curSeason():"Summer",G=38,H=48,pal=Object.assign({},SPR.P),sky=SCN.sky[sea];
-  pal.l=sea==="Winter"?null:SCN.leaf[sea];
+  const sea=SCN.sky[curSeason()]?curSeason():"Summer",LIFT=SCN_STYLE.lift||0,G=38+LIFT,H=48+LIFT,SG=G-LIFT,pal=Object.assign({},SPR.P),sky=SCN.sky[sea];
+  pal.l=sea==="Winter"?null:SCN.leaf[sea];let gl=G;   // gl: ground line draw() stands art on (SG for the skyline on the rise)
   const INF=sceneInfra(),has=n=>!!INF[n],SW=k=>(SPR.S[k]||[""])[0].length;
   // ---- layout: lot width from its holdings and its skyline core
   const lots=[],placed=[],gapW=has("Bridges")?18:12;let x=12;
@@ -80,17 +80,18 @@ function renderScene(){
   if(sea==="Fall"){c.fillStyle="#ffe8b0";c.fillRect(W-20,6,3,3);}
   if(sea==="Spring"){c.fillStyle="#ffffff";for(let q=18;q<W;q+=70){c.fillRect(q,6,10,2);c.fillRect(q+4,5,5,1);}}
   const occ=[];
-  const SHADE="#141a2a",DARK=new Set(["k","d","u"]);
+  const SHADE="#141a2a",DARK=new Set(["k","K","d","u"]);
+  pal.L=pal.l?mix(pal.l,pal.d,.3):null;
   // everything is drawn opaque, back to front, so nearer pieces hide whatever is behind them; a piece under
   // construction or damaged (alpha<1) is drawn paler (more sky in it), never see-through
-  const draw=(rows,ox,alpha,tint,track,oyOverride)=>{if(!rows)return;const oy=oyOverride!=null?oyOverride:G-(rows.length-1);
+  const draw=(rows,ox,alpha,tint,track,oyOverride)=>{if(!rows)return;const oy=oyOverride!=null?oyOverride:gl-(rows.length-1);
     if(alpha<1)tint=Math.min(.8,(tint||0)+.45);
-    rows.forEach((row,y)=>{for(let q=0;q<row.length;q++){const ch=row[q];if(ch==="."||ch==="g"||(ch==="l"&&!pal.l))continue;
+    rows.forEach((row,y)=>{for(let q=0;q<row.length;q++){const ch=row[q];if(ch==="."||ch==="g"||((ch==="l"||ch==="L")&&!pal.l))continue;
       let col=pal[ch]||"#f0f";if(ch==="l"&&sea==="Spring"&&R()<.15)col="#f4a8c8";
       if(tint){if(SCN_STYLE.sil)col=mix(col,mix(skyAt(oy+y),SHADE,DARK.has(ch)?.55:.32),SCN_STYLE.sil);col=mix(col,skyAt(oy+y),tint);}
       px(ox+q,oy+y,col);if(track)(occ[ox+q]=occ[ox+q]||[]).push(oy+y);}});};
   const halo=(rows,ox)=>{const oy=G-(rows.length-1);c.fillStyle=pal.k;
-    rows.forEach((row,y)=>{for(let q=0;q<row.length;q++){const ch=row[q];if(ch==="."||ch==="g"||(ch==="l"&&!pal.l))continue;
+    rows.forEach((row,y)=>{for(let q=0;q<row.length;q++){const ch=row[q];if(ch==="."||ch==="g"||((ch==="l"||ch==="L")&&!pal.l))continue;
       [[1,0],[-1,0],[0,-1]].forEach(([dx,dy])=>c.fillRect(ox+q+dx,oy+y+dy,1,1));}});};
   const al=n=>INF[n]&&INF[n].bt?0.45:1,T=SCN_STYLE.fade;
   // ---- gaps between settlements: which one carries the single bridge
@@ -98,6 +99,8 @@ function renderScene(){
   const between=gaps.filter(g=>g.between),bridgeGap=has("Bridges")?(between.length?between[Math.floor((between.length-1)/2)]:gaps[gaps.length-1]):null;
   // ---- span: one aqueduct, the farthest layer. It joins the first and last settlement that carries infrastructure
   // (not PLATE_NO_INFRA), ends hidden behind their cores; with only one such settlement it runs off the right edge.
+  if(LIFT){const g0=sea==="Winter"?SCN.ground.Winter[1]:((mapPal((D.map||{}).grid)||{}).plains||"#7fa452");
+    c.fillStyle=mix(g0,skyAt(SG),.35);c.fillRect(0,SG+1,W,G-SG);gl=SG;}                // the rise the skyline stands on
   const anchors=lots.filter(o=>!o.L.bare);
   if(has("Aqueducts")&&anchors.length){const k="inf:Aqueducts",w=SW(k),mid=o=>o.x0+Math.floor(o.Lw/2);
     const a0=mid(anchors[0]),a1=anchors.length>1?mid(anchors[anchors.length-1]):W;
@@ -118,6 +121,7 @@ function renderScene(){
     by("edge","right").forEach(n=>draw(SPR.S["inf:"+n],o.x1-SW("inf:"+n)+1,al(n),T,true));
     by("band").forEach(n=>{const k="inf:"+n,w=SW(k);for(let q=o.x0;q<=o.x1-w+1;q+=w)draw(SPR.S[k],q,al(n),T,true);
       const tw="inf:"+n+":tower";if(SPR.S[tw]){draw(SPR.S[tw],o.x0,al(n),T,true);draw(SPR.S[tw],o.x1-SW(tw)+1,al(n),T,true);}});});
+  gl=G;
   // ---- ground, roads, gaps (trees or stream + bridge)
   const grass=(mapPal((D.map||{}).grid)||{}).plains||"#7fa452";
   const gr=sea==="Winter"?SCN.ground.Winter:[mix(grass,"#ffffff",.18),grass];

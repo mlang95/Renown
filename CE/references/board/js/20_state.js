@@ -36,6 +36,7 @@ try{
     if(old){D.players[0].board=Object.assign(newBoard(),old);}
   }
 }catch(e){}
+const RENAMED_INFRA={"Hitching Post":"Town Square"};
 function normalizeD(){
   try{(D.players||[]).forEach(p=>reseedIfPristine(p.board));}catch(e){}
   delete D.startDomains;                                   // "Starting universe" retired: new players start Untested (STANDING_THRESHOLDS)
@@ -49,7 +50,10 @@ function normalizeD(){
     p.board.edictLog=p.board.edictLog||{}; p.board.edictTimers=p.board.edictTimers||{};
     // migrate legacy status dropdown: "Complete" -> one logged entry
     Object.keys(p.board.edicts).forEach(k=>{if(p.board.edicts[k]==="Complete"&&!(p.board.edictLog[k]||[]).length)p.board.edictLog[k]=[""];});
-    p.board.edicts={};});
+    p.board.edicts={};
+    // renamed Infrastructure: carry saved pieces over to the new name
+    const inf=p.board.infra||{};Object.keys(RENAMED_INFRA).forEach(o=>{if(o in inf){const n=RENAMED_INFRA[o];inf[n]=inf[n]||inf[o];delete inf[o];}});
+    if(Array.isArray(p.board.facInfra))p.board.facInfra=p.board.facInfra.map(n=>RENAMED_INFRA[n]||n);});
   if(typeof D.renown!=="number")D.renown=1;
   if(D.active>=D.players.length)D.active=0;
   D.map=D.map||{seed:"",cols:16,rows:12,markers:[]}; D.map.cells=D.map.cells||{};

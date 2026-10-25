@@ -418,7 +418,9 @@ function render(){
   document.getElementById("viewTable").style.display = base==="table"?"":"none";
   document.querySelectorAll(".vtab,#tabbar [data-v]").forEach(t=>t.classList.toggle("on",t.dataset.v===(view==="battle"?"battle":base)));
   try{renderInbox();renderChrome();}catch(e){console.warn("inbox",e);}
-  if(view==="battle"){renderTable();renderBattle();return;}
+  if(view==="battle"){try{renderTable();}catch(e){console.error("realm",e);}
+    try{renderBattle();}catch(e){console.error("battle",e);document.getElementById("viewBattle").innerHTML='<div class="bm-card"><div class="bm-h"><h2>Battle</h2><button data-do="battleclose" data-nav="1" title="back to the Realm">✕</button></div><div class="note neg">'+esc(String(e&&e.message||e))+'</div></div>';}
+    return;}
   if(base==="reference"){renderReference();return;}
   if(base==="table"){renderTable();return;}
 

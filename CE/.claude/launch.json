@@ -31,6 +31,12 @@
       "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
       "runtimeArgs": ["-m", "http.server", "8769", "--directory", "C:\\Users\\Matt\\OneDrive\\Desktop\\Game\\CE\\mapgen"],
       "port": 8769
+    },
+    {
+      "name": "board-sprites32",
+      "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
+      "runtimeArgs": ["-m", "http.server", "8770", "--directory", "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\7a41a81c-7d07-4a75-ad68-a0e0bd0d5133\\scratchpad\\board"],
+      "port": 8770
     }
   ]
 }
