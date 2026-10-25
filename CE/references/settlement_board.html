@@ -9417,7 +9417,7 @@ let MAP_SPR_DEFS=null;
 function mapSprId(k){return "ms-"+k.replace(/[^A-Za-z0-9]/g,"_");}
 function mapSprDefs(){if(MAP_SPR_DEFS!=null)return MAP_SPR_DEFS;let d="";const P=SPR.P||{};
   const TV={H:"var(--tH)",S:"var(--tS)",D:"var(--tD)",k:"currentColor"};
-  Object.keys(SPR.S).filter(k=>/^(army|map|prop|eq|st|mk):/.test(k)).forEach(k=>{const ter=k.startsWith("prop:");const rows=/^(eq|st|mk):/.test(k)?SPR.S[k]:SPR.S[k].slice(0,-1),w=rows[0].length,by={};   // last row = ground, skipped (eq: / st: / mk: have none)
+  Object.keys(SPR.S).filter(k=>/^(army|map|prop|eq|st|mk|holding|monument):/.test(k)).forEach(k=>{const ter=k.startsWith("prop:");const rows=/^(eq|st|mk):/.test(k)?SPR.S[k]:SPR.S[k].slice(0,-1),w=rows[0].length,by={};   // last row = ground, skipped (eq: / st: / mk: have none)
     rows.forEach((r,y)=>{let x=0;while(x<w){const ch=r[x];let n=1;while(x+n<w&&r[x+n]===ch)n++;
       if(ch!=="."&&ch!=="g")by[ch]=(by[ch]||"")+"M"+x+" "+y+"h"+n+"v1h-"+n+"z";x+=n;}});
     d+='<symbol id="'+mapSprId(k)+'" viewBox="0 0 '+w+' '+rows.length+'" shape-rendering="crispEdges">'+
@@ -10004,17 +10004,15 @@ function wardAuto(p,s){const M=mapState();if(!wardMap()||!M.grid)return false;
   return ch;}
 // drop Wards whose Settlement is no longer on the map
 function wardPrune(){const W=mapState().wards;Object.keys(W).forEach(k=>{const p=pById(W[k].player),s=p&&settById(p,W[k].sid);if(!s||!settHex(p,s))delete W[k];});}
-// Ward n on the board (wardChains order) = the n-th Ward hex placed; the hex shows that Ward's top-most Holding, else a keep
+// Ward n on the board (wardChains order) = the n-th Ward hex placed; the hex shows that Ward's top-most Holding as a map piece
 function wardMarks(R,XY,pts){if(!wardMap())return "";const W=mapState().wards;let s="";const CH={};
-  Object.keys(W).forEach(k=>{const p=pById(W[k].player),st=p&&settById(p,W[k].sid),sk=st&&settHex(p,st);if(!sk)return;const [cx,cy]=XY(k),[sx,sy]=XY(sk),w=R*.34;
+  Object.keys(W).forEach(k=>{const p=pById(W[k].player),st=p&&settById(p,W[k].sid),sk=st&&settHex(p,st);if(!sk)return;const [cx,cy]=XY(k),[sx,sy]=XY(sk);
     const ck=p.id+":"+st.id,chains=CH[ck]=CH[ck]||withBoard(p.board,()=>wardChains(st.id)),wc=chains[wardsOf(p,st).indexOf(k)],sp=wc&&(SPR.key||{})[wc.front.name];
     const inset=pts(cx,cy).split(" ").map(v=>{const [x,y]=v.split(",").map(Number);return (cx+(x-cx)*.8).toFixed(1)+","+(cy+(y-cy)*.8).toFixed(1);}).join(" ");
     s+='<line x1="'+sx.toFixed(1)+'" y1="'+sy.toFixed(1)+'" x2="'+cx.toFixed(1)+'" y2="'+cy.toFixed(1)+'" stroke="'+p.color+'" stroke-width="2" stroke-opacity=".55" pointer-events="none"/>'+
       '<polygon points="'+inset+'" fill="'+p.color+'" fill-opacity=".3" stroke="#111" stroke-width="3.6" stroke-opacity=".75" pointer-events="none"/>'+
       '<polygon points="'+inset+'" fill="none" stroke="'+p.color+'" stroke-width="2" pointer-events="none"/>'+
-      (sp?sprSVG(sp,R*1.15,true).replace('<svg class="eqi"','<svg x="'+(cx-R*.575).toFixed(1)+'" y="'+(cy-R*.575).toFixed(1)+'" pointer-events="none"'):
-      '<path d="M'+(cx-w).toFixed(1)+' '+(cy+w).toFixed(1)+'V'+(cy-w*.6).toFixed(1)+'h'+(w*.5).toFixed(1)+'v'+(w*.4).toFixed(1)+'h'+(w*.5).toFixed(1)+'v'+(-w*.4).toFixed(1)+
-        'h'+(w*.5).toFixed(1)+'v'+(w*.4).toFixed(1)+'h'+(w*.5).toFixed(1)+'V'+(cy+w).toFixed(1)+'Z" fill="'+p.color+'" stroke="#111" stroke-width=".8" pointer-events="none"/>')+
+      (sp&&SPR.S[sp]?mapSpr(sp,cx,cy,R,p.color):'')+
       '<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="#000" fill-opacity="0" style="cursor:pointer"><title>'+k+' · '+esc(p.name+" · "+(st.name||st.tier)+" · Ward "+(wardsOf(p,st).indexOf(k)+1)+": "+
         (wc?wc.chain.slice().reverse().map(x=>x.name).join(" → "):"open"))+'</title></polygon>';});
   if(WARDPICK){const p=pById(WARDPICK.pid),st=p&&settById(p,WARDPICK.sid);if(st)wardCand(p,st).forEach(k=>{const [cx,cy]=XY(k);
