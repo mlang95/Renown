@@ -694,7 +694,7 @@ document.addEventListener("click",e=>{
 // Raw Materials present on the map (terrain or resource nodes, as the Reach check), and every Holding a chain can reach from them
 let REF_RAW=true;try{REF_RAW=localStorage.getItem("renown_refraw")!=="0";}catch(e){}
 function mapRaws(){const M=mapState(),g=M.grid;if(!g)return null;const V=decodeGrid(g),out=new Set();
-  Object.keys(V.hex).forEach(k=>{const h=V.hex[k];if(M.useNodes){if(h.res&&RES_NODE[h.res])out.add(RES_NODE[h.res]);}
+  Object.keys(V.hex).forEach(k=>{const h=V.hex[k];if(nodesMode()){if(h.res&&RES_NODE[h.res])out.add(RES_NODE[h.res]);}
     else (((TREF.terrain||{})[RULE_NAME[h.t]]||{})["Raw Materials"]||[]).forEach(n=>out.add(n));});return out;}
 function refRawAvail(){if(!REF_RAW)return null;const raws=mapRaws();if(!raws)return null;const mapped=new Set(Object.values(RES_NODE)),ok=new Set();
   NAMES.forEach(n=>{const r=R[n]||{};if(r.root&&(!mapped.has(n)||raws.has(n)))ok.add(n);});

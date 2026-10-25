@@ -192,7 +192,8 @@ button.ghost:hover{background:var(--edge)}
   <fieldset id="carveSet"><legend>Roads &amp; rivers</legend><div id="carve"></div></fieldset>
 
   <fieldset><legend>Overlays</legend>
-    <label class="tog"><input type="checkbox" id="showRes" checked> Raw materials</label>
+    <!-- raw materials hidden while the board runs terrain mode only; put back checked + visible to show them -->
+    <label class="tog" hidden><input type="checkbox" id="showRes"> Raw materials</label>
     <label class="tog"><input type="checkbox" id="showSet" checked> Start zones</label>
     <div id="legend" hidden></div>
   </fieldset>
@@ -530,7 +531,7 @@ function run() {
   const res = {};
   for (const h of m.all()) if (h.resource) res[h.resource] = (res[h.resource] || 0) + 1;
   const missing = Object.keys(G.RESOURCE_MIN).filter(r => !res[r]);
-  $('stRes').textContent = missing.length ? 'unavailable: ' + missing.join(', ') : '';
+  $('stRes').textContent = $('showRes').checked && missing.length ? 'unavailable: ' + missing.join(', ') : '';
   $('viol').textContent = current.violations.length
     ? current.violations.length + ' unmet: ' + current.violations[0] : '';
   $('viol').title = current.violations.join('\n');

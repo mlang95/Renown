@@ -5332,7 +5332,7 @@ document.addEventListener("click",e=>{
 // Raw Materials present on the map (terrain or resource nodes, as the Reach check), and every Holding a chain can reach from them
 let REF_RAW=true;try{REF_RAW=localStorage.getItem("renown_refraw")!=="0";}catch(e){}
 function mapRaws(){const M=mapState(),g=M.grid;if(!g)return null;const V=decodeGrid(g),out=new Set();
-  Object.keys(V.hex).forEach(k=>{const h=V.hex[k];if(M.useNodes){if(h.res&&RES_NODE[h.res])out.add(RES_NODE[h.res]);}
+  Object.keys(V.hex).forEach(k=>{const h=V.hex[k];if(nodesMode()){if(h.res&&RES_NODE[h.res])out.add(RES_NODE[h.res]);}
     else (((TREF.terrain||{})[RULE_NAME[h.t]]||{})["Raw Materials"]||[]).forEach(n=>out.add(n));});return out;}
 function refRawAvail(){if(!REF_RAW)return null;const raws=mapRaws();if(!raws)return null;const mapped=new Set(Object.values(RES_NODE)),ok=new Set();
   NAMES.forEach(n=>{const r=R[n]||{};if(r.root&&(!mapped.has(n)||raws.has(n)))ok.add(n);});
@@ -6611,7 +6611,7 @@ function legalCtx(){const have=new Set(Object.keys(PC)),ce=computeEarned(have),m
 function rawRes(n){return Object.values(RES_NODE).includes(n);}
 function rawInSett(ctx,n,sid){if(!(sid in ctx.sr)){const s=ctx.me?settById(ctx.me,sid):null,hx=s?settReachHexes(ctx.me,s):null;
     if(!hx)ctx.sr[sid]=null;else{const M=mapState(),V=decodeGrid(M.grid),set=new Set();hx.forEach(k=>{const h=V.hex[k];if(!h)return;
-      if(M.useNodes){if(h.res&&RES_NODE[h.res])set.add(RES_NODE[h.res]);}else (((TREF.terrain||{})[RULE_NAME[h.t]]||{})["Raw Materials"]||[]).forEach(x=>set.add(x));});ctx.sr[sid]=set;}}
+      if(nodesMode()){if(h.res&&RES_NODE[h.res])set.add(RES_NODE[h.res]);}else (((TREF.terrain||{})[RULE_NAME[h.t]]||{})["Raw Materials"]||[]).forEach(x=>set.add(x));});ctx.sr[sid]=set;}}
   const st=ctx.sr[sid];return st?st.has(n):null;}
 function rawOK(n,sid,ctx){if(!rawRes(n)||!ctx.me)return true;if(sid!=null&&sid!=="faction")return rawInSett(ctx,n,sid)!==false;return !(ctx.res&&!ctx.res.has(n));}
 function pLegal(n,sid,ctx){ctx=ctx||legalCtx();if(!pAvail(n))return false;const r=R[n]||{};
@@ -7586,7 +7586,7 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
   inst._mFlag=mFlag;
   if(!inst.fac&&r.type==="Raw Materials"){const _p=D.players.find(pp=>pp.board===S),rs=(rawClaims(_p)[inst.id])||{ok:true},rf=flagState("r:"+inst.id,!rs.ok,"reach");
     if(rs.ok&&rs.terr)h.title=(h.title?h.title+"\n":"")+"Claims "+rs.terr;
-    if(!rs.ok&&rf==="on"){const b=document.createElement("span");b.className="badge noearn";b.textContent="reach ✗";b.title=n+": "+(rs.why||"none in Reach")+(mapState().useNodes?" (resource nodes)":" (terrain)")+" — this Settlement's Reach";h.appendChild(b);h.appendChild(ignBtn("r:"+inst.id,"reach"));}}
+    if(!rs.ok&&rf==="on"){const b=document.createElement("span");b.className="badge noearn";b.textContent="reach ✗";b.title=n+": "+(rs.why||"none in Reach")+(nodesMode()?" (resource nodes)":" (terrain)")+" — this Settlement's Reach";h.appendChild(b);h.appendChild(ignBtn("r:"+inst.id,"reach"));}}
   if(SIMPLE&&!inst.fac){const sr=simpleReq(inst,r,have,craft,tc),sf=flagState("s:"+inst.id,!sr.ok,sr.missing.join("|"));
     if(!sr.ok&&sf==="on"){const b=document.createElement("span");b.className="badge noearn";b.textContent="req ✗";b.title=sr.missing.join("\n");h.appendChild(b);h.appendChild(ignBtn("s:"+inst.id,sr.missing.join("|")));}}
   if(inst.sid!=null && !inst.fac && isFreeRider(inst)){const b=document.createElement("span");b.className="badge earn";b.textContent="⚡";b.title=CHAINL+" rider";h.appendChild(b);}
@@ -9370,13 +9370,18 @@ function reachOwners(M,cols,rows){
 }
 // Raw Materials need their resource within the owner's Reach. Map resources → pursuits;
 // Common Land has no map resource (buildable anywhere) and is not checked.
+// Raw-material resources are hidden while the board runs terrain mode only: no icons, no options, Reach checks by terrain.
+// RES_SHOWN = true brings the icons, the "resources" / "resource nodes" options and node mode back.
+const RES_SHOWN=false;
+function resShown(){return RES_SHOWN&&mapState().showRes!==false;}
+function nodesMode(){return RES_SHOWN&&!!mapState().useNodes;}
 const RES_NODE={mine:"Mine",quarry:"Quarry",arable:"Arable Land",forestry:"Forestry",apiary:"Apiary",salt:"Salt Works",peat:"Peat Bog",fish:"Fishmongery"};
 function reachResources(p){
   const M=mapState(),g=M.grid;if(!g||!p)return null;
   if(!Object.values(M.cells).some(c=>c.type!=="Army"&&String(c.player)===String(p.id)))return null;   // not on the map yet
   const V=decodeGrid(g),own=reachOwners(M,g.width,g.height),have=new Set();
   Object.keys(own).forEach(k=>{if(!own[k].has(String(p.id)))return;const h=V.hex[k];if(!h)return;
-    if(M.useNodes){if(h.res&&RES_NODE[h.res])have.add(RES_NODE[h.res]);}
+    if(nodesMode()){if(h.res&&RES_NODE[h.res])have.add(RES_NODE[h.res]);}
     else (((TREF.terrain||{})[RULE_NAME[h.t]]||{})["Raw Materials"]||[]).forEach(n=>have.add(n));});
   return have;
 }
@@ -9394,7 +9399,7 @@ function settReachHexes(p,s){
 // Instances outside a Settlement (no Ward) fall back to Empire-wide Reach; the faction exemption skips claims.
 function rawClaims(p){
   const out={},M=mapState(),g=M.grid;if(!g||!p)return out;
-  const V=decodeGrid(g),b=p.board,useN=!!M.useNodes,noClaim=!!hitOf("F:"+(b.faction||""),"raw_noclaim");
+  const V=decodeGrid(g),b=p.board,useN=!!nodesMode(),noClaim=!!hitOf("F:"+(b.faction||""),"raw_noclaim");
   const isRaw=q=>!q.fac&&(R[q.name]||{}).type==="Raw Materials"&&Object.values(RES_NODE).includes(q.name);
   const terrRaw=t=>(((TREF.terrain||{})[RULE_NAME[t]]||{})["Raw Materials"]||[]);
   const nodeOf=Object.fromEntries(Object.entries(RES_NODE).map(([k,v])=>[v,k]));
@@ -9657,7 +9662,7 @@ function inspSett(k){const {p,s}=cellSett(k),cell=mapState().cells[k];if(!p)retu
   h+=settActionsHTML(p,s);
   {const sp=srcHas(p.board,"settlement_presence"),wp=wardMap()&&srcHas(p.board,"ward_presence");
     h+='<div class="ir"><span class="k">Presence</span><b>'+(settUnbuilt(s)||!(sp||wp)?'none':[sp?'Settlement':'',wp?'Wards':''].filter(Boolean).join(' · ')+' · Range '+presR())+'</b></div>';}
-  if(wardMap()){const n=wardsOf(p,s).length,rm=wardRoom(p,s),on=WARDPICK&&String(WARDPICK.pid)===String(p.id)&&String(WARDPICK.sid)===String(s.id);
+  if(wardMap()){const n=wardsOf(p,s).length,rm=wardFill(p,s).length,on=WARDPICK&&String(WARDPICK.pid)===String(p.id)&&String(WARDPICK.sid)===String(s.id);
     h+='<div class="ir"><span class="k">Wards on the map</span><b>'+n+' / '+rm+'</b>'+(n>rm?' <b class="note" style="color:var(--upkeep)">'+(n-rm)+' over</b>':'')+
       (inspCan(p.id)&&(rm>0||n>0)?'<button data-insp-ward="'+p.id+':'+s.id+'" data-nav="1" style="margin-left:auto">'+(on?'Done':'Place Wards ▸')+'</button>':'')+'</div>';}
   h+='<div class="ig">'+inspCell("GOLD",g$(e.gold),e.gold<0?"neg":"pos")+inspCell(esc(e.sea.toUpperCase()),g$(e.seas))+inspCell("HLDG UPKEEP",g$(-e.hUp),"neg")+inspCell("NET",g$(e.net),e.net<0?"neg":"pos")+
@@ -9765,7 +9770,7 @@ function mapLayers(M){
   const z=MAPZ.fit?MAPZ.fitScale(W):MAPZ.z;
   const sc=R/54,gw=(120*sc).toFixed(2),gh=(108*sc).toFixed(2);
   const pix=!!SPR,pu=R*1.6/16;   // pixel map + sprites in every theme
-  const key=[V.sig,JSON.stringify(PAL),pix?1:0,cols,rows,(g&&g.seed)||M.seed||"",M.showRes!==false?1:0].join("|");
+  const key=[V.sig,JSON.stringify(PAL),pix?1:0,cols,rows,(g&&g.seed)||M.seed||"",resShown()?1:0].join("|");
   if(!MAP_BASE||MAP_BASE.key!==key){
     let defs='<pattern id="rch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><line x1="0" y1="0" x2="0" y2="5" stroke="#000" stroke-opacity=".28" stroke-width="1.2"/></pattern>'+
       '<pattern id="olh" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="3" height="6" fill="rgba(120,20,20,.45)"/></pattern>';
@@ -9778,7 +9783,7 @@ function mapLayers(M){
       const k=c+","+r,cx=R+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0),h=V.hex[k];
       let fill=h?PAL[h.t]:"var(--chip)";if(h&&h.hill)fill=lighten(fill,1.16);
       if(h&&RS){const gk=h.hill?'hill':h.t;
-        if(pix&&SCAT[gk])glyphs+=mapScatter(gk,k,cx,cy,R,fill,String((g&&g.seed)||M.seed||""),h.res&&M.showRes!==false?[26*sc,-24*sc,17*sc+pu]:null);
+        if(pix&&SCAT[gk])glyphs+=mapScatter(gk,k,cx,cy,R,fill,String((g&&g.seed)||M.seed||""),h.res&&resShown()?[26*sc,-24*sc,17*sc+pu]:null);
         else if(RS.glyphs[gk]&&!(pix&&(gk==="plains"||gk==="water")))glyphs+='<use href="#tg-'+gk+'" x="'+(cx-60*sc).toFixed(2)+'" y="'+(cy-54*sc).toFixed(2)+'" width="'+gw+'" height="'+gh+'" fill="'+fill+'" color="'+tTone(fill)+'" opacity="'+RS.glyph_opacity+'" '+
           'style="--shade:'+tLighten(fill,RS.shade_k)+';--hilite:'+tLighten(fill,RS.hilite_k)+';--deep:'+tLighten(fill,RS.deep_k)+'" pointer-events="none"/>';
         if(h.t!=="water")[[0,-1],[0,1],[1,c%2?0:-1],[1,c%2?1:0],[-1,c%2?0:-1],[-1,c%2?1:0]].forEach(([oc,orr])=>{
@@ -9786,7 +9791,7 @@ function mapLayers(M){
           const nx=R+(c+oc)*dx,ny=dy/2+(r+orr)*dy+((c+oc)%2?dy/2:0),ang=Math.atan2(ny-cy,nx-cx)*180/Math.PI;
           const e=((Math.round((ang-30)/60)%6)+6)%6,v=t=>[cx+R*Math.cos(Math.PI/3*t),cy+R*Math.sin(Math.PI/3*t)];
           const a=v(e),b=v(e+1);coast+='M'+a[0].toFixed(1)+' '+a[1].toFixed(1)+'L'+b[0].toFixed(1)+' '+b[1].toFixed(1);});}
-      base+='<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="'+fill+'" stroke="#00000030" stroke-width="1" style="cursor:pointer"><title>'+k+(h?" · "+(RULE_NAME[h.t]||h.t)+(h.hill?" (Hill)":"")+(h.res?" · "+h.res:"")+(h.reg!=null?" · region "+h.reg:""):"")+'</title></polygon>';
+      base+='<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="'+fill+'" stroke="#00000030" stroke-width="1" style="cursor:pointer"><title>'+k+(h?" · "+(RULE_NAME[h.t]||h.t)+(h.hill?" (Hill)":"")+(h.res&&resShown()?" · "+h.res:"")+(h.reg!=null?" · region "+h.reg:""):"")+'</title></polygon>';
       if(pix&&h)base+='<polygon points="'+pts(cx,cy)+'" fill="url(#pxd)" pointer-events="none"/>';}
     base+=glyphs;
     if(coast)base+='<path d="'+coast+'" fill="none" stroke="'+(RS?RS.ink:"#2b241b")+'" stroke-width="'+((RS?RS.coast_w:4.2)*sc).toFixed(2)+'" stroke-linecap="round" pointer-events="none"/>';
@@ -9795,7 +9800,7 @@ function mapLayers(M){
   let s='',over='';
   Object.keys(V.hex).forEach(k=>{const h=V.hex[k],[cx,cy]=XY(k);
     if(M.outlaw[k])over+='<polygon points="'+pts(cx,cy)+'" fill="url(#olh)" stroke="#7a1414" stroke-width="1.5" pointer-events="none"/>';
-    if(h&&h.res&&M.showRes!==false){const bx=cx+26*sc,by=cy-24*sc;   // badge top-right, as renown-maps / print
+    if(h&&h.res&&resShown()){const bx=cx+26*sc,by=cy-24*sc;   // badge top-right, as renown-maps / print
       over+='<circle cx="'+bx.toFixed(1)+'" cy="'+by.toFixed(1)+'" r="'+(17*sc).toFixed(2)+'" fill="#e9ddc2" stroke="#2b241b" stroke-width="0.6" pointer-events="none"/>'+
         '<circle cx="'+bx.toFixed(1)+'" cy="'+by.toFixed(1)+'" r="'+(10*sc).toFixed(2)+'" fill="'+RCOL[h.res]+'" stroke="#0006" stroke-width="0.5" pointer-events="none"/>';}});
   Object.keys(M.outlaw).forEach(k=>{if(V.hex[k])return;const [cx,cy]=XY(k);over+='<polygon points="'+pts(cx,cy)+'" fill="url(#olh)" stroke="#7a1414" stroke-width="1.5" pointer-events="none"/>';});
@@ -9981,40 +9986,43 @@ function rescatterWild(){const M=mapState();Object.entries(wildZones()).forEach(
 // a Settlement only while it radiates Presence (Garrison: from the Settlement, Keep: from its Wards)
 function pieceAura(k){const c=mapState().cells[k];if(!c)return 0;if(c.type==="Army"){return presR();}
   const s=cellSett(k).s;return s&&settUnbuilt(s)?0:presHexes(k).length?presR():0;}
-// ---- Settlement Wards on the map (WARD_MODEL "range1"): each Ward occupies a Territory within Range 1 of its Settlement
-// (M.wards[hex] = {player, sid}) and extends the Settlement's Presence from there
+// ---- Settlement Wards on the map (WARD_MODEL "range1"): each filled Ward occupies a Territory within Range 1 of its Settlement
+// (M.wards[hex] = {player, sid, root}; root = id of the Holding at the base of that Ward's chain). A Ward goes on the map once
+// it holds a Holding and leaves it when it empties (Sack, removal)
 let WARDPICK=null;   // {pid, sid} while the player picks Ward Territories on the map
 function wardMap(){return (DATA.rulesConst||{}).WARD_MODEL==="range1";}
 function wardsOf(p,s){const W=mapState().wards;return Object.keys(W).filter(k=>String(W[k].player)===String(p.id)&&String(W[k].sid)===String(s.id));}
 function wardRoom(p,s){return settUnbuilt(s)?0:withBoard(p.board,()=>wardUse(s.id).cap);}
+// the filled Wards a Settlement puts on the map, in board order, up to its Ward count: [{root, chain}]
+function wardFill(p,s){if(settUnbuilt(s))return [];
+  return withBoard(p.board,()=>wardChains(s.id)).slice(0,wardRoom(p,s)).map(c=>({root:String(c.root.id),chain:c.chain}));}
 function wardCand(p,s){const sk=settHex(p,s);if(!sk)return [];const V=decodeGrid(mapState().grid);
   return hexNb(sk).filter(k=>{const h=V.hex[k];return !!h&&h.t!=="water"&&!terrBlocked(h.t)&&hexFree(k);});}
 // the hexes a piece's Presence radiates from: an Army's own hex; a Settlement's hex while its owner has a Garrison
 // ("Your Settlements have Presence"), its Wards while they have a Keep ("Your Settlement Wards have Presence")
 function presHexes(k){const c=mapState().cells[k];if(!c||c.type==="Army")return [k];const cs=cellSett(k),p=cs.p||cellPlayer(c);if(!p)return [];
   return (srcHas(p.board,"settlement_presence")?[k]:[]).concat(wardMap()&&cs.s&&settHex(p,cs.s)===k&&srcHas(p.board,"ward_presence")?wardsOf(p,cs.s):[]);}
-// automatic Ward placement: a Settlement's missing Ward hexes go on its free adjacent land, farthest from any Outlaw Country
-// first (ties: column, then row). Paused for that Settlement while its owner places Wards by hand (WARDPICK)
+// automatic Ward placement: each filled Ward without a hex goes on free adjacent land, farthest from any Outlaw Country first
+// (ties: column, then row); a hex whose Ward emptied leaves the map. Paused for that Settlement while its owner places Wards by hand
 function wardAuto(p,s){const M=mapState();if(!wardMap()||!M.grid)return false;
   if(WARDPICK&&String(WARDPICK.pid)===String(p.id)&&String(WARDPICK.sid)===String(s.id))return false;
+  const F=wardFill(p,s),roots=new Set(F.map(f=>f.root));let ch=false;
+  wardsOf(p,s).forEach(k=>{const r=M.wards[k].root;if(r==null||!roots.has(String(r))){delete M.wards[k];ch=true;}});
+  const have=new Set(wardsOf(p,s).map(k=>String(M.wards[k].root)));
   const OL=Object.keys(M.outlaw).map(hk),far=k=>{const a=hk(k);let d=1e9;for(const o of OL){const x=hexDist(a,o);if(x<d)d=x;}return d;};
-  let n=wardRoom(p,s)-wardsOf(p,s).length,ch=false;
-  while(n-->0){const C=wardCand(p,s);if(!C.length)break;
-    C.sort((a,b)=>far(b)-far(a)||hk(a)[0]-hk(b)[0]||hk(a)[1]-hk(b)[1]);M.wards[C[0]]={player:p.id,sid:s.id};ch=true;}
+  for(const f of F){if(have.has(f.root))continue;const C=wardCand(p,s);if(!C.length)break;
+    C.sort((a,b)=>far(b)-far(a)||hk(a)[0]-hk(b)[0]||hk(a)[1]-hk(b)[1]);M.wards[C[0]]={player:p.id,sid:s.id,root:f.root};ch=true;}
   return ch;}
 // drop Wards whose Settlement is no longer on the map
 function wardPrune(){const W=mapState().wards;Object.keys(W).forEach(k=>{const p=pById(W[k].player),s=p&&settById(p,W[k].sid);if(!s||!settHex(p,s))delete W[k];});}
-// Ward n on the board (wardChains order) = the n-th Ward hex placed; the hex shows that Ward's top-most Holding as a map piece
-function wardMarks(R,XY,pts){if(!wardMap())return "";const W=mapState().wards;let s="";const CH={};
-  Object.keys(W).forEach(k=>{const p=pById(W[k].player),st=p&&settById(p,W[k].sid),sk=st&&settHex(p,st);if(!sk)return;const [cx,cy]=XY(k),[sx,sy]=XY(sk);
-    const ck=p.id+":"+st.id,chains=CH[ck]=CH[ck]||withBoard(p.board,()=>wardChains(st.id)),wc=chains[wardsOf(p,st).indexOf(k)],sp=wc&&(SPR.key||{})[wc.front.name];
-    const inset=pts(cx,cy).split(" ").map(v=>{const [x,y]=v.split(",").map(Number);return (cx+(x-cx)*.8).toFixed(1)+","+(cy+(y-cy)*.8).toFixed(1);}).join(" ");
-    s+='<line x1="'+sx.toFixed(1)+'" y1="'+sy.toFixed(1)+'" x2="'+cx.toFixed(1)+'" y2="'+cy.toFixed(1)+'" stroke="'+p.color+'" stroke-width="2" stroke-opacity=".55" pointer-events="none"/>'+
-      '<polygon points="'+inset+'" fill="'+p.color+'" fill-opacity=".3" stroke="#111" stroke-width="3.6" stroke-opacity=".75" pointer-events="none"/>'+
-      '<polygon points="'+inset+'" fill="none" stroke="'+p.color+'" stroke-width="2" pointer-events="none"/>'+
-      (sp&&SPR.S[sp]?mapSpr(sp,cx,cy,R,p.color):'')+
-      '<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="#000" fill-opacity="0" style="cursor:pointer"><title>'+k+' · '+esc(p.name+" · "+(st.name||st.tier)+" · Ward "+(wardsOf(p,st).indexOf(k)+1)+": "+
-        (wc?wc.chain.slice().reverse().map(x=>x.name).join(" → "):"open"))+'</title></polygon>';});
+// each Ward hex shows the top-most Holding of its Ward (matched by root) as a map piece, like a Settlement
+function wardMarks(R,XY,pts){if(!wardMap())return "";const W=mapState().wards;let s="";const FL={};
+  Object.keys(W).forEach(k=>{const p=pById(W[k].player),st=p&&settById(p,W[k].sid),sk=st&&settHex(p,st);if(!sk)return;const [cx,cy]=XY(k);
+    const ck=p.id+":"+st.id,F=FL[ck]=FL[ck]||wardFill(p,st),i=F.findIndex(f=>f.root===String(W[k].root));if(i<0)return;
+    const wc=F[i].chain,sp=(SPR.key||{})[wc[0].name];
+    s+=(sp&&SPR.S[sp]?mapSpr(sp,cx,cy,R,p.color):'')+
+      '<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="#000" fill-opacity="0" style="cursor:pointer"><title>'+k+' · '+esc(p.name+" · "+(st.name||st.tier)+" · Ward "+(i+1)+": "+
+        wc.slice().reverse().map(x=>x.name).join(" → "))+'</title></polygon>';});
   if(WARDPICK){const p=pById(WARDPICK.pid),st=p&&settById(p,WARDPICK.sid);if(st)wardCand(p,st).forEach(k=>{const [cx,cy]=XY(k);
     s+='<polygon points="'+pts(cx,cy)+'" fill="#f3d38a" fill-opacity=".25" stroke="#f3d38a" stroke-width="2" stroke-dasharray="4 3" pointer-events="none"/>';});}
   return s;}
@@ -10223,12 +10231,12 @@ function mapToolsHTML(){const M=mapState(),g=M.grid;
     ' <button id="mImp">import map JSON</button><input type="file" id="mFile" accept="application/json" style="display:none">'+
     '</div>'+(g?'<div class="note" style="margin:0 0 6px">generator '+esc(g.generator||'?')+' · climate '+esc(mapPal(g).label||mapClimate(g))+'</div>':'')+'</details>';
   h+='<div class="mtoolbar"><span class="note">tool '+esc(mtool)+' · placing as</span> '+pTok(mapAsP(),12)+' '+esc(mapAsP().name)+
-    ' <label class="note"><input type="checkbox" id="mRes"'+(M.showRes!==false?' checked':'')+'> resources</label>'+
+    (RES_SHOWN?' <label class="note"><input type="checkbox" id="mRes"'+(resShown()?' checked':'')+'> resources</label>':'')+
     ' <label class="note"><input type="checkbox" id="mReach"'+(M.showReach!==false?' checked':'')+'> reach borders</label>'+
     ' <label class="note"><input type="checkbox" id="mPlates"'+(M.showPlates!==false?' checked':'')+'> army plates</label>'+
     ' <label class="note"><input type="checkbox" id="mSPlates"'+(M.showSPlates!==false?' checked':'')+'> settlement plates</label>'+
     ' <label class="note"><input type="checkbox" id="mStarts"'+(M.showStarts?' checked':'')+'> suggested settlement spots</label>'+
-    ' <label class="note"><input type="checkbox" id="mNodes"'+(M.useNodes?' checked':'')+'> Reach check uses resource nodes</label>'+
+    (RES_SHOWN?' <label class="note"><input type="checkbox" id="mNodes"'+(nodesMode()?' checked':'')+'> Reach check uses resource nodes</label>':'')+
     ' <button id="mClear">clear markers</button>'+
     ' <span class="mapzoom" style="display:inline-flex;margin:0"><button data-mz="-1" title="zoom out">−</button><button data-mz="1" title="zoom in">+</button><button data-mz="fit"'+(MAPZ.fit?' class="on"':'')+'>fit</button><button id="tbWide" data-nav="1" title="table across the whole width; phase, log and panel below"'+(TB_WIDE?' class="on"':'')+'>wide</button><span class="note">'+(MAPZ.fit?"fit":Math.round(MAPZ.z*100)+"%")+'</span></span></div>';
   const rep=outlawReport(M);
@@ -10273,8 +10281,9 @@ function mapCellClick(k){const M=mapState();MAPSEL=k;
     if(mtool==="Select"&&WARDPICK){const p=pById(WARDPICK.pid),st=p&&settById(p,WARDPICK.sid);
       if(st&&inspCan(p.id)){const W=M.wards[k];
         if(W&&String(W.player)===String(p.id)&&String(W.sid)===String(st.id)){delete M.wards[k];save();render();return;}
-        if(wardCand(p,st).includes(k)){if(wardsOf(p,st).length>=wardRoom(p,st)){flash((st.name||st.tier)+": no Ward left to place");return;}
-          M.wards[k]={player:p.id,sid:st.id};if(wardsOf(p,st).length>=wardRoom(p,st))WARDPICK=null;save();render();return;}}
+        if(wardCand(p,st).includes(k)){const F=wardFill(p,st),have=new Set(wardsOf(p,st).map(x=>String(M.wards[x].root))),f=F.find(x=>!have.has(x.root));
+          if(!f){flash((st.name||st.tier)+": no filled Ward left to place");return;}
+          M.wards[k]={player:p.id,sid:st.id,root:f.root};if(F.every(x=>x===f||have.has(x.root)))WARDPICK=null;save();render();return;}}
       WARDPICK=null;}
     if(mtool==="Select"){const mi=SEL?moveInfo():null;
       if(mi&&mi.dest&&mi.dest[k]){if(!canMoveArmy(mi.p)){flash("\ud83d\udd12 not your army");return;}if(moveArmyTo(k)){save();render();}return;}
