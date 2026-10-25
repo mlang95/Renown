@@ -460,7 +460,7 @@ If you've cut everything and a debt still remains, you're Bankrupt: your Treasur
 
 ### Who Can Trade
 
-**Who can trade:** a player needs a signed Trade Agreement{{IDX:Trade Agreement}} and either active Dirt Roads or a **Can Trade** effect (e.g. Harbor).
+**Who can trade:** a player needs a signed Trade Agreement{{IDX:Trade Agreement}} and either active Dirt Roads or a **Can Trade** effect (e.g. Harbor).{{VAL:TRADE_RULES.border_rule}}
 
 **Craft X:** Craft Holdings count toward how much income your Trade Agreements generate — any effect that grants Craft +X.
 

@@ -181,7 +181,7 @@ Gilded Foundry | [Gilded Foundry](https://mlang95.github.io/RenownWiki/pursuits.
 Gothic Plate | [Gothic Plate](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Tempered). Save 4+. Keywords: none.
 Granary | [Granary](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Works). Effect: Upkeep −500; Armies and Garrisons within controlled Settlements gain Immune Strained.
 Grand Tournament | [Grand Tournament](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Reach +1, 3x in the Intrigue Phase: exchange 500 gold for Influence +1; Armies gain Riposte & Improve Parry by +1.
-Grassland | [Grassland](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: —. Raw Materials: Arable Land, Apiary.
+Grassland | [Grassland](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: —. Raw Materials: Arable Land, Common Land.
 Gunpowder | [Gunpowder](https://mlang95.github.io/RenownWiki/glossary.html#gunpowder): Gunpowder equipment: Arquebus. Unlocked by: Ordnance Yard, Fletchery.
 Halberd | [Halberd](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP −2, Init +0. Keywords: 2H, Steady.
 Hamlet | [Hamlet](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 0). Tax 0, muster 0, build 1, wards 3, reach 1. Natural holdings only; Placed at start of game Range 2 from capital.
@@ -455,7 +455,7 @@ Town | [Town](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlem
 Town Hall | [Town Hall](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Developed). Upkeep 200 (each Empire Phase), build 2. Influence +1 each Empire Phase
 Toxicarium | [Toxicarium](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Secrecy). Effect: Weapons gain Poison; Endorsed Cunning actions give an additional Doubt +1 to Target
 trade | [Trade rules](https://mlang95.github.io/RenownWiki/rules-trade-income.html): for each active Trade Agreement, both players gain 100 x the Host's Craft X. No trade in Spring. Tax only in Winter. Requirements: A signed Trade Agreement, and each player has active Dirt Roads or a Can Trade effect (e.g. Harbor, Shipyard).
-Trade Agreement | [Trade Agreement](https://mlang95.github.io/RenownWiki/treaties-ref.html) Treaty. Begin trading (Trade Income flows from next turn). Requires bordering, and each player has active Dirt Roads or a Can Trade effect.
+Trade Agreement | [Trade Agreement](https://mlang95.github.io/RenownWiki/treaties-ref.html) Treaty. Begin trading (Trade Income flows from next turn). Requires active Dirt Roads or a Can Trade effect for each player.
 Trade Guild | [Trade Guild](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Works). Effect: No Upkeep on Developed Infrastructure; Build Timer −1
 trade income | [Trade Income](https://mlang95.github.io/RenownWiki/economy-ref.html): 100 x host's Craft X per active Trade Agreement
 treaties | [Treaties & Alliances](https://mlang95.github.io/RenownWiki/treaties-ref.html): Peace Treaty, Trade Agreement, Non-Aggression Pact, Military Alliance, Defensive Alliance. Signed via Diplomacy.

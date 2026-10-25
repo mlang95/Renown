@@ -970,6 +970,7 @@ def main():
         standings=["Rising", "Established", "Sovereign"],
         tradePerCraft=ns.get("TRADE_RULES", {}).get("income_per_craft", 100),
         noTradeSeason=ns.get("TRADE_RULES", {}).get("no_trade_season", ""),
+        tradeBorder=bool(ns.get("TRADE_RULES", {}).get("requires_border", False)),
         renownPerTurn=ns.get("RENOWN_PER_TURN", 1), dpPerTurn=ns.get("DOMAIN_POINTS_PER_TURN", 1),
         settlements=ns.get("SETTLEMENTS", {}),
         battle=battle_data(ns, rules_path),

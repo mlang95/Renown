@@ -3477,9 +3477,14 @@ SEASONS = {
 }
 
 # Trade & income constants (Rules: Trade & Income Rules).
+# Toggle: Trade Agreements require the two players to border (build_all_CE.bat: set TRADE_BORDER=1|0).
+TRADE_REQUIRES_BORDER = _os.environ.get("RENOWN_TRADE_BORDER", "1") == "1"
 TRADE_RULES = {
     "income_per_craft": 100,                # Trade Income = 100 x host's Craft X, per active agreement
-    "requirements": "A signed Trade Agreement, and each player has active Dirt Roads or a Can Trade effect (e.g. Harbor, Shipyard)",
+    "requirements": "A signed Trade Agreement, " + ("the two players border each other, " if TRADE_REQUIRES_BORDER else "")
+                    + "and each player has active Dirt Roads or a Can Trade effect (e.g. Harbor, Shipyard)",
+    "requires_border": TRADE_REQUIRES_BORDER,
+    "border_rule": " Both players must border each other." if TRADE_REQUIRES_BORDER else "",   # rules prose, Who Can Trade
     "no_trade_season": "Spring",            # no trade income in Spring
     "tax_season": "Winter",                 # tax collected only in Winter
 }
@@ -3587,7 +3592,7 @@ BUILD_TIMERS = {
 }
 
 TERRAIN = {
-	"Grassland": {"Effect": "—", "Raw Materials": ["Arable Land", "Apiary"]},
+	"Grassland": {"Effect": "—", "Raw Materials": ["Arable Land","Common Land"]},
 	"Wetlands": {"Effect": "Speed -1 per Territory moved through", "Raw Materials": ["Peat Bog", "Forestry"]},
 	"Tundra": {"Effect": "gain Strained", "Raw Materials": ["Quarry", "Salt Works"]},
 	"Mountains": {"Effect": "Impassable", "Raw Materials": ["Mine", "Quarry"]},
@@ -3915,7 +3920,7 @@ ACTIONS = {
 # notes how it ends; era is when it unlocks (alliances scale with Era).
 TREATIES = {
     "Peace Treaty":      {"signed_via": "Sign Treaty", "effect": f"Ends war between the two players; sets Truce Timer {TIMERS['Truce Timer']['default']}.", "era": "Any"},
-    "Trade Agreement":   {"signed_via": "Sign Treaty", "effect": "Begin trading (Trade Income flows from next turn). Requires bordering, and each player has active Dirt Roads or a Can Trade effect.", "era": "Any"},
+    "Trade Agreement":   {"signed_via": "Sign Treaty", "effect": "Begin trading (Trade Income flows from next turn). Requires " + ("bordering and " if TRADE_REQUIRES_BORDER else "") + "active Dirt Roads or a Can Trade effect for each player.", "era": "Any"},
     "Non-Aggression Pact": {"signed_via": "Sign Treaty", "effect": f"Neither player may Declare War on the other. Ending it via End Treaty gives both a Truce Timer {TIMERS['Truce Timer']['default']}.", "era": "Any"},
     "Military Alliance":  {"signed_via": "Sign Treaty", "effect": "Mutual offensive pact: if a member Declares War, all members Declare War on the target next turn (and send 1 fewer envoy).", "era": "Eminence"},
     "Defensive Alliance": {"signed_via": "Sign Treaty", "effect": "Mutual defense: attacking one member puts all members at war with the attacker.", "era": "Zenith"},
