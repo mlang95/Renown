@@ -618,7 +618,7 @@ CULTURES = {
         'actions':   ['Negotiate', 'Sign Treaty', 'End Treaty'],
         'factions':  ['The Dukedom', 'The Eternal Court', 'The Illuminated Order', 'The Luminous Court',
                       'The Inner Circle'],
-        'mechanic_name': ['Patient Court', 'Knowledge is Power', 'The Duke', 'Royal Marriage', 'Heart of Trade', 'Friends in High Places', 'The Monarch', 'Peaceful & Inventive', 'Palatine', 'Masters of Duplicity',' Luxury Trades'],
+        'mechanic_name': ['Patient Court', 'Knowledge is Power', 'The Duke', 'Royal Marriage', 'Heart of Trade', 'Friends in High Places', 'The Monarch', 'Peaceful & Inventive', 'Palatine', 'Masters of Duplicity','Luxury Trades'],
         'radar': {'military_solutions': 2, 'economy_generators': 3, 'faith_management': 4, 'doubt_warfare': 3,
                   'political_control': 5, 'board_presence': 2, 'degenerate_punishment': 3},
     },

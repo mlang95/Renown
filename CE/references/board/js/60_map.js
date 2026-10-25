@@ -611,7 +611,8 @@ function syncMapTiers(){const M=mapState();let ch=false;
   Object.keys(M.cells).forEach(k=>{const c=M.cells[k],cp=cellPlayer(c);if(!cp||(lockOn()&&!mine(cp)))return;   // each device keeps its own pieces in step
     if(c.type==="Army"){const a=cellArmy(k).a;if(a&&c.aid==null){c.aid=a.id;ch=true;}return;}
     const s=cellSett(k).s;if(!s)return;if(c.sid==null){c.sid=s.id;ch=true;}if(!s.name){nameSett(cp,s);if(s.name)ch=true;}
-    if(c.type!==s.tier&&(DATA.settlements||{})[s.tier]){c.type=s.tier;ch=true;}});
+    if(c.type!==s.tier&&(DATA.settlements||{})[s.tier]){c.type=s.tier;ch=true;}
+    if(settHex(cp,s)===k&&wardAuto(cp,s))ch=true;});
   return ch;}
 function mapLinkBad(){return mapSetts().filter(x=>cellPlayer(x.cell)&&!cellSett(x.k).s).length+mapArmies().filter(x=>cellPlayer(x.cell)&&!cellArmy(x.k).a).length;}
 function mapLinksHTML(){const SL=mapSetts().filter(x=>cellPlayer(x.cell)),AL=mapArmies().filter(x=>cellPlayer(x.cell));
@@ -723,6 +724,15 @@ function wardCand(p,s){const sk=settHex(p,s);if(!sk)return [];const V=decodeGrid
 // ("Your Settlements have Presence"), its Wards while they have a Keep ("Your Settlement Wards have Presence")
 function presHexes(k){const c=mapState().cells[k];if(!c||c.type==="Army")return [k];const cs=cellSett(k),p=cs.p||cellPlayer(c);if(!p)return [];
   return (srcHas(p.board,"settlement_presence")?[k]:[]).concat(wardMap()&&cs.s&&settHex(p,cs.s)===k&&srcHas(p.board,"ward_presence")?wardsOf(p,cs.s):[]);}
+// automatic Ward placement: a Settlement's missing Ward hexes go on its free adjacent land, farthest from any Outlaw Country
+// first (ties: column, then row). Paused for that Settlement while its owner places Wards by hand (WARDPICK)
+function wardAuto(p,s){const M=mapState();if(!wardMap()||!M.grid)return false;
+  if(WARDPICK&&String(WARDPICK.pid)===String(p.id)&&String(WARDPICK.sid)===String(s.id))return false;
+  const OL=Object.keys(M.outlaw).map(hk),far=k=>{const a=hk(k);let d=1e9;for(const o of OL){const x=hexDist(a,o);if(x<d)d=x;}return d;};
+  let n=wardRoom(p,s)-wardsOf(p,s).length,ch=false;
+  while(n-->0){const C=wardCand(p,s);if(!C.length)break;
+    C.sort((a,b)=>far(b)-far(a)||hk(a)[0]-hk(b)[0]||hk(a)[1]-hk(b)[1]);M.wards[C[0]]={player:p.id,sid:s.id};ch=true;}
+  return ch;}
 // drop Wards whose Settlement is no longer on the map
 function wardPrune(){const W=mapState().wards;Object.keys(W).forEach(k=>{const p=pById(W[k].player),s=p&&settById(p,W[k].sid);if(!s||!settHex(p,s))delete W[k];});}
 // Ward n on the board (wardChains order) = the n-th Ward hex placed; the hex shows that Ward's top-most Holding, else a keep
