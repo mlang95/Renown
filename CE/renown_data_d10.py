@@ -3477,9 +3477,14 @@ SEASONS = {
 }
 
 # Trade & income constants (Rules: Trade & Income Rules).
+# Toggle: Trade Agreements require the two players to border (build_all_CE.bat: set TRADE_BORDER=1|0).
+TRADE_REQUIRES_BORDER = _os.environ.get("RENOWN_TRADE_BORDER", "1") == "1"
 TRADE_RULES = {
     "income_per_craft": 100,                # Trade Income = 100 x host's Craft X, per active agreement
-    "requirements": "A signed Trade Agreement, and each player has active Dirt Roads or a Can Trade effect (e.g. Harbor, Shipyard)",
+    "requirements": "A signed Trade Agreement, " + ("the two players border each other, " if TRADE_REQUIRES_BORDER else "")
+                    + "and each player has active Dirt Roads or a Can Trade effect (e.g. Harbor, Shipyard)",
+    "requires_border": TRADE_REQUIRES_BORDER,
+    "border_rule": " Both players must border each other." if TRADE_REQUIRES_BORDER else "",   # rules prose, Who Can Trade
     "no_trade_season": "Spring",            # no trade income in Spring
     "tax_season": "Winter",                 # tax collected only in Winter
 }
@@ -3867,7 +3872,7 @@ ACTIONS = {
         'requires': '',
         'effect': 'Choose an inactive Settlement Ward you control, then choose a Pursuit whose prerequisites you meet and set a Build Timer equal to its build time (usually 1). When it completes, place the Pursuit in an available Ward slot; its innate effect activates immediately, and its mastery effect activates if all mastery requirements are met.',
         'endorsed': 'Recoup 2000.',
-        'notes': ['You may have only 1 Monument Pursuits per settlement.', f'Pursuits have Build Timers according to their required Standing. Ungated: 1, Rising: 2, Established: 3, & Sovereign: 4.'],
+        'notes': ['You may have only 1 Monument Pursuits per settlement.', f'Pursuits have Build Timers according to their required Standing. Untested: 1, Rising: 2, Established: 3, & Sovereign: 4.'],
     },
     'Settle': {
         'domain': 'Industry',
@@ -3915,7 +3920,7 @@ ACTIONS = {
 # notes how it ends; era is when it unlocks (alliances scale with Era).
 TREATIES = {
     "Peace Treaty":      {"signed_via": "Sign Treaty", "effect": f"Ends war between the two players; sets Truce Timer {TIMERS['Truce Timer']['default']}.", "era": "Any"},
-    "Trade Agreement":   {"signed_via": "Sign Treaty", "effect": "Begin trading (Trade Income flows from next turn). Requires bordering, and each player has active Dirt Roads or a Can Trade effect.", "era": "Any"},
+    "Trade Agreement":   {"signed_via": "Sign Treaty", "effect": "Begin trading (Trade Income flows from next turn). Requires " + ("bordering and " if TRADE_REQUIRES_BORDER else "") + "active Dirt Roads or a Can Trade effect for each player.", "era": "Any"},
     "Non-Aggression Pact": {"signed_via": "Sign Treaty", "effect": f"Neither player may Declare War on the other. Ending it via End Treaty gives both a Truce Timer {TIMERS['Truce Timer']['default']}.", "era": "Any"},
     "Military Alliance":  {"signed_via": "Sign Treaty", "effect": "Mutual offensive pact: if a member Declares War, all members Declare War on the target next turn (and send 1 fewer envoy).", "era": "Eminence"},
     "Defensive Alliance": {"signed_via": "Sign Treaty", "effect": "Mutual defense: attacking one member puts all members at war with the attacker.", "era": "Zenith"},

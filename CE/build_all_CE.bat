@@ -61,6 +61,11 @@ REM          decks are built from the legacy nodes' escalation data).
 set SIMPLE=1
 set RENOWN_SIMPLE=%SIMPLE%
 
+REM TRADE_BORDER : 1 = Trade Agreements require the two players to border, 0 = no border needed.
+REM          Read by renown_data via the RENOWN_TRADE_BORDER environment variable.
+set TRADE_BORDER=1
+set RENOWN_TRADE_BORDER=%TRADE_BORDER%
+
 REM LAB_DIR is tagged by variant so trials stay side-by-side.
 set LAB_DIR=%CE_ROOT%\%DIR_LAB%\%DIE%
 if "%SIMPLE%"=="1" set LAB_DIR=%CE_ROOT%\%DIR_LAB%\%DIE%_simple
