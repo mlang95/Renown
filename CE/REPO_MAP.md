@@ -1,6 +1,6 @@
 # REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`)
 
-Generated 2026-10-25 · data VERSION `0.4.9.9.13-d10-S` · HEAD `ad8b6fc 2026-10-25`
+Generated 2026-10-25 · data VERSION `0.4.9.9.13-d10-S` · HEAD `8d5b9a1 2026-10-25`
 
 Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to the repo root.
 
@@ -198,7 +198,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\references\package.json` | 6 |  |
 | `CE\references\parity_efx.js` | 54 | parity_efx.js — replays effect_registry.py's patterns with JavaScript RegExp, the way the board used to read text at |
 | `CE\references\patch_pursuit_domains.py` | 58 | patch_pursuit_domains.py |
-| `CE\references\playstyle_reference.py` | 470 | playstyle_reference.py - culture playstyle reference (landscape Letter, banner per culture). |
+| `CE\references\playstyle_reference.py` | 457 | playstyle_reference.py - culture playstyle reference (landscape Letter, banner per culture). |
 | `CE\references\pursuit_tiles.py` | 278 | pursuit_tiles.py - print-and-play ward tiles for every pursuit, from renown_data. |
 | `CE\references\reference_sheets.py` | 873 | Renown — Reference sheet generators. |
 | `CE\references\render_tree.py` | 272 | render_tree.py - COORDINATE-DRIVEN tree renderer (no auto-layout). |

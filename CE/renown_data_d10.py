@@ -2677,13 +2677,13 @@ MONUMENT_SUMMARY = {
     "Port Authority":                     "Gold from Craft",
 }
 
-# One-line Wonder summaries (playstyle reference). Condensed from each Wonder's
-# empire_bonus — edit the Wonder first, then this line.
+# One-line Wonder summaries (playstyle reference). The gist of each Wonder's
+# empire_bonus, for choosing a playstyle (no numbers) — edit the Wonder first, then this line.
 WONDER_SUMMARY = {
-    "Colossus":              "Back your own Prowess Envoys before the vote; Speed +2, Siege Timer -2, Immune Blunder",
-    "The Grand Exchange":    "Count as Trading with 2 more players; your own Trade Income doubled",
-    "The Eternal Sepulchre": "Public Order never below 5; Settlements Reach +2",
-    "High Chancery":         "Endorse one Envoy you sent in the Tally Phase",
+    "Colossus":              "Backs Its Own Prowess Envoys, Faster Armies & Sieges, Immune Blunder",
+    "The Grand Exchange":    "Trades with More Players, Double Trade Income",
+    "The Eternal Sepulchre": "Public Order Never Falls Low, Wider Reach",
+    "High Chancery":         "Endorses One of Its Own Envoys",
 }
 
 # ── FACTIONS ────────────────────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # playstyle_reference.py - culture playstyle reference (landscape Letter, banner per culture).
 # Reads CULTURES, NODES (Monuments), MONUMENT_SUMMARY, WONDERS, WONDER_SUMMARY, FACTIONS, DOMAIN_BOARD from renown_data_d10.
-# Standing path is derived from each culture's Monument unlocks. Path names come from spec_tree_sheet.TREES.
+# Standing path is derived from each culture's Monument unlocks.
 # Faction mechanics are listed rarest-first (fewest cultures sharing them) until the banner is full.
 # Usage:  python playstyle_reference.py [out.pdf] [--per-page N]   (default: cards/playstyle_reference.pdf, 4)
 import sys, os, re, math
@@ -40,10 +40,6 @@ FSUM    = {k: v.get("summary", "") for k, v in FACT.items() if isinstance(v, dic
 MONS    = {k: v for k, v in rd.NODES.items() if v.get("monument") or v.get("type") == "Monument"}
 MSUM    = getattr(rd, "MONUMENT_SUMMARY", {})
 WSUM    = getattr(rd, "WONDER_SUMMARY", {})
-try:
-    from spec_tree_sheet import TREES
-except Exception:
-    TREES = {}
 
 DOMS  = ["Industry", "Prowess", "Cunning", "Piety"]
 LVL   = ["Untested", "Rising", "Established", "Sovereign"]
@@ -115,10 +111,6 @@ def rarest_first(c):
     """culture_faction_rows ordered by how few cultures share each mechanic (ties keep data order)."""
     rows, n = culture_faction_rows(c), mech_counts()
     return sorted(rows, key=lambda r: (n.get(r[1] or _mech_key(r[0]), 0), rows.index(r)))
-
-
-def path_name(m):
-    return TREES.get(m) or f"Path of {disp(m)}"
 
 
 # ---------------------------------------------------------------- validation
@@ -315,6 +307,7 @@ LEAD = 9.0
 SZ   = 8.3
 SSZ  = 7.2        # summary text
 SLEAD = 8.0
+ESZ  = 7.4        # Monument / Wonder line (name + summary)
 
 
 def banner(c, name, x, ytop, bh):
@@ -371,22 +364,32 @@ def banner(c, name, x, ytop, bh):
     top = ytop - 12
     floor = ybot + 6
 
-    # col 1: monuments (path + summary) + wonders
+    # col 1: monuments, then wonders - one line each where it fits ("Name — summary"). A Monument's name is coloured by the
+    # Domain(s) its unlock needs (two Domains split the name's words); an unlock naming no Domain keeps its note in italics
+    def mon_runs(m):
+        u = MONS.get(m, {}).get("unlock", "") or ""
+        doms = [d for _, d in sorted((u.find(d), d) for d in DOMS if d in u)]
+        name = _D(m)
+        if not doms:
+            return [(name, SERIF_B, META), (" " + unlock_short(u).strip(), SERIF_I, MUTE)]
+        words = name.split()
+        per = -(-len(words) // len(doms))
+        return [(("" if k == 0 else " ") + w, SERIF_B, _c(DOMC[doms[min(k // per, len(doms) - 1)]]))
+                for k, w in enumerate(words)]
+    def put(yy, runs):
+        return draw_lines(c, x1, yy, layout(c, runs, ESZ, COLW, 8), ESZ, SLEAD) - 1.6
     tag(c, x1, top, "Monuments")
     yy = top - 10.5
     for m in cu.get("monuments", []):
-        u = unlock_short(MONS.get(m, {}).get("unlock", "")).strip()
-        c.setFont(SERIF_B, SZ); c.setFillColor(META); c.drawString(x1, yy, _D(m))
-        mw = c.stringWidth(_D(m), SERIF_B, SZ)
-        c.setFont(SERIF_I, 7.0); c.setFillColor(MUTE)
-        if mw + 4 + c.stringWidth(u, SERIF_I, 7.0) <= COLW:
-            c.drawString(x1 + mw + 4, yy, u)
-        yy -= SLEAD
-        runs = [(path_name(m) + ":", SERIF_I, WONINK), (" " + MSUM.get(m, ""), SERIF, INK)]
-        yy = draw_lines(c, x1 + 6, yy, layout(c, runs, SSZ, COLW - 6, 0), SSZ, SLEAD) - 0.9
+        yy = put(yy, mon_runs(m) + [(" — " + MSUM.get(m, ""), SERIF, INK)])
     yy -= 1
-    flow(c, x1, yy, COLW, [("◆ " + disp(w), SERIF, WONINK) for w in cu.get("wonders", [])],
-         SZ, LEAD, sep=("   ", SERIF, WONINK))
+    ws = [[("◆ " + disp(w), SERIF_B, WONINK), (" — " + WSUM.get(w, ""), SERIF, INK)] for w in cu.get("wonders", [])]
+    if yy - (sum(len(layout(c, r, ESZ, COLW, 8)) for r in ws) - 1) * SLEAD - 1.6 * (len(ws) - 1) >= floor:
+        for r in ws:
+            yy = put(yy, r)
+    else:   # no room for every summary: names only
+        flow(c, x1, yy, COLW, [("◆ " + disp(w), SERIF, WONINK) for w in cu.get("wonders", [])],
+             SZ, LEAD, sep=("   ", SERIF, WONINK))
 
     # col 2: faction mechanics, rarest first, while they fit
     tag(c, x2, top, "Faction Mechanics")
@@ -427,32 +430,16 @@ def page_chrome(c, pg, npg):
     c.drawRightString(PAGE_W - MX, FOOT_Y, f"{pg}/{npg}")
 
 
-KEY_H = 27        # Wonder key strip above the footer
-
-
-def wonder_key(c, names):
-    """Two-column key: every Wonder held by a culture on this page, with its summary."""
-    ws = [w for w in WONDERS if any(w in CULT[n].get("wonders", []) for n in names)]
-    cw = (W - PAD) / 2
-    ytop = BOT + KEY_H - 11
-    for i, w in enumerate(ws):
-        runs = [("◆ " + disp(w), SERIF_B, WONINK)]
-        if WSUM.get(w): runs.append((" — " + WSUM[w], SERIF, INK))
-        draw_lines(c, MX + (i % 2)*(cw + PAD), ytop - (i // 2)*SLEAD * 1.25,
-                   layout(c, runs, SSZ, cw, 8)[:1], SSZ, SLEAD)
-
-
 def build(out, per_page=4):
     validate()
     names = order()
     pages = [names[i:i+per_page] for i in range(0, len(names), per_page)]
-    bh = (TOP - BOT - KEY_H - (per_page - 1)*GAP) / per_page
+    bh = (TOP - BOT - (per_page - 1)*GAP) / per_page
     c = canvas.Canvas(out, pagesize=(PAGE_W, PAGE_H))
     for pi, pg in enumerate(pages, 1):
         page_chrome(c, pi, len(pages))
         for i, n in enumerate(pg):
             banner(c, n, MX, TOP - i*(bh + GAP), bh)
-        wonder_key(c, pg)
         c.showPage()
     c.save()
     print("playstyle reference ->", out)
