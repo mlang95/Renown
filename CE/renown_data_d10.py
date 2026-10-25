@@ -1647,7 +1647,7 @@ NODES = {
     },
     "Outrider Intercept Post": {
         "type": "Monument",
-        "unlock": "Sovereign Cunning",
+        "unlock": "Sovereign Cunning + Established Prowess",
         "mastery_req": "Caravanery + Cipher Chamber",
         "innate": "In the first Skirmish of every Battle, your opponent plays their Tactic Card face up before you select your own.",
         "mastery": "Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own.",
@@ -2395,7 +2395,7 @@ SIMPLE_NODES = {
         "monument": False},
     "Office of Works": {
         "group": "g_works",
-        "unlock": "Sovereign Industry",
+        "unlock": "Sovereign Industry + Rising Piety",
         "innate": "Natural; Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions. Siege Timer +2; Build Timer -2",
         "efficient": ["Masons' Guild", "Storehouse"],
         "builds_into": [],
@@ -2409,14 +2409,14 @@ SIMPLE_NODES = {
         "monument": True},
     "Imperial Palace": {
         "group": "g_works",
-        "unlock": "Sovereign Prowess",
+        "unlock": "Sovereign Prowess + Established Industry",
         "innate": "Each Empire Phase, all non-allied players with a lower Prowess value gain Doubt +2. If your Envoy would fail, it passes instead.",
         "efficient": "Castle Hall",
         "builds_into": [],
         "monument": True},
     "Artillery Park": {
         "group": "g_logistics",
-        "unlock": "Sovereign Prowess",
+        "unlock": "Sovereign Prowess + Established Industry",
         "innate": "Siege Timers ignore Wooden & Stone Walls. Unlocks Arquebus; Settlements you Siege can't Sally Forth. Siege Timer -2.",
         "efficient": "Battery Park",
         "builds_into": [],
@@ -2430,7 +2430,7 @@ SIMPLE_NODES = {
         "monument": True},
     "Thieves' Guild": {
         "group": "g_secrecy",
-        "unlock": "Sovereign Cunning",
+        "unlock": "Sovereign Cunning + Rising Industry",
         "innate": "Whenever another player performs a Cunning action, you may recoup 1000 gold; Extort half of Trade Income from players who don't trade with you",
         "efficient": ["Black Market"],
         "builds_into": [],
@@ -2438,21 +2438,21 @@ SIMPLE_NODES = {
     "Senate Hall": {
         "group": "g_court",
         "unlock": "1 Sovereign",
-        "infrastructure_req": "Library + Town Hall",
+        "infrastructure_req": "Library",
         "innate": "Faith +1, gain Influence +1 per other player each Empire Phase; In the Intrigue Phase, you may Condemn an At War player's Envoy or Endorse an Ally's Envoy",
         "efficient": "Embassy",
         "builds_into": [],
         "monument": True},
     "Papal Palace": {
         "group": "g_devotion",
-        "unlock": "Sovereign Piety",
+        "unlock": "Sovereign Piety + Established Industry",
         "innate": "You no longer pay cost for Piety Envoys. Each Empire Phase, Tithe every other player with lower Piety, resolved in the Extort step.",
         "efficient": ["Monastery"],
         "builds_into": [],
         "monument": True},
     "Inquisitorial Palace": {
         "group": "g_devotion",
-        "unlock": "Sovereign Piety",
+        "unlock": "Sovereign Piety + Rising Cunning",
         "innate": "Doubt 1; Unlocks Grand Vizier which uses your Piety Value instead of Cunning.; All player actions that cause Doubt are increased by 1. ",
         "efficient": "Execution Dock",
         "builds_into": [],
@@ -2481,7 +2481,7 @@ SIMPLE_NODES = {
         "monument": True},
     "Aristocratic Court": {
         "group": "g_commerce",
-        "unlock": "Sovereign Industry",
+        "unlock": "Sovereign Industry + Rising Cunning",
         "innate": "Each Empire Phase, Extort 1000 from each non-allied player with a lower Treasury. Your Vote counts as 2 votes toward Domain selection during the Council Phase.",
         "efficient": ["Court Artists","Money Lending"],
         "builds_into": [],
@@ -2502,7 +2502,7 @@ SIMPLE_NODES = {
         "monument": True},
     "Advanced Blast Furnace": {
         "group": "g_arms",
-        "unlock": "Sovereign Industry",
+        "unlock": "Sovereign Industry + Rising Prowess",
         "innate": "Upkeep -1000; Crafted Weapons Unlocked; Craft +3",
         "efficient": "Master Workshop",
         "builds_into": [],
@@ -2523,7 +2523,7 @@ SIMPLE_NODES = {
         "monument": True},
     "Outrider Intercept Post": {
         "group": "g_secrecy",
-        "unlock": "Sovereign Cunning",
+        "unlock": "Sovereign Cunning + Rising Prowess",
         "innate": "Natural; Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own.",
         "efficient": ["Beacon Towers"],
         "builds_into": [],

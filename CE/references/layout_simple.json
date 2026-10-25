@@ -210,6 +210,128 @@
   ]
  },
  {
+  "title": "Ordnance Yard",
+  "anchor": "Artillery Park",
+  "mode": "chain",
+  "nodes": {
+   "Forestry": [
+    0,
+    0
+   ],
+   "Carpentry": [
+    1,
+    0
+   ],
+   "Mine": [
+    1,
+    1
+   ],
+   "Siege Camp": [
+    2,
+    0
+   ],
+   "Siege Works": [
+    3,
+    0
+   ],
+   "Battery Park": [
+    4,
+    0
+   ],
+   "Artillery Park": [
+    5,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Battery Park",
+    "Artillery Park"
+   ],
+   [
+    "Siege Works",
+    "Battery Park"
+   ],
+   [
+    "Forestry",
+    "Carpentry"
+   ],
+   [
+    "Carpentry",
+    "Siege Camp"
+   ],
+   [
+    "Mine",
+    "Siege Camp"
+   ],
+   [
+    "Siege Camp",
+    "Siege Works"
+   ]
+  ]
+ },
+ {
+  "title": "Imperial Palace",
+  "anchor": "Imperial Palace",
+  "mode": "chain",
+  "nodes": {
+   "Quarry": [
+    0,
+    0
+   ],
+   "Masonry": [
+    1,
+    0
+   ],
+   "Granary": [
+    2,
+    0
+   ],
+   "Supply Depot": [
+    3,
+    0
+   ],
+   "Citadel": [
+    4,
+    0
+   ],
+   "Castle Hall": [
+    5,
+    0
+   ],
+   "Imperial Palace": [
+    6,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Citadel",
+    "Castle Hall"
+   ],
+   [
+    "Supply Depot",
+    "Citadel"
+   ],
+   [
+    "Masonry",
+    "Granary"
+   ],
+   [
+    "Castle Hall",
+    "Imperial Palace"
+   ],
+   [
+    "Quarry",
+    "Masonry"
+   ],
+   [
+    "Granary",
+    "Supply Depot"
+   ]
+  ]
+ },
+ {
   "title": "Manor House",
   "anchor": "Manor House",
   "mode": "chain",
@@ -542,6 +664,59 @@
   ]
  },
  {
+  "title": "Papal Palace",
+  "anchor": "Papal Palace",
+  "mode": "chain",
+  "nodes": {
+   "Quarry": [
+    0,
+    0
+   ],
+   "Masonry": [
+    1,
+    0
+   ],
+   "Priory": [
+    2,
+    0
+   ],
+   "Abbey": [
+    3,
+    0
+   ],
+   "Monastery": [
+    4,
+    0
+   ],
+   "Papal Palace": [
+    5,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Priory",
+    "Abbey"
+   ],
+   [
+    "Quarry",
+    "Masonry"
+   ],
+   [
+    "Abbey",
+    "Monastery"
+   ],
+   [
+    "Monastery",
+    "Papal Palace"
+   ],
+   [
+    "Masonry",
+    "Priory"
+   ]
+  ]
+ },
+ {
   "title": "Port Authority",
   "anchor": "Port Authority",
   "mode": "chain",
@@ -587,63 +762,47 @@
   ]
  },
  {
-  "title": "Ordnance Yard",
-  "anchor": "Artillery Park",
+  "title": "Thieves' Guild",
+  "anchor": "Thieves' Guild",
   "mode": "chain",
   "nodes": {
-   "Forestry": [
+   "Inn": [
     0,
     0
    ],
-   "Carpentry": [
+   "Courier Network": [
     1,
     0
    ],
-   "Mine": [
-    1,
-    1
-   ],
-   "Siege Camp": [
+   "Smuggler's Nook": [
     2,
     0
    ],
-   "Siege Works": [
+   "Black Market": [
     3,
     0
    ],
-   "Battery Park": [
+   "Thieves' Guild": [
     4,
-    0
-   ],
-   "Artillery Park": [
-    5,
     0
    ]
   },
   "edges": [
    [
-    "Battery Park",
-    "Artillery Park"
+    "Smuggler's Nook",
+    "Black Market"
    ],
    [
-    "Siege Works",
-    "Battery Park"
+    "Inn",
+    "Courier Network"
    ],
    [
-    "Forestry",
-    "Carpentry"
+    "Courier Network",
+    "Smuggler's Nook"
    ],
    [
-    "Carpentry",
-    "Siege Camp"
-   ],
-   [
-    "Mine",
-    "Siege Camp"
-   ],
-   [
-    "Siege Camp",
-    "Siege Works"
+    "Black Market",
+    "Thieves' Guild"
    ]
   ]
  },
@@ -721,67 +880,6 @@
   ]
  },
  {
-  "title": "Imperial Palace",
-  "anchor": "Imperial Palace",
-  "mode": "chain",
-  "nodes": {
-   "Quarry": [
-    0,
-    0
-   ],
-   "Masonry": [
-    1,
-    0
-   ],
-   "Granary": [
-    2,
-    0
-   ],
-   "Supply Depot": [
-    3,
-    0
-   ],
-   "Citadel": [
-    4,
-    0
-   ],
-   "Castle Hall": [
-    5,
-    0
-   ],
-   "Imperial Palace": [
-    6,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Citadel",
-    "Castle Hall"
-   ],
-   [
-    "Supply Depot",
-    "Citadel"
-   ],
-   [
-    "Masonry",
-    "Granary"
-   ],
-   [
-    "Castle Hall",
-    "Imperial Palace"
-   ],
-   [
-    "Quarry",
-    "Masonry"
-   ],
-   [
-    "Granary",
-    "Supply Depot"
-   ]
-  ]
- },
- {
   "title": "Ministry of Military Strategy",
   "anchor": "Ministry of Military Strategy",
   "mode": "chain",
@@ -831,6 +929,83 @@
    [
     "University",
     "War College"
+   ]
+  ]
+ },
+ {
+  "title": "Outrider Intercept Post",
+  "anchor": "Outrider Intercept Post",
+  "mode": "chain",
+  "nodes": {
+   "Arable Land": [
+    0,
+    0
+   ],
+   "Animal Husbandry": [
+    1,
+    0
+   ],
+   "Stable": [
+    2,
+    0
+   ],
+   "Caravanery": [
+    3,
+    0
+   ],
+   "Saddlery": [
+    3,
+    1
+   ],
+   "Toll House": [
+    4,
+    0
+   ],
+   "Beacon Towers": [
+    5,
+    0
+   ],
+   "Outrider Intercept Post": [
+    6,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Arable Land",
+    "Animal Husbandry"
+   ],
+   [
+    "Toll House",
+    "Beacon Towers"
+   ],
+   [
+    "Saddlery",
+    "Caravanery"
+   ],
+   [
+    "Stable",
+    "Caravanery"
+   ],
+   [
+    "Beacon Towers",
+    "Outrider Intercept Post"
+   ],
+   [
+    "Stable",
+    "Saddlery"
+   ],
+   [
+    "Caravanery",
+    "Saddlery"
+   ],
+   [
+    "Animal Husbandry",
+    "Stable"
+   ],
+   [
+    "Caravanery",
+    "Toll House"
    ]
   ]
  },
@@ -1160,59 +1335,6 @@
   ]
  },
  {
-  "title": "Papal Palace",
-  "anchor": "Papal Palace",
-  "mode": "chain",
-  "nodes": {
-   "Quarry": [
-    0,
-    0
-   ],
-   "Masonry": [
-    1,
-    0
-   ],
-   "Priory": [
-    2,
-    0
-   ],
-   "Abbey": [
-    3,
-    0
-   ],
-   "Monastery": [
-    4,
-    0
-   ],
-   "Papal Palace": [
-    5,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Priory",
-    "Abbey"
-   ],
-   [
-    "Quarry",
-    "Masonry"
-   ],
-   [
-    "Abbey",
-    "Monastery"
-   ],
-   [
-    "Monastery",
-    "Papal Palace"
-   ],
-   [
-    "Masonry",
-    "Priory"
-   ]
-  ]
- },
- {
   "title": "Outlaw Rookery",
   "anchor": "Outlaw Rookery",
   "mode": "chain",
@@ -1254,128 +1376,6 @@
    [
     "Smuggler's Nook",
     "Syndicate Hub"
-   ]
-  ]
- },
- {
-  "title": "Outrider Intercept Post",
-  "anchor": "Outrider Intercept Post",
-  "mode": "chain",
-  "nodes": {
-   "Arable Land": [
-    0,
-    0
-   ],
-   "Animal Husbandry": [
-    1,
-    0
-   ],
-   "Stable": [
-    2,
-    0
-   ],
-   "Caravanery": [
-    3,
-    0
-   ],
-   "Saddlery": [
-    3,
-    1
-   ],
-   "Toll House": [
-    4,
-    0
-   ],
-   "Beacon Towers": [
-    5,
-    0
-   ],
-   "Outrider Intercept Post": [
-    6,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Arable Land",
-    "Animal Husbandry"
-   ],
-   [
-    "Toll House",
-    "Beacon Towers"
-   ],
-   [
-    "Saddlery",
-    "Caravanery"
-   ],
-   [
-    "Stable",
-    "Caravanery"
-   ],
-   [
-    "Beacon Towers",
-    "Outrider Intercept Post"
-   ],
-   [
-    "Stable",
-    "Saddlery"
-   ],
-   [
-    "Caravanery",
-    "Saddlery"
-   ],
-   [
-    "Animal Husbandry",
-    "Stable"
-   ],
-   [
-    "Caravanery",
-    "Toll House"
-   ]
-  ]
- },
- {
-  "title": "Thieves' Guild",
-  "anchor": "Thieves' Guild",
-  "mode": "chain",
-  "nodes": {
-   "Inn": [
-    0,
-    0
-   ],
-   "Courier Network": [
-    1,
-    0
-   ],
-   "Smuggler's Nook": [
-    2,
-    0
-   ],
-   "Black Market": [
-    3,
-    0
-   ],
-   "Thieves' Guild": [
-    4,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Smuggler's Nook",
-    "Black Market"
-   ],
-   [
-    "Inn",
-    "Courier Network"
-   ],
-   [
-    "Courier Network",
-    "Smuggler's Nook"
-   ],
-   [
-    "Black Market",
-    "Thieves' Guild"
    ]
   ]
  },

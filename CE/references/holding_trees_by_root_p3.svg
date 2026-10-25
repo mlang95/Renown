@@ -74,8 +74,8 @@
 <rect x="1062" y="100" width="5" height="24" fill="#1c1c20"/>
 <text x="1071" y="115" font-size="8.2" fill="#2b2620">Outlaw Rookery</text>
 <polygon points="1172.0,108.4 1175.6,112.0 1172.0,115.6 1168.4,112.0" fill="#8a6d1a"/>
-<rect x="1062" y="136" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#1c1c20" stroke-width="2.2"/>
-<rect x="1062" y="136" width="5" height="24" fill="#1c1c20"/>
+<rect x="1062" y="136" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#2E5A8C" stroke-width="2.2"/>
+<rect x="1062" y="136" width="5" height="24" fill="#2E5A8C"/>
 <text x="1071" y="151" font-size="8.2" fill="#2b2620">Thieves' Guild</text>
 <polygon points="1172.0,144.4 1175.6,148.0 1172.0,151.6 1168.4,148.0" fill="#8a6d1a"/>
 <path d="M148,210 L172,210" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>

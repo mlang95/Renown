@@ -98,8 +98,8 @@
 <rect x="890" y="64" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
 <rect x="890" y="64" width="5" height="24" fill="#9E2B25"/>
 <text x="899" y="79" font-size="8.2" fill="#2b2620">Tiltyard</text>
-<rect x="1062" y="100" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
-<rect x="1062" y="100" width="5" height="24" fill="#9E2B25"/>
+<rect x="1062" y="100" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#2E5A8C" stroke-width="2.2"/>
+<rect x="1062" y="100" width="5" height="24" fill="#2E5A8C"/>
 <text x="1071" y="115" font-size="8.2" fill="#2b2620">Ordnance Yard</text>
 <polygon points="1172.0,108.4 1175.6,112.0 1172.0,115.6 1168.4,112.0" fill="#8a6d1a"/>
 <rect x="1062" y="136" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
@@ -219,8 +219,8 @@
 <rect x="1062" y="306" width="5" height="24" fill="#2E5A8C"/>
 <text x="1071" y="321" font-size="8.2" fill="#2b2620">Aristocratic Court</text>
 <polygon points="1172.0,314.4 1175.6,318.0 1172.0,321.6 1168.4,318.0" fill="#8a6d1a"/>
-<rect x="1062" y="378" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#C6A024" stroke-width="2.2"/>
-<rect x="1062" y="378" width="5" height="24" fill="#C6A024"/>
+<rect x="1062" y="378" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#1c1c20" stroke-width="2.2"/>
+<rect x="1062" y="378" width="5" height="24" fill="#1c1c20"/>
 <text x="1071" y="393" font-size="8.2" fill="#2b2620">Inquisitorial Palace</text>
 <polygon points="1172.0,386.4 1175.6,390.0 1172.0,393.6 1168.4,390.0" fill="#8a6d1a"/>
 <rect x="1062" y="234" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
@@ -296,8 +296,8 @@
 <rect x="1234" y="440" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="1234" y="440" width="5" height="24" fill="#6a6a72"/>
 <text x="1243" y="455" font-size="8.2" fill="#2b2620">Jewelry Foundry</text>
-<rect x="1234" y="476" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#1c1c20" stroke-width="2.2"/>
-<rect x="1234" y="476" width="5" height="24" fill="#1c1c20"/>
+<rect x="1234" y="476" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
+<rect x="1234" y="476" width="5" height="24" fill="#9E2B25"/>
 <text x="1243" y="491" font-size="8.2" fill="#2b2620">Outrider Intercept Post</text>
 <polygon points="1344.0,484.4 1347.6,488.0 1344.0,491.6 1340.4,488.0" fill="#8a6d1a"/>
 </svg>
