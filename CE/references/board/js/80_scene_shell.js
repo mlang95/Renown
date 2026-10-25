@@ -7,7 +7,7 @@
 // Ground = the loaded map's Grassland colour (hexstyle climate / map swatch), snow in Winter.
 const SPR=DATA.sprites||null;
 const SPR_RAW=new Set((SPR&&SPR.raw)||[]);
-const SCN_STYLE=Object.assign({fade:0.2,sil:0,halo:0,lift:0},(SPR&&SPR.style)||{});   // skyline fade, silhouette strength, holding halo, skyline rise
+const SCN_STYLE=Object.assign({fade:0.2,sil:0,halo:0,lift:0,head:0},(SPR&&SPR.style)||{});   // skyline fade, silhouette strength, holding halo, skyline rise, extra sky
 const SCN={sky:{Winter:["#5a6a88","#7a88a4","#9aa6bc","#b8c2d2"],Spring:["#4a8ad8","#6aa4e4","#8abcee","#b0d4f4"],
                Summer:["#1e6ad0","#3a86e0","#5aa2ea","#86c0f2"],Fall:["#3a3060","#7a4a6a","#c8705a","#e8a060"]},
            ground:{Winter:["#c8d4e2","#e8eef5"]},leaf:{Spring:"#7cc44e",Summer:"#2f7a26",Fall:"#d8742a"}};
@@ -55,7 +55,7 @@ const WON_GAP=12;   // px between the core and the first Wonder on each side (cl
 function renderScene(){
   const box=document.getElementById("sceneBox");if(!box)return;
   const on=!!(SPR&&S.settlements.length);box.hidden=!on;if(!on){box.innerHTML="";return;}
-  const sea=SCN.sky[curSeason()]?curSeason():"Summer",LIFT=SCN_STYLE.lift||0,G=38+LIFT,H=48+LIFT,SG=G-LIFT,pal=Object.assign({},SPR.P),sky=SCN.sky[sea];
+  const sea=SCN.sky[curSeason()]?curSeason():"Summer",LIFT=SCN_STYLE.lift||0,SG=38+(SCN_STYLE.head||0),G=SG+LIFT,H=G+10,pal=Object.assign({},SPR.P),sky=SCN.sky[sea];
   pal.l=sea==="Winter"?null:SCN.leaf[sea];let gl=G;   // gl: ground line draw() stands art on (SG for the skyline on the rise)
   const INF=sceneInfra(),has=n=>!!INF[n],SW=k=>(SPR.S[k]||[""])[0].length;
   // ---- layout: lot width from its holdings and its skyline core
@@ -131,16 +131,16 @@ function renderScene(){
     for(let q=r0;q<=r1;q++)for(let y=G+2;y<=G+4;y++)px(q,y,pv(stone?((q+y)%3?pal.t:pal.u):((q*7+y)%5?pal.b:pal.d)));}
   gaps.forEach(g=>{const mid=Math.floor((g.x0+g.x1)/2);
     if(g===bridgeGap){const wc=al("Bridges")<1?mix(pal.e,grass,.45):pal.e;for(let q=mid-5;q<=mid+5;q++)for(let y=G;y<H;y++)px(q,y,wc);
-      draw(SPR.S["inf:Bridges"],mid-7,al("Bridges"),0,true);}
-    else if(!(g.i>0&&(AR[g.i-1]||[]).length))draw(SPR.S["scenery:tree"],mid-8,1,0,true);});
+      draw(SPR.S["inf:Bridges"],mid-Math.floor(SW("inf:Bridges")/2),al("Bridges"),0,true);}
+    else if(!(g.i>0&&(AR[g.i-1]||[]).length))draw(SPR.S["scenery:tree"],mid-Math.floor(SW("scenery:tree")/2),1,0,true);});
   // ---- holdings, then the terrain at their feet, then foreground pieces
   if(SCN_STYLE.halo)placed.forEach(p=>halo(p.rows,p.x));
   placed.forEach(p=>draw(p.rows,p.x,p.it.bt?0.45:1,0,true));
   placed.forEach(p=>{if(p.it.ft){const f=SPR.S[p.it.ft];draw(f,p.x+Math.floor((p.w-f[0].length)/2),1,0,true);}});
-  const SCA=[];{const own=playerOfBoard(S),keepP=pal.p;if(own)pal.p=own.color;
+  const SCA=[];{const own=playerOfBoard(S),keepP=pal.p,keepPs=pal.P;if(own){pal.p=own.color;pal.P=mix(own.color,"#000000",.3);}
     lots.forEach((o,i)=>{let ax=o.x1+3;(AR[i]||[]).forEach(a=>{const rows=SPR.S["army:"+(a.retinue||BANDIT_DEFAULT_RETINUE)];if(!rows)return;
       draw(rows,ax,1,0,true);SCA.push({x:ax,w:rows[0].length,h:rows.length,name:(a.label||("Army "+a.id))+" · "+(a.retinue||"")+" ×"+(a.count||0)});ax+=rows[0].length+2;});});
-    pal.p=keepP;}
+    pal.p=keepP;pal.P=keepPs;}
   lots.forEach(o=>{if(o.L.bare)return;Object.keys(INF).filter(n=>INF[n].kind==="front"&&SPR.S["inf:"+n]).forEach(n=>{const k="inf:"+n;
     draw(SPR.S[k],INF[n].pos==="right"?o.x1-SW(k)+1:o.x0,al(n),0,true);});});
   if(sea==="Winter"){occ.forEach((ys,q)=>{if(!ys)return;const t=Math.min(...ys);px(q,t,"#ffffff");});

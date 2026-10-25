@@ -157,7 +157,8 @@ function mapSprDefs(){if(MAP_SPR_DEFS!=null)return MAP_SPR_DEFS;let d="";const P
     rows.forEach((r,y)=>{let x=0;while(x<w){const ch=r[x];let n=1;while(x+n<w&&r[x+n]===ch)n++;
       if(ch!=="."&&ch!=="g")by[ch]=(by[ch]||"")+"M"+x+" "+y+"h"+n+"v1h-"+n+"z";x+=n;}});
     d+='<symbol id="'+mapSprId(k)+'" viewBox="0 0 '+w+' '+rows.length+'" shape-rendering="crispEdges">'+
-      Object.keys(by).map(ch=>'<path d="'+by[ch]+'" fill="'+(ter&&TV[ch]?TV[ch]:ch==="p"?"currentColor":(P[ch]||"#f0f"))+'"/>').join("")+'</symbol>';});
+      Object.keys(by).map(ch=>'<path d="'+by[ch]+'" fill="'+(ter&&TV[ch]?TV[ch]:ch==="p"||ch==="P"?"currentColor":(P[ch]||"#f0f"))+'"/>'+
+        (ch==="P"&&!ter?'<path d="'+by[ch]+'" fill="#000" fill-opacity=".3"/>':'')).join("")+'</symbol>';});   // P = owner colour in shade
   return MAP_SPR_DEFS=d;}
 // pixel terrain: relief tones mixed toward white/black from the hex fill (multiplying barely moves dark climates)
 function tMix(hex,to,t){const a=parseInt(hex.slice(1),16),b=parseInt(to.slice(1),16),f=s=>Math.round((a>>s&255)*(1-t)+(b>>s&255)*t);
@@ -210,7 +211,8 @@ function sprSVG(key,px,tile,col){const raw=SPR&&SPR.S[key];if(!raw)return "";con
   return EQ_SVG[ck]='<svg class="eqi" width="'+px+'" height="'+px+'" viewBox="0 0 '+w+' '+rows.length+'" shape-rendering="crispEdges" aria-hidden="true">'+
     (kind==="army"?'':'<rect width="'+w+'" height="'+rows.length+'" rx=".8" fill="'+(SPR.eqTile||"#3a404c")+'"/>')+
     (col?'<g color="'+col+'">':'')+
-    Object.keys(by).map(ch=>'<path d="'+by[ch]+'" fill="'+(ch==="p"&&col?"currentColor":(P[ch]||"#f0f"))+'"/>').join("")+(col?'</g>':'')+'</svg>';}
+    Object.keys(by).map(ch=>'<path d="'+by[ch]+'" fill="'+((ch==="p"||ch==="P")&&col?"currentColor":(P[ch]||"#f0f"))+'"/>'+
+      (ch==="P"&&col?'<path d="'+by[ch]+'" fill="#000" fill-opacity=".3"/>':'')).join("")+(col?'</g>':'')+'</svg>';}
 function stIcon(n,px){return sprSVG("st:"+n,px||14,true);}
 function armyGear(a){return [a.weapon,(a.ranged&&a.ranged!=="None")?a.ranged:null,(a.shield&&a.shield!=="None"&&a.shield!=="null")?a.shield:null,a.armor].filter(n=>n&&SPR&&SPR.S["eq:"+n]);}
 // the owner's army unlocks/modifiers, as renderArmy builds them for the active board
