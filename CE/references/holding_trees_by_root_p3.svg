@@ -226,8 +226,8 @@
 <rect x="30" y="456" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="456" width="5" height="24" fill="#6a6a72"/>
 <text x="39" y="471" font-size="8.2" fill="#2b2620">Fishmongery</text>
-<rect x="202" y="456" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="202" y="456" width="5" height="24" fill="#6a6a72"/>
+<rect x="202" y="456" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
+<rect x="202" y="456" width="5" height="24" fill="#2E5A8C"/>
 <text x="211" y="471" font-size="8.2" fill="#2b2620">Harbor</text>
 <rect x="374" y="456" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="374" y="456" width="5" height="24" fill="#2E5A8C"/>

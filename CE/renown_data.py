@@ -1938,7 +1938,7 @@ SIMPLE_NODES = {
         "monument": False},
     "Harbor": {
         "group": "g_commerce",
-        "unlock": "-",
+        "unlock": "Rising Industry",
         "innate": "Craft +2; Can Trade; Extort 500 per player without Harbor",
         "efficient": "Fishmongery",
         "builds_into": ["Shipyard"],
@@ -1946,6 +1946,7 @@ SIMPLE_NODES = {
     "Merchant Quarter": {
         "group": "g_commerce",
         "unlock": "Rising Industry",
+        "infrastructure_req": "Magistrate's Hall",
         "innate": "+1000; Craft +3; Trade Partners gain Craft +2",
         "efficient": ["Market Square"],
         "builds_into": ["Money Lending"],
@@ -1980,7 +1981,7 @@ SIMPLE_NODES = {
         "monument": False},
     "Shipyard": {
         "group": "g_commerce",
-        "unlock": "Rising Industry",
+        "unlock": "Established Industry",
         "innate": "Craft +4; Can Trade; Water Territory treated as Grassland for movement",
         "efficient": "Harbor",
         "builds_into": ["Storehouse"],
@@ -2046,6 +2047,7 @@ SIMPLE_NODES = {
     "Jester's Court": {
         "group": "g_court",
         "unlock": "1 Rising",
+        "infrastructure_req": "Town Hall",
         "innate": "First and second Oppose on an Envoy of yours each Envoy Phase: reduce by 1",
         "efficient": "Courtyard",
         "builds_into": ["Bell Tower"],
@@ -2092,6 +2094,7 @@ SIMPLE_NODES = {
     "Episcopal Court": {
         "group": "g_devotion",
         "unlock": "Rising Piety",
+        "infrastructure_req": "Town Hall",
         "innate": "Faith +1; Reduce the first instance of Doubt each turn by 1, min 0.",
         "efficient": "Courtyard",
         "builds_into": ["Interrogation Chambers"],
