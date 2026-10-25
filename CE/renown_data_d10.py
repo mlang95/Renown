@@ -4590,9 +4590,7 @@ if SIMPLE:
     UPKEEP_TRACKS["Pursuit"] = f"Each Empire Phase: {_HOLDING_COST_TEXT}."
     COSTS["Pursuit upkeep"] = f"Each Empire Phase: {_HOLDING_COST_TEXT}"
     GLOSSARY["Upkeep"] = GLOSSARY["Upkeep"].replace(f"fixed by type ({_PU_TEXT})", _HOLDING_COST_TEXT)
-    ACTIONS["Pursue"]["notes"] = [n for n in ACTIONS["Pursue"]["notes"] if not n.startswith("Power and unique")] + [
-        "Build Timer by Standing: Untested " + str(_HTC[None][1]) + ", "
-        + ", ".join(f"{t} {_HTC[t][1]}" for t in _STANDINGS) + "."]
+    ACTIONS["Pursue"]["notes"] = [n for n in ACTIONS["Pursue"]["notes"] if not n.startswith("Power and unique")]
 
     # Faction starters: no Mastery to keep active.
     for _f in FACTIONS.values():
