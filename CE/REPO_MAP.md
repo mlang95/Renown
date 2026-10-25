@@ -1,6 +1,6 @@
 # REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`)
 
-Generated 2026-10-25 · data VERSION `0.4.9.9.13-d10-S` · HEAD `8d5b9a1 2026-10-25`
+Generated 2026-10-25 · data VERSION `0.4.9.9.13-d10-S` · HEAD `44598ce 2026-10-25`
 
 Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to the repo root.
 

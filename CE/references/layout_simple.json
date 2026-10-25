@@ -1071,59 +1071,6 @@
   ]
  },
  {
-  "title": "Papal Palace",
-  "anchor": "Papal Palace",
-  "mode": "chain",
-  "nodes": {
-   "Quarry": [
-    0,
-    0
-   ],
-   "Masonry": [
-    1,
-    0
-   ],
-   "Priory": [
-    2,
-    0
-   ],
-   "Abbey": [
-    3,
-    0
-   ],
-   "Monastery": [
-    4,
-    0
-   ],
-   "Papal Palace": [
-    5,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Priory",
-    "Abbey"
-   ],
-   [
-    "Quarry",
-    "Masonry"
-   ],
-   [
-    "Abbey",
-    "Monastery"
-   ],
-   [
-    "Monastery",
-    "Papal Palace"
-   ],
-   [
-    "Masonry",
-    "Priory"
-   ]
-  ]
- },
- {
   "title": "Ossuary Crypt",
   "anchor": "Ossuary Crypt",
   "mode": "chain",
@@ -1209,6 +1156,59 @@
    [
     "Forgotten Catacombs",
     "Toxicarium"
+   ]
+  ]
+ },
+ {
+  "title": "Papal Palace",
+  "anchor": "Papal Palace",
+  "mode": "chain",
+  "nodes": {
+   "Quarry": [
+    0,
+    0
+   ],
+   "Masonry": [
+    1,
+    0
+   ],
+   "Priory": [
+    2,
+    0
+   ],
+   "Abbey": [
+    3,
+    0
+   ],
+   "Monastery": [
+    4,
+    0
+   ],
+   "Papal Palace": [
+    5,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Priory",
+    "Abbey"
+   ],
+   [
+    "Quarry",
+    "Masonry"
+   ],
+   [
+    "Abbey",
+    "Monastery"
+   ],
+   [
+    "Monastery",
+    "Papal Palace"
+   ],
+   [
+    "Masonry",
+    "Priory"
    ]
   ]
  },

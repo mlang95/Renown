@@ -2250,7 +2250,7 @@ SIMPLE_NODES = {
         "monument": False},
     "Ossuary Crypt": {
         "group": "g_secrecy",
-        "unlock": "Sovereign Cunning",
+        "unlock": "Sovereign Cunning + Established Piety",
         "innate": "All player's Piety actions give an additional Doubt +1. You may target players with Piety actions regardless of your Public Order.",
         "efficient": ["Plague Pit"],
         "builds_into": [],
