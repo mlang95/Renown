@@ -3795,10 +3795,12 @@ SPRITES["map:bandit_army"] = art([
     "..B..kkddk.kddk.kkkkk...",
     "..k..kkkkk.kkkkk........",
 ])
-# Bandit camps: one size per point of the camp's Authority (map:camp = 1, then map:camp:2 .. map:camp:4); the board
-# picks by the camp's current Authority, so a camp visibly grows on the map as it musters.
-def _tent(c, cx, top, h, cloth="s"):
+# Bandit camps: one tent per point of the camp's Authority (map:camp = 1, then map:camp:2 .. map:camp:4); the board
+# picks by the camp's current Authority. The first tent stands in front; each further tent sits farther back — higher,
+# smaller, hazier — with its peak showing over the ones in front, so the count reads at a glance.
+def _tent(c, cx, top, h, cloth="s", shade=None):
     """A-frame tent, apex at (cx, top), h rows; lit side left, shaded right, dark door, ridge pole tip above."""
+    shade = shade or SHADE[cloth]
     c[top - 1][cx] = "b"
     for i in range(h):
         for x in range(cx - i, cx + i + 1):
@@ -3807,55 +3809,24 @@ def _tent(c, cx, top, h, cloth="s"):
             elif i >= h // 2 and abs(x - cx) <= (i - h // 2) // 2:
                 c[top + i][x] = "d"
             else:
-                c[top + i][x] = SHADE[cloth] if x > cx else cloth
+                c[top + i][x] = shade if x > cx else cloth
 
 
 def _campfire(c, x, y):
     put(c, [".y.", "yfy", "fYf", "kbk"], x, y)
 
 
-def _skullflag(c, x, top, h):
-    vline(c, x, top, top + h - 1, "b")
-    put(c, ["kkkkkk", "ksssZk", "kskksk", "ksssZk", "kkkkkk"], x + 1, top)
-    c[top + 3][x + 3] = "k"
+CAMP_TENTS = [(11, 13, 10, "s", "Z"),       # front: apex (cx, top), rows, lit, shade
+              (7, 11, 8, "s", "Z"),         # behind, left
+              (16, 11, 8, "b", "B"),        # behind, right (hide)
+              (11, 8, 6, "Z", "T")]         # farthest, hazy, its peak over the front ridge
+for n in range(1, 5):
+    c = cv(24, 23)
+    for cx, top, h, lit, sh in reversed(CAMP_TENTS[:n]):
+        _tent(c, cx, top, h, lit, sh)
+    _campfire(c, 20, 19)
+    SPRITES["map:camp" + ("" if n == 1 else ":" + str(n))] = fin(c)   # outlines kept at map scale; shade_rim adds light
 
-
-c = cv(24, 23)
-_tent(c, 10, 16, 7)
-_campfire(c, 17, 19)
-SPRITES["map:camp"] = fin(c)        # outlines kept at map scale; shade_rim adds the light below
-
-c = cv(24, 23)
-_tent(c, 8, 12, 11)
-_tent(c, 18, 17, 6, "b")
-_campfire(c, 13, 19)
-SPRITES["map:camp:2"] = fin(c)        # outlines kept at map scale; shade_rim adds the light below
-
-c = cv(24, 23)
-_skullflag(c, 1, 4, 19)
-_tent(c, 11, 10, 13)
-_tent(c, 18, 17, 6, "b")
-_campfire(c, 7, 19)
-for x in (16, 23):
-    put(c, ["k", "b", "B"], x, 20)
-SPRITES["map:camp:3"] = fin(c)        # outlines kept at map scale; shade_rim adds the light below
-
-c = cv(24, 23)
-_skullflag(c, 1, 0, 17)
-put(c, ["kkkkkk", "kbbbBk", "kkkkkk"], 17, 3)
-for y in range(6, 17):
-    c[y][18] = "b"
-    c[y][21] = "B"
-line(c, 18, 7, 21, 15, "b")
-_tent(c, 10, 6, 10)
-for x in range(24):
-    if x % 3 == 1:
-        c[16][x] = "k"
-    for y in range(17, 23):
-        c[y][x] = "k" if x % 3 == 0 else ("b" if x % 3 == 1 else "B")
-    c[19][x] = "k"
-put(c, ["kkkkk", "kdddk", "kdddk", "kdddk"], 9, 19)
-SPRITES["map:camp:4"] = fin(c)        # outlines kept at map scale; shade_rim adds the light below
 SPRITES["map:Hamlet"] = art([
     "................kpppp...",
     "................kpppk...",
