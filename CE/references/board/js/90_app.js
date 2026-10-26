@@ -351,8 +351,8 @@ async function initServer(){
   if(!res||res.status!==200||!res.json)return;
   const j=res.json;SYNC.base={};SYNC.ver={};SYNC.rev=j.rev;
   Object.keys(j.parts).forEach(k=>{SYNC.base[k]=j.parts[k].data;SYNC.ver[k]=j.parts[k].version;});
-  if(j.parts.shared){joinD(Object.fromEntries(Object.keys(j.parts).map(k=>[k,j.parts[k].data])));reindex();render();renderList();}
-  SYNC.ready=true;if(nameAllSetts())save();render();
+  if(j.parts.shared){joinD(Object.fromEntries(Object.keys(j.parts).map(k=>[k,j.parts[k].data])));reindex();}
+  SYNC.ready=true;if(nameAllSetts())save();render();renderList();
   if(!j.parts.shared)push();                         // empty server: seed it from this browser
   refreshBuilds();chatPoll();
 }

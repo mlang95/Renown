@@ -37,7 +37,7 @@ src.forEach(([key,name,kind,text])=>{const E=EFX[key]||{};
     cmp(key,"_once",once,(E._once||[]).map(o=>({c:o.c,ph:o.ph,game:o.game,x:o.x})));
     // can't-restrictions (old actRestrict scan, before its per-action filter)
     const cant=[];String(text).split(/;|\.\s+|\.$/).forEach(cl=>{const re=/(?:can.t|cannot)\s+(.+?)(?=,?\s+and\s+(?:you\s+)?(?:can.t|cannot)\b|$)/gi;let m;
-      while((m=re.exec(cl))){const c=m[1];if(/^(?:be the target|be in an Alliance|pursue|build|equip|use shields|gain Immune|exceed|refuse|choose|vote|be modified|be Razed)|\bon you$/i.test(c))continue;cant.push(c);}});
+      while((m=re.exec(cl))){const c=m[1];if(/^(?:be the target|be in an Alliance|pursue|build|equip|use shields|gain Immune|exceed|refuse|choose|vote|be modified|be Razed)|\bon you$|^target you\b/i.test(c))continue;cant.push(c);}});
     cmp(key,"_cant",cant,E._cant);}
   // Speed clauses (old spClauses + speedOf / scanO classification)
   const SP_RE=/Speed\s*([+\-−])\s?(\d+)/i;

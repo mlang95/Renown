@@ -268,7 +268,7 @@ document.getElementById("adminPin").onkeydown=e=>{if(e.key==="Enter")adminSet(tr
 adminUI();
 // ---- turn strip: Turn · Season · Renown/Era · Phase · Host · End turn (one place for all turn state) ----
 // first Host (setup): any seated player can take the Host card, or hand it back, until the first turn gets going
-function firstHostOpen(){return tTurn()===1&&!TB().phaseTs;}
+function firstHostOpen(){return !tBegun()&&!TB().phaseTs;}
 function firstHostBtn(){if(!firstHostOpen())return "";const me=meP(),hp=hostP(),t=TB();
   if(!me||!seated().some(p=>sameP(p,me)))return ' <span class="note">(sit at the Table to claim Host)</span>';
   if(t.hostSet&&sameP(hp,me))return '<button data-ts="host-off" title="hand the Host card back">give up Host</button>';
@@ -302,15 +302,15 @@ function renderHUD(){const el=document.getElementById("hud");if(!el)return;const
   const h=hudData(p),cls=v=>v>0?"up":v<0?"dn":"";
   let left=null;try{const R=tSim();const pool=R.pool[p.id]??inflPool(p);left=pool-(R.spent[p.id]||0);}catch(e){}
   const cell=(col,lab,val,pop,tip)=>{const [cv,cx]=col.split(" ");return '<div class="hc'+(cx?' '+cx:'')+(HPOP===pop?' on':'')+'" style="--hcol:var('+cv+')" data-pop="'+pop+'" title="'+esc(tip||"")+'"><span class="hl">'+lab+'</span><span class="hv">'+val+'</span></div>';};
-  const ST=["Untested","Rising","Established","Sovereign"],dom=DOMAINS.map(d=>{const v=h.dom[d]||0,i=ST.indexOf(domBand(v));
-    return '<span title="'+esc(d+" "+v+" · "+domBand(v))+'" class="st'+i+'"><em>'+d.slice(0,3)+'</em>'+v+'</span>';}).join("");
+  const ST=["Untested","Rising","Established","Sovereign"],dom=DOMAINS.map(d=>{const v=h.dom[d]||0,i=ST.indexOf(domBand(v)),rk=(DBOARD.innate_influence_own_envoys||{})[domBand(v)];
+    return '<span title="'+esc(d+" "+v+" · "+domBand(v)+(rk!=null?" · Rank "+rk+" (Authority "+rk+", vote up to "+rk+")":""))+'" class="st'+i+'"><em>'+d.slice(0,3)+'</em>'+v+(rk!=null?'<sup>'+rk+'</sup>':'')+'</span>';}).join("");
   const poTip=["Public Order "+h.po+" · "+h.band,"Faith +"+h.faith+" / Doubt +"+h.doubt+" at the next Empire Phase"+(h.dbl>1?" (modifiers ×2)":""),
     "  pieces: Faith +"+h.pieceF+" / Doubt +"+h.pieceD].concat(h.fRows.map(r=>"  Faith +"+r.n+" · "+r.k)).concat(h.dRows.map(r=>"  Doubt +"+r.n+" · "+r.k)).join("\n");
   const bst=Math.max(0,...D.players.map(edictTotal)),lead=bst>0&&h.edicts===bst;
   el.innerHTML='<div class="hrow">'+
     cell("--order","Gold",fmtG(h.gold)+' <small class="'+cls(h.net)+'">'+hudSign(h.net)+'</small>',"gold","Treasury · this Season's net (income, Winter tax, trade, upkeep) — click for the breakdown")+
     cell("--influence","Influence",(left!=null?left:hudSign(h.infl).replace("\u00b1","")),"infl","Influence you have this turn"+(left!=null?" (gain "+h.infl+")":""))+
-    cell("--envoy","Envoys",h.env,"env","Personal Envoys this turn")+
+    cell("--envoy","Envoys",h.env+'<span class="hapx"><i>C'+eraActions(true)+'</i><i>P'+eraActions(false)+'</i></span>',"env","Personal Envoys this turn · actions per Council Envoy (C) / per Personal Envoy (P)")+
     cell("--income wide","Public Order",(h.po>0?"+":"")+h.po+' <small>'+esc(h.band)+'</small> <small class="up">F'+h.faith+'</small><small class="dn">D'+h.doubt+'</small>',"po",poTip)+
     cell("--craft","Craft",h.craft,"craft","Craft X")+
     '<div class="hc wide'+(HPOP==="dom"?' on':'')+'" style="--hcol:var(--build)" data-pop="dom" title="Domain values (colour = Standing)"><span class="hl">Domains</span><span class="hv hdom">'+dom+'</span></div>'+
@@ -346,8 +346,12 @@ function renderSetup(){const el=document.getElementById("setupPanel");if(!el)ret
     ["Select Faction",P.every(p=>p.board.faction),P.map(p=>dot(p)+esc(p.name)+' '+esc(p.board.faction||"\u2014")).join(' · ')],
     ["Determine Host",!!TB().hostSet,hp?dot(hp)+esc(hp.name)+(TB().hostSet?'':' (default)'):'\u2014'],
     ["Deploy",dep.every(x=>x.town&&x.ham&&x.oc>=need&&!x.fl),dep.map(x=>dot(x.p)+esc(x.p.name)+' Town '+ok(x.town)+' Hamlet '+ok(x.ham)+' Outlaw '+x.oc+'/'+need+(x.fl?' <span class="su-fl">\u2691'+x.fl+'</span>':'')).join('<br>')],
+    ["Starting Holdings",P.every(p=>!withBoard(p.board,setupHoldFlags).length),P.map(p=>{const c=withBoard(p.board,()=>{const u=s=>s?wardUse(s.id):null;
+        return {t:u(capitalSett()),h:u(S.settlements.find(s=>s.tier==="Hamlet")),fl:setupHoldFlags().length};});
+      return dot(p)+esc(p.name)+' Town '+(c.t?c.t.used+'/'+c.t.cap:'—')+' Hamlet '+(c.h?c.h.used+'/'+c.h.cap:'—')+(c.fl?' <span class="su-fl">⚑'+c.fl+'</span>':'');}).join('<br>')],
     ["Wild Outlaw Country",wildDone(),(()=>{const n=Object.keys(wildZones()).length,c=wildCount();return n+(c!=null?'/'+c:'')+' zones'+
-      (canHost()&&g?(wildDone()?' <button data-setup-wild="redo">redo</button>':' <button data-setup-wild="1">place \u25b8</button>'):'');})()]];
+      (canHost()&&g?(wildDone()?' <button data-setup-wild="redo">redo</button>':' <button data-setup-wild="1">place \u25b8</button>'):'');})()],
+    ["Start of Turn 1",P.every(checkedIn),P.map(p=>canAct(p)&&(HOTSEAT||sameP(p,meP()))?checkinHTML(p):dot(p)+esc(p.name)+' '+ok(checkedIn(p))).join('<br>')]];
   // stepper: one step open at a time (the first not done, unless you stepped elsewhere); the panel closes once Turn 1 begins
   if(SETUP_STEP==null||SETUP_STEP>=rows.length){const f=rows.findIndex(r=>!r[1]);SETUP_STEP=f<0?rows.length-1:f;}
   const k=SETUP_STEP,r=rows[k],last=k===rows.length-1;
@@ -356,6 +360,22 @@ function renderSetup(){const el=document.getElementById("setupPanel");if(!el)ret
     '<div class="su-nav">'+(k>0?'<button data-setup-go="'+(k-1)+'" data-nav="1">\u25c2 back</button>':'')+(!last?'<button data-setup-go="'+(k+1)+'" data-nav="1">next \u25b8</button>':'')+
     '<button data-setup-begin="1" class="'+(rows.every(x=>x[1])?'on':'')+'"'+(canHost()?'':' disabled')+'>Begin Turn 1 \u2014 '+esc(T_PHL[tPhase()])+'</button>'+
     '<span class="note">'+rows.filter(x=>x[1]).length+'/'+rows.length+' done</span></div></div>';}
+// Start of Turn 1 check-in (RULES › Player Setup): each player resolves their Start of the Empire Phase effects — Standing
+// "Perform …" actions through the Empire Phase effect stack, and Standing "each Empire Phase" Faith / Doubt once, on Check in
+function checkedIn(p){return !!PT(p).checkin;}
+function checkinFD(p){const dv=p.board.domains||{},out=[];
+  dbActive(p.board).forEach(x=>{const nm=x.free?"Studium Generale · "+x.name:x.name,m1=x.text.match(EP_LOW),m2=!m1&&x.text.match(EP_SELF);
+    if(m2)out.push({q:p,side:m2[1].toLowerCase(),n:+m2[2],src:nm});
+    if(m1)D.players.forEach(q=>{if(sameP(q,p)||sameAlliance(String(q.id),String(p.id)))return;
+      if(((q.board.domains||{})[m1[1]]||0)<(dv[m1[1]]||0))out.push({q,side:m1[2].toLowerCase(),n:+m1[3],src:nm});});});
+  return out;}
+function checkinTxt(r){return r.q.name+": "+r.side[0].toUpperCase()+r.side.slice(1)+" +"+r.n+" ("+r.src+")";}
+function checkinHTML(p){const ci=PT(p).checkin,fd=ci?ci.fx||[]:checkinFD(p).map(checkinTxt);
+  return '<div class="su-ci">'+empireHoldingHTML(p,true)+'<div class="tb-row">'+pTok(p,14)+'<b>'+esc(p.name)+'</b>'+(fd.length?' <span class="note">'+fd.map(esc).join(' · ')+'</span>':'')+
+    (ci?' <b class="su-ok">✓</b>':' <button data-do="checkin" data-who="'+p.id+'">Check in</button>')+'</div></div>';}
+DO.checkin=el=>{const p=pOf(el);if(!p||!canAct(p)||!setupOn()||checkedIn(p))return;const rows=checkinFD(p);
+  rows.forEach(r=>{if(r.side==="faith")addFaith(r.q.board,r.n);else gainDoubt(r.q.board,r.n);});
+  PT(p).checkin={turn:tTurn(),fx:rows.map(checkinTxt)};PT(p).checkin.fx.forEach(x=>noteAdd(p,"Start of Turn 1: "+x));save();render();};
 let SETUP_STEP=null;
 document.addEventListener("click",e=>{const b=e.target.closest("[data-setup-go]");if(!b)return;SETUP_STEP=+b.dataset.setupGo;renderSetup();});
 document.addEventListener("click",e=>{const w=e.target.closest("[data-setup-wild]");if(w){if(!canHost()){flash("Host only");return;}const n=w.dataset.setupWild==="redo"?rescatterWild():placeWildOutlaw();flash(n?n+" Wild Outlaw Country zone"+(n>1?"s":"")+" placed":"no room for Wild Outlaw Country");save();render();return;}

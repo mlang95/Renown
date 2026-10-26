@@ -54,6 +54,8 @@ A few conventions make every rule in this book read the same way:
 - Effects are written by *when* they apply: **While X** is always on; **When X** / **At X** happens once, at that moment; an action's **Cost / Effect / Endorsed** happens when you take the action.
 - Limits are written by *window*: **At the Start of the Empire Phase** happens once, in that step; **Each <Phase>** happens every time that phase does; **Once per <Phase>** can be used once, only during that phase; **Once per turn** can be used once, in any phase — a trigger such as *when an Army ends a Move action* fires in whichever phase the Move happens.
 - **Choose one:** marks a set of options from which you pick exactly one.
+- **You** and **your** mean the player whose Holding, Infrastructure, Faction or Standing it is. Anything **targeting you** also covers what you own — your Settlements, Armies and Holdings.
+- **Influence +X** gives you X Influence tokens in the Empire Phase, unless it names another time. **Authority ±X** changes an Envoy's Authority while it's sent and resolved. **Max Influence +X** raises how much you may spend on one vote.
 - *Italic text is reminder, example, or strategy — it explains the rule but never changes it; the plain-text rule governs.*
 - Capitalized terms (Army, Envoy, Standing, Holding, Treaty…) are defined terms — each section closes with a glossary of the terms it introduces, and the Index at the back lists every term with its page numbers.
 
@@ -210,7 +212,8 @@ An Age{{IDX:Age}} sets the starting Year and which Domain every player starts Ri
 - Empire Tableau.
 - Collect {{VAL:STARTING_TREASURY}} Gold, 2 Influence Tokens, and 1 Envoy.
 - You don't begin the game with any Armies.
-- For the first turn, begin at the {{VAL:STARTING_TURN_PHASE_OPENER}} Phase instead of the Empire Phase.
+- **Starting Holdings** — you may fill your capital Town's {{VAL:SETTLEMENTS.Town.wards}} Settlement Wards with root Holdings you could Build there, and your Hamlet's {{VAL:SETTLEMENTS.Hamlet.wards}} Settlement Wards with {{VAL:SETUP_HAMLET_TEXT}}, in any mix. Starting Holdings are free and begin the game built.
+- **Start of Turn 1 check-in** — before the first turn, each player resolves their Start of the Empire Phase effects, including Domain Standing effects (such as a *Perform …* Standing action, or Faith from an *Each Empire Phase* Standing effect). Then the first turn begins at the {{VAL:STARTING_TURN_PHASE_OPENER}} Phase instead of the Empire Phase.
 
 # Actions & Voting
 
@@ -222,7 +225,7 @@ Envoys are the currency of actions: to perform an action you send an Envoy durin
 
 ### Resolving an Envoy
 
-Your Envoy begins with Authority equal to your innate Authority in its Domain — Untested {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Untested}}, Rising {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Rising}}, Established {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Established}}, Sovereign {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Sovereign}} — plus any automatic Authority ±X modifiers. *(These come from your Holdings, Infrastructure, and Faction, and apply on their own; you never spend Influence for them.)* Diplomacy has no Standing; a Diplomacy Envoy begins with Authority set by the Era (Founding {{VAL:ERAS.Founding.innate_diplomacy_influence}}, Ascension {{VAL:ERAS.Ascension.innate_diplomacy_influence}}, Eminence {{VAL:ERAS.Eminence.innate_diplomacy_influence}}, Zenith {{VAL:ERAS.Zenith.innate_diplomacy_influence}}).
+Your Envoy begins with Authority equal to your **Standing rank** in its Domain (see Standing Rank), plus any automatic Authority ±X modifiers. *(These come from your Holdings, Infrastructure, and Faction, and apply on their own; you never spend Influence for them.)* Diplomacy has no Standing; a Diplomacy Envoy uses the Era's rank instead.
 
 Then, clockwise from the starting player and skipping the sender, every other player may respond, with no talking during the vote: {{RULE:vote}}
 
@@ -230,7 +233,7 @@ Then, clockwise from the starting player and skipping the sender, every other pl
 - **Oppose X** — spend X of your Influence to lower it.
 - **Abstain** — spend nothing.
 
-You spend Influence only when you **Support** or **Oppose**; abstaining is free. **You can't vote on your own Envoy.** On a single vote, each player may spend up to their Standing in that Domain (Untested {{VAL:DOMAIN_BOARD.max_influence_per_vote.Untested}}, Rising {{VAL:DOMAIN_BOARD.max_influence_per_vote.Rising}}, Established {{VAL:DOMAIN_BOARD.max_influence_per_vote.Established}}, Sovereign {{VAL:DOMAIN_BOARD.max_influence_per_vote.Sovereign}}). On Diplomacy Envoys the cap is set by the Era instead (Founding {{VAL:ERAS.Founding.max_influence_per_diplomacy_vote}}, Ascension {{VAL:ERAS.Ascension.max_influence_per_diplomacy_vote}}, Eminence {{VAL:ERAS.Eminence.max_influence_per_diplomacy_vote}}, Zenith {{VAL:ERAS.Zenith.max_influence_per_diplomacy_vote}}). Holdings, Infrastructure, and Factions may raise these caps. Unused Influence is discarded in the Rest Phase.
+You spend Influence only when you **Support** or **Oppose**; abstaining is free. **You can't vote on your own Envoy.** On a single vote, each player may spend up to their Max Influence: their Standing rank in that Domain (on Diplomacy Envoys, the Era's rank). Holdings, Infrastructure, and Factions may raise it (*Max Influence +X*). Unused Influence is discarded in the Rest Phase.
 
 *Each player declares in turn, so the running net Influence is public — later voters can react to it. The Host, sitting just before the starting player, votes last on every Envoy they didn't send.*
 
@@ -306,18 +309,11 @@ Unless you are At War with the player sending it, you can't Oppose an Industry E
 
 Domains are the identity of your character in Renown. As you gain Renown each turn, you gain a Domain Point, which you may spend in any of the four Domains. Each Domain Point raises your Domain value by 1 in that Domain. When your Domain value reaches *{{VAL:STANDING_THRESHOLDS.Rising}}*, you become Rising in that Domain — you may spend one extra Influence on another player's Envoy of that Domain, and your Envoys gain Authority +1. This continues at a Domain value of *{{VAL:STANDING_THRESHOLDS.Established}}* (Established) and again at *{{VAL:STANDING_THRESHOLDS.Sovereign}}* (Sovereign).
 
-Each Standing you gain in a Domain makes you harder to oppose there and lets you oppose others more easily with your Influence. You also gain a unique effect at each Standing that makes it easier to achieve that Domain's objectives. A Standing effect that lets you perform an action (*Perform …*) is one-time: you use it at the Start of the next Empire Phase after you reach that Standing (a Standing you start the game with: Turn 1). Every other Standing effect applies for as long as you hold that Standing; its *Each Empire Phase* effects resolve at the Start of the Empire Phase.
+Each Standing you gain in a Domain makes you harder to oppose there and lets you oppose others more easily with your Influence. You also gain a unique effect at each Standing that makes it easier to achieve that Domain's objectives. A Standing effect that lets you perform an action (*Perform …*) is one-time: you use it at the Start of the next Empire Phase after you reach that Standing (a Standing you start the game with: the Start of Turn 1 check-in). Every other Standing effect applies for as long as you hold that Standing; its *Each Empire Phase* effects resolve at the Start of the Empire Phase.
 
-### Standing & Influence
+### Standing Rank
 
-Your Standing in a Domain sets how much Influence you bring to its Envoys:
-
-| Standing | Innate Influence (your own Envoys) | Max Influence per Vote |
-|---|---|---|
-| Untested | {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Untested}} | {{VAL:DOMAIN_BOARD.max_influence_per_vote.Untested}} |
-| Rising | {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Rising}} | {{VAL:DOMAIN_BOARD.max_influence_per_vote.Rising}} |
-| Established | {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Established}} | {{VAL:DOMAIN_BOARD.max_influence_per_vote.Established}} |
-| Sovereign | {{VAL:DOMAIN_BOARD.innate_influence_own_envoys.Sovereign}} | {{VAL:DOMAIN_BOARD.max_influence_per_vote.Sovereign}} |
+Each Standing has a rank{{IDX:Standing Rank}}: Untested {{VAL:STANDING_RANK.Untested}}, Rising {{VAL:STANDING_RANK.Rising}}, Established {{VAL:STANDING_RANK.Established}}, Sovereign {{VAL:STANDING_RANK.Sovereign}}. Your Envoys in a Domain begin at Authority equal to your rank there, and on each vote in that Domain you may Support or Oppose up to your rank — your **Max Influence**{{IDX:Max Influence}} there. Diplomacy has no Standing and uses the Era's rank instead: Founding {{VAL:ERAS.Founding.rank}}, Ascension {{VAL:ERAS.Ascension.rank}}, Eminence {{VAL:ERAS.Eminence.rank}}, Zenith {{VAL:ERAS.Zenith.rank}}.
 
 ### Domain Identities & Traits
 
@@ -489,6 +485,10 @@ Armies{{IDX:Army}} are collections of Retinues on the Realm, and are the target 
 
 While an Army is engaged in a Battle or Lay Siege action started by another player's Army, neither Army can be the target of any actions until that Battle or Lay Siege resolves.
 
+### Garrisons
+
+A Garrison{{IDX:Garrison}} is an Army that exists within a Settlement that contains the Garrison Infrastructure, according to its Garrison value (Village {{VAL:SETTLEMENTS.Village.garrison}}, Town {{VAL:SETTLEMENTS.Town.garrison}}, City {{VAL:SETTLEMENTS.City.garrison}}, Metropolis {{VAL:SETTLEMENTS.Metropolis.garrison}} Retinues). Garrisons can't perform actions or be targeted by actions, and may **Sally Forth** while their Settlement is under Siege. Garrisons have cost and upkeep 0 and don't count toward your Army limit. All Garrisons within an Empire share the same Retinue type and equipment, and gain the benefits of all unlocked keywords that apply to your Armies.
+
 ### Mustering
 
 Armies are raised and reinforced with the Muster action (see Prowess Actions).
@@ -561,7 +561,7 @@ A Battle is fought as a series of Skirmishes, run through the steps below until 
 
 ### Siege Timer
 
-A Siege Timer is the sum of the besieged Settlement's defenses minus the attacker's Siege effects, to a minimum of {{VAL:SIEGE_CALCULUS.Lay Siege.floor}} (no maximum). Every source below stacks — Wooden Walls (+{{VAL:SIEGE_SOURCE_VALUES.Wooden Walls.value}}) and Stone Walls (+{{VAL:SIEGE_SOURCE_VALUES.Stone Walls.value}}) both count.
+A Siege Timer is the sum of the besieged Settlement's defenses minus the attacker's Siege effects, to a minimum of {{VAL:SIEGE_CALCULUS.Lay Siege.floor}} (no maximum). Every source below stacks — Wooden Walls and Stone Walls both count.
 
 {{TABLE:siege_calculus}}
 
@@ -573,7 +573,7 @@ A Siege Timer is the sum of the besieged Settlement's defenses minus the attacke
 
 3. If you're attacked while sieging and you Fall Back, the Siege is broken and the Siege Timer is removed from play.
 
-4. While a Settlement is besieged: it can't count Holdings toward Craft X; its Armies gain Blocked except to **Sally Forth**; Timers targeting the Settlement don't count down; and Industry actions can't target it.
+4. While a Settlement is besieged: it can't count Holdings toward Craft X; its Armies gain **Strained**, and Blocked except to **Sally Forth**; Timers targeting the Settlement don't count down; and Industry actions can't target it.
 
 ### Resolving a Siege
 

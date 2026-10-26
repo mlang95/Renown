@@ -98,18 +98,17 @@ def _t_po_modifiers():
     return _htable(["Type", "Source", "Condition"], rows)
 
 def _standing_headers():
-    """Domain-board header row; tier numbers from STANDING_THRESHOLDS."""
+    """Domain-board header row; tier numbers from STANDING_THRESHOLDS, rank from STANDING_RANK."""
     st = getattr(rd, "STANDING_THRESHOLDS", {"Untested": 1, "Rising": 3, "Established": 6, "Sovereign": 10})
-    return ["Domain", "Untested"] + [f"{t} ({st[t]})" for t in ("Rising", "Established", "Sovereign")]
+    rk = getattr(rd, "STANDING_RANK", {})
+    r = lambda t: f" · Rank {rk[t]}" if t in rk else ""
+    return ["Domain", "Untested" + r("Untested")] + [f"{t} ({st[t]}){r(t)}" for t in ("Rising", "Established", "Sovereign")]
 
 def _t_domain_board():
     b = rd.DOMAIN_BOARD
     order = ["Untested", "Rising", "Established", "Sovereign"]
     rows = [[d, "\u2014", b[d].get("Rising", ""), b[d].get("Established", ""), b[d].get("Sovereign", "")]
             for d in ["Industry", "Prowess", "Cunning", "Piety"]]
-    mi = b.get("max_influence_per_vote", {}); inn = b.get("innate_influence_own_envoys", {})
-    rows.append(["Max Influence Per Vote"] + [str(mi.get(t, "")) for t in order])
-    rows.append(["Innate Influence on Own Envoys"] + [str(inn.get(t, "")) for t in order])
     return _htable(_standing_headers(), rows)
 
 def _t_net_influence():

@@ -220,9 +220,11 @@ def po_modifiers():
 DOMAIN_ORDER = ["Prowess", "Cunning", "Piety", "Industry"]   # Envoy resolution order (Diplomacy first where it appears)
 
 def _standing_headers():
-    """Domain-board header row; tier numbers from STANDING_THRESHOLDS."""
+    """Domain-board header row; tier numbers from STANDING_THRESHOLDS, rank from STANDING_RANK."""
     st = getattr(rd, "STANDING_THRESHOLDS", {"Untested": 1, "Rising": 3, "Established": 6, "Sovereign": 10})
-    return ["Domain", "Untested"] + [f"{t} ({st[t]})" for t in ("Rising", "Established", "Sovereign")]
+    rk = getattr(rd, "STANDING_RANK", {})
+    r = lambda t: f" · Rank {rk[t]}" if t in rk else ""
+    return ["Domain", "Untested" + r("Untested")] + [f"{t} ({st[t]}){r(t)}" for t in ("Rising", "Established", "Sovereign")]
 
 def domain_board():
     # Full authored shape: Untested..Sovereign per domain, then the two influence rows.
@@ -239,7 +241,7 @@ def domain_board():
     rows = [[d, cell(d, "Rising"), cell(d, "Established"), cell(d, "Sovereign")]
             for d in DOMAIN_ORDER if d in b]                        # Untested has no Standing effect: no column
     # Influence-by-Standing rows live in the rules' own "Standing & Influence" table (not repeated here)
-    return _table([h for h in _standing_headers() if h != "Untested"], rows)
+    return _table([h for h in _standing_headers() if not h.startswith("Untested")], rows)
 
 def envoy_outcomes():
     DOM = ["Diplomacy"] + DOMAIN_ORDER
@@ -395,11 +397,11 @@ def siege_calculus(mode="Lay Siege"):
     def fmt(src):
         v = vals.get(src, {})
         if v.get("from") == "SETTLEMENTS":
-            ts=[s[v["field"]] for s in rd.SETTLEMENTS.values()]
-            return f"+{min(ts)} to +{max(ts)}", "settlement tier (Hamlet 0 \u2026 Metropolis 4)"
-        if "innate_value" in v:
-            iv,mv=v["innate_value"],v.get("mastery_value",0)
-            return (f"+{iv} / +{iv+mv}","innate / mastered") if mv else (f"+{iv}","")
+            ts={t: s[v["field"]] for t, s in rd.SETTLEMENTS.items()}
+            return f"+{min(ts.values())} to +{max(ts.values())}", ", ".join(f"{t} {n}" for t, n in ts.items())
+        if v.get("from") == "text":   # its own "Siege Timer +X" text, counted only in its own Settlement
+            hit=[f"+{val}" for name, kind, val, cond in _siege_text_sources("+") if name == src]
+            return (" / ".join(hit) or "\u2014"), "only in its own Settlement" if hit else "value undefined"
         if v.get("from")=="board_state": return f"+{v['value']}", v.get("rule","")
         if "value" in v: return f"+{v['value']}", ""
         return "\u2014","value undefined"

@@ -51,6 +51,9 @@ STANDING_THRESHOLDS = {
     "Sovereign":  10,
 }
 _ST = STANDING_THRESHOLDS
+# Standing rank: one number per Standing. Your Envoys in a Domain start at Authority = your rank there, and you may
+# Support / Oppose up to your rank on each vote in that Domain (DOMAIN_BOARD's two Influence rows are built from it).
+STANDING_RANK = {"Untested": 1, "Rising": 2, "Established": 3, "Sovereign": 4}
 
 # ── Keyword constants ─────────────────────────────────────────────────────
 # Rename a keyword here and it renames everywhere (GLOSSARY keys, tags, cards).
@@ -182,8 +185,8 @@ GLOSSARY = {
     "Speed X":       "An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 3",
 
     # ── Council, Influence & Envoys (from Rules; the political loop) ──
-    "Influence":     "The political currency of voting. Spend it to Support or Oppose Envoys. You gain it each Empire Phase from your Era, innate modifiers (trade partners, alliances, war), Pursuits, and Infrastructure.",
-    "Authority X":   "An automatic +X (or -X) to an Envoy's net Influence from a Pursuit, Infrastructure, or Faction.",
+    "Influence":     "The political currency of voting. Spend it to Support or Oppose Envoys. You gain it each Empire Phase from your Era, innate modifiers (trade partners, alliances, war), Pursuits, and Infrastructure. An effect reading Influence +X gives you X Influence tokens in the Empire Phase, unless it names another time.",
+    "Authority X":   "An automatic +X (or -X) to an Envoy's Authority from a Pursuit, Infrastructure, or Faction, applied while the Envoy is sent and resolved; a modifier that depends on the action or its target applies once those are chosen. Authority only matters while an Envoy is being sent and resolved.",
     "Envoy":         "The currency of actions: send an Envoy to perform an action during the Envoy Phase. Council Envoys act on the voted Domain; Personal Envoys are sent by Era progression.",
     "Vote":          "On each Envoy, every player except the sender, in clockwise order from the starting player, must Support, Oppose, or Abstain. No talking during a vote.",
     "Support X":     "Spend X Influence to increase an Envoy's net Influence.",
@@ -1077,7 +1080,7 @@ NODES = {
         "unlock": "Rising Piety",
         "mastery_req": "Episcopal Court",
         "innate": "Extort 500",
-        "mastery": "Cunning actions targeting this player that cause Doubt are reduced by 2.",
+        "mastery": "Doubt from Cunning actions targeting you is reduced by 2.",
         "efficient": "Episcopal Court",
         "builds_into": ["Execution Dock"],
         "monument": False},
@@ -1114,8 +1117,8 @@ NODES = {
         "type": "Civic",
         "unlock": "1 Established",
         "mastery_req": "Jester's Court",
-        "innate": "Influence +1 each Empire Phase",
-        "mastery": "Authority +1 to envoys sent during the Council Phase.",
+        "innate": "Influence +1",
+        "mastery": "Authority +1 on your Council Envoys.",
         "efficient": "Jester's Court",
         "builds_into": ["Embassy"],
         "monument": False},
@@ -1170,7 +1173,7 @@ NODES = {
         "type": "Civic",
         "unlock": "1 Rising",
         "mastery_req": "Library + Alchemy",
-        "innate": "Authority +1 to Council Envoys",
+        "innate": "Authority +1 on your Council Envoys",
         "mastery": "Authority +1 to non-Council Envoys",
         "efficient": "Alchemy",
         "builds_into": ["University", "Abbey", "War College", "Forgery Workshop", "Toxicarium", "College of Engineering", "Ministry of Military Strategy", "Studium Generale"],
@@ -1260,7 +1263,7 @@ NODES = {
         "type": "Power",
         "unlock": "1 Established",
         "mastery_req": "Academy",
-        "innate": "May spend one additional Influence per Support or Oppose",
+        "innate": "Max Influence +1 on every Envoy",
         "mastery": "Influence +1 per Domain you are Rising",
         "efficient": "Academy",
         "builds_into": ["Studium Generale"],
@@ -1298,7 +1301,7 @@ NODES = {
         "unlock": "—",
         "mastery_req": "Caravanery + Courier Network",
         "innate": "Natural; Once per turn when an Army ends a Move action within your Province: Perform a Diplomacy action targeting that army's player",
-        "mastery": "Extort 2000 when non-Allied Army ends a Move action within your Province",
+        "mastery": "Extort 2000 when non-allied Army ends a Move action within your Province",
         "efficient": "Caravanery",
         "builds_into": ["Beacon Towers"],
         "monument": False},
@@ -1325,7 +1328,7 @@ NODES = {
         "unlock": "Established Cunning",
         "mastery_req": "Secret Cellar + Inn",
         "innate": "gain Immune Uprising (Bandit Camp Spawn at -5PO)",
-        "mastery": "Bandit Camps in your Outlaw Country don't target you and instead target other players randomly.",
+        "mastery": "Bandit Camps in your Outlaw Country don't target you and instead target another player at random.",
         "efficient": ["Inn", "Courier Network", "Secret Cellar"],
         "builds_into": ["Thieves' Guild", "Outlaw Rookery", "Secret Cellar", "Black Market"],
         "monument": False},
@@ -1362,8 +1365,8 @@ NODES = {
         "type": "Energy",
         "unlock": "Established Piety",
         "mastery_req": "Reliquary + Chandlery",
-        "innate": "Natural; Extort 500 every player without a Pilgrimage Site",
-        "mastery": "Doubt +1 to all other players without a Pilgrimage Site",
+        "innate": "Natural; Extort 500 from each other player without a Pilgrimage Site",
+        "mastery": "each other player without a Pilgrimage Site gains Doubt +1",
         "efficient": "Reliquary",
         "builds_into": ["Preceptory of the Knight's Templar", "Papal Palace"],
         "monument": False,
@@ -1454,7 +1457,7 @@ NODES = {
         "unlock": "Established Industry",
         "mastery_req": "Masonry + Granary or Supply Depot",
         "innate": "Siege Timer +1",
-        "mastery": "Siege Timer +2, Controlled Settlements gain Reach +1",
+        "mastery": "Siege Timer +2, Your Settlements gain Reach +1",
         "efficient": ["Granary", "Supply Depot"],
         "builds_into": ["Imperial Palace"],
         "monument": False},
@@ -1462,7 +1465,7 @@ NODES = {
         "type": "Power",
         "unlock": "Established Prowess",
         "mastery_req": "Levy Hall + Academy",
-        "innate": "Gain Influence +2 while At War",
+        "innate": "Influence +2 while At War",
         "mastery": "Unlocks Sergeants for Muster",
         "efficient": "Academy",
         "builds_into": ["Ministry of Military Strategy"],
@@ -1495,7 +1498,7 @@ NODES = {
         "type": "Monument",
         "unlock": "Sovereign Industry",
         "mastery_req": "College of Engineering + Storehouse",
-        "innate": "Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions.",
+        "innate": "Settlements & allied Armies inside them are not affected by 'Settlements being Besieged' restrictions.",
         "mastery": "Siege Timer +2; Build Timer -2",
         "efficient": "College of Engineering",
         "builds_into": [],
@@ -1515,7 +1518,7 @@ NODES = {
         "type": "Monument",
         "unlock": "Established Prowess",
         "mastery_req": "Citadel + Execution Dock",
-        "innate": "Each Empire Phase, all non-allied players with a lower Prowess value gain Doubt +2.",
+        "innate": "Each Empire Phase, each non-allied player with a lower Prowess value gains Doubt +2.",
         "mastery": "If your Envoy would fail, it passes instead.",
         "efficient": "Citadel",
         "builds_into": [],
@@ -1554,7 +1557,7 @@ NODES = {
         "type": "Monument",
         "unlock": "1 Sovereign",
         "mastery_req": "Embassy + Library + Town Hall",
-        "innate": "Faith +1, gain Influence +1 per other player each Empire Phase",
+        "innate": "Faith +1; Influence +1 per other player",
         "mastery": "In the Intrigue Phase, you may Condemn an At War player's Envoy or Endorse an Ally's Envoy",
         "efficient": "Embassy",
         "builds_into": [],
@@ -1564,7 +1567,7 @@ NODES = {
         "unlock": "Sovereign Piety",
         "mastery_req": "Monastery + Pilgrimage Site",
         "innate": "Your Piety actions that cause doubt cause an additional doubt. You no longer pay cost for Piety Envoys.",
-        "mastery": "Each Empire Phase, Tithe every other player with lower Piety, resolved in the Extort step.",
+        "mastery": "Each Empire Phase, Tithe each other player with lower Piety, resolved in the Extort step.",
         "efficient": ["Monastery"],
         "builds_into": [],
         "monument": True},
@@ -1811,7 +1814,7 @@ SIMPLE_NODES = {
     "Chandlery": {
         "group": "g_devotion",
         "unlock": "-",
-        "innate": "Craft +1; Authority -1 to Cunning actions targeting you",
+        "innate": "Craft +1; Authority -1 on Cunning actions targeting you",
         "efficient": "Apiary",
         "builds_into": ["Reliquary"],
         "monument": False},
@@ -1846,7 +1849,7 @@ SIMPLE_NODES = {
     "Jewelry Foundry": {
         "group": "g_commerce",
         "unlock": "-",
-        "innate": "+2000; Authority +1 to Cunning actions targeting this player; Craft +5",
+        "innate": "+2000; Authority +1 on Cunning actions targeting you; Craft +5",
         "efficient": "Gilded Foundry",
         "builds_into": [],
         "monument": False},
@@ -1925,14 +1928,14 @@ SIMPLE_NODES = {
         "group": "g_court",
         "root": True,
         "unlock": "-",
-        "infrastructure_req": "Town Square",
+        #"infrastructure_req": "Town Square",
         "innate": "Faith +1 per Trade Partner with Craft 3+, and each of those partners gains Faith +1; Influence +1",
         "builds_into": ["Courier Network", "Smuggler's Nook"],
         "monument": False},
     "Spice Merchant": {
         "group": "g_commerce",
         "unlock": "-",
-        "innate": "Natural; +1000; Authority +1 to Cunning actions targeting you; Craft +4",
+        "innate": "Natural; +1000; Authority +1 on Cunning actions targeting you; Craft +4",
         "efficient": "Herb Garden",
         "builds_into": [],
         "monument": False},
@@ -1968,7 +1971,7 @@ SIMPLE_NODES = {
     "Caravanery": {
         "group": "g_logistics",
         "unlock": "-",
-        "innate": "Natural; Authority -2 to Intercept Caravan actions targeting your settlements; Craft +2; Speed -2 to non-allied armies in your Province.",
+        "innate": "Natural; Authority -2 on Intercept Caravan actions targeting you; Craft +2; Speed -2 to non-allied Armies in your Province.",
         "efficient": ["Saddlery", "Stable"],
         "builds_into": ["Saddlery", "Toll House"],
         "monument": False},
@@ -1996,7 +1999,7 @@ SIMPLE_NODES = {
     "Interrogation Chambers": {
         "group": "g_devotion",
         "unlock": "Rising Piety",
-        "innate": "Extort 500; Actions targeting this player that cause Doubt are reduced by 1, to a minimum of 0.",
+        "innate": "Extort 500; Doubt from actions targeting you is reduced by 1 (minimum 0).",
         "efficient": "Episcopal Court",
         "builds_into": ["Execution Dock"],
         "monument": False},
@@ -2010,7 +2013,7 @@ SIMPLE_NODES = {
     "Abbey": {
         "group": "g_devotion",
         "unlock": "Established Piety",
-        "innate": "Faith +1; Authority -1 to Piety actions targeting you", #Once per Envoy Phase: Authority +2 another player's Piety Envoy;
+        "innate": "Faith +1; Authority -1 on Piety actions targeting you", #Once per Envoy Phase: Authority +2 another player's Piety Envoy;
         "efficient": "Priory",
         "builds_into": ["Monastery"],
         "monument": False},
@@ -2033,7 +2036,7 @@ SIMPLE_NODES = {
     "Execution Dock": {
         "group": "g_devotion",
         "unlock": "Established Piety",
-        "innate": "Authority -2 to Foster Rebellion actions targeting your settlements; Players who target you or your Settlements with actions that would cause Doubt before modifiers gain Doubt +1",
+        "innate": "Authority -2 on Foster Rebellion actions targeting you; Players whose actions targeting you would cause Doubt (before modifiers) gain Doubt +1",
         "efficient": "Interrogation Chambers",
         "builds_into": ["Inquisitorial Palace"],
         "monument": False},
@@ -2055,7 +2058,7 @@ SIMPLE_NODES = {
     "Bell Tower": {
         "group": "g_court",
         "unlock": "1 Established",
-        "innate": "Influence +1 each Empire Phase; Authority +1 to envoys sent during the Council Phase.",
+        "innate": "Influence +1; Authority +1 on your Council Envoys.",
         "efficient": "Jester's Court",
         "builds_into": ["Embassy"],
         "monument": False},
@@ -2070,7 +2073,7 @@ SIMPLE_NODES = {
     "Granary": {
         "group": "g_works",
         "unlock": "Rising Industry",
-        "innate": "Upkeep -500; Armies and Garrisons within controlled Settlements gain Immune Strained.",
+        "innate": "Upkeep -500; Armies and Garrisons within your Settlements gain Immune Strained.",
         "efficient": "Masonry",
         "builds_into": ["Supply Depot", "Citadel"],
         "monument": False},
@@ -2078,7 +2081,7 @@ SIMPLE_NODES = {
         "group": "g_court",
         "unlock": "1 Rising",
         "infrastructure_req": "Library",
-        "innate": "Authority +1 to Council Envoys; gain Influence +1 each Empire Phase",
+        "innate": "Authority +1 on your Council Envoys; Influence +1",
         "efficient": "Alchemy",
         "builds_into": ["University", "Forgery Workshop"],
         "monument": False},
@@ -2086,7 +2089,7 @@ SIMPLE_NODES = {
         "group": "g_commerce",
         "root": True,
         "unlock": "-",
-        "infrastructure_req": "Town Square",
+        #"infrastructure_req": "Town Square",
         "innate": "Craft +1; Faith +1",
         #"efficient": "Masonry",
         "builds_into": ["Market Square", "Jester's Court", "Episcopal Court", "Conditioning Field"],
@@ -2146,7 +2149,7 @@ SIMPLE_NODES = {
         "group": "g_court",
         "unlock": "1 Established",
         "infrastructure_req": "Library",
-        "innate": "May spend one additional Influence per Support or Oppose; Influence +1 per Domain you are Rising",
+        "innate": "Max Influence +1 on every Envoy; Influence +1 per Domain you are Rising",
         "efficient": "Academy",
         "builds_into": ["Forgery Workshop","Studium Generale","Ministry of Military Strategy"],
         "monument": False},
@@ -2174,7 +2177,7 @@ SIMPLE_NODES = {
     "Toll House": {
         "group": "g_secrecy",
         "unlock": "Rising Cunning",
-        "innate": "Natural, Extort 2000 when non-Allied Army ends a Move action within your Province; Once per turn: when an Army ends a Move action within your Province, Perform a Diplomacy action targeting that army's player",
+        "innate": "Natural, Extort 2000 when non-allied Army ends a Move action within your Province; Once per turn: when an Army ends a Move action within your Province, Perform a Diplomacy action targeting that army's player",
         "efficient": ["Caravanery"],
         "builds_into": ["Beacon Towers"],
         "monument": False},
@@ -2202,7 +2205,7 @@ SIMPLE_NODES = {
     "Smuggler's Nook": {
         "group": "g_secrecy",
         "unlock": "Established Cunning",
-        "innate": "gain Immune Uprising (Bandit Camp Spawn at -5PO); Bandit Camps in your Outlaw Country don't target you and instead target other players randomly.",
+        "innate": "gain Immune Uprising (Bandit Camp Spawn at -5PO); Bandit Camps in your Outlaw Country don't target you and instead target another player at random.",
         "efficient": ["Courier Network"],
         "builds_into": ["Black Market", "Syndicate Hub"],
         "monument": False},
@@ -2244,7 +2247,7 @@ SIMPLE_NODES = {
     "Plague Pit": {
         "group": "g_secrecy",
         "unlock": "Established Cunning",
-        "innate": "Cunning actions give an additional Doubt +1 to Target; No longer affected by all Public Order effects (positive or negative). This player cannot be the target of a Convert action.",
+        "innate": "Cunning actions give an additional Doubt +1 to Target; No longer affected by all Public Order effects (positive or negative). Convert actions can't target you.",
         "efficient": ["Charnel House"],
         "builds_into": ["Ossuary Crypt"],
         "monument": False},
@@ -2259,7 +2262,7 @@ SIMPLE_NODES = {
         "group": "g_devotion",
         "unlock": "Established Piety",
         "infrastructure_req": "Cathedral",
-        "innate": "Faith +1; Extort 500 every player without a Pilgrimage Site; Doubt +1 to all other players without a Pilgrimage Site",
+        "innate": "Faith +1; Extort 500 from each other player without a Pilgrimage Site; each other player without a Pilgrimage Site gains Doubt +1",
         "efficient": "Reliquary",
         "builds_into": ["Unforgotten Shrine"],
         "monument": False},
@@ -2353,7 +2356,7 @@ SIMPLE_NODES = {
         "group": "g_works",
         "unlock": "Established Industry",
         "infrastructure_req": "Stone Walls",
-        "innate": "Siege Timer +3, Controlled Settlements gain Reach +1",
+        "innate": "Siege Timer +3, Your Settlements gain Reach +1",
         "efficient": ["Supply Depot"],
         "builds_into": ["Castle Hall"],
         "monument": False},
@@ -2368,7 +2371,7 @@ SIMPLE_NODES = {
         "group": "g_logistics",
         "unlock": "Established Prowess",
         "infrastructure_req": "Library",
-        "innate": "Gain Influence +2 while At War; Unlocks Sergeants for Muster",
+        "innate": "Influence +2 while At War; Unlocks Sergeants for Muster",
         "efficient": "University",
         "builds_into": ["Ministry of Military Strategy"],
         "monument": False},
@@ -2396,7 +2399,7 @@ SIMPLE_NODES = {
     "Office of Works": {
         "group": "g_works",
         "unlock": "Sovereign Industry + Rising Piety",
-        "innate": "Natural; Settlements & allied armies inside them are not affected by 'Settlements being Besieged' restrictions. Siege Timer +2; Build Timer -2",
+        "innate": "Natural; Settlements & allied Armies inside them are not affected by 'Settlements being Besieged' restrictions. Siege Timer +2; Build Timer -2",
         "efficient": ["Masons' Guild", "Storehouse"],
         "builds_into": [],
         "monument": True},
@@ -2410,7 +2413,7 @@ SIMPLE_NODES = {
     "Imperial Palace": {
         "group": "g_works",
         "unlock": "Sovereign Prowess + Established Industry",
-        "innate": "Each Empire Phase, all non-allied players with a lower Prowess value gain Doubt +2. If your Envoy would fail, it passes instead.",
+        "innate": "Each Empire Phase, each non-allied player with a lower Prowess value gains Doubt +2. If your Envoy would fail, it passes instead.",
         "efficient": "Castle Hall",
         "builds_into": [],
         "monument": True},
@@ -2439,14 +2442,14 @@ SIMPLE_NODES = {
         "group": "g_court",
         "unlock": "1 Sovereign",
         "infrastructure_req": "Library",
-        "innate": "Faith +1, gain Influence +1 per other player each Empire Phase; In the Intrigue Phase, you may Condemn an At War player's Envoy or Endorse an Ally's Envoy",
+        "innate": "Faith +1; Influence +1 per other player; In the Intrigue Phase, you may Condemn an At War player's Envoy or Endorse an Ally's Envoy",
         "efficient": "Embassy",
         "builds_into": [],
         "monument": True},
     "Papal Palace": {
         "group": "g_devotion",
         "unlock": "Sovereign Piety + Established Industry",
-        "innate": "You no longer pay cost for Piety Envoys. Each Empire Phase, Tithe every other player with lower Piety, resolved in the Extort step.",
+        "innate": "You no longer pay cost for Piety Envoys. Each Empire Phase, Tithe each other player with lower Piety, resolved in the Extort step.",
         "efficient": ["Monastery"],
         "builds_into": [],
         "monument": True},
@@ -2770,7 +2773,7 @@ FACTIONS = {
         'strength': 'Medium',
         'mechanic_name': 'Patient Court',
         'summary': 'Banks Influence; up to 5 per Envoy in Zenith',
-        'mechanic': "Your unspent Influence isn't discarded in the Rest Phase. While the Era is Zenith, you may spend up to 5 Influence per Envoy while voting, regardless of your Domain Standing.",
+        'mechanic': "Your unspent Influence isn't discarded in the Rest Phase. While the Era is Zenith, your Max Influence is 5 on every Envoy.",
         'pair': 'Senate Hall, Aristocratic Court',
         'complement': 'Royal Pavilion',
     },
@@ -2830,7 +2833,7 @@ FACTIONS = {
         'strength': 'Medium',
         'mechanic_name': 'Knowledge is Power',
         'summary': 'Influence +1 per 3 Pursuits',
-        'mechanic': 'Each Empire Phase, gain Influence +1 for every 3 Pursuits you have.',
+        'mechanic': 'Influence +1 per 3 Pursuits you have.',
         'pair': 'Studium Generale, Senate Hall',
         'complement': 'Royal Pavilion',
     },
@@ -2842,7 +2845,7 @@ FACTIONS = {
         'strength': 'Medium',
         'mechanic_name': 'Fortress of Faith',
         'summary': 'Sieges against you +2 while Public Order 3+',
-        'mechanic': 'While your Public Order is 3 or higher, Lay Siege actions targeting Settlements you Control have Siege Timer +3.',
+        'mechanic': 'While your Public Order is 3 or higher, Lay Siege actions targeting you have Siege Timer +3.',
         'pair': "Siege Camp, Preceptory of the Knight's Templar",
         'complement': 'Senate Hall',
     },
@@ -2854,7 +2857,7 @@ FACTIONS = {
         'strength': 'Medium',
         'mechanic_name': 'Scavengers',
         'summary': 'Spoils win or lose; extorts 2000 from whoever Razes you',
-        'mechanic': 'You collect the Spoils of War whether you win or lose a Battle. When you are the target of a Raze action, Extort 2000 from the target that performed the Raze action.',
+        'mechanic': 'You collect the Spoils of War whether you win or lose a Battle. When a Raze action targets you, Extort 2000 from the attacker.',
         'pair': 'Royal Pavilion, Shipyard',
         'complement': 'Forge',
     },
@@ -2938,7 +2941,7 @@ FACTIONS = {
         'strength': 'Medium',
         'mechanic_name': 'Pillagers',
         'summary': 'At war, Armies extort their upkeep from at-war Settlements; no Alliances',
-        'mechanic': "While At War, your Armies within reach of at-war Settlements Extort their upkeep from that settlement's controller. You cannot join an alliance.",
+        'mechanic': "While At War, your Armies within reach of at-war Settlements Extort their upkeep from that Settlement's owner. You cannot join an alliance.",
         'pair': 'Royal Pavilion, Shipyard',
         'complement': 'Forge',
     },
@@ -2962,7 +2965,7 @@ FACTIONS = {
         'strength': 'High',
         'mechanic_name': 'Prophets of War',
         'summary': 'Sacred War at Rising Piety, uncapped; no Convert',
-        'mechanic': "You may Sacred War at Rising Piety instead of Sovereign Piety, with no cap on active Sacred Wars. Each player gains Doubt +1 each Empire Phase per Sacred War you're on. You can't perform Convert or Cunning actions.",
+        'mechanic': "You may Sacred War at Rising Piety instead of Sovereign Piety, with no cap on active Sacred Wars. Each other player gains Doubt +1 each Empire Phase per Sacred War you're on. You can't perform Convert or Cunning actions.",
         'pair': "Preceptory of the Knight's Templar, Inquisitorial Palace",
         'complement': 'Senate Hall',
     },
@@ -3107,7 +3110,7 @@ FACTIONS = {
         'strength': 'High',
         'mechanic_name': 'Double Speak',
         'summary': 'Diplomacy Envoys run on Cunning Standing and may become Cunning actions; no wars or Alliances',
-        'mechanic': "Your Diplomacy Envoys use your Cunning Standing for their innate Authority. Whenever your Personal Diplomacy Envoy passes or is endorsed, you may instead perform a Cunning action. You can't perform Declare War or Sacred War actions, and you can't be a member of an Alliance.",
+        'mechanic': "Your Diplomacy Envoys start at Authority equal to your Cunning rank, and your Max Influence on Diplomacy Envoys is your Cunning rank. Whenever your Personal Diplomacy Envoy passes or is endorsed, you may instead perform a Cunning action. You can't perform Declare War or Sacred War actions, and you can't be a member of an Alliance.",
         'pair': "Aristocratic Court, Whispering Undercroft",
         'complement': 'Artillery Park',
     },
@@ -3119,7 +3122,7 @@ FACTIONS = {
         'strength': 'High',
         'mechanic_name': 'Reckless',
         'summary': 'Strong Cunning Envoys; Secret Cellar; Prowess Envoys always pass; no Alliances, Diplomacy or Renown into Piety; Industry 3 max',
-        'mechanic': "Your Cunning Envoys have Authority +2 when targeting a player with Public Order greater than 1. You begin the game with a Secret Cellar (no Ward, no upkeep). You can't be in an Alliance or perform Diplomacy actions. A Prowess Envoy you send can't fail or be condemned & will instead pass. You cannot put Domain Points into Piety, nor have more than 3 in Industry.",
+        'mechanic': "Authority +2 on your Cunning actions targeting a player with Public Order 2 or higher. You begin the game with a Secret Cellar (no Ward, no upkeep). You can't be in an Alliance or perform Diplomacy actions. A Prowess Envoy you send can't fail or be condemned & will instead pass. You cannot put Domain Points into Piety, nor have more than 3 in Industry.",
         'pair': "Thieves' Guild, Inquisitorial Palace",
         'complement': 'Royal Pavilion',
     },
@@ -3131,7 +3134,7 @@ FACTIONS = {
         'strength': 'Medium',
         'mechanic_name': 'Occupy',
         'summary': 'Armies Occupy Settlements instead of holding them',
-        'mechanic': "You start with an additional Army; all your Armies begin inside your Settlements. While you're outside a Settlement, you don't control it — to collect taxes or use its Pursuits, end your turn inside it. To Occupy a Settlement, begin a Battle adjacent to it as if Sieging, but instead Battle the Garrison and any Armies at War with you or sharing its owner; if you win (or there's no force to fight), move inside. In the Upkeep Phase, you only pay upkeep on your armies. You count as having all Infrastructure of your Occupied Settlements, and always count as having Craft 5.",
+        'mechanic': "You start with an additional Army; all your Armies begin inside your Settlements. While you're outside a Settlement, you don't control it — to collect taxes or use its Pursuits, end your turn inside it. To Occupy a Settlement, begin a Battle adjacent to it as if Sieging, but instead Battle the Garrison and any Armies at War with you or sharing its owner; if you win (or there's no force to fight), move inside. In the Upkeep Phase, you only pay upkeep on your Armies. You count as having all Infrastructure of your Occupied Settlements, and always count as having Craft 5.",
         'pair': 'Royal Pavilion, Saddlery',
         'complement': 'Forge',
     },
@@ -3198,7 +3201,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                 'requirement': 'None'},
  'Town Square': {'upkeep': 0,
                    'upkeep_frequency': '—',
-                   'empire_bonus': 'Craft +1',
+                   'empire_bonus': 'Craft +2',
                    'tier': 'Primitive',
                    'build_time': 1,
                    'requirement': 'None'},
@@ -3210,7 +3213,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                   'requirement': 'None'},
  'Wooden Walls': {'upkeep': 100,
                   'upkeep_frequency': 'each Empire Phase',
-                  'empire_bonus': 'Authority -2 to Raze actions from players targeting your settlements. Authority -1 to Bandit Cunning actions targeting your settlements.',
+                  'empire_bonus': 'Authority -2 on Raze actions from players targeting you. Authority -1 on Bandit Cunning actions targeting you. Siege Timer +1.',
                   'tier': 'Primitive',
                   'build_time': 1,
                   'requirement': 'None'},
@@ -3222,7 +3225,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                  'requirement': 'Dirt Roads'},
  'Town Hall': {'upkeep': 200,
                'upkeep_frequency': 'each Empire Phase',
-               'empire_bonus': 'Influence +1 each Empire Phase',
+               'empire_bonus': 'Influence +1',
                'tier': 'Developed',
                'build_time': 2,
                'requirement': 'Town Square'},
@@ -3234,15 +3237,13 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                'requirement': 'One Tier Primitive'},
  'Garrison': {'upkeep': 200,
               'upkeep_frequency': 'each Empire Phase',
-              'empire_bonus': 'Local Armies form (10/15/25/50 by Settlement size). All Garrisons share '
-                              "Retinues & Equipment. Can't be targeted; may not Sally Forth while under Siege. Do not pay upkeep. "
-                              "Your Settlements have Presence.",
+              'empire_bonus': "Your Settlements gain Garrisons & Presence. Muster Limit +5.",
               'tier': 'Developed',
               'build_time': 2,
               'requirement': 'One Tier Primitive'},
  'Stone Walls': {'upkeep': 300,
                  'upkeep_frequency': 'each Empire Phase',
-                 'empire_bonus': 'Authority -2 to Destabilize actions from players targeting your settlements. Authority -1 to Bandit Cunning actions targeting your settlements.',
+                 'empire_bonus': 'Authority -2 on Destabilize actions from players targeting you. Authority -1 on Bandit Cunning actions targeting you. Siege Timer +1.',
                  'tier': 'Sophisticated',
                  'build_time': 3,
                  'requirement': 'One Tier Developed + Wooden Walls'},
@@ -3261,7 +3262,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
              'requirement': 'Town Hall'},
 'Road Wardens': {'upkeep': 300,
              'upkeep_frequency': 'each Empire Phase',
-             'empire_bonus': 'Authority -1 to Bandit Cunning & Prowess actions targeting your settlements or armies.',
+             'empire_bonus': 'Authority -1 on Bandit actions targeting you.',
              'tier': 'Sophisticated',
              'build_time': 3,
              'requirement': 'Stone Roads'},
@@ -3335,11 +3336,11 @@ for _n, _v in INFRASTRUCTURE.items():
 # Presence (PRESENCE_RANGE, below SETTLEMENTS) replaced the per-tier / per-Retinue "aura" values: one flat range for every
 # Settlement, Army and Bandit Army (Bandit Camps have none).
 SETTLEMENTS = {
-    "Hamlet":     {"tier": 0, "sea_variant": None,        "tax_income": 0,     "muster_limit":  0, "build_time": 1, "wards": 3, "reach": 1, "notes": "Natural pursuits only; Placed at start of game Range 2 from capital."},
-    "Village":    {"tier": 1, "sea_variant": None,        "tax_income": 2000,  "muster_limit":  5, "build_time": 2, "wards": 1, "reach": 2, "notes": ""},
-    "Town":       {"tier": 2, "sea_variant": "Sea Town",  "tax_income": 4000,  "muster_limit": 10, "build_time": 4, "wards": 2, "reach": 4, "notes": ""},
-    "City":       {"tier": 3, "sea_variant": "Port",      "tax_income": 6000,  "muster_limit": 25, "build_time": 6, "wards": 3, "reach": 6, "notes": ""},
-    "Metropolis": {"tier": 4, "sea_variant": "—",         "tax_income": 8000,  "muster_limit": 50, "build_time": 8, "wards": 4, "reach": 8, "notes": "Capital only, requires Sovereign Industry (Titan of Industry)"},
+    "Hamlet":     {"tier": 0, "garrison": 0, "siege_timer": 0, "sea_variant": None,        "tax_income": 0,     "muster_limit":  0, "build_time": 1, "wards": 3, "reach": 1, "notes": "Natural pursuits only; Placed at start of game Range 2 from capital."},
+    "Village":    {"tier": 1, "garrison": 10, "siege_timer": 1, "sea_variant": None,        "tax_income": 2000,  "muster_limit":  5, "build_time": 2, "wards": 1, "reach": 2, "notes": ""},
+    "Town":       {"tier": 2, "garrison": 15, "siege_timer": 2, "sea_variant": "Sea Town",  "tax_income": 4000,  "muster_limit": 10, "build_time": 4, "wards": 2, "reach": 4, "notes": ""},
+    "City":       {"tier": 3, "garrison": 25, "siege_timer": 3, "sea_variant": "Port",      "tax_income": 6000,  "muster_limit": 25, "build_time": 6, "wards": 3, "reach": 6, "notes": ""},
+    "Metropolis": {"tier": 4, "garrison": 50, "siege_timer": 4, "sea_variant": "—",         "tax_income": 8000,  "muster_limit": 50, "build_time": 8, "wards": 4, "reach": 8, "notes": "Capital only, requires Sovereign Industry (Titan of Industry)"},
 }
 
 # Presence (Prowess rule): an Army can't move within PRESENCE_RANGE of a non-allied Army (Bandit Armies included, Bandit
@@ -3364,12 +3365,14 @@ FAITH_FICKLE_PO = 0
 
 # Era progression: shared-Renown thresholds; caps on armies/cities; influence.
 ERAS = {
-    "Founding":  {"renown": 1,  "armies": 1, "cities": 0, "max_settlements": 2, "influence_per_turn": 1, "max_influence_per_diplomacy_vote": 1, "innate_diplomacy_influence": 1, "council_envoys": 1, "council_actions_per_envoy": 1, "personal_envoys": 1, "actions_per_envoy": 1, "po_scale_neg": 1, "po_scale_pos": 1, "unlocks": ""},
-    "Ascension": {"renown": 8,  "armies": 2, "cities": 1, "max_settlements": 3, "influence_per_turn": 2, "max_influence_per_diplomacy_vote": 2, "innate_diplomacy_influence": 2, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 1, "actions_per_envoy": 1, "po_scale_neg": 2, "po_scale_pos": 1, "unlocks": "May Declare War"},
-    "Eminence":  {"renown": 18, "armies": 3, "cities": 2, "max_settlements": 4, "influence_per_turn": 3, "max_influence_per_diplomacy_vote": 3, "innate_diplomacy_influence": 3, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 1, "actions_per_envoy": 2, "po_scale_neg": 3, "po_scale_pos": 1, "unlocks": "May form Military Alliances"},
-    "Zenith":    {"renown": 30, "armies": 4, "cities": 3, "max_settlements": 5, "influence_per_turn": 4, "max_influence_per_diplomacy_vote": 4, "innate_diplomacy_influence": 4, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 2, "actions_per_envoy": 2, "po_scale_neg": 4, "po_scale_pos": 1, "unlocks": "May form Defensive Alliances"},
+    "Founding":  {"renown": 1,  "armies": 1, "cities": 0, "max_settlements": 2, "influence_per_turn": 1, "rank": 1, "council_envoys": 1, "council_actions_per_envoy": 1, "personal_envoys": 1, "actions_per_envoy": 1, "po_scale_neg": 1, "po_scale_pos": 1, "unlocks": ""},
+    "Ascension": {"renown": 8,  "armies": 2, "cities": 1, "max_settlements": 3, "influence_per_turn": 2, "rank": 2, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 1, "actions_per_envoy": 1, "po_scale_neg": 2, "po_scale_pos": 1, "unlocks": "May Declare War"},
+    "Eminence":  {"renown": 18, "armies": 3, "cities": 2, "max_settlements": 4, "influence_per_turn": 3, "rank": 3, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 1, "actions_per_envoy": 2, "po_scale_neg": 3, "po_scale_pos": 1, "unlocks": "May form Military Alliances"},
+    "Zenith":    {"renown": 30, "armies": 4, "cities": 3, "max_settlements": 5, "influence_per_turn": 4, "rank": 4, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 2, "actions_per_envoy": 2, "po_scale_neg": 4, "po_scale_pos": 1, "unlocks": "May form Defensive Alliances"},
 }
 for _e in ERAS.values():
+    # Diplomacy has no Standing: its Envoys use the Era's rank (start Authority, and the cap per Diplomacy vote)
+    _e["innate_diplomacy_influence"] = _e["max_influence_per_diplomacy_vote"] = _e["rank"]
     _e["envoys"] = (f"{_e['council_envoys']} Council Envoy{'s' if _e['council_envoys'] > 1 else ''}"
                     f" ({_e['council_actions_per_envoy']} action{'s' if _e['council_actions_per_envoy'] > 1 else ''} each)"
                     f" + {_e['personal_envoys']} Personal Envoy{'s' if _e['personal_envoys'] > 1 else ''}"
@@ -3450,26 +3453,33 @@ DOMAIN_BOARD = {
     "Prowess": {
         "Rising":      "Indomitable: In the Tally Phase, you may Support one of your own Prowess Envoys.",
         "Established": "Edict of War: May have an additional Army. Perform a Muster Action.",
-        "Sovereign":   "High Quartermaster: Upkeep -2000. May change equipment on your armies during any upkeep phase where that army is within Province. No longer lose Influence while at War.",
+        "Sovereign":   "High Quartermaster: Upkeep -2000. May change equipment on your Armies during any Upkeep step while that Army is within your Province. No longer lose Influence while at War.",
     },
     "Cunning": {
         "Rising":      "Clandestine Councilor: In the Intrigue Phase, target an Envoy and a player with a lower Cunning value - that player Abstains that Envoy.",
-        "Established": "Grand Vizier: Influence +1 each Empire Phase. Players may not target you with Cunning actions if your Cunning value is higher.",
+        "Established": "Grand Vizier: Influence +1. Players may not target you with Cunning actions if your Cunning value is higher.",
         "Sovereign":   "Master Conspirator: Once per Envoy Phase, if your non-Cunning Envoy passes or is endorsed, you may instead perform a Cunning action.",
     },
     "Piety": {
         "Rising":      "Divine Mandate: Faith +1 each Empire Phase.",
-        "Established": "One True Gospel: Each Empire Phase, all other non-allied players with a lower Piety value gain Doubt +2.",
+        "Established": "One True Gospel: Each Empire Phase, each other non-allied player with a lower Piety value gains Doubt +2.",
         "Sovereign":   "Pillar of Faith: If your Public Order would be set below 3, set it to 3. In addition, may use the Sacred War action.",
     },
     # Influence scaling by standing (Untested/Rising/Established/Sovereign):
-    "max_influence_per_vote":  {"Untested": 1, "Rising": 2, "Established": 3, "Sovereign": 4},
-    "innate_influence_own_envoys": {"Untested": 1, "Rising": 2, "Established": 3, "Sovereign": 4},
+    "max_influence_per_vote":  dict(STANDING_RANK),
+    "innate_influence_own_envoys": dict(STANDING_RANK),
 }
-_MIV = DOMAIN_BOARD["max_influence_per_vote"]
+# the rules print one rank per Standing; if these two rows ever differ, the rules' Standing Rank text needs both numbers
+assert DOMAIN_BOARD["max_influence_per_vote"] == DOMAIN_BOARD["innate_influence_own_envoys"], "Standing rank split: update RULES Standing Rank"
 GLOSSARY["Standing"] = (f"Your tier in a Domain: Untested, Rising ({_ST['Rising']}), Established ({_ST['Established']}), "
-                        f"Sovereign ({_ST['Sovereign']}). Sets max Influence per vote "
-                        f"({'/'.join(str(_MIV[t]) for t in ('Untested', 'Rising', 'Established', 'Sovereign'))}) and unlocks Domain effects.")
+                        f"Sovereign ({_ST['Sovereign']}). Its rank sets your Envoys' starting Authority and how much you may "
+                        f"Support or Oppose per vote in that Domain, and it unlocks Domain effects.")
+GLOSSARY["Max Influence"] = ("The most Influence you may spend to Support or Oppose on one vote: your Standing rank in that Domain "
+                             "(the Era's rank on Diplomacy Envoys). Max Influence +X raises it.")
+GLOSSARY["Standing Rank"] = (f"Untested {STANDING_RANK['Untested']}, Rising {STANDING_RANK['Rising']}, Established "
+                             f"{STANDING_RANK['Established']}, Sovereign {STANDING_RANK['Sovereign']}. Your Envoys in a Domain start at "
+                             f"Authority equal to your rank there; on each vote in that Domain you may Support or Oppose up to your rank (your Max Influence). "
+                             f"Diplomacy uses the Era's rank.")
 
 # Seasons (turn cycle of 4; Rest Phase advances Season +1).
 SEASONS = {
@@ -3520,7 +3530,7 @@ BANDIT_CAMP_START = 10
 BANDIT_CAMP_GOLD = 2000    # gold in a Bandit Camp's treasury when it spawns
 BANDIT_ARMY_THRESHOLD = 25
 BANDIT_GROWTH_PER_ERA = {"Founding": 1, "Ascension": 2, "Eminence": 3, "Zenith": 4}
-BANDIT_EQUIPMENT_PER_ERA = {"Founding": "Levy: Cudgel + Cloth", "Ascension": "Levy: Arming Sword, Targe Shield, & Leather Armor" , "Eminence": "Man-at-Arms: Halberd + Chainmail", "Zenith": "Man-at-Arms: War Hammer + Full Plate"}
+BANDIT_EQUIPMENT_PER_ERA = {"Founding": "Levy: Cudgel + Cloth", "Ascension": "Levy: Arming Sword + Leather Armor" , "Eminence": "Man-at-Arms: Halberd + Chainmail", "Zenith": "Man-at-Arms: War Hammer + Full Plate"}
 BANDITS = {
     "Bandit Domain Value": "For every 5 Retinues in the Bandit Camp or Army, the Bandit Camp has +2 Cunning and +2 Prowess.",
     "Bandit Camp": f"A collection of Bandits in Outlaw Country, starting with {BANDIT_CAMP_START} Retinues and {BANDIT_CAMP_GOLD} gold.",
@@ -3665,6 +3675,7 @@ GLOSSARY.update({
     "Reach X": "The Range X characteristic which determines what Territories you Control and are in your Province.",
 	"Host": "Holds the Host Card; the starting player is the player directly clockwise from the Host, including in Spring. The role passes clockwise each Rest Phase (there is no Host in Spring). The Host collects and distributes Trade Income, resolves Bandit Mechanics, and breaks ties (Council vote, bandit targeting, and any tie not otherwise resolved).",
     "Send an Envoy": "Declare a Domain, spend 1 Envoy.",
+    "Targeting you": "An effect or action targeting you also targets what you own: your Settlements, Armies and Holdings.",
     "Perform": "When you Perform an action, immediately do the description of the action. Pay the action's normal Cost.",
     "Resolve": "Determine modified Authority and follow Envoy Resolution Table.",
     "Cost / Pay": "Cost to perform an action, usually in Gold or Doubt.",
@@ -4068,6 +4079,10 @@ STANDING_ARMY_SIEGE_MODIFIER = 1
 # economy.py has this as a local constant (EMPIRE_START)
 EMPIRE_START_TIERS = ("Town", "Hamlet")
 STARTING_TREASURY = 10000
+# Setup › Player Setup: Starting Holdings, placed built before Turn 1. The capital Town's Wards may hold root Holdings
+# eligible there; the Hamlet's Wards only these (any mix).
+SETUP_HAMLET_HOLDINGS = ("Arable Land", "Common Land")
+SETUP_HAMLET_TEXT = " or ".join(SETUP_HAMLET_HOLDINGS)
 
 # ── Setup: Ages (Setup step 2) ────────────────────────────────────────────────
 # Names/years mirror worldbuilding/renown_worldlore.py AGES["names"] + TIMELINE["age_starts"]
@@ -4091,8 +4106,7 @@ BOARD_SIZES = {
 
 SIEGE_CALCULUS = {
     "Lay Siege": {
-        "settlement_sources": ["Settlement Size", "Wooden Walls", "Stone Walls",
-                               "Citadel", "Garrison", "Standing Army"],
+        "settlement_sources": ["Settlement Size", "Citadel", "Standing Army"],   # + every "Siege Timer +X" in the defender's text
         "attacker_sources": True,      # Siege Works, Siege Camp, army effects
         "floor": 1,
     },
@@ -4103,22 +4117,25 @@ SIEGE_CALCULUS = {
     },
 }
 
-# Sources whose value isn't in effect text
+# Where each listed source's value lives. Every other defender source is its own "Siege Timer +X" text (Infrastructure,
+# Holdings, Heritage); Citadel is listed because it counts only in the Settlement it's in (value from its text).
 SIEGE_SOURCE_VALUES = {
-    "Settlement Size": {"from": "SETTLEMENTS", "field": "tier"},
+    "Settlement Size": {"from": "SETTLEMENTS", "field": "siege_timer"},
     "Standing Army":   {"from": "board_state", "value": STANDING_ARMY_SIEGE_MODIFIER,
                         "rule": "Army within Range 0 of the Settlement"},
-    "Garrison":        {"value": 1},
-    "Wooden Walls":    {"value": 1},
-    "Stone Walls":     {"value": 1},
-    "Citadel":         {"innate_value": 1, "mastery_value": 1},
+    "Citadel":         {"from": "text"},
 }
 
 # ── Missing glossary definitions (CE) ────────────────────────────────────────
 GLOSSARY.update({
     PIVOTAL:        f"A natural {FOCUSED_THR}, before modifiers." if FOCUSED_THR == FACES else f"A natural {FOCUSED_THR} or higher, before modifiers.",
     FATIGUE_TOKEN:  f"Each token reduces Morale by {FATIGUE_MORALE}; if your modified Morale is ever {ROUT_THR}+, your army Routs. Tokens stack.",
-    "Sally Forth":  "While a settlement you control is besieged and you have an army inside it, you may Sally Forth: Battle in the Battle Phase without performing an action.",
+    "Sally Forth":  "While a settlement you control is besieged and you have an army or Garrison inside it, you may Sally Forth: Battle in the Battle Phase without performing an action.",
+    "Garrison":     ("An Army that exists within a Settlement that contains the Garrison Infrastructure, according to its Garrison value ("
+                     + ", ".join(f"{t} {v['garrison']}" for t, v in SETTLEMENTS.items() if v.get("garrison")) + " Retinues). "
+                     "Garrisons can't perform actions or be targeted by actions, and may Sally Forth while their Settlement is under Siege. "
+                     "Garrisons have cost and upkeep 0 and don't count toward your Army limit. All Garrisons within an Empire share the same "
+                     "Retinue type and equipment, and gain the benefits of all unlocked keywords that apply to your Armies."),
     "War Weariness":"gain Doubt 1 for each consecutive Battle you lose in the Empire Phase.",
     "Settlement Ward": ("A slot in a Settlement that holds one Pursuit; a Settlement has one Ward per tier (a Hamlet has 3 Wards, Natural Pursuits only)."
                         + (" Wards are not placed on the map." if WARD_MODEL == "abstract" else " Each Ward occupies a Territory within Range 1 of the Settlement.")),
@@ -4614,7 +4631,6 @@ if SIMPLE:
         "Trade Guild removes Primitive (innate) + Developed (mastery)", "Masonry removes Primitive; Trade Guild removes Developed")
     COSTS["Infrastructure upkeep"] = COSTS["Infrastructure upkeep"].replace(
         "Trade Guild removes Primitive/Developed", "Masonry removes Primitive, Trade Guild removes Developed")
-    SIEGE_SOURCE_VALUES["Citadel"] = {"innate_value": 3}      # SIMPLE Citadel: Siege Timer +3
     ACTIONS["Pursue"]["effect"] = ACTIONS["Pursue"]["effect"].replace(
         "its innate effect activates immediately, and its mastery effect activates if all mastery requirements are met.",
         "its effect activates immediately.")
@@ -4744,9 +4760,9 @@ _ALIAS_RE = _re_disp.compile(
 # ── Glossary categories: one ordering shared by the rules docx ({{GLOSSARY:Category}}), wiki and board ──
 # Constant-keyed terms use their constants; action names follow SIMPLE (Pursue->Build, Build->Improve).
 GLOSSARY_CATEGORIES = [
-    ('Reading the Rules', ['Perform', 'Resolve', 'Cost / Pay', 'Fail', 'Natural roll', PIVOTAL, 'Host']),
-    ('Council & Envoys', ['Influence', 'Authority X', 'Envoy', 'Send an Envoy', 'Personal Envoy', 'Council Phase', 'Council Envoy', 'Intrigue Phase', 'Vote', 'Support X', 'Oppose X', 'Abstain', 'Tally Phase', 'Net Influence', 'Envoy Outcome', 'Condemned', 'Failed', 'Passed', 'Endorsed']),
-    ('Domains & Scoring', ['Renown', 'Domain', 'Domain Point', 'Standing', 'Edict', 'Monument']),
+    ('Reading the Rules', ['Targeting you', 'Perform', 'Resolve', 'Cost / Pay', 'Fail', 'Natural roll', PIVOTAL, 'Host']),
+    ('Council & Envoys', ['Influence', 'Authority X', 'Envoy', 'Send an Envoy', 'Personal Envoy', 'Council Phase', 'Council Envoy', 'Intrigue Phase', 'Vote', 'Support X', 'Oppose X', 'Max Influence', 'Abstain', 'Tally Phase', 'Net Influence', 'Envoy Outcome', 'Condemned', 'Failed', 'Passed', 'Endorsed']),
+    ('Domains & Scoring', ['Renown', 'Domain', 'Domain Point', 'Standing', 'Standing Rank', 'Edict', 'Monument']),
     ('Actions', ['Muster', *(["Build"] if SIMPLE else ["Pursue"]), *(["Improve"] if SIMPLE else ["Build"]), 'Repair', 'Settle', 'Expand', 'Move', 'Demand Tribute', 'Diplomacy']),
     ('Treaties', ['Treaty', 'Alliance', 'At War', 'Vassal', 'Suzerain']),
     ('Economy & Public Order', ['Public Order', 'Faith X', 'Doubt X', 'Extort X', 'Recoup X', 'Upkeep', 'Craft', 'Can Trade', 'War Weariness']),
@@ -4754,7 +4770,7 @@ GLOSSARY_CATEGORIES = [
     ('Timers', list(TIMERS)),
     ('Map & Range', ['Realm', 'Region', 'Territory', 'Province', 'Border', 'Controlled', 'Contested', 'Uncontested', 'Uncontrolled', 'Range X', 'Within', 'Adjacent', 'Next to', 'Reach', 'Reach X']),
     ('World', ['Bandit', 'Outlaw Country', 'Wild Outlaw Country', 'Siege', 'Sally Forth']),
-    ('Army States', ['Retinue', 'Speed X', 'Presence', 'Blocked', 'Strained']),
+    ('Army States', ['Retinue', 'Garrison', 'Speed X', 'Presence', 'Blocked', 'Strained']),
     ('Battle Structure', ['Battle', 'Skirmish', 'Attacker / Defender', 'Seize the Initiative', 'Tactic', 'Field', 'Casualty', 'Initiative', BLUNDER, 'Strike', 'to-Strike number', 'AP', 'Save', 'Endurance', 'Fatigued', FATIGUE_TOKEN, 'Morale', 'Break check', 'Panic check', 'Rout', 'Fall Back']),
     ('Combat Keywords — Defense', [PARRY, RIPOSTE, RECOVER, ENDURING, NO_PARRY, MINUS_1_TBH, PLANISHING]),
     ('Combat Keywords — Offense', [SHATTER_ARMOR, CLEAVE, POISON, DESTROY_SHIELD, UNSTOPPABLE, SERRATED]),

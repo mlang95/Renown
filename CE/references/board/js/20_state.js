@@ -126,7 +126,9 @@ function settBaseTime(t){return BTM[t]??(((DATA.settlements||{})[t]||{}).build_t
 function settBuildTime(t){return withBuildMod(settBaseTime(t)).t;}
 function itm(){S.itimer=S.itimer||{};S.idmg=S.idmg||{};S.facInfra=S.facInfra||[];}
 function infraOn(n){itm();return !!(S.infra[n]||S.wonders[n])&&!(S.itimer[n]>0)&&!(S.idmg[n]>0);}
-function gameStarted(){return (S.turn||0)>0;}
+let CHECKIN_ACT=false;   // an action performed at the Turn 1 check-in counts as a Turn 1 action (Build Timers)
+function checkinAct(f){CHECKIN_ACT=setupOn();try{return f();}finally{CHECKIN_ACT=false;}}
+function gameStarted(){return (S.turn||0)>0||tBegun()||CHECKIN_ACT;}   // Turn 1 counts once its first phase has begun (Builds get Build Timers)
 // ---- Gold log (Ledger): every Treasury change with its reason. tGold() records a change; changes made any other way (typing the
 // Treasury, the ± buttons, an older client) are picked up by glogSync() as "adjusted" (quick successive ones merge) ----
 const GLOG_MAX=150;
@@ -159,18 +161,22 @@ function empPO(b,done){const m=boardMetrics(b),p0=b.po||0,fd=m.po||0,pm=poModTot
   let cut=0;inst.forEach(n=>{if(sl.length)cut+=Math.min(n,sl.shift());});
   if(cut>0){dpo+=cut;done.push("first Doubt −"+cut+" ("+fr.src.join(", ")+")");}
   b.po=applyPOFloor(b,Math.max(PO_MIN,Math.min(PO_MAX,p0+dpo)));return {fd,pm,p0};}
-// "Armies and Garrisons within controlled Settlements gain Immune Strained" (Granary): an Army inside one of its owner's Settlements, or a Garrison
+// "Armies and Garrisons within your Settlements gain Immune Strained" (Granary): an Army inside one of its owner's Settlements, or a Garrison
 function immuneStrainIn(p,a){if(!p||!a||a.sackT)return null;const x=a.garrison?{q:p}:armyInside(p,a);if(!x)return null;   // whose Settlement it is decides
   const m=srcMatch(x.q.board,"immune_strain_home")[0];return m?m.n+(sameP(x.q,p)?"":" · "+x.q.name):null;}
 // a Settlement under Siege gives its Armies and Garrison Strained (ruling); Granary-type Immune Strained, or a faction not affected by
 // Besieged restrictions, prevents it. effStrained = what Strained means right now (Battle Init, Endurance regain, display).
 function siegeStrains(p,a){if(!p||!a||besiegeExempt(p)||armyBesiegeExempt(p,a))return false;return a.garrison?(a.sid!=null&&siegeOn(p.id,a.sid)):armyBesieged(p,a);}
+// an Army's Endurance never exceeds its Retinue's Endurance (no data effect raises that maximum yet)
+function endMax(a){const rt=EQ.retinues[a&&a.retinue]||{};return rt.endurance!=null?+rt.endurance:Infinity;}
+function capEnd(a){if(a)a.endurance=Math.min(endMax(a),a.endurance||0);return a;}
 function effStrained(p,a){if(!a||immuneStrainIn(p,a))return false;return !!a.strained||siegeStrains(p,a);}
 function empArmies(b){let regained=0,cleared=0;const pl=playerOfBoard(b),isc=!!pl&&srcHas(b,"immune_strain_siege");
   (b.armies||[]).forEach(a=>{if(isc&&a.strained&&!a.sackT){const sg=armySieging(pl,a);if(sg&&sg.kind==="siege")a.strained=false;}
     if(a.strained&&pl&&immuneStrainIn(pl,a))a.strained=false;
-    if(pl&&siegeStrains(pl,a)&&!immuneStrainIn(pl,a))a.strained=true;if(!a.strained){a.endurance=(a.endurance||0)+EQ.endurance_regain;regained++;}else cleared++;a.strained=false;
+    if(pl&&siegeStrains(pl,a)&&!immuneStrainIn(pl,a))a.strained=true;if(!a.strained){a.endurance=(a.endurance||0)+EQ.endurance_regain;capEnd(a);regained++;}else cleared++;a.strained=false;
     if(pl&&siegeStrains(pl,a)&&!immuneStrainIn(pl,a))a.strained=true;});
+  if(pl)garrisonsOf(pl).forEach(g=>{if(effStrained(pl,g))return;g.endurance=(g.endurance||0)+EQ.endurance_regain;capEnd(g);});   // Garrisons are Armies: they regain Endurance too
   return {regained,cleared};}
 function endRow(b,done,ec,po,ar){return {turn:b.turn,net:ec.net,tax:ec.sn.tax,seasonal:ec.sn.seasonal,trade:ec.sn.trade,season:curSeason(),applied:!!b.autoNet,
   g0:ec.g0,g1:b.treasury||0,fd:po.fd,pm:po.pm,p0:po.p0,p1:b.po,done,regained:ar.regained,regain:EQ.endurance_regain,cleared:ar.cleared};}
@@ -381,7 +387,8 @@ function hamletFits(name,present){return hamletRoot(name)||effList(name).some(h=
 // exemptionsOf(occ): set of occupant ids that ride free (one rider per source), for an explicit occupant list.
 // "efficient" may list several sources (efficient with ANY one of them). Each source hosts at most one rider;
 // riders claim hosts newest-drop first (then oldest id), preferring the host they were dropped onto.
-// A host with an active Build Timer carries no rider (a Damaged host under Repair still does).
+// A host with an active Build Timer carries no rider (a Damaged host under Repair still does); a Holding being added now
+// (the id 1e9 placeholder) can't ride a host under Repair either.
 // entries may name a Pursuit, or a group: "Natural" (any Natural Pursuit) or a Pursuit type ("Husbandry", "Raw Materials"…)
 const EFF_CACHE={};
 function effList(n){if(EFF_CACHE[n])return EFF_CACHE[n];const e=(R[n]||{}).efficient,raw=Array.isArray(e)?e:(e?[e]:[]),out=[];
@@ -391,11 +398,11 @@ function effList(n){if(EFF_CACHE[n])return EFF_CACHE[n];const e=(R[n]||{}).effic
   return EFF_CACHE[n]=out.filter((x,i,a)=>x!==n&&a.indexOf(x)===i);}
 function effLabel(n){const e=(R[n]||{}).efficient;return (Array.isArray(e)?e:(e?[e]:[]));}
 function exemptionsOf(occ){
-  const present=new Set(occ.filter(o=>!(o.bt>0)).map(o=>o.name)),taken={__by:{}},free=new Set();free.hostOf={};
+  const present=new Set(occ.filter(o=>!(o.bt>0)).map(o=>o.name)),repairing=new Set(occ.filter(o=>o.dmg>0&&o.rep).map(o=>o.name)),taken={__by:{}},free=new Set();free.hostOf={};
   occ.filter(o=>effList(o.name).some(h=>h!==o.name&&present.has(h)))
      .sort((a,b)=>(b.ride||0)-(a.ride||0)||a.id-b.id)
      .forEach(o=>{const loops=h=>{let c=h,g=64;while(c&&g--){if(c===o.name)return true;const rid=taken.__by[c];c=rid!=null?free.hostOf[rid]:null;}return false;};
-       const hs=effList(o.name).filter(h=>h!==o.name&&present.has(h)&&!taken[h]&&!loops(h));   // no riding something that (transitively) rides you
+       const hs=effList(o.name).filter(h=>h!==o.name&&present.has(h)&&!taken[h]&&!loops(h)&&!(o.id===1e9&&repairing.has(h)));   // no riding something that (transitively) rides you
        const h=(o.rideOn&&hs.includes(o.rideOn))?o.rideOn:hs[0];if(!h)return;taken[h]=o.id;taken.__by[o.name]=o.id;free.add(o.id);free.hostOf[o.id]=h;});
   return free;
 }
@@ -429,6 +436,14 @@ function canPlace(name, sid){
   return {ok:false, why:"no free ward slot (efficient slot taken — chains, can't branch)"};
 }
 
+// Setup › Starting Holdings: the capital Town holds root Holdings eligible there; the Hamlet only RC.SETUP_HAMLET_HOLDINGS
+function setupHoldFlags(){const f=[],HL=RC.SETUP_HAMLET_HOLDINGS||[];
+  const eligible=(q,sid)=>{const i=S.placed.indexOf(q);S.placed.splice(i,1);try{return pLegal(q.name,sid,legalCtx());}finally{S.placed.splice(i,0,q);}};   // as if it weren't there yet
+  S.placed.filter(q=>!q.fac&&q.sid!=null).forEach(q=>{const s=S.settlements.find(x=>x.id===q.sid);if(!s)return;
+    if(s.tier==="Hamlet"){if(!HL.includes(q.name))f.push("Setup: "+q.name+" in the Hamlet (starting Hamlet Holdings: "+HL.join(" / ")+")");}
+    else if(s.capital){if(!(R[q.name]||{}).root||!eligible(q,s.id))f.push("Setup: "+q.name+" in "+(s.name||s.tier)+" isn't an eligible root Holding");}
+    else f.push("Setup: "+q.name+" outside the capital and Hamlet");});
+  return f;}
 // ---- uniqueness + tier progression ----
 const TIER_CHAIN=["Village","Town","City","Metropolis"];
 function capitalSett(){return S.settlements.find(s=>s.capital)||null;}
@@ -482,6 +497,7 @@ function boardFlags(){
     const cnt={};S.placed.filter(q=>scopeOf(q.name)!=="Settlement").forEach(q=>{cnt[q.name]=(cnt[q.name]||0)+1;});
     Object.keys(cnt).forEach(n=>{if(cnt[n]>1)f.push(cnt[n]+"× "+n+" (one per "+(scopeOf(n)==="Realm"?"game":"player")+")");});}
   factionFlags().forEach(x=>f.push(x));
+  if(setupOn())setupHoldFlags().forEach(x=>f.push(x));
   {const T=exTargets(S),n=extortSlots(S).filter(x=>!T[x.key]).length;if(n)f.push("Extort: "+n+" target"+(n>1?"s":"")+" not chosen (Table ▸ Extort targets)");}
   (S.loanDefaults||[]).forEach(x=>{const t=loanTerms(S);f.push("Loan default (turn "+x.turn+"): "+pname(x.pid)+" — Perform "+(t?t.def:"Demand Tribute"));});
   {const me=playerOfBoard(S),pend=me?(PT(me).standingPending||{}):{};   // one-shot Standing actions: flagged only until performed or expired

@@ -30,7 +30,7 @@ F = re.I | re.A
 REG = {
     # ---- action riders / Doubt ----
     "doubt_all_plus":      ("clause", "hiwf", r"All player actions that cause Doubt are increased by (\d+)"),
-    "doubt_target_minus":  ("clause", "hiwf", r"^(?:(\w+) )?actions targeting this player that cause Doubt are reduced by (\d+)"),
+    "doubt_target_minus":  ("clause", "hiwf", r"^Doubt from (?:(\w+) )?actions targeting you is reduced by (\d+)"),
     "cunning_extra_doubt": ("clause", "hiwf", r"^(?:All )?(Endorsed )?Cunning actions give an additional \**Doubt \+?(\d+)\** to Target"),
     # Ossuary Crypt: its Doubt rider applies to every affected Piety target realm-wide; its PO bypass is owner-only.
     "piety_extra_doubt":   ("clause", "hiwf", r"All player's Piety actions give an additional \**Doubt \+?(\d+)\**"),
@@ -38,13 +38,13 @@ REG = {
     # "When your Piety actions give their target Faith, it gains Faith +1 more; when they give Doubt, it gains Doubt +1 more" (Unforgotten Shrine):
     # whole text (the clause split would cut it at the ";"); m[1] Domain, m[2] extra Faith, m[3] extra Doubt — each only where the action gave it
     "basilica_amp":        ("text", "hiwf", r"When your (\w+) actions give their target \**Faith\**, it gains \**Faith \+(\d+)\** more; when they give \**Doubt\**, it gains \**Doubt \+(\d+)\** more"),
-    "doubt_backlash":      ("clause", "hiwf", r"Players who target you or your settlements with actions that (?:would )?cause doubt( before modifiers)? gain Doubt \+(\d+)"),
+    "doubt_backlash":      ("clause", "hiwf", r"Players whose actions targeting you would cause Doubt( \(before modifiers\))? gain Doubt \+(\d+)"),
     "rider_extra":         ("clause", "hiwf", r"^((?:Endorsed )?(\w+) actions (?:give|cause) an additional (?:Doubt|Faith)[^.;]*)"),
     "rider_your_extra":    ("clause", "hiwf", r"(Your (\w+) actions cause an additional[^.;]*)"),
     "doubt_all_plus_t":    ("clause", "hiwf", r"(All player actions that cause Doubt are increased by \d+)"),
-    "doubt_target_minus_t":("clause", "hiwf", r"((?:(\w+) )?actions targeting this player that cause Doubt are reduced by \d+[^.;]*)"),
-    "doubt_backlash_t":    ("clause", "hiwf", r"(Players who target you or your settlements with actions that (?:would )?cause doubt(?: before modifiers)? gain Doubt \+\d+)"),
-    "cant_target":         ("clause", "hiwf", r"(?:can.t|cannot) be the target of (?:a |an )?([\w ]+?) action"),
+    "doubt_target_minus_t":("clause", "hiwf", r"(Doubt from (?:(\w+) )?actions targeting you is reduced by \d+[^.;]*)"),
+    "doubt_backlash_t":    ("clause", "hiwf", r"(Players whose actions targeting you would cause Doubt(?: \(before modifiers\))? gain Doubt \+\d+)"),
+    "cant_target":         ("clause", "hiwf", r"(?:(?:can.t|cannot) be the target of (?:a |an )?(?=[\w ]+? action)|^(?=[\w ]+? actions can.t target you))([\w ]+?) action"),
     # ---- Envoys / actions ----
     "foster_endorsed":     ("clause", "hiwf", r"Endorsed Foster Rebellion instead places Bandit Armies with (\d+) retinues"),
     "grand_vizier_alt":    ("clause", "hiwf", r"Unlocks Grand Vizier which uses your (Piety Value|Public Order)"),
@@ -69,12 +69,13 @@ REG = {
     "tally_votes":         ("clause", "hiwf", r"You cast all of your votes in the Tally Phase"),
     "no_alliance":         ("clause", "hiwf", r"(?:can.t|cannot) (?:be in|join) an Alliance"),
     # ---- armies / sieges ----
-    "immune_strain_home":  ("clause", "hiwf", r"Armies and Garrisons within controlled Settlements gain\s+Immune Strained"),
+    "immune_strain_home":  ("clause", "hiwf", r"Armies and Garrisons within your Settlements gain\s+Immune Strained"),
     "immune_strain_siege": ("clause", "hiwf", r"Immune Strained during Lay Siege"),
     "besiege_exempt":      ("clause", "hiwf", r"not affected by .Settlements being Besieged. restrictions"),
+    "muster_plus":         ("clause", "hiwf", r"Muster Limit\s*\+\s?(\d+)"),
     "muster_besieged":     ("clause", "hiwf", r"May Muster an Army in a Settlement under Siege|not affected by .Settlements being Besieged. restrictions"),
     "siege_def_plus":      ("clause", "hiwf", r"^(?!.*While your Public Order).*?Siege Timer\s*\+\s?(\d+)"),
-    "siege_def_po":        ("clause", "hiwf", r"While your Public Order is (-?\d+) or higher, Lay Siege actions targeting Settlements you Control have Siege Timer \+(\d+)"),
+    "siege_def_po":        ("clause", "hiwf", r"While your Public Order is (-?\d+) or higher, Lay Siege actions targeting you have Siege Timer \+(\d+)"),
     "siege_att_minus":     ("clause", "hiwf", "Siege Timer\\s*[\\-−]\\s?(\\d+)"),
     "siege_ignore_walls":  ("clause", "hiwf", r"Siege Timers ignore ([\w &]+?) Walls"),
     "siege_winter":        ("clause", "hiwf", r"Sieges Increment in Winter|Siege Timers count down in Winter"),
@@ -86,7 +87,7 @@ REG = {
     "army_upkeep_home":    ("clause", "hiwf", r"Upkeep -(\d+) while an army is (?:within )?range 0 of (?:controlled settlement|a Settlement you Control)"),
     "danegeld":            ("clause", "hiwf", r"While At War, your Armies (?:within reach of at-war Settlements Extort their upkeep|pay no upkeep in Territory your at-war player controls)"),
     # ---- movement triggers (Toll House, Beacon Towers) ----
-    "toll_extort":         ("clause", "hiwf", r"Extort (\d+) when non-Allied Army ends a Move action within your Province"),
+    "toll_extort":         ("clause", "hiwf", r"Extort (\d+) when non-allied Army ends a Move action within your Province"),
     "toll_diplomacy":      ("clause", "hiwf", r"when an Army ends a Move action within your Province,? Perform a Diplomacy action targeting that army.s player"),
     "beacon_move":         ("clause", "hiwf", r"Whenever a non-allied Army ends a Move action within your Province, you may immediately perform a Move action"),
     "beacon_start_move":   ("clause", "hiwf", r"At the Start of the Empire Phase, you may select an Army within your Province and move it up to its modified Speed"),
@@ -99,7 +100,7 @@ REG = {
     "po_floor":            ("clause", "hiwf", r"Public Order would ever be less than (-?\d+),? set it to (-?\d+)"),
     "immune_war_weariness":("clause", "hiwf", r"Immune War Weariness"),
     "fd_per_empire":       ("clause", "hiwf", r"^(?:[^:]+:\s*)?(?:Gain )?(Faith|Doubt) \+(\d+) (?:per|each) Empire Phase$"),
-    "sacred_war_each":     ("clause", "hiwf", r"Each player gains (Doubt|Faith) \+(\d+) (?:per|each) Empire Phase per Sacred War you.re on"),
+    "sacred_war_each":     ("clause", "hiwf", r"Each other player gains (Doubt|Faith) \+(\d+) (?:per|each) Empire Phase per Sacred War you.re on"),
     "border_fd":           ("clause", "hiwf", r"Each bordering player gains (Doubt|Faith) \+(\d+)"),
     "faith_war":           ("clause", "hiwf", r"Faith \+(\d+) while (not )?at War"),
     "faith_sacred_war":    ("clause", "hiwf", r"While a Sacred War is active, gain (\d+) Faith during each Empire Phase"),
@@ -115,16 +116,16 @@ REG = {
     "loan_terms":          ("clause", "hiwf", r"loan money to Trade Partners at (\d+) per (\d+)\s*/\s*turn interest\s*\(minimum (\d+)\)"),
     "loan_default":        ("clause", "hiwf", r"^on Default:\s*Perform (.+)$"),
     "loan_once":           ("clause", "hiwf", r"Once per turn,? (?:you )?may loan money"),
-    "tithe_lower":         ("clause", "hiwf", r"Tithe every other player with lower ((?:Piety|Prowess|Cunning|Industry|Public Order)(?: or (?:Piety|Prowess|Cunning|Industry|Public Order))?)"),
+    "tithe_lower":         ("clause", "hiwf", r"Tithe each other player with lower ((?:Piety|Prowess|Cunning|Industry|Public Order)(?: or (?:Piety|Prowess|Cunning|Industry|Public Order))?)"),
     "extort_half_trade":   ("clause", "hiwf", r"Extort half of Trade Income from players who don.t trade with you"),
     "extort_lower_treasury":("clause", "hiwf", r"Each Empire Phase,? Extort (\d+) from each non-allied player with a lower Treasury"),
     "extort_target_faith": ("clause", "hiwf", r"Targets of Extort from (.+?) gain Faith \+(\d+)"),
     "no_sally_forth":     ("clause", "hiwf", r"Settlements you Siege can.t Sally Forth"),
     # ---- Presence (Commanding Presence): Settlements via Garrison, Wards via Keep; Armies always ----
-    "settlement_presence": ("clause", "hiwf", r"Your Settlements have Presence"),
+    "settlement_presence": ("clause", "hiwf", r"Your Settlements (?:have|gain (?:Garrisons & )?)Presence"),
     "ward_presence":       ("clause", "hiwf", r"Your Settlement Wards have Presence"),
     # ---- bandits ----
-    "bandit_redirect":     ("clause", "hiwf", r"Bandit Camps in your Outlaw Country don.t target you and instead target other players randomly"),
+    "bandit_redirect":     ("clause", "hiwf", r"Bandit Camps in your Outlaw Country don.t target you and instead target another player at random"),
     "bandit_cunning_auth": ("clause", "hiwf", r"Both Bandit Camps & you have (?:Authority|Influence) \+(\d+) on (?:Personal )?Cunning Envoys"),
     # ---- direct text readers (whole text of one source kind) ----
     "first_doubt":         ("text", "h", r"first\s+(?:(one|two|three|four|five|\d+)\s+)?\**Doubt\**\s+(?:(?:per|each) turn|each Empire Phase) reduced by (\d+)|reduce the first instance of Doubt[^.;]*?by (\d+)"),
@@ -134,14 +135,13 @@ REG = {
     "po_immune":           ("text", "h", r"No longer affected by all Public Order effects"),
     "po_band_double":      ("text", "h", r"^(.+?) effects are doubled for all players"),
     "immune_uprising":     ("text", "h", r"Immune Uprising"),
-    "fd_others_without":   ("text", "h", r"(Faith|Doubt)\s*\+(\d+) to all other players without (?:an? )?([^.;]+)"),
+    "fd_others_without":   ("text", "h", r"each other player without (?:an? )?([^.;]+?) gains (Faith|Doubt)\s*\+(\d+)"),
     "fd_per_treaty":       ("text", "h", r"Other non-vassal players gain (Faith|Doubt)\s*\+(\d+) per Signed Treaty with you besides Peace"),
-    "ep_lower":            ("text", "hM", r"Each Empire Phase, all (?:other )?non-allied players with a lower (\w+) value gain (Faith|Doubt)\s*\+(\d+)"),
+    "ep_lower":            ("text", "hM", r"Each Empire Phase, each (?:other )?non-allied player with a lower (\w+) value gains (Faith|Doubt)\s*\+(\d+)"),
     "build_timer":         ("all", "hM", "Build Timer\\s*([+\\-−])\\s?(\\d+)"),
     "reach_plus":          ("text", "hMF", r"Reach\s*\+\s*(\d+)"),
     "reach_plus_rec":      ("json", "iw", r"Reach\s*\+\s*(\d+)"),
-    "garrison_sizes":      ("text", "i", r"Local Armies form \(([\d/ ]+) by Settlement size\)"),
-    "garrison":            ("text", "i", r"Local Armies form"),
+    "garrison":            ("text", "i", r"Your Settlements gain Garrisons"),
     "muster_field":        ("text", "i", r"Can Muster"),
     "shipyard":            ("text", "hi", r"Water Territory treated as Grassland"),
     "bridges":             ("text", "hi", r"cross Water Territory at full movement within (?:your )?Province"),
@@ -155,7 +155,7 @@ REG = {
     "royal_marriage":      ("text", "F", r"While in that Alliance, each member gains Faith \+(\d+) and (?:\+(\d+) Influence|Influence \+(\d+)) (?:per turn|each Empire Phase)"),
     "mountain_grass":      ("text", "F", r"treat mountain Territory as grassland for movement"),
     "war_on_you_doubt":    ("text", "F", r"When a player Declares War on you, that player and their allies gain Doubt \+(\d+)"),
-    "raze_extort":         ("text", "F", r"When you are the target of a Raze action, Extort (\d+) from the (?:target|player) that performed the Raze action"),
+    "raze_extort":         ("text", "F", r"When a Raze action targets you, Extort (\d+) from the attacker"),
     "trade_gate":          ("text", "F", r"No player may trade unless they first hold a Trade Agreement with you(, or are At War with you)?"),
     "build_edict":         ("text", "F", r"When a player builds an? ([\w ]+?), you must (\w+) it as an Edict"),
     "ally_cant":           ("text", "F", r"You \(and your Alliance\) can.t perform ([\w ]+?) actions"),
@@ -170,7 +170,7 @@ ONCE_RE = re.compile(r"\b(?:Once\s*/\s*turn|Once per turn|Once per game|Once per
 ONCE_AUTO = re.compile(REG["siege_double"][2] + "|" + REG["first_doubt"][2] + "|" + REG["forge_retry"][2], F)   # clauses the board applies or prompts itself: no Once-per tracker row
 XCH_RE = re.compile(r"(\d+)x\s*(?:/\s*turn|per \w+ Phase|in the \w+ Phase):?\s*exchange (\d+) gold for (?:(\d+) Influence|Influence \+(\d+))", F)
 CANT_RE = re.compile(r"(?:can.t|cannot)\s+(.+?)(?=,?\s+and\s+(?:you\s+)?(?:can.t|cannot)\b|$)", F)
-CANT_SKIP = re.compile(r"^(?:be the target|be in an Alliance|pursue|build|equip|use shields|gain Immune|exceed|refuse|choose|vote|be modified|be Razed)|\bon you$", F)
+CANT_SKIP = re.compile(r"^(?:be the target|be in an Alliance|pursue|build|equip|use shields|gain Immune|exceed|refuse|choose|vote|be modified|be Razed)|\bon you$|^target you\b", F)   # "X actions can't target you" restricts other players, not you
 SP_RE = re.compile("Speed\\s*([+\\-−])\\s?(\\d+)", F)
 
 

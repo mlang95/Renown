@@ -1005,10 +1005,9 @@ if hasattr(rd, "DOMAIN_BOARD"):
             rows.append([dom]+[db[dom].get(tier,"") for tier in TIER_ORDER])
     body="<h1>Domain Board</h1><p>Empire-side standing effects unlocked by raising a Domain. Rows are Domains; columns are Standings.</p>"
     body+=_grid(["Domain"]+TIER_ORDER, rows, u)
-    mi=db.get("max_influence_per_vote",{}); inn=db.get("innate_influence_own_envoys",{})
-    body+="<h2>Influence by Standing</h2>"
-    body+=_grid(["Standing","Max Influence / Vote","Innate Influence (own Envoys)"],
-                [[t, mi.get(t,""), inn.get(t,"")] for t in ["Untested","Rising","Established","Sovereign"]], u)
+    rk=getattr(rd,"STANDING_RANK",{})
+    body+="<h2>Standing Rank</h2><p>Your Envoys start at Authority equal to your rank; you may Support or Oppose up to your rank per vote.</p>"
+    body+=_grid(["Standing","Rank"],[[t, rk.get(t,"")] for t in ["Untested","Rising","Established","Sovereign"]], u)
     open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Domain Board",body,u))
     search_index.append({"title":"Domain Board","url":u,"text":"domain board standing indomitable grand vizier influence"})
 

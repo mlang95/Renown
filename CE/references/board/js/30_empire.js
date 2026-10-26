@@ -65,7 +65,9 @@ function effSpot(n,prefer){let best=0,sd=null;const ids=S.settlements.map(s=>s.i
 // Reach; then an efficient pairing; then a Natural-chain Holding to a Hamlet; then the clicked Settlement; otherwise the Settlement
 // with the most empty Wards (ties: largest tier, then newest). Hamlets only take Natural chains. null = no free Ward
 const SETT_SIZE=["Hamlet","Village","Town","City","Metropolis"];
-function smartSid(n,ctx,prefer){ctx=ctx||legalCtx();let C=S.settlements.filter(s=>autoOK(n,s.id));if(!C.length)return null;
+// a Holding efficient with a free Faction piece rides it there first (no Ward used)
+function facRide(n){return S.placed.some(p=>p.sid==="faction")&&canPlace(n,"faction").ok;}
+function smartSid(n,ctx,prefer){ctx=ctx||legalCtx();if(facRide(n)&&rawOK(n,"faction",ctx))return "faction";let C=S.settlements.filter(s=>autoOK(n,s.id));if(!C.length)return null;
   if(rawRes(n)&&ctx.me){const y=C.filter(s=>rawInSett(ctx,n,s.id)===true);if(y.length)C=y;else C=C.filter(s=>rawInSett(ctx,n,s.id)!==false);if(!C.length)return null;}
   const ids=new Set(C.map(s=>s.id)),ef=effSpot(n,prefer);if(ef!=null&&ids.has(ef))return ef;
   if(autoHamlet(n)){const h=C.filter(s=>s.tier==="Hamlet");if(h.length)C=h;}
@@ -157,10 +159,10 @@ function wpRender(){if(!WP)return;const gid=WP.gid,card=document.getElementById(
     card.appendChild(g);});}
 function wpPlace(n){const gid=WP?WP.gid:null;closeModal();if(gid==null)return;
   const t=smartSid(n,null,gid),to=t!=null?t:gid;
-  const pf=FOR_SID,pt=tab;FOR_SID=to;activeSid=to;tab="pursuit";
+  const pf=FOR_SID,pt=tab;FOR_SID=to;activeSid=to==="faction"?gid:to;tab="pursuit";
   try{addItem(n);}finally{tab=pt;FOR_SID=pf===to?null:pf;}
   renderList();}
-function settLbl(id){const st=S.settlements.find(x=>x.id===id);return st?(st.name||st.tier):"";}
+function settLbl(id){if(id==="faction")return "Faction";const st=S.settlements.find(x=>x.id===id);return st?(st.name||st.tier):"";}
 // Available-list row for a Root whose infrastructure_req is unmet: shown, can't be added
 function reqRow(n,miss){const row=pursuitRow(n);row.classList.add("reqmiss");const b=row.querySelector(".addbtn");b.disabled=true;b.onclick=e=>e.stopPropagation();
   row.querySelector(".nm").onclick=null;const m=document.createElement("span");m.className="meta neg";m.textContent="requires "+miss;row.querySelector(".rtop").insertBefore(m,b);return row;}
@@ -199,8 +201,8 @@ function addInfraByName(kind,n){                   // kind "infra" | "wonder"; s
 function placeHolding(n,pref,forcedSid){
   // Natural Pursuits fill Hamlets first (the only Pursuits a Hamlet takes); everything else: active settlement, capital, the rest
   const hams=(SIMPLE?hamletRoot(n):hamletOK(n))?S.settlements.filter(x=>x.tier==="Hamlet").map(x=>x.id):[];
-  const forced=forcedSid!=null&&S.settlements.some(s=>s.id===forcedSid)&&canPlace(n,forcedSid).ok;
-  const order=forced?[forcedSid]:hams.concat([pref],[capitalSett()&&capitalSett().id],S.settlements.map(x=>x.id)).filter((x,i,a)=>x!=null&&a.indexOf(x)===i&&(autoHamlet(n)||settTier(x)!=="Hamlet"));
+  const forced=forcedSid!=null&&(forcedSid==="faction"||S.settlements.some(s=>s.id===forcedSid))&&canPlace(n,forcedSid).ok;
+  const order=forced?[forcedSid]:(facRide(n)?["faction"]:[]).concat(hams,[pref],[capitalSett()&&capitalSett().id],S.settlements.map(x=>x.id)).filter((x,i,a)=>x!=null&&a.indexOf(x)===i&&(autoHamlet(n)||settTier(x)!=="Hamlet"));
   let target=null,host=null,note="",hosts=null;
   // 1) efficient pairing first — before a Natural goes solo into a Hamlet: pick the settlement where adding
   //    it creates the most new efficient pairs (it rides a host there, or something already there rides it).
@@ -509,7 +511,7 @@ function sfxLabel(f){const dm=f.dom&&f.dom!=="All"?f.dom:"";
   if(f.k==="defend")return SCORE+" on "+(f.dom||f.action||"")+" actions targeting you";
   if(f.k==="bandit")return SCORE+" on Bandit actions targeting you";
   if(f.k==="pool")return "Influence "+({Rising:"per Rising Domain",Established:"per Established Standing",others:"per other player",war:"while At War",holdings:"per "+f.n+" Holdings"}[f.per]||f.per);
-  if(f.k==="cap")return "Influence spend cap per vote";
+  if(f.k==="cap")return "Max Influence";
   if(f.k==="jester")return (f.n===1?"1st":"2nd")+" Oppose on your Envoy reduced by";
   return f.k;}
 function settFx(occ,have,craft,tc){const acc={},net={},txt={};
@@ -1377,7 +1379,7 @@ function armyCard(a,u){
   end.innerHTML='<span class="stat"><span class="k">ENDURANCE</span></span>';
   const eminus=document.createElement("button");eminus.textContent="−";eminus.onclick=()=>{a.endurance=(a.endurance||0)-1;save();render();};
   const eval_=document.createElement("span");eval_.textContent=(a.endurance!=null?a.endurance:0);
-  const eplus=document.createElement("button");eplus.textContent="+";eplus.onclick=()=>{a.endurance=(a.endurance||0)+1;save();render();};
+  const eplus=document.createElement("button");eplus.textContent="+";eplus.onclick=()=>{a.endurance=(a.endurance||0)+1;capEnd(a);save();render();};
   end.appendChild(eminus);end.appendChild(eval_);end.appendChild(eplus);line.appendChild(end);
   const fat=document.createElement("div");fat.className="endr";
   fat.innerHTML='<span class="stat"><span class="k">FATIGUE</span></span>';

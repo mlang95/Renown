@@ -79,10 +79,8 @@ function armyStateTags(p,a){const t=[];
   return t;}
 function armyBlocked(p,a){return !!a.blocked||!!a.sackT||(armyBesieged(p,a)&&!armyBesiegeExempt(p,a));}
 // ---- Garrisons: local Armies inside each Settlement while Garrison Infrastructure is active ----
-// sizes from the Garrison text "Local Armies form (10/15/25/50 by Settlement size)", in Settlement tier order
-function garrisonSizes(){const m=hitOf("i:Garrison","garrison_sizes");if(!m)return {};
-  const v=m[1].split("/").map(x=>+x.trim()),SET=DATA.settlements||{},tiers=Object.keys(SET).filter(t=>(+SET[t].tier||0)>0).sort((a,b)=>SET[a].tier-SET[b].tier),o={};
-  tiers.forEach((t,i)=>{if(v[i]!=null&&!isNaN(v[i]))o[t]=v[i];});return o;}
+// sizes: each Settlement tier's Garrison value (SETTLEMENTS garrison)
+function garrisonSizes(){const SET=DATA.settlements||{},o={};Object.keys(SET).forEach(t=>{if(+SET[t].garrison>0)o[t]=+SET[t].garrison;});return o;}
 function hasGarrisons(b){return withBoard(b,()=>Object.keys(S.infra||{}).some(n=>infraOn(n)&&!!hitOf("i:"+n,"garrison")));}
 // all Garrisons share one Retinue type and equipment
 function garrisonGear(b){b.garrison=b.garrison||{retinue:"Levy",weapon:"Farm Tools",ranged:"None",armor:"Cloth",shield:"None"};return b.garrison;}
@@ -104,7 +102,7 @@ function garrisonCard(u){const b=S,p=playerOfBoard(b);if(!p||!hasGarrisons(b))re
     inp.onchange=()=>{g.count=Math.max(0,Math.round(+inp.value)||0);save();render();};row.appendChild(inp);
     row.appendChild(document.createTextNode(" / "+g.size+" "));
     const rf=document.createElement("button");rf.textContent="reform";rf.title="set to "+g.size;rf.onclick=()=>{g.count=g.size;g.fatigue=0;save();render();};row.appendChild(rf);
-    if(sb){const bd=document.createElement("span");bd.className="badge noearn";bd.textContent="Besieged · can’t Sally Forth";row.appendChild(bd);}
+    if(sb){const bd=document.createElement("span");bd.className="badge noearn";bd.textContent="Besieged";row.appendChild(bd);}
     tb.appendChild(row);});
   card.appendChild(tb);return card;}
 // ---- once-per-turn / "may" effects on a player's active pieces: a used-this-turn toggle each (no automation) ----
@@ -165,7 +163,7 @@ function extortGold(from,to,amt,why){
   // Reaction transfers are ledgered directly and tagged, so they cannot recurse.
   if(t&&to&&!to.camp&&to.b){const extorter=D.players.find(p=>p.board===to.b);if(extorter)blackMarketReact(extorter,t,"black_market_extort","Extort");}
   return t;}
-// Danegeld: "While At War, your Armies within reach of at-war Settlements Extort their upkeep from that settlement's controller".
+// Danegeld: "While At War, your Armies within reach of at-war Settlements Extort their upkeep from that Settlement's owner".
 // One row per Army standing in Territory reached by an at-war player's Settlements; that player pays the Army's upkeep
 // (the first such player if several reach the hex).
 function danegeldRows(me){if(!me||!mapState().grid||!srcHas(me.board,"danegeld"))return [];const pid=String(me.id),g=mapState().grid,own=reachOwners(mapState(),g.width,g.height),rows=[];
@@ -325,6 +323,7 @@ function musterLimit(p,a){const k=armyHex(p,a),rb=reachBonus(p).b,out={lim:0,src
     let ok=!k;if(k){const sk=settHex(p,s);ok=!!sk&&hexDist(hk(sk),hk(k))<=(+st.reach||0)+rb;}
     if(!ok)return;if(siegeOn(p.id,s.id)&&!srcHas(p.board,"muster_besieged")){out.paused.push(s.name||s.tier);return;}
     out.lim+=ml;out.src.push((s.name||s.tier)+" "+ml);});
+  if(out.lim)srcMatch(p.board,"muster_plus").forEach(x=>{out.lim+=+x.m[1];out.src.push(x.n+" +"+x.m[1]);});   // "Muster Limit +X": once, on the combined limit
   return out;}
 function musterTick(p){const out=[];(p.board.armies||[]).forEach(a=>{const m=a.muster;if(!m||!(m.n>0))return;
   const L=musterLimit(p,a),room=Math.max(0,(EQ.army_max||25)-(a.count||0)),g=Math.min(L.lim,m.n,room);

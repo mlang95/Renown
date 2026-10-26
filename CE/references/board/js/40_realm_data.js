@@ -19,7 +19,7 @@ function influenceRowsBase(b){
   const am=pid?D.players.filter(q=>sameAlliance(pid,q.id)).length:0;add("Alliances",am,am*igVal("Alliances"));
   const tiers=withBoard(b,()=>{const T={};Object.keys(INFRA).forEach(n=>{(T[INFRA[n].tier]=T[INFRA[n].tier]||[]).push(n);});return Object.keys(T).filter(t=>T[t].every(infraOn)).length;});
   add("Infrastructure tier completed",tiers,tiers*igVal("Infrastructure tier completed"));
-  dbActive(b).forEach(x=>{const m=/(?:\+(\d+) Influence|Influence \+(\d+)) (?:per turn|each Empire Phase)/i.exec(x.text);if(m)rows.push({k:x.name+" ("+x.tier+" "+x.dom+")",cnt:1,val:+(m[1]||m[2])});});
+  dbActive(b).forEach(x=>{const m=/(?:\+(\d+) Influence|(?<!Max )Influence \+(\d+))(?: (?:per turn|each Empire Phase))?/i.exec(x.text);if(m)rows.push({k:x.name+" ("+x.tier+" "+x.dom+")",cnt:1,val:+(m[1]||m[2])});});
   const fa=(b.armies||[]).filter(a=>(a.count||0)>=EQ.army_max).length;add("Fully Mustered Army",fa,fa*igVal("Fully Mustered Army"));
   const ce=+b.condemned||0;add("Condemned Envoy last turn",ce,ce*igVal("Condemned Envoy last turn"));
   const war=playerAtWar(pid)&&!(p&&fxOf(p,"ignoreWar").length)?1:0,noLoss=dbActive(b).find(x=>/No longer lose Influence while at War/i.test(x.text));
@@ -60,10 +60,10 @@ function poModRows(b){b.poMods=b.poMods||{};const p=playerOfBoard(b),pid=p?Strin
   // faction "Gain Faith|Doubt +N per Empire Phase" (own faction only; "for every …" variants are counted in calcMetrics)
   if(b.faction)srcMatch(b,"fd_per_empire").filter(x=>x.n===b.faction).forEach(x=>
     rows.push({side:x.m[1].toLowerCase(),k:b.faction,desc:x.m[1]+" +"+x.m[2]+" per Empire Phase",auto:true,n:+x.m[2]}));
-  // "Each player gains Doubt +N per Empire Phase per Sacred War you're on" (Prophets of War): its owner keeps the Sacred War count
+  // "Each other player gains Doubt +N each Empire Phase per Sacred War you're on" (Prophets of War): its owner keeps the Sacred War count (gains none)
   D.players.forEach(q=>srcMatch(q.board,"sacred_war_each").filter(x=>x.n===q.board.faction).forEach(x=>{
     const K="Sacred Wars · "+q.board.faction,cnt=+((q.board.poMods||{})[K])||0;
-    if(q.board===b)rows.push({side:x.m[1].toLowerCase(),k:K,desc:"Sacred Wars you're on (each player: "+x.m[1]+" +"+x.m[2]+" each)",auto:false,n:cnt*+x.m[2]});
+    if(q.board===b)rows.push({side:x.m[1].toLowerCase(),k:K,desc:"Sacred Wars you're on (each other player: "+x.m[1]+" +"+x.m[2]+" each)",auto:false,n:0});
     else if(cnt)rows.push({side:x.m[1].toLowerCase(),k:x.n+" · "+q.name,desc:cnt+" Sacred War"+(cnt>1?"s":"")+" ("+q.name+")",auto:true,n:cnt*+x.m[2]});}));
   if(p){const INN="trade_partner_faith",cr=q=>boardMetrics(q.board).craft;
     srcMatch(b,INN).forEach(x=>{const L=D.players.filter(q=>!sameP(q,p)&&effPair(p.id,q.id).trade&&cr(q)>=+x.m[2]);
@@ -85,9 +85,9 @@ function totTip(k){let t=(SIMPLE&&totTipSimple(k))||TOT_TIPS[k]||"";
   return t;}
 // ---- Empire Phase Faith/Doubt: DOMAIN_BOARD standings (cumulative) + active pieces ----
 // self:  "<Name>: Faith|Doubt +N each Empire Phase"
-// lower: "Each Empire Phase, all [other] non-allied players with a lower <Domain> value gain Faith|Doubt +N"
+// lower: "Each Empire Phase, each [other] non-allied player with a lower <Domain> value gains Faith|Doubt +N"
 // floor: "If your Public Order would be set below N, set it to N"
-const EP_SELF=/(Faith|Doubt)\s*\+(\d+)\s+each Empire Phase/i,EP_LOW=/Each Empire Phase, all (?:other )?non-allied players with a lower (\w+) value gain (Faith|Doubt)\s*\+(\d+)/i,
+const EP_SELF=/(Faith|Doubt)\s*\+(\d+)\s+each Empire Phase/i,EP_LOW=/Each Empire Phase, each (?:other )?non-allied player with a lower (\w+) value gains (Faith|Doubt)\s*\+(\d+)/i,
       EP_FLOOR=/If your Public Order would be set below (-?\d+), set it to (-?\d+)/i;
 function epSources(b){const out=[],dv=b.domains||{},TIERS=[["Rising",RIS],["Established",EST],["Sovereign",SOV]];
   DOMAINS.forEach(d=>{const e=DBOARD[d];if(!e||typeof e!=="object")return;TIERS.forEach(([t,th])=>{const tx=e[t];if(!tx||(dv[d]||0)<th)return;
@@ -123,7 +123,7 @@ function epRows(b){const rows=[],me=playerOfBoard(b),mid=me?String(me.id):null,d
   if(mid)D.players.forEach(q=>{if(String(q.id)===mid)return;          // other players' Holdings aimed at you
     withBoard(q.board,()=>Object.keys(PC).filter(n=>PC[n]>0))
     .forEach(n=>{let m=hitOf("h:"+n,"fd_others_without");
-      if(m&&!holdsActive(b,m[3].trim()))rows.push({side:m[1].toLowerCase(),k:n+" · "+q.name,desc:"no "+m[3].trim(),auto:true,n:+m[2]});
+      if(m&&!holdsActive(b,m[1].trim()))rows.push({side:m[2].toLowerCase(),k:n+" · "+q.name,desc:"no "+m[1].trim(),auto:true,n:+m[3]});
       m=hitOf("h:"+n,"fd_per_treaty");
       if(m&&!isVassal(mid)){const x=effPair(mid,q.id),c=x.household?0:(x.trade?1:0)+(x.nap?1:0)+(sameAlliance(mid,String(q.id))?1:0);
         if(c)rows.push({side:m[1].toLowerCase(),k:n+" · "+q.name,desc:c+(c>1?" Treaties":" Treaty")+" with "+q.name+" (not Peace)",auto:true,n:+m[2]*c});}});});
@@ -181,12 +181,13 @@ function siegeCalc(opts){const sg=siegeState(),C=(DATA.siege||{}).calculus||{},S
     (cfg.settlement_sources||[]).forEach(src=>{const v=SV[src]||{};let val=0;
       if(src==="Settlement Size")val=st?(((DATA.settlements||{})[st.tier]||{})[v.field||"tier"]||0):0;
       else if(src==="Standing Army")val=sg.army?(v.value||0):0;
-      else if(src==="Citadel"){const c=S.placed.find(q=>q.name==="Citadel"&&pActive(q)&&st&&q.sid===st.id);val=c?(v.innate_value||0)+(ce.Citadel?(v.mastery_value||0):0):0;}
+      else if(v.from==="text"){const c=S.placed.find(q=>q.name===src&&pActive(q)&&st&&q.sid===st.id);   // its own "Siege Timer +X", in its own Settlement only
+        val=c?efxOf("h:"+src,"siege_def_plus").concat(ce[src]?efxOf("hm:"+src,"siege_def_plus"):[]).reduce((t,m)=>t+(+m[1]||0),0):0;}
       else val=infraOn(src)?(v.value||0):0;
       rows.push({src,val});});});
   const tm=mode==="Convert"?{rows:[],noWalls:[]}:siegeTextMods(p,opts&&("att" in opts)?opts.att:(pById(sg.by)||D.players.find(q=>q!==p)));
-  if(tm.noWalls.length)rows.forEach(r=>{if(/Walls$/.test(r.src)&&r.val){r.val=0;r.src+=" (ignored: "+tm.noWalls.join(", ")+")";}});
   tm.rows.forEach(r=>rows.push(r));
+  if(tm.noWalls.length)rows.forEach(r=>{if(/Walls/.test(r.src)&&r.val){r.val=0;r.src+=" (ignored: "+tm.noWalls.join(", ")+")";}});
   const base=rows.reduce((a,r)=>a+r.val,0),att=cfg.attacker_sources?(+sg.att||0):0,def=+sg.def||0;
   return {p,st,mode,cfg,rows,base,att,def,total:Math.max(cfg.floor||1,base+def-att)};}
 function siegeHTML(){const sg=siegeState(),c=siegeCalc(),C=(DATA.siege||{}).calculus||{};

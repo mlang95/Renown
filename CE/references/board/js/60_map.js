@@ -423,7 +423,7 @@ function inspSett(k){const {p,s}=cellSett(k),cell=mapState().cells[k];if(!p)retu
 // When the player has a Passed or Endorsed Envoy waiting whose actions include it, the action is Performed with that Envoy
 // (cost, outcome and riders as on the Table); otherwise it is placed by hand (no cost).
 function envoyFor(p,action){if(!p)return null;const R=tSim();
-  return R.envoys.find(E=>sameP(E.owner,p)&&(E.out==="Passed"||E.out==="Endorsed")&&resolveOpen(R,E)&&canAct(p)&&pfActs(E).includes(action)&&
+  return withSlots(R.envoys).find(E=>sameP(E.owner,p)&&(E.out==="Passed"||E.out==="Endorsed")&&resolveOpen(R,E)&&canAct(p)&&pfActs(E).includes(action)&&
     (()=>{const rec=((tCur(p).perform)||{})[E.id];return !rec||rec.edit;})())||null;}
 function settActionsHTML(p,s){if(!inspCan(p.id)||settUnbuilt(s))return "";
   const sid=s.id,opt=(L)=>L.map(x=>'<option value="'+esc(x.v)+'">'+esc(x.label)+'</option>').join("");
@@ -441,7 +441,7 @@ function armyMusterBtn(p,a){if(!inspCan(p.id))return "";const E=envoyFor(p,"Must
 DO.mapact=el=>{const p=pById(el.dataset.who),act=el.dataset.act;if(!p)return;
   const sel=el.parentElement.querySelector("[data-ia]"),sub=act==="Muster"?"r:"+el.dataset.aid:sel?sel.value:"";
   if(el.dataset.env){const c=tCurW(p);c.perform=c.perform||{};c.perform[el.dataset.env]={action:act,target:"",sub,place:act==="Build"?String(el.dataset.sid):"",ts:tnow()};
-    if(act==="Settle")mtool="Village";save();D.view="table";render();flash(p.name+": "+act+" performed with the "+el.dataset.env.split(":")[2]+" Envoy");return;}
+    if(act==="Settle")mtool="Village";save();D.view="table";render();flash(p.name+": "+act+" performed with the "+el.dataset.env.split("#")[0].split(":")[2]+" Envoy");return;}
   const log=[],ctx={o:p,q:null,sub,log:x=>log.push(x),flag:x=>log.push("⚑ "+x),pend:()=>{},E:null,out:"Passed"};
   if(act==="Build"){const n=sub.slice(2),r=withBoard(p.board,()=>placeHolding(n,+el.dataset.sid,+el.dataset.sid));log.push(p.name+" builds "+n+(r.np.bt>0?" · Build Timer "+r.np.bt:""));}
   else if(act==="Improve")runImprove(ctx);else if(act==="Expand")runExpand(ctx);else if(act==="Repair")runRepair(ctx);else if(act==="Muster")runMuster(ctx);
@@ -735,7 +735,7 @@ function wardFill(p,s){if(settUnbuilt(s))return [];
 function wardCand(p,s){const sk=settHex(p,s);if(!sk)return [];const V=decodeGrid(mapState().grid);
   return hexNb(sk).filter(k=>{const h=V.hex[k];return !!h&&h.t!=="water"&&!terrBlocked(h.t)&&hexFree(k);});}
 // the hexes a piece's Presence radiates from: an Army's own hex; a Settlement's hex while its owner has a Garrison
-// ("Your Settlements have Presence"), its Wards while they have a Keep ("Your Settlement Wards have Presence")
+// ("Your Settlements gain Garrisons & Presence"), its Wards while they have a Keep ("Your Settlement Wards have Presence")
 function presHexes(k){const c=mapState().cells[k];if(!c||c.type==="Army")return [k];const cs=cellSett(k),p=cs.p||cellPlayer(c);if(!p)return [];
   return (srcHas(p.board,"settlement_presence")?[k]:[]).concat(wardMap()&&cs.s&&settHex(p,cs.s)===k&&srcHas(p.board,"ward_presence")?wardsOf(p,cs.s):[]);}
 // automatic Ward placement: each filled Ward without a hex goes on free adjacent land, farthest from any Outlaw Country first

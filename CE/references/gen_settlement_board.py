@@ -57,7 +57,7 @@ FAITH_RE  = re.compile(r"Faith\s*\+?\s*(\d+)", re.I)
 DOUBT_RE  = re.compile(r"Doubt\s*\+?\s*(\d+)", re.I)
 UPKEEP_RE = re.compile(r"Upkeep\s*(-?\d{2,})", re.I)
 AUTH_RE   = re.compile(r"Authority\s*([+\-\u2212]\s?\d+)")   # Envoy score modifier (TERM_ENVOY_SCORE)
-INFL_RE   = re.compile(r"(?:Influence\s*([+-]\s?\d+))|(?:([+-]\s?\d+)\s*Influence)", re.I)   # Influence tokens (canon "Influence +N")
+INFL_RE   = re.compile(r"(?:(?<!Max )Influence\s*([+-]\s?\d+))|(?:([+-]\s?\d+)\s*Influence)", re.I)   # Influence tokens (canon "Influence +N"; "Max Influence +N" is the vote limit)
 EXTORT_RE = re.compile(r"Extort\s*(\d+)", re.I)
 BUILDT_RE = re.compile(r"Build Timer\s*(-?\d+)", re.I)
 SIEGET_RE = re.compile(r"Siege Timer\s*([+-]?\d+)", re.I)
@@ -110,7 +110,7 @@ def classify(clause):
         m = re.fullmatch(r"Extort\s*\d+(\s+twice)?\.?", c, re.I)
         if m:                                   # bare "Extort N" (or "twice") = every Empire Phase
             atom.update(every=True); v = v * (2 if m.group(1) else 1)
-        m = re.search(r"Extort\s*\d+\s+(?:per|every)\s+player\s+without\s+(?:an?\s+)?(.+)$", c, re.I)
+        m = re.search(r"Extort\s*\d+\s+(?:per|every|from each other)\s+player\s+without\s+(?:an?\s+)?(.+)$", c, re.I)
         if m: atom.update(without=m.group(1).strip())
         return finish("extort", v, set())
     if re.search(r"recoup|loan|tithe", c, re.I):
@@ -170,11 +170,11 @@ def envoy_fx(raw):
         if not c: continue
         for f in out[pend[0]:]: f.setdefault("t", pend[1])
         pend = (len(out), c)
-        m = re.search(r"(?:Authority|Influence)\s*" + _N + r"\s+to\s+(non-)?Council Envoys$", c, re.I)
+        m = re.search(r"(?:Authority|Influence)\s*" + _N + r"\s+(?:to|on)\s+(?:your\s+)?(non-)?Council Envoys$", c, re.I)
         if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "personal" if m.group(2) else "council", "dom": "All"}); continue
-        m = re.search(r"(?:Authority|Influence)\s*" + _N + r"\s+to\s+(" + _DOMS + r")\s+Envoys$", c, re.I)
+        m = re.search(r"(?:Authority|Influence)\s*" + _N + r"\s+(?:to|on)\s+(?:your\s+)?(" + _DOMS + r")\s+Envoys$", c, re.I)
         if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "all", "dom": m.group(2).title()}); continue
-        m = re.search(r"(?:Authority|Influence)\s*" + _N + r"\s+to\s+(.+?)\s+(?:Envoys|actions)(\s+from players)?\s+target+ing\s+(?:you|this player|your settlements)", c, re.I)
+        m = re.search(r"(?:Authority|Influence)\s*" + _N + r"\s+(?:to|on)\s+(.+?)\s+(?:Envoys|actions)(\s+from players)?\s+target+ing\s+(?:you|this player|your settlements)", c, re.I)
         if m and m.group(2).lower().startswith("bandit"):
             out.append({"k": "bandit", "val": _iv(m.group(1))}); continue   # Bandit (Cunning) actions targeting you
         if m:
@@ -183,15 +183,17 @@ def envoy_fx(raw):
                         "action": None if dm else what.title(), "players": bool(m.group(3))}); continue
         m = re.search(r"(?:Authority|Influence)\s*" + _N + r"\s+when performing\s+(" + _DOMS + r")\s+actions", c, re.I)
         if m: out.append({"k": "act", "val": _iv(m.group(1)), "dom": m.group(2).title()}); continue
-        m = re.search(r"(?:Authority|Influence)\s*" + _N + r"\s+to\s+(" + _DOMS + r")\s+actions$", c, re.I)
+        m = re.search(r"(?:Authority|Influence)\s*" + _N + r"\s+(?:to|on)\s+(?:your\s+)?(" + _DOMS + r")\s+actions$", c, re.I)
         if m: out.append({"k": "act", "val": _iv(m.group(1)), "dom": m.group(2).title()}); continue
-        m = re.search(r"^(?:gain\s+)?(?:" + _N + r"\s*Influence|Influence\s*" + _N + r") per (Domain you are Rising|Established Standing|other player (?:per Turn|each Empire Phase))", c, re.I)
+        m = re.search(r"^(?:gain\s+)?(?:" + _N + r"\s*Influence|Influence\s*" + _N + r") per (Domain you are Rising|Established Standing|other player(?: (?:per Turn|each Empire Phase))?)$", c, re.I)
         if m:
             per = {"domain you are rising": "Rising", "established standing": "Established"}.get(m.group(3).lower(), "others")
             out.append({"k": "pool", "val": _iv(m.group(1) or m.group(2)), "per": per}); continue
-        m = re.search(r"Gain\s*(?:" + _N + r"\s*Influence|Influence\s*" + _N + r") while At War", c, re.I)
+        m = re.search(r"(?:Gain\s*)?(?:" + _N + r"\s*Influence|Influence\s*" + _N + r") while At War", c, re.I)
         if m: out.append({"k": "pool", "val": _iv(m.group(1) or m.group(2)), "per": "war"}); continue
         if re.search(r"additional Influence per Support or Oppose", c, re.I): out.append({"k": "cap", "val": 1}); continue
+        m = re.search(r"Max Influence\s*" + _N + r" on every Envoy", c, re.I)
+        if m: out.append({"k": "cap", "val": _iv(m.group(1))}); continue
         m = re.search(r"(First|Second) Oppose on your Envoy(?: each turn| per turn| each Envoy Phase)?: reduce by (\d+)", c, re.I)
         if m: out.append({"k": "jester", "n": 1 if m.group(1).lower() == "first" else 2, "val": int(m.group(2))}); continue
         m = re.search(r"First and second Oppose on (?:an Envoy of yours|your Envoys?)(?: each turn| per turn| each Envoy Phase)?: reduce by (\d+)", c, re.I)
@@ -206,6 +208,11 @@ def envoy_fx(raw):
         if m: out.append({"k": "domAs", "dom": m.group(1).title(), "for": "All"}); continue
         m = re.search(r"(" + _DOMS + r") Envoys use your (" + _DOMS + r") Standing for their innate", c, re.I)
         if m: out.append({"k": "domAs", "dom": m.group(2).title(), "for": m.group(1).title()}); continue
+        m = re.search(r"(" + _DOMS + r") Envoys start at Authority equal to your (" + _DOMS + r") rank", c, re.I)
+        if m: out.append({"k": "domAs", "dom": m.group(2).title(), "for": m.group(1).title()}); continue
+        # "your Max Influence on Diplomacy Envoys is your Cunning rank" (The Illusionists): that Domain's rank sets the vote limit
+        m = re.search(r"your Max Influence on (" + _DOMS + r") Envoys is your (" + _DOMS + r") rank", c, re.I)
+        if m: out.append({"k": "capAs", "dom": m.group(2).title(), "for": m.group(1).title()}); continue
         # "can't be in an Alliance" / "cannot form alliances" / "can't join Alliances" / "No Alliances" (flag only)
         if re.search(r"(?:can(?:no|')t|may not) (?:be in an?|be a member of an?|form|join(?: an?)?) Alliances?\b|\bno Alliances\b", c, re.I): out.append({"k": "noAlliance"}); continue
         m = re.search(r"(?:with lower (" + _DOMS + r") (?:value|Standing) )?can't Oppose your (" + _DOMS + r") Envoys", c, re.I)
@@ -223,6 +230,8 @@ def envoy_fx(raw):
         if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "personal", "dom": "All", "noSpring": bool(m.group(2))}); continue
         m = re.search(r"Your (" + _DOMS + r") Envoys have (?:Authority|Influence)\s*" + _N + r" when targeting a player with Public Order (?:above|greater than) (-?\d+)", c, re.I)
         if m: out.append({"k": "act", "val": _iv(m.group(2)), "dom": m.group(1).title(), "tgtPOabove": int(m.group(3))}); continue
+        m = re.search(r"Authority\s*" + _N + r" on your (" + _DOMS + r") actions targeting a player with Public Order (-?\d+) or higher", c, re.I)
+        if m: out.append({"k": "act", "val": _iv(m.group(1)), "dom": m.group(2).title(), "tgtPOabove": int(m.group(3)) - 1}); continue
         m = re.search(r"(?:^|\b)you have (?:Authority|Influence)\s*" + _N + r" on (Personal )?(" + _DOMS + r") Envoys", c, re.I)
         if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "personal" if m.group(2) else "all", "dom": m.group(3).title()}); continue
         m = re.search(r"A (" + _DOMS + r") Envoy you send can't fail", c, re.I)
@@ -235,6 +244,8 @@ def envoy_fx(raw):
         if re.search(r"you choose every Council Envoy's Domain", c, re.I): out.append({"k": "councilChoose"}); continue
         m = re.search(r"While the Era is (\w+),? you may spend up to (\d+) Influence per Envoy", c, re.I)
         if m: out.append({"k": "capEra", "era": m.group(1).title(), "val": int(m.group(2))}); continue
+        m = re.search(r"While the Era is (\w+),? your Max Influence is (\d+) on every Envoy", c, re.I)
+        if m: out.append({"k": "capEra", "era": m.group(1).title(), "val": int(m.group(2))}); continue
         if re.search(r"unspent Influence isn't discarded", c, re.I): out.append({"k": "carry"}); continue
         if re.search(r"You Abstain on every vote on other players' Envoys", c, re.I): out.append({"k": "alwaysAbstain"}); continue
         if re.search(r"You abstain (?:on )?every Personal Envoy", c, re.I): out.append({"k": "alwaysAbstain"}); continue   # Council Envoys take no votes
@@ -242,7 +253,7 @@ def envoy_fx(raw):
         m = re.search(r"other players must spend (\d+) Influence to affect your Envoys by 1", c, re.I)
         if m: out.append({"k": "voteCost", "val": int(m.group(1))}); continue
         if re.search(r"Ignore the innate Doubt and Influence modifiers for being At War", c, re.I): out.append({"k": "ignoreWar"}); continue
-        m = re.search(r"gain\s*(?:" + _N + r"\s*Influence|Influence\s*" + _N + r") for every (\d+) Holdings", c, re.I)
+        m = re.search(r"(?:gain\s*)?(?:" + _N + r"\s*Influence|Influence\s*" + _N + r") (?:for every|per) (\d+) (?:Holdings|Pursuits)", c, re.I)
         if m: out.append({"k": "pool", "val": _iv(m.group(1) or m.group(2)), "per": "holdings", "n": int(m.group(3))}); continue
     for f in out[pend[0]:]: f.setdefault("t", pend[1])
     return out
@@ -679,6 +690,7 @@ def check_rules(ns, rules_path):
     m = re.search(r"Untested\s*(\d+),?\s*Rising\s*(\d+),?\s*Established\s*(\d+),?\s*Sovereign\s*(\d+)", txt, re.I)
     for i, st in enumerate(["Untested", "Rising", "Established", "Sovereign"]):
         add(f"Influence cap: {st}", mip.get(st, "?"), int(m.group(i+1)) if m else None, f"DOMAIN_BOARD.max_influence_per_vote.{st}")
+        if not m and "{{VAL:STANDING_RANK." + st in txt and rows[-1][3] == "NOT IN RULES": rows[-1] = rows[-1][:2] + ("{{VAL}}", "templated (auto-synced)")   # rules print STANDING_RANK (= this row)
 
     # Era thresholds (data ERAS vs rules — not present in doc)
     for e, x in ns.get("ERAS", {}).items():
@@ -865,7 +877,7 @@ RULES_CONSTS = ("PHASES", "MARCH_MULTIPLIER", "MUSTER_RANGE", "CHARTER_MIN_RANGE
                 "BLUNDER_THR", "STANDING_ARMY_SIEGE_MODIFIER", "BANDIT_BEHAVIOR", "UPKEEP_TRACKS",
                 "GLOSSARY_CATEGORIES", "STARTING_TREASURY", "EMPIRE_START_TIERS", "TERM_ENVOY_SCORE", "RENOWN_MAX",
                 "CAPITAL_EDGE_RANGE", "AGE_YEAR_SEASON",
-                "PRESENCE_RANGE", "FAITH_FICKLE_PO", "WARD_MODEL")
+                "PRESENCE_RANGE", "FAITH_FICKLE_PO", "WARD_MODEL", "SETUP_HAMLET_HOLDINGS")
 
 def effects_report(ns, records, infra, wonders, out_md):
     """ENVOY_WINDOW_REVIEW.md: every clause that names Envoys, its timing window and Personal / Council predicate

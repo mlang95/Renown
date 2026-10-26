@@ -490,8 +490,9 @@
   .hc .hl{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
   .hc .hv{font:600 14px var(--mono);white-space:nowrap}
   .hc .hs{font:10.5px var(--mono);color:var(--dim);white-space:nowrap}
+  .hc .hapx{display:inline-flex;flex-direction:column;vertical-align:middle;margin-left:4px;line-height:1}.hc .hapx i{font:500 8.5px var(--mono);color:var(--dim);font-style:normal}
   .hc .hv small{font:500 10.5px var(--mono);color:var(--dim);margin-left:3px}.hc .hv small.up{color:var(--income)}.hc .hv small.dn{color:var(--upkeep)}
-  .hc .hdom{gap:7px}.hc .hdom span{font:600 14px var(--mono);gap:2px}.hc .hdom em{font:500 9px var(--mono);color:var(--dim);font-style:normal}
+  .hc .hdom{gap:7px}.hc .hdom span{font:600 14px var(--mono);gap:2px}.hc .hdom em{font:500 9px var(--mono);color:var(--dim);font-style:normal}.hc .hdom sup{font:500 8.5px var(--mono);color:var(--dim);margin-left:1px}
   .rt-wrap{display:flex;flex-direction:column;gap:3px}
   .rt-scroll{overflow-x:auto}
   .rtable{width:100%;font-size:12.5px}.rtable td,.rtable th{padding:3px 6px;white-space:nowrap}
