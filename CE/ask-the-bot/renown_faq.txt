@@ -61,13 +61,13 @@ Castle Hall | [Castle Hall](https://mlang95.github.io/RenownWiki/pursuits.html) 
 Casualty | [Casualty](https://mlang95.github.io/RenownWiki/glossary.html#casualty): A retinue removed from the field — from an unsaved Strike or a failed Panic or Break check.
 Cathedral | [Cathedral](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Prodigious). Upkeep 400 (each Empire Phase), build 4. Faith +2
 Cavalry Spear | [Cavalry Spear](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP −2, Init +1. Keywords: Steady, Unwieldy, Unstoppable, Awkward.
-Census Hall | [Census Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Works). Effect: Natural; Doubt +1; +1000
+Census Hall | [Census Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Works). Effect: Natural; Doubt +1; +1000; Craft +3
 Chainmail | [Chainmail](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Wrought). Save 6+. Keywords: none.
 Chandlery | [Chandlery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Devotion). Effect: Craft +1; Authority −1 on Cunning actions targeting you
 Chapel | [Chapel](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Developed). Upkeep 200 (each Empire Phase), build 2. Faith +1
-Charcoal Burner | [Charcoal Burner](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Natural; +500
+Charcoal Burner | [Charcoal Burner](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Natural; +1000
 Charnel House | [Charnel House](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Secrecy). Effect: Indecisive, Aimless, & Recession effects are doubled for all players
-Cidery | [Cidery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Husbandry). Effect: Natural; Faith +1; +800; Craft +1
+Cidery | [Cidery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Husbandry). Effect: Natural; Faith +1; +500; Craft +1
 Cipher Chamber | [Cipher Chamber](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Secrecy). Effect: At the Start of the Empire Phase: select an army you did not select last turn; that army gains Blocked. At the Start of the Empire Phase: select any active Timer you did not select last turn; increase it by 2.
 Citadel | [Citadel](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Works). Effect: Siege Timer +3, Your Settlements gain Reach +1 / Requires: Stone Walls
 City | [City](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 3). Tax 6000, muster 25, build 6, wards 3, reach 6. 
@@ -225,7 +225,7 @@ Lance | [Lance](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee w
 Last Alliance Standing | [Last Alliance Standing](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Endgame). Be the last alliance standing — the game-ending stop condition.
 Leather | [Leather](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Cast). Save 7+. Keywords: none.
 Levy | [Levy](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 6+, Endurance 3, Morale 7+, cost 1000.
-Levy Hall | [Levy Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Natural, Speed +1; Upkeep −2000 while an Army is within Range 0 of a Settlement you Control / Requires: Garrison
+Levy Hall | [Levy Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Natural; Speed +1; Upkeep −2000 while an Army is within Range 0 of a Settlement you Control / Requires: Garrison
 Library | [Library](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Sophisticated). Upkeep 300 (each Empire Phase), build 3. Council Envoys you send are always Endorsed
 Living Saints | [Living Saints](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Piety). Sustain Public Order 10 (Living Saints) for five consecutive turns (Pious Timer).
 Longbow | [Longbow](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Cast). AP −1, Init +2. Keywords: 2H, Unstoppable, Deadly, Awkward.
@@ -271,7 +271,7 @@ Non-Aggression Pact | [Non-Aggression Pact](https://mlang95.github.io/RenownWiki
 Office of Works | [Office of Works](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Natural; Settlements & allied Armies inside them are not affected by 'Settlements being Besieged' restrictions. Siege Timer +2; Build Timer −2
 One-Shot | [One-Shot](https://mlang95.github.io/RenownWiki/keywords-ref.html#one-shot): Must be Equipped in the first Skirmish of a Battle, and can't be Equipped after it. Requires a Tiltyard.
 Oppose X | [Oppose X](https://mlang95.github.io/RenownWiki/glossary.html#oppose-x): Spend X Influence to decrease an Envoy's net Authority.
-Orchard | [Orchard](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Husbandry). Effect: +1500; Natural; +500 in Fall
+Orchard | [Orchard](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Husbandry). Effect: +500; Natural; +500 in Fall
 Ossuary Crypt | [Ossuary Crypt](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: All player's Piety actions give an additional Doubt +1. You may target players with Piety actions regardless of your Public Order.
 Outlaw Country | [Outlaw Country](https://mlang95.github.io/RenownWiki/glossary.html#outlaw-country): Uncontrollable Territory zones where Bandit Camps spawn (3 Territories each at Setup). A zone is your Outlaw Country while any of its Territories is within your Province. Foster Rebellion expands it when there is no room; otherwise, when there is no room, its Bandit Camps grow instead.
 Outlaw Rookery | [Outlaw Rookery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Both Bandit Camps & you have Authority +1 on Personal Cunning Envoys. Endorsed Foster Rebellion instead places Bandit Armies with 25 retinues.
@@ -366,7 +366,7 @@ Siege Timer | [Siege Timer](https://mlang95.github.io/RenownWiki/glossary.html#s
 Siege Works | [Siege Works](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Siege Timer −1; Siege Timers count down in Winter
 Sign Treaty | [Sign Treaty](https://mlang95.github.io/RenownWiki/actions-ref.html): Diplomacy action. Cost: None. Ask players to agree, then choose one and both sign it: Peace Treaty — end the war, set Truce Timer 5; Trade Agreement — begin trading next turn; Non-Aggression Pact — no Declare War (ending it via End Treaty gives both Truce Timer 5); Alliance — join, form, or invite to a Defensive or Military Alliance. Endorsed: Faith +1.
 Skirmish | [Skirmish](https://mlang95.github.io/RenownWiki/glossary.html#skirmish): One round of a Battle, run through the numbered Battle steps; a Battle repeats Skirmishes until it ends.
-Smokehouse | [Smokehouse](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Natural; Craft +2; Upkeep −500
+Smokehouse | [Smokehouse](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Natural; Craft +2; Upkeep −1000
 Smuggler's Nook | [Smuggler's Nook](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Secrecy). Effect: gain Immune Uprising (Bandit Camp Spawn at −5PO); Bandit Camps in your Outlaw Country don't target you and instead target another player at random.
 Sovereign Standing | [Sovereign Standing](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Standing). Reach a Sovereign Standing (Domain value 10) in any Domain.
 Spear | [Spear](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Cast). AP −1, Init +1. Keywords: Unwieldy.
@@ -479,7 +479,7 @@ Vassalize | [Vassalize](https://mlang95.github.io/RenownWiki/edicts-ref.html) Ed
 victory | See 'how to win' / 'edicts'.
 victory points | See 'escalation victory'.
 Village | [Village](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 1). Tax 2000, muster 5, build 2, wards 1, reach 2. 
-Vineyard | [Vineyard](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Husbandry). Effect: +500; Natural; +1500 in Fall
+Vineyard | [Vineyard](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Husbandry). Effect: Natural; +1000 in Fall
 Vote | [Vote](https://mlang95.github.io/RenownWiki/glossary.html#vote): On each Envoy, every player except the sender, in clockwise order from the starting player, must Support, Oppose, or Abstain. No talking during a vote.
 vp | See 'escalation victory'.
 War College | [War College](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Influence +2 while At War; Unlocks Sergeants for Muster / Requires: Library
@@ -494,7 +494,7 @@ Wetlands | [Wetlands](https://mlang95.github.io/RenownWiki/reference-tables.html
 Whispering Undercroft | [Whispering Undercroft](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: You cast all of your votes in the Tally Phase. In the Intrigue Phase, choose a Personal Envoy: its sender must declare the specific action & target they would Perform if it passes (including sub-Actions). If it passes, they must Perform that declared action at the declared target.
 Wild Outlaw Country | [Wild Outlaw Country](https://mlang95.github.io/RenownWiki/glossary.html#wild-outlaw-country): Outlaw Country the Host places outside every Province at Setup. After Setup it works like any other Outlaw Country zone.
 win | See 'how to win'.
-Winery | [Winery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Husbandry). Effect: Natural; +800; Craft +3
+Winery | [Winery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Husbandry). Effect: Natural; +500; Craft +5
 Winter | [Winter](https://mlang95.github.io/RenownWiki/seasons-ref.html) Season (Freezing). All Armies gain Speed −5; Siege Timers don't count down. Tax income collected.
 Within | [Within](https://mlang95.github.io/RenownWiki/glossary.html#within): Range 0.
 Wonder | [Wonder](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Improve). Improve Infrastructure via a Wonder.
