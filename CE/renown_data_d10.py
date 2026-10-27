@@ -4079,10 +4079,15 @@ STANDING_ARMY_SIEGE_MODIFIER = 1
 # economy.py has this as a local constant (EMPIRE_START)
 EMPIRE_START_TIERS = ("Town", "Hamlet")
 STARTING_TREASURY = 10000
-# Setup › Player Setup: Starting Holdings, placed built before Turn 1. The capital Town's Wards may hold root Holdings
-# eligible there; the Hamlet's Wards only these (any mix).
-SETUP_HAMLET_HOLDINGS = ("Arable Land", "Common Land")
+# Setup › Player Setup: Starting Holdings, placed free and built before Turn 1: one eligible Raw Material Holding in the
+# capital, and one of these in the Hamlet (the rules text says "one"; keep the two in step)
+SETUP_CAPITAL_PICKS = 1
+SETUP_HAMLET_PICKS = 1
+SETUP_HAMLET_HOLDINGS = ("Common Land", "Arable Land")
 SETUP_HAMLET_TEXT = " or ".join(SETUP_HAMLET_HOLDINGS)
+# Hamlets › special rule: a Hamlet may hold more than one of these (an exception to Settlement Scope, one per Settlement)
+HAMLET_REPEATABLE = ("Common Land", "Arable Land")
+HAMLET_REPEATABLE_TEXT = " or ".join(HAMLET_REPEATABLE)
 
 # ── Setup: Ages (Setup step 2) ────────────────────────────────────────────────
 # Names/years mirror worldbuilding/renown_worldlore.py AGES["names"] + TIMELINE["age_starts"]

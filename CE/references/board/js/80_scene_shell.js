@@ -346,9 +346,7 @@ function renderSetup(){const el=document.getElementById("setupPanel");if(!el)ret
     ["Select Faction",P.every(p=>p.board.faction),P.map(p=>dot(p)+esc(p.name)+' '+esc(p.board.faction||"\u2014")).join(' · ')],
     ["Determine Host",!!TB().hostSet,hp?dot(hp)+esc(hp.name)+(TB().hostSet?'':' (default)'):'\u2014'],
     ["Deploy",dep.every(x=>x.town&&x.ham&&x.oc>=need&&!x.fl),dep.map(x=>dot(x.p)+esc(x.p.name)+' Town '+ok(x.town)+' Hamlet '+ok(x.ham)+' Outlaw '+x.oc+'/'+need+(x.fl?' <span class="su-fl">\u2691'+x.fl+'</span>':'')).join('<br>')],
-    ["Starting Holdings",P.every(p=>!withBoard(p.board,setupHoldFlags).length),P.map(p=>{const c=withBoard(p.board,()=>{const u=s=>s?wardUse(s.id):null;
-        return {t:u(capitalSett()),h:u(S.settlements.find(s=>s.tier==="Hamlet")),fl:setupHoldFlags().length};});
-      return dot(p)+esc(p.name)+' Town '+(c.t?c.t.used+'/'+c.t.cap:'—')+' Hamlet '+(c.h?c.h.used+'/'+c.h.cap:'—')+(c.fl?' <span class="su-fl">⚑'+c.fl+'</span>':'');}).join('<br>')],
+    ["Starting Holdings",P.every(p=>!withBoard(p.board,setupHoldFlags).length),P.map(p=>dot(p)+esc(p.name)+' '+setupHoldHTML(p)).join('<br>')],
     ["Wild Outlaw Country",wildDone(),(()=>{const n=Object.keys(wildZones()).length,c=wildCount();return n+(c!=null?'/'+c:'')+' zones'+
       (canHost()&&g?(wildDone()?' <button data-setup-wild="redo">redo</button>':' <button data-setup-wild="1">place \u25b8</button>'):'');})()],
     ["Start of Turn 1",P.every(checkedIn),P.map(p=>canAct(p)&&(HOTSEAT||sameP(p,meP()))?checkinHTML(p):dot(p)+esc(p.name)+' '+ok(checkedIn(p))).join('<br>')]];
@@ -376,6 +374,22 @@ function checkinHTML(p){const ci=PT(p).checkin,fd=ci?ci.fx||[]:checkinFD(p).map(
 DO.checkin=el=>{const p=pOf(el);if(!p||!canAct(p)||!setupOn()||checkedIn(p))return;const rows=checkinFD(p);
   rows.forEach(r=>{if(r.side==="faith")addFaith(r.q.board,r.n);else gainDoubt(r.q.board,r.n);});
   PT(p).checkin={turn:tTurn(),fx:rows.map(checkinTxt)};PT(p).checkin.fx.forEach(x=>noteAdd(p,"Start of Turn 1: "+x));save();render();};
+// Starting Holdings picker: the capital takes RC.SETUP_CAPITAL_PICKS eligible Raw Materials, the Hamlet RC.SETUP_HAMLET_PICKS of RC.SETUP_HAMLET_HOLDINGS
+function setupHoldHTML(p){const ed=canAct(p)&&(HOTSEAT||sameP(p,meP()));
+  return withBoard(p.board,()=>{const cap=capitalSett(),ham=S.settlements.find(s=>s.tier==="Hamlet"),fl=setupHoldFlags().length;
+    const slot=(s,k,n,opts,ph)=>{if(!s)return '';const got=S.placed.filter(q=>q.setup&&q.sid===s.id);
+      return esc(s.tier)+' '+got.map(q=>'<b>'+esc(q.name)+'</b>'+(ed?' <button data-setup-rm="'+q.id+'" data-who="'+p.id+'">×</button>':'')).join(' ')+
+        (ed&&got.length<n?' <select data-setup-hold="'+k+'" data-who="'+p.id+'"><option value="">— '+ph+' —</option>'+opts.filter(x=>canPlace(x,s.id).ok).map(x=>'<option>'+esc(x)+'</option>').join('')+'</select>':
+          (got.length?'':' —'));};
+    return slot(cap,"cap",+RC.SETUP_CAPITAL_PICKS||0,cap?Object.keys(R).filter(n=>setupRawOK(n,cap.id)).sort():[],"Raw Material")+' · '+
+      slot(ham,"ham",+RC.SETUP_HAMLET_PICKS||0,RC.SETUP_HAMLET_HOLDINGS||[],(RC.SETUP_HAMLET_HOLDINGS||[]).join(" / "))+
+      (fl?' <span class="su-fl">⚑'+fl+'</span>':'');});}
+document.addEventListener("change",e=>{const el=e.target.closest&&e.target.closest("[data-setup-hold]");if(!el||!el.value)return;const p=pOf(el);
+  if(!p||!canAct(p)||!setupOn())return;const n=el.value;
+  withBoard(p.board,()=>{const s=el.dataset.setupHold==="cap"?capitalSett():S.settlements.find(x=>x.tier==="Hamlet");if(s)placeHolding(n,null,s.id);});
+  noteAdd(p,"Starting Holding: "+n);save();render();});
+document.addEventListener("click",e=>{const b=e.target.closest("[data-setup-rm]");if(!b)return;const p=pOf(b);if(!p||!canAct(p)||!setupOn())return;
+  const id=+b.dataset.setupRm;withBoard(p.board,()=>{S.placed=S.placed.filter(q=>!(q.id===id&&q.setup));});save();render();});
 let SETUP_STEP=null;
 document.addEventListener("click",e=>{const b=e.target.closest("[data-setup-go]");if(!b)return;SETUP_STEP=+b.dataset.setupGo;renderSetup();});
 document.addEventListener("click",e=>{const w=e.target.closest("[data-setup-wild]");if(w){if(!canHost()){flash("Host only");return;}const n=w.dataset.setupWild==="redo"?rescatterWild():placeWildOutlaw();flash(n?n+" Wild Outlaw Country zone"+(n>1?"s":"")+" placed":"no room for Wild Outlaw Country");save();render();return;}

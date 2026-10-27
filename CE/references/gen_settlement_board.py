@@ -877,7 +877,8 @@ RULES_CONSTS = ("PHASES", "MARCH_MULTIPLIER", "MUSTER_RANGE", "CHARTER_MIN_RANGE
                 "BLUNDER_THR", "STANDING_ARMY_SIEGE_MODIFIER", "BANDIT_BEHAVIOR", "UPKEEP_TRACKS",
                 "GLOSSARY_CATEGORIES", "STARTING_TREASURY", "EMPIRE_START_TIERS", "TERM_ENVOY_SCORE", "RENOWN_MAX",
                 "CAPITAL_EDGE_RANGE", "AGE_YEAR_SEASON",
-                "PRESENCE_RANGE", "FAITH_FICKLE_PO", "WARD_MODEL", "SETUP_HAMLET_HOLDINGS")
+                "PRESENCE_RANGE", "FAITH_FICKLE_PO", "WARD_MODEL", "SETUP_HAMLET_HOLDINGS",
+                "SETUP_CAPITAL_PICKS", "SETUP_HAMLET_PICKS", "HAMLET_REPEATABLE")
 
 def effects_report(ns, records, infra, wonders, out_md):
     """ENVOY_WINDOW_REVIEW.md: every clause that names Envoys, its timing window and Personal / Council predicate

@@ -36,7 +36,7 @@ function catRows(t,mem,rowFn,host){let last=null;mem.forEach(n=>{const lab=DOM_S
   if(lab&&lab!==last){const h=document.createElement("div");h.className="note catstd";h.textContent=lab;host.appendChild(h);}last=lab;host.appendChild(rowFn(n));});}
 let WP=null;          // empty-ward picker: {gid, wi, q} while its modal is open
 let FOR_SID=null;     // empty-ward click: catalog shows only what that settlement can take; next add goes there
-function pAvail(n){return !scopeBlock(n,null)&&(scopeOf(n)!=="Settlement"||!S.settlements.length||S.settlements.some(s=>!occupants(s.id).some(o=>o.name===n)))&&unlockStatus(n).ok;}
+function pAvail(n){return !scopeBlock(n,null)&&(scopeOf(n)!=="Settlement"||!S.settlements.length||S.settlements.some(s=>hamletRepeat(n,s.id)||!occupants(s.id).some(o=>o.name===n)))&&unlockStatus(n).ok;}
 // ---- legal to start now (catalog "Available", the empty-Ward picker, the Build action): Scope + Standing (pAvail), a Root or one
 // complete line of its Mastery Chain controlled (chainLine), its infrastructure_req, and — a Raw Material with a map resource — that
 // resource within Reach (of Settlement sid when given; Reach unchecked while there's no map or the player isn't deployed)
@@ -215,7 +215,7 @@ function placeHolding(n,pref,forcedSid){
   // 2) the active settlement, 3) any settlement with an eligible free Ward (capital first)
   if(target==null)for(const sd of order){if(canPlace(n,sd).ok){target=sd;break;}}
   if(target==null)note=" — no eligible free Ward, left Unplaced";
-  const np={id:nextId(S.placed),name:n,sid:target};if(S===activeBoard())pid=np.id+1;if(gameStarted()){const t=pursuitBuildTime(n);if(t>0)np.bt=t;}
+  const np={id:nextId(S.placed),name:n,sid:target};if(S===activeBoard())pid=np.id+1;if(gameStarted()){const t=pursuitBuildTime(n);if(t>0)np.bt=t;}else if(setupOn())np.setup=1;
   if(host){np.rideOn=host;np.ride=1+Math.max(0,...S.placed.map(p=>p.ride||0));}
   S.placed.push(np);
   return {np,target,host,hosts,note,forced};}

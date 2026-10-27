@@ -421,7 +421,7 @@ function wardUse(sid){ // {cap, used, free, typeBad}
 // so adding a PARENT later (which lets an existing tile ride it) is allowed even when full.
 function canPlace(name, sid){
   if(sid==null)return {ok:true};
-  if(sid!=="faction"&&scopeOf(name)==="Settlement"&&occupants(sid).some(o=>o.name===name))return {ok:false,why:"one "+name+" per Settlement"};
+  if(sid!=="faction"&&scopeOf(name)==="Settlement"&&!hamletRepeat(name,sid)&&occupants(sid).some(o=>o.name===name))return {ok:false,why:"one "+name+" per Settlement"};
   if(sid==="faction"){const sim=occupants("faction").concat([{id:1e9,name}]),ex=exemptionsOf(sim);
     return ex.has(1e9)?{ok:true,rider:true}:{ok:false,why:"not efficient with a free faction piece"};}
   const tier=settTier(sid);
@@ -436,13 +436,21 @@ function canPlace(name, sid){
   return {ok:false, why:"no free ward slot (efficient slot taken — chains, can't branch)"};
 }
 
-// Setup › Starting Holdings: the capital Town holds root Holdings eligible there; the Hamlet only RC.SETUP_HAMLET_HOLDINGS
-function setupHoldFlags(){const f=[],HL=RC.SETUP_HAMLET_HOLDINGS||[];
-  const eligible=(q,sid)=>{const i=S.placed.indexOf(q);S.placed.splice(i,1);try{return pLegal(q.name,sid,legalCtx());}finally{S.placed.splice(i,0,q);}};   // as if it weren't there yet
-  S.placed.filter(q=>!q.fac&&q.sid!=null).forEach(q=>{const s=S.settlements.find(x=>x.id===q.sid);if(!s)return;
+// Hamlets › special rule: a Hamlet may hold more than one of RC.HAMLET_REPEATABLE (exception to Settlement Scope)
+function hamletRepeat(n,sid){return sid!=null&&settTier(sid)==="Hamlet"&&(RC.HAMLET_REPEATABLE||[]).includes(n);}
+// Setup › Starting Holdings (pieces placed before Turn 1 carry .setup): RC.SETUP_CAPITAL_PICKS eligible Raw Material
+// Holdings in the capital, RC.SETUP_HAMLET_PICKS of RC.SETUP_HAMLET_HOLDINGS in the Hamlet
+function setupRawOK(n,sid){const r=R[n]||{};return r.type==="Raw Materials"&&!!r.root&&pLegal(n,sid,legalCtx());}
+function setupHoldFlags(){const f=[],HL=RC.SETUP_HAMLET_HOLDINGS||[],cap=capitalSett(),ham=S.settlements.find(s=>s.tier==="Hamlet");
+  const nCap=+RC.SETUP_CAPITAL_PICKS||0,nHam=+RC.SETUP_HAMLET_PICKS||0,sp=S.placed.filter(q=>q.setup&&!q.fac&&q.sid!=null);
+  const eligible=(q,sid)=>{const i=S.placed.indexOf(q);S.placed.splice(i,1);try{return setupRawOK(q.name,sid);}finally{S.placed.splice(i,0,q);}};   // as if it weren't there yet
+  sp.forEach(q=>{const s=S.settlements.find(x=>x.id===q.sid);if(!s)return;
     if(s.tier==="Hamlet"){if(!HL.includes(q.name))f.push("Setup: "+q.name+" in the Hamlet (starting Hamlet Holdings: "+HL.join(" / ")+")");}
-    else if(s.capital){if(!(R[q.name]||{}).root||!eligible(q,s.id))f.push("Setup: "+q.name+" in "+(s.name||s.tier)+" isn't an eligible root Holding");}
+    else if(s.capital){if(!eligible(q,s.id))f.push("Setup: "+q.name+" in "+(s.name||s.tier)+" isn't an eligible Raw Material Holding");}
     else f.push("Setup: "+q.name+" outside the capital and Hamlet");});
+  const nc=cap?sp.filter(q=>q.sid===cap.id).length:0,nh=ham?sp.filter(q=>q.sid===ham.id).length:0;
+  if(cap&&nc!==nCap)f.push("Setup: "+nc+"/"+nCap+" starting Raw Material Holding in "+(cap.name||cap.tier));
+  if(ham&&nh!==nHam)f.push("Setup: "+nh+"/"+nHam+" starting "+HL.join(" / ")+" in the Hamlet");
   return f;}
 // ---- uniqueness + tier progression ----
 const TIER_CHAIN=["Village","Town","City","Metropolis"];
@@ -492,7 +500,7 @@ function boardFlags(){
   if(S.settlements.filter(s=>s.tier==="Metropolis").length>1)f.push("More than one Metropolis");
   {const nm=[...new Set(S.placed.filter(q=>scopeOf(q.name)==="Realm").map(q=>q.name).concat(Object.keys(S.wonders||{})))];
     nm.forEach(n=>{const h=realmHolder(n);if(h)f.push(n+": "+h.name+" also has it (Realm — one per game)");});
-    S.settlements.forEach(s=>{const c={};occupants(s.id).forEach(o=>{if(scopeOf(o.name)==="Settlement")c[o.name]=(c[o.name]||0)+1;});
+    S.settlements.forEach(s=>{const c={};occupants(s.id).forEach(o=>{if(scopeOf(o.name)==="Settlement"&&!hamletRepeat(o.name,s.id))c[o.name]=(c[o.name]||0)+1;});
       Object.keys(c).forEach(n=>{if(c[n]>1)f.push((s.name||s.tier)+": "+c[n]+"× "+n+" (one per Settlement)");});});
     const cnt={};S.placed.filter(q=>scopeOf(q.name)!=="Settlement").forEach(q=>{cnt[q.name]=(cnt[q.name]||0)+1;});
     Object.keys(cnt).forEach(n=>{if(cnt[n]>1)f.push(cnt[n]+"× "+n+" (one per "+(scopeOf(n)==="Realm"?"game":"player")+")");});}
@@ -518,7 +526,7 @@ function scopeOf(n){return ((R[n]||INFRA[n]||WON[n]||{}).scope)||"Empire";}
 function realmHolder(n,b){b=b||S;return D.players.find(q=>q.board!==b&&((q.board.placed||[]).some(x=>x.name===n)||!!(q.board.infra||{})[n]||!!(q.board.wonders||{})[n]))||null;}
 function scopeBlock(n,sid){const sc=scopeOf(n);
   if(sc==="Realm"){const h=realmHolder(n);if(h)return n+": "+h.name+" has it (Realm — one per game)";}
-  if(sc==="Settlement")return sid!=null&&occupants(sid).some(o=>o.name===n)?n+": already in this Settlement (one per Settlement)":"";
+  if(sc==="Settlement")return sid!=null&&!hamletRepeat(n,sid)&&occupants(sid).some(o=>o.name===n)?n+": already in this Settlement (one per Settlement)":"";
   if(R[n]&&onBoard(n))return n+" already on board (one per "+(sc==="Realm"?"game":"player")+")";
   return "";}
 function nextTier(t){const i=TIER_CHAIN.indexOf(t);return i>=0&&i<TIER_CHAIN.length-1?TIER_CHAIN[i+1]:null;}

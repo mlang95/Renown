@@ -101,7 +101,7 @@ A few conventions make every rule in this book read the same way:
     13.4 You can't build a Holding onto one whose Build Timer is still active. A Damaged Holding under a Repair Timer can still be built onto.
 
 14. **Scope.** Each Holding and Infrastructure has a Scope that limits how many of it can exist.
-    14.1 *Settlement* — one per Settlement (Raw Materials).
+    14.1 *Settlement* — one per Settlement (Raw Materials). Exception: a Hamlet may hold more than one {{VAL:HAMLET_REPEATABLE_TEXT}}.
     14.2 *Empire* — one per player (every other Holding and Infrastructure).
     14.3 *Realm* — one per game (Monuments and Wonders). A Realm piece is taken once any player has placed it, including while it's under construction.
 
@@ -214,7 +214,7 @@ An Age{{IDX:Age}} sets the starting Year and which Domain every player starts Ri
 - Empire Tableau.
 - Collect {{VAL:STARTING_TREASURY}} Gold, 2 Influence Tokens, and 1 Envoy.
 - You don't begin the game with any Armies.
-- **Starting Holdings** — you may fill your capital Town's {{VAL:SETTLEMENTS.Town.wards}} Settlement Wards with root Holdings you could Build there, and your Hamlet's {{VAL:SETTLEMENTS.Hamlet.wards}} Settlement Wards with {{VAL:SETUP_HAMLET_TEXT}}, in any mix. Starting Holdings are free and begin the game built.
+- **Starting Holdings** — Select one eligible Raw Material Holding for your capital, and either a {{VAL:SETUP_HAMLET_TEXT}} for your Hamlet. Starting Holdings are free and begin the game built.
 - **Start of Turn 1 check-in** — before the first turn, each player resolves their Start of the Empire Phase effects, including Domain Standing effects (such as a *Perform …* Standing action, or Faith from an *Each Empire Phase* Standing effect). Then the first turn begins at the {{VAL:STARTING_TURN_PHASE_OPENER}} Phase instead of the Empire Phase.
 
 # Actions & Voting
@@ -377,7 +377,7 @@ Settlements have a Reach value set by their tier, from {{VAL:SETTLEMENTS.Village
 
 ### Hamlets
 
-Hamlets are unique Settlements, placed *exactly* Range {{VAL:HAMLET_RANGE}} from your capital at the start of the game. These small farmland communities produce no tax income or Muster limit, but have {{VAL:SETTLEMENTS.Hamlet.wards}} Settlement Wards. You may only build **Natural** Holdings in a Hamlet, and a Holding in a Hamlet can only share a Ward with its parent if it is itself Natural. You may also build Arable Land in a Hamlet even if that Raw Material isn't in the Hamlet's region.{{IDX:Hamlet}}
+Hamlets are unique Settlements, placed *exactly* Range {{VAL:HAMLET_RANGE}} from your capital at the start of the game. These small farmland communities produce no tax income or Muster limit, but have {{VAL:SETTLEMENTS.Hamlet.wards}} Settlement Wards. You may only build **Natural** Holdings in a Hamlet, and a Holding in a Hamlet can only share a Ward with its parent if it is itself Natural. You may also build Arable Land in a Hamlet even if that Raw Material isn't in the Hamlet's region. A Hamlet may hold more than one {{VAL:HAMLET_REPEATABLE_TEXT}}.{{IDX:Hamlet}}
 
 {{GLOSSARY:Settlements & Holdings}}
 
