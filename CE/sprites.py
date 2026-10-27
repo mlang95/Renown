@@ -1194,21 +1194,80 @@ for y in range(28, 31):
         c[y][x] = "k"
 SPRITES["holding:Shipyard"] = fin32(c)
 
-# Courtyard: arcaded range under a red tiled cornice, over a paved court with a few dropped goods
+# Courtyard: seen from the front and above — a U of arcaded ranges under red tile round a paved court (joints run
+# back to a point over the far range), the side ranges' front ends square the outline, a fountain in the middle so
+# the open ground reads as a court
+def fountain(c, cx, cy, rx=7.5, ry=3.4):
+    """Round basin seen from above the front, centre (cx, cy), hard outline 'K': stone rim round the water, drum
+    below, a column with a bowl spilling into it."""
+    H, W_ = len(c), len(c[0])
+    ins = lambda x, y: ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1
+    bot = {}
+    for y in range(H):
+        for x in range(W_):
+            if not ins(x, y):
+                continue
+            bot[x] = y
+            if not all(ins(x + dx, y + dy) for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                c[y][x] = "K"
+            elif ((x - cx) / (rx - 1.6)) ** 2 + ((y - cy) / (ry - 1.1)) ** 2 > 1:
+                c[y][x] = "T" if x > cx + 2 else "t"
+            else:
+                c[y][x] = "E" if x > cx + 2 else "e"
+    for x, yb in bot.items():
+        for j in (1, 2):
+            c[yb + j][x] = "T" if x > cx + 2 else "t"
+        c[yb + 3][x] = "K"
+    for x in (min(bot), max(bot)):
+        for j in (1, 2):
+            c[bot[x] + j][x] = "K"
+    x0 = int(cx - .5)
+    for y in range(int(cy - 5), int(cy) + 1):
+        put(c, ["KtTK"], x0 - 1, y)
+    put(c, ["..KK..", "KKeeKK", "KtttTK", ".KTTK."], x0 - 2, int(cy - 7))
+    for y in range(int(cy - 4), int(cy - 1)):
+        c[y][x0 - 3] = c[y][x0 + 4] = "e"
+    c[int(cy)][x0 - 3] = c[int(cy)][x0 + 4] = "s"
+
+
 c = cv32()
-hline(c, 0, 31, 9, "k")
+BACK, L0, R0, SL = 17, 9, 22, 13 / 8          # far edge of the court, its corners, side ranges' slope (rows per px)
+court_edge = lambda x: BACK + (L0 - x) * SL if x < L0 else (BACK + (x - R0) * SL if x > R0 else BACK)
 for x in range(32):
-    c[10][x] = "w" if x % 4 == 2 else "r"
-    c[11][x] = "R"
-    c[12][x] = "k"
-    for y in range(13, 19):
-        c[y][x] = "w" if x % 4 in (0, 1) else ("d" if y > 13 or x % 4 == 2 else "W")
-    c[19][x] = "k"
-    c[20][x] = "T"
-    for y in range(21, 31):
-        c[y][x] = "t" if (x + y) % 4 == 0 or (x - y) % 4 == 0 else "s"
-for (x, y, ch) in ((9, 24, "c"), (22, 27, "a"), (5, 29, "y"), (27, 22, "w")):
-    c[y][x] = ch
+    ye = court_edge(x)
+    t = (ye - BACK) / 13                      # 0 at the far range, 1 at the front
+    e = round(ye)
+    top = e - round(6 + 3 * t)                # arcade grows toward the viewer
+    r = round(4 + 2 * t)                      # and so does its roof
+    side = "L" if x < L0 else ("R" if x > R0 else "B")
+    for y in range(31):
+        c[y][x] = "s" if y >= e else ("W" if side == "L" else "w") if y >= top else "r" if y >= top - r else "."
+    for y, ch in ((top - r, "k"), (top - r + 2, "R"), (top - 1, "K")):
+        if 0 <= y < 31:
+            c[y][x] = ch
+    d = ye - BACK                             # piers and dark arches: every 4 px on the far range, by depth on the sides
+    if ((x - L0) % 4 in (2, 3) and L0 + 1 < x < R0 - 1) if side == "B" else (1.2 < d % 4.4 < 3.4 and d > 1.5):
+        for y in range(top + 2, min(e, 31)):
+            c[y][x] = "d"
+    if 0 <= e - 1 < 31 and c[e - 1][x] != "d":
+        c[e - 1][x] = "T"
+for y in (19, 22, 26, 30):                    # paving: courses closer together toward the back
+    for x in range(32):
+        if c[y][x] == "s":
+            c[y][x] = "Z"
+for X in range(-12, 44, 5):                   # joints running back to a point over the far range
+    for y in range(BACK, 31):
+        x = round(15.5 + (X - 15.5) * (y - 3) / 27)
+        if 0 <= x < 32 and c[y][x] == "s":
+            c[y][x] = "Z"
+for x in range(R0 + 1):                       # shadow at the foot of the far and left ranges
+    e = round(court_edge(x))
+    if e < 31 and c[e][x] in "sZ":
+        c[e][x] = "T"
+for x0 in (0, 25):                            # the side ranges' front ends, a lit window in each
+    wall(c, x0, 19, 7, 12, "w")
+    put(c, ["kkk", "kyk", "kYk", "kkk"], x0 + 2, 22)
+fountain(c, 15.5, 24)
 SPRITES["holding:Courtyard"] = fin32(c)
 
 # Artisan Workshop: stone-footed workshop with a hanging sign; potter's wheel, glazed vases
