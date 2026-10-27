@@ -214,7 +214,7 @@ def _wrap_po(c, text, maxw, font="Helvetica", size=5.0):
             if cur: out.append(cur)
             cur = wd
     if cur: out.append(cur)
-    return out[:3]
+    return out[:5]
 
 def build_board(out):
     """Landscape Settlement Board: tier ladder once at top, then a 2x2 grid of
@@ -283,13 +283,19 @@ def build_board(out):
         if hasattr(rd, "PO_BANDS") and val in rd.PO_BANDS and "{n}" in rd.PO_BANDS[val][1]:   # Era-scaled: X per Era
             eff = rd.PO_BANDS[val][1].replace("{n}", "X").replace("{s}", "(s)") + " (X: " + "/".join(
                 str(rd.po_value(val, e)) for e in rd.ERAS) + ")"
+        # a band's label spans the values that sit in it: values between bands belong to the band nearer Neutral
+        below = max([k for k in rd.PUBLIC_ORDER if k < val] or [lo - 1]) + 1
+        above = min([k for k in rd.PUBLIC_ORDER if k > val] or [hi + 1]) - 1
+        left, right = (below if val <= 0 else val), (above if val >= 0 else val)
+        span = right - left + 1
+        mid = x + (left - lo)*cellw + cellw*span/2
         if nm:
             c.setFont(SERIF_B, 5.6); c.setFillColor(INK)
-            c.drawCentredString(cx0 + cellw/2, y0 - 9, nm)
+            c.drawCentredString(mid, y0 - 9, nm)
         if eff:
             c.setFont(SERIF, 5.0); c.setFillColor(MUTE)
-            for j, ln in enumerate(_wrap_po(c, eff, cellw - 4)):
-                c.drawCentredString(cx0 + cellw/2, y0 - 17 - j*6, ln)
+            for j, ln in enumerate(_wrap_po(c, eff, cellw*span - 4)):
+                c.drawCentredString(mid, y0 - 17 - j*6, ln)
 
     c.showPage(); c.save()
     print(f"settlement board -> {out}  (landscape, ladder + 2x2 + PO spectrum, slot {SLOT_W/MM:.0f}x{SLOT_H/MM:.0f}mm)")

@@ -959,91 +959,6 @@
   ]
  },
  {
-  "title": "Common Land",
-  "anchor": "Common Land",
-  "mode": "root",
-  "nodes": {
-   "Common Land": [
-    0,
-    0
-   ],
-   "Workyard": [
-    1,
-    0
-   ],
-   "Burgages": [
-    2,
-    0
-   ],
-   "Conditioning Field": [
-    2,
-    1
-   ],
-   "Census Hall": [
-    3,
-    0
-   ],
-   "Coliseum": [
-    3,
-    1
-   ],
-   "Storehouse": [
-    4,
-    0
-   ],
-   "Grand Tournament": [
-    4,
-    1
-   ],
-   "Office of Works": [
-    5,
-    0
-   ],
-   "Royal Pavilion": [
-    5,
-    1
-   ]
-  },
-  "edges": [
-   [
-    "Workyard",
-    "Burgages"
-   ],
-   [
-    "Burgages",
-    "Census Hall"
-   ],
-   [
-    "Conditioning Field",
-    "Coliseum"
-   ],
-   [
-    "Common Land",
-    "Conditioning Field"
-   ],
-   [
-    "Coliseum",
-    "Grand Tournament"
-   ],
-   [
-    "Storehouse",
-    "Office of Works"
-   ],
-   [
-    "Grand Tournament",
-    "Royal Pavilion"
-   ],
-   [
-    "Census Hall",
-    "Storehouse"
-   ],
-   [
-    "Common Land",
-    "Workyard"
-   ]
-  ]
- },
- {
   "title": "Salt Works",
   "anchor": "Salt Works",
   "mode": "root",
@@ -1178,6 +1093,59 @@
    [
     "Pilgrimage Site",
     "Unforgotten Shrine"
+   ]
+  ]
+ },
+ {
+  "title": "Common Land",
+  "anchor": "Common Land",
+  "mode": "root",
+  "nodes": {
+   "Common Land": [
+    0,
+    0
+   ],
+   "Workyard": [
+    1,
+    0
+   ],
+   "Burgages": [
+    2,
+    0
+   ],
+   "Census Hall": [
+    3,
+    0
+   ],
+   "Storehouse": [
+    4,
+    0
+   ],
+   "Office of Works": [
+    5,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Workyard",
+    "Burgages"
+   ],
+   [
+    "Burgages",
+    "Census Hall"
+   ],
+   [
+    "Storehouse",
+    "Office of Works"
+   ],
+   [
+    "Census Hall",
+    "Storehouse"
+   ],
+   [
+    "Common Land",
+    "Workyard"
    ]
   ]
  },

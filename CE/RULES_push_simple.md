@@ -105,6 +105,8 @@ A few conventions make every rule in this book read the same way:
     14.2 *Empire* — one per player (every other Holding and Infrastructure).
     14.3 *Realm* — one per game (Monuments and Wonders). A Realm piece is taken once any player has placed it, including while it's under construction.
 
+15. **Nothing below zero.** An effect that reduces an amount — income, cost, Influence, Speed, Retinues — stops at 0. *Example: Recession can't make a Settlement's tax income negative.* Only your Treasury (see Insolvency & Bankruptcy) and Public Order (down to {{VAL:PO_MIN}}) go below 0.
+
 ## Resources
 
 - **Gold / Treasury** — your spendable wealth. Pays for Actions, upkeep, and Muster recruitment. Running out triggers Insolvency (see Treasury & Upkeep).
@@ -143,7 +145,7 @@ Many actions set a Timer to a number of turns. Each Empire Phase, every active T
 4. **Bandit Mechanics** (the Host resolves) — grow Bandit Camps by the Era; convert any camp of {{VAL:BANDIT_ARMY_THRESHOLD}} Retinues into a Bandit Army; Bandit Camps perform Cunning actions; Bandit Armies perform Move actions; spawn new Bandit Camps (in Spring, from Foster Rebellion, or from an Uprising).
 5. **Influence & Envoys** — gain Influence (not in Spring) from the Era, innate modifiers (Trade Partners, Alliances, At War, etc.), Holdings, and Infrastructure; then gain the Era's Envoys.
 6. **Income & Upkeep** — in this order: in Winter only, gain tax income from each of your Settlements by tier (see Settlements); gain Holding income; if there is a Host, the Host collects trade income and distributes it among their Trade Partners; pay Army, Holding, Infrastructure, and any other upkeep; resolve Extort effects; check your Treasury for the Wealth Edict condition.
-7. **Public Order** — check each innate Faith / Doubt source in the Public Order tables and adjust your Public Order. *(Faith and Doubt from actions are applied the moment they're generated; see Public Order.)*
+7. **Public Order** — total every innate Faith / Doubt source in the Public Order tables and adjust your Public Order by the net change. *(Faith and Doubt from actions are applied the moment they're generated; see Public Order.)*
 8. **Endurance** — every Army without **Strained** gains +{{VAL:ENDURANCE_REGAIN}} Endurance; then remove Strained from all Armies. *(An Army can immediately regain these effects after losing them, if applicable.)*
 9. **Remaining effects** — resolve any remaining Each Empire Phase effects.
 
@@ -417,11 +419,13 @@ To border another player, your Reach must be within or adjacent to their Territo
 
 ## Public Order
 
-Faith and Doubt adjust your Public Order the moment they're generated — each Faith raises it by 1, each Doubt lowers it by 1, applied immediately. Public Order is capped between {{VAL:PO_MIN}} and {{VAL:PO_MAX}}, and your current band's effects (below) are always active at your current value. A band's X is its value in the current Era (the Era columns of the table).
+Faith and Doubt adjust your Public Order the moment they're generated — each Faith raises it by 1, each Doubt lowers it by 1, applied immediately. Public Order is capped between {{VAL:PO_MIN}} and {{VAL:PO_MAX}}. Bands stack: every band between Neutral and your current value is active, so each step further from Neutral adds its effect to the ones before it. A band's X is its value in the current Era (the Era columns of the table).
 
 **First Doubt of the turn.** Some effects (e.g. Reliquary, Episcopal Court) reduce *the first Doubt (or first two) you gain each turn, from any source* — each instance of Doubt uses up one reduction. Because Doubt applies immediately, this is whichever Doubt lands first in the turn — usually your innate modifiers in the Empire Phase, but it can be an opponent's action if that resolves first. Track whether you've taken Doubt yet this turn; the marker resets at the Start of each Empire Phase, before innate modifiers apply.
 
-Your innate Public Order modifiers (below) are checked once each turn during the Empire Phase and applied like any other Faith / Doubt.
+Your innate Faith and Doubt — from Holdings, Infrastructure, and the modifiers below — are checked once each turn during the Empire Phase. Add them all up (after any first-Doubt reductions), apply the net change, then cap the result: at {{VAL:PO_MIN}}, Doubt 6 and Faith 3 net to Doubt 3, and you stay at {{VAL:PO_MIN}}.
+
+**Uprising** spawns its Bandit Camps at every Bandit Mechanics step that finds you at {{VAL:PO_MIN}}, not only the first time you reach it.
 
 {{TABLE:public_order}}
 
@@ -602,7 +606,7 @@ A zone is your Outlaw Country while any of its Territories is within your Provin
 
 In the Empire Phase each Spring: place a Bandit Camp of {{VAL:BANDIT_CAMP_START}} Bandits (Retinues) with {{VAL:BANDIT_CAMP_GOLD}} gold in each Outlaw Country zone.
 
-*Note: if an Outlaw Country is chosen to receive another Bandit Camp but there's no room to place one, instead each existing Bandit Camp within that outlaw country grows according to the current Era. Foster Rebellion is the exception: it expands that Outlaw Country by one Territory and places the camp there.*
+*Note: if an Outlaw Country is chosen to receive another Bandit Camp but there's no room to place one, instead each existing Bandit Camp within that outlaw country grows according to the current Era. An Uprising places as many of its camps as fit; the camps there then grow once for each camp that couldn't be placed. Foster Rebellion is the exception: it expands that Outlaw Country by one Territory and places the camp there.*
 
 ### Growing Bandit Camps
 

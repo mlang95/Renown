@@ -833,7 +833,8 @@ function runBanditMechanics(){const M=mapState(),B=BST(),sea=curSeason(),keys=Ob
     const fn=+x.n||10;if(!spawnCamp(p,fn,"Foster Rebellion")){if(expandOutlaw(p))spawnCamp(p,fn,"Foster Rebellion");else bLog("Foster Rebellion: no room for "+p.name);}});
   D.players.forEach(p=>{if((p.board.po||0)>PO_MIN||immuneUprising(p)||poImmune(p.board))return;const n=Math.max(1,poNum(PO_MIN))*(poDoubled()[(POB(PO_MIN)||[])[0]]?2:1);
     for(let i=0;i<n;i++){if(!spawnCamp(p,BAN.campStart||5,"Uprising "+(i+1)+"/"+n)){
-      bLog(p.name+"'s Outlaw Country is full (Uprising)");growCamps(Object.keys(M.camps).filter(k=>outlawOf(p).includes(k)),"Uprising, no room");break;}}});
+      bLog(p.name+"'s Outlaw Country is full (Uprising)");const ks=Object.keys(M.camps).filter(k=>outlawOf(p).includes(k));   // grow once per camp that has no room
+      for(let j=i;j<n;j++)growCamps(ks,"Uprising, no room "+(j+1)+"/"+n);break;}}});
   banditMoves();}
 // ---- Bandit Army Move (BANDIT_BEHAVIOR "Army Behavior"), after the mechanics: Skirmish (a player Army in range) >
 // Lay Siege (a player Settlement in range) > March toward the closest Army or Settlement. Ties: random (the Host may redo it).

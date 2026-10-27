@@ -106,10 +106,14 @@ function gameReplace(nd){const keepV=D.view,keepA=D.active;UNDO.mute=true;
   try{Object.keys(D).forEach(k=>delete D[k]);Object.assign(D,nd);D.view=keepV;D.active=Math.min(keepA||0,(D.players||[1]).length-1);
     normalizeD();nameAllSetts();reindex();render();renderList();const tr=document.getElementById("treasury");if(tr)tr.value=S.treasury;save();
   }finally{UNDO.past=[];UNDO.future=[];UNDO.last=undoSnap();UNDO.mute=false;undoButtons();actRebase();}}
-function newGameState(){const o=gameData();
-  o.players=o.players.map(p=>{const b=newBoard(),tb=(p.board&&p.board.tbl)||{};
-    b.tbl={seat:tb.seat,seatTs:tb.seatTs,mods:tb.mods||{}};b.domains=startDomsFor({board:b});
-    if(p.board&&p.board.claim)b.claim=clone(p.board.claim);                       // claims are identity, not game state
+// keepPicks (Start game): culture, heraldry, Rising and faction picked before Start carry onto the fresh board
+function newGameState(keepPicks){const o=gameData();
+  o.players=o.players.map(p=>{const b=newBoard(),ob=p.board||{},tb=ob.tbl||{};
+    b.tbl={seat:tb.seat,seatTs:tb.seatTs,mods:tb.mods||{}};
+    if(keepPicks)["culture","heraldry","ageRising"].forEach(k=>{if(ob[k])b[k]=ob[k];});
+    b.domains=startDomsFor({board:b});
+    if(keepPicks&&ob.faction){const pS=S;S=b;try{setFaction(ob.faction);}finally{S=pS;}}   // re-grants the faction's starting pieces
+    if(ob.claim)b.claim=clone(ob.claim);                       // claims are identity, not game state
     return {id:p.id,name:p.name,color:p.color,board:b};});
   o.renown=1;delete o.season;delete o.diplo;delete o.battle;delete o.bqueue;delete o.rtimers;delete o.siege;delete o.yearsGone;delete o.started;delete o.bandit;delete o.chron;delete o.chronSnap;
   const t=o.tbl||{};o.tbl={seats:t.seats,timer:t.timer,auto:t.auto,boardEnd:t.boardEnd,host:t.host,hostSet:t.hostSet,skip:{}};
@@ -133,8 +137,8 @@ function isReady(p){return !!p&&!!claimOf(p)&&!!(TB().ready||{})[p.id];}
 function readyCheck(){const seat=seated(),n=seat.filter(isReady).length;return {seat,n,all:seat.length>0&&n===seat.length};}
 async function startGame(){if(!(ADMIN||canHost())){flash("Host or Duke only");return;}
   if(!ADMIN&&!readyCheck().all){flash("every seated player must claim and ready up");return;}
-  if(!confirm("Start the game? Every board, the Table, Renown, Season and all map pieces are wiped (terrain, players, seats and claims stay). Player restrictions turn on."))return;
-  const o=newGameState();o.map=Object.assign({},o.map||{},{cells:{},outlaw:{},camps:{},markers:[]});o.started=true;
+  if(!confirm("Start the game? Every board, the Table, Renown, Season and all map pieces are wiped (terrain, players, seats, claims, cultures and factions stay). Player restrictions turn on."))return;
+  const o=newGameState(true);o.map=Object.assign({},o.map||{},{cells:{},outlaw:{},camps:{},markers:[]});o.started=true;
   gameReplace(o);flash("game started");}
 document.getElementById("gameNew").onclick=async()=>{if(!gameAllowed()){flash("only the Host can start a new game");return;}
   if(!confirm("Start a new game? Players, seats, claims, map and settings are kept; every board, Renown, Season, diplomacy, battle and the Table reset, and the game returns to setup (restrictions off until Start game)."))return;

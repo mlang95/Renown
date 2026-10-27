@@ -45,7 +45,7 @@ function influenceRows(b){const rows=influenceRowsBase(b),p=playerOfBoard(b),T=+
   if(sz){const t=take(b);if(t)rows.push({k:"Suzerain "+pname(sz)+" takes",cnt:1,val:-t});}
   vassalsOf(p.id).forEach(v=>{const t=take(v.board);if(t)rows.push({k:"Vassal "+v.name,cnt:1,val:t});});
   return rows;}
-function influenceTotal(b){return isSpring()?0:influenceRows(b).reduce((a,r)=>a+r.val,0);}
+function influenceTotal(b){return isSpring()?0:Math.max(0,influenceRows(b).reduce((a,r)=>a+r.val,0));}   // Nothing below zero
 // ---- Public Order modifiers (PO_MODIFIERS; 1 per instance) ----
 const POM=DATA.poModifiers||{faith:{},doubt:{}};
 function poModRows(b){b.poMods=b.poMods||{};const p=playerOfBoard(b),pid=p?String(p.id):null,rows=[];

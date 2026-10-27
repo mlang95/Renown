@@ -837,15 +837,13 @@ function factionFlags(){const f=FAC[S.faction];if(!f)return [];const out=[];{con
     if(nr&&(+dv[nr[1]]||0)>u)out.push(S.faction+": no Domain Points into "+nr[1]+" ("+nr[1]+" "+dv[nr[1]]+")");
     if(mx&&(+dv[mx[2]]||0)>+mx[1])out.push(S.faction+": "+mx[2]+" "+dv[mx[2]]+" > "+mx[1]);}
   return out;}
-// Factions offered by a culture are resolved from its mechanic_name list; legacy faction IDs fill only unmatched labels.
-// Self-made = every faction. The current pick always stays listed.
+// Factions offered by a culture come only from its mechanic_name list (the legacy CULTURES[*]['factions'] list is not used).
+// Self-made, or a culture with no list = every faction. The current pick always stays listed.
 const CULTURE_MECHANIC_ALIASES={"fiends in low places":"friends in low places"};
-function cultureFactions(b){const c=cultureOf(b||S),row=c&&CUL[c];if(!row)return null;const L=row.mechanics||[];
-  if(L.length){const norm=x=>CULTURE_MECHANIC_ALIASES[String(x).trim().toLowerCase()]||String(x).trim().toLowerCase(),want=new Set(L.map(norm)),out=new Set();
-    Object.keys(FAC).forEach(n=>{if(want.has(norm(FAC[n].mname||"")))out.add(n);});
-    (row.factions||[]).forEach(n=>{const f=FAC[n];if(f&&!want.has(norm(f.mname||"")))out.add(n);});
-    return out.size?out:null;}
-  const old=row.factions||[];return old.length?new Set(old):null;}
+function cultureFactions(b){const c=cultureOf(b||S),row=c&&CUL[c];if(!row)return null;const L=row.mechanics||[];if(!L.length)return null;
+  const norm=x=>CULTURE_MECHANIC_ALIASES[String(x).trim().toLowerCase()]||String(x).trim().toLowerCase(),want=new Set(L.map(norm)),out=new Set();
+  Object.keys(FAC).forEach(n=>{if(want.has(norm(FAC[n].mname||"")))out.add(n);});
+  return out.size?out:null;}
 // only final-cut factions (FACTIONS[*].final_cut) are offered; a non-final current pick stays listed
 // FAC_ALL (per device): offer every final-cut faction whatever the culture
 let FAC_ALL=false;try{FAC_ALL=localStorage.getItem("renown_facall")==="1";}catch(_){}
@@ -1644,7 +1642,9 @@ function boardMetrics(b){
 }
 
 // ---- Public Order tracker ----
-function poBandName(v){let best=null;Object.keys(PO).map(Number).sort((a,b)=>a-b).forEach(k=>{if(k<=v)best=k;});return best!=null?POB(best):null;}
+// current band: the deepest band reached from Neutral (values between bands sit in the band nearer Neutral)
+function poCurKey(v){const L=Object.keys(PO).map(Number).filter(k=>v<0?(k<=0&&k>=v):(k>=0&&k<=v));return L.length?(v<0?Math.min(...L):Math.max(...L)):null;}
+function poBandName(v){const k=poCurKey(v);return k!=null?POB(k):null;}
 // Public Order is cumulative in both directions: at +4 bands 1..4 are all active; at −3 bands −1..−3 are all active.
 function poActiveKeys(v,b){if(b&&poImmune(b))return [];
   return Object.keys(PO).map(Number).filter(k=>v>0?(k>=1&&k<=v):v<0?(k<=-1&&k>=v):k===0).sort((a,b)=>Math.abs(a)-Math.abs(b));}
@@ -1665,7 +1665,7 @@ function renderPO(){
   {const bs=document.getElementById("poBandS");if(bs)bs.textContent=band?band[0]:"";const ps=document.getElementById("poS");if(ps){ps.textContent=(v>0?"+":"")+v;ps.className="n"+(v<0?" neg":v>0?" pos":"");}}
   const act=poActiveEffects(v,S),imm=poImmune(S);
   document.getElementById("poEffect").textContent=imm?("no effects — "+imm):act.length?("active ("+act.length+"): "+act.map(b=>b[1]).join(" · ")):"no active effects";
-  const on=new Set(poActiveKeys(v,S)), curK=Math.max(...Object.keys(PO).map(Number).filter(k=>k<=v));
+  const on=new Set(poActiveKeys(v,S)), curK=poCurKey(v);
   const lad=document.getElementById("poLadder");
   const ks=Object.keys(PO).map(Number).sort((a,b)=>b-a),near=k=>PO_FULL||Math.abs(k-curK)<=2||(on.has(k)&&k!==0);
   lad.innerHTML=ks.filter(near).map(k=>{const b=POB(k);

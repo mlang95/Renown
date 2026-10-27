@@ -40,7 +40,7 @@ INTERCEPT_EXTORT_PER_CRAFT = 100   # Intercept Caravan: Extort this x target's C
 WEALTH_EDICT_GOLD    = 50000
 MUSTER_RANGE         = 2
 MARCH_MULTIPLIER     = 2
-PO_MIN               = -5
+PO_MIN               = -10
 PO_MAX               = 10
 INITIATIVE_MIN       = -2
 INITIATIVE_MAX       = 2
@@ -1327,7 +1327,7 @@ NODES = {
         "type": "Secrecy",
         "unlock": "Established Cunning",
         "mastery_req": "Secret Cellar + Inn",
-        "innate": "gain Immune Uprising (Bandit Camp Spawn at -5PO)",
+        "innate": "gain Immune Uprising (your Uprising spawns no Bandit Camps)",
         "mastery": "Bandit Camps in your Outlaw Country don't target you and instead target another player at random.",
         "efficient": ["Inn", "Courier Network", "Secret Cellar"],
         "builds_into": ["Thieves' Guild", "Outlaw Rookery", "Secret Cellar", "Black Market"],
@@ -1715,7 +1715,7 @@ SIMPLE_NODES = {
         "group": "g_raw",
         "root": True,
         "unlock": "-",
-        "innate": "+500; Natural; Craft +1",
+        "innate": "+500; Natural",
         "efficient": ["Hamlet"],          # may start a Hamlet (Hamlet = location token, not a Holding)
         "builds_into": ["Herb Garden", "Animal Husbandry", "Granary", "Orchard","Vineyard"],
         "monument": False},
@@ -2107,7 +2107,7 @@ SIMPLE_NODES = {
         "unlock": "Rising Prowess",
         "infrastructure_req": "Muster Field",
         "innate": "Faith +1 while not at War; Armies gain Nimble",
-        "efficient": ["Courtyard", "Common Land"],
+        "efficient": ["Courtyard"],
         "builds_into": ["Coliseum"],
         "monument": False},
     "Grand Tournament": {
@@ -2205,7 +2205,7 @@ SIMPLE_NODES = {
     "Smuggler's Nook": {
         "group": "g_secrecy",
         "unlock": "Established Cunning",
-        "innate": "gain Immune Uprising (Bandit Camp Spawn at -5PO); Bandit Camps in your Outlaw Country don't target you and instead target another player at random.",
+        "innate": "gain Immune Uprising (your Uprising spawns no Bandit Camps); Bandit Camps in your Outlaw Country don't target you and instead target another player at random.",
         "efficient": ["Courier Network"],
         "builds_into": ["Black Market", "Syndicate Hub"],
         "monument": False},
@@ -2845,7 +2845,7 @@ FACTIONS = {
         'strength': 'Medium',
         'mechanic_name': 'Fortress of Faith',
         'summary': 'Sieges against you +2 while Public Order 3+',
-        'mechanic': 'While your Public Order is 3 or higher, Lay Siege actions targeting you have Siege Timer +3.',
+        'mechanic': 'While your Public Order is 4 or higher, Lay Siege actions targeting you have Siege Timer +3.',
         'pair': "Siege Camp, Preceptory of the Knight's Templar",
         'complement': 'Senate Hall',
     },
@@ -3310,7 +3310,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                         'requirement': 'Aqueducts'},
  'The Eternal Sepulchre': {'upkeep': 500,
                         'upkeep_frequency': 'per Wonder',
-                        'empire_bonus': 'If your Public Order would ever be less than 5, set it to 5 '
+                        'empire_bonus': 'If your Public Order would ever be less than 6, set it to 6 '
                                         'instead. Your Settlements gain Reach +2.',
                         'tier': 'Wondrous',
                         'build_time': 10,
@@ -3382,17 +3382,17 @@ for _e in ERAS.values():
 # Scaling by Era: {n} = base x the Era's scale — ERAS[era]["po_scale_neg"] for bands below 0, ["po_scale_pos"] above 0
 # (set po_scale_pos > 1 to scale the positive bands too). {s} = plural "s" when n != 1. A band with no {n} never scales.
 PO_BANDS = {
-    -5: ("Uprising",      "Spawn {n} Bandit Camp{s} in your Outlaw Country", 1),
-    -4: ("Recession",     "Tax Income -{n} per Settlement", 1000),
-    -3: ("Aimless",       "Speed -{n}", 2),
-    -2: ("Indecisive",    "Influence -{n}", 1),
-    -1: ("Wavering",      "No effect", None),
+    # bands every 2 steps (values between bands sit in the band nearer Neutral; bands stack toward Neutral)
+   -10: ("Uprising",      "Spawn {n} Bandit Camp{s} in your Outlaw Country", 1),
+    -8: ("Recession",     "Tax Income -{n} per Settlement", 1000),
+    -6: ("Aimless",       "Speed -{n}", 2),
+    -4: ("Indecisive",    "Influence -{n}", 1),
+    -2: ("Shaken",        "No effect", None),
      0: ("Neutral",       "No effect", None),
-     1: ("Focused",       "No effect", None),
      2: ("Confident",     "Influence +{n}", 1),
-     3: ("Motivated",     "Speed +{n}", 1),
-     4: ("Economic Boom", "Tax Income +{n} per Settlement", 500),
-     5: ("Eureka",        "May perform an Endorsed Industry Action", None),
+     4: ("Motivated",     "Speed +{n}", 1),
+     6: ("Economic Boom", "Tax Income +{n} per Settlement", 500),
+     8: ("Eureka",        "May perform an Endorsed Industry Action", None),
      #6: ("Devout",        "Influence +1", None),
      #7: ("Pious",         "Immune Deficit", None),
      #8: ("Holy",          "Immune to Spread Gospel", None),
@@ -3462,8 +3462,8 @@ DOMAIN_BOARD = {
     },
     "Piety": {
         "Rising":      "Divine Mandate: Faith +1 each Empire Phase.",
-        "Established": "One True Gospel: Each Empire Phase, each other non-allied player with a lower Piety value gains Doubt +2.",
-        "Sovereign":   "Pillar of Faith: If your Public Order would be set below 3, set it to 3. In addition, may use the Sacred War action.",
+        "Established": "One True Gospel: Each Empire Phase, each other non-allied player with a lower Piety value gains Doubt +1.",
+        "Sovereign":   "Pillar of Faith: If your Public Order would be set below 4, set it to 4. In addition, may use the Sacred War action.",
     },
     # Influence scaling by standing (Untested/Rising/Established/Sovereign):
     "max_influence_per_vote":  dict(STANDING_RANK),
