@@ -143,7 +143,8 @@ async function startGame(){if(!(ADMIN||canHost())){flash("Host or Duke only");re
 document.getElementById("gameNew").onclick=async()=>{if(!gameAllowed()){flash("only the Host can start a new game");return;}
   if(!confirm("Start a new game? Players, seats, claims, map and settings are kept; every board, Renown, Season, diplomacy, battle and the Table reset, and the game returns to setup (restrictions off until Start game)."))return;
   if(confirm("Save the current game first?"))await document.getElementById("gameSave").onclick();
-  gameReplace(newGameState());flash("new game started");};
+  const o=newGameState(),a=AGE_L.find(x=>x.name===o.age);if(a)o.year0=rollAgeYear(a);   // a new game re-rolls the kept Age's starting Year
+  gameReplace(o);flash("new game started");};
 
 // ===================== HOVER KEYWORDS =====================
 // Glossary terms, Pursuits, Infrastructure and Wonders inside rules text become hoverable (tap on touch).
