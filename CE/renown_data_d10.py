@@ -3530,7 +3530,7 @@ BANDIT_CAMP_START = 10
 BANDIT_CAMP_GOLD = 2000    # gold in a Bandit Camp's treasury when it spawns
 BANDIT_ARMY_THRESHOLD = 25
 BANDIT_GROWTH_PER_ERA = {"Founding": 1, "Ascension": 2, "Eminence": 3, "Zenith": 4}
-BANDIT_EQUIPMENT_PER_ERA = {"Founding": "Levy: Cudgel + Cloth", "Ascension": "Levy: Arming Sword + Leather Armor" , "Eminence": "Man-at-Arms: Halberd + Chainmail", "Zenith": "Man-at-Arms: War Hammer + Full Plate"}
+BANDIT_EQUIPMENT_PER_ERA = {"Founding": "Levy: Cudgel + Cloth", "Ascension": "Levy: Short Sword + Gambeson" , "Eminence": "Man-at-Arms: Halberd + Leather", "Zenith": "Man-at-Arms: War Hammer + Chainmail"}
 BANDITS = {
     "Bandit Domain Value": "For every 5 Retinues in the Bandit Camp or Army, the Bandit Camp has +2 Cunning and +2 Prowess.",
     "Bandit Camp": f"A collection of Bandits in Outlaw Country, starting with {BANDIT_CAMP_START} Retinues and {BANDIT_CAMP_GOLD} gold.",
@@ -4101,6 +4101,10 @@ AGES = {
     "Age of Renown":         {"rising": None,       "years": (4516, 4589)},
 }
 AGE_YEAR_SEASON = "Spring"   # the Year advances by 1 each time the Season changes to this Season
+# Board: picking an Age before Turn 1 rolls its starting Year, normally distributed over the Age's "years" range —
+# mean at this fraction of the range, standard deviation this fraction of its span, clamped to the range
+AGE_YEAR_ROLL_MEAN = 0.45
+AGE_YEAR_ROLL_SD = 1 / 6
 CAPITAL_EDGE_RANGE = 4       # capital Town is deployed within this range of the board edge (or corner)
 
 BOARD_SIZES = {

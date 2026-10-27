@@ -7,6 +7,10 @@ function ageRisingOf(p){const a=ageRec();if(!a)return "";return a.rising||((p&&p
 function startDomsFor(p){const o=Object.assign({},startDoms()),d=ageRisingOf(p);if(d)o[d]=Math.max(o[d]||0,RIS);return o;}
 function startDomTotal(p){return DOMAINS.reduce((a,d)=>a+(startDomsFor(p)[d]||0),0);}
 function curYear(){const a=ageRec();if(!a)return null;return (D.year0!=null?+D.year0:a.years[0])+(+D.yearsGone||0);}
+// starting Year roll: normal over the Age's years, mean at RC.AGE_YEAR_ROLL_MEAN of the range, sd RC.AGE_YEAR_ROLL_SD of its span
+function rollAgeYear(a){const lo=a.years[0],hi=a.years[1],w=hi-lo,z=Math.sqrt(-2*Math.log(1-Math.random()))*Math.cos(2*Math.PI*Math.random());
+  const m=RC.AGE_YEAR_ROLL_MEAN!=null?+RC.AGE_YEAR_ROLL_MEAN:0.5,sd=RC.AGE_YEAR_ROLL_SD!=null?+RC.AGE_YEAR_ROLL_SD:1/6;
+  return Math.max(lo,Math.min(hi,Math.round(lo+w*m+z*w*sd)));}
 function applyAgeStart(){D.players.forEach(p=>{p.board.domains=startDomsFor(p);});}
 // EMPIRE_START_TIERS; highest tier is the capital
 function startSettlements(){const t=(DATA.startTiers&&DATA.startTiers.length)?DATA.startTiers:["Town","Village","Hamlet"];

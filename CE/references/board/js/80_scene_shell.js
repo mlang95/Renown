@@ -327,7 +327,7 @@ function ageStripHTML(){const a=ageRec(),y=curYear(),edit=firstHostOpen()&&canHo
     DOMAINS.map(d=>'<option'+(d===me.board.ageRising?' selected':'')+'>'+d+'</option>').join('')+'</select>';
   return h+'</span>';}
 document.addEventListener("change",e=>{const el=e.target;if(!el.closest||!el.closest("#turnStrip"))return;
-  if(el.hasAttribute("data-ts-age")){if(el.value)D.age=el.value;else delete D.age;delete D.year0;D.yearsGone=0;applyAgeStart();save();render();}
+  if(el.hasAttribute("data-ts-age")){if(el.value)D.age=el.value;else delete D.age;delete D.year0;D.yearsGone=0;{const a=ageRec();if(a)D.year0=rollAgeYear(a);}applyAgeStart();save();render();}
   else if(el.hasAttribute("data-ts-year")){const a=ageRec();if(!a)return;D.year0=Math.max(a.years[0],Math.min(a.years[1],Math.round(+el.value||a.years[0])));save();render();}
   else if(el.hasAttribute("data-ts-rise")){const me=meP();if(!me)return;if(el.value)me.board.ageRising=el.value;else delete me.board.ageRising;
     me.board.domains=startDomsFor(me);save();render();}});
