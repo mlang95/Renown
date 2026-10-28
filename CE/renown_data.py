@@ -1931,7 +1931,7 @@ SIMPLE_NODES = {
         "group": "g_court",
         "root": True,
         "unlock": "-",
-        #"infrastructure_req": "Town Square",
+        "infrastructure_req": "Town Square",
         "innate": "Faith +1 per Trade Partner with Craft 3+, and each of those partners gains Faith +1; Influence +1",
         "builds_into": ["Courier Network", "Smuggler's Nook"],
         "monument": False},
@@ -1951,7 +1951,7 @@ SIMPLE_NODES = {
         "monument": False},
     "Merchant Quarter": {
         "group": "g_commerce",
-        "unlock": "Rising Industry",
+        "unlock": "Established Industry",
         "infrastructure_req": "Magistrate's Hall",
         "innate": "+1000; Craft +3; Trade Partners gain Craft +2",
         "efficient": ["Market Square"],
@@ -1995,6 +1995,7 @@ SIMPLE_NODES = {
     "Coliseum": {
         "group": "g_logistics",
         "unlock": "Rising Prowess",
+        "infrastructure_req": "Muster Field",
         "innate": "Faith +1 while at War; Unlocks Man-at-Arms for Muster",
         "efficient": "Conditioning Field",
         "builds_into": ["Grand Tournament"],
@@ -2009,14 +2010,15 @@ SIMPLE_NODES = {
     "Priory": {
         "group": "g_devotion",
         "unlock": "Rising Piety",
-        "innate": "Faith +2",
+        "infrastructure_req": "Chapel",
+        "innate": "Faith +1",
         "efficient": "Masonry",
         "builds_into": ["Abbey"],
         "monument": False},
     "Abbey": {
         "group": "g_devotion",
         "unlock": "Established Piety",
-        "innate": "Faith +1; Authority -1 on Piety actions targeting you", #Once per Envoy Phase: Authority +2 another player's Piety Envoy;
+        "innate": "Authority -2 on Piety actions targeting you", #Once per Envoy Phase: Authority +2 another player's Piety Envoy;
         "efficient": "Priory",
         "builds_into": ["Monastery"],
         "monument": False},
@@ -2032,7 +2034,7 @@ SIMPLE_NODES = {
         "group": "g_devotion",
         "unlock": "Established Piety",
         "infrastructure_req": "Cathedral",
-        "innate": "Reach +1; Faith +1; Influence +1",#Other players with lower Piety value can't Oppose your Piety Envoys
+        "innate": "Reach +2; Influence +2", #Other players with lower Piety value can't Oppose your Piety Envoys
         "efficient": ["Abbey"],
         "builds_into": ["Papal Palace"],
         "monument": False},
@@ -2046,6 +2048,7 @@ SIMPLE_NODES = {
     "Hospitaller": {
         "group": "g_devotion",
         "unlock": "Established Piety",
+        "infrastructure_req": "Chapel",
         "innate": "Recover improved by +1; Enduring: Successful Recovered rolls do not count towards the panic check threshold.",
         "efficient": "Infirmary",
         "builds_into": [],
@@ -2053,7 +2056,7 @@ SIMPLE_NODES = {
     "Jester's Court": {
         "group": "g_court",
         "unlock": "Rising Piety",
-        "infrastructure_req": "Town Hall",
+        "infrastructure_req": "Town Square",
         "innate": "First and second Oppose on an Envoy of yours each Envoy Phase: reduce by 1",
         "efficient": "Courtyard",
         "builds_into": ["Bell Tower"],
@@ -2083,8 +2086,8 @@ SIMPLE_NODES = {
     "Academy": {
         "group": "g_court",
         "unlock": "1 Rising",
-        "infrastructure_req": "Library",
-        "innate": "Authority +1 on your Council Envoys; Influence +1",
+        #"infrastructure_req": "Library",
+        "innate": "Faith +1; Influence +2",
         "efficient": "Alchemy",
         "builds_into": ["University", "Forgery Workshop"],
         "monument": False},
@@ -2092,7 +2095,7 @@ SIMPLE_NODES = {
         "group": "g_commerce",
         "root": True,
         "unlock": "-",
-        #"infrastructure_req": "Town Square",
+        "infrastructure_req": "Town Square",
         "innate": "Craft +1; Faith +1",
         #"efficient": "Masonry",
         "builds_into": ["Market Square", "Jester's Court", "Episcopal Court", "Conditioning Field"],
@@ -2100,7 +2103,7 @@ SIMPLE_NODES = {
     "Episcopal Court": {
         "group": "g_devotion",
         "unlock": "Rising Piety",
-        "infrastructure_req": "Town Hall",
+        "infrastructure_req": "Town Square",
         "innate": "Faith +1; Reduce the first instance of Doubt each turn by 1, min 0.",
         "efficient": "Courtyard",
         "builds_into": ["Interrogation Chambers"],
@@ -2108,7 +2111,6 @@ SIMPLE_NODES = {
     "Conditioning Field": {
         "group": "g_logistics",
         "unlock": "Rising Prowess",
-        "infrastructure_req": "Muster Field",
         "innate": "Faith +1 while not at War; Armies gain Nimble",
         "efficient": ["Courtyard"],
         "builds_into": ["Coliseum"],
@@ -2151,7 +2153,7 @@ SIMPLE_NODES = {
     "University": {
         "group": "g_court",
         "unlock": "2 Established",
-        "infrastructure_req": "Library",
+        "infrastructure_req": "Town Hall",
         "innate": "Max Influence +1 on every Envoy; Influence +1 per Domain you are Rising",
         "efficient": "Academy",
         "builds_into": ["Forgery Workshop","Studium Generale","Ministry of Military Strategy"],
@@ -2264,7 +2266,7 @@ SIMPLE_NODES = {
     "Pilgrimage Site": {
         "group": "g_devotion",
         "unlock": "Established Piety",
-        "infrastructure_req": "Cathedral",
+        "infrastructure_req": "Chapel",
         "innate": "Faith +1; Extort 500 from each other player without a Pilgrimage Site; each other player without a Pilgrimage Site gains Doubt +1",
         "efficient": "Reliquary",
         "builds_into": ["Unforgotten Shrine"],
@@ -2272,7 +2274,7 @@ SIMPLE_NODES = {
     "Unforgotten Shrine": {
         "group": "g_devotion",
         "unlock": "Established Piety",
-        "infrastructure_req": "Cathedral",
+        "infrastructure_req": "Chapel",
         "innate": "When your Piety actions give their target Faith, it gains Faith +1 more; when they give Doubt, it gains Doubt +1 more.",
         "efficient": "Pilgrimage Site",
         "builds_into": ["Exalted Basilica"],
@@ -2322,7 +2324,7 @@ SIMPLE_NODES = {
     "Levy Hall": {
         "group": "g_logistics",
         "unlock": "Established Prowess",
-        "infrastructure_req": "Garrison",
+        #"infrastructure_req": "Garrison",
         "innate": "Natural; Speed +1; Upkeep -2000 while an Army is within Range 0 of a Settlement you Control",
         "efficient": "Smokehouse",
         "builds_into": ["Baggage Train"],
@@ -2373,7 +2375,7 @@ SIMPLE_NODES = {
     "War College": {
         "group": "g_logistics",
         "unlock": "Established Prowess",
-        "infrastructure_req": "Library",
+        #"infrastructure_req": "Library",
         "innate": "Influence +2 while At War; Unlocks Sergeants for Muster",
         "efficient": "University",
         "builds_into": ["Ministry of Military Strategy"],
@@ -2430,6 +2432,7 @@ SIMPLE_NODES = {
     "Ministry of Military Strategy": {
         "group": "g_logistics",
         "unlock": "Sovereign Prowess",
+        "infrastructure_req": "Library",
         "innate": "Always gains Seize the Initiative, and your opponent doesn't; max initiative is increased to 3; Gain Drilled.",
         "efficient": "War College",
         "builds_into": [],
@@ -3222,7 +3225,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                   'requirement': 'None'},
  'Stone Roads': {'upkeep': 200,
                  'upkeep_frequency': 'each Empire Phase',
-                 'empire_bonus': 'If you start a Move action within your Province, gain additional Speed +1',
+                 'empire_bonus': 'If you start a Move action within your Province, gain additional Speed +2',
                  'tier': 'Developed',
                  'build_time': 2,
                  'requirement': 'Dirt Roads'},
@@ -3281,20 +3284,20 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                           'Your Settlement Wards have Presence.',
           'tier': 'Prodigious',
           'build_time': 4,
-          'requirement': 'Stone Walls + Garrison'},
+          'requirement': 'Garrison'},
  'Aqueducts': {'upkeep': 400,
           'upkeep_frequency': 'each Empire Phase',
-          'empire_bonus': 'Reach +1; Upkeep -500; Build Timer -1; Influence +1'
+          'empire_bonus': 'Reach +2; Upkeep -1000; Build Timer -1; Influence +1'
                           '',
           'tier': 'Prodigious',
           'build_time': 4,
-          'requirement': 'Bridges'},
+          'requirement': 'One Tier Sophisticated'},
  'Cathedral': {'upkeep': 400,
                'upkeep_frequency': 'each Empire Phase',
-               'empire_bonus': 'Faith +2',
+               'empire_bonus': 'Faith +1',
                'tier': 'Prodigious',
                'build_time': 4,
-               'requirement': 'One Tier Sophisticated + Chapel'},
+               'requirement': 'One Tier Sophisticated'},
  # ── Wondrous tier (Wonders): Realm Scope, one per game, built in your capital
  'Colossus': {'upkeep': 500,
               'upkeep_frequency': 'per Wonder',
