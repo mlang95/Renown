@@ -545,6 +545,9 @@ function resolveEnvoy(E,pe,fin){const o=E.owner,act=pe&&pe.rec&&pe.rec.action,A=
     if(fin==="Endorsed"){const m=/Extort (\d+)/i.exec(end);if(m&&q){const t=extortGold({b:q.board},{b:o.board},+m[1],"Endorsed "+E.dom);fx.push("Endorsed: extort "+t.toLocaleString()+" from "+q.name);}
       else if(m)flags.push("Endorsed: Extort "+m[1]+" — no player target");
       if(/Perform (?:another|a) Move action/i.test(end))flags.push("Endorsed: perform a Move action (map)");}
+    if(fin==="Passed"&&AD==="Cunning"&&+RC.CUNNING_EXTORT){const n=+RC.CUNNING_EXTORT;   // a Passed Cunning action Extorts from its target (Endorsed: the action's larger Extort instead)
+      if(q){const t=extortGold({b:q.board},{b:o.board},n,"Passed "+AD);fx.push("Passed: extort "+t.toLocaleString()+" from "+q.name);}
+      else flags.push("Passed: Extort "+n+" — no player target");}
     notes.forEach(x=>fx.push(x));}
   return res;}
 function autoRes(){return TB().auto!==false;}   // default on

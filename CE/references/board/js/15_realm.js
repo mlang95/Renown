@@ -176,7 +176,8 @@ function realmTableHTML(R){const sm=seatMap(),n=tSeats(),me=meP(),hp=hostP(),sp=
       '<td class="rt-p" data-hov="'+p.id+'">'+tName(p)+
         (sameP(p,hp)?' <span class="tb-b h" title="'+(isSpring()?'Host token — no Host in Spring':'Host')+'">'+(isSpring()?'Host token':'♔ Host')+'</span>':'')+
         (sameP(p,sp)?' <span class="tb-b s" title="Starting player">1st</span>':'')+(sameP(p,me)?' <span class="tb-b">you</span>':'')+
-        ((!sl&&sameP(p,me))||ADMIN?' <button data-do="stand" data-who="'+p.id+'" class="tb-mini">stand</button>':'')+'</td>'+
+        ((!sl&&sameP(p,me))||ADMIN?' <button data-do="stand" data-who="'+p.id+'" class="tb-mini">stand</button>':'')+
+        (aiOn(p)||!lockOn()||ADMIN?' <label class="tb-b" title="AI plays this seat ('+esc(p.board.culture||"no culture")+')"><input type="checkbox" data-do="aiseat" data-who="'+p.id+'"'+(aiOn(p)?' checked':'')+((!lockOn()||ADMIN)?'':' disabled')+'> AI</label>':'')+'</td>'+
       '<td class="num"'+tl("gold")+'>'+fmtG(h.gold)+' <span class="'+(h.net<0?"neg":"pos")+'">'+sg(h.net)+'</span></td>'+
       '<td class="num"'+tl("infl")+'>'+left+'<span class="note">/'+pool+'</span></td>'+
       '<td class="num"'+tl("env")+'>'+personalEnvoys(p)+'</td>'+
@@ -185,7 +186,7 @@ function realmTableHTML(R){const sm=seatMap(),n=tSeats(),me=meP(),hp=hostP(),sp=
       '<td class="num"'+tl("setts")+'>'+h.setts+(h.settCap!=null?'<span class="note">/'+h.settCap+'</span>':'')+'</td>'+
       '<td class="num"'+tl("edicts")+(h.edicts===bst&&bst>0?' style="color:var(--income);font-weight:700"':'')+'>'+h.edicts+(h.edicts===bst&&bst>0?' ★':'')+'</td>'+
       domCells(p.board)+
-      '<td class="rt-st">'+(dsum>dmax?'<span class="neg" title="Domain values '+dsum+' > '+dmax+' allowed">⚠ '+dsum+'/'+dmax+'</span> ':'')+st+'</td></tr>';}
+      '<td class="rt-st">'+((n=>n&&n.turn===tTurn()?'<span class="note" title="'+esc(n.txt)+'">🤖 '+esc(n.txt)+'</span> ':'')(aiOn(p)&&PT(p).aiNote))+(dsum>dmax?'<span class="neg" title="Domain values '+dsum+' > '+dmax+' allowed">⚠ '+dsum+'/'+dmax+'</span> ':'')+st+'</td></tr>';}
   const unl=EE.unlocks&&EE.unlocks!=="—"?esc(EE.unlocks):'—',unseated=D.players.filter(p=>!Object.values(sm).includes(p));
   return '<div class="rt-wrap"><div class="rt-era note"><b>'+esc(currentEra())+'</b> · Cities <b>'+(EE.cities??'?')+'</b> · Unlocks: '+unl+
       (unseated.length?' · <span>Not seated: '+unseated.map(p=>esc(p.name)).join(", ")+'</span>':'')+'</div>'+

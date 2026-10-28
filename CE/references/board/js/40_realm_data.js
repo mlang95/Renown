@@ -130,15 +130,16 @@ function epRows(b){const rows=[],me=playerOfBoard(b),mid=me?String(me.id):null,d
   return rows;}
 function poModTotal(b){const t=poModRows(b).reduce((a,r)=>a+(r.side==="faith"?r.n:-r.n),0);return t;}
 function dpButtons(p,i){const b=p.board,n=b.dp||0;if(n<=0)return "";
-  return '<span class="dpask"><b>'+n+' Domain Point'+(n>1?'s':'')+'</b> to spend: '+DOMAINS.map(d=>'<button class="dpsp" data-pi="'+i+'" data-dom="'+d+'">'+d+' +1</button>').join('')+
+  return '<span class="dpask"><b>'+n+' Domain Point'+(n>1?'s':'')+'</b> to spend: '+DOMAINS.filter(d=>(+((b.domains||{})[d])||0)<SOV).map(d=>'<button class="dpsp" data-pi="'+i+'" data-dom="'+d+'">'+d+' +1</button>').join('')+   // a Domain at its maximum takes no more points
     '<button class="dpsk" data-pi="'+i+'" title="drop one unspent point">skip</button></span>';}
 function renderDP(){const box=document.getElementById("dpBox");if(!box)return;const i=D.active,h=dpButtons(D.players[i]||{board:S},i);
   box.style.display=h?"":"none";box.innerHTML=h;}
-document.addEventListener("click",e=>{const b=e.target.closest(".dpsp,.dpsk");if(!b)return;const p=D.players[+b.dataset.pi];if(!p||!(p.board.dp>0))return;
-  if(b.classList.contains("dpsp")){const bd=p.board,d=b.dataset.dom;bd.domains=bd.domains||{};const old=+(bd.domains[d]||0),next=Math.min(SOV,old+1);bd.domains[d]=next;
-    armStanding(p,d,old,next);}
-  {const bd=p.board;bd.dpLog=(bd.dpLog||[]).concat([{turn:tTurn(),dom:b.classList.contains("dpsp")?b.dataset.dom:"(skipped)"}]).slice(-12);}
-  p.board.dp--;save();render();});
+// spend one of p's Domain Points on Domain d (null = skip); false if there's no point or d is already at its maximum
+function dpSpend(p,d){const bd=p&&p.board;if(!bd||!(bd.dp>0))return false;
+  if(d){bd.domains=bd.domains||{};const old=+(bd.domains[d]||0),next=Math.min(SOV,old+1);if(old>=SOV)return false;bd.domains[d]=next;armStanding(p,d,old,next);}
+  bd.dpLog=(bd.dpLog||[]).concat([{turn:tTurn(),dom:d||"(skipped)"}]).slice(-12);bd.dp--;return true;}
+document.addEventListener("click",e=>{const b=e.target.closest(".dpsp,.dpsk");if(!b)return;const p=D.players[+b.dataset.pi];
+  if(dpSpend(p,b.classList.contains("dpsp")?b.dataset.dom:null)){save();render();}});
 // ---- mini standings (Board, left column): active player's Domains, Rest-Phase points, unlocked Domain effects + Pursuits ----
 let MINI_OPEN=null;try{MINI_OPEN=JSON.parse(localStorage.getItem("renown_ministand")||"null");}catch(e){}
 function renderMiniStand(){const box=document.getElementById("miniStand");if(!box)return;

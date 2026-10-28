@@ -3387,7 +3387,7 @@ PO_BANDS = {
     -8: ("Recession",     "Tax Income -{n} per Settlement", 1000),
     -6: ("Aimless",       "Speed -{n}", 2),
     -4: ("Indecisive",    "Influence -{n}", 1),
-    -2: ("Shaken",        "No effect", None),
+    -2: ("Shaken",        "Morale -{n}", 1),
      0: ("Neutral",       "No effect", None),
      2: ("Confident",     "Influence +{n}", 1),
      4: ("Motivated",     "Speed +{n}", 1),
@@ -3712,11 +3712,15 @@ ENVOY_OUTCOME_THRESHOLDS = {
 # Per-domain effect at each outcome band. Prowess Condemn is a combat penalty
 # (Strain; if already Strained, no Move this turn or next) rather than Doubt+Cost,
 # since Prowess actions carry no gold/doubt cost.
+# Cunning actions Extort from their target: CUNNING_EXTORT when Passed, CUNNING_EXTORT_ENDORSED (in place of it) when Endorsed.
+CUNNING_EXTORT          = 2000
+CUNNING_EXTORT_ENDORSED = 4000
 ENVOY_OUTCOMES = { #Note, the condemned.split("+")[-1] is the "cost" for cunning piety and industry
     "Prowess":   {"condemned": "Doubt 1 + Armies gain Strain; if already Strained, that army gains Blocked.",
                   "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Perform a Move action"},
     "Cunning":   {"condemned": "Doubt 1 + pay 2000, & you cannot Recoup",
-                  "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Extort 2000"},
+                  "failed": "Doubt 1", "passed": f"Perform the action; Extort {CUNNING_EXTORT} from its target",
+                  "endorsed": f"Extort {CUNNING_EXTORT_ENDORSED} from its target instead"},
     "Piety":     {"condemned": "Doubt 1 + pay Doubt 1, & you cannot Recoup",
                   "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Recoup Doubt"},
     "Industry":  {"condemned": "Doubt 1 + pay 2000, & you cannot Recoup",
@@ -3787,7 +3791,7 @@ ACTIONS = {
         'cost': '2000 gold',
         'requires': '',
         'effect': f'Choose a player. The next turn that player is Host, Extort their Trade Income. If they have no Trade Income that turn, instead Extort {INTERCEPT_EXTORT_PER_CRAFT} per their Craft.',
-        'endorsed': 'Extort 2000.',
+        'endorsed': f'Extort {CUNNING_EXTORT_ENDORSED}.',
         'notes': ["This affects only a single turn's trade income; normal income resumes afterward."],
     },
     'Foster Rebellion': {
@@ -3795,7 +3799,7 @@ ACTIONS = {
         'cost': '2000 gold',
         'requires': '',
         'effect': 'Choose a player. At the next Bandit Mechanics step, place a Bandit Camp of 10 Retinues in their Outlaw Country.',
-        'endorsed': 'Extort 2000.',
+        'endorsed': f'Extort {CUNNING_EXTORT_ENDORSED}.',
         'notes': ["If that player's Outlaw Country has no room, expand it by one Territory and spawn there instead."],
     },
     'Raze': {
@@ -3803,7 +3807,7 @@ ACTIONS = {
         'cost': '2000 gold',
         'requires': '',
         'effect': "Choose another player's Settlement, then choose one active Pursuit, active Infrastructure, or active Build Timer in it: that target becomes Damaged, and its effects are inactive until Repaired. A Damaged Build Timer doesn't count down until Repaired. If an active Build Timer hasn't been completed, instead, increase the Timer by 2.",
-        'endorsed': 'Extort 2000.',
+        'endorsed': f'Extort {CUNNING_EXTORT_ENDORSED}.',
         'notes': ["A Wonder has Immune Razed and can't be targeted."],
     },
     'Destabilize': {
@@ -3811,7 +3815,7 @@ ACTIONS = {
         'cost': '2000 gold',
         'requires': '',
         'effect': "Choose a player. In the next Winter phase, during the Extort step, Extort one settlement's tax income. Each settlement can only be Destabilized once per Winter.",
-        'endorsed': 'Extort 2000.',
+        'endorsed': f'Extort {CUNNING_EXTORT_ENDORSED}.',
         'notes': ["If multiple players extort the same player, the player with the highest Cunning value chooses which settlement(s) are extorted first. In the event of a tie, or if there are not enough settlements, the Extort value is divided equally."],
     },
     'Sabotage': {
@@ -3819,7 +3823,7 @@ ACTIONS = {
         'cost': '2000 gold',
         'requires': '',
         'effect': 'Choose an army, that army gains Blocked until the end of next turn.',
-        'endorsed': 'Extort 2000.',
+        'endorsed': f'Extort {CUNNING_EXTORT_ENDORSED}.',
         'notes': [],
     },
     
@@ -4547,6 +4551,92 @@ RENOWN_PER_TURN = 1          # Rest Phase step 3 "Gain Renown" — the rules don
 DOMAIN_POINTS_PER_TURN = 1   # Rest Phase step 4 / Key Resources: "Domain Points — earned 1 per turn"
 GLOSSARY["Domain Point"] = GLOSSARY["Domain Point"].replace("{DOMAIN_POINTS_PER_TURN}", str(DOMAIN_POINTS_PER_TURN))
 
+# ── AI PLAYERS (draft) ───────────────────────────────────────────────────────
+# Decision priorities shared by every AI player, highest first. A culture changes HOW a priority is met
+# (its Domains, actions, Monuments), not the order. Read by the board's bot seats and the headless simulator.
+AI_DOMAIN_POINTS = ("Spend Domain Points one Standing at a time, toward whatever the next priority needs. "
+                    "Any culture may take Rising Industry if a priority needs it.")
+AI_PRIORITIES = [
+    ("economy",    "Be cash positive until next Winter: build income, cut upkeep, or spend less — in the culture's own ways."),
+    ("faith",      "Keep Public Order above the bands that hurt the plan (AI_FAITH_AVOID)."),
+    ("diplomacy",  "Treat with like-minded cultures (AI_DIPLOMACY by Domain)."),
+    ("bandits",    "Manage Bandits: build Cunning Holdings, Armies, Walls and modifiers against them."),   # priority 3.5
+    ("holdings",   "Build the Holdings the priorities above (and Monuments / Edicts below) need."),
+    ("infra",      "Build Infrastructure that helps those priorities."),
+    ("monuments",  "Build up toward the culture's Monuments."),
+    ("edicts",     "Act toward Edicts (e.g. Declare War to Vassalize)."),
+]
+# Public Order band (PO_BANDS key) to stay above, and when: always, or only while that band's effect matters to the plan
+AI_FAITH_AVOID = [
+    (-10, "always"),
+    (-8,  "economy"),      # Recession: tax income — avoid when it keeps the economy priority met
+    (-6,  "speed"),        # Aimless: Speed — when the plan needs Armies to move
+    (-4,  "influence"),    # Indecisive: Influence — when the plan needs Influence
+    (-2,  "battle"),       # Shaken: Morale -2 — before Battle actions
+]
+# How each Domain meets a priority (a culture with several Domains uses all of its Domains' ways). Tags the AI scores:
+#   holding_income  Build Holdings that make gold          trade          Trade Agreements, trade Holdings
+#   infra_upkeep    Holdings that cut Infrastructure upkeep army_upkeep   Holdings with Upkeep -N (Armies)
+#   bandit_hunt     Armies hunting Bandit Camps             battle         winning Battles / Declare War
+#   pillage         Pillage                                 sack           Lay Siege to (sack / capture) Settlements
+#   extort          Cunning actions and Extort Holdings     damage         Raze / Sabotage / Intercept / Destabilize
+#   hamlet_income   basic (root) Holdings that make gold    tithe          Tithe
+#   low_costs       low-upkeep builds
+#   po_cheap        raise Public Order as high as it goes, only through cheap means (low upkeep or paying Holdings)
+#   po_saints       raise it to the maximum (Living Saints Edict)   po_above_rivals  keep it above every rival's
+#   martial_lowers  war, Moves and Pillage to drag rivals down       cunning_lowers   Cunning actions against rivals
+#   war_lowers      war and Doubt actions to lower others'          po_control       Piety actions as leverage on others
+#   po_insulate     Holdings that shield you from Doubt
+#   walls           Walls (Improve)                         ignore_siege   Holdings against Sieges (Office of Works)
+#   equip_armies    combat Holdings for better-equipped Armies   train / basic_armies  Muster
+#   harness         Bandit Holdings and Foster Rebellion
+AI_STYLE = {
+    "economy": {
+        "Industry": ["holding_income", "trade", "infra_upkeep", "army_upkeep"],
+        "Prowess":  ["bandit_hunt", "army_upkeep", "battle", "pillage", "holding_income", "sack", "infra_upkeep"],
+        "Cunning":  ["extort", "damage", "holding_income", "trade"],
+        "Piety":    ["hamlet_income", "tithe", "trade", "low_costs", "infra_upkeep"],
+    },
+    "faith": {
+        "Industry": ["po_cheap"],
+        "Prowess":  ["po_above_rivals", "martial_lowers"],
+        "Piety":    ["po_saints", "po_control"],
+        "Cunning":  ["po_above_rivals", "cunning_lowers", "po_insulate"],
+    },
+    "bandits": {
+        "Industry": ["walls", "ignore_siege", "equip_armies"],
+        "Prowess":  ["train", "bandit_hunt"],
+        "Cunning":  ["harness"],
+        "Piety":    ["walls", "basic_armies"],
+    },
+}
+# Archetype (CULTURES[...]["archetype"] = "<pace> <style>") in the AI loop — DRAFT weights, tune freely.
+#   prio: × a priority's value · tags: × an action carrying that style tag · reserve: gold kept back when planning
+#   lead: × actions in the culture's lead Domain · need_amp: × the most-needed of economy / faith / bandits · vote: × Influence spent
+AI_ARCHETYPE = {
+    # pace
+    "Pure":      {"lead": 1.3},                                                     # leans on its one Domain
+    "Sustained": {"reserve": 4000, "tags": {"low_costs": 1.3}},                     # steady: low upkeep, a cash cushion
+    "Fluid":     {"need_amp": 1.4},                                                 # follows whatever is most pressing
+    "Scaling":   {"prio": {"holdings": 1.3, "infra": 1.3, "monuments": 1.3, "economy": 0.9}},   # invests now, pays later
+    # style
+    "Engine":    {"prio": {"economy": 1.2, "holdings": 1.3, "infra": 1.2}},
+    "Aggro":     {"tags": {"battle": 1.3, "martial_lowers": 1.3, "pillage": 1.3, "sack": 1.3, "bandit_hunt": 1.2}},
+    "Tempo":     {"tags": {"damage": 1.2, "cunning_lowers": 1.2, "extort": 1.2}, "prio": {"bandits": 1.1}},
+    "Control":   {"prio": {"faith": 1.2, "diplomacy": 1.2}, "tags": {"po_control": 1.3}, "vote": 1.5},
+}
+# Mustering: the best Retinue and gear unlocked; an offensive Army takes a 2H weapon, a defensive one a 1H weapon and a Shield
+AI_MUSTER = {"offensive_when": "Prowess culture or at war", "offensive": "2H", "defensive": "1H + Shield"}
+# Diplomacy temperament by Domain; a culture with several Domains mixes them
+AI_DIPLOMACY = {
+    "Prowess":  "Military Alliances with Prowess players, or anyone who helps the economy or faith priorities; "
+                "Declare War on militarily weaker empires.",
+    "Industry": "Trade with everyone.",
+    "Piety":    "Trade readily.",
+    "Cunning":  "Opportunist: works the others' deals and changes sides whenever it is placed to benefit.",
+}
+# AI_PROFILES is built at the end of this file, after the SIMPLE overlay has set each culture's Monuments.
+
 
 # ── SIMPLE overlay ──────────────────────────────────────────────────────────────
 # Rules text that changes with the simplified pursuit graph. Runs last so every
@@ -4936,3 +5026,10 @@ HOLDING_SIM = {
            "upkeep": holding_upkeep(v.get("innate", ""))}
     for name, v in SIMPLE_NODES.items()
 }
+
+# Per-culture profile, read straight from CULTURES (no new numbers): Domains, archetype, signature actions,
+# Monuments and Wonders to build toward, and the radar ratings as weights.
+AI_PROFILES = {c: {"domains": v["domains"], "archetype": v["archetype"], "actions": v.get("actions", []),
+                   "monuments": v.get("monuments", []), "wonders": v.get("wonders", []), "radar": v.get("radar", {}),
+                   "prowess_coded": "Prowess" in v["domains"]}
+               for c, v in CULTURES.items()}

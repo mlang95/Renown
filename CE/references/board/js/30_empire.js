@@ -420,6 +420,7 @@ function render(){
   document.getElementById("viewTable").style.display = base==="table"?"":"none";
   document.querySelectorAll(".vtab,#tabbar [data-v]").forEach(t=>t.classList.toggle("on",t.dataset.v===(view==="battle"?"battle":base)));
   try{renderInbox();renderChrome();}catch(e){console.warn("inbox",e);}
+  setTimeout(aiAfterRender,0);                // AI seats act on what this render shows
   if(view==="battle"){try{renderTable();}catch(e){console.error("realm",e);}
     try{renderBattle();}catch(e){console.error("battle",e);document.getElementById("viewBattle").innerHTML='<div class="bm-card"><div class="bm-h"><h2>Battle</h2><button data-do="battleclose" data-nav="1" title="back to the Realm">✕</button></div><div class="note neg">'+esc(String(e&&e.message||e))+'</div></div>';}
     return;}
@@ -1327,7 +1328,7 @@ function armyCard(a,u){
   const lab=document.createElement("input");lab.className="lab";lab.placeholder="army label";lab.value=a.label||"";
   lab.oninput=()=>{a.label=lab.value;save();};top.appendChild(lab);
   const mor=document.createElement("span");mor.className="badge "+(routed?"noearn":"tier");
-  {const ms=moraleStanding(a);mor.textContent="morale "+effMorale(a)+"+"+(a.fatigue||ms?(" ("+moraleBase(a)+"+"+(a.fatigue?" +"+((BT.fatigueMorale??2)*a.fatigue):"")+(ms?" −"+ms.n+" "+ms.src:"")+")"):"");}top.appendChild(mor);
+  {const ms=moraleStanding(a),mp=moralePO(a);mor.textContent="morale "+effMorale(a)+"+"+(a.fatigue||ms||mp?(" ("+moraleBase(a)+"+"+(a.fatigue?" +"+((BT.fatigueMorale??2)*a.fatigue):"")+(mp?" +"+mp.n+" "+mp.src:"")+(ms?" −"+ms.n+" "+ms.src:"")+")"):"");}top.appendChild(mor);
   const upL=document.createElement("span");upL.className="note";upL.textContent="upkeep";top.appendChild(upL);
   const up=document.createElement("b");up.textContent=fmt(-armyUpkeep(a));up.title=a.retinue+" Army cost";top.appendChild(up);
   const rm=document.createElement("button");rm.className="rm";rm.textContent="✕";
@@ -1422,7 +1423,10 @@ function moraleCap(a){const b=(D.players||[]).map(p=>p.board).find(bb=>(bb.armie
 // Standing "Morale +N" (STANDING_EFFECTS, Piety Rising): read as N steadier (lower Morale value), like Combatv4's "Shake +1"
 function moraleStanding(a){const b=(D.players||[]).map(p=>p.board).find(bb=>(bb.armies||[]).includes(a));if(!b)return null;
   const x=standingFxOf(b.domains||{}).find(f=>/Morale\s*\+(\d+)/i.test(f.text));return x?{n:+x.text.match(/Morale\s*\+(\d+)/i)[1],src:x.t+" "+x.d}:null;}
-function effMorale(a){const ms=moraleStanding(a),v=moraleBase(a)+(BT.fatigueMorale??2)*(a.fatigue||0)-(ms?ms.n:0),c=moraleCap(a);return c!=null?Math.min(c,v):v;}
+// Public Order band "Morale -N" (Shaken) on the owner's board: N worse (higher Morale value), like a Fatigue token
+function moralePO(a){const b=(D.players||[]).map(p=>p.board).find(bb=>(bb.armies||[]).includes(a));if(!b)return null;
+  for(const k of poActiveKeys(Math.max(PO_MIN,Math.min(PO_MAX,b.po||0)),b)){const e=POB(k),m=e&&/Morale\s*-\s*(\d+)/i.exec(e[1]);if(m)return {n:+m[1],src:e[0]};}return null;}
+function effMorale(a){const ms=moraleStanding(a),mp=moralePO(a),v=moraleBase(a)+(BT.fatigueMorale??2)*(a.fatigue||0)-(ms?ms.n:0)+(mp?mp.n:0),c=moraleCap(a);return c!=null?Math.min(c,v):v;}
 function isRouted(a){return effMorale(a)>=(BT.routThr||11);}
 
 // modified Army stats (shared by the Army card, map plate, hover title and Move panel)

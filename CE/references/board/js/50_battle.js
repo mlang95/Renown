@@ -174,6 +174,7 @@ function sideCalc(X){
   if(blunder)trig.push("Blunder: to-Strike "+CAP+"+ before penalties"+(oBlunder&&I>INIT_MIN?" (enemy "+oBlunder.t+" "+oBlunder.d+", first Skirmish)":""));
   if(a.strained||siegeStrains(p,a)||oStrain)trig.push(strainI?"Strained −1 Init"+(a.strained?"":siegeStrains(p,a)?" (Besieged)":" (enemy "+oStrain.t+" "+oStrain.d+")"):"Immune Strain: no Init loss");
   {const ms=moraleStanding(a);if(ms)trig.push(ms.src+" Morale +"+ms.n+": Morale value −"+ms.n+" (steadier)");}
+  {const mp=moralePO(a);if(mp)trig.push(mp.src+" (Public Order) Morale −"+mp.n+": Morale value +"+mp.n);}
   if(maxI>INIT_MAX)trig.push("Init ceiling +"+maxI);
   if(plan)trig.push(planOn?"Planishing: save capped "+CAP+"+"+(saveRaw>CAP||deadlyRaw>CAP?" (was "+saveRaw+"+ / Deadly "+deadlyRaw+"+)":""):"Planishing negated by enemy weapon");
   if(hasDeadly)trig.push("Deadly: strikes on "+critFloor+"+ save at +"+DAP);
