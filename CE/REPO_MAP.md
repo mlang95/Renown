@@ -1,6 +1,6 @@
 # REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`)
 
-Generated 2026-10-28 · data VERSION `0.4.9.9.13-d10-S` · HEAD `b6aa059 2026-10-28`
+Generated 2026-10-28 · data VERSION `0.4.9.9.13-d10-S` · HEAD `3b7777a 2026-10-28`
 
 Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to the repo root.
 
@@ -218,7 +218,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\references\render_tree.py` | 272 | render_tree.py - COORDINATE-DRIVEN tree renderer (no auto-layout). |
 | `CE\references\rule_numbers.py` | 250 | rule_numbers.py — MTG-style rule numbers for the rules markdown, computed at render time. |
 | `CE\references\server.py` | 501 | Renown settlement-board server  —  stdlib only, no pip installs. |
-| `CE\references\settlement_board.html` | — | generated HTML (1808 KB) |
+| `CE\references\settlement_board.html` | — | generated HTML (1807 KB) |
 | `CE\references\settlement_mats.py` | 302 | settlement_mats.py - modular ward mats. One Settlement mat (Village -> City, 3 |
 | `CE\references\spec_tree_sheet.py` | 1183 | Renown — Specialization Tree renderer. |
 | `CE\references\svg_to_pdf.py` | 63 | svg_to_pdf.py - combine SVG pages into ONE PDF. |
@@ -527,7 +527,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `RenownWiki\rules-treasury-upkeep.html` | 35 | Treasury &amp; Upkeep — Renown |
 | `RenownWiki\search.js` | 7 |  |
 | `RenownWiki\seasons-ref.html` | 22 | Seasons — Renown |
-| `RenownWiki\settlement_board.html` | — | generated HTML (1808 KB) |
+| `RenownWiki\settlement_board.html` | — | generated HTML (1807 KB) |
 | `RenownWiki\settlements-ref.html` | 22 | Settlements — Renown |
 | `RenownWiki\standing-established.html` | 22 | Established Tier — Renown |
 | `RenownWiki\standing-rising.html` | 22 | Rising Tier — Renown |

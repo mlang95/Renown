@@ -1327,6 +1327,51 @@
   ]
  },
  {
+  "title": "Senate Hall",
+  "anchor": "Senate Hall",
+  "mode": "chain",
+  "nodes": {
+   "Courtyard": [
+    0,
+    0
+   ],
+   "Jester's Court": [
+    1,
+    0
+   ],
+   "Bell Tower": [
+    2,
+    0
+   ],
+   "Embassy": [
+    3,
+    0
+   ],
+   "Senate Hall": [
+    4,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Jester's Court",
+    "Bell Tower"
+   ],
+   [
+    "Bell Tower",
+    "Embassy"
+   ],
+   [
+    "Courtyard",
+    "Jester's Court"
+   ],
+   [
+    "Embassy",
+    "Senate Hall"
+   ]
+  ]
+ },
+ {
   "title": "Outlaw Rookery",
   "anchor": "Outlaw Rookery",
   "mode": "chain",
@@ -1433,51 +1478,6 @@
    [
     "Cipher Chamber",
     "Whispering Undercroft"
-   ]
-  ]
- },
- {
-  "title": "Senate Hall",
-  "anchor": "Senate Hall",
-  "mode": "chain",
-  "nodes": {
-   "Courtyard": [
-    0,
-    0
-   ],
-   "Jester's Court": [
-    1,
-    0
-   ],
-   "Bell Tower": [
-    2,
-    0
-   ],
-   "Embassy": [
-    3,
-    0
-   ],
-   "Senate Hall": [
-    4,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Jester's Court",
-    "Bell Tower"
-   ],
-   [
-    "Bell Tower",
-    "Embassy"
-   ],
-   [
-    "Courtyard",
-    "Jester's Court"
-   ],
-   [
-    "Embassy",
-    "Senate Hall"
    ]
   ]
  },
