@@ -317,7 +317,13 @@ function runPillage(){const out=[],seen=new Set();D.players.forEach(p=>(p.board.
   if(why){out.push(p.name+": Pillage of "+nm+" ends — "+why);delete a.pillage;return;}
   const key=q.id+":"+s.id;if(seen.has(key))return;seen.add(key);                       // a Settlement may be Pillaged once per Empire Phase
   const amt=Math.max(0,Math.floor(settEcon(q,s).pillageBase/2)),t=extortGold({b:q.board},{b:p.board},amt,"Pillage of "+nm);
-  out.push(p.name+" pillages "+nm+" ("+q.name+"): extort "+t.toLocaleString()+(t<amt?" (of "+amt.toLocaleString()+")":""));}));return out;}
+  out.push(p.name+" pillages "+nm+" ("+q.name+"): extort "+t.toLocaleString()+(t<amt?" (of "+amt.toLocaleString()+")":""));}));
+  // Bandit Armies Pillaging (BANDIT_BEHAVIOR): the same half of the Settlement's Holding income, into the camp's Treasury
+  const M=mapState();Object.keys(M.camps).forEach(k=>{const cp=M.camps[k];if(!cp.pillage)return;const q=pById(cp.pillage.tp),s=q&&settById(q,cp.pillage.sid),sk=s&&settHex(q,s);
+    if(!sk||hexDist(hk(k),hk(sk))>1){delete cp.pillage;return;}const key=q.id+":"+s.id;if(seen.has(key))return;seen.add(key);
+    const nm=s.name||s.tier,amt=Math.max(0,Math.floor(settEcon(q,s).pillageBase/2)),t=extortGold({b:q.board},{camp:cp},amt,"Bandit Pillage of "+nm);
+    out.push("Bandits pillage "+nm+" ("+q.name+"): extort "+t.toLocaleString()+(t<amt?" (of "+amt.toLocaleString()+")":""));});
+  return out;}
 // ---- Army states (Inspect rows + plate icons) ----
 function armyStatus(p,a,k){const L=[];if(!p||!a)return L;const cell=k?mapState().cells[k]:null,B=battle();
   {const im=immuneStrainIn(p,a);if(effStrained(p,a))L.push({st:"strained",txt:"Strained"+(!a.strained&&siegeStrains(p,a)?" (Besieged)":"")});else if(im)L.push({st:"endurance",txt:"Immune Strained ("+im+")"});}
@@ -463,7 +469,7 @@ function engageTargets(p,a){const k=armyHex(p,a);if(!k||armyInside(p,a))return [
   hexNb(k).forEach(n=>{const c=M.cells[n];
     if(c&&c.type==="Army"){const x=cellArmy(n);if(x.p&&x.a&&!sameP(x.p,p)&&effPair(p.id,x.p.id).war)out.push({kind:"battle",label:x.p.name+" · "+(x.a.label||("Army "+x.a.id)),B:{pid:String(x.p.id),aid:String(x.a.id)},seize:"A",src:"Battle action"});}
     else if(c){const cs=cellSett(n);if(cs.s&&!sameP(cs.p,p)&&effPair(p.id,cs.p.id).war&&!siegeOn(cs.p.id,cs.s.id))out.push({kind:"siege",label:cs.p.name+" · "+(cs.s.name||cs.s.tier),tp:cs.p.id,sid:cs.s.id});}
-    if(M.camps[n])out.push({kind:"battle",label:(M.camps[n].n>=(BAN.armyThreshold||25)?"Bandit Army":"Bandit Camp")+" @ "+n,B:{kind:"bandit",camp:n},seize:"",src:"vs Bandits"});});
+    if(M.camps[n]&&!M.camps[n].out)out.push({kind:"battle",label:(M.camps[n].n>=(BAN.armyThreshold||25)?"Bandit Army":"Bandit Camp")+" @ "+n,B:{kind:"bandit",camp:n},seize:"",src:"vs Bandits"});});
   return out;}
 function wireInsp(host){const P=host.querySelector("#inspPanel");if(!P)return;
   P.querySelectorAll("[data-insp-eng]").forEach(b=>b.onclick=()=>{const [pid,aid,i]=b.dataset.inspEng.split(":"),p=pById(pid),a=p&&(p.board.armies||[]).find(x=>String(x.id)===aid);
@@ -777,6 +783,7 @@ function hexFree(k){const M=mapState();return !M.camps[k]&&!M.cells[k]&&!M.wards
 function spawnCamp(p,n,why){const M=mapState(),free=outlawOf(p).filter(hexFree);if(!free.length)return null;
   const k=free[Math.floor(Math.random()*free.length)];M.camps[k]={n,gold:+BAN.campGold||0};if(isWild(k))M.camps[k].wild=M.outlaw[k];armBandits(M.camps[k]);bLog("camp of "+n+" spawns @ "+k+" ("+why+")",k);return k;}
 function growCamps(keys,why){const M=mapState(),gr=(BAN.growth||{})[currentEra()]||0,cap=BAN.armyThreshold||25;
+  keys=keys.filter(k=>M.camps[k]&&!M.camps[k].out&&!M.camps[k].home);   // a camp whose Army is out, and an Army away from home, don't grow
   keys.forEach(k=>{const cp=M.camps[k];if(!cp)return;const n0=cp.n;cp.n=Math.min(cap,cp.n+gr);
     if(n0<cap&&cp.n>=cap){bLog("camp @ "+k+" reaches "+cap+" → Bandit Army",k);const ns=byDist(k,mapSetts(),false)[0],q=ns&&cellSett(ns.k);
       chron("bandit_army",{near:q&&q.s?(q.s.name||q.s.tier)+(q.p?" ("+q.p.name+")":""):k});}});if(keys.length)bLog("grow +"+gr+" ×"+keys.length+(why?" ("+why+")":""));}
@@ -856,6 +863,21 @@ function banditRun(k0,speed,AU,lift){const M=mapState(),V=decodeGrid(M.grid),bes
       const kk=key(nk,nw);if(best[kk]===undefined||nd<best[kk]){best[kk]=nd;Q.push([nd,nk,nw]);}});}
   return reach;}
 function moveCamp(k0,k1){const M=mapState();if(k0===k1||!M.camps[k0])return;M.camps[k1]=M.camps[k0];delete M.camps[k0];delete M.camps[k1].sackTarget;}
+// A camp at BANDIT_ARMY_THRESHOLD sends out a Bandit Army of that size; the camp stays on its Territory, emptied and marked out
+// (no growth, no second Army, no spawn there). An Army already out just moves. After each Battle or Siege it returns (banditReturn).
+function moveBandit(k0,k1){const M=mapState(),cp=M.camps[k0];if(!cp||k0===k1)return;
+  if(cp.home){moveCamp(k0,k1);return;}
+  const uid=cp.uid||("b"+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36));
+  M.camps[k1]=Object.assign({},cp,{uid,home:k0,gold:0});delete M.camps[k1].out;
+  M.camps[k0]={n:0,gold:+cp.gold||0,out:uid};if(cp.wild)M.camps[k0].wild=cp.wild;
+  bLog("camp @ "+k0+" sends out a Bandit Army of "+cp.n+" → "+k1,k1);}
+// the Army at k goes home: its Retinues and Treasury fold back into its camp, which re-musters from there.
+// (A camp whose Army is out can't be attacked — engageTargets skips it — and is destroyed with its Army.)
+function banditReturn(k){const M=mapState(),a=M.camps[k];if(!a||!a.home)return;const h=M.camps[a.home],cap=BAN.armyThreshold||25;
+  if(h&&h.out===a.uid){h.n=Math.min(cap,(+h.n||0)+(+a.n||0));h.gold=(+h.gold||0)+(+a.gold||0);delete h.out;delete M.camps[k];bLog("Bandit Army returns to its camp @ "+a.home+" ("+h.n+")",a.home);}
+  else if(!h&&hexFree(a.home)){const c=Object.assign({},a);delete c.home;delete c.uid;delete c.sackTarget;M.camps[a.home]=c;delete M.camps[k];bLog("Bandit Army re-founds its camp @ "+a.home,a.home);}
+  else{delete a.home;bLog("Bandit Army @ "+k+" has no camp to return to: it camps where it stands",k);}
+  D.bqueue=bq().filter(o=>![o.A,o.B].some(s=>s&&s.kind==="bandit"&&String(s.camp)===String(k)));}
 function banditSiegeTimer(q,s){const keep=D.siege;D.siege={tp:q.id,sid:s.id,mode:"Lay Siege",army:armiesInside(q,s).length>0,att:0,def:0,by:null};
   let n=1;try{n=siegeCalc({att:null}).total;}finally{D.siege=keep;}return n;}
 function banditMoves(){const M=mapState();if(!M.grid)return;const thr=BAN.armyThreshold||25;
@@ -870,22 +892,26 @@ function banditMoves(){const M=mapState();if(!M.grid)return;const thr=BAN.armyTh
       if(hexDist(hk(k0),hk(tk))===1)out.push({end:k0,cost:0});
       hexNb(tk).forEach(h=>{if(R0[h]!==undefined&&free(h)&&!inAura(h,li))out.push({end:h,cost:R0[h]});});
       return out.sort((a,b)=>a.cost-b.cost)[0]||null;};
-    const armies=Object.keys(M.cells).filter(k=>M.cells[k].type==="Army"&&cellPlayer(M.cells[k])&&cellArmy(k).a).map(k=>({k,p:cellPlayer(M.cells[k]),a:cellArmy(k).a}));
-    const setts=Object.keys(M.cells).filter(k=>M.cells[k].type!=="Army"&&cellPlayer(M.cells[k])).map(k=>Object.assign({k},cellSett(k))).filter(t=>t.s&&!settUnbuilt(t.s)&&!siegeOn(t.p.id,t.s.id)&&cp.sackTarget!==String(t.p.id)+":"+String(t.s.id));
+    const armies=Object.keys(M.cells).filter(k=>M.cells[k].type==="Army"&&cellPlayer(M.cells[k])&&cellArmy(k).a&&(+cellArmy(k).a.count||0)>0).map(k=>({k,p:cellPlayer(M.cells[k]),a:cellArmy(k).a}));   // no Retinues: nothing to fight
+    const pillaged=new Set(Object.values(M.camps).filter(c=>c!==cp&&c.pillage).map(c=>c.pillage.tp+":"+c.pillage.sid));   // one Bandit pillager per Settlement
+    const setts=Object.keys(M.cells).filter(k=>M.cells[k].type!=="Army"&&cellPlayer(M.cells[k])).map(k=>Object.assign({k},cellSett(k))).filter(t=>t.s&&!settUnbuilt(t.s)&&!siegeOn(t.p.id,t.s.id)&&!pillaged.has(String(t.p.id)+":"+String(t.s.id)));
     const sk=pick(armies.map(t=>{const r=reachOf(t.k);return r?Object.assign({},t,r):null;}).filter(Boolean));
-    if(sk){moveCamp(k0,sk.end);bqAdd({kind:"battle",A:{kind:"bandit",camp:sk.end},B:{pid:String(sk.p.id),aid:String(sk.a.id)},seize:"A",src:"Bandit Army"});
+    if(sk){moveBandit(k0,sk.end);const k1=sk.end===k0?k0:sk.end;bqAdd({kind:"battle",A:{kind:"bandit",camp:k1},B:{pid:String(sk.p.id),aid:String(sk.a.id)},seize:"A",src:"Bandit Army"});
       bLog("Bandit Army "+(sk.end===k0?"@ "+k0:k0+" → "+sk.end)+": Skirmish vs "+sk.p.name+"'s "+(sk.a.label||("Army "+sk.a.id))+" (Battle queued)"+(sk.tie?" · tie broken at random":""),sk.end);return;}
+    // already Pillaging a Settlement it still stands beside: it stays (no Skirmish in range)
+    if(cp.pillage){const q=pById(cp.pillage.tp),s=q&&settById(q,cp.pillage.sid),sk_=s&&settHex(q,s);
+      if(sk_&&hexDist(hk(k0),hk(sk_))<=1){bLog("Bandit Army @ "+k0+" keeps Pillaging "+q.name+"'s "+(s.name||s.tier),k0);return;}delete cp.pillage;}
+    // Pillage (in place of Lay Siege): end beside the Settlement; each Empire Phase it Extorts half that Settlement's Holding income
     const sg=pick(setts.map(t=>{const r=reachOf(t.k);return r?Object.assign({},t,r):null;}).filter(Boolean));
-    if(sg){moveCamp(k0,sg.end);cp.uid=cp.uid||("b"+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36));const n=banditSiegeTimer(sg.p,sg.s);
-      realmTimers().push({type:"Siege Timer",kind:"siege",tp:sg.p.id,sid:sg.s.id,by:null,aid:null,bandit:cp.uid,label:"Bandits → "+sg.p.name+" · "+(sg.s.name||sg.s.tier),n});
-      bLog("Bandit Army "+(sg.end===k0?"@ "+k0:k0+" → "+sg.end)+": Lay Siege to "+sg.p.name+"'s "+(sg.s.name||sg.s.tier)+" · Siege Timer "+n+(sg.tie?" · tie broken at random":""),sg.end);return;}
+    if(sg){moveBandit(k0,sg.end);const ac=M.camps[sg.end]||cp;ac.pillage={tp:String(sg.p.id),sid:sg.s.id};
+      bLog("Bandit Army "+(sg.end===k0?"@ "+k0:k0+" → "+sg.end)+": Pillages "+sg.p.name+"'s "+(sg.s.name||sg.s.tier)+(sg.tie?" · tie broken at random":""),sg.end);return;}
     if(campWild(k0)&&(BAN.wild||{}).march===false){bLog("Wild Bandit Army @ "+k0+": nothing in range — holds",k0);return;}
     const all=armies.concat(setts.map(t=>({k:t.k,p:t.p})));if(!all.length){bLog("Bandit Army @ "+k0+": no target",k0);return;}
     const d0=Math.min(...all.map(t=>hexDist(hk(k0),hk(t.k)))),tg=all.filter(t=>hexDist(hk(k0),hk(t.k))===d0),tgt=tg[Math.floor(Math.random()*tg.length)];
     let best=null;Object.keys(reach0).forEach(h=>{if(!free(h)||inAura(h,-1))return;const d=hexDist(hk(h),hk(tgt.k));
       if(!best||d<best.d||(d===best.d&&reach0[h]<best.c))best={h,d,c:reach0[h]};});
     if(!best||best.d>=d0){bLog("Bandit Army @ "+k0+": March toward "+tgt.p.name+" @ "+tgt.k+" — no closer hex",k0);return;}
-    moveCamp(k0,best.h);bLog("Bandit Army "+k0+" → "+best.h+": March toward "+tgt.p.name+" @ "+tgt.k+(tg.length>1?" · tie broken at random":""),best.h);});}
+    moveBandit(k0,best.h);bLog("Bandit Army "+k0+" → "+best.h+": March toward "+tgt.p.name+" @ "+tgt.k+(tg.length>1?" · tie broken at random":""),best.h);});}
 // gold diverted by Destabilize / Intercept Caravan, measured before income and credited after
 function banditSkims(){const B=BST(),out=[],w=curSeason()==="Winter";
   if(w)Object.keys(B.dest).forEach(key=>{const [pid,sid]=key.split(":"),p=D.players.find(q=>String(q.id)===pid),s=p&&(p.board.settlements||[]).find(x=>String(x.id)===sid);

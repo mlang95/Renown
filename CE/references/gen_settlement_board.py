@@ -873,14 +873,14 @@ def bandit_loadouts(ns, equip):
 # Rule constants passed through to the board as DATA.rulesConst (plumbing for mechanics the board
 # shows or flags; anything the board hard-codes should read from here instead).
 RULES_CONSTS = ("PHASES", "MARCH_MULTIPLIER", "MUSTER_RANGE", "CHARTER_MIN_RANGE", "HAMLET_RANGE",
-                "OUTLAW_BUFFER_RANGE", "SACK_EXTORT_PER_TIER", "INTERCEPT_EXTORT_PER_CRAFT", "WEALTH_EDICT_GOLD", "EDICT_UNIQUE", "CUNNING_EXTORT", "VASSAL_EXCHANGE_CAP",
+                "OUTLAW_BUFFER_RANGE", "SACK_EXTORT_PER_TIER", "INTERCEPT_EXTORT_PER_CRAFT", "WEALTH_EDICT_GOLD", "EDICT_UNIQUE", "CUNNING_EXTORT", "GAME_TURN_LIMIT", "VASSAL_EXCHANGE_CAP",
                 "BLUNDER_THR", "STANDING_ARMY_SIEGE_MODIFIER", "BANDIT_BEHAVIOR", "UPKEEP_TRACKS",
                 "GLOSSARY_CATEGORIES", "STARTING_TREASURY", "EMPIRE_START_TIERS", "TERM_ENVOY_SCORE", "RENOWN_MAX",
                 "CAPITAL_EDGE_RANGE", "AGE_YEAR_SEASON",
                 "PRESENCE_RANGE", "FAITH_FICKLE_PO", "WARD_MODEL", "SETUP_HAMLET_HOLDINGS",
                 "SETUP_CAPITAL_PICKS", "SETUP_HAMLET_PICKS", "HAMLET_REPEATABLE", "AGE_YEAR_ROLL_MEAN", "AGE_YEAR_ROLL_SD",
                 "AI_DOMAIN_POINTS", "AI_PRIORITIES", "AI_FAITH_AVOID", "AI_DIPLOMACY", "AI_PROFILES",
-                "AI_STYLE", "AI_MUSTER", "AI_ARCHETYPE")
+                "AI_STYLE", "AI_MUSTER", "AI_ARCHETYPE", "AI_PO_GOLD")
 
 def effects_report(ns, records, infra, wonders, out_md):
     """ENVOY_WINDOW_REVIEW.md: every clause that names Envoys, its timing window and Personal / Council predicate

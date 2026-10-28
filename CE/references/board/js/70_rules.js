@@ -37,7 +37,9 @@ function siegeDoubleOK(t){const by=pById(t.by);return !!by&&srcHas(by.board,"sie
 // ---- action restrictions & riders (shown as flags; hard restrictions are enforced after game start) ----
 function actRestrict(owner,action,target){const a=(DATA.actions||{})[action]||{},out=[];
   const hit=(c)=>{const lc=c.toLowerCase();return lc.includes(action.toLowerCase())||(a.domain&&new RegExp("\\b"+a.domain+" actions","i").test(c));};
-  srcRows(owner.board,"_cant").forEach(x=>{if(hit(x.r))out.push(x.n+": can't "+x.r.trim());});
+  // each clause of a "can't …" list on its own; "build Holdings that require <Standing>" limits which Holdings (pLegal), not the Build action
+  srcRows(owner.board,"_cant").forEach(x=>{String(x.r).split(/,\s*(?:or\s+)?|\s+or\s+(?=(?:perform|build|enter|declare|sign|target))/i).map(c=>c.trim()).filter(Boolean)
+    .forEach(c=>{if(/^(?:build|pursue)\s+(?:Holdings|Pursuits)\s+(?:that|which)\s+require/i.test(c))return;if(hit(c))out.push(x.n+": can't "+c);});});
   // Faith is Fickle: while your Public Order is below FAITH_FICKLE_PO you can't target players or their Settlements with Piety actions
   if(target&&!sameP(target,owner)&&a.domain==="Piety"&&!srcHas(owner.board,"piety_target_bypass")&&RC.FAITH_FICKLE_PO!=null&&(+owner.board.po||0)<+RC.FAITH_FICKLE_PO)
     out.push("Faith is Fickle: "+owner.name+"'s Public Order is below "+RC.FAITH_FICKLE_PO+" — can't target players or their Settlements with Piety actions");
@@ -303,7 +305,7 @@ function banditSack(t){if(!t||!t.bandit)return "";const from=pById(t.tp),s=from&
   const extorted=extortGold({b:fb},{camp},(+RC.SACK_EXTORT_PER_TIER||0)*tierN,"Bandit Sack");log.push("extort "+extorted.toLocaleString()+" to Bandit Treasury");
   camp.sackTarget=String(t.tp)+":"+String(t.sid);
   const a=banditArmy(camp),uid="bsk"+Date.now();a.blocked=true;a.strained=true;a.sackT=uid;
-  T.push({type:"Sack Timer",kind:"sack",uid,bandit:t.bandit,label:"Bandits · sacked "+from.name+"'s "+(s.name||s.tier),n:+((TMR["Sack Timer"]||{}).default)||1});
+  realmTimers().push({type:"Sack Timer",kind:"sack",uid,bandit:t.bandit,label:"Bandits · sacked "+from.name+"'s "+(s.name||s.tier),n:+((TMR["Sack Timer"]||{}).default)||1});
   return "Bandit Sack: "+log.join(" · ");}
 function resolveRealm(){const T=realmTimers(),out=[];
   for(let i=T.length-1;i>=0;i--){const t=T[i];if(t.n>0)continue;

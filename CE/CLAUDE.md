@@ -48,6 +48,7 @@ The Compendium is retired: its chapters render inside Rules.docx.
 | Settlement board | `gen_settlement_board.py` → `settlement_board.html`, served by `server.py` (stdlib, SQLite). Page source: `board/board.css`, `board/body.html`, `board/js/*.js` (concatenated in name order into one script). Rules-text patterns the board acts on: `effect_registry.py` (matched at build time → `DATA.efx`) |
 | Cards / sheets / boards | `generate_cards.py`, `domain_board.py`, `infra_board.py`, `settlement_mats.py`, `host_sheet.py`, … |
 | Simulation | `Combatv4/` — `vectorized_combat_d10.py`, `batch_engine.py`, `loadouts.py`, `dice_config.py` (not `renown_combat*.py`) |
+| Game simulator | `Simulator/` — `run_sim.bat` (settings) → `sim_runner.js` (all-AI games: the built settlement board run headless under Node, `engine/sim_core.js` drives it) → `analyse_sim.py` (tables, `report.html`, end screens) → `lab_out/sim/<TAG>/` (git-ignored) |
 
 Checks: `python gen_settlement_board.py --data ../renown_data_d10.py --rules ../RULES_push_simple.md --check-rules`
 (0 mismatches expected); `python wiki_markers.py ../RULES_push_simple.md` (no unresolved markers);

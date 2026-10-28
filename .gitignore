@@ -1918,3 +1918,17 @@ gauntlet_power.csv
 gauntlet_panel.csv
 # separate repo (GitHub Pages clone) - keep out of the monorepo
 RenownWiki/
+
+# simulator runs (CE/Simulator/run_sim.bat) - large, regenerable
+**/lab_out/sim/
+
+# renown build - bulk output (regenerable tournament/analysis data)
+*.parquet
+matchups*.csv
+summary*.csv
+tactic_matrix*.csv
+loadouts_gen_*.csv
+gauntlet_power.csv
+gauntlet_panel.csv
+# separate repo (GitHub Pages clone) - keep out of the monorepo
+RenownWiki/

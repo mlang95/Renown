@@ -2113,7 +2113,7 @@ SIMPLE_NODES = {
     "Grand Tournament": {
         "group": "g_logistics",
         "unlock": "Established Prowess",
-        "innate": "Reach +1, 3x in the Intrigue Phase: exchange 500 gold for Influence +1; Armies gain Riposte & Improve Parry by +1.",
+        "innate": "Reach +1; Armies gain Riposte & Improve Parry by +1.", #3x in the Intrigue Phase: exchange 500 gold for Influence +1;
         "efficient": ["Coliseum"],
         "builds_into": ["Royal Pavilion"],
         "monument": False},
@@ -2147,7 +2147,7 @@ SIMPLE_NODES = {
         "monument": False},
     "University": {
         "group": "g_court",
-        "unlock": "1 Established",
+        "unlock": "2 Established",
         "infrastructure_req": "Library",
         "innate": "Max Influence +1 on every Envoy; Influence +1 per Domain you are Rising",
         "efficient": "Academy",
@@ -2491,7 +2491,7 @@ SIMPLE_NODES = {
         "monument": True},
     "Studium Generale": {
         "group": "g_court",
-        "unlock": "4 Established",
+        "unlock": "3 Established",
         "innate": "Influence +1 per Established Standing; May gain one Sovereign Domain effect without spending the Domain Points",
         "efficient": "University",
         "builds_into": [],
@@ -3235,18 +3235,18 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                'tier': 'Developed',
                'build_time': 2,
                'requirement': 'One Tier Primitive'},
- 'Garrison': {'upkeep': 200,
-              'upkeep_frequency': 'each Empire Phase',
-              'empire_bonus': "Your Settlements gain Garrisons & Presence. Muster Limit +5.",
-              'tier': 'Developed',
-              'build_time': 2,
-              'requirement': 'One Tier Primitive'},
- 'Stone Walls': {'upkeep': 300,
+ 'Stone Walls': {'upkeep': 200,
                  'upkeep_frequency': 'each Empire Phase',
                  'empire_bonus': 'Authority -2 on Destabilize actions from players targeting you. Authority -1 on Bandit Cunning actions targeting you. Siege Timer +1.',
-                 'tier': 'Sophisticated',
-                 'build_time': 3,
-                 'requirement': 'One Tier Developed + Wooden Walls'},
+                 'tier': 'Developed',
+                 'build_time': 2,
+                 'requirement': 'Wooden Walls'},
+'Garrison': {'upkeep': 300,
+                  'upkeep_frequency': 'each Empire Phase',
+                  'empire_bonus': "Your Settlements gain Garrisons & Presence. Muster Limit +5.",
+                  'tier': 'Sophisticated',
+                  'build_time': 3,
+                  'requirement': 'One Tier Developed'},
 'Bridges': {'upkeep': 0,
              'upkeep_frequency': '—',
              'empire_bonus': 'Armies cross Water Territory at full movement within your Province; Stone Roads may be built over '
@@ -3387,7 +3387,7 @@ PO_BANDS = {
     -8: ("Recession",     "Tax Income -{n} per Settlement", 1000),
     -6: ("Aimless",       "Speed -{n}", 2),
     -4: ("Indecisive",    "Influence -{n}", 1),
-    -2: ("Shaken",        "Morale -{n}", 1),
+    -2: ("Shaken",        "No effect", None),
      0: ("Neutral",       "No effect", None),
      2: ("Confident",     "Influence +{n}", 1),
      4: ("Motivated",     "Speed +{n}", 1),
@@ -3530,12 +3530,12 @@ BANDIT_CAMP_START = 10
 BANDIT_CAMP_GOLD = 2000    # gold in a Bandit Camp's treasury when it spawns
 BANDIT_ARMY_THRESHOLD = 25
 BANDIT_GROWTH_PER_ERA = {"Founding": 1, "Ascension": 2, "Eminence": 3, "Zenith": 4}
-BANDIT_EQUIPMENT_PER_ERA = {"Founding": "Levy: Cudgel + Cloth", "Ascension": "Levy: Short Sword + Gambeson" , "Eminence": "Man-at-Arms: Halberd + Leather", "Zenith": "Man-at-Arms: War Hammer + Chainmail"}
+BANDIT_EQUIPMENT_PER_ERA = {"Founding": "Levy: Farm Tools + Cloth", "Ascension": "Levy: Pitchfork + Gambeson", "Eminence": "Levy: Spears + Buckler Shield + Leather", "Zenith": "Levy: Halberd + Chainmail"}
 BANDITS = {
     "Bandit Domain Value": "For every 5 Retinues in the Bandit Camp or Army, the Bandit Camp has +2 Cunning and +2 Prowess.",
     "Bandit Camp": f"A collection of Bandits in Outlaw Country, starting with {BANDIT_CAMP_START} Retinues and {BANDIT_CAMP_GOLD} gold.",
     "Bandit Growth": f"Bandit Camps gain ({'/'.join(str(v) for v in BANDIT_GROWTH_PER_ERA.values())}) Retinues a turn, based on the Era of the Realm.",
-    "Bandit Army": f"A Bandit Camp becomes a Bandit Army at {BANDIT_ARMY_THRESHOLD} Retinues. Performs Move actions toward the closest Settlement or Army, laying Siege or Skirmishing if possible, in addition to Bandit Cunning Mechanics. Bandit Armies cannot exceed {BANDIT_ARMY_THRESHOLD}",
+    "Bandit Army": f"A Bandit Camp at {BANDIT_ARMY_THRESHOLD} Retinues sends out a Bandit Army of {BANDIT_ARMY_THRESHOLD}; the camp stays, and the Army returns to it after each Battle to re-muster. Performs Move actions toward the closest Settlement or Army, Pillaging or Skirmishing if possible, in addition to Bandit Cunning Mechanics. Bandit Armies cannot exceed {BANDIT_ARMY_THRESHOLD}",
     "Spawn a Bandit Camp": "Each Spring, every player gains a Bandit Camp.",
 }
 
@@ -3955,6 +3955,7 @@ ALLIANCE_RULES = [
 # multiple times. Whoever has completed the most when the Last Alliance Standing
 # condition is met wins.
 EDICT_STREAK_TURNS = 5      # consecutive-turn Edicts (Wealth, Living Saints)
+GAME_TURN_LIMIT = 50        # the game ends after this turn if Last Alliance Standing hasn't ended it first
 # Toggle: a Domain / Monument / Wonder counts toward an Edict once per game (first player) or once per player
 # (build_all_CE.bat: set EDICT_UNIQUE=1|0).
 EDICT_UNIQUE = _os.environ.get("RENOWN_EDICT_UNIQUE", "0") == "1"
@@ -3981,7 +3982,7 @@ BANDIT_BEHAVIOR = {
     "At War":        "All players are At War with all bandits. Players Abstain all bandit actions, but innate modifiers can still cause them to Fail.",
     "Cunning Roll":  "If 10+ retinues in camp, roll a d3 each turn: 1 = Intercept Caravan, 2 = Raze, 3 = Destabilize.",
     "Treasury":      "Bandit camps keep Extorted gold in their treasury and pay no costs or upkeep. Destroying a camp/army Extorts its treasury.",
-    "Army Behavior": "After bandit mechanics, a Bandit Army performs a Move: Skirmish (player army in range) > Lay Siege (player settlement in range) > March (toward closest army/settlement). Host breaks range ties.",
+    "Army Behavior": "After bandit mechanics, a Bandit Army performs a Move: Skirmish (player army in range) > Pillage (player settlement in range: half its Holding income each Empire Phase) > March (toward closest army/settlement). Host breaks range ties. After each Battle the Army returns to its camp.",
     "Attacking":     "Move to end adjacent to a camp; another player rolls bandit tactics (D{FACES}; a Focused result = Fall Back) and resolves to-strike/save as a Battle. Bandits never Fall Back but may Flee. Extort the camp's gold if destroyed.",
 }
 
@@ -4418,11 +4419,10 @@ def die_table_weights(table, faces=None):
 # ── CUNNING TABLE — what a camp of BANDIT_CUNNING_MIN+ retinues does each turn ─
 # Tune these ranges freely; die_table_verify() enforces full coverage of 1..FACES.
 BANDIT_CUNNING_TABLE = {
-    (1, 3):  "Raze",
-    (4, 5):  "Intercept Caravan",
-    (6, 7):  "Sabotage",
-    (8, 9):  "Destabilize",
-    10:      "Foster Rebellion",
+    (1, 4):  "Raze",
+    (5, 6):  "Intercept Caravan",
+    (7, 8):  "Sabotage",
+    (9, 10): "Destabilize",
 }
 
 def bandit_cunning_ranges(faces=None): return die_table_ranges(BANDIT_CUNNING_TABLE, faces)
@@ -4433,6 +4433,7 @@ def bandit_cunning_text(faces=None):
     faces = BANDIT_FACES if faces is None else faces
     return (f"If {BANDIT_CUNNING_MIN}+ retinues in camp, roll a d{faces} each turn: "
             f"{die_table_text(BANDIT_CUNNING_TABLE, faces)}.")
+BANDIT_BEHAVIOR["Cunning Roll"] = bandit_cunning_text()      # the d10 table is the rule; the prose follows it
 
 # ── TACTIC TABLE — explicit ranges, same plumbing (replaces the even auto-split)
 BANDIT_TACTIC_TABLE = {
@@ -4558,9 +4559,9 @@ AI_DOMAIN_POINTS = ("Spend Domain Points one Standing at a time, toward whatever
                     "Any culture may take Rising Industry if a priority needs it.")
 AI_PRIORITIES = [
     ("economy",    "Be cash positive until next Winter: build income, cut upkeep, or spend less — in the culture's own ways."),
+    ("bandits",    "Manage Bandits: build Cunning Holdings, Armies, Walls and modifiers against them; weighted by the local threat."),
     ("faith",      "Keep Public Order above the bands that hurt the plan (AI_FAITH_AVOID)."),
     ("diplomacy",  "Treat with like-minded cultures (AI_DIPLOMACY by Domain)."),
-    ("bandits",    "Manage Bandits: build Cunning Holdings, Armies, Walls and modifiers against them."),   # priority 3.5
     ("holdings",   "Build the Holdings the priorities above (and Monuments / Edicts below) need."),
     ("infra",      "Build Infrastructure that helps those priorities."),
     ("monuments",  "Build up toward the culture's Monuments."),
@@ -4572,7 +4573,7 @@ AI_FAITH_AVOID = [
     (-8,  "economy"),      # Recession: tax income — avoid when it keeps the economy priority met
     (-6,  "speed"),        # Aimless: Speed — when the plan needs Armies to move
     (-4,  "influence"),    # Indecisive: Influence — when the plan needs Influence
-    (-2,  "battle"),       # Shaken: Morale -2 — before Battle actions
+    (-2,  "battle"),       # Shaken — before Battle actions
 ]
 # How each Domain meets a priority (a culture with several Domains uses all of its Domains' ways). Tags the AI scores:
 #   holding_income  Build Holdings that make gold          trade          Trade Agreements, trade Holdings
@@ -4625,6 +4626,9 @@ AI_ARCHETYPE = {
     "Tempo":     {"tags": {"damage": 1.2, "cunning_lowers": 1.2, "extort": 1.2}, "prio": {"bandits": 1.1}},
     "Control":   {"prio": {"faith": 1.2, "diplomacy": 1.2}, "tags": {"po_control": 1.3}, "vote": 1.5},
 }
+# Gold per turn a bot treats as equal to 1 Public Order per turn when weighing Holdings (Doubt +1 costs this much, Faith +1
+# is worth it). DRAFT — tune with the simulator.
+AI_PO_GOLD = 800
 # Mustering: the best Retinue and gear unlocked; an offensive Army takes a 2H weapon, a defensive one a 1H weapon and a Shield
 AI_MUSTER = {"offensive_when": "Prowess culture or at war", "offensive": "2H", "defensive": "1H + Shield"}
 # Diplomacy temperament by Domain; a culture with several Domains mixes them

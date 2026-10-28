@@ -29,7 +29,7 @@ This game is for:
 
 ### How to Win (Edicts)
 
-Whichever player has completed the most **Edicts** from the list below when the Last Alliance Standing condition is met wins the game.
+Whichever player has completed the most **Edicts** from the list below when the Last Alliance Standing condition is met wins the game. If no one has met it by the end of turn {{VAL:GAME_TURN_LIMIT}}, the game ends then, and the player with the most Edicts wins.
 
 When an Edict is completed, increase the Renown tracker by 1. Any player may complete any Edict multiple times. {{VAL:EDICT_UNIQUE_RULE}}
 
@@ -142,7 +142,7 @@ Many actions set a Timer to a number of turns. Each Empire Phase, every active T
 1. **Start of the Empire Phase** — resolve every effect that happens at the Start of the Empire Phase, including Domain Standing effects (see Domain Standings).
 2. **Season** — apply this turn's Season effect.
 3. **Timers** — count down every active Timer by 1 (Build, Repair, Truce, Siege, Muster, Sack, Capture, in that order), then resolve each Timer that reached 0.
-4. **Bandit Mechanics** (the Host resolves) — grow Bandit Camps by the Era; convert any camp of {{VAL:BANDIT_ARMY_THRESHOLD}} Retinues into a Bandit Army; Bandit Camps perform Cunning actions; Bandit Armies perform Move actions; spawn new Bandit Camps (in Spring, from Foster Rebellion, or from an Uprising).
+4. **Bandit Mechanics** (the Host resolves) — grow Bandit Camps by the Era; any camp at {{VAL:BANDIT_ARMY_THRESHOLD}} Retinues sends out a Bandit Army; Bandit Camps perform Cunning actions; Bandit Armies perform Move actions; spawn new Bandit Camps (in Spring, from Foster Rebellion, or from an Uprising).
 5. **Influence & Envoys** — gain Influence (not in Spring) from the Era, innate modifiers (Trade Partners, Alliances, At War, etc.), Holdings, and Infrastructure; then gain the Era's Envoys.
 6. **Income & Upkeep** — in this order: in Winter only, gain tax income from each of your Settlements by tier (see Settlements); gain Holding income; if there is a Host, the Host collects trade income and distributes it among their Trade Partners; pay Army, Holding, Infrastructure, and any other upkeep; resolve Extort effects; check your Treasury for the Wealth Edict condition.
 7. **Public Order** — total every innate Faith / Doubt source in the Public Order tables and adjust your Public Order by the net change. *(Faith and Doubt from actions are applied the moment they're generated; see Public Order.)*
@@ -610,7 +610,7 @@ In the Empire Phase each Spring: place a Bandit Camp of {{VAL:BANDIT_CAMP_START}
 
 ### Growing Bandit Camps
 
-A Bandit Camp{{IDX:Bandit Camp}} grows each Empire Phase by the Era's Retinues per turn, and becomes a Bandit Army when it reaches {{VAL:BANDIT_ARMY_THRESHOLD}} Retinues. Its Retinues carry the Era's armament.
+A Bandit Camp{{IDX:Bandit Camp}} grows each Empire Phase by the Era's Retinues per turn. When it reaches {{VAL:BANDIT_ARMY_THRESHOLD}} Retinues it sends out a Bandit Army of {{VAL:BANDIT_ARMY_THRESHOLD}}, and the camp stays on its Territory. While its Army is out, the camp doesn't grow or send out another Army, and no camp can spawn on its Territory. The camp can't be attacked while its Army is out. After each Battle, the Army returns to its camp, and the camp re-musters toward {{VAL:BANDIT_ARMY_THRESHOLD}} from the Retinues that come back; if the Army is destroyed, its camp is destroyed with it. Its Retinues carry the Era's armament.
 
 {{TABLE:bandits_by_era}}
 
@@ -636,7 +636,7 @@ After Bandit Mechanics resolve, a Bandit Army performs a Move action based on, i
 
 1. **Skirmish** — if another player's Army is in range.
 
-2. **Lay Siege** — if another player's Settlement is in range.
+2. **Pillage** — if another player's Settlement is in range: end adjacent to it. Each Empire Phase, in the Extort step, the Bandit Army Extorts half of that Settlement's Holding income into its camp's Treasury, until it fights a Battle or leaves. A Settlement can have only one Bandit Army Pillaging it.
 
 3. **March** — toward the closest player's Army or Settlement.
 

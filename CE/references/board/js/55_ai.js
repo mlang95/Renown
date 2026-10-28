@@ -12,9 +12,9 @@ function aiNote(p,txt){PT(p).aiNote={turn:tTurn(),txt};}
 // ---- economy: cash positive until next Winter ----
 // projected Treasury after each turn from the next Season up to and including Winter, with `extra` more upkeep per turn;
 // ok = it never drops below 0
-function aiCashOutlook(p,extra){const b=p.board,i0=SEAS_ORDER.indexOf(curSeason());let g=+b.treasury||0,low=g;
+function aiCashOutlook(p,extra){const b=p.board,i0=SEAS_ORDER.indexOf(curSeason()),g0=+b.treasury||0;let g=g0,low=g;
   for(let k=1;k<=SEAS_ORDER.length;k++){const s=SEAS_ORDER[(i0+k)%SEAS_ORDER.length];g+=Math.round(seasonNet(b,s).net||0)-(extra||0);low=Math.min(low,g);if(s==="Winter")break;}
-  return {ok:low>=0,low,end:g};}
+  return {ok:g>=g0,low,end:g,flow:g-g0};}   // cash positive: up to and including next Winter's tax, income covers costs (other turns may bleed)
 
 // ---- memory: how each other player has treated this bot (votes on its Envoys, actions aimed at it, war, treaties) ----
 function aiMem(p){const x=PT(p);x.aiMem=x.aiMem||{rel:{},seen:{}};return x.aiMem;}
@@ -44,6 +44,10 @@ function aiNextMonument(p){const pr=aiProfile(p);if(!pr)return null;
 function aiStandGoals(p){const pr=aiProfile(p),G=[];
   const cash=aiCashOutlook(p);
   if(!cash.ok)G.push({why:"economy (Treasury "+cash.low.toLocaleString()+" before Winter)",steps:aiStandSteps("Rising Industry")});
+  if(aiBanditThreat(p)>=0.4)G.push({why:"Bandits (Prowess Envoys pass)",steps:aiStandSteps("Rising Prowess")});
+  // Builds blocked by full Wards with gold sitting idle: Rising Industry opens Settle / Expand (any culture may take it)
+  {const L=buildOpts(p).filter(o=>o.v.startsWith("b:")),full=L.length?L.filter(o=>/no free Ward/.test(o.label)).length/L.length:0;
+    if(full>=0.5&&(+p.board.treasury||0)>=10000)G.push({why:"room to Build (Settle / Expand)",steps:aiStandSteps("Rising Industry")});}
   if(aiSurvival(p).ok&&pr){const done=(p.board.edictLog||{})["Sovereign Standing"]||[],dv=d=>+((p.board.domains||{})[d])||0;
     const d=pr.domains.filter(x=>!done.includes(x)&&dv(x)<SOV).sort((x,y)=>dv(y)-dv(x))[0];
     if(d)G.push({why:"Edict: Sovereign "+d,steps:aiStandSteps("Sovereign "+d)});}
@@ -61,6 +65,7 @@ function aiSpendDP(p){let n=0;while((p.board.dp||0)>0){const c=aiPickDomain(p);i
 // ---- Council vote: the Domain that serves the top unmet priority ----
 function aiCouncilPick(p){const b=p.board,pr=aiProfile(p),dv=d=>+((b.domains||{})[d])||0;
   if(!aiCashOutlook(p).ok)return {dom:"Industry",why:"economy"};
+  {const th=aiBanditThreat(p);if(th>=0.4)return {dom:"Prowess",why:"Bandits (threat "+th.toFixed(2)+"): a sure Prowess action to Muster or Move"};}
   const tg=PT(p).aiDP;if(tg&&!aiHas(b,tg)&&T_DOMS.includes(tg.dom))return {dom:tg.dom,why:tg.tier+" "+tg.dom+" ("+tg.why+")"};
   const ds=(pr?pr.domains:T_DOMS).filter(d=>T_DOMS.includes(d));
   const d=ds.slice().sort((x,y)=>dv(y)-dv(x))[0]||T_DOMS[0];return {dom:d,why:"strongest culture Domain"};}
@@ -78,12 +83,15 @@ function aiFriend(p,q){const x=effPair(p.id,q.id);return alliedP(p,q)||x.trade||
 // gold a Holding makes each turn (flat innate gold) less its upkeep
 function aiHoldNet(n){const r=R[n]||{};let g=0;(r.innate||[]).forEach(a=>{if(a.cat==="gold"&&a.flat&&!a.season&&!a.scale)g+=+a.val||0;});
   const up=r.upkeep!=null?r.upkeep:NATURAL.has(n)?0:((PUP.byType||{})[r.type]??PUP.def??0);return g-up;}
+// Public Order a Holding moves each turn (flat innate Faith − Doubt); its value in gold for a bot is that × AI_PO_GOLD
+function aiHoldPO(n){let v=0;((R[n]||{}).innate||[]).forEach(a=>{if(!a.flat||a.season||a.scale)return;if(a.cat==="faith")v+=+a.val||0;if(a.cat==="doubt")v-=+a.val||0;});return v;}
+function aiHoldValue(n){return aiHoldNet(n)+aiHoldPO(n)*(+RC.AI_PO_GOLD||0);}
 // Public Order band the plan must stay above (AI_FAITH_AVOID), given what the plan needs
 function aiFaithFloor(p,needs){let k=-Infinity;(RC.AI_FAITH_AVOID||[]).forEach(([band,when])=>{if(when==="always"||when==="economy"||needs[when])k=Math.max(k,band);});return k;}
 function aiBuildPick(p,econ){const L=buildOpts(p).filter(o=>o.v.startsWith("b:")&&!o.dis).map(o=>o.v.slice(2));if(!L.length)return null;
   const pr=aiProfile(p),mon=aiNextMonument(p),doms=pr?pr.domains:[];
   if(!econ&&mon&&L.includes(mon))return {sub:"b:"+mon,why:"Monument "+mon};
-  const sc=n=>aiHoldNet(n)+(doms.includes(holdDom(n))?(econ?0:500):0);
+  const sc=n=>aiHoldValue(n)+(doms.includes(holdDom(n))?(econ?0:500):0);
   const n=L.slice().sort((a,b)=>sc(b)-sc(a))[0];return {sub:"b:"+n,why:(econ?"income: ":"Holding: ")+n+" (net "+aiHoldNet(n)+"/turn)"};}
 function aiImprovePick(p){const L=improveOpts(p).filter(o=>o.v!=="hand");if(!L.length)return null;
   const walls=Object.keys(mapState().camps||{}).length?L.find(o=>/Walls/i.test(o.v)):null;
@@ -132,25 +140,56 @@ function aiKit(p){return withBoard(p.board,()=>{const have=new Set(Object.keys(P
     .sort((a,b)=>(+EQ.shields[b].save_bonus||0)-(+EQ.shields[a].save_bonus||0)||ti(EQ.shields[b].tier)-ti(EQ.shields[a].tier))[0]||"None");
   return {retinue:ret,weapon,armor,shield:sh,ranged:"None",off};});}
 // a newly raised Army (not yet outfitted) takes the kit; its Endurance starts at the new Retinue's
-function aiOutfit(p){let n=0;(p.board.armies||[]).forEach(a=>{if(a.aiKit)return;const k=aiKit(p),rt=EQ.retinues[k.retinue]||{};
-  Object.assign(a,{retinue:k.retinue,weapon:k.weapon,armor:k.armor,shield:k.shield,ranged:k.ranged,aiKit:k.off?"offensive":"defensive"});
-  if(!(+a.count>0)||a.endurance==null||(+a.endurance||0)<(+rt.endurance||0))a.endurance=+rt.endurance||a.endurance;a.upkeep=+rt.cost||a.upkeep;n++;
-  aiNote(p,(a.label||("Army "+a.id))+" outfitted ("+a.aiKit+"): "+[k.retinue,k.weapon,k.armor,k.shield!=="None"?k.shield:""].filter(Boolean).join(", "));});return n;}
+function aiGearRank(kind,n){const T=EQ.tiers||[],ti=t=>t==null?-1:T.indexOf(t);
+  if(kind==="weapon"){const w=EQ.weapons[n]||{};return ti(w.tier)*100-(+w.ap||0);}
+  if(kind==="armor"){const a=EQ.armors[n]||{};return 100-(+a.save||99);}
+  const sh=EQ.shields[n==="None"?"null":n]||{};return n==="None"?-1:(+sh.save_bonus||0)*100+ti(sh.tier);}
+// a newly raised Army takes the full kit (its Retinue, Endurance and upkeep included); an existing Army is re-equipped whenever
+// better gear of its kind is unlocked — weapon, armour and Shield only, never its Retinue type, and never mid-Battle
+function aiOutfit(p){let n=0;const B=battle(),inBattle=a=>!!B.id&&["A","B"].some(X=>B[X]&&String(B[X].pid)===String(p.id)&&String(B[X].aid)===String(a.id));
+  (p.board.armies||[]).forEach(a=>{if(inBattle(a))return;const k=aiKit(p);if(!a.aiKit&&PT(p).aiRaiseRet&&EQ.retinues[PT(p).aiRaiseRet])k.retinue=PT(p).aiRaiseRet;const rt=EQ.retinues[k.retinue]||{};
+    if(!a.aiKit){Object.assign(a,{retinue:k.retinue,weapon:k.weapon,armor:k.armor,shield:k.shield,ranged:k.ranged,aiKit:k.off?"offensive":"defensive"});
+      if(!(+a.count>0)||a.endurance==null||(+a.endurance||0)<(+rt.endurance||0))a.endurance=+rt.endurance||a.endurance;a.upkeep=+rt.cost||a.upkeep;n++;
+      aiNote(p,(a.label||("Army "+a.id))+" outfitted ("+a.aiKit+"): "+[k.retinue,k.weapon,k.armor,k.shield!=="None"?k.shield:""].filter(Boolean).join(", "));return;}
+    const up=[];
+    if(aiGearRank("weapon",k.weapon)>aiGearRank("weapon",a.weapon)){a.weapon=k.weapon;up.push(k.weapon);}
+    if(aiGearRank("armor",k.armor)>aiGearRank("armor",a.armor)){a.armor=k.armor;up.push(k.armor);}
+    if(k.shield!==a.shield&&(k.shield==="None"?(EQ.weapons[a.weapon]||{}).tags&&EQ.weapons[a.weapon].tags.includes("2H"):aiGearRank("shield",k.shield)>aiGearRank("shield",a.shield))){a.shield=k.shield;up.push(k.shield==="None"?"no Shield (2H)":k.shield);}
+    if(up.length){n++;aiNote(p,(a.label||("Army "+a.id))+" re-equipped: "+up.join(", "));}});
+  return n;}
 // ---- Armies: Move like a Bandit Army (Battle > Lay Siege > March), toward Bandits and players at war ----
-function aiMoveTargets(p){const M=mapState(),T=Object.keys(M.camps||{}).map(k=>({k,why:"Bandits @ "+k}));
+function aiMoveTargets(p){const M=mapState(),own=terrOwners(),T=Object.keys(M.camps||{}).filter(k=>!M.camps[k].out).map(k=>({k,n:+M.camps[k].n||0,mine:!!(own[k]&&own[k].has(String(p.id))),why:(+M.camps[k].n>=(BAN.armyThreshold||25)?"Bandit Army":"Bandit Camp")+" ("+(+M.camps[k].n||0)+") @ "+k}));
   Object.keys(M.cells).forEach(k=>{const c=M.cells[k],q=cellPlayer(c);if(q&&!sameP(q,p)&&effPair(p.id,q.id).war)T.push({k,why:q.name+(c.type==="Army"?"'s Army":"'s Settlement")});});return T;}
 function aiMovable(p){return (p.board.armies||[]).filter(a=>(+a.endurance||0)>0&&!(a.muster&&a.muster.n>0)&&!armyBlocked(p,a)&&armyHex(p,a)&&(+a.count||0)>0);}
+// an Army hunts only at full strength (Muster to EQ.army_max first) and only engages what it outnumbers
+const aiFull=a=>(+a.count||0)>=(+EQ.army_max||25);
+// an Army takes on what it outnumbers; a full-strength, properly armed Army (better than Farm Tools) also meets an equal force
+const aiCanBeat=(a,n)=>(+a.count||0)>n||(aiFull(a)&&(+a.count||0)>=n&&a.weapon&&a.weapon!=="Farm Tools");
+function aiEngageSize(o){if(!o||!o.B)return Infinity;if(o.B.kind==="bandit"){const cp=mapState().camps[o.B.camp];return cp?+cp.n||0:Infinity;}
+  const q=pById(o.B.pid),a=q&&(q.board.armies||[]).find(x=>String(x.id)===String(o.B.aid));return a?+a.count||0:Infinity;}
 function aiMove(p){const T=aiMoveTargets(p);if(!T.length)return "no target";
-  for(const a of aiMovable(p)){const k=armyHex(p,a),mi=moveRange(p,a,k);if(!mi||!mi.dest)continue;const D_=Object.keys(mi.dest).map(h=>Object.assign({h},mi.dest[h]));
-    const eng=t=>D_.filter(d=>d.engage&&d.engage.kind===t).sort((x,y)=>x.cost-y.cost)[0];
+  const engage=(a)=>{const E=engageTargets(p,a).filter(t=>t.kind==="battle"&&aiCanBeat(a,aiEngageSize(t)));   // RULES: end adjacent, then Battle
+    const t=E.sort((x,y)=>aiEngageSize(x)-aiEngageSize(y))[0];if(!t)return null;bqAdd({kind:"battle",A:{pid:String(p.id),aid:String(a.id)},B:t.B,seize:t.seize,src:t.src});return t.label;};
+  for(const a of aiMovable(p).sort((x,y)=>(+y.count||0)-(+x.count||0))){
+    {const e=engage(a);if(e)return (a.label||("Army "+a.id))+": Battle "+e;}                    // already beside something it can beat
+    const k=armyHex(p,a),mi=moveRange(p,a,k);if(!mi||!mi.dest)continue;const D_=Object.keys(mi.dest).map(h=>Object.assign({h},mi.dest[h]));
+    const eng=t=>D_.filter(d=>d.engage&&d.engage.kind===t&&(t!=="battle"||aiCanBeat(a,aiEngageSize(d.engage)))).sort((x,y)=>x.cost-y.cost)[0];
     let pick=eng("battle"),why=pick?"Battle: "+pick.engage.label:"";
-    if(!pick){pick=eng("siege");why=pick?"Lay Siege: "+pick.engage.label:"";}
-    if(!pick){const tg=T.slice().sort((x,y)=>hexDist(hk(k),hk(x.k))-hexDist(hk(k),hk(y.k)))[0],d0=hexDist(hk(k),hk(tg.k));
-      const c=D_.filter(d=>!d.engage&&!d.enter).sort((x,y)=>hexDist(hk(x.h),hk(tg.k))-hexDist(hk(y.h),hk(tg.k))||x.cost-y.cost)[0];
-      if(c&&hexDist(hk(c.h),hk(tg.k))<d0){pick=c;why="March toward "+tg.why;}}
+    if(!pick&&(aiFull(a)||((aiProfile(p)||{}).prowess_coded&&(+a.count||0)>=15))){pick=eng("siege");why=pick?"Lay Siege: "+pick.engage.label:"";}
+    if(!pick){const huntable=T.filter(t=>t.n==null||aiCanBeat(a,t.n));
+      const warFirst=(aiProfile(p)||{}).prowess_coded&&aiBanditThreat(p)<0.6,isWar=t=>t.n==null;   // war targets carry no camp size
+      const tg=huntable.slice().sort((x,y)=>(warFirst?(isWar(y)-isWar(x)):0)||(y.mine-x.mine)||((y.n||0)-(x.n||0))||hexDist(hk(k),hk(x.k))-hexDist(hk(k),hk(y.k)))[0];
+      if(tg){const d0=hexDist(hk(k),hk(tg.k));
+        const c=D_.filter(d=>!d.engage&&!d.enter).sort((x,y)=>hexDist(hk(x.h),hk(tg.k))-hexDist(hk(y.h),hk(tg.k))||x.cost-y.cost)[0];
+        if(c&&hexDist(hk(c.h),hk(tg.k))<d0){pick=c;why="March toward "+tg.why;}}}
     if(!pick)continue;
     const view=D.view;SEL={pid:String(p.id),aid:String(a.id)};const ok=moveArmyTo(pick.h);SEL=null;D.view=view;
-    if(ok)return (a.label||("Army "+a.id))+" → "+pick.h+": "+why;}
+    if(ok&&pick.engage&&pick.engage.kind==="siege"){   // Lay Siege: the Move fills the Siege calculator; start its Siege Timer as the player would
+      const q=pById(pick.engage.tp),st=q&&settById(q,pick.engage.sid),sg=siegeState();
+      if(q&&st&&!siegeOn(q.id,st.id)){sg.mode="Lay Siege";sg.tp=String(q.id);sg.sid=st.id;sg.by=String(p.id);sg.aid=String(a.id);sg.army=armiesInside(q,st).length>0;
+        const c=siegeCalc();realmTimers().push({type:"Siege Timer",label:p.name+" → "+q.name+" · "+(st.name||st.tier),n:c.total,kind:"siege",tp:q.id,sid:st.id,by:p.id,aid:a.id});
+        return (a.label||("Army "+a.id))+" → "+pick.h+": "+why+" · Siege Timer "+c.total;}}
+    if(ok){const e=pick.engage?null:engage(a);return (a.label||("Army "+a.id))+" → "+pick.h+": "+why+(e?" · Battle "+e:"");}}
   return "no Army can reach a target";}
 
 // ---- Envoys: every action of every Domain is scored against the priorities it serves ----
@@ -164,7 +203,7 @@ const aiTop=(serves,surv)=>Object.keys(serves).sort((a,b)=>aiPrioW(b,surv)*serve
 function aiSurvival(p){const b=p.board,why=[];if(!aiCashOutlook(p).ok)why.push("economy");
   if((+b.po||0)-1<=aiFaithFloor(p,{}))why.push("faith");
   if(D.players.some(q=>!sameP(q,p)&&effPair(p.id,q.id).war))why.push("war");
-  if(Object.keys(mapState().camps||{}).length&&!(b.armies||[]).length)why.push("bandits");
+  if(aiBanditThreat(p)>=0.4)why.push("bandits");
   return {ok:!why.length,why};}
 // chance an Envoy of `dom` passes: the bot's innate Influence plus how each other player is expected to vote on it
 // (AI seats: their actual vote rule; others: this bot's memory of them)
@@ -181,6 +220,13 @@ function aiArch(p){const A=RC.AI_ARCHETYPE||{},w=String((aiProfile(p)||{}).arche
     out.reserve+=+e.reserve||0;out.lead*=+e.lead||1;out.need_amp*=+e.need_amp||1;out.vote*=+e.vote||1;});return out;}
 // ---- Domain styles (AI_STYLE): which ways of meeting economy / faith / bandits this culture uses ----
 function aiStyle(p,k){const S_=((RC.AI_STYLE||{})[k])||{},out=new Set();aiDoms(p).forEach(d=>(S_[d]||[]).forEach(t=>out.add(t)));return out;}
+// would Holding n upgrade this bot's Army kit? (ARMYSRC tokens: tier:<weapon tier>, armor:<tier>, retinue:<name>) — the gear path
+function aiGearGain(p,n,kit){const src=ARMYSRC[n];if(!src)return "";const T=EQ.tiers||[],ti=t=>T.indexOf(t),out=[];
+  const wt=ti((EQ.weapons[kit.weapon]||{}).tier),at=ti((EQ.armors[kit.armor]||{}).tier),rc=+((EQ.retinues[kit.retinue]||{}).cost)||0;
+  [].concat(src.innate||[],src.mastery||[]).map(String).forEach(t=>{const [k,v]=t.split(":");
+    if(k==="tier"&&ti(v)>wt)out.push(v+" weapons");if(k==="armor"&&ti(v)>at)out.push(v+" armour");
+    if(k==="retinue"&&(+((EQ.retinues[v]||{}).cost)||0)>rc)out.push(v);});
+  return out.join(", ");}
 // a Holding's style tags, read from its own text
 function aiHoldTags(n){const r=R[n]||{},t=String(r.innate_raw||""),T=new Set(),net=aiHoldNet(n),up=r.upkeep!=null?+r.upkeep:0;
   if(net>0){T.add("holding_income");if(r.root)T.add("hamlet_income");}
@@ -197,7 +243,7 @@ function aiHoldTags(n){const r=R[n]||{},t=String(r.innate_raw||""),T=new Set(),n
   return T;}
 // an action's style tags
 function aiActTags(c){const T=new Set();const A=c.act;
-  if(A==="Build"&&c.sub)aiHoldTags(c.sub.slice(2)).forEach(t=>T.add(t));
+  if(A==="Build"&&c.sub){aiHoldTags(c.sub.slice(2)).forEach(t=>T.add(t));if(c.gear)T.add("equip_armies");}
   if(A==="Sign Treaty"&&c.treaty==="Trade Agreement")T.add("trade");
   if(A==="Tithe")T.add("tithe");
   if(A==="Pillage")T.add("pillage");
@@ -220,29 +266,56 @@ function aiFaithNeed(p,st){const po=+p.board.po||0,gap=Math.max(0,PO_MAX-po)/Mat
   if(st.has("po_insulate")&&po<0)n=Math.max(n,0.7);
   if(st.has("po_control"))n=Math.max(n,0.3);                                         // Piety uses Public Order as leverage
   return Math.min(1,n);}
+// Bandit threat to this player, 0..1 — kill camps before they become Armies: each camp in its Province or Outlaw Country counts
+// more the closer it is to BANDIT_ARMY_THRESHOLD; then Bandit Armies within reach of its Settlements (Range 6) and Bandit Sieges on them
+function aiBanditThreat(p){const M=mapState(),own=terrOwners(),mine=new Set(outlawOf(p)),setts=mapSetts().filter(x=>String(x.cell.player)===String(p.id)).map(x=>hk(x.k)),cap=BAN.armyThreshold||25,
+    eraW=1+0.25*Math.max(0,Object.keys(ERAS).indexOf(currentEra()));   // Founding ×1 … Zenith ×1.75
+  let local=0,near=0;Object.keys(M.camps||{}).forEach(k=>{const cp=M.camps[k],n=+cp.n||0;
+    if(!cp.out&&!cp.home&&(mine.has(k)||(own[k]&&own[k].has(String(p.id)))))local+=(0.25+0.5*Math.min(1,n/cap))*eraW;
+    if(n>=cap&&setts.some(s=>hexDist(s,hk(k))<=6))near++;});
+  const sieges=realmTimers().filter(t=>t.kind==="siege"&&t.bandit&&String(t.tp)===String(p.id)).length+Object.values(M.camps||{}).filter(c=>c.pillage&&String(c.pillage.tp)===String(p.id)).length;   // Bandit Sieges or Pillages on its Settlements
+  return Math.min(1,local+0.4*near+0.8*sieges);}
+function aiBanditNear(p){const M=mapState(),cap=BAN.armyThreshold||25,setts=mapSetts().filter(x=>String(x.cell.player)===String(p.id)).map(x=>hk(x.k));
+  return Object.keys(M.camps||{}).some(k=>+M.camps[k].n>=cap&&setts.some(s=>hexDist(s,hk(k))<=6));}
 // the situation every scorer reads, computed once per decision
 function aiSit(p){const b=p.board,others=D.players.filter(q=>!sameP(q,p)&&seated().includes(q)),cash=aiCashOutlook(p),h=hudData(p);
   const foes=others.map(q=>({q,why:aiFoe(p,q)})).filter(x=>x.why).sort((x,y)=>(effPair(p.id,y.q.id).war?1:0)-(effPair(p.id,x.q.id).war?1:0)||edictTotal(y.q)-edictTotal(x.q));
   const pass={};T_ALL.forEach(d=>pass[d]=aiPassChance(p,d));
   const W=+RC.WEALTH_EDICT_GOLD||0;
   return {b,others,cash,econ:cash.ok?(aiDoms(p).includes("Industry")?0.6:0.3):1,doms:aiDoms(p),pr:aiProfile(p)||{},foes,war:others.filter(q=>effPair(p.id,q.id).war),
-    camps:Object.keys(mapState().camps||{}).length,h,po:+b.po||0,surv:aiSurvival(p),pass,
-    wealth:W>0?Math.min(1,Math.max(0,+b.treasury||0)/W):0,saints:Math.max(0,+b.po||0)/PO_MAX};}
+    camps:Object.keys(mapState().camps||{}).length,bthreat:aiBanditThreat(p),h,po:+b.po||0,surv:aiSurvival(p),pass,
+    wealth:W>0?Math.min(1,Math.max(0,+b.treasury||0)/W):0,saints:Math.max(0,+b.po||0)/PO_MAX,
+    spare:Math.min(1,Math.max(0,+b.treasury||0)/15000),                                 // gold sitting idle wants investing
+    wardFull:(()=>{const L=buildOpts(p).filter(o=>o.v.startsWith("b:"));return L.length?L.filter(o=>/no free Ward/.test(o.label)).length/L.length:0;})()};}
 // candidates: {dom, act, tgt, sub, treaty, serves:{priority:value}, cost, doubt, why}
 function aiCandidates(p){const s=aiSit(p),b=s.b,C=[],add=(dom,act,o)=>C.push(Object.assign({dom,act,cost:0,doubt:0},o));
   const like=d=>s.doms.includes(d)?1:0.6,foe=s.foes[0],foeQ=foe&&foe.q,fp=foe?(effPair(p.id,foeQ.id).war?"diplomacy":edictTotal(foeQ)>edictTotal(p)?"edicts":"diplomacy"):"";
   // Industry
-  {const L=buildOpts(p).filter(o=>o.v.startsWith("b:")&&!o.dis).map(o=>o.v.slice(2)),mon=aiNextMonument(p);
-    L.forEach(n=>{const net=aiHoldNet(n),dm=s.doms.includes(holdDom(n));
-      add("Industry","Build",{sub:"b:"+n,cost:2000,serves:{economy:net>0?s.econ*Math.min(1,net/1000):0,holdings:(dm?0.8:0.5)*like("Industry"),monuments:n===mon?1:0},
-        why:(n===mon?"Monument ":"Build ")+n+" (net "+net+"/turn)"});});}
+  {const L=buildOpts(p).filter(o=>o.v.startsWith("b:")&&!o.dis).map(o=>o.v.slice(2)),mon=aiNextMonument(p),kit=aiKit(p);
+    L.forEach(n=>{const net=aiHoldNet(n),po=aiHoldPO(n),val=aiHoldValue(n),dm=s.doms.includes(holdDom(n)),gear=aiGearGain(p,n,kit);
+      const rides=withBoard(b,()=>{const sd=smartSid(n);return sd!=null&&!!canPlace(n,sd).rider;}),opens=((R[n]||{}).builds_into||[]).filter(x=>R[x]).length;
+      const armyCut=s.pr.prowess_coded&&/Upkeep\s*-\s*\d/i.test(String((R[n]||{}).innate_raw||""))&&(b.armies||[]).length>0;   // Prowess: cheaper Armies
+      // a Holding that adds Doubt every turn counts against the faith priority — harder the lower Public Order already is
+      const pen=po<0?aiPrioW("faith")*0.5*(-po)*(s.po<=0?1:0.6):0;
+      // a Holding that upgrades the Army kit answers Bandits (and war): Bandit gear climbs with the Era
+      add("Industry","Build",{sub:"b:"+n,cost:2000,pen,gear:!!gear,serves:{economy:val>0&&net>0?Math.max(0.5,s.econ)*Math.min(1,val/1000):0,holdings:Math.min(1,(dm?0.8:0.5)*like("Industry")+0.5*s.spare+(rides?0.3:0)+Math.min(0.2,0.05*opens)+(armyCut?0.4:0)),monuments:n===mon?1:0,
+          bandits:gear?(s.pr.prowess_coded?0.6:0.3)+0.6*s.bthreat:0,diplomacy:gear&&(s.war.length||s.pr.prowess_coded)?0.6:0},
+        why:(n===mon?"Monument ":"Build ")+n+" (net "+net+"/turn"+(po?", PO "+(po>0?"+":"")+po+"/turn":"")+(gear?", unlocks "+gear:"")+(rides?", rides free":"")+(armyCut?", cuts Army upkeep":"")+")"});});}
   {const L=improveOpts(p).filter(o=>o.v!=="hand"),w=L.find(o=>o.v.startsWith("w:")),ip=aiImprovePick(p);
     if(w)add("Industry","Improve",{sub:w.v,cost:2000,serves:{edicts:1,infra:0.8},why:"Wonder "+w.v.slice(2)+" (Edict)"});
-    if(ip)add("Industry","Improve",{sub:ip.sub,cost:2000,serves:{infra:0.8,bandits:/Walls/i.test(ip.sub)&&s.camps?1:0},why:ip.why});}
+    // every Infrastructure option, scored by what its own text does: Garrisons / Keeps / Walls / Bandit Authority answer the
+    // Bandit threat; Craft / tax / trade / upkeep the economy; Faith; Influence and Envoys
+    L.filter(o=>o.v.startsWith("i:")).forEach(o=>{const n=o.v.slice(2),t=String((INFRA[n]||{}).effect_raw||""),e={infra:0.6};
+      const bd=/Garrison/i.test(t)?1:/Muster/i.test(t)&&/Keep/i.test(n)?0.8:/Walls/i.test(n)?0.7:/Bandit/i.test(t)?0.6:/Can Muster/i.test(t)?0.5:0;
+      if(bd)e.bandits=bd*Math.max(s.camps?0.3:0,s.bthreat);
+      if(/Craft|Tax Income|Can Trade|Upkeep\s*-/i.test(t))e.economy=s.econ*0.7;
+      if(/Faith \+/i.test(t))e.faith=0.6;
+      if(/Influence|Envoy/i.test(t))e.diplomacy=0.4;
+      add("Industry","Improve",{sub:o.v,cost:2000,serves:e,why:"Improve "+n+" ("+t.slice(0,60)+")"});});}
   {const L=repairOpts(p).filter(o=>o.v!=="hand");if(L.length)add("Industry","Repair",{sub:L[0].v,serves:{holdings:1,economy:s.econ*0.6},why:"Repair "+L[0].label});}
   if(aiDv(p,"Industry")>=RIS){
-    if(s.h.settCap==null||s.h.setts<s.h.settCap)add("Industry","Settle",{cost:2000,serves:{economy:s.econ*0.7,holdings:0.6},why:"new Settlement ("+s.h.setts+"/"+(s.h.settCap??"?")+")"});
-    const x=expandOpts(p).find(o=>o.v!=="hand"&&!/⚑/.test(o.label));if(x)add("Industry","Expand",{sub:x.v,cost:2000,serves:{economy:s.econ*0.8,holdings:0.5},why:"Expand "+x.label});}
+    if(s.h.settCap==null||s.h.setts<s.h.settCap)add("Industry","Settle",{cost:2000,serves:{economy:s.econ*0.7,holdings:Math.min(1,0.6+0.6*s.wardFull+0.3*s.spare)},why:"new Settlement ("+s.h.setts+"/"+(s.h.settCap??"?")+")"});
+    const x=expandOpts(p).find(o=>o.v!=="hand"&&!/⚑/.test(o.label));if(x)add("Industry","Expand",{sub:x.v,cost:2000,serves:{economy:s.econ*0.8,holdings:Math.min(1,0.5+0.6*s.wardFull+0.3*s.spare)},why:"Expand "+x.label});}
   // Piety (each costs Doubt 1)
   {const rich=s.others.slice().sort((x,y)=>(+y.board.treasury||0)-(+x.board.treasury||0))[0];
     const drastic=!s.cash.ok&&(+b.treasury||0)<2000;                                   // Industry Tithes only when something is badly wrong
@@ -257,14 +330,23 @@ function aiCandidates(p){const s=aiSit(p),b=s.b,C=[],add=(dom,act,o)=>C.push(Obj
     if((q.board.placed||[]).length)add("Cunning","Raze",{tgt:String(q.id),cost:2000,serves:{[fp]:0.9*lc},why:"Raze "+q.name+" ("+foe.why+")"});
     add("Cunning","Intercept Caravan",{tgt:String(q.id),cost:2000,serves:{[fp]:0.6*lc,economy:s.econ*(tradeRaw(q.board).total>ex?0.6:0.2)},why:"Intercept "+q.name+"'s trade"});
     add("Cunning","Destabilize",{tgt:String(q.id),cost:2000,serves:{[fp]:0.5*lc,economy:s.econ*0.4},why:"Destabilize "+q.name+" (Winter tax)"});
-    if(s.camps)add("Cunning","Foster Rebellion",{tgt:String(q.id),cost:2000,serves:{[fp]:0.7*lc},why:"Bandits on "+q.name});}
+    // Foster Rebellion grows Outlaw Country when it's full: only a Cunning culture harnesses it, and only while Bandits aren't on its own doorstep
+    if(s.camps&&s.doms.includes("Cunning")&&s.bthreat<0.3)add("Cunning","Foster Rebellion",{tgt:String(q.id),cost:2000,serves:{[fp]:0.7*lc},why:"Bandits on "+q.name});}
   // Prowess
   {const arms=b.armies||[],up=+((EQ.retinues[aiKit(p).retinue]||EQ.retinues.Levy||{}).cost)||0,mt=aiMoveTargets(p),mv=aiMovable(p);
-    if(!arms.length&&(s.camps||s.war.length||s.pr.prowess_coded)){const mo=musterOpts(p).find(o=>o.v.startsWith("n:"));
-      if(mo&&aiCashOutlook(p,up).ok)add("Prowess","Muster",{sub:mo.v,serves:{bandits:s.camps?1:0,diplomacy:s.war.length?1:0.4*like("Prowess")},why:"raise an Army"});}
-    const tired=arms.find(a=>!((+a.endurance||0)>0)&&!(a.muster&&a.muster.n>0)),ro=tired&&musterOpts(p).find(o=>o.v==="r:"+tired.id);
-    if(ro)add("Prowess","Muster",{sub:ro.v,serves:{bandits:s.camps?0.8:0,diplomacy:s.war.length?0.8:0.3},why:"Reinforce exhausted "+(tired.label||("Army "+tired.id))});
-    if(mt.length&&mv.length)add("Prowess","Move",{bandit:!!s.camps,war:s.war.length>0,siege:s.war.length>0,serves:{bandits:s.camps?1:0,diplomacy:s.war.length?0.9:0,edicts:s.war.length?0.4:0},why:"Move toward "+mt[0].why});
+    // raise an Army: the first when Bandits, war or a Prowess culture call for one; another (up to the Era's cap) when the Bandit threat
+    // is high and every Army already raised is full or still mustering
+    const live=arms.filter(a=>(+a.count||0)>0||(a.muster&&a.muster.n>0)),capA=withBoard(b,()=>eraCap("armies")),
+      wantMore=live.length>0&&(s.bthreat>=0.6||s.pr.prowess_coded)&&live.every(a=>aiFull(a)||(a.muster&&a.muster.n>0))&&(capA==null||arms.length<capA);
+    if((!live.length&&(s.camps||s.war.length||s.pr.prowess_coded))||wantMore){const mo=musterOpts(p).find(o=>o.v.startsWith("n:"));
+      const rets=Object.keys(EQ.retinues).filter(n=>withBoard(b,()=>armyUnlocks(computeEarned(new Set(Object.keys(PC))).earned).retinues.has(n)))
+        .sort((x,y)=>(+EQ.retinues[y].cost||0)-(+EQ.retinues[x].cost||0)),afford=rets.find(n=>aiCashOutlook(p,+EQ.retinues[n].cost||0).ok);
+      if(mo&&afford){PT(p).aiRaiseRet=afford;add("Prowess","Muster",{sub:mo.v,why2:afford,serves:{bandits:Math.max(s.camps?0.4:0,s.bthreat),diplomacy:s.war.length?1:0.4*like("Prowess")},why:"raise an Army of "+afford});}}
+    // Muster first: an under-strength Army (or an exhausted one) is Reinforced before it goes anywhere
+    const tired=arms.find(a=>(+a.count||0)>0&&(!aiFull(a)||!((+a.endurance||0)>0))&&!(a.muster&&a.muster.n>0)),ro=tired&&musterOpts(p).find(o=>o.v==="r:"+tired.id);
+    if(ro)add("Prowess","Muster",{sub:ro.v,bandit:!!s.camps,serves:{bandits:Math.min(1,Math.max(s.camps?0.4:0,s.bthreat)*(aiBanditNear(p)?1.4:1)),diplomacy:s.war.length?0.8:0.3},why:"Reinforce "+(tired.label||("Army "+tired.id))+" to full strength ("+(+tired.count||0)+"/"+(+EQ.army_max||25)+")"});
+    const hunt=mt.some(t=>t.mine&&t.n!=null&&mv.some(a=>aiCanBeat(a,t.n)));
+    if(mt.length&&mv.some(a=>aiFull(a)||mt.some(t=>t.n!=null&&aiCanBeat(a,t.n))))add("Prowess","Move",{bandit:!!s.camps,war:s.war.length>0,siege:s.war.length>0,pen:hunt?-aiPrioW("bandits")*0.6:0,serves:{bandits:s.camps?Math.min(1,Math.max(hunt?0.9:0.5,s.bthreat)*(1+0.5*Math.max(0,...mt.filter(t=>t.mine&&!t.home).map(t=>(t.n||0)/(BAN.armyThreshold||25))))):0,diplomacy:s.war.length?0.9:0,edicts:s.war.length?0.4:0},why:"Move toward "+mt[0].why});
     if(s.war.length&&mv.length)add("Prowess","Pillage",{tgt:String(s.war[0].id),serves:{economy:s.econ*0.7,diplomacy:0.4},why:"Pillage "+s.war[0].name});
     if(s.doms.includes("Prowess")&&aiEraAllows("Declare War")&&aiDv(p,"Prowess")>=RIS){
       const weak=s.others.filter(q=>!alliedP(p,q)&&!effPair(p.id,q.id).war&&!effPair(p.id,q.id).nap&&aiMil(q)<aiMil(p)).sort((x,y)=>aiMil(x)-aiMil(y))[0];
@@ -278,7 +360,7 @@ function aiCandidates(p){const s=aiSit(p),b=s.b,C=[],add=(dom,act,o)=>C.push(Obj
     add("Diplomacy","Sign Treaty",{tgt:String(q.id),treaty:t,serves:{diplomacy:1,economy:tr?s.econ*0.7:pc&&!s.cash.ok?0.6:0},why:t+" with "+q.name+" ("+q.name+": "+ac.why+")"});});
   if(s.doms.includes("Cunning"))s.others.forEach(q=>{const x=effPair(p.id,q.id);if((x.trade||x.nap)&&aiFoe(p,q))add("Diplomacy","End Treaty",{tgt:String(q.id),serves:{diplomacy:0.7},why:"turn on "+q.name+" ("+aiFoe(p,q)+")"});});
   // Domain styles: an action done the culture's way serves that priority (economy / faith / bandits) and counts ×1.3
-  const ST={economy:aiStyle(p,"economy"),faith:aiStyle(p,"faith"),bandits:aiStyle(p,"bandits")},need={economy:s.econ,faith:aiFaithNeed(p,ST.faith),bandits:s.camps?1:0.15};
+  const ST={economy:aiStyle(p,"economy"),faith:aiStyle(p,"faith"),bandits:aiStyle(p,"bandits")},need={economy:s.econ,faith:aiFaithNeed(p,ST.faith),bandits:Math.max(s.camps?0.3:0.1,s.bthreat)};
   C.forEach(c=>{const T=aiActTags(c);c.tags=[...T];
     if(T.has("faith_gain")&&need.faith>0&&(!ST.faith.has("po_cheap")||T.has("low_costs")||T.has("holding_income")))c.serves.faith=Math.max(c.serves.faith||0,need.faith*0.8);
     ["economy","faith","bandits"].forEach(k=>{const hit=[...T].filter(t=>ST[k].has(t));if(!hit.length)return;
@@ -292,7 +374,13 @@ function aiCandidates(p){const s=aiSit(p),b=s.b,C=[],add=(dom,act,o)=>C.push(Obj
   const AR=aiArch(p),top=["economy","faith","bandits"].sort((x,y)=>need[y]-need[x])[0];
   C.forEach(c=>{const e=c.serves;Object.keys(e).forEach(k=>{e[k]*=(AR.prio[k]||1)*(k===top?AR.need_amp:1);});
     const tm=Math.max(1,...(c.tags||[]).map(t=>AR.tags[t]||1));c.arch=(tm>1?tm:1)*(c.dom===s.doms[0]?AR.lead:1);});
-  C.forEach(c=>{const pc=s.pass[c.dom]||{net:0,c:1};c.score=aiScore(c.serves,s.surv.ok)*pc.c*c.arch;c.prio=aiTop(c.serves,s.surv.ok);c.net=pc.net;});
+  if(!s.doms.includes("Cunning"))for(let i=C.length-1;i>=0;i--)if(C[i].dom==="Cunning")C.splice(i,1);   // only Cunning cultures act through Cunning
+  // too noticed: when this bot's own Cunning or Piety Envoys are expected to be Opposed down (pass chance < 50%), it lies low —
+  // those actions count half, and Industry (Build / Improve / Settle / Expand / Repair) counts more
+  const noticed=["Cunning","Piety"].filter(d=>s.doms.includes(d)&&(s.pass[d]||{c:1}).c<0.5);
+  if(noticed.length)C.forEach(c=>{if(noticed.includes(c.dom))c.lieLow=0.5;
+    else if(c.dom==="Industry"){c.serves.holdings=Math.min(1,(c.serves.holdings||0)+0.3);c.serves.economy=Math.max(c.serves.economy||0,0.4);c.lieLow=1.15;}});
+  C.forEach(c=>{const pc=s.pass[c.dom]||{net:0,c:1};c.score=Math.max(0,aiScore(c.serves,s.surv.ok)-(c.pen||0))*pc.c*c.arch*(c.lieLow||1);c.prio=aiTop(c.serves,s.surv.ok);c.net=pc.net;});
   return C.filter(c=>c.score>0).sort((x,y)=>y.score-x.score);}
 // the plan: highest-scoring candidates the bot can pay for; Doubt-costing ones only above its faith floor; one per action+target
 function aiIntents(p){const b=p.board,C=aiCandidates(p),out=[],needs={};let gold=(+b.treasury||0)-aiArch(p).reserve,po=+b.po||0;
@@ -320,7 +408,9 @@ function aiPerform(p,E){const c=tCurW(p);c.perform=c.perform||{};
   if(it)it.used=true;
   // otherwise the best-scoring candidate among the actions this Envoy may perform, then any other action that passes
   if(!rec){const acts=pfActs(E);for(const c of aiCandidates(p).filter(c=>acts.includes(c.act))){rec=tryAct(c.act,c.tgt,c.sub);if(rec){why=c.why+" ["+c.prio+" "+c.score.toFixed(1)+"]";pick=c;break;}}}
-  if(!rec)for(const a of pfActs(E).filter(a=>a!=="Sign Treaty"&&a!=="Declare War")){rec=tryAct(a,null,null);if(rec){why="fallback";pick=null;break;}}   // no unplanned treaties or wars
+  const cun=aiDoms(p).includes("Cunning");
+  if(!rec)for(const a of pfActs(E).filter(a=>a!=="Sign Treaty"&&a!=="Declare War"&&(cun||actDom(a,E)!=="Cunning"))){rec=tryAct(a,null,null);if(rec){why="fallback";pick=null;break;}}   // no unplanned treaties or wars
+  if(!rec&&!cun&&actDom(pfActs(E)[0]||"",E)==="Cunning"){c.perform[E.id]={action:"",declined:tnow(),ts:tnow()};aiNote(p,E.dom+" Envoy: declined — not a Cunning culture");return;}
   if(!rec){c.perform[E.id]={failAccept:1,target:"",failOut:"Failed",failNet:E.net,tried:[],ts:tnow()};aiNote(p,E.dom+" Envoy: no action passes — let it fail");return;}
   c.perform[E.id]=rec;let extra="";
   if(rec.action==="Move")extra=" · "+aiMove(p);
@@ -334,9 +424,11 @@ function aiVoteWant(p,E){const o=E.owner,cap=Math.max(1,voteCap(p,E.dom||"Prowes
     if(tq&&(aiFoe(p,o)||aiFoe(p,tq)))return {a:"O",x:Math.min(cap,2),w:3,why:"block "+o.name+"–"+tq.name+" treaty"};
     return {a:"A",x:0,w:0,why:"not my treaty"};}
   if(effPair(p.id,o.id).war)return {a:"O",x:cap,w:4,why:"at war with "+o.name};
-  const foe=aiFoe(p,o);if(foe)return {a:"O",x:Math.min(cap,1+Math.max(0,Math.floor(-rel/3))+(edictTotal(o)>edictTotal(p)?1:0)),w:3,why:o.name+" "+foe};
+  if(E.dom==="Prowess"&&aiBanditThreat(o)>=0.4)return {a:"A",x:0,w:0,why:o.name+" is dealing with Bandits"};   // Bandits are everyone's problem
+  const foe=aiFoe(p,o);if(foe&&!(E.dom==="Industry"&&/^hostile/.test(foe)))return {a:"O",x:Math.min(cap,1+Math.max(0,Math.floor(-rel/3))+(edictTotal(o)>edictTotal(p)?1:0)),w:3,why:o.name+" "+foe};
   if(aiFriend(p,o))return {a:"S",x:Math.min(cap,1+Math.max(0,Math.floor(rel/3))),w:2,why:"friend "+o.name+(rel?" ("+rel+")":"")};
   if(aiLike(p,o))return {a:"S",x:1,w:1,why:"like-minded "+o.name};
+  if(E.dom==="Cunning"||E.dom==="Piety")return {a:"O",x:1,w:0.5,why:"default: Oppose a non-friend's "+E.dom+" Envoy ("+o.name+")"};   // the Domains that harass
   return {a:"A",x:0,w:0,why:"no stake"};}
 // set pre-votes on every Envoy still to come, highest priority first, within the Influence left this phase
 function aiVoteAll(p,R){const pool=Math.max(0,(R.pool[p.id]??inflPool(p))-(R.spent[p.id]||0)),c=tCurW(p),vm=aiArch(p).vote;let room=pool,ch=false;
