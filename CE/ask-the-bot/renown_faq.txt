@@ -325,7 +325,7 @@ Realm | [Realm](https://mlang95.github.io/RenownWiki/glossary.html#realm): The t
 Recoup X | [Recoup X](https://mlang95.github.io/RenownWiki/glossary.html#recoup-x): Undo up to X of the cost you paid (refund gold, or remove Doubt gained).
 Heal | [Heal](https://mlang95.github.io/RenownWiki/keywords-ref.html#recover): If your Army has gained Heal and a to-Save roll fails, roll a D10 & compare it to your Heal value: a result greater than or equal to your Heal value recovers the retinue. Healed Strikes still count toward the Panic check threshold.
 Region | [Region](https://mlang95.github.io/RenownWiki/glossary.html#region): A collection of Territories of the same Type.
-Reliquary Sanctum | [Reliquary Sanctum](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Devotion). Effect: Faith +1; First two Doubt each turn reduced by 1 / Requires: Cathedral
+Reliquary Sanctum | [Reliquary Sanctum](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Devotion). Effect: Faith +1; First two Doubt each turn reduced by 1 / Requires: Chapel
 Renown | [Renown](https://mlang95.github.io/RenownWiki/glossary.html#renown): The shared progress track. Gain 1 per Rest Phase; thresholds raise your Era (Ascension 8, Eminence 18, Zenith 30).
 Repair | [Repair](https://mlang95.github.io/RenownWiki/actions-ref.html): Industry action. Cost: 0 gold. Choose a Damaged Holding or Infrastructure in a Settlement you control and set Repair Timer 2. When it reaches 0, choose one: Restore — reactivate it with all effects; Demolish — remove the Holding tile from your Empire Tableau. Endorsed: Recoup 0.
 Repair Timer | [Repair Timer](https://mlang95.github.io/RenownWiki/glossary.html#repair-timer): Turns until a Damaged piece is repaired and its effects return.

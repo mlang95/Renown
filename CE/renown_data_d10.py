@@ -366,9 +366,12 @@ TIER_UNLOCK = {
 # Standings: Rising = 3, Established = 6, Sovereign = 10 domain points.
 STANDING_EFFECTS = {
     ("Prowess", "Established"): "Gain Parry.", #Remove "Parry"
+    ("Prowess", "Sovereign"): "Immune Blunder",
     ("Piety",   "Rising"): "Morale +1",
-    ("Cunning", "Established"): "Opponent gains Blunder in the first Skirmish.", #Remove "Foes gain Blunder in first Skirmish"
-    ("Cunning", "Sovereign"):   "Opponent gains Strain.", #Remove "Foes gain Strain"
+    ("Piety", "Sovereign"): "Immune Panic",
+    ("Cunning", "Established"): "Opponent gains Strain.", #Remove "Foes gain Blunder in first Skirmish"
+    ("Cunning", "Sovereign"):   "Opponent gains Blunder in the first Skirmish.", #Remove "Foes gain Strain"
+    ("Industry", "Established"): "Gain -1AP"
 }
 	
 # ── Tactics ────────────────────────────────────────────────────────────────
@@ -2020,7 +2023,7 @@ SIMPLE_NODES = {
     "Reliquary": {
         "group": "g_devotion",
         "unlock": "Rising Piety",
-        "infrastructure_req": "Cathedral",
+        "infrastructure_req": "Chapel",
         "innate": "Faith +1; First two Doubt each turn reduced by 1",
         "efficient": "Chandlery",
         "builds_into": ["Pilgrimage Site"],
@@ -3563,12 +3566,12 @@ OUTLAW_COUNTRY_START = 3  # Outlaw Country territories demarcated at game start
 # After Setup a Wild zone is ordinary Outlaw Country: a zone is a player's Outlaw Country while any of its Territories is within their Province.
 # Wild camps otherwise behave exactly like every other Bandit Camp (the three flags are plumbing; True = same as others).
 WILD_OUTLAW = {
-    "count": "formula",      # "formula" | "fill"
-    "max": None,             # cap on zones in "fill" mode (None = no cap)
+    "count": "fill",      # "formula" | "fill"
+    "max": 0,             # cap on zones in "fill" mode (None = no cap)
     "border_range": 3,       # min Range from any player's Province
     "spacing": 5,            # min Range from any other Outlaw Country zone
-    "per_players": 2,        # "formula": floor(players / 2)
-    "plus": 1,               # "formula": + 1
+    "per_players": 0,        # "formula": floor(players / 2)
+    "plus": 0,               # "formula": + 1
     "spring_spawn": True,    # Spring: each Wild zone spawns a Bandit Camp (full zone -> its camps grow instead)
     "spring_growth": True,   # Spring: Wild camps also grow, like every other camp
     "march": True,           # a Wild Bandit Army Marches like every other Bandit Army
