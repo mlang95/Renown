@@ -3951,6 +3951,11 @@ ALLIANCE_RULES = [
 # multiple times. Whoever has completed the most when the Last Alliance Standing
 # condition is met wins.
 EDICT_STREAK_TURNS = 5      # consecutive-turn Edicts (Wealth, Living Saints)
+# Toggle: a Domain / Monument / Wonder counts toward an Edict once per game (first player) or once per player
+# (build_all_CE.bat: set EDICT_UNIQUE=1|0).
+EDICT_UNIQUE = _os.environ.get("RENOWN_EDICT_UNIQUE", "0") == "1"
+EDICT_UNIQUE_RULE = ("Each Domain, Monument, or Wonder counts toward an Edict only once per game, for the first player to complete it."
+                     if EDICT_UNIQUE else "Each Domain, Monument, or Wonder counts toward an Edict once per player.")
 _NUMWORD = {1:"one",2:"two",3:"three",4:"four",5:"five",6:"six",7:"seven",8:"eight",9:"nine",10:"ten"}
 EDICTS = {
     "Sovereign Standing": {"type": "Standing",  "requirement": f"Reach a Sovereign Standing (Domain value {_ST['Sovereign']}) in any Domain."},

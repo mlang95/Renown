@@ -66,6 +66,11 @@ REM          Read by renown_data via the RENOWN_TRADE_BORDER environment variabl
 set TRADE_BORDER=0
 set RENOWN_TRADE_BORDER=%TRADE_BORDER%
 
+REM EDICT_UNIQUE : 1 = each Domain / Monument / Wonder counts toward an Edict once per game (first player only),
+REM          0 = once per player. Read by renown_data via the RENOWN_EDICT_UNIQUE environment variable.
+set EDICT_UNIQUE=0
+set RENOWN_EDICT_UNIQUE=%EDICT_UNIQUE%
+
 REM LAB_DIR is tagged by variant so trials stay side-by-side.
 set LAB_DIR=%CE_ROOT%\%DIR_LAB%\%DIE%
 if "%SIMPLE%"=="1" set LAB_DIR=%CE_ROOT%\%DIR_LAB%\%DIE%_simple

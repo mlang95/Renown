@@ -31,7 +31,7 @@ This game is for:
 
 Whichever player has completed the most **Edicts** from the list below when the Last Alliance Standing condition is met wins the game.
 
-When an Edict is completed, increase the Renown tracker by 1. Any player may complete any Edict multiple times.
+When an Edict is completed, increase the Renown tracker by 1. Any player may complete any Edict multiple times. {{VAL:EDICT_UNIQUE_RULE}}
 
 {{TABLE:edicts}}
 

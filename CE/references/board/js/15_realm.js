@@ -333,7 +333,9 @@ function dockHTML(R){
       (sg.length?'<div class="note" style="margin-top:4px">'+sg.map(x=>esc((x.label||"Siege")+" · "+x.n)).join("<br>")+'</div>':'')+
       (mods().battle?'':'<div class="note">Battle module is off (⋯ ▸ modules).</div>'));}
   // 10. Rest Phase: Domain Points
-  if(ph==="rest"){const L=(HOTSEAT||ADMIN?D.players:[me]).filter(p=>p&&(p.board.dp||0)>0);
+  if(ph==="rest"){{const N=TB().edictNews;if(N&&N.turn===tTurn()&&N.list.length)
+      h+=dockCard("Edicts completed",N.list.map(n=>'<div class="tb-row"><b>'+esc(n.p)+'</b><span style="flex:1">'+esc(n.name+(n.lab?" ("+n.lab+")":""))+'</span><span class="note">Renown +1</span></div>').join(""),"now");}
+    const L=(HOTSEAT||ADMIN?D.players:[me]).filter(p=>p&&(p.board.dp||0)>0);
     L.forEach(p=>{h+=dockCard("Domain Point — "+esc(p.name),'<div class="tb-row" style="flex-wrap:wrap">'+dpButtons(p,D.players.indexOf(p))+'</div>',"now");});}
   // 11. Loans
   h+=loansHTML(qp);

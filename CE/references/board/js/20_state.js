@@ -157,6 +157,7 @@ function empEconomy(b){const sn=seasonNet(b),net=Math.round(sn.net||0),g0=b.trea
   if(b.autoNet){const sea=curSeason(),part=[["Income & upkeep",Math.round(sn.base||0)],[sea+" (Season)",Math.round(sn.seasonal||0)],["Winter tax",Math.round(sn.tax||0)],["Trade",Math.round(sn.trade||0)]];
     part[0][1]+=net-part.reduce((t,x)=>t+x[1],0);part.forEach(([k,v])=>tGold(b,v,k));}   // Winter tax, income, trade, upkeep (if auto-apply is on)
   b.insolv=(b.treasury||0)<0?(+b.insolv||0)+1:0;                              // "Insolvency": consecutive Upkeep with negative Treasury
+  edictTick(b,"Wealth");                                                        // check the Treasury for the Wealth Edict
   return {sn,net,g0};}
 function empPO(b,done){const m=boardMetrics(b),p0=b.po||0,fd=m.po||0,pm=poModTotal(b);let dpo=fd+pm;
   epRows(b).filter(r=>r.auto&&r.n>0).forEach(r=>done.push(r.k+": "+r.side[0].toUpperCase()+r.side.slice(1)+" +"+r.n+(r.desc?" ("+r.desc+")":"")));
@@ -164,7 +165,7 @@ function empPO(b,done){const m=boardMetrics(b),p0=b.po||0,fd=m.po||0,pm=poModTot
   const inst=[m.doubt||0].concat(poModRows(b).filter(r=>r.side==="doubt").map(r=>r.n)).filter(n=>n>0),fr=firstDoubtRed(b),sl=fdState(b,tTurn()).slots;
   let cut=0;inst.forEach(n=>{if(sl.length)cut+=Math.min(n,sl.shift());});
   if(cut>0){dpo+=cut;done.push("first Doubt −"+cut+" ("+fr.src.join(", ")+")");}
-  b.po=applyPOFloor(b,Math.max(PO_MIN,Math.min(PO_MAX,p0+dpo)));return {fd,pm,p0};}
+  b.po=applyPOFloor(b,Math.max(PO_MIN,Math.min(PO_MAX,p0+dpo)));edictTick(b,"Living Saints");return {fd,pm,p0};}
 // "Armies and Garrisons within your Settlements gain Immune Strained" (Granary): an Army inside one of its owner's Settlements, or a Garrison
 function immuneStrainIn(p,a){if(!p||!a||a.sackT)return null;const x=a.garrison?{q:p}:armyInside(p,a);if(!x)return null;   // whose Settlement it is decides
   const m=srcMatch(x.q.board,"immune_strain_home")[0];return m?m.n+(sameP(x.q,p)?"":" · "+x.q.name):null;}
@@ -306,6 +307,7 @@ async function apiRaw(method,path,body){
 let _saveT=null,_savedSig=null;
 function save(){
   try{chronTick();}catch(e){}
+  try{edictWatch();}catch(e){}
   try{(D.players||[]).forEach(p=>glogSync(p.board));}catch(e){}
   undoRecord();if(!ACT.saving)actSchedule();
   try{_savedSig=JSON.stringify(D);localStorage.setItem("renown_dash",_savedSig);}catch(e){}

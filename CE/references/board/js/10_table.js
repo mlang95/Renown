@@ -573,7 +573,7 @@ function tRestartPhase(){const t=TB(),s=t.phaseStart,ph=tPhase();if(!s||s.phase!
 function tAdd30(){const R=tSim();if(!R.cur)return;const t=TB(),key=R.cur.key;if(t.deadlines&&t.deadlines[key]!=null)t.deadlines[key]=+t.deadlines[key]+30000;
   else if(isFinite(R.cur.deadline)){t.extraTime=t.extraTime||{};t.extraTime[key]=(+t.extraTime[key]||0)+30000;}
   else{t.deadlines=t.deadlines||{};t.deadlines[key]=tnow()+30000;}save();renderTable();}
-function grantDP(){const t=TB();if(t.dpGiven===tTurn())return false;t.dpGiven=tTurn();D.players.forEach(p=>{p.board.dp=(p.board.dp||0)+(DATA.dpPerTurn??1);});return true;}
+function grantDP(){const t=TB();if(t.dpGiven===tTurn())return false;t.dpGiven=tTurn();D.players.forEach(p=>{p.board.dp=(p.board.dp||0)+(DATA.dpPerTurn??1);});checkEdicts();return true;}
 function dpOwed(){return D.players.filter(p=>(p.board.dp||0)>0);}
 function tEndTurn(){{const g=grantDP(),ow=dpOwed();
     if(ow.length&&!(ADMIN&&confirm("Domain Points unspent ("+ow.map(p=>p.name).join(", ")+"). End the turn anyway?"))){

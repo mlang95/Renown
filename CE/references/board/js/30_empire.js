@@ -823,6 +823,10 @@ function facGearFlags(a){const f=FAC[S.faction||""];if(!f)return [];const t=Stri
   if(a.armor&&a.armor!=="Cloth"&&ban.some(x=>x!=="shields"&&x.includes(String(a.armor).toLowerCase())))out.push(S.faction+": can't equip "+a.armor);
   if((/can't use shields/i.test(t)||ban.includes("shields"))&&a.shield&&a.shield!=="None")out.push(S.faction+": can't use Shields");
   return out;}
+function dualFlags(a){const out=[];if(!a.dual)return out;
+  if(!((PC["Tiltyard"]||0)>0))out.push("Dual Wield needs a Tiltyard");
+  if(a.shield&&a.shield!=="None")out.push("Dual Wield doesn't apply while a Shield is in use");
+  return out;}
 function factionFlags(){const f=FAC[S.faction];if(!f)return [];const out=[];{const k=cultureFactions(S);if(k&&!k.has(S.faction))out.push(S.faction+" isn't one of the "+S.culture+" factions");}
   const types=[...new Set(Object.values(R).map(r=>r.type))];
   f.mechanic.split(/(?<=[.;])\s+/).forEach(sen=>{
@@ -1270,7 +1274,13 @@ function loadoutFields(obj,u,opts){opts=opts||{};const lo=document.createElement
   field("Armor","armor",EQ.armors,new Set(EQ.tiers),name=>u.armors.has(name)||name==="Cloth");
   const shieldItems={};Object.keys(EQ.shields).forEach(k=>shieldItems[k==="null"?"None":k]=EQ.shields[k]);
   field("Shield","shield",shieldItems,unlockedShieldTiers(u),name=>name==="None"||u.shields);
+  if(opts.dual){if(!canDualWield(obj.weapon))delete obj.dual;
+    else{const f=document.createElement("div");f.className="fld";f.innerHTML='<label>Dual Wield</label>';
+      const cb=document.createElement("input");cb.type="checkbox";cb.checked=!!obj.dual;cb.title="two "+obj.weapon;
+      cb.onchange=()=>{obj.dual=cb.checked;save();render();};f.appendChild(cb);lo.appendChild(f);}}
   return lo;}
+// Dual Wield (Tiltyard): two of the same 1H Melee Weapon — not a 2H weapon, not one whose note rules out Dual Wield
+function canDualWield(name){const w=EQ.weapons[name];return !!w&&name!=="Farm Tools"&&!(w.tags||[]).includes("2H")&&!/Dual Wield/i.test(w.note||"");}
 const MUSTER_DEFAULT=25;   // Retinues a Muster asks for by default
 function renderArmy(){
   recomputePC();const have=new Set(Object.keys(PC));
@@ -1349,9 +1359,9 @@ function armyCard(a,u){
   if(!a.open) return card;
 
   // loadout selects
-  const lo=loadoutFields(a,u,{onRetinue:()=>{const rt=EQ.retinues[a.retinue];if(rt)a.endurance=rt.endurance;},bastard:true});
+  const lo=loadoutFields(a,u,{onRetinue:()=>{const rt=EQ.retinues[a.retinue];if(rt)a.endurance=rt.endurance;},bastard:true,dual:true});
   card.appendChild(lo);
-  const gf=facGearFlags(a);if(gf.length){const fb=document.createElement("div");fb.className="flagbox";fb.style.marginTop="4px";fb.textContent="⚑ "+gf.join(" · ");card.appendChild(fb);}
+  const gf=facGearFlags(a).concat(dualFlags(a));if(gf.length){const fb=document.createElement("div");fb.className="flagbox";fb.style.marginTop="4px";fb.textContent="⚑ "+gf.join(" · ");card.appendChild(fb);}
 
   card.appendChild(armyStats(a,u));
 
