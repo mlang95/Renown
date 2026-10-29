@@ -701,7 +701,9 @@ function wireBattle(host){
   const startFn=()=>{
     if(!sideCalc("A")||!sideCalc("B")){flash("pick both armies first");return;}
     if(!B.id&&!B.seizeSet&&!seizeForced()){flash("Choose who Seizes the Initiative first");return;}
-    if(B.id&&!confirm("Restart the battle?"))return;
+    // restart: back to the Seize the Initiative card (choose again, then Start)
+    if(B.id){if(!confirm("Restart the battle?"))return;B.id=null;B.sk=1;B.round=0;B.rev=null;B.rolls={};B.strk={};B.par={};B.sv={};B.rip={};B.pendCas={};B.svd={};B.pnk={};B.ripCas={};B.shDest={};B.endRep=null;
+      B.seizeSet=false;PEEK=false;TAC_SEL={};blog("Battle restarted");save();render();return;}
     ["A","B"].forEach(X=>{if(B[X].kind==="bandit"){const cp=mapState().camps[B[X].camp];if(cp)armBandits(cp);}});
     ["A","B"].forEach(X=>{const sa=sideArmy(B[X]);if(sa&&sa.a&&!sa.bandit)delete sa.a.pillage;});
     B.id=Date.now().toString(36);B.sk=1;B.round=0;B.rev=null;B.rolls={};B.strk={};B.par={};B.sv={};B.rip={};B.pendCas={};B.svd={};B.pnk={};B.ripCas={};B.shDest={};B.log=[];B.endRep=null;PEEK=false;
