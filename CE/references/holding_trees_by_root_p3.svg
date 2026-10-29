@@ -121,8 +121,8 @@
 <rect x="202" y="198" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="202" y="198" width="5" height="24" fill="#6a6a72"/>
 <text x="211" y="213" font-size="8.2" fill="#2b2620">Stable</text>
-<rect x="374" y="234" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
-<rect x="374" y="234" width="5" height="24" fill="#2E5A8C"/>
+<rect x="374" y="234" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="374" y="234" width="5" height="24" fill="#6a6a72"/>
 <text x="383" y="249" font-size="8.2" fill="#2b2620">Charcoal Burner</text>
 <rect x="374" y="198" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="374" y="198" width="5" height="24" fill="#6a6a72"/>
@@ -189,8 +189,8 @@
 <rect x="202" y="368" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="202" y="368" width="5" height="24" fill="#6a6a72"/>
 <text x="211" y="383" font-size="8.2" fill="#2b2620">Workyard</text>
-<rect x="374" y="332" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
-<rect x="374" y="332" width="5" height="24" fill="#2E5A8C"/>
+<rect x="374" y="332" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="374" y="332" width="5" height="24" fill="#6a6a72"/>
 <text x="383" y="347" font-size="8.2" fill="#2b2620">Charcoal Burner</text>
 <rect x="374" y="368" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="374" y="368" width="5" height="24" fill="#6a6a72"/>

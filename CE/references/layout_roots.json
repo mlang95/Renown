@@ -199,6 +199,10 @@
    ],
    "Episcopal Court": [
     1,
+    4
+   ],
+   "Conditioning Field": [
+    1,
     0
    ],
    "Jester's Court": [
@@ -215,6 +219,10 @@
    ],
    "Interrogation Chambers": [
     2,
+    4
+   ],
+   "Drill Yard": [
+    2,
     0
    ],
    "Bell Tower": [
@@ -229,11 +237,11 @@
     3,
     3
    ],
-   "Conditioning Field": [
+   "Execution Dock": [
     3,
     4
    ],
-   "Execution Dock": [
+   "Grand Tournament": [
     3,
     0
    ],
@@ -245,11 +253,11 @@
     4,
     2
    ],
-   "Drill Yard": [
+   "Inquisitorial Palace": [
     4,
     4
    ],
-   "Inquisitorial Palace": [
+   "Royal Pavilion": [
     4,
     0
    ],
@@ -304,6 +312,10 @@
     "Execution Dock"
    ],
    [
+    "Drill Yard",
+    "Grand Tournament"
+   ],
+   [
     "Execution Dock",
     "Inquisitorial Palace"
    ],
@@ -326,6 +338,10 @@
    [
     "Merchant Quarter",
     "Money Lending"
+   ],
+   [
+    "Grand Tournament",
+    "Royal Pavilion"
    ],
    [
     "Embassy",
@@ -358,6 +374,10 @@
     2,
     4
    ],
+   "Dark Scriptorium": [
+    2,
+    1
+   ],
    "University": [
     3,
     2
@@ -385,6 +405,10 @@
    "Hospitaller": [
     4,
     4
+   ],
+   "Collegium Archives": [
+    4,
+    0
    ],
    "Cipher Chamber": [
     4,
@@ -434,10 +458,14 @@
    ],
    [
     "University",
-    "Forgery Workshop"
+    "Collegium Archives"
    ],
    [
-    "Academy",
+    "Alchemy",
+    "Dark Scriptorium"
+   ],
+   [
+    "Dark Scriptorium",
     "Forgery Workshop"
    ],
    [
@@ -465,7 +493,7 @@
     "Preceptory of the Knight's Templar"
    ],
    [
-    "University",
+    "Collegium Archives",
     "Studium Generale"
    ],
    [
@@ -483,139 +511,6 @@
    [
     "Cipher Chamber",
     "Whispering Undercroft"
-   ]
-  ]
- },
- {
-  "title": "Mine",
-  "anchor": "Mine",
-  "mode": "root",
-  "nodes": {
-   "Mine": [
-    0,
-    1
-   ],
-   "Furnace": [
-    1,
-    1
-   ],
-   "Blacksmith": [
-    2,
-    1
-   ],
-   "Siege Camp": [
-    2,
-    2
-   ],
-   "Forge": [
-    3,
-    1
-   ],
-   "Siege Works": [
-    3,
-    2
-   ],
-   "Armory": [
-    3,
-    3
-   ],
-   "Finery": [
-    3,
-    0
-   ],
-   "Master Workshop": [
-    4,
-    1
-   ],
-   "Battery Park": [
-    4,
-    2
-   ],
-   "Gilded Foundry": [
-    4,
-    3
-   ],
-   "Jewelry Foundry": [
-    4,
-    0
-   ],
-   "Advanced Blast Furnace": [
-    5,
-    1
-   ],
-   "Artillery Park": [
-    5,
-    2
-   ],
-   "Court Armoury": [
-    5,
-    3
-   ],
-   "Polish House": [
-    5,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Master Workshop",
-    "Advanced Blast Furnace"
-   ],
-   [
-    "Blacksmith",
-    "Armory"
-   ],
-   [
-    "Battery Park",
-    "Artillery Park"
-   ],
-   [
-    "Siege Works",
-    "Battery Park"
-   ],
-   [
-    "Furnace",
-    "Blacksmith"
-   ],
-   [
-    "Gilded Foundry",
-    "Court Armoury"
-   ],
-   [
-    "Blacksmith",
-    "Finery"
-   ],
-   [
-    "Blacksmith",
-    "Forge"
-   ],
-   [
-    "Mine",
-    "Furnace"
-   ],
-   [
-    "Armory",
-    "Gilded Foundry"
-   ],
-   [
-    "Finery",
-    "Jewelry Foundry"
-   ],
-   [
-    "Forge",
-    "Master Workshop"
-   ],
-   [
-    "Jewelry Foundry",
-    "Polish House"
-   ],
-   [
-    "Mine",
-    "Siege Camp"
-   ],
-   [
-    "Siege Camp",
-    "Siege Works"
    ]
   ]
  },
@@ -733,6 +628,123 @@
    [
     "Joinery",
     "Tannery"
+   ]
+  ]
+ },
+ {
+  "title": "Furnace",
+  "anchor": "Furnace",
+  "mode": "root",
+  "nodes": {
+   "Furnace": [
+    0,
+    1
+   ],
+   "Blacksmith": [
+    1,
+    1
+   ],
+   "Siege Camp": [
+    1,
+    2
+   ],
+   "Forge": [
+    2,
+    1
+   ],
+   "Siege Works": [
+    2,
+    2
+   ],
+   "Finery": [
+    2,
+    0
+   ],
+   "Master Workshop": [
+    3,
+    1
+   ],
+   "Battery Park": [
+    3,
+    2
+   ],
+   "Armory": [
+    3,
+    3
+   ],
+   "Jewelry Foundry": [
+    3,
+    0
+   ],
+   "Advanced Blast Furnace": [
+    4,
+    1
+   ],
+   "Artillery Park": [
+    4,
+    2
+   ],
+   "Gilded Foundry": [
+    4,
+    3
+   ],
+   "Polish House": [
+    4,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Master Workshop",
+    "Advanced Blast Furnace"
+   ],
+   [
+    "Blacksmith",
+    "Armory"
+   ],
+   [
+    "Battery Park",
+    "Artillery Park"
+   ],
+   [
+    "Siege Works",
+    "Battery Park"
+   ],
+   [
+    "Furnace",
+    "Blacksmith"
+   ],
+   [
+    "Blacksmith",
+    "Finery"
+   ],
+   [
+    "Blacksmith",
+    "Forge"
+   ],
+   [
+    "Armory",
+    "Gilded Foundry"
+   ],
+   [
+    "Finery",
+    "Jewelry Foundry"
+   ],
+   [
+    "Forge",
+    "Master Workshop"
+   ],
+   [
+    "Jewelry Foundry",
+    "Polish House"
+   ],
+   [
+    "Furnace",
+    "Siege Camp"
+   ],
+   [
+    "Siege Camp",
+    "Siege Works"
    ]
   ]
  },
@@ -1219,27 +1231,6 @@
    [
     "Harbor",
     "Shipyard"
-   ]
-  ]
- },
- {
-  "title": "Grand Tournament",
-  "anchor": "Grand Tournament",
-  "mode": "root",
-  "nodes": {
-   "Grand Tournament": [
-    0,
-    0
-   ],
-   "Royal Pavilion": [
-    1,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Grand Tournament",
-    "Royal Pavilion"
    ]
   ]
  },

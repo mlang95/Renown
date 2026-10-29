@@ -1706,11 +1706,11 @@ SIMPLE_NODES = {
         "innate": "+500; Natural; Craft +2",
         "builds_into": ["Harbor"],
         "monument": False},
-    "Mine": {
+    "Furnace": {
         "group": "g_raw",
         "root": True,
         "unlock": "-",
-        "innate": "+500; Natural; Craft +1",
+        "innate": "+500; Natural; Unlocks Cast Weapons",
         "builds_into": ["Furnace","Siege Works"],
         "monument": False},
     "Arable Land": {
@@ -1856,13 +1856,13 @@ SIMPLE_NODES = {
         "efficient": "Carpentry",
         "builds_into": ["Tannery"],
         "monument": False},
-    "Furnace": {
-        "group": "g_arms",
-        "unlock": "-",
-        "innate": "Unlocks Cast Weapons; +500",
-        "efficient": "Mine",
-        "builds_into": ["Blacksmith"],
-        "monument": False},
+    #"Furnace": {
+    #    "group": "g_arms",
+    #    "unlock": "-",
+    #    "innate": "Unlocks Cast Weapons; +500",
+    #    "efficient": "Mine",
+    #    "builds_into": ["Blacksmith"],
+    #    "monument": False},
     "Blacksmith": {
         "group": "g_arms",
         "unlock": "Rising Industry",
@@ -2128,9 +2128,9 @@ SIMPLE_NODES = {
         "monument": False},
     "Academy": {
         "group": "g_court",
-        "unlock": "1 Rising",
+        "unlock": "1 Established",
         #"infrastructure_req": "Library",
-        "innate": "Faith +1; Influence +2",
+        "innate": "Influence +2",
         "efficient": "Alchemy",
         "builds_into": ["University", "Forgery Workshop"],
         "monument": False},
@@ -2162,7 +2162,7 @@ SIMPLE_NODES = {
         "group": "g_logistics",
         "unlock": "Established Prowess",
         "innate": "Reach +1; Armies gain Riposte & Improve Parry by +1.", #3x in the Intrigue Phase: exchange 500 gold for Influence +1;
-        "efficient": ["Coliseum"],
+        "efficient": ["Drill Yard"],
         "builds_into": ["Royal Pavilion"],
         "monument": False},
     "Apothecary": {
@@ -2196,10 +2196,18 @@ SIMPLE_NODES = {
     "University": {
         "group": "g_court",
         "unlock": "2 Established",
-        "infrastructure_req": "Town Hall",
+        #"infrastructure_req": "Town Hall",
         "innate": "Max Influence +1 on every Envoy; Influence +1 per Domain you are Rising",
         "efficient": "Academy",
         "builds_into": ["Forgery Workshop","Studium Generale","Ministry of Military Strategy"],
+        "monument": False},
+    "Collegium Archives": {
+        "group": "g_court",
+        "unlock": "2 Established",
+        "infrastructure_req": "Library",
+        "innate": "Influence +1 per Established Standing; Authority +1 on every Envoy",
+        "efficient": "University",
+        "builds_into": ["Studium Generale"],
         "monument": False},
     "Trade Guild": {
         "group": "g_works",
@@ -2271,11 +2279,18 @@ SIMPLE_NODES = {
         "efficient": ["Smuggler's Nook"],
         "builds_into": ["Thieves' Guild"],
         "monument": False},
+    "Dark Scriptorium": {
+        "group": "g_secrecy",
+        "unlock": "Rising Cunning",
+        "innate": "Extort 300 anytime a player Opposes an Envoy of yours",
+        "efficient": ["Alchemy"],
+        "builds_into": ["Cipher Chamber"],
+        "monument": False},
     "Forgery Workshop": {
         "group": "g_secrecy",
         "unlock": "Established Cunning",
-        "innate": "Extort 300 anytime a player Opposes an Envoy of yours; At the end of the Tally Phase, if a Cunning Envoy you sent Failed, you may send another Cunning Envoy. If it Passes or is Endorsed, it must target a different player.",
-        "efficient": ["University", "Academy"],
+        "innate": "At the end of the Tally Phase, if a Cunning Envoy you sent Failed, you may send another Cunning Envoy.",
+        "efficient": ["Dark Scriptorium"],
         "builds_into": ["Cipher Chamber"],
         "monument": False},
     "Toxicarium": {
@@ -2338,7 +2353,7 @@ SIMPLE_NODES = {
         "monument": False},
     "Charcoal Burner": {
         "group": "g_logistics",
-        "unlock": "Established Industry",
+        "unlock": "-",
         "innate": "Natural; +1000",
         "efficient": ["Butchery"],
         "builds_into": ["Smokehouse"],
@@ -2383,7 +2398,7 @@ SIMPLE_NODES = {
         "group": "g_logistics",
         "unlock": "Rising Prowess",
         "innate": "Siege Timer -1; Armies gain Immune Strained during Lay Siege",
-        "efficient": ["Carpentry","Mine"],
+        "efficient": ["Carpentry","Furnace"],
         "builds_into": ["Battery Park"],
         "monument": False},
     "Siege Works": {
@@ -2549,7 +2564,7 @@ SIMPLE_NODES = {
         "group": "g_court",
         "unlock": "3 Established",
         "innate": "Influence +1 per Established Standing; May gain one Sovereign Domain effect without spending the Domain Points",
-        "efficient": "University",
+        "efficient": "Collegium Archives",
         "builds_into": [],
         "monument": True},
     "Outlaw Rookery": {
@@ -3664,7 +3679,7 @@ TERRAIN = {
 	"Grassland": {"Effect": "—", "Raw Materials": ["Arable Land","Common Land"]},
 	"Wetlands": {"Effect": "Speed -1 per Territory moved through", "Raw Materials": ["Peat Bog", "Forestry"]},
 	"Tundra": {"Effect": "gain Strained", "Raw Materials": ["Quarry", "Salt Works"]},
-	"Mountains": {"Effect": "Impassable", "Raw Materials": ["Mine", "Quarry"]},
+	"Mountains": {"Effect": "Impassable", "Raw Materials": ["Furnace", "Quarry"]},
 	"Water": {"Effect": "Must end move after moving over 1 Water Territory (must end on land)", "Raw Materials": ["Fishmongery"]},
 	"Forest": {"Effect": "Speed -1 per Territory moved through", "Raw Materials": ["Forestry","Apiary"]},
 	"Hill":  {"Effect": "Gains Seize the Initiative. Where Settlements can be chartered."},

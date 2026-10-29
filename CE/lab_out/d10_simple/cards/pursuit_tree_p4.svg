@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1210" height="612" viewBox="0 0 1210 612" font-family="Georgia, serif">
-<rect width="1210" height="612" fill="#f4efe4"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1038" height="576" viewBox="0 0 1038 576" font-family="Georgia, serif">
+<rect width="1038" height="576" fill="#f4efe4"/>
 <defs><marker id="arw-2E5A8C" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#2E5A8C"/></marker><marker id="arw-9E2B25" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#9E2B25"/></marker><marker id="arw-1c9c8c" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1c9c8c"/></marker><marker id="arw-C6A024" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#C6A024"/></marker><marker id="arw-6A3D8F" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#6A3D8F"/></marker><marker id="arw-CC6A1A" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#CC6A1A"/></marker><marker id="arw-3a7d3a" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#3a7d3a"/></marker><marker id="arw-b5347a" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#b5347a"/></marker><marker id="arw-2b6f9e" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#2b6f9e"/></marker><marker id="arw-8a6d1a" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8a6d1a"/></marker><marker id="arw-5f5647" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5f5647"/></marker><marker id="arw-7a2ea0" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#7a2ea0"/></marker><marker id="arw-0f8a7e" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#0f8a7e"/></marker><marker id="arw-a83232" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#a83232"/></marker><marker id="arw-8f8672" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8f8672"/></marker></defs>
 <text x="30" y="34" font-size="20" font-weight="bold" fill="#2b2620">Holding Paths</text>
 <path d="M148,76 L195,76" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -146,74 +146,63 @@
 <path d="M148,422 L195,422" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M320,422 L367,422" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M320,422 L367,422" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M492,422 L516,422" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M492,422 L516,422" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95"/>
-<path d="M516,422 L516,458" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M516,422 L516,458" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95"/>
-<path d="M516,458 L540,458" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M516,458 L540,458" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M516,422 L712,422" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M516,422 L712,422" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M664,458 L679,458 Q688,458 688,449 L688,431 Q688,422 697,422 L711,422" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M664,458 L679,458 Q688,458 688,449 L688,431 Q688,422 697,422 L711,422" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M492,422 L539,422" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M492,422 L539,422" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M664,422 L711,422" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M664,422 L711,422" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M836,422 L883,422" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M836,422 L883,422" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M1008,422 L1055,422" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M1008,422 L1055,422" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <rect x="30" y="410" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="410" width="5" height="24" fill="#6a6a72"/>
 <text x="39" y="425" font-size="8.2" fill="#2b2620">Peat Bog</text>
 <rect x="202" y="410" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="202" y="410" width="5" height="24" fill="#6a6a72"/>
 <text x="211" y="425" font-size="8.2" fill="#2b2620">Alchemy</text>
-<rect x="374" y="410" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="374" y="410" width="5" height="24" fill="#6a6a72"/>
-<text x="383" y="425" font-size="8.2" fill="#2b2620">Academy</text>
-<rect x="546" y="446" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="546" y="446" width="5" height="24" fill="#6a6a72"/>
-<text x="555" y="461" font-size="8.2" fill="#2b2620">University</text>
+<rect x="374" y="410" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
+<rect x="374" y="410" width="5" height="24" fill="#1c1c20"/>
+<text x="383" y="425" font-size="8.2" fill="#2b2620">Dark Scriptorium</text>
+<rect x="546" y="410" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
+<rect x="546" y="410" width="5" height="24" fill="#1c1c20"/>
+<text x="555" y="425" font-size="8.2" fill="#2b2620">Forgery Workshop</text>
 <rect x="718" y="410" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
 <rect x="718" y="410" width="5" height="24" fill="#1c1c20"/>
-<text x="727" y="425" font-size="8.2" fill="#2b2620">Forgery Workshop</text>
-<rect x="890" y="410" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
+<text x="727" y="425" font-size="8.2" fill="#2b2620">Cipher Chamber</text>
+<rect x="890" y="410" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#1c1c20" stroke-width="2.2"/>
 <rect x="890" y="410" width="5" height="24" fill="#1c1c20"/>
-<text x="899" y="425" font-size="8.2" fill="#2b2620">Cipher Chamber</text>
-<rect x="1062" y="410" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#1c1c20" stroke-width="2.2"/>
-<rect x="1062" y="410" width="5" height="24" fill="#1c1c20"/>
-<text x="1071" y="425" font-size="8.2" fill="#2b2620">Whispering Undercroft</text>
-<polygon points="1172.0,418.4 1175.6,422.0 1172.0,425.6 1168.4,422.0" fill="#8a6d1a"/>
-<path d="M148,520 L195,520" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M148,520 L195,520" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M148,556 L163,556 Q172,556 172,547 L172,529 Q172,520 181,520 L195,520" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M148,556 L163,556 Q172,556 172,547 L172,529 Q172,520 181,520 L195,520" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M320,520 L367,520" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M320,520 L367,520" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M492,520 L539,520" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M492,520 L539,520" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M664,520 L711,520" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M664,520 L711,520" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M836,520 L883,520" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M836,520 L883,520" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<text x="899" y="425" font-size="8.2" fill="#2b2620">Whispering Undercroft</text>
+<polygon points="1000.0,418.4 1003.6,422.0 1000.0,425.6 996.4,422.0" fill="#8a6d1a"/>
+<path d="M148,484 L195,484" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M148,484 L195,484" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M148,520 L163,520 Q172,520 172,511 L172,493 Q172,484 181,484 L195,484" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M148,520 L163,520 Q172,520 172,511 L172,493 Q172,484 181,484 L195,484" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M320,484 L367,484" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M320,484 L367,484" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M492,484 L539,484" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M492,484 L539,484" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M664,484 L711,484" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M664,484 L711,484" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M836,484 L883,484" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M836,484 L883,484" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<rect x="30" y="472" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="30" y="472" width="5" height="24" fill="#6a6a72"/>
+<text x="39" y="487" font-size="8.2" fill="#2b2620">Animal Husbandry</text>
 <rect x="30" y="508" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="508" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="523" font-size="8.2" fill="#2b2620">Animal Husbandry</text>
-<rect x="30" y="544" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="30" y="544" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="559" font-size="8.2" fill="#2b2620">Inn</text>
-<rect x="202" y="508" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="202" y="508" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="523" font-size="8.2" fill="#2b2620">Stable</text>
-<rect x="374" y="508" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="374" y="508" width="5" height="24" fill="#6a6a72"/>
-<text x="383" y="523" font-size="8.2" fill="#2b2620">Saddlery</text>
-<rect x="546" y="508" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="546" y="508" width="5" height="24" fill="#6a6a72"/>
-<text x="555" y="523" font-size="8.2" fill="#2b2620">Avery</text>
-<rect x="718" y="508" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="718" y="508" width="5" height="24" fill="#6a6a72"/>
-<text x="727" y="523" font-size="8.2" fill="#2b2620">Farriery</text>
-<rect x="890" y="508" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#6a6a72" stroke-width="2.2"/>
-<rect x="890" y="508" width="5" height="24" fill="#6a6a72"/>
-<text x="899" y="523" font-size="8.2" fill="#2b2620">Marshal Tiltyard</text>
-<polygon points="1000.0,516.4 1003.6,520.0 1000.0,523.6 996.4,520.0" fill="#8a6d1a"/>
+<text x="39" y="523" font-size="8.2" fill="#2b2620">Inn</text>
+<rect x="202" y="472" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="202" y="472" width="5" height="24" fill="#6a6a72"/>
+<text x="211" y="487" font-size="8.2" fill="#2b2620">Stable</text>
+<rect x="374" y="472" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="374" y="472" width="5" height="24" fill="#6a6a72"/>
+<text x="383" y="487" font-size="8.2" fill="#2b2620">Saddlery</text>
+<rect x="546" y="472" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="546" y="472" width="5" height="24" fill="#6a6a72"/>
+<text x="555" y="487" font-size="8.2" fill="#2b2620">Avery</text>
+<rect x="718" y="472" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="718" y="472" width="5" height="24" fill="#6a6a72"/>
+<text x="727" y="487" font-size="8.2" fill="#2b2620">Farriery</text>
+<rect x="890" y="472" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#6a6a72" stroke-width="2.2"/>
+<rect x="890" y="472" width="5" height="24" fill="#6a6a72"/>
+<text x="899" y="487" font-size="8.2" fill="#2b2620">Marshal Tiltyard</text>
+<polygon points="1000.0,480.4 1003.6,484.0 1000.0,487.6 996.4,484.0" fill="#8a6d1a"/>
 </svg>
