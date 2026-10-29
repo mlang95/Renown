@@ -31,7 +31,7 @@ row and stand the art on it). Nothing is truncated silently: oversize art fails 
 """
 import argparse, json, os, sys
 
-SPRITE_VERSION = "0.9.5"
+SPRITE_VERSION = "0.9.6"
 
 KEYS = {
     "k": "outline", "w": "plaster wall", "t": "stone", "u": "dark stone", "r": "roof",
@@ -498,7 +498,19 @@ put(c, WHEEL, 23, 22)
 put(c, ["kk", "kbk", "kbk"], 30, 26)
 SPRITES["holding:Caravanery"] = fin32(c)
 
-# Castle Yard (key: Coliseum): keep tower with a pennant, curtain wall with an arcade, a pell in the yard
+# soldier for the Drill Yard rank: kettle helm, red tabard, spear upright at the right hand
+SOLDIER = ["....m",
+           "....m",
+           ".kk.b",
+           "kmmkb",
+           "khjkb",
+           "kcCkb",
+           "kcCkb",
+           "kccCb",
+           ".k.kb",
+           ".k.kB"]
+
+# Drill Yard (was Coliseum art): keep tower with a pennant, curtain wall with an arcade, a rank of spearmen drilling
 c = cv32()
 flag(c, 5, 0, "c", 4)
 cren(c, 0, 3, 9)
@@ -512,8 +524,9 @@ wall(c, 8, 13, 24, 18, "t")
 for x0 in (10, 15, 20, 25):
     put(c, [".kk.", "kddk", "kddk", "kddk", "kddk", "kddk"], x0, 16)
 hline(c, 9, 29, 22, "T")
-put(c, ["kbk", ".b.", "kbk", ".b.", ".b.", ".b.", "kBk"], 19, 24)
-SPRITES["holding:Coliseum"] = fin32(c)
+for x0 in (11, 17, 23):
+    put(c, SOLDIER, x0, 21)
+SPRITES["holding:Drill Yard"] = fin32(c)
 
 # Conditioning Field: beam on two posts, two bound straw pells hanging through it, stool and bucket
 c = cv32()
@@ -577,7 +590,7 @@ for y in range(20, 23):
     c[y][29] = "b"
 SPRITES["holding:Charcoal Burner"] = fin32(c)
 
-# Kiln: banded bottle kiln of red brick, glowing fire mouth, stacked pots
+# Finery (was Kiln art): brick finery hearth with its stack, glowing hearth mouth, leather bellows, trip-hammer on bar iron
 c = cv32()
 put(c, ["..s.", "...s", "..s.", ".s.."], 7, 0)
 prof = [2, 2, 2, 2, 2, 3, 3, 4, 5, 6, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]
@@ -588,17 +601,21 @@ for i, hw in enumerate(prof):
 for y in (13, 19):
     hline(c, 1, 17, y, "k")
 put(c, ["..kkkkk..", ".kfffffk.", "kffyyyfFk", "kfyyyyyFk", "kfyyyyyFk", "kkkkkkkkk"], 5, 25)
-put(c, ["....kk....",
-        "...kwWk...",
-        "...kwWk..k",
-        "..kkkkkk.kw",
-        ".kwWkkwWkkW",
-        ".kwWkkwWkkW",
-        ".kkkkkkkkkk",
-        "kwWkkwWkkwW",
-        "kwWkkwWkkwW",
-        "kkkkkkkkkkk"], 20, 21)
-SPRITES["holding:Kiln"] = fin32(c)
+put(c, ["kk....", "kbk...", "kbbkkk", "kbBmmm", "kbk...", "kk...."], 0, 24)                 # bellows into the hearth
+put(c, ["...........kk",
+        "kkkkkkkkkkkmk",
+        "kbbbbbbbbbbmk",
+        "kkkkkkkkkkkmk",
+        "...kbk....kmk",
+        "...kbk.....k.",
+        "...kbk..kkkkk",
+        "...kbk..kmmMk",
+        "...kbk..kmmMk",
+        "..kkkkk.kkkkk",
+        "..kbbBk......",
+        "..kkkkk......"], 19, 19)
+put(c, ["kkkkkk", "kmMkmM", "kkkkkk"], 26, 28)                                              # bar iron
+SPRITES["holding:Finery"] = fin32(c)
 
 # Levy Hall: plank muster hall, lit windows, red banner at the eave, spear rack with shields
 c = cv32()
@@ -759,6 +776,18 @@ for y in range(17, 31):
 put(c, ["..kbk..", ".kb.bk.", ".kb.bk.", "kb...bk", "kb...bk", "kb...bk", "k.....k"], 20, 24)   # tripod
 SPRITES["holding:Fletchery"] = fin32(c)
 
+# Skirmish Field: open ground with a straw butt and target, a pell with a shield on it, arrows in the turf, bow on a rack
+c = cv32()
+put(c, ["..kkkkkk..", ".kyyyyyYk.", "kyycccyyYk", "kyckyykcYk", "kycyfycyYk", "kyckyykcYk", "kyycccyyYk",
+        ".kyyyyyYk.", "..kkkkkk..", "..kb..bk..", ".kb....bk.", "kb......bk"], 1, 19)          # butt on trestle
+put(c, ["sbbbbb"], 9, 22)
+put(c, ["..k..", ".kbk.", "kcccC", "kcyCC", "kcccC", ".kCk.", "..b..", "..b..", "..b..", ".kbk."], 14, 21)
+for x0 in (11, 13, 19):
+    put(c, ["s", "b", "b"], x0, 28)
+put(c, ["k.....k", "kb...bk", "kbkkkbk", "kb.b.bk", "kb.b.bk", "kbkkkbk", "kb...bk", "kb...bk", "kb...bk", "kb...bk", "kb...bk", "kb...bk", "kk...kk"], 22, 18)
+put(c, [".k", "kb", "k.", "k.", "kb", ".k"], 24, 19)                                      # bow on the rack
+SPRITES["holding:Skirmish Field"] = fin32(c)
+
 # Tannery: half-timber workshop, hide laced on a frame, steaming vat of liquor
 c = cv32()
 wall(c, 0, 17, 15, 14, "w")
@@ -805,29 +834,6 @@ put(c, ["...kmk....",
         "kkk....kkk"], 15, 22)                                                        # bench + clamp
 put(c, ["k.....", "kb....", "kbk...", "kb....", "kbk...", "kbbbbk", "kkkkkk", "kb..kb", "kb..kb", "kb..kb", "kk..kk"], 26, 20)   # chair
 SPRITES["holding:Joinery"] = fin32(c)
-
-# Furnace: stone furnace house, tall stack with smoke, glowing arched mouth, ore heap
-c = cv32()
-put(c, [".s..", "..s.", ".s..", "s..."], 15, 0)
-wall(c, 14, 4, 5, 11, "t")
-wall(c, 0, 14, 20, 17, "t")
-courses(c, 1, 16, 16, 29)
-put(c, ["..kkkkk..",
-        ".kfffffk.",
-        "kffyyyfFk",
-        "kfyyyyyFk",
-        "kfyyyyyFk",
-        "kfyyyyyFk",
-        "kffffffFk",
-        "kkkkkkkkk"], 5, 23)
-put(c, ["....kkk....",
-        "..kkuuukk..",
-        ".kuumuuuuk.",
-        ".kuuuuumuuk",
-        "kuumuuuuuuk",
-        "kuuuuumuuuk",
-        "kkkkkkkkkkk"], 21, 24)
-SPRITES["holding:Furnace"] = fin32(c)
 
 # Blacksmith: stone smithy open at the front, hood over the hearth, tongs; anvil with hammer, sparks, quench tub
 c = cv32()
@@ -947,35 +953,19 @@ put(c, ["...kkkkkkk...",
 put(c, ["kkkkkkkk", "keeeeeEk", "kbbbbbBk", "kbbbbbBk", "kkkkkkkk"], 24, 26)
 SPRITES["holding:Forge"] = fin32(c)
 
-# Tiltyard: striped tilt barrier, two list posts with pennants, covered viewing stand with spectators
+# List Yard: roped sparring ring on stakes, two duellists each with a pair of blades, rack of matched swords
 c = cv32()
-for x, fl in ((1, "c"), (12, "a")):
-    vline(c, x, 6, 22, "k")
-    put(c, [fl * 3, fl + SHADE[fl] * 2, fl + "."], x + 1, 6)
-put(c, ["kkkkkkkkkkkkk",
-        "kayayayayayAk",
-        ".kAkAkAkAkAk.",
-        "k..h..h..h..k",
-        "k.cCc.aAa.cCk",
-        "kkkkkkkkkkkkk",
-        "kcycycycycyCk",
-        "kkkkkkkkkkkkk",
-        "k.....k.....k",
-        "k.....k.....k",
-        "k.....k.....k",
-        "k.....k.....k",
-        "k.....k.....k",
-        "k.....k.....k",
-        "k.....k.....k"], 18, 8)
-put(c, ["k" * 32,
-        "".join("c" if (x // 2) % 2 else "s" for x in range(32)),
-        "".join("C" if (x // 2) % 2 else "Z" for x in range(32)),
-        "k" * 32,
-        "".join("kb" if x % 6 == 1 else "." for x in range(32))[:32],
-        "".join("kb" if x % 6 == 1 else "." for x in range(32))[:32],
-        "".join("kB" if x % 6 == 1 else "." for x in range(32))[:32],
-        "".join("kB" if x % 6 == 1 else "." for x in range(32))[:32]], 0, 23)
-SPRITES["holding:Tiltyard"] = fin32(c)
+put(c, ["..k...k...k..", ".kmk.kmk.kmk.", ".kmk.kmk.kmk.", ".kmk.kmk.kmk.", ".kmk.kmk.kmk.",
+        ".kmk.kmk.kmk.", "kkykkkykkkykk", ".kbk.kbk.kbk.", "kkkkkkkkkkkkk", "kb.........bk",
+        "kbkkkkkkkkkbk", "kb.........bk", "kk.........kk"], 18, 14)                          # sword rack
+for xx in (0, 16):
+    put(c, ["kbk"] * 11, xx, 20)
+hline(c, 1, 17, 20, "c")
+hline(c, 1, 17, 27, "C")
+DUEL = ["m.....m", "m..k..m", "k.khk.k", ".kkakk.", "..kaAk.", "..kaAk.", "..kkkk.", "..k..k.", "..k..k."]
+put(c, DUEL, 2, 21)
+put(c, [r.translate(str.maketrans("aA", "cC")) for r in DUEL], 9, 21)
+SPRITES["holding:List Yard"] = fin32(c)
 
 # Court Armoury: stone hall, royal hangings, crest with crossed blades over the arched door, tall windows
 c = cv32()
@@ -1044,33 +1034,6 @@ put(c, ["..k...l.l..k..",
         "kkkkkkkkkkkkkk"], 15, 12)
 put(c, ["kkkkkkkkk", "kuuuuuuuk", ".kuuuuuk.", "..kuuuk..", "..k...k..", ".fyfyfyf.", "kkkkkkkkk"], 19, 24)
 SPRITES["holding:Alchemy"] = fin32(c)
-
-# Weavery: plank workshop; loom with warp threads; bolts of dyed cloth hanging to dry
-c = cv32()
-wall(c, 0, 19, 13, 12, "b")
-for xx in (4, 8):
-    vline(c, xx, 21, 29, "B")
-roof(c, 6, 13, 6)
-win4(c, 1, 21)
-door4(c, 8, 24)
-put(c, ["k" * 18,
-        "kbbbbbbbbbbbbbbbBk",
-        "k.k.k.k.k.k.k.k.kk",
-        "kccCk.aaAk.yyYk.kk",
-        "kccCk.aaAk.yyYk.kk",
-        "kccCk.aaAk.yyYk.kk",
-        "kccCk.aaAk.yyYk.kk",
-        "kccCk.aaAk.yyYk.kk",
-        "kc.Ck.a.Ak.y.Yk.kk",
-        "kb..............kB",
-        "kb..............kB",
-        "kb.kkkkkkkkkkk..kB",
-        "kb.kbsbsbsbsbk..kB",
-        "kb.kkkkkkkkkkk..kB",
-        "kb.kb.......kb..kB",
-        "kb.kb.......kb..kB",
-        "kk.kk.......kk..kk"], 14, 14)
-SPRITES["holding:Weavery"] = fin32(c)
 
 # Jewelry Foundry: stone shop with a gilded roof, gem sign, crucible furnace with a chimney
 c = cv32()
@@ -1158,19 +1121,41 @@ for x0, top in ((0, 8), (11, 3), (22, 6)):
     put(c, ["kkkkkkk", "kyyydBk", "kyyydBk", "kyYYdBk", "kkkkdBk"], x0 + 1, 26)
 SPRITES["holding:Merchant Quarter"] = fin32(c)
 
-# Money Lending: stone counting house, pediment with a gold coin, pillars, strongroom door, steps
+# Esteemed Bank (was Money Lending art): stone counting house, gilded pediment with the coin, pillars, strongroom door,
+# stacked gold on the steps
 c = cv32()
 for i in range(7):
     for x in range(15 - 2 * i, 17 + 2 * i):
-        c[3 + i][x] = "k" if x in (15 - 2 * i, 16 + 2 * i) or i == 6 else ("T" if x > 16 else "t")
-disc(c, 15.5, 7, [(1.6, "y")])
-put(c, ["k" * 30, "k" + "t" * 26 + "TTk"[:2] + "k", "k" * 30], 1, 10)
+        c[3 + i][x] = "k" if x in (15 - 2 * i, 16 + 2 * i) or i == 6 else ("Y" if x > 16 else "y")
+disc(c, 15.5, 7, [(1.6, "s")])
+put(c, ["k" * 30, "k" + "y" * 26 + "YYk"[:2] + "k", "k" * 30], 1, 10)
 wall(c, 2, 13, 28, 15, "w")
 for x0 in (4, 9, 20, 25):
     put(c, ["kkk"] + ["ktT"] * 13 + ["kkk"], x0, 13)
 put(c, [".kkkk.", "kmmmMk", "kmkkMk", "kmmmMk", "kmmmMk", "kmmmMk", "kmmmMk", "kmmmMk", "kkkkkk"], 13, 18)
 put(c, ["kkkkkk", "kyyYYk", "kkkkkk"], 13, 14)
 put(c, ["k" * 32, "k" + "t" * 28 + "TTk"[:2] + "k", "k" * 32], 0, 28)
+for x0 in (8, 21):
+    put(c, ["kkk", "yyY", "kkk", "yyY"], x0, 24)
+SPRITES["holding:Esteemed Bank"] = fin32(c)
+
+# Money Lending (new): half-timber house with the shutter let down as a counter (the banco), scales and coin stacks
+c = cv32()
+wall(c, 0, 13, 20, 18, "w")
+for xx in (6, 13):
+    vline(c, xx, 14, 29, "b")
+hline(c, 1, 18, 19, "b")
+roof(c, 10, 4, 10)
+win4(c, 2, 14)
+win4(c, 15, 14)
+door4(c, 8, 23, 8)
+put(c, ["kkkkkkkkkkk", "kcscscscsck", ".kkkkkkkkk."], 19, 15)                                # awning
+put(c, ["..kmk..", "kk.m.kk", "m..m..m", "y..m..y", "kkkmkkk"], 21, 18)                     # scales
+put(c, ["kkkkkkkkkkkk", "kbbbbbbbbbBk", "kkkkkkkkkkkk", ".kb......kb.", ".kb......kb.", ".kb......kb.",
+        ".kk......kk."], 19, 23)
+put(c, ["kk", "yY", "yY"], 29, 20)
+put(c, ["kk", "yY"], 27, 21)
+put(c, [".kkkk.", "kbmmBk", "kbbbBk", "kkkkkk"], 23, 26)                                   # strongbox under the counter
 SPRITES["holding:Money Lending"] = fin32(c)
 
 # Shipyard: ribbed hull on a slipway, timber crane hoisting a plank
@@ -1438,6 +1423,20 @@ disc(c, 15.5, 10, [(.5, "k"), (2, "s")])
 put(c, ["kkkk", "kyyk", "kyyk", "kkkk", "kyYk", "kkkk"], 14, 14)
 put(c, [".kkkk.", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk"], 13, 22)
 SPRITES["holding:University"] = fin32(c)
+
+# Collegium Archives: stone archive tower with a purple roof and a lit reading room; open shed of scroll pigeonholes
+c = cv32()
+wall(c, 2, 9, 13, 22, "t")
+courses(c, 3, 11, 12, 29)
+roof(c, 8, 2, 7, "a")
+put(c, ["kkkkk", "kyyyk", "kyYYk", "kkkkk"], 6, 12)
+put(c, ["kkkkk", "kyyyk", "kyYYk", "kkkkk"], 6, 18)
+door4(c, 6, 24)
+wall(c, 15, 17, 16, 14, "w")
+roof(c, 22, 11, 7, "a")
+for y0 in (19, 23, 27):
+    put(c, ["k" * 12] + ["".join("ks"[(x + y0) % 3 == 0] if x % 3 else "k" for x in range(12))] * 2, 17, y0)
+SPRITES["holding:Collegium Archives"] = fin32(c)
 
 # Courier Network: dovecote tower with birds, post stable, saddled horse at the door
 c = cv32()
@@ -1807,6 +1806,40 @@ put(c, ["..kk.......kk",
         "kbk.........kbk"], 17, 21)                                                     # saddle on a trestle
 SPRITES["holding:Saddlery"] = fin32(c)
 
+# short-legged unsaddled horse for 32px holdings, facing left (the 48px HORSE is further down)
+HORSE_S = ["..kk..........", ".kbbk.........", "kbkbbk........", "kbbbbk........", "kbbbbbk.......",
+           ".kkkbbbkkkkkk.", "....kbbbbbbbBk", "....kbbbbbbbBk", "....kbbbbbbBBk", "....kkbkkkkbkk",
+           "....kbk...kbk.", "....kbk...kbk.", "....kmk...kBk.", "....kkk...kkk."]
+
+# Farriery: open-sided shoeing shed on posts, horseshoes on the beam, horse tied at the post, anvil and hearth
+c = cv32()
+roof(c, 9, 10, 9)
+for xx in (1, 17):
+    put(c, ["kbk"] * 11, xx - 1, 20)
+hline(c, 1, 17, 20, "b")
+for x0 in (4, 8, 12):
+    put(c, ["kmk", "k.k", ".k."], x0, 21)                                                  # shoes hung on the beam
+put(c, ["..kkk..", ".kfyfk.", "kttttTk", "kttttTk", "kkkkkkk"], 3, 26)                      # small hearth
+put(c, ANVIL, 10, 26)
+put(c, HORSE_S, 18, 17)                                                                      # facing the shed
+put(c, ["kk", "..k"], 17, 19)                                                      # tether
+SPRITES["holding:Farriery"] = fin32(c)
+
+# Avenery: the horses' provender store — plank barn with a sack of oats in the loft door, sacks stacked at the door;
+# a hay rack on the gable end where a horse feeds
+c = cv32()
+wall(c, 0, 15, 17, 16, "b")
+for xx in (5, 11):
+    vline(c, xx, 16, 29, "B")
+roof(c, 8, 6, 9)
+put(c, ["kkkkk", "kdkkd", "kkyYk", "kkyYk", "kkkkk"], 6, 16)                               # loft door, sack in it
+door4(c, 1, 23, 8)
+for x0, y0 in ((6, 26), (11, 26), (8, 22)):
+    put(c, [".kkk.", "kyyYk", "kyyYk", "kkkkk"], x0, y0)                                   # oat sacks
+put(c, ["kkkkkk", "kyyyYk", "kbkbkk", "kkkkkk"], 16, 17)                                   # hay rack on the gable end
+put(c, HORSE_S, 18, 17)
+SPRITES["holding:Avenery"] = fin32(c)
+
 # Vineyard: trellised vines in three tiers on four posts, grape bunches
 c = cv32()
 for x in (0, 10, 21, 31):
@@ -2003,6 +2036,20 @@ put(c, [".kk..........",
         "kkkkkkkkkkkkk"], 17, 18)
 put(c, ["k", "y", "Y"], 27, 21)
 SPRITES["holding:Secret Cellar"] = fin32(c)
+
+# Dark Scriptorium: low dark-stone cell with a shuttered window and one candle-lit slit; hooded scribe at a lectern
+c = cv32()
+wall(c, 0, 15, 19, 16, "u")
+courses(c, 1, 17, 16, 29)
+roof(c, 9, 7, 9, "u")
+put(c, SHUT, 2, 19)
+put(c, ["kk", "ky", "ky", "kk"], 9, 19)
+door4(c, 13, 24, 6)
+put(c, ["..kkk..", ".kdddk.", "kdhdddk", "kddddAk", "kaaaaAk", "kaaaaAk", "kaaaaAk", "kaaaaAk", "kkkkkkk"], 19, 22)
+put(c, ["kkkkkk", "ksssZk", "kkkkkk", "..kb..", "..kb..", "..kb..", ".kkkk."], 25, 22)
+put(c, ["y", "s", "s"], 30, 19)
+put(c, [".cc.", "cyyC", ".CC."], 26, 19)
+SPRITES["holding:Dark Scriptorium"] = fin32(c)
 
 # Smuggler's Nook: sea cave under a dark cliff, one lantern in its mouth, rowboat of contraband at the landing
 c = cv32()
@@ -2590,15 +2637,18 @@ put(c, ["k" * 32, "k" + "b" * 29 + "Bk", "k" + "B" * 30 + "k", ".kB.......kB....
 put(c, [".kkkkk.", "kbebeBk", "kbbbbBk", "kbkbkBk", "kkkkkkk"], 22, 19)
 SPRITES["holding:Fishmongery"] = fin32(c)
 
-# Mine: rock hill with a timbered entrance, rails, ore cart, pick
+# Furnace (was Mine art): ore hill with a timbered adit, rails, ore cart; a small bloomery glowing beside it
 c = cv32()
-mound(c, 0, 8, 27, 23, "u", "t")
-put(c, ["kkkkkkkkkkk", "kbbbbbbbbBk", "kbkkkkkkkBk", "kbkdddddkBk", "kbkdddddkBk", "kbkdddddkBk", "kbkdddddkBk", "kbkdddddkBk", "kbkdddddkBk", "kkkdddddkkk"], 4, 20)
-put(c, ["kkkkkkkkk", "kumyuumUk", "kuuuuuuUk", "kkkkkkkkk", ".kmk.kmk."], 17, 24)
+mound(c, 0, 8, 21, 23, "u", "t")
+put(c, ["kkkkkkkkkkk", "kbbbbbbbbBk", "kbkkkkkkkBk", "kbkdddddkBk", "kbkdddddkBk", "kbkdddddkBk",
+        "kbkdddddkBk", "kbkdddddkBk", "kbkdddddkBk", "kkkdddddkkk"], 3, 20)
+put(c, [".s..", "..s.", ".s..", "s...", "kkk.", "kTk.", "kTk.", "kTk."], 25, 11)
+put(c, ["...kkk...", "..kttTk..", ".kttttTk.", ".kttttTk.", "kttttttTk", "kttttttTk", "kttkkkTTk", "ktkfyfkTk",
+        "ktkyyykTk", "ktkyyykTk", "kkkkkkkkk"], 22, 18)
+put(c, ["kkkkkkk", "kumyuUk", "kuuuuUk", "kkkkkkk", ".km.km."], 14, 24)
 put(c, ["k" * 32], 0, 29)
 put(c, ["".join("k" if x % 3 == 0 else "b" for x in range(32))], 0, 30)
-put(c, ["mm..", "kmmk", "..bk", "..bk", "..bk"], 27, 24)
-SPRITES["holding:Mine"] = fin32(c)
+SPRITES["holding:Furnace"] = fin32(c)
 
 # Arable Land: ploughed strips with three wheat stooks
 c = cv32()
@@ -2661,9 +2711,9 @@ SPRITES["feet:Forestry"] = strip(["..kkkk..", ".kbYbBk.", "kbYbYbBk", "kkkkkkkk"
 SPRITES["feet:Fishmongery"] = strip([".kk.....", "kmMk....", "kbBkeeee", "kkkkeeee"],
                                     [".........", ".........", "eeeeseeeE", "eEeeeeEee"],
                                     [".....kk.", "....kMmk", "eeeekBbk", "eeeekkkk"])
-SPRITES["feet:Mine"] = strip(["..tt....", ".tuUt...", "tuuyUt..", "kkkkkkkk"],
-                             ["......", "......", "mmmmmm", "kbkbkb"],
-                             ["....tt..", "...tuUt.", "..tuyuUt", "kkkkkkkk"])
+SPRITES["feet:Furnace"] = strip(["..tt....", ".tuUt...", "tuuyUt..", "kkkkkkkk"],
+                                ["......", "......", "mmmmmm", "kbkbkb"],
+                                ["....tt..", "...tuUt.", "..tuyuUt", "kkkkkkkk"])
 SPRITES["feet:Arable Land"] = strip(["y.y.y...", "yyyYY...", "bybYB...", "BBBBBbyb"],
                                     ["..", "..", "bB", "yB"],
                                     ["...y.y.y", "...yyYYY", "...bybYB", "ybBBBBBB"])
@@ -2830,6 +2880,61 @@ _pavilion(c, 0, 19, 13, 8, 15, "c", "s")
 _pavilion(c, 35, 19, 13, 8, 15, "a", "s")
 _pavilion(c, 12, 4, 25, 14, 24, "c", "y", top="crown")
 SPRITES["monument:Royal Pavilion"] = fin32(c)
+
+RIDER = ["...a...", "..kkk..", ".kmmMk.", ".kkkkk.", ".kmmMk.", "..kkk..", ".kccCk.", "kccyCCk", "kcyyyCk",
+         "kccyCCk", ".kccCk.", "..kmk..", "..kmk.."]
+
+# Marshal Tiltyard (was the Tiltyard art, grown into the capstone): royal stand under a striped canopy full of
+# spectators, list posts with pennants, the long striped tilt barrier, and a caparisoned knight couching his lance
+c = cv48()
+flag(c, 2, 6, "c", 28)
+flag(c, 17, 10, "a", 24)
+stand = ["k" * 24,
+         "k" + "ay" * 11 + "Ak",
+         ".k" + "Ak" * 10 + "A.",
+         "k" + "..h" * 7 + "..k",
+         "k" + ".cC.aA" * 3 + ".cC.ak",
+         "k" * 24,
+         "k" + "cy" * 11 + "Ck",
+         "k" * 24]
+put(c, stand, 24, 10)
+for y in range(18, 34):
+    for x in (24, 31, 39, 47):
+        c[y][x] = "k"
+put(c, ["k" * 48,
+        "".join("c" if (x // 3) % 2 else "s" for x in range(48)),
+        "".join("C" if (x // 3) % 2 else "Z" for x in range(48)),
+        "k" * 48] + ["".join("kb" if x % 8 == 1 else "." for x in range(48))[:48]] * 2
+       + ["".join("kB" if x % 8 == 1 else "." for x in range(48))[:48]] * 3, 0, 33)
+horse = [r.replace("c", "a") for r in HORSE]
+for j in range(6, 10):
+    horse[j] = horse[j][:5] + horse[j][5:12].replace("b", "a").replace("B", "A") + horse[j][12:]
+horse[10] = horse[10][:5] + "kyyyyy" + horse[10][11:]
+put(c, horse, 25, 30)
+put(c, RIDER, 31, 21)
+put(c, ["k" * 24 + "kk", "m" + "ycyc" * 6 + "kk", "k" * 24 + "kk"], 7, 27)                    # couched lance
+SPRITES["monument:Marshal Tiltyard"] = fin32(c)
+
+# Polish House (Sovereign Industry — Trusteki, kept and built to outlast): tall stone guildhall under a gilded roof,
+# three arched display windows set with gems, gem sign on a bracket, smoking stack, polishing wheel at the door
+c = cv48()
+put(c, [".s..", "..s.", ".s..", "s...", ".s.."], 38, 0)
+wall(c, 35, 9, 7, 38, "t")
+courses(c, 36, 11, 39, 45)
+cren(c, 35, 7, 7)
+put(c, ["kkkk", "kyyk", "kyYk", "kkkk"], 37, 14)
+put(c, ["kkkk", "kyyk", "kyYk", "kkkk"], 37, 24)
+wall(c, 2, 20, 34, 27, "t")
+courses(c, 3, 22, 33, 45)
+roof(c, 18, 4, 16, "y")
+disc(c, 18.5, 13, [(2.5, "a")])
+for x0, gems in ((5, "ace"), (15, "lya"), (25, "ecl")):
+    put(c, [".kkkk.", "kyyyyk", "k" + gems[0] + "yy" + gems[1] + "k", "kyyyyk", "ky" + gems[2] + "yYk", "kyyyYk", "kkkkkk"], x0 + 1, 24)
+put(c, [".kkkk.", "kddddk"] + ["kddddk"] * 7, 16, 37)
+disc(c, 44.5, 39.5, [(.6, "k"), (3, "m")])
+put(c, [".kbk.", ".kbk.", "kbbBk", "kkkkk"], 42, 43)
+put(c, ["y.s", ".y."], 44, 34)
+SPRITES["monument:Polish House"] = fin32(c)
 
 # Ordnance Yard (key: Artillery Park; Prowess + Industry — Drakteni, whose craft is conquest): hooped iron bombard
 # with a flared, open muzzle on its timber bed, mortar, stacked shot, powder keg, red flag
@@ -5745,7 +5850,7 @@ def sheet_html(path, ns, palette="scene", only=None):
     skyline infrastructure piece), then each raw feet strip under its first builds_into holding."""
     keys = [k for k in SPRITES if not only or k.startswith(tuple(only))]
     nd = ns.get("NAME_DISPLAY", {})
-    dn = lambda n: nd.get(n, n)                      # what players read (Coliseum -> Castle Yard); keys stay canonical
+    dn = lambda n: nd.get(n, n)                      # what players read (Artillery Park -> Ordnance Yard); keys stay canonical
     comps = []
     for n, v in ns.get("NODES", {}).items():
         if v.get("type") == "Raw Materials" and feet_key(n):

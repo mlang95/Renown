@@ -4,7 +4,7 @@ charts, and ROOT_ATTACH Holdings are moved onto the named root's chart as a side
 import json, os, sys, tempfile
 import gen_layout as g
 N, rd = g.N, g.rd
-ROOT_ATTACH = {"Mine": ["Court Armoury"]}        # root -> Holdings shown only on that root's chart
+ROOT_ATTACH = {"Furnace": ["Court Armoury"]}        # root -> Holdings shown only on that root's chart
 KEEP = ["Manor House"]                            # Monument charts kept as-is from gen_layout
 
 kids = {n: [k for k in N if n in g.reqs(k)] for n in N}

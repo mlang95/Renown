@@ -1751,7 +1751,7 @@ SIMPLE_NODES = {
         "efficient": ["Stable"],
         "builds_into": [],
         "monument": False},
-    "Avery": {
+    "Avenery": {
         "group": "g_husbandry",
         "unlock": "1 Established",
         "innate": "+1000; Natural; Speed +1",
@@ -1762,7 +1762,7 @@ SIMPLE_NODES = {
         "group": "g_husbandry",
         "unlock": "1 Established",
         "innate": "+1000; Natural; Speed +1;",
-        "efficient": ["Avery"],
+        "efficient": ["Avenery"],
         "builds_into": [],
         "monument": False},
     "Marshal Tiltyard": {

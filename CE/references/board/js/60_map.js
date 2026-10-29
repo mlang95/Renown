@@ -106,7 +106,7 @@ function reachOwners(M,cols,rows){
 const RES_SHOWN=false;
 function resShown(){return RES_SHOWN&&mapState().showRes!==false;}
 function nodesMode(){return RES_SHOWN&&!!mapState().useNodes;}
-const RES_NODE={mine:"Mine",quarry:"Quarry",arable:"Arable Land",forestry:"Forestry",apiary:"Apiary",salt:"Salt Works",peat:"Peat Bog",fish:"Fishmongery"};
+const RES_NODE={mine:"Furnace",quarry:"Quarry",arable:"Arable Land",forestry:"Forestry",apiary:"Apiary",salt:"Salt Works",peat:"Peat Bog",fish:"Fishmongery"};
 function reachResources(p){
   const M=mapState(),g=M.grid;if(!g||!p)return null;
   if(!Object.values(M.cells).some(c=>c.type!=="Army"&&String(c.player)===String(p.id)))return null;   // not on the map yet
