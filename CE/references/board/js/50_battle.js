@@ -118,6 +118,7 @@ function sideCalc(X){
   const rev=B.rev&&B.rev.sk===B.sk?B.rev:null,cell=rev?TMX[rev.A+"|"+rev.B]:null,tm=cell?(X==="A"?cell[0]:cell[1]):{I:0,TH:0,TS:0};
   const forced=seizeForced(),seize=B.sk===1&&(forced?forced===X:B.seize===X)?1:0;
   // Unwieldy: Initiative can't be improved by Tactics (clamp a positive Tactic I to 0) unless Immune Unwieldy.
+  // tmEff = the Tactic modifiers that actually apply (display); tmBlk = what was blocked and why.
   // Steady: a negative Tactic I is clamped to 0. Same rule as Combatv4/batch_engine.py.
   const eqInfo=eqOptions(X),dualCarry=eqInfo.dual;                            // carrying both (no longer gives Unwieldy)
   const hasM=tok=>u.mods.some(m=>m.tok===tok);
@@ -220,7 +221,7 @@ function sideCalc(X){
   // the Equipped weapon itself is in the datasheet's wargear table; only its conditions are listed as rules
   trig.unshift(...[shOff?"Shield not usable (2H)":"",dualCarry&&!eqInfo.carry&&p?"Carrying both needs "+armyTokNamed("dual-equip"):"",
     dualW&&!eqInfo.flor&&p?"Dual Wield needs Florentine ("+armyTokNamed("Florentine")+")":"",a.dual&&!dualOn(a,shDest)&&eqX.mode!=="ranged"?"Dual Wield off (Shield in use)":""].filter(Boolean));
-  return {dualW,immunePanic:mt.has("Immune Panic")||stImmPanic,eqX,shOff,enduring,canParry,parryThr,parryThrMelee,riposte,riposteMelee,saveMelee,poisoned,poisonedMelee,recThr,serrN,p,a,rt,I,rawI,tmNote,blunder,toStrike,save,saveRaw,deadlySave,planOn,critFloor,hasDeadly,hasCleave,hasDestroy,shDest,trig,morale,front,field,reserve:Math.max(0,field-front),camp:Math.max(0,(a.count||0)-field),skCas,tags,tm,seize,cell:!!cell,outrider:(u.outMastery||(u.outInnate&&B.sk===1)),outMastery:u.outMastery};
+  return {dualW,immunePanic:mt.has("Immune Panic")||stImmPanic,eqX,shOff,enduring,canParry,parryThr,parryThrMelee,riposte,riposteMelee,saveMelee,poisoned,poisonedMelee,recThr,serrN,p,a,rt,I,rawI,tmNote,tmEff:Object.assign({},tm,{I:tmI,TH:mt.has("Immune Tactic TH")&&tacTH<0?0:tacTH}),tmBlk:[tmNote,mt.has("Immune Tactic TH")&&tacTH<0?"Immune Tactic TH: Tactic "+tacTH+" ignored":""].filter(Boolean),blunder,toStrike,save,saveRaw,deadlySave,planOn,critFloor,hasDeadly,hasCleave,hasDestroy,shDest,trig,morale,front,field,reserve:Math.max(0,field-front),camp:Math.max(0,(a.count||0)-field),skCas,tags,tm,seize,cell:!!cell,outrider:(u.outMastery||(u.outInnate&&B.sk===1)),outMastery:u.outMastery};
 }
 // hidden picks: server when online, in-page when not
 const LOCAL_PICKS={};let PICKS={A:{picked:false},B:{picked:false},revealed:false},PEEK=false,_pickT=null;
@@ -290,7 +291,7 @@ function datasheetHTML(X,c,pl){
     st("Recover",c.recThr!=null?c.recThr+"+":"—","after a failed Save; Deadly: "+(BT.focusedThr||10)+" only")+
     st("Morale",c.morale+"+","",c.morale>=11?"Rout":"",c.morale>=11)+
     st("End.",a.endurance||0,"Endurance")+st("Fatigue",a.fatigue||0)+'</div>';
-  h+='<div class="ds-mods">'+(c.seize?'<span>Seize +1 Init</span>':'')+'<span>Tactic: '+(c.cell?esc(fmtModLong(c.tm)):'pending')+'</span>'+
+  h+='<div class="ds-mods">'+(c.seize?'<span>Seize +1 Init</span>':'')+'<span>Tactic: '+(c.cell?esc(fmtModLong(c.tmEff)+c.tmBlk.map(t=>' · '+t).join('')):'pending')+'</span>'+
     '<label><input type="checkbox" class="bstr" data-x="'+X+'"'+(a.strained?' checked':'')+'> Strained</label></div>';
   // wargear: base profiles (before modifiers); Equipped weapon first, the carried alternative dimmed
   const rw=(a.ranged&&a.ranged!=="None")?EQ.ranged[a.ranged]:null,mw=EQ.weapons[a.weapon]||null,ar=EQ.armors[a.armor]||{},

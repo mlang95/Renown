@@ -95,7 +95,7 @@ function bfUpdate(S,T){const W=BF.wrap,B=battle(),fresh=BF.fresh;BF.fresh=false;
       if(q&&q.k==="f"&&!q.wound)BF.pos[X].push({x,y,u});});});
   // header: army name + Equipped gear, Tactic (+ its modifiers once revealed), line / reserve / camp counts
   W.querySelector(".bf-head").innerHTML=["A","B"].map(X=>{const s=S[X];if(!s)return '<div></div>';
-    const gear=SPR?bfGear(s).map(n=>'<span title="'+esc(n)+'">'+eqSVG(n,18)+'</span>').join(""):"",mods=s.c.cell?fmtModLong(s.c.tm):"";
+    const gear=SPR?bfGear(s).map(n=>'<span title="'+esc(n)+'">'+eqSVG(n,18)+'</span>').join(""):"",mods=s.c.cell?fmtModLong(s.c.tmEff)+s.c.tmBlk.map(t=>' · '+t).join(""):"";
     return '<div class="bf-side" style="--pc:'+s.col+'"><div class="bf-nm"><b>'+esc(s.nm)+'</b><span class="bf-gear">'+gear+'</span></div>'+
       '<div class="bf-tac">'+esc(s.tac||(s.locked?"Tactic locked in":"Tactic hidden"))+(s.tac?esc(s.tst):'')+(mods?' · <i>'+esc(mods)+'</i>':'')+'</div><span>front '+s.c.front+' · reserve '+s.c.reserve+' · camp '+s.c.camp+(s.cas?' · fallen '+s.cas:'')+(s.pend?' · wounded '+s.pend:'')+'</span></div>';}).join('<span class="bf-sk">Skirmish '+(B.id?B.sk:'—')+'</span>');
   // caption: the battle tile and its rule
@@ -140,13 +140,14 @@ const BF_MARK={
   heal:(x,y)=>'<g transform="translate('+x+','+(y-14)+')"><path class="bf-pop" d="M-2 -7H2V-2H7V2H2V7H-2V2H-7V-2H-2Z" fill="#66bb6a" stroke="#0b3d0e"/></g>',
   shot:(x1,y1,x2,y2,c)=>'<line class="bf-shot" x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+(c||"#f5e6c8")+'" stroke-width="2" stroke-linecap="round"/>'};
 function bfEffects(S){const B=battle(),now=bfSeen(),was=BF.seen;BF.seen=now;const F=BT.faces||10;
-  if(now.rev&&now.rev!==was.rev&&S.A&&S.B){const [ta,tb]=now.rev.split("|"),ml=s=>esc(s.nm)+': '+esc(fmtModLong(s.c.tm));
+  if(now.rev&&now.rev!==was.rev&&S.A&&S.B){const [ta,tb]=now.rev.split("|"),ml=s=>esc(s.nm)+': '+esc(fmtModLong(s.c.tmEff))+(s.c.tmBlk.length?' ('+esc(s.c.tmBlk.join('; '))+')':'');
     bfFx('<g class="bf-ban"><rect x="'+(BF_W/2-230)+'" y="'+(BF_H/2-40)+'" width="460" height="80" rx="6" fill="#000" fill-opacity=".75"/>'+
       '<text x="'+BF_W/2+'" y="'+(BF_H/2-10)+'" text-anchor="middle" font-size="20" font-weight="600" fill="#fff">'+esc(ta)+'  vs  '+esc(tb)+'</text>'+
       '<text x="'+BF_W/2+'" y="'+(BF_H/2+12)+'" text-anchor="middle" font-size="13" fill="#ddd">'+ml(S.A)+'</text>'+
       '<text x="'+BF_W/2+'" y="'+(BF_H/2+29)+'" text-anchor="middle" font-size="13" fill="#ddd">'+ml(S.B)+'</text></g>');
     const nc=S.A.c.tm.no_combat||S.B.c.tm.no_combat,IA=S.A.c.I,IB=S.B.c.I,f=IA>IB?S.A:IB>IA?S.B:null;
     bfToast("init",nc?'<b>No combat</b> this Skirmish':f?'<b>'+esc(f.nm)+'</b> fights first (Initiative '+f.c.I+' vs '+(f===S.A?IB:IA)+')':'<b>Both sides</b> strike at once (Initiative '+IA+')',f?f.col:"#aaa",1400);
+    [S.A,S.B].forEach((s,i)=>{if(s.c.tmBlk.length)bfToast("blk"+s.X,'<b>'+esc(s.nm)+'</b>: '+esc(s.c.tmBlk.join(' · ')),s.col,900+i*200);});
     if(S.A.c.tm.end||S.B.c.tm.end)bfToast("end",'<b>Fall Back</b>: the Battle ends after this Skirmish',"#aaa",1700);}
   ["A","B"].forEach(X=>{if(now[X]===was[X])return;const R=(B.rolls||{})[X],s=S[X],O=X==="A"?"B":"A";if(!R||!s)return;
     const mine=BF.pos[X],theirs=BF.pos[O],nm='<b>'+esc(s.nm)+'</b>',dl=R.dl?R.dl.succ:0;
