@@ -54,6 +54,8 @@ function facCombat(b){const f=FAC[(b||{}).faction||""];if(!f)return [];const t=S
   const m=t.match(/While your Public Order is (-?\d+) or higher, your Armies (?:have|gain) ([^.]+)/i);
   if(m&&(b.po||0)>=+m[1]){if(/\+1 Initiative|Initiative \+1/i.test(m[2]))add("Init +1");if(/\bSteady\b/i.test(m[2]))add("Steady");}
   return out;}
+// total weapon AP bonus from an army's Holding tokens ("AP -1" per Finery-style text); 0 for none
+function apMod(u){return (u&&u.mods||[]).reduce((s,m)=>{const x=/^AP ([+-]\d+)$/.exec(m.tok);return s+(x?+x[1]:0);},0);}
 function sideUnlocks(p){return p?withBoard(p.board,()=>{const have=new Set(Object.keys(PC));const {earned}=computeEarned(have);
     // "Gain Immune Awkward" (List Yard): board-only token, read from the Holding's text
     const awk=Object.keys(PC).filter(n=>(PC[n]||0)>0&&/\bImmune Awkward\b/i.test(String((R[n]||{}).combo||""))).map(n=>({tok:"Immune Awkward",node:n,via:"innate"}));
@@ -168,11 +170,12 @@ function sideCalc(X){
   const plan=mt.has("Planishing")||mt.has("GF Armor");
   const eTags=new Set([].concat(ewpn.tags||[]));
   const planOn=plan&&!eTags.has("Negate Planishing")&&!eTags.has("Negate Tempered");
-  const saveRaw=(ar.save||0)-(ewpn.ap||0)-(sh.save_bonus||0)-(tm.TS||0)-sd.adj.TS;
+  const eApMod=apMod(sideUnlocks(sideArmy(o).p)),apOwn=apMod(u);                     // "AP -N" (Finery: Weapons gain -1AP): more negative = more AP
+  const saveRaw=(ar.save||0)-((ewpn.ap||0)+eApMod)-(sh.save_bonus||0)-(tm.TS||0)-sd.adj.TS;
   const save=planOn?Math.min(saveRaw,CAP):Math.min(saveRaw,FACES_+1);   // FACES+1 = auto-fail
   const deadlyRaw=Math.min(saveRaw+DAP,FACES_+1),deadlySave=planOn?Math.min(deadlyRaw,CAP):deadlyRaw;
   const saveVs=wp=>{const tg=new Set([].concat(wp.tags||[])),po=plan&&!tg.has("Negate Planishing")&&!tg.has("Negate Tempered"),
-    raw=(ar.save||0)-(wp.ap||0)-(sh.save_bonus||0)-(tm.TS||0)-sd.adj.TS;return po?Math.min(raw,CAP):Math.min(raw,FACES_+1);};
+    raw=(ar.save||0)-((wp.ap||0)+eApMod)-(sh.save_bonus||0)-(tm.TS||0)-sd.adj.TS;return po?Math.min(raw,CAP):Math.min(raw,FACES_+1);};
   const saveMelee=saveVs(ewm);                                  // vs a Riposte (always the riposting side's melee weapon)
   // own strike profile (Focused procs)
   const critN=[...mt].map(t=>(t.match(/^Crit (\d+)$/)||[])[1]).filter(Boolean).map(Number);
@@ -187,6 +190,7 @@ function sideCalc(X){
   if(mt.has("Immune Tactic TH")&&tacTH<0)trig.push("Immune Tactic TH: Tactic "+tacTH+" ignored");
   if(th1)trig.push("+"+th1+" to-Strike (Ministry)");
   if(rngPlus)trig.push("+"+rngPlus+" to-Strike with Ranged (faction)");
+  if(apOwn)trig.push("Weapons "+apOwn+" AP ("+u.mods.filter(m=>/^AP -\d+$/.test(m.tok)).map(m=>m.node).join(", ")+")");
   if(terrR)trig.push((onHill(X)?"Hill (Open Field)":"Open Field")+": Ranged Weapons +1 to Strike");
   if(hasM("Always Unwieldy"))trig.push("Faction: always Unwieldy"+(hasM("No Immune Unwieldy")?", can't gain Immune Unwieldy":""));
   if(immBlunder&&(I<=INIT_MIN||oBlunder))trig.push("Immune Blunder (Standing): no Blunder");
@@ -235,7 +239,7 @@ function sideCalc(X){
   // the Equipped weapon itself is in the datasheet's wargear table; only its conditions are listed as rules
   trig.unshift(...[shOff?"Shield not usable (2H)":"",dualCarry&&!eqInfo.carry&&p?"Carrying both needs "+armyTokNamed("dual-equip"):"",
     dualW&&!eqInfo.flor&&p?"Dual Wield needs Florentine ("+armyTokNamed("Florentine")+")":""].filter(Boolean));
-  return {dualW,immunePanic:mt.has("Immune Panic")||stImmPanic,eqX,shOff,enduring,canParry,parryThr,parryThrMelee,riposte,riposteMelee,saveMelee,poisoned,poisonedMelee,recThr,serrN,p,a,rt,I,rawI,tmNote,initParts,strainI,strainBy:a.strained?"":siegeStrains(p,a)?"Besieged":oStrain&&!immuneStrainIn(p,a)?"enemy "+oStrain.t+" "+oStrain.d:"",tmEff:Object.assign({},tm,{I:tmI,TH:mt.has("Immune Tactic TH")&&tacTH<0?0:tacTH}),tmBlk:[tmNote,mt.has("Immune Tactic TH")&&tacTH<0?"Immune Tactic TH: Tactic "+tacTH+" ignored":""].filter(Boolean),blunder,toStrike,save,saveRaw,deadlySave,planOn,critFloor,hasDeadly,hasCleave,hasDestroy,shDest,trig,morale,front,field,reserve:Math.max(0,field-front),camp:Math.max(0,(a.count||0)-field),skCas,tags,tm,seize,cell:!!cell,outrider:(u.outMastery||(u.outInnate&&B.sk===1)),outMastery:u.outMastery};
+  return {dualW,immunePanic:mt.has("Immune Panic")||stImmPanic,eqX,shOff,enduring,canParry,parryThr,parryThrMelee,riposte,riposteMelee,saveMelee,poisoned,poisonedMelee,recThr,serrN,p,a,rt,I,rawI,tmNote,initParts,strainI,strainBy:a.strained?"":siegeStrains(p,a)?"Besieged":oStrain&&!immuneStrainIn(p,a)?"enemy "+oStrain.t+" "+oStrain.d:"",tmEff:Object.assign({},tm,{I:tmI,TH:mt.has("Immune Tactic TH")&&tacTH<0?0:tacTH}),tmBlk:[tmNote,mt.has("Immune Tactic TH")&&tacTH<0?"Immune Tactic TH: Tactic "+tacTH+" ignored":""].filter(Boolean),blunder,toStrike,save,saveRaw,deadlySave,planOn,critFloor,hasDeadly,hasCleave,hasDestroy,shDest,trig,apOwn,morale,front,field,reserve:Math.max(0,field-front),camp:Math.max(0,(a.count||0)-field),skCas,tags,tm,seize,cell:!!cell,outrider:(u.outMastery||(u.outInnate&&B.sk===1)),outMastery:u.outMastery};
 }
 // hidden picks: server when online, in-page when not
 const LOCAL_PICKS={};let PICKS={A:{picked:false},B:{picked:false},revealed:false},PEEK=false,_pickT=null;
@@ -322,7 +326,7 @@ function datasheetHTML(X,c,pl){
     return '<tr'+(cl?' class="'+cl+'"':'')+(it.tier?' title="'+esc(it.tier_label||it.tier)+'"':'')+'><td>'+
       (SPR&&SPR.S["eq:"+n]?'<span class="ic">'+eqSVG(n,20)+'</span>':'')+esc(nm)+(fl?'<span class="st">'+fl+'</span>':'')+(ex||'')+'</td><td>'+ap+'</td><td>'+ini+'</td><td>'+sv+'</td></tr>'+
       (tg.length?'<tr class="trt'+(on?'':' off')+'"><td colspan="4">'+tg.map(t=>{shown.add(t);return kwc(t);}).join("")+'</td></tr>':'');};
-  const wrow=(n,nm,it,on,fl)=>row(n,nm,it,it.ap||0,sg(it.init),"—",on,fl),two=!!(rw&&mw&&!(onR&&a.weapon==="Farm Tools"));
+  const wrow=(n,nm,it,on,fl)=>row(n,nm,it,(it.ap||0)+(c.apOwn||0),sg(it.init),"—",on,fl),two=!!(rw&&mw&&!(onR&&a.weapon==="Farm Tools"));
   let g='';
   if(onR){g+=wrow(a.ranged,a.ranged,rw,true,two?"equipped":"");if(two)g+=wrow(a.weapon,a.weapon,mw,false,"carried");}
   else{if(mw)g+=wrow(a.weapon,a.weapon+(c.eqX.b2h?" (2H)":"")+(c.dualW?" ×2":""),c.eqX.b2h&&EQ.bastard2h?EQ.bastard2h:mw,true,two?"equipped":"");if(rw)g+=wrow(a.ranged,a.ranged,rw,false,"carried");}

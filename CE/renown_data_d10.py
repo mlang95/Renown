@@ -325,7 +325,7 @@ WEAPONS = {
 RANGED = {
     "Hunting Bow": {"ap":  0, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNSTOPPABLE, NO_PARRY]},
     "Longbow":     {"ap": -1, "init":  2, "tier": "Cast",    "tags": [TWO_H, UNSTOPPABLE, SHATTER_ARMOR, NO_PARRY]},
-    "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD, ONE_SHOT, NO_PARRY], 'note': 'Cannot Dual Wield'},
+    "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD, ONE_SHOT, NO_PARRY], 'note': 'Cannot Florentine'},
     "Crossbow":    {"ap": -4, "init":  1, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NO_PARRY]},#'note': "Tower Shield only (no other shield), cannot Dual Wield"
     "Pilum":       {"ap": -5, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD, ONE_SHOT, NO_PARRY]},
     "Arquebus":    {"ap": -6, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
@@ -4919,6 +4919,8 @@ def holding_combat_tags(text, sim=False):
                      (r"Unlocks Arquebus", "Artillery Park")):
         if _re_disp.search(pat, t, _I): out.append(tok)
     if _re_disp.search(r"two of the same 1H Melee Weapon to gain Dual Wield|\bgain\s+Florentine\b", t, _I): out.append(FLORENTINE)
+    m = _re_disp.search(r"Weapons gain (-\d+)\s*AP\b", t, _I)      # e.g. Finery: "Weapons gain -1AP"
+    if m: out.append("AP " + m.group(1))
     out += ["Parry +1"] * len(_re_disp.findall(r"Improve Parry by \+1", t, _I))
     m = _re_disp.search(r"Focused Strikes on a natural (\d+)\+", t, _I)
     if m: out.append("Crit " + m.group(1))
