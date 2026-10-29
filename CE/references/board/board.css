@@ -289,6 +289,14 @@
   .btac.on{border-color:var(--income);color:var(--income);font-weight:600}
   .btlock{border-color:var(--order);color:var(--order);font-weight:600}.btlock:disabled{opacity:.45}
   .broll.go{border-color:var(--income);color:var(--income);font-weight:600}
+  .broll:disabled,.bcasgo:disabled{opacity:.4;cursor:not-allowed}
+  .bcasgo.go,.bEndSk2.go,.bstart.go,.bFinish.go{border-color:var(--income);color:var(--income);font-weight:600}
+  .bcmd{border:1px solid var(--line2);border-radius:var(--radius-sm);background:var(--panel);padding:10px 12px;margin-bottom:8px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center}
+  .bcmd-t{font-size:18px;font-weight:600}.bcmd-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  .bseize.on{border-color:var(--order);color:var(--order);font-weight:600}
+  .bstart{font-size:15px;padding:8px 22px}.bstart:disabled{opacity:.4}
+  .bresult{border-color:var(--order)}.bresult .bcmd-t{color:var(--order)}
+  .bflow{display:flex;align-items:center;gap:8px;justify-content:space-between;padding:6px 10px;margin-bottom:8px;border:1px solid var(--line2);border-radius:var(--radius-sm);background:var(--panel2)}
   @media(max-width:700px){.btacs{grid-template-columns:1fr}.btac-side[data-side="B"]{text-align:left}.btac-side[data-side="B"]>div{justify-content:flex-start}}
   .ds-tbl .ic{display:inline-block;vertical-align:middle;margin-right:5px}
   .ds-tbl .st{font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--dim);margin-left:5px}
@@ -516,6 +524,7 @@
   @media(max-width:1100px){.rl-grid{grid-template-columns:1fr}.rl-side{position:static;max-height:none}}
   .tstrip{width:100%;display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:4px 0 0;border-top:1px solid var(--line);font-size:13px}
   .tstrip .ts-i{display:inline-flex;gap:4px;align-items:center}.tstrip button{padding:1px 7px;min-height:0}
+  .tstrip .ts-era{margin-left:4px;padding:1px 8px;border:1px solid var(--order);border-radius:var(--radius-sm);color:var(--order);font-size:14px;letter-spacing:.03em}
   .tstrip .ts-end{margin-left:auto;border-color:var(--order);font-weight:600}
   .tstrip .ts-ph b{font-size:15px;color:var(--ink)}
   .tstrip .ts-seat{border-color:var(--order);background:color-mix(in srgb,var(--order) 14%,var(--panel));font-weight:600}

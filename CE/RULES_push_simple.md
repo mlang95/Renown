@@ -610,7 +610,7 @@ In the Empire Phase each Spring: place a Bandit Camp of {{VAL:BANDIT_CAMP_START}
 
 ### Growing Bandit Camps
 
-A Bandit Camp{{IDX:Bandit Camp}} grows each Empire Phase by the Era's Retinues per turn. When it reaches {{VAL:BANDIT_ARMY_THRESHOLD}} Retinues it sends out a Bandit Army of {{VAL:BANDIT_ARMY_THRESHOLD}}, and the camp stays on its Territory. While its Army is out, the camp doesn't grow or send out another Army, and no camp can spawn on its Territory. The camp can't be attacked while its Army is out. After each Battle, the Army returns to its camp, and the camp re-musters toward {{VAL:BANDIT_ARMY_THRESHOLD}} from the Retinues that come back; if the Army is destroyed, its camp is destroyed with it. Its Retinues carry the Era's armament.
+A Bandit Camp{{IDX:Bandit Camp}} grows each Empire Phase by the Era's Retinues per turn. When it reaches {{VAL:BANDIT_ARMY_THRESHOLD}} Retinues it sends out a Bandit Army of {{VAL:BANDIT_ARMY_THRESHOLD}}, and the camp stays on its Territory. While its Army is out, the camp doesn't grow or send out another Army, and no camp can spawn on its Territory. The camp can't be attacked while its Army is out. After each Battle it doesn't lose, the Army returns to its camp, and the camp re-musters toward {{VAL:BANDIT_ARMY_THRESHOLD}} from the Retinues that come back; a Bandit Army that loses a Battle is destroyed, and its camp with it. Its Retinues carry the Era's armament.
 
 {{TABLE:bandits_by_era}}
 
@@ -628,7 +628,7 @@ While there are {{VAL:BANDIT_CUNNING_MIN}}+ Bandits (Retinues) in a camp, roll a
 
 A camp's action targets the Settlements and Armies of every player whose Province covers the camp, the nearest first. If the camp is in no player's Province, it takes no action.
 
-A Bandit Camp keeps Extorted money in its Treasury and doesn't pay costs, upkeep, or recoup. When you destroy a Bandit Camp or Army, you extort its Treasury.
+A Bandit Camp keeps Extorted money in its Treasury and doesn't pay costs, upkeep, or recoup. When you destroy a Bandit Camp or Army, you Extort its whole Treasury (a Bandit Army's includes its camp's).
 
 ### Bandit Army Behavior
 
@@ -648,7 +648,7 @@ Use the Move action to end adjacent to a Bandit Camp, then resolve it as a Battl
 
 {{TABLE:bandit_tactics}}
 
-Extort the Bandit Camp's gold if it's destroyed. Bandits never Fall Back, but they may Rout as normal.
+Winning the Battle destroys the Bandit Camp, whether its Bandits are wiped out or Rout: Extort its whole Treasury (your Spoils of War come out of it). Bandits never Fall Back, but they may Rout as normal.
 
 {{GLOSSARY:World}}
 
