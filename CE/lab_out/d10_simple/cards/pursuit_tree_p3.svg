@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1210" height="586" viewBox="0 0 1210 586" font-family="Georgia, serif">
-<rect width="1210" height="586" fill="#f4efe4"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1210" height="576" viewBox="0 0 1210 576" font-family="Georgia, serif">
+<rect width="1210" height="576" fill="#f4efe4"/>
 <defs><marker id="arw-2E5A8C" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#2E5A8C"/></marker><marker id="arw-9E2B25" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#9E2B25"/></marker><marker id="arw-1c9c8c" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1c9c8c"/></marker><marker id="arw-C6A024" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#C6A024"/></marker><marker id="arw-6A3D8F" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#6A3D8F"/></marker><marker id="arw-CC6A1A" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#CC6A1A"/></marker><marker id="arw-3a7d3a" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#3a7d3a"/></marker><marker id="arw-b5347a" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#b5347a"/></marker><marker id="arw-2b6f9e" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#2b6f9e"/></marker><marker id="arw-8a6d1a" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8a6d1a"/></marker><marker id="arw-5f5647" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5f5647"/></marker><marker id="arw-7a2ea0" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#7a2ea0"/></marker><marker id="arw-0f8a7e" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#0f8a7e"/></marker><marker id="arw-a83232" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#a83232"/></marker><marker id="arw-8f8672" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8f8672"/></marker></defs>
 <text x="30" y="34" font-size="20" font-weight="bold" fill="#2b2620">Holding Paths</text>
 <path d="M148,76 L195,76" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -12,212 +12,212 @@
 <path d="M664,76 L711,76" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <rect x="30" y="64" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="64" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="79" font-size="8.2" fill="#2b2620">Inn</text>
-<rect x="202" y="64" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="202" y="64" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="79" font-size="8.2" fill="#2b2620">Courier Network</text>
-<rect x="374" y="64" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
-<rect x="374" y="64" width="5" height="24" fill="#1c1c20"/>
-<text x="383" y="79" font-size="8.2" fill="#2b2620">Smuggler's Nook</text>
-<rect x="546" y="64" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
-<rect x="546" y="64" width="5" height="24" fill="#1c1c20"/>
-<text x="555" y="79" font-size="8.2" fill="#2b2620">Black Market</text>
+<text x="39" y="79" font-size="8.2" fill="#2b2620">Fishmongery</text>
+<rect x="202" y="64" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
+<rect x="202" y="64" width="5" height="24" fill="#2E5A8C"/>
+<text x="211" y="79" font-size="8.2" fill="#2b2620">Harbor</text>
+<rect x="374" y="64" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
+<rect x="374" y="64" width="5" height="24" fill="#2E5A8C"/>
+<text x="383" y="79" font-size="8.2" fill="#2b2620">Shipyard</text>
+<rect x="546" y="64" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
+<rect x="546" y="64" width="5" height="24" fill="#2E5A8C"/>
+<text x="555" y="79" font-size="8.2" fill="#2b2620">Emporium</text>
 <rect x="718" y="64" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#2E5A8C" stroke-width="2.2"/>
 <rect x="718" y="64" width="5" height="24" fill="#2E5A8C"/>
-<text x="727" y="79" font-size="8.2" fill="#2b2620">Thieves' Guild</text>
+<text x="727" y="79" font-size="8.2" fill="#2b2620">Port Authority</text>
 <polygon points="828.0,72.4 831.6,76.0 828.0,79.6 824.4,76.0" fill="#8a6d1a"/>
-<path d="M148,138 L172,138" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M148,138 L172,138" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95"/>
-<path d="M172,138 L172,174" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M172,138 L172,174" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95"/>
-<path d="M172,138 L368,138" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M172,138 L368,138" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M172,174 L196,174" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M172,174 L196,174" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M320,174 L335,174 Q344,174 344,165 L344,147 Q344,138 353,138 L367,138" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M320,174 L335,174 Q344,174 344,165 L344,147 Q344,138 353,138 L367,138" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M148,138 L195,138" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M148,138 L195,138" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M320,138 L367,138" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M320,138 L367,138" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M492,138 L539,138" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M492,138 L539,138" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M492,210 L507,210 Q516,210 516,201 L516,147 Q516,138 525,138 L539,138" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M492,210 L507,210 Q516,210 516,201 L516,147 Q516,138 525,138 L539,138" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M664,138 L711,138" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M664,138 L711,138" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M836,138 L883,138" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M836,138 L883,138" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M1008,138 L1055,138" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M1008,138 L1055,138" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <rect x="30" y="126" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="126" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="141" font-size="8.2" fill="#2b2620">Forestry</text>
-<rect x="202" y="162" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
-<rect x="202" y="162" width="5" height="24" fill="#2E5A8C"/>
-<text x="211" y="177" font-size="8.2" fill="#2b2620">Kiln</text>
-<rect x="374" y="126" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
-<rect x="374" y="126" width="5" height="24" fill="#2E5A8C"/>
-<text x="383" y="141" font-size="8.2" fill="#2b2620">Charcoal Burner</text>
-<rect x="374" y="198" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="374" y="198" width="5" height="24" fill="#6a6a72"/>
-<text x="383" y="213" font-size="8.2" fill="#2b2620">Salt Works</text>
-<rect x="546" y="126" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="546" y="126" width="5" height="24" fill="#6a6a72"/>
-<text x="555" y="141" font-size="8.2" fill="#2b2620">Butchery</text>
-<rect x="718" y="126" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="718" y="126" width="5" height="24" fill="#6a6a72"/>
-<text x="727" y="141" font-size="8.2" fill="#2b2620">Smokehouse</text>
-<rect x="890" y="126" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
-<rect x="890" y="126" width="5" height="24" fill="#9E2B25"/>
-<text x="899" y="141" font-size="8.2" fill="#2b2620">Levy Hall</text>
-<rect x="1062" y="126" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
-<rect x="1062" y="126" width="5" height="24" fill="#9E2B25"/>
-<text x="1071" y="141" font-size="8.2" fill="#2b2620">Baggage Train</text>
-<polygon points="1172.0,134.4 1175.6,138.0 1172.0,141.6 1168.4,138.0" fill="#8a6d1a"/>
-<path d="M148,272 L195,272" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M148,272 L195,272" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M320,272 L367,272" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M320,272 L367,272" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M492,272 L539,272" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M492,272 L539,272" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M664,272 L711,272" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M664,272 L711,272" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M836,272 L883,272" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M836,272 L883,272" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<rect x="30" y="260" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="30" y="260" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="275" font-size="8.2" fill="#2b2620">Peat Bog</text>
-<rect x="202" y="260" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="202" y="260" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="275" font-size="8.2" fill="#2b2620">Alchemy</text>
-<rect x="374" y="260" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="374" y="260" width="5" height="24" fill="#6a6a72"/>
-<text x="383" y="275" font-size="8.2" fill="#2b2620">Academy</text>
-<rect x="546" y="260" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="546" y="260" width="5" height="24" fill="#6a6a72"/>
-<text x="555" y="275" font-size="8.2" fill="#2b2620">University</text>
-<rect x="718" y="260" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
-<rect x="718" y="260" width="5" height="24" fill="#9E2B25"/>
-<text x="727" y="275" font-size="8.2" fill="#2b2620">War College</text>
-<rect x="890" y="260" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
-<rect x="890" y="260" width="5" height="24" fill="#9E2B25"/>
-<text x="899" y="275" font-size="7.8" fill="#2b2620">Ministry of Military Strategy</text>
-<polygon points="1000.0,268.4 1003.6,272.0 1000.0,275.6 996.4,272.0" fill="#8a6d1a"/>
-<path d="M148,334 L195,334" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M148,334 L195,334" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M320,334 L367,334" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M320,334 L367,334" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M492,334 L516,334" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M492,334 L516,334" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95"/>
-<path d="M516,334 L516,370" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M516,334 L516,370" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95"/>
-<path d="M516,370 L540,370" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M516,370 L540,370" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M516,334 L540,334" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M516,334 L540,334" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M664,334 L711,334" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M664,334 L711,334" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M836,334 L883,334" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M836,334 L883,334" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M1008,334 L1055,334" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M1008,334 L1055,334" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M605,346 L605,351" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M605,346 L605,351" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M605,358 L605,353" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M605,358 L605,353" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<rect x="30" y="322" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="30" y="322" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="337" font-size="8.2" fill="#2b2620">Arable Land</text>
-<rect x="202" y="322" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="202" y="322" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="337" font-size="8.2" fill="#2b2620">Animal Husbandry</text>
-<rect x="374" y="322" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="374" y="322" width="5" height="24" fill="#6a6a72"/>
-<text x="383" y="337" font-size="8.2" fill="#2b2620">Stable</text>
-<rect x="546" y="322" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="546" y="322" width="5" height="24" fill="#6a6a72"/>
-<text x="555" y="337" font-size="8.2" fill="#2b2620">Caravanery</text>
-<rect x="546" y="358" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="546" y="358" width="5" height="24" fill="#6a6a72"/>
-<text x="555" y="373" font-size="8.2" fill="#2b2620">Saddlery</text>
-<rect x="718" y="322" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
-<rect x="718" y="322" width="5" height="24" fill="#1c1c20"/>
-<text x="727" y="337" font-size="8.2" fill="#2b2620">Toll House</text>
-<rect x="890" y="322" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
-<rect x="890" y="322" width="5" height="24" fill="#1c1c20"/>
-<text x="899" y="337" font-size="8.2" fill="#2b2620">Beacon Towers</text>
-<rect x="1062" y="322" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
-<rect x="1062" y="322" width="5" height="24" fill="#9E2B25"/>
-<text x="1071" y="337" font-size="8.2" fill="#2b2620">Outrider Intercept Post</text>
-<polygon points="1172.0,330.4 1175.6,334.0 1172.0,337.6 1168.4,334.0" fill="#8a6d1a"/>
-<path d="M148,432 L195,432" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M148,432 L195,432" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M320,432 L367,432" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M320,432 L367,432" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M492,432 L539,432" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M492,432 L539,432" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M664,432 L711,432" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M664,432 L711,432" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M836,432 L883,432" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M836,432 L883,432" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<rect x="30" y="420" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="30" y="420" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="435" font-size="8.2" fill="#2b2620">Peat Bog</text>
-<rect x="202" y="420" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="202" y="420" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="435" font-size="8.2" fill="#2b2620">Alchemy</text>
-<rect x="374" y="420" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="374" y="420" width="5" height="24" fill="#6a6a72"/>
-<text x="383" y="435" font-size="8.2" fill="#2b2620">Apothecary</text>
-<rect x="546" y="420" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
-<rect x="546" y="420" width="5" height="24" fill="#C6A024"/>
-<text x="555" y="435" font-size="8.2" fill="#2b2620">Infirmary</text>
-<rect x="718" y="420" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
-<rect x="718" y="420" width="5" height="24" fill="#C6A024"/>
-<text x="727" y="435" font-size="8.2" fill="#2b2620">Hospitaller</text>
-<rect x="890" y="420" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
-<rect x="890" y="420" width="5" height="24" fill="#9E2B25"/>
-<text x="899" y="435" font-size="8.2" fill="#2b2620">Sacred Preceptory</text>
-<polygon points="1000.0,428.4 1003.6,432.0 1000.0,435.6 996.4,432.0" fill="#8a6d1a"/>
-<path d="M148,494 L195,494" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M148,494 L195,494" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M148,530 L195,530" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M148,530 L195,530" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M320,494 L367,494" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M320,494 L367,494" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M320,530 L367,530" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M320,530 L367,530" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M492,494 L539,494" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M492,494 L539,494" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M492,530 L539,530" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M492,530 L539,530" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M664,494 L711,494" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M664,494 L711,494" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M664,530 L679,530 Q688,530 688,521 L688,503 Q688,494 697,494 L711,494" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M664,530 L679,530 Q688,530 688,521 L688,503 Q688,494 697,494 L711,494" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<rect x="30" y="482" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="30" y="482" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="497" font-size="8.2" fill="#2b2620">Courtyard</text>
-<rect x="30" y="518" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="30" y="518" width="5" height="24" fill="#6a6a72"/>
-<text x="39" y="533" font-size="8.2" fill="#2b2620">Forestry</text>
-<rect x="202" y="482" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
-<rect x="202" y="482" width="5" height="24" fill="#9E2B25"/>
-<text x="211" y="497" font-size="8.2" fill="#2b2620">Conditioning Field</text>
-<rect x="202" y="518" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="202" y="518" width="5" height="24" fill="#6a6a72"/>
-<text x="211" y="533" font-size="8.2" fill="#2b2620">Carpentry</text>
-<rect x="374" y="482" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
-<rect x="374" y="482" width="5" height="24" fill="#9E2B25"/>
-<text x="383" y="497" font-size="8.2" fill="#2b2620">Castle Yard</text>
-<rect x="374" y="518" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
-<rect x="374" y="518" width="5" height="24" fill="#9E2B25"/>
-<text x="383" y="533" font-size="8.2" fill="#2b2620">Fletchery</text>
-<rect x="546" y="482" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
-<rect x="546" y="482" width="5" height="24" fill="#9E2B25"/>
-<text x="555" y="497" font-size="8.2" fill="#2b2620">Grand Tournament</text>
-<rect x="546" y="518" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
-<rect x="546" y="518" width="5" height="24" fill="#9E2B25"/>
-<text x="555" y="533" font-size="8.2" fill="#2b2620">Tiltyard</text>
-<rect x="718" y="482" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
-<rect x="718" y="482" width="5" height="24" fill="#9E2B25"/>
-<text x="727" y="497" font-size="8.2" fill="#2b2620">Royal Pavilion</text>
-<polygon points="828.0,490.4 831.6,494.0 828.0,497.6 824.4,494.0" fill="#8a6d1a"/>
+<text x="39" y="141" font-size="8.2" fill="#2b2620">Inn</text>
+<rect x="202" y="126" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
+<rect x="202" y="126" width="5" height="24" fill="#1c1c20"/>
+<text x="211" y="141" font-size="8.2" fill="#2b2620">Secret Cellar</text>
+<rect x="374" y="126" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
+<rect x="374" y="126" width="5" height="24" fill="#1c1c20"/>
+<text x="383" y="141" font-size="8.2" fill="#2b2620">Smuggler's Nook</text>
+<rect x="546" y="126" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
+<rect x="546" y="126" width="5" height="24" fill="#1c1c20"/>
+<text x="555" y="141" font-size="8.2" fill="#2b2620">Black Market</text>
+<rect x="718" y="126" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#2E5A8C" stroke-width="2.2"/>
+<rect x="718" y="126" width="5" height="24" fill="#2E5A8C"/>
+<text x="727" y="141" font-size="8.2" fill="#2b2620">Thieves' Guild</text>
+<polygon points="828.0,134.4 831.6,138.0 828.0,141.6 824.4,138.0" fill="#8a6d1a"/>
+<path d="M148,200 L195,200" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M148,200 L195,200" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M148,236 L163,236 Q172,236 172,227 L172,209 Q172,200 181,200 L195,200" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M148,236 L163,236 Q172,236 172,227 L172,209 Q172,200 181,200 L195,200" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M320,200 L367,200" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M320,200 L367,200" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M492,200 L539,200" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M492,200 L539,200" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M664,200 L711,200" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M664,200 L711,200" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M836,200 L883,200" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M836,200 L883,200" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<rect x="30" y="188" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="30" y="188" width="5" height="24" fill="#6a6a72"/>
+<text x="39" y="203" font-size="8.2" fill="#2b2620">Animal Husbandry</text>
+<rect x="30" y="224" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="30" y="224" width="5" height="24" fill="#6a6a72"/>
+<text x="39" y="239" font-size="8.2" fill="#2b2620">Salt Works</text>
+<rect x="202" y="188" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="202" y="188" width="5" height="24" fill="#6a6a72"/>
+<text x="211" y="203" font-size="8.2" fill="#2b2620">Butchery</text>
+<rect x="374" y="188" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
+<rect x="374" y="188" width="5" height="24" fill="#2E5A8C"/>
+<text x="383" y="203" font-size="8.2" fill="#2b2620">Charcoal Burner</text>
+<rect x="546" y="188" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="546" y="188" width="5" height="24" fill="#6a6a72"/>
+<text x="555" y="203" font-size="8.2" fill="#2b2620">Smokehouse</text>
+<rect x="718" y="188" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
+<rect x="718" y="188" width="5" height="24" fill="#9E2B25"/>
+<text x="727" y="203" font-size="8.2" fill="#2b2620">Levy Hall</text>
+<rect x="890" y="188" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
+<rect x="890" y="188" width="5" height="24" fill="#9E2B25"/>
+<text x="899" y="203" font-size="8.2" fill="#2b2620">Baggage Train</text>
+<polygon points="1000.0,196.4 1003.6,200.0 1000.0,203.6 996.4,200.0" fill="#8a6d1a"/>
+<path d="M148,298 L195,298" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M148,298 L195,298" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M320,298 L367,298" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M320,298 L367,298" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M492,298 L539,298" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M492,298 L539,298" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M664,298 L711,298" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M664,298 L711,298" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M836,298 L883,298" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M836,298 L883,298" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<rect x="30" y="286" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="30" y="286" width="5" height="24" fill="#6a6a72"/>
+<text x="39" y="301" font-size="8.2" fill="#2b2620">Peat Bog</text>
+<rect x="202" y="286" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="202" y="286" width="5" height="24" fill="#6a6a72"/>
+<text x="211" y="301" font-size="8.2" fill="#2b2620">Alchemy</text>
+<rect x="374" y="286" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="374" y="286" width="5" height="24" fill="#6a6a72"/>
+<text x="383" y="301" font-size="8.2" fill="#2b2620">Academy</text>
+<rect x="546" y="286" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="546" y="286" width="5" height="24" fill="#6a6a72"/>
+<text x="555" y="301" font-size="8.2" fill="#2b2620">University</text>
+<rect x="718" y="286" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
+<rect x="718" y="286" width="5" height="24" fill="#9E2B25"/>
+<text x="727" y="301" font-size="8.2" fill="#2b2620">War College</text>
+<rect x="890" y="286" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
+<rect x="890" y="286" width="5" height="24" fill="#9E2B25"/>
+<text x="899" y="301" font-size="7.8" fill="#2b2620">Ministry of Military Strategy</text>
+<polygon points="1000.0,294.4 1003.6,298.0 1000.0,301.6 996.4,298.0" fill="#8a6d1a"/>
+<path d="M148,360 L195,360" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M148,360 L195,360" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M320,360 L539,360" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M320,360 L539,360" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M664,360 L711,360" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M664,360 L711,360" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M836,360 L883,360" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M836,360 L883,360" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M1008,360 L1055,360" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M1008,360 L1055,360" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<rect x="30" y="348" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="30" y="348" width="5" height="24" fill="#6a6a72"/>
+<text x="39" y="363" font-size="8.2" fill="#2b2620">Inn</text>
+<rect x="202" y="348" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="202" y="348" width="5" height="24" fill="#6a6a72"/>
+<text x="211" y="363" font-size="8.2" fill="#2b2620">Courier Network</text>
+<rect x="546" y="348" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="546" y="348" width="5" height="24" fill="#6a6a72"/>
+<text x="555" y="363" font-size="8.2" fill="#2b2620">Caravanery</text>
+<rect x="718" y="348" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
+<rect x="718" y="348" width="5" height="24" fill="#1c1c20"/>
+<text x="727" y="363" font-size="8.2" fill="#2b2620">Toll House</text>
+<rect x="890" y="348" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
+<rect x="890" y="348" width="5" height="24" fill="#1c1c20"/>
+<text x="899" y="363" font-size="8.2" fill="#2b2620">Beacon Towers</text>
+<rect x="1062" y="348" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
+<rect x="1062" y="348" width="5" height="24" fill="#9E2B25"/>
+<text x="1071" y="363" font-size="8.2" fill="#2b2620">Outrider Intercept Post</text>
+<polygon points="1172.0,356.4 1175.6,360.0 1172.0,363.6 1168.4,360.0" fill="#8a6d1a"/>
+<path d="M148,422 L195,422" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M148,422 L195,422" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M320,422 L367,422" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M320,422 L367,422" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M492,422 L539,422" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M492,422 L539,422" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M664,422 L711,422" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M664,422 L711,422" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M836,422 L883,422" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M836,422 L883,422" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<rect x="30" y="410" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="30" y="410" width="5" height="24" fill="#6a6a72"/>
+<text x="39" y="425" font-size="8.2" fill="#2b2620">Peat Bog</text>
+<rect x="202" y="410" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="202" y="410" width="5" height="24" fill="#6a6a72"/>
+<text x="211" y="425" font-size="8.2" fill="#2b2620">Alchemy</text>
+<rect x="374" y="410" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="374" y="410" width="5" height="24" fill="#6a6a72"/>
+<text x="383" y="425" font-size="8.2" fill="#2b2620">Apothecary</text>
+<rect x="546" y="410" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
+<rect x="546" y="410" width="5" height="24" fill="#C6A024"/>
+<text x="555" y="425" font-size="8.2" fill="#2b2620">Infirmary</text>
+<rect x="718" y="410" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
+<rect x="718" y="410" width="5" height="24" fill="#C6A024"/>
+<text x="727" y="425" font-size="8.2" fill="#2b2620">Hospitaller</text>
+<rect x="890" y="410" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
+<rect x="890" y="410" width="5" height="24" fill="#9E2B25"/>
+<text x="899" y="425" font-size="8.2" fill="#2b2620">Sacred Preceptory</text>
+<polygon points="1000.0,418.4 1003.6,422.0 1000.0,425.6 996.4,422.0" fill="#8a6d1a"/>
+<path d="M148,484 L195,484" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M148,484 L195,484" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M320,484 L367,484" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M320,484 L367,484" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M320,520 L367,520" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M320,520 L367,520" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M492,484 L539,484" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M492,484 L539,484" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M492,520 L539,520" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M492,520 L539,520" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M664,484 L711,484" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M664,484 L711,484" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M664,520 L711,520" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M664,520 L711,520" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M836,484 L883,484" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M836,484 L883,484" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M836,520 L851,520 Q860,520 860,511 L860,493 Q860,484 869,484 L883,484" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M836,520 L851,520 Q860,520 860,511 L860,493 Q860,484 869,484 L883,484" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<rect x="30" y="472" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="30" y="472" width="5" height="24" fill="#6a6a72"/>
+<text x="39" y="487" font-size="8.2" fill="#2b2620">Forestry</text>
+<rect x="202" y="472" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="202" y="472" width="5" height="24" fill="#6a6a72"/>
+<text x="211" y="487" font-size="8.2" fill="#2b2620">Carpentry</text>
+<rect x="202" y="508" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
+<rect x="202" y="508" width="5" height="24" fill="#6a6a72"/>
+<text x="211" y="523" font-size="8.2" fill="#2b2620">Courtyard</text>
+<rect x="374" y="472" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
+<rect x="374" y="472" width="5" height="24" fill="#9E2B25"/>
+<text x="383" y="487" font-size="8.2" fill="#2b2620">Fletchery</text>
+<rect x="374" y="508" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
+<rect x="374" y="508" width="5" height="24" fill="#9E2B25"/>
+<text x="383" y="523" font-size="8.2" fill="#2b2620">Conditioning Field</text>
+<rect x="546" y="472" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
+<rect x="546" y="472" width="5" height="24" fill="#9E2B25"/>
+<text x="555" y="487" font-size="8.2" fill="#2b2620">Martial Grounds</text>
+<rect x="546" y="508" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
+<rect x="546" y="508" width="5" height="24" fill="#9E2B25"/>
+<text x="555" y="523" font-size="8.2" fill="#2b2620">Castle Yard</text>
+<rect x="718" y="472" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
+<rect x="718" y="472" width="5" height="24" fill="#9E2B25"/>
+<text x="727" y="487" font-size="8.2" fill="#2b2620">List Yard</text>
+<rect x="718" y="508" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
+<rect x="718" y="508" width="5" height="24" fill="#9E2B25"/>
+<text x="727" y="523" font-size="8.2" fill="#2b2620">Grand Tournament</text>
+<rect x="890" y="472" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
+<rect x="890" y="472" width="5" height="24" fill="#9E2B25"/>
+<text x="899" y="487" font-size="8.2" fill="#2b2620">Royal Pavilion</text>
+<polygon points="1000.0,480.4 1003.6,484.0 1000.0,487.6 996.4,484.0" fill="#8a6d1a"/>
 </svg>

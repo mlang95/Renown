@@ -16,10 +16,6 @@
     1,
     0
    ],
-   "Arable Land": [
-    1,
-    2
-   ],
    "Carpentry": [
     1,
     3
@@ -44,6 +40,10 @@
     3,
     2
    ],
+   "Finery": [
+    3,
+    4
+   ],
    "Master Workshop": [
     4,
     0
@@ -51,6 +51,10 @@
    "Armory": [
     4,
     1
+   ],
+   "Jewelry Foundry": [
+    4,
+    4
    ],
    "Advanced Blast Furnace": [
     5,
@@ -63,20 +67,12 @@
    "Court Armoury": [
     6,
     1
-   ],
-   "Jewelry Foundry": [
-    6,
-    2
    ]
   },
   "edges": [
    [
     "Master Workshop",
     "Advanced Blast Furnace"
-   ],
-   [
-    "Arable Land",
-    "Animal Husbandry"
    ],
    [
     "Tannery",
@@ -100,6 +96,10 @@
    ],
    [
     "Blacksmith",
+    "Finery"
+   ],
+   [
+    "Blacksmith",
     "Forge"
    ],
    [
@@ -111,7 +111,7 @@
     "Gilded Foundry"
    ],
    [
-    "Gilded Foundry",
+    "Finery",
     "Jewelry Foundry"
    ],
    [
@@ -145,28 +145,28 @@
     1,
     0
    ],
-   "Weavery": [
+   "Merchant Quarter": [
+    1,
+    1
+   ],
+   "Artisan Workshop": [
     2,
     0
    ],
-   "Artisan Workshop": [
+   "Money Lending": [
+    2,
+    1
+   ],
+   "Court Artists": [
     3,
     0
    ],
-   "Court Artists": [
-    4,
-    0
-   ],
-   "Merchant Quarter": [
-    4,
-    1
-   ],
-   "Money Lending": [
-    5,
+   "Esteemed Bank": [
+    3,
     1
    ],
    "Aristocratic Court": [
-    6,
+    4,
     0
    ]
   },
@@ -176,11 +176,11 @@
     "Aristocratic Court"
    ],
    [
-    "Money Lending",
+    "Esteemed Bank",
     "Aristocratic Court"
    ],
    [
-    "Weavery",
+    "Market Square",
     "Artisan Workshop"
    ],
    [
@@ -188,24 +188,20 @@
     "Court Artists"
    ],
    [
+    "Money Lending",
+    "Esteemed Bank"
+   ],
+   [
     "Courtyard",
     "Market Square"
    ],
    [
-    "Market Square",
+    "Courtyard",
     "Merchant Quarter"
-   ],
-   [
-    "Court Artists",
-    "Money Lending"
    ],
    [
     "Merchant Quarter",
     "Money Lending"
-   ],
-   [
-    "Market Square",
-    "Weavery"
    ]
   ]
  },
@@ -348,10 +344,6 @@
     1,
     1
    ],
-   "Courtyard": [
-    1,
-    2
-   ],
    "Blacksmith": [
     2,
     0
@@ -360,21 +352,17 @@
     2,
     1
    ],
-   "Market Square": [
+   "Forestry": [
     2,
     2
    ],
-   "Forestry": [
+   "Quarry": [
     2,
     3
    ],
-   "Quarry": [
-    2,
-    4
-   ],
    "Arable Land": [
     2,
-    5
+    4
    ],
    "Forge": [
     3,
@@ -384,29 +372,25 @@
     3,
     1
    ],
-   "Weavery": [
+   "Carpentry": [
     3,
     2
    ],
-   "Carpentry": [
+   "Masonry": [
     3,
     3
    ],
-   "Masonry": [
+   "Orchard": [
     3,
     4
    ],
-   "Orchard": [
+   "Herb Garden": [
     3,
     5
    ],
-   "Herb Garden": [
-    3,
-    6
-   ],
    "Vineyard": [
     3,
-    7
+    6
    ],
    "Mill": [
     4,
@@ -414,15 +398,15 @@
    ],
    "Cidery": [
     4,
-    5
+    4
    ],
    "Spice Merchant": [
     4,
-    6
+    5
    ],
    "Winery": [
     4,
-    7
+    6
    ],
    "Manor House": [
     5,
@@ -459,6 +443,10 @@
     "Herb Garden"
    ],
    [
+    "Cidery",
+    "Manor House"
+   ],
+   [
     "Spice Merchant",
     "Manor House"
    ],
@@ -467,16 +455,8 @@
     "Manor House"
    ],
    [
-    "Cidery",
-    "Manor House"
-   ],
-   [
     "Mill",
     "Manor House"
-   ],
-   [
-    "Courtyard",
-    "Market Square"
    ],
    [
     "Quarry",
@@ -488,10 +468,6 @@
    ],
    [
     "Bakery",
-    "Mill"
-   ],
-   [
-    "Weavery",
     "Mill"
    ],
    [
@@ -519,12 +495,12 @@
     "Vineyard"
    ],
    [
-    "Market Square",
-    "Weavery"
-   ],
-   [
     "Vineyard",
     "Winery"
+   ],
+   [
+    "Cidery",
+    "Manor House"
    ],
    [
     "Spice Merchant",
@@ -532,10 +508,6 @@
    ],
    [
     "Winery",
-    "Manor House"
-   ],
-   [
-    "Cidery",
     "Manor House"
    ],
    [
@@ -545,15 +517,15 @@
   ],
   "links": [
    [
+    "Cidery",
+    "Manor House"
+   ],
+   [
     "Spice Merchant",
     "Manor House"
    ],
    [
     "Winery",
-    "Manor House"
-   ],
-   [
-    "Cidery",
     "Manor House"
    ],
    [
@@ -717,6 +689,59 @@
   ]
  },
  {
+  "title": "Polish House",
+  "anchor": "Polish House",
+  "mode": "chain",
+  "nodes": {
+   "Mine": [
+    0,
+    0
+   ],
+   "Furnace": [
+    1,
+    0
+   ],
+   "Blacksmith": [
+    2,
+    0
+   ],
+   "Finery": [
+    3,
+    0
+   ],
+   "Jewelry Foundry": [
+    4,
+    0
+   ],
+   "Polish House": [
+    5,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Furnace",
+    "Blacksmith"
+   ],
+   [
+    "Blacksmith",
+    "Finery"
+   ],
+   [
+    "Mine",
+    "Furnace"
+   ],
+   [
+    "Finery",
+    "Jewelry Foundry"
+   ],
+   [
+    "Jewelry Foundry",
+    "Polish House"
+   ]
+  ]
+ },
+ {
   "title": "Port Authority",
   "anchor": "Port Authority",
   "mode": "chain",
@@ -770,7 +795,7 @@
     0,
     0
    ],
-   "Courier Network": [
+   "Secret Cellar": [
     1,
     0
    ],
@@ -794,10 +819,10 @@
    ],
    [
     "Inn",
-    "Courier Network"
+    "Secret Cellar"
    ],
    [
-    "Courier Network",
+    "Secret Cellar",
     "Smuggler's Nook"
    ],
    [
@@ -811,36 +836,32 @@
   "anchor": "Baggage Train",
   "mode": "chain",
   "nodes": {
-   "Forestry": [
+   "Animal Husbandry": [
     0,
     0
    ],
-   "Kiln": [
-    1,
+   "Salt Works": [
+    0,
     1
+   ],
+   "Butchery": [
+    1,
+    0
    ],
    "Charcoal Burner": [
     2,
     0
    ],
-   "Salt Works": [
-    2,
-    2
-   ],
-   "Butchery": [
+   "Smokehouse": [
     3,
     0
    ],
-   "Smokehouse": [
+   "Levy Hall": [
     4,
     0
    ],
-   "Levy Hall": [
-    5,
-    0
-   ],
    "Baggage Train": [
-    6,
+    5,
     0
    ]
   },
@@ -854,27 +875,19 @@
     "Butchery"
    ],
    [
-    "Charcoal Burner",
+    "Animal Husbandry",
     "Butchery"
    ],
    [
-    "Forestry",
+    "Butchery",
     "Charcoal Burner"
-   ],
-   [
-    "Kiln",
-    "Charcoal Burner"
-   ],
-   [
-    "Forestry",
-    "Kiln"
    ],
    [
     "Smokehouse",
     "Levy Hall"
    ],
    [
-    "Butchery",
+    "Charcoal Burner",
     "Smokehouse"
    ]
   ]
@@ -937,25 +950,17 @@
   "anchor": "Outrider Intercept Post",
   "mode": "chain",
   "nodes": {
-   "Arable Land": [
+   "Inn": [
     0,
     0
    ],
-   "Animal Husbandry": [
+   "Courier Network": [
     1,
-    0
-   ],
-   "Stable": [
-    2,
     0
    ],
    "Caravanery": [
     3,
     0
-   ],
-   "Saddlery": [
-    3,
-    1
    ],
    "Toll House": [
     4,
@@ -972,36 +977,20 @@
   },
   "edges": [
    [
-    "Arable Land",
-    "Animal Husbandry"
-   ],
-   [
     "Toll House",
     "Beacon Towers"
    ],
    [
-    "Saddlery",
+    "Courier Network",
     "Caravanery"
    ],
    [
-    "Stable",
-    "Caravanery"
+    "Inn",
+    "Courier Network"
    ],
    [
     "Beacon Towers",
     "Outrider Intercept Post"
-   ],
-   [
-    "Stable",
-    "Saddlery"
-   ],
-   [
-    "Caravanery",
-    "Saddlery"
-   ],
-   [
-    "Animal Husbandry",
-    "Stable"
    ],
    [
     "Caravanery",
@@ -1067,40 +1056,44 @@
   "anchor": "Royal Pavilion",
   "mode": "chain",
   "nodes": {
-   "Courtyard": [
-    0,
-    0
-   ],
    "Forestry": [
     0,
-    1
-   ],
-   "Conditioning Field": [
-    1,
     0
    ],
    "Carpentry": [
     1,
-    1
-   ],
-   "Coliseum": [
-    2,
     0
+   ],
+   "Courtyard": [
+    1,
+    1
    ],
    "Fletchery": [
     2,
+    0
+   ],
+   "Conditioning Field": [
+    2,
     1
    ],
-   "Grand Tournament": [
+   "Martial Grounds": [
     3,
     0
    ],
-   "Tiltyard": [
+   "Coliseum": [
     3,
     1
    ],
-   "Royal Pavilion": [
+   "List Yard": [
     4,
+    0
+   ],
+   "Grand Tournament": [
+    4,
+    1
+   ],
+   "Royal Pavilion": [
+    5,
     0
    ]
   },
@@ -1126,16 +1119,20 @@
     "Grand Tournament"
    ],
    [
+    "Martial Grounds",
+    "List Yard"
+   ],
+   [
+    "Fletchery",
+    "Martial Grounds"
+   ],
+   [
     "Grand Tournament",
     "Royal Pavilion"
    ],
    [
-    "Tiltyard",
+    "List Yard",
     "Royal Pavilion"
-   ],
-   [
-    "Fletchery",
-    "Tiltyard"
    ]
   ]
  },
@@ -1242,44 +1239,36 @@
   "anchor": "Ossuary Crypt",
   "mode": "chain",
   "nodes": {
-   "Inn": [
+   "Peat Bog": [
     0,
     0
    ],
-   "Courier Network": [
+   "Inn": [
+    0,
+    1
+   ],
+   "Alchemy": [
+    1,
+    0
+   ],
+   "Forgotten Catacombs": [
     1,
     1
    ],
-   "Secret Cellar": [
-    2,
-    0
-   ],
-   "Peat Bog": [
-    2,
-    2
-   ],
-   "Forgotten Catacombs": [
-    3,
-    0
-   ],
-   "Alchemy": [
-    3,
-    2
-   ],
    "Toxicarium": [
-    4,
+    2,
     0
    ],
    "Charnel House": [
-    5,
+    3,
     0
    ],
    "Plague Pit": [
-    6,
+    4,
     0
    ],
    "Ossuary Crypt": [
-    7,
+    5,
     0
    ]
   },
@@ -1294,10 +1283,6 @@
    ],
    [
     "Inn",
-    "Courier Network"
-   ],
-   [
-    "Secret Cellar",
     "Forgotten Catacombs"
    ],
    [
@@ -1307,14 +1292,6 @@
    [
     "Charnel House",
     "Plague Pit"
-   ],
-   [
-    "Inn",
-    "Secret Cellar"
-   ],
-   [
-    "Courier Network",
-    "Secret Cellar"
    ],
    [
     "Alchemy",
@@ -1380,7 +1357,7 @@
     0,
     0
    ],
-   "Courier Network": [
+   "Secret Cellar": [
     1,
     0
    ],
@@ -1399,15 +1376,15 @@
   },
   "edges": [
    [
-    "Inn",
-    "Courier Network"
-   ],
-   [
     "Syndicate Hub",
     "Outlaw Rookery"
    ],
    [
-    "Courier Network",
+    "Inn",
+    "Secret Cellar"
+   ],
+   [
+    "Secret Cellar",
     "Smuggler's Nook"
    ],
    [
@@ -1478,6 +1455,67 @@
    [
     "Cipher Chamber",
     "Whispering Undercroft"
+   ]
+  ]
+ },
+ {
+  "title": "Marshal Tiltyard",
+  "anchor": "Marshal Tiltyard",
+  "mode": "chain",
+  "nodes": {
+   "Animal Husbandry": [
+    0,
+    0
+   ],
+   "Inn": [
+    0,
+    1
+   ],
+   "Stable": [
+    1,
+    0
+   ],
+   "Saddlery": [
+    2,
+    0
+   ],
+   "Avery": [
+    3,
+    0
+   ],
+   "Farriery": [
+    4,
+    0
+   ],
+   "Marshal Tiltyard": [
+    5,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Saddlery",
+    "Avery"
+   ],
+   [
+    "Avery",
+    "Farriery"
+   ],
+   [
+    "Farriery",
+    "Marshal Tiltyard"
+   ],
+   [
+    "Stable",
+    "Saddlery"
+   ],
+   [
+    "Animal Husbandry",
+    "Stable"
+   ],
+   [
+    "Inn",
+    "Stable"
    ]
   ]
  },

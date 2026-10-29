@@ -371,7 +371,6 @@ STANDING_EFFECTS = {
     ("Piety", "Sovereign"): "Immune Panic",
     ("Cunning", "Established"): "Opponent gains Strain.", #Remove "Foes gain Blunder in first Skirmish"
     ("Cunning", "Sovereign"):   "Opponent gains Blunder in the first Skirmish.", #Remove "Foes gain Strain"
-    ("Industry", "Established"): "Gain -1AP"
 }
 	
 # ── Tactics ────────────────────────────────────────────────────────────────
@@ -1049,7 +1048,7 @@ NODES = {
     },
     "Stable": {
         "type": "Civic",
-        "unlock": "1 Rising",
+        "unlock": "-",
         "mastery_req": "Animal Husbandry + Blacksmith or Carpentry",
         "innate": "Speed +1; Natural",
         "mastery": "Speed +1; Unlocks Cavalry Spear (Still requires Tier Unlock)",
@@ -1398,7 +1397,7 @@ NODES = {
         "mastery_req": "Forestry + Kiln",
         "innate": "Natural",
         "mastery": "+500",
-        "efficient": ["Forestry", "Kiln"],
+        "efficient": ["Animal Husbandry"],
         "builds_into": ["Smokehouse"],
         "monument": False},
     "Mill": {
@@ -1726,31 +1725,53 @@ SIMPLE_NODES = {
         "group": "g_raw",
         "root": True,
         "unlock": "-",
-        "innate": "+1000; Natural, Doubt +1",
+        "innate": "+1500; Natural, Doubt +1",
         "efficient": ["Hamlet"],          # may start a Hamlet (Hamlet = location token, not a Holding)
         "builds_into": ["Workyard", "Burgages"],
         "monument": False},
     "Herb Garden": {
         "group": "g_husbandry",
         "unlock": "-",
-        "innate": "+1000; Natural; Craft +1",
+        "innate": "+500; Natural; Craft +2",
         "efficient": "Arable Land",
         "builds_into": ["Spice Merchant"],
         "monument": False},
     "Animal Husbandry": {
         "group": "g_husbandry",
+        "root": True,
         "unlock": "-",
         "innate": "Natural, Unlock Crude armor and shield. Upkeep -500",
-        "efficient": "Arable Land",
+        #"efficient": "Arable Land",
         "builds_into": ["Tannery", "Stable"],
         "monument": False},
     "Saddlery": {
         "group": "g_husbandry",
-        "unlock": "-",
-        "innate": "+500; Natural; Speed +2; Unlocks Lance (Still requires Tier Unlock)",
-        "efficient": ["Stable", "Caravanery"],
+        "unlock": "1 Established",
+        "innate": "+500; Natural; Speed +1; Unlocks Lance (Still requires Tier Unlock)",
+        "efficient": ["Stable"],
         "builds_into": [],
         "monument": False},
+    "Avery": {
+        "group": "g_husbandry",
+        "unlock": "1 Established",
+        "innate": "+1000; Natural; Speed +1",
+        "efficient": ["Saddlery"],
+        "builds_into": [],
+        "monument": False},
+    "Farriery": {
+        "group": "g_husbandry",
+        "unlock": "1 Established",
+        "innate": "+1000; Natural; Speed +1;",
+        "efficient": ["Avery"],
+        "builds_into": [],
+        "monument": False},
+    "Marshal Tiltyard": {
+        "group": "g_husbandry",
+        "unlock": "1 Sovereign",
+        "innate": "Natural; Initiative +1; Unlocks Lances regardless of Tier Unlock; Armies must be equipped with Lance",
+        "efficient": ["Farriery"],
+        "builds_into": [],
+        "monument": True},
     "Vineyard": {
         "group": "g_husbandry",
         "unlock": "-",
@@ -1790,7 +1811,7 @@ SIMPLE_NODES = {
         "group": "g_logistics",
         "unlock": "-",
         "innate": "Natural; +500; Upkeep -500; Craft +1",
-        "efficient": ["Salt Works", "Charcoal Burner"],
+        "efficient": ["Salt Works", "Animal Husbandry"],
         "builds_into": ["Smokehouse"],
         "monument": False},
     "Bakery": {
@@ -1800,13 +1821,13 @@ SIMPLE_NODES = {
         "efficient": "Meadery",
         "builds_into": ["Mill"],
         "monument": False},
-    "Weavery": {
-        "group": "g_commerce",
-        "unlock": "-",
-        "innate": "+2000; Craft +2",
-        "efficient": "Market Square",
-        "builds_into": ["Artisan Workshop", "Mill"],
-        "monument": False},
+    #"Weavery": {
+    #    "group": "g_commerce",
+    #    "unlock": "-",
+    #    "innate": "+1000; Craft +3",
+    #    "efficient": "Market Square",
+    #    "builds_into": ["Artisan Workshop", "Mill"],
+    #    "monument": False},
     "Fletchery": {
         "group": "g_arms",
         "unlock": "Rising Prowess",
@@ -1845,35 +1866,49 @@ SIMPLE_NODES = {
     "Blacksmith": {
         "group": "g_arms",
         "unlock": "Rising Industry",
-        "innate": "Craft +1; +500; Unlocks Wrought Weapons",
+        "innate": "Craft +2; Upkeep -500; Unlocks Wrought Weapons",
         "efficient": "Furnace",
         "builds_into": ["Forge"],
         "monument": False},
+    "Finery": {
+        "group": "g_commerce",
+        "unlock": "Established Industry",
+        "innate": "Craft +3; Weapons gain -1AP",
+        "efficient": ["Blacksmith"],
+        "builds_into": [],
+        "monument": False}, 
     "Jewelry Foundry": {
         "group": "g_commerce",
-        "unlock": "-",
-        "innate": "+2000; Authority +1 on Cunning actions targeting you; Craft +5",
-        "efficient": "Gilded Foundry",
+        "unlock": "Established Industry",
+        "innate": "+2000; Craft +5; In the Envoy Phase, a player may target you with a Cunning Envoy. If they do, that Envoy gains Authority +1. If it Passes or is Endorseed, the action must target you",
+        "efficient": ["Finery"],
         "builds_into": [],
         "monument": False},
+    "Polish House": {
+        "group": "g_commerce",
+        "unlock": "Sovereign Industry",
+        "innate": "+3000; Craft +10;  In the Envoy Phase, a player may target you with a Cunning Envoy. If they do, that Envoy gains Authority +1. If it Passes or is Endorseed, the action must target you",
+        "efficient": "Jewelry Foundry",
+        "builds_into": [],
+        "monument": True},
     "Armory": {
         "group": "g_arms",
         "unlock": "Rising Industry",
-        "innate": "Unlock Wrought armor & shield; Upkeep -500; Craft +1",
+        "innate": "Unlock Wrought armor & shield; Upkeep -500; Craft +2",
         "efficient": ["Tannery", "Blacksmith"],
         "builds_into": ["Gilded Foundry"],
         "monument": False},
     "Master Workshop": {
         "group": "g_arms",
         "unlock": "Established Industry",
-        "innate": "Upkeep -500; Craft +1; Add Serrated to Weapons",
+        "innate": "Upkeep -500; Craft +2; Add Serrated to Weapons",
         "efficient": "Forge",
         "builds_into": ["Advanced Blast Furnace"],
         "monument": False},
     "Gilded Foundry": {
         "group": "g_arms",
         "unlock": "Established Industry",
-        "innate": "Upkeep -500; Unlock Forged armor & shield.",
+        "innate": "Upkeep -1000; Unlock Forged armor & shield.",
         "efficient": "Armory",
         "builds_into": ["Jewelry Foundry", "Court Armoury"],
         "monument": False},
@@ -1881,20 +1916,20 @@ SIMPLE_NODES = {
         "group": "g_logistics",
         "unlock": "-",
         "innate": "Natural; Craft +2; Upkeep -1000",
-        "efficient": ["Butchery"],
+        "efficient": ["Charcoal Burner"],
         "builds_into": ["Levy Hall"],
         "monument": False},
     "Workyard": {
         "group": "g_works",
         "unlock": "—",
-        "innate": "Natural; Doubt +1; +1000",
+        "innate": "Natural; Doubt +1; +1500",
         "efficient": ["Common Land","Salt Works"],
         "builds_into": ["Burgages"],
         "monument": False},
     "Storehouse": {
         "group": "g_works",
         "unlock": "Established Industry",
-        "innate": "Natural; Doubt +1; +2000; Build Timer -1",
+        "innate": "Natural; Doubt +1; +2500; Build Timer -1",
         "efficient": ["Census Hall"],
         "builds_into": ["Office of Works"],
         "monument": False},
@@ -1932,8 +1967,8 @@ SIMPLE_NODES = {
         "root": True,
         "unlock": "-",
         "infrastructure_req": "Town Square",
-        "innate": "Faith +1 per Trade Partner with Craft 3+, and each of those partners gains Faith +1; Influence +1",
-        "builds_into": ["Courier Network", "Smuggler's Nook"],
+        "innate": "Natural; Faith +1 per Trade Partner with Craft 3+, and each of those partners gains Faith +1; Influence +1",
+        "builds_into": ["Smuggler's Nook"], #"Courier Network",
         "monument": False},
     "Spice Merchant": {
         "group": "g_commerce",
@@ -1951,19 +1986,27 @@ SIMPLE_NODES = {
         "monument": False},
     "Merchant Quarter": {
         "group": "g_commerce",
-        "unlock": "Established Industry",
+        "unlock": "Rising Industry",
         "infrastructure_req": "Magistrate's Hall",
         "innate": "+1000; Craft +3; Trade Partners gain Craft +2",
-        "efficient": ["Market Square"],
+        "efficient": ["Courtyard"],
         "builds_into": ["Money Lending"],
         "monument": False},
     "Money Lending": {
         "group": "g_commerce",
         "unlock": "Established Industry",
         "innate": "Extort 1000; Once per turn, you may loan money to Trade Partners at 100 per 1000/turn interest (minimum 100); on Default: Perform Demand Tribute",
-        "efficient": ["Court Artists","Merchant Quarter"],
+        "efficient": ["Merchant Quarter"],
+        "builds_into": ["Esteemed Bank"],
+        "monument": False},
+    "Esteemed Bank": {
+        "group": "g_commerce",
+        "unlock": "Established Industry",
+        "innate": "Each Empire Phase, Gain 1000 per 10000 in Treasury",
+        "efficient": ["Money Lending"],
         "builds_into": ["Aristocratic Court"],
         "monument": False},
+    
     "Census Hall": {
         "group": "g_works",
         "unlock": "-",
@@ -1974,15 +2017,15 @@ SIMPLE_NODES = {
     "Caravanery": {
         "group": "g_logistics",
         "unlock": "-",
-        "innate": "Natural; Authority -2 on Intercept Caravan actions targeting you; Craft +2; Speed -2 to non-allied Armies in your Province.",
-        "efficient": ["Saddlery", "Stable"],
-        "builds_into": ["Saddlery", "Toll House"],
+        "innate": "Natural; Authority -2 on Intercept Caravan actions targeting you; Speed -2 to non-allied Armies in your Province.",
+        "efficient": ["Courier Network"],
+        "builds_into": ["Toll House"],
         "monument": False},
     "Stable": {
         "group": "g_arms",
         "unlock": "1 Rising",
         "innate": "Speed +1; Natural; Unlocks Cavalry Spear (Still requires Tier Unlock)",
-        "efficient": "Animal Husbandry",
+        "efficient": ["Animal Husbandry","Inn"],
         "builds_into": ["Saddlery", "Caravanery"],
         "monument": False},
     "Shipyard": {
@@ -2011,7 +2054,7 @@ SIMPLE_NODES = {
         "group": "g_devotion",
         "unlock": "Rising Piety",
         "infrastructure_req": "Chapel",
-        "innate": "Faith +1",
+        "innate": "Faith +1; If your Piety Envoy is Condemned, instead it Fails",
         "efficient": "Masonry",
         "builds_into": ["Abbey"],
         "monument": False},
@@ -2063,7 +2106,7 @@ SIMPLE_NODES = {
         "monument": False},
     "Bell Tower": {
         "group": "g_court",
-        "unlock": "Established Piety",
+        "unlock": "Rising Piety",
         "innate": "Influence +1; Authority +1 on your Council Envoys.",
         "efficient": "Jester's Court",
         "builds_into": ["Embassy"],
@@ -2079,7 +2122,7 @@ SIMPLE_NODES = {
     "Granary": {
         "group": "g_works",
         "unlock": "Rising Industry",
-        "innate": "Upkeep -500; Armies and Garrisons within your Settlements gain Immune Strained.",
+        "innate": "Upkeep -1000; Armies and Garrisons within your Settlements gain Immune Strained.",
         "efficient": "Masonry",
         "builds_into": ["Supply Depot", "Citadel"],
         "monument": False},
@@ -2147,7 +2190,7 @@ SIMPLE_NODES = {
         "group": "g_commerce",
         "unlock": "Established Industry",
         "innate": "+1000; Faith +1",
-        "efficient": "Weavery",
+        "efficient": "Market Square",
         "builds_into": ["Court Artists"],
         "monument": False},
     "University": {
@@ -2175,9 +2218,9 @@ SIMPLE_NODES = {
     "Courier Network": {
         "group": "g_court",
         "unlock": "-",
-        "innate": "In the Intrigue Phase: Authority -1 on one Envoy; Once per Envoy Phase: select a Personal Action you performed this turn. Next turn, you may perform that action in the Empire Phase, but you send 1 fewer Envoy next turn.",
+        "innate": "Natural; Once per Envoy Phase: select a Personal Action you performed this turn. Next turn, you may perform that action in the Empire Phase, but you send 1 fewer Envoy next turn.", # In the Intrigue Phase: Authority -1 on one Envoy;
         "efficient": "Inn",
-        "builds_into": ["Smuggler's Nook"],
+        "builds_into": ["Smuggler's Nook","Caravanery"],
         "monument": False},
     "Toll House": {
         "group": "g_secrecy",
@@ -2204,14 +2247,14 @@ SIMPLE_NODES = {
         "group": "g_secrecy",
         "unlock": "Rising Cunning",
         "innate": "Natural; Passed Cunning envoys Recoup 500 Gold; Endorsed Cunning envoys Recoup 1000 Gold",
-        "efficient": ["Inn","Courier Network"],
-        "builds_into": ["Courier Network","Forgotten Catacombs"],
+        "efficient": ["Inn"],#"Courier Network"
+        "builds_into": ["Forgotten Catacombs"],#"Courier Network",
         "monument": False},
     "Smuggler's Nook": {
         "group": "g_secrecy",
         "unlock": "Established Cunning",
         "innate": "gain Immune Uprising (your Uprising spawns no Bandit Camps); Bandit Camps in your Outlaw Country don't target you and instead target another player at random.",
-        "efficient": ["Courier Network"],
+        "efficient": ["Secret Cellar"],
         "builds_into": ["Black Market", "Syndicate Hub"],
         "monument": False},
     "Syndicate Hub": {
@@ -2238,7 +2281,7 @@ SIMPLE_NODES = {
     "Toxicarium": {
         "group": "g_secrecy",
         "unlock": "Rising Cunning",
-        "innate": "Weapons gain Poison; Endorsed Cunning actions give an additional Doubt +1 to Target",
+        "innate": "Weapons gain Poison; Endorsed Cunning envoys give an additional Doubt +1 to Target",
         "efficient": ["Alchemy", "Forgotten Catacombs"],
         "builds_into": ["Charnel House"],
         "monument": False},
@@ -2252,7 +2295,7 @@ SIMPLE_NODES = {
     "Plague Pit": {
         "group": "g_secrecy",
         "unlock": "Established Cunning",
-        "innate": "Cunning actions give an additional Doubt +1 to Target; No longer affected by all Public Order effects (positive or negative). Convert actions can't target you.",
+        "innate": "No longer affected by all Public Order effects (positive or negative). Convert actions can't target you.",#Cunning actions give an additional Doubt +1 to Target; 
         "efficient": ["Charnel House"],
         "builds_into": ["Ossuary Crypt"],
         "monument": False},
@@ -2267,7 +2310,7 @@ SIMPLE_NODES = {
         "group": "g_devotion",
         "unlock": "Established Piety",
         "infrastructure_req": "Chapel",
-        "innate": "Faith +1; Extort 500 from each other player without a Pilgrimage Site; each other player without a Pilgrimage Site gains Doubt +1",
+        "innate": "Faith +1; Extort 500 from each other player without a Pilgrimage Site", # ; each other player without a Pilgrimage Site gains Doubt +1
         "efficient": "Reliquary",
         "builds_into": ["Unforgotten Shrine"],
         "monument": False},
@@ -2290,30 +2333,30 @@ SIMPLE_NODES = {
         "group": "g_secrecy",
         "unlock": "Rising Cunning",
         "innate": "Cunning actions targeting you can't be Endorsed",
-        "efficient": "Secret Cellar",
+        "efficient": "Inn",
         "builds_into": ["Toxicarium"],
         "monument": False},
     "Charcoal Burner": {
         "group": "g_logistics",
         "unlock": "Established Industry",
         "innate": "Natural; +1000",
-        "efficient": ["Forestry", "Kiln"],
+        "efficient": ["Butchery"],
         "builds_into": ["Smokehouse"],
         "monument": False},
     "Mill": {
         "group": "g_husbandry",
         "unlock": "Rising Industry",
         "innate": "Natural; +1000",
-        "efficient": ["Bakery", "Weavery", "Forge", "Carpentry", "Masonry"],
+        "efficient": ["Bakery", "Forge", "Carpentry", "Masonry"],
         "builds_into": ["Bakery"],
         "monument": False},
-    "Kiln": {
-        "group": "g_logistics",
-        "unlock": "Rising Industry",
-        "innate": "Natural; +500",
-        "efficient": "Forestry",
-        "builds_into": ["Charcoal Burner"],
-        "monument": False},
+    #"Kiln": {
+    #    "group": "g_logistics",
+    #    "unlock": "Rising Industry",
+    #    "innate": "Natural; +500",
+    #    "efficient": ["Forestry","Carpentry"],
+    #    "builds_into": ["Charcoal Burner"],
+    #    "monument": False},
     "Burgages": {
         "group": "g_works",
         "unlock": "-",
@@ -2368,7 +2411,7 @@ SIMPLE_NODES = {
     "Castle Hall": {
         "group": "g_works",
         "unlock": "Established Industry",
-        "innate": "Doubt +1; Upkeep -500; Tax Income is Doubled.",
+        "innate": "Doubt +1; Tax Income is Doubled.",
         "efficient": ["Citadel"],
         "builds_into": ["Imperial Palace"],
         "monument": False},
@@ -2387,11 +2430,18 @@ SIMPLE_NODES = {
         "efficient": "Blacksmith",
         "builds_into": ["Master Workshop", "Mill"],
         "monument": False},
-    "Tiltyard": {
+    "Martial Grounds": {
         "group": "g_arms",
         "unlock": "Established Prowess",
-        "innate": "Armies may be equipped with a Ranged and a Melee Weapon simultaneously; In addition, armies may equip two of the same 1H Melee Weapon to gain Dual Wield.",
+        "innate": "Armies may be equipped with a Ranged and a Melee Weapon simultaneously; Unlocks Longbow regardless of Unlock Tier",
         "efficient": "Fletchery",
+        "builds_into": [],
+        "monument": False},
+    "List Yard": {
+        "group": "g_arms",
+        "unlock": "Established Prowess",
+        "innate": "Gain +1 to Strike; In addition, armies may equip two of the same 1H Melee Weapon to gain Dual Wield.",
+        "efficient": "Martial Grounds",
         "builds_into": ["Royal Pavilion"],
         "monument": False},
     "Court Armoury": {
@@ -2411,14 +2461,14 @@ SIMPLE_NODES = {
     "Royal Pavilion": {
         "group": "g_logistics",
         "unlock": "Sovereign Prowess",
-        "innate": "Armies gain Immune Strained, Improve Parry by +1; Gain +1 to Strike. Deadly, & Cleave also trigger Focused Strikes on a natural 8+.",
-        "efficient": ["Grand Tournament","Tiltyard"],
+        "innate": "Armies gain Immune Strained; Improve Parry by +1; Deadly, & Cleave also trigger Focused Strikes on a natural 8+.",
+        "efficient": ["Grand Tournament","List Yard"],
         "builds_into": [],
         "monument": True},
     "Imperial Palace": {
         "group": "g_works",
         "unlock": "Sovereign Prowess + Established Industry",
-        "innate": "Each Empire Phase, each non-allied player with a lower Prowess value gains Doubt +2. If your Envoy would fail, it passes instead.",
+        "innate": "Each Empire Phase, each non-allied player with a lower Prowess value gains Doubt +1. If your Envoy would fail, it passes instead.",
         "efficient": "Castle Hall",
         "builds_into": [],
         "monument": True},
@@ -2476,7 +2526,7 @@ SIMPLE_NODES = {
     "Exalted Basilica": {
         "group": "g_devotion",
         "unlock": "Sovereign Piety",
-        "innate": "At the Start of the Empire Phase, you may perform an Endorsed Spread Truth.",
+        "innate": "Gain +300 per Faith. At the Start of the Empire Phase, you may perform an Endorsed Spread Truth.",
         "efficient": "Unforgotten Shrine",
         "builds_into": [],
         "monument": True},
@@ -2492,7 +2542,7 @@ SIMPLE_NODES = {
         "group": "g_commerce",
         "unlock": "Sovereign Industry + Rising Cunning",
         "innate": "Each Empire Phase, Extort 1000 from each non-allied player with a lower Treasury. Your Vote counts as 2 votes toward Domain selection during the Council Phase.",
-        "efficient": ["Court Artists","Money Lending"],
+        "efficient": ["Court Artists","Esteemed Bank"],
         "builds_into": [],
         "monument": True},
     "Studium Generale": {
@@ -2512,7 +2562,7 @@ SIMPLE_NODES = {
     "Advanced Blast Furnace": {
         "group": "g_arms",
         "unlock": "Sovereign Industry + Rising Prowess",
-        "innate": "Upkeep -1000; Crafted Weapons Unlocked; Craft +3",
+        "innate": "Upkeep -1000; Crafted Weapons Unlocked; Craft +5",
         "efficient": "Master Workshop",
         "builds_into": [],
         "monument": True},
@@ -2547,7 +2597,7 @@ SIMPLE_NODES = {
     "Port Authority": {
         "group": "g_commerce",
         "unlock": "Sovereign Industry",
-        "innate": "Gain +100 per Craft",
+        "innate": "Craft +10; Gain +100 per Craft",
         "efficient": ["Emporium"],
         "builds_into": [],
         "monument": True}
