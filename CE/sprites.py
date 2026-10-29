@@ -2304,8 +2304,14 @@ put(c, ["kkkkk", "ktttT", "kkkkk"], 27, 28)
 put(c, [".kk", "kbbk", ".kb.", "..b."], 28, 24)
 SPRITES["holding:Masonry"] = fin32(c)
 
-# Workyard: tall A-frame crane with an iron mast, block and tackle; stacked timber
+# Workyard: tall A-frame crane with an iron mast, block and tackle; stacked timber; shut in by a dark palisade
 c = cv32()
+for x in range(32):
+    p = x % 3
+    c[16][x] = "K" if p == 1 else "."
+    c[17][x] = "u" if p == 1 else "K"
+    for y in range(18, 31):
+        c[y][x] = "K" if p == 0 else ("u" if p == 1 else "U")
 put(c, ["kkkkk"], 21, 0)
 vline(c, 23, 1, 14, "m")
 for y in range(8, 15):
@@ -2325,36 +2331,49 @@ put(c, [".kkkkkkkkkkkkk...",
         "kkkkkkkkkkkkkkkkk"], 0, 22)
 SPRITES["holding:Workyard"] = fin32(c)
 
-# Storehouse: big warehouse, stone ground floor and timber loft, hoist over the loft door, braced doors, sacks and crates
+# Labor Fief (key: Storehouse): the lord's broad demesne barn under dark slate, timber loft over a dressed-stone floor,
+# a smoking chimney, a dark cart arch with an iron-strapped door leaf, a hoist at the loft door, one lit slit, sacks
 c = cv32()
-roof(c, 15, 1, 15)
-put(c, ["kkkkk", "kdddk", "kdddk", "kkkkk"], 13, 7)
-put(c, ["k" * 5, "....k", "....m", "....m", "...kUk"][:4], 15, 3)
-wall(c, 0, 16, 31, 15, "b")
+roof(c, 15, 0, 15, "u")
+wall(c, 4, 5, 4, 7, "t")
+put(c, [".s.", "s..", ".s."], 5, 1)
+put(c, ["kkkk", "kddk", "kddk"], 14, 8)
+put(c, ["k" * 6, ".....m", ".....m", "....kU", "....kk"], 17, 6)
+wall(c, 0, 15, 31, 16, "b")
 for xx in range(3, 29, 4):
-    vline(c, xx, 18, 21, "B")
+    vline(c, xx, 17, 20, "B")
 for y in range(22, 30):
     for x in range(1, 30):
         c[y][x] = "T" if x >= 28 else "t"
-courses(c, 1, 24, 27, 29)
-hline(c, 1, 29, 22, "k")
-put(c, ["kkkkkkkkkkk", "kbkbbkbbkBk", "kbbkbkbkbBk", "kbbbkkbbbBk", "kbbkbkbkbBk", "kbkbbkbbkBk", "kkbbbkbbbkk", "kbbbbkbbbBk", "kkkkkkkkkkk"], 10, 22)
-put(c, SACK5, 2, 26)
+hline(c, 1, 29, 21, "k")
+courses(c, 1, 23, 27, 29)
+put(c, ["..kkkkk..", ".kdddddk.", "kdddddddk"] + ["kbmdddddk"] * 2 + ["kbbdddddk"] * 2 + ["kbmdddddk"] * 2 + ["kbbdddddk"], 11, 22)
+put(c, ["kkk", "kdk", "kdk", "kkk"], 4, 16)
+put(c, ["kkk", "kyk", "kYk", "kkk"], 24, 16)
+put(c, SACK5, 1, 26)
+put(c, SACK5, 5, 26)
+put(c, [".kkk.", "kssZk", "kkkkk"], 3, 23)
 put(c, CRATE7, 23, 24)
 SPRITES["holding:Storehouse"] = fin32(c)
 
-# Census Hall: half-timbered civic hall, ledger board over the door, clerk's lit windows, scroll rolls
+TALLY = ["k" * 13, "kdbdbbdbdbbdk", "kbbbbbbbbbbBk", "k" * 13]   # notched tally stick, 13 wide
+
+# Tally House (key: Census Hall): squat stone counting house under dark slate, a great notched tally stick hung over
+# the low door, shuttered windows with one lit crack, a notched tally post and a corded bundle of sticks
 c = cv32()
-wall(c, 0, 16, 25, 15, "w")
-for xx in (6, 18):
-    vline(c, xx, 17, 29, "b")
-hline(c, 1, 23, 22, "b")
-roof(c, 12, 4, 12)
-put(c, ["k" * 11, "ksksksksksk", "ksZsZsZsZsk", "k" * 11], 7, 17)
-for o in (1, 20):
-    put(c, ["kkkk", "kyyk", "kyyk", "kyYk", "kkkk"], o, 17)
-put(c, [".kkkk.", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk"], 9, 23)
-put(c, [".kk..", "kssk.", "kssZk", "kkkkk", "kssZk", "kssZk", "kkkkk"], 26, 24)
+wall(c, 0, 15, 25, 16, "t")
+courses(c, 1, 17, 22, 29)
+roof(c, 12, 3, 12, "u")
+put(c, SLIT, 12, 8)
+for x in (8, 16):
+    c[16][x] = c[17][x] = "m"
+put(c, TALLY, 6, 18)
+put(c, ["kkkk", "kyBk", "kyBk", "kkkk"], 19, 19)
+door4(c, 10, 25, 6)
+box(c, 27, 10, 4, 17, "b")
+for y in range(12, 25, 3):
+    c[y][28] = "k"
+put(c, ["kkkkkkk", "kbBbBbk", "kcccccC", "kbBbBbk", "kkkkkkk"], 25, 26)
 SPRITES["holding:Census Hall"] = fin32(c)
 
 # Granary: thatched granary raised on staddle stones, ladder, grain sacks
@@ -2450,18 +2469,20 @@ put(c, [".kkkk.", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "k
 put(c, ["kkkkkk", ".....k", "....kbk", "...kkkkk", "...kmmMk", "...kkbkk", ".....b..", ".....B.."], 22, 15)
 SPRITES["holding:Masons' Guild"] = fin32(c)
 
-# Burgages: two narrow half-timbered plot houses, paired windows over a centred door, each with its garden strip
+# Villein Hovels (key: Burgages): one long sagging thatch over three daub cells, low dark doors, shutters closed but
+# one, a smoke hole in the ridge
 c = cv32()
-for x0 in (0, 16):
-    wall(c, x0, 17, 11, 14, "w")
-    for xx in (x0 + 3, x0 + 7):
-        vline(c, xx, 18, 22, "b")
-    hline(c, x0 + 1, x0 + 9, 23, "b")
-    roof(c, x0 + 5, 12, 5)
-    win4(c, x0 + 1, 18)
-    win4(c, x0 + 6, 18)
-    door4(c, x0 + 4, 24)
-    put(c, ["l.l.l", "lLlLl", "nlnLn", "lLlLL", "kkkkk"], x0 + 11, 26)
+put(c, [".s", "s.", ".s"], 15, 10)
+for i in range(8):
+    y, x0, x1 = 14 + i, 7 - i, 24 + i
+    for x in range(x0, x1 + 1):
+        c[y][x] = "k" if x in (x0, x1) or i in (0, 7) else ("B" if (x + 2 * y) % 5 == 0 or x > x1 - i // 2 - 1 else "b")
+wall(c, 1, 22, 30, 9, "w")
+for xx in (11, 20):
+    vline(c, xx, 23, 29, "b")
+for x0, lit in ((3, False), (13, False), (22, True)):
+    door4(c, x0, 25, 6)
+    put(c, ["kkk", "kyk" if lit else "kbk", "kkk"], x0 + 4, 24)
 SPRITES["holding:Burgages"] = fin32(c)
 
 # Citadel: white keep stepped in four tiers, red flag, dark windows and gate
@@ -2663,8 +2684,9 @@ for x in range(32):
     c[30][x] = "y" if x % 2 == 0 else "B"
 SPRITES["holding:Arable Land"] = fin32(c)
 
-# Common Land: grazing sheep, shepherd's hurdle fence, rough grass
+# Common Land: grazing sheep, shepherd's hurdle fence, rough grass; a hooded watcher behind the hurdle, one eye glinting
 c = cv32()
+put(c, [".kk.", "kuuk", "kdyk", "kuuk", "kuUk", "kuUk", "kuUk", "kuUk", "k..k"], 26, 19)
 for x0, y0 in ((0, 19), (12, 22)):
     put(c, ["kk..........",
             "ksk..kkkkkk.",
@@ -3121,6 +3143,30 @@ for x in (11, 20):
     vline(c, x, 18, 46, "b")
 put(c, ["k.kk.k", "kttktk"], 13, 18)
 SPRITES["monument:Office of Works"] = fin32(c)
+
+# Serfdom (Cunning; the Labor line's end): dark reeve's tower with its bell and shuttered slits, one lit window, a
+# notched tally post at its foot, a row of mean tied huts, and bound workers hauling a stone on a rope toward the tower
+c = cv48()
+roof(c, 7, 1, 7, "u")
+wall(c, 1, 8, 13, 39, "u")
+put(c, ["kkkkk", "kdddk", "kdmdk", "kmmMk", "kkkkk"], 5, 10)
+put(c, SHUT, 3, 18)
+put(c, SHUT, 3, 28)
+put(c, ["kkk", "kyk", "kYk", "kkk"], 9, 23)
+door4(c, 5, 41, 6)
+for x0 in (23, 35):
+    roof(c, x0 + 6, 26, 6, "b")
+    wall(c, x0 + 1, 32, 11, 15, "w")
+    put(c, ["kkk", "kdk", "kdk", "kdk"], x0 + 5, 35)
+box(c, 15, 30, 3, 17, "b")
+for y in range(32, 45, 3):
+    c[y][15] = "k"
+BOUND = ["..kk.", ".khhk", "kbbk.", "kbbBk", ".kbBk", ".k..k"]
+hline(c, 18, 41, 43, "b")
+for x0 in (18, 25, 32):
+    put(c, BOUND, x0, 41)
+box(c, 41, 40, 6, 7, "t")
+SPRITES["monument:Serfdom"] = fin32(c)
 
 # Imperial Palace (Prowess + Industry — Drakteni; the white-and-red Fortification line crowned): white palace in three
 # tiers under red roofs, gold crown, red hangings, flanking towers, guns on the terrace

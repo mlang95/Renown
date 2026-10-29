@@ -51,9 +51,12 @@ REG = {
     "no_envoy_cost":       ("clause", "hiwf", r"no longer pay cost for (\w+) Envoys"),
     "recoup_envoy":        ("clause", "hiwf", r"(Passed|Endorsed) (\w+) envoys \**Recoup (\d+) Gold"),
     "recoup_on_cunning":   ("clause", "hiwf", r"Whenever another player performs a Cunning action, you may recoup (\d+) gold"),
-    "black_market_extort": ("clause", "hiwf", r"When another player Extorts gold from any source: Extort (\d+) per (\d+) \(minimum (\d+)\) from that player"),
-    "black_market_recoup": ("clause", "hiwf", r"When another player Recoups gold from any source: Extort (\d+) per (\d+) \(minimum (\d+)\) from that player"),
-    "syndicate_camp_extort":("clause", "hiwf", r"Whenever a Bandit Camp within your Province Extorts, you Extort the Bandit Camp for half the amount"),
+    # m[1] per m[2] gold; m[3] the minimum, when the text gives one
+    "black_market_extort": ("clause", "hiwf", r"When another player Extorts gold from any source: Extort (\d+) per (\d+)(?: \(minimum (\d+)\))? from that player"),
+    "black_market_recoup": ("clause", "hiwf", r"When another player Recoups gold from any source: Extort (\d+) per (\d+)(?: \(minimum (\d+)\))? from that player"),
+    # Outlaw Rookery: in the Extort step, every Bandit Camp in its owner's Province is emptied into their Treasury
+    "province_camp_extort":("clause", "hiwf", r"Each Empire Phase, Extort the whole Treasury of every Bandit Camp within your Province"),
+    "syndicate_camp_extort":("clause", "hiwf",r"Whenever a Bandit Camp within your Province Extorts, you Extort the Bandit Camp for half the amount"),
     "forge_oppose_extort":("clause", "hiwf", r"Extort (\d+) anytime a player Opposes an Envoy of yours"),
     "forge_retry":         ("clause", "hiwf", r"Once per Envoy Phase: attempt another Cunning Envoy if your Cunning Envoy Failed|At the end of the Tally Phase, if a Cunning Envoy you sent Failed, you may send another Cunning Envoy"),
     "whisper_declare":   ("clause", "hiwf", r"Once per Personal Envoy Phase when a player sends an Envoy: that player must declare the specific Action & target they would Perform if the Envoy passes \(including sub-Actions\)|In the Intrigue Phase, choose a Personal Envoy: its sender must declare the specific action & target they would Perform if it passes \(including sub-Actions\)"),
@@ -110,6 +113,9 @@ REG = {
     "gold_per_craft":      ("clause", "hiwf", r"Gain \+?(\d+)(?: gold)? per (?:total )?Craft"),
     # Esteemed Bank: "Each Empire Phase, Gain 1000 per 10000 in Treasury" — m[1] gold per m[2] in the Treasury
     "gold_per_treasury":   ("clause", "hiwf", r"Gain \+?(\d+)(?: gold)? per (\d+)(?: gold)? in (?:your )?Treasury"),
+    # Exalted Basilica / Serfdom: "Gain +300 per Faith", "Gain +500 per Doubt" — m[1] gold per m[2] gained, whenever gained;
+    # "per Influence" pays on the turn's Influence total each Empire Phase
+    "gold_per_fd":         ("clause", "hiwf", r"Gain \+?(\d+)(?: gold)? per (Faith|Doubt|Influence)$"),
     "partner_craft":       ("clause", "hiwf", r"(?:Trade Partners|Players who trade with you) gain Craft \+(\d+)"),
     "trade_extra":         ("clause", "hiwf", r"count as Trading with an additional (\d+) players?"),
     "trade_mult":          ("clause", "hiwf", r"generate (thrice|twice) as much for yourself"),
@@ -127,7 +133,8 @@ REG = {
     "settlement_presence": ("clause", "hiwf", r"Your Settlements (?:have|gain (?:Garrisons & )?)Presence"),
     "ward_presence":       ("clause", "hiwf", r"Your Settlement Wards have Presence"),
     # ---- bandits ----
-    "bandit_redirect":     ("clause", "hiwf", r"Bandit Camps in your Outlaw Country don.t target you and instead target another player at random"),
+    # m[1] set when Bandit Armies are redirected too; m[2] where: your Outlaw Country (Smuggler's Nook) or your Province (Outlaw Rookery)
+    "bandit_redirect":     ("clause", "hiwf", r"Bandit Camps( and Armies)? (in your Outlaw Country|within (?:your )?Province) don.t target you and instead target another player at random"),
     "bandit_cunning_auth": ("clause", "hiwf", r"Both Bandit Camps & you have (?:Authority|Influence) \+(\d+) on (?:Personal )?Cunning Envoys"),
     # ---- direct text readers (whole text of one source kind) ----
     "first_doubt":         ("text", "h", r"first\s+(?:(one|two|three|four|five|\d+)\s+)?\**Doubt\**\s+(?:(?:per|each) turn|each Empire Phase) reduced by (\d+)|reduce the first instance of Doubt[^.;]*?by (\d+)"),

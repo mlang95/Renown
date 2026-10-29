@@ -697,7 +697,7 @@ function endBattle(win){
     const wc=sideCalc(win);if(L&&L.b&&W&&wc&&srcHas(L.b,"spoils_always")){
       const t2=extortGold(W,L,+wc.rt.cost||0,"Spoils of War");if(t2)blog(L.name+" also collects Spoils of War: "+t2.toLocaleString());}
     [[win,W],[O,L]].forEach(([X,sd])=>{const c=sideCalc(X);if(!sd||!sd.b||!c)return;const lost=Math.max(0,(B.start[X]||0)-(c.a.count||0));
-      srcMatch(sd.b,"faith_battle_loss").forEach(x=>{if(lost>=+x.m[2]){sd.b.po=applyPOFloor(sd.b,Math.max(PO_MIN,Math.min(PO_MAX,(sd.b.po||0)+(+x.m[1]))));blog(sd.name+" · "+x.n+": Faith +"+x.m[1]);}});});}
+      srcMatch(sd.b,"faith_battle_loss").forEach(x=>{if(lost>=+x.m[2]){addFaith(sd.b,+x.m[1]);blog(sd.name+" · "+x.n+": Faith +"+x.m[1]);}});});}
   else blog("Battle ended with no winner");
   // an Army left with no Retinues is wiped out: it leaves the map and any other queued Battle against it is dropped
   ["A","B"].forEach(X=>{const sd=B[X];if(!sd||sd.kind==="bandit"||String(sd.aid||"").startsWith("g:"))return;const {p,a}=sideArmy(sd);if(!p||!a||(+a.count||0)>0)return;

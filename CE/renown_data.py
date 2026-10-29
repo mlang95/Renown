@@ -1887,13 +1887,13 @@ SIMPLE_NODES = {
         "monument": False},
     "Workyard": {
         "group": "g_works",
-        "unlock": "—",
+        "unlock": "Rising Cunning",
         "innate": "Natural; Doubt +1; +1500",
         "efficient": ["Common Land","Salt Works"],
         "monument": False},
     "Storehouse": {
         "group": "g_works",
-        "unlock": "Established Industry",
+        "unlock": "Established Cunning",
         "innate": "Natural; Doubt +1; +2500; Build Timer -1",
         "efficient": ["Census Hall"],
         "monument": False},
@@ -2180,19 +2180,19 @@ SIMPLE_NODES = {
     "Smuggler's Nook": {
         "group": "g_secrecy",
         "unlock": "Established Cunning",
-        "innate": "gain Immune Uprising (your Uprising spawns no Bandit Camps); Bandit Camps in your Outlaw Country don't target you and instead target another player at random.",
+        "innate": "Whenever a Bandit Camp within your Province Extorts, you Extort the Bandit Camp for half the amount.",
         "efficient": ["Secret Cellar"],
         "monument": False},
     "Syndicate Hub": {
         "group": "g_secrecy",
         "unlock": "Established Cunning",
-        "innate": "Whenever a Bandit Camp within your Province Extorts, you Extort the Bandit Camp for half the amount.",
+        "innate": "Both Bandit Camps & you have Authority +1 on Personal Cunning Envoys. Endorsed Foster Rebellion instead places Bandit Armies with 25 retinues.",
         "efficient": ["Smuggler's Nook"],
         "monument": False},
     "Black Market": {
         "group": "g_secrecy",
         "unlock": "Established Cunning",
-        "innate": "When another player Extorts gold from any source: Extort 200 per 1000 (minimum 100) from that player at the end of that resolution. When another player Recoups gold from any source: Extort 200 per 1000 (minimum 100) from that player at the end of that resolution.",
+        "innate": "When another player Extorts gold from any source: Extort 100 per 500 from that player at the end of that resolution. When another player Recoups gold from any source: Extort 100 per 500 from that player at the end of that resolution.",
         "efficient": ["Smuggler's Nook"],
         "monument": False},
     "Dark Scriptorium": {
@@ -2278,7 +2278,7 @@ SIMPLE_NODES = {
     #    "monument": False},
     "Burgages": {
         "group": "g_works",
-        "unlock": "-",
+        "unlock": "Rising Cunning",
         "innate": "Natural; Faith +1",
         "efficient": ["Workyard"],
         "monument": False},
@@ -2357,11 +2357,17 @@ SIMPLE_NODES = {
         "innate": f"{PLANISHING}: Your to-Save can't be reduced beyond {CAP_THR}+. Upkeep -500; Crafted Armor & Shield Unlocked",
         "efficient": "Gilded Foundry",
         "monument": False},
+    "Serfdom": {
+        "group": "g_works",
+        "unlock": "Sovereign Cunning",
+        "innate": "Natural; Gain +500 per Doubt; Build Timer -2",
+        "efficient": ["Storehouse"],
+        "monument": True},
     "Office of Works": {
         "group": "g_works",
         "unlock": "Sovereign Industry + Rising Piety",
         "innate": "Natural; Settlements & allied Armies inside them are not affected by 'Settlements being Besieged' restrictions. Siege Timer +2; Build Timer -2",
-        "efficient": ["Masons' Guild", "Storehouse"],
+        "efficient": ["Masons' Guild"],
         "monument": True},
     "Royal Pavilion": {
         "group": "g_logistics",
@@ -2447,7 +2453,7 @@ SIMPLE_NODES = {
     "Outlaw Rookery": {
         "group": "g_secrecy",
         "unlock": "Sovereign Cunning",
-        "innate": "Both Bandit Camps & you have Authority +1 on Personal Cunning Envoys. Endorsed Foster Rebellion instead places Bandit Armies with 25 retinues.",
+        "innate": "Bandit Camps and Armies within your Province don't target you and instead target another player at random. Each Empire Phase, Extort the whole Treasury of every Bandit Camp within your Province.", #gain Immune Uprising (your Uprising spawns no Bandit Camps); 
         "efficient": "Syndicate Hub",
         "monument": True},
     "Advanced Blast Furnace": {
@@ -2520,7 +2526,7 @@ for _hn, _hv in SIMPLE_NODES.items():
 # Lines: flavour labels for paths through the graph; a Holding may sit in several.
 LINE_LABELS = {
     "l_engineering": {"label": "Engineering", "members": ["Quarry", "Masonry", "Trade Guild", "College of Engineering", "Office of Works"]},
-    "l_labor": {"label": "Labor", "members": ["Common Land", "Salt Works", "Workyard", "Burgages", "Census Hall", "Storehouse", "Office of Works"]},
+    "l_labor": {"label": "Labor", "members": ["Common Land", "Salt Works", "Workyard", "Burgages", "Census Hall", "Storehouse", "Serfdom"]},
     "l_fortification": {"label": "Fortification", "members": ["Masonry", "Granary", "Supply Depot", "Citadel", "Castle Hall", "Imperial Palace"]},
     "l_maritime": {"label": "Maritime", "members": ["Fishmongery", "Harbor", "Shipyard", "Emporium", "Port Authority"]},
     "l_training": {"label": "Training", "members": ["Courtyard", "Common Land", "Conditioning Field", "Coliseum", "Grand Tournament", "Royal Pavilion"]},
@@ -2600,6 +2606,7 @@ def get_data(mode="renown"):
 MONUMENT_SUMMARY = {
     "Ossuary Crypt":                      "Piety Actions Spread Doubt, Target Anyone with Piety",
     "Baggage Train":                      "Cheaper Armies, Free Move Each Empire Phase",
+    "Serfdom":                            "Gold from Doubt, Builds Faster",
     "Office of Works":                    "Ignores Siege Restrictions, Harder to Siege, Builds Faster",
     "Royal Pavilion":                     "Unyielding, Deadlier Armies",
     "Imperial Palace":                    "Weaker Rivals Gain Doubt, Your Envoys Can't Fail",
@@ -2614,7 +2621,7 @@ MONUMENT_SUMMARY = {
     "Manor House":                        "Gold from Natural Holdings",
     "Aristocratic Court":                 "Extorts Poorer Rivals, Double Council Vote",
     "Studium Generale":                   "Influence from Broad Standing, Free Sovereign Effect",
-    "Outlaw Rookery":                     "Bandit Allies, Rebellions Raise Bandit Armies",
+    "Outlaw Rookery":                     "Your Bandits Work for you.",
     "Advanced Blast Furnace":             "Cheaper Upkeep, Best Weapons",
     "Whispering Undercroft":              "Votes Last, Forces Rivals to Show Their Hand",
     "Outrider Intercept Post":            "Sees Opponents' Tactic Cards First",
@@ -4132,6 +4139,9 @@ NAME_DISPLAY = {
     "TS": "Armor Save",
     "The Eternal Sepulchre": "The Exalted Archbasilica",
     "Exalted Basilica":"Eternal Sepulchre",
+    "Storehouse":"Labor Fief",
+    "Census Hall":"Tally House",
+    "Burgages":"Villein Hovels",
     
 
     

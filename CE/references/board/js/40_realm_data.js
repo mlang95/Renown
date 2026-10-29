@@ -151,8 +151,8 @@ function renderMiniStand(){const box=document.getElementById("miniStand");if(!bo
   let h=dpButtons(p,i);
   h+=DOMAINS.map(d=>{const v=dv[d]||0,E=DBOARD[d]||{};
     return '<div class="dbk" style="--dc:'+DOMC[d]+'"><div class="dbk-h"><b>'+esc(d)+'</b><span class="note">'+v+' · '+domBand(v)+'</span></div>'+domTrackHTML(d,[p],canEdit(p))+
-      '<div class="dbk-e">'+TI.map(([t,th])=>{const on=v>=th,nm=String(E[t]||"").split(":")[0].trim();
-        return '<span class="dbs'+(on?' on':'')+'" title="'+esc(t+" ("+th+"): "+(E[t]||"")+" · "+pu(d,t)+" Holdings unlock")+'">'+(on?'✓ ':'')+esc(nm||t)+'</span>';}).join('')+'</div></div>';}).join('');
+      '<div class="dbk-e">'+TI.map(([t,th])=>{const on=v>=th,nm=String(E[t]||"").split(":")[0].trim(),bfx=(BT.standingFx||{})[d+"|"+t];
+        return '<span class="dbs'+(on?' on':'')+'" title="'+esc(t+" ("+th+"): "+(E[t]||"")+(bfx?" · Battle: "+bfx:"")+" · "+pu(d,t)+" Holdings unlock")+'">'+(on?'✓ ':'')+esc(nm||t)+'</span>';}).join('')+'</div></div>';}).join('');
   document.getElementById("miniStandBody").innerHTML=h;
   box.querySelectorAll("[data-dset]").forEach(c=>c.onclick=()=>{const [d,v]=c.dataset.dset.split("|");S.domains=S.domains||{};
     const old=+(S.domains[d]||0);S.domains[d]=old===+v?Math.max(0,+v-1):+v;armStanding(playerOfBoard(S),d,old,S.domains[d]);save();render();});}

@@ -796,11 +796,15 @@ function banditTargetMods(p,action){if(!p)return {v:0,src:[]};const src=[];let v
   boardFx(p).forEach(f=>{if((f.k==="bandit")||(f.k==="defend"&&!f.players&&f.action&&f.action.toLowerCase()===action.toLowerCase())){v+=f.val*(f.q||1);src.push(f.src+" "+sgn(f.val*(f.q||1)));}});return {v,src};}
 function cunningAction(roll){const t=(BAN.cunningTable||[]).find(r=>roll>=r[0]&&roll<=r[1]);return t?t[2]:null;}
 function endorsedExtort(action){const m=String(((DATA.actions||{})[action]||{}).endorsed||"").match(/Extort\s*(\d+)/i);return m?+m[1]:0;}
+// players a Bandit Camp (or, armies=true, a Bandit Army) at k leaves alone: "Bandit Camps [and Armies] in your Outlaw
+// Country / within your Province don't target you and instead target another player at random"
+function banditSpared(k,armies){return D.players.filter(q=>srcMatch(q.board,"bandit_redirect").some(x=>(!armies||x.m[1])&&
+  (/province/i.test(x.m[2])?provinceOf(q).has(k):outlawOwners(k).some(o=>sameP(o,q)))));}
 function banditAct(k){const M=mapState(),cp=M.camps[k],B=BST(),F=BAN.faces||10,roll=1+Math.floor(Math.random()*F),act=cunningAction(roll);
   cp.roll=roll;if(!act){bLog("camp @ "+k+" rolls "+roll+" → no action",k);return;}
-  // targets: pieces of the players whose Province covers the camp (BANDIT_CAMP_REACH); Smuggler's Nook-style carve-out:
-  // camps in that player's Outlaw Country skip them and pick another player at random, at any range
-  const NK=outlawOwners(k).filter(q=>srcHas(q.board,"bandit_redirect")),nook=NK.length>0,
+  // targets: pieces of the players whose Province covers the camp (BANDIT_CAMP_REACH); Outlaw Rookery-style carve-out:
+  // camps in that player's Province (or Outlaw Country) skip them and pick another player at random, at any range
+  const NK=banditSpared(k,false),nook=NK.length>0,
     TO=terrOwners(),okT=t=>{const p=cellPlayer(mapState().cells[t]);return !!p&&(nook?!NK.some(q=>sameP(q,p)):campInRange(k,t,TO));};
   let L=byDist(k,mapSetts(),true).filter(x=>okT(x.k));if(nook)L=L.map(x=>({x,r:Math.random()})).sort((a,b)=>a.r-b.r).map(o=>o.x);
   let tgt=null;
@@ -824,7 +828,7 @@ function banditAct(k){const M=mapState(),cp=M.camps[k],B=BST(),F=BAN.faces||10,r
   else if(act==="Sabotage"){mapState().cells[tgt.k].blocked=true;mapState().cells[tgt.k].blockedT=tTurn();fx=tgt.p.name+"'s "+(tgt.a?(tgt.a.label||"Army "+tgt.a.id):"Army")+" @ "+tgt.k+" gains Blocked";}
   else if(act==="Foster Rebellion"){B.foster.push({pid:String(tgt.p.id)});fx="next Bandit Mechanics: 10-Retinue camp in "+tgt.p.name+"'s Outlaw Country";}
   if(oc==="Endorsed"){const x=endorsedExtort(act),b=tgt.p.board,t=Math.min(x,Math.max(0,b.treasury||0));tGold(b,-t,"Extorted by Bandits (Endorsed "+act+")");cp.gold=(cp.gold||0)+t;fx+=" · Endorsed: Extort "+t;
-    if(t){const own=terrOwners()[k];D.players.forEach(h=>{if(!own||!own.has(String(h.id)))return;srcMatch(h.board,"syndicate_camp_extort").forEach(y=>{const take=Math.min(Math.floor(t/2),Math.max(0,+cp.gold||0));if(take){cp.gold-=take;tGold(h.board,take,"Syndicate Hub: half of Bandit Extort");fx+=" · "+h.name+" Syndicate Hub takes "+take+" from camp";}});});}}
+    if(t){const own=terrOwners()[k];D.players.forEach(h=>{if(!own||!own.has(String(h.id)))return;srcMatch(h.board,"syndicate_camp_extort").forEach(y=>{const take=Math.min(Math.floor(t/2),Math.max(0,+cp.gold||0));if(take){cp.gold-=take;tGold(h.board,take,y.n+": half of Bandit Extort");fx+=" · "+h.name+" "+y.n+" takes "+take+" from camp";}});});}}
   bLog(head+": "+fx,k);}
 function runBanditMechanics(){const M=mapState(),B=BST(),sea=curSeason(),keys=Object.keys(M.camps),queued=B.foster.slice();
   const W=BAN.wild||{};
@@ -891,14 +895,17 @@ function banditMoves(){const M=mapState();if(!M.grid)return;
     const AU=banditAuraList(),sp=banditSpeed(cp),V=decodeGrid(M.grid),free=h=>!!V.hex[h]&&!M.cells[h]&&!M.camps[h]&&!M.wards[h];
     const inAura=(h,lift)=>AU.some((o,i)=>!(lift instanceof Set?lift.has(i):i===lift)&&o.set.has(h));
     const reach0=banditRun(k0,sp,AU,-1);
-    const pick=L=>{if(!L.length)return null;const m=Math.min(...L.map(x=>x.cost)),T=L.filter(x=>x.cost===m),c=T[Math.floor(Math.random()*T.length)];c.tie=T.length>1;return c;};
+    // "Bandit Camps and Armies within your Province don't target you…" (Outlaw Rookery): standing in such a player's
+    // Province, this Army skips their pieces and takes any other target in reach at random, not the nearest
+    const NK=banditSpared(k0,true),spare=t=>!NK.some(q=>sameP(q,t.p));
+    const pick=L=>{if(!L.length)return null;const m=Math.min(...L.map(x=>x.cost)),T=NK.length?L:L.filter(x=>x.cost===m),c=T[Math.floor(Math.random()*T.length)];c.tie=T.length>1;return c;};
     const reachOf=tk=>{const G=new Set(AU.map((o,i)=>o.grp===tk?i:-1).filter(i=>i>=0)),li=G.size?G:-1,R0=li===-1?reach0:banditRun(k0,sp,AU,li),out=[];
       if(hexDist(hk(k0),hk(tk))===1)out.push({end:k0,cost:0});
       hexNb(tk).forEach(h=>{if(R0[h]!==undefined&&free(h)&&!inAura(h,li))out.push({end:h,cost:R0[h]});});
       return out.sort((a,b)=>a.cost-b.cost)[0]||null;};
-    const armies=Object.keys(M.cells).filter(k=>M.cells[k].type==="Army"&&cellPlayer(M.cells[k])&&cellArmy(k).a&&(+cellArmy(k).a.count||0)>0).map(k=>({k,p:cellPlayer(M.cells[k]),a:cellArmy(k).a}));   // no Retinues: nothing to fight
+    const armies=Object.keys(M.cells).filter(k=>M.cells[k].type==="Army"&&cellPlayer(M.cells[k])&&cellArmy(k).a&&(+cellArmy(k).a.count||0)>0).map(k=>({k,p:cellPlayer(M.cells[k]),a:cellArmy(k).a})).filter(spare);   // no Retinues: nothing to fight
     const pillaged=new Set(Object.values(M.camps).filter(c=>c!==cp&&c.pillage).map(c=>c.pillage.tp+":"+c.pillage.sid));   // one Bandit pillager per Settlement
-    const setts=Object.keys(M.cells).filter(k=>M.cells[k].type!=="Army"&&cellPlayer(M.cells[k])).map(k=>Object.assign({k},cellSett(k))).filter(t=>t.s&&!settUnbuilt(t.s)&&!siegeOn(t.p.id,t.s.id)&&!pillaged.has(String(t.p.id)+":"+String(t.s.id)));
+    const setts=Object.keys(M.cells).filter(k=>M.cells[k].type!=="Army"&&cellPlayer(M.cells[k])).map(k=>Object.assign({k},cellSett(k))).filter(t=>t.s&&!settUnbuilt(t.s)&&!siegeOn(t.p.id,t.s.id)&&!pillaged.has(String(t.p.id)+":"+String(t.s.id))).filter(spare);
     const sk=pick(armies.map(t=>{const r=reachOf(t.k);return r?Object.assign({},t,r):null;}).filter(Boolean));
     if(sk){moveBandit(k0,sk.end);const k1=sk.end===k0?k0:sk.end;bqAdd({kind:"battle",A:{kind:"bandit",camp:k1},B:{pid:String(sk.p.id),aid:String(sk.a.id)},seize:"A",src:"Bandit Army"});
       bLog("Bandit Army "+(sk.end===k0?"@ "+k0:k0+" → "+sk.end)+": Skirmish vs "+sk.p.name+"'s "+(sk.a.label||("Army "+sk.a.id))+" (Battle queued)"+(sk.tie?" · tie broken at random":""),sk.end);return;}
@@ -911,7 +918,7 @@ function banditMoves(){const M=mapState();if(!M.grid)return;
       bLog("Bandit Army "+(sg.end===k0?"@ "+k0:k0+" → "+sg.end)+": Pillages "+sg.p.name+"'s "+(sg.s.name||sg.s.tier)+(sg.tie?" · tie broken at random":""),sg.end);return;}
     if(campWild(k0)&&(BAN.wild||{}).march===false){bLog("Wild Bandit Army @ "+k0+": nothing in range — holds",k0);return;}
     const all=armies.concat(setts.map(t=>({k:t.k,p:t.p})));if(!all.length){bLog("Bandit Army @ "+k0+": no target",k0);return;}
-    const d0=Math.min(...all.map(t=>hexDist(hk(k0),hk(t.k)))),tg=all.filter(t=>hexDist(hk(k0),hk(t.k))===d0),tgt=tg[Math.floor(Math.random()*tg.length)];
+    const dmin=Math.min(...all.map(t=>hexDist(hk(k0),hk(t.k)))),tg=NK.length?all:all.filter(t=>hexDist(hk(k0),hk(t.k))===dmin),tgt=tg[Math.floor(Math.random()*tg.length)],d0=hexDist(hk(k0),hk(tgt.k));
     let best=null;Object.keys(reach0).forEach(h=>{if(!free(h)||inAura(h,-1))return;const d=hexDist(hk(h),hk(tgt.k));
       if(!best||d<best.d||(d===best.d&&reach0[h]<best.c))best={h,d,c:reach0[h]};});
     if(!best||best.d>=d0){bLog("Bandit Army @ "+k0+": March toward "+tgt.p.name+" @ "+tgt.k+" — no closer hex",k0);return;}
@@ -924,6 +931,13 @@ function banditSkims(){const B=BST(),out=[],w=curSeason()==="Winter";
   const h=hostP();if(h&&B.ic[h.id]){const t=tradeRaw(h.board),pc=+((DATA.rulesConst||{}).INTERCEPT_EXTORT_PER_CRAFT)||0,cr=boardMetrics(h.board).craft||0;
     out.push(t.total||!pc?{kind:"ic",key:String(h.id),camp:B.ic[h.id].camp,by:B.ic[h.id].by,p:h,amt:t.total,what:"trade income"}
       :{kind:"ic",ext:true,key:String(h.id),camp:B.ic[h.id].camp,by:B.ic[h.id].by,p:h,amt:pc*cr,what:"no trade income · Extort "+pc+" × Craft "+cr});}
+  return out;}
+// "Each Empire Phase, Extort the whole Treasury of every Bandit Camp within your Province" (Outlaw Rookery), in the
+// Extort step after Pillage and the diverted gold; a camp whose Army is out keeps its Treasury at home, so it counts
+function provinceCampExtort(){const M=mapState(),out=[];if(!M.grid)return out;
+  D.players.forEach(p=>srcMatch(p.board,"province_camp_extort").forEach(x=>{const pv=provinceOf(p);
+    Object.keys(M.camps||{}).forEach(k=>{const cp=M.camps[k];if(cp.home||!pv.has(k)||!(+cp.gold>0))return;
+      const t=extortGold({camp:cp,name:"Bandits"},{b:p.board},cp.gold,x.n+": camp @ "+k);if(t)out.push(p.name+" extorts "+t.toLocaleString()+" from the Bandit Camp @ "+k+" ("+x.n+")");});}));
   return out;}
 function creditSkims(L){const M=mapState(),B=BST(),out=[];L.forEach(x=>{const by=x.by!=null?pById(x.by):null,cp=by?null:M.camps[x.camp];
   if(x.ext){if(x.p)x.amt=extortGold({b:x.p.board},by?{b:by.board}:cp?{camp:cp}:null,x.amt,"Intercept Caravan");}

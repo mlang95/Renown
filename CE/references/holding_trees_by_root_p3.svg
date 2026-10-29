@@ -186,34 +186,34 @@
 <rect x="202" y="332" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="202" y="332" width="5" height="24" fill="#6a6a72"/>
 <text x="211" y="347" font-size="8.2" fill="#2b2620">Butchery</text>
-<rect x="202" y="368" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="202" y="368" width="5" height="24" fill="#6a6a72"/>
+<rect x="202" y="368" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
+<rect x="202" y="368" width="5" height="24" fill="#1c1c20"/>
 <text x="211" y="383" font-size="8.2" fill="#2b2620">Workyard</text>
 <rect x="374" y="332" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="374" y="332" width="5" height="24" fill="#6a6a72"/>
 <text x="383" y="347" font-size="8.2" fill="#2b2620">Charcoal Burner</text>
-<rect x="374" y="368" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="374" y="368" width="5" height="24" fill="#6a6a72"/>
-<text x="383" y="383" font-size="8.2" fill="#2b2620">Burgages</text>
+<rect x="374" y="368" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
+<rect x="374" y="368" width="5" height="24" fill="#1c1c20"/>
+<text x="383" y="383" font-size="8.2" fill="#2b2620">Villein Hovels</text>
 <rect x="546" y="332" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="546" y="332" width="5" height="24" fill="#6a6a72"/>
 <text x="555" y="347" font-size="8.2" fill="#2b2620">Smokehouse</text>
 <rect x="546" y="368" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="546" y="368" width="5" height="24" fill="#6a6a72"/>
-<text x="555" y="383" font-size="8.2" fill="#2b2620">Census Hall</text>
+<text x="555" y="383" font-size="8.2" fill="#2b2620">Tally House</text>
 <rect x="718" y="332" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
 <rect x="718" y="332" width="5" height="24" fill="#9E2B25"/>
 <text x="727" y="347" font-size="8.2" fill="#2b2620">Levy Hall</text>
-<rect x="718" y="368" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
-<rect x="718" y="368" width="5" height="24" fill="#2E5A8C"/>
-<text x="727" y="383" font-size="8.2" fill="#2b2620">Storehouse</text>
+<rect x="718" y="368" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
+<rect x="718" y="368" width="5" height="24" fill="#1c1c20"/>
+<text x="727" y="383" font-size="8.2" fill="#2b2620">Labor Fief</text>
 <rect x="890" y="332" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
 <rect x="890" y="332" width="5" height="24" fill="#9E2B25"/>
 <text x="899" y="347" font-size="8.2" fill="#2b2620">Baggage Train</text>
 <polygon points="1000.0,340.4 1003.6,344.0 1000.0,347.6 996.4,344.0" fill="#8a6d1a"/>
-<rect x="890" y="368" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#2E5A8C" stroke-width="2.2"/>
-<rect x="890" y="368" width="5" height="24" fill="#2E5A8C"/>
-<text x="899" y="383" font-size="8.2" fill="#2b2620">Office of Works</text>
+<rect x="890" y="368" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#1c1c20" stroke-width="2.2"/>
+<rect x="890" y="368" width="5" height="24" fill="#1c1c20"/>
+<text x="899" y="383" font-size="8.2" fill="#2b2620">Serfdom</text>
 <polygon points="1000.0,376.4 1003.6,380.0 1000.0,383.6 996.4,380.0" fill="#8a6d1a"/>
 <path d="M148,442 L195,442" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M148,442 L195,442" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
@@ -257,21 +257,21 @@
 <rect x="30" y="492" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="30" y="492" width="5" height="24" fill="#6a6a72"/>
 <text x="39" y="507" font-size="8.2" fill="#2b2620">Common Land</text>
-<rect x="202" y="492" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="202" y="492" width="5" height="24" fill="#6a6a72"/>
+<rect x="202" y="492" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
+<rect x="202" y="492" width="5" height="24" fill="#1c1c20"/>
 <text x="211" y="507" font-size="8.2" fill="#2b2620">Workyard</text>
-<rect x="374" y="492" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="374" y="492" width="5" height="24" fill="#6a6a72"/>
-<text x="383" y="507" font-size="8.2" fill="#2b2620">Burgages</text>
+<rect x="374" y="492" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
+<rect x="374" y="492" width="5" height="24" fill="#1c1c20"/>
+<text x="383" y="507" font-size="8.2" fill="#2b2620">Villein Hovels</text>
 <rect x="546" y="492" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="546" y="492" width="5" height="24" fill="#6a6a72"/>
-<text x="555" y="507" font-size="8.2" fill="#2b2620">Census Hall</text>
-<rect x="718" y="492" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
-<rect x="718" y="492" width="5" height="24" fill="#2E5A8C"/>
-<text x="727" y="507" font-size="8.2" fill="#2b2620">Storehouse</text>
-<rect x="890" y="492" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#2E5A8C" stroke-width="2.2"/>
-<rect x="890" y="492" width="5" height="24" fill="#2E5A8C"/>
-<text x="899" y="507" font-size="8.2" fill="#2b2620">Office of Works</text>
+<text x="555" y="507" font-size="8.2" fill="#2b2620">Tally House</text>
+<rect x="718" y="492" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
+<rect x="718" y="492" width="5" height="24" fill="#1c1c20"/>
+<text x="727" y="507" font-size="8.2" fill="#2b2620">Labor Fief</text>
+<rect x="890" y="492" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#1c1c20" stroke-width="2.2"/>
+<rect x="890" y="492" width="5" height="24" fill="#1c1c20"/>
+<text x="899" y="507" font-size="8.2" fill="#2b2620">Serfdom</text>
 <polygon points="1000.0,500.4 1003.6,504.0 1000.0,507.6 996.4,504.0" fill="#8a6d1a"/>
 <path d="M148,566 L195,566" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M148,566 L195,566" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>

@@ -285,7 +285,10 @@ function fdState(b,turn){if(!b.fd||b.fd.turn!==turn)b.fd={turn,slots:firstDoubtR
 // apply Doubt n to board b now; the turn's first Doubt instance(s) are reduced, whatever the phase (slots reset each turn)
 function gainDoubt(b,n,turn){n=Math.max(0,+n||0);if(!n)return 0;turn=turn??tTurn();
   const st=fdState(b,turn);if(st.slots.length){const cut=Math.min(n,st.slots.shift());n-=cut;}
-  b.po=applyPOFloor(b,Math.max(PO_MIN,Math.min(PO_MAX,(b.po||0)-n)));return n;}
+  b.po=applyPOFloor(b,Math.max(PO_MIN,Math.min(PO_MAX,(b.po||0)-n)));fdGold(b,"doubt",n);return n;}
+// "Gain +N per Faith|Doubt|Influence" (Exalted Basilica, Serfdom): N gold for each one b gains
+function fdGold(b,side,n){if(!(n>0))return 0;let t=0;
+  srcMatch(b,"gold_per_fd").forEach(x=>{if(x.m[2].toLowerCase()===side)t+=tGold(b,(+x.m[1])*n,x.n+" · "+x.m[2]+" +"+n);});return t;}
 
 // ---- Sieges (realm timers with kind:"siege"): besieged Settlements, Capture, Sack ----
 function siegeOn(pid,sid){return realmTimers().some(t=>t.kind==="siege"&&String(t.tp)===String(pid)&&String(t.sid)===String(sid));}

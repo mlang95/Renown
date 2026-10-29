@@ -167,7 +167,11 @@ function empPO(b,done){const m=boardMetrics(b),p0=b.po||0,fd=m.po||0,pm=poModTot
   const inst=[m.doubt||0].concat(poModRows(b).filter(r=>r.side==="doubt").map(r=>r.n)).filter(n=>n>0),fr=firstDoubtRed(b),sl=fdState(b,tTurn()).slots;
   let cut=0;inst.forEach(n=>{if(sl.length)cut+=Math.min(n,sl.shift());});
   if(cut>0){dpo+=cut;done.push("first Doubt −"+cut+" ("+fr.src.join(", ")+")");}
-  b.po=applyPOFloor(b,Math.max(PO_MIN,Math.min(PO_MAX,p0+dpo)));edictTick(b,"Living Saints");return {fd,pm,p0};}
+  b.po=applyPOFloor(b,Math.max(PO_MIN,Math.min(PO_MAX,p0+dpo)));edictTick(b,"Living Saints");
+  // "Gain +N per Faith|Doubt|Influence": this step's Faith and Doubt (after first-Doubt cuts), and the turn's Influence
+  const fg=(m.faith||0)+poModRows(b).filter(r=>r.side==="faith"&&r.n>0).reduce((a,r)=>a+r.n,0),dg=inst.reduce((a,n)=>a+n,0)-cut;
+  [["faith",fg],["doubt",dg],["influence",influenceTotal(b)]].forEach(([k,n])=>{const g=fdGold(b,k,n);if(g)done.push(k[0].toUpperCase()+k.slice(1)+" +"+n+": +"+g.toLocaleString()+" gold");});
+  return {fd,pm,p0};}
 // "Armies and Garrisons within your Settlements gain Immune Strained" (Granary): an Army inside one of its owner's Settlements, or a Garrison
 function immuneStrainIn(p,a){if(!p||!a||a.sackT)return null;const x=a.garrison?{q:p}:armyInside(p,a);if(!x)return null;   // whose Settlement it is decides
   const m=srcMatch(x.q.board,"immune_strain_home")[0];return m?m.n+(sameP(x.q,p)?"":" · "+x.q.name):null;}
@@ -216,7 +220,7 @@ function empirePhase(){const P=D.players,done={},log=[];P.forEach(p=>done[p.id]=
   // 7-8. Winter tax, income & upkeep (trade inside)
   const ec={};P.forEach(p=>ec[p.id]=empEconomy(p.board));
   // 9. Extort
-  runAutoExtort().forEach(x=>log.push(x));runLoans().forEach(x=>log.push(x));runPillage().forEach(x=>log.push(x));if(skims.length)creditSkims(skims).forEach(x=>log.push(x));delete BST()._t;
+  runAutoExtort().forEach(x=>log.push(x));runLoans().forEach(x=>log.push(x));runPillage().forEach(x=>log.push(x));if(skims.length)creditSkims(skims).forEach(x=>log.push(x));provinceCampExtort().forEach(x=>log.push(x));delete BST()._t;
   // 10. innate Public Order modifiers (first Doubt reductions)
   const po={};P.forEach(p=>po[p.id]=empPO(p.board,done[p.id]));
   // 11. Endurance; Strained clears (Sack keeps its Army Strained)

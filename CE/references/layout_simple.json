@@ -527,45 +527,21 @@
     0,
     0
    ],
-   "Common Land": [
-    0,
-    1
-   ],
-   "Salt Works": [
-    0,
-    2
-   ],
    "Masonry": [
     1,
     0
-   ],
-   "Workyard": [
-    1,
-    1
    ],
    "Trade Guild": [
     2,
     0
    ],
-   "Burgages": [
-    2,
-    1
-   ],
    "College of Engineering": [
     3,
     0
    ],
-   "Census Hall": [
-    3,
-    1
-   ],
    "Masons' Guild": [
     4,
     0
-   ],
-   "Storehouse": [
-    4,
-    1
    ],
    "Office of Works": [
     5,
@@ -573,14 +549,6 @@
    ]
   },
   "edges": [
-   [
-    "Workyard",
-    "Burgages"
-   ],
-   [
-    "Burgages",
-    "Census Hall"
-   ],
    [
     "Trade Guild",
     "College of Engineering"
@@ -598,24 +566,8 @@
     "Office of Works"
    ],
    [
-    "Storehouse",
-    "Office of Works"
-   ],
-   [
-    "Census Hall",
-    "Storehouse"
-   ],
-   [
     "Masonry",
     "Trade Guild"
-   ],
-   [
-    "Common Land",
-    "Workyard"
-   ],
-   [
-    "Salt Works",
-    "Workyard"
    ]
   ]
  },
@@ -1366,6 +1318,67 @@
    [
     "Smuggler's Nook",
     "Syndicate Hub"
+   ]
+  ]
+ },
+ {
+  "title": "Serfdom",
+  "anchor": "Serfdom",
+  "mode": "chain",
+  "nodes": {
+   "Common Land": [
+    0,
+    0
+   ],
+   "Salt Works": [
+    0,
+    1
+   ],
+   "Workyard": [
+    1,
+    0
+   ],
+   "Burgages": [
+    2,
+    0
+   ],
+   "Census Hall": [
+    3,
+    0
+   ],
+   "Storehouse": [
+    4,
+    0
+   ],
+   "Serfdom": [
+    5,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Workyard",
+    "Burgages"
+   ],
+   [
+    "Burgages",
+    "Census Hall"
+   ],
+   [
+    "Storehouse",
+    "Serfdom"
+   ],
+   [
+    "Census Hall",
+    "Storehouse"
+   ],
+   [
+    "Common Land",
+    "Workyard"
+   ],
+   [
+    "Salt Works",
+    "Workyard"
    ]
   ]
  },

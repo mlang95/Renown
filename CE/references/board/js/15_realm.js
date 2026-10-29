@@ -152,7 +152,9 @@ DO.cell=el=>mapCellClick(el.dataset.cell);
 // ---- player table: one row per seat. Click a row: view that Empire (read-only unless it's yours). Hover: a mini card ----
 function domCells(b){const dv=b.domains||{};
   return DOMAINS.map(d=>{const v=+dv[d]||0,st=domBand(v),i=["Untested","Rising","Established","Sovereign"].indexOf(st);
-    const L=[d+" "+v+" · "+st].concat(dbActive(b).filter(x=>x.dom===d).map(x=>"  "+x.tier+": "+x.text));
+    const A=dbActive(b).filter(x=>x.dom===d),F=standingFxOf(dv).filter(x=>x.d===d);   // empire-side + battle (STANDING_EFFECTS)
+    const L=[d+" "+v+" · "+st].concat(["Rising","Established","Sovereign"].flatMap(t=>A.filter(x=>x.tier===t).map(x=>"  "+t+": "+x.text)
+      .concat(F.filter(x=>x.t===t).map(x=>"  "+t+" · Battle: "+x.text))));
     return '<td class="num rt-d st'+i+'" data-tipl="'+esc(L.join("\n"))+'">'+v+'</td>';}).join('');}
 function realmTableHTML(R){const sm=seatMap(),n=tSeats(),me=meP(),hp=hostP(),sp=R.ord[0]||null,cw=R.cur?R.cur.who:null,ph=tPhase(),E=R.curEnvoy,EE=ERAS[currentEra()]||{};
   const bst=Math.max(0,...D.players.map(edictTotal)),sg=v=>(v>0?"+":v<0?"−":"")+Math.abs(v).toLocaleString(),sl=seatsLocked();

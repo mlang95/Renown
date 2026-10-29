@@ -283,7 +283,7 @@ const PF={};   // per-Envoy picker draft (this client only)
 function actCost(action){const c=String(((DATA.actions||{})[action]||{}).cost||"");const g=/(\d+)\s*gold/i.exec(c),d=/Doubt\s*(\d+)/i.exec(c);
   return {gold:g?+g[1]:0,doubt:d?+d[1]:0,txt:c&&c!=="None"?c:""};}
 function domCost(dom){const L=actionsOf(dom).map(a=>JSON.stringify(actCost(a)));return L.length&&L.every(x=>x===L[0])?JSON.parse(L[0]):null;}   // same cost for every action
-function addFaith(b,n){if(n>0)b.po=applyPOFloor(b,Math.max(PO_MIN,Math.min(PO_MAX,(b.po||0)+n)));return n;}
+function addFaith(b,n){if(n>0){b.po=applyPOFloor(b,Math.max(PO_MIN,Math.min(PO_MAX,(b.po||0)+n)));fdGold(b,"faith",n);}return n;}
 function alliedP(a,b){if(sameP(a,b))return true;return !!effPair(a.id,b.id).household||sameAlliance(String(a.id),String(b.id));}
 function allyGroup(gid){const d=diplo();return D.players.filter(q=>d.member[topSuz(q.id)]===gid);}
 function topPair(a,b){return pairOf(topSuz(a.id),topSuz(b.id));}
@@ -614,7 +614,7 @@ function tEndTurn(){{const g=grantDP(),ow=dpOwed();
   if(boardEndOn()){const E=empirePhase();
     t.hist=t.hist||{};t.hist[ended]={turn:ended,season:endedSeason,next:curSeason(),renown:[r0,D.renown],rows:E.rows,realm:E.log,sum:(t.hist[ended]||{}).sum||[]};
     Object.keys(t.hist).map(Number).sort((a,b)=>b-a).slice(6).forEach(k=>delete t.hist[k]);}
-  else if(banditAuto()){expireBlocks();BST()._t=tTurn();runBanditMechanics();const sk=banditSkims();if(sk.length)creditSkims(sk);delete BST()._t;}
+  else if(banditAuto()){expireBlocks();BST()._t=tTurn();runBanditMechanics();const sk=banditSkims();if(sk.length)creditSkims(sk);provinceCampExtort().forEach(x=>bLog(x));delete BST()._t;}
   save();render();}
 // change the seat count; never below the lobby's players (or those seated). Shrinking removes empty seats first —
 // the highest-numbered empty seat each time — shifting later seats down, so the clockwise order is kept and no one is unseated

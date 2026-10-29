@@ -108,6 +108,30 @@
         "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\cac6b47b-db1d-47d2-80a9-3b03bd6a35f6\\scratchpad\\board"
       ],
       "port": 8773
+    },
+    {
+      "name": "board-fdgold",
+      "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8774",
+        "--directory",
+        "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\76640ca1-d7a6-45a3-a3ed-f647d9ee326e\\scratchpad\\board"
+      ],
+      "port": 8774
+    },
+    {
+      "name": "board-standhover",
+      "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8775",
+        "--directory",
+        "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\10ce05f0-51e7-45bc-b38f-4a8936707346\\scratchpad\\board"
+      ],
+      "port": 8775
     }
   ]
 }

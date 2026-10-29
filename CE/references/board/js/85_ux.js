@@ -70,7 +70,8 @@ function hudPopFill(){const pop=document.getElementById("hudPop");if(!pop||!HPOP
     h.dRows.map(r=>'<div class="hp-r"><span>'+kwify(r.k)+'</span><b class="neg">Doubt +'+r.n+'</b></div>').join("")+
     '<div class="hp-r tot"><span>At the next Empire Phase'+(h.dbl>1?' (modifiers ×2)':'')+'</span><b>Faith +'+h.faith+' / Doubt +'+h.doubt+'</b></div>';
   else if(k==="dom"){const dv=p.board.domains||{};body=DOMAINS.map(d=>'<div class="hp-r"><span>'+d+'</span><b>'+(+dv[d]||0)+' · '+domBand(+dv[d]||0)+'</b></div>').join("")+
-    dbActive(p.board).map(x=>'<div class="hp-r"><span class="note">'+esc(x.tier+" "+x.dom)+'</span><span>'+kwify(x.text)+'</span></div>').join("");}
+    dbActive(p.board).map(x=>'<div class="hp-r"><span class="note">'+esc(x.tier+" "+x.dom)+'</span><span>'+kwify(x.text)+'</span></div>').join("")+
+    standingFxOf(dv).map(x=>'<div class="hp-r"><span class="note">'+esc(x.t+" "+x.d)+'</span><span>Battle: '+kwify(x.text)+'</span></div>').join("");}
   else if(k==="armies")body=((p.board.armies||[]).map(a=>'<div class="hp-r"><span>'+esc(a.label||("Army "+a.id))+'</span><b>'+esc(a.retinue||"")+' ×'+(a.count||0)+(a.muster&&a.muster.n>0?' · Muster '+a.muster.t:'')+'</b></div>').join("")||'<div class="note">No Armies.</div>')+
     (h.armyCap!=null?'<div class="hp-r tot"><span>'+esc(currentEra())+' allows</span><b>'+h.armyCap+'</b></div>':'');
   else if(k==="edicts"){const bst=Math.max(0,...D.players.map(edictTotal));body=D.players.map(q=>'<div class="hp-r"><span>'+tName(q)+'</span><b>'+edictTotal(q)+(edictTotal(q)===bst&&bst?' ★':'')+'</b></div>').join("");}
