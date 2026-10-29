@@ -66,7 +66,7 @@ function bfBuild(sig,S,T){const wrap=document.createElement("div");wrap.classNam
   h+='<g class="bf-units">';["A","B"].forEach(X=>{const s=S[X];if(!s)return;for(let id=0;id<s.FM+s.RM;id++)h+=bfFigure(s,id);});
   h+='</g><g class="bf-fx"></g></svg><div class="bf-feed" aria-live="polite"></div></div><div class="bf-cap"></div>';
   wrap.innerHTML='<div class="bf-head"></div>'+h;
-  const t0=()=>({parry:0,rip:0,save:0,heal:0});
+  const t0=()=>({parry:0,rip:0,save:0,heal:0,on:{}});                 // on = which of these have been rolled this Skirmish
   BF={wrap,sig,seen:{},rip:{},pos:{A:[],B:[]},fresh:true,t:{A:t0(),B:t0()},res:{A:S.A?S.A.c.reserve:0,B:S.B?S.B.c.reserve:0},panic:{}};
   // start everyone in camp
   wrap.querySelectorAll(".bf-u").forEach(u=>{const [x,y]=bfXY(u.dataset.x,28,0);u.style.transition="none";u.style.opacity="0";
@@ -114,10 +114,11 @@ function bfToast(k,html,col,delay){const show=()=>{if(!BF)return;const F=BF.wrap
     while(F.children.length>5)F.firstElementChild.remove();setTimeout(()=>el.remove(),6500);};
   if(delay)setTimeout(show,delay);else show();}
 const bfN=(n,one,many)=>n+" "+(n===1?one:(many||one+"s"));
-// the defending side's line for this Skirmish: only what it can roll (no Parry -> no parries / ripostes; no Recover -> no heals)
+// the defending side's line for this Skirmish: only what it can roll (no Parry -> no parries / ripostes; no Recover -> no heals),
+// and only once it has been rolled
 function bfDefLine(s){const t=BF.t[s.X],c=s.c,o=[];
-  if(c.canParry)o.push(bfN(t.parry,"parry","parries"));if(c.canParry&&(c.riposte||c.riposteMelee))o.push(bfN(t.rip,"riposte"));
-  o.push(bfN(t.save,"save"));if(c.recThr!=null)o.push(bfN(t.heal,"heal"));
+  if(c.canParry&&t.on.parry)o.push(bfN(t.parry,"parry","parries"));if(c.canParry&&(c.riposte||c.riposteMelee)&&(t.on.parry||t.rip))o.push(bfN(t.rip,"riposte"));
+  if(t.on.save)o.push(bfN(t.save,"save"));if(c.recThr!=null&&t.on.heal)o.push(bfN(t.heal,"heal"));
   return '<b>'+esc(s.nm)+'</b>: '+o.join(" · ");}
 // end-of-Skirmish report (Endurance, Fatigue, Break check, Rout), once per report
 let BF_REP="";
@@ -158,9 +159,9 @@ function bfEffects(S){const B=battle(),now=bfSeen(),was=BF.seen;BF.seen=now;cons
       const cl=(R.extra||[]).filter(v=>v>=R.target&&R.target<=F).length;
       bfToast("st"+X,nm+(R.rr?' re-rolls its misses (Dual Wield): +'+bfN(R.succ,"hit"):' strikes: '+bfN(R.succ,"hit"))+
         (s.c.hasDeadly?' · '+(R.deadly||0)+' Deadly':'')+(s.c.hasCleave?' · '+cl+' Cleave':'')+(R.target>F?' (can\'t hit)':''),s.col);}
-    else if(R.kind==="Parry"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.parry(m.x,m.y)));BF.t[X].parry+=R.succ+dl;bfToast("df"+X,bfDefLine(s),s.col);}
-    else if(R.kind==="Save"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.save(m.x,m.y)));BF.t[X].save+=R.succ+dl;bfToast("df"+X,bfDefLine(s),s.col);}
-    else if(R.kind==="Recover"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.heal(m.x,m.y)));BF.t[X].heal+=R.succ+dl;bfToast("df"+X,bfDefLine(s),s.col);}
+    else if(R.kind==="Parry"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.parry(m.x,m.y)));BF.t[X].parry+=R.succ+dl;BF.t[X].on.parry=1;bfToast("df"+X,bfDefLine(s),s.col);}
+    else if(R.kind==="Save"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.save(m.x,m.y)));BF.t[X].save+=R.succ+dl;BF.t[X].on.save=1;bfToast("df"+X,bfDefLine(s),s.col);}
+    else if(R.kind==="Recover"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.heal(m.x,m.y)));BF.t[X].heal+=R.succ+dl;BF.t[X].on.heal=1;bfToast("df"+X,bfDefLine(s),s.col);}
     else if(R.kind==="Morale"){mine.forEach(m=>{m.u.classList.add("shake");setTimeout(()=>m.u.classList.remove("shake"),900);});
       bfToast("mo"+X,nm+' <b>Panic check</b>: '+R.succ+' hold, '+(R.dice.length-R.succ)+' flee ('+R.dice.length+'d10 vs '+R.target+'+)',s.col);}});
   // Riposte: a new pending Riposte against O comes back from X's line

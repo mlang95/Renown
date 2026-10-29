@@ -382,10 +382,10 @@ function actionsHTML(X){
     h+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:8px">'+
       '<button class="broll'+(strikeDue(X)?' go':'')+'" data-x="'+X+'" data-k="Strike">Strike ×'+c.front+'</button>'+
       ((st=>c.dualW&&st&&st.sk===B.sk&&st.miss?'<button class="broll" data-x="'+X+'" data-k="DualWield">Dual Wield re-roll ×'+st.miss+'</button>':'')((B.strk||{})[X]))+
-      '<button class="broll" data-x="'+X+'" data-k="Parry">Parry ×'+inc+'</button>'+
+      (c.canParry?'<button class="broll" data-x="'+X+'" data-k="Parry">Parry ×'+inc+'</button>':'')+
       '<button class="broll" data-x="'+X+'" data-k="Save">Save ×'+inc+(ic.d?' ('+ic.d+' Deadly)':'')+'</button>'+
       (ripN(X)?(c.canParry?'<button class="broll" data-x="'+X+'" data-k="RipParry">Parry Riposte ×'+ripN(X)+'</button>':'')+'<button class="broll" data-x="'+X+'" data-k="RipSave">Save vs Riposte ×'+ripN(X)+'</button>':'')+
-      ((sv=>{const fx=sv?(sv.d||0)+(sv.pz||0):0;return sv&&sv.sk===B.sk&&(sv.n+fx)?'<button class="broll" data-x="'+X+'" data-k="Recover"'+(c.recThr==null?' title="no Recover"':'')+'>Recover ×'+(sv.n+fx)+(fx?' ('+fx+' on '+(BT.focusedThr||10)+' only)':'')+'</button>':'';})((B.sv||{})[X]))+
+      ((sv=>{const fx=sv?(sv.d||0)+(sv.pz||0):0;return sv&&sv.sk===B.sk&&(sv.n+fx)&&c.recThr!=null?'<button class="broll" data-x="'+X+'" data-k="Recover"'+(c.recThr==null?' title="no Recover"':'')+'>Recover ×'+(sv.n+fx)+(fx?' ('+fx+' on '+(BT.focusedThr||10)+' only)':'')+'</button>':'';})((B.sv||{})[X]))+
       '<button class="broll" data-x="'+X+'" data-k="Morale">Morale ×'+Math.min(c.front,BT.moraleDiceMax||5)+'</button>'+
       '<input type="number" min="0" value="'+inc+'" class="bn" data-x="'+X+'" style="width:52px" title="dice count override for Parry/Save">'+
       '</div>'+rollHTML(X);
