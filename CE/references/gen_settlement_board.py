@@ -221,6 +221,10 @@ def envoy_fx(raw):
             if m.group(1): f["lower"] = m.group(1).title()   # only players with a lower <Domain> value are blocked
             out.append(f); continue
         if re.search(r"If your Envoy would fail", c, re.I): out.append({"k": "failPass"}); continue
+        # "If your Piety Envoy would be Condemned, it Fails instead" (Priory); the comma split leaves the first half here
+        m = re.search(r"If your (?:(" + _DOMS + r") )?Envoy would be Condemned$", c, re.I)
+        if m and re.search(r"would be Condemned,? it Fails instead", raw, re.I):
+            out.append({"k": "condFail", "dom": m.group(1).title() if m.group(1) else None}); continue
         # faction / holding Envoy rules (fx kinds read by the board's Table)
         m = re.search(r"(?:Authority|Influence)\s*" + _N + r"\s+to\s+envoys sent during the Council Phase", c, re.I)
         if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "council", "dom": "All"}); continue

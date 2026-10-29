@@ -59,6 +59,8 @@ REG = {
     "syndicate_camp_extort":("clause", "hiwf",r"Whenever a Bandit Camp within your Province Extorts, you Extort the Bandit Camp for half the amount"),
     "forge_oppose_extort":("clause", "hiwf", r"Extort (\d+) anytime a player Opposes an Envoy of yours"),
     "forge_retry":         ("clause", "hiwf", r"Once per Envoy Phase: attempt another Cunning Envoy if your Cunning Envoy Failed|At the end of the Tally Phase, if a Cunning Envoy you sent Failed, you may send another Cunning Envoy"),
+    # Jewelry Foundry / Polish House / Spice Merchant: m[1] Domain, m[2] Authority; aimed at declaration, target locked at Perform
+    "envoy_invite":        ("text", "hiwf", r"a player may target you with a (\w+) Envoy\. If they do, that Envoy gains Authority \+(\d+)\. If it Passes or is Endorsed, the action must target you"),
     "whisper_declare":   ("clause", "hiwf", r"Once per Personal Envoy Phase when a player sends an Envoy: that player must declare the specific Action & target they would Perform if the Envoy passes \(including sub-Actions\)|In the Intrigue Phase, choose a Personal Envoy: its sender must declare the specific action & target they would Perform if it passes \(including sub-Actions\)"),
     "envoy_next_fewer":    ("clause", "hiwf", r"send (\d+) fewer Envoys? next turn"),
     "courier_defer":       ("clause", "hiwf", r"successfully Performed Personal Envoy can be Performed next turn|select a Personal Action you performed this turn"),

@@ -1748,7 +1748,7 @@ SIMPLE_NODES = {
     "Farriery": {
         "group": "g_husbandry",
         "unlock": "1 Established",
-        "innate": "+1000; Natural; Speed +1;",
+        "innate": "+1000; Natural; Speed +1; Unlocks Cavalry Spears regardless of Tier Unlock",
         "efficient": ["Avenery"],
         "monument": False},
     "Marshal Tiltyard": {
@@ -1852,13 +1852,13 @@ SIMPLE_NODES = {
     "Jewelry Foundry": {
         "group": "g_commerce",
         "unlock": "Established Industry",
-        "innate": "+2000; Craft +5; In the Envoy Phase, a player may target you with a Cunning Envoy. If they do, that Envoy gains Authority +1. If it Passes or is Endorseed, the action must target you",
+        "innate": "+2000; Craft +5; In the Envoy Phase, a player may target you with a Cunning Envoy. If they do, that Envoy gains Authority +1. If it Passes or is Endorsed, the action must target you",
         "efficient": ["Finery"],
         "monument": False},
     "Polish House": {
         "group": "g_commerce",
         "unlock": "Sovereign Industry",
-        "innate": "+3000; Craft +10;  In the Envoy Phase, a player may target you with a Cunning Envoy. If they do, that Envoy gains Authority +1. If it Passes or is Endorseed, the action must target you",
+        "innate": "+3000; Craft +10;  In the Envoy Phase, a player may target you with a Cunning Envoy. If they do, that Envoy gains Authority +1. If it Passes or is Endorsed, the action must target you",
         "efficient": "Jewelry Foundry",
         "monument": True},
     "Armory": {
@@ -1932,7 +1932,7 @@ SIMPLE_NODES = {
     "Spice Merchant": {
         "group": "g_commerce",
         "unlock": "-",
-        "innate": "Natural; +1000; Authority +1 on Cunning actions targeting you; Craft +4",
+        "innate": "Natural; +1000; Craft +4; In the Envoy Phase, a player may target you with a Cunning Envoy. If they do, that Envoy gains Authority +1. If it Passes or is Endorsed, the action must target you",
         "efficient": "Herb Garden",
         "monument": False},
     "Harbor": {
@@ -2001,7 +2001,7 @@ SIMPLE_NODES = {
         "group": "g_devotion",
         "unlock": "Rising Piety",
         "infrastructure_req": "Chapel",
-        "innate": "Faith +1; If your Piety Envoy is Condemned, instead it Fails",
+        "innate": "Faith +1; If your Piety Envoy would be Condemned, it Fails instead",
         "efficient": "Masonry",
         "monument": False},
     "Abbey": {
@@ -4908,8 +4908,11 @@ def holding_combat_tags(text, sim=False):
     # unlocks
     if _re_disp.search(r"Unlocks?\s+Ranged\s+Weapons", t, _I): out.append("ranged")
     if _re_disp.search(r"Unlocks?\s+Cavalry\s+Weapons", t, _I): out.append("cavalry")
-    for wm in _re_disp.finditer(r"Unlocks?\s+(Cavalry Spear|Lance)\b", t, _I):
+    for wm in _re_disp.finditer(r"Unlocks?\s+(Cavalry Spear|Lance)s?\b", t, _I):
         out.append("weapon:" + wm.group(1).title())
+    # "Unlocks Lances regardless of Tier Unlock" (Marshal Tiltyard, Farriery, Skirmish Field): that item ignores its tier
+    for wm in _re_disp.finditer(r"Unlocks?\s+([A-Z][\w ]*?)s?\s+regardless of (?:Tier Unlock|Unlock Tier)", t):
+        out.append("anytier:" + wm.group(1).strip().title())
     m = _re_disp.search(r"Unlocks?\s+(.+?)\s+for\s+Muster", t, _I)
     if m:
         r = m.group(1).strip()
@@ -4926,7 +4929,8 @@ def holding_combat_tags(text, sim=False):
                      (r"\bDrilled\b", "Drilled"), (r"(?<!Settlements gain )Immune Strained(?! during)", "Immune Strain"),
                      (r"\+1 to Strike", "Strike +1"), (r"max initiative is increased to 3", "MaxInit3"),
                      (r"Always gains Seize the Initiative", "Seize: first"), (r"Righteous Fervour", "Righteous Fervour"),
-                     (r"Unlocks Arquebus", "Artillery Park")):
+                     (r"Unlocks Arquebus", "Artillery Park"), (r"(?:^|;\s*)Initiative \+1\b", "Init +1"),
+                     (r"Armies must be equipped with (?:a )?Lance", "Lance only")):
         if _re_disp.search(pat, t, _I): out.append(tok)
     if _re_disp.search(r"two of the same 1H Melee Weapon to gain Dual Wield|\bgain\s+Florentine\b", t, _I): out.append(FLORENTINE)
     m = _re_disp.search(r"Weapons gain (-\d+)\s*AP\b", t, _I)      # e.g. Finery: "Weapons gain -1AP"

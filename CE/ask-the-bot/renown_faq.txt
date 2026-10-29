@@ -158,7 +158,7 @@ Faith X | [Faith X](https://mlang95.github.io/RenownWiki/glossary.html#faith-x):
 Fall | [Fall](https://mlang95.github.io/RenownWiki/seasons-ref.html) Season (Harvest). Income from Holdings in Hamlets is doubled.
 Fall Back | [Fall Back](https://mlang95.github.io/RenownWiki/glossary.html#fall-back): A controlled retreat that ends the Battle with at least one retinue left — a partial success.
 Farm Tool | [Farm Tool](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Crude). AP 0, Init +0. Keywords: Awkward.
-Farriery | [Farriery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Husbandry). Effect: +1000; Natural; Speed +1;
+Farriery | [Farriery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Husbandry). Effect: +1000; Natural; Speed +1; Unlocks Cavalry Spear regardless of Tier Unlock
 Fatigue Token | [Fatigue Token](https://mlang95.github.io/RenownWiki/keywords-ref.html#fatigue-token): Each token reduces Morale by 2; if your modified Morale is ever 11+, your army Routs. Tokens stack.
 Fatigued | [Fatigued](https://mlang95.github.io/RenownWiki/glossary.html#fatigued): A side at 0 Endurance. Each Skirmish its field takes a Break check, then it gains a Fatigue token.
 Field | [Field](https://mlang95.github.io/RenownWiki/glossary.html#field): Your retinues in play — front line (up to 10) plus reserve (up to 5). Casualties leave the field at once, lowering its count.
@@ -222,7 +222,7 @@ Interrogation Chambers | [Interrogation Chambers](https://mlang95.github.io/Reno
 Intrigue Phase | [Intrigue Phase](https://mlang95.github.io/RenownWiki/glossary.html#intrigue-phase): The Envoy Phase step after the Forum, before the first vote. No talking: the starting player uses all of their Intrigue Phase effects, then each player clockwise, ending with the Host. Each choice takes effect at once.
 Throwing Axe | [Throwing Axe](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Wrought). AP −2, Init +1. Keywords: Steady, Deadly, Unstoppable, Negate Shielded, Destroy Shield, One-Shot, Awkward.
 Jester's Court | [Jester's Court](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Court). Effect: First and second Oppose on an Envoy of yours each Envoy Phase: reduce by 1 / Requires: Town Square
-Jewelry Foundry | [Jewelry Foundry](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Commerce). Effect: +2000; Craft +5; In the Envoy Phase, a player may target you with a Cunning Envoy. If they do, that Envoy gains Authority +1. If it Passes or is Endorseed, the action must target you
+Jewelry Foundry | [Jewelry Foundry](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Commerce). Effect: +2000; Craft +5; In the Envoy Phase, a player may target you with a Cunning Envoy. If they do, that Envoy gains Authority +1. If it Passes or is Endorsed, the action must target you
 Joinery | [Joinery](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Arms). Effect: unlocks Shields; Upkeep −500
 Keep | [Keep](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Prodigious). Upkeep 400 (each Empire Phase), build 4. When you Muster, reduce the Muster Timer by 1 and immediately gain Retinues equal to the combined muster limit. Siege Timer +1. Your Settlement Wards have Presence.
 Kite Shield | [Kite Shield](https://mlang95.github.io/RenownWiki/equipment-ref.html) Shield (Wrought). Save +1, Init +0. Keywords: Steady, Shielded.
@@ -312,12 +312,12 @@ PO 6 | [Public Order 6](https://mlang95.github.io/RenownWiki/public-order-ref.ht
 PO 8 | [Public Order 8](https://mlang95.github.io/RenownWiki/public-order-ref.html) (Eureka): May perform an Endorsed Industry Action
 Poison | [Poison](https://mlang95.github.io/RenownWiki/keywords-ref.html#poison): When the Defender receives a Strike and rolls a Focused Save, it fails; the resulting wound may only be Healed with a Focused Heal.
 Poleaxe | [Poleaxe](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Tempered). AP −5, Init +0. Keywords: 2H, Steady, Cleave, Unstoppable, Negate Shielded.
-Polish House | [Polish House](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: +3000; Craft +10; In the Envoy Phase, a player may target you with a Cunning Envoy. If they do, that Envoy gains Authority +1. If it Passes or is Endorseed, the action must target you
+Polish House | [Polish House](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: +3000; Craft +10; In the Envoy Phase, a player may target you with a Cunning Envoy. If they do, that Envoy gains Authority +1. If it Passes or is Endorsed, the action must target you
 Port Authority | [Port Authority](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Craft +10; Gain +100 per Craft
 powerful heritages | See 'high strength heritages'.
 Sacred Preceptory | [Sacred Preceptory](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Unlocks Oathsworn for Muster; While a Sacred War is active, gain 3 Faith during each Empire Phase
 Presence | [Presence](https://mlang95.github.io/RenownWiki/glossary.html#presence): Territory within Range 2 of a Settlement or Army (Bandit Armies included, Bandit Camps not). An Army can't move within the Presence of a non-allied Settlement or Army unless that Move performs a Battle or Lay Siege against it.
-Priory | [Priory](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Devotion). Effect: Faith +1; If your Piety Envoy is Condemned, instead it Fails / Requires: Chapel
+Priory | [Priory](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Devotion). Effect: Faith +1; If your Piety Envoy would be Condemned, it Fails instead / Requires: Chapel
 Province | [Province](https://mlang95.github.io/RenownWiki/glossary.html#province): The collection of Contested Territory and Controlled Territory by your Settlement's Reach.
 Prowess | [Prowess](https://mlang95.github.io/RenownWiki/domain-board-ref.html) Domain standing. Rising: Indomitable: In the Tally Phase, you may Support one of your own Prowess Envoys.; Established: Edict of War: May have an additional Army. Perform a Muster Action.; Sovereign: High Quartermaster: Upkeep −2000. May change equipment on your Armies during any Upkeep step while that Army is within your Province. No longer lose Influence while at War.
 public order | [Public Order](https://mlang95.github.io/RenownWiki/public-order-ref.html): reduced by Doubt, improved by Faith; each band (from Uprising −10 to Living Saints 10) applies effects. See 'PO <number>' for a specific band.
@@ -380,7 +380,7 @@ Smuggler's Nook | [Smuggler's Nook](https://mlang95.github.io/RenownWiki/pursuit
 Sovereign Standing | [Sovereign Standing](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Standing). Reach a Sovereign Standing (Domain value 10) in any Domain.
 Spear | [Spear](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Cast). AP −1, Init +1. Keywords: Unwieldy.
 Speed X | [Speed X](https://mlang95.github.io/RenownWiki/glossary.html#speed-x): An Army's movement range in Territories per Move action. Base Speed value of an army is Speed 5
-Spice Merchant | [Spice Merchant](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Commerce). Effect: Natural; +1000; Authority +1 on Cunning actions targeting you; Craft +4
+Spice Merchant | [Spice Merchant](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Commerce). Effect: Natural; +1000; Craft +4; In the Envoy Phase, a player may target you with a Cunning Envoy. If they do, that Envoy gains Authority +1. If it Passes or is Endorsed, the action must target you
 Spread Truth | [Spread Truth](https://mlang95.github.io/RenownWiki/actions-ref.html): Piety action. Cost: Doubt 1. Each non-allied player gains Doubt 1. Each allied player gains Faith 1. Endorsed: Recoup Doubt.
 Spring | [Spring](https://mlang95.github.io/RenownWiki/seasons-ref.html) Season (Planting). No Host, Bandit Actions, Trade Income, Council Phase, or Diplomacy Actions. Players don't gain or spend Influence tokens. Bandit Camps Spawn.
 Stable | [Stable](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Arms). Effect: Speed +1; Natural; Unlocks Cavalry Spear (Still requires Tier Unlock)

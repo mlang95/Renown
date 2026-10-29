@@ -1148,7 +1148,7 @@ function armyUnlocks(earned){
   });
   const tset=new Set(active.map(a=>a.tok));
   const wTiers=new Set(["Crude"]), armors=new Set(["Cloth"]);
-  let shields=false, ranged=false, cavalry=false;const weaponsUnl=new Set();
+  let shields=false, ranged=false, cavalry=false;const weaponsUnl=new Set(),anyTier=new Set();
   const shieldTiers=new Set();let shieldByTier=SIMPLE;     // SIMPLE: shield tier from "X armor & shield" (plus Joinery for Shields)
   const retinues=new Set(["Levy"]); const mods=[];
   active.forEach(a=>{
@@ -1163,13 +1163,14 @@ function armyUnlocks(earned){
     else if(t==="ranged") ranged=true;
     else if(t==="cavalry") cavalry=true;
     else if(t.startsWith("weapon:")){weaponsUnl.add(t.slice(7));cavalry=true;}
+    else if(t.startsWith("anytier:")) anyTier.add(t.slice(8));   // "Unlocks X regardless of Tier Unlock": X ignores its tier
     else if(t.startsWith("retinue:")) retinues.add(t.slice(8));
     else mods.push(a);           // keyword / modifier
   });
   // armor also implied by weapon tiers? no — armor unlocked only by explicit armor tags.
   Object.keys(EQ.reqAlias||{}).forEach(al=>{if((PC[EQ.reqAlias[al]]||0)>0)tset.add(al);});   // legacy alias in "requires" (e.g. ABF)
   Object.keys(PC).forEach(n=>{if(PC[n]>0)tset.add(n);});                                      // or the Holding's own name
-  return {set:tset,wTiers,armors,shields,shieldTiers,shieldByTier,ranged,cavalry,weaponsUnl,retinues,mods,active};
+  return {set:tset,wTiers,armors,shields,shieldTiers,shieldByTier,ranged,cavalry,weaponsUnl,anyTier,retinues,mods,active};
 }
 function unlockedShieldTiers(u){ // Shields (Joinery) + tier: SIMPLE = "X armor & shield" Holdings; legacy = weapon-tier progression
   return u.shields ? (u.shieldByTier?u.shieldTiers:u.wTiers) : new Set();
@@ -1251,7 +1252,7 @@ function optionList(sel, items, tierset, u, chosen, extra){
   sel.innerHTML="";
   Object.keys(items).forEach(name=>{
     const it=items[name]; const o=document.createElement("option"); o.value=name;
-    let ok = tierOK(it.tier, tierset);
+    let ok = tierOK(it.tier, tierset) || !!(u&&u.anyTier&&u.anyTier.has(name));
     if(extra) ok = ok && extra(name,it);
     o.textContent=(ok?"":"🔒 ")+name+(it.tier?(" ["+(it.tier_label||it.tier)+"]"):"");
     if(!ok) o.className="locked";
@@ -1270,7 +1271,7 @@ function loadoutFields(obj,u,opts){opts=opts||{};const lo=document.createElement
   field("Retinue","retinue",retItems,new Set(Object.keys(EQ.retinues)),name=>u.retinues.has(name),opts.onRetinue);
   if(opts.bastard)fixBastard(obj);
   fixWeaponNotes(obj);
-  field("Weapon","weapon",EQ.weapons,u.wTiers,(name,it)=>reqMet(it,u)&&weaponUnlockMet(name,u),()=>fixWeaponNotes(obj));
+  field("Weapon","weapon",EQ.weapons,u.wTiers,(name,it)=>reqMet(it,u)&&weaponUnlockMet(name,u)&&lanceOnlyOK(name,u,opts.army),()=>fixWeaponNotes(obj));
   field("Ranged","ranged",Object.assign({"None":{tier:null}},EQ.ranged),u.wTiers,(name,it)=>name==="None"||(u.ranged&&reqMet(it,u)&&!weaponForbids(obj.weapon,"ranged")));
   field("Armor","armor",EQ.armors,new Set(EQ.tiers),name=>u.armors.has(name)||name==="Cloth");
   const shieldItems={};Object.keys(EQ.shields).forEach(k=>shieldItems[k==="null"?"None":k]=EQ.shields[k]);
@@ -1361,7 +1362,7 @@ function armyCard(a,u){
   if(!a.open) return card;
 
   // loadout selects
-  const lo=loadoutFields(a,u,{onRetinue:()=>{const rt=EQ.retinues[a.retinue];if(rt)a.endurance=rt.endurance;},bastard:true});
+  const lo=loadoutFields(a,u,{army:true,onRetinue:()=>{const rt=EQ.retinues[a.retinue];if(rt)a.endurance=rt.endurance;},bastard:true});
   card.appendChild(lo);
   const gf=facGearFlags(a);if(gf.length){const fb=document.createElement("div");fb.className="flagbox";fb.style.marginTop="4px";fb.textContent="⚑ "+gf.join(" · ");card.appendChild(fb);}
 
@@ -1414,6 +1415,8 @@ function armyCard(a,u){
 function reqMet(it,u){ if(!it.requires)return true; return it.requires.every(r=>u.set.has(r)); }
 // weapons that some pursuit explicitly unlocks ("Unlocks Cavalry Spear" / "Unlocks Lance") need that unlock active
 const WEAPON_GATED=new Set(Object.values(ARMYSRC||{}).flatMap(v=>[].concat(v.innate||[],v.mastery||[])).filter(t=>String(t).startsWith("weapon:")).map(t=>t.slice(7)));
+// "Armies must be equipped with Lance" (Marshal Tiltyard): an Army's weapon can only be the Lance (Garrisons aren't Armies)
+function lanceOnlyOK(name,u,army){return !army||!u.set.has("Lance only")||name==="Lance";}
 function weaponUnlockMet(name,u){return !WEAPON_GATED.has(name)||(u.weaponsUnl&&u.weaponsUnl.has(name));}
 // morale characteristic = retinue Shaking + 2 per Fatigue token; >=11 = instant rout
 function moraleBase(a){const rt=EQ.retinues[a.retinue];return rt?rt.shaking:0;}

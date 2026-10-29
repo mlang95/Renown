@@ -131,7 +131,7 @@ function aiApplyTreaty(p,q,type){const x=pairOf(p.id,q.id),d=diplo();
 function aiOffensive(p){return !!(aiProfile(p)||{}).prowess_coded||D.players.some(q=>!sameP(q,p)&&effPair(p.id,q.id).war);}
 function aiKit(p){return withBoard(p.board,()=>{const have=new Set(Object.keys(PC)),u=armyUnlocks(computeEarned(have).earned),T=EQ.tiers||[],ti=t=>t==null?-1:T.indexOf(t);
   const ret=Object.keys(EQ.retinues).filter(n=>u.retinues.has(n)).sort((a,b)=>(+EQ.retinues[b].cost||0)-(+EQ.retinues[a].cost||0)||(+EQ.retinues[a].to_hit||9)-(+EQ.retinues[b].to_hit||9))[0]||"Levy";
-  const wOK=n=>{const it=EQ.weapons[n];return n!=="2HBastard"&&tierOK(it.tier,u.wTiers)&&reqMet(it,u)&&weaponUnlockMet(n,u);},is2H=n=>(EQ.weapons[n].tags||[]).includes("2H");
+  const wOK=n=>{const it=EQ.weapons[n];return n!=="2HBastard"&&(tierOK(it.tier,u.wTiers)||u.anyTier.has(n))&&reqMet(it,u)&&weaponUnlockMet(n,u)&&lanceOnlyOK(n,u,true);},is2H=n=>(EQ.weapons[n].tags||[]).includes("2H");
   const best=L=>L.sort((a,b)=>ti(EQ.weapons[b].tier)-ti(EQ.weapons[a].tier)||(+EQ.weapons[a].ap||0)-(+EQ.weapons[b].ap||0))[0];
   const W=Object.keys(EQ.weapons).filter(wOK),off=aiOffensive(p);
   const weapon=(off?best(W.filter(is2H)):best(W.filter(n=>!is2H(n))))||best(W.slice())||"Farm Tools";

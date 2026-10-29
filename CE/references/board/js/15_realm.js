@@ -297,7 +297,7 @@ function dockHTML(R){
     targets.slice(0,1).forEach(p=>{const dc=tCur(p).decl||{},nn=dc.n||{},tot=T_ALL.reduce((a,d)=>a+(+nn[d]||0),0),mx=personalEnvoys(p);
       h+=dockCard("Declare Envoys — "+esc(p.name)+' <span class="note">'+tot+'/'+mx+'</span>',(isSpring()?T_DOMS:T_ALL).map(d=>'<div class="tb-row"><span style="min-width:80px">'+d+'</span>'+
         '<button data-do="decl" data-dom="'+d+'" data-dv="-1" data-who="'+p.id+'">−</button><b style="min-width:16px;text-align:center">'+(+nn[d]||0)+'</b>'+
-        '<button data-do="decl" data-dom="'+d+'" data-dv="1" data-who="'+p.id+'"'+(tot>=mx?' disabled':'')+'>+</button></div>').join("")+
+        '<button data-do="decl" data-dom="'+d+'" data-dv="1" data-who="'+p.id+'"'+(tot>=mx?' disabled':'')+'>+</button></div>'+declInviteHTML(p,d,+nn[d]||0,dc.inv||{})).join("")+
         '<div class="tb-row"><button data-do="declock" data-who="'+p.id+'" class="on">Submit</button><span class="note">Hidden until everyone submits.</span></div>',"now");});
     if(!HOTSEAT&&(tCur(me).decl||{}).lock)h+=dockCard("Declare Envoys",'<div class="tb-row"><span class="pos">Submitted.</span><button data-do="declunlock" data-who="'+me.id+'">edit</button></div>');}
   // 3. vote on the current Envoy
@@ -383,6 +383,12 @@ function inflCardHTML(qp){const c=tCur(qp),md=PT(qp).mods,afx=boardFx(qp);
 DO.cvote=el=>{if(isSpring()){flash("Spring — no Council Phase");return;}const c=tCurW(pOf(el));if(el.dataset.dom)c.council={dom:el.dataset.dom,ts:tnow()};else delete c.council;rlCommit();};
 DO.tie=el=>{TB().councilTie={dom:el.dataset.dom,turn:tTurn(),ts:tnow()};rlCommit();};
 DO.decl=el=>{const c=tCurW(pOf(el));c.decl=c.decl||{};c.decl.n=c.decl.n||{};const d=el.dataset.dom;c.decl.n[d]=Math.max(0,(+c.decl.n[d]||0)+(+el.dataset.dv));rlCommit();};
+// aim a declared Envoy at a player whose Holding invites it (inviteHolders): one select per Envoy of that Domain
+function declInviteHTML(p,d,n,inv){const H=n?inviteHolders(p,d):[];if(!H.length)return "";let h="";
+  for(let k=0;k<n;k++)h+='<div class="tb-row"><span class="note" style="min-width:80px">'+d+(n>1?" "+(k+1):"")+' aimed at</span><select data-do="declinv" data-key="'+d+":"+k+'" data-who="'+p.id+'"><option value="">— no one —</option>'+
+    H.map(x=>'<option value="'+x.q.id+'"'+(String(inv[d+":"+k]||"")===String(x.q.id)?' selected':'')+'>'+esc(x.q.name)+' · Authority +'+x.val+' ('+esc(x.src)+')</option>').join("")+'</select></div>';
+  return h;}
+DO.declinv=el=>{const c=tCurW(pOf(el));c.decl=c.decl||{n:{}};c.decl.inv=c.decl.inv||{};if(el.value)c.decl.inv[el.dataset.key]=el.value;else delete c.decl.inv[el.dataset.key];rlCommit();};
 DO.declock=el=>{const c=tCurW(pOf(el));c.decl=c.decl||{n:{}};c.decl.lock=tnow();rlCommit();};
 DO.declunlock=el=>{const c=tCurW(pOf(el));if(c.decl)delete c.decl.lock;rlCommit();};
 DO.vote=el=>{const p=pOf(el),E=tSim().curEnvoy;if(!E)return;const x=el.dataset.a==="A"?0:+(document.getElementById("tbAmt")||{}).value||1;tCurW(p).votes[E.id]={a:el.dataset.a,x,ts:tnow()};

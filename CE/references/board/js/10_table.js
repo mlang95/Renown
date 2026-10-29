@@ -104,6 +104,7 @@ function fxLabel(f){const v=f.val*(f.q||1);
   if(f.k==="jester")return (f.n===1?"First":"Second")+" Oppose on your Envoys: −"+f.val;
   if(f.k==="noOppose")return "No Oppose on your "+f.dom+" Envoys"+(f.lower?" from players with lower "+f.lower:"");
   if(f.k==="failPass")return "Your Failed "+(f.dom?f.dom+" ":"")+"Envoys pass instead (not Condemned)";
+  if(f.k==="condFail")return "Your Condemned "+(f.dom?f.dom+" ":"")+"Envoys Fail instead";
   if(f.k==="noEndorse")return f.dom+" actions targeting you can't be Endorsed";
   if(f.k==="voteLast")return "You vote last (after the Host)";
   if(f.k==="capAs")return "Your "+f.dom+" Standing rank sets your Max Influence on "+f.for+" Envoys";
@@ -150,7 +151,7 @@ function tPlan(ph,ord,councilDom){const L=[];
   const dip=new Set(L.map(E=>E.id));   // the source Envoy must exist this turn (its Failed outcome is checked when the Mission is chosen)
   const mis=p=>Object.entries(tCur(p).mission||{}).filter(([src,d])=>T_DOMS.includes(d)&&dip.has(src)).map(([src,d])=>({src,d}));
   T_DOMS.forEach(d=>{ord.slice().sort((a,b)=>((b.board.domains||{})[d]||0)-((a.board.domains||{})[d]||0)||ord.indexOf(a)-ord.indexOf(b))
-    .forEach(p=>{for(let k=0;k<cnt(p,d);k++)L.push({id:"E:"+p.id+":"+d+":"+k,owner:p,dom:d,k});
+    .forEach(p=>{const inv=(tCur(p).decl||{}).inv||{};for(let k=0;k<cnt(p,d);k++)L.push({id:"E:"+p.id+":"+d+":"+k,owner:p,dom:d,k,invite:inv[d+":"+k]||""});
       mis(p).filter(m=>m.d===d).forEach(m=>L.push({id:"M:"+m.src,owner:p,dom:d,k:0,mission:m.src}));});});
   ord.forEach(p=>{const f=PT(p).forgeRetry;if(!f||f.turn!==tTurn())return;const i=L.findIndex(E=>E.id===f.from&&sameP(E.owner,p));if(i<0)return;
     L.splice(i+1,0,{id:"FR:"+f.from,owner:p,dom:"Cunning",k:0,retry:true,excludeTarget:f.excludeTarget||""});});
@@ -198,11 +199,13 @@ function tSim(){
   function finish(E){let net=E.innate+E.sup-E.opp;if(E.council)net=Math.max(1,net);       // Council Envoys can't fail
     E.net=net;E.out=tOutcome(net);delete E.saved;
     const fp=failPassFx(E);if(fp&&(E.out==="Failed"||(E.out==="Condemned"&&fp.condemned))){E.out="Passed";E.saved=fp.src;}   // Condemned only where the text says so
+    const cf=condFailFx(E);if(cf&&E.out==="Condemned"){E.out="Failed";E.saved=cf.src;}                                      // Priory: after failPass, so it doesn't chain into a Pass
     if(E.council&&fxOf(E.owner,"councilEndorse").length&&(E.out==="Passed"||E.out==="Endorsed")){E.out="Endorsed";E.saved=fxOf(E.owner,"councilEndorse")[0].src;}
     if(E.endorsedBy){E.out="Endorsed";E.saved=E.endorsedBy;}                                // Tally Phase Endorse (High Chancery)
     E.done=true;}
   function envoyRun(E){
     E.innate=innateInf(E.owner,E.dom,E.council);E.votes=[];E.sup=0;E.opp=0;E.oppN=0;R.envoys.push(E);
+    const iv=inviteOf(E);if(iv){E.innate+=iv.val;(E.notes=E.notes||[]).push(iv.src+" ("+iv.q.name+"): Authority +"+iv.val+"; its action must target "+iv.q.name);}
     const courier=D.players.map(p=>({p,x:PT(p).courierTarget})).find(o=>o.x&&o.x.turn===tTurn()&&o.x.envoy===E.id);
     if(courier){E.innate-=1;(E.notes=E.notes||[]).push("Courier Network ("+courier.p.name+"): Authority −1");}
     const senate=ph==="envoy"&&!E.council&&D.players.map(p=>({p,x:PT(p).senateChoice})).find(o=>o.x&&o.x.turn===tTurn()&&o.x.envoy===E.id);
@@ -259,10 +262,18 @@ function comboEval(E,action,tid){const tgt=tid&&!String(tid).startsWith("al:")?D
   let adj=E.net+parts.reduce((a,x)=>a+x.val,0);if(E.council)adj=Math.max(1,adj);
   let out=tOutcome(adj);                                             // full thresholds: can reach Condemned
   let saved=null;const fp=failPassFx(E);if(fp&&(out==="Failed"||(out==="Condemned"&&fp.condemned))){out="Passed";saved=fp.src;}
+  const cf=condFailFx(E);if(cf&&out==="Condemned"){out="Failed";saved=cf.src;}
   if(E.bonus&&out==="Endorsed")out="Passed";   // an Endorsed bonus action is not Endorsed again
   let capped=null;if(out==="Endorsed"&&tgt){const ne=fxOf(tgt,"noEndorse").find(f=>f.dom===E.dom);if(ne){out="Passed";capped=tgt.name+": "+ne.src;}}   // "<Dom> actions targeting you can't be Endorsed"
   return {tgt,parts,adj,out,saved,capped,ok:out==="Passed"||out==="Endorsed"};}
 function failPassFx(E){return fxOf(E.owner,"failPass").find(f=>!f.dom||f.dom===E.dom)||null;}
+function condFailFx(E){return fxOf(E.owner,"condFail").find(f=>!f.dom||f.dom===E.dom)||null;}
+// "In the Envoy Phase, a player may target you with a Cunning Envoy. If they do, that Envoy gains Authority +1. If it Passes or is
+// Endorsed, the action must target you" (Jewelry Foundry, Polish House, Spice Merchant): aimed when Envoys are declared.
+// p's options for a <dom> Envoy: one per other player with such a Holding, each Holding's Authority added
+function inviteHolders(p,dom){return D.players.filter(q=>!sameP(q,p)).map(q=>{const H=srcMatch(q.board,"envoy_invite").filter(x=>x.m[1].toLowerCase()===String(dom).toLowerCase());
+  return H.length?{q,val:H.reduce((a,x)=>a+(+x.m[2]),0),src:H.map(x=>x.n).join(" + ")}:null;}).filter(Boolean);}
+function inviteOf(E){return E.invite?inviteHolders(E.owner,E.dom).find(h=>String(h.q.id)===String(E.invite))||null:null;}
 function actionsOf(dom){return Object.keys(DATA.actions||{}).filter(k=>(DATA.actions[k]||{}).domain===dom);}
 // "Rising Prowess" style requirement vs the player's Standing — a flag, not a lock
 function actReqFlag(p,name){const r=String(((DATA.actions||{})[name]||{}).requires||"").trim();if(!r)return "";
@@ -431,6 +442,7 @@ function grandVizier(q){const b=q.board,h=srcMatch(b,"grand_vizier_alt")[0];
 function pfSpec(a){return AA[a]||{tgt:"player",opt:true,run:c=>c.flag("Resolve "+a+" by hand")};}
 function pfHardFlags(E,a,target){if(!gameStarted()||ADMIN)return [];const o=E.owner,sp=pfSpec(a),qs=typeof target==="string"?(target.startsWith("al:")?allyGroup(target.slice(3)):(pById(target)?[pById(target)]:[])):target?[target]:[],out=actRestrict(o,a,null).slice();
   if(E.retry&&E.excludeTarget&&target&&String(target)===String(E.excludeTarget))out.push("Forgery Workshop: retry must target a different player");
+  {const iv=inviteOf(E);if(iv&&!(qs.length===1&&sameP(qs[0],iv.q)))out.push(iv.src+": must target "+iv.q.name);}
   qs.forEach(q=>{out.push(...actRestrict(o,a,q));if(sp.elig){const why=sp.elig(o,q);if(why)out.push(why);}
     if(actDom(a,E)==="Diplomacy"&&(isVassal(o.id)||isVassal(q.id)))out.push("Vassal: no Diplomacy actions");
     if(actDom(a,E)==="Cunning"){const gv=grandVizier(q),mine_=(o.board.domains||{}).Cunning||0;

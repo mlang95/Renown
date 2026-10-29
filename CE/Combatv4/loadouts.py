@@ -433,8 +433,8 @@ from collections import Counter as _Counter
 import renown_data as rd
 
 _SIM = rd.HOLDING_SIM
-_INFO_PREFIX = ("tier:", "armor:", "shield:", "weapon:", "retinue:")
-_INFO_EXACT = {"ranged", "cavalry", "dual-equip", "Artillery Park"}   # "Florentine" both gates Dual Wield and reaches the engine
+_INFO_PREFIX = ("tier:", "armor:", "shield:", "weapon:", "retinue:", "anytier:")
+_INFO_EXACT = {"ranged", "cavalry", "dual-equip", "Artillery Park", "Init +1", "Lance only"}   # board-only (Marshal Tiltyard)   # "Florentine" both gates Dual Wield and reaches the engine
 _ENGINE_TOKEN = {"Righteous Fervour": "Resolute"}     # text keyword -> engine tag of the same rule
 _BONUS_TOKEN = _re.compile(r"^(\w+) \+(\d+)$")
 
