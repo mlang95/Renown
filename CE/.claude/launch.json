@@ -4,39 +4,110 @@
     {
       "name": "renown-board",
       "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
-      "runtimeArgs": ["references/server.py"],
-      "env": { "PORT": "8765" },
+      "runtimeArgs": [
+        "references/server.py"
+      ],
+      "env": {
+        "PORT": "8765"
+      },
       "port": 8765
     },
     {
       "name": "wiki-preview",
       "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
-      "runtimeArgs": ["-m", "http.server", "8766", "--directory", "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\0f577a86-8980-47a4-acd2-a08c1e537067\\scratchpad\\wiki"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8766",
+        "--directory",
+        "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\0f577a86-8980-47a4-acd2-a08c1e537067\\scratchpad\\wiki"
+      ],
       "port": 8766
     },
     {
       "name": "board-scratch",
       "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
-      "runtimeArgs": ["-m", "http.server", "8767", "--directory", "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\51335e3c-8273-467b-aa52-da6775567b5c\\scratchpad\\board"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8767",
+        "--directory",
+        "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\51335e3c-8273-467b-aa52-da6775567b5c\\scratchpad\\board"
+      ],
       "port": 8767
     },
     {
       "name": "wiki-scratch",
       "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
-      "runtimeArgs": ["-m", "http.server", "8768", "--directory", "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\51335e3c-8273-467b-aa52-da6775567b5c\\scratchpad\\wiki_out"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8768",
+        "--directory",
+        "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\51335e3c-8273-467b-aa52-da6775567b5c\\scratchpad\\wiki_out"
+      ],
       "port": 8768
     },
     {
       "name": "mapgen-app",
       "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
-      "runtimeArgs": ["-m", "http.server", "8769", "--directory", "C:\\Users\\Matt\\OneDrive\\Desktop\\Game\\CE\\mapgen"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8769",
+        "--directory",
+        "C:\\Users\\Matt\\OneDrive\\Desktop\\Game\\CE\\mapgen"
+      ],
       "port": 8769
     },
     {
       "name": "board-sprites32",
       "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
-      "runtimeArgs": ["-m", "http.server", "8770", "--directory", "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\7a41a81c-7d07-4a75-ad68-a0e0bd0d5133\\scratchpad\\board"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8770",
+        "--directory",
+        "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\7a41a81c-7d07-4a75-ad68-a0e0bd0d5133\\scratchpad\\board"
+      ],
       "port": 8770
+    },
+    {
+      "name": "board-tokentest",
+      "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
+      "runtimeArgs": [
+        "references/server.py"
+      ],
+      "env": {
+        "PORT": "8771",
+        "RENOWN_TOKEN": "tokentest123",
+        "RENOWN_DB": "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\91116b08-feb5-4a6d-8ab4-3f77f21367ac\\scratchpad\\tokentest.db"
+      },
+      "port": 8771
+    },
+    {
+      "name": "board-datasheet",
+      "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8772",
+        "--directory",
+        "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\5c853b03-06b9-4de1-bad4-d2125512a275\\scratchpad\\board"
+      ],
+      "port": 8772
+    },
+    {
+      "name": "board-treecolour",
+      "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8773",
+        "--directory",
+        "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\cac6b47b-db1d-47d2-80a9-3b03bd6a35f6\\scratchpad\\board"
+      ],
+      "port": 8773
     }
   ]
 }
