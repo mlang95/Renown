@@ -3921,10 +3921,10 @@ BANDIT_BEHAVIOR = {
     "Renown":        "Bandits share the Realm's Renown level.",
     "Domain Value":  "+2 Cunning and +2 Prowess per 5 retinues in the camp (e.g. 25 retinues = 10 Cunning = Sovereign).",
     "At War":        "All players are At War with all bandits. Players Abstain all bandit actions, but innate modifiers can still cause them to Fail.",
-    "Cunning Roll":  "If 10+ retinues in camp, roll a d3 each turn: 1 = Intercept Caravan, 2 = Raze, 3 = Destabilize.",
+    "Cunning Roll":  "",   # set below from BANDIT_CUNNING_TABLE (bandit_cunning_text)
     "Treasury":      "Bandit camps keep Extorted gold in their treasury and pay no costs or upkeep. Winning a Battle against a camp or army destroys it and Extorts its whole treasury (an army's includes its camp's).",
     "Army Behavior": "After bandit mechanics, a Bandit Army performs a Move: Skirmish (player army in range) > Pillage (player settlement in range: half its Holding income each Empire Phase) > March (toward closest army/settlement). Host breaks range ties. After each Battle it doesn't lose, the Army returns to its camp; losing a Battle destroys it and its camp.",
-    "Attacking":     "Move to end adjacent to a camp; another player rolls bandit tactics (D{FACES}; a Focused result = Fall Back) and resolves to-strike/save as a Battle. Bandits never Fall Back but may Flee. Winning the Battle destroys the camp and Extorts its whole treasury.",
+    "Attacking":     "Move to end adjacent to a camp; another player rolls bandit tactics (D{FACES}; a Focused result = Fall Back) and resolves to-strike/save as a Battle. Bandits never Fall Back but may Rout as normal. Winning the Battle destroys the camp and Extorts its whole treasury.",
 }
 
 # ── UPKEEP — THREE SEPARATE TRACKS ────────────────────────────────────────────
@@ -4411,7 +4411,7 @@ BANDIT_BEHAVIOR["Targeting"] = (
 BANDIT_BEHAVIOR["Attacking"] = (
     f"Move to end adjacent to a camp; another player rolls bandit tactics on a "
     f"D{BANDIT_FACES} (see the bandit tactic table) and resolves to-strike/save as a "
-    f"Battle. Bandits never Fall Back but may Flee. Winning the Battle destroys the camp and Extorts its whole treasury."
+    f"Battle. Bandits never Fall Back but may Rout as normal. Winning the Battle destroys the camp and Extorts its whole treasury."
 )
 
 if __name__ == "__main__":
