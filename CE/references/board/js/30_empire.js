@@ -41,7 +41,7 @@ function pAvail(n){return !scopeBlock(n,null)&&(scopeOf(n)!=="Settlement"||!S.se
 // complete line of its Mastery Chain controlled (chainLine), its infrastructure_req, and — a Raw Material with a map resource — that
 // resource within Reach (of Settlement sid when given; Reach unchecked while there's no map or the player isn't deployed)
 function legalCtx(){const have=new Set(Object.keys(PC)),ce=computeEarned(have),me=playerOfBoard(S);
-  return {have,craft:ce.craft,tc:ce.tc,own:S.placed.filter(o=>o.sid!=null&&pActive(o)),me,res:me?reachResources(me):null,sr:{}};}
+  return {have,craft:ce.craft,tc:ce.tc,own:S.placed.filter(o=>o.sid!=null&&chainOK(o)),me,res:me?reachResources(me):null,sr:{}};}
 function rawRes(n){return Object.values(RES_NODE).includes(n);}
 function rawInSett(ctx,n,sid){if(!(sid in ctx.sr)){const s=ctx.me?settById(ctx.me,sid):null,hx=s?settReachHexes(ctx.me,s):null;
     if(!hx)ctx.sr[sid]=null;else{const M=mapState(),V=decodeGrid(M.grid),set=new Set();hx.forEach(k=>{const h=V.hex[k];if(!h)return;
@@ -318,7 +318,7 @@ function instStatus(inst,r,have,craft,tc){return inst.fac?{earned:true,missing:[
 //   UNLOCK  — you control (anywhere, active) one complete line of its Mastery Chain back to its root, plus its infrastructure_req.
 //             Checked when it is started: once met it stays met (a parent lost later changes nothing).
 //   FREE RIDE (Ward) — sharing a settlement with that parent; handled by exemptionsOf / the ⚡ badge.
-// One complete line of the Mastery Chain: a controlled, active parent whose own line is complete, back to a
+// One complete line of the Mastery Chain: a controlled parent you can build onto (chainOK: built, and not Damaged unless under Repair) whose own line is complete, back to a
 // root (a piece with no chain parent — Raw Materials — or a faction piece). Returns the line or null.
 function chainLine(name,own,seen){
   seen=seen||new Set();if(seen.has(name))return null;seen.add(name);
@@ -331,7 +331,7 @@ function chainLine(name,own,seen){
 }
 function simpleReq(inst,r,have,craft,tc){
   if(inst.fac)return {ok:true,unl:true,infra:{earned:true,missing:[]},missing:[],sticky:false};
-  const own=S.placed.filter(o=>o.id!==inst.id&&o.sid!=null&&pActive(o));
+  const own=S.placed.filter(o=>o.id!==inst.id&&o.sid!=null&&chainOK(o));
   const line=chainLine(inst.name,own),unl=!!line,via=line&&line.length?line.join(" → "):null;
   const infra=reqStatus(r,have,craft,tc),ok=unl&&infra.earned;
   if(ok&&!inst.unl){inst.unl=1;IGN_DIRTY=true;}          // met at start → stays met
@@ -407,11 +407,11 @@ function render(){
   if(D.view==="dash"||D.view==="renown"||D.view==="realm")D.view="table";
   if(D.view==="map")D.view="table";
   const view=D.view||"table";
-  // Battle is a modal over the Realm (no tab): the Realm renders underneath
-  const base=view==="battle"?"table":view;
+  // Battle is its own full-screen scene (datasheet A | field | datasheet B)
+  const base=view;
   document.body.classList.toggle("spectating",spectating());
   renderTurnStrip();try{renderSetup();}catch(e){console.warn("setup",e);}syncBoardEndBtn();try{renderHUD();}catch(e){console.warn("HUD",e);}
-  document.body.dataset.view=base;document.body.classList.toggle("bmodal",view==="battle");
+  document.body.dataset.view=base;
   document.querySelectorAll(".modcb").forEach(cb=>{cb.checked=!!mods()[cb.dataset.m];
     if(!cb._w){cb._w=1;cb.onchange=()=>{mods()[cb.dataset.m]=cb.checked;save();render();};}});
   document.getElementById("viewBattle").style.display = view==="battle"?"":"none";
@@ -824,8 +824,11 @@ function facGearFlags(a){const f=FAC[S.faction||""];if(!f)return [];const t=Stri
   if(a.armor&&a.armor!=="Cloth"&&ban.some(x=>x!=="shields"&&x.includes(String(a.armor).toLowerCase())))out.push(S.faction+": can't equip "+a.armor);
   if((/can't use shields/i.test(t)||ban.includes("shields"))&&a.shield&&a.shield!=="None")out.push(S.faction+": can't use Shields");
   return out;}
+// a Holding you have (in the current board) whose text grants army token tok (holding_combat_tags, e.g. "dual-equip", "Florentine")
+function armyTokHolder(tok){return Object.keys(PC).find(n=>(PC[n]||0)>0&&((ARMYSRC[n]||{}).innate||[]).includes(tok))||"";}
+function armyTokNamed(tok){return Object.keys(ARMYSRC).filter(n=>(ARMYSRC[n].innate||[]).includes(tok)).join(" or ")||"?";}
 function dualFlags(a){const out=[];if(!a.dual)return out;
-  if(!((PC["Tiltyard"]||0)>0))out.push("Dual Wield needs a Tiltyard");
+  if(!armyTokHolder("Florentine"))out.push("Dual Wield needs Florentine ("+armyTokNamed("Florentine")+")");
   if(a.shield&&a.shield!=="None")out.push("Dual Wield doesn't apply while a Shield is in use");
   return out;}
 function factionFlags(){const f=FAC[S.faction];if(!f)return [];const out=[];{const k=cultureFactions(S);if(k&&!k.has(S.faction))out.push(S.faction+" isn't one of the "+S.culture+" factions");}
@@ -1280,7 +1283,7 @@ function loadoutFields(obj,u,opts){opts=opts||{};const lo=document.createElement
       const cb=document.createElement("input");cb.type="checkbox";cb.checked=!!obj.dual;cb.title="two "+obj.weapon;
       cb.onchange=()=>{obj.dual=cb.checked;save();render();};f.appendChild(cb);lo.appendChild(f);}}
   return lo;}
-// Dual Wield (Tiltyard): two of the same 1H Melee Weapon — not a 2H weapon, not one whose note rules out Dual Wield
+// Dual Wield (Florentine): two of the same 1H Melee Weapon — not a 2H weapon, not one whose note rules out Dual Wield
 function canDualWield(name){const w=EQ.weapons[name];return !!w&&name!=="Farm Tools"&&!(w.tags||[]).includes("2H")&&!/Dual Wield/i.test(w.note||"");}
 const MUSTER_DEFAULT=25;   // Retinues a Muster asks for by default
 function renderArmy(){
@@ -1513,6 +1516,7 @@ function calcMetrics(have,earned,tc){
    if(pid)D.players.forEach(q=>{if(String(q.id)===pid||!effPair(pid,q.id).trade)return;
      srcMatch(q.board,"partner_craft").forEach(x=>{craft+=+x.m[1];});});
    cpg.forEach(v=>{scale+=v*craft;});
+   srcMatch(S,"gold_per_treasury").forEach(x=>{if(+x.m[2]>0)scale+=Math.floor(Math.max(0,+S.treasury||0)/+x.m[2])*+x.m[1];});   // Esteemed Bank: per N in the Treasury
    if(me&&mapState().grid){const prov=provinceOf(me),bt=srcMatch(S,"army_free_province").length,bo=srcMatch(S,"army_upkeep_outside"),
        lh=srcMatch(S,"army_upkeep_home");
      let outside=false;S.armies.forEach(a=>{const k=armyHex(me,a);if(!k)return;const c=armyUpkeep(a);

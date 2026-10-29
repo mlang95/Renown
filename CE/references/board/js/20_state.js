@@ -79,6 +79,8 @@ reindex();
 
 let PC={};                              // name -> count (derived, active board)
 function pActive(p){return !(p.bt>0)&&!(p.dmg>0);}
+// can be built onto (Mastery Chain line, Ward rider host): no active Build Timer, and not Damaged unless under a Repair Timer
+function chainOK(p){return !(p.bt>0)&&!(p.dmg>0&&!p.rep);}
 // ---- ignorable flags: hidden while the same flag persists; shown again if it changes, or clears and returns ----
 let IGN_N=0,IGN_DIRTY=false;
 // S.ign[key] = [ignored texts]: several live flags may share one key (numbers stripped), so each keeps its own ignore
@@ -111,7 +113,7 @@ function unlockStatus(n,b){b=b||S;const raw=((R[n]||{}).unlock_raw||"").trim();
 function nameHit(n,q){if(!q)return true;if(n.toLowerCase().includes(q))return true;const d=window.dispName?window.dispName(n):n;return d!==n&&d.toLowerCase().includes(q);}
 function missTxt(list){return list.map(n=>{const q=(S.placed||[]).find(x=>x.name===n&&!pActive(x));
   return q?n+(q.bt>0?" (building, "+q.bt+")":" (damaged, "+q.dmg+")"):n;}).join("  +  ");}
-function recomputePC(){PC={};S.placed.forEach(p=>{if(pActive(p))PC[p.name]=(PC[p.name]||0)+1;});}
+function recomputePC(){PC={};S.placed.forEach(p=>{if(pActive(p)&&R[p.name])PC[p.name]=(PC[p.name]||0)+1;});}   // a saved Holding missing from the data (cut or renamed) counts for nothing instead of crashing
 const BTM=DATA.buildTimers||{},TMR=DATA.timers||{};
 const REPAIR_T=((TMR["Repair Timer"]||{}).default)||BTM.Repair||2;
 // "Build Timer ±X" on your active Pursuits (Innate, or Mastery when earned) adjusts the default Build Timer of new
@@ -195,7 +197,8 @@ function tickRealm(types){const w=curSeason()==="Winter";realmTimers().forEach(x
 const TIMER_ORDER=["Build Timer","Repair Timer","Truce Timer","Siege Timer","Muster Timer","Sack Timer","Capture Timer"];
 // Sabotage: "gains Blocked until the end of next turn" — set in turn T, gone when turn T+2's Empire Phase begins
 function expireBlocks(){const M=mapState(),out=[];Object.keys(M.cells).forEach(k=>{const c=M.cells[k];if(c.blocked&&c.blockedT!=null&&tTurn()-c.blockedT>=2){delete c.blocked;delete c.blockedT;out.push("Army @ "+k+": Blocked (Sabotage) ends");}});
-  D.players.forEach(p=>(p.board.armies||[]).forEach(a=>{if(a.blocked&&a.blockedT!=null&&tTurn()-a.blockedT>=2){delete a.blocked;delete a.blockedT;out.push(p.name+" · "+(a.label||("Army "+a.id))+": Blocked (Sabotage) ends");}}));return out;}
+  D.players.forEach(p=>(p.board.armies||[]).forEach(a=>{if(a.blocked&&a.blockedT!=null&&tTurn()-a.blockedT>=2){delete a.blocked;delete a.blockedT;out.push(p.name+" · "+(a.label||("Army "+a.id))+": Blocked (Sabotage) ends");}}));
+  Object.keys(M.camps||{}).forEach(k=>{const cp=M.camps[k];if(cp.blocked&&cp.blockedT!=null&&tTurn()-cp.blockedT>=2){delete cp.blocked;delete cp.blockedT;out.push("Bandit Army @ "+k+": Blocked (Sabotage) ends");}});return out;}
 function empirePhase(){const P=D.players,done={},log=[];P.forEach(p=>done[p.id]=[]);expireBlocks().forEach(x=>log.push(x));
   // 1-2. Standing effects are live; the Season was set in the Rest Phase.
   // 3. Timers, in order: Build, Repair (boards) · Truce, Siege (realm) · Muster (Armies) · Sack, Capture (realm) · any other realm timer
@@ -394,7 +397,7 @@ function hamletFits(name,present){return hamletRoot(name)||effList(name).some(h=
 // "efficient" may list several sources (efficient with ANY one of them). Each source hosts at most one rider;
 // riders claim hosts newest-drop first (then oldest id), preferring the host they were dropped onto.
 // A host with an active Build Timer carries no rider (a Damaged host under Repair still does); a Holding being added now
-// (the id 1e9 placeholder) can't ride a host under Repair either.
+// (the id 1e9 placeholder) can't ride a Damaged host awaiting Repair (no Repair Timer) — one under a Repair Timer is fine.
 // entries may name a Pursuit, or a group: "Natural" (any Natural Pursuit) or a Pursuit type ("Husbandry", "Raw Materials"…)
 const EFF_CACHE={};
 function effList(n){if(EFF_CACHE[n])return EFF_CACHE[n];const e=(R[n]||{}).efficient,raw=Array.isArray(e)?e:(e?[e]:[]),out=[];
@@ -404,11 +407,11 @@ function effList(n){if(EFF_CACHE[n])return EFF_CACHE[n];const e=(R[n]||{}).effic
   return EFF_CACHE[n]=out.filter((x,i,a)=>x!==n&&a.indexOf(x)===i);}
 function effLabel(n){const e=(R[n]||{}).efficient;return (Array.isArray(e)?e:(e?[e]:[]));}
 function exemptionsOf(occ){
-  const present=new Set(occ.filter(o=>!(o.bt>0)).map(o=>o.name)),repairing=new Set(occ.filter(o=>o.dmg>0&&o.rep).map(o=>o.name)),taken={__by:{}},free=new Set();free.hostOf={};
+  const present=new Set(occ.filter(o=>!(o.bt>0)).map(o=>o.name)),unrep=new Set(occ.filter(o=>o.dmg>0&&!o.rep).map(o=>o.name)),taken={__by:{}},free=new Set();free.hostOf={};
   occ.filter(o=>effList(o.name).some(h=>h!==o.name&&present.has(h)))
      .sort((a,b)=>(b.ride||0)-(a.ride||0)||a.id-b.id)
      .forEach(o=>{const loops=h=>{let c=h,g=64;while(c&&g--){if(c===o.name)return true;const rid=taken.__by[c];c=rid!=null?free.hostOf[rid]:null;}return false;};
-       const hs=effList(o.name).filter(h=>h!==o.name&&present.has(h)&&!taken[h]&&!loops(h)&&!(o.id===1e9&&repairing.has(h)));   // no riding something that (transitively) rides you
+       const hs=effList(o.name).filter(h=>h!==o.name&&present.has(h)&&!taken[h]&&!loops(h)&&!(o.id===1e9&&unrep.has(h)));   // no riding something that (transitively) rides you
        const h=(o.rideOn&&hs.includes(o.rideOn))?o.rideOn:hs[0];if(!h)return;taken[h]=o.id;taken.__by[o.name]=o.id;free.add(o.id);free.hostOf[o.id]=h;});
   return free;
 }

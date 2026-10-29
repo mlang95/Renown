@@ -460,6 +460,7 @@ function inspCamp(k){const cp=mapState().camps[k],thr=BAN.armyThreshold||25,army
   h+='<div class="ir"><span class="k">Armed ('+esc(currentEra())+')</span><span>'+esc(((BAN.equipment||{})[currentEra()])||"—")+'</span></div>';
   const st=[];if(+cp.n>0)(own?[...own]:[]).forEach(o=>st.push({st:"unrest",txt:"Local Unrest → "+pname(o)+" (Doubt +1)"}));
   const B=battle();if(B.id&&["A","B"].some(X=>B[X].kind==="bandit"&&B[X].camp===k))st.push({st:"battle",txt:"In Battle"});
+  if(cp.blocked)st.push({st:"blocked",txt:"Blocked (Sabotage"+(cp.blockedT!=null?", until the end of turn "+(cp.blockedT+1):"")+")"});
   h+='<div class="sec">Status</div>'+(st.length?st.map(o=>'<div class="ist">'+stIcon(o.st,16)+'<span>'+esc(o.txt)+'</span></div>').join(""):'<div class="note">—</div>');
   if(cp.last)h+='<div class="note">last: '+esc(cp.last)+'</div>';
   h+='<div class="sec">Gold</div><div class="ir"><span class="k">Destroyed: Extort its Treasury</span><b>'+(cp.gold||0).toLocaleString()+'</b></div>';
@@ -880,8 +881,11 @@ function banditReturn(k){const M=mapState(),a=M.camps[k];if(!a||!a.home)return;c
   D.bqueue=bq().filter(o=>![o.A,o.B].some(s=>s&&s.kind==="bandit"&&String(s.camp)===String(k)));}
 function banditSiegeTimer(q,s){const keep=D.siege;D.siege={tp:q.id,sid:s.id,mode:"Lay Siege",army:armiesInside(q,s).length>0,att:0,def:0,by:null};
   let n=1;try{n=siegeCalc({att:null}).total;}finally{D.siege=keep;}return n;}
-function banditMoves(){const M=mapState();if(!M.grid)return;const thr=BAN.armyThreshold||25;
-  Object.keys(M.camps).filter(k=>+M.camps[k].n>=thr).forEach(k0=>{const cp=M.camps[k0];if(!cp)return;
+// Bandit Armies on the map (camps at the Army threshold): the hexes, e.g. for Sabotage targets
+function banditArmyKeys(){const M=mapState(),thr=BAN.armyThreshold||25;return Object.keys(M.camps||{}).filter(k=>+M.camps[k].n>=thr);}
+function banditMoves(){const M=mapState();if(!M.grid)return;
+  banditArmyKeys().forEach(k0=>{const cp=M.camps[k0];if(!cp)return;
+    if(cp.blocked){bLog("Bandit Army @ "+k0+" is Blocked (Sabotage) — no Move",k0);return;}
     if(cp.uid&&realmTimers().some(t=>t.kind==="siege"&&t.bandit===cp.uid)){bLog("Bandit Army @ "+k0+" holds its Siege",k0);return;}
     if(bq().some(o=>[o.A,o.B].some(sd=>sd&&sd.kind==="bandit"&&sd.camp===k0))){bLog("Bandit Army @ "+k0+" is in a queued Battle",k0);return;}
     const AU=banditAuraList(),sp=banditSpeed(cp),V=decodeGrid(M.grid),free=h=>!!V.hex[h]&&!M.cells[h]&&!M.camps[h]&&!M.wards[h];

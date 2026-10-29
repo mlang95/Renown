@@ -31,7 +31,7 @@ REG = {
     # ---- action riders / Doubt ----
     "doubt_all_plus":      ("clause", "hiwf", r"All player actions that cause Doubt are increased by (\d+)"),
     "doubt_target_minus":  ("clause", "hiwf", r"^Doubt from (?:(\w+) )?actions targeting you is reduced by (\d+)"),
-    "cunning_extra_doubt": ("clause", "hiwf", r"^(?:All )?(Endorsed )?Cunning actions give an additional \**Doubt \+?(\d+)\** to Target"),
+    "cunning_extra_doubt": ("clause", "hiwf", r"^(?:All )?(Endorsed )?Cunning (?:actions|envoys) give an additional \**Doubt \+?(\d+)\** to Target"),
     # Ossuary Crypt: its Doubt rider applies to every affected Piety target realm-wide; its PO bypass is owner-only.
     "piety_extra_doubt":   ("clause", "hiwf", r"All player's Piety actions give an additional \**Doubt \+?(\d+)\**"),
     "piety_target_bypass": ("clause", "hiwf", r"You may target players with Piety actions regardless of your Public Order"),
@@ -39,7 +39,7 @@ REG = {
     # whole text (the clause split would cut it at the ";"); m[1] Domain, m[2] extra Faith, m[3] extra Doubt — each only where the action gave it
     "basilica_amp":        ("text", "hiwf", r"When your (\w+) actions give their target \**Faith\**, it gains \**Faith \+(\d+)\** more; when they give \**Doubt\**, it gains \**Doubt \+(\d+)\** more"),
     "doubt_backlash":      ("clause", "hiwf", r"Players whose actions targeting you would cause Doubt( \(before modifiers\))? gain Doubt \+(\d+)"),
-    "rider_extra":         ("clause", "hiwf", r"^((?:Endorsed )?(\w+) actions (?:give|cause) an additional (?:Doubt|Faith)[^.;]*)"),
+    "rider_extra":         ("clause", "hiwf", r"^((?:Endorsed )?(\w+) (?:actions|envoys) (?:give|cause) an additional (?:Doubt|Faith)[^.;]*)"),
     "rider_your_extra":    ("clause", "hiwf", r"(Your (\w+) actions cause an additional[^.;]*)"),
     "doubt_all_plus_t":    ("clause", "hiwf", r"(All player actions that cause Doubt are increased by \d+)"),
     "doubt_target_minus_t":("clause", "hiwf", r"(Doubt from (?:(\w+) )?actions targeting you is reduced by \d+[^.;]*)"),
@@ -108,14 +108,16 @@ REG = {
     "trade_partner_faith": ("clause", "hiwf", r"Faith \+(\d+) per Trade Partner with Craft (\d+)\+, and each of those partners gains Faith \+(\d+)"),
     # ---- economy ----
     "gold_per_craft":      ("clause", "hiwf", r"Gain \+?(\d+)(?: gold)? per (?:total )?Craft"),
+    # Esteemed Bank: "Each Empire Phase, Gain 1000 per 10000 in Treasury" — m[1] gold per m[2] in the Treasury
+    "gold_per_treasury":   ("clause", "hiwf", r"Gain \+?(\d+)(?: gold)? per (\d+)(?: gold)? in (?:your )?Treasury"),
     "partner_craft":       ("clause", "hiwf", r"(?:Trade Partners|Players who trade with you) gain Craft \+(\d+)"),
     "trade_extra":         ("clause", "hiwf", r"count as Trading with an additional (\d+) players?"),
     "trade_mult":          ("clause", "hiwf", r"generate (thrice|twice) as much for yourself"),
     "trade_no_roads":      ("clause", "hiwf", r"may trade without Dirt Roads|^Can Trade$"),
     "trade_border":        ("clause", "hiwf", r"may trade so long as your border touches another player"),
-    "loan_terms":          ("clause", "hiwf", r"loan money to Trade Partners at (\d+) per (\d+)\s*/\s*turn interest\s*\(minimum (\d+)\)"),
+    "loan_terms":          ("clause", "hiwf", r"loan money to (Trade Partners|another player) at (\d+) per (\d+)\s*/\s*turn interest\s*\(minimum (\d+)\)"),
     "loan_default":        ("clause", "hiwf", r"^on Default:\s*Perform (.+)$"),
-    "loan_once":           ("clause", "hiwf", r"Once per turn,? (?:you )?may loan money"),
+    "loan_once":           ("clause", "hiwf", r"Once per (turn|Empire Phase),? (?:you )?may loan money"),
     "tithe_lower":         ("clause", "hiwf", r"Tithe each other player with lower ((?:Piety|Prowess|Cunning|Industry|Public Order)(?: or (?:Piety|Prowess|Cunning|Industry|Public Order))?)"),
     "extort_half_trade":   ("clause", "hiwf", r"Extort half of Trade Income from players who don.t trade with you"),
     "extort_lower_treasury":("clause", "hiwf", r"Each Empire Phase,? Extort (\d+) from each non-allied player with a lower Treasury"),

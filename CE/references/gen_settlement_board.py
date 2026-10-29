@@ -224,6 +224,8 @@ def envoy_fx(raw):
         # faction / holding Envoy rules (fx kinds read by the board's Table)
         m = re.search(r"(?:Authority|Influence)\s*" + _N + r"\s+to\s+envoys sent during the Council Phase", c, re.I)
         if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "council", "dom": "All"}); continue
+        m = re.search(r"^Authority\s*" + _N + r"\s+on\s+(?:every|all|your)\s+Envoys?$", c, re.I)   # Collegium Archives
+        if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "all", "dom": "All"}); continue
         m = re.search(r"Every Envoy you send has (?:Authority|Influence)\s*" + _N + r"(,?\s*except in Spring)?", c, re.I)
         if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "all", "dom": "All", "noSpring": bool(m.group(2))}); continue
         m = re.search(r"Your Personal Envoys have (?:Authority|Influence)\s*" + _N + r"(,?\s*except in Spring)?", c, re.I)

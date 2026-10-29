@@ -756,15 +756,15 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         b_tbh_eff = np.where(b_negshield, 0, a_tbh)
         # improving (lower target): weapon +1TH (wth, =-1), positive tactic TH. (Yew skipped.)
         # worsening (raise target): own/enemy shield TH, negative tactic TH.
-        # Cap (base + improving + fatigue) at CAP_THR; then worsening mods apply and can reach FACES+1 (auto-fail).
+        # Cap (base + improving) at CAP_THR; then worsening mods apply and can reach FACES+1 (auto-fail). Fatigue only worsens Morale.
         a_th_improve = wth_a - np.maximum(a_TH_mod, 0)
         b_th_improve = wth_b - np.maximum(b_TH_mod, 0)
         a_tac_worsen = np.where(a_immtac, 0, np.maximum(-a_TH_mod, 0))   # Immune Tactic TH (Ministry innate)
         a_th_worsen = a_tbh_eff + a_th_self + a_tac_worsen
         b_tac_worsen = np.where(b_immtac, 0, np.maximum(-b_TH_mod, 0))
         b_th_worsen = b_tbh_eff + b_th_self + b_tac_worsen
-        a_th_pre = np.minimum(a_to_hit + a_th_improve + a_fat, CAP_THR)
-        b_th_pre = np.minimum(b_to_hit + b_th_improve + b_fat, CAP_THR)
+        a_th_pre = np.minimum(a_to_hit + a_th_improve, CAP_THR)
+        b_th_pre = np.minimum(b_to_hit + b_th_improve, CAP_THR)
         # Blunder: clamp to CAP_THR+ at this step (then worsening mods can push beyond).
         a_th_pre = np.where(a_tripped, np.maximum(a_th_pre, CAP_THR), a_th_pre)
         b_th_pre = np.where(b_tripped, np.maximum(b_th_pre, CAP_THR), b_th_pre)
@@ -788,11 +788,7 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         a_riposte = np.repeat(RP[skl]["a_riposte"], n_runs); b_riposte = np.repeat(RP[skl]["b_riposte"], n_runs)
         a_imp_parry = np.repeat(RP[skl]["a_imp_parry"], n_runs); b_imp_parry = np.repeat(RP[skl]["b_imp_parry"], n_runs)
         a_florentine = np.repeat(RP[skl]["a_florentine"], n_runs); b_florentine = np.repeat(RP[skl]["b_florentine"], n_runs)
-        # fatigue disables parry/riposte; recover is handled in build_regen_thr (off when Fatigued,
-        # EXCEPT Enduring -> 6+). Pass the RAW threshold (may be negative = Enduring); def_fat below
-        # drives the rule. (Previously pre-zeroed here, which would clobber the Enduring sign.)
-        # Florentine: parry is NOT disabled by Fatigue — build_parry_thr already caps it at 6+.
-        # Fatigue no longer affects Parry, Riposte or Recover.
+        # Fatigue no longer affects Parry, Riposte or Recover (Florentine = Parry while Dual Wielding).
         a_parry_eff = a_parry; b_parry_eff = b_parry
         a_regen_eff = a_regen; b_regen_eff = b_regen
         a_riposte_eff = a_riposte; b_riposte_eff = b_riposte

@@ -65,7 +65,9 @@ function renderScene(){
     const core="sky:core:"+L.s.tier,cw=SW(core)||16,hw=L.items.reduce((a,it)=>a+SW(it.key)+2,0)-2;
     // Wonders stand outward of the core and its left / right slot pieces, alternating left, right, left …, 26 px apart
     const wn=L.wonders.length,wside=Math.ceil(wn/2);
-    const Lw=Math.max(hw+6,cw+(L.bare?12:28)+(wn?2*(WON_GAP+wside*26):0),40),x0=x;let hx=x0+Math.floor((Lw-hw)/2);
+    // a right-hand front piece (Road Wardens) stands clear of the holdings, to the right of the rightmost one
+    const fr=L.bare?0:Object.keys(INF).filter(n=>INF[n].kind==="front"&&INF[n].pos==="right"&&SPR.S["inf:"+n]).reduce((a,n)=>Math.max(a,SW("inf:"+n)+2),0);
+    const Lw=Math.max(hw+6+2*fr,cw+(L.bare?12:28)+(wn?2*(WON_GAP+wside*26):0),40),x0=x;let hx=x0+Math.floor((Lw-hw)/2);
     L.items.forEach(it=>{const rows=SPR.S[it.key];if(!rows)return;placed.push({rows,x:hx,w:rows[0].length,it});hx+=rows[0].length+2;});
     lots.push({x0,x1:x0+Lw-1,Lw,L});x+=Lw;});
   const W=Math.max(x+(SL.length?Math.max(12,GW[SL.length-1]):12),120),cv=document.createElement("canvas");cv.width=W;cv.height=H;

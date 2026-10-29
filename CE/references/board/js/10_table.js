@@ -64,8 +64,17 @@ function diploCap(){const e=eraRec();return e.max_influence_per_diplomacy_vote??
 function eraActions(council){const e=eraRec();return Math.max(1,+(council?e.council_actions_per_envoy:e.actions_per_envoy)||1);}
 // an Envoy that performs more than one action this Era: the Envoy itself is action 1; actions 2..n are copies with id "<id>#<k>",
 // each with its own Perform record, offered once the action before it has been performed
-function envSlots(E){const n=E.slot?1:eraActions(E.council);if(n<2||!(E.out==="Passed"||E.out==="Endorsed"))return [];
-  return Array.from({length:n-1},(_,i)=>Object.assign({},E,{id:E.id+"#"+(i+2),slot:i+2,slots:n,base:E}));}
+function envSlots(E){if(E.slot||!(E.out==="Passed"||E.out==="Endorsed"))return [];const n=eraActions(E.council);
+  const L=Array.from({length:n-1},(_,i)=>Object.assign({},E,{id:E.id+"#"+(i+2),slot:i+2,slots:n,base:E}));
+  const b=endorsedBonus(E);if(b)L.push(Object.assign({},E,{id:E.id+"#"+(n+1),slot:n+1,slots:n,base:E,bonus:b,out:"Passed"}));
+  return L;}
+// Endorsed "Perform a <Domain|action> action" (ENVOY_OUTCOMES / the action's own endorsed text): one more action after the Envoy's own,
+// offered as the next slot once those are performed. It is Passed, never Endorsed again. → {dom} or {act}, or null
+function endorsedBonus(E){const pe=performEval(E);if(!pe||pe.out!=="Endorsed")return null;const A=(DATA.actions||{})[pe.rec.action]||{};
+  const m=/Perform (?:another|an?) (\w+) action/i.exec(String(A.endorsed||((EOUT[E.dom]||{}).endorsed)||""));if(!m)return null;
+  const w=m[1].toLowerCase(),dom=["Prowess","Cunning","Piety","Industry","Diplomacy"].find(d=>d.toLowerCase()===w);
+  if(dom)return {dom};const act=Object.keys(DATA.actions||{}).find(a=>a.toLowerCase()===w);return act?{act}:null;}
+function slotLabel(E){return E.bonus?" · Endorsed: "+(E.bonus.dom?"a "+E.bonus.dom:E.bonus.act)+" action":E.slot?" · action "+E.slot+"/"+E.slots:"";}
 function slotOpen(X){const r=((tCur(X.owner).perform)||{})[X.slot>2?X.base.id+"#"+(X.slot-1):X.base.id];return !!r&&(!!r.action||!!r.failAccept)&&!r.edit;}
 function withSlots(L){return L.flatMap(E=>[E].concat(envSlots(E).filter(slotOpen)));}
 // ---- Pursuit / Infrastructure effects on Envoys (parsed server-side into innate_fx / mastery_fx / fx) ----
@@ -250,6 +259,7 @@ function comboEval(E,action,tid){const tgt=tid&&!String(tid).startsWith("al:")?D
   let adj=E.net+parts.reduce((a,x)=>a+x.val,0);if(E.council)adj=Math.max(1,adj);
   let out=tOutcome(adj);                                             // full thresholds: can reach Condemned
   let saved=null;const fp=failPassFx(E);if(fp&&(out==="Failed"||(out==="Condemned"&&fp.condemned))){out="Passed";saved=fp.src;}
+  if(E.bonus&&out==="Endorsed")out="Passed";   // an Endorsed bonus action is not Endorsed again
   let capped=null;if(out==="Endorsed"&&tgt){const ne=fxOf(tgt,"noEndorse").find(f=>f.dom===E.dom);if(ne){out="Passed";capped=tgt.name+": "+ne.src;}}   // "<Dom> actions targeting you can't be Endorsed"
   return {tgt,parts,adj,out,saved,capped,ok:out==="Passed"||out==="Endorsed"};}
 function failPassFx(E){return fxOf(E.owner,"failPass").find(f=>!f.dom||f.dom===E.dom)||null;}
@@ -306,9 +316,12 @@ const AA={
   "Destabilize":{tgt:"player",sub:(o,q)=>(q.board.settlements||[]).filter(st=>!BST().dest[q.id+":"+st.id]).map(st=>({v:String(st.id),label:(st.name||st.tier)+" · tax "+settTax(q.board,st).toLocaleString()})),
     run:c=>{BST().dest[c.q.id+":"+c.sub]={by:String(c.o.id)};c.log("Next Winter: "+settName(c.q,c.sub)+"'s tax income goes to "+c.o.name);
       if(Object.keys(BST().dest).some(k=>k.startsWith(c.q.id+":")&&k!==c.q.id+":"+c.sub))c.flag("Several Destabilizes on "+c.q.name+": highest Cunning chooses first; ties split the Extort");}},
-  "Sabotage":{tgt:"player",sub:(o,q)=>{const M=mapState(),L=[];Object.keys(M.cells).forEach(k=>{const x=M.cells[k];if(x.type!=="Army"||String(x.player)!==String(q.id)||x.blocked)return;const a=cellArmy(k).a;L.push({v:"c:"+k,label:(a?(a.label||"Army "+a.id):"Army")+" @ "+k});});
+  // Sabotage: a player's Army, or (no player target) a Bandit Army — "b:<camp hex>"; its Extort comes out of that camp's treasury
+  "Sabotage":{tgt:"player",opt:true,optLabel:"a Bandit Army",subNone:o=>banditArmyKeys().map(k=>({v:"b:"+k,label:"Bandit Army @ "+k+" ("+(+mapState().camps[k].n)+" Retinues)"})),
+    sub:(o,q)=>{const M=mapState(),L=[];Object.keys(M.cells).forEach(k=>{const x=M.cells[k];if(x.type!=="Army"||String(x.player)!==String(q.id)||x.blocked)return;const a=cellArmy(k).a;L.push({v:"c:"+k,label:(a?(a.label||"Army "+a.id):"Army")+" @ "+k});});
       (q.board.armies||[]).filter(a=>armyInside(q,a)&&!a.blocked).forEach(a=>L.push({v:"a:"+a.id,label:(a.label||"Army "+a.id)+" (inside "+(armyInside(q,a).s.name||armyInside(q,a).s.tier)+")"}));return L;},
-    run:c=>{const k=c.sub.slice(2);if(c.sub[0]==="c"){const x=mapState().cells[k];if(x){x.blocked=true;x.blockedT=tTurn();}}else{const a=(c.q.board.armies||[]).find(y=>String(y.id)===k);if(a){a.blocked=true;a.blockedT=tTurn();}}
+    run:c=>{const k=c.sub.slice(2);if(c.sub[0]==="b"){const cp=mapState().camps[k];if(cp){cp.blocked=true;cp.blockedT=tTurn();c.log("Bandit Army @ "+k+" is Blocked until the end of turn "+(tTurn()+1));}return;}
+      if(c.sub[0]==="c"){const x=mapState().cells[k];if(x){x.blocked=true;x.blockedT=tTurn();}}else{const a=(c.q.board.armies||[]).find(y=>String(y.id)===k);if(a){a.blocked=true;a.blockedT=tTurn();}}
       c.log(c.q.name+"'s Army is Blocked until the end of turn "+(tTurn()+1));}},
   "Spread Truth":{tgt:"none",run:c=>D.players.forEach(q=>{if(sameP(q,c.o))return;if(alliedP(c.o,q))c.faith(q,1);else c.doubt(q,1,false);})},
   "Send Missionaries":{tgt:"player+alliance",run:c=>{const d=diplo(),mine=d.member[topSuz(c.o.id)];
@@ -435,9 +448,10 @@ function pfTargets(E,a){const sp=pfSpec(a),o=E.owner,dip=actDom(a,E)==="Diplomac
     if(actDom(a,E)==="Cunning"){const gv=grandVizier(q),mine_=(o.board.domains||{}).Cunning||0;if(gv&&gv.val>mine_)fl.push("Grand Vizier ("+gv.src+"): "+q.name+"'s "+gv.what+" "+gv.val+" > your Cunning "+mine_);}
     const hard=pfHardFlags(E,a,q);return {v:String(q.id),label:q.name,legal:!hard.length,ok:ev.ok&&!hard.length,ev,flag:[...new Set(fl.filter(Boolean))].join("; ")};});
   if(sp.tgt==="player+alliance")Object.keys(diplo().alliances).forEach(g=>{const tid="al:"+g,ev=comboEval(E,a,tid),fl=pfHardFlags(E,a,tid);L.push({v:tid,label:allianceLabel(g)+(diplo().member[topSuz(o.id)]===g?" (yours)":""),legal:!fl.length,ok:ev.ok&&!fl.length,ev,flag:fl.join("; ")});});
-  if(sp.opt&&!E.retry)L.unshift(Object.assign({v:"",label:"no player target"},(()=>{const ev=comboEval(E,a,null),fl=pfHardFlags(E,a,null);return {legal:!fl.length,ok:ev.ok&&!fl.length,ev,flag:fl.join("; ")};})()));
+  if(sp.opt&&!E.retry)L.unshift(Object.assign({v:"",label:sp.optLabel||"no player target"},(()=>{const ev=comboEval(E,a,null),fl=pfHardFlags(E,a,null);if(sp.subNone&&!sp.subNone(o).length)fl.push("nothing eligible");
+    return {legal:!fl.length,ok:ev.ok&&!fl.length,ev,flag:fl.join("; ")};})()));
   return L;}
-function pfSubs(o,a,tid){const sp=pfSpec(a);if(!sp.sub)return null;if(sp.tgt==="none")return sp.sub(o,null);const q=tid&&!String(tid).startsWith("al:")?pById(tid):null;return q?sp.sub(o,q):[];}
+function pfSubs(o,a,tid){const sp=pfSpec(a);if(!sp.sub)return null;if(sp.tgt==="none")return sp.sub(o,null);const q=tid&&!String(tid).startsWith("al:")?pById(tid):null;return q?sp.sub(o,q):sp.subNone?sp.subNone(o):[];}
 function pfSubLabel(o,a,tid,v){const L=pfSubs(o,a,tid)||[],x=L.find(s=>s.v===v);if(x)return x.label;
   const ap=AA[a];if(a==="Raze")return v.slice(2);if(a==="Destabilize"){const q=pById(tid);return q?settName(q,v):v;}return v;}
 function evTxt(ev){return 'net '+ev.adj+' <b class="'+tOutCls(ev.out)+'">'+ev.out+'</b>';}
@@ -447,7 +461,8 @@ function evTxt(ev){return 'net '+ev.adj+' <b class="'+tOutCls(ev.out)+'">'+ev.ou
 // "you may instead perform a <Domain> action" (Double Speak, Master Conspirator): effects that open another Domain's actions to this Envoy
 function insteadFx(E){if(!E||!E.owner)return [];return fxOf(E.owner,"instead").filter(f=>(f.notFrom?E.dom!==f.from:E.dom===f.from)&&(f.outs||["Passed"]).includes(E.out));}
 function actDom(a,E){return ((DATA.actions||{})[a]||{}).domain||(E?E.dom:"");}
-function pfActs(E){if(E&&E.standingAction)return actionsOf(E.dom).filter(a=>a.toLowerCase()===String(E.standingAction).toLowerCase());const L=actionsOf(E.dom),x=[];insteadFx(E).forEach(f=>actionsOf(f.to).forEach(a=>{if(!L.includes(a)&&!x.includes(a))x.push(a);}));const all=L.concat(x);return E.retry?all.filter(a=>pfSpec(a).tgt==="player"):all;}
+function pfActs(E){if(E&&E.standingAction)return actionsOf(E.dom).filter(a=>a.toLowerCase()===String(E.standingAction).toLowerCase());
+  if(E&&E.bonus)return E.bonus.act?[E.bonus.act]:actionsOf(E.bonus.dom);const L=actionsOf(E.dom),x=[];insteadFx(E).forEach(f=>actionsOf(f.to).forEach(a=>{if(!L.includes(a)&&!x.includes(a))x.push(a);}));const all=L.concat(x);return E.retry?all.filter(a=>pfSpec(a).tgt==="player"):all;}
 function pfInsteadSrc(E,a){if(actDom(a,E)===E.dom)return null;const f=insteadFx(E).find(f=>f.to===actDom(a,E));return f||null;}
 function pfForm(E,rec,mode){const o=E.owner,id=E.id,acts=pfActs(E),d=PF[id]=PF[id]||{},L=rec&&rec.lock,W=mode==="whisper",M=mode==="empire";
   const tgtKind=a=>pfSpec(a).tgt==="none"?"none":"player";
@@ -543,13 +558,18 @@ function resolveEnvoy(E,pe,fin){const o=E.owner,act=pe&&pe.rec&&pe.rec.action,A=
         if(gd[p.id]>0)ctx.doubt(p,+x.m[3],sameP(p,q),x.n);});});
     if(q)SM(q.board,"doubt_backlash").forEach(x=>{if(!((x.m[1]?rawTo:doubtTo)[q.id]>0))return;x.m[1]=x.m[2];const g=gainDoubt(o.board,+x.m[1]);fx.push(o.name+": Doubt +"+x.m[1]+" ("+q.name+" · "+x.n+")");});
     if(fin==="Endorsed"){const m=/Extort (\d+)/i.exec(end);if(m&&q){const t=extortGold({b:q.board},{b:o.board},+m[1],"Endorsed "+E.dom);fx.push("Endorsed: extort "+t.toLocaleString()+" from "+q.name);}
+      else if(m&&campTgt(pe))fx.push("Endorsed: extort "+campExtort(campTgt(pe),o,+m[1],"Endorsed "+E.dom).toLocaleString()+" from the Bandit Army @ "+campTgt(pe));
       else if(m)flags.push("Endorsed: Extort "+m[1]+" — no player target");
-      if(/Perform (?:another|a) Move action/i.test(end))flags.push("Endorsed: perform a Move action (map)");}
+      const bn=!E.slot&&endorsedBonus(E);if(bn)flags.push("Endorsed: perform "+(bn.dom?"a "+bn.dom:"a "+bn.act)+" action — offered as the next action");}
     if(fin==="Passed"&&AD==="Cunning"&&+RC.CUNNING_EXTORT){const n=+RC.CUNNING_EXTORT;   // a Passed Cunning action Extorts from its target (Endorsed: the action's larger Extort instead)
       if(q){const t=extortGold({b:q.board},{b:o.board},n,"Passed "+AD);fx.push("Passed: extort "+t.toLocaleString()+" from "+q.name);}
+      else if(campTgt(pe))fx.push("Passed: extort "+campExtort(campTgt(pe),o,n,"Passed "+AD).toLocaleString()+" from the Bandit Army @ "+campTgt(pe));
       else flags.push("Passed: Extort "+n+" — no player target");}
     notes.forEach(x=>fx.push(x));}
   return res;}
+// a Cunning action aimed at a Bandit Army (sub "b:<camp hex>"): its hex, and Extort out of its camp's treasury (an Army away keeps its gold at home; no more than it holds)
+function campTgt(pe){const s=String((pe&&pe.rec&&pe.rec.sub)||"");return s.startsWith("b:")&&mapState().camps[s.slice(2)]?s.slice(2):"";}
+function campExtort(k,o,n,why){const M=mapState(),c0=M.camps[k],cp=c0&&c0.home&&M.camps[c0.home]?M.camps[c0.home]:c0,t=Math.min(+n||0,Math.max(0,+(cp&&cp.gold)||0));if(!t)return 0;cp.gold-=t;tGold(o.board,t,"Extort from Bandit Army ("+why+")");return t;}
 function autoRes(){return TB().auto!==false;}   // default on
 function tApply(R){if(!autoRes())return;let ch=false;
   R.log.forEach(l=>{if(l.kind!=="envoy")return;withSlots([l.E]).forEach(E=>{const p=E.owner;
@@ -558,7 +578,7 @@ function tApply(R){if(!autoRes())return;let ch=false;
     if(!resolveOpen(R,E))return;                                                       // Resolve waits for the end of the Tally Phase
     const pe=performEval(E);if(!pe&&(E.out==="Passed"||E.out==="Endorsed"))return;   // wait for Perform
     const fin=pe?pe.out:E.out;c.applied[E.id]={out:fin,f:0,d:0,fx:[],flags:[],dom:E.dom+(E.council?" (Council)":""),act:pe&&pe.rec&&pe.rec.action||"",sub:pe&&pe.rec&&pe.rec.sub?pfSubLabel(p,pe.rec.action,pe.rec.target,pe.rec.sub):""};    // marked first: never applied twice
-    if(E.slot)c.applied[E.id].dom+=" · action "+E.slot+"/"+E.slots;
+    if(E.slot)c.applied[E.id].dom+=slotLabel(E);
     Object.assign(c.applied[E.id],resolveEnvoy(E,pe,fin));ch=true;});});
   if(ch)save();}
 
@@ -725,12 +745,14 @@ function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.
       return '<div class="tnh"><span class="gk" data-gk="'+(GK_BY[esc(n)]??"")+'">'+esc(n)+'</span>'+(r.monument?' ◆':'')+(have?' <span class="tb-b">built</span>':'')+
         (r.unlock_raw&&r.unlock_raw!=="-"&&r.unlock_raw!=="\u2014"?' <span class="tnu'+(us.ok?'':' bad')+'" title="Unlock: '+esc(r.unlock_raw)+'">'+(us.ok?'':'🔒')+esc(r.unlock_raw)+'</span>':'')+'</div>'+
         '<div class="tnc">'+(r.combo?kwify(r.combo,n):"—")+'</div>';};
-    // one box height per chart: the tallest box at this width, so every row stays level and no effect text is cut
-    const NH=(()=>{const m=document.createElement("div");m.style.cssText="position:absolute;visibility:hidden;left:-9999px;top:0";
+    // one box height per row: the tallest box in that row at this width, so each row stays level and no effect text is cut
+    const RH=(()=>{const m=document.createElement("div");m.style.cssText="position:absolute;visibility:hidden;left:-9999px;top:0";
       m.innerHTML=ks.map(n=>'<div class="tn" style="position:static;width:'+NW+'px;height:auto">'+inner(n)+'</div>').join("");
-      document.body.appendChild(m);const h=Math.max(NH0,...[...m.children].map(e=>Math.ceil(e.getBoundingClientRect().height)));m.remove();return h;})();
-    const H=(mr+1)*(NH+RG);
-    const px=k=>[N[k][0]*(NW+CG),N[k][1]*(NH+RG)];let paths="";
+      document.body.appendChild(m);const rh=Array(mr+1).fill(NH0);
+      [...m.children].forEach((e,i)=>{const r=N[ks[i]][1];rh[r]=Math.max(rh[r],Math.ceil(e.getBoundingClientRect().height));});m.remove();return rh;})();
+    const RY=RH.reduce((a,h,i)=>{a.push(i?a[i-1]+RH[i-1]+RG:0);return a;},[]),nh=k=>RH[N[k][1]];
+    const H=RY[mr]+RH[mr]+RG;
+    const px=k=>[N[k][0]*(NW+CG),RY[N[k][1]]];let paths="";
     // edges: orthogonal routes with rounded corners; line stops at the arrow base so the head is a clean triangle touching the box
     const AL=7,RAD=5,used=new Set(),slot={};
     const rp=raw=>{const pts=raw.filter((p,i)=>!i||p[0]!==raw[i-1][0]||p[1]!==raw[i-1][1]).filter((p,i,a)=>!(i>0&&i<a.length-1&&((a[i-1][0]===p[0]&&p[0]===a[i+1][0])||(a[i-1][1]===p[1]&&p[1]===a[i+1][1]))));
@@ -743,36 +765,36 @@ function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.
     ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]>N[n][0]).forEach(k=>{(slot[k]=slot[k]||[]).push(n);}));
     // each incoming line enters at its source's height when that falls on the box (straight, no jog), else at the nearest edge band;
     // entries keep source order and stay >= 9px apart
-    const EY={};const entryY=(k,n)=>{if(!EY[k]){const by=px(k)[1],lo=by+14,hi=by+NH-10,L=slot[k].slice().sort((a,b)=>N[a][1]-N[b][1]||N[a][0]-N[b][0]),
-        y=L.map(q=>Math.min(hi,Math.max(lo,px(q)[1]+NH/2)));for(let i=1;i<y.length;i++)y[i]=Math.max(y[i],y[i-1]+9);
+    const EY={};const entryY=(k,n)=>{if(!EY[k]){const by=px(k)[1],lo=by+14,hi=by+nh(k)-10,L=slot[k].slice().sort((a,b)=>N[a][1]-N[b][1]||N[a][0]-N[b][0]),
+        y=L.map(q=>Math.min(hi,Math.max(lo,px(q)[1]+nh(q)/2)));for(let i=1;i<y.length;i++)y[i]=Math.max(y[i],y[i-1]+9);
         for(let i=y.length-1;i>=0;i--){if(y[i]>hi)y[i]=hi;if(i<y.length-1&&y[i]>y[i+1]-9)y[i]=y[i+1]-9;}
         EY[k]={};L.forEach((q,i)=>EY[k][q]=y[i]);}return EY[k][n];};
     // routing: try the short route first; if a straight run would cross another box, drop into the gap between rows instead
-    const box=ks.map(k=>{const [x,y]=px(k);return [k,x-2,y-2,x+NW+2,y+NH+2];});
+    const box=ks.map(k=>{const [x,y]=px(k);return [k,x-2,y-2,x+NW+2,y+nh(k)+2];});
     const hit=(pts,skip)=>{for(let i=1;i<pts.length;i++){const [ax,ay]=pts[i-1],[bx_,by_]=pts[i],x0_=Math.min(ax,bx_),x1_=Math.max(ax,bx_),y0_=Math.min(ay,by_),y1_=Math.max(ay,by_);
         for(const [k,l,t,r,b] of box){if(skip.includes(k))continue;if(x1_>l&&x0_<r&&y1_>t&&y0_<b)return true;}}return false;};
-    const gapY=(row,down)=>down?(row+1)*(NH+RG)-RG/2:row*(NH+RG)-RG/2;
+    const gapY=(row,down)=>down?RY[row]+RH[row]+RG/2:RY[row]-RG/2;
     const pick=(c,skip)=>c.find(p=>!hit(p,skip))||c[c.length-1];
     ks.forEach(n=>{const kids=(E[n]||[]).filter(k=>N[k]&&N[k][0]>N[n][0]);if(!kids.length)return;
       // each parent gets its own lane (x offset by row) and colour, so merging lines stay traceable
-      const [x0,y0]=px(n),x1=x0+NW,y1=y0+NH/2,fx=x1+8+(N[n][1]%4)*5,col=EC[N[n][1]%EC.length];
+      const [x0,y0]=px(n),x1=x0+NW,y1=y0+nh(n)/2,fx=x1+8+(N[n][1]%4)*5,col=EC[N[n][1]%EC.length];
       kids.forEach(k=>{const [bx,by]=px(k),ey=entryY(k,n),tip=bx-1-AL,gx=bx-16-(N[n][1]%4)*5,down=ey>y1,gy=gapY(N[n][1],down);
         paths+=edge(col,pick([[[x1,y1],[fx,y1],[fx,ey],[tip,ey]],[[x1,y1],[gx,y1],[gx,ey],[tip,ey]],
           [[x1,y1],[fx,y1],[fx,gy],[gx,gy],[gx,ey],[tip,ey]]],[n,k]));});});
     // same-column links: a lane in the gap left of the column (downward and upward links get separate lanes)
     // zag: a link into the box directly above/below (same column, next row) is a straight vertical step
     ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]===N[n][0]&&Math.abs(N[k][1]-N[n][1])===1).forEach(k=>{const [x0,y0]=px(n),[,by]=px(k),dn=by>y0,cx=x0+Math.round(NW/2),col=EC[N[n][1]%EC.length];
-      paths+=edge(col,[[cx,dn?y0+NH:y0],[cx,dn?by-1-AL:by+NH+1+AL]]);}));
+      paths+=edge(col,[[cx,dn?y0+nh(n):y0],[cx,dn?by-1-AL:by+nh(k)+1+AL]]);}));
     ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]===N[n][0]&&Math.abs(N[k][1]-N[n][1])!==1).forEach(k=>{const [x0,y0]=px(n),[,by]=px(k),dn=by>y0,lx=x0-(dn?14:26),col=EC[N[n][1]%EC.length],
-        sy=y0+NH/2+(dn?6:-6),ty=by+NH/2+(dn?-6:6);
+        sy=y0+nh(n)/2+(dn?6:-6),ty=by+nh(k)/2+(dn?-6:6);
       paths+=edge(col,[[x0,sy],[lx,sy],[lx,ty],[x0-1-AL,ty]]);}));
     // backward links (a Mastery that needs a later Holding): dashed, leaving left, running in the row gap, entering the child's right edge
     ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]<N[n][0]).forEach(k=>{const [x0,y0]=px(n),[bx,by]=px(k),rx=bx+NW+12,col=EC[N[n][1]%EC.length],
-        sy=y0+NH-8,ty=by+NH-8,lx=x0-12,down=by>=y0,gy=gapY(N[n][1],down);
+        sy=y0+nh(n)-8,ty=by+nh(k)-8,lx=x0-12,down=by>=y0,gy=gapY(N[n][1],down);
       const pts=pick([[[x0,sy],[rx,sy],[rx,ty],[bx+NW+1+AL,ty]],[[x0,sy],[lx,sy],[lx,gy],[rx,gy],[rx,ty],[bx+NW+1+AL,ty]]],[n,k]);
       paths+='<g><title>'+esc(k)+' Mastery needs '+esc(n)+'</title>'+edge(col,pts,' stroke-dasharray="4 3"')+'</g>';}));
     const nodes=ks.map(n=>{const [x,y]=px(n),r=R[n]||{},col=DC[dom(n)]||"#6a6a72",have=(PC[n]||0)>0;
-      return '<div class="tn'+(r.monument?' mon':'')+(have?' have':'')+'" style="left:'+x+'px;top:'+y+'px;width:'+NW+'px;height:'+NH+'px;border-color:'+col+'">'+inner(n)+'</div>';}).join("");
+      return '<div class="tn'+(r.monument?' mon':'')+(have?' have':'')+'" style="left:'+x+'px;top:'+y+'px;width:'+NW+'px;height:'+nh(n)+'px;border-color:'+col+'">'+inner(n)+'</div>';}).join("");
     return '<details class="tchart" data-t="'+esc(c.title)+'"'+(TREE_OPEN.has(c.title)?' open':'')+'><summary><b>'+esc(c.title)+'</b> <span class="note">'+ks.length+' Pursuits</span></summary><div class="tscroll"><div class="tcanvas" style="width:'+W+'px;height:'+H+'px">'+
       '<svg width="'+W+'" height="'+H+'"><defs>'+[...used].map(c=>'<marker id="tarw-'+c.slice(1)+'" viewBox="0 0 7 6" refX="0" refY="3" markerWidth="7" markerHeight="6" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="'+c+'"/></marker>').join("")+'</defs><g fill="none" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt">'+paths+'</g></svg>'+nodes+'</div></div></details>';}).join("");}
 // rulebook (collapsible, per device); keywords inside the text get hover links

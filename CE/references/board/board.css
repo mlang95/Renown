@@ -257,6 +257,35 @@
   .stat{background:var(--panel2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:2px 7px;font-size:11px}
   .stat b{color:var(--ink);font-family:var(--serif)}
   .stat .k{color:var(--dim2);font-size:9px;letter-spacing:.04em;margin-right:3px}
+  /* Battle unit datasheet */
+  .ds{margin-top:8px;border:1px solid var(--line2);border-radius:var(--radius-sm);overflow:hidden;background:var(--panel)}
+  .ds-hd{display:flex;align-items:center;gap:10px;padding:6px 10px;background:var(--panel2);border-bottom:2px solid var(--line2)}
+  .ds-name{font-size:18px;font-weight:600;line-height:1.1}.ds-n{font-size:14px;color:var(--dim);font-weight:400}
+  .ds-sub{font-size:11px;color:var(--dim)}
+  .ds-hd .bdsadj{margin-left:auto;padding:2px 8px}.ds-hd .bdsadj.on{border-color:var(--order);color:var(--order)}
+  .ds-stats{display:flex;flex-wrap:wrap;gap:1px;background:var(--line);border-bottom:1px solid var(--line2)}
+  .ds-st{flex:1 1 44px;background:var(--panel);text-align:center;padding:4px 2px 5px}
+  .ds-st .k{display:block;font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim2)}
+  .ds-st b{display:block;font-size:19px;line-height:1.15;font-variant-numeric:tabular-nums}
+  .ds-st i{display:block;font-style:normal;font-size:9px;letter-spacing:.04em;text-transform:uppercase;color:var(--dim)}
+  .ds-st.bad b,.ds-st.bad i{color:var(--upkeep)}
+  .ds-mods{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;padding:4px 10px;font-size:11px;color:var(--dim);border-bottom:1px solid var(--line2)}
+  .ds-mods label{display:flex;align-items:center;gap:3px;margin-left:auto}
+  .ds-tbl{width:100%;border-collapse:collapse;font-size:12px}
+  .ds-tbl th{font-size:9px;font-weight:400;letter-spacing:.07em;text-transform:uppercase;color:var(--dim2);text-align:center;padding:4px 4px 2px;border-bottom:1px solid var(--line2)}
+  .ds-tbl td{padding:3px 4px;border-bottom:1px solid var(--line);text-align:center;vertical-align:middle;font-variant-numeric:tabular-nums}
+  .ds-tbl th:first-child,.ds-tbl td:first-child{text-align:left;padding-left:10px;white-space:nowrap}
+  .ds-tbl td.tr{text-align:left}.ds-tbl .kw{display:inline-block;font-size:9px;padding:0 4px;margin:1px 2px 1px 0}
+  .ds-tbl tr.off td{opacity:.5}
+  .ds-tbl .ic{display:inline-block;vertical-align:middle;margin-right:5px}
+  .ds-tbl .st{font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--dim);margin-left:5px}
+  .ds-tbl label.st{display:inline-flex;align-items:center;gap:2px}
+  .ds-sec{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim2);padding:6px 10px 0}
+  .ds-rules{list-style:none;margin:0;padding:0 10px 4px;font-size:12px}
+  .ds-rules li{padding:2px 0;border-bottom:1px dotted var(--line)}.ds-rules li:last-child{border-bottom:none}
+  .ds-kw{display:flex;flex-wrap:wrap;gap:4px;align-items:center;padding:5px 10px;background:var(--panel2);border-top:1px solid var(--line2)}
+  .ds-kw .k{font-size:9px;letter-spacing:.08em;color:var(--dim2);margin-right:4px}
+  .ds-adj{display:flex;flex-direction:column;gap:4px;padding:6px 10px;border-top:1px dashed var(--order)}
   .status{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
   .stog{border:1px solid var(--line);border-radius:var(--pill);padding:2px 9px;font-size:11px;color:var(--dim);cursor:pointer;user-select:none}
   .stog.on{color:var(--bg);background:var(--upkeep);border-color:var(--upkeep)}
@@ -712,8 +741,41 @@
   .hudpop .lsec{margin:6px 0 0}.hudpop .pos{color:var(--income)}.hudpop .neg{color:var(--upkeep)}
   .robadge{font-size:12px;border:1px solid var(--order);color:var(--order);border-radius:var(--pill,999px);padding:2px 9px;display:inline-flex;gap:6px;align-items:center}
   .robadge[hidden]{display:none}
-  body.bmodal #viewBattle{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.62);overflow:auto;padding:24px 16px}
-  body.bmodal #viewBattle .bm-card{max-width:1180px;margin:0 auto;background:var(--bg);border:1px solid var(--line2);border-radius:var(--radius);padding:12px 14px}
+  /* Battle scene: datasheet A | field | datasheet B (field on top, sides below on narrower screens) */
+  #viewBattle{padding:12px 14px}
+  .bgrid{display:grid;grid-template-columns:minmax(300px,380px) minmax(0,1fr) minmax(300px,380px);gap:10px;align-items:start}
+  .bgrid>.bside{min-width:0}
+  .bfield-col{min-width:0}
+  @media(max-width:1180px){.bgrid{grid-template-columns:1fr 1fr}.bfield-col{grid-column:1/-1;order:-1}}
+  @media(max-width:700px){.bgrid{grid-template-columns:1fr}}
+  /* Battle field */
+  .bf-wrap{border:1px solid var(--line2);border-radius:var(--radius-sm);overflow:hidden;background:var(--panel)}
+  .bf{display:block;width:100%;height:auto}
+  .bf-head{display:flex;align-items:center;gap:8px;padding:5px 10px;background:var(--panel2);border-bottom:1px solid var(--line2)}
+  .bf-side{display:flex;flex-direction:column;line-height:1.25;border-left:3px solid var(--pc);padding-left:6px}
+  .bf-side:last-child{margin-left:auto;text-align:right;border-left:none;border-right:3px solid var(--pc);padding:0 6px 0 0}
+  .bf-side b{font-size:14px}.bf-side span{font-size:11px;color:var(--dim)}
+  .bf-sk{flex:1;text-align:center;font-size:11px;color:var(--dim2);letter-spacing:.06em;text-transform:uppercase}
+  .bf text{font-family:var(--serif)}
+  .bf-u{transition:transform .9s cubic-bezier(.3,.7,.3,1),opacity .6s}
+  .bf-b{transition:transform .5s,filter .5s,opacity .5s;transform-box:fill-box;transform-origin:center}
+  .bf-u.dead .bf-b{transform:rotate(90deg) scale(.8);filter:grayscale(1) brightness(.55);opacity:.7}
+  .bf-u.wound .bf-b{animation:bfwound .9s infinite}
+  .bf-u.lunge .bf-b{animation:bflunge .5s}
+  .bf-u.shake .bf-b{animation:bfshake .4s 2}
+  @keyframes bfwound{50%{filter:brightness(1.6) sepia(1) hue-rotate(-40deg) saturate(4)}}
+  @keyframes bflunge{45%{transform:translateX(var(--lx))}}
+  @keyframes bfshake{25%{transform:translateX(-2px)}75%{transform:translateX(2px)}}
+  .bf-fx{pointer-events:none}
+  .bf-pop{transform-box:fill-box;transform-origin:center;animation:bfpop 1.2s forwards}
+  @keyframes bfpop{0%{opacity:0;transform:scale(.3)}20%{opacity:1;transform:scale(1.25)}70%{opacity:1}100%{opacity:0;transform:scale(1) translateY(-6px)}}
+  .bf-shot{stroke-dasharray:10 400;stroke-dashoffset:10;animation:bfshot .55s ease-in forwards}
+  @keyframes bfshot{to{stroke-dashoffset:-400}}
+  .bf-ban{animation:bfban 2.6s forwards}
+  @keyframes bfban{0%{opacity:0}12%{opacity:1}80%{opacity:1}100%{opacity:0}}
+  .bf-cap{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;padding:5px 10px;font-size:12px;border-top:1px solid var(--line2);background:var(--panel2)}
+  .bf-cap .tsw,.bf-cap .tswg{vertical-align:middle}
+  @media (prefers-reduced-motion:reduce){.bf-u,.bf-b{transition:none}.bf-pop,.bf-shot,.bf-ban,.bf-u.lunge .bf-b,.bf-u.shake .bf-b{animation-duration:.01s}.bf-u.wound .bf-b{animation:none;filter:sepia(1) hue-rotate(-40deg) saturate(4)}}
   .bm-h{display:flex;align-items:center;gap:8px;margin-bottom:6px}.bm-h button{margin-left:auto}
   .tac-sum{margin:4px 0;line-height:1.5}.tac-sum .pos{color:var(--income);font-weight:600}.tac-sum .neg{color:var(--upkeep);font-weight:600}
   .su-step{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.su-chips{display:flex;gap:4px;flex-wrap:wrap}

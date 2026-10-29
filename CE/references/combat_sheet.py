@@ -146,7 +146,7 @@ def step_spine(c, x, y, w):
 		("Panic Check","If a side took 5+ casualties this Skirmish: roll Morale (\u22645 dice)."),
         ("Lose Endurance","Each side that fought: \u22121 Endurance. At 0 Endurance \u2192 Fatigued."),
         ("Break Check",f"Each Fatigued field, before its token: roll Morale (\u22645 dice). Never triggers Panic. {ROUT_THR}+ \u2192 Rout."),
-        ("Fatigue Token",f"Each Fatigued side gains a token: \u2212{FATIGUE_STRIKE} to Strike & Morale (rolls cap {CAP_THR}+; Morale uncapped). Tokens stack. You cannot Parry or Recover while Fatigued unless otherwise specified."),
+        ("Fatigue Token",f"Each Fatigued side gains a token: \u2212{FATIGUE_MORALE} to Morale (uncapped). Tokens stack."),
         ("End the Skirmish",f"Battle ends if a side is wiped, Routs (Morale {ROUT_THR}+), or Falls Back. Else, Form the Line."),
     ]
     num_w = 20; title_fs, body_fs = 10.5, 8
@@ -195,7 +195,7 @@ def front(c):
     y = chart(c, right_x, y, right_w, "Standing Combat Effects", ["Standing","Effect"], se_rows,
               colw=[right_w*0.42,right_w*0.58], fs=7.5); y -= 8
     cap_rows = [[f"Blunder (Init {_sgn(INIT_MIN)} or lower)",f"Your to-Strike is set to {CAP_THR}+, only a Focused Strike can succeed, before other negative modifiers."],
-                [f"Capped at {CAP_THR}+",f"Fatigue \u2212{FATIGUE_STRIKE} to to-Strike; Tempered keeps the Save at {CAP_THR}+ vs any AP. A Focused Save succeeds. (No Parry or Recover while Fatigued.)"],
+                [f"Capped at {CAP_THR}+",f"Tempered keeps the Save at {CAP_THR}+ vs any AP. A Focused Save succeeds."],
                 [f"Pushes past {CAP_THR}+ \u2192 {FACES+1}+ (auto-miss)",f"Shield \u22121 to Strike (Kite/Tower/Heater) and enemy tactic to-Strike penalties apply AFTER the cap \u2014 they can raise the target to {FACES+1}+."],
                 ["Uncapped \u2192 Rout",f"Fatigue's \u2212{FATIGUE_MORALE} to Morale is NOT capped. At modified Morale {ROUT_THR}+ the army Routs."]]
     y = chart(c, right_x, y, right_w, f"The {CAP_THR}+ Ceiling", ["Rule","Effect"], cap_rows,

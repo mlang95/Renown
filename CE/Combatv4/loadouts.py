@@ -426,7 +426,7 @@ BUILD_KITS = {
 # per-node 'engine' field (hand-written sim tags, prereqs, per-Retinue upkeep, aliases) is retired.
 #
 #   tags      'innate' text -> tokens (renown_data.holding_combat_tags). Unlock tokens
-#             (tier:/armor:/shield:/weapon:/retinue:/ranged/dual-equip/two-of-same) gate gear;
+#             (tier:/armor:/shield:/weapon:/retinue:/ranged/dual-equip/Florentine) gate gear;
 #             the rest are combat keywords handed to the engine.
 #   lines     a Holding needs one complete Mastery Chain line ('efficient' parents, any one of
 #             them, recursively) unless it is a Root. Parents that aren't Holdings (Hamlet, ...)
@@ -443,7 +443,7 @@ import renown_data as rd
 
 _SIM = rd.HOLDING_SIM
 _INFO_PREFIX = ("tier:", "armor:", "shield:", "weapon:", "retinue:")
-_INFO_EXACT = {"ranged", "cavalry", "dual-equip", "two-of-same", "Artillery Park"}
+_INFO_EXACT = {"ranged", "cavalry", "dual-equip", "Artillery Park"}   # "Florentine" both gates Dual Wield and reaches the engine
 _ENGINE_TOKEN = {"Righteous Fervour": "Resolute"}     # text keyword -> engine tag of the same rule
 _BONUS_TOKEN = _re.compile(r"^(\w+) \+(\d+)$")
 
@@ -666,7 +666,7 @@ def gear_requirements(weapon, shield, armor, ranged, two_of_same=False):
     if (ranged and weapon not in (None, "Farm Tools")) or (ranged and ONE_SHOT in RANGED[ranged].get("tags", [])):
         need.add("dual-equip")
     if two_of_same:
-        need.add("two-of-same")
+        need.add(rd.FLORENTINE)
     return need
 
 
@@ -811,7 +811,7 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
                if "weapon:" + w in toks and _ti >= TIER_IDX[WEAPONS[w]["tier"]]]
         has_fletch = "ranged" in toks
         has_ty = "dual-equip" in toks
-        has_dw = "two-of-same" in toks
+        has_dw = rd.FLORENTINE in toks
         melee = WEAPONS_BY_TIER[tier_str]
         arms_options = []
         if cav and has_ty:                              # cavalry is melee-only (charge weapons)

@@ -36,7 +36,7 @@
     2,
     0
    ],
-   "Avery": [
+   "Avenery": [
     3,
     1
    ],
@@ -96,7 +96,7 @@
   "edges": [
    [
     "Saddlery",
-    "Avery"
+    "Avenery"
    ],
    [
     "Toll House",
@@ -119,7 +119,7 @@
     "Courier Network"
    ],
    [
-    "Avery",
+    "Avenery",
     "Farriery"
    ],
    [
@@ -221,7 +221,7 @@
     2,
     4
    ],
-   "Drill Yard": [
+   "Coliseum": [
     2,
     0
    ],
@@ -284,16 +284,16 @@
     "Bell Tower"
    ],
    [
+    "Conditioning Field",
+    "Coliseum"
+   ],
+   [
     "Courtyard",
     "Conditioning Field"
    ],
    [
     "Artisan Workshop",
     "Court Artists"
-   ],
-   [
-    "Conditioning Field",
-    "Drill Yard"
    ],
    [
     "Bell Tower",
@@ -312,7 +312,7 @@
     "Execution Dock"
    ],
    [
-    "Drill Yard",
+    "Coliseum",
     "Grand Tournament"
    ],
    [
@@ -656,6 +656,10 @@
     2,
     2
    ],
+   "Armory": [
+    2,
+    3
+   ],
    "Finery": [
     2,
     0
@@ -668,7 +672,7 @@
     3,
     2
    ],
-   "Armory": [
+   "Gilded Foundry": [
     3,
     3
    ],
@@ -684,7 +688,7 @@
     4,
     2
    ],
-   "Gilded Foundry": [
+   "Court Armoury": [
     4,
     3
    ],
@@ -713,6 +717,10 @@
    [
     "Furnace",
     "Blacksmith"
+   ],
+   [
+    "Gilded Foundry",
+    "Court Armoury"
    ],
    [
     "Blacksmith",
@@ -906,7 +914,7 @@
     3,
     2
    ],
-   "Avery": [
+   "Avenery": [
     3,
     0
    ],
@@ -942,7 +950,7 @@
    ],
    [
     "Saddlery",
-    "Avery"
+    "Avenery"
    ],
    [
     "Levy Hall",
@@ -957,7 +965,7 @@
     "Charcoal Burner"
    ],
    [
-    "Avery",
+    "Avenery",
     "Farriery"
    ],
    [

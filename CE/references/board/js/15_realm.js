@@ -311,7 +311,7 @@ function dockHTML(R){
   if(vt)withSlots(R.envoys).filter(E2=>(E2.out==="Passed"||E2.out==="Endorsed")&&resolveOpen(R,E2)&&canAct(E2.owner)&&(HOTSEAT||sameP(E2.owner,me))).forEach(E2=>{
     const rec=((tCur(E2.owner).perform)||{})[E2.id]||{},ap=(tCur(E2.owner).applied||{})[E2.id];
     if(ap&&!rec.edit&&E2.dom!=="Diplomacy")return;          // performed: shown in the Envoy queue and the Turn log (Diplomacy stays for "declined")
-    h+=dockCard("Perform — "+esc(E2.owner.name)+" · "+esc(E2.dom)+(E2.council?" (Council)":"")+(E2.slot?" · action "+E2.slot+"/"+E2.slots:"")+' <b class="'+tOutCls(E2.out)+'">'+E2.out+'</b>',tPerformHtml(E2),"now");});
+    h+=dockCard("Perform — "+esc(E2.owner.name)+" · "+esc(E2.dom)+(E2.council?" (Council)":"")+slotLabel(E2)+' <b class="'+tOutCls(E2.out)+'">'+E2.out+'</b>',tPerformHtml(E2),"now");});
   // 5. Diplomatic Mission (RULES › Rule: Diplomatic Mission)
   if(ph==="envoy"&&t.phaseTs)R.envoys.filter(E2=>E2.dom==="Diplomacy"&&E2.done&&missionWhy(E2)&&canAct(E2.owner)&&(HOTSEAT||sameP(E2.owner,me))).forEach(E2=>{
     const ms=(tCur(E2.owner).mission||{})[E2.id],open=T_DOMS.filter(d=>!domStarted(R,d));

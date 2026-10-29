@@ -281,18 +281,14 @@ class StaticArmy:
         else:
             self.tags_first_2h = None
             self.tags_normal_2h = None
-        # Whether Unwieldy comes from a NON-shield source (weapon, armor, or dual-equip). If so,
+        # Whether Unwieldy comes from a NON-shield source (weapon or armor). If so,
         # destroying the shield must NOT lift the Unwieldy init-clamp. Set subtraction is WRONG here
         # (Unwieldy from armor and from the shield are the same string, so removing the shield's tag
         # would also drop the armor's). Instead check the non-shield sources directly.
         _wpn_unw = ld.weapon is not None and (UNWIELDY in WEAPONS.get(ld.weapon, {}).get("tags", []))
         _arm_unw = UNWIELDY in ARMORS.get(ld.armor, {}).get("tags", [])
-        _has_real_melee = ld.weapon is not None and ld.weapon != "Farm Tools"
-        _ty_mastery = ld.has_tiltyard and getattr(ld, "tiltyard_mastery", True)
-        _dual_unw = (bool(ld.ranged) and _has_real_melee and ld.has_tiltyard and not _ty_mastery
-                     and IMMUNE_UNWIELDY not in ld.extra_tags)
         _extra_unw = UNWIELDY in ld.extra_tags
-        self.unwieldy_non_shield = bool(_wpn_unw or _arm_unw or _dual_unw or _extra_unw)
+        self.unwieldy_non_shield = bool(_wpn_unw or _arm_unw or _extra_unw)   # carrying Ranged + Melee no longer gives Unwieldy
         # Convenience: derived flags for the inner loop
         self.shield_init = SHIELDS[ld.shield]["init"] if ld.shield else 0
         # ── cumulative +X bonuses, summed from the full tag set ──
@@ -331,15 +327,8 @@ class StaticArmy:
             tags |= set(SHIELDS[shield_name]["tags"])
         # Armor-granted initiative tags (e.g. Full Plate: Immune Nimble).
         tags |= set(ARMORS[ld.armor].get("tags", []))
-        # Dual-equip Unwieldy: applies when carrying BOTH a real melee weapon (not Farm Tools) AND
-        # a ranged weapon. Negated by 'Immune Unwieldy' (Tiltyard mastery), which is the source of
-        # truth here — the tiltyard_mastery flag is set inconsistently across generators, so we read
-        # the mastery TAG instead. Melee-only / ranged-only builds never get dual-equip Unwieldy.
-        has_real_melee = ld.weapon is not None and ld.weapon != "Farm Tools"
-        is_dual_equipping = has_both and has_real_melee and bool(ld.ranged)
-        if is_dual_equipping:
-            tags.add(UNWIELDY)
-        # Immune Unwieldy (Tiltyard mastery) negates ALL Unwieldy — dual-equip, weapon-intrinsic
+        # Carrying both a real melee and a ranged weapon (Skirmish Field) no longer gives Unwieldy.
+        # Immune Unwieldy negates ALL Unwieldy — dual-equip, weapon-intrinsic
         # (Halberd/Pike/etc.), AND armor-intrinsic (Chainmail/Full Plate). It is a general immunity.
         if IMMUNE_UNWIELDY in tags:
             tags.discard(UNWIELDY)
@@ -1410,9 +1399,9 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         b_tac_worsen = np.maximum(-b_th_mod_eff, 0) * (0 if "Immune Tactic TH" in b_tags else 1)
         a_th_worsen = a_shield_tbh_eff + a_shield_th_self + a_tac_worsen
         b_th_worsen = b_shield_tbh_eff + b_shield_th_self + b_tac_worsen
-        # base + improving + fatigue, capped at 6 (the fatigue ceiling)
-        a_th_pre = np.minimum(a_static.to_hit + a_th_improve + a_fat, CAP_THR)
-        b_th_pre = np.minimum(b_static.to_hit + b_th_improve + b_fat, CAP_THR)
+        # base + improving, capped at CAP_THR+ (Fatigue tokens only worsen Morale, not to-Strike)
+        a_th_pre = np.minimum(a_static.to_hit + a_th_improve, CAP_THR)
+        b_th_pre = np.minimum(b_static.to_hit + b_th_improve, CAP_THR)
         # BLUNDER (init <= -2): clamp to 6+ at this step too (sets a too-good to-hit down to 6+),
         # then worsening mods can push beyond. Same mechanic as the fatigue cap.
         a_th_pre = np.where(a_tripped, np.maximum(a_th_pre, CAP_THR), a_th_pre)

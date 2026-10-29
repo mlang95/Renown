@@ -201,8 +201,8 @@
 <path d="M344,416 L344,524" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95"/>
 <path d="M344,416 L368,416" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M344,416 L368,416" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M344,524 L540,524" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M344,524 L540,524" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M344,524 L368,524" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M344,524 L368,524" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M344,452 L368,452" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M344,452 L368,452" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M320,488 L367,488" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -211,6 +211,8 @@
 <path d="M492,452 L539,452" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M492,488 L539,488" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M492,488 L539,488" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M492,524 L539,524" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M492,524 L539,524" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M492,416 L539,416" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M492,416 L539,416" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M664,452 L711,452" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -236,6 +238,9 @@
 <rect x="374" y="476" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
 <rect x="374" y="476" width="5" height="24" fill="#9E2B25"/>
 <text x="383" y="491" font-size="8.2" fill="#2b2620">Siege Works</text>
+<rect x="374" y="512" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
+<rect x="374" y="512" width="5" height="24" fill="#2E5A8C"/>
+<text x="383" y="527" font-size="8.2" fill="#2b2620">Armory</text>
 <rect x="374" y="404" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="374" y="404" width="5" height="24" fill="#2E5A8C"/>
 <text x="383" y="419" font-size="8.2" fill="#2b2620">Finery</text>
@@ -247,7 +252,7 @@
 <text x="555" y="491" font-size="8.2" fill="#2b2620">Battery Park</text>
 <rect x="546" y="512" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="546" y="512" width="5" height="24" fill="#2E5A8C"/>
-<text x="555" y="527" font-size="8.2" fill="#2b2620">Armory</text>
+<text x="555" y="527" font-size="8.2" fill="#2b2620">Gilded Foundry</text>
 <rect x="546" y="404" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="546" y="404" width="5" height="24" fill="#2E5A8C"/>
 <text x="555" y="419" font-size="8.2" fill="#2b2620">Jewelry Foundry</text>
@@ -261,7 +266,7 @@
 <polygon points="828.0,484.4 831.6,488.0 828.0,491.6 824.4,488.0" fill="#8a6d1a"/>
 <rect x="718" y="512" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="718" y="512" width="5" height="24" fill="#2E5A8C"/>
-<text x="727" y="527" font-size="8.2" fill="#2b2620">Gilded Foundry</text>
+<text x="727" y="527" font-size="8.2" fill="#2b2620">Court Armoury</text>
 <rect x="718" y="404" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#2E5A8C" stroke-width="2.2"/>
 <rect x="718" y="404" width="5" height="24" fill="#2E5A8C"/>
 <text x="727" y="419" font-size="8.2" fill="#2b2620">Polish House</text>

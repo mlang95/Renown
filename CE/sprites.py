@@ -5632,6 +5632,9 @@ def sprite_key(name, ns):
             return "monument:" + name
         if "holding:" + name in SPRITES:
             return "holding:" + name
+        shown = ns.get("NAME_DISPLAY", {}).get(name)          # art keyed by the printed name (id Coliseum, shown Drill Yard)
+        if shown and "holding:" + shown in SPRITES:
+            return "holding:" + shown
         return "group:" + node.get("group", "")
     return None
 
@@ -5836,6 +5839,7 @@ def check(ns):
         if kind == "map" and name not in ns.get("SETTLEMENTS", {}) and name not in ("camp", "bandit_army")                 and not (name.startswith("camp:") and name[5:] in ("2", "3", "4")):
             out.append(f"{key}: not a settlement tier / camp / bandit_army")
     known = set(ns.get("NODES", {})) | set(ns.get("WONDERS", {})) | set(ns.get("SETTLEMENTS", {}))
+    known |= {v for k, v in ns.get("NAME_DISPLAY", {}).items() if k in known}   # art keyed by the printed name
     for key in SPRITES:
         kind, _, name = key.partition(":")
         if kind in ("monument", "wonder", "tier", "holding") and name not in known:

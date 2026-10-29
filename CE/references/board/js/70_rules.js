@@ -173,35 +173,66 @@ function danegeldRows(me){if(!me||!mapState().grid||!srcHas(me.board,"danegeld")
     const from=id!=null?pById(id):null,amt=armyUpkeep(a);if(from&&amt)rows.push({from,amt,army:a});});
   return rows;}
 // "Extort N per player without X" on active pieces → the players without X pay (auto, Empire Phase)
-// ---- Loans ("May loan money to Trade Partners at N per M/turn interest (minimum K); on Default: Perform Demand Tribute") ----
+// ---- Loans ("Once per Empire Phase, you may loan money to another player at N per M/turn interest (minimum K); on Default: Perform Demand Tribute") ----
+// Empire Phase only. A lender offers a loan, or a player requests one from a lender (the lender lends or declines). Interest is paid
+// automatically each Empire Phase (runLoans); from the Empire Phase after a loan is made, the borrower may repay any part of it in steps of LOAN_STEP.
+const LOAN_STEP=100;
 function loans(){D.loans=D.loans||[];return D.loans;}
+function loanReqs(){D.loanReqs=(D.loanReqs||[]).filter(r=>r.turn===tTurn());return D.loanReqs;}   // requests last one turn
 function loanTerms(b){const x=srcMatch(b,"loan_terms")[0];
   if(!x)return null;const d=srcMatch(b,"loan_default").find(y=>y.n===x.n);
-  return {per:+x.m[1],of:+x.m[2],min:+x.m[3],src:x.n,def:d?d.m[1].trim():"Demand Tribute"};}
+  return {any:/another player/i.test(x.m[1]),per:+x.m[2],of:+x.m[3],min:+x.m[4],src:x.n,def:d?d.m[1].trim():"Demand Tribute"};}
 function loanInterest(L){const lp=pById(L.from),t=lp?loanTerms(lp.board):null;if(!t)return 0;return Math.max(t.min,Math.floor(L.amt/t.of)*t.per);}
+// may lp lend to bp under lp's terms: any other player, or Trade Partners only
+function loanOK(lp,bp){const t=loanTerms(lp.board);return !!t&&!sameP(lp,bp)&&(t.any||effPair(lp.id,bp.id).trade);}
+function lentThisTurn(lp){return loans().some(L=>String(L.from)===String(lp.id)&&L.turn===tTurn());}
 function runLoans(){const out=[];loans().forEach(L=>{const lp=pById(L.from),bp=pById(L.to);if(!lp||!bp)return;const t=loanTerms(lp.board);
   if(!t){out.push("Loan "+lp.name+" → "+bp.name+": no active lending Holding — no interest");return;}
   const due=loanInterest(L),pay=Math.min(due,Math.max(0,+bp.board.treasury||0));tGold(bp.board,-pay,"Loan interest to "+lp.name);tGold(lp.board,pay,"Loan interest from "+bp.name);
   if(pay<due){lp.board.loanDefaults=(lp.board.loanDefaults||[]).concat([{turn:tTurn(),pid:String(bp.id),short:due-pay}]).slice(-10);
     out.push(bp.name+" defaults on "+lp.name+"'s loan (paid "+pay.toLocaleString()+" of "+due.toLocaleString()+") — "+lp.name+": Perform "+t.def);}
   else out.push(bp.name+" pays "+lp.name+" "+pay.toLocaleString()+" interest ("+t.src+")");});return out;}
-function loansHTML(qp){const t=loanTerms(qp.board),mine=loans().filter(L=>String(L.from)===String(qp.id)||String(L.to)===String(qp.id));if(!t&&!mine.length)return "";
-  const tp=D.players.filter(q=>!sameP(q,qp)&&effPair(qp.id,q.id).trade);
-  let h='<div class="tot dock"><div class="dk-h">Loans — '+esc(qp.name)+'</div>';
-  if(t)h+=tp.length?'<div class="tb-row"><select id="lnTo">'+tp.map(q=>'<option value="'+q.id+'">'+esc(q.name)+'</option>').join("")+'</select>'+
-      '<input id="lnAmt" type="number" min="'+t.of+'" step="'+t.of+'" value="'+t.of+'" style="width:80px"><button data-do="lend" data-who="'+qp.id+'">lend</button><span class="note">'+t.per+' per '+t.of+'/turn (min '+t.min+')</span></div>':
-    '<div class="note">No Trade Partners to lend to.</div>';
-  if(t&&srcHas(qp.board,"loan_once")&&loans().some(L=>String(L.from)===String(qp.id)&&L.turn===tTurn()))h+='<div class="flagbox">⚑ '+esc(t.src)+': once per turn — already lent this turn</div>';
-  h+=mine.map(L=>{const lp=pById(L.from),bp=pById(L.to);return '<div class="tb-row"><span style="flex:1">'+esc(lp?lp.name:"?")+' → '+esc(bp?bp.name:"?")+' <b>'+(+L.amt).toLocaleString()+'</b> <span class="note">interest '+loanInterest(L).toLocaleString()+'/turn</span></span>'+
-    (bp&&canAct(bp)?'<button data-do="lnrepay" data-ln="'+L.id+'">repay</button>':'')+(lp&&canAct(lp)?'<button data-do="lnforgive" data-ln="'+L.id+'">forgive</button>':'')+'</div>';}).join("");
-  return h+'</div>';}
-DO.lend=el=>{const lp=pById(el.dataset.who),bp=pById(document.getElementById("lnTo").value),amt=Math.max(0,Math.round(+document.getElementById("lnAmt").value||0));
-  if(!lp||!bp||!amt)return;if((+lp.board.treasury||0)<amt){flash(lp.name+": not enough gold");return;}
+function loanAmtIn(id,max){return '<input id="'+id+'" type="number" min="'+LOAN_STEP+'" step="'+LOAN_STEP+'"'+(max!=null?' max="'+max+'"':'')+' value="'+(max!=null?Math.min(max,1000):1000)+'" style="width:84px">';}
+function loansHTML(qp){if(tPhase()!=="empire")return "";
+  const k=qp.id,t=loanTerms(qp.board),mine=loans().filter(L=>String(L.from)===String(k)||String(L.to)===String(k)),RQ=loanReqs();
+  const inReq=RQ.filter(r=>String(r.from)===String(k)),outReq=RQ.filter(r=>String(r.to)===String(k));
+  const lenders=D.players.filter(q=>!sameP(q,qp)&&loanOK(q,qp)),act=canAct(qp);let b="";
+  if(t){const tp=D.players.filter(q=>loanOK(qp,q));
+    b+='<div class="note">'+esc(t.src)+': '+t.per+' per '+t.of+'/turn interest (min '+t.min+') · on Default: Perform '+esc(t.def)+'</div>';
+    if(srcHas(qp.board,"loan_once")&&lentThisTurn(qp))b+='<div class="flagbox">⚑ '+esc(t.src)+': once per Empire Phase — already lent this Empire Phase</div>';
+    if(act)b+=tp.length?'<div class="tb-row"><span class="note">Lend to</span><select id="lnTo-'+k+'">'+tp.map(q=>'<option value="'+q.id+'">'+esc(q.name)+'</option>').join("")+'</select>'+
+        loanAmtIn("lnAmt-"+k)+'<button data-do="lend" data-who="'+k+'">lend</button></div>':'<div class="note">'+(t.any?'No other players':'No Trade Partners')+' to lend to.</div>';
+    b+=inReq.map(r=>{const bp=pById(r.to);return '<div class="tb-row"><span style="flex:1">'+esc(bp?bp.name:"?")+' requests <b>'+(+r.amt).toLocaleString()+'</b></span>'+
+      (act?'<button data-do="lnaccept" data-rq="'+r.id+'" class="pos">lend</button><button data-do="lndecline" data-rq="'+r.id+'">decline</button>':'')+'</div>';}).join("");}
+  if(lenders.length&&act)b+='<div class="tb-row"><span class="note">Request a loan from</span><select id="lnFrom-'+k+'">'+lenders.map(q=>'<option value="'+q.id+'">'+esc(q.name)+'</option>').join("")+'</select>'+
+    loanAmtIn("lnReq-"+k)+'<button data-do="lnrequest" data-who="'+k+'">request</button></div>';
+  b+=outReq.map(r=>{const lp=pById(r.from);return '<div class="tb-row"><span style="flex:1">Requested <b>'+(+r.amt).toLocaleString()+'</b> from '+esc(lp?lp.name:"?")+' <span class="note">awaiting answer</span></span>'+
+    (act?'<button data-do="lndecline" data-rq="'+r.id+'">withdraw</button>':'')+'</div>';}).join("");
+  b+=mine.map(L=>{const lp=pById(L.from),bp=pById(L.to),borrower=!!bp&&sameP(bp,qp),tr=Math.max(0,+(bp&&bp.board.treasury)||0),mx=Math.min(+L.amt,Math.floor(tr/LOAN_STEP)*LOAN_STEP);
+    const rp=!borrower||!act?'':L.turn>=tTurn()?'<span class="note">repay from next Empire Phase</span>':
+      mx>=LOAN_STEP?loanAmtIn("lnPay-"+L.id,mx)+'<button data-do="lnrepay" data-ln="'+L.id+'">repay</button>':'<span class="note">no gold to repay</span>';
+    return '<div class="tb-row"><span style="flex:1">'+esc(lp?lp.name:"?")+' → '+esc(bp?bp.name:"?")+' <b>'+(+L.amt).toLocaleString()+'</b> <span class="note">interest '+loanInterest(L).toLocaleString()+'/turn</span></span>'+
+      rp+(lp&&sameP(lp,qp)&&act?'<button data-do="lnforgive" data-ln="'+L.id+'">forgive</button>':'')+'</div>';}).join("");
+  return b?dockCard("Loans — "+esc(qp.name),b,inReq.length?"now":""):"";}
+function lendNow(lp,bp,amt){amt=Math.floor(Math.max(0,+amt||0)/LOAN_STEP)*LOAN_STEP;if(!lp||!bp||!amt)return false;
+  if((+lp.board.treasury||0)<amt){flash(lp.name+": not enough gold");return false;}
+  if(srcHas(lp.board,"loan_once")&&lentThisTurn(lp))flash("Flag: "+lp.name+" already lent this Empire Phase");
   tGold(lp.board,-amt,"Loan to "+bp.name);tGold(bp.board,amt,"Loan from "+lp.name);loans().push({id:"ln"+Date.now().toString(36),from:String(lp.id),to:String(bp.id),amt,turn:tTurn()});
-  noteAdd(lp,"lent "+amt.toLocaleString()+" to "+bp.name);save();render();};
-DO.lnrepay=el=>{const L=loans().find(x=>x.id===el.dataset.ln);if(!L)return;const lp=pById(L.from),bp=pById(L.to);
-  if((+bp.board.treasury||0)<L.amt){flash(bp.name+": not enough gold to repay");return;}tGold(bp.board,-L.amt,"Loan repaid to "+lp.name);tGold(lp.board,+L.amt,"Loan repaid by "+bp.name);
-  D.loans=loans().filter(x=>x!==L);noteAdd(bp,"repaid "+(+L.amt).toLocaleString()+" to "+lp.name);save();render();};
+  noteAdd(lp,"lent "+amt.toLocaleString()+" to "+bp.name);noteAdd(bp,"borrowed "+amt.toLocaleString()+" from "+lp.name);return true;}
+DO.lend=el=>{const k=el.dataset.who;if(lendNow(pById(k),pById(document.getElementById("lnTo-"+k).value),document.getElementById("lnAmt-"+k).value)){save();render();}};
+DO.lnrequest=el=>{const k=el.dataset.who,bp=pById(k),lp=pById(document.getElementById("lnFrom-"+k).value),amt=Math.floor(Math.max(0,+document.getElementById("lnReq-"+k).value||0)/LOAN_STEP)*LOAN_STEP;
+  if(!bp||!lp||!amt)return;loanReqs().push({id:"lq"+Date.now().toString(36),from:String(lp.id),to:String(bp.id),amt,turn:tTurn()});
+  noteAdd(lp,bp.name+" requests a loan of "+amt.toLocaleString());save();render();};
+DO.lnaccept=el=>{const r=loanReqs().find(x=>x.id===el.dataset.rq);if(!r)return;if(!lendNow(pById(r.from),pById(r.to),r.amt))return;
+  D.loanReqs=loanReqs().filter(x=>x!==r);save();render();};
+DO.lndecline=el=>{const r=loanReqs().find(x=>x.id===el.dataset.rq);if(!r)return;D.loanReqs=loanReqs().filter(x=>x!==r);
+  const lp=pById(r.from),bp=pById(r.to);if(bp&&lp)noteAdd(bp,lp.name+" declined the loan of "+(+r.amt).toLocaleString());save();render();};
+DO.lnrepay=el=>{const L=loans().find(x=>x.id===el.dataset.ln);if(!L)return;const lp=pById(L.from),bp=pById(L.to);if(!lp||!bp)return;
+  if(L.turn>=tTurn()){flash("Repay from the next Empire Phase, after interest is paid");return;}
+  const amt=Math.min(+L.amt,Math.floor(Math.max(0,+(document.getElementById("lnPay-"+L.id)||{}).value||0)/LOAN_STEP)*LOAN_STEP);if(!amt)return;
+  if((+bp.board.treasury||0)<amt){flash(bp.name+": not enough gold to repay");return;}
+  tGold(bp.board,-amt,"Loan repaid to "+lp.name);tGold(lp.board,amt,"Loan repaid by "+bp.name);L.amt=+L.amt-amt;
+  if(L.amt<=0)D.loans=loans().filter(x=>x!==L);noteAdd(bp,"repaid "+amt.toLocaleString()+" to "+lp.name+(L.amt>0?" ("+L.amt.toLocaleString()+" still owed)":" — loan cleared"));save();render();};
 DO.lnforgive=el=>{const L=loans().find(x=>x.id===el.dataset.ln);if(!L)return;D.loans=loans().filter(x=>x!==L);noteAdd(pById(L.from),"forgave the loan to "+((pById(L.to)||{}).name||"?"));save();render();};
 function autoExtortRows(b){const me=playerOfBoard(b);if(!me)return [];
   return withBoard(b,()=>{const rows=[],have=new Set(Object.keys(PC)),earned=SIMPLE?{}:computeEarned(have).earned;
