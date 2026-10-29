@@ -1,6 +1,6 @@
 // ---- Battle field: a top-down view between the two datasheets ----
 // Side A holds the left edge, side B the right. Each side forms the line (rules: Form the line): up to FRONT_LINE_MAX in
-// front in the revealed Tactic's formation, up to RESERVE_MAX in reserve behind it, the rest in camp at its edge. This
+// front in the revealed Tactic's formation, up to RESERVE_MAX in reserve in front of the camp, the rest in camp at its edge. This
 // Skirmish's casualties fall where they stand and reserves step up into the gaps; failed Saves not yet applied are marked
 // wounded. Rolls play as short effects (strikes, shots, parries, ripostes, saves, heals, morale). The SVG persists across
 // renders so figures glide between states. The battle hex's terrain colours the ground and its battle-terrain rule is shown.
@@ -11,10 +11,10 @@ function bfLine(n,sp,adv,lat0,slant){return Array.from({length:n},(_,i)=>[adv+(s
 // formation slots as [advance from own edge, offset to the side's right]; Fighting Formation also stands in before the reveal
 function bfForm(t){switch(t){
   case "Charge":return bfLine(1,27,266,0).concat(bfLine(2,27,240,0),bfLine(3,27,214,0),bfLine(4,27,188,0));   // spearhead
-  case "Fall Back":return bfLine(4,27,172,0).concat(bfLine(3,27,146,0),bfLine(2,27,120,0),bfLine(1,27,94,0));  // the wedge reversed
+  case "Fall Back":return bfLine(4,27,178,0).concat(bfLine(3,27,152,0),bfLine(2,27,126,0),bfLine(1,27,100,0));  // the wedge reversed
   case "Defensive Formation":return bfLine(5,23,128,0).concat(bfLine(5,23,154,0));                       // tight, sitting back
   case "Flank":return bfLine(5,25,200,118,6).concat(bfLine(5,25,226,118,6));                             // off centre
-  case "Ambush":return bfLine(5,23,110,-122).concat(bfLine(5,23,136,-122));                             // waits back, off centre
+  case "Ambush":return [0,1,2,3,4].flatMap(i=>[[110+i*22,-(14+i*24)],[110+i*22,14+i*24]]);             // empty V, open to receive the attack
   case "Scout":return bfLine(5,30,234,-112).concat(bfLine(5,30,264,-112));                              // overlooks from the side
   default:return bfLine(10,27,190,0);}}                                                                  // close order
 function bfXY(X,adv,lat){return X==="A"?[adv,BF_H/2+lat]:[BF_W-adv,BF_H/2-lat];}
@@ -37,9 +37,12 @@ function bfTerrain(){const B=battle(),M=mapState(),g=M.grid,k=sideHex(B.B)||side
   return {key:k,kind,tile,fill:hx.hill?tLighten(PAL.plains,1.16):(PAL[kind]||PAL.plains)};}
 function bfSideInfo(X){const B=battle(),sd=B[X],c=sideCalc(X);if(!c)return null;const a=c.a,FM=BT.frontMax||10,RM=BT.reserveMax??5;
   const pl=sd.kind==="bandit"?null:D.players.find(p=>String(p.id)===String(sd.pid));
-  const rev=B.rev&&B.rev.sk===B.sk?B.rev[X]:null,cas=c.skCas||0,F0=Math.min((a.count||0)+cas,FM+RM),
+  // revealed > this device's own locked-in pick (or Outrider peek) > this device's unlocked choice (own side / manual entry)
+  const rev=B.rev&&B.rev.sk===B.sk?B.rev[X]:null,pk=(typeof PICKS!=="undefined"&&PICKS[X])||{},
+        sel=!rev&&!pk.tactic&&!pk.picked&&TAC_SEL[X]&&(viewerSide()===X||sd.tmode==="manual"||!API.online)?TAC_SEL[X]:null,
+        tac=rev||pk.tactic||sel,tst=rev?"":pk.tactic?" · locked in":sel?" · not locked in":pk.picked?"":"",cas=c.skCas||0,F0=Math.min((a.count||0)+cas,FM+RM),
         rep=B.endRep&&B.endRep.sk===B.sk?B.endRep.rows.find(r=>r.X===X):null;
-  return {X,c,a,pl,col:pl?pl.color:"#8b2b2b",rk:"army:"+(a.retinue||BANDIT_DEFAULT_RETINUE),tac:rev,F0,FM,RM,cas,
+  return {X,c,a,pl,col:pl?pl.color:"#8b2b2b",rk:"army:"+(a.retinue||BANDIT_DEFAULT_RETINUE),tac,tst,locked:!!pk.picked,F0,FM,RM,cas,
     pend:B.id?pendCas(X):0,rout:!!(rep&&rep.rout),ranged:c.eqX.mode==="ranged"};}
 let BF=null;
 function bfFigure(s,id){const flip=s.X==="B";
@@ -73,8 +76,8 @@ function bfMount(host){const ph=host.querySelector("#bfield");if(!ph)return;
   catch(e){console.warn("battle field",e);}}
 function bfUpdate(S,T){const W=BF.wrap,B=battle(),fresh=BF.fresh;BF.fresh=false;
   ["A","B"].forEach(X=>{const s=S[X];BF.pos[X]=[];if(!s)return;
-    const F=bfForm(s.tac),st=bfPlace(s.F0,s.cas,s.pend,s.FM),fr=F.slice(0,Math.min(s.FM,s.F0));
-    const cx=fr.reduce((a,p)=>a+p[1],0)/Math.max(1,fr.length),back=fr.length?Math.min(...fr.map(p=>p[0])):190,RS_=bfLine(s.RM,24,Math.max(62,back-36),cx);
+    const F=bfForm(s.tac),st=bfPlace(s.F0,s.cas,s.pend,s.FM);
+    const RS_=bfLine(s.RM,26,74,0);                                       // reserves stand in front of the camp
     const at=q=>q.k==="f"?F[q.i]:RS_[q.i];
     W.querySelectorAll('.bf-u[data-x="'+X+'"]').forEach(u=>{const id=+u.dataset.id,q=st[id];
       let p;
@@ -89,7 +92,7 @@ function bfUpdate(S,T){const W=BF.wrap,B=battle(),fresh=BF.fresh;BF.fresh=false;
       if(q&&q.k==="f"&&!q.wound)BF.pos[X].push({x,y,u});});});
   // labels: side, Tactic, line / reserve / camp counts
   W.querySelector(".bf-head").innerHTML=["A","B"].map(X=>{const s=S[X];if(!s)return '<div></div>';
-    return '<div class="bf-side" style="--pc:'+s.col+'"><b>'+X+' · '+esc(s.tac||"Tactic hidden")+'</b><span>front '+s.c.front+' · reserve '+s.c.reserve+' · camp '+s.c.camp+(s.cas?' · fallen '+s.cas:'')+(s.pend?' · wounded '+s.pend:'')+'</span></div>';}).join('<span class="bf-sk">Skirmish '+(B.id?B.sk:'—')+'</span>');
+    return '<div class="bf-side" style="--pc:'+s.col+'"><b>'+X+' · '+esc(s.tac||(s.locked?"locked in":"Tactic hidden"))+(s.tac?esc(s.tst):'')+'</b><span>front '+s.c.front+' · reserve '+s.c.reserve+' · camp '+s.c.camp+(s.cas?' · fallen '+s.cas:'')+(s.pend?' · wounded '+s.pend:'')+'</span></div>';}).join('<span class="bf-sk">Skirmish '+(B.id?B.sk:'—')+'</span>');
   // caption: the battle tile and its rule
   const TT=(TREF.tactical||{})[T&&T.tile]||null;
   W.querySelector(".bf-cap").innerHTML=T?((typeof pxSwatch==="function"&&SPR&&SCAT[T.kind]?pxSwatch(T.kind,T.fill,22):'')+'<b>'+esc(T.tile||"")+'</b>'+(TT?' <span>'+esc(TT.effect||"")+'</span>':'')+' <span class="note">hex '+esc(T.key)+'</span>')

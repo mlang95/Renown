@@ -295,9 +295,11 @@ function datasheetHTML(X,c,pl){
   // wargear: base profiles (before modifiers); Equipped weapon first, the carried alternative dimmed
   const rw=(a.ranged&&a.ranged!=="None")?EQ.ranged[a.ranged]:null,mw=EQ.weapons[a.weapon]||null,ar=EQ.armors[a.armor]||{},
         sh=(a.shield&&a.shield!=="None")?EQ.shields[a.shield]:null,onR=c.eqX.mode==="ranged"&&!!rw,shown=new Set();
-  const row=(n,nm,it,ap,ini,sv,on,fl,ex)=>'<tr'+(on?'':' class="off"')+(it.tier?' title="'+esc(it.tier_label||it.tier)+'"':'')+'><td>'+
-    (SPR&&SPR.S["eq:"+n]?'<span class="ic">'+eqSVG(n,20)+'</span>':'')+esc(nm)+(fl?'<span class="st">'+fl+'</span>':'')+(ex||'')+'</td><td>'+ap+'</td><td>'+ini+'</td><td>'+sv+'</td><td class="tr">'+
-    (it.tags||[]).map(t=>{shown.add(t);return kwc(t);}).join("")+'</td></tr>';
+  // one item: name row (AP / Init / Save), then its traits on a line of their own
+  const row=(n,nm,it,ap,ini,sv,on,fl,ex)=>{const tg=it.tags||[],cl=[on?'':'off',tg.length?'has-trt':''].filter(Boolean).join(' ');
+    return '<tr'+(cl?' class="'+cl+'"':'')+(it.tier?' title="'+esc(it.tier_label||it.tier)+'"':'')+'><td>'+
+      (SPR&&SPR.S["eq:"+n]?'<span class="ic">'+eqSVG(n,20)+'</span>':'')+esc(nm)+(fl?'<span class="st">'+fl+'</span>':'')+(ex||'')+'</td><td>'+ap+'</td><td>'+ini+'</td><td>'+sv+'</td></tr>'+
+      (tg.length?'<tr class="trt'+(on?'':' off')+'"><td colspan="4">'+tg.map(t=>{shown.add(t);return kwc(t);}).join("")+'</td></tr>':'');};
   const wrow=(n,nm,it,on,fl)=>row(n,nm,it,it.ap||0,sg(it.init),"—",on,fl),two=!!(rw&&mw&&!(onR&&a.weapon==="Farm Tools"));
   let g='';
   if(onR){g+=wrow(a.ranged,a.ranged,rw,true,two?"equipped":"");if(two)g+=wrow(a.weapon,a.weapon,mw,false,"carried");}
@@ -305,7 +307,7 @@ function datasheetHTML(X,c,pl){
   if(sh)g+=row(a.shield,a.shield,sh,"—",sh.init?sg(sh.init):"—","+"+(sh.save_bonus||0),!(c.shOff||c.shDest),c.shOff?"off: 2H":"",
     B.id?'<label class="st"><input type="checkbox" class="bshd" data-x="'+X+'"'+(c.shDest?' checked':'')+'> destroyed</label>':'');
   g+=row(a.armor||"Cloth",a.armor||"Cloth",ar,"—",ar.init?sg(ar.init):"—",ar.save!=null?ar.save+"+":"—",true,"");
-  h+='<table class="ds-tbl"><tr><th>Wargear</th><th>AP</th><th>Init</th><th>Save</th><th>Traits</th></tr>'+g+'</table>';
+  h+='<table class="ds-tbl"><tr><th>Wargear</th><th>AP</th><th>Init</th><th>Save</th></tr>'+g+'</table>';
   if(c.trig.length)h+='<div class="ds-sec">Rules in play</div><ul class="ds-rules">'+c.trig.map(t=>{const i=t.indexOf(": ");
     return '<li>'+(i>0?'<b>'+esc(t.slice(0,i))+'</b> '+esc(t.slice(i+2)):esc(t))+'</li>';}).join('')+'</ul>';
   const kw=c.tags.filter(t=>!shown.has(t));
@@ -316,27 +318,14 @@ function datasheetHTML(X,c,pl){
       '<div class="dctrls"><span class="note">enemy/other effects:</span>'+num("adj.I",sd.adj.I,"I")+num("adj.TH",sd.adj.TH,"TH")+num("adj.TS",sd.adj.TS,"TS")+num("adj.M",sd.adj.M,"Morale")+num("adj.P",sd.adj.P||0,"Parry")+num("adj.R",sd.adj.R||0,"Recover")+'</div></div>';}
   return h+'</div>';
 }
-function sideHTML(X){
-  const B=battle(),sd=B[X],c=sideCalc(X),v=viewerSide(),mine=v===X,O=X==="A"?"B":"A";
-  let h='<div class="tot bside" data-side="'+X+'"><h3 style="font-size:14px">Side '+X+(X==="A"?" (attacker)":"")+'</h3>'+
-    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0"><select class="bsel" data-x="'+X+'" data-f="pid"><option value="">player…</option>'+
-    D.players.map(p=>'<option value="'+p.id+'"'+(sd.kind!=="bandit"&&String(p.id)===String(sd.pid)?' selected':'')+'>'+esc(p.name)+'</option>').join('')+
-    Object.keys(mapState().camps).map(k=>{const cp=mapState().camps[k];return '<option value="bandit:'+k+'"'+(sd.kind==="bandit"&&sd.camp===k?' selected':'')+'>☠ Bandit '+(cp.n>=(BAN.armyThreshold||25)?'Army':'Camp')+' @ '+k+' ('+cp.n+')</option>';}).join('')+'</select>';
-  if(sd.kind==="bandit"){const {a}=sideArmy(sd),lo=BLO[currentEra()]||{};
-    h+=a?'<select class="bret" data-x="'+X+'"><option value="">retinue…</option>'+Object.keys(EQ.retinues).map(r=>'<option value="'+esc(r)+'"'+(a.retinue===r?' selected':'')+'>'+esc(r)+'</option>').join('')+'</select></div>'+
-      '<div class="note">Armed for '+esc(currentEra())+': '+esc(((BAN.equipment||{})[currentEra()])||'—')+' → '+esc([a.weapon,a.armor,a.shield].filter(x=>x&&x!=="None").join(', '))+
-      ((lo.unmatched||[]).length?' <span style="color:var(--upkeep)">· not found in equipment data: '+esc(lo.unmatched.join(', '))+'</span>':'')+
-      '<br>Retinue follows the era loadout; you can change it for this era.</div>':'<div class="note">camp removed from map</div>';
-    if(!c)return h+'</div>';}
-  const pl=sd.kind==="bandit"?null:D.players.find(p=>String(p.id)===String(sd.pid));
-  if(sd.kind!=="bandit")h+='<select class="bsel" data-x="'+X+'" data-f="aid"><option value="">army…</option>'+(pl?(pl.board.armies||[]).map(a=>'<option value="'+a.id+'"'+(String(a.id)===String(sd.aid)?' selected':'')+'>'+esc(a.label||("Army "+a.id))+' — '+esc(a.retinue||"")+' ×'+(a.count||0)+'</option>').join('')+
-      garrisonsOf(pl).map(g=>'<option value="g:'+g.sid+'"'+(String(sd.aid)==="g:"+g.sid?' selected':'')+'>'+esc(g.label)+' — '+esc(g.retinue||"")+' ×'+(g.count||0)+'</option>').join(''):'')+'</select></div>';
-  if(!c)return h+battleSprites(sd,pl)+'<div class="note">Pick a player and one of their armies.</div></div>';
-  const a=c.a;
-  h+=datasheetHTML(X,c,pl);
-  // tactic
+// Tactic picker (above the field): choose a Tactic to move your own line into it on this device, then Lock in to submit it
+// with the Equipment choice. The other side's choice stays hidden until both are locked in.
+let TAC_SEL={};
+function tacticPickHTML(X){
+  const B=battle(),sd=B[X],c=sideCalc(X),v=viewerSide(),mine=v===X,O=X==="A"?"B":"A";if(!c)return "";const a=c.a;
+  let h='<div class="btac-side" data-side="'+X+'">';
   const pk2=PICKS[X]||{},op=PICKS[O]||{};
-  h+='<div style="margin-top:8px"><b>Tactic</b> '+(pk2.tactic?'<span class="badge earn">'+esc(pk2.tactic)+'</span>':(pk2.picked?'<span class="badge tier">picked (hidden)</span>':'<span class="note">not picked</span>'))+'</div>';
+  h+='<div class="btac-h"><b>'+X+' · Tactic</b> '+(pk2.tactic?'<span class="badge earn">'+esc(pk2.tactic)+'</span>':(pk2.picked?'<span class="badge tier">picked (hidden)</span>':'<span class="note">not picked</span>'))+'</div>';
   const tmode=sd.tmode||"";                                   // "", "manual" or "random"
   if(B.id&&!(B.rev&&B.rev.sk===B.sk)&&!pk2.picked){
     const segB=(v,l)=>'<button class="btmode" data-x="'+X+'" data-m="'+v+'"'+(tmode===v?' style="border-color:var(--ink);font-weight:600"':'')+'>'+l+'</button>';
@@ -356,10 +345,30 @@ function sideHTML(X){
         '<span class="note">submitted with your Tactic</span></div>';
       else if(eo_.one&&eo_.opts[0]==="ranged")h+='<div class="note" style="margin-top:4px">One-Shot: '+esc(a.ranged)+' is Equipped this Skirmish.</div>';}
     if(sideCalc(O)&&sideCalc(O).outrider&&!pk2.picked)h+='<div class="note" style="color:var(--order)">Opponent has Outrider: pick first — your Tactic is shown to them.</div>';
-    h+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">'+BT.tactics.map(t=>{const ok=tacOK(X,t);return '<button class="btac" data-x="'+X+'" data-t="'+esc(t)+'"'+(ok?'':' disabled title="not allowed with the Equipped weapon"')+(pk2.tactic===t?' style="border-color:var(--income);color:var(--income)"':'')+'>'+esc(t)+'</button>';}).join('')+'</div>'+
+    h+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">'+BT.tactics.map(t=>{const ok=tacOK(X,t),on=pk2.tactic===t||(!pk2.picked&&TAC_SEL[X]===t);return '<button class="btac'+(on?' on':'')+'" data-x="'+X+'" data-t="'+esc(t)+'"'+(ok&&!pk2.picked?'':' disabled'+(ok?'':' title="not allowed with the Equipped weapon"'))+'>'+esc(t)+'</button>';}).join('')+
+      (!pk2.picked?'<button class="btlock" data-x="'+X+'"'+(TAC_SEL[X]&&tacOK(X,TAC_SEL[X])?'':' disabled')+'>Lock in'+(TAC_SEL[X]?' '+esc(TAC_SEL[X]):'')+'</button>':'')+'</div>'+
       (tacAllowed(X)?'<div class="note">Equipped weapon allows only: '+tacAllowed(X).map(esc).join(", ")+'</div>':'');
     if(mine&&c.outrider)h+='<div style="margin-top:4px"><button id="bpeek"'+(PEEK?' disabled':'')+'>Outrider: reveal opponent'+(op.picked?'':' (once they pick)')+'</button> <span class="note">'+(c.outMastery?'mastery: every Skirmish':'innate: first Skirmish')+'</span></div>';
   }
+  return h+'</div>';}
+function sideHTML(X){
+  const B=battle(),sd=B[X],c=sideCalc(X),v=viewerSide(),mine=v===X,O=X==="A"?"B":"A";
+  let h='<div class="tot bside" data-side="'+X+'"><h3 style="font-size:14px">Side '+X+(X==="A"?" (attacker)":"")+'</h3>'+
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0"><select class="bsel" data-x="'+X+'" data-f="pid"><option value="">player…</option>'+
+    D.players.map(p=>'<option value="'+p.id+'"'+(sd.kind!=="bandit"&&String(p.id)===String(sd.pid)?' selected':'')+'>'+esc(p.name)+'</option>').join('')+
+    Object.keys(mapState().camps).map(k=>{const cp=mapState().camps[k];return '<option value="bandit:'+k+'"'+(sd.kind==="bandit"&&sd.camp===k?' selected':'')+'>☠ Bandit '+(cp.n>=(BAN.armyThreshold||25)?'Army':'Camp')+' @ '+k+' ('+cp.n+')</option>';}).join('')+'</select>';
+  if(sd.kind==="bandit"){const {a}=sideArmy(sd),lo=BLO[currentEra()]||{};
+    h+=a?'<select class="bret" data-x="'+X+'"><option value="">retinue…</option>'+Object.keys(EQ.retinues).map(r=>'<option value="'+esc(r)+'"'+(a.retinue===r?' selected':'')+'>'+esc(r)+'</option>').join('')+'</select></div>'+
+      '<div class="note">Armed for '+esc(currentEra())+': '+esc(((BAN.equipment||{})[currentEra()])||'—')+' → '+esc([a.weapon,a.armor,a.shield].filter(x=>x&&x!=="None").join(', '))+
+      ((lo.unmatched||[]).length?' <span style="color:var(--upkeep)">· not found in equipment data: '+esc(lo.unmatched.join(', '))+'</span>':'')+
+      '<br>Retinue follows the era loadout; you can change it for this era.</div>':'<div class="note">camp removed from map</div>';
+    if(!c)return h+'</div>';}
+  const pl=sd.kind==="bandit"?null:D.players.find(p=>String(p.id)===String(sd.pid));
+  if(sd.kind!=="bandit")h+='<select class="bsel" data-x="'+X+'" data-f="aid"><option value="">army…</option>'+(pl?(pl.board.armies||[]).map(a=>'<option value="'+a.id+'"'+(String(a.id)===String(sd.aid)?' selected':'')+'>'+esc(a.label||("Army "+a.id))+' — '+esc(a.retinue||"")+' ×'+(a.count||0)+'</option>').join('')+
+      garrisonsOf(pl).map(g=>'<option value="g:'+g.sid+'"'+(String(sd.aid)==="g:"+g.sid?' selected':'')+'>'+esc(g.label)+' — '+esc(g.retinue||"")+' ×'+(g.count||0)+'</option>').join(''):'')+'</select></div>';
+  if(!c)return h+battleSprites(sd,pl)+'<div class="note">Pick a player and one of their armies.</div></div>';
+  const a=c.a;
+  h+=datasheetHTML(X,c,pl);
   // dice
   if(B.dice&&B.id){
     const oc=sideCalc(O),ic=incoming(X),inc=ic.n+ic.d;
@@ -432,7 +441,7 @@ function renderBattle(){
   if(cA&&cB)h+='<div class="note" style="margin-bottom:6px">'+(cA.I===cB.I?'<b>Simultaneous</b> — both sides Strike with their full front line':'Strikes first: <b>'+(cA.I>cB.I?"A":"B")+'</b>')+' (I '+cA.I+' vs '+cB.I+')</div>';
   const vs=viewerSide(),bs=BSIDE||(vs==="A"||vs==="B"?vs:"A");
   h+='<div class="bside-nav"><button data-bs="A"'+(bs==="A"?' class="on"':'')+'>Side A</button><button data-bs="B"'+(bs==="B"?' class="on"':'')+'>Side B</button><button data-bs="AB"'+(bs==="AB"?' class="on"':'')+'>Both</button></div>';
-  h+='<div class="bsides bgrid" data-bs="'+bs+'">'+sideHTML("A")+'<div class="bfield-col"><div id="bfield"></div></div>'+sideHTML("B")+'</div>';
+  h+='<div class="bsides bgrid" data-bs="'+bs+'">'+sideHTML("A")+'<div class="bfield-col">'+(B.id&&!(B.rev&&B.rev.sk===B.sk)?'<div class="btacs">'+tacticPickHTML("A")+tacticPickHTML("B")+'</div>':'')+'<div id="bfield"></div></div>'+sideHTML("B")+'</div>';
   h+='<div class="tot"><h3 style="font-size:13px">Log</h3><div class="note">'+(B.log||[]).map(esc).join('<br>')+'</div></div>';
   h+=tacticExplainHTML().replace('id="tacEx" open','id="tacExB"')+siegeHTML()+'<div class="note" style="margin:8px 0">Skirmish rules are in <a href="#" data-goto="reference#refBattle">Reference ▸</a></div></div>';
   host.innerHTML=h;bfMount(host);wireBattle(host);wireDashExtras(host);
@@ -592,7 +601,8 @@ function wireBattle(host){
     if(pb&&pb.length){flash("Roll the Break check first: "+pb.join(", "));return;}endSkirmish();};
   host.querySelectorAll(".bBrk").forEach(b=>b.onclick=()=>rollBreakBtn(b.dataset.x));
   host.querySelectorAll(".bEndB").forEach(eb=>eb.onclick=()=>{if(confirm("End the battle"+(eb.dataset.w?" — "+eb.dataset.w+" won (Spoils of War)":" with no winner")+"? Removes Fatigue tokens."))endBattle(eb.dataset.w||null);});
-  host.querySelectorAll(".btac").forEach(b=>b.onclick=()=>pickTactic(b.dataset.x,b.dataset.t));
+  host.querySelectorAll(".btac").forEach(b=>b.onclick=()=>{TAC_SEL[b.dataset.x]=b.dataset.t;render();});
+  host.querySelectorAll(".btlock").forEach(b=>b.onclick=()=>{const X=b.dataset.x,t=TAC_SEL[X];if(!t)return;delete TAC_SEL[X];pickTactic(X,t);});
   host.querySelectorAll(".btmode").forEach(b=>b.onclick=()=>{B[b.dataset.x].tmode=b.dataset.m;save();render();});
   host.querySelectorAll(".btrand").forEach(b=>b.onclick=()=>{const X=b.dataset.x,pool=randomTacticPool(X),t=pool[Math.floor(Math.random()*pool.length)];
     blog(X+" random Tactic → picked (hidden until reveal)");pickTactic(X,t);});

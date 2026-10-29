@@ -275,8 +275,19 @@
   .ds-tbl th{font-size:9px;font-weight:400;letter-spacing:.07em;text-transform:uppercase;color:var(--dim2);text-align:center;padding:4px 4px 2px;border-bottom:1px solid var(--line2)}
   .ds-tbl td{padding:3px 4px;border-bottom:1px solid var(--line);text-align:center;vertical-align:middle;font-variant-numeric:tabular-nums}
   .ds-tbl th:first-child,.ds-tbl td:first-child{text-align:left;padding-left:10px;white-space:nowrap}
-  .ds-tbl td.tr{text-align:left}.ds-tbl .kw{display:inline-block;font-size:9px;padding:0 4px;margin:1px 2px 1px 0}
+  .ds-tbl th:not(:first-child),.ds-tbl td:not(:first-child){width:42px}
+  .ds-tbl tr.has-trt td{border-bottom:none;padding-bottom:1px}
+  .ds-tbl tr.trt td{text-align:left;white-space:normal;padding:0 8px 5px 35px}
+  .ds-tbl .kw{display:inline-block;font-size:10px;line-height:15px;padding:0 5px;margin:1px 3px 1px 0}
   .ds-tbl tr.off td{opacity:.5}
+  /* Tactic picker above the field */
+  .btacs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+  .btac-side{border:1px solid var(--line2);border-radius:var(--radius-sm);background:var(--panel);padding:6px 8px;min-width:0}
+  .btac-side[data-side="B"]{text-align:right}.btac-side[data-side="B"]>div{justify-content:flex-end}
+  .btac-h{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .btac.on{border-color:var(--income);color:var(--income);font-weight:600}
+  .btlock{border-color:var(--order);color:var(--order);font-weight:600}.btlock:disabled{opacity:.45}
+  @media(max-width:700px){.btacs{grid-template-columns:1fr}.btac-side[data-side="B"]{text-align:left}.btac-side[data-side="B"]>div{justify-content:flex-start}}
   .ds-tbl .ic{display:inline-block;vertical-align:middle;margin-right:5px}
   .ds-tbl .st{font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--dim);margin-left:5px}
   .ds-tbl label.st{display:inline-flex;align-items:center;gap:2px}
