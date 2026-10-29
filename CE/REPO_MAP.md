@@ -1,6 +1,6 @@
 # REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`)
 
-Generated 2026-10-28 · data VERSION `0.4.9.9.13-d10-S` · HEAD `38f45bb 2026-10-28`
+Generated 2026-10-28 · data VERSION `0.4.9.9.13-d10-S` · HEAD `5adc893 2026-10-28`
 
 Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to the repo root.
 
@@ -205,8 +205,8 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\references\infra_board.py` | 134 | infra_board.py - landscape Infrastructure Board. |
 | `CE\references\keyword_audit.py` | 96 | Exact per-strike-die model of the Renown CE strike chain (rules text as written), |
 | `CE\references\layout.json` | 1421 |  |
-| `CE\references\layout_roots.json` | 1384 |  |
-| `CE\references\layout_simple.json` | 1567 |  |
+| `CE\references\layout_roots.json` | 1389 |  |
+| `CE\references\layout_simple.json` | 1572 |  |
 | `CE\references\md_to_docx.py` | 342 | md_to_docx.py — render a prose Markdown rules doc to a styled .docx, injecting |
 | `CE\references\package-lock.json` | 205 |  |
 | `CE\references\package.json` | 6 |  |

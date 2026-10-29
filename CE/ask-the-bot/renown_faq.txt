@@ -74,7 +74,6 @@ Citadel | [Citadel](https://mlang95.github.io/RenownWiki/pursuits.html) Holding 
 City | [City](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 3). Tax 6000, muster 25, build 6, wards 3, reach 6. 
 Cleave | [Cleave](https://mlang95.github.io/RenownWiki/keywords-ref.html#cleave): On a Focused Strike: roll one extra Strike die at your modified to-Strike.
 Cloth | [Cloth](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (None). Save 10+. Keywords: none.
-Castle Yard | [Castle Yard](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Faith +1 while at War; Unlocks Man-at-Arms for Muster / Requires: Muster Field
 College of Engineering | [College of Engineering](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Works). Effect: No Upkeep on Sophisticated Infrastructure; Build Timer −1
 Colossus | [Colossus](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Wondrous). Upkeep 500 (per Wonder), build 10. In the Intrigue Phase, you may support your own Personal Prowess Envoys before other players vote. Speed +2; Siege Timer −2, & gain Immune Blunder.
 combat | See 'how to attack'.
@@ -117,6 +116,7 @@ Domain | [Domain](https://mlang95.github.io/RenownWiki/glossary.html#domain): On
 Domain Point | [Domain Point](https://mlang95.github.io/RenownWiki/glossary.html#domain-point): Gain 1 each Rest Phase; spend to raise a Domain value by 1.
 domains | [Domains](https://mlang95.github.io/RenownWiki/domain-board-ref.html): Industry, Prowess, Cunning, Piety. Standings (Rising/Established/Sovereign) grant empire effects.
 Doubt X | [Doubt X](https://mlang95.github.io/RenownWiki/glossary.html#doubt-x): Gain X Doubt: each Doubt lowers your Public Order track by 1 when resolved.
+Drill Yard | [Drill Yard](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Faith +1 while at War; Unlocks Man-at-Arms for Muster / Requires: Muster Field
 Drilled | [Drilled](https://mlang95.github.io/RenownWiki/keywords-ref.html#drilled): Does not lose Endurance in the first Skirmish of each Battle.
 Dual Wield | [Dual Wield](https://mlang95.github.io/RenownWiki/glossary.html#dual-wield): A failed Strike is rerolled once; the rerolled Strike can be Focused. Dual Wield confers Two-Handed. You cannot reroll successful Strikes.
 Dual-equip | [Dual-equip](https://mlang95.github.io/RenownWiki/glossary.html#dual-equip): Carry two weapons at once (e.g. melee + ranged). Granted by the Tiltyard.
@@ -240,7 +240,6 @@ Man-at-Arms | [Man-at-Arms](https://mlang95.github.io/RenownWiki/equipment-ref.h
 Manor House | [Manor House](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Natural; Gain +200 gold for each active natural Holding. / Requires: Hamlet
 Market Square | [Market Square](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Commerce). Effect: Craft +2; +500 / Requires: Town Square
 Marshal Tiltyard | [Marshal Tiltyard](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Monument). Effect: Natural; Initiative +1; Unlocks Lances regardless of Tier Unlock; Armies must be equipped with Lance
-Martial Grounds | [Martial Grounds](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Arms). Effect: Armies may be equipped with a Ranged and a Melee Weapon simultaneously; Unlocks Longbow regardless of Unlock Tier
 Masonry | [Masonry](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Works). Effect: No Upkeep on Primitive Infrastructure; Build Timer −1
 Masons' Guild | [Masons' Guild](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Works). Effect: No Upkeep on Prodigious Infrastructure; Build Timer −2
 Master Workshop | [Master Workshop](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Arms). Effect: Upkeep −500; Craft +2; Add Serrated to Weapons
@@ -372,6 +371,7 @@ Siege Timer | [Siege Timer](https://mlang95.github.io/RenownWiki/glossary.html#s
 Siege Works | [Siege Works](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Siege Timer −1; Siege Timers count down in Winter
 Sign Treaty | [Sign Treaty](https://mlang95.github.io/RenownWiki/actions-ref.html): Diplomacy action. Cost: None. Ask players to agree, then choose one and both sign it: Peace Treaty — end the war, set Truce Timer 5; Trade Agreement — begin trading next turn; Non-Aggression Pact — no Declare War (ending it via End Treaty gives both Truce Timer 5); Alliance — join, form, or invite to a Defensive or Military Alliance. Endorsed: Faith +1.
 Skirmish | [Skirmish](https://mlang95.github.io/RenownWiki/glossary.html#skirmish): One round of a Battle, run through the numbered Battle steps; a Battle repeats Skirmishes until it ends.
+Skirmish Field | [Skirmish Field](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Arms). Effect: Armies may be equipped with a Ranged and a Melee Weapon simultaneously; Unlocks Longbow regardless of Unlock Tier
 Smokehouse | [Smokehouse](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Logistics). Effect: Natural; Craft +2; Upkeep −1000
 Smuggler's Nook | [Smuggler's Nook](https://mlang95.github.io/RenownWiki/pursuits.html) Holding (Secrecy). Effect: gain Immune Uprising (your Uprising spawns no Bandit Camps); Bandit Camps in your Outlaw Country don't target you and instead target another player at random.
 Sovereign Standing | [Sovereign Standing](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Standing). Reach a Sovereign Standing (Domain value 10) in any Domain.

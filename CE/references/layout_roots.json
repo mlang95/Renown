@@ -199,10 +199,6 @@
    ],
    "Episcopal Court": [
     1,
-    4
-   ],
-   "Conditioning Field": [
-    1,
     0
    ],
    "Jester's Court": [
@@ -219,10 +215,6 @@
    ],
    "Interrogation Chambers": [
     2,
-    4
-   ],
-   "Coliseum": [
-    2,
     0
    ],
    "Bell Tower": [
@@ -237,11 +229,11 @@
     3,
     3
    ],
-   "Execution Dock": [
+   "Conditioning Field": [
     3,
     4
    ],
-   "Grand Tournament": [
+   "Execution Dock": [
     3,
     0
    ],
@@ -253,11 +245,11 @@
     4,
     2
    ],
-   "Inquisitorial Palace": [
+   "Drill Yard": [
     4,
     4
    ],
-   "Royal Pavilion": [
+   "Inquisitorial Palace": [
     4,
     0
    ],
@@ -284,16 +276,16 @@
     "Bell Tower"
    ],
    [
-    "Conditioning Field",
-    "Coliseum"
-   ],
-   [
     "Courtyard",
     "Conditioning Field"
    ],
    [
     "Artisan Workshop",
     "Court Artists"
+   ],
+   [
+    "Conditioning Field",
+    "Drill Yard"
    ],
    [
     "Bell Tower",
@@ -310,10 +302,6 @@
    [
     "Interrogation Chambers",
     "Execution Dock"
-   ],
-   [
-    "Coliseum",
-    "Grand Tournament"
    ],
    [
     "Execution Dock",
@@ -338,10 +326,6 @@
    [
     "Merchant Quarter",
     "Money Lending"
-   ],
-   [
-    "Grand Tournament",
-    "Royal Pavilion"
    ],
    [
     "Embassy",
@@ -668,7 +652,7 @@
     3,
     2
    ],
-   "Martial Grounds": [
+   "Skirmish Field": [
     3,
     0
    ],
@@ -727,12 +711,8 @@
     "Joinery"
    ],
    [
-    "Martial Grounds",
+    "Skirmish Field",
     "List Yard"
-   ],
-   [
-    "Fletchery",
-    "Martial Grounds"
    ],
    [
     "List Yard",
@@ -745,6 +725,10 @@
    [
     "Siege Camp",
     "Siege Works"
+   ],
+   [
+    "Fletchery",
+    "Skirmish Field"
    ],
    [
     "Joinery",
@@ -1235,6 +1219,27 @@
    [
     "Harbor",
     "Shipyard"
+   ]
+  ]
+ },
+ {
+  "title": "Grand Tournament",
+  "anchor": "Grand Tournament",
+  "mode": "root",
+  "nodes": {
+   "Grand Tournament": [
+    0,
+    0
+   ],
+   "Royal Pavilion": [
+    1,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Grand Tournament",
+    "Royal Pavilion"
    ]
   ]
  },

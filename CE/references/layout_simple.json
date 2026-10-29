@@ -1064,25 +1064,13 @@
     1,
     0
    ],
-   "Courtyard": [
-    1,
-    1
-   ],
    "Fletchery": [
     2,
     0
    ],
-   "Conditioning Field": [
-    2,
-    1
-   ],
-   "Martial Grounds": [
+   "Skirmish Field": [
     3,
     0
-   ],
-   "Coliseum": [
-    3,
-    1
    ],
    "List Yard": [
     4,
@@ -1103,28 +1091,12 @@
     "Carpentry"
    ],
    [
-    "Conditioning Field",
-    "Coliseum"
-   ],
-   [
-    "Courtyard",
-    "Conditioning Field"
-   ],
-   [
     "Carpentry",
     "Fletchery"
    ],
    [
-    "Coliseum",
-    "Grand Tournament"
-   ],
-   [
-    "Martial Grounds",
+    "Skirmish Field",
     "List Yard"
-   ],
-   [
-    "Fletchery",
-    "Martial Grounds"
    ],
    [
     "Grand Tournament",
@@ -1133,6 +1105,10 @@
    [
     "List Yard",
     "Royal Pavilion"
+   ],
+   [
+    "Fletchery",
+    "Skirmish Field"
    ]
   ]
  },
@@ -1561,6 +1537,35 @@
    [
     "Academy",
     "University"
+   ]
+  ]
+ },
+ {
+  "title": "Other Pursuits (feed no Monument) — Drill Yard",
+  "anchor": null,
+  "mode": "group",
+  "nodes": {
+   "Courtyard": [
+    0,
+    0
+   ],
+   "Conditioning Field": [
+    1,
+    0
+   ],
+   "Drill Yard": [
+    2,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Courtyard",
+    "Conditioning Field"
+   ],
+   [
+    "Conditioning Field",
+    "Drill Yard"
    ]
   ]
  }

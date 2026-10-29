@@ -133,16 +133,14 @@
 <path d="M172,390 L196,390" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M172,318 L196,318" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M172,318 L196,318" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M172,426 L196,426" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M172,426 L196,426" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M172,282 L196,282" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M172,282 L196,282" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M172,426 L540,426" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M172,426 L540,426" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M320,354 L367,354" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M320,354 L367,354" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M320,390 L367,390" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M320,390 L367,390" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M320,426 L367,426" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M320,426 L367,426" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M320,282 L367,282" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M320,282 L367,282" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M320,318 L367,318" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -151,8 +149,6 @@
 <path d="M492,354 L539,354" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M492,390 L539,390" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M492,390 L539,390" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M492,426 L539,426" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M492,426 L539,426" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M492,282 L539,282" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M492,282 L539,282" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M492,318 L539,318" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -176,12 +172,9 @@
 <rect x="202" y="378" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="202" y="378" width="5" height="24" fill="#2E5A8C"/>
 <text x="211" y="393" font-size="8.2" fill="#2b2620">Merchant Quarter</text>
-<rect x="202" y="414" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
-<rect x="202" y="414" width="5" height="24" fill="#C6A024"/>
-<text x="211" y="429" font-size="8.2" fill="#2b2620">Episcopal Court</text>
-<rect x="202" y="270" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
-<rect x="202" y="270" width="5" height="24" fill="#9E2B25"/>
-<text x="211" y="285" font-size="8.2" fill="#2b2620">Conditioning Field</text>
+<rect x="202" y="270" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
+<rect x="202" y="270" width="5" height="24" fill="#C6A024"/>
+<text x="211" y="285" font-size="8.2" fill="#2b2620">Episcopal Court</text>
 <rect x="202" y="306" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="202" y="306" width="5" height="24" fill="#C6A024"/>
 <text x="211" y="321" font-size="8.2" fill="#2b2620">Jester's Court</text>
@@ -191,12 +184,9 @@
 <rect x="374" y="378" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="374" y="378" width="5" height="24" fill="#2E5A8C"/>
 <text x="383" y="393" font-size="8.2" fill="#2b2620">Money Lending</text>
-<rect x="374" y="414" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
-<rect x="374" y="414" width="5" height="24" fill="#C6A024"/>
-<text x="383" y="429" font-size="8.2" fill="#2b2620">Interrogation Chambers</text>
-<rect x="374" y="270" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
-<rect x="374" y="270" width="5" height="24" fill="#9E2B25"/>
-<text x="383" y="285" font-size="8.2" fill="#2b2620">Castle Yard</text>
+<rect x="374" y="270" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
+<rect x="374" y="270" width="5" height="24" fill="#C6A024"/>
+<text x="383" y="285" font-size="8.2" fill="#2b2620">Interrogation Chambers</text>
 <rect x="374" y="306" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="374" y="306" width="5" height="24" fill="#C6A024"/>
 <text x="383" y="321" font-size="8.2" fill="#2b2620">Bell Tower</text>
@@ -206,12 +196,12 @@
 <rect x="546" y="378" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="546" y="378" width="5" height="24" fill="#2E5A8C"/>
 <text x="555" y="393" font-size="8.2" fill="#2b2620">Esteemed Bank</text>
-<rect x="546" y="414" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
-<rect x="546" y="414" width="5" height="24" fill="#C6A024"/>
-<text x="555" y="429" font-size="8.2" fill="#2b2620">Execution Dock</text>
-<rect x="546" y="270" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
-<rect x="546" y="270" width="5" height="24" fill="#9E2B25"/>
-<text x="555" y="285" font-size="8.2" fill="#2b2620">Grand Tournament</text>
+<rect x="546" y="414" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
+<rect x="546" y="414" width="5" height="24" fill="#9E2B25"/>
+<text x="555" y="429" font-size="8.2" fill="#2b2620">Conditioning Field</text>
+<rect x="546" y="270" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
+<rect x="546" y="270" width="5" height="24" fill="#C6A024"/>
+<text x="555" y="285" font-size="8.2" fill="#2b2620">Execution Dock</text>
 <rect x="546" y="306" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="546" y="306" width="5" height="24" fill="#C6A024"/>
 <text x="555" y="321" font-size="8.2" fill="#2b2620">Embassy</text>
@@ -219,13 +209,12 @@
 <rect x="718" y="342" width="5" height="24" fill="#2E5A8C"/>
 <text x="727" y="357" font-size="8.2" fill="#2b2620">Aristocratic Court</text>
 <polygon points="828.0,350.4 831.6,354.0 828.0,357.6 824.4,354.0" fill="#8a6d1a"/>
-<rect x="718" y="414" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#1c1c20" stroke-width="2.2"/>
-<rect x="718" y="414" width="5" height="24" fill="#1c1c20"/>
-<text x="727" y="429" font-size="8.2" fill="#2b2620">Inquisitorial Palace</text>
-<polygon points="828.0,422.4 831.6,426.0 828.0,429.6 824.4,426.0" fill="#8a6d1a"/>
-<rect x="718" y="270" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#9E2B25" stroke-width="2.2"/>
-<rect x="718" y="270" width="5" height="24" fill="#9E2B25"/>
-<text x="727" y="285" font-size="8.2" fill="#2b2620">Royal Pavilion</text>
+<rect x="718" y="414" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
+<rect x="718" y="414" width="5" height="24" fill="#9E2B25"/>
+<text x="727" y="429" font-size="8.2" fill="#2b2620">Drill Yard</text>
+<rect x="718" y="270" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#1c1c20" stroke-width="2.2"/>
+<rect x="718" y="270" width="5" height="24" fill="#1c1c20"/>
+<text x="727" y="285" font-size="8.2" fill="#2b2620">Inquisitorial Palace</text>
 <polygon points="828.0,278.4 831.6,282.0 828.0,285.6 824.4,282.0" fill="#8a6d1a"/>
 <rect x="718" y="306" width="118" height="24" rx="4" fill="#fdf3d0" stroke="#C6A024" stroke-width="2.2"/>
 <rect x="718" y="306" width="5" height="24" fill="#C6A024"/>

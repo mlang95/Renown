@@ -251,7 +251,7 @@
 <text x="555" y="527" font-size="8.2" fill="#2b2620">Tannery</text>
 <rect x="546" y="440" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
 <rect x="546" y="440" width="5" height="24" fill="#9E2B25"/>
-<text x="555" y="455" font-size="8.2" fill="#2b2620">Martial Grounds</text>
+<text x="555" y="455" font-size="8.2" fill="#2b2620">Skirmish Field</text>
 <rect x="718" y="476" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
 <rect x="718" y="476" width="5" height="24" fill="#9E2B25"/>
 <text x="727" y="491" font-size="8.2" fill="#2b2620">Battery Park</text>

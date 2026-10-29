@@ -2035,7 +2035,7 @@ SIMPLE_NODES = {
         "efficient": "Harbor",
         "builds_into": ["Storehouse"],
         "monument": False},
-    "Coliseum": {
+    "Drill Yard": {
         "group": "g_logistics",
         "unlock": "Rising Prowess",
         "infrastructure_req": "Muster Field",
@@ -2430,7 +2430,7 @@ SIMPLE_NODES = {
         "efficient": "Blacksmith",
         "builds_into": ["Master Workshop", "Mill"],
         "monument": False},
-    "Martial Grounds": {
+    "Skirmish Field": {
         "group": "g_arms",
         "unlock": "Established Prowess",
         "innate": "Armies may be equipped with a Ranged and a Melee Weapon simultaneously; Unlocks Longbow regardless of Unlock Tier",
@@ -2441,7 +2441,7 @@ SIMPLE_NODES = {
         "group": "g_arms",
         "unlock": "Established Prowess",
         "innate": "Gain +1 to Strike; In addition, armies may equip two of the same 1H Melee Weapon to gain Dual Wield.",
-        "efficient": "Martial Grounds",
+        "efficient": "Skirmish Field",
         "builds_into": ["Royal Pavilion"],
         "monument": False},
     "Court Armoury": {
