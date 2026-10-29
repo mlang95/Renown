@@ -271,6 +271,7 @@
   .ds-st.bad b,.ds-st.bad i{color:var(--upkeep)}
   .ds-mods{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;padding:4px 10px;font-size:11px;color:var(--dim);border-bottom:1px solid var(--line2)}
   .ds-mods label{display:flex;align-items:center;gap:3px;margin-left:auto}
+  .ds-init{color:var(--ink)}.ds-init s{color:var(--dim)}
   .ds-tbl{width:100%;border-collapse:collapse;font-size:12px}
   .ds-tbl th{font-size:9px;font-weight:400;letter-spacing:.07em;text-transform:uppercase;color:var(--dim2);text-align:center;padding:4px 4px 2px;border-bottom:1px solid var(--line2)}
   .ds-tbl td{padding:3px 4px;border-bottom:1px solid var(--line);text-align:center;vertical-align:middle;font-variant-numeric:tabular-nums}

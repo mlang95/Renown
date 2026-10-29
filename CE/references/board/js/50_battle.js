@@ -125,8 +125,8 @@ function sideCalc(X){
   const eqTags=[].concat(wpn.tags||[],ar.tags||[],sh.tags||[],rt.tags||[],hasM("Always Unwieldy")?["Unwieldy"]:[],hasM("Steady")?["Steady"]:[]);
   const unw=eqTags.includes("Unwieldy")&&(hasM("No Immune Unwieldy")||!hasM("Immune Unwieldy")),stdy=eqTags.includes("Steady");
   let tmI=tm.I||0,tmNote="";
-  if(unw&&tmI>0){tmNote="Unwieldy: Tactic Init +"+tmI+" blocked";tmI=0;}
-  if(stdy&&tmI<0){tmNote="Steady: Tactic Init "+tmI+" blocked";tmI=0;}
+  if(unw&&tmI>0){tmNote="Unwieldy: ignores the Tactic's +"+tmI+" Initiative";tmI=0;}
+  if(stdy&&tmI<0){tmNote="Steady: ignores the Tactic's −"+(-tmI)+" Initiative";tmI=0;}
   const mt=new Set(u.mods.map(m=>m.tok).concat(eqTags));
   // the opponent's Standing effects aimed at this side (STANDING_EFFECTS: "Opponent gains Strain" / "… Blunder in the first Skirmish")
   // this side's own Standing effects (STANDING_EFFECTS: "Immune Blunder", "Immune Panic")
@@ -137,6 +137,14 @@ function sideCalc(X){
   const maxI=(mt.has("MaxInit3")||[...mt].some(t=>/^Crit /.test(t)))?INIT_MAX+1:INIT_MAX;   // Ministry: ceiling +1
   const rawI=(wpn.init||0)+(sh.init||0)+initPlus+tmI+seize+strainI+sd.adj.I;
   const I=Math.max(INIT_MIN,Math.min(maxI,rawI)),blunder=!immBlunder&&(I<=INIT_MIN||!!oBlunder);
+  // where Initiative comes from, part by part (datasheet breakdown); a Tactic modifier its gear ignores is listed as ignored
+  const initParts=[[eqX.mode==="ranged"?a.ranged:(a.weapon||"weapon"),wpn.init||0]];
+  if(sh.init)initParts.push([a.shield,sh.init]);
+  u.mods.filter(m=>m.tok==="Init +1").forEach(m=>initParts.push([m.node||"Init +1",1]));
+  if(tm.I)initParts.push(["Tactic",tmNote?tm.I:tmI,tmNote?"ignored ("+tmNote.split(":")[0]+")":""]);
+  if(seize)initParts.push(["Seize",seize]);
+  if(strainI)initParts.push(["Strained"+(a.strained?"":siegeStrains(p,a)?" (Besieged)":oStrain?" (enemy "+oStrain.t+" "+oStrain.d+")":""),strainI]);
+  if(sd.adj.I)initParts.push(["Duke adjust",sd.adj.I]);
   // to-Strike (same order as Combatv4): base − improving, capped at CAP; Blunder clamps to CAP (Fatigue tokens only worsen Morale);
   // then worsening mods (enemy Shielded, own shield −1TH, negative Tactic TH) can push past CAP (auto-fail).
   const CAP=BT.capThr||10,tacTH=tm.TH||0;
@@ -221,7 +229,7 @@ function sideCalc(X){
   // the Equipped weapon itself is in the datasheet's wargear table; only its conditions are listed as rules
   trig.unshift(...[shOff?"Shield not usable (2H)":"",dualCarry&&!eqInfo.carry&&p?"Carrying both needs "+armyTokNamed("dual-equip"):"",
     dualW&&!eqInfo.flor&&p?"Dual Wield needs Florentine ("+armyTokNamed("Florentine")+")":"",a.dual&&!dualOn(a,shDest)&&eqX.mode!=="ranged"?"Dual Wield off (Shield in use)":""].filter(Boolean));
-  return {dualW,immunePanic:mt.has("Immune Panic")||stImmPanic,eqX,shOff,enduring,canParry,parryThr,parryThrMelee,riposte,riposteMelee,saveMelee,poisoned,poisonedMelee,recThr,serrN,p,a,rt,I,rawI,tmNote,tmEff:Object.assign({},tm,{I:tmI,TH:mt.has("Immune Tactic TH")&&tacTH<0?0:tacTH}),tmBlk:[tmNote,mt.has("Immune Tactic TH")&&tacTH<0?"Immune Tactic TH: Tactic "+tacTH+" ignored":""].filter(Boolean),blunder,toStrike,save,saveRaw,deadlySave,planOn,critFloor,hasDeadly,hasCleave,hasDestroy,shDest,trig,morale,front,field,reserve:Math.max(0,field-front),camp:Math.max(0,(a.count||0)-field),skCas,tags,tm,seize,cell:!!cell,outrider:(u.outMastery||(u.outInnate&&B.sk===1)),outMastery:u.outMastery};
+  return {dualW,immunePanic:mt.has("Immune Panic")||stImmPanic,eqX,shOff,enduring,canParry,parryThr,parryThrMelee,riposte,riposteMelee,saveMelee,poisoned,poisonedMelee,recThr,serrN,p,a,rt,I,rawI,tmNote,initParts,strainI,strainBy:a.strained?"":siegeStrains(p,a)?"Besieged":oStrain&&!immuneStrainIn(p,a)?"enemy "+oStrain.t+" "+oStrain.d:"",tmEff:Object.assign({},tm,{I:tmI,TH:mt.has("Immune Tactic TH")&&tacTH<0?0:tacTH}),tmBlk:[tmNote,mt.has("Immune Tactic TH")&&tacTH<0?"Immune Tactic TH: Tactic "+tacTH+" ignored":""].filter(Boolean),blunder,toStrike,save,saveRaw,deadlySave,planOn,critFloor,hasDeadly,hasCleave,hasDestroy,shDest,trig,morale,front,field,reserve:Math.max(0,field-front),camp:Math.max(0,(a.count||0)-field),skCas,tags,tm,seize,cell:!!cell,outrider:(u.outMastery||(u.outInnate&&B.sk===1)),outMastery:u.outMastery};
 }
 // hidden picks: server when online, in-page when not
 const LOCAL_PICKS={};let PICKS={A:{picked:false},B:{picked:false},revealed:false},PEEK=false,_pickT=null;
@@ -283,7 +291,7 @@ function datasheetHTML(X,c,pl){
   const st=(k,v,t,sub,bad)=>'<div class="ds-st'+(bad?' bad':'')+'" title="'+esc(t||"")+'"><span class="k">'+k+'</span><b>'+v+'</b>'+(sub?'<i>'+sub+'</i>':'')+'</div>',
         oc=sideCalc(X==="A"?"B":"A");
   h+='<div class="ds-stats">'+
-    st("Init",sg(c.I),"clamped "+INIT_MIN+"..+"+INIT_MAX+(c.tmNote?" · "+c.tmNote:""),c.rawI!==c.I?"raw "+sg(c.rawI):c.tmNote?"⚠":"")+
+    st("Init",sg(c.I),"clamped "+INIT_MIN+"..+"+INIT_MAX+(c.tmNote?" · "+c.tmNote:""),c.rawI!==c.I?"raw "+sg(c.rawI):c.tmNote?c.tmNote.split(":")[0]:"")+
     st("Strike",tgt(c.toStrike),"",c.toStrike>F?"auto-fail":c.blunder?"Blunder":"",c.blunder||c.toStrike>F)+
     st("Save",tgt(c.save),"armor − enemy AP − shield − TS"+(c.planOn?" · Planishing cap":""),c.save>F?"auto-fail":c.planOn&&c.saveRaw>c.save?"capped":"",c.save>F)+
     (oc&&oc.hasDeadly?st("vs Deadly",tgt(c.deadlySave),"Deadly strikes: save +"+(BT.deadlyAp??5)+(c.planOn?", Planishing cap":""),c.deadlySave>F?"auto-fail":"",c.deadlySave>F):"")+
@@ -291,8 +299,11 @@ function datasheetHTML(X,c,pl){
     st("Recover",c.recThr!=null?c.recThr+"+":"—","after a failed Save; Deadly: "+(BT.focusedThr||10)+" only")+
     st("Morale",c.morale+"+","",c.morale>=11?"Rout":"",c.morale>=11)+
     st("End.",a.endurance||0,"Endurance")+st("Fatigue",a.fatigue||0)+'</div>';
-  h+='<div class="ds-mods">'+(c.seize?'<span>Seize +1 Init</span>':'')+'<span>Tactic: '+(c.cell?esc(fmtModLong(c.tmEff)+c.tmBlk.map(t=>' · '+t).join('')):'pending')+'</span>'+
-    '<label><input type="checkbox" class="bstr" data-x="'+X+'"'+(a.strained?' checked':'')+'> Strained</label></div>';
+  {const sg2=v=>(v>0?"+":v<0?"\u2212":"")+Math.abs(v),parts=c.initParts.map(([n,v,why])=>esc(n)+' '+(why?'<s>'+sg2(v)+'</s> '+esc(why):sg2(v))).join(' · ');
+   h+='<div class="ds-mods ds-init"><span><b>Init</b> '+parts+' = <b>'+sg(c.I)+'</b>'+(c.rawI!==c.I?' (limit '+INIT_MIN+' to +'+INIT_MAX+')':'')+'</span></div>';}
+  h+='<div class="ds-mods"><span>Tactic: '+(c.cell?esc(fmtModLong(c.tmEff)+c.tmBlk.map(t=>' · '+t).join('')):'pending')+'</span>'+
+    (c.strainBy?'<label title="from '+esc(c.strainBy)+', not the Army\'s own Strained"><input type="checkbox" checked disabled> Strained ('+esc(c.strainBy)+(c.strainI?'':', Immune')+')</label>'
+      :'<label><input type="checkbox" class="bstr" data-x="'+X+'"'+(a.strained?' checked':'')+'> Strained'+(a.strained&&!c.strainI?' (Immune)':'')+'</label>')+'</div>';
   // wargear: base profiles (before modifiers); Equipped weapon first, the carried alternative dimmed
   const rw=(a.ranged&&a.ranged!=="None")?EQ.ranged[a.ranged]:null,mw=EQ.weapons[a.weapon]||null,ar=EQ.armors[a.armor]||{},
         sh=(a.shield&&a.shield!=="None")?EQ.shields[a.shield]:null,onR=c.eqX.mode==="ranged"&&!!rw,shown=new Set();
