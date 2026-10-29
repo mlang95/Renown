@@ -287,6 +287,7 @@
   .btac-h{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
   .btac.on{border-color:var(--income);color:var(--income);font-weight:600}
   .btlock{border-color:var(--order);color:var(--order);font-weight:600}.btlock:disabled{opacity:.45}
+  .broll.go{border-color:var(--income);color:var(--income);font-weight:600}
   @media(max-width:700px){.btacs{grid-template-columns:1fr}.btac-side[data-side="B"]{text-align:left}.btac-side[data-side="B"]>div{justify-content:flex-start}}
   .ds-tbl .ic{display:inline-block;vertical-align:middle;margin-right:5px}
   .ds-tbl .st{font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--dim);margin-left:5px}
@@ -765,7 +766,15 @@
   .bf-head{display:flex;align-items:center;gap:8px;padding:5px 10px;background:var(--panel2);border-bottom:1px solid var(--line2)}
   .bf-side{display:flex;flex-direction:column;line-height:1.25;border-left:3px solid var(--pc);padding-left:6px}
   .bf-side:last-child{margin-left:auto;text-align:right;border-left:none;border-right:3px solid var(--pc);padding:0 6px 0 0}
-  .bf-side b{font-size:14px}.bf-side span{font-size:11px;color:var(--dim)}
+  .bf-side b{font-size:14px}.bf-side>span{font-size:11px;color:var(--dim)}
+  .bf-nm{display:flex;align-items:center;gap:6px}.bf-side:last-child .bf-nm{justify-content:flex-end}
+  .bf-gear{display:inline-flex;gap:2px;align-items:center}
+  .bf-tac{font-size:12px}.bf-tac i{font-style:normal;color:var(--order)}
+  .bf-stage{position:relative}
+  .bf-feed{position:absolute;left:50%;top:8px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none;width:max-content;max-width:94%;z-index:2}
+  .bf-toast{background:rgba(12,14,18,.86);color:#fff;border:1px solid rgba(255,255,255,.16);border-left:4px solid var(--pc);border-radius:var(--radius-sm);padding:3px 10px;font-size:13px;line-height:1.35;animation:bftoast 6.5s forwards}
+  .bf-toast b{font-weight:600}
+  @keyframes bftoast{0%{opacity:0;transform:translateY(-4px)}5%{opacity:1;transform:none}85%{opacity:1}100%{opacity:0}}
   .bf-sk{flex:1;text-align:center;font-size:11px;color:var(--dim2);letter-spacing:.06em;text-transform:uppercase}
   .bf text{font-family:var(--serif)}
   .bf-u{transition:transform .9s cubic-bezier(.3,.7,.3,1),opacity .6s}

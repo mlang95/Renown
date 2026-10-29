@@ -369,11 +369,17 @@ function sideHTML(X){
   if(!c)return h+battleSprites(sd,pl)+'<div class="note">Pick a player and one of their armies.</div></div>';
   const a=c.a;
   h+=datasheetHTML(X,c,pl);
+  return h+'</div>';
+}
+// roll / casualty buttons for one side, in the command bar above the field once both Tactics are revealed
+function actionsHTML(X){
+  const B=battle(),sd=B[X],c=sideCalc(X),O=X==="A"?"B":"A";if(!c)return "";const a=c.a,nm=sd.kind==="bandit"?"Bandits":(a.label||((sideArmy(sd).p||{}).name)||X);
+  let h='<div class="btac-side" data-side="'+X+'"><div class="btac-h"><b>'+esc(nm)+'</b></div>';
   // dice
   if(B.dice&&B.id){
     const oc=sideCalc(O),ic=incoming(X),inc=ic.n+ic.d;
     h+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:8px">'+
-      '<button class="broll" data-x="'+X+'" data-k="Strike">Strike ×'+c.front+'</button>'+
+      '<button class="broll'+(strikeDue(X)?' go':'')+'" data-x="'+X+'" data-k="Strike">Strike ×'+c.front+'</button>'+
       ((st=>c.dualW&&st&&st.sk===B.sk&&st.miss?'<button class="broll" data-x="'+X+'" data-k="DualWield">Dual Wield re-roll ×'+st.miss+'</button>':'')((B.strk||{})[X]))+
       '<button class="broll" data-x="'+X+'" data-k="Parry">Parry ×'+inc+'</button>'+
       '<button class="broll" data-x="'+X+'" data-k="Save">Save ×'+inc+(ic.d?' ('+ic.d+' Deadly)':'')+'</button>'+
@@ -392,6 +398,9 @@ function sideHTML(X){
       'Break check: '+Math.min(c.front,BT.moraleDiceMax||5)+'d10 vs '+c.morale+'+, failures are casualties ('+(B.dice?'rolled when you press end Skirmish':'roll it after end Skirmish')+'). Then +1 Fatigue token.</div>';}
   return h+'</div>';
 }
+// the Strike due next this Skirmish: whoever fights first (both on equal Initiative), then the other side once it has struck
+function strikeDue(X){const B=battle(),O=X==="A"?"B":"A",c=sideCalc(X),oc=sideCalc(O),st=k=>!!((B.strk||{})[k]&&B.strk[k].sk===B.sk);
+  if(!c||!oc||!(B.rev&&B.rev.sk===B.sk)||st(X))return false;return c.I>=oc.I||st(O);}
 // your edge in one matchup: Initiative over theirs, and how much lower your TH / TS targets are than theirs; Strained / ends noted
 function tacEdge(a,b){const c=TMX[a+"|"+b];if(!c)return null;const [m,o]=c;
   const v=((+m.I||0)-(+o.I||0))+((+o.TH||0)-(+m.TH||0))+((+o.TS||0)-(+m.TS||0))+(o.strain?1:0)-(m.strain?1:0);return {m,o,v};}
@@ -441,7 +450,7 @@ function renderBattle(){
   if(cA&&cB)h+='<div class="note" style="margin-bottom:6px">'+(cA.I===cB.I?'<b>Simultaneous</b> — both sides Strike with their full front line':'Strikes first: <b>'+(cA.I>cB.I?"A":"B")+'</b>')+' (I '+cA.I+' vs '+cB.I+')</div>';
   const vs=viewerSide(),bs=BSIDE||(vs==="A"||vs==="B"?vs:"A");
   h+='<div class="bside-nav"><button data-bs="A"'+(bs==="A"?' class="on"':'')+'>Side A</button><button data-bs="B"'+(bs==="B"?' class="on"':'')+'>Side B</button><button data-bs="AB"'+(bs==="AB"?' class="on"':'')+'>Both</button></div>';
-  h+='<div class="bsides bgrid" data-bs="'+bs+'">'+sideHTML("A")+'<div class="bfield-col">'+(B.id&&!(B.rev&&B.rev.sk===B.sk)?'<div class="btacs">'+tacticPickHTML("A")+tacticPickHTML("B")+'</div>':'')+'<div id="bfield"></div></div>'+sideHTML("B")+'</div>';
+  h+='<div class="bsides bgrid" data-bs="'+bs+'">'+sideHTML("A")+'<div class="bfield-col">'+(B.id?'<div class="btacs">'+(B.rev&&B.rev.sk===B.sk?actionsHTML("A")+actionsHTML("B"):tacticPickHTML("A")+tacticPickHTML("B"))+'</div>':'')+'<div id="bfield"></div></div>'+sideHTML("B")+'</div>';
   h+='<div class="tot"><h3 style="font-size:13px">Log</h3><div class="note">'+(B.log||[]).map(esc).join('<br>')+'</div></div>';
   h+=tacticExplainHTML().replace('id="tacEx" open','id="tacExB"')+siegeHTML()+'<div class="note" style="margin:8px 0">Skirmish rules are in <a href="#" data-goto="reference#refBattle">Reference ▸</a></div></div>';
   host.innerHTML=h;bfMount(host);wireBattle(host);wireDashExtras(host);
@@ -592,7 +601,7 @@ function wireBattle(host){
     if(B.id&&!confirm("Restart the battle?"))return;
     ["A","B"].forEach(X=>{if(B[X].kind==="bandit"){const cp=mapState().camps[B[X].camp];if(cp)armBandits(cp);}});
     ["A","B"].forEach(X=>{const sa=sideArmy(B[X]);if(sa&&sa.a&&!sa.bandit)delete sa.a.pillage;});
-    B.id=Date.now().toString(36);B.sk=1;B.round=0;B.rev=null;B.rolls={};B.strk={};B.par={};B.shDest={};B.log=[];B.endRep=null;PEEK=false;
+    B.id=Date.now().toString(36);B.sk=1;B.round=0;B.rev=null;B.rolls={};B.strk={};B.par={};B.sv={};B.rip={};B.pendCas={};B.shDest={};B.log=[];B.endRep=null;PEEK=false;
     B.start={A:sideCalc("A").a.count||0,B:sideCalc("B").a.count||0};B.A.cas=0;B.B.cas=0;B.A.rcv=0;B.B.rcv=0;blog("Battle begins");save();loadPicks().then(render);};
   const sz=host.querySelector("#bSeize");if(sz)sz.onchange=()=>{B.seize=sz.value;save();render();};
   const dc=host.querySelector("#bDice");if(dc)dc.onchange=()=>{B.dice=dc.checked;save();render();};
