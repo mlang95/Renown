@@ -112,7 +112,7 @@ var SIM = (function () {
     if (!bqLoad(o)) return null;
     const B = battle(); B.id = "sim" + REC.battles.length; B.sk = 1; B.round = 0; B.rev = null; B.rolls = {}; B.strk = {}; B.par = {}; B.shDest = {}; B.log = []; B.dice = true; B.aiPk = {};
     Object.keys(LOCAL_PICKS).forEach(k => delete LOCAL_PICKS[k]);
-    const start = { A: (sideArmy(B.A).a || {}).count || 0, B: (sideArmy(B.B).a || {}).count || 0 }, cas = { A: 0, B: 0 }, tac = [];
+    const start = { A: (sideArmy(B.A).a || {}).count || 0, B: (sideArmy(B.B).a || {}).count || 0 }, cas = { A: 0, B: 0 }, tac = [], first = [];
     let end = null;
     for (let sk = 0; sk < 15 && !end; sk++) {
       for (const X of ["A", "B"]) {
@@ -125,17 +125,23 @@ var SIM = (function () {
       tac.push([B.rev.A, B.rev.B]);
       const cell = TMX[B.rev.A + "|" + B.rev.B] || [{}, {}];
       if (!cell[0].no_combat && !cell[1].no_combat) {
-        for (const [X, O] of [["A", "B"], ["B", "A"]]) {           // casualties apply after both sides fight
-          roll(X, "Strike"); const oc = sideCalc(O); if (!oc) continue;
+        const strike = (X, O) => {
+          roll(X, "Strike"); const oc = sideCalc(O); if (!oc) return;
           if (oc.canParry) roll(O, "Parry");
           roll(O, "Save"); if (oc.recThr != null) roll(O, "Recover");
           if (ripN(X)) { if (sideCalc(X).canParry) roll(X, "RipParry"); roll(X, "RipSave"); }
-        }
-        for (const X of ["A", "B"]) { const n = pendCas(X); if (n) { applyCas(X, n); cas[X] += n; } }
+        };
+        const land = () => { for (const X of ["A", "B"]) { const n = pendCas(X); if (n) { applyCas(X, n); cas[X] += n; } } };
+        // RULES › Initiative: the higher side Strikes first and its casualties leave the field before the other side
+        // Strikes back, so that side's reserve steps up (sideCalc's front); tied, both Strike and casualties apply after
+        const cA = sideCalc("A"), cB = sideCalc("B"), iA = cA ? cA.I : 0, iB = cB ? cB.I : 0;
+        if (iA === iB) { strike("A", "B"); strike("B", "A"); land(); }
+        else { const [F, S2] = iA > iB ? ["A", "B"] : ["B", "A"]; strike(F, S2); land(); if (sideAlive(S2)) { strike(S2, F); land(); } }
+        first.push(iA === iB ? "=" : iA > iB ? "A" : "B");
         const pt = BT.panicThreshold || 5;
         for (const X of ["A", "B"]) { const sd = B[X], c = sideCalc(X); if (!c || c.immunePanic) continue; const pn = (sd.cas || 0) + (c.enduring ? 0 : (sd.rcv || 0));
           if (pn > pt && sideAlive(X)) { roll(X, "Morale"); const n = pendCas(X); if (n) { applyCas(X, n); cas[X] += n; } } }
-      }
+      } else first.push(null);
       const fb = cell[0].end || cell[1].end;
       endSkirmish();
       const aA = sideAlive("A"), aB = sideAlive("B");
@@ -144,7 +150,7 @@ var SIM = (function () {
     }
     const win = end === "A" || end === "B" ? end : null;
     const side = X => { const sd = B[X]; return sd.kind === "bandit" ? { bandit: sd.camp } : { pid: sd.pid, aid: sd.aid }; };
-    const rec = { t: CUR_T, src: o.src || "", A: side("A"), B: side("B"), startA: start.A, startB: start.B, casA: cas.A, casB: cas.B, skirmishes: tac.length, end: end || "limit", win, tactics: tac };
+    const rec = { t: CUR_T, src: o.src || "", A: side("A"), B: side("B"), startA: start.A, startB: start.B, casA: cas.A, casB: cas.B, skirmishes: tac.length, end: end || "limit", win, tactics: tac, first };
     // a player's Siege Battle: winning it leads to Capture (RULES › Siege Timer); losing breaks the Siege (Bandit Sieges: endBattle)
     const sgT = o.kind === "siege" && o.A && o.A.pid != null ? realmTimers().findIndex(t => t.kind === "siege" && String(t.by) === String(o.A.pid) && String(t.aid) === String(o.A.aid)) : -1;
     endBattle(win);
