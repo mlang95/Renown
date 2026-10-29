@@ -733,7 +733,10 @@ function refRawAvail(){if(!REF_RAW)return null;const raws=mapRaws();if(!raws)ret
   return ok;}
 function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.json next to the generator — tree unavailable.</div>';
   const NH0=62,CG=44,RG=10,AV=Math.max(600,((document.getElementById("viewReference")||{}).clientWidth||window.innerWidth)-70),EC=["#2E5A8C","#9E2B25","#1c9c8c","#C6A024","#6A3D8F","#CC6A1A","#3a7d3a","#b5347a","#2b6f9e","#8a6d1a"],E0=T.edges||{},DC={Industry:"#2E5A8C",Prowess:"#9E2B25",Cunning:"#3a3a40",Piety:"#C6A024"};
-  const dom=n=>{const u=(R[n]||{}).unlock_raw||"";return ["Industry","Prowess","Cunning","Piety"].find(d=>u.includes(d))||"";};
+  // box colour: the Domain of the highest Standing in the unlock (ties: the first listed)
+  const dom=n=>{const u=(R[n]||{}).unlock_raw||"";let best="",bk=-1;
+    for(const m of u.matchAll(/(Rising|Established|Sovereign)\s+(Industry|Prowess|Cunning|Piety)/g)){const k=ST_ORDER.indexOf(m[1]);if(k>bk){bk=k;best=m[2];}}
+    return best||["Industry","Prowess","Cunning","Piety"].find(d=>u.includes(d))||"";};
   const AVS=refRawAvail();
   return T.charts.map(c=>{if(AVS&&R[c.title]&&!AVS.has(c.title))return "";   // a root chart whose Raw Material is off the map: its reachable Holdings show under their other roots
     // the reference tree is the full tree: the culture view filter applies to the catalog only
