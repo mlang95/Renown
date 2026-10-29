@@ -38,7 +38,7 @@ function siegeDoubleOK(t){const by=pById(t.by);return !!by&&srcHas(by.board,"sie
 function actRestrict(owner,action,target){const a=(DATA.actions||{})[action]||{},out=[];
   const hit=(c)=>{const lc=c.toLowerCase();return lc.includes(action.toLowerCase())||(a.domain&&new RegExp("\\b"+a.domain+" actions","i").test(c));};
   // each clause of a "can't …" list on its own; "build Holdings that require <Standing>" limits which Holdings (pLegal), not the Build action
-  srcRows(owner.board,"_cant").forEach(x=>{String(x.r).split(/,\s*(?:or\s+)?|\s+or\s+(?=(?:perform|build|enter|declare|sign|target))/i).map(c=>c.trim()).filter(Boolean)
+  srcRows(owner.board,"_cant").forEach(x=>{String(x.r).split(/,\s*(?:or\s+)?|\s+or\s+(?=(?:perform|build|enter|declare|sign|target)\b)/i).map(c=>c.trim()).filter(Boolean)
     .forEach(c=>{if(/^(?:build|pursue)\s+(?:Holdings|Pursuits)\s+(?:that|which)\s+require/i.test(c))return;if(hit(c))out.push(x.n+": can't "+c);});});
   // Faith is Fickle: while your Public Order is below FAITH_FICKLE_PO you can't target players or their Settlements with Piety actions
   if(target&&!sameP(target,owner)&&a.domain==="Piety"&&!srcHas(owner.board,"piety_target_bypass")&&RC.FAITH_FICKLE_PO!=null&&(+owner.board.po||0)<+RC.FAITH_FICKLE_PO)

@@ -309,15 +309,15 @@ WEAPONS = {
     "Spears":         {"ap": -1, "init":  1, "tier": "Cast",    "tags": [UNWIELDY]},
     "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY]},
     "Pike":           {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, STEADY, UNWIELDY, SHATTER_ARMOR, NO_PARRY]},
-    "Flail":          {"ap": -1, "init":  0, "tier": "Wrought", "tags": [UNWIELDY, UNSTOPPABLE, CLEAVE, NO_PARRY], 'note': 'Cannot Dual Wield'},
+    "Flail":          {"ap": -1, "init":  0, "tier": "Wrought", "tags": [UNWIELDY, UNSTOPPABLE, CLEAVE, NO_PARRY], 'note': 'Cannot Florentine'},
     "Halberd":        {"ap": -2, "init":  0, "tier": "Wrought", "tags": [TWO_H, STEADY]},
     "Battle Axe":     {"ap": -3, "init": -1, "tier": "Wrought", "tags": [TWO_H, UNSTOPPABLE, CLEAVE, NEGATE_SHIELDED]},
-    "Cavalry Spear":  {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY], 'note': "Needs Stable Mastery; no Tower Shield or Dual Wield or Ranged Weapon"},
-    "Morningstar":    {"ap": -4, "init": -1, "tier": "Forged",  "tags": [CLEAVE, DESTROY_SHIELD], 'note': 'Cannot Dual Wield'},
+    "Cavalry Spear":  {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY], 'note': "Needs Stable; no Tower Shield or Florentine or Ranged Weapon"},
+    "Morningstar":    {"ap": -4, "init": -1, "tier": "Forged",  "tags": [CLEAVE, DESTROY_SHIELD], 'note': 'Cannot Florentine'},
     "Bastard Sword":  {"ap": -2, "init":  0, "tier": "Forged",  "tags": [STEADY], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile.'},
     "2HBastard":      {"ap": -2, "init":  0, "tier": "Forged",  "tags": [TWO_H, UNSTOPPABLE, CLEAVE]},
     "War Hammer":     {"ap":-10, "init": -1, "tier": "Forged",  "tags": [TWO_H, STEADY, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD]},
-    "Lance":          {"ap": -4, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY, DESTROY_SHIELD], 'note': "Needs Saddlery; no Tower Shield, Dual Wield, Ranged weapon."},
+    "Lance":          {"ap": -4, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY, DESTROY_SHIELD], 'note': "Needs Saddlery; no Tower Shield, Florentine, Ranged weapon."},
     "Estoc":          {"ap": -3, "init":  0, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE]},
     "Poleaxe":        {"ap": -5, "init":  0, "tier": "Crafted", "tags": [TWO_H, STEADY, CLEAVE, UNSTOPPABLE, NEGATE_SHIELDED]},
 }
@@ -326,7 +326,7 @@ RANGED = {
     "Hunting Bow": {"ap":  0, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNSTOPPABLE, NO_PARRY]},
     "Longbow":     {"ap": -1, "init":  2, "tier": "Cast",    "tags": [TWO_H, UNSTOPPABLE, SHATTER_ARMOR, NO_PARRY]},
     "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD, ONE_SHOT, NO_PARRY], 'note': 'Cannot Dual Wield'},
-    "Crossbow":    {"ap": -4, "init":  1, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NO_PARRY], 'note': "Cannot Dual Wield"},#'note': "Tower Shield only (no other shield), cannot Dual Wield"
+    "Crossbow":    {"ap": -4, "init":  1, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NO_PARRY]},#'note': "Tower Shield only (no other shield), cannot Dual Wield"
     "Pilum":       {"ap": -5, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD, ONE_SHOT, NO_PARRY]},
     "Arquebus":    {"ap": -6, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
    
@@ -2348,7 +2348,7 @@ SIMPLE_NODES = {
     "List Yard": {
         "group": "g_arms",
         "unlock": "Established Prowess",
-        "innate": "Gain Immune Awkward; In addition, armies may equip two of the same 1H Melee Weapon to gain Dual Wield.",
+        "innate": "Gain Immune Awkward; gain Florentine",
         "efficient": "Skirmish Field",
         "monument": False},
     "Court Armoury": {
@@ -3569,7 +3569,7 @@ MOVEMENT_MODIFIERS = {
 # Strategy > Hill > Forest (defender) > general rule (attacker).
 TACTICAL_TERRAIN = {
     "Hill":       {"identify": "Grassland fully ringed by grassland",
-                   "effect": "An army on a Hill Seizes the Initiative every Skirmish."},
+                   "effect": "If you Battle while your army is on a Hill, gain +1 Initiative every Skirmish. A Hill counts as Open Field: Ranged Weapons gain +1 to Strike."},
     "Open Field": {"identify": "Any other grassland",
                    "effect": "Ranged Weapons gain +1 to Strike."},
     "Forest":     {"identify": "Forest",
@@ -4918,7 +4918,7 @@ def holding_combat_tags(text, sim=False):
                      (r"Always gains Seize the Initiative", "Seize: first"), (r"Righteous Fervour", "Righteous Fervour"),
                      (r"Unlocks Arquebus", "Artillery Park")):
         if _re_disp.search(pat, t, _I): out.append(tok)
-    if _re_disp.search(r"two of the same 1H Melee Weapon to gain Dual Wield|gain\s+Florentine", t, _I): out.append(FLORENTINE)
+    if _re_disp.search(r"two of the same 1H Melee Weapon to gain Dual Wield|\bgain\s+Florentine\b", t, _I): out.append(FLORENTINE)
     out += ["Parry +1"] * len(_re_disp.findall(r"Improve Parry by \+1", t, _I))
     m = _re_disp.search(r"Focused Strikes on a natural (\d+)\+", t, _I)
     if m: out.append("Crit " + m.group(1))

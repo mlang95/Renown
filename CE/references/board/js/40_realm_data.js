@@ -188,7 +188,7 @@ function siegeCalc(opts){const sg=siegeState(),C=(DATA.siege||{}).calculus||{},S
       rows.push({src,val});});});
   const tm=mode==="Convert"?{rows:[],noWalls:[]}:siegeTextMods(p,opts&&("att" in opts)?opts.att:(pById(sg.by)||D.players.find(q=>q!==p)));
   tm.rows.forEach(r=>rows.push(r));
-  if(tm.noWalls.length)rows.forEach(r=>{if(/Walls/.test(r.src)&&r.val){r.val=0;r.src+=" (ignored: "+tm.noWalls.join(", ")+")";}});
+  if(tm.noWalls.length)rows.forEach(r=>{if(/Walls\b/.test(r.src)&&r.val){r.val=0;r.src+=" (ignored: "+tm.noWalls.join(", ")+")";}});
   const base=rows.reduce((a,r)=>a+r.val,0),att=cfg.attacker_sources?(+sg.att||0):0,def=+sg.def||0;
   return {p,st,mode,cfg,rows,base,att,def,total:Math.max(cfg.floor||1,base+def-att)};}
 function siegeHTML(){const sg=siegeState(),c=siegeCalc(),C=(DATA.siege||{}).calculus||{};

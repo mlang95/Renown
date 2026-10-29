@@ -827,10 +827,6 @@ function facGearFlags(a){const f=FAC[S.faction||""];if(!f)return [];const t=Stri
 // a Holding you have (in the current board) whose text grants army token tok (holding_combat_tags, e.g. "dual-equip", "Florentine")
 function armyTokHolder(tok){return Object.keys(PC).find(n=>(PC[n]||0)>0&&((ARMYSRC[n]||{}).innate||[]).includes(tok))||"";}
 function armyTokNamed(tok){return Object.keys(ARMYSRC).filter(n=>(ARMYSRC[n].innate||[]).includes(tok)).join(" or ")||"?";}
-function dualFlags(a){const out=[];if(!a.dual)return out;
-  if(!armyTokHolder("Florentine"))out.push("Dual Wield needs Florentine ("+armyTokNamed("Florentine")+")");
-  if(a.shield&&a.shield!=="None")out.push("Dual Wield doesn't apply while a Shield is in use");
-  return out;}
 function factionFlags(){const f=FAC[S.faction];if(!f)return [];const out=[];{const k=cultureFactions(S);if(k&&!k.has(S.faction))out.push(S.faction+" isn't one of the "+S.culture+" factions");}
   const types=[...new Set(Object.values(R).map(r=>r.type))];
   f.mechanic.split(/(?<=[.;])\s+/).forEach(sen=>{
@@ -1273,18 +1269,20 @@ function loadoutFields(obj,u,opts){opts=opts||{};const lo=document.createElement
   const retItems={};Object.keys(EQ.retinues).forEach(k=>retItems[k]={tier:null});
   field("Retinue","retinue",retItems,new Set(Object.keys(EQ.retinues)),name=>u.retinues.has(name),opts.onRetinue);
   if(opts.bastard)fixBastard(obj);
-  field("Weapon","weapon",EQ.weapons,u.wTiers,(name,it)=>reqMet(it,u)&&weaponUnlockMet(name,u));
-  field("Ranged","ranged",Object.assign({"None":{tier:null}},EQ.ranged),u.wTiers,(name,it)=>name==="None"||(u.ranged&&reqMet(it,u)));
+  fixWeaponNotes(obj);
+  field("Weapon","weapon",EQ.weapons,u.wTiers,(name,it)=>reqMet(it,u)&&weaponUnlockMet(name,u),()=>fixWeaponNotes(obj));
+  field("Ranged","ranged",Object.assign({"None":{tier:null}},EQ.ranged),u.wTiers,(name,it)=>name==="None"||(u.ranged&&reqMet(it,u)&&!weaponForbids(obj.weapon,"ranged")));
   field("Armor","armor",EQ.armors,new Set(EQ.tiers),name=>u.armors.has(name)||name==="Cloth");
   const shieldItems={};Object.keys(EQ.shields).forEach(k=>shieldItems[k==="null"?"None":k]=EQ.shields[k]);
-  field("Shield","shield",shieldItems,unlockedShieldTiers(u),name=>name==="None"||u.shields);
-  if(opts.dual){if(!canDualWield(obj.weapon))delete obj.dual;
-    else{const f=document.createElement("div");f.className="fld";f.innerHTML='<label>Dual Wield</label>';
-      const cb=document.createElement("input");cb.type="checkbox";cb.checked=!!obj.dual;cb.title="two "+obj.weapon;
-      cb.onchange=()=>{obj.dual=cb.checked;save();render();};f.appendChild(cb);lo.appendChild(f);}}
+  field("Shield","shield",shieldItems,unlockedShieldTiers(u),name=>name==="None"||(u.shields&&!(name==="Tower Shield"&&weaponForbids(obj.weapon,"tower"))));
   return lo;}
 // Dual Wield (Florentine): two of the same 1H Melee Weapon — not a 2H weapon, not one whose note rules out Dual Wield
-function canDualWield(name){const w=EQ.weapons[name];return !!w&&name!=="Farm Tools"&&!(w.tags||[]).includes("2H")&&!/Dual Wield/i.test(w.note||"");}
+function canDualWield(name){const w=EQ.weapons[name];return !!w&&name!=="Farm Tools"&&!(w.tags||[]).includes("2H")&&!/Dual Wield|Florentine/i.test(w.note||"");}
+// a weapon's note ruling out other gear: "no Tower Shield", "no … Ranged weapon" (Lance, Cavalry Spear)
+function weaponForbids(name,what){const n=String((EQ.weapons[name]||{}).note||"");
+  return what==="ranged"?/\bno\b[^.]*\bRanged\b/i.test(n):what==="tower"?/\bno\b[^.]*\bTower Shield\b/i.test(n):false;}
+function fixWeaponNotes(obj){if(weaponForbids(obj.weapon,"ranged")&&obj.ranged&&obj.ranged!=="None")obj.ranged="None";
+  if(weaponForbids(obj.weapon,"tower")&&obj.shield==="Tower Shield")obj.shield="None";}
 const MUSTER_DEFAULT=25;   // Retinues a Muster asks for by default
 function renderArmy(){
   recomputePC();const have=new Set(Object.keys(PC));
@@ -1363,9 +1361,9 @@ function armyCard(a,u){
   if(!a.open) return card;
 
   // loadout selects
-  const lo=loadoutFields(a,u,{onRetinue:()=>{const rt=EQ.retinues[a.retinue];if(rt)a.endurance=rt.endurance;},bastard:true,dual:true});
+  const lo=loadoutFields(a,u,{onRetinue:()=>{const rt=EQ.retinues[a.retinue];if(rt)a.endurance=rt.endurance;},bastard:true});
   card.appendChild(lo);
-  const gf=facGearFlags(a).concat(dualFlags(a));if(gf.length){const fb=document.createElement("div");fb.className="flagbox";fb.style.marginTop="4px";fb.textContent="⚑ "+gf.join(" · ");card.appendChild(fb);}
+  const gf=facGearFlags(a);if(gf.length){const fb=document.createElement("div");fb.className="flagbox";fb.style.marginTop="4px";fb.textContent="⚑ "+gf.join(" · ");card.appendChild(fb);}
 
   card.appendChild(armyStats(a,u));
 

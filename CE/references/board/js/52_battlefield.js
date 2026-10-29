@@ -106,7 +106,7 @@ function bfUpdate(S,T){const W=BF.wrap,B=battle(),fresh=BF.fresh;BF.fresh=false;
   bfEffects(S);bfReport(S);BF.res={A:S.A?S.A.c.reserve:0,B:S.B?S.B.c.reserve:0};}
 // the gear a side has Equipped this Skirmish: the weapon in hand, a usable shield, the armour
 function bfGear(s){const a=s.a,c=s.c,w=c.eqX.mode==="ranged"&&a.ranged&&a.ranged!=="None"?a.ranged:a.weapon;
-  return [w,a.shield&&a.shield!=="None"&&!c.shDest&&!c.shOff?a.shield:null,a.armor].filter(n=>n&&SPR.S["eq:"+n]);}
+  return [w,c.dualW?w:null,a.shield&&a.shield!=="None"&&!c.shDest&&!c.shOff?a.shield:null,a.armor].filter(n=>n&&SPR.S["eq:"+n]);}
 // pop-up feed over the field: one line per event (k replaces an earlier line of the same kind), fading after a few seconds
 function bfToast(k,html,col,delay){const show=()=>{if(!BF)return;const F=BF.wrap.querySelector(".bf-feed");if(!F)return;
     const old=F.querySelector('[data-k="'+k+'"]');if(old)old.remove();
@@ -163,7 +163,9 @@ function bfEffects(S){const B=battle(),now=bfSeen(),was=BF.seen;BF.seen=now;cons
     else if(R.kind==="Save"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.save(m.x,m.y)));BF.t[X].save+=R.succ+dl;BF.t[X].on.save=1;bfToast("df"+X,bfDefLine(s),s.col);}
     else if(R.kind==="Recover"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.heal(m.x,m.y)));BF.t[X].heal+=R.succ+dl;BF.t[X].on.heal=1;bfToast("df"+X,bfDefLine(s),s.col);}
     else if(R.kind==="Morale"){mine.forEach(m=>{m.u.classList.add("shake");setTimeout(()=>m.u.classList.remove("shake"),900);});
-      bfToast("mo"+X,nm+' <b>Panic check</b>: '+R.succ+' hold, '+(R.dice.length-R.succ)+' flee ('+R.dice.length+'d10 vs '+R.target+'+)',s.col);}});
+      bfToast("mo"+X,nm+' <b>Panic check</b>: '+R.succ+' hold, '+(R.dice.length-R.succ)+' flee ('+R.dice.length+'d10 vs '+R.target+'+)',s.col);}
+    else if(R.kind==="Break"){mine.forEach(m=>{m.u.classList.add("shake");setTimeout(()=>m.u.classList.remove("shake"),900);});
+      bfToast("br"+X,nm+' <b>Break check</b>: '+R.succ+' hold, '+bfN(R.cas,"casualty","casualties")+' ('+R.dice.length+'d10 vs '+R.target+'+)',s.col);}});
   // Riposte: a new pending Riposte against O comes back from X's line
   ["A","B"].forEach(O=>{const X=O==="A"?"B":"A",d=now["rip"+O]-(was["rip"+O]||0);if(d<=0)return;
     if(S[X]){BF.t[X].rip+=d;bfToast("df"+X,bfDefLine(S[X]),S[X].col);}

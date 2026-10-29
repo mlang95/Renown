@@ -254,12 +254,7 @@ def valid_combo(retinue, weapon, shield, armor, ranged, has_tiltyard, allow_tier
     # Lance CAN use Kite, Scutum, or Heater Shield.
     if weapon in ("Lance", "Cavalry Spear") and shield == "Tower Shield":
         return False
-    # Crossbow restriction: when Crossbow is equipped (pure-ranged or dual-equip),
-    # the only allowed shield is Tower Shield (pavise-style). Other shields forbidden.
-    # If the melee weapon can't pair with Tower (e.g. Lance), the loadout must run
-    # shieldless — that's a deliberate trade-off (Lance+Crossbow = no shield).
-    if ranged == "Crossbow" and shield is not None and shield != "Tower Shield":
-        return False
+    # (Crossbow is 2H like the other bows: no Crossbow-specific shield rule.)
     if weapon == "Poleaxe" and retinue == "Levy":
         return False
     # Plain 'Bastard Sword' must ALWAYS carry a shield (it's the 1H profile that only
@@ -269,13 +264,9 @@ def valid_combo(retinue, weapon, shield, armor, ranged, has_tiltyard, allow_tier
     if weapon == "Bastard Sword" and shield is None:
         return False
     # 1H weapons (no "2H" tag) require a shield, except Farm Tools.
-    # Additional exception: when Crossbow is equipped, 1H weapons may run shieldless
-    # if their shield options are incompatible with the Crossbow→Tower rule
-    # (e.g., Lance can use Tower? No — so Lance+Crossbow runs shieldless).
     if (weapon != "Farm Tools"
             and not is_2h(weapon)
-            and shield is None
-            and ranged != "Crossbow"):
+            and shield is None):
         return False
     # 1H + shield: shield tier must be >= weapon tier
     # Exception: Lance is exempt from the tier rule (only the explicit forbidden-shield
@@ -837,14 +828,7 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
             is_two_of_same = (weapon in dual_wield_weapons and ranged is None and ty)
             SHIELD_LADDER = ["Heater Shield", "Tower Shield", "Kite Shield",
                              "Targe Shield", "Buckler Shield"]
-            if ranged == "Crossbow":
-                w_init = WEAPONS[weapon]["init"] if weapon and weapon != "Farm Tools" else 0
-                opts = [None]
-                if (shield_satisfied("Tower Shield", pursuits)
-                        and w_init + SHIELDS["Tower Shield"]["init"] >= -1):
-                    opts.append("Tower Shield")
-                shield_opts = opts
-            elif weapon is None or is_2h(weapon) or is_two_of_same:
+            if weapon is None or is_2h(weapon) or is_two_of_same:
                 shield_opts = [None]
             else:
                 w_init = WEAPONS.get(weapon, {}).get("init", 0) if weapon != "Farm Tools" else 0
@@ -905,11 +889,10 @@ def _structural_legal(weapon, shield, armor, ranged, has_tiltyard):
     """ONLY the structural weapon rules — no tier floors/caps, no shield-tier>=weapon-tier.
     These are the rules Gage specified for pool generation:
       - 2H melee cannot use a shield.
-      - 1H melee (except Farm Tools) requires a shield, UNLESS Crossbow forces it shieldless.
+      - 1H melee (except Farm Tools) requires a shield.
       - Bastard Sword (1H profile) must carry a shield.
       - Lance / Cavalry Spear cannot use Tower Shield (Wooden is allowed).
       - Stable cavalry weapons (Lance, Cavalry Spear) cannot dual-equip a ranged weapon.
-      - Crossbow: only Tower Shield allowed (or shieldless); not with Lance/Cavalry Spear.
       - One-Shot ranged (Javelin, Crossbow) requires Tiltyard.
       - Dual-equip (real melee + ranged) requires Tiltyard.
     """
@@ -920,14 +903,9 @@ def _structural_legal(weapon, shield, armor, ranged, has_tiltyard):
         return False
     if weapon in ("Lance", "Cavalry Spear") and shield == "Tower Shield":
         return False
-    if ranged == "Crossbow":
-        if shield is not None and shield != "Tower Shield":
-            return False
-        if weapon in ("Lance", "Cavalry Spear"):
-            return False
     if weapon == "Bastard Sword" and shield is None:
         return False
-    if (weapon != "Farm Tools" and not is_2h(weapon) and shield is None and ranged != "Crossbow"):
+    if (weapon != "Farm Tools" and not is_2h(weapon) and shield is None):
         return False
     if ranged is not None and ONE_SHOT in RANGED[ranged].get("tags", []) and not has_tiltyard:
         return False
@@ -1066,7 +1044,7 @@ def balanced_validation_pool(mpc_min=4, mpc_max=13, per_cell=None, seed=2026,
 
 def validate_loadout(ld, check_tier_floors=False):
     """Check ONE loadout against the rules. Returns violation strings (empty = valid).
-      STRUCTURAL: 2H/1H shield rules, Bastard Sword, cavalry vs Tower / ranged, Crossbow shields,
+      STRUCTURAL: 2H/1H shield rules, Bastard Sword, cavalry vs Tower / ranged,
                   One-Shot and dual-equip need the Tiltyard.
       UNLOCKS:    every unlock token the gear needs (gear_requirements) is granted by a Holding's
                   text in the build; RANGED 'requires' Holdings are present.
@@ -1081,7 +1059,7 @@ def validate_loadout(ld, check_tier_floors=False):
                     and DUAL_WIELD not in WEAPONS.get(w, {}).get("tags", []))
     if w is not None and is_2h(w) and sh is not None:
         v.append(f"2H weapon {w} has shield {sh}")
-    if (w not in (None, "Farm Tools") and not is_2h(w) and sh is None and rg != "Crossbow"
+    if (w not in (None, "Farm Tools") and not is_2h(w) and sh is None
             and not _is_dw_build):
         v.append(f"1H weapon {w} has no shield")
     if w == "Bastard Sword" and sh is None:
@@ -1090,11 +1068,6 @@ def validate_loadout(ld, check_tier_floors=False):
         v.append(f"{w} cannot use Tower Shield")
     if w in STABLE_WEAPONS and rg is not None:
         v.append(f"Stable cavalry weapon {w} cannot dual-equip ranged {rg}")
-    if rg == "Crossbow":
-        if sh is not None and sh != "Tower Shield":
-            v.append(f"Crossbow with non-Tower shield {sh}")
-        if w in STABLE_WEAPONS:
-            v.append(f"Crossbow with {w}")
     if rg is not None and ONE_SHOT in RANGED.get(rg, {}).get("tags", []) and not ld.has_tiltyard:
         v.append(f"One-Shot ranged {rg} without Tiltyard")
     if w not in (None, "Farm Tools") and rg is not None and not ld.has_tiltyard:
