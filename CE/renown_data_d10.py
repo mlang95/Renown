@@ -1579,6 +1579,8 @@ REQ_LABEL = "Infrastructure Req"
 TYPE_ORDER = list(HOLDING_GROUPS.values()) + ["Monument"]
 # Display name for the `efficient` field (the data key stays `efficient`).
 CHAIN_TERM = "Mastery Chain"
+# Display name for a Holding / Infrastructure set inactive for unpaid upkeep (Insolvency). Rules print it via {{VAL:SHUTTER_TERM}}.
+SHUTTER_TERM = "Shuttered"
 # Display name for Pursuits (singular, plural). Data keys, file names and wiki URLs keep "pursuit".
 PURSUIT_TERM = ("Holding", "Holdings")
 
@@ -2391,7 +2393,7 @@ PO_MODIFIERS = {
     "doubt": {
         "Local Unrest":    "Per active Bandit Camp in your Controlled Territory",
         "Deficit":         "Net Income is negative",
-        "Insolvency":      "Per consecutive Upkeep Phase with negative Treasury",
+        "Bankruptcy":      "Per consecutive Upkeep Phase with negative Treasury",
         "Border Tension":  "Per other player Army in your Uncontested Territory (not Alliance or NAP)",
         "Invasion":        "Additional per other player Army in your Uncontested Territory at War",
         "State of Alarm":  "If at War",
@@ -3473,6 +3475,9 @@ GLOSSARY.update({
                  + CHAIN_TERM + ", anywhere in your empire; this is checked only when you start it. A Holding placed in the "
                  "same Settlement Ward as its immediate parent shares that Ward, and the chain can continue upward the same way. "
                  "Each Holding carries at most one descendant in its Ward. (Core Principle 13.)"),
+    SHUTTER_TERM: ("A Holding or Infrastructure set inactive while you're Insolvent because its upkeep went unpaid. "
+                   "It gives no effect and pays no upkeep, but its upkeep still counts toward what you owe. It's restored at "
+                   "any Income & Upkeep step where you can pay its upkeep."),
     "Speed X":         f"An Army's movement range in Territories per Move action. Base Speed value of an army is Speed {RETINUES['Levy']['speed']}",
     "Pursuit":   (f"An object that is placed into a Settlement Ward or onto a Root Holding as a result of a "
                   f"Build action, giving effects which affect your Empire in many ways."),
@@ -3684,7 +3689,7 @@ GLOSSARY_CATEGORIES = [
     ('Domains & Scoring', ['Renown', 'Domain', 'Domain Point', 'Standing', 'Standing Rank', 'Edict', 'Monument']),
     ('Actions', ['Muster', 'Build', 'Improve', 'Repair', 'Settle', 'Expand', 'Move', 'Demand Tribute', 'Diplomacy']),
     ('Treaties', ['Treaty', 'Alliance', 'At War', 'Vassal', 'Suzerain']),
-    ('Economy & Public Order', ['Public Order', 'Faith X', 'Doubt X', 'Extort X', 'Recoup X', 'Upkeep', 'Craft', 'Can Trade', 'War Weariness']),
+    ('Economy & Public Order', ['Public Order', 'Faith X', 'Doubt X', 'Extort X', 'Recoup X', 'Upkeep', SHUTTER_TERM, 'Craft', 'Can Trade', 'War Weariness']),
     ('Settlements & Holdings', ['Settlement Ward', 'Pursuit', 'Root', 'Natural', CHAIN_TERM, CHAIN_TERM + " X"]),
     ('Timers', list(TIMERS)),
     ('Map & Range', ['Realm', 'Region', 'Territory', 'Province', 'Border', 'Controlled', 'Contested', 'Uncontested', 'Uncontrolled', 'Range X', 'Within', 'Adjacent', 'Next to', 'Reach', 'Reach X']),
@@ -3723,7 +3728,7 @@ GLOSSARY_SEE = {
     'Diplomacy': 'diplomacy-actions',
     'Treaty': 'treaties-alliances', 'Alliance': 'treaties-alliances', 'Vassal': 'vassalization', 'Suzerain': 'vassalization',
     'Public Order': 'public-order', 'Faith X': 'public-order', 'Doubt X': 'public-order',
-    'Upkeep': 'treasury-upkeep', 'Craft': 'who-can-trade', 'Can Trade': 'who-can-trade',
+    'Upkeep': 'treasury-upkeep', SHUTTER_TERM: 'insolvency-bankruptcy', 'Craft': 'who-can-trade', 'Can Trade': 'who-can-trade',
     'War Weariness': 'innate-public-order-modifiers',
     'Settlement Ward': 'settlement-wards', CHAIN_TERM: 'mastery-chain', CHAIN_TERM + " X": 'mastery-chain',
     'Root': 'root',

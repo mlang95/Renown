@@ -51,7 +51,7 @@ const POM=DATA.poModifiers||{faith:{},doubt:{}};
 function poModRows(b){b.poMods=b.poMods||{};const p=playerOfBoard(b),pid=p?String(p.id):null,rows=[];
   const auto={"Deficit":()=>boardMetrics(b).net<0?1:0,"State of Alarm":()=>playerAtWar(pid)&&!(p&&fxOf(p,"ignoreWar").length)?1:0,
     "War Weariness":()=>srcHas(b,"immune_war_weariness")?0:(+b.lossStreak||0),"Lasting Legacy":()=>b.lastBattle==="won"?1:0,
-    "Insolvency":()=>+b.insolv||0,"Mounting Panic":()=>p?besiegedCount(p):0,
+    "Bankruptcy":()=>+b.insolv||0,"Mounting Panic":()=>p?besiegedCount(p):0,
     "Local Unrest":()=>p?unrestCamps(p).length:0,
     "Border Tension":()=>p?intrudersOf(p).filter(x=>!x.ally).length:0,"Invasion":()=>p?intrudersOf(p).filter(x=>x.war).length:0};
   ["faith","doubt"].forEach(side=>Object.keys(POM[side]||{}).forEach(k=>{const a=auto[k];

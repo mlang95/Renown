@@ -430,7 +430,7 @@ function runExpand(c){const o=c.o,b=o.board,v=c.sub.slice(2);if(c.sub==="hand"||
   withBoard(b,()=>settExpand(o,s,nt));c.log(o.name+" expands "+(s.name||s.tier)+" → "+nt+(s.bt>0?" · Build Timer "+s.bt:""));}
 function runImprove(c){const o=c.o,b=o.board,k=c.sub.slice(0,1),v=c.sub.slice(2);if(c.sub==="hand"){c.pend("no Infrastructure placed yet");return;}
   const blk=withBoard(b,()=>scopeBlock(v,null));if(blk){c.flag(blk);return;}
-  const t=withBoard(b,()=>{(k==="w"?S.wonders:S.infra)[v]=1;itm();const t=gameStarted()?infraBuildTime(v):0;if(t>0)S.itimer[v]=t;return t;});
+  const t=withBoard(b,()=>{(k==="w"?S.wonders:S.infra)[v]=1;itm();const t=gameStarted()?infraBuildTime(v):0;if(t>0)S.itimer[v]=t;wonderStart(v,t);return t;});
   c.log(o.name+" builds "+v+(t>0?" · Build Timer "+t:""));
   D.players.forEach(q=>{const h=facHit(q.board,"build_edict");if(h&&h[1]===v&&!sameP(q,o))c.flag(q.name+" ("+q.board.faction+"): must "+h[2]+" "+o.name+"'s "+v+" as an Edict");});}
 function runSettle(c){const o=c.o,b=o.board;b.settlements=b.settlements||[];const s={id:nextId(b.settlements),tier:"Village"};nameSett(o,s);

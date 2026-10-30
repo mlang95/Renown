@@ -83,7 +83,7 @@ function reindex(){
 reindex();
 
 let PC={};                              // name -> count (derived, active board)
-function pActive(p){return !(p.bt>0)&&!(p.dmg>0);}
+function pActive(p){return !(p.bt>0)&&!(p.dmg>0)&&!p.shut;}
 // who Damaged a piece: {by,pid,act,camp,t} on a Holding (x.dmgBy) or Infrastructure (b.idmgBy[name]); cleared when Repaired
 function dmgMark(src){return Object.assign({t:tTurn(),act:"Raze"},src);}
 function dmgSrc(d){if(!d)return "";return (d.camp?"Bandit "+d.act+" (camp @ "+d.camp+")":d.act+" by "+(d.by||"?"))+", T"+d.t;}
@@ -142,8 +142,19 @@ function infraBuildTime(n){return withBuildMod(infraBaseTime(n)).t;}
 function buildNote(base){const b=withBuildMod(base);return b.mod?" · Build Timer "+b.base+" → "+b.t+" ("+b.src.join(", ")+")":"";}
 function settBaseTime(t){return BTM[t]??(((DATA.settlements||{})[t]||{}).build_time)??0;}
 function settBuildTime(t){return withBuildMod(settBaseTime(t)).t;}
-function itm(){S.itimer=S.itimer||{};S.idmg=S.idmg||{};S.facInfra=S.facInfra||[];}
-function infraOn(n){itm();return !!(S.infra[n]||S.wonders[n])&&!(S.itimer[n]>0)&&!(S.idmg[n]>0);}
+function itm(){S.itimer=S.itimer||{};S.idmg=S.idmg||{};S.ishut=S.ishut||{};S.facInfra=S.facInfra||[];}
+function infraOn(n){itm();return !!(S.infra[n]||S.wonders[n])&&!(S.itimer[n]>0)&&!(S.idmg[n]>0)&&!S.ishut[n];}
+// Shuttered (Insolvency & Bankruptcy): a Holding / Infrastructure set inactive for unpaid upkeep. The toggle shows while
+// Insolvent, and on a piece that's already Shuttered (to restore it).
+function shutToggle(on,set){const SHUT=RC.SHUTTER_TERM||"Shuttered";const l=document.createElement("label");l.className="note";l.onclick=e=>e.stopPropagation();
+  const c=document.createElement("input");c.type="checkbox";c.checked=!!on;c.onchange=()=>{set(c.checked);save();render();};
+  l.appendChild(c);l.appendChild(document.createTextNode(" "+SHUT));return l;}
+// upkeep the Shuttered pieces would pay if active: still owed for leaving Insolvency
+function shutUpkeep(b){return withBoard(b,()=>{itm();const freeT=noUpkeepTiers();let u=0;
+  S.placed.forEach(p=>{if(!p.shut)return;p.shut=false;u+=pursuitUpkeep(p);p.shut=true;});
+  Object.keys(S.ishut).forEach(n=>{if(!S.ishut[n])return;
+    if(INFRA[n]&&S.infra[n]&&!S.facInfra.includes(n)&&!freeT[INFRA[n].tier])u+=INFRA[n].upkeep||0;else if(WON[n]&&S.wonders[n])u+=WON[n].upkeep||0;});
+  return u;});}
 let CHECKIN_ACT=false;   // an action performed at the Turn 1 check-in counts as a Turn 1 action (Build Timers)
 function checkinAct(f){CHECKIN_ACT=setupOn();try{return f();}finally{CHECKIN_ACT=false;}}
 function gameStarted(){return (S.turn||0)>0||tBegun()||CHECKIN_ACT;}   // Turn 1 counts once its first phase has begun (Builds get Build Timers)
@@ -157,7 +168,11 @@ function glogPush(b,d,why){b.glog=b.glog||[];const t=glogTurn(),last=b.glog[b.gl
   else b.glog.push({t,s:glogSea(),d,why:String(why||""),bal:+b.treasury||0,ts:now});
   if(b.glog.length>GLOG_MAX)b.glog.splice(0,b.glog.length-GLOG_MAX);b.gseen=+b.treasury||0;}
 function glogSync(b){if(!b)return;const t=+b.treasury||0;if(b.gseen==null){b.gseen=t;return;}if(t!==b.gseen)glogPush(b,t-b.gseen,"adjusted");}
-function tGold(b,d,why){d=Math.round(+d||0);if(!b||!d)return 0;glogSync(b);b.treasury=(+b.treasury||0)+d;glogPush(b,d,why);
+// Insolvent: set the moment the Treasury goes below 0; ends once the Treasury is above 0 and covers what's owed
+// (this Season's net, plus the upkeep of Shuttered pieces)
+function insolvent(b){const t=+b.treasury||0;if(t<0)b.insolvent=true;
+  else if(b.insolvent&&t>0&&t+Math.round(seasonNet(b).net||0)-shutUpkeep(b)>=0)delete b.insolvent;return !!b.insolvent;}
+function tGold(b,d,why){d=Math.round(+d||0);if(!b||!d)return 0;glogSync(b);b.treasury=(+b.treasury||0)+d;glogPush(b,d,why);if(b.treasury<0)b.insolvent=true;
   // Direct Recoup credits also trigger Black Market mastery. Envoy cost discounts
   // are handled where the Recoup is calculated because those are not credit entries.
   if(d>0&&/recoup/i.test(String(why||""))&&!/black market/i.test(String(why||""))){const recouper=D.players.find(p=>p.board===b);if(recouper)blackMarketReact(recouper,d,"black_market_recoup","Recoup");}
@@ -170,7 +185,8 @@ function empTimers(b){b.turn=(b.turn||0)+1;return tickTimers(b);}               
 function empEconomy(b){const sn=seasonNet(b),net=Math.round(sn.net||0),g0=b.treasury||0;
   if(b.autoNet){const sea=curSeason(),part=[["Income & upkeep",Math.round(sn.base||0)],[sea+" (Season)",Math.round(sn.seasonal||0)],["Winter tax",Math.round(sn.tax||0)],["Trade",Math.round(sn.trade||0)]];
     part[0][1]+=net-part.reduce((t,x)=>t+x[1],0);part.forEach(([k,v])=>tGold(b,v,k));}   // Winter tax, income, trade, upkeep (if auto-apply is on)
-  b.insolv=(b.treasury||0)<0?(+b.insolv||0)+1:0;                              // "Insolvency": consecutive Upkeep with negative Treasury
+  b.insolv=(b.treasury||0)<0?(+b.insolv||0)+1:0;                              // "Bankruptcy" Doubt: consecutive Upkeep with negative Treasury
+  insolvent(b);
   edictTick(b,"Wealth");                                                        // check the Treasury for the Wealth Edict
   return {sn,net,g0};}
 function empPO(b,done){const m=boardMetrics(b),p0=b.po||0,fd=m.po||0,pm=poModTotal(b);let dpo=fd+pm;
@@ -220,7 +236,7 @@ function expireBlocksTimed(){const M=mapState(),out=[];Object.keys(M.cells).forE
 function empirePhase(){const P=D.players,done={},log=[];P.forEach(p=>done[p.id]=[]);expireBlocks().forEach(x=>log.push(x));
   // 1-2. Standing effects are live; the Season was set in the Rest Phase.
   // 3. Timers, in order: Build, Repair (boards) · Truce, Siege (realm) · Muster (Armies) · Sack, Capture (realm) · any other realm timer
-  P.forEach(p=>empTimers(p.board).forEach(x=>done[p.id].push(x)));tickRealm(["Build Timer","Repair Timer"]);
+  P.forEach(p=>empTimers(p.board).forEach(x=>done[p.id].push(x)));wonderRace(done,log);tickRealm(["Build Timer","Repair Timer"]);
   tickRealm(["Truce Timer","Siege Timer"]);
   P.forEach(p=>musterTick(p).forEach(x=>done[p.id].push(x)));tickRealm(["Muster Timer"]);
   tickRealm(["Sack Timer","Capture Timer"]);
@@ -240,10 +256,11 @@ function empirePhase(){const P=D.players,done={},log=[];P.forEach(p=>done[p.id]=
   // 11. Endurance; Strained clears (Sack keeps its Army Strained)
   const ar={};P.forEach(p=>ar[p.id]=empArmies(p.board));sackLocks();
   return {rows:P.map(p=>Object.assign({pid:String(p.id),name:p.name,color:p.color},endRow(p.board,done[p.id],ec[p.id],po[p.id],ar[p.id]))),log};}
-function tickTimers(b){const done=[],pl=playerOfBoard(b),bs=sid=>!!pl&&settBesieged(pl,sid);
-  (b.placed||[]).forEach(p=>{if(bs(p.sid))return;if(p.bt>0){p.bt--;if(!p.bt)done.push("built "+p.name);}if(p.dmg>0&&p.rep){p.dmg--;if(!p.dmg){delete p.rep;delete p.dmgBy;done.push("repaired "+p.name);}}});
-  ["itimer","idmg"].forEach(k=>{const o=b[k]||{},rp=b.irep||{};Object.keys(o).forEach(n=>{if(k==="idmg"&&!rp[n])return;o[n]--;if(o[n]<=0){delete o[n];if(k==="idmg"){delete rp[n];if(b.idmgBy)delete b.idmgBy[n];}done.push((k==="itimer"?"built ":"repaired ")+n);}});});
-  (b.settlements||[]).forEach(s=>{if(bs(s.id))return;if(s.bt>0){s.bt--;if(!s.bt)done.push(settFinish(pl,s));}});
+// Build Timers halt while Insolvent
+function tickTimers(b){const done=[],pl=playerOfBoard(b),bs=sid=>!!pl&&settBesieged(pl,sid),halt=insolvent(b);
+  (b.placed||[]).forEach(p=>{if(bs(p.sid))return;if(p.bt>0&&!halt){p.bt--;if(!p.bt)done.push("built "+p.name);}if(p.dmg>0&&p.rep){p.dmg--;if(!p.dmg){delete p.rep;delete p.dmgBy;done.push("repaired "+p.name);}}});
+  ["itimer","idmg"].forEach(k=>{const o=b[k]||{},rp=b.irep||{};Object.keys(o).forEach(n=>{if(k==="idmg"&&!rp[n])return;if(k==="itimer"&&halt)return;o[n]--;if(o[n]<=0){delete o[n];if(k==="idmg"){delete rp[n];if(b.idmgBy)delete b.idmgBy[n];}done.push((k==="itimer"?"built ":"repaired ")+n);}});});
+  (b.settlements||[]).forEach(s=>{if(bs(s.id)||halt)return;if(s.bt>0){s.bt--;if(!s.bt)done.push(settFinish(pl,s));}});
   return done;}
 // pursuit upkeep: PURSUIT_UPKEEP_BY_TYPE, else PURSUIT_UPKEEP_DEFAULT; faction pieces pay none
 const PUP=DATA.pursuitUpkeep||{byType:{},def:0};
@@ -510,7 +527,7 @@ function eraAllows(t,id){
   return {ok:true};
 }
 // flags that point at a rules section (rulebook anchors use the same slug as rules_payload)
-const FLAG_RULE=[[/^Treasury negative/,"Insolvency & Bankruptcy"],[/^Settle:/,"Chartering Settlements"],[/Muster Field/,"Mustering"]];
+const FLAG_RULE=[[/^Treasury negative|^Insolvent/,"Insolvency & Bankruptcy"],[/^Settle:/,"Chartering Settlements"],[/Muster Field/,"Mustering"]];
 function rslug(t){return "rb-"+String(t).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");}
 function boardFlags(){
   const f=[],era=currentEra();
@@ -520,7 +537,7 @@ function boardFlags(){
   pendingOf(S).forEach(x=>f.push(x.act+" performed (turn "+x.turn+") — "+x.msg));
   const aCap=eraCap("armies");if(aCap!=null&&S.armies.length>aCap)f.push("Armies "+S.armies.length+" / "+aCap+" allowed in "+era+capSrc("armies"));
   if(!capitalSett())f.push("No capital set");
-  if((S.treasury||0)<0)f.push("Treasury negative — Insolvency");
+  if((S.treasury||0)<0)f.push("Treasury negative — Insolvency");else if(S.insolvent)f.push("Insolvent — Build Timers halted");
   {const me=playerOfBoard(S);if(me){charterFlags(me).forEach(x=>f.push(x));
     if((S.armies||[]).some(a=>a.muster&&a.muster.n>0)&&!hasMusterField(S))f.push("Mustering without an active Muster Field");
     srcMatch(S,"no_alliance").forEach(x=>{if(D.players.some(q=>sameAlliance(String(q.id),String(me.id))))f.push(x.n+": can't be in an Alliance");});}}
@@ -550,7 +567,22 @@ function boardFlags(){
 function onBoard(name){return S.placed.some(p=>p.name===name);}      // one of each name, anywhere
 // Scope (rarity): Settlement = one per Settlement · Empire = one per player · Realm = one per game (placed or building counts)
 function scopeOf(n){return ((R[n]||INFRA[n]||WON[n]||{}).scope)||"Empire";}
-function realmHolder(n,b){b=b||S;return D.players.find(q=>q.board!==b&&((q.board.placed||[]).some(x=>x.name===n)||!!(q.board.infra||{})[n]||!!(q.board.wonders||{})[n]))||null;}
+function realmHolder(n,b){b=b||S;return D.players.find(q=>q.board!==b&&!wonderRacing(q.board,n)&&((q.board.placed||[]).some(x=>x.name===n)||!!(q.board.infra||{})[n]||!!(q.board.wonders||{})[n]))||null;}
+// Wonder races (Principle 14.3): a Wonder under its Build Timer doesn't take it, so several players may build it at once
+function wonderRacing(b,n){return !!WON[n]&&!!(b.wonders||{})[n]&&(b.itimer||{})[n]>0&&!(b.facInfra||[]).includes(n);}
+function wonderStart(n,t){if(WON[n]&&t>0)(S.wstart=S.wstart||{})[n]=tTurn();}
+// after Build Timers: of the builds that resolved, the earliest-started takes the Wonder and every other build of it is lost;
+// if the earliest started on the same turn, each of those holds at Build Timer 1
+function wonderRace(done,log){Object.keys(WON).forEach(n=>{
+  const P=D.players.filter(p=>(p.board.wonders||{})[n]&&!(p.board.facInfra||[]).includes(n)),fin=P.filter(p=>done[p.id].includes("built "+n));
+  if(P.length<2||!fin.length)return;
+  const st=p=>+((p.board.wstart||{})[n])||0,t0=Math.min(...fin.map(st)),lead=fin.filter(p=>st(p)===t0),sw=(a,x,y)=>{const i=a.indexOf(x);if(i>=0)a[i]=y;};
+  if(lead.length>1){lead.forEach(p=>{p.board.itimer[n]=1;sw(done[p.id],"built "+n,n+": tied — Build Timer stays at 1");});
+    log.push(n+": "+lead.map(p=>p.name).join(", ")+" tie — Build Timers stay at 1");}
+  // a winner ends every other build; a tie ends only the later-started builds that also resolved
+  (lead.length>1?fin:P).filter(p=>!lead.includes(p)).forEach(p=>{const b=p.board;delete b.wonders[n];if(b.itimer)delete b.itimer[n];if(b.wstart)delete b.wstart[n];
+    const m=n+": build lost — "+(lead.length>1?lead.map(q=>q.name).join(", ")+" began first":lead[0].name+" built it first");sw(done[p.id],"built "+n,m);if(!done[p.id].includes(m))done[p.id].push(m);log.push(p.name+" · "+m);});
+  if(lead.length===1&&lead[0].board.wstart)delete lead[0].board.wstart[n];});}
 function scopeBlock(n,sid){const sc=scopeOf(n);
   if(sc==="Realm"){const h=realmHolder(n);if(h)return n+": "+h.name+" has it (Realm — one per game)";}
   if(sc==="Settlement")return sid!=null&&!hamletRepeat(n,sid)&&occupants(sid).some(o=>o.name===n)?n+": already in this Settlement (one per Settlement)":"";

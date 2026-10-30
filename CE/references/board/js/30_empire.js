@@ -196,7 +196,7 @@ function addInfraByName(kind,n){                   // kind "infra" | "wonder"; s
   kind=WON[n]?"wonder":"infra";                      // Wonders are the Wondrous tier: one catalog list
   {const blk=scopeBlock(n,null);if(blk){flash(blk);return;}}
   (kind==="infra"?S.infra:S.wonders)[n]=1;itm();
-  let bn="";if(gameStarted()){const t=infraBuildTime(n);if(t>0)S.itimer[n]=t;bn=buildNote(infraBaseTime(n));}save();render();renderList();flash(n+(bn||" added"));}
+  let bn="";if(gameStarted()){const t=infraBuildTime(n);if(t>0)S.itimer[n]=t;wonderStart(n,t);bn=buildNote(infraBaseTime(n));}save();render();renderList();flash(n+(bn||" added"));}
 // place one Holding on the board S (Scope already checked): best efficient pairing, else pref / capital / any free Ward, else Unplaced
 function placeHolding(n,pref,forcedSid){
   // Natural Pursuits fill Hamlets first (the only Pursuits a Hamlet takes); everything else: active settlement, capital, the rest
@@ -1043,6 +1043,7 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
   if(inst.bt>0)sec.appendChild(timerCtl("build",inst.bt,d=>{inst.bt=Math.max(0,inst.bt+d);save();render();}));
   if(inst.dmg>0)sec.appendChild(timerCtl("repair",inst.dmg,d=>{inst.dmg=Math.max(0,inst.dmg+d);save();render();}));
   if(inst.dmg>0&&inst.dmgBy){const ds=document.createElement("span");ds.className="neg";ds.textContent=dmgSrc(inst.dmgBy);sec.appendChild(ds);}
+  if((S.insolvent||inst.shut)&&!inst.fac&&!NATURAL.has(n)&&!(inst.bt>0)&&!(inst.dmg>0))sec.appendChild(shutToggle(inst.shut,v=>{if(v)inst.shut=true;else delete inst.shut;}));
   if(open){const bb=document.createElement("button");bb.textContent="build timer";
       bb.onclick=e=>{e.stopPropagation();const t=pursuitBuildTime(n);if(t>0){inst.bt=t;save();render();flash(n+" Build Timer "+t+buildNote(pursuitBaseTime(n)));}else flash(n+": Build Timer 0 — builds immediately"+buildNote(pursuitBaseTime(n)));};
     const db=document.createElement("button");db.textContent=inst.dmg>0?"repaired":"damage";
@@ -1116,8 +1117,10 @@ function renderInfraSection(kind,src,have,hideCombat){
     if(S.itimer[n]>0)h.appendChild(timerCtl("build",S.itimer[n],d=>{S.itimer[n]=Math.max(0,S.itimer[n]+d);if(!S.itimer[n])delete S.itimer[n];save();render();}));
     if(S.idmg[n]>0)h.appendChild(timerCtl("repair",S.idmg[n],d=>{S.idmg[n]=Math.max(0,S.idmg[n]+d);if(!S.idmg[n])delete S.idmg[n];save();render();}));
     if(S.idmg[n]>0&&dmgSrcOf(S,n)){const ds=document.createElement("span");ds.className="neg";ds.textContent=dmgSrcOf(S,n);h.appendChild(ds);}
+    if((S.insolvent||S.ishut[n])&&!isFac&&!(S.itimer[n]>0)&&!(S.idmg[n]>0))h.appendChild(shutToggle(S.ishut[n],v=>{if(v)S.ishut[n]=1;else delete S.ishut[n];}));
+    if(S.ishut[n])card.classList.add("inactive");
     if(!isFac){const rm=document.createElement("button");rm.className="rm";rm.textContent="✕";
-      rm.onclick=(e)=>{e.stopPropagation();delete have[n];delete S.itimer[n];delete S.idmg[n];save();render();renderList();};h.appendChild(rm);}
+      rm.onclick=(e)=>{e.stopPropagation();delete have[n];delete S.itimer[n];delete S.idmg[n];delete S.ishut[n];save();render();renderList();};h.appendChild(rm);}
     h.onclick=()=>{S.eqOpen=S.eqOpen||[];const i=S.eqOpen.indexOf(n);if(i<0)S.eqOpen.push(n);else S.eqOpen.splice(i,1);save();render();};
     card.appendChild(h);
     if(!rs.ok&&rf==="on"){const mm=document.createElement("div");mm.className="miss";mm.textContent="missing: "+rs.missing.join(", ")+" ";

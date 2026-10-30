@@ -104,7 +104,7 @@ A few conventions make every rule in this book read the same way:
 14. **Scope.** Each Holding and Infrastructure has a Scope that limits how many of it can exist.
     14.1 *Settlement* — one per Settlement (Raw Materials). Exception: a Hamlet may hold more than one {{VAL:HAMLET_REPEATABLE_TEXT}}.
     14.2 *Empire* — one per player (every other Holding and Infrastructure).
-    14.3 *Realm* — one per game (Monuments and Wonders). A Realm piece is taken once any player has placed it, including while it's under construction.
+    14.3 *Realm* — one per game (Monuments and Wonders). A Monument is taken once any player has placed it, including while it's under construction. A Wonder is taken only once it's built: any number of players may build the same Wonder at once, and the first whose Build Timer resolves takes it; every other build of it is lost. If several resolve in the same Empire Phase, the one whose build began on the earliest turn takes it; if the earliest began on the same turn, each of those Build Timers stays at 1.
 
 15. **Nothing below zero.** An effect that reduces an amount — income, cost, Influence, Speed, Retinues — stops at 0. *Example: Recession can't make a Settlement's tax income negative.* Only your Treasury (see Insolvency & Bankruptcy) and Public Order (down to {{VAL:PO_MIN}}) go below 0.
 
@@ -444,7 +444,7 @@ Your innate Faith and Doubt — from Holdings, Infrastructure, and the modifiers
 
 Your Treasury is the gold you Control.{{IDX:Treasury}}{{IDX:Revenue}} Each Empire Phase you gain your Revenue (tax, trade, and Holding income) and pay your Upkeep (Armies, Holdings, and Infrastructure); the net lands in your Treasury. Costs you pay during the turn come out of the same Treasury.
 
-**Holding upkeep** and Build Timer follow the Holding's Standing requirement — {{VAL:HOLDING_COST_TEXT}}. Holdings and Infrastructure only pay upkeep while active: none while being built, Damaged, or under repair.
+**Holding upkeep** and Build Timer follow the Holding's Standing requirement — {{VAL:HOLDING_COST_TEXT}}. Holdings and Infrastructure only pay upkeep while active: none while being built, Damaged, under repair, or {{VAL:SHUTTER_TERM}}.
 
 **Army upkeep** = the sum of each Army's cost (by Retinue type) − Upkeep modifiers. Army costs by Retinue type: Levy {{VAL:RETINUES.Levy.cost}}, Man-at-Arms {{VAL:RETINUES.Man-at-Arms.cost}}, Sergeant {{VAL:RETINUES.Sergeant.cost}}, Knight Templar {{VAL:RETINUES.Knight Templar.cost}}.
 
@@ -457,9 +457,9 @@ Your Treasury is the gold you Control.{{IDX:Treasury}}{{IDX:Revenue}} Each Empir
 You go Insolvent the moment your Treasury can't cover a cost in full (at Upkeep, when paying for an action, or when an effect drains your gold). Pay what you can, then cut until the books balance, in this order:
 
 1. **Disband Armies**, one at a time, cheapest-upkeep first, until your Armies are gone.
-2. **Set buildings inactive**, highest-tier first (Monuments, then Established & Rising, then all other non-Natural Holdings).
+2. **Set buildings {{VAL:SHUTTER_TERM}}** (inactive), one at a time: Wonders, then Monuments, then Infrastructure, then non-Natural Holdings — within each, highest upkeep first.
 
-An inactive Holding gives no effect; Holdings built from it are unaffected. An inactive piece is restored at any future Income & Upkeep step where you can pay its upkeep. Build Timers halt while you're Insolvent.
+{{VAL:SHUTTER_TERM}} pieces give no effect and pay no upkeep; Holdings built from them are unaffected. Each {{VAL:SHUTTER_TERM}} piece is restored at any future Income & Upkeep step where you can pay its upkeep. Build Timers halt while you're Insolvent. Insolvency ends the moment your Treasury is above 0 and you can pay everything you owe, including the upkeep of your {{VAL:SHUTTER_TERM}} pieces.
 
 If you've cut everything and a debt still remains, you're Bankrupt: your Treasury goes negative by the unpaid amount (a Debt Marker). While Bankrupt you can't spend gold or be Extorted, and Build Timers stay halted; Revenue pays down the debt first. When your Treasury reaches 0 or above, Bankruptcy ends. *(If you're Vassalized while Bankrupt, the debt is forgiven and your Suzerain pays your Treasury up to a minimum of 0.)*
 
