@@ -22,8 +22,9 @@ settlement-board web app are all generated from one Python data file.
 | `renown_data.py` | build output copy; same content as d10 after a build |
 | `worldbuilding/renown_worldlore.py` | lore source (CE keeps its own lore copy; drift from Combatv3 is intended) |
 
-`SIMPLE` (env `RENOWN_SIMPLE`, default on) switches Pursuit→Holding naming, action names
-(Pursue→Build, Build→Improve) and other SIMPLE overrides at the bottom of the data file.
+`renown_data_d10.py` is SIMPLE-only: every value is written where it is defined (Holding wording, Build / Improve
+actions, culture Monument lists, Heritage pair/complements); no overlay rewrites it later. `SIMPLE = True` stays for
+the scripts that read it. The legacy (SIMPLE=0) data is frozen in `renown_data_d10_legacy.py` (reference only).
 Display layer: `NAME_DISPLAY` / `ALIASES` / `TERM_ENVOY_SCORE` rename what players read
 (`display_text`, `display_md`); dict keys stay canonical (e.g. glossary key `Pursuit` prints "Holding").
 

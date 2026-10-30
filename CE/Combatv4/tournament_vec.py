@@ -22,7 +22,7 @@ from vectorized_combat import run_matchup_vec, invalidate_tactic_tables
 
 
 # Realm-scope Holdings (Monuments): only ONE of each can exist in a game, so two loadouts that BOTH
-# hold the same one can never meet as opponents. Read from renown_data.HOLDING_SIM (SIMPLE_NODES).
+# hold the same one can never meet as opponents. Read from renown_data.HOLDING_SIM (NODES).
 import renown_data as _rd
 UNIQUE_BUILDINGS = tuple(sorted(n for n, h in _rd.HOLDING_SIM.items() if h["monument"]))
 

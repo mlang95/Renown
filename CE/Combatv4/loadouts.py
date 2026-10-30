@@ -413,7 +413,7 @@ BUILD_KITS = {
 # Holding model — Military Pursuit Count & Domain Count
 # ==============================================================================
 # Everything here is read from renown_data.HOLDING_SIM, which the data file derives from the
-# SIMPLE_NODES text ('innate' / 'unlock' / 'efficient' / 'root' / 'monument'). The legacy
+# NODES text ('innate' / 'unlock' / 'efficient' / 'root' / 'monument'). The legacy
 # per-node 'engine' field (hand-written sim tags, prereqs, per-Retinue upkeep, aliases) is retired.
 #
 #   tags      'innate' text -> tokens (renown_data.holding_combat_tags). Unlock tokens
@@ -917,7 +917,7 @@ def balanced_validation_pool(mpc_min=4, mpc_max=13, per_cell=None, seed=2026,
     """Large validation pool, balanced per (retinue x MPC), spanning ALL gear tiers and the full legal
     weapon/armor/shield cross. Gear first: each gear config's Holdings are the ones whose text unlocks
     it (gear_seed), closed over their Mastery Chain lines; then a Retinue unlock, <=1 upgrade, and
-    filler pad the build to each target MPC. Every rule is read from HOLDING_SIM (SIMPLE_NODES text).
+    filler pad the build to each target MPC. Every rule is read from HOLDING_SIM (NODES text).
     Args:
       per_cell: target builds per (retinue, MPC) cell. None = keep all legal; an int caps each cell.
       keep_shield_tier_rule: legacy comparison only (shield tier >= weapon tier).

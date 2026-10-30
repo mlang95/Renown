@@ -52,12 +52,10 @@ REM   recent tournament). 0 = dice_config file defaults. Set 0 before a print ru
 set USE_LAST_RUN=0
 
 REM ---- PURSUIT GRAPH ---------------------------------------------------------
-REM SIMPLE : 1 = SIMPLE_NODES (one-stage pursuits, efficient placement,
-REM          infrastructure_req), 0 = legacy NODES (innate + mastery).
-REM          Read by renown_data via the RENOWN_SIMPLE environment variable.
-REM          Only data files with a SIMPLE_NODES block honour it (d10 today).
-REM          SIMPLE=1 forces MODE=renown (Escalation
-REM          decks are built from the legacy nodes' escalation data).
+REM SIMPLE : renown_data_d10.py is SIMPLE-only (one-stage Holdings, Mastery Chain placement,
+REM          infrastructure_req) and ignores RENOWN_SIMPLE. Keep 1: it still picks RULES_push_simple.md,
+REM          MODE=renown and the _simple lab folder below. The legacy (0) data is frozen in
+REM          renown_data_d10_legacy.py and no build reads it.
 set SIMPLE=1
 set RENOWN_SIMPLE=%SIMPLE%
 
