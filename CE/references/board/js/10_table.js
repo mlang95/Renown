@@ -765,7 +765,7 @@ function refRawAvail(){if(!REF_RAW)return null;const raws=mapRaws();if(!raws)ret
   let ch=true;while(ch){ch=false;NAMES.forEach(n=>{if(ok.has(n))return;const e=effList(n);if((!e.length&&!R[n].root)||e.some(h=>ok.has(h))){ok.add(n);ch=true;}});}
   return ok;}
 function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.json next to the generator — tree unavailable.</div>';
-  const NH0=62,CG=44,RG=10,AV=Math.max(600,((document.getElementById("viewReference")||{}).clientWidth||window.innerWidth)-70),EC=["#2E5A8C","#9E2B25","#1c9c8c","#C6A024","#6A3D8F","#CC6A1A","#3a7d3a","#b5347a","#2b6f9e","#8a6d1a"],E0=T.edges||{},DC={Industry:"#2E5A8C",Prowess:"#9E2B25",Cunning:"#3a3a40",Piety:"#C6A024"};
+  const NH0=62,CG=44,RG=10,AV=Math.max(600,((document.getElementById("viewReference")||{}).clientWidth||window.innerWidth)-70),EC="#6a6a72",E0=T.edges||{},DC={Industry:"#2E5A8C",Prowess:"#9E2B25",Cunning:"#3a3a40",Piety:"#C6A024"};
   // box colour: the Domain of the highest Standing in the unlock (ties: the first listed)
   const dom=n=>{const u=(R[n]||{}).unlock_raw||"";let best="",bk=-1;
     for(const m of u.matchAll(/(Rising|Established|Sovereign)\s+(Industry|Prowess|Cunning|Piety)/g)){const k=ST_ORDER.indexOf(m[1]);if(k>bk){bk=k;best=m[2];}}
@@ -812,20 +812,20 @@ function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.
     const gapY=(row,down)=>down?RY[row]+RH[row]+RG/2:RY[row]-RG/2;
     const pick=(c,skip)=>c.find(p=>!hit(p,skip))||c[c.length-1];
     ks.forEach(n=>{const kids=(E[n]||[]).filter(k=>N[k]&&N[k][0]>N[n][0]);if(!kids.length)return;
-      // each parent gets its own lane (x offset by row) and colour, so merging lines stay traceable
-      const [x0,y0]=px(n),x1=x0+NW,y1=y0+nh(n)/2,fx=x1+8+(N[n][1]%4)*5,col=EC[N[n][1]%EC.length];
+      // each parent gets its own lane (x offset by row), so merging lines stay traceable; all edges one neutral grey (box borders carry the Domain colour)
+      const [x0,y0]=px(n),x1=x0+NW,y1=y0+nh(n)/2,fx=x1+8+(N[n][1]%4)*5,col=EC;
       kids.forEach(k=>{const [bx,by]=px(k),ey=entryY(k,n),tip=bx-1-AL,gx=bx-16-(N[n][1]%4)*5,down=ey>y1,gy=gapY(N[n][1],down);
         paths+=edge(col,pick([[[x1,y1],[fx,y1],[fx,ey],[tip,ey]],[[x1,y1],[gx,y1],[gx,ey],[tip,ey]],
           [[x1,y1],[fx,y1],[fx,gy],[gx,gy],[gx,ey],[tip,ey]]],[n,k]));});});
     // same-column links: a lane in the gap left of the column (downward and upward links get separate lanes)
     // zag: a link into the box directly above/below (same column, next row) is a straight vertical step
-    ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]===N[n][0]&&Math.abs(N[k][1]-N[n][1])===1).forEach(k=>{const [x0,y0]=px(n),[,by]=px(k),dn=by>y0,cx=x0+Math.round(NW/2),col=EC[N[n][1]%EC.length];
+    ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]===N[n][0]&&Math.abs(N[k][1]-N[n][1])===1).forEach(k=>{const [x0,y0]=px(n),[,by]=px(k),dn=by>y0,cx=x0+Math.round(NW/2),col=EC;
       paths+=edge(col,[[cx,dn?y0+nh(n):y0],[cx,dn?by-1-AL:by+nh(k)+1+AL]]);}));
-    ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]===N[n][0]&&Math.abs(N[k][1]-N[n][1])!==1).forEach(k=>{const [x0,y0]=px(n),[,by]=px(k),dn=by>y0,lx=x0-(dn?14:26),col=EC[N[n][1]%EC.length],
+    ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]===N[n][0]&&Math.abs(N[k][1]-N[n][1])!==1).forEach(k=>{const [x0,y0]=px(n),[,by]=px(k),dn=by>y0,lx=x0-(dn?14:26),col=EC,
         sy=y0+nh(n)/2+(dn?6:-6),ty=by+nh(k)/2+(dn?-6:6);
       paths+=edge(col,[[x0,sy],[lx,sy],[lx,ty],[x0-1-AL,ty]]);}));
     // backward links (a Mastery that needs a later Holding): dashed, leaving left, running in the row gap, entering the child's right edge
-    ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]<N[n][0]).forEach(k=>{const [x0,y0]=px(n),[bx,by]=px(k),rx=bx+NW+12,col=EC[N[n][1]%EC.length],
+    ks.forEach(n=>(E[n]||[]).filter(k=>N[k]&&N[k][0]<N[n][0]).forEach(k=>{const [x0,y0]=px(n),[bx,by]=px(k),rx=bx+NW+12,col=EC,
         sy=y0+nh(n)-8,ty=by+nh(k)-8,lx=x0-12,down=by>=y0,gy=gapY(N[n][1],down);
       const pts=pick([[[x0,sy],[rx,sy],[rx,ty],[bx+NW+1+AL,ty]],[[x0,sy],[lx,sy],[lx,gy],[rx,gy],[rx,ty],[bx+NW+1+AL,ty]]],[n,k]);
       paths+='<g><title>'+esc(k)+' Mastery needs '+esc(n)+'</title>'+edge(col,pts,' stroke-dasharray="4 3"')+'</g>';}));
