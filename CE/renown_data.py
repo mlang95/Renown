@@ -152,7 +152,7 @@ GLOSSARY = {
 
     # ── Combat keywords ported from the Escalation Campaign glossary ──
     "AP":            "Armor Penetration — a weapon's (negative) modifier to the defender's Save roll; the more negative, the harder to save.",
-    "Blocked":       "Initiative -1 in the first Skirmish (negated by Immune Blocked). Armies with Blocked cannot perform Move actions.",
+    "Blocked":       "The next Move action this Army performs fails, and then it loses Blocked. (An Army with Immune Blocked never gains it.)",
     "Strained":      "Initiative -1 every Skirmish (negated by Immune Strain). Does not gain Endurance in the Empire Phase.",
     #"Improved Parry": "Your Parry succeeds on 4+ instead of 5+.",
     #"Heal X":        "At the end of each Skirmish, for every X casualties you took from Strikes, return 1 retinue to your Army.",
@@ -2327,7 +2327,7 @@ SIMPLE_NODES = {
     "Baggage Train": {
         "group": "g_logistics",
         "unlock": "Sovereign Prowess",
-        "innate": "Natural; Armies do not pay Upkeep while in your Province. Upkeep -2000 while not in your Province. At the Start of the Empire Phase, you may perform a Move action.",
+        "innate": "Natural; Gain Immune Blocked; Upkeep -2000; At the Start of the Empire Phase, you may perform a Move action.",
         "efficient": "Levy Hall",
         "monument": True},
     "Siege Camp": {
@@ -3822,7 +3822,7 @@ ACTIONS = {
         'domain': 'Cunning',
         'cost': '2000 gold',
         'requires': '',
-        'effect': f'Extort {CUNNING_EXTORT} from its target. Then, choose an army, that army gains Blocked until the end of next turn.',
+        'effect': f'Extort {CUNNING_EXTORT} from its target. Then, choose an army, that army gains Blocked.',
         'endorsed': f'Extort {CUNNING_EXTORT_ENDORSED}.',
         'notes': [],
     },

@@ -79,7 +79,16 @@ function armyStateTags(p,a){const t=[];
   {const im=immuneStrainIn(p,a);if(im)t.push({k:"note",txt:im+": Immune Strained (inside a controlled Settlement)"});}
   if(a.sackT)t.push({k:"sack",txt:"Sacking · Blocked & Strained until the Sack Timer resolves"});
   return t;}
-function armyBlocked(p,a){return !!a.blocked||!!a.sackT||(armyBesieged(p,a)&&!armyBesiegeExempt(p,a));}
+// Held: can't Move at all while it lasts — inside a besieged Settlement (except to Sally Forth) or Sacking (Sack Timer). Not Blocked.
+function armyHeld(p,a){return !!a.sackT||(armyBesieged(p,a)&&!armyBesiegeExempt(p,a));}
+// Blocked (one-shot): the Army's next Move action fails, then Blocked is removed (on the Army, or its map piece from Sabotage).
+// "Gain Immune Blocked" (Baggage Train): the player's Armies never have it.
+function armyBlocked(p,a){if(immuneBlocked(p))return false;if(a.blocked)return true;const k=armyHex(p,a);return cellBlocked(p,k?mapState().cells[k]:null);}
+function immuneBlocked(p){return !!p&&!!p.board&&srcHas(p.board,"immune_blocked");}
+function cellBlocked(p,cell){return !!(cell&&cell.type==="Army"&&cell.blocked)&&!immuneBlocked(p);}
+// a Blocked Army tries to Move: the Move fails and Blocked is spent
+function blockedMoveFails(p,a){delete a.blocked;delete a.blockedT;const k=armyHex(p,a),c=k?mapState().cells[k]:null;if(c&&c.type==="Army"){delete c.blocked;delete c.blockedT;}
+  const msg=p.name+": "+(a.label||("Army "+a.id))+"'s Move fails (Blocked) — Blocked removed";noteAdd(p,msg);flash(msg);}
 // ---- Garrisons: local Armies inside each Settlement while Garrison Infrastructure is active ----
 // sizes: each Settlement tier's Garrison value (SETTLEMENTS garrison)
 function garrisonSizes(){const SET=DATA.settlements||{},o={};Object.keys(SET).forEach(t=>{if(+SET[t].garrison>0)o[t]=+SET[t].garrison;});return o;}
@@ -327,7 +336,7 @@ function sackApply(i,wardIdx){const T=realmTimers(),t=T[i];if(!t)return;const fr
   const ti=TIER_CHAIN.indexOf(s.tier);if(ti>0){log.push(s.tier+" → "+TIER_CHAIN[ti-1]);s.tier=TIER_CHAIN[ti-1];}else log.push(s.tier+" stays "+s.tier);
   const x=extortGold({b:fb},{b:to.board},(+RC.SACK_EXTORT_PER_TIER||0)*tierN,"Sack");log.push("extort "+x.toLocaleString());
   const a=(to.board.armies||[]).find(z=>String(z.id)===String(t.aid)),uid="sk"+Date.now();
-  if(a){a.blocked=true;a.strained=true;a.sackT=uid;}
+  if(a){a.strained=true;a.sackT=uid;}
   T.push({type:"Sack Timer",kind:"sack",uid,by:to.id,aid:t.aid,label:to.name+" · sacked "+from.name+"'s "+(s.name||s.tier),n:+((TMR["Sack Timer"]||{}).default)||1});endSettlementSieges(t.tp,t.sid);
   flash("Sack: "+log.join(" · "));}
 // Bandit sieges always sack after winning their resolution battle; use the first Ward as the automatic choice.
@@ -340,14 +349,14 @@ function banditSack(t){if(!t||!t.bandit)return "";const from=pById(t.tp),s=from&
   const ti=TIER_CHAIN.indexOf(s.tier);if(ti>0){log.push(s.tier+" → "+TIER_CHAIN[ti-1]);s.tier=TIER_CHAIN[ti-1];}
   const extorted=extortGold({b:fb},{camp},(+RC.SACK_EXTORT_PER_TIER||0)*tierN,"Bandit Sack");log.push("extort "+extorted.toLocaleString()+" to Bandit Treasury");
   camp.sackTarget=String(t.tp)+":"+String(t.sid);
-  const a=banditArmy(camp),uid="bsk"+Date.now();a.blocked=true;a.strained=true;a.sackT=uid;
+  const a=banditArmy(camp),uid="bsk"+Date.now();a.strained=true;a.sackT=uid;
   realmTimers().push({type:"Sack Timer",kind:"sack",uid,bandit:t.bandit,label:"Bandits · sacked "+from.name+"'s "+(s.name||s.tier),n:+((TMR["Sack Timer"]||{}).default)||1});
   return "Bandit Sack: "+log.join(" · ");}
 function resolveRealm(){const T=realmTimers(),out=[];
   for(let i=T.length-1;i>=0;i--){const t=T[i];if(t.n>0)continue;
     if(t.kind==="capture"){out.push(captureTransfer(t));T.splice(i,1);}
-    else if(t.kind==="sack"){D.players.forEach(p=>(p.board.armies||[]).forEach(a=>{if(a.sackT===t.uid){a.blocked=false;delete a.sackT;}}));
-      if(t.bandit)Object.values(mapState().camps||{}).forEach(c=>{const a=c.army;if(a&&a.sackT===t.uid){a.blocked=false;delete a.sackT;}});
+    else if(t.kind==="sack"){D.players.forEach(p=>(p.board.armies||[]).forEach(a=>{if(a.sackT===t.uid){delete a.sackT;}}));
+      if(t.bandit)Object.values(mapState().camps||{}).forEach(c=>{const a=c.army;if(a&&a.sackT===t.uid){delete a.sackT;}});
       out.push("Sack Timer resolved: "+t.label);T.splice(i,1);}}
   return out;}
 function sackLocks(){const live=new Set(realmTimers().filter(t=>t.kind==="sack").map(t=>t.uid));
@@ -528,7 +537,9 @@ function moveEndTriggers(p,k){const own=terrOwners()[k],out=[];if(!own)return ou
     if(!ally)srcMatch(q.board,"beacon_move").forEach(x=>{
       const m=x.n+" ("+q.name+"): may immediately perform a Move action";out.push(m);noteAdd(q,m);});});
   return out;}
-function moveArmyTo(dk){const mi=moveInfo();if(!mi||!mi.dest||!mi.dest[dk])return false;if(armyBlocked(mi.p,mi.a)){flash("Blocked: this Army cannot perform a Move action");return false;}const M=mapState(),d=mi.dest[dk],p=mi.p,a=mi.a;
+function moveArmyTo(dk){const mi=moveInfo();if(!mi||!mi.dest||!mi.dest[dk])return false;
+  if(armyHeld(mi.p,mi.a)){flash("This Army can't Move "+(mi.a.sackT?"while Sacking":"while besieged (Sally Forth only)"));return false;}
+  if(armyBlocked(mi.p,mi.a)){blockedMoveFails(mi.p,mi.a);SEL=null;save();render();return false;}const M=mapState(),d=mi.dest[dk],p=mi.p,a=mi.a;
   const was=armyInside(p,a),from=was?(was.s.name||was.s.tier):mi.k;
   const ck=Object.keys(M.cells).find(k=>{const c=M.cells[k];return c.type==="Army"&&String(c.player)===String(p.id)&&cellArmy(k).a===a;});
   const old=ck?M.cells[ck]:null;if(ck)delete M.cells[ck];
@@ -563,11 +574,11 @@ function moveOverlay(R_,dx,dy,pts){const mi=moveInfo();if(!mi||!mi.dest)return "
   return s;}
 function movePanelHTML(){const mi=moveInfo();if(!mi)return "";
   if(mi.err)return '<div class="flagbox">⚑ '+esc(mi.err)+'</div>';
-  const S_=mi.speed,blk=(mapState().cells[mi.k]||{}).blocked||armyBlocked(mi.p,mi.a);
+  const S_=mi.speed,blk=armyBlocked(mi.p,mi.a),held=armyHeld(mi.p,mi.a);
   const v=armyVals(mi.a,armyUFor(mi.p));
   return '<div class="sec">Move</div><div><b>'+esc(armyName(mi.a))+'</b> — Speed <b>'+S_.speed+'</b> <span class="note">('+S_.parts.map(x=>esc(x[0])+' '+(x[1]>0?'+':'')+x[1]).join(' · ')+')</span>'+
     (S_.notes.length?'<div class="note">'+S_.notes.map(esc).join(' · ')+'</div>':'')+
-    (blk?'<div class="flagbox">⚑ Blocked: can’t perform Move actions</div>':'')+
+    (held?'<div class="flagbox">⚑ Can’t Move '+(mi.a.sackT?'while Sacking':'while besieged (Sally Forth only)')+'</div>':blk?'<div class="flagbox">⚑ Blocked: this Move will fail, then Blocked is removed</div>':'')+
     '<div class="bcrow"><label class="note"><input type="checkbox" id="mvMarch" data-nav="1"'+(MOVEMARCH?' checked':'')+'> March</label> adjust <input id="mvAdj" data-nav="1" type="number" value="'+MOVEADJ+'" style="width:46px"> <button id="mvCancel" data-nav="1">cancel</button>'+
     ' <span class="note">'+Object.keys(mi.dest).length+' reachable · click a lit hex'+(Object.values(mi.dest).some(d=>d.enter)?' · gold = enter Settlement':'')+(Object.values(mi.dest).some(d=>d.engage)?' · red = Battle / Lay Siege':'')+(Object.keys(mi.aura||{}).length?' · shaded = non-allied Presence':'')+'</span>'+(mi.inAura?'<div class="note">Inside a non-allied Presence: may only move out of it'+(Object.keys(mi.dest).length?'':' — no exit in reach, can\u2019t move')+'.</div>':'')+'</div></div>';}
 

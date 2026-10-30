@@ -160,7 +160,7 @@ function aiOutfit(p){let n=0;const B=battle(),inBattle=a=>!!B.id&&["A","B"].some
 // ---- Armies: Move like a Bandit Army (Battle > Lay Siege > March), toward Bandits and players at war ----
 function aiMoveTargets(p){const M=mapState(),own=terrOwners(),T=Object.keys(M.camps||{}).filter(k=>!M.camps[k].out).map(k=>({k,n:+M.camps[k].n||0,mine:!!(own[k]&&own[k].has(String(p.id))),why:(+M.camps[k].n>=(BAN.armyThreshold||25)?"Bandit Army":"Bandit Camp")+" ("+(+M.camps[k].n||0)+") @ "+k}));
   Object.keys(M.cells).forEach(k=>{const c=M.cells[k],q=cellPlayer(c);if(q&&!sameP(q,p)&&effPair(p.id,q.id).war)T.push({k,why:q.name+(c.type==="Army"?"'s Army":"'s Settlement")});});return T;}
-function aiMovable(p){return (p.board.armies||[]).filter(a=>(+a.endurance||0)>0&&!(a.muster&&a.muster.n>0)&&!armyBlocked(p,a)&&armyHex(p,a)&&(+a.count||0)>0);}
+function aiMovable(p){return (p.board.armies||[]).filter(a=>(+a.endurance||0)>0&&!(a.muster&&a.muster.n>0)&&!armyHeld(p,a)&&armyHex(p,a)&&(+a.count||0)>0);}
 // an Army hunts only at full strength (Muster to EQ.army_max first) and only engages what it outnumbers
 const aiFull=a=>(+a.count||0)>=(+EQ.army_max||25);
 // an Army takes on what it outnumbers; a full-strength, properly armed Army (better than Farm Tools) also meets an equal force

@@ -327,7 +327,9 @@ function runPillage(){const out=[],seen=new Set();D.players.forEach(p=>(p.board.
 // ---- Army states (Inspect rows + plate icons) ----
 function armyStatus(p,a,k){const L=[];if(!p||!a)return L;const cell=k?mapState().cells[k]:null,B=battle();
   {const im=immuneStrainIn(p,a);if(effStrained(p,a))L.push({st:"strained",txt:"Strained"+(!a.strained&&siegeStrains(p,a)?" (Besieged)":"")});else if(im)L.push({st:"endurance",txt:"Immune Strained ("+im+")"});}
-  if(armyBlocked(p,a)||(cell&&cell.blocked))L.push({st:"blocked",txt:"Blocked"+(a.sackT?" (Sacking)":"")+(cell&&cell.blocked?" (Sabotage"+(cell.blockedT!=null?", until the end of turn "+(cell.blockedT+1):"")+")":"")});
+  if(armyHeld(p,a))L.push({st:"blocked",txt:"Can't Move ("+(a.sackT?"Sacking":"Besieged")+")"});
+  if(armyBlocked(p,a))L.push({st:"blocked",txt:"Blocked: next Move fails"+(cellBlocked(p,cell)?" (Sabotage)":"")});
+  else if(immuneBlocked(p)&&(a.blocked||(cell&&cell.blocked)))L.push({st:"endurance",txt:"Immune Blocked"});
   if(+a.fatigue>0)L.push({st:"fatigue",txt:"Fatigue ×"+a.fatigue+" (Morale +"+((BT.fatigueMorale??2)*a.fatigue)+")"});
   if(isRouted(a))L.push({st:"routed",txt:"Routed"});
   if(a.muster&&a.muster.n>0)L.push({st:"muster",txt:"Mustering · Muster Timer "+(a.muster.t||0)+" · "+a.muster.n+" to go"});
@@ -923,7 +925,7 @@ function banditSiegeTimer(q,s){const keep=D.siege;D.siege={tp:q.id,sid:s.id,mode
 function banditArmyKeys(){const M=mapState(),thr=BAN.armyThreshold||25;return Object.keys(M.camps||{}).filter(k=>+M.camps[k].n>=thr);}
 function banditMoves(){const M=mapState();if(!M.grid)return;
   banditArmyKeys().forEach(k0=>{const cp=M.camps[k0];if(!cp)return;
-    if(cp.blocked){bLog("Bandit Army @ "+k0+" is Blocked (Sabotage) — no Move",k0);return;}
+    if(cp.blocked){delete cp.blocked;delete cp.blockedT;bLog("Bandit Army @ "+k0+": its Move fails (Blocked) — Blocked removed",k0);return;}
     if(cp.uid&&realmTimers().some(t=>t.kind==="siege"&&t.bandit===cp.uid)){bLog("Bandit Army @ "+k0+" holds its Siege",k0);return;}
     if(bq().some(o=>[o.A,o.B].some(sd=>sd&&sd.kind==="bandit"&&sd.camp===k0))){bLog("Bandit Army @ "+k0+" is in a queued Battle",k0);return;}
     const AU=banditAuraList(),sp=banditSpeed(cp),V=decodeGrid(M.grid),free=h=>!!V.hex[h]&&!M.cells[h]&&!M.camps[h]&&!M.wards[h];

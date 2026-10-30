@@ -208,7 +208,9 @@ function stepRealmTimer(x,w){if(x.type==="Siege Timer"){if(w&&!siegeWinterOK(x))
 function tickRealm(types){const w=curSeason()==="Winter";realmTimers().forEach(x=>{if(types.includes(x.type))stepRealmTimer(x,w);});}
 const TIMER_ORDER=["Build Timer","Repair Timer","Truce Timer","Siege Timer","Muster Timer","Sack Timer","Capture Timer"];
 // Sabotage: "gains Blocked until the end of next turn" — set in turn T, gone when turn T+2's Empire Phase begins
-function expireBlocks(){const M=mapState(),out=[];Object.keys(M.cells).forEach(k=>{const c=M.cells[k];if(c.blocked&&c.blockedT!=null&&tTurn()-c.blockedT>=2){delete c.blocked;delete c.blockedT;out.push("Army @ "+k+": Blocked (Sabotage) ends");}});
+// Blocked is one-shot (spent by the next Move), so nothing expires here any more; kept as the Empire Phase hook
+function expireBlocks(){return [];}
+function expireBlocksTimed(){const M=mapState(),out=[];Object.keys(M.cells).forEach(k=>{const c=M.cells[k];if(c.blocked&&c.blockedT!=null&&tTurn()-c.blockedT>=2){delete c.blocked;delete c.blockedT;out.push("Army @ "+k+": Blocked (Sabotage) ends");}});
   D.players.forEach(p=>(p.board.armies||[]).forEach(a=>{if(a.blocked&&a.blockedT!=null&&tTurn()-a.blockedT>=2){delete a.blocked;delete a.blockedT;out.push(p.name+" · "+(a.label||("Army "+a.id))+": Blocked (Sabotage) ends");}}));
   Object.keys(M.camps||{}).forEach(k=>{const cp=M.camps[k];if(cp.blocked&&cp.blockedT!=null&&tTurn()-cp.blockedT>=2){delete cp.blocked;delete cp.blockedT;out.push("Bandit Army @ "+k+": Blocked (Sabotage) ends");}});return out;}
 function empirePhase(){const P=D.players,done={},log=[];P.forEach(p=>done[p.id]=[]);expireBlocks().forEach(x=>log.push(x));

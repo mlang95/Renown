@@ -42,7 +42,7 @@ function cipherTimerResolve(ref){if(!ref)return null;if(ref.kind==="realm")retur
 function empWin(){return tPhase()==="empire"||setupOn();}
 function empireHoldingHTML(p,ci){if(!p||!empWin())return "";const pt=PT(p),used=pt.holdingActs||{},out=[],allArmies=D.players.flatMap(q=>(q.board.armies||[]).map(a=>({p:q,a,k:armyHex(q,a)}))).filter(x=>x.k),ownArmies=allArmies.filter(x=>sameP(x.p,p)),territory=terrOwners();
   const moves=srcMatch(p.board,"start_empire_move").map(x=>({src:x.n,key:"move:"+x.n,province:false})).concat(srcMatch(p.board,"beacon_start_move").map(x=>({src:x.n,key:"beacon:"+x.n,province:true})));
-  moves.forEach(m=>{if(+used[m.key]===tTurn())return;const avail=ownArmies.filter(x=>!armyBlocked(x.p,x.a)&&(!m.province||(territory[x.k]&&territory[x.k].has(String(p.id)))));
+  moves.forEach(m=>{if(+used[m.key]===tTurn())return;const avail=ownArmies.filter(x=>!armyHeld(x.p,x.a)&&(!m.province||(territory[x.k]&&territory[x.k].has(String(p.id)))));
     out.push('<div class="tb-row"><span style="flex:1">'+esc(m.src)+(m.province?' · Army in your Province':' · Move action')+'</span>'+ (avail.length?avail.map(x=>'<button data-do="holdMove" data-who="'+p.id+'" data-key="'+esc(m.key)+'" data-pid="'+x.p.id+'" data-aid="'+esc(x.a.id)+'">'+esc(x.p.name)+' · '+esc(armyName(x.a))+' ▸</button>').join(""):'<span class="note">No eligible unblocked Army on the map.</span>')+'</div>');});
   const cb=srcMatch(p.board,"cipher_block_army"),ct=srcMatch(p.board,"cipher_timer_plus"),c1=srcMatch(p.board,"cipher_choose_one").length>0,
     cUsed=c1&&(+used.cipherArmy===tTurn()||+used.cipherTimer===tTurn());   // "choose one": either row, not both
@@ -57,7 +57,7 @@ function empireHoldingHTML(p,ci){if(!p||!empWin())return "";const pt=PT(p),used=
   const st=(p.board.placed||[]).filter(x=>x.name==="Studium Generale"&&pActive(x)&&!x.fac),chosen=pt.studiumEffects||{};
   st.filter(x=>!chosen[String(x.id)]).forEach(x=>{const avail=T_DOMS.filter(d=>((p.board.domains||{})[d]||0)<SOV&&!Object.keys(chosen).some(k=>chosen[k]===d));
     out.push('<div class="tb-row"><span style="flex:1">Studium Generale · choose one free Sovereign Domain effect</span>'+ (avail.length?'<select id="studiumDomain-'+esc(x.id)+'">'+avail.map(d=>'<option value="'+d+'">'+d+' · '+esc(String((DBOARD[d]||{}).Sovereign||"").split(":").slice(1).join(":").trim())+'</option>').join("")+'</select><button data-do="studiumChoose" data-who="'+p.id+'" data-id="'+esc(x.id)+'">gain effect</button>':'<span class="note">No unselected Sovereign Domain effects available.</span>')+'</div>');});
-  standingPhaseActions(p).forEach(z=>{let control;if(z.action==="Move"){const pick="stMovePick-"+String(p.id).replace(/[^A-Za-z0-9_-]/g,"")+"-"+z.key.replace(/[^A-Za-z0-9_-]/g,"-"),arms=ownArmies.filter(x=>!armyBlocked(x.p,x.a));
+  standingPhaseActions(p).forEach(z=>{let control;if(z.action==="Move"){const pick="stMovePick-"+String(p.id).replace(/[^A-Za-z0-9_-]/g,"")+"-"+z.key.replace(/[^A-Za-z0-9_-]/g,"-"),arms=ownArmies.filter(x=>!armyHeld(x.p,x.a));
       control=arms.length?'<select id="'+pick+'">'+arms.map(x=>'<option value="'+esc(x.a.id)+'">'+esc(x.p.name)+' · '+esc(armyName(x.a))+'</option>').join("")+'</select><button data-do="standingMove" data-who="'+p.id+'" data-key="'+esc(z.key)+'" data-pick="'+pick+'">choose Army ▸</button>':'<span class="note">No eligible unblocked Army on the map.</span>';
     }else control=pfForm(z.env,null,"empire");
     out.push('<div class="tb-row"><span style="flex:1">'+esc(z.label||(z.source+' · '+z.fin+" "+z.action+" (Domain Standing)"))+'</span>'+control+'</div>');});
@@ -79,7 +79,7 @@ function courierDeferHTML(R,p){if(!p||tPhase()!=="envoy"||!canAct(p)||!srcMatch(
 DO.holdMove=el=>{const p=pOf(el),q=pById(el.dataset.pid),a=q&&(q.board.armies||[]).find(x=>String(x.id)===String(el.dataset.aid)),key=el.dataset.key;
   if(!p||!q||!a||!canAct(p)||!empWin())return;const pt=PT(p),used=pt.holdingActs||{};if(+used[key]===tTurn())return;
   if(key.startsWith("beacon:")&&!(terrOwners()[armyHex(q,a)]||new Set()).has(String(p.id))){flash("Beacon Towers can only move an Army in your Province");return;}
-  if(armyBlocked(q,a)){flash("That Army is Blocked");return;}pt.holdMove={turn:tTurn(),key,aid:String(a.id),armyPid:String(q.id),holderPid:String(p.id)};SEL={pid:String(q.id),aid:String(a.id)};INSP=armyHex(q,a);save();render();flash(p.name+": select a lit hex to perform the Move");};
+  if(armyHeld(q,a)){flash("That Army can't Move ("+(a.sackT?"Sacking":"besieged")+")");return;}pt.holdMove={turn:tTurn(),key,aid:String(a.id),armyPid:String(q.id),holderPid:String(p.id)};SEL={pid:String(q.id),aid:String(a.id)};INSP=armyHex(q,a);save();render();flash(p.name+": select a lit hex to perform the Move");};
 DO.cipherArmy=el=>{const p=pOf(el),v=(document.getElementById("cipherArmyPick")||{}).value||"",[pid,aid]=v.split(":"),q=pById(pid),a=q&&(q.board.armies||[]).find(x=>String(x.id)===aid);if(!p||!a||!canAct(p)||!empWin())return;
   const pt=PT(p),last=pt.cipherArmy||{};if(last.turn===tTurn()-1&&last.id===v){flash("Choose a different Army than last turn");return;}a.blocked=true;a.blockedT=tTurn();pt.cipherArmy={turn:tTurn(),id:v};pt.holdingActs=pt.holdingActs||{};pt.holdingActs.cipherArmy=tTurn();noteAdd(p,"Cipher Chamber: "+armyName(a)+" gains Blocked");save();render();};
 DO.cipherTimer=el=>{const p=pOf(el),raw=(document.getElementById("cipherTimerPick")||{}).value;if(!p||!canAct(p)||!empWin())return;let ref;try{ref=JSON.parse(raw);}catch(e){return;}const t=cipherTimerResolve(ref);if(!t||!(t.n>0))return;
@@ -97,7 +97,7 @@ DO.studiumChoose=el=>{const p=pOf(el),id=String(el.dataset.id),d=(document.getEl
   if(STANDING_ACT_RE.test(String(fx))){pt.standingPending=pt.standingPending||{};pt.standingPending[standingKey({free:true,id})]={due:tTurn()};}
   noteAdd(p,"Studium Generale: gained "+String(fx).split(":")[0]+" (free Sovereign "+d+" effect)");save();render();};
 DO.standingMove=el=>{const p=pOf(el),key=el.dataset.key,z=p&&standingPhaseActions(p).find(x=>x.key===key),raw=(document.getElementById(el.dataset.pick)||{}).value,a=p&&(p.board.armies||[]).find(x=>String(x.id)===String(raw));
-  if(!p||!z||z.action!=="Move"||!a||!canAct(p)||!empWin()||armyBlocked(p,a))return;
+  if(!p||!z||z.action!=="Move"||!a||!canAct(p)||!empWin()||armyHeld(p,a))return;
   const pt=PT(p);if(pt.holdMove&&pt.holdMove.turn===tTurn()){flash("Finish the pending Move action first");return;}
   pt.holdMove={turn:tTurn(),key:z.key,aid:String(a.id),armyPid:String(p.id),holderPid:String(p.id)};SEL={pid:String(p.id),aid:String(a.id)};INSP=armyHex(p,a);save();render();flash(p.name+": select a lit hex to perform the Domain Standing Move");};
 DO.standingPerform=el=>{const p=pOf(el),z=p&&standingPhaseActions(p).find(x=>x.id===el.dataset.env);if(!p||!z||!canAct(p)||!empWin())return;

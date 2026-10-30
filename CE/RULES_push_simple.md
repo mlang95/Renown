@@ -511,7 +511,7 @@ Retinue types — cost, to-Strike, and base profile:
 
 ### Blocked Armies
 
-A Blocked Army has Initiative -1 in the first Skirmish and can't perform Move actions. An Army gains **Blocked** while it's within a Settlement under Siege, or when it's selected as the result of a condemned Prowess Envoy.
+A Blocked Army's next Move action fails, and then it loses Blocked. An Army gains **Blocked** when it's selected as the result of a condemned Prowess Envoy, or from an effect that says so. *(Besieged and Sacking Armies can't Move for as long as that lasts; see Siege Warfare. That isn't Blocked.)*
 
 {{GLOSSARY:Army States}}
 
@@ -583,7 +583,7 @@ A Siege Timer is the sum of the besieged Settlement's defenses minus the attacke
 
 3. If you're attacked while sieging and you Fall Back, the Siege is broken and the Siege Timer is removed from play.
 
-4. While a Settlement is besieged: it can't count Holdings toward Craft X; its Armies gain **Strained**, and Blocked except to **Sally Forth**; Timers targeting the Settlement don't count down; and Industry actions can't target it.
+4. While a Settlement is besieged: it can't count Holdings toward Craft X; its Armies gain **Strained** and can't perform Move actions except to **Sally Forth**; Timers targeting the Settlement don't count down; and Industry actions can't target it.
 
 ### Resolving a Siege
 
@@ -595,7 +595,7 @@ When a Siege Timer reaches 0:
 
 3. If the besieging player wins, or there's no eligible Army or Garrison, choose one:
     - **Capture:**{{IDX:Capture}} set a Capture Timer {{VAL:TIMERS.Capture Timer.default}}. When it resolves, the Settlement comes under your Control — it receives your active Infrastructure effects, and you gain its Holdings, tax income, and Reach.
-    - **Sack:**{{IDX:Sack}} Raze the top-most Holding of each Ward in the Settlement, Extort {{VAL:SACK_EXTORT_PER_TIER}} per Settlement tier; reduce the Settlement by 1 tier. Its controller removes all Holdings from one Settlement Ward of the sacking player's choice, then removes that Ward from play. Set a Sack Timer {{VAL:TIMERS.Sack Timer.default}} — you can't Lay Siege again until it resolves. Your Army gains Blocked and Strained until the Sack Timer resolves.
+    - **Sack:**{{IDX:Sack}} Raze the top-most Holding of each Ward in the Settlement, Extort {{VAL:SACK_EXTORT_PER_TIER}} per Settlement tier; reduce the Settlement by 1 tier. Its controller removes all Holdings from one Settlement Ward of the sacking player's choice, then removes that Ward from play. Set a Sack Timer {{VAL:TIMERS.Sack Timer.default}} — you can't Lay Siege again until it resolves. Your Army is Strained and can't perform Move actions until the Sack Timer resolves.
 
 # Bandits
 

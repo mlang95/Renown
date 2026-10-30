@@ -109,6 +109,8 @@ REG = {
     "po_cap":              ("clause", "hiwf", r"Public Order can.t exceed (-?\d+)"),
     "po_floor":            ("clause", "hiwf", r"Public Order would ever be less than (-?\d+),? set it to (-?\d+)"),
     "immune_war_weariness":("clause", "hiwf", r"Immune War Weariness"),
+    # Baggage Train: your Armies never have Blocked (Siege, Sack, Sabotage, Cipher Chamber, a condemned Prowess Envoy)
+    "immune_blocked":      ("clause", "hiwf", r"^(?:Gain |Your Armies gain )?Immune Blocked"),
     "fd_per_empire":       ("clause", "hiwf", r"^(?:[^:]+:\s*)?(?:Gain )?(Faith|Doubt) \+(\d+) (?:per|each) Empire Phase$"),
     "sacred_war_each":     ("clause", "hiwf", r"Each other player gains (Doubt|Faith) \+(\d+) (?:per|each) Empire Phase per Sacred War you.re on"),
     "border_fd":           ("clause", "hiwf", r"Each bordering player gains (Doubt|Faith) \+(\d+)"),

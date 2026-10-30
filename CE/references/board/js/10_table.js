@@ -341,7 +341,7 @@ const AA={
   "Sabotage":{tgt:"player",opt:true,optLabel:"a Bandit Army",subNone:o=>banditArmyKeys().map(k=>({v:"b:"+k,label:"Bandit Army @ "+k+" ("+(+mapState().camps[k].n)+" Retinues)"})),
     sub:(o,q)=>{const M=mapState(),L=[];Object.keys(M.cells).forEach(k=>{const x=M.cells[k];if(x.type!=="Army"||String(x.player)!==String(q.id)||x.blocked)return;const a=cellArmy(k).a;L.push({v:"c:"+k,label:(a?(a.label||"Army "+a.id):"Army")+" @ "+k});});
       (q.board.armies||[]).filter(a=>armyInside(q,a)&&!a.blocked).forEach(a=>L.push({v:"a:"+a.id,label:(a.label||"Army "+a.id)+" (inside "+(armyInside(q,a).s.name||armyInside(q,a).s.tier)+")"}));return L;},
-    run:c=>{const k=c.sub.slice(2);if(c.sub[0]==="b"){const cp=mapState().camps[k];if(cp){cp.blocked=true;cp.blockedT=tTurn();c.log("Bandit Army @ "+k+" is Blocked until the end of turn "+(tTurn()+1));}return;}
+    run:c=>{const k=c.sub.slice(2);if(c.sub[0]==="b"){const cp=mapState().camps[k];if(cp){cp.blocked=true;cp.blockedT=tTurn();c.log("Bandit Army @ "+k+" gains Blocked (its next Move fails)");}return;}
       if(c.sub[0]==="c"){const x=mapState().cells[k];if(x){x.blocked=true;x.blockedT=tTurn();}}else{const a=(c.q.board.armies||[]).find(y=>String(y.id)===k);if(a){a.blocked=true;a.blockedT=tTurn();}}
       c.log(c.q.name+"'s Army is Blocked until the end of turn "+(tTurn()+1));}},
   "Spread Truth":{tgt:"none",run:c=>D.players.forEach(q=>{if(sameP(q,c.o))return;if(alliedP(c.o,q))c.faith(q,1);else c.doubt(q,1,false);})},
