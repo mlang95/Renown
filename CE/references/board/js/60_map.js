@@ -272,8 +272,8 @@ let PLACE_OPEN=false;
 function mapBarHTML(){const P=mapAsP(),ic=t=>t==="Army"?sprSVG("army:Levy",18,false,P.color):SETT_TIERS_MAP.includes(t)?sprSVG("map:"+t,18,false,P.color):t==="Bandit Camp"?sprSVG("map:camp",18,false):
     t==="Outlaw Country"?'<span class="olh"></span>':'✕';
   const pl=PLACE_OPEN||mtool!=="Select";
-  return '<div class="mapbar"><button data-mt="Select" data-nav="1" class="'+(mtool==="Select"?"on":"")+'" title="click a piece to inspect it; click your Army, then a lit hex, to move">Select</button>'+
-    '<button data-mplace="1" data-nav="1" class="'+(pl?"on":"")+'" title="place / erase map pieces (setup)">Place '+(pl?'▾':'▸')+'</button>'+
+  return '<div class="mapbar"><span class="mseg"><button data-mt="Select" data-nav="1" class="'+(pl?"":"on")+'" title="click a piece to inspect it; click your Army, then a lit hex, to move">Select</button>'+
+    '<button data-mplace="1" data-nav="1" class="'+(pl?"on":"")+'" title="place / erase map pieces">Place '+(pl?'▾':'▸')+'</button></span>'+
     (pl?'<span class="mpal">'+PLACE_TOOLS.map(t=>'<button data-mt="'+esc(t)+'" data-nav="1" title="'+esc(t)+'" class="'+(mtool===t?"on":"")+'">'+ic(t)+'<span>'+esc(t==="Outlaw Country"?"Outlaw":t==="Bandit Camp"?"Camp":t==="Metropolis"?"Metro":t)+'</span></button>').join("")+
       '<span class="note">as '+pTok(P,12)+' '+esc(P.name)+'</span></span>':'')+'</div>';}
 const SETT_TIERS_MAP=["Hamlet","Village","Town","City","Metropolis"];
@@ -656,14 +656,22 @@ function bLog(m,k){const b=BST(),t=b._t||tTurn();b.log.unshift("T"+t+" "+curSeas
 function hk(k){return k.split(",").map(Number);}
 function mapSetts(){const M=mapState();return Object.keys(M.cells).filter(k=>M.cells[k].type&&M.cells[k].type!=="Army").map(k=>({k,cell:M.cells[k]}));}
 function cellPlayer(cell){return D.players.find(p=>String(p.id)===String(cell.player))||null;}
-// map settlement → board settlement: explicit link, else the owner's only settlement of that tier
+// a board piece another of the owner's map pieces already links to by id (f = "sid" | "aid")
+function cellClaimed(f,p,id,k){const C=mapState().cells;return Object.keys(C).some(q=>q!==k&&String(C[q].player)===String(p.id)&&C[q][f]!=null&&String(C[q][f])===String(id));}
+// a piece just placed links to the owner's newest board piece of that type no hex has yet (the one just Settled / Mustered / added)
+function pinNewCell(p,k){const c=mapState().cells[k];if(!c)return;
+  if(c.type==="Army"){const free=(p.board.armies||[]).filter(a=>!cellClaimed("aid",p,a.id,k)),L=free.filter(a=>!armyInside(p,a)),I=free.filter(a=>armyInside(p,a));
+    if(L.length){c.aid=L[L.length-1].id;return;}
+    if(I.length){const a=I[I.length-1];c.aid=a.id;delete a.sid;delete a.inAlly;flash((a.label||"Army "+a.id)+" leaves its Settlement for this hex");}return;}
+  const L=(p.board.settlements||[]).filter(s=>s.tier===c.type&&!cellClaimed("sid",p,s.id,k));if(L.length)c.sid=L[L.length-1].id;}
+// map settlement → board settlement: explicit link, else the owner's only settlement of that tier no other hex links to
 function cellSett(k){const cell=mapState().cells[k];if(!cell)return {p:null,s:null};const p=cellPlayer(cell);if(!p)return {p:null,s:null};
   const ss=p.board.settlements||[];if(cell.sid!=null){const s=ss.find(x=>String(x.id)===String(cell.sid));if(s)return {p,s};}
-  const c=ss.filter(x=>x.tier===cell.type);return {p,s:c.length===1?c[0]:null};}
+  const c=ss.filter(x=>x.tier===cell.type&&!cellClaimed("sid",p,x.id,k));return {p,s:c.length===1?c[0]:null};}
 function mapArmies(){const M=mapState();return Object.keys(M.cells).filter(k=>M.cells[k].type==="Army").map(k=>({k,cell:M.cells[k]}));}
 function cellArmy(k){const cell=mapState().cells[k];if(!cell||cell.type!=="Army")return {p:null,a:null};const p=cellPlayer(cell);if(!p)return {p:null,a:null};
   const as=p.board.armies||[];if(cell.aid!=null){const a=as.find(x=>String(x.id)===String(cell.aid));if(a)return {p,a};}
-  return {p,a:as.length===1?as[0]:null};}
+  const c=as.filter(a=>!armyInside(p,a)&&!cellClaimed("aid",p,a.id,k));return {p,a:c.length===1?c[0]:null};}   // the only field Army no other hex links to
 function cellTitle(k){const cell=mapState().cells[k];if(!cell)return "";const p=cellPlayer(cell);
   const nm=cell.type==="Army"?(cellArmy(k).a?armyName(cellArmy(k).a):"Army — unlinked"):(cellSett(k).s?(cellSett(k).s.name||cellSett(k).s.tier):cell.type+" — unlinked");
   const ca=cell.type==="Army"?cellArmy(k):null,ast=ca&&ca.a?[...new Set(armyStatus(ca.p,ca.a,k).map(o=>o.txt))]:[];
@@ -696,6 +704,32 @@ function campWild(k){const M=mapState(),cp=M.camps[k];return (cp&&cp.wild)||(isW
 // zones to place: "formula" = floor(players / per_players) + plus; "fill" = as many as the ranges allow (null = no fixed count)
 function wildCount(){const W=BAN.wild||{};if(W.count==="fill")return null;return Math.floor((D.players||[]).length/(+W.per_players||2))+(+(W.plus??1));}
 function wildDone(){const M=mapState(),n=Object.keys(wildZones()).length,c=wildCount();return c==null?!!M.wildSeeded:n>=c;}
+// Deploy, auto (the simulator's layout): with the capital on the map, place p's Hamlet and Outlaw Country by the setup ranges.
+// The Hamlet goes exactly HAMLET_RANGE from the capital, toward the middle of the map ("in front"); Outlaw Country is seeded
+// exactly OUTLAW_BUFFER_RANGE from the capital (more than that from the Hamlet and every Settlement), inside p's Province,
+// behind the capital first, and grown compactly to OUTLAW_COUNTRY_START Territories. A layout that adds a charter flag is undone and the next tried.
+// Returns "" or why it couldn't.
+function autoDeploy(p){const M=mapState(),g=M.grid;if(!g)return "no map";const V=decodeGrid(g),W=+g.width,H=+g.height;
+  const cap=mapSetts().find(x=>String(x.cell.player)===String(p.id)&&x.cell.type==="Town");if(!cap)return "place your Town first";
+  const hr=+RC.HAMLET_RANGE||2,ob=+RC.OUTLAW_BUFFER_RANGE||2,size=+BAN.outlawStart||3,ctr=[Math.floor((W-1)/2),Math.floor((H-1)/2)],ck=hk(cap.k);
+  const land=k=>{const h=V.hex[k];return !!h&&h.t!=="water"&&h.t!=="mountain"&&!terrBlocked(h.t);};
+  const mineOC=()=>Object.keys(M.outlaw).filter(k=>M.outlaw[k]===true&&outlawOwner(k)&&sameP(outlawOwner(k),p));
+  const oldHam=mapSetts().find(x=>String(x.cell.player)===String(p.id)&&x.cell.type==="Hamlet");
+  const hams=oldHam?[oldHam.k]:Object.keys(V.hex).filter(k=>land(k)&&hexFree(k)&&hexDist(hk(k),ck)===hr).sort((a,b)=>hexDist(hk(a),ctr)-hexDist(hk(b),ctr));
+  if(!hams.length)return "no free hex at Range "+hr+" from the Town for the Hamlet";
+  const keepOC=mineOC().length>=size,base=new Set(charterFlags(p)),fresh=()=>charterFlags(p).some(f=>!base.has(f));   // flags the Town already had don't count
+  for(const hm of hams.slice(0,8)){if(!oldHam){M.cells[hm]={type:"Hamlet",player:p.id};pinNewCell(p,hm);}syncMapTiers();
+    if(keepOC)return "";
+    mineOC().forEach(k=>delete M.outlaw[k]);
+    const own=terrOwners(),mine=k=>own[k]&&own[k].has(String(p.id)),setts=mapSetts().map(x=>x.k);
+    const ok=k=>land(k)&&hexFree(k)&&!M.outlaw[k]&&mine(k)&&hexDist(hk(k),hk(hm))>ob&&setts.every(s=>hexDist(hk(k),hk(s))>=ob);
+    const seeds=Object.keys(own).filter(k=>ok(k)&&hexDist(hk(k),ck)===ob).sort((a,b)=>hexDist(hk(b),ctr)-hexDist(hk(a),ctr));   // behind the capital first
+    for(const s of seeds){const zone=[s];M.outlaw[s]=true;
+      while(zone.length<size){const nx=[...new Set(zone.flatMap(hexNb))].filter(ok).sort((a,b)=>hexDist(hk(a),hk(s))-hexDist(hk(b),hk(s)))[0];if(!nx)break;M.outlaw[nx]=true;zone.push(nx);}
+      if(zone.length>=size&&!fresh())return "";
+      zone.forEach(k=>delete M.outlaw[k]);}
+    if(!oldHam)delete M.cells[hm];}
+  return oldHam?"no room for Outlaw Country around this Hamlet — move it and try again":"no Hamlet / Outlaw Country layout fits without a flag";}
 // Setup (last step, after Deploy): scatter Wild zones over the unclaimed board. Every Wild hex is land (no Water / Mountains /
 // Impassable), free, at least Range border_range from every player's Province (Settlement Reach) and at least Range spacing from
 // every other Outlaw Country zone. Seeds go nearest the middle of the map first (random ties), so zones sit in the contested centre
@@ -1080,8 +1114,10 @@ function mapCellClick(k){const M=mapState();MAPSEL=k;
       else{const own=terrOwners(),nz=hexNb(k).map(q=>M.outlaw[q]).find(v=>typeof v==="string");   // joins a neighbouring Wild zone; outside every Province it starts one
         if(nz)M.outlaw[k]=nz;else if(own[k]&&own[k].size)M.outlaw[k]=true;else{let id=1;while(Object.values(M.outlaw).includes("w"+id))id++;M.outlaw[k]="w"+id;}}}
     else if(mtool==="Bandit Camp"){if(!M.camps[k])M.camps[k]={n:BAN.campStart||5,gold:+BAN.campGold||0};}
-    else{if(M.wards[k]){flash("a Settlement Ward stands there");return;}const P=mapAsP(),why=mtool==="Village"?settleWhere(P,k):"";M.cells[k]={type:mtool,player:P.id};
-      if(why){M.cells[k].settleWhy=why;flash("Settle: "+why);}}
+    else{if(M.wards[k]){flash("a Settlement Ward stands there");return;}
+      {const o=M.cells[k];if(o&&(o.type==="Army"||String(o.player)!==String(mapAsP().id))){flash((o.type==="Army"?"an Army":o.type)+" stands there"+(o.type==="Army"?"":" ("+(cellPlayer(o)||{}).name+")")+" — Erase it first");return;}}const P=mapAsP(),why=mtool==="Village"?settleWhere(P,k):"";M.cells[k]={type:mtool,player:P.id};pinNewCell(P,k);
+      if(why){M.cells[k].settleWhy=why;flash("Settle: "+why);}
+      mtool="Select";PLACE_OPEN=false;}
     save();render();}
 document.addEventListener("click",e=>{const el=e.target.closest&&e.target.closest("#rlMap [data-cell]");if(el)mapCellClick(el.dataset.cell);});
 function wireMap(host){const M=mapState(),g=M.grid,era=currentEra(),$=id=>host.querySelector("#"+id);
@@ -1094,8 +1130,8 @@ function wireMap(host){const M=mapState(),g=M.grid,era=currentEra(),$=id=>host.q
   if($("mFile"))$("mFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();
     rd.onload=()=>{try{const j=JSON.parse(rd.result);if(!j.terrain||!j.width)throw 0;M.grid=j;M.cols=j.width;M.rows=j.height;M.seed=String(j.seed);MAPVIEW=null;save();render();}
       catch(err){flash("not a renown-maps JSON export");}};rd.readAsText(f);};
-  host.querySelectorAll("[data-mt]").forEach(b=>b.onclick=()=>{mtool=b.dataset.mt;SEL=null;if(mtool!=="Select")INSP=null;render();});
-  host.querySelectorAll("[data-mplace]").forEach(b=>b.onclick=()=>{PLACE_OPEN=!PLACE_OPEN;if(!PLACE_OPEN&&mtool!=="Select"){mtool="Select";}render();});
+  host.querySelectorAll("[data-mt]").forEach(b=>b.onclick=()=>{mtool=b.dataset.mt;SEL=null;if(mtool!=="Select")INSP=null;else PLACE_OPEN=false;render();});
+  host.querySelectorAll("[data-mplace]").forEach(b=>b.onclick=()=>{PLACE_OPEN=true;render();});
   if($("mvMarch"))$("mvMarch").onchange=e=>{MOVEMARCH=e.target.checked;render();};
   if($("mvAdj"))$("mvAdj").onchange=e=>{MOVEADJ=Math.round(+e.target.value)||0;render();};
   if($("mvCancel"))$("mvCancel").onclick=()=>{const x=selArmy();if(x)D.players.forEach(q=>{const h=PT(q).holdMove;if(h&&String(h.armyPid)===String(x.p.id)&&String(h.aid)===String(x.a.id))delete PT(q).holdMove;});SEL=null;render();};

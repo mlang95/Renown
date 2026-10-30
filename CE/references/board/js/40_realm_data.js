@@ -147,7 +147,7 @@ function renderMiniStand(){const box=document.getElementById("miniStand");if(!bo
   if(MINI_OPEN!=null&&box.open!==MINI_OPEN)box.open=MINI_OPEN;
   const dv=S.domains||{},TI=[["Rising",RIS],["Established",EST],["Sovereign",SOV]],i=D.active,p=D.players[i]||{board:S};
   document.getElementById("miniStandSum").textContent=DOMAINS.map(d=>d.slice(0,3)+" "+(dv[d]||0)).join(" · ")+((S.dp||0)>0?" · "+S.dp+" pt to spend":"");
-  const pu=(d,t)=>Object.keys(R).filter(n=>new RegExp("^"+t+"\\s+"+d+"$","i").test(R[n].unlock_raw||"")).length;
+  const pu=(d,t)=>NAMES.filter(n=>new RegExp("^"+t+"\\s+"+d+"$","i").test(R[n].unlock_raw||"")).length;
   let h=dpButtons(p,i);
   h+=DOMAINS.map(d=>{const v=dv[d]||0,E=DBOARD[d]||{};
     return '<div class="dbk" style="--dc:'+DOMC[d]+'"><div class="dbk-h"><b>'+esc(d)+'</b><span class="note">'+v+' · '+domBand(v)+'</span></div>'+domTrackHTML(d,[p],canEdit(p))+

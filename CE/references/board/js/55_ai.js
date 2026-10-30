@@ -354,11 +354,11 @@ function aiCandidates(p){const s=aiSit(p),b=s.b,C=[],add=(dom,act,o)=>C.push(Obj
     if(!s.cash.ok&&s.pr.prowess_coded){const q=s.others.filter(q=>!alliedP(p,q)&&aiMil(q)<aiMil(p)).sort((x,y)=>(+y.board.treasury||0)-(+x.board.treasury||0))[0];
       if(q)add("Prowess","Demand Tribute",{tgt:String(q.id),serves:{economy:0.8},why:"Tribute from weaker "+q.name});}}
   // Diplomacy: treaties only with AI seats that would accept (and aren't already proposing to us)
-  s.others.filter(aiOn).forEach(q=>{const t=aiTreatyType(p,q);if(!t)return;const theirs=aiPlanFor(q,"Diplomacy");
+  if(!RC.PHASE_REFORM)s.others.filter(aiOn).forEach(q=>{const t=aiTreatyType(p,q);if(!t)return;const theirs=aiPlanFor(q,"Diplomacy");
     if(theirs&&theirs.act==="Sign Treaty"&&String(theirs.tgt)===String(p.id))return;const ac=aiTreatyAccept(q,p,t);if(!ac.ok)return;
     const tr=t==="Trade Agreement",pc=t==="Peace Treaty";
     add("Diplomacy","Sign Treaty",{tgt:String(q.id),treaty:t,serves:{diplomacy:1,economy:tr?s.econ*0.7:pc&&!s.cash.ok?0.6:0},why:t+" with "+q.name+" ("+q.name+": "+ac.why+")"});});
-  if(s.doms.includes("Cunning"))s.others.forEach(q=>{const x=effPair(p.id,q.id);if((x.trade||x.nap)&&aiFoe(p,q))add("Diplomacy","End Treaty",{tgt:String(q.id),serves:{diplomacy:0.7},why:"turn on "+q.name+" ("+aiFoe(p,q)+")"});});
+  if(s.doms.includes("Cunning")&&!RC.PHASE_REFORM)s.others.forEach(q=>{const x=effPair(p.id,q.id);if((x.trade||x.nap)&&aiFoe(p,q))add("Diplomacy","End Treaty",{tgt:String(q.id),serves:{diplomacy:0.7},why:"turn on "+q.name+" ("+aiFoe(p,q)+")"});});
   // Domain styles: an action done the culture's way serves that priority (economy / faith / bandits) and counts ×1.3
   const ST={economy:aiStyle(p,"economy"),faith:aiStyle(p,"faith"),bandits:aiStyle(p,"bandits")},need={economy:s.econ,faith:aiFaithNeed(p,ST.faith),bandits:Math.max(s.camps?0.3:0.1,s.bthreat)};
   C.forEach(c=>{const T=aiActTags(c);c.tags=[...T];
@@ -483,8 +483,9 @@ function aiTick(){if(!D.started&&!TB().begun)return false;if(!aiDriver())return 
   seated().filter(aiOn).forEach(p=>{
     if(aiOutfit(p))ch=true;
     if(ph==="rest"&&(p.board.dp||0)>0&&aiSpendDP(p))ch=true;
-    if(ph==="council"&&TB().phaseTs&&!isSpring()&&!tCur(p).council){const c=aiCouncilPick(p);tCurW(p).council={dom:c.dom,ts:tnow()};aiNote(p,"Council vote → "+c.dom+": "+c.why);ch=true;}
-    if(ph==="envoy"&&TB().phaseTs&&!(tCur(p).decl||{}).lock){aiDeclare(p);ch=true;}});
+    if(ph==="council"&&!councilDomNow()&&TB().phaseTs&&!isSpring()&&!tCur(p).council){const c=aiCouncilPick(p);tCurW(p).council={dom:c.dom,ts:tnow()};aiNote(p,"Council vote → "+c.dom+": "+c.why);ch=true;}
+    if(ph==="envoy"&&TB().phaseTs&&!(tCur(p).decl||{}).lock){aiDeclare(p);ch=true;}
+    if(TB().phaseTs&&dsOn()&&aiDiploStep(p))ch=true;});
   try{if(aiBattleTick())ch=true;}catch(e){console.warn("ai battle",e);}
   if((ph==="envoy"||ph==="council")&&TB().phaseTs){const R=tSim();
     seated().filter(aiOn).forEach(p=>{aiLearn(p,R);

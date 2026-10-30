@@ -3513,6 +3513,67 @@ for x0 in (0, 29):
             put(c, ["kkkk", "kyyk", "kyYk", "kkkk"], x0 + o + (1 if o == 13 else 0), y0)
 SPRITES["wonder:High Chancery"] = fin32(c)
 
+# The Grand Tribunal (High Chancery, as shown; the art above is kept for reuse): the law courts — a pedimented hall with
+# the scales of justice, a colonnade over broad steps, between two crenellated banner towers
+c = cv48()
+for x0 in (1, 37):
+    wall(c, x0, 12, 10, 30, "t")
+    courses(c, x0 + 1, 14, x0 + 7, 40)
+    cren(c, x0, 10, 10)
+    flag(c, x0 + 4, 2, "c", 8)
+    for y0 in (16, 24, 32):
+        win4(c, x0 + 3, y0)
+for i in range(7):
+    hw = 2 * i
+    for x in range(24 - hw, 24 + hw + 1):
+        c[13 + i][x] = "k" if x in (24 - hw, 24 + hw) or i == 6 else ("Z" if x > 24 + hw - 3 else "s")
+put(c, [".yyyyy.", "y..y..y", "yy.y.yy", "..yYy.."], 21, 15)          # scales: beam, two pans, base
+put(c, ["k" * 28, "k" + "s" * 24 + "ZZ" + "k", "k" * 28], 10, 20)
+for y in range(23, 38):
+    for x in range(11, 37):
+        c[y][x] = "d"
+for x0 in range(12, 36, 5):
+    put(c, ["kkkk"] + ["ksZk"] * 13 + ["kkkk"], x0, 23)
+for i, y in enumerate(range(38, 47)):
+    x0, x1 = 11 - i // 3, 36 + i // 3
+    hline(c, x0, x1, y, "k" if i % 2 == 0 else "s")
+    if i % 2:
+        c[y][x0] = c[y][x1] = "k"
+        for x in range(x1 - 3, x1):
+            c[y][x] = "Z"
+SPRITES["wonder:The Grand Tribunal"] = fin32(c)
+
+# Chancery (Embassy, as shown; "holding:Embassy" is kept for reuse): the sealing office — stone hall under a steep
+# slate gable, a great red wax seal on the gable with its ribbons hanging, clerks' windows either side of an arched door
+c = cv32()
+wall(c, 3, 15, 26, 16, "t")
+courses(c, 4, 17, 25, 29)
+roof(c, 16, 3, 12, "u")
+disc(c, 16, 10, [(1, "c"), (2.1, "y"), (3.2, "c")])                  # seal: red centre, gold ring, red rim
+line(c, 14, 13, 12, 17, "c")
+line(c, 18, 13, 20, 17, "c")
+for x0 in (6, 22):
+    win4(c, x0, 18)
+    win4(c, x0, 24)
+put(c, [".kkkk.", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk"], 13, 23)
+SPRITES["alt:Chancery gable"] = fin32(c)            # first draft, kept for reuse (not mapped to any piece)
+
+# Chancery (Embassy, as shown): the Embassy's colonnaded residence, its row of house flags given over to the great red
+# wax seal on the cornice, ribbons trailing over the frieze, red banners at the ends
+c = cv32()
+for x0 in (2, 26):
+    flag(c, x0, 3, "c", 7)
+put(c, ["k" * 32, "t" * 30 + "TT", "k" * 32], 0, 10)
+wall(c, 1, 13, 30, 18, "w")
+for x0 in (4, 9, 21, 26):
+    put(c, ["kkk"] + ["ktT"] * 16 + ["kkk"], x0, 13)
+line(c, 14, 8, 12, 15, "c")
+line(c, 18, 8, 20, 15, "c")
+disc(c, 16, 6, [(1, "c"), (2.1, "y"), (3.2, "c")])                   # seal: red centre, gold ring, red rim
+put(c, ["kkkk", "kyyk", "kyYk", "kkkk"], 14, 15)
+put(c, [".kkkk.", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk", "kddddk"], 13, 22)
+SPRITES["holding:Chancery"] = fin32(c)
+
 
 # ================================================================ BATCH 11: skylines + infrastructure
 # The far layer: the board fades these toward the sky, so each keeps its old footprint and only gains the 2-tone ramp.
@@ -5668,19 +5729,19 @@ def sprite_key(name, ns):
     """Sprite key for a Settlement tier, Wonder, Infrastructure, Monument or Holding name. None if unknown."""
     if name in ns.get("SETTLEMENTS", {}):
         return "sky:core:" + name if "sky:core:" + name in SPRITES else "tier:" + name
+    shown = ns.get("NAME_DISPLAY", {}).get(name)              # art drawn for the printed name wins (renamed pieces keep their old art)
     if name in ns.get("WONDERS", {}):
-        return "wonder:" + name
+        return "wonder:" + shown if shown and "wonder:" + shown in SPRITES else "wonder:" + name
     if name in ns.get("INFRASTRUCTURE", {}):
         return "inf:" + name if "inf:" + name in SPRITES else None
     node = ns.get("NODES", {}).get(name)
     if node:
         if node.get("type") == "Monument" and "monument:" + name in SPRITES:
             return "monument:" + name
+        if shown and "holding:" + shown in SPRITES:            # art keyed by the printed name (id Coliseum, shown Drill Yard)
+            return "holding:" + shown
         if "holding:" + name in SPRITES:
             return "holding:" + name
-        shown = ns.get("NAME_DISPLAY", {}).get(name)          # art keyed by the printed name (id Coliseum, shown Drill Yard)
-        if shown and "holding:" + shown in SPRITES:
-            return "holding:" + shown
         return "group:" + node.get("group", "")
     return None
 
@@ -5726,8 +5787,8 @@ def feet_key(raw_name):
 
 
 def _dims(key):
-    if key.startswith(("sky:", "inf:", "feet:", "prop:")):
-        return None          # free size: checked for consistency only
+    if key.startswith(("sky:", "inf:", "feet:", "prop:", "alt:")):
+        return None          # free size: checked for consistency only ("alt:" = spare art kept for reuse, mapped to nothing)
     if key.startswith(("monument:", "wonder:")):
         return S48, S48
     if key.startswith("eq:"):
@@ -5884,13 +5945,14 @@ def check(ns):
             out.append(f"{key}: not in RETINUES")
         if kind == "map" and name not in ns.get("SETTLEMENTS", {}) and name not in ("camp", "bandit_army")                 and not (name.startswith("camp:") and name[5:] in ("2", "3", "4")):
             out.append(f"{key}: not a settlement tier / camp / bandit_army")
-    known = set(ns.get("NODES", {})) | set(ns.get("WONDERS", {})) | set(ns.get("SETTLEMENTS", {}))
+    dep = set(ns.get("DEPRECATED_NODES", {}))                                     # deprecated Holdings: art kept for reuse
+    known = set(ns.get("NODES", {})) | dep | set(ns.get("WONDERS", {})) | set(ns.get("SETTLEMENTS", {}))
     known |= {v for k, v in ns.get("NAME_DISPLAY", {}).items() if k in known}   # art keyed by the printed name
     for key in SPRITES:
         kind, _, name = key.partition(":")
         if kind in ("monument", "wonder", "tier", "holding") and name not in known:
             out.append(f"{key}: name not in data")
-        if kind == "feet" and name not in raw:
+        if kind == "feet" and name not in raw and name not in dep:
             out.append(f"{key}: not a Raw Material")
     return out
 

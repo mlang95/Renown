@@ -12,6 +12,9 @@ derived from structure every build, so inserting a rule renumbers everything aft
   italic-only line               -> unnumbered (reminder / example / note)
   tables, {{BLOCK}} markers      -> unnumbered
 
+Build flags: {{IF:NAME}}…{{ELSE}}…{{ENDIF}} (or {{IF:!NAME}}) keeps the branch the data flag NAME picks
+(renown_data.NAME, e.g. PHASE_REFORM); resolved before numbering, so every reader sees one rulebook. No nesting.
+
 Anchors and cross-references (both markers are removed from the output):
   {{RULE:id}}  anywhere in a numbered line   -> registers id -> that line's number
   every heading                              -> registers slug(title) -> its number ("council-phase")
@@ -42,6 +45,8 @@ SEE_RE   = re.compile(r"\{\{SEE:([a-z0-9\-]+)\}\}")
 ITALIC_RE = re.compile(r"^\*(?!\*)[^*].*(?<!\*)\*\.?$")   # *whole line italic* (not **bold**)
 TAIL_MK  = re.compile(r"(\{\{(?:IDX|RULE):[^}]*\}\}|\s)+$")
 
+IF_RE    = re.compile(r"\{\{IF:(!?)(\w+)\}\}(.*?)(?:\{\{ELSE\}\}(.*?))?\{\{ENDIF\}\}", re.S)
+
 ANCHORS = {}          # id -> (number, section title)
 DUPLICATES = []       # {{RULE:id}} used more than once
 
@@ -59,6 +64,18 @@ def _letters(n):
     return s
 
 
+def conditionals(text):
+    """Keep the {{IF:NAME}} / {{ELSE}} branch the data flag picks (see module doc)."""
+    if "{{IF:" not in text: return text
+    rd = sys.modules.get("renown_data")
+    if rd is None:
+        import renown_data as rd
+    def pick(m):
+        on = bool(getattr(rd, m.group(2))) != bool(m.group(1))
+        return m.group(3) if on else (m.group(4) or "")
+    return IF_RE.sub(pick, text)
+
+
 def _indent(ws):
     return len(ws.replace("\t", "    "))
 
@@ -67,7 +84,7 @@ def number_md(text, mode="docx"):
     """Number a rules markdown. mode="docx" prints numbers; mode="plain" leaves the text unnumbered
     but still strips {{RULE:}} and resolves {{SEE:}} (for the wiki and the board)."""
     ANCHORS.clear(); DUPLICATES.clear()
-    lines = text.split("\n")
+    lines = conditionals(text).split("\n")
     out = []
     chapter, appendix = 0, 0
     heads = []            # stack of (level, number|None, child_count)
@@ -218,7 +235,7 @@ def resolve_plain(text):
 
 def check(path):
     """Return a list of problems: duplicate {{RULE:}} ids, unresolved {{SEE:}} ids, unresolved GLOSSARY_SEE anchors."""
-    txt = open(path, encoding="utf-8").read()
+    txt = conditionals(open(path, encoding="utf-8").read())
     number_md(txt, mode="plain")
     probs = [f"duplicate {{{{RULE:{d}}}}}" for d in DUPLICATES]
     probs += [f"{{{{SEE:{a}}}}} unresolved" for a in sorted(set(SEE_RE.findall(txt))) if not ref(a)]

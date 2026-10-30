@@ -15,7 +15,18 @@ function pOf(el,k){return pById(el.dataset[k||"who"]);}
 function standingPhaseActions(p){const pt=p&&PT(p),pending=pt&&pt.standingPending||{};Object.keys(pending).forEach(k=>{if(pending[k].due<tTurn())delete pending[k];});return dbActive(p&&p.board).flatMap(x=>{const m=String(x.text||"").match(STANDING_ACT_RE);if(!m)return [];
   const action=m[1]||m[2],source=x.free?"Studium Generale · "+x.name:x.name,key=standingKey(x),id="STANDING:"+key;
   const due=pending[key]?pending[key].due:setupOn()&&+((pt&&pt.holdingActs)||{})[key]!==tTurn()?tTurn():null;if(due!==tTurn())return [];   // a Standing you start with: the Turn 1 check-in
-  return [{x,action,fin:m[1]?"Endorsed":"Passed",source,key,id,env:{id,owner:p,dom:x.dom,council:false,votes:[],net:3,out:m[1]?"Endorsed":"Passed",done:true,standingAction:action,standingSource:source}}];});}
+  return [{x,action,fin:m[1]?"Endorsed":"Passed",source,key,id,env:{id,owner:p,dom:x.dom,council:false,votes:[],net:3,out:m[1]?"Endorsed":"Passed",done:true,standingAction:action,standingSource:source}}];}).concat(eurekaAction(p),holdingEpActions(p));}
+// "Each Empire Phase, perform a <Domain> action" on an active Holding (Aristocratic Court): once each Empire Phase, any action of that Domain
+function holdingEpActions(p){const b=p&&p.board;if(!b||tPhase()!=="empire")return [];const done=PT(p).holdingActs||{};
+  return srcMatch(b,"ep_action").map(x=>{const fin=x.m[1]?x.m[1][0].toUpperCase()+x.m[1].slice(1).toLowerCase():"Passed",dom=x.m[2],key="ep:"+x.n,id="EPACT:"+p.id+":"+x.n+":"+tTurn();
+    return +done[key]===tTurn()?null:{action:null,fin,source:x.n,tag:"Holding",label:x.n+" · "+fin+" "+dom+" action (each Empire Phase)",key,id,env:{id,owner:p,dom,council:false,votes:[],net:fin==="Endorsed"?3:1,out:fin,done:true,standingSource:x.n}};}).filter(Boolean);}
+// Public Order "Eureka" band ("May perform an Endorsed Industry Action"): once each Empire Phase while the band is active, any Industry action
+function eurekaKey(){const k=Object.keys(PO).map(Number).find(k=>k>0&&/^Eureka$/i.test(String((POB(k)||[])[0]||"")));return k==null?null:k;}
+function eurekaAction(p){const k=eurekaKey(),b=p&&p.board;if(k==null||!b||tPhase()!=="empire"||!poActiveKeys(+b.po||0,b).includes(k))return [];
+  const m=String((POB(k)||[])[1]||"").match(/(Endorsed|Passed)?\s*(\w+) Action/i),dom=m&&DOMAINS.find(d=>d.toLowerCase()===m[2].toLowerCase());if(!dom)return [];
+  const fin=m[1]?m[1][0].toUpperCase()+m[1].slice(1).toLowerCase():"Passed",key="po:eureka",id="EUREKA:"+p.id+":"+tTurn();
+  if(+((PT(p).holdingActs||{})[key])===tTurn())return [];
+  return [{action:null,fin,source:"Eureka",tag:"Public Order",label:"Eureka · "+fin+" "+dom+" action (Public Order)",key,id,env:{id,owner:p,dom,council:false,votes:[],net:3,out:fin,done:true,standingSource:"Eureka"}}];}
 function activeCipherTimers(){const out=[];realmTimers().forEach((t,i)=>{if(t.n>0)out.push({ref:{kind:"realm",i},key:"realm:"+String(t.id!=null?t.id:[t.type,t.kind,t.by,t.tp,t.sid,t.aid,t.uid,t.label].join("|")),label:(t.label||t.type)+" · "+t.n});});
   D.players.forEach(p=>{const b=p.board;(b.placed||[]).forEach(x=>{if(x.bt>0)out.push({ref:{kind:"placed",pid:String(p.id),id:String(x.id),field:"bt"},key:"placed:"+p.id+":"+x.id+":bt",label:p.name+" · "+x.name+" Build · "+x.bt});
       if(x.dmg>0&&x.rep)out.push({ref:{kind:"placed",pid:String(p.id),id:String(x.id),field:"dmg"},key:"placed:"+p.id+":"+x.id+":dmg",label:p.name+" · "+x.name+" Repair · "+x.dmg});});
@@ -33,10 +44,12 @@ function empireHoldingHTML(p,ci){if(!p||!empWin())return "";const pt=PT(p),used=
   const moves=srcMatch(p.board,"start_empire_move").map(x=>({src:x.n,key:"move:"+x.n,province:false})).concat(srcMatch(p.board,"beacon_start_move").map(x=>({src:x.n,key:"beacon:"+x.n,province:true})));
   moves.forEach(m=>{if(+used[m.key]===tTurn())return;const avail=ownArmies.filter(x=>!armyBlocked(x.p,x.a)&&(!m.province||(territory[x.k]&&territory[x.k].has(String(p.id)))));
     out.push('<div class="tb-row"><span style="flex:1">'+esc(m.src)+(m.province?' · Army in your Province':' · Move action')+'</span>'+ (avail.length?avail.map(x=>'<button data-do="holdMove" data-who="'+p.id+'" data-key="'+esc(m.key)+'" data-pid="'+x.p.id+'" data-aid="'+esc(x.a.id)+'">'+esc(x.p.name)+' · '+esc(armyName(x.a))+' ▸</button>').join(""):'<span class="note">No eligible unblocked Army on the map.</span>')+'</div>');});
-  const cb=srcMatch(p.board,"cipher_block_army"),ct=srcMatch(p.board,"cipher_timer_plus");if(cb.length&&+used.cipherArmy!==tTurn()){
+  const cb=srcMatch(p.board,"cipher_block_army"),ct=srcMatch(p.board,"cipher_timer_plus"),c1=srcMatch(p.board,"cipher_choose_one").length>0,
+    cUsed=c1&&(+used.cipherArmy===tTurn()||+used.cipherTimer===tTurn());   // "choose one": either row, not both
+  if(cb.length&&+used.cipherArmy!==tTurn()&&!cUsed){
     const last=pt.cipherArmy||{},opts=allArmies.filter(x=>!(last.turn===tTurn()-1&&last.id===String(x.p.id)+":"+String(x.a.id)));
     out.push('<div class="tb-row"><span style="flex:1">Cipher Chamber · give an Army Blocked</span>'+ (opts.length?'<select id="cipherArmyPick">'+opts.map(x=>'<option value="'+x.p.id+':'+esc(x.a.id)+'">'+esc(x.p.name)+' · '+esc(armyName(x.a))+'</option>').join("")+'</select><button data-do="cipherArmy" data-who="'+p.id+'">apply</button>':'<span class="note">No different Army from last turn.</span>')+'</div>');}
-  if(ct.length&&+used.cipherTimer!==tTurn()){
+  if(ct.length&&+used.cipherTimer!==tTurn()&&!cUsed){
     const last=pt.cipherTimer||{},timers=activeCipherTimers().filter(x=>!(last.turn===tTurn()-1&&last.id===x.key));
     out.push('<div class="tb-row"><span style="flex:1">Cipher Chamber · increase an active Timer by '+(+ct[0].m[1]||2)+'</span>'+ (timers.length?'<select id="cipherTimerPick">'+timers.map(x=>'<option value="'+esc(JSON.stringify(x.ref))+'">'+esc(x.label)+'</option>').join("")+'</select><button data-do="cipherTimer" data-who="'+p.id+'" data-n="'+(+ct[0].m[1]||2)+'">increase</button>':'<span class="note">No different active Timer from last turn.</span>')+'</div>');}
   const cd=pt.courierDeferred;if(cd&&cd.due<=tTurn()&&!cd.done)out.push('<div class="tb-row"><span style="flex:1">Courier Network · perform deferred '+esc(cd.act)+(cd.target?' → '+esc(pById(cd.target)?.name||'target'):'')+'</span><button data-do="courierDeferred" data-who="'+p.id+'">perform ▸</button></div>');
@@ -47,7 +60,7 @@ function empireHoldingHTML(p,ci){if(!p||!empWin())return "";const pt=PT(p),used=
   standingPhaseActions(p).forEach(z=>{let control;if(z.action==="Move"){const pick="stMovePick-"+String(p.id).replace(/[^A-Za-z0-9_-]/g,"")+"-"+z.key.replace(/[^A-Za-z0-9_-]/g,"-"),arms=ownArmies.filter(x=>!armyBlocked(x.p,x.a));
       control=arms.length?'<select id="'+pick+'">'+arms.map(x=>'<option value="'+esc(x.a.id)+'">'+esc(x.p.name)+' · '+esc(armyName(x.a))+'</option>').join("")+'</select><button data-do="standingMove" data-who="'+p.id+'" data-key="'+esc(z.key)+'" data-pick="'+pick+'">choose Army ▸</button>':'<span class="note">No eligible unblocked Army on the map.</span>';
     }else control=pfForm(z.env,null,"empire");
-    out.push('<div class="tb-row"><span style="flex:1">'+esc(z.source)+' · '+esc(z.fin)+" "+esc(z.action)+" (Domain Standing)"+'</span>'+control+'</div>');});
+    out.push('<div class="tb-row"><span style="flex:1">'+esc(z.label||(z.source+' · '+z.fin+" "+z.action+" (Domain Standing)"))+'</span>'+control+'</div>');});
   const automatic=ci?[]:epRows(p.board).filter(x=>x.auto&&x.n>0);if(automatic.length)out.push('<details class="tb-row"><summary class="note">Automatic Empire Phase Faith/Doubt effects ('+automatic.length+')</summary>'+automatic.map(x=>'<div class="note">'+esc(x.k)+': '+esc(x.side)+" +"+x.n+(x.desc?' · '+esc(x.desc):'')+'</div>').join("")+'</details>');
   const ds=dbActive(p.board);if(ds.length)out.push('<details class="tb-row"><summary class="note">Active Domain Standing effects ('+ds.length+')</summary>'+ds.map(x=>'<div class="note">'+esc(x.free?'Studium Generale · '+x.name:x.name+' ('+x.tier+' '+x.dom+')')+': '+esc(x.text)+'</div>').join("")+'</details>');
   return out.length?dockCard("Empire Phase effect stack — "+esc(p.name),out.join("")):"";}
@@ -89,9 +102,9 @@ DO.standingMove=el=>{const p=pOf(el),key=el.dataset.key,z=p&&standingPhaseAction
   pt.holdMove={turn:tTurn(),key:z.key,aid:String(a.id),armyPid:String(p.id),holderPid:String(p.id)};SEL={pid:String(p.id),aid:String(a.id)};INSP=armyHex(p,a);save();render();flash(p.name+": select a lit hex to perform the Domain Standing Move");};
 DO.standingPerform=el=>{const p=pOf(el),z=p&&standingPhaseActions(p).find(x=>x.id===el.dataset.env);if(!p||!z||!canAct(p)||!empWin())return;
   const pt=PT(p);pt.holdingActs=pt.holdingActs||{};if(+pt.holdingActs[z.key]===tTurn())return;const d=PF[z.id]||{},a=d.action||"",sp=pfSpec(a),tg=String(d.target||""),T=pfTargets(z.env,a).find(x=>x.v===tg);
-  const subs=pfSubs(p,a,tg),pls=sp.place?sp.place(p,d.sub):null;if(a!==z.action||!T||!T.legal||(subs&&!subs.some(x=>x.v===d.sub&&!x.dis))||(pls&&pls.length&&!pls.some(x=>x.v===d.place&&!x.dis))){flash("Choose a legal "+z.action+" action before resolving this Standing effect");return;}
+  const subs=pfSubs(p,a,tg),pls=sp.place?sp.place(p,d.sub):null;if((z.action?a!==z.action:!pfActs(z.env).includes(a))||!T||!T.legal||(subs&&!subs.some(x=>x.v===d.sub&&!x.dis))||(pls&&pls.length&&!pls.some(x=>x.v===d.place&&!x.dis))){flash("Choose a legal "+(z.action||z.env.dom)+" action before resolving this "+(z.tag||"Standing")+" effect");return;}
   const rec={action:a,target:tg,sub:d.sub||"",place:d.place||""},res=checkinAct(()=>resolveEnvoy(z.env,{rec},z.fin)),c=tCurW(p);c.applied=c.applied||{};
-  c.applied[z.id]={out:z.fin,dom:z.source+" (Domain Standing)",act:a,fx:res.fx,flags:res.flags};pt.holdingActs[z.key]=tTurn();delete (pt.standingPending||{})[z.key];noteAdd(p,z.source+": "+z.fin+" "+a+(T.label&&T.label!=="—"?" → "+T.label:""));delete PF[z.id];save();render();};
+  c.applied[z.id]={out:z.fin,dom:z.source+" ("+(z.tag||"Domain Standing")+")",act:a,fx:res.fx,flags:res.flags};pt.holdingActs[z.key]=tTurn();delete (pt.standingPending||{})[z.key];noteAdd(p,z.source+": "+z.fin+" "+a+(T.label&&T.label!=="—"?" → "+T.label:""));delete PF[z.id];save();render();};
 DO.whisperDeclare=el=>{const p=pOf(el),R=tSim(),E=R.whisperEnvoy;if(!p||!E||!sameP(p,E.owner)||R.waiting!=="whisper-declare"||!canAct(p))return;const d=PF[E.id]||{},a=d.action||"",sp=pfSpec(a),tg=String(d.target||""),T=pfTargets(E,a).find(x=>x.v===tg);
   const subs=pfSubs(p,a,tg),pls=sp.place?sp.place(p,d.sub):null;if(!a||!T||!T.legal||(subs&&!subs.some(x=>x.v===d.sub&&!x.dis))||(pls&&pls.length&&!pls.some(x=>x.v===d.place&&!x.dis))){flash("Choose a legal action, target, and sub-action before declaring");return;}
   const c=tCurW(p);c.perform=c.perform||{};c.perform[E.id]={action:a,target:tg,sub:d.sub||"",place:d.place||"",whisperLock:{by:R.whisperBy&&String(R.whisperBy.id)||"",turn:tTurn()},ts:tnow()};
@@ -226,28 +239,29 @@ function phaseCardHTML(R){
     '<div class="tb-hostline'+(hp&&sameP(hp,me)?' me':'')+'">'+(isSpring()?'Spring — no Host':hp?(sameP(hp,me)?'♔ You are the Host':'♔ Host: '+tName(hp)):'No Host seated')+'</div>';
   if(R.waiting==="seat")h+='<div class="note">Take a seat to begin.</div>';
   else if(R.waiting==="start")h+='<div class="note">Waiting for the Host to begin.</div>';
+  else if(R.waiting==="diplomacy")h+='<div>Diplomacy — '+dsWho().filter(dsDone).length+'/'+dsWho().length+' done</div>';
   else if(R.waiting==="declare")h+='<div>Declare Envoys — '+(R.ord.length-R.declPending.length)+'/'+R.ord.length+' submitted</div>';
   else if(R.waiting==="tie")h+='<div>Council vote tied — <b>'+R.tieCands.join(" / ")+'</b><br><span class="note">'+(hostP()?"the Host's vote isn't one of them — Host breaks the tie":"no Host — break the tie")+'</span></div>';
   else if(ph==="council"&&!R.councilDom&&cw)h+='<div>Council vote: '+tName(cw)+' <span class="tbcd tb-timer"></span></div>';
   if(E){const net=E.council?Math.max(1,E.innate+E.sup-E.opp):E.innate+E.sup-E.opp,o=tOutcome(net);
-    h+='<div class="tb-env">'+tName(E.owner)+' → <b>'+esc(E.dom)+'</b>'+(E.council?' <span class="tb-b">Council</span>':'')+(E.mission?' <span class="tb-b">Mission</span>':'')+(eraActions(E.council)>1?' <span class="tb-b">×'+eraActions(E.council)+' actions</span>':'')+
+    h+='<div class="tb-env">'+tName(E.owner)+' → <b>'+esc(E.dom)+'</b>'+(E.council?' <span class="tb-b">Council</span>':'')+(E.mission?' <span class="tb-b">Mission</span>':'')+(envActions(E)>1?' <span class="tb-b">×'+envActions(E)+' actions</span>':'')+
       '<div class="note">'+innateTxt(E)+' · <span class="pos">+'+E.sup+'</span> · <span class="neg">−'+E.opp+'</span></div>'+
       (envBadges(E)?'<div>'+envBadges(E)+'</div>':'')+
       '<div>net <b>'+net+'</b> → <b class="'+tOutCls(o)+'">'+o+'</b> <span class="note">(so far)</span></div>'+
       (cw?'<div class="note">'+tName(cw)+' to act</div><div class="tbcd tb-timer"></div>':'')+'</div>';}
   else if(R.done&&(ph==="council"||ph==="envoy")&&t.phaseTs)h+='<div class="pos">All Envoys resolved.</div>';
   if(R.councilDom)h+='<div class="note">Council Domain: <b>'+R.councilDom+'</b>'+(R.tieBy?' — tie ('+R.tieBy.cands.join(" / ")+') broken by the Host’s vote ('+esc(R.tieBy.who.name)+')':'')+'</div>';
-  if(ph==="council"&&isSpring())h+='<div>Spring — no Council Phase.</div>';
+  if(ph==="council"&&councilOff())h+='<div>Spring — no Council Phase.</div>';
   if(ph==="rest")h+='<div class="note">Unused Envoys & Influence are discarded · Season +1 · gain Renown · spend a Domain Point · Host passes clockwise (not in Spring).</div>'+
     (dpOwed().length?'<div>Domain Points to spend: <b>'+dpOwed().map(p=>esc(p.name)+' '+p.board.dp).join(', ')+'</b></div>':'<div class="pos">Domain Points spent.</div>');
-  if(hc){const nx=tNext(ph),vt=(ph==="council"&&!isSpring())||ph==="envoy";
+  if(hc){const nx=tNext(ph),vt=(ph==="council"&&!councilOff())||ph==="envoy";
     h+='<div class="rl-hostbar">'+(vt?'<button data-do="begin">'+(t.phaseTs?'Restart Phase':'Begin')+'</button>':'')+
       (vt&&R.cur?'<button data-do="add30" title="Give the current voter 30 more seconds; if the timer is off, start a 30-second timer for this vote">Add 30s</button>':'')+
       (R.cur?'<button data-do="skip" title="current voter abstains">Skip current</button>':'')+
       '<button data-do="phase" data-ph="'+nx+'">'+esc(T_PHL[nx].replace(" Phase",""))+' ▸</button>'+
       (ph==="rest"?'<button data-do="endturn" class="on">End turn</button>':'')+'</div>'+
       '<details class="rl-hostset" id="rlHostSet" data-keep="0"'+(rlOpen("rlHostSet",false)?' open':'')+'><summary class="note">Host settings</summary>'+
-      '<div class="tb-row"><span class="note" style="flex:1">Phase</span>'+T_PH.filter(p2=>!(p2==="council"&&isSpring())).map(p2=>'<button data-do="phase" data-ph="'+p2+'"'+(p2===ph?' class="on"':'')+'>'+T_PHL[p2].replace(" Phase","")+'</button>').join("")+'</div>'+
+      '<div class="tb-row"><span class="note" style="flex:1">Phase</span>'+T_PH.filter(p2=>!(p2==="council"&&councilOff())).map(p2=>'<button data-do="phase" data-ph="'+p2+'"'+(p2===ph?' class="on"':'')+'>'+T_PHL[p2].replace(" Phase","")+'</button>').join("")+'</div>'+
       '<div class="tb-row"><span style="flex:1">Host</span><select data-do="host">'+seated().map(p=>'<option value="'+p.id+'"'+(sameP(p,hostP())?' selected':'')+'>'+esc(p.name)+'</option>').join("")+'</select></div>'+
       '<div class="tb-row"><span style="flex:1">Seats</span><input data-do="seats" type="number" min="'+seatFloor()+'" max="12" value="'+tSeats()+'" style="width:60px"></div>'+
       '<div class="tb-row"><span style="flex:1">Vote timer (s, 0 = off)</span><input data-do="timer" type="number" min="0" max="300" value="'+tTimer()+'" style="width:60px"></div>'+
@@ -279,6 +293,7 @@ function dockHTML(R){
   // Put once-per controls at the top of the action dock, before the current response/action prompts.
   h+=whisperGateHTML(R);
   h+=onceHTML(qp,ph);
+  h+=diploStepHTML(qp);
   h+=intrigueHTML(R);
   h+=tallyHTML(R);
   h+=courierDeferHTML(R,qp);
@@ -295,7 +310,7 @@ function dockHTML(R){
   if(ph==="envoy"&&t.phaseTs&&R.waiting==="declare"){
     const targets=HOTSEAT?R.declPending:(R.declPending.some(p=>sameP(p,me))?[me]:[]);
     targets.slice(0,1).forEach(p=>{const dc=tCur(p).decl||{},nn=dc.n||{},tot=T_ALL.reduce((a,d)=>a+(+nn[d]||0),0),mx=personalEnvoys(p);
-      h+=dockCard("Declare Envoys — "+esc(p.name)+' <span class="note">'+tot+'/'+mx+'</span>',(isSpring()?T_DOMS:T_ALL).map(d=>'<div class="tb-row"><span style="min-width:80px">'+d+'</span>'+
+      h+=dockCard("Declare Envoys — "+esc(p.name)+' <span class="note">'+tot+'/'+mx+'</span>',(isSpring()||RC.PHASE_REFORM?T_DOMS:T_ALL).map(d=>'<div class="tb-row"><span style="min-width:80px">'+d+'</span>'+
         '<button data-do="decl" data-dom="'+d+'" data-dv="-1" data-who="'+p.id+'">−</button><b style="min-width:16px;text-align:center">'+(+nn[d]||0)+'</b>'+
         '<button data-do="decl" data-dom="'+d+'" data-dv="1" data-who="'+p.id+'"'+(tot>=mx?' disabled':'')+'>+</button></div>'+declInviteHTML(p,d,+nn[d]||0,dc.inv||{})).join("")+
         '<div class="tb-row"><button data-do="declock" data-who="'+p.id+'" class="on">Submit</button><span class="note">Hidden until everyone submits.</span></div>',"now");});

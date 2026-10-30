@@ -122,12 +122,13 @@ A few conventions make every rule in this book read the same way:
 Each turn runs through five phases in order, then passes the Host and repeats:
 
 1. **Empire Phase**{{IDX:Empire Phase}} — Start of the Empire Phase effects, the Season, Timers, Bandit Mechanics, Influence & Envoys, income and upkeep, Public Order.
-2. **Council Phase**{{IDX:Council Phase}} — a Council vote on a Domain; each player then performs one action of that Domain.
-3. **Envoy Phase**{{IDX:Envoy Phase}} — send all Envoys, a Forum, the Intrigue Phase, vote on every Envoy, the Tally Phase, then resolve them all (Diplomacy → Prowess → Cunning → Piety → Industry).
+{{IF:PHASE_REFORM}}2. **End of Empire Phase**{{IDX:End of Empire Phase}} — each player sends a free Council Envoy of Industry, performing the Era's Council actions; in Spring, a Diplomacy step instead.
+3. **Envoy Phase**{{IDX:Envoy Phase}} — send all Envoys, a Diplomacy step (offers between players),{{ELSE}}2. **Council Phase**{{IDX:Council Phase}} — a Council vote on a Domain; each player then performs one action of that Domain.
+3. **Envoy Phase**{{IDX:Envoy Phase}} — send all Envoys, a Forum,{{ENDIF}} the Intrigue Phase, vote on every Envoy, the Tally Phase, then resolve them all (Diplomacy → Prowess → Cunning → Piety → Industry).
 4. **Battle Phase**{{IDX:Battle Phase}} — Skirmishes, Sieges, and Battles resolve.
 5. **Rest Phase**{{IDX:Rest Phase}} — cleanup, advance the Season, score Renown, spend one Domain Point, pass the Host.
 
-**The Host.** Each turn except Spring, one player is the Host. The starting player is always the player directly clockwise from the Host token, including in Spring. The role passes clockwise each Rest Phase (except in Spring). The Host runs most of the Empire Phase's administration: collecting and distributing Trade Income, resolving Bandit Mechanics, and breaking ties (Council vote, Bandit targeting, and anything not otherwise resolvable). The Host Card carries the step-by-step detail. {{RULE:host}}
+**The Host.** Each turn except Spring, one player is the Host. The starting player is always the player directly clockwise from the Host token, including in Spring. The role passes clockwise each Rest Phase (except in Spring). The Host runs most of the Empire Phase's administration: collecting and distributing Trade Income, resolving Bandit Mechanics, and breaking ties ({{IF:!PHASE_REFORM}}Council vote, {{ENDIF}}Bandit targeting, and anything not otherwise resolvable). The Host Card carries the step-by-step detail. {{RULE:host}}
 
 ### Timers
 
@@ -149,16 +150,20 @@ Many actions set a Timer to a number of turns. Each Empire Phase, every active T
 8. **Endurance** — every Army without **Strained** gains +{{VAL:ENDURANCE_REGAIN}} Endurance; then remove Strained from all Armies. *(An Army can immediately regain these effects after losing them, if applicable.)*
 9. **Remaining effects** — resolve any remaining Each Empire Phase effects.
 
-### Council Phase
+{{IF:PHASE_REFORM}}### End of Empire Phase
+
+There is no Council vote: the Council's Domain is {{VAL:COUNCIL_DOMAIN}}. In Spring, the End of Empire Phase is a Diplomacy step instead (as in the Envoy Phase, see Diplomacy step), where each player completes up to {{VAL:ERAS.Founding.diplomacy_agreements}} agreement in Founding and Ascension and up to {{VAL:ERAS.Eminence.diplomacy_agreements}} from Eminence, each with a different player.
+
+1. **Council actions** — clockwise from the starting player, each player sends a free Council Envoy of {{VAL:COUNCIL_DOMAIN}}, starting with innate Influence equal to their {{VAL:COUNCIL_DOMAIN}} Standing.{{ELSE}}### Council Phase
 
 1. **Forum** — a brief open discussion of which Domain the Council should choose.
 2. **Vote** — no talking. Clockwise from the starting player, each player votes for a Domain. The Host's vote breaks a tie; if the Host's vote isn't one of the tied Domains, the Host chooses among them.
-3. **Council actions** — clockwise from the starting player, each player sends a free Envoy of that Domain, starting with innate Influence equal to their Domain Standing. Council Envoys **auto-Abstain** — other players can't Support or Oppose them, though automatic Authority ±X modifiers still apply — and their net Influence can't be lower than 1, so they can't fail or be Condemned. A passed Council Envoy performs actions of that Domain equal to the Era's Council actions per Envoy (see Eras). {{RULE:council-envoy}}
+3. **Council actions** — clockwise from the starting player, each player sends a free Envoy of that Domain, starting with innate Influence equal to their Domain Standing.{{ENDIF}} Council Envoys **auto-Abstain** — other players can't Support or Oppose them, though automatic Authority ±X modifiers still apply — and their net Influence can't be lower than 1, so they can't fail or be Condemned. A passed Council Envoy performs actions of that Domain equal to the Era's Council actions per Envoy (see Eras), paying each action's cost as usual (see Envoy Resolution Table for Endorsed refunds). {{RULE:council-envoy}}
 
 ### Envoy Phase
 
 1. **Envoy Declaration** — all players place every Envoy they have in the Domains of their choice at the same time, then reveal them together.
-2. **Forum** — a brief open discussion of every Envoy on the table: who should be Supported, Opposed, or left alone.
+{{IF:PHASE_REFORM}}2. **Diplomacy** — a brief open discussion of every Envoy on the table: who should be Supported, Opposed, or left alone. Then players make Diplomacy offers to one another, in any order: each offer is a Sign Treaty (name the Treaty) or a Negotiate (state the terms). An accepted offer is a Passed Diplomacy action for both players, and the Treaty is signed at once. Each player completes {{VAL:FORUM_ACTIONS}} agreement in this step; once you have, your other offers are withdrawn and you can't accept another. End Treaty needs no answer and also uses it. You may pass instead. The step ends once every player has completed their agreement or passed. Vassals take no part. *(Not in Spring.)* {{RULE:diplomacy-step}}{{ELSE}}2. **Forum** — a brief open discussion of every Envoy on the table: who should be Supported, Opposed, or left alone.{{ENDIF}}
 3. **Intrigue Phase**{{IDX:Intrigue Phase}} — no talking. The starting player uses all of their Intrigue Phase effects, then each player clockwise does the same, ending with the Host. Each choice is announced and takes effect at once, before the first vote. {{RULE:intrigue}}
 4. **Vote** — no talking. Vote on every Envoy (see Resolving an Envoy): Diplomacy first, clockwise from the starting player; then Prowess → Cunning → Piety → Industry, where within each Domain the sender with the highest Domain value has all of their Envoys of that Domain voted on, then the next highest, and so on (ties clockwise from the starting player). A player whose effect says they cast their votes in the Tally Phase skips this step.
 5. **Tally Phase**{{IDX:Tally Phase}} — once every Envoy has been voted on, in this order: {{RULE:tally}}
@@ -227,7 +232,7 @@ Envoys are the currency of actions: to perform an action you send an Envoy durin
 
 ### Resolving an Envoy
 
-Your Envoy begins with Authority equal to your **Standing rank** in its Domain (see Standing Rank), plus any automatic Authority ±X modifiers. *(These come from your Holdings, Infrastructure, and Faction, and apply on their own; you never spend Influence for them.)* Diplomacy has no Standing; a Diplomacy Envoy uses the Era's rank instead.
+Your Envoy begins with Authority equal to your **Standing rank** in its Domain (see Standing Rank), plus any automatic Authority ±X modifiers. *(These come from your Holdings, Infrastructure, and Faction, and apply on their own; you never spend Influence for them.)*{{IF:!PHASE_REFORM}} Diplomacy has no Standing; a Diplomacy Envoy uses the Era's rank instead.{{ENDIF}}
 
 Then, clockwise from the starting player and skipping the sender, every other player may respond, with no talking during the vote: {{RULE:vote}}
 
@@ -235,7 +240,7 @@ Then, clockwise from the starting player and skipping the sender, every other pl
 - **Oppose X** — spend X of your Influence to lower it.
 - **Abstain** — spend nothing.
 
-You spend Influence only when you **Support** or **Oppose**; abstaining is free. **You can't vote on your own Envoy.** On a single vote, each player may spend up to their Max Influence: their Standing rank in that Domain (on Diplomacy Envoys, the Era's rank). Holdings, Infrastructure, and Factions may raise it (*Max Influence +X*). Unused Influence is discarded in the Rest Phase.
+You spend Influence only when you **Support** or **Oppose**; abstaining is free. **You can't vote on your own Envoy.** On a single vote, each player may spend up to their Max Influence: their Standing rank in that Domain{{IF:!PHASE_REFORM}} (on Diplomacy Envoys, the Era's rank){{ENDIF}}. Holdings, Infrastructure, and Factions may raise it (*Max Influence +X*). Unused Influence is discarded in the Rest Phase.
 
 *Each player declares in turn, so the running net Influence is public — later voters can react to it. The Host, sitting just before the starting player, votes last on every Envoy they didn't send.*
 
@@ -269,10 +274,11 @@ Each Empire Phase, gain Influence from the following sources:
 
 {{ACTIONS:Diplomacy}}
 
-### Rule: Diplomatic Mission
+{{IF:PHASE_REFORM}}Diplomacy actions aren't sent as Envoys: they happen in the Diplomacy step (see Envoy Phase).
+{{ELSE}}### Rule: Diplomatic Mission
 
 If your Diplomacy Envoy passes or is endorsed but its action fails, you may send another Envoy in another Domain, resolved in the order it would be resolved alongside other Envoys. A Diplomacy Envoy that fails or is condemned doesn't allow one.
-
+{{ENDIF}}
 ## Prowess Actions
 
 {{ACTIONS:Prowess}}
@@ -369,7 +375,7 @@ Settlements are the primary vehicle of your Empire.{{IDX:Settlement}} They come 
 
 ### Chartering Settlements
 
-When you Settle a new Village, place it on a Hill that is in your Province or within the Presence of one of your Armies, and at least Range {{VAL:OUTLAW_BUFFER_RANGE}} from any Outlaw Country.
+When you Settle a new Village, place it on Grassland (a Hill counts) that is in your Province or within the Presence of one of your Armies, and at least Range {{VAL:OUTLAW_BUFFER_RANGE}} from any Outlaw Country.
 
 ### Settlement Reach
 

@@ -32,8 +32,8 @@ REG = {
     "doubt_all_plus":      ("clause", "hiwf", r"All player actions that cause Doubt are increased by (\d+)"),
     "doubt_target_minus":  ("clause", "hiwf", r"^Doubt from (?:(\w+) )?actions targeting you is reduced by (\d+)"),
     "cunning_extra_doubt": ("clause", "hiwf", r"^(?:All )?(Endorsed )?Cunning (?:actions|envoys) give an additional \**Doubt \+?(\d+)\** to Target"),
-    # Ossuary Crypt: its Doubt rider applies to every affected Piety target realm-wide; its PO bypass is owner-only.
-    "piety_extra_doubt":   ("clause", "hiwf", r"All player's Piety actions give an additional \**Doubt \+?(\d+)\**"),
+    # Ossuary Crypt: realm-wide, its Doubt rider applies to every player a Piety action gives Doubt; its PO bypass is owner-only.
+    "piety_extra_doubt":   ("clause", "hiwf", r"All Piety actions that give Doubt give an additional \**Doubt \+?(\d+)\**"),
     "piety_target_bypass": ("clause", "hiwf", r"You may target players with Piety actions regardless of your Public Order"),
     # "When your Piety actions give their target Faith, it gains Faith +1 more; when they give Doubt, it gains Doubt +1 more" (Unforgotten Shrine):
     # whole text (the clause split would cut it at the ";"); m[1] Domain, m[2] extra Faith, m[3] extra Doubt — each only where the action gave it
@@ -77,7 +77,8 @@ REG = {
     "immune_strain_home":  ("clause", "hiwf", r"Armies and Garrisons within your Settlements gain\s+Immune Strained"),
     "immune_strain_siege": ("clause", "hiwf", r"Immune Strained during Lay Siege"),
     "besiege_exempt":      ("clause", "hiwf", r"not affected by .Settlements being Besieged. restrictions"),
-    "muster_plus":         ("clause", "hiwf", r"Muster Limit\s*\+\s?(\d+)"),
+    "muster_plus":         ("clause", "hiwf", r"^Muster Limit\s*\+\s?(\d+)"),                     # once, on the combined limit
+    "muster_plus_each":    ("clause", "hiwf", r"Each of your Settlements gains Muster Limit\s*\+\s?(\d+)"),   # Garrison: every Settlement, Hamlets too
     "muster_besieged":     ("clause", "hiwf", r"May Muster an Army in a Settlement under Siege|not affected by .Settlements being Besieged. restrictions"),
     "siege_def_plus":      ("clause", "hiwf", r"^(?!.*While your Public Order).*?Siege Timer\s*\+\s?(\d+)"),
     "siege_def_po":        ("clause", "hiwf", r"While your Public Order is (-?\d+) or higher, Lay Siege actions targeting you have Siege Timer \+(\d+)"),
@@ -98,8 +99,12 @@ REG = {
     "beacon_start_move":   ("clause", "hiwf", r"At the Start of the Empire Phase, you may select an Army within your Province and move it up to its modified Speed"),
     "start_empire_move":   ("clause", "hiwf", r"At the Start of the Empire Phase, you may perform a Move action"),
     "start_empire_spread": ("clause", "hiwf", r"At the Start of the Empire Phase, you may perform an Endorsed Spread Truth"),
-    "cipher_block_army":   ("text", "hiwf", r"At the Start of the Empire Phase: select an army you did not select last turn; that army gains Blocked"),
-    "cipher_timer_plus":   ("text", "hiwf", r"At the Start of the Empire Phase: select any active Timer you did not select last turn; increase it by (\d+)"),
+    # Cipher Chamber: "choose one" of the two each Start of the Empire Phase (the board offers both until one is used)
+    "cipher_block_army":   ("text", "hiwf", r"At the Start of the Empire Phase,? (?:choose one: )?select an army you did not select last turn; that army gains Blocked"),
+    "cipher_timer_plus":   ("text", "hiwf", r"(?:At the Start of the Empire Phase: |; or )select any active Timer you did not select last turn; increase it by (\d+)"),
+    "cipher_choose_one":   ("text", "hiwf", r"At the Start of the Empire Phase, choose one: select an army"),
+    # Keep: every Muster is hurried once (the Muster Timer -1, the Army gains up to the combined muster limit at once)
+    "muster_rush":         ("clause", "hiwf", r"When you Muster, reduce the Muster Timer by 1 and immediately gain Retinues equal to the combined muster limit"),
     # ---- Public Order / Faith / Doubt ----
     "po_cap":              ("clause", "hiwf", r"Public Order can.t exceed (-?\d+)"),
     "po_floor":            ("clause", "hiwf", r"Public Order would ever be less than (-?\d+),? set it to (-?\d+)"),
@@ -128,7 +133,13 @@ REG = {
     "loan_once":           ("clause", "hiwf", r"Once per (turn|Empire Phase),? (?:you )?may loan money"),
     "tithe_lower":         ("clause", "hiwf", r"Tithe each other player with lower ((?:Piety|Prowess|Cunning|Industry|Public Order)(?: or (?:Piety|Prowess|Cunning|Industry|Public Order))?)"),
     "extort_half_trade":   ("clause", "hiwf", r"Extort half of Trade Income from players who don.t trade with you"),
-    "extort_lower_treasury":("clause", "hiwf", r"Each Empire Phase,? Extort (\d+) from each non-allied player with a lower Treasury"),
+    # m[1] gold, m[2] "non-allied " when only non-allies pay, m[3] the value compared (Treasury, a Domain, Public Order)
+    "extort_lower_treasury":("clause", "hiwf", r"Each Empire Phase,? Extort (\d+) from each (non-allied )?player with a lower (Treasury|Piety|Prowess|Cunning|Industry|Public Order)(?: value)?"),
+    # Diplomacy step (PHASE_REFORM): Embassy makes one Diplomacy action fail; Aristocratic Court Extorts both parties of others' actions
+    "embassy_fail":        ("clause", "hiwf", r"Once per Diplomacy step, you may cause a Diplomacy action to fail"),
+    "diplo_extort":        ("clause", "hiwf", r"Whenever another player performs a Diplomacy action targeting another player, Extort (\d+) from both players"),
+    # Aristocratic Court: m[1] outcome word (Endorsed / Passed, default Passed), m[2] Domain
+    "ep_action":           ("clause", "hiwf", r"Each Empire Phase, perform an? (?:(Endorsed|Passed) )?(Diplomacy|Prowess|Cunning|Piety|Industry) action"),
     "extort_target_faith": ("clause", "hiwf", r"Targets of Extort from (.+?) gain Faith \+(\d+)"),
     "no_sally_forth":     ("clause", "hiwf", r"Settlements you Siege can.t Sally Forth"),
     # ---- Presence (Commanding Presence): Settlements via Garrison, Wards via Keep; Armies always ----
@@ -150,6 +161,7 @@ REG = {
     "fd_per_treaty":       ("text", "h", r"Other non-vassal players gain (Faith|Doubt)\s*\+(\d+) per Signed Treaty with you besides Peace"),
     "ep_lower":            ("text", "hM", r"Each Empire Phase, each (?:other )?non-allied player with a lower (\w+) value gains (Faith|Doubt)\s*\+(\d+)"),
     "build_timer":         ("all", "hM", "Build Timer\\s*([+\\-−])\\s?(\\d+)"),
+    "repair_timer":        ("all", "hM", "Repair Timer\\s*([+\\-−])\\s?(\\d+)"),
     "reach_plus":          ("text", "hMF", r"Reach\s*\+\s*(\d+)"),
     "reach_plus_rec":      ("json", "iw", r"Reach\s*\+\s*(\d+)"),
     "garrison":            ("text", "i", r"Your Settlements gain Garrisons"),
@@ -251,7 +263,7 @@ def sources(ns, records, infra, wonders, strip_md):
         if r.get("mastery_raw"): out.append(("hm:" + n, n, "hm", r.get("mastery_raw") or ""))
     for n, r in infra.items(): out.append(("i:" + n, n, "i", r.get("effect_raw") or ""))
     for n, r in wonders.items(): out.append(("w:" + n, n, "w", r.get("effect_raw") or ""))
-    for n, v in (ns.get("FACTIONS") or {}).items():
+    for n, v in {**(ns.get("FACTIONS") or {}), **(ns.get("DEPRECATED_FACTIONS") or {})}.items():   # deprecated: saved games still read them
         mech = str(v.get("mechanic") or "")
         if not mech: continue
         out.append(("f:" + n, n, "f", mech.replace("**", "")))

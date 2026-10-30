@@ -214,7 +214,7 @@ document.getElementById("file").onchange=e=>{const f=e.target.files[0];if(!f)ret
   rd.onload=()=>{try{const j=JSON.parse(rd.result); if(j&&j.players){D=j;}else{D={players:[newPlayer(1)],active:0,view:D.view,renown:1,map:D.map};D.players[0].board=Object.assign(newBoard(),j);} normalizeD(); D.active=0; reindex();
     trIn.value=S.treasury;document.getElementById("turn").textContent=S.turn;document.getElementById("autoNet").checked=S.autoNet;
     save();render();renderList();}catch(err){alert("bad json");}};rd.readAsText(f);};
-document.getElementById("addArmy").onclick=()=>{const L=EQ.retinues.Levy||{};S.armies.push({id:aid++,label:"",upkeep:L.cost||0,retinue:"Levy",count:0,endurance:L.endurance||0,fatigue:0,weapon:"Farm Tools",ranged:"None",armor:"Cloth",shield:"None",strained:false,blunder:false,open:true});save();render();};
+document.getElementById("addArmy").onclick=()=>{const L=EQ.retinues.Levy||{};S.armies.push({id:nextId(S.armies),label:"",upkeep:L.cost||0,retinue:"Levy",count:0,endurance:L.endurance||0,fatigue:0,weapon:"Farm Tools",ranged:"None",armor:"Cloth",shield:"None",strained:false,blunder:false,open:true});save();render();};
 document.getElementById("hideCombat").onchange=render;
 document.getElementById("search").oninput=renderList;
 
@@ -347,7 +347,8 @@ function renderSetup(){const el=document.getElementById("setupPanel");if(!el)ret
     ["Select Age",!!a&&(!rise||rise.every(x=>x.d)),a?esc(a.name)+' · Year '+curYear()+(rise?'<br>'+rise.map(x=>dot(x.p)+esc(x.p.name)+' '+esc(x.d||"\u2014")).join(' · '):''):'turn strip'],
     ["Select Faction",P.every(p=>p.board.faction),P.map(p=>dot(p)+esc(p.name)+' '+esc(p.board.faction||"\u2014")).join(' · ')],
     ["Determine Host",!!TB().hostSet,hp?dot(hp)+esc(hp.name)+(TB().hostSet?'':' (default)'):'\u2014'],
-    ["Deploy",dep.every(x=>x.town&&x.ham&&x.oc>=need&&!x.fl),dep.map(x=>dot(x.p)+esc(x.p.name)+' Town '+ok(x.town)+' Hamlet '+ok(x.ham)+' Outlaw '+x.oc+'/'+need+(x.fl?' <span class="su-fl">\u2691'+x.fl+'</span>':'')).join('<br>')],
+    ["Deploy",dep.every(x=>x.town&&x.ham&&x.oc>=need&&!x.fl),dep.map(x=>dot(x.p)+esc(x.p.name)+' Town '+ok(x.town)+' Hamlet '+ok(x.ham)+' Outlaw '+x.oc+'/'+need+(x.fl?' <span class="su-fl">\u2691'+x.fl+'</span>':'')+
+      (g&&x.town&&(!x.ham||x.oc<need)&&canAct(x.p)?' <button data-setup-auto="'+x.p.id+'" title="Hamlet toward the middle of the map, Outlaw Country behind the capital">auto-place \u25b8</button>':'')).join('<br>')],
     ["Starting Holdings",P.every(p=>!withBoard(p.board,setupHoldFlags).length),P.map(p=>dot(p)+esc(p.name)+' '+setupHoldHTML(p)).join('<br>')],
     ["Wild Outlaw Country",wildDone(),(()=>{const n=Object.keys(wildZones()).length,c=wildCount();return n+(c!=null?'/'+c:'')+' zones'+
       (canHost()&&g?(wildDone()?' <button data-setup-wild="redo">redo</button>':' <button data-setup-wild="1">place \u25b8</button>'):'');})()],
@@ -383,7 +384,7 @@ function setupHoldHTML(p){const ed=canAct(p)&&(HOTSEAT||sameP(p,meP()));
       return esc(s.tier)+' '+got.map(q=>'<b>'+esc(q.name)+'</b>'+(ed?' <button data-setup-rm="'+q.id+'" data-who="'+p.id+'">×</button>':'')).join(' ')+
         (ed&&got.length<n?' <select data-setup-hold="'+k+'" data-who="'+p.id+'"><option value="">— '+ph+' —</option>'+opts.filter(x=>canPlace(x,s.id).ok).map(x=>'<option>'+esc(x)+'</option>').join('')+'</select>':
           (got.length?'':' —'));};
-    return slot(cap,"cap",+RC.SETUP_CAPITAL_PICKS||0,cap?Object.keys(R).filter(n=>setupRawOK(n,cap.id)).sort():[],"Raw Material")+' · '+
+    return slot(cap,"cap",+RC.SETUP_CAPITAL_PICKS||0,cap?NAMES.filter(n=>setupRawOK(n,cap.id)):[],"Raw Material")+' · '+
       slot(ham,"ham",+RC.SETUP_HAMLET_PICKS||0,RC.SETUP_HAMLET_HOLDINGS||[],(RC.SETUP_HAMLET_HOLDINGS||[]).join(" / "))+
       (fl?' <span class="su-fl">⚑'+fl+'</span>':'');});}
 document.addEventListener("change",e=>{const el=e.target.closest&&e.target.closest("[data-setup-hold]");if(!el||!el.value)return;const p=pOf(el);
@@ -394,7 +395,9 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-setup-rm]"
   const id=+b.dataset.setupRm;withBoard(p.board,()=>{S.placed=S.placed.filter(q=>!(q.id===id&&q.setup));});save();render();});
 let SETUP_STEP=null;
 document.addEventListener("click",e=>{const b=e.target.closest("[data-setup-go]");if(!b)return;SETUP_STEP=+b.dataset.setupGo;renderSetup();});
-document.addEventListener("click",e=>{const w=e.target.closest("[data-setup-wild]");if(w){if(!canHost()){flash("Host only");return;}const n=w.dataset.setupWild==="redo"?rescatterWild():placeWildOutlaw();flash(n?n+" Wild Outlaw Country zone"+(n>1?"s":"")+" placed":"no room for Wild Outlaw Country");save();render();return;}
+document.addEventListener("click",e=>{const au=e.target.closest("[data-setup-auto]");if(au){const p=pById(au.dataset.setupAuto);if(!p||!canAct(p))return;
+    const why=autoDeploy(p);flash(why?p.name+": "+why:p.name+": Hamlet and Outlaw Country placed");save();render();return;}
+  const w=e.target.closest("[data-setup-wild]");if(w){if(!canHost()){flash("Host only");return;}const n=w.dataset.setupWild==="redo"?rescatterWild():placeWildOutlaw();flash(n?n+" Wild Outlaw Country zone"+(n>1?"s":"")+" placed":"no room for Wild Outlaw Country");save();render();return;}
   const b=e.target.closest("[data-setup-begin]");if(!b)return;if(!canHost()){flash("Host only");return;}if(!wildDone()){placeWildOutlaw();save();}
   D.players.forEach(p=>(p.board.settlements||[]).forEach(s=>nameSett(p,s)));save();tSetPhase(tPhase());});
 function renderTurnStrip(){const el=document.getElementById("turnStrip");if(!el)return;

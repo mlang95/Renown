@@ -2,6 +2,9 @@
 # Edit THIS file; equipment.csv, cards, and docs are generated from it.
 import os as _os
 SIMPLE = _os.environ.get("RENOWN_SIMPLE", "1") == "1"   # build_all_CE.bat: set SIMPLE=1|0
+# build_all_CE.bat: set PHASES=1|0. On: no Council vote: the Council Phase is the End of Empire Phase (Council Envoys are
+# Industry) and the Envoy Phase Forum is the Diplomacy step (each player also sends one Council-style Diplomacy Envoy)
+PHASE_REFORM = _os.environ.get("RENOWN_PHASES", "1") == "1"
 vS = "-S" if SIMPLE else ""
 VERSION = f"0.4.9.9.13-d10{vS}"
 # ── DICE ─────────────────────────────────────────────────────────────────────
@@ -451,6 +454,38 @@ TACTIC_MATRIX = {
 TACTICS = ["Scout", "Ambush", "Flank", "Charge", "Fighting Formation", "Defensive Formation", "Fall Back"]
 # One line per tactic shown in the board's Tactics matchups panel (objective / risk, in your words). Empty = not shown.
 TACTIC_NOTES = {}
+# Battle chronicle (board, Battle view): one line per event, read as the Battle happens. Each list is a set of variants
+# (the board picks one); fill-ins: {side} {foe} player / camp names · {troops} {foe_troops} Retinue plurals ·
+# {weapon} {armor} {foe_weapon} {foe_armor} · {tactic} {foe_tactic} · {n} dice · {hits} {saved} {lost} {left} {tens} counts ·
+# {need} the number to roll · {mod} the roll modifier ("+1", "−1", "no modifier") · {sk} the Skirmish.
+# Strike lines pick by how many dice made it: _high (60%+), _mid, _low, _none. Edit freely; unknown fill-ins print as-is.
+BATTLE_NARRATION = {
+    "plural": {"Levy": "levies", "Man-at-Arms": "men-at-arms", "Sergeant": "sergeants", "Knight Templar": "knights templar"},
+    "reveal": ["Skirmish {sk}: {side} commit to {tactic}; {foe} answer with {foe_tactic}.",
+               "Skirmish {sk} opens: {tactic} from {side}, {foe_tactic} from {foe}."],
+    "first": ["{side} move first.", "{side}'s {troops} are quicker to the blow."],
+    "strike_high": ["{side}'s {troops} drive in with {weapon}: {hits} of {n} blows land (needing {need}, {mod}).",
+                    "A hard press from {side} — {hits} of {n} {weapon} strikes find their mark."],
+    "strike_mid":  ["{side}'s {troops} trade blows with {weapon}; {hits} of {n} land (needing {need}, {mod}).",
+                    "{hits} of {side}'s {n} strikes get through the press."],
+    "strike_low":  ["{side}'s {troops} swing wide: only {hits} of {n} {weapon} strikes land (needing {need}, {mod}).",
+                    "The {foe_troops} hold the line — {side} land just {hits} of {n}."],
+    "strike_none": ["Not one of {side}'s {n} strikes lands (needing {need}, {mod}).",
+                    "{side}'s {troops} flail at the {foe_troops} and hit nothing."],
+    "strike_tens": ["{tens} of them land with full weight ({focus})."],
+    "parry":       ["{side}'s {troops} turn aside {saved} of {n} blows.", "Steel rings — {side} parry {saved} of {n}."],
+    "parry_none":  ["{side} can't turn a single blow aside."],
+    "riposte":     ["{tens} times {side} answer a parry with a riposte."],
+    "save_good":   ["{armor} holds: {saved} of {n} saved, {lost} {troops} fall.", "{side}'s {armor} turns {saved} of {n}; {lost} go down."],
+    "save_bad":    ["{armor} gives way — {lost} of {side}'s {troops} fall, only {saved} of {n} saved.",
+                    "{lost} {troops} of {side} are cut down; their {armor} saves just {saved} of {n}."],
+    "save_none":   ["Every blow is turned — {side}'s {armor} saves all {n}."],
+    "recover":     ["{saved} of {side}'s fallen {troops} stagger back to their feet."],
+    "panic_hold":  ["{side}'s {troops} waver but hold."],
+    "panic_lose":  ["Panic runs through {side}'s ranks — {lost} {troops} flee."],
+    "break":       ["Exhausted, {side}'s line buckles: {lost} {troops} lost."],
+    "skirmish_end":["Skirmish {sk} ends: {side} have {left} {troops} left."],
+}
  
 
 
@@ -1706,32 +1741,32 @@ SIMPLE_NODES = {
         "unlock": "-",
         "innate": "+500; Natural; Unlocks Cast Weapons",
         "monument": False},
-    "Arable Land": {
-        "group": "g_raw",
-        "root": True,
+    "Arable Land": {              # DEPRECATED: not a root and nothing builds into it, so it can't be played; its old
+        "group": "g_raw",         # dependents build into a Hamlet instead
+        "deprecated": True,
         "unlock": "-",
         "innate": "+500; Natural",
-        "efficient": ["Hamlet"],          # may start a Hamlet (Hamlet = location token, not a Holding)
+        "efficient": [],
         "monument": False},
     "Common Land": {
         "group": "g_raw",
         "root": True,
         "unlock": "-",
-        "innate": "+1500; Natural, Doubt +1",
+        "innate": "+1000; Natural, Doubt +1",
         "efficient": ["Hamlet"],          # may start a Hamlet (Hamlet = location token, not a Holding)
         "monument": False},
     "Herb Garden": {
         "group": "g_husbandry",
         "unlock": "-",
         "innate": "+500; Natural; Craft +2",
-        "efficient": "Arable Land",
+        "efficient": "Hamlet",
         "monument": False},
     "Animal Husbandry": {
         "group": "g_husbandry",
         "root": True,
         "unlock": "-",
         "innate": "Natural, Unlock Crude armor and shield. Upkeep -500",
-        #"efficient": "Arable Land",
+        "efficient": "Hamlet",
         "monument": False},
     "Saddlery": {
         "group": "g_husbandry",
@@ -1761,13 +1796,13 @@ SIMPLE_NODES = {
         "group": "g_husbandry",
         "unlock": "-",
         "innate": "Natural; +1000 in Fall",
-        "efficient": "Arable Land",
+        "efficient": "Hamlet",
         "monument": False},
     "Orchard": {
         "group": "g_husbandry",
         "unlock": "-",
         "innate": "+500; Natural; +500 in Fall",
-        "efficient": "Arable Land",
+        "efficient": "Hamlet",
         "monument": False},
     "Carpentry": {
         "group": "g_arms",
@@ -2054,7 +2089,7 @@ SIMPLE_NODES = {
         "group": "g_court",
         "unlock": "Established Piety",
         "infrastructure_req": "Library",
-        "innate": "Diplomacy Envoys cannot Fail; Other non-vassal players gain Faith +1 per Signed Treaty with you besides Peace.",
+        "innate": "Once per Diplomacy step, you may cause a Diplomacy action to fail; Other non-vassal players gain Faith +1 per Signed Treaty with you besides Peace.",
         "efficient": "Bell Tower",
         "monument": False},
     "Granary": {
@@ -2081,7 +2116,7 @@ SIMPLE_NODES = {
     "Episcopal Court": {
         "group": "g_devotion",
         "unlock": "Rising Piety",
-        "infrastructure_req": "Town Square",
+        #"infrastructure_req": "Town Square",
         "innate": "Faith +1; Reduce the first instance of Doubt each turn by 1, min 0.",
         "efficient": "Courtyard",
         "monument": False},
@@ -2138,7 +2173,7 @@ SIMPLE_NODES = {
     "Trade Guild": {
         "group": "g_works",
         "unlock": "Rising Industry",
-        "innate": "No Upkeep on Developed Infrastructure; Build Timer -1",
+        "innate": "Build Timer -1; No Upkeep on Developed Infrastructure",
         "efficient": "Masonry",
         "monument": False},
     "Court Artists": {
@@ -2150,7 +2185,7 @@ SIMPLE_NODES = {
     "Courier Network": {
         "group": "g_court",
         "unlock": "-",
-        "innate": "Natural; Once per Envoy Phase: select a Personal Action you performed this turn. Next turn, you may perform that action in the Empire Phase, but you send 1 fewer Envoy next turn.", # In the Intrigue Phase: Authority -1 on one Envoy;
+        "innate": "Natural; In the Intrigue Phase: Authority -1 on one Envoy", # Once per Envoy Phase: select a Personal Action you performed this turn. Next turn, you may perform that action in the Empire Phase, but you send 1 fewer Envoy next turn.
         "efficient": "Inn",
         "monument": False},
     "Toll House": {
@@ -2168,7 +2203,7 @@ SIMPLE_NODES = {
     "Masons' Guild": {
         "group": "g_works",
         "unlock": "Established Industry",
-        "innate": "No Upkeep on Prodigious Infrastructure; Build Timer -2",
+        "innate": "No Upkeep on Prodigious Infrastructure; Build Timer -1; Repair Timer -1",
         "efficient": "College of Engineering",
         "monument": False},
     "Secret Cellar": {
@@ -2228,14 +2263,14 @@ SIMPLE_NODES = {
     "Ossuary Crypt": {
         "group": "g_secrecy",
         "unlock": "Sovereign Cunning + Established Piety",
-        "innate": "All player's Piety actions give an additional Doubt +1. You may target players with Piety actions regardless of your Public Order.",
+        "innate": "All Piety actions that give Doubt give an additional Doubt +1. You may target players with Piety actions regardless of your Public Order.",
         "efficient": ["Plague Pit"],
         "monument": True},
     "Pilgrimage Site": {
         "group": "g_devotion",
         "unlock": "Established Piety",
         "infrastructure_req": "Chapel",
-        "innate": "Faith +1; Extort 500 from each other player without a Pilgrimage Site", # ; each other player without a Pilgrimage Site gains Doubt +1
+        "innate": "Faith +1; Extort 500 from each other player without a Pilgrimage Site; each other player without a Pilgrimage Site gains Doubt +1", # 
         "efficient": "Reliquary",
         "monument": False},
     "Unforgotten Shrine": {
@@ -2441,7 +2476,7 @@ SIMPLE_NODES = {
     "Aristocratic Court": {
         "group": "g_commerce",
         "unlock": "Sovereign Industry + Rising Cunning",
-        "innate": "Each Empire Phase, Extort 1000 from each non-allied player with a lower Treasury. Your Vote counts as 2 votes toward Domain selection during the Council Phase.",
+        "innate": "Whenever another player performs a Diplomacy action targeting another player, Extort 3000 from both players.",
         "efficient": ["Court Artists","Esteemed Bank"],
         "monument": True},
     "Studium Generale": {
@@ -2465,7 +2500,7 @@ SIMPLE_NODES = {
     "Cipher Chamber": {
         "group": "g_secrecy",
         "unlock": "Established Cunning",
-        "innate": "At the Start of the Empire Phase: select an army you did not select last turn; that army gains Blocked. At the Start of the Empire Phase: select any active Timer you did not select last turn; increase it by 2.",
+        "innate": "At the Start of the Empire Phase, choose one: select an army you did not select last turn; that army gains Blocked; or select any active Timer you did not select last turn; increase it by 2.",
         "efficient": "Forgery Workshop",
         "monument": False},
     "Whispering Undercroft": {
@@ -2493,6 +2528,9 @@ SIMPLE_NODES = {
         "efficient": ["Emporium"],
         "monument": True}
 }
+# Deprecated Holdings ("deprecated": True) stay written above but leave play: every reader of SIMPLE_NODES / NODES
+# (board, trees, cards, wiki, sim) skips them. Saved boards holding one count it for nothing.
+DEPRECATED_NODES = {_n: SIMPLE_NODES.pop(_n) for _n in [_k for _k, _v in SIMPLE_NODES.items() if _v.get("deprecated")]}
 # builds_into is derived: exactly the Holdings that name this one in their `efficient` (Mastery Chain).
 for _bn, _bv in SIMPLE_NODES.items():
     _bv["builds_into"] = [_c for _c, _cv in SIMPLE_NODES.items()
@@ -2513,7 +2551,7 @@ HOLDING_GROUPS = {
     "g_husbandry": "Husbandry",
     "g_raw": "Raw Materials",
 }
-for _hn, _hv in SIMPLE_NODES.items():
+for _hn, _hv in {**SIMPLE_NODES, **DEPRECATED_NODES}.items():
     _hv["type"] = "Monument" if _hv.get("monument") else HOLDING_GROUPS[_hv["group"]]
 # ── RARITY SCOPE — how many of one Holding / Infrastructure may exist ─────────
 #   Settlement = one per Settlement · Empire = one per player · Realm = one per game
@@ -2521,7 +2559,7 @@ for _hn, _hv in SIMPLE_NODES.items():
 # A Realm piece is taken once any player has placed it (under construction included).
 SCOPES = ("Settlement", "Empire", "Realm")
 SCOPE_BY_TYPE = {"Raw Materials": "Settlement", "Monument": "Realm"}
-for _hn, _hv in SIMPLE_NODES.items():
+for _hn, _hv in {**SIMPLE_NODES, **DEPRECATED_NODES}.items():
     _hv.setdefault("scope", SCOPE_BY_TYPE.get(_hv["type"], "Empire"))
 # Lines: flavour labels for paths through the graph; a Holding may sit in several.
 LINE_LABELS = {
@@ -2545,9 +2583,9 @@ LINE_LABELS = {
     "l_whispers": {"label": "Whispers", "members": ["Academy", "University", "Forgery Workshop", "Cipher Chamber", "Whispering Undercroft"]},
     "l_pestilence": {"label": "Pestilence", "members": ["Secret Cellar", "Forgotten Catacombs", "Alchemy", "Toxicarium", "Charnel House", "Plague Pit"]},
     "l_watch": {"label": "Watch", "members": ["Caravanery", "Toll House", "Beacon Towers", "Outrider Intercept Post"]},
-    "l_vintage": {"label": "Vintage", "members": ["Arable Land", "Vineyard", "Winery", "Orchard", "Cidery"]},
+    "l_vintage": {"label": "Vintage", "members": ["Vineyard", "Winery", "Orchard", "Cidery"]},
     "l_hearth": {"label": "Hearth", "members": ["Apiary", "Meadery", "Bakery", "Mill"]},
-    "l_spice": {"label": "Spice", "members": ["Arable Land", "Herb Garden", "Spice Merchant"]},
+    "l_spice": {"label": "Spice", "members": ["Herb Garden", "Spice Merchant"]},
     "l_patronage": {"label": "Patronage", "members": ["Courtyard", "Market Square", "Weavery", "Artisan Workshop", "Court Artists", "Aristocratic Court"]},
     "l_banking": {"label": "Banking", "members": ["Market Square", "Merchant Quarter", "Money Lending", "Aristocratic Court"]},
     "l_pilgrimage": {"label": "Pilgrimage", "members": ["Apiary", "Chandlery", "Reliquary", "Pilgrimage Site", "Exalted Basilica"]},
@@ -2684,6 +2722,7 @@ FACTIONS = {
         'difficulty': 'Low',
         'strength': 'Medium',
         'mechanic_name': 'The Monarch',
+        'deprecated': True,   # its Council-vote mechanic has nothing to act on under PHASE_REFORM
         'summary': "Chooses every Council Envoy's Domain; abstains every Personal Envoy",
         'mechanic': "Each Council Phase, you choose every Council Envoy's Domain. You abstain every Personal Envoy.",
         'pair': 'Senate Hall, Aristocratic Court',
@@ -3051,6 +3090,7 @@ FACTIONS = {
     },
     
     'The Illusionists': {
+        'deprecated': True,   # its mechanic is Diplomacy Envoys, which PHASE_REFORM removes
         'final_cut': False,
         'inspiration': 'Political Masterminds',
         'feel': 'Subterfuge, Deception',
@@ -3135,6 +3175,12 @@ FACTIONS = {
         'complement': 'Senate Hall',
     },
 }
+# Deprecated factions ('deprecated': True) stay written above but leave play: lifted out of FACTIONS, and their mechanic
+# names dropped from every culture's mechanic_name list (the board offers a culture's factions from that list).
+DEPRECATED_FACTIONS = {_f: FACTIONS.pop(_f) for _f in [_k for _k, _v in FACTIONS.items() if _v.get("deprecated")]}
+_dep_mech = {_v.get("mechanic_name") for _v in DEPRECATED_FACTIONS.values()} - {_v.get("mechanic_name") for _v in FACTIONS.values()}
+for _c in CULTURES.values():
+    if isinstance(_c.get("mechanic_name"), list): _c["mechanic_name"] = [_m for _m in _c["mechanic_name"] if _m not in _dep_mech]
 
 
 # ── INFRASTRUCTURE (Wonders = the Wondrous tier) ───────────────────────────
@@ -3191,7 +3237,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                  'requirement': 'Wooden Walls'},
 'Garrison': {'upkeep': 300,
                   'upkeep_frequency': 'each Empire Phase',
-                  'empire_bonus': "Your Settlements gain Garrisons & Presence. Muster Limit +5.",
+                  'empire_bonus': "Your Settlements gain Garrisons & Presence. Each of your Settlements gains Muster Limit +5.",
                   'tier': 'Sophisticated',
                   'build_time': 3,
                   'requirement': 'One Tier Developed'},
@@ -3318,6 +3364,9 @@ ERAS = {
     "Eminence":  {"renown": 18, "armies": 3, "cities": 2, "max_settlements": 4, "influence_per_turn": 3, "rank": 3, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 1, "actions_per_envoy": 2, "po_scale_neg": 3, "po_scale_pos": 1, "unlocks": "May form Military Alliances"},
     "Zenith":    {"renown": 30, "armies": 4, "cities": 3, "max_settlements": 5, "influence_per_turn": 4, "rank": 4, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 2, "actions_per_envoy": 2, "po_scale_neg": 4, "po_scale_pos": 1, "unlocks": "May form Defensive Alliances"},
 }
+# PHASE_REFORM, Spring's Diplomacy step: how many agreements a player may complete (each with a different partner)
+for _en, _n in {"Founding": 1, "Ascension": 1, "Eminence": 2, "Zenith": 2}.items():
+    ERAS[_en]["diplomacy_agreements"] = _n
 for _e in ERAS.values():
     # Diplomacy has no Standing: its Envoys use the Era's rank (start Authority, and the cap per Diplomacy vote)
     _e["innate_diplomacy_influence"] = _e["max_influence_per_diplomacy_vote"] = _e["rank"]
@@ -3340,7 +3389,7 @@ PO_BANDS = {
      2: ("Confident",     "Influence +{n}", 1),
      4: ("Motivated",     "Speed +{n}", 1),
      6: ("Economic Boom", "Tax Income +{n} per Settlement", 500),
-     8: ("Eureka",        "May perform an Endorsed Industry Action", None),
+     8: ("Eureka",        "Each Empire Phase, may perform an Endorsed Industry Action", None),
      #6: ("Devout",        "Influence +1", None),
      #7: ("Pious",         "Immune Deficit", None),
      #8: ("Holy",          "Immune to Spread Gospel", None),
@@ -3410,7 +3459,7 @@ DOMAIN_BOARD = {
     },
     "Piety": {
         "Rising":      "Divine Mandate: Faith +1 each Empire Phase.",
-        "Established": "One True Gospel: Each Empire Phase, each other non-allied player with a lower Piety value gains Doubt +1.",
+        "Established": "One True Gospel: Each Empire Phase, each other non-allied player with a lower Piety value gains Doubt +2.",
         "Sovereign":   "Pillar of Faith: If your Public Order would be set below 4, set it to 4. In addition, may use the Sacred War action.",
     },
     # Influence scaling by standing (Untested/Rising/Established/Sovereign):
@@ -3489,7 +3538,7 @@ BANDITS = {
 
 TIMERS = {
     "Build Timer":   {"where": "Infrastructure / Settlement Wards / Pursuits", "default": None, "tracks": "Turns until an infrastructure/build completes and becomes Active."},
-    "Repair Timer":  {"where": "Damaged Pursuits / Infrastructure", "default": 2, "tracks": "Turns until a Damaged piece is repaired and its effects return."},
+    "Repair Timer":  {"where": "Damaged Pursuits / Infrastructure", "default": None, "tracks": "Turns until a Damaged piece is repaired and its effects return."},   # default = BUILD_TIMERS["Repair"] (set below)
     "Truce Timer":   {"where": "Treaties / diplomacy outcomes", "default": 5, "tracks": "Turns remaining until a Truce expires (and related diplomacy restrictions end)."},
     "Siege Timer":   {"where": "Lay Siege", "default": None, "tracks": "Turns remaining until a Siege resolves."},
     "Muster Timer":  {"where": "Muster action", "default": 1, "tracks": "Turns remaining in a Muster; each turn it counts down, the Army gains Retinues up to the combined muster limit."},
@@ -3499,7 +3548,7 @@ TIMERS = {
 }
 
 # ── Chartering / map placement constants (prose-only before; tunable balance) ──
-CHARTER_MIN_RANGE   = 4   # map generator spacing for start-zone Towns (Settle itself needs a Hill, which the generator keeps this far apart)
+CHARTER_MIN_RANGE   = 4   # map generator spacing for start-zone Towns (Settle itself needs Grassland)
 OUTLAW_BUFFER_RANGE = 2   # new settlements must be at least this far from Outlaw Country
 HAMLET_RANGE        = 2   # exact range a Hamlet sits from the capital
 OUTLAW_COUNTRY_START = 3  # Outlaw Country territories demarcated at game start
@@ -3548,18 +3597,19 @@ BUILD_TIMERS = {
     "City": SETTLEMENTS["City"]["build_time"],
     "Metropolis": SETTLEMENTS["Metropolis"]["build_time"],
     "Wonder": 10,
-    "Repair": 2,
+    "Repair": 1,
     "Infrastructure": {"Primitive": 1, "Developed": 2, "Sophisticated": 3, "Prodigious":4},
 }
+TIMERS["Repair Timer"]["default"] = BUILD_TIMERS["Repair"]
 
 TERRAIN = {
-	"Grassland": {"Effect": "—", "Raw Materials": ["Arable Land","Common Land"]},
+	"Grassland": {"Effect": "Where Settlements can be chartered (a Hill counts).", "Raw Materials": ["Common Land"]},
 	"Wetlands": {"Effect": "Speed -1 per Territory moved through", "Raw Materials": ["Peat Bog", "Forestry"]},
 	"Tundra": {"Effect": "gain Strained", "Raw Materials": ["Quarry", "Salt Works"]},
 	"Mountains": {"Effect": "Impassable", "Raw Materials": ["Furnace", "Quarry"]},
 	"Water": {"Effect": "Must end move after moving over 1 Water Territory (must end on land)", "Raw Materials": ["Fishmongery"]},
 	"Forest": {"Effect": "Speed -1 per Territory moved through", "Raw Materials": ["Forestry","Apiary"]},
-	"Hill":  {"Effect": "Gains Seize the Initiative. Where Settlements can be chartered."},
+	"Hill":  {"Effect": "Gains Seize the Initiative."},
 }
 
 MOVEMENT_MODIFIERS = {
@@ -3652,17 +3702,17 @@ GLOSSARY.update({
 #   Passed    : Net >= 1
 #   Endorsed  : Net >= <THRESHOLD?>   (Passed + the domain's endorsed bonus)
 ENVOY_OUTCOME_THRESHOLDS = {
-    "Condemned": -3,   # Net Influence <= -3
+    "Condemned": -4,   # Net Influence <= -3
     "Failed":     0,   # Net Influence <= 0  (and > -3)
     "Passed":     1,   # Net Influence >= 1
-    "Endorsed":   3,  
+    "Endorsed":   4,  
 }
 # Per-domain effect at each outcome band. Prowess Condemn is a combat penalty
 # (Strain; if already Strained, no Move this turn or next) rather than Doubt+Cost,
 # since Prowess actions carry no gold/doubt cost.
 # Cunning actions Extort from their target: CUNNING_EXTORT when Passed, CUNNING_EXTORT_ENDORSED (in place of it) when Endorsed.
-CUNNING_EXTORT          = 2000
-CUNNING_EXTORT_ENDORSED = 4000
+CUNNING_EXTORT          = 4000
+CUNNING_EXTORT_ENDORSED = 2000
 ENVOY_OUTCOMES = { #Note, the condemned.split("+")[-1] is the "cost" for cunning piety and industry
     "Prowess":   {"condemned": "Doubt 1 + Armies gain Strain; if already Strained, that army gains Blocked.",
                   "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Perform a Prowess action"},
@@ -3721,7 +3771,9 @@ ACTIONS = {
                    f"can't exceed {ARMY_MAX_RETINUES}) and set a Muster Timer equal to that number ÷ your combined muster "
                    f"limit, rounded up. Each turn the Muster Timer counts down, the Army gains Retinues up to your "
                    f"combined muster limit and you begin paying their upkeep. You may change the Army's Retinue type "
-                   f"and equipment while an army has an active Muster Timer."),
+                   f"and equipment while an army has an active Muster Timer. Reinforcing an Army that already has an active "
+                   f"Muster Timer instead hurries it: reduce that Muster Timer by 1, and the Army gains Retinues up to your "
+                   f"combined muster limit at once."),
         'endorsed': 'Perform a Prowess action.',
         'notes': ["Combined muster limit: the total muster limit of your Settlements whose Reach includes the Army's Territory.",
                   "While a Settlement is besieged, its muster limit is 0; an active Muster Timer doesn't count down and may be cancelled at any time."],
@@ -3844,7 +3896,7 @@ ACTIONS = {
         'domain': 'Industry',
         'cost': '2000 gold',
         'requires': 'Rising Industry',
-        'effect': f'Charter a new Village on a Hill in your Province or within the Presence of one of your Armies, range {OUTLAW_BUFFER_RANGE}+ from Outlaw Country, and set a Build Timer 2.',
+        'effect': f'Charter a new Village on Grassland in your Province or within the Presence of one of your Armies, range {OUTLAW_BUFFER_RANGE}+ from Outlaw Country, and set a Build Timer 2.',
         'endorsed': 'Recoup 2000.',
         'notes': [],
     },
@@ -4030,7 +4082,13 @@ def _action_costs():
 _action_costs()
 
 # phase order (currently only in RULES_reorganized)
-PHASES = ("Empire", "Council", "Envoy", "Battle", "Rest")
+# PHASE_REFORM: every Council Envoy is of COUNCIL_DOMAIN (no vote); the Envoy Phase's Diplomacy step gives each player one
+# Council-style Envoy of FORUM_DOMAIN that performs FORUM_ACTIONS action(s). None = the Council vote / a plain Forum.
+COUNCIL_DOMAIN = "Industry" if PHASE_REFORM else None
+COUNCIL_DOMAIN_SPRING = "Diplomacy" if PHASE_REFORM else None   # Spring's End of Empire Phase: Diplomacy instead of Industry
+FORUM_DOMAIN = "Diplomacy" if PHASE_REFORM else None
+FORUM_ACTIONS = 1
+PHASES = ("Empire", "End of Empire" if PHASE_REFORM else "Council", "Envoy", "Battle", "Rest")
 STARTING_TURN_PHASE_OPENER = PHASES[1]
 # ACTIONS["Move"] says "March (move up to 2x Speed)"
 STANDING_ARMY_SIEGE_MODIFIER = 1
@@ -4041,10 +4099,10 @@ STARTING_TREASURY = 10000
 # capital, and one of these in the Hamlet (the rules text says "one"; keep the two in step)
 SETUP_CAPITAL_PICKS = 1
 SETUP_HAMLET_PICKS = 1
-SETUP_HAMLET_HOLDINGS = ("Common Land", "Arable Land")
+SETUP_HAMLET_HOLDINGS = ("Common Land",)
 SETUP_HAMLET_TEXT = " or ".join(SETUP_HAMLET_HOLDINGS)
 # Hamlets › special rule: a Hamlet may hold more than one of these (an exception to Settlement Scope, one per Settlement)
-HAMLET_REPEATABLE = ("Common Land", "Arable Land")
+HAMLET_REPEATABLE = ("Common Land",)
 HAMLET_REPEATABLE_TEXT = " or ".join(HAMLET_REPEATABLE)
 
 # ── Setup: Ages (Setup step 2) ────────────────────────────────────────────────
@@ -4139,6 +4197,8 @@ NAME_DISPLAY = {
     "TS": "Armor Save",
     "The Eternal Sepulchre": "The Exalted Archbasilica",
     "Exalted Basilica":"Eternal Sepulchre",
+    "High Chancery": "The Grand Tribunal",   # Wonder atop Town Hall -> Library -> Magistrate's Hall
+    "Embassy": "Chancery",                   # Statecraft line: an embassy's office; refuses to seal a Diplomacy action
     "Storehouse":"Labor Fief",
     "Census Hall":"Tally House",
     "Burgages":"Villein Hovels",
@@ -4660,6 +4720,7 @@ if SIMPLE:
         "The Elder Grove":        ("Ministry of Military Strategy, Outrider Intercept Post", "Inquisitorial Palace"),
         "The Yew Heart":          ("Royal Pavilion, Ministry of Military Strategy", "Outrider Intercept Post"),
     }.items():
+        if _fn not in FACTIONS: continue          # deprecated (DEPRECATED_FACTIONS)
         FACTIONS[_fn]["pair"] = _pr
         if _cp: FACTIONS[_fn]["complement"] = _cp
 
@@ -4995,3 +5056,16 @@ AI_PROFILES = {c: {"domains": v["domains"], "archetype": v["archetype"], "action
                    "monuments": v.get("monuments", []), "wonders": v.get("wonders", []), "radar": v.get("radar", {}),
                    "prowess_coded": "Prowess" in v["domains"]}
                for c, v in CULTURES.items()}
+
+# ── PHASE_REFORM text (runs last, after GLOSSARY_SEE / NAME_DISPLAY) ──────────────────────────────────────────
+if PHASE_REFORM:
+    GLOSSARY["Council Phase"] = ("The phase after the Empire Phase: each player sends a free Council Envoy of Industry, which performs "
+                                 "the Era's Council actions. There is no vote.")
+    GLOSSARY["Council Envoy"] = "A free Envoy of Industry sent in the End of Empire Phase; auto-Abstained, net Influence floored at 1."
+    GLOSSARY["Intrigue Phase"] = GLOSSARY["Intrigue Phase"].replace("after the Forum", "after the Diplomacy step")
+    NAME_DISPLAY["Council Phase"] = ALIASES["Council Phase"] = "End of Empire Phase"
+    _ALIAS_RE = _re_disp.compile(r"\b(" + "|".join(_re_disp.escape(k) for k in sorted(ALIASES, key=len, reverse=True)) + r")\b")   # include the rename
+    if "Council Phase" in GLOSSARY_SEE: GLOSSARY_SEE["Council Phase"] = "end-of-empire-phase"
+    GLOSSARY["Council Phase"] += " In Spring it is a Diplomacy step instead (offers between players)."
+    SEASONS["Spring"]["effect"] = SEASONS["Spring"]["effect"].replace(
+        "Council Phase, or Diplomacy Actions.", f"or Diplomacy Actions outside the End of Empire Phase (a Diplomacy step in Spring).")

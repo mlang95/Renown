@@ -8,7 +8,7 @@ if(EQ.weapons&&EQ.weapons["2HBastard"]){EQ.bastard2h=EQ.weapons["2HBastard"];del
 function fixBastard(a){if(a&&a.weapon==="2HBastard"){a.weapon="Bastard Sword";if(a.b2h==null)a.b2h=true;}}
 const TIER_RANK = {Crude:0,Cast:1,Wrought:2,Forged:3,Crafted:4};
 const ARMOR_TAG = {Gambeson:"Gambeson",Leather:"Leather",Chainmail:"Chainmail",FullPlate:"Full Plate"};
-const NAMES = Object.keys(R).sort();
+const NAMES = Object.keys(R).filter(n=>!R[n].deprecated).sort();   // deprecated Holdings: in R for saved games, offered nowhere
 const NATURAL = new Set(DATA.naturalNames);
 const SIMPLE=!!DATA.simple;   // SIMPLE pursuit graph (renown_data.SIMPLE)
 const SCORE=DATA.scoreTerm||"Influence";

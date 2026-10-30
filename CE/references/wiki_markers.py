@@ -276,7 +276,7 @@ if __name__ == "__main__":
     # self-test: resolve every marker in the given rules file
     import sys
     src = sys.argv[1] if len(sys.argv) > 1 else "RULES_reorganized_5.md"
-    text = open(src, encoding="utf-8").read()
+    import rule_numbers as _rn; text = _rn.conditionals(open(src, encoding="utf-8").read())
     text = preprocess_inline(text)
     leftover_val = VAL_RE.findall(text) + VERSION_RE.findall(text)
     print("unresolved inline markers:", leftover_val or "none")

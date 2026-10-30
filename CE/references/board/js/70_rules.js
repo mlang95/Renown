@@ -52,7 +52,7 @@ function actRestrict(owner,action,target){const a=(DATA.actions||{})[action]||{}
   return out;}
 function actRiders(owner,action,target){const a=(DATA.actions||{})[action]||{},dom=a.domain||"",out=[];
   srcMatch(owner.board,"rider_extra").forEach(x=>{if(x.m[2].toLowerCase()===dom.toLowerCase()||/piety actions cause/i.test(x.m[1])&&dom==="Piety")out.push(x.n+": "+x.m[1]);});
-  if(dom==="Piety")D.players.forEach(p=>srcMatch(p.board,"piety_extra_doubt").forEach(x=>out.push(x.n+" · "+p.name+": +"+x.m[1]+" Doubt to target")));
+  if(dom==="Piety")D.players.forEach(p=>srcMatch(p.board,"piety_extra_doubt").forEach(x=>out.push(x.n+" · "+p.name+": +"+x.m[1]+" Doubt where it gives Doubt")));
   srcMatch(owner.board,"rider_your_extra").forEach(x=>{if(x.m[2].toLowerCase()===dom.toLowerCase())out.push(x.n+": "+x.m[1]);});
   srcMatch(owner.board,"basilica_amp").forEach(x=>{if(x.m[1].toLowerCase()===dom.toLowerCase())out.push(x.n+": Faith +"+x.m[2]+" more where it gives Faith, Doubt +"+x.m[3]+" more where it gives Doubt");});
   srcMatch(owner.board,"no_envoy_cost").forEach(x=>{if(x.m[1].toLowerCase()===dom.toLowerCase())out.push(x.n+": no cost");});
@@ -256,8 +256,10 @@ function runAutoExtort(){const out=[],treasuryAtStart=new Map(D.players.map(p=>[
      D.players.forEach(q=>{if(sameP(q,p)||!metrics.some(m=>metricValue(q,m)<metricValue(p,m)))return;
        const amt=Math.floor(Math.max(0,q.board.treasury||0)*pct/100/100)*100,t=extortGold({b:q.board},{b:p.board},amt,x.n);
        if(t)out.push(p.name+" tithes "+t.toLocaleString()+" from "+q.name+" — "+x.n);});}));}
-  D.players.forEach(p=>srcMatch(p.board,"extort_lower_treasury").forEach(x=>D.players.forEach(q=>{
-    if(sameP(q,p)||alliedP(p,q)||(treasuryAtStart.get(String(q.id))||0)>=(treasuryAtStart.get(String(p.id))||0))return;
+  // "Extort N from each [non-allied] player with a lower <Treasury | Domain | Public Order>": Treasuries as they stood when Extort began
+  const lowerVal=(q,k)=>k==="treasury"?(treasuryAtStart.get(String(q.id))||0):k==="public order"?(+q.board.po||0):(+((q.board.domains||{})[k.replace(/^\w/,c=>c.toUpperCase())])||0);
+  D.players.forEach(p=>srcMatch(p.board,"extort_lower_treasury").forEach(x=>D.players.forEach(q=>{const k=String(x.m[3]||"Treasury").toLowerCase();
+    if(sameP(q,p)||(x.m[2]&&alliedP(p,q))||lowerVal(q,k)>=lowerVal(p,k))return;
     const t=extortGold({b:q.board},{b:p.board},+x.m[1],x.n);
     if(t)out.push(p.name+" extorts "+t.toLocaleString()+" from "+q.name+" — "+x.n);
   })));
@@ -355,29 +357,32 @@ function sackLocks(){const live=new Set(realmTimers().filter(t=>t.kind==="sack")
 function armyHex(p,a){{const x=armyInside(p,a),k=x?settHex(x.q,x.s):null;if(k)return k;}const M=mapState();return Object.keys(M.cells).find(k=>{const c=M.cells[k];return c.type==="Army"&&String(c.player)===String(p.id)&&cellArmy(k).a===a;})||null;}
 function settHex(p,s){const M=mapState();return Object.keys(M.cells).find(k=>{const c=M.cells[k];return c.type!=="Army"&&String(c.player)===String(p.id)&&cellSett(k).s===s;})||null;}
 function musterLimit(p,a){const k=armyHex(p,a),rb=reachBonus(p).b,out={lim:0,src:[],paused:[],onMap:!!k};
-  (p.board.settlements||[]).forEach(s=>{if(settUnbuilt(s))return;const st=(DATA.settlements||{})[s.tier]||{},ml=+st.muster_limit||0;if(!ml)return;
+  const each=srcMatch(p.board,"muster_plus_each"),eb=each.reduce((n,x)=>n+(+x.m[1]||0),0);   // "Each of your Settlements gains Muster Limit +X" (Garrison)
+  (p.board.settlements||[]).forEach(s=>{if(settUnbuilt(s))return;const st=(DATA.settlements||{})[s.tier]||{},ml=(+st.muster_limit||0)+eb;if(!ml)return;
     let ok=!k;if(k){const sk=settHex(p,s);ok=!!sk&&hexDist(hk(sk),hk(k))<=(+st.reach||0)+rb;}
     if(!ok)return;if(siegeOn(p.id,s.id)&&!srcHas(p.board,"muster_besieged")){out.paused.push(s.name||s.tier);return;}
-    out.lim+=ml;out.src.push((s.name||s.tier)+" "+ml);});
+    out.lim+=ml;out.src.push((s.name||s.tier)+" "+ml+(eb?" (incl. +"+eb+" "+each.map(x=>x.n).join(", ")+")":""));});
   if(out.lim)srcMatch(p.board,"muster_plus").forEach(x=>{out.lim+=+x.m[1];out.src.push(x.n+" +"+x.m[1]);});   // "Muster Limit +X": once, on the combined limit
   return out;}
-function musterTick(p){const out=[];(p.board.armies||[]).forEach(a=>{const m=a.muster;if(!m||!(m.n>0))return;
+function musterTick(p){const out=[];(p.board.armies||[]).forEach(a=>{const x=musterStep(p,a);if(x)out.push(x);});return out;}
+// one step of an Army's Muster: it gains Retinues up to the combined muster limit and its Muster Timer drops by 1 (the Empire
+// Phase count-down, a Reinforce of an Army already mustering, the Keep's "When you Muster" rush). Returns a log line, or "".
+function musterStep(p,a){const m=a.muster;if(!m||!(m.n>0))return "";
   const L=musterLimit(p,a),room=Math.max(0,(EQ.army_max||25)-(a.count||0)),g=Math.min(L.lim,m.n,room);
   if(g>0){a.count=(a.count||0)+g;m.n-=g;}
   if(!room)m.n=0;
   m.t=m.n>0&&L.lim>0?Math.ceil(m.n/L.lim):0;
-  out.push((a.label||("Army "+a.id))+": mustered +"+g+(m.n>0?" ("+m.n+" left"+(L.lim?"":" — paused, no muster limit")+")":" — done")+(L.paused.length?" · besieged: "+L.paused.join(", "):""));
-  if(!(m.n>0))delete a.muster;});
-  return out;}
+  const s=(a.label||("Army "+a.id))+": mustered +"+g+(m.n>0?" ("+m.n+" left"+(L.lim?"":" — paused, no muster limit")+")":" — done")+(L.paused.length?" · besieged: "+L.paused.join(", "):"");
+  if(!(m.n>0))delete a.muster;return s;}
 function hasMusterField(b){return withBoard(b,()=>Object.keys(S.infra||{}).some(n=>infraOn(n)&&!!hitOf("i:"+n,"muster_field")));}
 
-// ---- Settle placement (flags): Hill, Province or Army Presence (checked when placed), Outlaw buffer, Hamlet range from the capital ----
+// ---- Settle placement (flags): Grassland (a Hill is Grassland too), Province or Army Presence (checked when placed), Outlaw buffer, Hamlet range from the capital ----
 function charterFlags(p){const M=mapState(),g=M.grid,f=[];if(!g)return f;const V=decodeGrid(g);
   const mine=mapSetts().filter(x=>String(x.cell.player)===String(p.id)),all=mapSetts(),cap=(p.board.settlements||[]).find(s=>s.capital);
   const capK=cap?settHex(p,cap):null;
   mine.forEach(x=>{const h=V.hex[x.k],nm=x.cell.type+" @ "+x.k;
     if(h&&(h.t==="mountain"||h.t==="water"))f.push("Settle: "+nm+" is on "+(RULE_NAME[h.t]||h.t));
-    else if(h&&x.cell.type==="Village"&&!h.hill)f.push("Settle: "+nm+" is not on a Hill (Villages are settled on Hills only)");
+    else if(h&&x.cell.type==="Village"&&h.t!=="plains")f.push("Settle: "+nm+" is not on Grassland (Villages are settled on Grassland only)");
     if(x.cell.settleWhy)f.push("Settle: "+nm+" "+x.cell.settleWhy);
     if(x.cell.type==="Hamlet"){if(capK&&RC.HAMLET_RANGE!=null&&hexDist(hk(x.k),hk(capK))!==+RC.HAMLET_RANGE)f.push("Settle: Hamlet @ "+x.k+" is range "+hexDist(hk(x.k),hk(capK))+" from the capital (must be "+RC.HAMLET_RANGE+")");}
     if(RC.OUTLAW_BUFFER_RANGE!=null)Object.keys(M.outlaw).forEach(o=>{const d=hexDist(hk(x.k),hk(o));if(d<+RC.OUTLAW_BUFFER_RANGE)f.push("Settle: "+nm+" is range "+d+" from Outlaw Country @ "+o+" (min "+RC.OUTLAW_BUFFER_RANGE+")");});});

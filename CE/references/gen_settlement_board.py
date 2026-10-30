@@ -432,7 +432,8 @@ def build(ns):
     records = {}
     natural_names = set()
     external = set()
-    for name, v in N.items():
+    DEP = ns.get("DEPRECATED_NODES", {}) if ns.get("SIMPLE") else {}   # kept for saved games; hidden from every list
+    for name, v in {**N, **DEP}.items():
         innate = parse_effects(v.get("innate", ""))
         mastery = parse_effects(v.get("mastery", ""))
         if any(a.get("natural") for a in innate):
@@ -444,6 +445,7 @@ def build(ns):
                 if classify_req_token(opt, names, settle_names) == "external":
                     external.add(opt)
         records[name] = {
+            "deprecated": name in DEP,
             "name": name, "type": v.get("type", "?"), "group": (ns.get("HOLDING_GROUPS") or {}).get(v.get("group"), ""),
             "monument": bool(v.get("monument")),
             "root": bool(v.get("root")),
@@ -647,7 +649,7 @@ def check_rules(ns, rules_path):
     Prints a report; returns the number of hard MISMATCHes."""
     if not os.path.exists(rules_path):
         print(f"rules file not found: {rules_path}"); return 0
-    txt = open(rules_path, encoding="utf-8").read().replace("\u2212", "-")   # normalise unicode minus
+    import rule_numbers as _rn; txt = _rn.conditionals(open(rules_path, encoding="utf-8").read()).replace("\u2212", "-")   # normalise unicode minus
     WORD = {"one":1,"two":2,"three":3,"four":4,"five":5,"six":6,"seven":7,"eight":8,"nine":9,"ten":10}
     rows = []   # (name, data/tool value, rules value, status)
     def add(name, dv, rv, path=None):
@@ -754,7 +756,7 @@ def check_rules(ns, rules_path):
     except Exception as e:
         rows.append(("rule anchors", "—", f"check failed: {e}", "MISMATCH"))
     # board plumbing: phase rule sections the board reads by heading
-    for h in ("Empire Phase", "Council Phase", "Envoy Phase", "Battle Phase", "Rest Phase",
+    for h in ("Empire Phase", council_heading(ns), "Envoy Phase", "Battle Phase", "Rest Phase",
               "The Skirmish Steps", "Beginning a Battle", "Ending a Battle"):
         if not re.search(r"^#+\s*" + re.escape(h) + r"\s*$", txt, re.M):
             rows.append(("heading '" + h + "'", "board reads", "missing", "MISMATCH"))
@@ -779,11 +781,15 @@ def _val(ns, path):
             return None
     return cur
 
+def council_heading(ns):
+    """The rules heading of turn phase 2: the End of Empire Phase under PHASE_REFORM, else the Council Phase."""
+    return "End of Empire Phase" if ns.get("PHASE_REFORM") else "Council Phase"
+
 def rules_section(rules_path, heading, ns):
     """Return the markdown body under an exact '### heading' line, {{VAL:x}} resolved from data."""
     if not rules_path or not os.path.exists(rules_path):
         return ""
-    lines = open(rules_path, encoding="utf-8").read().splitlines()
+    import rule_numbers as _rn; lines = _rn.conditionals(open(rules_path, encoding="utf-8").read()).splitlines()
     out, on = [], False
     for ln in lines:
         if ln.strip().lstrip("#").strip() == heading and ln.lstrip().startswith("#"):
@@ -827,6 +833,7 @@ def battle_data(ns, rules_path):
         "serratedMod": ns["SERRATED_MOD"] if "SERRATED_MOD" in ns else (lambda m: int(m.group(1)) if m else 2)(re.search(r"-(\d+) penalty to the defender's Recover", str(ns.get("GLOSSARY", {}).get(ns.get("SERRATED", "Serrated"), "")))),
         "standingFx": {f"{d}|{t}": v for (d, t), v in ns.get("STANDING_EFFECTS", {}).items()},
         "tacticNotes": dict(ns.get("TACTIC_NOTES", {}) or {}),
+        "narration": dict(ns.get("BATTLE_NARRATION", {}) or {}),
         "panicThreshold": ns.get("PANIC_CASUALTY_THRESHOLD"), "fatigueMorale": ns.get("FATIGUE_MORALE"),
         "fatigueStrike": ns.get("FATIGUE_STRIKE"), "capThr": ns.get("CAP_THR"), "routThr": ns.get("ROUT_THR"),
         "faces": ns.get("FACES"), "focusedThr": ns.get("FOCUSED_THR"), "deadlyAp": ns.get("DEADLY_AP"),
@@ -886,7 +893,8 @@ RULES_CONSTS = ("PHASES", "MARCH_MULTIPLIER", "MUSTER_RANGE", "CHARTER_MIN_RANGE
                 "PRESENCE_RANGE", "FAITH_FICKLE_PO", "WARD_MODEL", "SETUP_HAMLET_HOLDINGS",
                 "SETUP_CAPITAL_PICKS", "SETUP_HAMLET_PICKS", "HAMLET_REPEATABLE", "AGE_YEAR_ROLL_MEAN", "AGE_YEAR_ROLL_SD",
                 "AI_DOMAIN_POINTS", "AI_PRIORITIES", "AI_FAITH_AVOID", "AI_DIPLOMACY", "AI_PROFILES",
-                "AI_STYLE", "AI_MUSTER", "AI_ARCHETYPE", "AI_PO_GOLD")
+                "AI_STYLE", "AI_MUSTER", "AI_ARCHETYPE", "AI_PO_GOLD",
+                "PHASE_REFORM", "COUNCIL_DOMAIN", "COUNCIL_DOMAIN_SPRING", "FORUM_DOMAIN", "FORUM_ACTIONS")
 
 def effects_report(ns, records, infra, wonders, out_md):
     """ENVOY_WINDOW_REVIEW.md: every clause that names Envoys, its timing window and Personal / Council predicate
@@ -979,10 +987,10 @@ def main():
                      "requires": v.get("requires", ""), "effect": v.get("effect", ""), "notes": list(v.get("notes", []) or [])}
                  for k, v in ns.get("ACTIONS", {}).items()},
         phaseRules={k: rules_section(rules_path, h, ns) for k, h in
-                    (("empire", "Empire Phase"), ("council", "Council Phase"), ("envoy", "Envoy Phase"),
+                    (("empire", "Empire Phase"), ("council", council_heading(ns)), ("envoy", "Envoy Phase"),
                      ("battle", "Battle Phase"), ("rest", "Rest Phase"))},
         phaseSteps={k: phase_steps(rules_section(rules_path, h, ns)) for k, h in
-                    (("empire", "Empire Phase"), ("council", "Council Phase"), ("envoy", "Envoy Phase"),
+                    (("empire", "Empire Phase"), ("council", council_heading(ns)), ("envoy", "Envoy Phase"),
                      ("battle", "Battle Phase"), ("rest", "Rest Phase"))},
         rulesConst={k: ns.get(k) for k in RULES_CONSTS if k in ns},
         ages=[{"name": n, "rising": a.get("rising"), "years": list(a.get("years", (0, 0)))}
@@ -1018,11 +1026,11 @@ def main():
         poModifiers=ns.get("PO_MODIFIERS", {}), vassalInfluenceTake=ns.get("VASSAL_INFLUENCE_TAKE", 0),
         aliases=ns.get("ALIASES", {}) or {}, scoreTerm=ns.get("TERM_ENVOY_SCORE", "Influence"), costs=ns.get("COSTS", {}), influenceGain=ns.get("INFLUENCE_GAIN", {}),
         siege={"calculus": ns.get("SIEGE_CALCULUS", {}), "sources": ns.get("SIEGE_SOURCE_VALUES", {})},
-        factions={k: {"final": bool(v.get("final_cut")), "difficulty": v.get("difficulty", ""), "strength": v.get("strength", ""),
+        factions={k: {"final": bool(v.get("final_cut")) and not v.get("deprecated"), "deprecated": bool(v.get("deprecated")), "difficulty": v.get("difficulty", ""), "strength": v.get("strength", ""),
                       "feel": v.get("feel", ""), "mechanic": v.get("mechanic", ""), "pair": v.get("pair", ""), "complement": v.get("complement", ""),
                       "fx": envoy_fx(v.get("mechanic", "")), "body": ns["faction_body"](k) if "faction_body" in ns else v.get("mechanic", ""),
                       "mname": v.get("mechanic_name", ""), "summary": v.get("summary", "")}
-                  for k, v in ns.get("FACTIONS", {}).items()},
+                  for k, v in {**ns.get("FACTIONS", {}), **ns.get("DEPRECATED_FACTIONS", {})}.items()},
         cultures={k: {"type": v.get("type", ""), "domains": list(v.get("domains", [])), "archetype": v.get("archetype", ""), "monuments": list(v.get("monuments", [])),
                       "wonders": list(v.get("wonders", [])), "mechanics": list(v.get("mechanic_name", [])),
                       "factions": list(v.get("factions", []))} for k, v in ns.get("CULTURES", {}).items()},

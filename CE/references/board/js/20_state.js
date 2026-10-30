@@ -57,6 +57,7 @@ function normalizeD(){
     p.board.edicts={};
     // renamed Infrastructure: carry saved pieces over to the new name
     const inf=p.board.infra||{};Object.keys(RENAMED_INFRA).forEach(o=>{if(o in inf){const n=RENAMED_INFRA[o];inf[n]=inf[n]||inf[o];delete inf[o];}});
+    dedupeIds(p.board);
     if(Array.isArray(p.board.facInfra))p.board.facInfra=p.board.facInfra.map(n=>RENAMED_INFRA[n]||n);});
   if(typeof D.renown!=="number")D.renown=1;
   if(D.active>=D.players.length)D.active=0;
@@ -64,6 +65,10 @@ function normalizeD(){
 }
 normalizeD();
 
+// Settlements / Armies / Holdings saved with a repeated id (the old Settle / Muster + Empire "+" counter clash): the first keeps
+// the id (and every map link / Holding pointing at it); each later copy gets a fresh one and shows up unlinked
+function dedupeIds(b){["settlements","armies","placed"].forEach(f=>{const L=b[f]||[],seen=new Set();
+  L.forEach(x=>{if(typeof x.id!=="number")return;if(seen.has(x.id))x.id=nextId(L);seen.add(x.id);});});}
 function activeBoard(){return D.players[D.active].board;}
 function reindex(){
   S=activeBoard();
@@ -118,13 +123,16 @@ const BTM=DATA.buildTimers||{},TMR=DATA.timers||{};
 const REPAIR_T=((TMR["Repair Timer"]||{}).default)||BTM.Repair||2;
 // "Build Timer ±X" on your active Pursuits (Innate, or Mastery when earned) adjusts the default Build Timer of new
 // Pursuits, Infrastructure, Wonders and Settlements (charter / upgrade); they stack; never below 0 (a Timer at 0 resolves immediately).
-function buildTimerMod(){return withBoard(S,()=>{const have=new Set(Object.keys(PC)),{earned}=computeEarned(have);let mod=0;const src=[];
+function buildTimerMod(){return timerMod("build_timer");}
+function timerMod(cat){return withBoard(S,()=>{const have=new Set(Object.keys(PC)),{earned}=computeEarned(have);let mod=0;const src=[];
   Object.keys(PC).forEach(n=>{[["h:",true,""],["hm:",!!earned[n]," (M)"]].forEach(([k,on,tag])=>{if(!on)return;
-    efxOf(k+n,"build_timer").forEach(x=>{const v=(x[1]==="+"?1:-1)*(+x[2]);mod+=v;src.push(n+tag+" "+(v>0?"+":"\u2212")+Math.abs(v));});});});
+    efxOf(k+n,cat).forEach(x=>{const v=(x[1]==="+"?1:-1)*(+x[2]);mod+=v;src.push(n+tag+" "+(v>0?"+":"\u2212")+Math.abs(v));});});});
   return {mod,src};});}
 function withBuildMod(base){if(!(base>0))return {t:base||0,base:base||0,mod:0,src:[]};const m=buildTimerMod();return {t:Math.max(0,base+m.mod),base,mod:m.mod,src:m.src};}
 function pursuitBaseTime(n){const r=R[n]||{};if(r.build_time!=null)return r.build_time;const t=r.type;return t==="Power"?(BTM["Power Pursuit"]??BTM.Pursuit):t==="Monument"?(BTM["Monument Pursuit"]??BTM.Pursuit):(BTM.Pursuit||0);}
 function infraBaseTime(n){if(WON[n])return BTM.Wonder||0;const i=INFRA[n];return i?(((BTM.Infrastructure||{})[i.tier])||0):0;}
+// "Repair Timer ±X" stacks the same way on the Repair action's Timer (board b); at 0 the piece is Restored at once
+function repairTime(b){return withBoard(b,()=>{const m=timerMod("repair_timer");return {t:Math.max(0,REPAIR_T+m.mod),mod:m.mod,src:m.src};});}
 function pursuitBuildTime(n){return withBuildMod(pursuitBaseTime(n)).t;}
 function infraBuildTime(n){return withBuildMod(infraBaseTime(n)).t;}
 function buildNote(base){const b=withBuildMod(base);return b.mod?" · Build Timer "+b.base+" → "+b.t+" ("+b.src.join(", ")+")":"";}
@@ -406,8 +414,8 @@ function hamletFits(name,present){return hamletRoot(name)||effList(name).some(h=
 const EFF_CACHE={};
 function effList(n){if(EFF_CACHE[n])return EFF_CACHE[n];const e=(R[n]||{}).efficient,raw=Array.isArray(e)?e:(e?[e]:[]),out=[];
   raw.forEach(x=>{if(R[x])out.push(x);
-    else if(/^natural$/i.test(x))Object.keys(R).filter(k=>NATURAL.has(k)).forEach(k=>out.push(k));
-    else Object.keys(R).filter(k=>R[k].type===x).forEach(k=>out.push(k));});
+    else if(/^natural$/i.test(x))NAMES.filter(k=>NATURAL.has(k)).forEach(k=>out.push(k));
+    else NAMES.filter(k=>R[k].type===x).forEach(k=>out.push(k));});
   return EFF_CACHE[n]=out.filter((x,i,a)=>x!==n&&a.indexOf(x)===i);}
 function effLabel(n){const e=(R[n]||{}).efficient;return (Array.isArray(e)?e:(e?[e]:[]));}
 function exemptionsOf(occ){

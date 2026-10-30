@@ -61,6 +61,14 @@ REM          decks are built from the legacy nodes' escalation data).
 set SIMPLE=1
 set RENOWN_SIMPLE=%SIMPLE%
 
+REM PHASES : 1 = no Council vote: the Council Phase becomes the End of Empire Phase (each player's
+REM          Council Envoy is Industry: 1 action in Founding, 2 from Ascension) and the Envoy
+REM          Phase Forum becomes the Diplomacy step (each player also sends one Council-style
+REM          Diplomacy Envoy, 1 action). 0 = the Council vote and plain Forum.
+REM          Read by renown_data via RENOWN_PHASES (default 1 when unset).
+set PHASES=1
+set RENOWN_PHASES=%PHASES%
+
 REM TRADE_BORDER : 1 = Trade Agreements require the two players to border, 0 = no border needed.
 REM          Read by renown_data via the RENOWN_TRADE_BORDER environment variable.
 set TRADE_BORDER=0
@@ -191,7 +199,7 @@ set /p VERSION=<"%TEMP%\ce_ver.txt"
 del "%TEMP%\ce_ver.txt"
 
 echo.
-echo === build_all_CE : v%VERSION%  DIE=%DIE%  SIMPLE=%SIMPLE%  WHAT=%WHAT%  PLAYERS=%PLAYERS%  PUSH_REPO=%PUSH_REPO% ===
+echo === build_all_CE : v%VERSION%  DIE=%DIE%  SIMPLE=%SIMPLE%  PHASES=%PHASES%  WHAT=%WHAT%  PLAYERS=%PLAYERS%  PUSH_REPO=%PUSH_REPO% ===
 echo     data   %DATA_SRC%  -^> renown_data.py in %CE_ROOT%
 echo     sheets %SHEET_DIR%
 echo     maps   %MAP_DIR%

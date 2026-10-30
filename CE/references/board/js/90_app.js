@@ -15,7 +15,11 @@ function undoScoped(){return !!(typeof SYNC!=="undefined"&&SYNC.ready)&&!HOTSEAT
 function undoApply(sn){const o=JSON.parse(sn);UNDO.mute=true;
   try{
     if(undoScoped()){const me=meP(),src=(o.players||[]).find(p=>String(p.id)===String(me.id));
-      if(src){const tb=me.board.tbl,ac=me.board.act;me.board=src.board;if(tb)me.board.tbl=tb;if(ac)me.board.act=ac;}}
+      if(src){const tb=me.board.tbl,ac=me.board.act;me.board=src.board;if(tb)me.board.tbl=tb;if(ac)me.board.act=ac;}
+      // the shared map: put back each hex the step changed where your piece was or is (others' later edits elsewhere stay)
+      const M=mapState(),om=(o.map||{}).cells||{},mine=c=>c&&String(c.player)===String(me.id);
+      new Set(Object.keys(M.cells).concat(Object.keys(om))).forEach(k=>{const a=M.cells[k],b=om[k];if(!mine(a)&&!mine(b))return;
+        if(JSON.stringify(a)===JSON.stringify(b))return;if(b)M.cells[k]=b;else delete M.cells[k];});}
     else{const tbls={},acts={};D.players.forEach(p=>{if(p.board&&p.board.tbl)tbls[p.id]=p.board.tbl;if(p.board&&p.board.act)acts[p.id]=p.board.act;});
       Object.keys(D).forEach(k=>{if(k!=="view"&&k!=="active"&&k!=="tbl"&&!(k in o))delete D[k];});
       Object.keys(o).forEach(k=>{D[k]=o[k];});
@@ -151,7 +155,7 @@ document.getElementById("gameNew").onclick=async()=>{if(!gameAllowed()){flash("o
 function gslug(s){return String(s).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
 const GK_LIST=[],GK_BY={},GK_LC={};
 (()=>{const add=(t,k,label)=>{const e=esc(label||t);if(!t||GK_BY[e]!=null)return;GK_BY[e]=GK_LIST.length;GK_LC[e.toLowerCase()]=GK_LIST.length;GK_LIST.push({t,k});};
-  Object.keys(R).forEach(n=>add(n,"p"));Object.keys(WON||{}).forEach(n=>add(n,"w"));Object.keys(INFRA||{}).forEach(n=>add(n,"i"));
+  NAMES.forEach(n=>add(n,"p"));Object.keys(WON||{}).forEach(n=>add(n,"w"));Object.keys(INFRA||{}).forEach(n=>add(n,"i"));
   Object.keys(GLOSS).filter(t=>/^[A-Z][A-Za-z' /-]{2,}$/.test(t)).forEach(t=>{
     const m=t.match(/^(.+?) X$/);                                   // "Extort X" → Extort, Extorts, Extorted…
     if(m){const b=m[1];[b,b+"s",b+"ed",b+"ing",b+"ion"].forEach(v=>add(t,"g",v));}else add(t,"g");

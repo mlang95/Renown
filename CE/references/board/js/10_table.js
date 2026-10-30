@@ -7,7 +7,7 @@ const T_ALL=["Diplomacy"].concat(T_DOMS);
 const EOUT=DATA.envoyOutcomes||{};
 const ETH=Object.assign({Condemned:-3,Failed:0,Passed:1,Endorsed:3},DATA.outcomeThresh||{});
 const T_PH=["empire","council","envoy","battle","rest"];
-const T_PHL={empire:"Empire Phase",council:"Council Phase",envoy:"Envoy Phase",battle:"Battle Phase",rest:"Rest Phase"};
+const T_PHL={empire:"Empire Phase",council:(DATA.rulesConst||{}).PHASE_REFORM?"End of Empire Phase":"Council Phase",envoy:"Envoy Phase",battle:"Battle Phase",rest:"Rest Phase"};
 let SKEW=0,SKEW_N=0;                                                    // server clock − local clock (ms)
 function tnow(){return Date.now()+SKEW;}
 function noteServerDate(r){try{const d=Date.parse(r.headers.get("date")||"");if(isNaN(d))return;
@@ -48,6 +48,9 @@ function seatMap(){const n=tSeats(),m={};
     .forEach(o=>{if(!m[o.x.seat])m[o.x.seat]=o.p;});return m;}
 function seated(){const m=seatMap();return Object.keys(m).map(Number).sort((a,b)=>a-b).map(i=>m[i]);}
 function isSpring(){return curSeason()==="Spring";}   // SEASONS.Spring: no Host, Council Phase, Diplomacy actions or Influence gain
+// the Council Phase's Domain now: PHASE_REFORM fixes it (RC.COUNCIL_DOMAIN_SPRING in Spring), else null = voted; councilOff: no phase this turn
+function councilDomNow(){return isSpring()?(RC.COUNCIL_DOMAIN_SPRING||null):(RC.COUNCIL_DOMAIN||null);}
+function councilOff(){return isSpring()&&!RC.COUNCIL_DOMAIN_SPRING;}
 function hostP(){const s=seated();return s.find(p=>String(p.id)===String(TB().host))||s[0]||null;}
 // "You always vote last, after the Host" (Whispering Undercroft): holders move behind the Host, keeping their relative order
 // players who vote in the Tally Phase (Whispering Undercroft) go last on an Envoy voted then (a Forgery Workshop retry)
@@ -64,7 +67,9 @@ function diploCap(){const e=eraRec();return e.max_influence_per_diplomacy_vote??
 function eraActions(council){const e=eraRec();return Math.max(1,+(council?e.council_actions_per_envoy:e.actions_per_envoy)||1);}
 // an Envoy that performs more than one action this Era: the Envoy itself is action 1; actions 2..n are copies with id "<id>#<k>",
 // each with its own Perform record, offered once the action before it has been performed
-function envSlots(E){if(E.slot||!(E.out==="Passed"||E.out==="Endorsed"))return [];const n=eraActions(E.council);
+// actions one Envoy performs: the Diplomacy step's Envoy (PHASE_REFORM) RC.FORUM_ACTIONS, else by Era
+function envActions(E){return E.forum?Math.max(1,+RC.FORUM_ACTIONS||1):eraActions(E.council);}
+function envSlots(E){if(E.slot||!(E.out==="Passed"||E.out==="Endorsed"))return [];const n=envActions(E);
   const L=Array.from({length:n-1},(_,i)=>Object.assign({},E,{id:E.id+"#"+(i+2),slot:i+2,slots:n,base:E}));
   const b=endorsedBonus(E);if(b)L.push(Object.assign({},E,{id:E.id+"#"+(n+1),slot:n+1,slots:n,base:E,bonus:b,out:"Passed"}));
   return L;}
@@ -142,11 +147,11 @@ function outText(dom,out){return ((EOUT[dom]||{})[String(out).toLowerCase()])||"
 
 // ---- the plan: ordered envoys for the current phase ----
 function tPlan(ph,ord,councilDom){const L=[];
-  if(ph==="council"&&isSpring())return L;
-  if(ph==="council"){const nc=councilEnvoys();ord.forEach(p=>{if(fxOf(p,"noCouncil").length)return;for(let k=0;k<nc;k++)L.push({id:"C:"+p.id+(k?":"+k:""),owner:p,dom:councilDom||null,council:true,k});});return L;}
+  if(ph==="council"&&councilOff())return L;
+  if(ph==="council"){const nc=councilEnvoys();ord.forEach(p=>{if(fxOf(p,"noCouncil").length||(councilDom==="Diplomacy"&&isVassal(p.id)))return;for(let k=0;k<nc;k++)L.push({id:"C:"+p.id+(k?":"+k:""),owner:p,dom:councilDom||null,council:true,k});});return L;}
   if(ph!=="envoy"||!ord.every(p=>(tCur(p).decl||{}).lock))return L;
   const cnt=(p,d)=>Math.max(0,+(((tCur(p).decl||{}).n||{})[d])||0);
-  if(!isSpring())ord.forEach(p=>{for(let k=0;k<cnt(p,"Diplomacy");k++)L.push({id:"E:"+p.id+":Diplomacy:"+k,owner:p,dom:"Diplomacy",k});});
+  if(!isSpring()&&!RC.PHASE_REFORM)ord.forEach(p=>{for(let k=0;k<cnt(p,"Diplomacy");k++)L.push({id:"E:"+p.id+":Diplomacy:"+k,owner:p,dom:"Diplomacy",k});});
   // Diplomatic Mission: an extra Envoy in another Domain, sent after a Diplomacy Envoy (rules: Rule: Diplomatic Mission)
   const dip=new Set(L.map(E=>E.id));   // the source Envoy must exist this turn (its Failed outcome is checked when the Mission is chosen)
   const mis=p=>Object.entries(tCur(p).mission||{}).filter(([src,d])=>T_DOMS.includes(d)&&dip.has(src)).map(([src,d])=>({src,d}));
@@ -171,7 +176,7 @@ function tSim(){
   const R={ph,ord,log:[],envoys:[],cur:null,curEnvoy:null,spent:{},pool:{},resolved:new Set(),plan:[],councilDom:null,selfSup:{},stage:""};
   ord.forEach(p=>{R.spent[p.id]=0;R.pool[p.id]=inflPool(p);});
   if(ph!=="council"&&ph!=="envoy"){R.done=true;return R;}
-  if(ph==="council"&&isSpring()){R.done=true;R.spring=true;return R;}
+  if(ph==="council"&&councilOff()){R.done=true;R.spring=true;return R;}
   if(!ord.length){R.waiting="seat";return R;}
   if(!t.phaseTs){R.waiting="start";return R;}
   let clock=t.phaseTs;
@@ -221,6 +226,10 @@ function tSim(){
       if(!r){R.curEnvoy=E;return false;}
       applyVote(E,v,r);}
     finish(E);R.log.push({kind:"envoy",E});return true;}
+  if(ph==="council"&&dsOn()){R.councilDom=councilDomNow();R.plan=[];if(!dsAllDone()){R.waiting="diplomacy";return R;}R.done=true;return R;}
+  if(ph==="council"&&councilDomNow()){const cd=councilDomNow();R.councilDom=cd;R.plan=tPlan(ph,ord,cd);   // PHASE_REFORM: no vote
+    for(const E of R.plan)if(!envoyRun(E))return R;
+    R.done=true;return R;}
   if(ph==="council"){
     const tally={};
     for(const p of voteOrd(ord)){if(fxOf(p,"noVote").length){R.log.push({kind:"cvote",who:p,dom:null,auto:true});continue;}
@@ -242,6 +251,7 @@ function tSim(){
   const pend=ord.filter(p=>!(tCur(p).decl||{}).lock);
   if(pend.length){R.waiting="declare";R.declPending=pend;return R;}
   clock=Math.max(clock,...ord.map(p=>+tCur(p).decl.lock||0));
+  if(dsOn()&&!dsAllDone()){R.waiting="diplomacy";return R;}   // 2. Diplomacy step (PHASE_REFORM)
   R.plan=tPlan(ph,ord,null);
   if(!intrigueRun(R,ord,runSlot))return R;                         // 3. Intrigue Phase
   for(const E of R.plan){if(E.retry)continue;if(!envoyRun(E))return R;}   // 4. Vote (retries are voted at the end of the Tally Phase)
@@ -360,7 +370,9 @@ const AA={
 };
 // Muster (Prowess): Raise a new Army in a Settlement you Control, or Reinforce one; the Muster Timer then runs on the Army card
 function musterOpts(o){const b=o.board,L=[],mx=EQ.army_max||25,cap=withBoard(b,()=>eraCap("armies")),n=(b.armies||[]).length;
-  (b.armies||[]).forEach(a=>{const room=Math.max(0,mx-(a.count||0));if(room>0)L.push({v:"r:"+a.id,label:"Reinforce "+(a.label||("Army "+a.id))+" (+"+Math.min(room,MUSTER_DEFAULT)+")"});});
+  (b.armies||[]).forEach(a=>{const room=Math.max(0,mx-(a.count||0)),nm=a.label||("Army "+a.id),m=a.muster;if(!(room>0))return;
+    if(m&&m.n>0){const lim=musterLimit(o,a).lim;L.push({v:"r:"+a.id,label:"Reinforce "+nm+" — hurry its Muster (+"+Math.min(lim,m.n,room)+" now · Muster Timer "+m.t+" → "+Math.max(0,m.t-1)+")"});}
+    else L.push({v:"r:"+a.id,label:"Reinforce "+nm+" (+"+Math.min(room,MUSTER_DEFAULT)+")"});});
   (b.settlements||[]).filter(s=>!settUnbuilt(s)).forEach(s=>{const occ=armiesInside(o,s).length;
     L.push({v:"n:"+s.id,label:"Raise in "+(s.name||s.tier)+(occ?" · occupied":"")+(cap!=null&&n>=cap?" · ⚑ "+n+"/"+cap+" Armies":"")});});
   return L;}
@@ -372,8 +384,11 @@ function runMuster(c){const o=c.o,b=o.board,k=c.sub.slice(0,1),v=c.sub.slice(2),
     if(s&&armiesInside(o,s).length>1)c.flag((s.name||s.tier)+": more than one Army inside");}
   else a=b.armies.find(x=>String(x.id)===v);
   if(!a){c.flag("Muster: Army not found");return;}
-  const L=musterLimit(o,a),n=Math.min(MUSTER_DEFAULT,Math.max(0,mx-(a.count||0)));a.muster={n,t:L.lim?Math.ceil(n/L.lim):0};
-  c.log((a.label||("Army "+a.id))+": Muster "+n+" · Muster Timer "+a.muster.t+(L.lim?" (limit "+L.lim+")":" · no muster limit in reach"));
+  // Reinforce of an Army already mustering: hurry it (Muster Timer -1, gains up to the combined muster limit now) instead of a new Muster
+  if(k==="r"&&a.muster&&a.muster.n>0){const t0=a.muster.t,x=musterStep(o,a);c.log((a.label||("Army "+a.id))+": Muster hurried · Muster Timer "+t0+" → "+((a.muster||{}).t||0)+(x?" · "+x:""));}
+  else{const L=musterLimit(o,a),n=Math.min(MUSTER_DEFAULT,Math.max(0,mx-(a.count||0)));a.muster={n,t:L.lim?Math.ceil(n/L.lim):0};
+    c.log((a.label||("Army "+a.id))+": Muster "+n+" · Muster Timer "+a.muster.t+(L.lim?" (limit "+L.lim+")":" · no muster limit in reach"));}
+  srcMatch(b,"muster_rush").forEach(h=>{if(!(a.muster&&a.muster.n>0))return;const x=musterStep(o,a);if(x)c.log(h.n+": "+x);});
   if(!hasMusterField(b))c.flag("Mustering without an active Muster Field");}
 // Build: every Holding you may legally start now (pLegal: Scope, Standing, Mastery Chain line or Root, infrastructure_req, Raw
 // Material in Reach), with the Settlement it would go to (smartSid); or place it by hand (pending flag)
@@ -421,10 +436,12 @@ function runSettle(c){const o=c.o,b=o.board;b.settlements=b.settlements||[];cons
 function repairOpts(o){const b=o.board,L=[];
   (b.placed||[]).filter(q=>q.dmg>0&&!q.rep).forEach(q=>L.push({v:"h:"+q.id,label:q.name+" · "+settName(o,q.sid)}));
   Object.keys(b.idmg||{}).filter(n=>b.idmg[n]>0&&!(b.irep||{})[n]).forEach(n=>L.push({v:"i:"+n,label:n+" (Infrastructure)"}));return L;}
-function runRepair(c){const b=c.o.board,k=c.sub.slice(0,1),v=c.sub.slice(2);
-  if(k==="h"){const q=(b.placed||[]).find(x=>String(x.id)===v);if(!q){c.flag("Repair: Holding not found");return;}q.dmg=REPAIR_T;q.rep=1;c.log(q.name+": Repair Timer "+REPAIR_T);}
-  else{b.idmg=b.idmg||{};b.irep=b.irep||{};b.idmg[v]=REPAIR_T;b.irep[v]=1;c.log(v+": Repair Timer "+REPAIR_T);}
-  c.flag("When it completes: Restore (automatic) or Demolish by hand");}
+function runRepair(c){const b=c.o.board,k=c.sub.slice(0,1),v=c.sub.slice(2),rt=repairTime(b),
+    note=rt.t>0?": Repair Timer "+rt.t:": Restored (Repair Timer 0)",why=rt.mod?" ("+REPAIR_T+" "+rt.src.join(", ")+")":"";
+  if(k==="h"){const q=(b.placed||[]).find(x=>String(x.id)===v);if(!q){c.flag("Repair: Holding not found");return;}
+    if(rt.t>0){q.dmg=rt.t;q.rep=1;}else{delete q.dmg;delete q.rep;}c.log(q.name+note+why);}
+  else{b.idmg=b.idmg||{};b.irep=b.irep||{};if(rt.t>0){b.idmg[v]=rt.t;b.irep[v]=1;}else{delete b.idmg[v];delete b.irep[v];}c.log(v+note+why);}
+  if(rt.t>0)c.flag("When it completes: Restore (automatic) or Demolish by hand");}
 function settName(q,sid){const st=settById(q,sid);return st?(st.name||st.tier):"?";}
 // the target's faction: "When a player Declares War on you, that player and their allies gain Doubt +N" (Sacrosanct);
 // "When a player Declares War on the Duke, …" (The Great Arbiter) — flagged, resolved by hand
@@ -559,10 +576,9 @@ function resolveEnvoy(E,pe,fin){const o=E.owner,act=pe&&pe.rec&&pe.rec.action,A=
         flags.push(h.name+" ("+x.n+") may recoup "+(+x.m[1]).toLocaleString()+" gold");});});}
     if(AD==="Piety"){
       // Piety actions can affect a selected player, an Alliance, or several players (e.g. Spread Truth).
-      if(q)markActionTarget(q);if(al)allyGroup(al).forEach(markActionTarget);
-      D.players.forEach(h=>SM(h.board,"piety_extra_doubt").forEach(x=>actionTargets.forEach(p=>{
-        ctx.doubt(p,+x.m[1],true,x.n+" · "+h.name);
-      })));
+      // Ossuary Crypt: "+N more" only to the players the action itself gave Doubt (allies gaining Faith from Spread Truth get none)
+      const gaveDoubt=D.players.filter(p=>rawTo[p.id]>0);
+      D.players.forEach(h=>SM(h.board,"piety_extra_doubt").forEach(x=>gaveDoubt.forEach(p=>ctx.doubt(p,+x.m[1],true,x.n+" · "+h.name))));
     }
     // "…give their target Faith, it gains Faith +N more; …give Doubt, it gains Doubt +N more": only what the action itself gave, per player it gave it to
     SM(o.board,"basilica_amp").forEach(x=>{if(x.m[1].toLowerCase()!==AD.toLowerCase())return;const gf=Object.assign({},faithTo),gd=Object.assign({},rawTo);
@@ -596,8 +612,8 @@ function tApply(R){if(!autoRes())return;let ch=false;
 
 // ---- host actions ----
 // Spring has no Council Phase (SEASONS.Spring): the phase after the Empire Phase is the Envoy Phase
-function tNext(ph){const i=T_PH.indexOf(ph);let nx=T_PH[(i+1)%T_PH.length];if(nx==="council"&&isSpring())nx="envoy";return nx;}
-function tSetPhase(ph){if(ph==="council"&&isSpring())ph="envoy";const t=TB(),old=tPhase();if(ph!==old||!t.phaseTs){let snap;try{snap=JSON.parse(JSON.stringify(D));if(snap.tbl)delete snap.tbl.phaseStart;}catch(e){snap=null;}t.phaseStart=snap?{phase:ph,turn:tTurn(),data:snap}:null;}
+function tNext(ph){const i=T_PH.indexOf(ph);let nx=T_PH[(i+1)%T_PH.length];if(nx==="council"&&councilOff())nx="envoy";return nx;}
+function tSetPhase(ph){if(ph==="council"&&councilOff())ph="envoy";const t=TB(),old=tPhase();if(ph!==old||!t.phaseTs){let snap;try{snap=JSON.parse(JSON.stringify(D));if(snap.tbl)delete snap.tbl.phaseStart;}catch(e){snap=null;}t.phaseStart=snap?{phase:ph,turn:tTurn(),data:snap}:null;}
   t.phase=ph;t.begun=true;t.phaseTs=(ph==="council"||ph==="envoy")?tnow():0;t.skip={};t.extraTime={};t.deadlines={};if(ph==="rest")grantDP();
   if(ph==="council")t.councilTie=null;save();render();}
 function tRestartPhase(){const t=TB(),s=t.phaseStart,ph=tPhase();if(!s||s.phase!==ph||s.turn!==tTurn()||!s.data){flash("This phase has no saved restart point");return;}
@@ -812,6 +828,38 @@ function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.
       return '<div class="tn'+(r.monument?' mon':'')+(have?' have':'')+'" style="left:'+x+'px;top:'+y+'px;width:'+NW+'px;height:'+nh(n)+'px;border-color:'+col+'">'+inner(n)+'</div>';}).join("");
     return '<details class="tchart" data-t="'+esc(c.title)+'"'+(TREE_OPEN.has(c.title)?' open':'')+'><summary><b>'+esc(c.title)+'</b> <span class="note">'+ks.length+' Pursuits</span></summary><div class="tscroll"><div class="tcanvas" style="width:'+W+'px;height:'+H+'px">'+
       '<svg width="'+W+'" height="'+H+'"><defs>'+[...used].map(c=>'<marker id="tarw-'+c.slice(1)+'" viewBox="0 0 7 6" refX="0" refY="3" markerWidth="7" markerHeight="6" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="'+c+'"/></marker>').join("")+'</defs><g fill="none" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt">'+paths+'</g></svg>'+nodes+'</div></div></details>';}).join("");}
+// Infrastructure tree (Reference): one column per tier, an arrow for each "requires X"; pieces that need "One Tier X" (any one
+// piece of that tier) start a band below, tagged with that tier. Each box lists the Holdings whose requirement names it.
+let ITREE_OPEN=true;try{ITREE_OPEN=localStorage.getItem("renown_itree_open")!=="0";}catch(e){}
+document.addEventListener("click",e=>{const sm=e.target.closest("#refInfraTree > summary");if(sm){ITREE_OPEN=!sm.parentElement.open;try{localStorage.setItem("renown_itree_open",ITREE_OPEN?"1":"0");}catch(_){}}});
+function infraTreeHTML(){const ALL=Object.assign({},INFRA||{},WON||{}),names=Object.keys(ALL);if(!names.length)return '<div class="note">No Infrastructure in the data.</div>';
+  const TI=INFRA_TIERS.concat(names.some(n=>ALL[n].tier&&!INFRA_TIERS.includes(ALL[n].tier))?[...new Set(names.map(n=>ALL[n].tier).filter(t=>t&&!INFRA_TIERS.includes(t)))]:[]),
+    col=n=>Math.max(0,TI.indexOf(ALL[n].tier)),par={},anyT={},row={};
+  names.forEach(n=>{const q=String(ALL[n].requirement||"").trim(),m=q.match(/^One Tier (\w+)$/i);if(m)anyT[n]=m[1];else if(ALL[q])par[n]=q;});
+  // rows: depth-first from each root, a leaf takes the next row and a parent sits on its first child's row
+  let next=0;const kids=n=>names.filter(k=>par[k]===n),place=n=>{const K=kids(n);if(!K.length){row[n]=next++;return;}K.forEach(place);row[n]=row[K[0]];};
+  const roots=names.filter(n=>!par[n]).sort((a,b)=>col(a)-col(b));roots.filter(n=>!anyT[n]).forEach(place);const band=next;roots.filter(n=>anyT[n]).forEach(place);
+  const unl={};NAMES.forEach(h=>{const r=R[h];if(r&&r.mreq)masteryInfraToks(r).forEach(t=>{if(ALL[t])(unl[t]=unl[t]||[]).push(h);});});
+  const built=n=>!!((S.infra||{})[n]||(S.wonders||{})[n]),building=n=>(S.itimer||{})[n]>0,dn=n=>window.dispName?dispName(n):n;
+  const inner=n=>{const x=ALL[n],q=String(x.requirement||"").trim();
+    const bt=infraBuildTime(n);
+    return '<div class="tnh"><span class="gk">'+esc(dn(n))+'</span>'+(built(n)?' <span class="tb-b" title="'+(building(n)?'on your board, Build Timer running':'on your board and active')+'">'+(building(n)?'building · '+S.itimer[n]+' left':'built')+'</span>':'')+'</div>'+
+      '<div class="tnu">'+esc(x.tier||"")+' · Build Timer '+bt+(x.upkeep?' · upkeep '+(+x.upkeep).toLocaleString():'')+(anyT[n]?' · needs any one '+esc(anyT[n]):q&&!par[n]&&!/^(-|—|none)$/i.test(q)?' · needs '+esc(q):'')+'</div>'+
+      '<div class="tnc">'+(x.effect_raw?kwify(x.effect_raw,n):"—")+'</div>'+
+      (unl[n]?'<div class="tnu" style="margin-top:2px">Unlocks: '+unl[n].map(h=>'<span class="gk" data-gk="'+(GK_BY[esc(h)]??"")+'">'+esc(dn(h))+'</span>').join(", ")+'</div>':'');};
+  const NW=200,CG=46,RG=10,LH=18,mr=Math.max(...names.map(n=>row[n])),mc=TI.length-1,W=(mc+1)*NW+mc*CG;
+  const RH=(()=>{const m=document.createElement("div");m.style.cssText="position:absolute;visibility:hidden;left:-9999px;top:0";
+    m.innerHTML=names.map(n=>'<div class="tn" style="position:static;width:'+NW+'px;height:auto">'+inner(n)+'</div>').join("");document.body.appendChild(m);const rh=Array(mr+1).fill(54);
+    [...m.children].forEach((e,i)=>{const r=row[names[i]];rh[r]=Math.max(rh[r],Math.ceil(e.getBoundingClientRect().height)+6);});m.remove();return rh;})();   // +6: off-canvas measure runs short
+  const gapAt=r=>r>=band&&band<=mr?LH+8:0,RY=[];for(let r=0,y=LH+4;r<=mr;r++){if(r===band)y+=gapAt(r);RY.push(y);y+=RH[r]+RG;}
+  const H=RY[mr]+RH[mr]+RG,px=n=>[col(n)*(NW+CG),RY[row[n]]],AL=7,C="#6a6a72";
+  let paths="";names.filter(n=>par[n]).forEach(n=>{const [x0,y0]=px(par[n]),[x1,y1]=px(n),a=y0+Math.min(RH[row[par[n]]],RH[row[n]])/2,b=y1+Math.min(RH[row[par[n]]],RH[row[n]])/2,mx=x0+NW+CG/2;
+    paths+='<path d="M'+(x0+NW)+','+a+' H'+mx+' V'+b+' H'+(x1-1-AL)+'" marker-end="url(#iarw)"/>';});
+  const heads=TI.map((t,i)=>'<div class="note" style="position:absolute;left:'+(i*(NW+CG))+'px;top:0;width:'+NW+'px;text-align:center"><b>'+esc(t)+'</b></div>').join("")+
+    (band<=mr?'<div class="note" style="position:absolute;left:0;top:'+(RY[band]-LH-4)+'px;width:'+W+'px;border-top:1px dashed var(--line);padding-top:2px">Needs any one piece of the named tier</div>':'');
+  const boxes=names.map(n=>{const [x,y]=px(n);return '<div class="tn'+(WON[n]?' mon':'')+(built(n)?' have':'')+'" style="left:'+x+'px;top:'+y+'px;width:'+NW+'px;height:'+RH[row[n]]+'px;border-color:'+C+'">'+inner(n)+'</div>';}).join("");
+  return '<div class="tscroll"><div class="tcanvas" style="width:'+W+'px;height:'+H+'px"><svg width="'+W+'" height="'+H+'"><defs><marker id="iarw" viewBox="0 0 7 6" refX="0" refY="3" markerWidth="7" markerHeight="6" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="'+C+'"/></marker></defs>'+
+    '<g fill="none" stroke="'+C+'" stroke-width="1.4" stroke-linejoin="round">'+paths+'</g></svg>'+heads+boxes+'</div></div>';}
 // rulebook (collapsible, per device); keywords inside the text get hover links
 let RB_OPEN=false;try{RB_OPEN=localStorage.getItem("renown_rb_open")==="1";}catch(e){}
 document.addEventListener("click",e=>{const sm=e.target.closest("#refRules > summary");if(sm){RB_OPEN=!sm.parentElement.open;try{localStorage.setItem("renown_rb_open",RB_OPEN?"1":"0");}catch(_){}}});
@@ -825,12 +873,13 @@ function linkifyRules(root){if(!root)return;const w=document.createTreeWalker(ro
 function renderReference(){const host=document.getElementById("viewReference");
   const g=(D.map||{}).grid;
   let h='<div style="padding:14px"><h2 style="margin-bottom:8px">Reference</h2>'+
-    '<div class="refnav note">'+[["refRules","Rulebook"],["refTree","Pursuit tree"],["refSeasons","Seasons"],["refCosts","Costs"],["refStanding","Standings"],["refTerrain","Terrain & movement"],["refBattle","Tactics & Skirmish rules"]]
+    '<div class="refnav note">'+[["refRules","Rulebook"],["refTree","Pursuit tree"],["refInfraTree","Infrastructure tree"],["refSeasons","Seasons"],["refCosts","Costs"],["refStanding","Standings"],["refTerrain","Terrain & movement"],["refBattle","Tactics & Skirmish rules"]]
       .map(x=>'<a href="#" data-goto="reference#'+x[0]+'">'+x[1]+'</a>').join(' · ')+'</div>';
   h+='<details id="refRules" class="tot"'+(RB_OPEN?' open':'')+'><summary><b style="font-size:14px">Rulebook</b> <span class="note">— RULES_push.md, values from the data</span></summary>'+rulebookHTML()+'</details>';
   h+='<details id="refTree" class="tot"'+(TREE_SEC?' open':'')+'><summary><b style="font-size:14px">Pursuit tree</b></summary>'+
     '<div class="tb-row" style="margin:6px 0"><button data-tree="open">expand all</button><button data-tree="close">collapse all</button>'+
     (mapRaws()?'<label class="note"><input type="checkbox" id="refRaw"'+(REF_RAW?' checked':'')+'> only Holdings the map\'s Raw Materials can start'+(REF_RAW?' ('+(refRawAvail()||new Set()).size+'/'+NAMES.length+')':'')+'</label>':'')+'</div><div class="note">'+(SIMPLE?'':'Innate + Mastery combined (Mastery assumed earned; same stats summed). ')+'Colour = unlock Domain; ◆ = Monument; 🔒 = your Standing doesn\'t meet the unlock yet.</div>'+treeHTML()+'</details>'+
+    '<details id="refInfraTree" class="tot"'+(ITREE_OPEN?' open':'')+'><summary><b style="font-size:14px">Infrastructure tree</b></summary>'+infraTreeHTML()+'</details>'+
     '<div id="refSeasons">'+seasonsHTML()+'</div><div id="refCosts">'+costsHTML()+'</div>'+
     '<div id="refStanding">'+standingEffectsHTML()+'</div><div id="refTerrain">'+terrainTablesHTML(mapPal(g))+'</div>'+
     '<div id="refBattle">'+battleRulesHTML()+'</div></div>';

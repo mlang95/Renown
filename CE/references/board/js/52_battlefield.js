@@ -102,16 +102,20 @@ function bfUpdate(S,T){const W=BF.wrap,B=battle(),fresh=BF.fresh;BF.fresh=false;
   const TT=(TREF.tactical||{})[T&&T.tile]||null;
   W.querySelector(".bf-cap").innerHTML=T?((typeof pxSwatch==="function"&&SPR&&SCAT[T.kind]?pxSwatch(T.kind,T.fill,22):'')+'<b>'+esc(T.tile||"")+'</b>'+(TT?' <span>'+esc(TT.effect||"")+'</span>':'')+' <span class="note">hex '+esc(T.key)+'</span>')
     :'<span class="note">No map hex for this battle</span>';
+  bfFeedPaint();
   if(fresh){BF.seen=bfSeen();bfReport(S);return;}
   bfEffects(S);bfReport(S);BF.res={A:S.A?S.A.c.reserve:0,B:S.B?S.B.c.reserve:0};}
 // the gear a side has Equipped this Skirmish: the weapon in hand, a usable shield, the armour
 function bfGear(s){const a=s.a,c=s.c,w=c.eqX.mode==="ranged"&&a.ranged&&a.ranged!=="None"?a.ranged:a.weapon;
   return [w,c.dualW?w:null,a.shield&&a.shield!=="None"&&!c.shDest&&!c.shOff?a.shield:null,a.armor].filter(n=>n&&SPR.S["eq:"+n]);}
-// pop-up feed over the field: one line per event (k replaces an earlier line of the same kind), fading after a few seconds
-function bfToast(k,html,col,delay){const show=()=>{if(!BF)return;const F=BF.wrap.querySelector(".bf-feed");if(!F)return;
-    const old=F.querySelector('[data-k="'+k+'"]');if(old)old.remove();
-    const el=document.createElement("div");el.className="bf-toast";el.dataset.k=k;el.style.setProperty("--pc",col||"#888");el.innerHTML=html;F.appendChild(el);
-    while(F.children.length>5)F.firstElementChild.remove();setTimeout(()=>el.remove(),6500);};
+// pop-up feed over the field: the last 4 events (k replaces an earlier line of the same kind). Kept here, not in the DOM, so a
+// redraw that rebuilds the field repaints them; they stay until replaced (older lines dimmed). The Chronicle keeps everything.
+let BF_FEED=[],BF_FEED_ID=null;
+function bfFeedPaint(){if(!BF)return;const F=BF.wrap.querySelector(".bf-feed");if(!F)return;const id=battle().id;if(BF_FEED_ID!==id){BF_FEED=[];BF_FEED_ID=id;}
+  const h=BF_FEED.map((t,i)=>'<div class="bf-toast'+(i<BF_FEED.length-1?' old':'')+(t.fresh?'':' seen')+'" style="--pc:'+t.col+'">'+t.html+'</div>').join("");
+  if(F.innerHTML!==h)F.innerHTML=h;BF_FEED.forEach(t=>t.fresh=false);}
+function bfToast(k,html,col,delay){const show=()=>{const id=battle().id;if(BF_FEED_ID!==id){BF_FEED=[];BF_FEED_ID=id;}
+    BF_FEED=BF_FEED.filter(t=>t.k!==k).concat([{k,html,col:col||"#888",fresh:true}]).slice(-4);bfFeedPaint();};
   if(delay)setTimeout(show,delay);else show();}
 const bfN=(n,one,many)=>n+" "+(n===1?one:(many||one+"s"));
 // the defending side's line for this Skirmish: only what it can roll (no Parry -> no parries / ripostes; no Recover -> no heals),

@@ -555,7 +555,7 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
     sel.appendChild(o);});
   const addB=document.createElement("button");addB.textContent="+ settlement";
   addB.onclick=()=>{
-    const id=sid++;const ns={id,tier:sel.value};if(gameStarted()){const t=settBuildTime(sel.value);if(t>0)ns.bt=t;}S.settlements.push(ns);activeSid=id;autoFill();save();render();if(gameStarted()){const bn=buildNote(settBaseTime(sel.value));if(bn)flash(sel.value+bn);}};
+    const id=nextId(S.settlements);sid=id+1;const ns={id,tier:sel.value};if(gameStarted()){const t=settBuildTime(sel.value);if(t>0)ns.bt=t;}S.settlements.push(ns);activeSid=id;autoFill();save();render();if(gameStarted()){const bn=buildNote(settBaseTime(sel.value));if(bn)flash(sel.value+bn);}};
   tb.appendChild(sel);tb.appendChild(addB);
   const exAll=document.createElement("button");exAll.textContent="expand all";exAll.dataset.nav="1";
   exAll.onclick=()=>{S.expanded=S.placed.map(p=>p.id);save();render();};
@@ -813,7 +813,7 @@ function setFaction(fn){itm();
   S.placed=S.placed.filter(p=>!p.fac);
   S.facInfra.forEach(n=>{delete S.infra[n];delete S.wonders[n];});S.facInfra=[];
   S.faction=fn||"";
-  factionFree(fn).forEach(x=>{if(x.kind==="pursuit")S.placed.push({id:pid++,name:x.name,sid:"faction",fac:true});
+  factionFree(fn).forEach(x=>{if(x.kind==="pursuit")S.placed.push({id:nextId(S.placed),name:x.name,sid:"faction",fac:true});
     else{(x.kind==="infra"?S.infra:S.wonders)[x.name]=1;S.facInfra.push(x.name);}});
 }
 // Faction gear rules read from the mechanic text (flags, never blocks): "must always equip a ranged weapon",
@@ -1213,7 +1213,7 @@ function inspectKeyword(tok){
   const base=(g.term||tok);
   [tok,base].forEach(term=>{
     let re;try{re=new RegExp("\\b"+term.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","i");}catch(e){return;}
-    Object.keys(R).forEach(n=>{["innate","mastery"].forEach(via=>{
+    NAMES.forEach(n=>{["innate","mastery"].forEach(via=>{
       const txt=R[n][via+"_raw"]||"";if(re.test(txt)){const k=n+"|"+via;if(!seen.has(k)){seen.add(k);srcs.push({node:n,via});}}});});
   });
   if(srcs.length){
