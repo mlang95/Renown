@@ -59,7 +59,7 @@ function boardDiff(a,b){const L=[];
     if(!o){L.push("placed "+x.name+" in "+sN(b,x.sid)+(x.bt>0?" (build "+x.bt+")":""));return;}
     if(o.sid!==x.sid||o.ward!==x.ward)L.push("moved "+x.name+" → "+sN(b,x.sid));
     if((o.bt||0)!==(x.bt||0))L.push(x.bt>0?x.name+" build timer "+(o.bt||0)+" → "+x.bt:x.name+" built");
-    if((o.dmg||0)!==(x.dmg||0))L.push(x.dmg>0?x.name+" damaged ("+x.dmg+")":x.name+" repaired");});
+    if((o.dmg||0)!==(x.dmg||0))L.push(x.dmg>0?x.name+" damaged ("+x.dmg+")"+(x.dmgBy?" — "+dmgSrc(x.dmgBy):""):x.name+" repaired");});
   pa.forEach((x,id)=>{if(!pb.has(id))L.push("removed "+x.name);});
   const sa=new Map((a.settlements||[]).map(x=>[x.id,x])),sb=new Map((b.settlements||[]).map(x=>[x.id,x]));
   sb.forEach((x,id)=>{const o=sa.get(id);if(!o){L.push("new settlement: "+x.tier);return;}

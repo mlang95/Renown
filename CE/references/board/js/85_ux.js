@@ -18,17 +18,20 @@ function inboxItems(){const p=D.players[D.active];if(!p)return [];const out=[],p
   pendingOf(p.board).forEach(x=>out.push({kind:"pending",txt:x.act+": "+x.msg,res:"pend",id:x.id}));
   onceEffects(p).filter(e=>onceWindowNow(e,ph)&&!(+onceState(p,e.game)[e.key])&&!(onceState(p,false)["skip|"+e.key])).forEach(e=>
     out.push({kind:"once",txt:e.n+": "+e.c,res:"once",key:e.key,game:e.game,x:!!e.x}));
+  {const ts=[tTurn()-1,tTurn()],seen=PT(p).hitSeen=PT(p).hitSeen||{};Object.keys(seen).forEach(k=>{if(!ts.includes(+seen[k]))delete seen[k];});
+    actsAt(p,ts).filter(x=>!seen[x.key]).forEach(x=>out.push({kind:"hit",txt:x.who+" · "+x.act+" → you"+(x.sub?" ("+x.sub+")":"")+" · "+x.out+((x.fx||[]).filter(l=>l.includes(p.name)).length?" — "+x.fx.filter(l=>l.includes(p.name)).join("; "):""),res:"hit",key:x.key,t:x.t}));}
   if(ph==="rest"&&(p.board.dp||0)>0)out.push({kind:"prompt",txt:p.board.dp+" Domain Point"+(p.board.dp>1?"s":"")+" to spend",go:"table"});
   out.ign=ign+IGN_N;return out;}
 function renderInbox(){const btn=document.getElementById("inboxBtn"),box=document.getElementById("inbox");if(!btn||!box)return;
   const L=inboxItems(),n=L.length;document.getElementById("inboxN").textContent=n;btn.classList.toggle("hot",L.some(x=>x.kind!=="once"));btn.classList.toggle("on",IBX_OPEN);
   if(IGN_DIRTY){IGN_DIRTY=false;setTimeout(save,0);}
   box.hidden=!IBX_OPEN;if(!IBX_OPEN)return;
-  const p=D.players[D.active],lab={flag:"Flag",prompt:"Prompt",pending:"Pending",once:"Once per"};
+  const p=D.players[D.active],lab={flag:"Flag",prompt:"Prompt",pending:"Pending",once:"Once per",hit:"Targeted"};
   const row=x=>'<div class="ib-row ib-'+x.kind+'"><span class="tb-b">'+lab[x.kind]+'</span><span class="ib-t">'+kwify(x.txt)+'</span><span class="ib-a">'+
     (x.go?'<a href="#" data-goto="'+x.go+'" data-nav="1">go ▸</a>':'')+
     (x.res==="once"&&!x.x?'<button data-do="ibonce" data-k="'+esc(x.key)+'" data-game="'+(x.game?1:0)+'">used</button>':'')+
     (x.res==="note"?'<button data-do="ibnote" data-i="'+x.i+'" data-nav="1">done</button>':'')+
+    (x.res==="hit"?'<button data-do="ibhit" data-k="'+esc(x.key)+'" data-t="'+x.t+'">seen</button>':'')+
     (x.res==="pend"?'<button data-do="ibpend" data-env="'+esc(x.id)+'">done</button>':'')+
     (x.ign?'<button data-do="ibign" data-k="'+esc(x.ign)+'" data-sig="'+esc(x.sig)+'" data-nav="1">ignore</button>':'')+
     (x.res==="once"?'<button data-do="ibskip" data-k="'+esc(x.key)+'" data-nav="1" title="hide until next turn">ignore</button>':'')+'</span></div>';
@@ -41,6 +44,7 @@ document.getElementById("inboxBtn").onclick=()=>{IBX_OPEN=!IBX_OPEN;renderInbox(
 function evIn(e,ids){return e.composedPath().some(n=>n&&n.id&&ids.includes(n.id));}
 document.addEventListener("click",e=>{if(IBX_OPEN&&!evIn(e,["inbox","inboxBtn"])){IBX_OPEN=false;renderInbox();}});
 DO.ibclose=()=>{IBX_OPEN=false;renderInbox();};
+DO.ibhit=el=>{const p=D.players[D.active];if(!p)return;const s=PT(p).hitSeen=PT(p).hitSeen||{};s[el.dataset.k]=+el.dataset.t;save();render();};
 DO.ibshow=()=>{S.ign={};save();render();};
 DO.ibign=el=>{S.ign=S.ign||{};const v=S.ign[el.dataset.k],L=Array.isArray(v)?v:(v!=null?[v]:[]);if(!L.includes(el.dataset.sig))L.push(el.dataset.sig);S.ign[el.dataset.k]=L;save();render();};
 DO.ibnote=el=>{const c=tCurW(D.players[D.active]);c.notesDone=c.notesDone||{};c.notesDone[el.dataset.i]=1;save();render();};

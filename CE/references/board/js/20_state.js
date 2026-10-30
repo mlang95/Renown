@@ -84,6 +84,10 @@ reindex();
 
 let PC={};                              // name -> count (derived, active board)
 function pActive(p){return !(p.bt>0)&&!(p.dmg>0);}
+// who Damaged a piece: {by,pid,act,camp,t} on a Holding (x.dmgBy) or Infrastructure (b.idmgBy[name]); cleared when Repaired
+function dmgMark(src){return Object.assign({t:tTurn(),act:"Raze"},src);}
+function dmgSrc(d){if(!d)return "";return (d.camp?"Bandit "+d.act+" (camp @ "+d.camp+")":d.act+" by "+(d.by||"?"))+", T"+d.t;}
+function dmgSrcOf(b,x){return typeof x==="string"?dmgSrc((b.idmgBy||{})[x]):dmgSrc(x&&x.dmgBy);}
 // can be built onto (Mastery Chain line, Ward rider host): no active Build Timer, and not Damaged unless under a Repair Timer
 function chainOK(p){return !(p.bt>0)&&!(p.dmg>0&&!p.rep);}
 // ---- ignorable flags: hidden while the same flag persists; shown again if it changes, or clears and returns ----
@@ -237,8 +241,8 @@ function empirePhase(){const P=D.players,done={},log=[];P.forEach(p=>done[p.id]=
   const ar={};P.forEach(p=>ar[p.id]=empArmies(p.board));sackLocks();
   return {rows:P.map(p=>Object.assign({pid:String(p.id),name:p.name,color:p.color},endRow(p.board,done[p.id],ec[p.id],po[p.id],ar[p.id]))),log};}
 function tickTimers(b){const done=[],pl=playerOfBoard(b),bs=sid=>!!pl&&settBesieged(pl,sid);
-  (b.placed||[]).forEach(p=>{if(bs(p.sid))return;if(p.bt>0){p.bt--;if(!p.bt)done.push("built "+p.name);}if(p.dmg>0&&p.rep){p.dmg--;if(!p.dmg){delete p.rep;done.push("repaired "+p.name);}}});
-  ["itimer","idmg"].forEach(k=>{const o=b[k]||{},rp=b.irep||{};Object.keys(o).forEach(n=>{if(k==="idmg"&&!rp[n])return;o[n]--;if(o[n]<=0){delete o[n];if(k==="idmg")delete rp[n];done.push((k==="itimer"?"built ":"repaired ")+n);}});});
+  (b.placed||[]).forEach(p=>{if(bs(p.sid))return;if(p.bt>0){p.bt--;if(!p.bt)done.push("built "+p.name);}if(p.dmg>0&&p.rep){p.dmg--;if(!p.dmg){delete p.rep;delete p.dmgBy;done.push("repaired "+p.name);}}});
+  ["itimer","idmg"].forEach(k=>{const o=b[k]||{},rp=b.irep||{};Object.keys(o).forEach(n=>{if(k==="idmg"&&!rp[n])return;o[n]--;if(o[n]<=0){delete o[n];if(k==="idmg"){delete rp[n];if(b.idmgBy)delete b.idmgBy[n];}done.push((k==="itimer"?"built ":"repaired ")+n);}});});
   (b.settlements||[]).forEach(s=>{if(bs(s.id))return;if(s.bt>0){s.bt--;if(!s.bt)done.push(settFinish(pl,s));}});
   return done;}
 // pursuit upkeep: PURSUIT_UPKEEP_BY_TYPE, else PURSUIT_UPKEEP_DEFAULT; faction pieces pay none
@@ -529,7 +533,7 @@ function boardFlags(){
     Object.keys(cnt).forEach(n=>{if(cnt[n]>1)f.push(cnt[n]+"× "+n+" (one per "+(scopeOf(n)==="Realm"?"game":"player")+")");});}
   factionFlags().forEach(x=>f.push(x));
   if(setupOn())setupHoldFlags().forEach(x=>f.push(x));
-  {const T=exTargets(S),n=extortSlots(S).filter(x=>!T[x.key]).length;if(n)f.push("Extort: "+n+" target"+(n>1?"s":"")+" not chosen (Table ▸ Extort targets)");}
+  {const T=exTargets(S),n=extortSlots(S).filter(x=>!T[x.key]).length;if(n)f.push("Extort: "+n+" target"+(n>1?"s":"")+" not chosen (Empire Phase ▸ Extort)");}
   (S.loanDefaults||[]).forEach(x=>{const t=loanTerms(S);f.push("Loan default (turn "+x.turn+"): "+pname(x.pid)+" — Perform "+(t?t.def:"Demand Tribute"));});
   {const me=playerOfBoard(S),pend=me?(PT(me).standingPending||{}):{};   // one-shot Standing actions: flagged only until performed or expired
     dbActive(S).forEach(x=>{const m=/(?:^|[.:]\s*)(Perform [^.]+)\./.exec(x.text),k=pend[standingKey(x)];if(m&&k&&k.due>=tTurn())f.push(x.name+" ("+x.tier+" "+x.dom+"): "+m[1]+(k.due>tTurn()?" (next Empire Phase)":""));});}

@@ -256,34 +256,57 @@ function extortSlots(b){return withBoard(b,()=>{const L=[];Object.keys(PC).forEa
     efxOf("h:"+n,"extort_slot").forEach(m=>{for(let i=0;i<PC[n]*(m[2]?2:1);i++)L.push({key:n+"#"+i,src:n,amt:+m[1]});});});return L;});}
 // each Extort picks its own target; an unset slot defaults to the target of the Extort before it
 function exTargets(b){const T=b.exTo||{},o={};let last=null;extortSlots(b).forEach(x=>{const v=T[x.key]!=null&&T[x.key]!==""?T[x.key]:last;o[x.key]=v;if(v!=null&&v!=="")last=v;});return o;}
-function extortTargetsHTML(qp){const L=extortSlots(qp.board);if(!L.length)return "";const T=exTargets(qp.board);
-  return '<div class="tot dock"><div class="dk-h">Extort targets — '+esc(qp.name)+' <span class="note">each Empire Phase</span></div>'+L.map(x=>'<div class="tb-row"><span style="flex:1">'+esc(x.src)+' · '+x.amt.toLocaleString()+'</span>'+
-    '<select data-do="exto" data-exto="'+esc(x.key)+'" data-who="'+qp.id+'"'+(canAct(qp)?'':' disabled')+'><option value="">— choose —</option>'+D.players.filter(q=>!sameP(q,qp)).map(q=>'<option value="'+q.id+'"'+(String(T[x.key])===String(q.id)?' selected':'')+'>'+esc(q.name)+'</option>').join("")+'</select></div>').join("")+'</div>';}
-function runAutoExtort(){const out=[],treasuryAtStart=new Map(D.players.map(p=>[String(p.id),Math.max(0,+p.board.treasury||0)]));
+function extortTargetRows(qp){const L=extortSlots(qp.board),T=exTargets(qp.board);
+  return L.map(x=>'<div class="tb-row"><span style="flex:1">'+esc(x.src)+' · '+x.amt.toLocaleString()+'</span>'+
+    '<select data-do="exto" data-exto="'+esc(x.key)+'" data-who="'+qp.id+'"'+(canAct(qp)?'':' disabled')+'><option value="">— choose —</option>'+D.players.filter(q=>!sameP(q,qp)).map(q=>'<option value="'+q.id+'"'+(String(T[x.key])===String(q.id)?' selected':'')+'>'+esc(q.name)+'</option>').join("")+'</select></div>').join("");}
+// Empire Phase Extort card: what qp collects and pays in the Extort step at End turn (runAutoExtort run dry, Pillage, Destabilize /
+// Intercept Caravan, Bandit Camps in the Province), the Extort targets to choose, and qp's Extorts that fire at other moments
+const EXTORT_TRIGGERS=["toll_extort","forge_oppose_extort","black_market_extort","black_market_recoup","syndicate_camp_extort","diplo_extort"];
+function extortCardHTML(qp){const id=String(qp.id),rows=[],fmt=n=>(+n||0).toLocaleString(),add=(dir,who,t,of,src)=>rows.push({dir,who,t,of,src});
+  let dry=[];try{dry=runAutoExtort(true);}catch(e){console.warn("extort preview",e);}
+  dry.forEach(x=>{if(!x.from||!x.to)return;if(String(x.to.id)===id)add("in",x.from.name,x.t,x.amt,x.why);else if(String(x.from.id)===id)add("out",x.to.name,x.t,x.amt,x.why);});
+  D.players.forEach(p=>(p.board.armies||[]).forEach(a=>{if(!a.pillage||pillageCheck(p,a))return;const q=pById(a.pillage.tp),s=q&&settById(q,a.pillage.sid);if(!s)return;
+    const amt=Math.max(0,Math.floor(settEcon(q,s).pillageBase/2)),t=Math.min(amt,Math.max(0,+q.board.treasury||0)),src="Pillage of "+(s.name||s.tier);
+    if(sameP(p,qp))add("in",q.name,t,amt,src);else if(sameP(q,qp))add("out",p.name,t,amt,src);}));
+  banditSkims().forEach(x=>{const nm=(x.kind==="dest"?"Destabilize":"Intercept Caravan")+" · "+x.what,by=x.by!=null?pById(x.by):null;
+    if(by&&sameP(by,qp))add("in",x.p?x.p.name:"?",x.amt,x.amt,nm);else if(x.p&&sameP(x.p,qp))add("out",by?by.name:"Bandits @ "+x.camp,x.amt,x.amt,nm);});
+  if(mapState().grid)srcMatch(qp.board,"province_camp_extort").forEach(x=>{const pv=provinceOf(qp);Object.keys(mapState().camps||{}).forEach(k=>{const cp=mapState().camps[k];
+    if(!cp.home&&pv.has(k)&&+cp.gold>0)add("in","Bandit Camp @ "+k,+cp.gold,+cp.gold,x.n);});});
+  const tr=EXTORT_TRIGGERS.flatMap(k=>srcMatch(qp.board,k).map(x=>({src:x.n,txt:x.m[0]})));{const f=facHit(qp.board,"raze_extort");if(f)tr.push({src:qp.board.faction,txt:f[0]});}
+  const line=r=>'<div class="tb-row"><b class="'+(r.dir==="in"?'pos':'neg')+'" style="min-width:64px">'+(r.dir==="in"?'+':'−')+fmt(r.t)+'</b><span style="flex:1">'+(r.dir==="in"?'from ':'to ')+esc(r.who)+
+    (r.t<r.of?' <span class="note">(of '+fmt(r.of)+')</span>':'')+'</span><span class="note">'+esc(r.src)+'</span></div>';
+  const net=rows.reduce((a,r)=>a+(r.dir==="in"?r.t:-r.t),0),tg=extortTargetRows(qp);
+  if(!rows.length&&!tg&&!tr.length)return "";
+  return dockCard("Extort — "+esc(qp.name)+' <span class="note">End turn'+(rows.length?' · net '+(net<0?'−':'+')+fmt(Math.abs(net)):'')+'</span>',
+    rows.map(line).join("")+(tg?'<div class="note" style="margin-top:4px">Targets</div>'+tg:'')+
+    (tr.length?'<div class="note" style="margin-top:4px">When triggered</div>'+tr.map(x=>'<div class="tb-row"><span style="flex:1">'+kwify(x.txt)+'</span><span class="note">'+esc(x.src)+'</span></div>').join(""):''),
+    extortSlots(qp.board).some(x=>!exTargets(qp.board)[x.key])?"now":"");}
+// dry: nothing moves; each Extort is recorded in rows ({from,to,amt,why}, capped at what the source holds) for the Empire Phase Extort card
+function runAutoExtort(dry){const rows=[],XG=dry?(from,to,amt,why)=>{const t=Math.max(0,Math.min(Math.round(+amt||0),Math.max(0,+from.b.treasury||0)));rows.push({from:playerOfBoard(from.b),to:playerOfBoard(to.b),amt:Math.round(+amt||0),t,why});return t;}:extortGold,out=[],treasuryAtStart=new Map(D.players.map(p=>[String(p.id),Math.max(0,+p.board.treasury||0)]));
   {const tm=/Extort (\d+)% of their Treasury/i.exec(((DATA.actions||{}).Tithe||{}).effect||""),pct=tm?+tm[1]:0;
    if(pct)D.players.forEach(p=>srcMatch(p.board,"tithe_lower").forEach(x=>{const metrics=x.m[1].split(/\s+or\s+/i).map(m=>m.toLowerCase()),metricValue=(q,m)=>m==="public order"?(+q.board.po||0):(+((q.board.domains||{})[m.replace(/^\w/,c=>c.toUpperCase())])||0);
      D.players.forEach(q=>{if(sameP(q,p)||!metrics.some(m=>metricValue(q,m)<metricValue(p,m)))return;
-       const amt=Math.floor(Math.max(0,q.board.treasury||0)*pct/100/100)*100,t=extortGold({b:q.board},{b:p.board},amt,x.n);
+       const amt=Math.floor(Math.max(0,q.board.treasury||0)*pct/100/100)*100,t=XG({b:q.board},{b:p.board},amt,x.n);
        if(t)out.push(p.name+" tithes "+t.toLocaleString()+" from "+q.name+" — "+x.n);});}));}
   // "Extort N from each [non-allied] player with a lower <Treasury | Domain | Public Order>": Treasuries as they stood when Extort began
   const lowerVal=(q,k)=>k==="treasury"?(treasuryAtStart.get(String(q.id))||0):k==="public order"?(+q.board.po||0):(+((q.board.domains||{})[k.replace(/^\w/,c=>c.toUpperCase())])||0);
   D.players.forEach(p=>srcMatch(p.board,"extort_lower_treasury").forEach(x=>D.players.forEach(q=>{const k=String(x.m[3]||"Treasury").toLowerCase();
     if(sameP(q,p)||(x.m[2]&&alliedP(p,q))||lowerVal(q,k)>=lowerVal(p,k))return;
-    const t=extortGold({b:q.board},{b:p.board},+x.m[1],x.n);
+    const t=XG({b:q.board},{b:p.board},+x.m[1],x.n);
     if(t)out.push(p.name+" extorts "+t.toLocaleString()+" from "+q.name+" — "+x.n);
   })));
   D.players.forEach(p=>srcMatch(p.board,"extort_half_trade").forEach(x=>D.players.forEach(q=>{
     if(sameP(q,p)||effPair(p.id,q.id).trade)return;const amt=Math.floor(tradeIncome(q.board).total/2/100)*100;if(amt<=0)return;
-    const t=extortGold({b:q.board},{b:p.board},amt,x.n);out.push(p.name+" extorts "+t.toLocaleString()+" from "+q.name+" — "+x.n);})));
-  D.players.forEach(p=>danegeldRows(p).forEach(x=>{const t=extortGold({b:x.from.board},{b:p.board},x.amt,"army upkeep");
+    const t=XG({b:q.board},{b:p.board},amt,x.n);out.push(p.name+" extorts "+t.toLocaleString()+" from "+q.name+" — "+x.n);})));
+  D.players.forEach(p=>danegeldRows(p).forEach(x=>{const t=XG({b:x.from.board},{b:p.board},x.amt,"army upkeep");
     out.push(p.name+" extorts "+t.toLocaleString()+(t<x.amt?" (of "+x.amt.toLocaleString()+")":"")+" army upkeep from "+x.from.name+" — "+p.board.faction);}));
   D.players.forEach(p=>{const T=exTargets(p.board),hit={};extortSlots(p.board).forEach(x=>{const q=pById(T[x.key]);
       if(!q||sameP(q,p)){out.push(p.name+": "+x.src+" Extort "+x.amt.toLocaleString()+" — no target chosen");return;}
-      const t=extortGold({b:q.board},{b:p.board},x.amt,x.src);out.push(p.name+" extorts "+t.toLocaleString()+(t<x.amt?" (of "+x.amt.toLocaleString()+")":"")+" from "+q.name+" — "+x.src);(hit[x.src]=hit[x.src]||[]).push(q);});
-    Object.keys(hit).forEach(n=>srcMatch(p.board,"extort_target_faith").filter(x=>x.n===n).forEach(x=>hit[n].forEach(q=>{addFaith(q.board,+x.m[2]);out.push(q.name+": Faith +"+x.m[2]+" ("+n+")");})));});
-  D.players.forEach(p=>autoExtortRows(p.board).forEach(x=>{const t=extortGold({b:x.from.board},{b:p.board},x.amt,x.src);
+      const t=XG({b:q.board},{b:p.board},x.amt,x.src);out.push(p.name+" extorts "+t.toLocaleString()+(t<x.amt?" (of "+x.amt.toLocaleString()+")":"")+" from "+q.name+" — "+x.src);(hit[x.src]=hit[x.src]||[]).push(q);});
+    Object.keys(hit).forEach(n=>srcMatch(p.board,"extort_target_faith").filter(x=>x.n===n).forEach(x=>hit[n].forEach(q=>{if(!dry)addFaith(q.board,+x.m[2]);out.push(q.name+": Faith +"+x.m[2]+" ("+n+")");})));});
+  D.players.forEach(p=>autoExtortRows(p.board).forEach(x=>{const t=XG({b:x.from.board},{b:p.board},x.amt,x.src);
     out.push(p.name+" extorts "+t.toLocaleString()+(t<x.amt?" (of "+x.amt.toLocaleString()+")":"")+" from "+x.from.name+" — "+x.src);}));
-  return out;}
+  return dry?rows:out;}
 
 // ---- First Doubt each turn: "First Doubt each Empire Phase reduced by N" / "First two Doubt each Empire Phase reduced by N" /
 // "Reduce the first instance of Doubt … by N". Each instance of Doubt uses up one slot: "first two … by 1" = two slots of 1.
@@ -329,7 +352,7 @@ function sackApply(i,wardIdx){const T=realmTimers(),t=T[i];if(!t)return;const fr
   const tierN=+((DATA.settlements||{})[s.tier]||{}).tier||0,log=[];chron("sack",{player:to.name,other:from.name,settlement:s.name||s.tier});
   const W=sackWards(from,s),gone=W[+wardIdx]||[],rm=new Set(gone.map(q=>String(q.id)));
   const razed=W.filter((w,k)=>k!==+wardIdx&&w.length).map(w=>w[w.length-1]);
-  razed.forEach(q=>{q.dmg=REPAIR_T;});                                                                    // top-most Holding of each Ward: Damaged
+  razed.forEach(q=>{q.dmg=REPAIR_T;q.dmgBy=dmgMark({act:"Sack",by:to.name,pid:String(to.id)});});   // top-most Holding of each Ward: Damaged
   if(razed.length)log.push("razed "+razed.map(q=>q.name).join(", "));
   fb.placed=(fb.placed||[]).filter(q=>!rm.has(String(q.id)));                                            // the chosen Ward's Holdings leave play
   if(gone.length)log.push("Ward removed: "+gone.map(q=>q.name).join(" + "));
@@ -343,7 +366,7 @@ function sackApply(i,wardIdx){const T=realmTimers(),t=T[i];if(!t)return;const fr
 function banditSack(t){if(!t||!t.bandit)return "";const from=pById(t.tp),s=from&&(from.board.settlements||[]).find(x=>String(x.id)===String(t.sid));
   const M=mapState(),camp=Object.values(M.camps||{}).find(c=>String(c.uid)===String(t.bandit));if(!from||!s||!camp)return "Bandit Sack: target or camp missing";
   const fb=from.board,tierN=+((DATA.settlements||{})[s.tier]||{}).tier||0,log=[],W=sackWards(from,s),gone=W[0]||[],rm=new Set(gone.map(q=>String(q.id)));
-  const razed=W.slice(1).filter(w=>w.length).map(w=>w[w.length-1]);razed.forEach(q=>{q.dmg=REPAIR_T;});
+  const razed=W.slice(1).filter(w=>w.length).map(w=>w[w.length-1]),ck=Object.keys(M.camps||{}).find(k=>M.camps[k]===camp);razed.forEach(q=>{q.dmg=REPAIR_T;q.dmgBy=dmgMark({act:"Sack",camp:ck||"?"});});
   if(razed.length)log.push("razed "+razed.map(q=>q.name).join(", "));
   fb.placed=(fb.placed||[]).filter(q=>!rm.has(String(q.id)));if(gone.length)log.push("Ward removed: "+gone.map(q=>q.name).join(" + "));
   const ti=TIER_CHAIN.indexOf(s.tier);if(ti>0){log.push(s.tier+" → "+TIER_CHAIN[ti-1]);s.tier=TIER_CHAIN[ti-1];}

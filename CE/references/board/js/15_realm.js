@@ -224,7 +224,7 @@ document.addEventListener("mouseover",e=>{const tr=e.target.closest&&e.target.cl
   box.style.left=Math.max(8,Math.min(r.left-hr.left+180,hr.width-300))+"px";box.style.top=(r.bottom-hr.top+4)+"px";box.hidden=false;});
 document.addEventListener("mouseleave",e=>{if(e.target&&e.target.id==="viewTable"){const b=document.getElementById("rlHover");if(b)b.hidden=true;}},true);
 function miniCardHTML(p){const b=p.board,S_=b.settlements||[],cul=b.culture||"";
-  const hold=sid=>(b.placed||[]).filter(q=>String(q.sid)===String(sid)&&!q.fac).map(q=>q.name+(q.bt>0?" ("+q.bt+")":q.dmg>0?" ✕":""));
+  const hold=sid=>(b.placed||[]).filter(q=>String(q.sid)===String(sid)&&!q.fac).map(q=>q.name+(q.bt>0?" ("+q.bt+")":q.dmg>0?" ✕"+(q.dmgBy?" ("+dmgSrc(q.dmgBy)+")":""):""));
   return '<div class="mc-h">'+heraldOf(p,20)+'<b>'+esc(p.name)+'</b> <span class="note">'+esc(b.faction||"")+(cul?' · '+esc(cul):'')+'</span></div>'+
     S_.map(s=>{const L=hold(s.id);return '<div class="mc-s"><b>'+(s.capital?'★ ':'')+esc(s.name||s.tier)+'</b> <span class="note">'+esc(s.tier)+'</span>'+
       (L.length?'<div class="mc-l">'+L.map(esc).join(' · ')+'</div>':'')+'</div>';}).join("")+
@@ -337,13 +337,13 @@ function dockHTML(R){
         open.length?open.map(d=>'<button data-do="mission" data-dom="'+d+'" data-src="'+esc(E2.id)+'" data-who="'+E2.owner.id+'">'+d+'</button>').join(""):'<span class="note">every Domain has started voting</span>')+'</div>');});
   // 6. Envoys: the phase's queue, resolved and upcoming, with your pre-votes inline
   if(vt&&tOrder().some(p=>sameP(p,qp)))h+=envoyQueueHTML(R,qp,ph);
+  // 6b. Actions: who did what to whom (this turn once Envoys perform; the turn before during the Empire and Council Phases)
+  if(ph!=="envoy"||allActs(tTurn()).length)h+=realmActsHTML(qp);
   // 7. Influence & Envoys (Council and Envoy Phases)
-  if(ph==="council"||ph==="envoy")h+=inflCardHTML(qp);
-  // 8. Empire Phase: checklist, Extort targets, Extort by hand
-  if(ph==="empire"){h+=empireHoldingHTML(qp);h+=dockCard("Empire Phase",empireChecklistHTML());h+=extortTargetsHTML(qp);
-    h+=dockCard("Extort",'<div class="tb-row"><select id="exFrom">'+D.players.map(p=>'<option value="'+p.id+'">'+esc(p.name)+'</option>').join('')+'</select><span class="note">→</span>'+
-      '<select id="exTo">'+D.players.map((p,i)=>'<option value="'+p.id+'"'+(i===1?' selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select>'+
-      '<input id="exAmt" type="number" min="0" step="100" value="500" style="width:70px"><button data-do="extort">extort</button></div>');}
+  if(ph==="council"||ph==="envoy")h+=inflPaneHTML(qp,ph==="council");
+  if(ph==="envoy")h+=inflCardHTML(qp);
+  // 8. Empire Phase: checklist, every Extort this player collects / pays / triggers
+  if(ph==="empire"){h+=empireHoldingHTML(qp);h+=dockCard("Empire Phase",empireChecklistHTML());h+=extortCardHTML(qp);}
   // 9. Battle Phase: Battles and Sieges to resolve
   if(ph==="battle"){const Q=bq(),sg=realmTimers().filter(x=>x.kind==="siege");
     h+=dockCard("Battles & Sieges",(Q.length?Q.map(o=>'<div class="tb-row">'+stIcon(o.kind==="sally"?"besieged":o.kind==="siege"?"sieging":"battle",14)+' <span style="flex:1">'+esc(bqSideName(o.A))+' <span class="note">vs</span> '+esc(bqSideName(o.B))+'</span>'+
@@ -379,6 +379,20 @@ function envoyQueueHTML(R,qp,ph){const plan=R.plan.length?R.plan:tPlan(ph,R.ord,
       (pv?'<div class="eq-pv">'+pv+'</div>':'')+'</div>';}).join("");
   return dockCard("Envoys"+' <span class="note">'+(planned>room?'<b class="neg">pre-votes '+planned+' / '+room+' Influence</b>':'pre-votes '+planned+' / '+room+' Influence')+'</span>',
     rows+'<label class="note"><input type="checkbox" data-do="autoab" data-who="'+qp.id+'"'+(PT(qp).auto?" checked":"")+'> Auto-abstain when nothing is set</label>',"eqcard");}
+// Influence pane: each player's Influence and Personal Envoys, the innate Influence of their Envoys by Domain, and the most Influence
+// they can put on one Envoy (± Support / Oppose; + when they can't Oppose that Envoy). qp's row first; "you → / → you" read against qp.
+function inflPaneHTML(qp,council){const doms=isSpring()||RC.PHASE_REFORM?T_DOMS:T_ALL,P=(tOrder().length?tOrder():D.players).slice().sort((a,b)=>sameP(a,qp)?-1:sameP(b,qp)?1:0);
+  const tip=(q,d)=>innateParts(q,d,council).map(x=>x.src+" "+sgn(x.val)).join(" · ");
+  const capS=(v,blk)=>(blk?'+':'±')+v;
+  const cell=(q,d)=>{const env='<b title="'+esc(tip(q,d))+'">'+innateInf(q,d,council)+'</b>';
+    if(sameP(q,qp))return env+'<br><span class="note" title="your most per vote">±'+voteCap(qp,d,council)+'</span>';
+    const youBlk=opposeBlock(qp,{dom:d,owner:q}),themBlk=opposeBlock(q,{dom:d,owner:qp});
+    return env+'<br><span class="'+(youBlk?'note':'pos')+'" title="you → '+esc(q.name)+"'s "+d+' Envoy'+(youBlk?' · '+esc(youBlk):'')+'">'+capS(Math.min(voteCap(qp,d,council),inflPool(qp)),youBlk)+'</span>'+
+      '<span class="note">/</span><span class="'+(themBlk?'note':'neg')+'" title="'+esc(q.name)+' → your '+d+' Envoy'+(themBlk?' · '+esc(themBlk):'')+'">'+capS(Math.min(voteCap(q,d,council),inflPool(q)),themBlk)+'</span>';};
+  return dockCard("Influence — "+esc(qp.name)+' <span class="note">'+(council?"Council":"Personal")+' Envoys</span>',
+    '<div class="ifp-w"><table class="ifp"><thead><tr><th></th><th title="Influence">Inf</th><th title="Personal Envoys">Env</th>'+doms.map(d=>'<th title="'+d+'">'+d.slice(0,3)+'</th>').join("")+'</tr></thead><tbody>'+
+    P.map(q=>'<tr'+(sameP(q,qp)?' class="me"':'')+'><td class="tb-nm">'+tName(q)+'</td><td><b>'+inflPool(q)+'</b></td><td>'+personalEnvoys(q)+'</td>'+doms.map(d=>'<td>'+cell(q,d)+'</td>').join("")+'</tr>').join("")+
+    '</tbody></table></div><div class="note">Envoy · <span class="pos">you →</span> / <span class="neg">→ you</span></div>');}
 function inflCardHTML(qp){const c=tCur(qp),md=PT(qp).mods,afx=boardFx(qp);
   let b='<div class="tb-row"><span style="flex:1">Influence this turn</span><b>'+inflPool(qp)+'</b></div>'+
     '<div class="tb-row"><span style="flex:1" class="note">gain '+influenceTotal(qp.board)+' + adjust</span><button data-do="adj" data-k="inflAdj" data-dv="-1" data-who="'+qp.id+'">−</button><b>'+(+c.inflAdj||0)+'</b><button data-do="adj" data-k="inflAdj" data-dv="1" data-who="'+qp.id+'">+</button></div>'+
@@ -418,8 +432,6 @@ DO.adj=el=>{const c=tCurW(pOf(el));c[el.dataset.k]=(+c[el.dataset.k]||0)+(+el.da
 DO.modadd=el=>{PT(pOf(el)).mods["m"+Date.now()]={label:"",kind:"envoy",scope:"all",dom:"All",val:1};rlCommit();};
 DO.mod=el=>{const m=PT(pOf(el)).mods[el.dataset.mk];if(!m)return;m[el.dataset.mf]=el.dataset.mf==="val"?(+el.value||0):el.value;rlCommit();};
 DO.moddel=el=>{delete PT(pOf(el)).mods[el.dataset.mk];rlCommit();};
-DO.extort=()=>{const f=pById(document.getElementById("exFrom").value),to=pById(document.getElementById("exTo").value),amt=+document.getElementById("exAmt").value||0;
-  if(!f||!to||sameP(f,to))return;const t=extortGold({b:f.board},{b:to.board},amt,"by hand");flash(to.name+" extorts "+t.toLocaleString()+" from "+f.name+(t<amt?" (all they had)":""));rlCommit();};
 DO.exto=el=>{const p=pOf(el);if(!p)return;p.board.exTo=p.board.exTo||{};if(el.value)p.board.exTo[el.dataset.exto]=el.value;else delete p.board.exTo[el.dataset.exto];rlCommit();};
 DO.battleopen=el=>{const o=bq().find(x=>x.id===el.dataset.q);if(o&&!bqLoad(o))return;D.view="battle";save();render();};
 // Perform (stage 2): picker, Perform, accept a fail, edit, pending done, declined at the table (Diplomatic Mission)
@@ -465,7 +477,7 @@ function turnLogItems(R){const T=tTurn(),H=TB().hist||{},out=[],me=meP(),idOf=na
   const turns=[T].concat(Object.keys(H).map(Number).filter(k=>k<T).sort((a,b)=>b-a).slice(0,6));
   turns.forEach(t=>{
     D.players.forEach(p=>{const c=PT(p).cur;if(t===T&&c&&c.turn===T)Object.keys(c.applied||{}).forEach(id=>{if(live.has(id))return;const a=c.applied[id];
-      add(t,"envoys",[p.id],esc(p.name)+' · '+esc(a.dom||"Council")+' · <b class="'+tOutCls(a.out)+'">'+esc(a.out)+'</b>'+(a.act?' · '+esc(a.act)+(a.sub?' ('+esc(a.sub)+')':''):'')+((a.fx||[]).length?'<div class="note">'+a.fx.map(kwify).join(' · ')+'</div>':''));});});
+      add(t,"envoys",[p.id].concat(a.tgt&&!String(a.tgt).startsWith("al:")?[a.tgt]:[]),esc(p.name)+' · '+esc(a.dom||"Council")+' · <b class="'+tOutCls(a.out)+'">'+esc(a.out)+'</b>'+(a.act?' · '+esc(a.act)+(a.sub?' ('+esc(a.sub)+')':''):'')+((a.fx||[]).length?'<div class="note">'+a.fx.map(kwify).join(' · ')+'</div>':''));});});
     sumOf(t).forEach(x=>{if(x.k==="Envoy"&&t===T)return;const ty=x.k==="Bandits"?"bandits":x.k==="Timers"||x.k==="Empire"?"timers":x.k==="Envoy"?"envoys":"notice";
       const who=D.players.filter(p=>String(x.t).includes(p.name)).map(p=>p.id);add(t,ty,who,'<span class="tb-b">'+esc(x.k)+'</span> '+kwify(x.t));});
     const h=H[t];if(h&&h.rows)h.rows.forEach(r=>add(t,"timers",[r.pid],pTok(pById(r.pid)||r,12)+'<b>'+esc(r.name)+'</b> end of turn: Gold '+(r.net<0?'':'+')+(+r.net||0).toLocaleString()+' · PO '+r.p0+' → '+r.p1+((r.done||[]).length?' · '+r.done.map(kwify).join(' · '):'')));});
@@ -479,7 +491,7 @@ function turnLogHTML(R){const F=[["all","All"],["mine","Mine"],["envoys","Envoys
   return '<div class="lgf">'+F.map(([k,l])=>'<button data-do="logf" data-f="'+k+'" data-nav="1"'+(k===f?' class="on"':'')+'>'+l+'</button>').join("")+
       ((D.chron||[]).length?'<button data-do="chronmd" data-nav="1" style="margin-left:auto">chronicle .md</button>':'')+'</div>'+
     (f==="timers"||f==="all"?realmTimersBrief():'')+
-    (ks.length?ks.map((t,i)=>{const body=by[t].map(x=>'<div class="tb-lg lg-'+x.type+'">'+x.html+'</div>').join("");
+    (ks.length?ks.map((t,i)=>{const body=by[t].map(x=>'<div class="tb-lg lg-'+x.type+(me&&(x.type==="envoys"||x.type==="bandits")&&x.who.includes(String(me.id))&&(x.type==="bandits"||x.who[0]!==String(me.id))?' lg-hit':'')+'">'+x.html+'</div>').join("");
       return i===0?'<div class="lg-turn"><div class="lg-th">Turn '+t+(t===tTurn()?' · '+esc(curSeason()):'')+'</div>'+body+'</div>':'<details class="lg-turn"><summary class="lg-th">Turn '+t+' <span class="note">'+by[t].length+'</span></summary>'+body+'</details>';}).join(""):'<div class="note">Nothing yet.</div>');}
 function realmTimersBrief(){const T=realmTimers();if(!T.length)return "";
   return '<div class="lg-tm">'+T.map(t=>'<span class="tb-b">'+esc(t.type)+' '+t.n+'</span> '+esc(t.label||"")).join('<br>')+'</div>';}

@@ -386,8 +386,8 @@ function settStatus(p,s){const st=[],B=D.bandit||{};
   const d=(B.dest||{})[p.id+":"+s.id];if(d)st.push({st:"destabilize",txt:"Destabilize: next Winter this Settlement's tax goes to "+(d.by!=null?pname(d.by):"Bandit Camp @ "+d.camp)});
   if(s.capital&&(B.ic||{})[p.id]){const ic=B.ic[p.id];const who=ic.by!=null?pname(ic.by):"Bandit Camp @ "+ic.camp;st.push({st:"intercept",txt:"Intercept Caravan: the next turn "+p.name+" is Host, their Trade Income goes to "+who+((DATA.rulesConst||{}).INTERCEPT_EXTORT_PER_CRAFT?" (none: Extort "+DATA.rulesConst.INTERCEPT_EXTORT_PER_CRAFT+" × Craft)":"")+(sameP(hostP(),p)?" (this turn)":"")});}
   D.players.forEach(q=>(q.board.armies||[]).forEach(a=>{if(a.pillage&&String(a.pillage.tp)===String(p.id)&&String(a.pillage.sid)===String(s.id))st.push({st:"pillage",txt:"Pillaged by "+q.name+" ("+(a.label||"Army "+a.id)+")"});}));
-  const dm=(p.board.placed||[]).filter(q=>String(q.sid)===String(s.id)&&q.dmg>0);if(dm.length)st.push({st:"damaged",txt:"Damaged: "+dm.map(q=>q.name+" ("+q.dmg+")").join(", ")});
-  if(s.capital){const idm=Object.keys(p.board.idmg||{}).filter(n=>p.board.idmg[n]>0);if(idm.length)st.push({st:"damaged",txt:"Damaged Infrastructure: "+idm.join(", ")});}
+  const dm=(p.board.placed||[]).filter(q=>String(q.sid)===String(s.id)&&q.dmg>0);if(dm.length)st.push({st:"damaged",txt:"Damaged: "+dm.map(q=>q.name+" ("+q.dmg+(q.dmgBy?" · "+dmgSrc(q.dmgBy):"")+")").join(", ")});
+  if(s.capital){const idm=Object.keys(p.board.idmg||{}).filter(n=>p.board.idmg[n]>0);if(idm.length)st.push({st:"damaged",txt:"Damaged Infrastructure: "+idm.map(n=>n+(dmgSrcOf(p.board,n)?" ("+dmgSrcOf(p.board,n)+")":"")).join(", ")});}
   if(occupyTaxOnly(p.board)&&!settInside(p.board,s))st.push({st:"blocked",txt:"No Army inside — no tax, Holdings unusable ("+p.board.faction+")"});
   return st;}
 function settStatusMarks(pl,k,cx,cy,R){const cs=cellSett(k).s;if(!pl||!cs)return "";
@@ -855,17 +855,19 @@ function banditAct(k){const M=mapState(),cp=M.camps[k],B=BST(),F=BAN.faces||10,r
   const base=STAND_INF[domBand(banditDomain(cp.n))]||1,tm=banditTargetMods(tgt.p,act);tm.v+=rk.reduce((a,x)=>a+x.v,0);rk.forEach(x=>tm.src.push(x.src+" "+sgn(x.v)));
   const net=base+(+cp.cmod||0)+tm.v,oc=envoyOutcome(net);
   const head="camp @ "+k+" rolls "+roll+" → "+act+" vs "+tgt.p.name+(tgt.s?" ("+(tgt.s.name||tgt.s.tier)+")":tgt.army?" ("+(tgt.a?(tgt.a.label||"Army "+tgt.a.id):"Army")+" @ "+tgt.k+")":"")+" · Influence "+base+((+cp.cmod)?" "+sgn(+cp.cmod):"")+(tm.src.length?" "+tm.src.join(" "):"")+" = "+net+" → "+oc;
-  cp.last=head;if(oc!=="Passed"&&oc!=="Endorsed"){bLog(head,k);return;}
+  cp.last=head;const rec={t:BST()._t||tTurn(),camp:k,act,tgt:String(tgt.p.id),sub:tgt.s?(tgt.s.name||tgt.s.tier):tgt.army?(tgt.a?(tgt.a.label||"Army "+tgt.a.id):"Army")+" @ "+tgt.k:"",out:oc,fx:[]};
+  B.acts=(B.acts||[]).concat([rec]).slice(-80);
+  if(oc!=="Passed"&&oc!=="Endorsed"){bLog(head,k);return;}
   let fx="";
   if(act==="Raze"){const pool=tgt.p.board.placed.filter(q=>q.sid===tgt.s.id&&!(q.bt>0)&&!(q.dmg>0)),q=pool[Math.floor(Math.random()*pool.length)],rt=((DATA.timers||{})["Repair Timer"]||{}).default||2;
-    q.dmg=rt;delete q.rep;fx=q.name+" Damaged (inactive until Repaired)";}
+    q.dmg=rt;delete q.rep;q.dmgBy=dmgMark({camp:k});fx="Bandits raze "+tgt.p.name+"'s "+q.name+" (Damaged: inactive until Repaired)";}
   else if(act==="Destabilize"){B.dest[tgt.p.id+":"+tgt.s.id]={camp:k};fx="next Winter: "+(tgt.s.name||tgt.s.tier)+"'s tax → camp";}
   else if(act==="Intercept Caravan"){B.ic[tgt.p.id]={camp:k};fx="next turn "+tgt.p.name+" is Host: trade income → camp";}
   else if(act==="Sabotage"){mapState().cells[tgt.k].blocked=true;mapState().cells[tgt.k].blockedT=tTurn();fx=tgt.p.name+"'s "+(tgt.a?(tgt.a.label||"Army "+tgt.a.id):"Army")+" @ "+tgt.k+" gains Blocked";}
   else if(act==="Foster Rebellion"){B.foster.push({pid:String(tgt.p.id)});fx="next Bandit Mechanics: 10-Retinue camp in "+tgt.p.name+"'s Outlaw Country";}
   if(oc==="Endorsed"){const x=endorsedExtort(act),b=tgt.p.board,t=Math.min(x,Math.max(0,b.treasury||0));tGold(b,-t,"Extorted by Bandits (Endorsed "+act+")");cp.gold=(cp.gold||0)+t;fx+=" · Endorsed: Extort "+t;
     if(t){const own=terrOwners()[k];D.players.forEach(h=>{if(!own||!own.has(String(h.id)))return;srcMatch(h.board,"syndicate_camp_extort").forEach(y=>{const take=Math.min(Math.floor(t/2),Math.max(0,+cp.gold||0));if(take){cp.gold-=take;tGold(h.board,take,y.n+": half of Bandit Extort");fx+=" · "+h.name+" "+y.n+" takes "+take+" from camp";}});});}}
-  bLog(head+": "+fx,k);}
+  rec.fx=[fx];bLog(head+": "+fx,k);}
 function runBanditMechanics(){const M=mapState(),B=BST(),sea=curSeason(),keys=Object.keys(M.camps),queued=B.foster.slice();
   const W=BAN.wild||{};
   if(sea==="Spring"){growCamps(keys.filter(k=>W.spring_growth!==false||!campWild(k)),"Spring");

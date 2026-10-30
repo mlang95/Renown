@@ -213,8 +213,8 @@ function timerAddHTML(){const keys=Object.keys(TMR),p=D.players[D.active]||{};
     '<button id="rtAdd">start</button></div>';}
 function boardTimerRows(){const R_=[];
   D.players.forEach(p=>{const b=p.board,sn=id=>{const x=(b.settlements||[]).find(s=>s.id===id);return x?(x.name||x.tier):"";};
-    (b.placed||[]).forEach(q=>{if(q.bt>0)R_.push([p,"Build Timer",q.name+" · "+sn(q.sid),q.bt]);if(q.dmg>0)R_.push([p,q.rep?"Repair Timer":"Damaged",q.name+" · "+sn(q.sid)+(q.rep?"":" (awaiting Repair)"),q.rep?q.dmg:"—"]);});
-    Object.keys(b.itimer||{}).forEach(n=>R_.push([p,"Build Timer",n,b.itimer[n]]));Object.keys(b.idmg||{}).forEach(n=>R_.push([p,(b.irep||{})[n]?"Repair Timer":"Damaged",n+((b.irep||{})[n]?"":" (awaiting Repair)"),(b.irep||{})[n]?b.idmg[n]:"—"]));
+    (b.placed||[]).forEach(q=>{if(q.bt>0)R_.push([p,"Build Timer",q.name+" · "+sn(q.sid),q.bt]);if(q.dmg>0)R_.push([p,q.rep?"Repair Timer":"Damaged",q.name+" · "+sn(q.sid)+(q.rep?"":" (awaiting Repair)")+(q.dmgBy?" · "+dmgSrc(q.dmgBy):""),q.rep?q.dmg:"—"]);});
+    Object.keys(b.itimer||{}).forEach(n=>R_.push([p,"Build Timer",n,b.itimer[n]]));Object.keys(b.idmg||{}).forEach(n=>R_.push([p,(b.irep||{})[n]?"Repair Timer":"Damaged",n+((b.irep||{})[n]?"":" (awaiting Repair)")+(dmgSrcOf(b,n)?" · "+dmgSrcOf(b,n):""),(b.irep||{})[n]?b.idmg[n]:"—"]));
     (b.settlements||[]).forEach(s=>{if(s.bt>0)R_.push([p,"Build Timer",(s.name||s.tier)+(s.up?" → "+s.up.to:" (settlement)"),s.bt]);});});
   return R_;}
 function siegeResolveHTML(t,i){if(t.kind!=="siege"||t.n>0)return "";

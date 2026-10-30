@@ -596,7 +596,7 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
       t.innerHTML=(gid===activeSid?"● ":"")+(isCap?"★ ":"")+tier+(((S.settlements.find(x=>x.id===gid)||{}).up)?" → "+S.settlements.find(x=>x.id===gid).up.to:"")+(isCap?' <span class="badge earn">Capital</span>':'')+' <span class="note">wards '+wu.used+'/'+wu.cap+(wu.free>0?' · <b style="color:var(--income)">'+wu.free+' empty</b>':'')+(wu.free<0?' · <b style="color:var(--upkeep)">'+(-wu.free)+' over</b>':'')+' · '+occ.length+' pursuits'+(wu.typeBad?' · <span style="color:var(--upkeep)">type!</span>':'')+(tier==="Hamlet"?' · Natural only':'')+'</span>';
       hd.appendChild(t);
       {const wc=document.createElement("span");wc.className="wchips";const W=wardChains(gid),fr=Math.max(0,wu.free);   // one chip per Ward: its front Holding (+ riders sharing it), or open
-        wc.innerHTML=W.map(w=>'<span class="wchip'+(w.front.bt>0||w.front.dmg>0?' off':'')+'" title="'+esc(w.chain.map(x=>x.name).join(" ← "))+'">'+esc(w.front.name)+(w.chain.length>1?' <i>+'+(w.chain.length-1)+'</i>':'')+'</span>').join("")+
+        wc.innerHTML=W.map(w=>'<span class="wchip'+(w.front.bt>0||w.front.dmg>0?' off':'')+'" title="'+esc(w.chain.map(x=>x.name+(x.dmg>0&&x.dmgBy?" (Damaged · "+dmgSrc(x.dmgBy)+")":"")).join(" ← "))+'">'+esc(w.front.name)+(w.chain.length>1?' <i>+'+(w.chain.length-1)+'</i>':'')+'</span>').join("")+
           Array.from({length:fr},()=>'<span class="wchip open" data-nav="1">open</span>').join("");
         wc.querySelectorAll(".wchip.open").forEach((c,i)=>c.onclick=e=>{e.stopPropagation();wardPick(gid,W.length+i);});
         hd.appendChild(wc);}
@@ -1042,10 +1042,11 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
   if(!inst.fac)sec.appendChild(placementSelect(inst));
   if(inst.bt>0)sec.appendChild(timerCtl("build",inst.bt,d=>{inst.bt=Math.max(0,inst.bt+d);save();render();}));
   if(inst.dmg>0)sec.appendChild(timerCtl("repair",inst.dmg,d=>{inst.dmg=Math.max(0,inst.dmg+d);save();render();}));
+  if(inst.dmg>0&&inst.dmgBy){const ds=document.createElement("span");ds.className="neg";ds.textContent=dmgSrc(inst.dmgBy);sec.appendChild(ds);}
   if(open){const bb=document.createElement("button");bb.textContent="build timer";
       bb.onclick=e=>{e.stopPropagation();const t=pursuitBuildTime(n);if(t>0){inst.bt=t;save();render();flash(n+" Build Timer "+t+buildNote(pursuitBaseTime(n)));}else flash(n+": Build Timer 0 — builds immediately"+buildNote(pursuitBaseTime(n)));};
     const db=document.createElement("button");db.textContent=inst.dmg>0?"repaired":"damage";
-      db.onclick=e=>{e.stopPropagation();inst.dmg=inst.dmg>0?0:REPAIR_T;save();render();};
+      db.onclick=e=>{e.stopPropagation();inst.dmg=inst.dmg>0?0:REPAIR_T;delete inst.dmgBy;save();render();};
     if(!(inst.bt>0))sec.appendChild(bb);sec.appendChild(db);}
   if(!pActive(inst))card.classList.add("inactive");
   const biRow=()=>{const h=buildsIntoRow(r);if(!h)return null;const d=document.createElement("div");d.innerHTML=h;return d.firstChild;};
@@ -1114,6 +1115,7 @@ function renderInfraSection(kind,src,have,hideCombat){
     if(r.upkeep&&!isFac){const ub=document.createElement("span");ub.className="badge";ub.style.borderColor="var(--upkeep)";ub.style.color="var(--upkeep)";ub.textContent="up "+r.upkeep;h.appendChild(ub);}
     if(S.itimer[n]>0)h.appendChild(timerCtl("build",S.itimer[n],d=>{S.itimer[n]=Math.max(0,S.itimer[n]+d);if(!S.itimer[n])delete S.itimer[n];save();render();}));
     if(S.idmg[n]>0)h.appendChild(timerCtl("repair",S.idmg[n],d=>{S.idmg[n]=Math.max(0,S.idmg[n]+d);if(!S.idmg[n])delete S.idmg[n];save();render();}));
+    if(S.idmg[n]>0&&dmgSrcOf(S,n)){const ds=document.createElement("span");ds.className="neg";ds.textContent=dmgSrcOf(S,n);h.appendChild(ds);}
     if(!isFac){const rm=document.createElement("button");rm.className="rm";rm.textContent="✕";
       rm.onclick=(e)=>{e.stopPropagation();delete have[n];delete S.itimer[n];delete S.idmg[n];save();render();renderList();};h.appendChild(rm);}
     h.onclick=()=>{S.eqOpen=S.eqOpen||[];const i=S.eqOpen.indexOf(n);if(i<0)S.eqOpen.push(n);else S.eqOpen.splice(i,1);save();render();};
@@ -1125,7 +1127,7 @@ function renderInfraSection(kind,src,have,hideCombat){
       sub.textContent="upkeep "+(isFac?0:r.upkeep)+(r.requirement?(" · req: "+r.requirement):"");card.appendChild(sub);
       {const tl=document.createElement("div");tl.className="sub";
         const bb=document.createElement("button");bb.textContent="build timer";bb.onclick=e=>{e.stopPropagation();const t=infraBuildTime(n);if(t>0){S.itimer[n]=t;save();render();flash(n+" Build Timer "+t+buildNote(infraBaseTime(n)));}else flash(n+": Build Timer 0 — builds immediately"+buildNote(infraBaseTime(n)));};
-        const db=document.createElement("button");db.textContent=S.idmg[n]>0?"repaired":"damage";db.onclick=e=>{e.stopPropagation();if(S.idmg[n]>0)delete S.idmg[n];else S.idmg[n]=REPAIR_T;save();render();};
+        const db=document.createElement("button");db.textContent=S.idmg[n]>0?"repaired":"damage";db.onclick=e=>{e.stopPropagation();if(S.idmg[n]>0)delete S.idmg[n];else S.idmg[n]=REPAIR_T;if(S.idmgBy)delete S.idmgBy[n];save();render();};
         if(!(S.itimer[n]>0))tl.appendChild(bb);tl.appendChild(db);card.appendChild(tl);}
       if(infraReqToks(r).length){const rq=document.createElement("div");rq.className="block";rq.innerHTML='<div class="lbl">REQUIREMENTS</div>'+infraReqLinesHTML(r);card.appendChild(rq);}
       const bi=document.createElement("div");bi.className="block";bi.innerHTML='<div class="lbl">EMPIRE EFFECT</div>';
