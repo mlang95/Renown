@@ -282,7 +282,7 @@ DO.seats=el=>{const want=+el.value,n=setSeats(want);if(want<n)flash("Seats can't
 DO.timer=el=>{TB().timer=Math.max(0,Math.min(300,+el.value||0));rlCommit();};
 DO.boardend=el=>{TB().boardEnd=el.checked;rlCommit();};
 DO.autores=el=>{TB().auto=el.checked;rlCommit();};
-DO.hotseat=el=>{HOTSEAT=el.checked;try{localStorage.setItem("renown_hotseat",HOTSEAT?"1":"0");}catch(e){}renderTable();};
+DO.hotseat=el=>{HOTSEAT=el.checked;try{localStorage.setItem(gkey("renown_hotseat"),HOTSEAT?"1":"0");}catch(e){}renderTable();};
 
 // ---- action dock: what this phase lets you do, in the order you do it ----
 function dockCard(title,body,cls){return body?'<div class="tot dock'+(cls?' '+cls:'')+'"><div class="dk-h">'+title+'</div>'+body+'</div>':"";}

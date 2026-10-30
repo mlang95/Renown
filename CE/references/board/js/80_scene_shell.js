@@ -257,13 +257,13 @@ let BSIDE="";   // phone Battle view: which side card to show (per device, not s
 function adminUI(){const st=document.getElementById("adminState");if(st)st.innerHTML=ADMIN?'<b style="color:var(--order)">ON</b>':'off';
   document.body.classList.toggle("is-admin",ADMIN);}
 async function adminSet(on){
-  if(!on){ADMIN=false;try{sessionStorage.removeItem("renown_admin");sessionStorage.removeItem("renown_pin");}catch(e){}adminUI();render();flash("the Duke steps down");return;}
+  if(!on){ADMIN=false;try{sessionStorage.removeItem(gkey("renown_admin"));sessionStorage.removeItem(gkey("renown_pin"));}catch(e){}adminUI();render();flash("the Duke steps down");return;}
   const pin=(document.getElementById("adminPin")||{}).value||"";
   if(API.online){let ok=false,open=false;
     try{const h={"Content-Type":"application/json"};if(TOKEN)h["X-Renown-Token"]=TOKEN;
-      const r=await fetch("/api/admin",{method:"POST",headers:h,body:JSON.stringify({pin})});const j=await r.json().catch(()=>({}));ok=!!j.ok;open=!!j.open;}catch(e){}
+      const r=await fetch(API_BASE+"/api/admin",{method:"POST",headers:h,body:JSON.stringify({pin})});const j=await r.json().catch(()=>({}));ok=!!j.ok;open=!!j.open;}catch(e){}
     if(!ok){flash("wrong Duke PIN");return;}if(open)flash("Duke unlocked (server has no PIN set)");}
-  ADMIN=true;try{sessionStorage.setItem("renown_admin","1");if(pin)sessionStorage.setItem("renown_pin",pin);}catch(e){}const pi=document.getElementById("adminPin");if(pi)pi.value="";
+  ADMIN=true;try{sessionStorage.setItem(gkey("renown_admin"),"1");if(pin)sessionStorage.setItem(gkey("renown_pin"),pin);}catch(e){}const pi=document.getElementById("adminPin");if(pi)pi.value="";
   adminUI();render();if(API.online)flash("the Duke presides");else flash("Duke unlocked (offline)");}
 document.getElementById("adminOn").onclick=()=>adminSet(true);document.getElementById("adminOff").onclick=()=>adminSet(false);
 document.getElementById("adminPin").onkeydown=e=>{if(e.key==="Enter")adminSet(true);};

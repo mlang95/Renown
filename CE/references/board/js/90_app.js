@@ -293,10 +293,10 @@ let DEVKEY="";try{DEVKEY=localStorage.getItem("renown_devkey")||"";if(!DEVKEY){c
   catch(e){DEVKEY=DEVKEY||(Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)+Date.now().toString(36));}
 const CHAT={id:0,open:false,unread:0,msgs:[],me:null,busy:false,sig:null,first:true};
 function chatHdr(){const h={"X-Renown-Dev":DEV,"X-Renown-Key":DEVKEY};if(TOKEN)h["X-Renown-Token"]=TOKEN;
-  if(ADMIN){let pin="";try{pin=sessionStorage.getItem("renown_pin")||"";}catch(e){}if(pin)h["X-Renown-Pin"]=pin;else h["X-Renown-Duke"]="1";}
+  if(ADMIN){let pin="";try{pin=sessionStorage.getItem(gkey("renown_pin"))||"";}catch(e){}if(pin)h["X-Renown-Pin"]=pin;else h["X-Renown-Duke"]="1";}
   return h;}
 async function chatApi(method,body,q){try{const h=chatHdr();if(body!==undefined)h["Content-Type"]="application/json";
-  const r=await fetch("/api/chat"+(q||""),{method,headers:h,body:body!==undefined?JSON.stringify(body):undefined});
+  const r=await fetch(API_BASE+"/api/chat"+(q||""),{method,headers:h,body:body!==undefined?JSON.stringify(body):undefined});
   return {status:r.status,json:await r.json().catch(()=>null)};}catch(e){return null;}}
 function chatTargets(){const me=myClaimP(),t=(D.players||[]).filter(p=>!sameP(p,me)).map(p=>({id:String(p.id),name:String(p.name||"")}));
   if(!t.some(x=>x.name.toLowerCase()==="duke"))t.push({id:"duke",name:"Duke"});return t;}
@@ -361,9 +361,11 @@ async function initServer(){
   const j=res.json;SYNC.base={};SYNC.ver={};SYNC.rev=j.rev;
   Object.keys(j.parts).forEach(k=>{SYNC.base[k]=j.parts[k].data;SYNC.ver[k]=j.parts[k].version;});
   if(j.parts.shared){joinD(Object.fromEntries(Object.keys(j.parts).map(k=>[k,j.parts[k].data])));reindex();}
+  if(!j.parts.shared&&GAME_ID){const g=await apiFetch("GET","/api/game");   // new lobby game: one player per seat it was made with
+    while(g&&D.players.length<Math.min(+g.seats||0,7))D.players.push(newPlayer(D.players.length+1));reindex();}
   SYNC.ready=true;if(nameAllSetts())save();render();renderList();
   if(!j.parts.shared)push();                         // empty server: seed it from this browser
-  refreshBuilds();chatPoll();
+  refreshBuilds();chatPoll();welcomeOpen();
 }
 setInterval(poll,POLL_MS);
 

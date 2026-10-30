@@ -2,7 +2,14 @@
 """
 Renown settlement-board server  —  stdlib only, no pip installs.
 
-Serves settlement_board.html and persists state to SQLite.
+Serves the lobby (main menu) and settlement_board.html, and persists state to SQLite.
+
+Games (v3):
+  * Every game is its own SQLite file, games/<id>.db, opened per request; an idle game costs nothing
+    but its file. "main" is the original single game (RENOWN_DB), kept for old links.
+  * A game lives under /g/<id>/: the board at /g/<id>/, its API at /g/<id>/api/... (routes below).
+    Plain /api/... (no /g/ prefix) is the main game.
+  * games/lobby.db lists the games (name, seats, Duke PIN hash, created, last active, archived).
 
 Multi-client sync (v2):
   * State is split into parts: "shared" (renown, map, roster, start domains…)
@@ -21,7 +28,13 @@ Run:
     RENOWN_ORIGIN=https://board.example.com  # lock CORS (default *)
 
 API (JSON):
-    GET    /                                   -> the app
+    GET    /                                   -> the lobby (main menu)
+    GET    /api/games[?all=1]                  -> {games:[{id,name,seats,players,claimed,started,turn,live,last_active,pin,archived}]}
+    POST   /api/games          {name,seats,pin}-> {id}
+    POST   /api/games/<id>/archive {archived,pin} -> {ok}   (needs that game's Duke PIN when it has one)
+    GET    /g/<id>/                            -> the board for game <id>
+    GET    /g/<id>/api/game                    -> {id,name,seats}
+  Game routes (prefix /g/<id>, or none for the main game):
     GET    /api/state[?since=N]                -> {rev, keys:[...], parts:{key:{data,version}}}
     PUT    /api/part/<key>      {data, base}   -> {version, rev} | 409 {data, version}
     DELETE /api/part/<key>      {base}         -> {rev}          | 409 {data, version}
@@ -52,7 +65,7 @@ Chat — kept out of shared state; recipients filtered here, never on the client
     is the player whose board claim names that device. The Duke (X-Renown-Pin, or X-Renown-Duke:1
     when no PIN is set) sees every message.
 """
-import http.server, socketserver, json, os, sqlite3, urllib.parse, datetime, threading, hmac, re, hashlib
+import http.server, socketserver, json, os, sqlite3, urllib.parse, datetime, threading, hmac, re, hashlib, secrets, time
 
 HERE   = os.path.dirname(os.path.abspath(__file__))
 HTML   = os.path.join(HERE, "settlement_board.html")
@@ -61,6 +74,13 @@ PORT   = int(os.environ.get("PORT", "8000"))
 TOKEN  = os.environ.get("RENOWN_TOKEN", "")
 ADMIN_PIN = os.environ.get("RENOWN_DUKE_PIN", os.environ.get("RENOWN_ADMIN_PIN", ""))   # unlocks the Duke (admin) on the board; unset = open
 ORIGIN = os.environ.get("RENOWN_ORIGIN", "*")
+LOBBY_HTML = os.path.join(HERE, "lobby.html")
+GAMES_DIR  = os.environ.get("RENOWN_GAMES", os.path.join(HERE, "games"))
+LOBBY_DB   = os.path.join(GAMES_DIR, "lobby.db")
+MAIN_GAME  = "main"                                                # the original single game (RENOWN_DB)
+GAME_RE    = re.compile(r"^/g/([a-z0-9-]{1,40})(/.*)?$")
+LIVE_SECS  = 90                                                    # a game polled this recently is "live"
+SEATS_MAX  = 7
 
 LOCAL_KEYS = {"active", "view", "theme", "shape", "pursuitView"}   # per-browser UI, never shared
 BATTLE_RE = re.compile(r"^/api/battle/([A-Za-z0-9_-]{1,40})/(\d{1,4})(?:/([AB]))?$")
@@ -68,10 +88,29 @@ PART_RE = re.compile(r"^(shared|board:[A-Za-z0-9_-]{1,40})$")
 DEV_RE = re.compile(r"^[A-Za-z0-9_-]{4,64}$")
 CHAT_MAX_LEN = 500       # characters per message
 CHAT_BACKLOG = 200       # messages returned on a full (since=0) load
-LOCK = threading.Lock()                                            # serialises part writes
+CTX = threading.local()                                            # per request: .gid (one thread per request)
+LOCKS, LOCKS_GUARD = {}, threading.Lock()                          # one write lock per game
+SEEN = {}                                                          # gid -> time of its last request (live dot)
+INITED = set()                                                     # games whose tables exist this run
+
+def gid():
+    return getattr(CTX, "gid", MAIN_GAME)
+
+def game_path(g):
+    return DB if g == MAIN_GAME else os.path.join(GAMES_DIR, g + ".db")
+
+def game_lock():
+    with LOCKS_GUARD:
+        return LOCKS.setdefault(gid(), threading.Lock())
 
 def db():
-    c = sqlite3.connect(DB, timeout=10); c.row_factory = sqlite3.Row; return c
+    """Connection to the current request's game; creates its tables on first touch."""
+    g = gid()
+    if g not in INITED:
+        with LOCKS_GUARD:
+            if g not in INITED:
+                init_db(game_path(g)); INITED.add(g)
+    c = sqlite3.connect(game_path(g), timeout=10); c.row_factory = sqlite3.Row; return c
 
 def now():
     return datetime.datetime.now().isoformat(timespec="seconds")
@@ -88,8 +127,8 @@ def split_state(D):
     parts["shared"] = shared
     return parts
 
-def init_db():
-    c = db()
+def init_db(path):
+    c = sqlite3.connect(path, timeout=10); c.row_factory = sqlite3.Row
     c.executescript("""
       CREATE TABLE IF NOT EXISTS state(id INTEGER PRIMARY KEY CHECK(id=1), data TEXT, updated_at TEXT);
       CREATE TABLE IF NOT EXISTS parts(key TEXT PRIMARY KEY, data TEXT, version INTEGER, rev INTEGER, updated_at TEXT);
@@ -119,6 +158,74 @@ def init_db():
             except Exception as e:
                 print("  v1 state migration skipped:", e)
     c.commit(); c.close()
+
+# ---------------- lobby ----------------
+def lobby():
+    os.makedirs(GAMES_DIR, exist_ok=True)
+    c = sqlite3.connect(LOBBY_DB, timeout=10); c.row_factory = sqlite3.Row; return c
+
+def init_lobby():
+    c = lobby()
+    c.execute("""CREATE TABLE IF NOT EXISTS games(id TEXT PRIMARY KEY, name TEXT, seats INTEGER, pin_hash TEXT,
+                                              created TEXT, last_active TEXT, archived INTEGER DEFAULT 0)""")
+    if os.path.exists(DB) and not c.execute("SELECT 1 FROM games WHERE id=?", (MAIN_GAME,)).fetchone():
+        c.execute("INSERT INTO games(id,name,seats,pin_hash,created,last_active) VALUES(?,?,?,?,?,?)",
+                  (MAIN_GAME, "Main game", 0, "", now(), now()))
+    c.commit(); c.close()
+
+def game_row(g):
+    c = lobby(); r = c.execute("SELECT * FROM games WHERE id=?", (g,)).fetchone(); c.close()
+    return dict(r) if r else None
+
+def pin_hash(pin):
+    return hashlib.sha256(("renown:" + pin).encode()).hexdigest() if pin else ""
+
+def duke_pin_set():
+    """True when the current game needs a Duke PIN (its own, or RENOWN_DUKE_PIN for the main game)."""
+    r = game_row(gid()) or {}
+    return bool(r.get("pin_hash") or (gid() == MAIN_GAME and ADMIN_PIN))
+
+def duke_pin_ok(pin, g=None):
+    r = game_row(g or gid()) or {}
+    if r.get("pin_hash"):
+        return hmac.compare_digest(pin_hash(pin), r["pin_hash"])
+    if (g or gid()) == MAIN_GAME and ADMIN_PIN:
+        return hmac.compare_digest(pin, ADMIN_PIN)
+    return True
+
+def touch(write=False):
+    """Mark the current game seen; on writes also store last_active in the lobby."""
+    SEEN[gid()] = time.time()
+    if write:
+        c = lobby(); c.execute("UPDATE games SET last_active=? WHERE id=?", (now(), gid())); c.commit(); c.close()
+
+def slug(name):
+    s = re.sub(r"[^a-z0-9]+", "-", (name or "").lower()).strip("-")[:24].strip("-")
+    return (s or "game") + "-" + secrets.token_hex(2)
+
+def game_summary(r):
+    """Lobby row + what the game's own file says (players, claims, started, turn)."""
+    out = {k: r[k] for k in ("id", "name", "seats", "created", "last_active")}
+    out["archived"] = bool(r["archived"]); out["pin"] = bool(r["pin_hash"] or (r["id"] == MAIN_GAME and ADMIN_PIN))
+    seen = SEEN.get(r["id"])
+    out["live"] = bool(seen and time.time() - seen < LIVE_SECS)
+    out.update(players=0, claimed=0, started=False, turn=0)
+    path = game_path(r["id"])
+    if os.path.exists(path):
+        try:
+            c = sqlite3.connect(path, timeout=5); c.row_factory = sqlite3.Row
+            sh = c.execute("SELECT data FROM parts WHERE key='shared'").fetchone()
+            sh = json.loads(sh["data"]) if sh else {}
+            out["players"] = len(sh.get("roster") or {})
+            out["started"] = bool(sh.get("started"))
+            out["turn"] = int((sh.get("tbl") or {}).get("turn") or 1) if sh else 0
+            for b in c.execute("SELECT data FROM parts WHERE key LIKE 'board:%'"):
+                if (json.loads(b["data"]) or {}).get("claim"):
+                    out["claimed"] += 1
+            c.close()
+        except Exception:
+            pass
+    return out
 
 def get_rev(c):
     return c.execute("SELECT v FROM meta WHERE k='rev'").fetchone()["v"]
@@ -220,6 +327,78 @@ class Handler(http.server.BaseHTTPRequestHandler):
     def log_message(self, *a):
         pass
 
+    def _redirect(self, to):
+        self.send_response(302); self.send_header("Location", to); self.send_header("Content-Length", "0"); self.end_headers()
+
+    def _route(self, method):
+        """Pick the game for this request and strip its /g/<id> prefix from self.path.
+        Returns False when the request was answered here (lobby, redirect, unknown game, auth)."""
+        u = urllib.parse.urlparse(self.path); path = u.path
+        CTX.gid = MAIN_GAME
+        m = GAME_RE.match(path)
+        if m:
+            g, rest = m.group(1), m.group(2)
+            if rest is None:
+                self._redirect(path + "/" + ("?" + u.query if u.query else "")); return False
+            if not game_row(g) and not (g == MAIN_GAME and os.path.exists(DB)):
+                self._send(404, {"error": "no such game"}); return False
+            CTX.gid = g
+            self.path = rest + ("?" + u.query if u.query else "")
+            path = rest
+        elif path in ("/", "/index.html", "/lobby") and method == "GET":
+            self._file(LOBBY_HTML, "lobby.html not found next to server.py"); return False
+        elif path == "/api/games" or path.startswith("/api/games/"):
+            if self._authed(path):
+                self._lobby_api(method, path, u)
+            return False
+        if not self._authed(path):
+            return False
+        if path.startswith("/api/"):
+            touch(write=method != "GET")
+        return True
+
+    def _file(self, fn, missing):
+        try:
+            with open(fn, "rb") as f:
+                self._send(200, f.read(), "text/html; charset=utf-8")
+        except FileNotFoundError:
+            self._send(404, {"error": missing})
+
+    def _lobby_api(self, method, path, u):
+        if method == "GET" and path == "/api/games":
+            show_all = urllib.parse.parse_qs(u.query).get("all", ["0"])[0] == "1"
+            c = lobby(); rows = c.execute("SELECT * FROM games ORDER BY last_active DESC").fetchall(); c.close()
+            self._send(200, {"games": [game_summary(r) for r in rows if show_all or not r["archived"]]}); return
+        if method == "POST" and path == "/api/games":
+            body = self._read()
+            name = re.sub(r"[\x00-\x1f\x7f]", "", str(body.get("name") or "")).strip()[:60] or "New game"
+            try:
+                seats = max(1, min(SEATS_MAX, int(body.get("seats") or 1)))
+            except (TypeError, ValueError):
+                seats = 1
+            pin = str(body.get("pin") or "")[:64]
+            c = lobby()
+            g = slug(name)
+            while c.execute("SELECT 1 FROM games WHERE id=?", (g,)).fetchone():
+                g = slug(name)
+            c.execute("INSERT INTO games(id,name,seats,pin_hash,created,last_active) VALUES(?,?,?,?,?,?)",
+                      (g, name, seats, pin_hash(pin), now(), now()))
+            c.commit(); c.close()
+            self._send(200, {"id": g}); return
+        m = re.match(r"^/api/games/([a-z0-9-]{1,40})/archive$", path)
+        if method == "POST" and m:
+            body = self._read(); g = m.group(1)
+            if not game_row(g):
+                self._send(404, {"error": "no such game"}); return
+            if not duke_pin_ok(str(body.get("pin") or ""), g):
+                self._send(403, {"error": "Duke PIN required"}); return
+            c = lobby(); c.execute("UPDATE games SET archived=? WHERE id=?", (1 if body.get("archived", True) else 0, g))
+            c.commit(); c.close()
+            self._send(200, {"ok": True}); return
+        if method == "OPTIONS":
+            self._send(204); return
+        self._send(404, {"error": "unknown route"})
+
     # ---------------- chat ----------------
     def _who(self, c):
         """Verify the device secret (registered on first use) -> {dev, pid, name, color, duke}; None after an error reply."""
@@ -227,14 +406,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if not DEV_RE.match(dev) or not (16 <= len(key) <= 128):
             self._send(400, {"error": "missing device identity"}); return None
         h = hashlib.sha256(key.encode()).hexdigest()
-        with LOCK:
+        with game_lock():
             r = c.execute("SELECT key_hash FROM devices WHERE dev=?", (dev,)).fetchone()
             if r is None:
                 c.execute("INSERT INTO devices(dev,key_hash,ts) VALUES(?,?,?)", (dev, h, now())); c.commit()
             elif not hmac.compare_digest(r["key_hash"], h):
                 self._send(403, {"error": "device key mismatch"}); return None
         pin = self.headers.get("X-Renown-Pin", "")
-        duke = hmac.compare_digest(pin, ADMIN_PIN) if ADMIN_PIN else self.headers.get("X-Renown-Duke") == "1"
+        duke = duke_pin_ok(pin) if duke_pin_set() else self.headers.get("X-Renown-Duke") == "1"
         pid = claimed_pid(c, dev)
         ro = roster(c).get(pid) or {} if pid else {}
         name = ro.get("name") if pid else ("Duke" if duke else "Spectator " + dev[:4])
@@ -299,7 +478,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 recips = [q for q in ro if same_alliance(diplo, me["pid"], q)]
                 if not recips:
                     self._send(400, {"error": "not in an alliance"}); return
-            with LOCK:
+            with game_lock():
                 cur = c.execute("INSERT INTO chat(ts,dev,pid,name,color,scope,to_pid,to_name,recips,text) "
                                 "VALUES(?,?,?,?,?,?,?,?,?,?)",
                                 (now(), me["dev"], me["pid"], me["name"], me["color"], scope, to_pid, to_name,
@@ -317,7 +496,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 return
             if not me["duke"]:
                 self._send(403, {"error": "Duke only"}); return
-            with LOCK:
+            with game_lock():
                 c.execute("DELETE FROM chat"); c.commit()
             self._send(200, {"ok": True})
         finally:
@@ -328,16 +507,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
     # ---------------- GET ----------------
     def do_GET(self):
+        if not self._route("GET"):
+            return
         u = urllib.parse.urlparse(self.path); path = u.path
-        if not self._authed(path):
-            return
         if path in ("/", "/index.html"):
-            try:
-                with open(HTML, "rb") as f:
-                    self._send(200, f.read(), "text/html; charset=utf-8")
-            except FileNotFoundError:
-                self._send(404, {"error": "settlement_board.html not found next to server.py — generate it first"})
-            return
+            self._file(HTML, "settlement_board.html not found next to server.py — generate it first"); return
+        if path == "/api/game":
+            r = game_row(gid()) or {}
+            self._send(200, {"id": gid(), "name": r.get("name") or gid(), "seats": r.get("seats") or 0}); return
         if path == "/api/chat":
             self._chat_get(u); return
         if path == "/api/state":
@@ -397,7 +574,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
     # ---------------- part write (PUT / DELETE) ----------------
     def _write_part(self, key, body, delete=False):
         base = body.get("base", 0)
-        with LOCK:
+        with game_lock():
             c = db()
             try:
                 cur = c.execute("SELECT data,version FROM parts WHERE key=?", (key,)).fetchone()
@@ -419,9 +596,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 c.close()
 
     def do_PUT(self):
-        path = urllib.parse.urlparse(self.path).path
-        if not self._authed(path):
+        if not self._route("PUT"):
             return
+        path = urllib.parse.urlparse(self.path).path
         body = self._read()
         key = part_key(path)
         if key:
@@ -430,7 +607,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if m and m.group(3):
             bid, sk, side = m.group(1), int(m.group(2)), m.group(3)
             tac = str(body.get("tactic") or "")[:60]
-            with LOCK:
+            with game_lock():
                 c = db()
                 try:
                     n = c.execute("SELECT COUNT(*) AS n FROM battle_picks WHERE bid=? AND sk=?", (bid, sk)).fetchone()["n"]
@@ -453,16 +630,16 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self._send(404, {"error": "unknown route"})
 
     def do_POST(self):
-        path = urllib.parse.urlparse(self.path).path
-        if not self._authed(path):
+        if not self._route("POST"):
             return
+        path = urllib.parse.urlparse(self.path).path
         body = self._read()
         if path == "/api/chat":
             self._chat_post(body); return
         if path == "/api/admin":                     # {"pin": "..."} -> {"ok": bool, "open": bool}
-            if not ADMIN_PIN:
+            if not duke_pin_set():
                 self._send(200, {"ok": True, "open": True}); return
-            ok = hmac.compare_digest(str(body.get("pin", "")), ADMIN_PIN)
+            ok = duke_pin_ok(str(body.get("pin", "")))
             self._send(200 if ok else 403, {"ok": ok, "open": False}); return
         name = build_name(path, "/snapshot")
         if name is not None:
@@ -473,9 +650,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self._send(404, {"error": "unknown route"})
 
     def do_DELETE(self):
-        path = urllib.parse.urlparse(self.path).path
-        if not self._authed(path):
+        if not self._route("DELETE"):
             return
+        path = urllib.parse.urlparse(self.path).path
         if path == "/api/chat":
             self._chat_clear(); return
         key = part_key(path)
@@ -492,10 +669,11 @@ class Server(socketserver.ThreadingMixIn, http.server.HTTPServer):
     allow_reuse_address = True
 
 if __name__ == "__main__":
-    init_db()
+    init_lobby()
     print(f"Renown board:  http://localhost:{PORT}")
-    print(f"Database:      {DB}")
+    print(f"Main game:     {DB}")
+    print(f"Games:         {GAMES_DIR}  (lobby at /)")
     print(f"Auth:          {'token required' if TOKEN else 'open (no RENOWN_TOKEN set)'}")
-    print(f"Duke:          {'PIN required' if ADMIN_PIN else 'open (no RENOWN_DUKE_PIN set)'}")
+    print(f"Duke (main):   {'PIN required' if ADMIN_PIN else 'open (no RENOWN_DUKE_PIN set)'}; other games set their own PIN")
     print("Ctrl-C to stop.")
     Server(("0.0.0.0", PORT), Handler).serve_forever()

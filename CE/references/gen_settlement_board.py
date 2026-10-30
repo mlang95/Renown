@@ -1033,7 +1033,9 @@ def main():
                   for k, v in {**ns.get("FACTIONS", {}), **ns.get("DEPRECATED_FACTIONS", {})}.items()},
         cultures={k: {"type": v.get("type", ""), "domains": list(v.get("domains", [])), "archetype": v.get("archetype", ""), "monuments": list(v.get("monuments", [])),
                       "wonders": list(v.get("wonders", [])), "mechanics": list(v.get("mechanic_name", [])),
-                      "factions": list(v.get("factions", []))} for k, v in ns.get("CULTURES", {}).items()},
+                      "factions": list(v.get("factions", [])), "actions": list(v.get("actions", [])),
+                      "radar": dict(v.get("radar", {}))} for k, v in ns.get("CULTURES", {}).items()},
+        monSummary=dict(ns.get("MONUMENT_SUMMARY", {}) or {}), wonSummary=dict(ns.get("WONDER_SUMMARY", {}) or {}),
         cultureSelf=ns.get("CULTURE_SELF_MADE", "Self-made"), placeNames=pn_payload,
         warnings=b_warn, version=ns.get("VERSION", "?"), sprites=_spr, efx=efx,
     )

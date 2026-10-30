@@ -12,9 +12,14 @@ let SKEW=0,SKEW_N=0;                                                    // serve
 function tnow(){return Date.now()+SKEW;}
 function noteServerDate(r){try{const d=Date.parse(r.headers.get("date")||"");if(isNaN(d))return;
   const s=d+500-Date.now();SKEW=SKEW_N?Math.round(SKEW*0.8+s*0.2):s;SKEW_N++;}catch(e){}}
-let HOTSEAT=false;try{HOTSEAT=localStorage.getItem("renown_hotseat")==="1";}catch(e){}
+// ---- game (server lobby): game <id> is served at /g/<id>/ and talks to /g/<id>/api/...; anywhere else (file://,
+// the main game at /, the simulator) GAME_ID is "" and paths and storage keys are as before.
+const GAME_ID=(()=>{try{const m=/^\/g\/([a-z0-9-]{1,40})\//.exec(location.pathname||"");return m?m[1]:"";}catch(e){return "";}})();
+const API_BASE=GAME_ID?"/g/"+GAME_ID:"";
+function gkey(k){return GAME_ID?k+":"+GAME_ID:k;}                        // per-game browser storage key
+let HOTSEAT=false;try{HOTSEAT=localStorage.getItem(gkey("renown_hotseat"))==="1";}catch(e){}
 // The Duke (admin; per browser session): acts for anyone and has every Host control. Unlocked by the server's RENOWN_DUKE_PIN.
-let ADMIN=false;try{ADMIN=sessionStorage.getItem("renown_admin")==="1";}catch(e){}
+let ADMIN=false;try{ADMIN=sessionStorage.getItem(gkey("renown_admin"))==="1";}catch(e){}
 // ---- player claims (server games): a device claims one player; only that device, or the Duke, can change that player.
 // A device with no claim is a spectator. Off-server (local file) nothing is locked.
 let DEV="";try{DEV=localStorage.getItem("renown_dev")||"";if(!DEV){DEV=Math.random().toString(36).slice(2,10)+Date.now().toString(36);localStorage.setItem("renown_dev",DEV);}}catch(e){DEV="t"+Math.random().toString(36).slice(2,10);}

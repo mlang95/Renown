@@ -74,8 +74,14 @@ def _mech_key(s):
     return MECH_ALIASES.get(key, key)
 
 
+def is_final(f):
+    v = FACT.get(f) or {}
+    return bool(v.get("final_cut")) and not v.get("deprecated")
+
+
 def culture_faction_rows(c):
-    """Resolve a culture's mechanic_name labels to faction records for their summaries."""
+    """Resolve a culture's mechanic_name labels to faction records for their summaries.
+    Heritages outside the final cut stay in the data lists but are not printed."""
     by_mechanic = {_mech_key(mech_name(f)): f for f in FACT}
     labels = c.get("mechanic_name", [])
     if isinstance(labels, str):
@@ -83,7 +89,7 @@ def culture_faction_rows(c):
     rows, represented = [], set()
     for label in labels:
         f = by_mechanic.get(_mech_key(label))
-        if f in represented:
+        if f in represented or (f and not is_final(f)):
             continue
         if f:
             rows.append((str(label), f))
@@ -92,7 +98,7 @@ def culture_faction_rows(c):
             rows.append((str(label), None))
     label_keys = {_mech_key(x) for x in labels}
     for f in c.get("factions", []):
-        if f in FACT and f not in represented and _mech_key(mech_name(f)) not in label_keys:
+        if f in FACT and is_final(f) and f not in represented and _mech_key(mech_name(f)) not in label_keys:
             rows.append((mech_name(f), f))
     return rows
 
@@ -145,7 +151,7 @@ def validate():
     for f in FACT:
         if not FSUM.get(f): warn.append(f"faction {f!r} has no FACTIONS summary")
     for f in FACT:
-        if f not in seen: warn.append(f"faction {f!r} not mapped to a culture")
+        if is_final(f) and f not in seen: warn.append(f"faction {f!r} not mapped to a culture")
     for w in warn: print("  WARN", w)
     return warn
 

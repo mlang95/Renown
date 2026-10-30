@@ -68,6 +68,7 @@ A few conventions make every rule in this book read the same way:
 2. **Specific over general.** A more specific rule overrides a general one.
     2.1 *Example: Inquisitorial Palace ≥ Established Cunning > general Cunning rule.*
     2.2 When two effects conflict, the one that says can't (or doesn't) takes precedence over one that says you may or must.
+    2.3 When effects from different sources conflict, the higher source wins: Faction > Monument > Wonder > Standing > Infrastructure = Holding > Action > general rule. Between two effects from the same level, 2.2 decides.
 
 3. **Public information.** All information is public: resources, Domains, Treaties, Armies, Holdings, and Garrisons are known to all players.
 

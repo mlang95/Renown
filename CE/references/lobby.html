@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Renown</title>
+<!-- Lobby (main menu), served by server.py at /. Lists games from /api/games; each game's board is /g/<id>/. -->
+<style>
+  :root{--bg:#0f1115;--panel:#161a21;--panel2:#1c222b;--line:#262d38;--line2:#323b48;--ink:#e6eaf0;--dim:#8b95a3;--dim2:#5c6674;
+    --go:#5fae6e;--warn:#d0884a;--radius:8px;--serif:"EB Garamond",Garamond,Georgia,serif}
+  @media (prefers-color-scheme: light){:root{--bg:#f3efe6;--panel:#fbf8f2;--panel2:#f0ebe0;--line:#ddd5c4;--line2:#cbc1ad;--ink:#26262e;--dim:#6f6a60;--dim2:#a39c8e}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--serif);font-size:15px;line-height:1.45}
+  main{max-width:860px;margin:0 auto;padding:40px 16px 60px}
+  h1{font-size:44px;font-weight:600;letter-spacing:.04em;margin:0}
+  .sub{color:var(--dim);margin:2px 0 28px}
+  h2{font-size:15px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin:28px 0 10px}
+  input,select,button{font:inherit;color:var(--ink);background:var(--panel2);border:1px solid var(--line2);border-radius:6px;padding:7px 10px}
+  button{cursor:pointer}button:hover{border-color:var(--dim)}
+  .go{border-color:var(--go);font-weight:600}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+  form.new{display:grid;grid-template-columns:1fr 110px 150px auto;gap:8px;align-items:end}
+  form.new label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--dim)}
+  .games{display:flex;flex-direction:column;gap:8px}
+  .game{display:grid;grid-template-columns:14px 1fr auto;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);
+    border-radius:var(--radius);padding:14px 16px}
+  .game.arch{opacity:.6}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--dim2)}.dot.live{background:var(--go);box-shadow:0 0 0 3px color-mix(in srgb,var(--go) 25%,transparent)}
+  .gname{font-size:19px;font-weight:600}.meta{color:var(--dim);font-size:13px}
+  .acts{display:flex;gap:6px;align-items:center}
+  .muted{color:var(--dim)}.err{color:var(--warn);min-height:1.4em;margin-top:8px}
+  .tools{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-top:28px;flex-wrap:wrap}
+  .tools label{color:var(--dim);font-size:13px;display:flex;gap:6px;align-items:center}
+  #token{width:260px}
+  @media(max-width:640px){form.new{grid-template-columns:1fr 1fr}form.new .nm{grid-column:1/-1}form.new button{grid-column:1/-1}
+    .game{grid-template-columns:12px 1fr}.acts{grid-column:1/-1;justify-content:flex-end}#token{width:100%}h1{font-size:36px}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Renown</h1>
+  <div class="sub">Settlement board</div>
+
+  <h2>New game</h2>
+  <form class="new panel" id="newForm">
+    <label class="nm">Name<input id="nName" maxlength="60" placeholder="game name" required></label>
+    <label>Seats<select id="nSeats"></select></label>
+    <label>Duke PIN<input id="nPin" type="password" maxlength="64" placeholder="optional" autocomplete="new-password"></label>
+    <button class="go" type="submit">Create</button>
+  </form>
+  <div class="err" id="newErr"></div>
+
+  <h2>Games</h2>
+  <div class="games" id="games"><div class="muted">Loading…</div></div>
+
+  <div class="tools">
+    <label><input type="checkbox" id="showArch"> archived</label>
+    <label>Access token <input id="token" type="password" placeholder="only if the server requires one" autocomplete="off"></label>
+  </div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+let TOKEN="";try{TOKEN=localStorage.getItem("renown_token")||"";}catch(e){}
+$("token").value=TOKEN;
+$("token").onchange=()=>{TOKEN=$("token").value.trim();try{localStorage.setItem("renown_token",TOKEN);}catch(e){}load();};
+for(let i=1;i<=7;i++)$("nSeats").insertAdjacentHTML("beforeend",'<option'+(i===4?" selected":"")+'>'+i+'</option>');
+async function api(method,path,body){
+  const h={};if(body!==undefined)h["Content-Type"]="application/json";if(TOKEN)h["X-Renown-Token"]=TOKEN;
+  const r=await fetch(path,{method,headers:h,body:body!==undefined?JSON.stringify(body):undefined});
+  return {status:r.status,json:await r.json().catch(()=>null)};}
+function ago(ts){if(!ts)return "";const s=(Date.now()-Date.parse(ts))/1000;if(isNaN(s))return "";
+  if(s<90)return "just now";if(s<5400)return Math.round(s/60)+" min ago";if(s<129600)return Math.round(s/3600)+" h ago";return Math.round(s/86400)+" days ago";}
+function row(g){
+  const seats=g.players||g.seats||0,status=g.started?"Turn "+g.turn:(g.players?"Setup":"New");
+  return '<div class="game'+(g.archived?" arch":"")+'"><span class="dot'+(g.live?" live":"")+'" title="'+(g.live?"live":"idle")+'"></span>'+
+    '<div><div class="gname">'+esc(g.name)+'</div><div class="meta">'+[status,g.claimed+" / "+seats+" seated",g.pin?"Duke PIN":"",
+      g.live?"live":"active "+ago(g.last_active)].filter(Boolean).map(esc).join(" · ")+'</div></div>'+
+    '<div class="acts">'+(g.archived?'<button data-arch="0" data-id="'+esc(g.id)+'">Restore</button>'
+      :'<button data-arch="1" data-id="'+esc(g.id)+'" title="hide from this list">Archive</button><a href="/g/'+esc(g.id)+'/"><button class="go">Join</button></a>')+'</div></div>';}
+async function load(){
+  const r=await api("GET","/api/games"+($("showArch").checked?"?all=1":"")).catch(()=>null);
+  if(!r){$("games").innerHTML='<div class="muted">Server unreachable.</div>';return;}
+  if(r.status===401){$("games").innerHTML='<div class="muted">Access token required.</div>';return;}
+  const L=(r.json&&r.json.games)||[];
+  $("games").innerHTML=L.length?L.map(row).join(""):'<div class="muted">No games yet.</div>';}
+$("games").onclick=async e=>{const b=e.target.closest("[data-arch]");if(!b)return;
+  const g=b.dataset.id,arch=b.dataset.arch==="1";let pin="";
+  if(arch&&!confirm("Archive this game? It stays on the server and can be restored."))return;
+  const row=b.closest(".game");if(row&&/Duke PIN/.test(row.textContent)){pin=prompt("Duke PIN for this game")||"";if(!pin)return;}
+  const r=await api("POST","/api/games/"+encodeURIComponent(g)+"/archive",{archived:arch,pin});
+  if(r.status!==200)alert((r.json&&r.json.error)||"failed");load();};
+$("showArch").onchange=load;
+$("newForm").onsubmit=async e=>{e.preventDefault();$("newErr").textContent="";
+  const r=await api("POST","/api/games",{name:$("nName").value.trim(),seats:+$("nSeats").value,pin:$("nPin").value}).catch(()=>null);
+  if(!r||r.status!==200||!r.json){$("newErr").textContent=(r&&r.json&&r.json.error)||"Could not create the game.";return;}
+  location.href="/g/"+encodeURIComponent(r.json.id)+"/";};
+load();setInterval(load,15000);
+</script>
+</body>
+</html>

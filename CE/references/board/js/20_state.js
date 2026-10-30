@@ -32,7 +32,7 @@ D.players=[newPlayer(1)];
 let S=null;                              // alias to active player's board
 let tab="pursuit", activeTypes=new Set(), aid=1, pid=1, sid=1, activeSid=null, catOpen=new Set(), mid=1, mtool="Select";
 
-try{const d=JSON.parse(localStorage.getItem("renown_dash")||"null");if(d&&d.players)D=d;}catch(e){}
+try{const d=JSON.parse(localStorage.getItem(gkey("renown_dash"))||"null");if(d&&d.players)D=d;}catch(e){}
 // migrate single-board board3 -> player 1
 try{
   if(D.players.length===1 && !D.players[0].board.placed.length){
@@ -259,7 +259,7 @@ let TOKEN="";try{TOKEN=localStorage.getItem("renown_token")||"";}catch(e){}
 async function apiFetch(method,path,body){
   try{
     const h={};if(body!==undefined)h["Content-Type"]="application/json";if(TOKEN)h["X-Renown-Token"]=TOKEN;
-    const r=await fetch(path,{method,headers:h,body:body!==undefined?JSON.stringify(body):undefined});noteServerDate(r);
+    const r=await fetch(API_BASE+path,{method,headers:h,body:body!==undefined?JSON.stringify(body):undefined});noteServerDate(r);
     if(r.status===401){setOnline(false);const t=document.getElementById("srvStat");if(t)t.textContent="unauthorized — check access token";return null;}
     if(!r.ok)throw 0;
     setOnline(true);
@@ -313,7 +313,7 @@ function joinD(parts){
 async function apiRaw(method,path,body){
   try{
     const h={};if(body!==undefined)h["Content-Type"]="application/json";if(TOKEN)h["X-Renown-Token"]=TOKEN;
-    const r=await fetch(path,{method,headers:h,body:body!==undefined?JSON.stringify(body):undefined});noteServerDate(r);
+    const r=await fetch(API_BASE+path,{method,headers:h,body:body!==undefined?JSON.stringify(body):undefined});noteServerDate(r);
     if(r.status===401){setOnline(false);const t=document.getElementById("srvStat");if(t)t.textContent="unauthorized — check access token";return null;}
     setOnline(true);
     return {status:r.status,json:await r.json().catch(()=>null)};
@@ -327,7 +327,7 @@ function save(){
   try{edictWatch();}catch(e){}
   try{(D.players||[]).forEach(p=>glogSync(p.board));}catch(e){}
   undoRecord();if(!ACT.saving)actSchedule();
-  try{_savedSig=JSON.stringify(D);localStorage.setItem("renown_dash",_savedSig);}catch(e){}
+  try{_savedSig=JSON.stringify(D);localStorage.setItem(gkey("renown_dash"),_savedSig);}catch(e){}
   clearTimeout(_saveT);_saveT=setTimeout(push,400);
 }
 function saveIfDirty(){let s=null;try{s=JSON.stringify(D);}catch(e){return;}if(s!==_savedSig)save();}
