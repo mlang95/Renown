@@ -3113,10 +3113,10 @@ STANDING_ARMY_SIEGE_MODIFIER = 1
 # economy.py has this as a local constant (EMPIRE_START)
 EMPIRE_START_TIERS = ("Town", "Hamlet")
 STARTING_TREASURY = 10000
-# Setup › Player Setup: Starting Holdings, placed free and built before Turn 1: one eligible Raw Material Holding in the
-# capital, and one of these in the Hamlet (the rules text says "one"; keep the two in step)
-SETUP_CAPITAL_PICKS = 1
-SETUP_HAMLET_PICKS = 1
+# Setup › Player Setup: Starting Holdings, placed free and built before Turn 1: SETUP_CAPITAL_PICKS eligible Raw Material
+# Holdings in the capital, and SETUP_HAMLET_PICKS of SETUP_HAMLET_HOLDINGS in the Hamlet (0 = the Hamlet starts empty)
+SETUP_CAPITAL_PICKS = 2
+SETUP_HAMLET_PICKS = 0
 SETUP_HAMLET_HOLDINGS = ("Common Land",)
 SETUP_HAMLET_TEXT = " or ".join(SETUP_HAMLET_HOLDINGS)
 # Hamlets › special rule: a Hamlet may hold more than one of these (an exception to Settlement Scope, one per Settlement)

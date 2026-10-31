@@ -407,7 +407,7 @@ function runMuster(c){const o=c.o,b=o.board,k=c.sub.slice(0,1),v=c.sub.slice(2),
 // Material in Reach), with the Settlement it would go to (smartSid); or place it by hand (pending flag)
 function buildOpts(o){return withBoard(o.board,()=>{const ctx=legalCtx(),L=[],gs=gameStarted(),sn=id=>{const s=S.settlements.find(x=>x.id===id);return s?(s.name||s.tier):"no free Ward";};
   NAMES.forEach(n=>{const r=R[n]||{};
-    const ln=r.root?null:chainLine(n,ctx.own),src=r.root?(rawRes(n)?"Raw Material":"Root"):"from "+(ln&&ln.length?ln[ln.length-1]:"?");
+    const ln=r.root?null:chainLine(n,ctx.own),src=r.root?(rawRes(n)?"Raw Material":"Root"):"from "+(ln&&ln.length?ln[ln.length-1]:hamletRoot(n)?"Hamlet":"?");   // efficient: Hamlet roots in the Hamlet itself
     if(!pLegal(n,null,ctx)){const miss=pReqMiss(n,null,ctx);if(miss)L.push({v:"b:"+n,root:!!r.root,dis:true,label:n+" · "+src+" · requires "+miss});return;}
     const sd=smartSid(n,ctx);L.push({v:"b:"+n,root:!!r.root,dis:gs&&sd==null,label:n+" · "+src+(sd==null?" · no free Ward":"")});});
   L.sort((a,b)=>a.dis-b.dis||a.root-b.root);

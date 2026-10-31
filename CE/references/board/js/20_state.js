@@ -493,7 +493,7 @@ function setupHoldFlags(){const f=[],HL=RC.SETUP_HAMLET_HOLDINGS||[],cap=capital
     else if(s.capital){if(!eligible(q,s.id))f.push("Setup: "+q.name+" in "+(s.name||s.tier)+" isn't an eligible Raw Material Holding");}
     else f.push("Setup: "+q.name+" outside the capital and Hamlet");});
   const nc=cap?sp.filter(q=>q.sid===cap.id).length:0,nh=ham?sp.filter(q=>q.sid===ham.id).length:0;
-  if(cap&&nc!==nCap)f.push("Setup: "+nc+"/"+nCap+" starting Raw Material Holding in "+(cap.name||cap.tier));
+  if(cap&&nc!==nCap)f.push("Setup: "+nc+"/"+nCap+" starting Raw Material Holding"+(nCap===1?"":"s")+" in "+(cap.name||cap.tier));
   if(ham&&nh!==nHam)f.push("Setup: "+nh+"/"+nHam+" starting "+HL.join(" / ")+" in the Hamlet");
   return f;}
 // ---- uniqueness + tier progression ----

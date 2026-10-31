@@ -380,12 +380,12 @@ DO.checkin=el=>{const p=pOf(el);if(!p||!canAct(p)||!setupOn()||checkedIn(p))retu
 // Starting Holdings picker: the capital takes RC.SETUP_CAPITAL_PICKS eligible Raw Materials, the Hamlet RC.SETUP_HAMLET_PICKS of RC.SETUP_HAMLET_HOLDINGS
 function setupHoldHTML(p){const ed=canAct(p)&&(HOTSEAT||sameP(p,meP()));
   return withBoard(p.board,()=>{const cap=capitalSett(),ham=S.settlements.find(s=>s.tier==="Hamlet"),fl=setupHoldFlags().length;
-    const slot=(s,k,n,opts,ph)=>{if(!s)return '';const got=S.placed.filter(q=>q.setup&&q.sid===s.id);
+    const slot=(s,k,n,opts,ph)=>{if(!s||!n)return '';const got=S.placed.filter(q=>q.setup&&q.sid===s.id);
       return esc(s.tier)+' '+got.map(q=>'<b>'+esc(q.name)+'</b>'+(ed?' <button data-setup-rm="'+q.id+'" data-who="'+p.id+'">×</button>':'')).join(' ')+
         (ed&&got.length<n?' <select data-setup-hold="'+k+'" data-who="'+p.id+'"><option value="">— '+ph+' —</option>'+opts.filter(x=>canPlace(x,s.id).ok).map(x=>'<option>'+esc(x)+'</option>').join('')+'</select>':
           (got.length?'':' —'));};
-    return slot(cap,"cap",+RC.SETUP_CAPITAL_PICKS||0,cap?NAMES.filter(n=>setupRawOK(n,cap.id)):[],"Raw Material")+' · '+
-      slot(ham,"ham",+RC.SETUP_HAMLET_PICKS||0,RC.SETUP_HAMLET_HOLDINGS||[],(RC.SETUP_HAMLET_HOLDINGS||[]).join(" / "))+
+    return [slot(cap,"cap",+RC.SETUP_CAPITAL_PICKS||0,cap?NAMES.filter(n=>setupRawOK(n,cap.id)):[],"Raw Material"),
+      slot(ham,"ham",+RC.SETUP_HAMLET_PICKS||0,RC.SETUP_HAMLET_HOLDINGS||[],(RC.SETUP_HAMLET_HOLDINGS||[]).join(" / "))].filter(Boolean).join(' · ')+
       (fl?' <span class="su-fl">⚑'+fl+'</span>':'');});}
 document.addEventListener("change",e=>{const el=e.target.closest&&e.target.closest("[data-setup-hold]");if(!el||!el.value)return;const p=pOf(el);
   if(!p||!canAct(p)||!setupOn())return;const n=el.value;

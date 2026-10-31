@@ -222,7 +222,7 @@ An Age{{IDX:Age}} sets the starting Year and which Domain every player starts Ri
 - Empire Tableau.
 - Collect {{VAL:STARTING_TREASURY}} Gold, 2 Influence Tokens, and 1 Envoy.
 - You don't begin the game with any Armies.
-- **Starting Holdings** — Select one eligible Raw Material Holding for your capital, and either a {{VAL:SETUP_HAMLET_TEXT}} for your Hamlet. Starting Holdings are free and begin the game built.
+- **Starting Holdings** — Select {{VAL:SETUP_CAPITAL_PICKS}} eligible Raw Material Holdings for your capital. Starting Holdings are free and begin the game built.
 - **Start of Turn 1 check-in** — before the first turn, each player resolves their Start of the Empire Phase effects, including Domain Standing effects (such as a *Perform …* Standing action, or Faith from an *Each Empire Phase* Standing effect). Then the first turn begins at the {{VAL:STARTING_TURN_PHASE_OPENER}} Phase instead of the Empire Phase.
 
 # Actions & Voting
