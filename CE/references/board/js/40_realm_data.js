@@ -3,6 +3,12 @@
 const SEAS=DATA.seasons||{},SEAS_ORDER=Object.keys(SEAS);
 function curSeason(){if(!D.season||!SEAS[D.season])D.season=SEAS.Summer?"Summer":SEAS_ORDER[0];return D.season;}
 function stepSeason(dl){const i=SEAS_ORDER.indexOf(curSeason());D.season=SEAS_ORDER[(i+dl+SEAS_ORDER.length)%SEAS_ORDER.length];}
+function nextSeason(){const i=SEAS_ORDER.indexOf(curSeason());return SEAS_ORDER[(i+1)%SEAS_ORDER.length];}
+// season look on the map: glyph + accent (map plate, frame, turn herald)
+const SEA_LOOK={Winter:{g:"❄",c:"#9cc3e6"},Spring:{g:"❀",c:"#8ccf6e"},Summer:{g:"☀",c:"#f0c24a"},Fall:{g:"❦",c:"#d9853b"}};
+function seaLook(s){return SEA_LOOK[s]||{g:"",c:"#aaa"};}
+// "Winter — Freezing: All Armies gain Speed -5; ..." (SEASONS)
+function seaLine(s){const e=SEAS[s]||{};return '<b>'+esc(s)+'</b>'+(e.name?' <i>'+esc(e.name)+'</i>':'')+(e.effect?' — '+esc(e.effect):'');}
 // ---- influence per turn (INFLUENCE_GAIN) ----
 const IG=DATA.influenceGain||{};
 function playerOfBoard(b){return D.players.find(p=>p.board===b);}

@@ -135,12 +135,13 @@ function renderTable(){
   const host=document.getElementById("viewTable");if(!host)return;
   const R=tSim();T_SIG=tSig(R);
   if(!host.querySelector(".rl"))host.innerHTML='<div class="rl"><div class="rl-grid"><div class="rl-main"><div id="rlTable"></div>'+
-    '<button class="rl-maptog" data-do="maptog" data-nav="1"></button><div class="tb-felt rl-felt" id="rlFelt"><div id="rlBar"></div><div class="tb-map" id="rlMap"></div><div id="rlCard"></div></div>'+
+    '<button class="rl-maptog" data-do="maptog" data-nav="1"></button><div class="tb-felt rl-felt" id="rlFelt"><div id="rlBar"></div><div class="tb-map" id="rlMap"></div><div id="rlSeason"></div><div class="rl-herald" id="rlHerald"></div><div id="rlCard"></div></div>'+
     '<div id="viewRealm"></div></div><div class="rl-side"><div id="rlPhase"></div><div id="rlDock"></div></div></div><div id="rlHover" class="rl-hover" hidden></div></div>';
   {const rl=host.querySelector(".rl");rl.classList.toggle("wide",TB_WIDE);rl.classList.toggle("rl-mapon",RL_MAP);rl.querySelector(".rl-maptog").textContent=RL_MAP?"Hide map":"Show map";}
   const $=id=>host.querySelector("#"+id),M=mapState(),hasMap=!!(M.grid||Object.keys(M.cells).length);
   patch($("rlTable"),realmTableHTML(R));
   renderRealmMap($("rlMap"),M,hasMap);
+  patch($("rlSeason"),hasMap?seasonPlateHTML():"");seasonHerald($("rlHerald"),$("rlMap"));seasonDock($("rlFelt"));
   const w1=patch($("rlBar"),hasMap?mapBarHTML():""),w2=patch($("rlCard"),inspHTML());
   patch($("rlPhase"),phaseCardHTML(R));
   patch($("rlDock"),dockHTML(R));
@@ -150,6 +151,25 @@ function renderTable(){
   if(w1||w2||w3){wireMap(host);wireInsp(host);if(w3){wireBanditAuto(host);wireDashExtras($("viewRealm"));}}
   tCountdown(R);}
 
+// ---- Season on the map: a plate (this Season + next, from SEASONS), the map frame in the Season's colour, and a herald when it turns ----
+function seasonPlateHTML(){const cs=curSeason(),nx=nextSeason(),L=seaLook(cs),N=seaLook(nx);
+  return '<div class="sea-plate" style="--sea:'+L.c+'"><div class="sea-now"><span class="sea-g">'+L.g+'</span><span>'+seaLine(cs)+'</span></div>'+
+    '<div class="sea-nx" style="--sea:'+N.c+'"><span class="sea-g">'+N.g+'</span><span>Next turn: '+seaLine(nx)+'</span></div></div>';}
+// keep the plate off the hexes: in the margin beside the fitted map when it is wide enough, else in a strip the map gives up at the bottom
+function seasonDock(felt){const map=felt&&felt.querySelector("#rlMap"),pl=felt&&felt.querySelector("#rlSeason");if(!map||!pl)return;
+  if(!felt._seaRO&&typeof ResizeObserver!=="undefined"){felt._seaRO=new ResizeObserver(()=>seasonDock(felt));felt._seaRO.observe(felt);}
+  felt.classList.remove("sea-side","sea-strip");map.style.bottom="";pl.style.width="";
+  if(!pl.firstChild||getComputedStyle(pl).position==="static")return;
+  const sv=map.querySelector("svg.rmap"),vb=sv&&sv.viewBox&&sv.viewBox.baseVal,r=map.getBoundingClientRect();
+  if(MAPZ.fit&&vb&&vb.width&&r.height){const side=(r.width-Math.min(r.width,r.height*vb.width/vb.height))/2;
+    if(side>=200){felt.classList.add("sea-side");pl.style.width=Math.min(320,Math.floor(side)-20)+"px";return;}}
+  felt.classList.add("sea-strip");map.style.bottom=(pl.offsetHeight+6)+"px";}
+let SEA_SEEN=null;
+function seasonHerald(el,map){const cs=curSeason(),L=seaLook(cs);if(map)map.style.setProperty("--sea",L.c);
+  if(map)SEAS_ORDER.forEach(c=>map.classList.toggle("sea-"+c,c===cs));
+  if(!el||SEA_SEEN===cs)return;const first=SEA_SEEN===null;SEA_SEEN=cs;if(first)return;
+  const e=SEAS[cs]||{};el.innerHTML='<div style="--sea:'+L.c+'"><span class="sea-g">'+L.g+'</span><b>'+esc(cs)+'</b>'+(e.name?'<i>'+esc(e.name)+'</i>':'')+'</div>';
+  el.classList.remove("show");void el.offsetWidth;el.classList.add("show");}
 // ---- map region: the terrain layer is rebuilt only when the map itself changes; pieces and overlays every render ----
 function renderRealmMap(box,M,hasMap){
   box.classList.toggle("zm",!MAPZ.fit);
@@ -253,6 +273,7 @@ function phaseCardHTML(R){
   if(R.councilDom)h+='<div class="note">Council Domain: <b>'+R.councilDom+'</b>'+(R.tieBy?' — tie ('+R.tieBy.cands.join(" / ")+') broken by the Host’s vote ('+esc(R.tieBy.who.name)+')':'')+'</div>';
   if(ph==="council"&&councilOff())h+='<div>Spring — no Council Phase.</div>';
   if(ph==="rest")h+='<div class="note">Unused Envoys & Influence are discarded · Season +1 · gain Renown · spend a Domain Point · Host passes clockwise (not in Spring).</div>'+
+    '<div class="sea-next" style="--sea:'+seaLook(nextSeason()).c+'"><span class="sea-g">'+seaLook(nextSeason()).g+'</span><span>Next turn: '+seaLine(nextSeason())+'</span></div>'+
     (dpOwed().length?'<div>Domain Points to spend: <b>'+dpOwed().map(p=>esc(p.name)+' '+p.board.dp).join(', ')+'</b></div>':'<div class="pos">Domain Points spent.</div>');
   if(hc){const nx=tNext(ph),vt=(ph==="council"&&!councilOff())||ph==="envoy";
     h+='<div class="rl-hostbar">'+(vt?'<button data-do="begin">'+(t.phaseTs?'Restart Phase':'Begin')+'</button>':'')+

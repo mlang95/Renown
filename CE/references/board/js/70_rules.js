@@ -464,7 +464,7 @@ function provinceOf(p){const M=mapState(),g=M.grid;if(!g)return new Set();const 
 function moveTraits(p){return withBoard(p.board,()=>{const ks=Object.keys(PC).map(n=>"h:"+n).concat(Object.keys(S.infra||{}).filter(infraOn).map(n=>"i:"+n)),fk="F:"+(S.faction||"");
   const any=id=>ks.some(k=>efxOf(k,id).length);
   return {shipyard:any("shipyard"),bridges:any("bridges"),ignoreTerrain:!!hitOf(fk,"ignore_terrain"),mtnGrass:!!hitOf(fk,"mountain_grass"),fk};});}
-function speedOf(p,a,startK){const parts=[],notes=[],b=p.board,sea=curSeason(),base=+((EQ.retinues[a.retinue]||{}).speed)||0;
+function speedOf(p,a,startK,season){const parts=[],notes=[],b=p.board,sea=season||curSeason(),base=+((EQ.retinues[a.retinue]||{}).speed)||0;
   parts.push([a.retinue+" Speed",base]);
   const tr=moveTraits(p),prov=provinceOf(p),inProv=!!startK&&prov.has(startK);
   const sm=/All Armies gain Speed\s*([+\-−])\s?(\d+)/i.exec((SEAS[sea]||{}).effect||"");

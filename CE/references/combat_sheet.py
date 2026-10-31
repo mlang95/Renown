@@ -189,7 +189,7 @@ def front(c):
               colw=[right_w*0.24,right_w*0.76], fs=7.5); y -= 6
     nat_keys = [rd.SHATTER_ARMOR, rd.CLEAVE, rd.DESTROY_SHIELD, rd.POISON, rd.RIPOSTE, rd.PLANISHING]
     nat_rows = [[k, gtext(k)] for k in nat_keys if k in rd.GLOSSARY]
-    y = chart(c, right_x, y, right_w, f"On a Natural {FOCUSED_THR}", ["Keyword","Effect"], nat_rows,
+    y = chart(c, right_x, y, right_w, f"On an Unmodified {FOCUSED_THR}", ["Keyword","Effect"], nat_rows,
               colw=[right_w*0.26,right_w*0.74], fs=7.5); y -= 6
     se_rows = [[f"{dom} {st}", eff] for ( st,dom), eff in rd.STANDING_EFFECTS.items()]
     y = chart(c, right_x, y, right_w, "Standing Combat Effects", ["Standing","Effect"], se_rows,

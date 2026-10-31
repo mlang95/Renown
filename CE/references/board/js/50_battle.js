@@ -294,7 +294,7 @@ function fmtMod(m){if(!m)return"—";const o=[];["I","TH","TS"].forEach(k=>{if(m
 const sgnD=m=>m>0?"+"+m:m<0?"\u2212"+(-m):"±0";
 function dieRow(dice,target,mod){const FOC=BT.focusedThr||10;mod=mod||0;return dice.map(v=>'<span class="dq'+(v>=target?' ok':'')+(v>=FOC?' ten':'')+'" title="rolled '+v+(mod?' '+sgnD(mod)+' = '+(v+mod):'')+(v>=target?' — made it':' — missed')+(v>=FOC?' · a natural 10 (Focused)':'')+'">'+(v+mod)+'</span>').join('');}
 const DQ_KEY='<span class="note dq-key"><span class="dq ok">7</span> made it · <span class="dq">3</span> missed · <span class="dq ok ten">10</span> natural 10</span>';
-function rollNeed(t,base){const F=BT.faces||10,m=base-t;return t>F?"can't succeed (it would need more than a natural "+F+")":"need <b>"+base+"+</b>"+(m?" · each die "+sgnD(m):"");}
+function rollNeed(t,base){const F=BT.faces||10,m=base-t;return t>F?"can't succeed (it would need more than an Unmodified "+F+")":"need <b>"+base+"+</b>"+(m?" · each die "+sgnD(m):"");}
 function rollHTML(X){const R=(battle().rolls||{})[X];if(!R)return"";const base=R.base!=null?R.base:R.target,mod=base-R.target;
   const word=R.kind==="Strike"?(R.succ===1?"hit":"hits"):R.kind==="Parry"?"parried":R.kind==="Save"?"saved":R.kind==="Recover"?"recovered":"held";
   let h=esc(R.rr?"Dual Wield re-roll":R.kind)+' — '+rollNeed(R.target,base)+': '+dieRow(R.dice,R.target,mod)+

@@ -22,6 +22,55 @@ function mapClimate(g){if(!g)return TDEF;
 function mapPal(g){const base=TPAL[mapClimate(g)]||TPAL[TDEF];
   if(g&&g.colors&&TTYPES.every(t=>g.colors[t]))return Object.assign({label:base.label+" (custom)"},g.colors);
   return base;}
+// ---- seasons on the map: each Season shifts the climate's palette (Summer = the palette as drawn) ----
+// per terrain: sat/lit scale the colour's HSL, then it mixes toward `to` by `amt`. Climates whose look fights the
+// default (snow on desert, white on the Frozen north, muddy reds) carry their own rows; print (ink) never shifts.
+const SEA_TINT={
+  Winter:{plains:{sat:.45,to:"#cfd8e0",amt:.38},forest:{sat:.5,to:"#5d6e78",amt:.28},wetland:{sat:.45,to:"#9fadb5",amt:.35},
+    tundra:{sat:.4,to:"#e4e9ee",amt:.5},mountain:{sat:.6,to:"#d6dde4",amt:.3},water:{sat:.7,lit:.92,to:"#5f7d8c",amt:.2}},
+  Spring:{plains:{sat:1.12,lit:1.06,to:"#8fc45a",amt:.15},forest:{sat:1.1,lit:1.08,to:"#3f7a34",amt:.12},wetland:{sat:1.1,to:"#6b8a4e",amt:.15},
+    tundra:{to:"#8f8a52",amt:.1},water:{lit:1.04}},
+  Fall:{plains:{to:"#d9b45c",amt:.75},forest:{to:"#8a4a1c",amt:.38},wetland:{to:"#7a6a3a",amt:.3},tundra:{to:"#a0703a",amt:.2},mountain:{to:"#7a6656",amt:.1}}};
+const SEA_HAZE={Winter:{plains:{sat:.55,to:"#a7a49a",amt:.35},forest:{sat:.6,to:"#4c5250",amt:.2},wetland:{sat:.6,to:"#8a8a80",amt:.3},
+    tundra:{sat:.55,to:"#a39e92",amt:.3},mountain:{sat:.7,to:"#b9b8b2",amt:.25}},
+  Spring:{plains:{to:"#a8a64a",amt:.2}}};
+const SEA_TINT_CLIMATE={
+  wastes:SEA_HAZE,steppe:SEA_HAZE,                                              // dust haze, not snow
+  frozen:{Winter:{plains:{sat:.3,to:"#eef2f5",amt:.6},forest:{sat:.4,to:"#7f8f98",amt:.35},wetland:{sat:.3,to:"#c9d3d9",amt:.5},
+    tundra:{to:"#ffffff",amt:.4},mountain:{to:"#eef2f5",amt:.45}}},             // already snow-grey: push to white
+  scarlet:{Winter:{plains:{sat:.65,to:"#d9c9cc",amt:.35},forest:{sat:.7,to:"#6e4a52",amt:.25},wetland:{sat:.65,to:"#a59397",amt:.3}},
+    Spring:{plains:{sat:1.1,lit:1.06,to:"#d06a52",amt:.1}},Fall:{plains:{to:"#c2401e",amt:.25},forest:{to:"#5a1418",amt:.2}}}};   // frosted crimson, not mud
+// what each climate does on the map beyond the palette (pixel props):
+//   frost  - Winter speckle over land hexes (0 = none)   meadow - share of Fall grassland hexes left half-green between the wheat
+//   leaves - Fall: share of trees turned, and their colours   snowTrees / snowPeaks - Winter: snow on tree tops / mountain faces
+const SEA_LEAVES=["#d9822b","#c4462a","#e3b23c","#a8561f"];
+const SEA_PROFILE_DEF={frost:.6,meadow:.3,leaves:{p:.6,c:SEA_LEAVES},snowTrees:1,snowPeaks:1};
+const SEA_PROFILE={
+  deepwood:{leaves:{p:.35,c:["#b8642a","#9c3a22","#c99a34"]}},                   // dark old growth: mostly stays green
+  warm:{frost:.25,leaves:{p:.3,c:SEA_LEAVES},snowTrees:0},                       // mild coast: light frost, green trees
+  wastes:{frost:0,meadow:0,leaves:{p:.25,c:["#d6a640","#c27a2c"]},snowTrees:0},   // dust haze; snow only on the peaks
+  steppe:{frost:0,meadow:0,leaves:{p:.25,c:["#d6a640","#c27a2c"]},snowTrees:0},
+  frozen:{frost:.9,meadow:0,leaves:{p:0}},                                        // taiga: evergreen
+  scarlet:{meadow:0,leaves:{p:.5,c:["#e0a032","#d8742a","#f0c040"]}},            // gold among the red
+  ink:{frost:0,meadow:0,leaves:{p:0},snowTrees:0,snowPeaks:0}};
+function seaProfile(cl){return Object.assign({},SEA_PROFILE_DEF,SEA_PROFILE[cl]||{});}
+// per-prop colour for this Season (null = the hex's own tones): Fall leaves on some trees, Winter snow on trees and peaks
+function seaPropLook(gk,sea,P){if(!P)return null;
+  if(gk==="forest"&&sea==="Fall"&&P.leaves.p)return {p:P.leaves.p,c:P.leaves.c};
+  if(gk==="forest"&&sea==="Winter"&&P.snowTrees)return {p:1,tones:["#f4f7fa","#7d8e98","#26333a"]};
+  if(gk==="mountain"&&sea==="Winter"&&P.snowPeaks)return {p:1,tones:["#f6f8fb","#a9b6c2","#3a434c"]};
+  return null;}
+function tShift(hex,o){if(!o||!/^#[0-9a-f]{6}$/i.test(hex))return hex;
+  const n=parseInt(hex.slice(1),16);let r=(n>>16&255)/255,g=(n>>8&255)/255,b=(n&255)/255;
+  if(o.sat!=null||o.lit!=null){const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l0=(mx+mn)/2,d=mx-mn;let h=0,s=0;
+    if(d){s=d/(1-Math.abs(2*l0-1));h=mx===r?((g-b)/d)%6:mx===g?(b-r)/d+2:(r-g)/d+4;h*=60;if(h<0)h+=360;}
+    s=Math.min(1,s*(o.sat??1));const l=Math.min(1,l0*(o.lit??1)),c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs((h/60)%2-1)),m=l-c/2;
+    [r,g,b]=(h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x]).map(v=>v+m);}
+  if(o.to&&o.amt){const t=parseInt(o.to.slice(1),16),k=o.amt;r+=((t>>16&255)/255-r)*k;g+=((t>>8&255)/255-g)*k;b+=((t&255)/255-b)*k;}
+  return "#"+[r,g,b].map(v=>Math.round(Math.max(0,Math.min(1,v))*255).toString(16).padStart(2,"0")).join("");}
+function seasonPal(pal,sea,cl){if(cl==="ink")return pal;
+  const T=((SEA_TINT_CLIMATE[cl]||{})[sea])||SEA_TINT[sea];if(!T)return pal;
+  const o={label:pal.label};TTYPES.forEach(t=>o[t]=tShift(pal[t],T[t]));return o;}
 function tLum(hex){const n=parseInt(hex.slice(1),16),f=v=>{v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);};
   return 0.2126*f(n>>16&255)+0.7152*f(n>>8&255)+0.0722*f(n&255);}
 function tTone(fill){return RS?(tLum(fill)<RS.lum_split?RS.light:RS.ink):"#2b241b";}
@@ -168,7 +217,7 @@ function tMix(hex,to,t){const a=parseInt(hex.slice(1),16),b=parseInt(to.slice(1)
 const SCAT=((DATA.sprites||{}).scatter)||{};
 function hStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
 function rng32(a){return ()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
-function mapScatter(gk,key,cx,cy,R,fill,seed,badge,inline){const sc=SCAT[gk];if(!sc)return "";
+function mapScatter(gk,key,cx,cy,R,fill,seed,badge,inline,look){const sc=SCAT[gk];if(!sc)return "";
   const pu=R*1.6/16,rnd=rng32(hStr(seed+"|"+key+"|"+gk)),tn=sc.tone||[.30,.20,.48],s3=Math.sqrt(3)/2,lim=R*.92*s3;
   const inside=(x,y)=>{x=Math.abs(x);y=Math.abs(y);return y<=lim&&x*s3+y/2<=lim;},boxes=[],items=[];
   (sc.layers||[]).forEach(L=>{const pool=[];(L.p||[]).forEach(([a,w])=>{for(let i=0;i<w;i++)pool.push(a);});if(!pool.length)return;
@@ -182,8 +231,11 @@ function mapScatter(gk,key,cx,cy,R,fill,seed,badge,inline){const sc=SCAT[gk];if(
         if(boxes.some(q=>!(b[2]+G<=q[0]||q[2]+G<=b[0]||b[3]+G<=q[1]||q[3]+G<=b[1])))continue;
         boxes.push(b);items.push({a,b});break;}}});
   items.sort((x,y)=>x.b[3]-y.b[3]);
-  return '<g style="--tH:'+tMix(fill,"#ffffff",tn[0])+';--tS:'+tMix(fill,"#000000",tn[1])+';--tD:'+tMix(fill,"#000000",tn[2])+'" color="'+tTone(fill)+'" pointer-events="none">'+
-    items.map(({a,b})=>{const at='x="'+(cx+b[0]*pu).toFixed(2)+'" y="'+(cy+b[1]*pu).toFixed(2)+'" width="'+((b[2]-b[0])*pu).toFixed(2)+'" height="'+((b[3]-b[1])*pu).toFixed(2)+'"';
+  const lr=look?rng32(hStr(seed+"|"+key+"|"+gk+"|sea")):null,tones=c=>'--tH:'+tMix(c,"#ffffff",tn[0])+';--tS:'+tMix(c,"#000000",tn[1])+';--tD:'+tMix(c,"#000000",tn[2]);
+  const lk=()=>{if(!lr||lr()>=look.p)return "";if(look.tones)return ' style="--tH:'+look.tones[0]+';--tS:'+look.tones[1]+';--tD:'+look.tones[2]+'"';
+    return ' style="'+tones(look.c[Math.floor(lr()*look.c.length)])+'"';};
+  return '<g style="'+tones(fill)+'" color="'+tTone(fill)+'" pointer-events="none">'+
+    items.map(({a,b})=>{const at='x="'+(cx+b[0]*pu).toFixed(2)+'" y="'+(cy+b[1]*pu).toFixed(2)+'" width="'+((b[2]-b[0])*pu).toFixed(2)+'" height="'+((b[3]-b[1])*pu).toFixed(2)+'"'+lk();
       return inline?'<svg '+at+' viewBox="0 0 '+(b[2]-b[0])+' '+(b[3]-b[1])+'" shape-rendering="crispEdges">'+propPaths(a)+'</svg>':'<use href="#'+mapSprId("prop:"+a)+'" '+at+'/>';}).join("")+'</g>';}
 // a prop sprite's paths, for drawing outside the map (no shared <symbol> defs): relief tones from the enclosing --tH / --tS / --tD
 const PROP_PATHS={};
@@ -362,11 +414,11 @@ function g$(n){n=Math.round(+n||0);return n===0?"0":(n>0?"+":"")+n.toLocaleStrin
 function inspCan(pid){return !lockOn()||ADMIN||canHost()||(!!myClaimP()&&String(myClaimP().id)===String(pid));}
 function inspArmy(k){const {p,a}=cellArmy(k),cell=mapState().cells[k];if(!p)return inspHead("","Army","unowned",null);
   if(!a)return inspHead(sprSVG("army:"+BANDIT_DEFAULT_RETINUE,36,false,p.color),"Army","Army — unlinked (link it under Map ↔ board)",p);
-  const rt=EQ.retinues[a.retinue]||{},u=armyUFor(p),v=armyVals(a,u),m=boardMetrics(p.board),sp=speedOf(p,a,k);
+  const rt=EQ.retinues[a.retinue]||{},u=armyUFor(p),v=armyVals(a,u),m=boardMetrics(p.board),sp=speedOf(p,a,k),nxs=nextSeason(),spN=speedOf(p,a,k,nxs).speed;
   let h=inspHead(sprSVG("army:"+(a.retinue||BANDIT_DEFAULT_RETINUE),36,false,p.color),a.label||("Army "+a.id),pTok(p,12)+esc(p.name)+' · '+esc(a.retinue||"")+' ×'+(a.count||0)+'/'+(EQ.army_max||25),p);
   h+='<div class="ir">'+armyGear(a).map(n=>'<span title="'+esc(n)+'">'+eqSVG(n,22)+'</span>').join("")+'</div>';
   h+='<div class="ig">'+inspCell("STRIKE",v.toStrike+"+")+inspCell("INIT",(v.init>=0?"+":"")+v.init)+inspCell("SAVE",v.save+"+")+inspCell("MORALE",v.morale+"+",v.routed?"neg":"")+
-    inspCell("AP",v.ap)+inspCell("SPEED",sp.speed)+inspCell("END",(a.endurance??0)+"/"+(rt.endurance??"—"))+inspCell("SIZE",a.count||0)+'</div>';
+    inspCell("AP",v.ap)+inspCell("SPEED",sp.speed+(spN!==sp.speed?'<span class="sea-spd '+(spN<sp.speed?'neg':'pos')+'" title="Speed next turn ('+esc(nxs)+')">→'+spN+'</span>':''))+inspCell("END",(a.endurance??0)+"/"+(rt.endurance??"—"))+inspCell("SIZE",a.count||0)+'</div>';
   const en=Math.max(0,a.endurance||0);h+='<div class="ir"><span class="k">Endurance</span>'+(en?(en<=8?stIcon("endurance",13).repeat(en):stIcon("endurance",13)+" ×"+en):'<span class="neg">0</span>')+'</div>';
   const S_=armyStatus(p,a,k);h+='<div class="sec">Status</div>'+(S_.length?S_.map(o=>'<div class="ist">'+stIcon(o.st,16)+'<span>'+esc(o.txt)+'</span></div>').join(""):'<div class="note">—</div>');
   const mods=u.mods||[];h+='<div class="sec">Effects</div>'+(mods.length?'<div class="ir">'+mods.map(md=>'<span class="kw mod" data-tok="'+esc(md.tok)+'" title="'+esc(gloss(md.tok)+" — "+(md.node||""))+'">'+esc(md.tok)+'</span>').join("")+'</div>':'<div class="note">—</div>');
@@ -505,7 +557,8 @@ function wireInsp(host){const P=host.querySelector("#inspPanel");if(!P)return;
 let MAP_BASE=null;
 function mapLayers(M){
   const V=decodeGrid(M.grid),g=M.grid,cols=g?g.width:(M.cols||16),rows=g?g.height:(M.rows||12);
-  const R=15,dx=1.5*R,dy=Math.sqrt(3)*R,W=cols*dx+R*2,H=rows*dy+dy,PAL=mapPal(g);
+  const R=15,dx=1.5*R,dy=Math.sqrt(3)*R,W=cols*dx+R*2,H=rows*dy+dy,SEA=curSeason(),CL=mapClimate(g),PAL0=mapPal(g),PAL=seasonPal(PAL0,SEA,CL),PRO=seaProfile(CL);
+  const frost=SEA==="Winter"?PRO.frost:0,meadow=SEA==="Fall"&&PAL.plains!==PAL0.plains?PRO.meadow:0;
   const pts=(cx,cy)=>{let a=[];for(let k=0;k<6;k++){const t=Math.PI/180*60*k;a.push((cx+R*Math.cos(t)).toFixed(1)+","+(cy+R*Math.sin(t)).toFixed(1));}return a.join(" ");};
   const lighten=(hex,k)=>{const n=parseInt(hex.slice(1),16),f=v=>Math.min(255,Math.round(v*k));
     return "#"+[f(n>>16&255),f(n>>8&255),f(n&255)].map(v=>v.toString(16).padStart(2,"0")).join("");};
@@ -514,7 +567,7 @@ function mapLayers(M){
   const z=MAPZ.fit?MAPZ.fitScale(W):MAPZ.z;
   const sc=R/54,gw=(120*sc).toFixed(2),gh=(108*sc).toFixed(2);
   const pix=!!SPR,pu=R*1.6/16;   // pixel map + sprites in every theme
-  const key=[V.sig,JSON.stringify(PAL),pix?1:0,cols,rows,(g&&g.seed)||M.seed||"",resShown()?1:0].join("|");
+  const key=[V.sig,JSON.stringify(PAL),SEA,pix?1:0,cols,rows,(g&&g.seed)||M.seed||"",resShown()?1:0].join("|");
   if(!MAP_BASE||MAP_BASE.key!==key){
     let defs='<pattern id="rch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><line x1="0" y1="0" x2="0" y2="5" stroke="#000" stroke-opacity=".28" stroke-width="1.2"/></pattern>'+
       '<pattern id="olh" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="3" height="6" fill="rgba(120,20,20,.45)"/></pattern>';
@@ -522,12 +575,15 @@ function mapLayers(M){
       RS.glyphs[gk].replace(/stroke="SHADE"/g,'style="stroke:var(--shade)"').replace(/stroke="HILITE"/g,'style="stroke:var(--hilite)"')
         .replace(/fill="SHADE"/g,'style="fill:var(--shade)"').replace(/fill="DEEP"/g,'style="fill:var(--deep)"')+'</g></symbol>';});
     if(pix)defs+=mapSprDefs()+'<pattern id="pxd" width="'+(4*pu).toFixed(2)+'" height="'+(4*pu).toFixed(2)+'" patternUnits="userSpaceOnUse"><rect width="'+pu.toFixed(2)+'" height="'+pu.toFixed(2)+'" fill="#000" fill-opacity=".09"/></pattern>';
-    let base='',glyphs='',coast='';
+    if(frost)defs+='<pattern id="frost" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="2" r=".8" fill="#fff"/><circle cx="6" cy="4.5" r=".6" fill="#fff"/><circle cx="3" cy="7.5" r=".7" fill="#fff"/><circle cx="7.8" cy="8.2" r=".45" fill="#fff"/></pattern>';
+    let base='',glyphs='',coast='',snow='';
     for(let c=0;c<cols;c++)for(let r=0;r<rows;r++){
       const k=c+","+r,cx=R+c*dx,cy=dy/2+r*dy+(c%2?dy/2:0),h=V.hex[k];
-      let fill=h?PAL[h.t]:"var(--chip)";if(h&&h.hill)fill=lighten(fill,1.16);
+      let fill=h?PAL[h.t]:"var(--chip)";
+      if(meadow&&h&&h.t==="plains"&&hStr(((g&&g.seed)||M.seed||"")+"|"+k)%100<meadow*100)fill=tMix(fill,PAL0.plains,.5);   // Fall: meadow between the wheat
+      if(h&&h.hill)fill=lighten(fill,1.16);
       if(h&&RS){const gk=h.hill?'hill':h.t;
-        if(pix&&SCAT[gk])glyphs+=mapScatter(gk,k,cx,cy,R,fill,String((g&&g.seed)||M.seed||""),h.res&&resShown()?[26*sc,-24*sc,17*sc+pu]:null);
+        if(pix&&SCAT[gk])glyphs+=mapScatter(gk,k,cx,cy,R,fill,String((g&&g.seed)||M.seed||""),h.res&&resShown()?[26*sc,-24*sc,17*sc+pu]:null,false,seaPropLook(gk,SEA,PRO));
         else if(RS.glyphs[gk]&&!(pix&&(gk==="plains"||gk==="water")))glyphs+='<use href="#tg-'+gk+'" x="'+(cx-60*sc).toFixed(2)+'" y="'+(cy-54*sc).toFixed(2)+'" width="'+gw+'" height="'+gh+'" fill="'+fill+'" color="'+tTone(fill)+'" opacity="'+RS.glyph_opacity+'" '+
           'style="--shade:'+tLighten(fill,RS.shade_k)+';--hilite:'+tLighten(fill,RS.hilite_k)+';--deep:'+tLighten(fill,RS.deep_k)+'" pointer-events="none"/>';
         if(h.t!=="water")[[0,-1],[0,1],[1,c%2?0:-1],[1,c%2?1:0],[-1,c%2?0:-1],[-1,c%2?1:0]].forEach(([oc,orr])=>{
@@ -536,8 +592,10 @@ function mapLayers(M){
           const e=((Math.round((ang-30)/60)%6)+6)%6,v=t=>[cx+R*Math.cos(Math.PI/3*t),cy+R*Math.sin(Math.PI/3*t)];
           const a=v(e),b=v(e+1);coast+='M'+a[0].toFixed(1)+' '+a[1].toFixed(1)+'L'+b[0].toFixed(1)+' '+b[1].toFixed(1);});}
       base+='<polygon data-cell="'+k+'" points="'+pts(cx,cy)+'" fill="'+fill+'" stroke="#00000030" stroke-width="1" style="cursor:pointer"><title>'+k+(h?" · "+(RULE_NAME[h.t]||h.t)+(h.hill?" (Hill)":"")+(h.res&&resShown()?" · "+h.res:"")+(h.reg!=null?" · region "+h.reg:""):"")+'</title></polygon>';
-      if(pix&&h)base+='<polygon points="'+pts(cx,cy)+'" fill="url(#pxd)" pointer-events="none"/>';}
+      if(pix&&h)base+='<polygon points="'+pts(cx,cy)+'" fill="url(#pxd)" pointer-events="none"/>';
+      if(frost&&h&&h.t!=="water")snow+='<polygon points="'+pts(cx,cy)+'"/>';}
     base+=glyphs;
+    if(snow)base+='<g fill="url(#frost)" opacity="'+frost+'" pointer-events="none">'+snow+'</g>';
     if(coast)base+='<path d="'+coast+'" fill="none" stroke="'+(RS?RS.ink:"#2b241b")+'" stroke-width="'+((RS?RS.coast_w:4.2)*sc).toFixed(2)+'" stroke-linecap="round" pointer-events="none"/>';
     MAP_BASE={key,defs,base};}
   // ---- overlay ----

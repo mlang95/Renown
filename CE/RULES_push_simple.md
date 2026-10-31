@@ -83,9 +83,9 @@ A few conventions make every rule in this book read the same way:
 8. **Do as much as possible.** Follow as much of an effect as you can; ignore any part you can't carry out.
 
 9. **Dice.**
-    9.1 If a roll is modified beyond {{VAL:CAP_THR}}+, it automatically fails.
+    9.1 If the number a roll needs is modified beyond {{VAL:CAP_THR}}+, the roll automatically fails.
     9.2 You can't re-roll a re-roll, and you can't re-roll a successful roll.
-    9.3 Effects that occur on a 1 or {{VAL:FACES}} occur on unmodified rolls of 1 or {{VAL:FACES}}.
+    9.3 Effects that occur on a 1 or {{VAL:FACES}} occur on Unmodified rolls of 1 or {{VAL:FACES}}.
 
 10. **Rounding (denomination of 100).**
     10.1 When a gold amount isn't divisible by 100, round down to the nearest 100, minimum 0.
@@ -538,9 +538,9 @@ A Battle is fought as a series of Skirmishes, run through the steps below until 
 
 3. **Initiative.** Apply the Initiative and any other modifiers from both Tactics and weapon profiles. Initiative ranges from {{VAL:INITIATIVE_MIN}} to +{{VAL:INITIATIVE_MAX}}. The higher Initiative Strikes first this Skirmish. If tied, both armies strike simultaneously. Resolve this taking turns rolling strikes and saves, but do not apply casualties until both sides have fought. At {{VAL:INITIATIVE_MIN}} or lower you Blunder — your to-Strike is set to {{VAL:BLUNDER_THR}}+, before other negative modifiers. {{RULE:initiative}}
 
-4. **Strike.** The side with the higher Initiative rolls a D{{VAL:FACES}} for each front-line Retinue, applying its modifiers. It Strikes on a result ≥ its to-Strike number (Levy {{VAL:RETINUES.Levy.to_hit}}+, Man-at-Arms {{VAL:RETINUES.Man-at-Arms.to_hit}}+, Sergeant {{VAL:RETINUES.Sergeant.to_hit}}+, Knight Templar {{VAL:RETINUES.Knight Templar.to_hit}}+). A natural {{VAL:FOCUSED_THR}} may trigger Cleave, Deadly, or Destroy Shield. {{RULE:strike}}
+4. **Strike.** The side with the higher Initiative rolls a D{{VAL:FACES}} for each front-line Retinue, applying its modifiers. It Strikes on a Modified roll ≥ its to-Strike number (Levy {{VAL:RETINUES.Levy.to_hit}}+, Man-at-Arms {{VAL:RETINUES.Man-at-Arms.to_hit}}+, Sergeant {{VAL:RETINUES.Sergeant.to_hit}}+, Knight Templar {{VAL:RETINUES.Knight Templar.to_hit}}+). An Unmodified {{VAL:FOCUSED_THR}} may trigger Cleave, Deadly, or Destroy Shield. {{RULE:strike}}
 
-5. **Defend.** For each Strike, a defender with Parry may Parry (D{{VAL:FACES}}, {{VAL:PARRY_BASE}}+ cancels; a natural {{VAL:FOCUSED_THR}} Ripostes if the defender has Riposte), then Saves (D{{VAL:FACES}} + the weapon's AP + the shield's bonus ≥ the armor value), then a defender with Recover may Recover (after a failed Save, a final D{{VAL:FACES}} ≥ the Recover value). Unsaved, unrecovered Strikes are casualties, and leave the field at once. Then the other side Strikes, and is defended against, the same way, if able. {{RULE:defend}}
+5. **Defend.** For each Strike, a defender with Parry may Parry (D{{VAL:FACES}}, {{VAL:PARRY_BASE}}+ cancels; an Unmodified {{VAL:FOCUSED_THR}} Ripostes if the defender has Riposte), then Saves (a Modified roll: D{{VAL:FACES}} + the weapon's AP + the shield's bonus ≥ the armor value), then a defender with Recover may Recover (after a failed Save, a final D{{VAL:FACES}} ≥ the Recover value). Unsaved, unrecovered Strikes are casualties, and leave the field at once. Then the other side Strikes, and is defended against, the same way, if able. {{RULE:defend}}
 
 6. **Panic check.** After both sides have Struck, each side that took more than {{VAL:PANIC_CASUALTY_THRESHOLD}} casualties this Skirmish (Strikes it Recovered still count, unless it has Enduring) takes a Panic check: roll its Morale, up to {{VAL:MORALE_DICE_MAX}} dice; failures are casualties. A check ever modified to {{VAL:ROUT_THR}} or more Routs the whole Army. {{RULE:panic}}
 

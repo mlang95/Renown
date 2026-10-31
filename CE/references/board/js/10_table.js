@@ -762,7 +762,7 @@ function chronTick(){if(!CHR||!D.players)return;let n;try{n=chronSnap();}catch(e
   if(o.era&&n.era!==o.era)chron("era",{era:n.era});}
 function chronDate(e){return (e.s||"")+(e.y!=null?", Year "+e.y:"")+" · Turn "+e.t;}
 function empireChecklistHTML(){const sea=curSeason(),auto=boardEndOn();
-  const L=[["Start of the Empire Phase effects, incl. Domain Standing effects","reference#refStanding","Standings"],["Apply the Season: "+sea,"reference#refSeasons","Reference"],
+  const L=[["Start of the Empire Phase effects, incl. Domain Standing effects","reference#refStanding","Standings"],["Apply the Season: "+sea+((SEAS[sea]||{}).effect?" — "+SEAS[sea].effect:""),"reference#refSeasons","Reference"],
     ["Timers tick, finished builds resolve","board:board","Board"],["Host resolves Bandits","table#tBanditBox","Bandits"],
     ["Gain Influence & Envoys","",""],sea==="Winter"?["Winter: tax income","board:summary","Totals"]:null,
     ["Income & upkeep","board:summary","Totals"],["Extort (\u201cper player without\u201d is automatic at End turn)","",""],["Public Order (Faith − Doubt)","board:summary","Totals"],["Armies regain Endurance","board:board","Board"],["Remaining Each Empire Phase effects","",""]].filter(Boolean);

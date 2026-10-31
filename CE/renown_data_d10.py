@@ -174,10 +174,11 @@ GLOSSARY = {
     "Morale":        f"How steady a Retinue is when tested (lower is steadier; see the Retinue table). Break and Panic checks roll it: a D{FACES} per Retinue in the Field, up to 5 dice, each must meet its modified value; failures are Casualties. If the modified value is ever {ROUT_THR}+, the Army Routs.",
     "Rout":          f"The Army breaks and leaves the Battle. Apply Casualties equal to the remaining Retinues. Whenever an Army's modified Morale value reaches {ROUT_THR}+, it Routs automatically.",
     "Fall Back":     "A controlled retreat that ends the Battle with at least one Retinue left — a partial success.",
-    "Strike":        f"A landed hit. Roll a D{FACES}, apply modifiers to the roll, and Strike on a result >= the to-Strike number. The target may then Parry, Save, and Recover.",
+    "Strike":        f"A landed hit. Roll a D{FACES}, apply modifiers to the roll, and Strike on a Modified roll >= the to-Strike number. The target may then Parry, Save, and Recover.",
     "to-Strike number": f"The D{FACES} result a Retinue needs to Strike (see the Retinue table; lower is better). Bonuses add to the roll; penalties and Fatigue Tokens subtract.",
-    "Save":          f"The defender's roll to avoid a Casualty: roll a D{FACES}, add the weapon's AP (a negative) and the shield's Save bonus (a positive); the hit is saved on a result >= the armor value.",
-    "Natural roll":  "The number on the die before any modifiers. Modifiers never change what counts as 'natural'.",
+    "Save":          f"The defender's roll to avoid a Casualty: roll a D{FACES}, add the weapon's AP (a negative) and the shield's Save bonus (a positive); the hit is saved on a Modified roll >= the armor value.",
+    "Unmodified roll": "The number on the die before any modifiers. Modifiers never change what counts as Unmodified.",
+    "Modified roll": "The number on the die after every modifier is applied.",
     "Initiative":    f"Decides who Strikes first each Skirmish (higher first). Runs {INITIATIVE_MIN} to +{INITIATIVE_MAX} (Ministry can raise the maximum to +3). At {INITIATIVE_MIN} or lower you Blunder.",
     "Tactic":        "A choice both players make secretly and reveal together each Skirmish; it can shift Initiative, Strike, and Save rolls.",
     "Dual-equip":    "Carry two weapons at once (e.g. melee + ranged). Granted by the Skirmish Field.",
@@ -233,7 +234,7 @@ GLOSSARY = {
     "Siege":         "An Army holding Adjacent to an at-war Settlement while a Siege Timer counts down to Capture or Sack it.",
 }
 
-# ── Pivotal: one word for "a natural FOCUSED_THR" across all combat effects ─────────────
+# ── Pivotal: one word for "an Unmodified FOCUSED_THR" across all combat effects ─────────────
 # Pure synonym — Pivotal carries no mechanics of its own; each keyword does the work.
 # Swap the term anywhere by editing this one string. Must be defined before use;
 # this .update() form can be pasted anywhere after GLOSSARY and the constants exist.
@@ -1416,7 +1417,7 @@ NODES = {
     "Royal Pavilion": {
         "group": "g_logistics",
         "unlock": "Sovereign Prowess",
-        "innate": "Armies gain Immune Strained; Improve Parry by +1; Deadly, & Cleave also trigger Focused Strikes on a natural 8+",
+        "innate": "Armies gain Immune Strained; Improve Parry by +1; Deadly, & Cleave also trigger Focused Strikes on an Unmodified 8+",
         "efficient": ["Grand Tournament","List Yard"],
         "monument": True},
     "Imperial Palace": {
@@ -3170,7 +3171,7 @@ SIEGE_SOURCE_VALUES = {
 
 # ── Missing glossary definitions (CE) ────────────────────────────────────────
 GLOSSARY.update({
-    PIVOTAL:        f"A natural {FOCUSED_THR}, before modifiers." if FOCUSED_THR == FACES else f"A natural {FOCUSED_THR} or higher, before modifiers.",
+    PIVOTAL:        f"An Unmodified {FOCUSED_THR}." if FOCUSED_THR == FACES else f"An Unmodified {FOCUSED_THR} or higher.",
     FATIGUE_TOKEN:  f"Each token reduces Morale by {FATIGUE_MORALE}; if your modified Morale is ever {ROUT_THR}+, your Army Routs. Tokens stack.",
     "Sally Forth":  "While a Settlement you control is besieged and you have an Army or Garrison inside it, you may Sally Forth: Battle in the Battle Phase without performing an action.",
     "Garrison":     ("An Army that exists within each of your Settlements while you have the Garrison Infrastructure, sized by that Settlement's Garrison value ("
@@ -3765,7 +3766,7 @@ GLOSSARY.update({
 })
 
 GLOSSARY_CATEGORIES = [
-    ('Reading the Rules', ['Targeting you', 'Perform', 'Resolve', 'Cost / Pay', 'Natural roll', PIVOTAL]),
+    ('Reading the Rules', ['Targeting you', 'Perform', 'Resolve', 'Cost / Pay', 'Unmodified roll', 'Modified roll', PIVOTAL]),
     ('Turn & Phases', ['Host', 'Era', 'Season', 'Empire Phase', 'Council Phase', 'Envoy Phase', 'Intrigue Phase', 'Tally Phase',
                        'Battle Phase', 'Rest Phase']),
     ('Envoys & Voting', ['Influence', 'Authority X', 'Envoy', 'Personal Envoy', 'Council Envoy', 'Vote', 'Support X', 'Oppose X',
@@ -3893,7 +3894,7 @@ def holding_combat_tags(text, sim=False):
     m = _re_disp.search(r"Weapons gain (-\d+)\s*AP\b", t, _I)      # e.g. Finery: "Weapons gain -1AP"
     if m: out.append("AP " + m.group(1))
     out += ["Parry +1"] * len(_re_disp.findall(r"Improve Parry by \+1", t, _I))
-    m = _re_disp.search(r"Focused Strikes on a natural (\d+)\+", t, _I)
+    m = _re_disp.search(r"Focused Strikes on an? (?:natural|Unmodified) (\d+)\+", t, _I)
     if m: out.append("Crit " + m.group(1))
     m = _re_disp.search(r"Gain Recover (\d+)", t, _I)
     if m: out.append("Recover " + m.group(1))            # base; its "or improve" alternative is not a second grant
