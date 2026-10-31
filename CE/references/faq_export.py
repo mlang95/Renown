@@ -381,13 +381,13 @@ def build(out_path):
 
     # ── 20) ECONOMY: upkeep tracks + costs (data-driven) ──
     if hasattr(rd, "UPKEEP_TRACKS"):
+        _ukeys = []
         for track, desc in rd.UPKEEP_TRACKS.items():
-            lines.append(entry(f"{track.lower()} upkeep",
-                         wlink(f"{track} upkeep", "economy-ref.html") + f": {desc}"))
-        lines.append(entry("upkeep", wlink("Upkeep", "economy-ref.html") +
-                     ": three separate tracks — Pursuit (fixed by type), Army (retinue count x cost - "
-                     "reductions), and Infrastructure (per-settlement). See 'pursuit upkeep', "
-                     "'army upkeep', 'infrastructure upkeep'."))
+            _k = track.split(" (")[0].lower() + " upkeep"        # "Holdings (Upkeep)" -> "holdings upkeep"
+            _ukeys.append(_k)
+            lines.append(entry(_k, wlink(track, "economy-ref.html") + f": {desc}"))
+        lines.append(entry("upkeep", wlink("Upkeep", "economy-ref.html") + ": separate tracks — " +
+                     ", ".join(rd.UPKEEP_TRACKS) + ". See " + ", ".join(f"'{k}'" for k in _ukeys) + "."))
     if hasattr(rd, "COSTS"):
         lines.append(entry("costs", wlink("Costs", "economy-ref.html") +
                      ": Cunning/Industry actions cost 2000 gold; Piety costs Doubt 1; Prowess and "
@@ -403,21 +403,25 @@ def build(out_path):
         seen[k] = ln
     final = [seen[k] for k in sorted(seen)]
     if getattr(rd, "SIMPLE", False):   # display layer (NAME_DISPLAY) — carries the Holdings term
-        final = [rd.display_text(ln) for ln in final]
+        import re as _re
+        _url = _re.compile(r"(\]\([^)]*\))")       # link targets keep the wiki's real page names / anchors
+        final = ["".join(p if p.startswith("](") else rd.display_text(p) for p in _url.split(ln)) for ln in final]
     with open(out_path, "w", encoding="utf-8") as f:
         f.write("\n".join(final) + "\n")
     print(f"wrote {len(final)} FAQ entries -> {out_path}")
 
     # also emit a structured faction table CSV for the bot's tabulate view
     import csv, os as _os
+    # display layer on every cell (Heritage names, Holding / tier renames), same as the FAQ text
+    _disp = rd.display_text if getattr(rd, "SIMPLE", False) else (lambda v: v)
+    _row = lambda cells: [_disp(str(c)) for c in cells]
     csv_path = _os.path.join(_os.path.dirname(out_path) or ".", "factions_table.csv")
     with open(csv_path, "w", newline="", encoding="utf-8") as cf:
         w = csv.writer(cf)
-        w.writerow(["Faction", "Difficulty", "Strength", "Mechanic"])
+        w.writerow(_row([getattr(rd, "FACTION_TERM", ("Faction",))[0], "Difficulty", "Strength", "Feel"]))
         for n, fac in rd.FACTIONS.items():
             if isinstance(fac, dict):
-                mname = str(fac.get("mechanic_name",""))
-                w.writerow([n, fac.get("difficulty",""), fac.get("strength",""), mname])
+                w.writerow(_row([n, fac.get("difficulty",""), fac.get("strength",""), fac.get("feel","")]))
     print(f"wrote faction table -> {csv_path}")
 
     # equipment table CSV for the bot's tabulate tier view
@@ -426,18 +430,18 @@ def build(out_path):
         w = csv.writer(ef)
         w.writerow(["Item", "Type", "Tier", "AP_or_Save", "Init", "Keywords"])
         for n, d in rd.WEAPONS.items():
-            w.writerow([n, "Melee", d.get("tier",""), d.get("ap",""), d.get("init",""),
-                        ", ".join(d.get("tags") or [])])
+            w.writerow(_row([n, "Melee", d.get("tier",""), d.get("ap",""), d.get("init",""),
+                        ", ".join(d.get("tags") or [])]))
         for n, d in rd.RANGED.items():
-            w.writerow([n, "Ranged", d.get("tier",""), d.get("ap",""), d.get("init",""),
-                        ", ".join(d.get("tags") or [])])
+            w.writerow(_row([n, "Ranged", d.get("tier",""), d.get("ap",""), d.get("init",""),
+                        ", ".join(d.get("tags") or [])]))
         for n, d in rd.SHIELDS.items():
             if not n: continue
-            w.writerow([n, "Shield", d.get("tier",""), "+%s" % d.get("save_bonus",""),
-                        d.get("init",""), ", ".join(d.get("tags") or [])])
+            w.writerow(_row([n, "Shield", d.get("tier",""), "+%s" % d.get("save_bonus",""),
+                        d.get("init",""), ", ".join(d.get("tags") or [])]))
         for n, d in rd.ARMORS.items():
-            w.writerow([n, "Armor", d.get("tier",""), "%s+" % d.get("save",""), "",
-                        ", ".join(d.get("tags") or [])])
+            w.writerow(_row([n, "Armor", d.get("tier",""), "%s+" % d.get("save",""), "",
+                        ", ".join(d.get("tags") or [])]))
     print(f"wrote equipment table -> {eq_path}")
 
 if __name__ == "__main__":

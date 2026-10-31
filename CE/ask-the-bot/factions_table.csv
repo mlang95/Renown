@@ -1,39 +1,39 @@
-Faction,Difficulty,Strength,Mechanic
-The Battering Ram,Low,Medium,Siege Specialists
-The Boundless Steppe,Low,Medium,Horsemasters
-The Bandit King,High,High,Friends in Low Places
-The Crimson Tide,Low,Medium,Uncharted Sea Lanes
-The Entwined Crown,Low,Medium,Royal Marriage
-The Eternal Court,Low,Medium,Patient Court
-The Final Word,Low,Medium,The Decider
-The Gilded Crescent,Low,Medium,Prosperity For All
-The Gilded Path,Low,Low,Luxury Trades
-The Illuminated Order,Low,Medium,Knowledge is Power
-The Iron Faith,Low,Medium,Fortress of Faith
-The Iron Shore,Low,Medium,Scavengers
-The Iron Throne,Low,Medium,Unimpeachable
-The Merchant Republics,Low,High,Heart of Trade
-The Sacred Throne,Low,High,Sacrosanct
-The Tunnellers,Low,Low,Tunnellers
-The Undying Flame,Low,Low,Martyrdom
-The Verdant Kingdom,Low,High,Peaceful & Inventive
-The Winter Wolves,Low,Medium,Pillagers
-The Ancient Wilds,Medium,High,Terrain Negotiators
-The Bloodied Cross,Medium,High,Prophets of War
-The Blazing Standard,Medium,High,Burning Cross
-The Inner Circle,Medium,Medium,Palatine
-The Luminous Court,Medium,Medium,Arts & Humanities / Hearts & Minds
-The Grand Compact,Medium,Medium,Mercantile Pact
-The Pale Throne,Medium,Low,Inexorable
-The Sublime Gate,Medium,Medium,Integrated Arms
-The Velvet Hand,Medium,Medium,Friends in High Places
-The Ashen Vale,High,Low,Pestilence
-The Broken Banner,High,Low,The Highest Bidder
-The Forked Tongue,High,High,Masters of Duplicity
-The Hall of Masks,High,High,Mimic
-The Smoldering Crown,High,High,Reckless
-The Squatters' Crown,High,Medium,Occupy
-The Wandering Crown,High,Medium,Wandering Nomads
-The Dukedom,High,High,The Duke
-The Elder Grove,Low,Medium,Wise & Suspicious
-The Yew Heart,Low,Medium,Archery is a Way of Life
+Heritage,Difficulty,Strength,Feel
+Siege Specialists,Low,Medium,"Offensive, Arrogant"
+Horsemasters,Low,Medium,Fast
+Friends in Low Places,High,High,Scrappy
+Uncharted Sea Lanes,Low,Medium,Pirate Life
+Royal Marriage,Low,Medium,"Diplomatic, Inescapable"
+Patient Court,Low,Medium,Patient & Reserved
+The Decider,Low,Medium,Cold Steel
+Prosperity For All,Low,Medium,Egalitarian
+Luxury Trades,Low,Low,Rich Trader
+Knowledge is Power,Low,Medium,Knowledge is Power
+Fortress of Faith,Low,Medium,Piously Resolute
+Scavengers,Low,Medium,Scavenger
+Unimpeachable,Low,Medium,"Defensive, Impenetrable"
+Heart of Trade,Low,High,Trade Dependent
+Sacrosanct,Low,High,Pure and Defensive
+Tunnellers,Low,Low,Mountain Passers
+Martyrdom,Low,Low,Unconvinced
+Peaceful & Inventive,Low,High,Pure Economy
+Pillagers,Low,Medium,"Aggressive, Parasitic"
+Terrain Negotiators,Medium,High,Oathkeepers
+Prophets of War,Medium,High,Sacred War Without End
+Burning Cross,Medium,High,Crusader Feel
+Palatine,Medium,Medium,Strength Through Diplomacy
+Arts & Humanities / Hearts & Minds,Medium,Medium,Civic Soft Power
+Mercantile Pact,Medium,Medium,Peace Through Trade
+Inexorable,Medium,Low,Undead
+Integrated Arms,Medium,Medium,Mercantile Military
+Friends in High Places,Medium,Medium,Generous Sponsor
+Pestilence,High,Low,Sickly
+The Highest Bidder,High,Low,Always for Sale
+Masters of Duplicity,High,High,Two-Faced
+Mimic,High,High,Shifting Identity
+Reckless,High,High,"Aggressive, Destructive"
+Occupy,High,Medium,Mobile Occupier
+Wandering Nomads,High,Medium,Nomads
+The Duke,High,High,King of the Castle
+Wise & Suspicious,Low,Medium,Cautious Quickfighters
+Archery is a Way of Life,Low,Medium,Skilled Volleys
