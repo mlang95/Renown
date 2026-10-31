@@ -767,7 +767,7 @@ def check_rules(ns, rules_path):
         rows.append(("rule anchors", "—", f"check failed: {e}", "MISMATCH"))
     # board plumbing: phase rule sections the board reads by heading
     for h in ("Empire Phase", council_heading(ns), "Envoy Phase", "Battle Phase", "Rest Phase",
-              "The Skirmish Steps", "Beginning a Battle", "Ending a Battle"):
+              "The Skirmish Steps", "Beginning a Battle", "Ending a Battle") + (("Diplomacy Phase",) if ns.get("ENVOY_PHASE_SPRING") else ()):
         if not re.search(r"^#+\s*" + re.escape(h) + r"\s*$", txt, re.M):
             rows.append(("heading '" + h + "'", "board reads", "missing", "MISMATCH"))
 
@@ -792,8 +792,8 @@ def _val(ns, path):
     return cur
 
 def council_heading(ns):
-    """The rules heading of turn phase 2: the End of Empire Phase under PHASE_REFORM, else the Council Phase."""
-    return "End of Empire Phase" if ns.get("PHASE_REFORM") else "Council Phase"
+    """The rules heading of turn phase 2: the Works Phase under PHASE_REFORM, else the Council Phase."""
+    return "Works Phase" if ns.get("PHASE_REFORM") else "Council Phase"
 
 def rules_section(rules_path, heading, ns):
     """Return the markdown body under an exact '### heading' line, {{VAL:x}} resolved from data."""
@@ -904,7 +904,7 @@ RULES_CONSTS = ("PHASES", "MARCH_MULTIPLIER", "MUSTER_RANGE", "CHARTER_MIN_RANGE
                 "SETUP_CAPITAL_PICKS", "SETUP_HAMLET_PICKS", "HAMLET_REPEATABLE", "AGE_YEAR_ROLL_MEAN", "AGE_YEAR_ROLL_SD",
                 "AI_DOMAIN_POINTS", "AI_PRIORITIES", "AI_FAITH_AVOID", "AI_DIPLOMACY", "AI_PROFILES",
                 "AI_STYLE", "AI_MUSTER", "AI_ARCHETYPE", "AI_PO_GOLD",
-                "PHASE_REFORM", "COUNCIL_DOMAIN", "COUNCIL_DOMAIN_SPRING", "FORUM_DOMAIN", "FORUM_ACTIONS")
+                "PHASE_REFORM", "COUNCIL_DOMAIN", "COUNCIL_DOMAIN_SPRING", "ENVOY_PHASE_SPRING", "FORUM_DOMAIN", "FORUM_ACTIONS")
 
 def effects_report(ns, records, infra, wonders, out_md):
     """ENVOY_WINDOW_REVIEW.md: every clause that names Envoys, its timing window and Personal / Council predicate
@@ -998,7 +998,8 @@ def main():
                  for k, v in ns.get("ACTIONS", {}).items()},
         phaseRules={k: rules_section(rules_path, h, ns) for k, h in
                     (("empire", "Empire Phase"), ("council", council_heading(ns)), ("envoy", "Envoy Phase"),
-                     ("battle", "Battle Phase"), ("rest", "Rest Phase"))},
+                     ("battle", "Battle Phase"), ("rest", "Rest Phase"))
+                    + ((("diplomacy", "Diplomacy Phase"),) if ns.get("ENVOY_PHASE_SPRING") else ())},   # Spring's Envoy Phase
         phaseSteps={k: phase_steps(rules_section(rules_path, h, ns)) for k, h in
                     (("empire", "Empire Phase"), ("council", council_heading(ns)), ("envoy", "Envoy Phase"),
                      ("battle", "Battle Phase"), ("rest", "Rest Phase"))},

@@ -142,8 +142,8 @@ REG = {
     "extort_half_trade":   ("clause", "hiwf", r"Extort half of Trade Income from players who (?:don.t trade with you|aren.t your Trade Partners)"),
     # m[1] gold, m[2] "non-allied " when only non-allies pay, m[3] the value compared (Treasury, a Domain, Public Order)
     "extort_lower_treasury":("clause", "hiwf", r"Each Empire Phase,? Extort (\d+) from each (non-allied )?player with a lower (Treasury|Piety|Prowess|Cunning|Industry|Public Order)(?: value)?"),
-    # Diplomacy step (PHASE_REFORM): Embassy makes one Diplomacy action fail; Aristocratic Court Extorts both parties of others' actions
-    "embassy_fail":        ("clause", "hiwf", r"Once per Diplomacy step, you may cause a Diplomacy action to fail"),
+    # Diplomacy Phase (PHASE_REFORM): Embassy makes one Diplomacy action fail; Aristocratic Court Extorts both parties of others' actions
+    "embassy_fail":        ("clause", "hiwf", r"Once per Diplomacy (?:step|Phase), you may cause a Diplomacy action to fail"),
     "diplo_extort":        ("clause", "hiwf", r"Whenever another player performs a Diplomacy action targeting another player, Extort (\d+) from both players"),
     # Aristocratic Court: m[1] outcome word (Endorsed / Passed, default Passed), m[2] Domain
     "ep_action":           ("clause", "hiwf", r"Each Empire Phase, perform an? (?:(Endorsed|Passed) )?(Diplomacy|Prowess|Cunning|Piety|Industry) action"),
@@ -173,7 +173,7 @@ REG = {
     "reach_plus_rec":      ("json", "iw", r"Reach\s*\+\s*(\d+)"),
     "garrison":            ("text", "i", r"Your Settlements gain Garrisons"),
     # March-Tower: in place of a Move, one of your Garrisons Battles a non-allied Army within its Settlement's Presence
-    "garrison_battle":     ("text", "i", r"Instead of performing a Move action, you may have a Garrison Battle a non-allied Army within Presence"),
+    "garrison_battle":     ("text", "i", r"Instead of performing a Move action, you may have a Garrison Battle a Bandit Camp, Bandit Army, or an Army you're At War with within its Presence"),
     "muster_field":        ("text", "i", r"Can Muster"),
     "shipyard":            ("text", "hi", r"Water Territory treated as Grassland"),
     "bridges":             ("text", "hi", r"cross Water Territory at full movement within (?:your )?Province"),

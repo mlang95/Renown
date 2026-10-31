@@ -1,10 +1,10 @@
 // ===================== DIPLOMACY STEP (PHASE_REFORM): offers between players =====================
-// Runs as Spring's End of Empire Phase, the only Diplomacy step of the year (RC.FORUM_DOMAIN would add one to every non-Spring
+// Runs as Spring's Envoy Phase (the Diplomacy Phase, ENVOY_PHASE_SPRING), the only one of the year (RC.FORUM_DOMAIN would add one to every non-Spring
 // Envoy Phase, after Envoy Declaration, before the Intrigue Phase). Players send offers (a Treaty, or Negotiate terms); an accepted offer is a Passed Diplomacy action for both and the
 // Treaty is signed at once. Each player completes up to dsCap() agreements, each with a different partner; End Treaty needs no
 // answer and uses one too. At the cap, or on Pass, a player is done: their open offers are withdrawn and offers to them declined.
 // No Diplomacy Envoys, Authority or Influence: those are deprecated under PHASE_REFORM.
-function dsOn(){if(!RC.PHASE_REFORM)return false;const ph=tPhase();return (ph==="envoy"&&!isSpring()&&!!RC.FORUM_DOMAIN)||(ph==="council"&&councilDomNow()==="Diplomacy");}
+function dsOn(){if(!RC.PHASE_REFORM)return false;const ph=tPhase();return (ph==="envoy"&&(isSpring()?springDiplo():!!RC.FORUM_DOMAIN))||(ph==="council"&&councilDomNow()==="Diplomacy");}
 function dsKey(){return tTurn()+":"+tPhase();}
 function DS(){if(!D.dstep||D.dstep.key!==dsKey())D.dstep={key:dsKey(),offers:[],acts:[],pass:{},n:0,emb:{}};D.dstep.emb=D.dstep.emb||{};return D.dstep;}
 function dsCap(){return isSpring()?Math.max(1,+eraRec().diplomacy_agreements||1):Math.max(1,+RC.FORUM_ACTIONS||1);}

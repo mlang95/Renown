@@ -180,6 +180,30 @@
         "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\5565a000-5ac8-44f9-a923-8561df9844e0\\scratchpad\\board"
       ],
       "port": 8779
+    },
+    {
+      "name": "board-seasons",
+      "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8780",
+        "--directory",
+        "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\f8d4a961-06c0-4e6f-8412-61a335aef785\\scratchpad\\board"
+      ],
+      "port": 8780
+    },
+    {
+      "name": "sprite-sheet",
+      "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8781",
+        "--directory",
+        "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\8d88737e-44f8-42e6-86be-a0582ee9116e\\scratchpad"
+      ],
+      "port": 8781
     }
   ]
 }

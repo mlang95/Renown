@@ -29,12 +29,12 @@ can't reach the other Phase's Envoys: it is read as that Phase's Envoys (Envoy P
 | Imperial Palace | Holding | If your Envoy would fail, it passes instead |
 | Papal Palace | Holding | You no longer pay cost for Piety Envoys |
 | The Eternal Court | Faction | While the Era is Zenith, your Max Influence is 5 on every Envoy |
-| The Hermit Crown | Faction | You Abstain on every vote on other players' Envoys, and other players must spend 2 Influence to affect your Envoys by 1 |
 | The Blazing Standard | Faction | During Envoy Declaration, if you don't have an Army of 25 Knight's Templar, you must send a Prowess Envoy |
 | The Smoldering Crown | Faction | A Prowess Envoy you send can't fail or be condemned & will instead pass |
+| The Hermit Crown | Faction | You Abstain on every vote on other players' Envoys, and other players must spend 2 Influence to affect your Envoys by 1 |
 | The Illusionists | Faction | Your Diplomacy Envoys start at Authority equal to your Cunning rank, and your Max Influence on Diplomacy Envoys is your Cunning rank |
 
-## Every Envoy clause (41)
+## Every Envoy clause (40)
 
 | Piece | Kind | Clause | Window | Limit | Predicate |
 |---|---|---|---|---|---|
@@ -46,7 +46,6 @@ can't reach the other Phase's Envoys: it is read as that Phase's Envoys (Envoy P
 | Spice Merchant | Holding | If they do, that Envoy gains Authority +1 | - | - | - |
 | Priory | Holding | If your Piety Envoy would be Condemned, it Fails instead | - | - | - |
 | Jester's Court | Holding | First and second Oppose on an Envoy of yours each Envoy Phase: reduce by 1 | envoy | each | personal (by Phase) |
-| Bell Tower | Holding | Authority +1 on your Council Envoys | - | - | council |
 | University | Holding | Max Influence +1 on every Envoy | - | - | - |
 | Collegium Archives | Holding | Authority +1 on every Envoy | - | - | - |
 | Courier Network | Holding | In the Intrigue Phase: Authority -1 on one Envoy | intrigue | once | personal (by Phase) |
@@ -63,9 +62,6 @@ can't reach the other Phase's Envoys: it is read as that Phase's Envoys (Envoy P
 | Colossus | Wonder | In the Intrigue Phase, you may support your own Personal Prowess Envoys before other players vote | intrigue | once | personal |
 | High Chancery | Wonder | In the Tally Phase, you may Endorse one Envoy you sent | tally | once | personal (by Phase) |
 | The Eternal Court | Faction | While the Era is Zenith, your Max Influence is 5 on every Envoy | - | - | - |
-| The Hermit Crown | Faction | You Abstain on every vote on other players' Envoys, and other players must spend 2 Influence to affect your Envoys by 1 | - | - | - |
-| The Hermit Crown | Faction | Your Personal Envoys have Authority +1 | - | - | personal |
-| The Hermit Crown | Faction | You can't vote nor send Council Envoys | - | - | council |
 | The Blazing Standard | Faction | During Envoy Declaration, if you don't have an Army of 25 Knight's Templar, you must send a Prowess Envoy | - | - | - |
 | The Inner Circle | Faction | Each player allied with you has Authority +1 on their Personal Envoys | - | - | personal |
 | The Inner Circle | Faction | Once per Envoy Phase, you may spend 1 of an ally's Influence, targeting your own Envoys if you wish | envoy | once | personal (by Phase) |
@@ -74,6 +70,9 @@ can't reach the other Phase's Envoys: it is read as that Phase's Envoys (Envoy P
 | The Smoldering Crown | Faction | A Prowess Envoy you send can't fail or be condemned & will instead pass | - | - | - |
 | The Crowned Star | Faction | Each Council Phase, you choose every Council Envoy's Domain | council | each | council |
 | The Crowned Star | Faction | You abstain every Personal Envoy | - | - | personal |
+| The Hermit Crown | Faction | You Abstain on every vote on other players' Envoys, and other players must spend 2 Influence to affect your Envoys by 1 | - | - | - |
+| The Hermit Crown | Faction | Your Personal Envoys have Authority +1 | - | - | personal |
+| The Hermit Crown | Faction | You can't vote nor send Council Envoys | - | - | council |
 | The Illusionists | Faction | Your Diplomacy Envoys start at Authority equal to your Cunning rank, and your Max Influence on Diplomacy Envoys is your Cunning rank | - | - | - |
 | The Illusionists | Faction | Whenever your Personal Diplomacy Envoy passes or is endorsed, you may instead perform a Cunning action | - | - | personal |
 | Prowess Rising | Standing | Indomitable: In the Tally Phase, you may Support one of your own Prowess Envoys | tally | once | personal (by Phase) |
@@ -82,7 +81,7 @@ can't reach the other Phase's Envoys: it is read as that Phase's Envoys (Envoy P
 
 ## Registry coverage
 
-123 of 134 registry patterns match at least one piece.
+122 of 134 registry patterns match at least one piece.
 
-Patterns with no match in the current data (wording changed, or the piece is gone): `rider_your_extra`, `envoy_next_fewer`, `courier_defer`, `muster_plus`, `army_free_province`, `army_upkeep_outside`, `extort_lower_treasury`, `ep_action`, `immune_uprising`, `fac_type_bonus`, `build_edict`
+Patterns with no match in the current data (wording changed, or the piece is gone): `rider_your_extra`, `envoy_next_fewer`, `courier_defer`, `muster_plus`, `army_free_province`, `army_upkeep_outside`, `toll_diplomacy`, `extort_lower_treasury`, `ep_action`, `immune_uprising`, `fac_type_bonus`, `build_edict`
 

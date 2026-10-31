@@ -9,7 +9,11 @@ const ETH=Object.assign({Condemned:-4,Failed:0,Passed:1,Endorsed:4},DATA.outcome
 // Raze on an active Build Timer: "+N" from the Raze action's text
 function razeTimerPlus(){const m=/increase that Build Timer by (\d+)/i.exec(String(((DATA.actions||{}).Raze||{}).effect||""));return m?+m[1]:2;}
 const T_PH=["empire","council","envoy","battle","rest"];
-const T_PHL={empire:"Empire Phase",council:(DATA.rulesConst||{}).PHASE_REFORM?"End of Empire Phase":"Council Phase",envoy:"Envoy Phase",battle:"Battle Phase",rest:"Rest Phase"};
+// PHASE_REFORM: phase 2 is the Works Phase (each player performs the Era's Industry actions — run as Council Envoys that take no
+// votes and always Pass, shown as Works actions); in Spring the Envoy Phase is the Diplomacy Phase (no Envoys, offers between players)
+const RFM=!!(DATA.rulesConst||{}).PHASE_REFORM,C_TAG=RFM?"Works":"Council";
+function springDiplo(){return isSpring()&&!!(DATA.rulesConst||{}).ENVOY_PHASE_SPRING;}
+const T_PHL={empire:"Empire Phase",council:RFM?"Works Phase":"Council Phase",get envoy(){return springDiplo()?"Diplomacy Phase":"Envoy Phase";},battle:"Battle Phase",rest:"Rest Phase"};
 let SKEW=0,SKEW_N=0;                                                    // server clock − local clock (ms)
 function tnow(){return Date.now()+SKEW;}
 function noteServerDate(r){try{const d=Date.parse(r.headers.get("date")||"");if(isNaN(d))return;
@@ -54,7 +58,7 @@ function seatMap(){const n=tSeats(),m={};
     .sort((a,b)=>(a.x.seatTs||0)-(b.x.seatTs||0)||String(a.p.id).localeCompare(String(b.p.id)))
     .forEach(o=>{if(!m[o.x.seat])m[o.x.seat]=o.p;});return m;}
 function seated(){const m=seatMap();return Object.keys(m).map(Number).sort((a,b)=>a-b).map(i=>m[i]);}
-function isSpring(){return curSeason()==="Spring";}   // SEASONS.Spring: no Host or Influence gain; the End of Empire Phase is the year's only Diplomacy step
+function isSpring(){return curSeason()==="Spring";}   // SEASONS.Spring: no Host or Influence gain; PHASE_REFORM: the Envoy Phase is the year's only Diplomacy Phase
 // the Council Phase's Domain now: PHASE_REFORM fixes it (RC.COUNCIL_DOMAIN_SPRING in Spring), else null = voted; councilOff: no phase this turn
 function councilDomNow(){return isSpring()?(RC.COUNCIL_DOMAIN_SPRING||null):(RC.COUNCIL_DOMAIN||null);}
 function councilOff(){return isSpring()&&!RC.COUNCIL_DOMAIN_SPRING;}
@@ -146,7 +150,7 @@ function voteCap(p,dom,council){const ca=fxOf(p,"capAs").find(f=>f.for===dom),ba
   const v=Math.max(0,base+modSum(p,"cap",dom,council)+fxOf(p,"cap").reduce((a,f)=>a+f.val*f.q,0));
   const ce=fxOf(p,"capEra").filter(f=>f.era===currentEra()).reduce((a,f)=>Math.max(a,f.val),0);return Math.max(v,ce);}
 function inflPool(p){const c=PT(p).carry;return influenceTotal(p.board)+(+tCur(p).inflAdj||0)+(c&&c.turn===tTurn()?+c.n||0:0);}
-function personalEnvoys(p){const e=eraRec(),nx=PT(p).envNext;return Math.max(0,(+e.personal_envoys||1)+(+tCur(p).envAdj||0)+(nx&&nx.turn===tTurn()?+nx.n||0:0));}
+function personalEnvoys(p){if(springDiplo())return 0;const e=eraRec(),nx=PT(p).envNext;return Math.max(0,(+e.personal_envoys||1)+(+tCur(p).envAdj||0)+(nx&&nx.turn===tTurn()?+nx.n||0:0));}
 function councilEnvoys(){return Math.max(0,+eraRec().council_envoys||1);}
 function tOutcome(net){if(net<=ETH.Condemned)return "Condemned";if(net<=ETH.Failed)return "Failed";
   if(net>=ETH.Endorsed)return "Endorsed";return "Passed";}
@@ -186,6 +190,7 @@ function tSim(){
   if(ph==="council"&&councilOff()){R.done=true;R.spring=true;return R;}
   if(!ord.length){R.waiting="seat";return R;}
   if(!t.phaseTs){R.waiting="start";return R;}
+  if(ph==="envoy"&&springDiplo()){if(dsOn()&&!dsAllDone()){R.waiting="diplomacy";return R;}R.done=true;R.spring=true;return R;}   // Spring: the Diplomacy Phase
   let clock=t.phaseTs;
   function runSlot(key,who,rec){
     const start=clock,ov=(t.deadlines||{})[key],ext=(t.extraTime||{})[key]||0,dl=ov!=null?+ov:(TM>0?start+TM+ext:Infinity),sk=t.skip[key];let res=null;
@@ -208,7 +213,8 @@ function tSim(){
     if(a==="S")E.sup+=sx;else if(a==="O")E.opp+=eff;R.spent[v.id]+=x;
     E.votes.push({who:v,a,x,eff,pre:!!r.pre,timeout:!!r.timeout,forced:!!r.forced,auto:!!r.auto,tally:R.stage==="tally"});}
   // E's net and outcome from its votes so far (run again after every Tally Phase change)
-  function finish(E){let net=E.innate+E.sup-E.opp;if(E.council)net=Math.max(1,net);       // Council Envoys can't fail
+  function finish(E){if(E.council&&RFM){E.net=1;E.out="Passed";delete E.saved;E.done=true;return;}   // a Works action: no Influence, always Passes
+    let net=E.innate+E.sup-E.opp;if(E.council)net=Math.max(1,net);       // Council Envoys can't fail
     E.net=net;E.out=tOutcome(net);delete E.saved;
     const fp=failPassFx(E);if(fp&&(E.out==="Failed"||(E.out==="Condemned"&&fp.condemned))){E.out="Passed";E.saved=fp.src;}   // Condemned only where the text says so
     const cf=condFailFx(E);if(cf&&E.out==="Condemned"){E.out="Failed";E.saved=cf.src;}                                      // Priory: after failPass, so it doesn't chain into a Pass
@@ -273,6 +279,7 @@ function performEval(E){if(!(E.out==="Passed"||E.out==="Endorsed"))return null;
   return Object.assign({rec},comboEval(E,rec.action,rec.target));}
 // post-Envoy Influence modifiers for one action + target (RULES: they apply once the action and target are chosen)
 function comboEval(E,action,tid){const tgt=tid&&!String(tid).startsWith("al:")?D.players.find(p=>String(p.id)===String(tid)):null,parts=[],ad=actDom(action,E);
+  if(E.council&&RFM)return {tgt,parts,adj:1,out:"Passed",saved:null,capped:null,ok:true};   // Works action: no post-Envoy modifiers
   fxOf(E.owner,"act").filter(f=>f.dom===ad&&(f.tgtPOabove==null||(tgt&&(tgt.board.po||0)>f.tgtPOabove))).forEach(f=>parts.push({src:f.src,val:f.val*f.q}));
   if(tgt)fxOf(tgt,"defend").filter(f=>(f.dom&&f.dom===ad)||(f.action&&f.action.toLowerCase()===String(action).toLowerCase()))
     .forEach(f=>parts.push({src:tgt.name+": "+f.src,val:f.val*f.q}));
@@ -323,7 +330,11 @@ function actDoubt(o,dom,q,base,isTarget,notes){let n=base;if(n<=0)return 0;
   return n;}
 // ---- what each action needs and does ----
 const AA={
-  "Move":{tgt:"none",run:c=>c.flag("Move the Army on the map: Select ▸ your Army ▸ a lit hex")},
+  // March-Tower: a Garrison Battle instead of the Move (sub "gb:…", garrisonTargets); without one the sub list is absent
+  "Move":{tgt:"none",subOpt:true,sub:o=>{const G=garrisonTargets(o);return G.length?[{v:"mv",label:"Move an Army (on the map)"}].concat(G.map(t=>({v:t.v,label:"Garrison Battle: "+t.label}))):null;},
+    run:c=>{const t=String(c.sub||"").startsWith("gb:")?garrisonTargets(c.o).find(x=>x.v===c.sub):null;
+      if(!t){if(String(c.sub||"").startsWith("gb:"))c.flag("Garrison Battle: that target is no longer within Presence");else c.flag("Move the Army on the map: Select ▸ your Army ▸ a lit hex");return;}
+      bqAdd({kind:"battle",A:t.A,B:t.B,seize:"",src:"Garrison Battle (March-Tower)"});c.log("Garrison Battle queued: "+t.label);}},
   "Muster":{tgt:"none",sub:o=>musterOpts(o),run:c=>runMuster(c)},
   "Demand Tribute":{tgt:"player",run:c=>c.flag("Negotiate terms with "+c.q.name+"; if refused, Declare War")},
   "Declare War":{tgt:"player",elig:(o,q)=>{const x=effPair(o.id,q.id);return x.household||sameAlliance(String(o.id),String(q.id))?"allied":x.war?"already at war":x.nap?"Non-Aggression Pact":x.truce>0?"truce "+x.truce:"";},
@@ -405,12 +416,13 @@ function runMuster(c){const o=c.o,b=o.board,k=c.sub.slice(0,1),v=c.sub.slice(2),
   if(!hasMusterField(b))c.flag("Mustering without an active Muster Field");}
 // Build: every Holding you may legally start now (pLegal: Scope, Standing, Mastery Chain line or Root, infrastructure_req, Raw
 // Material in Reach), with the Settlement it would go to (smartSid); or place it by hand (pending flag)
-function buildOpts(o){return withBoard(o.board,()=>{const ctx=legalCtx(),L=[],gs=gameStarted(),sn=id=>{const s=S.settlements.find(x=>x.id===id);return s?(s.name||s.tier):"no free Ward";};
+function buildOpts(o){return withBoard(o.board,()=>{const ctx=legalCtx(),L=[],gs=gameStarted(),PS=planSteps(S),sn=id=>{const s=S.settlements.find(x=>x.id===id);return s?(s.name||s.tier):"no free Ward";};
   NAMES.forEach(n=>{const r=R[n]||{};
-    const ln=r.root?null:chainLine(n,ctx.own),src=r.root?(rawRes(n)?"Raw Material":"Root"):"from "+(ln&&ln.length?ln[ln.length-1]:hamletRoot(n)?"Hamlet":"?");   // efficient: Hamlet roots in the Hamlet itself
-    if(!pLegal(n,null,ctx)){const miss=pReqMiss(n,null,ctx);if(miss)L.push({v:"b:"+n,root:!!r.root,dis:true,label:n+" · "+src+" · requires "+miss});return;}
-    const sd=smartSid(n,ctx);L.push({v:"b:"+n,root:!!r.root,dis:gs&&sd==null,label:n+" · "+src+(sd==null?" · no free Ward":"")});});
-  L.sort((a,b)=>a.dis-b.dis||a.root-b.root);
+    const pl=PS.get(n),pr=pl?pl.rank:1e3,src=pl?"▸ plan: "+pl.goal:r.root?(rawRes(n)?"Raw Material":"Root"):"";   // a plan step names its goal (where it goes shows in the Settlement choice)
+    const lab=x=>[n,src,x].filter(Boolean).join(" · ");
+    if(!pLegal(n,null,ctx)){const miss=pReqMiss(n,null,ctx);if(miss)L.push({v:"b:"+n,root:!!r.root,pr,dis:true,label:lab("requires "+miss)});return;}
+    const sd=smartSid(n,ctx);L.push({v:"b:"+n,root:!!r.root,pr,dis:gs&&sd==null,label:lab(sd==null?"no free Ward":"")});});
+  L.sort((a,b)=>a.dis-b.dis||a.pr-b.pr||a.root-b.root);
   L.push({v:"hand",label:"place it by hand"});return L;});}
 // Build target choices for one Holding (sub "b:<name>"): every built Settlement; the auto-placement target first and preselected
 function buildPlaces(o,sub){if(!/^b:/.test(sub||""))return null;const n=sub.slice(2);if(!R[n])return null;return withBoard(o.board,()=>{const ctx=legalCtx(),auto=smartSid(n,ctx),ef=effSpot(n);
@@ -423,9 +435,10 @@ function runBuild(c){const b=c.o.board;if(c.sub==="hand"){c.pend("no Holding pla
   const sd0=pl!=null?pl:withBoard(b,()=>smartSid(n));if(sd0==null&&gameStarted()){c.flag("Build: no free Ward for "+n+" — not built");return;}
   const r=withBoard(b,()=>placeHolding(n,null,sd0)),st=r.target!=null?settById(c.o,r.target):null;
   c.log(c.o.name+" builds "+n+(st?" in "+(st.name||st.tier):" — no eligible free Ward, Unplaced")+(r.np.bt>0?" · Build Timer "+r.np.bt:"")+(r.host?" (with "+r.host+")":""));}
-function improveOpts(o){return withBoard(o.board,()=>{const L=[];
-  Object.keys(INFRA).filter(n=>iAvail("infra",n)).forEach(n=>L.push({v:"i:"+n,label:n+" · "+INFRA[n].tier+" · Build Timer "+infraBuildTime(n)}));
-  Object.keys(WON).filter(n=>iAvail("wonder",n)).forEach(n=>L.push({v:"w:"+n,label:n+" · Wonder · Build Timer "+infraBuildTime(n)}));
+function improveOpts(o){return withBoard(o.board,()=>{const L=[],PS=planSteps(S),pl=n=>{const p=PS.get(n);return p?{pr:p.rank,tag:" · ▸ plan: "+p.goal}:{pr:1e3,tag:""};};
+  Object.keys(INFRA).filter(n=>iAvail("infra",n)).forEach(n=>{const p=pl(n);L.push({v:"i:"+n,pr:p.pr,label:n+" · "+INFRA[n].tier+" · Build Timer "+infraBuildTime(n)+p.tag});});
+  {const wb=wonderBuilding(S);Object.keys(WON).filter(n=>iAvail("wonder",n)).forEach(n=>{const p=pl(n);L.push({v:"w:"+n,wb,pr:p.pr,label:n+" · Wonder · Build Timer "+infraBuildTime(n)+p.tag+(wb?" · ⚑ "+wb+" still building":"")});});}
+  L.sort((a,b)=>a.pr-b.pr);   // plan steps first, by goal priority
   L.push({v:"hand",label:"by hand"});return L;});}
 // Expand: a Settlement up one tier (Village → Town → City → Metropolis), Era and Standing limits shown as flags
 function expandOpts(o){return withBoard(o.board,()=>{const L=[];
@@ -438,6 +451,7 @@ function runExpand(c){const o=c.o,b=o.board,v=c.sub.slice(2);if(c.sub==="hand"||
   withBoard(b,()=>settExpand(o,s,nt));c.log(o.name+" expands "+(s.name||s.tier)+" → "+nt+(s.bt>0?" · Build Timer "+s.bt:""));}
 function runImprove(c){const o=c.o,b=o.board,k=c.sub.slice(0,1),v=c.sub.slice(2);if(c.sub==="hand"){c.pend("no Infrastructure placed yet");return;}
   const blk=withBoard(b,()=>scopeBlock(v,null));if(blk){c.flag(blk);return;}
+  {const wb=k==="w"?wonderBuilding(b,v):null;if(wb)c.flag(o.name+": "+wb+" is still building — one Wonder at a time");}
   const t=withBoard(b,()=>{(k==="w"?S.wonders:S.infra)[v]=1;itm();const t=gameStarted()?infraBuildTime(v):0;if(t>0)S.itimer[v]=t;wonderStart(v,t);return t;});
   c.log(o.name+" builds "+v+(t>0?" · Build Timer "+t:""));
   D.players.forEach(q=>{const h=facHit(q.board,"build_edict");if(h&&h[1]===v&&!sameP(q,o))c.flag(q.name+" ("+q.board.faction+"): must "+h[2]+" "+o.name+"'s "+v+" as an Edict");});}
@@ -584,7 +598,7 @@ function resolveEnvoy(E,pe,fin){const o=E.owner,act=pe&&pe.rec&&pe.rec.action,A=
     const ctx={o,q,al,sub:pe.rec.sub||"",place:pe.rec.place||"",E,out:fin,log:x=>fx.push(x),flag:x=>flags.push(x),
       pend:msg=>{const b=o.board;b.pending=b.pending||[];b.pending.push({id:E.id,turn:tTurn(),act,msg,snap:boardCounts(b)});},faith:(p,n,src)=>{markActionTarget(p);addFaith(p.board,n);faithTo[p.id]=(faithTo[p.id]||0)+(+n||0);fx.push(p.name+": Faith +"+n+" ("+act+(src?" · "+src:"")+")");},
       doubt:(p,n,isT,src)=>{markActionTarget(p);const k=actDoubt(o,AD,p,n,isT,notes),g=k?gainDoubt(p.board,k):0;doubtTo[p.id]=(doubtTo[p.id]||0)+k;rawTo[p.id]=(rawTo[p.id]||0)+(+n||0);if(k)fx.push(p.name+": Doubt +"+k+" ("+act+(src?" · "+src:"")+")"+(g<k?" — "+(k-g)+" reduced (first Doubt)":""));}};
-    if((sp.tgt==="player"&&!sp.opt&&!q)||(sp.sub&&!ctx.sub))flags.push(act+": no target recorded — resolve by hand");
+    if((sp.tgt==="player"&&!sp.opt&&!q)||(sp.sub&&!sp.subOpt&&!ctx.sub))flags.push(act+": no target recorded — resolve by hand");
     else if(sp.run)sp.run(ctx);
     if(AD==="Cunning"){if(q)SM(o.board,"cunning_extra_doubt").forEach(x=>{if(x.m[1]&&fin!=="Endorsed")return;ctx.doubt(q,+x.m[2],true,x.n);});
       D.players.forEach(h=>{if(!sameP(h,o))SM(h.board,"recoup_on_cunning").forEach(x=>{const hc=tCurW(h);hc.cunningRecoups=hc.cunningRecoups||[];const key=E.id+"|"+o.id+"|"+x.n;
@@ -621,7 +635,7 @@ function tApply(R){if(!autoRes())return;let ch=false;
     const c=tCurW(p);c.applied=c.applied||{};if(c.applied[E.id])return;
     if(!resolveOpen(R,E))return;                                                       // Resolve waits for the end of the Tally Phase
     const pe=performEval(E);if(!pe&&(E.out==="Passed"||E.out==="Endorsed"))return;   // wait for Perform
-    const fin=pe?pe.out:E.out;c.applied[E.id]={out:fin,f:0,d:0,fx:[],flags:[],dom:E.dom+(E.council?" (Council)":""),act:pe&&pe.rec&&pe.rec.action||"",sub:pe&&pe.rec&&pe.rec.sub?pfSubLabel(p,pe.rec.action,pe.rec.target,pe.rec.sub):""};    // marked first: never applied twice
+    const fin=pe?pe.out:E.out;c.applied[E.id]={out:fin,f:0,d:0,fx:[],flags:[],dom:E.dom+(E.council?" ("+C_TAG+")":""),act:pe&&pe.rec&&pe.rec.action||"",sub:pe&&pe.rec&&pe.rec.sub?pfSubLabel(p,pe.rec.action,pe.rec.target,pe.rec.sub):""};    // marked first: never applied twice
     if(E.slot)c.applied[E.id].dom+=slotLabel(E);if(pe&&pe.rec&&pe.rec.target)c.applied[E.id].tgt=String(pe.rec.target);
     Object.assign(c.applied[E.id],resolveEnvoy(E,pe,fin));recAct(p,E,c.applied[E.id]);ch=true;});});
   if(ch)save();}
@@ -734,7 +748,7 @@ function summaryLines(T){const L=[],H=TB().hist||{},h=H[T-1],B=BST();
     (c.notes||[]).forEach(x=>L.push({k:"Notice",t:p.name+" · "+x}));});
   if(T===tTurn()){let R=null;try{R=tSim();}catch(e){R=null;}   // envoys resolved this turn but not applied (auto-resolve off / another client's envoy)
     ((R&&R.log)||[]).forEach(l=>{if(l.kind!=="envoy")return;const E=l.E,p=E.owner,c=p&&PT(p).cur;if(!p||(c&&c.turn===T&&(c.applied||{})[E.id]))return;
-      L.push({k:"Envoy",t:p.name+" · "+(E.dom+(E.council?" (Council)":""))+" · "+E.out+(autoRes()?"":" · apply by hand")});});}
+      L.push({k:"Envoy",t:p.name+" · "+(E.dom+(E.council?" ("+C_TAG+")":""))+" · "+E.out+(autoRes()?"":" · apply by hand")});});}
   const dp=D.players.map(p=>{const x=(p.board.dpLog||[]).filter(y=>y.turn===T).map(y=>y.dom);return x.length?p.name+" "+x.join(", "):"";}).filter(Boolean);
   if(dp.length)L.push({k:"Domain Points",t:dp.join(" · ")});
   return L;}
@@ -803,7 +817,7 @@ function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.
   const dom=n=>{const u=(R[n]||{}).unlock_raw||"";let best="",bk=-1;
     for(const m of u.matchAll(/(Rising|Established|Sovereign)\s+(Industry|Prowess|Cunning|Piety)/g)){const k=ST_ORDER.indexOf(m[1]);if(k>bk){bk=k;best=m[2];}}
     return best||["Industry","Prowess","Cunning","Piety"].find(d=>u.includes(d))||"";};
-  const AVS=refAvail(),LC=legalCtx();
+  const AVS=refAvail(),LC=legalCtx(),PM=planMarks();
   return T.charts.map(c=>{if(AVS&&R[c.title]&&!AVS.has(c.title))return "";   // a root chart whose Raw Material is off the map: its reachable Holdings show under their other roots
     // the reference tree is the full tree: the culture view filter applies to the catalog only
     const N=Object.fromEntries(Object.entries(c.nodes).filter(([k])=>!AVS||AVS.has(k))),ks=Object.keys(N);if(!ks.length)return "";
@@ -866,7 +880,7 @@ function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.
       const pts=pick([[[x0,sy],[rx,sy],[rx,ty],[bx+NW+1+AL,ty]],[[x0,sy],[lx,sy],[lx,gy],[rx,gy],[rx,ty],[bx+NW+1+AL,ty]]],[n,k]);
       paths+='<g><title>'+esc(k)+' Mastery needs '+esc(n)+'</title>'+edge(col,pts,' stroke-dasharray="4 3"')+'</g>';}));
     const nodes=ks.map(n=>{const [x,y]=px(n),r=R[n]||{},col=DC[dom(n)]||"#6a6a72",have=(PC[n]||0)>0;
-      return '<div class="tn'+(r.monument?' mon':'')+(have?' have':'')+'" style="left:'+x+'px;top:'+y+'px;width:'+NW+'px;height:'+nh(n)+'px;border-color:'+col+'">'+inner(n)+'</div>';}).join("");
+      return '<div class="tn'+(r.monument?' mon':'')+(have?' have':'')+planCls(PM,n)+'" data-pn="'+esc(n)+'" style="left:'+x+'px;top:'+y+'px;width:'+NW+'px;height:'+nh(n)+'px;border-color:'+col+'">'+inner(n)+'</div>';}).join("");
     return '<details class="tchart" data-t="'+esc(c.title)+'"'+(TREE_OPEN.has(c.title)?' open':'')+'><summary><b>'+esc(c.title)+'</b> <span class="note">'+ks.length+' Pursuits</span>'+
       (()=>{const n={};ks.forEach(k=>{const d=dom(k);if(d)n[d]=(n[d]||0)+1;});return Object.keys(DC).filter(d=>n[d]).map(d=>' <span class="tdom" style="border-color:'+DC[d]+'"><i style="background:'+DC[d]+'"></i>'+d+' '+n[d]+'</span>').join("");})()+'</summary><div class="tscroll"><div class="tcanvas" style="width:'+W+'px;height:'+H+'px">'+
       '<svg width="'+W+'" height="'+H+'"><defs>'+[...used].map(c=>'<marker id="tarw-'+c.slice(1)+'" viewBox="0 0 7 6" refX="0" refY="3" markerWidth="7" markerHeight="6" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="'+c+'"/></marker>').join("")+'</defs><g fill="none" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="butt">'+paths+'</g></svg>'+nodes+'</div></div></details>';}).join("");}
@@ -882,7 +896,7 @@ function infraTreeHTML(){const ALL=Object.assign({},INFRA||{},WON||{}),names=Obj
   let next=0;const kids=n=>names.filter(k=>par[k]===n),place=n=>{const K=kids(n);if(!K.length){row[n]=next++;return;}K.forEach(place);row[n]=row[K[0]];};
   const roots=names.filter(n=>!par[n]).sort((a,b)=>col(a)-col(b));roots.filter(n=>!anyT[n]).forEach(place);const band=next;roots.filter(n=>anyT[n]).forEach(place);
   const unl={};NAMES.forEach(h=>{const r=R[h];if(r&&r.mreq)masteryInfraToks(r).forEach(t=>{if(ALL[t])(unl[t]=unl[t]||[]).push(h);});});
-  const built=n=>!!((S.infra||{})[n]||(S.wonders||{})[n]),building=n=>(S.itimer||{})[n]>0,dn=n=>window.dispName?dispName(n):n;
+  const built=n=>!!((S.infra||{})[n]||(S.wonders||{})[n]),building=n=>(S.itimer||{})[n]>0,dn=n=>window.dispName?dispName(n):n,PM=planMarks();
   const inner=n=>{const x=ALL[n],q=String(x.requirement||"").trim();
     const bt=infraBuildTime(n);
     return '<div class="tnh"><span class="gk">'+esc(dn(n))+'</span>'+(built(n)?' <span class="tb-b" title="'+(building(n)?'on your board, Build Timer running':'on your board and active')+'">'+(building(n)?'building · '+S.itimer[n]+' left':'built')+'</span>':'')+'</div>'+
@@ -899,7 +913,7 @@ function infraTreeHTML(){const ALL=Object.assign({},INFRA||{},WON||{}),names=Obj
     paths+='<path d="M'+(x0+NW)+','+a+' H'+mx+' V'+b+' H'+(x1-1-AL)+'" marker-end="url(#iarw)"/>';});
   const heads=TI.map((t,i)=>'<div class="note" style="position:absolute;left:'+(i*(NW+CG))+'px;top:0;width:'+NW+'px;text-align:center"><b>'+esc(t)+'</b></div>').join("")+
     (band<=mr?'<div class="note" style="position:absolute;left:0;top:'+(RY[band]-LH-4)+'px;width:'+W+'px;border-top:1px dashed var(--line);padding-top:2px">Needs any one piece of the named tier</div>':'');
-  const boxes=names.map(n=>{const [x,y]=px(n);return '<div class="tn'+(WON[n]?' mon':'')+(built(n)?' have':'')+'" style="left:'+x+'px;top:'+y+'px;width:'+NW+'px;height:'+RH[row[n]]+'px;border-color:'+C+'">'+inner(n)+'</div>';}).join("");
+  const boxes=names.map(n=>{const [x,y]=px(n);return '<div class="tn'+(WON[n]?' mon':'')+(built(n)?' have':'')+planCls(PM,n)+'" data-pn="'+esc(n)+'" style="left:'+x+'px;top:'+y+'px;width:'+NW+'px;height:'+RH[row[n]]+'px;border-color:'+C+'">'+inner(n)+'</div>';}).join("");
   return '<div class="tscroll"><div class="tcanvas" style="width:'+W+'px;height:'+H+'px"><svg width="'+W+'" height="'+H+'"><defs><marker id="iarw" viewBox="0 0 7 6" refX="0" refY="3" markerWidth="7" markerHeight="6" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="'+C+'"/></marker></defs>'+
     '<g fill="none" stroke="'+C+'" stroke-width="1.4" stroke-linejoin="round">'+paths+'</g></svg>'+heads+boxes+'</div></div>';}
 // rulebook (collapsible, per device); keywords inside the text get hover links
@@ -919,10 +933,10 @@ function renderReference(){const host=document.getElementById("viewReference");
       .map(x=>'<a href="#" data-goto="reference#'+x[0]+'">'+x[1]+'</a>').join(' · ')+'</div>';
   h+='<details id="refRules" class="tot"'+(RB_OPEN?' open':'')+'><summary><b style="font-size:14px">Rulebook</b> <span class="note">— RULES_push.md, values from the data</span></summary>'+rulebookHTML()+'</details>';
   h+='<details id="refTree" class="tot"'+(TREE_SEC?' open':'')+'><summary><b style="font-size:14px">Pursuit tree</b></summary>'+
-    '<div class="tb-row" style="margin:6px 0"><button data-tree="open">expand all</button><button data-tree="close">collapse all</button>'+
+    '<div class="tb-row" style="margin:6px 0"><button data-tree="open">expand all</button><button data-tree="close">collapse all</button>'+planPickHTML("planPick")+
     (mapRaws()?'<label class="note"><input type="checkbox" id="refRaw"'+(REF_RAW?' checked':'')+'> only Holdings the map\'s Raw Materials can start'+(REF_RAW?' ('+(refRawAvail()||new Set()).size+'/'+NAMES.length+')':'')+'</label>':'')+
     (refCulture()?'<label class="note"><input type="checkbox" id="refCul"'+(REF_CUL?' checked':'')+'> only Holdings my Culture uses ('+esc(refCulture())+' · '+esc(CUL[refCulture()].domains.join("/"))+')'+(REF_CUL?' ('+(refAvail()||new Set()).size+'/'+NAMES.length+')':'')+'</label>':'')+'</div><div class="note">'+(SIMPLE?'':'Innate + Mastery combined (Mastery assumed earned; same stats summed). ')+'Colour = unlock Domain; ◆ = Monument; green outline = built; 🔒 = your Standing doesn\'t meet the unlock yet.</div>'+treeHTML()+'</details>'+
-    '<details id="refInfraTree" class="tot"'+(ITREE_OPEN?' open':'')+'><summary><b style="font-size:14px">Infrastructure tree</b></summary>'+infraTreeHTML()+'</details>'+
+    '<details id="refInfraTree" class="tot"'+(ITREE_OPEN?' open':'')+'><summary><b style="font-size:14px">Infrastructure tree</b></summary><div class="tb-row" style="margin:6px 0">'+planPickHTML("planPick2")+'</div>'+infraTreeHTML()+'</details>'+
     '<div id="refSeasons">'+seasonsHTML()+'</div><div id="refCosts">'+costsHTML()+'</div>'+
     '<div id="refStanding">'+standingEffectsHTML()+'</div><div id="refTerrain">'+terrainTablesHTML(mapPal(g))+'</div>'+
     '<div id="refBattle">'+battleRulesHTML()+'</div></div>';

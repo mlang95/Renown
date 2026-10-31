@@ -264,13 +264,13 @@ function phaseCardHTML(R){
   else if(R.waiting==="tie")h+='<div>Council vote tied — <b>'+R.tieCands.join(" / ")+'</b><br><span class="note">'+(hostP()?"the Host's vote isn't one of them — Host breaks the tie":"no Host — break the tie")+'</span></div>';
   else if(ph==="council"&&!R.councilDom&&cw)h+='<div>Council vote: '+tName(cw)+' <span class="tbcd tb-timer"></span></div>';
   if(E){const net=E.council?Math.max(1,E.innate+E.sup-E.opp):E.innate+E.sup-E.opp,o=tOutcome(net);
-    h+='<div class="tb-env">'+tName(E.owner)+' → <b>'+esc(E.dom)+'</b>'+(E.council?' <span class="tb-b">Council</span>':'')+(E.mission?' <span class="tb-b">Mission</span>':'')+(envActions(E)>1?' <span class="tb-b">×'+envActions(E)+' actions</span>':'')+
+    h+='<div class="tb-env">'+tName(E.owner)+' → <b>'+esc(E.dom)+'</b>'+(E.council?' <span class="tb-b">'+C_TAG+'</span>':'')+(E.mission?' <span class="tb-b">Mission</span>':'')+(envActions(E)>1?' <span class="tb-b">×'+envActions(E)+' actions</span>':'')+
       '<div class="note">'+innateTxt(E)+' · <span class="pos">+'+E.sup+'</span> · <span class="neg">−'+E.opp+'</span></div>'+
       (envBadges(E)?'<div>'+envBadges(E)+'</div>':'')+
       '<div>net <b>'+net+'</b> → <b class="'+tOutCls(o)+'">'+o+'</b> <span class="note">(so far)</span></div>'+
       (cw?'<div class="note">'+tName(cw)+' to act</div><div class="tbcd tb-timer"></div>':'')+'</div>';}
-  else if(R.done&&(ph==="council"||ph==="envoy")&&t.phaseTs)h+='<div class="pos">All Envoys resolved.</div>';
-  if(R.councilDom)h+='<div class="note">Council Domain: <b>'+R.councilDom+'</b>'+(R.tieBy?' — tie ('+R.tieBy.cands.join(" / ")+') broken by the Host’s vote ('+esc(R.tieBy.who.name)+')':'')+'</div>';
+  else if(R.done&&(ph==="council"||ph==="envoy")&&t.phaseTs)h+='<div class="pos">'+(ph==="council"&&RFM?'Works actions ready.':R.spring&&ph==="envoy"?'Diplomacy done.':'All Envoys resolved.')+'</div>';
+  if(R.councilDom&&!RFM)h+='<div class="note">Council Domain: <b>'+R.councilDom+'</b>'+(R.tieBy?' — tie ('+R.tieBy.cands.join(" / ")+') broken by the Host’s vote ('+esc(R.tieBy.who.name)+')':'')+'</div>';
   if(ph==="council"&&councilOff())h+='<div>Spring — no Council Phase.</div>';
   if(ph==="rest")h+='<div class="note">Unused Envoys & Influence are discarded · Season +1 · gain Renown · spend a Domain Point · Host passes clockwise (not in Spring).</div>'+
     '<div class="sea-next" style="--sea:'+seaLook(nextSeason()).c+'"><span class="sea-g">'+seaLook(nextSeason()).g+'</span><span>Next turn: '+seaLine(nextSeason())+'</span></div>'+
@@ -289,7 +289,7 @@ function phaseCardHTML(R){
       '<div class="tb-row"><label><input type="checkbox" data-do="boardend"'+(boardEndOn()?" checked":"")+'> End turn also runs every board\'s end turn (timers, net gold if auto-apply is on, Public Order, Endurance)</label></div>'+
       '<div class="tb-row"><label><input type="checkbox" data-do="autores"'+(autoRes()?" checked":"")+'> Auto-resolve actions (costs, Faith / Doubt, effects)</label></div>'+
       '<div class="tb-row"><button data-do="autoseat"'+(seatsLocked()?' disabled':'')+'>Auto-seat unseated players</button></div></details>';}
-  {const pr=(DATA.phaseRules||{})[ph];if(pr)h+='<details class="tb-rules"><summary class="note">Rules — '+esc(T_PHL[ph])+'</summary><div class="note" style="text-align:left;margin-top:4px">'+mdLite(pr)+'</div></details>';}
+  {const pr=(DATA.phaseRules||{})[ph==="envoy"&&springDiplo()?"diplomacy":ph];if(pr)h+='<details class="tb-rules"><summary class="note">Rules — '+esc(T_PHL[ph])+'</summary><div class="note" style="text-align:left;margin-top:4px">'+mdLite(pr)+'</div></details>';}
   h+='<div class="rl-you note">You: '+(me?tName(me):'—')+(lockOn()?'':' · <label><input type="checkbox" data-do="hotseat"'+(HOTSEAT?" checked":"")+'> hot-seat (act for anyone)</label>')+'</div>';
   return h+'</div>';}
 DO.begin=()=>{if(TB().phaseTs)tRestartPhase();else tSetPhase(tPhase());};
@@ -349,7 +349,7 @@ function dockHTML(R){
   if(vt)withSlots(R.envoys).filter(E2=>(E2.out==="Passed"||E2.out==="Endorsed")&&resolveOpen(R,E2)&&canAct(E2.owner)&&(HOTSEAT||sameP(E2.owner,me))).forEach(E2=>{
     const rec=((tCur(E2.owner).perform)||{})[E2.id]||{},ap=(tCur(E2.owner).applied||{})[E2.id];
     if(ap&&!rec.edit&&E2.dom!=="Diplomacy")return;          // performed: shown in the Envoy queue and the Turn log (Diplomacy stays for "declined")
-    h+=dockCard("Perform — "+esc(E2.owner.name)+" · "+esc(E2.dom)+(E2.council?" (Council)":"")+slotLabel(E2)+' <b class="'+tOutCls(E2.out)+'">'+E2.out+'</b>',tPerformHtml(E2),"now");});
+    h+=dockCard("Perform — "+esc(E2.owner.name)+" · "+esc(E2.dom)+(E2.council?" ("+C_TAG+")":"")+slotLabel(E2)+' <b class="'+tOutCls(E2.out)+'">'+E2.out+'</b>',tPerformHtml(E2),"now");});
   // 5. Diplomatic Mission (RULES › Rule: Diplomatic Mission)
   if(ph==="envoy"&&t.phaseTs)R.envoys.filter(E2=>E2.dom==="Diplomacy"&&E2.done&&missionWhy(E2)&&canAct(E2.owner)&&(HOTSEAT||sameP(E2.owner,me))).forEach(E2=>{
     const ms=(tCur(E2.owner).mission||{})[E2.id],open=T_DOMS.filter(d=>!domStarted(R,d));
@@ -361,7 +361,7 @@ function dockHTML(R){
   // 6b. Actions: who did what to whom (this turn once Envoys perform; the turn before during the Empire and Council Phases)
   if(ph!=="envoy"||allActs(tTurn()).length)h+=realmActsHTML(qp);
   // 7. Influence & Envoys (Council and Envoy Phases)
-  if(ph==="council"||ph==="envoy")h+=inflPaneHTML(qp,ph==="council");
+  if((ph==="council"&&!RFM)||(ph==="envoy"&&!springDiplo()))h+=inflPaneHTML(qp,ph==="council");   // Works actions and the Diplomacy Phase use no Influence
   if(ph==="envoy"&&ADMIN)h+=inflCardHTML(qp);   // manual Influence / Envoy adjusts and modifiers: the Duke only
   // 8. Empire Phase: checklist, every Extort this player collects / pays / triggers
   if(ph==="empire"){h+=empireHoldingHTML(qp);h+=dockCard("Empire Phase",empireChecklistHTML());h+=extortCardHTML(qp);}
@@ -386,18 +386,19 @@ function envoyQueueHTML(R,qp,ph){const plan=R.plan.length?R.plan:tPlan(ph,R.ord,
   let planned=0;const done=new Map(R.envoys.map(E=>[E.id,E]));
   const rows=plan.map((E0,i)=>{const E=done.get(E0.id)||E0,cur=R.curEnvoy&&R.curEnvoy.id===E.id,mineE=sameP(E.owner,qp);
     let st="",pv="";
-    if(E.done){const pe=performEval(E);st='net '+E.net+' <b class="'+tOutCls(pe?pe.out:E.out)+'">'+(pe?pe.out:E.out)+'</b>'+(pe&&pe.rec&&pe.rec.action?' · '+esc(pe.rec.action):'')+(E.saved?' <span class="tb-b">'+esc(E.saved)+'</span>':'');}
+    if(E.done){const pe=performEval(E);st=(E.council&&RFM?'':'net '+E.net+' ')+'<b class="'+tOutCls(pe?pe.out:E.out)+'">'+(pe?pe.out:E.out)+'</b>'+(pe&&pe.rec&&pe.rec.action?' · '+esc(pe.rec.action):'')+(E.saved?' <span class="tb-b">'+esc(E.saved)+'</span>':'');}
     else if(cur)st='<b>voting</b> <span class="tbcd"></span>';
     if(!E.done&&!E.council&&!mineE&&!R.resolved.has(E.id+">"+qp.id)&&!(R.cur&&R.cur.key===E.id+">"+qp.id)){
       const v=tCur(qp).votes[E.id],a=v?v.a:"",x=v&&(a==="S"||a==="O")?(+v.x||1):0,capv=voteCap(qp,E.dom||"Prowess",E.council),blk=E.dom?opposeBlock(qp,E):"";planned+=x;
       const bt=(k,l,cl,dis)=>'<button data-do="pv" data-env="'+esc(E.id)+'" data-a="'+k+'" data-who="'+qp.id+'" class="'+(a===k?'on ':'')+cl+'"'+(dis?' disabled title="'+esc(dis)+'"':'')+'>'+l+'</button>';
       pv='<span class="pvb">'+bt("","—","")+bt("A","A","")+bt("S","S","pos")+bt("O","O","neg",blk)+'</span>'+
         ((a==="S"||a==="O")?' <button data-do="pvx" data-env="'+esc(E.id)+'" data-dv="-1" data-who="'+qp.id+'">−</button><b class="pvn">'+x+'</b><button data-do="pvx" data-env="'+esc(E.id)+'" data-dv="1" data-who="'+qp.id+'"'+(x>=capv?' disabled':'')+'>+</button><span class="note">/'+capv+'</span>':'');}
-    const head='<span class="eq-n">'+(i+1)+'</span>'+tName(E.owner)+' <b>'+esc(E.dom||"Council")+'</b>'+(E.council?' <span class="note">(Council)</span>':'')+(E.mission?' <span class="note">(Mission)</span>':'');
+    const head='<span class="eq-n">'+(i+1)+'</span>'+tName(E.owner)+' <b>'+esc(E.dom||C_TAG)+'</b>'+(E.council?' <span class="note">('+C_TAG+')</span>':'')+(E.mission?' <span class="note">(Mission)</span>':'');
     const detail=E.done?'<div class="note">'+innateTxt(E)+(E.votes.length?'; '+E.votes.map(v=>esc(v.who.name)+' '+tVoteTxt(v)).join(', '):'')+'</div><div class="note">'+kwify(outText(E.dom,E.out))+'</div>'+
       ((E.notes||[]).length?'<div>'+E.notes.map(x=>'<span class="tb-b nt">ⓘ '+esc(x)+'</span>').join(' ')+'</div>':''):"";
     return '<div class="eq'+(cur?' cur':'')+(E.done?' done':'')+(mineE?' mine':'')+'">'+(detail?'<details><summary>'+head+'<span class="eq-st">'+st+'</span></summary>'+detail+'</details>':'<div class="eq-r">'+head+'<span class="eq-st">'+st+'</span></div>')+
       (pv?'<div class="eq-pv">'+pv+'</div>':'')+'</div>';}).join("");
+  if(ph==="council"&&RFM)return dockCard("Works actions",rows,"eqcard");   // no votes or Influence: just who does what
   return dockCard("Envoys"+' <span class="note">'+(planned>room?'<b class="neg">pre-votes '+planned+' / '+room+' Influence</b>':'pre-votes '+planned+' / '+room+' Influence')+'</span>',
     rows+'<label class="note"><input type="checkbox" data-do="autoab" data-who="'+qp.id+'"'+(PT(qp).auto?" checked":"")+'> Auto-abstain when nothing is set</label>',"eqcard");}
 // Influence pane: each player's Influence and Personal Envoys, the innate Influence of their Envoys by Domain, and the most Influence
@@ -491,14 +492,14 @@ function turnLogItems(R){const T=tTurn(),H=TB().hist||{},out=[],me=meP(),idOf=na
   const live=new Set();
   R.log.forEach(l=>{if(l.kind==="cvote"){add(T,"envoys",[l.who.id],tName(l.who)+' Council vote: '+(l.dom?'<b>'+l.dom+'</b>':'<span class="note">'+(l.timeout?"timeout":l.forced?"skipped":"none")+'</span>'));return;}
     const E=l.E,pe=performEval(E),ap=(tCur(E.owner).applied||{})[E.id];live.add(E.id);
-    add(T,"envoys",[E.owner.id].concat(pe&&pe.tgt?[pe.tgt.id]:[]),tName(E.owner)+' <b>'+esc(E.dom)+'</b>'+(E.council?' (Council)':'')+(E.mission?' (Diplomatic Mission)':'')+' → net <b>'+E.net+'</b> <b class="'+tOutCls(pe?pe.out:E.out)+'">'+(pe?pe.out:E.out)+'</b>'+
+    add(T,"envoys",[E.owner.id].concat(pe&&pe.tgt?[pe.tgt.id]:[]),tName(E.owner)+' <b>'+esc(E.dom)+'</b>'+(E.council?' ('+C_TAG+')':'')+(E.mission?' (Diplomatic Mission)':'')+(E.council&&RFM?' → ':' → net <b>'+E.net+'</b> ')+'<b class="'+tOutCls(pe?pe.out:E.out)+'">'+(pe?pe.out:E.out)+'</b>'+
       (pe&&pe.rec&&pe.rec.action?' · '+esc(pe.rec.action)+(pe.tgt?' → '+esc(pe.tgt.name):''):'')+(E.votes.length?'<div class="note">'+E.votes.map(v=>esc(v.who.name)+' '+tVoteTxt(v)).join(', ')+'</div>':'')+(ap?apLines(ap):''));});
   // earlier this turn and past turns: applied Envoys, Empire Phase, timers, bandits, notices, Domain Points
   const sumOf=t=>t===T?summaryLines(T):((H[t]||{}).sum||[]);
   const turns=[T].concat(Object.keys(H).map(Number).filter(k=>k<T).sort((a,b)=>b-a).slice(0,6));
   turns.forEach(t=>{
     D.players.forEach(p=>{const c=PT(p).cur;if(t===T&&c&&c.turn===T)Object.keys(c.applied||{}).forEach(id=>{if(live.has(id))return;const a=c.applied[id];
-      add(t,"envoys",[p.id].concat(a.tgt&&!String(a.tgt).startsWith("al:")?[a.tgt]:[]),esc(p.name)+' · '+esc(a.dom||"Council")+' · <b class="'+tOutCls(a.out)+'">'+esc(a.out)+'</b>'+(a.act?' · '+esc(a.act)+(a.sub?' ('+esc(a.sub)+')':''):'')+((a.fx||[]).length?'<div class="note">'+a.fx.map(kwify).join(' · ')+'</div>':''));});});
+      add(t,"envoys",[p.id].concat(a.tgt&&!String(a.tgt).startsWith("al:")?[a.tgt]:[]),esc(p.name)+' · '+esc(a.dom||C_TAG)+' · <b class="'+tOutCls(a.out)+'">'+esc(a.out)+'</b>'+(a.act?' · '+esc(a.act)+(a.sub?' ('+esc(a.sub)+')':''):'')+((a.fx||[]).length?'<div class="note">'+a.fx.map(kwify).join(' · ')+'</div>':''));});});
     sumOf(t).forEach(x=>{if(x.k==="Envoy"&&t===T)return;const ty=x.k==="Bandits"?"bandits":x.k==="Timers"||x.k==="Empire"?"timers":x.k==="Envoy"?"envoys":"notice";
       const who=D.players.filter(p=>String(x.t).includes(p.name)).map(p=>p.id);add(t,ty,who,'<span class="tb-b">'+esc(x.k)+'</span> '+kwify(x.t));});
     const h=H[t];if(h&&h.rows)h.rows.forEach(r=>add(t,"timers",[r.pid],pTok(pById(r.pid)||r,12)+'<b>'+esc(r.name)+'</b> end of turn: Gold '+(r.net<0?'':'+')+(+r.net||0).toLocaleString()+' · PO '+r.p0+' → '+r.p1+((r.done||[]).length?' · '+r.done.map(kwify).join(' · '):'')));});

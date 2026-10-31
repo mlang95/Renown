@@ -662,6 +662,13 @@
   .tn{position:absolute;box-sizing:border-box;border:1.5px solid;border-left-width:5px;border-radius:var(--radius-sm);background:var(--panel);padding:3px 6px;overflow:hidden;font-size:11px;line-height:1.25}
   .tn.mon{background:color-mix(in srgb,var(--sel) 45%,var(--panel));border-width:2px;border-left-width:5px}
   .tn.have{box-shadow:0 0 0 2px var(--income)}
+  .tn.plan-t{outline:2px solid var(--order);outline-offset:2px}.tn.plan-s{outline:1.5px dashed var(--order);outline-offset:2px}
+  .plang{border:1px solid var(--line2);border-left:4px solid var(--order);border-radius:var(--radius-sm);padding:6px 8px;margin:6px 0;background:var(--panel)}
+  .plang.taken{border-left-color:var(--upkeep);opacity:.75}
+  .planh{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.planh .shb:first-of-type{margin-left:auto}
+  .plans{margin-top:4px}.planr{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:2px 0;font-size:12px}
+  .planr .pi{width:16px;text-align:center}.planr .addbtn{margin-left:auto}
+  .planr.st-done{opacity:.55}.planr.st-now .pn{color:var(--income);font-weight:600}.planr.st-blocked .pi,.planr.st-taken .pn{color:var(--upkeep)}
   .tnu.tn-nat{font-weight:600;cursor:help}
   .tn.off{opacity:.28}
   .tnh{font-weight:600;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

@@ -123,9 +123,9 @@ A few conventions make every rule in this book read the same way:
 Each turn runs through five phases in order, then passes the Host and repeats:
 
 1. **Empire Phase**{{IDX:Empire Phase}} — Start of the Empire Phase effects, the Season, Timers, Bandit Mechanics, Influence & Envoys, income, {{VAL:SUPPLY_TERM}} and {{VAL:UPKEEP_TERM}}, Public Order.
-{{IF:PHASE_REFORM}}2. **End of Empire Phase**{{IDX:End of Empire Phase}} — each player sends a free Council Envoy of Industry, performing the Era's Council actions; in Spring, the Diplomacy step instead (the only time players take Diplomacy actions).
+{{IF:PHASE_REFORM}}2. **Works Phase**{{IDX:Works Phase}} — each player performs the Era's Works actions (Industry), paying each cost.
 3. **Envoy Phase**{{IDX:Envoy Phase}} — send all Envoys, a Forum,{{ELSE}}2. **Council Phase**{{IDX:Council Phase}} — a Council vote on a Domain; each player then performs one action of that Domain.
-3. **Envoy Phase**{{IDX:Envoy Phase}} — send all Envoys, a Forum,{{ENDIF}} the Intrigue Phase, vote on every Envoy, the Tally Phase, then resolve them all ({{IF:!PHASE_REFORM}}Diplomacy → {{ENDIF}}Prowess → Cunning → Piety → Industry).
+3. **Envoy Phase**{{IDX:Envoy Phase}} — send all Envoys, a Forum,{{ENDIF}} the Intrigue Phase, vote on every Envoy, the Tally Phase, then resolve them all ({{IF:!PHASE_REFORM}}Diplomacy → {{ENDIF}}Prowess → Cunning → Piety → Industry).{{IF:PHASE_REFORM}} In Spring, the **Diplomacy Phase**{{IDX:Diplomacy Phase}} replaces it: no Envoys, only Diplomacy offers between players.{{ENDIF}}
 4. **Battle Phase**{{IDX:Battle Phase}} — Skirmishes, Sieges, and Battles resolve.
 5. **Rest Phase**{{IDX:Rest Phase}} — cleanup, advance the Season, score Renown, spend one Domain Point, pass the Host.
 
@@ -145,23 +145,19 @@ Many actions set a Timer to a number of turns. Each Empire Phase, every active T
 2. **Season** — apply this turn's Season effect.
 3. **Timers** — count down every active Timer by 1 (Build, Repair, Truce, Siege, Muster, Sack, Capture, in that order), then resolve each Timer that reached 0.
 4. **Bandit Mechanics** (the Host resolves) — grow Bandit Camps by the Era; any camp at {{VAL:BANDIT_ARMY_THRESHOLD}} Retinues sends out a Bandit Army; Bandit Camps perform Cunning actions; Bandit Armies perform Move actions; spawn new Bandit Camps (in Spring, from Foster Rebellion, or from an Uprising).
-5. **Influence & Envoys** — gain Influence (not in Spring) from the Era, innate modifiers (Trade Partners, Alliances, At War, etc.), Holdings, and Infrastructure; then gain the Era's Envoys.
+5. **Influence & Envoys** — gain Influence (not in Spring) from the Era, innate modifiers (Trade Partners, Alliances, At War, etc.), Holdings, and Infrastructure; then gain the Era's Envoys{{IF:PHASE_REFORM}} (not in Spring){{ENDIF}}.
 6. **Income & Upkeep** — in this order: in Winter only, gain tax income from each of your Settlements by tier (see Settlements); gain Holding income; if there is a Host, the Host collects trade income and distributes it among their Trade Partners; pay Army {{VAL:SUPPLY_TERM}}, Holding and Infrastructure {{VAL:UPKEEP_TERM}}, and any other costs; resolve Extort effects; check your Treasury for the Wealth Edict condition.
 7. **Public Order** — total every innate Faith / Doubt source in the Public Order tables and adjust your Public Order by the net change. *(Faith and Doubt from actions are applied the moment they're generated; see Public Order.)*
 8. **Endurance** — every Army without **Strained** gains +{{VAL:ENDURANCE_REGAIN}} Endurance; then remove Strained from all Armies. *(An Army can immediately regain these effects after losing them, if applicable.)*
 9. **Remaining effects** — resolve any remaining Each Empire Phase effects.
 
-{{IF:PHASE_REFORM}}### End of Empire Phase
+{{IF:PHASE_REFORM}}### Works Phase
 
-There is no Council vote: the Council's Domain is {{VAL:COUNCIL_DOMAIN}}.
-
-**Diplomacy step (Spring).** In Spring, the End of Empire Phase is the Diplomacy step instead; this is the only time players take Diplomacy actions. Players make Diplomacy offers to one another, in any order: each offer is a Sign Treaty (name the Treaty) or a Negotiate (state the terms). An accepted offer is a Passed Diplomacy action for both players, and the Treaty is signed at once. Each player completes up to {{VAL:ERAS.Founding.diplomacy_agreements}} agreement in Founding and Ascension and up to {{VAL:ERAS.Eminence.diplomacy_agreements}} from Eminence, each with a different player; once you have, your other offers are withdrawn and you can't accept another. End Treaty needs no answer and also uses one. You may pass instead. The step ends once every player has completed their agreements or passed. Vassals take no part. {{RULE:diplomacy-step}}
-
-1. **Council actions** — clockwise from the starting player, each player sends a free Council Envoy of {{VAL:COUNCIL_DOMAIN}}, starting with innate Influence equal to their {{VAL:COUNCIL_DOMAIN}} Standing.{{ELSE}}### Council Phase
+Clockwise from the starting player, each player performs {{VAL:COUNCIL_DOMAIN}} actions equal to the Era's Works actions (see Eras), paying each action's cost as usual. Works actions aren't Envoys: there is no Influence and no vote, and each one Passes — it is never Endorsed, Failed, or Condemned. The Works Phase happens every Season, Spring included.{{ELSE}}### Council Phase
 
 1. **Forum** — a brief open discussion of which Domain the Council should choose.
 2. **Vote** — no talking. Clockwise from the starting player, each player votes for a Domain. The Host's vote breaks a tie; if the Host's vote isn't one of the tied Domains, the Host chooses among them.
-3. **Council actions** — clockwise from the starting player, each player sends a free Envoy of that Domain, starting with innate Influence equal to their Domain Standing.{{ENDIF}} Council Envoys **auto-Abstain** — other players can't Support or Oppose them, though automatic Authority ±X modifiers still apply — and their net Influence can't be lower than 1, so they can't fail or be Condemned. A passed Council Envoy performs actions of that Domain equal to the Era's Council actions per Envoy (see Eras), paying each action's cost as usual (see Envoy Resolution Table for Endorsed refunds). {{RULE:council-envoy}}
+3. **Council actions** — clockwise from the starting player, each player sends a free Envoy of that Domain, starting with innate Influence equal to their Domain Standing. Council Envoys **auto-Abstain** — other players can't Support or Oppose them, though automatic Authority ±X modifiers still apply — and their net Influence can't be lower than 1, so they can't fail or be Condemned. A passed Council Envoy performs actions of that Domain equal to the Era's Council actions per Envoy (see Eras), paying each action's cost as usual (see Envoy Resolution Table for Endorsed refunds). {{RULE:council-envoy}}{{ENDIF}}
 
 ### Envoy Phase
 
@@ -177,6 +173,11 @@ There is no Council vote: the Council's Domain is {{VAL:COUNCIL_DOMAIN}}.
 6. **Resolve** — once the Tally Phase ends, resolve each Envoy in the same order: choose and perform its action according to its net Influence.
 
 *All votes are cast before anything resolves, so At War status (for Opposing Industry Envoys) and Treaties are as they stood during the vote.*
+{{IF:PHASE_REFORM}}
+### Diplomacy Phase
+
+In Spring, the Diplomacy Phase replaces the Envoy Phase: no Envoys are sent (Spring's Empire Phase grants none), and this is the only time players take Diplomacy actions. Players make Diplomacy offers to one another, in any order: each offer is a Sign Treaty (name the Treaty) or a Negotiate (state the terms). An accepted offer is a Passed Diplomacy action for both players, and the Treaty is signed at once. Each player completes up to {{VAL:ERAS.Founding.diplomacy_agreements}} agreement in Founding and Ascension and up to {{VAL:ERAS.Eminence.diplomacy_agreements}} from Eminence, each with a different player; once you have, your other offers are withdrawn and you can't accept another. End Treaty needs no answer and also uses one. You may pass instead. The Diplomacy Phase ends once every player has completed their agreements or passed. Vassals take no part. {{RULE:diplomacy-step}}
+{{ENDIF}}
 
 ### Battle Phase
 
@@ -279,7 +280,7 @@ Each Empire Phase, gain Influence from the following sources:
 
 {{ACTIONS:Diplomacy}}
 
-{{IF:PHASE_REFORM}}Diplomacy actions aren't sent as Envoys: they happen only in Spring's Diplomacy step (see End of Empire Phase).
+{{IF:PHASE_REFORM}}Diplomacy actions aren't sent as Envoys: they happen only in Spring's Diplomacy Phase (see Diplomacy Phase).
 {{ELSE}}### Rule: Diplomatic Mission
 
 If your Diplomacy Envoy passes or is endorsed but its action fails, you may send another Envoy in another Domain, resolved in the order it would be resolved alongside other Envoys. A Diplomacy Envoy that fails or is condemned doesn't allow one.
@@ -402,7 +403,7 @@ Infrastructure comes in 5 ascending tiers.{{IDX:Primitive}}{{IDX:Developed}}{{ID
 
 To build any Infrastructure, you need at least one active Infrastructure of the tier below it — so Developed needs one Primitive, Sophisticated needs one Developed (and therefore one Primitive), and so on up to Wondrous. *One Tier Primitive* means any one Primitive Infrastructure. Some Infrastructure also names its own requirement on top of this: a Library needs a {{VAL:INFRASTRUCTURE.Library.requirement}}, and a Magistrate's Hall needs a {{VAL:INFRASTRUCTURE.Magistrate's Hall.requirement}}.
 
-Wonders{{IDX:Wonder}} are the Wondrous tier, with Realm Scope: each is built once per game and needs the Infrastructure named in its requirement. They're Edict-satisfying buildings with very powerful effects. A Wonder exists inside your capital and can't be Razed or Damaged.
+Wonders{{IDX:Wonder}} are the Wondrous tier, with Realm Scope: each is built once per game and needs the Infrastructure named in its requirement. They're Edict-satisfying buildings with very powerful effects. A Wonder exists inside your capital and can't be Razed or Damaged. Your capital can hold every Wonder, but you build one Wonder at a time: you can't start a Wonder while another of yours is under its Build Timer.
 
 The full list of Infrastructure — tiers, build times, {{VAL:UPKEEP_TERM}}, requirements, and effects:
 

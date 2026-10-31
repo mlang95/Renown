@@ -273,9 +273,14 @@ def build(out_path):
     lines.append("turn structure | " + wlink("The Turn", "rules-the-turn.html") +
                  ": five phases, then pass the Host. 1) Empire Phase: Start of the Empire Phase effects (incl. Domain Standing effects), "
                  "apply the Season, increment timers, resolve Bandit Mechanics, gain Influence & "
-                 "Envoys, collect income, pay upkeep. 2) Council Phase: Council vote on a Domain; "
-                 "each player performs one action of that Domain. 3) Envoy Phase: Diplomacy Envoys "
-                 "first, then Domain Envoys (Prowess -> Cunning -> Piety -> Industry). 4) Battle "
+                 "Envoys, collect income, pay upkeep. "
+                 + ("2) Works Phase: each player performs the Era's Works actions (Industry), paying each "
+                    "cost; no Envoy or vote, each action Passes. 3) Envoy Phase: Domain Envoys (Prowess -> "
+                    "Cunning -> Piety -> Industry); in Spring, the Diplomacy Phase instead (no Envoys, only "
+                    "Diplomacy offers). 4) Battle " if getattr(rd, "PHASE_REFORM", False) else
+                    "2) Council Phase: Council vote on a Domain; "
+                    "each player performs one action of that Domain. 3) Envoy Phase: Diplomacy Envoys "
+                    "first, then Domain Envoys (Prowess -> Cunning -> Piety -> Industry). 4) Battle ") +
                  "Phase: Skirmishes, Sieges, and Battles resolve. 5) Rest Phase: cleanup, change "
                  "Season, score Renown, spend one Domain Point, pass the Host.")
     lines.append("turn order | See 'turn structure'.")

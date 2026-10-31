@@ -5,8 +5,8 @@ import os as _os
 # the game uses; there is no overlay that rewrites it later. The legacy (SIMPLE=0) data is frozen in
 # renown_data_d10_legacy.py. SIMPLE stays defined (always True) because the build scripts read it.
 SIMPLE = True
-# build_all_CE.bat: set PHASES=1|0. On: no Council vote: the Council Phase is the End of Empire Phase (Council Envoys are
-# Industry); Spring's End of Empire Phase is the Diplomacy step (offers between players; no Diplomacy Envoys), the only one
+# build_all_CE.bat: set PHASES=1|0. On: no Council vote: the Council Phase is the Works Phase (each player performs the Era's
+# Industry actions, no Envoy); in Spring the Envoy Phase is the Diplomacy Phase (offers between players; no Envoys), the only one
 PHASE_REFORM = _os.environ.get("RENOWN_PHASES", "1") == "1"
 vS = "-S"
 VERSION = f"0.4.9.9.13-d10{vS}"
@@ -216,7 +216,7 @@ GLOSSARY = {
 
     # ── Diplomacy & alliances ──
     "Diplomacy":     "Free Envoy actions for forming and ending Treaties and Trade Agreements; resolved before Domain Envoys.",
-    "Treaty":        "A standing agreement between players (Trade Agreement, Non-Aggression Pact, Alliance), signed in the Diplomacy step.",
+    "Treaty":        "A standing agreement between players (Trade Agreement, Non-Aggression Pact, Alliance), signed in the Diplomacy Phase.",
     "Alliance":      "A Treaty binding players to mutual support; Military and Defensive Alliances unlock by Era.",
     "Vassal":        "A player subordinated via Vassalization: their chartered Settlements return to them, they mirror the Suzerain's Treaties, count as allied to the Suzerain, and cannot Perform or be targeted by Diplomacy actions.",
     "Suzerain":      "The player who has Vassalized another; the Vassal mirrors their Treaties.",
@@ -807,7 +807,7 @@ NODES = {
         "group": "g_logistics",
         "unlock": "-",
         "natural": True,
-        "innate": "Gold +500; Craft +1; Supply -500",
+        "innate": "Craft +3; Supply -500",
         "efficient": ["Salt Works", "Animal Husbandry"],
         "monument": False},
     "Bakery": {
@@ -911,21 +911,21 @@ NODES = {
         "group": "g_works",
         "unlock": "Rising Cunning",
         "natural": True,
-        "innate": "Gold +1500; Doubt +1",
+        "innate": "Gold +1000; Doubt +1",
         "efficient": ["Common Land","Salt Works"],
         "monument": False},
     "Storehouse": {
         "group": "g_works",
         "unlock": "Established Cunning",
         "natural": True,
-        "innate": "Gold +2000; Doubt +1; Build Timer -1",
+        "innate": "Upkeep -2000; Doubt +1; Build Timer -1",
         "efficient": ["Census Hall"],
         "monument": False},
     "Meadery": {
         "group": "g_husbandry",
         "unlock": "Rising Industry",
         "natural": True,
-        "innate": "Faith +1; Speed +2 in Winter",
+        "innate": "Faith +1; Speed +5 in Winter",
         "efficient": "Apiary",
         "monument": False},
     "Winery": {
@@ -1013,7 +1013,7 @@ NODES = {
     "Shipyard": {
         "group": "g_commerce",
         "unlock": "Established Industry",
-        "innate": "Can Trade; Craft +4; Water Territory treated as Grassland for movement",
+        "innate": "Upkeep -500; Craft +4; Water Territory treated as Grassland for movement",
         "efficient": "Harbor",
         "monument": False},
     "Coliseum": {
@@ -1038,7 +1038,7 @@ NODES = {
     "Abbey": {
         "group": "g_devotion",
         "unlock": "Established Piety",
-        "innate": "Authority -2 on Piety actions targeting you", #Once per Envoy Phase: Authority +2 another player's Piety Envoy;
+        "innate": "Upkeep -500; Authority -2 on Piety actions targeting you", #Once per Envoy Phase: Authority +2 another player's Piety Envoy;
         "efficient": "Priory",
         "monument": False},
     "Reliquary": {
@@ -1051,7 +1051,7 @@ NODES = {
         "group": "g_devotion",
         "unlock": "Established Piety",
         "infrastructure_req": "Chapel",
-        "innate": "Influence +2; Reach +2", #Other players with lower Piety value can't Oppose your Piety Envoys
+        "innate": "Influence +2; Your Settlements gain Reach +2", #Other players with lower Piety value can't Oppose your Piety Envoys
         "efficient": ["Abbey"],
         "monument": False},
     "Execution Dock": {
@@ -1077,14 +1077,14 @@ NODES = {
     "Bell Tower": {
         "group": "g_court",
         "unlock": "Rising Piety",
-        "innate": "Influence +1; Authority +1 on your Council Envoys",
+        "innate": "Influence +1; Upkeep -500",
         "efficient": "Jester's Court",
         "monument": False},
     "Embassy": {
         "group": "g_court",
         "unlock": "Established Piety",
         "infrastructure_req": "Library",
-        "innate": "Once per Diplomacy step, you may cause a Diplomacy action to fail; Other non-vassal players gain Faith +1 per Signed Treaty with you besides Peace",
+        "innate": "Once per Diplomacy Phase, you may cause a Diplomacy action to fail; Other non-vassal players gain Faith +1 per Signed Treaty with you besides Peace",
         "efficient": "Bell Tower",
         "monument": False},
     "Granary": {
@@ -1143,7 +1143,7 @@ NODES = {
     "Supply Depot": {
         "group": "g_works",
         "unlock": "Rising Industry",
-        "innate": "Craft +2; Supply -500; Armies and Garrisons within your Settlements gain Immune Strained",
+        "innate": "Upkeep -500; Supply -500; Armies and Garrisons within your Settlements gain Immune Strained",
         "efficient": "Masonry",
         "monument": False},
     "Artisan Workshop": {
@@ -1189,7 +1189,7 @@ NODES = {
         "group": "g_secrecy",
         "unlock": "Rising Cunning",
         "natural": True,
-        "innate": "Once per turn: when an Army ends a Move action within your Province, Perform a Diplomacy action targeting that army's player; Extort 2000 when non-allied Army ends a Move action within your Province",
+        "innate": "Extort 2000 when non-allied Army ends a Move action within your Province", # Once per turn: when an Army ends a Move action within your Province, Perform a Diplomacy action targeting that army's player; 
         "efficient": ["Caravanery"],
         "monument": False},
     "College of Engineering": {
@@ -1317,7 +1317,7 @@ NODES = {
         "group": "g_works",
         "unlock": "Rising Cunning",
         "natural": True,
-        "innate": "Faith +1",
+        "innate": "Faith +1; Upkeep -500",
         "efficient": ["Workyard"],
         "monument": False},
     "Levy Hall": {
@@ -1364,7 +1364,7 @@ NODES = {
     "Castle Hall": {
         "group": "g_works",
         "unlock": "Established Industry",
-        "innate": "Doubt +1; Tax Income is Doubled; Your Settlements gain Reach +2",
+        "innate": "Doubt +1; Upkeep -1000; Tax Income is Doubled; Your Settlements gain Reach +2",
         "efficient": ["Citadel"],
         "monument": False},
     "War College": {
@@ -1465,7 +1465,7 @@ NODES = {
         "group": "g_devotion",
         "unlock": "Sovereign Piety + Rising Cunning",
         "infrastructure_req": "Cathedral",
-        "innate": "Doubt 1; Unlocks Grand Vizier which uses your Piety Value instead of Cunning; All player actions that cause Doubt are increased by 1",
+        "innate": "Doubt +1; Unlocks Grand Vizier which uses your Piety Value instead of Cunning; All player actions that cause Doubt are increased by 1",
         "efficient": "Execution Dock",
         "monument": True},
     "Preceptory of the Knight's Templar": {
@@ -1817,7 +1817,8 @@ FACTIONS = {
         'complement': "Thieves' Guild",
     },
     'The Hermit Crown': {
-        'final_cut': True,
+        'final_cut': False,
+        'deprecated': True,
         'inspiration': 'Independent',
         'feel': 'Independent',
         'difficulty': 'Low',
@@ -2235,7 +2236,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                  'requirement': 'Dirt Roads'},
  'Town Hall': {'upkeep': 200,
                'upkeep_frequency': 'each Empire Phase',
-               'empire_bonus': 'Influence +1',
+               'empire_bonus': 'Upkeep -500',
                'tier': 'Developed',
                'build_time': 2,
                'requirement': 'Town Square'},
@@ -2253,7 +2254,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                  'requirement': 'Wooden Walls'},
 'March-Tower': {'upkeep': 300,
                'upkeep_frequency': 'each Empire Phase',
-               'empire_bonus': 'Instead of performing a Move action, you may have a Garrison Battle a non-allied Army within Presence',
+               'empire_bonus': "Instead of performing a Move action, you may have a Garrison Battle a Bandit Camp, Bandit Army, or an Army you're At War with within its Presence",
                'tier': 'Sophisticated',
                'build_time': 3,
                'requirement': 'Garrison'},
@@ -2275,7 +2276,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
              'empire_bonus': 'Faith +1',
              'tier': 'Sophisticated',
              'build_time': 3,
-             'requirement': 'One Tier Developed'},
+             'requirement': 'Stone Walls'}, #One Tier Developed
  "Magistrate's Hall": {'upkeep': 400,
                  'upkeep_frequency': 'each Empire Phase',
                  'empire_bonus': "Tax Income +1000 per Settlement",
@@ -2284,22 +2285,22 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                  'requirement': 'Library'},
  'Keep': {'upkeep': 400,
           'upkeep_frequency': 'each Empire Phase',
-          'empire_bonus': "Siege Timer +1; Muster Timer -1; When you Muster, immediately gain Retinues equal to the combined muster limit; Your Settlement Wards have Presence",
+          'empire_bonus': "Siege Timer +1; When you Muster, reduce the Muster Timer by 1 and immediately gain Retinues equal to the combined muster limit; Your Settlement Wards have Presence",
           'tier': 'Prodigious',
           'build_time': 4,
           'requirement': 'March-Tower'},
  'Aqueducts': {'upkeep': 400,
           'upkeep_frequency': 'each Empire Phase',
-          'empire_bonus': "Influence +1; Reach +2; Build Timer -1; Supply -1000",
+          'empire_bonus': "Reach +2; Build Timer -1; Supply -1000; Upkeep -1000",
           'tier': 'Prodigious',
           'build_time': 4,
-          'requirement': 'One Tier Sophisticated'},
+          'requirement': 'Bridges'},#One Tier Sophisticated
  'Cathedral': {'upkeep': 400,
                'upkeep_frequency': 'each Empire Phase',
                'empire_bonus': 'Faith +1',
                'tier': 'Prodigious',
                'build_time': 4,
-               'requirement': 'One Tier Sophisticated'},
+               'requirement': 'Chapel'},
  # ── Wondrous tier (Wonders): Realm Scope, one per game, built in your capital
  'Colossus': {'upkeep': 500,
               'upkeep_frequency': 'per Wonder',
@@ -2321,7 +2322,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                         'requirement': 'Cathedral'},
  'High Chancery': {'upkeep': 500,
                    'upkeep_frequency': 'per Wonder',
-                   'empire_bonus': "In the Tally Phase, you may Endorse one Envoy you sent",
+                   'empire_bonus': "Upkeep -2000; In the Tally Phase, you may Endorse one Envoy you sent",
                    'tier': 'Wondrous',
                    'build_time': 10,
                    'requirement': "Magistrate's Hall"}
@@ -2373,7 +2374,7 @@ ERAS = {
     "Eminence":  {"renown": 18, "armies": 3, "cities": 2, "max_settlements": 4, "influence_per_turn": 3, "rank": 3, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 1, "actions_per_envoy": 2, "po_scale_neg": 3, "po_scale_pos": 1, "unlocks": "May form Military Alliances"},
     "Zenith":    {"renown": 30, "armies": 4, "cities": 3, "max_settlements": 5, "influence_per_turn": 4, "rank": 4, "council_envoys": 1, "council_actions_per_envoy": 2, "personal_envoys": 2, "actions_per_envoy": 2, "po_scale_neg": 4, "po_scale_pos": 1, "unlocks": "May form Defensive Alliances"},
 }
-# PHASE_REFORM, Spring's Diplomacy step: how many agreements a player may complete (each with a different partner)
+# PHASE_REFORM, Spring's Diplomacy Phase: how many agreements a player may complete (each with a different partner)
 for _en, _n in {"Founding": 1, "Ascension": 1, "Eminence": 2, "Zenith": 2}.items():
     ERAS[_en]["diplomacy_agreements"] = _n
 for _e in ERAS.values():
@@ -2922,7 +2923,7 @@ ACTIONS = {
         'requires': '',
         'effect': 'Choose an unlocked, available Infrastructure and set a Build Timer equal to its build time. When it completes, the Infrastructure becomes active in every Settlement in your Province.',
         'endorsed': 'Recoup 2000.',
-        'notes': ['You must have at least one Infrastructure from the prior tier before building the next tier.', 'A Wonder is built in your capital.'],
+        'notes': ['You must have at least one Infrastructure from the prior tier before building the next tier.', 'A Wonder is built in your capital; you build one Wonder at a time.'],
     },
     'Repair': {
         'domain': 'Industry',
@@ -3100,13 +3101,15 @@ def _action_costs():
 _action_costs()
 
 # phase order (currently only in RULES_reorganized)
-# PHASE_REFORM: every Council Envoy is of COUNCIL_DOMAIN (no vote); Diplomacy happens only in Spring (COUNCIL_DOMAIN_SPRING).
+# PHASE_REFORM: the Works Phase performs COUNCIL_DOMAIN actions (no vote, no Envoy), Spring included (COUNCIL_DOMAIN_SPRING);
+# in Spring the Envoy Phase is the Diplomacy Phase (ENVOY_PHASE_SPRING), the only time Diplomacy actions happen.
 # FORUM_DOMAIN: a Diplomacy step in the Envoy Phase's Forum as well, FORUM_ACTIONS agreement(s); None = a plain Forum.
 COUNCIL_DOMAIN = "Industry" if PHASE_REFORM else None
-COUNCIL_DOMAIN_SPRING = "Diplomacy" if PHASE_REFORM else None   # Spring's End of Empire Phase: Diplomacy instead of Industry
+COUNCIL_DOMAIN_SPRING = "Industry" if PHASE_REFORM else None   # Spring's Works Phase: the same Industry actions
+ENVOY_PHASE_SPRING = "Diplomacy" if PHASE_REFORM else None     # Spring's Envoy Phase: the Diplomacy Phase instead (no Envoys)
 FORUM_DOMAIN = None                   # Diplomacy only in Spring: the Envoy Phase keeps a plain Forum
 FORUM_ACTIONS = 1
-PHASES = ("Empire", "End of Empire" if PHASE_REFORM else "Council", "Envoy", "Battle", "Rest")
+PHASES = ("Empire", "Works" if PHASE_REFORM else "Council", "Envoy", "Battle", "Rest")
 STARTING_TURN_PHASE_OPENER = PHASES[1]
 # ACTIONS["Move"] says "March (move up to 2x Speed)"
 STANDING_ARMY_SIEGE_MODIFIER = 1
@@ -3957,19 +3960,28 @@ AI_PROFILES = {c: {"domains": v["domains"], "archetype": v["archetype"], "action
 
 # ── PHASE_REFORM text (runs last, after GLOSSARY_SEE / NAME_DISPLAY) ──────────────────────────────────────────
 if PHASE_REFORM:
-    GLOSSARY["Council Phase"] = ("The phase after the Empire Phase: each player sends a free Council Envoy of Industry, which Performs "
-                                 "the Era's Council actions. There is no Vote.")
-    GLOSSARY["Council Envoy"] = "A free Envoy of Industry sent in the End of Empire Phase; auto-Abstained, Net Influence floored at 1."
-    NAME_DISPLAY["Council Phase"] = ALIASES["Council Phase"] = "End of Empire Phase"
-    _ALIAS_RE = _re_disp.compile(r"\b(" + "|".join(_re_disp.escape(k) for k in sorted(ALIASES, key=len, reverse=True)) + r")\b")   # include the rename
-    if "Council Phase" in GLOSSARY_SEE: GLOSSARY_SEE["Council Phase"] = "end-of-empire-phase"
-    GLOSSARY["Council Phase"] += " In Spring it is a Diplomacy step instead (offers between players)."
+    GLOSSARY["Council Phase"] = ("The phase after the Empire Phase: clockwise from the starting player, each player performs the Era's "
+                                 "Works actions (Industry), paying each cost. They aren't Envoys: no Influence or votes, and each one Passes.")
+    NAME_DISPLAY["Council Phase"] = ALIASES["Council Phase"] = "Works Phase"
+    _ALIAS_RE = _re_disp.compile(r"(" + "|".join(_re_disp.escape(k) for k in sorted(ALIASES, key=len, reverse=True)) + r")")   # include the rename
+    if "Council Phase" in GLOSSARY_SEE: GLOSSARY_SEE["Council Phase"] = "works-phase"
+    # no Council Envoys: the Works Phase performs actions directly
+    GLOSSARY.pop("Council Envoy", None); GLOSSARY_SEE.pop("Council Envoy", None)
+    GLOSSARY_CATEGORIES = [(c, [t for t in L if t != "Council Envoy"]) for c, L in GLOSSARY_CATEGORIES]
+    GLOSSARY["Diplomacy Phase"] = ("Spring's Envoy Phase: no Envoys are sent; players make Diplomacy offers to one another. "
+                                   "The only time Diplomacy actions happen.")
+    GLOSSARY_SEE["Diplomacy Phase"] = "diplomacy-phase"
+    GLOSSARY_CATEGORIES = [(c, (lambda i: L[:i + 1] + ["Diplomacy Phase"] + L[i + 1:])(L.index("Envoy Phase")) if "Envoy Phase" in L else L) for c, L in GLOSSARY_CATEGORIES]
     # no Council vote and no Diplomacy Envoys
-    GLOSSARY["Envoy"] = "Your means of acting: declare a Domain and spend 1 Envoy, and if it passes, choose and Perform an action of that Domain. Personal Envoys come from your Era; every player also sends a free Council Envoy."
+    GLOSSARY["Envoy"] = "Your means of acting: declare a Domain and spend 1 Envoy, and if it passes, choose and Perform an action of that Domain. Personal Envoys come from your Era (none in Spring)."
     GLOSSARY["Host"] = GLOSSARY["Host"].replace("(Council vote, ", "(")
     GLOSSARY["Max Influence"] = GLOSSARY["Max Influence"].replace(" (the Era's rank on Diplomacy Envoys)", "")
     GLOSSARY["Standing Rank"] = GLOSSARY["Standing Rank"].replace(" Diplomacy uses the Era's rank.", "")
-    GLOSSARY["Diplomacy"] = ("Sign Treaty, Negotiate and End Treaty: offers between players in the Diplomacy step "
-                             "(Spring's End of Empire Phase, the only one each year), not sent as Envoys.")
+    GLOSSARY["Diplomacy"] = ("Sign Treaty, Negotiate and End Treaty: offers between players in the Diplomacy Phase "
+                             "(Spring's Envoy Phase, the only one each year), not sent as Envoys.")
     SEASONS["Spring"]["effect"] = SEASONS["Spring"]["effect"].replace(
-        "Council Phase, or Diplomacy Actions.", "or Council Envoys: the End of Empire Phase is the Diplomacy step instead, the only time Diplomacy actions happen.")
+        "Council Phase, or Diplomacy Actions.", "or Envoys: the Diplomacy Phase replaces the Envoy Phase, the only time Diplomacy actions happen.")
+    for _e in ERAS.values():
+        _e["envoys"] = (f"{_e['council_actions_per_envoy']} Works action{'s' if _e['council_actions_per_envoy'] > 1 else ''}"
+                        f" + {_e['personal_envoys']} Personal Envoy{'s' if _e['personal_envoys'] > 1 else ''}"
+                        f" ({_e['actions_per_envoy']} action{'s' if _e['actions_per_envoy'] > 1 else ''} each) per turn")

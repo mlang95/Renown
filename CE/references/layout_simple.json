@@ -259,6 +259,91 @@
   ]
  },
  {
+  "title": "Court Armoury",
+  "anchor": "Court Armoury",
+  "mode": "chain",
+  "nodes": {
+   "Forestry": [
+    0,
+    0
+   ],
+   "Carpentry": [
+    1,
+    0
+   ],
+   "Joinery": [
+    2,
+    0
+   ],
+   "Animal Husbandry": [
+    2,
+    1
+   ],
+   "Furnace": [
+    2,
+    2
+   ],
+   "Tannery": [
+    3,
+    0
+   ],
+   "Blacksmith": [
+    3,
+    2
+   ],
+   "Armory": [
+    4,
+    0
+   ],
+   "Gilded Foundry": [
+    5,
+    0
+   ],
+   "Court Armoury": [
+    6,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Tannery",
+    "Armory"
+   ],
+   [
+    "Blacksmith",
+    "Armory"
+   ],
+   [
+    "Furnace",
+    "Blacksmith"
+   ],
+   [
+    "Forestry",
+    "Carpentry"
+   ],
+   [
+    "Gilded Foundry",
+    "Court Armoury"
+   ],
+   [
+    "Armory",
+    "Gilded Foundry"
+   ],
+   [
+    "Carpentry",
+    "Joinery"
+   ],
+   [
+    "Animal Husbandry",
+    "Tannery"
+   ],
+   [
+    "Joinery",
+    "Tannery"
+   ]
+  ]
+ },
+ {
   "title": "Imperial Palace",
   "anchor": "Imperial Palace",
   "mode": "chain",

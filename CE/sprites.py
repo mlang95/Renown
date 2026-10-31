@@ -3036,6 +3036,54 @@ for dx, dy in ((0, -6), (0, 6), (-6, 0), (6, 0), (-4, -4), (4, -4), (-4, 4), (4,
 line(c, 21, 27, 35, 36, "b", 2)
 SPRITES["monument:Advanced Blast Furnace"] = fin32(c)
 
+# Court Armoury (Industry — Trusteki, kept and built to outlast; was the 32px holding art, grown into the capstone):
+# stone hall under a royal flag, crest on crossed blades over the arched door, royal hangings, tall windows; planishing
+# wing with a geared gable, smoking stack and glowing hearth, a finished suit of plate on its stand
+c = cv48()
+put(c, [".s..", "s..s", ".s..", "..s.", ".s.."], 43, 2)
+wall(c, 43, 10, 4, 19, "u")
+put(c, ["kkkkkk", "kmmmMk"], 42, 8)
+wall(c, 31, 28, 17, 19, "u")
+roof(c, 39, 20, 8)
+disc(c, 39, 25, [(1, "k"), (2, "m")])
+put(c, ["..kkk..", ".kfffk.", "kffyffk"] + ["kfyyyFk"] * 5 + ["kffyyFk"] * 2 + ["kfffffk", "kfffFFk", "kffFFFk", "kkkkkkk"], 32, 33)
+put(c, ["...kkk...",
+        "..kmmMk..",
+        "..kkkkk..",
+        "..kmmMk..",
+        "...kkk...",
+        ".kkmmMkk.",
+        "kmmmmmMMk",
+        "kmkmmMkMk",
+        "kmkmmMkMk",
+        "kkkyyykkk",
+        "..kmkMk..",
+        "..kmkMk..",
+        "..kmkMk..",
+        "..kmkMk..",
+        ".kkkbkkk.",
+        ".kbbbbBk.",
+        ".kkkkkkk."], 39, 30)                                                          # suit of plate on its stand
+flag(c, 15, 0, "a", 5)
+wall(c, 0, 20, 31, 27, "t")
+roof(c, 15, 5, 15)
+disc(c, 15, 14, [(2, "y")])
+courses(c, 1, 26, 27, 45)
+for x0 in (2, 25):
+    put(c, ["kkkk", "kyyk", "kyyk", "kyyk", "kkkk", "kyYk", "kyYk", "kkkk"], x0, 27)
+    win4(c, x0, 38)
+for x0 in (7, 23):
+    put(c, ["yy"] + ["aA"] * 7 + ["a."], x0, 26)
+line(c, 10, 22, 20, 32, "m")                                                            # crossed blades
+line(c, 20, 22, 10, 32, "m")
+for x, y in ((17, 31), (18, 30), (19, 29), (13, 31), (12, 30), (11, 29)):
+    c[y][x] = "y"                                                                       # crossguards
+for x, y in ((19, 31), (20, 32), (11, 31), (10, 32)):
+    c[y][x] = "b"                                                                       # grips
+put(c, ["kkkkkkk", "kaayaAk", "kaayaAk", "kyyyyYk", "kaayaAk", ".kayAk.", "..kAk..", "...k..."], 12, 23)   # crest
+put(c, ["..kkk..", ".kdddk."] + ["kdddddk"] * 12, 12, 33)
+SPRITES["monument:Court Armoury"] = fin32(c)
+
 # Aristocratic Court (Industry + Cunning — Prezish, the counting-house cartel): palazzo with a gilded cornice, loggia
 # arcade, balconied piano nobile, scales over the loggia; corner towers under blue roofs
 c = cv48()
@@ -5790,7 +5838,7 @@ PLATE_NO_INFRA = ["Hamlet", "Village"]
 #   halo - 1 = dark 1px edge around each holding
 #   lift - the skyline stands this many px up a rise behind the holdings (clears 32px holdings)
 #   head - extra sky above the skyline's ground line (48px wonders on the rise, 48px monuments in front)
-SCENE_STYLE = {"fade": 0.15, "sil": 0.6, "halo": 1, "lift": 8, "head": 10}
+SCENE_STYLE = {"fade": 0.08, "sil": 0.35, "halo": 1, "lift": 8, "head": 10}
 
 
 def feet_key(raw_name):

@@ -312,7 +312,7 @@ function renderHUD(){const el=document.getElementById("hud");if(!el)return;const
   el.innerHTML='<div class="hrow">'+
     cell("--order","Gold",fmtG(h.gold)+' <small class="'+cls(h.net)+'">'+hudSign(h.net)+'</small>',"gold","Treasury · this Season's net (income, Winter tax, trade, upkeep) — click for the breakdown")+
     cell("--influence","Influence",(left!=null?left:hudSign(h.infl).replace("\u00b1","")),"infl","Influence you have this turn"+(left!=null?" (gain "+h.infl+")":""))+
-    cell("--envoy","Envoys",h.env+'<span class="hapx"><i>C'+eraActions(true)+'</i><i>P'+eraActions(false)+'</i></span>',"env","Personal Envoys this turn · actions per Council Envoy (C) / per Personal Envoy (P)")+
+    cell("--envoy","Envoys",h.env+'<span class="hapx"><i>'+C_TAG[0]+eraActions(true)+'</i><i>P'+eraActions(false)+'</i></span>',"env","Personal Envoys this turn · "+(RFM?"Works actions (W)":"actions per Council Envoy (C)")+" / actions per Personal Envoy (P)")+
     cell("--income wide","Public Order",(h.po>0?"+":"")+h.po+' <small>'+esc(h.band)+'</small> <small class="up">F'+h.faith+'</small><small class="dn">D'+h.doubt+'</small>',"po",poTip)+
     cell("--craft","Craft",h.craft,"craft","Craft X")+
     '<div class="hc wide'+(HPOP==="dom"?' on':'')+'" style="--hcol:var(--build)" data-pop="dom" title="Domain values (colour = Standing)"><span class="hl">Domains</span><span class="hv hdom">'+dom+'</span></div>'+

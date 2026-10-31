@@ -301,7 +301,7 @@ function aiCandidates(p){const s=aiSit(p),b=s.b,C=[],add=(dom,act,o)=>C.push(Obj
       add("Industry","Build",{sub:"b:"+n,cost:2000,pen,gear:!!gear,serves:{economy:val>0&&net>0?Math.max(0.5,s.econ)*Math.min(1,val/1000):0,holdings:Math.min(1,(dm?0.8:0.5)*like("Industry")+0.5*s.spare+(rides?0.3:0)+Math.min(0.2,0.05*opens)+(armyCut?0.4:0)),monuments:n===mon?1:0,
           bandits:gear?(s.pr.prowess_coded?0.6:0.3)+0.6*s.bthreat:0,diplomacy:gear&&(s.war.length||s.pr.prowess_coded)?0.6:0},
         why:(n===mon?"Monument ":"Build ")+n+" (net "+net+"/turn"+(po?", PO "+(po>0?"+":"")+po+"/turn":"")+(gear?", unlocks "+gear:"")+(rides?", rides free":"")+(armyCut?", cuts Army upkeep":"")+")"});});}
-  {const L=improveOpts(p).filter(o=>o.v!=="hand"),w=L.find(o=>o.v.startsWith("w:")),ip=aiImprovePick(p);
+  {const L=improveOpts(p).filter(o=>o.v!=="hand"),w=L.find(o=>o.v.startsWith("w:")&&!o.wb),ip=aiImprovePick(p);
     if(w)add("Industry","Improve",{sub:w.v,cost:2000,serves:{edicts:1,infra:0.8},why:"Wonder "+w.v.slice(2)+" (Edict)"});
     // every Infrastructure option, scored by what its own text does: Garrisons / Keeps / Walls / Bandit Authority answer the
     // Bandit threat; Craft / tax / trade / upkeep the economy; Faith; Influence and Envoys
@@ -402,7 +402,7 @@ function aiPlanFor(p,dom){const P=PT(p).aiPlan;return P&&P.turn===tTurn()?P.list
 // Perform: the planned intent for this Envoy's Domain, else any action of the Domain that passes against some target
 function aiPerform(p,E){const c=tCurW(p);c.perform=c.perform||{};
   const tryAct=(act,tgt,sub)=>{const T=pfTargets(E,act),t=tgt!=null?T.find(x=>x.v===String(tgt)):T.find(x=>x.ok);if(!t||!t.ok)return null;
-    let s=sub||"";const sp=pfSpec(act);if(sp.sub&&!s){const S_=pfSubs(p,act,t.v)||[];const f=S_.find(x=>!x.dis&&x.v!=="hand");if(!f)return null;s=f.v;}
+    let s=sub||"";const sp=pfSpec(act);if(sp.sub&&!s&&!sp.subOpt){const S_=pfSubs(p,act,t.v)||[];const f=S_.find(x=>!x.dis&&x.v!=="hand");if(!f)return null;s=f.v;}
     const pl_=sp.place?(sp.place(p,s)||[]).find(x=>x.auto&&!x.dis)||(sp.place(p,s)||[]).find(x=>!x.dis):null;
     return {action:act,target:t.v,sub:s,place:pl_?pl_.v:"",ts:tnow()};};
   const it=aiPlanFor(p,E.dom);let rec=it?tryAct(it.act,it.tgt,it.sub):null,why=it?it.why:"",pick=it;
@@ -485,7 +485,7 @@ function aiTick(){if(!D.started&&!TB().begun)return false;if(!aiDriver())return 
     if(aiOutfit(p))ch=true;
     if(ph==="rest"&&(p.board.dp||0)>0&&aiSpendDP(p))ch=true;
     if(ph==="council"&&!councilDomNow()&&TB().phaseTs&&!isSpring()&&!tCur(p).council){const c=aiCouncilPick(p);tCurW(p).council={dom:c.dom,ts:tnow()};aiNote(p,"Council vote → "+c.dom+": "+c.why);ch=true;}
-    if(ph==="envoy"&&TB().phaseTs&&!(tCur(p).decl||{}).lock){aiDeclare(p);ch=true;}
+    if(ph==="envoy"&&TB().phaseTs&&!springDiplo()&&!(tCur(p).decl||{}).lock){aiDeclare(p);ch=true;}
     if(TB().phaseTs&&dsOn()&&aiDiploStep(p))ch=true;});
   try{if(aiBattleTick())ch=true;}catch(e){console.warn("ai battle",e);}
   if((ph==="envoy"||ph==="council")&&TB().phaseTs){const R=tSim();

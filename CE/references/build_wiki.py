@@ -432,6 +432,7 @@ _SECTION_ALIASES = {
     "Treasury Management": "Treasury Management", "Insolvency": "Treasury Management", "Bankruptcy": "Treasury Management",
     "Seasons": "Seasons", "Siege Warfare": "Siege Warfare", "Siege": "Siege Warfare",
     "Battle Phase": "Battle Phase", "Council Phase": "Council Phase", "Envoy Phase": "Envoy Phase",
+    "Works Phase": "Works Phase", "Diplomacy Phase": "Diplomacy Phase",   # PHASE_REFORM (linked only when the section exists)
     "Trade & Income Rules": "Trade & Income Rules", "Settlements": "Settlements", "Settlement": "Settlements",
     "Infrastructure": "Infrastructure", "Treaties & Alliances": "Treaties & Alliances",
     "Alliance": "Treaties & Alliances", "Treaty": "Treaties & Alliances",
@@ -732,8 +733,12 @@ def _link(label, *candidates):
 PHASES = [
     ("1 · Empire Phase", "Start of turn. Resolve start-of-turn effects, collect income, check Public Order.",
      ["rules-seasons.html","seasons-ref.html"], ["Income", "Public Order"]),
+    ("2 · Works Phase", "Clockwise, each player performs the Era's Works actions (Industry), paying each cost. No Envoy and no vote: each action Passes.",
+     ["rules-works-phase.html", "rules-the-turn.html"], ["Industry", "Era"]) if getattr(rd, "PHASE_REFORM", False) else
     ("2 · Council Phase", "Players resolve Council business; Council Envoys are sent and voted before Domain Envoys.",
      ["rules-council-phase.html"], ["Council Envoy", "Influence", "Abstain"]),
+    ("3 · Envoy Phase", "Domain Envoys: Send → Vote → Net Influence → Resolve. In Spring, the Diplomacy Phase instead: no Envoys, only Diplomacy offers.",
+     ["rules-envoy-phase.html", "rules-the-turn.html"], ["Envoy", "Influence", "Endorsed", "Condemned", "Diplomacy Phase"]) if getattr(rd, "PHASE_REFORM", False) else
     ("3 · Envoy Phase", "Diplomacy Envoys first, then Domain Envoys. Send → Vote → Net Influence → Resolve.",
      ["rules-envoy-phase.html"], ["Envoy", "Influence", "Endorsed", "Condemned", "Diplomacy"]),
     ("4 · Battle Phase", "Skirmishes, Sieges, and Battles resolve. Roll off for Initiative; fight in Skirmishes.",
@@ -760,7 +765,8 @@ ts.append("<div class='arrow loop'>↺ back to Empire Phase</div></div>")
 open(_os.path.join(OUTDIR,"turn-sequence.html"),"w",encoding="utf-8").write(
     page("Turn Sequence", "".join(ts), "turn-sequence.html"))
 search_index.append({"title":"Turn Sequence","url":"turn-sequence.html",
-                     "text":"turn sequence empire council envoy battle rest phase order of play"})
+                     "text":"turn sequence empire " + ("works diplomacy" if getattr(rd, "PHASE_REFORM", False) else "council")
+                             + " envoy battle rest phase order of play"})
 
 # ════════════ REFERENCE PAGES from renown_data structures ════════════
 def _kv_table(rows):

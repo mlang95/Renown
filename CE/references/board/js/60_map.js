@@ -428,8 +428,6 @@ function inspArmy(k){const {p,a}=cellArmy(k),cell=mapState().cells[k];if(!p)retu
   {const sa=selArmy();if(sa&&sa.a===a)h+=movePanelHTML();else if(canMoveArmy(p))h+='<div class="ir"><button data-insp-sel="'+p.id+':'+a.id+'" data-nav="1">Move ▸</button>'+armyMusterBtn(p,a)+'</div>';}
   if(canMoveArmy(p)){const T=engageTargets(p,a);if(T.length)h+='<div class="sec">Engage</div>'+T.map((t,i)=>'<div class="ist">'+stIcon(t.kind==="siege"?"sieging":"battle",16)+'<span>'+esc(t.label)+'</span>'+
     '<button data-insp-eng="'+p.id+':'+a.id+':'+i+'" data-nav="1" style="margin-left:auto">'+(t.kind==="siege"?"Lay Siege ▸":"Battle ▸")+'</button></div>').join("");}
-  {const G=garrisonBattles(p,a,k).filter(o=>inspCan(o.q.id));if(G.length)h+='<div class="sec">Garrison Battle</div>'+G.map(o=>'<div class="ist">'+stIcon("battle",16)+'<span>'+esc(o.q.name+" Garrison · "+(o.s.name||o.s.tier))+'</span>'+
-    '<button data-insp-sf="'+esc(JSON.stringify({kind:"battle",A:{pid:String(o.q.id),aid:"g:"+o.s.id},B:{pid:String(p.id),aid:String(a.id)},seize:"",src:"Garrison Battle"}))+'" data-nav="1" style="margin-left:auto">Battle ▸</button></div>').join("");}
   if(!a.pillage){const T=pillageTargets(p,a);if(T.length&&inspCan(p.id))h+='<div class="ir"><span class="k">Pillage</span><select data-insp-pil="'+p.id+':'+a.id+'" data-nav="1"><option value="">—</option>'+
     T.map(o=>'<option value="'+o.q.id+':'+o.s.id+'">'+esc((o.s.name||o.s.tier)+" ("+o.q.name+")")+'</option>').join("")+'</select></div>';}
   else if(inspCan(p.id))h+='<div class="ir"><button data-insp-unpil="'+p.id+':'+a.id+'" data-nav="1">cancel Pillage</button></div>';
@@ -839,11 +837,15 @@ function wardCand(p,s){const sk=settHex(p,s);if(!sk)return [];const V=decodeGrid
   return hexNb(sk).filter(k=>{const h=V.hex[k];return !!h&&h.t!=="water"&&!terrBlocked(h.t)&&hexFree(k);});}
 // the hexes a piece's Presence radiates from: an Army's own hex; a Settlement's hex while its owner has a Garrison
 // ("Your Settlements gain Garrisons & Presence"), its Wards while they have a Keep ("Your Settlement Wards have Presence")
-// "Instead of performing a Move action, you may have a Garrison Battle a non-allied Army within Presence" (March-Tower):
-// the other players' Garrisons whose Settlement's Presence covers this Army
-function garrisonBattles(p,a,k){if(!k)return [];const c0=hk(k),PR=presR(),out=[];
-  D.players.forEach(q=>{if(sameP(q,p)||canEnterSett(q,p)||!srcHas(q.board,"garrison_battle"))return;
-    (q.board.settlements||[]).forEach(s=>{const sk=garrisonOf(q,s.id)&&settHex(q,s);if(sk&&presHexes(sk).some(h=>hexDist(c0,hk(h))<=PR))out.push({q,s});});});
+// "Instead of performing a Move action, you may have a Garrison Battle a Bandit Camp, Bandit Army, or an Army you're At War with
+// within its Presence" (March-Tower): every such target within the Presence of o's Garrisoned Settlements (its Wards too, with a Keep)
+function garrisonTargets(o){if(!srcHas(o.board,"garrison_battle"))return [];const M=mapState(),PR=presR(),out=[];
+  (o.board.settlements||[]).forEach(s=>{const sk=garrisonOf(o,s.id)&&settHex(o,s);if(!sk)return;const src=presHexes(sk).map(hk);if(!src.length)return;
+    const near=k=>src.some(c=>hexDist(c,hk(k))<=PR),gn=(s.name||s.tier)+" Garrison";
+    Object.keys(M.camps).forEach(n=>{const cp=M.camps[n];if(cp.out||!near(n))return;
+      out.push({v:"gb:"+s.id+":c:"+n,label:gn+" → "+(cp.home||cp.n>=(BAN.armyThreshold||25)?"Bandit Army":"Bandit Camp")+" @ "+n,A:{pid:String(o.id),aid:"g:"+s.id},B:{kind:"bandit",camp:n}});});
+    Object.keys(M.cells).forEach(n=>{const c=M.cells[n];if(!c||c.type!=="Army"||!near(n))return;const x=cellArmy(n);
+      if(x.p&&x.a&&!sameP(x.p,o)&&effPair(o.id,x.p.id).war)out.push({v:"gb:"+s.id+":a:"+x.p.id+":"+x.a.id,label:gn+" → "+x.p.name+" · "+(x.a.label||("Army "+x.a.id)),A:{pid:String(o.id),aid:"g:"+s.id},B:{pid:String(x.p.id),aid:String(x.a.id)}});});});
   return out;}
 function presHexes(k){const c=mapState().cells[k];if(!c||c.type==="Army")return [k];const cs=cellSett(k),p=cs.p||cellPlayer(c);if(!p)return [];
   return (srcHas(p.board,"settlement_presence")?[k]:[]).concat(wardMap()&&cs.s&&settHex(p,cs.s)===k&&srcHas(p.board,"ward_presence")?wardsOf(p,cs.s):[]);}

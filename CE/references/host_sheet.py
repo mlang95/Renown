@@ -47,6 +47,7 @@ BEH = rd.BANDIT_BEHAVIOR
 TR = rd.TRADE_RULES
 SPAWN = rd.BANDITS.get("Spawn a Bandit Camp", "")
 DOMVAL = rd.BANDITS.get("Bandit Domain Value", "")
+PR = bool(getattr(rd, "PHASE_REFORM", False))   # Works Phase (no Council vote); Spring's Envoy Phase is the Diplomacy Phase
 # Cunning-trigger threshold parsed from the behavior text so it tracks the data.
 import re as _re
 _m = _re.search(r"(\d+)\+?\s*retinues", BEH.get("Cunning Roll", ""))
@@ -165,7 +166,9 @@ def turn_flow(c, x, y_top, w):
     """Full-width horizontal turn-sequence flowchart. Returns bottom y."""
     phases = [
         ("EMPIRE", "start of turn", "Start of the Empire Phase (incl. Standing effects) \u00b7 apply Season \u00b7 tick timers \u00b7 gain Income, Influence & Envoys"),
+        ("WORKS", "", "Clockwise, each player performs the Era's Works actions (Industry) \u00b7 pay each cost \u00b7 no vote") if PR else
         ("COUNCIL", "", "Vote a Domain (clockwise; Host breaks ties) \u00b7 each resolves one free action of it"),
+        ("ENVOY", "", "Declare Envoys \u2192 Prowess \u2192 Cunning \u2192 Piety \u2192 Industry \u00b7 Spring: the Diplomacy Phase instead (offers, no Envoys)") if PR else
         ("ENVOY", "", "Declare envoys \u2192 Diplomacy first, then Domains (Prowess \u2192 Cunning \u2192 Piety \u2192 Industry)"),
         ("BATTLE", "", "Resolve any Skirmishes, Sieges, and Battles declared this turn"),
         ("REST", "end of turn", "Cleanup \u00b7 Season +1 \u00b7 score +1 Renown \u00b7 spend 1 Domain Point \u00b7 pass Host clockwise"),
@@ -219,15 +222,17 @@ def side_a(c):
         return bullets(c, x, y, w, [
             "Trade Income \u2014 calculate and distribute (see below).",
             "Bandit Mechanics \u2014 grow, convert, act, spawn (Side B).",
-            "Break ties \u2014 Council vote, Bandit Army targets, anything not explicitly resolved.",
+            "Break ties \u2014 " + ("" if PR else "Council vote, ") + "Bandit Army targets, anything not explicitly resolved.",
             "Resolve timers \u2014 confirm every player advances their Build / Repair / Truce / Siege / Muster / Sack / Capture timers in the Empire Phase.",
         ], numbered=True)
     L.box("Your Job Each Turn", duties, 120)
 
     def passing(c, x, y, w):
         txt = ("After your Rest Phase, pass the Host token (and this card) clockwise. "
-               "Skip all Host duties in Spring \u2014 no Host, Bandits, Trade Income, Council, or "
-               "Diplomacy actions; Spring grants +1 Envoy instead.")
+               + ("Skip all Host duties in Spring \u2014 no Host, Bandits, or Trade Income; the Envoy Phase is the "
+                  "Diplomacy Phase (no Envoys)." if PR else
+                  "Skip all Host duties in Spring \u2014 no Host, Bandits, Trade Income, Council, or "
+                  "Diplomacy actions; Spring grants +1 Envoy instead."))
         c.setFont(SERIF, 8.4); c.setFillColor(META)
         for ln in wrap(c, txt, SERIF, 8.4, w):
             c.drawString(x, y, ln); y -= 10.4
@@ -252,8 +257,7 @@ def side_a(c):
     R.box("Trade Income", trade, 150)
 
     def ties(c, x, y, w):
-        return table(c, x, y, w, ["Situation", "Resolution"], [
-            ["Council vote tied", "Host casts deciding vote"],
+        return table(c, x, y, w, ["Situation", "Resolution"], ([] if PR else [["Council vote tied", "Host casts deciding vote"]]) + [
             ["Bandit Army equal targets", "Host chooses"],
             ["Players tied for \u2018highest X\u2019", "Host chooses"],
             ["Spawn placement ambiguous", "Apply rules; if still tied, Host chooses"],
@@ -348,13 +352,14 @@ def one_page(c):
         return bullets(c, x, y, w, [
             "Trade Income \u2014 calculate & distribute (below).",
             "Bandit Mechanics \u2014 grow, convert, act, spawn.",
-            "Break ties \u2014 Council vote, Bandit targets, anything unresolved.",
+            "Break ties \u2014 " + ("" if PR else "Council vote, ") + "Bandit targets, anything unresolved.",
         ], numbered=True, size=8.0, lead=9.8)
     C1.box("Your Job Each Turn", duties, 0)
 
     def passing(c, x, y, w):
         txt = ("Pass the Host token clockwise after your Rest Phase. No Host in Spring \u2014 "
-               "no Bandits, Trade Income, or Council; Spring grants +1 Envoy instead.")
+               + ("no Bandits or Trade Income; the Envoy Phase is the Diplomacy Phase (no Envoys)." if PR else
+                  "no Bandits, Trade Income, or Council; Spring grants +1 Envoy instead."))
         c.setFont(SERIF, 8.0); c.setFillColor(META)
         for ln in wrap(c, txt, SERIF, 8.0, w):
             c.drawString(x, y, ln); y -= 9.8
@@ -362,8 +367,7 @@ def one_page(c):
     C1.box("Passing the Host", passing, 0)
 
     def ties(c, x, y, w):
-        return table(c, x, y, w, ["Situation", "Resolution"], [
-            ["Council vote tied", "Host votes"],
+        return table(c, x, y, w, ["Situation", "Resolution"], ([] if PR else [["Council vote tied", "Host votes"]]) + [
             ["Bandit equal targets", "Host chooses"],
             ["Tied for \u2018highest X\u2019", "Host chooses"],
             ["Spawn ambiguous", "Rules, else Host"],

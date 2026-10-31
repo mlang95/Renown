@@ -563,6 +563,8 @@ function boardFlags(){
   S.settlements.forEach(s=>{const w=wardUse(s.id);if(w.free<0)f.push(s.tier+": "+(-w.free)+" ward(s) over cap");});
   Object.keys(S.infra).forEach(n=>{const st=infraReqStatus(INFRA[n]);if(!st.ok)f.push(n+": req unmet ("+st.missing.join(", ")+")");});
   Object.keys(S.wonders).forEach(n=>{const st=infraReqStatus(WON[n]);if(!st.ok)f.push(n+": req unmet ("+st.missing.length+" infra missing/invalid)");});
+  planGoals(S).forEach(g=>{if(g.taken)f.push("Plan: "+g.taken);});   // a goal another player took (Realm Scope; this device's plan)
+  {const wb=Object.keys(WON).filter(n=>wonderRacing(S,n));if(wb.length>1)f.push("Wonders "+wb.join(", ")+" building at once (one Wonder at a time)");}
   return f;
 }
 function onBoard(name){return S.placed.some(p=>p.name===name);}      // one of each name, anywhere
@@ -571,6 +573,8 @@ function scopeOf(n){return ((R[n]||INFRA[n]||WON[n]||{}).scope)||"Empire";}
 function realmHolder(n,b){b=b||S;return D.players.find(q=>q.board!==b&&!wonderRacing(q.board,n)&&((q.board.placed||[]).some(x=>x.name===n)||!!(q.board.infra||{})[n]||!!(q.board.wonders||{})[n]))||null;}
 // Wonder races (Principle 14.3): a Wonder under its Build Timer doesn't take it, so several players may build it at once
 function wonderRacing(b,n){return !!WON[n]&&!!(b.wonders||{})[n]&&(b.itimer||{})[n]>0&&!(b.facInfra||[]).includes(n);}
+// one Wonder at a time per player: the Wonder of b (other than `except`) under its Build Timer, else null
+function wonderBuilding(b,except){b=b||S;return Object.keys(WON).find(n=>n!==except&&(b.wonders||{})[n]&&(b.itimer||{})[n]>0&&!(b.facInfra||[]).includes(n))||null;}
 function wonderStart(n,t){if(WON[n]&&t>0)(S.wstart=S.wstart||{})[n]=tTurn();}
 // after Build Timers: of the builds that resolved, the earliest-started takes the Wonder and every other build of it is lost;
 // if the earliest started on the same turn, each of those holds at Build Timer 1
