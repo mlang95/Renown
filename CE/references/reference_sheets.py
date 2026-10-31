@@ -450,7 +450,7 @@ def make_infrastructure_cards_pdf(pdf_path):
         # Stats line: Build Time · Upkeep · Frequency
         c.setFont("Helvetica-Oblique", 7.5)
         c.setFillColor(HexColor("#666666"))
-        stats = f"Build Time {build_time} · Upkeep {upkeep}"
+        stats = f"Build Time {build_time} · {getattr(__import__('renown_data'), 'DUES_TERM', 'Upkeep')} {upkeep}"
         if freq and freq != "—":
             stats += f" {freq}"
         c.drawCentredString(cx, cur_y, stats)
@@ -555,7 +555,7 @@ def make_buildings_pdf(pdf_path):
             # Stats
             c.setFont("Helvetica-Oblique", 7.5)
             c.setFillColor(HexColor("#666666"))
-            stats = f"Build Time {build_time} · Upkeep {upkeep}"
+            stats = f"Build Time {build_time} · {getattr(__import__('renown_data'), 'DUES_TERM', 'Upkeep')} {upkeep}"
             if freq and freq != "—":
                 stats += f" {freq}"
             c.drawCentredString(cx, cur_y, stats)

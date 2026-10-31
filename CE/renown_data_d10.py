@@ -86,7 +86,7 @@ RECOVER         = "Recover"
 SERRATED        = "Serrated"
 SERRATED_MOD    = 2          # Serrated: cumulative penalty to the defender's Recover roll
 ENDURING        = "Enduring"   # successfully Recovered Strikes don't count toward the Panic check threshold
-STRAIN          = "Strain"
+STRAIN          = "Strained"
 MINUS_1_TBH     = "Shielded"
 PLANISHING      = "Planishing"
 FATIGUE_TOKEN   = "Fatigue Token"
@@ -125,7 +125,7 @@ GLOSSARY = {
     STEADY:         "Initiative cannot be reduced by Tactics.",
     UNWIELDY:       "Initiative cannot be improved by Tactics.",
     TWO_H:          "Cannot use a Shield: while a 2H weapon is Equipped, your Shield gives nothing that Skirmish (no Save bonus, Initiative or keywords).",
-    SHATTER_ARMOR:  f"On a {PIVOTAL} Strike: that strike's AP is increased by {DEADLY_AP}, and the defender may Parry or {RECOVER} only with a {PIVOTAL} roll.",
+    SHATTER_ARMOR:  f"On a {PIVOTAL} Strike: that Strike's AP is increased by {DEADLY_AP}, and the defender may Parry or {RECOVER} only with a {PIVOTAL} roll.",
     UNSTOPPABLE:    f"-{UNSTOPPABLE_MOD} to the defender's Parry roll (to a maximum of {CAP_THR}+); a Parry against it can't Riposte.",
     CLEAVE:         f"On a {PIVOTAL} Strike: roll one extra Strike die at your modified to-Strike.",
     POISON:         f"When the Defender receives a Strike and rolls a {PIVOTAL} Save, it fails; the resulting wound may only be {RECOVER}ed with a {PIVOTAL} {RECOVER}.",
@@ -137,104 +137,100 @@ GLOSSARY = {
     #DEFLECT:        "-1 to Parry and Negate Riposte against this weapon's Strikes. (All Ranged weapons have Deflect.)",
     #IMMUNE_PANIC:   "Automatically passes Panic checks.",
     #UNBREAKABLE:    "Immune Break: does not take Break checks while Fatigued.",
-    PARRY:          f"If your Army has gained {PARRY}, roll a D{FACES} to attempt to Parry a Strike before an Armor Save. On a {PARRY_BASE}+ (Improved by Improved Parry), the Strike is Parried and has no further effect.",
+    PARRY:          f"If your Army has gained {PARRY}, roll a D{FACES} to attempt to Parry a Strike before an Armor Save. On an {PARRY_BASE}+ (better with Improve Parry), the Strike is Parried and has no further effect.",
     RIPOSTE:        f"If your Army has gained {RIPOSTE} and rolls a Focused Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
-    NO_PARRY:       "While equipped with this weapon during a skirmish, you cannot Parry, and so cannot Riposte.",
-    RECOVER:        f"If your Army has gained {RECOVER} and a to-Save roll fails, roll a D{FACES} & compare it to your Recover value: a result greater than or equal to your Recover value recovers the retinue. Recovered Strikes still count toward the Panic check threshold.",
+    NO_PARRY:       "While Equipped with this weapon during a Skirmish, you cannot Parry, and so cannot Riposte.",
+    RECOVER:        f"If your Army has gained {RECOVER} and a to-Save roll fails, roll a D{FACES} & compare it to your Recover value: a result greater than or equal to your Recover value recovers the Retinue. Recovered Strikes still count toward the Panic check threshold.",
     ENDURING:       "Successfully Recovered Strikes don't count toward the Panic check threshold.",
     SERRATED:       f"A cumulative -{SERRATED_MOD} penalty to the defender's Recover roll.",
     PLANISHING:     f"A {PIVOTAL} Save succeeds, regardless of AP.",
-    FATIGUE_TOKEN:  f"Each token reduces Morale -{FATIGUE_MORALE} by. If your modified Morale is ever {ROUT_THR}+, your army Routs. These effects are cumulative.",
+    FATIGUE_TOKEN:  f"Each token reduces Morale -{FATIGUE_MORALE} by. If your modified Morale is ever {ROUT_THR}+, your Army Routs. These effects are cumulative.",
     MINUS_1_TBH:    f"A cumulative -1 penalty to the Strike roll (to a maximum of {CAP_THR}+). Sources: a shield's -1 to Strike.",
 	#NEGATE_UNSTOPPABLE: "Cancels the attacker's Parry from Unstoppable: this shield's -1 to Strike still applies, and the attacker's -1 to Parry does not.",
     #MINUS_1_PARRY: "A stacking -1 penalty to the defender's Parry roll (to a maximum of 6+). Sources: Unstoppable, Deflect, and each Fatigue token.",
     DUAL_WIELD: "A failed Strike is rerolled once; the rerolled Strike can be Focused. Dual Wield confers Two-Handed. You cannot reroll successful Strikes.",
     FLORENTINE: f"Your Armies may equip two of the same 1H Melee Weapon to gain {DUAL_WIELD}. While Dual Wielding, your Army gains {PARRY}.",
-    "Immune [keyword]": "Can't gain that keyword's effect as it applies to your Army (e.g. Immune Strain, Destroy Shield, Steady, etc.).",
+    "Immune [keyword]": "Can't gain that keyword's effect as it applies to your Army (e.g. Immune Strained, Destroy Shield, Steady, etc.).",
     "Negate [keyword]": "Your opponent can't gain that keyword's effect as it applies to their Army (e.g. Negate Shielded).",
 
     # ── Combat keywords ported from the Escalation Campaign glossary ──
     "AP":            "Armor Penetration — a weapon's (negative) modifier to the defender's Save roll; the more negative, the harder to save.",
-    "Blocked":       "The next Move action this Army performs fails, and then it loses Blocked. (An Army with Immune Blocked never gains it.)",
-    "Strained":      "Initiative -1 every Skirmish (negated by Immune Strain). Does not gain Endurance in the Empire Phase.",
+    "Blocked":       "The next Move action this Army Performs fails, and then it loses Blocked. (An Army with Immune Blocked never gains it.)",
+    "Strained":      "Initiative -1 every Skirmish (negated by Immune Strained). Does not gain Endurance in the Empire Phase.",
     #"Improved Parry": "Your Parry succeeds on 4+ instead of 5+.",
     #"Heal X":        "At the end of each Skirmish, for every X casualties you took from Strikes, return 1 retinue to your Army.",
-    "Seize the Initiative": "Typically, the player who performed the Battle Action gains Seize the Initiative, but Terrain and the Ministry of Military Strategy can affect that. When a player gains Seize the Initiative, the player gains Initiative +1 in the first skirmish.",
+    "Seize the Initiative": "Initiative +1 in the first Skirmish. The player who performed the Battle action usually has it; Terrain and the Ministry of Military Strategy can change that.",
 
     # ── Battle-structure terms (doc glossary, wording updated to current rules) ──
     "Attacker / Defender": "The Attacker performed the Move action that caused the Battle or Lay Siege; the other side is the Defender.",
     "Battle":        "A collection of Skirmishes between two players, continuing until a side's Retinue count is reduced to 0, Routs, or successfully Falls Back, ending the Battle.",
     "Skirmish":      "One round of a Battle, run through the numbered Battle steps; a Battle repeats Skirmishes until it ends.",
-    "Casualty":      "A retinue removed from the field — from an unsaved Strike or a failed Panic or Break check.",
-    "Field":         "Your retinues in play — front line (up to 10) plus reserve (up to 5). Casualties leave the field at once, lowering its count.",
+    "Casualty":      "A Retinue removed from the Field — from an unsaved Strike or a failed Panic or Break check.",
+    "Field":         "Your Retinues in play — front line (up to 10) plus reserve (up to 5). Casualties leave the field at once, lowering its count.",
     "Endurance":     "A side's stamina. Each side that fights loses 1 per Skirmish; at 0 it becomes Fatigued.",
-    "Fatigued":      f"A side at 0 Endurance. Each Skirmish its field takes a Break check, then it gains a Fatigue token.",
-    "Break check":   "Taken by each Fatigued side's field every Skirmish, just before it gains its Fatigue token. Roll Morale (5 dice, modified by Fatigue tokens); failures are casualties, but a Break check never triggers a Panic check. Unbreakable auto-passes.",
-    "Panic check":   "Taken at most once per Skirmish by a side that suffered more than 5 casualties in that Skirmish (Recovered Strikes count, unless Enduring), after both sides have Struck. Roll Morale (5 dice); Immune Panic auto-passes.",
-    "Morale":        f"How steady a retinue is when tested (lower is steadier; see the retinue table). Break and Panic checks roll it: a D{FACES} per retinue in the field, up to 5 dice, each must meet its modified value; failures are casualties. If the modified value is ever {ROUT_THR}+, the army Routs.",
-    "Rout":          f"The army breaks and leaves the Battle. Apply casualties equal to the remaining retinues. Whenever an army's modified Morale value reaches {ROUT_THR}+ or more, it Routs automatically.",
-    "Fall Back":     "A controlled retreat that ends the Battle with at least one retinue left — a partial success.",
+    "Fatigued":      f"A side at 0 Endurance. Each Skirmish its Field takes a Break check, then it gains a Fatigue Token.",
+    "Break check":   "Taken by each Fatigued side's Field every Skirmish, just before it gains its Fatigue Token. Roll Morale (5 dice, modified by Fatigue Tokens); failures are Casualties, but a Break check never triggers a Panic check. Unbreakable auto-passes.",
+    "Panic check":   "Taken at most once per Skirmish by a side that suffered more than 5 Casualties in that Skirmish (Recovered Strikes count, unless Enduring), after both sides have Struck. Roll Morale (5 dice); Immune Panic auto-passes.",
+    "Morale":        f"How steady a Retinue is when tested (lower is steadier; see the Retinue table). Break and Panic checks roll it: a D{FACES} per Retinue in the Field, up to 5 dice, each must meet its modified value; failures are Casualties. If the modified value is ever {ROUT_THR}+, the Army Routs.",
+    "Rout":          f"The Army breaks and leaves the Battle. Apply Casualties equal to the remaining Retinues. Whenever an Army's modified Morale value reaches {ROUT_THR}+, it Routs automatically.",
+    "Fall Back":     "A controlled retreat that ends the Battle with at least one Retinue left — a partial success.",
     "Strike":        f"A landed hit. Roll a D{FACES}, apply modifiers to the roll, and Strike on a result >= the to-Strike number. The target may then Parry, Save, and Recover.",
-    "to-Strike number": f"The D{FACES} result a retinue needs to Strike (see the retinue table; lower is better). Bonuses add to the roll; penalties and Fatigue tokens subtract.",
-    "Save":          f"The defender's roll to avoid a casualty: roll a D{FACES}, add the weapon's AP (a negative) and the shield's Save bonus (a positive); the hit is saved on a result >= the armor value.",
+    "to-Strike number": f"The D{FACES} result a Retinue needs to Strike (see the Retinue table; lower is better). Bonuses add to the roll; penalties and Fatigue Tokens subtract.",
+    "Save":          f"The defender's roll to avoid a Casualty: roll a D{FACES}, add the weapon's AP (a negative) and the shield's Save bonus (a positive); the hit is saved on a result >= the armor value.",
     "Natural roll":  "The number on the die before any modifiers. Modifiers never change what counts as 'natural'.",
     "Initiative":    f"Decides who Strikes first each Skirmish (higher first). Runs {INITIATIVE_MIN} to +{INITIATIVE_MAX} (Ministry can raise the maximum to +3). At {INITIATIVE_MIN} or lower you Blunder.",
     "Tactic":        "A choice both players make secretly and reveal together each Skirmish; it can shift Initiative, Strike, and Save rolls.",
     "Dual-equip":    "Carry two weapons at once (e.g. melee + ranged). Granted by the Skirmish Field.",
-    "Monument":      "A Domain's capstone Holding. Completing one scores its Edict and grants a powerful effect.",
+    "Monument":      "A Domain's capstone Holding, one per game. Having one completes the Monument Edict.",
 
     # ── Empire keywords (referenced by Pursuits/Factions; DRAFTED — review wording) ──
     "Faith X":       "Gain X Faith: each Faith raises your Public Order track by 1 when resolved.",
     "Doubt X":       "Gain X Doubt: each Doubt lowers your Public Order track by 1 when resolved.",
     "Extort X":      "Take X from the stated source: the gold goes to you instead of its owner.",
     "Recoup X":      "Undo up to X of the cost you paid (refund gold, or remove Doubt gained).",
-    "Speed X":       "An Army's movement allowance in Territories per Move action. Base Speed value of an army is Speed 3",
 
     # ── Council, Influence & Envoys (from Rules; the political loop) ──
-    "Influence":     "The political currency of voting. Spend it to Support or Oppose Envoys. You gain it each Empire Phase from your Era, innate modifiers (trade partners, alliances, war), Holdings, and Infrastructure. An effect reading Influence +X gives you X Influence tokens in the Empire Phase, unless it names another time.",
-    "Authority X":   "An automatic +X (or -X) to an Envoy's Authority from a Holding, Infrastructure, or Faction, applied while the Envoy is sent and resolved; a modifier that depends on the action or its target applies once those are chosen. Authority only matters while an Envoy is being sent and resolved.",
-    "Envoy":         "The currency of actions: send an Envoy to perform an action during the Envoy Phase. Council Envoys act on the voted Domain; Personal Envoys are sent by Era progression.",
+    "Influence":     "The political currency: spend it to Support or Oppose Envoys. You gain it each Empire Phase from your Era, Trade Partners, Alliances, war, Holdings and Infrastructure. Influence +X gives X tokens in the Empire Phase unless it names another time.",
+    "Authority X":   "An automatic change to an Envoy's Authority from a Holding, Infrastructure or Faction, applied while it's sent and resolved (once the action and target are chosen, if it depends on them).",
+    "Envoy":         "The currency of actions: send an Envoy to Perform an action during the Envoy Phase. Council Envoys act on the voted Domain; Personal Envoys are sent by Era progression.",
     "Vote":          "On each Envoy, every player except the sender, in clockwise order from the starting player, must Support, Oppose, or Abstain. No talking during a vote.",
-    "Support X":     "Spend X Influence to increase an Envoy's net Influence.",
-    "Oppose X":      "Spend X Influence to decrease an Envoy's net Influence.",
-    "Abstain":       "Decline to spend Influence on a vote.",
+    "Support X":     "Spend X Influence to increase an Envoy's Net Influence.",
+    "Oppose X":      "Spend X Influence to decrease an Envoy's Net Influence.",
+    "Abstain":       "Decline to spend Influence on a Vote.",
     "Council Phase": "Before Personal Envoys, a brief Forum, then all players vote on a Domain with no talking (clockwise; Host breaks ties). Each then sends a free Council Envoy of that Domain. Council Envoys auto-Abstain and their net Influence cannot drop below 1.",
-    "Council Envoy": "A free Envoy resolved in the Council Phase on the voted Domain; auto-Abstained, net Influence floored at 1.",
-    "Intrigue Phase": "The Envoy Phase step after the Forum, before the first vote. No talking: the starting player uses all of their Intrigue Phase effects, then each player clockwise, ending with the Host. Each choice takes effect at once.",
-    "Tally Phase": "The Envoy Phase step after every Envoy has been voted on: Supports, then the votes of players who vote in the Tally Phase, then Endorsements, then effects that send another Envoy (voted at once). Resolve begins when it ends.",
-    "Personal Envoy": "An Envoy you send in the Envoy Phase to attempt to perform an action; the amount of Envoys you can spend and the volume of actions you can perform with one scales with Era.",
+    "Council Envoy": "A free Envoy resolved in the Council Phase on the voted Domain; auto-Abstained, Net Influence floored at 1.",
+    "Intrigue Phase": "The Envoy Phase step after the Forum, before the first Vote. No talking: the starting player uses all of their Intrigue Phase effects, then each player clockwise, ending with the Host. Each choice takes effect at once.",
+    "Tally Phase": "The Envoy Phase step after every Envoy has been voted on: Supports, then the Votes of players who vote in the Tally Phase, then Endorsements, then effects that send another Envoy (voted at once). Resolve begins when it ends.",
+    "Personal Envoy": "An Envoy you send in the Envoy Phase. How many you get, and how many actions each Performs, rise with the Era.",
 
     # ── Empire actions ──
     "Settle":        "Found a new Village (Industry action).",
     "Expand":        "Raise a Settlement one tier: Village to Town, Town to City, City to Metropolis (Industry action).",
     "Muster":        "Raise a new Army or Reinforce an existing one near a Settlement you Control, while you have a Muster Field; Retinues arrive each Empire Phase over a Muster Timer (Prowess action).",
-    "Build":         "Build a Holding, spending its purchase cost and a Settlement ward (Industry action).",
-    "Improve":       "Construct Infrastructure (Industry action).",
-    "Repair":        "Restore damaged Infrastructure or Settlements (Industry).",
-    "Move":          "Advance an Army up to its Speed in Territories (Prowess).",
-    "Demand Tribute": "Coerce gold or concessions from another player (Prowess).",
+    "Build":         "Build a Holding, spending its purchase cost and a Settlement Ward (Industry action).",
+    "Improve":       "Build Infrastructure, a Wonder included (Industry action).",
+    "Repair":        "Restore a Damaged Holding or Infrastructure, or Demolish it (Industry action).",
+    "Move":          "Advance an Army up to its Speed in Territories (Prowess action).",
+    "Demand Tribute": "Coerce gold or concessions from another player (Prowess action).",
 
     # ── Diplomacy & alliances ──
     "Diplomacy":     "Free Envoy actions for forming and ending Treaties and Trade Agreements; resolved before Domain Envoys.",
-    "Treaty":        "A standing agreement between players (e.g. Trade Agreement, Non-Aggression, Alliance) signed via Diplomacy.",
+    "Treaty":        "A standing agreement between players (Trade Agreement, Non-Aggression Pact, Alliance), signed in the Diplomacy step.",
     "Alliance":      "A Treaty binding players to mutual support; Military and Defensive Alliances unlock by Era.",
-    "Vassal":        "A player subordinated via Vassalization: their chartered settlements return to them, they mirror the Suzerain's Treaties, count as allied to the Suzerain, and cannot perform or be targeted by Diplomacy actions.",
-    "Suzerain":      "The player who has Vassalized another; the vassal mirrors their Treaties.",
+    "Vassal":        "A player subordinated via Vassalization: their chartered Settlements return to them, they mirror the Suzerain's Treaties, count as allied to the Suzerain, and cannot Perform or be targeted by Diplomacy actions.",
+    "Suzerain":      "The player who has Vassalized another; the Vassal mirrors their Treaties.",
 
     # ── Empire state ──
-    "Renown":        "The shared progress track. Gain 1 per Rest Phase; thresholds raise your Era (Ascension 8, Eminence 18, Zenith 30).",
-    "Domain":        f"One of the four identities — Industry, Prowess, Cunning, Piety — raised by spending Domain points. Values {_ST['Rising']}/{_ST['Established']}/{_ST['Sovereign']} = Rising/Established/Sovereign Standing.",
+    "Domain":        "One of the four Domains: Industry, Prowess, Cunning, Piety. Spend Domain Points to raise its value; the value sets your Standing there.",
     "Domain Point":  "Gain {DOMAIN_POINTS_PER_TURN} each Rest Phase; spend to raise a Domain value by 1.",
-    "Standing":      f"Your tier in a Domain: Untested, Rising ({_ST['Rising']}), Established ({_ST['Established']}), Sovereign ({_ST['Sovereign']}). Sets max Influence per vote (1/2/3/4) and unlocks Domain effects.",
     "Public Order":  f"A track from {PO_MIN} to {PO_MAX}, adjusted each turn by Faith minus Doubt; its band applies cumulative effects (see the Public Order table).",
-    "Reach":         "How far a Settlement projects control, in Territories (by tier). Calculated like Range X",
     "Edict":         "A scoring achievement. Grants the Realm +1 Renown every time one is achieved.",
 
     # ── World ──
     "Bandit":        "Neutral hostile force; Bandit Camps spawn in Outlaw Country and on low Public Order.",
     "Outlaw Country": "Uncontrollable Territory zones where Bandit Camps spawn ({OUTLAW_COUNTRY_START} Territories each at Setup). A zone is your Outlaw Country while any of its Territories is within your Province. Foster Rebellion expands it when there is no room; otherwise, when there is no room, its Bandit Camps grow instead.",
     "Wild Outlaw Country": "Outlaw Country the Host places outside every Province at Setup. After Setup it works like any other Outlaw Country zone.",
-    "Siege":         "Sieging a Settlement with an Army to capture it; Siege Timers don't count down in Winter.",
+    "Siege":         "An Army holding Adjacent to an at-war Settlement while a Siege Timer counts down to Capture or Sack it.",
 }
 
 # ── Pivotal: one word for "a natural FOCUSED_THR" across all combat effects ─────────────
@@ -368,8 +364,8 @@ STANDING_EFFECTS = {
     ("Prowess", "Sovereign"): "Immune Blunder",
     ("Piety",   "Rising"): "Morale +1",
     ("Piety", "Sovereign"): "Immune Panic",
-    ("Cunning", "Established"): "Opponent gains Strain.", #Remove "Foes gain Blunder in first Skirmish"
-    ("Cunning", "Sovereign"):   "Opponent gains Blunder in the first Skirmish.", #Remove "Foes gain Strain"
+    ("Cunning", "Established"): "Opponent gains Strained.", #Remove "Foes gain Blunder in first Skirmish"
+    ("Cunning", "Sovereign"):   "Opponent gains Blunder in the first Skirmish.", #Remove "Foes gain Strained"
 }
 	
 # ── Tactics ────────────────────────────────────────────────────────────────
@@ -1633,6 +1629,9 @@ TYPE_ORDER = list(HOLDING_GROUPS.values()) + ["Monument"]
 CHAIN_TERM = "Mastery Chain"
 # Display name for a Holding / Infrastructure set inactive for unpaid upkeep (Insolvency). Rules print it via {{VAL:SHUTTER_TERM}}.
 SHUTTER_TERM = "Shuttered"
+# What Holdings and Infrastructure cost each Empire Phase ("Upkeep" is the Armies' cost). Rules print it via {{VAL:DUES_TERM}};
+# effects read "Dues -X" (lowers your Holding and Infrastructure cost) and "No Dues on <Tier> Infrastructure".
+DUES_TERM = "Dues"
 # Display name for Pursuits (singular, plural). Data keys, file names and wiki URLs keep "pursuit".
 PURSUIT_TERM = ("Holding", "Holdings")
 
@@ -2475,14 +2474,13 @@ DOMAIN_BOARD = {
 }
 # the rules print one rank per Standing; if these two rows ever differ, the rules' Standing Rank text needs both numbers
 assert DOMAIN_BOARD["max_influence_per_vote"] == DOMAIN_BOARD["innate_influence_own_envoys"], "Standing rank split: update RULES Standing Rank"
-GLOSSARY["Standing"] = (f"Your tier in a Domain: Untested, Rising ({_ST['Rising']}), Established ({_ST['Established']}), "
-                        f"Sovereign ({_ST['Sovereign']}). Its rank sets your Envoys' starting Authority and how much you may "
-                        f"Support or Oppose per vote in that Domain, and it unlocks Domain effects.")
-GLOSSARY["Max Influence"] = ("The most Influence you may spend to Support or Oppose on one vote: your Standing rank in that Domain "
+GLOSSARY["Standing"] = ((f"How far you've risen in a Domain, set by its value: Untested, Rising ({_ST['Rising']}+), Established ({_ST['Established']}+), "
+                        f"Sovereign ({_ST['Sovereign']}+). Each has a Standing Rank and its own Domain effects."))
+GLOSSARY["Max Influence"] = ("The most Influence you may spend to Support or Oppose on one Vote: your Standing Rank in that Domain "
                              "(the Era's rank on Diplomacy Envoys). Max Influence +X raises it.")
 GLOSSARY["Standing Rank"] = (f"Untested {STANDING_RANK['Untested']}, Rising {STANDING_RANK['Rising']}, Established "
                              f"{STANDING_RANK['Established']}, Sovereign {STANDING_RANK['Sovereign']}. Your Envoys in a Domain start at "
-                             f"Authority equal to your rank there; on each vote in that Domain you may Support or Oppose up to your rank (your Max Influence). "
+                             f"Authority equal to your Standing Rank there; on each Vote in that Domain you may Support or Oppose up to your Standing Rank (your Max Influence). "
                              f"Diplomacy uses the Era's rank.")
 
 # Seasons (turn cycle of 4; Rest Phase advances Season +1).
@@ -2544,14 +2542,14 @@ BANDITS = {
 }
 
 TIMERS = {
-    "Build Timer":   {"where": "Infrastructure / Settlement Wards / Holdings", "default": None, "tracks": "Turns until an infrastructure/build completes and becomes Active."},
+    "Build Timer":   {"where": "Infrastructure / Settlement Wards / Holdings", "default": None, "tracks": "Turns until a Holding, Infrastructure or Settlement finishes building and becomes active."},
     "Repair Timer":  {"where": "Damaged Holdings / Infrastructure", "default": None, "tracks": "Turns until a Damaged piece is repaired and its effects return."},   # default = BUILD_TIMERS["Repair"] (set below)
-    "Truce Timer":   {"where": "Treaties / diplomacy outcomes", "default": 5, "tracks": "Turns remaining until a Truce expires (and related diplomacy restrictions end)."},
-    "Siege Timer":   {"where": "Lay Siege", "default": None, "tracks": "Turns remaining until a Siege resolves."},
-    "Muster Timer":  {"where": "Muster action", "default": 1, "tracks": "Turns remaining in a Muster; each turn it counts down, the Army gains Retinues up to the combined muster limit."},
-    "Sack Timer":    {"where": "After Sacking a Settlement", "default": 2, "tracks": "Cooldown before the same force may Lay Siege again (per Sack rules)."},
-    "Capture Timer": {"where": "Capturing a Settlement after Siege", "default": 1, "tracks": "Turns until a Captured Settlement becomes Controlled by the Player with the Capture Timer and applies the listed capture effects."},
-    "Convert Timer": {"where": "Convert (Piety action)", "default": None, "tracks": "Turns until a Convert attempt resolves (or fails early if conditions change)."},
+    "Truce Timer":   {"where": "Treaties / diplomacy outcomes", "default": 5, "tracks": "Turns until a Truce ends; until then neither player may Declare War on the other or End a Treaty with them."},
+    "Siege Timer":   {"where": "Lay Siege", "default": None, "tracks": "Turns until a Siege resolves; it doesn't count down in Winter."},
+    "Muster Timer":  {"where": "Muster action", "default": 1, "tracks": "Turns until a Muster completes; each turn it counts down, the Army gains Retinues up to the combined Muster Limit."},
+    "Sack Timer":    {"where": "After Sacking a Settlement", "default": 2, "tracks": "Turns until the sacking Army may Move or Lay Siege again."},
+    "Capture Timer": {"where": "Capturing a Settlement after Siege", "default": 1, "tracks": "Turns until a Captured Settlement comes under your Control."},
+    "Convert Timer": {"where": "Convert (Piety action)", "default": None, "tracks": "Turns until a Convert attempt resolves; it fails early if conditions change."},
 }
 
 # ── Chartering / map placement constants (prose-only before; tunable balance) ──
@@ -2697,30 +2695,28 @@ INFLUENCE_GAIN = {
 
 # --- Glossary additions (map/spatial, action, and outcome terms) ---
 GLOSSARY.update({
-    "Border": "Your Province is within or adjacent to another player's Province",
-    "Province": "The collection of Contested Territory and Controlled Territory by your Settlement's Reach.",
+    "Border": "You border a player when your Province is within or Adjacent to theirs.",
+    "Province": "Every Territory your Settlements' Reach covers, Contested or not.",
     "Region": "A collection of Territories of the same Type.",
     "Realm": "The total collection of Regions.",
     "Territory": "1 Hex.",
     "Controlled": "Territory that is within Reach of a Player's Settlement(s).",
-    "Contested": "Territory that is Controlled by more than one player's settlement(s).",
+    "Contested": "Territory that is Controlled by more than one player's Settlement(s).",
     "Uncontested": "Territory that is Controlled by a single Player's Settlement(s).",
     "Uncontrolled": "Territory that is not within Reach of any Player Settlement.",
     "Adjacent": "Range 1.",
     "Next to": "Range 2.",
     "Within": "Range 0.",
     "Range X": "The amount of Territories you must move in order to get from your current position to the specific Territory.",
-    "Reach X": "The Range X characteristic which determines what Territories you Control and are in your Province.",
-	"Host": "Holds the Host Card; the starting player is the player directly clockwise from the Host, including in Spring. The role passes clockwise each Rest Phase (there is no Host in Spring). The Host collects and distributes Trade Income, resolves Bandit Mechanics, and breaks ties (Council vote, bandit targeting, and any tie not otherwise resolved).",
-    "Send an Envoy": "Declare a Domain, spend 1 Envoy.",
+    "Reach X": "How far a Settlement controls, set by its tier: every Territory within Range X of it is in your Province.",
+	"Host": "Holds the Host Card; the starting player is the player directly clockwise from the Host, including in Spring. The role passes clockwise each Rest Phase (there is no Host in Spring). The Host collects and distributes Trade Income, resolves Bandit Mechanics, and breaks ties (Council vote, Bandit targeting, and any tie not otherwise resolved).",
     "Targeting you": "An effect or action targeting you also targets what you own: your Settlements, Armies and Holdings.",
     "Perform": "When you Perform an action, immediately do the description of the action. Pay the action's normal Cost.",
-    "Resolve": "Determine modified Authority and follow Envoy Resolution Table.",
-    "Cost / Pay": "Cost to perform an action, usually in Gold or Doubt.",
-    "Fail": "An unsuccessful combat roll or Envoy resolution.",
+    "Resolve": "Read an Envoy's Net Influence on the Envoy Resolution table and carry out the result.",
+    "Cost / Pay": "Cost to Perform an action, usually in Gold or Doubt.",
     "Presence": (f"Territory within Range {PRESENCE_RANGE} of a non-allied Army (Bandit Armies included, Bandit Camps not), "
                  f"or of a Settlement while its owner has a Garrison (and of its Settlement Wards while the owner has a Keep). "
-                 f"An Army can't move within a non-allied Presence unless that Move performs a Battle against it; a Battle or "
+                 f"An Army can't move within a non-allied Presence unless that Move Performs a Battle against it; a Battle or "
                  f"Lay Siege against a Settlement may pass through the Presence of that Settlement and its Wards."),
     "Can Trade": "You may take part in trade without active Dirt Roads (you still need a signed Trade Agreement).",
 })
@@ -2749,13 +2745,7 @@ ENVOY_OUTCOME_THRESHOLDS = {
 # Outcome glossary entries read the bands above
 _ET = ENVOY_OUTCOME_THRESHOLDS
 GLOSSARY.update({
-    "Net Influence": (f"The sum of an Envoy's starting Influence (1+ by Standing) and all Support, Oppose, and Authority X. "
-                      f"The total sets the outcome: {_ET['Condemned']} or less Condemned, {_ET['Failed']} or less Failed "
-                      f"(gain Doubt 1), {_ET['Passed']}+ Passed, {_ET['Endorsed']}+ Endorsed."),
-    "Envoy Outcome": (f"How a Sent Envoy resolves, by Net Influence: Condemned (<= {_ET['Condemned']}), "
-                      f"Failed ({_ET['Condemned']} < Net <= {_ET['Failed']}, gain Doubt 1), Passed (>= {_ET['Passed']}), "
-                      f"Endorsed (>= {_ET['Endorsed']}). The per-domain effect at each band is given by the Envoy Outcome "
-                      f"Table; an action's own endorsed bonus overrides the domain default."),
+    "Net Influence": (f"An Envoy's starting Influence (your Standing Rank) plus every Support, Oppose and Authority X. It sets the outcome: {_ET['Condemned']} or less Condemned, {_ET['Condemned'] + 1} to {_ET['Failed']} Failed (gain Doubt 1), {_ET['Passed']} to {_ET['Endorsed'] - 1} Passed, {_ET['Endorsed']}+ Endorsed. Each Domain's result per outcome is in the Envoy Outcome table."),
     "Condemned": f"Net Authority {_ET['Condemned']} or less.",
     "Failed":    f"Net Authority {_ET['Condemned'] + 1} to {_ET['Failed']}.",
     "Passed":    f"Net Authority {_ET['Passed']} to {_ET['Endorsed'] - 1}.",
@@ -3066,9 +3056,9 @@ _PU_TEXT = (f"Monument {_PU['Monument']}, Power {_PU['Power']}, "
             f"Energy/Natural {_PU['Energy']}, all others {_PU['Other']}")
 
 UPKEEP_TRACKS = {
-    "Pursuit":        f"Each Empire Phase: {_HOLDING_COST_TEXT}.",
-    "Army":           "Σ(each Army's cost by Retinue type) - Upkeep -X. Reduced by Levy Hall, Tannery, Saddlery, Butchery, Smokehouse, Advanced Blast Furnace, High Quartermaster, etc.",
-    "Infrastructure": "Per-Empire upkeep in INFRASTRUCTURE. Masonry removes Primitive; Trade Guild removes Developed; College of Engineering removes Sophisticated.",
+    f"Holdings ({DUES_TERM})": f"Each Empire Phase: {_HOLDING_COST_TEXT}.",
+    "Army (Upkeep)":  "Σ(each Army's cost by Retinue type) - Upkeep -X. Reduced by Levy Hall, Tannery, Saddlery, Butchery, Smokehouse, Advanced Blast Furnace, High Quartermaster, etc.",
+    f"Infrastructure ({DUES_TERM})": f"Listed per Infrastructure; {DUES_TERM} -X lowers Holding and Infrastructure {DUES_TERM}. Masonry removes Primitive; Trade Guild removes Developed; College of Engineering removes Sophisticated.",
 }
 
 
@@ -3179,19 +3169,18 @@ SIEGE_SOURCE_VALUES = {
 # ── Missing glossary definitions (CE) ────────────────────────────────────────
 GLOSSARY.update({
     PIVOTAL:        f"A natural {FOCUSED_THR}, before modifiers." if FOCUSED_THR == FACES else f"A natural {FOCUSED_THR} or higher, before modifiers.",
-    FATIGUE_TOKEN:  f"Each token reduces Morale by {FATIGUE_MORALE}; if your modified Morale is ever {ROUT_THR}+, your army Routs. Tokens stack.",
-    "Sally Forth":  "While a settlement you control is besieged and you have an army or Garrison inside it, you may Sally Forth: Battle in the Battle Phase without performing an action.",
+    FATIGUE_TOKEN:  f"Each token reduces Morale by {FATIGUE_MORALE}; if your modified Morale is ever {ROUT_THR}+, your Army Routs. Tokens stack.",
+    "Sally Forth":  "While a Settlement you control is besieged and you have an Army or Garrison inside it, you may Sally Forth: Battle in the Battle Phase without performing an action.",
     "Garrison":     ("An Army that exists within each of your Settlements while you have the Garrison Infrastructure, sized by that Settlement's Garrison value ("
                      + ", ".join(f"{t} {v['garrison']}" for t, v in SETTLEMENTS.items() if v.get("garrison")) + " Retinues). "
-                     "Garrisons can't perform actions or be targeted by actions, and may Sally Forth while their Settlement is under Siege. "
-                     "Garrisons have cost and upkeep 0 and don't count toward your Army limit. All Garrisons within an Empire share the same "
+                     "Garrisons can't Perform actions or be targeted by actions, and may Sally Forth while their Settlement is under Siege. "
+                     "Garrisons have cost and Upkeep 0 and don't count toward your Army limit. All your Garrisons share the same "
                      "Retinue type and equipment, and gain the benefits of all unlocked keywords that apply to your Armies."),
-    "War Weariness":"gain Doubt 1 for each consecutive Battle you lose in the Empire Phase.",
+    "War Weariness":"Doubt 1 each Empire Phase per consecutive Battle you've lost.",
     "Settlement Ward": ("A slot in a Settlement that holds one Holding; a Settlement has one Ward per tier (a Hamlet has 3 Wards, Natural Holdings only)."
                         + (" Wards are not placed on the map." if WARD_MODEL == "abstract" else " Each Ward occupies a Territory within Range 1 of the Settlement.")),
-    CHAIN_TERM + " X": ("While this Holding occupies the same Settlement Ward as X (the Raw Material or Holding named on its tile), "
-                        "it uses no ward of its own — the two share one ward. Placed anywhere else, it fills a ward normally. "
-                        "(Core Principle 13.) Note: Two Holdings that chain from the same Holding cannot share a Ward with each other."),
+    CHAIN_TERM + " X": ((f"On a Holding tile: placed in the same Settlement Ward as X (the Raw Material or Holding named on it), it shares "
+                        f"that Ward instead of taking its own. See {CHAIN_TERM}.")),
 })
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -3525,25 +3514,26 @@ if __name__ == "__main__":
 # ── Keyword glossary: entries built from the data (so hovers/wiki stay in step with it) ──────────
 import re
 GLOSSARY.update({
-    "Natural": "Natural Holdings do not cost Upkeep & can be used in Hamlets.",
-    "Upkeep":  (f"Gold you pay each Empire Phase for Armies, Holdings and Infrastructure. Holding upkeep is "
-                f"{_HOLDING_COST_TEXT}; a Holding pays no upkeep while its Build Timer is running. Army upkeep = the sum of each "
-                f"Army's cost (by Retinue type) − Upkeep modifiers."),
-    "Craft":   (f"Craft Holdings count toward how much income your Trade Agreements generate — any effect that grants Craft +X. "
-                f"For each active Trade Agreement, both players gain {TRADE_RULES['income_per_craft']} × the Host's Craft X."),
+    "Natural": f"A Holding property: it pays no {DUES_TERM} and may be built in a Hamlet.",
+    "Upkeep":  ((f"Gold you pay each Empire Phase for your Armies: each Army's cost by Retinue type, minus every Upkeep -X "
+                f"(never below 0). Holdings and Infrastructure pay {DUES_TERM} instead.")),
+    DUES_TERM: ((f"Gold you pay each Empire Phase for your Holdings and Infrastructure. Holding {DUES_TERM} {_HOLDING_COST_TEXT}; "
+                 f"each Infrastructure lists its own. Nothing is paid while a piece is inactive (being built, Damaged, under Repair "
+                 f"or {SHUTTER_TERM}). {DUES_TERM} -X lowers the total, never below 0.")),
+    "Craft":   ((f"Your trade value, from every effect that gives Craft +X. For each active Trade Agreement, both players gain "
+                f"{TRADE_RULES['income_per_craft']} × the Host's Craft.")),
     CHAIN_TERM: ("A Holding's " + CHAIN_TERM + " is the line of Holdings it builds from, usually running from a Raw Material "
                  "up to a Monument. You may start building a Holding only while you control one complete line of its "
                  + CHAIN_TERM + ", anywhere in your empire; this is checked only when you start it. A Holding placed in the "
                  "same Settlement Ward as its immediate parent shares that Ward, and the chain can continue upward the same way. "
                  "Each Holding carries at most one descendant in its Ward. (Core Principle 13.)"),
-    SHUTTER_TERM: ("A Holding or Infrastructure set inactive while you're Insolvent because its upkeep went unpaid. "
-                   "It gives no effect and pays no upkeep, but its upkeep still counts toward what you owe. It's restored at "
-                   f"any Income & Upkeep step where you can pay its upkeep. If it becomes Damaged, it's no longer {SHUTTER_TERM}."),
-    "Speed X":         f"An Army's movement range in Territories per Move action. Base Speed value of an army is Speed {RETINUES['Levy']['speed']}",
-    "Pursuit":   (f"An object that is placed into a Settlement Ward or onto a Root Holding as a result of a "
-                  f"Build action, giving effects which affect your Empire in many ways."),
+    SHUTTER_TERM: (f"A Holding or Infrastructure set inactive while you're Insolvent because its {DUES_TERM} went unpaid. "
+                   f"It gives no effect and pays no {DUES_TERM}, but its {DUES_TERM} still counts toward what you owe. It's restored at "
+                   f"any Income & Upkeep step where you can pay its {DUES_TERM}. If it becomes Damaged, it's no longer {SHUTTER_TERM}."),
+    "Speed X":         f"An Army's movement in Territories per Move action. Base Speed is {RETINUES['Levy']['speed']}.",
+    "Pursuit":   (f"A building you Build into a Settlement Ward, or into its {CHAIN_TERM} parent's Ward. Its effect applies while it's active."),
     "Retinue":   "A single unit within an Army, represented by a single die roll for Strikes, Saves, etc.",
-    "At War":    "Cannot trade; can be the target of Siege, Battle, & Pillage actions from players At War with this player.",
+    "At War":    "Two players At War can't trade, and may Battle, Lay Siege on and Pillage each other.",
     "Equipped":  "The weapon chosen for the Skirmish.",
 })
 for _k, _v in TIMERS.items():                      # Build Timer, Repair Timer, Truce Timer, …
@@ -3574,11 +3564,6 @@ for _t in TIERS:
     _u = _unlockers(_t)
     GLOSSARY.setdefault(_d, f"{_d} equipment tier. " + "; ".join(f"{lab}: {', '.join(xs)}" for lab, xs in _parts if xs) + "."
                         + (f" Unlocked by: {', '.join(n + ' (' + _ulabel(c) + ')' for n, c in _u)}." if _u else ""))
-    for _lab, _srcs, _cat in (("Weapons", (WEAPONS, RANGED), "weapons"), ("Armor", (ARMORS,), "armor"), ("Shields", (SHIELDS,), "shield")):
-        _xs = [x for s in _srcs for x in _tier_items(s, _t)]
-        _uu = [n for n, c in _u if _cat in c]
-        if _xs:
-            GLOSSARY.setdefault(f"{_d} {_lab}", f"{_d}-tier {_lab.lower()}: {', '.join(_xs)}." + (f" Unlocked by: {', '.join(_uu)}." if _uu else ""))
 for _lbl in sorted(set(ITEM_TIER_DISPLAY.values())):           # label-only tiers (e.g. Gunpowder)
     _its = [k for k, v in ITEM_TIER_DISPLAY.items() if v == _lbl]
     _req = sorted({r for k in _its for src in (WEAPONS, RANGED, SHIELDS, ARMORS) for r in ((src.get(k) or {}).get("requires") or [])})
@@ -3744,22 +3729,61 @@ _ALIAS_RE = _re_disp.compile(
 
 # ── Glossary categories: one ordering shared by the rules docx ({{GLOSSARY:Category}}), wiki and board ──
 # Constant-keyed terms use their constants.
+# ── Glossary: turn, war, economy and empire terms (after ERAS, SEASONS, SETTLEMENTS, INFRA_TIERS) ──
+GLOSSARY.update({
+    "Renown":          (f"The shared progress track. Gain {RENOWN_PER_TURN} per Rest Phase; thresholds raise the Era ("
+                        + ", ".join(f"{k} {v['renown']}" for k, v in ERAS.items() if v["renown"] > 1) + ")."),
+    "Era":             f"The stage of the game, set by Renown: {', '.join(ERAS)}. It sets Envoys, Influence and other limits.",
+    "Season":          f"{', '.join(SEASONS)}: one per turn, each with its own effect; the Rest Phase advances it.",
+    "Empire Phase":    f"The first phase of the turn: Timers, Bandits, Influence and Envoys, income, Upkeep and {DUES_TERM}, then Public Order.",
+    "Envoy Phase":     "Every player sends their Envoys; they are voted on, then resolved Domain by Domain.",
+    "Battle Phase":    "Battles and Sieges begun this turn resolve.",
+    "Rest Phase":      "The end of the turn: discard unused Envoys and Influence, advance the Season, score Renown and a Domain Point, pass the Host.",
+    "Treasury":        "The gold you Control.",
+    "Insolvent":       (f"You couldn't cover a cost in full: pay what you can, disband Armies, then set buildings {SHUTTER_TERM}. "
+                        "Build Timers halt. It ends once your Treasury is above 0 and you can pay everything you owe."),
+    "Bankrupt":        ("Insolvent with nothing left to cut: your Treasury goes negative by the debt. You can't spend gold or be "
+                        "Extorted, and Revenue pays the debt first. It ends when your Treasury reaches 0."),
+    "Trade Agreement": "A Treaty that lets two players trade. While both can trade, each gets Trade Income each turn either of them is Host.",
+    "Trade Partner":   "A player you have a Trade Agreement with and can trade with.",
+    "Settlement":      ("A Village, Town, City or Metropolis (or your Hamlet). It earns Tax Income each Winter, holds Holdings in its Wards, "
+                        "has a Muster Limit, and controls Territory by its Reach."),
+    "Hamlet":          f"Your farmland Settlement, placed at setup: no Tax Income or Muster Limit, {SETTLEMENTS['Hamlet']['wards']} Wards for Natural Holdings only.",
+    "Army":            "Retinues on the map under your Control. Armies Move, Battle and Lay Siege, and pay Upkeep by Retinue type.",
+    "Infrastructure":  (f"An empire-wide building that applies to every Settlement you have. {len(INFRA_TIERS)} tiers, {INFRA_TIERS[0]} "
+                        f"to {INFRA_TIERS[-1]}; each needs one active Infrastructure of the tier below."),
+    "Wonder":          "Wondrous-tier Infrastructure, one per game. Several players may build the same Wonder; the first to finish takes it.",
+    "Damaged":         f"A Holding or Infrastructure hit by Raze, Sack or Bandits: it has no effect and pays no {DUES_TERM} until Repaired.",
+    "Lay Siege":       "A Move that ends Adjacent to an at-war Settlement, starting its Siege Timer.",
+    "Capture":         "When a Siege resolves in your favor: set a Capture Timer; when it resolves, the Settlement comes under your Control.",
+    "Sack":            (f"When a Siege resolves in your favor: Damage the top Holding of each Ward, Extort {SACK_EXTORT_PER_TIER} per "
+                        "Settlement tier, reduce it one tier and remove one Ward."),
+    "Pillage":         ("A Prowess action: while your Army stays within Reach of an at-war Settlement, it Extorts half of that "
+                        "Settlement's Holding income each Empire Phase, until it Battles, Lays Siege or Marches."),
+})
+
 GLOSSARY_CATEGORIES = [
-    ('Reading the Rules', ['Targeting you', 'Perform', 'Resolve', 'Cost / Pay', 'Fail', 'Natural roll', PIVOTAL, 'Host']),
-    ('Council & Envoys', ['Influence', 'Authority X', 'Envoy', 'Send an Envoy', 'Personal Envoy', 'Council Phase', 'Council Envoy', 'Intrigue Phase', 'Vote', 'Support X', 'Oppose X', 'Max Influence', 'Abstain', 'Tally Phase', 'Net Influence', 'Envoy Outcome', 'Condemned', 'Failed', 'Passed', 'Endorsed']),
-    ('Domains & Scoring', ['Renown', 'Domain', 'Domain Point', 'Standing', 'Standing Rank', 'Edict', 'Monument']),
+    ('Reading the Rules', ['Targeting you', 'Perform', 'Resolve', 'Cost / Pay', 'Natural roll', PIVOTAL]),
+    ('Turn & Phases', ['Host', 'Era', 'Season', 'Empire Phase', 'Council Phase', 'Envoy Phase', 'Intrigue Phase', 'Tally Phase',
+                       'Battle Phase', 'Rest Phase']),
+    ('Envoys & Voting', ['Influence', 'Authority X', 'Envoy', 'Personal Envoy', 'Council Envoy', 'Vote', 'Support X', 'Oppose X',
+                         'Max Influence', 'Abstain', 'Net Influence', 'Condemned', 'Failed', 'Passed', 'Endorsed']),
+    ('Domains & Scoring', ['Renown', 'Domain', 'Domain Point', 'Standing', 'Standing Rank', 'Edict']),
     ('Actions', ['Muster', 'Build', 'Improve', 'Repair', 'Settle', 'Expand', 'Move', 'Demand Tribute', 'Diplomacy']),
-    ('Treaties', ['Treaty', 'Alliance', 'At War', 'Vassal', 'Suzerain']),
-    ('Economy & Public Order', ['Public Order', 'Faith X', 'Doubt X', 'Extort X', 'Recoup X', 'Upkeep', SHUTTER_TERM, 'Craft', 'Can Trade', 'War Weariness']),
-    ('Settlements & Holdings', ['Settlement Ward', 'Pursuit', 'Root', 'Natural', CHAIN_TERM, CHAIN_TERM + " X"]),
+    ('Treaties', ['Treaty', 'Alliance', 'Vassal', 'Suzerain']),
+    ('War', ['At War', 'Lay Siege', 'Siege', 'Capture', 'Sack', 'Pillage', 'Sally Forth']),
+    ('Economy & Public Order', ['Treasury', 'Upkeep', DUES_TERM, 'Insolvent', 'Bankrupt', SHUTTER_TERM, 'Trade Agreement', 'Trade Partner',
+                                'Craft', 'Can Trade', 'Public Order', 'Faith X', 'Doubt X', 'Extort X', 'Recoup X', 'War Weariness']),
+    ('Settlements & Holdings', ['Settlement', 'Hamlet', 'Settlement Ward', 'Pursuit', 'Root', 'Natural', 'Monument', CHAIN_TERM,
+                                CHAIN_TERM + " X", 'Infrastructure', 'Wonder', 'Damaged']),
     ('Timers', list(TIMERS)),
-    ('Map & Range', ['Realm', 'Region', 'Territory', 'Province', 'Border', 'Controlled', 'Contested', 'Uncontested', 'Uncontrolled', 'Range X', 'Within', 'Adjacent', 'Next to', 'Reach', 'Reach X']),
-    ('World', ['Bandit', 'Outlaw Country', 'Wild Outlaw Country', 'Siege', 'Sally Forth']),
-    ('Army States', ['Retinue', 'Garrison', 'Speed X', 'Presence', 'Blocked', 'Strained']),
+    ('Map & Range', ['Realm', 'Region', 'Territory', 'Province', 'Border', 'Controlled', 'Contested', 'Uncontested', 'Uncontrolled', 'Range X', 'Within', 'Adjacent', 'Next to', 'Reach X']),
+    ('World', ['Bandit', 'Outlaw Country', 'Wild Outlaw Country']),
+    ('Army States', ['Army', 'Retinue', 'Garrison', 'Speed X', 'Presence', 'Blocked', 'Strained']),
     ('Battle Structure', ['Battle', 'Skirmish', 'Attacker / Defender', 'Seize the Initiative', 'Tactic', 'Field', 'Casualty', 'Initiative', BLUNDER, 'Strike', 'to-Strike number', 'AP', 'Save', 'Endurance', 'Fatigued', FATIGUE_TOKEN, 'Morale', 'Break check', 'Panic check', 'Rout', 'Fall Back']),
-    ('Combat Keywords — Defense', [PARRY, RIPOSTE, RECOVER, ENDURING, NO_PARRY, MINUS_1_TBH, PLANISHING]),
+    ('Combat Keywords — Defense', [PARRY, RIPOSTE, RECOVER, ENDURING, MINUS_1_TBH, PLANISHING]),
     ('Combat Keywords — Offense', [SHATTER_ARMOR, CLEAVE, POISON, DESTROY_SHIELD, UNSTOPPABLE, SERRATED]),
-    ('Combat Keywords — Handling', ['Equipped', STEADY, UNWIELDY, NIMBLE, DRILLED, TWO_H, DUAL_WIELD, 'Dual-equip', ONE_SHOT]),
+    ('Combat Keywords — Handling', ['Equipped', STEADY, UNWIELDY, NIMBLE, DRILLED, TWO_H, DUAL_WIELD, 'Dual-equip', FLORENTINE, NO_PARRY, ONE_SHOT]),
     ('Combat Keywords — Immune / Negate', ['Immune [keyword]', 'Negate [keyword]']),
     ('Equipment Tiers', [k for k in map(str, GLOSSARY) if k.split()[0] in {display_tier(x) for x in TIERS} | set(globals().get("ITEM_TIER_DISPLAY", {}).values()) or k == "Ranged Weapons"]),
 ]
@@ -3777,10 +3801,10 @@ WIKI_NOLINK = ["Within", "Adjacent", "Next to", "Perform", "Save", "Field"]
 # RULES_push_simple.md.
 GLOSSARY_SEE = {
     'Host': 'host',
-    'Influence': 'influence', 'Envoy': 'sending-an-envoy', 'Send an Envoy': 'sending-an-envoy',
+    'Influence': 'influence', 'Envoy': 'sending-an-envoy',
     'Council Phase': 'council-phase', 'Council Envoy': 'council-envoy', 'Intrigue Phase': 'intrigue', 'Tally Phase': 'tally',
     'Vote': 'vote', 'Support X': 'vote', 'Oppose X': 'vote', 'Abstain': 'vote',
-    **{t: 'envoy-resolution-table' for t in ('Net Influence', 'Envoy Outcome', 'Condemned', 'Failed', 'Passed', 'Endorsed')},
+    **{t: 'envoy-resolution-table' for t in ('Net Influence', 'Condemned', 'Failed', 'Passed', 'Endorsed')},
     'Renown': 'renown-track', 'Domain': 'domain-standings', 'Domain Point': 'domain-standings',
     'Standing': 'domain-standings', 'Edict': 'how-to-win-edicts',
     'Settle': 'industry-actions', 'Expand': 'industry-actions', 'Build': 'industry-actions',
@@ -3789,20 +3813,26 @@ GLOSSARY_SEE = {
     'Diplomacy': 'diplomacy-actions',
     'Treaty': 'treaties-alliances', 'Alliance': 'treaties-alliances', 'Vassal': 'vassalization', 'Suzerain': 'vassalization',
     'Public Order': 'public-order', 'Faith X': 'public-order', 'Doubt X': 'public-order',
-    'Upkeep': 'treasury-upkeep', SHUTTER_TERM: 'insolvency-bankruptcy', 'Craft': 'who-can-trade', 'Can Trade': 'who-can-trade',
+    'Upkeep': 'treasury-upkeep', DUES_TERM: 'treasury-upkeep', SHUTTER_TERM: 'insolvency-bankruptcy', 'Craft': 'who-can-trade', 'Can Trade': 'who-can-trade',
     'War Weariness': 'innate-public-order-modifiers',
     'Settlement Ward': 'settlement-wards', CHAIN_TERM: 'mastery-chain', CHAIN_TERM + " X": 'mastery-chain',
     'Root': 'root',
     **{t: 'timers' for t in TIMERS},
     **{t: 'territory-terrain' for t in ('Territory', 'Province', 'Border', 'Controlled', 'Contested', 'Uncontested',
                                          'Uncontrolled', 'Range X', 'Within', 'Adjacent', 'Next to')},
-    'Reach': 'settlement-reach', 'Reach X': 'settlement-reach',
+    'Reach X': 'settlement-reach',
     'Bandit': 'bandits', 'Outlaw Country': 'outlaw-country', 'Wild Outlaw Country': 'outlaw-country', 'Siege': 'siege-warfare',
     'Speed X': 'speed', 'Presence': 'rule-commanding-presence', 'Blocked': 'blocked-armies',
     'Skirmish': 'the-skirmish-steps', 'Seize the Initiative': 'seize', 'Tactic': 'tactic-matrix', 'Field': 'form-line',
     'Initiative': 'initiative', BLUNDER: 'initiative', 'Strike': 'strike', 'to-Strike number': 'strike',
     'Save': 'defend', 'Panic check': 'panic', 'Endurance': 'fatigue', 'Fatigued': 'fatigue', FATIGUE_TOKEN: 'fatigue',
     'Break check': 'fatigue', 'Rout': 'end-skirmish',
+    'Era': 'game-structure', 'Season': 'seasons', 'Empire Phase': 'empire-phase', 'Envoy Phase': 'envoy-phase',
+    'Rest Phase': 'rest-phase', 'Treasury': 'treasury-upkeep', 'Insolvent': 'insolvency-bankruptcy',
+    'Bankrupt': 'insolvency-bankruptcy', 'Trade Agreement': 'who-can-trade', 'Trade Partner': 'who-can-trade',
+    'Settlement': 'settlements', 'Hamlet': 'hamlets', 'Infrastructure': 'infrastructure', 'Wonder': 'infrastructure',
+    'Army': 'armies-overview', 'Lay Siege': 'beginning-a-siege', 'Capture': 'resolving-a-siege', 'Sack': 'resolving-a-siege',
+    'Pillage': 'prowess-actions',
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════════════════════
@@ -3851,7 +3881,7 @@ def holding_combat_tags(text, sim=False):
     # combat keywords
     for pat, tok in ((r"\bPlanishing\b", "Planishing"), (r"\bSerrated\b", "Serrated"), (r"gain\s+Poison", "Poison"),
                      (r"gain\s+Riposte", "Riposte"), (r"\bNimble\b", "Nimble"), (r"\bEnduring\b", "Enduring"),
-                     (r"\bDrilled\b", "Drilled"), (r"(?<!Settlements gain )Immune Strained(?! during)", "Immune Strain"),
+                     (r"\bDrilled\b", "Drilled"), (r"(?<!Settlements gain )Immune Strained(?! during)", IMMUNE_STRAIN),
                      (r"\+1 to Strike", "Strike +1"), (r"max initiative is increased to 3", "MaxInit3"),
                      (r"Always gains Seize the Initiative", "Seize: first"), (r"Righteous Fervour", "Righteous Fervour"),
                      (r"Unlocks Arquebus", "Artillery Park"), (r"(?:^|;\s*)Initiative \+1\b", "Init +1"),
@@ -3923,16 +3953,16 @@ AI_PROFILES = {c: {"domains": v["domains"], "archetype": v["archetype"], "action
 
 # ── PHASE_REFORM text (runs last, after GLOSSARY_SEE / NAME_DISPLAY) ──────────────────────────────────────────
 if PHASE_REFORM:
-    GLOSSARY["Council Phase"] = ("The phase after the Empire Phase: each player sends a free Council Envoy of Industry, which performs "
-                                 "the Era's Council actions. There is no vote.")
-    GLOSSARY["Council Envoy"] = "A free Envoy of Industry sent in the End of Empire Phase; auto-Abstained, net Influence floored at 1."
+    GLOSSARY["Council Phase"] = ("The phase after the Empire Phase: each player sends a free Council Envoy of Industry, which Performs "
+                                 "the Era's Council actions. There is no Vote.")
+    GLOSSARY["Council Envoy"] = "A free Envoy of Industry sent in the End of Empire Phase; auto-Abstained, Net Influence floored at 1."
     GLOSSARY["Intrigue Phase"] = GLOSSARY["Intrigue Phase"].replace("after the Forum", "after the Diplomacy step")
     NAME_DISPLAY["Council Phase"] = ALIASES["Council Phase"] = "End of Empire Phase"
     _ALIAS_RE = _re_disp.compile(r"\b(" + "|".join(_re_disp.escape(k) for k in sorted(ALIASES, key=len, reverse=True)) + r")\b")   # include the rename
     if "Council Phase" in GLOSSARY_SEE: GLOSSARY_SEE["Council Phase"] = "end-of-empire-phase"
     GLOSSARY["Council Phase"] += " In Spring it is a Diplomacy step instead (offers between players)."
     # no Council vote and no Diplomacy Envoys
-    GLOSSARY["Envoy"] = GLOSSARY["Envoy"].replace("Council Envoys act on the voted Domain", f"Council Envoys are of {COUNCIL_DOMAIN}")
+    GLOSSARY["Envoy"] = "Your means of acting: declare a Domain and spend 1 Envoy, and if it passes, choose and Perform an action of that Domain. Personal Envoys come from your Era; every player also sends a free Council Envoy."
     GLOSSARY["Host"] = GLOSSARY["Host"].replace("(Council vote, ", "(")
     GLOSSARY["Max Influence"] = GLOSSARY["Max Influence"].replace(" (the Era's rank on Diplomacy Envoys)", "")
     GLOSSARY["Standing Rank"] = GLOSSARY["Standing Rank"].replace(" Diplomacy uses the Era's rank.", "")

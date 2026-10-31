@@ -429,10 +429,10 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
     a_loadouts = [p[0] for p in pairs]
     b_loadouts = [p[1] for p in pairs]
     # === Domain-standing OPPONENT debuffs (confers:*) — mirror the scalar engine ===
-    # A build with Established Cunning carries "confers:Blocked"; Sovereign Cunning "confers:Strain".
+    # A build with Established Cunning carries "confers:Blocked"; Sovereign Cunning "confers:Strained".
     # These debuff the OPPONENT, not self. Strip 'confers:X' from each side and add X to the other
     # side's extra_tags BEFORE pack_side builds the StaticArmys — base_init already reads Blocked
-    # (-1 init first skirmish unless Immune Blocked) and Strain (-1 init unless Immune Strain), so the
+    # (-1 init first skirmish unless Immune Blocked) and Strained (-1 init unless Immune Strained), so the
     # init effect is honored automatically once the tag lands on the right army.
     def _apply_confers_pair(ld_self, ld_opp):
         confers = {t.split(":", 1)[1] for t in ld_self.extra_tags if t.startswith("confers:")}

@@ -131,7 +131,7 @@ _MON_ABBR = {
     "Outrider Intercept Post": "OuInPo",
 }
 # Tags absorbed into the domain-standing tuple (they ARE the standing's grant):
-_DOMAIN_TAGS = {"Immune Blocked", PARRY, "confers:Blocked", "confers:Strain"}
+_DOMAIN_TAGS = {"Immune Blocked", PARRY, "confers:Blocked", "confers:" + STRAIN}
 def _standing_letter(v):
     return "S" if v >= _SOV else ("E" if v >= _EST else ("R" if v >= _RIS else "N"))
 def _name(retinue, weapon, shield, armor, ranged, has_tiltyard, extra_tags, playstyle=None,
@@ -622,7 +622,7 @@ def compute_pursuit_cost(pursuits):
     if domain["Cunning"] >= _EST:
         tags.add("confers:Blocked")
     if domain["Cunning"] >= _SOV:
-        tags.add("confers:Strain")
+        tags.add("confers:" + STRAIN)
     return mpc, domain, tags
 
 

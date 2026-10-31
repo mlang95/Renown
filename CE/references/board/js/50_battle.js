@@ -134,12 +134,12 @@ function sideCalc(X){
   if(unw&&tmI>0){tmNote="Unwieldy: ignores the Tactic's +"+tmI+" Initiative";tmI=0;}
   if(stdy&&tmI<0){tmNote="Steady: ignores the Tactic's −"+(-tmI)+" Initiative";tmI=0;}
   const mt=new Set(u.mods.map(m=>m.tok).concat(eqTags));
-  // the opponent's Standing effects aimed at this side (STANDING_EFFECTS: "Opponent gains Strain" / "… Blunder in the first Skirmish")
+  // the opponent's Standing effects aimed at this side (STANDING_EFFECTS: "Opponent gains Strained" / "… Blunder in the first Skirmish")
   // this side's own Standing effects (STANDING_EFFECTS: "Immune Blunder", "Immune Panic")
   const sFx=standingFxOf(sideDomains(sd,p)),immBlunder=sFx.some(f=>/Immune Blunder/i.test(f.text)),stImmPanic=sFx.some(f=>/Immune Panic/i.test(f.text));
-  const oFx=standingFxOf(sideDomains(o,sideArmy(o).p)),oStrain=oFx.find(f=>/Opponent gains Strain/i.test(f.text)),
+  const oFx=standingFxOf(sideDomains(o,sideArmy(o).p)),oStrain=oFx.find(f=>/Opponent gains Strained/i.test(f.text)),
         oBlunder=(B.sk||1)===1?oFx.find(f=>/Opponent gains Blunder in the first Skirmish/i.test(f.text)):null;
-  const strainI=((effStrained(p,a)||(oStrain&&!immuneStrainIn(p,a)))&&!mt.has("Immune Strain"))?-1:0;   // Strain: −1 Init unless Immune Strain (or inside a controlled Settlement: Granary)
+  const strainI=((effStrained(p,a)||(oStrain&&!immuneStrainIn(p,a)))&&!mt.has("Immune Strained"))?-1:0;   // Strained: −1 Init unless Immune Strained (or inside a controlled Settlement: Granary)
   const maxI=(mt.has("MaxInit3")||[...mt].some(t=>/^Crit /.test(t)))?INIT_MAX+1:INIT_MAX;   // Ministry: ceiling +1
   const rawI=(wpn.init||0)+(sh.init||0)+initPlus+tmI+seize+hillI+strainI+sd.adj.I;
   const I=Math.max(INIT_MIN,Math.min(maxI,rawI)),blunder=!immBlunder&&(I<=INIT_MIN||!!oBlunder);
@@ -195,7 +195,7 @@ function sideCalc(X){
   if(hasM("Always Unwieldy"))trig.push("Faction: always Unwieldy"+(hasM("No Immune Unwieldy")?", can't gain Immune Unwieldy":""));
   if(immBlunder&&(I<=INIT_MIN||oBlunder))trig.push("Immune Blunder (Standing): no Blunder");
   if(blunder)trig.push("Blunder: to-Strike "+CAP+"+ before penalties"+(oBlunder&&I>INIT_MIN?" (enemy "+oBlunder.t+" "+oBlunder.d+", first Skirmish)":""));
-  if(a.strained||siegeStrains(p,a)||oStrain)trig.push(strainI?"Strained −1 Init"+(a.strained?"":siegeStrains(p,a)?" (Besieged)":" (enemy "+oStrain.t+" "+oStrain.d+")"):"Immune Strain: no Init loss");
+  if(a.strained||siegeStrains(p,a)||oStrain)trig.push(strainI?"Strained −1 Init"+(a.strained?"":siegeStrains(p,a)?" (Besieged)":" (enemy "+oStrain.t+" "+oStrain.d+")"):"Immune Strained: no Init loss");
   {const ms=moraleStanding(a);if(ms)trig.push(ms.src+" Morale +"+ms.n+": Morale value −"+ms.n+" (steadier)");}
   {const mp=moralePO(a);if(mp)trig.push(mp.src+" (Public Order) Morale −"+mp.n+": Morale value +"+mp.n);}
   if(maxI>INIT_MAX)trig.push("Init ceiling +"+maxI);
@@ -419,7 +419,7 @@ function tacPair(X,mine,theirs){const O=X==="A"?"B":"A",w=X==="A"?whatIf(mine,th
 const tgtTxt=v=>v>(BT.faces||10)?"can't":v+"+";
 function tacCardBody(X,t){const O=X==="A"?"B":"A",opp=BT.tactics.filter(u=>tacOK(O,u)),L=opp.map(u=>Object.assign({u},tacPair(X,t,u)||{})).filter(r=>r.cx);
   if(!L.length)return '<b>'+esc(t)+'</b>';const fight=L.filter(r=>!r.ends&&!r.none),f1=v=>v.toFixed(1);
-  if(!fight.length)return '<b>'+esc(t)+'</b><div class="note">Ends the Battle'+(L[0].strain?' — you gain Strain':'')+'</div>';
+  if(!fight.length)return '<b>'+esc(t)+'</b><div class="note">Ends the Battle'+(L[0].strain?' — you gain Strained':'')+'</div>';
   const mr=a=>{const lo=Math.min(...a),hi=Math.max(...a);return lo===hi?sgnD(lo):sgnD(lo)+" to "+sgnD(hi);};
   const avgD=fight.reduce((s,r)=>s+r.deal,0)/fight.length,avgT=fight.reduce((s,r)=>s+r.take,0)/fight.length,first=fight.filter(r=>r.first==="you").length;
   const best=fight.reduce((m,r)=>r.deal-r.take>m.deal-m.take?r:m),worst=fight.reduce((m,r)=>r.deal-r.take<m.deal-m.take?r:m),edge=avgD-avgT;
@@ -435,7 +435,7 @@ function tacDetailHTML(X,t){if(!t)return '<div class="note" style="margin-top:4p
   const rows=opp.map(u=>{const r=tacPair(X,t,u);if(!r)return "";const mod=m=>fmtMod(m||{})||"—";
     const cell=r.cx&&TMX[(X==="A"?t+"|"+u:u+"|"+t)],mine=cell?(X==="A"?cell[0]:cell[1]):null,their=cell?(X==="A"?cell[1]:cell[0]):null;
     return '<tr'+(seen===u?' class="on"':'')+'><td>'+esc(u)+(seen===u?' <b>(their pick)</b>':'')+'</td><td>'+esc(mod(mine))+'</td><td>'+esc(mod(their))+'</td>'+
-      (r.ends||r.none?'<td colspan="4">'+(r.ends?'Battle ends'+(r.strain?' · you gain Strain':''):'no combat this Skirmish')+'</td>':
+      (r.ends||r.none?'<td colspan="4">'+(r.ends?'Battle ends'+(r.strain?' · you gain Strained':''):'no combat this Skirmish')+'</td>':
       '<td>'+r.first+'</td><td>'+dm(r.cx.strikeParts,r.cx.toStrike)+' / '+dm(r.co.saveParts,r.co.save)+'</td><td>'+dm(r.co.strikeParts,r.co.toStrike)+' / '+dm(r.cx.saveParts,r.cx.save)+'</td>'+
       '<td style="color:'+(r.deal>r.take?'var(--income)':r.deal<r.take?'var(--upkeep)':'var(--dim)')+'">'+f1(r.deal)+' / '+f1(r.take)+'</td>')+'</tr>';}).join("");
   return '<div class="tc-detail"><div class="note"><b>'+esc(t)+'</b> with your '+esc(c0.rt&&c0.a.retinue||"")+' ×'+c0.front+' in front, '+esc(c0.wName)+', '+esc(c0.a.armor||"Cloth")+(c0.a.shield&&c0.a.shield!=="None"&&!c0.shOff?' + '+esc(c0.a.shield):'')+

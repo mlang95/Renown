@@ -100,11 +100,11 @@ class StaticArmy:
         self.size_start = ld.size
         self.to_hit = ret["to_hit"]
         # Conditioning Field mastery: +1 Max Endurance.
-        # Royal Pavilion's Immune Strain innate ALSO grants +1 Max Endurance (stacks with Cond Field).
+        # Royal Pavilion's Immune Strained innate ALSO grants +1 Max Endurance (stacks with Cond Field).
         endurance_bonus = 0
         if "Cond Field" in ld.extra_tags:
             endurance_bonus += 1
-        # NOTE: Royal Pavilion's Immune Strain no longer grants +1 endurance (reverted in v2).
+        # NOTE: Royal Pavilion's Immune Strained no longer grants +1 endurance (reverted in v2).
         self.endurance_start = ret["endurance"] + endurance_bonus
         # Ministry of Military Strategy innate: maximum initiative ceiling raised to 3 (default 2).
         self.max_init = 3 if ("MaxInit3" in ld.extra_tags
@@ -347,7 +347,7 @@ class StaticArmy:
             i += 1
         if self.is_attacker and first:
             i += 1
-        # Strain: -1 initiative (combat-phase effect). Negated by Immune Strain (Royal Pavilion).
+        # Strained: -1 initiative (combat-phase effect). Negated by Immune Strained (Royal Pavilion).
         if STRAIN in tags and IMMUNE_STRAIN not in tags:
             i -= 1
         # Blocked: -1 initiative in the FIRST skirmish only — unless Immune Blocked (Rising Prowess).
@@ -815,9 +815,9 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
 
     # === Domain-standing OPPONENT debuffs (confers:*) ===
     # A build with Established Cunning carries a "confers:Blocked" marker; Sovereign Cunning carries
-    # "confers:Strain". These are NOT self-effects — they debuff the OPPONENT. Here we transfer them:
+    # "confers:Strained". These are NOT self-effects — they debuff the OPPONENT. Here we transfer them:
     # strip 'confers:X' from each side's own tags and add X to the OTHER side's extra_tags, so the
-    # rest of the engine (which reads extra_tags) applies Blocked/Strain to the correct army. Done
+    # rest of the engine (which reads extra_tags) applies Blocked/Strained to the correct army. Done
     # once, before any StaticArmy is built.
     def _apply_confers(ld_self, ld_opp):
         confers = {t.split(":", 1)[1] for t in ld_self.extra_tags if t.startswith("confers:")}
@@ -833,7 +833,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         # apply A's confers to B, then B's confers to A (order independent — disjoint targets)
         ld_a, ld_b = _apply_confers(ld_a, ld_b)
         ld_b, ld_a = _apply_confers(ld_b, ld_a)
-    # Equipment declaration (playstyle choice in the sim) — after confers so Blocked/Strain count.
+    # Equipment declaration (playstyle choice in the sim) — after confers so Blocked/Strained count.
     ld_a, ld_b = resolve_equipment(ld_a, ld_b)
 
     tab = get_tactic_tables()
@@ -1022,7 +1022,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
     b_shield_destroyed = np.zeros(n_runs, dtype=bool)
     # Track when a side's battle ended specifically via a successful Fall Back (i.e., that
     # side played FB AND the matrix cell was an "end" outcome). Used downstream by
-    # horde_mode to apply Strain (skip next-turn endurance recovery, unless Immune Strain).
+    # horde_mode to apply Strained (skip next-turn endurance recovery, unless Immune Strained).
     a_ended_by_fb = np.zeros(n_runs, dtype=bool)
     b_ended_by_fb = np.zeros(n_runs, dtype=bool)
     FB_IDX = 6  # Fall Back tactic index (Scout=0, Ambush=1, Flank=2, Charge=3, FF=4, DF=5, FB=6)
@@ -1813,7 +1813,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         "b_shield_destroyed_rate": float(b_shield_destroyed.mean()) if b_static.has_shield else 0.0,
         # Successful Fall Back rates: proportion of runs where the battle ended specifically
         # because this side played Fall Back into one of the matrix "end" cells
-        # (Scout/FB, Ambush/FB, DF/FB, or FB/FB). horde_mode uses these to apply Strain.
+        # (Scout/FB, Ambush/FB, DF/FB, or FB/FB). horde_mode uses these to apply Strained.
         "a_ended_by_fallback_rate": float(a_ended_by_fb.mean()),
         "b_ended_by_fallback_rate": float(b_ended_by_fb.mean()),
         # Casualty source aggregates (mean per run)
@@ -1889,7 +1889,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             "b_killed_flee":   b_rout_cas_total.copy(),  # alias (legacy)
             "a_cause_of_wipe": a_cause_of_wipe.copy(),
             "b_cause_of_wipe": b_cause_of_wipe.copy(),
-            # Per-run flags for successful Fall Back (horde_mode uses these for Strain)
+            # Per-run flags for successful Fall Back (horde_mode uses these for Strained)
             "a_ended_by_fallback": a_ended_by_fb.copy(),
             "b_ended_by_fallback": b_ended_by_fb.copy(),
         })

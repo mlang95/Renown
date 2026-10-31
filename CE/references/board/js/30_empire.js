@@ -125,7 +125,7 @@ function renderList(){
         meta.title=(!rs.ok?"missing: "+rs.missing.join(", "):"")+(rs.manual?(rs.ok?"":"\n")+"check manually: "+rs.toks.filter(x=>x.ok===null).map(x=>x.tok).join(", "):"");
         if(!rs.ok)meta.style.color="var(--upkeep)";row.querySelector(".rtop").insertBefore(meta,row.querySelector(".addbtn"));}
       const bt=infraBuildTime(n);
-      sub(row,[r.tier,"Upkeep "+(r.upkeep||0),"Build Timer "+bt].concat(r.requirement?["req: "+r.requirement]:[]).join(" · "),r.effect_raw);
+      sub(row,[r.tier,DUES()+" "+(r.upkeep||0),"Build Timer "+bt].concat(r.requirement?["req: "+r.requirement]:[]).join(" · "),r.effect_raw);
       tip(row,[r.effect_raw,r.requirement?"Requires: "+r.requirement:""]);
       list.appendChild(row);
     });
@@ -171,7 +171,7 @@ function pursuitRow(n){
   if(r.unlock_raw&&r.unlock_raw!=="-"&&r.unlock_raw!=="—"&&(!CAT.avail||us.manual)){const m=document.createElement("span");m.className="meta";
     m.textContent=(us.ok?(us.manual?"? ":""):"🔒 ")+r.unlock_raw;m.title=us.toks.map(x=>(x.ok===false?"✗ ":x.ok?"✓ ":"? ")+x.t+" — "+x.why).join("\n");
     if(!us.ok)m.style.color="var(--upkeep)";row.querySelector(".rtop").insertBefore(m,row.querySelector(".addbtn"));}
-  const parts=[NATURAL.has(n)?"Natural":"Upkeep "+catUpkeep(n),"Build Timer "+pursuitBuildTime(n)];
+  const parts=[NATURAL.has(n)?"Natural":DUES()+" "+catUpkeep(n),"Build Timer "+pursuitBuildTime(n)];
   parts.unshift(r.type);
   sub(row,parts.join(" · "),NATURAL.has(n)?(r.innate_raw||"").replace(/^Natural\s*[;,.]\s*/i,""):r.innate_raw);
   tip(row,[r.innate_raw,(r.efficient||[]).length?"Efficient: "+r.efficient.join(", "):"",r.unlock_raw&&r.unlock_raw!=="-"&&r.unlock_raw!=="—"?"Unlock: "+r.unlock_raw:""]);
@@ -379,7 +379,8 @@ function atomEl(a){
 // One effect display for Holdings and Infrastructure, read from the effect text ("; " between parts): properties
 // and plain numbers ("Natural", "Gold +500", "Craft +2") as chips, every other part on its own line. A part that
 // starts lower-case continues the one before it.
-const FX_CHIP=/^(?:Natural|Can Trade|Can Muster|(?:Gold|Craft|Influence|Authority|Max Influence|Faith|Doubt|Reach|Speed|Siege Timer|Build Timer|Muster Timer|Upkeep|Muster Limit|Tax Income)\s+[+\-−]\s?\d+(?:\s+in\s+(?:Winter|Spring|Summer|Fall))?)$/;
+let FX_CHIP_RE=null;
+function FX_CHIP_TEST(p){if(!FX_CHIP_RE)FX_CHIP_RE=new RegExp("^(?:Natural|Can Trade|Can Muster|(?:Gold|Craft|Influence|Authority|Max Influence|Faith|Doubt|Reach|Speed|Siege Timer|Build Timer|Muster Timer|Upkeep|"+DUES()+"|Muster Limit|Tax Income)\\s+[+\\-−]\\s?\\d+(?:\\s+in\\s+(?:Winter|Spring|Summer|Fall))?)$");return FX_CHIP_RE.test(p);}
 function fxParts(raw){const out=[];String(raw||"").split(/;\s*/).forEach(p=>{p=p.trim();if(!p||/^[-—]$/.test(p))return;
   if(out.length&&/^[a-z]/.test(p))out[out.length-1]+="; "+p;else out.push(p);});return out;}
 function effectView(raw,atoms,hideCombat){
@@ -387,9 +388,9 @@ function effectView(raw,atoms,hideCombat){
   const atomOf=p=>(atoms||[]).find(a=>a.text===p)||(atoms||[]).find(a=>p.startsWith(a.text))||{text:p,cat:"other"};
   const parts=fxParts(raw).filter(p=>{const c=atomOf(p).cat;return !(hideCombat&&(c==="combat"||c==="other"||c==="natural"));});
   const chips=document.createElement("div");chips.className="atoms";
-  parts.filter(p=>FX_CHIP.test(p)).forEach(p=>{const a=atomOf(p);chips.appendChild(atomEl(Object.assign({},a,{text:a.season?p.replace(/\s+in\s+\w+$/,""):p})));});   // the season shows as its tag
+  parts.filter(p=>FX_CHIP_TEST(p)).forEach(p=>{const a=atomOf(p);chips.appendChild(atomEl(Object.assign({},a,{text:a.season?p.replace(/\s+in\s+\w+$/,""):p})));});   // the season shows as its tag
   if(chips.children.length)wrap.appendChild(chips);
-  parts.filter(p=>!FX_CHIP.test(p)).forEach(p=>{const a=atomOf(p),ph=a.season?"season":(PHASE[a.cat]||"other");
+  parts.filter(p=>!FX_CHIP_TEST(p)).forEach(p=>{const a=atomOf(p),ph=a.season?"season":(PHASE[a.cat]||"other");
     const d=document.createElement("div");d.className="fxl"+(a.cond?" cond":"");d.style.borderLeftColor=cvar(PHASE_COLOR[ph]);d.innerHTML=kwify(p);wrap.appendChild(d);});
   if(!wrap.children.length){const s=document.createElement("span");s.className="note";s.textContent="—";wrap.appendChild(s);}
   return wrap;}
@@ -947,15 +948,15 @@ function placementSelect(inst){
 }
 // flat, unconditional, non-seasonal atoms only (the same rule as the headline totals)
 function contribAcc(r,masteryEarned,acc){acc=acc||{};
-  const addA=(atoms,act)=>{if(!act)return;atoms.forEach(a=>{if(a.flat&&!a.season&&["gold","craft","faith","doubt","influence","upkeep"].includes(a.cat))acc[a.cat]=(acc[a.cat]||0)+a.val;});};
+  const addA=(atoms,act)=>{if(!act)return;atoms.forEach(a=>{if(a.flat&&!a.season&&["gold","craft","faith","doubt","influence","upkeep","dues"].includes(a.cat))acc[a.cat]=(acc[a.cat]||0)+a.val;});};
   addA(r.innate,true); if(r.mastery_raw)addA(r.mastery,masteryEarned);return acc;}
 function contribChips(r,masteryEarned){return accChips(contribAcc(r,masteryEarned));}
 function accChips(acc){
   const wrap=document.createElement("div");wrap.className="atoms";
-  ["gold","upkeep","craft","influence","faith","doubt"].forEach(catk=>{
+  ["gold","upkeep","dues","craft","influence","faith","doubt"].forEach(catk=>{
     if(!acc[catk])return;const ph=PHASE[catk],col=cvar(PHASE_COLOR[ph]);
     const s=document.createElement("span");s.className="atom";s.style.borderColor=col;s.style.color=col;
-    s.textContent=cap(catk)+" "+(acc[catk]>0?"+":"")+acc[catk];wrap.appendChild(s);});
+    s.textContent=(catk==="dues"?DUES():cap(catk))+" "+(acc[catk]>0?"+":"")+acc[catk];wrap.appendChild(s);});
   return wrap;
 }
 function pursuitDetail(r,hideCombat,me,inst,have,craft,tc){
@@ -1131,7 +1132,7 @@ function renderInfraSection(kind,src,have,hideCombat){
     if(!rs.ok&&rf==="on")card.classList.add("illegal");
     itm();const isFac=S.facInfra.includes(n);
     if(isFac){const fb=document.createElement("span");fb.className="badge earn";fb.textContent="Faction";h.appendChild(fb);}
-    if(r.upkeep&&!isFac){const ub=document.createElement("span");ub.className="badge";ub.style.borderColor="var(--upkeep)";ub.style.color="var(--upkeep)";ub.textContent="up "+r.upkeep;h.appendChild(ub);}
+    if(r.upkeep&&!isFac){const ub=document.createElement("span");ub.className="badge";ub.style.borderColor="var(--upkeep)";ub.style.color="var(--upkeep)";ub.textContent=DUES()+" "+r.upkeep;h.appendChild(ub);}
     if(S.itimer[n]>0)h.appendChild(timerCtl("build",S.itimer[n],d=>{S.itimer[n]=Math.max(0,S.itimer[n]+d);if(!S.itimer[n])delete S.itimer[n];save();render();}));
     if(S.idmg[n]>0)h.appendChild(timerCtl("repair",S.idmg[n],d=>{S.idmg[n]=Math.max(0,S.idmg[n]+d);if(!S.idmg[n])delete S.idmg[n];save();render();}));
     if(S.idmg[n]>0&&dmgSrcOf(S,n)){const ds=document.createElement("span");ds.className="neg";ds.textContent=dmgSrcOf(S,n);h.appendChild(ds);}
@@ -1146,7 +1147,7 @@ function renderInfraSection(kind,src,have,hideCombat){
     if(!open){const sum=accChips(contribAcc({innate:r.atoms},false));sum.style.marginTop="5px";if(sum.children.length)card.appendChild(sum);}   // as a Holding's cursory view
     if(open){
       const sub=document.createElement("div");sub.className="sub";
-      sub.textContent="upkeep "+(isFac?0:r.upkeep)+(r.requirement?(" · req: "+r.requirement):"");card.appendChild(sub);
+      sub.textContent=DUES()+" "+(isFac?0:r.upkeep)+(r.requirement?(" · req: "+r.requirement):"");card.appendChild(sub);
       {const tl=document.createElement("div");tl.className="sub";
         const bb=document.createElement("button");bb.textContent="build timer";bb.onclick=e=>{e.stopPropagation();const t=infraBuildTime(n);if(t>0){S.itimer[n]=t;save();render();flash(n+" Build Timer "+t+buildNote(infraBaseTime(n)));}else flash(n+": Build Timer 0 — builds immediately"+buildNote(infraBaseTime(n)));};
         const db=document.createElement("button");db.textContent=S.idmg[n]>0?"repaired":"damage";db.onclick=e=>{e.stopPropagation();if(S.idmg[n]>0)delete S.idmg[n];else{S.idmg[n]=REPAIR_T;delete S.ishut[n];}if(S.idmgBy)delete S.idmgBy[n];save();render();};
@@ -1499,7 +1500,7 @@ function holdsActive(b,name){return withBoard(b,()=>(PC[name]||0)>0);}
 function playersWithout(name){const me=playerOfBoard(S);if(!me)return 0;const nm=String(name).replace(/\.$/,"").trim();
   return D.players.filter(q=>!sameP(q,me)&&!holdsActive(q.board,nm)).length;}
 function calcMetrics(have,earned,tc){
-  let gold=0,reduce=0,craft=0,infl=0,faith=0,doubt=0,scale=0,infraUp=0,extort=0,extTrig=0;
+  let gold=0,reduce=0,dues=0,craft=0,infl=0,faith=0,doubt=0,scale=0,infraUp=0,extort=0,extTrig=0;
   const seasonAdd={Spring:0,Summer:0,Fall:0,Winter:0};
   const phaseCount={};
   const naturalCount=Object.keys(PC).filter(n=>NATURAL.has(n)).reduce((a,n)=>a+PC[n],0)
@@ -1516,6 +1517,7 @@ function calcMetrics(have,earned,tc){
       if(a.season){seasonAdd[a.season]+=a.val*q;return;}
       if(a.cat==="gold")gold+=a.val*q;
       else if(a.cat==="upkeep")reduce+=(-a.val)*q;
+      else if(a.cat==="dues")dues+=(-a.val)*q;            // "Dues -X": Holding / Infrastructure costs only
       else if(a.cat==="craft")craft+=a.val*q;else if(a.cat==="influence")infl+=a.val*q;
       else if(a.cat==="faith")faith+=a.val*q;else if(a.cat==="doubt")doubt+=a.val*q;
     });
@@ -1554,8 +1556,9 @@ function calcMetrics(have,earned,tc){
   const armyGross=S.armies.reduce((s,a)=>s+armyUpkeep(a),0);
   const netArmy=Math.max(0,armyGross-reduce);
   const unusedReduce=Math.max(0,reduce-armyGross);
-  const baseNet=gold+scale-infraUp-pursUp-netArmy;
-  return {gold,reduce,craft,infl,faith,doubt,scale,infraUp,pursUp,armyGross,netArmy,unusedReduce,baseNet,seasonAdd,phaseCount,extort,extTrig};
+  const duesCut=Math.max(0,Math.min(dues,infraUp+pursUp));   // never below 0
+  const baseNet=gold+scale-infraUp-pursUp+duesCut-netArmy;
+  return {duesCut,gold,reduce,craft,infl,faith,doubt,scale,infraUp,pursUp,armyGross,netArmy,unusedReduce,baseNet,seasonAdd,phaseCount,extort,extTrig};
 }
 function computeTotals(have,earned,tc){
   const m=calcMetrics(have,earned,tc);
@@ -1641,7 +1644,7 @@ function goldBreak(b,season){return withBoard(b,()=>{const have=new Set(Object.k
   if(sa)inc.push([sea,sa]);if(tx)inc.push(["Winter tax",tx]);if(tr)inc.push(["Trade",tr]);
   const nh=S.placed.filter(q=>pursuitUpkeep(q)>0).length,ni=Object.keys(S.infra||{}).concat(Object.keys(S.wonders||{})).filter(infraOn).length;
   if(m.pursUp)cost.push(["Holdings ×"+nh,-m.pursUp]);if(m.infraUp)cost.push(["Infrastructure & Wonders ×"+ni,-m.infraUp]);
-  if(m.armyGross)cost.push(["Armies ×"+S.armies.length,-m.armyGross]);if(m.armyGross&&m.reduce)cost.push(["Army upkeep reductions",Math.min(m.reduce,m.armyGross)]);
+  if(m.armyGross)cost.push(["Armies ×"+S.armies.length,-m.armyGross]);if(m.duesCut)cost.push([DUES()+" −X",m.duesCut]);if(m.armyGross&&m.reduce)cost.push(["Upkeep −X (Armies)",Math.min(m.reduce,m.armyGross)]);
   return {inc,cost,sea,net:m.baseNet+sa+tx+tr};});}
 const gbV=v=>(v>0?"+":v<0?"\u2212":"")+Math.abs(v).toLocaleString();
 // Treasury figure in the Ledger header + the Gold log (also after typing / ± buttons, which don't re-render)

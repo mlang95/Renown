@@ -17,7 +17,7 @@ function dispScore(t){if(!t)return t;
     .replace(/\bAuthority(\**\s?)([+\-\u2212\u00b1]\s?\d+|[+\-\u2212\u00b1]?X\b)/g,SCORE+"$1$2");}
 const CHAIN=DATA.chainTerm||"Efficient", CHAINL=CHAIN.toLowerCase();   // display name of the efficient field
 const PHASE = {gold:"income",scale:"income",extort:"income",recoup:"income",tax:"income",
-  craft:"craft",influence:"influence",authority:"envoy",faith:"order",doubt:"order",upkeep:"upkeep",
+  craft:"craft",influence:"influence",authority:"envoy",faith:"order",doubt:"order",upkeep:"upkeep",dues:"upkeep",
   build_timer:"build",siege_timer:"battle",speed:"battle",combat:"battle",envoy:"envoy",
   natural:"other",other:"other"};
 const PHASE_COLOR={income:"--income",craft:"--craft",influence:"--influence",order:"--order",

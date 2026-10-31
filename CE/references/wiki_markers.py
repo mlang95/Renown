@@ -178,7 +178,7 @@ def _t_terrain():
 def _t_infrastructure():
     TIER_ORD = {t: i for i, t in enumerate(getattr(rd, "INFRA_TIERS", ["Primitive", "Developed", "Sophisticated"]))}
     items = sorted(rd.INFRASTRUCTURE.items(), key=lambda kv: (TIER_ORD.get(kv[1].get("tier"), 9), kv[0]))
-    return _htable(["Build", "Tier", "Upkeep", "Build Time", "Requirement", "Effect"],
+    return _htable(["Build", "Tier", getattr(rd, "DUES_TERM", "Upkeep"), "Build Time", "Requirement", "Effect"],
                    [[n, d.get("tier", ""), d.get("upkeep", ""), d.get("build_time", ""),
                      d.get("requirement", ""), d.get("empire_bonus", "")] for n, d in items])
 

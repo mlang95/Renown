@@ -110,7 +110,7 @@ A few conventions make every rule in this book read the same way:
 
 ## Resources
 
-- **Gold / Treasury** — your spendable wealth. Pays for Actions, upkeep, and Muster recruitment. Running out triggers Insolvency (see Treasury & Upkeep).
+- **Gold / Treasury** — your spendable wealth. Pays for Actions, Upkeep, {{VAL:DUES_TERM}}, and Muster recruitment. Running out triggers Insolvency (see Treasury & Upkeep).
 - **Domain Points** — gain {{VAL:DOMAIN_POINTS_PER_TURN}} each Rest Phase and spend it to raise a Domain value by 1 (see Domains & Standings).
 - **Influence** — the weight you bring to Envoy votes: spend it to Support or Oppose other players' Envoys (see Actions & Voting).
 - **Renown** — the score of the table. Gained each Rest Phase and by completing Edicts; it sets the Era. {{RULE:renown-track}}
@@ -122,7 +122,7 @@ A few conventions make every rule in this book read the same way:
 
 Each turn runs through five phases in order, then passes the Host and repeats:
 
-1. **Empire Phase**{{IDX:Empire Phase}} — Start of the Empire Phase effects, the Season, Timers, Bandit Mechanics, Influence & Envoys, income and upkeep, Public Order.
+1. **Empire Phase**{{IDX:Empire Phase}} — Start of the Empire Phase effects, the Season, Timers, Bandit Mechanics, Influence & Envoys, income, Upkeep and {{VAL:DUES_TERM}}, Public Order.
 {{IF:PHASE_REFORM}}2. **End of Empire Phase**{{IDX:End of Empire Phase}} — each player sends a free Council Envoy of Industry, performing the Era's Council actions; in Spring, a Diplomacy step instead.
 3. **Envoy Phase**{{IDX:Envoy Phase}} — send all Envoys, a Diplomacy step (offers between players),{{ELSE}}2. **Council Phase**{{IDX:Council Phase}} — a Council vote on a Domain; each player then performs one action of that Domain.
 3. **Envoy Phase**{{IDX:Envoy Phase}} — send all Envoys, a Forum,{{ENDIF}} the Intrigue Phase, vote on every Envoy, the Tally Phase, then resolve them all ({{IF:!PHASE_REFORM}}Diplomacy → {{ENDIF}}Prowess → Cunning → Piety → Industry).
@@ -146,7 +146,7 @@ Many actions set a Timer to a number of turns. Each Empire Phase, every active T
 3. **Timers** — count down every active Timer by 1 (Build, Repair, Truce, Siege, Muster, Sack, Capture, in that order), then resolve each Timer that reached 0.
 4. **Bandit Mechanics** (the Host resolves) — grow Bandit Camps by the Era; any camp at {{VAL:BANDIT_ARMY_THRESHOLD}} Retinues sends out a Bandit Army; Bandit Camps perform Cunning actions; Bandit Armies perform Move actions; spawn new Bandit Camps (in Spring, from Foster Rebellion, or from an Uprising).
 5. **Influence & Envoys** — gain Influence (not in Spring) from the Era, innate modifiers (Trade Partners, Alliances, At War, etc.), Holdings, and Infrastructure; then gain the Era's Envoys.
-6. **Income & Upkeep** — in this order: in Winter only, gain tax income from each of your Settlements by tier (see Settlements); gain Holding income; if there is a Host, the Host collects trade income and distributes it among their Trade Partners; pay Army, Holding, Infrastructure, and any other upkeep; resolve Extort effects; check your Treasury for the Wealth Edict condition.
+6. **Income & Upkeep** — in this order: in Winter only, gain tax income from each of your Settlements by tier (see Settlements); gain Holding income; if there is a Host, the Host collects trade income and distributes it among their Trade Partners; pay Army Upkeep, Holding and Infrastructure {{VAL:DUES_TERM}}, and any other costs; resolve Extort effects; check your Treasury for the Wealth Edict condition.
 7. **Public Order** — total every innate Faith / Doubt source in the Public Order tables and adjust your Public Order by the net change. *(Faith and Doubt from actions are applied the moment they're generated; see Public Order.)*
 8. **Endurance** — every Army without **Strained** gains +{{VAL:ENDURANCE_REGAIN}} Endurance; then remove Strained from all Armies. *(An Army can immediately regain these effects after losing them, if applicable.)*
 9. **Remaining effects** — resolve any remaining Each Empire Phase effects.
@@ -186,6 +186,8 @@ If a player performed a Battle or Lay Siege Move action this turn, resolve it no
 2. **Season** — advance the Season by 1.
 3. **Score** — gain {{VAL:RENOWN_PER_TURN}} Renown, then gain and spend {{VAL:DOMAIN_POINTS_PER_TURN}} Domain Point.
 4. **Change Host** — rotate the Host token clockwise to the starting player, unless it's Spring.
+
+{{GLOSSARY:Turn & Phases}}
 
 # Seasons
 
@@ -233,7 +235,7 @@ Envoys are the currency of actions: to perform an action you send an Envoy durin
 
 ### Resolving an Envoy
 
-Your Envoy begins with Authority equal to your **Standing rank** in its Domain (see Standing Rank), plus any automatic Authority ±X modifiers. *(These come from your Holdings, Infrastructure, and Faction, and apply on their own; you never spend Influence for them.)*{{IF:!PHASE_REFORM}} Diplomacy has no Standing; a Diplomacy Envoy uses the Era's rank instead.{{ENDIF}}
+Your Envoy begins with Authority equal to your **Standing Rank** in its Domain (see Standing Rank), plus any automatic Authority ±X modifiers. *(These come from your Holdings, Infrastructure, and Faction, and apply on their own; you never spend Influence for them.)*{{IF:!PHASE_REFORM}} Diplomacy has no Standing; a Diplomacy Envoy uses the Era's rank instead.{{ENDIF}}
 
 Then, clockwise from the starting player and skipping the sender, every other player may respond, with no talking during the vote: {{RULE:vote}}
 
@@ -241,7 +243,7 @@ Then, clockwise from the starting player and skipping the sender, every other pl
 - **Oppose X** — spend X of your Influence to lower it.
 - **Abstain** — spend nothing.
 
-You spend Influence only when you **Support** or **Oppose**; abstaining is free. **You can't vote on your own Envoy.** On a single vote, each player may spend up to their Max Influence: their Standing rank in that Domain{{IF:!PHASE_REFORM}} (on Diplomacy Envoys, the Era's rank){{ENDIF}}. Holdings, Infrastructure, and Factions may raise it (*Max Influence +X*). Unused Influence is discarded in the Rest Phase.
+You spend Influence only when you **Support** or **Oppose**; abstaining is free. **You can't vote on your own Envoy.** On a single vote, each player may spend up to their Max Influence: their Standing Rank in that Domain{{IF:!PHASE_REFORM}} (on Diplomacy Envoys, the Era's rank){{ENDIF}}. Holdings, Infrastructure, and Factions may raise it (*Max Influence +X*). Unused Influence is discarded in the Rest Phase.
 
 *Each player declares in turn, so the running net Influence is public — later voters can react to it. The Host, sitting just before the starting player, votes last on every Envoy they didn't send.*
 
@@ -261,7 +263,7 @@ Each outcome resolves differently by Domain — what Condemned, Failed, Passed, 
 
 {{TABLE:envoy_outcomes}}
 
-{{GLOSSARY:Council & Envoys}}
+{{GLOSSARY:Envoys & Voting}}
 
 ## Influence
 
@@ -322,7 +324,7 @@ Each Standing you gain in a Domain makes you harder to oppose there and lets you
 
 ### Standing Rank
 
-Each Standing has a rank{{IDX:Standing Rank}}: Untested {{VAL:STANDING_RANK.Untested}}, Rising {{VAL:STANDING_RANK.Rising}}, Established {{VAL:STANDING_RANK.Established}}, Sovereign {{VAL:STANDING_RANK.Sovereign}}. Your Envoys in a Domain begin at Authority equal to your rank there, and on each vote in that Domain you may Support or Oppose up to your rank — your **Max Influence**{{IDX:Max Influence}} there.{{IF:!PHASE_REFORM}} Diplomacy has no Standing and uses the Era's rank instead: Founding {{VAL:ERAS.Founding.rank}}, Ascension {{VAL:ERAS.Ascension.rank}}, Eminence {{VAL:ERAS.Eminence.rank}}, Zenith {{VAL:ERAS.Zenith.rank}}.{{ENDIF}}
+Each Standing has a Standing Rank{{IDX:Standing Rank}}: Untested {{VAL:STANDING_RANK.Untested}}, Rising {{VAL:STANDING_RANK.Rising}}, Established {{VAL:STANDING_RANK.Established}}, Sovereign {{VAL:STANDING_RANK.Sovereign}}. Your Envoys in a Domain begin at Authority equal to your Standing Rank there, and on each vote in that Domain you may Support or Oppose up to your Standing Rank — your **Max Influence**{{IDX:Max Influence}} there.{{IF:!PHASE_REFORM}} Diplomacy has no Standing and uses the Era's rank instead: Founding {{VAL:ERAS.Founding.rank}}, Ascension {{VAL:ERAS.Ascension.rank}}, Eminence {{VAL:ERAS.Eminence.rank}}, Zenith {{VAL:ERAS.Zenith.rank}}.{{ENDIF}}
 
 ### Domain Identities & Traits
 
@@ -400,7 +402,7 @@ To build any Infrastructure, you need at least one active Infrastructure of the 
 
 Wonders{{IDX:Wonder}} are the Wondrous tier, with Realm Scope: each is built once per game and needs the Infrastructure named in its requirement. They're Edict-satisfying buildings with very powerful effects. A Wonder exists inside your capital and can't be Razed or Damaged.
 
-The full list of Infrastructure — tiers, build times, upkeep, requirements, and effects:
+The full list of Infrastructure — tiers, build times, {{VAL:DUES_TERM}}, requirements, and effects:
 
 {{TABLE:infrastructure}}
 
@@ -442,24 +444,24 @@ Your innate Faith and Doubt — from Holdings, Infrastructure, and the modifiers
 
 ## Treasury & Upkeep
 
-Your Treasury is the gold you Control.{{IDX:Treasury}}{{IDX:Revenue}} Each Empire Phase you gain your Revenue (tax, trade, and Holding income) and pay your Upkeep (Armies, Holdings, and Infrastructure); the net lands in your Treasury. Costs you pay during the turn come out of the same Treasury.
+Your Treasury is the gold you Control.{{IDX:Treasury}}{{IDX:Revenue}} Each Empire Phase you gain your Revenue (tax, trade, and Holding income) and pay your Upkeep (Armies) and {{VAL:DUES_TERM}} (Holdings and Infrastructure); the net lands in your Treasury. Costs you pay during the turn come out of the same Treasury.
 
-**Holding upkeep** and Build Timer follow the Holding's Standing requirement — {{VAL:HOLDING_COST_TEXT}}. Holdings and Infrastructure only pay upkeep while active: none while being built, Damaged, under repair, or {{VAL:SHUTTER_TERM}}.
+**Holding {{VAL:DUES_TERM}}** and Build Timer follow the Holding's Standing requirement — {{VAL:HOLDING_COST_TEXT}}. Holdings and Infrastructure only pay {{VAL:DUES_TERM}} while active: none while being built, Damaged, under repair, or {{VAL:SHUTTER_TERM}}.
 
-**Army upkeep** = the sum of each Army's cost (by Retinue type) − Upkeep modifiers. Army costs by Retinue type: Levy {{VAL:RETINUES.Levy.cost}}, Man-at-Arms {{VAL:RETINUES.Man-at-Arms.cost}}, Sergeant {{VAL:RETINUES.Sergeant.cost}}, Knight Templar {{VAL:RETINUES.Knight Templar.cost}}.
+**Upkeep** is what your Armies cost: the sum of each Army's cost (by Retinue type), minus every Upkeep −X (never below 0). {{VAL:DUES_TERM}} −X lowers Holding and Infrastructure {{VAL:DUES_TERM}} the same way. Army costs by Retinue type: Levy {{VAL:RETINUES.Levy.cost}}, Man-at-Arms {{VAL:RETINUES.Man-at-Arms.cost}}, Sergeant {{VAL:RETINUES.Sergeant.cost}}, Knight Templar {{VAL:RETINUES.Knight Templar.cost}}.
 
-*Tracking tip: keep three small piles — Treasury, Revenue, Upkeep. When you build something with income or upkeep, add it to the matching pile; when it's Damaged or an Army is disbanded, subtract it. Each turn it's just Treasury + Revenue − Upkeep, with no recounting.*
+*Tracking tip: keep three small piles — Treasury, Revenue, and costs (Upkeep and {{VAL:DUES_TERM}}). When you build or muster something with income or a cost, add it to the matching pile; when it's Damaged or an Army is disbanded, subtract it. Each turn it's just Treasury + Revenue − costs, with no recounting.*
 
 ### Insolvency & Bankruptcy
 
 *This is an exception path — skip it until it happens.*
 
-You go Insolvent the moment your Treasury can't cover a cost in full (at Upkeep, when paying for an action, or when an effect drains your gold). Pay what you can, then cut until the books balance, in this order:
+You go Insolvent the moment your Treasury can't cover a cost in full (at Income & Upkeep, when paying for an action, or when an effect drains your gold). Pay what you can, then cut until the books balance, in this order:
 
-1. **Disband Armies**, one at a time, cheapest-upkeep first, until your Armies are gone.
-2. **Set buildings {{VAL:SHUTTER_TERM}}** (inactive), one at a time: Wonders, then Monuments, then Infrastructure, then non-Natural Holdings — within each, highest upkeep first.
+1. **Disband Armies**, one at a time, cheapest Upkeep first, until your Armies are gone.
+2. **Set buildings {{VAL:SHUTTER_TERM}}** (inactive), one at a time: Wonders, then Monuments, then Infrastructure, then non-Natural Holdings — within each, highest {{VAL:DUES_TERM}} first.
 
-{{VAL:SHUTTER_TERM}} pieces give no effect and pay no upkeep; Holdings built from them are unaffected. Each {{VAL:SHUTTER_TERM}} piece is restored at any future Income & Upkeep step where you can pay its upkeep, and any that becomes Damaged is no longer {{VAL:SHUTTER_TERM}}. Build Timers halt while you're Insolvent. Insolvency ends the moment your Treasury is above 0 and you can pay everything you owe, including the upkeep of your {{VAL:SHUTTER_TERM}} pieces.
+{{VAL:SHUTTER_TERM}} pieces give no effect and pay no {{VAL:DUES_TERM}}; Holdings built from them are unaffected. Each {{VAL:SHUTTER_TERM}} piece is restored at any future Income & Upkeep step where you can pay its {{VAL:DUES_TERM}}, and any that becomes Damaged is no longer {{VAL:SHUTTER_TERM}}. Build Timers halt while you're Insolvent. Insolvency ends the moment your Treasury is above 0 and you can pay everything you owe, including the {{VAL:DUES_TERM}} of your {{VAL:SHUTTER_TERM}} pieces.
 
 If you've cut everything and a debt still remains, you're Bankrupt: your Treasury goes negative by the unpaid amount (a Debt Marker). While Bankrupt you can't spend gold or be Extorted, and Build Timers stay halted; Revenue pays down the debt first. When your Treasury reaches 0 or above, Bankruptcy ends. *(If you're Vassalized while Bankrupt, the debt is forgiven and your Suzerain pays your Treasury up to a minimum of 0.)*
 
@@ -492,13 +494,13 @@ If you've cut everything and a debt still remains, you're Bankrupt: your Treasur
 
 ### Armies Overview
 
-Armies{{IDX:Army}} are collections of Retinues on the Realm, and are the target of Move actions. An Army holds up to {{VAL:ARMY_MAX_RETINUES}} Retinues and up to a single piece of equipment of each type (armor, weapon, shield, and Retinue). Armies cost upkeep each Empire Phase (see Treasury & Upkeep).
+Armies{{IDX:Army}} are collections of Retinues on the Realm, and are the target of Move actions. An Army holds up to {{VAL:ARMY_MAX_RETINUES}} Retinues and up to a single piece of equipment of each type (armor, weapon, shield, and Retinue). Armies cost Upkeep each Empire Phase (see Treasury & Upkeep).
 
 While an Army is engaged in a Battle or Lay Siege action started by another player's Army, neither Army can be the target of any actions until that Battle or Lay Siege resolves.
 
 ### Garrisons
 
-A Garrison{{IDX:Garrison}} is an Army that exists within each of your Settlements while you have the Garrison Infrastructure, sized by that Settlement's Garrison value (Village {{VAL:SETTLEMENTS.Village.garrison}}, Town {{VAL:SETTLEMENTS.Town.garrison}}, City {{VAL:SETTLEMENTS.City.garrison}}, Metropolis {{VAL:SETTLEMENTS.Metropolis.garrison}} Retinues). Garrisons can't perform actions or be targeted by actions, and may **Sally Forth** while their Settlement is under Siege. Garrisons have cost and upkeep 0 and don't count toward your Army limit. All Garrisons within an Empire share the same Retinue type and equipment, and gain the benefits of all unlocked keywords that apply to your Armies.
+A Garrison{{IDX:Garrison}} is an Army that exists within each of your Settlements while you have the Garrison Infrastructure, sized by that Settlement's Garrison value (Village {{VAL:SETTLEMENTS.Village.garrison}}, Town {{VAL:SETTLEMENTS.Town.garrison}}, City {{VAL:SETTLEMENTS.City.garrison}}, Metropolis {{VAL:SETTLEMENTS.Metropolis.garrison}} Retinues). Garrisons can't perform actions or be targeted by actions, and may **Sally Forth** while their Settlement is under Siege. Garrisons have cost and Upkeep 0 and don't count toward your Army limit. All Garrisons within an Empire share the same Retinue type and equipment, and gain the benefits of all unlocked keywords that apply to your Armies.
 
 ### Mustering
 
@@ -598,6 +600,8 @@ When a Siege Timer reaches 0:
     - **Capture:**{{IDX:Capture}} set a Capture Timer {{VAL:TIMERS.Capture Timer.default}}. When it resolves, the Settlement comes under your Control — it receives your active Infrastructure effects, and you gain its Holdings, tax income, and Reach.
     - **Sack:**{{IDX:Sack}} Raze the top-most Holding of each Ward in the Settlement, Extort {{VAL:SACK_EXTORT_PER_TIER}} per Settlement tier; reduce the Settlement by 1 tier. Its controller removes all Holdings from one Settlement Ward of the sacking player's choice, then removes that Ward from play. Set a Sack Timer {{VAL:TIMERS.Sack Timer.default}} — you can't Lay Siege again until it resolves. Your Army is Strained and can't perform Move actions until the Sack Timer resolves.
 
+{{GLOSSARY:War}}
+
 # Bandits
 
 ### Outlaw Country
@@ -635,7 +639,7 @@ While there are {{VAL:BANDIT_CUNNING_MIN}}+ Bandits (Retinues) in a camp, roll a
 
 A camp's action targets the Settlements and Armies of every player whose Province covers the camp, the nearest first. If the camp is in no player's Province, it takes no action.
 
-A Bandit Camp keeps Extorted money in its Treasury and doesn't pay costs, upkeep, or recoup. When you destroy a Bandit Camp or Army, you Extort its whole Treasury (a Bandit Army's includes its camp's).
+A Bandit Camp keeps Extorted money in its Treasury and doesn't pay costs, Upkeep, or recoup. When you destroy a Bandit Camp or Army, you Extort its whole Treasury (a Bandit Army's includes its camp's).
 
 ### Bandit Army Behavior
 

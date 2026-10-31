@@ -24,6 +24,11 @@ for the once-per tracker, the Realm action dock and ENVOY_WINDOW_REVIEW.md.
 import json, re
 
 SPLIT = re.compile(r";|\.\s+|\.$")
+try:                                   # DUES_TERM: what Holdings and Infrastructure cost (renown_data)
+    from renown_data import DUES_TERM as _DUES
+except Exception:
+    _DUES = "Dues"
+_COST = "(?:Upkeep|" + re.escape(_DUES) + ")"
 F = re.I | re.A
 
 # id -> (scope, source kinds, pattern); kinds are letters: h i w f F, M = hm (Holding Mastery text)
@@ -154,7 +159,7 @@ REG = {
     # ---- direct text readers (whole text of one source kind) ----
     "first_doubt":         ("text", "h", r"first\s+(?:(one|two|three|four|five|\d+)\s+)?\**Doubt\**\s+(?:(?:per|each) turn|each Empire Phase) reduced by (\d+)|reduce the first instance of Doubt[^.;]*?by (\d+)"),
     "extort_slot":         ("craw", "h", r"^\s*Extort\s*(\d+)(\s+twice)?\.?\s*$"),
-    "no_upkeep_tier":      ("all", "h", r"No Upkeep on (\w+) Infrastructure"),
+    "no_upkeep_tier":      ("all", "h", r"No " + _COST + r" on (\w+) Infrastructure"),
     "tax_double":          ("text", "h", r"Tax Income is Doubled"),
     "po_immune":           ("text", "h", r"No longer affected by all Public Order effects"),
     "po_band_double":      ("text", "h", r"^(.+?) effects are doubled for all players"),
@@ -174,8 +179,8 @@ REG = {
     "bridges":             ("text", "hi", r"cross Water Territory at full movement within (?:your )?Province"),
     # ---- faction mechanic as written ----
     "ignore_terrain":      ("text", "F", r"ignore all (?:negative )?terrain Speed modifiers"),
-    "fac_type_bonus":      ("text", "f", r"Your ([\w &,]+?) (?:Pursuits|Holdings) have Craft \+(\d+)( and cost no Upkeep)?"),
-    "fac_dom_bonus":       ("text", "f", r"Your (?:Pursuits|Holdings) (?:which|that) require (\w+)(?: Standing)? have Craft \+(\d+)( and cost no Upkeep)?"),
+    "fac_type_bonus":      ("text", "f", r"Your ([\w &,]+?) (?:Pursuits|Holdings) have Craft \+(\d+)( and cost no " + _COST + r")?"),
+    "fac_dom_bonus":       ("text", "f", r"Your (?:Pursuits|Holdings) (?:which|that) require (\w+)(?: Standing)? have Craft \+(\d+)( and cost no " + _COST + r")?"),
     "occupy_tax":          ("text", "F", r"to collect taxes[^.]*end your turn inside it"),
     "morale_cap":          ("text", "F", r"Morale can't be modified beyond (\d+)\+"),
     "raw_noclaim":         ("text", "F", r"Raw Material\s+\w+\s+within (?:your )?Reach are always active"),

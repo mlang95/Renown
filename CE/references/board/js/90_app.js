@@ -159,7 +159,8 @@ const GK_LIST=[],GK_BY={},GK_LC={};
   Object.keys(GLOSS).filter(t=>/^[A-Z][A-Za-z' /-]{2,}$/.test(t)).forEach(t=>{
     const m=t.match(/^(.+?) X$/);                                   // "Extort X" → Extort, Extorts, Extorted…
     if(m){const b=m[1];[b,b+"s",b+"ed",b+"ing",b+"ion"].forEach(v=>add(t,"g",v));}else add(t,"g");
-    if(/^[A-Z][a-z]+$/.test(t))[t+"s",t+"ed"].forEach(v=>add(t,"g",v));});
+    if(/^[A-Z][a-z]+$/.test(t))[t+"s",t+"ed"].forEach(v=>add(t,"g",v));
+    else if(/^[A-Z][a-z]+(?: [A-Z][a-z]+)+$/.test(t))add(t,"g",t+"s");});   // "Trade Partners", "Settlement Wards"
   if(SCORE!=="Influence"){if(GLOSS["Net Influence"])add("Net Influence","g","Net "+SCORE);   // score text → score entries
     if(GLOSS["Influence X"])add("Influence X","g",SCORE);}})();   // Recoup → Recoups, Recouped
 const GK_RE=GK_LIST.length?new RegExp("(^|[^A-Za-z0-9])("+Object.keys(GK_BY).sort((a,b)=>b.length-a.length)
@@ -192,6 +193,7 @@ function gkHtml(e){
     (((e.k==="w"?S.wonders:S.infra)||{})[e.t]?'<div class="note">✓ in your '+(e.k==="w"?'Wonders':'Infrastructure')+'</div>'
       :'<div><button data-addi="'+(e.k==="w"?"wonder":"infra")+'|'+esc(e.t)+'">+ add to '+(e.k==="w"?'Wonders':'Infrastructure')+'</button></div>');}
 const GKT=document.createElement("div");GKT.id="gkTip";document.body.appendChild(GKT);
+document.querySelectorAll("[data-dues]").forEach(e=>{e.textContent=DUES();});   // static labels: DUES_TERM
 // Deep link from the wiki: settlement_board.html#h=<Holding | Infrastructure | Wonder | glossary term> opens its card.
 function openFromHash(){const m=(location.hash||"").match(/^#h=(.+)$/);if(!m)return;let n;try{n=decodeURIComponent(m[1]);}catch(e){return;}
   const idx=GK_BY[esc(n)]!=null?GK_BY[esc(n)]:GK_LC[esc(n).toLowerCase()];if(idx==null)return;

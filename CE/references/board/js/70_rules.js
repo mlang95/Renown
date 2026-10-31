@@ -158,6 +158,7 @@ function recoupNote(owner,action,out){const a=(DATA.actions||{})[action]||{},dom
 
 // ===================== RULES MECHANICS: extort · siege outcomes · muster · first Doubt · movement =====================
 const RC=DATA.rulesConst||{};
+function DUES(){return RC.DUES_TERM||"Dues";}   // what Holdings and Infrastructure cost ("Upkeep" is the Armies')
 function blackMarketReact(p,amount,id,kind){if(!p||amount<=0)return [];const out=[];
   D.players.forEach(h=>{if(sameP(h,p))return;srcMatch(h.board,id).forEach(x=>{
     const fee=Math.max(+x.m[3]||0,Math.floor(amount/(+x.m[2]||1))*(+x.m[1]||0)),paid=Math.min(fee,Math.max(0,+p.board.treasury||0));
