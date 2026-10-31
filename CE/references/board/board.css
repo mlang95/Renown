@@ -554,7 +554,8 @@
   .rl-more>summary{cursor:pointer}
   @media(max-width:1100px){.rl-grid{grid-template-columns:1fr}.rl-side{position:static;max-height:none}}
   .tstrip{width:100%;display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:4px 0 0;border-top:1px solid var(--line);font-size:13px}
-  .tstrip .ts-i{display:inline-flex;gap:4px;align-items:center}.tstrip button{padding:1px 7px;min-height:0}
+  .tstrip .ts-i{display:inline-flex;gap:4px;align-items:center}
+  .tstrip .ts-sea{display:inline-grid;text-align:center}.tstrip .ts-sea>span{grid-area:1/1}.tstrip .ts-sea>span[aria-hidden]{visibility:hidden}   /* every Season stacked: the widest sets the width, so the arrows stay put */.tstrip button{padding:1px 7px;min-height:0}
   .tstrip .ts-era{margin-left:4px;padding:1px 8px;border:1px solid var(--order);border-radius:var(--radius-sm);color:var(--order);font-size:14px;letter-spacing:.03em}
   .tstrip .ts-end{margin-left:auto;border-color:var(--order);font-weight:600}
   .tstrip .ts-ph b{font-size:15px;color:var(--ink)}

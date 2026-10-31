@@ -412,7 +412,7 @@ function renderTurnStrip(){const el=document.getElementById("turnStrip");if(!el)
       if(ADMIN||canHost())h+='<button class="ts-start" data-ts="start"'+(rc.all||ADMIN?'':' disabled')+' title="'+(rc.all?'wipe all but the map and turn on player restrictions':'every seated player must claim and ready up')+'">Start game</button>';
       return h;})()+
     ageStripHTML()+
-    '<span class="ts-i"><button data-ts="sea-" title="previous Season">◂</button><b>'+esc(curSeason())+'</b><button data-ts="sea+" title="next Season">▸</button></span>'+
+    '<span class="ts-i"><button data-ts="sea-" title="previous Season">◂</button><b class="ts-sea">'+SEAS_ORDER.map(s=>'<span'+(s===curSeason()?'':' aria-hidden="true"')+'>'+esc(s)+'</span>').join("")+'</b><button data-ts="sea+" title="next Season">▸</button></span>'+
     '<span class="ts-i"><span class="note">Renown</span><button data-ts="rn-">−</button><b>'+(D.renown||1)+'</b><button data-ts="rn+">+</button><b class="ts-era" title="Era">'+esc(currentEra())+'</b></span>'+
     '<span class="ts-i"><span class="note">Host</span> <b>'+(hp?esc(hp.name):'—')+'</b>'+(hp&&!TB().hostSet?' <span class="note">(default)</span>':'')+(unseated?'':firstHostBtn())+'</span>'+
     '<span class="ts-i ts-ph"><b>'+esc(T_PHL[ph])+'</b>'+(hc?'<button data-ts="ph" title="'+esc(T_PHL[nx])+'">▸</button>':'')+'</span>'+

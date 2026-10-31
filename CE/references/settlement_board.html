@@ -562,7 +562,8 @@
   .rl-more>summary{cursor:pointer}
   @media(max-width:1100px){.rl-grid{grid-template-columns:1fr}.rl-side{position:static;max-height:none}}
   .tstrip{width:100%;display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:4px 0 0;border-top:1px solid var(--line);font-size:13px}
-  .tstrip .ts-i{display:inline-flex;gap:4px;align-items:center}.tstrip button{padding:1px 7px;min-height:0}
+  .tstrip .ts-i{display:inline-flex;gap:4px;align-items:center}
+  .tstrip .ts-sea{display:inline-grid;text-align:center}.tstrip .ts-sea>span{grid-area:1/1}.tstrip .ts-sea>span[aria-hidden]{visibility:hidden}   /* every Season stacked: the widest sets the width, so the arrows stay put */.tstrip button{padding:1px 7px;min-height:0}
   .tstrip .ts-era{margin-left:4px;padding:1px 8px;border:1px solid var(--order);border-radius:var(--radius-sm);color:var(--order);font-size:14px;letter-spacing:.03em}
   .tstrip .ts-end{margin-left:auto;border-color:var(--order);font-weight:600}
   .tstrip .ts-ph b{font-size:15px;color:var(--ink)}
@@ -13239,7 +13240,7 @@ function renderTurnStrip(){const el=document.getElementById("turnStrip");if(!el)
       if(ADMIN||canHost())h+='<button class="ts-start" data-ts="start"'+(rc.all||ADMIN?'':' disabled')+' title="'+(rc.all?'wipe all but the map and turn on player restrictions':'every seated player must claim and ready up')+'">Start game</button>';
       return h;})()+
     ageStripHTML()+
-    '<span class="ts-i"><button data-ts="sea-" title="previous Season">◂</button><b>'+esc(curSeason())+'</b><button data-ts="sea+" title="next Season">▸</button></span>'+
+    '<span class="ts-i"><button data-ts="sea-" title="previous Season">◂</button><b class="ts-sea">'+SEAS_ORDER.map(s=>'<span'+(s===curSeason()?'':' aria-hidden="true"')+'>'+esc(s)+'</span>').join("")+'</b><button data-ts="sea+" title="next Season">▸</button></span>'+
     '<span class="ts-i"><span class="note">Renown</span><button data-ts="rn-">−</button><b>'+(D.renown||1)+'</b><button data-ts="rn+">+</button><b class="ts-era" title="Era">'+esc(currentEra())+'</b></span>'+
     '<span class="ts-i"><span class="note">Host</span> <b>'+(hp?esc(hp.name):'—')+'</b>'+(hp&&!TB().hostSet?' <span class="note">(default)</span>':'')+(unseated?'':firstHostBtn())+'</span>'+
     '<span class="ts-i ts-ph"><b>'+esc(T_PHL[ph])+'</b>'+(hc?'<button data-ts="ph" title="'+esc(T_PHL[nx])+'">▸</button>':'')+'</span>'+
