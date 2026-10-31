@@ -376,6 +376,23 @@ function atomEl(a){
   el.title=(a.scale?"scales: +"+a.scale.per+" per "+a.scale.of+" · ":"")+(a.flat?"flat — summed":"conditional/triggered — not summed")+" · "+PHASE_LABEL[phase];
   return el;
 }
+// One effect display for Holdings and Infrastructure, read from the effect text ("; " between parts): properties
+// and plain numbers ("Natural", "Gold +500", "Craft +2") as chips, every other part on its own line. A part that
+// starts lower-case continues the one before it.
+const FX_CHIP=/^(?:Natural|Can Trade|Can Muster|(?:Gold|Craft|Influence|Authority|Max Influence|Faith|Doubt|Reach|Speed|Siege Timer|Build Timer|Muster Timer|Upkeep|Muster Limit|Tax Income)\s+[+\-−]\s?\d+(?:\s+in\s+(?:Winter|Spring|Summer|Fall))?)$/;
+function fxParts(raw){const out=[];String(raw||"").split(/;\s*/).forEach(p=>{p=p.trim();if(!p||/^[-—]$/.test(p))return;
+  if(out.length&&/^[a-z]/.test(p))out[out.length-1]+="; "+p;else out.push(p);});return out;}
+function effectView(raw,atoms,hideCombat){
+  const wrap=document.createElement("div");wrap.className="fxv";
+  const atomOf=p=>(atoms||[]).find(a=>a.text===p)||(atoms||[]).find(a=>p.startsWith(a.text))||{text:p,cat:"other"};
+  const parts=fxParts(raw).filter(p=>{const c=atomOf(p).cat;return !(hideCombat&&(c==="combat"||c==="other"||c==="natural"));});
+  const chips=document.createElement("div");chips.className="atoms";
+  parts.filter(p=>FX_CHIP.test(p)).forEach(p=>{const a=atomOf(p);chips.appendChild(atomEl(Object.assign({},a,{text:a.season?p.replace(/\s+in\s+\w+$/,""):p})));});   // the season shows as its tag
+  if(chips.children.length)wrap.appendChild(chips);
+  parts.filter(p=>!FX_CHIP.test(p)).forEach(p=>{const a=atomOf(p),ph=a.season?"season":(PHASE[a.cat]||"other");
+    const d=document.createElement("div");d.className="fxl"+(a.cond?" cond":"");d.style.borderLeftColor=cvar(PHASE_COLOR[ph]);d.innerHTML=kwify(p);wrap.appendChild(d);});
+  if(!wrap.children.length){const s=document.createElement("span");s.className="note";s.textContent="—";wrap.appendChild(s);}
+  return wrap;}
 function atomsBlock(atoms,hideCombat){
   const wrap=document.createElement("div");wrap.className="atoms";
   const vis=atoms.filter(a=>!(hideCombat&&(a.cat==="combat"||a.cat==="other"||a.cat==="natural")));
@@ -876,13 +893,13 @@ function culSelectHTML(b){const by={};Object.keys(CUL).forEach(n=>{const t=CUL[n
     Object.keys(by).map(t=>'<optgroup label="'+esc(t)+'">'+by[t].map(n=>'<option value="'+esc(n)+'"'+(n===cur?' selected':'')+'>'+esc(n)+' · '+esc(n===cur&&CUL[n].archetype?CUL[n].archetype:CUL[n].domains.join("/"))+'</option>').join("")+'</optgroup>').join("")+'</select>';}
 function cultureOf(b){return b&&b.culture&&CUL[b.culture]?b.culture:null;}
 function holdDom(n){const u=(R[n]||{}).unlock_raw||"";return CUL_DOMS.find(d=>u.includes(d))||"";}
-// the Holdings a culture focuses on: unlocks in its Domains, Domain-free Holdings (Raw Materials, Common Land…),
-// its Monuments and every Holding on their chains
+// the Holdings a culture focuses on: Domain-free Holdings (Raw Materials, Common Land…), unlocks wholly in its Domains,
+// Sovereign <its Domain> + Rising <another Domain>, and its listed Monuments
 const CUL_SET={};
 function cultureSet(c){if(!c||!CUL[c])return null;if(CUL_SET[c])return CUL_SET[c];const C=CUL[c],ds=new Set(C.domains),out=new Set();
-  NAMES.forEach(n=>{const d=holdDom(n);if(!d||ds.has(d))out.add(n);});
-  const seen=new Set(),up=n=>{if(seen.has(n))return;seen.add(n);out.add(n);effList(n).forEach(up);};
-  C.monuments.filter(n=>R[n]).forEach(up);
+  NAMES.forEach(n=>{const req=[...((R[n]||{}).unlock_raw||"").matchAll(/(Rising|Established|Sovereign)\s+(Industry|Prowess|Cunning|Piety)/g)],off=req.filter(m=>!ds.has(m[2]));
+    if(!off.length||(off.every(m=>m[1]==="Rising")&&req.some(m=>m[1]==="Sovereign"&&ds.has(m[2]))))out.add(n);});
+  C.monuments.filter(n=>R[n]).forEach(n=>out.add(n));
   return CUL_SET[c]=out;}
 function cultureKeep(n,b){const c=cultureOf(b||S);if(!c)return true;return cultureSet(c).has(n);}
 function cultureKeepWonder(n,b){const c=cultureOf(b||S);if(!c||!WON[n])return true;const W=CUL[c].wonders||[];return !W.length||W.includes(n);}
@@ -938,13 +955,13 @@ function accChips(acc){
   ["gold","upkeep","craft","influence","faith","doubt"].forEach(catk=>{
     if(!acc[catk])return;const ph=PHASE[catk],col=cvar(PHASE_COLOR[ph]);
     const s=document.createElement("span");s.className="atom";s.style.borderColor=col;s.style.color=col;
-    s.textContent=(catk==="gold"?"":cap(catk)+" ")+(acc[catk]>0?"+":"")+acc[catk];wrap.appendChild(s);});
+    s.textContent=cap(catk)+" "+(acc[catk]>0?"+":"")+acc[catk];wrap.appendChild(s);});
   return wrap;
 }
 function pursuitDetail(r,hideCombat,me,inst,have,craft,tc){
   const wrap=document.createElement("div");
   const bi=document.createElement("div");bi.className="block";bi.innerHTML='<div class="lbl">'+(SIMPLE?"EFFECT":"INNATE")+'</div>';
-  bi.appendChild(atomsBlock(r.innate,hideCombat));
+  bi.appendChild(effectView(r.innate_raw,r.innate,hideCombat));
   wrap.appendChild(bi);
   if(SIMPLE&&inst){const rh=simpleReqHTML(inst,simpleReq(inst,r,have,craft,tc));if(rh){const b=document.createElement("div");b.className="block";b.innerHTML=rh;wrap.appendChild(b);}}
   const bm=document.createElement("div");bm.className="block mastery"+(r.mastery_raw?(me.earned?" on":" off"):"");
@@ -988,7 +1005,7 @@ function pursuitTable(occ,earned,craft,tc,hideCombat,have){
     const n=inst.name,r=R[n],me=instStatus(inst,r,have,craft,tc),open=S.expanded.includes(inst.id);
     const tr=document.createElement("tr");
     const c1=document.createElement("td");c1.style.cursor="pointer";
-    c1.innerHTML='<span class="pcaret">'+(open?"▾":"▸")+'</span> '+esc(n)+(r.monument?' <span class="badge mon">M</span>':'');
+    c1.innerHTML='<span class="pcaret">'+(open?"▾":"▸")+'</span> '+esc(n)+(r.monument?' <span class="badge mon">M</span>':'')+(NATURAL.has(n)?' <span class="badge nat" title="Natural">N</span>':'');
     c1.onclick=()=>{const i=S.expanded.indexOf(inst.id);if(i<0)S.expanded.push(inst.id);else S.expanded.splice(i,1);save();render();};
     const c2=document.createElement("td");c2.className="note";c2.textContent=r.type;
     const c3=document.createElement("td");c3.appendChild(contribChips(r,me.earned));
@@ -1017,6 +1034,7 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
   const car=document.createElement("span");car.className="pcaret";car.textContent=open?"▾":"▸";h.appendChild(car);
   const nm=document.createElement("span");nm.className="nm";nm.textContent=n;h.appendChild(nm);
   if(r.monument){const b=document.createElement("span");b.className="badge mon";b.textContent="Monument";h.appendChild(b);}
+  if(NATURAL.has(n)){const b=document.createElement("span");b.className="badge nat";b.textContent="Natural";b.title=GLOSS["Natural"]||"";h.appendChild(b);}
   const mFlag=r.mastery_raw?flagState("m:"+inst.id,!me.earned,(me.missing||[]).join("|")):"off";
   if(r.mastery_raw&&mFlag!=="ignored"){const b=document.createElement("span");b.className="badge "+(me.earned?"earn":"noearn");b.textContent=me.earned?"✓":"✗";h.appendChild(b);}
   if(!inst.fac){const us=unlockStatus(n),uf=flagState("u:"+inst.id,!us.ok,us.missing.join("|"));
@@ -1047,7 +1065,7 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
   if(open){const bb=document.createElement("button");bb.textContent="build timer";
       bb.onclick=e=>{e.stopPropagation();const t=pursuitBuildTime(n);if(t>0){inst.bt=t;save();render();flash(n+" Build Timer "+t+buildNote(pursuitBaseTime(n)));}else flash(n+": Build Timer 0 — builds immediately"+buildNote(pursuitBaseTime(n)));};
     const db=document.createElement("button");db.textContent=inst.dmg>0?"repaired":"damage";
-      db.onclick=e=>{e.stopPropagation();inst.dmg=inst.dmg>0?0:REPAIR_T;delete inst.dmgBy;save();render();};
+      db.onclick=e=>{e.stopPropagation();inst.dmg=inst.dmg>0?0:REPAIR_T;if(inst.dmg)delete inst.shut;delete inst.dmgBy;save();render();};
     if(!(inst.bt>0))sec.appendChild(bb);sec.appendChild(db);}
   if(!pActive(inst))card.classList.add("inactive");
   const biRow=()=>{const h=buildsIntoRow(r);if(!h)return null;const d=document.createElement("div");d.innerHTML=h;return d.firstChild;};
@@ -1062,7 +1080,7 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
 
   // expanded view: EFFECT first
   const bi=document.createElement("div");bi.className="block";bi.innerHTML='<div class="lbl">'+(SIMPLE?"EFFECT":"INNATE")+'</div>';
-  bi.appendChild(atomsBlock(r.innate,hideCombat));
+  bi.appendChild(effectView(r.innate_raw,r.innate,hideCombat));
   card.appendChild(bi);
   // MASTERY
   const bm=document.createElement("div");bm.className="block mastery"+(r.mastery_raw?(me.earned?" on":" off"):"");
@@ -1125,17 +1143,17 @@ function renderInfraSection(kind,src,have,hideCombat){
     card.appendChild(h);
     if(!rs.ok&&rf==="on"){const mm=document.createElement("div");mm.className="miss";mm.textContent="missing: "+rs.missing.join(", ")+" ";
       mm.appendChild(ignBtn("i:"+kind+":"+n,rs.missing.join("|")));card.appendChild(mm);}
+    if(!open){const sum=accChips(contribAcc({innate:r.atoms},false));sum.style.marginTop="5px";if(sum.children.length)card.appendChild(sum);}   // as a Holding's cursory view
     if(open){
       const sub=document.createElement("div");sub.className="sub";
       sub.textContent="upkeep "+(isFac?0:r.upkeep)+(r.requirement?(" · req: "+r.requirement):"");card.appendChild(sub);
       {const tl=document.createElement("div");tl.className="sub";
         const bb=document.createElement("button");bb.textContent="build timer";bb.onclick=e=>{e.stopPropagation();const t=infraBuildTime(n);if(t>0){S.itimer[n]=t;save();render();flash(n+" Build Timer "+t+buildNote(infraBaseTime(n)));}else flash(n+": Build Timer 0 — builds immediately"+buildNote(infraBaseTime(n)));};
-        const db=document.createElement("button");db.textContent=S.idmg[n]>0?"repaired":"damage";db.onclick=e=>{e.stopPropagation();if(S.idmg[n]>0)delete S.idmg[n];else S.idmg[n]=REPAIR_T;if(S.idmgBy)delete S.idmgBy[n];save();render();};
+        const db=document.createElement("button");db.textContent=S.idmg[n]>0?"repaired":"damage";db.onclick=e=>{e.stopPropagation();if(S.idmg[n]>0)delete S.idmg[n];else{S.idmg[n]=REPAIR_T;delete S.ishut[n];}if(S.idmgBy)delete S.idmgBy[n];save();render();};
         if(!(S.itimer[n]>0))tl.appendChild(bb);tl.appendChild(db);card.appendChild(tl);}
       if(infraReqToks(r).length){const rq=document.createElement("div");rq.className="block";rq.innerHTML='<div class="lbl">REQUIREMENTS</div>'+infraReqLinesHTML(r);card.appendChild(rq);}
-      const bi=document.createElement("div");bi.className="block";bi.innerHTML='<div class="lbl">EMPIRE EFFECT</div>';
-      bi.appendChild(atomsBlock(r.atoms,hideCombat));
-      if(r.effect_raw){const v=document.createElement("div");v.className="verb";v.innerHTML=kwify(r.effect_raw);bi.appendChild(v);}
+      const bi=document.createElement("div");bi.className="block";bi.innerHTML='<div class="lbl">EFFECT</div>';
+      bi.appendChild(effectView(r.effect_raw,r.atoms,hideCombat));
       card.appendChild(bi);
     }
     box.appendChild(card);

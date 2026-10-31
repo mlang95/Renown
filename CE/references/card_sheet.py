@@ -632,7 +632,7 @@ def _rows_from_renown_data(mode="renown", players=1):
         else:
             row = _norm_row({
                 "Pursuits": display(name),
-                "Type": n.get("type", ""),
+                "Type": n.get("type", "") + (" \u00b7 Natural" if n.get("natural") else ""),
                 "Mastery Requirement": display_text(n.get(_REQ_KEY, "")),
                 "Innate Effects": display_text(_eff_innate(n)),
                 "Mastery Effect": display_text(n.get("mastery", "")),

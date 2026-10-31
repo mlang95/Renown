@@ -466,7 +466,7 @@ def holdings():
         eff = v.get("efficient")
         eff_txt = (rd.display(eff) if isinstance(eff, str) else rd.display_list(eff)) if eff else "\u2014"
         mon = v.get("type") == "Monument" or v.get("monument")
-        name = rd.display(n) + (" (Monument)" if mon else "") + (f" (also {extra})" if extra else "")
+        name = rd.display(n) + (" (Monument)" if mon else "") + (" (Natural)" if v.get("natural") else "") + (f" (also {extra})" if extra else "")
         if simple:
             return [name, rd.display_text(v.get("infrastructure_req", "")) or "\u2014", eff_txt,
                     rd.display_text(v.get("innate", "") or "") or "\u2014"]

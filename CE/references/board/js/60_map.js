@@ -376,6 +376,8 @@ function inspArmy(k){const {p,a}=cellArmy(k),cell=mapState().cells[k];if(!p)retu
   {const sa=selArmy();if(sa&&sa.a===a)h+=movePanelHTML();else if(canMoveArmy(p))h+='<div class="ir"><button data-insp-sel="'+p.id+':'+a.id+'" data-nav="1">Move ▸</button>'+armyMusterBtn(p,a)+'</div>';}
   if(canMoveArmy(p)){const T=engageTargets(p,a);if(T.length)h+='<div class="sec">Engage</div>'+T.map((t,i)=>'<div class="ist">'+stIcon(t.kind==="siege"?"sieging":"battle",16)+'<span>'+esc(t.label)+'</span>'+
     '<button data-insp-eng="'+p.id+':'+a.id+':'+i+'" data-nav="1" style="margin-left:auto">'+(t.kind==="siege"?"Lay Siege ▸":"Battle ▸")+'</button></div>').join("");}
+  {const G=garrisonBattles(p,a,k).filter(o=>inspCan(o.q.id));if(G.length)h+='<div class="sec">Garrison Battle</div>'+G.map(o=>'<div class="ist">'+stIcon("battle",16)+'<span>'+esc(o.q.name+" Garrison · "+(o.s.name||o.s.tier))+'</span>'+
+    '<button data-insp-sf="'+esc(JSON.stringify({kind:"battle",A:{pid:String(o.q.id),aid:"g:"+o.s.id},B:{pid:String(p.id),aid:String(a.id)},seize:"",src:"Garrison Battle"}))+'" data-nav="1" style="margin-left:auto">Battle ▸</button></div>').join("");}
   if(!a.pillage){const T=pillageTargets(p,a);if(T.length&&inspCan(p.id))h+='<div class="ir"><span class="k">Pillage</span><select data-insp-pil="'+p.id+':'+a.id+'" data-nav="1"><option value="">—</option>'+
     T.map(o=>'<option value="'+o.q.id+':'+o.s.id+'">'+esc((o.s.name||o.s.tier)+" ("+o.q.name+")")+'</option>').join("")+'</select></div>';}
   else if(inspCan(p.id))h+='<div class="ir"><button data-insp-unpil="'+p.id+':'+a.id+'" data-nav="1">cancel Pillage</button></div>';
@@ -779,6 +781,12 @@ function wardCand(p,s){const sk=settHex(p,s);if(!sk)return [];const V=decodeGrid
   return hexNb(sk).filter(k=>{const h=V.hex[k];return !!h&&h.t!=="water"&&!terrBlocked(h.t)&&hexFree(k);});}
 // the hexes a piece's Presence radiates from: an Army's own hex; a Settlement's hex while its owner has a Garrison
 // ("Your Settlements gain Garrisons & Presence"), its Wards while they have a Keep ("Your Settlement Wards have Presence")
+// "Instead of performing a Move action, you may have a Garrison Battle a non-allied Army within Presence" (March-Tower):
+// the other players' Garrisons whose Settlement's Presence covers this Army
+function garrisonBattles(p,a,k){if(!k)return [];const c0=hk(k),PR=presR(),out=[];
+  D.players.forEach(q=>{if(sameP(q,p)||canEnterSett(q,p)||!srcHas(q.board,"garrison_battle"))return;
+    (q.board.settlements||[]).forEach(s=>{const sk=garrisonOf(q,s.id)&&settHex(q,s);if(sk&&presHexes(sk).some(h=>hexDist(c0,hk(h))<=PR))out.push({q,s});});});
+  return out;}
 function presHexes(k){const c=mapState().cells[k];if(!c||c.type==="Army")return [k];const cs=cellSett(k),p=cs.p||cellPlayer(c);if(!p)return [];
   return (srcHas(p.board,"settlement_presence")?[k]:[]).concat(wardMap()&&cs.s&&settHex(p,cs.s)===k&&srcHas(p.board,"ward_presence")?wardsOf(p,cs.s):[]);}
 // automatic Ward placement: each filled Ward without a hex goes on free adjacent land, farthest from any Outlaw Country first
@@ -860,7 +868,7 @@ function banditAct(k){const M=mapState(),cp=M.camps[k],B=BST(),F=BAN.faces||10,r
   if(oc!=="Passed"&&oc!=="Endorsed"){bLog(head,k);return;}
   let fx="";
   if(act==="Raze"){const pool=tgt.p.board.placed.filter(q=>q.sid===tgt.s.id&&!(q.bt>0)&&!(q.dmg>0)),q=pool[Math.floor(Math.random()*pool.length)],rt=((DATA.timers||{})["Repair Timer"]||{}).default||2;
-    q.dmg=rt;delete q.rep;q.dmgBy=dmgMark({camp:k});fx="Bandits raze "+tgt.p.name+"'s "+q.name+" (Damaged: inactive until Repaired)";}
+    q.dmg=rt;delete q.rep;delete q.shut;q.dmgBy=dmgMark({camp:k});fx="Bandits raze "+tgt.p.name+"'s "+q.name+" (Damaged: inactive until Repaired)";}
   else if(act==="Destabilize"){B.dest[tgt.p.id+":"+tgt.s.id]={camp:k};fx="next Winter: "+(tgt.s.name||tgt.s.tier)+"'s tax → camp";}
   else if(act==="Intercept Caravan"){B.ic[tgt.p.id]={camp:k};fx="next turn "+tgt.p.name+" is Host: trade income → camp";}
   else if(act==="Sabotage"){mapState().cells[tgt.k].blocked=true;mapState().cells[tgt.k].blockedT=tTurn();fx=tgt.p.name+"'s "+(tgt.a?(tgt.a.label||"Army "+tgt.a.id):"Army")+" @ "+tgt.k+" gains Blocked";}

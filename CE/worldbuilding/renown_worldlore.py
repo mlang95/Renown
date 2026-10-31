@@ -2822,6 +2822,145 @@ CULTURES["Voldrastel"]["heraldry"]      = {"primary": "Sea Eagle"}
 CULTURES["Astravantheliad"]["heraldry"] = {"primary": "Owl"}
 
 
+# ---------------------------------------------------------------------------
+# PROFILE_SUMMARY — reader-facing pitch for the settlement board's profile pane
+# (DRAFT). One short passage per culture, in the intro's chronicler voice: who they
+# are, what they value, who they are set against. Lore only — no mechanics or numbers.
+# Cunning cultures keep their CUNNING_NARRATION mode; closers borrow from REGISTER.
+# ---------------------------------------------------------------------------
+
+# Pure corners
+CULTURES["Kraghs"]["profile_summary"] = (
+    "Out of the ruin of Draggath came the Kraghs: warbands & city-states still fighting over the "
+    "last good soil of the empire they broke between them. Strength is the only law they keep. They "
+    "Declare War loudly, meet the enemy in open Battle, and Demand Tribute of whoever is left "
+    "standing. Their lords hold court under the Royal Pavilion, their riders learn the lance at the "
+    "Marshal Tiltyard, and the Baggage Train follows wherever the banner goes. No one carves a "
+    "defeat. Rising banners."
+)
+CULTURES["Trusteki"]["profile_summary"] = (
+    "Out of the Blight the Trusteki made the finest craft in the world. Every trade is an "
+    "inheritance, refined by each generation & handed down the family line until no one outside it "
+    "can match it. They Build Holdings that outlast their builders, Improve a whole Province at a "
+    "stroke, and Repair whatever others break. The Office of Works plans it, the Port Authority "
+    "ships it, and their fleets carry it across the long winter to every shore. The world runs on "
+    "Trusteki goods, and every court knows it. May your Craft never falter."
+)
+CULTURES["Ithiss"]["profile_summary"] = (
+    "Nobody agrees on what the Ithiss are, which suits the Ithiss. Some say they came up out of the "
+    "drowned catacombs; some say they were only ever thieves who outgrew the dark. All agree their "
+    "first act as a people was to refuse a god. In the Dreadwood there is no crown — only the "
+    "Thieves' Guild and the brotherhoods, ranked by who is most feared, with the Outlaw Rookery on "
+    "the payroll. They Intercept the Caravan, Raze the Holding, Foster the Rebellion in someone "
+    "else's Outlaw Country, and were somewhere else at the time. Name your business, not yourself."
+)
+CULTURES["Lenavorites"]["profile_summary"] = (
+    "The Lenavorites crossed the Sea of Ash, abandoned the gods who had abandoned them, and set "
+    "down the first record in the world: Lenaveron. Every year since has been counted and entered. "
+    "From the Papal Palace they Tithe the faithful, Send Missionaries to everyone else, and Spread "
+    "Truth until outsiders Doubt and allies keep the Faith. The Inquisitorial Palace watches no one "
+    "so closely as its own. The frontier has stopped answering; the papacy denies it. Records "
+    "remembered."
+)
+
+# Pairs
+CULTURES["Belvareth"]["profile_summary"] = (
+    "In the Lost Woods, the one land the Fracture never touched, the Belvareth keep Melvanar's "
+    "watch from the Sacred Preceptory. Every one of them is bound for life to a draghen — one of "
+    "Draggath blood, one of Lenavorite — and the pair train, pray & kill as one, under one saint's "
+    "name. Pilgrims come to the Woods to meet the God of Gods, and are obliged. When the Belvareth "
+    "answer, it is a Sacred War: declared, and already moving. Prophets of War, and Inexorable. "
+    "Wrath keep you."
+)
+CULTURES["Vorghith"]["profile_summary"] = (
+    "The Vorghith will tell you they were shipwrecked. Or imprisoned. Or that the Kraghs simply "
+    "left. What is agreed is that the prisoners of Vogen's Gallows came to hold the prison, & that "
+    "the Kraghs still cannot say which of their own walked out with them. The Vorghith refuse the "
+    "fair fight. They Pillage bordering Settlements, Intercept the Caravans that feed them, and "
+    "March out of reach before the host arrives, their Outriders always a step ahead. Now and then "
+    "a lord hangs in the square, so that everyone watches. Silence, friend."
+)
+CULTURES["Drakteni"]["profile_summary"] = (
+    "The youngest of the peoples, and the best equipped. Trusteki who sailed east met Kraghs at "
+    "Heathport, found mines, and made a way of life of the siege train. Drakenheart is too small "
+    "for the people on it, so their craft is conquest: the Advanced Blast Furnace forges the arms, "
+    "the Ordnance Yard the guns, the Ministry of Military Strategy the officers. They Lay Siege to "
+    "the Madekites, Demand Tribute of the Kraghs at Hermit's Row, and Improve for the next campaign "
+    "before the last is done. Land & empire."
+)
+CULTURES["Prezish"]["profile_summary"] = (
+    "The Prezish call their harbour the Bay of Pigs and let you laugh; a merchant who is laughing "
+    "is not counting. Born where Trusteki traders met fleeing Ithiss in the Marrow Shoals, they are "
+    "brokers, money-lenders, smugglers — and pirates. They will offer you a Trade Agreement; "
+    "refuse, and they Intercept your Caravan instead. Their Aristocratic Court takes a cut from "
+    "both sides of every deal, and the Polish House draws every eye, which is rather the point. "
+    "Nothing crosses the water without them knowing. Come, let's talk numbers."
+)
+CULTURES["Shassolin"]["profile_summary"] = (
+    "When the edges of the papacy broke away, its frontier clergy were stranded in the mire at the "
+    "end of the Strait of Sorrow. Ithiss drifting east out of the Dreadwood found them there, & the "
+    "abandoned faith took on the newcomers' guile. Together they found a new prophet — the last "
+    "true one, who alone may carry a message to Esselantheum. They Send Missionaries, Tithe the "
+    "converts, and keep the poor in Serfdom, paid in indulgences. Settlements that refuse them are "
+    "Destabilized; some find their wells fouled. The Shassolin believe they hold the strings. The "
+    "Prophet hears you."
+)
+CULTURES["Madekites"]["profile_summary"] = (
+    "In the frozen quarries of Fair Whitewood, Trusteki who came north seeking faith met the pious "
+    "who fled the fall of the Old Gods, & from the two came the Madekites: a people who Build as "
+    "worship, and hold that the suffering is the worship. Every block is penance; every Eternal "
+    "Sepulchre an attempt to recover the lost craft of the Great Basilica. Too far from Lenaveron "
+    "to be given saints' names, they number themselves by mason-line instead. Their Office of Works "
+    "makes each cathedral a Fortress of Faith, because the Drakteni never stop coming. Build well, "
+    "suffer gladly."
+)
+
+# Triples
+CULTURES["Cailendroffs"]["profile_summary"] = (
+    "Exiled to their isles in the Great Fracture, the Cailendroffs have spent over four thousand "
+    "years preparing to go home. They follow a prince they hold to be the last blood of Draggath "
+    "and heir to Cailen, the old god of the sword — the True King of Draggath over the Water. They "
+    "Negotiate for loyalists, bind them by Royal Marriage, and plan the Sacred War that will unite "
+    "the Kraghs under one banner. The bloodline cannot be proven. Nor can it be disproven. The "
+    "blood remembers what the record denies."
+)
+CULTURES["Sarkopekt"]["profile_summary"] = (
+    "The Sarkopekt hold no homeland, only nodes — the Wharf of St. Brannoch, Ivory Isle, the Bay of "
+    "Lost Hope — wherever a war needs selling. Merchant kings & border princes, they forge the arms "
+    "at the Advanced Blast Furnace, broker the contract, and field the company: Demand Tribute, and "
+    "if refused, win the Battle or Sabotage the army that would have. It was a Sarkopekt shipwright "
+    "who sold the fleet that broke the Belvareth at Dead Waters. Their books are immaculate. Their "
+    "loyalty goes to the Highest Bidder. State your contract."
+)
+CULTURES["Ossensteins"]["profile_summary"] = (
+    "There may be no such people. If there are, they began as the oldest Trusteki fortunes, who "
+    "went into trade, met the Shassolin & the Prezish, and then went out of sight. They are said to "
+    "hold more than half the wealth of Vaelohk, to take the Tithe of the Last Prophet's church for "
+    "their own, and to Destabilize whole Settlements with the famines that drive it. Some say the "
+    "Whispering Undercroft is theirs. No one has met one. No record names them. Nothing further is "
+    "known."
+)
+CULTURES["Voldrastel"]["profile_summary"] = (
+    "From the twelve islands of the Twelfth Reach, the Voldrastel keep the roads of the sea open — "
+    "for a toll, and a broker's fee. Faithful, honest & well armed, they Muster to escort the "
+    "convoy, Repair the waystation, and witness the landfall by which the world counts its years. "
+    "Their word is Unimpeachable. They want the world exactly as balanced as it is, and when it "
+    "tips they answer with Sacred War: against the Prezish, the Vorghith or the Drakteni, and "
+    "always for the Trusteki. Safe passage to you."
+)
+
+# Center / all four
+CULTURES["Astravantheliad"]["profile_summary"] = (
+    "On Vaelohk, the centre isle, nobody is from anywhere. Families came from every corner & kept "
+    "all of it: every Astravantheliad can fight a little, trade a little, recognise the four faces "
+    "and talk their way out of most rooms — then spend a lifetime on one small problem in the "
+    "Studium Generale. They raised the Duke to sit silent at the centre, and climb toward him "
+    "through the Senate Hall by expertise alone. Every people has kin among them, so every envoy "
+    "meets them first: they Negotiate, Sign the Treaty, and know when to End it. Knowledge is "
+    "power."
+)
+
+
 
 
 PROSE["THE HOOK"] = (
@@ -2941,7 +3080,7 @@ Almost five thousand years ago, the Lands of Vaelohk fractured as the skies fell
 
 To the Northwest, deep in the Coloured Mountains, an ancient people believed in the deity of plenty. These fertile lands granted great prosperity to its caretakers. Each family generation passed down ancient techniques, creating a lineage of craft. Then, as Blight from the Storms viciously spread beyond their control, The Trusti People were forced to migrate east to unknown terrain.
 
-In the South-Western dunes, beneath the sands, within the hard rock cut & chiseled into underground catacombs, lived a people most cunning. Upholding the legend of their ancient history, they erected sunken buildings and customs-houses to sleep in to avoid the the dangerous heat of Clypso's Wrath: the looming revenge of the demigod upon whom they cast doubt. That is, until the great floods came and never stopped. First the wells overflowed. Then so did the tunnels. The Issith of Clypso left their sunken catacombs to find the landscape changing into a lush forest and began to settle above ground.
+In the South-Western dunes, beneath the sands, within the hard rock cut & chiseled into underground catacombs, lived a people most cunning. Upholding the legend of their ancient history, they erected sunken buildings and customs-houses to sleep in to avoid the dangerous heat of Clypso's Wrath: the looming revenge of the demigod upon whom they cast doubt. That is, until the great floods came and never stopped. First the wells overflowed. Then so did the tunnels. The Ithiss of Clypso left their sunken catacombs to find the landscape changing into a lush forest and began to settle above ground.
 
 Within the most south-eastern reach, now known as the Tomb of the Old Gods, was a pharisaical people: arrogant, legalistic, and vain. A civilization of worship and adoration, sculpting, carving, and erecting the world's grandest cathedrals and tallest basilicas. Over time, their vanity grew, and with it came its laxity. Eventually, the Gods of Old disappeared from the lips of the pharisees, and in response, their names became sacrilege to merely mention, fearing the penance of their acknowledgment. The once pious Essels left their golden cities as ash rained from the sky. These people migrated across the Sea of Ash into the boxed mountains they would name Lenaveron.
 
@@ -3223,9 +3362,8 @@ SAINT_DECK = {
     #      naming -> "St. <office> the <adj>, <n> of <sigil>"
     "pillars": {
         "Ollanenor":  {"domain": "Balance", "sigil": "eyes",    "adj": "the Watchful",
-                       "order": "The Order of Saints (the Inquisition)",
-                       "note": "The Order of Saints delivers every saint-name, so THIS Pillar names "
-                                "Eyes are the Inquisition's — the watchful gaze of the purifiers, "
+                       "order": "The Order of Balance (the Inquisition)",
+                       "note": "Eyes are the Inquisition's — the watchful gaze of the purifiers, "
                                "the eyes of the Tetramorph. This Pillar is orthodoxy and "
                                "purification, not naming.",
                        "roles": ["Alice", "Agatha", "Kristi", "Clarice",
@@ -3235,12 +3373,12 @@ SAINT_DECK = {
                        "roles": ["Louse", "Pliwo", "Karl", "Brok",
                                  "Vash", "Poe", "Brutus", "Daemon"]},
         "Lorenthal":  {"domain": "Peace",   "sigil": "staves",  "adj": "the Missionary",
-                       "order": "The Order of Mission",
+                       "order": "The Order of Missions",
                        "roles": ["Dane", "Domas", "Grenada", "Fasille",
                                  "Kanga", "Hygle", "Francis", "Scepter"]},
         "Anumaranth": {"domain": "Saints",  "sigil": "candles", "adj": "the Saintly",
-                       "order": "The Order of Balance (records via the True Word)",
-                       "note": 
+                       "order": "The Order of Saints (records via the True Word)",
+                       "note": "The Order of Saints delivers every saint-name, so THIS Pillar names "
                                "the others; its True Word arm keeps the count, and the candle is the "
                                "reckoning made visible — a measured burn is the count.",
                        "roles": ["Deca", "Lieber", "Calvin", "Cauch",

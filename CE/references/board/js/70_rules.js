@@ -352,7 +352,7 @@ function sackApply(i,wardIdx){const T=realmTimers(),t=T[i];if(!t)return;const fr
   const tierN=+((DATA.settlements||{})[s.tier]||{}).tier||0,log=[];chron("sack",{player:to.name,other:from.name,settlement:s.name||s.tier});
   const W=sackWards(from,s),gone=W[+wardIdx]||[],rm=new Set(gone.map(q=>String(q.id)));
   const razed=W.filter((w,k)=>k!==+wardIdx&&w.length).map(w=>w[w.length-1]);
-  razed.forEach(q=>{q.dmg=REPAIR_T;q.dmgBy=dmgMark({act:"Sack",by:to.name,pid:String(to.id)});});   // top-most Holding of each Ward: Damaged
+  razed.forEach(q=>{q.dmg=REPAIR_T;delete q.shut;q.dmgBy=dmgMark({act:"Sack",by:to.name,pid:String(to.id)});});   // top-most Holding of each Ward: Damaged
   if(razed.length)log.push("razed "+razed.map(q=>q.name).join(", "));
   fb.placed=(fb.placed||[]).filter(q=>!rm.has(String(q.id)));                                            // the chosen Ward's Holdings leave play
   if(gone.length)log.push("Ward removed: "+gone.map(q=>q.name).join(" + "));
@@ -366,7 +366,7 @@ function sackApply(i,wardIdx){const T=realmTimers(),t=T[i];if(!t)return;const fr
 function banditSack(t){if(!t||!t.bandit)return "";const from=pById(t.tp),s=from&&(from.board.settlements||[]).find(x=>String(x.id)===String(t.sid));
   const M=mapState(),camp=Object.values(M.camps||{}).find(c=>String(c.uid)===String(t.bandit));if(!from||!s||!camp)return "Bandit Sack: target or camp missing";
   const fb=from.board,tierN=+((DATA.settlements||{})[s.tier]||{}).tier||0,log=[],W=sackWards(from,s),gone=W[0]||[],rm=new Set(gone.map(q=>String(q.id)));
-  const razed=W.slice(1).filter(w=>w.length).map(w=>w[w.length-1]),ck=Object.keys(M.camps||{}).find(k=>M.camps[k]===camp);razed.forEach(q=>{q.dmg=REPAIR_T;q.dmgBy=dmgMark({act:"Sack",camp:ck||"?"});});
+  const razed=W.slice(1).filter(w=>w.length).map(w=>w[w.length-1]),ck=Object.keys(M.camps||{}).find(k=>M.camps[k]===camp);razed.forEach(q=>{q.dmg=REPAIR_T;delete q.shut;q.dmgBy=dmgMark({act:"Sack",camp:ck||"?"});});
   if(razed.length)log.push("razed "+razed.map(q=>q.name).join(", "));
   fb.placed=(fb.placed||[]).filter(q=>!rm.has(String(q.id)));if(gone.length)log.push("Ward removed: "+gone.map(q=>q.name).join(" + "));
   const ti=TIER_CHAIN.indexOf(s.tier);if(ti>0){log.push(s.tier+" → "+TIER_CHAIN[ti-1]);s.tier=TIER_CHAIN[ti-1];}

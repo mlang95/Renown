@@ -3826,6 +3826,20 @@ for y0 in (9, 18, 25):
 door4(c, 3, 30, 6)
 SPRITES["inf:Garrison"] = fin32(c)
 
+# March-Tower: tall stone watchtower, timber lookout gallery on struts, beacon burning in an iron brazier on top
+c = sky(11, 39)
+put(c, ["..f..", ".fyf.", "fyYFf", "kmmMk", ".kMk."], 3, 0)
+wall(c, 0, 5, 11, 6, "b")
+for x in (2, 5, 8):
+    put(c, ["d", "d"], x, 7)
+wall(c, 2, 11, 7, 27, "t")
+c[11][1] = c[11][9] = "k"
+courses(c, 3, 13, 6, 35)
+for y0 in (15, 23):
+    put(c, SLIT, 5, y0)
+door4(c, 3, 32, 6)
+SPRITES["inf:March-Tower"] = fin32(c)
+
 # Keep: broad crenellated keep with a red flag, tall windows, slit, gate
 c = sky(15, 37)
 flag(c, 7, 0, "c", 4)
@@ -5757,12 +5771,11 @@ def sprite_key(name, ns):
 #   front  - small foreground piece at the lot's left edge
 SKYLINE = {
     "Library": ("slot", "left"), "Town Hall": ("slot", "right"), "Cathedral": ("slot", "center"),
-    "Muster Field": ("edge", "left"), "Garrison": ("edge", "right"),
+    "March-Tower": ("edge", "left"), "Muster Field": ("edge", "left"), "Garrison": ("edge", "right"),
     "Wooden Walls": ("band", ""), "Stone Walls": ("band", ""),
     "Dirt Roads": ("ground", "dirt"), "Stone Roads": ("ground", "stone"),
     "Bridges": ("gap", ""), "Aqueducts": ("span", ""), "Town Square": ("front", "left"),
     "Chapel": ("slot", "center"), "Magistrate's Hall": ("slot", "right"), "Keep": ("edge", "right"),
-    "Road Wardens": ("front", "right"),
 }
 # display only: when both are built, draw the upgrade in the same spot (frees skyline room)
 INFRA_SUPERSEDES = {"Stone Roads": "Dirt Roads", "Stone Walls": "Wooden Walls", "Cathedral": "Chapel",
@@ -5997,7 +6010,7 @@ function skyline(c,t,W,G,all){const at=(k,x)=>{const s=D.S[k];if(s)paint(c,s,x,G
   if(on("Town Hall"))at("inf:Town Hall",Math.min(W-w("inf:Town Hall"),cx+cw-3));
   at("sky:core:"+t,cx);
   ["Chapel","Cathedral"].filter(on).forEach(n=>at("inf:"+n,Math.floor((W-w("inf:"+n))/2)));   // centre slot in front of the core
-  if(on("Muster Field"))at("inf:Muster Field",0);if(on("Garrison"))at("inf:Garrison",W-w("inf:Garrison"));
+  {let x=0;["March-Tower","Muster Field"].filter(on).forEach(n=>{at("inf:"+n,x);x+=w("inf:"+n)+1;});}   // left edge pieces side by sideif(on("Garrison"))at("inf:Garrison",W-w("inf:Garrison"));
   ["Stone Walls","Wooden Walls"].filter(on).forEach(n=>{for(let x=0;x<W;x+=w("inf:"+n))at("inf:"+n,x);
     if(D.S["inf:"+n+":tower"]){at("inf:"+n+":tower",0);at("inf:"+n+":tower",W-w("inf:"+n+":tower"));}});}
 if(D.T.length){g=sec("settlement skylines (faded 20% toward the sky); Town+ also shown with every skyline infrastructure piece");

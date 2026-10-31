@@ -271,24 +271,20 @@
     1,
     0
    ],
-   "Granary": [
+   "Supply Depot": [
     2,
     0
    ],
-   "Supply Depot": [
+   "Citadel": [
     3,
     0
    ],
-   "Citadel": [
+   "Castle Hall": [
     4,
     0
    ],
-   "Castle Hall": [
-    5,
-    0
-   ],
    "Imperial Palace": [
-    6,
+    5,
     0
    ]
   },
@@ -302,10 +298,6 @@
     "Citadel"
    ],
    [
-    "Masonry",
-    "Granary"
-   ],
-   [
     "Castle Hall",
     "Imperial Palace"
    ],
@@ -314,7 +306,7 @@
     "Masonry"
    ],
    [
-    "Granary",
+    "Masonry",
     "Supply Depot"
    ]
   ]
@@ -324,47 +316,35 @@
   "anchor": "Manor House",
   "mode": "chain",
   "nodes": {
-   "Apiary": [
-    0,
-    0
-   ],
    "Furnace": [
     0,
-    1
-   ],
-   "Meadery": [
-    1,
     0
    ],
    "Blacksmith": [
     1,
-    1
+    0
    ],
    "Forestry": [
     1,
-    2
+    1
    ],
    "Quarry": [
     1,
-    3
-   ],
-   "Arable Land": [
-    1,
-    4
-   ],
-   "Bakery": [
-    2,
-    0
+    2
    ],
    "Forge": [
     2,
-    1
+    0
    ],
    "Carpentry": [
     2,
-    2
+    1
    ],
    "Masonry": [
+    2,
+    2
+   ],
+   "Bakery": [
     2,
     3
    ],
@@ -372,13 +352,17 @@
     2,
     4
    ],
-   "Herb Garden": [
+   "Apiary": [
     2,
     5
    ],
-   "Vineyard": [
+   "Herb Garden": [
     2,
     6
+   ],
+   "Vineyard": [
+    2,
+    7
    ],
    "Mill": [
     3,
@@ -388,13 +372,17 @@
     3,
     4
    ],
-   "Spice Merchant": [
+   "Meadery": [
     3,
     5
    ],
-   "Winery": [
+   "Spice Merchant": [
     3,
     6
+   ],
+   "Winery": [
+    3,
+    7
    ],
    "Manor House": [
     4,
@@ -402,10 +390,6 @@
    ]
   },
   "edges": [
-   [
-    "Meadery",
-    "Bakery"
-   ],
    [
     "Furnace",
     "Blacksmith"
@@ -423,14 +407,6 @@
     "Forge"
    ],
    [
-    "Arable Land",
-    "Herb Garden"
-   ],
-   [
-    "Cidery",
-    "Manor House"
-   ],
-   [
     "Spice Merchant",
     "Manor House"
    ],
@@ -439,7 +415,15 @@
     "Manor House"
    ],
    [
+    "Cidery",
+    "Manor House"
+   ],
+   [
     "Mill",
+    "Manor House"
+   ],
+   [
+    "Meadery",
     "Manor House"
    ],
    [
@@ -467,26 +451,14 @@
     "Mill"
    ],
    [
-    "Arable Land",
-    "Orchard"
-   ],
-   [
     "Herb Garden",
     "Spice Merchant"
-   ],
-   [
-    "Arable Land",
-    "Vineyard"
    ],
    [
     "Vineyard",
     "Winery"
    ],
    [
-    "Cidery",
-    "Manor House"
-   ],
-   [
     "Spice Merchant",
     "Manor House"
    ],
@@ -495,16 +467,20 @@
     "Manor House"
    ],
    [
+    "Cidery",
+    "Manor House"
+   ],
+   [
     "Mill",
+    "Manor House"
+   ],
+   [
+    "Meadery",
     "Manor House"
    ]
   ],
   "links": [
    [
-    "Cidery",
-    "Manor House"
-   ],
-   [
     "Spice Merchant",
     "Manor House"
    ],
@@ -513,7 +489,15 @@
     "Manor House"
    ],
    [
+    "Cidery",
+    "Manor House"
+   ],
+   [
     "Mill",
+    "Manor House"
+   ],
+   [
+    "Meadery",
     "Manor House"
    ]
   ]
@@ -817,6 +801,67 @@
    [
     "Charcoal Burner",
     "Smokehouse"
+   ]
+  ]
+ },
+ {
+  "title": "Marshal Tiltyard",
+  "anchor": "Marshal Tiltyard",
+  "mode": "chain",
+  "nodes": {
+   "Animal Husbandry": [
+    0,
+    0
+   ],
+   "Inn": [
+    0,
+    1
+   ],
+   "Stable": [
+    1,
+    0
+   ],
+   "Saddlery": [
+    2,
+    0
+   ],
+   "Avenery": [
+    3,
+    0
+   ],
+   "Farriery": [
+    4,
+    0
+   ],
+   "Marshal Tiltyard": [
+    5,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Saddlery",
+    "Avenery"
+   ],
+   [
+    "Avenery",
+    "Farriery"
+   ],
+   [
+    "Farriery",
+    "Marshal Tiltyard"
+   ],
+   [
+    "Stable",
+    "Saddlery"
+   ],
+   [
+    "Animal Husbandry",
+    "Stable"
+   ],
+   [
+    "Inn",
+    "Stable"
    ]
   ]
  },
@@ -1432,67 +1477,6 @@
    [
     "Cipher Chamber",
     "Whispering Undercroft"
-   ]
-  ]
- },
- {
-  "title": "Marshal Tiltyard",
-  "anchor": "Marshal Tiltyard",
-  "mode": "chain",
-  "nodes": {
-   "Animal Husbandry": [
-    0,
-    0
-   ],
-   "Inn": [
-    0,
-    1
-   ],
-   "Stable": [
-    1,
-    0
-   ],
-   "Saddlery": [
-    2,
-    0
-   ],
-   "Avenery": [
-    3,
-    0
-   ],
-   "Farriery": [
-    4,
-    0
-   ],
-   "Marshal Tiltyard": [
-    5,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Saddlery",
-    "Avenery"
-   ],
-   [
-    "Avenery",
-    "Farriery"
-   ],
-   [
-    "Farriery",
-    "Marshal Tiltyard"
-   ],
-   [
-    "Stable",
-    "Saddlery"
-   ],
-   [
-    "Animal Husbandry",
-    "Stable"
-   ],
-   [
-    "Inn",
-    "Stable"
    ]
   ]
  },

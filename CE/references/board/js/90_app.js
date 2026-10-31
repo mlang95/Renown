@@ -178,16 +178,16 @@ const WIKI_BASE=DATA.wikiBase||(WIKI_LOCAL?"":(DATA.wikiHome||""));
 function wikiA(href){return '<div><a href="'+esc(WIKI_BASE+href)+'" target="'+(WIKI_LOCAL&&window.top!==window?"_top":"_blank")+'" rel="noopener">wiki ↗</a></div>';}
 function gkHtml(e){
   if(e.k==="g"){return '<div class="gh">'+esc(e.t)+'</div><div>'+esc(GLOSS[e.t]||"")+'</div>'+wikiA("glossary.html#"+gslug(e.t));}
-  if(e.k==="p"){const r=R[e.t]||{};return '<div class="gh">'+esc(e.t)+' <span class="note">'+esc(r.monument&&r.group?r.group:(r.type||""))+(r.monument?" · Monument":"")+'</span></div>'+
+  if(e.k==="p"){const r=R[e.t]||{};return '<div class="gh">'+esc(e.t)+' <span class="note">'+esc(r.monument&&r.group?r.group:(r.type||""))+(r.monument?" · Monument":"")+(NATURAL.has(e.t)?" · Natural":"")+'</span></div>'+
     (r.unlock_raw&&!/^[-\u2014]$/.test(r.unlock_raw.trim())?'<div class="note">Unlock: '+esc(r.unlock_raw)+'</div>':'')+
-    '<div><b>Innate</b> '+esc(r.innate_raw||"—")+'</div>'+
+    '<div><b>Effect</b> '+esc(r.innate_raw||"—")+'</div>'+
     (r.mastery_raw?'<div><b>Mastery</b> '+esc(r.mastery_raw)+(r.mreq_raw?' <span class="note">(req: '+esc(r.mreq_raw)+')</span>':'')+'</div>':'')+
     (onBoard(e.t)?'<div class="note">✓ on your board</div>':'<div><button data-addp="'+esc(e.t)+'">+ add to board</button></div>')+
     wikiA("type-"+gslug(r.type||"other")+".html#"+gslug(e.t));}
   const r=(e.k==="w"?WON:INFRA)[e.t]||{};
   return '<div class="gh">'+esc(e.t)+' <span class="note">'+(e.k==="w"?"Wonder":esc(r.tier||"Infrastructure"))+'</span></div>'+
     (r.requirement?'<div class="note">Requires: '+esc(r.requirement)+'</div>':'')+
-    '<div>'+esc(r.effect_raw||"")+'</div>'+(r.upkeep?'<div class="note">Upkeep '+esc(r.upkeep)+'</div>':'')+
+    '<div><b>Effect</b> '+esc(r.effect_raw||"—")+'</div>'+(r.upkeep?'<div class="note">Upkeep '+esc(r.upkeep)+'</div>':'')+
     wikiA("infrastructure-ref.html#"+gslug(e.t))+
     (((e.k==="w"?S.wonders:S.infra)||{})[e.t]?'<div class="note">✓ in your '+(e.k==="w"?'Wonders':'Infrastructure')+'</div>'
       :'<div><button data-addi="'+(e.k==="w"?"wonder":"infra")+'|'+esc(e.t)+'">+ add to '+(e.k==="w"?'Wonders':'Infrastructure')+'</button></div>');}
@@ -202,11 +202,16 @@ window.addEventListener("hashchange",openFromHash);setTimeout(openFromHash,0);
 // nodes and title tooltips are rewritten, as they appear (MutationObserver), so it covers every view.
 (function(){const AL=DATA.aliases||{},keys=Object.keys(AL);
   const re=new RegExp("\\b("+keys.sort((a,b)=>b.length-a.length).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")\\b","g");
-  // idempotent: skip a match that already sits inside its own new name ("Reliquary" in "Reliquary Sanctum"),
-  // so re-processing text (this observer sees its own edits) can never stack renames
-  const disp=t=>!keys.length?dispScore(t):dispScore(t).replace(re,(m,_g,i,str)=>{const v=AL[m];let o=v.indexOf(m);while(o!==-1){if(str.substr(i-o,v.length)===v)return m;o=v.indexOf(m,o+1);}return v;});window.dispName=disp;
-  const SKIP={SCRIPT:1,STYLE:1,TEXTAREA:1,INPUT:1};
-  const fixText=n=>{const p=n.parentNode;if(!p||SKIP[p.nodeName]||(p.isContentEditable))return;const v=n.nodeValue,w=disp(v);if(w!==v)n.nodeValue=w;};
+  // idempotent: skip a match that already sits inside ANY display name ("Reliquary" in "Reliquary Sanctum",
+  // "Exalted Basilica" in "The Exalted Basilica"), so swapped names can't chase each other round a cycle.
+  // Chains (A -> B, B -> C) resolve to their end up front (a cycle stops where it repeats); WROTE stops this
+  // observer re-processing its own edits.
+  const FIN={};keys.forEach(k=>{let v=AL[k];const seen=new Set([k]);while(AL[v]!=null&&!seen.has(v)){seen.add(v);v=AL[v];}FIN[k]=v;});
+  const VALS=[...new Set(Object.values(FIN))];
+  const inVal=(m,i,str)=>VALS.some(v=>{let o=v.indexOf(m);while(o!==-1){if(str.substr(i-o,v.length)===v)return true;o=v.indexOf(m,o+1);}return false;});
+  const disp=t=>!keys.length?dispScore(t):dispScore(t).replace(re,(m,_g,i,str)=>inVal(m,i,str)?m:FIN[m]);window.dispName=disp;
+  const SKIP={SCRIPT:1,STYLE:1,TEXTAREA:1,INPUT:1},WROTE=new WeakMap();
+  const fixText=n=>{const p=n.parentNode;if(!p||SKIP[p.nodeName]||(p.isContentEditable))return;const v=n.nodeValue;if(WROTE.get(n)===v)return;const w=disp(v);if(w!==v){WROTE.set(n,w);n.nodeValue=w;}};
   const fixEl=el=>{if(el.nodeType===3){fixText(el);return;}if(el.nodeType!==1||SKIP[el.nodeName])return;
     if(el.hasAttribute&&el.hasAttribute("title")){const v=el.getAttribute("title"),w=disp(v);if(w!==v)el.setAttribute("title",w);}
     const tw=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let x;while((x=tw.nextNode()))fixText(x);

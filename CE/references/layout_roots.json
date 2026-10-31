@@ -757,131 +757,6 @@
   ]
  },
  {
-  "title": "Quarry",
-  "anchor": "Quarry",
-  "mode": "root",
-  "nodes": {
-   "Quarry": [
-    0,
-    1
-   ],
-   "Masonry": [
-    1,
-    1
-   ],
-   "Granary": [
-    2,
-    1
-   ],
-   "Supply Depot": [
-    3,
-    1
-   ],
-   "Trade Guild": [
-    3,
-    2
-   ],
-   "Priory": [
-    3,
-    0
-   ],
-   "Citadel": [
-    4,
-    1
-   ],
-   "College of Engineering": [
-    4,
-    2
-   ],
-   "Abbey": [
-    4,
-    0
-   ],
-   "Castle Hall": [
-    5,
-    1
-   ],
-   "Masons' Guild": [
-    5,
-    2
-   ],
-   "Monastery": [
-    5,
-    0
-   ],
-   "Imperial Palace": [
-    6,
-    1
-   ],
-   "Office of Works": [
-    6,
-    2
-   ],
-   "Papal Palace": [
-    6,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Priory",
-    "Abbey"
-   ],
-   [
-    "Citadel",
-    "Castle Hall"
-   ],
-   [
-    "Supply Depot",
-    "Citadel"
-   ],
-   [
-    "Trade Guild",
-    "College of Engineering"
-   ],
-   [
-    "Masonry",
-    "Granary"
-   ],
-   [
-    "Castle Hall",
-    "Imperial Palace"
-   ],
-   [
-    "Quarry",
-    "Masonry"
-   ],
-   [
-    "College of Engineering",
-    "Masons' Guild"
-   ],
-   [
-    "Abbey",
-    "Monastery"
-   ],
-   [
-    "Masons' Guild",
-    "Office of Works"
-   ],
-   [
-    "Monastery",
-    "Papal Palace"
-   ],
-   [
-    "Masonry",
-    "Priory"
-   ],
-   [
-    "Granary",
-    "Supply Depot"
-   ],
-   [
-    "Masonry",
-    "Trade Guild"
-   ]
-  ]
- },
- {
   "title": "Animal Husbandry",
   "anchor": "Animal Husbandry",
   "mode": "root",
@@ -995,6 +870,123 @@
    [
     "Animal Husbandry",
     "Tannery"
+   ]
+  ]
+ },
+ {
+  "title": "Quarry",
+  "anchor": "Quarry",
+  "mode": "root",
+  "nodes": {
+   "Quarry": [
+    0,
+    1
+   ],
+   "Masonry": [
+    1,
+    1
+   ],
+   "Supply Depot": [
+    2,
+    1
+   ],
+   "Trade Guild": [
+    2,
+    2
+   ],
+   "Priory": [
+    2,
+    0
+   ],
+   "Citadel": [
+    3,
+    1
+   ],
+   "College of Engineering": [
+    3,
+    2
+   ],
+   "Abbey": [
+    3,
+    0
+   ],
+   "Castle Hall": [
+    4,
+    1
+   ],
+   "Masons' Guild": [
+    4,
+    2
+   ],
+   "Monastery": [
+    4,
+    0
+   ],
+   "Imperial Palace": [
+    5,
+    1
+   ],
+   "Office of Works": [
+    5,
+    2
+   ],
+   "Papal Palace": [
+    5,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Priory",
+    "Abbey"
+   ],
+   [
+    "Citadel",
+    "Castle Hall"
+   ],
+   [
+    "Supply Depot",
+    "Citadel"
+   ],
+   [
+    "Trade Guild",
+    "College of Engineering"
+   ],
+   [
+    "Castle Hall",
+    "Imperial Palace"
+   ],
+   [
+    "Quarry",
+    "Masonry"
+   ],
+   [
+    "College of Engineering",
+    "Masons' Guild"
+   ],
+   [
+    "Abbey",
+    "Monastery"
+   ],
+   [
+    "Masons' Guild",
+    "Office of Works"
+   ],
+   [
+    "Monastery",
+    "Papal Palace"
+   ],
+   [
+    "Masonry",
+    "Priory"
+   ],
+   [
+    "Masonry",
+    "Supply Depot"
+   ],
+   [
+    "Masonry",
+    "Trade Guild"
    ]
   ]
  },
@@ -1247,71 +1239,55 @@
   "anchor": "Manor House",
   "mode": "chain",
   "nodes": {
+   "Orchard": [
+    0,
+    2
+   ],
    "Apiary": [
+    0,
+    3
+   ],
+   "Bakery": [
+    0,
+    4
+   ],
+   "Herb Garden": [
+    0,
+    0
+   ],
+   "Vineyard": [
     0,
     1
    ],
+   "Cidery": [
+    1,
+    2
+   ],
    "Meadery": [
     1,
-    1
-   ],
-   "Arable Land": [
-    1,
-    2
-   ],
-   "Bakery": [
-    2,
-    1
-   ],
-   "Orchard": [
-    2,
-    2
-   ],
-   "Herb Garden": [
-    2,
     3
-   ],
-   "Vineyard": [
-    2,
-    0
    ],
    "Mill": [
-    3,
-    1
-   ],
-   "Cidery": [
-    3,
-    2
+    1,
+    4
    ],
    "Spice Merchant": [
-    3,
-    3
-   ],
-   "Winery": [
-    3,
+    1,
     0
    ],
-   "Manor House": [
-    4,
+   "Winery": [
+    1,
     1
+   ],
+   "Manor House": [
+    2,
+    2
    ]
   },
   "edges": [
    [
-    "Meadery",
-    "Bakery"
-   ],
-   [
     "Orchard",
     "Cidery"
-   ],
-   [
-    "Arable Land",
-    "Herb Garden"
-   ],
-   [
-    "Cidery",
-    "Manor House"
    ],
    [
     "Spice Merchant",
@@ -1322,7 +1298,15 @@
     "Manor House"
    ],
    [
+    "Cidery",
+    "Manor House"
+   ],
+   [
     "Mill",
+    "Manor House"
+   ],
+   [
+    "Meadery",
     "Manor House"
    ],
    [
@@ -1334,26 +1318,14 @@
     "Mill"
    ],
    [
-    "Arable Land",
-    "Orchard"
-   ],
-   [
     "Herb Garden",
     "Spice Merchant"
-   ],
-   [
-    "Arable Land",
-    "Vineyard"
    ],
    [
     "Vineyard",
     "Winery"
    ],
    [
-    "Cidery",
-    "Manor House"
-   ],
-   [
     "Spice Merchant",
     "Manor House"
    ],
@@ -1362,16 +1334,20 @@
     "Manor House"
    ],
    [
+    "Cidery",
+    "Manor House"
+   ],
+   [
     "Mill",
+    "Manor House"
+   ],
+   [
+    "Meadery",
     "Manor House"
    ]
   ],
   "links": [
    [
-    "Cidery",
-    "Manor House"
-   ],
-   [
     "Spice Merchant",
     "Manor House"
    ],
@@ -1380,7 +1356,15 @@
     "Manor House"
    ],
    [
+    "Cidery",
+    "Manor House"
+   ],
+   [
     "Mill",
+    "Manor House"
+   ],
+   [
+    "Meadery",
     "Manor House"
    ]
   ]

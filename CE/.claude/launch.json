@@ -132,6 +132,54 @@
         "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\10ce05f0-51e7-45bc-b38f-4a8936707346\\scratchpad\\board"
       ],
       "port": 8775
+    },
+    {
+      "name": "board-bugs",
+      "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
+      "runtimeArgs": [
+        "references/server.py"
+      ],
+      "env": {
+        "PORT": "8776",
+        "RENOWN_DB": "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\eb12408f-a3a2-482e-8f6c-a94c04d0892b\\scratchpad\\bugs_fresh.db"
+      },
+      "port": 8776
+    },
+    {
+      "name": "board-greyedges",
+      "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8777",
+        "--directory",
+        "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\6dc50cf0-e526-4034-a015-efc76ab0e7b5\\scratchpad\\board"
+      ],
+      "port": 8777
+    },
+    {
+      "name": "board-actions",
+      "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8778",
+        "--directory",
+        "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\52974ff3-4fd1-4f5e-b1ab-70b1623b9a22\\scratchpad\\board"
+      ],
+      "port": 8778
+    },
+    {
+      "name": "board-wonderrace",
+      "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8779",
+        "--directory",
+        "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\5565a000-5ac8-44f9-a923-8561df9844e0\\scratchpad\\board"
+      ],
+      "port": 8779
     }
   ]
 }

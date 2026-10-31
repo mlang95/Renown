@@ -660,7 +660,8 @@ def stat_table(names,current):
             v=d.get(k,""); v=rd.display_list(v) if isinstance(v,list) else rd.display_text(v or "")
             cells.append(f"<td>{autolink(md_inline(str(v)),current) if v else '<span class=dim>—</span>'}</td>")
         mon=" ◆" if d.get("monument") else ""
-        rows.append(f"<tr id='{slug(n)}'><td class='nm'>{html.escape(rd.display(n))}{mon}{board_link(n)}</td>"+"".join(cells)+"</tr>")
+        nat=" <span class='dim'>(Natural)</span>" if d.get("natural") else ""
+        rows.append(f"<tr id='{slug(n)}'><td class='nm'>{html.escape(rd.display(n))}{mon}{nat}{board_link(n)}</td>"+"".join(cells)+"</tr>")
     term=(getattr(rd,"PURSUIT_TERM",None) or ("Pursuit",))[0]
     return f"<table class='pursuits'><thead><tr><th>{html.escape(term)}</th>{head}</tr></thead><tbody>{''.join(rows)}</tbody></table>"
 for t in TYPE_ORDER:

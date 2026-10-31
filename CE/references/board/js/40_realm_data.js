@@ -15,7 +15,7 @@ function influenceRowsBase(b){
   if(IG.Era){const e=ERAS[currentEra()]||{},parts=String(IG.Era.change).split("/").map(x=>parseInt(x,10));add("Era",1,e.influence_per_turn??(parts[eraIdx()]||0));}
   const pairs=pid?D.players.filter(q=>String(q.id)!==pid).map(q=>effPair(pid,q.id)).filter(x=>!x.household):[];
   const tpx=srcMatch(b,"trade_extra").reduce((a,x)=>a+(+x.m[1]),0),tp=pairs.filter(x=>x.trade).length+tpx;
-  add("Trading Partners",tp,tp*igVal("Trading Partners"));
+  add("Trade Partners",tp,tp*igVal("Trade Partners"));
   const am=pid?D.players.filter(q=>sameAlliance(pid,q.id)).length:0;add("Alliances",am,am*igVal("Alliances"));
   const tiers=withBoard(b,()=>{const T={};Object.keys(INFRA).forEach(n=>{(T[INFRA[n].tier]=T[INFRA[n].tier]||[]).push(n);});return Object.keys(T).filter(t=>T[t].every(infraOn)).length;});
   add("Infrastructure tier completed",tiers,tiers*igVal("Infrastructure tier completed"));

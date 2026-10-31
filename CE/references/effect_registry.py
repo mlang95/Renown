@@ -104,7 +104,7 @@ REG = {
     "cipher_timer_plus":   ("text", "hiwf", r"(?:At the Start of the Empire Phase: |; or )select any active Timer you did not select last turn; increase it by (\d+)"),
     "cipher_choose_one":   ("text", "hiwf", r"At the Start of the Empire Phase, choose one: select an army"),
     # Keep: every Muster is hurried once (the Muster Timer -1, the Army gains up to the combined muster limit at once)
-    "muster_rush":         ("clause", "hiwf", r"When you Muster, reduce the Muster Timer by 1 and immediately gain Retinues equal to the combined muster limit"),
+    "muster_rush":         ("clause", "hiwf", r"When you Muster, (?:reduce the Muster Timer by 1 and )?immediately gain Retinues equal to the combined muster limit"),
     # ---- Public Order / Faith / Doubt ----
     "po_cap":              ("clause", "hiwf", r"Public Order can.t exceed (-?\d+)"),
     "po_floor":            ("clause", "hiwf", r"Public Order would ever be less than (-?\d+),? set it to (-?\d+)"),
@@ -117,16 +117,16 @@ REG = {
     "faith_war":           ("clause", "hiwf", r"Faith \+(\d+) while (not )?at War"),
     "faith_sacred_war":    ("clause", "hiwf", r"While a Sacred War is active, gain (\d+) Faith during each Empire Phase"),
     "faith_per_war":       ("clause", "hiwf", r"Faith \+(\d+) for every player you.re At War with"),
-    "trade_partner_faith": ("clause", "hiwf", r"Faith \+(\d+) per Trade Partner with Craft (\d+)\+, and each of those partners gains Faith \+(\d+)"),
+    "trade_partner_faith": ("clause", "hiwf", r"Faith \+(\d+) per Trade Partner with Craft (\d+)\+, and (?:each of those partners gains|those Trade Partners gain) Faith \+(\d+)"),
     # ---- economy ----
-    "gold_per_craft":      ("clause", "hiwf", r"Gain \+?(\d+)(?: gold)? per (?:total )?Craft"),
+    "gold_per_craft":      ("clause", "hiwf", r"(?:Gain \+?|Gold \+)(\d+)(?: gold)? per (?:total )?Craft"),
     # Esteemed Bank: "Each Empire Phase, Gain 1000 per 10000 in Treasury" — m[1] gold per m[2] in the Treasury
     "gold_per_treasury":   ("clause", "hiwf", r"Gain \+?(\d+)(?: gold)? per (\d+)(?: gold)? in (?:your )?Treasury"),
     # Exalted Basilica / Serfdom: "Gain +300 per Faith", "Gain +500 per Doubt" — m[1] gold per m[2] gained, whenever gained;
     # "per Influence" pays on the turn's Influence total each Empire Phase
-    "gold_per_fd":         ("clause", "hiwf", r"Gain \+?(\d+)(?: gold)? per (Faith|Doubt|Influence)$"),
+    "gold_per_fd":         ("clause", "hiwf", r"(?:Gain \+?|Gold \+)(\d+)(?: gold)? per (Faith|Doubt|Influence)$"),
     "partner_craft":       ("clause", "hiwf", r"(?:Trade Partners|Players who trade with you) gain Craft \+(\d+)"),
-    "trade_extra":         ("clause", "hiwf", r"count as Trading with an additional (\d+) players?"),
+    "trade_extra":         ("clause", "hiwf", r"count as (?:Trading with an additional|having) (\d+) (?:more Trade Partners|players?)"),
     "trade_mult":          ("clause", "hiwf", r"generate (thrice|twice) as much for yourself"),
     "trade_no_roads":      ("clause", "hiwf", r"may trade without Dirt Roads|^Can Trade$"),
     "trade_border":        ("clause", "hiwf", r"may trade so long as your border touches another player"),
@@ -134,7 +134,7 @@ REG = {
     "loan_default":        ("clause", "hiwf", r"^on Default:\s*Perform (.+)$"),
     "loan_once":           ("clause", "hiwf", r"Once per (turn|Empire Phase),? (?:you )?may loan money"),
     "tithe_lower":         ("clause", "hiwf", r"Tithe each other player with lower ((?:Piety|Prowess|Cunning|Industry|Public Order)(?: or (?:Piety|Prowess|Cunning|Industry|Public Order))?)"),
-    "extort_half_trade":   ("clause", "hiwf", r"Extort half of Trade Income from players who don.t trade with you"),
+    "extort_half_trade":   ("clause", "hiwf", r"Extort half of Trade Income from players who (?:don.t trade with you|aren.t your Trade Partners)"),
     # m[1] gold, m[2] "non-allied " when only non-allies pay, m[3] the value compared (Treasury, a Domain, Public Order)
     "extort_lower_treasury":("clause", "hiwf", r"Each Empire Phase,? Extort (\d+) from each (non-allied )?player with a lower (Treasury|Piety|Prowess|Cunning|Industry|Public Order)(?: value)?"),
     # Diplomacy step (PHASE_REFORM): Embassy makes one Diplomacy action fail; Aristocratic Court Extorts both parties of others' actions
@@ -167,6 +167,8 @@ REG = {
     "reach_plus":          ("text", "hMF", r"Reach\s*\+\s*(\d+)"),
     "reach_plus_rec":      ("json", "iw", r"Reach\s*\+\s*(\d+)"),
     "garrison":            ("text", "i", r"Your Settlements gain Garrisons"),
+    # March-Tower: in place of a Move, one of your Garrisons Battles a non-allied Army within its Settlement's Presence
+    "garrison_battle":     ("text", "i", r"Instead of performing a Move action, you may have a Garrison Battle a non-allied Army within Presence"),
     "muster_field":        ("text", "i", r"Can Muster"),
     "shipyard":            ("text", "hi", r"Water Territory treated as Grassland"),
     "bridges":             ("text", "hi", r"cross Water Territory at full movement within (?:your )?Province"),

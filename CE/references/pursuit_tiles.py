@@ -189,6 +189,8 @@ def tile(c, name, d, x, ytop):
     reserve = 20
     if up_val: reserve += 16
     if mon: reserve += 14
+    nat = d.get("natural")
+    if nat: reserve += 10
     name_limit = TW - reserve * s
     while c.stringWidth(nm, SERIF_B, nm_sz) > name_limit and len(nm) > 6:
         nm = nm[:-2]
@@ -202,6 +204,10 @@ def tile(c, name, d, x, ytop):
         c.setFillColor(Color(1, 1, 1)); c.setFont(SERIF_B, nm_sz)
         c.drawRightString(corner_x, hy + head_h*0.31, str(up))
         corner_x -= c.stringWidth(str(up), SERIF_B, nm_sz) + 6*s
+    if nat:   # Natural leaf, beside the Monument diamond
+        c.setFillColor(Color(1, 1, 1)); c.setFont(SERIF_B, nm_sz*0.8)
+        c.drawRightString(corner_x, hy + head_h*0.31, "❧")
+        corner_x -= c.stringWidth("❧", SERIF_B, nm_sz*0.8) + 4*s
     if mon:
         c.setFillColor(Color(1, 1, 1)); c.setFont(SERIF_B, nm_sz)
         c.drawRightString(corner_x, hy + head_h*0.31, "\u25c6")

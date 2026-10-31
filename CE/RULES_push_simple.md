@@ -95,9 +95,9 @@ A few conventions make every rule in this book read the same way:
 
 12. **Equal values.** If one value equals a second, and the second equals a third, then the first and third are equal.
 
-13. **Mastery Chain.** A Holding's Mastery Chain is the line of Holdings it builds from, usually running from a Raw Material up to a Monument. {{RULE:mastery-chain}}
-    13.1 You may start building a Holding only while you control one complete line of its Mastery Chain, anywhere in your empire; this is checked only when you start it.
-    13.2 A Root Holding has no Mastery Chain requirement. {{RULE:root}}
+13. **{{VAL:CHAIN_TERM}}.** A Holding's {{VAL:CHAIN_TERM}} is the line of Holdings it builds from, usually running from a Raw Material up to a Monument. {{RULE:mastery-chain}}
+    13.1 You may start building a Holding only while you control one complete line of its {{VAL:CHAIN_TERM}}, anywhere in your empire; this is checked only when you start it.
+    13.2 A Root Holding has no {{VAL:CHAIN_TERM}} requirement. {{RULE:root}}
     13.3 A Holding placed in the same Settlement Ward as its immediate parent shares that Ward, and the chain can continue upward the same way. Each Holding carries at most one descendant in its Ward.
     13.4 You can't build a Holding onto one whose Build Timer is still active. A Damaged Holding under a Repair Timer can still be built onto.
 
@@ -125,7 +125,7 @@ Each turn runs through five phases in order, then passes the Host and repeats:
 1. **Empire Phase**{{IDX:Empire Phase}} — Start of the Empire Phase effects, the Season, Timers, Bandit Mechanics, Influence & Envoys, income and upkeep, Public Order.
 {{IF:PHASE_REFORM}}2. **End of Empire Phase**{{IDX:End of Empire Phase}} — each player sends a free Council Envoy of Industry, performing the Era's Council actions; in Spring, a Diplomacy step instead.
 3. **Envoy Phase**{{IDX:Envoy Phase}} — send all Envoys, a Diplomacy step (offers between players),{{ELSE}}2. **Council Phase**{{IDX:Council Phase}} — a Council vote on a Domain; each player then performs one action of that Domain.
-3. **Envoy Phase**{{IDX:Envoy Phase}} — send all Envoys, a Forum,{{ENDIF}} the Intrigue Phase, vote on every Envoy, the Tally Phase, then resolve them all (Diplomacy → Prowess → Cunning → Piety → Industry).
+3. **Envoy Phase**{{IDX:Envoy Phase}} — send all Envoys, a Forum,{{ENDIF}} the Intrigue Phase, vote on every Envoy, the Tally Phase, then resolve them all ({{IF:!PHASE_REFORM}}Diplomacy → {{ENDIF}}Prowess → Cunning → Piety → Industry).
 4. **Battle Phase**{{IDX:Battle Phase}} — Skirmishes, Sieges, and Battles resolve.
 5. **Rest Phase**{{IDX:Rest Phase}} — cleanup, advance the Season, score Renown, spend one Domain Point, pass the Host.
 
@@ -166,7 +166,7 @@ There is no Council vote: the Council's Domain is {{VAL:COUNCIL_DOMAIN}}. In Spr
 1. **Envoy Declaration** — all players place every Envoy they have in the Domains of their choice at the same time, then reveal them together.
 {{IF:PHASE_REFORM}}2. **Diplomacy** — a brief open discussion of every Envoy on the table: who should be Supported, Opposed, or left alone. Then players make Diplomacy offers to one another, in any order: each offer is a Sign Treaty (name the Treaty) or a Negotiate (state the terms). An accepted offer is a Passed Diplomacy action for both players, and the Treaty is signed at once. Each player completes {{VAL:FORUM_ACTIONS}} agreement in this step; once you have, your other offers are withdrawn and you can't accept another. End Treaty needs no answer and also uses it. You may pass instead. The step ends once every player has completed their agreement or passed. Vassals take no part. *(Not in Spring.)* {{RULE:diplomacy-step}}{{ELSE}}2. **Forum** — a brief open discussion of every Envoy on the table: who should be Supported, Opposed, or left alone.{{ENDIF}}
 3. **Intrigue Phase**{{IDX:Intrigue Phase}} — no talking. The starting player uses all of their Intrigue Phase effects, then each player clockwise does the same, ending with the Host. Each choice is announced and takes effect at once, before the first vote. {{RULE:intrigue}}
-4. **Vote** — no talking. Vote on every Envoy (see Resolving an Envoy): Diplomacy first, clockwise from the starting player; then Prowess → Cunning → Piety → Industry, where within each Domain the sender with the highest Domain value has all of their Envoys of that Domain voted on, then the next highest, and so on (ties clockwise from the starting player). A player whose effect says they cast their votes in the Tally Phase skips this step.
+4. **Vote** — no talking. Vote on every Envoy (see Resolving an Envoy): {{IF:!PHASE_REFORM}}Diplomacy first, clockwise from the starting player; then {{ENDIF}}Prowess → Cunning → Piety → Industry, where within each Domain the sender with the highest Domain value has all of their Envoys of that Domain voted on, then the next highest, and so on (ties clockwise from the starting player). A player whose effect says they cast their votes in the Tally Phase skips this step.
 5. **Tally Phase**{{IDX:Tally Phase}} — once every Envoy has been voted on, in this order: {{RULE:tally}}
     5.1 **Supports** — the starting player resolves all of their Tally Phase Supports, then each player clockwise, ending with the Host. Each Support is its own vote, with its own per-vote limit.
     5.2 **Tally votes** — each player who casts their votes in the Tally Phase now votes on every Envoy, in the Vote order.
@@ -322,7 +322,7 @@ Each Standing you gain in a Domain makes you harder to oppose there and lets you
 
 ### Standing Rank
 
-Each Standing has a rank{{IDX:Standing Rank}}: Untested {{VAL:STANDING_RANK.Untested}}, Rising {{VAL:STANDING_RANK.Rising}}, Established {{VAL:STANDING_RANK.Established}}, Sovereign {{VAL:STANDING_RANK.Sovereign}}. Your Envoys in a Domain begin at Authority equal to your rank there, and on each vote in that Domain you may Support or Oppose up to your rank — your **Max Influence**{{IDX:Max Influence}} there. Diplomacy has no Standing and uses the Era's rank instead: Founding {{VAL:ERAS.Founding.rank}}, Ascension {{VAL:ERAS.Ascension.rank}}, Eminence {{VAL:ERAS.Eminence.rank}}, Zenith {{VAL:ERAS.Zenith.rank}}.
+Each Standing has a rank{{IDX:Standing Rank}}: Untested {{VAL:STANDING_RANK.Untested}}, Rising {{VAL:STANDING_RANK.Rising}}, Established {{VAL:STANDING_RANK.Established}}, Sovereign {{VAL:STANDING_RANK.Sovereign}}. Your Envoys in a Domain begin at Authority equal to your rank there, and on each vote in that Domain you may Support or Oppose up to your rank — your **Max Influence**{{IDX:Max Influence}} there.{{IF:!PHASE_REFORM}} Diplomacy has no Standing and uses the Era's rank instead: Founding {{VAL:ERAS.Founding.rank}}, Ascension {{VAL:ERAS.Ascension.rank}}, Eminence {{VAL:ERAS.Eminence.rank}}, Zenith {{VAL:ERAS.Zenith.rank}}.{{ENDIF}}
 
 ### Domain Identities & Traits
 
@@ -392,11 +392,11 @@ Hamlets are unique Settlements, placed *exactly* Range {{VAL:HAMLET_RANGE}} from
 
 Infrastructure is the foundation of your Settlements.{{IDX:Infrastructure}} Each active Infrastructure provides an effect that applies to your entire empire and all its Settlements.
 
-*Example: Wooden Walls protect all Settlements from Bandits and Raze actions, and a Cathedral raises your innate Faith by 2 each turn, regardless of how many Settlements you have.*
+*Example: Wooden Walls defend every one of your Settlements, and a Cathedral gives you {{VAL:INFRASTRUCTURE.Cathedral.empire_bonus}} each turn, however many Settlements you have.*
 
 Infrastructure comes in 5 ascending tiers.{{IDX:Primitive}}{{IDX:Developed}}{{IDX:Sophisticated}}{{IDX:Prodigious}}{{IDX:Wondrous}} Primitive Infrastructure builds the basic blocks of your empire. Developed Infrastructure expands and replaces some Primitive Infrastructure. Sophisticated Infrastructure allows more powerful effects and helps unlock unique Monument Holdings. Prodigious Infrastructure comes next, and Wondrous Infrastructure — the world Wonders — is the highest tier.
 
-To build any Infrastructure, you need at least one active Infrastructure of the tier below it — so Developed needs one Primitive, Sophisticated needs one Developed (and therefore one Primitive), and so on up to Wondrous. *One Tier Primitive* means any one Primitive Infrastructure. Some Infrastructure also names its own requirement on top of this: a Library needs a Town Hall, and a Cathedral needs a Capital City — so a Cathedral needs one Primitive, one Developed, and a Capital City.
+To build any Infrastructure, you need at least one active Infrastructure of the tier below it — so Developed needs one Primitive, Sophisticated needs one Developed (and therefore one Primitive), and so on up to Wondrous. *One Tier Primitive* means any one Primitive Infrastructure. Some Infrastructure also names its own requirement on top of this: a Library needs a {{VAL:INFRASTRUCTURE.Library.requirement}}, and a Magistrate's Hall needs a {{VAL:INFRASTRUCTURE.Magistrate's Hall.requirement}}.
 
 Wonders{{IDX:Wonder}} are the Wondrous tier, with Realm Scope: each is built once per game and needs the Infrastructure named in its requirement. They're Edict-satisfying buildings with very powerful effects. A Wonder exists inside your capital and can't be Razed or Damaged.
 
@@ -459,7 +459,7 @@ You go Insolvent the moment your Treasury can't cover a cost in full (at Upkeep,
 1. **Disband Armies**, one at a time, cheapest-upkeep first, until your Armies are gone.
 2. **Set buildings {{VAL:SHUTTER_TERM}}** (inactive), one at a time: Wonders, then Monuments, then Infrastructure, then non-Natural Holdings — within each, highest upkeep first.
 
-{{VAL:SHUTTER_TERM}} pieces give no effect and pay no upkeep; Holdings built from them are unaffected. Each {{VAL:SHUTTER_TERM}} piece is restored at any future Income & Upkeep step where you can pay its upkeep. Build Timers halt while you're Insolvent. Insolvency ends the moment your Treasury is above 0 and you can pay everything you owe, including the upkeep of your {{VAL:SHUTTER_TERM}} pieces.
+{{VAL:SHUTTER_TERM}} pieces give no effect and pay no upkeep; Holdings built from them are unaffected. Each {{VAL:SHUTTER_TERM}} piece is restored at any future Income & Upkeep step where you can pay its upkeep, and any that becomes Damaged is no longer {{VAL:SHUTTER_TERM}}. Build Timers halt while you're Insolvent. Insolvency ends the moment your Treasury is above 0 and you can pay everything you owe, including the upkeep of your {{VAL:SHUTTER_TERM}} pieces.
 
 If you've cut everything and a debt still remains, you're Bankrupt: your Treasury goes negative by the unpaid amount (a Debt Marker). While Bankrupt you can't spend gold or be Extorted, and Build Timers stay halted; Revenue pays down the debt first. When your Treasury reaches 0 or above, Bankruptcy ends. *(If you're Vassalized while Bankrupt, the debt is forgiven and your Suzerain pays your Treasury up to a minimum of 0.)*
 
@@ -498,7 +498,7 @@ While an Army is engaged in a Battle or Lay Siege action started by another play
 
 ### Garrisons
 
-A Garrison{{IDX:Garrison}} is an Army that exists within a Settlement that contains the Garrison Infrastructure, according to its Garrison value (Village {{VAL:SETTLEMENTS.Village.garrison}}, Town {{VAL:SETTLEMENTS.Town.garrison}}, City {{VAL:SETTLEMENTS.City.garrison}}, Metropolis {{VAL:SETTLEMENTS.Metropolis.garrison}} Retinues). Garrisons can't perform actions or be targeted by actions, and may **Sally Forth** while their Settlement is under Siege. Garrisons have cost and upkeep 0 and don't count toward your Army limit. All Garrisons within an Empire share the same Retinue type and equipment, and gain the benefits of all unlocked keywords that apply to your Armies.
+A Garrison{{IDX:Garrison}} is an Army that exists within each of your Settlements while you have the Garrison Infrastructure, sized by that Settlement's Garrison value (Village {{VAL:SETTLEMENTS.Village.garrison}}, Town {{VAL:SETTLEMENTS.Town.garrison}}, City {{VAL:SETTLEMENTS.City.garrison}}, Metropolis {{VAL:SETTLEMENTS.Metropolis.garrison}} Retinues). Garrisons can't perform actions or be targeted by actions, and may **Sally Forth** while their Settlement is under Siege. Garrisons have cost and upkeep 0 and don't count toward your Army limit. All Garrisons within an Empire share the same Retinue type and equipment, and gain the benefits of all unlocked keywords that apply to your Armies.
 
 ### Mustering
 
@@ -512,7 +512,7 @@ Retinue types — cost, to-Strike, and base profile:
 
 ### Blocked Armies
 
-A Blocked Army's next Move action fails, and then it loses Blocked. An Army gains **Blocked** when it's selected as the result of a condemned Prowess Envoy, or from an effect that says so. *(Besieged and Sacking Armies can't Move for as long as that lasts; see Siege Warfare. That isn't Blocked.)*
+A Blocked Army's next Move action fails, and then it loses Blocked. An Army gains **Blocked** when a condemned Prowess Envoy gives your Armies Strained and it already has Strained, or from an effect that says so. *(Besieged and Sacking Armies can't Move for as long as that lasts; see Siege Warfare. That isn't Blocked.)*
 
 {{GLOSSARY:Army States}}
 
@@ -661,7 +661,7 @@ Winning the Battle destroys the Bandit Camp, whether its Bandits are wiped out o
 
 # Holdings
 
-Holdings are listed by the Standing they require, Domain by Domain; Monuments are marked *(Monument)*. A Holding that requires two Standings appears under both.
+Holdings are listed by the Standing they require, Domain by Domain; Monuments are marked *(Monument)* and Natural Holdings *(Natural)*. A Holding that requires two Standings appears under both.
 
 {{TABLE:holdings}}
 

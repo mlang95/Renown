@@ -62,7 +62,7 @@ EXTORT_RE = re.compile(r"Extort\s*(\d+)", re.I)
 BUILDT_RE = re.compile(r"Build Timer\s*(-?\d+)", re.I)
 SIEGET_RE = re.compile(r"Siege Timer\s*([+-]?\d+)", re.I)
 SPEED_RE  = re.compile(r"Speed\s*([+-]\s?\d+)", re.I)
-GOLD_RE   = re.compile(r"^[+-]?\s?(\d{2,})(?:\s*gold)?$")
+GOLD_RE   = re.compile(r"^(?:Gold\s+)?([+-]?)\s?(\d{2,})(?:\s*gold)?$", re.I)   # "Gold +500" (or legacy "+500")
 
 COMBAT_KW = ["unlock", "tier", "armor", "shield", "weapon", "ranged", "cavalry",
     "serrated", "poison", "parry", "riposte", "recover", "endurance", "immune",
@@ -135,7 +135,8 @@ def classify(clause):
     if SPEED_RE.search(c):
         return finish("speed", to_int(SPEED_RE.search(c).group(1)), set())
     if GOLD_RE.match(c):
-        return finish("gold", int(GOLD_RE.match(c).group(1)) * (-1 if c.strip().startswith("-") else 1), {"gold"})
+        g = GOLD_RE.match(c)
+        return finish("gold", int(g.group(2)) * (-1 if g.group(1) == "-" else 1), {"gold"})
 
     if any(k in lc for k in COMBAT_KW):
         atom["cat"] = "combat"
@@ -436,7 +437,7 @@ def build(ns):
     for name, v in {**N, **DEP}.items():
         innate = parse_effects(v.get("innate", ""))
         mastery = parse_effects(v.get("mastery", ""))
-        if any(a.get("natural") for a in innate):
+        if v.get("natural") or any(a.get("natural") for a in innate):
             natural_names.add(name)
         req_src = v.get("infrastructure_req", "") if ns.get("SIMPLE") else v.get("mastery_req", "")
         mreq = parse_mreq(req_src)
@@ -448,6 +449,7 @@ def build(ns):
             "deprecated": name in DEP,
             "name": name, "type": v.get("type", "?"), "group": (ns.get("HOLDING_GROUPS") or {}).get(v.get("group"), ""),
             "monument": bool(v.get("monument")),
+            "natural": bool(v.get("natural")),
             "root": bool(v.get("root")),
             "scope": v.get("scope") or ("Realm" if v.get("monument") else "Empire"),          # Root: no Mastery Chain check; efficient (if any) = optional Ward-sharing only
             # SIMPLE: upkeep / Build Timer by Standing (holding_cost); legacy leaves these out
@@ -590,7 +592,8 @@ def place_names_payload(data_path):
         ex = list(getattr(m, "PLACE_NAMES_EXCLUDE", [])) + list((getattr(m, "MAP", {}) or {}).get("regional_lore", {}))
         print(f"  place names: {p} ({len(banks)} cultures, chronicle {len(getattr(m, 'CHRONICLE', {}) or {})} events)")
         her = {c: (v.get("heraldry") or {}).get("primary") for c, v in (getattr(m, "CULTURES", {}) or {}).items() if (v.get("heraldry") or {}).get("primary")}
-        return {"banks": banks, "exclude": ex, "chronicle": getattr(m, "CHRONICLE", None), "heraldry": her}
+        summ = {c: v["profile_summary"] for c, v in (getattr(m, "CULTURES", {}) or {}).items() if v.get("profile_summary")}
+        return {"banks": banks, "exclude": ex, "chronicle": getattr(m, "CHRONICLE", None), "heraldry": her, "summaries": summ}
     return None
 
 def sprite_payload(ns, data_path):

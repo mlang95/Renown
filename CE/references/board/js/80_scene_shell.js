@@ -119,7 +119,7 @@ function renderScene(){
     draw(SPR.S[core],cx,sa,T,true);
     // centre slot (Chapel, then the Cathedral that replaces it) stands in front of the core, so a Chapel shorter than the core shows
     by("slot","center").forEach(n=>{const k="inf:"+n;draw(SPR.S[k],o.x0+Math.floor((o.Lw-SW(k))/2),al(n),T,true);});
-    by("edge","left").forEach(n=>draw(SPR.S["inf:"+n],o.x0,al(n),T,true));
+    {let ex=o.x0;by("edge","left").forEach(n=>{draw(SPR.S["inf:"+n],ex,al(n),T,true);ex+=SW("inf:"+n)+1;});}   // left edge pieces side by side (March-Tower, Muster Field)
     by("edge","right").forEach(n=>draw(SPR.S["inf:"+n],o.x1-SW("inf:"+n)+1,al(n),T,true));
     by("band").forEach(n=>{const k="inf:"+n,w=SW(k);for(let q=o.x0;q<=o.x1-w+1;q+=w)draw(SPR.S[k],q,al(n),T,true);
       const tw="inf:"+n+":tower";if(SPR.S[tw]){draw(SPR.S[tw],o.x0,al(n),T,true);draw(SPR.S[tw],o.x1-SW(tw)+1,al(n),T,true);}});});

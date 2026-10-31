@@ -265,7 +265,7 @@ def main_simple(out):
                 stack += [q for q in reqs(x) if q in pool] + [k for k in pool if x in reqs(k)]
             seen |= comp; out.append(comp)
         return out
-    def natural(n): return "natural" in str(N[n].get("innate", "")).lower()
+    def natural(n): return bool(N[n].get("natural"))
     def chain_tokens(n):
         e = N[n].get("efficient"); return [e] if isinstance(e, str) else list(e or [])
     # A Monument chained from "Natural" (Manor House) gathers the loose families that end only in

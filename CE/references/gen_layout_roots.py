@@ -48,7 +48,7 @@ tmp = os.path.join(tempfile.gettempdir(), "_layout_mon.json")
 g.main_simple(tmp)
 mon = json.load(open(tmp, encoding="utf-8"))
 kept = [c for c in mon if c["anchor"] in KEEP or (isinstance(c["anchor"], list) and set(c["anchor"]) & set(KEEP))]
-def natural(n): return "natural" in str(N[n].get("innate", "")).lower()
+def natural(n): return bool(N[n].get("natural"))
 for c in kept:   # Natural-only: keep the Natural Holdings that reach the Monument through Natural Holdings alone
     ms = c["anchor"] if isinstance(c["anchor"], list) else [c["anchor"]]
     links = [l for l in c.get("links", []) if l[0] in c["nodes"]]

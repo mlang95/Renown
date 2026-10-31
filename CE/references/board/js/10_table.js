@@ -5,7 +5,9 @@
 const T_DOMS=["Prowess","Cunning","Piety","Industry"];                 // resolution order after Diplomacy
 const T_ALL=["Diplomacy"].concat(T_DOMS);
 const EOUT=DATA.envoyOutcomes||{};
-const ETH=Object.assign({Condemned:-3,Failed:0,Passed:1,Endorsed:3},DATA.outcomeThresh||{});
+const ETH=Object.assign({Condemned:-4,Failed:0,Passed:1,Endorsed:4},DATA.outcomeThresh||{});
+// Raze on an active Build Timer: "+N" from the Raze action's text
+function razeTimerPlus(){const m=/increase that Build Timer by (\d+)/i.exec(String(((DATA.actions||{}).Raze||{}).effect||""));return m?+m[1]:2;}
 const T_PH=["empire","council","envoy","battle","rest"];
 const T_PHL={empire:"Empire Phase",council:(DATA.rulesConst||{}).PHASE_REFORM?"End of Empire Phase":"Council Phase",envoy:"Envoy Phase",battle:"Battle Phase",rest:"Rest Phase"};
 let SKEW=0,SKEW_N=0;                                                    // server clock − local clock (ms)
@@ -334,10 +336,16 @@ const AA={
   "Foster Rebellion":{tgt:"player",run:c=>{const rk=c.out==="Endorsed"?srcMatch(c.o.board,"foster_endorsed")[0]:null,n=rk?+rk.m[1]:10;
     BST().foster.push({pid:String(c.q.id),by:String(c.o.id),n});c.log(c.o.name+" fosters rebellion: next Bandit Mechanics, "+n+"-Retinue Bandit "+(n>=(BAN.armyThreshold||25)?"Army":"Camp")+" in "+c.q.name+"'s Outlaw Country"+(rk?" ("+rk.n+")":""));}},
   "Raze":{tgt:"player",sub:(o,q)=>{const L=[];(q.board.placed||[]).filter(x=>!x.fac&&pActive(x)&&x.sid!=null&&x.sid!=="faction").forEach(x=>L.push({v:"h:"+x.id,label:x.name+" · "+settName(q,x.sid)}));
-      withBoard(q.board,()=>Object.keys(S.infra||{}).filter(infraOn).forEach(n=>L.push({v:"i:"+n,label:n+" (Infrastructure)"})));return L;},
+      withBoard(q.board,()=>Object.keys(S.infra||{}).filter(infraOn).forEach(n=>L.push({v:"i:"+n,label:n+" (Infrastructure)"})));
+      // an active Build Timer instead: it gains +N (Wonders can't be targeted)
+      (q.board.placed||[]).filter(x=>!x.fac&&x.bt>0&&!(x.dmg>0)&&x.sid!=null&&x.sid!=="faction").forEach(x=>L.push({v:"bh:"+x.id,label:x.name+" · Build Timer "+x.bt+" · "+settName(q,x.sid)}));
+      Object.keys(q.board.itimer||{}).filter(n=>q.board.itimer[n]>0&&INFRA[n]&&!((q.board.idmg||{})[n]>0)).forEach(n=>L.push({v:"bi:"+n,label:n+" · Build Timer "+q.board.itimer[n]}));return L;},
     run:c=>{const [k,v]=[c.sub.slice(0,1),c.sub.slice(2)],b=c.q.board;
-      if(k==="h"){const x=(b.placed||[]).find(y=>String(y.id)===v);if(x){x.dmg=REPAIR_T;delete x.rep;x.dmgBy=dmgMark({by:c.o.name,pid:String(c.o.id)});c.log(c.o.name+" razes "+c.q.name+"'s "+x.name+" · "+settName(c.q,x.sid)+" (Damaged: inactive until Repaired)");}}
-      else{b.idmg=b.idmg||{};b.idmg[v]=REPAIR_T;if(b.irep)delete b.irep[v];b.idmgBy=b.idmgBy||{};b.idmgBy[v]=dmgMark({by:c.o.name,pid:String(c.o.id)});c.log(c.o.name+" razes "+c.q.name+"'s "+v+" (Damaged: inactive until Repaired)");}
+      if(k==="b"){const n=razeTimerPlus(),[t,id]=[c.sub[1],c.sub.slice(3)];
+        if(t==="h"){const x=(b.placed||[]).find(y=>String(y.id)===id);if(x){x.bt+=n;c.log(c.o.name+" razes "+c.q.name+"'s "+x.name+" build · "+settName(c.q,x.sid)+" (Build Timer +"+n+" → "+x.bt+")");}}
+        else if((b.itimer||{})[id]>0){b.itimer[id]+=n;c.log(c.o.name+" razes "+c.q.name+"'s "+id+" build (Build Timer +"+n+" → "+b.itimer[id]+")");}}
+      else if(k==="h"){const x=(b.placed||[]).find(y=>String(y.id)===v);if(x){x.dmg=REPAIR_T;delete x.rep;delete x.shut;x.dmgBy=dmgMark({by:c.o.name,pid:String(c.o.id)});c.log(c.o.name+" razes "+c.q.name+"'s "+x.name+" · "+settName(c.q,x.sid)+" (Damaged: inactive until Repaired)");}}
+      else{b.idmg=b.idmg||{};b.idmg[v]=REPAIR_T;if(b.irep)delete b.irep[v];if(b.ishut)delete b.ishut[v];b.idmgBy=b.idmgBy||{};b.idmgBy[v]=dmgMark({by:c.o.name,pid:String(c.o.id)});c.log(c.o.name+" razes "+c.q.name+"'s "+v+" (Damaged: inactive until Repaired)");}
       const rx=facHit(b,"raze_extort");if(rx){const t=extortGold({b:c.o.board},{b},+rx[1],c.q.board.faction);c.log(c.q.name+" ("+c.q.board.faction+") extorts "+t.toLocaleString()+" from "+c.o.name);}}},
   "Destabilize":{tgt:"player",sub:(o,q)=>(q.board.settlements||[]).filter(st=>!BST().dest[q.id+":"+st.id]).map(st=>({v:String(st.id),label:(st.name||st.tier)+" · tax "+settTax(q.board,st).toLocaleString()})),
     run:c=>{BST().dest[c.q.id+":"+c.sub]={by:String(c.o.id)};c.log("Next Winter: "+settName(c.q,c.sub)+"'s tax income goes to "+c.o.name);
@@ -792,16 +800,19 @@ function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.
   const dom=n=>{const u=(R[n]||{}).unlock_raw||"";let best="",bk=-1;
     for(const m of u.matchAll(/(Rising|Established|Sovereign)\s+(Industry|Prowess|Cunning|Piety)/g)){const k=ST_ORDER.indexOf(m[1]);if(k>bk){bk=k;best=m[2];}}
     return best||["Industry","Prowess","Cunning","Piety"].find(d=>u.includes(d))||"";};
-  const AVS=refAvail();
+  const AVS=refAvail(),LC=legalCtx();
   return T.charts.map(c=>{if(AVS&&R[c.title]&&!AVS.has(c.title))return "";   // a root chart whose Raw Material is off the map: its reachable Holdings show under their other roots
     // the reference tree is the full tree: the culture view filter applies to the catalog only
     const N=Object.fromEntries(Object.entries(c.nodes).filter(([k])=>!AVS||AVS.has(k))),ks=Object.keys(N);if(!ks.length)return "";
     const E={...E0};(c.links||[]).forEach(([p,k])=>{E[p]=(E[p]||[]).concat([k]);});   // chart-only links (e.g. Naturals into Manor House)
     const mc=Math.max(...ks.map(k=>N[k][0])),mr=Math.max(...ks.map(k=>N[k][1]));
     const NW=Math.round(Math.max(150,Math.min(200,(AV-mc*CG)/(mc+1)))),W=(mc+1)*NW+mc*CG;   // boxes shrink to fit the window
-    const inner=n=>{const r=R[n]||{},have=(PC[n]||0)>0,us=unlockStatus(n);
-      return '<div class="tnh"><span class="gk" data-gk="'+(GK_BY[esc(n)]??"")+'">'+esc(n)+'</span>'+(r.monument?' ◆':'')+(have?' <span class="tb-b">built</span>':'')+
-        (r.unlock_raw&&r.unlock_raw!=="-"&&r.unlock_raw!=="\u2014"?' <span class="tnu'+(us.ok?'':' bad')+'" title="Unlock: '+esc(r.unlock_raw)+'">'+(us.ok?'':'🔒')+esc(r.unlock_raw)+'</span>':'')+'</div>'+
+    // header: name; under it the Domain unlock and the Infrastructure requirement (🔒 / red while not met)
+    const inner=n=>{const r=R[n]||{},have=(PC[n]||0)>0,us=unlockStatus(n),ir=(r.mreq||[]).length?reqStatus(r,LC.have,LC.craft,LC.tc).earned:true,
+        un=r.unlock_raw&&r.unlock_raw!=="-"&&r.unlock_raw!=="\u2014";
+      return '<div class="tnh"><span class="gk" data-gk="'+(GK_BY[esc(n)]??"")+'">'+esc(n)+'</span>'+(r.monument?' ◆':'')+(have?' <span class="tb-b">built</span>':'')+'</div>'+
+        (un||r.mreq_raw?'<div class="tnr">'+(un?'<span class="tnu'+(us.ok?'':' bad')+'" title="Unlock: '+esc(r.unlock_raw)+'">'+(us.ok?'':'🔒')+esc(r.unlock_raw)+'</span>':'')+
+          (r.mreq_raw?'<span class="tnu'+(ir?'':' bad')+'" title="Requires: '+esc(r.mreq_raw)+'">'+(ir?'':'🔒')+'🏛 '+esc(r.mreq_raw)+'</span>':'')+'</div>':'')+
         '<div class="tnc">'+(r.combo?kwify(r.combo,n):"—")+'</div>';};
     // one box height per row: the tallest box in that row at this width, so each row stays level and no effect text is cut
     const RH=(()=>{const m=document.createElement("div");m.style.cssText="position:absolute;visibility:hidden;left:-9999px;top:0";

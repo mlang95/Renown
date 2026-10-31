@@ -148,6 +148,7 @@
   .qty button{width:22px;height:20px;padding:0}
   .badge{font-size:10px;padding:1px 6px;border-radius:var(--pill);border:1px solid;white-space:nowrap}
   .badge.mon{color:var(--order);border-color:var(--order)}
+  .badge.nat{color:var(--season);border-color:var(--season)}
   .badge.tier{color:var(--dim);border-color:var(--line)}
   .badge.earn{color:var(--income);border-color:var(--income)}
   .badge.noearn{color:var(--upkeep);border-color:var(--upkeep)}
@@ -166,6 +167,7 @@
   .atom.cond{opacity:.6;border-style:dashed}
   .atom .s{font-size:9px;color:var(--season);margin-left:3px}
   .verb{color:var(--dim);font-size:11px;margin-top:5px;overflow-wrap:anywhere}
+  .fxv .atoms{margin-bottom:4px} .fxl{font-size:12px;line-height:1.35;margin-top:3px;padding-left:6px;border-left:2px solid var(--line);overflow-wrap:anywhere} .fxl.cond{opacity:.75}
   .req{color:var(--dim);font-size:11px;margin-top:4px;overflow-wrap:anywhere}
   .miss{color:var(--upkeep);font-size:11px;margin-top:3px;overflow-wrap:anywhere}
   .badge.manual{color:var(--order);border-color:var(--order)}
@@ -642,6 +644,7 @@
   .tn.off{opacity:.28}
   .tnh{font-weight:600;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .tnu{font-weight:400;font-size:10px;color:var(--dim)}.tnu.bad{color:var(--upkeep)}
+  .tnr{display:flex;flex-wrap:wrap;gap:0 8px;line-height:1.3}
   .tnc{color:var(--dim)}
   .bside-nav{display:none}
   .msetup{margin-bottom:6px}.msetup>summary{cursor:pointer;padding:4px 0}.msetup .mtoolbar{margin-top:6px}
@@ -885,6 +888,7 @@
 .wl-doms{display:inline-flex;gap:3px}.wl-doms i{width:8px;height:8px;border-radius:50%;display:inline-block}
 .wl-detail{overflow-y:auto;max-height:66vh;padding-right:4px}
 .wl-dh{display:flex;align-items:center;gap:12px;margin-bottom:8px}.wl-dh>div{flex:1}.wl-dh h3{font-size:20px}
+.wl-sum{font-family:var(--serif);font-style:italic;line-height:1.5;margin:0 0 12px;padding-left:10px;border-left:2px solid var(--line2)}
 .wl-dgrid{display:grid;grid-template-columns:230px 1fr;gap:14px}
 .wl-detail h4{font-family:var(--serif);font-size:13px;margin:10px 0 4px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
 .wl-row{display:flex;flex-direction:column;padding:4px 0;border-bottom:1px solid var(--line)}

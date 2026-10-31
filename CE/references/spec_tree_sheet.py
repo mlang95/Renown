@@ -98,6 +98,7 @@ def load_specs(specs_csv=None):
         SPECS[name] = {
             'Pursuits': display(name),
             'Type': n.get('type', ''),
+            'Natural': bool(n.get('natural')),
             'Unlock Requirement': n.get('unlock', ''),
             'Mastery Requirement': (' or '.join(__import__('renown_data').node_parents(name, NODES))
                                     if getattr(__import__('renown_data'), 'SIMPLE', False)
@@ -355,7 +356,7 @@ def build_summary_lines(tree_name, nodes):
         mastery = spec.get('Mastery Effect', '') or ''
         income = _extract_income(innate) + _extract_income(mastery)
         combined = _smart_combine(innate, mastery)
-        display_name = _resolve_spec_name(name) or name
+        display_name = (_resolve_spec_name(name) or name) + (' (Natural)' if spec.get('Natural') else '')
         kind = 'capstone' if i == len(top) - 1 else 'requirement'
         lines.append((kind, display_name, combined))
         incomes[display_name] = income

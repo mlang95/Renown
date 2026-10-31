@@ -2,7 +2,7 @@
 // Seats: every player as a card; take an open seat (a claim, first claim wins) or watch. Opens on entering a
 // server game when this device holds no claim. Profile: name, colour, culture (the playstyle reference:
 // archetype, radar, Monuments, Wonders, actions) and a final-cut Heritage. Culture stays a view filter.
-const MSUM=DATA.monSummary||{},WSUM=DATA.wonSummary||{};
+const MSUM=DATA.monSummary||{},WSUM=DATA.wonSummary||{},CSUM=(DATA.placeNames||{}).summaries||{};   // CSUM: lore profile_summary per culture
 const RADAR_AX=[["military_solutions","Military"],["economy_generators","Economy"],["faith_management","Faith"],["doubt_warfare","Disruption"],
   ["political_control","Influence"],["board_presence","Board"],["degenerate_punishment","Punish"]];   // playstyle_reference.py AXES
 const CUL_TYPES=[["pure","Pure"],["pair","Pair"],["triple","Triple"],["centre","Centre"]];
@@ -56,6 +56,7 @@ function culDetail(n,p,ed){const b=p.board,chosen=(cultureOf(b)||"")===n,H=herit
   if(!n)return '<div class="wl-dh">'+culHer("",p,44)+'<div><h3>'+esc(CUL_SELF)+'</h3></div>'+pick+'</div>'+her;
   const c=CUL[n],T=(CUL_TYPES.find(t=>t[0]===c.type)||[,c.type])[1];
   return '<div class="wl-dh">'+culHer(n,p,44)+'<div><h3>'+esc(n)+'</h3><span class="note">'+esc(T)+' · '+esc(c.archetype||"")+'</span> '+domDots(c.domains)+'</div>'+pick+'</div>'+
+    (CSUM[n]?'<p class="wl-sum">'+esc(CSUM[n])+'</p>':'')+
     '<div class="wl-dgrid"><div>'+radarSVG(c.radar,DOMC[(c.domains||[])[0]]||"var(--ink)")+
       '<h4>Actions</h4><div class="wl-chips">'+(c.actions||[]).map(a=>'<span>'+esc(a)+'</span>').join("")+'</div></div>'+
     '<div><h4>Monuments</h4>'+(c.monuments||[]).map(m=>row(m,MSUM[m])).join("")+
