@@ -225,8 +225,9 @@ def build(out_path):
     _band = (f" (from {_po[_lo][0]} {_lo} to {_po[_hi][0]} {_hi})"
              if _po and isinstance(_po[_lo], tuple) and isinstance(_po[_hi], tuple) else "")
     lines.append("public order | " + wlink("Public Order", "public-order-ref.html") +
-                 ": reduced by Doubt, improved by Faith; each band" + _band +
-                 " applies effects. See 'PO <number>' for a specific band.")
+                 ": reduced by Doubt, improved by Faith; bands" + _band +
+                 ". A value sits in the band nearer Neutral (3 -> 2) and every band from there to Neutral applies "
+                 "(PO 9 = bands 8, 6, 4, 2). Ask 'PO <number>' for the stacked effects.")
 
     # 11) domain standings
     _STANDINGS = {"Rising", "Established", "Sovereign"}
@@ -389,9 +390,14 @@ def build(out_path):
         lines.append(entry("upkeep", wlink("Upkeep", "economy-ref.html") + ": separate tracks — " +
                      ", ".join(rd.UPKEEP_TRACKS) + ". See " + ", ".join(f"'{k}'" for k in _ukeys) + "."))
     if hasattr(rd, "COSTS"):
-        lines.append(entry("costs", wlink("Costs", "economy-ref.html") +
-                     ": Cunning/Industry actions cost 2000 gold; Piety costs Doubt 1; Prowess and "
-                     "Diplomacy are free. Tax = 500/tier/turn (Winter). Trade = 100 x Craft per agreement."))
+        # every number here comes from rd.COSTS (action costs are grouped from ACTIONS there)
+        _doms = {a.get("domain") for a in getattr(rd, "ACTIONS", {}).values()}
+        _act = [k for k in rd.COSTS if k.endswith(" action") and k.split()[0] in _doms]
+        for k in _act:
+            lines.append(entry(k.split()[0].lower() + " costs", wlink(k + " costs", "economy-ref.html") + f": {rd.COSTS[k]}"))
+        lines.append(entry("costs", wlink("Costs", "economy-ref.html") + ": " +
+                     "; ".join(f"{k.split()[0]} {rd.COSTS[k]}" for k in _act) + ". " +
+                     " ".join(f"{k}: {rd.COSTS[k]}." for k in ("Tax per tier", "Trade Income") if k in rd.COSTS)))
         for k in ("Sack", "Tax per tier", "Trade Income"):
             if k in rd.COSTS:
                 lines.append(entry(k.lower(), wlink(k, "economy-ref.html") + f": {rd.COSTS[k]}"))
