@@ -662,6 +662,7 @@
   .tn{position:absolute;box-sizing:border-box;border:1.5px solid;border-left-width:5px;border-radius:var(--radius-sm);background:var(--panel);padding:3px 6px;overflow:hidden;font-size:11px;line-height:1.25}
   .tn.mon{background:color-mix(in srgb,var(--sel) 45%,var(--panel));border-width:2px;border-left-width:5px}
   .tn.have{box-shadow:0 0 0 2px var(--income)}
+  .tnu.tn-nat{font-weight:600;cursor:help}
   .tn.off{opacity:.28}
   .tnh{font-weight:600;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .tnu{font-weight:400;font-size:10px;color:var(--dim)}.tnu.bad{color:var(--upkeep)}

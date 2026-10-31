@@ -54,7 +54,7 @@ function seatMap(){const n=tSeats(),m={};
     .sort((a,b)=>(a.x.seatTs||0)-(b.x.seatTs||0)||String(a.p.id).localeCompare(String(b.p.id)))
     .forEach(o=>{if(!m[o.x.seat])m[o.x.seat]=o.p;});return m;}
 function seated(){const m=seatMap();return Object.keys(m).map(Number).sort((a,b)=>a-b).map(i=>m[i]);}
-function isSpring(){return curSeason()==="Spring";}   // SEASONS.Spring: no Host, Council Phase, Diplomacy actions or Influence gain
+function isSpring(){return curSeason()==="Spring";}   // SEASONS.Spring: no Host or Influence gain; the End of Empire Phase is the year's only Diplomacy step
 // the Council Phase's Domain now: PHASE_REFORM fixes it (RC.COUNCIL_DOMAIN_SPRING in Spring), else null = voted; councilOff: no phase this turn
 function councilDomNow(){return isSpring()?(RC.COUNCIL_DOMAIN_SPRING||null):(RC.COUNCIL_DOMAIN||null);}
 function councilOff(){return isSpring()&&!RC.COUNCIL_DOMAIN_SPRING;}
@@ -471,6 +471,9 @@ function grandVizier(q){const b=q.board,h=srcMatch(b,"grand_vizier_alt")[0];
   const g=dbActive(b).find(x=>/^Grand Vizier/i.test(x.name));return g?{val:(b.domains||{}).Cunning||0,what:"Cunning",src:g.name}:null;}
 function pfSpec(a){return AA[a]||{tgt:"player",opt:true,run:c=>c.flag("Resolve "+a+" by hand")};}
 function pfHardFlags(E,a,target){if(!gameStarted()||ADMIN)return [];const o=E.owner,sp=pfSpec(a),qs=typeof target==="string"?(target.startsWith("al:")?allyGroup(target.slice(3)):(pById(target)?[pById(target)]:[])):target?[target]:[],out=actRestrict(o,a,null).slice();
+  // Envoys: "you must be able to pay the action's cost before you send it" (Bankrupt: Treasury below 0, no gold to spend at all)
+  {const g=actCost(a).gold,tr=+o.board.treasury||0;
+    if(g>0&&g>tr&&!SM(o.board,"no_envoy_cost").some(x=>x.m[1].toLowerCase()===String(E.dom||"").toLowerCase()))out.push(tr<0?"Bankrupt: can't spend gold":"can't pay "+g.toLocaleString()+" gold (Treasury "+tr.toLocaleString()+")");}
   if(E.retry&&E.excludeTarget&&target&&String(target)===String(E.excludeTarget))out.push("Forgery Workshop: retry must target a different player");
   {const iv=inviteOf(E);if(iv&&!(qs.length===1&&sameP(qs[0],iv.q)))out.push(iv.src+": must target "+iv.q.name);}
   qs.forEach(q=>{out.push(...actRestrict(o,a,q));if(sp.elig){const why=sp.elig(o,q);if(why)out.push(why);}
@@ -807,11 +810,11 @@ function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.
     const E={...E0};(c.links||[]).forEach(([p,k])=>{E[p]=(E[p]||[]).concat([k]);});   // chart-only links (e.g. Naturals into Manor House)
     const mc=Math.max(...ks.map(k=>N[k][0])),mr=Math.max(...ks.map(k=>N[k][1]));
     const NW=Math.round(Math.max(150,Math.min(200,(AV-mc*CG)/(mc+1)))),W=(mc+1)*NW+mc*CG;   // boxes shrink to fit the window
-    // header: name; under it the Domain unlock and the Infrastructure requirement (🔒 / red while not met)
+    // header: name, ◆ Monument (built = the green outline, .tn.have); under it Natural, the Domain unlock and the Infrastructure requirement (🔒 / red while not met)
     const inner=n=>{const r=R[n]||{},have=(PC[n]||0)>0,us=unlockStatus(n),ir=(r.mreq||[]).length?reqStatus(r,LC.have,LC.craft,LC.tc).earned:true,
         un=r.unlock_raw&&r.unlock_raw!=="-"&&r.unlock_raw!=="\u2014";
-      return '<div class="tnh"><span class="gk" data-gk="'+(GK_BY[esc(n)]??"")+'">'+esc(n)+'</span>'+(r.monument?' ◆':'')+(have?' <span class="tb-b">built</span>':'')+'</div>'+
-        (un||r.mreq_raw?'<div class="tnr">'+(un?'<span class="tnu'+(us.ok?'':' bad')+'" title="Unlock: '+esc(r.unlock_raw)+'">'+(us.ok?'':'🔒')+esc(r.unlock_raw)+'</span>':'')+
+      return '<div class="tnh"><span class="gk" data-gk="'+(GK_BY[esc(n)]??"")+'">'+esc(n)+'</span>'+(r.monument?' ◆':'')+'</div>'+
+        (un||r.mreq_raw||NATURAL.has(n)?'<div class="tnr">'+(NATURAL.has(n)?'<span class="tnu tn-nat gk" data-gk="'+(GK_BY.Natural??"")+'">Natural</span>':'')+(un?'<span class="tnu'+(us.ok?'':' bad')+'" title="Unlock: '+esc(r.unlock_raw)+'">'+(us.ok?'':'🔒')+esc(r.unlock_raw)+'</span>':'')+
           (r.mreq_raw?'<span class="tnu'+(ir?'':' bad')+'" title="Requires: '+esc(r.mreq_raw)+'">'+(ir?'':'🔒')+'🏛 '+esc(r.mreq_raw)+'</span>':'')+'</div>':'')+
         '<div class="tnc">'+(r.combo?kwify(r.combo,n):"—")+'</div>';};
     // one box height per row: the tallest box in that row at this width, so each row stays level and no effect text is cut
@@ -918,7 +921,7 @@ function renderReference(){const host=document.getElementById("viewReference");
   h+='<details id="refTree" class="tot"'+(TREE_SEC?' open':'')+'><summary><b style="font-size:14px">Pursuit tree</b></summary>'+
     '<div class="tb-row" style="margin:6px 0"><button data-tree="open">expand all</button><button data-tree="close">collapse all</button>'+
     (mapRaws()?'<label class="note"><input type="checkbox" id="refRaw"'+(REF_RAW?' checked':'')+'> only Holdings the map\'s Raw Materials can start'+(REF_RAW?' ('+(refRawAvail()||new Set()).size+'/'+NAMES.length+')':'')+'</label>':'')+
-    (refCulture()?'<label class="note"><input type="checkbox" id="refCul"'+(REF_CUL?' checked':'')+'> only Holdings my Culture uses ('+esc(refCulture())+' · '+esc(CUL[refCulture()].domains.join("/"))+')'+(REF_CUL?' ('+(refAvail()||new Set()).size+'/'+NAMES.length+')':'')+'</label>':'')+'</div><div class="note">'+(SIMPLE?'':'Innate + Mastery combined (Mastery assumed earned; same stats summed). ')+'Colour = unlock Domain; ◆ = Monument; 🔒 = your Standing doesn\'t meet the unlock yet.</div>'+treeHTML()+'</details>'+
+    (refCulture()?'<label class="note"><input type="checkbox" id="refCul"'+(REF_CUL?' checked':'')+'> only Holdings my Culture uses ('+esc(refCulture())+' · '+esc(CUL[refCulture()].domains.join("/"))+')'+(REF_CUL?' ('+(refAvail()||new Set()).size+'/'+NAMES.length+')':'')+'</label>':'')+'</div><div class="note">'+(SIMPLE?'':'Innate + Mastery combined (Mastery assumed earned; same stats summed). ')+'Colour = unlock Domain; ◆ = Monument; green outline = built; 🔒 = your Standing doesn\'t meet the unlock yet.</div>'+treeHTML()+'</details>'+
     '<details id="refInfraTree" class="tot"'+(ITREE_OPEN?' open':'')+'><summary><b style="font-size:14px">Infrastructure tree</b></summary>'+infraTreeHTML()+'</details>'+
     '<div id="refSeasons">'+seasonsHTML()+'</div><div id="refCosts">'+costsHTML()+'</div>'+
     '<div id="refStanding">'+standingEffectsHTML()+'</div><div id="refTerrain">'+terrainTablesHTML(mapPal(g))+'</div>'+

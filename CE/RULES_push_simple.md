@@ -123,8 +123,8 @@ A few conventions make every rule in this book read the same way:
 Each turn runs through five phases in order, then passes the Host and repeats:
 
 1. **Empire Phase**{{IDX:Empire Phase}} — Start of the Empire Phase effects, the Season, Timers, Bandit Mechanics, Influence & Envoys, income, {{VAL:SUPPLY_TERM}} and {{VAL:UPKEEP_TERM}}, Public Order.
-{{IF:PHASE_REFORM}}2. **End of Empire Phase**{{IDX:End of Empire Phase}} — each player sends a free Council Envoy of Industry, performing the Era's Council actions; in Spring, a Diplomacy step instead.
-3. **Envoy Phase**{{IDX:Envoy Phase}} — send all Envoys, a Diplomacy step (offers between players),{{ELSE}}2. **Council Phase**{{IDX:Council Phase}} — a Council vote on a Domain; each player then performs one action of that Domain.
+{{IF:PHASE_REFORM}}2. **End of Empire Phase**{{IDX:End of Empire Phase}} — each player sends a free Council Envoy of Industry, performing the Era's Council actions; in Spring, the Diplomacy step instead (the only time players take Diplomacy actions).
+3. **Envoy Phase**{{IDX:Envoy Phase}} — send all Envoys, a Forum,{{ELSE}}2. **Council Phase**{{IDX:Council Phase}} — a Council vote on a Domain; each player then performs one action of that Domain.
 3. **Envoy Phase**{{IDX:Envoy Phase}} — send all Envoys, a Forum,{{ENDIF}} the Intrigue Phase, vote on every Envoy, the Tally Phase, then resolve them all ({{IF:!PHASE_REFORM}}Diplomacy → {{ENDIF}}Prowess → Cunning → Piety → Industry).
 4. **Battle Phase**{{IDX:Battle Phase}} — Skirmishes, Sieges, and Battles resolve.
 5. **Rest Phase**{{IDX:Rest Phase}} — cleanup, advance the Season, score Renown, spend one Domain Point, pass the Host.
@@ -153,7 +153,9 @@ Many actions set a Timer to a number of turns. Each Empire Phase, every active T
 
 {{IF:PHASE_REFORM}}### End of Empire Phase
 
-There is no Council vote: the Council's Domain is {{VAL:COUNCIL_DOMAIN}}. In Spring, the End of Empire Phase is a Diplomacy step instead (as in the Envoy Phase, see Diplomacy step), where each player completes up to {{VAL:ERAS.Founding.diplomacy_agreements}} agreement in Founding and Ascension and up to {{VAL:ERAS.Eminence.diplomacy_agreements}} from Eminence, each with a different player.
+There is no Council vote: the Council's Domain is {{VAL:COUNCIL_DOMAIN}}.
+
+**Diplomacy step (Spring).** In Spring, the End of Empire Phase is the Diplomacy step instead; this is the only time players take Diplomacy actions. Players make Diplomacy offers to one another, in any order: each offer is a Sign Treaty (name the Treaty) or a Negotiate (state the terms). An accepted offer is a Passed Diplomacy action for both players, and the Treaty is signed at once. Each player completes up to {{VAL:ERAS.Founding.diplomacy_agreements}} agreement in Founding and Ascension and up to {{VAL:ERAS.Eminence.diplomacy_agreements}} from Eminence, each with a different player; once you have, your other offers are withdrawn and you can't accept another. End Treaty needs no answer and also uses one. You may pass instead. The step ends once every player has completed their agreements or passed. Vassals take no part. {{RULE:diplomacy-step}}
 
 1. **Council actions** — clockwise from the starting player, each player sends a free Council Envoy of {{VAL:COUNCIL_DOMAIN}}, starting with innate Influence equal to their {{VAL:COUNCIL_DOMAIN}} Standing.{{ELSE}}### Council Phase
 
@@ -164,7 +166,7 @@ There is no Council vote: the Council's Domain is {{VAL:COUNCIL_DOMAIN}}. In Spr
 ### Envoy Phase
 
 1. **Envoy Declaration** — all players place every Envoy they have in the Domains of their choice at the same time, then reveal them together.
-{{IF:PHASE_REFORM}}2. **Diplomacy** — a brief open discussion of every Envoy on the table: who should be Supported, Opposed, or left alone. Then players make Diplomacy offers to one another, in any order: each offer is a Sign Treaty (name the Treaty) or a Negotiate (state the terms). An accepted offer is a Passed Diplomacy action for both players, and the Treaty is signed at once. Each player completes {{VAL:FORUM_ACTIONS}} agreement in this step; once you have, your other offers are withdrawn and you can't accept another. End Treaty needs no answer and also uses it. You may pass instead. The step ends once every player has completed their agreement or passed. Vassals take no part. *(Not in Spring.)* {{RULE:diplomacy-step}}{{ELSE}}2. **Forum** — a brief open discussion of every Envoy on the table: who should be Supported, Opposed, or left alone.{{ENDIF}}
+2. **Forum** — a brief open discussion of every Envoy on the table: who should be Supported, Opposed, or left alone.
 3. **Intrigue Phase**{{IDX:Intrigue Phase}} — no talking. The starting player uses all of their Intrigue Phase effects, then each player clockwise does the same, ending with the Host. Each choice is announced and takes effect at once, before the first vote. {{RULE:intrigue}}
 4. **Vote** — no talking. Vote on every Envoy (see Resolving an Envoy): {{IF:!PHASE_REFORM}}Diplomacy first, clockwise from the starting player; then {{ENDIF}}Prowess → Cunning → Piety → Industry, where within each Domain the sender with the highest Domain value has all of their Envoys of that Domain voted on, then the next highest, and so on (ties clockwise from the starting player). A player whose effect says they cast their votes in the Tally Phase skips this step.
 5. **Tally Phase**{{IDX:Tally Phase}} — once every Envoy has been voted on, in this order: {{RULE:tally}}
@@ -277,7 +279,7 @@ Each Empire Phase, gain Influence from the following sources:
 
 {{ACTIONS:Diplomacy}}
 
-{{IF:PHASE_REFORM}}Diplomacy actions aren't sent as Envoys: they happen in the Diplomacy step (see Envoy Phase).
+{{IF:PHASE_REFORM}}Diplomacy actions aren't sent as Envoys: they happen only in Spring's Diplomacy step (see End of Empire Phase).
 {{ELSE}}### Rule: Diplomatic Mission
 
 If your Diplomacy Envoy passes or is endorsed but its action fails, you may send another Envoy in another Domain, resolved in the order it would be resolved alongside other Envoys. A Diplomacy Envoy that fails or is condemned doesn't allow one.
@@ -300,7 +302,7 @@ An Army can't move within Range {{VAL:PRESENCE_RANGE}} of a non-allied Army — 
 
 ### Rule: Wavering Devotion
 
-While your Public Order is below {{VAL:FAITH_FICKLE_PO}}, you can only perform Spread Truth when sending a Piety envoy.
+While your Public Order is below {{VAL:FAITH_FICKLE_PO}}, you can't send Piety Envoys.
 
 ## Industry Actions
 
@@ -463,7 +465,7 @@ You go Insolvent the moment your Treasury can't cover a cost in full (at Income 
 
 {{VAL:SHUTTER_TERM}} pieces give no effect and pay no {{VAL:UPKEEP_TERM}}; Holdings built from them are unaffected. Each {{VAL:SHUTTER_TERM}} piece is restored at any future Income & Upkeep step where you can pay its {{VAL:UPKEEP_TERM}}, and any that becomes Damaged is no longer {{VAL:SHUTTER_TERM}}. Build Timers halt while you're Insolvent. Insolvency ends the moment your Treasury is above 0 and you can pay everything you owe, including the {{VAL:UPKEEP_TERM}} of your {{VAL:SHUTTER_TERM}} pieces.
 
-If you've cut everything and a debt still remains, you're Bankrupt: your Treasury goes negative by the unpaid amount (a Debt Marker). While Bankrupt you can't spend gold or be Extorted, and Build Timers stay halted; Revenue pays down the debt first. When your Treasury reaches 0 or above, Bankruptcy ends. *(If you're Vassalized while Bankrupt, the debt is forgiven and your Suzerain pays your Treasury up to a minimum of 0.)*
+If you've cut everything and a debt still remains, you're Bankrupt: your Treasury goes negative by the unpaid amount (a Debt Marker). While Bankrupt you can't spend gold (so you can't choose an action with a gold cost) or be Extorted, and Build Timers stay halted; Revenue pays down the debt first. When your Treasury reaches 0 or above, Bankruptcy ends. *(If you're Vassalized while Bankrupt, the debt is forgiven and your Suzerain pays your Treasury up to a minimum of 0.)*
 
 ## Trade & Income
 

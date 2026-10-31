@@ -278,7 +278,7 @@ function firstHostBtn(){if(!firstHostOpen())return "";const me=meP(),hp=hostP(),
   return '<button data-ts="host-on" title="take the Host card for the first turn">take first Host</button>';}
 // ---- HUD: the active player's numbers in one condensed row (label over value); click a cell to jump to its panel ----
 function hudSign(v){return (v>0?"+":v<0?"\u2212":"\u00b1")+Math.abs(Math.round(v)).toLocaleString();}
-function hudData(p){const b=p.board,sn=seasonNet(b),m=sn.m,rows=poModRows(b),po=b.po||0,dbl=1;
+function hudData(p){const b=p.board,sn=seasonNet(b),m=sn.m,rows=poModRows(b,true),po=b.po||0,dbl=1;
   const wu=withBoard(b,()=>(b.settlements||[]).reduce((a,s)=>{const w=wardUse(s.id);a.u+=w.used;a.c+=w.cap;return a;},{u:0,c:0}));
   const caps=withBoard(b,()=>({a:eraCap("armies"),s:eraCap("max_settlements")}));
   const fRows=rows.filter(r=>r.side==="faith"&&r.n),dRows=rows.filter(r=>r.side==="doubt"&&r.n);

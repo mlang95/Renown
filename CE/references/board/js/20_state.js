@@ -186,6 +186,7 @@ function empEconomy(b){const sn=seasonNet(b),net=Math.round(sn.net||0),g0=b.trea
   if(b.autoNet){const sea=curSeason(),part=[["Income & upkeep",Math.round(sn.base||0)],[sea+" (Season)",Math.round(sn.seasonal||0)],["Winter tax",Math.round(sn.tax||0)],["Trade",Math.round(sn.trade||0)]];
     part[0][1]+=net-part.reduce((t,x)=>t+x[1],0);part.forEach(([k,v])=>tGold(b,v,k));}   // Winter tax, income, trade, upkeep (if auto-apply is on)
   b.insolv=(b.treasury||0)<0?(+b.insolv||0)+1:0;                              // "Bankruptcy" Doubt: consecutive Upkeep with negative Treasury
+  b.deficit=net<0?(+b.deficit||0)+1:0;                                          // "Deficit" Doubt: consecutive Upkeep with negative Income
   insolvent(b);
   edictTick(b,"Wealth");                                                        // check the Treasury for the Wealth Edict
   return {sn,net,g0};}

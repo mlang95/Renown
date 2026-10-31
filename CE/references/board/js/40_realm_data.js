@@ -54,10 +54,12 @@ function influenceRows(b){const rows=influenceRowsBase(b),p=playerOfBoard(b),T=+
 function influenceTotal(b){return isSpring()?0:Math.max(0,influenceRows(b).reduce((a,r)=>a+r.val,0));}   // Nothing below zero
 // ---- Public Order modifiers (PO_MODIFIERS; 1 per instance) ----
 const POM=DATA.poModifiers||{faith:{},doubt:{}};
-function poModRows(b){b.poMods=b.poMods||{};const p=playerOfBoard(b),pid=p?String(p.id):null,rows=[];
-  const auto={"Deficit":()=>boardMetrics(b).net<0?1:0,"State of Alarm":()=>playerAtWar(pid)&&!(p&&fxOf(p,"ignoreWar").length)?1:0,
+// next: project the consecutive counters (Deficit, Bankruptcy) to the next Empire Phase's Income & Upkeep step (next Season's net)
+function poModRows(b,next){b.poMods=b.poMods||{};const p=playerOfBoard(b),pid=p?String(p.id):null,rows=[];
+  const nx=next?Math.round(seasonNet(b,nextSeason()).net||0):0;
+  const auto={"Deficit":()=>next?(nx<0?(+b.deficit||0)+1:0):(+b.deficit||0),"State of Alarm":()=>playerAtWar(pid)&&!(p&&fxOf(p,"ignoreWar").length)?1:0,
     "War Weariness":()=>srcHas(b,"immune_war_weariness")?0:(+b.lossStreak||0),"Lasting Legacy":()=>b.lastBattle==="won"?1:0,
-    "Bankruptcy":()=>+b.insolv||0,"Mounting Panic":()=>p?besiegedCount(p):0,
+    "Bankruptcy":()=>next?((+b.treasury||0)+nx<0?(+b.insolv||0)+1:0):(+b.insolv||0),"Mounting Panic":()=>p?besiegedCount(p):0,
     "Local Unrest":()=>p?unrestCamps(p).length:0,
     "Border Tension":()=>p?intrudersOf(p).filter(x=>!x.ally).length:0,"Invasion":()=>p?intrudersOf(p).filter(x=>x.war).length:0};
   ["faith","doubt"].forEach(side=>Object.keys(POM[side]||{}).forEach(k=>{const a=auto[k];

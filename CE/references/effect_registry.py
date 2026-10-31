@@ -37,9 +37,9 @@ REG = {
     "doubt_all_plus":      ("clause", "hiwf", r"All player actions that cause Doubt are increased by (\d+)"),
     "doubt_target_minus":  ("clause", "hiwf", r"^Doubt from (?:(\w+) )?actions targeting you is reduced by (\d+)"),
     "cunning_extra_doubt": ("clause", "hiwf", r"^(?:All )?(Endorsed )?Cunning (?:actions|envoys) give an additional \**Doubt \+?(\d+)\** to Target"),
-    # Ossuary Crypt: realm-wide, its Doubt rider applies to every player a Piety action gives Doubt; its PO bypass is owner-only.
+    # Ossuary Crypt: realm-wide, its Doubt rider applies to every player a Piety action gives Doubt; its Immune Wavering Devotion is owner-only.
     "piety_extra_doubt":   ("clause", "hiwf", r"All Piety actions that give Doubt give an additional \**Doubt \+?(\d+)\**"),
-    "piety_target_bypass": ("clause", "hiwf", r"You may target players with Piety actions regardless of your Public Order"),
+    "wavering_immune":     ("clause", "hiwf", r"Immune Wavering Devotion"),
     # "When your Piety actions give their target Faith, it gains Faith +1 more; when they give Doubt, it gains Doubt +1 more" (Unforgotten Shrine):
     # whole text (the clause split would cut it at the ";"); m[1] Domain, m[2] extra Faith, m[3] extra Doubt — each only where the action gave it
     "basilica_amp":        ("text", "hiwf", r"When your (\w+) actions give their target \**Faith\**, it gains \**Faith \+(\d+)\** more; when they give \**Doubt\**, it gains \**Doubt \+(\d+)\** more"),

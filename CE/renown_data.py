@@ -6,7 +6,7 @@ import os as _os
 # renown_data_d10_legacy.py. SIMPLE stays defined (always True) because the build scripts read it.
 SIMPLE = True
 # build_all_CE.bat: set PHASES=1|0. On: no Council vote: the Council Phase is the End of Empire Phase (Council Envoys are
-# Industry) and the Envoy Phase Forum is the Diplomacy step (offers between players; no Diplomacy Envoys)
+# Industry); Spring's End of Empire Phase is the Diplomacy step (offers between players; no Diplomacy Envoys), the only one
 PHASE_REFORM = _os.environ.get("RENOWN_PHASES", "1") == "1"
 vS = "-S"
 VERSION = f"0.4.9.9.13-d10{vS}"
@@ -1263,7 +1263,7 @@ NODES = {
         "group": "g_secrecy",
         "unlock": "Sovereign Cunning + Established Piety",
         "infrastructure_req": "Chapel",
-        "innate": "All Piety actions that give Doubt give an additional Doubt +1; You may target players with Piety actions regardless of your Public Order",
+        "innate": "All Piety actions that give Doubt give an additional Doubt +1; Immune Wavering Devotion",
         "efficient": ["Plague Pit"],
         "monument": True},
     "Pilgrimage Site": {
@@ -1394,10 +1394,10 @@ NODES = {
         "monument": False},
     "Court Armoury": {
         "group": "g_arms",
-        "unlock": "Established Industry",
+        "unlock": "Sovereign Industry",
         "innate": f"Supply -500; {PLANISHING}: Your to-Save can't be reduced beyond {CAP_THR}+; Unlocks Crafted Armor & Shield",
         "efficient": "Gilded Foundry",
-        "monument": False},
+        "monument": True},
     "Serfdom": {
         "group": "g_works",
         "unlock": "Sovereign Cunning",
@@ -2126,7 +2126,7 @@ FACTIONS = {
         'strength': 'High',
         'mechanic_name': 'Reckless',
         'summary': 'Strong Cunning Envoys; Secret Cellar; Prowess Envoys always pass; no Alliances, Diplomacy or Renown into Piety; Industry 3 max',
-        'mechanic': "Authority +2 on your Cunning actions targeting a player with Public Order 2 or higher. You begin the game with a Secret Cellar (no Ward, Natural). You can't be in an Alliance or perform Diplomacy actions. A Prowess Envoy you send can't fail or be condemned & will instead pass. You cannot put Domain Points into Piety, nor have more than 3 in Industry.",
+        'mechanic': "Authority +1 on your Cunning actions targeting a player with Public Order 2 or higher. You begin the game with a Secret Cellar (no Ward, Natural). You can't be in an Alliance or participate in the Diplomacy Phase. A Prowess Envoy you send can't fail or be condemned & will instead pass. You cannot put Domain Points into Piety, nor have more than 6 in Industry.",
         'pair': 'Outlaw Rookery, Marshal Tiltyard',
         'complement': 'Outrider Intercept Post',
     },
@@ -2363,7 +2363,7 @@ WARD_RULES = {
                  "Ward per tier: a Village has {Village}, a Town {Town}, a City {City} and a Metropolis {Metropolis}. A Hamlet has {Hamlet} Wards."),
 }
 WARD_RULE = WARD_RULES[WARD_MODEL].format(**{k: v["wards"] for k, v in SETTLEMENTS.items()})
-# Faith is Fickle (Piety rule): while your Public Order is below this value, you can't target players with Piety actions.
+# Wavering Devotion (Piety rule): while your Public Order is below this value, you can't send Piety Envoys.
 FAITH_FICKLE_PO = 0
 
 # Era progression: shared-Renown thresholds; caps on armies/cities; influence.
@@ -2439,7 +2439,7 @@ PO_MODIFIERS = {
     },
     "doubt": {
         "Local Unrest":    "Per active Bandit Camp in your Controlled Territory",
-        "Deficit":         "Net Income is negative",
+        "Deficit":         "Per consecutive Upkeep Phase with negative Income",
         "Bankruptcy":      "Per consecutive Upkeep Phase with negative Treasury",
         "Border Tension":  "Per other player Army in your Uncontested Territory (not Alliance or NAP)",
         "Invasion":        "Additional per other player Army in your Uncontested Territory at War",
@@ -2535,7 +2535,7 @@ BANDIT_CAMP_START = 10
 BANDIT_CAMP_GOLD = 2000    # gold in a Bandit Camp's treasury when it spawns
 BANDIT_ARMY_THRESHOLD = 25
 BANDIT_GROWTH_PER_ERA = {"Founding": 1, "Ascension": 2, "Eminence": 3, "Zenith": 4}
-BANDIT_EQUIPMENT_PER_ERA = {"Founding": "Levy: Farm Tools + Cloth", "Ascension": "Levy: Pitchfork + Gambeson", "Eminence": "Levy: Spears + Buckler Shield + Leather", "Zenith": "Levy: Halberd + Chainmail"}
+BANDIT_EQUIPMENT_PER_ERA = {"Founding": "Levy: Farm Tools + Cloth", "Ascension": "Levy: Pitchfork + Gambeson", "Eminence": "Man-at-Arms: Spears + Kite Shield + Leather", "Zenith": "Man-at-Arms: Halberd + Chainmail"}
 BANDITS = {
     "Bandit Domain Value": "For every 5 Retinues in the Bandit Camp or Army, the Bandit Camp has +2 Cunning and +2 Prowess.",
     "Bandit Camp": f"A collection of Bandits in Outlaw Country, starting with {BANDIT_CAMP_START} Retinues and {BANDIT_CAMP_GOLD} gold.",
@@ -3100,11 +3100,11 @@ def _action_costs():
 _action_costs()
 
 # phase order (currently only in RULES_reorganized)
-# PHASE_REFORM: every Council Envoy is of COUNCIL_DOMAIN (no vote); the Envoy Phase's Diplomacy step gives each player one
-# Council-style Envoy of FORUM_DOMAIN that performs FORUM_ACTIONS action(s). None = the Council vote / a plain Forum.
+# PHASE_REFORM: every Council Envoy is of COUNCIL_DOMAIN (no vote); Diplomacy happens only in Spring (COUNCIL_DOMAIN_SPRING).
+# FORUM_DOMAIN: a Diplomacy step in the Envoy Phase's Forum as well, FORUM_ACTIONS agreement(s); None = a plain Forum.
 COUNCIL_DOMAIN = "Industry" if PHASE_REFORM else None
 COUNCIL_DOMAIN_SPRING = "Diplomacy" if PHASE_REFORM else None   # Spring's End of Empire Phase: Diplomacy instead of Industry
-FORUM_DOMAIN = "Diplomacy" if PHASE_REFORM else None
+FORUM_DOMAIN = None                   # Diplomacy only in Spring: the Envoy Phase keeps a plain Forum
 FORUM_ACTIONS = 1
 PHASES = ("Empire", "End of Empire" if PHASE_REFORM else "Council", "Envoy", "Battle", "Rest")
 STARTING_TURN_PHASE_OPENER = PHASES[1]
@@ -3180,6 +3180,7 @@ GLOSSARY.update({
                      f"Garrisons have cost and {SUPPLY_TERM} 0 and don't count toward your Army limit. All your Garrisons share the same "
                      "Retinue type and equipment, and gain the benefits of all unlocked keywords that apply to your Armies."),
     "War Weariness":"Doubt 1 each Empire Phase per consecutive Battle you've lost.",
+    "Wavering Devotion": f"While your Public Order is below {FAITH_FICKLE_PO}, you can't send Piety Envoys.",
     "Settlement Ward": ("A slot in a Settlement that holds one Holding; a Settlement has one Ward per tier (a Hamlet has 3 Wards, Natural Holdings only)."
                         + (" Wards are not placed on the map." if WARD_MODEL == "abstract" else " Each Ward occupies a Territory within Range 1 of the Settlement.")),
     CHAIN_TERM + " X": ((f"On a Holding tile: placed in the same Settlement Ward as X (the Raw Material or Holding named on it), it shares "
@@ -3202,7 +3203,7 @@ NAME_DISPLAY = {
     "Coliseum": "Drill Yard",
     "Javelin": "Throwing Axe",
     "Crafted" : "Tempered",
-    "Gambeson": "Padded",
+    #"Gambeson": "Padded",
     #"to-hit", "to-Strike",
     #"Recover", "Heal",
     "Preceptory of the Knight's Templar": "Sacred Preceptory",
@@ -3745,8 +3746,8 @@ GLOSSARY.update({
     "Treasury":        "The gold you Control.",
     "Insolvent":       (f"You couldn't cover a cost in full: pay what you can, disband Armies, then set buildings {SHUTTER_TERM}. "
                         "Build Timers halt. It ends once your Treasury is above 0 and you can pay everything you owe."),
-    "Bankrupt":        ("Insolvent with nothing left to cut: your Treasury goes negative by the debt. You can't spend gold or be "
-                        "Extorted, and Revenue pays the debt first. It ends when your Treasury reaches 0."),
+    "Bankrupt":        ("Insolvent with nothing left to cut: your Treasury goes negative by the debt. You can't spend gold (no actions with a "
+                        "gold cost) or be Extorted, and Revenue pays the debt first. It ends when your Treasury reaches 0."),
     "Trade Agreement": "A Treaty that lets two players trade. While both can trade, each gets Trade Income each turn either of them is Host.",
     "Trade Partner":   "A player you have a Trade Agreement with and can trade with.",
     "Settlement":      ("A Village, Town, City or Metropolis (or your Hamlet). It earns Tax Income each Winter, holds Holdings in its Wards, "
@@ -3776,7 +3777,7 @@ GLOSSARY_CATEGORIES = [
     ('Treaties', ['Treaty', 'Alliance', 'Vassal', 'Suzerain']),
     ('War', ['At War', 'Lay Siege', 'Siege', 'Capture', 'Sack', 'Pillage', 'Sally Forth']),
     ('Economy & Public Order', ['Treasury', SUPPLY_TERM, UPKEEP_TERM, 'Insolvent', 'Bankrupt', SHUTTER_TERM, 'Trade Agreement', 'Trade Partner',
-                                'Craft', 'Can Trade', 'Public Order', 'Faith X', 'Doubt X', 'Extort X', 'Recoup X', 'War Weariness']),
+                                'Craft', 'Can Trade', 'Public Order', 'Faith X', 'Doubt X', 'Extort X', 'Recoup X', 'War Weariness', 'Wavering Devotion']),
     ('Settlements & Holdings', ['Settlement', 'Hamlet', 'Settlement Ward', 'Pursuit', 'Root', 'Natural', 'Monument', CHAIN_TERM,
                                 CHAIN_TERM + " X", 'Infrastructure', 'Wonder', 'Damaged']),
     ('Timers', list(TIMERS)),
@@ -3825,7 +3826,7 @@ GLOSSARY_SEE = {
                                          'Uncontrolled', 'Range X', 'Within', 'Adjacent', 'Next to')},
     'Reach X': 'settlement-reach',
     'Bandit': 'bandits', 'Outlaw Country': 'outlaw-country', 'Wild Outlaw Country': 'outlaw-country', 'Siege': 'siege-warfare',
-    'Speed X': 'speed', 'Presence': 'rule-commanding-presence', 'Blocked': 'blocked-armies',
+    'Speed X': 'speed', 'Presence': 'rule-commanding-presence', 'Wavering Devotion': 'rule-wavering-devotion', 'Blocked': 'blocked-armies',
     'Skirmish': 'the-skirmish-steps', 'Seize the Initiative': 'seize', 'Tactic': 'tactic-matrix', 'Field': 'form-line',
     'Initiative': 'initiative', BLUNDER: 'initiative', 'Strike': 'strike', 'to-Strike number': 'strike',
     'Save': 'defend', 'Panic check': 'panic', 'Endurance': 'fatigue', 'Fatigued': 'fatigue', FATIGUE_TOKEN: 'fatigue',
@@ -3959,7 +3960,6 @@ if PHASE_REFORM:
     GLOSSARY["Council Phase"] = ("The phase after the Empire Phase: each player sends a free Council Envoy of Industry, which Performs "
                                  "the Era's Council actions. There is no Vote.")
     GLOSSARY["Council Envoy"] = "A free Envoy of Industry sent in the End of Empire Phase; auto-Abstained, Net Influence floored at 1."
-    GLOSSARY["Intrigue Phase"] = GLOSSARY["Intrigue Phase"].replace("after the Forum", "after the Diplomacy step")
     NAME_DISPLAY["Council Phase"] = ALIASES["Council Phase"] = "End of Empire Phase"
     _ALIAS_RE = _re_disp.compile(r"\b(" + "|".join(_re_disp.escape(k) for k in sorted(ALIASES, key=len, reverse=True)) + r")\b")   # include the rename
     if "Council Phase" in GLOSSARY_SEE: GLOSSARY_SEE["Council Phase"] = "end-of-empire-phase"
@@ -3969,7 +3969,7 @@ if PHASE_REFORM:
     GLOSSARY["Host"] = GLOSSARY["Host"].replace("(Council vote, ", "(")
     GLOSSARY["Max Influence"] = GLOSSARY["Max Influence"].replace(" (the Era's rank on Diplomacy Envoys)", "")
     GLOSSARY["Standing Rank"] = GLOSSARY["Standing Rank"].replace(" Diplomacy uses the Era's rank.", "")
-    GLOSSARY["Diplomacy"] = ("Sign Treaty, Negotiate and End Treaty: offers between players in the Envoy Phase's Diplomacy step "
-                             "(in Spring, the End of Empire Phase), not sent as Envoys.")
+    GLOSSARY["Diplomacy"] = ("Sign Treaty, Negotiate and End Treaty: offers between players in the Diplomacy step "
+                             "(Spring's End of Empire Phase, the only one each year), not sent as Envoys.")
     SEASONS["Spring"]["effect"] = SEASONS["Spring"]["effect"].replace(
-        "Council Phase, or Diplomacy Actions.", f"or Diplomacy Actions outside the End of Empire Phase (a Diplomacy step in Spring).")
+        "Council Phase, or Diplomacy Actions.", "or Council Envoys: the End of Empire Phase is the Diplomacy step instead, the only time Diplomacy actions happen.")

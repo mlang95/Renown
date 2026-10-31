@@ -333,7 +333,7 @@ function dockHTML(R){
     targets.slice(0,1).forEach(p=>{const dc=tCur(p).decl||{},nn=dc.n||{},tot=T_ALL.reduce((a,d)=>a+(+nn[d]||0),0),mx=personalEnvoys(p);
       h+=dockCard("Declare Envoys — "+esc(p.name)+' <span class="note">'+tot+'/'+mx+'</span>',(isSpring()||RC.PHASE_REFORM?T_DOMS:T_ALL).map(d=>'<div class="tb-row"><span style="min-width:80px">'+d+'</span>'+
         '<button data-do="decl" data-dom="'+d+'" data-dv="-1" data-who="'+p.id+'">−</button><b style="min-width:16px;text-align:center">'+(+nn[d]||0)+'</b>'+
-        '<button data-do="decl" data-dom="'+d+'" data-dv="1" data-who="'+p.id+'"'+(tot>=mx?' disabled':'')+'>+</button></div>'+declInviteHTML(p,d,+nn[d]||0,dc.inv||{})).join("")+
+        '<button data-do="decl" data-dom="'+d+'" data-dv="1" data-who="'+p.id+'"'+(tot>=mx||(d==="Piety"&&pietyBlocked(p)&&!ADMIN)?' disabled':'')+'>+</button>'+(d==="Piety"&&pietyBlocked(p)?'<span class="note neg" title="'+esc(pietyBlocked(p))+'">'+kwify("Wavering Devotion")+'</span>':'')+'</div>'+declInviteHTML(p,d,+nn[d]||0,dc.inv||{})).join("")+
         '<div class="tb-row"><button data-do="declock" data-who="'+p.id+'" class="on">Submit</button><span class="note">Hidden until everyone submits.</span></div>',"now");});
     if(!HOTSEAT&&(tCur(me).decl||{}).lock)h+=dockCard("Declare Envoys",'<div class="tb-row"><span class="pos">Submitted.</span><button data-do="declunlock" data-who="'+me.id+'">edit</button></div>');}
   // 3. vote on the current Envoy
@@ -362,7 +362,7 @@ function dockHTML(R){
   if(ph!=="envoy"||allActs(tTurn()).length)h+=realmActsHTML(qp);
   // 7. Influence & Envoys (Council and Envoy Phases)
   if(ph==="council"||ph==="envoy")h+=inflPaneHTML(qp,ph==="council");
-  if(ph==="envoy")h+=inflCardHTML(qp);
+  if(ph==="envoy"&&ADMIN)h+=inflCardHTML(qp);   // manual Influence / Envoy adjusts and modifiers: the Duke only
   // 8. Empire Phase: checklist, every Extort this player collects / pays / triggers
   if(ph==="empire"){h+=empireHoldingHTML(qp);h+=dockCard("Empire Phase",empireChecklistHTML());h+=extortCardHTML(qp);}
   // 9. Battle Phase: Battles and Sieges to resolve
@@ -429,10 +429,10 @@ function inflCardHTML(qp){const c=tCur(qp),md=PT(qp).mods,afx=boardFx(qp);
       '<input data-do="mod" data-mk="'+k+'" data-mf="val" data-who="'+qp.id+'" type="number" value="'+(+m.val||0)+'" style="width:52px">'+
       '<button data-do="moddel" data-mk="'+k+'" data-who="'+qp.id+'">✕</button></div>';}).join("")+
     '<div class="tb-row"><button data-do="modadd" data-who="'+qp.id+'">+ modifier</button></div></details>';
-  return dockCard("Influence &amp; Envoys — "+esc(qp.name),b);}
+  return dockCard("Influence &amp; Envoys — "+esc(qp.name)+' <span class="note">Duke</span>',b);}
 DO.cvote=el=>{if(isSpring()){flash("Spring — no Council Phase");return;}const c=tCurW(pOf(el));if(el.dataset.dom)c.council={dom:el.dataset.dom,ts:tnow()};else delete c.council;rlCommit();};
 DO.tie=el=>{TB().councilTie={dom:el.dataset.dom,turn:tTurn(),ts:tnow()};rlCommit();};
-DO.decl=el=>{const c=tCurW(pOf(el));c.decl=c.decl||{};c.decl.n=c.decl.n||{};const d=el.dataset.dom;c.decl.n[d]=Math.max(0,(+c.decl.n[d]||0)+(+el.dataset.dv));rlCommit();};
+DO.decl=el=>{const why=el.dataset.dom==="Piety"&&+el.dataset.dv>0&&!ADMIN?pietyBlocked(pOf(el)):"";if(why){flash(why);return;}const c=tCurW(pOf(el));c.decl=c.decl||{};c.decl.n=c.decl.n||{};const d=el.dataset.dom;c.decl.n[d]=Math.max(0,(+c.decl.n[d]||0)+(+el.dataset.dv));rlCommit();};
 // aim a declared Envoy at a player whose Holding invites it (inviteHolders): one select per Envoy of that Domain
 function declInviteHTML(p,d,n,inv){const H=n?inviteHolders(p,d):[];if(!H.length)return "";let h="";
   for(let k=0;k<n;k++)h+='<div class="tb-row"><span class="note" style="min-width:80px">'+d+(n>1?" "+(k+1):"")+' aimed at</span><select data-do="declinv" data-key="'+d+":"+k+'" data-who="'+p.id+'"><option value="">— no one —</option>'+

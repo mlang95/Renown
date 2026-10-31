@@ -34,15 +34,16 @@ function siegeTextMods(def,att){const rows=[];
   return {rows,noWalls};}
 function siegeWinterOK(t){const by=pById(t.by);return !!by&&srcHas(by.board,"siege_winter");}
 function siegeDoubleOK(t){const by=pById(t.by);return !!by&&srcHas(by.board,"siege_double");}   // Battery Park: the besieger's Siege Timers count down twice each turn
+// Wavering Devotion: while your Public Order is below FAITH_FICKLE_PO you can't send Piety Envoys (Immune Wavering Devotion: Ossuary Crypt).
+// Checked when Envoys are declared; returns why, or "".
+function pietyBlocked(p){if(RC.FAITH_FICKLE_PO==null||!p||srcHas(p.board,"wavering_immune"))return "";const po=+p.board.po||0;
+  return po<+RC.FAITH_FICKLE_PO?"Wavering Devotion: Public Order "+po+" is below "+RC.FAITH_FICKLE_PO+" — no Piety Envoys":"";}
 // ---- action restrictions & riders (shown as flags; hard restrictions are enforced after game start) ----
 function actRestrict(owner,action,target){const a=(DATA.actions||{})[action]||{},out=[];
   const hit=(c)=>{const lc=c.toLowerCase();return lc.includes(action.toLowerCase())||(a.domain&&new RegExp("\\b"+a.domain+" actions","i").test(c));};
   // each clause of a "can't …" list on its own; "build Holdings that require <Standing>" limits which Holdings (pLegal), not the Build action
   srcRows(owner.board,"_cant").forEach(x=>{String(x.r).split(/,\s*(?:or\s+)?|\s+or\s+(?=(?:perform|build|enter|declare|sign|target)\b)/i).map(c=>c.trim()).filter(Boolean)
     .forEach(c=>{if(/^(?:build|pursue)\s+(?:Holdings|Pursuits)\s+(?:that|which)\s+require/i.test(c))return;if(hit(c))out.push(x.n+": can't "+c);});});
-  // Faith is Fickle: while your Public Order is below FAITH_FICKLE_PO you can't target players or their Settlements with Piety actions
-  if(target&&!sameP(target,owner)&&a.domain==="Piety"&&!srcHas(owner.board,"piety_target_bypass")&&RC.FAITH_FICKLE_PO!=null&&(+owner.board.po||0)<+RC.FAITH_FICKLE_PO)
-    out.push("Faith is Fickle: "+owner.name+"'s Public Order is below "+RC.FAITH_FICKLE_PO+" — can't target players or their Settlements with Piety actions");
   if(target&&a.domain==="Industry"){const bs=(target.board.settlements||[]).filter(s=>settBesieged(target,s.id));
     if(bs.length)out.push(target.name+": "+bs.map(s=>s.name||s.tier).join(", ")+" besieged — Industry actions can't target "+(bs.length>1?"them":"it"));}
   if(target)srcMatch(target.board,"cant_target").forEach(x=>{if(x.m[1].toLowerCase().includes(action.toLowerCase()))out.push(target.name+" ("+x.n+"): can't be targeted by "+action);});
