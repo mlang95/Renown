@@ -46,8 +46,8 @@
 <rect x="202" y="208" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="202" y="208" width="5" height="24" fill="#2E5A8C"/>
 <text x="211" y="223" font-size="8.2" fill="#2b2620">Mill</text>
-<rect x="202" y="64" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="202" y="64" width="5" height="24" fill="#6a6a72"/>
+<rect x="202" y="64" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
+<rect x="202" y="64" width="5" height="24" fill="#2E5A8C"/>
 <text x="211" y="79" font-size="8.2" fill="#2b2620">Spice Merchant</text>
 <rect x="202" y="100" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="202" y="100" width="5" height="24" fill="#2E5A8C"/>

@@ -231,7 +231,7 @@ function aiGearGain(p,n,kit){const src=ARMYSRC[n];if(!src)return "";const T=EQ.t
 function aiHoldTags(n){const r=R[n]||{},t=String(r.innate_raw||""),T=new Set(),net=aiHoldNet(n),up=r.upkeep!=null?+r.upkeep:0;
   if(net>0){T.add("holding_income");if(r.root)T.add("hamlet_income");}
   if(/infrastructure[^.;]*upkeep|upkeep[^.;]*infrastructure/i.test(t))T.add("infra_upkeep");
-  if(/Upkeep\s*-\s*\d/i.test(t))T.add("army_upkeep");
+  if(new RegExp(SUPPLY()+"\\s*-\\s*\\d","i").test(t))T.add("army_upkeep");
   if(/Extort/i.test(t))T.add("extort");
   if(/Can Trade|Trade Income|Trade Partner/i.test(t))T.add("trade");
   if(/Doubt[^.;]*(reduced|Immune)|Immune[^.;]*Doubt/i.test(t))T.add("po_insulate");
@@ -294,7 +294,7 @@ function aiCandidates(p){const s=aiSit(p),b=s.b,C=[],add=(dom,act,o)=>C.push(Obj
   {const L=buildOpts(p).filter(o=>o.v.startsWith("b:")&&!o.dis).map(o=>o.v.slice(2)),mon=aiNextMonument(p),kit=aiKit(p);
     L.forEach(n=>{const net=aiHoldNet(n),po=aiHoldPO(n),val=aiHoldValue(n),dm=s.doms.includes(holdDom(n)),gear=aiGearGain(p,n,kit);
       const rides=withBoard(b,()=>{const sd=smartSid(n);return sd!=null&&!!canPlace(n,sd).rider;}),opens=((R[n]||{}).builds_into||[]).filter(x=>R[x]).length;
-      const armyCut=s.pr.prowess_coded&&/Upkeep\s*-\s*\d/i.test(String((R[n]||{}).innate_raw||""))&&(b.armies||[]).length>0;   // Prowess: cheaper Armies
+      const armyCut=s.pr.prowess_coded&&new RegExp(SUPPLY()+"\\s*-\\s*\\d","i").test(String((R[n]||{}).innate_raw||""))&&(b.armies||[]).length>0;   // Prowess: cheaper Armies
       // a Holding that adds Doubt every turn counts against the faith priority — harder the lower Public Order already is
       const pen=po<0?aiPrioW("faith")*0.5*(-po)*(s.po<=0?1:0.6):0;
       // a Holding that upgrades the Army kit answers Bandits (and war): Bandit gear climbs with the Era
@@ -308,7 +308,7 @@ function aiCandidates(p){const s=aiSit(p),b=s.b,C=[],add=(dom,act,o)=>C.push(Obj
     L.filter(o=>o.v.startsWith("i:")).forEach(o=>{const n=o.v.slice(2),t=String((INFRA[n]||{}).effect_raw||""),e={infra:0.6};
       const bd=/Garrison/i.test(t)?1:/Muster/i.test(t)&&/Keep/i.test(n)?0.8:/Walls/i.test(n)?0.7:/Bandit/i.test(t)?0.6:/Can Muster/i.test(t)?0.5:0;
       if(bd)e.bandits=bd*Math.max(s.camps?0.3:0,s.bthreat);
-      if(/Craft|Tax Income|Can Trade|Upkeep\s*-/i.test(t))e.economy=s.econ*0.7;
+      if(/Craft|Tax Income|Can Trade/i.test(t)||new RegExp(SUPPLY()+"\\s*-|"+UPKEEP()+"\\s*-","i").test(t))e.economy=s.econ*0.7;
       if(/Faith \+/i.test(t))e.faith=0.6;
       if(/Influence|Envoy/i.test(t))e.diplomacy=0.4;
       add("Industry","Improve",{sub:o.v,cost:2000,serves:e,why:"Improve "+n+" ("+t.slice(0,60)+")"});});}

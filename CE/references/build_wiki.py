@@ -789,7 +789,7 @@ if hasattr(rd, "INFRASTRUCTURE"):
     rows=[[n, d.get("tier",""), d.get("upkeep",""), d.get("build_time",""), d.get("requirement",""), d.get("empire_bonus","")] for n,d in items]
     body=f"<h1>Infrastructure <span class='count'>{len(items)}</span></h1>"
     body+="<p>Empire-wide builds in "+str(len(TIER_ORD))+" tiers ("+", ".join(TIER_ORD)+"); each needs one active Infrastructure of the tier below. Wonders are the Wondrous tier — one of each per game.</p>"
-    body+=_grid(["Build","Tier",getattr(rd,"DUES_TERM","Upkeep"),"Build Time","Requirement","Effect"], rows, u, row_ids=True)
+    body+=_grid(["Build","Tier",getattr(rd,"UPKEEP_TERM","Upkeep"),"Build Time","Requirement","Effect"], rows, u, row_ids=True)
     open(_os.path.join(OUTDIR,u),"w",encoding="utf-8").write(page("Infrastructure",body,u))
     for n,d in rd.INFRASTRUCTURE.items():
         search_index.append({"title":n,"url":f"{u}#{slug(n)}","text":f"{n} infrastructure {d.get('empire_bonus','')}"})
@@ -867,7 +867,7 @@ if hasattr(rd, "COSTS") or hasattr(rd, "UPKEEP_TRACKS"):
     u="economy-ref.html"
     body="<h1>Economy Reference</h1>"
     if hasattr(rd, "UPKEEP_TRACKS"):
-        body+=f"<h2>Upkeep and {getattr(rd,'DUES_TERM','Upkeep')} — three separate tracks</h2>"
+        body+=f"<h2>{getattr(rd,'SUPPLY_TERM','Supply')} and {getattr(rd,'UPKEEP_TERM','Upkeep')} — three separate tracks</h2>"
         body+="<p>Each cost is reduced by different effects; a reducer that names one track does not touch the others.</p>"
         body+=_grid(["Track","How it works"], [[k, v] for k,v in rd.UPKEEP_TRACKS.items()], u)
         if hasattr(rd, "PURSUIT_UPKEEP_BY_TYPE"):
@@ -876,7 +876,7 @@ if hasattr(rd, "COSTS") or hasattr(rd, "UPKEEP_TRACKS"):
                 pu=rd.PURSUIT_UPKEEP_BY_TYPE
                 extra=", ".join(f"{k} {v}" for k,v in pu.items() if k!="Other")
                 pu_text=f"{extra}, all others {pu.get('Other', getattr(rd,'PURSUIT_UPKEEP_DEFAULT',''))}"
-            body+=f"<p class='mut'>Holding {getattr(rd,'DUES_TERM','upkeep')} by type: {pu_text}.</p>"
+            body+=f"<p class='mut'>Holding {getattr(rd,'UPKEEP_TERM','upkeep')} by type: {pu_text}.</p>"
     if hasattr(rd, "COSTS"):
         body+="<h2>Action &amp; empire costs</h2>"
         body+=_grid(["Item","Cost"], [[k, v] for k,v in rd.COSTS.items()], u)

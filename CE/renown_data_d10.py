@@ -739,7 +739,7 @@ NODES = {
         "root": True,
         "unlock": "-",
         "natural": True,
-        "innate": "Upkeep -500; Unlocks Crude armor & shield",
+        "innate": "Supply -500; Unlocks Crude armor & shield",
         "efficient": "Hamlet",
         "monument": False},
     "Saddlery": {
@@ -806,7 +806,7 @@ NODES = {
         "group": "g_logistics",
         "unlock": "-",
         "natural": True,
-        "innate": "Gold +500; Craft +1; Upkeep -500",
+        "innate": "Gold +500; Craft +1; Supply -500",
         "efficient": ["Salt Works", "Animal Husbandry"],
         "monument": False},
     "Bakery": {
@@ -827,7 +827,7 @@ NODES = {
     "Fletchery": {
         "group": "g_arms",
         "unlock": "Rising Prowess",
-        "innate": "Upkeep -500; Unlocks Ranged Weapons",
+        "innate": "Supply -500; Unlocks Ranged Weapons",
         "efficient": "Carpentry",
         "monument": False},
     "Chandlery": {
@@ -840,13 +840,13 @@ NODES = {
         "group": "g_arms",
         "unlock": "-",
         "natural": True,
-        "innate": "Craft +1; Upkeep -500; Unlocks Cast armor & shield",
+        "innate": "Craft +1; Supply -500; Unlocks Cast armor & shield",
         "efficient": ["Animal Husbandry","Joinery"],
         "monument": False},
     "Joinery": {
         "group": "g_arms",
         "unlock": "Rising Industry",
-        "innate": "Upkeep -500; Unlocks Shields",
+        "innate": "Supply -500; Unlocks Shields",
         "efficient": "Carpentry",
         "monument": False},
     #"Furnace": {
@@ -859,7 +859,7 @@ NODES = {
     "Blacksmith": {
         "group": "g_arms",
         "unlock": "Rising Industry",
-        "innate": "Craft +2; Upkeep -500; Unlocks Wrought Weapons",
+        "innate": "Craft +2; Supply -500; Unlocks Wrought Weapons",
         "efficient": "Furnace",
         "monument": False},
     "Finery": {
@@ -884,26 +884,26 @@ NODES = {
     "Armory": {
         "group": "g_arms",
         "unlock": "Rising Industry",
-        "innate": "Craft +2; Upkeep -500; Unlocks Wrought armor & shield",
+        "innate": "Craft +2; Supply -500; Unlocks Wrought armor & shield",
         "efficient": ["Tannery", "Blacksmith"],
         "monument": False},
     "Master Workshop": {
         "group": "g_arms",
         "unlock": "Established Industry",
-        "innate": "Craft +2; Upkeep -500; Add Serrated to Weapons",
+        "innate": "Craft +2; Supply -500; Add Serrated to Weapons",
         "efficient": "Forge",
         "monument": False},
     "Gilded Foundry": {
         "group": "g_arms",
         "unlock": "Established Industry",
-        "innate": "Upkeep -1000; Unlocks Forged armor & shield",
+        "innate": "Supply -1000; Unlocks Forged armor & shield",
         "efficient": "Armory",
         "monument": False},
     "Smokehouse": {
         "group": "g_logistics",
         "unlock": "Rising Prowess",
         "natural": True,
-        "innate": "Craft +2; Upkeep -1000",
+        "innate": "Craft +2; Supply -1000",
         "efficient": ["Charcoal Burner"],
         "monument": False},
     "Workyard": {
@@ -1090,7 +1090,7 @@ NODES = {
         "group": "g_works",
         "deprecated": True,
         "unlock": "Rising Industry",
-        "innate": "Upkeep -1000; Armies and Garrisons within your Settlements gain Immune Strained.",
+        "innate": "Supply -1000; Armies and Garrisons within your Settlements gain Immune Strained.",
         "efficient": "",
         "monument": False},
     "Academy": {
@@ -1142,7 +1142,7 @@ NODES = {
     "Supply Depot": {
         "group": "g_works",
         "unlock": "Rising Industry",
-        "innate": "Craft +2; Upkeep -500; Armies and Garrisons within your Settlements gain Immune Strained",
+        "innate": "Craft +2; Supply -500; Armies and Garrisons within your Settlements gain Immune Strained",
         "efficient": "Masonry",
         "monument": False},
     "Artisan Workshop": {
@@ -1324,7 +1324,7 @@ NODES = {
         "unlock": "Established Prowess",
         #"infrastructure_req": "Garrison",
         "natural": True,
-        "innate": "Speed +1; Upkeep -2000 while an Army is within Range 0 of a Settlement you Control",
+        "innate": "Speed +1; Supply -2000 while an Army is within Range 0 of a Settlement you Control",
         "efficient": "Smokehouse",
         "monument": False},
     "Baggage Train": {
@@ -1332,7 +1332,7 @@ NODES = {
         "unlock": "Sovereign Prowess",
         "infrastructure_req": "Bridges",
         "natural": True,
-        "innate": "Upkeep -2000; At the Start of the Empire Phase, you may perform a Move action; Gain Immune Blocked",
+        "innate": "Supply -2000; At the Start of the Empire Phase, you may perform a Move action; Gain Immune Blocked",
         "efficient": "Levy Hall",
         "monument": True},
     "Siege Camp": {
@@ -1394,7 +1394,7 @@ NODES = {
     "Court Armoury": {
         "group": "g_arms",
         "unlock": "Established Industry",
-        "innate": f"Upkeep -500; {PLANISHING}: Your to-Save can't be reduced beyond {CAP_THR}+; Unlocks Crafted Armor & Shield",
+        "innate": f"Supply -500; {PLANISHING}: Your to-Save can't be reduced beyond {CAP_THR}+; Unlocks Crafted Armor & Shield",
         "efficient": "Gilded Foundry",
         "monument": False},
     "Serfdom": {
@@ -1513,7 +1513,7 @@ NODES = {
         "group": "g_arms",
         "unlock": "Sovereign Industry + Rising Prowess",
         "infrastructure_req": "Aqueducts",
-        "innate": "Craft +5; Upkeep -1000; Unlocks Crafted Weapons",
+        "innate": "Craft +5; Supply -1000; Unlocks Crafted Weapons",
         "efficient": "Master Workshop",
         "monument": True},
     "Cipher Chamber": {
@@ -1629,9 +1629,11 @@ TYPE_ORDER = list(HOLDING_GROUPS.values()) + ["Monument"]
 CHAIN_TERM = "Mastery Chain"
 # Display name for a Holding / Infrastructure set inactive for unpaid upkeep (Insolvency). Rules print it via {{VAL:SHUTTER_TERM}}.
 SHUTTER_TERM = "Shuttered"
-# What Holdings and Infrastructure cost each Empire Phase ("Upkeep" is the Armies' cost). Rules print it via {{VAL:DUES_TERM}};
-# effects read "Dues -X" (lowers your Holding and Infrastructure cost) and "No Dues on <Tier> Infrastructure".
-DUES_TERM = "Dues"
+# Cost words. UPKEEP_TERM: what Holdings and Infrastructure cost each Empire Phase; SUPPLY_TERM: what Armies cost.
+# Rules print them via {{VAL:UPKEEP_TERM}} / {{VAL:SUPPLY_TERM}}. Effects read "<UPKEEP_TERM> -X" (lowers Holding and
+# Infrastructure costs), "No <UPKEEP_TERM> on <Tier> Infrastructure", and "<SUPPLY_TERM> -X" (lowers Army costs).
+UPKEEP_TERM = "Upkeep"
+SUPPLY_TERM = "Supply"
 # Display name for Pursuits (singular, plural). Data keys, file names and wiki URLs keep "pursuit".
 PURSUIT_TERM = ("Holding", "Holdings")
 
@@ -1671,7 +1673,7 @@ MONUMENT_SUMMARY = {
     "Aristocratic Court":                 "Extorts Both Sides of Rivals' Diplomacy",
     "Studium Generale":                   "Influence from Broad Standing, Free Sovereign Effect",
     "Outlaw Rookery":                     "Your Bandits Work for you.",
-    "Advanced Blast Furnace":             "Cheaper Upkeep, Best Weapons",
+    "Advanced Blast Furnace":             "Cheaper Supply, Best Weapons",
     "Whispering Undercroft":              "Votes Last, Forces Rivals to Show Their Hand",
     "Outrider Intercept Post":            "Sees Opponents' Tactic Cards First",
     "Port Authority":                     "Gold from Craft",
@@ -2287,7 +2289,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
           'requirement': 'March-Tower'},
  'Aqueducts': {'upkeep': 400,
           'upkeep_frequency': 'each Empire Phase',
-          'empire_bonus': "Influence +1; Reach +2; Build Timer -1; Upkeep -1000",
+          'empire_bonus': "Influence +1; Reach +2; Build Timer -1; Supply -1000",
           'tier': 'Prodigious',
           'build_time': 4,
           'requirement': 'One Tier Sophisticated'},
@@ -2456,7 +2458,7 @@ DOMAIN_BOARD = {
     "Prowess": {
         "Rising":      "Indomitable: In the Tally Phase, you may Support one of your own Prowess Envoys.",
         "Established": "Edict of War: May have an additional Army. Perform a Muster Action.",
-        "Sovereign":   "High Quartermaster: Upkeep -2000. May change equipment on your Armies during any Upkeep step while that Army is within your Province. No longer lose Influence while at War.",
+        "Sovereign":   "High Quartermaster: Supply -2000. May change equipment on your Armies during any Upkeep step while that Army is within your Province. No longer lose Influence while at War.",
     },
     "Cunning": {
         "Rising":      "Clandestine Councilor: In the Intrigue Phase, target an Envoy and a player with a lower Cunning value - that player Abstains that Envoy.",
@@ -3056,9 +3058,9 @@ _PU_TEXT = (f"Monument {_PU['Monument']}, Power {_PU['Power']}, "
             f"Energy/Natural {_PU['Energy']}, all others {_PU['Other']}")
 
 UPKEEP_TRACKS = {
-    f"Holdings ({DUES_TERM})": f"Each Empire Phase: {_HOLDING_COST_TEXT}.",
-    "Army (Upkeep)":  "Σ(each Army's cost by Retinue type) - Upkeep -X. Reduced by Levy Hall, Tannery, Saddlery, Butchery, Smokehouse, Advanced Blast Furnace, High Quartermaster, etc.",
-    f"Infrastructure ({DUES_TERM})": f"Listed per Infrastructure; {DUES_TERM} -X lowers Holding and Infrastructure {DUES_TERM}. Masonry removes Primitive; Trade Guild removes Developed; College of Engineering removes Sophisticated.",
+    f"Holdings ({UPKEEP_TERM})": f"Each Empire Phase: {_HOLDING_COST_TEXT}.",
+    f"Armies ({SUPPLY_TERM})": f"Σ(each Army's cost by Retinue type) - {SUPPLY_TERM} -X. Reduced by Levy Hall, Tannery, Saddlery, Butchery, Smokehouse, Advanced Blast Furnace, High Quartermaster, etc.",
+    f"Infrastructure ({UPKEEP_TERM})": f"Listed per Infrastructure; {UPKEEP_TERM} -X lowers Holding and Infrastructure {UPKEEP_TERM}. Masonry removes Primitive; Trade Guild removes Developed; College of Engineering removes Sophisticated.",
 }
 
 
@@ -3073,14 +3075,14 @@ def pursuit_upkeep(node):
     return PURSUIT_UPKEEP_BY_TYPE.get(t, PURSUIT_UPKEEP_DEFAULT)
 
 # 2) ARMY upkeep — formula note (per-retinue costs in RETINUES[*]["cost"]).
-ARMY_UPKEEP_NOTE = "Net Army Upkeep = the sum of each Army's cost (by Retinue type) - Upkeep -X modifiers."
+ARMY_UPKEEP_NOTE = f"Net Army {SUPPLY_TERM} = the sum of each Army's cost (by Retinue type) - {SUPPLY_TERM} -X modifiers."
 
 # ── ACTION / EMPIRE GOLD COSTS ───────────────────────────────────────────────
 # The flat costs the rules attach to actions and siege outcomes.
 COSTS = {
     "Build action":    f"{ACTIONS['Build']['cost']} (the Envoy action; the Holding then pays Holding upkeep each Empire Phase)",
     "Pursuit upkeep":  f"Each Empire Phase: {_HOLDING_COST_TEXT}",
-    "Army upkeep":     "sum of each Army's cost (by Retinue type) - Upkeep -X modifiers",
+    "Army upkeep":     f"sum of each Army's cost (by Retinue type) - {SUPPLY_TERM} -X modifiers",
     "Infrastructure upkeep": "Per-settlement (see INFRASTRUCTURE); Masonry removes Primitive, Trade Guild removes Developed, College of Engineering removes Sophisticated",
 
     "Sack":            f"Raze the top-most Holding of each Ward; Extort {SACK_EXTORT_PER_TIER} per settlement tier; reduce settlement by 1 tier; the controller removes one Ward (sacker's choice) and its Holdings; Sack Timer {TIMERS['Sack Timer']['default']}",
@@ -3174,7 +3176,7 @@ GLOSSARY.update({
     "Garrison":     ("An Army that exists within each of your Settlements while you have the Garrison Infrastructure, sized by that Settlement's Garrison value ("
                      + ", ".join(f"{t} {v['garrison']}" for t, v in SETTLEMENTS.items() if v.get("garrison")) + " Retinues). "
                      "Garrisons can't Perform actions or be targeted by actions, and may Sally Forth while their Settlement is under Siege. "
-                     "Garrisons have cost and Upkeep 0 and don't count toward your Army limit. All your Garrisons share the same "
+                     f"Garrisons have cost and {SUPPLY_TERM} 0 and don't count toward your Army limit. All your Garrisons share the same "
                      "Retinue type and equipment, and gain the benefits of all unlocked keywords that apply to your Armies."),
     "War Weariness":"Doubt 1 each Empire Phase per consecutive Battle you've lost.",
     "Settlement Ward": ("A slot in a Settlement that holds one Holding; a Settlement has one Ward per tier (a Hamlet has 3 Wards, Natural Holdings only)."
@@ -3514,12 +3516,12 @@ if __name__ == "__main__":
 # ── Keyword glossary: entries built from the data (so hovers/wiki stay in step with it) ──────────
 import re
 GLOSSARY.update({
-    "Natural": f"A Holding property: it pays no {DUES_TERM} and may be built in a Hamlet.",
-    "Upkeep":  ((f"Gold you pay each Empire Phase for your Armies: each Army's cost by Retinue type, minus every Upkeep -X "
-                f"(never below 0). Holdings and Infrastructure pay {DUES_TERM} instead.")),
-    DUES_TERM: ((f"Gold you pay each Empire Phase for your Holdings and Infrastructure. Holding {DUES_TERM} {_HOLDING_COST_TEXT}; "
-                 f"each Infrastructure lists its own. Nothing is paid while a piece is inactive (being built, Damaged, under Repair "
-                 f"or {SHUTTER_TERM}). {DUES_TERM} -X lowers the total, never below 0.")),
+    "Natural": f"A Holding property: it pays no {UPKEEP_TERM} and may be built in a Hamlet.",
+    SUPPLY_TERM: ((f"Gold you pay each Empire Phase for your Armies: each Army's cost by Retinue type, minus every "
+                   f"{SUPPLY_TERM} -X (never below 0). Holdings and Infrastructure pay {UPKEEP_TERM} instead.")),
+    UPKEEP_TERM: ((f"Gold you pay each Empire Phase for your Holdings and Infrastructure. Holding {UPKEEP_TERM} {_HOLDING_COST_TEXT}; "
+                   f"each Infrastructure lists its own. Nothing is paid while a piece is inactive (being built, Damaged, under Repair "
+                   f"or {SHUTTER_TERM}). {UPKEEP_TERM} -X lowers the total, never below 0.")),
     "Craft":   ((f"Your trade value, from every effect that gives Craft +X. For each active Trade Agreement, both players gain "
                 f"{TRADE_RULES['income_per_craft']} × the Host's Craft.")),
     CHAIN_TERM: ("A Holding's " + CHAIN_TERM + " is the line of Holdings it builds from, usually running from a Raw Material "
@@ -3527,9 +3529,9 @@ GLOSSARY.update({
                  + CHAIN_TERM + ", anywhere in your empire; this is checked only when you start it. A Holding placed in the "
                  "same Settlement Ward as its immediate parent shares that Ward, and the chain can continue upward the same way. "
                  "Each Holding carries at most one descendant in its Ward. (Core Principle 13.)"),
-    SHUTTER_TERM: (f"A Holding or Infrastructure set inactive while you're Insolvent because its {DUES_TERM} went unpaid. "
-                   f"It gives no effect and pays no {DUES_TERM}, but its {DUES_TERM} still counts toward what you owe. It's restored at "
-                   f"any Income & Upkeep step where you can pay its {DUES_TERM}. If it becomes Damaged, it's no longer {SHUTTER_TERM}."),
+    SHUTTER_TERM: (f"A Holding or Infrastructure set inactive while you're Insolvent because its {UPKEEP_TERM} went unpaid. "
+                   f"It gives no effect and pays no {UPKEEP_TERM}, but its {UPKEEP_TERM} still counts toward what you owe. It's restored at "
+                   f"any Income & Upkeep step where you can pay its {UPKEEP_TERM}. If it becomes Damaged, it's no longer {SHUTTER_TERM}."),
     "Speed X":         f"An Army's movement in Territories per Move action. Base Speed is {RETINUES['Levy']['speed']}.",
     "Pursuit":   (f"A building you Build into a Settlement Ward, or into its {CHAIN_TERM} parent's Ward. Its effect applies while it's active."),
     "Retinue":   "A single unit within an Army, represented by a single die roll for Strikes, Saves, etc.",
@@ -3735,7 +3737,7 @@ GLOSSARY.update({
                         + ", ".join(f"{k} {v['renown']}" for k, v in ERAS.items() if v["renown"] > 1) + ")."),
     "Era":             f"The stage of the game, set by Renown: {', '.join(ERAS)}. It sets Envoys, Influence and other limits.",
     "Season":          f"{', '.join(SEASONS)}: one per turn, each with its own effect; the Rest Phase advances it.",
-    "Empire Phase":    f"The first phase of the turn: Timers, Bandits, Influence and Envoys, income, Upkeep and {DUES_TERM}, then Public Order.",
+    "Empire Phase":    f"The first phase of the turn: Timers, Bandits, Influence and Envoys, income, {SUPPLY_TERM} and {UPKEEP_TERM}, then Public Order.",
     "Envoy Phase":     "Every player sends their Envoys; they are voted on, then resolved Domain by Domain.",
     "Battle Phase":    "Battles and Sieges begun this turn resolve.",
     "Rest Phase":      "The end of the turn: discard unused Envoys and Influence, advance the Season, score Renown and a Domain Point, pass the Host.",
@@ -3749,11 +3751,11 @@ GLOSSARY.update({
     "Settlement":      ("A Village, Town, City or Metropolis (or your Hamlet). It earns Tax Income each Winter, holds Holdings in its Wards, "
                         "has a Muster Limit, and controls Territory by its Reach."),
     "Hamlet":          f"Your farmland Settlement, placed at setup: no Tax Income or Muster Limit, {SETTLEMENTS['Hamlet']['wards']} Wards for Natural Holdings only.",
-    "Army":            "Retinues on the map under your Control. Armies Move, Battle and Lay Siege, and pay Upkeep by Retinue type.",
+    "Army":            f"Retinues on the map under your Control. Armies Move, Battle and Lay Siege, and pay {SUPPLY_TERM} by Retinue type.",
     "Infrastructure":  (f"An empire-wide building that applies to every Settlement you have. {len(INFRA_TIERS)} tiers, {INFRA_TIERS[0]} "
                         f"to {INFRA_TIERS[-1]}; each needs one active Infrastructure of the tier below."),
     "Wonder":          "Wondrous-tier Infrastructure, one per game. Several players may build the same Wonder; the first to finish takes it.",
-    "Damaged":         f"A Holding or Infrastructure hit by Raze, Sack or Bandits: it has no effect and pays no {DUES_TERM} until Repaired.",
+    "Damaged":         f"A Holding or Infrastructure hit by Raze, Sack or Bandits: it has no effect and pays no {UPKEEP_TERM} until Repaired.",
     "Lay Siege":       "A Move that ends Adjacent to an at-war Settlement, starting its Siege Timer.",
     "Capture":         "When a Siege resolves in your favor: set a Capture Timer; when it resolves, the Settlement comes under your Control.",
     "Sack":            (f"When a Siege resolves in your favor: Damage the top Holding of each Ward, Extort {SACK_EXTORT_PER_TIER} per "
@@ -3772,7 +3774,7 @@ GLOSSARY_CATEGORIES = [
     ('Actions', ['Muster', 'Build', 'Improve', 'Repair', 'Settle', 'Expand', 'Move', 'Demand Tribute', 'Diplomacy']),
     ('Treaties', ['Treaty', 'Alliance', 'Vassal', 'Suzerain']),
     ('War', ['At War', 'Lay Siege', 'Siege', 'Capture', 'Sack', 'Pillage', 'Sally Forth']),
-    ('Economy & Public Order', ['Treasury', 'Upkeep', DUES_TERM, 'Insolvent', 'Bankrupt', SHUTTER_TERM, 'Trade Agreement', 'Trade Partner',
+    ('Economy & Public Order', ['Treasury', SUPPLY_TERM, UPKEEP_TERM, 'Insolvent', 'Bankrupt', SHUTTER_TERM, 'Trade Agreement', 'Trade Partner',
                                 'Craft', 'Can Trade', 'Public Order', 'Faith X', 'Doubt X', 'Extort X', 'Recoup X', 'War Weariness']),
     ('Settlements & Holdings', ['Settlement', 'Hamlet', 'Settlement Ward', 'Pursuit', 'Root', 'Natural', 'Monument', CHAIN_TERM,
                                 CHAIN_TERM + " X", 'Infrastructure', 'Wonder', 'Damaged']),
@@ -3813,7 +3815,7 @@ GLOSSARY_SEE = {
     'Diplomacy': 'diplomacy-actions',
     'Treaty': 'treaties-alliances', 'Alliance': 'treaties-alliances', 'Vassal': 'vassalization', 'Suzerain': 'vassalization',
     'Public Order': 'public-order', 'Faith X': 'public-order', 'Doubt X': 'public-order',
-    'Upkeep': 'treasury-upkeep', DUES_TERM: 'treasury-upkeep', SHUTTER_TERM: 'insolvency-bankruptcy', 'Craft': 'who-can-trade', 'Can Trade': 'who-can-trade',
+    SUPPLY_TERM: 'treasury-upkeep', UPKEEP_TERM: 'treasury-upkeep', SHUTTER_TERM: 'insolvency-bankruptcy', 'Craft': 'who-can-trade', 'Can Trade': 'who-can-trade',
     'War Weariness': 'innate-public-order-modifiers',
     'Settlement Ward': 'settlement-wards', CHAIN_TERM: 'mastery-chain', CHAIN_TERM + " X": 'mastery-chain',
     'Root': 'root',
@@ -3908,9 +3910,9 @@ def holding_upkeep(text):
     for c in _re_disp.split(r";|\.\s+|\.$", _ht_strip(text)):
         cond = bool(_re_disp.search(r"\b(while|if|when)\b", c, _re_disp.I))
         f = COND_UPKEEP_FACTOR if cond else 1.0
-        if _re_disp.search(r"\bdo(?:es)? not pay Upkeep\b|\bdon't pay Upkeep\b", c, _re_disp.I):
+        if _re_disp.search(rf"\bdo(?:es)? not pay {SUPPLY_TERM}\b|\bdon't pay {SUPPLY_TERM}\b", c, _re_disp.I):
             out.append({"all": True, "factor": f}); continue
-        m = _re_disp.search(r"(?<!No )\bUpkeep\s*-\s*(\d+)", c, _re_disp.I)
+        m = _re_disp.search(rf"(?<!No )\b{SUPPLY_TERM}\s*-\s*(\d+)", c, _re_disp.I)
         if m:
             out.append({"amount": int(m.group(1)), "factor": f})
     return out

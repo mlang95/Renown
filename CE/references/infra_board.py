@@ -60,7 +60,7 @@ def infra_row(c, x, y, w, name, tier, upkeep):
     while fs > 6 and c.stringWidth(_D(name), SERIF_B, fs) > room: fs -= 0.25
     c.setFont(SERIF_B, fs); c.setFillColor(INK); c.drawString(x + 10, y - 12, name)
     c.setFont(SERIF, 6.5); c.setFillColor(TAG)
-    c.drawString(x + 10, y - 21, f"{getattr(rd, 'DUES_TERM', 'upkeep').lower()} {upkeep}" if upkeep else "free")
+    c.drawString(x + 10, y - 21, f"{getattr(rd, 'UPKEEP_TERM', 'upkeep').lower()} {upkeep}" if upkeep else "free")
     # 4 player pip guides on the right
     c.setStrokeColor(col); c.setLineWidth(0.8)
     for k in range(4):

@@ -47,8 +47,8 @@
 <rect x="374" y="64" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="374" y="64" width="5" height="24" fill="#6a6a72"/>
 <text x="383" y="79" font-size="8.2" fill="#2b2620">Saddlery</text>
-<rect x="546" y="100" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="546" y="100" width="5" height="24" fill="#6a6a72"/>
+<rect x="546" y="100" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
+<rect x="546" y="100" width="5" height="24" fill="#9E2B25"/>
 <text x="555" y="115" font-size="8.2" fill="#2b2620">Smokehouse</text>
 <rect x="546" y="136" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="546" y="136" width="5" height="24" fill="#6a6a72"/>
@@ -84,6 +84,8 @@
 <path d="M344,210 L344,282" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95"/>
 <path d="M344,210 L368,210" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M344,210 L368,210" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M344,246 L368,246" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M344,246 L368,246" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M344,282 L368,282" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M344,282 L368,282" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M492,246 L539,246" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -188,11 +190,11 @@
 <rect x="374" y="368" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
 <rect x="374" y="368" width="5" height="24" fill="#1c1c20"/>
 <text x="383" y="383" font-size="8.2" fill="#2b2620">Villein Hovels</text>
-<rect x="546" y="332" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="546" y="332" width="5" height="24" fill="#6a6a72"/>
+<rect x="546" y="332" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
+<rect x="546" y="332" width="5" height="24" fill="#9E2B25"/>
 <text x="555" y="347" font-size="8.2" fill="#2b2620">Smokehouse</text>
-<rect x="546" y="368" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="546" y="368" width="5" height="24" fill="#6a6a72"/>
+<rect x="546" y="368" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
+<rect x="546" y="368" width="5" height="24" fill="#1c1c20"/>
 <text x="555" y="383" font-size="8.2" fill="#2b2620">Tally House</text>
 <rect x="718" y="332" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
 <rect x="718" y="332" width="5" height="24" fill="#9E2B25"/>
@@ -256,8 +258,8 @@
 <rect x="374" y="492" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
 <rect x="374" y="492" width="5" height="24" fill="#1c1c20"/>
 <text x="383" y="507" font-size="8.2" fill="#2b2620">Villein Hovels</text>
-<rect x="546" y="492" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="546" y="492" width="5" height="24" fill="#6a6a72"/>
+<rect x="546" y="492" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
+<rect x="546" y="492" width="5" height="24" fill="#1c1c20"/>
 <text x="555" y="507" font-size="8.2" fill="#2b2620">Tally House</text>
 <rect x="718" y="492" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
 <rect x="718" y="492" width="5" height="24" fill="#1c1c20"/>

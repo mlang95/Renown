@@ -188,12 +188,13 @@ function gkHtml(e){
   const r=(e.k==="w"?WON:INFRA)[e.t]||{};
   return '<div class="gh">'+esc(e.t)+' <span class="note">'+(e.k==="w"?"Wonder":esc(r.tier||"Infrastructure"))+'</span></div>'+
     (r.requirement?'<div class="note">Requires: '+esc(r.requirement)+'</div>':'')+
-    '<div><b>Effect</b> '+esc(r.effect_raw||"—")+'</div>'+(r.upkeep?'<div class="note">Upkeep '+esc(r.upkeep)+'</div>':'')+
+    '<div><b>Effect</b> '+esc(r.effect_raw||"—")+'</div>'+(r.upkeep?'<div class="note">'+UPKEEP()+' '+esc(r.upkeep)+'</div>':'')+
     wikiA("infrastructure-ref.html#"+gslug(e.t))+
     (((e.k==="w"?S.wonders:S.infra)||{})[e.t]?'<div class="note">✓ in your '+(e.k==="w"?'Wonders':'Infrastructure')+'</div>'
       :'<div><button data-addi="'+(e.k==="w"?"wonder":"infra")+'|'+esc(e.t)+'">+ add to '+(e.k==="w"?'Wonders':'Infrastructure')+'</button></div>');}
 const GKT=document.createElement("div");GKT.id="gkTip";document.body.appendChild(GKT);
-document.querySelectorAll("[data-dues]").forEach(e=>{e.textContent=DUES();});   // static labels: DUES_TERM
+document.querySelectorAll("[data-upkeep]").forEach(e=>{e.textContent=UPKEEP();});   // static labels: UPKEEP_TERM / SUPPLY_TERM
+document.querySelectorAll("[data-supply]").forEach(e=>{e.textContent=SUPPLY();});
 // Deep link from the wiki: settlement_board.html#h=<Holding | Infrastructure | Wonder | glossary term> opens its card.
 function openFromHash(){const m=(location.hash||"").match(/^#h=(.+)$/);if(!m)return;let n;try{n=decodeURIComponent(m[1]);}catch(e){return;}
   const idx=GK_BY[esc(n)]!=null?GK_BY[esc(n)]:GK_LC[esc(n).toLowerCase()];if(idx==null)return;

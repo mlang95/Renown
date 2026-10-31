@@ -125,7 +125,7 @@ function renderList(){
         meta.title=(!rs.ok?"missing: "+rs.missing.join(", "):"")+(rs.manual?(rs.ok?"":"\n")+"check manually: "+rs.toks.filter(x=>x.ok===null).map(x=>x.tok).join(", "):"");
         if(!rs.ok)meta.style.color="var(--upkeep)";row.querySelector(".rtop").insertBefore(meta,row.querySelector(".addbtn"));}
       const bt=infraBuildTime(n);
-      sub(row,[r.tier,DUES()+" "+(r.upkeep||0),"Build Timer "+bt].concat(r.requirement?["req: "+r.requirement]:[]).join(" · "),r.effect_raw);
+      sub(row,[r.tier,UPKEEP()+" "+(r.upkeep||0),"Build Timer "+bt].concat(r.requirement?["req: "+r.requirement]:[]).join(" · "),r.effect_raw);
       tip(row,[r.effect_raw,r.requirement?"Requires: "+r.requirement:""]);
       list.appendChild(row);
     });
@@ -171,7 +171,7 @@ function pursuitRow(n){
   if(r.unlock_raw&&r.unlock_raw!=="-"&&r.unlock_raw!=="—"&&(!CAT.avail||us.manual)){const m=document.createElement("span");m.className="meta";
     m.textContent=(us.ok?(us.manual?"? ":""):"🔒 ")+r.unlock_raw;m.title=us.toks.map(x=>(x.ok===false?"✗ ":x.ok?"✓ ":"? ")+x.t+" — "+x.why).join("\n");
     if(!us.ok)m.style.color="var(--upkeep)";row.querySelector(".rtop").insertBefore(m,row.querySelector(".addbtn"));}
-  const parts=[NATURAL.has(n)?"Natural":DUES()+" "+catUpkeep(n),"Build Timer "+pursuitBuildTime(n)];
+  const parts=[NATURAL.has(n)?"Natural":UPKEEP()+" "+catUpkeep(n),"Build Timer "+pursuitBuildTime(n)];
   parts.unshift(r.type);
   sub(row,parts.join(" · "),NATURAL.has(n)?(r.innate_raw||"").replace(/^Natural\s*[;,.]\s*/i,""):r.innate_raw);
   tip(row,[r.innate_raw,(r.efficient||[]).length?"Efficient: "+r.efficient.join(", "):"",r.unlock_raw&&r.unlock_raw!=="-"&&r.unlock_raw!=="—"?"Unlock: "+r.unlock_raw:""]);
@@ -380,7 +380,7 @@ function atomEl(a){
 // and plain numbers ("Natural", "Gold +500", "Craft +2") as chips, every other part on its own line. A part that
 // starts lower-case continues the one before it.
 let FX_CHIP_RE=null;
-function FX_CHIP_TEST(p){if(!FX_CHIP_RE)FX_CHIP_RE=new RegExp("^(?:Natural|Can Trade|Can Muster|(?:Gold|Craft|Influence|Authority|Max Influence|Faith|Doubt|Reach|Speed|Siege Timer|Build Timer|Muster Timer|Upkeep|"+DUES()+"|Muster Limit|Tax Income)\\s+[+\\-−]\\s?\\d+(?:\\s+in\\s+(?:Winter|Spring|Summer|Fall))?)$");return FX_CHIP_RE.test(p);}
+function FX_CHIP_TEST(p){if(!FX_CHIP_RE)FX_CHIP_RE=new RegExp("^(?:Natural|Can Trade|Can Muster|(?:Gold|Craft|Influence|Authority|Max Influence|Faith|Doubt|Reach|Speed|Siege Timer|Build Timer|Muster Timer|"+UPKEEP()+"|"+SUPPLY()+"|Muster Limit|Tax Income)\\s+[+\\-−]\\s?\\d+(?:\\s+in\\s+(?:Winter|Spring|Summer|Fall))?)$");return FX_CHIP_RE.test(p);}
 function fxParts(raw){const out=[];String(raw||"").split(/;\s*/).forEach(p=>{p=p.trim();if(!p||/^[-—]$/.test(p))return;
   if(out.length&&/^[a-z]/.test(p))out[out.length-1]+="; "+p;else out.push(p);});return out;}
 function effectView(raw,atoms,hideCombat){
@@ -956,7 +956,7 @@ function accChips(acc){
   ["gold","upkeep","dues","craft","influence","faith","doubt"].forEach(catk=>{
     if(!acc[catk])return;const ph=PHASE[catk],col=cvar(PHASE_COLOR[ph]);
     const s=document.createElement("span");s.className="atom";s.style.borderColor=col;s.style.color=col;
-    s.textContent=(catk==="dues"?DUES():cap(catk))+" "+(acc[catk]>0?"+":"")+acc[catk];wrap.appendChild(s);});
+    s.textContent=(catk==="dues"?UPKEEP():catk==="upkeep"?SUPPLY():cap(catk))+" "+(acc[catk]>0?"+":"")+acc[catk];wrap.appendChild(s);});
   return wrap;
 }
 function pursuitDetail(r,hideCombat,me,inst,have,craft,tc){
@@ -1132,7 +1132,7 @@ function renderInfraSection(kind,src,have,hideCombat){
     if(!rs.ok&&rf==="on")card.classList.add("illegal");
     itm();const isFac=S.facInfra.includes(n);
     if(isFac){const fb=document.createElement("span");fb.className="badge earn";fb.textContent="Faction";h.appendChild(fb);}
-    if(r.upkeep&&!isFac){const ub=document.createElement("span");ub.className="badge";ub.style.borderColor="var(--upkeep)";ub.style.color="var(--upkeep)";ub.textContent=DUES()+" "+r.upkeep;h.appendChild(ub);}
+    if(r.upkeep&&!isFac){const ub=document.createElement("span");ub.className="badge";ub.style.borderColor="var(--upkeep)";ub.style.color="var(--upkeep)";ub.textContent=UPKEEP()+" "+r.upkeep;h.appendChild(ub);}
     if(S.itimer[n]>0)h.appendChild(timerCtl("build",S.itimer[n],d=>{S.itimer[n]=Math.max(0,S.itimer[n]+d);if(!S.itimer[n])delete S.itimer[n];save();render();}));
     if(S.idmg[n]>0)h.appendChild(timerCtl("repair",S.idmg[n],d=>{S.idmg[n]=Math.max(0,S.idmg[n]+d);if(!S.idmg[n])delete S.idmg[n];save();render();}));
     if(S.idmg[n]>0&&dmgSrcOf(S,n)){const ds=document.createElement("span");ds.className="neg";ds.textContent=dmgSrcOf(S,n);h.appendChild(ds);}
@@ -1147,7 +1147,7 @@ function renderInfraSection(kind,src,have,hideCombat){
     if(!open){const sum=accChips(contribAcc({innate:r.atoms},false));sum.style.marginTop="5px";if(sum.children.length)card.appendChild(sum);}   // as a Holding's cursory view
     if(open){
       const sub=document.createElement("div");sub.className="sub";
-      sub.textContent=DUES()+" "+(isFac?0:r.upkeep)+(r.requirement?(" · req: "+r.requirement):"");card.appendChild(sub);
+      sub.textContent=UPKEEP()+" "+(isFac?0:r.upkeep)+(r.requirement?(" · req: "+r.requirement):"");card.appendChild(sub);
       {const tl=document.createElement("div");tl.className="sub";
         const bb=document.createElement("button");bb.textContent="build timer";bb.onclick=e=>{e.stopPropagation();const t=infraBuildTime(n);if(t>0){S.itimer[n]=t;save();render();flash(n+" Build Timer "+t+buildNote(infraBaseTime(n)));}else flash(n+": Build Timer 0 — builds immediately"+buildNote(infraBaseTime(n)));};
         const db=document.createElement("button");db.textContent=S.idmg[n]>0?"repaired":"damage";db.onclick=e=>{e.stopPropagation();if(S.idmg[n]>0)delete S.idmg[n];else{S.idmg[n]=REPAIR_T;delete S.ishut[n];}if(S.idmgBy)delete S.idmgBy[n];save();render();};
@@ -1355,7 +1355,7 @@ function armyCard(a,u){
   lab.oninput=()=>{a.label=lab.value;save();};top.appendChild(lab);
   const mor=document.createElement("span");mor.className="badge "+(routed?"noearn":"tier");
   {const ms=moraleStanding(a),mp=moralePO(a);mor.textContent="morale "+effMorale(a)+"+"+(a.fatigue||ms||mp?(" ("+moraleBase(a)+"+"+(a.fatigue?" +"+((BT.fatigueMorale??2)*a.fatigue):"")+(mp?" +"+mp.n+" "+mp.src:"")+(ms?" −"+ms.n+" "+ms.src:"")+")"):"");}top.appendChild(mor);
-  const upL=document.createElement("span");upL.className="note";upL.textContent="upkeep";top.appendChild(upL);
+  const upL=document.createElement("span");upL.className="note";upL.textContent=SUPPLY().toLowerCase();top.appendChild(upL);
   const up=document.createElement("b");up.textContent=fmt(-armyUpkeep(a));up.title=a.retinue+" Army cost";top.appendChild(up);
   const rm=document.createElement("button");rm.className="rm";rm.textContent="✕";
   rm.onclick=()=>{S.armies=S.armies.filter(x=>x!==a);save();render();};top.appendChild(rm);
@@ -1551,7 +1551,7 @@ function calcMetrics(have,earned,tc){
      danegeldRows(me).forEach(x=>{extort+=x.amt;});   // Danegeld: upkeep still owed here; the at-war controller pays it (Extort, Empire Phase)
      if(lh.length&&S.armies.some(a=>{const k=armyHex(me,a);return k&&(S.settlements||[]).some(s=>settHex(me,s)===k);}))lh.forEach(x=>{reduce+=+x.m[1];});}}
   // Standing "Upkeep -N" (High Quartermaster), earned or via Studium Generale
-  dbActive(S).forEach(x=>{const m=String(x.text).match(/Upkeep\s*[−-]\s*([\d,]+)/i);if(m)reduce+=+m[1].replace(/,/g,"");});
+  dbActive(S).forEach(x=>{const m=String(x.text).match(new RegExp(SUPPLY()+"\\s*[−-]\\s*([\\d,]+)","i"));if(m)reduce+=+m[1].replace(/,/g,"");});
   const pursUp=S.placed.reduce((a,p)=>a+pursuitUpkeep(p),0);
   const armyGross=S.armies.reduce((s,a)=>s+armyUpkeep(a),0);
   const netArmy=Math.max(0,armyGross-reduce);
@@ -1644,7 +1644,7 @@ function goldBreak(b,season){return withBoard(b,()=>{const have=new Set(Object.k
   if(sa)inc.push([sea,sa]);if(tx)inc.push(["Winter tax",tx]);if(tr)inc.push(["Trade",tr]);
   const nh=S.placed.filter(q=>pursuitUpkeep(q)>0).length,ni=Object.keys(S.infra||{}).concat(Object.keys(S.wonders||{})).filter(infraOn).length;
   if(m.pursUp)cost.push(["Holdings ×"+nh,-m.pursUp]);if(m.infraUp)cost.push(["Infrastructure & Wonders ×"+ni,-m.infraUp]);
-  if(m.armyGross)cost.push(["Armies ×"+S.armies.length,-m.armyGross]);if(m.duesCut)cost.push([DUES()+" −X",m.duesCut]);if(m.armyGross&&m.reduce)cost.push(["Upkeep −X (Armies)",Math.min(m.reduce,m.armyGross)]);
+  if(m.armyGross)cost.push(["Armies ×"+S.armies.length,-m.armyGross]);if(m.duesCut)cost.push([UPKEEP()+" −X",m.duesCut]);if(m.armyGross&&m.reduce)cost.push([SUPPLY()+" −X",Math.min(m.reduce,m.armyGross)]);
   return {inc,cost,sea,net:m.baseNet+sa+tx+tr};});}
 const gbV=v=>(v>0?"+":v<0?"\u2212":"")+Math.abs(v).toLocaleString();
 // Treasury figure in the Ledger header + the Gold log (also after typing / ± buttons, which don't re-render)

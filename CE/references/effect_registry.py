@@ -24,11 +24,11 @@ for the once-per tracker, the Realm action dock and ENVOY_WINDOW_REVIEW.md.
 import json, re
 
 SPLIT = re.compile(r";|\.\s+|\.$")
-try:                                   # DUES_TERM: what Holdings and Infrastructure cost (renown_data)
-    from renown_data import DUES_TERM as _DUES
+try:                                   # cost words (renown_data): Holdings / Infrastructure, and Armies
+    from renown_data import UPKEEP_TERM as _UPKEEP, SUPPLY_TERM as _SUPPLY
 except Exception:
-    _DUES = "Dues"
-_COST = "(?:Upkeep|" + re.escape(_DUES) + ")"
+    _UPKEEP, _SUPPLY = "Upkeep", "Supply"
+_COST = "(?:" + "|".join(sorted({"Upkeep", re.escape(_UPKEEP)})) + ")"
 F = re.I | re.A
 
 # id -> (scope, source kinds, pattern); kinds are letters: h i w f F, M = hm (Holding Mastery text)
@@ -93,9 +93,9 @@ REG = {
     "siege_double":        ("clause", "hiwf", r"Siege Timers (?:increment|count down) twice each turn"),
     "spoils_always":       ("clause", "hiwf", r"collect the Spoils of War whether you win or lose"),
     "faith_battle_loss":   ("clause", "hiwf", r"Faith \+(\d+) in every Battle where you lose (\d+) or more Retinues"),
-    "army_free_province":  ("clause", "hiwf", r"Armies do not pay Upkeep while in (?:your )?Province"),
-    "army_upkeep_outside": ("clause", "hiwf", r"Upkeep -(\d+) while not in (?:your )?Province"),
-    "army_upkeep_home":    ("clause", "hiwf", r"Upkeep -(\d+) while an army is (?:within )?range 0 of (?:controlled settlement|a Settlement you Control)"),
+    "army_free_province":  ("clause", "hiwf", r"Armies do not pay " + _SUPPLY + r" while in (?:your )?Province"),
+    "army_upkeep_outside": ("clause", "hiwf", _SUPPLY + r" -(\d+) while not in (?:your )?Province"),
+    "army_upkeep_home":    ("clause", "hiwf", _SUPPLY + r" -(\d+) while an army is (?:within )?range 0 of (?:controlled settlement|a Settlement you Control)"),
     "danegeld":            ("clause", "hiwf", r"While At War, your Armies (?:within reach of at-war Settlements Extort their upkeep|pay no upkeep in Territory your at-war player controls)"),
     # ---- movement triggers (Toll House, Beacon Towers) ----
     "toll_extort":         ("clause", "hiwf", r"Extort (\d+) when non-allied Army ends a Move action within your Province"),

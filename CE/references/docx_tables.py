@@ -338,7 +338,7 @@ def infrastructure():
     rows = [[n, v.get("tier", ""), str(v.get("upkeep", "")), str(v.get("build_time", "")),
              v.get("requirement", ""), v.get("empire_bonus", "")]
             for n, v in rd.INFRASTRUCTURE.items()]
-    return _table(["Infrastructure", "Tier", getattr(rd, "DUES_TERM", "Upkeep"), "Build Time", "Requirement", "Empire Bonus"], rows)
+    return _table(["Infrastructure", "Tier", getattr(rd, "UPKEEP_TERM", "Upkeep"), "Build Time", "Requirement", "Empire Bonus"], rows)
 
 _TAC_BASE = {"Hill": "Grassland", "Open Field": "Grassland", "Mire": "Wetlands", "Forest": "Forest",
              "Tundra": "Tundra", "Mountains": "Mountains", "Water": "Water"}

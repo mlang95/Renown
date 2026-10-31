@@ -370,7 +370,7 @@ function inspArmy(k){const {p,a}=cellArmy(k),cell=mapState().cells[k];if(!p)retu
   const en=Math.max(0,a.endurance||0);h+='<div class="ir"><span class="k">Endurance</span>'+(en?(en<=8?stIcon("endurance",13).repeat(en):stIcon("endurance",13)+" ×"+en):'<span class="neg">0</span>')+'</div>';
   const S_=armyStatus(p,a,k);h+='<div class="sec">Status</div>'+(S_.length?S_.map(o=>'<div class="ist">'+stIcon(o.st,16)+'<span>'+esc(o.txt)+'</span></div>').join(""):'<div class="note">—</div>');
   const mods=u.mods||[];h+='<div class="sec">Effects</div>'+(mods.length?'<div class="ir">'+mods.map(md=>'<span class="kw mod" data-tok="'+esc(md.tok)+'" title="'+esc(gloss(md.tok)+" — "+(md.node||""))+'">'+esc(md.tok)+'</span>').join("")+'</div>':'<div class="note">—</div>');
-  h+='<div class="sec">Gold</div><div class="ir"><span class="k">Upkeep</span><b class="neg">'+g$(-armyUpkeep(a))+'</b><span class="k">· all Armies net</span><b class="neg">'+g$(-m.netArmy)+'</b></div>'+
+  h+='<div class="sec">Gold</div><div class="ir"><span class="k">'+SUPPLY()+'</span><b class="neg">'+g$(-armyUpkeep(a))+'</b><span class="k">· all Armies net</span><b class="neg">'+g$(-m.netArmy)+'</b></div>'+
     '<div class="ir"><span class="k">Spoils of War (if defeated)</span><b>'+(+rt.cost||0).toLocaleString()+'</b></div>';
   {const x=armyInside(p,a);if(x)h=h.replace('<div class="ir">','<div class="ir"><span class="badge tier">inside '+esc(x.s.name||x.s.tier)+(sameP(x.q,p)?'':' ('+esc(x.q.name)+')')+'</span>');}
   {const sa=selArmy();if(sa&&sa.a===a)h+=movePanelHTML();else if(canMoveArmy(p))h+='<div class="ir"><button data-insp-sel="'+p.id+':'+a.id+'" data-nav="1">Move ▸</button>'+armyMusterBtn(p,a)+'</div>';}

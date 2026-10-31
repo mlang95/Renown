@@ -55,8 +55,9 @@ SCALE_RE  = re.compile(r"\+?(\d+)\s*(?:gold\s*)?(?:for each|per)\s+active\s+(\w+
 CRAFT_RE  = re.compile(r"Craft\s*\+?\s*(\d+)", re.I)
 FAITH_RE  = re.compile(r"Faith\s*\+?\s*(\d+)", re.I)
 DOUBT_RE  = re.compile(r"Doubt\s*\+?\s*(\d+)", re.I)
-UPKEEP_RE = re.compile(r"Upkeep\s*(-?\d{2,})", re.I)
-DUES_RE   = re.compile(r"Dues\s*(-?\d{2,})", re.I)   # DUES_TERM; set from the data in build()
+# cost reducers, set from the data in build(): "<UPKEEP_TERM> -X" (Holdings / Infrastructure) and "<SUPPLY_TERM> -X" (Armies)
+BLD_COST_RE  = re.compile(r"Upkeep\s*(-?\d{2,})", re.I)
+ARMY_COST_RE = re.compile(r"Supply\s*(-?\d{2,})", re.I)
 AUTH_RE   = re.compile(r"Authority\s*([+\-\u2212]\s?\d+)")   # Envoy score modifier (TERM_ENVOY_SCORE)
 INFL_RE   = re.compile(r"(?:(?<!Max )Influence\s*([+-]\s?\d+))|(?:([+-]\s?\d+)\s*Influence)", re.I)   # Influence tokens (canon "Influence +N"; "Max Influence +N" is the vote limit)
 EXTORT_RE = re.compile(r"Extort\s*(\d+)", re.I)
@@ -116,10 +117,10 @@ def classify(clause):
         return finish("extort", v, set())
     if re.search(r"recoup|loan|tithe", c, re.I):
         atom.update(cat="recoup", cond=True); return atom
-    if DUES_RE.search(c):                     # Holding / Infrastructure cost (Army costs are "Upkeep")
-        return finish("dues", to_int(DUES_RE.search(c).group(1)), {"dues"})
-    if UPKEEP_RE.search(c):
-        return finish("upkeep", to_int(UPKEEP_RE.search(c).group(1)), {"upkeep"})
+    if BLD_COST_RE.search(c):                 # Holding / Infrastructure cost (atom cat "dues")
+        return finish("dues", to_int(BLD_COST_RE.search(c).group(1)), {"dues"})
+    if ARMY_COST_RE.search(c):                # Army cost (atom cat "upkeep": the Army reduction pool)
+        return finish("upkeep", to_int(ARMY_COST_RE.search(c).group(1)), {"upkeep"})
     if FAITH_RE.search(c):
         return finish("faith", to_int(FAITH_RE.search(c).group(1)), {"faith"})
     if DOUBT_RE.search(c):
@@ -430,8 +431,9 @@ def classify_req_token(tok, names, settle_names):
 
 # ---------- build records ----------
 def build(ns):
-    global DUES_RE
-    DUES_RE = re.compile(re.escape(ns.get("DUES_TERM", "Dues")) + r"\s*(-?\d{2,})", re.I)
+    global BLD_COST_RE, ARMY_COST_RE
+    BLD_COST_RE = re.compile(re.escape(ns.get("UPKEEP_TERM", "Upkeep")) + r"\s*(-?\d{2,})", re.I)
+    ARMY_COST_RE = re.compile(re.escape(ns.get("SUPPLY_TERM", "Supply")) + r"\s*(-?\d{2,})", re.I)
     N = ns["NODES"]
     names = set(N.keys())
     settle_names = set(ns.get("SETTLEMENTS", {}).keys())
@@ -896,7 +898,7 @@ def bandit_loadouts(ns, equip):
 RULES_CONSTS = ("PHASES", "MARCH_MULTIPLIER", "MUSTER_RANGE", "CHARTER_MIN_RANGE", "HAMLET_RANGE",
                 "OUTLAW_BUFFER_RANGE", "SACK_EXTORT_PER_TIER", "INTERCEPT_EXTORT_PER_CRAFT", "WEALTH_EDICT_GOLD", "EDICT_UNIQUE", "CUNNING_EXTORT", "GAME_TURN_LIMIT", "VASSAL_EXCHANGE_CAP",
                 "BLUNDER_THR", "STANDING_ARMY_SIEGE_MODIFIER", "BANDIT_BEHAVIOR", "UPKEEP_TRACKS",
-                "GLOSSARY_CATEGORIES", "STARTING_TREASURY", "EMPIRE_START_TIERS", "TERM_ENVOY_SCORE", "SHUTTER_TERM", "DUES_TERM", "RENOWN_MAX",
+                "GLOSSARY_CATEGORIES", "STARTING_TREASURY", "EMPIRE_START_TIERS", "TERM_ENVOY_SCORE", "SHUTTER_TERM", "UPKEEP_TERM", "SUPPLY_TERM", "RENOWN_MAX",
                 "CAPITAL_EDGE_RANGE", "AGE_YEAR_SEASON",
                 "PRESENCE_RANGE", "FAITH_FICKLE_PO", "WARD_MODEL", "SETUP_HAMLET_HOLDINGS",
                 "SETUP_CAPITAL_PICKS", "SETUP_HAMLET_PICKS", "HAMLET_REPEATABLE", "AGE_YEAR_ROLL_MEAN", "AGE_YEAR_ROLL_SD",
