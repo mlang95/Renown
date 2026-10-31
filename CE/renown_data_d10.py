@@ -9,7 +9,7 @@ SIMPLE = True
 # Industry actions, no Envoy); in Spring the Envoy Phase is the Diplomacy Phase (offers between players; no Envoys), the only one
 PHASE_REFORM = _os.environ.get("RENOWN_PHASES", "1") == "1"
 vS = "-S"
-VERSION = f"0.4.9.9.13-d10{vS}"
+VERSION = f"0.4.9.9.15-d10{vS}{PHASE_REFORM}"
 # ── DICE ─────────────────────────────────────────────────────────────────────
 # Single source for die size, shared with the combat engines. Every threshold
 # string below is an f-string built from these, so changing the die rewrites the
@@ -41,7 +41,7 @@ BLUNDER_THR = CAP_THR   # Blunder sets to-Strike to the worst printable target
 DICE_PROVENANCE = (f"d{FACES} | Focused {FOCUSED_THR}+ | Parry {PARRY_BASE}+ | "
                    f"Recover {RECOVER_BASE}+ | src {DICE_SOURCE}")
 # ── Balance constants (rules text + data strings read these) ─────────────────
-SACK_EXTORT_PER_TIER = 2000
+SACK_EXTORT_PER_TIER = 4000
 INTERCEPT_EXTORT_PER_CRAFT = 100   # Intercept Caravan: Extort this x target's Craft when they have no Trade Income
 WEALTH_EDICT_GOLD    = 50000
 MUSTER_RANGE         = 2

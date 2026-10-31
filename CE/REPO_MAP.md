@@ -1,6 +1,6 @@
 # REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`)
 
-Generated 2026-10-31 · data VERSION `0.4.9.9.13-d10-S` · HEAD `e90a7cd1 2026-10-31`
+Generated 2026-10-31 · data VERSION `0.4.9.9.15-d10-STrue` · HEAD `279a79da 2026-10-31`
 
 Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to the repo root.
 
@@ -87,7 +87,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\INFLUENCE_WORDING_AUDIT.md` | 76 | Influence / Authority wording audit |
 | `CE\PLAYSTYLE_REVIEW.md` | 105 | Playstyle reference — fit review (SIMPLE build, 2026-10-30) |
 | `CE\PRONOUN_WORDING_AUDIT.md` | 85 | "You / this player / the target" wording audit |
-| `CE\REPO_MAP.md` | 959 | REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`) |
+| `CE\REPO_MAP.md` | 962 | REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`) |
 | `CE\RULES_push.md` | 649 | Renown |
 | `CE\RULES_push_simple.md` | 702 | Renown |
 | `CE\RULES_reorganized_6.md` | 638 | Renown |
@@ -575,10 +575,10 @@ Copied to `CE/renown_data.py` by the build (DIE=d10); every script imports `reno
 |---|---|---|---|
 | `SIMPLE` | 7 | bool | True |
 | `PHASE_REFORM` | 10 | bool | True |
-| `VERSION` | 12 | str | '0.4.9.9.13-d10-S' |
+| `VERSION` | 12 | str | '0.4.9.9.15-d10-STrue' |
 | `BLUNDER_THR` | 40 | int | 10 |
 | `DICE_PROVENANCE` | 41 | str | 'd10 / Focused 10+ / Parry 8+ / Recover  |
-| `SACK_EXTORT_PER_TIER` | 44 | int | 2000 |
+| `SACK_EXTORT_PER_TIER` | 44 | int | 4000 |
 | `INTERCEPT_EXTORT_PER_CRAFT` | 45 | int | 100 |
 | `WEALTH_EDICT_GOLD` | 46 | int | 50000 |
 | `MUSTER_RANGE` | 47 | int | 2 |
