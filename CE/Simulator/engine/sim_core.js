@@ -72,7 +72,7 @@ var SIM = (function () {
     withBoard(p.board, () => {
       const cap = capitalSett(), ham = S.settlements.find(s => s.tier === "Hamlet");
       const best = L => L.sort((a, b) => aiHoldValue(b) - aiHoldValue(a) || RNG() - 0.5)[0];          // gold and the Public Order it costs
-      for (let i = 0; i < (+RC.SETUP_CAPITAL_PICKS || 0) && cap; i++) { const n = best(Object.keys(R).filter(n => setupRawOK(n, cap.id))); if (n) placeHolding(n, null, cap.id); }
+      for (let i = 0; i < (+RC.SETUP_CAPITAL_PICKS || 0) && cap; i++) { const n = best(NAMES.filter(n => setupRawOK(n, cap.id))); if (n) placeHolding(n, null, cap.id); }
       for (let i = 0; i < (+RC.SETUP_HAMLET_PICKS || 0) && ham; i++) { const n = best((RC.SETUP_HAMLET_HOLDINGS || []).filter(n => canPlace(n, ham.id).ok)); if (n) placeHolding(n, null, ham.id); }
     });
   }

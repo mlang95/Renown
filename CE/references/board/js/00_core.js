@@ -1,11 +1,14 @@
 const DATA = /*__DATA__*/;
 const R = DATA.records, INFRA = DATA.infra, WON = DATA.wonders;
 const EQ = DATA.equip, ARMYSRC = DATA.armySrc, GLOSS = DATA.glossary || {};
-// Bastard Sword is ONE item with two profiles (1H / 2H, chosen each Skirmish with the Tactic). The data's
-// separate "2HBastard" entry is folded into it here so it never shows up as its own weapon.
-if(EQ.weapons&&EQ.weapons["2HBastard"]){EQ.bastard2h=EQ.weapons["2HBastard"];delete EQ.weapons["2HBastard"];
-  if(EQ.weapons["Bastard Sword"])EQ.weapons["Bastard Sword"].profile2h=EQ.bastard2h;}
-function fixBastard(a){if(a&&a.weapon==="2HBastard"){a.weapon="Bastard Sword";if(a.b2h==null)a.b2h=true;}}
+// A weapon with "profile_2h" (Bastard Sword, Spears, …) is ONE item with two profiles (1H / 2H, chosen each
+// Skirmish with the Tactic). The data's separate "2H…" entry is folded into it here so it never shows up as its own weapon.
+EQ.prof2hOf={};   // "2H…" entry → its weapon
+Object.keys(EQ.weapons||{}).forEach(n=>{const w=EQ.weapons[n],k2=w.profile_2h;if(!k2||!EQ.weapons[k2])return;
+  w.profile2h=EQ.weapons[k2];EQ.prof2hOf[k2]=n;});
+Object.keys(EQ.prof2hOf).forEach(k2=>delete EQ.weapons[k2]);
+function prof2h(n){return (EQ.weapons[n]||{}).profile2h||null;}
+function fixBastard(a){const n=a&&EQ.prof2hOf[a.weapon];if(n){a.weapon=n;if(a.b2h==null)a.b2h=true;}}
 const TIER_RANK = {Crude:0,Cast:1,Wrought:2,Forged:3,Crafted:4};
 const ARMOR_TAG = {Gambeson:"Gambeson",Leather:"Leather",Chainmail:"Chainmail",FullPlate:"Full Plate"};
 const NAMES = Object.keys(R).filter(n=>!R[n].deprecated).sort();   // deprecated Holdings: in R for saved games, offered nowhere

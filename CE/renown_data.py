@@ -187,7 +187,7 @@ GLOSSARY = {
     # ── Empire keywords (referenced by Pursuits/Factions; DRAFTED — review wording) ──
     "Faith X":       "Gain X Faith: each Faith raises your Public Order track by 1 when resolved.",
     "Doubt X":       "Gain X Doubt: each Doubt lowers your Public Order track by 1 when resolved.",
-    "Extort X":      "Take X from the stated source: the gold goes to you instead of its owner.",
+    "Extort X":      "Take X from the stated source: the gold goes to you instead of its owner. One effect resolving is one Extort of the total it takes, however many players or times it names.",
     "Recoup X":      "Undo up to X of the cost you paid (refund gold, or remove Doubt gained).",
 
     # ── Council, Influence & Envoys (from Rules; the political loop) ──
@@ -300,9 +300,11 @@ WEAPONS = {
     "Farm Tools":     {"ap":  0, "init":  0, "tier": "Crude",   "tags": [NO_PARRY]},
     "Cudgel":         {"ap": -1, "init": -1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, NO_PARRY]},
     "Pitchfork":      {"ap":  0, "init":  1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, NO_PARRY]},
+    "Bill Hook":      {"ap": -1, "init":  0, "tier": "Cast",   "tags":  [TWO_H, NEGATE_SHIELDED]},
     "Daggers":        {"ap":  0, "init":  0, "tier": "Cast",    "tags": [TWO_H, SHATTER_ARMOR, NO_PARRY]},
     "Short Sword":    {"ap":  0, "init":  0, "tier": "Cast",    "tags": [STEADY]},
-    "Spears":         {"ap": -1, "init":  1, "tier": "Cast",    "tags": [UNWIELDY]},
+    "Spears":         {"ap":  0, "init":  1, "tier": "Cast",    "tags": [UNWIELDY, SHATTER_ARMOR], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile.'},
+    "2HSpears":       {"ap":  0, "init":  1, "tier": "Cast",    "tags": [TWO_H, STEADY, SHATTER_ARMOR]},
     "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY]},
     "Pike":           {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, STEADY, UNWIELDY, SHATTER_ARMOR, NO_PARRY]},
     "Flail":          {"ap": -1, "init":  0, "tier": "Wrought", "tags": [UNWIELDY, UNSTOPPABLE, CLEAVE, NO_PARRY], 'note': 'Cannot Florentine'},
@@ -317,6 +319,16 @@ WEAPONS = {
     "Estoc":          {"ap": -3, "init":  0, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE]},
     "Poleaxe":        {"ap": -5, "init":  0, "tier": "Crafted", "tags": [TWO_H, STEADY, CLEAVE, UNSTOPPABLE, NEGATE_SHIELDED]},
 }
+# 1H / 2H profiles: an entry named "2H<Name>" is the 2H profile of the weapon named <Name> (or the one weapon
+# whose name starts with it: "2HBastard" → "Bastard Sword"). That weapon gets "profile_2h"; it is one item that
+# picks its profile each equipment step, and the "2H…" entry is never offered as a weapon of its own.
+for _k2 in [k for k in WEAPONS if k.startswith("2H")]:
+    _base = [k for k in WEAPONS if not k.startswith("2H") and (k == _k2[2:] or k.startswith(_k2[2:]))]
+    _base = [k for k in _base if k == _k2[2:]] or _base
+    if len(_base) != 1:
+        raise ValueError(f"WEAPONS: 2H profile {_k2!r} matches {_base or 'no weapon'}")
+    WEAPONS[_base[0]].setdefault("profile_2h", _k2)
+WEAPON_2H_PROFILES = {v["profile_2h"]: k for k, v in WEAPONS.items() if v.get("profile_2h")}   # "2H…" entry → its weapon
 
 RANGED = {
     "Hunting Bow": {"ap":  0, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNSTOPPABLE, NO_PARRY]},
@@ -680,6 +692,7 @@ NODES = {
     "Apiary": {
         "group": "g_raw",
         "root": True,
+        "deprecated": True,
         "unlock": "-",
         "natural": True,
         "innate": "Gold +500; Craft +1",
@@ -723,6 +736,7 @@ NODES = {
     "Common Land": {
         "group": "g_raw",
         "root": True,
+        "deprecated":True,
         "unlock": "-",
         "natural": True,
         "innate": "Gold +1000; Doubt +1",
@@ -835,7 +849,7 @@ NODES = {
         "group": "g_devotion",
         "unlock": "-",
         "innate": "Craft +1; Authority -1 on Cunning actions targeting you",
-        "efficient": "Apiary",
+        "efficient": "Forestry",
         "monument": False},
     "Tannery": {
         "group": "g_arms",
@@ -912,7 +926,7 @@ NODES = {
         "unlock": "Rising Cunning",
         "natural": True,
         "innate": "Gold +1000; Doubt +1",
-        "efficient": ["Common Land","Salt Works"],
+        "efficient": ["Salt Works"],
         "monument": False},
     "Storehouse": {
         "group": "g_works",
@@ -1010,11 +1024,47 @@ NODES = {
         "innate": "Speed +1; Unlocks Cavalry Spear (Still requires Tier Unlock)",
         "efficient": ["Animal Husbandry","Inn"],
         "monument": False},
+    "Ropewalk": {
+        "group": "g_logistics",
+        "unlock": "Rising Prowess",
+        "innate": "Gold +500; Supply -500",
+        "efficient": "Harbor",
+        "monument": False},
+    "Sail Loft": {
+        "group": "g_logistics",
+        "unlock": "Established Prowess",
+        "innate": "Gold +500; Upkeep -500",
+        "efficient": "Ropewalk",
+        "monument": False},
     "Shipyard": {
         "group": "g_commerce",
         "unlock": "Established Industry",
         "innate": "Upkeep -500; Craft +4; Water Territory treated as Grassland for movement",
+        "efficient": "Sail Loft",
+        "monument": False},
+    "False Lights": {
+        "group": "g_secrecy",
+        "unlock": "Rising Cunning",
+        "innate": "Non-allied Armies that Move onto a Water Territory in your Province gain Blocked",
         "efficient": "Harbor",
+        "monument": False},
+    "Corsair Haven": {
+        "group": "g_secrecy",
+        "unlock": "Established Cunning",
+        "innate": "Whenever a player who isn't your Trade Partner receives Trade Income, they gain Doubt +1",
+        "efficient": "False Lights",
+        "monument": False},
+    "Fish Weir": {
+        "group": "g_commerce",
+        "unlock": "Established Industry",
+        "innate": "Gold +3000 in Spring",
+        "efficient": "Harbor",
+        "monument": False},
+    "Cooperage": {
+        "group": "g_works",
+        "unlock": "Established Industry",
+        "innate": "Supply -500; Craft +5",
+        "efficient": "Fish Weir",
         "monument": False},
     "Coliseum": {
         "group": "g_logistics",
@@ -1029,11 +1079,17 @@ NODES = {
         "innate": "Extort 500; Doubt from actions targeting you is reduced by 1 (minimum 0)",
         "efficient": "Episcopal Court",
         "monument": False},
+    "Stew Pond": {
+        "group": "g_devotion",
+        "unlock": "-",
+        "innate": "Upkeep -500",
+        "efficient": "Fishmongery",
+        "monument": False},
     "Priory": {
         "group": "g_devotion",
         "unlock": "Rising Piety",
         "innate": "Faith +1; If your Piety Envoy would be Condemned, it Fails instead",
-        "efficient": "Masonry",
+        "efficient": ["Masonry", "Stew Pond"],
         "monument": False},
     "Abbey": {
         "group": "g_devotion",
@@ -1221,13 +1277,19 @@ NODES = {
         "group": "g_secrecy",
         "unlock": "Established Cunning",
         "innate": "Both Bandit Camps & you have Authority +1 on Personal Cunning Envoys; Endorsed Foster Rebellion instead places Bandit Armies with 25 retinues",
+        "efficient": ["Rogue Network"],
+        "monument": False},
+    "Rogue Network": {
+        "group": "g_secrecy",
+        "unlock": "Established Cunning",
+        "innate": "Whenever any player or Bandit performs a Cunning action, it Extorts 1000 more from its target",
         "efficient": ["Smuggler's Nook"],
         "monument": False},
     "Black Market": {
         "group": "g_secrecy",
         "unlock": "Established Cunning",
-        "innate": "When another player Extorts gold from any source: Extort 100 per 500 from that player at the end of that resolution; When another player Recoups gold from any source: Extort 100 per 500 from that player at the end of that resolution",
-        "efficient": ["Smuggler's Nook"],
+        "innate": "Whenever another player Extorts or Recoups Gold, Extort 500 from that player; Extorts from a Black Market don't trigger Black Market",
+        "efficient": ["Smuggler's Nook", "Corsair Haven"],
         "monument": False},
     "Dark Scriptorium": {
         "group": "g_secrecy",
@@ -1443,8 +1505,8 @@ NODES = {
         "monument": True},
     "Thieves' Guild": {
         "group": "g_secrecy",
-        "unlock": "Sovereign Cunning + Rising Industry",
-        "innate": "Whenever another player performs a Cunning action, you may recoup 1000 gold; Extort half of Trade Income from players who aren't your Trade Partners",
+        "unlock": "Sovereign Cunning + Established Industry",
+        "innate": "Whenever you Extort 500 or more, Gold +500",
         "efficient": ["Black Market"],
         "monument": True},
     "Senate Hall": {
@@ -1541,7 +1603,7 @@ NODES = {
         "group": "g_commerce",
         "unlock": "Established Industry",
         "innate": "Gold +1000; Trade Partners gain Craft +3",
-        "efficient": ["Shipyard"],
+        "efficient": ["Cooperage"],
         "monument": False},
     "Port Authority": {
         "group": "g_commerce",
@@ -1549,6 +1611,12 @@ NODES = {
         "infrastructure_req": "Magistrate's Hall",
         "innate": "Craft +10; Gold +100 per Craft",
         "efficient": ["Emporium"],
+        "monument": True},
+    "Fleet Anchorage": {
+        "group": "g_logistics",
+        "unlock": "Sovereign Prowess + Established Industry",
+        "innate": "If your Army begins a Move adjacent to a Water Territory, it may end that Move adjacent to any Water Territory connected to it; If your Army wins a Battle, it Reinforces 10 Retinues of its current type at once (no cost or Muster Timer, up to the Army's Retinue cap)",
+        "efficient": ["Shipyard"],
         "monument": True}
 }
 # Deprecated Holdings ("deprecated": True) stay written above but leave play: every reader of NODES / NODES
@@ -1589,7 +1657,9 @@ LINE_LABELS = {
     "l_engineering": {"label": "Engineering", "members": ["Quarry", "Masonry", "Trade Guild", "College of Engineering", "Office of Works"]},
     "l_labor": {"label": "Labor", "members": ["Common Land", "Salt Works", "Workyard", "Burgages", "Census Hall", "Storehouse", "Serfdom"]},
     "l_fortification": {"label": "Fortification", "members": ["Masonry", "Granary", "Supply Depot", "Citadel", "Castle Hall", "Imperial Palace"]},
-    "l_maritime": {"label": "Maritime", "members": ["Fishmongery", "Harbor", "Shipyard", "Emporium", "Port Authority"]},
+    "l_maritime": {"label": "Maritime", "members": ["Fishmongery", "Harbor", "Fish Weir", "Cooperage", "Emporium", "Port Authority"]},
+    "l_armada": {"label": "Armada", "members": ["Harbor", "Ropewalk", "Sail Loft", "Shipyard", "Fleet Anchorage"]},
+    "l_piracy": {"label": "Piracy", "members": ["Harbor", "False Lights", "Corsair Haven", "Black Market", "Thieves' Guild"]},
     "l_training": {"label": "Training", "members": ["Courtyard", "Common Land", "Conditioning Field", "Coliseum", "Grand Tournament", "Royal Pavilion"]},
     "l_siege": {"label": "Siege", "members": ["Carpentry", "Mine", "Siege Works", "Siege Camp", "Artillery Park"]},
     "l_command": {"label": "Command", "members": ["University", "War College", "Ministry of Military Strategy"]},
@@ -1601,7 +1671,7 @@ LINE_LABELS = {
     "l_cavalry": {"label": "Cavalry", "members": ["Animal Husbandry", "Stable", "Saddlery", "Caravanery"]},
     "l_statecraft": {"label": "Statecraft", "members": ["Courtyard", "Jester's Court", "Bell Tower", "Embassy", "Senate Hall"]},
     "l_trivium": {"label": "Trivium", "members": ["Alchemy", "Academy", "University", "Studium Generale"]},
-    "l_smuggling": {"label": "Smuggling", "members": ["Inn", "Courier Network", "Smuggler's Nook", "Syndicate Hub", "Outlaw Rookery"]},
+    "l_smuggling": {"label": "Smuggling", "members": ["Inn", "Courier Network", "Smuggler's Nook", "Rogue Network", "Syndicate Hub", "Outlaw Rookery"]},
     "l_thievery": {"label": "Thievery", "members": ["Smuggler's Nook", "Black Market", "Thieves' Guild"]},
     "l_whispers": {"label": "Whispers", "members": ["Academy", "University", "Forgery Workshop", "Cipher Chamber", "Whispering Undercroft"]},
     "l_pestilence": {"label": "Pestilence", "members": ["Secret Cellar", "Forgotten Catacombs", "Alchemy", "Toxicarium", "Charnel House", "Plague Pit"]},
@@ -1613,6 +1683,7 @@ LINE_LABELS = {
     "l_banking": {"label": "Banking", "members": ["Market Square", "Merchant Quarter", "Money Lending", "Aristocratic Court"]},
     "l_pilgrimage": {"label": "Pilgrimage", "members": ["Apiary", "Chandlery", "Reliquary", "Pilgrimage Site", "Exalted Basilica"]},
     "l_cloister": {"label": "Cloister", "members": ["Masonry", "Abbey", "Monastery", "Papal Palace"]},
+    "l_fastday": {"label": "Fast Day", "members": ["Fishmongery", "Stew Pond", "Priory", "Abbey", "Monastery", "Papal Palace"]},
     "l_inquisition": {"label": "Inquisition", "members": ["Courtyard", "Episcopal Court", "Interrogation Chambers", "Execution Dock", "Inquisitorial Palace"]},
 }
 
@@ -1664,7 +1735,7 @@ MONUMENT_SUMMARY = {
     "Imperial Palace":                    "Weaker Rivals Gain Doubt, Your Envoys Can't Fail",
     "Artillery Park":                     "Faster Sieges, Unlocks Gunpowder",
     "Ministry of Military Strategy":      "Professional Tactical Army",
-    "Thieves' Guild":                     "Profits from Rivals' Cunning, Extorts Non-Traders",
+    "Thieves' Guild":                     "Profits from Every Extort",
     "Senate Hall":                        "Faith & Influence Income, Sways Envoys for Allies",
     "Papal Palace":                       "Free Piety Envoys, Tithes Less Pious Rivals",
     "Inquisitorial Palace":               "Amplifies All Doubt, Piety-Powered Grand Vizier",
@@ -1678,6 +1749,7 @@ MONUMENT_SUMMARY = {
     "Whispering Undercroft":              "Votes Last, Forces Rivals to Show Their Hand",
     "Outrider Intercept Post":            "Sees Opponents' Tactic Cards First",
     "Port Authority":                     "Gold from Craft",
+    "Fleet Anchorage":                    "Armies Sail Between Waters, Reinforce on Victory",
     "Polish House":                       "Massive Income... and Attention",
     "Marshal Tiltyard":                   "Shock Cavalry",
 }
@@ -2536,7 +2608,7 @@ BANDIT_CAMP_START = 10
 BANDIT_CAMP_GOLD = 2000    # gold in a Bandit Camp's treasury when it spawns
 BANDIT_ARMY_THRESHOLD = 25
 BANDIT_GROWTH_PER_ERA = {"Founding": 1, "Ascension": 2, "Eminence": 3, "Zenith": 4}
-BANDIT_EQUIPMENT_PER_ERA = {"Founding": "Levy: Farm Tools + Cloth", "Ascension": "Levy: Pitchfork + Gambeson", "Eminence": "Man-at-Arms: Spears + Kite Shield + Leather", "Zenith": "Man-at-Arms: Halberd + Chainmail"}
+BANDIT_EQUIPMENT_PER_ERA = {"Founding": "Levy: Farm Tools + Cloth", "Ascension": "Levy: Bill Hook + Gambeson", "Eminence": "Man-at-Arms: Spears + Kite Shield + Leather", "Zenith": "Man-at-Arms: Halberd + Chainmail"}
 BANDITS = {
     "Bandit Domain Value": "For every 5 Retinues in the Bandit Camp or Army, the Bandit Camp has +2 Cunning and +2 Prowess.",
     "Bandit Camp": f"A collection of Bandits in Outlaw Country, starting with {BANDIT_CAMP_START} Retinues and {BANDIT_CAMP_GOLD} gold.",
@@ -2759,13 +2831,14 @@ GLOSSARY.update({
 # (Strained; an Army already Strained gains Blocked) rather than Doubt+Cost,
 # since Prowess actions carry no gold/doubt cost.
 # Cunning actions Extort from their target: CUNNING_EXTORT when Passed, CUNNING_EXTORT_ENDORSED (in place of it) when Endorsed.
-CUNNING_EXTORT          = 4000
+CUNNING_EXTORT          = 2000
 CUNNING_EXTORT_ENDORSED = 2000
+CUNNING_DOUBT           = 1      # Passed or Endorsed, a Cunning action's target also gains this Doubt
 ENVOY_OUTCOMES = { #Note, the condemned.split("+")[-1] is the "cost" for cunning piety and industry
     "Prowess":   {"condemned": "Doubt 1 + each of your Armies gains Strained; an Army that already has Strained gains Blocked.",
                   "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Perform a Prowess action"},
     "Cunning":   {"condemned": "Doubt 1 + pay 2000, & you cannot Recoup",
-                  "failed": "Doubt 1", "passed": f"Perform the action; Extort {CUNNING_EXTORT} from its target",
+                  "failed": "Doubt 1", "passed": f"Perform the action; its target gains Doubt +{CUNNING_DOUBT}; Extort {CUNNING_EXTORT} from its target",
                   "endorsed": f"Extort {CUNNING_EXTORT_ENDORSED} from its target instead"},
     "Piety":     {"condemned": "Doubt 1 + pay Doubt 1, & you cannot Recoup",
                   "failed": "Doubt 1", "passed": "Perform the action", "endorsed": "Recoup Doubt"},

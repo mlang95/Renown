@@ -344,6 +344,59 @@
   ]
  },
  {
+  "title": "Fleet Anchorage",
+  "anchor": "Fleet Anchorage",
+  "mode": "chain",
+  "nodes": {
+   "Fishmongery": [
+    0,
+    0
+   ],
+   "Harbor": [
+    1,
+    0
+   ],
+   "Ropewalk": [
+    2,
+    0
+   ],
+   "Sail Loft": [
+    3,
+    0
+   ],
+   "Shipyard": [
+    4,
+    0
+   ],
+   "Fleet Anchorage": [
+    5,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Shipyard",
+    "Fleet Anchorage"
+   ],
+   [
+    "Fishmongery",
+    "Harbor"
+   ],
+   [
+    "Harbor",
+    "Ropewalk"
+   ],
+   [
+    "Ropewalk",
+    "Sail Loft"
+   ],
+   [
+    "Sail Loft",
+    "Shipyard"
+   ]
+  ]
+ },
+ {
   "title": "Imperial Palace",
   "anchor": "Imperial Palace",
   "mode": "chain",
@@ -437,17 +490,13 @@
     2,
     4
    ],
-   "Apiary": [
+   "Herb Garden": [
     2,
     5
    ],
-   "Herb Garden": [
-    2,
-    6
-   ],
    "Vineyard": [
     2,
-    7
+    6
    ],
    "Mill": [
     3,
@@ -457,15 +506,15 @@
     3,
     4
    ],
-   "Meadery": [
+   "Spice Merchant": [
     3,
     5
    ],
-   "Spice Merchant": [
+   "Winery": [
     3,
     6
    ],
-   "Winery": [
+   "Meadery": [
     3,
     7
    ],
@@ -514,10 +563,6 @@
    [
     "Quarry",
     "Masonry"
-   ],
-   [
-    "Apiary",
-    "Meadery"
    ],
    [
     "Bakery",
@@ -649,9 +694,17 @@
     0,
     0
    ],
+   "Fishmongery": [
+    0,
+    1
+   ],
    "Masonry": [
     1,
     0
+   ],
+   "Stew Pond": [
+    1,
+    1
    ],
    "Priory": [
     2,
@@ -690,6 +743,14 @@
    [
     "Masonry",
     "Priory"
+   ],
+   [
+    "Stew Pond",
+    "Priory"
+   ],
+   [
+    "Fishmongery",
+    "Stew Pond"
    ]
   ]
  },
@@ -751,23 +812,35 @@
     1,
     0
    ],
-   "Shipyard": [
+   "Fish Weir": [
     2,
     0
    ],
-   "Emporium": [
+   "Cooperage": [
     3,
     0
    ],
-   "Port Authority": [
+   "Emporium": [
     4,
+    0
+   ],
+   "Port Authority": [
+    5,
     0
    ]
   },
   "edges": [
    [
-    "Shipyard",
+    "Fish Weir",
+    "Cooperage"
+   ],
+   [
+    "Cooperage",
     "Emporium"
+   ],
+   [
+    "Harbor",
+    "Fish Weir"
    ],
    [
     "Fishmongery",
@@ -776,10 +849,6 @@
    [
     "Emporium",
     "Port Authority"
-   ],
-   [
-    "Harbor",
-    "Shipyard"
    ]
   ]
  },
@@ -788,24 +857,40 @@
   "anchor": "Thieves' Guild",
   "mode": "chain",
   "nodes": {
-   "Inn": [
+   "Fishmongery": [
     0,
     0
    ],
-   "Secret Cellar": [
+   "Harbor": [
     1,
     0
    ],
-   "Smuggler's Nook": [
+   "Inn": [
+    1,
+    1
+   ],
+   "False Lights": [
     2,
     0
    ],
-   "Black Market": [
+   "Secret Cellar": [
+    2,
+    1
+   ],
+   "Corsair Haven": [
     3,
     0
    ],
-   "Thieves' Guild": [
+   "Smuggler's Nook": [
+    3,
+    1
+   ],
+   "Black Market": [
     4,
+    0
+   ],
+   "Thieves' Guild": [
+    5,
     0
    ]
   },
@@ -813,6 +898,22 @@
    [
     "Smuggler's Nook",
     "Black Market"
+   ],
+   [
+    "Corsair Haven",
+    "Black Market"
+   ],
+   [
+    "False Lights",
+    "Corsair Haven"
+   ],
+   [
+    "Harbor",
+    "False Lights"
+   ],
+   [
+    "Fishmongery",
+    "Harbor"
    ],
    [
     "Inn",
@@ -1199,7 +1300,7 @@
   "anchor": "Exalted Basilica",
   "mode": "chain",
   "nodes": {
-   "Apiary": [
+   "Forestry": [
     0,
     0
    ],
@@ -1226,7 +1327,7 @@
   },
   "edges": [
    [
-    "Apiary",
+    "Forestry",
     "Chandlery"
    ],
    [
@@ -1423,12 +1524,16 @@
     2,
     0
    ],
-   "Syndicate Hub": [
+   "Rogue Network": [
     3,
     0
    ],
-   "Outlaw Rookery": [
+   "Syndicate Hub": [
     4,
+    0
+   ],
+   "Outlaw Rookery": [
+    5,
     0
    ]
   },
@@ -1436,6 +1541,10 @@
    [
     "Syndicate Hub",
     "Outlaw Rookery"
+   ],
+   [
+    "Smuggler's Nook",
+    "Rogue Network"
    ],
    [
     "Inn",
@@ -1446,7 +1555,7 @@
     "Smuggler's Nook"
    ],
    [
-    "Smuggler's Nook",
+    "Rogue Network",
     "Syndicate Hub"
    ]
   ]
@@ -1456,13 +1565,9 @@
   "anchor": "Serfdom",
   "mode": "chain",
   "nodes": {
-   "Common Land": [
-    0,
-    0
-   ],
    "Salt Works": [
     0,
-    1
+    0
    ],
    "Workyard": [
     1,
@@ -1501,10 +1606,6 @@
    [
     "Census Hall",
     "Storehouse"
-   ],
-   [
-    "Common Land",
-    "Workyard"
    ],
    [
     "Salt Works",

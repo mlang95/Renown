@@ -175,7 +175,7 @@ function insolvent(b){const t=+b.treasury||0;if(t<0)b.insolvent=true;
 function tGold(b,d,why){d=Math.round(+d||0);if(!b||!d)return 0;glogSync(b);b.treasury=(+b.treasury||0)+d;glogPush(b,d,why);if(b.treasury<0)b.insolvent=true;
   // Direct Recoup credits also trigger Black Market mastery. Envoy cost discounts
   // are handled where the Recoup is calculated because those are not credit entries.
-  if(d>0&&/recoup/i.test(String(why||""))&&!/black market/i.test(String(why||""))){const recouper=D.players.find(p=>p.board===b);if(recouper)blackMarketReact(recouper,d,"black_market_recoup","Recoup");}
+  if(d>0&&/recoup/i.test(String(why||""))&&!/black market/i.test(String(why||""))){const recouper=D.players.find(p=>p.board===b);if(recouper)blackMarketReact(recouper,"Recoup");}
   return d;}
 function boardOwnerName(b){const p=(D.players||[]).find(q=>q.board===b);return p?p.name:"";}
 // One player's end-of-turn bookkeeping (treasury button and the Table's End turn share this).
@@ -250,8 +250,11 @@ function empirePhase(){const P=D.players,done={},log=[];P.forEach(p=>done[p.id]=
   // 6. Influence & Envoys: computed live from the new Era / Season
   // 7-8. Winter tax, income & upkeep (trade inside)
   const ec={};P.forEach(p=>ec[p.id]=empEconomy(p.board));
-  // 9. Extort
-  runAutoExtort().forEach(x=>log.push(x));runLoans().forEach(x=>log.push(x));runPillage().forEach(x=>log.push(x));if(skims.length)creditSkims(skims).forEach(x=>log.push(x));provinceCampExtort().forEach(x=>log.push(x));delete BST()._t;
+  // "Whenever a player who isn't your Trade Partner receives Trade Income, they gain Doubt +N" (Corsair Haven)
+  P.forEach(h=>srcMatch(h.board,"trade_doubt").forEach(x=>P.forEach(q=>{if(sameP(q,h)||effPair(h.id,q.id).trade||!(Math.round(ec[q.id].sn.trade||0)>0))return;
+    const g=gainDoubt(q.board,+x.m[1]);log.push(q.name+": Doubt +"+x.m[1]+" ("+x.n+" · "+h.name+")"+(g<+x.m[1]?" — "+(+x.m[1]-g)+" reduced (first Doubt)":""));})));
+  // 9. Extort (one effect resolving = one Extort: Black Market / Extort bonuses fire once per effect, when the step closes)
+  extortGroup(()=>{runAutoExtort().forEach(x=>log.push(x));runLoans().forEach(x=>log.push(x));runPillage().forEach(x=>log.push(x));if(skims.length)creditSkims(skims).forEach(x=>log.push(x));provinceCampExtort().forEach(x=>log.push(x));});delete BST()._t;
   // 10. innate Public Order modifiers (first Doubt reductions)
   const po={};P.forEach(p=>po[p.id]=empPO(p.board,done[p.id]));
   // 11. Endurance; Strained clears (Sack keeps its Army Strained)
@@ -474,7 +477,7 @@ function canPlace(name, sid){
   const sim=occupants(sid).concat([{id:1e9,name}]);   // hypothetical (high id → existing riders keep their slot)
   const exempt=exemptionsOf(sim);
   if(tier==="Hamlet"){
-    if(SIMPLE){if(!hamletFits(name,new Set(occupants(sid).map(o=>o.name))))return {ok:false,why:"Hamlets start with "+(Object.keys(R).filter(hamletRoot).join(" / ")||"efficient-Hamlet Pursuits")+"; others need an efficient parent there"};}
+    if(SIMPLE){if(!hamletFits(name,new Set(occupants(sid).map(o=>o.name))))return {ok:false,why:"Hamlets start with "+(NAMES.filter(hamletRoot).join(" / ")||"efficient-Hamlet Pursuits")+"; others need an efficient parent there"};}
     else if(!hamletOK(name))return {ok:false,why:"Hamlets hold Natural Pursuits only"};}
   const used=sim.filter(o=>!o.fac&&!exempt.has(o.id)).length;
   if(used<=cap)return {ok:true, rider:exempt.has(1e9)};
@@ -485,7 +488,7 @@ function canPlace(name, sid){
 function hamletRepeat(n,sid){return sid!=null&&settTier(sid)==="Hamlet"&&(RC.HAMLET_REPEATABLE||[]).includes(n);}
 // Setup › Starting Holdings (pieces placed before Turn 1 carry .setup): RC.SETUP_CAPITAL_PICKS eligible Raw Material
 // Holdings in the capital, RC.SETUP_HAMLET_PICKS of RC.SETUP_HAMLET_HOLDINGS in the Hamlet
-function setupRawOK(n,sid){const r=R[n]||{};return r.type==="Raw Materials"&&!!r.root&&pLegal(n,sid,legalCtx());}
+function setupRawOK(n,sid){const r=R[n]||{};return !r.deprecated&&r.type==="Raw Materials"&&!!r.root&&pLegal(n,sid,legalCtx());}
 function setupHoldFlags(){const f=[],HL=RC.SETUP_HAMLET_HOLDINGS||[],cap=capitalSett(),ham=S.settlements.find(s=>s.tier==="Hamlet");
   const nCap=+RC.SETUP_CAPITAL_PICKS||0,nHam=+RC.SETUP_HAMLET_PICKS||0,sp=S.placed.filter(q=>q.setup&&!q.fac&&q.sid!=null);
   const eligible=(q,sid)=>{const i=S.placed.indexOf(q);S.placed.splice(i,1);try{return setupRawOK(q.name,sid);}finally{S.placed.splice(i,0,q);}};   // as if it weren't there yet

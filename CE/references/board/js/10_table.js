@@ -574,7 +574,7 @@ function resolveEnvoy(E,pe,fin){const o=E.owner,act=pe&&pe.rec&&pe.rec.action,A=
   const pay=(cost,why,recoup)=>{if(noCost.length){fx.push(noCost[0].n+": no cost");return;}let g=cost.gold,dd=cost.doubt,recoupedGold=0;const notes=[];
     (recoup||[]).forEach(r=>{if(r.doubt&&dd){notes.push(r.src+": recoup Doubt");dd=0;}if(r.gold&&g){const k=Math.min(r.gold,g);g-=k;recoupedGold+=k;notes.push(r.src+": recoup "+k.toLocaleString());}});
     if(g)tGold(o.board,-g,(E.dom?E.dom+" Envoy · ":"")+why+(notes.length?" ("+notes.join("; ")+")":""));if(dd)gainDoubt(o.board,dd);
-    if(recoupedGold)blackMarketReact(o,recoupedGold,"black_market_recoup","Recoup").forEach(x=>fx.push(x));
+    if(recoupedGold)blackMarketReact(o,"Recoup").forEach(x=>fx.push(x));
     if(cost.gold||cost.doubt)fx.push(o.name+" pays "+why+": "+[cost.gold?cost.gold.toLocaleString()+" gold":"",cost.doubt?"Doubt "+cost.doubt:""].filter(Boolean).join(" + ")+(notes.length?" ("+notes.join("; ")+")":""));};
   if(fin==="Condemned")chron("condemned",{player:o.name,domain:E.dom||""});
   if(fin==="Condemned"){const rest=txt.replace(/^\s*Doubt \d+\s*\+\s*/i,""),gm=/\bpay\s+([\d,]+)/i.exec(rest),dm=/^(?:pay\s+)?Doubt (\d+)/i.exec(rest);   // after the "+": the Condemn cost ("pay 2000", "pay Doubt 1")
@@ -600,7 +600,8 @@ function resolveEnvoy(E,pe,fin){const o=E.owner,act=pe&&pe.rec&&pe.rec.action,A=
       doubt:(p,n,isT,src)=>{markActionTarget(p);const k=actDoubt(o,AD,p,n,isT,notes),g=k?gainDoubt(p.board,k):0;doubtTo[p.id]=(doubtTo[p.id]||0)+k;rawTo[p.id]=(rawTo[p.id]||0)+(+n||0);if(k)fx.push(p.name+": Doubt +"+k+" ("+act+(src?" · "+src:"")+")"+(g<k?" — "+(k-g)+" reduced (first Doubt)":""));}};
     if((sp.tgt==="player"&&!sp.opt&&!q)||(sp.sub&&!sp.subOpt&&!ctx.sub))flags.push(act+": no target recorded — resolve by hand");
     else if(sp.run)sp.run(ctx);
-    if(AD==="Cunning"){if(q)SM(o.board,"cunning_extra_doubt").forEach(x=>{if(x.m[1]&&fin!=="Endorsed")return;ctx.doubt(q,+x.m[2],true,x.n);});
+    if(AD==="Cunning"){if(q&&+RC.CUNNING_DOUBT)ctx.doubt(q,+RC.CUNNING_DOUBT,true,fin);   // Passed or Endorsed: the target gains Doubt
+      if(q)SM(o.board,"cunning_extra_doubt").forEach(x=>{if(x.m[1]&&fin!=="Endorsed")return;ctx.doubt(q,+x.m[2],true,x.n);});
       D.players.forEach(h=>{if(!sameP(h,o))SM(h.board,"recoup_on_cunning").forEach(x=>{const hc=tCurW(h);hc.cunningRecoups=hc.cunningRecoups||[];const key=E.id+"|"+o.id+"|"+x.n;
         if(!hc.cunningRecoups.some(r=>r.key===key))hc.cunningRecoups.push({key,turn:tTurn(),from:String(o.id),act,src:x.n,amount:+x.m[1],claimed:false});
         flags.push(h.name+" ("+x.n+") may recoup "+(+x.m[1]).toLocaleString()+" gold");});});}
@@ -615,11 +616,12 @@ function resolveEnvoy(E,pe,fin){const o=E.owner,act=pe&&pe.rec&&pe.rec.action,A=
       D.players.forEach(p=>{if(gf[p.id]>0)ctx.faith(p,+x.m[2],x.n);
         if(gd[p.id]>0)ctx.doubt(p,+x.m[3],sameP(p,q),x.n);});});
     if(q)SM(q.board,"doubt_backlash").forEach(x=>{if(!((x.m[1]?rawTo:doubtTo)[q.id]>0))return;x.m[1]=x.m[2];const g=gainDoubt(o.board,+x.m[1]);fx.push(o.name+": Doubt +"+x.m[1]+" ("+q.name+" · "+x.n+")");});
-    if(fin==="Endorsed"){const m=/Extort (\d+)/i.exec(end);if(m&&q){const t=extortGold({b:q.board},{b:o.board},+m[1],"Endorsed "+E.dom);fx.push("Endorsed: extort "+t.toLocaleString()+" from "+q.name);}
-      else if(m&&campTgt(pe))fx.push("Endorsed: extort "+campExtort(campTgt(pe),o,+m[1],"Endorsed "+E.dom).toLocaleString()+" from the Bandit Army @ "+campTgt(pe));
-      else if(m)flags.push("Endorsed: Extort "+m[1]+" — no player target");
+    if(fin==="Endorsed"){const m=/Extort (\d+)/i.exec(end),n=m?+m[1]+(AD==="Cunning"?cunningExtortMore():0):0;   // Rogue Network: Cunning actions Extort more
+      if(m&&q){const t=extortGold({b:q.board},{b:o.board},n,"Endorsed "+E.dom);fx.push("Endorsed: extort "+t.toLocaleString()+" from "+q.name);}
+      else if(m&&campTgt(pe))fx.push("Endorsed: extort "+campExtort(campTgt(pe),o,n,"Endorsed "+E.dom).toLocaleString()+" from the Bandit Army @ "+campTgt(pe));
+      else if(m)flags.push("Endorsed: Extort "+n+" — no player target");
       const bn=!E.slot&&endorsedBonus(E);if(bn)flags.push("Endorsed: perform "+(bn.dom?"a "+bn.dom:"a "+bn.act)+" action — offered as the next action");}
-    if(fin==="Passed"&&AD==="Cunning"&&+RC.CUNNING_EXTORT){const n=+RC.CUNNING_EXTORT;   // a Passed Cunning action Extorts from its target (Endorsed: the action's larger Extort instead)
+    if(fin==="Passed"&&AD==="Cunning"&&+RC.CUNNING_EXTORT){const n=+RC.CUNNING_EXTORT+cunningExtortMore();   // a Passed Cunning action Extorts from its target (Endorsed: the action's Extort instead)
       if(q){const t=extortGold({b:q.board},{b:o.board},n,"Passed "+AD);fx.push("Passed: extort "+t.toLocaleString()+" from "+q.name);}
       else if(campTgt(pe))fx.push("Passed: extort "+campExtort(campTgt(pe),o,n,"Passed "+AD).toLocaleString()+" from the Bandit Army @ "+campTgt(pe));
       else flags.push("Passed: Extort "+n+" — no player target");}

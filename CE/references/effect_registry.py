@@ -56,9 +56,14 @@ REG = {
     "no_envoy_cost":       ("clause", "hiwf", r"no longer pay cost for (\w+) Envoys"),
     "recoup_envoy":        ("clause", "hiwf", r"(Passed|Endorsed) (\w+) envoys \**Recoup (\d+) Gold"),
     "recoup_on_cunning":   ("clause", "hiwf", r"Whenever another player performs a Cunning action, you may recoup (\d+) gold"),
-    # m[1] per m[2] gold; m[3] the minimum, when the text gives one
-    "black_market_extort": ("clause", "hiwf", r"When another player Extorts gold from any source: Extort (\d+) per (\d+)(?: \(minimum (\d+)\))? from that player"),
-    "black_market_recoup": ("clause", "hiwf", r"When another player Recoups gold from any source: Extort (\d+) per (\d+)(?: \(minimum (\d+)\))? from that player"),
+    # Black Market: m[1] from the player who Extorted or Recouped (once per Extort, i.e. per effect resolving)
+    "black_market":        ("clause", "hiwf", r"Whenever another player Extorts or Recoups Gold, Extort (\d+) from that player"),
+    # Thieves' Guild: an Extort of m[1]+ (one effect's total) pays Gold m[2]
+    "extort_bonus":        ("clause", "hiwf", r"Whenever you Extort (\d+) or more, Gold \+(\d+)"),
+    # Rogue Network: every Cunning action (player or Bandit) that Passes Extorts m[1] more from its target
+    "cunning_extort_more": ("clause", "hiwf", r"Whenever any player or Bandit performs a Cunning action, it Extorts (\d+) more from its target"),
+    # Corsair Haven: non-Trade Partners who receive Trade Income gain Doubt m[1]
+    "trade_doubt":         ("clause", "hiwf", r"Whenever a player who isn.t your Trade Partner receives Trade Income, they gain Doubt \+(\d+)"),
     # Outlaw Rookery: in the Extort step, every Bandit Camp in its owner's Province is emptied into their Treasury
     "province_camp_extort":("clause", "hiwf", r"Each Empire Phase, Extort the whole Treasury of every Bandit Camp within your Province"),
     "syndicate_camp_extort":("clause", "hiwf",r"Whenever a Bandit Camp within your Province Extorts, you Extort the Bandit Camp for half the amount"),
@@ -97,7 +102,10 @@ REG = {
     "army_upkeep_outside": ("clause", "hiwf", _SUPPLY + r" -(\d+) while not in (?:your )?Province"),
     "army_upkeep_home":    ("clause", "hiwf", _SUPPLY + r" -(\d+) while an army is (?:within )?range 0 of (?:controlled settlement|a Settlement you Control)"),
     "danegeld":            ("clause", "hiwf", r"While At War, your Armies (?:within reach of at-war Settlements Extort their upkeep|pay no upkeep in Territory your at-war player controls)"),
-    # ---- movement triggers (Toll House, Beacon Towers) ----
+    # ---- movement triggers (Toll House, Beacon Towers, False Lights, Fleet Anchorage) ----
+    "water_blocked":       ("clause", "hiwf", r"Non-allied Armies that Move onto a Water Territory in your Province gain Blocked"),
+    "sail_water":          ("clause", "hiwf", r"If your Army begins a Move adjacent to a Water Territory, it may end that Move adjacent to any Water Territory connected to it"),
+    "win_reinforce":       ("clause", "hiwf", r"If your Army wins a Battle, it Reinforces (\d+) Retinues"),
     "toll_extort":         ("clause", "hiwf", r"Extort (\d+) when non-allied Army ends a Move action within your Province"),
     "toll_diplomacy":      ("clause", "hiwf", r"when an Army ends a Move action within your Province,? Perform a Diplomacy action targeting that army.s player"),
     "beacon_move":         ("clause", "hiwf", r"Whenever a non-allied Army ends a Move action within your Province, you may immediately perform a Move action"),

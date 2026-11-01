@@ -16,6 +16,10 @@
     1,
     2
    ],
+   "Secret Cellar": [
+    1,
+    3
+   ],
    "Courier Network": [
     1,
     0
@@ -28,7 +32,7 @@
     2,
     2
    ],
-   "Secret Cellar": [
+   "Smuggler's Nook": [
     2,
     3
    ],
@@ -44,7 +48,7 @@
     3,
     2
    ],
-   "Smuggler's Nook": [
+   "Rogue Network": [
     3,
     3
    ],
@@ -147,6 +151,10 @@
     "Plague Pit"
    ],
    [
+    "Smuggler's Nook",
+    "Rogue Network"
+   ],
+   [
     "Stable",
     "Saddlery"
    ],
@@ -163,7 +171,7 @@
     "Stable"
    ],
    [
-    "Smuggler's Nook",
+    "Rogue Network",
     "Syndicate Hub"
    ],
    [
@@ -177,6 +185,163 @@
    [
     "Forgotten Catacombs",
     "Toxicarium"
+   ]
+  ]
+ },
+ {
+  "title": "Forestry",
+  "anchor": "Forestry",
+  "mode": "root",
+  "nodes": {
+   "Forestry": [
+    0,
+    1
+   ],
+   "Carpentry": [
+    1,
+    1
+   ],
+   "Chandlery": [
+    1,
+    2
+   ],
+   "Siege Camp": [
+    2,
+    1
+   ],
+   "Reliquary": [
+    2,
+    2
+   ],
+   "Joinery": [
+    2,
+    3
+   ],
+   "Fletchery": [
+    2,
+    0
+   ],
+   "Siege Works": [
+    3,
+    1
+   ],
+   "Pilgrimage Site": [
+    3,
+    2
+   ],
+   "Tannery": [
+    3,
+    3
+   ],
+   "Skirmish Field": [
+    3,
+    0
+   ],
+   "Battery Park": [
+    4,
+    1
+   ],
+   "Unforgotten Shrine": [
+    4,
+    2
+   ],
+   "Armory": [
+    4,
+    3
+   ],
+   "List Yard": [
+    4,
+    0
+   ],
+   "Artillery Park": [
+    5,
+    1
+   ],
+   "Exalted Basilica": [
+    5,
+    2
+   ],
+   "Gilded Foundry": [
+    5,
+    3
+   ],
+   "Royal Pavilion": [
+    5,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Tannery",
+    "Armory"
+   ],
+   [
+    "Battery Park",
+    "Artillery Park"
+   ],
+   [
+    "Siege Works",
+    "Battery Park"
+   ],
+   [
+    "Forestry",
+    "Carpentry"
+   ],
+   [
+    "Forestry",
+    "Chandlery"
+   ],
+   [
+    "Unforgotten Shrine",
+    "Exalted Basilica"
+   ],
+   [
+    "Carpentry",
+    "Fletchery"
+   ],
+   [
+    "Armory",
+    "Gilded Foundry"
+   ],
+   [
+    "Carpentry",
+    "Joinery"
+   ],
+   [
+    "Skirmish Field",
+    "List Yard"
+   ],
+   [
+    "Reliquary",
+    "Pilgrimage Site"
+   ],
+   [
+    "Chandlery",
+    "Reliquary"
+   ],
+   [
+    "List Yard",
+    "Royal Pavilion"
+   ],
+   [
+    "Carpentry",
+    "Siege Camp"
+   ],
+   [
+    "Siege Camp",
+    "Siege Works"
+   ],
+   [
+    "Fletchery",
+    "Skirmish Field"
+   ],
+   [
+    "Joinery",
+    "Tannery"
+   ],
+   [
+    "Pilgrimage Site",
+    "Unforgotten Shrine"
    ]
   ]
  },
@@ -515,119 +680,159 @@
   ]
  },
  {
-  "title": "Forestry",
-  "anchor": "Forestry",
+  "title": "Fishmongery",
+  "anchor": "Fishmongery",
   "mode": "root",
   "nodes": {
-   "Forestry": [
+   "Fishmongery": [
     0,
     1
    ],
-   "Carpentry": [
+   "Harbor": [
     1,
     1
    ],
-   "Siege Camp": [
+   "Stew Pond": [
+    1,
+    2
+   ],
+   "Ropewalk": [
     2,
     1
    ],
-   "Joinery": [
+   "Priory": [
     2,
     2
    ],
-   "Fletchery": [
+   "Fish Weir": [
+    2,
+    3
+   ],
+   "False Lights": [
     2,
     0
    ],
-   "Siege Works": [
+   "Sail Loft": [
     3,
     1
    ],
-   "Tannery": [
+   "Abbey": [
     3,
     2
    ],
-   "Skirmish Field": [
+   "Cooperage": [
+    3,
+    3
+   ],
+   "Corsair Haven": [
     3,
     0
    ],
-   "Battery Park": [
+   "Shipyard": [
     4,
     1
    ],
-   "Armory": [
+   "Monastery": [
     4,
     2
    ],
-   "List Yard": [
+   "Emporium": [
+    4,
+    3
+   ],
+   "Black Market": [
     4,
     0
    ],
-   "Artillery Park": [
+   "Fleet Anchorage": [
     5,
     1
    ],
-   "Gilded Foundry": [
+   "Papal Palace": [
     5,
     2
    ],
-   "Royal Pavilion": [
+   "Port Authority": [
+    5,
+    3
+   ],
+   "Thieves' Guild": [
     5,
     0
    ]
   },
   "edges": [
    [
-    "Tannery",
-    "Armory"
+    "Priory",
+    "Abbey"
    ],
    [
-    "Battery Park",
-    "Artillery Park"
+    "Corsair Haven",
+    "Black Market"
    ],
    [
-    "Siege Works",
-    "Battery Park"
+    "Fish Weir",
+    "Cooperage"
    ],
    [
-    "Forestry",
-    "Carpentry"
+    "False Lights",
+    "Corsair Haven"
    ],
    [
-    "Carpentry",
-    "Fletchery"
+    "Cooperage",
+    "Emporium"
    ],
    [
-    "Armory",
-    "Gilded Foundry"
+    "Harbor",
+    "False Lights"
    ],
    [
-    "Carpentry",
-    "Joinery"
+    "Harbor",
+    "Fish Weir"
    ],
    [
-    "Skirmish Field",
-    "List Yard"
+    "Shipyard",
+    "Fleet Anchorage"
    ],
    [
-    "List Yard",
-    "Royal Pavilion"
+    "Fishmongery",
+    "Harbor"
    ],
    [
-    "Carpentry",
-    "Siege Camp"
+    "Abbey",
+    "Monastery"
    ],
    [
-    "Siege Camp",
-    "Siege Works"
+    "Monastery",
+    "Papal Palace"
    ],
    [
-    "Fletchery",
-    "Skirmish Field"
+    "Emporium",
+    "Port Authority"
    ],
    [
-    "Joinery",
-    "Tannery"
+    "Stew Pond",
+    "Priory"
+   ],
+   [
+    "Harbor",
+    "Ropewalk"
+   ],
+   [
+    "Ropewalk",
+    "Sail Loft"
+   ],
+   [
+    "Sail Loft",
+    "Shipyard"
+   ],
+   [
+    "Fishmongery",
+    "Stew Pond"
+   ],
+   [
+    "Black Market",
+    "Thieves' Guild"
    ]
   ]
  },
@@ -1084,157 +1289,6 @@
   ]
  },
  {
-  "title": "Apiary",
-  "anchor": "Apiary",
-  "mode": "root",
-  "nodes": {
-   "Apiary": [
-    0,
-    0
-   ],
-   "Chandlery": [
-    1,
-    0
-   ],
-   "Reliquary": [
-    2,
-    0
-   ],
-   "Pilgrimage Site": [
-    3,
-    0
-   ],
-   "Unforgotten Shrine": [
-    4,
-    0
-   ],
-   "Exalted Basilica": [
-    5,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Apiary",
-    "Chandlery"
-   ],
-   [
-    "Unforgotten Shrine",
-    "Exalted Basilica"
-   ],
-   [
-    "Reliquary",
-    "Pilgrimage Site"
-   ],
-   [
-    "Chandlery",
-    "Reliquary"
-   ],
-   [
-    "Pilgrimage Site",
-    "Unforgotten Shrine"
-   ]
-  ]
- },
- {
-  "title": "Common Land",
-  "anchor": "Common Land",
-  "mode": "root",
-  "nodes": {
-   "Common Land": [
-    0,
-    0
-   ],
-   "Workyard": [
-    1,
-    0
-   ],
-   "Burgages": [
-    2,
-    0
-   ],
-   "Census Hall": [
-    3,
-    0
-   ],
-   "Storehouse": [
-    4,
-    0
-   ],
-   "Serfdom": [
-    5,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Workyard",
-    "Burgages"
-   ],
-   [
-    "Burgages",
-    "Census Hall"
-   ],
-   [
-    "Storehouse",
-    "Serfdom"
-   ],
-   [
-    "Census Hall",
-    "Storehouse"
-   ],
-   [
-    "Common Land",
-    "Workyard"
-   ]
-  ]
- },
- {
-  "title": "Fishmongery",
-  "anchor": "Fishmongery",
-  "mode": "root",
-  "nodes": {
-   "Fishmongery": [
-    0,
-    0
-   ],
-   "Harbor": [
-    1,
-    0
-   ],
-   "Shipyard": [
-    2,
-    0
-   ],
-   "Emporium": [
-    3,
-    0
-   ],
-   "Port Authority": [
-    4,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Shipyard",
-    "Emporium"
-   ],
-   [
-    "Fishmongery",
-    "Harbor"
-   ],
-   [
-    "Emporium",
-    "Port Authority"
-   ],
-   [
-    "Harbor",
-    "Shipyard"
-   ]
-  ]
- },
- {
   "title": "Manor House",
   "anchor": "Manor House",
   "mode": "chain",
@@ -1243,39 +1297,35 @@
     0,
     2
    ],
-   "Apiary": [
+   "Bakery": [
     0,
     3
    ],
-   "Bakery": [
+   "Herb Garden": [
     0,
     4
    ],
-   "Herb Garden": [
-    0,
-    0
-   ],
    "Vineyard": [
     0,
-    1
+    0
    ],
    "Cidery": [
     1,
     2
    ],
-   "Meadery": [
+   "Mill": [
     1,
     3
    ],
-   "Mill": [
+   "Spice Merchant": [
     1,
     4
    ],
-   "Spice Merchant": [
+   "Winery": [
     1,
     0
    ],
-   "Winery": [
+   "Meadery": [
     1,
     1
    ],
@@ -1308,10 +1358,6 @@
    [
     "Meadery",
     "Manor House"
-   ],
-   [
-    "Apiary",
-    "Meadery"
    ],
    [
     "Bakery",

@@ -166,24 +166,22 @@ class StaticArmy:
         #    from mastered Tiltyard (Immune Unwieldy). Defaults to True.
         melee_weapon_name = ld.weapon if ld.weapon else "Farm Tools"
         melee_profile = WEAPONS[melee_weapon_name]
-        # Bastard Sword has two profiles:
-        #   - With shield (1H mode): the WEAPONS['Bastard Sword'] entry (Shatter Armor, Steady)
-        #   - 2H mode: the WEAPONS['2HBastard'] entry (Cleave, Unwieldy, 2H)
-        # Plain 'Bastard Sword' requires a shield and fights 1H; if the shield is destroyed
-        # mid-battle it switches to the 2HBastard profile (per-run, in the skirmish loop).
-        # The standalone '2HBastard' weapon is always-2H from the start.
-        # Sourcing the 2H profile from the dict (not inline) lets it be tuned in renown_combat.py.
-        _bastard_2h = WEAPONS.get("2HBastard", {
-            "ap": -3, "init": 0, "tags": [CLEAVE, UNWIELDY, TWO_H], "tier": "Forged"})
-        self.is_bastard_dual_profile = (melee_weapon_name == "Bastard Sword" and ld.shield is not None)
-        bastard_2h_profile = None
-        if melee_weapon_name == "Bastard Sword" and ld.shield is None:
-            # (Should not occur once the generator requires a shield for plain Bastard,
-            #  but kept defensive: a shieldless 'Bastard Sword' fights as 2HBastard.)
-            melee_profile = dict(_bastard_2h)
-        elif self.is_bastard_dual_profile:
+        # A weapon with "profile_2h" (Bastard Sword, Spears, …) has two profiles:
+        #   - With shield (1H mode): its own WEAPONS entry
+        #   - 2H mode: the WEAPONS[profile_2h] entry ("2HBastard", "2HSpears", …)
+        # The plain weapon requires a shield and fights 1H; if the shield is destroyed
+        # mid-battle it switches to the 2H profile (per-run, in the skirmish loop).
+        # The standalone "2H…" weapon is always-2H from the start.
+        _prof_2h = WEAPONS.get(melee_profile.get("profile_2h") or "")
+        self.is_dual_profile = (_prof_2h is not None and ld.shield is not None)
+        dual_2h_profile = None
+        if _prof_2h is not None and ld.shield is None:
+            # (Should not occur once the generator requires a shield for a dual-profile weapon,
+            #  but kept defensive: a shieldless one fights with its 2H profile.)
+            melee_profile = dict(_prof_2h)
+        elif self.is_dual_profile:
             # Keep 1H profile as primary; precompute the 2H profile for per-run fallback.
-            bastard_2h_profile = dict(_bastard_2h)
+            dual_2h_profile = dict(_prof_2h)
         has_real_melee = ld.weapon is not None and ld.weapon != "Farm Tools"
 
         if ld.ranged:
@@ -272,12 +270,12 @@ class StaticArmy:
         self.ap_melee = melee_profile["ap"] + mw_bonus
         self.unstop_melee = UNSTOPPABLE in (melee_profile.get("tags") or [])
         # ───────────────────────────────────────────────────────────────
-        # Bastard dual: precompute the 2H tag sets for per-run override
+        # Dual profile: precompute the 2H tag sets for per-run override
         # when the shield is destroyed mid-battle.
-        if self.is_bastard_dual_profile and bastard_2h_profile is not None:
+        if self.is_dual_profile and dual_2h_profile is not None:
             # 2H mode: no shield (so don't include shield tags), no shield save bonus
-            self.tags_first_2h = self._compute_tags(bastard_2h_profile, None, ld, has_both=False, first=True)
-            self.tags_normal_2h = self._compute_tags(bastard_2h_profile, None, ld, has_both=False, first=False)
+            self.tags_first_2h = self._compute_tags(dual_2h_profile, None, ld, has_both=False, first=True)
+            self.tags_normal_2h = self._compute_tags(dual_2h_profile, None, ld, has_both=False, first=False)
         else:
             self.tags_first_2h = None
             self.tags_normal_2h = None
@@ -426,7 +424,7 @@ def _crit_floor(tags):
 
 
 def _roll_strikes_vec(rng, n, target_th, front_line, atk_tags, defender_has_shield_flag,
-                     defender_shield_destroyed, atk_bastard_2h_mask=None, atk_tags_2h=None,
+                     defender_shield_destroyed, atk_dual_2h_mask=None, atk_tags_2h=None,
                      defender_shield_immune=False, atk_crit_floor=None):
     """For each of n runs, roll up to 20 dice (front_line per run cap), count strikes.
     Returns: strikes (n,) (incl. Cleave extra hits), deadly_strikes (n,), destroyed_shield (n,)
@@ -451,7 +449,7 @@ def _roll_strikes_vec(rng, n, target_th, front_line, atk_tags, defender_has_shie
     rolls = rng.integers(1, FACES + 1, size=(n, 20), dtype=np.int8)
     cleave_rolls = rng.integers(1, FACES + 1, size=(n, 20), dtype=np.int8)
 
-    has_dual = atk_bastard_2h_mask is not None and atk_tags_2h is not None
+    has_dual = atk_dual_2h_mask is not None and atk_tags_2h is not None
 
     af = np.broadcast_to(auto_fail, (n,)).astype(np.bool_).copy()
     ap = np.broadcast_to(auto_pass, (n,)).astype(np.bool_).copy()
@@ -466,10 +464,10 @@ def _roll_strikes_vec(rng, n, target_th, front_line, atk_tags, defender_has_shie
     if has_dual:
         deadly_base = _deadly_in(atk_tags)
         deadly_2h = _deadly_in(atk_tags_2h)
-        run_has_deadly = np.where(atk_bastard_2h_mask, deadly_2h, deadly_base)
+        run_has_deadly = np.where(atk_dual_2h_mask, deadly_2h, deadly_base)
         cleave_base = (CLEAVE in atk_tags)
         cleave_2h = (CLEAVE in atk_tags_2h)
-        run_has_cleave = np.where(atk_bastard_2h_mask, cleave_2h, cleave_base)
+        run_has_cleave = np.where(atk_dual_2h_mask, cleave_2h, cleave_base)
         strikes, deadly_strikes, proc_count = _strikes_kernel_dual(
             rolls, cleave_rolls, front_line, th_clip, af, ap,
             run_has_deadly.astype(np.bool_).copy(), run_has_cleave.astype(np.bool_).copy(),
@@ -1143,20 +1141,20 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             if b_seize_second and not b_seize_persistent:
                 b_base_init = (b_base_init + 1).astype(np.int8)
 
-        # Bastard Sword adaptive: per-run, if a Bastard+shield user has had their shield
-        # destroyed in a prior skirmish, that run uses 2H stats (Cleave/Unwieldy) instead
-        # of 1H stats (Shatter/Steady) for the rest of the battle.
-        if a_static.is_bastard_dual_profile:
-            a_bastard_2h_mask = a_shield_destroyed.copy()     # only a destroyed shield flips Bastard to 2H
+        # Dual-profile adaptive: per-run, if a dual-profile weapon + shield user has had their shield
+        # destroyed in a prior skirmish, that run uses the 2H profile's tags instead of the 1H
+        # profile's for the rest of the battle.
+        if a_static.is_dual_profile:
+            a_dual_2h_mask = a_shield_destroyed.copy()     # only a destroyed shield flips to the 2H profile
             a_tags_2h = a_static.tags_first_2h if first else a_static.tags_normal_2h
         else:
-            a_bastard_2h_mask = None
+            a_dual_2h_mask = None
             a_tags_2h = None
-        if b_static.is_bastard_dual_profile:
-            b_bastard_2h_mask = b_shield_destroyed.copy()
+        if b_static.is_dual_profile:
+            b_dual_2h_mask = b_shield_destroyed.copy()
             b_tags_2h = b_static.tags_first_2h if first else b_static.tags_normal_2h
         else:
-            b_bastard_2h_mask = None
+            b_dual_2h_mask = None
             b_tags_2h = None
 
         # Pick tactics per playstyle (defaults to uniform random if None/Random)
@@ -1166,7 +1164,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         b_weights = resolve_playstyle_weights(b_playstyle, b_state, n_runs)
 
         # Fall Back availability gate: FB is unavailable as a tactic before
-        # skirmish index `fb_min_skirmish` (default 0 = always available). When
+        # skirmish index `fb_min_skirmish` (default 1 = not in the first Skirmish). When
         # gated out, its weight is zeroed and the remaining tactics renormalize,
         # so the player simply picks another tactic that skirmish.
         # NOTE on zeroing tactic weights: sample_tactic_indices() forces
@@ -1241,10 +1239,10 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         # vs free (Scout/Scout, Ambush/Ambush).
         no_combat_endurance_pair = tab["no_combat_endurance"][a_tac, b_tac]
 
-        # Steady/Unwieldy — handle per-run for Bastard dual-profile
+        # Steady/Unwieldy — handle per-run for a dual-profile weapon
         # NOTE on Immune Unwieldy: when a unit has the Immune Unwieldy tag (typically from
         # Tiltyard mastery), the Unwieldy positive-init clamp is suppressed in BOTH the
-        # normal branch AND the bastard-dual 2H branch.
+        # normal branch AND the dual-profile branch.
         a_immune_unwieldy = IMMUNE_UNWIELDY in a_tags
         b_immune_unwieldy = IMMUNE_UNWIELDY in b_tags
         # "Shield is the SOLE Unwieldy source" — true when the shield carries Unwieldy and there is no
@@ -1252,15 +1250,13 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         # lift the Unwieldy init-clamp (a destroyed shield returns ALL its negatives).
         a_shield_only_unwieldy = a_static.shield_unwieldy and not a_static.unwieldy_non_shield
         b_shield_only_unwieldy = b_static.shield_unwieldy and not b_static.unwieldy_non_shield
-        if a_bastard_2h_mask is not None:
-            # 1H runs: Steady (clamp negative init to 0). 2H runs: Unwieldy (clamp positive to 0).
-            a_in_1h = ~a_bastard_2h_mask
-            a_in_2h = a_bastard_2h_mask
-            # Steady (only for 1H Bastard runs): negative init mods become 0
-            a_I_mod = np.where(a_in_1h & (a_I_mod < 0), 0, a_I_mod)
-            # Unwieldy (only for 2H Bastard runs): positive init mods become 0 — unless Immune Unwieldy
-            if not a_immune_unwieldy:
-                a_I_mod = np.where(a_in_2h & (a_I_mod > 0), 0, a_I_mod)
+        if a_dual_2h_mask is not None:
+            # Each run clamps by the profile it fights with: 1H runs read the 1H tags, 2H runs the 2H tags.
+            # Steady: negative init mods become 0. Unwieldy: positive init mods become 0 — unless Immune Unwieldy.
+            a_steady_run = np.where(a_dual_2h_mask, STEADY in a_tags_2h, STEADY in a_tags)
+            a_unw_run = np.where(a_dual_2h_mask, UNWIELDY in a_tags_2h, UNWIELDY in a_tags) & (not a_immune_unwieldy)
+            a_I_mod = np.where(a_steady_run & (a_I_mod < 0), 0, a_I_mod)
+            a_I_mod = np.where(a_unw_run & (a_I_mod > 0), 0, a_I_mod)
         else:
             if STEADY in a_tags:
                 a_I_mod = np.where(a_I_mod < 0, 0, a_I_mod)
@@ -1274,12 +1270,11 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
                     a_I_mod = np.where(a_clamp & (~(a_shield_destroyed | _a_shoff)), 0, a_I_mod)
                 else:
                     a_I_mod = np.where(a_I_mod > 0, 0, a_I_mod)
-        if b_bastard_2h_mask is not None:
-            b_in_1h = ~b_bastard_2h_mask
-            b_in_2h = b_bastard_2h_mask
-            b_I_mod = np.where(b_in_1h & (b_I_mod < 0), 0, b_I_mod)
-            if not b_immune_unwieldy:
-                b_I_mod = np.where(b_in_2h & (b_I_mod > 0), 0, b_I_mod)
+        if b_dual_2h_mask is not None:
+            b_steady_run = np.where(b_dual_2h_mask, STEADY in b_tags_2h, STEADY in b_tags)
+            b_unw_run = np.where(b_dual_2h_mask, UNWIELDY in b_tags_2h, UNWIELDY in b_tags) & (not b_immune_unwieldy)
+            b_I_mod = np.where(b_steady_run & (b_I_mod < 0), 0, b_I_mod)
+            b_I_mod = np.where(b_unw_run & (b_I_mod > 0), 0, b_I_mod)
         else:
             if STEADY in b_tags:
                 b_I_mod = np.where(b_I_mod < 0, 0, b_I_mod)
@@ -1441,7 +1436,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         a_strikes_initial, a_shatter, a_destroys_shield = _roll_strikes_vec(
             rng, n_runs, a_target_th, a_front, a_tags,
             b_static.has_shield, (b_shield_destroyed | _b_shoff),
-            atk_bastard_2h_mask=a_bastard_2h_mask, atk_tags_2h=a_tags_2h,
+            atk_dual_2h_mask=a_dual_2h_mask, atk_tags_2h=a_tags_2h,
             defender_shield_immune=b_static.shield_immune, atk_crit_floor=_crit_floor(a_tags),
         )
         # Mask: only count strikes from runs where A actually fights this skirmish
@@ -1512,7 +1507,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         b_strikes, b_shatter, b_destroys_shield = _roll_strikes_vec(
             rng, n_runs, b_target_th, b_effective_front, b_tags,
             a_static.has_shield, (a_shield_destroyed | _a_shoff),
-            atk_bastard_2h_mask=b_bastard_2h_mask, atk_tags_2h=b_tags_2h,
+            atk_dual_2h_mask=b_dual_2h_mask, atk_tags_2h=b_tags_2h,
             defender_shield_immune=a_static.shield_immune,
             atk_crit_floor=_crit_floor(b_tags),
         )
@@ -1568,7 +1563,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             new_a_strikes, new_a_shatter, new_a_destroys = _roll_strikes_vec(
                 rng, n_runs, a_target_th, a_effective_front_after_b, a_tags,
                 b_static.has_shield, (b_shield_destroyed | _b_shoff),
-                atk_bastard_2h_mask=a_bastard_2h_mask, atk_tags_2h=a_tags_2h,
+                atk_dual_2h_mask=a_dual_2h_mask, atk_tags_2h=a_tags_2h,
                 defender_shield_immune=b_static.shield_immune,
                 atk_crit_floor=_crit_floor(a_tags),
             )

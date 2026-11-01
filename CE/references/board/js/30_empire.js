@@ -54,7 +54,8 @@ function rawInSett(ctx,n,sid){if(!(sid in ctx.sr)){const s=ctx.me?settById(ctx.m
       if(nodesMode()){if(h.res&&RES_NODE[h.res])set.add(RES_NODE[h.res]);}else (((TREF.terrain||{})[RULE_NAME[h.t]]||{})["Raw Materials"]||[]).forEach(x=>set.add(x));});ctx.sr[sid]=set;}}
   const st=ctx.sr[sid];return st?st.has(n):null;}
 function rawOK(n,sid,ctx){if(!rawRes(n)||!ctx.me)return true;if(sid!=null&&sid!=="faction")return rawInSett(ctx,n,sid)!==false;return !(ctx.res&&!ctx.res.has(n));}
-function pLegal(n,sid,ctx){ctx=ctx||legalCtx();if(!pAvail(n))return false;const r=R[n]||{};
+function pLegal(n,sid,ctx){ctx=ctx||legalCtx();if(!pAvail(n))return false;const r=R[n]||{};if(r.deprecated)return false;   // deprecated: kept for saved games, never placed
+ 
   if(!r.root&&!chainLine(n,ctx.own))return false;
   if((r.mreq||[]).length&&!reqStatus(r,ctx.have,ctx.craft,ctx.tc).earned)return false;
   return rawOK(n,sid,ctx);}
@@ -1304,7 +1305,7 @@ function optionList(sel, items, tierset, u, chosen, extra){
 }
 
 // Shared loadout builder (Army cards and the Garrison card): Retinue · Weapon · Ranged · Armor · Shield selects bound to obj,
-// locked options marked by the owner's unlocks u. opts.onRetinue runs after a Retinue change; opts.bastard folds 2H Bastard.
+// locked options marked by the owner's unlocks u. opts.onRetinue runs after a Retinue change; opts.bastard folds a "2H…" profile entry into its weapon.
 function loadoutFields(obj,u,opts){opts=opts||{};const lo=document.createElement("div");lo.className="loadout";
   const field=(labelTxt,key,items,tierset,extra,after)=>{const f=document.createElement("div");f.className="fld";f.innerHTML='<label>'+labelTxt+'</label>';
     const sel=document.createElement("select");optionList(sel,items,tierset,u,obj[key],extra);if(!obj[key]||!items[obj[key]])obj[key]=sel.value;

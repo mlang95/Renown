@@ -103,7 +103,7 @@ def pack_side(loadouts, is_attacker):
     P["gf_armor"]    = np.array([a.gf_armor for a in armies], dtype=np.bool_)
     P["yew_heart"]   = np.array([a.yew_heart for a in armies], dtype=np.bool_)
     P["has_ranged"]  = np.array([a.ranged is not None for a in armies], dtype=np.bool_)
-    P["is_bastard_dual"] = np.array([a.is_bastard_dual_profile for a in armies], dtype=np.bool_)
+    P["is_dual"] = np.array([a.is_dual_profile for a in armies], dtype=np.bool_)
     # base_init(True) with is_attacker=True is the SEIZE value (+1 first skirmish); with
     # is_attacker=False it's the no-seize value. These must be built explicitly from BOTH
     # StaticArmy variants — NOT from `armies` (whose is_attacker depends on the call), or a
@@ -156,11 +156,14 @@ def pack_side(loadouts, is_attacker):
         return min(floors) if floors else FOCUSED_THR
     P["first_crit_floor"]  = np.array([_crit_floor(a.tags_first)  for a in armies], dtype=np.int64)
     P["normal_crit_floor"] = np.array([_crit_floor(a.tags_normal) for a in armies], dtype=np.int64)
-    # Bastard Sword dual profile (same as vectorized_combat): once its shield is DESTROYED a Bastard
-    # army fights with the 2H profile — Deadly/Cleave from the 2H tags, and the init clamp flips
-    # from Steady (1H) to Unwieldy (2H). Per-phase 2H flags; False for non-Bastard armies.
+    # Dual-profile weapons (same as vectorized_combat): once its shield is DESTROYED a dual-profile
+    # army fights with the 2H profile — Deadly/Cleave/Steady/Unwieldy from the 2H tags.
+    # Per-phase 2H flags; False for armies without a dual-profile weapon.
     def _dead(tags): return bool(tags) and ((SHATTER_ARMOR in tags) or ("Shatter Armor" in tags) or (HALFSWORD in tags))
     for ph in ("first", "normal"):
+        for _kw, _tag in (("Steady", STEADY), ("Unwieldy", UNWIELDY)):
+            P[f"{ph}_2h_{_kw}"] = np.array([bool(getattr(a, f"tags_{ph}_2h")) and (_tag in getattr(a, f"tags_{ph}_2h"))
+                                            for a in armies], dtype=np.bool_)
         P[f"{ph}_2h_Deadly"] = np.array([_dead(getattr(a, f"tags_{ph}_2h")) for a in armies], dtype=np.bool_)
         P[f"{ph}_2h_Cleave"] = np.array([bool(getattr(a, f"tags_{ph}_2h")) and (CLEAVE in getattr(a, f"tags_{ph}_2h"))
                                           for a in armies], dtype=np.bool_)
@@ -619,8 +622,8 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         a_dstr = tflag(Pa, skl, DESTROY_SHIELD); b_dstr = tflag(Pb, skl, DESTROY_SHIELD)
         a_crit = tile(Pa[f"{skl}_crit_floor"]); b_crit = tile(Pb[f"{skl}_crit_floor"])
         a_dw = tile(Pa[f"{skl}_Dual_Wield"]); b_dw = tile(Pb[f"{skl}_Dual_Wield"])
-        # Bastard 2H runs: shield destroyed at the start of this skirmish (not merely unequipped)
-        a_bd = tile(Pa["is_bastard_dual"]); b_bd = tile(Pb["is_bastard_dual"])
+        # Dual-profile 2H runs: shield destroyed at the start of this skirmish (not merely unequipped)
+        a_bd = tile(Pa["is_dual"]); b_bd = tile(Pb["is_dual"])
         a_b2h = a_bd & a_shdest; b_b2h = b_bd & b_shdest
         a_dead = np.where(a_bd, np.where(a_b2h, tile(Pa[f"{skl}_2h_Deadly"]), a_dead), a_dead)
         b_dead = np.where(b_bd, np.where(b_b2h, tile(Pb[f"{skl}_2h_Deadly"]), b_dead), b_dead)
@@ -702,6 +705,32 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
                 b_counter = _sample_from_weights(w, rng)
                 b_tac = np.where(b_fires, b_counter, b_tac)
 
+        # === Fall Back gate (TACTICAL_GLOBAL: Fall Back only after the first Skirmish) — mirrors
+        # vectorized_combat's fb_min_skirmish=1. Any first-Skirmish Fall Back (playstyle, Arquebus
+        # re-pick, Outrider counter, forced) is re-picked from that side's weights with Fall Back
+        # zeroed and renormalised; uniform over the other 6 when no weights apply.
+        if first:
+            for _side in ("a", "b"):
+                _tac = a_tac if _side == "a" else b_tac
+                _fb = _tac == FB_IDX
+                if not _fb.any():
+                    continue
+                if mode == "playstyle":
+                    _w = (a_w if _side == "a" else b_w).copy()
+                else:
+                    _w = np.zeros((N, 7)); _w[:, :6] = 1.0
+                _P = Pa if _side == "a" else Pb
+                _r = tile(_P[f"{skl}_tac_restricted"])
+                _w = np.where(_r[:, None] & ~np.repeat(_P["tac_mask"], n_runs, axis=0), 0.0, _w)
+                _w[:, FB_IDX] = 0.0
+                _sum = _w.sum(axis=1, keepdims=True)
+                _w = np.where(_sum > 0, _w / np.where(_sum > 0, _sum, 1.0), np.r_[np.ones(6), 0.0] / 6.0)
+                _tac = np.where(_fb, _sample_from_weights(_w, rng), _tac)
+                if _side == "a":
+                    a_tac = _tac
+                else:
+                    b_tac = _tac
+
         a_I_mod = tab["a_I"][a_tac, b_tac]; a_TH_mod = tab["a_TH"][a_tac, b_tac]; a_TS_mod = tab["a_TS"][a_tac, b_tac]
         b_I_mod = tab["b_I"][a_tac, b_tac]; b_TH_mod = tab["b_TH"][a_tac, b_tac]; b_TS_mod = tab["b_TS"][a_tac, b_tac]
         # Record the ACTUAL first-skirmish tactics (after any Outrider override) for the
@@ -712,16 +741,16 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         no_combat_pair = tab["no_combat"][a_tac, b_tac]
         no_combat_endurance_pair = tab["no_combat_endurance"][a_tac, b_tac]
 
-        # Steady/Unwieldy init clamps. Bastard dual: 1H runs Steady, 2H runs Unwieldy (unless immune).
-        a_I_mod = np.where(np.where(a_bd, ~a_b2h, a_steady) & (a_I_mod < 0), 0, a_I_mod)
-        b_I_mod = np.where(np.where(b_bd, ~b_b2h, b_steady) & (b_I_mod < 0), 0, b_I_mod)
+        # Steady/Unwieldy init clamps. Dual profile: 2H runs read the 2H profile's tags (Unwieldy unless immune).
+        a_I_mod = np.where(np.where(a_b2h, tile(Pa[f"{skl}_2h_Steady"]), a_steady) & (a_I_mod < 0), 0, a_I_mod)
+        b_I_mod = np.where(np.where(b_b2h, tile(Pb[f"{skl}_2h_Steady"]), b_steady) & (b_I_mod < 0), 0, b_I_mod)
         # Unwieldy positive-init clamp. Variant B: if the shield is the SOLE Unwieldy source, the
         # clamp is lifted on runs where that shield is destroyed (a destroyed shield stops being
         # Unwieldy). Non-shield Unwieldy (weapon/armor/dual) still clamps regardless.
         a_unw_active = a_unw & (~a_imunw) & ~(a_sh_only_unw & (a_shdest | _a_shoff))
         b_unw_active = b_unw & (~b_imunw) & ~(b_sh_only_unw & (b_shdest | _b_shoff))
-        a_unw_active = np.where(a_bd, a_b2h & (~a_imunw), a_unw_active)
-        b_unw_active = np.where(b_bd, b_b2h & (~b_imunw), b_unw_active)
+        a_unw_active = np.where(a_b2h, tile(Pa[f"{skl}_2h_Unwieldy"]) & (~a_imunw), a_unw_active)
+        b_unw_active = np.where(b_b2h, tile(Pb[f"{skl}_2h_Unwieldy"]) & (~b_imunw), b_unw_active)
         a_I_mod = np.where(a_unw_active & (a_I_mod > 0), 0, a_I_mod)
         b_I_mod = np.where(b_unw_active & (b_I_mod > 0), 0, b_I_mod)
 

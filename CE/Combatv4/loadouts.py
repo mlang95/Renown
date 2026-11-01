@@ -19,6 +19,8 @@ Engine-recognized extra_tags:
 """
 from collections import namedtuple
 from renown_data import RETINUES, WEAPONS, RANGED, SHIELDS, ARMORS
+# Weapons with a 2H profile (Bastard Sword, Spears, …): the plain weapon is the 1H profile and must carry a shield.
+DUAL_PROFILE = {k for k, v in WEAPONS.items() if v.get("profile_2h")}
 import renown_data as _rd_st
 # Standing thresholds from data; fallback keeps this file copy-compatible with Combatv3 (D6) data.
 _ST = getattr(_rd_st, "STANDING_THRESHOLDS", {"Untested": 1, "Rising": 3, "Established": 6, "Sovereign": 10})
@@ -232,7 +234,7 @@ def ranged_satisfied(ranged, pursuits):
 def valid_combo(retinue, weapon, shield, armor, ranged, has_tiltyard, allow_tier_mismatch=2):
     """Filter for sensible combinations.
     - 2H melee disallows shields.
-    - 1H melee REQUIRES a shield (except Bastard Sword, which has both profiles).
+    - 1H melee REQUIRES a shield (a dual-profile weapon too: its plain entry is the 1H profile).
       Farm Tools is exempt as the universal sidearm fallback in pure-ranged builds.
     - 1H melee: shield tier must be >= weapon tier (universal rule).
       Note: the "shield tier == weapon tier without ABF" rule is path-specific
@@ -257,11 +259,11 @@ def valid_combo(retinue, weapon, shield, armor, ranged, has_tiltyard, allow_tier
     # (Crossbow is 2H like the other bows: no Crossbow-specific shield rule.)
     if weapon == "Poleaxe" and retinue == "Levy":
         return False
-    # Plain 'Bastard Sword' must ALWAYS carry a shield (it's the 1H profile that only
-    # swaps to 2HBastard if the shield is destroyed). A shieldless Bastard is invalid —
-    # the always-2H form is the separate '2HBastard' weapon. This also blocks
+    # A plain dual-profile weapon (Bastard Sword, Spears, …) must ALWAYS carry a shield (it's the
+    # 1H profile that only swaps to its 2H profile if the shield is destroyed). A shieldless one is
+    # invalid — the always-2H form is the separate "2H…" weapon. This also blocks e.g.
     # Bastard+Crossbow (which would be shieldless), forcing 2HBastard+Crossbow instead.
-    if weapon == "Bastard Sword" and shield is None:
+    if weapon in DUAL_PROFILE and shield is None:
         return False
     # 1H weapons (no "2H" tag) require a shield, except Farm Tools.
     if (weapon != "Farm Tools"
@@ -820,7 +822,7 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
         dual_wield_weapons = set()
         if has_dw:
             for w in melee:
-                if w in ("Farm Tools", "Bastard Sword") or is_2h(w) or w in STABLE_WEAPONS:   # Bastard Sword (1H) always carries a shield
+                if w == "Farm Tools" or w in DUAL_PROFILE or is_2h(w) or w in STABLE_WEAPONS:   # a dual-profile weapon (1H) always carries a shield
                     continue
                 arms_options.append((w, None, True))
                 dual_wield_weapons.add(w)
@@ -890,7 +892,7 @@ def _structural_legal(weapon, shield, armor, ranged, has_tiltyard):
     These are the rules Gage specified for pool generation:
       - 2H melee cannot use a shield.
       - 1H melee (except Farm Tools) requires a shield.
-      - Bastard Sword (1H profile) must carry a shield.
+      - A dual-profile weapon (1H profile) must carry a shield.
       - Lance / Cavalry Spear cannot use Tower Shield (Wooden is allowed).
       - Stable cavalry weapons (Lance, Cavalry Spear) cannot dual-equip a ranged weapon.
       - One-Shot ranged (Javelin, Crossbow) requires Tiltyard.
@@ -903,7 +905,7 @@ def _structural_legal(weapon, shield, armor, ranged, has_tiltyard):
         return False
     if weapon in ("Lance", "Cavalry Spear") and shield == "Tower Shield":
         return False
-    if weapon == "Bastard Sword" and shield is None:
+    if weapon in DUAL_PROFILE and shield is None:
         return False
     if (weapon != "Farm Tools" and not is_2h(weapon) and shield is None):
         return False
@@ -955,7 +957,7 @@ def balanced_validation_pool(mpc_min=4, mpc_max=13, per_cell=None, seed=2026,
                         continue
                 gear_configs.append((weapon, shield, armor, None, False))
     for weapon in WEAPONS:                                        # Tiltyard two-of-same Dual Wield
-        if weapon in ("Farm Tools", "Bastard Sword") or is_2h(weapon) or weapon in STABLE_WEAPONS:
+        if weapon == "Farm Tools" or weapon in DUAL_PROFILE or is_2h(weapon) or weapon in STABLE_WEAPONS:
             continue
         for armor_tier in TIER_ORDER:
             if armor_for_tier.get(armor_tier):
@@ -1062,8 +1064,8 @@ def validate_loadout(ld, check_tier_floors=False):
     if (w not in (None, "Farm Tools") and not is_2h(w) and sh is None
             and not _is_dw_build):
         v.append(f"1H weapon {w} has no shield")
-    if w == "Bastard Sword" and sh is None:
-        v.append("Bastard Sword (1H) has no shield")
+    if w in DUAL_PROFILE and sh is None:
+        v.append(f"{w} (1H) has no shield")
     if w in STABLE_WEAPONS and sh == "Tower Shield":
         v.append(f"{w} cannot use Tower Shield")
     if w in STABLE_WEAPONS and rg is not None:

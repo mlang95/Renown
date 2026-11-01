@@ -927,13 +927,16 @@ function banditAct(k){const M=mapState(),cp=M.camps[k],B=BST(),F=BAN.faces||10,r
   B.acts=(B.acts||[]).concat([rec]).slice(-80);
   if(oc!=="Passed"&&oc!=="Endorsed"){bLog(head,k);return;}
   let fx="";
+  {const dz=+RC.CUNNING_DOUBT||0;if(dz){const g=gainDoubt(tgt.p.board,dz);fx=tgt.p.name+": Doubt +"+dz+(g<dz?" ("+(dz-g)+" reduced, first Doubt)":"")+" · ";}}   // a Cunning action's target gains Doubt
   if(act==="Raze"){const pool=tgt.p.board.placed.filter(q=>q.sid===tgt.s.id&&!(q.bt>0)&&!(q.dmg>0)),q=pool[Math.floor(Math.random()*pool.length)],rt=((DATA.timers||{})["Repair Timer"]||{}).default||2;
-    q.dmg=rt;delete q.rep;delete q.shut;q.dmgBy=dmgMark({camp:k});fx="Bandits raze "+tgt.p.name+"'s "+q.name+" (Damaged: inactive until Repaired)";}
-  else if(act==="Destabilize"){B.dest[tgt.p.id+":"+tgt.s.id]={camp:k};fx="next Winter: "+(tgt.s.name||tgt.s.tier)+"'s tax → camp";}
-  else if(act==="Intercept Caravan"){B.ic[tgt.p.id]={camp:k};fx="next turn "+tgt.p.name+" is Host: trade income → camp";}
-  else if(act==="Sabotage"){mapState().cells[tgt.k].blocked=true;mapState().cells[tgt.k].blockedT=tTurn();fx=tgt.p.name+"'s "+(tgt.a?(tgt.a.label||"Army "+tgt.a.id):"Army")+" @ "+tgt.k+" gains Blocked";}
-  else if(act==="Foster Rebellion"){B.foster.push({pid:String(tgt.p.id)});fx="next Bandit Mechanics: 10-Retinue camp in "+tgt.p.name+"'s Outlaw Country";}
-  if(oc==="Endorsed"){const x=endorsedExtort(act),b=tgt.p.board,t=Math.min(x,Math.max(0,b.treasury||0));tGold(b,-t,"Extorted by Bandits (Endorsed "+act+")");cp.gold=(cp.gold||0)+t;fx+=" · Endorsed: Extort "+t;
+    q.dmg=rt;delete q.rep;delete q.shut;q.dmgBy=dmgMark({camp:k});fx+="Bandits raze "+tgt.p.name+"'s "+q.name+" (Damaged: inactive until Repaired)";}
+  else if(act==="Destabilize"){B.dest[tgt.p.id+":"+tgt.s.id]={camp:k};fx+="next Winter: "+(tgt.s.name||tgt.s.tier)+"'s tax → camp";}
+  else if(act==="Intercept Caravan"){B.ic[tgt.p.id]={camp:k};fx+="next turn "+tgt.p.name+" is Host: trade income → camp";}
+  else if(act==="Sabotage"){mapState().cells[tgt.k].blocked=true;mapState().cells[tgt.k].blockedT=tTurn();fx+=tgt.p.name+"'s "+(tgt.a?(tgt.a.label||"Army "+tgt.a.id):"Army")+" @ "+tgt.k+" gains Blocked";}
+  else if(act==="Foster Rebellion"){B.foster.push({pid:String(tgt.p.id)});fx+="next Bandit Mechanics: 10-Retinue camp in "+tgt.p.name+"'s Outlaw Country";}
+  const more=cunningExtortMore();   // Rogue Network: a Bandit Cunning action that Passes Extorts more too
+  if(oc==="Endorsed"||more){const x=(oc==="Endorsed"?endorsedExtort(act):0)+more,b=tgt.p.board,t=Math.min(x,Math.max(0,b.treasury||0)),lbl=(oc==="Endorsed"?"Endorsed ":"")+act+(more?" + Rogue Network":"");
+    tGold(b,-t,"Extorted by Bandits ("+lbl+")");cp.gold=(cp.gold||0)+t;fx+=" · "+(oc==="Endorsed"?"Endorsed: ":"")+"Extort "+t+(more?" (incl. "+more+" more)":"");
     if(t){const own=terrOwners()[k];D.players.forEach(h=>{if(!own||!own.has(String(h.id)))return;srcMatch(h.board,"syndicate_camp_extort").forEach(y=>{const take=Math.min(Math.floor(t/2),Math.max(0,+cp.gold||0));if(take){cp.gold-=take;tGold(h.board,take,y.n+": half of Bandit Extort");fx+=" · "+h.name+" "+y.n+" takes "+take+" from camp";}});});}}
   rec.fx=[fx];bLog(head+": "+fx,k);}
 function runBanditMechanics(){const M=mapState(),B=BST(),sea=curSeason(),keys=Object.keys(M.camps),queued=B.foster.slice();

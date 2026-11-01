@@ -161,12 +161,27 @@ function recoupNote(owner,action,out){const a=(DATA.actions||{})[action]||{},dom
 const RC=DATA.rulesConst||{};
 function UPKEEP(){return RC.UPKEEP_TERM||"Upkeep";}   // what Holdings and Infrastructure cost
 function SUPPLY(){return RC.SUPPLY_TERM||"Supply";}   // what Armies cost
-function blackMarketReact(p,amount,id,kind){if(!p||amount<=0)return [];const out=[];
-  D.players.forEach(h=>{if(sameP(h,p))return;srcMatch(h.board,id).forEach(x=>{
-    const fee=Math.max(+x.m[3]||0,Math.floor(amount/(+x.m[2]||1))*(+x.m[1]||0)),paid=Math.min(fee,Math.max(0,+p.board.treasury||0));
+// Black Market: p Extorted or Recouped Gold → every other player with "black_market" Extorts its flat fee from p.
+// That Extort is tagged "Black Market", so it never triggers Black Market again (it may still pay its taker's Extort bonus).
+function blackMarketReact(p,kind){if(!p)return [];const out=[];
+  D.players.forEach(h=>{if(sameP(h,p))return;srcMatch(h.board,"black_market").forEach(x=>{
+    const paid=Math.min(+x.m[1]||0,Math.max(0,+p.board.treasury||0));
     if(paid){tGold(p.board,-paid,"Black Market "+kind+" reaction · "+x.n);tGold(h.board,paid,"Black Market "+kind+" reaction · "+x.n);
-      out.push(h.name+" extorts "+paid.toLocaleString()+" from "+p.name+" ("+x.n+")");}
+      out.push(h.name+" extorts "+paid.toLocaleString()+" from "+p.name+" ("+x.n+")");extortReact(h,paid,"Black Market").forEach(y=>out.push(y));}
   });});return out;}
+// p made one Extort of t in total (one effect resolving): Black Market reactions, then p's "Extort N or more, Gold +M" bonus
+function extortReact(p,t,why){const out=[];if(!p||t<=0)return out;
+  if(!/black market/i.test(String(why||"")))blackMarketReact(p,"Extort").forEach(x=>out.push(x));
+  srcMatch(p.board,"extort_bonus").forEach(x=>{if(t<+x.m[1])return;tGold(p.board,+x.m[2],x.n+" · Extort "+t.toLocaleString());
+    out.push(p.name+": Gold +"+(+x.m[2]).toLocaleString()+" ("+x.n+")");});
+  out.forEach(x=>noteAdd(p,x));return out;}
+// "Whenever any player or Bandit performs a Cunning action, it Extorts N more from its target" (Rogue Network): every copy in play adds up
+function cunningExtortMore(){return D.players.reduce((a,p)=>a+srcMatch(p.board,"cunning_extort_more").reduce((s,x)=>s+(+x.m[1]||0),0),0);}
+// Extort X: one effect resolving is one Extort of the total it takes. Inside extortGroup, transfers to the same player for the
+// same reason add up, and that player's reactions fire once when the group closes; outside a group each transfer is its own Extort.
+let EXG=null;
+function extortGroup(fn){if(EXG)return fn();EXG=new Map();let r;
+  try{r=fn();}finally{const g=EXG;EXG=null;g.forEach(x=>extortReact(x.p,x.t,x.why));}return r;}
 // ---- Extort: always a transfer of gold that exists; never takes the source below 0 ----
 // from / to: {b:board} or {camp:banditCamp}. Returns the amount moved.
 function extortGold(from,to,amt,why){
@@ -174,8 +189,9 @@ function extortGold(from,to,amt,why){
   const nm=x=>!x?"":x.camp?"Bandits":(x.name||boardOwnerName(x.b)),w=why?" ("+why+")":"";
   if(from.camp)from.camp.gold=have-t;else tGold(from.b,-t,"Extorted"+(to?" by "+nm(to):"")+w);
   if(to){if(to.camp)to.camp.gold=(+to.camp.gold||0)+t;else tGold(to.b,t,"Extort from "+nm(from)+w);}
-  // Reaction transfers are ledgered directly and tagged, so they cannot recurse.
-  if(t&&to&&!to.camp&&to.b){const extorter=D.players.find(p=>p.board===to.b);if(extorter)blackMarketReact(extorter,t,"black_market_extort","Extort");}
+  if(t&&to&&!to.camp&&to.b){const extorter=D.players.find(p=>p.board===to.b);if(extorter){
+    if(EXG){const k=String(extorter.id)+"|"+String(why||"");const g=EXG.get(k)||{p:extorter,t:0,why};g.t+=t;EXG.set(k,g);}
+    else extortReact(extorter,t,why);}}
   return t;}
 // Danegeld: "While At War, your Armies within reach of at-war Settlements Extort their upkeep from that Settlement's owner".
 // One row per Army standing in Territory reached by an at-war player's Settlements; that player pays the Army's upkeep
@@ -264,7 +280,7 @@ function extortTargetRows(qp){const L=extortSlots(qp.board),T=exTargets(qp.board
     '<select data-do="exto" data-exto="'+esc(x.key)+'" data-who="'+qp.id+'"'+(canAct(qp)?'':' disabled')+'><option value="">— choose —</option>'+D.players.filter(q=>!sameP(q,qp)).map(q=>'<option value="'+q.id+'"'+(String(T[x.key])===String(q.id)?' selected':'')+'>'+esc(q.name)+'</option>').join("")+'</select></div>').join("");}
 // Empire Phase Extort card: what qp collects and pays in the Extort step at End turn (runAutoExtort run dry, Pillage, Destabilize /
 // Intercept Caravan, Bandit Camps in the Province), the Extort targets to choose, and qp's Extorts that fire at other moments
-const EXTORT_TRIGGERS=["toll_extort","forge_oppose_extort","black_market_extort","black_market_recoup","syndicate_camp_extort","diplo_extort"];
+const EXTORT_TRIGGERS=["toll_extort","forge_oppose_extort","black_market","extort_bonus","cunning_extort_more","trade_doubt","syndicate_camp_extort","diplo_extort"];
 function extortCardHTML(qp){const id=String(qp.id),rows=[],fmt=n=>(+n||0).toLocaleString(),add=(dir,who,t,of,src)=>rows.push({dir,who,t,of,src});
   let dry=[];try{dry=runAutoExtort(true);}catch(e){console.warn("extort preview",e);}
   dry.forEach(x=>{if(!x.from||!x.to)return;if(String(x.to.id)===id)add("in",x.from.name,x.t,x.amt,x.why);else if(String(x.from.id)===id)add("out",x.to.name,x.t,x.amt,x.why);});
@@ -541,6 +557,12 @@ function moveRange(p,a,startK){const M=mapState(),g=M.grid;if(!g||!startK)return
     if(!M.cells[k]&&!M.camps[k]&&!foe(k))dest[k]=base.fin(k,x);
     else if(M.cells[k]&&M.cells[k].type!=="Army"&&!M.camps[k]){const cs=cellSett(k),ent=cs.s?enterCheck(p,a,cs.p,cs.s):null;
       if(ent&&ent.ok)dest[k]=Object.assign(base.fin(k,x),{enter:{pid:String(cs.p.id),sid:cs.s.id,name:cs.s.name||cs.s.tier,kick:ent.kick||null}});}});
+  // "If your Army begins a Move adjacent to a Water Territory, it may end that Move adjacent to any Water Territory connected to it"
+  // (Fleet Anchorage): every land hex beside the Water connected to the start is a destination, whatever the Speed; its path runs over that Water
+  if(srcHas(p.board,"sail_water")){const isW=k=>{const h=V.hex[k];return !!h&&terrWaterStop(h.t);},prevW={},Q=hexNb(startK).filter(isW);
+    Q.forEach(k=>prevW[k]=null);while(Q.length){const k=Q.shift();hexNb(k).forEach(n=>{if(isW(n)&&!(n in prevW)){prevW[n]=k;Q.push(n);}});}
+    Object.keys(prevW).forEach(w=>hexNb(w).forEach(k=>{const h=V.hex[k];if(!h||isW(k)||k===startK||dest[k]||terrBlocked(h.t)||M.cells[k]||M.camps[k]||foe(k)||cov[k])return;
+      const path=[];let c=w;while(c){path.unshift(c);c=prevW[c];}dest[k]={cost:0,w:2,path:[startK].concat(path,[k]),strain:false,sail:true};}));}
   // Battle / Lay Siege: end adjacent to the target, through its own Presence (other non-allied Presence still blocks)
   AS.forEach((o,i)=>{if(o.ward||!o.war||(o.kind==="battle"&&!o.B)||hexDist(hk(startK),hk(o.k))>S_.speed+1)return;const R_=run(lift(i));
     hexNb(o.k).forEach(k=>{const x=R_.reach[k];if(!x||k===startK||M.cells[k]||M.camps[k]||foe(k)||blockedX(k,lift(i)))return;   // already adjacent: use Engage in the panel
@@ -563,6 +585,11 @@ function moveEndTriggers(p,k){const own=terrOwners()[k],out=[];if(!own)return ou
     if(!ally)srcMatch(q.board,"beacon_move").forEach(x=>{
       const m=x.n+" ("+q.name+"): may immediately perform a Move action";out.push(m);noteAdd(q,m);});});
   return out;}
+// "Non-allied Armies that Move onto a Water Territory in your Province gain Blocked" (False Lights): who catches this path
+function waterBlockers(p,path){const M=mapState();if(!M.grid||!path.length)return [];const V=decodeGrid(M.grid),own=terrOwners(),out=[];
+  D.players.forEach(q=>{if(alliedP(p,q))return;srcMatch(q.board,"water_blocked").forEach(x=>{
+    if(path.some(z=>{const h=V.hex[z];return !!h&&terrWaterStop(h.t)&&!!own[z]&&own[z].has(String(q.id));})){out.push(x.n+" · "+q.name);noteAdd(q,x.n+": "+p.name+"'s Army gains Blocked");}});});
+  return out;}
 function moveArmyTo(dk){const mi=moveInfo();if(!mi||!mi.dest||!mi.dest[dk])return false;
   if(armyHeld(mi.p,mi.a)){flash("This Army can't Move "+(mi.a.sackT?"while Sacking":"while besieged (Sally Forth only)"));return false;}
   if(armyBlocked(mi.p,mi.a)){blockedMoveFails(mi.p,mi.a);SEL=null;save();render();return false;}const M=mapState(),d=mi.dest[dk],p=mi.p,a=mi.a;
@@ -575,11 +602,12 @@ function moveArmyTo(dk){const mi=moveInfo();if(!mi||!mi.dest||!mi.dest[dk])retur
   else if(dk!==ck||!old)M.cells[dk]=Object.assign({},old||{},{type:"Army",player:p.id,aid:a.id});else M.cells[dk]=old;
   if(d.strain)a.strained=true;if(MOVEMARCH){a.endurance=Math.max(0,(a.endurance||0)-1);}
   const stopped=(d.enter||dk!==ck)?moveStops(p,a):[],trig=(d.enter||dk!==ck)?moveEndTriggers(p,dk):[];
+  const fl=waterBlockers(p,d.path||[]);if(fl.length){a.blocked=true;a.blockedT=tTurn();trig.push("Blocked ("+fl.join(", ")+")");}
   const owner=pById(PT(p).holdMove&&PT(p).holdMove.holderPid),hp=owner&&PT(owner).holdMove;if(hp&&hp.turn===tTurn()&&String(hp.aid)===String(a.id)){
     if(String(hp.key).startsWith("standing:"))delete (PT(owner).standingPending||{})[hp.key];
     else{PT(owner).holdingActs=PT(owner).holdingActs||{};PT(owner).holdingActs[hp.key]=tTurn();}
     delete PT(owner).holdMove;noteAdd(owner,hp.key.split(":")[1]+": Move performed by "+armyName(a));}
-  flash((a.label||("Army "+a.id))+" moved "+from+" → "+(d.enter?"inside "+d.enter.name:dk)+" ("+d.cost+" of "+mi.speed.speed+")"+(d.strain?" · Strained (Barrens)":"")+(d.w===2?" · Water: move ends":"")+(kicked.length?" · pushed out: "+kicked.join(", "):"")+(stopped.length?" · ends "+stopped.join(", "):"")+(trig.length?" · "+trig.join(" · "):""));
+  flash((a.label||("Army "+a.id))+" moved "+from+" → "+(d.enter?"inside "+d.enter.name:dk)+" ("+d.cost+" of "+mi.speed.speed+")"+(d.strain?" · Strained (Barrens)":"")+(d.sail?" · sailed":d.w===2?" · Water: move ends":"")+(kicked.length?" · pushed out: "+kicked.join(", "):"")+(stopped.length?" · ends "+stopped.join(", "):"")+(trig.length?" · "+trig.join(" · "):""));
   SEL=null;INSP=dk;
   if(d.engage){const o=d.engage;if(o.kind==="siege"){const sg=siegeState();sg.mode="Lay Siege";sg.tp=String(o.tp);sg.sid=o.sid;sg.by=String(p.id);sg.aid=String(a.id);
       if(mods().battle)D.view="battle";flash("Lay Siege: "+o.label+(mods().battle?" — Siege calculator filled":" — Siege calculator is in the Battle tab"));}

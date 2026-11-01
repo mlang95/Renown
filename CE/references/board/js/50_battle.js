@@ -71,7 +71,7 @@ let EQSEL={};                                   // this device's pending choice 
 function hasArmyTok(p,tok){return !!p&&withBoard(p.board,()=>!!armyTokHolder(tok));}
 function eqOptions(X){const B=battle(),{p,a}=sideArmy(B[X]);if(!a)return {opts:["melee"],bastard:false};fixBastard(a);
   const r=(a.ranged&&a.ranged!=="None")?EQ.ranged[a.ranged]:null,real=!!a.weapon&&a.weapon!=="Farm Tools",
-        one=!!r&&(r.tags||[]).includes("One-Shot"),sk1=(B.sk||1)===1,bastard=a.weapon==="Bastard Sword";
+        one=!!r&&(r.tags||[]).includes("One-Shot"),sk1=(B.sk||1)===1,bastard=!!prof2h(a.weapon);
   let opts;
   if(!r)opts=["melee"];
   else if(one)opts=sk1?["ranged"]:["melee"];            // One-Shot: must be Equipped in the first Skirmish, never after
@@ -91,7 +91,7 @@ function dualOn(a,e){return !!e&&e.mode==="dual"&&canDualWield(a.weapon);}
 function eqWeapon(a,e,shDest){if(!a)return {ap:0};const r=(a.ranged&&a.ranged!=="None")?EQ.ranged[a.ranged]:null,w=EQ.weapons[a.weapon]||{};
   if(e.mode==="ranged"&&r)return r;
   if(dualOn(a,e))return Object.assign({},w,{tags:[].concat(w.tags||[],["2H","Dual Wield"])});   // two of the same melee weapon: Dual Wield confers 2H
-  if(a.weapon==="Bastard Sword"&&(e.b2h||shDest))return EQ.bastard2h||w;              // 2H profile (also forced once the shield is gone)
+  if(prof2h(a.weapon)&&(e.b2h||shDest))return prof2h(a.weapon);                       // 2H profile (also forced once the shield is gone)
   return w;}
 // Random Tactic: uniform over the Tactics other than Fall Back (as the sim's Random mode), limited to
 // those an equipped weapon allows when its note says "May only use …" (e.g. Arquebus).
@@ -102,9 +102,13 @@ function tacAllowed(X){const B=battle(),{a}=sideArmy(B[X]||{});if(!a)return null
   if(Array.isArray(w.tactics_allowed)&&w.tactics_allowed.length)return w.tactics_allowed.filter(t=>BT.tactics.includes(t));
   const n=String(w.note||"");if(/May only use/i.test(n)){const ok=BT.tactics.filter(t=>n.includes(t));if(ok.length)return ok;}
   return null;}
-function tacOK(X,t){const al=tacAllowed(X);return !al||al.includes(t);}
+// TACTICAL_GLOBAL "Any player may Fall Back after the first Skirmish": Fall Back is off the table in Skirmish 1
+const FB_LATE=(BT.tacticalGlobal||[]).some(s=>/Fall Back after the first Skirmish/i.test(s));
+function tacTooEarly(t){return FB_LATE&&t==="Fall Back"&&battle().sk<=1;}
+function tacOK(X,t){const al=tacAllowed(X);return (!al||al.includes(t))&&!tacTooEarly(t);}
+function tacWhyNot(X,t){return tacTooEarly(t)?"not in the first Skirmish":"not with your weapon";}
 function randomTacticPool(X){let pool=BT.tactics.filter(t=>t!=="Fall Back");const al=tacAllowed(X);
-  if(al){const nf=al.filter(t=>t!=="Fall Back");pool=nf.length?nf:al;}
+  if(al){const nf=al.filter(t=>t!=="Fall Back");pool=nf.length?nf:al.filter(t=>tacOK(X,t));}
   return pool;}
 function sideCalc(X){
   const B=battle(),sd=B[X],o=B[X==="A"?"B":"A"],{p,a}=sideArmy(sd);if(!a)return null;
@@ -276,7 +280,7 @@ async function loadPicks(){
 }
 async function pickTactic(side,t){
   const B=battle();
-  if(!tacOK(side,t)){flash(t+" not allowed with this weapon — "+tacAllowed(side).join(", "));return;}
+  if(!tacOK(side,t)){flash(tacTooEarly(t)?t+" not allowed in the first Skirmish":t+" not allowed with this weapon — "+tacAllowed(side).join(", "));return;}
   const tv=t+"|"+eqCode(side);                                   // Tactic and equipment are submitted together
   if(API.online){const r=await apiRaw("PUT","/api/battle/"+B.id+"/"+pickKey()+"/"+side,{tactic:tv});if(r&&r.status===409)flash("both sides already locked in");}
   else{const k=B.id+":"+pickKey();LOCAL_PICKS[k]=LOCAL_PICKS[k]||{};if(!(LOCAL_PICKS[k].A&&LOCAL_PICKS[k].B))LOCAL_PICKS[k][side]=tv;}
@@ -349,7 +353,7 @@ function datasheetHTML(X,c,pl){
   const wrow=(n,nm,it,on,fl)=>row(n,nm,it,(it.ap||0)+(c.apOwn||0),sg(it.init),"—",on,fl),two=!!(rw&&mw&&!(onR&&a.weapon==="Farm Tools"));
   let g='';
   if(onR){g+=wrow(a.ranged,a.ranged,rw,true,two?"equipped":"");if(two)g+=wrow(a.weapon,a.weapon,mw,false,"carried");}
-  else{if(mw)g+=wrow(a.weapon,a.weapon+(c.eqX.b2h?" (2H)":"")+(c.dualW?" ×2":""),c.eqX.b2h&&EQ.bastard2h?EQ.bastard2h:mw,true,two?"equipped":"");if(rw)g+=wrow(a.ranged,a.ranged,rw,false,"carried");}
+  else{if(mw)g+=wrow(a.weapon,a.weapon+(c.eqX.b2h?" (2H)":"")+(c.dualW?" ×2":""),c.eqX.b2h&&prof2h(a.weapon)?prof2h(a.weapon):mw,true,two?"equipped":"");if(rw)g+=wrow(a.ranged,a.ranged,rw,false,"carried");}
   if(sh)g+=row(a.shield,a.shield,sh,"—",sh.init?sg(sh.init):"—","+"+(sh.save_bonus||0),!(c.shOff||c.shDest),c.shOff?"off: 2H":"",
     B.id?'<label class="st"><input type="checkbox" class="bshd" data-x="'+X+'"'+(c.shDest?' checked':'')+'> destroyed</label>':'');
   g+=row(a.armor||"Cloth",a.armor||"Cloth",ar,"—",ar.init?sg(ar.init):"—",ar.save!=null?ar.save+"+":"—",true,"");
@@ -391,7 +395,7 @@ function tacticPickHTML(X){
         '<span class="note">submitted with your Tactic</span></div>';
       else if(eo_.one&&eo_.opts[0]==="ranged")h+='<div class="note" style="margin-top:4px">One-Shot: '+esc(a.ranged)+(!((EQ.ranged[a.ranged]||{}).tags||[]).includes("2H")&&a.shield&&a.shield!=="None"?' + '+esc(a.shield):'')+' is Equipped this Skirmish.</div>';}
     if(sideCalc(O)&&sideCalc(O).outrider&&!pk2.picked)h+='<div class="note" style="color:var(--order)">Opponent has Outrider: pick first — your Tactic is shown to them.</div>';
-    h+='<div class="tcards">'+BT.tactics.map(t=>{const ok=tacOK(X,t),on=pk2.tactic===t||(!pk2.picked&&TAC_SEL[X]===t);return '<button class="btac tcard'+(on?' on':'')+'" data-x="'+X+'" data-t="'+esc(t)+'"'+(ok&&!pk2.picked?'':' disabled'+(ok?'':' title="not allowed with the Equipped weapon"'))+'>'+(ok?tacCardBody(X,t):'<b>'+esc(t)+'</b><div class="note">not with your weapon</div>')+'</button>';}).join('')+
+    h+='<div class="tcards">'+BT.tactics.map(t=>{const ok=tacOK(X,t),on=pk2.tactic===t||(!pk2.picked&&TAC_SEL[X]===t);return '<button class="btac tcard'+(on?' on':'')+'" data-x="'+X+'" data-t="'+esc(t)+'"'+(ok&&!pk2.picked?'':' disabled'+(ok?'':' title="'+tacWhyNot(X,t)+'"'))+'>'+(ok?tacCardBody(X,t):'<b>'+esc(t)+'</b><div class="note">'+tacWhyNot(X,t)+'</div>')+'</button>';}).join('')+
       (!pk2.picked?'<button class="btlock" data-x="'+X+'"'+(TAC_SEL[X]&&tacOK(X,TAC_SEL[X])?'':' disabled')+'>Lock in'+(TAC_SEL[X]?' '+esc(TAC_SEL[X]):'')+'</button>':'')+'</div>'+
       (tacAllowed(X)?'<div class="note">Equipped weapon allows only: '+tacAllowed(X).map(esc).join(", ")+'</div>':'')+tacDetailHTML(X,pk2.tactic||TAC_SEL[X]);
     if(mine&&c.outrider)h+='<div style="margin-top:4px"><button id="bpeek"'+(PEEK?' disabled':'')+'>Outrider: reveal opponent'+(op.picked?'':' (once they pick)')+'</button> <span class="note">'+(c.outMastery?'mastery: every Skirmish':'innate: first Skirmish')+'</span></div>';
@@ -417,30 +421,43 @@ function tacPair(X,mine,theirs){const O=X==="A"?"B":"A",w=X==="A"?whatIf(mine,th
   return {cx,co,ends,none,strain:!!(cell&&cell[0].strain),first:cx.I>co.I?"you":cx.I<co.I?"they":"together",
     deal:ends||none?0:cx.front*woundChance(cx,co),take:ends||none?0:co.front*woundChance(co,cx)};}
 const tgtTxt=v=>v>(BT.faces||10)?"can't":v+"+";
+// a Tactic's motifs in words, from the matrix: [key, label, +1 good for you / −1 bad / 0 neither]. Initiative is read against theirs.
+const TAC_MOTIF=[["iU","Gain Initiative",1],["iD","Lose Initiative",-1],["iS","Initiative swings",0],["sU","Gain Strike",1],["sD","Lose Strike",-1],
+  ["vU","Gain Save",1],["vD","Lose Save",-1],["fsU","Foe gains Strike",-1],["fsD","Foe loses Strike",1],["fvU","Foe gains Save",-1],["fvD","Foe loses Save",1],
+  ["end","Ends the Battle",0],["str","Gain Strained",-1],["fstr","Foe gains Strained",1],["none","No combat",0]];
+function cellMotifs(mine,their){const k=[];if(!mine||!their)return k;
+  if(mine.end){k.push("end");if(mine.strain)k.push("str");if(their.strain)k.push("fstr");return k;}if(mine.no_combat)return ["none"];
+  const r=(mine.I||0)-(their.I||0);if(r>0)k.push("iU");if(r<0)k.push("iD");
+  [["TH","s"],["TS","v"]].forEach(([f,p])=>{if(mine[f]>0)k.push(p+"U");if(mine[f]<0)k.push(p+"D");if(their[f]>0)k.push("f"+p+"U");if(their[f]<0)k.push("f"+p+"D");});return k;}
+const motifChip=key=>{const m=TAC_MOTIF.find(x=>x[0]===key);return '<span class="tc-m" style="color:'+(m[2]>0?'var(--income)':m[2]<0?'var(--upkeep)':'var(--dim)')+'">'+esc(m[1])+'</span>';};
+function tacCells(X,t,u){const c=TMX[X==="A"?t+"|"+u:u+"|"+t];return c?(X==="A"?c:[c[1],c[0]]):[null,null];}
 function tacCardBody(X,t){const O=X==="A"?"B":"A",opp=BT.tactics.filter(u=>tacOK(O,u)),L=opp.map(u=>Object.assign({u},tacPair(X,t,u)||{})).filter(r=>r.cx);
-  if(!L.length)return '<b>'+esc(t)+'</b>';const fight=L.filter(r=>!r.ends&&!r.none),f1=v=>v.toFixed(1);
-  if(!fight.length)return '<b>'+esc(t)+'</b><div class="note">Ends the Battle'+(L[0].strain?' — you gain Strained':'')+'</div>';
-  const mr=a=>{const lo=Math.min(...a),hi=Math.max(...a);return lo===hi?sgnD(lo):sgnD(lo)+" to "+sgnD(hi);};
-  const avgD=fight.reduce((s,r)=>s+r.deal,0)/fight.length,avgT=fight.reduce((s,r)=>s+r.take,0)/fight.length,first=fight.filter(r=>r.first==="you").length;
-  const best=fight.reduce((m,r)=>r.deal-r.take>m.deal-m.take?r:m),worst=fight.reduce((m,r)=>r.deal-r.take<m.deal-m.take?r:m),edge=avgD-avgT;
-  return '<b>'+esc(t)+'</b>'+((BT.tacticNotes||{})[t]?' <span class="note">'+esc(BT.tacticNotes[t])+'</span>':'')+
-    '<div class="tc-l">Strike '+fight[0].cx.strikeParts[0][1]+'+ '+mr(fight.map(r=>r.cx.strikeParts[0][1]-r.cx.toStrike))+' · Save '+fight[0].cx.saveParts[0][1]+'+ '+mr(fight.map(r=>r.cx.saveParts[0][1]-r.cx.save))+'</div>'+
-    '<div class="tc-l">strike first vs '+first+'/'+fight.length+'</div>'+
-    '<div class="tc-l" style="color:'+(edge>0.05?'var(--income)':edge<-0.05?'var(--upkeep)':'var(--dim)')+'">≈ deal '+f1(avgD)+' · take '+f1(avgT)+'</div>'+
-    '<div class="tc-l note">best vs '+esc(best.u)+' · worst vs '+esc(worst.u)+'</div>';}
+  if(!L.length)return '<b>'+esc(t)+'</b>';
+  // a motif shows when it comes up against about a third of the Tactics they could play; gain and lose of the same thing keep the larger
+  const n={};opp.forEach(u=>cellMotifs(...tacCells(X,t,u)).forEach(k=>{n[k]=(n[k]||0)+1;}));const thr=Math.max(1,Math.round(opp.length/3)),on=k=>(n[k]||0)>=thr;
+  [["iU","iD","iS"],["sU","sD"],["vU","vD"],["fsU","fsD"],["fvU","fvD"]].forEach(([u,d,s])=>{if(!on(u)||!on(d))return;
+    if(n[u]>n[d])delete n[d];else if(n[d]>n[u])delete n[u];else{if(s)n[s]=n[u];delete n[u];delete n[d];}});
+  const keys=TAC_MOTIF.map(m=>m[0]).filter(on).sort((a,b)=>{const g=k=>TAC_MOTIF.find(m=>m[0]===k)[2];return g(b)-g(a);});
+  const fight=L.filter(r=>!r.ends&&!r.none),f1=v=>v.toFixed(1);
+  let h='<b>'+esc(t)+'</b>'+((BT.tacticNotes||{})[t]?' <span class="note">'+esc(BT.tacticNotes[t])+'</span>':'')+'<div class="tc-l">'+keys.map(motifChip).join(' · ')+'</div>';
+  if(!fight.length)return h;
+  const best=fight.reduce((m,r)=>r.deal-r.take>m.deal-m.take?r:m),worst=fight.reduce((m,r)=>r.deal-r.take<m.deal-m.take?r:m);
+  if(ADMIN){const avgD=fight.reduce((s,r)=>s+r.deal,0)/fight.length,avgT=fight.reduce((s,r)=>s+r.take,0)/fight.length,edge=avgD-avgT;
+    h+='<div class="tc-l" style="color:'+(edge>0.05?'var(--income)':edge<-0.05?'var(--upkeep)':'var(--dim)')+'">≈ deal '+f1(avgD)+' · take '+f1(avgT)+'</div>';}
+  return h+'<div class="tc-l note">best vs '+esc(best.u)+' · worst vs '+esc(worst.u)+'</div>';}
 // the picked (or hovered-in) Tactic, against every Tactic they can play: where each number comes from
 function tacDetailHTML(X,t){if(!t)return '<div class="note" style="margin-top:4px">Pick a card to see it against each Tactic they could play.</div>';
   const O=X==="A"?"B":"A",c0=sideCalc(X),opp=BT.tactics.filter(u=>tacOK(O,u)),f1=v=>v.toFixed(1),seen=(PICKS[O]||{}).tactic;
-  const dm=(L,eff)=>eff>(BT.faces||10)?"can't":L[0][1]+'+ '+sgnD(L[0][1]-eff);
-  const rows=opp.map(u=>{const r=tacPair(X,t,u);if(!r)return "";const mod=m=>fmtMod(m||{})||"—";
-    const cell=r.cx&&TMX[(X==="A"?t+"|"+u:u+"|"+t)],mine=cell?(X==="A"?cell[0]:cell[1]):null,their=cell?(X==="A"?cell[1]:cell[0]):null;
-    return '<tr'+(seen===u?' class="on"':'')+'><td>'+esc(u)+(seen===u?' <b>(their pick)</b>':'')+'</td><td>'+esc(mod(mine))+'</td><td>'+esc(mod(their))+'</td>'+
-      (r.ends||r.none?'<td colspan="4">'+(r.ends?'Battle ends'+(r.strain?' · you gain Strained':''):'no combat this Skirmish')+'</td>':
-      '<td>'+r.first+'</td><td>'+dm(r.cx.strikeParts,r.cx.toStrike)+' / '+dm(r.co.saveParts,r.co.save)+'</td><td>'+dm(r.co.strikeParts,r.co.toStrike)+' / '+dm(r.cx.saveParts,r.cx.save)+'</td>'+
-      '<td style="color:'+(r.deal>r.take?'var(--income)':r.deal<r.take?'var(--upkeep)':'var(--dim)')+'">'+f1(r.deal)+' / '+f1(r.take)+'</td>')+'</tr>';}).join("");
-  return '<div class="tc-detail"><div class="note"><b>'+esc(t)+'</b> with your '+esc(c0.rt&&c0.a.retinue||"")+' ×'+c0.front+' in front, '+esc(c0.wName)+', '+esc(c0.a.armor||"Cloth")+(c0.a.shield&&c0.a.shield!=="None"&&!c0.shOff?' + '+esc(c0.a.shield):'')+
-    ' — each roll reads "need N+, each die ±M", with both Tactics, gear and terrain in the ±M (+ is good). ≈ = average casualties per Skirmish of Strikes (Parry, Save, Recover counted).</div>'+
-    '<table class="dtable" style="font-size:11px;margin-top:4px"><thead><tr><th>If they play</th><th>Tactic gives you</th><th>gives them</th><th>first</th><th>your Strike / their Save</th><th>their Strike / your Save</th><th>≈ deal / take</th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
+  // the number to roll after everything, coloured for you: green = better for you than the base, red = worse
+  const col=g=>g>0?'var(--income)':g<0?'var(--upkeep)':'inherit';
+  const dm=(L,eff,mine)=>'<td style="color:'+col((mine?1:-1)*(L[0][1]-Math.min(eff,(BT.faces||10)+1)))+'">'+tgtTxt(eff)+'</td>';
+  const rows=opp.map(u=>{const r=tacPair(X,t,u);if(!r)return "";
+    return '<tr'+(seen===u?' class="on"':'')+'><td>'+esc(u)+(seen===u?' <b>(their pick)</b>':'')+'</td><td>'+cellMotifs(...tacCells(X,t,u)).map(motifChip).join(' · ')+'</td>'+
+      (r.ends||r.none?'<td colspan="'+(ADMIN?6:5)+'"></td>':
+      '<td style="color:'+col(r.first==="you"?1:r.first==="they"?-1:0)+'">'+r.first+'</td>'+dm(r.cx.strikeParts,r.cx.toStrike,1)+dm(r.co.saveParts,r.co.save,0)+dm(r.co.strikeParts,r.co.toStrike,0)+dm(r.cx.saveParts,r.cx.save,1)+
+      (ADMIN?'<td style="color:'+col(r.deal-r.take)+'">'+f1(r.deal)+' / '+f1(r.take)+'</td>':''))+'</tr>';}).join("");
+  return '<div class="tc-detail"><div class="note"><b>'+esc(t)+'</b> with your '+esc(c0.rt&&c0.a.retinue||"")+' ×'+c0.front+' in front, '+esc(c0.wName)+', '+esc(c0.a.armor||"Cloth")+(c0.a.shield&&c0.a.shield!=="None"&&!c0.shOff?' + '+esc(c0.a.shield):'')+'</div>'+
+    '<table class="dtable" style="font-size:11px;margin-top:4px"><thead><tr><th>If they play</th><th>What happens</th><th>First</th><th>Your Strike</th><th>Their Save</th><th>Their Strike</th><th>Your Save</th>'+(ADMIN?'<th>≈ deal / take</th>':'')+'</tr></thead><tbody>'+rows+'</tbody></table></div>';}
 // the next roll for side X, in words: what is rolled, with which gear, the number needed and why, and what a 10 does
 function rollGuideHTML(X){const B=battle(),fl=bFlow(),c=sideCalc(X);if(!c||!B.dice||!B.id)return "";const O=X==="A"?"B":"A",co=sideCalc(O),F=BT.faces||10,FOC=BT.focusedThr||10;
   // the same steps the buttons offer: a step the flow allows but this side can't take (no Dual Wield, Parry, Recover …) is skipped
@@ -820,6 +837,10 @@ function endBattle(win){
     if(W&&W.b&&L&&L.b)chron("battle",{winner:W.name,loser:L.name});
     const wc=sideCalc(win);if(L&&L.b&&W&&wc&&srcHas(L.b,"spoils_always")){
       const t2=extortGold(W,L,+wc.rt.cost||0,"Spoils of War");if(t2)blog(L.name+" also collects Spoils of War: "+t2.toLocaleString());}
+    // "If your Army wins a Battle, it Reinforces N Retinues of its current type at once" (Fleet Anchorage): no cost or Muster Timer, up to the cap
+    if(W&&W.b&&wc&&wc.a&&!String((B[win]||{}).aid||"").startsWith("g:"))srcMatch(W.b,"win_reinforce").forEach(x=>{const a=wc.a,
+        cap=+((EQ.retinues[a.retinue]||{}).max_size)||+RC.ARMY_MAX_RETINUES||25,add=Math.max(0,Math.min(+x.m[1],cap-(+a.count||0)));
+      if(add){a.count=(+a.count||0)+add;blog(W.name+" · "+x.n+": Reinforces "+add+" "+(a.retinue||"")+" Retinues");}});
     [[win,W],[O,L]].forEach(([X,sd])=>{const c=sideCalc(X);if(!sd||!sd.b||!c)return;const lost=Math.max(0,(B.start[X]||0)-(c.a.count||0));
       srcMatch(sd.b,"faith_battle_loss").forEach(x=>{if(lost>=+x.m[2]){addFaith(sd.b,+x.m[1]);blog(sd.name+" · "+x.n+": Faith +"+x.m[1]);}});});}
   else blog("Battle ended with no winner");

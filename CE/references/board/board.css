@@ -292,7 +292,7 @@
   .mseg{display:inline-flex}.mseg button{border-radius:0}.mseg button:first-child{border-radius:var(--radius-sm) 0 0 var(--radius-sm)}.mseg button:last-child{border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin-left:-1px}
   .tcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;margin-top:6px;text-align:left}
   .tcard{display:block;text-align:left;padding:6px 8px;line-height:1.35;white-space:normal;font-weight:400}.tcard b{font-size:12px}
-  .tcard.on{box-shadow:0 0 0 1px var(--income) inset}.tcard[disabled]{opacity:.45}.tc-l{font-size:11px}
+  .tcard.on{box-shadow:0 0 0 1px var(--income) inset}.tcard[disabled]{opacity:.45}.tc-l{font-size:11px}.tc-m{white-space:nowrap}
   .tc-detail{margin-top:6px;text-align:left;overflow-x:auto}.tc-detail tr.on td{background:var(--sel)}
   .roll-guide{margin-top:6px;padding:6px 8px;border:1px solid var(--line2);border-radius:var(--radius-sm);text-align:left;font-size:12px;line-height:1.4}
   .roll-guide .note{margin-top:2px}.rg-k{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin-right:4px}
