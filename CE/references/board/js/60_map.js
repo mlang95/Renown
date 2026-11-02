@@ -1199,7 +1199,22 @@ function banditPanelHTML(){const M=mapState(),era=currentEra(),camps=Object.keys
   c+='</details>';
   return '<div class="tot" id="tBanditBox"><h3 style="font-size:13px">Bandits</h3>'+banditAutoHTML(c)+'</div>';}
 // map edits on a server game: your own pieces only; Outlaw Country by players during setup only; camps by the Host
-function mapAsP(){return (lockOn()&&myClaimP())||D.players[D.active];}
+function mapAsP(){if(PLACE_PIN){const q=pById(PLACE_PIN.pid);if(q&&inspCan(q.id))return q;}return (lockOn()&&myClaimP())||D.players[D.active];}
+// ---- Empire pane ↔ map: a Settlement header / Army card shows where it stands on the map ("⌖ map"), or places it ("place on map"):
+// PLACE_PIN = {pid, kind: "sett" | "army", id} links the next piece placed to that Settlement / Army
+let PLACE_PIN=null;
+function mapLinkEl(p,kind,obj){const k=kind==="army"?armyHex(p,obj):settHex(p,obj),b=document.createElement("button");b.className="shb maplink";b.dataset.nav="1";
+  if(k){b.textContent="⌖ map "+k;b.title="show it on the Realm map";b.onclick=e=>{e.stopPropagation();mapShow(k);};}
+  else if(kind==="army"&&armyInside(p,obj)){const x=armyInside(p,obj),sk=settHex(x.q,x.s);b.textContent="⌖ in "+(x.s.name||x.s.tier);b.title="inside its Settlement — show on the map";if(sk)b.onclick=e=>{e.stopPropagation();mapShow(sk);};else b.disabled=true;}
+  else if(!mapState().grid){b.textContent="no map";b.disabled=true;}
+  else{b.textContent="📍 place on map";b.title="pick a hex on the Realm map for it";b.classList.add("warn");
+    b.onclick=e=>{e.stopPropagation();if(!inspCan(p.id)){flash("🔒 not yours");return;}PLACE_PIN={pid:String(p.id),kind,id:String(obj.id)};mtool=kind==="army"?"Army":(obj.tier||"Village");PLACE_OPEN=true;INSP=null;SEL=null;D.view="table";
+      if(!RL_MAP){RL_MAP=true;}render();setTimeout(()=>{const m=document.getElementById("rlMap");if(m)m.scrollIntoView({behavior:"smooth",block:"center"});},80);
+      flash("Click a free hex to place "+(kind==="army"?armyName(obj):(obj.name||obj.tier)));};}
+  return b;}
+function mapShow(k){D.view="table";mtool="Select";INSP=k;MAPSEL=k;const c=mapState().cells[k];SEL=null;
+  if(c&&c.type==="Army"){const x=cellArmy(k);if(x.p&&x.a&&canMoveArmy(x.p))SEL={pid:String(x.p.id),aid:String(x.a.id)};}
+  if(!RL_MAP)RL_MAP=true;render();setTimeout(()=>{const el=document.querySelector('#rlMap [data-cell="'+k+'"]')||document.getElementById("rlMap");if(el)el.scrollIntoView({behavior:"smooth",block:"center"});},80);}
 function mapEditBlock(k){if(!lockOn())return "";const M=mapState(),c=M.cells[k],me=myClaimP();
   if(!me)return "claim a player to act";
   const own=x=>!!x&&String(x.player)===String(me.id),who=x=>((x&&cellPlayer(x))||{}).name||"another player";
@@ -1240,7 +1255,13 @@ function mapCellClick(k){const M=mapState();MAPSEL=k;
       if(M.camps[k]){flash("a Bandit Camp stands there — Erase it first");return;}
       {const o=M.cells[k];if(o){flash((o.type==="Army"?"an Army":o.type)+" stands there"+(o.type==="Army"?"":" ("+(cellPlayer(o)||{}).name+")")+" — Erase it first");return;}}
       {const why=terrainBlock(mapAsP(),k,mtool==="Army"?"army":"settle");if(why){flash(why);return;}}
-      const P=mapAsP(),why=mtool==="Village"?settleWhere(P,k):"";M.cells[k]={type:mtool,player:P.id};pinNewCell(P,k);
+      const P=mapAsP(),why=mtool==="Village"?settleWhere(P,k):"";M.cells[k]={type:mtool,player:P.id};
+      if(PLACE_PIN&&String(PLACE_PIN.pid)===String(P.id)&&(PLACE_PIN.kind==="army")===(mtool==="Army")){const c=M.cells[k];
+        if(PLACE_PIN.kind==="army"){c.aid=PLACE_PIN.id;const a=(P.board.armies||[]).find(x=>String(x.id)===PLACE_PIN.id);if(a){delete a.sid;delete a.inAlly;}
+          Object.keys(M.cells).forEach(q=>{if(q!==k&&M.cells[q].type==="Army"&&String(M.cells[q].player)===String(P.id)&&String(M.cells[q].aid)===PLACE_PIN.id)delete M.cells[q];});}
+        else{c.sid=+PLACE_PIN.id||PLACE_PIN.id;Object.keys(M.cells).forEach(q=>{if(q!==k&&M.cells[q].type!=="Army"&&String(M.cells[q].player)===String(P.id)&&String(M.cells[q].sid)===PLACE_PIN.id)delete M.cells[q];});}
+        PLACE_PIN=null;}
+      else pinNewCell(P,k);
       if(why){M.cells[k].settleWhy=why;flash("Settle: "+why);}
       mtool="Select";PLACE_OPEN=false;}
     save();render();}

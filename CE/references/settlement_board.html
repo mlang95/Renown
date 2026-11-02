@@ -953,6 +953,7 @@
   .esum .es-pips{letter-spacing:1px;font-size:9px;color:var(--dim)}
   .esum .es-num{display:flex;gap:16px;flex-wrap:wrap;font-size:12px}
   .esum .pos{color:var(--income)}.esum .neg{color:var(--upkeep)}
+  .maplink.warn{border-color:var(--upkeep);color:var(--upkeep)}
 </style>
 </head>
 <body>
@@ -6181,8 +6182,9 @@ DO.hotseat=el=>{HOTSEAT=el.checked;try{localStorage.setItem(gkey("renown_hotseat
 // Empire Summary (Empire Phase dock, before the Works Phase): what this Empire Phase did for you — builds finished, what is still
 // building (and what lands next Empire Phase), Treasury and Public Order moves, and this turn's Bandit Mechanics
 function empireSummaryHTML(p){if(!p)return "";const t=TB(),H=(t.hist||{})[tTurn()-1]||null,row=H&&(H.rows||[]).find(r=>String(r.pid)===String(p.id)),b=p.board,out=[];
-  const done=(row&&row.done||[]).filter(Boolean);
-  out.push('<div class="es-sec"><div class="es-h">Completed</div>'+(done.length?'<div class="es-chips">'+done.map(x=>'<span class="es-chip ok">✓ '+esc(String(x).replace(/^built /,""))+'</span>').join("")+'</div>':'<div class="note">Nothing finished this Empire Phase.</div>')+'</div>');
+  const all=(row&&row.done||[]).filter(Boolean).map(String),isB=x=>/^(built|repaired|finished|upgraded|expanded) |Muster|mustered|Reinforce/i.test(x),done=all.filter(isB),oth=all.filter(x=>!isB(x));
+  out.push('<div class="es-sec"><div class="es-h">Completed</div>'+(done.length?'<div class="es-chips">'+done.map(x=>'<span class="es-chip ok">✓ '+esc(x.replace(/^built /,""))+'</span>').join("")+'</div>':'<div class="note">Nothing finished this Empire Phase.</div>')+'</div>');
+  if(oth.length)out.push('<div class="es-sec"><div class="es-h">Effects</div>'+oth.map(x=>'<div class="es-row note">'+esc(x)+'</div>').join("")+'</div>');
   const T=buildTimersOf(p);
   out.push('<div class="es-sec"><div class="es-h">Under construction</div>'+(T.length?T.map(x=>'<div class="es-row"><span style="flex:1">'+esc(x.label)+'</span><span class="es-pips" title="Build Timer '+x.n+'">'+"●".repeat(Math.min(x.n,8))+'</span><b class="'+(x.n<=1?'pos':'')+'">'+(x.n<=1?'next Empire Phase':x.n+' turns')+'</b></div>').join(""):'<div class="note">No active Build Timers.</div>')+'</div>');
   {const rp=(b.placed||[]).filter(x=>x.dmg>0);if(rp.length)out.push('<div class="es-sec"><div class="es-h">Damaged</div>'+rp.map(x=>'<div class="es-row"><span style="flex:1">'+esc(x.name)+'</span><b class="neg">'+(x.rep?'Repair · '+x.dmg:'awaiting Repair')+'</b></div>').join("")+'</div>');}
@@ -7923,6 +7925,7 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
         hd.appendChild(wc);}
       {const so=S.settlements.find(x=>x.id===gid),ni=document.createElement("input");ni.className="snm keepval";{const pb=playerOfBoard(S);ni.readOnly=(pb?!canEdit(pb):false)||spectating();}ni.placeholder="name";ni.value=(so&&so.name)||"";ni.title="Settlement name";
         ni.onclick=e=>e.stopPropagation();ni.onchange=()=>{if(so){so.name=ni.value.trim()||undefined;if(!so.name)delete so.name;save();render();}};hd.appendChild(ni);
+        {const pb=playerOfBoard(S);if(so&&pb&&typeof mapLinkEl==="function")hd.appendChild(mapLinkEl(pb,"sett",so));}
         if(so&&PN){const gb=document.createElement("button");gb.className="shb";gb.textContent="Generate";gb.title="random name ("+(nameCulture(S)||"")+")";
           gb.onclick=e=>{e.stopPropagation();const nm=genPlaceName(nameCulture(S));if(nm){so.name=nm;save();render();}};hd.appendChild(gb);}}
       {const so=S.settlements.find(x=>x.id===gid);if(so&&so.bt>0)hd.appendChild(timerCtl("build",so.bt,d=>{so.bt=Math.max(0,so.bt+d);if(!so.bt)settFinish(playerOfBoard(S),so);save();render();}));}
@@ -8705,6 +8708,7 @@ function armyCard(a,u){
   lab.oninput=()=>{a.label=lab.value;save();};top.appendChild(lab);
   const mor=document.createElement("span");mor.className="badge "+(routed?"noearn":"tier");
   {const ms=moraleStanding(a),mp=moralePO(a);mor.textContent="morale "+effMorale(a)+"+"+(a.fatigue||ms||mp?(" ("+moraleBase(a)+"+"+(a.fatigue?" +"+((BT.fatigueMorale??2)*a.fatigue):"")+(mp?" +"+mp.n+" "+mp.src:"")+(ms?" −"+ms.n+" "+ms.src:"")+")"):"");}top.appendChild(mor);
+  {const pb=playerOfBoard(S);if(pb&&typeof mapLinkEl==="function")top.appendChild(mapLinkEl(pb,"army",a));}
   const upL=document.createElement("span");upL.className="note";upL.textContent=SUPPLY().toLowerCase();top.appendChild(upL);
   const up=document.createElement("b");up.textContent=fmt(-armyUpkeep(a));up.title=a.retinue+" Army cost";top.appendChild(up);
   const rm=document.createElement("button");rm.className="rm";rm.textContent="✕";
@@ -12571,7 +12575,22 @@ function banditPanelHTML(){const M=mapState(),era=currentEra(),camps=Object.keys
   c+='</details>';
   return '<div class="tot" id="tBanditBox"><h3 style="font-size:13px">Bandits</h3>'+banditAutoHTML(c)+'</div>';}
 // map edits on a server game: your own pieces only; Outlaw Country by players during setup only; camps by the Host
-function mapAsP(){return (lockOn()&&myClaimP())||D.players[D.active];}
+function mapAsP(){if(PLACE_PIN){const q=pById(PLACE_PIN.pid);if(q&&inspCan(q.id))return q;}return (lockOn()&&myClaimP())||D.players[D.active];}
+// ---- Empire pane ↔ map: a Settlement header / Army card shows where it stands on the map ("⌖ map"), or places it ("place on map"):
+// PLACE_PIN = {pid, kind: "sett" | "army", id} links the next piece placed to that Settlement / Army
+let PLACE_PIN=null;
+function mapLinkEl(p,kind,obj){const k=kind==="army"?armyHex(p,obj):settHex(p,obj),b=document.createElement("button");b.className="shb maplink";b.dataset.nav="1";
+  if(k){b.textContent="⌖ map "+k;b.title="show it on the Realm map";b.onclick=e=>{e.stopPropagation();mapShow(k);};}
+  else if(kind==="army"&&armyInside(p,obj)){const x=armyInside(p,obj),sk=settHex(x.q,x.s);b.textContent="⌖ in "+(x.s.name||x.s.tier);b.title="inside its Settlement — show on the map";if(sk)b.onclick=e=>{e.stopPropagation();mapShow(sk);};else b.disabled=true;}
+  else if(!mapState().grid){b.textContent="no map";b.disabled=true;}
+  else{b.textContent="📍 place on map";b.title="pick a hex on the Realm map for it";b.classList.add("warn");
+    b.onclick=e=>{e.stopPropagation();if(!inspCan(p.id)){flash("🔒 not yours");return;}PLACE_PIN={pid:String(p.id),kind,id:String(obj.id)};mtool=kind==="army"?"Army":(obj.tier||"Village");PLACE_OPEN=true;INSP=null;SEL=null;D.view="table";
+      if(!RL_MAP){RL_MAP=true;}render();setTimeout(()=>{const m=document.getElementById("rlMap");if(m)m.scrollIntoView({behavior:"smooth",block:"center"});},80);
+      flash("Click a free hex to place "+(kind==="army"?armyName(obj):(obj.name||obj.tier)));};}
+  return b;}
+function mapShow(k){D.view="table";mtool="Select";INSP=k;MAPSEL=k;const c=mapState().cells[k];SEL=null;
+  if(c&&c.type==="Army"){const x=cellArmy(k);if(x.p&&x.a&&canMoveArmy(x.p))SEL={pid:String(x.p.id),aid:String(x.a.id)};}
+  if(!RL_MAP)RL_MAP=true;render();setTimeout(()=>{const el=document.querySelector('#rlMap [data-cell="'+k+'"]')||document.getElementById("rlMap");if(el)el.scrollIntoView({behavior:"smooth",block:"center"});},80);}
 function mapEditBlock(k){if(!lockOn())return "";const M=mapState(),c=M.cells[k],me=myClaimP();
   if(!me)return "claim a player to act";
   const own=x=>!!x&&String(x.player)===String(me.id),who=x=>((x&&cellPlayer(x))||{}).name||"another player";
@@ -12612,7 +12631,13 @@ function mapCellClick(k){const M=mapState();MAPSEL=k;
       if(M.camps[k]){flash("a Bandit Camp stands there — Erase it first");return;}
       {const o=M.cells[k];if(o){flash((o.type==="Army"?"an Army":o.type)+" stands there"+(o.type==="Army"?"":" ("+(cellPlayer(o)||{}).name+")")+" — Erase it first");return;}}
       {const why=terrainBlock(mapAsP(),k,mtool==="Army"?"army":"settle");if(why){flash(why);return;}}
-      const P=mapAsP(),why=mtool==="Village"?settleWhere(P,k):"";M.cells[k]={type:mtool,player:P.id};pinNewCell(P,k);
+      const P=mapAsP(),why=mtool==="Village"?settleWhere(P,k):"";M.cells[k]={type:mtool,player:P.id};
+      if(PLACE_PIN&&String(PLACE_PIN.pid)===String(P.id)&&(PLACE_PIN.kind==="army")===(mtool==="Army")){const c=M.cells[k];
+        if(PLACE_PIN.kind==="army"){c.aid=PLACE_PIN.id;const a=(P.board.armies||[]).find(x=>String(x.id)===PLACE_PIN.id);if(a){delete a.sid;delete a.inAlly;}
+          Object.keys(M.cells).forEach(q=>{if(q!==k&&M.cells[q].type==="Army"&&String(M.cells[q].player)===String(P.id)&&String(M.cells[q].aid)===PLACE_PIN.id)delete M.cells[q];});}
+        else{c.sid=+PLACE_PIN.id||PLACE_PIN.id;Object.keys(M.cells).forEach(q=>{if(q!==k&&M.cells[q].type!=="Army"&&String(M.cells[q].player)===String(P.id)&&String(M.cells[q].sid)===PLACE_PIN.id)delete M.cells[q];});}
+        PLACE_PIN=null;}
+      else pinNewCell(P,k);
       if(why){M.cells[k].settleWhy=why;flash("Settle: "+why);}
       mtool="Select";PLACE_OPEN=false;}
     save();render();}

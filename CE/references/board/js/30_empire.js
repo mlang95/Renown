@@ -629,6 +629,7 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
         hd.appendChild(wc);}
       {const so=S.settlements.find(x=>x.id===gid),ni=document.createElement("input");ni.className="snm keepval";{const pb=playerOfBoard(S);ni.readOnly=(pb?!canEdit(pb):false)||spectating();}ni.placeholder="name";ni.value=(so&&so.name)||"";ni.title="Settlement name";
         ni.onclick=e=>e.stopPropagation();ni.onchange=()=>{if(so){so.name=ni.value.trim()||undefined;if(!so.name)delete so.name;save();render();}};hd.appendChild(ni);
+        {const pb=playerOfBoard(S);if(so&&pb&&typeof mapLinkEl==="function")hd.appendChild(mapLinkEl(pb,"sett",so));}
         if(so&&PN){const gb=document.createElement("button");gb.className="shb";gb.textContent="Generate";gb.title="random name ("+(nameCulture(S)||"")+")";
           gb.onclick=e=>{e.stopPropagation();const nm=genPlaceName(nameCulture(S));if(nm){so.name=nm;save();render();}};hd.appendChild(gb);}}
       {const so=S.settlements.find(x=>x.id===gid);if(so&&so.bt>0)hd.appendChild(timerCtl("build",so.bt,d=>{so.bt=Math.max(0,so.bt+d);if(!so.bt)settFinish(playerOfBoard(S),so);save();render();}));}
@@ -1411,6 +1412,7 @@ function armyCard(a,u){
   lab.oninput=()=>{a.label=lab.value;save();};top.appendChild(lab);
   const mor=document.createElement("span");mor.className="badge "+(routed?"noearn":"tier");
   {const ms=moraleStanding(a),mp=moralePO(a);mor.textContent="morale "+effMorale(a)+"+"+(a.fatigue||ms||mp?(" ("+moraleBase(a)+"+"+(a.fatigue?" +"+((BT.fatigueMorale??2)*a.fatigue):"")+(mp?" +"+mp.n+" "+mp.src:"")+(ms?" −"+ms.n+" "+ms.src:"")+")"):"");}top.appendChild(mor);
+  {const pb=playerOfBoard(S);if(pb&&typeof mapLinkEl==="function")top.appendChild(mapLinkEl(pb,"army",a));}
   const upL=document.createElement("span");upL.className="note";upL.textContent=SUPPLY().toLowerCase();top.appendChild(upL);
   const up=document.createElement("b");up.textContent=fmt(-armyUpkeep(a));up.title=a.retinue+" Army cost";top.appendChild(up);
   const rm=document.createElement("button");rm.className="rm";rm.textContent="✕";

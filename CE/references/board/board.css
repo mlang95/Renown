@@ -945,3 +945,4 @@
   .esum .es-pips{letter-spacing:1px;font-size:9px;color:var(--dim)}
   .esum .es-num{display:flex;gap:16px;flex-wrap:wrap;font-size:12px}
   .esum .pos{color:var(--income)}.esum .neg{color:var(--upkeep)}
+  .maplink.warn{border-color:var(--upkeep);color:var(--upkeep)}
