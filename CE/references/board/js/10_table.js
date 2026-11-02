@@ -644,7 +644,7 @@ function campExtort(k,o,n,why){const M=mapState(),c0=M.camps[k],cp=c0&&c0.home&&
 function autoRes(){return TB().auto!==false;}   // default on
 function tApply(R){if(!autoRes())return;let ch=false;
   R.log.forEach(l=>{if(l.kind!=="envoy")return;withSlots([l.E]).forEach(E=>{const p=E.owner;
-    if(!(HOTSEAT||(lockOn()?mine(p):sameP(meP(),p))))return;
+    if(!(HOTSEAT||(lockOn()?mine(p):sameP(meP(),p))||(aiOn(p)&&aiDriver())))return;   // AI seats: resolved by the device that drives them
     const c=tCurW(p);c.applied=c.applied||{};if(c.applied[E.id])return;
     if(!resolveOpen(R,E))return;                                                       // Resolve waits for the end of the Tally Phase
     const pe=performEval(E);if(!pe&&(E.out==="Passed"||E.out==="Endorsed"))return;   // wait for Perform
@@ -957,7 +957,7 @@ function renderReference(){const host=document.getElementById("viewReference");
 function tCountdown(R){const els=document.querySelectorAll("#viewTable .tbcd");if(!els.length)return;
   let txt="",near=false;if(R.cur){if(isFinite(R.cur.deadline)){const s=Math.max(0,Math.ceil((R.cur.deadline-tnow())/1000));txt=s+"s remaining";near=s<=5;}else txt="No time limit";}
   els.forEach(e=>{e.textContent=txt;e.classList.toggle("neg",near);});}
-setInterval(()=>{if(D.view!=="table")return;const R=tSim();tApply(R);
+setInterval(()=>{if(D.view!=="table"){const ph=tPhase();if((ph==="envoy"||ph==="council")&&TB().phaseTs)tApply(tSim());return;}const R=tSim();tApply(R);   // resolve on every view, not just the Realm
   if(tSig(R)!==T_SIG&&!editing()){renderTable();return;}tCountdown(R);},500);
 
 const THEMES={
