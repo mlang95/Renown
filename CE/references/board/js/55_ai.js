@@ -539,23 +539,6 @@ function aiSetupTick(p){const b=p.board,a=ageRec();let ch=false;
     PT(p).checkin={turn:tTurn(),fx:rows.map(checkinTxt)};ch=true;}
   return ch;}
 
-// ---- AI Host: moves the table on once a phase has nothing left to wait for ----
-// Council / Envoy: every Envoy resolved and every action applied. Battle: no Battle queued or open. Rest: every Domain Point
-// spent, then End turn. Empire: after AI_HOST_EMPIRE_S seconds (the table timer, if longer) so the humans see their income.
-let AI_HOST_SEEN={k:"",ts:0};
-function aiHostTick(){const h=hostP();if(!h||!aiOn(h)||setupOn())return false;
-  const ph=tPhase(),k=tTurn()+":"+ph,now=tnow();if(AI_HOST_SEEN.k!==k)AI_HOST_SEEN={k,ts:now};
-  const open=now-AI_HOST_SEEN.ts,dwell=1500;if(open<dwell)return false;   // a beat on every phase, so its result is seen
-  if(ph==="empire"){const w=Math.max(+RC.AI_HOST_EMPIRE_S||20,tTimer()||0)*1000;if(open<w)return false;tSetPhase(tNext(ph));return true;}
-  if(ph==="council"||ph==="envoy"){if(!TB().phaseTs){tSetPhase(ph);return true;}const R=tSim();
-    if(R.waiting==="tie"){const c=(R.tieCands||T_DOMS),d=c.includes(aiCouncilPick(h).dom)?aiCouncilPick(h).dom:c[0];TB().councilTie={turn:tTurn(),dom:d,ts:now};aiNote(h,"Host breaks the Council tie: "+d);return true;}
-    if(!R.done)return false;
-    const owed=withSlots(R.envoys||[]).some(E=>(E.out==="Passed"||E.out==="Endorsed"||E.out==="Failed"||E.out==="Condemned")&&!((tCur(E.owner).applied||{})[E.id]));
-    if(owed&&autoRes())return false;tSetPhase(tNext(ph));return true;}
-  if(ph==="battle"){const B=battle();if(bq().length||(B&&B.id&&!battleOutcome()))return false;tSetPhase(tNext(ph));return true;}
-  if(ph==="rest"){if(dpOwed().length)return false;tEndTurn();return true;}
-  return false;}
-
 // ---- the tick: run whatever the AI seats owe in the current phase; true if anything changed ----
 function aiTick(){if(!D.started&&!TB().begun)return false;if(!aiDriver())return false;
   const ph=tPhase();let ch=false;
@@ -567,7 +550,6 @@ function aiTick(){if(!D.started&&!TB().begun)return false;if(!aiDriver())return 
     if(ph==="envoy"&&TB().phaseTs&&!springDiplo()&&!(tCur(p).decl||{}).lock){aiDeclare(p);ch=true;}
     if(TB().phaseTs&&dsOn()&&aiDiploStep(p))ch=true;});
   try{if(aiBattleTick())ch=true;}catch(e){console.warn("ai battle",e);}
-  if(!ch){try{if(aiHostTick())return true;}catch(e){console.warn("ai host",e);}}   // the AI Host moves on only once the seats are quiet
   if((ph==="envoy"||ph==="council")&&TB().phaseTs){const R=tSim();
     seated().filter(aiOn).forEach(p=>{aiLearn(p,R);
       if(aiVoteAll(p,R))ch=true;
