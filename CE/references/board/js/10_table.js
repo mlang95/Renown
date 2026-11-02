@@ -245,6 +245,7 @@ function tSim(){
       if(fxOf(v,"noVote").length){E.votes.push({who:v,a:"A",x:0,eff:0,auto:true});continue;}   // Council Envoys auto-Abstain: no votes
       const sl=silent.find(s=>sameP(s.who,v));if(sl){E.votes.push({who:v,a:"A",x:0,eff:0,auto:true,silenced:sl.src});continue;}
       if(!E.retry&&tallyVoter(v))continue;                                               // casts this vote in the Tally Phase
+      if(Math.max(0,R.pool[v.id]-R.spent[v.id])<=0){E.votes.push({who:v,a:"A",x:0,eff:0,auto:true,broke:true});continue;}   // no Influence left: auto-Abstain
       const r=runSlot(E.id+">"+v.id,v,tCur(v).votes[E.id]);
       if(!r){R.curEnvoy=E;return false;}
       applyVote(E,v,r);}
@@ -719,7 +720,7 @@ function tSig(R){return [tPhase(),tTurn(),R.waiting||"",R.cur?R.cur.key:"",R.log
   D.players.map(p=>Object.keys(tCur(p).applied||{}).length+"/"+Object.keys(tCur(p).perform||{}).length).join(","),
   JSON.stringify(R.spent)].join("|");}
 function tName(p){return pTok(p,14)+esc(p.name);}
-function tVoteTxt(v){return v.a==="S"?'<span class="pos">+'+v.x+'</span>':v.a==="O"?'<span class="neg">−'+(v.eff!==undefined&&v.eff!==v.x?v.eff+'</span><span class="note"> (paid '+v.x+')</span>':v.x+'</span>'):'<span class="note">'+(v.timeout?"timeout":v.forced?"skipped":"abstain")+'</span>';}
+function tVoteTxt(v){return v.a==="S"?'<span class="pos">+'+v.x+'</span>':v.a==="O"?'<span class="neg">−'+(v.eff!==undefined&&v.eff!==v.x?v.eff+'</span><span class="note"> (paid '+v.x+')</span>':v.x+'</span>'):'<span class="note">'+(v.timeout?"timeout":v.forced?"skipped":v.broke?"abstain (no Influence)":"abstain")+'</span>';}
 function envBadges(E){const b=[];
   if(E.dom==="Industry")b.push("Ulterior Motive: Oppose only if at war with "+esc(E.owner.name));
   fxOf(E.owner,"noOppose").filter(f=>f.dom===E.dom).forEach(f=>b.push(esc(f.src)+": no Oppose"+(f.lower?" (lower "+esc(f.lower)+")":"")));
