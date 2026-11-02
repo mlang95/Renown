@@ -5777,7 +5777,8 @@ function renderReference(){const host=document.getElementById("viewReference");
 function tCountdown(R){const els=document.querySelectorAll("#viewTable .tbcd");if(!els.length)return;
   let txt="",near=false;if(R.cur){if(isFinite(R.cur.deadline)){const s=Math.max(0,Math.ceil((R.cur.deadline-tnow())/1000));txt=s+"s remaining";near=s<=5;}else txt="No time limit";}
   els.forEach(e=>{e.textContent=txt;e.classList.toggle("neg",near);});}
-setInterval(()=>{if(D.view!=="table"){const ph=tPhase();if((ph==="envoy"||ph==="council")&&TB().phaseTs)tApply(tSim());return;}const R=tSim();tApply(R);   // resolve on every view, not just the Realm
+setInterval(()=>{try{aiAfterRender();}catch(e){}   // AI seats answer slots the timer opens, not only after a full render
+  if(D.view!=="table"){const ph=tPhase();if((ph==="envoy"||ph==="council")&&TB().phaseTs)tApply(tSim());return;}const R=tSim();tApply(R);   // resolve on every view, not just the Realm
   if(tSig(R)!==T_SIG&&!editing()){renderTable();return;}tCountdown(R);},500);
 
 const THEMES={
