@@ -867,6 +867,7 @@ function factionFlags(){const f=FAC[S.faction];if(!f)return [];const out=[];{con
   {const dv=S.domains||{},u=+ST.Untested||1,nr=facHit(S,"no_renown_into"),mx=facHit(S,"domain_max");    // Renown → Domain limits
     if(nr&&(+dv[nr[1]]||0)>u)out.push(S.faction+": no Domain Points into "+nr[1]+" ("+nr[1]+" "+dv[nr[1]]+")");
     if(mx&&(+dv[mx[2]]||0)>+mx[1])out.push(S.faction+": "+mx[2]+" "+dv[mx[2]]+" > "+mx[1]);}
+  if(facHit(S,"max_armies")){const cap=eraCap("armies"),n=(S.armies||[]).length;if(cap!=null&&n<cap)out.push(S.faction+": "+n+" / "+cap+" Armies — send all of your Prowess Envoys this Envoy Phase");}
   return out;}
 // Factions offered by a culture come only from its mechanic_name list (the legacy CULTURES[*]['factions'] list is not used).
 // Self-made, or a culture with no list = every faction. The current pick always stays listed.
@@ -878,7 +879,8 @@ function cultureFactions(b){const c=cultureOf(b||S),row=c&&CUL[c];if(!row)return
 // only final-cut factions (FACTIONS[*].final_cut) are offered; a non-final current pick stays listed
 // FAC_ALL (per device): offer every final-cut faction whatever the culture
 let FAC_ALL=false;try{FAC_ALL=localStorage.getItem("renown_facall")==="1";}catch(_){}
-function facOffered(){const keep=FAC_ALL?null:cultureFactions(S);return Object.keys(FAC).filter(n=>n===S.faction||(FAC[n].final&&(!keep||keep.has(n))));}
+let FAC_DRAFT=false;try{FAC_DRAFT=localStorage.getItem("renown_facdraft")==="1";}catch(_){}   // also offer factions not in the final cut (tinkering)
+function facOffered(){const keep=FAC_ALL?null:cultureFactions(S);return Object.keys(FAC).filter(n=>n===S.faction||((FAC[n].final||(FAC_DRAFT&&!FAC[n].deprecated))&&(!keep||keep.has(n)||(FAC_DRAFT&&!FAC[n].final))));}
 // faction picker: a list (not a native select) so each faction's summary shows on hover / focus
 function facPicker(ed,onPick){const w=document.createElement("span");w.className="facpick";const f=FAC[S.faction];
   const btn=document.createElement("button");btn.type="button";btn.className="facsel facbtn";btn.disabled=!ed;btn.title="faction";
@@ -886,10 +888,11 @@ function facPicker(ed,onPick){const w=document.createElement("span");w.className
   const close=()=>{const m=w.querySelector(".facmenu");if(m)m.remove();document.removeEventListener("mousedown",out,true);};
   const out=e=>{if(!w.contains(e.target))close();};
   btn.onclick=()=>{if(w.querySelector(".facmenu")){close();return;}const L=facOffered(),m=document.createElement("div");m.className="facmenu";m.setAttribute("role","listbox");
-    m.innerHTML=(cultureOf(S)?'<label class="fmall note"><input type="checkbox"'+(FAC_ALL?' checked':'')+'> all cultures</label>':'')+
+    m.innerHTML=(cultureOf(S)?'<label class="fmall note"><input type="checkbox"'+(FAC_ALL?' checked':'')+'> all cultures</label>':'')+'<label class="fmdraft note"><input type="checkbox"'+(FAC_DRAFT?' checked':'')+'> drafts (not final cut)</label>'+
       '<div class="fmi" data-f="" tabindex="0" role="option"><b>— none —</b></div>'+(L.length?L.map(n=>'<div class="fmi'+(n===S.faction?' on':'')+'" data-f="'+esc(n)+'" tabindex="0" role="option"><b>'+esc(n)+'</b>'+
       (FAC[n].final?'':' <span class="note">(not final cut)</span>')+(FAC[n].summary?'<div class="fms note">'+esc(FAC[n].summary)+'</div>':'')+'</div>').join(''):'<div class="note fmi0">no final-cut factions for '+esc(S.culture||"")+'</div>');
     m.onclick=e=>{const it=e.target.closest(".fmi");if(!it)return;close();onPick(it.dataset.f);};
+    {const cb=m.querySelector(".fmdraft input");if(cb)cb.onchange=()=>{FAC_DRAFT=cb.checked;try{localStorage.setItem("renown_facdraft",FAC_DRAFT?"1":"0");}catch(_){}close();btn.click();};}
     {const cb=m.querySelector(".fmall input");if(cb)cb.onchange=()=>{FAC_ALL=cb.checked;try{localStorage.setItem("renown_facall",FAC_ALL?"1":"0");}catch(_){}close();btn.click();};}
     m.onkeydown=e=>{const it=e.target.closest(".fmi");if(e.key==="Escape"){close();btn.focus();}else if(it&&(e.key==="Enter"||e.key===" ")){e.preventDefault();close();onPick(it.dataset.f);}
       else if(it&&(e.key==="ArrowDown"||e.key==="ArrowUp")){e.preventDefault();const n=e.key==="ArrowDown"?it.nextElementSibling:it.previousElementSibling;if(n&&n.classList.contains("fmi"))n.focus();}};

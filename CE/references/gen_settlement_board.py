@@ -248,6 +248,8 @@ def envoy_fx(raw):
         if m: out.append({"k": "act", "val": _iv(m.group(2)), "dom": m.group(1).title(), "tgtPOabove": int(m.group(3))}); continue
         m = re.search(r"Authority\s*" + _N + r" on your (" + _DOMS + r") actions targeting a player with Public Order (-?\d+) or higher", c, re.I)
         if m: out.append({"k": "act", "val": _iv(m.group(1)), "dom": m.group(2).title(), "tgtPOabove": int(m.group(3)) - 1}); continue
+        m = re.search(r"(?:Authority|Influence)\s*" + _N + r" on (?:your )?(Personal )?(" + _DOMS + r") Envoys for each Army you control", c, re.I)
+        if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "personal" if m.group(2) else "all", "dom": m.group(3).title(), "per": "army"}); continue
         m = re.search(r"(?:^|\b)you have (?:Authority|Influence)\s*" + _N + r" on (Personal )?(" + _DOMS + r") Envoys", c, re.I)
         if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "personal" if m.group(2) else "all", "dom": m.group(3).title()}); continue
         m = re.search(r"A (" + _DOMS + r") Envoy you send can't fail", c, re.I)

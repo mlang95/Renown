@@ -68,6 +68,10 @@ function empireHoldingHTML(p,ci){if(!p||!empWin())return "";const pt=PT(p),used=
   const st=(p.board.placed||[]).filter(x=>x.name==="Studium Generale"&&pActive(x)&&!x.fac),chosen=pt.studiumEffects||{};
   st.filter(x=>!chosen[String(x.id)]).forEach(x=>{const avail=T_DOMS.filter(d=>((p.board.domains||{})[d]||0)<SOV&&!Object.keys(chosen).some(k=>chosen[k]===d));
     out.push('<div class="tb-row"><span style="flex:1">Studium Generale · choose one free Sovereign Domain effect</span>'+ (avail.length?'<select id="studiumDomain-'+esc(x.id)+'">'+avail.map(d=>'<option value="'+d+'">'+d+' · '+esc(String((DBOARD[d]||{}).Sovereign||"").split(":").slice(1).join(":").trim())+'</option>').join("")+'</select><button data-do="studiumChoose" data-who="'+p.id+'" data-id="'+esc(x.id)+'">gain effect</button>':'<span class="note">No unselected Sovereign Domain effects available.</span>')+'</div>');});
+  {const ts=tributeShieldOf(p);if(ts&&+used.shieldGift!==tTurn()){const others=D.players.filter(q=>!sameP(q,p));
+    out.push('<div class="tb-row"><span style="flex:1">'+esc(ts.n)+' · give a player '+(+ts.m[1]).toLocaleString()+' gold (no '+esc(ts.m[2])+' actions on you this turn unless they pay '+(+ts.m[3]).toLocaleString()+')</span><select id="shieldPick">'+others.map(q=>'<option value="'+q.id+'">'+esc(q.name)+'</option>').join("")+'</select><button data-do="shieldGift" data-who="'+p.id+'">give</button></div>');}}
+  {const de=srcMatch(p.board,"doubt_for_extort").find(x=>x.n===p.board.faction);if(de&&+used.doubtExtort!==tTurn())
+    out.push('<div class="tb-row"><span style="flex:1">'+esc(de.n)+' · gain Doubt +'+de.m[1]+' to Extort '+(+de.m[2]).toLocaleString()+' from each other player</span><button data-do="doubtExtort" data-who="'+p.id+'">take it</button></div>');}
   if(eurekaOn(p)&&+used.eureka!==tTurn()){const T=buildTimersOf(p).filter(x=>x.sett),n=eurekaCut();
     out.push('<div class="tb-row"><span style="flex:1">Eureka (Public Order) · reduce a Build Timer in your Settlement by '+n+'</span>'+(T.length?'<select id="eurekaPick">'+T.map(x=>'<option value="'+esc(JSON.stringify(x.ref))+'">'+esc(x.label+" · "+x.n)+'</option>').join("")+'</select><button data-do="eureka" data-who="'+p.id+'" data-n="'+n+'">reduce</button>':'<span class="note">No active Build Timer in your Settlements.</span>')+'</div>');}
   standingPhaseActions(p).forEach(z=>{let control;if(z.action==="Move"){const pick="stMovePick-"+String(p.id).replace(/[^A-Za-z0-9_-]/g,"")+"-"+z.key.replace(/[^A-Za-z0-9_-]/g,"-"),arms=ownArmies.filter(x=>!armyHeld(x.p,x.a));
@@ -98,6 +102,14 @@ DO.cipherArmy=el=>{const p=pOf(el),v=(document.getElementById("cipherArmyPick")|
 DO.cipherTimer=el=>{const p=pOf(el),raw=(document.getElementById("cipherTimerPick")||{}).value;if(!p||!canAct(p)||!empWin())return;let ref;try{ref=JSON.parse(raw);}catch(e){return;}const t=cipherTimerResolve(ref);if(!t||!(t.n>0))return;
   const key=activeCipherTimers().find(x=>JSON.stringify(x.ref)===JSON.stringify(ref))?.key||JSON.stringify(ref),pt=PT(p),last=pt.cipherTimer||{};if(last.turn===tTurn()-1&&last.id===key){flash("Choose a different Timer than last turn");return;}
   const n=Math.max(1,+el.dataset.n||2);t.n+=n;pt.cipherTimer={turn:tTurn(),id:key};pt.holdingActs=pt.holdingActs||{};pt.holdingActs.cipherTimer=tTurn();noteAdd(p,"Cipher Chamber: Timer +"+n);save();render();};
+DO.shieldGift=el=>{const p=pOf(el),q=pById((document.getElementById("shieldPick")||{}).value),m=p&&tributeShieldOf(p);if(!p||!q||!m||sameP(p,q)||!canAct(p)||!empWin())return;
+  const pt=PT(p);pt.holdingActs=pt.holdingActs||{};if(+pt.holdingActs.shieldGift===tTurn())return;if((+p.board.treasury||0)<+m.m[1]){flash("Not enough gold");return;}
+  tGold(p.board,-(+m.m[1]),m.n+" → "+q.name);tGold(q.board,+m.m[1],m.n+" from "+p.name);p.board.shieldGift={turn:tTurn(),pid:String(q.id)};pt.holdingActs.shieldGift=tTurn();
+  noteAdd(p,m.n+": gave "+q.name+" "+(+m.m[1]).toLocaleString()+" gold");save();render();};
+DO.doubtExtort=el=>{const p=pOf(el),m=p&&srcMatch(p.board,"doubt_for_extort").find(x=>x.n===p.board.faction);if(!p||!m||!canAct(p)||!empWin())return;
+  const pt=PT(p);pt.holdingActs=pt.holdingActs||{};if(+pt.holdingActs.doubtExtort===tTurn())return;gainDoubt(p.board,+m.m[1]);let tot=0;
+  D.players.forEach(q=>{if(!sameP(q,p))tot+=extortGold({b:q.board},{b:p.board},+m.m[2],m.n);});pt.holdingActs.doubtExtort=tTurn();
+  noteAdd(p,m.n+": Doubt +"+m.m[1]+", Extort "+tot.toLocaleString());save();render();};
 DO.eureka=el=>{const p=pOf(el),raw=(document.getElementById("eurekaPick")||{}).value;if(!p||!canAct(p)||!empWin()||!eurekaOn(p))return;let ref;try{ref=JSON.parse(raw);}catch(e){return;}
   const pt=PT(p);pt.holdingActs=pt.holdingActs||{};if(+pt.holdingActs.eureka===tTurn())return;const r=cutBuildTimer(ref,Math.max(1,+el.dataset.n||2));if(!r)return;
   pt.holdingActs.eureka=tTurn();noteAdd(p,"Eureka: "+r);save();render();};
@@ -349,7 +361,7 @@ function dockHTML(R){
     targets.slice(0,1).forEach(p=>{const dc=tCur(p).decl||{},nn=dc.n||{},tot=T_ALL.reduce((a,d)=>a+(+nn[d]||0),0),mx=personalEnvoys(p);
       h+=dockCard("Declare Envoys — "+esc(p.name)+' <span class="note">'+tot+'/'+mx+'</span>',(isSpring()||RC.PHASE_REFORM?T_DOMS:T_ALL).map(d=>'<div class="tb-row"><span style="min-width:80px">'+d+'</span>'+
         '<button data-do="decl" data-dom="'+d+'" data-dv="-1" data-who="'+p.id+'">−</button><b style="min-width:16px;text-align:center">'+(+nn[d]||0)+'</b>'+
-        '<button data-do="decl" data-dom="'+d+'" data-dv="1" data-who="'+p.id+'"'+(tot>=mx||(d==="Piety"&&pietyBlocked(p)&&!ADMIN)?' disabled':'')+'>+</button>'+(d==="Piety"&&pietyBlocked(p)?'<span class="note neg" title="'+esc(pietyBlocked(p))+'">'+kwify("Wavering Devotion")+'</span>':'')+'</div>'+declInviteHTML(p,d,+nn[d]||0,dc.inv||{})).join("")+
+        '<button data-do="decl" data-dom="'+d+'" data-dv="1" data-who="'+p.id+'"'+(tot>=mx||(envoyBlocked(p,d)&&!ADMIN)?' disabled':'')+'>+</button>'+(envoyBlocked(p,d)?'<span class="note neg" title="'+esc(pietyBlocked(p))+'">'+kwify("Wavering Devotion")+'</span>':'')+'</div>'+declInviteHTML(p,d,+nn[d]||0,dc.inv||{})).join("")+
         '<div class="tb-row"><button data-do="declock" data-who="'+p.id+'" class="on">Submit</button><span class="note">Hidden until everyone submits.</span></div>',"now");});
     if(!HOTSEAT&&(tCur(me).decl||{}).lock)h+=dockCard("Declare Envoys",'<div class="tb-row"><span class="pos">Submitted.</span><button data-do="declunlock" data-who="'+me.id+'">edit</button></div>');}
   // 3. vote on the current Envoy
@@ -449,7 +461,7 @@ function inflCardHTML(qp){const c=tCur(qp),md=PT(qp).mods,afx=boardFx(qp);
   return dockCard("Influence &amp; Envoys — "+esc(qp.name)+' <span class="note">Duke</span>',b);}
 DO.cvote=el=>{if(isSpring()){flash("Spring — no Council Phase");return;}const c=tCurW(pOf(el));if(el.dataset.dom)c.council={dom:el.dataset.dom,ts:tnow()};else delete c.council;rlCommit();};
 DO.tie=el=>{TB().councilTie={dom:el.dataset.dom,turn:tTurn(),ts:tnow()};rlCommit();};
-DO.decl=el=>{const why=el.dataset.dom==="Piety"&&+el.dataset.dv>0&&!ADMIN?pietyBlocked(pOf(el)):"";if(why){flash(why);return;}const c=tCurW(pOf(el));c.decl=c.decl||{};c.decl.n=c.decl.n||{};const d=el.dataset.dom;c.decl.n[d]=Math.max(0,(+c.decl.n[d]||0)+(+el.dataset.dv));rlCommit();};
+DO.decl=el=>{const why=+el.dataset.dv>0&&!ADMIN?envoyBlocked(pOf(el),el.dataset.dom):"";if(why){flash(why);return;}const c=tCurW(pOf(el));c.decl=c.decl||{};c.decl.n=c.decl.n||{};const d=el.dataset.dom;c.decl.n[d]=Math.max(0,(+c.decl.n[d]||0)+(+el.dataset.dv));rlCommit();};
 // aim a declared Envoy at a player whose Holding invites it (inviteHolders): one select per Envoy of that Domain
 function declInviteHTML(p,d,n,inv){const H=n?inviteHolders(p,d):[];if(!H.length)return "";let h="";
   for(let k=0;k<n;k++)h+='<div class="tb-row"><span class="note" style="min-width:80px">'+d+(n>1?" "+(k+1):"")+' aimed at</span><select data-do="declinv" data-key="'+d+":"+k+'" data-who="'+p.id+'"><option value="">— no one —</option>'+

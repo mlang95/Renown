@@ -282,21 +282,26 @@ async function loadPicks(){
     if(res&&res.status===200&&res.json)PICKS=res.json;
   }else{const L=LOCAL_PICKS[B.id+":"+pickKey()]||{},v=viewerSide(),both=!!(L.A&&L.B),opp=v==="A"?"B":v==="B"?"A":null;
     PICKS={revealed:both};["A","B"].forEach(s=>{PICKS[s]={picked:!!L[s]};if(L[s]&&(both||s===v||(PEEK&&s===opp)))PICKS[s].tactic=L[s];});}
-  ["A","B"].forEach(s=>{const v=PICKS[s]&&PICKS[s].tactic;if(v&&v.includes("|")){const [t,e]=v.split("|");PICKS[s].tactic=t;PICKS[s].eq=e;}});
+  ["A","B"].forEach(s=>{const v=PICKS[s]&&PICKS[s].tactic;if(v&&v.includes("|")){const [t,e,w]=v.split("|");PICKS[s].tactic=t;PICKS[s].eq=e;PICKS[s].swap=w==="S";}});
   if(PICKS.revealed&&PICKS.A.tactic&&PICKS.B.tactic&&!(B.rev&&B.rev.sk===B.sk)){
     B.rev={sk:B.sk,A:PICKS.A.tactic,B:PICKS.B.tactic,eqA:PICKS.A.eq||eqCode("A"),eqB:PICKS.B.eq||eqCode("B")};
+    // Heritage "before Tactics are revealed, you may swap your Tactic with your opponent's" (chosen blind with the pick)
+    {const sw=["A","B"].filter(X=>PICKS[X].swap&&sideSwaps(X));if(sw.length===1){const t=B.rev.A;B.rev.A=B.rev.B;B.rev.B=t;blog(sideNm(sw[0])+" swaps Tactics ("+sideSwaps(sw[0])+")");}}
     blog("Tactics revealed — A: "+B.rev.A+" ("+B.rev.eqA+"), B: "+B.rev.B+" ("+B.rev.eqB+")");
     narrate("reveal","A",{tactic:B.rev.A,foe_tactic:B.rev.B});{const cA=sideCalc("A"),cB=sideCalc("B");if(cA&&cB&&cA.I!==cB.I)narrate("first",cA.I>cB.I?"A":"B");}save();}
 }
 // Bandit side on the bandit table: roll its Tactic (d FACES on BAN.tacticTable) and lock it in
 function banditRollTactic(X){const v=1+Math.floor(Math.random()*(BAN.faces||10)),t=dieLookup(BAN.tacticTable,v);
   blog(X+" bandits roll d"+(BAN.faces||10)+": "+v+" → "+t);save();return pickTactic(X,t);}
+// the side's player holds a "swap your Tactic with your opponent's" Heritage: its name, else ""
+const SWAP_SEL={};
+function sideSwaps(X){const sd=battle()[X]||{};if(sd.kind==="bandit"||String(sd.aid||"").startsWith("g:"))return "";const p=sd.pid!=null?pById(sd.pid):null;return p&&srcHas(p.board,"swap_tactic")?p.board.faction:"";}
 async function pickTactic(side,t){
   const B=battle();
   if(!tacOK(side,t)){
     if((B[side]||{}).kind==="bandit"){const pool=randomTacticPool(side);if(!pool.length)return;const t2=pool[Math.floor(Math.random()*pool.length)];blog(side+" bandits can't play "+t+" ("+tacWhyNot(side,t)+") → "+t2);t=t2;}
     else{flash(t+" "+tacWhyNot(side,t)+" — "+(tacAllowed(side)||[]).join(", "));return;}}
-  const tv=t+"|"+eqCode(side);                                   // Tactic and equipment are submitted together
+  const tv=t+"|"+eqCode(side)+(SWAP_SEL[side]&&sideSwaps(side)?"|S":"");   // Tactic and equipment (and a blind Tactic swap) are submitted together
   if(API.online){const r=await apiRaw("PUT","/api/battle/"+B.id+"/"+pickKey()+"/"+side,{tactic:tv});if(r&&r.status===409)flash("both sides already locked in");}
   else{const k=B.id+":"+pickKey();LOCAL_PICKS[k]=LOCAL_PICKS[k]||{};if(!(LOCAL_PICKS[k].A&&LOCAL_PICKS[k].B))LOCAL_PICKS[k][side]=tv;}
   await loadPicks();
@@ -414,6 +419,7 @@ function tacticPickHTML(X){
       else if(eo_.one&&eo_.opts[0]==="ranged")h+='<div class="note" style="margin-top:4px">One-Shot: '+esc(a.ranged)+(!((EQ.ranged[a.ranged]||{}).tags||[]).includes("2H")&&a.shield&&a.shield!=="None"?' + '+esc(a.shield):'')+' is Equipped this Skirmish.</div>';}
     if(sideCalc(O)&&sideCalc(O).outrider&&!pk2.picked)h+='<div class="note" style="color:var(--order)">Opponent has Outrider: pick first — your Tactic is shown to them.</div>';
     h+='<div class="tcards">'+BT.tactics.map(t=>{const ok=tacOK(X,t),on=pk2.tactic===t||(!pk2.picked&&TAC_SEL[X]===t);return '<button class="btac tcard'+(on?' on':'')+'" data-x="'+X+'" data-t="'+esc(t)+'"'+(ok&&!pk2.picked?'':' disabled'+(ok?'':' title="'+tacWhyNot(X,t)+'"'))+'>'+(ok?tacCardBody(X,t):'<b>'+esc(t)+'</b><div class="note">'+tacWhyNot(X,t)+'</div>')+'</button>';}).join('')+
+      (!pk2.picked&&sideSwaps(X)?'<label class="note" title="'+esc(sideSwaps(X))+'"><input type="checkbox" class="bswap" data-x="'+X+'"'+(SWAP_SEL[X]?' checked':'')+'> swap Tactics with the opponent</label> ':'')+
       (!pk2.picked?'<button class="btlock" data-x="'+X+'"'+(TAC_SEL[X]&&tacOK(X,TAC_SEL[X])?'':' disabled')+'>Lock in'+(TAC_SEL[X]?' '+esc(TAC_SEL[X]):'')+'</button>':'')+'</div>'+
       (tacAllowed(X)?'<div class="note">'+(tacAllowedT()?esc(bfTerrain().tile)+(tacAllowedW(X)?' + weapon':'')+' allows only: ':'Equipped weapon allows only: ')+tacAllowed(X).map(esc).join(", ")+'</div>':'')+tacDetailHTML(X,pk2.tactic||TAC_SEL[X]);
     if(mine&&c.outrider)h+='<div style="margin-top:4px"><button id="bpeek"'+(PEEK?' disabled':'')+'>Outrider: reveal opponent'+(op.picked?'':' (once they pick)')+'</button> <span class="note">'+(c.outMastery?'mastery: every Skirmish':'innate: first Skirmish')+'</span></div>';
@@ -849,7 +855,7 @@ function endSkirmish(){
     if((a.count||0)===0){r.wiped=true;blog(X+" wiped out");}
     rep.push(r);B[X].cas=0;B[X].rcv=0;});
   rep.forEach(r=>{const a=(sideArmy(B[r.X])||{}).a;narrate("skirmish_end",r.X,{left:a?a.count||0:0});});
-  B.sk++;B.round=0;B.rev=null;EQSEL={};B.rolls={};B.strk={};B.par={};PEEK=false;B.endRep={sk:B.sk,rows:rep};
+  B.sk++;B.round=0;B.rev=null;EQSEL={};delete SWAP_SEL.A;delete SWAP_SEL.B;B.rolls={};B.strk={};B.par={};PEEK=false;B.endRep={sk:B.sk,rows:rep};
   blog("— Skirmish begins —");save();loadPicks().then(render);
 }
 function endBattle(win){
@@ -935,6 +941,7 @@ function wireBattle(host){
   host.querySelectorAll(".bBrk").forEach(b=>b.onclick=()=>rollBreakBtn(b.dataset.x));
   host.querySelectorAll(".bEndB").forEach(eb=>eb.onclick=()=>{if(confirm("End the battle"+(eb.dataset.w?" — "+eb.dataset.w+" won (Spoils of War)":" with no winner")+"? Removes Fatigue tokens."))endBattle(eb.dataset.w||null);});
   host.querySelectorAll(".btac").forEach(b=>b.onclick=()=>{TAC_SEL[b.dataset.x]=b.dataset.t;render();});
+  host.querySelectorAll(".bswap").forEach(cb=>cb.onchange=()=>{SWAP_SEL[cb.dataset.x]=cb.checked;});
   host.querySelectorAll(".btlock").forEach(b=>b.onclick=()=>{const X=b.dataset.x,t=TAC_SEL[X];if(!t)return;delete TAC_SEL[X];pickTactic(X,t);});
   host.querySelectorAll(".btmode").forEach(b=>b.onclick=()=>{B[b.dataset.x].tmode=b.dataset.m;save();render();});
   host.querySelectorAll(".btrand").forEach(b=>b.onclick=()=>{const X=b.dataset.x,pool=randomTacticPool(X),t=pool[Math.floor(Math.random()*pool.length)];

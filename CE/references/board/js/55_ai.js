@@ -389,7 +389,7 @@ function aiIntents(p){const b=p.board,C=aiCandidates(p),out=[],needs={};let gold
   const floor=aiFaithFloor(p,needs);
   const hostileTo=(x,t)=>String(x.tgt||"")===String(t)&&(x.war||x.act==="Declare War");
   const noPiety=!!pietyBlocked(p);   // Wavering Devotion
-  C.forEach(c=>{if(c.cost&&c.cost>gold)return;if(c.dom==="Piety"&&noPiety)return;if(c.doubt&&po-c.doubt<=floor)return;if(out.some(x=>x.act===c.act&&String(x.tgt||"")===String(c.tgt||"")&&x.sub===c.sub))return;
+  C.forEach(c=>{if(c.cost&&c.cost>gold)return;if(c.dom==="Piety"&&noPiety)return;if(envoyBlocked(p,c.dom)||actRestrict(p,c.act,c.tgt?pById(c.tgt):null).length)return;if(c.doubt&&po-c.doubt<=floor)return;if(out.some(x=>x.act===c.act&&String(x.tgt||"")===String(c.tgt||"")&&x.sub===c.sub))return;
     if(c.act==="Sign Treaty"&&out.some(x=>hostileTo(x,c.tgt)))return;if(c.act==="Declare War"&&out.some(x=>x.act==="Sign Treaty"&&String(x.tgt)===String(c.tgt)))return;   // war or a treaty with someone, not both
     gold-=c.cost;po-=c.doubt;out.push(Object.assign({},c,{floor,why:c.why+" ["+c.prio+" "+c.score.toFixed(1)+", net "+c.net+(c.style?", style: "+[...new Set(c.style)].join("/"):"")+(c.arch>1?", "+aiArch(p).name+" ×"+c.arch.toFixed(2):"")+"]"}));});
   return out;}

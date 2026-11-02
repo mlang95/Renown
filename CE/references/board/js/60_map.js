@@ -353,12 +353,14 @@ function settEcon(p,s){return withBoard(p.board,()=>{const have=new Set(Object.k
   return {gold:a.gold||0,seas,sea,hUp,upRed:a.upkeep||0,craft:a.craft||0,infl:a.influence||0,faith:a.faith||0,doubt:a.doubt||0,tax,dest,mons,occ:occ.length,
     net:gold-hUp+(winter&&!dest?tax:0),pillageBase:gold};});}
 // ---- Pillage (Prowess action): a.pillage={tp,sid}; Extort the Settlement's Holding income each Empire Phase (no Winter tax) ----
+// war, or a "May Pillage while not At War" Heritage against a non-allied player
+function pillageOK(p,q){const x=effPair(p.id,q.id);if(x.war)return true;return srcHas(p.board,"pillage_peace")&&!x.household&&!sameAlliance(String(p.id),String(q.id));}
 function pillageCheck(p,a){const pl=a.pillage;if(!pl)return null;const q=pById(pl.tp),s=q&&settById(q,pl.sid);
-  if(!q||!s)return "Settlement gone";if(!effPair(p.id,q.id).war)return "war ended";if(siegeOn(q.id,s.id))return "Settlement besieged";
+  if(!q||!s)return "Settlement gone";if(!pillageOK(p,q))return "war ended";if(siegeOn(q.id,s.id))return "Settlement besieged";
   if(armySieging(p,a))return "Army laid Siege";const ak=armyHex(p,a),sk=settHex(q,s);
   if(!ak||!sk||hexDist(hk(ak),hk(sk))>settReach(q,s))return "Army left Reach";return "";}
 function pillageTargets(p,a){const ak=armyHex(p,a);if(!ak)return [];const out=[];
-  D.players.forEach(q=>{if(sameP(q,p)||!effPair(p.id,q.id).war)return;(q.board.settlements||[]).forEach(s=>{const sk=settHex(q,s);
+  D.players.forEach(q=>{if(sameP(q,p)||!pillageOK(p,q))return;(q.board.settlements||[]).forEach(s=>{const sk=settHex(q,s);
     if(sk&&!siegeOn(q.id,s.id)&&hexDist(hk(ak),hk(sk))<=settReach(q,s))out.push({q,s});});});return out;}
 function runPillage(){const out=[],seen=new Set();D.players.forEach(p=>(p.board.armies||[]).forEach(a=>{if(!a.pillage)return;
   const q=pById(a.pillage.tp),s=q&&settById(q,a.pillage.sid),nm=s?(s.name||s.tier):"?",why=pillageCheck(p,a);

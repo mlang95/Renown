@@ -148,7 +148,7 @@ function opposeBlock(v,E){  // reason v can't Oppose E, or ""
 function domAsFx(p,dom){return fxOf(p,"domAs").find(f=>(f.for||"All")===dom||((f.for||"All")==="All"&&dom!=="Diplomacy"))||null;}
 function innateParts(p,dom,council){const f0=domAsFx(p,dom),idom=f0?f0.dom:dom,era=dom==="Diplomacy"&&!f0;
   const parts=[{src:era?currentEra()+" (Era)":tStand(p,idom)+(f0?" "+idom+" ("+f0.src+")":""),val:era?diploInf():((DBOARD.innate_influence_own_envoys||{})[tStand(p,idom)]||0)}];
-  fxOf(p,"envoy").filter(f=>(f.dom==="All"||f.dom===dom)&&scopeOk(f,council)&&!(f.noSpring&&isSpring())).forEach(f=>parts.push({src:f.src,val:f.val*f.q}));
+  fxOf(p,"envoy").filter(f=>(f.dom==="All"||f.dom===dom)&&scopeOk(f,council)&&!(f.noSpring&&isSpring())).forEach(f=>{const k=f.per==="army"?(p.board.armies||[]).length:1;if(k)parts.push({src:f.src+(f.per==="army"?" ×"+k+" Armies":""),val:f.val*f.q*k});});
   D.players.forEach(q=>{if(sameP(q,p)||!sameAlliance(String(q.id),String(p.id)))return;fxOf(q,"allyEnvoy").filter(f=>scopeOk(f,council)).forEach(f=>parts.push({src:q.name+": "+f.src,val:f.val*f.q}));});
   Object.values(PT(p).mods).filter(m=>m&&m.kind==="envoy"&&(m.dom==="All"||m.dom===dom)&&scopeOk(m,council)).forEach(m=>parts.push({src:m.label||"manual",val:+m.val||0}));
   return parts;}
@@ -349,7 +349,7 @@ const AA={
   "Demand Tribute":{tgt:"player",run:c=>c.flag("Negotiate terms with "+c.q.name+"; if refused, Declare War")},
   "Declare War":{tgt:"player",elig:(o,q)=>{const x=effPair(o.id,q.id);return x.household||sameAlliance(String(o.id),String(q.id))?"allied":x.war?"already at war":x.nap?"Non-Aggression Pact":x.truce>0?"truce "+x.truce:"";},
     run:c=>{warOn(c,c.o,c.q,true);warOnFac(c);const mil=diplo().member[topSuz(c.o.id)];if(mil&&(diplo().alliances[mil]||{}).type==="Military")c.flag("Military Alliance: next turn each member Declares War on "+c.q.name+" and sends 1 fewer Envoy");}},
-  "Pillage":{tgt:"player",elig:(o,q)=>effPair(o.id,q.id).war?"":"not at war",
+  "Pillage":{tgt:"player",elig:(o,q)=>pillageOK(o,q)?"":"not at war",
     sub:(o,q)=>(o.board.armies||[]).flatMap(a=>pillageTargets(o,a).filter(t=>sameP(t.q,q)).map(t=>({v:a.id+"|"+t.s.id,label:(a.label||("Army "+a.id))+" → "+(t.s.name||t.s.tier)}))),
     run:c=>{const [aid,sid]=c.sub.split("|"),a=(c.o.board.armies||[]).find(x=>String(x.id)===aid);if(!a)return;a.pillage={tp:String(c.q.id),sid};c.log(c.o.name+"'s "+(a.label||"Army "+a.id)+" Pillages "+c.q.name+"'s "+settName(c.q,sid)+" (each Empire Phase)");}},
   "Intercept Caravan":{tgt:"player",elig:(o,q)=>BST().ic[q.id]?"already intercepted":"",
@@ -464,6 +464,7 @@ function runExpand(c){const o=c.o,b=o.board,v=c.sub.slice(2);if(c.sub==="hand"||
 function runImprove(c){const o=c.o,b=o.board,k=c.sub.slice(0,1),v=c.sub.slice(2);if(c.sub==="hand"){c.pend("no Infrastructure placed yet");return;}
   const blk=withBoard(b,()=>scopeBlock(v,null));if(blk){c.flag(blk);return;}
   {const wb=k==="w"?wonderBuilding(b,v):null;if(wb)c.flag(o.name+": "+wb+" is still building — one Wonder at a time");}
+  srcMatch(b,"faith_first_improve").forEach(x=>{if(b.firstImprove)return;b.firstImprove=tTurn();addFaith(b,+x.m[1]);c.log(o.name+": Faith +"+x.m[1]+" ("+x.n+", first Improve)");});
   const t=withBoard(b,()=>{(k==="w"?S.wonders:S.infra)[v]=1;itm();const t=gameStarted()?infraBuildTime(v):0;if(t>0)S.itimer[v]=t;wonderStart(v,t);return t;});
   c.log(o.name+" builds "+v+(t>0?" · Build Timer "+t:""));
   D.players.forEach(q=>{const h=facHit(q.board,"build_edict");if(h&&h[1]===v&&!sameP(q,o))c.flag(q.name+" ("+q.board.faction+"): must "+h[2]+" "+o.name+"'s "+v+" as an Edict");});}
@@ -503,6 +504,10 @@ function warOn(c,o,q,cascade){const x=topPair(o,q);if(!x)return;if(!x.war)chron(
 function grandVizier(q){const b=q.board,h=srcMatch(b,"grand_vizier_alt")[0];
   if(h){const piety=/Piety/i.test(h.m[1]);return {val:piety?((b.domains||{}).Piety||0):(b.po||0),what:piety?"Piety":"Public Order",src:h.n};}
   const g=dbActive(b).find(x=>/^Grand Vizier/i.test(x.name));return g?{val:(b.domains||{}).Cunning||0,what:"Cunning",src:g.name}:null;}
+// Heritage "give another player N gold … can't target you with <Domains> actions this turn unless they pay you M": q.board.shieldGift = {turn, pid}
+function tributeShieldOf(q){return (q&&srcMatch(q.board,"tribute_shield")[0])||null;}
+function tributeShielded(o,q,dom){const m=tributeShieldOf(q),g=q&&q.board.shieldGift;if(!m||!g||g.turn!==tTurn()||String(g.pid)!==String(o.id))return false;
+  return m.m[2].split(/\s*(?:,|\bor\b|\band\b)\s*/i).map(x=>x.trim().toLowerCase()).includes(String(dom||"").toLowerCase());}
 function pfSpec(a){return AA[a]||{tgt:"player",opt:true,run:c=>c.flag("Resolve "+a+" by hand")};}
 function pfHardFlags(E,a,target){if(!gameStarted()||ADMIN)return [];const o=E.owner,sp=pfSpec(a),qs=typeof target==="string"?(target.startsWith("al:")?allyGroup(target.slice(3)):(pById(target)?[pById(target)]:[])):target?[target]:[],out=actRestrict(o,a,null).slice();
   // Envoys: "you must be able to pay the action's cost before you send it" (Bankrupt: Treasury below 0, no gold to spend at all)
@@ -516,7 +521,8 @@ function pfHardFlags(E,a,target){if(!gameStarted()||ADMIN)return [];const o=E.ow
     if(actDom(a,E)==="Cunning"){const gv=grandVizier(q),mine_=(o.board.domains||{}).Cunning||0;
       if(gv&&gv.val>mine_)out.push("Grand Vizier ("+gv.src+"): "+q.name+"'s "+gv.what+" "+gv.val+" > your Cunning "+mine_);}});
   const req=String(((DATA.actions||{})[a]||{}).requires||"").trim(),m=/^(Rising|Established|Sovereign)\s+(\w+)$/.exec(req);
-  if(m){const ORD=["Untested","Rising","Established","Sovereign"],have=tStand(o,m[2]),freeSov=m[1]==="Sovereign"&&dbActive(o.board).some(x=>x.dom===m[2]&&x.tier==="Sovereign"&&x.free);if(ORD.indexOf(have)<ORD.indexOf(m[1])&&!freeSov)out.push(req+" (has "+have+")");}
+  if(m){const ORD=["Untested","Rising","Established","Sovereign"],have=tStand(o,m[2]),freeSov=m[1]==="Sovereign"&&dbActive(o.board).some(x=>x.dom===m[2]&&x.tier==="Sovereign"&&x.free);const lower=a==="Convert"&&srcHas(o.board,"convert_rising")?"Rising":null;   // "You may Convert at Rising Piety"
+    if(ORD.indexOf(have)<ORD.indexOf(lower||m[1])&&!freeSov)out.push((lower?lower+" "+m[2]:req)+" (has "+have+")");}
   return [...new Set(out.filter(Boolean))];}
 // candidate targets for one action, each with its post-Envoy Influence result
 function pfTargets(E,a){const sp=pfSpec(a),o=E.owner,dip=actDom(a,E)==="Diplomacy";
@@ -524,6 +530,7 @@ function pfTargets(E,a){const sp=pfSpec(a),o=E.owner,dip=actDom(a,E)==="Diplomac
   const L=D.players.filter(q=>!sameP(q,o)).map(q=>{const ev=comboEval(E,a,q.id),fl=[sp.elig?sp.elig(o,q):""].concat(actRestrict(o,a,q));
     if(E.retry&&E.excludeTarget&&String(q.id)===String(E.excludeTarget))fl.push("Forgery Workshop: retry must target a different player");
     if(dip&&(isVassal(o.id)||isVassal(q.id)))fl.push("Vassal: no Diplomacy actions");
+    if(tributeShielded(o,q,actDom(a,E))){const m=tributeShieldOf(q);fl.push("pay "+q.name+" "+(+m.m[3]).toLocaleString()+" ("+m.n+")");}
     if(sp.sub&&!sp.sub(o,q).length)fl.push("nothing eligible");
     if(actDom(a,E)==="Cunning"){const gv=grandVizier(q),mine_=(o.board.domains||{}).Cunning||0;if(gv&&gv.val>mine_)fl.push("Grand Vizier ("+gv.src+"): "+q.name+"'s "+gv.what+" "+gv.val+" > your Cunning "+mine_);}
     const hard=pfHardFlags(E,a,q);return {v:String(q.id),label:q.name,legal:!hard.length,ok:ev.ok&&!hard.length,ev,flag:[...new Set(fl.filter(Boolean))].join("; ")};});
@@ -632,6 +639,10 @@ function resolveEnvoy(E,pe,fin){const o=E.owner,act=pe&&pe.rec&&pe.rec.action,A=
       const gaveDoubt=D.players.filter(p=>rawTo[p.id]>0);
       D.players.forEach(h=>SM(h.board,"piety_extra_doubt").forEach(x=>gaveDoubt.forEach(p=>ctx.doubt(p,+x.m[1],true,x.n+" · "+h.name))));
     }
+    // Heritage riders: Influence next Empire Phase for a Piety action; "may give you N gold instead" of Doubt (Missionaries / Spread Truth)
+    if(AD==="Piety")SM(o.board,"piety_influence_next").forEach(x=>{const b=o.board,pi=b.pietyInfl&&b.pietyInfl.turn===tTurn()?b.pietyInfl:{turn:tTurn(),n:0};pi.n+=+x.m[1];b.pietyInfl=pi;fx.push(o.name+": Influence +"+x.m[1]+" next Empire Phase ("+x.n+")");});
+    if(/^(Send Missionaries|Spread Truth)$/.test(act))SM(o.board,"doubt_buyout").forEach(x=>D.players.forEach(p=>{if(rawTo[p.id]>0&&!sameP(p,o))flags.push(p.name+" may instead give "+o.name+" "+(+x.m[1]).toLocaleString()+" gold ("+x.n+") — undo their Doubt and move the gold by hand");}));
+    if(q&&tributeShielded(o,q,AD)){const m=tributeShieldOf(q),t=extortGold({b:o.board},{b:q.board},+m.m[3],m.n);fx.push(o.name+" pays "+q.name+" "+t.toLocaleString()+" to target them ("+m.n+")");}
     // "…give their target Faith, it gains Faith +N more; …give Doubt, it gains Doubt +N more": only what the action itself gave, per player it gave it to
     SM(o.board,"basilica_amp").forEach(x=>{if(x.m[1].toLowerCase()!==AD.toLowerCase())return;const gf=Object.assign({},faithTo),gd=Object.assign({},rawTo);
       D.players.forEach(p=>{if(gf[p.id]>0)ctx.faith(p,+x.m[2],x.n);
