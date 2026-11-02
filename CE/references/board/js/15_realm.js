@@ -334,6 +334,24 @@ DO.autores=el=>{TB().auto=el.checked;rlCommit();};
 DO.hotseat=el=>{HOTSEAT=el.checked;try{localStorage.setItem(gkey("renown_hotseat"),HOTSEAT?"1":"0");}catch(e){}renderTable();};
 
 // ---- action dock: what this phase lets you do, in the order you do it ----
+// Empire Summary (Empire Phase dock, before the Works Phase): what this Empire Phase did for you — builds finished, what is still
+// building (and what lands next Empire Phase), Treasury and Public Order moves, and this turn's Bandit Mechanics
+function empireSummaryHTML(p){if(!p)return "";const t=TB(),H=(t.hist||{})[tTurn()-1]||null,row=H&&(H.rows||[]).find(r=>String(r.pid)===String(p.id)),b=p.board,out=[];
+  const all=(row&&row.done||[]).filter(Boolean).map(String),isB=x=>/^(built|repaired|finished|upgraded|expanded) |Muster|mustered|Reinforce/i.test(x),done=all.filter(isB),oth=all.filter(x=>!isB(x));
+  out.push('<div class="es-sec"><div class="es-h">Completed</div>'+(done.length?'<div class="es-chips">'+done.map(x=>'<span class="es-chip ok">✓ '+esc(x.replace(/^built /,""))+'</span>').join("")+'</div>':'<div class="note">Nothing finished this Empire Phase.</div>')+'</div>');
+  if(oth.length)out.push('<div class="es-sec"><div class="es-h">Effects</div>'+oth.map(x=>'<div class="es-row note">'+esc(x)+'</div>').join("")+'</div>');
+  const T=buildTimersOf(p);
+  out.push('<div class="es-sec"><div class="es-h">Under construction</div>'+(T.length?T.map(x=>'<div class="es-row"><span style="flex:1">'+esc(x.label)+'</span><span class="es-pips" title="Build Timer '+x.n+'">'+"●".repeat(Math.min(x.n,8))+'</span><b class="'+(x.n<=1?'pos':'')+'">'+(x.n<=1?'next Empire Phase':x.n+' turns')+'</b></div>').join(""):'<div class="note">No active Build Timers.</div>')+'</div>');
+  {const rp=(b.placed||[]).filter(x=>x.dmg>0);if(rp.length)out.push('<div class="es-sec"><div class="es-h">Damaged</div>'+rp.map(x=>'<div class="es-row"><span style="flex:1">'+esc(x.name)+'</span><b class="neg">'+(x.rep?'Repair · '+x.dmg:'awaiting Repair')+'</b></div>').join("")+'</div>');}
+  if(row){const g=(+row.g1||0)-(+row.g0||0),po=(+row.p1||0)-(+row.p0||0),sg=v=>(v>0?"+":"")+v.toLocaleString();
+    out.push('<div class="es-sec es-num"><div><span class="note">Treasury</span> '+(+row.g0||0).toLocaleString()+' → <b>'+(+row.g1||0).toLocaleString()+'</b> <span class="'+(g>=0?'pos':'neg')+'">'+sg(g)+'</span></div>'+
+      '<div><span class="note">Public Order</span> '+(+row.p0||0)+' → <b>'+(+row.p1||0)+'</b> <span class="'+(po>=0?'pos':'neg')+'">'+sg(po)+'</span></div></div>');}
+  {const tag="T"+tTurn()+" ",L=(BST().log||[]).filter(x=>String(x).startsWith(tag)).map(x=>String(x).slice(tag.length).replace(/^\w+ · /,""));
+    if(L.length){const mine=x=>x.includes(p.name);
+      out.push('<details class="es-sec"'+(L.some(mine)?' open':'')+'><summary class="es-h">Bandit Mechanics <span class="note">'+L.length+' event'+(L.length>1?'s':'')+(L.some(mine)?' · '+L.filter(mine).length+' about you':'')+'</span></summary>'+
+        L.map(x=>'<div class="es-row'+(mine(x)?' es-me':'')+'">'+esc(x)+'</div>').join("")+'</details>');}}
+  if(H&&(H.realm||[]).length)out.push('<details class="es-sec"><summary class="es-h">Realm <span class="note">'+H.realm.length+'</span></summary>'+H.realm.map(x=>'<div class="es-row">'+esc(x)+'</div>').join("")+'</details>');
+  return dockCard("Empire Summary — "+esc(p.name),out.join(""),"esum");}
 function dockCard(title,body,cls){return body?'<div class="tot dock'+(cls?' '+cls:'')+'"><div class="dk-h">'+title+'</div>'+body+'</div>':"";}
 function dockHTML(R){
   const t=TB(),ph=tPhase(),me=meP(),E=R.curEnvoy,cw=R.cur?R.cur.who:null,qp=HOTSEAT?(cw||me):me,vt=(ph==="council"||ph==="envoy")&&t.phaseTs;
@@ -392,7 +410,7 @@ function dockHTML(R){
   if((ph==="council"&&!RFM)||(ph==="envoy"&&!springDiplo()))h+=inflPaneHTML(qp,ph==="council");   // Works actions and the Diplomacy Phase use no Influence
   if(ph==="envoy"&&ADMIN)h+=inflCardHTML(qp);   // manual Influence / Envoy adjusts and modifiers: the Duke only
   // 8. Empire Phase: checklist, every Extort this player collects / pays / triggers
-  if(ph==="empire"){h+=empireHoldingHTML(qp);h+=dockCard("Empire Phase",empireChecklistHTML());h+=extortCardHTML(qp);}
+  if(ph==="empire"){h+=empireSummaryHTML(qp);h+=empireHoldingHTML(qp);h+=dockCard("Empire Phase",empireChecklistHTML());h+=extortCardHTML(qp);}
   // 9. Battle Phase: Battles and Sieges to resolve
   if(ph==="battle"){const Q=bq(),sg=realmTimers().filter(x=>x.kind==="siege");
     h+=dockCard("Battles & Sieges",(Q.length?Q.map(o=>'<div class="tb-row">'+stIcon(o.kind==="sally"?"besieged":o.kind==="siege"?"sieging":"battle",14)+' <span style="flex:1">'+esc(bqSideName(o.A))+' <span class="note">vs</span> '+esc(bqSideName(o.B))+'</span>'+

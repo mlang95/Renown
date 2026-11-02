@@ -936,3 +936,12 @@
   .istack .card.under{opacity:.85;margin-left:10px}
   .isum{margin:0 0 8px}.isum .isumt td{vertical-align:top;font-size:12px}.isum .isumt tr.dim td{opacity:.6}
   .board > .isum{grid-column:1/-1}
+  /* Empire Summary dock card */
+  .esum .es-sec{margin:6px 0}.esum .es-h{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);margin-bottom:3px;cursor:default}
+  .esum details.es-sec>summary{cursor:pointer}
+  .esum .es-chips{display:flex;flex-wrap:wrap;gap:4px}.esum .es-chip{font-size:12px;border:1px solid var(--line);border-radius:var(--radius);padding:1px 6px}
+  .esum .es-chip.ok{border-color:var(--income);color:var(--income)}
+  .esum .es-row{display:flex;gap:8px;align-items:center;font-size:12px;padding:1px 0}.esum .es-row.es-me{color:var(--upkeep)}
+  .esum .es-pips{letter-spacing:1px;font-size:9px;color:var(--dim)}
+  .esum .es-num{display:flex;gap:16px;flex-wrap:wrap;font-size:12px}
+  .esum .pos{color:var(--income)}.esum .neg{color:var(--upkeep)}
