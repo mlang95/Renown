@@ -721,14 +721,13 @@ function renderBattle(){WHATIF.clear();
     (B.id?'<button id="bReset">reset picks</button><button id="bEndSk" style="border-color:var(--order)">end Skirmish ▸</button><span class="note">end Battle:</span><button class="bEndB" data-w="A" style="border-color:var(--upkeep)">'+esc(sideNm("A"))+' won</button><button class="bEndB" data-w="B" style="border-color:var(--upkeep)">'+esc(sideNm("B"))+' won</button><button class="bEndB" data-w="" style="border-color:var(--upkeep)">no winner</button>':'')+'</div>';
   const v=viewerSide();
   h+='<div class="note" style="margin-bottom:6px">Viewing as <b>'+esc((D.players[D.active]||{}).name||"?")+'</b>'+(v==="-"?' (spectator — switch player in the top bar to pick)':' = side '+v)+(API.online?'':' · no server: picks stay on this device (pass-and-play)')+'</div>';
-  if(B.rev&&B.rev.sk===B.sk){const cell=TMX[B.rev.A+"|"+B.rev.B];
-    h+='<div class="tot"><b>Revealed:</b> A '+esc(B.rev.A)+' ('+fmtMod(cell&&cell[0])+') · B '+esc(B.rev.B)+' ('+fmtMod(cell&&cell[1])+')</div>';}
+  if(B.id)h+=battleGlanceHTML();
   if(B.id&&B.endRep&&B.endRep.sk===B.sk&&B.endRep.rows.length)
     h+='<div class="tot" style="border-color:var(--order)"><b>End of Skirmish '+(B.sk-1)+'</b>'+B.endRep.rows.map(r=>'<div class="note" style="margin-top:4px"><b>'+r.X+'</b> Endurance '+r.e0+' → '+r.e1+
       (r.brk?' · <b style="color:var(--upkeep)">Fatigued</b> · Break check '+r.brk.n+'d10 vs '+r.brk.target+'+: '+(r.brk.dice?dieRow(r.brk.dice,r.brk.target)+' → <b>'+r.brk.lost+'</b> casualties':'<button class="bBrk" data-x="'+r.X+'" style="border-color:var(--upkeep)">roll Break check</button>')+
         ' · Fatigue token '+r.fat+' → Morale '+r.m1+'+':'')+(r.rout?' · <b style="color:var(--upkeep)">ROUTS</b>':'')+(r.wiped?' · <b>wiped out</b>':'')+'</div>').join('')+'</div>';
   const cA=sideCalc("A"),cB=sideCalc("B");
-  if(cA&&cB)h+='<div class="note" style="margin-bottom:6px">'+(cA.I===cB.I?'<b>Simultaneous</b> — both sides Strike with their full front line':'Strikes first: <b>'+(cA.I>cB.I?"A":"B")+'</b>')+' (I '+cA.I+' vs '+cB.I+')</div>';
+  if(cA&&cB&&!B.id)h+='<div class="note" style="margin-bottom:6px">'+(cA.I===cB.I?'<b>Simultaneous</b> — both sides Strike with their full front line':'Strikes first: <b>'+(cA.I>cB.I?"A":"B")+'</b>')+' (I '+cA.I+' vs '+cB.I+')</div>';
   const vs=viewerSide(),bs=BSIDE||(vs==="A"||vs==="B"?vs:"A");
   h+='<div class="bside-nav"><button data-bs="A"'+(bs==="A"?' class="on"':'')+'>Side A</button><button data-bs="B"'+(bs==="B"?' class="on"':'')+'>Side B</button><button data-bs="AB"'+(bs==="AB"?' class="on"':'')+'>Both</button></div>';
   h+='<div class="bsides bgrid" data-bs="'+bs+'">'+sideHTML("A")+'<div class="bfield-col">'+bCmdHTML()+'<div id="bfield"></div>'+chronicleHTML()+'</div>'+sideHTML("B")+'</div>';
@@ -736,11 +735,46 @@ function renderBattle(){WHATIF.clear();
   h+=tacticExplainHTML().replace('id="tacEx" open','id="tacExB"')+siegeHTML()+'<div class="note" style="margin:8px 0">Skirmish rules are in <a href="#" data-goto="reference#refBattle">Reference ▸</a></div></div>';
   host.innerHTML=h;bfMount(host);wireBattle(host);wireDashExtras(host);
 }
+// ---- Battle at a glance: the Skirmish as pictures — the two Tactics face off, who Strikes first, each side's troops (front /
+// reserve / camp / fallen), Morale and Endurance, and every roll of this Skirmish as a row of dice (lit = success) with its outcome
+function battleGlanceHTML(){const B=battle(),cA=sideCalc("A"),cB=sideCalc("B");if(!cA||!cB)return "";const rev=B.rev&&B.rev.sk===B.sk?B.rev:null,cell=rev?TMX[rev.A+"|"+rev.B]:null;
+  const col=X=>{const sd=B[X],p=sd&&sd.pid!=null?pById(sd.pid):null;return (p&&p.color)||(X==="A"?"#4a8ad8":"#c8302a");};
+  const pk=X=>{const P=(PICKS||{})[X]||{};return rev?'<span class="gl-tac">'+esc(rev[X])+'</span>':P.picked?'<span class="gl-tac wait">🔒 locked</span>':'<span class="gl-tac wait">choosing…</span>';};
+  const md=(m)=>{if(!m)return "";const L=[];if(m.I)L.push((m.I>0?"+":"")+m.I+" Init");if(m.TH)L.push((m.TH>0?"+":"")+m.TH+" to Strike");if(m.TS)L.push((m.TS>0?"+":"")+m.TS+" to Save");if(m.strain)L.push("Strained");if(m.end)L.push("ends the Battle");if(m.no_combat)L.push("no combat");return L.join(" · ");};
+  const troops=(X,c)=>{const a=c.a,st=+((B.start||{})[X]||0)||(+a.count||0),fallen=Math.max(0,st-(+a.count||0)),tot=Math.max(1,st),f=+c.front||0,r=+c.reserve||0,cp=Math.max(0,(+a.count||0)-f-r);
+    const seg=(n,cls,t)=>n>0?'<i class="'+cls+'" style="flex:'+n+'" title="'+t+' '+n+'"></i>':'';
+    return '<div class="gl-bar">'+seg(f,"f","front")+seg(r,"r","reserve")+seg(cp,"c","camp")+seg(fallen,"x","fallen")+'</div><div class="gl-cnt"><span>⚔ front '+f+'</span><span>reserve '+r+'</span><span>camp '+cp+'</span>'+(fallen?'<span class="neg">✝ '+fallen+' fallen</span>':'')+'</div>';};
+  const sk=(X,c)=>{const sd=B[X]||{},cas=(+sd.cas||0),pt=+BT.panicThreshold||5,e=+(c.a.endurance||0),e0=+((EQ.retinues[c.a.retinue]||{}).endurance)||Math.max(e,3);
+    return '<div class="gl-stats"><span title="Morale: roll this or higher; Routs at '+(BT.routThr||11)+'+">❤ Morale <b>'+c.morale+'+</b></span>'+
+      '<span title="Endurance (0 = Fatigued at the end of the Skirmish)">⧗ '+"■".repeat(Math.min(e,8))+'<span class="dim">'+"□".repeat(Math.max(0,Math.min(e0,8)-e))+'</span></span>'+
+      '<span title="casualties this Skirmish; above '+pt+' = Panic check" class="'+(cas>pt?'neg':'')+'">☠ '+cas+'/'+pt+(cas>pt?' Panic!':'')+'</span>'+(c.a.fatigue?'<span class="neg">Fatigue '+c.a.fatigue+'</span>':'')+'</div>';};
+  const side=X=>{const c=X==="A"?cA:cB;return '<div class="gl-side" style="--sc:'+col(X)+'"><div class="gl-nm"><b>'+esc(sideNm(X))+'</b> '+pk(X)+'</div>'+(cell?'<div class="gl-md note">'+esc(md(X==="A"?cell[0]:cell[1]))+'</div>':'')+troops(X,c)+sk(X,c)+'</div>';};
+  const first=cA.I===cB.I?'<div class="gl-first">⇆ <b>Simultaneous</b><span class="note">Init '+cA.I+' = '+cB.I+'</span></div>':
+    '<div class="gl-first">'+(cA.I>cB.I?'<b>'+esc(sideNm("A"))+'</b> ⇒':'⇐ <b>'+esc(sideNm("B"))+'</b>')+'<span class="note">strikes first · Init '+cA.I+' vs '+cB.I+'</span></div>';
+  // the exchange: each roll as dice (lit = success), with what it did
+  const EV=B.gl&&B.gl.sk===B.sk?B.gl.ev:[],PV=B.gl&&B.gl.sk<B.sk&&B.gl.ev.length?B.gl:(B.glPrev&&B.glPrev.sk<B.sk?B.glPrev:null);
+  const dice=e=>(e.dice||[]).map(v=>{const ok=e.kind==="Morale"||e.kind==="Break"?v>=e.target:v>=e.target;return '<i class="gl-d'+(ok?' ok':'')+(v>=(BT.focusedThr||10)&&/Strike/.test(e.kind)?' crit':'')+'" title="'+v+'">'+v+'</i>';}).join("");
+  const res=e=>{const k=e.kind;if(k==="Fall")return '<b class="neg">✝ '+e.n+' fall</b>';
+    if(/Strike/.test(k))return '<b>'+(e.succ||0)+' hit'+(e.succ===1?'':'s')+'</b>'+(e.cleave?' <span class="note">(Cleave)</span>':'');
+    if(k==="Parry")return '<b>'+(e.succ||0)+' parried</b>';if(k==="Save")return '<b>'+(e.succ||0)+' saved</b>'+(e.cas!=null?' · <span class="neg">'+e.cas+' unsaved</span>':'');
+    if(k==="Recover")return '<b>'+(e.succ||0)+' recovered</b>';if(k==="Morale"||k==="Panic")return '<b>Panic</b> · <span class="neg">'+((e.dice||[]).length-(e.succ||0))+' flee</span>';
+    if(k==="Break")return '<b>Break</b> · <span class="neg">'+(e.cas||0)+' lost</span>';return '<b>'+(e.succ||0)+'</b>';};
+  const verb=k=>({Strike:"Strike",Save:"Save",Parry:"Parry",Recover:"Recover",Morale:"Panic check",Break:"Break check",Fall:"Casualties"}[k]||k);
+  const rows=L=>L.map(e=>'<div class="gl-row" style="--sc:'+col(e.X)+'"><span class="gl-who">'+esc(sideNm(e.X))+'</span><span class="gl-k">'+verb(e.kind)+(e.target&&e.target<99&&e.kind!=="Fall"?' <span class="note">'+e.target+'+</span>':e.target>=99?' <span class="note">can\'t</span>':'')+'</span><span class="gl-dice">'+dice(e)+'</span><span class="gl-res">'+res(e)+'</span></div>').join("");
+  const ex=(EV.length?'<div class="gl-ex">'+rows(EV)+'</div>':
+    '<div class="note gl-wait">'+(rev?'Roll Strikes below — each roll shows up here as dice.':'Both sides pick a Tactic; they are revealed together.')+'</div>')+
+    (PV?'<details class="gl-prev"><summary class="note">Skirmish '+PV.sk+' — how it went ('+PV.ev.filter(e=>e.kind==="Fall").map(e=>esc(sideNm(e.X))+" ✝"+e.n).join(", ")+')</summary><div class="gl-ex">'+rows(PV.ev)+'</div></details>':'');
+  return '<div class="tot gl"><div class="gl-top">'+side("A")+'<div class="gl-mid"><div class="gl-sk">Skirmish '+B.sk+'</div>'+(rev?'<div class="gl-vs">'+esc(rev.A)+' <span class="note">vs</span> '+esc(rev.B)+'</div>':'<div class="gl-vs note">tactics hidden</div>')+first+'</div>'+side("B")+'</div>'+ex+'</div>';}
 // Incoming strikes still to resolve against side X (after any Parry), split normal / Deadly
 function incoming(X){const B=battle(),O=X==="A"?"B":"A",S_=B.strk&&B.strk[O];if(!S_||S_.sk!==B.sk)return {n:0,d:0};
   const pr=(B.par||{})[X];const pn=pr&&pr.sk===B.sk?pr:{p:0,pd:0};
   return {n:Math.max(0,S_.succ-S_.deadly-pn.p),d:Math.max(0,S_.deadly-pn.pd)};}
-function roll(X,kind,nOverride){
+// every roll and casualty of the current Skirmish, in order, for the at-a-glance strip: B.gl = {sk, ev:[{X, kind, target, dice, succ, cas, n}]}
+let GL_HOLD=null;   // casualties applied inside a roll are listed after that roll
+function glPush(e){const B=battle();if(!B.id)return;if(GL_HOLD&&e.kind==="Fall"){GL_HOLD.push(e);return;}if(!B.gl||B.gl.sk!==B.sk){if(B.gl&&B.gl.ev.length)B.glPrev=B.gl;B.gl={sk:B.sk,ev:[]};}B.gl.ev.push(e);}
+function roll(X,kind,nOverride){const B=battle(),before=B.rolls&&B.rolls[X];GL_HOLD=[];let held;try{rollCore(X,kind,nOverride);}finally{held=GL_HOLD;GL_HOLD=null;}const r=B.rolls&&B.rolls[X];
+  if(r&&r!==before)glPush({X,kind:r.kind||kind,cleave:!!r.cleave,target:r.target,dice:(r.dice||[]).slice(0,30),succ:r.succ,cas:r.cas,nat10:r.nat10||0});held.forEach(glPush);}
+function rollCore(X,kind,nOverride){
   const B=battle(),c=sideCalc(X);if(!c)return;const O=X==="A"?"B":"A",FACES_=BT.faces||10,FOC=BT.focusedThr||10;
   B.strk=B.strk||{};B.par=B.par||{};B.shDest=B.shDest||{};
   const inc=incoming(X);
@@ -828,9 +862,9 @@ function setPendCas(X,n,mor){const B=battle();B.pendCas=B.pendCas||{};B.pendCas[
 function pendCas(X){const B=battle(),p=(B.pendCas||{})[X];return p&&p.sk===B.sk?p.n:0;}
 // Riposte casualties this side took and hasn't applied yet (kept so its own later Save adds to them rather than replacing them)
 function ripCasN(X){const B=battle(),r=(B.ripCas||{})[X];return r&&r.sk===B.sk?r.n:0;}
-function applyCasNow(X,n){const B_=battle(),p=(B_.pendCas||{})[X],mor=!!(p&&p.sk===B_.sk&&p.mor);if(B_.pendCas)delete B_.pendCas[X];if(B_.ripCas)delete B_.ripCas[X];
+function applyCasNow(X,n){if(n>0)glPush({X,kind:"Fall",n});const B_=battle(),p=(B_.pendCas||{})[X],mor=!!(p&&p.sk===B_.sk&&p.mor);if(B_.pendCas)delete B_.pendCas[X];if(B_.ripCas)delete B_.ripCas[X];
   const {a}=sideArmy(B_[X]);if(!a||!n)return;n=Math.min(n,a.count||0);a.count-=n;if(!mor)B_[X].cas=(B_[X].cas||0)+n;blog(X+" loses "+n+" retinue(s)"+(mor?" (Morale)":"")+" → "+a.count);}
-function applyCas(X,n){const B_=battle(),p=(B_.pendCas||{})[X],mor=!!(p&&p.sk===B_.sk&&p.mor);if(B_.pendCas)delete B_.pendCas[X];if(B_.ripCas)delete B_.ripCas[X];const {a}=sideArmy(battle()[X]);if(!a||!n)return;n=Math.min(n,a.count||0);a.count-=n;if(!mor)battle()[X].cas=(battle()[X].cas||0)+n;blog(X+" loses "+n+" retinue(s)"+(mor?" (Morale)":"")+" → "+a.count);save();render();}
+function applyCas(X,n){if(n>0)glPush({X,kind:"Fall",n});const B_=battle(),p=(B_.pendCas||{})[X],mor=!!(p&&p.sk===B_.sk&&p.mor);if(B_.pendCas)delete B_.pendCas[X];if(B_.ripCas)delete B_.ripCas[X];const {a}=sideArmy(battle()[X]);if(!a||!n)return;n=Math.min(n,a.count||0);a.count-=n;if(!mor)battle()[X].cas=(battle()[X].cas||0)+n;blog(X+" loses "+n+" retinue(s)"+(mor?" (Morale)":"")+" → "+a.count);save();render();}
 // Break check (end of Skirmish, Endurance 0): r.brk.n d10 vs r.brk.target+, each failure is a casualty (not counted toward Panic)
 function rollBreak(X,r,a){const dice=d10(r.brk.n).sort((x,y)=>y-x),lost=Math.min(dice.filter(v=>v<r.brk.target).length,a.count||0);
   a.count-=lost;r.brk.dice=dice;r.brk.lost=lost;delete r.brk.pending;if((a.count||0)===0)r.wiped=true;
