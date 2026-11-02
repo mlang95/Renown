@@ -1498,6 +1498,7 @@ NODES = {
     "Sacristy Redoubt": {
         "group": "g_works",
         "unlock": "Sovereign Piety + Established Industry",
+        "infrastructure_req": "Keep",
         "innate": "Whenever a Siege Timer against a Settlement you Control counts down, the sieging Army gains Fatigue +1; Your Settlements gain Immune Raze",
         "efficient": ["Fortified Church"],
         "monument": True},    
@@ -1541,6 +1542,7 @@ NODES = {
     "Court Armoury": {
         "group": "g_arms",
         "unlock": "Sovereign Industry",
+        "infrastructure_req": "Aqueducts",
         "innate": f"{PLANISHING}: Your to-Save can't be reduced beyond {CAP_THR}+; Unlocks Crafted Armor & Shield", #Supply -500; 
         "efficient": "Gilded Foundry",
         "monument": True},
@@ -1589,6 +1591,7 @@ NODES = {
         "monument": True},
     "Thieves' Guild": {
         "group": "g_secrecy",
+        "infrastructure_req": "Stone Roads",
         "unlock": "Sovereign Cunning + Established Industry",
         "innate": "Whenever you Extort 500 or more, Gold +500",
         "efficient": ["Black Market"],
@@ -3116,8 +3119,8 @@ INFLUENCE_GAIN = {
     "Alliances": {"change": "+1", "notes": "Per Alliance Member."},
     # "Infrastructure tier completed" removed from play (was +1 per Infrastructure tier fully completed)
     "Fully Mustered Army": {"change": "+1", "notes": "Per active Army of 25 Retinues."},
-    "Condemned Envoy last turn": {"change": "-1", "notes": "Per Condemned Envoy last turn."},
-    "At War": {"change": "-3", "notes": "While at War."},
+    "Condemned Envoy last turn": {"change": "-4", "notes": "Per Condemned Envoy last turn."},
+    "At War": {"change": "-4", "notes": "While at War."},
     "Monuments & Wonders": {"change": "+1", "notes": "Per active Monument or Wonder."},
     "Other sources": {"change": "+X", "notes": "From other effects like Holdings."},
 }
