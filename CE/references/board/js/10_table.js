@@ -395,6 +395,8 @@ const AA={
   "Settle":{tgt:"none",run:c=>runSettle(c)},
   "Expand":{tgt:"none",sub:o=>expandOpts(o),run:c=>runExpand(c)},
   "Repair":{tgt:"none",sub:o=>repairOpts(o),run:c=>runRepair(c)},
+  "Expedite":{tgt:"none",gate:o=>expediteWhy(o),run:c=>{const T=buildTimersOf(c.o)[0];if(!T){c.flag("Expedite: no active Build Timer");return;}
+    const n=+((/by (\d+)/i.exec(((DATA.actions||{}).Expedite||{}).effect||"")||[])[1])||2;c.log(c.o.name+" expedites: "+cutBuildTimer(T.ref,n));}},
   "Sign Treaty":{tgt:"player",run:c=>c.flag("Agree a treaty with "+c.q.name+", then set it in the Diplomacy panel (Realm)")},
   "Negotiate":{tgt:"player",run:c=>c.flag("Agree terms with "+c.q.name+" and apply them by hand")},
   "End Treaty":{tgt:"player",elig:(o,q)=>{const x=effPair(o.id,q.id);return !(x.trade||x.nap)?"no Trade Agreement or NAP":x.truce>0?"truce "+x.truce:"";},
@@ -469,6 +471,14 @@ function runSettle(c){const o=c.o,b=o.board;b.settlements=b.settlements||[];cons
   const t=withBoard(b,()=>gameStarted()?settBuildTime("Village"):0);if(t>0)s.bt=t;b.settlements.push(s);
   c.log(o.name+" settles a new Village"+(s.name?" — "+s.name:"")+(t>0?" · Build Timer "+t:""));c.flag("Place the Village on the map (Map ▸ Place ▸ Village)");
   const cap=withBoard(b,()=>eraCap("max_settlements"));if(cap!=null&&b.settlements.length>cap)c.flag("Settlements "+b.settlements.length+" / "+cap+" allowed in "+currentEra());}
+// Expedite (Industry): only when no other Industry action can be performed — no gold for it, or nothing to Build, Improve, Repair,
+// Expand or Settle — and some Build Timer is running. Returns why not, or "".
+function industryOpen(o){const E={owner:o,dom:"Industry"},ok=a=>!!(DATA.actions||{})[a]&&!pfHardFlags(E,a,null).length,b=o.board;
+  const has={Build:()=>buildOpts(o).some(x=>x.v!=="hand"&&!x.dis),Improve:()=>improveOpts(o).some(x=>x.v!=="hand"&&!x.wb),Repair:()=>repairOpts(o).length>0,
+    Expand:()=>expandOpts(o).some(x=>x.v!=="hand"&&!/\u2691/.test(x.label)),
+    Settle:()=>{const cap=withBoard(b,()=>eraCap("max_settlements"));return cap==null||(b.settlements||[]).length<cap;}};
+  return Object.keys(has).filter(a=>ok(a)&&has[a]());}
+function expediteWhy(o){if(!buildTimersOf(o).length)return "no active Build Timer";const L=industryOpen(o);return L.length?"other Industry actions open ("+L.join(", ")+")":"";}
 // Repair: a Damaged piece stays inactive until Repaired; Repair sets its Repair Timer, which then counts down
 function repairOpts(o){const b=o.board,L=[];
   (b.placed||[]).filter(q=>q.dmg>0&&!q.rep).forEach(q=>L.push({v:"h:"+q.id,label:q.name+" · "+settName(o,q.sid)}));
@@ -498,6 +508,7 @@ function pfHardFlags(E,a,target){if(!gameStarted()||ADMIN)return [];const o=E.ow
   // Envoys: "you must be able to pay the action's cost before you send it" (Bankrupt: Treasury below 0, no gold to spend at all)
   {const g=actCost(a).gold,tr=+o.board.treasury||0;
     if(g>0&&g>tr&&!SM(o.board,"no_envoy_cost").some(x=>x.m[1].toLowerCase()===String(E.dom||"").toLowerCase()))out.push(tr<0?"Bankrupt: can't spend gold":"can't pay "+g.toLocaleString()+" gold (Treasury "+tr.toLocaleString()+")");}
+  if(sp.gate){const w=sp.gate(o);if(w)out.push(w);}
   if(E.retry&&E.excludeTarget&&target&&String(target)===String(E.excludeTarget))out.push("Forgery Workshop: retry must target a different player");
   {const iv=inviteOf(E);if(iv&&!(qs.length===1&&sameP(qs[0],iv.q)))out.push(iv.src+": must target "+iv.q.name);}
   qs.forEach(q=>{out.push(...actRestrict(o,a,q));if(sp.elig){const why=sp.elig(o,q);if(why)out.push(why);}

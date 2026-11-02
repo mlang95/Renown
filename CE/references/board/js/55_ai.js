@@ -312,6 +312,7 @@ function aiCandidates(p){const s=aiSit(p),b=s.b,C=[],add=(dom,act,o)=>C.push(Obj
       if(/Faith \+/i.test(t))e.faith=0.6;
       if(/Influence|Envoy/i.test(t))e.diplomacy=0.4;
       add("Industry","Improve",{sub:o.v,cost:2000,serves:e,why:"Improve "+n+" ("+t.slice(0,60)+")"});});}
+  if(!expediteWhy(p))add("Industry","Expedite",{serves:{holdings:0.6,economy:s.econ*0.3},why:"Expedite: nothing else to do in Industry"});
   {const L=repairOpts(p).filter(o=>o.v!=="hand");if(L.length)add("Industry","Repair",{sub:L[0].v,serves:{holdings:1,economy:s.econ*0.6},why:"Repair "+L[0].label});}
   if(aiDv(p,"Industry")>=RIS){
     if(s.h.settCap==null||s.h.setts<s.h.settCap)add("Industry","Settle",{cost:2000,serves:{economy:s.econ*0.7,holdings:Math.min(1,0.6+0.6*s.wardFull+0.3*s.spare)},why:"new Settlement ("+s.h.setts+"/"+(s.h.settCap??"?")+")"});
