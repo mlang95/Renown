@@ -11208,6 +11208,21 @@ function aiBattleTick(){const B=battle();if(!B||!B.id||(B.rev&&B.rev.sk===B.sk))
     const r=aiPickTactic(X);if(!r)return;B.aiPk[X]=B.id+":"+pickKey();blog(X+" (AI "+p.name+") picks a Tactic");aiNote(p,"Battle Tactic → "+r.t+": "+r.why);pickTactic(X,r.t);ch=true;});
   return ch;}
 
+// ---- Intrigue & Tally Phase slots: answer this seat's turn so the timer doesn't run down ----
+// Intrigue: pass. Tally Support (Indomitable): the cheapest Support that lifts an own Envoy to Passed or Endorsed, else pass.
+// Tally Endorse (High Chancery): Endorse an own Envoy that Passed. Forgery retry: pass.
+function aiSlotTurn(p,R){const c=tCurW(p),me=q=>q&&sameP(q,p);
+  if(R.waiting==="intrigue"&&me(R.intrigueWho)&&!c.intrigue){c.intrigue={ts:tnow()};return true;}
+  if(R.waiting==="tally-support"&&me(R.tallyWho)&&!c.tallySup){const room=Math.max(0,(R.pool[p.id]||0)-(R.spent[p.id]||0));let best=null;
+    (R.tallyOpt.own||[]).forEach(E=>{const cap=Math.min(voteCap(p,E.dom,false),room);
+      [ETH.Passed,ETH.Endorsed].forEach(t=>{const need=t-E.net;if(need>0&&need<=cap&&(!best||need<best.x))best={E,x:need,t};});});
+    c.tallySup=best?{envoy:best.E.id,x:best.x,ts:tnow()}:{ts:tnow()};
+    if(best)aiNote(p,R.tallyOpt.src+": Support "+best.x+" on own "+best.E.dom+" Envoy");return true;}
+  if(R.waiting==="tally-endorse"&&me(R.tallyWho)&&!c.tallyEnd){const E=(R.tallyOpt.own||[]).find(x=>x.out==="Passed");
+    c.tallyEnd=E?{envoy:E.id,ts:tnow()}:{ts:tnow()};if(E)aiNote(p,R.tallyOpt.src+": Endorsed "+envLabel(E));return true;}
+  if(R.waiting==="tally-retry"&&me(R.tallyWho)&&!c.retryDec){c.retryDec={send:false,ts:tnow()};return true;}
+  return false;}
+
 // ---- the tick: run whatever the AI seats owe in the current phase; true if anything changed ----
 function aiTick(){if(!D.started&&!TB().begun)return false;if(!aiDriver())return false;
   const ph=tPhase();let ch=false;
@@ -11221,6 +11236,7 @@ function aiTick(){if(!D.started&&!TB().begun)return false;if(!aiDriver())return 
   if((ph==="envoy"||ph==="council")&&TB().phaseTs){const R=tSim();
     seated().filter(aiOn).forEach(p=>{aiLearn(p,R);
       if(aiVoteAll(p,R))ch=true;
+      if(aiSlotTurn(p,R))ch=true;
       withSlots(R.envoys||[]).forEach(E=>{if(!sameP(E.owner,p)||!(E.out==="Passed"||E.out==="Endorsed")||((tCur(p).perform||{})[E.id]))return;
         if(!resolveOpen(R,E))return;aiPerform(p,E);ch=true;});});}
   return ch;}
