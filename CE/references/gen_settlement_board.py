@@ -169,6 +169,11 @@ def envoy_fx(raw):
             out.append({"k": "instead", "from": m.group(2).title(), "notFrom": bool(m.group(1)), "to": m.group(5).title(),
                         "outs": ["Passed", "Endorsed"] if m.group(4) else ["Passed"],
                         "once": (om.group(1).lower() if om and om.group(1) else "turn" if om else ""), "t": sen.strip()})
+        # "another player within your Province": a player whose Settlement Reach Contests Territory you Control (Tenebrous Oubliette, Black Hold)
+        m = re.search(r"Whenever another player within your Province Supports, reduce that Support by (\d+)", sen, re.I)
+        if m: out.append({"k": "provSupport", "val": int(m.group(1)), "t": sen.strip()})
+        m = re.search(r"Whenever another player within your Province sends an? (Personal )?Envoy, it gains (?:Authority|Influence)\s*" + _N, sen, re.I)
+        if m: out.append({"k": "provEnvoy", "val": _iv(m.group(2)), "scope": "personal" if m.group(1) else "all", "t": sen.strip()})
     pend = (len(out), None)
     for c in re.split(r"[;,]|\.\s+", raw):
         c = c.strip().rstrip(".")
@@ -458,6 +463,7 @@ def build(ns):
             "monument": bool(v.get("monument")),
             "natural": bool(v.get("natural")),
             "root": bool(v.get("root")),
+            "terrain": list(v.get("terrain") or []),     # Territory types one of which must be in the Settlement's Reach ([] = none)
             "scope": v.get("scope") or ("Realm" if v.get("monument") else "Empire"),          # Root: no Mastery Chain check; efficient (if any) = optional Ward-sharing only
             # SIMPLE: upkeep / Build Timer by Standing (holding_cost); legacy leaves these out
             **(dict(zip(("upkeep", "build_time"), ns["holding_cost"](v))) if ns.get("SIMPLE") and ns.get("holding_cost") else {}),
@@ -511,6 +517,8 @@ def build(ns):
     glossary = {k: (strip_md(v)[:220]) for k, v in ns.get("GLOSSARY", {}).items()}
     for k, v in ns.get("MORALE_GLOSSARY", {}).items():
         glossary.setdefault(k, strip_md(v)[:220])
+    _ft = ns.get("FATIGUE_TOKEN", "Fatigue Token")
+    if _ft in glossary: glossary.setdefault("Fatigue", glossary[_ft])   # "Fatigue +1" gives a Fatigue Token
     _itd = ns.get("ITEM_TIER_DISPLAY", {}) or {}
     def _lab(src):   # per-item tier label (display only; the real tier still gates)
         return {k: (dict(v, tier_label=_itd[k]) if (k in _itd and isinstance(v, dict)) else v) for k, v in (src or {}).items()}

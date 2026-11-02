@@ -148,8 +148,8 @@ function reachOwners(M,cols,rows){
       if(hexDist(a,[c,r])<=rad)(own[c+","+r]=own[c+","+r]||new Set()).add(String(pl.id));});
   return own;
 }
-// Raw Materials need their resource within the owner's Reach. Map resources → pursuits;
-// Common Land has no map resource (buildable anywhere) and is not checked.
+// Holdings with a 'terrain' list need one of those terrains within the owner's Reach (nodes mode: map resources → pursuits);
+// an empty list is buildable anywhere and is not checked.
 // Raw-material resources are hidden while the board runs terrain mode only: no icons, no options, Reach checks by terrain.
 // RES_SHOWN = true brings the icons, the "resources" / "resource nodes" options and node mode back.
 const RES_SHOWN=false;
@@ -180,7 +180,7 @@ function settReachHexes(p,s){
 function rawClaims(p){
   const out={},M=mapState(),g=M.grid;if(!g||!p)return out;
   const V=decodeGrid(g),b=p.board,useN=!!nodesMode(),noClaim=!!hitOf("F:"+(b.faction||""),"raw_noclaim");
-  const isRaw=q=>!q.fac&&(R[q.name]||{}).type==="Raw Materials"&&Object.values(RES_NODE).includes(q.name);
+  const isRaw=q=>!q.fac&&rawRes(q.name);
   const terrRaw=t=>(((TREF.terrain||{})[RULE_NAME[t]]||{})["Raw Materials"]||[]);
   const nodeOf=Object.fromEntries(Object.entries(RES_NODE).map(([k,v])=>[v,k]));
   let emp;const empire=()=>emp!==undefined?emp:(emp=reachResources(p));
@@ -912,7 +912,7 @@ function banditAct(k){const M=mapState(),cp=M.camps[k],B=BST(),F=BAN.faces||10,r
     TO=terrOwners(),okT=t=>{const p=cellPlayer(mapState().cells[t]);return !!p&&(nook?!NK.some(q=>sameP(q,p)):campInRange(k,t,TO));};
   let L=byDist(k,mapSetts(),true).filter(x=>okT(x.k));if(nook)L=L.map(x=>({x,r:Math.random()})).sort((a,b)=>a.r-b.r).map(o=>o.x);
   let tgt=null;
-  if(act==="Raze")tgt=L.map(x=>Object.assign({k:x.k},cellSett(x.k))).find(t=>t.s&&t.p.board.placed.some(q=>q.sid===t.s.id&&!(q.bt>0)&&!(q.dmg>0)));
+  if(act==="Raze")tgt=L.map(x=>Object.assign({k:x.k},cellSett(x.k))).find(t=>t.s&&!srcHas(t.p.board,"immune_raze")&&t.p.board.placed.some(q=>q.sid===t.s.id&&!(q.bt>0)&&!(q.dmg>0)));
   else if(act==="Destabilize")tgt=L.map(x=>Object.assign({k:x.k},cellSett(x.k))).find(t=>t.s&&!B.dest[t.p.id+":"+t.s.id]);
   else if(act==="Intercept Caravan")tgt=L.map(x=>Object.assign({k:x.k},cellSett(x.k))).find(t=>t.p&&!B.ic[t.p.id]);
   else if(act==="Sabotage"){const M_=mapState(),arm=Object.keys(M_.cells).filter(q=>M_.cells[q].type==="Army"&&cellPlayer(M_.cells[q])&&!M_.cells[q].blocked).map(q=>({k:q,cell:M_.cells[q]}));

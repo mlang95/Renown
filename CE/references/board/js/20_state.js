@@ -226,7 +226,12 @@ function boardEndTurn(b){const done=empTimers(b);{const p=playerOfBoard(b);if(p)
   const ec=empEconomy(b),po=empPO(b,done),ar=empArmies(b);return endRow(b,done,ec,po,ar);}
 // realm timers of the given types count down (Siege Timers don't in Winter)
 // one realm-timer step: Siege Timers skip Winter (unless the besieger counts down in Winter) and count down twice for a siege_double besieger
-function stepRealmTimer(x,w){if(x.type==="Siege Timer"){if(w&&!siegeWinterOK(x))return;if(x.n>0)x.n=Math.max(0,x.n-(siegeDoubleOK(x)?2:1));return;}if(x.n>0)x.n--;}
+function stepRealmTimer(x,w){if(x.type==="Siege Timer"){if(w&&!siegeWinterOK(x))return;const n0=+x.n||0;if(x.n>0)x.n=Math.max(0,x.n-(siegeDoubleOK(x)?2:1));siegeFatigue(x,n0-(+x.n||0));return;}if(x.n>0)x.n--;}
+// Sacristy Redoubt: each count-down step of a Siege Timer on the defender's Settlement gives the sieging Army Fatigue +N
+function siegeFatigue(t,steps){const q=pById(t.tp);if(!(steps>0)||!q)return;const n=srcMatch(q.board,"siege_fatigue").reduce((s,x)=>s+(+x.m[1]||0),0);if(!n)return;
+  let a=null;if(t.bandit){const M=mapState(),ck=Object.keys(M.camps||{}).find(k=>M.camps[k].uid===t.bandit);a=ck?banditArmy(M.camps[ck]):null;}
+  else{const by=pById(t.by);a=by&&t.aid!=null?(by.board.armies||[]).find(x=>String(x.id)===String(t.aid)):null;}
+  if(a)a.fatigue=(a.fatigue||0)+n*steps;}
 function tickRealm(types){const w=curSeason()==="Winter";realmTimers().forEach(x=>{if(types.includes(x.type))stepRealmTimer(x,w);});}
 const TIMER_ORDER=["Build Timer","Repair Timer","Truce Timer","Siege Timer","Muster Timer","Sack Timer","Capture Timer"];
 // Sabotage: "gains Blocked until the end of next turn" — set in turn T, gone when turn T+2's Empire Phase begins

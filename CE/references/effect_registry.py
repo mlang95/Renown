@@ -96,6 +96,11 @@ REG = {
     "siege_ignore_walls":  ("clause", "hiwf", r"Siege Timers ignore ([\w &]+?) Walls"),
     "siege_winter":        ("clause", "hiwf", r"Sieges Increment in Winter|Siege Timers count down in Winter"),
     "siege_double":        ("clause", "hiwf", r"Siege Timers (?:increment|count down) twice each turn"),
+    # Sacristy Redoubt: each count-down step of a Siege Timer on the owner's Settlement gives the sieging Army m[1] Fatigue tokens
+    "siege_fatigue":       ("clause", "hiwf", r"Whenever a Siege Timer against a Settlement you Control counts down, the sieging Army gains Fatigue \+(\d+)"),
+    "immune_raze":         ("clause", "hiwf", r"Your Settlements gain Immune Raze"),
+    # Fortified Church: the owner's Garrisons are never Fatigued (no Break check, no Fatigue token)
+    "immune_fatigue_garrison":("clause", "hiwf", r"Garrisons gain Immune Fatigue"),
     "spoils_always":       ("clause", "hiwf", r"collect the Spoils of War whether you win or lose"),
     "faith_battle_loss":   ("clause", "hiwf", r"Faith \+(\d+) in every Battle where you lose (\d+) or more Retinues"),
     "army_free_province":  ("clause", "hiwf", r"Armies do not pay " + _SUPPLY + r" while in (?:your )?Province"),
@@ -122,6 +127,8 @@ REG = {
     "po_cap":              ("clause", "hiwf", r"Public Order can.t exceed (-?\d+)"),
     "po_floor":            ("clause", "hiwf", r"Public Order would ever be less than (-?\d+),? set it to (-?\d+)"),
     "immune_war_weariness":("clause", "hiwf", r"Immune War Weariness"),
+    "immune_mounting_panic":("clause", "hiwf", r"Immune Mounting Panic"),
+    "immune_invasion":     ("clause", "hiwf", r"Immune Invasion"),
     # Baggage Train: your Armies never have Blocked (Siege, Sack, Sabotage, Cipher Chamber, a condemned Prowess Envoy)
     "immune_blocked":      ("clause", "hiwf", r"^(?:Gain |Your Armies gain )?Immune Blocked"),
     "fd_per_empire":       ("clause", "hiwf", r"^(?:[^:]+:\s*)?(?:Gain )?(Faith|Doubt) \+(\d+) (?:per|each) Empire Phase$"),

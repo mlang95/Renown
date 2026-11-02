@@ -59,9 +59,9 @@ function poModRows(b,next){b.poMods=b.poMods||{};const p=playerOfBoard(b),pid=p?
   const nx=next?Math.round(seasonNet(b,nextSeason()).net||0):0;
   const auto={"Deficit":()=>next?(nx<0?(+b.deficit||0)+1:0):(+b.deficit||0),"State of Alarm":()=>playerAtWar(pid)&&!(p&&fxOf(p,"ignoreWar").length)?1:0,
     "War Weariness":()=>srcHas(b,"immune_war_weariness")?0:(+b.lossStreak||0),"Lasting Legacy":()=>b.lastBattle==="won"?1:0,
-    "Bankruptcy":()=>next?((+b.treasury||0)+nx<0?(+b.insolv||0)+1:0):(+b.insolv||0),"Mounting Panic":()=>p?besiegedCount(p):0,
+    "Bankruptcy":()=>next?((+b.treasury||0)+nx<0?(+b.insolv||0)+1:0):(+b.insolv||0),"Mounting Panic":()=>p&&!srcHas(b,"immune_mounting_panic")?besiegedCount(p):0,
     "Local Unrest":()=>p?unrestCamps(p).length:0,
-    "Border Tension":()=>p?intrudersOf(p).filter(x=>!x.ally).length:0,"Invasion":()=>p?intrudersOf(p).filter(x=>x.war).length:0};
+    "Border Tension":()=>p?intrudersOf(p).filter(x=>!x.ally).length:0,"Invasion":()=>p&&!srcHas(b,"immune_invasion")?intrudersOf(p).filter(x=>x.war).length:0};
   ["faith","doubt"].forEach(side=>Object.keys(POM[side]||{}).forEach(k=>{const a=auto[k];
     rows.push({side,k,desc:POM[side][k],auto:!!a,n:a?a():(+b.poMods[k]||0)});}));
   royalMarriage(b).forEach(x=>{if(x.faith)rows.push({side:"faith",k:x.src,desc:"Royal Marriage Alliance member",auto:true,n:x.faith});});

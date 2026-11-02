@@ -109,6 +109,13 @@ function boardFx(p){if(!p)return [];const b=p.board;
     return L;});
   FX_CACHE[p.id]={key,fx};return fx;}
 function fxOf(p,k){return boardFx(p).filter(f=>f.k===k);}
+// "another player within your Province": v's Settlement Reach Contests Territory q Controls
+function inProvinceOf(q,v){if(!q||!v||sameP(q,v))return false;const own=terrOwners(),a=String(q.id),b=String(v.id);return Object.keys(own).some(k=>own[k].has(a)&&own[k].has(b));}
+// fx kind k held by every player whose Province v is within (owner: that player)
+function provFx(v,k){const L=[];D.players.forEach(q=>{if(inProvinceOf(q,v))fxOf(q,k).forEach(f=>L.push(Object.assign({owner:q},f)));});return L;}
+// Tenebrous Oubliette: v's Support of x counts x minus every cut (notes on E)
+function supCut(E,v,x){const L=provFx(v,"provSupport"),cut=L.reduce((s,f)=>s+f.val*(f.q||1),0);if(!cut||!(x>0))return x;
+  const n=Math.max(0,x-cut);(E.notes=E.notes||[]).push(L.map(f=>f.src+" ("+f.owner.name+")").join(", ")+": "+v.name+"'s Support "+x+" counts "+n);return n;}
 function scopeOk(f,council){return !f.scope||f.scope==="all"||(f.scope==="council")===!!council;}
 function sgn(v){return (v<0?"\u2212":"+")+Math.abs(v);}
 function fxLabel(f){const v=f.val*(f.q||1);
@@ -127,6 +134,8 @@ function fxLabel(f){const v=f.val*(f.q||1);
   if(f.k==="domAs")return "Your "+f.dom+" Standing sets the innate "+SCORE+" of your "+((f.for||"All")==="All"?"Domain":f.for)+" Envoys";
   if(f.k==="instead")return (f.notFrom?"non-"+f.from:f.from)+" Envoy "+f.outs.join(" / ")+": may perform a "+f.to+" action instead"+(f.once?" (once per "+(f.once==="turn"?"turn":T_PHL[f.once]||f.once)+")":"");
   if(f.k==="noAlliance")return "Can't be in an Alliance";
+  if(f.k==="provSupport")return "Supports by players within your Province: −"+v;
+  if(f.k==="provEnvoy")return SCORE+" "+sgn(v)+" on "+(f.scope==="personal"?"Personal ":"")+"Envoys sent by players within your Province";
   return f.k;}
 function atWarPair(a,b){if(!a||!b)return false;return !!effPair(a.id,b.id).war;}
 function opposeBlock(v,E){  // reason v can't Oppose E, or ""
@@ -207,10 +216,10 @@ function tSim(){
       const room=Math.max(0,R.pool[v.id]-R.spent[v.id]);
       x=Math.max(0,Math.min(+r.rec.x||0,voteCap(v,E.dom,E.council),room));a=x>0?r.rec.a:"A";
       if(a==="O"&&opposeBlock(v,E)){a="A";x=0;}}
-    let eff=x;if(a==="O"){E.oppN++;const j=E.jest[E.oppN]||0;eff=Math.max(0,x-j);if(j&&x>0){const js=fxOf(E.owner,"jester").find(f=>f.n===E.oppN);(E.notes=E.notes||[]).push((js?js.src:"Jester's Court")+": "+v.name+"'s Oppose "+x+" counts "+eff);}}
+    let eff=x;if(a==="S")eff=supCut(E,v,x);if(a==="O"){E.oppN++;const j=E.jest[E.oppN]||0;eff=Math.max(0,x-j);if(j&&x>0){const js=fxOf(E.owner,"jester").find(f=>f.n===E.oppN);(E.notes=E.notes||[]).push((js?js.src:"Jester's Court")+": "+v.name+"'s Oppose "+x+" counts "+eff);}}
     const vc=fxOf(E.owner,"voteCost").reduce((m,f)=>Math.max(m,f.val),1);   // Hermit Crown: N Influence moves the Envoy by 1
-    const sx=Math.floor(x/vc);eff=Math.floor(eff/vc);
-    if(a==="S")E.sup+=sx;else if(a==="O")E.opp+=eff;R.spent[v.id]+=x;
+    eff=Math.floor(eff/vc);
+    if(a==="S")E.sup+=eff;else if(a==="O")E.opp+=eff;R.spent[v.id]+=x;
     E.votes.push({who:v,a,x,eff,pre:!!r.pre,timeout:!!r.timeout,forced:!!r.forced,auto:!!r.auto,tally:R.stage==="tally"});}
   // E's net and outcome from its votes so far (run again after every Tally Phase change)
   function finish(E){if(E.council&&RFM){E.net=1;E.out="Passed";delete E.saved;E.done=true;return;}   // a Works action: no Influence, always Passes
@@ -226,10 +235,11 @@ function tSim(){
     const iv=inviteOf(E);if(iv){E.innate+=iv.val;(E.notes=E.notes||[]).push(iv.src+" ("+iv.q.name+"): Authority +"+iv.val+"; its action must target "+iv.q.name);}
     const courier=D.players.map(p=>({p,x:PT(p).courierTarget})).find(o=>o.x&&o.x.turn===tTurn()&&o.x.envoy===E.id);
     if(courier){E.innate-=1;(E.notes=E.notes||[]).push("Courier Network ("+courier.p.name+"): Authority −1");}
+    provFx(E.owner,"provEnvoy").filter(f=>scopeOk(f,E.council)).forEach(f=>{const v=f.val*(f.q||1);E.innate+=v;(E.notes=E.notes||[]).push(f.src+" ("+f.owner.name+"): Authority "+sgn(v));});   // Black Hold
     const senate=ph==="envoy"&&!E.council&&D.players.map(p=>({p,x:PT(p).senateChoice})).find(o=>o.x&&o.x.turn===tTurn()&&o.x.envoy===E.id);
     if(senate){E.net=senate.x.out==="Condemned"?ETH.Condemned:ETH.Endorsed;E.out=senate.x.out;E.done=true;E.fixed=true;E.saved=senate.x.src;E.notes=(E.notes||[]).concat([senate.x.src+" ("+senate.p.name+"): "+senate.x.out+" in the Intrigue Phase"]);R.log.push({kind:"envoy",E});return true;}
     E.jest={};fxOf(E.owner,"jester").forEach(f=>E.jest[f.n]=(E.jest[f.n]||0)+f.val);
-    (R.selfSup[E.id]||[]).forEach(s=>{E.sup+=s.x;E.votes.push({who:E.owner,a:"S",x:s.x,eff:s.x,self:true,src:s.src});});   // Intrigue Phase: Colossus
+    (R.selfSup[E.id]||[]).forEach(s=>{const e=supCut(E,E.owner,s.x);E.sup+=e;E.votes.push({who:E.owner,a:"S",x:s.x,eff:e,self:true,src:s.src});});   // Intrigue Phase: Colossus
     const silent=intrigueSilenced(E);                                                    // Intrigue Phase: Clandestine Councilor
     for(const v of (E.council?[]:voteOrd(ord))){if(sameP(v,E.owner))continue;
       if(fxOf(v,"noVote").length){E.votes.push({who:v,a:"A",x:0,eff:0,auto:true});continue;}   // Council Envoys auto-Abstain: no votes
@@ -346,10 +356,10 @@ const AA={
     run:c=>{BST().ic[c.q.id]={by:String(c.o.id)};c.log(c.q.name+"'s trade income goes to "+c.o.name+" the next turn they're Host"+((DATA.rulesConst||{}).INTERCEPT_EXTORT_PER_CRAFT?" (none: Extort "+DATA.rulesConst.INTERCEPT_EXTORT_PER_CRAFT+" × Craft)":""));}},
   "Foster Rebellion":{tgt:"player",run:c=>{const rk=c.out==="Endorsed"?srcMatch(c.o.board,"foster_endorsed")[0]:null,n=rk?+rk.m[1]:10;
     BST().foster.push({pid:String(c.q.id),by:String(c.o.id),n});c.log(c.o.name+" fosters rebellion: next Bandit Mechanics, "+n+"-Retinue Bandit "+(n>=(BAN.armyThreshold||25)?"Army":"Camp")+" in "+c.q.name+"'s Outlaw Country"+(rk?" ("+rk.n+")":""));}},
-  "Raze":{tgt:"player",sub:(o,q)=>{const L=[];(q.board.placed||[]).filter(x=>!x.fac&&pActive(x)&&x.sid!=null&&x.sid!=="faction").forEach(x=>L.push({v:"h:"+x.id,label:x.name+" · "+settName(q,x.sid)}));
-      withBoard(q.board,()=>Object.keys(S.infra||{}).filter(infraOn).forEach(n=>L.push({v:"i:"+n,label:n+" (Infrastructure)"})));
+  "Raze":{tgt:"player",sub:(o,q)=>{const L=[],imm=srcHas(q.board,"immune_raze");(q.board.placed||[]).filter(x=>!imm&&!x.fac&&pActive(x)&&x.sid!=null&&x.sid!=="faction").forEach(x=>L.push({v:"h:"+x.id,label:x.name+" · "+settName(q,x.sid)}));
+      if(!imm)withBoard(q.board,()=>Object.keys(S.infra||{}).filter(infraOn).forEach(n=>L.push({v:"i:"+n,label:n+" (Infrastructure)"})));
       // an active Build Timer instead: it gains +N (Wonders can't be targeted)
-      (q.board.placed||[]).filter(x=>!x.fac&&x.bt>0&&!(x.dmg>0)&&x.sid!=null&&x.sid!=="faction").forEach(x=>L.push({v:"bh:"+x.id,label:x.name+" · Build Timer "+x.bt+" · "+settName(q,x.sid)}));
+      (q.board.placed||[]).filter(x=>!imm&&!x.fac&&x.bt>0&&!(x.dmg>0)&&x.sid!=null&&x.sid!=="faction").forEach(x=>L.push({v:"bh:"+x.id,label:x.name+" · Build Timer "+x.bt+" · "+settName(q,x.sid)}));
       Object.keys(q.board.itimer||{}).filter(n=>q.board.itimer[n]>0&&INFRA[n]&&!((q.board.idmg||{})[n]>0)).forEach(n=>L.push({v:"bi:"+n,label:n+" · Build Timer "+q.board.itimer[n]}));return L;},
     run:c=>{const [k,v]=[c.sub.slice(0,1),c.sub.slice(2)],b=c.q.board;
       if(k==="b"){const n=razeTimerPlus(),[t,id]=[c.sub[1],c.sub.slice(3)];
@@ -804,8 +814,8 @@ let REF_RAW=true;try{REF_RAW=localStorage.getItem("renown_refraw")!=="0";}catch(
 function mapRaws(){const M=mapState(),g=M.grid;if(!g)return null;const V=decodeGrid(g),out=new Set();
   Object.keys(V.hex).forEach(k=>{const h=V.hex[k];if(nodesMode()){if(h.res&&RES_NODE[h.res])out.add(RES_NODE[h.res]);}
     else (((TREF.terrain||{})[RULE_NAME[h.t]]||{})["Raw Materials"]||[]).forEach(n=>out.add(n));});return out;}
-function refRawAvail(){if(!REF_RAW)return null;const raws=mapRaws();if(!raws)return null;const mapped=new Set(Object.values(RES_NODE)),ok=new Set();
-  NAMES.forEach(n=>{const r=R[n]||{};if(r.root&&(!mapped.has(n)||raws.has(n)))ok.add(n);});
+function refRawAvail(){if(!REF_RAW)return null;const raws=mapRaws();if(!raws)return null;const ok=new Set();
+  NAMES.forEach(n=>{const r=R[n]||{};if(r.root&&(!rawRes(n)||raws.has(n)))ok.add(n);});
   let ch=true;while(ch){ch=false;NAMES.forEach(n=>{if(ok.has(n))return;const e=effList(n);if((!e.length&&!R[n].root)||e.some(h=>ok.has(h))){ok.add(n);ch=true;}});}
   return ok;}
 // "only Holdings my Culture uses": the active board's culture (Self-made: the culture its Domain Standings match) — cultureSet
@@ -937,7 +947,7 @@ function renderReference(){const host=document.getElementById("viewReference");
   h+='<details id="refTree" class="tot"'+(TREE_SEC?' open':'')+'><summary><b style="font-size:14px">Pursuit tree</b></summary>'+
     '<div class="tb-row" style="margin:6px 0"><button data-tree="open">expand all</button><button data-tree="close">collapse all</button>'+planPickHTML("planPick")+
     (mapRaws()?'<label class="note"><input type="checkbox" id="refRaw"'+(REF_RAW?' checked':'')+'> only Holdings the map\'s Raw Materials can start'+(REF_RAW?' ('+(refRawAvail()||new Set()).size+'/'+NAMES.length+')':'')+'</label>':'')+
-    (refCulture()?'<label class="note"><input type="checkbox" id="refCul"'+(REF_CUL?' checked':'')+'> only Holdings my Culture uses ('+esc(refCulture())+' · '+esc(CUL[refCulture()].domains.join("/"))+')'+(REF_CUL?' ('+(refAvail()||new Set()).size+'/'+NAMES.length+')':'')+'</label>':'')+'</div><div class="note">'+(SIMPLE?'':'Innate + Mastery combined (Mastery assumed earned; same stats summed). ')+'Colour = unlock Domain; ◆ = Monument; green outline = built; 🔒 = your Standing doesn\'t meet the unlock yet.</div>'+treeHTML()+'</details>'+
+    (refCulture()?'<label class="note"><input type="checkbox" id="refCul"'+(REF_CUL?' checked':'')+'> only Holdings my Culture uses ('+esc(refCulture())+' · '+esc(CUL[refCulture()].archetype||CUL[refCulture()].domains.join("/"))+' '+domDots(CUL[refCulture()].domains)+')'+(REF_CUL?' ('+(refAvail()||new Set()).size+'/'+NAMES.length+')':'')+'</label>':'')+'</div><div class="note">'+(SIMPLE?'':'Innate + Mastery combined (Mastery assumed earned; same stats summed). ')+'Colour = unlock Domain; ◆ = Monument; green outline = built; 🔒 = your Standing doesn\'t meet the unlock yet.</div>'+treeHTML()+'</details>'+
     '<details id="refInfraTree" class="tot"'+(ITREE_OPEN?' open':'')+'><summary><b style="font-size:14px">Infrastructure tree</b></summary><div class="tb-row" style="margin:6px 0">'+planPickHTML("planPick2")+'</div>'+infraTreeHTML()+'</details>'+
     '<div id="refSeasons">'+seasonsHTML()+'</div><div id="refCosts">'+costsHTML()+'</div>'+
     '<div id="refStanding">'+standingEffectsHTML()+'</div><div id="refTerrain">'+terrainTablesHTML(mapPal(g))+'</div>'+

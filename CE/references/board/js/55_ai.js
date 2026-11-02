@@ -327,7 +327,7 @@ function aiCandidates(p){const s=aiSit(p),b=s.b,C=[],add=(dom,act,o)=>C.push(Obj
   // Cunning (each costs 2000; Passed Extorts CUNNING_EXTORT back from the target)
   if(foeQ){const q=foeQ,war=effPair(p.id,q.id).war,ex=+RC.CUNNING_EXTORT||0,lc=like("Cunning");
     if(war&&(q.board.armies||[]).length)add("Cunning","Sabotage",{tgt:String(q.id),cost:2000,serves:{diplomacy:lc},why:"Block "+q.name+"'s Army"});
-    if((q.board.placed||[]).length)add("Cunning","Raze",{tgt:String(q.id),cost:2000,serves:{[fp]:0.9*lc},why:"Raze "+q.name+" ("+foe.why+")"});
+    if((q.board.placed||[]).length&&!srcHas(q.board,"immune_raze"))add("Cunning","Raze",{tgt:String(q.id),cost:2000,serves:{[fp]:0.9*lc},why:"Raze "+q.name+" ("+foe.why+")"});
     add("Cunning","Intercept Caravan",{tgt:String(q.id),cost:2000,serves:{[fp]:0.6*lc,economy:s.econ*(tradeRaw(q.board).total>ex?0.6:0.2)},why:"Intercept "+q.name+"'s trade"});
     add("Cunning","Destabilize",{tgt:String(q.id),cost:2000,serves:{[fp]:0.5*lc,economy:s.econ*0.4},why:"Destabilize "+q.name+" (Winter tax)"});
     // Foster Rebellion grows Outlaw Country when it's full: only a Cunning culture harnesses it, and only while Bandits aren't on its own doorstep

@@ -1605,4 +1605,4 @@
   "core": {},
   "ridge": {}
  }
-};root.RenownRules={"charter_min_range": 4, "hamlet_range": 2, "outlaw_buffer": 2, "outlaw_start": 3, "start_tiers": ["Town", "Hamlet"]};})(typeof module!=='undefined'&&module.exports?module.exports:(typeof window!=='undefined'?window:globalThis));
+};root.RenownRules={"charter_min_range": 4, "hamlet_range": 2, "outlaw_buffer": 2, "outlaw_start": 3, "start_tiers": ["Town", "Hamlet"], "materials": {"plains": [], "forest": ["forestry"], "wetland": ["salt", "peat"], "tundra": ["quarry", "salt"], "mountain": ["mine", "quarry"], "water": ["fish"]}};})(typeof module!=='undefined'&&module.exports?module.exports:(typeof window!=='undefined'?window:globalThis));

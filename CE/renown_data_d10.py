@@ -673,11 +673,15 @@ CULTURES = {
 # ── NODES — THE master Holding graph. EDIT HERE. ──
 # Per Holding: group (a HOLDING_GROUPS id; `type` is derived from it), root, unlock (Standing gate), innate (the
 # Holding's effect), efficient (its Mastery Chain parent(s); `builds_into` is derived), monument, deprecated.
+# terrain: Territory types (TERRAIN keys) that supply it — empty or absent = no requirement; otherwise one of them
+# must lie within the Reach of the Settlement it's built in. TERRAIN "Raw Materials" and the map generator's resource
+# placement are derived from this (main terrain first — see below TERRAIN).
 # The sim reads HOLDING_SIM, which is derived from this text at the bottom of this file.
 NODES = {
     "Quarry": {
         "group": "g_raw",
         "root": True,
+        "terrain": ["Tundra", "Mountains"],
         "unlock": "-",
         "natural": True,
         "innate": "Gold +500; Craft +1",
@@ -685,6 +689,7 @@ NODES = {
     "Salt Works": {
         "group": "g_raw",
         "root": True,
+        "terrain": ["Wetlands", "Tundra"],
         "unlock": "-",
         "natural": True,
         "innate": "Gold +500; Craft +1",
@@ -701,6 +706,7 @@ NODES = {
     "Peat Bog": {
         "group": "g_raw",
         "root": True,
+        "terrain": ["Wetlands"],
         "unlock": "-",
         "natural": True,
         "innate": "Gold +500; Craft +1",
@@ -708,6 +714,7 @@ NODES = {
     "Forestry": {
         "group": "g_raw",
         "root": True,
+        "terrain": ["Forest"],
         "unlock": "-",
         "natural": True,
         "innate": "Gold +500; Craft +1",
@@ -715,6 +722,7 @@ NODES = {
     "Fishmongery": {
         "group": "g_raw",
         "root": True,
+        "terrain": ["Water"],
         "unlock": "-",
         "natural": True,
         "innate": "Gold +500; Craft +2",
@@ -722,6 +730,7 @@ NODES = {
     "Furnace": {
         "group": "g_raw",
         "root": True,
+        "terrain": ["Mountains"],
         "unlock": "-",
         "natural": True,
         "innate": "Gold +500; Unlocks Cast Weapons",
@@ -760,6 +769,7 @@ NODES = {
     "Animal Husbandry": {
         "group": "g_husbandry",
         "root": True,
+        "terrain": [],
         "unlock": "-",
         "natural": True,
         "innate": "Supply -500; Unlocks Crude armor & shield",
@@ -769,21 +779,21 @@ NODES = {
         "group": "g_husbandry",
         "unlock": "1 Established",
         "natural": True,
-        "innate": "Gold +500; Speed +1; Unlocks Lance (Still requires Tier Unlock)",
+        "innate": "Gold +500; Craft +2; Speed +1; Unlocks Lance (Still requires Tier Unlock)",
         "efficient": ["Stable"],
         "monument": False},
     "Avenery": {
         "group": "g_husbandry",
         "unlock": "1 Established",
         "natural": True,
-        "innate": "Gold +1000; Speed +1",
+        "innate": "Gold +500; Speed +1",
         "efficient": ["Saddlery"],
         "monument": False},
     "Farriery": {
         "group": "g_husbandry",
         "unlock": "Established Prowess",
         "natural": True,
-        "innate": "Gold +1000; Speed +1; Unlocks Cavalry Spears regardless of Tier Unlock",
+        "innate": "Gold +500; Speed +1; Unlocks Cavalry Spears regardless of Tier Unlock",
         "efficient": ["Avenery"],
         "monument": False},
     "Marshal Tiltyard": {
@@ -1002,6 +1012,7 @@ NODES = {
     "Inn": {
         "group": "g_court",
         "root": True,
+        "terrain": [],
         "unlock": "-",
         "infrastructure_req": "Town Square",
         "natural": True,
@@ -1057,7 +1068,7 @@ NODES = {
         "group": "g_arms",
         "unlock": "1 Rising",
         "natural": True,
-        "innate": "Speed +1; Unlocks Cavalry Spear (Still requires Tier Unlock)",
+        "innate": "Speed +2; Unlocks Cavalry Spear (Still requires Tier Unlock)",
         "efficient": ["Animal Husbandry","Inn"],
         "monument": False},
     "Ropewalk": {
@@ -1196,6 +1207,7 @@ NODES = {
     "Courtyard": {
         "group": "g_commerce",
         "root": True,
+        "terrain": [],
         "unlock": "-",
         "infrastructure_req": "Town Square",
         "innate": "Craft +1; Faith +1",
@@ -1281,7 +1293,7 @@ NODES = {
         "group": "g_secrecy",
         "unlock": "Rising Cunning",
         "natural": True,
-        "innate": "Extort 2000 when non-allied Army ends a Move action within your Province", # Once per turn: when an Army ends a Move action within your Province, Perform a Diplomacy action targeting that army's player; 
+        "innate": "Extort 1000 when non-allied Army ends a Move action within your Province", # Once per turn: when an Army ends a Move action within your Province, Perform a Diplomacy action targeting that army's player; 
         "efficient": ["Caravanery"],
         "monument": False},
     "College of Engineering": {
@@ -1465,9 +1477,33 @@ NODES = {
         "innate": "Siege Timer +4; May Muster an Army in a Settlement under Siege and its Muster Timers count down",
         "efficient": ["Supply Depot"],
         "monument": False},
+    "Tenebrous Oubliette": {
+        "group": "g_works",
+        "unlock": "Established Cunning",
+        "innate": "Reach +1; Whenever another player within your Province Supports, reduce that Support by 2",
+        "efficient": ["Citadel"],
+        "monument": False},
+    "Black Hold": {
+        "group": "g_works",
+        "unlock": "Sovereign Cunning + Established Industry",
+        "innate": "Reach +2; Whenever another player within your Province sends a Personal Envoy, it gains Authority -2",
+        "efficient": ["Tenebrous Oubliette"],
+        "monument": True},
+    "Fortified Church": {
+        "group": "g_works",
+        "unlock": "Established Piety",
+        "innate": "Garrisons gain Immune Fatigue; Immune Mounting Panic; Immune War Weariness; Immune Invasion",
+        "efficient": ["Citadel"],
+        "monument": False},
+    "Sacristy Redoubt": {
+        "group": "g_works",
+        "unlock": "Sovereign Piety + Established Industry",
+        "innate": "Whenever a Siege Timer against a Settlement you Control counts down, the sieging Army gains Fatigue +1; Your Settlements gain Immune Raze",
+        "efficient": ["Fortified Church"],
+        "monument": True},    
     "Castle Hall": {
         "group": "g_works",
-        "unlock": "Established Industry",
+        "unlock": "Established Prowess",
         "innate": "Doubt +1; Upkeep -1000; Tax Income is Doubled; Your Settlements gain Reach +2",
         "efficient": ["Citadel"],
         "monument": False},
@@ -1505,7 +1541,7 @@ NODES = {
     "Court Armoury": {
         "group": "g_arms",
         "unlock": "Sovereign Industry",
-        "innate": f"Supply -500; {PLANISHING}: Your to-Save can't be reduced beyond {CAP_THR}+; Unlocks Crafted Armor & Shield",
+        "innate": f"{PLANISHING}: Your to-Save can't be reduced beyond {CAP_THR}+; Unlocks Crafted Armor & Shield", #Supply -500; 
         "efficient": "Gilded Foundry",
         "monument": True},
     "Serfdom": {
@@ -1540,7 +1576,7 @@ NODES = {
     "Artillery Park": {
         "group": "g_logistics",
         "unlock": "Sovereign Prowess + Established Industry",
-        "infrastructure_req": "Magistrate's Hall",
+        #"infrastructure_req": "Magistrate's Hall",
         "innate": "Siege Timers ignore Wooden & Stone Walls; Unlocks Arquebus",
         "efficient": "Abatis Field",
         "monument": True},
@@ -1822,8 +1858,8 @@ FACTIONS = {
         'difficulty': 'Low',
         'strength': 'Medium',
         'mechanic_name': 'Siege Specialists',
-        'summary': 'Starts with Siege Works',
-        'mechanic': 'You begin the game with a Siege Works (no Ward, Natural).',
+        'summary': 'Starts with Siege Camp',
+        'mechanic': 'You begin the game with a Siege Camp (no Ward, Natural).',
         'pair': 'Artillery Park, Ministry of Military Strategy',
         'complement': 'Baggage Train',
     },
@@ -1871,8 +1907,8 @@ FACTIONS = {
         'difficulty': 'Low',
         'strength': 'Medium',
         'mechanic_name': 'Uncharted Sea Lanes',
-        'summary': 'Immune to Intercept Caravan; starts with a Shipyard',
-        'mechanic': "Other players can't perform Intercept Caravan on you. You begin the game with a Shipyard (no Ward, Natural).",
+        'summary': 'Immune to Intercept Caravan; starts with a Harbor',
+        'mechanic': "Other players can't perform Intercept Caravan on you. You begin the game with a Harbor (no Ward, Natural).",
         'pair': "Port Authority, Thieves' Guild",
         'complement': 'Outrider Intercept Post',
     },
@@ -2782,14 +2818,25 @@ HOLDING_COST_TEXT = _HOLDING_COST_TEXT    # rules prose: {{VAL:HOLDING_COST_TEXT
 TIMERS["Repair Timer"]["default"] = BUILD_TIMERS["Repair"]
 
 TERRAIN = {
-	"Grassland": {"Effect": "Where Settlements can be chartered (a Hill counts).", "Raw Materials": []},
-	"Wetlands": {"Effect": "Speed -1 per Territory moved through", "Raw Materials": ["Salt Works", "Peat Bog"]},
-	"Tundra": {"Effect": "gain Strained", "Raw Materials": ["Quarry", "Salt Works"]},
-	"Mountains": {"Effect": "Impassable", "Raw Materials": ["Furnace", "Quarry"]},
-	"Water": {"Effect": "Must end move after moving over 1 Water Territory (must end on land)", "Raw Materials": ["Fishmongery"]},
-	"Forest": {"Effect": "Speed -1 per Territory moved through", "Raw Materials": ["Forestry"]},
+	"Grassland": {"Effect": "Where Settlements can be chartered (a Hill counts)."},
+	"Wetlands": {"Effect": "Speed -1 per Territory moved through"},
+	"Tundra": {"Effect": "gain Strained"},
+	"Mountains": {"Effect": "Impassable"},
+	"Water": {"Effect": "Must end move after moving over 1 Water Territory (must end on land)"},
+	"Forest": {"Effect": "Speed -1 per Territory moved through"},
 	"Hill":  {"Effect": "Gains Seize the Initiative."},
 }
+# TERRAIN "Raw Materials" is collected from each Holding's 'terrain' list (NODES): Holdings that name the terrain earlier in
+# their own list come first, then NODES order. The map generator places a terrain's first Holding on every patch of it
+# and the rest on large patches only, so list a Holding's main terrain first.
+for _n, _v in NODES.items():
+    for _t in _v.get("terrain") or []:
+        if _t not in TERRAIN:
+            raise ValueError(f"NODES[{_n!r}]['terrain'] names {_t!r}; use one of {sorted(TERRAIN)}")
+for _t, _tv in TERRAIN.items():
+    if _t != "Hill":    # a Hill counts as Grassland
+        _tv["Raw Materials"] = sorted((_n for _n, _v in NODES.items() if not _v.get("deprecated") and _t in (_v.get("terrain") or [])),
+                                      key=lambda _n: NODES[_n]["terrain"].index(_t))   # stable: ties keep NODES order
 
 MOVEMENT_MODIFIERS = {
 	"Dirt Roads" : {"Effect": "If you start a Move action within your Province, gain Speed +1"},
@@ -2826,7 +2873,7 @@ INFLUENCE_GAIN = {
             "notes": "Based on the Current Era"},
     "Trade Partners": {"change": "+1", "notes": "Per Trade Partner."},
     "Alliances": {"change": "+1", "notes": "Per Alliance Member."},
-    "Infrastructure tier completed": {"change": "+1", "notes": "Per Infrastructure tier fully completed."},
+    "Infrastructure tier completed": {"change": "+0", "notes": "Per Infrastructure tier fully completed."},
     "Fully Mustered Army": {"change": "+1", "notes": "Per active Army of 25 Retinues."},
     "Condemned Envoy last turn": {"change": "-1", "notes": "Per Condemned Envoy last turn."},
     "At War": {"change": "-3", "notes": "While at War."},
@@ -3340,6 +3387,20 @@ GLOSSARY.update({
     CHAIN_TERM + " X": ((f"On a Holding tile: placed in the same Settlement Ward as X (the Raw Material or Holding named on it), it shares "
                         f"that Ward instead of taking its own. See {CHAIN_TERM}.")),
 })
+
+# ── Glossary: Public Order bands and modifiers, Tax Income, Convert — read from PO_BANDS / PO_MODIFIERS / SETTLEMENTS / ACTIONS ──
+_PO_SC = {lvl: [int(e.get("po_scale_neg" if lvl < 0 else "po_scale_pos", 1)) for e in ERAS.values()] for lvl in PO_BANDS if lvl}
+PO_GLOSS_TERMS = [nm for lvl, (nm, t, _b) in sorted(PO_BANDS.items()) if t != "No effect"] + [k for v in PO_MODIFIERS.values() for k in v]
+GLOSSARY.update({
+    nm: (f"Public Order band ({'+' if lvl > 0 else ''}{lvl}{'' if lvl in (PO_MIN, PO_MAX) else ' or lower' if lvl < 0 else ' or higher'}): {po_effect(lvl)}"
+         + (f", scaled by Era (" + " / ".join(f"×{x}" for x in _PO_SC[lvl]) + f" from {next(iter(ERAS))} to {list(ERAS)[-1]})"
+            if b is not None and "{n}" in t and any(x != 1 for x in _PO_SC[lvl]) else "") + ".")
+    for lvl, (nm, t, b) in PO_BANDS.items() if t != "No effect"})
+GLOSSARY.update({k: f"{side.title()} 1 each Empire Phase: {d[0].lower() + d[1:]}." for side, v in PO_MODIFIERS.items() for k, d in v.items()
+                 if k not in GLOSSARY})   # War Weariness keeps its own entry
+GLOSSARY["Tax Income"] = (f"Gold each {TRADE_RULES['tax_season']} from each of your Settlements by tier: "
+                          + ", ".join(f"{k} {v['tax_income']}" for k, v in SETTLEMENTS.items() if v.get("tax_income")) + ".")
+GLOSSARY["Convert"] = f"A {ACTIONS['Convert']['domain']} action ({ACTIONS['Convert']['requires']}). {ACTIONS['Convert']['effect']}"
 
 # ══════════════════════════════════════════════════════════════════════════════
 # DISPLAY LAYER — engine ids stay stable; only printed labels change.
@@ -3927,11 +3988,12 @@ GLOSSARY_CATEGORIES = [
     ('Envoys & Voting', ['Influence', 'Authority X', 'Envoy', 'Personal Envoy', 'Council Envoy', 'Vote', 'Support X', 'Oppose X',
                          'Max Influence', 'Abstain', 'Net Influence', 'Condemned', 'Failed', 'Passed', 'Endorsed']),
     ('Domains & Scoring', ['Renown', 'Domain', 'Domain Point', 'Standing', 'Standing Rank', 'Edict']),
-    ('Actions', ['Muster', 'Build', 'Improve', 'Repair', 'Settle', 'Expand', 'Move', 'Demand Tribute', 'Diplomacy']),
+    ('Actions', ['Muster', 'Build', 'Improve', 'Repair', 'Settle', 'Expand', 'Move', 'Demand Tribute', 'Diplomacy', 'Convert']),
     ('Treaties', ['Treaty', 'Alliance', 'Vassal', 'Suzerain']),
     ('War', ['At War', 'Lay Siege', 'Siege', 'Capture', 'Sack', 'Pillage', 'Sally Forth']),
     ('Economy & Public Order', ['Treasury', SUPPLY_TERM, UPKEEP_TERM, 'Insolvent', 'Bankrupt', SHUTTER_TERM, 'Trade Agreement', 'Trade Partner',
-                                'Craft', 'Can Trade', 'Public Order', 'Faith X', 'Doubt X', 'Extort X', 'Recoup X', 'War Weariness', 'Wavering Devotion']),
+                                'Craft', 'Can Trade', 'Public Order', 'Faith X', 'Doubt X', 'Extort X', 'Recoup X', 'Tax Income', 'Wavering Devotion']
+                               + PO_GLOSS_TERMS),
     ('Settlements & Holdings', ['Settlement', 'Hamlet', 'Settlement Ward', 'Pursuit', 'Root', 'Natural', 'Monument', CHAIN_TERM,
                                 CHAIN_TERM + " X", 'Infrastructure', 'Wonder', 'Damaged']),
     ('Timers', list(TIMERS)),

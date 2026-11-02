@@ -208,7 +208,7 @@ RESOURCES = {
     "forestry": {"name": "Forestry",    "color": "#8a5a2b"},
     "quarry":   {"name": "Quarry",      "color": "#a9a49a"},
     "salt":     {"name": "Salt Works",  "color": "#ece6d6"},
-    "mine":     {"name": "Mine",        "color": "#4a4440"},
+    "mine":     {"name": "Furnace",     "color": "#4a4440"},
     "peat":     {"name": "Peat Bog",    "color": "#5a3e24"},
     "fish":     {"name": "Fishmongery", "color": "#7fb0c8"},
 }

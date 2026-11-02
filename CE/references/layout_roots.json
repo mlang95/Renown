@@ -402,6 +402,187 @@
   ]
  },
  {
+  "title": "Quarry",
+  "anchor": "Quarry",
+  "mode": "root",
+  "nodes": {
+   "Quarry": [
+    0,
+    2
+   ],
+   "Masonry": [
+    1,
+    2
+   ],
+   "Supply Depot": [
+    2,
+    2
+   ],
+   "Trade Guild": [
+    2,
+    4
+   ],
+   "Toxicarium": [
+    2,
+    5
+   ],
+   "Priory": [
+    2,
+    0
+   ],
+   "Citadel": [
+    3,
+    2
+   ],
+   "College of Engineering": [
+    3,
+    4
+   ],
+   "Charnel House": [
+    3,
+    5
+   ],
+   "Abbey": [
+    3,
+    0
+   ],
+   "Tenebrous Oubliette": [
+    4,
+    2
+   ],
+   "Castle Hall": [
+    4,
+    3
+   ],
+   "Masons' Guild": [
+    4,
+    4
+   ],
+   "Plague Pit": [
+    4,
+    5
+   ],
+   "Monastery": [
+    4,
+    0
+   ],
+   "Fortified Church": [
+    4,
+    1
+   ],
+   "Black Hold": [
+    5,
+    2
+   ],
+   "Imperial Palace": [
+    5,
+    3
+   ],
+   "Office of Works": [
+    5,
+    4
+   ],
+   "Ossuary Crypt": [
+    5,
+    5
+   ],
+   "Papal Palace": [
+    5,
+    0
+   ],
+   "Sacristy Redoubt": [
+    5,
+    1
+   ]
+  },
+  "edges": [
+   [
+    "Priory",
+    "Abbey"
+   ],
+   [
+    "Tenebrous Oubliette",
+    "Black Hold"
+   ],
+   [
+    "Citadel",
+    "Castle Hall"
+   ],
+   [
+    "Toxicarium",
+    "Charnel House"
+   ],
+   [
+    "Supply Depot",
+    "Citadel"
+   ],
+   [
+    "Trade Guild",
+    "College of Engineering"
+   ],
+   [
+    "Citadel",
+    "Fortified Church"
+   ],
+   [
+    "Castle Hall",
+    "Imperial Palace"
+   ],
+   [
+    "Quarry",
+    "Masonry"
+   ],
+   [
+    "College of Engineering",
+    "Masons' Guild"
+   ],
+   [
+    "Abbey",
+    "Monastery"
+   ],
+   [
+    "Masons' Guild",
+    "Office of Works"
+   ],
+   [
+    "Plague Pit",
+    "Ossuary Crypt"
+   ],
+   [
+    "Monastery",
+    "Papal Palace"
+   ],
+   [
+    "Charnel House",
+    "Plague Pit"
+   ],
+   [
+    "Masonry",
+    "Priory"
+   ],
+   [
+    "Fortified Church",
+    "Sacristy Redoubt"
+   ],
+   [
+    "Masonry",
+    "Supply Depot"
+   ],
+   [
+    "Citadel",
+    "Tenebrous Oubliette"
+   ],
+   [
+    "Masonry",
+    "Toxicarium"
+   ],
+   [
+    "Masonry",
+    "Trade Guild"
+   ]
+  ]
+ },
+ {
   "title": "Animal Husbandry",
   "anchor": "Animal Husbandry",
   "mode": "root",
@@ -1203,155 +1384,6 @@
    [
     "Joinery",
     "Tannery"
-   ]
-  ]
- },
- {
-  "title": "Quarry",
-  "anchor": "Quarry",
-  "mode": "root",
-  "nodes": {
-   "Quarry": [
-    0,
-    1
-   ],
-   "Masonry": [
-    1,
-    1
-   ],
-   "Supply Depot": [
-    2,
-    1
-   ],
-   "Trade Guild": [
-    2,
-    2
-   ],
-   "Toxicarium": [
-    2,
-    3
-   ],
-   "Priory": [
-    2,
-    0
-   ],
-   "Citadel": [
-    3,
-    1
-   ],
-   "College of Engineering": [
-    3,
-    2
-   ],
-   "Charnel House": [
-    3,
-    3
-   ],
-   "Abbey": [
-    3,
-    0
-   ],
-   "Castle Hall": [
-    4,
-    1
-   ],
-   "Masons' Guild": [
-    4,
-    2
-   ],
-   "Plague Pit": [
-    4,
-    3
-   ],
-   "Monastery": [
-    4,
-    0
-   ],
-   "Imperial Palace": [
-    5,
-    1
-   ],
-   "Office of Works": [
-    5,
-    2
-   ],
-   "Ossuary Crypt": [
-    5,
-    3
-   ],
-   "Papal Palace": [
-    5,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Priory",
-    "Abbey"
-   ],
-   [
-    "Citadel",
-    "Castle Hall"
-   ],
-   [
-    "Toxicarium",
-    "Charnel House"
-   ],
-   [
-    "Supply Depot",
-    "Citadel"
-   ],
-   [
-    "Trade Guild",
-    "College of Engineering"
-   ],
-   [
-    "Castle Hall",
-    "Imperial Palace"
-   ],
-   [
-    "Quarry",
-    "Masonry"
-   ],
-   [
-    "College of Engineering",
-    "Masons' Guild"
-   ],
-   [
-    "Abbey",
-    "Monastery"
-   ],
-   [
-    "Masons' Guild",
-    "Office of Works"
-   ],
-   [
-    "Plague Pit",
-    "Ossuary Crypt"
-   ],
-   [
-    "Monastery",
-    "Papal Palace"
-   ],
-   [
-    "Charnel House",
-    "Plague Pit"
-   ],
-   [
-    "Masonry",
-    "Priory"
-   ],
-   [
-    "Masonry",
-    "Supply Depot"
-   ],
-   [
-    "Masonry",
-    "Toxicarium"
-   ],
-   [
-    "Masonry",
-    "Trade Guild"
    ]
   ]
  },

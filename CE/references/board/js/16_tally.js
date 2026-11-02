@@ -41,7 +41,7 @@ function tallyRun(R,ord,runSlot,applyVote,finish,envoyRun){R.stage="tally";const
     const r=runSlot("TS:"+p.id,p,tCur(p).tallySup);if(!r){R.waiting="tally-support";R.tallyWho=p;R.tallyOpt=Object.assign({own},o);return false;}
     const rec=r.rec||{},E=own.find(x=>x.id===rec.envoy);
     if(E&&+rec.x>0){const x=Math.max(0,Math.min(+rec.x,voteCap(p,E.dom,false),R.pool[p.id]-R.spent[p.id]));
-      if(x){E.sup+=x;R.spent[p.id]+=x;E.votes.push({who:p,a:"S",x,eff:x,self:true,src:o.src,tally:true});finish(E);}}}
+      if(x){const e=supCut(E,p,x);E.sup+=e;R.spent[p.id]+=x;E.votes.push({who:p,a:"S",x,eff:e,self:true,src:o.src,tally:true});finish(E);}}}
   // 5.2 Tally votes: each player who votes in the Tally Phase votes on every Envoy, in the Vote order
   for(const h of ord.filter(tallyVoter))for(const E of main){if(E.council||E.fixed||sameP(E.owner,h)||fxOf(h,"noVote").length)continue;
     const sl=intrigueSilenced(E).find(s=>sameP(s.who,h));if(sl){E.votes.push({who:h,a:"A",x:0,eff:0,auto:true,silenced:sl.src,tally:true});continue;}

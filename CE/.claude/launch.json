@@ -216,6 +216,18 @@
         "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\53126fc3-6911-45b3-8d08-e72ca8d48d95\\scratchpad\\board"
       ],
       "port": 8782
+    },
+    {
+      "name": "board-culsel",
+      "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8783",
+        "--directory",
+        "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\d8637cd5-c500-4a05-826f-1dc9b3b90146\\scratchpad\\board"
+      ],
+      "port": 8783
     }
   ]
 }

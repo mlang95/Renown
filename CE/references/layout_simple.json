@@ -275,6 +275,59 @@
   ]
  },
  {
+  "title": "Black Hold",
+  "anchor": "Black Hold",
+  "mode": "chain",
+  "nodes": {
+   "Quarry": [
+    0,
+    0
+   ],
+   "Masonry": [
+    1,
+    0
+   ],
+   "Supply Depot": [
+    2,
+    0
+   ],
+   "Citadel": [
+    3,
+    0
+   ],
+   "Tenebrous Oubliette": [
+    4,
+    0
+   ],
+   "Black Hold": [
+    5,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Tenebrous Oubliette",
+    "Black Hold"
+   ],
+   [
+    "Supply Depot",
+    "Citadel"
+   ],
+   [
+    "Quarry",
+    "Masonry"
+   ],
+   [
+    "Masonry",
+    "Supply Depot"
+   ],
+   [
+    "Citadel",
+    "Tenebrous Oubliette"
+   ]
+  ]
+ },
+ {
   "title": "Court Armoury",
   "anchor": "Court Armoury",
   "mode": "chain",
@@ -921,6 +974,59 @@
    [
     "Emporium",
     "Port Authority"
+   ]
+  ]
+ },
+ {
+  "title": "Sacristy Redoubt",
+  "anchor": "Sacristy Redoubt",
+  "mode": "chain",
+  "nodes": {
+   "Quarry": [
+    0,
+    0
+   ],
+   "Masonry": [
+    1,
+    0
+   ],
+   "Supply Depot": [
+    2,
+    0
+   ],
+   "Citadel": [
+    3,
+    0
+   ],
+   "Fortified Church": [
+    4,
+    0
+   ],
+   "Sacristy Redoubt": [
+    5,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Supply Depot",
+    "Citadel"
+   ],
+   [
+    "Citadel",
+    "Fortified Church"
+   ],
+   [
+    "Quarry",
+    "Masonry"
+   ],
+   [
+    "Fortified Church",
+    "Sacristy Redoubt"
+   ],
+   [
+    "Masonry",
+    "Supply Depot"
    ]
   ]
  },

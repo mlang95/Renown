@@ -44,11 +44,11 @@ let WP=null;          // empty-ward picker: {gid, wi, q} while its modal is open
 let FOR_SID=null;     // empty-ward click: catalog shows only what that settlement can take; next add goes there
 function pAvail(n){return !scopeBlock(n,null)&&(scopeOf(n)!=="Settlement"||!S.settlements.length||S.settlements.some(s=>hamletRepeat(n,s.id)||!occupants(s.id).some(o=>o.name===n)))&&unlockStatus(n).ok;}
 // ---- legal to start now (catalog "Available", the empty-Ward picker, the Build action): Scope + Standing (pAvail), a Root or one
-// complete line of its Mastery Chain controlled (chainLine), its infrastructure_req, and — a Raw Material with a map resource — that
-// resource within Reach (of Settlement sid when given; Reach unchecked while there's no map or the player isn't deployed)
+// complete line of its Mastery Chain controlled (chainLine), its infrastructure_req, and — a Holding with a 'terrain' list (resource
+// nodes mode: a map resource) — that terrain within Reach (of Settlement sid when given; Reach unchecked while there's no map or the player isn't deployed)
 function legalCtx(){const have=new Set(Object.keys(PC)),ce=computeEarned(have),me=playerOfBoard(S);
   return {have,craft:ce.craft,tc:ce.tc,own:S.placed.filter(o=>o.sid!=null&&chainOK(o)),me,res:me?reachResources(me):null,sr:{}};}
-function rawRes(n){return Object.values(RES_NODE).includes(n);}
+function rawRes(n){return nodesMode()?Object.values(RES_NODE).includes(n):((R[n]||{}).terrain||[]).length>0;}
 function rawInSett(ctx,n,sid){if(!(sid in ctx.sr)){const s=ctx.me?settById(ctx.me,sid):null,hx=s?settReachHexes(ctx.me,s):null;
     if(!hx)ctx.sr[sid]=null;else{const M=mapState(),V=decodeGrid(M.grid),set=new Set();hx.forEach(k=>{const h=V.hex[k];if(!h)return;
       if(nodesMode()){if(h.res&&RES_NODE[h.res])set.add(RES_NODE[h.res]);}else (((TREF.terrain||{})[RULE_NAME[h.t]]||{})["Raw Materials"]||[]).forEach(x=>set.add(x));});ctx.sr[sid]=set;}}
@@ -899,8 +899,12 @@ function facPicker(ed,onPick){const w=document.createElement("span");w.className
 const CUL=DATA.cultures||{},CUL_SELF=DATA.cultureSelf||"Self-made",PN=DATA.placeNames||null,CUL_DOMS=["Industry","Prowess","Cunning","Piety"];
 function culSelectHTML(b){const by={};Object.keys(CUL).forEach(n=>{const t=CUL[n].type||"";(by[t]=by[t]||[]).push(n);});
   const cur=(b&&b.culture&&CUL[b.culture])?b.culture:"";
-  return '<select id="culSel" class="facsel" title="culture — focuses the Holding catalog and tree; no game effect"><option value="">'+esc(CUL_SELF)+'</option>'+
-    Object.keys(by).map(t=>'<optgroup label="'+esc(t)+'">'+by[t].map(n=>'<option value="'+esc(n)+'"'+(n===cur?' selected':'')+'>'+esc(n)+' · '+esc(n===cur&&CUL[n].archetype?CUL[n].archetype:CUL[n].domains.join("/"))+'</option>').join("")+'</optgroup>').join("")+'</select>';}
+  const st=cur?' style="background-image:'+domStripe(CUL[cur].domains)+';background-size:100% 3px;background-repeat:no-repeat;background-position:top"':'';
+  return '<select id="culSel" class="facsel"'+st+' title="'+esc(cur?cur+" · "+CUL[cur].domains.join(" / ")+" — ":"")+'culture — focuses the Holding catalog and tree; no game effect"><option value="">'+esc(CUL_SELF)+'</option>'+
+    Object.keys(by).map(t=>'<optgroup label="'+esc(t)+'">'+by[t].map(n=>'<option value="'+esc(n)+'"'+(n===cur?' selected':'')+'>'+esc(n)+(CUL[n].archetype?' · '+esc(CUL[n].archetype):'')+'</option>').join("")+'</optgroup>').join("")+'</select>';}
+// a culture's Domain colours as equal bands, left to right (the culture selector's top edge)
+function domStripe(ds){ds=(ds||[]).filter(d=>DOMC[d]);if(!ds.length)return "none";const w=100/ds.length;
+  return "linear-gradient(90deg,"+ds.map((d,i)=>DOMC[d]+" "+(i*w).toFixed(2)+"% "+((i+1)*w).toFixed(2)+"%").join(",")+")";}
 function cultureOf(b){return b&&b.culture&&CUL[b.culture]?b.culture:null;}
 function holdDom(n){const u=(R[n]||{}).unlock_raw||"";return CUL_DOMS.find(d=>u.includes(d))||"";}
 // the Holdings a culture focuses on: Domain-free Holdings (Raw Materials, Common Land…), unlocks wholly in its Domains,
@@ -1061,7 +1065,7 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
     b.textContent=us.ok?"unlock ?":"unlock ✗";b.title="Unlock: "+r.unlock_raw+"\n"+us.toks.map(x=>(x.ok===false?"✗ ":x.ok?"✓ ":"? ")+x.t+" — "+x.why).join("\n");h.appendChild(b);
     if(!us.ok)h.appendChild(ignBtn("u:"+inst.id,us.missing.join("|")));}}
   inst._mFlag=mFlag;
-  if(!inst.fac&&r.type==="Raw Materials"){const _p=D.players.find(pp=>pp.board===S),rs=(rawClaims(_p)[inst.id])||{ok:true},rf=flagState("r:"+inst.id,!rs.ok,"reach");
+  if(!inst.fac&&rawRes(n)){const _p=D.players.find(pp=>pp.board===S),rs=(rawClaims(_p)[inst.id])||{ok:true},rf=flagState("r:"+inst.id,!rs.ok,"reach");
     if(rs.ok&&rs.terr)h.title=(h.title?h.title+"\n":"")+"Claims "+rs.terr;
     if(!rs.ok&&rf==="on"){const b=document.createElement("span");b.className="badge noearn";b.textContent="reach ✗";b.title=n+": "+(rs.why||"none in Reach")+(nodesMode()?" (resource nodes)":" (terrain)")+" — this Settlement's Reach";h.appendChild(b);h.appendChild(ignBtn("r:"+inst.id,"reach"));}}
   let sFlag="off";

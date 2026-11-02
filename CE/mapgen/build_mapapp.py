@@ -32,7 +32,31 @@ def rules_of(data_dir):
             "hamlet_range": rd.HAMLET_RANGE,
             "outlaw_buffer": rd.OUTLAW_BUFFER_RANGE,
             "outlaw_start": rd.OUTLAW_COUNTRY_START,
-            "start_tiers": list(rd.EMPIRE_START_TIERS)}
+            "start_tiers": list(rd.EMPIRE_START_TIERS),
+            "materials": materials_of(rd)}
+
+
+# generator terrain id -> renown_data TERRAIN name
+GEN_TERRAIN = {"plains": "Grassland", "forest": "Forest", "wetland": "Wetlands",
+               "tundra": "Tundra", "mountain": "Mountains", "water": "Water"}
+
+
+def materials_of(rd):
+    """{generator terrain: [resource id, ...]} from renown_data TERRAIN "Raw Materials" (itself collected from
+    each Holding's 'terrain' list), main Holding first. Resource ids are hexstyle.RESOURCES keys; a Holding with
+    no badge there gets a slug id (placed and Reach-checked, drawn without a badge)."""
+    import re
+    sys.path.insert(0, HERE)
+    import hexstyle
+    rid = {v["name"]: k for k, v in hexstyle.RESOURCES.items()}
+    out = {}
+    for g, t in GEN_TERRAIN.items():
+        names = rd.TERRAIN.get(t, {}).get("Raw Materials", []) or []
+        for n in names:
+            if n not in rid:
+                print(f"  note: {n} has no badge in hexstyle.RESOURCES; map id {re.sub(r'[^a-z0-9]', '', n.lower())!r}")
+        out[g] = [rid.get(n) or re.sub(r"[^a-z0-9]", "", n.lower()) for n in names]
+    return out
 
 
 def check_resources(data_dir):
@@ -43,8 +67,7 @@ def check_resources(data_dir):
     sys.path.insert(0, os.path.abspath(data_dir))
     sys.path.insert(0, HERE)
     import renown_data as rd, hexstyle
-    rule = {"plains": "Grassland", "forest": "Forest", "wetland": "Wetlands",
-            "tundra": "Tundra", "mountain": "Mountains", "water": "Water"}
+    rule = GEN_TERRAIN
     data = {k: set(rd.TERRAIN.get(v, {}).get("Raw Materials", [])) for k, v in rule.items()}
     names = {k: v["name"] for k, v in hexstyle.RESOURCES.items()}
     out = []

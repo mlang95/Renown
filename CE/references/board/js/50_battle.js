@@ -546,8 +546,10 @@ function sideHTML(X){
   return h+'</div>';
 }
 // an army's name for the Battle view: its label, else its player's name; Bandits; else Side A / B
+// Fortified Church: the side is its owner's Garrison and the owner has "Garrisons gain Immune Fatigue"
+function fatigueImmune(X){const sa=sideArmy(battle()[X]||{});return !!(sa.garrison&&sa.p&&srcHas(sa.p.board,"immune_fatigue_garrison"));}
 // a side whose Endurance reaches 0 at the end of this Skirmish (Fatigued: Break check, then a Fatigue token)
-function fatiguesNow(X){const B=battle(),c=sideCalc(X);if(!B.id||!c)return false;const cell=B.rev&&B.rev.sk===B.sk?TMX[B.rev.A+"|"+B.rev.B]:null,
+function fatiguesNow(X){const B=battle(),c=sideCalc(X);if(!B.id||!c||fatigueImmune(X))return false;const cell=B.rev&&B.rev.sk===B.sk?TMX[B.rev.A+"|"+B.rev.B]:null,
   tm=cell?cell[X==="A"?0:1]:null;return Math.max(0,(c.a.endurance||0)-((!tm||tm.endurance_loss!==false)?1:0))===0;}
 function sideNm(X){const B=battle(),sd=B[X]||{};if(sd.kind==="bandit")return "Bandits";const sa=sideArmy(sd),a=sa.a;return (a&&a.label)||(sa.p&&sa.p.name)||("Side "+X);}
 // Skirmish flow (rules: Initiative, Strike, Defend, Panic check) while dice are emulated: what each side may roll now.
@@ -828,7 +830,7 @@ function endSkirmish(){
   ["A","B"].forEach((X,i)=>{const c=sideCalc(X);if(!c)return;const a=c.a,tm=cell?cell[i]:null,r={X,e0:a.endurance||0};
     if(!tm||tm.endurance_loss!==false){a.endurance=Math.max(0,(a.endurance||0)-1);}
     r.e1=a.endurance||0;
-    if((a.endurance||0)===0){
+    if((a.endurance||0)===0&&!fatigueImmune(X)){
       const n=(BT.moraleDiceMax||5),done=(B.brk||{})[X];r.brk={n,target:c.morale};
       if(done&&done.sk===B.sk){Object.assign(r.brk,{n:done.n,target:done.target,dice:done.dice,lost:done.lost});if((a.count||0)===0)r.wiped=true;}
       else if(B.dice)rollBreak(X,r,a);
