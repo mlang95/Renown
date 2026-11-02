@@ -506,11 +506,11 @@ function renderTopBar(){
   const ed=canEdit(p)&&!spectating();nm.disabled=col.disabled=!ed;nm.classList.add("keepval");
   const gen=document.createElement("button");gen.textContent="Generate";gen.title="random name ("+(nameCulture(p.board)||"")+")";gen.disabled=!ed;
   gen.onclick=()=>{const n=genPlaceName(nameCulture(p.board));if(!n)return;p.name=n;save();render();renderList();};
-  if(!cultureOf(p.board)&&HER_ALL.length)put(herPicker(p,ed));
+  if(HER_ALL.length)put(herPicker(p,ed));   // anyone may pick a charge; a culture only sets the default
   else{const h=heraldOf(p,26);if(h){const w=document.createElement("span");w.className="pc-her";w.innerHTML=h;put(w);}}
   put(nm);put(gen);put(col);
   {const w=document.createElement("span");w.innerHTML=culSelectHTML(p.board);const cs=w.firstChild;cs.disabled=!ed;cs.classList.add("keepval");
-    cs.onchange=e=>{p.board.culture=e.target.value||"";save();render();renderList();};put(cs);}
+    cs.onchange=e=>{setCulture(p,e.target.value||"");save();render();renderList();};put(cs);}
   put(facPicker(ed,v=>{setFaction(v);save();render();renderList();}));
   {let on=false;try{on=!!SYNC.ready;}catch(e){}
     if(on){const cl=claimOf(p),mc=myClaimP(),b=document.createElement("button");b.dataset.claim="1";
@@ -821,13 +821,16 @@ function dragEnd(drop){
   else if(drop&&d.res&&!d.res.ok&&d.res.why)flash(d.res.why);
 }
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&DRAG)dragEnd(false);});
-// Self-made heraldry: the player picks any charge (board.heraldry); a culture's own charge replaces it while a culture is chosen
+// Heraldry: anyone picks any charge (board.heraldry); choosing a culture resets it to that culture's charge
 function herPicker(p,ed){const w=document.createElement("span");w.className="herpick";const b=document.createElement("button");b.type="button";b.className="herbtn";b.disabled=!ed;
   b.title="heraldry";b.innerHTML=heraldOf(p,22)||'<span class="note">heraldry ▾</span>';w.appendChild(b);
   const close=()=>{const m=w.querySelector(".hermenu");if(m)m.remove();document.removeEventListener("mousedown",out,true);},out=e=>{if(!w.contains(e.target))close();};
   b.onclick=()=>{if(w.querySelector(".hermenu")){close();return;}const m=document.createElement("div");m.className="hermenu";
-    m.innerHTML='<div class="hm0 note">Heraldry</div>'+HER_ALL.map(a=>'<button type="button" data-h="'+esc(a)+'" title="'+esc(a)+'"'+(p.board.heraldry===a?' class="on"':'')+'>'+
-      '<svg width="26" height="26" viewBox="0 0 '+herN("her:"+a)+' '+herN("her:"+a)+'">'+herPaths("her:"+a,p.color)+'</svg></button>').join("");
+    const G=(SPR&&SPR.herGroups)||{},seen=new Set(),cul=cultureOf(p.board),cc=cul&&HER[cul],
+      btn=a=>'<button type="button" data-h="'+esc(a)+'" title="'+esc(a)+(a===cc?' ('+esc(cul)+')':'')+'"'+(herName(p)===a?' class="on"':'')+'>'+
+        '<svg width="26" height="26" viewBox="0 0 '+herN("her:"+a)+' '+herN("her:"+a)+'">'+herPaths("her:"+a,p.color)+'</svg></button>',
+      sec=(t,L)=>{L=L.filter(a=>HER_ALL.includes(a)&&!seen.has(a));L.forEach(a=>seen.add(a));return L.length?'<div class="hm0 note">'+esc(t)+'</div>'+L.map(btn).join(""):"";};
+    m.innerHTML=Object.keys(G).map(t=>sec(t,G[t])).join("")+sec(Object.keys(G).length?"Other":"Heraldry",HER_ALL);
     m.onclick=e=>{const x=e.target.closest("[data-h]");if(!x)return;p.board.heraldry=x.dataset.h;close();save();render();renderList();};
     w.appendChild(m);document.addEventListener("mousedown",out,true);};
   return w;}

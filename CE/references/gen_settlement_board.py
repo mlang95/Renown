@@ -631,7 +631,7 @@ def sprite_payload(ns, data_path):
         return {"scatter": dict(getattr(mod, "SCATTER", {})), "S": mod.SPRITES, "P": mod.PALETTES.get("scene", {}), "key": keymap, "v": getattr(mod, "SPRITE_VERSION", "?"),
                 "raw": raw, "skyline": {k: list(v) for k, v in getattr(mod, "SKYLINE", {}).items()},
                 "supersedes": dict(getattr(mod, "INFRA_SUPERSEDES", {})), "noInfra": list(getattr(mod, "PLATE_NO_INFRA", [])),
-                "style": dict(getattr(mod, "SCENE_STYLE", {})), "eqTile": getattr(mod, "EQ_TILE", "#3a404c")}
+                "style": dict(getattr(mod, "SCENE_STYLE", {})), "herGroups": dict(getattr(mod, "HER_GROUPS", {})), "eqTile": getattr(mod, "EQ_TILE", "#3a404c")}
     print("  (sprites.py not found - no settlement scene)")
     return None
 

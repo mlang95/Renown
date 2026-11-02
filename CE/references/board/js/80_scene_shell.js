@@ -462,7 +462,9 @@ window.addEventListener("resize",mnavSync);
 const HER=((DATA.placeNames||{}).heraldry)||{};
 // every charge sprites.py draws (the self-made heraldry picker); a culture's own charge wins over the player's pick
 const HER_ALL=SPR&&SPR.S?Object.keys(SPR.S).filter(k=>k.startsWith("her:")).map(k=>k.slice(4)):[];
-function herName(p){const b=p&&p.board,c=b&&b.culture;return (c&&HER[c])||(b&&b.heraldry)||null;}
+// the player's pick wins; choosing a culture sets the pick to that culture's charge (setCulture), and it can be changed after
+function herName(p){const b=p&&p.board,c=b&&b.culture;return (b&&b.heraldry&&SPR&&SPR.S["her:"+b.heraldry]?b.heraldry:null)||(c&&HER[c])||null;}
+function setCulture(p,n){const b=p.board,was=b.culture||"";b.culture=n||"";if(n&&n!==was&&HER[n])b.heraldry=HER[n];}
 function herKey(p){const a=herName(p);return a&&SPR&&SPR.S["her:"+a]?"her:"+a:null;}
 function lumOf(hex){const m=/^#?([0-9a-f]{6})$/i.exec(String(hex||""));if(!m)return 0;const n=parseInt(m[1],16);return (0.299*(n>>16&255)+0.587*(n>>8&255)+0.114*(n&255))/255;}
 const HER_SVG={};
