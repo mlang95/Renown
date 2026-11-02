@@ -1032,14 +1032,16 @@ function uncontestedCount(p){const M=mapState(),g=M.grid;if(!g)return 0;const ow
   return Object.keys(own).filter(k=>own[k].size===1&&own[k].has(id)).length;}
 function edictHeld(name,b){const e=EDICTS[name]||{};
   if(e.type==="Standing")return DOMAINS.filter(d=>((b.domains||{})[d]||0)>=SOV);
-  if(/monument/i.test(name))return withBoard(b,()=>NAMES.filter(n=>R[n]&&R[n].monument&&(PC[n]||0)>0));
+  if(/monument/i.test(name))return withBoard(b,()=>[...new Set(S.placed.filter(q=>!q.fac&&pActive(q)&&R[q.name]&&R[q.name].monument).map(q=>q.name))]);   // completed by you (a Heritage's starting piece isn't)
   if(/wonder/i.test(name))return Object.keys(b.wonders||{}).filter(n=>b.wonders[n]&&!((b.itimer||{})[n]>0)&&!(b.facInfra||[]).includes(n));
   return null;}
 function edictPend(b,name,lab){b.edictPending=b.edictPending||[];b.edictPending.push({name,lab,turn:tTurn()});}
 function edictIsPending(b,name,lab){return (b.edictPending||[]).some(x=>x.name===name&&x.lab===lab);}
 // completed or pending for this player / closed to this player (done, or a unique Edict someone else has)
 function edictDone(b,name){return ((b.edictLog||{})[name]||[]).length>0||(b.edictPending||[]).some(x=>x.name===name);}
-function edictClosed(b,name){return edictDone(b,name)||(!!(EDICTS[name]||{}).unique&&(D.players||[]).some(q=>q.board&&edictDone(q.board,name)));}
+// multi Edicts (EDICTS[*].per): one per Domain / Monument / Wonder; "first" = only the first player, "each" = every player once
+function edictPer(name){return (EDICTS[name]||{}).per||"";}
+function edictClosed(b,name){if(edictPer(name))return false;return edictDone(b,name)||(!!(EDICTS[name]||{}).unique&&(D.players||[]).some(q=>q.board&&edictDone(q.board,name)));}
 // timed Edict step (called from empEconomy for Wealth and Imperium, empPO for Living Saints)
 function edictTick(b,name){if(!EDICTS[name])return;b.edictTimers=b.edictTimers||{};
   if(edictClosed(b,name)){b.edictTimers[name]=0;return;}
@@ -1051,6 +1053,8 @@ function edictTick(b,name){if(!EDICTS[name])return;b.edictTimers=b.edictTimers||
 function edictTaken(b,name,l){return ((b.edictLog||{})[name]||[]).includes(l)||edictIsPending(b,name,l);}
 function edictWatch(){const P=D.players||[];P.forEach(p=>{const b=p.board;if(!b)return;
   EDICT_NAMES.forEach(name=>{if(edictClosed(b,name))return;const held=edictHeld(name,b);if(!held)return;
+    const per=edictPer(name);
+    if(per){held.forEach(l=>{if(edictTaken(b,name,l))return;if(per==="first"&&P.some(q=>q.board&&q.board!==b&&edictTaken(q.board,name,l)))return;edictPend(b,name,l);});return;}
     const l=held.find(l=>!(RC.EDICT_UNIQUE&&P.some(q=>q.board&&edictTaken(q.board,name,l))));if(l!=null)edictPend(b,name,l);});});}
 // Rest Phase: pending Edicts are added, Renown +1 each, and announced
 function checkEdicts(){edictWatch();const news=[];

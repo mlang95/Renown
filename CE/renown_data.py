@@ -3443,8 +3443,10 @@ GAME_TURN_LIMIT = 50        # the game ends after this turn if Last Alliance Sta
 # Toggle: a Domain / Monument / Wonder counts toward an Edict once per game (first player) or once per player
 # (build_all_CE.bat: set EDICT_UNIQUE=1|0).
 EDICT_UNIQUE = _os.environ.get("RENOWN_EDICT_UNIQUE", "0") == "1"
-EDICT_UNIQUE_RULE = ("Each Domain, Monument, or Wonder counts toward an Edict only once per game, for the first player to complete it."
-                     if EDICT_UNIQUE else "Each Domain, Monument, or Wonder counts toward an Edict once per player.")
+# Sovereign Standing, Monument and Wonder score once per Domain / Monument / Wonder (EDICTS[*]["per"]): "first" = only the first
+# player to complete it; "each" = every player who completes it. EDICT_UNIQUE (the old toggle) no longer changes this.
+EDICT_UNIQUE_RULE = ("Sovereign Standing, Monument and Wonder can be completed many times: each Domain's Sovereign Standing scores for the first "
+                     "player to reach it, each Monument scores for every player who completes it, and each Wonder scores for the first player to complete it.")
 _NUMWORD = {1:"one",2:"two",3:"three",4:"four",5:"five",6:"six",7:"seven",8:"eight",9:"nine",10:"ten"}
 
 # Imperium: % of the Realm's Territories (every hex, Water and Impassable included) under your Uncontested Control,
@@ -3457,9 +3459,9 @@ IMPERIUM_REQUIREMENT = {"1": 65,
 _IMPERIUM_TEXT = (" / ".join(str(v) for v in IMPERIUM_REQUIREMENT.values()) + "% of the Realm's Territories under your Uncontested Control ("
                   + " / ".join(IMPERIUM_REQUIREMENT) + " players)")
 EDICTS = {
-    "Sovereign Standing": {"type": "Standing",  "requirement": f"Reach a Sovereign Standing (Domain value {_ST['Sovereign']}) in any Domain."},
-    "Monument":           {"type": "Build",     "requirement": "Have a Monument holding."},
-    "Wonder":             {"type": "Improve",   "requirement": "Complete a Wondrous Infrastructure."},
+    "Sovereign Standing": {"type": "Standing",  "per": "first", "requirement": f"Be the first player to reach a Sovereign Standing (Domain value {_ST['Sovereign']}) in a Domain. One Edict per Domain."},
+    "Monument":           {"type": "Build",     "per": "each",  "requirement": "Complete a Monument Holding. One Edict per Monument, for every player who completes it."},
+    "Wonder":             {"type": "Improve",   "per": "first", "requirement": "Be the first player to complete a Wonder. One Edict per Wonder."},
     "Wealth":             {"type": "Economy",   "turns": EDICT_STREAK_TURNS, "requirement": f"Hold {WEALTH_EDICT_GOLD:,} gold in your Treasury for {_NUMWORD[EDICT_STREAK_TURNS]} consecutive turns."},
     "Vassalize":          {"type": "Conquest",  "requirement": "Vassalize a rival player (control their capital with no other settlements/armies under them)."},
     "Living Saints":      {"type": "Piety",     "turns": EDICT_STREAK_TURNS, "requirement": f"Sustain Public Order {PO_MAX} (Living Saints) for {_NUMWORD[EDICT_STREAK_TURNS]} consecutive turns (Pious Timer)."},

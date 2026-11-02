@@ -31,7 +31,7 @@ This game is for:
 
 Whichever player has completed the most **Edicts** from the list below when the Last Alliance Standing condition is met wins the game. If no one has met it by the end of turn {{VAL:GAME_TURN_LIMIT}}, the game ends then, and the player with the most Edicts wins.
 
-When an Edict is completed, increase the Renown tracker by 1. Each player may complete each Edict once. {{VAL:EDICT_UNIQUE_RULE}}
+When an Edict is completed, increase the Renown tracker by 1. Each player may complete each other Edict once. {{VAL:EDICT_UNIQUE_RULE}}
 
 {{TABLE:edicts}}
 
