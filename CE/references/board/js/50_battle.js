@@ -626,7 +626,7 @@ function actionsHTML(X){
       (!c.immunePanic&&pn>T?'<button class="'+cls("panic")+'" data-x="'+X+'" data-k="Morale"'+g("panic")+'>Panic check ×'+(BT.moraleDiceMax||5)+'</button>':'')+
       (fatiguesNow(X)&&!((B.brk||{})[X]&&B.brk[X].sk===B.sk)?'<button class="'+cls("brk")+'" data-x="'+X+'" data-k="Break"'+g("brk")+'>Break check ×'+(BT.moraleDiceMax||5)+'</button>':'')+
       '<input type="number" min="0" value="'+inc+'" class="bn" data-x="'+X+'" style="width:52px" title="dice count override for Parry/Save">'+
-      '</div>'+rollGuideHTML(X)+rollHTML(X);
+      '</div>'+((g_,r_)=>g_||r_?'<details class="bdice"><summary class="note">dice detail</summary>'+g_+r_+'</details>':'')(rollGuideHTML(X),rollHTML(X));   // the Skirmish log above reads easier; the dice stay one click away
   }
   h+='<div style="display:flex;gap:4px;align-items:center;margin-top:6px"><span class="note">casualties</span><input type="number" min="0" value="'+pendCas(X)+'" class="bcas" data-x="'+X+'" style="width:52px"><button class="bcasgo'+(fl&&fl.can[X].apply?' go':'')+'" data-x="'+X+'"'+(k&&!k.apply?' disabled':'')+'>apply</button>'+
     (()=>{const cc=sideCalc(X)||{},rc=cc.enduring?0:(sd.rcv||0),pn=(sd.cas||0)+rc,imP=!!cc.immunePanic;   // Enduring: Recovered Strikes don't count

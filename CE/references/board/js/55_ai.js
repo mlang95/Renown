@@ -479,9 +479,69 @@ function aiBattleTick(){const B=battle();if(!B||!B.id||(B.rev&&B.rev.sk===B.sk))
     const r=aiPickTactic(X);if(!r)return;B.aiPk[X]=B.id+":"+pickKey();blog(X+" (AI "+p.name+") picks a Tactic");aiNote(p,"Battle Tactic → "+r.t+": "+r.why);pickTactic(X,r.t);ch=true;});
   return ch;}
 
+// ---- Intrigue & Tally Phase slots: answer this seat's turn so the timer doesn't run down ----
+// Intrigue: pass. Tally Support (Indomitable): the cheapest Support that lifts an own Envoy to Passed or Endorsed, else pass.
+// Tally Endorse (High Chancery): Endorse an own Envoy that Passed. Forgery retry: pass.
+function aiSlotTurn(p,R){const c=tCurW(p),me=q=>q&&sameP(q,p);
+  if(R.waiting==="intrigue"&&me(R.intrigueWho)&&!c.intrigue){c.intrigue={ts:tnow()};return true;}
+  if(R.waiting==="tally-support"&&me(R.tallyWho)&&!c.tallySup){const room=Math.max(0,(R.pool[p.id]||0)-(R.spent[p.id]||0));let best=null;
+    (R.tallyOpt.own||[]).forEach(E=>{const cap=Math.min(voteCap(p,E.dom,false),room);
+      [ETH.Passed,ETH.Endorsed].forEach(t=>{const need=t-E.net;if(need>0&&need<=cap&&(!best||need<best.x))best={E,x:need,t};});});
+    c.tallySup=best?{envoy:best.E.id,x:best.x,ts:tnow()}:{ts:tnow()};
+    if(best)aiNote(p,R.tallyOpt.src+": Support "+best.x+" on own "+best.E.dom+" Envoy");return true;}
+  if(R.waiting==="tally-endorse"&&me(R.tallyWho)&&!c.tallyEnd){const E=(R.tallyOpt.own||[]).find(x=>x.out==="Passed");
+    c.tallyEnd=E?{envoy:E.id,ts:tnow()}:{ts:tnow()};if(E)aiNote(p,R.tallyOpt.src+": Endorsed "+envLabel(E));return true;}
+  if(R.waiting==="tally-retry"&&me(R.tallyWho)&&!c.retryDec){c.retryDec={send:false,ts:tnow()};return true;}
+  return false;}
+
+// ---- Setup: an AI seat does its own Setup steps (Rising, faction, Deploy, Starting Holdings, check-in) ----
+function aiEdgeDist(g,k){const a=hk(k),W=+g.width,H=+g.height;let d=1e9;
+  for(let c=0;c<W;c++)for(const r of [0,H-1])d=Math.min(d,hexDist(a,[c,r]));
+  for(let r=0;r<H;r++)for(const c of [0,W-1])d=Math.min(d,hexDist(a,[c,r]));return d;}
+function aiClearOutlaw(p){const M=mapState(),own=terrOwners();Object.keys(M.outlaw||{}).forEach(k=>{if(M.outlaw[k]===true&&own[k]&&own[k].has(String(p.id)))delete M.outlaw[k];});}
+// the Town: in the seat's start zone, near the board edge and on / beside Hills, far from the other seats; then autoDeploy's
+// Hamlet + Outlaw Country; a layout that raises a Setup flag is undone and the next spot tried
+function aiDeploy(p){const M=mapState(),g=M.grid;if(!g)return false;const V=decodeGrid(g),seat=seated(),i=seat.findIndex(q=>sameP(q,p));
+  const zones=(g.start_zones||[]).slice().sort((a,b)=>a.seat-b.seat),z=zones[i]||null;
+  const land=k=>{const h=V.hex[k];return !!h&&h.t!=="water"&&h.t!=="mountain"&&!terrBlocked(h.t);};
+  const others=mapSetts().filter(x=>x.cell.type==="Town"&&String(x.cell.player)!==String(p.id)).map(x=>hk(x.k)).concat(zones.filter((_,j)=>j!==i&&j<seat.length).map(x=>x.anchor));
+  const ce=RC.CAPITAL_EDGE_RANGE!=null?+RC.CAPITAL_EDGE_RANGE:99,towns=new Set(((z&&z.towns)||[]).map(x=>x.join(",")));
+  const nearHill=k=>V.hex[k]&&V.hex[k].hill?2:hexNb(k).some(n=>V.hex[n]&&V.hex[n].hill)?1:0;
+  const pool=z?((z.hexes||[]).map(x=>x.join(",")).concat([...towns])):Object.keys(V.hex);
+  const cand=[...new Set(pool)].filter(k=>land(k)&&hexFree(k)&&aiEdgeDist(g,k)<=ce)
+    .map(k=>({k,s:nearHill(k)*1.5-aiEdgeDist(g,k)*0.8+(others.length?Math.min(99,...others.map(a=>hexDist(hk(k),a))):0)*0.25+(towns.has(k)?1:0)+Math.random()*0.1})).sort((a,b)=>b.s-a.s);
+  const bad=()=>charterFlags(p).filter(f=>/^(Setup|Settle)/.test(f)).length>0;
+  const undo=k=>{const h=mapSetts().find(x=>String(x.cell.player)===String(p.id)&&x.cell.type==="Hamlet");aiClearOutlaw(p);if(h)delete M.cells[h.k];delete M.cells[k];syncMapTiers();};
+  for(const c of cand.slice(0,12)){M.cells[c.k]={type:"Town",player:p.id};pinNewCell(p,c.k);syncMapTiers();
+    if(!autoDeploy(p)&&!bad()){aiNote(p,"Setup: Town @ "+c.k);return true;}undo(c.k);}
+  const c=cand[0];if(!c)return false;M.cells[c.k]={type:"Town",player:p.id};pinNewCell(p,c.k);syncMapTiers();autoDeploy(p);   // nothing clean: best spot, flags shown
+  aiNote(p,"Setup: Town @ "+c.k+" (flagged)");return true;}
+function aiSetupHoldings(p){let ch=false;withBoard(p.board,()=>{const cap=capitalSett(),ham=S.settlements.find(s=>s.tier==="Hamlet");
+    const best=L=>L.sort((a,b)=>aiHoldValue(b)-aiHoldValue(a)||Math.random()-0.5)[0];
+    const fill=(s,n,opts)=>{if(!s)return;for(let got=S.placed.filter(q=>q.setup&&q.sid===s.id).length;got<n;got++){const x=best(opts().filter(o=>canPlace(o,s.id).ok&&!S.placed.some(q=>q.setup&&q.sid===s.id&&q.name===o)));if(!x)break;placeHolding(x,null,s.id);ch=true;}};
+    fill(cap,+RC.SETUP_CAPITAL_PICKS||0,()=>NAMES.filter(n=>setupRawOK(n,cap.id)));
+    fill(ham,+RC.SETUP_HAMLET_PICKS||0,()=>(RC.SETUP_HAMLET_HOLDINGS||[]).slice());});
+  return ch;}
+function aiSetupTick(p){const b=p.board,a=ageRec();let ch=false;
+  if(!b.culture){const used=new Set(D.players.map(q=>q.board.culture).filter(Boolean)),L=Object.keys(RC.AI_PROFILES||{}).filter(c=>!used.has(c));
+    if(L.length){b.culture=L[Math.floor(Math.random()*L.length)];ch=true;}}
+  if(a&&!a.rising&&!b.ageRising){const d=((aiProfile(p)||{}).domains||[])[0]||"Industry";b.ageRising=d;ch=true;}
+  if(!b.faction&&b.culture){const fs=[...(cultureFactions(b)||Object.keys(FAC))],fn=fs[Math.floor(Math.random()*fs.length)];
+    if(fn){const pS=S;S=b;try{setFaction(fn);}finally{S=pS;}aiNote(p,"Setup: faction "+fn);ch=true;}}
+  if(!setupOn())return ch;
+  const st=mapSetts().filter(x=>String(x.cell.player)===String(p.id));
+  if(mapState().grid&&!st.some(x=>x.cell.type==="Town")){if(aiDeploy(p))ch=true;}
+  else if(mapState().grid&&!st.some(x=>x.cell.type==="Hamlet")){autoDeploy(p);ch=true;}
+  if(mapSetts().some(x=>String(x.cell.player)===String(p.id)&&x.cell.type==="Hamlet")&&aiSetupHoldings(p))ch=true;
+  if(!checkedIn(p)&&!withBoard(b,setupHoldFlags).length&&mapSetts().some(x=>String(x.cell.player)===String(p.id)&&x.cell.type==="Hamlet")){
+    const rows=checkinFD(p);rows.forEach(r=>{if(r.side==="faith")addFaith(r.q.board,r.n);else gainDoubt(r.q.board,r.n);});
+    PT(p).checkin={turn:tTurn(),fx:rows.map(checkinTxt)};ch=true;}
+  return ch;}
+
 // ---- the tick: run whatever the AI seats owe in the current phase; true if anything changed ----
 function aiTick(){if(!D.started&&!TB().begun)return false;if(!aiDriver())return false;
   const ph=tPhase();let ch=false;
+  if(setupOn())seated().filter(aiOn).forEach(p=>{try{if(aiSetupTick(p))ch=true;}catch(e){console.warn("ai setup",e);}});
   seated().filter(aiOn).forEach(p=>{
     if(aiOutfit(p))ch=true;
     if(ph==="rest"&&(p.board.dp||0)>0&&aiSpendDP(p))ch=true;
@@ -492,6 +552,7 @@ function aiTick(){if(!D.started&&!TB().begun)return false;if(!aiDriver())return 
   if((ph==="envoy"||ph==="council")&&TB().phaseTs){const R=tSim();
     seated().filter(aiOn).forEach(p=>{aiLearn(p,R);
       if(aiVoteAll(p,R))ch=true;
+      if(aiSlotTurn(p,R))ch=true;
       withSlots(R.envoys||[]).forEach(E=>{if(!sameP(E.owner,p)||!(E.out==="Passed"||E.out==="Endorsed")||((tCur(p).perform||{})[E.id]))return;
         if(!resolveOpen(R,E))return;aiPerform(p,E);ch=true;});});}
   return ch;}

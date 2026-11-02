@@ -113,7 +113,7 @@ function gameReplace(nd){const keepV=D.view,keepA=D.active;UNDO.mute=true;
 // keepPicks (Start game): culture, heraldry, Rising and faction picked before Start carry onto the fresh board
 function newGameState(keepPicks){const o=gameData();
   o.players=o.players.map(p=>{const b=newBoard(),ob=p.board||{},tb=ob.tbl||{};
-    b.tbl={seat:tb.seat,seatTs:tb.seatTs,mods:tb.mods||{}};
+    b.tbl={seat:tb.seat,seatTs:tb.seatTs,mods:tb.mods||{}};if(tb.ai)b.tbl.ai=true;   // an AI seat stays AI through Start game
     if(keepPicks)["culture","heraldry","ageRising"].forEach(k=>{if(ob[k])b[k]=ob[k];});
     b.domains=startDomsFor({board:b});
     if(keepPicks&&ob.faction){const pS=S;S=b;try{setFaction(ob.faction);}finally{S=pS;}}   // re-grants the faction's starting pieces
@@ -137,7 +137,7 @@ document.getElementById("gameDel").onclick=async()=>{const nm=document.getElemen
 // Start game (Duke): boards, Table, Renown, Season and map pieces reset; terrain, players, seats and claims kept;
 // claims and Duke/Host locks take effect. Deploy (Setup step 5) then happens on the cleared map.
 // ready check (before Start): every seated player must be claimed and ready; the Duke can start regardless
-function isReady(p){return !!p&&!!claimOf(p)&&!!(TB().ready||{})[p.id];}
+function isReady(p){return !!p&&(aiOn(p)||(!!claimOf(p)&&!!(TB().ready||{})[p.id]));}   // AI seats are always ready
 function readyCheck(){const seat=seated(),n=seat.filter(isReady).length;return {seat,n,all:seat.length>0&&n===seat.length};}
 async function startGame(){if(!(ADMIN||canHost())){flash("Host or Duke only");return;}
   if(!ADMIN&&!readyCheck().all){flash("every seated player must claim and ready up");return;}

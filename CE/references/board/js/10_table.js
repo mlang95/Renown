@@ -245,6 +245,7 @@ function tSim(){
       if(fxOf(v,"noVote").length){E.votes.push({who:v,a:"A",x:0,eff:0,auto:true});continue;}   // Council Envoys auto-Abstain: no votes
       const sl=silent.find(s=>sameP(s.who,v));if(sl){E.votes.push({who:v,a:"A",x:0,eff:0,auto:true,silenced:sl.src});continue;}
       if(!E.retry&&tallyVoter(v))continue;                                               // casts this vote in the Tally Phase
+      if(Math.max(0,R.pool[v.id]-R.spent[v.id])<=0){E.votes.push({who:v,a:"A",x:0,eff:0,auto:true,broke:true});continue;}   // no Influence left: auto-Abstain
       const r=runSlot(E.id+">"+v.id,v,tCur(v).votes[E.id]);
       if(!r){R.curEnvoy=E;return false;}
       applyVote(E,v,r);}
@@ -665,7 +666,7 @@ function campExtort(k,o,n,why){const M=mapState(),c0=M.camps[k],cp=c0&&c0.home&&
 function autoRes(){return TB().auto!==false;}   // default on
 function tApply(R){if(!autoRes())return;let ch=false;
   R.log.forEach(l=>{if(l.kind!=="envoy")return;withSlots([l.E]).forEach(E=>{const p=E.owner;
-    if(!(HOTSEAT||(lockOn()?mine(p):sameP(meP(),p))))return;
+    if(!(HOTSEAT||(lockOn()?mine(p):sameP(meP(),p))||(aiOn(p)&&aiDriver())))return;   // AI seats: resolved by the device that drives them
     const c=tCurW(p);c.applied=c.applied||{};if(c.applied[E.id])return;
     if(!resolveOpen(R,E))return;                                                       // Resolve waits for the end of the Tally Phase
     const pe=performEval(E);if(!pe&&(E.out==="Passed"||E.out==="Endorsed"))return;   // wait for Perform
@@ -741,7 +742,7 @@ function tSig(R){return [tPhase(),tTurn(),R.waiting||"",R.cur?R.cur.key:"",R.log
   D.players.map(p=>Object.keys(tCur(p).applied||{}).length+"/"+Object.keys(tCur(p).perform||{}).length).join(","),
   JSON.stringify(R.spent)].join("|");}
 function tName(p){return pTok(p,14)+esc(p.name);}
-function tVoteTxt(v){return v.a==="S"?'<span class="pos">+'+v.x+'</span>':v.a==="O"?'<span class="neg">−'+(v.eff!==undefined&&v.eff!==v.x?v.eff+'</span><span class="note"> (paid '+v.x+')</span>':v.x+'</span>'):'<span class="note">'+(v.timeout?"timeout":v.forced?"skipped":"abstain")+'</span>';}
+function tVoteTxt(v){return v.a==="S"?'<span class="pos">+'+v.x+'</span>':v.a==="O"?'<span class="neg">−'+(v.eff!==undefined&&v.eff!==v.x?v.eff+'</span><span class="note"> (paid '+v.x+')</span>':v.x+'</span>'):'<span class="note">'+(v.timeout?"timeout":v.forced?"skipped":v.broke?"abstain (no Influence)":"abstain")+'</span>';}
 function envBadges(E){const b=[];
   if(E.dom==="Industry")b.push("Ulterior Motive: Oppose only if at war with "+esc(E.owner.name));
   fxOf(E.owner,"noOppose").filter(f=>f.dom===E.dom).forEach(f=>b.push(esc(f.src)+": no Oppose"+(f.lower?" (lower "+esc(f.lower)+")":"")));
@@ -978,7 +979,7 @@ function renderReference(){const host=document.getElementById("viewReference");
 function tCountdown(R){const els=document.querySelectorAll("#viewTable .tbcd");if(!els.length)return;
   let txt="",near=false;if(R.cur){if(isFinite(R.cur.deadline)){const s=Math.max(0,Math.ceil((R.cur.deadline-tnow())/1000));txt=s+"s remaining";near=s<=5;}else txt="No time limit";}
   els.forEach(e=>{e.textContent=txt;e.classList.toggle("neg",near);});}
-setInterval(()=>{if(D.view!=="table")return;const R=tSim();tApply(R);
+setInterval(()=>{if(D.view!=="table"){const ph=tPhase();if((ph==="envoy"||ph==="council")&&TB().phaseTs)tApply(tSim());return;}const R=tSim();tApply(R);   // resolve on every view, not just the Realm
   if(tSig(R)!==T_SIG&&!editing()){renderTable();return;}tCountdown(R);},500);
 
 const THEMES={
