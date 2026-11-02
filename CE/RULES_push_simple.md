@@ -31,7 +31,7 @@ This game is for:
 
 Whichever player has completed the most **Edicts** from the list below when the Last Alliance Standing condition is met wins the game. If no one has met it by the end of turn {{VAL:GAME_TURN_LIMIT}}, the game ends then, and the player with the most Edicts wins.
 
-When an Edict is completed, increase the Renown tracker by 1. Any player may complete any Edict multiple times. {{VAL:EDICT_UNIQUE_RULE}}
+When an Edict is completed, increase the Renown tracker by 1. Each player may complete each Edict once. {{VAL:EDICT_UNIQUE_RULE}}
 
 {{TABLE:edicts}}
 
@@ -102,7 +102,7 @@ A few conventions make every rule in this book read the same way:
     13.4 You can't build a Holding onto one whose Build Timer is still active. A Damaged Holding under a Repair Timer can still be built onto.
 
 14. **Scope.** Each Holding and Infrastructure has a Scope that limits how many of it can exist.
-    14.1 *Settlement* — one per Settlement (Raw Materials). Exception: a Hamlet may hold more than one {{VAL:HAMLET_REPEATABLE_TEXT}}.
+    14.1 *Settlement* — one per Settlement (Raw Materials).
     14.2 *Empire* — one per player (every other Holding and Infrastructure).
     14.3 *Realm* — one per game (Monuments and Wonders). A Monument is taken once any player has placed it, including while it's under construction. A Wonder is taken only once it's built: any number of players may build the same Wonder at once, and the first whose Build Timer resolves takes it; every other build of it is lost. If several resolve in the same Empire Phase, the one whose build began on the earliest turn takes it; if the earliest began on the same turn, each of those Build Timers stays at 1.
 
@@ -146,7 +146,7 @@ Many actions set a Timer to a number of turns. Each Empire Phase, every active T
 3. **Timers** — count down every active Timer by 1 (Build, Repair, Truce, Siege, Muster, Sack, Capture, in that order), then resolve each Timer that reached 0.
 4. **Bandit Mechanics** (the Host resolves) — grow Bandit Camps by the Era; any camp at {{VAL:BANDIT_ARMY_THRESHOLD}} Retinues sends out a Bandit Army; Bandit Camps perform Cunning actions; Bandit Armies perform Move actions; spawn new Bandit Camps (in Spring, from Foster Rebellion, or from an Uprising).
 5. **Influence & Envoys** — gain Influence (not in Spring) from the Era, innate modifiers (Trade Partners, Alliances, At War, etc.), Holdings, and Infrastructure; then gain the Era's Envoys{{IF:PHASE_REFORM}} (not in Spring){{ENDIF}}.
-6. **Income & Upkeep** — in this order: in Winter only, gain tax income from each of your Settlements by tier (see Settlements); gain Holding income; if there is a Host, the Host collects trade income and distributes it among their Trade Partners; pay Army {{VAL:SUPPLY_TERM}}, Holding and Infrastructure {{VAL:UPKEEP_TERM}}, and any other costs; resolve Extort effects; check your Treasury for the Wealth Edict condition.
+6. **Yields & Expenditures** — in this order: in Winter only, gain tax income from each of your Settlements by tier (see Settlements); gain Holding income; if there is a Host, the Host collects trade income and distributes it among their Trade Partners; pay Army {{VAL:SUPPLY_TERM}}, Holding and Infrastructure {{VAL:UPKEEP_TERM}}, and any other costs; resolve Extort effects; check your Treasury for the Wealth Edict condition and your Uncontested Territories for the Imperium Edict condition.
 7. **Public Order** — total every innate Faith / Doubt source in the Public Order tables and adjust your Public Order by the net change. *(Faith and Doubt from actions are applied the moment they're generated; see Public Order.)*
 8. **Endurance** — every Army without **Strained** gains +{{VAL:ENDURANCE_REGAIN}} Endurance; then remove Strained from all Armies. *(An Army can immediately regain these effects after losing them, if applicable.)*
 9. **Remaining effects** — resolve any remaining Each Empire Phase effects.
@@ -212,7 +212,7 @@ The Realm cycles through four Seasons.{{IDX:Season}} The current Season's effect
 3. **Select Faction** — pick a Faction Card (optional for new players).
 4. **Determine Host** — give the Host Card to the most experienced player. If tied, to whoever wants to Host; if still tied, roll off.
 5. **Deploy** — taking turns from the starting player, each player places their capital Town within Range {{VAL:CAPITAL_EDGE_RANGE}} of the board edge or corner. Then each player places their Hamlet exactly Range {{VAL:HAMLET_RANGE}} from their Town. Then each player places their Outlaw Country: its first Territory exactly Range {{VAL:OUTLAW_BUFFER_RANGE}} from their Town, and no Outlaw Country Territory within Range {{VAL:OUTLAW_BUFFER_RANGE}} of their Hamlet.
-6. **Wild Outlaw Country** — the Host scatters the remaining Outlaw Country zones over the unclaimed board (see Outlaw Country).
+6. **Wild Outlaw Country** — the Host chooses whether the game is Hardcore (see Hardcore), then scatters the remaining Outlaw Country zones over the unclaimed board (see Outlaw Country).
 
 ### Ages
 
@@ -389,7 +389,7 @@ Settlements have a Reach value set by their tier, from {{VAL:SETTLEMENTS.Village
 
 ### Hamlets
 
-Hamlets are unique Settlements, placed *exactly* Range {{VAL:HAMLET_RANGE}} from your capital at the start of the game. These small farmland communities produce no tax income or Muster limit, but have {{VAL:SETTLEMENTS.Hamlet.wards}} Settlement Wards. You may only build **Natural** Holdings in a Hamlet, and a Holding in a Hamlet can only share a Ward with its parent if it is itself Natural. You may also build Arable Land in a Hamlet even if that Raw Material isn't in the Hamlet's region. A Hamlet may hold more than one {{VAL:HAMLET_REPEATABLE_TEXT}}.{{IDX:Hamlet}}
+Hamlets are unique Settlements, placed *exactly* Range {{VAL:HAMLET_RANGE}} from your capital at the start of the game. These small farmland communities produce no tax income or Muster limit, but have {{VAL:SETTLEMENTS.Hamlet.wards}} Settlement Wards. You may only build **Natural** Holdings in a Hamlet, and a Holding in a Hamlet can only share a Ward with its parent if it is itself Natural. You may also build Arable Land in a Hamlet even if that Raw Material isn't in the Hamlet's region.{{IDX:Hamlet}}
 
 {{GLOSSARY:Settlements & Holdings}}
 
@@ -459,12 +459,12 @@ Your Treasury is the gold you Control.{{IDX:Treasury}}{{IDX:Revenue}} Each Empir
 
 *This is an exception path — skip it until it happens.*
 
-You go Insolvent the moment your Treasury can't cover a cost in full (at Income & Upkeep, when paying for an action, or when an effect drains your gold). Pay what you can, then cut until the books balance, in this order:
+You go Insolvent the moment your Treasury can't cover a cost in full (at Yields & Expenditures, when paying for an action, or when an effect drains your gold). Pay what you can, then cut until the books balance, in this order:
 
 1. **Disband Armies**, one at a time, cheapest {{VAL:SUPPLY_TERM}} first, until your Armies are gone.
 2. **Set buildings {{VAL:SHUTTER_TERM}}** (inactive), one at a time: Wonders, then Monuments, then Infrastructure, then non-Natural Holdings — within each, highest {{VAL:UPKEEP_TERM}} first.
 
-{{VAL:SHUTTER_TERM}} pieces give no effect and pay no {{VAL:UPKEEP_TERM}}; Holdings built from them are unaffected. Each {{VAL:SHUTTER_TERM}} piece is restored at any future Income & Upkeep step where you can pay its {{VAL:UPKEEP_TERM}}, and any that becomes Damaged is no longer {{VAL:SHUTTER_TERM}}. Build Timers halt while you're Insolvent. Insolvency ends the moment your Treasury is above 0 and you can pay everything you owe, including the {{VAL:UPKEEP_TERM}} of your {{VAL:SHUTTER_TERM}} pieces.
+{{VAL:SHUTTER_TERM}} pieces give no effect and pay no {{VAL:UPKEEP_TERM}}; Holdings built from them are unaffected. Each {{VAL:SHUTTER_TERM}} piece is restored at any future Yields & Expenditures step where you can pay its {{VAL:UPKEEP_TERM}}, and any that becomes Damaged is no longer {{VAL:SHUTTER_TERM}}. Build Timers halt while you're Insolvent. Insolvency ends the moment your Treasury is above 0 and you can pay everything you owe, including the {{VAL:UPKEEP_TERM}} of your {{VAL:SHUTTER_TERM}} pieces.
 
 If you've cut everything and a debt still remains, you're Bankrupt: your Treasury goes negative by the unpaid amount (a Debt Marker). While Bankrupt you can't spend gold (so you can't choose an action with a gold cost) or be Extorted, and Build Timers stay halted; Revenue pays down the debt first. When your Treasury reaches 0 or above, Bankruptcy ends. *(If you're Vassalized while Bankrupt, the debt is forgiven and your Suzerain pays your Treasury up to a minimum of 0.)*
 
@@ -487,9 +487,9 @@ If you've cut everything and a debt still remains, you're Bankrupt: your Treasur
 
 ### Income Types
 
-- **Taxes:** each Winter, in the Income & Upkeep step of the Empire Phase, gain tax income from each of your Settlements by tier, after modifiers.
+- **Taxes:** each Winter, in the Yields & Expenditures step of the Empire Phase, gain tax income from each of your Settlements by tier, after modifiers.
 - **Trade:** see above.
-- **Holdings:** gain Holding income in the Income & Upkeep step of the Empire Phase.
+- **Holdings:** gain Holding income in the Yields & Expenditures step of the Empire Phase.
 
 {{GLOSSARY:Economy & Public Order}}
 
@@ -509,7 +509,7 @@ A Garrison{{IDX:Garrison}} is an Army that exists within each of your Settlement
 
 Armies are raised and reinforced with the Muster action (see Prowess Actions).
 
-During the Income & Upkeep step, while an Army is within Range 0 of a Settlement you Control, you may change that Army's equipment to any unlocked equipment.
+During the Yields & Expenditures step, while an Army is within Range 0 of a Settlement you Control, you may change that Army's equipment to any unlocked equipment.
 
 Retinue types — cost, to-Strike, and base profile:
 
@@ -545,9 +545,9 @@ A Battle is fought as a series of Skirmishes, run through the steps below until 
 
 5. **Defend.** For each Strike, a defender with Parry may Parry (D{{VAL:FACES}}, {{VAL:PARRY_BASE}}+ cancels; an Unmodified {{VAL:FOCUSED_THR}} Ripostes if the defender has Riposte), then Saves (a Modified roll: D{{VAL:FACES}} + the weapon's AP + the shield's bonus ≥ the armor value), then a defender with Recover may Recover (after a failed Save, a final D{{VAL:FACES}} ≥ the Recover value). Unsaved, unrecovered Strikes are casualties, and leave the field at once. Then the other side Strikes, and is defended against, the same way, if able. {{RULE:defend}}
 
-6. **Panic check.** After both sides have Struck, each side that took more than {{VAL:PANIC_CASUALTY_THRESHOLD}} casualties this Skirmish (Strikes it Recovered still count, unless it has Enduring) takes a Panic check: roll its Morale, up to {{VAL:MORALE_DICE_MAX}} dice; failures are casualties. A check ever modified to {{VAL:ROUT_THR}} or more Routs the whole Army. {{RULE:panic}}
+6. **Panic check.** After both sides have Struck, each side that took more than {{VAL:PANIC_CASUALTY_THRESHOLD}} casualties this Skirmish (Strikes it Recovered still count, unless it has Enduring) takes a Panic check: roll its Morale, {{VAL:MORALE_DICE_MAX}} dice; failures are casualties. A check ever modified to {{VAL:ROUT_THR}} or more Routs the whole Army. {{RULE:panic}}
 
-7. **Fatigue.** Each side that fought loses 1 Endurance; a side at 0 Endurance is Fatigued. Each Fatigued side's field then takes a Break check — roll a D{{VAL:FACES}} per Retinue in the field, up to {{VAL:MORALE_DICE_MAX}} dice, each ≥ its modified Morale value; failures are casualties, and a Break check never triggers a Panic check — and then gains a Fatigue token: each token is −{{VAL:FATIGUE_MORALE}} to that Army's Morale rolls; tokens stack and last until the Battle ends. A check ever modified to {{VAL:ROUT_THR}} or more Routs the whole Army. {{RULE:fatigue}}
+7. **Fatigue.** Each side that fought loses 1 Endurance; a side at 0 Endurance is Fatigued. Each Fatigued side's field then takes a Break check — roll {{VAL:MORALE_DICE_MAX}} D{{VAL:FACES}}, each ≥ its modified Morale value; failures are casualties, and a Break check never triggers a Panic check — and then gains a Fatigue token: each token is −{{VAL:FATIGUE_MORALE}} to that Army's Morale rolls; tokens stack and last until the Battle ends. A check ever modified to {{VAL:ROUT_THR}} or more Routs the whole Army. {{RULE:fatigue}}
 
 8. **End the Skirmish.** The Battle ends if a side is wiped out, Routs (modified Morale {{VAL:ROUT_THR}}+), or successfully Falls Back. Otherwise refill the lines and begin the next Skirmish. {{RULE:end-skirmish}}
 
@@ -648,13 +648,34 @@ A Bandit Camp keeps Extorted money in its Treasury and doesn't pay costs, {{VAL:
 
 After Bandit Mechanics resolve, a Bandit Army performs a Move action based on, in order:
 
-1. **Skirmish** — if another player's Army is in range.
+1. **Battle** — if another player's Army is in range.
 
-2. **Pillage** — if another player's Settlement is in range: end adjacent to it. Each Empire Phase, in the Extort step, the Bandit Army Extorts half of that Settlement's Holding income into its camp's Treasury, until it fights a Battle or leaves. A Settlement can have only one Bandit Army Pillaging it.
+2. **Pillage** — if a player's Settlement is in range by a direct route (one that Presence doesn't make longer): end adjacent to the one with the highest Holding income. Each Empire Phase, in the Extort step, the Bandit Army Extorts that Settlement's Holding income into its camp's Treasury, until it fights a Battle or leaves. A Settlement can have only one Bandit Army Pillaging it.
 
-3. **March** — toward the closest player's Army or Settlement.
+3. **March** — toward the player's Settlement with the highest Holding income, along a direct route; where Presence blocks that route, stop short of it rather than going around.
 
-*Note: if range ties, the Host chooses the target.*
+*Note: if targets tie, the Host chooses the target.*
+
+### Hardcore
+
+The Host may make the game Hardcore at the Wild Outlaw Country Setup step. In a Hardcore game:
+
+- **Wild zones:** the Host scatters as many Wild zones as fit, each at least Range {{VAL:HARDCORE_WILD_OUTLAW.border_range}} from every player's Province and at least Range {{VAL:HARDCORE_WILD_OUTLAW.spacing}} from every other Outlaw Country zone.
+- **Armament:** Bandits are armed by Era from this table instead:
+
+{{TABLE:bandit_armaments_hardcore}}
+
+- **Bandit Army Behavior:** a Bandit Army targets the player's Settlement with the highest Holding income (if several tie, the closest), and performs its Move action based on, in order:
+
+1. **Pillage** — if that Settlement is in range: end adjacent to it and Pillage it as above.
+
+2. **Battle** — otherwise, if another player's Army is in range: the closest.
+
+3. **Lay Siege** — otherwise, if a player's Settlement is in range: the closest.
+
+4. **March** — otherwise, toward that Settlement, along a direct route; where Presence blocks that route, stop short of it rather than going around.
+
+*Note: if targets tie, the Host chooses the target.*
 
 ### Attacking a Bandit Camp
 

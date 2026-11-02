@@ -143,6 +143,10 @@ def _t_bandit_armaments():
     return _htable(["Era", "Armament"],
                    [[k, v] for k, v in rd.BANDIT_EQUIPMENT_PER_ERA.items()])
 
+def _t_bandit_armaments_hardcore():
+    return _htable(["Era", "Armament"],
+                   [[k, v] for k, v in getattr(rd, "HARDCORE_BANDIT_EQUIPMENT_PER_ERA", {}).items()])
+
 def _t_treaties():
     return _htable(["Treaty", "Signed Via", "Era", "Effect"],
                    [[n, d.get("signed_via", ""), d.get("era", ""), d.get("effect", "")] for n, d in rd.TREATIES.items()])
@@ -189,6 +193,7 @@ TABLE_RENDER = {
     "settlements": _t_settlements, "terrain": _t_terrain, "infrastructure": _t_infrastructure,
     "bandit_cunning": _t_bandit_cunning, "bandit_tactics": _t_bandit_tactics,
     "bandit_armaments": _t_bandit_armaments,
+    "bandit_armaments_hardcore": _t_bandit_armaments_hardcore,
 }
 for _k in ("eras", "terrain"):        # shapes changed in docx_tables (Compendium columns folded in): read them from there
     TABLE_RENDER.pop(_k, None)

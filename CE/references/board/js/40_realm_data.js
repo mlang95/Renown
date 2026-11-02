@@ -34,7 +34,7 @@ function influenceRowsBase(b){
   add("Monuments & Wonders",mw,mw*igVal("Monuments & Wonders"));
   const oth=boardMetrics(b).infl;add("Other sources",oth?1:0,oth);
   royalMarriage(b).forEach(x=>{if(x.infl)rows.push({k:x.src,cnt:1,val:x.infl});});
-  // Public Order bands "±N Influence" apply when Influence is gained (cumulative bands; Plague Pit immune, Charnel House ×2)
+  // Public Order bands "±N Influence" apply when Influence is gained (cumulative bands; Ossuary Crypt immune, Plague Pit ×2)
   {const dbl=poDoubled(),po=Math.max(PO_MIN,Math.min(PO_MAX,b.po||0));
    poActiveKeys(po,b).forEach(k=>{const e=POB(k);if(!Array.isArray(e))return;const m=String(e[1]).match(/^([+\-\u2212]\s?\d+)\s*Influence$/i)||String(e[1]).match(/^Influence\s*([+\-\u2212]\s?\d+)$/i);if(!m)return;
      const v=parseInt(m[1].replace(/\s/g,"").replace("\u2212","-"),10)*(dbl[e[0]]?2:1);
@@ -54,7 +54,7 @@ function influenceRows(b){const rows=influenceRowsBase(b),p=playerOfBoard(b),T=+
 function influenceTotal(b){return isSpring()?0:Math.max(0,influenceRows(b).reduce((a,r)=>a+r.val,0));}   // Nothing below zero
 // ---- Public Order modifiers (PO_MODIFIERS; 1 per instance) ----
 const POM=DATA.poModifiers||{faith:{},doubt:{}};
-// next: project the consecutive counters (Deficit, Bankruptcy) to the next Empire Phase's Income & Upkeep step (next Season's net)
+// next: project the consecutive counters (Deficit, Bankruptcy) to the next Empire Phase's Yields & Expenditures step (next Season's net)
 function poModRows(b,next){b.poMods=b.poMods||{};const p=playerOfBoard(b),pid=p?String(p.id):null,rows=[];
   const nx=next?Math.round(seasonNet(b,nextSeason()).net||0):0;
   const auto={"Deficit":()=>next?(nx<0?(+b.deficit||0)+1:0):(+b.deficit||0),"State of Alarm":()=>playerAtWar(pid)&&!(p&&fxOf(p,"ignoreWar").length)?1:0,
@@ -89,7 +89,7 @@ function totTipSimple(k){if(k==="t_gold")return "Unconditional gold (+X) from yo
 function totTip(k){let t=((SIMPLE&&totTipSimple(k))||TOT_TIPS[k]||"").replace(/\{UPKEEP\}/g,UPKEEP()).replace(/\{SUPPLY\}/g,SUPPLY());
   if(t==="PU_TEXT"){const bt=(PUP.byType||{});t="Fixed by Pursuit type: "+Object.keys(bt).filter(x=>x!=="Other").map(x=>x+" "+bt[x]).join(", ")+", all others "+(bt.Other??PUP.def??0)+". None for faction pieces or Pursuits still building.";}
   if(t==="CRAFT")t=GLOSS["Craft"]||"Craft +X from your active pieces.";
-  if(t==="EXTORT")t=(GLOSS["Extort X"]||"Take X from the stated source.")+" Flat Extort from your active pieces is summed here; conditional ones are counted as triggered. Not included in net gold \u2014 the gold comes from the stated source when it resolves (Empire Phase, Income & Upkeep).";
+  if(t==="EXTORT")t=(GLOSS["Extort X"]||"Take X from the stated source.")+" Flat Extort from your active pieces is summed here; conditional ones are counted as triggered. Not included in net gold \u2014 the gold comes from the stated source when it resolves (Empire Phase, Yields & Expenditures).";
   return t;}
 // ---- Empire Phase Faith/Doubt: DOMAIN_BOARD standings (cumulative) + active pieces ----
 // self:  "<Name>: Faith|Doubt +N each Empire Phase"

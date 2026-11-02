@@ -36,6 +36,7 @@ REM AGE     : random, or an Age name (Age of Fracture, Age of Plenty, Age of the
 REM CULTURES: random (deal all 15 evenly), or a comma-separated list to deal from.
 REM SEED    : master seed; the same settings and seed replay the same games.
 REM WILD_OUTLAW : 1 = Setup places Wild Outlaw Country (the rules), 0 = leave it out (experiment).
+REM HARDCORE : 1 = Hardcore game (Hardcore Wild Outlaw Country, Bandit armament and Bandit Army Move), 0 = standard.
 set PLAYERS=3,4,5,6
 set MAPS=Default,Bleak Highlands,Wheat Fields,Dreadwood
 set GAMES=25
@@ -45,6 +46,7 @@ set AGE=random
 set CULTURES=random
 set SEED=1
 set WILD_OUTLAW=1
+set HARDCORE=0
 
 REM ============================ RUN SETTINGS ==================================
 REM WORKERS : parallel games (one Node worker thread each, ~150 MB apiece).
@@ -70,7 +72,7 @@ if "%REBUILD%"=="1" (
   echo.
 )
 
-%NODE% sim_runner.js --players "%PLAYERS%" --maps "%MAPS%" --games %GAMES% --turns %TURNS% --workers %WORKERS% --seed %SEED% --age "%AGE%" --cultures "%CULTURES%" --stop-max-renown %STOP_MAX_RENOWN% --wild %WILD_OUTLAW% --tag "%TAG%" --out "%OUT%"
+%NODE% sim_runner.js --players "%PLAYERS%" --maps "%MAPS%" --games %GAMES% --turns %TURNS% --workers %WORKERS% --seed %SEED% --age "%AGE%" --cultures "%CULTURES%" --stop-max-renown %STOP_MAX_RENOWN% --wild %WILD_OUTLAW% --hardcore %HARDCORE% --tag "%TAG%" --out "%OUT%"
 if errorlevel 1 ( echo SIMULATION FAILED & pause & exit /b 1 )
 
 echo.

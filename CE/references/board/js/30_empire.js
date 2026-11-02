@@ -15,10 +15,10 @@ try{const c=JSON.parse(localStorage.getItem("renown_cat")||"null");if(c)CAT=Obje
 if(CAT.avail!=null){if(!CAT.mode||CAT.mode==="avail")CAT.mode=CAT.avail?"avail":"all";delete CAT.avail;}   // saved before the Culture mode
 CAT.group="domain";                                   // catalog grouped like the rules' Holdings chapter (Roots first); Monument toggle kept
 function catSave(){try{localStorage.setItem("renown_cat",JSON.stringify(CAT));}catch(_){}}
-// catalog modes: Available (can be built now) · Plan (your goals' paths, 35_plan.js) · <Culture> (its build path, once a culture is picked) · All
+// catalog modes: Available (can be built now) · Ambitions (your goals' paths, 35_plan.js) · <Culture> (its build path, once a culture is picked) · All
 function catMode(){return CAT.mode==="culture"&&!cultureOf(S)?"all":CAT.mode;}
 function catAvail(){return catMode()==="avail";}
-function catSeg(fn){const c=cultureOf(S);return seg([["avail","Available"],["plan","Plan"]].concat(c?[["culture",c]]:[],[["all","All"]]),catMode(),k=>{CAT.mode=k;catSave();fn();});}
+function catSeg(fn){const c=cultureOf(S);return seg([["avail","Available"],["plan","Ambitions"]].concat(c?[["culture",c]]:[],[["all","All"]]),catMode(),k=>{CAT.mode=k;catSave();fn();});}
 function catCulKeep(n){const m=catMode();if(m==="plan")return planSteps(S).has(n);return m!=="culture"||(R[n]?cultureKeep(n):cultureInfra(cultureOf(S)).has(n));}
 const ROOTS=((DATA.tree&&DATA.tree.charts)||[]).map(c=>[c.title,Object.keys(c.nodes||{}).filter(n=>R[n])]).filter(x=>x[0]&&x[1].length);
 {const inR=new Set(ROOTS.flatMap(x=>x[1])),rest=NAMES.filter(n=>!inR.has(n));if(ROOTS.length&&rest.length)ROOTS.push(["Other",rest]);}   // nothing drops out of the catalog

@@ -98,6 +98,7 @@ var SIM = (function () {
     const zones = (mapState().grid.start_zones || []).slice().sort((a, b) => a.seat - b.seat);
     const dep = D.players.map((p, i) => deploy(p, i, zones));
     syncMapTiers(); D.players.forEach(startHoldings);
+    D.hardcore = !!cfg.hardcore;                                                            // HARDCORE=1: the Host's Setup choice
     if (cfg.wild !== false) placeWildOutlaw(); else mapState().wildSeeded = true;          // WILD_OUTLAW=0: no Wild Outlaw Country
     D.players.forEach(p => { checkinFD(p).forEach(r => { if (r.side === "faith") addFaith(r.q.board, r.n); else gainDoubt(r.q.board, r.n); }); PT(p).checkin = { turn: 1, fx: [] }; });
     D.players.forEach(p => (p.board.settlements || []).forEach(s => nameSett(p, s)));
@@ -110,7 +111,7 @@ var SIM = (function () {
   function sideAlive(X) { const { a } = sideArmy(battle()[X]); return !!a && (+a.count || 0) > 0 && !(a.retinue && isRouted(a)); }
   async function fight(o) {
     if (!bqLoad(o)) return null;
-    const B = battle(); B.id = "sim" + REC.battles.length; B.sk = 1; B.round = 0; B.rev = null; B.rolls = {}; B.strk = {}; B.par = {}; B.shDest = {}; B.log = []; B.dice = true; B.aiPk = {};
+    const B = battle(); B.id = "sim" + REC.battles.length; B.sk = 1; B.round = 0; B.rev = null; B.rolls = {}; B.strk = {}; B.par = {}; B.shDest = {}; B.clv = {}; B.log = []; B.dice = true; B.aiPk = {};
     Object.keys(LOCAL_PICKS).forEach(k => delete LOCAL_PICKS[k]);
     const start = { A: (sideArmy(B.A).a || {}).count || 0, B: (sideArmy(B.B).a || {}).count || 0 }, cas = { A: 0, B: 0 }, tac = [], first = [];
     let end = null;
@@ -126,7 +127,7 @@ var SIM = (function () {
       const cell = TMX[B.rev.A + "|" + B.rev.B] || [{}, {}];
       if (!cell[0].no_combat && !cell[1].no_combat) {
         const strike = (X, O) => {
-          roll(X, "Strike"); const oc = sideCalc(O); if (!oc) return;
+          roll(X, "Strike"); while (cleaveN(X)) roll(X, "Cleave"); const oc = sideCalc(O); if (!oc) return;
           if (oc.canParry) roll(O, "Parry");
           roll(O, "Save"); if (oc.recThr != null) roll(O, "Recover");
           if (ripN(X)) { if (sideCalc(X).canParry) roll(X, "RipParry"); roll(X, "RipSave"); }

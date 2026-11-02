@@ -8,7 +8,7 @@ function planSave(){try{localStorage.setItem(gkey("renown_plan"),JSON.stringify(
 function planKey(b){const p=playerOfBoard(b||S);return p?String(p.id):"_";}
 function planOf(b){return (PLANS[planKey(b)]||[]).filter(n=>R[n]||INFRA[n]||WON[n]);}
 function planSet(L,b){PLANS[planKey(b)]=L;planSave();}
-function planToggle(n){const L=planOf(S),i=L.indexOf(n);if(i<0)L.push(n);else L.splice(i,1);planSet(L);flash((i<0?"Plan + ":"Plan − ")+(window.dispName?dispName(n):n));}
+function planToggle(n){const L=planOf(S),i=L.indexOf(n);if(i<0)L.push(n);else L.splice(i,1);planSet(L);flash((i<0?"Ambitions + ":"Ambitions − ")+(window.dispName?dispName(n):n));}
 function planMove(n,d){const L=planOf(S),i=L.indexOf(n),j=i+d;if(i<0||j<0||j>=L.length)return;[L[i],L[j]]=[L[j],L[i]];planSet(L);}
 // where a Raw Material comes from: its resource nodes, else the terrains that yield it
 function rawWhere(n){if(nodesMode())return Object.keys(RES_NODE).filter(k=>RES_NODE[k]===n);
@@ -64,7 +64,7 @@ function planSort(by){const G=planGoals(S),kind=g=>WON[g.t]?0:(R[g.t]||{}).monum
   const f=by==="wonders"?(a,b)=>kind(a)-kind(b):by==="holdings"?(a,b)=>(R[a.t]?0:1)-(R[b.t]?0:1):(a,b)=>(!!a.taken-!!b.taken)||a.left-b.left;
   planSet(G.slice().sort(f).map(g=>g.t));}
 function planAdd(n,k){if(k==="i"){addInfraByName("infra",n);return;}const t=tab;tab="pursuit";try{addItem(n);}finally{tab=t;}}
-// catalog Plan view: goals in priority order, each with its Holding line and Infrastructure route
+// catalog Ambitions view: goals in priority order, each with its Holding line and Infrastructure route
 const PLAN_ICON={done:"✓",building:"⏳",now:"▸",blocked:"🔒",taken:"✗"};
 function planPanel(host){const G=planGoals(S),dn=n=>window.dispName?dispName(n):n;
   const bar=document.createElement("div");bar.className="catctl";
@@ -89,11 +89,11 @@ function planPanel(host){const G=planGoals(S),dn=n=>window.dispName?dispName(n):
         sec.appendChild(row);});
       box.appendChild(sec);});
     host.appendChild(box);});}
-// Reference trees: with Plan on, a click on a box adds / removes it as a goal; goals and their steps are outlined
+// Reference trees: with Ambitions on, a click on a box adds / removes it as a goal; goals and their steps are outlined
 document.addEventListener("click",e=>{
   const pp=e.target.closest("#planPick,#planPick2");if(pp){PLAN_PICK=pp.checked;try{localStorage.setItem("renown_planpick",PLAN_PICK?"1":"0");}catch(_){}render();return;}
   if(!PLAN_PICK)return;const tn=e.target.closest("#viewReference .tn[data-pn]");if(!tn)return;
   e.preventDefault();planToggle(tn.dataset.pn);render();renderList();});
-function planPickHTML(id){return '<label class="note"><input type="checkbox" id="'+id+'"'+(PLAN_PICK?' checked':'')+'> Plan: click a box to add or remove a goal'+(planOf(S).length?' ('+planOf(S).length+' · see Catalog ▸ Plan)':'')+'</label>';}
+function planPickHTML(id){return '<label class="note"><input type="checkbox" id="'+id+'"'+(PLAN_PICK?' checked':'')+'> Ambitions: click a box to add or remove a goal'+(planOf(S).length?' ('+planOf(S).length+' · see Catalog ▸ Ambitions)':'')+'</label>';}
 function planMarks(){const L=planOf(S);return L.length?{t:new Set(L),s:planSteps(S)}:null;}
 function planCls(PM,n){return !PM?"":PM.t.has(n)?" plan-t":PM.s.has(n)?" plan-s":"";}

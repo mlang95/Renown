@@ -64,7 +64,7 @@ function bfBuild(sig,S,T){const wrap=document.createElement("div");wrap.classNam
     '<line x1="'+BF_W/2+'" y1="8" x2="'+BF_W/2+'" y2="'+(BF_H-8)+'" stroke="#000" stroke-opacity=".25" stroke-dasharray="5 6"/>';
   ["A","B"].forEach(X=>{const s=S[X];if(s)h+=bfCamp(X,s.col);});
   h+='<g class="bf-units">';["A","B"].forEach(X=>{const s=S[X];if(!s)return;for(let id=0;id<s.FM+s.RM;id++)h+=bfFigure(s,id);});
-  h+='</g><g class="bf-fx"></g></svg><div class="bf-feed" aria-live="polite"></div></div><div class="bf-cap"></div>';
+  h+='</g><g class="bf-fx"></g></svg></div><div class="bf-cap"></div>';
   wrap.innerHTML='<div class="bf-head"></div>'+h;
   const t0=()=>({parry:0,rip:0,save:0,heal:0,on:{}});                 // on = which of these have been rolled this Skirmish
   BF={wrap,sig,seen:{},rip:{},pos:{A:[],B:[]},fresh:true,t:{A:t0(),B:t0()},res:{A:S.A?S.A.c.reserve:0,B:S.B?S.B.c.reserve:0},panic:{}};
@@ -97,7 +97,7 @@ function bfUpdate(S,T){const W=BF.wrap,B=battle(),fresh=BF.fresh;BF.fresh=false;
   W.querySelector(".bf-head").innerHTML=["A","B"].map(X=>{const s=S[X];if(!s)return '<div></div>';
     const gear=SPR?bfGear(s).map(n=>'<span title="'+esc(n)+'">'+eqSVG(n,18)+'</span>').join(""):"",mods=s.c.cell?fmtModLong(s.c.tmEff)+s.c.tmBlk.map(t=>' · '+t).join(""):"";
     return '<div class="bf-side" style="--pc:'+s.col+'"><div class="bf-nm"><b>'+esc(s.nm)+'</b><span class="bf-gear">'+gear+'</span></div>'+
-      '<div class="bf-tac">'+esc(s.tac||(s.locked?"Tactic locked in":"Tactic hidden"))+(s.tac?esc(s.tst):'')+(mods?' · <i>'+esc(mods)+'</i>':'')+'</div><span>front '+s.c.front+' · reserve '+s.c.reserve+' · camp '+s.c.camp+(s.cas?' · fallen '+s.cas:'')+(s.pend?' · wounded '+s.pend:'')+'</span></div>';}).join('<span class="bf-sk">Skirmish '+(B.id?B.sk:'—')+'</span>');
+      '<div class="bf-tac">'+esc(s.tac||(s.locked?"Tactic locked in":"Tactic hidden"))+(s.tac?esc(s.tst):'')+(mods?' · <i>'+esc(mods)+'</i>':'')+'</div><span>front '+s.c.front+' · reserve '+s.c.reserve+' · camp '+s.c.camp+(s.cas?' · fallen '+s.cas:'')+(s.pend?' · wounded '+s.pend:'')+'</span></div>';}).join('<div class="bf-mid"><span class="bf-sk">Skirmish '+(B.id?B.sk:'—')+'</span><div class="bf-feed" aria-live="polite"></div></div>');
   // caption: the battle tile and its rule
   const TT=(TREF.tactical||{})[T&&T.tile]||null;
   W.querySelector(".bf-cap").innerHTML=T?((typeof pxSwatch==="function"&&SPR&&SCAT[T.kind]?pxSwatch(T.kind,T.fill,22):'')+'<b>'+esc(T.tile||"")+'</b>'+(TT?' <span>'+esc(TT.effect||"")+'</span>':'')+' <span class="note">hex '+esc(T.key)+'</span>')
@@ -160,9 +160,9 @@ function bfEffects(S){const B=battle(),now=bfSeen(),was=BF.seen;BF.seen=now;cons
       if(s.ranged)bfPick(mine,10).forEach((m,i)=>{const t=theirs[i%Math.max(1,theirs.length)];if(t)bfFx(BF_MARK.shot(m.x,m.y,t.x,t.y));});
       else mine.forEach(m=>{m.u.classList.remove("lunge");void m.u.getBBox();m.u.classList.add("lunge");setTimeout(()=>m.u.classList.remove("lunge"),600);});
       setTimeout(()=>bfPick(theirs,R.succ).forEach((t,i)=>bfFx(BF_MARK.hit(t.x,t.y,i<(R.deadly||0)))),s.ranged?450:220);
-      const cl=(R.extra||[]).filter(v=>v>=R.target&&R.target<=F).length;
-      bfToast("st"+X,nm+(R.rr?' re-rolls its misses (Dual Wield): +'+bfN(R.succ,"hit"):' strikes: '+bfN(R.succ,"hit"))+
-        (s.c.hasDeadly?' · '+(R.deadly||0)+' Deadly':'')+(s.c.hasCleave?' · '+cl+' Cleave':'')+(R.target>F?' (can\'t hit)':''),s.col);}
+      const cl=cleaveN(X);
+      bfToast("st"+X,nm+(R.rr?' re-rolls its misses (Dual Wield): +'+bfN(R.succ,"hit"):R.cleave?' cleaves: +'+bfN(R.succ,"hit"):' strikes: '+bfN(R.succ,"hit"))+
+        (s.c.hasDeadly?' · '+(R.deadly||0)+' Deadly':'')+(cl?' · Cleave ×'+cl+' to roll':'')+(R.target>F?' (can\'t hit)':''),s.col);}
     else if(R.kind==="Parry"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.parry(m.x,m.y)));BF.t[X].parry+=R.succ+dl;BF.t[X].on.parry=1;bfToast("df"+X,bfDefLine(s),s.col);}
     else if(R.kind==="Save"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.save(m.x,m.y)));BF.t[X].save+=R.succ+dl;BF.t[X].on.save=1;bfToast("df"+X,bfDefLine(s),s.col);}
     else if(R.kind==="Recover"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.heal(m.x,m.y)));BF.t[X].heal+=R.succ+dl;BF.t[X].on.heal=1;bfToast("df"+X,bfDefLine(s),s.col);}

@@ -48,8 +48,8 @@ function aiStandGoals(p){const pr=aiProfile(p),G=[];
   // Builds blocked by full Wards with gold sitting idle: Rising Industry opens Settle / Expand (any culture may take it)
   {const L=buildOpts(p).filter(o=>o.v.startsWith("b:")),full=L.length?L.filter(o=>/no free Ward/.test(o.label)).length/L.length:0;
     if(full>=0.5&&(+p.board.treasury||0)>=10000)G.push({why:"room to Build (Settle / Expand)",steps:aiStandSteps("Rising Industry")});}
-  if(aiSurvival(p).ok&&pr){const done=(p.board.edictLog||{})["Sovereign Standing"]||[],dv=d=>+((p.board.domains||{})[d])||0;
-    const d=pr.domains.filter(x=>!done.includes(x)&&dv(x)<SOV).sort((x,y)=>dv(y)-dv(x))[0];
+  if(aiSurvival(p).ok&&pr&&!edictDone(p.board,"Sovereign Standing")){const dv=d=>+((p.board.domains||{})[d])||0;
+    const d=pr.domains.filter(x=>dv(x)<SOV).sort((x,y)=>dv(y)-dv(x))[0];
     if(d)G.push({why:"Edict: Sovereign "+d,steps:aiStandSteps("Sovereign "+d)});}
   const mon=aiNextMonument(p);if(mon)G.push({why:"Monument "+mon,steps:aiStandSteps(R[mon].unlock_raw)});
   if(pr)G.push({why:"culture Domains",steps:pr.domains.flatMap(d=>aiStandSteps("Sovereign "+d))});

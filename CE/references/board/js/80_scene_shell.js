@@ -350,7 +350,8 @@ function renderSetup(){const el=document.getElementById("setupPanel");if(!el)ret
     ["Deploy",dep.every(x=>x.town&&x.ham&&x.oc>=need&&!x.fl),dep.map(x=>dot(x.p)+esc(x.p.name)+' Town '+ok(x.town)+' Hamlet '+ok(x.ham)+' Outlaw '+x.oc+'/'+need+(x.fl?' <span class="su-fl">\u2691'+x.fl+'</span>':'')+
       (g&&x.town&&(!x.ham||x.oc<need)&&canAct(x.p)?' <button data-setup-auto="'+x.p.id+'" title="Hamlet toward the middle of the map, Outlaw Country behind the capital">auto-place \u25b8</button>':'')).join('<br>')],
     ["Starting Holdings",P.every(p=>!withBoard(p.board,setupHoldFlags).length),P.map(p=>dot(p)+esc(p.name)+' '+setupHoldHTML(p)).join('<br>')],
-    ["Wild Outlaw Country",wildDone(),(()=>{const n=Object.keys(wildZones()).length,c=wildCount();return n+(c!=null?'/'+c:'')+' zones'+
+    ["Wild Outlaw Country",wildDone(),(()=>{const n=Object.keys(wildZones()).length,c=wildCount();
+      return '<label><input type="checkbox" data-setup-hardcore="1"'+(hardcore()?' checked':'')+(canHost()?'':' disabled')+'> Hardcore</label> · '+n+(c!=null?'/'+c:'')+' zones'+
       (canHost()&&g?(wildDone()?' <button data-setup-wild="redo">redo</button>':' <button data-setup-wild="1">place \u25b8</button>'):'');})()],
     ["Start of Turn 1",P.every(checkedIn),P.map(p=>canAct(p)&&(HOTSEAT||sameP(p,meP()))?checkinHTML(p):dot(p)+esc(p.name)+' '+ok(checkedIn(p))).join('<br>')]];
   // stepper: one step open at a time (the first not done, unless you stepped elsewhere); the panel closes once Turn 1 begins
@@ -397,6 +398,9 @@ let SETUP_STEP=null;
 document.addEventListener("click",e=>{const b=e.target.closest("[data-setup-go]");if(!b)return;SETUP_STEP=+b.dataset.setupGo;renderSetup();});
 document.addEventListener("click",e=>{const au=e.target.closest("[data-setup-auto]");if(au){const p=pById(au.dataset.setupAuto);if(!p||!canAct(p))return;
     const why=autoDeploy(p);flash(why?p.name+": "+why:p.name+": Hamlet and Outlaw Country placed");save();render();return;}
+  const hc=e.target.closest("[data-setup-hardcore]");if(hc){if(!canHost()||!setupOn()){hc.checked=hardcore();flash("Host only, during Setup");return;}
+    D.hardcore=hc.checked;const n=mapState().wildSeeded?rescatterWild():null;
+    flash("Hardcore "+(D.hardcore?"on":"off")+(n!=null?" · "+n+" Wild Outlaw Country zone"+(n===1?"":"s")+" placed":""));save();render();return;}
   const w=e.target.closest("[data-setup-wild]");if(w){if(!canHost()){flash("Host only");return;}const n=w.dataset.setupWild==="redo"?rescatterWild():placeWildOutlaw();flash(n?n+" Wild Outlaw Country zone"+(n>1?"s":"")+" placed":"no room for Wild Outlaw Country");save();render();return;}
   const b=e.target.closest("[data-setup-begin]");if(!b)return;if(!canHost()){flash("Host only");return;}if(!wildDone()){placeWildOutlaw();save();}
   D.players.forEach(p=>(p.board.settlements||[]).forEach(s=>nameSett(p,s)));save();tSetPhase(tPhase());});

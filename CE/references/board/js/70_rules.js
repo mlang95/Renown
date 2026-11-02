@@ -34,7 +34,7 @@ function siegeTextMods(def,att){const rows=[];
   return {rows,noWalls};}
 function siegeWinterOK(t){const by=pById(t.by);return !!by&&srcHas(by.board,"siege_winter");}
 function siegeDoubleOK(t){const by=pById(t.by);return !!by&&srcHas(by.board,"siege_double");}   // Battery Park: the besieger's Siege Timers count down twice each turn
-// Wavering Devotion: while your Public Order is below FAITH_FICKLE_PO you can't send Piety Envoys (Immune Wavering Devotion: Ossuary Crypt).
+// Wavering Devotion: while your Public Order is below FAITH_FICKLE_PO you can't send Piety Envoys (Immune Wavering Devotion: Plague Pit).
 // Checked when Envoys are declared; returns why, or "".
 function pietyBlocked(p){if(RC.FAITH_FICKLE_PO==null||!p||srcHas(p.board,"wavering_immune"))return "";const po=+p.board.po||0;
   return po<+RC.FAITH_FICKLE_PO?"Wavering Devotion: Public Order "+po+" is below "+RC.FAITH_FICKLE_PO+" — no Piety Envoys":"";}
@@ -285,7 +285,7 @@ function extortCardHTML(qp){const id=String(qp.id),rows=[],fmt=n=>(+n||0).toLoca
   let dry=[];try{dry=runAutoExtort(true);}catch(e){console.warn("extort preview",e);}
   dry.forEach(x=>{if(!x.from||!x.to)return;if(String(x.to.id)===id)add("in",x.from.name,x.t,x.amt,x.why);else if(String(x.from.id)===id)add("out",x.to.name,x.t,x.amt,x.why);});
   D.players.forEach(p=>(p.board.armies||[]).forEach(a=>{if(!a.pillage||pillageCheck(p,a))return;const q=pById(a.pillage.tp),s=q&&settById(q,a.pillage.sid);if(!s)return;
-    const amt=Math.max(0,Math.floor(settEcon(q,s).pillageBase/2)),t=Math.min(amt,Math.max(0,+q.board.treasury||0)),src="Pillage of "+(s.name||s.tier);
+    const amt=Math.max(0,Math.floor(settEcon(q,s).pillageBase)),t=Math.min(amt,Math.max(0,+q.board.treasury||0)),src="Pillage of "+(s.name||s.tier);
     if(sameP(p,qp))add("in",q.name,t,amt,src);else if(sameP(q,qp))add("out",p.name,t,amt,src);}));
   banditSkims().forEach(x=>{const nm=(x.kind==="dest"?"Destabilize":"Intercept Caravan")+" · "+x.what,by=x.by!=null?pById(x.by):null;
     if(by&&sameP(by,qp))add("in",x.p?x.p.name:"?",x.amt,x.amt,nm);else if(x.p&&sameP(x.p,qp))add("out",by?by.name:"Bandits @ "+x.camp,x.amt,x.amt,nm);});
@@ -505,7 +505,7 @@ function speedOf(p,a,startK,season){const parts=[],notes=[],b=p.board,sea=season
       withBoard(o.board,()=>{const scanO=(key,kind,src)=>efxOf(key,kind).forEach(r=>{if(!r.yp)return;
           if(r.en&&!war)return;if(r.na&&ally)return;parts.push([o.name+": "+src,r.v]);});
         Object.keys(PC).forEach(n=>scanO("h:"+n,"_sp",n));if(S.faction)scanO("F:"+S.faction,"_spo",S.faction);});});}
-  // Public Order "Speed ±N" bands (cumulative, Era-scaled; Charnel House-style doubling applies)
+  // Public Order "Speed ±N" bands (cumulative, Era-scaled; Plague Pit-style doubling applies)
   {const dbl=poDoubled(),po=Math.max(PO_MIN,Math.min(PO_MAX,b.po||0));poActiveKeys(po,b).forEach(k=>{const e=POB(k);if(!Array.isArray(e))return;
     const m=String(e[1]).match(/^Speed\s*([+\-\u2212]\s?\d+)$/i);if(!m)return;const v=parseInt(m[1].replace(/\s/g,"").replace("\u2212","-"),10)*(dbl[e[0]]?2:1);
     parts.push(["Public Order: "+e[0]+(dbl[e[0]]?" ×2":""),v]);});}

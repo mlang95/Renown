@@ -183,12 +183,13 @@ function boardOwnerName(b){const p=(D.players||[]).find(q=>q.board===b);return p
 // across every board so realm-wide steps (Siege / Muster / Sack / Capture timers, Bandits, Extort) fall in sequence.
 function empTimers(b){b.turn=(b.turn||0)+1;return tickTimers(b);}                        // Build, Repair
 function empEconomy(b){const sn=seasonNet(b),net=Math.round(sn.net||0),g0=b.treasury||0;
-  if(b.autoNet){const sea=curSeason(),part=[["Income & upkeep",Math.round(sn.base||0)],[sea+" (Season)",Math.round(sn.seasonal||0)],["Winter tax",Math.round(sn.tax||0)],["Trade",Math.round(sn.trade||0)]];
+  if(b.autoNet){const sea=curSeason(),part=[["Yields & expenditures",Math.round(sn.base||0)],[sea+" (Season)",Math.round(sn.seasonal||0)],["Winter tax",Math.round(sn.tax||0)],["Trade",Math.round(sn.trade||0)]];
     part[0][1]+=net-part.reduce((t,x)=>t+x[1],0);part.forEach(([k,v])=>tGold(b,v,k));}   // Winter tax, income, trade, upkeep (if auto-apply is on)
   b.insolv=(b.treasury||0)<0?(+b.insolv||0)+1:0;                              // "Bankruptcy" Doubt: consecutive Upkeep with negative Treasury
   b.deficit=net<0?(+b.deficit||0)+1:0;                                          // "Deficit" Doubt: consecutive Upkeep with negative Income
   insolvent(b);
   edictTick(b,"Wealth");                                                        // check the Treasury for the Wealth Edict
+  edictTick(b,"Imperium");                                                      // check Uncontested Territories for the Imperium Edict
   return {sn,net,g0};}
 function empPO(b,done){const m=boardMetrics(b),p0=b.po||0,fd=m.po||0,pm=poModTotal(b);let dpo=fd+pm;
   epRows(b).filter(r=>r.auto&&r.n>0).forEach(r=>done.push(r.k+": "+r.side[0].toUpperCase()+r.side.slice(1)+" +"+r.n+(r.desc?" ("+r.desc+")":"")));
@@ -566,7 +567,7 @@ function boardFlags(){
   S.settlements.forEach(s=>{const w=wardUse(s.id);if(w.free<0)f.push(s.tier+": "+(-w.free)+" ward(s) over cap");});
   Object.keys(S.infra).forEach(n=>{const st=infraReqStatus(INFRA[n]);if(!st.ok)f.push(n+": req unmet ("+st.missing.join(", ")+")");});
   Object.keys(S.wonders).forEach(n=>{const st=infraReqStatus(WON[n]);if(!st.ok)f.push(n+": req unmet ("+st.missing.length+" infra missing/invalid)");});
-  planGoals(S).forEach(g=>{if(g.taken)f.push("Plan: "+g.taken);});   // a goal another player took (Realm Scope; this device's plan)
+  planGoals(S).forEach(g=>{if(g.taken)f.push("Ambitions: "+g.taken);});   // a goal another player took (Realm Scope; this device's plan)
   {const wb=Object.keys(WON).filter(n=>wonderRacing(S,n));if(wb.length>1)f.push("Wonders "+wb.join(", ")+" building at once (one Wonder at a time)");}
   return f;
 }

@@ -293,6 +293,10 @@ def bandit_armaments():
     return _table(["Era", "Armament"],
                   [[k, v] for k, v in rd.BANDIT_EQUIPMENT_PER_ERA.items()])
 
+def bandit_armaments_hardcore():
+    return _table(["Era", "Armament"],
+                  [[k, v] for k, v in getattr(rd, "HARDCORE_BANDIT_EQUIPMENT_PER_ERA", {}).items()])
+
 def bandits_by_era():
     """Bandit growth + armaments in one table (one row per Era)."""
     eras = list(dict.fromkeys(list(rd.BANDIT_GROWTH_PER_ERA) + list(rd.BANDIT_EQUIPMENT_PER_ERA)))
@@ -524,7 +528,7 @@ REGISTRY = {
     "terrain": terrain, "tactical_terrain": tactical_terrain,
     "factions": factions, "timers": timers, "build_timers": build_timers, "siege_calculus": siege_calculus,
     "bandit_cunning": bandit_cunning, "bandit_tactics": bandit_tactics,
-    "bandit_armaments": bandit_armaments, "bandits_by_era": bandits_by_era,
+    "bandit_armaments": bandit_armaments, "bandit_armaments_hardcore": bandit_armaments_hardcore, "bandits_by_era": bandits_by_era,
     "holdings": holdings, "tactic_matrix": tactic_matrix, "trade_rules": trade_rules,
 }
 

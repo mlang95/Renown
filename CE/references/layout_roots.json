@@ -1,5 +1,218 @@
 [
  {
+  "title": "Forestry",
+  "anchor": "Forestry",
+  "mode": "root",
+  "nodes": {
+   "Forestry": [
+    0,
+    1
+   ],
+   "Carpentry": [
+    1,
+    1
+   ],
+   "Siege Camp": [
+    2,
+    1
+   ],
+   "Joinery": [
+    2,
+    2
+   ],
+   "Chandlery": [
+    2,
+    3
+   ],
+   "Fletchery": [
+    2,
+    0
+   ],
+   "Siege Works": [
+    3,
+    1
+   ],
+   "Tannery": [
+    3,
+    2
+   ],
+   "Reliquary": [
+    3,
+    3
+   ],
+   "Apothecary": [
+    3,
+    4
+   ],
+   "Skirmish Field": [
+    3,
+    0
+   ],
+   "Battery Park": [
+    4,
+    1
+   ],
+   "Armory": [
+    4,
+    2
+   ],
+   "Pilgrimage Site": [
+    4,
+    3
+   ],
+   "Infirmary": [
+    4,
+    4
+   ],
+   "List Yard": [
+    4,
+    0
+   ],
+   "Abatis Field": [
+    5,
+    1
+   ],
+   "Gilded Foundry": [
+    5,
+    2
+   ],
+   "Unforgotten Shrine": [
+    5,
+    3
+   ],
+   "Hospitaller": [
+    5,
+    4
+   ],
+   "Fighting School": [
+    5,
+    0
+   ],
+   "Artillery Park": [
+    6,
+    1
+   ],
+   "Court Armoury": [
+    6,
+    2
+   ],
+   "Exalted Basilica": [
+    6,
+    3
+   ],
+   "Preceptory of the Knight's Templar": [
+    6,
+    4
+   ],
+   "Royal Pavilion": [
+    6,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Battery Park",
+    "Abatis Field"
+   ],
+   [
+    "Chandlery",
+    "Apothecary"
+   ],
+   [
+    "Tannery",
+    "Armory"
+   ],
+   [
+    "Abatis Field",
+    "Artillery Park"
+   ],
+   [
+    "Siege Works",
+    "Battery Park"
+   ],
+   [
+    "Forestry",
+    "Carpentry"
+   ],
+   [
+    "Forestry",
+    "Chandlery"
+   ],
+   [
+    "Gilded Foundry",
+    "Court Armoury"
+   ],
+   [
+    "Unforgotten Shrine",
+    "Exalted Basilica"
+   ],
+   [
+    "List Yard",
+    "Fighting School"
+   ],
+   [
+    "Carpentry",
+    "Fletchery"
+   ],
+   [
+    "Armory",
+    "Gilded Foundry"
+   ],
+   [
+    "Infirmary",
+    "Hospitaller"
+   ],
+   [
+    "Apothecary",
+    "Infirmary"
+   ],
+   [
+    "Carpentry",
+    "Joinery"
+   ],
+   [
+    "Skirmish Field",
+    "List Yard"
+   ],
+   [
+    "Reliquary",
+    "Pilgrimage Site"
+   ],
+   [
+    "Hospitaller",
+    "Preceptory of the Knight's Templar"
+   ],
+   [
+    "Chandlery",
+    "Reliquary"
+   ],
+   [
+    "Fighting School",
+    "Royal Pavilion"
+   ],
+   [
+    "Carpentry",
+    "Siege Camp"
+   ],
+   [
+    "Siege Camp",
+    "Siege Works"
+   ],
+   [
+    "Fletchery",
+    "Skirmish Field"
+   ],
+   [
+    "Joinery",
+    "Tannery"
+   ],
+   [
+    "Pilgrimage Site",
+    "Unforgotten Shrine"
+   ]
+  ]
+ },
+ {
   "title": "Inn",
   "anchor": "Inn",
   "mode": "root",
@@ -189,83 +402,87 @@
   ]
  },
  {
-  "title": "Forestry",
-  "anchor": "Forestry",
+  "title": "Animal Husbandry",
+  "anchor": "Animal Husbandry",
   "mode": "root",
   "nodes": {
-   "Forestry": [
+   "Animal Husbandry": [
     0,
     1
    ],
-   "Carpentry": [
+   "Butchery": [
     1,
     1
    ],
-   "Chandlery": [
+   "Stable": [
     1,
-    2
-   ],
-   "Siege Camp": [
-    2,
-    1
-   ],
-   "Reliquary": [
-    2,
-    2
-   ],
-   "Joinery": [
-    2,
     3
    ],
-   "Fletchery": [
-    2,
+   "Courier Network": [
+    1,
     0
    ],
-   "Siege Works": [
-    3,
+   "Charcoal Burner": [
+    2,
     1
-   ],
-   "Pilgrimage Site": [
-    3,
-    2
    ],
    "Tannery": [
-    3,
+    2,
+    2
+   ],
+   "Saddlery": [
+    2,
     3
    ],
-   "Skirmish Field": [
-    3,
+   "Caravanery": [
+    2,
     0
    ],
-   "Battery Park": [
-    4,
+   "Smokehouse": [
+    3,
     1
-   ],
-   "Unforgotten Shrine": [
-    4,
-    2
    ],
    "Armory": [
+    3,
+    2
+   ],
+   "Avenery": [
+    3,
+    3
+   ],
+   "Toll House": [
+    3,
+    0
+   ],
+   "Levy Hall": [
+    4,
+    1
+   ],
+   "Gilded Foundry": [
+    4,
+    2
+   ],
+   "Farriery": [
     4,
     3
    ],
-   "List Yard": [
+   "Beacon Towers": [
     4,
     0
    ],
-   "Artillery Park": [
+   "Baggage Train": [
     5,
     1
    ],
-   "Exalted Basilica": [
+   "Court Armoury": [
     5,
     2
    ],
-   "Gilded Foundry": [
+   "Marshal Tiltyard": [
     5,
     3
    ],
-   "Royal Pavilion": [
+   "Outrider Intercept Post": [
     5,
     0
    ]
@@ -276,72 +493,76 @@
     "Armory"
    ],
    [
-    "Battery Park",
-    "Artillery Park"
+    "Saddlery",
+    "Avenery"
    ],
    [
-    "Siege Works",
-    "Battery Park"
+    "Levy Hall",
+    "Baggage Train"
    ],
    [
-    "Forestry",
-    "Carpentry"
+    "Toll House",
+    "Beacon Towers"
    ],
    [
-    "Forestry",
-    "Chandlery"
+    "Animal Husbandry",
+    "Butchery"
    ],
    [
-    "Unforgotten Shrine",
-    "Exalted Basilica"
+    "Courier Network",
+    "Caravanery"
    ],
    [
-    "Carpentry",
-    "Fletchery"
+    "Butchery",
+    "Charcoal Burner"
+   ],
+   [
+    "Animal Husbandry",
+    "Courier Network"
+   ],
+   [
+    "Gilded Foundry",
+    "Court Armoury"
+   ],
+   [
+    "Avenery",
+    "Farriery"
    ],
    [
     "Armory",
     "Gilded Foundry"
    ],
    [
-    "Carpentry",
-    "Joinery"
+    "Smokehouse",
+    "Levy Hall"
    ],
    [
-    "Skirmish Field",
-    "List Yard"
+    "Farriery",
+    "Marshal Tiltyard"
    ],
    [
-    "Reliquary",
-    "Pilgrimage Site"
+    "Beacon Towers",
+    "Outrider Intercept Post"
    ],
    [
-    "Chandlery",
-    "Reliquary"
+    "Stable",
+    "Saddlery"
    ],
    [
-    "List Yard",
-    "Royal Pavilion"
+    "Charcoal Burner",
+    "Smokehouse"
    ],
    [
-    "Carpentry",
-    "Siege Camp"
+    "Animal Husbandry",
+    "Stable"
    ],
    [
-    "Siege Camp",
-    "Siege Works"
-   ],
-   [
-    "Fletchery",
-    "Skirmish Field"
-   ],
-   [
-    "Joinery",
+    "Animal Husbandry",
     "Tannery"
    ],
    [
-    "Pilgrimage Site",
-    "Unforgotten Shrine"
+    "Caravanery",
+    "Toll House"
    ]
   ]
  },
@@ -853,6 +1074,10 @@
     1,
     2
    ],
+   "Joinery": [
+    1,
+    3
+   ],
    "Forge": [
     2,
     1
@@ -861,15 +1086,11 @@
     2,
     2
    ],
-   "Armory": [
+   "Tannery": [
     2,
     3
    ],
    "Finery": [
-    2,
-    0
-   ],
-   "Master Workshop": [
     3,
     1
    ],
@@ -877,42 +1098,58 @@
     3,
     2
    ],
-   "Gilded Foundry": [
+   "Armory": [
     3,
     3
    ],
-   "Jewelry Foundry": [
-    3,
-    0
-   ],
-   "Advanced Blast Furnace": [
+   "Master Workshop": [
     4,
     1
    ],
-   "Artillery Park": [
+   "Abatis Field": [
     4,
     2
    ],
-   "Court Armoury": [
+   "Gilded Foundry": [
     4,
     3
    ],
-   "Polish House": [
+   "Jewelry Foundry": [
     4,
+    0
+   ],
+   "Advanced Blast Furnace": [
+    5,
+    1
+   ],
+   "Artillery Park": [
+    5,
+    2
+   ],
+   "Court Armoury": [
+    5,
+    3
+   ],
+   "Polish House": [
+    5,
     0
    ]
   },
   "edges": [
    [
+    "Battery Park",
+    "Abatis Field"
+   ],
+   [
     "Master Workshop",
     "Advanced Blast Furnace"
    ],
    [
-    "Blacksmith",
+    "Tannery",
     "Armory"
    ],
    [
-    "Battery Park",
+    "Abatis Field",
     "Artillery Park"
    ],
    [
@@ -928,7 +1165,7 @@
     "Court Armoury"
    ],
    [
-    "Blacksmith",
+    "Forge",
     "Finery"
    ],
    [
@@ -944,7 +1181,11 @@
     "Jewelry Foundry"
    ],
    [
-    "Forge",
+    "Furnace",
+    "Joinery"
+   ],
+   [
+    "Finery",
     "Master Workshop"
    ],
    [
@@ -958,122 +1199,9 @@
    [
     "Siege Camp",
     "Siege Works"
-   ]
-  ]
- },
- {
-  "title": "Animal Husbandry",
-  "anchor": "Animal Husbandry",
-  "mode": "root",
-  "nodes": {
-   "Animal Husbandry": [
-    0,
-    1
-   ],
-   "Butchery": [
-    1,
-    1
-   ],
-   "Stable": [
-    1,
-    0
-   ],
-   "Charcoal Burner": [
-    2,
-    1
-   ],
-   "Saddlery": [
-    2,
-    0
-   ],
-   "Smokehouse": [
-    3,
-    1
-   ],
-   "Tannery": [
-    3,
-    2
-   ],
-   "Avenery": [
-    3,
-    0
-   ],
-   "Levy Hall": [
-    4,
-    1
-   ],
-   "Armory": [
-    4,
-    2
-   ],
-   "Farriery": [
-    4,
-    0
-   ],
-   "Baggage Train": [
-    5,
-    1
-   ],
-   "Gilded Foundry": [
-    5,
-    2
-   ],
-   "Marshal Tiltyard": [
-    5,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Tannery",
-    "Armory"
    ],
    [
-    "Saddlery",
-    "Avenery"
-   ],
-   [
-    "Levy Hall",
-    "Baggage Train"
-   ],
-   [
-    "Animal Husbandry",
-    "Butchery"
-   ],
-   [
-    "Butchery",
-    "Charcoal Burner"
-   ],
-   [
-    "Avenery",
-    "Farriery"
-   ],
-   [
-    "Armory",
-    "Gilded Foundry"
-   ],
-   [
-    "Smokehouse",
-    "Levy Hall"
-   ],
-   [
-    "Farriery",
-    "Marshal Tiltyard"
-   ],
-   [
-    "Stable",
-    "Saddlery"
-   ],
-   [
-    "Charcoal Burner",
-    "Smokehouse"
-   ],
-   [
-    "Animal Husbandry",
-    "Stable"
-   ],
-   [
-    "Animal Husbandry",
+    "Joinery",
     "Tannery"
    ]
   ]
@@ -1099,6 +1227,10 @@
     2,
     2
    ],
+   "Toxicarium": [
+    2,
+    3
+   ],
    "Priory": [
     2,
     0
@@ -1110,6 +1242,10 @@
    "College of Engineering": [
     3,
     2
+   ],
+   "Charnel House": [
+    3,
+    3
    ],
    "Abbey": [
     3,
@@ -1123,6 +1259,10 @@
     4,
     2
    ],
+   "Plague Pit": [
+    4,
+    3
+   ],
    "Monastery": [
     4,
     0
@@ -1134,6 +1274,10 @@
    "Office of Works": [
     5,
     2
+   ],
+   "Ossuary Crypt": [
+    5,
+    3
    ],
    "Papal Palace": [
     5,
@@ -1148,6 +1292,10 @@
    [
     "Citadel",
     "Castle Hall"
+   ],
+   [
+    "Toxicarium",
+    "Charnel House"
    ],
    [
     "Supply Depot",
@@ -1178,8 +1326,16 @@
     "Office of Works"
    ],
    [
+    "Plague Pit",
+    "Ossuary Crypt"
+   ],
+   [
     "Monastery",
     "Papal Palace"
+   ],
+   [
+    "Charnel House",
+    "Plague Pit"
    ],
    [
     "Masonry",
@@ -1188,6 +1344,10 @@
    [
     "Masonry",
     "Supply Depot"
+   ],
+   [
+    "Masonry",
+    "Toxicarium"
    ],
    [
     "Masonry",
@@ -1202,50 +1362,74 @@
   "nodes": {
    "Salt Works": [
     0,
-    0
+    1
    ],
    "Butchery": [
     1,
-    0
+    1
+   ],
+   "Joinery": [
+    1,
+    2
    ],
    "Workyard": [
     1,
-    1
+    0
    ],
    "Charcoal Burner": [
     2,
-    0
+    1
+   ],
+   "Tannery": [
+    2,
+    2
    ],
    "Burgages": [
     2,
-    1
+    0
    ],
    "Smokehouse": [
     3,
-    0
+    1
+   ],
+   "Armory": [
+    3,
+    2
    ],
    "Census Hall": [
     3,
-    1
+    0
    ],
    "Levy Hall": [
     4,
-    0
+    1
+   ],
+   "Gilded Foundry": [
+    4,
+    2
    ],
    "Storehouse": [
     4,
-    1
+    0
    ],
    "Baggage Train": [
     5,
-    0
+    1
+   ],
+   "Court Armoury": [
+    5,
+    2
    ],
    "Serfdom": [
     5,
-    1
+    0
    ]
   },
   "edges": [
+   [
+    "Tannery",
+    "Armory"
+   ],
    [
     "Levy Hall",
     "Baggage Train"
@@ -1267,6 +1451,18 @@
     "Charcoal Burner"
    ],
    [
+    "Gilded Foundry",
+    "Court Armoury"
+   ],
+   [
+    "Armory",
+    "Gilded Foundry"
+   ],
+   [
+    "Salt Works",
+    "Joinery"
+   ],
+   [
     "Smokehouse",
     "Levy Hall"
    ],
@@ -1283,6 +1479,10 @@
     "Storehouse"
    ],
    [
+    "Joinery",
+    "Tannery"
+   ],
+   [
     "Salt Works",
     "Workyard"
    ]
@@ -1293,51 +1493,95 @@
   "anchor": "Manor House",
   "mode": "chain",
   "nodes": {
-   "Orchard": [
+   "Arboretum": [
     0,
     2
+   ],
+   "Apiary": [
+    0,
+    3
+   ],
+   "Arable Land": [
+    0,
+    4
+   ],
+   "Plant Nursery": [
+    0,
+    0
+   ],
+   "Vine Nursery": [
+    0,
+    1
+   ],
+   "Orchard": [
+    1,
+    2
+   ],
+   "Brewhouse": [
+    1,
+    3
    ],
    "Bakery": [
-    0,
-    3
+    1,
+    4
    ],
    "Herb Garden": [
-    0,
-    4
+    1,
+    0
    ],
    "Vineyard": [
-    0,
-    0
-   ],
-   "Cidery": [
-    1,
-    2
-   ],
-   "Mill": [
-    1,
-    3
-   ],
-   "Spice Merchant": [
-    1,
-    4
-   ],
-   "Winery": [
-    1,
-    0
-   ],
-   "Meadery": [
     1,
     1
    ],
-   "Manor House": [
+   "Cidery": [
     2,
+    2
+   ],
+   "Meadery": [
+    2,
+    3
+   ],
+   "Mill": [
+    2,
+    4
+   ],
+   "Spice Merchant": [
+    2,
+    0
+   ],
+   "Winery": [
+    2,
+    1
+   ],
+   "Manor House": [
+    3,
     2
    ]
   },
   "edges": [
    [
+    "Arable Land",
+    "Bakery"
+   ],
+   [
+    "Apiary",
+    "Brewhouse"
+   ],
+   [
     "Orchard",
     "Cidery"
+   ],
+   [
+    "Plant Nursery",
+    "Herb Garden"
+   ],
+   [
+    "Meadery",
+    "Manor House"
+   ],
+   [
+    "Mill",
+    "Manor House"
    ],
    [
     "Spice Merchant",
@@ -1352,26 +1596,38 @@
     "Manor House"
    ],
    [
-    "Mill",
-    "Manor House"
-   ],
-   [
-    "Meadery",
-    "Manor House"
+    "Brewhouse",
+    "Meadery"
    ],
    [
     "Bakery",
     "Mill"
    ],
    [
+    "Arboretum",
+    "Orchard"
+   ],
+   [
     "Herb Garden",
     "Spice Merchant"
+   ],
+   [
+    "Vine Nursery",
+    "Vineyard"
    ],
    [
     "Vineyard",
     "Winery"
    ],
    [
+    "Meadery",
+    "Manor House"
+   ],
+   [
+    "Mill",
+    "Manor House"
+   ],
+   [
     "Spice Merchant",
     "Manor House"
    ],
@@ -1381,19 +1637,19 @@
    ],
    [
     "Cidery",
-    "Manor House"
-   ],
-   [
-    "Mill",
-    "Manor House"
-   ],
-   [
-    "Meadery",
     "Manor House"
    ]
   ],
   "links": [
    [
+    "Meadery",
+    "Manor House"
+   ],
+   [
+    "Mill",
+    "Manor House"
+   ],
+   [
     "Spice Merchant",
     "Manor House"
    ],
@@ -1403,14 +1659,6 @@
    ],
    [
     "Cidery",
-    "Manor House"
-   ],
-   [
-    "Mill",
-    "Manor House"
-   ],
-   [
-    "Meadery",
     "Manor House"
    ]
   ]

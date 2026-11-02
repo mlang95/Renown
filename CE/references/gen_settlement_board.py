@@ -853,14 +853,14 @@ def battle_data(ns, rules_path):
         "resolve": rules_section(rules_path, "Ending a Battle", ns),
     }
 
-def bandit_loadouts(ns, equip):
-    """Map BANDIT_EQUIPMENT_PER_ERA prose onto equipment names. Exact name match only
+def bandit_loadouts(ns, equip, key="BANDIT_EQUIPMENT_PER_ERA"):
+    """Map BANDIT_EQUIPMENT_PER_ERA (or `key`) prose onto equipment names. Exact name match only
     (a trailing plural 's' is dropped); anything unmatched is reported, not guessed."""
     cats = {"weapon": equip.get("weapons", {}), "armor": equip.get("armors", {}),
             "shield": {k: v for k, v in equip.get("shields", {}).items() if k != "null"}}
     rets = equip.get("retinues", {}) or {}
     out, warns = {}, []
-    for era, txt in (ns.get("BANDIT_EQUIPMENT_PER_ERA") or {}).items():
+    for era, txt in (ns.get(key) or {}).items():
         lo = {"weapon": "Farm Tools", "armor": "Cloth", "shield": "None", "retinue": None, "unmatched": []}
         found = {"weapon": False, "armor": False, "shield": False}
         txt = str(txt)
@@ -870,7 +870,7 @@ def bandit_loadouts(ns, equip):
             if m.group(1) in rets:
                 lo["retinue"] = m.group(1); txt = m.group(2)
             else:
-                warns.append(f"BANDIT_EQUIPMENT_PER_ERA[{era}]: retinue '{m.group(1)}' matches no RETINUES entry")
+                warns.append(f"{key}[{era}]: retinue '{m.group(1)}' matches no RETINUES entry")
                 txt = m.group(2)
         for tok in re.split(r"\s*(?:,|\+|&)\s*", txt):
             tok = tok.strip()
@@ -889,7 +889,7 @@ def bandit_loadouts(ns, equip):
                 lo[hit[0]] = hit[1]; found[hit[0]] = True
             else:
                 lo["unmatched"].append(tok)
-                warns.append(f"BANDIT_EQUIPMENT_PER_ERA[{era}]: '{tok}' matches no equipment name")
+                warns.append(f"{key}[{era}]: '{tok}' matches no equipment name")
         out[era] = lo
     return out, warns
 
@@ -969,7 +969,8 @@ def main():
         if _spr and "her:" + an not in _spr["S"]: print(f"  WARN heraldry: no sprite her:{an} for culture {c}")
     po = {str(k): v for k, v in ns.get("PUBLIC_ORDER", {}).items()}
     b_lo, b_warn = bandit_loadouts(ns, equip)
-    for w in b_warn:
+    b_lo_hc, b_warn_hc = bandit_loadouts(ns, equip, "HARDCORE_BANDIT_EQUIPMENT_PER_ERA") if ns.get("HARDCORE_BANDIT_EQUIPMENT_PER_ERA") else (b_lo, [])
+    for w in b_warn + b_warn_hc:
         print("  WARN " + w)
     global MAPGEN_JS
     MAPGEN_JS, mg_dir = find_mapgen(a.mapgen, a.data)
@@ -1017,12 +1018,15 @@ def main():
         terrainRef={"terrain": ns.get("TERRAIN", {}), "movement": ns.get("MOVEMENT_MODIFIERS", {}),
                     "tactical": ns.get("TACTICAL_TERRAIN", {}), "tacticalGlobal": list(ns.get("TACTICAL_GLOBAL", []))},
         banditLoadouts=b_lo,
+        banditLoadoutsHardcore=b_lo_hc,
         bandits={
             "campStart": ns.get("BANDIT_CAMP_START"), "campGold": ns.get("BANDIT_CAMP_GOLD", 0), "armyThreshold": ns.get("BANDIT_ARMY_THRESHOLD"),
             "growth": ns.get("BANDIT_GROWTH_PER_ERA", {}), "equipment": ns.get("BANDIT_EQUIPMENT_PER_ERA", {}),
             "cunningMin": ns.get("BANDIT_CUNNING_MIN"), "faces": ns.get("BANDIT_FACES"),
             "outlawStart": ns.get("OUTLAW_COUNTRY_START"), "outlawBuffer": ns.get("OUTLAW_BUFFER_RANGE"),
             "wild": ns.get("WILD_OUTLAW", {}), "campReach": ns.get("BANDIT_CAMP_REACH"),
+            "hardcore": {"wild": ns.get("HARDCORE_WILD_OUTLAW") or ns.get("WILD_OUTLAW", {}),
+                         "equipment": ns.get("HARDCORE_BANDIT_EQUIPMENT_PER_ERA") or ns.get("BANDIT_EQUIPMENT_PER_ERA", {})},
             "cunningTable": [list(x) for x in ns["die_table_ranges"](ns["BANDIT_CUNNING_TABLE"])] if "die_table_ranges" in ns and "BANDIT_CUNNING_TABLE" in ns else [],
             "tacticTable": [list(x) for x in ns["die_table_ranges"](ns["BANDIT_TACTIC_TABLE"])] if "die_table_ranges" in ns and "BANDIT_TACTIC_TABLE" in ns else [],
             "outcomeThresh": ns.get("ENVOY_OUTCOME_THRESHOLDS", {}),

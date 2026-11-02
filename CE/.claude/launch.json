@@ -204,6 +204,18 @@
         "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\8d88737e-44f8-42e6-86be-a0582ee9116e\\scratchpad"
       ],
       "port": 8781
+    },
+    {
+      "name": "board-cleave",
+      "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8782",
+        "--directory",
+        "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\53126fc3-6911-45b3-8d08-e72ca8d48d95\\scratchpad\\board"
+      ],
+      "port": 8782
     }
   ]
 }

@@ -48,10 +48,10 @@ function shuffle(L, rnd) { L = L.slice(); for (let i = L.length - 1; i > 0; i--)
   const deal = n => { const pick = []; while (pick.length < n) { if (!deck.length) deck = shuffle(cultures, rnd); const c = deck.shift(); if (!pick.includes(c) || cultures.length < n) pick.push(c); } return pick; };
   for (const n of players) for (const m of maps) for (let g = 0; g < games; g++) {
     const id = jobs.length;
-    jobs.push({ id, seed: Math.floor(rnd() * 2 ** 31) + 1, cfg: { game: id, players: n, map: m, mapSeed: Math.floor(rnd() * 1e6), age: A.age || "random", cultures: deal(n), turns, stopAtMaxRenown: A["stop-max-renown"] === "1", wild: A.wild !== "0" } });
+    jobs.push({ id, seed: Math.floor(rnd() * 2 ** 31) + 1, cfg: { game: id, players: n, map: m, mapSeed: Math.floor(rnd() * 1e6), age: A.age || "random", cultures: deal(n), turns, stopAtMaxRenown: A["stop-max-renown"] === "1", wild: A.wild !== "0", hardcore: A.hardcore === "1" } });
   }
   if (+A.limit) jobs.length = Math.min(jobs.length, +A.limit);
-  fs.writeFileSync(path.join(out, "config.json"), JSON.stringify({ tag, wild: A.wild !== "0", board, boardMtime: fs.statSync(board).mtimeMs, players, maps, games, turns, seed, workers, cultures, age: A.age || "random", jobs: jobs.length, started: new Date().toISOString() }, null, 2));
+  fs.writeFileSync(path.join(out, "config.json"), JSON.stringify({ tag, wild: A.wild !== "0", hardcore: A.hardcore === "1", board, boardMtime: fs.statSync(board).mtimeMs, players, maps, games, turns, seed, workers, cultures, age: A.age || "random", jobs: jobs.length, started: new Date().toISOString() }, null, 2));
   console.log(`${jobs.length} games · players ${players.join(",")} · ${maps.length} map(s) · ${turns} turns · ${workers} workers → ${out}`);
 
   const sink = fs.createWriteStream(path.join(out, "games.jsonl"));

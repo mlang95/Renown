@@ -418,7 +418,7 @@ function runMuster(c){const o=c.o,b=o.board,k=c.sub.slice(0,1),v=c.sub.slice(2),
 // Material in Reach), with the Settlement it would go to (smartSid); or place it by hand (pending flag)
 function buildOpts(o){return withBoard(o.board,()=>{const ctx=legalCtx(),L=[],gs=gameStarted(),PS=planSteps(S),sn=id=>{const s=S.settlements.find(x=>x.id===id);return s?(s.name||s.tier):"no free Ward";};
   NAMES.forEach(n=>{const r=R[n]||{};
-    const pl=PS.get(n),pr=pl?pl.rank:1e3,src=pl?"▸ plan: "+pl.goal:r.root?(rawRes(n)?"Raw Material":"Root"):"";   // a plan step names its goal (where it goes shows in the Settlement choice)
+    const pl=PS.get(n),pr=pl?pl.rank:1e3,src=pl?"▸ ambition: "+pl.goal:r.root?(rawRes(n)?"Raw Material":"Root"):"";   // a plan step names its goal (where it goes shows in the Settlement choice)
     const lab=x=>[n,src,x].filter(Boolean).join(" · ");
     if(!pLegal(n,null,ctx)){const miss=pReqMiss(n,null,ctx);if(miss)L.push({v:"b:"+n,root:!!r.root,pr,dis:true,label:lab("requires "+miss)});return;}
     const sd=smartSid(n,ctx);L.push({v:"b:"+n,root:!!r.root,pr,dis:gs&&sd==null,label:lab(sd==null?"no free Ward":"")});});
@@ -435,7 +435,7 @@ function runBuild(c){const b=c.o.board;if(c.sub==="hand"){c.pend("no Holding pla
   const sd0=pl!=null?pl:withBoard(b,()=>smartSid(n));if(sd0==null&&gameStarted()){c.flag("Build: no free Ward for "+n+" — not built");return;}
   const r=withBoard(b,()=>placeHolding(n,null,sd0)),st=r.target!=null?settById(c.o,r.target):null;
   c.log(c.o.name+" builds "+n+(st?" in "+(st.name||st.tier):" — no eligible free Ward, Unplaced")+(r.np.bt>0?" · Build Timer "+r.np.bt:"")+(r.host?" (with "+r.host+")":""));}
-function improveOpts(o){return withBoard(o.board,()=>{const L=[],PS=planSteps(S),pl=n=>{const p=PS.get(n);return p?{pr:p.rank,tag:" · ▸ plan: "+p.goal}:{pr:1e3,tag:""};};
+function improveOpts(o){return withBoard(o.board,()=>{const L=[],PS=planSteps(S),pl=n=>{const p=PS.get(n);return p?{pr:p.rank,tag:" · ▸ ambition: "+p.goal}:{pr:1e3,tag:""};};
   Object.keys(INFRA).filter(n=>iAvail("infra",n)).forEach(n=>{const p=pl(n);L.push({v:"i:"+n,pr:p.pr,label:n+" · "+INFRA[n].tier+" · Build Timer "+infraBuildTime(n)+p.tag});});
   {const wb=wonderBuilding(S);Object.keys(WON).filter(n=>iAvail("wonder",n)).forEach(n=>{const p=pl(n);L.push({v:"w:"+n,wb,pr:p.pr,label:n+" · Wonder · Build Timer "+infraBuildTime(n)+p.tag+(wb?" · ⚑ "+wb+" still building":"")});});}
   L.sort((a,b)=>a.pr-b.pr);   // plan steps first, by goal priority
@@ -607,7 +607,7 @@ function resolveEnvoy(E,pe,fin){const o=E.owner,act=pe&&pe.rec&&pe.rec.action,A=
         flags.push(h.name+" ("+x.n+") may recoup "+(+x.m[1]).toLocaleString()+" gold");});});}
     if(AD==="Piety"){
       // Piety actions can affect a selected player, an Alliance, or several players (e.g. Spread Truth).
-      // Ossuary Crypt: "+N more" only to the players the action itself gave Doubt (allies gaining Faith from Spread Truth get none)
+      // Charnel House: "+N more" only to the players the action itself gave Doubt (allies gaining Faith from Spread Truth get none)
       const gaveDoubt=D.players.filter(p=>rawTo[p.id]>0);
       D.players.forEach(h=>SM(h.board,"piety_extra_doubt").forEach(x=>gaveDoubt.forEach(p=>ctx.doubt(p,+x.m[1],true,x.n+" · "+h.name))));
     }
@@ -784,7 +784,7 @@ function empireChecklistHTML(){const sea=curSeason(),auto=boardEndOn();
   const L=[["Start of the Empire Phase effects, incl. Domain Standing effects","reference#refStanding","Standings"],["Apply the Season: "+sea+((SEAS[sea]||{}).effect?" — "+SEAS[sea].effect:""),"reference#refSeasons","Reference"],
     ["Timers tick, finished builds resolve","board:board","Board"],["Host resolves Bandits","table#tBanditBox","Bandits"],
     ["Gain Influence & Envoys","",""],sea==="Winter"?["Winter: tax income","board:summary","Totals"]:null,
-    ["Income & upkeep","board:summary","Totals"],["Extort (\u201cper player without\u201d is automatic at End turn)","",""],["Public Order (Faith − Doubt)","board:summary","Totals"],["Armies regain Endurance","board:board","Board"],["Remaining Each Empire Phase effects","",""]].filter(Boolean);
+    ["Yields & expenditures","board:summary","Totals"],["Extort (\u201cper player without\u201d is automatic at End turn)","",""],["Public Order (Faith − Doubt)","board:summary","Totals"],["Armies regain Endurance","board:board","Board"],["Remaining Each Empire Phase effects","",""]].filter(Boolean);
   return '<div class="tb-check">'+L.map(x=>'<div>'+esc(x[0])+(x[1]?' <a href="#" data-goto="'+x[1]+'">'+x[2]+' ▸</a>':' <span class="note">(this panel)</span>')+'</div>').join("")+
     '</div>';}
 // which tree charts are open (per device); the whole section's state too

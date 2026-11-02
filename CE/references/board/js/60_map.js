@@ -355,8 +355,8 @@ function settEcon(p,s){return withBoard(p.board,()=>{const have=new Set(Object.k
   const mons=occ.filter(q=>(R[q.name]||{}).type==="Monument").map(q=>({name:q.name,on:pActive(q)}));
   const gold=(a.gold||0)+seas,winter=sea==="Winter";
   return {gold:a.gold||0,seas,sea,hUp,upRed:a.upkeep||0,craft:a.craft||0,infl:a.influence||0,faith:a.faith||0,doubt:a.doubt||0,tax,dest,mons,occ:occ.length,
-    net:gold-hUp+(winter&&!dest?tax:0),pillageBase:gold+(winter&&!dest?tax:0)};});}
-// ---- Pillage (Prowess action): a.pillage={tp,sid}; Extort half the Settlement's holding & tax income each Empire Phase ----
+    net:gold-hUp+(winter&&!dest?tax:0),pillageBase:gold};});}
+// ---- Pillage (Prowess action): a.pillage={tp,sid}; Extort the Settlement's Holding income each Empire Phase (no Winter tax) ----
 function pillageCheck(p,a){const pl=a.pillage;if(!pl)return null;const q=pById(pl.tp),s=q&&settById(q,pl.sid);
   if(!q||!s)return "Settlement gone";if(!effPair(p.id,q.id).war)return "war ended";if(siegeOn(q.id,s.id))return "Settlement besieged";
   if(armySieging(p,a))return "Army laid Siege";const ak=armyHex(p,a),sk=settHex(q,s);
@@ -368,12 +368,12 @@ function runPillage(){const out=[],seen=new Set();D.players.forEach(p=>(p.board.
   const q=pById(a.pillage.tp),s=q&&settById(q,a.pillage.sid),nm=s?(s.name||s.tier):"?",why=pillageCheck(p,a);
   if(why){out.push(p.name+": Pillage of "+nm+" ends — "+why);delete a.pillage;return;}
   const key=q.id+":"+s.id;if(seen.has(key))return;seen.add(key);                       // a Settlement may be Pillaged once per Empire Phase
-  const amt=Math.max(0,Math.floor(settEcon(q,s).pillageBase/2)),t=extortGold({b:q.board},{b:p.board},amt,"Pillage of "+nm);
+  const amt=Math.max(0,Math.floor(settEcon(q,s).pillageBase)),t=extortGold({b:q.board},{b:p.board},amt,"Pillage of "+nm);
   out.push(p.name+" pillages "+nm+" ("+q.name+"): extort "+t.toLocaleString()+(t<amt?" (of "+amt.toLocaleString()+")":""));}));
-  // Bandit Armies Pillaging (BANDIT_BEHAVIOR): the same half of the Settlement's Holding income, into the camp's Treasury
+  // Bandit Armies Pillaging (BANDIT_BEHAVIOR): the same Holding income of the Settlement, into the camp's Treasury
   const M=mapState();Object.keys(M.camps).forEach(k=>{const cp=M.camps[k];if(!cp.pillage)return;const q=pById(cp.pillage.tp),s=q&&settById(q,cp.pillage.sid),sk=s&&settHex(q,s);
     if(!sk||hexDist(hk(k),hk(sk))>1){delete cp.pillage;return;}const key=q.id+":"+s.id;if(seen.has(key))return;seen.add(key);
-    const nm=s.name||s.tier,amt=Math.max(0,Math.floor(settEcon(q,s).pillageBase/2)),t=extortGold({b:q.board},{camp:cp},amt,"Bandit Pillage of "+nm);
+    const nm=s.name||s.tier,amt=Math.max(0,Math.floor(settEcon(q,s).pillageBase)),t=extortGold({b:q.board},{camp:cp},amt,"Bandit Pillage of "+nm);
     out.push("Bandits pillage "+nm+" ("+q.name+"): extort "+t.toLocaleString()+(t<amt?" (of "+amt.toLocaleString()+")":""));});
   return out;}
 // ---- Army states (Inspect rows + plate icons) ----
@@ -474,7 +474,7 @@ function inspSett(k){const {p,s}=cellSett(k),cell=mapState().cells[k];if(!p)retu
     const def=armiesInside(p,s)[0],gs=garrisonOf(p,s.id),dSide=def?{pid:String(def.p.id),aid:String(def.a.id)}:gs?{pid:String(p.id),aid:"g:"+s.id}:null,att={pid:String(bp.id),aid:String(t.aid)};
     if(!dSide)return;const noSally=srcHas(bp.board,"no_sally_forth"),btn=(lbl,o,pid)=>(inspCan(pid)?'<button data-insp-sf="'+esc(JSON.stringify(o))+'" data-nav="1" style="margin-left:auto">'+lbl+'</button>':'');
     h+='<div class="sec">Siege</div><div class="ist">'+stIcon("besieged",16)+'<span>'+esc(bp.name)+' · Siege Timer '+(t.n??"?")+'</span></div>'+
-      (def?'<div class="ist">'+stIcon("battle",16)+'<span>Sally Forth (no action)</span>'+(noSally?'<span class="note" style="margin-left:auto">'+esc(bp.name)+" · Artillery Park: blocked"+'</span>':btn("Sally Forth ▸",{kind:"sally",A:dSide,B:att,seize:"",src:"Sally Forth"},def.p.id))+'</div>':'')+
+      (def?'<div class="ist">'+stIcon("battle",16)+'<span>Sally Forth (no action)</span>'+(noSally?'<span class="note" style="margin-left:auto">'+esc(bp.name)+" · "+esc(srcMatch(bp.board,"no_sally_forth")[0].n)+": blocked"+'</span>':btn("Sally Forth ▸",{kind:"sally",A:dSide,B:att,seize:"",src:"Sally Forth"},def.p.id))+'</div>':'')+
       (+t.n<=0?'<div class="ist">'+stIcon("sieging",16)+'<span>Siege resolves: Battle</span>'+btn("Siege Battle ▸",{kind:"siege",A:att,B:dSide,seize:"",src:"Siege resolution"},bp.id)+'</div>':'');});
   if(!e.dest){const can=D.players.filter(q=>!sameP(q,p)&&inspCan(q.id));if(can.length)h+='<div class="ir"><span class="k">Destabilize (next Winter)</span><select data-insp-dest="'+p.id+':'+s.id+'" data-nav="1"><option value="">—</option>'+can.map(q=>'<option value="'+q.id+'">'+esc(q.name)+'</option>').join("")+'</select></div>';}
   else if(e.dest.by!=null&&inspCan(e.dest.by))h+='<div class="ir"><button data-insp-undest="'+p.id+':'+s.id+'" data-nav="1">cancel Destabilize</button></div>';
@@ -511,7 +511,7 @@ function inspCamp(k){const cp=mapState().camps[k],thr=BAN.armyThreshold||25,army
   let h=inspHead(sprSVG(army?"map:bandit_army":campKey(cp),36,false),army?"Bandit Army":"Bandit Camp","@ "+k+" · Retinues "+cp.n+(army?"":" / "+thr+" to become an Army"),null);
   h+='<div class="ig">'+inspCell("TREASURY",(cp.gold||0).toLocaleString())+inspCell("PROWESS","+"+cv)+inspCell("CUNNING",cv)+inspCell(esc(SCORE.toUpperCase()),inf+mod)+'</div>';
   h+='<div class="ir"><span class="k">Cunning Standing</span><b>'+sb+'</b>'+(mod?'<span class="note">mod '+g$(mod)+'</span>':'')+'</div>';
-  h+='<div class="ir"><span class="k">Armed ('+esc(currentEra())+')</span><span>'+esc(((BAN.equipment||{})[currentEra()])||"—")+'</span></div>';
+  h+='<div class="ir"><span class="k">Armed ('+esc(currentEra())+')</span><span>'+esc((banEquip()[currentEra()])||"—")+'</span></div>';
   const st=[];if(+cp.n>0)(own?[...own]:[]).forEach(o=>st.push({st:"unrest",txt:"Local Unrest → "+pname(o)+" (Doubt +1)"}));
   const B=battle();if(B.id&&["A","B"].some(X=>B[X].kind==="bandit"&&B[X].camp===k))st.push({st:"battle",txt:"In Battle"});
   if(cp.blocked)st.push({st:"blocked",txt:"Blocked (Sabotage"+(cp.blockedT!=null?", until the end of turn "+(cp.blockedT+1):"")+")"});
@@ -533,7 +533,7 @@ function wireInsp(host){const P=host.querySelector("#inspPanel");if(!P)return;
       if(mods().battle){D.view="battle";flash("Siege calculator filled: "+t.label);}else flash("Siege calculator is in the Battle tab (modules ▸ Battle tab)");save();render();return;}
     bqStart({kind:"battle",A:{pid:String(p.id),aid:String(a.id)},B:t.B,seize:t.seize,src:t.src});});
   P.querySelectorAll("[data-insp-sf]").forEach(b=>b.onclick=()=>{const o=JSON.parse(b.dataset.inspSf),besieger=o.kind==="sally"&&o.B&&pById(o.B.pid);
-    if(besieger&&srcHas(besieger.board,"no_sally_forth")){flash(besieger.name+"'s Artillery Park prevents Sally Forth");return;}bqStart(o);});
+    if(besieger&&srcHas(besieger.board,"no_sally_forth")){flash(besieger.name+"'s "+srcMatch(besieger.board,"no_sally_forth")[0].n+" prevents Sally Forth");return;}bqStart(o);});
   P.querySelectorAll("[data-insp-rename]").forEach(b=>b.onclick=()=>{const [pid,sid]=b.dataset.inspRename.split(":"),q=pById(pid),st=q&&settById(q,sid);if(!st)return;
     const nm=genPlaceName(nameCulture(q.board));if(nm){st.name=nm;save();render();}});
   P.querySelectorAll("[data-insp-name]").forEach(inp=>inp.onchange=()=>{const [pid,sid]=inp.dataset.inspName.split(":"),q=pById(pid),st=q&&settById(q,sid);
@@ -762,7 +762,7 @@ function outlawOf(p){const Z=outlawZones(),own=terrOwners(),out=[];Object.values
 // a camp is Wild while it sits on a Wild Territory or was spawned in one (Bandit Armies keep the tag when they move)
 function campWild(k){const M=mapState(),cp=M.camps[k];return (cp&&cp.wild)||(isWild(k)?M.outlaw[k]:null);}
 // zones to place: "formula" = floor(players / per_players) + plus; "fill" = as many as the ranges allow (null = no fixed count)
-function wildCount(){const W=BAN.wild||{};if(W.count==="fill")return null;return Math.floor((D.players||[]).length/(+W.per_players||2))+(+(W.plus??1));}
+function wildCount(){const W=banWild();if(W.count==="fill")return null;return Math.floor((D.players||[]).length/(+W.per_players||2))+(+(W.plus??1));}
 function wildDone(){const M=mapState(),n=Object.keys(wildZones()).length,c=wildCount();return c==null?!!M.wildSeeded:n>=c;}
 // Deploy, auto (the simulator's layout): with the capital on the map, place p's Hamlet and Outlaw Country by the setup ranges.
 // The Hamlet goes exactly HAMLET_RANGE from the capital, toward the middle of the map ("in front"); Outlaw Country is seeded
@@ -795,7 +795,7 @@ function autoDeploy(p){const M=mapState(),g=M.grid;if(!g)return "no map";const V
 // every other Outlaw Country zone. Seeds go nearest the middle of the map first (random ties), so zones sit in the contested centre
 // and the spacing pushes later ones outward; each seed grows compactly round itself to OUTLAW_COUNTRY_START connected Territories
 // under the same ranges. Stops when no seed fits (or max / formula count).
-function placeWildOutlaw(){const M=mapState();if(!M.grid)return 0;const V=decodeGrid(M.grid),W=BAN.wild||{},size=+BAN.outlawStart||3;
+function placeWildOutlaw(){const M=mapState();if(!M.grid)return 0;const V=decodeGrid(M.grid),W=banWild(),size=+BAN.outlawStart||3;
   const bR=+(W.border_range??3),sp=+(W.spacing??5),cnt=wildCount(),cap=cnt!=null?cnt-Object.keys(wildZones()).length:(W.max!=null?+W.max-Object.keys(wildZones()).length:1e9);
   if(cap<=0){M.wildSeeded=true;return 0;}
   const own=terrOwners(),prov=Object.keys(own).filter(k=>own[k]&&own[k].size).map(hk);
@@ -940,7 +940,7 @@ function banditAct(k){const M=mapState(),cp=M.camps[k],B=BST(),F=BAN.faces||10,r
     if(t){const own=terrOwners()[k];D.players.forEach(h=>{if(!own||!own.has(String(h.id)))return;srcMatch(h.board,"syndicate_camp_extort").forEach(y=>{const take=Math.min(Math.floor(t/2),Math.max(0,+cp.gold||0));if(take){cp.gold-=take;tGold(h.board,take,y.n+": half of Bandit Extort");fx+=" · "+h.name+" "+y.n+" takes "+take+" from camp";}});});}}
   rec.fx=[fx];bLog(head+": "+fx,k);}
 function runBanditMechanics(){const M=mapState(),B=BST(),sea=curSeason(),keys=Object.keys(M.camps),queued=B.foster.slice();
-  const W=BAN.wild||{};
+  const W=banWild();
   if(sea==="Spring"){growCamps(keys.filter(k=>W.spring_growth!==false||!campWild(k)),"Spring");
     // Spring: one camp in each Outlaw Country zone (a full zone's camps grow instead)
     Object.entries(outlawZones()).forEach(([z,hx])=>{if(z[0]==="w"&&W.spring_spawn===false)return;const free=hx.filter(hexFree),ow=zoneOwners(hx),nm=ow.length?ow.map(q=>q.name).join(" / ")+"'s":"unclaimed";
@@ -957,8 +957,11 @@ function runBanditMechanics(){const M=mapState(),B=BST(),sea=curSeason(),keys=Ob
       bLog(p.name+"'s Outlaw Country is full (Uprising)");const ks=Object.keys(M.camps).filter(k=>outlawOf(p).includes(k));   // grow once per camp that has no room
       for(let j=i;j<n;j++)growCamps(ks,"Uprising, no room "+(j+1)+"/"+n);break;}}});
   banditMoves();}
-// ---- Bandit Army Move (BANDIT_BEHAVIOR "Army Behavior"), after the mechanics: Skirmish (a player Army in range) >
-// Lay Siege (a player Settlement in range) > March toward the closest Army or Settlement. Ties: random (the Host may redo it).
+// ---- Bandit Army Move (BANDIT_BEHAVIOR "Army Behavior"), after the mechanics: Battle (a player Army in range) >
+// Pillage the richest player Settlement it can reach by a direct route (this Move, else March along that route toward it) >
+// March toward the richest player Settlement, stopping short of Presence. Richest = most Holding income (what Pillage
+// Extorts). Direct route: one that Presence doesn't make longer — it slips between Presence, never goes around it.
+// Ties: random (the Host may redo it).
 function banditSpeed(cp){armBandits(cp);const a=banditArmy(cp),base=+((EQ.retinues[a.retinue||BANDIT_DEFAULT_RETINUE]||{}).speed)||0;
   const sm=/All Armies gain Speed\s*([+\-\u2212])\s?(\d+)/i.exec((SEAS[curSeason()]||{}).effect||"");return Math.max(0,base+(sm?(sm[1]==="+"?1:-1)*(+sm[2]):0));}
 function banditAuraList(){const M=mapState(),RT=EQ.retinues||{},out=[],hexes=Object.keys(decodeGrid(M.grid).hex);
@@ -976,6 +979,11 @@ function banditRun(k0,speed,AU,lift){const M=mapState(),V=decodeGrid(M.grid),bes
       const water=terrWaterStop(h.t),nd=d+1+terrPen(h.t);if(nd>speed)return;let nw;if(w===1){if(water)return;nw=2;}else nw=water?1:0;
       const kk=key(nk,nw);if(best[kk]===undefined||nd<best[kk]){best[kk]=nd;Q.push([nd,nk,nw]);}});}
   return reach;}
+// Presence-free cost over the whole map (terrain counts; Presence and the Water stop don't): from k, or with rev, to k
+function banditFlow(k,rev){const V=decodeGrid(mapState().grid),d={[k]:0},Q=[[0,k]];
+  while(Q.length){Q.sort((x,y)=>x[0]-y[0]);const [c,h]=Q.shift();if(c>d[h])continue;const into=1+terrPen(V.hex[h].t);
+    hexNb(h).forEach(n=>{const x=V.hex[n];if(!x||terrBlocked(x.t))return;const nc=c+(rev?into:1+terrPen(x.t));if(d[n]===undefined||nc<d[n]){d[n]=nc;Q.push([nc,n]);}});}
+  return d;}
 function moveCamp(k0,k1){const M=mapState();if(k0===k1||!M.camps[k0])return;M.camps[k1]=M.camps[k0];delete M.camps[k0];delete M.camps[k1].sackTarget;}
 // A camp at BANDIT_ARMY_THRESHOLD sends out a Bandit Army of that size; the camp stays on its Territory, emptied and marked out
 // (no growth, no second Army, no spawn there). An Army already out just moves. After each Battle or Siege it returns (banditReturn).
@@ -1003,7 +1011,7 @@ function banditMoves(){const M=mapState();if(!M.grid)return;
     if(bq().some(o=>[o.A,o.B].some(sd=>sd&&sd.kind==="bandit"&&sd.camp===k0))){bLog("Bandit Army @ "+k0+" is in a queued Battle",k0);return;}
     const AU=banditAuraList(),sp=banditSpeed(cp),V=decodeGrid(M.grid),free=h=>!!V.hex[h]&&!M.cells[h]&&!M.camps[h]&&!M.wards[h];
     const inAura=(h,lift)=>AU.some((o,i)=>!(lift instanceof Set?lift.has(i):i===lift)&&o.set.has(h));
-    const reach0=banditRun(k0,sp,AU,-1);
+    const reach0=banditRun(k0,sp,AU,-1),rFree=banditRun(k0,sp,[],-1);
     // "Bandit Camps and Armies within your Province don't target you…" (Outlaw Rookery): standing in such a player's
     // Province, this Army skips their pieces and takes any other target in reach at random, not the nearest
     const NK=banditSpared(k0,true),spare=t=>!NK.some(q=>sameP(q,t.p));
@@ -1014,24 +1022,57 @@ function banditMoves(){const M=mapState();if(!M.grid)return;
       return out.sort((a,b)=>a.cost-b.cost)[0]||null;};
     const armies=Object.keys(M.cells).filter(k=>M.cells[k].type==="Army"&&cellPlayer(M.cells[k])&&cellArmy(k).a&&(+cellArmy(k).a.count||0)>0).map(k=>({k,p:cellPlayer(M.cells[k]),a:cellArmy(k).a})).filter(spare);   // no Retinues: nothing to fight
     const pillaged=new Set(Object.values(M.camps).filter(c=>c!==cp&&c.pillage).map(c=>c.pillage.tp+":"+c.pillage.sid));   // one Bandit pillager per Settlement
-    const setts=Object.keys(M.cells).filter(k=>M.cells[k].type!=="Army"&&cellPlayer(M.cells[k])).map(k=>Object.assign({k},cellSett(k))).filter(t=>t.s&&!settUnbuilt(t.s)&&!siegeOn(t.p.id,t.s.id)&&!pillaged.has(String(t.p.id)+":"+String(t.s.id))).filter(spare);
-    const sk=pick(armies.map(t=>{const r=reachOf(t.k);return r?Object.assign({},t,r):null;}).filter(Boolean));
-    if(sk){moveBandit(k0,sk.end);const k1=sk.end===k0?k0:sk.end;bqAdd({kind:"battle",A:{kind:"bandit",camp:k1},B:{pid:String(sk.p.id),aid:String(sk.a.id)},seize:"A",src:"Bandit Army"});
-      bLog("Bandit Army "+(sk.end===k0?"@ "+k0:k0+" → "+sk.end)+": Skirmish vs "+sk.p.name+"'s "+(sk.a.label||("Army "+sk.a.id))+" (Battle queued)"+(sk.tie?" · tie broken at random":""),sk.end);return;}
-    // already Pillaging a Settlement it still stands beside: it stays (no Skirmish in range)
-    if(cp.pillage){const q=pById(cp.pillage.tp),s=q&&settById(q,cp.pillage.sid),sk_=s&&settHex(q,s);
-      if(sk_&&hexDist(hk(k0),hk(sk_))<=1){bLog("Bandit Army @ "+k0+" keeps Pillaging "+q.name+"'s "+(s.name||s.tier),k0);return;}delete cp.pillage;}
-    // Pillage (in place of Lay Siege): end beside the Settlement; each Empire Phase it Extorts half that Settlement's Holding income
-    const sg=pick(setts.map(t=>{const r=reachOf(t.k);return r?Object.assign({},t,r):null;}).filter(Boolean));
-    if(sg){moveBandit(k0,sg.end);const ac=M.camps[sg.end]||cp;ac.pillage={tp:String(sg.p.id),sid:sg.s.id};
-      bLog("Bandit Army "+(sg.end===k0?"@ "+k0:k0+" → "+sg.end)+": Pillages "+sg.p.name+"'s "+(sg.s.name||sg.s.tier)+(sg.tie?" · tie broken at random":""),sg.end);return;}
-    if(campWild(k0)&&(BAN.wild||{}).march===false){bLog("Wild Bandit Army @ "+k0+": nothing in range — holds",k0);return;}
-    const all=armies.concat(setts.map(t=>({k:t.k,p:t.p})));if(!all.length){bLog("Bandit Army @ "+k0+": no target",k0);return;}
-    const dmin=Math.min(...all.map(t=>hexDist(hk(k0),hk(t.k)))),tg=NK.length?all:all.filter(t=>hexDist(hk(k0),hk(t.k))===dmin),tgt=tg[Math.floor(Math.random()*tg.length)],d0=hexDist(hk(k0),hk(tgt.k));
-    let best=null;Object.keys(reach0).forEach(h=>{if(!free(h)||inAura(h,-1))return;const d=hexDist(hk(h),hk(tgt.k));
-      if(!best||d<best.d||(d===best.d&&reach0[h]<best.c))best={h,d,c:reach0[h]};});
-    if(!best||best.d>=d0){bLog("Bandit Army @ "+k0+": March toward "+tgt.p.name+" @ "+tgt.k+" — no closer hex",k0);return;}
-    moveBandit(k0,best.h);bLog("Bandit Army "+k0+" → "+best.h+": March toward "+tgt.p.name+" @ "+tgt.k+(tg.length>1?" · tie broken at random":""),best.h);});}
+    const settsAll=Object.keys(M.cells).filter(k=>M.cells[k].type!=="Army"&&cellPlayer(M.cells[k])).map(k=>Object.assign({k},cellSett(k))).filter(t=>t.s&&!settUnbuilt(t.s)&&!siegeOn(t.p.id,t.s.id)).filter(spare);
+    const setts=settsAll.filter(t=>!pillaged.has(String(t.p.id)+":"+String(t.s.id)));
+    const inc=t=>settEcon(t.p,t.s).pillageBase||0;
+    const rich=L=>{if(!L.length)return null;const m=Math.max(...L.map(inc)),T=NK.length?L:L.filter(x=>inc(x)===m),c=T[Math.floor(Math.random()*T.length)];c.tie=T.length>1;return c;};
+    const inReach=L=>L.map(t=>{const r=reachOf(t.k);return r?Object.assign({},t,r):null;}).filter(Boolean);
+    const keepPillage=()=>{if(!cp.pillage)return false;const q=pById(cp.pillage.tp),s=q&&settById(q,cp.pillage.sid),sk_=s&&settHex(q,s);
+      if(sk_&&hexDist(hk(k0),hk(sk_))<=1){bLog("Bandit Army @ "+k0+" keeps Pillaging "+q.name+"'s "+(s.name||s.tier),k0);return true;}delete cp.pillage;return false;};
+    // March toward tgt: as far as it can along a direct route (a hex on a Presence-free shortest path that it reaches without
+    // going around Presence), nearest the straight line; where Presence closes that route, it stops short of it
+    const march=tgt=>{if(!tgt){bLog("Bandit Army @ "+k0+": no target",k0);return;}
+      const TO=banditFlow(tgt.k,true),FR=banditFlow(k0,false),line=TO[k0],nm=tgt.p.name+"'s "+(tgt.s.name||tgt.s.tier);
+      const xy=k=>{const [c,r_]=hk(k);return [c*1.5,(r_+(c%2?0.5:0))*1.7320508];},[ax,ay]=xy(k0),[bx,by]=xy(tgt.k),len=Math.hypot(bx-ax,by-ay)||1;
+      const off=k=>{const [x,y]=xy(k);return Math.abs((bx-ax)*(ay-y)-(ax-x)*(by-ay))/len;};   // distance from the straight line
+      let best=null;if(line!==undefined)Object.keys(reach0).forEach(h=>{if(!free(h)||inAura(h,-1)||reach0[h]!==rFree[h]||FR[h]+TO[h]!==line)return;
+        const o=off(h);if(!best||TO[h]<best.d||(TO[h]===best.d&&(o<best.o-1e-9||(Math.abs(o-best.o)<1e-9&&reach0[h]<best.c))))best={h,d:TO[h],o,c:reach0[h]};});
+      if(!best){bLog("Bandit Army @ "+k0+": March toward "+nm+" @ "+tgt.k+" — Presence closes the direct route",k0);return;}
+      moveBandit(k0,best.h);bLog("Bandit Army "+k0+" → "+best.h+": March toward "+nm+" @ "+tgt.k+(tgt.tie?" · tie broken at random":""),best.h);};
+    const doPillage=sg=>{moveBandit(k0,sg.end);const ac=M.camps[sg.end]||cp;ac.pillage={tp:String(sg.p.id),sid:sg.s.id};
+      bLog("Bandit Army "+(sg.end===k0?"@ "+k0:k0+" → "+sg.end)+": Pillages "+sg.p.name+"'s "+(sg.s.name||sg.s.tier)+(sg.tie?" · tie broken at random":""),sg.end);};
+    const doBattle=sk=>{moveBandit(k0,sk.end);bqAdd({kind:"battle",A:{kind:"bandit",camp:sk.end},B:{pid:String(sk.p.id),aid:String(sk.a.id)},seize:"A",src:"Bandit Army"});
+      bLog("Bandit Army "+(sk.end===k0?"@ "+k0:k0+" → "+sk.end)+": Battle vs "+sk.p.name+"'s "+(sk.a.label||("Army "+sk.a.id))+" (Battle queued)"+(sk.tie?" · tie broken at random":""),sk.end);};
+    // Hardcore (BANDIT_BEHAVIOR "Hardcore Army Behavior"): Pillage the richest Settlement (the closest of them) when it's within
+    // this Move; if not, Battle the closest Army in range > Lay Siege to the closest Settlement in range > March toward it
+    if(hardcore()){if(keepPillage())return;
+      const richest=L=>{if(!L.length)return null;const m=Math.max(...L.map(inc));return pick(NK.length?L:L.filter(x=>inc(x)===m));};
+      const top=richest(setts.map(t=>Object.assign({},t,{cost:hexDist(hk(k0),hk(t.k))}))),pr=top&&reachOf(top.k);
+      if(pr){doPillage(Object.assign({},top,pr));return;}
+      const ba=pick(inReach(armies));if(ba){doBattle(ba);return;}
+      const sg=pick(inReach(settsAll));
+      if(sg){moveBandit(k0,sg.end);const ac=M.camps[sg.end]||cp;ac.uid=ac.uid||("b"+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36));const n=banditSiegeTimer(sg.p,sg.s);
+        realmTimers().push({type:"Siege Timer",kind:"siege",tp:sg.p.id,sid:sg.s.id,by:null,aid:null,bandit:ac.uid,label:"Bandits → "+sg.p.name+" · "+(sg.s.name||sg.s.tier),n});
+        bLog("Bandit Army "+(sg.end===k0?"@ "+k0:k0+" → "+sg.end)+": Lay Siege to "+sg.p.name+"'s "+(sg.s.name||sg.s.tier)+" · Siege Timer "+n+(sg.tie?" · tie broken at random":""),sg.end);return;}
+      if(campWild(k0)&&banWild().march===false){bLog("Wild Bandit Army @ "+k0+": nothing in range — holds",k0);return;}
+      march(top);return;}
+    const sk=pick(inReach(armies));
+    if(sk){doBattle(sk);return;}
+    // already Pillaging a Settlement it still stands beside: it stays (no Battle in range)
+    if(keepPillage())return;
+    // Pillage (in place of Lay Siege): the richest Settlement it can reach by a direct route at all — the cheapest way to a hex
+    // beside it costs no more than with no Presence on the map (its own Presence is passed, as for Lay Siege). In range this
+    // Move: end beside it; each Empire Phase it Extorts that Settlement's Holding income. Otherwise it Marches along that route.
+    const fAll=banditRun(k0,Infinity,[],-1);
+    const directOf=tk=>{const G=new Set(AU.map((o,i)=>o.grp===tk?i:-1).filter(i=>i>=0)),li=G.size?G:-1,R=banditRun(k0,Infinity,AU,li),out=[];
+      if(hexDist(hk(k0),hk(tk))===1)out.push({end:k0,cost:0});
+      hexNb(tk).forEach(h=>{if(R[h]!==undefined&&free(h)&&!inAura(h,li)&&R[h]===fAll[h])out.push({end:h,cost:R[h]});});
+      return out.sort((a,b)=>a.cost-b.cost)[0]||null;};
+    const sg=rich(setts.map(t=>{const r=directOf(t.k);return r?Object.assign({},t,r):null;}).filter(Boolean));
+    if(sg&&sg.cost<=sp){doPillage(sg);return;}
+    if(campWild(k0)&&banWild().march===false){bLog("Wild Bandit Army @ "+k0+": nothing in range — holds",k0);return;}
+    // March toward that Settlement, or with none, the richest Settlement
+    march(sg||rich(setts.slice()));});}
 // gold diverted by Destabilize / Intercept Caravan, measured before income and credited after
 function banditSkims(){const B=BST(),out=[],w=curSeason()==="Winter";
   if(w)Object.keys(B.dest).forEach(key=>{const [pid,sid]=key.split(":"),p=D.players.find(q=>String(q.id)===pid),s=p&&(p.board.settlements||[]).find(x=>String(x.id)===sid);
@@ -1139,7 +1180,7 @@ function mapToolsHTML(){const M=mapState(),g=M.grid;
   return h;}
 function banditPanelHTML(){const M=mapState(),era=currentEra(),camps=Object.keys(M.camps);
   let c='<details id="tBandits" style="margin-top:4px"'+(BPANEL_OPEN?' open':'')+'><summary class="note" style="cursor:pointer"><b>Camps ('+camps.length+')</b> · Era '+esc(era)+'</summary>'+
-    '<div class="note">Era '+esc(era)+': grow +'+((BAN.growth||{})[era]||0)+'/turn · armed with '+esc((BAN.equipment||{})[era]||'—')+
+    '<div class="note">Era '+esc(era)+': grow +'+((BAN.growth||{})[era]||0)+'/turn · armed with '+esc(banEquip()[era]||'—')+
     ' · camp starts at '+(BAN.campStart||'?')+', becomes an Army at '+(BAN.armyThreshold||'?')+'.</div>'+
     '<div style="margin:6px 0"><button id="bGrow">grow all camps</button> <button id="bSpawn">spawn at selected hex</button></div>';
   camps.forEach(k=>{const cp=M.camps[k],army=cp.n>=(BAN.armyThreshold||25),dv=banditDomain(cp.n);
