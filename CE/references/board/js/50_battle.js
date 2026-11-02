@@ -646,7 +646,7 @@ function resultHTML(oc){const B=battle(),nm=X=>esc(sideNm(X));let h='<div class=
       else{const M=mapState(),cp=M.camps[B[L].camp]||{},home=cp.home&&M.camps[cp.home]&&M.camps[cp.home].out===cp.uid?M.camps[cp.home]:null,
           gold=(+cp.gold||0)+(home?(+home.gold||0):0);
         h+='<div>The Bandits are destroyed: '+nm(oc.win)+' Extorts their whole Treasury ('+gold.toLocaleString()+', Spoils of War included)'+(home?', and their camp @ '+esc(cp.home)+' goes with them':'')+'</div>';}}
-    ["A","B"].forEach(X=>{if(oc.why[X]==="is wiped out"&&B[X].kind!=="bandit")h+='<div>'+nm(X)+' leaves the map</div>';});
+    ["A","B"].forEach(X=>{if(oc.why[X]&&B[X].kind!=="bandit"&&!String(B[X].aid||"").startsWith("g:"))h+='<div>'+nm(X)+(oc.why[X]==="Routs"?' is destroyed and':'')+' leaves the map</div>';});
     h+='<div class="note">Fatigue tokens are removed.</div><button class="bFinish go" data-w="'+(oc.win||"")+'">Finish battle</button>';}
   return h+'</div>';}
 // before the Battle: who Seizes the Initiative; Start lights up once that is set
@@ -847,6 +847,7 @@ function endSkirmish(){
 }
 function endBattle(win){
   const bHome=["A","B"].map(X=>{const sd=battle()[X];if(!sd||sd.kind!=="bandit")return null;const cp=mapState().camps[sd.camp];return cp&&cp.home?{k:sd.camp,home:cp.home,uid:cp.uid}:null;}).filter(Boolean);
+  const routedNow={};{const B0=battle(),R=B0.endRep&&B0.endRep.sk===B0.sk?B0.endRep:null;if(R)R.rows.forEach(r=>{if(r.rout)routedNow[r.X]=true;});}
   const B=battle(),side=X=>{const sa=sideArmy(B[X]);return sa.bandit?{camp:sa.camp,name:"Bandits"}:sa.p?{b:sa.p.board,name:sa.p.name}:null;};
   const queued=B.qid&&bq().find(x=>x.id===B.qid),banditSiege=queued&&queued.kind==="siege"&&queued.A&&queued.A.kind==="bandit",
     siegeCamp=banditSiege&&mapState().camps[queued.A.camp],siegeUid=siegeCamp&&siegeCamp.uid;
@@ -877,10 +878,13 @@ function endBattle(win){
     [[win,W],[O,L]].forEach(([X,sd])=>{const c=sideCalc(X);if(!sd||!sd.b||!c)return;const lost=Math.max(0,(B.start[X]||0)-(c.a.count||0));
       srcMatch(sd.b,"faith_battle_loss").forEach(x=>{if(lost>=+x.m[2]){addFaith(sd.b,+x.m[1]);blog(sd.name+" · "+x.n+": Faith +"+x.m[1]);}});});}
   else blog("Battle ended with no winner");
-  // an Army left with no Retinues is wiped out: it leaves the map and any other queued Battle against it is dropped
-  ["A","B"].forEach(X=>{const sd=B[X];if(!sd||sd.kind==="bandit"||String(sd.aid||"").startsWith("g:"))return;const {p,a}=sideArmy(sd);if(!p||!a||(+a.count||0)>0)return;
+  // an Army left with no Retinues is wiped out, and an Army that Routs is destroyed: it leaves the map and the Empire pane,
+  // and any other queued Battle against it is dropped
+  ["A","B"].forEach(X=>{const sd=B[X];if(!sd||sd.kind==="bandit"||String(sd.aid||"").startsWith("g:"))return;const {p,a}=sideArmy(sd);if(!p||!a)return;
+    const routed=routedNow[X];if((+a.count||0)>0&&!routed)return;
     const M=mapState();Object.keys(M.cells).forEach(k=>{const c=M.cells[k];if(c.type==="Army"&&String(c.player)===String(p.id)&&String(c.aid)===String(a.id))delete M.cells[k];});
-    p.board.armies=(p.board.armies||[]).filter(x=>x!==a);blog(p.name+"'s "+armyName(a)+" is wiped out and leaves the map");
+    p.board.armies=(p.board.armies||[]).filter(x=>x!==a);blog(p.name+"'s "+armyName(a)+(routed&&(+a.count||0)>0?" Routs and is destroyed":" is wiped out")+" — removed from the map");
+    if(SEL&&String(SEL.pid)===String(p.id)&&String(SEL.aid)===String(a.id))SEL=null;
     D.bqueue=bq().filter(o=>o.id===B.qid||![o.A,o.B].some(s=>s&&String(s.pid)===String(p.id)&&String(s.aid)===String(a.id)));});
   if(B.qid){D.bqueue=bq().filter(x=>x.id!==B.qid);delete B.qid;}
   if(banditSiege){const T=realmTimers(),i=T.findIndex(t=>t.kind==="siege"&&t.bandit&&String(t.bandit)===String(siegeUid));
