@@ -1145,7 +1145,8 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
 function renderInfraSection(kind,src,have,hideCombat){
   const box=document.getElementById("board-"+kind);box.innerHTML="";
   const keys=Object.keys(have);
-  keys.forEach(n=>{
+  if(kind==="infra"&&keys.length)box.appendChild(infraSummaryEl(keys));
+  const mk=n=>{
     const open=(S.eqOpen||[]).includes(n);
     const r=src[n];const card=document.createElement("div");card.className="card";
     card.style.borderLeftColor=cvar(PHASE_COLOR[PHASE[(r.atoms[0]||{}).cat]||"other"]);
@@ -1183,10 +1184,39 @@ function renderInfraSection(kind,src,have,hideCombat){
       bi.appendChild(effectView(r.effect_raw,r.atoms,hideCombat));
       card.appendChild(bi);
     }
-    box.appendChild(card);
-  });
+    return card;};
+  // stacks by requirement path (Dirt Roads → Stone Roads, Muster Field → Garrison → March-Tower …): the most advanced piece
+  // on top, the ones it was built on folded under it (click the fold to open the stack)
+  infraStacks(keys,src).forEach(st=>{if(st.length===1){box.appendChild(mk(st[0]));return;}
+    const top=st[st.length-1],open=(S.istackOpen||[]).includes(top),w=document.createElement("div");w.className="istack"+(open?" open":"");
+    const lb=document.createElement("div");lb.className="istack-lbl";lb.innerHTML='<span>'+st.map(esc).join(" → ")+'</span><span>⚡ '+(st.length-1)+' stacked '+(open?'▾':'▸')+'</span>';
+    lb.onclick=()=>{S.istackOpen=S.istackOpen||[];const i=S.istackOpen.indexOf(top);if(i<0)S.istackOpen.push(top);else S.istackOpen.splice(i,1);save();render();};
+    w.appendChild(lb);w.appendChild(mk(top));
+    st.slice(0,-1).reverse().forEach(n=>{if(open){const c=mk(n);c.classList.add("under");w.appendChild(c);}
+      else{const u=document.createElement("div");u.className="istack-under";u.textContent=n;u.title=(src[n]||{}).effect_raw||"";w.appendChild(u);}});
+    box.appendChild(w);});
   toggleEmpty(kind,keys.length);
 }
+// requirement paths among the pieces you hold: each stack runs root → … → the piece nothing you hold requires (branches split off)
+function infraStacks(keys,src){const has=new Set(keys),parent={},kids={};
+  keys.forEach(n=>{const r=String((src[n]||{}).requirement||"").trim(),p=keys.find(k=>k!==n&&r&&new RegExp("(^|[^\\w])"+k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"([^\\w]|$)").test(r));
+    if(p){parent[n]=p;(kids[p]=kids[p]||[]).push(n);}});
+  const out=[],used=new Set();
+  keys.filter(n=>!parent[n]).forEach(root=>{const walk=(n,path)=>{const ch=(kids[n]||[]).filter(x=>has.has(x));if(!ch.length){out.push(path);path.forEach(x=>used.add(x));return;}
+      walk(ch[0],path.concat(ch[0]));ch.slice(1).forEach(c=>walk(c,[c]));};walk(root,[root]);});
+  keys.filter(n=>!used.has(n)).forEach(n=>out.push([n]));
+  return out;}
+// what the Infrastructure you hold is doing: active pieces with their effect, then the summed chips; building / damaged / shut listed apart
+function infraSummaryEl(keys){const d=document.createElement("details");d.className="tot isum";d.open=!!S.isumOpen;
+  d.ontoggle=()=>{if(!!S.isumOpen!==d.open){S.isumOpen=d.open;save();}};
+  const on=keys.filter(n=>infraOn(n)),off=keys.filter(n=>!infraOn(n));
+  const st=n=>S.itimer[n]>0?"building · "+S.itimer[n]:S.idmg[n]>0?"damaged":S.ishut[n]?"shut":"inactive";
+  d.innerHTML='<summary><b>Infrastructure effects</b> <span class="note">'+on.length+' active'+(off.length?' · '+off.length+' not':'')+'</span></summary>'+
+    '<table class="dtable isumt"><tbody>'+on.map(n=>'<tr><td><b>'+esc(n)+'</b></td><td>'+kwify((INFRA[n]||{}).effect_raw||"")+'</td></tr>').join("")+
+    off.map(n=>'<tr class="dim"><td>'+esc(n)+' <span class="note">('+st(n)+')</span></td><td class="note">'+esc((INFRA[n]||{}).effect_raw||"")+'</td></tr>').join("")+'</tbody></table>';
+  const tot=accChips(contribAcc({innate:[].concat(...on.map(n=>(INFRA[n]||{}).atoms||[]))},false));
+  if(tot.children.length){const l=document.createElement("div");l.className="note";l.style.marginTop="4px";l.textContent="Totals:";d.appendChild(l);d.appendChild(tot);}
+  return d;}
 
 // ---- army: aggregate unlocks/modifiers from pool (innate always, mastery if mastered) ----
 function armyUnlocks(earned){

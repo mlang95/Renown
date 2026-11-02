@@ -3230,6 +3230,138 @@ put(c, ["kkkkkkkk.................kkkkkk",
 water(c, 38, 22, 47)                                                            # waterline across both hulls
 SPRITES["monument:Fleet Anchorage"] = fin32(c)
 
+
+# ================================================================ BATCH: nurseries, brewhouse, works & arms (2026-11)
+# Plant Nursery: a glazed cold frame on a plank base, rows of potted seedlings, a watering can, a lean-to shed
+c = cv32()
+wall(c, 20, 15, 11, 16, "b")
+roof(c, 25, 10, 5)
+put(c, [".kkk.", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"], 23, 25)
+for x0 in range(1, 18, 4):                                                      # cold frame: glass panes on a plank kerb
+    put(c, ["kkkk", "keEk", "kEek", "kkkk"], x0, 18)
+hline(c, 1, 18, 22, "k"); hline(c, 1, 18, 23, "b"); hline(c, 1, 18, 24, "B"); hline(c, 1, 18, 25, "k")
+for i, x0 in enumerate(range(1, 19, 3)):                                        # potted seedlings
+    put(c, [".l." if i % 2 else "l.l", ".L.", "kRk", "krk"], x0, 27)
+put(c, ["..k..", ".kmk.", "kmmMk", "kmmMk", "kkkkk"], 14, 26)
+SPRITES["holding:Plant Nursery"] = fin32(c)
+
+# Vine Nursery: trellised rows of young vines on stakes and wires, purple grape clusters, a vintner's hut
+c = cv32()
+house(c, 21, 17, 9, 14, wall="w", roof="r", door=3)
+for row, y0 in enumerate((14, 21)):
+    hline(c, 0, 19, y0, "k")
+    for x0 in range(1, 20, 6):
+        vline(c, x0, y0, 30, "b")
+    for x0 in range(2, 19, 3):
+        put(c, ["l", "lL", "aA" if (x0 + row) % 2 else "lL", "A"], x0, y0 + 1)
+SPRITES["holding:Vine Nursery"] = fin32(c)
+
+# Arboretum: a walled garden of specimen trees — a round fruiting tree, a tall pine, a gate in the wall
+c = cv32()
+pine32(c, 16, 3, 22)
+tree32(c, 1, 8, "y")
+wall(c, 0, 25, 32, 6, "t")
+courses(c, 1, 26, 30, 29)
+put(c, [".kkkk.", "kbkbkk", "kbkbkk", "kbkbkk", "kkkkkk"], 13, 26)
+SPRITES["holding:Arboretum"] = fin32(c)
+
+# Brewhouse: timbered brewhouse with a tall vented roof louvre, an ale-stake (a bush on a pole), barrels at the door
+c = cv32()
+house(c, 3, 17, 19, 14, wall="w", roof="r", door=8, wins=(2, 14), chimney=13)
+put(c, ["kkkk", "kssk", "kkkk"], 10, 5)
+vline(c, 23, 9, 30, "b")
+hline(c, 23, 28, 9, "b")
+put(c, [".kkk.", "klllk", "klLLk", ".kkk."], 26, 10)
+put(c, BARREL, 24, 24)
+SPRITES["holding:Brewhouse"] = fin32(c)
+
+# Abatis Field: felled trees laid crown-out with sharpened branch ends, a raw earth berm, stakes driven at an angle
+c = cv32()
+mound(c, 0, 22, 32, 9, "b", "B")
+for x0 in (0, 8, 16, 23):
+    line(c, x0, 28, x0 + 6, 16, "k", 1)
+    line(c, x0 + 1, 28, x0 + 7, 16, "b", 1)
+    c[15][x0 + 7] = "s"
+for x0 in (4, 13, 22):
+    put(c, ["s..s..s", ".k.k.k.", "..kbk..", "...b..."], x0, 18)
+SPRITES["holding:Abatis Field"] = fin32(c)
+
+# Tenebrous Oubliette: a squat windowless dark-stone tower, an iron grate set in the ground before it, a chained door
+c = cv32()
+wall(c, 7, 6, 18, 25, "u")
+cren(c, 7, 4, 18)
+for y in range(8, 30, 3):
+    for x in range(8 + (y // 3) % 2 * 2, 24, 4):
+        if c[y][x] == "u": c[y][x] = "U"
+put(c, SLIT, 15, 10)
+put(c, [".kkkk.", "kmdmdk", "kdmdmk", "kmdmdk", "kdmdmk", "kmdmdk", "kkkkkk"], 13, 24)
+put(c, ["kkkkkkk", "kmkmkmk", "kkkkkkk"], 24, 28)
+SPRITES["holding:Tenebrous Oubliette"] = fin32(c)
+
+# Fortified Church: plastered nave with a crenellated stone west tower (arrow slits instead of a belfry), a gold cross
+c = cv32()
+put(c, CROSS5, 6, 0)
+cren(c, 2, 5, 13)
+wall(c, 2, 7, 13, 24, "t")
+courses(c, 3, 8, 12, 29)
+put(c, SLIT, 6, 10); put(c, SLIT, 9, 16)
+wall(c, 14, 17, 17, 14, "w")
+roof(c, 22, 11, 8)
+for x0 in (17, 25):
+    put(c, ["kkk", "kyk", "kyk", "kYk", "kkk"], x0, 20)
+put(c, [".kkk.", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"], 5, 25)
+SPRITES["holding:Fortified Church"] = fin32(c)
+
+# Fighting School: a sanded yard behind a rail, a pell post hacked by practice, a rack of wooden swords, a small hall
+c = cv32()
+house(c, 19, 17, 11, 14, wall="w", roof="r", door=4, wins=(1,))
+hline(c, 0, 18, 23, "b"); hline(c, 0, 18, 27, "b")
+for x0 in (0, 6, 12, 18):
+    vline(c, x0, 23, 30, "k")
+put(c, [".kk.", "kbBk", "kbBk", "kkBk", "kbBk", "kbkk", "kbBk", "kbBk", "kbBk", "kkkk"], 7, 15)
+for x0 in (2, 4):
+    vline(c, x0, 14, 22, "b")
+    c[13][x0] = "k"
+hline(c, 1, 5, 17, "k")
+SPRITES["holding:Fighting School"] = fin32(c)
+
+# Black Hold (Cunning + Industry monument): a black keep on a rock, a black banner, a raised portcullis over a dark gate,
+# a gibbet cage hanging from an arm off the parapet
+c = cv48()
+mound(c, 4, 38, 40, 9, "u", "U")
+flag(c, 23, 0, "d", 8)
+cren(c, 10, 8, 28)
+wall(c, 10, 10, 28, 30, "u")
+for y in range(12, 39, 3):
+    for x in range(11 + (y // 3) % 2 * 2, 36, 4):
+        if c[y][x] == "u": c[y][x] = "U"
+for x0 in (15, 31):
+    put(c, SLIT, x0, 14)
+put(c, ["kkkk", "kfFk", "kkkk"], 22, 17)
+put(c, ["..kkkkkk..", ".kddddddk.", "kddddddddk", "kmdmdmdmdk", "kdmdmdmdmk", "kmdmdmdmdk", "kddddddddk", "kddddddddk", "kddddddddk", "kkkkkkkkkk"], 19, 30)
+hline(c, 37, 44, 9, "k"); vline(c, 44, 9, 14, "k")
+put(c, [".kkk.", "kmdmk", "kdhdk", "kmdmk", ".kkk."], 42, 15)
+SPRITES["monument:Black Hold"] = fin32(c)
+
+# Sacristy Redoubt (Piety + Industry monument): a gilded church shut inside a ring wall — corner bastions, a gatehouse
+# with a portcullis, the spire and gold cross rising behind
+c = cv48()
+steeple(c, 24, 0, 12)
+wall(c, 14, 17, 21, 14, "w")
+roof(c, 24, 10, 8)
+for x0 in (17, 29):
+    put(c, ["kkk", "kyk", "kyk", "kYk", "kkk"], x0, 20)
+wall(c, 0, 30, 48, 17, "t")
+courses(c, 1, 31, 46, 45)
+for x0 in (0, 38):
+    cren(c, x0, 24, 10)
+    wall(c, x0, 26, 10, 21, "t")
+    put(c, SLIT, x0 + 4, 30)
+cren(c, 10, 28, 28)
+put(c, [".kkkkkk.", "kddddddk", "kmdmdmdk", "kdmdmdmk", "kmdmdmdk", "kddddddk", "kddddddk", "kkkkkkkk"], 20, 39)
+put(c, CROSS5, 22, 32)
+SPRITES["monument:Sacristy Redoubt"] = fin32(c)
+
 # Advanced Blast Furnace (Industry + Prowess — Drakteni, the arms of conquest): iron-banded furnace with a smoking
 # stack and roaring tapping door, bellows beam driven by a waterwheel fed from a flume
 c = cv48()
