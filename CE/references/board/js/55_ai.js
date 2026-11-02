@@ -6,7 +6,9 @@
 function aiOn(p){return !!(p&&p.board&&PT(p).ai);}
 function aiProfile(p){return ((RC.AI_PROFILES||{})[(p.board||{}).culture||""])||null;}
 // the client that acts for AI seats: offline / hot-seat, the admin, or the Host's own device
-function aiDriver(){return !lockOn()||ADMIN||sameP(meP(),hostP());}
+// the device that runs AI seats: the Host's; with an AI Host, the device of the first seated human with a claim
+function aiHumanDriver(){return seated().find(q=>!aiOn(q)&&claimOf(q))||null;}
+function aiDriver(){if(!lockOn()||ADMIN)return true;const h=hostP();if(h&&!aiOn(h))return sameP(meP(),h);const d=aiHumanDriver();return !!d&&mine(d);}
 function aiNote(p,txt){PT(p).aiNote={turn:tTurn(),txt};}
 
 // ---- economy: cash positive until next Winter ----

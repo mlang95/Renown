@@ -67,7 +67,8 @@ function hostP(){const s=seated();return s.find(p=>String(p.id)===String(TB().ho
 // players who vote in the Tally Phase (Whispering Undercroft) go last on an Envoy voted then (a Forgery Workshop retry)
 function voteOrd(ord){const last=ord.filter(p=>fxOf(p,"voteLast").length||tallyVoter(p));return last.length?ord.filter(p=>!last.includes(p)).concat(last):ord;}
 function tOrder(){const s=seated();if(!s.length)return [];const i=s.indexOf(hostP());return s.slice(i+1).concat(s.slice(0,i+1));}
-function canHost(){const h=hostP();return HOTSEAT||ADMIN||(!h&&(!lockOn()||!!myClaimP()))||(!!h&&(lockOn()?mine(h):sameP(meP(),h)));}
+function canHost(){const h=hostP();if(h&&!HOTSEAT&&!ADMIN&&aiOn(h)&&lockOn())return !!myClaimP();   // an AI Host: any seated human may press its buttons
+  return HOTSEAT||ADMIN||(!h&&(!lockOn()||!!myClaimP()))||(!!h&&(lockOn()?mine(h):sameP(meP(),h)));}
 function seatsLocked(){if(ADMIN)return false;const ph=tPhase();return (ph==="council"||ph==="envoy")&&!!TB().phaseTs;}
 
 // ---- influence, standings, envoys ----
