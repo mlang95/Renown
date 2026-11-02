@@ -2873,7 +2873,7 @@ INFLUENCE_GAIN = {
             "notes": "Based on the Current Era"},
     "Trade Partners": {"change": "+1", "notes": "Per Trade Partner."},
     "Alliances": {"change": "+1", "notes": "Per Alliance Member."},
-    "Infrastructure tier completed": {"change": "+0", "notes": "Per Infrastructure tier fully completed."},
+    # "Infrastructure tier completed" removed from play (was +1 per Infrastructure tier fully completed)
     "Fully Mustered Army": {"change": "+1", "notes": "Per active Army of 25 Retinues."},
     "Condemned Envoy last turn": {"change": "-1", "notes": "Per Condemned Envoy last turn."},
     "At War": {"change": "-3", "notes": "While at War."},
@@ -3310,7 +3310,7 @@ FORUM_ACTIONS = 1
 PHASES = ("Empire", "Works" if PHASE_REFORM else "Council", "Envoy", "Battle", "Rest")
 STARTING_TURN_PHASE_OPENER = PHASES[1]
 # ACTIONS["Move"] says "March (move up to 2x Speed)"
-STANDING_ARMY_SIEGE_MODIFIER = 1
+# STANDING_ARMY_SIEGE_MODIFIER removed from play (an Army within Range 0 no longer adds to the Siege Timer)
 # economy.py has this as a local constant (EMPIRE_START)
 EMPIRE_START_TIERS = ("Town", "Hamlet")
 STARTING_TREASURY = 10000
@@ -3350,7 +3350,7 @@ BOARD_SIZES = {
 
 SIEGE_CALCULUS = {
     "Lay Siege": {
-        "settlement_sources": ["Settlement Size", "Citadel", "Standing Army"],   # + every "Siege Timer +X" in the defender's text
+        "settlement_sources": ["Settlement Size", "Citadel"],   # + every "Siege Timer +X" in the defender's text
         "attacker_sources": True,      # Siege Works, Siege Camp, army effects
         "floor": 1,
     },
@@ -3365,8 +3365,6 @@ SIEGE_CALCULUS = {
 # Holdings, Heritage); Citadel is listed because it counts only in the Settlement it's in (value from its text).
 SIEGE_SOURCE_VALUES = {
     "Settlement Size": {"from": "SETTLEMENTS", "field": "siege_timer"},
-    "Standing Army":   {"from": "board_state", "value": STANDING_ARMY_SIEGE_MODIFIER,
-                        "rule": "Army within Range 0 of the Settlement"},
     "Citadel":         {"from": "text"},
 }
 

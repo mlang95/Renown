@@ -102,16 +102,21 @@ function eqWeapon(a,e,shDest){if(!a)return {ap:0};const r=(a.ranged&&a.ranged!==
 // those an equipped weapon allows when its note says "May only use …" (e.g. Arquebus).
 // Weapon-imposed Tactic limit (RANGED[*].tactics_allowed, e.g. Arquebus): applies while that weapon is the one
 // Equipped this Skirmish — same rule as Combatv4 (tactic_mask_ranged). Returns the allowed list, or null.
-function tacAllowed(X){const B=battle(),{a}=sideArmy(B[X]||{});if(!a)return null;
+function tacAllowedW(X){const B=battle(),{a}=sideArmy(B[X]||{});if(!a)return null;
   const w=eqWeapon(a,eqNow(X),!!((B.shDest||{})[X]));
   if(Array.isArray(w.tactics_allowed)&&w.tactics_allowed.length)return w.tactics_allowed.filter(t=>BT.tactics.includes(t));
   const n=String(w.note||"");if(/May only use/i.test(n)){const ok=BT.tactics.filter(t=>n.includes(t));if(ok.length)return ok;}
   return null;}
+// Battle-tile limit (TACTICAL_TERRAIN "You may only play A, B, or C", e.g. Forest): Fall Back stays open (TACTICAL_GLOBAL)
+function tacAllowedT(){const T=typeof bfTerrain==="function"?bfTerrain():null,e=T&&((TREF.tactical||{})[T.tile]||{}).effect;
+  const m=/may only play ([^.]+)/i.exec(String(e||""));if(!m)return null;const ok=BT.tactics.filter(t=>new RegExp("\\b"+t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b").test(m[1]));
+  return ok.length?ok.concat(BT.tactics.includes("Fall Back")&&!ok.includes("Fall Back")?["Fall Back"]:[]):null;}
+function tacAllowed(X){const w=tacAllowedW(X),t=tacAllowedT();if(!w)return t;if(!t)return w;const both=w.filter(x=>t.includes(x));return both.length?both:w;}
 // TACTICAL_GLOBAL "Any player may Fall Back after the first Skirmish": Fall Back is off the table in Skirmish 1
 const FB_LATE=(BT.tacticalGlobal||[]).some(s=>/Fall Back after the first Skirmish/i.test(s));
 function tacTooEarly(t){return FB_LATE&&t==="Fall Back"&&battle().sk<=1;}
 function tacOK(X,t){const al=tacAllowed(X);return (!al||al.includes(t))&&!tacTooEarly(t);}
-function tacWhyNot(X,t){return tacTooEarly(t)?"not in the first Skirmish":"not with your weapon";}
+function tacWhyNot(X,t){if(tacTooEarly(t))return "not in the first Skirmish";const T=tacAllowedT();return T&&!T.includes(t)?"not on this terrain ("+bfTerrain().tile+")":"not with your weapon";}
 function randomTacticPool(X){let pool=BT.tactics.filter(t=>t!=="Fall Back");const al=tacAllowed(X);
   if(al){const nf=al.filter(t=>t!=="Fall Back");pool=nf.length?nf:al.filter(t=>tacOK(X,t));}
   return pool;}
@@ -288,7 +293,9 @@ function banditRollTactic(X){const v=1+Math.floor(Math.random()*(BAN.faces||10))
   blog(X+" bandits roll d"+(BAN.faces||10)+": "+v+" → "+t);save();return pickTactic(X,t);}
 async function pickTactic(side,t){
   const B=battle();
-  if(!tacOK(side,t)){flash(tacTooEarly(t)?t+" not allowed in the first Skirmish":t+" not allowed with this weapon — "+tacAllowed(side).join(", "));return;}
+  if(!tacOK(side,t)){
+    if((B[side]||{}).kind==="bandit"){const pool=randomTacticPool(side);if(!pool.length)return;const t2=pool[Math.floor(Math.random()*pool.length)];blog(side+" bandits can't play "+t+" ("+tacWhyNot(side,t)+") → "+t2);t=t2;}
+    else{flash(t+" "+tacWhyNot(side,t)+" — "+(tacAllowed(side)||[]).join(", "));return;}}
   const tv=t+"|"+eqCode(side);                                   // Tactic and equipment are submitted together
   if(API.online){const r=await apiRaw("PUT","/api/battle/"+B.id+"/"+pickKey()+"/"+side,{tactic:tv});if(r&&r.status===409)flash("both sides already locked in");}
   else{const k=B.id+":"+pickKey();LOCAL_PICKS[k]=LOCAL_PICKS[k]||{};if(!(LOCAL_PICKS[k].A&&LOCAL_PICKS[k].B))LOCAL_PICKS[k][side]=tv;}
@@ -408,7 +415,7 @@ function tacticPickHTML(X){
     if(sideCalc(O)&&sideCalc(O).outrider&&!pk2.picked)h+='<div class="note" style="color:var(--order)">Opponent has Outrider: pick first — your Tactic is shown to them.</div>';
     h+='<div class="tcards">'+BT.tactics.map(t=>{const ok=tacOK(X,t),on=pk2.tactic===t||(!pk2.picked&&TAC_SEL[X]===t);return '<button class="btac tcard'+(on?' on':'')+'" data-x="'+X+'" data-t="'+esc(t)+'"'+(ok&&!pk2.picked?'':' disabled'+(ok?'':' title="'+tacWhyNot(X,t)+'"'))+'>'+(ok?tacCardBody(X,t):'<b>'+esc(t)+'</b><div class="note">'+tacWhyNot(X,t)+'</div>')+'</button>';}).join('')+
       (!pk2.picked?'<button class="btlock" data-x="'+X+'"'+(TAC_SEL[X]&&tacOK(X,TAC_SEL[X])?'':' disabled')+'>Lock in'+(TAC_SEL[X]?' '+esc(TAC_SEL[X]):'')+'</button>':'')+'</div>'+
-      (tacAllowed(X)?'<div class="note">Equipped weapon allows only: '+tacAllowed(X).map(esc).join(", ")+'</div>':'')+tacDetailHTML(X,pk2.tactic||TAC_SEL[X]);
+      (tacAllowed(X)?'<div class="note">'+(tacAllowedT()?esc(bfTerrain().tile)+(tacAllowedW(X)?' + weapon':'')+' allows only: ':'Equipped weapon allows only: ')+tacAllowed(X).map(esc).join(", ")+'</div>':'')+tacDetailHTML(X,pk2.tactic||TAC_SEL[X]);
     if(mine&&c.outrider)h+='<div style="margin-top:4px"><button id="bpeek"'+(PEEK?' disabled':'')+'>Outrider: reveal opponent'+(op.picked?'':' (once they pick)')+'</button> <span class="note">'+(c.outMastery?'mastery: every Skirmish':'innate: first Skirmish')+'</span></div>';
   }
   return h+'</div>';}

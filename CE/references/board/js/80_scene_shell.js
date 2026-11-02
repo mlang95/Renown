@@ -290,7 +290,7 @@ function hudData(p){const b=p.board,sn=seasonNet(b),m=sn.m,rows=poModRows(b,true
 function hudTips(p,h){h=h||hudData(p);const b=p.board,sg=v=>(v>0?"+":"")+v;
   const po=["Public Order "+h.po+" · "+h.band,"Faith +"+h.faith+" / Doubt +"+h.doubt+" at the next Empire Phase"+(h.dbl>1?" (modifiers ×2)":""),
     "  pieces: Faith +"+h.pieceF+" / Doubt +"+h.pieceD].concat(h.fRows.map(r=>"  Faith +"+r.n+" · "+r.k)).concat(h.dRows.map(r=>"  Doubt +"+r.n+" · "+r.k));
-  let infl=[];try{infl=influenceRows(b).filter(r=>r.val||r.cnt).map(r=>"  "+r.k+(r.cnt>1?" ×"+r.cnt:"")+" "+sg(r.val));}catch(e){}
+  let infl=[];try{infl=influenceRows(b).filter(r=>r.val||r.cnt).map(r=>"  "+r.k+(r.cnt>1?" ×"+r.cnt:"")+" "+sg(r.val)+(r.tip?"\n"+r.tip.split("\n").map(x=>"    · "+x).join("\n"):""));}catch(e){}
   const W=withBoard(b,()=>(b.settlements||[]).map(s=>{const w=wardUse(s.id);return "  "+(s.capital?"★ ":"")+(s.name?s.name+" · ":"")+s.tier+" · Wards "+w.used+"/"+w.cap;}));
   return {gold:goldBreakTxt(goldBreak(b)),
     infl:["Influence this turn "+inflPool(p)].concat(infl).join("\n"),

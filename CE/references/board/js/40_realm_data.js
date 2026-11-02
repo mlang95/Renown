@@ -23,8 +23,6 @@ function influenceRowsBase(b){
   const tpx=srcMatch(b,"trade_extra").reduce((a,x)=>a+(+x.m[1]),0),tp=pairs.filter(x=>x.trade).length+tpx;
   add("Trade Partners",tp,tp*igVal("Trade Partners"));
   const am=pid?D.players.filter(q=>sameAlliance(pid,q.id)).length:0;add("Alliances",am,am*igVal("Alliances"));
-  const tiers=withBoard(b,()=>{const T={};Object.keys(INFRA).forEach(n=>{(T[INFRA[n].tier]=T[INFRA[n].tier]||[]).push(n);});return Object.keys(T).filter(t=>T[t].every(infraOn)).length;});
-  add("Infrastructure tier completed",tiers,tiers*igVal("Infrastructure tier completed"));
   dbActive(b).forEach(x=>{const m=/(?:\+(\d+) Influence|(?<!Max )Influence \+(\d+))(?: (?:per turn|each Empire Phase))?/i.exec(x.text);if(m)rows.push({k:x.name+" ("+x.tier+" "+x.dom+")",cnt:1,val:+(m[1]||m[2])});});
   const fa=(b.armies||[]).filter(a=>(a.count||0)>=EQ.army_max).length;add("Fully Mustered Army",fa,fa*igVal("Fully Mustered Army"));
   const ce=+b.condemned||0;add("Condemned Envoy last turn",ce,ce*igVal("Condemned Envoy last turn"));
@@ -32,7 +30,8 @@ function influenceRowsBase(b){
   if(IG["At War"])rows.push({k:"At War"+(war&&noLoss&&igVal("At War")<0?" ("+noLoss.name+": no loss)":""),cnt:war,val:(noLoss&&igVal("At War")<0)?0:war*igVal("At War")});
   const mw=withBoard(b,()=>S.placed.filter(q=>pActive(q)&&(R[q.name]||{}).type==="Monument").length+Object.keys(S.wonders).filter(infraOn).length);
   add("Monuments & Wonders",mw,mw*igVal("Monuments & Wonders"));
-  const oth=boardMetrics(b).infl;add("Other sources",oth?1:0,oth);
+  {const bm=boardMetrics(b),oth=bm.infl,dn=n=>typeof dispName==="function"?dispName(n):n;   // "Other sources": the Holdings / Infrastructure behind it (hover)
+   rows.push({k:"Other sources",cnt:oth?1:0,val:oth||0,tip:(bm.inflSrc||[]).map(([n,v])=>dn(n)+" "+(v>0?"+":"")+v).join("\n")});}
   royalMarriage(b).forEach(x=>{if(x.infl)rows.push({k:x.src,cnt:1,val:x.infl});});
   // Public Order bands "±N Influence" apply when Influence is gained (cumulative bands; Ossuary Crypt immune, Plague Pit ×2)
   {const dbl=poDoubled(),po=Math.max(PO_MIN,Math.min(PO_MAX,b.po||0));

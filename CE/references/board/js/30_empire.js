@@ -1528,7 +1528,8 @@ function calcMetrics(have,earned,tc){
   const phaseCount={};
   const naturalCount=Object.keys(PC).filter(n=>NATURAL.has(n)).reduce((a,n)=>a+PC[n],0)
     +(SIMPLE?S.placed.filter(p=>p.fac&&pActive(p)&&!NATURAL.has(p.name)).length:0);   // SIMPLE: faction pursuits are Natural
-  function eat(atoms,active,q){
+  const inflSrc=[];
+  function eat(atoms,active,q,src){
     atoms.forEach(a=>{
       const ph=a.season?"season":(PHASE[a.cat]||"other");phaseCount[ph]=(phaseCount[ph]||0)+q;
       if(!active)return;
@@ -1541,17 +1542,17 @@ function calcMetrics(have,earned,tc){
       if(a.cat==="gold")gold+=a.val*q;
       else if(a.cat==="upkeep")reduce+=(-a.val)*q;
       else if(a.cat==="dues")dues+=(-a.val)*q;            // "Dues -X": Holding / Infrastructure costs only
-      else if(a.cat==="craft")craft+=a.val*q;else if(a.cat==="influence")infl+=a.val*q;
+      else if(a.cat==="craft")craft+=a.val*q;else if(a.cat==="influence"){infl+=a.val*q;if(src)inflSrc.push([src,a.val*q]);}
       else if(a.cat==="faith")faith+=a.val*q;else if(a.cat==="doubt")doubt+=a.val*q;
     });
   }
   Object.keys(PC).forEach(n=>{const r=R[n],q=PC[n];
-    eat(r.innate,true,q); if(r.mastery_raw)eat(r.mastery,!!earned[n],q);});
+    eat(r.innate,true,q,n); if(r.mastery_raw)eat(r.mastery,!!earned[n],q,n);});
   itm();
   // Infrastructure / Wonders pay upkeep only while active (not building, Damaged or under repair)
   const freeT=noUpkeepTiers();   // "No Upkeep on <Tier> Infrastructure" (Masonry / Trade Guild / College of Engineering)
-  Object.keys(S.infra).forEach(n=>{const on=infraOn(n);eat(INFRA[n].atoms,on,1);if(on&&!S.facInfra.includes(n)&&!freeT[INFRA[n].tier])infraUp+=INFRA[n].upkeep;});
-  Object.keys(S.wonders).forEach(n=>{const on=infraOn(n);eat(WON[n].atoms,on,1);if(on)infraUp+=WON[n].upkeep;});
+  Object.keys(S.infra).forEach(n=>{const on=infraOn(n);eat(INFRA[n].atoms,on,1,n);if(on&&!S.facInfra.includes(n)&&!freeT[INFRA[n].tier])infraUp+=INFRA[n].upkeep;});
+  Object.keys(S.wonders).forEach(n=>{const on=infraOn(n);eat(WON[n].atoms,on,1,n);if(on)infraUp+=WON[n].upkeep;});
   {const me=playerOfBoard(S);if(me)S.placed.forEach(q=>{if(!pActive(q)||!settBesieged(me,q.sid))return;
      ((R[q.name]||{}).innate||[]).forEach(a=>{if(a.cat==="craft"&&a.flat&&!a.season)craft-=a.val;});});}   // besieged: no Craft X
   {const tb=facTypeBonus(S),me=playerOfBoard(S);if(tb)S.placed.forEach(q=>{if(q.fac||!pActive(q)||!tb.has(q.name))return;
@@ -1581,7 +1582,7 @@ function calcMetrics(have,earned,tc){
   const unusedReduce=Math.max(0,reduce-armyGross);
   const duesCut=Math.max(0,Math.min(dues,infraUp+pursUp));   // never below 0
   const baseNet=gold+scale-infraUp-pursUp+duesCut-netArmy;
-  return {duesCut,gold,reduce,craft,infl,faith,doubt,scale,infraUp,pursUp,armyGross,netArmy,unusedReduce,baseNet,seasonAdd,phaseCount,extort,extTrig};
+  return {duesCut,gold,reduce,craft,infl,inflSrc,faith,doubt,scale,infraUp,pursUp,armyGross,netArmy,unusedReduce,baseNet,seasonAdd,phaseCount,extort,extTrig};
 }
 function computeTotals(have,earned,tc){
   const m=calcMetrics(have,earned,tc);
@@ -1706,7 +1707,7 @@ function SEASON_DBL_TYPE(sea){const m=/^(\w[\w ]*?) Income is doubled/i.exec(((S
 function boardMetrics(b){
   return withBoard(b,()=>{const have=new Set(Object.keys(PC));const {earned,tc}=computeEarned(have);
     const m=calcMetrics(have,earned,tc);
-    return {net:m.baseNet,gold:m.gold,craft:m.craft,infl:m.infl,po:m.faith-m.doubt,faith:m.faith,doubt:m.doubt,netArmy:m.netArmy,seasonAdd:m.seasonAdd};});
+    return {net:m.baseNet,gold:m.gold,craft:m.craft,infl:m.infl,inflSrc:m.inflSrc,po:m.faith-m.doubt,faith:m.faith,doubt:m.doubt,netArmy:m.netArmy,seasonAdd:m.seasonAdd};});
 }
 
 // ---- Public Order tracker ----
