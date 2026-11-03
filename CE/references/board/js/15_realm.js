@@ -27,6 +27,22 @@ function eurekaAction(p){const k=eurekaKey(),b=p&&p.board;if(k==null||!b||tPhase
   const fin=m[1]?m[1][0].toUpperCase()+m[1].slice(1).toLowerCase():"Passed",key="po:eureka",id="EUREKA:"+p.id+":"+tTurn();
   if(+((PT(p).holdingActs||{})[key])===tTurn())return [];
   return [{action:null,fin,source:"Eureka",tag:"Public Order",label:"Eureka · "+fin+" "+dom+" action (Public Order)",key,id,env:{id,owner:p,dom,council:false,votes:[],net:3,out:fin,done:true,standingSource:"Eureka"}}];}
+// Public Order "Eureka" band ("Each Empire Phase, may reduce an active Build Timer by N"): once each Empire Phase while the band is
+// active, one of your own Build Timers (Holding, Settlement, Infrastructure / Wonder) drops by N; at 0 it completes
+function eurekaTimerN(p){const k=eurekaKey(),b=p&&p.board;if(k==null||!b||tPhase()!=="empire"||!poActiveKeys(+b.po||0,b).includes(k))return 0;
+  const m=/reduce an active Build Timer by (\d+)/i.exec(String((POB(k)||[])[1]||""));return m?+m[1]:0;}
+function ownBuildTimers(p){const b=p.board,out=[];(b.placed||[]).forEach(x=>{if(x.bt>0)out.push({ref:"h:"+x.id,label:x.name+" · "+x.bt});});
+  (b.settlements||[]).forEach(x=>{if(x.bt>0)out.push({ref:"s:"+x.id,label:(x.up?(x.name||x.tier)+" → "+x.up.to:(x.name||x.tier))+" · "+x.bt});});
+  Object.keys(b.itimer||{}).forEach(n=>{if(b.itimer[n]>0)out.push({ref:"i:"+n,label:n+" · "+b.itimer[n]});});return out;}
+function eurekaTimerHTML(p){const n=eurekaTimerN(p);if(!n||+((PT(p).holdingActs||{})["po:eurekaTimer"])===tTurn())return "";const L=ownBuildTimers(p);
+  return '<div class="tb-row"><span style="flex:1">Eureka · reduce an active Build Timer by '+n+' (Public Order)</span>'+(L.length?'<select id="eurekaPick">'+L.map(x=>'<option value="'+esc(x.ref)+'">'+esc(x.label)+'</option>').join("")+'</select><button data-do="eurekaTimer" data-who="'+p.id+'">reduce</button>':'<span class="note">No active Build Timer.</span>')+'</div>';}
+DO.eurekaTimer=el=>{const p=pOf(el),n=p&&eurekaTimerN(p),ref=String((document.getElementById("eurekaPick")||{}).value||"");if(!p||!n||!canAct(p))return;
+  const pt=PT(p);pt.holdingActs=pt.holdingActs||{};if(+pt.holdingActs["po:eurekaTimer"]===tTurn())return;const b=p.board,id=ref.slice(2);let msg="";
+  if(ref.startsWith("h:")){const x=(b.placed||[]).find(y=>String(y.id)===id);if(!x||!(x.bt>0))return;x.bt=Math.max(0,x.bt-n);msg=x.name+(x.bt?" · Build Timer "+x.bt:" built");}
+  else if(ref.startsWith("s:")){const x=(b.settlements||[]).find(y=>String(y.id)===id);if(!x||!(x.bt>0))return;x.bt=Math.max(0,x.bt-n);msg=x.bt?(x.name||x.tier)+" · Build Timer "+x.bt:settFinish(p,x);}
+  else if(ref.startsWith("i:")){if(!((b.itimer||{})[id]>0))return;b.itimer[id]=Math.max(0,b.itimer[id]-n);msg=id+(b.itimer[id]?" · Build Timer "+b.itimer[id]:" built");if(!b.itimer[id])delete b.itimer[id];}
+  else return;
+  pt.holdingActs["po:eurekaTimer"]=tTurn();noteAdd(p,"Eureka: Build Timer −"+n+" → "+msg);save();render();};
 function activeCipherTimers(){const out=[];realmTimers().forEach((t,i)=>{if(t.n>0)out.push({ref:{kind:"realm",i},key:"realm:"+String(t.id!=null?t.id:[t.type,t.kind,t.by,t.tp,t.sid,t.aid,t.uid,t.label].join("|")),label:(t.label||t.type)+" · "+t.n});});
   D.players.forEach(p=>{const b=p.board;(b.placed||[]).forEach(x=>{if(x.bt>0)out.push({ref:{kind:"placed",pid:String(p.id),id:String(x.id),field:"bt"},key:"placed:"+p.id+":"+x.id+":bt",label:p.name+" · "+x.name+" Build · "+x.bt});
       if(x.dmg>0&&x.rep)out.push({ref:{kind:"placed",pid:String(p.id),id:String(x.id),field:"dmg"},key:"placed:"+p.id+":"+x.id+":dmg",label:p.name+" · "+x.name+" Repair · "+x.dmg});});
@@ -53,6 +69,7 @@ function empireHoldingHTML(p,ci){if(!p||!empWin())return "";const pt=PT(p),used=
     const last=pt.cipherTimer||{},timers=activeCipherTimers().filter(x=>!(last.turn===tTurn()-1&&last.id===x.key));
     out.push('<div class="tb-row"><span style="flex:1">Cipher Chamber · increase an active Timer by '+(+ct[0].m[1]||2)+'</span>'+ (timers.length?'<select id="cipherTimerPick">'+timers.map(x=>'<option value="'+esc(JSON.stringify(x.ref))+'">'+esc(x.label)+'</option>').join("")+'</select><button data-do="cipherTimer" data-who="'+p.id+'" data-n="'+(+ct[0].m[1]||2)+'">increase</button>':'<span class="note">No different active Timer from last turn.</span>')+'</div>');}
   const cd=pt.courierDeferred;if(cd&&cd.due<=tTurn()&&!cd.done)out.push('<div class="tb-row"><span style="flex:1">Courier Network · perform deferred '+esc(cd.act)+(cd.target?' → '+esc(pById(cd.target)?.name||'target'):'')+'</span><button data-do="courierDeferred" data-who="'+p.id+'">perform ▸</button></div>');
+  {const et=eurekaTimerHTML(p);if(et)out.push(et);}
   const bs=srcMatch(p.board,"start_empire_spread");if(bs.length&&+used.exaltedSpread!==tTurn())out.push('<div class="tb-row"><span style="flex:1">Exalted Basilica · Endorsed Spread Truth</span><button data-do="basilicaSpread" data-who="'+p.id+'">perform ▸</button></div>');
   const st=(p.board.placed||[]).filter(x=>x.name==="Studium Generale"&&pActive(x)&&!x.fac),chosen=pt.studiumEffects||{};
   st.filter(x=>!chosen[String(x.id)]).forEach(x=>{const avail=T_DOMS.filter(d=>((p.board.domains||{})[d]||0)<SOV&&!Object.keys(chosen).some(k=>chosen[k]===d));
