@@ -292,20 +292,20 @@ ENDURANCE_REGAIN    = 2    # +Endurance restored to non-Strained armies in the E
 RETINUES = {
     "Levy":           {"cost": 1000, "to_hit": 6, "endurance": 3, "shaking": 7, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
     "Man-at-Arms":    {"cost": 2000, "to_hit": 5, "endurance": 4, "shaking": 6, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
-    "Sergeant":       {"cost": 3000, "to_hit": 3, "endurance": 3, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
-    "Knight Templar": {"cost": 3000, "to_hit": 4, "endurance": 3, "shaking": 4, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
+    "Sergeant":       {"cost": 3000, "to_hit": 3, "endurance": 3, "shaking": 6, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
+    "Knight Templar": {"cost": 3000, "to_hit": 4, "endurance": 3, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
 }
 
 WEAPONS = {
     "Farm Tools":     {"ap":  0, "init":  0, "tier": "Crude",   "tags": [NO_PARRY]},
     "Cudgel":         {"ap": -1, "init": -1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, NO_PARRY]},
     "Pitchfork":      {"ap":  0, "init":  1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, NO_PARRY]},
-    "Bill Hook":      {"ap": -1, "init":  0, "tier": "Cast",   "tags":  [TWO_H, NEGATE_SHIELDED]},
+    "Bill Hook":      {"ap": -1, "init":  0, "tier": "Cast",   "tags":  [TWO_H, NEGATE_SHIELDED, NO_PARRY]},
     "Daggers":        {"ap":  0, "init":  0, "tier": "Cast",    "tags": [TWO_H, SHATTER_ARMOR, NO_PARRY]},
-    "Short Sword":    {"ap":  0, "init":  0, "tier": "Cast",    "tags": [STEADY]},
-    "Spears":         {"ap":  0, "init":  1, "tier": "Cast",    "tags": [UNWIELDY, SHATTER_ARMOR], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile.'},
-    "2HSpears":       {"ap":  0, "init":  1, "tier": "Cast",    "tags": [TWO_H, STEADY, SHATTER_ARMOR]},
-    "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY]},
+    "Short Sword":    {"ap":  0, "init":  0, "tier": "Cast",    "tags": [STEADY, SHATTER_ARMOR]},
+    "Spears":         {"ap": -1, "init":  1, "tier": "Cast",    "tags": [UNWIELDY, NO_PARRY], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile.'},
+    "2HSpears":       {"ap": -1, "init":  1, "tier": "Cast",    "tags": [TWO_H, STEADY, NO_PARRY]},
+    "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR]},
     "Pike":           {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, STEADY, UNWIELDY, SHATTER_ARMOR, NO_PARRY]},
     "Flail":          {"ap": -1, "init":  0, "tier": "Wrought", "tags": [UNWIELDY, UNSTOPPABLE, CLEAVE, NO_PARRY], 'note': 'Cannot Florentine'},
     "Halberd":        {"ap": -2, "init":  0, "tier": "Wrought", "tags": [TWO_H, STEADY]},
@@ -336,7 +336,7 @@ RANGED = {
     "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD, ONE_SHOT, NO_PARRY], 'note': 'Cannot Florentine'},
     "Crossbow":    {"ap": -4, "init":  1, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NO_PARRY]},#'note': "Tower Shield only (no other shield), cannot Dual Wield"
     "Pilum":       {"ap": -5, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD, ONE_SHOT, NO_PARRY]},
-    "Arquebus":    {"ap": -6, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
+    "Arquebus":    {"ap": -6, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NO_PARRY], 'note': "Needs Fletchery; May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
    
 }
 
@@ -2334,7 +2334,7 @@ FACTIONS = {
         'strength': 'Medium',
         'mechanic_name': 'Wise & Suspicious',
         'summary': 'Doubt +1; faster, Steady Armies; no Alliances',
-        'mechanic': "Gain Doubt +1 each Empire Phase. While your Public Order is 1 or higher, your Armies gain Initiative +1, Steady, and Speed +1. You can't be in an Alliance.",
+        'mechanic': "Gain Doubt +1 each Empire Phase. While your Public Order is 5 or higher, your Armies gain Initiative +1, Steady, and Speed +1. You can't be in an Alliance.",
         'pair': 'Outrider Intercept Post, Marshal Tiltyard',
         'complement': 'Royal Pavilion',
     },
@@ -2942,8 +2942,8 @@ BANDIT_EQUIPMENT_PER_ERA = {"Founding": "Levy: Farm Tools + Cloth", "Ascension":
 # Hardcore (a per-game choice the Host makes at Setup › Wild Outlaw Country): Wild Outlaw Country follows
 # HARDCORE_WILD_OUTLAW instead of WILD_OUTLAW, Bandits are armed from HARDCORE_BANDIT_EQUIPMENT_PER_ERA, and Bandit
 # Armies Move by BANDIT_BEHAVIOR["Hardcore Army Behavior"].
-HARDCORE_BANDIT_EQUIPMENT_PER_ERA = {"Founding": "Levy: Pitchfork + Gambeson", "Ascension": "Man-at-Arms: Spears + Targe Shield + Leather",
-                                    "Eminence": "Man-at-Arms: Halberd + Chainmail", "Zenith": "Sergeant: Bastard Sword + Tower Shield + Full Plate"}
+HARDCORE_BANDIT_EQUIPMENT_PER_ERA = {"Founding": "Levy: Pitchfork + Gambeson", "Ascension": "Man-at-Arms: Arming Sword + Targe Shield + Leather",
+                                    "Eminence": "Man-at-Arms: Halberd + Chainmail", "Zenith": "Sergeant: Morningstar + Tower Shield + Full Plate"}
                                     
 HARDCORE_WILD_OUTLAW = {
     "count": "fill",      # "formula" | "fill"
@@ -4056,6 +4056,7 @@ GLOSSARY["Root"] = (f"A Holding with no {CHAIN_TERM} requirement: you may start 
 RENOWN_MAX = 30              # Renown stops here; the game continues but no more Renown is gained
 RENOWN_PER_TURN = 1          # Rest Phase step 3 "Gain Renown" — the rules don't state an amount; set here
 DOMAIN_POINTS_PER_TURN = 1   # Rest Phase step 4 / Key Resources: "Domain Points — earned 1 per turn"
+DOMAIN_MAX = 30
 GLOSSARY["Domain Point"] = GLOSSARY["Domain Point"].replace("{DOMAIN_POINTS_PER_TURN}", str(DOMAIN_POINTS_PER_TURN))
 
 # ── AI PLAYERS (draft) ───────────────────────────────────────────────────────

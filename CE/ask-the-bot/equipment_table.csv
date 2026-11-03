@@ -2,12 +2,12 @@ Item,Type,Tier,AP_or_Save,Init,Keywords
 Farm Tools,Melee,Crude,0,0,Awkward
 Cudgel,Melee,Crude,-1,-1,"2H, Unwieldy, Awkward"
 Pitchfork,Melee,Crude,0,1,"2H, Unwieldy, Awkward"
-Bill Hook,Melee,Cast,-1,0,"2H, Negate Shielded"
+Bill Hook,Melee,Cast,-1,0,"2H, Negate Shielded, Awkward"
 Daggers,Melee,Cast,0,0,"2H, Deadly, Awkward"
-Short Sword,Melee,Cast,0,0,Steady
-Spears,Melee,Cast,0,1,"Unwieldy, Deadly"
-2HSpears,Melee,Cast,0,1,"2H, Steady, Deadly"
-Arming Sword,Melee,Wrought,-1,0,Steady
+Short Sword,Melee,Cast,0,0,"Steady, Deadly"
+Spears,Melee,Cast,-1,1,"Unwieldy, Awkward"
+2HSpears,Melee,Cast,-1,1,"2H, Steady, Awkward"
+Arming Sword,Melee,Wrought,-1,0,"Steady, Deadly"
 Pike,Melee,Wrought,-2,1,"2H, Steady, Unwieldy, Deadly, Awkward"
 Flail,Melee,Wrought,-1,0,"Unwieldy, Unstoppable, Cleave, Awkward"
 Halberd,Melee,Wrought,-2,0,"2H, Steady"
