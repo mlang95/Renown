@@ -54,6 +54,7 @@ from combat_kernel import (
 import combat_primitives as _cp
 import re
 from dice_config import FACES, FOCUSED_THR, CAP_THR, AUTO_PASS_FLOOR
+from dice_config import NO_FALL_BACK
 _AP_FLOOR = AUTO_PASS_FLOOR if AUTO_PASS_FLOOR is not None else 1  # None (rule off) => floor 1, nothing auto-passes
 try:
     import numba
@@ -710,7 +711,7 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         # vectorized_combat's fb_min_skirmish=1. Any first-Skirmish Fall Back (playstyle, Arquebus
         # re-pick, Outrider counter, forced) is re-picked from that side's weights with Fall Back
         # zeroed and renormalised; uniform over the other 6 when no weights apply.
-        if first:
+        if first or NO_FALL_BACK:                          # NO_FALL_BACK (dice_config): never Fall Back
             for _side in ("a", "b"):
                 _tac = a_tac if _side == "a" else b_tac
                 _fb = _tac == FB_IDX

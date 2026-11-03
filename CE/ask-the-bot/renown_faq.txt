@@ -24,7 +24,7 @@ armies (supply) upkeep | [Armies (Supply) upkeep](https://mlang95.github.io/Reno
 Arming Sword | [Arming Sword](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP −1, Init +0. Keywords: Steady, Deadly.
 Armory | [Armory](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Arms). Effect: Craft +3; Unlocks Wrought armor & shield
 Army | [Army](https://mlang95.github.io/RenownWiki/glossary.html#army): Retinues on the map under your Control. Armies Move, Battle and Lay Siege, and pay Supply by Retinue type.
-Arquebus | [Arquebus](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Crude). AP −6, Init +2. Keywords: 2H, Unwieldy, Unstoppable, Negate Shielded, Awkward.
+Arquebus | [Arquebus](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Crude). AP −8, Init +2. Keywords: 2H, Unwieldy, Unstoppable, Negate Shielded, Awkward.
 Artillery Park | [Artillery Park](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Effect: Siege Timers ignore Wooden & Stone Walls; Unlocks Arquebus
 Artisan Workshop | [Artisan Workshop](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Commerce). Effect: Gold +1000; Faith +1
 Ascension | [Ascension](https://mlang95.github.io/RenownWiki/eras-ref.html) Era. Renown 8, armies 2, cities 1, influence/turn 2, envoys: 2 Works actions + 1 Personal Envoy (1 action each) per turn. Unlocks: May Declare War

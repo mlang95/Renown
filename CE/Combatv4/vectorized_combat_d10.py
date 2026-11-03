@@ -14,6 +14,7 @@ import re
 import numpy as np
 from dice_config import (FACES, FOCUSED_THR, ROUT_THR, CAP_THR, AUTO_PASS_FLOOR,
                          PARRY_BASE, RECOVER_BASE, DEADLY_AP, parse_bonuses)
+from dice_config import NO_FALL_BACK
 _AP_FLOOR = AUTO_PASS_FLOOR if AUTO_PASS_FLOOR is not None else 1 # None (rule off) => floor 1, nothing auto-passes
 from renown_data_d10 import (
     RETINUES, WEAPONS, RANGED, SHIELDS, ARMORS,
@@ -762,7 +763,15 @@ def _shaking_test_vec(rng, n, field_size, shaking_value, mask):
 
 
 # ===== Main matchup loop =====
-
+def _mask_counter(w, static, restrict, no_fb, FB=6):
+    """An Outrider counter-pick obeys the same gates as a normal pick: no Fall Back when gated (first Skirmish /
+    NO_FALL_BACK) and only the Tactics a restricting weapon allows (Arquebus)."""
+    w = w.copy()
+    if no_fb:
+        w[:, FB] = 0.0
+    if restrict:
+        w[:, ~static.tactic_mask_ranged] = 0.0
+    return _renorm_tactics(w)
 def _renorm_tactics(weights):
     """Renormalize per-run tactic weights to sum to 1 after some have been zeroed.
 
@@ -1172,7 +1181,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         # therefore silently redirects that mass into Fall Back. Always pass
         # masked weights through _renorm_tactics() before sampling.
         _tactics_masked = False
-        if sk < fb_min_skirmish:
+        if sk < fb_min_skirmish or NO_FALL_BACK:          # NO_FALL_BACK (dice_config): never Fall Back
             a_weights = a_weights.copy(); a_weights[:, FB_IDX] = 0.0
             b_weights = b_weights.copy(); b_weights[:, FB_IDX] = 0.0
             _tactics_masked = True
@@ -1210,11 +1219,13 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             # B picks first (from its playstyle), A plays the weapon-aware best response.
             b_tac = sample_tactic_indices(b_weights, rng)
             a_weights = _counter_weights_from_table(a_counter_tbl, b_tac, n_runs, counter_weight=0.8)
+            a_weights = _mask_counter(a_weights, a_static, _a_restrict, sk < fb_min_skirmish or NO_FALL_BACK)
             a_tac = sample_tactic_indices(a_weights, rng)
         elif b_outrider_fires:
             # A picks first, B plays the weapon-aware best response.
             a_tac = sample_tactic_indices(a_weights, rng)
             b_weights = _counter_weights_from_table(b_counter_tbl, a_tac, n_runs, counter_weight=0.8)
+            b_weights = _mask_counter(b_weights, b_static, _b_restrict, sk < fb_min_skirmish or NO_FALL_BACK)
             b_tac = sample_tactic_indices(b_weights, rng)
         else:
             # Standard: simultaneous independent picks

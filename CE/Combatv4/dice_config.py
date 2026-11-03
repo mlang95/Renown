@@ -110,7 +110,9 @@ DEADLY_AP     = _knob("DEADLY_AP", 5)     # additional AP on a Focused Deadly st
 def _env_str(name, default):
     raw = os.environ.get(name)
     return default if raw is None or str(raw).strip() == "" else str(raw).strip()
-
+# Tournament only: 1 = no army picks the Fall Back Tactic (a weapon limited to Fighting Formation / Fall Back,
+# e.g. the Arquebus, then always plays Fighting Formation). 0 = Fall Back allowed from the second Skirmish.
+NO_FALL_BACK = str(os.environ.get("RENOWN_NO_FALL_BACK", "1")).strip() not in ("0", "", "false", "False")
 DEADLY_MODE = _env_str("RENOWN_DEADLY_MODE", _RUN.get("deadly_mode", "additional"))  # "additional" = save_t + DEADLY_AP ; "set" = override (see OPEN #1)
 UNSTOPPABLE_MOD    = _knob("UNSTOPPABLE_MOD", 2)         # +N to the defender's Parry target when the attacker is Unstoppable
 IMPROVED_PARRY_MOD = _knob("IMPROVED_PARRY_MOD", 1)      # -N to the defender's own Parry target with Improved Parry

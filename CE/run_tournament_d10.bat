@@ -36,6 +36,10 @@ set DEADLY_AP=5
 set DEADLY_MODE=
 set UNSTOP=2
 set IMP_PARRY=
+REM NO_FALL_BACK: 1 = no army picks Fall Back (Arquebus always plays Fighting Formation); 0 = Fall Back allowed
+set NO_FALL_BACK=1
+set RENOWN_NO_FALL_BACK=%NO_FALL_BACK%
+
 REM set FACES=8
 REM set FOCUSED=8
 REM set FAT_S=1
