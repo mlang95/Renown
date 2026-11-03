@@ -1,6 +1,6 @@
 # REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`)
 
-Generated 2026-11-03 · data VERSION `0.4.9.9.15-d10-STrue` · HEAD `61dc7c9a 2026-11-02`
+Generated 2026-11-03 · data VERSION `0.4.9.9.15-d10-STrue` · HEAD `9d272115 2026-11-03`
 
 Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to the repo root.
 
@@ -87,7 +87,7 @@ Hand-written orientation: `CLAUDE.md` (same folder). Paths below are relative to
 | `CE\INFLUENCE_WORDING_AUDIT.md` | 76 | Influence / Authority wording audit |
 | `CE\PLAYSTYLE_REVIEW.md` | 105 | Playstyle reference — fit review (SIMPLE build, 2026-10-30) |
 | `CE\PRONOUN_WORDING_AUDIT.md` | 85 | "You / this player / the target" wording audit |
-| `CE\REPO_MAP.md` | 791 | REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`) |
+| `CE\REPO_MAP.md` | 968 | REPO_MAP — generated index (do not edit; run `python CE/repo_map.py`) |
 | `CE\RULES_push.md` | 649 | Renown |
 | `CE\RULES_push_simple.md` | 723 | Renown |
 | `CE\RULES_reorganized_6.md` | 638 | Renown |

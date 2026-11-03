@@ -1619,7 +1619,7 @@ NODES = {
         "monument": True},
     "Preceptory of the Knight's Templar": {
         "group": "g_devotion",
-        "unlock": "Sovereign Piety + Rising Prowess",
+        "unlock": "Sovereign Piety + Established Prowess",
         #"infrastructure_req": "March-Tower",
         "innate": f"While a Sacred War is active, gain 3 Faith during each Empire Phase; Unlocks Knight's Templar for Muster", #Armies gain {CRUSADER}: Automatically pass the first Panic Check of every Battle. 
         "efficient": "Hospitaller",
