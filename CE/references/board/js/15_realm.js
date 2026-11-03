@@ -196,7 +196,7 @@ function realmTableHTML(R){const sm=seatMap(),n=tSeats(),me=meP(),hp=hostP(),sp=
     if(!p){rows+='<tr class="rt-empty"><td class="num">'+(i+1)+'</td><td colspan="14"><span class="note">empty seat</span> '+(sl||!me?'':'<button data-do="sit" data-i="'+i+'" class="tb-mini">sit here</button>')+'</td></tr>';continue;}
     const h=hudData(p),pool=R.pool[p.id]??inflPool(p),left=pool-(R.spent[p.id]||0),dv=p.board.domains||{};
     // Domain values allowed: start + 1 per Renown gained; the Rest Phase's Domain Point is spent before End turn raises Renown
-    const dsum=DOMAINS.reduce((a,d)=>a+(+dv[d]||0),0),dmax=startDomTotal(p)+((D.renown||1)-1)+(TB().dpGiven===tTurn()?(DATA.dpPerTurn??1):0);
+    const dsum=DOMAINS.reduce((a,d)=>a+(+dv[d]||0),0),dmax=startDomTotal(p)+dpGained(p);
     const tp=hudTips(p,h),tl=k=>' data-tipl="'+esc(tp[k])+'"';
     let st='';
     if(ph==="envoy"&&TB().phaseTs){const dc=tCur(p).decl||{};

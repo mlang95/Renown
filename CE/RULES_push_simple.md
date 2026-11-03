@@ -111,7 +111,7 @@ A few conventions make every rule in this book read the same way:
 ## Resources
 
 - **Gold / Treasury** — your spendable wealth. Pays for Actions, {{VAL:SUPPLY_TERM}}, {{VAL:UPKEEP_TERM}}, and Muster recruitment. Running out triggers Insolvency (see Treasury & Upkeep).
-- **Domain Points** — gain {{VAL:DOMAIN_POINTS_PER_TURN}} each Rest Phase and spend it to raise a Domain value by 1 (see Domains & Standings).
+- **Domain Points** — gain {{VAL:DOMAIN_POINTS_PER_TURN}} each Rest Phase and spend it to raise a Domain value by 1 (see Domains & Standings). You gain no more once you have gained {{VAL:DOMAIN_MAX}}, once Renown is at its maximum ({{VAL:RENOWN_MAX}}), or while every Domain is at its maximum.
 - **Influence** — the weight you bring to Envoy votes: spend it to Support or Oppose other players' Envoys (see Actions & Voting).
 - **Renown** — the score of the table. Gained each Rest Phase and by completing Edicts; it sets the Era. {{RULE:renown-track}}
 - **Public Order** — the stability of your realm, raised by Faith and lowered by Doubt. Its band sets ongoing effects (see Public Order).

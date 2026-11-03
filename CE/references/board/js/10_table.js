@@ -694,7 +694,14 @@ function tRestartPhase(){const t=TB(),s=t.phaseStart,ph=tPhase();if(!s||s.phase!
 function tAdd30(){const R=tSim();if(!R.cur)return;const t=TB(),key=R.cur.key;if(t.deadlines&&t.deadlines[key]!=null)t.deadlines[key]=+t.deadlines[key]+30000;
   else if(isFinite(R.cur.deadline)){t.extraTime=t.extraTime||{};t.extraTime[key]=(+t.extraTime[key]||0)+30000;}
   else{t.deadlines=t.deadlines||{};t.deadlines[key]=tnow()+30000;}save();renderTable();}
-function grantDP(){const t=TB();if(t.dpGiven===tTurn())return false;t.dpGiven=tTurn();D.players.forEach(p=>{p.board.dp=(p.board.dp||0)+(DATA.dpPerTurn??1);});checkEdicts();return true;}
+// Domain Points gained so far (b.dpGot; an older save starts from the Rest Phases already played, up to DOMAIN_MAX)
+function dpGained(p){const b=p.board,per=DATA.dpPerTurn??1;
+  if(b.dpGot==null)b.dpGot=Math.min(+RC.DOMAIN_MAX||Infinity,(tTurn()-1)*per+(TB().dpGiven===tTurn()?per:0));return +b.dpGot;}
+// a Rest Phase grants Domain Points unless: Renown is already at RENOWN_MAX (none gained), DOMAIN_MAX are gained, or every Domain is at its maximum
+function dpRoom(p){const b=p.board;if((D.renown||1)>=(+RC.RENOWN_MAX||30))return 0;if(!DOMAINS.some(d=>(+((b.domains||{})[d])||0)<SOV))return 0;
+  return Math.max(0,Math.min(DATA.dpPerTurn??1,(+RC.DOMAIN_MAX||Infinity)-dpGained(p)));}
+function grantDP(){const t=TB();if(t.dpGiven===tTurn())return false;const add=D.players.map(dpRoom);t.dpGiven=tTurn();
+  D.players.forEach((p,i)=>{if(add[i]>0){p.board.dp=(p.board.dp||0)+add[i];p.board.dpGot=dpGained(p)+add[i];}});checkEdicts();return true;}
 function dpOwed(){return D.players.filter(p=>(p.board.dp||0)>0);}
 function tEndTurn(){{const g=grantDP(),ow=dpOwed();
     if(ow.length&&!(ADMIN&&confirm("Domain Points unspent ("+ow.map(p=>p.name).join(", ")+"). End the turn anyway?"))){

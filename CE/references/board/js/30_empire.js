@@ -605,15 +605,16 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
     const occ=S.placed.filter(p=>p.sid===gid);
     const unpEmpty=(gid==null&&!occ.length);
     any=any||occ.length>0||gid!=null;
-    const closed=(S.settClosed||[]).includes(gid==null?"unplaced":gid);
+    // Settlements start collapsed (S.settOpen lists the opened ones); Unplaced starts open (S.settClosed)
+    const closed=gid==null?(S.settClosed||[]).includes("unplaced"):!(S.settOpen||[]).includes(gid);
     const key=(gid==null?"unplaced":gid);
     let SFX=null;
     const grp=document.createElement("div");grp.className="sgroup"+(gid===activeSid?" active":"")+(unpEmpty?" unp-empty":"");
     grp.dataset.dropSid=(gid==null?"none":gid);
     const hd=document.createElement("div");hd.className="sgroup-hd";
     const car=document.createElement("span");car.className="pcaret";car.style.cursor="pointer";car.textContent=closed?"▸":"▾";
-    car.onclick=(e)=>{e.stopPropagation();S.settClosed=S.settClosed||[];const i=S.settClosed.indexOf(key);
-      if(i<0)S.settClosed.push(key);else S.settClosed.splice(i,1);save();render();};
+    car.onclick=(e)=>{e.stopPropagation();const L=gid==null?(S.settClosed=S.settClosed||[]):(S.settOpen=S.settOpen||[]),i=L.indexOf(key);
+      if(i<0)L.push(key);else L.splice(i,1);save();render();};
     hd.appendChild(car);
     if(gid!=null){
       const tier=settTier(gid),wu=wardUse(gid);
@@ -639,11 +640,12 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
         fb.textContent=(op?"\u25be":"\u25b8")+" effects "+nx;
         fb.onclick=e=>{e.stopPropagation();S.settFx=S.settFx||[];const i=S.settFx.indexOf(gid);if(i<0)S.settFx.push(gid);else S.settFx.splice(i,1);save();render();};
         hd.appendChild(fb);}}
-      const cb=document.createElement("button");cb.className="shb";cb.style.marginLeft="auto";cb.textContent=isCap?"★ capital":"☆ capital";
-if(isCap)cb.style.color="var(--income)";
-      cb.onclick=(e)=>{e.stopPropagation();if(isCap){flash("every player has a capital — set another to move it");return;}
-        setCapital(gid);save();render();};
-      hd.appendChild(cb);
+      if(ADMIN){const cb=document.createElement("button");cb.className="shb";cb.style.marginLeft="auto";cb.textContent=isCap?"★ capital":"☆ capital";   // moving the capital: the Duke only
+        if(isCap)cb.style.color="var(--income)";
+        cb.onclick=(e)=>{e.stopPropagation();if(isCap){flash("every player has a capital — set another to move it");return;}
+          setCapital(gid);save();render();};
+        hd.appendChild(cb);}
+      else{const sp=document.createElement("span");sp.style.marginLeft="auto";hd.appendChild(sp);}   // keeps the row's buttons right-aligned
       const nt=(S.settlements.find(x=>x.id===gid)||{}).up?null:nextTier(tier);
       if(nt){
         const ex=document.createElement("button");ex.className="shb";ex.textContent="▲ "+nt;ex.title="expand to "+nt;

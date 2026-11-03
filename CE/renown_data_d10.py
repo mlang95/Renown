@@ -2510,7 +2510,7 @@ SETTLEMENTS = {
 # Presence (Prowess rule): an Army can't move within PRESENCE_RANGE of a non-allied Army (Bandit Armies included, Bandit
 # Camps not) or a non-allied Settlement whose owner has a Garrison, unless that Move performs a Battle or Lay Siege against it.
 # Presence +N (Keep) raises the Range of its owner's Settlement Presence. Board: DATA.rulesConst.PRESENCE_RANGE; Garrison / Keep via effect_registry.
-PRESENCE_RANGE = 2
+PRESENCE_RANGE = 1
 # Settlement Wards. "abstract": Wards are slots inside the Settlement, never placed on the map.
 # "range1" (live): each Ward occupies a Territory within Range 1 of the Settlement.
 # Switch WARD_MODEL between them; the rules prose reads WARD_RULE ({{VAL:WARD_RULE}}), the board reads DATA.rulesConst.WARD_MODEL.
@@ -3806,7 +3806,12 @@ GLOSSARY["Root"] = (f"A Holding with no {CHAIN_TERM} requirement: you may start 
 RENOWN_MAX = 30              # Renown stops here; the game continues but no more Renown is gained
 RENOWN_PER_TURN = 1          # Rest Phase step 3 "Gain Renown" — the rules don't state an amount; set here
 DOMAIN_POINTS_PER_TURN = 1   # Rest Phase step 4 / Key Resources: "Domain Points — earned 1 per turn"
-GLOSSARY["Domain Point"] = GLOSSARY["Domain Point"].replace("{DOMAIN_POINTS_PER_TURN}", str(DOMAIN_POINTS_PER_TURN))
+# Most Domain Points one player gains over the game (independent of Renown, which also rises with Edicts).
+# Points also stop once Renown is at RENOWN_MAX, and while every Domain is at its maximum (Sovereign).
+# DOMAIN_MAX = RENOWN_MAX - 1 matches one point per Renown step from the start.
+DOMAIN_MAX = 20
+GLOSSARY["Domain Point"] = (GLOSSARY["Domain Point"].replace("{DOMAIN_POINTS_PER_TURN}", str(DOMAIN_POINTS_PER_TURN))
+                            + f" You gain none once you have gained {DOMAIN_MAX}, once Renown is at {RENOWN_MAX}, or while every Domain is at its maximum.")
 
 # ── AI PLAYERS (draft) ───────────────────────────────────────────────────────
 # Decision priorities shared by every AI player, highest first. A culture changes HOW a priority is met
