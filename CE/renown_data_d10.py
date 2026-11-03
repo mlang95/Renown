@@ -9,7 +9,7 @@ SIMPLE = True
 # Industry actions, no Envoy); in Spring the Envoy Phase is the Diplomacy Phase (offers between players; no Envoys), the only one
 PHASE_REFORM = _os.environ.get("RENOWN_PHASES", "1") == "1"
 vS = "-S"
-VERSION = f"0.4.9.9.15-d10{vS}{PHASE_REFORM}"
+VERSION = f"0.4.9.9.20-d10{vS}{PHASE_REFORM}"
 # ── DICE ─────────────────────────────────────────────────────────────────────
 # Single source for die size, shared with the combat engines. Every threshold
 # string below is an f-string built from these, so changing the die rewrites the
@@ -2685,7 +2685,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                  'requirement': 'Library'},
  'Keep': {'upkeep': 400,
           'upkeep_frequency': 'each Empire Phase',
-          'empire_bonus': "Siege Timer +1; When you Muster, reduce the Muster Timer by 1 and immediately gain Retinues equal to the combined muster limit; Your Settlement Wards have Presence",
+          'empire_bonus': "Siege Timer +1; When you Muster, reduce the Muster Timer by 1 and immediately gain Retinues equal to the combined muster limit; Presence +1",
           'tier': 'Prodigious',
           'build_time': 4,
           'requirement': 'March-Tower'},
