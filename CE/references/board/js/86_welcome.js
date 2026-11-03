@@ -82,7 +82,7 @@ function welcomeRender(){if(!WEL.view)return;let el=document.getElementById("wel
   const nm=card.querySelector("#wlName"),col=card.querySelector("#wlCol");
   if(nm){nm.oninput=()=>{p.name=nm.value;};nm.onchange=()=>{save();render();renderList();};}
   if(col)col.onchange=()=>{p.color=col.value;save();render();welcomeRender();};
-  const slot=card.querySelector("#wlHerSlot");if(slot&&!cultureOf(p.board)&&HER_ALL.length)slot.appendChild(herPicker(p,ed));}
+  const slot=card.querySelector("#wlHerSlot");if(slot&&HER_ALL.length)slot.appendChild(herPicker(p,ed));}
 function welcomeClick(e){if(e.target.id==="welcome"){if(WEL.view==="profile"||myClaimP())welcomeClose();return;}
   const t=e.target.closest("[data-wl]");if(!t||t.disabled)return;const k=t.dataset.wl,p=t.dataset.p!=null?pById(t.dataset.p):pById(WEL.pid);
   if(k==="close")return welcomeClose();
@@ -99,7 +99,7 @@ function welcomeClick(e){if(e.target.id==="welcome"){if(WEL.view==="profile"||my
   if(k==="cul"){WEL.cul=t.dataset.c||"";return welcomeRender();}
   if(!p||!canEdit(p))return;
   if(k==="gen"){const n=genPlaceName(nameCulture(p.board));if(n){p.name=n;save();render();renderList();welcomeRender();}return;}
-  if(k==="choose"||k==="her"){const n=WEL.cul,was=cultureOf(p.board)||"";p.board.culture=n;
+  if(k==="choose"||k==="her"){const n=WEL.cul,was=cultureOf(p.board)||"";setCulture(p,n);
     if(k==="her")setFaction(t.dataset.f);
     else if(n!==was&&p.board.faction&&!heritagesFor(n).includes(p.board.faction))setFaction("");
     save();render();renderList();welcomeRender();}}

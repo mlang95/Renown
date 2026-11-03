@@ -506,11 +506,11 @@ function renderTopBar(){
   const ed=canEdit(p)&&!spectating();nm.disabled=col.disabled=!ed;nm.classList.add("keepval");
   const gen=document.createElement("button");gen.textContent="Generate";gen.title="random name ("+(nameCulture(p.board)||"")+")";gen.disabled=!ed;
   gen.onclick=()=>{const n=genPlaceName(nameCulture(p.board));if(!n)return;p.name=n;save();render();renderList();};
-  if(!cultureOf(p.board)&&HER_ALL.length)put(herPicker(p,ed));
+  if(HER_ALL.length)put(herPicker(p,ed));   // anyone may pick a charge; a culture only sets the default
   else{const h=heraldOf(p,26);if(h){const w=document.createElement("span");w.className="pc-her";w.innerHTML=h;put(w);}}
   put(nm);put(gen);put(col);
   {const w=document.createElement("span");w.innerHTML=culSelectHTML(p.board);const cs=w.firstChild;cs.disabled=!ed;cs.classList.add("keepval");
-    cs.onchange=e=>{p.board.culture=e.target.value||"";save();render();renderList();};put(cs);}
+    cs.onchange=e=>{setCulture(p,e.target.value||"");save();render();renderList();};put(cs);}
   put(facPicker(ed,v=>{setFaction(v);save();render();renderList();}));
   {let on=false;try{on=!!SYNC.ready;}catch(e){}
     if(on){const cl=claimOf(p),mc=myClaimP(),b=document.createElement("button");b.dataset.claim="1";
@@ -630,6 +630,7 @@ function renderPursuitBoard(earned,craft,tc,hideCombat,have){
         hd.appendChild(wc);}
       {const so=S.settlements.find(x=>x.id===gid),ni=document.createElement("input");ni.className="snm keepval";{const pb=playerOfBoard(S);ni.readOnly=(pb?!canEdit(pb):false)||spectating();}ni.placeholder="name";ni.value=(so&&so.name)||"";ni.title="Settlement name";
         ni.onclick=e=>e.stopPropagation();ni.onchange=()=>{if(so){so.name=ni.value.trim()||undefined;if(!so.name)delete so.name;save();render();}};hd.appendChild(ni);
+        {const pb=playerOfBoard(S);if(so&&pb&&typeof mapLinkEl==="function")hd.appendChild(mapLinkEl(pb,"sett",so));}
         if(so&&PN){const gb=document.createElement("button");gb.className="shb";gb.textContent="Generate";gb.title="random name ("+(nameCulture(S)||"")+")";
           gb.onclick=e=>{e.stopPropagation();const nm=genPlaceName(nameCulture(S));if(nm){so.name=nm;save();render();}};hd.appendChild(gb);}}
       {const so=S.settlements.find(x=>x.id===gid);if(so&&so.bt>0)hd.appendChild(timerCtl("build",so.bt,d=>{so.bt=Math.max(0,so.bt+d);if(!so.bt)settFinish(playerOfBoard(S),so);save();render();}));}
@@ -822,13 +823,16 @@ function dragEnd(drop){
   else if(drop&&d.res&&!d.res.ok&&d.res.why)flash(d.res.why);
 }
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&DRAG)dragEnd(false);});
-// Self-made heraldry: the player picks any charge (board.heraldry); a culture's own charge replaces it while a culture is chosen
+// Heraldry: anyone picks any charge (board.heraldry); choosing a culture resets it to that culture's charge
 function herPicker(p,ed){const w=document.createElement("span");w.className="herpick";const b=document.createElement("button");b.type="button";b.className="herbtn";b.disabled=!ed;
   b.title="heraldry";b.innerHTML=heraldOf(p,22)||'<span class="note">heraldry ▾</span>';w.appendChild(b);
   const close=()=>{const m=w.querySelector(".hermenu");if(m)m.remove();document.removeEventListener("mousedown",out,true);},out=e=>{if(!w.contains(e.target))close();};
   b.onclick=()=>{if(w.querySelector(".hermenu")){close();return;}const m=document.createElement("div");m.className="hermenu";
-    m.innerHTML='<div class="hm0 note">Heraldry</div>'+HER_ALL.map(a=>'<button type="button" data-h="'+esc(a)+'" title="'+esc(a)+'"'+(p.board.heraldry===a?' class="on"':'')+'>'+
-      '<svg width="26" height="26" viewBox="0 0 '+herN("her:"+a)+' '+herN("her:"+a)+'">'+herPaths("her:"+a,p.color)+'</svg></button>').join("");
+    const G=(SPR&&SPR.herGroups)||{},seen=new Set(),cul=cultureOf(p.board),cc=cul&&HER[cul],
+      btn=a=>'<button type="button" data-h="'+esc(a)+'" title="'+esc(a)+(a===cc?' ('+esc(cul)+')':'')+'"'+(herName(p)===a?' class="on"':'')+'>'+
+        '<svg width="26" height="26" viewBox="0 0 '+herN("her:"+a)+' '+herN("her:"+a)+'">'+herPaths("her:"+a,p.color)+'</svg></button>',
+      sec=(t,L)=>{L=L.filter(a=>HER_ALL.includes(a)&&!seen.has(a));L.forEach(a=>seen.add(a));return L.length?'<div class="hm0 note">'+esc(t)+'</div>'+L.map(btn).join(""):"";};
+    m.innerHTML=Object.keys(G).map(t=>sec(t,G[t])).join("")+sec(Object.keys(G).length?"Other":"Heraldry",HER_ALL);
     m.onclick=e=>{const x=e.target.closest("[data-h]");if(!x)return;p.board.heraldry=x.dataset.h;close();save();render();renderList();};
     w.appendChild(m);document.addEventListener("mousedown",out,true);};
   return w;}
@@ -869,6 +873,7 @@ function factionFlags(){const f=FAC[S.faction];if(!f)return [];const out=[];{con
   {const dv=S.domains||{},u=+ST.Untested||1,nr=facHit(S,"no_renown_into"),mx=facHit(S,"domain_max");    // Renown → Domain limits
     if(nr&&(+dv[nr[1]]||0)>u)out.push(S.faction+": no Domain Points into "+nr[1]+" ("+nr[1]+" "+dv[nr[1]]+")");
     if(mx&&(+dv[mx[2]]||0)>+mx[1])out.push(S.faction+": "+mx[2]+" "+dv[mx[2]]+" > "+mx[1]);}
+  if(facHit(S,"max_armies")){const cap=eraCap("armies"),n=(S.armies||[]).length;if(cap!=null&&n<cap)out.push(S.faction+": "+n+" / "+cap+" Armies — send all of your Prowess Envoys this Envoy Phase");}
   return out;}
 // Factions offered by a culture come only from its mechanic_name list (the legacy CULTURES[*]['factions'] list is not used).
 // Self-made, or a culture with no list = every faction. The current pick always stays listed.
@@ -880,7 +885,8 @@ function cultureFactions(b){const c=cultureOf(b||S),row=c&&CUL[c];if(!row)return
 // only final-cut factions (FACTIONS[*].final_cut) are offered; a non-final current pick stays listed
 // FAC_ALL (per device): offer every final-cut faction whatever the culture
 let FAC_ALL=false;try{FAC_ALL=localStorage.getItem("renown_facall")==="1";}catch(_){}
-function facOffered(){const keep=FAC_ALL?null:cultureFactions(S);return Object.keys(FAC).filter(n=>n===S.faction||(FAC[n].final&&(!keep||keep.has(n))));}
+let FAC_DRAFT=false;try{FAC_DRAFT=localStorage.getItem("renown_facdraft")==="1";}catch(_){}   // also offer factions not in the final cut (tinkering)
+function facOffered(){const keep=FAC_ALL?null:cultureFactions(S);return Object.keys(FAC).filter(n=>n===S.faction||((FAC[n].final||(FAC_DRAFT&&!FAC[n].deprecated))&&(!keep||keep.has(n)||(FAC_DRAFT&&!FAC[n].final))));}
 // faction picker: a list (not a native select) so each faction's summary shows on hover / focus
 function facPicker(ed,onPick){const w=document.createElement("span");w.className="facpick";const f=FAC[S.faction];
   const btn=document.createElement("button");btn.type="button";btn.className="facsel facbtn";btn.disabled=!ed;btn.title="faction";
@@ -888,10 +894,11 @@ function facPicker(ed,onPick){const w=document.createElement("span");w.className
   const close=()=>{const m=w.querySelector(".facmenu");if(m)m.remove();document.removeEventListener("mousedown",out,true);};
   const out=e=>{if(!w.contains(e.target))close();};
   btn.onclick=()=>{if(w.querySelector(".facmenu")){close();return;}const L=facOffered(),m=document.createElement("div");m.className="facmenu";m.setAttribute("role","listbox");
-    m.innerHTML=(cultureOf(S)?'<label class="fmall note"><input type="checkbox"'+(FAC_ALL?' checked':'')+'> all cultures</label>':'')+
+    m.innerHTML=(cultureOf(S)?'<label class="fmall note"><input type="checkbox"'+(FAC_ALL?' checked':'')+'> all cultures</label>':'')+'<label class="fmdraft note"><input type="checkbox"'+(FAC_DRAFT?' checked':'')+'> drafts (not final cut)</label>'+
       '<div class="fmi" data-f="" tabindex="0" role="option"><b>— none —</b></div>'+(L.length?L.map(n=>'<div class="fmi'+(n===S.faction?' on':'')+'" data-f="'+esc(n)+'" tabindex="0" role="option"><b>'+esc(n)+'</b>'+
       (FAC[n].final?'':' <span class="note">(not final cut)</span>')+(FAC[n].summary?'<div class="fms note">'+esc(FAC[n].summary)+'</div>':'')+'</div>').join(''):'<div class="note fmi0">no final-cut factions for '+esc(S.culture||"")+'</div>');
     m.onclick=e=>{const it=e.target.closest(".fmi");if(!it)return;close();onPick(it.dataset.f);};
+    {const cb=m.querySelector(".fmdraft input");if(cb)cb.onchange=()=>{FAC_DRAFT=cb.checked;try{localStorage.setItem("renown_facdraft",FAC_DRAFT?"1":"0");}catch(_){}close();btn.click();};}
     {const cb=m.querySelector(".fmall input");if(cb)cb.onchange=()=>{FAC_ALL=cb.checked;try{localStorage.setItem("renown_facall",FAC_ALL?"1":"0");}catch(_){}close();btn.click();};}
     m.onkeydown=e=>{const it=e.target.closest(".fmi");if(e.key==="Escape"){close();btn.focus();}else if(it&&(e.key==="Enter"||e.key===" ")){e.preventDefault();close();onPick(it.dataset.f);}
       else if(it&&(e.key==="ArrowDown"||e.key==="ArrowUp")){e.preventDefault();const n=e.key==="ArrowDown"?it.nextElementSibling:it.previousElementSibling;if(n&&n.classList.contains("fmi"))n.focus();}};
@@ -1144,7 +1151,8 @@ function pursuitCard(inst,earned,craft,tc,hideCombat,have){
 function renderInfraSection(kind,src,have,hideCombat){
   const box=document.getElementById("board-"+kind);box.innerHTML="";
   const keys=Object.keys(have);
-  keys.forEach(n=>{
+  if(kind==="infra"&&keys.length)box.appendChild(infraSummaryEl(keys));
+  const mk=n=>{
     const open=(S.eqOpen||[]).includes(n);
     const r=src[n];const card=document.createElement("div");card.className="card";
     card.style.borderLeftColor=cvar(PHASE_COLOR[PHASE[(r.atoms[0]||{}).cat]||"other"]);
@@ -1182,10 +1190,39 @@ function renderInfraSection(kind,src,have,hideCombat){
       bi.appendChild(effectView(r.effect_raw,r.atoms,hideCombat));
       card.appendChild(bi);
     }
-    box.appendChild(card);
-  });
+    return card;};
+  // stacks by requirement path (Dirt Roads → Stone Roads, Muster Field → Garrison → March-Tower …): the most advanced piece
+  // on top, the ones it was built on folded under it (click the fold to open the stack)
+  infraStacks(keys,src).forEach(st=>{if(st.length===1){box.appendChild(mk(st[0]));return;}
+    const top=st[st.length-1],open=(S.istackOpen||[]).includes(top),w=document.createElement("div");w.className="istack"+(open?" open":"");
+    const lb=document.createElement("div");lb.className="istack-lbl";lb.innerHTML='<span>'+st.map(esc).join(" → ")+'</span><span>⚡ '+(st.length-1)+' stacked '+(open?'▾':'▸')+'</span>';
+    lb.onclick=()=>{S.istackOpen=S.istackOpen||[];const i=S.istackOpen.indexOf(top);if(i<0)S.istackOpen.push(top);else S.istackOpen.splice(i,1);save();render();};
+    w.appendChild(lb);w.appendChild(mk(top));
+    st.slice(0,-1).reverse().forEach(n=>{if(open){const c=mk(n);c.classList.add("under");w.appendChild(c);}
+      else{const u=document.createElement("div");u.className="istack-under";u.textContent=n;u.title=(src[n]||{}).effect_raw||"";w.appendChild(u);}});
+    box.appendChild(w);});
   toggleEmpty(kind,keys.length);
 }
+// requirement paths among the pieces you hold: each stack runs root → … → the piece nothing you hold requires (branches split off)
+function infraStacks(keys,src){const has=new Set(keys),parent={},kids={};
+  keys.forEach(n=>{const r=String((src[n]||{}).requirement||"").trim(),p=keys.find(k=>k!==n&&r&&new RegExp("(^|[^\\w])"+k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"([^\\w]|$)").test(r));
+    if(p){parent[n]=p;(kids[p]=kids[p]||[]).push(n);}});
+  const out=[],used=new Set();
+  keys.filter(n=>!parent[n]).forEach(root=>{const walk=(n,path)=>{const ch=(kids[n]||[]).filter(x=>has.has(x));if(!ch.length){out.push(path);path.forEach(x=>used.add(x));return;}
+      walk(ch[0],path.concat(ch[0]));ch.slice(1).forEach(c=>walk(c,[c]));};walk(root,[root]);});
+  keys.filter(n=>!used.has(n)).forEach(n=>out.push([n]));
+  return out;}
+// what the Infrastructure you hold is doing: active pieces with their effect, then the summed chips; building / damaged / shut listed apart
+function infraSummaryEl(keys){const d=document.createElement("details");d.className="tot isum";d.open=!!S.isumOpen;
+  d.ontoggle=()=>{if(!!S.isumOpen!==d.open){S.isumOpen=d.open;save();}};
+  const on=keys.filter(n=>infraOn(n)),off=keys.filter(n=>!infraOn(n));
+  const st=n=>S.itimer[n]>0?"building · "+S.itimer[n]:S.idmg[n]>0?"damaged":S.ishut[n]?"shut":"inactive";
+  d.innerHTML='<summary><b>Infrastructure effects</b> <span class="note">'+on.length+' active'+(off.length?' · '+off.length+' not':'')+'</span></summary>'+
+    '<table class="dtable isumt"><tbody>'+on.map(n=>'<tr><td><b>'+esc(n)+'</b></td><td>'+kwify((INFRA[n]||{}).effect_raw||"")+'</td></tr>').join("")+
+    off.map(n=>'<tr class="dim"><td>'+esc(n)+' <span class="note">('+st(n)+')</span></td><td class="note">'+esc((INFRA[n]||{}).effect_raw||"")+'</td></tr>').join("")+'</tbody></table>';
+  const tot=accChips(contribAcc({innate:[].concat(...on.map(n=>(INFRA[n]||{}).atoms||[]))},false));
+  if(tot.children.length){const l=document.createElement("div");l.className="note";l.style.marginTop="4px";l.textContent="Totals:";d.appendChild(l);d.appendChild(tot);}
+  return d;}
 
 // ---- army: aggregate unlocks/modifiers from pool (innate always, mastery if mastered) ----
 function armyUnlocks(earned){
@@ -1380,6 +1417,7 @@ function armyCard(a,u){
   lab.oninput=()=>{a.label=lab.value;save();};top.appendChild(lab);
   const mor=document.createElement("span");mor.className="badge "+(routed?"noearn":"tier");
   {const ms=moraleStanding(a),mp=moralePO(a);mor.textContent="morale "+effMorale(a)+"+"+(a.fatigue||ms||mp?(" ("+moraleBase(a)+"+"+(a.fatigue?" +"+((BT.fatigueMorale??2)*a.fatigue):"")+(mp?" +"+mp.n+" "+mp.src:"")+(ms?" −"+ms.n+" "+ms.src:"")+")"):"");}top.appendChild(mor);
+  {const pb=playerOfBoard(S);if(pb&&typeof mapLinkEl==="function")top.appendChild(mapLinkEl(pb,"army",a));}
   const upL=document.createElement("span");upL.className="note";upL.textContent=SUPPLY().toLowerCase();top.appendChild(upL);
   const up=document.createElement("b");up.textContent=fmt(-armyUpkeep(a));up.title=a.retinue+" Army cost";top.appendChild(up);
   const rm=document.createElement("button");rm.className="rm";rm.textContent="✕";
@@ -1530,7 +1568,8 @@ function calcMetrics(have,earned,tc){
   const phaseCount={};
   const naturalCount=Object.keys(PC).filter(n=>NATURAL.has(n)).reduce((a,n)=>a+PC[n],0)
     +(SIMPLE?S.placed.filter(p=>p.fac&&pActive(p)&&!NATURAL.has(p.name)).length:0);   // SIMPLE: faction pursuits are Natural
-  function eat(atoms,active,q){
+  const inflSrc=[];
+  function eat(atoms,active,q,src){
     atoms.forEach(a=>{
       const ph=a.season?"season":(PHASE[a.cat]||"other");phaseCount[ph]=(phaseCount[ph]||0)+q;
       if(!active)return;
@@ -1543,17 +1582,17 @@ function calcMetrics(have,earned,tc){
       if(a.cat==="gold")gold+=a.val*q;
       else if(a.cat==="upkeep")reduce+=(-a.val)*q;
       else if(a.cat==="dues")dues+=(-a.val)*q;            // "Dues -X": Holding / Infrastructure costs only
-      else if(a.cat==="craft")craft+=a.val*q;else if(a.cat==="influence")infl+=a.val*q;
+      else if(a.cat==="craft")craft+=a.val*q;else if(a.cat==="influence"){infl+=a.val*q;if(src)inflSrc.push([src,a.val*q]);}
       else if(a.cat==="faith")faith+=a.val*q;else if(a.cat==="doubt")doubt+=a.val*q;
     });
   }
   Object.keys(PC).forEach(n=>{const r=R[n],q=PC[n];
-    eat(r.innate,true,q); if(r.mastery_raw)eat(r.mastery,!!earned[n],q);});
+    eat(r.innate,true,q,n); if(r.mastery_raw)eat(r.mastery,!!earned[n],q,n);});
   itm();
   // Infrastructure / Wonders pay upkeep only while active (not building, Damaged or under repair)
   const freeT=noUpkeepTiers();   // "No Upkeep on <Tier> Infrastructure" (Masonry / Trade Guild / College of Engineering)
-  Object.keys(S.infra).forEach(n=>{const on=infraOn(n);eat(INFRA[n].atoms,on,1);if(on&&!S.facInfra.includes(n)&&!freeT[INFRA[n].tier])infraUp+=INFRA[n].upkeep;});
-  Object.keys(S.wonders).forEach(n=>{const on=infraOn(n);eat(WON[n].atoms,on,1);if(on)infraUp+=WON[n].upkeep;});
+  Object.keys(S.infra).forEach(n=>{const on=infraOn(n);eat(INFRA[n].atoms,on,1,n);if(on&&!S.facInfra.includes(n)&&!freeT[INFRA[n].tier])infraUp+=INFRA[n].upkeep;});
+  Object.keys(S.wonders).forEach(n=>{const on=infraOn(n);eat(WON[n].atoms,on,1,n);if(on)infraUp+=WON[n].upkeep;});
   {const me=playerOfBoard(S);if(me)S.placed.forEach(q=>{if(!pActive(q)||!settBesieged(me,q.sid))return;
      ((R[q.name]||{}).innate||[]).forEach(a=>{if(a.cat==="craft"&&a.flat&&!a.season)craft-=a.val;});});}   // besieged: no Craft X
   {const tb=facTypeBonus(S),me=playerOfBoard(S);if(tb)S.placed.forEach(q=>{if(q.fac||!pActive(q)||!tb.has(q.name))return;
@@ -1583,7 +1622,7 @@ function calcMetrics(have,earned,tc){
   const unusedReduce=Math.max(0,reduce-armyGross);
   const duesCut=Math.max(0,Math.min(dues,infraUp+pursUp));   // never below 0
   const baseNet=gold+scale-infraUp-pursUp+duesCut-netArmy;
-  return {duesCut,gold,reduce,craft,infl,faith,doubt,scale,infraUp,pursUp,armyGross,netArmy,unusedReduce,baseNet,seasonAdd,phaseCount,extort,extTrig};
+  return {duesCut,gold,reduce,craft,infl,inflSrc,faith,doubt,scale,infraUp,pursUp,armyGross,netArmy,unusedReduce,baseNet,seasonAdd,phaseCount,extort,extTrig};
 }
 function computeTotals(have,earned,tc){
   const m=calcMetrics(have,earned,tc);
@@ -1708,7 +1747,7 @@ function SEASON_DBL_TYPE(sea){const m=/^(\w[\w ]*?) Income is doubled/i.exec(((S
 function boardMetrics(b){
   return withBoard(b,()=>{const have=new Set(Object.keys(PC));const {earned,tc}=computeEarned(have);
     const m=calcMetrics(have,earned,tc);
-    return {net:m.baseNet,gold:m.gold,craft:m.craft,infl:m.infl,po:m.faith-m.doubt,faith:m.faith,doubt:m.doubt,netArmy:m.netArmy,seasonAdd:m.seasonAdd};});
+    return {net:m.baseNet,gold:m.gold,craft:m.craft,infl:m.infl,inflSrc:m.inflSrc,po:m.faith-m.doubt,faith:m.faith,doubt:m.doubt,netArmy:m.netArmy,seasonAdd:m.seasonAdd};});
 }
 
 // ---- Public Order tracker ----

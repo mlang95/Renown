@@ -174,12 +174,12 @@ function settReachHexes(p,s){
   return out;
 }
 // Raw Materials per Settlement: the resource must lie within THAT Settlement's Reach.
-// Terrain mode: each terrain type in a Settlement's Reach supplies at most one of its Raw Materials (max matching).
+// Terrain mode: any terrain of that Raw Material within the Settlement's Reach (no per-terrain claim: one terrain may supply several).
 // Nodes mode: a node of that resource within the Settlement's Reach.
 // Instances outside a Settlement (no Ward) fall back to Empire-wide Reach; the faction exemption skips claims.
 function rawClaims(p){
   const out={},M=mapState(),g=M.grid;if(!g||!p)return out;
-  const V=decodeGrid(g),b=p.board,useN=!!nodesMode(),noClaim=!!hitOf("F:"+(b.faction||""),"raw_noclaim");
+  const V=decodeGrid(g),b=p.board,useN=!!nodesMode();
   const isRaw=q=>!q.fac&&rawRes(q.name);
   const terrRaw=t=>(((TREF.terrain||{})[RULE_NAME[t]]||{})["Raw Materials"]||[]);
   const nodeOf=Object.fromEntries(Object.entries(RES_NODE).map(([k,v])=>[v,k]));
@@ -190,11 +190,7 @@ function rawClaims(p){
     const hx=settReachHexes(p,s);if(!hx){L.forEach(q=>out[q.id]={ok:true,checked:false});return;}
     const opts=L.map(q=>{const o=new Set();hx.forEach(k=>{const h=V.hex[k];if(!h)return;
       if(useN){if(h.res===nodeOf[q.name])o.add(k);}else if(terrRaw(h.t).includes(q.name))o.add(RULE_NAME[h.t]);});return [...o];});
-    if(useN||noClaim){L.forEach((q,i)=>out[q.id]={ok:opts[i].length>0,checked:true,why:opts[i].length?"":"none in Reach"});return;}
-    const own={};const aug=(i,seen)=>{for(const t of opts[i]){if(seen.has(t))continue;seen.add(t);if(own[t]==null||aug(own[t],seen)){own[t]=i;return true;}}return false;};
-    L.forEach((q,i)=>aug(i,new Set()));
-    const got={};Object.keys(own).forEach(t=>got[own[t]]=t);
-    L.forEach((q,i)=>out[q.id]=got[i]!=null?{ok:true,checked:true,terr:got[i]}:{ok:false,checked:true,why:opts[i].length?"terrain already claimed ("+opts[i].join(", ")+")":"none in Reach"});});
+    L.forEach((q,i)=>out[q.id]={ok:opts[i].length>0,checked:true,why:opts[i].length?"":"none in Reach"});});   // a Settlement may hold several Raw Materials off the same terrain
   return out;
 }
 // pixel map pieces (sprites.py army:/map:): one <symbol> per sprite, built once; key 'p' = owner colour via currentColor
@@ -357,12 +353,14 @@ function settEcon(p,s){return withBoard(p.board,()=>{const have=new Set(Object.k
   return {gold:a.gold||0,seas,sea,hUp,upRed:a.upkeep||0,craft:a.craft||0,infl:a.influence||0,faith:a.faith||0,doubt:a.doubt||0,tax,dest,mons,occ:occ.length,
     net:gold-hUp+(winter&&!dest?tax:0),pillageBase:gold};});}
 // ---- Pillage (Prowess action): a.pillage={tp,sid}; Extort the Settlement's Holding income each Empire Phase (no Winter tax) ----
+// war, or a "May Pillage while not At War" Heritage against a non-allied player
+function pillageOK(p,q){const x=effPair(p.id,q.id);if(x.war)return true;return srcHas(p.board,"pillage_peace")&&!x.household&&!sameAlliance(String(p.id),String(q.id));}
 function pillageCheck(p,a){const pl=a.pillage;if(!pl)return null;const q=pById(pl.tp),s=q&&settById(q,pl.sid);
-  if(!q||!s)return "Settlement gone";if(!effPair(p.id,q.id).war)return "war ended";if(siegeOn(q.id,s.id))return "Settlement besieged";
+  if(!q||!s)return "Settlement gone";if(!pillageOK(p,q))return "war ended";if(siegeOn(q.id,s.id))return "Settlement besieged";
   if(armySieging(p,a))return "Army laid Siege";const ak=armyHex(p,a),sk=settHex(q,s);
   if(!ak||!sk||hexDist(hk(ak),hk(sk))>settReach(q,s))return "Army left Reach";return "";}
 function pillageTargets(p,a){const ak=armyHex(p,a);if(!ak)return [];const out=[];
-  D.players.forEach(q=>{if(sameP(q,p)||!effPair(p.id,q.id).war)return;(q.board.settlements||[]).forEach(s=>{const sk=settHex(q,s);
+  D.players.forEach(q=>{if(sameP(q,p)||!pillageOK(p,q))return;(q.board.settlements||[]).forEach(s=>{const sk=settHex(q,s);
     if(sk&&!siegeOn(q.id,s.id)&&hexDist(hk(ak),hk(sk))<=settReach(q,s))out.push({q,s});});});return out;}
 function runPillage(){const out=[],seen=new Set();D.players.forEach(p=>(p.board.armies||[]).forEach(a=>{if(!a.pillage)return;
   const q=pById(a.pillage.tp),s=q&&settById(q,a.pillage.sid),nm=s?(s.name||s.tier):"?",why=pillageCheck(p,a);
@@ -759,7 +757,7 @@ function autoDeploy(p){const M=mapState(),g=M.grid;if(!g)return "no map";const V
   const land=k=>{const h=V.hex[k];return !!h&&h.t!=="water"&&h.t!=="mountain"&&!terrBlocked(h.t);};
   const mineOC=()=>Object.keys(M.outlaw).filter(k=>M.outlaw[k]===true&&outlawOwner(k)&&sameP(outlawOwner(k),p));
   const oldHam=mapSetts().find(x=>String(x.cell.player)===String(p.id)&&x.cell.type==="Hamlet");
-  const hams=oldHam?[oldHam.k]:Object.keys(V.hex).filter(k=>land(k)&&hexFree(k)&&hexDist(hk(k),ck)===hr).sort((a,b)=>hexDist(hk(a),ctr)-hexDist(hk(b),ctr));
+  const hams=oldHam?[oldHam.k]:Object.keys(V.hex).filter(k=>land(k)&&hexFree(k)&&hexDist(hk(k),ck)===hr).sort((a,b)=>hexDist(hk(b),ctr)-hexDist(hk(a),ctr));   // Hamlet hides toward the edge / corner
   if(!hams.length)return "no free hex at Range "+hr+" from the Town for the Hamlet";
   const keepOC=mineOC().length>=size,base=new Set(charterFlags(p)),fresh=()=>charterFlags(p).some(f=>!base.has(f));   // flags the Town already had don't count
   for(const hm of hams.slice(0,8)){if(!oldHam){M.cells[hm]={type:"Hamlet",player:p.id};pinNewCell(p,hm);}syncMapTiers();
@@ -767,7 +765,7 @@ function autoDeploy(p){const M=mapState(),g=M.grid;if(!g)return "no map";const V
     mineOC().forEach(k=>delete M.outlaw[k]);
     const own=terrOwners(),mine=k=>own[k]&&own[k].has(String(p.id)),setts=mapSetts().map(x=>x.k);
     const ok=k=>land(k)&&hexFree(k)&&!M.outlaw[k]&&mine(k)&&hexDist(hk(k),hk(hm))>ob&&setts.every(s=>hexDist(hk(k),hk(s))>=ob);
-    const seeds=Object.keys(own).filter(k=>ok(k)&&hexDist(hk(k),ck)===ob).sort((a,b)=>hexDist(hk(b),ctr)-hexDist(hk(a),ctr));   // behind the capital first
+    const seeds=Object.keys(own).filter(k=>ok(k)&&hexDist(hk(k),ck)===ob).sort((a,b)=>hexDist(hk(a),ctr)-hexDist(hk(b),ctr));   // Outlaw Country faces the centre
     for(const s of seeds){const zone=[s];M.outlaw[s]=true;
       while(zone.length<size){const nx=[...new Set(zone.flatMap(hexNb))].filter(ok).sort((a,b)=>hexDist(hk(a),hk(s))-hexDist(hk(b),hk(s)))[0];if(!nx)break;M.outlaw[nx]=true;zone.push(nx);}
       if(zone.length>=size&&!fresh())return "";
@@ -869,6 +867,13 @@ function settleWhere(p,k){const M=mapState(),g=M.grid;if(!g)return "";const own=
   if(mapArmies().some(x=>String(x.cell.player)===String(p.id)&&hexDist(hk(x.k),hk(k))<=presR()))return "";
   return "was placed outside your Province and beyond the Presence of your Armies";}
 function hexFree(k){const M=mapState();return !M.camps[k]&&!M.cells[k]&&!M.wards[k];}
+// Mountains / Water can't take a placed piece or a Move, except with a carve-out: Tunnellers (Mountains as Grassland),
+// Shipyard (Water), Bridges (Water within your Province). kind: "army" | "settle". Returns the reason, or "".
+function terrainBlock(p,k,kind){const g=mapState().grid;if(!g||!p)return "";const h=decodeGrid(g).hex[k];if(!h)return "";
+  const tr=moveTraits(p);
+  if(h.t==="mountain"||terrBlocked(h.t)){if(tr.mtnGrass)return "";return "Mountains: impassable"+(kind==="army"?"":" — nothing can be placed there");}
+  if(h.t==="water"){if(tr.shipyard||(tr.bridges&&provinceOf(p).has(k)))return "";return "Water: "+(kind==="army"?"no Army can stand there without a Shipyard":"nothing can be placed there");}
+  return "";}
 function spawnCamp(p,n,why){const M=mapState(),free=outlawOf(p).filter(hexFree);if(!free.length)return null;
   const k=free[Math.floor(Math.random()*free.length)];M.camps[k]={n,gold:+BAN.campGold||0};if(isWild(k))M.camps[k].wild=M.outlaw[k];armBandits(M.camps[k]);bLog("camp of "+n+" spawns @ "+k+" ("+why+")",k);return k;}
 function growCamps(keys,why){const M=mapState(),gr=(BAN.growth||{})[currentEra()]||0,cap=BAN.armyThreshold||25;
@@ -1178,7 +1183,22 @@ function banditPanelHTML(){const M=mapState(),era=currentEra(),camps=Object.keys
   c+='</details>';
   return '<div class="tot" id="tBanditBox"><h3 style="font-size:13px">Bandits</h3>'+banditAutoHTML(c)+'</div>';}
 // map edits on a server game: your own pieces only; Outlaw Country by players during setup only; camps by the Host
-function mapAsP(){return (lockOn()&&myClaimP())||D.players[D.active];}
+function mapAsP(){if(PLACE_PIN){const q=pById(PLACE_PIN.pid);if(q&&inspCan(q.id))return q;}return (lockOn()&&myClaimP())||D.players[D.active];}
+// ---- Empire pane ↔ map: a Settlement header / Army card shows where it stands on the map ("⌖ map"), or places it ("place on map"):
+// PLACE_PIN = {pid, kind: "sett" | "army", id} links the next piece placed to that Settlement / Army
+let PLACE_PIN=null;
+function mapLinkEl(p,kind,obj){const k=kind==="army"?armyHex(p,obj):settHex(p,obj),b=document.createElement("button");b.className="shb maplink";b.dataset.nav="1";
+  if(k){b.textContent="⌖ map "+k;b.title="show it on the Realm map";b.onclick=e=>{e.stopPropagation();mapShow(k);};}
+  else if(kind==="army"&&armyInside(p,obj)){const x=armyInside(p,obj),sk=settHex(x.q,x.s);b.textContent="⌖ in "+(x.s.name||x.s.tier);b.title="inside its Settlement — show on the map";if(sk)b.onclick=e=>{e.stopPropagation();mapShow(sk);};else b.disabled=true;}
+  else if(!mapState().grid){b.textContent="no map";b.disabled=true;}
+  else{b.textContent="📍 place on map";b.title="pick a hex on the Realm map for it";b.classList.add("warn");
+    b.onclick=e=>{e.stopPropagation();if(!inspCan(p.id)){flash("🔒 not yours");return;}PLACE_PIN={pid:String(p.id),kind,id:String(obj.id)};mtool=kind==="army"?"Army":(obj.tier||"Village");PLACE_OPEN=true;INSP=null;SEL=null;D.view="table";
+      if(!RL_MAP){RL_MAP=true;}render();setTimeout(()=>{const m=document.getElementById("rlMap");if(m)m.scrollIntoView({behavior:"smooth",block:"center"});},80);
+      flash("Click a free hex to place "+(kind==="army"?armyName(obj):(obj.name||obj.tier)));};}
+  return b;}
+function mapShow(k){D.view="table";mtool="Select";INSP=k;MAPSEL=k;const c=mapState().cells[k];SEL=null;
+  if(c&&c.type==="Army"){const x=cellArmy(k);if(x.p&&x.a&&canMoveArmy(x.p))SEL={pid:String(x.p.id),aid:String(x.a.id)};}
+  if(!RL_MAP)RL_MAP=true;render();setTimeout(()=>{const el=document.querySelector('#rlMap [data-cell="'+k+'"]')||document.getElementById("rlMap");if(el)el.scrollIntoView({behavior:"smooth",block:"center"});},80);}
 function mapEditBlock(k){if(!lockOn())return "";const M=mapState(),c=M.cells[k],me=myClaimP();
   if(!me)return "claim a player to act";
   const own=x=>!!x&&String(x.player)===String(me.id),who=x=>((x&&cellPlayer(x))||{}).name||"another player";
@@ -1209,13 +1229,23 @@ function mapCellClick(k){const M=mapState();MAPSEL=k;
       if(c&&c.type==="Army"){const x=cellArmy(k);if(x.p&&x.a&&canMoveArmy(x.p))SEL={pid:String(x.p.id),aid:String(x.a.id)};}
       render();return;}
     {const why=mapEditBlock(k);if(why){flash(why);render();return;}}
-    if(mtool==="Erase"){delete M.cells[k];delete M.outlaw[k];delete M.camps[k];delete M.wards[k];wardPrune();}
+    if(mtool==="Erase"){if(M.cells[k]||M.camps[k]||M.wards[k]){delete M.cells[k];delete M.camps[k];delete M.wards[k];wardPrune();}   // first click: the piece; the next click: the Outlaw Country under it
+      else if(M.outlaw[k])delete M.outlaw[k];}
     else if(mtool==="Outlaw Country"){if(M.outlaw[k])delete M.outlaw[k];
       else{const own=terrOwners(),nz=hexNb(k).map(q=>M.outlaw[q]).find(v=>typeof v==="string");   // joins a neighbouring Wild zone; outside every Province it starts one
         if(nz)M.outlaw[k]=nz;else if(own[k]&&own[k].size)M.outlaw[k]=true;else{let id=1;while(Object.values(M.outlaw).includes("w"+id))id++;M.outlaw[k]="w"+id;}}}
-    else if(mtool==="Bandit Camp"){if(!M.camps[k])M.camps[k]={n:BAN.campStart||5,gold:+BAN.campGold||0};}
-    else{if(M.wards[k]){flash("a Settlement Ward stands there");return;}
-      {const o=M.cells[k];if(o&&(o.type==="Army"||String(o.player)!==String(mapAsP().id))){flash((o.type==="Army"?"an Army":o.type)+" stands there"+(o.type==="Army"?"":" ("+(cellPlayer(o)||{}).name+")")+" — Erase it first");return;}}const P=mapAsP(),why=mtool==="Village"?settleWhere(P,k):"";M.cells[k]={type:mtool,player:P.id};pinNewCell(P,k);
+    else if(mtool==="Bandit Camp"){const o=M.cells[k];if(o||M.wards[k]){flash((o?(o.type==="Army"?"an Army":o.type):"a Settlement Ward")+" stands there — Erase it first");return;}if(!M.camps[k])M.camps[k]={n:BAN.campStart||5,gold:+BAN.campGold||0};}
+    else{if(M.wards[k]){flash("a Settlement Ward stands there — Erase it first");return;}
+      if(M.camps[k]){flash("a Bandit Camp stands there — Erase it first");return;}
+      {const o=M.cells[k];if(o){flash((o.type==="Army"?"an Army":o.type)+" stands there"+(o.type==="Army"?"":" ("+(cellPlayer(o)||{}).name+")")+" — Erase it first");return;}}
+      {const why=terrainBlock(mapAsP(),k,mtool==="Army"?"army":"settle");if(why){flash(why);return;}}
+      const P=mapAsP(),why=mtool==="Village"?settleWhere(P,k):"";M.cells[k]={type:mtool,player:P.id};
+      if(PLACE_PIN&&String(PLACE_PIN.pid)===String(P.id)&&(PLACE_PIN.kind==="army")===(mtool==="Army")){const c=M.cells[k];
+        if(PLACE_PIN.kind==="army"){c.aid=PLACE_PIN.id;const a=(P.board.armies||[]).find(x=>String(x.id)===PLACE_PIN.id);if(a){delete a.sid;delete a.inAlly;}
+          Object.keys(M.cells).forEach(q=>{if(q!==k&&M.cells[q].type==="Army"&&String(M.cells[q].player)===String(P.id)&&String(M.cells[q].aid)===PLACE_PIN.id)delete M.cells[q];});}
+        else{c.sid=+PLACE_PIN.id||PLACE_PIN.id;Object.keys(M.cells).forEach(q=>{if(q!==k&&M.cells[q].type!=="Army"&&String(M.cells[q].player)===String(P.id)&&String(M.cells[q].sid)===PLACE_PIN.id)delete M.cells[q];});}
+        PLACE_PIN=null;}
+      else pinNewCell(P,k);
       if(why){M.cells[k].settleWhy=why;flash("Settle: "+why);}
       mtool="Select";PLACE_OPEN=false;}
     save();render();}

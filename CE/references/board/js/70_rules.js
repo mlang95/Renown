@@ -36,6 +36,8 @@ function siegeWinterOK(t){const by=pById(t.by);return !!by&&srcHas(by.board,"sie
 function siegeDoubleOK(t){const by=pById(t.by);return !!by&&srcHas(by.board,"siege_double");}   // Battery Park: the besieger's Siege Timers count down twice each turn
 // Wavering Devotion: while your Public Order is below FAITH_FICKLE_PO you can't send Piety Envoys (Immune Wavering Devotion: Plague Pit).
 // Checked when Envoys are declared; returns why, or "".
+// "You can't send <Domain> Envoys" (Heritage); Piety also checks Wavering Devotion
+function envoyBlocked(p,dom){if(!p)return "";const c=srcMatch(p.board,"cant_send_envoy").find(x=>x.m[1].toLowerCase()===String(dom).toLowerCase());if(c)return c.n+": can't send "+dom+" Envoys";return dom==="Piety"?pietyBlocked(p):"";}
 function pietyBlocked(p){if(RC.FAITH_FICKLE_PO==null||!p||srcHas(p.board,"wavering_immune"))return "";const po=+p.board.po||0;
   return po<+RC.FAITH_FICKLE_PO?"Wavering Devotion: Public Order "+po+" is below "+RC.FAITH_FICKLE_PO+" — no Piety Envoys":"";}
 // ---- action restrictions & riders (shown as flags; hard restrictions are enforced after game start) ----
@@ -360,6 +362,14 @@ function captureTransfer(t){const from=pById(t.tp),to=pById(t.by);if(!from||!to)
   if(D.players.indexOf(from)===D.active||D.players.indexOf(to)===D.active)reindex();
   chron("capture",{player:to.name,other:from.name,settlement:s.name||s.tier});
   return to.name+" captures "+(s.name||s.tier)+" from "+from.name+" ("+moved.length+" Holding"+(moved.length===1?"":"s")+")";}
+// Heritage "When you Capture a Settlement, you may instead destroy it": the Settlement, its Holdings and its Wards leave play
+function captureDestroy(t){const from=pById(t.tp),to=pById(t.by);if(!from)return "Destroy: player missing";const fb=from.board,s=(fb.settlements||[]).find(x=>String(x.id)===String(t.sid));if(!s)return "Destroy: Settlement gone";
+  const old=s.id,n=(fb.placed||[]).filter(q=>String(q.sid)===String(old)).length;fb.settlements=fb.settlements.filter(x=>x!==s);fb.placed=(fb.placed||[]).filter(q=>String(q.sid)!==String(old));
+  (fb.armies||[]).forEach(a=>{if(String(a.sid)===String(old))delete a.sid;});D.players.forEach(p=>(p.board.armies||[]).forEach(a=>{if(a.inAlly&&String(a.inAlly.pid)===String(from.id)&&String(a.inAlly.sid)===String(old))delete a.inAlly;}));
+  const M=mapState();Object.keys(M.cells).forEach(k=>{const c=M.cells[k];if(c.type!=="Army"&&String(c.player)===String(from.id)&&String(c.sid)===String(old))delete M.cells[k];});
+  Object.keys(M.wards||{}).forEach(k=>{const w=M.wards[k];if(String(w.player)===String(from.id)&&String(w.sid)===String(old))delete M.wards[k];});
+  reindex();chron("capture",{player:to?to.name:"",other:from.name,settlement:(s.name||s.tier)+" (destroyed)"});
+  return (to?to.name:"The besieger")+" destroys "+(s.name||s.tier)+" ("+from.name+", "+n+" Holding"+(n===1?"":"s")+") — removed from play";}
 // a Settlement's Wards: each Ward is the Holding in its slot plus the chain riding it (bottom → top); faction pieces take no Ward
 function sackWards(p,s){return withBoard(p.board,()=>{const occ=occupants(s.id),ex=exemptionsOf(occ),host=ex.hostOf||{},on={};
   occ.forEach(o=>{if(ex.has(o.id)){const h=host[o.id];(on[h]=on[h]||[]).push(o);}});
@@ -396,7 +406,7 @@ function banditSack(t){if(!t||!t.bandit)return "";const from=pById(t.tp),s=from&
   return "Bandit Sack: "+log.join(" · ");}
 function resolveRealm(){const T=realmTimers(),out=[];
   for(let i=T.length-1;i>=0;i--){const t=T[i];if(t.n>0)continue;
-    if(t.kind==="capture"){out.push(captureTransfer(t));T.splice(i,1);}
+    if(t.kind==="capture"){out.push(t.destroy?captureDestroy(t):captureTransfer(t));T.splice(i,1);}
     else if(t.kind==="sack"){D.players.forEach(p=>(p.board.armies||[]).forEach(a=>{if(a.sackT===t.uid){delete a.sackT;}}));
       if(t.bandit)Object.values(mapState().camps||{}).forEach(c=>{const a=c.army;if(a&&a.sackT===t.uid){delete a.sackT;}});
       out.push("Sack Timer resolved: "+t.label);T.splice(i,1);}}
@@ -409,7 +419,7 @@ function armyHex(p,a){{const x=armyInside(p,a),k=x?settHex(x.q,x.s):null;if(k)re
 function settHex(p,s){const M=mapState();return Object.keys(M.cells).find(k=>{const c=M.cells[k];return c.type!=="Army"&&String(c.player)===String(p.id)&&cellSett(k).s===s;})||null;}
 function musterLimit(p,a){const k=armyHex(p,a),rb=reachBonus(p).b,out={lim:0,src:[],paused:[],onMap:!!k};
   const each=srcMatch(p.board,"muster_plus_each"),eb=each.reduce((n,x)=>n+(+x.m[1]||0),0);   // "Each of your Settlements gains Muster Limit +X" (Garrison)
-  (p.board.settlements||[]).forEach(s=>{if(settUnbuilt(s))return;const st=(DATA.settlements||{})[s.tier]||{},ml=(+st.muster_limit||0)+eb;if(!ml)return;
+  (p.board.settlements||[]).forEach(s=>{if(settUnbuilt(s))return;const st=(DATA.settlements||{})[s.tier]||{},ml=(srcMatch(p.board,"muster_set_each").length?+srcMatch(p.board,"muster_set_each")[0].m[1]:(+st.muster_limit||0))+eb;if(!ml)return;   // "Each of your Settlements has a Muster Limit of N" (Heritage) sets the base
     let ok=!k;if(k){const sk=settHex(p,s);ok=!!sk&&hexDist(hk(sk),hk(k))<=(+st.reach||0)+rb;}
     if(!ok)return;if(siegeOn(p.id,s.id)&&!srcHas(p.board,"muster_besieged")){out.paused.push(s.name||s.tier);return;}
     out.lim+=ml;out.src.push((s.name||s.tier)+" "+ml+(eb?" (incl. +"+eb+" "+each.map(x=>x.n).join(", ")+")":""));});

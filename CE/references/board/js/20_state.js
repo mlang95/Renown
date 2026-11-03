@@ -471,6 +471,8 @@ function wardUse(sid){ // {cap, used, free, typeBad}
   const used=occ.filter(o=>!o.fac&&!exempt.has(o.id)).length;   // faction pieces take no Ward
   return {cap, used, free:cap-used, typeBad,badNames};
 }
+// a Holding that must ride a Mastery Chain parent (not a Root, and it names a chain parent the data knows)
+function needsChain(n){const r=R[n]||{};return !r.root&&effList(n).length>0;}
 // can pursuit `name` be placed into settlement sid?  simulate the resulting ward count,
 // so adding a PARENT later (which lets an existing tile ride it) is allowed even when full.
 function canPlace(name, sid){
@@ -485,6 +487,8 @@ function canPlace(name, sid){
   if(tier==="Hamlet"){
     if(SIMPLE){if(!hamletFits(name,new Set(occupants(sid).map(o=>o.name))))return {ok:false,why:"Hamlets start with "+(NAMES.filter(hamletRoot).join(" / ")||"efficient-Hamlet Pursuits")+"; others need an efficient parent there"};}
     else if(!hamletOK(name))return {ok:false,why:"Hamlets hold Natural Pursuits only"};}
+  // only a Root takes an empty Ward: any other Holding must ride a free Mastery Chain parent in this Settlement
+  if(needsChain(name)&&!exempt.has(1e9))return {ok:false,why:"no free "+(DATA.chainTerm||"Mastery Chain")+" parent here ("+effLabel(name).join(" / ")+") — only Roots take an empty Ward"};
   const used=sim.filter(o=>!o.fac&&!exempt.has(o.id)).length;
   if(used<=cap)return {ok:true, rider:exempt.has(1e9)};
   return {ok:false, why:"no free ward slot (efficient slot taken — chains, can't branch)"};

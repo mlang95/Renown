@@ -290,7 +290,7 @@ function hudData(p){const b=p.board,sn=seasonNet(b),m=sn.m,rows=poModRows(b,true
 function hudTips(p,h){h=h||hudData(p);const b=p.board,sg=v=>(v>0?"+":"")+v;
   const po=["Public Order "+h.po+" · "+h.band,"Faith +"+h.faith+" / Doubt +"+h.doubt+" at the next Empire Phase"+(h.dbl>1?" (modifiers ×2)":""),
     "  pieces: Faith +"+h.pieceF+" / Doubt +"+h.pieceD].concat(h.fRows.map(r=>"  Faith +"+r.n+" · "+r.k)).concat(h.dRows.map(r=>"  Doubt +"+r.n+" · "+r.k));
-  let infl=[];try{infl=influenceRows(b).filter(r=>r.val||r.cnt).map(r=>"  "+r.k+(r.cnt>1?" ×"+r.cnt:"")+" "+sg(r.val));}catch(e){}
+  let infl=[];try{infl=influenceRows(b).filter(r=>r.val||r.cnt).map(r=>"  "+r.k+(r.cnt>1?" ×"+r.cnt:"")+" "+sg(r.val)+(r.tip?"\n"+r.tip.split("\n").map(x=>"    · "+x).join("\n"):""));}catch(e){}
   const W=withBoard(b,()=>(b.settlements||[]).map(s=>{const w=wardUse(s.id);return "  "+(s.capital?"★ ":"")+(s.name?s.name+" · ":"")+s.tier+" · Wards "+w.used+"/"+w.cap;}));
   return {gold:goldBreakTxt(goldBreak(b)),
     infl:["Influence this turn "+inflPool(p)].concat(infl).join("\n"),
@@ -462,7 +462,9 @@ window.addEventListener("resize",mnavSync);
 const HER=((DATA.placeNames||{}).heraldry)||{};
 // every charge sprites.py draws (the self-made heraldry picker); a culture's own charge wins over the player's pick
 const HER_ALL=SPR&&SPR.S?Object.keys(SPR.S).filter(k=>k.startsWith("her:")).map(k=>k.slice(4)):[];
-function herName(p){const b=p&&p.board,c=b&&b.culture;return (c&&HER[c])||(b&&b.heraldry)||null;}
+// the player's pick wins; choosing a culture sets the pick to that culture's charge (setCulture), and it can be changed after
+function herName(p){const b=p&&p.board,c=b&&b.culture;return (b&&b.heraldry&&SPR&&SPR.S["her:"+b.heraldry]?b.heraldry:null)||(c&&HER[c])||null;}
+function setCulture(p,n){const b=p.board,was=b.culture||"";b.culture=n||"";if(n&&n!==was&&HER[n])b.heraldry=HER[n];}
 function herKey(p){const a=herName(p);return a&&SPR&&SPR.S["her:"+a]?"her:"+a:null;}
 function lumOf(hex){const m=/^#?([0-9a-f]{6})$/i.exec(String(hex||""));if(!m)return 0;const n=parseInt(m[1],16);return (0.299*(n>>16&255)+0.587*(n>>8&255)+0.114*(n&255))/255;}
 const HER_SVG={};

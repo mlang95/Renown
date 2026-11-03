@@ -248,6 +248,8 @@ def envoy_fx(raw):
         if m: out.append({"k": "act", "val": _iv(m.group(2)), "dom": m.group(1).title(), "tgtPOabove": int(m.group(3))}); continue
         m = re.search(r"Authority\s*" + _N + r" on your (" + _DOMS + r") actions targeting a player with Public Order (-?\d+) or higher", c, re.I)
         if m: out.append({"k": "act", "val": _iv(m.group(1)), "dom": m.group(2).title(), "tgtPOabove": int(m.group(3)) - 1}); continue
+        m = re.search(r"(?:Authority|Influence)\s*" + _N + r" on (?:your )?(Personal )?(" + _DOMS + r") Envoys for each Army you control", c, re.I)
+        if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "personal" if m.group(2) else "all", "dom": m.group(3).title(), "per": "army"}); continue
         m = re.search(r"(?:^|\b)you have (?:Authority|Influence)\s*" + _N + r" on (Personal )?(" + _DOMS + r") Envoys", c, re.I)
         if m: out.append({"k": "envoy", "val": _iv(m.group(1)), "scope": "personal" if m.group(2) else "all", "dom": m.group(3).title()}); continue
         m = re.search(r"A (" + _DOMS + r") Envoy you send can't fail", c, re.I)
@@ -629,7 +631,7 @@ def sprite_payload(ns, data_path):
         return {"scatter": dict(getattr(mod, "SCATTER", {})), "S": mod.SPRITES, "P": mod.PALETTES.get("scene", {}), "key": keymap, "v": getattr(mod, "SPRITE_VERSION", "?"),
                 "raw": raw, "skyline": {k: list(v) for k, v in getattr(mod, "SKYLINE", {}).items()},
                 "supersedes": dict(getattr(mod, "INFRA_SUPERSEDES", {})), "noInfra": list(getattr(mod, "PLATE_NO_INFRA", [])),
-                "style": dict(getattr(mod, "SCENE_STYLE", {})), "eqTile": getattr(mod, "EQ_TILE", "#3a404c")}
+                "style": dict(getattr(mod, "SCENE_STYLE", {})), "herGroups": dict(getattr(mod, "HER_GROUPS", {})), "eqTile": getattr(mod, "EQ_TILE", "#3a404c")}
     print("  (sprites.py not found - no settlement scene)")
     return None
 
@@ -905,7 +907,7 @@ def bandit_loadouts(ns, equip, key="BANDIT_EQUIPMENT_PER_ERA"):
 # shows or flags; anything the board hard-codes should read from here instead).
 RULES_CONSTS = ("PHASES", "MARCH_MULTIPLIER", "MUSTER_RANGE", "CHARTER_MIN_RANGE", "HAMLET_RANGE",
                 "OUTLAW_BUFFER_RANGE", "SACK_EXTORT_PER_TIER", "INTERCEPT_EXTORT_PER_CRAFT", "WEALTH_EDICT_GOLD", "EDICT_UNIQUE", "CUNNING_EXTORT", "CUNNING_DOUBT", "GAME_TURN_LIMIT", "VASSAL_EXCHANGE_CAP",
-                "BLUNDER_THR", "STANDING_ARMY_SIEGE_MODIFIER", "BANDIT_BEHAVIOR", "UPKEEP_TRACKS",
+                "BLUNDER_THR", "BANDIT_BEHAVIOR", "UPKEEP_TRACKS",
                 "GLOSSARY_CATEGORIES", "STARTING_TREASURY", "EMPIRE_START_TIERS", "TERM_ENVOY_SCORE", "SHUTTER_TERM", "UPKEEP_TERM", "SUPPLY_TERM", "RENOWN_MAX",
                 "CAPITAL_EDGE_RANGE", "AGE_YEAR_SEASON",
                 "PRESENCE_RANGE", "DOMAIN_MAX", "EXPOSED", "EXPOSED_DOMAIN", "FAITH_FICKLE_PO", "WARD_MODEL", "SETUP_HAMLET_HOLDINGS",

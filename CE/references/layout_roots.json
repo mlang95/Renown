@@ -213,6 +213,187 @@
   ]
  },
  {
+  "title": "Quarry",
+  "anchor": "Quarry",
+  "mode": "root",
+  "nodes": {
+   "Quarry": [
+    0,
+    2
+   ],
+   "Masonry": [
+    1,
+    2
+   ],
+   "Supply Depot": [
+    2,
+    2
+   ],
+   "Trade Guild": [
+    2,
+    4
+   ],
+   "Toxicarium": [
+    2,
+    5
+   ],
+   "Priory": [
+    2,
+    0
+   ],
+   "Citadel": [
+    3,
+    2
+   ],
+   "College of Engineering": [
+    3,
+    4
+   ],
+   "Charnel House": [
+    3,
+    5
+   ],
+   "Abbey": [
+    3,
+    0
+   ],
+   "Tenebrous Oubliette": [
+    4,
+    2
+   ],
+   "Castle Hall": [
+    4,
+    3
+   ],
+   "Masons' Guild": [
+    4,
+    4
+   ],
+   "Plague Pit": [
+    4,
+    5
+   ],
+   "Monastery": [
+    4,
+    0
+   ],
+   "Fortified Church": [
+    4,
+    1
+   ],
+   "Black Hold": [
+    5,
+    2
+   ],
+   "Imperial Palace": [
+    5,
+    3
+   ],
+   "Office of Works": [
+    5,
+    4
+   ],
+   "Ossuary Crypt": [
+    5,
+    5
+   ],
+   "Papal Palace": [
+    5,
+    0
+   ],
+   "Sacristy Redoubt": [
+    5,
+    1
+   ]
+  },
+  "edges": [
+   [
+    "Priory",
+    "Abbey"
+   ],
+   [
+    "Tenebrous Oubliette",
+    "Black Hold"
+   ],
+   [
+    "Citadel",
+    "Castle Hall"
+   ],
+   [
+    "Toxicarium",
+    "Charnel House"
+   ],
+   [
+    "Supply Depot",
+    "Citadel"
+   ],
+   [
+    "Trade Guild",
+    "College of Engineering"
+   ],
+   [
+    "Citadel",
+    "Fortified Church"
+   ],
+   [
+    "Castle Hall",
+    "Imperial Palace"
+   ],
+   [
+    "Quarry",
+    "Masonry"
+   ],
+   [
+    "College of Engineering",
+    "Masons' Guild"
+   ],
+   [
+    "Abbey",
+    "Monastery"
+   ],
+   [
+    "Masons' Guild",
+    "Office of Works"
+   ],
+   [
+    "Plague Pit",
+    "Ossuary Crypt"
+   ],
+   [
+    "Monastery",
+    "Papal Palace"
+   ],
+   [
+    "Charnel House",
+    "Plague Pit"
+   ],
+   [
+    "Masonry",
+    "Priory"
+   ],
+   [
+    "Fortified Church",
+    "Sacristy Redoubt"
+   ],
+   [
+    "Masonry",
+    "Supply Depot"
+   ],
+   [
+    "Citadel",
+    "Tenebrous Oubliette"
+   ],
+   [
+    "Masonry",
+    "Toxicarium"
+   ],
+   [
+    "Masonry",
+    "Trade Guild"
+   ]
+  ]
+ },
+ {
   "title": "Inn",
   "anchor": "Inn",
   "mode": "root",
@@ -398,187 +579,6 @@
    [
     "Forgotten Catacombs",
     "Toxicarium"
-   ]
-  ]
- },
- {
-  "title": "Quarry",
-  "anchor": "Quarry",
-  "mode": "root",
-  "nodes": {
-   "Quarry": [
-    0,
-    2
-   ],
-   "Masonry": [
-    1,
-    2
-   ],
-   "Supply Depot": [
-    2,
-    2
-   ],
-   "Trade Guild": [
-    2,
-    4
-   ],
-   "Toxicarium": [
-    2,
-    5
-   ],
-   "Priory": [
-    2,
-    0
-   ],
-   "Citadel": [
-    3,
-    2
-   ],
-   "College of Engineering": [
-    3,
-    4
-   ],
-   "Charnel House": [
-    3,
-    5
-   ],
-   "Abbey": [
-    3,
-    0
-   ],
-   "Tenebrous Oubliette": [
-    4,
-    2
-   ],
-   "Castle Hall": [
-    4,
-    3
-   ],
-   "Masons' Guild": [
-    4,
-    4
-   ],
-   "Plague Pit": [
-    4,
-    5
-   ],
-   "Monastery": [
-    4,
-    0
-   ],
-   "Fortified Church": [
-    4,
-    1
-   ],
-   "Black Hold": [
-    5,
-    2
-   ],
-   "Imperial Palace": [
-    5,
-    3
-   ],
-   "Office of Works": [
-    5,
-    4
-   ],
-   "Ossuary Crypt": [
-    5,
-    5
-   ],
-   "Papal Palace": [
-    5,
-    0
-   ],
-   "Sacristy Redoubt": [
-    5,
-    1
-   ]
-  },
-  "edges": [
-   [
-    "Priory",
-    "Abbey"
-   ],
-   [
-    "Tenebrous Oubliette",
-    "Black Hold"
-   ],
-   [
-    "Citadel",
-    "Castle Hall"
-   ],
-   [
-    "Toxicarium",
-    "Charnel House"
-   ],
-   [
-    "Supply Depot",
-    "Citadel"
-   ],
-   [
-    "Trade Guild",
-    "College of Engineering"
-   ],
-   [
-    "Citadel",
-    "Fortified Church"
-   ],
-   [
-    "Castle Hall",
-    "Imperial Palace"
-   ],
-   [
-    "Quarry",
-    "Masonry"
-   ],
-   [
-    "College of Engineering",
-    "Masons' Guild"
-   ],
-   [
-    "Abbey",
-    "Monastery"
-   ],
-   [
-    "Masons' Guild",
-    "Office of Works"
-   ],
-   [
-    "Plague Pit",
-    "Ossuary Crypt"
-   ],
-   [
-    "Monastery",
-    "Papal Palace"
-   ],
-   [
-    "Charnel House",
-    "Plague Pit"
-   ],
-   [
-    "Masonry",
-    "Priory"
-   ],
-   [
-    "Fortified Church",
-    "Sacristy Redoubt"
-   ],
-   [
-    "Masonry",
-    "Supply Depot"
-   ],
-   [
-    "Citadel",
-    "Tenebrous Oubliette"
-   ],
-   [
-    "Masonry",
-    "Toxicarium"
-   ],
-   [
-    "Masonry",
-    "Trade Guild"
    ]
   ]
  },
@@ -917,6 +917,155 @@
   ]
  },
  {
+  "title": "Furnace",
+  "anchor": "Furnace",
+  "mode": "root",
+  "nodes": {
+   "Furnace": [
+    0,
+    1
+   ],
+   "Blacksmith": [
+    1,
+    1
+   ],
+   "Siege Camp": [
+    1,
+    2
+   ],
+   "Joinery": [
+    1,
+    3
+   ],
+   "Forge": [
+    2,
+    1
+   ],
+   "Siege Works": [
+    2,
+    2
+   ],
+   "Tannery": [
+    2,
+    3
+   ],
+   "Finery": [
+    3,
+    1
+   ],
+   "Battery Park": [
+    3,
+    2
+   ],
+   "Armory": [
+    3,
+    3
+   ],
+   "Master Workshop": [
+    4,
+    1
+   ],
+   "Abatis Field": [
+    4,
+    2
+   ],
+   "Gilded Foundry": [
+    4,
+    3
+   ],
+   "Jewelry Foundry": [
+    4,
+    0
+   ],
+   "Advanced Blast Furnace": [
+    5,
+    1
+   ],
+   "Artillery Park": [
+    5,
+    2
+   ],
+   "Court Armoury": [
+    5,
+    3
+   ],
+   "Polish House": [
+    5,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Battery Park",
+    "Abatis Field"
+   ],
+   [
+    "Master Workshop",
+    "Advanced Blast Furnace"
+   ],
+   [
+    "Tannery",
+    "Armory"
+   ],
+   [
+    "Abatis Field",
+    "Artillery Park"
+   ],
+   [
+    "Siege Works",
+    "Battery Park"
+   ],
+   [
+    "Furnace",
+    "Blacksmith"
+   ],
+   [
+    "Gilded Foundry",
+    "Court Armoury"
+   ],
+   [
+    "Forge",
+    "Finery"
+   ],
+   [
+    "Blacksmith",
+    "Forge"
+   ],
+   [
+    "Armory",
+    "Gilded Foundry"
+   ],
+   [
+    "Finery",
+    "Jewelry Foundry"
+   ],
+   [
+    "Furnace",
+    "Joinery"
+   ],
+   [
+    "Finery",
+    "Master Workshop"
+   ],
+   [
+    "Jewelry Foundry",
+    "Polish House"
+   ],
+   [
+    "Furnace",
+    "Siege Camp"
+   ],
+   [
+    "Siege Camp",
+    "Siege Works"
+   ],
+   [
+    "Joinery",
+    "Tannery"
+   ]
+  ]
+ },
+ {
   "title": "Peat Bog",
   "anchor": "Peat Bog",
   "mode": "root",
@@ -1239,155 +1388,6 @@
   ]
  },
  {
-  "title": "Furnace",
-  "anchor": "Furnace",
-  "mode": "root",
-  "nodes": {
-   "Furnace": [
-    0,
-    1
-   ],
-   "Blacksmith": [
-    1,
-    1
-   ],
-   "Siege Camp": [
-    1,
-    2
-   ],
-   "Joinery": [
-    1,
-    3
-   ],
-   "Forge": [
-    2,
-    1
-   ],
-   "Siege Works": [
-    2,
-    2
-   ],
-   "Tannery": [
-    2,
-    3
-   ],
-   "Finery": [
-    3,
-    1
-   ],
-   "Battery Park": [
-    3,
-    2
-   ],
-   "Armory": [
-    3,
-    3
-   ],
-   "Master Workshop": [
-    4,
-    1
-   ],
-   "Abatis Field": [
-    4,
-    2
-   ],
-   "Gilded Foundry": [
-    4,
-    3
-   ],
-   "Jewelry Foundry": [
-    4,
-    0
-   ],
-   "Advanced Blast Furnace": [
-    5,
-    1
-   ],
-   "Artillery Park": [
-    5,
-    2
-   ],
-   "Court Armoury": [
-    5,
-    3
-   ],
-   "Polish House": [
-    5,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Battery Park",
-    "Abatis Field"
-   ],
-   [
-    "Master Workshop",
-    "Advanced Blast Furnace"
-   ],
-   [
-    "Tannery",
-    "Armory"
-   ],
-   [
-    "Abatis Field",
-    "Artillery Park"
-   ],
-   [
-    "Siege Works",
-    "Battery Park"
-   ],
-   [
-    "Furnace",
-    "Blacksmith"
-   ],
-   [
-    "Gilded Foundry",
-    "Court Armoury"
-   ],
-   [
-    "Forge",
-    "Finery"
-   ],
-   [
-    "Blacksmith",
-    "Forge"
-   ],
-   [
-    "Armory",
-    "Gilded Foundry"
-   ],
-   [
-    "Finery",
-    "Jewelry Foundry"
-   ],
-   [
-    "Furnace",
-    "Joinery"
-   ],
-   [
-    "Finery",
-    "Master Workshop"
-   ],
-   [
-    "Jewelry Foundry",
-    "Polish House"
-   ],
-   [
-    "Furnace",
-    "Siege Camp"
-   ],
-   [
-    "Siege Camp",
-    "Siege Works"
-   ],
-   [
-    "Joinery",
-    "Tannery"
-   ]
-  ]
- },
- {
   "title": "Salt Works",
   "anchor": "Salt Works",
   "mode": "root",
@@ -1608,14 +1608,6 @@
     "Herb Garden"
    ],
    [
-    "Meadery",
-    "Manor House"
-   ],
-   [
-    "Mill",
-    "Manor House"
-   ],
-   [
     "Spice Merchant",
     "Manor House"
    ],
@@ -1625,6 +1617,14 @@
    ],
    [
     "Cidery",
+    "Manor House"
+   ],
+   [
+    "Meadery",
+    "Manor House"
+   ],
+   [
+    "Mill",
     "Manor House"
    ],
    [
@@ -1650,49 +1650,8 @@
    [
     "Vineyard",
     "Winery"
-   ],
-   [
-    "Meadery",
-    "Manor House"
-   ],
-   [
-    "Mill",
-    "Manor House"
-   ],
-   [
-    "Spice Merchant",
-    "Manor House"
-   ],
-   [
-    "Winery",
-    "Manor House"
-   ],
-   [
-    "Cidery",
-    "Manor House"
    ]
   ],
-  "links": [
-   [
-    "Meadery",
-    "Manor House"
-   ],
-   [
-    "Mill",
-    "Manor House"
-   ],
-   [
-    "Spice Merchant",
-    "Manor House"
-   ],
-   [
-    "Winery",
-    "Manor House"
-   ],
-   [
-    "Cidery",
-    "Manor House"
-   ]
-  ]
+  "links": []
  }
 ]
