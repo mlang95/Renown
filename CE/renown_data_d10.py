@@ -4176,7 +4176,7 @@ if PHASE_REFORM:
     GLOSSARY["Council Phase"] = ("The phase after the Empire Phase: clockwise from the starting player, each player performs the Era's "
                                  "Works actions (Industry), paying each cost. They aren't Envoys: no Influence or votes, and each one Passes.")
     NAME_DISPLAY["Council Phase"] = ALIASES["Council Phase"] = "Works Phase"
-    _ALIAS_RE = _re_disp.compile(r"(" + "|".join(_re_disp.escape(k) for k in sorted(ALIASES, key=len, reverse=True)) + r")")   # include the rename
+    _ALIAS_RE = _re_disp.compile(r"\b(" + "|".join(_re_disp.escape(k) for k in sorted(ALIASES, key=len, reverse=True)) + r")\b")   # include the rename
     if "Council Phase" in GLOSSARY_SEE: GLOSSARY_SEE["Council Phase"] = "works-phase"
     # no Council Envoys: the Works Phase performs actions directly
     GLOSSARY.pop("Council Envoy", None); GLOSSARY_SEE.pop("Council Envoy", None)

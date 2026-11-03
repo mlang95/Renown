@@ -420,6 +420,17 @@ def build(out_path):
                 w.writerow([n, fac.get("difficulty",""), fac.get("strength",""), mname])
     print(f"wrote faction table -> {csv_path}")
 
+    # engine-name -> display-name aliases, so the bot can answer queries that use an old/engine name
+    al_path = _os.path.join(_os.path.dirname(out_path) or ".", "name_aliases.csv")
+    with open(al_path, "w", newline="", encoding="utf-8") as af:
+        w = csv.writer(af)
+        w.writerow(["Engine", "Display"])
+        seen_al = set()
+        for k, v in getattr(rd, "ALIASES", {}).items():
+            if isinstance(k, str) and isinstance(v, str) and k.lower() != v.lower() and k.lower() not in seen_al:
+                seen_al.add(k.lower()); w.writerow([k, v])
+    print(f"wrote name aliases -> {al_path}")
+
     # equipment table CSV for the bot's tabulate tier view
     eq_path = _os.path.join(_os.path.dirname(out_path) or ".", "equipment_table.csv")
     with open(eq_path, "w", newline="", encoding="utf-8") as ef:
