@@ -67,7 +67,7 @@ function sideUnlocks(p){return p?withBoard(p.board,()=>{const have=new Set(Objec
     return {mods:armyUnlocks(earned).mods.concat(facCombat(p.board),awk),outInnate:(PC["Outrider Intercept Post"]||0)>0,outMastery:!!earned["Outrider Intercept Post"]};})
     :{mods:[],outInnate:false,outMastery:false};}
 // combat standing effects (STANDING_EFFECTS) by Domain value; bandits use their camp's Domain value (Prowess = Cunning = banditDomain)
-function sideDomains(sd,p){if(sd.kind==="bandit"){const cp=mapState().camps[sd.camp],v=cp?banditDomain(cp.n):0;return {Prowess:v,Cunning:v};}return (p&&p.board.domains)||{};}
+function sideDomains(sd,p){if(sd.kind==="bandit"){const cp=mapState().camps[sd.camp];return cp?banditDom(cp):{Prowess:0,Cunning:0};}return (p&&p.board.domains)||{};}
 function standingFxOf(dv){const out=[],F=BT.standingFx||{},TH={Rising:RIS,Established:EST,Sovereign:SOV};
   Object.keys(F).forEach(k=>{const [d,t]=k.split("|");if((dv[d]||0)>=TH[t])out.push({d,t,text:F[k]});});return out;}
 // ---- Equipment (declared with the Tactic; only Equipped gear counts) ----
@@ -531,7 +531,7 @@ function sideHTML(X){
   let h='<div class="tot bside" data-side="'+X+'"><h3 style="font-size:14px">Side '+X+(X==="A"?" (attacker)":"")+'</h3>'+
     '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0"><select class="bsel" data-x="'+X+'" data-f="pid"><option value="">player…</option>'+
     D.players.map(p=>'<option value="'+p.id+'"'+(sd.kind!=="bandit"&&String(p.id)===String(sd.pid)?' selected':'')+'>'+esc(p.name)+'</option>').join('')+
-    Object.keys(mapState().camps).map(k=>{const cp=mapState().camps[k];return '<option value="bandit:'+k+'"'+(sd.kind==="bandit"&&sd.camp===k?' selected':'')+'>☠ Bandit '+(cp.n>=(BAN.armyThreshold||25)?'Army':'Camp')+' @ '+k+' ('+cp.n+')</option>';}).join('')+'</select>';
+    Object.keys(mapState().camps).map(k=>{const cp=mapState().camps[k];return '<option value="bandit:'+k+'"'+(sd.kind==="bandit"&&sd.camp===k?' selected':'')+'>☠ Bandit '+(bArmy(cp)?'Army':'Camp')+' @ '+k+' ('+cp.n+')</option>';}).join('')+'</select>';
   if(sd.kind==="bandit"){const {a}=sideArmy(sd),era=a?banditEra(a):currentEra(),lo=banLO()[era]||{};
     h+=a?'<select class="bera" data-x="'+X+'">'+Object.keys(ERAS).map(e=>'<option value="'+esc(e)+'"'+(era===e?' selected':'')+'>'+esc(e)+(e===currentEra()?' (current)':'')+'</option>').join('')+'</select></div>'+
       '<div class="note">Armed for '+esc(era)+': '+esc((banEquip()[era])||'—')+' → '+esc([a.retinue,a.weapon,a.armor,a.shield].filter(x=>x&&x!=="None").join(', '))+
@@ -883,9 +883,10 @@ function endBattle(win){
   if(B.qid){D.bqueue=bq().filter(x=>x.id!==B.qid);delete B.qid;}
   if(banditSiege){const T=realmTimers(),i=T.findIndex(t=>t.kind==="siege"&&t.bandit&&String(t.bandit)===String(siegeUid));
     if(i>=0){const t=T[i];if(win==="A"){blog(banditSack(t));endSettlementSieges(t.tp,t.sid);}else T.splice(i,1);}}
-  // a Bandit Army goes home after every Battle (survivors re-join its camp); if it was
-  // destroyed, its camp is destroyed with it
-  bHome.forEach(h=>{const M=mapState();if(M.camps[h.k])banditReturn(h.k);else{const c=M.camps[h.home];if(c&&c.out===h.uid){delete M.camps[h.home];blog("Bandit Camp @ "+h.home+" destroyed with its Army");}}});
+  // a Bandit Army stays out after a Battle it survives (it stays an Army whatever its size); if it was destroyed, its camp
+  // is destroyed with it
+  bHome.forEach(h=>{const M=mapState();if(M.camps[h.k])return;else{const c=M.camps[h.home];if(c&&c.out===h.uid){delete M.camps[h.home];blog("Bandit Camp @ "+h.home+" destroyed with its Army");}}});
+  pruneBanditSieges().forEach(x=>blog(x));
   blog("Battle ended — Fatigue tokens removed");B.id=null;B.seizeSet=false;B.rev=null;B.rolls={};save();render();
 }
 function wireBattle(host){

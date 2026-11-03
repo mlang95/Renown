@@ -176,7 +176,7 @@ var SIM = (function () {
         const M = mapState(), ck = Object.keys(M.camps).find(k => M.camps[k].uid === t.bandit);
         if (!ck) { T.splice(i, 1); continue; }
         if (B) { t.simDone = tTurn(); bqAdd({ kind: "siege", A: { kind: "bandit", camp: ck }, B, seize: "", src: "Bandit Siege" }); }
-        else { const msg = banditSack(t); endSettlementSieges(t.tp, t.sid); banditReturn(ck);   /* the Army goes home after the Siege */ REC.events.push({ t: CUR_T, kind: "sack", b: q.id, by: "bandits", what: String(msg).slice(0, 120) }); }
+        else { const msg = banditSack(t); endSettlementSieges(t.tp, t.sid); REC.events.push({ t: CUR_T, kind: "sack", b: q.id, by: "bandits", what: String(msg).slice(0, 120) }); }
         n++;
       } else if (t.by != null) {
         const by = pById(t.by);

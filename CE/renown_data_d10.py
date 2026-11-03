@@ -2691,6 +2691,8 @@ EFFICIENT = {n: t[0] for n, t in EFFICIENT_MULTI.items()} # first target (1-part
 BANDIT_CAMP_START = 10
 BANDIT_CAMP_GOLD = 2000    # gold in a Bandit Camp's treasury when it spawns
 BANDIT_ARMY_THRESHOLD = 25
+BANDIT_ARMY_MUSTER_BELOW = 15   # a Bandit Army under this many Retinues (and not Sieging) Musters instead of Moving
+BANDIT_ARMY_MUSTER_MULT = 2     # its Muster limit: this × the Era's Bandit Growth, per Bandit Mechanics step
 BANDIT_GROWTH_PER_ERA = {"Founding": 1, "Ascension": 2, "Eminence": 3, "Zenith": 4}
 BANDIT_EQUIPMENT_PER_ERA = {"Founding": "Levy: Farm Tools + Cloth", "Ascension": "Levy: Bill Hook + Gambeson", "Eminence": "Man-at-Arms: Spears + Kite Shield + Leather", "Zenith": "Man-at-Arms: Halberd + Chainmail"}
 # Hardcore (a per-game choice the Host makes at Setup › Wild Outlaw Country): Wild Outlaw Country follows
@@ -2714,7 +2716,7 @@ BANDITS = {
     "Bandit Domain Value": "For every 5 Retinues in the Bandit Camp or Army, the Bandit Camp has +2 Cunning and +2 Prowess.",
     "Bandit Camp": f"A collection of Bandits in Outlaw Country, starting with {BANDIT_CAMP_START} Retinues and {BANDIT_CAMP_GOLD} gold.",
     "Bandit Growth": f"Bandit Camps gain ({'/'.join(str(v) for v in BANDIT_GROWTH_PER_ERA.values())}) Retinues a turn, based on the Era of the Realm.",
-    "Bandit Army": f"A Bandit Camp at {BANDIT_ARMY_THRESHOLD} Retinues sends out a Bandit Army of {BANDIT_ARMY_THRESHOLD}; the camp stays, and the Army returns to it after each Battle to re-muster. Performs Move actions toward the Settlement with the highest Holding income, Battling or Pillaging if possible, in addition to Bandit Cunning Mechanics. Bandit Armies cannot exceed {BANDIT_ARMY_THRESHOLD}",
+    "Bandit Army": f"A Bandit Camp at {BANDIT_ARMY_THRESHOLD} Retinues sends out a Bandit Army of {BANDIT_ARMY_THRESHOLD}; the camp stays. A Bandit Army stays a Bandit Army whatever its size, and keeps the Prowess it had at {BANDIT_ARMY_THRESHOLD} Retinues. Performs Move actions toward the Settlement with the highest Holding income, Battling or Pillaging if possible, in addition to Bandit Cunning Mechanics; while under {BANDIT_ARMY_MUSTER_BELOW} Retinues and not Sieging, it Musters instead of Moving (up to {BANDIT_ARMY_MUSTER_MULT}× the Era's Bandit Growth). Bandit Armies cannot exceed {BANDIT_ARMY_THRESHOLD}",
     "Spawn a Bandit Camp": "Each Spring, every player gains a Bandit Camp.",
 }
 

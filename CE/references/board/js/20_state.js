@@ -247,7 +247,7 @@ function expireBlocks(){return [];}
 function expireBlocksTimed(){const M=mapState(),out=[];Object.keys(M.cells).forEach(k=>{const c=M.cells[k];if(c.blocked&&c.blockedT!=null&&tTurn()-c.blockedT>=2){delete c.blocked;delete c.blockedT;out.push("Army @ "+k+": Blocked (Sabotage) ends");}});
   D.players.forEach(p=>(p.board.armies||[]).forEach(a=>{if(a.blocked&&a.blockedT!=null&&tTurn()-a.blockedT>=2){delete a.blocked;delete a.blockedT;out.push(p.name+" · "+(a.label||("Army "+a.id))+": Blocked (Sabotage) ends");}}));
   Object.keys(M.camps||{}).forEach(k=>{const cp=M.camps[k];if(cp.blocked&&cp.blockedT!=null&&tTurn()-cp.blockedT>=2){delete cp.blocked;delete cp.blockedT;out.push("Bandit Army @ "+k+": Blocked (Sabotage) ends");}});return out;}
-function empirePhase(){const P=D.players,done={},log=[];P.forEach(p=>done[p.id]=[]);expireBlocks().forEach(x=>log.push(x));
+function empirePhase(){const P=D.players,done={},log=[];P.forEach(p=>done[p.id]=[]);expireBlocks().forEach(x=>log.push(x));pruneBanditSieges().forEach(x=>log.push(x));
   // 1-2. Standing effects are live; the Season was set in the Rest Phase.
   // 3. Timers, in order: Build, Repair (boards) · Truce, Siege (realm) · Muster (Armies) · Sack, Capture (realm) · any other realm timer
   P.forEach(p=>empTimers(p.board).forEach(x=>done[p.id].push(x)));wonderRace(done,log);tickRealm(["Build Timer","Repair Timer"]);

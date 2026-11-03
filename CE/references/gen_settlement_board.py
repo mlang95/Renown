@@ -1028,7 +1028,7 @@ def main():
         banditLoadouts=b_lo,
         banditLoadoutsHardcore=b_lo_hc,
         bandits={
-            "campStart": ns.get("BANDIT_CAMP_START"), "campGold": ns.get("BANDIT_CAMP_GOLD", 0), "armyThreshold": ns.get("BANDIT_ARMY_THRESHOLD"),
+            "campStart": ns.get("BANDIT_CAMP_START"), "campGold": ns.get("BANDIT_CAMP_GOLD", 0), "armyThreshold": ns.get("BANDIT_ARMY_THRESHOLD"), "armyMusterBelow": ns.get("BANDIT_ARMY_MUSTER_BELOW"), "armyMusterMult": ns.get("BANDIT_ARMY_MUSTER_MULT"),
             "growth": ns.get("BANDIT_GROWTH_PER_ERA", {}), "equipment": ns.get("BANDIT_EQUIPMENT_PER_ERA", {}),
             "cunningMin": ns.get("BANDIT_CUNNING_MIN"), "faces": ns.get("BANDIT_FACES"),
             "outlawStart": ns.get("OUTLAW_COUNTRY_START"), "outlawBuffer": ns.get("OUTLAW_BUFFER_RANGE"),

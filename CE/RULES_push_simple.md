@@ -503,7 +503,7 @@ While an Army is engaged in a Battle or Lay Siege action started by another play
 
 ### Garrisons
 
-A Garrison{{IDX:Garrison}} is an Army that exists within each of your Settlements while you have the Garrison Infrastructure, sized by that Settlement's Garrison value (Village {{VAL:SETTLEMENTS.Village.garrison}}, Town {{VAL:SETTLEMENTS.Town.garrison}}, City {{VAL:SETTLEMENTS.City.garrison}}, Metropolis {{VAL:SETTLEMENTS.Metropolis.garrison}} Retinues). Garrisons can't perform actions or be targeted by actions, and may **Sally Forth** while their Settlement is under Siege. Garrisons have cost and {{VAL:SUPPLY_TERM}} 0 and don't count toward your Army limit. All Garrisons within an Empire share the same Retinue type and equipment, and gain the benefits of all unlocked keywords that apply to your Armies.
+A Garrison{{IDX:Garrison}} is an Army that exists within each of your Settlements while you have the Garrison Infrastructure, sized by that Settlement's Garrison value (Village {{VAL:SETTLEMENTS.Village.garrison}}, Town {{VAL:SETTLEMENTS.Town.garrison}}, City {{VAL:SETTLEMENTS.City.garrison}}, Metropolis {{VAL:SETTLEMENTS.Metropolis.garrison}} Retinues). Garrisons can't perform actions or be targeted by actions, and may **Sally Forth** while their Settlement is under Siege. Garrisons have cost and {{VAL:SUPPLY_TERM}} 0 and don't count toward your Army limit. All Garrisons within an Empire share the same Retinue type and equipment, and gain the benefits of all unlocked keywords that apply to your Armies. A Garrison below its Settlement's Garrison value Musters on its own each Empire Phase (Timers step), gaining up to that Settlement's Muster Limit in Retinues; it doesn't while its Settlement is Besieged.
 
 ### Mustering
 
@@ -624,7 +624,7 @@ In the Empire Phase each Spring: place a Bandit Camp of {{VAL:BANDIT_CAMP_START}
 
 ### Growing Bandit Camps
 
-A Bandit Camp{{IDX:Bandit Camp}} grows each Empire Phase by the Era's Retinues per turn. When it reaches {{VAL:BANDIT_ARMY_THRESHOLD}} Retinues it sends out a Bandit Army of {{VAL:BANDIT_ARMY_THRESHOLD}}, and the camp stays on its Territory. While its Army is out, the camp doesn't grow or send out another Army, and no camp can spawn on its Territory. The camp can't be attacked while its Army is out. After each Battle it doesn't lose, the Army returns to its camp, and the camp re-musters toward {{VAL:BANDIT_ARMY_THRESHOLD}} from the Retinues that come back; a Bandit Army that loses a Battle is destroyed, and its camp with it. Its Retinues carry the Era's armament.
+A Bandit Camp{{IDX:Bandit Camp}} grows each Empire Phase by the Era's Retinues per turn. When it reaches {{VAL:BANDIT_ARMY_THRESHOLD}} Retinues it sends out a Bandit Army of {{VAL:BANDIT_ARMY_THRESHOLD}}, and the camp stays on its Territory. While its Army is out, the camp doesn't grow or send out another Army, and no camp can spawn on its Territory. The camp can't be attacked while its Army is out. Once out, a Bandit Army stays a Bandit Army whatever its size — it never returns to being a camp — and keeps the Prowess value it had at {{VAL:BANDIT_ARMY_THRESHOLD}} Retinues (its Cunning value still follows its size). A Bandit Army that loses a Battle is destroyed, and its camp with it. Its Retinues carry the Era's armament.
 
 {{TABLE:bandits_by_era}}
 
@@ -646,7 +646,7 @@ A Bandit Camp keeps Extorted money in its Treasury and doesn't pay costs, {{VAL:
 
 ### Bandit Army Behavior
 
-After Bandit Mechanics resolve, a Bandit Army performs a Move action based on, in order:
+After Bandit Mechanics resolve, a Bandit Army with fewer than {{VAL:BANDIT_ARMY_MUSTER_BELOW}} Retinues that isn't Sieging Musters instead: it gains up to {{VAL:BANDIT_ARMY_MUSTER_MULT}}× the Era's Bandit Growth in Retinues (never above {{VAL:BANDIT_ARMY_THRESHOLD}}). Otherwise a Bandit Army performs a Move action based on, in order:
 
 1. **Battle** — if another player's Army is in range.
 

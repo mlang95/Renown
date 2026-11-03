@@ -56,7 +56,7 @@ function bfGround(T){if(!T)return '<rect width="'+BF_W+'" height="'+BF_H+'" fill
     h+=mapScatter(T.kind,"bf"+i,x,y,48,T.fill,"field|"+T.key,null,true));
   return h;}
 function bfCamp(X,col){const x=X==="A"?6:BF_W-50,y=BF_H/2-54,cs=SPR&&SPR.S["map:camp"];
-  return '<g><rect x="'+x+'" y="'+y+'" width="44" height="108" rx="4" fill="#000" fill-opacity=".25" stroke="'+col+'" stroke-opacity=".7" stroke-dasharray="3 3"/>'+
+  return '<g><text class="bf-cnt" data-x="'+X+'" x="'+(x+22)+'" y="'+(y-22)+'" text-anchor="middle" fill="'+col+'"></text><rect x="'+x+'" y="'+y+'" width="44" height="108" rx="4" fill="#000" fill-opacity=".25" stroke="'+col+'" stroke-opacity=".7" stroke-dasharray="3 3"/>'+
     [0,1].map(i=>'<g transform="translate('+(x+4)+','+(y+12+i*44)+')">'+(cs?sprSVG("map:camp",36,false,col):'<path d="M4 32L18 6L32 32Z" fill="'+col+'" stroke="#000" stroke-opacity=".5"/>')+'</g>').join("")+'</g>';}
 // (re)build the SVG for this Skirmish: figures start in camp and march out on the next frame
 function bfBuild(sig,S,T){const wrap=document.createElement("div");wrap.className="bf-wrap";
@@ -103,6 +103,8 @@ function bfUpdate(S,T){const W=BF.wrap,B=battle(),fresh=BF.fresh;BF.fresh=false;
   const TT=(TREF.tactical||{})[T&&T.tile]||null;
   W.querySelector(".bf-cap").innerHTML=T?((typeof pxSwatch==="function"&&SPR&&SCAT[T.kind]?pxSwatch(T.kind,T.fill,22):'')+'<b>'+esc(T.tile||"")+'</b>'+(TT?' <span>'+esc(TT.effect||"")+'</span>':'')+' <span class="note">hex '+esc(T.key)+'</span>')
     :'<span class="note">No map hex for this battle</span>';
+  W.querySelectorAll(".bf-cnt").forEach(t=>{const s=S[t.dataset.x],n=s?(+s.a.count||0):0,h='<tspan class="bf-nb">'+n+'</tspan><tspan class="bf-ns" x="'+t.getAttribute("x")+'" dy="14">'+(n===1?"Retinue":"Retinues")+'</tspan>';
+    if(t._h!==h){t.innerHTML=h;t._h=h;}});   // the Army's Retinues, above its camp
   BF.S=S;bfFeedPaint();bfTallyPaint();
   if(fresh){BF.seen=bfSeen();bfReport(S);return;}
   bfEffects(S);bfReport(S);bfTallyPaint();BF.res={A:S.A?S.A.c.reserve:0,B:S.B?S.B.c.reserve:0};}
@@ -125,9 +127,9 @@ function bfToast(k,html,col,delay){const show=()=>{if(BF_FEED_ID!==bfFeedKey()){
   if(delay)setTimeout(show,delay);else show();}
 // Tally under the field: what each side has rolled this Skirmish
 function bfTallyPaint(){if(!BF)return;const el=BF.wrap.querySelector(".bf-tally"),S=BF.S||{};if(!el)return;
-  const row=X=>{const s=S[X];if(!s)return '<div></div>';const t=BF.t[X],c=s.c,o=[["Hits",t.hit+(t.deadly?' <i>('+t.deadly+' Deadly)</i>':''),"hit"]];
-    if(c.canParry)o.push(["Parried",t.parry,"parry"]);o.push(["Saved",t.save,"save"]);if(c.canParry&&(c.riposte||c.riposteMelee))o.push(["Ripostes",t.rip,"rip"]);
-    if(c.recThr!=null)o.push(["Healed",t.heal,"heal"]);o.push(["Fallen",s.cas||0,"fall"]);if(s.pend)o.push(["Wounded",s.pend,"fall"]);
+  const row=X=>{const s=S[X];if(!s)return '<div></div>';const t=BF.t[X],c=s.c,o=[["Strikes",t.hit+(t.deadly?' <i>('+t.deadly+' Deadly)</i>':''),"hit"]];
+    if(c.canParry)o.push(["Parried",t.parry,"parry"]);o.push(["Armor Saves",t.save,"save"]);if(c.canParry&&(c.riposte||c.riposteMelee))o.push(["Riposted",t.rip,"rip"]);
+    if(c.recThr!=null)o.push(["Healed",t.heal,"heal"]);o.push(["Casualties",s.cas||0,"fall"]);if(s.pend)o.push(["Wounded",s.pend,"fall"]);
     return '<div class="bf-trow'+(X==="B"?' r':'')+'" style="--pc:'+s.col+'">'+o.map(([k,v,cl])=>'<span class="bf-tc '+cl+'"><b>'+v+'</b> '+k+'</span>').join("")+'</div>';};
   const h=row("A")+row("B");if(el._h===h)return;
   const old=el._v||{};el.innerHTML=h;el._h=h;const now={};
@@ -144,8 +146,8 @@ const bfN=(n,one,many)=>n+" "+(n===1?one:(many||one+"s"));
 // the defending side's line for this Skirmish: only what it can roll (no Parry -> no parries / ripostes; no Recover -> no heals),
 // and only once it has been rolled
 function bfDefLine(s){const t=BF.t[s.X],c=s.c,o=[];
-  if(c.canParry&&t.on.parry)o.push(bfN(t.parry,"parry","parries"));if(c.canParry&&(c.riposte||c.riposteMelee)&&(t.on.parry||t.rip))o.push(bfN(t.rip,"riposte"));
-  if(t.on.save)o.push(bfN(t.save,"save"));if(c.recThr!=null&&t.on.heal)o.push(bfN(t.heal,"heal"));
+  if(c.canParry&&t.on.parry)o.push(t.parry+" Parried");if(c.canParry&&(c.riposte||c.riposteMelee)&&(t.on.parry||t.rip))o.push(t.rip+" Riposted");
+  if(t.on.save)o.push(bfN(t.save,"Armor Save"));if(c.recThr!=null&&t.on.heal)o.push(t.heal+" Healed");
   return '<b>'+esc(s.nm)+'</b>: '+o.join(" · ");}
 // end-of-Skirmish report (Endurance, Fatigue, Break check, Rout), once per report
 let BF_REP="";
@@ -153,7 +155,7 @@ function bfReport(S){const B=battle(),R=B.endRep&&B.endRep.sk===B.sk?B.endRep:nu
   R.rows.forEach((r,i)=>{const s=S[r.X];if(!s)return;const o=['Endurance '+r.e0+' → '+r.e1];
     if(r.brk)o.push(r.brk.dice?'<b>Break check</b>: '+bfN(r.brk.lost,"casualty","casualties")+' ('+r.brk.n+'d10 vs '+r.brk.target+'+)':'<b>Break check due</b>: '+r.brk.n+'d10 vs '+r.brk.target+'+');
     if(r.fat!=null)o.push('Fatigue '+r.fat+' → Morale '+r.m1+'+');if(r.rout)o.push('<b>Routs</b>');if(r.wiped)o.push('<b>wiped out</b>');
-    if(r.rout||r.wiped)bfNum(r.X,r.wiped?"WIPED OUT":"ROUT","","rout",i*250);else if(r.brk&&r.brk.dice&&r.brk.lost)bfNum(r.X,"−"+r.brk.lost,"Break","brk",i*250);
+    if(r.rout||r.wiped)bfNum(r.X,r.wiped?"Wiped out":"Rout","","rout",i*250);else if(r.brk&&r.brk.dice&&r.brk.lost)bfNum(r.X,"−"+r.brk.lost,"Break","brk",i*250);
     bfToast("rep"+r.X,'<b>'+esc(s.nm)+'</b>, end of Skirmish '+(R.sk-1)+': '+o.join(' · '),s.col,i*250);});}
 // what has already been shown: each side's last roll, pending Ripostes, the reveal
 function bfSeen(){const B=battle(),o={rev:B.rev&&B.rev.sk===B.sk?B.rev.A+"|"+B.rev.B:""};
@@ -185,27 +187,27 @@ function bfEffects(S){const B=battle(),now=bfSeen(),was=BF.seen;BF.seen=now;cons
       else mine.forEach(m=>{m.u.classList.remove("lunge");void m.u.getBBox();m.u.classList.add("lunge");setTimeout(()=>m.u.classList.remove("lunge"),600);});
       setTimeout(()=>bfPick(theirs,R.succ).forEach((t,i)=>bfFx(BF_MARK.hit(t.x,t.y,i<(R.deadly||0)))),s.ranged?450:220);
       BF.t[X].hit+=R.succ||0;BF.t[X].deadly+=R.deadly||0;
-      bfNum(O,R.target>F?"—":R.succ,R.target>F?"can't hit":(R.succ===1?"hit":"hits")+(R.deadly?" · "+R.deadly+" Deadly":""),R.deadly?"deadly":"hit",s.ranged?450:220);
+      bfNum(O,R.target>F?"—":R.succ,R.target>F?"can't Strike":(R.succ===1?"Strike":"Strikes")+(R.deadly?" · "+R.deadly+" Deadly":""),R.deadly?"deadly":"hit",s.ranged?450:220);
       const cl=cleaveN(X);
-      bfToast("st"+X,nm+(R.rr?' re-rolls its misses (Dual Wield): +'+bfN(R.succ,"hit"):R.cleave?' cleaves: +'+bfN(R.succ,"hit"):' strikes: '+bfN(R.succ,"hit"))+
+      bfToast("st"+X,nm+(R.rr?' re-rolls its misses (Dual Wield): +'+bfN(R.succ,"Strike"):R.cleave?' cleaves: +'+bfN(R.succ,"Strike"):': '+bfN(R.succ,"Strike"))+
         (s.c.hasDeadly?' · '+(R.deadly||0)+' Deadly':'')+(cl?' · Cleave ×'+cl+' to roll':'')+(R.target>F?' (can\'t hit)':''),s.col);}
-    else if(R.kind==="Parry"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.parry(m.x,m.y)));BF.t[X].parry+=R.succ+dl;BF.t[X].on.parry=1;bfNum(X,R.succ+dl,"parried","parry");bfToast("df"+X,bfDefLine(s),s.col);}
-    else if(R.kind==="Save"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.save(m.x,m.y)));BF.t[X].save+=R.succ+dl;BF.t[X].on.save=1;bfNum(X,R.succ+dl,"saved","save");bfToast("df"+X,bfDefLine(s),s.col);}
-    else if(R.kind==="Recover"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.heal(m.x,m.y)));BF.t[X].heal+=R.succ+dl;BF.t[X].on.heal=1;bfNum(X,"+"+(R.succ+dl),"healed","heal");bfToast("df"+X,bfDefLine(s),s.col);}
+    else if(R.kind==="Parry"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.parry(m.x,m.y)));BF.t[X].parry+=R.succ+dl;BF.t[X].on.parry=1;bfNum(X,R.succ+dl,"Parried","parry");bfToast("df"+X,bfDefLine(s),s.col);}
+    else if(R.kind==="Save"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.save(m.x,m.y)));BF.t[X].save+=R.succ+dl;BF.t[X].on.save=1;bfNum(X,R.succ+dl,R.succ+dl===1?"Armor Save":"Armor Saves","save");bfToast("df"+X,bfDefLine(s),s.col);}
+    else if(R.kind==="Recover"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.heal(m.x,m.y)));BF.t[X].heal+=R.succ+dl;BF.t[X].on.heal=1;bfNum(X,"+"+(R.succ+dl),"Healed","heal");bfToast("df"+X,bfDefLine(s),s.col);}
     else if(R.kind==="Morale"){mine.forEach(m=>{m.u.classList.add("shake");setTimeout(()=>m.u.classList.remove("shake"),900);});
-      bfNum(X,"PANIC",(R.dice.length-R.succ)+" flee","panic");
+      bfNum(X,"Panic",(R.dice.length-R.succ)+" flee","panic");
       bfToast("mo"+X,nm+' <b>Panic check</b>: '+R.succ+' hold, '+(R.dice.length-R.succ)+' flee ('+R.dice.length+'d10 vs '+R.target+'+)',s.col);}
     else if(R.kind==="Break"){mine.forEach(m=>{m.u.classList.add("shake");setTimeout(()=>m.u.classList.remove("shake"),900);});
-      bfNum(X,"BREAK",bfN(R.cas,"lost","lost"),"brk");
+      bfNum(X,"Break",bfN(R.cas,"Casualty","Casualties"),"brk");
       bfToast("br"+X,nm+' <b>Break check</b>: '+R.succ+' hold, '+bfN(R.cas,"casualty","casualties")+' ('+R.dice.length+'d10 vs '+R.target+'+)',s.col);}});
   // Riposte: a new pending Riposte against O comes back from X's line
   ["A","B"].forEach(O=>{const X=O==="A"?"B":"A",d=now["rip"+O]-(was["rip"+O]||0);if(d<=0)return;
-    if(S[X]){BF.t[X].rip+=d;bfToast("df"+X,bfDefLine(S[X]),S[X].col);bfNum(O,"↩ "+d,d===1?"riposte":"ripostes","rip",200);}
+    if(S[X]){BF.t[X].rip+=d;bfToast("df"+X,bfDefLine(S[X]),S[X].col);bfNum(O,"↩ "+d,"Riposted","rip",200);}
     bfPick(BF.pos[X],d).forEach((m,i)=>{const t=BF.pos[O][i%Math.max(1,BF.pos[O].length)];if(t){bfFx(BF_MARK.shot(m.x,m.y,t.x,t.y,"#ffb300"));setTimeout(()=>bfFx(BF_MARK.hit(t.x,t.y,false)),400);}});});
   // casualties applied: who falls, who steps up from reserve; Panic check due once losses pass the threshold
   ["A","B"].forEach(X=>{const s=S[X],d=now["cas"+X]-(was["cas"+X]||0);if(!s||d<=0)return;const up=Math.min(d,BF.res[X]||0);
-    bfNum(X,"−"+d,d===1?"falls":"fall","fall");if(up)bfNum(X,"+"+up,"from reserve","up",500);
-    bfToast("cas"+X,'<b>'+esc(s.nm)+'</b>: '+bfN(d,"falls","fall")+(up?' · '+up+' step up from reserve':'')+(s.c.front<(BT.frontMax||10)?' · front '+s.c.front:''),s.col);
+    bfNum(X,"−"+d,d===1?"Casualty":"Casualties","fall");if(up)bfNum(X,"+"+up,"Reinforcements","up",500);
+    bfToast("cas"+X,'<b>'+esc(s.nm)+'</b>: '+bfN(d,"Casualty","Casualties")+(up?' · '+up+' Reinforcements':'')+(s.c.front<(BT.frontMax||10)?' · front '+s.c.front:''),s.col);
     const sd=B[X],pn=(sd.cas||0)+(s.c.enduring?0:(sd.rcv||0)),T=BT.panicThreshold||5;
     if(pn>T&&!BF.panic[X]){BF.panic[X]=1;bfToast("pn"+X,s.c.immunePanic?'<b>'+esc(s.nm)+'</b>: '+pn+' lost this Skirmish, Immune Panic':
       '<b>'+esc(s.nm)+'</b>: '+pn+' lost this Skirmish (over '+T+'), <b>Panic check</b> after both sides Strike',s.col,300);}});}

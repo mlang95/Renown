@@ -158,7 +158,7 @@ function aiOutfit(p){let n=0;const B=battle(),inBattle=a=>!!B.id&&["A","B"].some
     if(up.length){n++;aiNote(p,(a.label||("Army "+a.id))+" re-equipped: "+up.join(", "));}});
   return n;}
 // ---- Armies: Move like a Bandit Army (Battle > Lay Siege > March), toward Bandits and players at war ----
-function aiMoveTargets(p){const M=mapState(),own=terrOwners(),T=Object.keys(M.camps||{}).filter(k=>!M.camps[k].out).map(k=>({k,n:+M.camps[k].n||0,mine:!!(own[k]&&own[k].has(String(p.id))),why:(+M.camps[k].n>=(BAN.armyThreshold||25)?"Bandit Army":"Bandit Camp")+" ("+(+M.camps[k].n||0)+") @ "+k}));
+function aiMoveTargets(p){const M=mapState(),own=terrOwners(),T=Object.keys(M.camps||{}).filter(k=>!M.camps[k].out).map(k=>({k,n:+M.camps[k].n||0,mine:!!(own[k]&&own[k].has(String(p.id))),why:(bArmy(M.camps[k])?"Bandit Army":"Bandit Camp")+" ("+(+M.camps[k].n||0)+") @ "+k}));
   Object.keys(M.cells).forEach(k=>{const c=M.cells[k],q=cellPlayer(c);if(q&&!sameP(q,p)&&effPair(p.id,q.id).war)T.push({k,why:q.name+(c.type==="Army"?"'s Army":"'s Settlement")});});return T;}
 function aiMovable(p){return (p.board.armies||[]).filter(a=>(+a.endurance||0)>0&&!(a.muster&&a.muster.n>0)&&!armyHeld(p,a)&&armyHex(p,a)&&(+a.count||0)>0);}
 // an Army hunts only at full strength (Muster to EQ.army_max first) and only engages what it outnumbers

@@ -415,7 +415,17 @@ function musterLimit(p,a){const k=armyHex(p,a),rb=reachBonus(p).b,out={lim:0,src
     out.lim+=ml;out.src.push((s.name||s.tier)+" "+ml+(eb?" (incl. +"+eb+" "+each.map(x=>x.n).join(", ")+")":""));});
   if(out.lim)srcMatch(p.board,"muster_plus").forEach(x=>{out.lim+=+x.m[1];out.src.push(x.n+" +"+x.m[1]);});   // "Muster Limit +X": once, on the combined limit
   return out;}
-function musterTick(p){const out=[];(p.board.armies||[]).forEach(a=>{const x=musterStep(p,a);if(x)out.push(x);});return out;}
+function musterTick(p){const out=[];(p.board.armies||[]).forEach(a=>{const x=musterStep(p,a);if(x)out.push(x);});return out.concat(garrisonMuster(p));}
+// a Garrison under its Settlement's Garrison value Musters on its own each Empire Phase, up to that Settlement's Muster Limit
+// (plus "Each of your Settlements gains Muster Limit +X"); not while the Settlement is Besieged (unless "muster_besieged")
+function garrisonMuster(p){const out=[],eb=srcMatch(p.board,"muster_plus_each").reduce((n,x)=>n+(+x.m[1]||0),0);
+  garrisonsOf(p).forEach(g=>{const s=settById(p,g.sid),have=+g.count||0;if(!s||have>=g.size)return;
+    if(siegeOn(p.id,s.id)&&!srcHas(p.board,"muster_besieged"))return;
+    const ml=(+((DATA.settlements||{})[s.tier]||{}).muster_limit||0)+eb,add=Math.min(ml,g.size-have);if(add<=0)return;
+    g.count=have+add;out.push(g.label+" Musters +"+add+" ("+g.count+"/"+g.size+")");});return out;}
+// Siege Timers laid by a Bandit Army that no longer exists (destroyed, or an old save where it went back to camp) end
+function pruneBanditSieges(){const M=mapState(),live=new Set(Object.values(M.camps||{}).map(c=>c.uid).filter(Boolean)),T=realmTimers(),out=[];
+  for(let i=T.length-1;i>=0;i--){const t=T[i];if(t.kind==="siege"&&t.bandit&&!live.has(t.bandit)){out.push((t.label||"Bandit Siege")+": the Bandit Army is gone — Siege ends");T.splice(i,1);}}return out;}
 // one step of an Army's Muster: it gains Retinues up to the combined muster limit and its Muster Timer drops by 1 (the Empire
 // Phase count-down, a Reinforce of an Army already mustering, the Keep's "When you Muster" rush). Returns a log line, or "".
 function musterStep(p,a){const m=a.muster;if(!m||!(m.n>0))return "";
@@ -524,7 +534,7 @@ function auraSources(p){const M=mapState(),out=[],PR=presR();
     else{const cs=cellSett(k),r=cs.s&&settUnbuilt(cs.s)?0:PR;
       const o={k,r,grp:k,kind:"siege",war:war&&!!cs.s&&!siegeOn(q.id,cs.s.id),label:q.name+" · "+(cs.s?(cs.s.name||cs.s.tier):c.type),tp:q.id,sid:cs.s?cs.s.id:null};
       presHexes(k).forEach(h=>out.push(h===k?o:Object.assign({},o,{k:h,ward:true})));}});   // Garrison: the Settlement's hex; Keep: its Wards
-  Object.keys(M.camps).forEach(k=>{const cp=M.camps[k];if(+cp.n<(BAN.armyThreshold||25))return;
+  Object.keys(M.camps).forEach(k=>{const cp=M.camps[k];if(!bArmy(cp))return;
     out.push({k,r:PR,kind:"battle",war:true,bandit:true,label:"Bandit Army @ "+k,B:{kind:"bandit",camp:k}});});
   return out.filter(o=>o.r>0);}
 function moveRange(p,a,startK){const M=mapState(),g=M.grid;if(!g||!startK)return null;const V=decodeGrid(g),S_=speedOf(p,a,startK),tr=S_.tr;

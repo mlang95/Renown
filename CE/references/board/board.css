@@ -844,6 +844,7 @@
   @keyframes bftc{0%{background:rgba(255,255,255,.25)}100%{background:transparent}}
   .bf-num text{font-family:var(--serif);font-weight:700;paint-order:stroke;stroke:#000;stroke-width:5px;stroke-linejoin:round}
   .bf-nb{font-size:30px}.bf-ns{font-size:15px}
+  .bf-cnt{font-family:var(--serif);font-weight:700;paint-order:stroke;stroke:#000;stroke-width:4px;stroke-linejoin:round}.bf-cnt .bf-nb{font-size:22px}.bf-cnt .bf-ns{font-size:10px;font-weight:400}
   .bf-num{animation:bfnum 2.6s ease-out forwards}
   @keyframes bfnum{0%{opacity:0;transform:translateY(10px)}12%{opacity:1;transform:translateY(0)}70%{opacity:1}100%{opacity:0;transform:translateY(-18px)}}
   .bf-sklbl{font-size:10px;letter-spacing:.12em;fill:#fff;fill-opacity:.7;paint-order:stroke;stroke:#000;stroke-opacity:.5;stroke-width:3px}
