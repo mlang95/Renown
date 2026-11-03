@@ -3230,6 +3230,138 @@ put(c, ["kkkkkkkk.................kkkkkk",
 water(c, 38, 22, 47)                                                            # waterline across both hulls
 SPRITES["monument:Fleet Anchorage"] = fin32(c)
 
+
+# ================================================================ BATCH: nurseries, brewhouse, works & arms (2026-11)
+# Plant Nursery: a glazed cold frame on a plank base, rows of potted seedlings, a watering can, a lean-to shed
+c = cv32()
+wall(c, 20, 15, 11, 16, "b")
+roof(c, 25, 10, 5)
+put(c, [".kkk.", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"], 23, 25)
+for x0 in range(1, 18, 4):                                                      # cold frame: glass panes on a plank kerb
+    put(c, ["kkkk", "keEk", "kEek", "kkkk"], x0, 18)
+hline(c, 1, 18, 22, "k"); hline(c, 1, 18, 23, "b"); hline(c, 1, 18, 24, "B"); hline(c, 1, 18, 25, "k")
+for i, x0 in enumerate(range(1, 19, 3)):                                        # potted seedlings
+    put(c, [".l." if i % 2 else "l.l", ".L.", "kRk", "krk"], x0, 27)
+put(c, ["..k..", ".kmk.", "kmmMk", "kmmMk", "kkkkk"], 14, 26)
+SPRITES["holding:Plant Nursery"] = fin32(c)
+
+# Vine Nursery: trellised rows of young vines on stakes and wires, purple grape clusters, a vintner's hut
+c = cv32()
+house(c, 21, 17, 9, 14, wall="w", roof="r", door=3)
+for row, y0 in enumerate((14, 21)):
+    hline(c, 0, 19, y0, "k")
+    for x0 in range(1, 20, 6):
+        vline(c, x0, y0, 30, "b")
+    for x0 in range(2, 19, 3):
+        put(c, ["l", "lL", "aA" if (x0 + row) % 2 else "lL", "A"], x0, y0 + 1)
+SPRITES["holding:Vine Nursery"] = fin32(c)
+
+# Arboretum: a walled garden of specimen trees — a round fruiting tree, a tall pine, a gate in the wall
+c = cv32()
+pine32(c, 16, 3, 22)
+tree32(c, 1, 8, "y")
+wall(c, 0, 25, 32, 6, "t")
+courses(c, 1, 26, 30, 29)
+put(c, [".kkkk.", "kbkbkk", "kbkbkk", "kbkbkk", "kkkkkk"], 13, 26)
+SPRITES["holding:Arboretum"] = fin32(c)
+
+# Brewhouse: timbered brewhouse with a tall vented roof louvre, an ale-stake (a bush on a pole), barrels at the door
+c = cv32()
+house(c, 3, 17, 19, 14, wall="w", roof="r", door=8, wins=(2, 14), chimney=13)
+put(c, ["kkkk", "kssk", "kkkk"], 10, 5)
+vline(c, 23, 9, 30, "b")
+hline(c, 23, 28, 9, "b")
+put(c, [".kkk.", "klllk", "klLLk", ".kkk."], 26, 10)
+put(c, BARREL, 24, 24)
+SPRITES["holding:Brewhouse"] = fin32(c)
+
+# Abatis Field: felled trees laid crown-out with sharpened branch ends, a raw earth berm, stakes driven at an angle
+c = cv32()
+mound(c, 0, 22, 32, 9, "b", "B")
+for x0 in (0, 8, 16, 23):
+    line(c, x0, 28, x0 + 6, 16, "k", 1)
+    line(c, x0 + 1, 28, x0 + 7, 16, "b", 1)
+    c[15][x0 + 7] = "s"
+for x0 in (4, 13, 22):
+    put(c, ["s..s..s", ".k.k.k.", "..kbk..", "...b..."], x0, 18)
+SPRITES["holding:Abatis Field"] = fin32(c)
+
+# Tenebrous Oubliette: a squat windowless dark-stone tower, an iron grate set in the ground before it, a chained door
+c = cv32()
+wall(c, 7, 6, 18, 25, "u")
+cren(c, 7, 4, 18)
+for y in range(8, 30, 3):
+    for x in range(8 + (y // 3) % 2 * 2, 24, 4):
+        if c[y][x] == "u": c[y][x] = "U"
+put(c, SLIT, 15, 10)
+put(c, [".kkkk.", "kmdmdk", "kdmdmk", "kmdmdk", "kdmdmk", "kmdmdk", "kkkkkk"], 13, 24)
+put(c, ["kkkkkkk", "kmkmkmk", "kkkkkkk"], 24, 28)
+SPRITES["holding:Tenebrous Oubliette"] = fin32(c)
+
+# Fortified Church: plastered nave with a crenellated stone west tower (arrow slits instead of a belfry), a gold cross
+c = cv32()
+put(c, CROSS5, 6, 0)
+cren(c, 2, 5, 13)
+wall(c, 2, 7, 13, 24, "t")
+courses(c, 3, 8, 12, 29)
+put(c, SLIT, 6, 10); put(c, SLIT, 9, 16)
+wall(c, 14, 17, 17, 14, "w")
+roof(c, 22, 11, 8)
+for x0 in (17, 25):
+    put(c, ["kkk", "kyk", "kyk", "kYk", "kkk"], x0, 20)
+put(c, [".kkk.", "kdddk", "kdddk", "kdddk", "kdddk", "kdddk"], 5, 25)
+SPRITES["holding:Fortified Church"] = fin32(c)
+
+# Fighting School: a sanded yard behind a rail, a pell post hacked by practice, a rack of wooden swords, a small hall
+c = cv32()
+house(c, 19, 17, 11, 14, wall="w", roof="r", door=4, wins=(1,))
+hline(c, 0, 18, 23, "b"); hline(c, 0, 18, 27, "b")
+for x0 in (0, 6, 12, 18):
+    vline(c, x0, 23, 30, "k")
+put(c, [".kk.", "kbBk", "kbBk", "kkBk", "kbBk", "kbkk", "kbBk", "kbBk", "kbBk", "kkkk"], 7, 15)
+for x0 in (2, 4):
+    vline(c, x0, 14, 22, "b")
+    c[13][x0] = "k"
+hline(c, 1, 5, 17, "k")
+SPRITES["holding:Fighting School"] = fin32(c)
+
+# Black Hold (Cunning + Industry monument): a black keep on a rock, a black banner, a raised portcullis over a dark gate,
+# a gibbet cage hanging from an arm off the parapet
+c = cv48()
+mound(c, 4, 38, 40, 9, "u", "U")
+flag(c, 23, 0, "d", 8)
+cren(c, 10, 8, 28)
+wall(c, 10, 10, 28, 30, "u")
+for y in range(12, 39, 3):
+    for x in range(11 + (y // 3) % 2 * 2, 36, 4):
+        if c[y][x] == "u": c[y][x] = "U"
+for x0 in (15, 31):
+    put(c, SLIT, x0, 14)
+put(c, ["kkkk", "kfFk", "kkkk"], 22, 17)
+put(c, ["..kkkkkk..", ".kddddddk.", "kddddddddk", "kmdmdmdmdk", "kdmdmdmdmk", "kmdmdmdmdk", "kddddddddk", "kddddddddk", "kddddddddk", "kkkkkkkkkk"], 19, 30)
+hline(c, 37, 44, 9, "k"); vline(c, 44, 9, 14, "k")
+put(c, [".kkk.", "kmdmk", "kdhdk", "kmdmk", ".kkk."], 42, 15)
+SPRITES["monument:Black Hold"] = fin32(c)
+
+# Sacristy Redoubt (Piety + Industry monument): a gilded church shut inside a ring wall — corner bastions, a gatehouse
+# with a portcullis, the spire and gold cross rising behind
+c = cv48()
+steeple(c, 24, 0, 12)
+wall(c, 14, 17, 21, 14, "w")
+roof(c, 24, 10, 8)
+for x0 in (17, 29):
+    put(c, ["kkk", "kyk", "kyk", "kYk", "kkk"], x0, 20)
+wall(c, 0, 30, 48, 17, "t")
+courses(c, 1, 31, 46, 45)
+for x0 in (0, 38):
+    cren(c, x0, 24, 10)
+    wall(c, x0, 26, 10, 21, "t")
+    put(c, SLIT, x0 + 4, 30)
+cren(c, 10, 28, 28)
+put(c, [".kkkkkk.", "kddddddk", "kmdmdmdk", "kdmdmdmk", "kmdmdmdk", "kddddddk", "kddddddk", "kkkkkkkk"], 20, 39)
+put(c, CROSS5, 22, 32)
+SPRITES["monument:Sacristy Redoubt"] = fin32(c)
+
 # Advanced Blast Furnace (Industry + Prowess — Drakteni, the arms of conquest): iron-banded furnace with a smoking
 # stack and roaring tapping door, bellows beam driven by a waterwheel fed from a flume
 c = cv48()
@@ -5861,37 +5993,37 @@ HER_CHARGES30 = {
         ".........yyy..yyyy............",
         ".........yy..yyyyy............",
     ],
-    "Wolf": [
-        "...###........................",
-        "...#####....#.................",
-        ".....####..###................",
-        "......###oo####...............",
-        ".......##o######..............",
-        "........#########.............",
-        "........##########............",
-        ".........##########...........",
-        ".........###########..........",
-        "..........###########.........",
-        "..........############........",
-        "..........#############.......",
-        ".........###############......",
-        ".........################.....",
-        "........##################....",
-        "........###################...",
-        ".......#####################..",
-        ".......######################.",
-        ".......#########xx#xx#########",
-        ".......##########x##x#########",
+    "Wolf": [                                                  # wolf passant: pricked ears, long muzzle, snarl, lean legs, brush tail
+        "..............................",
+        "......#.#.....................",
+        "......###.....................",
+        ".....#####....................",
+        "....###o##....................",
+        "..#########...................",
+        "##########....................",
+        "#yo########...................",
+        ".#ooo######...................",
+        "..#..#########................",
+        "......##########..............",
+        ".......#################......",
+        ".......###################....",
         ".......####################...",
-        ".......#################.###..",
-        ".......################..####.",
-        "......#######..#######...####.",
-        "......######...######...####..",
-        "......#####....#####...#####..",
-        ".....######...######..#####...",
-        ".....#####....#####..#####....",
-        "...y######..y######..###......",
-        "...yy####...yy####............",
+        "........####################..",
+        "........###################.#.",
+        "........##################..##",
+        ".........#################..##",
+        ".........###.##.....####.##.##",
+        ".........##..##.....##...##.##",
+        "........##...##.....##...##..#",
+        "........##...##....##....##...",
+        ".......##....##....##....##...",
+        ".......##....##....##....##...",
+        "......yy....yy....yy....yy....",
+        "..............................",
+        "..............................",
+        "..............................",
+        "..............................",
+        "..............................",
     ],
     "Spider": [
         ".##........................##.",
@@ -5992,6 +6124,486 @@ HER_CHARGES30 = {
 }
 for _n, _c in HER_CHARGES30.items():
     SPRITES["her:" + _n] = _her48(_c)
+
+
+# ---------------------------------------------------------------- heraldry: historical charges (400 BC - 1500 AD)
+# Kept apart from the culture charges (HER_CHARGES30): HER_GROUPS lists both, and the board's picker shows them in sections.
+# Drawn with a small 30x30 kit: '#' charge, 'o' dark detail, 'y' gold, 'c' red ('x' shade is added by _her48 on lower edges).
+import math as _m
+
+
+def _hg():
+    return [["."] * 30 for _ in range(30)]
+
+
+def _hset(g, x, y, ch="#"):
+    x, y = int(round(x)), int(round(y))
+    if 0 <= x < 30 and 0 <= y < 30:
+        g[y][x] = ch
+
+
+def _hfill(g, pred, ch="#"):
+    for y in range(30):
+        for x in range(30):
+            if pred(x + .5, y + .5):
+                g[y][x] = ch
+
+
+def _hpoly(g, pts, ch="#"):
+    def inside(px, py):
+        c = False
+        for i in range(len(pts)):
+            (x1, y1), (x2, y2) = pts[i], pts[i - 1]
+            if (y1 > py) != (y2 > py) and px < (x2 - x1) * (py - y1) / (y2 - y1) + x1:
+                c = not c
+        return c
+    _hfill(g, inside, ch)
+
+
+def _hdisc(g, cx, cy, r, ch="#"):
+    _hfill(g, lambda x, y: (x - cx) ** 2 + (y - cy) ** 2 <= r * r, ch)
+
+
+def _hring(g, cx, cy, r0, r1, ch="#"):
+    _hfill(g, lambda x, y: r0 * r0 <= (x - cx) ** 2 + (y - cy) ** 2 <= r1 * r1, ch)
+
+
+def _hline(g, x0, y0, x1, y1, w=1.0, ch="#"):
+    dx, dy = x1 - x0, y1 - y0
+    L2 = dx * dx + dy * dy or 1
+
+    def near(x, y):
+        t = max(0, min(1, ((x - x0) * dx + (y - y0) * dy) / L2))
+        return (x - x0 - t * dx) ** 2 + (y - y0 - t * dy) ** 2 <= (w / 2) ** 2
+    _hfill(g, near, ch)
+
+
+def _hrect(g, x0, y0, x1, y1, ch="#"):
+    _hfill(g, lambda x, y: x0 <= x <= x1 and y0 <= y <= y1, ch)
+
+
+def _hstar(g, cx, cy, n, r0, r1, rot=-90, ch="#"):
+    pts = []
+    for i in range(2 * n):
+        a = _m.radians(rot + i * 180 / n)
+        r = r1 if i % 2 == 0 else r0
+        pts.append((cx + r * _m.cos(a), cy + r * _m.sin(a)))
+    _hpoly(g, pts, ch)
+
+
+def _hmirror(g):
+    for y in range(30):
+        for x in range(15):
+            if g[y][x] != ".":
+                g[y][29 - x] = g[y][x]
+
+
+def _hrows(g):
+    return ["".join(r) for r in g]
+
+
+def _hist():
+    H = {}
+    # crosses -------------------------------------------------------
+    g = _hg()                                                          # Cross Pattée (Templars, Teutonic Order)
+    _hpoly(g, [(15, 15), (9, 1), (21, 1)]); _hpoly(g, [(15, 15), (9, 29), (21, 29)])
+    _hpoly(g, [(15, 15), (1, 9), (1, 21)]); _hpoly(g, [(15, 15), (29, 9), (29, 21)])
+    H["Cross Pattée"] = _hrows(g)
+    g = _hg()                                                          # Maltese Cross (Knights Hospitaller): 8 points
+    for ang in (0, 90, 180, 270):
+        a = _m.radians(ang)
+        tip = lambda r, s: (15 + r * _m.cos(a) - s * _m.sin(a), 15 + r * _m.sin(a) + s * _m.cos(a))
+        _hpoly(g, [tip(1, 0), tip(14, -7), tip(10, 0), tip(14, 7)])
+    H["Maltese Cross"] = _hrows(g)
+    g = _hg()                                                          # Cross Potent (Jerusalem)
+    _hrect(g, 12, 3, 17, 27); _hrect(g, 3, 12, 27, 17)
+    _hrect(g, 8, 2, 21, 5); _hrect(g, 8, 25, 21, 28); _hrect(g, 2, 8, 5, 21); _hrect(g, 25, 8, 28, 21)
+    H["Cross Potent"] = _hrows(g)
+    g = _hg()                                                          # Jerusalem Cross: cross potent between four crosslets
+    _hrect(g, 13, 3, 16, 26); _hrect(g, 3, 13, 26, 16)
+    _hrect(g, 10, 2, 19, 4); _hrect(g, 10, 25, 19, 27); _hrect(g, 2, 10, 4, 19); _hrect(g, 25, 10, 27, 19)
+    for cx, cy in ((7, 7), (22, 7), (7, 22), (22, 22)):
+        _hrect(g, cx - .5, cy - 3, cx + 1.5, cy + 4); _hrect(g, cx - 3, cy - .5, cx + 4, cy + 1.5)
+    H["Jerusalem Cross"] = _hrows(g)
+    g = _hg()                                                          # Saltire (St Andrew)
+    _hline(g, 3, 3, 26, 26, 5.5); _hline(g, 26, 3, 3, 26, 5.5)
+    H["Saltire"] = _hrows(g)
+    g = _hg()                                                          # Cross Fleury: arms ending in fleurs
+    _hrect(g, 13, 5, 16, 24); _hrect(g, 5, 13, 24, 16)
+    for ang in (0, 90, 180, 270):
+        a = _m.radians(ang); c, s = _m.cos(a), _m.sin(a)
+        P = lambda r, t: (15 + r * c - t * s, 15 + r * s + t * c)
+        _hdisc(g, *P(11, 0), 2.6); _hdisc(g, *P(13.5, -3.2), 2.1); _hdisc(g, *P(13.5, 3.2), 2.1)
+    H["Cross Fleury"] = _hrows(g)
+    g = _hg()                                                          # Chi-Rho (Constantine, 312)
+    _hrect(g, 13, 2, 16, 28); _hring(g, 18, 8, 3, 6.2); _hrect(g, 13, 2, 16, 14)
+    _hline(g, 6, 9, 24, 26, 3.2); _hline(g, 24, 9, 6, 26, 3.2)
+    H["Chi-Rho"] = _hrows(g)
+    # sun, moon, stars ---------------------------------------------
+    g = _hg()                                                          # Crescent and Star (Ottoman)
+    _hdisc(g, 13, 15, 11); _hdisc(g, 17, 15, 9.3, ".")
+    _hstar(g, 22, 15, 5, 2.3, 5.6, rot=180)
+    H["Crescent and Star"] = _hrows(g)
+    g = _hg()                                                          # Sun in Splendour (with a face)
+    _hstar(g, 15, 15, 16, 9, 14.5)
+    _hdisc(g, 15, 15, 8.2, "y"); _hring(g, 15, 15, 8.2, 9.2)
+    for p in ((12, 13), (18, 13)): _hset(g, *p, "o")
+    _hline(g, 12, 18.5, 18, 18.5, 1, "o"); _hset(g, 15, 15, "o"); _hset(g, 15, 16, "o")
+    H["Sun in Splendour"] = _hrows(g)
+    g = _hg()                                                          # Vergina Sun (Macedon, 4th c. BC): 16 rays
+    for i in range(16):
+        a = _m.radians(i * 22.5)
+        _hpoly(g, [(15 + 4 * _m.cos(a - .22), 15 + 4 * _m.sin(a - .22)), (15 + 14.5 * _m.cos(a), 15 + 14.5 * _m.sin(a)), (15 + 4 * _m.cos(a + .22), 15 + 4 * _m.sin(a + .22))])
+    _hdisc(g, 15, 15, 4.4)
+    H["Vergina Sun"] = _hrows(g)
+    g = _hg()                                                          # Mullet (five-pointed star)
+    _hstar(g, 15, 16, 5, 5.6, 14)
+    H["Mullet"] = _hrows(g)
+    g = _hg()                                                          # Estoile: six wavy-edged rays
+    _hstar(g, 15, 15, 6, 3.6, 14.2)
+    for i in range(6):
+        a = _m.radians(-90 + i * 60 + 30)
+        _hdisc(g, 15 + 6.5 * _m.cos(a), 15 + 6.5 * _m.sin(a), 1.1, ".")
+    H["Estoile"] = _hrows(g)
+    g = _hg()                                                          # Moon and Stars (decrescent with three stars)
+    _hdisc(g, 15, 15, 12); _hdisc(g, 9.5, 15, 10.5, ".")
+    for cx, cy in ((7, 7), (6, 15), (7, 23)): _hstar(g, cx, cy, 5, 1.3, 3.2)
+    H["Moon and Stars"] = _hrows(g)
+    # flowers, plants ----------------------------------------------
+    g = _hg()                                                          # Fleur-de-lis
+    _hpoly(g, [(15, 1), (18.5, 6), (19, 12), (15, 18), (11, 12), (11.5, 6)])
+    for s in (1, -1):
+        pts = []
+        for k in range(14):
+            t = k / 13
+            pts.append((15 + s * (3 + 11 * _m.sin(t * 2.6)), 17 - 13 * t * (1 - t) * 2.4 + t * 2))
+        pts += [(15 + s * 9, 13), (15 + s * 3, 18)]
+        _hpoly(g, [(15 + s * 2, 18)] + pts)
+    _hrect(g, 8, 18, 21, 20, "y")
+    _hpoly(g, [(13, 21), (17, 21), (18, 27), (15, 29), (12, 27)])
+    _hpoly(g, [(12, 21), (7, 24), (9, 27), (12, 24)]); _hpoly(g, [(18, 21), (23, 24), (21, 27), (18, 24)])
+    H["Fleur-de-lis"] = _hrows(g)
+    g = _hg()                                                          # Heraldic Rose: five petals, barbed, seeded gold
+    for i in range(5):
+        a = _m.radians(-90 + i * 72)
+        _hdisc(g, 15 + 7 * _m.cos(a), 15 + 7 * _m.sin(a), 6.4)
+    for i in range(5):
+        a = _m.radians(-54 + i * 72)
+        _hpoly(g, [(15 + 9 * _m.cos(a - .2), 15 + 9 * _m.sin(a - .2)), (15 + 14.5 * _m.cos(a), 15 + 14.5 * _m.sin(a)), (15 + 9 * _m.cos(a + .2), 15 + 9 * _m.sin(a + .2))], "o")
+    _hring(g, 15, 15, 4.6, 5.6, "o"); _hdisc(g, 15, 15, 4.6, "y")
+    H["Rose"] = _hrows(g)
+    g = _hg()                                                          # Trefoil
+    for cx, cy in ((15, 8), (9, 15), (21, 15)): _hdisc(g, cx, cy, 5.6)
+    _hdisc(g, 15, 14, 4); _hline(g, 15, 18, 17, 28, 2.4)
+    H["Trefoil"] = _hrows(g)
+    g = _hg()                                                          # Lotus (Ptolemaic Egypt)
+    _hpoly(g, [(15, 2), (19, 11), (15, 22), (11, 11)])
+    _hpoly(g, [(11, 22), (4, 6), (9, 8), (14, 21)]); _hpoly(g, [(19, 22), (26, 6), (21, 8), (16, 21)])
+    _hpoly(g, [(10, 23), (1, 14), (6, 13), (13, 22)]); _hpoly(g, [(20, 23), (29, 14), (24, 13), (17, 22)])
+    _hrect(g, 7, 22, 22, 24, "y"); _hpoly(g, [(9, 25), (21, 25), (18, 28), (12, 28)])
+    H["Lotus"] = _hrows(g)
+    # weapons, tools -----------------------------------------------
+    g = _hg()                                                          # Sword (upright)
+    _hpoly(g, [(15, 1), (17, 4), (17, 20), (13, 20), (13, 4)])
+    _hline(g, 15, 5, 15, 19, 1, "o")
+    _hrect(g, 7, 20, 22, 22, "y"); _hrect(g, 14, 23, 16, 27, "o"); _hdisc(g, 15, 28, 1.6, "y")
+    H["Sword"] = _hrows(g)
+    g = _hg()                                                          # Crossed Swords
+    for s in (1, -1):
+        x0, x1 = (4, 25) if s > 0 else (25, 4)
+        _hline(g, x0, 3, x1 - s * 6, 22, 2.6)
+        _hline(g, x1 - s * 9, 18 - 2, x1 - s * 2, 23 + 1, 2, "y")
+        _hline(g, x1 - s * 6, 22, x1 - s * 2.5, 26.5, 1.8, "o"); _hdisc(g, x1 - s * 1.8, 27.5, 1.4, "y")
+    H["Crossed Swords"] = _hrows(g)
+    g = _hg()                                                          # Bearded Axe (Norse)
+    _hline(g, 9, 2, 20, 28, 2.4, "y")
+    _hpoly(g, [(11, 4), (22, 1), (27, 6), (26, 15), (20, 12), (15, 13)])
+    _hline(g, 21, 3, 25, 12, 1, "o")
+    H["Bearded Axe"] = _hrows(g)
+    g = _hg()                                                          # Mjölnir (Thor's hammer pendant): loop, short shaft, head flaring to points
+    _hring(g, 15, 3.5, 1.2, 2.6)
+    _hrect(g, 13, 5, 17, 13)
+    _hpoly(g, [(9, 12), (21, 12), (21, 18), (27, 28), (19, 25), (15, 28), (11, 25), (3, 28), (9, 18)])
+    for y in (15, 19, 23): _hset(g, 15, y, "o")
+    H["Mjölnir"] = _hrows(g)
+    g = _hg()                                                          # Crossed Keys (Papal): bows below, bits above
+    for s_ in (1, -1):
+        bx, tx = (6, 23) if s_ > 0 else (23, 6)
+        _hring(g, bx, 24, 1.7, 4, "y")
+        _hline(g, bx + s_ * 2.5, 21, tx, 3, 2.2, "y")
+        _hline(g, tx - s_ * .5, 5.5, tx - s_ * 5, 3.5, 2.2, "y"); _hline(g, tx - s_ * 1.5, 9, tx - s_ * 5.5, 7.5, 2.2, "y")
+    H["Crossed Keys"] = _hrows(g)
+    g = _hg()                                                          # Mailed Fist (gauntlet clenched)
+    _hrect(g, 9, 19, 21, 28)
+    for k in range(4): _hline(g, 9, 21 + k * 2, 21, 21 + k * 2, .8, "o")
+    _hpoly(g, [(7, 6), (23, 6), (25, 10), (24, 19), (8, 19), (6, 12)])
+    for x in (11, 15, 19): _hline(g, x, 6, x, 12, 1, "o")
+    _hline(g, 7, 12, 23, 12, 1, "o")
+    _hpoly(g, [(6, 12), (3, 9), (4, 15), (8, 17)])
+    _hline(g, 10, 16, 21, 16, 1, "o")
+    H["Mailed Fist"] = _hrows(g)
+    g = _hg()                                                          # Spearhead (Germanic / Saxon)
+    _hpoly(g, [(15, 1), (21, 12), (17, 19), (13, 19), (9, 12)])
+    _hline(g, 15, 3, 15, 18, 1, "o")
+    _hrect(g, 13, 19, 16, 28, "y"); _hline(g, 12, 21, 17, 21, 1, "o")
+    H["Spearhead"] = _hrows(g)
+    g = _hg()                                                          # Crossed Arrows (Golden Horde)
+    for s in (1, -1):
+        x0, x1 = (4, 25) if s > 0 else (25, 4)
+        _hline(g, x0, 27, x1, 4, 1.4, "y")
+        _hpoly(g, [(x1 + s * 1.5, 2.5), (x1 - s * 4.5, 4.5), (x1 - s * 1, 8)])
+        _hline(g, x0 + s * 1, 25, x0 - s * 1.5, 22, 1.4); _hline(g, x0 + s * 2, 26, x0 + s * 5, 23.5, 1.4)
+    H["Crossed Arrows"] = _hrows(g)
+    g = _hg()                                                          # Anchor
+    _hring(g, 15, 4, 1.4, 3); _hrect(g, 14, 7, 16, 25); _hrect(g, 8, 8, 22, 10)
+    _hring(g, 15, 15, 11, 13.5); _hrect(g, 0, 0, 29, 19, "."); _hrect(g, 14, 7, 16, 26); _hrect(g, 8, 8, 22, 10); _hring(g, 15, 4, 1.4, 3)
+    _hpoly(g, [(2, 20), (5, 16), (6, 22)]); _hpoly(g, [(28, 20), (25, 16), (24, 22)])
+    H["Anchor"] = _hrows(g)
+    g = _hg()                                                          # Trident (Rurikid tryzub)
+    _hrect(g, 13.5, 4, 16.5, 26)
+    _hfill(g, lambda x, y: 18 < y < 22 and 4 < x < 26)
+    _hrect(g, 4, 3, 6.5, 21); _hrect(g, 23.5, 3, 26, 21)
+    _hpoly(g, [(15, 1), (18, 5), (12, 5)]); _hpoly(g, [(5, 0), (7.5, 4), (3, 4)]); _hpoly(g, [(25, 0), (27, 4), (22.5, 4)])
+    _hpoly(g, [(11, 26), (19, 26), (15, 29)])
+    H["Trident"] = _hrows(g)
+    # crowns, buildings, objects -----------------------------------
+    g = _hg()                                                          # Crown
+    _hrect(g, 4, 18, 25, 24, "y")
+    _hpoly(g, [(4, 18), (3, 7), (9, 14), (15, 4), (21, 14), (27, 7), (25, 18)], "y")
+    for cx, cy in ((3, 6), (15, 3), (27, 6)): _hdisc(g, cx, cy, 2, "y")
+    for cx in (9, 15, 21): _hdisc(g, cx, 21, 1.4, "c")
+    _hline(g, 4, 18, 25, 18, 1, "o")
+    H["Crown"] = _hrows(g)
+    g = _hg()                                                          # Castle (Castile): triple-towered
+    _hrect(g, 3, 13, 26, 28)
+    _hrect(g, 11, 5, 18, 13); _hrect(g, 3, 9, 9, 13); _hrect(g, 20, 9, 26, 13)
+    for x0, x1, y in ((11, 18, 3), (3, 9, 7), (20, 26, 7)):
+        for x in range(x0, x1 + 1, 2): _hrect(g, x, y, x + .9, y + 2)
+    _hpoly(g, [(12, 28), (12, 21), (15, 18), (18, 21), (18, 28)], "o")
+    for x in (6, 23): _hrect(g, x, 16, x + .9, 19, "o")
+    _hrect(g, 14, 8, 15, 10, "o")
+    H["Castle"] = _hrows(g)
+    g = _hg()                                                          # Portcullis (Tudor), chained
+    _hrect(g, 5, 7, 24, 27)
+    for x in (8, 12, 16, 20): _hrect(g, x, 8, x + 1.9, 26, ".")
+    for y in (11, 17, 23): _hrect(g, 6, y, 23, y + 1, "#")
+    for x in (6, 10, 14, 18, 22): _hpoly(g, [(x - .5, 27), (x + 2.5, 27), (x + 1, 29)])
+    _hline(g, 5, 7, 1, 1, 1.2, "y"); _hline(g, 24, 7, 28, 1, 1.2, "y")
+    H["Portcullis"] = _hrows(g)
+    g = _hg()                                                          # Lymphad (galley)
+    _hpoly(g, [(1, 18), (29, 18), (25, 25), (5, 25)])
+    _hpoly(g, [(1, 18), (0, 14), (3, 17)]); _hpoly(g, [(29, 18), (29, 13), (26, 17)])
+    for x in range(6, 25, 3): _hline(g, x, 25, x - 2, 29, 1, "o")
+    _hrect(g, 14.5, 2, 15.5, 18)
+    _hpoly(g, [(8, 4), (22, 4), (21, 15), (9, 15)])
+    _hline(g, 8, 4, 22, 4, 1, "o"); _hrect(g, 15, 0, 16, 2, "c")
+    H["Lymphad"] = _hrows(g)
+    g = _hg()                                                          # Scallop Shell (pilgrim)
+    _hfill(g, lambda x, y: (x - 15) ** 2 + (y - 18) ** 2 <= 13 ** 2 and y <= 24 and abs(_m.atan2(x - 15, 24 - y)) < 1.15)
+    for i in range(-3, 4):
+        a = i * .32
+        _hline(g, 15, 24, 15 + 13 * _m.sin(a), 24 - 13 * _m.cos(a), 1, "o")
+    _hpoly(g, [(10, 24), (20, 24), (19, 28), (11, 28)])
+    _hpoly(g, [(10, 24), (6, 28), (11, 28)]); _hpoly(g, [(20, 24), (24, 28), (19, 28)])
+    H["Scallop"] = _hrows(g)
+    g = _hg()                                                          # Bell
+    _hpoly(g, [(11, 4), (19, 4), (21, 10), (22, 18), (26, 23), (4, 23), (8, 18), (9, 10)])
+    _hring(g, 15, 2.5, .8, 2); _hdisc(g, 15, 26, 2.6, "y"); _hline(g, 6, 21, 24, 21, 1, "o")
+    H["Bell"] = _hrows(g)
+    g = _hg()                                                          # Catherine Wheel
+    _hring(g, 15, 15, 9, 12); _hdisc(g, 15, 15, 3)
+    for i in range(8):
+        a = _m.radians(i * 45)
+        _hline(g, 15, 15, 15 + 10 * _m.cos(a), 15 + 10 * _m.sin(a), 1.6)
+        _hpoly(g, [(15 + 11 * _m.cos(a - .14), 15 + 11 * _m.sin(a - .14)), (15 + 14.6 * _m.cos(a + .1), 15 + 14.6 * _m.sin(a + .1)), (15 + 11 * _m.cos(a + .24), 15 + 11 * _m.sin(a + .24))])
+    H["Catherine Wheel"] = _hrows(g)
+    # knots, geometric ---------------------------------------------
+    g = _hg()                                                          # Triskelion (Celtic)
+    for i in range(3):
+        a0 = _m.radians(-90 + i * 120)
+        for k in range(40):
+            t = k / 39
+            r = 1 + 12 * t
+            a = a0 + 2.7 * t
+            _hdisc(g, 15 + r * _m.cos(a), 15 + r * _m.sin(a), 1.2 + 1.4 * t)
+    H["Triskelion"] = _hrows(g)
+    g = _hg()                                                          # Triquetra: three interlaced vesicas
+    for i in range(3):
+        a = _m.radians(-90 + i * 120)
+        _hring(g, 15 + 5.5 * _m.cos(a + _m.pi), 16 + 5.5 * _m.sin(a + _m.pi), 7.6, 9.8)
+    H["Triquetra"] = _hrows(g)
+    g = _hg()                                                          # Bezants: three gold roundels
+    for cx, cy in ((8, 8), (22, 8), (15, 21)):
+        _hdisc(g, cx, cy, 6.4, "y"); _hring(g, cx, cy, 6.4, 7.2, "o")
+    H["Bezants"] = _hrows(g)
+    g = _hg()                                                          # Lozenges: three in fess
+    for cx in (6, 15, 24): _hpoly(g, [(cx, 6), (cx + 4.2, 15), (cx, 24), (cx - 4.2, 15)])
+    H["Lozenges"] = _hrows(g)
+    g = _hg()                                                          # Chevron with three roundels
+    _hpoly(g, [(15, 7), (29, 21), (29, 27), (15, 13), (1, 27), (1, 21)])
+    for cx, cy in ((6, 5), (24, 5), (15, 24)): _hdisc(g, cx, cy, 3.3)
+    H["Chevron"] = _hrows(g)
+    g = _hg()                                                          # Tamga (steppe clan mark)
+    _hring(g, 15, 9, 4.5, 7); _hrect(g, 13.5, 14, 16.5, 28)
+    _hline(g, 8, 20, 22, 20, 2.6); _hline(g, 8, 20, 4, 26, 2.6); _hline(g, 22, 20, 26, 26, 2.6)
+    H["Tamga"] = _hrows(g)
+    g = _hg()                                                          # Ankh (Ptolemaic)
+    _hring(g, 15, 8, 3.2, 6.4); _hrect(g, 13, 13, 17, 28); _hrect(g, 5, 14, 25, 17.5)
+    H["Ankh"] = _hrows(g)
+    g = _hg()                                                          # Labrys (Minoan double axe)
+    _hrect(g, 14, 1, 16, 29, "y")
+    for s in (1, -1):
+        _hpoly(g, [(15, 7), (15 + s * 12, 2), (15 + s * 9, 13), (15 + s * 12, 24), (15, 18)])
+    _hrect(g, 14, 7, 16, 18, "y")
+    H["Labrys"] = _hrows(g)
+    g = _hg()                                                          # Heart
+    _hdisc(g, 9.5, 11, 6.5); _hdisc(g, 20.5, 11, 6.5); _hpoly(g, [(3.2, 13), (26.8, 13), (15, 27)])
+    H["Heart"] = _hrows(g)
+    g = _hg()                                                          # Hand (open, apaumé)
+    _hpoly(g, [(9, 14), (21, 14), (21, 24), (18, 28), (12, 28), (9, 24)])
+    for x0, top in ((9.5, 5), (12.5, 2), (15.5, 2), (18.5, 4)): _hrect(g, x0, top, x0 + 2.2, 15); _hdisc(g, x0 + 1.1, top, 1.2)
+    _hline(g, 9, 21, 4, 13, 3)
+    H["Open Hand"] = _hrows(g)
+    # beasts ------------------------------------------------------
+    H["Double-headed Eagle"] = [
+        "...###.................###....",
+        "..#o###...............###o#...",
+        "yy#####...............#####yy.",
+        "..y####..............####y....",
+        "....####............####......",
+        ".....####...yyyy...####.......",
+        "#.....####.yyyyyy.####.....#..",
+        "##.....##################.##..",
+        "###...####################.##.",
+        "####.######################.##",
+        "#####.#####################.##",
+        "######.###################.###",
+        "#######.#################.####",
+        ".#######.###############.####.",
+        "..#######.#############.####..",
+        "...######.#############.###...",
+        "....#####..###########..##....",
+        "......###..###########........",
+        "...........###########........",
+        "..........#############.......",
+        ".........###.#######.###......",
+        "........###..#######..###.....",
+        ".......###...##...##...###....",
+        "......###...yy.....yy...###...",
+        ".......#....yyy...yyy...#.....",
+        ".............y.....y..........",
+        "..............................",
+        "..............................",
+        "..............................",
+        "..............................",
+    ]
+    H["Boar"] = [
+        "..............................",
+        "..............................",
+        "..............................",
+        "...........#.#.#.#............",
+        "........##############........",
+        "......##################......",
+        "....##o###################....",
+        "...#######################.#..",
+        ".y#########################.#.",
+        "yy##########################..",
+        "..##########################..",
+        "o.#########################...",
+        ".o########################....",
+        "..######################......",
+        "...####################.......",
+        "....#####.......#######.......",
+        "....####.........######.......",
+        "....###...........####........",
+        "....###...........###.........",
+        "...yyy...........yyy..........",
+        "..............................",
+    ] + ["." * 30] * 9
+    H["Horse"] = [
+        "..............................",
+        "......##......................",
+        ".....####.....................",
+        "....######....................",
+        "...###o###....................",
+        "..#########...................",
+        ".##########...................",
+        ".####..#####..................",
+        "..##....#####.................",
+        "........######................",
+        "........#######.......#.......",
+        ".........################.....",
+        ".........##################...",
+        ".........###################..",
+        ".........###################..",
+        "..........##################..",
+        "..........#################.#.",
+        "..........######....######..#.",
+        "..........####.......####...##",
+        ".........####........####...##",
+        "........####........####....#.",
+        ".......####.........####......",
+        "......####..........###.......",
+        "......###...........###.......",
+        ".....yyy...........yyy........",
+    ] + ["." * 30] * 5
+    H["Bear"] = [
+        "..............................",
+        "...##..##.....................",
+        "...#######....................",
+        "..#########...................",
+        "..###o#####...................",
+        "o##########...................",
+        "###########...................",
+        ".#########..........###.......",
+        "..#########.....#########.....",
+        "...#######################....",
+        "...#########################..",
+        "...##########################.",
+        "...##########################.",
+        "...##########################.",
+        "....########################..",
+        "....#######################...",
+        "....######.........#######....",
+        "....######..........######....",
+        "....#####...........#####.....",
+        "....#####...........#####.....",
+        "...yyyyy...........yyyyy......",
+    ] + ["." * 30] * 9
+    H["Dragon"] = [
+        "..............................",
+        ".......#.......##.............",
+        "......###....######...........",
+        ".....###o#..##########........",
+        "c###########.############.....",
+        ".c##########.#############....",
+        "..#.#..####...##############..",
+        ".......#####...###############",
+        "........######..###..........#",
+        ".........#######.##...........",
+        "..........#########...........",
+        "...........##########.........",
+        "...........###########........",
+        "..........##############......",
+        "..........###############.....",
+        "..........################....",
+        "...........######..#######....",
+        "...........#####.....####..##.",
+        "...........####......###.####.",
+        "..........y###......y###..###.",
+        "..........yy........yy....####",
+        "...........................###",
+        "............................##",
+    ] + ["." * 30] * 7
+    return H
+
+
+HER_HIST30 = _hist()
+for _n, _c in HER_HIST30.items():
+    _c = [r.ljust(30, ".")[:30] for r in _c][:30]
+    SPRITES["her:" + _n] = _her48(_c)
+HER_GROUPS = {"Cultures": list(HER_CHARGES30), "Historical": list(HER_HIST30)}
+
 
 
 # ---------------------------------------------------------------- 2-tone pass: figures, map pieces, markers, icons

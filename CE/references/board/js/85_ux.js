@@ -63,7 +63,7 @@ function hudPopFill(){const pop=document.getElementById("hudPop");if(!pop||!HPOP
   const h=hudData(p),k=HPOP,T={gold:"Gold",infl:"Influence",env:"Envoys",po:"Public Order",craft:"Craft · Influence · Extort",dom:"Domains",armies:"Armies",setts:"Settlements",edicts:"Edicts"};
   let body="";
   if(k==="gold")body=goldBreakHTML(goldBreak(p.board));
-  else if(k==="infl")body=influenceRows(p.board).filter(r=>r.val||r.cnt).map(r=>'<div class="hp-r"><span>'+kwify(r.k)+(r.cnt>1?' <span class="note">×'+r.cnt+'</span>':'')+'</span><b>'+(r.val>0?'+':'')+r.val+'</b></div>').join("")+
+  else if(k==="infl")body=influenceRows(p.board).filter(r=>r.val||r.cnt).map(r=>'<div class="hp-r"'+(r.tip?' title="'+esc(r.tip)+'" style="cursor:help"':'')+'><span>'+kwify(r.k)+(r.tip?' <span class="note">('+esc(r.tip.split("\n").join(", "))+')</span>':'')+(r.cnt>1?' <span class="note">×'+r.cnt+'</span>':'')+'</span><b>'+(r.val>0?'+':'')+r.val+'</b></div>').join("")+
     '<div class="hp-r tot"><span>Influence this turn</span><b>'+inflPool(p)+'</b></div>'+(isSpring()?'<div class="note">Spring: no Influence gained</div>':'');
   else if(k==="env"){const e=eraRec(),c=tCur(p),nx=PT(p).envNext;body='<div class="hp-r"><span>'+esc(currentEra())+' (Era)</span><b>'+(+e.personal_envoys||1)+'</b></div>'+
     (+c.envAdj?'<div class="hp-r"><span>adjust</span><b>'+(+c.envAdj>0?'+':'')+c.envAdj+'</b></div>':'')+(nx&&nx.turn===tTurn()?'<div class="hp-r"><span>'+esc(nx.src||"next turn")+'</span><b>'+nx.n+'</b></div>':'')+

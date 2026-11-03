@@ -20,29 +20,24 @@ function standingPhaseActions(p){const pt=p&&PT(p),pending=pt&&pt.standingPendin
 function holdingEpActions(p){const b=p&&p.board;if(!b||tPhase()!=="empire")return [];const done=PT(p).holdingActs||{};
   return srcMatch(b,"ep_action").map(x=>{const fin=x.m[1]?x.m[1][0].toUpperCase()+x.m[1].slice(1).toLowerCase():"Passed",dom=x.m[2],key="ep:"+x.n,id="EPACT:"+p.id+":"+x.n+":"+tTurn();
     return +done[key]===tTurn()?null:{action:null,fin,source:x.n,tag:"Holding",label:x.n+" · "+fin+" "+dom+" action (each Empire Phase)",key,id,env:{id,owner:p,dom,council:false,votes:[],net:fin==="Endorsed"?3:1,out:fin,done:true,standingSource:x.n}};}).filter(Boolean);}
-// Public Order "Eureka" band ("May perform an Endorsed Industry Action"): once each Empire Phase while the band is active, any Industry action
+// Public Order "Eureka" band ("Select an active Build Timer within a Settlement under your control, reduce that Timer by N"):
+// once each Empire Phase while the band is active (Empire Phase effect stack row)
 function eurekaKey(){const k=Object.keys(PO).map(Number).find(k=>k>0&&/^Eureka$/i.test(String((POB(k)||[])[0]||"")));return k==null?null:k;}
-function eurekaAction(p){const k=eurekaKey(),b=p&&p.board;if(k==null||!b||tPhase()!=="empire"||!poActiveKeys(+b.po||0,b).includes(k))return [];
-  const m=String((POB(k)||[])[1]||"").match(/(Endorsed|Passed)?\s*(\w+) Action/i),dom=m&&DOMAINS.find(d=>d.toLowerCase()===m[2].toLowerCase());if(!dom)return [];
-  const fin=m[1]?m[1][0].toUpperCase()+m[1].slice(1).toLowerCase():"Passed",key="po:eureka",id="EUREKA:"+p.id+":"+tTurn();
-  if(+((PT(p).holdingActs||{})[key])===tTurn())return [];
-  return [{action:null,fin,source:"Eureka",tag:"Public Order",label:"Eureka · "+fin+" "+dom+" action (Public Order)",key,id,env:{id,owner:p,dom,council:false,votes:[],net:3,out:fin,done:true,standingSource:"Eureka"}}];}
-// Public Order "Eureka" band ("Each Empire Phase, may reduce an active Build Timer by N"): once each Empire Phase while the band is
-// active, one of your own Build Timers (Holding, Settlement, Infrastructure / Wonder) drops by N; at 0 it completes
-function eurekaTimerN(p){const k=eurekaKey(),b=p&&p.board;if(k==null||!b||tPhase()!=="empire"||!poActiveKeys(+b.po||0,b).includes(k))return 0;
-  const m=/reduce an active Build Timer by (\d+)/i.exec(String((POB(k)||[])[1]||""));return m?+m[1]:0;}
-function ownBuildTimers(p){const b=p.board,out=[];(b.placed||[]).forEach(x=>{if(x.bt>0)out.push({ref:"h:"+x.id,label:x.name+" · "+x.bt});});
-  (b.settlements||[]).forEach(x=>{if(x.bt>0)out.push({ref:"s:"+x.id,label:(x.up?(x.name||x.tier)+" → "+x.up.to:(x.name||x.tier))+" · "+x.bt});});
-  Object.keys(b.itimer||{}).forEach(n=>{if(b.itimer[n]>0)out.push({ref:"i:"+n,label:n+" · "+b.itimer[n]});});return out;}
-function eurekaTimerHTML(p){const n=eurekaTimerN(p);if(!n||+((PT(p).holdingActs||{})["po:eurekaTimer"])===tTurn())return "";const L=ownBuildTimers(p);
-  return '<div class="tb-row"><span style="flex:1">Eureka · reduce an active Build Timer by '+n+' (Public Order)</span>'+(L.length?'<select id="eurekaPick">'+L.map(x=>'<option value="'+esc(x.ref)+'">'+esc(x.label)+'</option>').join("")+'</select><button data-do="eurekaTimer" data-who="'+p.id+'">reduce</button>':'<span class="note">No active Build Timer.</span>')+'</div>';}
-DO.eurekaTimer=el=>{const p=pOf(el),n=p&&eurekaTimerN(p),ref=String((document.getElementById("eurekaPick")||{}).value||"");if(!p||!n||!canAct(p))return;
-  const pt=PT(p);pt.holdingActs=pt.holdingActs||{};if(+pt.holdingActs["po:eurekaTimer"]===tTurn())return;const b=p.board,id=ref.slice(2);let msg="";
-  if(ref.startsWith("h:")){const x=(b.placed||[]).find(y=>String(y.id)===id);if(!x||!(x.bt>0))return;x.bt=Math.max(0,x.bt-n);msg=x.name+(x.bt?" · Build Timer "+x.bt:" built");}
-  else if(ref.startsWith("s:")){const x=(b.settlements||[]).find(y=>String(y.id)===id);if(!x||!(x.bt>0))return;x.bt=Math.max(0,x.bt-n);msg=x.bt?(x.name||x.tier)+" · Build Timer "+x.bt:settFinish(p,x);}
-  else if(ref.startsWith("i:")){if(!((b.itimer||{})[id]>0))return;b.itimer[id]=Math.max(0,b.itimer[id]-n);msg=id+(b.itimer[id]?" · Build Timer "+b.itimer[id]:" built");if(!b.itimer[id])delete b.itimer[id];}
-  else return;
-  pt.holdingActs["po:eurekaTimer"]=tTurn();noteAdd(p,"Eureka: Build Timer −"+n+" → "+msg);save();render();};
+function eurekaCut(){const k=eurekaKey(),m=k==null?null:/reduce that Timer by (\d+)/i.exec(String((POB(k)||[])[1]||""));return m?+m[1]:0;}
+function eurekaOn(p){const k=eurekaKey(),b=p&&p.board;return k!=null&&!!b&&eurekaCut()>0&&poActiveKeys(+b.po||0,b).includes(k);}
+function eurekaAction(p){return [];}   // Eureka is a Timer pick on the Empire Phase effect stack, not an action
+// a player's active Build Timers: Holdings (in a Settlement: sett=true), Settlements (Settle / Expand), Infrastructure / Wonders
+function buildTimersOf(p){const b=p.board,out=[],sn=sid=>{const s=(b.settlements||[]).find(x=>String(x.id)===String(sid));return s?(s.name||s.tier):"";};
+  (b.placed||[]).forEach(x=>{if(x.bt>0)out.push({ref:{kind:"placed",pid:String(p.id),id:String(x.id),field:"bt"},n:+x.bt,sett:x.sid!=null&&x.sid!=="faction"&&!!sn(x.sid),label:x.name+(sn(x.sid)?" · "+sn(x.sid):"")});});
+  (b.settlements||[]).forEach(x=>{if(x.bt>0)out.push({ref:{kind:"settlement",pid:String(p.id),id:String(x.id),field:"bt"},n:+x.bt,sett:true,label:(x.name||x.tier)+" ("+(x.up?"Expand":"Settle")+")"});});
+  Object.keys(b.itimer||{}).forEach(n=>{if(b.itimer[n]>0)out.push({ref:{kind:"infra",pid:String(p.id),name:n,field:"itimer"},n:+b.itimer[n],sett:false,label:n});});
+  return out.sort((a,c)=>c.n-a.n);}
+// reduce a Build Timer by n; one that reaches 0 completes now (as the Empire Phase countdown)
+function cutBuildTimer(ref,n){const p=pById(ref.pid);if(!p)return "";const b=p.board;
+  if(ref.kind==="placed"){const x=(b.placed||[]).find(y=>String(y.id)===String(ref.id));if(!x||!(x.bt>0))return "";const t0=x.bt;x.bt=Math.max(0,x.bt-n);if(!x.bt)delete x.bt;return x.name+" Build Timer "+t0+" → "+(x.bt||0)+(x.bt?"":" (built)");}
+  if(ref.kind==="settlement"){const x=(b.settlements||[]).find(y=>String(y.id)===String(ref.id));if(!x||!(x.bt>0))return "";const t0=x.bt;x.bt=Math.max(0,x.bt-n);let r=(x.name||x.tier)+" Build Timer "+t0+" → "+x.bt;if(!x.bt){const f=settFinish(p,x);r+=f?" ("+f+")":"";}return r;}
+  if(ref.kind==="infra"){const o=b.itimer||{},t0=+o[ref.name]||0;if(!(t0>0))return "";o[ref.name]=Math.max(0,t0-n);if(!o[ref.name])delete o[ref.name];return ref.name+" Build Timer "+t0+" → "+(o[ref.name]||0)+(o[ref.name]?"":" (built)");}
+  return "";}
 function activeCipherTimers(){const out=[];realmTimers().forEach((t,i)=>{if(t.n>0)out.push({ref:{kind:"realm",i},key:"realm:"+String(t.id!=null?t.id:[t.type,t.kind,t.by,t.tp,t.sid,t.aid,t.uid,t.label].join("|")),label:(t.label||t.type)+" · "+t.n});});
   D.players.forEach(p=>{const b=p.board;(b.placed||[]).forEach(x=>{if(x.bt>0)out.push({ref:{kind:"placed",pid:String(p.id),id:String(x.id),field:"bt"},key:"placed:"+p.id+":"+x.id+":bt",label:p.name+" · "+x.name+" Build · "+x.bt});
       if(x.dmg>0&&x.rep)out.push({ref:{kind:"placed",pid:String(p.id),id:String(x.id),field:"dmg"},key:"placed:"+p.id+":"+x.id+":dmg",label:p.name+" · "+x.name+" Repair · "+x.dmg});});
@@ -69,11 +64,16 @@ function empireHoldingHTML(p,ci){if(!p||!empWin())return "";const pt=PT(p),used=
     const last=pt.cipherTimer||{},timers=activeCipherTimers().filter(x=>!(last.turn===tTurn()-1&&last.id===x.key));
     out.push('<div class="tb-row"><span style="flex:1">Cipher Chamber · increase an active Timer by '+(+ct[0].m[1]||2)+'</span>'+ (timers.length?'<select id="cipherTimerPick">'+timers.map(x=>'<option value="'+esc(JSON.stringify(x.ref))+'">'+esc(x.label)+'</option>').join("")+'</select><button data-do="cipherTimer" data-who="'+p.id+'" data-n="'+(+ct[0].m[1]||2)+'">increase</button>':'<span class="note">No different active Timer from last turn.</span>')+'</div>');}
   const cd=pt.courierDeferred;if(cd&&cd.due<=tTurn()&&!cd.done)out.push('<div class="tb-row"><span style="flex:1">Courier Network · perform deferred '+esc(cd.act)+(cd.target?' → '+esc(pById(cd.target)?.name||'target'):'')+'</span><button data-do="courierDeferred" data-who="'+p.id+'">perform ▸</button></div>');
-  {const et=eurekaTimerHTML(p);if(et)out.push(et);}
   const bs=srcMatch(p.board,"start_empire_spread");if(bs.length&&+used.exaltedSpread!==tTurn())out.push('<div class="tb-row"><span style="flex:1">Exalted Basilica · Endorsed Spread Truth</span><button data-do="basilicaSpread" data-who="'+p.id+'">perform ▸</button></div>');
   const st=(p.board.placed||[]).filter(x=>x.name==="Studium Generale"&&pActive(x)&&!x.fac),chosen=pt.studiumEffects||{};
   st.filter(x=>!chosen[String(x.id)]).forEach(x=>{const avail=T_DOMS.filter(d=>((p.board.domains||{})[d]||0)<SOV&&!Object.keys(chosen).some(k=>chosen[k]===d));
     out.push('<div class="tb-row"><span style="flex:1">Studium Generale · choose one free Sovereign Domain effect</span>'+ (avail.length?'<select id="studiumDomain-'+esc(x.id)+'">'+avail.map(d=>'<option value="'+d+'">'+d+' · '+esc(String((DBOARD[d]||{}).Sovereign||"").split(":").slice(1).join(":").trim())+'</option>').join("")+'</select><button data-do="studiumChoose" data-who="'+p.id+'" data-id="'+esc(x.id)+'">gain effect</button>':'<span class="note">No unselected Sovereign Domain effects available.</span>')+'</div>');});
+  {const ts=tributeShieldOf(p);if(ts&&+used.shieldGift!==tTurn()){const others=D.players.filter(q=>!sameP(q,p));
+    out.push('<div class="tb-row"><span style="flex:1">'+esc(ts.n)+' · give a player '+(+ts.m[1]).toLocaleString()+' gold (no '+esc(ts.m[2])+' actions on you this turn unless they pay '+(+ts.m[3]).toLocaleString()+')</span><select id="shieldPick">'+others.map(q=>'<option value="'+q.id+'">'+esc(q.name)+'</option>').join("")+'</select><button data-do="shieldGift" data-who="'+p.id+'">give</button></div>');}}
+  {const de=srcMatch(p.board,"doubt_for_extort").find(x=>x.n===p.board.faction);if(de&&+used.doubtExtort!==tTurn())
+    out.push('<div class="tb-row"><span style="flex:1">'+esc(de.n)+' · gain Doubt +'+de.m[1]+' to Extort '+(+de.m[2]).toLocaleString()+' from each other player</span><button data-do="doubtExtort" data-who="'+p.id+'">take it</button></div>');}
+  if(eurekaOn(p)&&+used.eureka!==tTurn()){const T=buildTimersOf(p).filter(x=>x.sett),n=eurekaCut();
+    out.push('<div class="tb-row"><span style="flex:1">Eureka (Public Order) · reduce a Build Timer in your Settlement by '+n+'</span>'+(T.length?'<select id="eurekaPick">'+T.map(x=>'<option value="'+esc(JSON.stringify(x.ref))+'">'+esc(x.label+" · "+x.n)+'</option>').join("")+'</select><button data-do="eureka" data-who="'+p.id+'" data-n="'+n+'">reduce</button>':'<span class="note">No active Build Timer in your Settlements.</span>')+'</div>');}
   standingPhaseActions(p).forEach(z=>{let control;if(z.action==="Move"){const pick="stMovePick-"+String(p.id).replace(/[^A-Za-z0-9_-]/g,"")+"-"+z.key.replace(/[^A-Za-z0-9_-]/g,"-"),arms=ownArmies.filter(x=>!armyHeld(x.p,x.a));
       control=arms.length?'<select id="'+pick+'">'+arms.map(x=>'<option value="'+esc(x.a.id)+'">'+esc(x.p.name)+' · '+esc(armyName(x.a))+'</option>').join("")+'</select><button data-do="standingMove" data-who="'+p.id+'" data-key="'+esc(z.key)+'" data-pick="'+pick+'">choose Army ▸</button>':'<span class="note">No eligible unblocked Army on the map.</span>';
     }else control=pfForm(z.env,null,"empire");
@@ -102,6 +102,17 @@ DO.cipherArmy=el=>{const p=pOf(el),v=(document.getElementById("cipherArmyPick")|
 DO.cipherTimer=el=>{const p=pOf(el),raw=(document.getElementById("cipherTimerPick")||{}).value;if(!p||!canAct(p)||!empWin())return;let ref;try{ref=JSON.parse(raw);}catch(e){return;}const t=cipherTimerResolve(ref);if(!t||!(t.n>0))return;
   const key=activeCipherTimers().find(x=>JSON.stringify(x.ref)===JSON.stringify(ref))?.key||JSON.stringify(ref),pt=PT(p),last=pt.cipherTimer||{};if(last.turn===tTurn()-1&&last.id===key){flash("Choose a different Timer than last turn");return;}
   const n=Math.max(1,+el.dataset.n||2);t.n+=n;pt.cipherTimer={turn:tTurn(),id:key};pt.holdingActs=pt.holdingActs||{};pt.holdingActs.cipherTimer=tTurn();noteAdd(p,"Cipher Chamber: Timer +"+n);save();render();};
+DO.shieldGift=el=>{const p=pOf(el),q=pById((document.getElementById("shieldPick")||{}).value),m=p&&tributeShieldOf(p);if(!p||!q||!m||sameP(p,q)||!canAct(p)||!empWin())return;
+  const pt=PT(p);pt.holdingActs=pt.holdingActs||{};if(+pt.holdingActs.shieldGift===tTurn())return;if((+p.board.treasury||0)<+m.m[1]){flash("Not enough gold");return;}
+  tGold(p.board,-(+m.m[1]),m.n+" → "+q.name);tGold(q.board,+m.m[1],m.n+" from "+p.name);p.board.shieldGift={turn:tTurn(),pid:String(q.id)};pt.holdingActs.shieldGift=tTurn();
+  noteAdd(p,m.n+": gave "+q.name+" "+(+m.m[1]).toLocaleString()+" gold");save();render();};
+DO.doubtExtort=el=>{const p=pOf(el),m=p&&srcMatch(p.board,"doubt_for_extort").find(x=>x.n===p.board.faction);if(!p||!m||!canAct(p)||!empWin())return;
+  const pt=PT(p);pt.holdingActs=pt.holdingActs||{};if(+pt.holdingActs.doubtExtort===tTurn())return;gainDoubt(p.board,+m.m[1]);let tot=0;
+  D.players.forEach(q=>{if(!sameP(q,p))tot+=extortGold({b:q.board},{b:p.board},+m.m[2],m.n);});pt.holdingActs.doubtExtort=tTurn();
+  noteAdd(p,m.n+": Doubt +"+m.m[1]+", Extort "+tot.toLocaleString());save();render();};
+DO.eureka=el=>{const p=pOf(el),raw=(document.getElementById("eurekaPick")||{}).value;if(!p||!canAct(p)||!empWin()||!eurekaOn(p))return;let ref;try{ref=JSON.parse(raw);}catch(e){return;}
+  const pt=PT(p);pt.holdingActs=pt.holdingActs||{};if(+pt.holdingActs.eureka===tTurn())return;const r=cutBuildTimer(ref,Math.max(1,+el.dataset.n||2));if(!r)return;
+  pt.holdingActs.eureka=tTurn();noteAdd(p,"Eureka: "+r);save();render();};
 DO.cunningRecoup=el=>{const p=pOf(el),key=el.dataset.key;if(!p)return;const c=tCurW(p),r=(c.cunningRecoups||[]).find(x=>x.key===key);if(!r||r.claimed||r.turn!==tTurn()||!canAct(p))return;
   if(!srcMatch(p.board,"recoup_on_cunning").some(x=>x.n===r.src))return;tGold(p.board,+r.amount,"Thieves' Guild Recoup · "+r.act);r.claimed=true;noteAdd(p,"Thieves' Guild: Recoup "+(+r.amount).toLocaleString()+" gold after "+r.act);save();render();};
 DO.basilicaSpread=el=>{const p=pOf(el);if(!p||!canAct(p)||!empWin()||!srcMatch(p.board,"start_empire_spread").length)return;
@@ -323,6 +334,24 @@ DO.autores=el=>{TB().auto=el.checked;rlCommit();};
 DO.hotseat=el=>{HOTSEAT=el.checked;try{localStorage.setItem(gkey("renown_hotseat"),HOTSEAT?"1":"0");}catch(e){}renderTable();};
 
 // ---- action dock: what this phase lets you do, in the order you do it ----
+// Empire Summary (Empire Phase dock, before the Works Phase): what this Empire Phase did for you — builds finished, what is still
+// building (and what lands next Empire Phase), Treasury and Public Order moves, and this turn's Bandit Mechanics
+function empireSummaryHTML(p){if(!p)return "";const t=TB(),H=(t.hist||{})[tTurn()-1]||null,row=H&&(H.rows||[]).find(r=>String(r.pid)===String(p.id)),b=p.board,out=[];
+  const all=(row&&row.done||[]).filter(Boolean).map(String),isB=x=>/^(built|repaired|finished|upgraded|expanded) |Muster|mustered|Reinforce/i.test(x),done=all.filter(isB),oth=all.filter(x=>!isB(x));
+  out.push('<div class="es-sec"><div class="es-h">Completed</div>'+(done.length?'<div class="es-chips">'+done.map(x=>'<span class="es-chip ok">✓ '+esc(x.replace(/^built /,""))+'</span>').join("")+'</div>':'<div class="note">Nothing finished this Empire Phase.</div>')+'</div>');
+  if(oth.length)out.push('<div class="es-sec"><div class="es-h">Effects</div>'+oth.map(x=>'<div class="es-row note">'+esc(x)+'</div>').join("")+'</div>');
+  const T=buildTimersOf(p);
+  out.push('<div class="es-sec"><div class="es-h">Under construction</div>'+(T.length?T.map(x=>'<div class="es-row"><span style="flex:1">'+esc(x.label)+'</span><span class="es-pips" title="Build Timer '+x.n+'">'+"●".repeat(Math.min(x.n,8))+'</span><b class="'+(x.n<=1?'pos':'')+'">'+(x.n<=1?'next Empire Phase':x.n+' turns')+'</b></div>').join(""):'<div class="note">No active Build Timers.</div>')+'</div>');
+  {const rp=(b.placed||[]).filter(x=>x.dmg>0);if(rp.length)out.push('<div class="es-sec"><div class="es-h">Damaged</div>'+rp.map(x=>'<div class="es-row"><span style="flex:1">'+esc(x.name)+'</span><b class="neg">'+(x.rep?'Repair · '+x.dmg:'awaiting Repair')+'</b></div>').join("")+'</div>');}
+  if(row){const g=(+row.g1||0)-(+row.g0||0),po=(+row.p1||0)-(+row.p0||0),sg=v=>(v>0?"+":"")+v.toLocaleString();
+    out.push('<div class="es-sec es-num"><div><span class="note">Treasury</span> '+(+row.g0||0).toLocaleString()+' → <b>'+(+row.g1||0).toLocaleString()+'</b> <span class="'+(g>=0?'pos':'neg')+'">'+sg(g)+'</span></div>'+
+      '<div><span class="note">Public Order</span> '+(+row.p0||0)+' → <b>'+(+row.p1||0)+'</b> <span class="'+(po>=0?'pos':'neg')+'">'+sg(po)+'</span></div></div>');}
+  {const tag="T"+tTurn()+" ",L=(BST().log||[]).filter(x=>String(x).startsWith(tag)).map(x=>String(x).slice(tag.length).replace(/^\w+ · /,""));
+    if(L.length){const mine=x=>x.includes(p.name);
+      out.push('<details class="es-sec"'+(L.some(mine)?' open':'')+'><summary class="es-h">Bandit Mechanics <span class="note">'+L.length+' event'+(L.length>1?'s':'')+(L.some(mine)?' · '+L.filter(mine).length+' about you':'')+'</span></summary>'+
+        L.map(x=>'<div class="es-row'+(mine(x)?' es-me':'')+'">'+esc(x)+'</div>').join("")+'</details>');}}
+  if(H&&(H.realm||[]).length)out.push('<details class="es-sec"><summary class="es-h">Realm <span class="note">'+H.realm.length+'</span></summary>'+H.realm.map(x=>'<div class="es-row">'+esc(x)+'</div>').join("")+'</details>');
+  return dockCard("Empire Summary — "+esc(p.name),out.join(""),"esum");}
 function dockCard(title,body,cls){return body?'<div class="tot dock'+(cls?' '+cls:'')+'"><div class="dk-h">'+title+'</div>'+body+'</div>':"";}
 function dockHTML(R){
   const t=TB(),ph=tPhase(),me=meP(),E=R.curEnvoy,cw=R.cur?R.cur.who:null,qp=HOTSEAT?(cw||me):me,vt=(ph==="council"||ph==="envoy")&&t.phaseTs;
@@ -350,7 +379,7 @@ function dockHTML(R){
     targets.slice(0,1).forEach(p=>{const dc=tCur(p).decl||{},nn=dc.n||{},tot=T_ALL.reduce((a,d)=>a+(+nn[d]||0),0),mx=personalEnvoys(p);
       h+=dockCard("Declare Envoys — "+esc(p.name)+' <span class="note">'+tot+'/'+mx+'</span>',(isSpring()||RC.PHASE_REFORM?T_DOMS:T_ALL).map(d=>'<div class="tb-row"><span style="min-width:80px">'+d+'</span>'+
         '<button data-do="decl" data-dom="'+d+'" data-dv="-1" data-who="'+p.id+'">−</button><b style="min-width:16px;text-align:center">'+(+nn[d]||0)+'</b>'+
-        '<button data-do="decl" data-dom="'+d+'" data-dv="1" data-who="'+p.id+'"'+(tot>=mx||(d==="Piety"&&pietyBlocked(p)&&!ADMIN)?' disabled':'')+'>+</button>'+(d==="Piety"&&pietyBlocked(p)?'<span class="note neg" title="'+esc(pietyBlocked(p))+'">'+kwify("Wavering Devotion")+'</span>':'')+'</div>'+declInviteHTML(p,d,+nn[d]||0,dc.inv||{})).join("")+
+        '<button data-do="decl" data-dom="'+d+'" data-dv="1" data-who="'+p.id+'"'+(tot>=mx||(envoyBlocked(p,d)&&!ADMIN)?' disabled':'')+'>+</button>'+(envoyBlocked(p,d)?'<span class="note neg" title="'+esc(pietyBlocked(p))+'">'+kwify("Wavering Devotion")+'</span>':'')+'</div>'+declInviteHTML(p,d,+nn[d]||0,dc.inv||{})).join("")+
         '<div class="tb-row"><button data-do="declock" data-who="'+p.id+'" class="on">Submit</button><span class="note">Hidden until everyone submits.</span></div>',"now");});
     if(!HOTSEAT&&(tCur(me).decl||{}).lock)h+=dockCard("Declare Envoys",'<div class="tb-row"><span class="pos">Submitted.</span><button data-do="declunlock" data-who="'+me.id+'">edit</button></div>');}
   // 3. vote on the current Envoy
@@ -375,7 +404,7 @@ function dockHTML(R){
         open.length?open.map(d=>'<button data-do="mission" data-dom="'+d+'" data-src="'+esc(E2.id)+'" data-who="'+E2.owner.id+'">'+d+'</button>').join(""):'<span class="note">every Domain has started voting</span>')+'</div>');});
   // 5b. Empire Phase: effect stack (Standing / Eureka / Holding actions), checklist, every Extort this player collects / pays / triggers —
   // ahead of last turn's Actions so the actions due now are not pushed below it
-  if(ph==="empire"){h+=empireHoldingHTML(qp);h+=dockCard("Empire Phase",empireChecklistHTML());h+=extortCardHTML(qp);}
+  if(ph==="empire"){h+=empireSummaryHTML(qp);h+=empireHoldingHTML(qp);h+=dockCard("Empire Phase",empireChecklistHTML());h+=extortCardHTML(qp);}
   // 6. Envoys: the phase's queue, resolved and upcoming, with your pre-votes inline
   if(vt&&tOrder().some(p=>sameP(p,qp)))h+=envoyQueueHTML(R,qp,ph);
   // 6b. Actions: who did what to whom (this turn once Envoys perform; the turn before during the Empire and Council Phases)
@@ -438,7 +467,7 @@ function inflCardHTML(qp){const c=tCur(qp),md=PT(qp).mods,afx=boardFx(qp);
     '<div class="tb-row"><span style="flex:1" class="note">gain '+influenceTotal(qp.board)+' + adjust</span><button data-do="adj" data-k="inflAdj" data-dv="-1" data-who="'+qp.id+'">−</button><b>'+(+c.inflAdj||0)+'</b><button data-do="adj" data-k="inflAdj" data-dv="1" data-who="'+qp.id+'">+</button></div>'+
     '<div class="tb-row"><span style="flex:1">Personal Envoys</span><b>'+personalEnvoys(qp)+'</b></div>'+
     '<div class="tb-row"><span style="flex:1" class="note">Era + adjust</span><button data-do="adj" data-k="envAdj" data-dv="-1" data-who="'+qp.id+'">−</button><b>'+(+c.envAdj||0)+'</b><button data-do="adj" data-k="envAdj" data-dv="1" data-who="'+qp.id+'">+</button></div>'+
-    '<details><summary class="note">Influence breakdown</summary>'+influenceRows(qp.board).filter(r=>r.val||r.cnt).map(r=>'<div class="tb-row"><span style="flex:1">'+kwify(r.k)+(r.cnt>1?' <span class="note">×'+r.cnt+'</span>':'')+'</span><b>'+(r.val>0?'+':'')+r.val+'</b></div>').join('')+'</details>'+
+    '<details><summary class="note">Influence breakdown</summary>'+influenceRows(qp.board).filter(r=>r.val||r.cnt).map(r=>'<div class="tb-row"'+(r.tip?' title="'+esc(r.tip)+'" style="cursor:help"':'')+'><span style="flex:1">'+kwify(r.k)+(r.tip?' <span class="note">('+esc(r.tip.split("\n").join(", "))+')</span>':'')+(r.cnt>1?' <span class="note">×'+r.cnt+'</span>':'')+'</span><b>'+(r.val>0?'+':'')+r.val+'</b></div>').join('')+'</details>'+
     '<details><summary class="note">From Holdings &amp; Infrastructure ('+afx.length+')</summary>'+(afx.length?afx.map(f=>'<div class="tb-row"><span style="flex:1">'+esc(fxLabel(f))+'</span><span class="note">'+esc(f.src)+(f.q>1?' ×'+f.q:'')+'</span></div>').join(""):'<div class="note">None active.</div>')+'</details>'+
     '<details><summary class="note">Manual modifiers ('+Object.keys(md).length+')</summary>'+Object.keys(md).map(k=>{const m=md[k];return '<div class="tb-row">'+
       '<input data-do="mod" data-mk="'+k+'" data-mf="label" data-who="'+qp.id+'" value="'+esc(m.label||"")+'" placeholder="source" style="flex:1;min-width:80px">'+
@@ -451,7 +480,7 @@ function inflCardHTML(qp){const c=tCur(qp),md=PT(qp).mods,afx=boardFx(qp);
   return dockCard("Influence &amp; Envoys — "+esc(qp.name)+' <span class="note">Duke</span>',b);}
 DO.cvote=el=>{if(isSpring()){flash("Spring — no Council Phase");return;}const c=tCurW(pOf(el));if(el.dataset.dom)c.council={dom:el.dataset.dom,ts:tnow()};else delete c.council;rlCommit();};
 DO.tie=el=>{TB().councilTie={dom:el.dataset.dom,turn:tTurn(),ts:tnow()};rlCommit();};
-DO.decl=el=>{const why=el.dataset.dom==="Piety"&&+el.dataset.dv>0&&!ADMIN?pietyBlocked(pOf(el)):"";if(why){flash(why);return;}const c=tCurW(pOf(el));c.decl=c.decl||{};c.decl.n=c.decl.n||{};const d=el.dataset.dom;c.decl.n[d]=Math.max(0,(+c.decl.n[d]||0)+(+el.dataset.dv));rlCommit();};
+DO.decl=el=>{const why=+el.dataset.dv>0&&!ADMIN?envoyBlocked(pOf(el),el.dataset.dom):"";if(why){flash(why);return;}const c=tCurW(pOf(el));c.decl=c.decl||{};c.decl.n=c.decl.n||{};const d=el.dataset.dom;c.decl.n[d]=Math.max(0,(+c.decl.n[d]||0)+(+el.dataset.dv));rlCommit();};
 // aim a declared Envoy at a player whose Holding invites it (inviteHolders): one select per Envoy of that Domain
 function declInviteHTML(p,d,n,inv){const H=n?inviteHolders(p,d):[];if(!H.length)return "";let h="";
   for(let k=0;k<n;k++)h+='<div class="tb-row"><span class="note" style="min-width:80px">'+d+(n>1?" "+(k+1):"")+' aimed at</span><select data-do="declinv" data-key="'+d+":"+k+'" data-who="'+p.id+'"><option value="">— no one —</option>'+

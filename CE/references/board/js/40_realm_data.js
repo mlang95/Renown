@@ -23,8 +23,6 @@ function influenceRowsBase(b){
   const tpx=srcMatch(b,"trade_extra").reduce((a,x)=>a+(+x.m[1]),0),tp=pairs.filter(x=>x.trade).length+tpx;
   add("Trade Partners",tp,tp*igVal("Trade Partners"));
   const am=pid?D.players.filter(q=>sameAlliance(pid,q.id)).length:0;add("Alliances",am,am*igVal("Alliances"));
-  const tiers=withBoard(b,()=>{const T={};Object.keys(INFRA).forEach(n=>{(T[INFRA[n].tier]=T[INFRA[n].tier]||[]).push(n);});return Object.keys(T).filter(t=>T[t].every(infraOn)).length;});
-  add("Infrastructure tier completed",tiers,tiers*igVal("Infrastructure tier completed"));
   dbActive(b).forEach(x=>{const m=/(?:\+(\d+) Influence|(?<!Max )Influence \+(\d+))(?: (?:per turn|each Empire Phase))?/i.exec(x.text);if(m)rows.push({k:x.name+" ("+x.tier+" "+x.dom+")",cnt:1,val:+(m[1]||m[2])});});
   const fa=(b.armies||[]).filter(a=>(a.count||0)>=EQ.army_max).length;add("Fully Mustered Army",fa,fa*igVal("Fully Mustered Army"));
   const ce=+b.condemned||0;add("Condemned Envoy last turn",ce,ce*igVal("Condemned Envoy last turn"));
@@ -32,8 +30,10 @@ function influenceRowsBase(b){
   if(IG["At War"])rows.push({k:"At War"+(war&&noLoss&&igVal("At War")<0?" ("+noLoss.name+": no loss)":""),cnt:war,val:(noLoss&&igVal("At War")<0)?0:war*igVal("At War")});
   const mw=withBoard(b,()=>S.placed.filter(q=>pActive(q)&&(R[q.name]||{}).type==="Monument").length+Object.keys(S.wonders).filter(infraOn).length);
   add("Monuments & Wonders",mw,mw*igVal("Monuments & Wonders"));
-  const oth=boardMetrics(b).infl;add("Other sources",oth?1:0,oth);
+  {const bm=boardMetrics(b),oth=bm.infl,dn=n=>typeof dispName==="function"?dispName(n):n;   // "Other sources": the Holdings / Infrastructure behind it (hover)
+   rows.push({k:"Other sources",cnt:oth?1:0,val:oth||0,tip:(bm.inflSrc||[]).map(([n,v])=>dn(n)+" "+(v>0?"+":"")+v).join("\n")});}
   royalMarriage(b).forEach(x=>{if(x.infl)rows.push({k:x.src,cnt:1,val:x.infl});});
+  if(b.pietyInfl&&b.pietyInfl.turn===tTurn()-1&&b.pietyInfl.n)rows.push({k:"Piety actions last turn ("+(b.faction||"")+")",cnt:1,val:+b.pietyInfl.n});   // "gain Influence +N next Empire Phase"
   // Public Order bands "±N Influence" apply when Influence is gained (cumulative bands; Ossuary Crypt immune, Plague Pit ×2)
   {const dbl=poDoubled(),po=Math.max(PO_MIN,Math.min(PO_MAX,b.po||0));
    poActiveKeys(po,b).forEach(k=>{const e=POB(k);if(!Array.isArray(e))return;const m=String(e[1]).match(/^([+\-\u2212]\s?\d+)\s*Influence$/i)||String(e[1]).match(/^Influence\s*([+\-\u2212]\s?\d+)$/i);if(!m)return;
@@ -68,6 +68,9 @@ function poModRows(b,next){b.poMods=b.poMods||{};const p=playerOfBoard(b),pid=p?
   // faction "Gain Faith|Doubt +N per Empire Phase" (own faction only; "for every …" variants are counted in calcMetrics)
   if(b.faction)srcMatch(b,"fd_per_empire").filter(x=>x.n===b.faction).forEach(x=>
     rows.push({side:x.m[1].toLowerCase(),k:b.faction,desc:x.m[1]+" +"+x.m[2]+" per Empire Phase",auto:true,n:+x.m[2]}));
+  // Heritage "Each Empire Phase, gain Faith +N per Army with M Retinues"
+  if(b.faction)srcMatch(b,"faith_full_army").filter(x=>x.n===b.faction).forEach(x=>{const c=(b.armies||[]).filter(a=>(+a.count||0)>=+x.m[2]).length;
+    rows.push({side:"faith",k:b.faction,desc:"Faith +"+x.m[1]+" per Army with "+x.m[2]+" Retinues ("+c+")",auto:true,n:c*+x.m[1]});});
   // "Each other player gains Doubt +N each Empire Phase per Sacred War you're on" (Prophets of War): its owner keeps the Sacred War count (gains none)
   D.players.forEach(q=>srcMatch(q.board,"sacred_war_each").filter(x=>x.n===q.board.faction).forEach(x=>{
     const K="Sacred Wars · "+q.board.faction,cnt=+((q.board.poMods||{})[K])||0;
@@ -229,7 +232,8 @@ function siegeResolveHTML(t,i){if(t.kind!=="siege"||t.n>0)return "";
   if(t.bandit)return '<div class="bcrow"><button class="rtBsb" data-i="'+i+'">Siege Battle vs Bandits ▸</button></div>';const from=pById(t.tp),s=from?(from.board.settlements||[]).find(x=>String(x.id)===String(t.sid)):null;
   if(!s)return '<div class="note">Settlement not found</div>';
   const W=sackWards(from,s);
-  return '<div class="bcrow" style="flex-wrap:wrap"><button class="rtCap" data-i="'+i+'">Capture</button> <span class="note">or Sack — raze the top Holding of each Ward; choose the Ward that leaves play:</span> '+
+  const by=pById(t.by),canDestroy=by&&srcHas(by.board,"capture_destroy");
+  return '<div class="bcrow" style="flex-wrap:wrap"><button class="rtCap" data-i="'+i+'">Capture</button>'+(canDestroy?' <button class="rtCap" data-i="'+i+'" data-destroy="1" title="'+esc(by.board.faction)+'">Destroy instead</button>':'')+' <span class="note">or Sack — raze the top Holding of each Ward; choose the Ward that leaves play:</span> '+
     (W.length?W.map((w,k)=>'<label class="note"><input type="radio" name="rtSkW'+i+'" class="rtSkW" data-i="'+i+'" value="'+k+'"'+(k?'':' checked')+'> '+esc(w.map(q=>q.name).join(" → "))+'</label>').join(' '):'<span class="note">(no Wards in use)</span>')+
     ' <button class="rtSack" data-i="'+i+'">Sack</button></div>';}
 function activeTimersHTML(){const T=realmTimers(),B_=boardTimerRows();
@@ -262,7 +266,7 @@ function wireDashExtras(host){const $=id=>host.querySelector("#"+id),sg=siegeSta
   on("rtTick","onclick",()=>{const w=curSeason()==="Winter";realmTimers().forEach(t=>stepRealmTimer(t,w));resolveRealm().forEach(x=>flash(x));save();render();});
   host.querySelectorAll(".rtd").forEach(b=>b.onclick=()=>{const t=realmTimers()[+b.dataset.i];t.n=Math.max(0,t.n+(+b.dataset.d));resolveRealm().forEach(x=>flash(x));save();render();});
   host.querySelectorAll(".rtCap").forEach(b=>b.onclick=()=>{const T=realmTimers(),t=T[+b.dataset.i];if(!t)return;
-    T.splice(+b.dataset.i,1,{type:"Capture Timer",kind:"capture",tp:t.tp,sid:t.sid,by:t.by,aid:t.aid,label:t.label,n:+((TMR["Capture Timer"]||{}).default)||1});
+    T.splice(+b.dataset.i,1,{type:"Capture Timer",kind:"capture",tp:t.tp,sid:t.sid,by:t.by,aid:t.aid,label:t.label+(b.dataset.destroy?" (destroy)":""),destroy:!!b.dataset.destroy,n:+((TMR["Capture Timer"]||{}).default)||1});
     resolveRealm().forEach(x=>flash(x));save();render();});
   host.querySelectorAll(".rtSack").forEach(b=>b.onclick=()=>{const i=+b.dataset.i,c=host.querySelector('.rtSkW[data-i="'+i+'"]:checked'),k=c?+c.value:-1;
     if(!confirm("Sack: raze the top Holding of each Ward, remove the chosen Ward, drop a tier, extort and set a Sack Timer?"))return;sackApply(i,k);save();render();});

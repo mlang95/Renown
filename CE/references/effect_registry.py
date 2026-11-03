@@ -210,6 +210,21 @@ REG = {
     "no_renown_into":      ("text", "F", r"(?:can.t|cannot) put (?:Renown|Domain Points) into (\w+)"),
     "domain_max":          ("text", "F", r"(?:nor|can.t|cannot) have more than (\d+) in (\w+)"),
     "duke_war":            ("text", "F", r"When a player Declares War on the Duke"),
+    # ---- Heritages added 2026-11 (final_cut False) ----
+    "pillage_peace":       ("text", "F", r"You may Pillage while not At War"),
+    "settle_late":         ("text", "F", r"You place your starting Town after every other player has placed theirs"),
+    "max_armies":          ("text", "F", r"You must always have the maximum number of Armies; while you don.t, you must send all of your Prowess Envoys"),
+    "tribute_shield":      ("text", "F", r"At the Start of the Empire Phase, you may give another player (\d+) gold\. If you do, that player can.t target you with ([\w ]+?) actions this turn unless they pay you (\d+)"),
+    "swap_tactic":         ("text", "F", r"you may swap your Tactic with your opponent.s"),
+    "capture_destroy":     ("text", "F", r"When you Capture a Settlement, you may instead destroy it"),
+    "doubt_buyout":        ("text", "F", r"a player who would gain Doubt from it may instead give you (\d+) gold"),
+    "doubt_for_extort":    ("text", "F", r"Each Empire Phase, you may gain Doubt \+(\d+)\. If you do, Extort (\d+) from each other player"),
+    "cant_send_envoy":     ("clause", "hiwf", r"can.t send (\w+) Envoys"),
+    "muster_set_each":     ("clause", "hiwf", r"Each of your Settlements has a Muster Limit of (\d+)"),
+    "faith_full_army":     ("clause", "hiwf", r"Each Empire Phase, gain Faith \+(\d+) per Army with (\d+) Retinues"),
+    "faith_first_improve": ("clause", "hiwf", r"Faith \+(\d+) the first time you perform an Improve action"),
+    "piety_influence_next":("clause", "hiwf", r"Whenever you perform a Piety action, gain Influence \+(\d+) next Empire Phase"),
+    "convert_rising":      ("clause", "hiwf", r"You may Convert at Rising Piety"),
 }
 
 # ---- once-per / "may" tracker rows (the board's Once-per card) ----

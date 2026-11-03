@@ -646,14 +646,6 @@
     "Herb Garden"
    ],
    [
-    "Meadery",
-    "Manor House"
-   ],
-   [
-    "Mill",
-    "Manor House"
-   ],
-   [
     "Spice Merchant",
     "Manor House"
    ],
@@ -663,6 +655,14 @@
    ],
    [
     "Cidery",
+    "Manor House"
+   ],
+   [
+    "Meadery",
+    "Manor House"
+   ],
+   [
+    "Mill",
     "Manor House"
    ],
    [
@@ -704,48 +704,6 @@
    [
     "Vineyard",
     "Winery"
-   ],
-   [
-    "Meadery",
-    "Manor House"
-   ],
-   [
-    "Mill",
-    "Manor House"
-   ],
-   [
-    "Spice Merchant",
-    "Manor House"
-   ],
-   [
-    "Winery",
-    "Manor House"
-   ],
-   [
-    "Cidery",
-    "Manor House"
-   ]
-  ],
-  "links": [
-   [
-    "Meadery",
-    "Manor House"
-   ],
-   [
-    "Mill",
-    "Manor House"
-   ],
-   [
-    "Spice Merchant",
-    "Manor House"
-   ],
-   [
-    "Winery",
-    "Manor House"
-   ],
-   [
-    "Cidery",
-    "Manor House"
    ]
   ]
  },
