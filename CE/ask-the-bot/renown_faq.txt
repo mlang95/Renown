@@ -1,6 +1,6 @@
 2H | [2H](https://mlang95.github.io/RenownWiki/keywords-ref.html#2h): Cannot use a Shield: while a 2H weapon is Equipped, your Shield gives nothing that Skirmish (no Save bonus, Initiative or keywords).
 2HBastard | [2HBastard](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP −2, Init +0. Keywords: 2H, Unstoppable, Cleave.
-2HSpears | [2HSpears](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Cast). AP 0, Init +1. Keywords: 2H, Steady, Deadly.
+2HSpears | [2HSpears](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Cast). AP −1, Init +1. Keywords: 2H, Steady, Awkward.
 Abatis Field | [Abatis Field](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Logistics). Effect: Siege Timer −1; Settlements you Siege can't Sally Forth
 Abbey | [Abbey](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Devotion). Effect: Upkeep −500; Authority −2 on Piety actions targeting you
 Abstain | [Abstain](https://mlang95.github.io/RenownWiki/glossary.html#abstain): Decline to spend Influence on a Vote.
@@ -21,7 +21,7 @@ Arable Land | [Arable Land](https://mlang95.github.io/RenownWiki/pursuits.html) 
 Arboretum | [Arboretum](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Husbandry). Effect: Gold +500
 Aristocratic Court | [Aristocratic Court](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Effect: Whenever another player performs a Diplomacy action targeting another player, Extort 3000 from both players
 armies (supply) upkeep | [Armies (Supply) upkeep](https://mlang95.github.io/RenownWiki/economy-ref.html): Σ(each Army's cost by Retinue type) - Supply −X. Reduced by Levy Hall, Tannery, Saddlery, Butchery, Smokehouse, Advanced Blast Furnace, High Quartermaster, etc.
-Arming Sword | [Arming Sword](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP −1, Init +0. Keywords: Steady.
+Arming Sword | [Arming Sword](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP −1, Init +0. Keywords: Steady, Deadly.
 Armory | [Armory](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Arms). Effect: Craft +3; Unlocks Wrought armor & shield
 Army | [Army](https://mlang95.github.io/RenownWiki/glossary.html#army): Retinues on the map under your Control. Armies Move, Battle and Lay Siege, and pay Supply by Retinue type.
 Arquebus | [Arquebus](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Crude). AP −6, Init +2. Keywords: 2H, Unwieldy, Unstoppable, Negate Shielded, Awkward.
@@ -50,7 +50,7 @@ Black Hold | [Black Hold](https://mlang95.github.io/RenownWiki/pursuits.html) Pu
 Black Market | [Black Market](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Secrecy). Effect: Whenever another player Extorts or Recoups Gold, Extort 500 from that player; Extorts from a Black Market don't trigger Black Market
 Blacksmith | [Blacksmith](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Arms). Effect: Craft +2; Supply −500; Unlocks Wrought Weapons
 Blocked | [Blocked](https://mlang95.github.io/RenownWiki/glossary.html#blocked): The next Move action this Army Performs fails, and then it loses Blocked. (An Army with Immune Blocked never gains it.)
-Blunder | [Blunder](https://mlang95.github.io/RenownWiki/keywords-ref.html#blunder): At Initiative −2, your to-Strike is set to 10+, before other negative modifiers.
+Blunder | [Blunder](https://mlang95.github.io/RenownWiki/keywords-ref.html#blunder): At Initiative −2, your to-Strike is set to 10+ (penalties can't make it worse).
 Border | [Border](https://mlang95.github.io/RenownWiki/glossary.html#border): You border a player when your Province is within or Adjacent to theirs.
 Border Tension | [Border Tension](https://mlang95.github.io/RenownWiki/glossary.html#border-tension): Doubt 1 each Empire Phase: per other player Army in your Uncontested Territory (not Alliance or NAP).
 Break check | [Break check](https://mlang95.github.io/RenownWiki/glossary.html#break-check): Taken by each Fatigued side's Field every Skirmish, just before it gains its Fatigue Token. Roll Morale (5 dice, modified by Fatigue Tokens); failures are Casualties, but a Break check never triggers a Panic check. Unbreakable auto-passes.
@@ -61,7 +61,7 @@ Build | [Build](https://mlang95.github.io/RenownWiki/actions-ref.html): Industry
 Build Timer | [Build Timer](https://mlang95.github.io/RenownWiki/glossary.html#build-timer): Turns until a Holding, Infrastructure or Settlement finishes building and becomes active.
 Burgages | [Burgages](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Works). Effect: Faith +1; Upkeep −500
 Butchery | [Butchery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Logistics). Effect: Craft +3; Supply −500
-Can Trade | [Can Trade](https://mlang95.github.io/RenownWiki/glossary.html#can-trade): You may take part in trade without active Dirt Roads (you still need a signed Trade Agreement).
+Can Trade | [Can Trade](https://mlang95.github.io/RenownWiki/glossary.html#can-trade): You may take part in trade (you still need a signed Trade Agreement). Required by both players of a Trade Agreement; Dirt Roads give it.
 Capture | [Capture](https://mlang95.github.io/RenownWiki/glossary.html#capture): When a Siege resolves in your favor: set a Capture Timer; when it resolves, the Settlement comes under your Control.
 Capture Timer | [Capture Timer](https://mlang95.github.io/RenownWiki/glossary.html#capture-timer): Turns until a Captured Settlement comes under your Control.
 Caravanery | [Caravanery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Logistics). Effect: Authority −2 on Intercept Caravan actions targeting you; Speed −2 to non-allied Armies in your Province
@@ -129,7 +129,7 @@ Diplomacy | [Diplomacy](https://mlang95.github.io/RenownWiki/glossary.html#diplo
 Diplomacy Phase | [Diplomacy Phase](https://mlang95.github.io/RenownWiki/glossary.html#diplomacy-phase): Spring's Envoy Phase: no Envoys are sent; players make Diplomacy offers to one another. The only time Diplomacy actions happen.
 Dirt Roads | [Dirt Roads](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Primitive). Upkeep 0 (—), build 1. Can Trade; If you start a Move action within your Province, gain Speed +1
 Domain | [Domain](https://mlang95.github.io/RenownWiki/glossary.html#domain): One of the four Domains: Industry, Prowess, Cunning, Piety. Spend Domain Points to raise its value; the value sets your Standing there.
-Domain Point | [Domain Point](https://mlang95.github.io/RenownWiki/glossary.html#domain-point): Gain 1 each Rest Phase; spend to raise a Domain value by 1.
+Domain Point | [Domain Point](https://mlang95.github.io/RenownWiki/glossary.html#domain-point): Gain 1 each Rest Phase; spend to raise a Domain value by 1. You gain none once you have gained 20, once Renown is at 30, or while every Domain is at its maximum.
 domains | [Domains](https://mlang95.github.io/RenownWiki/domain-board-ref.html): Industry, Prowess, Cunning, Piety. Standings (Rising/Established/Sovereign) grant empire effects.
 Doubt X | [Doubt X](https://mlang95.github.io/RenownWiki/glossary.html#doubt-x): Gain X Doubt: each Doubt lowers your Public Order track by 1 when resolved.
 Drilled | [Drilled](https://mlang95.github.io/RenownWiki/keywords-ref.html#drilled): Does not lose Endurance in the first Skirmish of each Battle.
@@ -169,6 +169,7 @@ Exalted Basilica | [Exalted Basilica](https://mlang95.github.io/RenownWiki/pursu
 Execution Dock | [Execution Dock](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Devotion). Effect: Authority −2 on Foster Rebellion actions targeting you; Players whose actions targeting you would cause Doubt (before modifiers) gain Doubt +1
 Expand | [Expand](https://mlang95.github.io/RenownWiki/actions-ref.html): Industry action. Cost: 4000 gold. Requires: Rising Industry. Increase a Settlement by one tier (Village to Town, Town to City, City to Metropolis), raising its Wards, Tax income, Muster Limit and Reach. Endorsed: Recoup 2000.
 Expedite | [Expedite](https://mlang95.github.io/RenownWiki/actions-ref.html): Industry action. Cost: None. Only when you have no other Industry action to perform (no gold, nothing available to Build, Improve, Repair, Expand or Settle): reduce your highest active Build Timer by 2. Endorsed: Recoup 0.
+Exposed X | [Exposed X](https://mlang95.github.io/RenownWiki/glossary.html#exposed-x): In the Envoy Phase, a player may target you with a Cunning Envoy. If they do, that Envoy gains Authority +X. If it Passes or is Endorsed, its action must target you. Stacks: add together every Exposed X you have.
 Extort X | [Extort X](https://mlang95.github.io/RenownWiki/glossary.html#extort-x): Take X from the stated source: the gold goes to you instead of its owner. One effect resolving is one Extort of the total it takes, however many players or times it names.
 factions | [58 factions](https://mlang95.github.io/RenownWiki/factions.html). Filter by 'low/medium/high difficulty factions' or 'low/medium/high strength factions', or ask a faction by name.
 Failed | [Failed](https://mlang95.github.io/RenownWiki/glossary.html#failed): Net Authority −3 to 0.
@@ -185,7 +186,7 @@ Fighting School | [Fighting School](https://mlang95.github.io/RenownWiki/pursuit
 Finery | [Finery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Commerce). Effect: Craft +3; Weapons gain −1AP
 Fish Weir | [Fish Weir](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Commerce). Effect: Gold +2500 in Spring
 Fishmongery | [Fishmongery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Raw Materials). Effect: Gold +500; Craft +2
-Flail | [Flail](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP −1, Init +0. Keywords: Unwieldy, Unstoppable, Cleave, Awkward.
+Flail | [Flail](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP 0, Init −1. Keywords: Unstoppable, Cleave, Awkward.
 Fleet Anchorage | [Fleet Anchorage](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Effect: If your Army begins a Move adjacent to a Water Territory, it may end that Move adjacent to any Water Territory connected to it; If your Army wins a Battle, it Reinforces 10 Retinues of its current type at once (no cost or Muster Timer, up to the Army's Retinue cap)
 Fletchery | [Fletchery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Arms). Effect: Supply −500; Unlocks Ranged Weapons
 Florentine | [Florentine](https://mlang95.github.io/RenownWiki/glossary.html#florentine): Your Armies may equip two of the same 1H Melee Weapon to gain Dual Wield. While Dual Wielding, your Army gains Parry.
@@ -210,7 +211,7 @@ Gothic Plate | [Gothic Plate](https://mlang95.github.io/RenownWiki/equipment-ref
 Grand Tournament | [Grand Tournament](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Logistics). Effect: Reach +1; Armies gain Riposte & Improve Parry by +1
 Grassland | [Grassland](https://mlang95.github.io/RenownWiki/reference-tables.html) Terrain. Movement: Where Settlements can be chartered (a Hill counts).. Raw Materials: none.
 Gunpowder | [Gunpowder](https://mlang95.github.io/RenownWiki/glossary.html#gunpowder): Gunpowder equipment: Arquebus. Unlocked by: Artillery Park, Fletchery.
-Halberd | [Halberd](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP −2, Init +0. Keywords: 2H, Steady.
+Halberd | [Halberd](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Wrought). AP −2, Init +0. Keywords: 2H, Steady, Negate Shielded.
 Hamlet | [Hamlet](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 0). Tax 0, muster 0, build 1, wards 3, reach 1. Natural holdings only; Placed at start of game Range 2 from capital.
 Harbor | [Harbor](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Commerce). Effect: Can Trade; Craft +2; Extort 500 per player without Harbor
 hard factions | See 'high difficulty factions'.
@@ -237,7 +238,7 @@ Infirmary | [Infirmary](https://mlang95.github.io/RenownWiki/pursuits.html) Purs
 Influence | [Influence](https://mlang95.github.io/RenownWiki/glossary.html#influence): The political currency: spend it to Support or Oppose Envoys. You gain it each Empire Phase from your Era, Trade Partners, Alliances, war, Holdings and Infrastructure. Influence +X gives X tokens in the Empire Phase unless it names another time.
 infrastructure | [Infrastructure](https://mlang95.github.io/RenownWiki/infrastructure-ref.html): Dirt Roads, Town Square, Muster Field, Wooden Walls, Stone Roads, Town Hall, Garrison, Stone Walls, March-Tower, Bridges, Library, Chapel, Magistrate's Hall, Keep, Aqueducts, Cathedral, Colossus, The Grand Exchange, The Eternal Sepulchre, High Chancery. Wonders are its Wondrous tier: Colossus, The Grand Exchange, The Eternal Sepulchre, High Chancery.
 infrastructure (upkeep) upkeep | [Infrastructure (Upkeep) upkeep](https://mlang95.github.io/RenownWiki/economy-ref.html): Listed per Infrastructure; Upkeep −X lowers Holding and Infrastructure Upkeep. Masonry removes Primitive; Trade Guild removes Developed; College of Engineering removes Sophisticated.
-Initiative | [Initiative](https://mlang95.github.io/RenownWiki/glossary.html#initiative): Decides who Strikes first each Skirmish (higher first). Runs −2 to +2 (Ministry can raise the maximum to +3). At −2 or lower you Blunder.
+Initiative | [Initiative](https://mlang95.github.io/RenownWiki/glossary.html#initiative): Decides who Strikes first each Skirmish (higher first). Runs −2 to +2 (only the Ministry of Military Strategy raises the maximum, to +3). At −2 or lower you Blunder.
 Inn | [Inn](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Court). Effect: Gold +500; Influence +1; Faith +1 per Trade Partner with Craft 5+, and those Trade Partners gain Faith +1
 Inquisitorial Palace | [Inquisitorial Palace](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Effect: Doubt +1; Unlocks Grand Vizier which uses your Piety Value instead of Cunning; All player actions that cause Doubt are increased by 1
 Insolvent | [Insolvent](https://mlang95.github.io/RenownWiki/glossary.html#insolvent): You couldn't cover a cost in full: pay what you can, disband Armies, then set buildings Shuttered. Build Timers halt. It ends once your Treasury is above 0 and you can pay everything you owe.
@@ -247,9 +248,9 @@ Intrigue Phase | [Intrigue Phase](https://mlang95.github.io/RenownWiki/glossary.
 Invasion | [Invasion](https://mlang95.github.io/RenownWiki/glossary.html#invasion): Doubt 1 each Empire Phase: additional per other player Army in your Uncontested Territory at War.
 Javelin | [Javelin](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ranged weapon (Wrought). AP −2, Init +1. Keywords: Steady, Deadly, Unstoppable, Negate Shielded, Destroy Shield, One-Shot, Awkward.
 Jester's Court | [Jester's Court](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Court). Effect: First and second Oppose on an Envoy of yours each Envoy Phase: reduce by 1
-Jewelry Foundry | [Jewelry Foundry](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Commerce). Effect: Gold +2000; Craft +5; In the Envoy Phase, a player may target you with a Cunning Envoy. If they do, that Envoy gains Authority +1. If it Passes or is Endorsed, the action must target you
+Jewelry Foundry | [Jewelry Foundry](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Commerce). Effect: Gold +2000; Craft +5; Exposed 1
 Joinery | [Joinery](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Arms). Effect: Supply −500; Unlocks Shields
-Keep | [Keep](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Prodigious). Upkeep 400 (each Empire Phase), build 4. Siege Timer +1; When you Muster, reduce the Muster Timer by 1 and immediately gain Retinues equal to the combined muster limit; Your Settlement Wards have Presence
+Keep | [Keep](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Prodigious). Upkeep 400 (each Empire Phase), build 4. Siege Timer +1; When you Muster, reduce the Muster Timer by 1 and immediately gain Retinues equal to the combined muster limit; Presence +1
 Kite Shield | [Kite Shield](https://mlang95.github.io/RenownWiki/equipment-ref.html) Shield (Wrought). Save +1, Init +0. Keywords: Steady, Shielded.
 Knight Templar | [Knight Templar](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 4+, Endurance 3, Morale 4+, cost 3000.
 Lance | [Lance](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Forged). AP −4, Init +1. Keywords: Steady, Unwieldy, Unstoppable, Awkward, Destroy Shield.
@@ -257,7 +258,7 @@ Last Alliance Standing | [Last Alliance Standing](https://mlang95.github.io/Reno
 Lasting Legacy | [Lasting Legacy](https://mlang95.github.io/RenownWiki/glossary.html#lasting-legacy): Faith 1 each Empire Phase: most recent Battle was Won.
 Lay Siege | [Lay Siege](https://mlang95.github.io/RenownWiki/glossary.html#lay-siege): A Move that ends Adjacent to an at-war Settlement, starting its Siege Timer.
 Leather | [Leather](https://mlang95.github.io/RenownWiki/equipment-ref.html) Armor (Cast). Save 7+. Keywords: none.
-Levy | [Levy](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 6+, Endurance 3, Morale 7+, cost 1000.
+Levy | [Levy](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 6+, Endurance 3, Morale 6+, cost 1000.
 Levy Hall | [Levy Hall](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Logistics). Effect: Speed +1; Supply −2000 while an Army is within Range 0 of a Settlement you Control
 Library | [Library](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Sophisticated). Upkeep 300 (each Empire Phase), build 3. Influence +2; Max Influence +1
 List Yard | [List Yard](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Arms). Effect: Gain Immune Awkward; gain Florentine
@@ -267,7 +268,7 @@ Longbow | [Longbow](https://mlang95.github.io/RenownWiki/equipment-ref.html) Ran
 low difficulty factions | 28 factions: The Battering Ram, The Boundless Steppe, The Crimson Tide, The Entwined Crown, The Eternal Court, The Final Word, The Gilded Crescent, The Gilded Path, The Illuminated Order, The Iron Faith, The Iron Shore, The Iron Throne, The Merchant Republics, The Sacred Throne, The Tunnellers, The Undying Flame, The Verdant Kingdom, The Winter Wolves, The Elder Grove, The Yew Heart, The Greenward Charter, The Stonewrights, The Silver Tongues, The Chapter House, The Levy Lords, The Builders' Covenant, The Unshaken, The Pulpit
 low strength factions | 11 factions: The Gilded Path, The Tunnellers, The Undying Flame, The Pale Throne, The Ashen Vale, The Broken Banner, The Greenward Charter, The Chapter House, The Levy Lords, The Builders' Covenant, The Unshaken
 Magistrate's Hall | [Magistrate's Hall](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Prodigious). Upkeep 400 (each Empire Phase), build 4. Tax Income +1000 per Settlement
-Man-at-Arms | [Man-at-Arms](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 5+, Endurance 4, Morale 6+, cost 2000.
+Man-at-Arms | [Man-at-Arms](https://mlang95.github.io/RenownWiki/equipment-ref.html) Retinue. Strike 5+, Endurance 4, Morale 5+, cost 2000.
 Manor House | [Manor House](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Effect: Gold +100 per active Natural Holding
 March-Tower | [March-Tower](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Sophisticated). Upkeep 300 (each Empire Phase), build 3. Instead of performing a Move action, you may have a Garrison Battle a Bandit Camp, Bandit Army, or an Army you're At War with within its Presence
 Market Square | [Market Square](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Commerce). Effect: Gold +500; Craft +2
@@ -343,12 +344,12 @@ PO 4 | [Public Order 4](https://mlang95.github.io/RenownWiki/public-order-ref.ht
 PO 6 | [Public Order 6](https://mlang95.github.io/RenownWiki/public-order-ref.html) (Economic Boom): Tax Income +X per Settlement; X by Era: Founding 500, Ascension 500, Eminence 500, Zenith 500
 PO 8 | [Public Order 8](https://mlang95.github.io/RenownWiki/public-order-ref.html) (Eureka): Select an active Build Timer within a Settlement under your control, reduce that Timer by 2
 Poison | [Poison](https://mlang95.github.io/RenownWiki/keywords-ref.html#poison): When the Defender receives a Strike and rolls a Focused Save, it fails; the resulting wound may only be Recovered with a Focused Recover.
-Poleaxe | [Poleaxe](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Crafted). AP −5, Init +0. Keywords: 2H, Steady, Cleave, Unstoppable, Negate Shielded.
-Polish House | [Polish House](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Effect: Gold +3000; Craft +10; In the Envoy Phase, a player may target you with a Cunning Envoy. If they do, that Envoy gains Authority +1. If it Passes or is Endorsed, the action must target you
+Poleaxe | [Poleaxe](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Crafted). AP −6, Init +0. Keywords: 2H, Steady, Cleave, Unstoppable, Negate Shielded.
+Polish House | [Polish House](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Effect: Gold +3000; Craft +10; Exposed 1
 Port Authority | [Port Authority](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Effect: Craft +10; Gold +100 per Craft
 powerful factions | See 'high strength factions'.
 Preceptory of the Knight's Templar | [Preceptory of the Knight's Templar](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Effect: While a Sacred War is active, gain 3 Faith during each Empire Phase; Unlocks Knight's Templar for Muster
-Presence | [Presence](https://mlang95.github.io/RenownWiki/glossary.html#presence): Territory within Range 2 of a non-allied Army (Bandit Armies included, Bandit Camps not), or of a Settlement while its owner has a Garrison (and of its Settlement Wards while the owner has a Keep). An Army can't move within a non-allied Presence unless that Move Performs a Battle against it; a Battle or Lay Siege against a Settlement may pass through the Presence of that Settlement and its Wards.
+Presence | [Presence](https://mlang95.github.io/RenownWiki/glossary.html#presence): Territory within Range 1 of a non-allied Army (Bandit Armies included, Bandit Camps not), or of a Settlement while its owner has a Garrison. Presence +N raises the Range of its owner's Settlement Presence by N. An Army can't move within a non-allied Presence unless that Move Performs a Battle against it; a Battle or Lay Siege may pass through the Presence of its target only, and can't end within any other non-allied Presence.
 Priory | [Priory](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Devotion). Effect: Faith +1; If your Piety Envoy would be Condemned, it Fails instead
 Province | [Province](https://mlang95.github.io/RenownWiki/glossary.html#province): Every Territory your Settlements' Reach covers, Contested or not.
 Prowess | [Prowess](https://mlang95.github.io/RenownWiki/domain-board-ref.html) Domain standing. Rising: Indomitable: In the Tally Phase, you may Support one of your own Prowess Envoys.; Established: Edict of War: May have an additional Army. Perform a Muster Action.; Sovereign: High Quartermaster: Supply −2000. May change equipment on your Armies during any Upkeep step while that Army is within your Province. No longer lose Influence while at War.
@@ -357,7 +358,7 @@ Pursuit | [Pursuit](https://mlang95.github.io/RenownWiki/glossary.html#pursuit):
 Quarry | [Quarry](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Raw Materials). Effect: Gold +500; Craft +1
 Range X | [Range X](https://mlang95.github.io/RenownWiki/glossary.html#range-x): The amount of Territories you must move in order to get from your current position to the specific Territory.
 Ranged Weapons | [Ranged Weapons](https://mlang95.github.io/RenownWiki/glossary.html#ranged-weapons): Ranged weapons: Hunting Bow (Crude), Longbow (Cast), Javelin (Wrought), Crossbow (Forged), Pilum (Tempered), Arquebus (Gunpowder). Unlocked by: Fletchery.
-Raze | [Raze](https://mlang95.github.io/RenownWiki/actions-ref.html): Cunning action. Cost: 2000 gold. Extort 2000 from its target. Then, choose another player's Settlement, then choose one active Holding or active Infrastructure in it: it becomes Damaged, and its effects are inactive until Repaired. If you choose an active Build Timer in it instead, increase that Build Timer by 2. Endorsed: Extort 2000.
+Raze | [Raze](https://mlang95.github.io/RenownWiki/actions-ref.html): Cunning action. Cost: 2000 gold. Extort 2000 from its target. Then, choose another player's Settlement, then choose active Infrastructure in it, or the top-most Holding of one of its Wards that isn't Damaged or under a Build Timer: it becomes Damaged, and its effects are inactive until Repaired. If the top-most Holding of a Ward is under a Build Timer, you may choose it instead and increase that Build Timer by 2. Endorsed: Extort 2000.
 Reach X | [Reach X](https://mlang95.github.io/RenownWiki/glossary.html#reach-x): How far a Settlement controls, set by its tier: every Territory within Range X of it is in your Province.
 Realm | [Realm](https://mlang95.github.io/RenownWiki/glossary.html#realm): The total collection of Regions.
 Recession | [Recession](https://mlang95.github.io/RenownWiki/glossary.html#recession): Public Order band (−8 or lower): Tax Income −1000 per Settlement, scaled by Era (×1 / ×2 / ×3 / ×4 from Founding to Zenith).
@@ -404,7 +405,7 @@ Settlement Ward | [Settlement Ward](https://mlang95.github.io/RenownWiki/glossar
 settlements | [Settlements](https://mlang95.github.io/RenownWiki/settlements-ref.html): Hamlet, Village, Town, City, Metropolis. Each has tax, muster, wards, and reach values.
 Shielded | [Shielded](https://mlang95.github.io/RenownWiki/keywords-ref.html#shielded): A cumulative −1 penalty to the Strike roll (to a maximum of 10+). Sources: a shield's −1 to Strike.
 Shipyard | [Shipyard](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Commerce). Effect: Upkeep −500; Craft +4; Water Territory treated as Grassland for movement
-Short Sword | [Short Sword](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Cast). AP 0, Init +0. Keywords: Steady.
+Short Sword | [Short Sword](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Cast). AP −1, Init +0. Keywords: Steady.
 Shuttered | [Shuttered](https://mlang95.github.io/RenownWiki/glossary.html#shuttered): A Holding or Infrastructure set inactive while you're Insolvent because its Upkeep went unpaid. It gives no effect and pays no Upkeep, but its Upkeep still counts toward what you owe. It's restored at any Yields & Expenditures step where you can pay its Upkeep. If it becomes Damaged, it's no longer Shuttered.
 Siege | [Siege](https://mlang95.github.io/RenownWiki/glossary.html#siege): An Army holding Adjacent to an at-war Settlement while a Siege Timer counts down to Capture or Sack it.
 Siege Camp | [Siege Camp](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Logistics). Effect: Siege Timer −1; Armies gain Immune Strained during Lay Siege
@@ -416,9 +417,9 @@ Skirmish Field | [Skirmish Field](https://mlang95.github.io/RenownWiki/pursuits.
 Smokehouse | [Smokehouse](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Logistics). Effect: Craft +2; Supply −1000
 Smuggler's Nook | [Smuggler's Nook](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Secrecy). Effect: Whenever a Bandit Camp within your Province Extorts, you Extort the Bandit Camp for half the amount
 Sovereign Standing | [Sovereign Standing](https://mlang95.github.io/RenownWiki/edicts-ref.html) Edict (Standing). Be the first player to reach a Sovereign Standing (Domain value 10) in a Domain. One Edict per Domain.
-Spears | [Spears](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Cast). AP 0, Init +1. Keywords: Unwieldy, Deadly.
+Spears | [Spears](https://mlang95.github.io/RenownWiki/equipment-ref.html) Melee weapon (Cast). AP −1, Init +1. Keywords: Unwieldy, Awkward.
 Speed X | [Speed X](https://mlang95.github.io/RenownWiki/glossary.html#speed-x): An Army's movement in Territories per Move action. Base Speed is 5.
-Spice Merchant | [Spice Merchant](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Commerce). Effect: Gold +1500; Craft +4; In the Envoy Phase, a player may target you with a Cunning Envoy. If they do, that Envoy gains Authority +1. If it Passes or is Endorsed, the action must target you
+Spice Merchant | [Spice Merchant](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Commerce). Effect: Gold +1500; Craft +4; Exposed 1
 Spread Truth | [Spread Truth](https://mlang95.github.io/RenownWiki/actions-ref.html): Piety action. Cost: Doubt 1. Each non-allied player gains Doubt 1. Each allied player gains Faith 1. Endorsed: Recoup Doubt.
 Spring | [Spring](https://mlang95.github.io/RenownWiki/seasons-ref.html) Season (Planting). No Host, Bandit Actions, Trade Income, or Envoys: the Diplomacy Phase replaces the Envoy Phase, the only time Diplomacy actions happen. Players don't gain or spend Influence tokens. Bandit Camps Spawn.
 Stable | [Stable](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Arms). Effect: Speed +2; Unlocks Cavalry Spear (Still requires Tier Unlock)
@@ -515,15 +516,15 @@ The Zealot March | [The Zealot March](https://mlang95.github.io/RenownWiki/facti
 Thieves' Guild | [Thieves' Guild](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Monument). Effect: Whenever you Extort 500 or more, Gold +500
 tiers | [Tier ladder](https://mlang95.github.io/RenownWiki/reference-tables.html): Crude (start) -> Cast (Furnace) -> Wrought (Blacksmith) -> Forged (Forge) -> Crafted (Advanced Blast Furnace).
 Tithe | [Tithe](https://mlang95.github.io/RenownWiki/actions-ref.html): Piety action. Cost: Doubt 1. Choose a player. Extort 10% of their Treasury (round down to the nearest 100, minimum 0). Endorsed: Recoup Doubt.
-to-Strike number | [to-Strike number](https://mlang95.github.io/RenownWiki/glossary.html#to-strike-number): The D10 result a Retinue needs to Strike (see the Retinue table; lower is better). Bonuses add to the roll; penalties and Fatigue Tokens subtract.
+to-Strike number | [to-Strike number](https://mlang95.github.io/RenownWiki/glossary.html#to-strike-number): The D10 result a Retinue needs to Strike (see the Retinue table; lower is better). Bonuses add to the roll; penalties and Fatigue Tokens subtract. It is never worse than 10+.
 Toll House | [Toll House](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Secrecy). Effect: Extort 1000 when non-allied Army ends a Move action within your Province
 Tower Shield | [Tower Shield](https://mlang95.github.io/RenownWiki/equipment-ref.html) Shield (Forged). Save +2, Init +0. Keywords: Unwieldy, Shielded.
 Town | [Town](https://mlang95.github.io/RenownWiki/settlements-ref.html) Settlement (tier 2). Tax 4000, muster 10, build 4, wards 2, reach 4. 
 Town Hall | [Town Hall](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Developed). Upkeep 200 (each Empire Phase), build 2. Upkeep −500
 Town Square | [Town Square](https://mlang95.github.io/RenownWiki/infrastructure-ref.html) Infrastructure (Primitive). Upkeep 0 (—), build 1. Craft +2
 Toxicarium | [Toxicarium](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Secrecy). Effect: Weapons gain Poison; Endorsed Cunning envoys give an additional Doubt +1 to Target
-trade | [Trade rules](https://mlang95.github.io/RenownWiki/rules-trade-income.html): for each active Trade Agreement, both players gain 100 x the Host's Craft X. No trade in Spring. Tax only in Winter. Requirements: A signed Trade Agreement, and each player has active Dirt Roads or a Can Trade effect (e.g. Harbor, Shipyard).
-Trade Agreement | [Trade Agreement](https://mlang95.github.io/RenownWiki/treaties-ref.html) Treaty. Begin trading (Trade Income flows from next turn). Requires active Dirt Roads or a Can Trade effect for each player.
+trade | [Trade rules](https://mlang95.github.io/RenownWiki/rules-trade-income.html): for each active Trade Agreement, both players gain 100 x the Host's Craft X. No trade in Spring. Tax only in Winter. Requirements: A signed Trade Agreement, and each player has a Can Trade effect (e.g. Dirt Roads, Harbor).
+Trade Agreement | [Trade Agreement](https://mlang95.github.io/RenownWiki/treaties-ref.html) Treaty. Begin trading (Trade Income flows from next turn). Requires a Can Trade effect for each player.
 Trade Guild | [Trade Guild](https://mlang95.github.io/RenownWiki/pursuits.html) Pursuit (Works). Effect: Repair Timer −1; No Upkeep on Developed Infrastructure
 trade income | [Trade Income](https://mlang95.github.io/RenownWiki/economy-ref.html): 100 x host's Craft X per active Trade Agreement
 Trade Partner | [Trade Partner](https://mlang95.github.io/RenownWiki/glossary.html#trade-partner): A player you have a Trade Agreement with and can trade with.

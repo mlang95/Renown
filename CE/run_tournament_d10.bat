@@ -27,7 +27,7 @@ REM AUTOPASS: blank keeps the auto-pass rule; set to 1 to delete it.
 
 set FACES=10
 set FOCUSED=10
-set FAT_S=2
+set FAT_S=0
 set FAT_M=2
 set PARRY=8
 set RECOVER=8
@@ -47,16 +47,17 @@ REM TAG: subfolder under lab_out. Blank = auto-named from the dice settings.
 set TAG=
 
 REM ============================ POOL SETTINGS =================================
-set MPC_MIN=3
-set MPC_MAX=8
-set RUNS=100
+set MPC_MIN=5
+set MPC_MAX=20
+set RUNS=250
 REM BALANCED=1 -> balanced_validation_pool ; BALANCED=0 -> archetype_pool
 set BALANCED=0
 set PER_CELL=100
-set STRATIFY=250
-set BUDGET_METRIC=mpc
+set STRATIFY=100
+set BUDGET_METRIC=total
+REM mpc / total
 REM MAX_COMBO: combat / gear Holdings one generated build combines on top of its gear + Retinue line
-set MAX_COMBO=3
+set MAX_COMBO=100
 
 REM ============================ MEMORY SETTINGS ===============================
 REM WORKERS: each initializes numba and RESERVES several GB of Windows COMMIT.

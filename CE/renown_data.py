@@ -294,8 +294,8 @@ ENDURANCE_REGAIN    = 2    # +Endurance restored to non-Strained armies in the E
 
 
 RETINUES = {
-    "Levy":           {"cost": 1000, "to_hit": 6, "endurance": 3, "shaking": 7, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
-    "Man-at-Arms":    {"cost": 2000, "to_hit": 5, "endurance": 4, "shaking": 6, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
+    "Levy":           {"cost": 1000, "to_hit": 6, "endurance": 3, "shaking": 6, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
+    "Man-at-Arms":    {"cost": 2000, "to_hit": 5, "endurance": 4, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
     "Sergeant":       {"cost": 3000, "to_hit": 3, "endurance": 3, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
     "Knight Templar": {"cost": 3000, "to_hit": 4, "endurance": 3, "shaking": 4, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
 }
@@ -306,13 +306,13 @@ WEAPONS = {
     "Pitchfork":      {"ap":  0, "init":  1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, NO_PARRY]},
     "Bill Hook":      {"ap": -1, "init":  0, "tier": "Cast",   "tags":  [TWO_H, NEGATE_SHIELDED]},
     "Daggers":        {"ap":  0, "init":  0, "tier": "Cast",    "tags": [TWO_H, SHATTER_ARMOR, NO_PARRY]},
-    "Short Sword":    {"ap":  0, "init":  0, "tier": "Cast",    "tags": [STEADY]},
-    "Spears":         {"ap":  0, "init":  1, "tier": "Cast",    "tags": [UNWIELDY, SHATTER_ARMOR], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile.'},
-    "2HSpears":       {"ap":  0, "init":  1, "tier": "Cast",    "tags": [TWO_H, STEADY, SHATTER_ARMOR]},
-    "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY]},
+    "Short Sword":    {"ap": -1, "init":  0, "tier": "Cast",    "tags": [STEADY]},
+    "Spears":         {"ap": -1, "init":  1, "tier": "Cast",    "tags": [UNWIELDY, NO_PARRY], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile.'},
+    "2HSpears":       {"ap": -1, "init":  1, "tier": "Cast",    "tags": [TWO_H, STEADY, NO_PARRY]},
+    "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR]},
     "Pike":           {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, STEADY, UNWIELDY, SHATTER_ARMOR, NO_PARRY]},
-    "Flail":          {"ap": -1, "init":  0, "tier": "Wrought", "tags": [UNWIELDY, UNSTOPPABLE, CLEAVE, NO_PARRY], 'note': 'Cannot Florentine'},
-    "Halberd":        {"ap": -2, "init":  0, "tier": "Wrought", "tags": [TWO_H, STEADY]},
+    "Flail":          {"ap":  0, "init": -1, "tier": "Wrought", "tags": [UNSTOPPABLE, CLEAVE, NO_PARRY], 'note': 'Cannot Florentine'},
+    "Halberd":        {"ap": -2, "init":  0, "tier": "Wrought", "tags": [TWO_H, STEADY, NEGATE_SHIELDED]},
     "Battle Axe":     {"ap": -3, "init": -1, "tier": "Wrought", "tags": [TWO_H, UNSTOPPABLE, CLEAVE, NEGATE_SHIELDED]},
     "Cavalry Spear":  {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY], 'note': "Needs Stable; no Tower Shield or Florentine or Ranged Weapon"},
     "Morningstar":    {"ap": -4, "init": -1, "tier": "Forged",  "tags": [CLEAVE, DESTROY_SHIELD], 'note': 'Cannot Florentine'},
@@ -321,7 +321,7 @@ WEAPONS = {
     "War Hammer":     {"ap":-10, "init": -1, "tier": "Forged",  "tags": [TWO_H, STEADY, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD]},
     "Lance":          {"ap": -4, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY, DESTROY_SHIELD], 'note': "Needs Saddlery; no Tower Shield, Florentine, Ranged weapon."},
     "Estoc":          {"ap": -3, "init":  0, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE]},
-    "Poleaxe":        {"ap": -5, "init":  0, "tier": "Crafted", "tags": [TWO_H, STEADY, CLEAVE, UNSTOPPABLE, NEGATE_SHIELDED]},
+    "Poleaxe":        {"ap": -6, "init":  0, "tier": "Crafted", "tags": [TWO_H, STEADY, CLEAVE, UNSTOPPABLE, NEGATE_SHIELDED]},
 }
 # 1H / 2H profiles: an entry named "2H<Name>" is the 2H profile of the weapon named <Name> (or the one weapon
 # whose name starts with it: "2HBastard" → "Bastard Sword"). That weapon gets "profile_2h"; it is one item that
@@ -380,7 +380,7 @@ STANDING_EFFECTS = {
     ("Prowess", "Established"): "Gain Parry.", #Remove "Parry"
     ("Prowess", "Sovereign"): "Immune Blunder",
     ("Piety",   "Rising"): "Morale +1",
-    ("Piety", "Sovereign"): "Immune Panic",
+    #("Piety", "Sovereign"): "Immune Panic",
     ("Cunning", "Established"): "Opponent gains Strained.", #Remove "Foes gain Blunder in first Skirmish"
     ("Cunning", "Sovereign"):   "Opponent gains Blunder in the first Skirmish.", #Remove "Foes gain Strained"
 }
