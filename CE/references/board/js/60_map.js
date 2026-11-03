@@ -452,12 +452,8 @@ function inspSett(k){const {p,s}=cellSett(k),cell=mapState().cells[k];if(!p)retu
   let h=inspHead(sprSVG("map:"+s.tier,36,false,p.color),(s.capital?"★ ":"")+(s.name||s.tier),pTok(p,12)+esc(p.name)+' · '+esc(s.tier)+' · wards '+wu.used+'/'+wu.cap+' · Reach '+settReach(p,s),p);
   if(inspCan(p.id))h+='<div class="ir"><span class="k">Name</span><input data-insp-name="'+p.id+':'+s.id+'" data-nav="1" value="'+esc(s.name||"")+'" placeholder="'+esc(s.tier)+'" style="flex:1;min-width:0">'+
     (PN?'<button data-insp-rename="'+p.id+':'+s.id+'" data-nav="1" title="new name ('+esc(nameCulture(p.board)||"")+')">🎲</button>':'')+'</div>';
-  h+=settActionsHTML(p,s);
-  {const sp=srcHas(p.board,"settlement_presence"),wp=wardMap()&&srcHas(p.board,"ward_presence");
-    h+='<div class="ir"><span class="k">Presence</span><b>'+(settUnbuilt(s)||!(sp||wp)?'none':[sp?'Settlement':'',wp?'Wards':''].filter(Boolean).join(' · ')+' · Range '+presR())+'</b></div>';}
-  if(wardMap()){const n=wardsOf(p,s).length,rm=wardFill(p,s).length,on=WARDPICK&&String(WARDPICK.pid)===String(p.id)&&String(WARDPICK.sid)===String(s.id);
-    h+='<div class="ir"><span class="k">Wards on the map</span><b>'+n+' / '+rm+'</b>'+(n>rm?' <b class="note" style="color:var(--upkeep)">'+(n-rm)+' over</b>':'')+
-      (inspCan(p.id)&&(rm>0||n>0)?'<button data-insp-ward="'+p.id+':'+s.id+'" data-nav="1" style="margin-left:auto">'+(on?'Done':'Place Wards ▸')+'</button>':'')+'</div>';}
+  {const sp=srcHas(p.board,"settlement_presence");
+    h+='<div class="ir"><span class="k">Presence</span><b>'+(settUnbuilt(s)||!sp?'none':'Settlement · Range '+presRof(p))+'</b></div>';}
   h+='<div class="ig">'+inspCell("GOLD",g$(e.gold),e.gold<0?"neg":"pos")+inspCell(esc(e.sea.toUpperCase()),g$(e.seas))+inspCell("HLDG UPKEEP",g$(-e.hUp),"neg")+inspCell("NET",g$(e.net),e.net<0?"neg":"pos")+
     inspCell("TAX",e.tax.toLocaleString())+inspCell("CRAFT",e.craft)+inspCell("ARMY UPK −",Math.abs(e.upRed||0).toLocaleString(),e.upRed?"pos":"")+inspCell(esc(SCORE.toUpperCase()),g$(e.infl))+'</div>';
   h+='<div class="ir"><span class="k">Faith / Doubt</span><b>'+e.faith+' / '+e.doubt+'</b><span class="k">· Holdings</span><b>'+e.occ+'</b></div>';
@@ -479,23 +475,12 @@ function inspSett(k){const {p,s}=cellSett(k),cell=mapState().cells[k];if(!p)retu
   if(!e.dest){const can=D.players.filter(q=>!sameP(q,p)&&inspCan(q.id));if(can.length)h+='<div class="ir"><span class="k">Destabilize (next Winter)</span><select data-insp-dest="'+p.id+':'+s.id+'" data-nav="1"><option value="">—</option>'+can.map(q=>'<option value="'+q.id+'">'+esc(q.name)+'</option>').join("")+'</select></div>';}
   else if(e.dest.by!=null&&inspCan(e.dest.by))h+='<div class="ir"><button data-insp-undest="'+p.id+':'+s.id+'" data-nav="1">cancel Destabilize</button></div>';
   return h;}
-// ---- map-first actions: a Settlement card offers Build / Improve / Expand / Repair / Settle; an Army card Move / Muster / Lay Siege / Pillage.
+// ---- map-first actions: an Army card offers Move / Muster / Lay Siege / Pillage.
 // When the player has a Passed or Endorsed Envoy waiting whose actions include it, the action is Performed with that Envoy
 // (cost, outcome and riders as on the Table); otherwise it is placed by hand (no cost).
 function envoyFor(p,action){if(!p)return null;const R=tSim();
   return withSlots(R.envoys).find(E=>sameP(E.owner,p)&&(E.out==="Passed"||E.out==="Endorsed")&&resolveOpen(R,E)&&canAct(p)&&pfActs(E).includes(action)&&
     (()=>{const rec=((tCur(p).perform)||{})[E.id];return !rec||rec.edit;})())||null;}
-function settActionsHTML(p,s){if(!inspCan(p.id)||settUnbuilt(s))return "";
-  const sid=s.id,opt=(L)=>L.map(x=>'<option value="'+esc(x.v)+'">'+esc(x.label)+'</option>').join("");
-  const build=withBoard(p.board,()=>buildOpts(p).filter(x=>x.v!=="hand"&&!x.dis&&canPlace(x.v.slice(2),sid).ok));
-  const imp=improveOpts(p).filter(x=>x.v!=="hand"),exp=expandOpts(p).filter(x=>x.v!=="hand"&&x.v.slice(2)===String(sid));
-  const rep=repairOpts(p).filter(x=>x.v[0]==="i"?!!s.capital:(p.board.placed||[]).some(q=>String(q.id)===x.v.slice(2)&&String(q.sid)===String(sid)));
-  const row=(act,L)=>{const E=envoyFor(p,act);return '<div class="ia-r"><span class="ia-l">'+act+'</span>'+(L.length?'<select data-ia="'+act+'" data-nav="1">'+opt(L)+'</select>'+
-      '<button data-do="mapact" data-act="'+act+'" data-who="'+p.id+'" data-sid="'+sid+'" data-env="'+(E?esc(E.id):"")+'" data-nav="1">'+(E?'Perform ▸':'by hand ▸')+'</button>'+(E?'<span class="note">'+esc(E.dom)+' Envoy</span>':''):'<span class="note">nothing eligible</span>')+'</div>';};
-  const ch=envoyFor(p,"Settle");
-  return '<div class="sec">Actions</div><div class="ia">'+row("Build",build)+row("Improve",imp)+row("Expand",exp)+row("Repair",rep)+
-    '<div class="ia-r"><span class="ia-l">Settle</span><button data-do="mapact" data-act="Settle" data-who="'+p.id+'" data-sid="'+sid+'" data-env="'+(ch?esc(ch.id):"")+'" data-nav="1">'+(ch?'Perform ▸':'by hand ▸')+'</button>'+
-      '<span class="note">then place the Village on the map</span></div></div>';}
 function armyMusterBtn(p,a){if(!inspCan(p.id))return "";const E=envoyFor(p,"Muster"),room=Math.max(0,(EQ.army_max||25)-(a.count||0));if(!room||(a.muster&&a.muster.n>0))return "";
   return '<button data-do="mapact" data-act="Muster" data-who="'+p.id+'" data-aid="'+a.id+'" data-env="'+(E?esc(E.id):"")+'" data-nav="1">Muster'+(E?' (Envoy) ▸':' ▸')+'</button>';}
 DO.mapact=el=>{const p=pById(el.dataset.who),act=el.dataset.act;if(!p)return;
@@ -520,8 +505,9 @@ function inspCamp(k){const cp=mapState().camps[k],thr=BAN.armyThreshold||25,army
   h+='<div class="sec">Gold</div><div class="ir"><span class="k">Destroyed: Extort its Treasury</span><b>'+(cp.gold||0).toLocaleString()+'</b></div>';
   return h;}
 // adjacent targets for an Army on the map: at-war Armies (not in a Settlement), Bandit Camps / Armies, at-war Settlements not under Siege
-function engageTargets(p,a){const k=armyHex(p,a);if(!k||armyInside(p,a))return [];const M=mapState(),out=[];
-  hexNb(k).forEach(n=>{const c=M.cells[n];
+// — none while the Army stands within the Presence of another non-allied piece (Presence other than the target's own)
+function engageTargets(p,a){const k=armyHex(p,a);if(!k||armyInside(p,a))return [];const M=mapState(),out=[],AS=auraSources(p),ak=hk(k);
+  hexNb(k).forEach(n=>{const c=M.cells[n];if(AS.some(o=>o.k!==n&&hexDist(hk(o.k),ak)<=o.r))return;
     if(c&&c.type==="Army"){const x=cellArmy(n);if(x.p&&x.a&&!sameP(x.p,p)&&effPair(p.id,x.p.id).war)out.push({kind:"battle",label:x.p.name+" · "+(x.a.label||("Army "+x.a.id)),B:{pid:String(x.p.id),aid:String(x.a.id)},seize:"A",src:"Battle action"});}
     else if(c){const cs=cellSett(n);if(cs.s&&!sameP(cs.p,p)&&effPair(p.id,cs.p.id).war&&!siegeOn(cs.p.id,cs.s.id))out.push({kind:"siege",label:cs.p.name+" · "+(cs.s.name||cs.s.tier),tp:cs.p.id,sid:cs.s.id});}
     if(M.camps[n]&&!M.camps[n].out)out.push({kind:"battle",label:(M.camps[n].n>=(BAN.armyThreshold||25)?"Bandit Army":"Bandit Camp")+" @ "+n,B:{kind:"bandit",camp:n},seize:"",src:"vs Bandits"});});
@@ -539,8 +525,6 @@ function wireInsp(host){const P=host.querySelector("#inspPanel");if(!P)return;
   P.querySelectorAll("[data-insp-name]").forEach(inp=>inp.onchange=()=>{const [pid,sid]=inp.dataset.inspName.split(":"),q=pById(pid),st=q&&settById(q,sid);
     if(!st||!inspCan(pid))return;const v=inp.value.trim();if(v)st.name=v;else delete st.name;save();render();});
   P.querySelectorAll("[data-insp-sel]").forEach(b=>b.onclick=()=>{const [pid,aid]=b.dataset.inspSel.split(":");SEL={pid,aid};render();});
-  P.querySelectorAll("[data-insp-ward]").forEach(b=>b.onclick=()=>{const [pid,sid]=b.dataset.inspWard.split(":");
-    WARDPICK=WARDPICK&&String(WARDPICK.pid)===pid&&String(WARDPICK.sid)===sid?null:{pid,sid};render();});
   P.querySelectorAll("[data-insp-x]").forEach(b=>b.onclick=()=>{INSP=null;render();});
   P.querySelectorAll("[data-insp-board]").forEach(b=>b.onclick=()=>{D.active=+b.dataset.inspBoard;reindex();D.view="board";save();render();if(typeof renderList==="function")renderList();});
   P.querySelectorAll("[data-insp-dest]").forEach(sel=>sel.onchange=()=>{if(!sel.value)return;const [pid,sid]=sel.dataset.inspDest.split(":");if(!inspCan(sel.value)){flash("🔒 not your Destabilize");render();return;}
@@ -820,9 +804,9 @@ function placeWildOutlaw(){const M=mapState();if(!M.grid)return 0;const V=decode
 function rescatterWild(){const M=mapState();Object.entries(wildZones()).forEach(([z,hx])=>{if(hx.some(k=>M.camps[k]))return;hx.forEach(k=>delete M.outlaw[k]);});
   M.wildSeeded=false;return placeWildOutlaw();}
 // a piece's Presence (PRESENCE_RANGE, one flat range), the range at which a Bandit Camp can target it: Armies always;
-// a Settlement only while it radiates Presence (Garrison: from the Settlement, Keep: from its Wards)
+// a Settlement only while it radiates Presence (Garrison), at its owner's Settlement Presence Range (Keep: Presence +1)
 function pieceAura(k){const c=mapState().cells[k];if(!c)return 0;if(c.type==="Army"){return presR();}
-  const s=cellSett(k).s;return s&&settUnbuilt(s)?0:presHexes(k).length?presR():0;}
+  const cs=cellSett(k),s=cs.s;return s&&settUnbuilt(s)?0:presHexes(k).length?presRof(cs.p||cellPlayer(c)):0;}
 // ---- Settlement Wards on the map (WARD_MODEL "range1"): each filled Ward occupies a Territory within Range 1 of its Settlement
 // (M.wards[hex] = {player, sid, root}; root = id of the Holding at the base of that Ward's chain). A Ward goes on the map once
 // it holds a Holding and leaves it when it empties (Sack, removal)
@@ -836,10 +820,10 @@ function wardFill(p,s){if(settUnbuilt(s))return [];
 function wardCand(p,s){const sk=settHex(p,s);if(!sk)return [];const V=decodeGrid(mapState().grid);
   return hexNb(sk).filter(k=>{const h=V.hex[k];return !!h&&h.t!=="water"&&!terrBlocked(h.t)&&hexFree(k);});}
 // the hexes a piece's Presence radiates from: an Army's own hex; a Settlement's hex while its owner has a Garrison
-// ("Your Settlements gain Garrisons & Presence"), its Wards while they have a Keep ("Your Settlement Wards have Presence")
+// ("Your Settlements gain Garrisons & Presence")
 // "Instead of performing a Move action, you may have a Garrison Battle a Bandit Camp, Bandit Army, or an Army you're At War with
-// within its Presence" (March-Tower): every such target within the Presence of o's Garrisoned Settlements (its Wards too, with a Keep)
-function garrisonTargets(o){if(!srcHas(o.board,"garrison_battle"))return [];const M=mapState(),PR=presR(),out=[];
+// within its Presence" (March-Tower): every such target within the Presence of o's Garrisoned Settlements
+function garrisonTargets(o){if(!srcHas(o.board,"garrison_battle"))return [];const M=mapState(),PR=presRof(o),out=[];
   (o.board.settlements||[]).forEach(s=>{const sk=garrisonOf(o,s.id)&&settHex(o,s);if(!sk)return;const src=presHexes(sk).map(hk);if(!src.length)return;
     const near=k=>src.some(c=>hexDist(c,hk(k))<=PR),gn=(s.name||s.tier)+" Garrison";
     Object.keys(M.camps).forEach(n=>{const cp=M.camps[n];if(cp.out||!near(n))return;
@@ -848,7 +832,7 @@ function garrisonTargets(o){if(!srcHas(o.board,"garrison_battle"))return [];cons
       if(x.p&&x.a&&!sameP(x.p,o)&&effPair(o.id,x.p.id).war)out.push({v:"gb:"+s.id+":a:"+x.p.id+":"+x.a.id,label:gn+" → "+x.p.name+" · "+(x.a.label||("Army "+x.a.id)),A:{pid:String(o.id),aid:"g:"+s.id},B:{pid:String(x.p.id),aid:String(x.a.id)}});});});
   return out;}
 function presHexes(k){const c=mapState().cells[k];if(!c||c.type==="Army")return [k];const cs=cellSett(k),p=cs.p||cellPlayer(c);if(!p)return [];
-  return (srcHas(p.board,"settlement_presence")?[k]:[]).concat(wardMap()&&cs.s&&settHex(p,cs.s)===k&&srcHas(p.board,"ward_presence")?wardsOf(p,cs.s):[]);}
+  return srcHas(p.board,"settlement_presence")?[k]:[];}
 // automatic Ward placement: each filled Ward without a hex goes on free adjacent land, farthest from any Outlaw Country first
 // (ties: column, then row); a hex whose Ward emptied leaves the map. Paused for that Settlement while its owner places Wards by hand
 function wardAuto(p,s){const M=mapState();if(!wardMap()||!M.grid)return false;
@@ -912,7 +896,7 @@ function banditAct(k){const M=mapState(),cp=M.camps[k],B=BST(),F=BAN.faces||10,r
     TO=terrOwners(),okT=t=>{const p=cellPlayer(mapState().cells[t]);return !!p&&(nook?!NK.some(q=>sameP(q,p)):campInRange(k,t,TO));};
   let L=byDist(k,mapSetts(),true).filter(x=>okT(x.k));if(nook)L=L.map(x=>({x,r:Math.random()})).sort((a,b)=>a.r-b.r).map(o=>o.x);
   let tgt=null;
-  if(act==="Raze")tgt=L.map(x=>Object.assign({k:x.k},cellSett(x.k))).find(t=>t.s&&!srcHas(t.p.board,"immune_raze")&&t.p.board.placed.some(q=>q.sid===t.s.id&&!(q.bt>0)&&!(q.dmg>0)));
+  if(act==="Raze")tgt=L.map(x=>Object.assign({k:x.k},cellSett(x.k))).find(t=>t.s&&razeHoldings(t.p).some(r=>r.k==="h"&&r.x.sid===t.s.id));
   else if(act==="Destabilize")tgt=L.map(x=>Object.assign({k:x.k},cellSett(x.k))).find(t=>t.s&&!B.dest[t.p.id+":"+t.s.id]);
   else if(act==="Intercept Caravan")tgt=L.map(x=>Object.assign({k:x.k},cellSett(x.k))).find(t=>t.p&&!B.ic[t.p.id]);
   else if(act==="Sabotage"){const M_=mapState(),arm=Object.keys(M_.cells).filter(q=>M_.cells[q].type==="Army"&&cellPlayer(M_.cells[q])&&!M_.cells[q].blocked).map(q=>({k:q,cell:M_.cells[q]}));
@@ -928,7 +912,7 @@ function banditAct(k){const M=mapState(),cp=M.camps[k],B=BST(),F=BAN.faces||10,r
   if(oc!=="Passed"&&oc!=="Endorsed"){bLog(head,k);return;}
   let fx="";
   {const dz=+RC.CUNNING_DOUBT||0;if(dz){const g=gainDoubt(tgt.p.board,dz);fx=tgt.p.name+": Doubt +"+dz+(g<dz?" ("+(dz-g)+" reduced, first Doubt)":"")+" · ";}}   // a Cunning action's target gains Doubt
-  if(act==="Raze"){const pool=tgt.p.board.placed.filter(q=>q.sid===tgt.s.id&&!(q.bt>0)&&!(q.dmg>0)),q=pool[Math.floor(Math.random()*pool.length)],rt=((DATA.timers||{})["Repair Timer"]||{}).default||2;
+  if(act==="Raze"){const pool=razeHoldings(tgt.p).filter(r=>r.k==="h"&&r.x.sid===tgt.s.id).map(r=>r.x),q=pool[Math.floor(Math.random()*pool.length)],rt=((DATA.timers||{})["Repair Timer"]||{}).default||2;
     q.dmg=rt;delete q.rep;delete q.shut;q.dmgBy=dmgMark({camp:k});fx+="Bandits raze "+tgt.p.name+"'s "+q.name+" (Damaged: inactive until Repaired)";}
   else if(act==="Destabilize"){B.dest[tgt.p.id+":"+tgt.s.id]={camp:k};fx+="next Winter: "+(tgt.s.name||tgt.s.tier)+"'s tax → camp";}
   else if(act==="Intercept Caravan"){B.ic[tgt.p.id]={camp:k};fx+="next turn "+tgt.p.name+" is Host: trade income → camp";}
@@ -967,7 +951,7 @@ function banditSpeed(cp){armBandits(cp);const a=banditArmy(cp),base=+((EQ.retinu
 function banditAuraList(){const M=mapState(),RT=EQ.retinues||{},out=[],hexes=Object.keys(decodeGrid(M.grid).hex);
   Object.keys(M.cells).forEach(k=>{const c=M.cells[k];if(!cellPlayer(c))return;let r=0;
     if(c.type==="Army")r=presR();
-    else{const s=cellSett(k).s;r=s&&settUnbuilt(s)?0:presR();}
+    else{const cs=cellSett(k),s=cs.s;r=s&&settUnbuilt(s)?0:presRof(cs.p||cellPlayer(c));}
     if(r>0)presHexes(k).forEach(q=>out.push({k:q,grp:k,set:new Set(hexes.filter(h=>hexDist(hk(q),hk(h))<=r))}));});   // grp: lifted together
   return out;}
 // cheapest cost to each hex; Presence blocks (the start's own auras and the lifted target's excepted), Water: one hex then land

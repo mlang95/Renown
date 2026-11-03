@@ -831,9 +831,10 @@
   .bf-tac{font-size:12px}.bf-tac i{font-style:normal;color:var(--order)}
   .bf-stage{position:relative}
   .bf-mid{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px}
-  .bf-feed{display:flex;flex-direction:column;align-items:center;gap:3px;max-width:100%}
+  .bf-feed{display:flex;flex-direction:column;align-items:stretch;gap:3px;padding:4px 10px;background:var(--panel2);border-bottom:1px solid var(--line2)}
+  .bf-feed:empty{display:none}
   .bf-toast{background:rgba(12,14,18,.86);color:#fff;border:1px solid rgba(255,255,255,.16);border-left:4px solid var(--pc);border-radius:var(--radius-sm);padding:2px 8px;font-size:12px;line-height:1.35;text-align:center;animation:bftoast .4s forwards}
-  .bf-toast.seen{animation:none}.bf-toast.old{opacity:.72}
+  .bf-toast.seen{animation:none}
   .bf-toast b{font-weight:600}
   @keyframes bftoast{0%{opacity:0;transform:translateY(-4px)}100%{opacity:1;transform:none}}
   .bchron{margin-top:8px}.bchron-b{max-height:260px;overflow-y:auto;padding:4px 2px;font-size:13px;line-height:1.5}

@@ -102,7 +102,7 @@ function aiTreatyType(p,q){const x=effPair(p.id,q.id),pp=aiProfile(p)||{};
   if(x.war)return "Peace Treaty";
   if(pp.prowess_coded&&(aiProfile(q)||{}).prowess_coded&&!alliedP(p,q)){
     if(allianceOK("Military"))return "Military Alliance";if(!x.nap)return "Non-Aggression Pact";}
-  if(!x.trade)return "Trade Agreement";
+  if(!x.trade&&hasRoad(p.id)&&hasRoad(q.id))return "Trade Agreement";   // Trade Agreement: both need Can Trade
   if(!x.nap&&!pp.prowess_coded)return "Non-Aggression Pact";
   if(!alliedP(p,q)&&allianceOK("Defensive"))return "Defensive Alliance";
   return null;}
@@ -110,7 +110,7 @@ function aiTreatyType(p,q){const x=effPair(p.id,q.id),pp=aiProfile(p)||{};
 function aiTreatyAccept(q,p,type){const dq=aiDoms(q),rel=aiRel(q,p),like=aiLike(q,p),wantsWar=(aiProfile(q)||{}).prowess_coded&&aiMil(q)>aiMil(p);
   if(rel<=-3)return {ok:false,why:"remembers "+p.name+" as hostile ("+rel+")"};
   if(type==="Peace Treaty")return wantsWar?{ok:false,why:"winning the war"}:{ok:true,why:aiCashOutlook(q).ok?"war isn't paying":"economy"};
-  if(type==="Trade Agreement"){if(dq.some(d=>d==="Industry"||d==="Piety"))return {ok:true,why:"trade income"};
+  if(type==="Trade Agreement"){if(!hasRoad(p.id)||!hasRoad(q.id))return {ok:false,why:"needs Can Trade"};if(dq.some(d=>d==="Industry"||d==="Piety"))return {ok:true,why:"trade income"};
     if(!aiCashOutlook(q).ok)return {ok:true,why:"needs income"};if(dq.includes("Cunning"))return edictTotal(p)>edictTotal(q)?{ok:false,why:p.name+" is ahead"}:{ok:true,why:"useful for now"};
     return like?{ok:true,why:"like-minded"}:{ok:false,why:"no gain"};}
   if(type==="Non-Aggression Pact")return wantsWar?{ok:false,why:"wants war with weaker "+p.name}:{ok:true,why:"safety"};

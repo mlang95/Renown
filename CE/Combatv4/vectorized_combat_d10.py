@@ -107,8 +107,7 @@ class StaticArmy:
         # NOTE: Royal Pavilion's Immune Strained no longer grants +1 endurance (reverted in v2).
         self.endurance_start = ret["endurance"] + endurance_bonus
         # Ministry of Military Strategy innate: maximum initiative ceiling raised to 3 (default 2).
-        self.max_init = 3 if ("MaxInit3" in ld.extra_tags
-                              or any(str(t).startswith("Crit ") for t in ld.extra_tags)) else 2
+        self.max_init = 3 if "MaxInit3" in ld.extra_tags else 2
         self.shaking = ret["shaking"]
         self.unshakable = ret.get("unbreakable", False)  # break-immunity flag; named .unshakable for legacy
         # Abbey: "Shake +1" tag = +1 to the shaken die roll, i.e. -1 to the effective shake
@@ -538,9 +537,9 @@ def resolve_equipment(ld_a, ld_b):
 
 def _can_parry(tags):
     """Same rule as batch_engine._precompute_regen_parry: Parry, Improved Parry, or Florentine while
-    Dual Wielding — and never while an Awkward weapon is equipped."""
+    Dual Wielding — and never while an Awkward weapon is equipped (unless Immune Awkward, List Yard)."""
     flor = (FLORENTINE in tags) and (DUAL_WIELD in tags)
-    return ((PARRY in tags) or ("Improved Parry" in tags) or flor) and (NO_PARRY not in tags)
+    return ((PARRY in tags) or ("Improved Parry" in tags) or flor) and (NO_PARRY not in tags or "Immune Awkward" in tags)
 
 
 def _regen_threshold(def_tags, atk_tags=None):
@@ -1312,10 +1311,14 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             continue
 
         # Determine strike order
-        a_tripped = (a_init <= -2) & proceed
-        b_tripped = (b_init <= -2) & proceed
-        a_first_mask = (a_init > b_init) & proceed & (~a_tripped)
-        b_first_mask = (b_init > a_init) & proceed & (~b_tripped)
+        # Blunder: Initiative at the -2 floor, or "Blunder first" (Sovereign Cunning opponent: Blunder in the first
+        # Skirmish); Immune Blunder (Sovereign Prowess, Colossus) negates both. Strike order is Initiative only.
+        _a_tg = a_static.tags_first if first else a_static.tags_normal
+        _b_tg = b_static.tags_first if first else b_static.tags_normal
+        a_tripped = ((a_init <= -2) | bool(first and "Blunder first" in _a_tg)) & proceed & (not ("Immune Blunder" in _a_tg))
+        b_tripped = ((b_init <= -2) | bool(first and "Blunder first" in _b_tg)) & proceed & (not ("Immune Blunder" in _b_tg))
+        a_first_mask = (a_init > b_init) & proceed
+        b_first_mask = (b_init > a_init) & proceed
         simul_mask = (a_init == b_init) & proceed
 
         # Compute front lines (each run independently)
@@ -1401,9 +1404,9 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         # then worsening mods can push beyond. Same mechanic as the fatigue cap.
         a_th_pre = np.where(a_tripped, np.maximum(a_th_pre, CAP_THR), a_th_pre)
         b_th_pre = np.where(b_tripped, np.maximum(b_th_pre, CAP_THR), b_th_pre)
-        # Worsening mods apply after the cap and CAN exceed 6 → 7+ (auto-miss).
-        a_target_th = a_th_pre + a_th_worsen
-        b_target_th = b_th_pre + b_th_worsen
+        # Worsening mods apply after the cap; the result is capped at CAP_THR+ again (no auto-miss).
+        a_target_th = np.minimum(a_th_pre + a_th_worsen, CAP_THR)
+        b_target_th = np.minimum(b_th_pre + b_th_worsen, CAP_THR)
         # Save targets. Gilded Foundry mastery: incoming AP -1 (effective save improves by 1)
         # We model this by reducing the effective AP applied to the save target.
         # (Planishing no longer reduces AP; it caps the save target at 6+ inside _roll_saves_vec.)

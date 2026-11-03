@@ -63,7 +63,8 @@ except Exception:
 
 # The 9 runtime tags tested inside the loop (besides what's baked into base_init).
 RUNTIME_TAGS = ["+1TH", "+1TH first", "+1TH after_first", "Immune Tactic TH", DRILLED, IMMUNE_UNWIELDY, PARRY, POISON,
-                STEADY, "Unshakable", UNBREAKABLE, "Zealot", "Rally", "Resolute", UNSTOPPABLE, NEGATE_SHIELDED, UNWIELDY, FLORENTINE, ENDURING]
+                STEADY, "Unshakable", UNBREAKABLE, "Zealot", "Rally", "Resolute", UNSTOPPABLE, NEGATE_SHIELDED, UNWIELDY, FLORENTINE, ENDURING,
+                "Blunder first", "Immune Blunder"]
 
 
 def _regen_threshold_for(tags_set, opp_tags_set):
@@ -399,8 +400,8 @@ def _precompute_regen_parry(Pa, Pb):
             b_regen[i] = rb if rb is not None else 0
             a_flor = (FLORENTINE in at) and (DUAL_WIELD in at)   # Florentine only active while dual-wielding
             b_flor = (FLORENTINE in bt) and (DUAL_WIELD in bt)
-            a_parry[i] = ((PARRY in at) or ("Improved Parry" in at) or a_flor) and (NO_PARRY not in at)
-            b_parry[i] = ((PARRY in bt) or ("Improved Parry" in bt) or b_flor) and (NO_PARRY not in bt)
+            a_parry[i] = ((PARRY in at) or ("Improved Parry" in at) or a_flor) and (NO_PARRY not in at or "Immune Awkward" in at)
+            b_parry[i] = ((PARRY in bt) or ("Improved Parry" in bt) or b_flor) and (NO_PARRY not in bt or "Immune Awkward" in bt)
             a_reroll[i] = vc._has_regen_reroll(at)
             b_reroll[i] = vc._has_regen_reroll(bt)
             a_riposte[i] = (RIPOSTE in at)
@@ -765,10 +766,11 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         no_combat_this = no_combat_pair & active
         proceed = active & (~ending) & (~no_combat_this)
 
-        a_tripped = (a_init <= -2) & proceed
-        b_tripped = (b_init <= -2) & proceed
-        a_first_mask = (a_init > b_init) & proceed & (~a_tripped)
-        b_first_mask = (b_init > a_init) & proceed & (~b_tripped)
+        # Blunder: Initiative -2, or "Blunder first" in the first Skirmish; Immune Blunder negates (mirrors vectorized)
+        a_tripped = ((a_init <= -2) | (tflag(Pa, skl, "Blunder first") & first)) & proceed & (~tflag(Pa, skl, "Immune Blunder"))
+        b_tripped = ((b_init <= -2) | (tflag(Pb, skl, "Blunder first") & first)) & proceed & (~tflag(Pb, skl, "Immune Blunder"))
+        a_first_mask = (a_init > b_init) & proceed
+        b_first_mask = (b_init > a_init) & proceed
         simul_mask = (a_init == b_init) & proceed
 
         a_front = np.minimum(vc.FRONT_CAP, a_size); b_front = np.minimum(vc.FRONT_CAP, b_size)
@@ -785,7 +787,7 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         b_tbh_eff = np.where(b_negshield, 0, a_tbh)
         # improving (lower target): weapon +1TH (wth, =-1), positive tactic TH. (Yew skipped.)
         # worsening (raise target): own/enemy shield TH, negative tactic TH.
-        # Cap (base + improving) at CAP_THR; then worsening mods apply and can reach FACES+1 (auto-fail). Fatigue only worsens Morale.
+        # Cap (base + improving) at CAP_THR; then worsening mods apply, capped at CAP_THR+ again (no auto-fail). Fatigue only worsens Morale.
         a_th_improve = wth_a - np.maximum(a_TH_mod, 0)
         b_th_improve = wth_b - np.maximum(b_TH_mod, 0)
         a_tac_worsen = np.where(a_immtac, 0, np.maximum(-a_TH_mod, 0))   # Immune Tactic TH (Ministry innate)
@@ -797,8 +799,8 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         # Blunder: clamp to CAP_THR+ at this step (then worsening mods can push beyond).
         a_th_pre = np.where(a_tripped, np.maximum(a_th_pre, CAP_THR), a_th_pre)
         b_th_pre = np.where(b_tripped, np.maximum(b_th_pre, CAP_THR), b_th_pre)
-        a_tt = a_th_pre + a_th_worsen
-        b_tt = b_th_pre + b_th_worsen
+        a_tt = np.minimum(a_th_pre + a_th_worsen, CAP_THR)
+        b_tt = np.minimum(b_th_pre + b_th_worsen, CAP_THR)
 
         b_ap_vs_a = b_ap          # ABF / Gilded Foundry do not modify AP
         a_ap_vs_b = a_ap

@@ -65,7 +65,7 @@ function bfBuild(sig,S,T){const wrap=document.createElement("div");wrap.classNam
   ["A","B"].forEach(X=>{const s=S[X];if(s)h+=bfCamp(X,s.col);});
   h+='<g class="bf-units">';["A","B"].forEach(X=>{const s=S[X];if(!s)return;for(let id=0;id<s.FM+s.RM;id++)h+=bfFigure(s,id);});
   h+='</g><g class="bf-fx"></g></svg></div><div class="bf-cap"></div>';
-  wrap.innerHTML='<div class="bf-head"></div>'+h;
+  wrap.innerHTML='<div class="bf-head"></div><div class="bf-feed" aria-live="polite"></div>'+h;
   const t0=()=>({parry:0,rip:0,save:0,heal:0,on:{}});                 // on = which of these have been rolled this Skirmish
   BF={wrap,sig,seen:{},rip:{},pos:{A:[],B:[]},fresh:true,t:{A:t0(),B:t0()},res:{A:S.A?S.A.c.reserve:0,B:S.B?S.B.c.reserve:0},panic:{}};
   // start everyone in camp
@@ -97,7 +97,7 @@ function bfUpdate(S,T){const W=BF.wrap,B=battle(),fresh=BF.fresh;BF.fresh=false;
   W.querySelector(".bf-head").innerHTML=["A","B"].map(X=>{const s=S[X];if(!s)return '<div></div>';
     const gear=SPR?bfGear(s).map(n=>'<span title="'+esc(n)+'">'+eqSVG(n,18)+'</span>').join(""):"",mods=s.c.cell?fmtModLong(s.c.tmEff)+s.c.tmBlk.map(t=>' · '+t).join(""):"";
     return '<div class="bf-side" style="--pc:'+s.col+'"><div class="bf-nm"><b>'+esc(s.nm)+'</b><span class="bf-gear">'+gear+'</span></div>'+
-      '<div class="bf-tac">'+esc(s.tac||(s.locked?"Tactic locked in":"Tactic hidden"))+(s.tac?esc(s.tst):'')+(mods?' · <i>'+esc(mods)+'</i>':'')+'</div><span>front '+s.c.front+' · reserve '+s.c.reserve+' · camp '+s.c.camp+(s.cas?' · fallen '+s.cas:'')+(s.pend?' · wounded '+s.pend:'')+'</span></div>';}).join('<div class="bf-mid"><span class="bf-sk">Skirmish '+(B.id?B.sk:'—')+'</span><div class="bf-feed" aria-live="polite"></div></div>');
+      '<div class="bf-tac">'+esc(s.tac||(s.locked?"Tactic locked in":"Tactic hidden"))+(s.tac?esc(s.tst):'')+(mods?' · <i>'+esc(mods)+'</i>':'')+'</div><span>front '+s.c.front+' · reserve '+s.c.reserve+' · camp '+s.c.camp+(s.cas?' · fallen '+s.cas:'')+(s.pend?' · wounded '+s.pend:'')+'</span></div>';}).join('<div class="bf-mid"><span class="bf-sk">Skirmish '+(B.id?B.sk:'—')+'</span></div>');
   // caption: the battle tile and its rule
   const TT=(TREF.tactical||{})[T&&T.tile]||null;
   W.querySelector(".bf-cap").innerHTML=T?((typeof pxSwatch==="function"&&SPR&&SCAT[T.kind]?pxSwatch(T.kind,T.fill,22):'')+'<b>'+esc(T.tile||"")+'</b>'+(TT?' <span>'+esc(TT.effect||"")+'</span>':'')+' <span class="note">hex '+esc(T.key)+'</span>')
@@ -108,14 +108,17 @@ function bfUpdate(S,T){const W=BF.wrap,B=battle(),fresh=BF.fresh;BF.fresh=false;
 // the gear a side has Equipped this Skirmish: the weapon in hand, a usable shield, the armour
 function bfGear(s){const a=s.a,c=s.c,w=c.eqX.mode==="ranged"&&a.ranged&&a.ranged!=="None"?a.ranged:a.weapon;
   return [w,c.dualW?w:null,a.shield&&a.shield!=="None"&&!c.shDest&&!c.shOff?a.shield:null,a.armor].filter(n=>n&&SPR.S["eq:"+n]);}
-// pop-up feed over the field: the last 4 events (k replaces an earlier line of the same kind). Kept here, not in the DOM, so a
-// redraw that rebuilds the field repaints them; they stay until replaced (older lines dimmed). The Chronicle keeps everything.
+// pop-up feed under the field header: every event of this Skirmish, one line each, stacked (k replaces an earlier line of the
+// same kind). Kept here, not in the DOM, so a redraw that rebuilds the field repaints them; they stay until the Skirmish ends.
+// The end-of-Skirmish report (Endurance / Morale lost) is posted as the next Skirmish begins and stays through it.
+// The Chronicle keeps everything.
 let BF_FEED=[],BF_FEED_ID=null;
-function bfFeedPaint(){if(!BF)return;const F=BF.wrap.querySelector(".bf-feed");if(!F)return;const id=battle().id;if(BF_FEED_ID!==id){BF_FEED=[];BF_FEED_ID=id;}
-  const h=BF_FEED.map((t,i)=>'<div class="bf-toast'+(i<BF_FEED.length-1?' old':'')+(t.fresh?'':' seen')+'" style="--pc:'+t.col+'">'+t.html+'</div>').join("");
+function bfFeedPaint(){if(!BF)return;const F=BF.wrap.querySelector(".bf-feed");if(!F)return;const B=battle(),id=B.id;if(BF_FEED_ID!==id){BF_FEED=[];BF_FEED_ID=id;}
+  BF_FEED=BF_FEED.filter(t=>t.sk===B.sk);
+  const h=BF_FEED.map(t=>'<div class="bf-toast'+(t.fresh?'':' seen')+'" style="--pc:'+t.col+'">'+t.html+'</div>').join("");
   if(F.innerHTML!==h)F.innerHTML=h;BF_FEED.forEach(t=>t.fresh=false);}
-function bfToast(k,html,col,delay){const show=()=>{const id=battle().id;if(BF_FEED_ID!==id){BF_FEED=[];BF_FEED_ID=id;}
-    BF_FEED=BF_FEED.filter(t=>t.k!==k).concat([{k,html,col:col||"#888",fresh:true}]).slice(-4);bfFeedPaint();};
+function bfToast(k,html,col,delay){const show=()=>{const B=battle(),id=B.id;if(BF_FEED_ID!==id){BF_FEED=[];BF_FEED_ID=id;}
+    const t={k,html,col:col||"#888",fresh:true,sk:B.sk},i=BF_FEED.findIndex(x=>x.k===k);if(i>=0)BF_FEED[i]=t;else BF_FEED.push(t);bfFeedPaint();};
   if(delay)setTimeout(show,delay);else show();}
 const bfN=(n,one,many)=>n+" "+(n===1?one:(many||one+"s"));
 // the defending side's line for this Skirmish: only what it can roll (no Parry -> no parries / ripostes; no Recover -> no heals),
@@ -124,13 +127,17 @@ function bfDefLine(s){const t=BF.t[s.X],c=s.c,o=[];
   if(c.canParry&&t.on.parry)o.push(bfN(t.parry,"parry","parries"));if(c.canParry&&(c.riposte||c.riposteMelee)&&(t.on.parry||t.rip))o.push(bfN(t.rip,"riposte"));
   if(t.on.save)o.push(bfN(t.save,"save"));if(c.recThr!=null&&t.on.heal)o.push(bfN(t.heal,"heal"));
   return '<b>'+esc(s.nm)+'</b>: '+o.join(" · ");}
-// end-of-Skirmish report (Endurance, Fatigue, Break check, Rout), once per report
+// end-of-Skirmish report, once per report: per side an Endurance line (loss), a Morale line (Fatigue token: Morale value
+// worsens; Break check casualties) and a result line (Routs / wiped out)
 let BF_REP="";
 function bfReport(S){const B=battle(),R=B.endRep&&B.endRep.sk===B.sk?B.endRep:null;if(!R)return;const key=B.id+"|"+JSON.stringify(R);if(key===BF_REP)return;BF_REP=key;
-  R.rows.forEach((r,i)=>{const s=S[r.X];if(!s)return;const o=['Endurance '+r.e0+' → '+r.e1];
-    if(r.brk)o.push(r.brk.dice?'<b>Break check</b>: '+bfN(r.brk.lost,"casualty","casualties")+' ('+r.brk.n+'d10 vs '+r.brk.target+'+)':'<b>Break check due</b>: '+r.brk.n+'d10 vs '+r.brk.target+'+');
-    if(r.fat!=null)o.push('Fatigue '+r.fat+' → Morale '+r.m1+'+');if(r.rout)o.push('<b>Routs</b>');if(r.wiped)o.push('<b>wiped out</b>');
-    bfToast("rep"+r.X,'<b>'+esc(s.nm)+'</b>, end of Skirmish '+(R.sk-1)+': '+o.join(' · '),s.col,i*250);});}
+  R.rows.forEach((r,i)=>{const s=S[r.X];if(!s)return;const nm='<b>'+esc(s.nm)+'</b>, end of Skirmish '+(R.sk-1)+': ',d=r.e0-r.e1;
+    bfToast("repE"+r.X,nm+'<b>Endurance '+(d>0?'−'+d:'holds')+'</b> ('+r.e0+' → '+r.e1+')'+(r.e1===0&&r.brk?' · Fatigued':''),s.col,i*250);
+    const m=[];
+    if(r.brk)m.push(r.brk.dice?'Break check '+bfN(r.brk.lost,"casualty","casualties")+' ('+r.brk.n+'d10 vs '+r.brk.target+'+)':'<b>Break check due</b>: '+r.brk.n+'d10 vs '+r.brk.target+'+');
+    if(r.fat!=null)m.push('Fatigue token '+r.fat+': Morale '+(r.m0!=null?r.m0+'+ → ':'')+r.m1+'+');
+    if(m.length)bfToast("repM"+r.X,nm+'<b>Morale loss</b> · '+m.join(' · '),s.col,i*250+120);
+    if(r.rout||r.wiped)bfToast("repR"+r.X,nm+(r.rout?'<b>Routs</b>':'<b>wiped out</b>'),s.col,i*250+240);});}
 // what has already been shown: each side's last roll, pending Ripostes, the reveal
 function bfSeen(){const B=battle(),o={rev:B.rev&&B.rev.sk===B.sk?B.rev.A+"|"+B.rev.B:""};
   ["A","B"].forEach(X=>{o[X]=JSON.stringify((B.rolls||{})[X]||null);o["rip"+X]=ripN(X);o["cas"+X]=(B[X]||{}).cas||0;});return o;}

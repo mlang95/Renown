@@ -34,6 +34,8 @@ const STANDINGS=DATA.standings||["Rising","Established","Sovereign"];
 const DBOARD=DATA.domainBoard||{};
 // Presence (PRESENCE_RANGE): one flat range for every Settlement / Army / Bandit Army
 function presR(){return +((DATA.rulesConst||{}).PRESENCE_RANGE)||0;}
+// a player's Settlement Presence Range: PRESENCE_RANGE + every "Presence +N" they hold (Keep)
+function presRof(p){return presR()+(p&&p.board?srcMatch(p.board,"presence_plus").reduce((t,x)=>t+(+x.m[1]||0),0):0);}
 const PO=DATA.publicOrder||{};
 // Public Order bands in the current Era (negative bands scale with ERAS po_scale_neg; positive with po_scale_pos)
 function POB(k){const t=(DATA.poByEra||{})[currentEra()];return (t&&t[String(k)])||PO[String(k)];}

@@ -7,6 +7,12 @@ const T_ALL=["Diplomacy"].concat(T_DOMS);
 const EOUT=DATA.envoyOutcomes||{};
 const ETH=Object.assign({Condemned:-4,Failed:0,Passed:1,Endorsed:4},DATA.outcomeThresh||{});
 // Raze on an active Build Timer: "+N" from the Raze action's text
+// Raze's Holding targets, per Ward: the top-most Holding under a Build Timer (its timer gains +N) and the top-most Holding
+// that is neither Damaged (Razed) nor under a Build Timer: [{k:"bh"|"h", x}]
+function razeHoldings(q){const out=[];if(srcHas(q.board,"immune_raze"))return out;
+  (q.board.settlements||[]).forEach(st=>withBoard(q.board,()=>wardChains(st.id)).forEach(w=>{const c=w.chain.filter(x=>!x.fac&&x.sid!=null&&x.sid!=="faction");
+    if(c[0]&&c[0].bt>0&&!(c[0].dmg>0))out.push({k:"bh",x:c[0]});const t=c.find(x=>!(x.bt>0)&&!(x.dmg>0));if(t)out.push({k:"h",x:t});}));
+  return out;}
 function razeTimerPlus(){const m=/increase that Build Timer by (\d+)/i.exec(String(((DATA.actions||{}).Raze||{}).effect||""));return m?+m[1]:2;}
 const T_PH=["empire","council","envoy","battle","rest"];
 // PHASE_REFORM: phase 2 is the Works Phase (each player performs the Era's Industry actions — run as Council Envoys that take no
@@ -302,11 +308,15 @@ function comboEval(E,action,tid){const tgt=tid&&!String(tid).startsWith("al:")?D
   return {tgt,parts,adj,out,saved,capped,ok:out==="Passed"||out==="Endorsed"};}
 function failPassFx(E){return fxOf(E.owner,"failPass").find(f=>!f.dom||f.dom===E.dom)||null;}
 function condFailFx(E){return fxOf(E.owner,"condFail").find(f=>!f.dom||f.dom===E.dom)||null;}
-// "In the Envoy Phase, a player may target you with a Cunning Envoy. If they do, that Envoy gains Authority +1. If it Passes or is
-// Endorsed, the action must target you" (Jewelry Foundry, Polish House, Spice Merchant): aimed when Envoys are declared.
-// p's options for a <dom> Envoy: one per other player with such a Holding, each Holding's Authority added
-function inviteHolders(p,dom){return D.players.filter(q=>!sameP(q,p)).map(q=>{const H=srcMatch(q.board,"envoy_invite").filter(x=>x.m[1].toLowerCase()===String(dom).toLowerCase());
-  return H.length?{q,val:H.reduce((a,x)=>a+(+x.m[2]),0),src:H.map(x=>x.n).join(" + ")}:null;}).filter(Boolean);}
+// Exposed (keyword: Jewelry Foundry, Polish House, Spice Merchant) = "In the Envoy Phase, a player may target you with a Cunning
+// Envoy. If they do, that Envoy gains Authority +1. If it Passes or is Endorsed, the action must target you": aimed when Envoys
+// are declared. Exposed doesn't stack; the long form written out on a piece (envoy_invite) adds its own Authority.
+// p's options for a <dom> Envoy: one per other player who is Exposed (or has the long form)
+function inviteHolders(p,dom){const RC_=DATA.rulesConst||{},xd=String(RC_.EXPOSED_DOMAIN||"Cunning").toLowerCase(),xa=+RC_.EXPOSED_AUTH||1,xn=RC_.EXPOSED||"Exposed";
+  return D.players.filter(q=>!sameP(q,p)).map(q=>{const H=srcMatch(q.board,"envoy_invite").filter(x=>x.m[1].toLowerCase()===String(dom).toLowerCase()),
+    X=String(dom).toLowerCase()===xd?srcMatch(q.board,"exposed"):[];
+  if(!H.length&&!X.length)return null;
+  return {q,val:H.reduce((a,x)=>a+(+x.m[2]),0)+(X.length?xa:0),src:(X.length?[xn+" ("+X.map(x=>x.n).join(", ")+")"]:[]).concat(H.map(x=>x.n)).join(" + ")};}).filter(Boolean);}
 function inviteOf(E){return E.invite?inviteHolders(E.owner,E.dom).find(h=>String(h.q.id)===String(E.invite))||null:null;}
 function actionsOf(dom){return Object.keys(DATA.actions||{}).filter(k=>(DATA.actions[k]||{}).domain===dom);}
 // "Rising Prowess" style requirement vs the player's Standing — a flag, not a lock
@@ -356,10 +366,11 @@ const AA={
     run:c=>{BST().ic[c.q.id]={by:String(c.o.id)};c.log(c.q.name+"'s trade income goes to "+c.o.name+" the next turn they're Host"+((DATA.rulesConst||{}).INTERCEPT_EXTORT_PER_CRAFT?" (none: Extort "+DATA.rulesConst.INTERCEPT_EXTORT_PER_CRAFT+" × Craft)":""));}},
   "Foster Rebellion":{tgt:"player",run:c=>{const rk=c.out==="Endorsed"?srcMatch(c.o.board,"foster_endorsed")[0]:null,n=rk?+rk.m[1]:10;
     BST().foster.push({pid:String(c.q.id),by:String(c.o.id),n});c.log(c.o.name+" fosters rebellion: next Bandit Mechanics, "+n+"-Retinue Bandit "+(n>=(BAN.armyThreshold||25)?"Army":"Camp")+" in "+c.q.name+"'s Outlaw Country"+(rk?" ("+rk.n+")":""));}},
-  "Raze":{tgt:"player",sub:(o,q)=>{const L=[],imm=srcHas(q.board,"immune_raze");(q.board.placed||[]).filter(x=>!imm&&!x.fac&&pActive(x)&&x.sid!=null&&x.sid!=="faction").forEach(x=>L.push({v:"h:"+x.id,label:x.name+" · "+settName(q,x.sid)}));
+  "Raze":{tgt:"player",sub:(o,q)=>{const L=[],imm=srcHas(q.board,"immune_raze"),R=razeHoldings(q);
+      R.filter(r=>r.k==="h").forEach(({x})=>L.push({v:"h:"+x.id,label:x.name+" · "+settName(q,x.sid)}));
       if(!imm)withBoard(q.board,()=>Object.keys(S.infra||{}).filter(infraOn).forEach(n=>L.push({v:"i:"+n,label:n+" (Infrastructure)"})));
-      // an active Build Timer instead: it gains +N (Wonders can't be targeted)
-      (q.board.placed||[]).filter(x=>!imm&&!x.fac&&x.bt>0&&!(x.dmg>0)&&x.sid!=null&&x.sid!=="faction").forEach(x=>L.push({v:"bh:"+x.id,label:x.name+" · Build Timer "+x.bt+" · "+settName(q,x.sid)}));
+      // the top-most Holding of a Ward under a Build Timer instead: it gains +N (Wonders can't be targeted)
+      R.filter(r=>r.k==="bh").forEach(({x})=>L.push({v:"bh:"+x.id,label:x.name+" · Build Timer "+x.bt+" · "+settName(q,x.sid)}));
       Object.keys(q.board.itimer||{}).filter(n=>q.board.itimer[n]>0&&INFRA[n]&&!((q.board.idmg||{})[n]>0)).forEach(n=>L.push({v:"bi:"+n,label:n+" · Build Timer "+q.board.itimer[n]}));return L;},
     run:c=>{const [k,v]=[c.sub.slice(0,1),c.sub.slice(2)],b=c.q.board;
       if(k==="b"){const n=razeTimerPlus(),[t,id]=[c.sub[1],c.sub.slice(3)];

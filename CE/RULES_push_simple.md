@@ -83,7 +83,7 @@ A few conventions make every rule in this book read the same way:
 8. **Do as much as possible.** Follow as much of an effect as you can; ignore any part you can't carry out.
 
 9. **Dice.**
-    9.1 If the number a roll needs is modified beyond {{VAL:CAP_THR}}+, the roll automatically fails.
+    9.1 If the number a roll needs is modified beyond {{VAL:CAP_THR}}+, the roll automatically fails — except a to-Strike number, which is never worse than {{VAL:CAP_THR}}+.
     9.2 You can't re-roll a re-roll, and you can't re-roll a successful roll.
     9.3 Effects that occur on a 1 or {{VAL:FACES}} occur on Unmodified rolls of 1 or {{VAL:FACES}}.
 
@@ -291,7 +291,7 @@ If your Diplomacy Envoy passes or is endorsed but its action fails, you may send
 
 ### Rule: Commanding Presence
 
-An Army can't move within Range {{VAL:PRESENCE_RANGE}} of a non-allied Army — its **Presence** — unless that Move performs a Battle against it. Settlements have Presence while their owner has a Garrison, and Settlement Wards while their owner has a Keep; a Move that performs a Battle or Lay Siege against a Settlement may pass through the Presence of that Settlement and its Wards. Bandit Armies have Presence; Bandit Camps don't. An Army that begins a Move within a non-allied Presence may only move to end outside every Presence (or, if at War, to Battle or Lay Siege); if it can't, it can't move.
+An Army can't move within Range {{VAL:PRESENCE_RANGE}} of a non-allied Army — its **Presence** — unless that Move performs a Battle against it. Settlements have Presence while their owner has a Garrison; **Presence +N** raises the Range of its owner's Settlement Presence by N. A Move that performs a Battle or Lay Siege may pass through the Presence of its target only, and can't end within any other non-allied Presence — an Army within the Presence of two non-allied pieces can attack neither. Bandit Armies have Presence; Bandit Camps don't. An Army that begins a Move within a non-allied Presence may only move to end outside every Presence (or, if at War, to Battle or Lay Siege); if it can't, it can't move.
 
 ## Cunning Actions
 
@@ -472,7 +472,7 @@ If you've cut everything and a debt still remains, you're Bankrupt: your Treasur
 
 ### Who Can Trade
 
-**Who can trade:** a player needs a signed Trade Agreement{{IDX:Trade Agreement}} and either active Dirt Roads or a **Can Trade** effect (e.g. Harbor).{{VAL:TRADE_RULES.border_rule}}
+**Who can trade:** a player needs a signed Trade Agreement{{IDX:Trade Agreement}} and a **Can Trade** effect (e.g. Dirt Roads, Harbor). Players don't need to border to sign or keep one.
 
 **Craft X:** Craft Holdings count toward how much income your Trade Agreements generate — any effect that grants Craft +X.
 
@@ -539,9 +539,9 @@ A Battle is fought as a series of Skirmishes, run through the steps below until 
 
 2. **Choose Tactics and equipment.** Both players secretly pick one Tactic and, if they have a choice, the equipment they'll use this Skirmish (an Army carrying both a Ranged and a Melee weapon picks one; a Bastard Sword picks its 1H or 2H profile; an Army with Florentine may Dual Wield its 1H Melee Weapon instead of using its Shield), then reveal together. No one may Fall Back in the first Skirmish. A One-Shot weapon must be Equipped in the first Skirmish and can't be Equipped after. Only Equipped gear counts: while a 2H weapon is Equipped your Shield gives nothing that Skirmish.
 
-3. **Initiative.** Apply the Initiative and any other modifiers from both Tactics and weapon profiles. Initiative ranges from {{VAL:INITIATIVE_MIN}} to +{{VAL:INITIATIVE_MAX}}. The higher Initiative Strikes first this Skirmish. If tied, both armies strike simultaneously. Resolve this taking turns rolling strikes and saves, but do not apply casualties until both sides have fought. At {{VAL:INITIATIVE_MIN}} or lower you Blunder — your to-Strike is set to {{VAL:BLUNDER_THR}}+, before other negative modifiers. {{RULE:initiative}}
+3. **Initiative.** Apply the Initiative and any other modifiers from both Tactics and weapon profiles. Initiative ranges from {{VAL:INITIATIVE_MIN}} to +{{VAL:INITIATIVE_MAX}}. The higher Initiative Strikes first this Skirmish. If tied, both armies strike simultaneously. Resolve this taking turns rolling strikes and saves, but do not apply casualties until both sides have fought. Initiative can't exceed +{{VAL:INITIATIVE_MAX}} unless you have the Ministry of Military Strategy. At {{VAL:INITIATIVE_MIN}} or lower you Blunder — your to-Strike is set to {{VAL:BLUNDER_THR}}+. {{RULE:initiative}}
 
-4. **Strike.** The side with the higher Initiative rolls a D{{VAL:FACES}} for each front-line Retinue, applying its modifiers. It Strikes on a Modified roll ≥ its to-Strike number (Levy {{VAL:RETINUES.Levy.to_hit}}+, Man-at-Arms {{VAL:RETINUES.Man-at-Arms.to_hit}}+, Sergeant {{VAL:RETINUES.Sergeant.to_hit}}+, Knight Templar {{VAL:RETINUES.Knight Templar.to_hit}}+). An Unmodified {{VAL:FOCUSED_THR}} may trigger Cleave, Deadly, or Destroy Shield. {{RULE:strike}}
+4. **Strike.** The side with the higher Initiative rolls a D{{VAL:FACES}} for each front-line Retinue, applying its modifiers. It Strikes on a Modified roll ≥ its to-Strike number, which is never worse than {{VAL:CAP_THR}}+ (Levy {{VAL:RETINUES.Levy.to_hit}}+, Man-at-Arms {{VAL:RETINUES.Man-at-Arms.to_hit}}+, Sergeant {{VAL:RETINUES.Sergeant.to_hit}}+, Knight Templar {{VAL:RETINUES.Knight Templar.to_hit}}+). An Unmodified {{VAL:FOCUSED_THR}} may trigger Cleave, Deadly, or Destroy Shield. {{RULE:strike}}
 
 5. **Defend.** For each Strike, a defender with Parry may Parry (D{{VAL:FACES}}, {{VAL:PARRY_BASE}}+ cancels; an Unmodified {{VAL:FOCUSED_THR}} Ripostes if the defender has Riposte), then Saves (a Modified roll: D{{VAL:FACES}} + the weapon's AP + the shield's bonus ≥ the armor value), then a defender with Recover may Recover (after a failed Save, a final D{{VAL:FACES}} ≥ the Recover value). Unsaved, unrecovered Strikes are casualties, and leave the field at once. Then the other side Strikes, and is defended against, the same way, if able. {{RULE:defend}}
 
@@ -549,7 +549,7 @@ A Battle is fought as a series of Skirmishes, run through the steps below until 
 
 7. **Fatigue.** Each side that fought loses 1 Endurance; a side at 0 Endurance is Fatigued. Each Fatigued side's field then takes a Break check — roll {{VAL:MORALE_DICE_MAX}} D{{VAL:FACES}}, each ≥ its modified Morale value; failures are casualties, and a Break check never triggers a Panic check — and then gains a Fatigue token: each token is −{{VAL:FATIGUE_MORALE}} to that Army's Morale rolls; tokens stack and last until the Battle ends. A check ever modified to {{VAL:ROUT_THR}} or more Routs the whole Army. {{RULE:fatigue}}
 
-8. **End the Skirmish.** The Battle ends if a side is wiped out, Routs (modified Morale {{VAL:ROUT_THR}}+), or successfully Falls Back. Otherwise refill the lines and begin the next Skirmish. {{RULE:end-skirmish}}
+8. **End the Skirmish.** Both sides first finish applying casualties, their Panic checks and their Break checks; only then is the winner decided. The Battle ends if a side is wiped out, Routs (modified Morale {{VAL:ROUT_THR}}+), or successfully Falls Back. Otherwise refill the lines and begin the next Skirmish. {{RULE:end-skirmish}}
 
 ### Ending a Battle
 

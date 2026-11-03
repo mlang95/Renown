@@ -521,9 +521,9 @@ function auraSources(p){const M=mapState(),out=[],PR=presR();
   Object.keys(M.cells).forEach(k=>{const c=M.cells[k],q=cellPlayer(c);if(!q||sameP(q,p)||canEnterSett(p,q))return;const war=!!effPair(p.id,q.id).war;
     if(c.type==="Army"){const x=cellArmy(k),r=PR;
       out.push({k,r,kind:"battle",war:war&&!!x.a,label:q.name+" · "+(x.a?(x.a.label||("Army "+x.a.id)):"Army"),B:x.a?{pid:String(q.id),aid:String(x.a.id)}:null});}
-    else{const cs=cellSett(k),r=cs.s&&settUnbuilt(cs.s)?0:PR;
+    else{const cs=cellSett(k),r=cs.s&&settUnbuilt(cs.s)?0:presRof(q);
       const o={k,r,grp:k,kind:"siege",war:war&&!!cs.s&&!siegeOn(q.id,cs.s.id),label:q.name+" · "+(cs.s?(cs.s.name||cs.s.tier):c.type),tp:q.id,sid:cs.s?cs.s.id:null};
-      presHexes(k).forEach(h=>out.push(h===k?o:Object.assign({},o,{k:h,ward:true})));}});   // Garrison: the Settlement's hex; Keep: its Wards
+      presHexes(k).forEach(h=>out.push(o));}});   // Garrison: the Settlement's hex
   Object.keys(M.camps).forEach(k=>{const cp=M.camps[k];if(+cp.n<(BAN.armyThreshold||25))return;
     out.push({k,r:PR,kind:"battle",war:true,bandit:true,label:"Bandit Army @ "+k,B:{kind:"bandit",camp:k}});});
   return out.filter(o=>o.r>0);}
@@ -563,9 +563,10 @@ function moveRange(p,a,startK){const M=mapState(),g=M.grid;if(!g||!startK)return
     Q.forEach(k=>prevW[k]=null);while(Q.length){const k=Q.shift();hexNb(k).forEach(n=>{if(isW(n)&&!(n in prevW)){prevW[n]=k;Q.push(n);}});}
     Object.keys(prevW).forEach(w=>hexNb(w).forEach(k=>{const h=V.hex[k];if(!h||isW(k)||k===startK||dest[k]||terrBlocked(h.t)||M.cells[k]||M.camps[k]||foe(k)||cov[k])return;
       const path=[];let c=w;while(c){path.unshift(c);c=prevW[c];}dest[k]={cost:0,w:2,path:[startK].concat(path,[k]),strain:false,sail:true};}));}
-  // Battle / Lay Siege: end adjacent to the target, through its own Presence (other non-allied Presence still blocks)
-  AS.forEach((o,i)=>{if(o.ward||!o.war||(o.kind==="battle"&&!o.B)||hexDist(hk(startK),hk(o.k))>S_.speed+1)return;const R_=run(lift(i));
-    hexNb(o.k).forEach(k=>{const x=R_.reach[k];if(!x||k===startK||M.cells[k]||M.camps[k]||foe(k)||blockedX(k,lift(i)))return;   // already adjacent: use Engage in the panel
+  // Battle / Lay Siege: end adjacent to the target, through its own Presence (other non-allied Presence still blocks). The end hex
+  // can't be within any other non-allied Presence, one the Move began in included: two Presences covering each other protect both
+  AS.forEach((o,i)=>{if(o.ward||!o.war||(o.kind==="battle"&&!o.B)||hexDist(hk(startK),hk(o.k))>S_.speed+1)return;const R_=run(lift(i)),own=new Set(grp(i));
+    hexNb(o.k).forEach(k=>{const x=R_.reach[k];if(!x||k===startK||M.cells[k]||M.camps[k]||foe(k)||blockedX(k,own))return;   // already adjacent: use Engage in the panel
       if(dest[k]&&dest[k].engage)return;dest[k]=Object.assign(R_.fin(k,x),{engage:o});});});
   return {speed:S_,dest,aura:cov,inAura:startIn.size>0};}
 function moveInfo(){const x=selArmy();if(!x)return null;const k=armyHex(x.p,x.a);if(!k)return {p:x.p,a:x.a,k:null,err:"Army is not on the map"};

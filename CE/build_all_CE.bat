@@ -67,11 +67,6 @@ REM          Read by renown_data via RENOWN_PHASES (default 1 when unset).
 set PHASES=1
 set RENOWN_PHASES=%PHASES%
 
-REM TRADE_BORDER : 1 = Trade Agreements require the two players to border, 0 = no border needed.
-REM          Read by renown_data via the RENOWN_TRADE_BORDER environment variable.
-set TRADE_BORDER=0
-set RENOWN_TRADE_BORDER=%TRADE_BORDER%
-
 REM EDICT_UNIQUE : 1 = each Domain / Monument / Wonder counts toward an Edict once per game (first player only),
 REM          0 = once per player. Read by renown_data via the RENOWN_EDICT_UNIQUE environment variable.
 set EDICT_UNIQUE=0

@@ -19,7 +19,7 @@ function dsTypes(p,q){const x=effPair(p.id,q.id),L=[];if(x.household)return L;
   if(x.war)L.push("Peace Treaty");if(!x.war&&!x.trade)L.push("Trade Agreement");if(!x.war&&!x.nap)L.push("Non-Aggression Pact");
   ["Military","Defensive"].forEach(t=>{if(!x.war&&!sameAlliance(String(p.id),String(q.id))&&allianceOK(t))L.push(t+" Alliance");});
   return L.concat(["Negotiate"]);}
-function dsFlag(p,q,type){if(type!=="Trade Agreement")return "";return !tradeBorderOK(p.id,q.id)?"players don't border":(!hasRoad(p.id)||!hasRoad(q.id))?"needs Dirt Roads or Can Trade":"";}
+function dsFlag(p,q,type){if(type!=="Trade Agreement")return "";return (!hasRoad(p.id)||!hasRoad(q.id))?"needs Can Trade":"";}
 // the Treaty state between some players, kept with each agreement so an Embassy can make it fail (put it back)
 function dsSnap(ids){const d=diplo(),o={pairs:{},member:{},alliances:JSON.stringify(d.alliances)};ids=ids.map(String);
   ids.forEach((a,i)=>ids.slice(i+1).forEach(b=>{if(a===b)return;const k=pk(a,b);o.pairs[k]=d.pairs[k]?JSON.stringify(d.pairs[k]):null;}));

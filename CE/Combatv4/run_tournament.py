@@ -105,6 +105,9 @@ def main():
                          "full cross (~4340 builds). Default 'none'.")
     ap.add_argument("--drop-shield-tier", action="store_true",
                     help="balanced mode only: drop the shield-tier>=weapon-tier rule.")
+    ap.add_argument("--max-combo", type=int, default=3,
+                    help="generator mode: how many combat / gear Holdings (INDEPENDENT_OPTIONS, read from the "
+                         "Holdings' text) one build combines on top of its weapon / armor / Retinue line. Default 3.")
     ap.add_argument("--budget-metric", default="mpc", choices=["mpc", "total"],
                     help="generator mode: bound/stratify the pool by 'mpc' (pursuit count minus "
                          "Efficient-X discounts) or 'total' (raw pursuit count = total_investment). "
@@ -134,7 +137,7 @@ def main():
         if args.csv:
             print(f"  ({args.csv} not found — generating instead)")
         pool = loadouts.archetype_pool(min_pursuit_cost=args.mpc_min, max_pursuit_cost=args.mpc_max,
-                                       budget_metric=args.budget_metric)
+                                       budget_metric=args.budget_metric, max_combo=args.max_combo)
         print(f"Generated {len(pool)} loadouts ({args.budget_metric} {args.mpc_min}-{args.mpc_max})")
         if not args.no_save_pool:
             save_pool(pool, os.path.join(args.out, f"loadouts_gen_{args.mpc_min}_{args.mpc_max}"))

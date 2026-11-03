@@ -62,9 +62,8 @@ function facCombat(b){const f=FAC[(b||{}).faction||""];if(!f)return [];const t=S
 // total weapon AP bonus from an army's Holding tokens ("AP -1" per Finery-style text); 0 for none
 function apMod(u){return (u&&u.mods||[]).reduce((s,m)=>{const x=/^AP ([+-]\d+)$/.exec(m.tok);return s+(x?+x[1]:0);},0);}
 function sideUnlocks(p){return p?withBoard(p.board,()=>{const have=new Set(Object.keys(PC));const {earned}=computeEarned(have);
-    // "Gain Immune Awkward" (List Yard): board-only token, read from the Holding's text
-    const awk=Object.keys(PC).filter(n=>(PC[n]||0)>0&&/\bImmune Awkward\b/i.test(String((R[n]||{}).combo||""))).map(n=>({tok:"Immune Awkward",node:n,via:"innate"}));
-    return {mods:armyUnlocks(earned).mods.concat(facCombat(p.board),awk),outInnate:(PC["Outrider Intercept Post"]||0)>0,outMastery:!!earned["Outrider Intercept Post"]};})
+    // "Gain Immune Awkward" (List Yard) comes with the other Holding tokens (holding_combat_tags)
+    return {mods:armyUnlocks(earned).mods.concat(facCombat(p.board)),outInnate:(PC["Outrider Intercept Post"]||0)>0,outMastery:!!earned["Outrider Intercept Post"]};})
     :{mods:[],outInnate:false,outMastery:false};}
 // combat standing effects (STANDING_EFFECTS) by Domain value; bandits use their camp's Domain value (Prowess = Cunning = banditDomain)
 function sideDomains(sd,p){if(sd.kind==="bandit"){const cp=mapState().camps[sd.camp],v=cp?banditDomain(cp.n):0;return {Prowess:v,Cunning:v};}return (p&&p.board.domains)||{};}
@@ -149,7 +148,7 @@ function sideCalc(X){
   const oFx=standingFxOf(sideDomains(o,sideArmy(o).p)),oStrain=oFx.find(f=>/Opponent gains Strained/i.test(f.text)),
         oBlunder=(B.sk||1)===1?oFx.find(f=>/Opponent gains Blunder in the first Skirmish/i.test(f.text)):null;
   const strainI=((effStrained(p,a)||(oStrain&&!immuneStrainIn(p,a)))&&!mt.has("Immune Strained"))?-1:0;   // Strained: −1 Init unless Immune Strained (or inside a controlled Settlement: Granary)
-  const maxI=(mt.has("MaxInit3")||[...mt].some(t=>/^Crit /.test(t)))?INIT_MAX+1:INIT_MAX;   // Ministry: ceiling +1
+  const maxI=mt.has("MaxInit3")?INIT_MAX+1:INIT_MAX;   // Ministry of Military Strategy only: ceiling +1
   const rawI=(wpn.init||0)+(sh.init||0)+initPlus+tmI+seize+hillI+strainI+sd.adj.I;
   const I=Math.max(INIT_MIN,Math.min(maxI,rawI)),blunder=!immBlunder&&(I<=INIT_MIN||!!oBlunder);
   // where Initiative comes from, part by part (datasheet breakdown); a Tactic modifier its gear ignores is listed as ignored
@@ -161,7 +160,7 @@ function sideCalc(X){
   if(strainI)initParts.push(["Strained"+(a.strained?"":siegeStrains(p,a)?" (Besieged)":oStrain?" (enemy "+oStrain.t+" "+oStrain.d+")":""),strainI]);
   if(sd.adj.I)initParts.push(["Duke adjust",sd.adj.I]);
   // to-Strike (same order as Combatv4): base − improving, capped at CAP; Blunder clamps to CAP (Fatigue tokens only worsen Morale);
-  // then worsening mods (enemy Shielded, own shield −1TH, negative Tactic TH) can push past CAP (auto-fail).
+  // then worsening mods (enemy Shielded, own shield −1TH, negative Tactic TH) apply, and the result is capped at CAP+ (never an auto-fail).
   const CAP=BT.capThr||10,tacTH=tm.TH||0;
   const th1=(mt.has("+1TH")?1:0)+(mt.has("+1TH first")&&B.sk===1?1:0)+(mt.has("+1TH after_first")&&B.sk>1?1:0);
   const rngPlus=eqX.mode==="ranged"?u.mods.filter(m=>m.tok==="Ranged Strike +1").length:0;   // e.g. "Ranged Weapons have +1 to Strike"
@@ -172,7 +171,7 @@ function sideCalc(X){
   const eShielded=(esh.tags||[]).includes("Shielded")&&!mt.has("Negate Shielded");
   const worsen=(eShielded?1:0)+((sh.tags||[]).includes("-1TH")?1:0)+(mt.has("Immune Tactic TH")?0:Math.max(-tacTH,0));
   let pre=Math.min((rt.to_hit||0)-improve,CAP);if(blunder)pre=Math.max(pre,CAP);
-  let toStrike=pre+worsen-sd.adj.TH;
+  let toStrike=Math.min(pre+worsen-sd.adj.TH,CAP);
   // Save: Planishing: AP can't push the save past CAP+
   // (normal or Deadly) unless the attacker has Negate Planishing. Deadly strikes save at +DEADLY_AP.
   const FACES_=BT.faces||10,FOC=BT.focusedThr||10,DAP=BT.deadlyAp??5;
@@ -258,6 +257,7 @@ function sideCalc(X){
   if(eShielded)strikeParts.push(["their "+eo.shield+" (Shielded)",1]);if((sh.tags||[]).includes("-1TH"))strikeParts.push(["your "+a.shield,1]);
   if(tacTH<0&&!mt.has("Immune Tactic TH"))strikeParts.push(["Tactic",-tacTH]);if(sd.adj.TH)strikeParts.push(["Duke adjust",-sd.adj.TH]);
   if(blunder)strikeParts.push(["Blunder: no better than "+CAP+"+",0]);
+  if(pre+worsen-sd.adj.TH>CAP)strikeParts.push(["no worse than "+CAP+"+",0]);
   const eAP=(ewpn.ap||0)+eApMod,saveParts=[[(a.armor||"Cloth")+" base",ar.save||0]];
   if(eAP)saveParts.push(["their "+(eWName||"weapon")+" (AP "+String(eAP).replace("-","−")+")",-eAP]);if(sh.save_bonus)saveParts.push([a.shield,-sh.save_bonus]);
   if(tm.TS)saveParts.push(["Tactic",-tm.TS]);if(sd.adj.TS)saveParts.push(["Duke adjust",-sd.adj.TS]);
@@ -626,6 +626,13 @@ function actionsHTML(X){
 }
 // the Battle's result once a Skirmish has ended it (rules: End the Skirmish): wiped out or Routed loses; both = no winner;
 // a Fall Back ends it without naming a winner. Waits for any Break check still to roll.
+// what both sides still owe before a Battle can end and name a winner: casualties to apply, Panic checks, Break checks
+function battleOwed(){const B=battle();if(!B.id)return "";const L=[];
+  ["A","B"].forEach(X=>{if(pendCas(X)>0)L.push(sideNm(X)+": apply casualties");});
+  panicOwed().forEach(X=>L.push(sideNm(X)+": Panic check"));
+  {const fl=bFlow();if(fl)["A","B"].forEach(X=>{if(fl.can[X].brk)L.push(sideNm(X)+": Break check");});}
+  if(B.endRep&&B.endRep.sk===B.sk)B.endRep.rows.forEach(r=>{if(r.brk&&r.brk.pending)L.push(sideNm(r.X)+": Break check");});
+  return [...new Set(L)].join(", ");}
 function battleOutcome(){const B=battle(),R=B.endRep&&B.endRep.sk===B.sk?B.endRep:null;if(!B.id||!R||R.rows.some(r=>r.brk&&r.brk.pending))return null;
   const lost={},why={};
   ["A","B"].forEach(X=>{const r=R.rows.find(x=>x.X===X),c=sideCalc(X),n=c?(c.a.count||0):0;
@@ -824,8 +831,13 @@ function rollBreak(X,r,a){const dice=d10(r.brk.n).sort((x,y)=>y-x),lost=Math.min
   blog(X+" Break check "+r.brk.n+"d10 vs "+r.brk.target+"+ ["+dice.join(",")+"] → "+lost+" casualties"+(r.wiped?" — wiped out":""));}
 function rollBreakBtn(X){const B=battle(),r=B.endRep&&B.endRep.sk===B.sk&&B.endRep.rows.find(x=>x.X===X&&x.brk&&x.brk.pending),{a}=sideArmy(B[X]);
   if(!r||!a)return;rollBreak(X,r,a);save();render();}
+// what must be resolved before the Skirmish (and so the Battle) can end: casualties applied, Panic checks rolled (emulated dice)
+function panicOwed(){const B=battle();if(!B.id||!B.dice)return [];const T=BT.panicThreshold||5;
+  return ["A","B"].filter(X=>{const c=sideCalc(X),sd=B[X];if(!c||c.immunePanic||(c.a.count||0)<=0||(c.a.retinue&&isRouted(c.a)))return false;
+    return (sd.cas||0)+(c.enduring?0:(sd.rcv||0))>T&&(B.pnk||{})[X]!==B.sk;});}
 function endSkirmish(){
   ["A","B"].forEach(X=>{const n=pendCas(X);if(n>0){blog(X+": "+n+" pending casualties applied at End Skirmish");applyCasNow(X,n);}});
+  {const P=panicOwed();if(P.length){flash("Panic check first: "+P.map(sideNm).join(", "));save();render();return;}}
   const B=battle();const cell=B.rev&&B.rev.sk===B.sk?TMX[B.rev.A+"|"+B.rev.B]:null,rep=[];
   ["A","B"].forEach((X,i)=>{const c=sideCalc(X);if(!c)return;const a=c.a,tm=cell?cell[i]:null,r={X,e0:a.endurance||0};
     if(!tm||tm.endurance_loss!==false){a.endurance=Math.max(0,(a.endurance||0)-1);}
@@ -835,7 +847,7 @@ function endSkirmish(){
       if(done&&done.sk===B.sk){Object.assign(r.brk,{n:done.n,target:done.target,dice:done.dice,lost:done.lost});if((a.count||0)===0)r.wiped=true;}
       else if(B.dice)rollBreak(X,r,a);
       else{r.brk.pending=true;blog(X+" Fatigued — Break check due: "+n+"d10 vs "+c.morale+"+");}
-      a.fatigue=(a.fatigue||0)+1;r.fat=a.fatigue;r.m1=effMorale(a);blog(X+" gains Fatigue token ("+a.fatigue+") → morale "+effMorale(a)+"+");}
+      r.m0=effMorale(a);a.fatigue=(a.fatigue||0)+1;r.fat=a.fatigue;r.m1=effMorale(a);blog(X+" gains Fatigue token ("+a.fatigue+") → morale "+effMorale(a)+"+");}
     if(tm&&tm.strain){a.strained=true;blog(X+" becomes Strained");}
     r.tac=B.rev&&B.rev.sk===B.sk?B.rev[X]:null;if(tm&&tm.end){r.fb=true;blog(X+" tactic ends the Battle (Fall Back)");}
     if(effMorale(a)>=(BT.routThr||11)){r.rout=true;blog(X+" ROUTS (morale "+effMorale(a)+"+)");}
@@ -915,14 +927,16 @@ function wireBattle(host){
     B.start={A:sideCalc("A").a.count||0,B:sideCalc("B").a.count||0};B.A.cas=0;B.B.cas=0;B.A.rcv=0;B.B.rcv=0;blog("Battle begins");save();loadPicks().then(render);};
   host.querySelectorAll("#bStart,#bStartGo").forEach(b=>b.onclick=startFn);
   host.querySelectorAll(".bseize").forEach(b=>b.onclick=()=>{B.seize=b.dataset.v;B.seizeSet=true;save();render();});
-  host.querySelectorAll(".bFinish").forEach(b=>b.onclick=()=>endBattle(b.dataset.w||null));
+  host.querySelectorAll(".bFinish").forEach(b=>b.onclick=()=>{const why=battleOwed();if(why){flash("Before the Battle ends: "+why);return;}endBattle(b.dataset.w||null);});
   const dc=host.querySelector("#bDice");if(dc)dc.onchange=()=>{B.dice=dc.checked;save();render();};
   const rs=host.querySelector("#bReset");if(rs)rs.onclick=()=>{B.round=(B.round||0)+1;B.rev=null;PEEK=false;blog("Tactic picks reset");save();loadPicks().then(render);};
   host.querySelectorAll("#bEndSk,.bEndSk2").forEach(es=>es.onclick=()=>{const B=battle(),pb=B.endRep&&B.endRep.sk===B.sk&&B.endRep.rows.filter(r=>r.brk&&r.brk.pending).map(r=>r.X),fl=bFlow();
-    if(fl&&!fl.done&&!confirm("Still to do: "+fl.msg.replace(/<[^>]+>/g,"")+". End the Skirmish anyway?"))return;
+    if(fl&&!fl.done){const late=fl.fought&&["A","B"].some(X=>fl.can[X].panic||fl.can[X].apply);   // casualties and Panic checks can't be skipped
+      if(late){flash("Resolve first: "+fl.msg.replace(/<[^>]+>/g,""));return;}
+      if(!confirm("Still to do: "+fl.msg.replace(/<[^>]+>/g,"")+". End the Skirmish anyway?"))return;}
     if(pb&&pb.length){flash("Roll the Break check first: "+pb.join(", "));return;}endSkirmish();});
   host.querySelectorAll(".bBrk").forEach(b=>b.onclick=()=>rollBreakBtn(b.dataset.x));
-  host.querySelectorAll(".bEndB").forEach(eb=>eb.onclick=()=>{if(confirm("End the battle"+(eb.dataset.w?" — "+eb.dataset.w+" won (Spoils of War)":" with no winner")+"? Removes Fatigue tokens."))endBattle(eb.dataset.w||null);});
+  host.querySelectorAll(".bEndB").forEach(eb=>eb.onclick=()=>{const why=battleOwed();if(why){flash("Before the Battle ends: "+why);return;}if(confirm("End the battle"+(eb.dataset.w?" — "+eb.dataset.w+" won (Spoils of War)":" with no winner")+"? Removes Fatigue tokens."))endBattle(eb.dataset.w||null);});
   host.querySelectorAll(".btac").forEach(b=>b.onclick=()=>{TAC_SEL[b.dataset.x]=b.dataset.t;render();});
   host.querySelectorAll(".btlock").forEach(b=>b.onclick=()=>{const X=b.dataset.x,t=TAC_SEL[X];if(!t)return;delete TAC_SEL[X];pickTactic(X,t);});
   host.querySelectorAll(".btmode").forEach(b=>b.onclick=()=>{B[b.dataset.x].tmode=b.dataset.m;save();render();});

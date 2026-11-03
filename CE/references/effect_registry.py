@@ -28,6 +28,10 @@ try:                                   # cost words (renown_data): Holdings / In
     from renown_data import UPKEEP_TERM as _UPKEEP, SUPPLY_TERM as _SUPPLY
 except Exception:
     _UPKEEP, _SUPPLY = "Upkeep", "Supply"
+try:                                   # player-effect keyword (renown_data EXPOSED)
+    from renown_data import EXPOSED as _EXPOSED
+except Exception:
+    _EXPOSED = "Exposed"
 _COST = "(?:" + "|".join(sorted({"Upkeep", re.escape(_UPKEEP)})) + ")"
 F = re.I | re.A
 
@@ -70,6 +74,8 @@ REG = {
     "forge_oppose_extort":("clause", "hiwf", r"Extort (\d+) anytime a player Opposes an Envoy of yours"),
     "forge_retry":         ("clause", "hiwf", r"Once per Envoy Phase: attempt another Cunning Envoy if your Cunning Envoy Failed|At the end of the Tally Phase, if a Cunning Envoy you sent Failed, you may send another Cunning Envoy"),
     # Jewelry Foundry / Polish House / Spice Merchant: m[1] Domain, m[2] Authority; aimed at declaration, target locked at Perform
+    # Exposed keyword: the same effect, Domain / Authority from DATA.rulesConst (EXPOSED_DOMAIN / EXPOSED_AUTH); doesn't stack
+    "exposed":             ("clause", "hiwf", r"^" + re.escape(_EXPOSED) + r"$"),
     "envoy_invite":        ("text", "hiwf", r"a player may target you with a (\w+) Envoy\. If they do, that Envoy gains Authority \+(\d+)\. If it Passes or is Endorsed, the action must target you"),
     "whisper_declare":   ("clause", "hiwf", r"Once per Personal Envoy Phase when a player sends an Envoy: that player must declare the specific Action & target they would Perform if the Envoy passes \(including sub-Actions\)|In the Intrigue Phase, choose a Personal Envoy: its sender must declare the specific action & target they would Perform if it passes \(including sub-Actions\)"),
     "envoy_next_fewer":    ("clause", "hiwf", r"send (\d+) fewer Envoys? next turn"),
@@ -164,9 +170,9 @@ REG = {
     "ep_action":           ("clause", "hiwf", r"Each Empire Phase, perform an? (?:(Endorsed|Passed) )?(Diplomacy|Prowess|Cunning|Piety|Industry) action"),
     "extort_target_faith": ("clause", "hiwf", r"Targets of Extort from (.+?) gain Faith \+(\d+)"),
     "no_sally_forth":     ("clause", "hiwf", r"Settlements you Siege can.t Sally Forth"),
-    # ---- Presence (Commanding Presence): Settlements via Garrison, Wards via Keep; Armies always ----
+    # ---- Presence (Commanding Presence): Settlements via Garrison; Keep: Presence +N on those Settlements; Armies always ----
     "settlement_presence": ("clause", "hiwf", r"Your Settlements (?:have|gain (?:Garrisons & )?)Presence"),
-    "ward_presence":       ("clause", "hiwf", r"Your Settlement Wards have Presence"),
+    "presence_plus":       ("clause", "hiwf", r"^Presence \+(\d+)$"),
     # ---- bandits ----
     # m[1] set when Bandit Armies are redirected too; m[2] where: your Outlaw Country (Smuggler's Nook) or your Province (Outlaw Rookery)
     "bandit_redirect":     ("clause", "hiwf", r"Bandit Camps( and Armies)? (in your Outlaw Country|within (?:your )?Province) don.t target you and instead target another player at random"),

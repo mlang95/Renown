@@ -91,6 +91,11 @@ MINUS_1_TBH     = "Shielded"
 PLANISHING      = "Planishing"
 FATIGUE_TOKEN   = "Fatigue Token"
 CRUSADER        = "Righteous Fervour"
+# Exposed (player effect): other players may aim an EXPOSED_DOMAIN Envoy at you when it is declared; it gains Authority
+# +EXPOSED_AUTH and, if it Passes or is Endorsed, its action must target you. Doesn't stack (Exposed twice = Exposed).
+EXPOSED         = "Exposed"
+EXPOSED_DOMAIN  = "Cunning"
+EXPOSED_AUTH    = 1
 
 IMMUNE = "Immune"
 def immune(keyword):
@@ -132,7 +137,7 @@ GLOSSARY = {
     NIMBLE:         "Gain Initiative +1 in the first Skirmish of each Battle.",
     DRILLED:        "Does not lose Endurance in the first Skirmish of each Battle.",
     DESTROY_SHIELD: f"On a {PIVOTAL} Strike: the target loses its Shield attributes for the rest of the Battle.",
-    BLUNDER:        f"At Initiative {INITIATIVE_MIN}, your to-Strike is set to {BLUNDER_THR}+, before other negative modifiers.",
+    BLUNDER:        f"At Initiative {INITIATIVE_MIN}, your to-Strike is set to {BLUNDER_THR}+ (penalties can't make it worse).",
     ONE_SHOT:       "Must be Equipped in the first Skirmish of a Battle, and can't be Equipped after it. Requires a Skirmish Field.",
     #DEFLECT:        "-1 to Parry and Negate Riposte against this weapon's Strikes. (All Ranged weapons have Deflect.)",
     #IMMUNE_PANIC:   "Automatically passes Panic checks.",
@@ -175,11 +180,11 @@ GLOSSARY = {
     "Rout":          f"The Army breaks and leaves the Battle. Apply Casualties equal to the remaining Retinues. Whenever an Army's modified Morale value reaches {ROUT_THR}+, it Routs automatically.",
     "Fall Back":     "A controlled retreat that ends the Battle with at least one Retinue left — a partial success.",
     "Strike":        f"A landed hit. Roll a D{FACES}, apply modifiers to the roll, and Strike on a Modified roll >= the to-Strike number. The target may then Parry, Save, and Recover.",
-    "to-Strike number": f"The D{FACES} result a Retinue needs to Strike (see the Retinue table; lower is better). Bonuses add to the roll; penalties and Fatigue Tokens subtract.",
+    "to-Strike number": f"The D{FACES} result a Retinue needs to Strike (see the Retinue table; lower is better). Bonuses add to the roll; penalties and Fatigue Tokens subtract. It is never worse than {CAP_THR}+.",
     "Save":          f"The defender's roll to avoid a Casualty: roll a D{FACES}, add the weapon's AP (a negative) and the shield's Save bonus (a positive); the hit is saved on a Modified roll >= the armor value.",
     "Unmodified roll": "The number on the die before any modifiers. Modifiers never change what counts as Unmodified.",
     "Modified roll": "The number on the die after every modifier is applied.",
-    "Initiative":    f"Decides who Strikes first each Skirmish (higher first). Runs {INITIATIVE_MIN} to +{INITIATIVE_MAX} (Ministry can raise the maximum to +3). At {INITIATIVE_MIN} or lower you Blunder.",
+    "Initiative":    f"Decides who Strikes first each Skirmish (higher first). Runs {INITIATIVE_MIN} to +{INITIATIVE_MAX} (only the Ministry of Military Strategy raises the maximum, to +3). At {INITIATIVE_MIN} or lower you Blunder.",
     "Tactic":        "A choice both players make secretly and reveal together each Skirmish; it can shift Initiative, Strike, and Save rolls.",
     "Dual-equip":    "Carry two weapons at once (e.g. melee + ranged). Granted by the Skirmish Field.",
     "Monument":      "A Domain's capstone Holding, one per game. Having one completes the Monument Edict.",
@@ -925,14 +930,14 @@ NODES = {
     "Jewelry Foundry": {
         "group": "g_commerce",
         "unlock": "Established Industry",
-        "innate": "Gold +2000; Craft +5; In the Envoy Phase, a player may target you with a Cunning Envoy. If they do, that Envoy gains Authority +1. If it Passes or is Endorsed, the action must target you",
+        "innate": f"Gold +2000; Craft +5; {EXPOSED}",
         "efficient": ["Finery"],
         "monument": False},
     "Polish House": {
         "group": "g_commerce",
         "unlock": "Sovereign Industry",
         "infrastructure_req": "Aqueducts",
-        "innate": "Gold +3000; Craft +10; In the Envoy Phase, a player may target you with a Cunning Envoy. If they do, that Envoy gains Authority +1. If it Passes or is Endorsed, the action must target you",
+        "innate": f"Gold +3000; Craft +10; {EXPOSED}",
         "efficient": "Jewelry Foundry",
         "monument": True},
     "Armory": {
@@ -1022,7 +1027,7 @@ NODES = {
         "group": "g_commerce",
         "unlock": "Established Industry",
         "natural": True,
-        "innate": "Gold +1500; Craft +4; In the Envoy Phase, a player may target you with a Cunning Envoy. If they do, that Envoy gains Authority +1. If it Passes or is Endorsed, the action must target you",
+        "innate": f"Gold +1500; Craft +4; {EXPOSED}",
         "efficient": "Herb Garden",
         "monument": False},
     "Harbor": {
@@ -2441,7 +2446,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                  'requirement': 'Library'},
  'Keep': {'upkeep': 400,
           'upkeep_frequency': 'each Empire Phase',
-          'empire_bonus': "Siege Timer +1; When you Muster, reduce the Muster Timer by 1 and immediately gain Retinues equal to the combined muster limit; Your Settlement Wards have Presence",
+          'empire_bonus': "Siege Timer +1; When you Muster, reduce the Muster Timer by 1 and immediately gain Retinues equal to the combined muster limit; Presence +1",
           'tier': 'Prodigious',
           'build_time': 4,
           'requirement': 'March-Tower'},
@@ -2504,8 +2509,8 @@ SETTLEMENTS = {
 }
 
 # Presence (Prowess rule): an Army can't move within PRESENCE_RANGE of a non-allied Army (Bandit Armies included, Bandit
-# Camps not), a non-allied Settlement whose owner has a Garrison, or a Ward whose owner has a Keep, unless that Move performs
-# a Battle or Lay Siege against it. Board: DATA.rulesConst.PRESENCE_RANGE; Garrison / Keep via effect_registry.
+# Camps not) or a non-allied Settlement whose owner has a Garrison, unless that Move performs a Battle or Lay Siege against it.
+# Presence +N (Keep) raises the Range of its owner's Settlement Presence. Board: DATA.rulesConst.PRESENCE_RANGE; Garrison / Keep via effect_registry.
 PRESENCE_RANGE = 2
 # Settlement Wards. "abstract": Wards are slots inside the Settlement, never placed on the map.
 # "range1" (live): each Ward occupies a Territory within Range 1 of the Settlement.
@@ -2516,7 +2521,7 @@ WARD_RULES = {
                  "A Settlement has one Ward per tier: a Village has {Village}, a Town {Town}, a City {City} and a Metropolis {Metropolis}. "
                  "A Hamlet has {Hamlet} Wards."),
     "range1":   ("A Settlement Ward is a slot that holds one Holding. Each Ward occupies a Territory within Range 1 of its "
-                 "Settlement; while you have a Keep, your Wards have Presence. A Settlement has one "
+                 "Settlement. A Settlement has one "
                  "Ward per tier: a Village has {Village}, a Town {Town}, a City {City} and a Metropolis {Metropolis}. A Hamlet has {Hamlet} Wards."),
 }
 WARD_RULE = WARD_RULES[WARD_MODEL].format(**{k: v["wards"] for k, v in SETTLEMENTS.items()})
@@ -2652,14 +2657,12 @@ SEASONS = {
 }
 
 # Trade & income constants (Rules: Trade & Income Rules).
-# Toggle: Trade Agreements require the two players to border (build_all_CE.bat: set TRADE_BORDER=1|0).
-TRADE_REQUIRES_BORDER = _os.environ.get("RENOWN_TRADE_BORDER", "1") == "1"
+# Trade Agreements need Can Trade on both players (Dirt Roads, Harbor, …); bordering is not required.
 TRADE_RULES = {
     "income_per_craft": 100,                # Trade Income = 100 x host's Craft X, per active agreement
-    "requirements": "A signed Trade Agreement, " + ("the two players border each other, " if TRADE_REQUIRES_BORDER else "")
-                    + "and each player has active Dirt Roads or a Can Trade effect (e.g. Harbor, Shipyard)",
-    "requires_border": TRADE_REQUIRES_BORDER,
-    "border_rule": " Both players must border each other." if TRADE_REQUIRES_BORDER else "",   # rules prose, Who Can Trade
+    "requirements": "A signed Trade Agreement, and each player has a Can Trade effect (e.g. Dirt Roads, Harbor)",
+    "requires_border": False,
+    "border_rule": "",                      # rules prose, Who Can Trade
     "no_trade_season": "Spring",            # no trade income in Spring
     "tax_season": "Winter",                 # tax collected only in Winter
 }
@@ -2903,10 +2906,12 @@ GLOSSARY.update({
     "Resolve": "Read an Envoy's Net Influence on the Envoy Resolution table and carry out the result.",
     "Cost / Pay": "Cost to Perform an action, usually in Gold or Doubt.",
     "Presence": (f"Territory within Range {PRESENCE_RANGE} of a non-allied Army (Bandit Armies included, Bandit Camps not), "
-                 f"or of a Settlement while its owner has a Garrison (and of its Settlement Wards while the owner has a Keep). "
+                 f"or of a Settlement while its owner has a Garrison. Presence +N raises the Range of its owner's Settlement Presence by N. "
                  f"An Army can't move within a non-allied Presence unless that Move Performs a Battle against it; a Battle or "
-                 f"Lay Siege against a Settlement may pass through the Presence of that Settlement and its Wards."),
-    "Can Trade": "You may take part in trade without active Dirt Roads (you still need a signed Trade Agreement).",
+                 f"Lay Siege may pass through the Presence of its target only, and can't end within any other non-allied Presence."),
+    EXPOSED: (f"In the Envoy Phase, a player may target you with a {EXPOSED_DOMAIN} Envoy. If they do, that Envoy gains "
+              f"Authority +{EXPOSED_AUTH}. If it Passes or is Endorsed, its action must target you. Having it more than once has no further effect."),
+    "Can Trade": "You may take part in trade (you still need a signed Trade Agreement). Required by both players of a Trade Agreement; Dirt Roads give it.",
 })
 # ============================================================================
 # NEW STRUCTURES — paste into renown_data.py and modify as needed.
@@ -3039,7 +3044,7 @@ ACTIONS = {
         'domain': 'Cunning',
         'cost': '2000 gold',
         'requires': '',
-        'effect': f"Extort {CUNNING_EXTORT} from its target. Then, choose another player's Settlement, then choose one active Holding or active Infrastructure in it: it becomes Damaged, and its effects are inactive until Repaired. If you choose an active Build Timer in it instead, increase that Build Timer by 2.",
+        'effect': f"Extort {CUNNING_EXTORT} from its target. Then, choose another player's Settlement, then choose active Infrastructure in it, or the top-most Holding of one of its Wards that isn't Damaged or under a Build Timer: it becomes Damaged, and its effects are inactive until Repaired. If the top-most Holding of a Ward is under a Build Timer, you may choose it instead and increase that Build Timer by 2.",
         'endorsed': f'Extort {CUNNING_EXTORT_ENDORSED}.',
         'notes': ["A Wonder has Immune Razed and can't be targeted."],
     },
@@ -3173,7 +3178,7 @@ ACTIONS = {
 # notes how it ends; era is when it unlocks (alliances scale with Era).
 TREATIES = {
     "Peace Treaty":      {"signed_via": "Sign Treaty", "effect": f"Ends war between the two players; sets Truce Timer {TIMERS['Truce Timer']['default']}.", "era": "Any"},
-    "Trade Agreement":   {"signed_via": "Sign Treaty", "effect": "Begin trading (Trade Income flows from next turn). Requires " + ("bordering and " if TRADE_REQUIRES_BORDER else "") + "active Dirt Roads or a Can Trade effect for each player.", "era": "Any"},
+    "Trade Agreement":   {"signed_via": "Sign Treaty", "effect": "Begin trading (Trade Income flows from next turn). Requires a Can Trade effect for each player.", "era": "Any"},
     "Non-Aggression Pact": {"signed_via": "Sign Treaty", "effect": f"Neither player may Declare War on the other. Ending it via End Treaty gives both a Truce Timer {TIMERS['Truce Timer']['default']}.", "era": "Any"},
     "Military Alliance":  {"signed_via": "Sign Treaty", "effect": "Mutual offensive pact: if a member Declares War, all members Declare War on the target next turn (and send 1 fewer envoy).", "era": "Eminence"},
     "Defensive Alliance": {"signed_via": "Sign Treaty", "effect": "Mutual defense: attacking one member puts all members at war with the attacker.", "era": "Zenith"},
@@ -3986,7 +3991,7 @@ GLOSSARY_CATEGORIES = [
     ('Turn & Phases', ['Host', 'Era', 'Season', 'Empire Phase', 'Council Phase', 'Envoy Phase', 'Intrigue Phase', 'Tally Phase',
                        'Battle Phase', 'Rest Phase']),
     ('Envoys & Voting', ['Influence', 'Authority X', 'Envoy', 'Personal Envoy', 'Council Envoy', 'Vote', 'Support X', 'Oppose X',
-                         'Max Influence', 'Abstain', 'Net Influence', 'Condemned', 'Failed', 'Passed', 'Endorsed']),
+                         'Max Influence', 'Abstain', 'Net Influence', 'Condemned', 'Failed', 'Passed', 'Endorsed', EXPOSED]),
     ('Domains & Scoring', ['Renown', 'Domain', 'Domain Point', 'Standing', 'Standing Rank', 'Edict']),
     ('Actions', ['Muster', 'Build', 'Improve', 'Repair', 'Settle', 'Expand', 'Move', 'Demand Tribute', 'Diplomacy', 'Convert']),
     ('Treaties', ['Treaty', 'Alliance', 'Vassal', 'Suzerain']),
@@ -4102,7 +4107,7 @@ def holding_combat_tags(text, sim=False):
     for pat, tok in ((r"\bPlanishing\b", "Planishing"), (r"\bSerrated\b", "Serrated"), (r"gain\s+Poison", "Poison"),
                      (r"gain\s+Riposte", "Riposte"), (r"\bNimble\b", "Nimble"), (r"\bEnduring\b", "Enduring"),
                      (r"\bDrilled\b", "Drilled"), (r"(?<!Settlements gain )Immune Strained(?! during)", IMMUNE_STRAIN),
-                     (r"\+1 to Strike", "Strike +1"), (r"\bgain\s+Immune Unwieldy", IMMUNE_UNWIELDY), (r"max initiative is increased to 3", "MaxInit3"),
+                     (r"\+1 to Strike", "Strike +1"), (r"\bgain\s+Immune Unwieldy", IMMUNE_UNWIELDY), (r"\bgain\s+Immune Awkward", "Immune Awkward"), (r"max initiative is increased to 3", "MaxInit3"),
                      (r"Always gains Seize the Initiative", "Seize: first"), (r"Righteous Fervour", "Righteous Fervour"),
                      (r"Unlocks Arquebus", "Artillery Park"), (r"(?:^|;\s*)Initiative \+1\b", "Init +1"),
                      (r"Armies must be equipped with (?:a )?Lance", "Lance only")):

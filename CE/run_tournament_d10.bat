@@ -55,6 +55,8 @@ set BALANCED=0
 set PER_CELL=100
 set STRATIFY=250
 set BUDGET_METRIC=mpc
+REM MAX_COMBO: combat / gear Holdings one generated build combines on top of its gear + Retinue line
+set MAX_COMBO=3
 
 REM ============================ MEMORY SETTINGS ===============================
 REM WORKERS: each initializes numba and RESERVES several GB of Windows COMMIT.
@@ -98,7 +100,7 @@ echo.
 if "%BALANCED%"=="1" (
   %PY% run_tournament_d10.py %DICE% --balanced --mpc-min %MPC_MIN% --mpc-max %MPC_MAX% --per-cell %PER_CELL% --runs %RUNS% --slot-budget %SLOT_BUDGET% --workers %WORKERS% %NO_PLAYSTYLE%
 ) else (
-  %PY% run_tournament_d10.py %DICE% --mpc-min %MPC_MIN% --mpc-max %MPC_MAX% --stratify %STRATIFY% --budget-metric %BUDGET_METRIC% --runs %RUNS% --slot-budget %SLOT_BUDGET% --workers %WORKERS% %NO_PLAYSTYLE%
+  %PY% run_tournament_d10.py %DICE% --mpc-min %MPC_MIN% --mpc-max %MPC_MAX% --stratify %STRATIFY% --budget-metric %BUDGET_METRIC% --max-combo %MAX_COMBO% --runs %RUNS% --slot-budget %SLOT_BUDGET% --workers %WORKERS% %NO_PLAYSTYLE%
 )
 
 echo.

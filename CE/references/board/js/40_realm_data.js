@@ -81,7 +81,7 @@ function poModRows(b,next){b.poMods=b.poMods||{};const p=playerOfBoard(b),pid=p?
   if(p)bordersOf(p).forEach(q=>srcMatch(q.board,"border_fd").forEach(x=>
     rows.push({side:x.m[1].toLowerCase(),k:x.n+" · "+q.name,desc:"bordering "+q.name,auto:true,n:+x.m[2]})));
   return rows.concat(epRows(b));}
-const TOT_TIPS={"t_gold": "Unconditional gold (+X) from your active Pursuits (Innate, and Mastery once earned) and active Infrastructure / Wonders. Season-only gold, scaling gold, Winter tax and trade are counted separately.", "t_scale": "Gold that multiplies by a count — e.g. Manor House: +100 per active Natural Pursuit (its Mastery: +100 per active Energy Pursuit).", "t_upkeep": "{UPKEEP} of your built Infrastructure and Wonders. Faction Infrastructure pays none.", "t_pupkeep": "PU_TEXT", "t_reduce": "The sum of “{SUPPLY} −X” effects on your active pieces. The pool is spent against Army {SUPPLY}; anything left over is unused.", "t_army": "{SUPPLY}: each Army costs its Retinue type's cost; the total of all Armies minus the reduction pool, never below 0.", "t_craft": "CRAFT", "t_trade": "Craft X × income per Craft: what each Trade Agreement pays both players on turns when you are the Host. None in Spring; both players need active Dirt Roads; none while at war.", "t_infl": "Unconditional “Influence +X” from your active pieces. Part of your Influence per turn — the full breakdown is on the Table.", "t_po": "Unconditional Faith minus Doubt from your active pieces, plus the Faith / Doubt modifiers under Public Order. Applied to Public Order at End turn.", "t_ext": "EXTORT"};
+const TOT_TIPS={"t_gold": "Unconditional gold (+X) from your active Pursuits (Innate, and Mastery once earned) and active Infrastructure / Wonders. Season-only gold, scaling gold, Winter tax and trade are counted separately.", "t_scale": "Gold that multiplies by a count — e.g. Manor House: +100 per active Natural Pursuit (its Mastery: +100 per active Energy Pursuit).", "t_upkeep": "{UPKEEP} of your built Infrastructure and Wonders. Faction Infrastructure pays none.", "t_pupkeep": "PU_TEXT", "t_reduce": "The sum of “{SUPPLY} −X” effects on your active pieces. The pool is spent against Army {SUPPLY}; anything left over is unused.", "t_army": "{SUPPLY}: each Army costs its Retinue type's cost; the total of all Armies minus the reduction pool, never below 0.", "t_craft": "CRAFT", "t_trade": "Craft X × income per Craft: what each Trade Agreement pays both players on turns when you are the Host. None in Spring; both players need Can Trade; none while at war.", "t_infl": "Unconditional “Influence +X” from your active pieces. Part of your Influence per turn — the full breakdown is on the Table.", "t_po": "Unconditional Faith minus Doubt from your active pieces, plus the Faith / Doubt modifiers under Public Order. Applied to Public Order at End turn.", "t_ext": "EXTORT"};
 // SIMPLE has no Mastery: these two tips drop it, and the scaling example quotes the live Manor House text
 function totTipSimple(k){if(k==="t_gold")return "Unconditional gold (+X) from your active Pursuits and active Infrastructure / Wonders. Season-only gold, scaling gold, Winter tax and trade are counted separately.";
   if(k==="t_scale"){const m=(R["Manor House"]||{}).innate_raw;return "Gold that multiplies by a count"+(m?" — e.g. Manor House: "+String(m).replace(/^\s*Natural;\s*/i,"").replace(/\*\*/g,"").replace(/\.\s*$/,""):"")+".";}
@@ -295,8 +295,7 @@ function pairOf(a,b){if(String(a)===String(b))return null;const d=diplo(),k=pk(a
 function pname(id){const p=D.players.find(q=>String(q.id)===String(id));return p?p.name:"?";}
 function allianceLabel(gid){const a=diplo().alliances[gid];return a?(a.type+" Alliance "+gid):"";}
 function pboard(id){const p=D.players.find(q=>String(q.id)===String(id));return p&&p.board||{};}
-// TRADE_RULES.requires_border: Trade Agreements need the two Provinces to border
-function tradeBorderOK(a,b){if(!DATA.tradeBorder)return true;const p=pById(a);return !!p&&bordersOf(p).some(q=>String(q.id)===String(b));}
+// Can Trade (Dirt Roads, Harbor, …): both players of a Trade Agreement need it; bordering is not required
 function hasRoad(id){const b=pboard(id);if((b.infra||{})["Dirt Roads"])return true;if(srcHas(b,"trade_no_roads"))return true;
   if(srcHas(b,"trade_border")){const p=pById(id);return !!p&&bordersOf(p).length>0;}return false;}
 // alliance types locked by Era (TREATIES[<type> Alliance].era)
@@ -309,8 +308,7 @@ function pairFlags(a,b,x){const d=diplo(),f=[];const sameAl=sameAlliance(a,b);
   if(x.war&&sameAl)f.push("War within the same alliance");
   if(sameAl)[a,b].forEach(id=>{const q=pById(id),n=q?fxOf(q,"noAlliance")[0]:null;if(n)f.push(q.name+" can't be in an Alliance ("+n.src+")");});
   if(x.trade&&x.war)f.push("Trade Agreement while at war");
-  if(x.trade&&!tradeBorderOK(a,b))f.push("Trade Agreement between players who don't border");
-  if(x.trade&&(!hasRoad(a)||!hasRoad(b)))f.push("Trade Agreement without Dirt Roads or Can Trade ("+[a,b].filter(q=>!hasRoad(q)).map(pname).join(", ")+")");
+  if(x.trade&&(!hasRoad(a)||!hasRoad(b)))f.push("Trade Agreement without Can Trade ("+[a,b].filter(q=>!hasRoad(q)).map(pname).join(", ")+")");
   return f;}
 function dStatus(x){return x.war?"W":x.truce>0?"TR":"P";}
 // letter codes (no emoji)
@@ -347,7 +345,7 @@ function diploHTML(){
     const sameAl=sameAlliance(a,b);
     const warNo=x.war?"already at war":x.truce>0?"truce active ("+x.truce+")":x.nap?"Non-Aggression Pact in force":sameAl?"same alliance":"";
     const warFlag="";
-    const trNo=x.trade?"":!tradeBorderOK(a,b)?"players don't border":(!hasRoad(a)||!hasRoad(b))?"needs active Dirt Roads or Can Trade ("+[a,b].filter(q=>!hasRoad(q)).map(pname).join(", ")+" missing)":"";
+    const trNo=x.trade?"":(!hasRoad(a)||!hasRoad(b))?"needs Can Trade ("+[a,b].filter(q=>!hasRoad(q)).map(pname).join(", ")+" missing)":"";
     const btn=(act,label,dis)=>'<button class="dpa'+(dis?' flagged':'')+'" data-act="'+act+'"'+(dis?' title="'+esc(dis)+'"':'')+'>'+esc(label)+'</button> ';
     const pf=pairFlags(a,b,x);
     h+='<div class="tot" style="margin-top:8px;background:var(--panel2)"><b>'+esc(pname(a))+' – '+esc(pname(b))+'</b> '+

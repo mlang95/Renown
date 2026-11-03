@@ -133,7 +133,7 @@ _MON_ABBR = {
     "Outrider Intercept Post": "OuInPo",
 }
 # Tags absorbed into the domain-standing tuple (they ARE the standing's grant):
-_DOMAIN_TAGS = {"Immune Blocked", PARRY, "confers:Blocked", "confers:" + STRAIN}
+_DOMAIN_TAGS = {PARRY, "Immune Blunder", "Immune Panic", "Shake +1", "confers:" + STRAIN, "confers:Blunder first"}
 def _standing_letter(v):
     return "S" if v >= _SOV else ("E" if v >= _EST else ("R" if v >= _RIS else "N"))
 def _name(retinue, weapon, shield, armor, ranged, has_tiltyard, extra_tags, playstyle=None,
@@ -436,7 +436,7 @@ import renown_data as rd
 
 _SIM = rd.HOLDING_SIM
 _INFO_PREFIX = ("tier:", "armor:", "shield:", "weapon:", "retinue:", "anytier:")
-_INFO_EXACT = {"ranged", "cavalry", "dual-equip", "Artillery Park", "Init +1", "Lance only"}   # board-only (Marshal Tiltyard)   # "Florentine" both gates Dual Wield and reaches the engine
+_INFO_EXACT = {"ranged", "cavalry", "dual-equip", "Artillery Park", "Lance only"}   # gear gates read by the pool, not the engine   # "Florentine" both gates Dual Wield and reaches the engine
 _ENGINE_TOKEN = {"Righteous Fervour": "Resolute"}     # text keyword -> engine tag of the same rule
 _BONUS_TOKEN = _re.compile(r"^(\w+) \+(\d+)$")
 
@@ -614,18 +614,33 @@ def compute_pursuit_cost(pursuits):
     bases = [int(t.split()[1]) for t in counts if _re.match(r"^Recover \d+$", t)]
     if bases:
         tags.add(f"Recover {min(bases) - counts.get('Recover +1', 0)}")
-    # ── Domain-standing SELF tags (unchanged from the legacy model; see DOMAIN_BOARD) ──
-    if domain["Prowess"] >= _RIS:
-        tags.add("Immune Blocked")
-    if domain["Prowess"] >= _EST:
-        tags.add(PARRY)
-    if domain["Piety"] >= _EST:
-        tags.add("Shake +1")
-    if domain["Cunning"] >= _EST:
-        tags.add("confers:Blocked")
-    if domain["Cunning"] >= _SOV:
-        tags.add("confers:" + STRAIN)
+    # ── Domain-standing combat effects, read from renown_data.STANDING_EFFECTS (the board reads the same dict) ──
+    tags |= standing_tags(domain)
     return mpc, domain, tags
+
+
+# STANDING_EFFECTS text -> engine tag. "Opponent gains X" is a confers: marker the engine hands to the other side.
+_STANDING_TEXT = (
+    (_re.compile(r"\bGain Parry\b", _re.I),                                   lambda m: PARRY),
+    (_re.compile(r"\bImmune Blunder\b", _re.I),                               lambda m: "Immune Blunder"),
+    (_re.compile(r"\bImmune Panic\b", _re.I),                                 lambda m: "Immune Panic"),
+    (_re.compile(r"\bMorale \+(\d+)", _re.I),                                  lambda m: f"Shake +{m.group(1)}"),
+    (_re.compile(r"Opponent gains Blunder in the first Skirmish", _re.I),      lambda m: "confers:Blunder first"),
+    (_re.compile(r"Opponent gains " + STRAIN + r"\b", _re.I),                  lambda m: "confers:" + STRAIN),
+)
+
+
+def standing_tags(domain):
+    """Engine tags for a build's Domain values from STANDING_EFFECTS ({(Domain, Standing): text})."""
+    out = set()
+    for (d, st), text in getattr(rd, "STANDING_EFFECTS", {}).items():
+        if domain.get(d, 0) < _ST.get(st, 99):
+            continue
+        for rx, tag in _STANDING_TEXT:
+            m = rx.search(str(text))
+            if m:
+                out.add(tag(m))
+    return out
 
 
 def compute_effective_upkeep(loadout):
@@ -639,11 +654,13 @@ def compute_effective_upkeep(loadout):
     return max(0, int(round(base - red)))
 
 
-def gear_requirements(weapon, shield, armor, ranged, two_of_same=False):
-    """Unlock tokens a gear choice needs (the text tokens of the Holdings that unlock it)."""
+def gear_requirements(weapon, shield, armor, ranged, two_of_same=False, toks=None):
+    """Unlock tokens a gear choice needs (the text tokens of the Holdings that unlock it).
+    toks: the build's tokens; an item it unlocks 'regardless of Tier Unlock' (anytier:) needs no tier."""
     need = set()
-    tiers = [WEAPONS[weapon]["tier"]] if weapon in WEAPONS else []
-    if ranged:
+    free = lambda n: toks is not None and ("anytier:" + n) in toks
+    tiers = [WEAPONS[weapon]["tier"]] if weapon in WEAPONS and not free(weapon) else []
+    if ranged and not free(ranged):
         tiers.append(RANGED[ranged]["tier"])
     top = max(tiers, key=lambda t: TIER_IDX.get(t, 0)) if tiers else TIER_ORDER[0]
     if top != TIER_ORDER[0]:
@@ -717,7 +734,7 @@ def _load_loadouts_from_csv(csv_path):
                 domain_count=dc,
             ))
     return pool
-def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budget_metric="mpc", max_monuments=2):
+def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budget_metric="mpc", max_monuments=2, max_combo=3):
     """Enumerate loadouts. Two modes:
       1. CSV mode (`csv_path` given): load a frozen pool exported by an earlier run.
       2. Generator mode (default): enumerate Holding sets and derive everything else from them.
@@ -730,7 +747,10 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
       - ranged: 'Unlocks Ranged Weapons'; dual-equip / two-of-same Dual Wield: Tiltyard's text
       - shield: 'unlocks Shields' + the tier's 'Unlock X armor & shield'; armor: that tier's unlock
       - tags: every Holding's combat keywords ('+N' bonuses stack, Recover rungs improve)
-    Budget: budget_metric "mpc" = Settlement Wards used, "total" = Holding count."""
+    Budget: budget_metric "mpc" = Settlement Wards used, "total" = Holding count.
+    max_combo: how many INDEPENDENT_OPTIONS one build picks on top of its path (their lines come free);
+    every combination up to that size is tried, so Holdings are paired / tripled, not only tried alone.
+    Builds with the same signature (Retinue, tier, gear permissions, engine tags) keep the cheapest."""
     # ── CSV mode ──────────────────────────────────────────────────────────
     if csv_path is not None:
         return _load_loadouts_from_csv(csv_path)
@@ -742,52 +762,69 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
     RANGED_BY_TIER = {t: [] for t in TIER_ORDER}
     for _rn, _rw in RANGED.items():
         RANGED_BY_TIER.setdefault(_rw["tier"], []).append(_rn)
-    # ── Seeds: real Holding names; every line under them is filled by prereq_closure ──
-    # Weapon line x armor line stopping points.
-    INDUSTRY_PATHS = [
-        set(),
-        {"Furnace"},
-        {"Blacksmith"},
-        {"Blacksmith", "Master Workshop"},
-        {"Blacksmith", "Gilded Foundry"},
-        {"Forge"},
-        {"Forge", "Master Workshop"},
-        {"Forge", "Gilded Foundry"},
-        {"Forge", "Gilded Foundry", "Master Workshop"},
-        {"Advanced Blast Furnace"},
-        {"Advanced Blast Furnace", "Court Armoury"},
-    ]
-    # Retinue seeds: nothing (Levy) + each Holding whose text unlocks a Retinue for Muster.
-    RETINUE_CHAINS = [frozenset()] + [frozenset([h]) for r in RETINUES for h in _holders("retinue:" + r)]
-    INDEPENDENT_OPTIONS = [
-        "Levy Hall", "Joinery", "Fletchery", "Tiltyard", "Stable", "Saddlery",
-        "Royal Pavilion", "Grand Tournament", "Ministry of Military Strategy",
-        "Outrider Intercept Post", "Tannery", "Armory", "Butchery", "Artillery Park",
-        "Toxicarium", "Hospitaller", "Conditioning Field",
-    ]
-    INDEPENDENT_OPTIONS = [o for o in INDEPENDENT_OPTIONS if o in _SIM]
+    # ── Seeds: real Holding names, all read from HOLDING_SIM; every line under them is filled by prereq_closure ──
+    INDUSTRY_PATHS, RETINUE_CHAINS, INDEPENDENT_OPTIONS = holding_seeds()
     seen_keys = {}
+    _cc, _fc = {}, {}                                   # seed -> (closed, ok, budget, monuments); closed -> cost tuple
+
+    def _close(seed):
+        r = _cc.get(seed)
+        if r is None:
+            closed = frozenset(prereq_closure(seed))
+            ok = _pursuit_set_is_valid(closed)
+            budget = len(closed) if budget_metric == "total" else _ward_count(closed)
+            r = _cc[seed] = (closed, ok, budget, sum(1 for m in _POOL_MONUMENTS if m in closed))
+        return r
+
+    def _full(closed):
+        r = _fc.get(closed)
+        if r is None:
+            r = _fc[closed] = compute_pursuit_cost(closed)
+        return r
+
+    def _sig(closed, tags):
+        """What a set can field: Retinue, weapon tier, gear permissions and engine tags. Two sets with the
+        same signature build the same loadouts, so only the cheaper is kept and expanded."""
+        toks = _tokens(closed)
+        gear = frozenset(t for t in toks if t.startswith(_INFO_PREFIX) or t in _INFO_EXACT or t == rd.FLORENTINE)
+        reqs = frozenset(r for r in RANGED for q in RANGED[r].get("requires", []) if q in closed)
+        return (derive_retinue_from_pursuits(closed), derive_tier_from_pursuits(closed), gear, reqs, frozenset(tags))
 
     def _sets():
-        """Depth-first over option subsets, pruned on the budget: adding a Holding never lowers the
-        Ward count or the Holding count, so once a seed is over budget every superset is too."""
+        """Every distinct closed Holding set reachable from a path x Retinue seed by adding options, each
+        visited once (a set's closure under prereq_closure is its identity, so two orders of adding
+        Holdings, or adding a Holding another one's line already holds, land on the same set).
+        Pruned on the budget and the Monument cap: adding a Holding never lowers the Ward count, the
+        Holding count or the Monument count, so once a set is over, every superset is too. Depth is
+        capped at max_combo options per build."""
+        seen, best = set(), {}
+        fits = lambda c: c[1] and c[2] <= max_pursuit_cost and c[3] <= max_monuments
         for industry_path in INDUSTRY_PATHS:
             for ret_chain in RETINUE_CHAINS:
-                stack = [(0, frozenset(industry_path) | ret_chain)]
+                base = frozenset(industry_path) | ret_chain
+                stack = [(0, 0, base, _close(base))]        # (next option index, options picked, seed, closure)
                 while stack:
-                    i, seed = stack.pop()
-                    closed = frozenset(prereq_closure(seed))
-                    if not _pursuit_set_is_valid(closed):
+                    i, k, seed, c = stack.pop()
+                    if not fits(c):
                         continue
-                    cost, domain, tags = compute_pursuit_cost(closed)
-                    budget = len(closed) if budget_metric == "total" else cost
-                    if budget > max_pursuit_cost:
+                    closed, _, budget, _ = c
+                    if closed not in seen:
+                        seen.add(closed)
+                        cost, domain, tags = _full(closed)
+                        sg = _sig(closed, tags)
+                        if not (sg in best and best[sg] <= budget):
+                            best[sg] = budget
+                            if budget >= min_pursuit_cost:
+                                yield closed, cost, domain, tags
+                    if k >= max_combo:
                         continue
-                    if budget >= min_pursuit_cost:
-                        yield closed, cost, domain, tags
                     for j in range(i, len(INDEPENDENT_OPTIONS)):
-                        if INDEPENDENT_OPTIONS[j] not in closed:
-                            stack.append((j + 1, seed | {INDEPENDENT_OPTIONS[j]}))
+                        o = INDEPENDENT_OPTIONS[j]
+                        if o in closed:
+                            continue                         # already on a line: same set, its subtree is a duplicate
+                        n = _close(seed | {o})
+                        if n[0] != closed:
+                            stack.append((j + 1, k + 1, seed | {o}, n))
 
     _done = set()
     for pursuits, total_cost, domain, tags in _sets():
@@ -800,22 +837,31 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
         tier_str = derive_tier_from_pursuits(pursuits)
         toks = _tokens(pursuits)
         _ti = TIER_IDX.get(tier_str, -1)
+        # cavalry: 'Unlocks X' + its weapon tier, or 'Unlocks X regardless of Tier Unlock' (anytier:)
         cav = [w for w in ("Cavalry Spear", "Lance")
-               if "weapon:" + w in toks and _ti >= TIER_IDX[WEAPONS[w]["tier"]]]
+               if "weapon:" + w in toks and (_ti >= TIER_IDX[WEAPONS[w]["tier"]] or "anytier:" + w in toks)]
         has_fletch = "ranged" in toks
         has_ty = "dual-equip" in toks
         has_dw = rd.FLORENTINE in toks
         melee = WEAPONS_BY_TIER[tier_str]
+        # ranged at or below the tier, plus any ranged weapon unlocked regardless of tier (Skirmish Field: Longbow)
+        rng_opts = list(dict.fromkeys(_ranged_at_or_below(tier_str, RANGED_BY_TIER)
+                                      + [r for r in RANGED if "anytier:" + r in toks]))
         arms_options = []
-        if cav and has_ty:                              # cavalry is melee-only (charge weapons)
+        if "Lance only" in toks:                        # "Armies must be equipped with Lance" (Marshal Tiltyard)
+            if "Lance" not in cav:
+                continue
+            arms_options = [("Lance", None, False)]
+            has_dw = False
+        elif cav and has_ty:                              # cavalry is melee-only (charge weapons)
             arms_options += [(c, None, False) for c in cav]
-            arms_options += [(w, r, True) for w in melee for r in _ranged_at_or_below(tier_str, RANGED_BY_TIER)]
+            arms_options += [(w, r, True) for w in melee for r in rng_opts]
         elif cav:
             arms_options += [(c, None, False) for c in cav] + [(w, None, False) for w in melee]
         elif has_fletch and has_ty:
-            arms_options += [(w, r, True) for w in melee for r in _ranged_at_or_below(tier_str, RANGED_BY_TIER)]
+            arms_options += [(w, r, True) for w in melee for r in rng_opts]
         elif has_fletch:
-            arms_options += [(None, r, False) for r in _ranged_at_or_below(tier_str, RANGED_BY_TIER)]
+            arms_options += [(None, r, False) for r in rng_opts]
         else:
             arms_options += [(w, None, False) for w in melee]
         # Tiltyard two-of-same: a doubled 1H melee weapon gains Dual Wield (no ranged, no shield).
@@ -879,6 +925,30 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
                     ld = ld._replace(upkeep_per_retinue=compute_effective_upkeep(ld))
                     seen_keys[obs_key] = (total_cost, ld)
     return [v[1] for v in seen_keys.values()]
+# ── archetype_pool seeds, read from HOLDING_SIM (NODES text) — no hand-kept Holding list ────────────────
+_GEAR_LADDER = _re.compile(r"^(?:tier:(?:" + "|".join(TIER_ORDER) + r")|armor:\w+|shield:\w+|retinue:.+)$")
+
+
+def holding_seeds():
+    """(INDUSTRY_PATHS, RETINUE_CHAINS, INDEPENDENT_OPTIONS) for archetype_pool.
+      INDUSTRY_PATHS      every weapon-tier stop x every armor-tier stop: nothing, or the Holding whose text
+                          'Unlocks <Tier> Weapons' x nothing, or the Holding that 'Unlocks <Tier> armor & shield'
+      RETINUE_CHAINS      nothing (Levy) + each Holding whose text 'Unlocks <Retinue> for Muster'
+      INDEPENDENT_OPTIONS every other Holding whose text grants a combat keyword or a gear permission
+                          (Shields, Ranged, cavalry, dual-equip, Florentine, ...). Any subset of these is
+                          combined with each path, so Holdings are tried together, not just one at a time;
+                          the budget prunes the subsets."""
+    w_stop = [frozenset()] + [frozenset([h]) for t in TIER_ORDER for h in _holders("tier:" + t)[:1]]
+    a_tiers = [t for t in TIER_ORDER if _holders("armor:" + t)]
+    a_stop = [frozenset()] + [frozenset([_holders("armor:" + t)[0]]) for t in a_tiers]
+    paths = list(dict.fromkeys(w | a for w in w_stop for a in a_stop))
+    rets = [frozenset()] + [frozenset([h]) for r in RETINUES for h in _holders("retinue:" + r)[:1]]
+    in_paths = {h for p in paths + rets for h in p}
+    opts = sorted(n for n, h in _SIM.items()
+                  if n not in in_paths and any(not _GEAR_LADDER.match(t) for t in h["tags"]))
+    return paths, rets, opts
+
+
 def _ranged_at_or_below(tier_str, table):
     """Ranged weapons at or below the given gear tier."""
     order = ["Crude", "Cast", "Wrought", "Forged", "Crafted"]
@@ -929,10 +999,15 @@ def balanced_validation_pool(mpc_min=4, mpc_max=13, per_cell=None, seed=2026,
     rng = _random.Random(seed)
     RETS = list(RETINUES)[1:]                                    # every unlockable Retinue
     RETINUE_UNLOCK = {r: _holders("retinue:" + r)[:1] for r in RETS}
-    UPGRADES = [u for u in ("Conditioning Field", "Royal Pavilion", "Ministry of Military Strategy",
-                            "Outrider Intercept Post", "Grand Tournament") if u in _SIM]
+    # upgrades: every Holding whose text grants an engine keyword (read from HOLDING_SIM, not a hand list)
+    _, _, _opts = holding_seeds()
+    _eng = lambda n: any(not (t.startswith(_INFO_PREFIX) or t in _INFO_EXACT or _GEAR_LADDER.match(t) or t.startswith("Recover"))
+                         for t in _SIM[n]["tags"])
+    UPGRADES = [u for u in _opts if _eng(u)]
     FILLER = [f for f in ("Master Workshop", "Toxicarium", "Stable", "Butchery", "Smokehouse") if f in _SIM]
-    REGEN_LADDER = [r for r in ("Apothecary", "Infirmary", "Hospitaller") if r in _SIM]
+    # Recover ladder: the Holdings whose text gives or improves Recover, shortest line first
+    REGEN_LADDER = sorted((n for n, h in _SIM.items() if any(t.startswith("Recover") for t in h["tags"])),
+                          key=lambda n: (len(_line(n, frozenset()) or ()), n))
     armor_for_tier = {}
     for a, d in ARMORS.items():
         if d["tier"]:
@@ -1075,7 +1150,7 @@ def validate_loadout(ld, check_tier_floors=False):
     if w not in (None, "Farm Tools") and rg is not None and not ld.has_tiltyard:
         v.append(f"dual-equip ({w}+{rg}) without Tiltyard")
     toks = _tokens(P)
-    for t in sorted(gear_requirements(w if w in WEAPONS else None, sh, ar, rg, _is_dw_build)):
+    for t in sorted(gear_requirements(w if w in WEAPONS else None, sh, ar, rg, _is_dw_build, toks=_tokens(P))):
         if t not in toks:
             v.append(f"gear needs '{t}' — no Holding in the build grants it")
     if rg is not None:
