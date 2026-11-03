@@ -91,11 +91,10 @@ MINUS_1_TBH     = "Shielded"
 PLANISHING      = "Planishing"
 FATIGUE_TOKEN   = "Fatigue Token"
 CRUSADER        = "Righteous Fervour"
-# Exposed (player effect): other players may aim an EXPOSED_DOMAIN Envoy at you when it is declared; it gains Authority
-# +EXPOSED_AUTH and, if it Passes or is Endorsed, its action must target you. Doesn't stack (Exposed twice = Exposed).
+# Exposed X (player effect): other players may aim an EXPOSED_DOMAIN Envoy at you when it is declared; it gains Authority
+# +X and, if it Passes or is Endorsed, its action must target you. Stacks: every Exposed X you have adds its X.
 EXPOSED         = "Exposed"
 EXPOSED_DOMAIN  = "Cunning"
-EXPOSED_AUTH    = 1
 
 IMMUNE = "Immune"
 def immune(keyword):
@@ -930,14 +929,14 @@ NODES = {
     "Jewelry Foundry": {
         "group": "g_commerce",
         "unlock": "Established Industry",
-        "innate": f"Gold +2000; Craft +5; {EXPOSED}",
+        "innate": f"Gold +2000; Craft +5; {EXPOSED} 1",
         "efficient": ["Finery"],
         "monument": False},
     "Polish House": {
         "group": "g_commerce",
         "unlock": "Sovereign Industry",
         "infrastructure_req": "Aqueducts",
-        "innate": f"Gold +3000; Craft +10; {EXPOSED}",
+        "innate": f"Gold +3000; Craft +10; {EXPOSED} 1",
         "efficient": "Jewelry Foundry",
         "monument": True},
     "Armory": {
@@ -1027,7 +1026,7 @@ NODES = {
         "group": "g_commerce",
         "unlock": "Established Industry",
         "natural": True,
-        "innate": f"Gold +1500; Craft +4; {EXPOSED}",
+        "innate": f"Gold +1500; Craft +4; {EXPOSED} 1",
         "efficient": "Herb Garden",
         "monument": False},
     "Harbor": {
@@ -2909,8 +2908,8 @@ GLOSSARY.update({
                  f"or of a Settlement while its owner has a Garrison. Presence +N raises the Range of its owner's Settlement Presence by N. "
                  f"An Army can't move within a non-allied Presence unless that Move Performs a Battle against it; a Battle or "
                  f"Lay Siege may pass through the Presence of its target only, and can't end within any other non-allied Presence."),
-    EXPOSED: (f"In the Envoy Phase, a player may target you with a {EXPOSED_DOMAIN} Envoy. If they do, that Envoy gains "
-              f"Authority +{EXPOSED_AUTH}. If it Passes or is Endorsed, its action must target you. Having it more than once has no further effect."),
+    f"{EXPOSED} X": (f"In the Envoy Phase, a player may target you with a {EXPOSED_DOMAIN} Envoy. If they do, that Envoy gains "
+                     f"Authority +X. If it Passes or is Endorsed, its action must target you. Stacks: add together every {EXPOSED} X you have."),
     "Can Trade": "You may take part in trade (you still need a signed Trade Agreement). Required by both players of a Trade Agreement; Dirt Roads give it.",
 })
 # ============================================================================
@@ -3991,7 +3990,7 @@ GLOSSARY_CATEGORIES = [
     ('Turn & Phases', ['Host', 'Era', 'Season', 'Empire Phase', 'Council Phase', 'Envoy Phase', 'Intrigue Phase', 'Tally Phase',
                        'Battle Phase', 'Rest Phase']),
     ('Envoys & Voting', ['Influence', 'Authority X', 'Envoy', 'Personal Envoy', 'Council Envoy', 'Vote', 'Support X', 'Oppose X',
-                         'Max Influence', 'Abstain', 'Net Influence', 'Condemned', 'Failed', 'Passed', 'Endorsed', EXPOSED]),
+                         'Max Influence', 'Abstain', 'Net Influence', 'Condemned', 'Failed', 'Passed', 'Endorsed', EXPOSED + ' X']),
     ('Domains & Scoring', ['Renown', 'Domain', 'Domain Point', 'Standing', 'Standing Rank', 'Edict']),
     ('Actions', ['Muster', 'Build', 'Improve', 'Repair', 'Settle', 'Expand', 'Move', 'Demand Tribute', 'Diplomacy', 'Convert']),
     ('Treaties', ['Treaty', 'Alliance', 'Vassal', 'Suzerain']),

@@ -308,15 +308,16 @@ function comboEval(E,action,tid){const tgt=tid&&!String(tid).startsWith("al:")?D
   return {tgt,parts,adj,out,saved,capped,ok:out==="Passed"||out==="Endorsed"};}
 function failPassFx(E){return fxOf(E.owner,"failPass").find(f=>!f.dom||f.dom===E.dom)||null;}
 function condFailFx(E){return fxOf(E.owner,"condFail").find(f=>!f.dom||f.dom===E.dom)||null;}
-// Exposed (keyword: Jewelry Foundry, Polish House, Spice Merchant) = "In the Envoy Phase, a player may target you with a Cunning
+// Exposed X (keyword: Jewelry Foundry, Polish House, Spice Merchant) = "In the Envoy Phase, a player may target you with a Cunning
 // Envoy. If they do, that Envoy gains Authority +1. If it Passes or is Endorsed, the action must target you": aimed when Envoys
-// are declared. Exposed doesn't stack; the long form written out on a piece (envoy_invite) adds its own Authority.
+// are declared. Exposed X stacks (every X added); the long form written out on a piece (envoy_invite) adds its own Authority.
 // p's options for a <dom> Envoy: one per other player who is Exposed (or has the long form)
-function inviteHolders(p,dom){const RC_=DATA.rulesConst||{},xd=String(RC_.EXPOSED_DOMAIN||"Cunning").toLowerCase(),xa=+RC_.EXPOSED_AUTH||1,xn=RC_.EXPOSED||"Exposed";
+function inviteHolders(p,dom){const RC_=DATA.rulesConst||{},xd=String(RC_.EXPOSED_DOMAIN||"Cunning").toLowerCase(),xn=RC_.EXPOSED||"Exposed";
   return D.players.filter(q=>!sameP(q,p)).map(q=>{const H=srcMatch(q.board,"envoy_invite").filter(x=>x.m[1].toLowerCase()===String(dom).toLowerCase()),
     X=String(dom).toLowerCase()===xd?srcMatch(q.board,"exposed"):[];
   if(!H.length&&!X.length)return null;
-  return {q,val:H.reduce((a,x)=>a+(+x.m[2]),0)+(X.length?xa:0),src:(X.length?[xn+" ("+X.map(x=>x.n).join(", ")+")"]:[]).concat(H.map(x=>x.n)).join(" + ")};}).filter(Boolean);}
+  const xv=X.reduce((a,x)=>a+(+x.m[1]||0),0);
+  return {q,val:H.reduce((a,x)=>a+(+x.m[2]),0)+xv,src:(X.length?[xn+" "+xv+" ("+X.map(x=>x.n+" "+x.m[1]).join(", ")+")"]:[]).concat(H.map(x=>x.n)).join(" + ")};}).filter(Boolean);}
 function inviteOf(E){return E.invite?inviteHolders(E.owner,E.dom).find(h=>String(h.q.id)===String(E.invite))||null:null;}
 function actionsOf(dom){return Object.keys(DATA.actions||{}).filter(k=>(DATA.actions[k]||{}).domain===dom);}
 // "Rising Prowess" style requirement vs the player's Standing — a flag, not a lock
