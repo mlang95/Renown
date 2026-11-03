@@ -356,6 +356,9 @@ function dockHTML(R){
     h+=dockCard("Diplomatic Mission — "+esc(E2.owner.name)+' <span class="note">('+esc(missionWhy(E2))+')</span>','<div class="tb-row">'+
       (ms?'<span>Mission: <b>'+esc(ms)+'</b></span>'+(domStarted(R,ms)?'':'<button data-do="mission" data-dom="" data-src="'+esc(E2.id)+'" data-who="'+E2.owner.id+'">cancel</button>'):
         open.length?open.map(d=>'<button data-do="mission" data-dom="'+d+'" data-src="'+esc(E2.id)+'" data-who="'+E2.owner.id+'">'+d+'</button>').join(""):'<span class="note">every Domain has started voting</span>')+'</div>');});
+  // 5b. Empire Phase: effect stack (Standing / Eureka / Holding actions), checklist, every Extort this player collects / pays / triggers —
+  // ahead of last turn's Actions so the actions due now are not pushed below it
+  if(ph==="empire"){h+=empireHoldingHTML(qp);h+=dockCard("Empire Phase",empireChecklistHTML());h+=extortCardHTML(qp);}
   // 6. Envoys: the phase's queue, resolved and upcoming, with your pre-votes inline
   if(vt&&tOrder().some(p=>sameP(p,qp)))h+=envoyQueueHTML(R,qp,ph);
   // 6b. Actions: who did what to whom (this turn once Envoys perform; the turn before during the Empire and Council Phases)
@@ -363,8 +366,6 @@ function dockHTML(R){
   // 7. Influence & Envoys (Council and Envoy Phases)
   if((ph==="council"&&!RFM)||(ph==="envoy"&&!springDiplo()))h+=inflPaneHTML(qp,ph==="council");   // Works actions and the Diplomacy Phase use no Influence
   if(ph==="envoy"&&ADMIN)h+=inflCardHTML(qp);   // manual Influence / Envoy adjusts and modifiers: the Duke only
-  // 8. Empire Phase: checklist, every Extort this player collects / pays / triggers
-  if(ph==="empire"){h+=empireHoldingHTML(qp);h+=dockCard("Empire Phase",empireChecklistHTML());h+=extortCardHTML(qp);}
   // 9. Battle Phase: Battles and Sieges to resolve
   if(ph==="battle"){const Q=bq(),sg=realmTimers().filter(x=>x.kind==="siege");
     h+=dockCard("Battles & Sieges",(Q.length?Q.map(o=>'<div class="tb-row">'+stIcon(o.kind==="sally"?"besieged":o.kind==="siege"?"sieging":"battle",14)+' <span style="flex:1">'+esc(bqSideName(o.A))+' <span class="note">vs</span> '+esc(bqSideName(o.B))+'</span>'+

@@ -172,7 +172,13 @@ function glogSync(b){if(!b)return;const t=+b.treasury||0;if(b.gseen==null){b.gse
 // (this Season's net, plus the upkeep of Shuttered pieces)
 function insolvent(b){const t=+b.treasury||0;if(t<0)b.insolvent=true;
   else if(b.insolvent&&t>0&&t+Math.round(seasonNet(b).net||0)-shutUpkeep(b)>=0)delete b.insolvent;return !!b.insolvent;}
-function tGold(b,d,why){d=Math.round(+d||0);if(!b||!d)return 0;glogSync(b);b.treasury=(+b.treasury||0)+d;glogPush(b,d,why);if(b.treasury<0)b.insolvent=true;
+// Income by source (rolling game total per Holding / Infrastructure / Wonder / Faction): b.earn[name] = {g total, n times, t last turn, tg that turn}.
+// Triggered gold (Extort, per Faith / Doubt, Recoups…) is credited from tGold's label; Yields at Upkeep from goldBreak when auto-apply pays them.
+function earnPiece(c){c=String(c||"").replace(/\s*\(Mastery\)\s*$/,"").trim();return c&&(R[c]||INFRA[c]||WON[c]||FAC[c])?c:null;}
+function earnSrc(why){const s=String(why||""),m=/\(([^()]+)\)\s*$/.exec(s);return (m&&earnPiece(m[1]))||earnPiece(s.split(" \u00b7 ")[0])||earnPiece(s.split(": ")[0])||null;}
+function earnAdd(b,src,d){d=Math.round(+d||0);if(!b||!src||!(d>0))return;b.earn=b.earn||{};const e=b.earn[src]=b.earn[src]||{g:0,n:0,t:0,tg:0},t=glogTurn();
+  e.g+=d;e.n++;e.tg=e.t===t?e.tg+d:d;e.t=t;}
+function tGold(b,d,why){d=Math.round(+d||0);if(!b||!d)return 0;glogSync(b);b.treasury=(+b.treasury||0)+d;glogPush(b,d,why);if(d>0)earnAdd(b,earnSrc(why),d);if(b.treasury<0)b.insolvent=true;
   // Direct Recoup credits also trigger Black Market mastery. Envoy cost discounts
   // are handled where the Recoup is calculated because those are not credit entries.
   if(d>0&&/recoup/i.test(String(why||""))&&!/black market/i.test(String(why||""))){const recouper=D.players.find(p=>p.board===b);if(recouper)blackMarketReact(recouper,"Recoup");}
@@ -184,7 +190,8 @@ function boardOwnerName(b){const p=(D.players||[]).find(q=>q.board===b);return p
 function empTimers(b){b.turn=(b.turn||0)+1;return tickTimers(b);}                        // Build, Repair
 function empEconomy(b){const sn=seasonNet(b),net=Math.round(sn.net||0),g0=b.treasury||0;
   if(b.autoNet){const sea=curSeason(),part=[["Yields & expenditures",Math.round(sn.base||0)],[sea+" (Season)",Math.round(sn.seasonal||0)],["Winter tax",Math.round(sn.tax||0)],["Trade",Math.round(sn.trade||0)]];
-    part[0][1]+=net-part.reduce((t,x)=>t+x[1],0);part.forEach(([k,v])=>tGold(b,v,k));}   // Winter tax, income, trade, upkeep (if auto-apply is on)
+    part[0][1]+=net-part.reduce((t,x)=>t+x[1],0);part.forEach(([k,v])=>tGold(b,v,k));}
+  if(b.autoNet){const gb=goldBreak(b);gb.inc.forEach(([k,v])=>{const n=earnPiece(k)||(k==="Winter tax"||k==="Trade"?k:null);if(n)earnAdd(b,n,v);});}   // Yields by source   // Winter tax, income, trade, upkeep (if auto-apply is on)
   b.insolv=(b.treasury||0)<0?(+b.insolv||0)+1:0;                              // "Bankruptcy" Doubt: consecutive Upkeep with negative Treasury
   b.deficit=net<0?(+b.deficit||0)+1:0;                                          // "Deficit" Doubt: consecutive Upkeep with negative Income
   insolvent(b);

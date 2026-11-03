@@ -1523,16 +1523,16 @@ function holdsActive(b,name){return withBoard(b,()=>(PC[name]||0)>0);}
 function playersWithout(name){const me=playerOfBoard(S);if(!me)return 0;const nm=String(name).replace(/\.$/,"").trim();
   return D.players.filter(q=>!sameP(q,me)&&!holdsActive(q.board,nm)).length;}
 function calcMetrics(have,earned,tc){
-  let gold=0,reduce=0,dues=0,craft=0,infl=0,faith=0,doubt=0,scale=0,infraUp=0,extort=0,extTrig=0;
+  let gold=0,reduce=0,dues=0,craft=0,infl=0,faith=0,doubt=0,scale=0,infraUp=0,extort=0,extTrig=0;const scaleBy={},sAdd=(n,v)=>{if(v){scale+=v;scaleBy[n]=(scaleBy[n]||0)+v;}};
   const seasonAdd={Spring:0,Summer:0,Fall:0,Winter:0};
   const phaseCount={};
   const naturalCount=Object.keys(PC).filter(n=>NATURAL.has(n)).reduce((a,n)=>a+PC[n],0)
     +(SIMPLE?S.placed.filter(p=>p.fac&&pActive(p)&&!NATURAL.has(p.name)).length:0);   // SIMPLE: faction pursuits are Natural
-  function eat(atoms,active,q){
+  function eat(atoms,active,q,src){
     atoms.forEach(a=>{
       const ph=a.season?"season":(PHASE[a.cat]||"other");phaseCount[ph]=(phaseCount[ph]||0)+q;
       if(!active)return;
-      if(a.scale){const cnt=a.scale.of==="natural"?naturalCount:(tc[cap(a.scale.of)]||0);scale+=a.scale.per*cnt*q;return;}
+      if(a.scale){const cnt=a.scale.of==="natural"?naturalCount:(tc[cap(a.scale.of)]||0);sAdd(src||"Scaling gold",a.scale.per*cnt*q);return;}
       if(a.cat==="extort"){if(a.val&&(a.every||/^Extort\s*\d+\.?$/i.test((a.text||"").trim())))extort+=a.val*q;   // bare "Extort N" (or "twice") = every Empire Phase
         else if(a.val&&a.without)extort+=a.val*q*playersWithout(a.without);                                        // "Extort N per player without X"
         else extTrig+=q;return;}
@@ -1546,12 +1546,12 @@ function calcMetrics(have,earned,tc){
     });
   }
   Object.keys(PC).forEach(n=>{const r=R[n],q=PC[n];
-    eat(r.innate,true,q); if(r.mastery_raw)eat(r.mastery,!!earned[n],q);});
+    eat(r.innate,true,q,n); if(r.mastery_raw)eat(r.mastery,!!earned[n],q,n);});
   itm();
   // Infrastructure / Wonders pay upkeep only while active (not building, Damaged or under repair)
   const freeT=noUpkeepTiers();   // "No Upkeep on <Tier> Infrastructure" (Masonry / Trade Guild / College of Engineering)
-  Object.keys(S.infra).forEach(n=>{const on=infraOn(n);eat(INFRA[n].atoms,on,1);if(on&&!S.facInfra.includes(n)&&!freeT[INFRA[n].tier])infraUp+=INFRA[n].upkeep;});
-  Object.keys(S.wonders).forEach(n=>{const on=infraOn(n);eat(WON[n].atoms,on,1);if(on)infraUp+=WON[n].upkeep;});
+  Object.keys(S.infra).forEach(n=>{const on=infraOn(n);eat(INFRA[n].atoms,on,1,n);if(on&&!S.facInfra.includes(n)&&!freeT[INFRA[n].tier])infraUp+=INFRA[n].upkeep;});
+  Object.keys(S.wonders).forEach(n=>{const on=infraOn(n);eat(WON[n].atoms,on,1,n);if(on)infraUp+=WON[n].upkeep;});
   {const me=playerOfBoard(S);if(me)S.placed.forEach(q=>{if(!pActive(q)||!settBesieged(me,q.sid))return;
      ((R[q.name]||{}).innate||[]).forEach(a=>{if(a.cat==="craft"&&a.flat&&!a.season)craft-=a.val;});});}   // besieged: no Craft X
   {const tb=facTypeBonus(S),me=playerOfBoard(S);if(tb)S.placed.forEach(q=>{if(q.fac||!pActive(q)||!tb.has(q.name))return;
@@ -1561,11 +1561,11 @@ function calcMetrics(have,earned,tc){
    if(me&&D.players.some(q=>!sameP(q,me)&&effPair(me.id,q.id).war&&effPair(me.id,q.id).sacredWar))
      srcMatch(S,"faith_sacred_war").forEach(x=>{faith+=+x.m[1];});
    srcMatch(S,"faith_per_war").forEach(x=>{faith+=(+x.m[1])*D.players.filter(q=>pid&&String(q.id)!==pid&&effPair(pid,q.id).war).length;});
-   srcMatch(S,"gold_per_craft").forEach(x=>cpg.push(+x.m[1]));
+   srcMatch(S,"gold_per_craft").forEach(x=>cpg.push([x.n,+x.m[1]]));
    if(pid)D.players.forEach(q=>{if(String(q.id)===pid||!effPair(pid,q.id).trade)return;
      srcMatch(q.board,"partner_craft").forEach(x=>{craft+=+x.m[1];});});
-   cpg.forEach(v=>{scale+=v*craft;});
-   srcMatch(S,"gold_per_treasury").forEach(x=>{if(+x.m[2]>0)scale+=Math.floor(Math.max(0,+S.treasury||0)/+x.m[2])*+x.m[1];});   // Esteemed Bank: per N in the Treasury
+   cpg.forEach(([n,v])=>sAdd(n,v*craft));
+   srcMatch(S,"gold_per_treasury").forEach(x=>{if(+x.m[2]>0)sAdd(x.n,Math.floor(Math.max(0,+S.treasury||0)/+x.m[2])*+x.m[1]);});   // Esteemed Bank: per N in the Treasury
    if(me&&mapState().grid){const prov=provinceOf(me),bt=srcMatch(S,"army_free_province").length,bo=srcMatch(S,"army_upkeep_outside"),
        lh=srcMatch(S,"army_upkeep_home");
      let outside=false;S.armies.forEach(a=>{const k=armyHex(me,a);if(!k)return;const c=armyUpkeep(a);
@@ -1581,7 +1581,7 @@ function calcMetrics(have,earned,tc){
   const unusedReduce=Math.max(0,reduce-armyGross);
   const duesCut=Math.max(0,Math.min(dues,infraUp+pursUp));   // never below 0
   const baseNet=gold+scale-infraUp-pursUp+duesCut-netArmy;
-  return {duesCut,gold,reduce,craft,infl,faith,doubt,scale,infraUp,pursUp,armyGross,netArmy,unusedReduce,baseNet,seasonAdd,phaseCount,extort,extTrig};
+  return {duesCut,gold,reduce,craft,infl,faith,doubt,scale,scaleBy,infraUp,pursUp,armyGross,netArmy,unusedReduce,baseNet,seasonAdd,phaseCount,extort,extTrig};
 }
 function computeTotals(have,earned,tc){
   const m=calcMetrics(have,earned,tc);
@@ -1662,7 +1662,7 @@ function goldBreak(b,season){return withBoard(b,()=>{const have=new Set(Object.k
   Object.keys(PC).forEach(n=>{const r=R[n]||{},g=gAt(r.innate,PC[n])+(ce.earned[n]&&r.mastery_raw?gAt(r.mastery,PC[n]):0);if(g){inc.push([n,g]);it+=g;}});
   Object.keys(S.infra||{}).filter(infraOn).forEach(n=>{const g=gAt(INFRA[n].atoms,1);if(g){inc.push([n,g]);it+=g;}});
   Object.keys(S.wonders||{}).filter(infraOn).forEach(n=>{const g=gAt(WON[n].atoms,1);if(g){inc.push([n,g]);it+=g;}});
-  if(m.gold-it)inc.push(["Other",m.gold-it]);if(m.scale)inc.push(["Scaling gold",m.scale]);
+  if(m.gold-it)inc.push(["Other",m.gold-it]);{let st=0;Object.keys(m.scaleBy||{}).forEach(n=>{const v=m.scaleBy[n];if(v){const r=inc.find(x=>x[0]===n);if(r)r[1]+=v;else inc.push([n,v]);st+=v;}});if(m.scale-st)inc.push(["Scaling gold",m.scale-st]);}
   const sa=((m.seasonAdd||{})[sea]||0)+seasonDblGold(S,sea),tx=sea==="Winter"?winterTax(S).total:0,tr=tradeIncome(S,sea).total;
   if(sa)inc.push([sea,sa]);if(tx)inc.push(["Winter tax",tx]);if(tr)inc.push(["Trade",tr]);
   const nh=S.placed.filter(q=>pursuitUpkeep(q)>0).length,ni=Object.keys(S.infra||{}).concat(Object.keys(S.wonders||{})).filter(infraOn).length;
@@ -1675,7 +1675,14 @@ function treasLive(){const ts=document.getElementById("treasS");if(ts){const tv=
 // compact gold for tight cells: 4,500 → +4.5k
 function fmtK(n){n=Math.round(+n||0);const a=Math.abs(n);if(a<1000)return fmt(n);const k=(a/1000).toFixed(a%1000?1:0).replace(/\.0$/,"");return (n<0?"\u2212":"+")+k+"k";}
 // Gold log: this board's Treasury changes, newest first, grouped by turn
-function renderGlog(){const box=document.getElementById("glog");if(!box)return;const L=(S.glog||[]).slice().reverse(),sum=document.getElementById("glogS");
+// Income by source: every Holding / Infrastructure / Wonder / Faction that has paid this board gold, game total (b.earn, see earnAdd)
+function renderEarn(){const box=document.getElementById("earn");if(!box)return;const E=S.earn||{},t=glogTurn(),dn=x=>window.dispName?dispName(x):x,
+    L=Object.keys(E).map(k=>[k,E[k]]).filter(([,e])=>e.g>0).sort((a,b)=>b[1].g-a[1].g),sum=document.getElementById("earnS"),tot=L.reduce((a,[,e])=>a+e.g,0);
+  if(sum)sum.textContent=L.length?fmt(tot)+" total":"";
+  if(!L.length){box.innerHTML='<div class="note">Nothing credited yet.'+(S.autoNet?'':' Yields count only while auto-apply pays them; triggered gold (Extort, per Faith / Doubt, Recoup) always counts.')+'</div>';return;}
+  box.innerHTML='<div class="kv er note"><span class="k">source</span><span class="val">this turn</span><span class="val">total</span></div>'+
+    L.map(([k,e])=>'<div class="kv er"><span class="k" title="'+e.n+' payment'+(e.n===1?'':'s')+'">'+esc(dn(k))+'</span><span class="val note">'+(e.t===t&&e.tg?fmt(e.tg):'—')+'</span><span class="val pos">'+fmt(e.g)+'</span></div>').join("");}
+function renderGlog(){renderEarn();const box=document.getElementById("glog");if(!box)return;const L=(S.glog||[]).slice().reverse(),sum=document.getElementById("glogS");
   if(sum)sum.textContent=L.length?L.length+" entries":"";
   if(!L.length){box.innerHTML='<div class="note">No Treasury changes yet.</div>';return;}
   let h="",t=null;L.forEach(e=>{if(e.t!==t){t=e.t;const tin=L.filter(x=>x.t===t&&x.d>0).reduce((a,x)=>a+x.d,0),tout=L.filter(x=>x.t===t&&x.d<0).reduce((a,x)=>a+x.d,0);

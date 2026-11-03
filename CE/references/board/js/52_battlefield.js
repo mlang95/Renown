@@ -64,10 +64,11 @@ function bfBuild(sig,S,T){const wrap=document.createElement("div");wrap.classNam
     '<line x1="'+BF_W/2+'" y1="8" x2="'+BF_W/2+'" y2="'+(BF_H-8)+'" stroke="#000" stroke-opacity=".25" stroke-dasharray="5 6"/>';
   ["A","B"].forEach(X=>{const s=S[X];if(s)h+=bfCamp(X,s.col);});
   h+='<g class="bf-units">';["A","B"].forEach(X=>{const s=S[X];if(!s)return;for(let id=0;id<s.FM+s.RM;id++)h+=bfFigure(s,id);});
-  h+='</g><g class="bf-fx"></g></svg></div><div class="bf-cap"></div>';
+  h+='</g><g class="bf-fx"></g><text class="bf-sklbl" x="'+BF_W/2+'" y="13" text-anchor="middle">SKIRMISH '+esc(String(battle().sk||"—"))+'</text></svg></div>'+
+    '<div class="bf-tally"></div><div class="bf-feed" aria-live="polite"></div><div class="bf-cap"></div>';
   wrap.innerHTML='<div class="bf-head"></div>'+h;
-  const t0=()=>({parry:0,rip:0,save:0,heal:0,on:{}});                 // on = which of these have been rolled this Skirmish
-  BF={wrap,sig,seen:{},rip:{},pos:{A:[],B:[]},fresh:true,t:{A:t0(),B:t0()},res:{A:S.A?S.A.c.reserve:0,B:S.B?S.B.c.reserve:0},panic:{}};
+  const t0=()=>({hit:0,deadly:0,parry:0,rip:0,save:0,heal:0,on:{}});                 // on = which of these have been rolled this Skirmish
+  BF={wrap,sig,seen:{},rip:{},pos:{A:[],B:[]},fresh:true,t:{A:t0(),B:t0()},res:{A:S.A?S.A.c.reserve:0,B:S.B?S.B.c.reserve:0},panic:{},stk:{A:[],B:[]},S};
   // start everyone in camp
   wrap.querySelectorAll(".bf-u").forEach(u=>{const [x,y]=bfXY(u.dataset.x,28,0);u.style.transition="none";u.style.opacity="0";
     u.style.transform="translate("+(x-BF_S/2)+"px,"+(y-BF_S/2)+"px)";});}
@@ -97,26 +98,48 @@ function bfUpdate(S,T){const W=BF.wrap,B=battle(),fresh=BF.fresh;BF.fresh=false;
   W.querySelector(".bf-head").innerHTML=["A","B"].map(X=>{const s=S[X];if(!s)return '<div></div>';
     const gear=SPR?bfGear(s).map(n=>'<span title="'+esc(n)+'">'+eqSVG(n,18)+'</span>').join(""):"",mods=s.c.cell?fmtModLong(s.c.tmEff)+s.c.tmBlk.map(t=>' · '+t).join(""):"";
     return '<div class="bf-side" style="--pc:'+s.col+'"><div class="bf-nm"><b>'+esc(s.nm)+'</b><span class="bf-gear">'+gear+'</span></div>'+
-      '<div class="bf-tac">'+esc(s.tac||(s.locked?"Tactic locked in":"Tactic hidden"))+(s.tac?esc(s.tst):'')+(mods?' · <i>'+esc(mods)+'</i>':'')+'</div><span>front '+s.c.front+' · reserve '+s.c.reserve+' · camp '+s.c.camp+(s.cas?' · fallen '+s.cas:'')+(s.pend?' · wounded '+s.pend:'')+'</span></div>';}).join('<div class="bf-mid"><span class="bf-sk">Skirmish '+(B.id?B.sk:'—')+'</span><div class="bf-feed" aria-live="polite"></div></div>');
+      '<div class="bf-tac">'+esc(s.tac||(s.locked?"Tactic locked in":"Tactic hidden"))+(s.tac?esc(s.tst):'')+(mods?' · <i>'+esc(mods)+'</i>':'')+'</div><span>front '+s.c.front+' · reserve '+s.c.reserve+' · camp '+s.c.camp+'</span></div>';}).join("");
   // caption: the battle tile and its rule
   const TT=(TREF.tactical||{})[T&&T.tile]||null;
   W.querySelector(".bf-cap").innerHTML=T?((typeof pxSwatch==="function"&&SPR&&SCAT[T.kind]?pxSwatch(T.kind,T.fill,22):'')+'<b>'+esc(T.tile||"")+'</b>'+(TT?' <span>'+esc(TT.effect||"")+'</span>':'')+' <span class="note">hex '+esc(T.key)+'</span>')
     :'<span class="note">No map hex for this battle</span>';
-  bfFeedPaint();
+  BF.S=S;bfFeedPaint();bfTallyPaint();
   if(fresh){BF.seen=bfSeen();bfReport(S);return;}
-  bfEffects(S);bfReport(S);BF.res={A:S.A?S.A.c.reserve:0,B:S.B?S.B.c.reserve:0};}
+  bfEffects(S);bfReport(S);bfTallyPaint();BF.res={A:S.A?S.A.c.reserve:0,B:S.B?S.B.c.reserve:0};}
 // the gear a side has Equipped this Skirmish: the weapon in hand, a usable shield, the armour
 function bfGear(s){const a=s.a,c=s.c,w=c.eqX.mode==="ranged"&&a.ranged&&a.ranged!=="None"?a.ranged:a.weapon;
   return [w,c.dualW?w:null,a.shield&&a.shield!=="None"&&!c.shDest&&!c.shOff?a.shield:null,a.armor].filter(n=>n&&SPR.S["eq:"+n]);}
 // pop-up feed over the field: the last 4 events (k replaces an earlier line of the same kind). Kept here, not in the DOM, so a
 // redraw that rebuilds the field repaints them; they stay until replaced (older lines dimmed). The Chronicle keeps everything.
+// The feed holds this Skirmish's events only (cleared when the next Skirmish begins); each side's lines sit under its own half,
+// events for both sides (Initiative, Fall Back) span the width.
 let BF_FEED=[],BF_FEED_ID=null;
-function bfFeedPaint(){if(!BF)return;const F=BF.wrap.querySelector(".bf-feed");if(!F)return;const id=battle().id;if(BF_FEED_ID!==id){BF_FEED=[];BF_FEED_ID=id;}
-  const h=BF_FEED.map((t,i)=>'<div class="bf-toast'+(i<BF_FEED.length-1?' old':'')+(t.fresh?'':' seen')+'" style="--pc:'+t.col+'">'+t.html+'</div>').join("");
+function bfFeedKey(){const B=battle();return B.id+"|"+B.sk;}
+const bfToastSide=k=>{const m=/^(?:st|df|mo|br|cas|pn|rep|blk)([AB])$/.exec(k);return m?m[1]:"";};
+function bfFeedPaint(){if(!BF)return;const F=BF.wrap.querySelector(".bf-feed");if(!F)return;if(BF_FEED_ID!==bfFeedKey()){BF_FEED=[];BF_FEED_ID=bfFeedKey();}
+  const one=t=>'<div class="bf-toast'+(t.fresh?'':' seen')+'" style="--pc:'+t.col+'">'+t.html+'</div>',col=X=>BF_FEED.filter(t=>t.X===X).map(one).join("");
+  const both=col(""),h=(both?'<div class="bf-fall">'+both+'</div>':'')+(BF_FEED.some(t=>t.X)?'<div class="bf-fcol">'+col("A")+'</div><div class="bf-fcol r">'+col("B")+'</div>':'');
   if(F.innerHTML!==h)F.innerHTML=h;BF_FEED.forEach(t=>t.fresh=false);}
-function bfToast(k,html,col,delay){const show=()=>{const id=battle().id;if(BF_FEED_ID!==id){BF_FEED=[];BF_FEED_ID=id;}
-    BF_FEED=BF_FEED.filter(t=>t.k!==k).concat([{k,html,col:col||"#888",fresh:true}]).slice(-4);bfFeedPaint();};
+function bfToast(k,html,col,delay){const show=()=>{if(BF_FEED_ID!==bfFeedKey()){BF_FEED=[];BF_FEED_ID=bfFeedKey();}
+    BF_FEED=BF_FEED.filter(t=>t.k!==k).concat([{k,X:bfToastSide(k),html,col:col||"#888",fresh:true}]);bfFeedPaint();};
   if(delay)setTimeout(show,delay);else show();}
+// Tally under the field: what each side has rolled this Skirmish
+function bfTallyPaint(){if(!BF)return;const el=BF.wrap.querySelector(".bf-tally"),S=BF.S||{};if(!el)return;
+  const row=X=>{const s=S[X];if(!s)return '<div></div>';const t=BF.t[X],c=s.c,o=[["Hits",t.hit+(t.deadly?' <i>('+t.deadly+' Deadly)</i>':''),"hit"]];
+    if(c.canParry)o.push(["Parried",t.parry,"parry"]);o.push(["Saved",t.save,"save"]);if(c.canParry&&(c.riposte||c.riposteMelee))o.push(["Ripostes",t.rip,"rip"]);
+    if(c.recThr!=null)o.push(["Healed",t.heal,"heal"]);o.push(["Fallen",s.cas||0,"fall"]);if(s.pend)o.push(["Wounded",s.pend,"fall"]);
+    return '<div class="bf-trow'+(X==="B"?' r':'')+'" style="--pc:'+s.col+'">'+o.map(([k,v,cl])=>'<span class="bf-tc '+cl+'"><b>'+v+'</b> '+k+'</span>').join("")+'</div>';};
+  const h=row("A")+row("B");if(el._h===h)return;
+  const old=el._v||{};el.innerHTML=h;el._h=h;const now={};
+  el.querySelectorAll(".bf-tc").forEach((c,i)=>{now[i]=c.textContent;if(old[i]!=null&&old[i]!==c.textContent){c.classList.add("chg");setTimeout(()=>c.classList.remove("chg"),1200);}});el._v=now;}
+// Big numbers over the field: n (or a word) over side X's line, stacked when several land at once
+const BF_NC={hit:"#ffd54f",deadly:"#ff5252",parry:"#e8edf2",save:"#90caf9",heal:"#69f0ae",fall:"#ff5252",up:"#e0c068",rip:"#ffb300",panic:"#ff9e5e",brk:"#ff5252",rout:"#ff5252"};
+function bfNum(X,big,small,kind,delay){const go=()=>{if(!BF)return;const P=BF.pos[X]||[],now=Date.now();
+    let x,y;if(P.length){x=P.reduce((a,p)=>a+p.x,0)/P.length;y=Math.min(...P.map(p=>p.y));}else[x,y]=bfXY(X,190,0);
+    BF.stk[X]=(BF.stk[X]||[]).filter(t=>now-t<1800);const k=BF.stk[X].length;BF.stk[X].push(now);
+    y=Math.max(40,y-22-k*34);x=Math.max(70,Math.min(BF_W-70,x));const c=BF_NC[kind]||"#fff";
+    bfFx('<g class="bf-num"><text x="'+x+'" y="'+y+'" text-anchor="middle" fill="'+c+'"><tspan class="bf-nb">'+esc(String(big))+'</tspan>'+(small?'<tspan class="bf-ns" dx="5">'+esc(small)+'</tspan>':'')+'</text></g>');};
+  if(delay)setTimeout(go,delay);else go();}
 const bfN=(n,one,many)=>n+" "+(n===1?one:(many||one+"s"));
 // the defending side's line for this Skirmish: only what it can roll (no Parry -> no parries / ripostes; no Recover -> no heals),
 // and only once it has been rolled
@@ -130,6 +153,7 @@ function bfReport(S){const B=battle(),R=B.endRep&&B.endRep.sk===B.sk?B.endRep:nu
   R.rows.forEach((r,i)=>{const s=S[r.X];if(!s)return;const o=['Endurance '+r.e0+' → '+r.e1];
     if(r.brk)o.push(r.brk.dice?'<b>Break check</b>: '+bfN(r.brk.lost,"casualty","casualties")+' ('+r.brk.n+'d10 vs '+r.brk.target+'+)':'<b>Break check due</b>: '+r.brk.n+'d10 vs '+r.brk.target+'+');
     if(r.fat!=null)o.push('Fatigue '+r.fat+' → Morale '+r.m1+'+');if(r.rout)o.push('<b>Routs</b>');if(r.wiped)o.push('<b>wiped out</b>');
+    if(r.rout||r.wiped)bfNum(r.X,r.wiped?"WIPED OUT":"ROUT","","rout",i*250);else if(r.brk&&r.brk.dice&&r.brk.lost)bfNum(r.X,"−"+r.brk.lost,"Break","brk",i*250);
     bfToast("rep"+r.X,'<b>'+esc(s.nm)+'</b>, end of Skirmish '+(R.sk-1)+': '+o.join(' · '),s.col,i*250);});}
 // what has already been shown: each side's last roll, pending Ripostes, the reveal
 function bfSeen(){const B=battle(),o={rev:B.rev&&B.rev.sk===B.sk?B.rev.A+"|"+B.rev.B:""};
@@ -160,22 +184,27 @@ function bfEffects(S){const B=battle(),now=bfSeen(),was=BF.seen;BF.seen=now;cons
       if(s.ranged)bfPick(mine,10).forEach((m,i)=>{const t=theirs[i%Math.max(1,theirs.length)];if(t)bfFx(BF_MARK.shot(m.x,m.y,t.x,t.y));});
       else mine.forEach(m=>{m.u.classList.remove("lunge");void m.u.getBBox();m.u.classList.add("lunge");setTimeout(()=>m.u.classList.remove("lunge"),600);});
       setTimeout(()=>bfPick(theirs,R.succ).forEach((t,i)=>bfFx(BF_MARK.hit(t.x,t.y,i<(R.deadly||0)))),s.ranged?450:220);
+      BF.t[X].hit+=R.succ||0;BF.t[X].deadly+=R.deadly||0;
+      bfNum(O,R.target>F?"—":R.succ,R.target>F?"can't hit":(R.succ===1?"hit":"hits")+(R.deadly?" · "+R.deadly+" Deadly":""),R.deadly?"deadly":"hit",s.ranged?450:220);
       const cl=cleaveN(X);
       bfToast("st"+X,nm+(R.rr?' re-rolls its misses (Dual Wield): +'+bfN(R.succ,"hit"):R.cleave?' cleaves: +'+bfN(R.succ,"hit"):' strikes: '+bfN(R.succ,"hit"))+
         (s.c.hasDeadly?' · '+(R.deadly||0)+' Deadly':'')+(cl?' · Cleave ×'+cl+' to roll':'')+(R.target>F?' (can\'t hit)':''),s.col);}
-    else if(R.kind==="Parry"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.parry(m.x,m.y)));BF.t[X].parry+=R.succ+dl;BF.t[X].on.parry=1;bfToast("df"+X,bfDefLine(s),s.col);}
-    else if(R.kind==="Save"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.save(m.x,m.y)));BF.t[X].save+=R.succ+dl;BF.t[X].on.save=1;bfToast("df"+X,bfDefLine(s),s.col);}
-    else if(R.kind==="Recover"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.heal(m.x,m.y)));BF.t[X].heal+=R.succ+dl;BF.t[X].on.heal=1;bfToast("df"+X,bfDefLine(s),s.col);}
+    else if(R.kind==="Parry"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.parry(m.x,m.y)));BF.t[X].parry+=R.succ+dl;BF.t[X].on.parry=1;bfNum(X,R.succ+dl,"parried","parry");bfToast("df"+X,bfDefLine(s),s.col);}
+    else if(R.kind==="Save"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.save(m.x,m.y)));BF.t[X].save+=R.succ+dl;BF.t[X].on.save=1;bfNum(X,R.succ+dl,"saved","save");bfToast("df"+X,bfDefLine(s),s.col);}
+    else if(R.kind==="Recover"){bfPick(mine,R.succ+dl).forEach(m=>bfFx(BF_MARK.heal(m.x,m.y)));BF.t[X].heal+=R.succ+dl;BF.t[X].on.heal=1;bfNum(X,"+"+(R.succ+dl),"healed","heal");bfToast("df"+X,bfDefLine(s),s.col);}
     else if(R.kind==="Morale"){mine.forEach(m=>{m.u.classList.add("shake");setTimeout(()=>m.u.classList.remove("shake"),900);});
+      bfNum(X,"PANIC",(R.dice.length-R.succ)+" flee","panic");
       bfToast("mo"+X,nm+' <b>Panic check</b>: '+R.succ+' hold, '+(R.dice.length-R.succ)+' flee ('+R.dice.length+'d10 vs '+R.target+'+)',s.col);}
     else if(R.kind==="Break"){mine.forEach(m=>{m.u.classList.add("shake");setTimeout(()=>m.u.classList.remove("shake"),900);});
+      bfNum(X,"BREAK",bfN(R.cas,"lost","lost"),"brk");
       bfToast("br"+X,nm+' <b>Break check</b>: '+R.succ+' hold, '+bfN(R.cas,"casualty","casualties")+' ('+R.dice.length+'d10 vs '+R.target+'+)',s.col);}});
   // Riposte: a new pending Riposte against O comes back from X's line
   ["A","B"].forEach(O=>{const X=O==="A"?"B":"A",d=now["rip"+O]-(was["rip"+O]||0);if(d<=0)return;
-    if(S[X]){BF.t[X].rip+=d;bfToast("df"+X,bfDefLine(S[X]),S[X].col);}
+    if(S[X]){BF.t[X].rip+=d;bfToast("df"+X,bfDefLine(S[X]),S[X].col);bfNum(O,"↩ "+d,d===1?"riposte":"ripostes","rip",200);}
     bfPick(BF.pos[X],d).forEach((m,i)=>{const t=BF.pos[O][i%Math.max(1,BF.pos[O].length)];if(t){bfFx(BF_MARK.shot(m.x,m.y,t.x,t.y,"#ffb300"));setTimeout(()=>bfFx(BF_MARK.hit(t.x,t.y,false)),400);}});});
   // casualties applied: who falls, who steps up from reserve; Panic check due once losses pass the threshold
   ["A","B"].forEach(X=>{const s=S[X],d=now["cas"+X]-(was["cas"+X]||0);if(!s||d<=0)return;const up=Math.min(d,BF.res[X]||0);
+    bfNum(X,"−"+d,d===1?"falls":"fall","fall");if(up)bfNum(X,"+"+up,"from reserve","up",500);
     bfToast("cas"+X,'<b>'+esc(s.nm)+'</b>: '+bfN(d,"falls","fall")+(up?' · '+up+' step up from reserve':'')+(s.c.front<(BT.frontMax||10)?' · front '+s.c.front:''),s.col);
     const sd=B[X],pn=(sd.cas||0)+(s.c.enduring?0:(sd.rcv||0)),T=BT.panicThreshold||5;
     if(pn>T&&!BF.panic[X]){BF.panic[X]=1;bfToast("pn"+X,s.c.immunePanic?'<b>'+esc(s.nm)+'</b>: '+pn+' lost this Skirmish, Immune Panic':
