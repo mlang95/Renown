@@ -51,14 +51,14 @@ REM TAG: subfolder under lab_out. Blank = auto-named from the dice settings.
 set TAG=
 
 REM ============================ POOL SETTINGS =================================
-set MPC_MIN=5
-set MPC_MAX=20
-set RUNS=250
+set MPC_MIN=2
+set MPC_MAX=4
+set RUNS=200
 REM BALANCED=1 -> balanced_validation_pool ; BALANCED=0 -> archetype_pool
-set BALANCED=0
-set PER_CELL=100
-set STRATIFY=100
-set BUDGET_METRIC=total
+set BALANCED=1
+set PER_CELL=500
+set STRATIFY=150
+set BUDGET_METRIC=mpc
 REM mpc / total
 REM MAX_COMBO: combat / gear Holdings one generated build combines on top of its gear + Retinue line
 set MAX_COMBO=100

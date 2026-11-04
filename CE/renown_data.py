@@ -297,31 +297,31 @@ RETINUES = {
     "Levy":           {"cost": 1000, "to_hit": 6, "endurance": 3, "shaking": 6, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
     "Man-at-Arms":    {"cost": 2000, "to_hit": 5, "endurance": 4, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
     "Sergeant":       {"cost": 3000, "to_hit": 3, "endurance": 3, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
-    "Knight Templar": {"cost": 3000, "to_hit": 4, "endurance": 3, "shaking": 4, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
+    "Knight Templar": {"cost": 4000, "to_hit": 4, "endurance": 3, "shaking": 4, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
 }
 
 WEAPONS = {
     "Farm Tools":     {"ap":  0, "init":  0, "tier": "Crude",   "tags": [NO_PARRY]},
-    "Cudgel":         {"ap": -1, "init": -1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, NO_PARRY]},
+    "Cudgel":         {"ap": -1, "init": -1, "tier": "Crude",   "tags": [TWO_H, NO_PARRY]},
     "Pitchfork":      {"ap":  0, "init":  1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, NO_PARRY]},
     "Bill Hook":      {"ap": -1, "init":  0, "tier": "Cast",   "tags":  [TWO_H, NEGATE_SHIELDED]},
     "Daggers":        {"ap":  0, "init":  0, "tier": "Cast",    "tags": [TWO_H, SHATTER_ARMOR, NO_PARRY]},
-    "Short Sword":    {"ap": -1, "init":  0, "tier": "Cast",    "tags": [STEADY]},
+    "Short Sword":    {"ap":  0, "init":  0, "tier": "Cast",    "tags": [STEADY]},
     "Spears":         {"ap": -1, "init":  1, "tier": "Cast",    "tags": [UNWIELDY, NO_PARRY], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile.'},
     "2HSpears":       {"ap": -1, "init":  1, "tier": "Cast",    "tags": [TWO_H, STEADY, NO_PARRY]},
-    "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR]},
-    "Pike":           {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, STEADY, UNWIELDY, SHATTER_ARMOR, NO_PARRY]},
+    "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY]},
+    "Pike":           {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY]},
     "Flail":          {"ap":  0, "init": -1, "tier": "Wrought", "tags": [UNSTOPPABLE, CLEAVE, NO_PARRY], 'note': 'Cannot Florentine'},
-    "Halberd":        {"ap": -2, "init":  0, "tier": "Wrought", "tags": [TWO_H, STEADY, NEGATE_SHIELDED]},
+    "Halberd":        {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, STEADY, NEGATE_SHIELDED]},
     "Battle Axe":     {"ap": -3, "init": -1, "tier": "Wrought", "tags": [TWO_H, UNSTOPPABLE, CLEAVE, NEGATE_SHIELDED]},
     "Cavalry Spear":  {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY], 'note': "Needs Stable; no Tower Shield or Florentine or Ranged Weapon"},
-    "Morningstar":    {"ap": -4, "init": -1, "tier": "Forged",  "tags": [CLEAVE, DESTROY_SHIELD], 'note': 'Cannot Florentine'},
-    "Bastard Sword":  {"ap": -2, "init":  0, "tier": "Forged",  "tags": [STEADY, SHATTER_ARMOR], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile.'},
-    "2HBastard":      {"ap": -2, "init":  0, "tier": "Forged",  "tags": [TWO_H, UNSTOPPABLE, CLEAVE]},
+    "Morningstar":    {"ap": -3, "init": -1, "tier": "Forged",  "tags": [CLEAVE, DESTROY_SHIELD], 'note': 'Cannot Florentine'},
+    "Bastard Sword":  {"ap": -1, "init":  0, "tier": "Forged",  "tags": [STEADY, SHATTER_ARMOR], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile.'},
+    "2HBastard":      {"ap": -3, "init":  0, "tier": "Forged",  "tags": [TWO_H, UNSTOPPABLE, CLEAVE]},
     "War Hammer":     {"ap":-10, "init": -1, "tier": "Forged",  "tags": [TWO_H, STEADY, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD]},
-    "Lance":          {"ap": -4, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY, DESTROY_SHIELD], 'note': "Needs Saddlery; no Tower Shield, Florentine, Ranged weapon."},
-    "Estoc":          {"ap": -3, "init":  0, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE]},
-    "Poleaxe":        {"ap": -6, "init":  0, "tier": "Crafted", "tags": [TWO_H, STEADY, CLEAVE, UNSTOPPABLE, NEGATE_SHIELDED]},
+    "Lance":          {"ap": -4, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY, NEGATE_SHIELDED], 'note': "Needs Saddlery; no Tower Shield, Florentine, Ranged weapon."},
+    "Estoc":          {"ap": -4, "init":  0, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE]},
+    "Poleaxe":        {"ap": -6, "init":  1, "tier": "Crafted", "tags": [TWO_H, STEADY, CLEAVE, UNSTOPPABLE, NEGATE_SHIELDED]}, #DESTROY_SHIELD
 }
 # 1H / 2H profiles: an entry named "2H<Name>" is the 2H profile of the weapon named <Name> (or the one weapon
 # whose name starts with it: "2HBastard" → "Bastard Sword"). That weapon gets "profile_2h"; it is one item that
@@ -333,14 +333,14 @@ for _k2 in [k for k in WEAPONS if k.startswith("2H")]:
         raise ValueError(f"WEAPONS: 2H profile {_k2!r} matches {_base or 'no weapon'}")
     WEAPONS[_base[0]].setdefault("profile_2h", _k2)
 WEAPON_2H_PROFILES = {v["profile_2h"]: k for k, v in WEAPONS.items() if v.get("profile_2h")}   # "2H…" entry → its weapon
-
+RANGED_WEAPON = [UNSTOPPABLE, NO_PARRY, SHATTER_ARMOR]
 RANGED = {
     "Hunting Bow": {"ap":  0, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNSTOPPABLE, NO_PARRY]},
     "Longbow":     {"ap": -1, "init":  2, "tier": "Cast",    "tags": [TWO_H, UNSTOPPABLE, SHATTER_ARMOR, NO_PARRY]},
     "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD, ONE_SHOT, NO_PARRY], 'note': 'Cannot Florentine'},
-    "Crossbow":    {"ap": -4, "init":  1, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NO_PARRY]},#'note': "Tower Shield only (no other shield), cannot Dual Wield"
-    "Pilum":       {"ap": -5, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD, ONE_SHOT, NO_PARRY]},
-    "Arquebus":    {"ap": -8, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, UNSTOPPABLE, NEGATE_SHIELDED, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
+    "Crossbow":    {"ap": -3, "init":  2, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NO_PARRY]},#'note': "Tower Shield only (no other shield), cannot Dual Wield"
+    "Pilum":       {"ap": -4, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD, ONE_SHOT, NO_PARRY]},
+    "Arquebus":    {"ap": -5, "init":  2, "tier": "Crude",   "tags": [TWO_H, STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
    
 }
 
@@ -349,8 +349,8 @@ SHIELDS = {
     "Buckler Shield":{"save_bonus": 1, "init":  0, "tier": "Crude",  "tags": []},
     "Targe Shield":  {"save_bonus": 1, "init":  0, "tier": "Cast",   "tags": [UNWIELDY, MINUS_1_TBH]},
     "Kite Shield":   {"save_bonus": 1, "init":  0, "tier": "Wrought","tags": [STEADY, MINUS_1_TBH]},
-    "Tower Shield":  {"save_bonus": 2, "init":  0, "tier": "Forged", "tags": [UNWIELDY, MINUS_1_TBH]},
-    "Heater Shield": {"save_bonus": 2, "init":  0, "tier": "Crafted","tags": [MINUS_1_TBH, IMMUNE_DESTROY_SHIELD]},
+    "Tower Shield":  {"save_bonus": 2, "init": -1, "tier": "Forged", "tags": [UNWIELDY, MINUS_1_TBH]},
+    "Heater Shield": {"save_bonus": 1, "init":  0, "tier": "Crafted","tags": [MINUS_1_TBH, IMMUNE_DESTROY_SHIELD]},
 }
 
 ARMORS = {
@@ -359,7 +359,7 @@ ARMORS = {
     "Leather":     {"save":  7, "tier": "Cast",    "tags": []},
     "Chainmail":   {"save":  6, "tier": "Wrought", "tags": []},
     "Full Plate":  {"save":  5, "tier": "Forged",  "tags": []},
-    "Gothic Plate":{"save":  4, "tier": "Crafted", "tags": []},
+    "Gothic Plate":{"save":  3, "tier": "Crafted", "tags": []},
 }
 
 # ── Tier ladder ────────────────────────────────────────────────────────────
@@ -379,7 +379,7 @@ TIER_UNLOCK = {
 STANDING_EFFECTS = {
     ("Prowess", "Established"): "Gain Parry.", #Remove "Parry"
     ("Prowess", "Sovereign"): "Immune Blunder",
-    ("Piety",   "Rising"): "Morale +1",
+    ("Piety",   "Sovereign"): "Morale +1",
     #("Piety", "Sovereign"): "Immune Panic",
     ("Cunning", "Established"): "Opponent gains Strained.", #Remove "Foes gain Blunder in first Skirmish"
     ("Cunning", "Sovereign"):   "Opponent gains Blunder in the first Skirmish.", #Remove "Foes gain Strained"
@@ -402,67 +402,74 @@ def _m(I=0, TH=0, TS=0, end=False, no_combat=False, endurance_loss=True, strain=
 # returns this dict — there is no second copy to drift from.
 # ============================================================================
 TACTIC_MATRIX = {
-    # -- Scout --
-    ("Scout", "Scout"):                            (_m(I=1), _m(I=1)),
-    ("Scout", "Ambush"):                           (_m(I=1), _m(I=-1, TS=1)),
-    ("Scout", "Flank"):                            (_m(I=-1, TS=1), _m(I=1)),
-    ("Scout", "Charge"):                           (_m(I=1), _m(I=-1)),
-    ("Scout", "Fighting Formation"):               (_m(TS=-1), _m(I=-1, TH=1)),
-    ("Scout", "Defensive Formation"):              (_m(I=1), _m(I=-1, TS=1)),
-    ("Scout", "Fall Back"):                        (_m(end=True), _m(end=True, strain=True)),
-    # -- Ambush --
-    ("Ambush", "Scout"):                           (_m(I=-1, TS=1), _m(I=1)),
-    ("Ambush", "Ambush"):                          (_m(I=-1, TS=1), _m(I=-1, TS=1)),
-    ("Ambush", "Flank"):                           (_m(I=1, TH=-1), _m(I=-1, TH=1)),
-    ("Ambush", "Charge"):                          (_m(I=1, TH=1), _m(I=-1, TS=-1)),
-    ("Ambush", "Fighting Formation"):              (_m(I=1, TS=1), _m(I=-1, TS=-1)),
-    ("Ambush", "Defensive Formation"):             (_m(I=1), _m(TS=1, I=-1)),
-    ("Ambush", "Fall Back"):                       (_m(end=True), _m(end=True, strain=True)),
-    # -- Flank --
-    ("Flank", "Scout"):                            (_m(I=1), _m(I=-1, TS=1)),
-    ("Flank", "Ambush"):                           (_m(I=-1, TH=1), _m(I=1, TH=-1)),
+    # -- Scout -- Find an Opening: gain Initiative
+    ("Scout", "Scout"):                            (_m(I=1)        , _m(I=1)),
+    ("Scout", "Ambush"):                           (_m(I=1, TH=1)  , _m(I=-1)),
+    ("Scout", "Flank"):                            (_m(TH=1)       , _m()),
+    ("Scout", "Charge"):                           (_m(I=-1)       , _m(I=1, TH=1)),
+    ("Scout", "Fighting Formation"):               (_m()           , _m(TH=1)),
+    ("Scout", "Defensive Formation"):              (_m(I=1)        , _m(I=-1)),
+    ("Scout", "Fall Back"):                        (_m(end=True)   , _m(end=True, strain=True)),
+    # -- Ambush -- Lie in Wait: gain Initiative & Save when sprung, lose everything when read
+    ("Ambush", "Scout"):                           (_m(I=-1)       , _m(I=1, TH=1)),
+    ("Ambush", "Ambush"):                          (_m(I=-1, TS=1) , _m(I=-1, TS=1)),
+    ("Ambush", "Flank"):                           (_m(TS=-1)      , _m(TH=1)),
+    ("Ambush", "Charge"):                          (_m(I=1, TS=1)  , _m(I=-1, TS=-1)),
+    ("Ambush", "Fighting Formation"):              (_m(I=1, TS=1)  , _m(I=-1)),
+    ("Ambush", "Defensive Formation"):             (_m(I=1, TH=1)        , _m(TS=1, I=-1)),
+    ("Ambush", "Fall Back"):                       (_m(end=True)   , _m(end=True, strain=True)),
+    # -- Flank -- Outmanoeuvre: enemy loses Save, risk enemy gains Strike
+    ("Flank", "Scout"):                            (_m()           , _m(TH=1)),
+    ("Flank", "Ambush"):                           (_m(TH=1)       , _m(TS=-1)),
     ("Flank", "Flank"):                            (_m(no_combat=True), _m(no_combat=True)),
-    ("Flank", "Charge"):                           (_m(I=-1), _m(I=1)),
-    ("Flank", "Fighting Formation"):               (_m(I=1, TH=1), _m(I=-1)),
-    ("Flank", "Defensive Formation"):              (_m(I=1), _m(I=-1, TS=1)),
-    ("Flank", "Fall Back"):                        (_m(I=-1), _m(I=1, TH=1)),
-    # -- Charge --
-    ("Charge", "Scout"):                           (_m(I=-1), _m(I=1)),
-    ("Charge", "Ambush"):                          (_m(I=-1, TS=-1), _m(I=1, TH=1)),
-    ("Charge", "Flank"):                           (_m(I=1), _m(I=-1)),
-    ("Charge", "Charge"):                          (_m(TH=1), _m(TH=1)),
-    ("Charge", "Fighting Formation"):              (_m(I=1, TH=-1), _m(I=-1, TH=1)),
-    ("Charge", "Defensive Formation"):             (_m(TS=-1), _m(TH=1, TS=1)),
-    ("Charge", "Fall Back"):                       (_m(I=1, TH=1), _m(I=-1)),
-    # -- Fighting Formation --
-    ("Fighting Formation", "Scout"):               (_m(I=-1, TH=1), _m(TS=-1)),
-    ("Fighting Formation", "Ambush"):              (_m(I=-1, TS=-1), _m(I=1, TS=1)),
-    ("Fighting Formation", "Flank"):               (_m(I=-1), _m(I=1, TH=1)),
-    ("Fighting Formation", "Charge"):              (_m(I=-1, TH=1), _m(I=1, TH=-1)),
-    ("Fighting Formation", "Fighting Formation"):  (_m(I=-1, TH=1), _m(I=-1, TH=1)),
-    ("Fighting Formation", "Defensive Formation"): (_m(TH=1), _m(TS=1)),
-    ("Fighting Formation", "Fall Back"):           (_m(TH=1), _m()),
-    # -- Defensive Formation --
-    ("Defensive Formation", "Scout"):              (_m(I=-1, TS=1), _m(I=1)),
-    ("Defensive Formation", "Ambush"):             (_m(TS=1, I=-1), _m(I=1)),
-    ("Defensive Formation", "Flank"):              (_m(I=-1, TS=1), _m(I=1)),
-    ("Defensive Formation", "Charge"):             (_m(TH=1, TS=1), _m(TS=-1)),
-    ("Defensive Formation", "Fighting Formation"): (_m(TS=1), _m(TH=1)),
-    ("Defensive Formation", "Defensive Formation"): (_m(TS=1), _m(TS=1)),
-    ("Defensive Formation", "Fall Back"):          (_m(end=True), _m(end=True, strain=True)),
+    ("Flank", "Charge"):                           (_m(I=-1, TH=-1), _m(I=1, TH=1)),
+    ("Flank", "Fighting Formation"):               (_m()           , _m(TS=-1, TH=1)),
+    ("Flank", "Defensive Formation"):              (_m()           , _m(TS=-1)),
+    ("Flank", "Fall Back"):                        (_m(I=-1)       , _m(I=1, TH=1)),
+    # -- Charge -- Strike Hard: gain Initiative & Strike, risk Save
+    ("Charge", "Scout"):                           (_m(I=1, TH=1)  , _m(I=-1)),
+    ("Charge", "Ambush"):                          (_m(I=-1, TS=-1), _m(I=1, TS=1)),
+    ("Charge", "Flank"):                           (_m(I=1, TH=1)  , _m(I=-1, TH=-1)),
+    ("Charge", "Charge"):                          (_m(TH=1)       , _m(TH=1)),
+    ("Charge", "Fighting Formation"):              (_m(I=1, TH=1)  , _m(I=-1, TH=1)),
+    ("Charge", "Defensive Formation"):             (_m(TS=-1, I=1) , _m(TS=1, I=-1)),
+    ("Charge", "Fall Back"):                       (_m(I=1, TH=1)  , _m(I=-1)),
+    # -- Fighting Formation -- Close Order: gain Strike, lose Initiative
+    ("Fighting Formation", "Scout"):               (_m(TH=1)       , _m()),
+    ("Fighting Formation", "Ambush"):              (_m(I=-1)       , _m(I=1, TS=1)),
+    ("Fighting Formation", "Flank"):               (_m(TS=-1, TH=1), _m()),
+    ("Fighting Formation", "Charge"):              (_m(I=-1, TH=1) , _m(I=1, TH=1)),
+    ("Fighting Formation", "Fighting Formation"):  (_m(I=-1, TH=1) , _m(I=-1, TH=1)),
+    ("Fighting Formation", "Defensive Formation"): (_m(TH=1)       , _m()),
+    ("Fighting Formation", "Fall Back"):           (_m(TH=1)       , _m()),
+    # -- Defensive Formation -- Braced for Attack: gain Save vs attackers, lose Initiative
+    ("Defensive Formation", "Scout"):              (_m(I=-1)       , _m(I=1)),
+    ("Defensive Formation", "Ambush"):             (_m(I=-1, TS=1) , _m(I=1, TH=1)),
+    ("Defensive Formation", "Flank"):              (_m(TS=-1)      , _m()),
+    ("Defensive Formation", "Charge"):             (_m(I=-1, TS=1) , _m(TS=-1, I=1)),
+    ("Defensive Formation", "Fighting Formation"): (_m()           , _m(TH=1)),
+    ("Defensive Formation", "Defensive Formation"):(_m(TS=1)       , _m(TS=1)),
+    ("Defensive Formation", "Fall Back"):          (_m(end=True)   , _m(end=True, strain=True)),
     # -- Fall Back --
     ("Fall Back", "Scout"):                        (_m(end=True, strain=True), _m(end=True)),
     ("Fall Back", "Ambush"):                       (_m(end=True, strain=True), _m(end=True)),
-    ("Fall Back", "Flank"):                        (_m(I=1, TH=1), _m(I=-1)),
-    ("Fall Back", "Charge"):                       (_m(I=-1), _m(I=1, TH=1)),
-    ("Fall Back", "Fighting Formation"):           (_m(), _m(TH=1)),
+    ("Fall Back", "Flank"):                        (_m(I=1, TH=1)  , _m(I=-1)),
+    ("Fall Back", "Charge"):                       (_m(I=-1)       , _m(I=1, TH=1)),
+    ("Fall Back", "Fighting Formation"):           (_m()           , _m(TH=1)),
     ("Fall Back", "Defensive Formation"):          (_m(end=True, strain=True), _m(end=True)),
-    ("Fall Back", "Fall Back"):                    (_m(end=True), _m(end=True)),
+    ("Fall Back", "Fall Back"):                    (_m(end=True)   , _m(end=True)),
 }
  
 TACTICS = ["Scout", "Ambush", "Flank", "Charge", "Fighting Formation", "Defensive Formation", "Fall Back"]
 # One line per tactic shown in the board's Tactics matchups panel (objective / risk, in your words). Empty = not shown.
-TACTIC_NOTES = {}
+TACTIC_NOTES = {
+    "Scout": "Find an Opening",
+    "Ambush": "Lie in Wait",
+    "Flank": "Outmanoeuvre",
+    "Charge": "Strike Hard",
+    "Fighting Formation": "Close Order",
+    "Defensive Formation": "Brace for Attack",
+}
 # Battle chronicle (board, Battle view): one line per event, read as the Battle happens. Each list is a set of variants
 # (the board picks one); fill-ins: {side} {foe} player / camp names · {troops} {foe_troops} Retinue plurals ·
 # {weapon} {armor} {foe_weapon} {foe_armor} · {tactic} {foe_tactic} · {n} dice · {hits} {saved} {lost} {left} {tens} counts ·
@@ -1171,7 +1178,7 @@ NODES = {
         "group": "g_devotion",
         "unlock": "Established Piety",
         #"infrastructure_req": "Chapel",
-        "innate": "Recover improved by +1; Enduring: Successful Recovered rolls do not count towards the panic check threshold",
+        "innate": "Enduring: Successful Recovered rolls do not count towards the panic check threshold",#Recover improved by +1; 
         "efficient": "Infirmary",
         "monument": False},
     "Jester's Court": {
@@ -1584,13 +1591,14 @@ NODES = {
         "unlock": "Sovereign Prowess + Established Industry",
         ##"infrastructure_req": "Magistrate's Hall",
         "innate": "Siege Timers ignore Wooden & Stone Walls; Unlocks Arquebus",
+        "innate": "Siege Timers ignore Wooden & Stone Walls; Unlocks Arquebus",
         "efficient": "Abatis Field",
         "monument": True},
     "Ministry of Military Strategy": {
         "group": "g_logistics",
         "unlock": "Sovereign Prowess",
         #"infrastructure_req": "Library",
-        "innate": "Always gains Seize the Initiative, and your opponent doesn't; max initiative is increased to 3; Gain Drilled",
+        "innate": "Always gains Seize the Initiative, and your opponent doesn't; max initiative is increased to 3; Gain Drilled; Initiative +1",
         "efficient": "War College",
         "monument": True},
     "Thieves' Guild": {
