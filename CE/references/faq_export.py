@@ -43,7 +43,7 @@ def build(out_path):
 
     # combat keywords get the keywords-ref page; everything else the glossary.
     # The keyword subset mirrors card_sheet / the wiki keywords page.
-    KW_TERMS = {rd.STEADY, rd.UNWIELDY, rd.TWO_H, rd.SHATTER_ARMOR, rd.UNSTOPPABLE,
+    KW_TERMS = {rd.STEADY, rd.UNWIELDY, rd.TWO_H, rd.DEADLY, rd.UNSTOPPABLE,
                 rd.CLEAVE, rd.POISON, rd.NIMBLE, rd.DRILLED, rd.DESTROY_SHIELD,
                 rd.BLUNDER, rd.ONE_SHOT, rd.DEFLECT, rd.IMMUNE_PANIC, rd.UNBREAKABLE,
                 rd.PARRY, rd.RIPOSTE, rd.RECOVER, rd.SERRATED, rd.PLANISHING,

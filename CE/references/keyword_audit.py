@@ -18,7 +18,7 @@ spec = importlib.util.spec_from_file_location("renown_data", sys.argv[1] if len(
 rd = importlib.util.module_from_spec(spec); sys.modules["renown_data"] = rd; spec.loader.exec_module(rd)
 
 PB, CAP, UM, DAP = rd.PARRY_BASE, rd.CAP_THR, rd.UNSTOPPABLE_MOD, rd.DEADLY_AP
-U, D, NS, NR, NP, CL, DS = (rd.UNSTOPPABLE, rd.SHATTER_ARMOR, rd.NEGATE_SHIELDED, rd.NEGATE_RIPOSTE,
+U, D, NS, NR, NP, CL, DS = (rd.UNSTOPPABLE, rd.DEADLY, rd.NEGATE_SHIELDED, rd.NEGATE_RIPOSTE,
                             rd.NEGATE_TEMPERED, rd.CLEAVE, rd.DESTROY_SHIELD)
 STRIKE_KW = [U, D, NS, NR, NP, CL]
 TOHIT = sorted({r["to_hit"] for r in rd.RETINUES.values()})

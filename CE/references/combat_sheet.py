@@ -187,7 +187,7 @@ def front(c):
                 ["3 " + rd.RECOVER, gtext(rd.RECOVER)]]
     y = chart(c, right_x, y, right_w, "Defense Sequence (per Strike)", ["Step","Roll"], def_rows,
               colw=[right_w*0.24,right_w*0.76], fs=7.5); y -= 6
-    nat_keys = [rd.SHATTER_ARMOR, rd.CLEAVE, rd.DESTROY_SHIELD, rd.POISON, rd.RIPOSTE, rd.PLANISHING]
+    nat_keys = [rd.DEADLY, rd.CLEAVE, rd.DESTROY_SHIELD, rd.POISON, rd.RIPOSTE, rd.PLANISHING]
     nat_rows = [[k, gtext(k)] for k in nat_keys if k in rd.GLOSSARY]
     y = chart(c, right_x, y, right_w, f"On an Unmodified {FOCUSED_THR}", ["Keyword","Effect"], nat_rows,
               colw=[right_w*0.26,right_w*0.74], fs=7.5); y -= 6
@@ -327,7 +327,7 @@ def back(c):
                colw=[col_w*0.26,col_w*0.18,col_w*0.12,col_w*0.11,col_w*0.33], fs=7.5, rowh=12.5,
                align=["l","l","num","num","l"])
     yr = terrain_chart(c, rx, yr-6, col_w, fs=7.2, rowh=11)
-    KW = [rd.SHATTER_ARMOR, rd.CLEAVE, rd.DESTROY_SHIELD, rd.POISON, rd.UNSTOPPABLE,
+    KW = [rd.DEADLY, rd.CLEAVE, rd.DESTROY_SHIELD, rd.POISON, rd.UNSTOPPABLE,
           rd.PARRY, rd.RIPOSTE, rd.FLORENTINE, rd.RECOVER, rd.SERRATED, rd.PLANISHING, rd.DEFLECT,
           rd.NIMBLE, rd.DRILLED, rd.STEADY, rd.UNWIELDY, rd.BLUNDER, rd.ONE_SHOT,
           rd.IMMUNE_PANIC, rd.UNBREAKABLE, rd.FATIGUE_TOKEN, rd.MINUS_1_TBH, rd.TWO_H,

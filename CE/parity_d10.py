@@ -18,7 +18,7 @@ import ce_paths
 ce_paths.install(verbose=False)
 import numpy as np, loadouts as L, vectorized_combat as vc, batch_engine as be
 
-pool = L.balanced_validation_pool(mpc_min=4, mpc_max=13, per_cell=3)
+pool = L.balanced_validation_pool(ti_min=6, ti_max=16, per_cell=3)
 rng = np.random.default_rng(args.seed)
 idx = rng.integers(0, len(pool), size=(args.pairs, 2))
 pairs = [(pool[i], pool[j]) for i, j in idx if i != j]

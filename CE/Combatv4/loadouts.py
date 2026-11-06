@@ -27,13 +27,13 @@ _ST = getattr(_rd_st, "STANDING_THRESHOLDS", {"Untested": 1, "Rising": 3, "Estab
 _RIS, _EST, _SOV = _ST["Rising"], _ST["Established"], _ST["Sovereign"]
 # Keyword constants so tag-injection sites point at VARIABLES, not literals (rename-safe).
 from renown_data import (
-    SHATTER_ARMOR, CLEAVE, DEFLECT, DESTROY_SHIELD, DRILLED, DUAL_WIELD, HALFSWORD,
+    DEADLY, CLEAVE, DEFLECT, DESTROY_SHIELD, DRILLED, DUAL_WIELD, HALFSWORD,
     MINUS_1_TBH, MINUS_1_PARRY, NEGATE_RIPOSTE, NEGATE_TEMPERED, NEGATE_UNSTOPPABLE,
     NIMBLE, ONE_SHOT, PARRY, PLANISHING, POISON, RECOVER, RIPOSTE, SERRATED,
     STEADY, STRAIN, TWO_H, UNBREAKABLE, UNSTOPPABLE, UNWIELDY,
     IMMUNE_DESTROY_SHIELD, IMMUNE_STRAIN, IMMUNE_UNWIELDY,
 )
-from dice_config import RECOVER_BASE
+from dice_config import RECOVER_BASE, parse_bonuses
 Loadout = namedtuple("Loadout",
     "name retinue weapon shield armor ranged has_tiltyard size extra_tags upkeep_per_retinue playstyle tiltyard_mastery pursuits military_pursuit_count domain_count")
 Loadout.__new__.__defaults__ = (None, True, frozenset(), 0, 0)  # playstyle, tiltyard_mastery, pursuits, mpc, domain_count
@@ -734,7 +734,22 @@ def _load_loadouts_from_csv(csv_path):
                 domain_count=dc,
             ))
     return pool
-def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budget_metric="mpc", max_monuments=2, max_combo=3):
+def _blunders(w_init, weapon, shield, tags):
+    """True if this weapon + shield leaves the Army at the Blunder floor with no way off it.
+    Initiative before Tactics = weapon + shield + Holding Init bonuses. At -1 or better: fine. At -2: fine only
+    if a Tactic can still raise it, i.e. nothing it carries is Unwieldy (weapon, shield, Holding tags) or it has
+    Immune Unwieldy. Below -2: always floored."""
+    init = w_init + SHIELDS[shield]["init"] + parse_bonuses(tags)["Init"]
+    if init >= -1:
+        return False
+    if init < -2:
+        return True
+    unwieldy = (UNWIELDY in WEAPONS.get(weapon, {}).get("tags", []) or UNWIELDY in SHIELDS[shield]["tags"]
+                or UNWIELDY in tags)
+    return unwieldy and IMMUNE_UNWIELDY not in tags
+
+
+def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, max_monuments=2):
     """Enumerate loadouts. Two modes:
       1. CSV mode (`csv_path` given): load a frozen pool exported by an earlier run.
       2. Generator mode (default): enumerate Holding sets and derive everything else from them.
@@ -747,9 +762,9 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
       - ranged: 'Unlocks Ranged Weapons'; dual-equip / two-of-same Dual Wield: Tiltyard's text
       - shield: 'unlocks Shields' + the tier's 'Unlock X armor & shield'; armor: that tier's unlock
       - tags: every Holding's combat keywords ('+N' bonuses stack, Recover rungs improve)
-    Budget: budget_metric "mpc" = Settlement Wards used, "total" = Holding count.
-    max_combo: how many INDEPENDENT_OPTIONS one build picks on top of its path (their lines come free);
-    every combination up to that size is tried, so Holdings are paired / tripled, not only tried alone.
+    Budget: TI = Holding count (min_pursuit_cost..max_pursuit_cost). The Mastery Chain makes every Holding
+    bring its line, so the Holding count is the investment; Wards used (MPC) is reported, not budgeted.
+    Every combination of INDEPENDENT_OPTIONS that fits the budget is tried (no cap on how many).
     Builds with the same signature (Retinue, tier, gear permissions, engine tags) keep the cheapest."""
     # ── CSV mode ──────────────────────────────────────────────────────────
     if csv_path is not None:
@@ -772,7 +787,7 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
         if r is None:
             closed = frozenset(prereq_closure(seed))
             ok = _pursuit_set_is_valid(closed)
-            budget = len(closed) if budget_metric == "total" else _ward_count(closed)
+            budget = len(closed)
             r = _cc[seed] = (closed, ok, budget, sum(1 for m in _POOL_MONUMENTS if m in closed))
         return r
 
@@ -795,36 +810,33 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
         visited once (a set's closure under prereq_closure is its identity, so two orders of adding
         Holdings, or adding a Holding another one's line already holds, land on the same set).
         Pruned on the budget and the Monument cap: adding a Holding never lowers the Ward count, the
-        Holding count or the Monument count, so once a set is over, every superset is too. Depth is
-        capped at max_combo options per build."""
+        Holding count or the Monument count, so once a set is over, every superset is too.
+        Each distinct closed set is expanded once (its children depend only on the set), so there is
+        no cap on how many options a build combines: the budget alone bounds it."""
         seen, best = set(), {}
         fits = lambda c: c[1] and c[2] <= max_pursuit_cost and c[3] <= max_monuments
         for industry_path in INDUSTRY_PATHS:
             for ret_chain in RETINUE_CHAINS:
                 base = frozenset(industry_path) | ret_chain
-                stack = [(0, 0, base, _close(base))]        # (next option index, options picked, seed, closure)
+                stack = [_close(base)]
                 while stack:
-                    i, k, seed, c = stack.pop()
-                    if not fits(c):
-                        continue
+                    c = stack.pop()
                     closed, _, budget, _ = c
-                    if closed not in seen:
-                        seen.add(closed)
-                        cost, domain, tags = _full(closed)
-                        sg = _sig(closed, tags)
-                        if not (sg in best and best[sg] <= budget):
-                            best[sg] = budget
-                            if budget >= min_pursuit_cost:
-                                yield closed, cost, domain, tags
-                    if k >= max_combo:
+                    if not fits(c) or closed in seen:
                         continue
-                    for j in range(i, len(INDEPENDENT_OPTIONS)):
-                        o = INDEPENDENT_OPTIONS[j]
+                    seen.add(closed)
+                    cost, domain, tags = _full(closed)
+                    sg = _sig(closed, tags)
+                    if not (sg in best and best[sg] <= budget):
+                        best[sg] = budget
+                        if budget >= min_pursuit_cost:
+                            yield closed, cost, domain, tags
+                    for o in INDEPENDENT_OPTIONS:
                         if o in closed:
-                            continue                         # already on a line: same set, its subtree is a duplicate
-                        n = _close(seed | {o})
-                        if n[0] != closed:
-                            stack.append((j + 1, k + 1, seed | {o}, n))
+                            continue                         # already on a line: same set
+                        n = _close(closed | {o})
+                        if n[0] != closed and n[0] not in seen and fits(n):
+                            stack.append(n)
 
     _done = set()
     for pursuits, total_cost, domain, tags in _sets():
@@ -882,7 +894,7 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
                 w_init = WEAPONS.get(weapon, {}).get("init", 0) if weapon != "Farm Tools" else 0
                 best_shield = None
                 for s in SHIELD_LADDER:
-                    if shield_satisfied(s, pursuits) and w_init + SHIELDS[s]["init"] >= -1:
+                    if shield_satisfied(s, pursuits) and not _blunders(w_init, weapon, s, tags):
                         best_shield = s
                         break
                 shield_opts = [best_shield] if best_shield else [None]
@@ -906,7 +918,7 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
                         build_tags.add(DUAL_WIELD)
                     tags_tuple = tuple(sorted(build_tags))
                     obs_key = (retinue_guess, weapon, shield, armor, ranged, ty, tags_tuple)
-                    if obs_key in seen_keys and seen_keys[obs_key][0] <= total_cost:
+                    if obs_key in seen_keys and seen_keys[obs_key][0] <= len(pursuits):   # keep the cheapest by TI
                         continue
                     name = _name(retinue_guess, weapon, shield, armor, ranged, ty,
                                  sorted(build_tags), playstyle=None, pursuits=pursuits)
@@ -919,11 +931,11 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, budge
                         playstyle=None,
                         tiltyard_mastery=True,
                         pursuits=frozenset(pursuits),
-                        military_pursuit_count=total_cost,
+                        military_pursuit_count=_ward_count(set(pursuits)),
                         domain_count=domain_count,
                     )
                     ld = ld._replace(upkeep_per_retinue=compute_effective_upkeep(ld))
-                    seen_keys[obs_key] = (total_cost, ld)
+                    seen_keys[obs_key] = (len(pursuits), ld)
     return [v[1] for v in seen_keys.values()]
 # ── archetype_pool seeds, read from HOLDING_SIM (NODES text) — no hand-kept Holding list ────────────────
 _GEAR_LADDER = _re.compile(r"^(?:tier:(?:" + "|".join(TIER_ORDER) + r")|armor:\w+|shield:\w+|retinue:.+)$")
@@ -984,18 +996,24 @@ def _structural_legal(weapon, shield, armor, ranged, has_tiltyard):
     if weapon != "Farm Tools" and ranged is not None and not has_tiltyard:
         return False
     return True
-def balanced_validation_pool(mpc_min=4, mpc_max=13, per_cell=None, seed=2026,
-                             keep_shield_tier_rule=False, verbose=False):
-    """Large validation pool, balanced per (retinue x MPC), spanning ALL gear tiers and the full legal
+def balanced_validation_pool(ti_min=6, ti_max=16, per_cell=None, seed=2026,
+                             keep_shield_tier_rule=False, verbose=False, mpc_min=None, mpc_max=None):
+    """Large validation pool, balanced per (retinue x TI), spanning ALL gear tiers and the full legal
     weapon/armor/shield cross. Gear first: each gear config's Holdings are the ones whose text unlocks
     it (gear_seed), closed over their Mastery Chain lines; then a Retinue unlock, <=1 upgrade, and
-    filler pad the build to each target MPC. Every rule is read from HOLDING_SIM (NODES text).
+    filler pad the build to each target TI (Holding count). Every rule is read from HOLDING_SIM (NODES text).
+    military_pursuit_count holds the Wards the build occupies (footprint), reported only.
     Args:
-      per_cell: target builds per (retinue, MPC) cell. None = keep all legal; an int caps each cell.
+      per_cell: target builds per (retinue, TI) cell. None = keep all legal; an int caps each cell.
+      mpc_min / mpc_max: retired names for ti_min / ti_max (the budget is TI now); still accepted.
       keep_shield_tier_rule: legacy comparison only (shield tier >= weapon tier).
     """
     import random as _random
     from collections import defaultdict
+    if mpc_min is not None or mpc_max is not None:
+        print("balanced_validation_pool: mpc_min / mpc_max are retired; read as TI (Holdings per build)")
+        ti_min = mpc_min if mpc_min is not None else ti_min
+        ti_max = mpc_max if mpc_max is not None else ti_max
     rng = _random.Random(seed)
     RETS = list(RETINUES)[1:]                                    # every unlockable Retinue
     RETINUE_UNLOCK = {r: _holders("retinue:" + r)[:1] for r in RETS}
@@ -1063,25 +1081,25 @@ def balanced_validation_pool(mpc_min=4, mpc_max=13, per_cell=None, seed=2026,
                 upgrade = "Conditioning Field" if rng.random() < 2/3 else rng.choice(
                     [u for u in UPGRADES if u != "Conditioning Field"] or ["Conditioning Field"])
                 base_set = prereq_closure(gear_base | set(RETINUE_UNLOCK[ret]) | {upgrade})
-                base_cost, _, _ = compute_pursuit_cost(base_set)
-                for target_mpc in range(mpc_min, mpc_max + 1):
-                    if base_cost > target_mpc:
+                base_cost = len(base_set)
+                for target_ti in range(ti_min, ti_max + 1):
+                    if base_cost > target_ti:
                         continue
                     regen_avail = [r for r in REGEN_LADDER if r not in base_set]
                     other_filler = [f for f in FILLER if f not in base_set]
                     rng.shuffle(other_filler)
                     chosen, cur_cost = [], base_cost
                     for f in regen_avail + other_filler:
-                        if cur_cost >= target_mpc:
+                        if cur_cost >= target_ti:
                             break
-                        tc, _, _ = compute_pursuit_cost(prereq_closure(base_set | set(chosen + [f])))
-                        if tc > target_mpc:
+                        tc = len(prereq_closure(base_set | set(chosen + [f])))
+                        if tc > target_ti:
                             continue
                         chosen.append(f)
                         cur_cost = tc
                     pursuit_set = prereq_closure(base_set | set(chosen))
-                    cost, domain, tags = compute_pursuit_cost(pursuit_set)
-                    if cost != target_mpc:
+                    _, domain, tags = compute_pursuit_cost(pursuit_set)
+                    if len(pursuit_set) != target_ti:
                         continue
                     if sum(1 for m in _POOL_MONUMENTS if m in pursuit_set) > 2:
                         continue
@@ -1092,21 +1110,21 @@ def balanced_validation_pool(mpc_min=4, mpc_max=13, per_cell=None, seed=2026,
                         tags.add(DUAL_WIELD)
                     name = _name(ret, weapon, shield, armor, ranged, has_ty, sorted(tags), pursuits=pursuit_set)
                     ld = Loadout(
-                        name=name + f"|M{target_mpc}",
+                        name=name + f"|T{target_ti}",
                         retinue=ret, weapon=weapon, shield=shield, armor=armor, ranged=ranged,
                         has_tiltyard=has_ty, size=DEFAULT_ARMY_SIZE,
                         extra_tags=frozenset(tags), upkeep_per_retinue=0,
                         playstyle=None, tiltyard_mastery=True, pursuits=frozenset(pursuit_set),
-                        military_pursuit_count=target_mpc, domain_count=int(sum(domain.values())),
+                        military_pursuit_count=_ward_count(set(pursuit_set)), domain_count=int(sum(domain.values())),
                     )
                     ld = ld._replace(upkeep_per_retinue=compute_effective_upkeep(ld))
-                    cells[(ret, target_mpc)].append(ld)
+                    cells[(ret, target_ti)].append(ld)
     out = []
     for key, builds in cells.items():
         uniq = {}
         for b in builds:
             uniq[(b.weapon, b.shield, b.armor, b.ranged, b.has_tiltyard,
-                  b.military_pursuit_count, tuple(sorted(b.extra_tags)))] = b
+                  len(b.pursuits), tuple(sorted(b.extra_tags)))] = b
         builds = list(uniq.values())
         if per_cell and len(builds) > per_cell:
             builds = rng.sample(builds, per_cell)
@@ -1115,7 +1133,7 @@ def balanced_validation_pool(mpc_min=4, mpc_max=13, per_cell=None, seed=2026,
         from collections import Counter as _C
         print(f"total builds: {len(out)}")
         print("per retinue:", dict(_C(b.retinue for b in out)))
-        print("per MPC:", dict(sorted(_C(b.military_pursuit_count for b in out).items())))
+        print("per TI:", dict(sorted(_C(len(b.pursuits) for b in out).items())))
     return out
 
 
@@ -1251,6 +1269,211 @@ def optimal_playstyle_pool(base_pool):
     """
     from playstyles import assign_default_playstyle
     return [with_playstyle(ld, assign_default_playstyle(ld)) for ld in base_pool]
+
+
+# ==============================================================================
+# Holding-first pool: Holdings are chosen first, gear follows what their text points at
+# ==============================================================================
+# Synergy is read from each Holding's text, so moving a clause between Holdings moves the behaviour:
+#   STRONG  a weapon keyword named in the text as something the Holding improves
+#           (Royal Pavilion: "Deadly, & Cleave also trigger Focused Strikes ...") -> the build's
+#           weapon (melee or ranged) must carry at least one of them.
+#   SOFT    "Immune <weapon drawback>" (Fighting School: Immune Unwieldy, List Yard: Immune Awkward)
+#           -> a weapon with that drawback is preferred (the build paid to remove it).
+#   PARRY   Parry / Improve Parry / Riposte while the weapon is Awkward (can't Parry, rules NO_PARRY)
+#           and the build lacks Immune Awkward -> that weapon is dropped when another option exists.
+#   FLORENTINE  "two of the same 1H Melee Weapon" (List Yard) -> the doubled-weapon Dual Wield config.
+# A Holding set whose STRONG keywords no unlocked weapon carries is dropped (the build would have no
+# reason to own that Holding at that tier; a set with a higher weapon tier covers it).
+_WEAPON_KW = sorted({t for d in (WEAPONS, RANGED) for v in d.values() for t in v.get("tags", [])}, key=len, reverse=True)
+_PARRY_TOKENS = {PARRY, RIPOSTE, rd.FLORENTINE}
+
+
+def _holding_text(name):
+    n = rd.NODES.get(name, {})
+    return " ; ".join(str(n.get(k, "")) for k in ("innate", "mastery") if n.get(k))
+
+
+def holding_synergy(name):
+    """(strong, soft) weapon keywords a Holding's text points at. Read from the text, not a list."""
+    text = _holding_text(name)
+    strong, soft = set(), set()
+    for kw in _WEAPON_KW:
+        for m in _re.finditer(r"\b" + _re.escape(kw) + r"\b", text):
+            pre = text[max(0, m.start() - 8):m.start()]
+            if pre.rstrip().endswith("Immune"):
+                soft.add(kw)
+            elif not _re.search(r"\b(Negate|Unlocks?|Add)\s*$", pre):
+                strong.add(kw)
+    return strong, soft
+
+
+def synergy_profile(pursuits):
+    """What a Holding set wants from its gear: {'strong': {kw: [holdings]}, 'soft': {...},
+    'parry': bool, 'immune_awkward': bool, 'florentine': None | 'strong' | 'soft'}.
+    A Holding that is in the set only because another Holding's Mastery Chain line runs through it
+    contributes SOFT preferences only (the build didn't take it for its own effect)."""
+    P = set(pursuits)
+    strong, soft = {}, {}
+    for p in sorted(P):
+        s, f = holding_synergy(p)
+        own = not _needed_by_line(p, P)
+        for k in s:
+            (strong if own else soft).setdefault(k, []).append(p)
+        for k in f:
+            soft.setdefault(k, []).append(p)
+    _, domain, tags = compute_pursuit_cost(P)
+    tags = set(tags)
+    flor = None
+    flh = [h for h in P if h in _SIM and rd.FLORENTINE in _SIM[h]["tags"]]
+    if flh:
+        flor = "strong" if any(not _needed_by_line(h, P) for h in flh) else "soft"
+    return {"strong": strong, "soft": soft,
+            "parry": bool(tags & _PARRY_TOKENS) or any(t.startswith("Parry") for t in tags),
+            "immune_awkward": "Immune Awkward" in tags,
+            "florentine": flor}
+
+
+def _gear_kw(ld):
+    """(melee keywords, ranged keywords) of the build's gear (a dual-profile weapon contributes both profiles)."""
+    m, r = set(), set()
+    if ld.weapon and ld.weapon in WEAPONS:
+        m |= set(WEAPONS[ld.weapon].get("tags", []))
+        p2 = WEAPONS[ld.weapon].get("profile_2h")
+        if p2 in WEAPONS:
+            m |= set(WEAPONS[p2].get("tags", []))
+    if ld.ranged and ld.ranged in RANGED:
+        r |= set(RANGED[ld.ranged].get("tags", []))
+    return m, r
+
+
+def synergy_score(ld, prof=None):
+    """(meets_strong, score) for one loadout against its Holdings' synergy profile.
+    A keyword on the melee weapon (the one fighting from the second Skirmish on) scores 2; on a ranged
+    weapon 1, or 2 for a ranged-only army that keeps firing (no real melee weapon)."""
+    prof = prof or synergy_profile(ld.pursuits)
+    mk, rk = _gear_kw(ld)
+    ranged_only = ld.ranged is not None and ld.weapon in (None, "Farm Tools") and ONE_SHOT not in rk
+    rw = 2 if ranged_only else 1
+    want, soft = set(prof["strong"]), set(prof["soft"])
+    dw = DUAL_WIELD in set(ld.extra_tags)
+    meets = (not want) or bool((mk | rk) & want)
+    if prof["florentine"] == "strong" and not dw:
+        meets = False
+    score = 2 * len(mk & want) + rw * len((rk - mk) & want) + len(mk & soft) + (len((rk - mk) & soft) if ranged_only else 0)
+    if prof["parry"] and NO_PARRY_KW in (mk if not ranged_only else rk) and not prof["immune_awkward"]:
+        score -= 2
+    if prof["florentine"] == "soft":
+        score += 1 if dw else 0
+    return meets, score
+
+
+NO_PARRY_KW = getattr(rd, "NO_PARRY", "Awkward")
+
+
+def domain_points(domain):
+    """Domain points a build's standings cost (the Domain value itself, e.g. Sovereign = 10)."""
+    return int(sum(domain.values()))
+
+
+def _deal_by(builds, n, field, rng):
+    """Pick n builds, dealt round-robin across the values of `field` (e.g. weapon): every value gets an
+    equal share where it has builds; a value that runs out passes its slots to the others."""
+    from collections import defaultdict
+    groups = defaultdict(list)
+    for ld in builds:
+        groups[getattr(ld, field)].append(ld)
+    queues = []
+    for k in sorted(groups, key=lambda v: (v is None, str(v))):
+        g = list(groups[k]); rng.shuffle(g); queues.append(g)
+    rng.shuffle(queues)
+    picked = []
+    while len(picked) < n and queues:
+        for q in list(queues):
+            if len(picked) >= n:
+                break
+            picked.append(q.pop())
+            if not q:
+                queues.remove(q)
+    return picked
+
+
+def holding_first_pool(ti_min=6, ti_max=16, per_cell=40, max_monuments=2, seed=2026,
+                       keep="best", balance=None, verbose=True):
+    """Tournament pool built Holdings-first.
+    1. Every Holding set from archetype_pool's enumeration (weapon/armor tier stop x Retinue unlock x any
+       combination of combat Holdings, each closed over its Mastery Chain line) within TI = Holding count.
+    2. Gear for each set is what its Holdings unlock, then narrowed by synergy_score: sets whose STRONG
+       keywords no unlocked weapon carries are dropped; keep="best" keeps only the top-scoring gear per set
+       (ties all kept), keep="all" keeps every gear option that meets the STRONG rule.
+    3. Balanced per (Retinue, TI) cell: `per_cell` builds sampled per cell (None = all).
+       balance=None samples each cell uniformly (gear shows up as often as the Holding sets produce it);
+       balance="weapon" deals each cell's slots evenly across the weapons that cell can field.
+    Every build is checked with validate_loadout. TI is len(pursuits); military_pursuit_count holds the
+    Wards the build occupies (its settlement footprint), reported only."""
+    import random as _random
+    from collections import defaultdict, Counter as _C
+    rng = _random.Random(seed)
+    raw = archetype_pool(min_pursuit_cost=ti_min, max_pursuit_cost=ti_max, max_monuments=max_monuments)
+    by_set = defaultdict(list)
+    for ld in raw:
+        by_set[ld.pursuits].append(ld)
+    out_cells = defaultdict(list)
+    dropped_strong = 0
+    for P, lds in by_set.items():
+        prof = synergy_profile(P)
+        scored = [(synergy_score(ld, prof), ld) for ld in lds]
+        ok = [(s, ld) for (m, s), ld in scored if m]
+        if not ok:
+            dropped_strong += 1
+            continue
+        if keep == "best":
+            top = max(s for s, _ in ok)
+            ok = [(s, ld) for s, ld in ok if s == top]
+        ti = len(P)
+        for s, ld in ok:
+            if validate_loadout(ld):
+                continue
+            ld = ld._replace(military_pursuit_count=_ward_count(set(P)), extra_tags=frozenset(ld.extra_tags))
+            out_cells[(ld.retinue, ti)].append(ld)
+    out = []
+    for key in sorted(out_cells):
+        b = out_cells[key]
+        if per_cell and len(b) > per_cell:
+            b = _deal_by(b, per_cell, balance, rng) if balance else rng.sample(b, per_cell)
+        out.extend(b)
+    if verbose:
+        if balance:
+            print(f"  sampled per cell balanced by {balance}")
+        print(f"holding_first_pool: {len(by_set):,} Holding sets -> {len(out):,} builds "
+              f"(dropped {dropped_strong:,} sets whose named weapon keywords no unlocked weapon carries)")
+        print("  per retinue:", dict(_C(b.retinue for b in out)))
+        print("  per TI:", dict(sorted(_C(len(b.pursuits) for b in out).items())))
+    return out
+
+
+def pool_frame(pool):
+    """One row per build with the columns the build views read (TI, domain points, core Holdings, synergy)."""
+    import pandas as pd
+    gear_holders = {h for t in ("ranged", "dual-equip", rd.FLORENTINE) for h in _holders(t)}
+    rows = []
+    for ld in pool:
+        P = set(ld.pursuits)
+        _, domain, _ = compute_pursuit_cost(P)
+        core = sorted(p for p in P if p in _SIM and any(
+            not (t.startswith(_INFO_PREFIX) or t in _INFO_EXACT) for t in _SIM[p]["tags"]) and p not in gear_holders)
+        prof = synergy_profile(P)
+        rows.append({"name": ld.name, "retinue": ld.retinue, "weapon": ld.weapon, "shield": ld.shield or "",
+                     "armor": ld.armor, "ranged": ld.ranged or "", "tags": ",".join(sorted(ld.extra_tags)),
+                     "pursuits": "|".join(sorted(P)), "total_investment": len(P),
+                     "domain_points": domain_points(domain), "ti_cost": len(P) + domain_points(domain),
+                     "core": " + ".join(core) or "(none)",
+                     "synergy": ",".join(sorted(prof["strong"])) or "",
+                     "synergy_score": synergy_score(ld, prof)[1],
+                     "monuments": sum(1 for m in _POOL_MONUMENTS if m in P)})
+    return pd.DataFrame(rows)
+
+
 if __name__ == "__main__":
     pool = archetype_pool()
     print(f"Generated {len(pool)} loadouts")

@@ -9,7 +9,7 @@ CE/Combatv4/shims sits first on sys.path, so every `import renown_data`,
 Output goes to CE/lab_out/<tag>/, one subfolder per dice configuration.
 
 Usage, from the CE folder:
-    python run_tournament_d10.py --mpc-min 3 --mpc-max 20 --runs 50 --workers 8
+    python run_tournament_d10.py --holding-first --ti-min 6 --ti-max 16 --per-cell 40 --optimal --runs 50 --workers 8
     python run_tournament_d10.py --faces 6 --tag d6base      # d6 control run
     python run_tournament_d10.py --focused 9 --tag foc9      # 9+ Focused variant
 

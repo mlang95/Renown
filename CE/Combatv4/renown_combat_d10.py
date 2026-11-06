@@ -34,7 +34,7 @@ from dice_config import FACES, FOCUSED_THR, ROUT_THR, CAP_THR, PARRY_BASE, RECOV
 from renown_data import (
     RETINUES, WEAPONS, RANGED, SHIELDS, ARMORS,
     TACTIC_MATRIX, TACTICS,
-    STEADY, UNWIELDY, TWO_H, SHATTER_ARMOR, UNSTOPPABLE, CLEAVE, POISON,
+    STEADY, UNWIELDY, TWO_H, DEADLY, UNSTOPPABLE, CLEAVE, POISON,
     NIMBLE, DRILLED, DESTROY_SHIELD, BLUNDER, ONE_SHOT, DEFLECT,
     IMMUNE_PANIC, UNBREAKABLE, PARRY, RIPOSTE, RECOVER, SERRATED, STRAIN,
     MINUS_1_TBH, PLANISHING, GLOSSARY,
@@ -248,7 +248,7 @@ def roll_to_hit_and_save(attacker: Army, defender: Army, atk_mods, def_mods, fir
         if roll >= target_th:
             strikes += 1
             if roll >= FOCUSED_THR:
-                if "Shatter Armor" in atk_tags:
+                if DEADLY in atk_tags:
                     shatter_strikes += 1
                 if "Cleave" in atk_tags:
                     cleave_extra += 1

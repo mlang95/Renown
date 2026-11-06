@@ -26,8 +26,8 @@ from renown_data_d10 import (
 # Unshakable/Zealot) are intentionally NOT imported — they're slated for removal and
 # stay as literals for now.
 from renown_data_d10 import (
-    SHATTER_ARMOR, CLEAVE, DEFLECT, DESTROY_SHIELD, DRILLED, DUAL_WIELD, HALFSWORD,
-    MINUS_1_TBH, MINUS_1_PARRY, NEGATE_RIPOSTE, NEGATE_SHIELDED, NEGATE_TEMPERED, NEGATE_UNSTOPPABLE,
+    DEADLY, CLEAVE, DEFLECT, DESTROY_SHIELD, DRILLED, DUAL_WIELD, HALFSWORD,
+    MINUS_1_TBH, PONDEROUS, MINUS_1_PARRY, NEGATE_RIPOSTE, NEGATE_SHIELDED, NEGATE_TEMPERED, NEGATE_UNSTOPPABLE,
     NIMBLE, NO_PARRY, ONE_SHOT, PARRY, FLORENTINE, PLANISHING, POISON, RECOVER, RIPOSTE, SERRATED,
     STEADY, STRAIN, TWO_H, UNBREAKABLE, UNSTOPPABLE, UNWIELDY, ENDURING,
     IMMUNE_DESTROY_SHIELD, IMMUNE_STRAIN, IMMUNE_UNWIELDY,
@@ -122,10 +122,10 @@ class StaticArmy:
         # this). Disappears if shield is destroyed.
         shield_tags = SHIELDS[ld.shield]["tags"] if ld.shield else []
         self.shield_tbh_penalty_start = 1 if (MINUS_1_TBH in shield_tags) else 0
-        # Shield -1TH (Tower): the heavy shield hampers the BEARER's own attacks — their
+        # Shield Ponderous: the heavy shield hampers the BEARER's own attacks — their
         # target-to-hit is +1 (harder for them to land hits). Stored positive, like TBH.
         # A drawback that offsets the shield's strong defense. Disappears if shield destroyed.
-        self.shield_th_penalty_start = 1 if ("-1TH" in shield_tags) else 0  # bearer self-penalty; no current shield carries it
+        self.shield_th_penalty_start = 1 if (PONDEROUS in shield_tags) else 0
         self.has_shield = ld.shield is not None
         # Immune Destroy Shield (Heater): this shield cannot be destroyed by Destroy Shield.
         self.shield_immune = IMMUNE_DESTROY_SHIELD in shield_tags
@@ -334,6 +334,9 @@ class StaticArmy:
         # a build injects the tag manually; cancels the weapon's Steady init-floor if present.
         if "Immune Steady" in tags:
             tags.discard(STEADY)
+        # Dual Wield grants Riposte (its Parry roll of FOCUSED_THR-1 also Ripostes: the saves kernel).
+        if DUAL_WIELD in tags:
+            tags.add(RIPOSTE)
         return tags
 
     def base_init(self, first):
@@ -379,7 +382,7 @@ class StaticArmy:
 
 # ===== Vectorized strike resolution =====
 
-# DEPRECATED: Deadly (formerly Shatter Armor) is now always Parry/Recover-on-natural-6 —
+# DEPRECATED: Deadly is now always Parry/Recover-on-natural-6 —
 # handled inside _saves_kernel. Toggle kept only so old notebooks don't crash on import.
 SHATTER_PIERCES_PARRY = True
 # Experiment toggle: if True, Parry is rolled BEFORE the armor save (hit -> parry -> save -> regen)
@@ -389,9 +392,10 @@ from combat_kernel import PARRY_BEFORE_SAVE
 
 # Army-scale constants. HALF-SCALE is now the default game: front 10 / reserve 5 / shake 5,
 # with size-25 builds. (Old full-scale was 20/10/10 at size 50.) At 10 attack dice the chance
-# of zero natural-6s is ~16% (vs ~3% at 20), so Destroy Shield / Shatter / Cleave are no longer
+# of zero natural-6s is ~16% (vs ~3% at 20), so Destroy Shield / Deadly / Cleave are no longer
 # near-automatic each skirmish. To revert to full scale: set 20/10/10 and regenerate size-50 pools.
 FRONT_CAP = 10
+CLEAVE_CHAIN_POOL = 20   # chained Cleave dice available per run per Strike step
 RESERVE_CAP = 5
 SHAKE_CAP = 5
 
@@ -429,7 +433,7 @@ def _roll_strikes_vec(rng, n, target_th, front_line, atk_tags, defender_has_shie
     """For each of n runs, roll up to 20 dice (front_line per run cap), count strikes.
     Returns: strikes (n,) (incl. Cleave extra hits), deadly_strikes (n,), destroyed_shield (n,)
 
-    Deadly (formerly Shatter Armor): proc'd strikes resolve at AP -5 and can only be
+    Deadly: proc'd strikes resolve at AP -5 and can only be
     Parried/Recovered on a natural 6 (handled in the saves kernel).
     Cleave: each proc rolls ONE additional Strike die at the modified to-Strike value.
     atk_crit5 (Ministry rank 2): procs also fire on a natural 5 when the 5 is a hit.
@@ -450,6 +454,11 @@ def _roll_strikes_vec(rng, n, target_th, front_line, atk_tags, defender_has_shie
     cleave_rolls = rng.integers(1, FACES + 1, size=(n, 20), dtype=np.int8)
 
     has_dual = atk_dual_2h_mask is not None and atk_tags_2h is not None
+    # Cleave chain pool (combat_kernel: chained extra dice read columns 20+). Drawn only when this
+    # attacker can Cleave, so a non-Cleave army's dice stream is unchanged.
+    if (CLEAVE in atk_tags) or (has_dual and CLEAVE in atk_tags_2h):
+        cleave_rolls = np.concatenate(
+            [cleave_rolls, rng.integers(1, FACES + 1, size=(n, CLEAVE_CHAIN_POOL), dtype=np.int8)], axis=1)
 
     af = np.broadcast_to(auto_fail, (n,)).astype(np.bool_).copy()
     ap = np.broadcast_to(auto_pass, (n,)).astype(np.bool_).copy()
@@ -459,7 +468,7 @@ def _roll_strikes_vec(rng, n, target_th, front_line, atk_tags, defender_has_shie
         # Halfsword uses the same proc-strike machinery as Deadly (natural-6 strikes
         # get special handling); the halfsword_mode flag at the save step reinterprets
         # those procs as the Halfsword bundle instead of the Deadly bundle.
-        return (SHATTER_ARMOR in tags) or ("Shatter Armor" in tags) or (HALFSWORD in tags)
+        return (DEADLY in tags) or (HALFSWORD in tags)
 
     if has_dual:
         deadly_base = _deadly_in(atk_tags)
@@ -471,12 +480,12 @@ def _roll_strikes_vec(rng, n, target_th, front_line, atk_tags, defender_has_shie
         strikes, deadly_strikes, proc_count = _strikes_kernel_dual(
             rolls, cleave_rolls, front_line, th_clip, af, ap,
             run_has_deadly.astype(np.bool_).copy(), run_has_cleave.astype(np.bool_).copy(),
-            int(atk_crit_floor), np.full(n, bool(DUAL_WIELD in atk_tags), dtype=np.bool_))
+            int(atk_crit_floor), np.zeros(n, dtype=np.bool_))   # Dual Wield rerolls Parries now, not Strikes
     else:
         strikes, deadly_strikes, proc_count = _strikes_kernel(
             rolls, cleave_rolls, front_line, th_clip, af, ap,
             _deadly_in(atk_tags), bool(CLEAVE in atk_tags), int(atk_crit_floor),
-            bool(DUAL_WIELD in atk_tags))
+            False)                                       # Dual Wield rerolls Parries now, not Strikes
 
     # Destroy Shield: any proc destroys defender's shield (if not already destroyed, not immune).
     destroyed_shield = np.zeros(n, dtype=bool)
@@ -679,7 +688,36 @@ def _counter_weights_from_table(counter_tbl, opp_tac_idx, n_runs, counter_weight
     return weights
 
 
-def _roll_saves_vec(rng, n, save_target, n_strikes, shatter_strikes, atk_has_poison, def_has_parry, def_regen_threshold, def_has_regen_reroll=False, atk_unstoppable=False, def_has_riposte=False, def_parry_improved=False, def_can_parry_shatter=False, atk_is_ranged=False, def_fat=None, def_planishing=False, def_crit5=False, atk_has_deflect=False, atk_has_halfsword=False, atk_ignores_tempered=False, rec_out=None):
+def _riposte_chain_vec(rng, n, rip, recv, rip_side, max_depth=12):
+    """Resolve a Riposte exchange. `rip` = Ripostes `rip_side` just made: each is a Strike from its melee
+    weapon onto `recv`. A Riposte is a melee Strike, so the receiver may Parry it and Riposte back
+    ("You can Riposte a Riposte"), and so on until a round produces none.
+    recv / rip_side: dicts with, as defender, save (target vs the other side's melee Strike), parry,
+    regen, reroll, parry_bonus, riposte, fat, planishing, crit5, rec (Recovered tally, added into);
+    and, as attacker, poison, unstop (melee Unstoppable).
+    Returns (casualties on recv, casualties on rip_side)."""
+    out = [np.zeros(n, dtype=np.int64), np.zeros(n, dtype=np.int64)]
+    sides = (recv, rip_side)
+    tgt, cur = 0, np.asarray(rip, dtype=np.int64)
+    zero = np.zeros(n, dtype=np.int64)
+    for _ in range(max_depth):
+        if not np.any(cur > 0):
+            break
+        D, S = sides[tgt], sides[1 - tgt]
+        c, nxt = _roll_saves_vec(
+            rng, n, D["save"], cur, zero,
+            atk_has_poison=S["poison"], def_has_parry=D["parry"], def_regen_threshold=D["regen"],
+            def_has_regen_reroll=D["reroll"], atk_unstoppable=S["unstop"], def_has_riposte=D["riposte"],
+            def_parry_improved=D["parry_bonus"], def_can_parry_shatter=D["riposte"],
+            def_fat=D["fat"], def_planishing=D["planishing"], def_crit5=D["crit5"], rec_out=D["rec"],
+            def_dual_wield=D["dw"])
+        out[tgt] = out[tgt] + c
+        cur = np.asarray(nxt, dtype=np.int64)
+        tgt = 1 - tgt
+    return out[0], out[1]
+
+
+def _roll_saves_vec(rng, n, save_target, n_strikes, shatter_strikes, atk_has_poison, def_has_parry, def_regen_threshold, def_has_regen_reroll=False, atk_unstoppable=False, def_has_riposte=False, def_parry_improved=False, def_can_parry_shatter=False, atk_is_ranged=False, def_fat=None, def_planishing=False, def_crit5=False, atk_has_deflect=False, atk_has_halfsword=False, atk_ignores_tempered=False, rec_out=None, def_dual_wield=False):
     """For each of n runs with n_strikes hits to resolve, return (casualties, ripostes).
     Saves roll dFACES; saves on roll >= save_target (lower = better).
     Deadly strikes (shatter_strikes count): resolve at save_target +5 (Deadly's AP -5),
@@ -723,13 +761,19 @@ def _roll_saves_vec(rng, n, save_target, n_strikes, shatter_strikes, atk_has_poi
     regen_rolls = rng.integers(1, FACES + 1, size=(n, max_strikes), dtype=np.int8) if any_regen \
         else np.zeros((n, max_strikes), dtype=np.int8)
 
-    rip5_arr = np.zeros(n, dtype=np.bool_)   # Crit 5 widens Cleave/Deadly only — not Riposte (deprecated)
+    # Dual Wield: a failed Parry is rerolled once (dice drawn last, only when used, same order as
+    # batch_engine._roll_saves_batch), and a successful Parry roll of FOCUSED_THR-1 also Ripostes.
+    dw = _cp._as_bool_arr(def_dual_wield, n)
+    prr = dw & parry_mask
+    parry_rolls2 = (rng.integers(1, FACES + 1, size=(n, max_strikes), dtype=np.int8)
+                    if bool(prr.any()) else parry_rolls)
+    rip5_arr = dw.copy()
 
     casualties, ripostes, recovered = _saves_kernel3(
         rolls, parry_rolls, regen_rolls,
         n_strikes_arr, deadly_arr, save_clip_arr, deadly_clip_arr, ap_arr,
         _cp._as_bool_arr(atk_has_poison, n), parry_mask, parry_thr_arr, regen_thr_arr,
-        riposte_mask, rip5_arr,
+        riposte_mask, rip5_arr, prr, parry_rolls2,
         bool(PARRY_BEFORE_SAVE), bool(atk_has_halfsword))
     if rec_out is not None:
         rec_out += recovered
@@ -1479,27 +1523,26 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             atk_has_halfsword=(HALFSWORD in a_tags),
             atk_ignores_tempered=(NEGATE_TEMPERED in a_tags),
         
-            def_fat=b_fat, def_planishing=b_static.planishing, def_crit5=("Crit 5" in b_tags), rec_out=_b_rec_main)
+            def_fat=b_fat, def_planishing=b_static.planishing, def_crit5=("Crit 5" in b_tags), rec_out=_b_rec_main,
+            def_dual_wield=(DUAL_WIELD in b_tags))
         b_casualties = np.minimum(b_casualties, b_front).astype(np.int32)
-        # RIPOSTE: B parried some of A's hits on a natural 6 → B strikes A back, once per trigger, at
-        # B's weapon AP. Single clean strikes: no Cleave/Shatter (shatter=0). B's Unstoppable reduces
-        # A's parry; B's Rend worsens A's regen (both via b_tags as the riposter). A's poison N/A
-        # (B is striking). Resolve and add to A's casualties this skirmish.
+        # RIPOSTE: B parried some of A's hits on a Focused roll → B Strikes A back with its melee weapon,
+        # once per trigger (single clean Strikes: no Cleave / Deadly). A Riposte is itself a melee Strike,
+        # so A may Riposte it back, and so on (_riposte_chain_vec). Casualties from the whole exchange
+        # land on both sides this Skirmish.
+        def _rip_side(st, tags, otags, save, fat, rec):
+            return dict(save=save, parry=_can_parry(tags), regen=_regen_threshold(tags, otags),
+                        reroll=_has_regen_reroll(tags), parry_bonus=st.parry_bonus, riposte=(RIPOSTE in tags),
+                        fat=fat, planishing=st.planishing, crit5=("Crit 5" in tags), rec=rec, dw=(DUAL_WIELD in tags),
+                        poison=(POISON in tags) and ("Immune Poison" not in otags), unstop=st.unstop_melee)
+        _z = lambda: np.zeros(n_runs, dtype=np.int64)
+        _r1a, _r1b, _r2a, _r2b, _r3a, _r3b = _z(), _z(), _z(), _z(), _z(), _z()
+        _c1a = _c1b = _c2a = _c2b = _c3a = _c3b = _z()
         if np.any(b_ripostes > 0):
-            a_rip_cas, _ = _roll_saves_vec(
-                rng, n_runs, a_save_target_against_b + b_rip_ap_shift, b_ripostes, np.zeros(n_runs, dtype=np.int64),
-                atk_has_poison=b_effective_poison,
-                def_has_parry=_can_parry(a_tags),
-                def_regen_threshold=_regen_threshold(a_tags, b_tags),
-                def_has_regen_reroll=_has_regen_reroll(a_tags),
-                atk_unstoppable=(b_static.unstop_melee),
-                def_has_riposte=False,   # ripostes do not themselves riposte
-                def_parry_improved=a_static.parry_bonus,
-            
-            def_fat=a_fat, def_planishing=a_static.planishing, def_crit5=("Crit 5" in a_tags), rec_out=_a_rec_rip)
-            a_riposte_casualties = np.minimum(a_rip_cas, a_front).astype(np.int32)
-        else:
-            a_riposte_casualties = np.zeros(n_runs, dtype=np.int32)
+            _c1a, _c1b = _riposte_chain_vec(
+                rng, n_runs, b_ripostes,
+                _rip_side(a_static, a_tags, b_tags, a_save_target_against_b + b_rip_ap_shift, a_fat, _r1a),
+                _rip_side(b_static, b_tags, a_tags, b_save_target_against_a + a_rip_ap_shift, b_fat, _r1b))
 
         # Now apply A's destroy-shield effect immediately (affects subsequent saves in this skirmish? No, only future skirmishes)
         # Per rules, shield destroyed for the rest of skirmish/battle. Apply now.
@@ -1544,23 +1587,15 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             atk_has_halfsword=(HALFSWORD in b_tags),
             atk_ignores_tempered=(NEGATE_TEMPERED in b_tags),
         
-            def_fat=a_fat, def_planishing=a_static.planishing, def_crit5=("Crit 5" in a_tags), rec_out=_a_rec_main)
+            def_fat=a_fat, def_planishing=a_static.planishing, def_crit5=("Crit 5" in a_tags), rec_out=_a_rec_main,
+            def_dual_wield=(DUAL_WIELD in a_tags))
         a_casualties = np.minimum(a_casualties, a_front).astype(np.int32)
-        # RIPOSTE: A parried some of B's hits on a natural 6 → A strikes B back at A's weapon AP.
+        # RIPOSTE: A parried some of B's hits on a Focused roll → A Strikes B back; the exchange can continue.
         if np.any(a_ripostes > 0):
-            b_rip_cas, _ = _roll_saves_vec(
-                rng, n_runs, b_save_target_against_a + a_rip_ap_shift, a_ripostes, np.zeros(n_runs, dtype=np.int64),
-                atk_has_poison=a_effective_poison,
-                def_has_parry=_can_parry(b_tags),
-                def_regen_threshold=_regen_threshold(b_tags, a_tags),
-                def_has_regen_reroll=_has_regen_reroll(b_tags),
-                atk_unstoppable=(a_static.unstop_melee),
-                def_has_riposte=False,
-            
-            def_fat=b_fat, def_planishing=b_static.planishing, def_crit5=("Crit 5" in b_tags), rec_out=_b_rec_rip)
-            b_riposte_casualties = np.minimum(b_rip_cas, b_front).astype(np.int32)
-        else:
-            b_riposte_casualties = np.zeros(n_runs, dtype=np.int32)
+            _c2b, _c2a = _riposte_chain_vec(
+                rng, n_runs, a_ripostes,
+                _rip_side(b_static, b_tags, a_tags, b_save_target_against_a + a_rip_ap_shift, b_fat, _r2b),
+                _rip_side(a_static, a_tags, b_tags, a_save_target_against_b + b_rip_ap_shift, a_fat, _r2a))
 
         # For b_first cases, A's strike happens AFTER B's. We computed A_strikes using
         # FULL a_front. That overcounts in b_first cases where A's front line was reduced.
@@ -1605,28 +1640,25 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
                 atk_has_halfsword=(HALFSWORD in a_tags),
                 atk_ignores_tempered=(NEGATE_TEMPERED in a_tags),
             
-            def_fat=b_fat, def_planishing=b_static.planishing, def_crit5=("Crit 5" in b_tags), rec_out=_nb_rec)
+            def_fat=b_fat, def_planishing=b_static.planishing, def_crit5=("Crit 5" in b_tags), rec_out=_nb_rec,
+            def_dual_wield=(DUAL_WIELD in b_tags))
             new_b_casualties = np.minimum(new_b_casualties, b_front).astype(np.int32)
             b_casualties = np.where(recompute_a, new_b_casualties, b_casualties)
             _b_rec_main = np.where(recompute_a, _nb_rec, _b_rec_main)
             b_shield_destroyed = b_shield_destroyed | (a_destroys_shield & recompute_a)
             # Recompute B's riposte vs A for the recomputed runs
             if np.any((new_b_ripostes > 0) & recompute_a):
-                _na_rec = np.zeros(n_runs, dtype=np.int64)
-                new_a_rip, _ = _roll_saves_vec(
-                    rng, n_runs, a_save_target_against_b + b_rip_ap_shift, new_b_ripostes, np.zeros(n_runs, dtype=np.int64),
-                    atk_has_poison=b_effective_poison,
-                    def_has_parry=_can_parry(a_tags),
-                    def_regen_threshold=_regen_threshold(a_tags, b_tags),
-                    def_has_regen_reroll=_has_regen_reroll(a_tags),
-                    atk_unstoppable=(b_static.unstop_melee),
-                    def_has_riposte=False,
-                    def_parry_improved=a_static.parry_bonus,
-                
-            def_fat=a_fat, def_planishing=a_static.planishing, def_crit5=("Crit 5" in a_tags), rec_out=_na_rec)
-                new_a_rip = np.minimum(new_a_rip, a_front).astype(np.int32)
-                a_riposte_casualties = np.where(recompute_a, new_a_rip, a_riposte_casualties)
-                _a_rec_rip = np.where(recompute_a, _na_rec, _a_rec_rip)
+                _c3a, _c3b = _riposte_chain_vec(
+                    rng, n_runs, new_b_ripostes,
+                    _rip_side(a_static, a_tags, b_tags, a_save_target_against_b + b_rip_ap_shift, a_fat, _r3a),
+                    _rip_side(b_static, b_tags, a_tags, b_save_target_against_a + a_rip_ap_shift, b_fat, _r3b))
+
+        # Riposte exchanges: the b_first runs use the recomputed first exchange (A's Strike came second).
+        _rc = recompute_a if recompute_a.any() else np.zeros(n_runs, dtype=bool)
+        a_riposte_casualties = np.minimum(np.where(_rc, _c3a, _c1a) + _c2a, a_front).astype(np.int32)
+        b_riposte_casualties = np.minimum(np.where(_rc, _c3b, _c1b) + _c2b, b_front).astype(np.int32)
+        _a_rec_rip = _a_rec_rip + np.where(_rc, _r3a, _r1a) + _r2a
+        _b_rec_rip = _b_rec_rip + np.where(_rc, _r3b, _r1b) + _r2b
 
         # Apply destroys-shield from B's strikes
         a_shield_destroyed = a_shield_destroyed | b_destroys_shield

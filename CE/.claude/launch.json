@@ -228,6 +228,18 @@
         "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\C--Users-Matt-OneDrive-Desktop-Game-CE\\d8637cd5-c500-4a05-826f-1dc9b3b90146\\scratchpad\\board"
       ],
       "port": 8783
+    },
+    {
+      "name": "build-explorer",
+      "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8784",
+        "--directory",
+        "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\de104240f25e6e61\\dfb5b50f-0631-4441-b002-b580d6203e02\\scratchpad\\e2e"
+      ],
+      "port": 8784
     }
   ]
 }

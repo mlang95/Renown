@@ -19,6 +19,19 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+# NAME_DISPLAY: chart text (matplotlib draws it as paths in the SVG) and page text go through the same display layer
+# as the rules, wiki, board and sheets. Engine ids in the CSV / parquet outputs stay canonical.
+try:
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    import ce_paths; ce_paths.install(verbose=False)
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "Combatv4"))
+    import display_lab as _DL; _DL.install(plots=True, frames=False, print_=False)
+    import renown_data as _RD
+    _disp_html, _disp_md = _RD.display_html, _RD.display_md
+except Exception as _e:                      # data not importable: write ids as-is
+    print("analyse_sim: display layer off (" + str(_e) + ")")
+    _disp_html = _disp_md = (lambda t: t)
+
 # ---------------------------------------------------------------- load
 def load(run):
     games, seats, turns, ledger, envoys, battles, events, flags, stuck = [], [], [], [], [], [], [], [], []
@@ -231,8 +244,8 @@ h1{font-size:22px}h2{font-size:16px;border-bottom:1px solid #ccd;padding-bottom:
 table.t{border-collapse:collapse;font-size:12px;margin:6px 0}table.t th,table.t td{padding:3px 8px;border-bottom:1px solid #e4e4ea;text-align:right}
 table.t th:first-child,table.t td:first-child{text-align:left}svg{max-width:100%;height:auto}"""
     page = f"<!doctype html><html><head><meta charset=utf-8><title>Renown sim — {html.escape(run.name)}</title><style>{css}</style></head><body><h1>Renown simulator — {html.escape(run.name)}</h1><p>{html.escape(head)}</p>{''.join(out)}</body></html>"
-    (run / "report.html").write_text(page, encoding="utf8")
-    (run / "report.md").write_text("\n".join(md), encoding="utf8")
+    (run / "report.html").write_text(_disp_html(page), encoding="utf8")
+    (run / "report.md").write_text(_disp_md("\n".join(md)), encoding="utf8")
 
 # ---------------------------------------------------------------- end screens (RTS style)
 PCOL = ["#4caf50", "#ef5350", "#42a5f5", "#ffb300", "#ab47bc", "#26c6da", "#ec407a"]
@@ -287,7 +300,7 @@ h3{{color:#f3d48a;font-size:13px}}ul{{margin:4px 0 8px 18px;padding:0}}"""
         page = (f"<!doctype html><html><head><meta charset=utf-8><title>Game {gid} — end screen</title><style>{css}</style></head><body>"
                 f"<h1>Game {gid} · {html.escape(name(win.pid))} wins</h1><div class=sub>{html.escape(str(g['map']))} · {g['players']} players · {html.escape(str(g['age']))} · {g['turns']} turns · Renown {g['renown']} ({html.escape(str(g['era']))})</div>"
                 f"{radios}{panes}</body></html>")
-        (od / f"game_{gid:05d}.html").write_text(page, encoding="utf8")
+        (od / f"game_{gid:05d}.html").write_text(_disp_html(page), encoding="utf8")
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("run"); ap.add_argument("--end-screens", type=int, default=12); a = ap.parse_args()

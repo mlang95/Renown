@@ -51,22 +51,44 @@ REM TAG: subfolder under lab_out. Blank = auto-named from the dice settings.
 set TAG=
 
 REM ============================ POOL SETTINGS =================================
-set MPC_MIN=2
-set MPC_MAX=4
-set RUNS=200
-REM BALANCED=1 -> balanced_validation_pool ; BALANCED=0 -> archetype_pool
-set BALANCED=1
-set PER_CELL=500
-set STRATIFY=150
-set BUDGET_METRIC=mpc
-REM mpc / total
-REM MAX_COMBO: combat / gear Holdings one generated build combines on top of its gear + Retinue line
-set MAX_COMBO=100
+REM Budget is TI = Holdings per build (each Holding brings its Mastery Chain line). Wards used (MPC) is reported only.
+REM POOL: holding_first = Holdings first, gear from their text, balanced per (Retinue x TI)  [TI_MIN/TI_MAX, PER_CELL]
+REM       balanced      = gear first, full legal gear cross, balanced per (Retinue x TI)     [TI_MIN/TI_MAX, PER_CELL]
+REM       generator     = every Holding combination within TI (archetype_pool)              [TI_MIN/TI_MAX, STRATIFY per TI]
+set POOL=holding_first
+set TI_MIN=5
+set TI_MAX=18
+REM PER_CELL vs STRATIFY: both cap how many builds go into the pool; which one is read depends on POOL.
+REM   PER_CELL  (holding_first, balanced): max builds per (Retinue x TI) cell, i.e. per Retinue at each TI value.
+REM             Pool size <= 4 Retinues x PER_CELL x (TI_MAX - TI_MIN + 1). Low TI cells often hold fewer builds
+REM             than the cap, so the real pool comes out a little smaller. "none" = every build.
+REM             e.g. TI 5-12 (8 values) x 4 x 50 = up to 1,600 builds.
+REM   STRATIFY  (generator only): max builds per TI value, split as evenly as it can across the Retinues.
+REM             Pool size <= STRATIFY x (TI_MAX - TI_MIN + 1). "all" = every build.
+REM             e.g. TI 5-12 x 500 = up to 4,000 builds.
+REM   Run time and file size grow with the SQUARE of the pool (every build plays every other):
+REM   1,600 builds = ~2.6M pairings per tournament; 4,000 builds = ~16M. Halve the cap to quarter the run.
+set PER_CELL=30
+REM BALANCE (holding_first only): weapon = each (Retinue x TI) cell's slots dealt evenly across the weapons
+REM         it can field, so rare weapons (Estoc, Bastard Sword) get a full share; none = uniform sample.
+set BALANCE=weapon
+set STRATIFY=500
+set RUNS=25
+
+REM ============================ TOURNAMENTS ===================================
+REM RANDOM=1  : Random tournament (summary.csv, matchups.parquet)
+REM OPTIMAL=1 : Optimal tournament, both sides play the per-pairing equilibrium mix (summary_optimal.csv, ...)
+REM PLAYSTYLE=1: heuristic-playstyle tournament (summary_playstyle.csv, ...)
+REM EXPLORER=1: write build_explorer.html / build_explorer_optimal.html into the run folder
+set RANDOM=0
+set OPTIMAL=1
+set PLAYSTYLE=0
+set EXPLORER=1
 
 REM ============================ MEMORY SETTINGS ===============================
 REM WORKERS: each initializes numba and RESERVES several GB of Windows COMMIT.
 REM Keep at 6-8. Lower on MemoryError; raise cautiously.
-set WORKERS=7
+set WORKERS=8
 set RENOWN_MEM_DEBUG=1
 set SLOT_BUDGET=auto
 REM auto
@@ -76,7 +98,11 @@ REM Exported so spawned workers inherit the same dice settings.
 set RENOWN_PARRY_BASE=%PARRY%
 set RENOWN_RECOVER_BASE=%RECOVER%
 
-set NO_PLAYSTYLE=--no-playstyle
+set MODES=
+if not "%RANDOM%"=="1"    set MODES=%MODES% --no-random
+if "%OPTIMAL%"=="1"       set MODES=%MODES% --optimal
+if not "%PLAYSTYLE%"=="1" set MODES=%MODES% --no-playstyle
+if not "%EXPLORER%"=="1"  set MODES=%MODES% --no-explorer
 
 set DICE=--faces %FACES% --focused %FOCUSED% --fatigue-strike %FAT_S% --fatigue-morale %FAT_M%
 if not "%PARRY%"==""       set DICE=%DICE% --parry-base %PARRY%
@@ -86,9 +112,9 @@ if not "%DEADLY_MODE%"=="" set DICE=%DICE% --deadly-mode %DEADLY_MODE%
 if not "%UNSTOP%"==""      set DICE=%DICE% --unstoppable %UNSTOP%
 if not "%IMP_PARRY%"==""   set DICE=%DICE% --improved-parry %IMP_PARRY%
 
-NOTE: the bat already exports RENOWN_PARRY_BASE / RENOWN_RECOVER_BASE. Those
-still work as the env fallback; the --parry-base/--recover-base flags now
-override them explicitly and put PARRY into the tag. Keep both — no conflict.
+REM NOTE: the bat already exports RENOWN_PARRY_BASE / RENOWN_RECOVER_BASE. Those
+REM still work as the env fallback; the --parry-base/--recover-base flags now
+REM override them explicitly and put PARRY into the tag. Keep both — no conflict.
 if not "%AUTOPASS%"=="" set DICE=%DICE% --no-auto-pass
 if not "%TAG%"==""      set DICE=%DICE% --tag %TAG%
 
@@ -102,10 +128,13 @@ if errorlevel 1 (
 )
 echo.
 
-if "%BALANCED%"=="1" (
-  %PY% run_tournament_d10.py %DICE% --balanced --mpc-min %MPC_MIN% --mpc-max %MPC_MAX% --per-cell %PER_CELL% --runs %RUNS% --slot-budget %SLOT_BUDGET% --workers %WORKERS% %NO_PLAYSTYLE%
+set COMMON=--runs %RUNS% --slot-budget %SLOT_BUDGET% --workers %WORKERS% %MODES%
+if "%POOL%"=="holding_first" (
+  %PY% run_tournament_d10.py %DICE% --holding-first --ti-min %TI_MIN% --ti-max %TI_MAX% --per-cell %PER_CELL% --balance %BALANCE% %COMMON%
+) else if "%POOL%"=="balanced" (
+  %PY% run_tournament_d10.py %DICE% --balanced --ti-min %TI_MIN% --ti-max %TI_MAX% --per-cell %PER_CELL% %COMMON%
 ) else (
-  %PY% run_tournament_d10.py %DICE% --mpc-min %MPC_MIN% --mpc-max %MPC_MAX% --stratify %STRATIFY% --budget-metric %BUDGET_METRIC% --max-combo %MAX_COMBO% --runs %RUNS% --slot-budget %SLOT_BUDGET% --workers %WORKERS% %NO_PLAYSTYLE%
+  %PY% run_tournament_d10.py %DICE% --ti-min %TI_MIN% --ti-max %TI_MAX% --stratify %STRATIFY% %COMMON%
 )
 
 echo.

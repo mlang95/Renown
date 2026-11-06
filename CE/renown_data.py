@@ -67,7 +67,8 @@ STANDING_RANK = {"Untested": 1, "Rising": 2, "Established": 3, "Sovereign": 4}
 STEADY          = "Steady"
 UNWIELDY        = "Unwieldy"
 TWO_H           = "2H"
-SHATTER_ARMOR   = "Deadly"
+DEADLY          = "Deadly"
+SHATTER_ARMOR   = DEADLY     # legacy name of Deadly; kept so older scripts still import
 UNSTOPPABLE     = "Unstoppable"
 CLEAVE          = "Cleave"
 POISON          = "Poison"
@@ -88,6 +89,7 @@ SERRATED_MOD    = 2          # Serrated: cumulative penalty to the defender's Re
 ENDURING        = "Enduring"   # successfully Recovered Strikes don't count toward the Panic check threshold
 STRAIN          = "Strained"
 MINUS_1_TBH     = "Shielded"
+PONDEROUS       = "Ponderous"   # shield drawback: -1 to the bearer's own Strike roll
 PLANISHING      = "Planishing"
 FATIGUE_TOKEN   = "Fatigue Token"
 CRUSADER        = "Righteous Fervour"
@@ -129,8 +131,8 @@ GLOSSARY = {
     STEADY:         "Initiative cannot be reduced by Tactics.",
     UNWIELDY:       "Initiative cannot be improved by Tactics.",
     TWO_H:          "Cannot use a Shield: while a 2H weapon is Equipped, your Shield gives nothing that Skirmish (no Save bonus, Initiative or keywords).",
-    SHATTER_ARMOR:  f"On a {PIVOTAL} Strike: that Strike's AP is increased by {DEADLY_AP}, and the defender may Parry or {RECOVER} only with a {PIVOTAL} roll.",
-    UNSTOPPABLE:    f"-{UNSTOPPABLE_MOD} to the defender's Parry roll (to a maximum of {CAP_THR}+); a Parry against it can't Riposte.",
+    DEADLY:  f"On a {PIVOTAL} Strike: that Strike's AP is increased by {DEADLY_AP}, and the defender may Parry or {RECOVER} only with a {PIVOTAL} roll.",
+    UNSTOPPABLE:    f"-{UNSTOPPABLE_MOD} to the defender's Parry roll (to a maximum of {CAP_THR}+).",
     CLEAVE:         f"On a {PIVOTAL} Strike: roll one extra Strike die at your modified to-Strike; a {PIVOTAL} extra die Strikes and rolls another.",
     POISON:         f"When the Defender receives a Strike and rolls a {PIVOTAL} Save, it fails; the resulting wound may only be {RECOVER}ed with a {PIVOTAL} {RECOVER}.",
     NIMBLE:         "Gain Initiative +1 in the first Skirmish of each Battle.",
@@ -150,6 +152,7 @@ GLOSSARY = {
     PLANISHING:     f"A {PIVOTAL} Save succeeds, regardless of AP.",
     FATIGUE_TOKEN:  f"Each token reduces Morale -{FATIGUE_MORALE} by. If your modified Morale is ever {ROUT_THR}+, your Army Routs. These effects are cumulative.",
     MINUS_1_TBH:    f"A cumulative -1 penalty to the Strike roll (to a maximum of {CAP_THR}+). Sources: a shield's -1 to Strike.",
+    #PONDEROUS:      f"A cumulative -1 penalty to your own Strike roll while this Shield is Equipped (to a maximum of {CAP_THR}+).",
 	#NEGATE_UNSTOPPABLE: "Cancels the attacker's Parry from Unstoppable: this shield's -1 to Strike still applies, and the attacker's -1 to Parry does not.",
     #MINUS_1_PARRY: "A stacking -1 penalty to the defender's Parry roll (to a maximum of 6+). Sources: Unstoppable, Deflect, and each Fatigue token.",
     DUAL_WIELD: "A failed Strike is rerolled once; the rerolled Strike can be Focused. Dual Wield confers Two-Handed. You cannot reroll successful Strikes.",
@@ -296,32 +299,32 @@ ENDURANCE_REGAIN    = 2    # +Endurance restored to non-Strained armies in the E
 RETINUES = {
     "Levy":           {"cost": 1000, "to_hit": 6, "endurance": 3, "shaking": 6, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
     "Man-at-Arms":    {"cost": 2000, "to_hit": 5, "endurance": 4, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
-    "Sergeant":       {"cost": 3000, "to_hit": 3, "endurance": 3, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
+    "Sergeant":       {"cost": 3000, "to_hit": 3, "endurance": 4, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
     "Knight Templar": {"cost": 4000, "to_hit": 4, "endurance": 3, "shaking": 4, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
 }
 
 WEAPONS = {
     "Farm Tools":     {"ap":  0, "init":  0, "tier": "Crude",   "tags": [NO_PARRY]},
     "Cudgel":         {"ap": -1, "init": -1, "tier": "Crude",   "tags": [TWO_H, NO_PARRY]},
-    "Pitchfork":      {"ap":  0, "init":  1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, NO_PARRY]},
+    "Pitchfork":      {"ap":  0, "init":  0, "tier": "Crude",   "tags": [TWO_H, STEADY, NO_PARRY]},
     "Bill Hook":      {"ap": -1, "init":  0, "tier": "Cast",   "tags":  [TWO_H, NEGATE_SHIELDED]},
-    "Daggers":        {"ap":  0, "init":  0, "tier": "Cast",    "tags": [TWO_H, SHATTER_ARMOR, NO_PARRY]},
+    "Daggers":        {"ap":  0, "init":  0, "tier": "Cast",    "tags": [TWO_H, DEADLY, NO_PARRY]},
     "Short Sword":    {"ap":  0, "init":  0, "tier": "Cast",    "tags": [STEADY]},
-    "Spears":         {"ap": -1, "init":  1, "tier": "Cast",    "tags": [UNWIELDY, NO_PARRY], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile.'},
+    "Spears":         {"ap":  0, "init":  1, "tier": "Cast",    "tags": [UNWIELDY, NO_PARRY], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile.'},
     "2HSpears":       {"ap": -1, "init":  1, "tier": "Cast",    "tags": [TWO_H, STEADY, NO_PARRY]},
     "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY]},
-    "Pike":           {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY]},
-    "Flail":          {"ap":  0, "init": -1, "tier": "Wrought", "tags": [UNSTOPPABLE, CLEAVE, NO_PARRY], 'note': 'Cannot Florentine'},
+    "Pike":           {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, STEADY, UNWIELDY, DEADLY, UNSTOPPABLE, NO_PARRY]},
+    "Flail":          {"ap": -1, "init": -1, "tier": "Wrought", "tags": [UNSTOPPABLE, CLEAVE, NO_PARRY], 'note': 'Cannot Florentine'},
     "Halberd":        {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, STEADY, NEGATE_SHIELDED]},
     "Battle Axe":     {"ap": -3, "init": -1, "tier": "Wrought", "tags": [TWO_H, UNSTOPPABLE, CLEAVE, NEGATE_SHIELDED]},
     "Cavalry Spear":  {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY], 'note': "Needs Stable; no Tower Shield or Florentine or Ranged Weapon"},
-    "Morningstar":    {"ap": -3, "init": -1, "tier": "Forged",  "tags": [CLEAVE, DESTROY_SHIELD], 'note': 'Cannot Florentine'},
-    "Bastard Sword":  {"ap": -1, "init":  0, "tier": "Forged",  "tags": [STEADY, SHATTER_ARMOR], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile.'},
+    "Morningstar":    {"ap": -4, "init": -1, "tier": "Forged",  "tags": [CLEAVE, DESTROY_SHIELD], 'note': 'Cannot Florentine'},
+    "Bastard Sword":  {"ap": -1, "init":  0, "tier": "Forged",  "tags": [STEADY, DEADLY], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile.'},
     "2HBastard":      {"ap": -3, "init":  0, "tier": "Forged",  "tags": [TWO_H, UNSTOPPABLE, CLEAVE]},
     "War Hammer":     {"ap":-10, "init": -1, "tier": "Forged",  "tags": [TWO_H, STEADY, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD]},
-    "Lance":          {"ap": -4, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY, NEGATE_SHIELDED], 'note': "Needs Saddlery; no Tower Shield, Florentine, Ranged weapon."},
-    "Estoc":          {"ap": -4, "init":  0, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE]},
-    "Poleaxe":        {"ap": -6, "init":  1, "tier": "Crafted", "tags": [TWO_H, STEADY, CLEAVE, UNSTOPPABLE, NEGATE_SHIELDED]}, #DESTROY_SHIELD
+    "Lance":          {"ap": -4, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY], 'note': "Needs Saddlery; no Tower Shield, Florentine, Ranged weapon."},
+    "Estoc":          {"ap": -3, "init":  0, "tier": "Crafted", "tags": [STEADY, DEADLY, UNSTOPPABLE]},
+    "Poleaxe":        {"ap": -4, "init":  1, "tier": "Crafted", "tags": [TWO_H, STEADY, CLEAVE, UNSTOPPABLE, DESTROY_SHIELD]}, # NEGATE_SHIELDED
 }
 # 1H / 2H profiles: an entry named "2H<Name>" is the 2H profile of the weapon named <Name> (or the one weapon
 # whose name starts with it: "2HBastard" → "Bastard Sword"). That weapon gets "profile_2h"; it is one item that
@@ -333,23 +336,23 @@ for _k2 in [k for k in WEAPONS if k.startswith("2H")]:
         raise ValueError(f"WEAPONS: 2H profile {_k2!r} matches {_base or 'no weapon'}")
     WEAPONS[_base[0]].setdefault("profile_2h", _k2)
 WEAPON_2H_PROFILES = {v["profile_2h"]: k for k, v in WEAPONS.items() if v.get("profile_2h")}   # "2H…" entry → its weapon
-RANGED_WEAPON = [UNSTOPPABLE, NO_PARRY, SHATTER_ARMOR]
+RANGED_WEAPON = [UNSTOPPABLE, NO_PARRY, DEADLY]
 RANGED = {
-    "Hunting Bow": {"ap":  0, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNSTOPPABLE, NO_PARRY]},
-    "Longbow":     {"ap": -1, "init":  2, "tier": "Cast",    "tags": [TWO_H, UNSTOPPABLE, SHATTER_ARMOR, NO_PARRY]},
-    "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD, ONE_SHOT, NO_PARRY], 'note': 'Cannot Florentine'},
-    "Crossbow":    {"ap": -3, "init":  2, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NO_PARRY]},#'note': "Tower Shield only (no other shield), cannot Dual Wield"
-    "Pilum":       {"ap": -4, "init":  1, "tier": "Crafted", "tags": [STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD, ONE_SHOT, NO_PARRY]},
-    "Arquebus":    {"ap": -5, "init":  2, "tier": "Crude",   "tags": [TWO_H, STEADY, SHATTER_ARMOR, UNSTOPPABLE, NEGATE_SHIELDED, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
+    "Hunting Bow": {"ap":  0, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNSTOPPABLE, DEADLY, NO_PARRY]},
+    "Longbow":     {"ap": -1, "init":  2, "tier": "Cast",    "tags": [TWO_H, UNSTOPPABLE, DEADLY, NO_PARRY]},
+    "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, DEADLY, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD, ONE_SHOT, NO_PARRY], 'note': 'Cannot Florentine'},
+    "Crossbow":    {"ap": -3, "init":  2, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, DEADLY, UNSTOPPABLE, NEGATE_SHIELDED, NO_PARRY]},#'note': "Tower Shield only (no other shield), cannot Dual Wield"
+    "Pilum":       {"ap": -4, "init":  1, "tier": "Crafted", "tags": [STEADY, DEADLY, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD, ONE_SHOT, NO_PARRY]},
+    "Arquebus":    {"ap": -6, "init":  2, "tier": "Crude",   "tags": [TWO_H, STEADY, DEADLY, UNSTOPPABLE, NEGATE_SHIELDED, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
    
 }
 
 SHIELDS = {
     None:            {"save_bonus": 0, "init":  0, "tier": None,     "tags": []},
     "Buckler Shield":{"save_bonus": 1, "init":  0, "tier": "Crude",  "tags": []},
-    "Targe Shield":  {"save_bonus": 1, "init":  0, "tier": "Cast",   "tags": [UNWIELDY, MINUS_1_TBH]},
-    "Kite Shield":   {"save_bonus": 1, "init":  0, "tier": "Wrought","tags": [STEADY, MINUS_1_TBH]},
-    "Tower Shield":  {"save_bonus": 2, "init": -1, "tier": "Forged", "tags": [UNWIELDY, MINUS_1_TBH]},
+    "Targe Shield":  {"save_bonus": 1, "init": -1, "tier": "Cast",   "tags": [UNWIELDY, MINUS_1_TBH]},
+    "Kite Shield":   {"save_bonus": 1, "init": -1, "tier": "Wrought","tags": [STEADY, MINUS_1_TBH]},
+    "Tower Shield":  {"save_bonus": 2, "init": -2, "tier": "Forged", "tags": [UNWIELDY, MINUS_1_TBH]}, #, PONDEROUS
     "Heater Shield": {"save_bonus": 1, "init":  0, "tier": "Crafted","tags": [MINUS_1_TBH, IMMUNE_DESTROY_SHIELD]},
 }
 
@@ -359,7 +362,7 @@ ARMORS = {
     "Leather":     {"save":  7, "tier": "Cast",    "tags": []},
     "Chainmail":   {"save":  6, "tier": "Wrought", "tags": []},
     "Full Plate":  {"save":  5, "tier": "Forged",  "tags": []},
-    "Gothic Plate":{"save":  3, "tier": "Crafted", "tags": []},
+    "Gothic Plate":{"save":  4, "tier": "Crafted", "tags": []},
 }
 
 # ── Tier ladder ────────────────────────────────────────────────────────────
@@ -1576,7 +1579,7 @@ NODES = {
     "Royal Pavilion": {
         "group": "g_logistics",
         "unlock": "Sovereign Prowess",
-        "innate": "Armies gain Immune Strained; Improve Parry by +1; Deadly, & Cleave also trigger Focused Strikes on an Unmodified 8+",
+        "innate": "Armies gain Immune Strained; Deadly, & Cleave also trigger Focused Strikes on an Unmodified 8+; Unlocks Pilum regardless of Tier Unlock",#Improve Parry by +1; 
         "efficient": ["Grand Tournament","Fighting School"],
         "monument": True},
     "Imperial Palace": {
@@ -4271,8 +4274,8 @@ GLOSSARY_CATEGORIES = [
     ('Army States', ['Army', 'Retinue', 'Garrison', 'Speed X', 'Presence', 'Blocked', 'Strained']),
     ('Battle Structure', ['Battle', 'Skirmish', 'Attacker / Defender', 'Seize the Initiative', 'Tactic', 'Field', 'Casualty', 'Initiative', BLUNDER, 'Strike', 'to-Strike number', 'AP', 'Save', 'Endurance', 'Fatigued', FATIGUE_TOKEN, 'Morale', 'Break check', 'Panic check', 'Rout', 'Fall Back']),
     ('Combat Keywords — Defense', [PARRY, RIPOSTE, RECOVER, ENDURING, MINUS_1_TBH, PLANISHING]),
-    ('Combat Keywords — Offense', [SHATTER_ARMOR, CLEAVE, POISON, DESTROY_SHIELD, UNSTOPPABLE, SERRATED]),
-    ('Combat Keywords — Handling', ['Equipped', STEADY, UNWIELDY, NIMBLE, DRILLED, TWO_H, DUAL_WIELD, 'Dual-equip', FLORENTINE, NO_PARRY, ONE_SHOT]),
+    ('Combat Keywords — Offense', [DEADLY, CLEAVE, POISON, DESTROY_SHIELD, UNSTOPPABLE, SERRATED]),
+    ('Combat Keywords — Handling', ['Equipped', STEADY, UNWIELDY, NIMBLE, DRILLED, TWO_H, DUAL_WIELD, 'Dual-equip', FLORENTINE, NO_PARRY, ONE_SHOT, PONDEROUS]),
     ('Combat Keywords — Immune / Negate', ['Immune [keyword]', 'Negate [keyword]']),
     ('Equipment Tiers', [k for k in map(str, GLOSSARY) if k.split()[0] in {display_tier(x) for x in TIERS} | set(globals().get("ITEM_TIER_DISPLAY", {}).values()) or k == "Ranged Weapons"]),
 ]
@@ -4445,7 +4448,7 @@ if PHASE_REFORM:
     GLOSSARY["Council Phase"] = ("The phase after the Empire Phase: clockwise from the starting player, each player performs the Era's "
                                  "Works actions (Industry), paying each cost. They aren't Envoys: no Influence or votes, and each one Passes.")
     NAME_DISPLAY["Council Phase"] = ALIASES["Council Phase"] = "Works Phase"
-    _ALIAS_RE = _re_disp.compile(r"(" + "|".join(_re_disp.escape(k) for k in sorted(ALIASES, key=len, reverse=True)) + r")")   # include the rename
+    _ALIAS_RE = _re_disp.compile(r"\b(" + "|".join(_re_disp.escape(k) for k in sorted(ALIASES, key=len, reverse=True)) + r")\b")   # include the rename
     if "Council Phase" in GLOSSARY_SEE: GLOSSARY_SEE["Council Phase"] = "works-phase"
     # no Council Envoys: the Works Phase performs actions directly
     GLOSSARY.pop("Council Envoy", None); GLOSSARY_SEE.pop("Council Envoy", None)

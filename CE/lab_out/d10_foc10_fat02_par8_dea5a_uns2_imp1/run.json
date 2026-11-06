@@ -1,0 +1,12 @@
+{
+  "pool_csv": "C:\\Users\\Matt\\OneDrive\\Desktop\\Game\\CE\\lab_out\\d10_foc10_fat02_par8_dea5a_uns2_imp1\\loadouts_hf_5_18_pc30_balw.csv",
+  "pool_kind": "holding_first",
+  "per_cell": 30,
+  "balance": "weapon",
+  "ti_min": 5,
+  "ti_max": 18,
+  "runs": 25,
+  "modes": [
+    "optimal"
+  ]
+}

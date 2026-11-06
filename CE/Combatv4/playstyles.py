@@ -677,12 +677,15 @@ def assign_default_playstyle(loadout):
     sh_init = SHIELDS[shield]["init"] if (shield and shield in SHIELDS) else 0
     base_init = w_init + sh_init
 
-    has_unstoppable   = "Unstoppable" in w_tags
-    has_destroy       = "Destroy Shield" in w_tags
-    has_oneshot       = "One Shot" in w_tags
-    has_shatter       = "Shatter Armor" in w_tags
-    has_poison        = "Poison" in tags
-    has_rend          = "Rend" in tags
+    # Keyword names come from the data constants (the old literals "One Shot" /
+    # "Rend" no longer match anything the data emits).
+    from renown_data import UNSTOPPABLE as _UNS, DESTROY_SHIELD as _DS, ONE_SHOT as _OS,         DEADLY as _DEADLY, POISON as _POI, SERRATED as _SER, TWO_H as _2H
+    has_unstoppable   = _UNS in w_tags
+    has_destroy       = _DS in w_tags
+    has_oneshot       = _OS in w_tags
+    has_shatter       = _DEADLY in w_tags
+    has_poison        = _POI in tags
+    has_rend          = _SER in tags
     is_heavy_armor    = armor in ("Full Plate", "Gothic Plate")
     has_shield        = shield is not None
 
@@ -745,7 +748,7 @@ def assign_default_playstyle(loadout):
     #     drag the fight out and force fatigue rather than ending it fast. Checked before the
     #     aggressive fallbacks so a regen build isn't sent to Aggressor (which wastes heal).
     #     KT heal-stacks use Unshakable; shielded heal-stacks use Patient/Defender below. ──
-    has_heal = ("Apothecary Heal" in tags) or any("Regenerate" in t for t in tags)
+    has_heal = ("Apothecary Heal" in tags) or any(t.startswith(("Regenerate", "Recover ")) for t in tags)
     if has_heal and ret != "Knight Templar" and not has_shield:
         return "Attritionist"
 
@@ -759,7 +762,7 @@ def assign_default_playstyle(loadout):
 
     # ── 9. High-AP heavy 2H melee → Pressure (charge early, conserve when own endurance
     #     drops so the lethal weapon doesn't over-extend into fatigue/Rout). ──
-    if w_ap <= -4 and "2H" in w_tags:
+    if w_ap <= -4 and _2H in w_tags:
         return "Pressure"
 
     # ── 10. Cheap fragile Levy in light armor → Evasive (can't win a stand-up fight). ──
@@ -767,7 +770,7 @@ def assign_default_playstyle(loadout):
         return "Evasive"
 
     # ── 11. MaA without Steadfast → Opportunist (aggressive trades, escape before Rout). ──
-    if ret == "Man-at-Arms" and "Steadfast" not in tags:
+    if ret == "Man-at-Arms" and "Immune Panic" not in tags and "Steadfast" not in tags:
         return "Opportunist"
 
     # ── 12. Heavy melee (good AP) → Aggressor. ──
