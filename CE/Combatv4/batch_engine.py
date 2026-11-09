@@ -28,9 +28,14 @@ _os.environ.setdefault("MKL_NUM_THREADS", "1")
 import numpy as np
 import renown_combat
 from renown_combat import TACTICS
+_DF_IDX = TACTICS.index("Defensive Formation")   # Pavisiers' Yard Save +1
 import vectorized_combat as vc
 import os as _os
 _RENOWN_TRAJ = _os.environ.get('RENOWN_TRAJ')=='1'
+# PANIC TIMING (trial, Nov 9 2026): default "instant" -> the side struck first takes its Panic check as soon as it has
+# lost more than 5, before it Strikes back (equal Initiative unchanged). RENOWN_PANIC_TIMING=after restores the written
+# rule (after both sides have Struck). Rules text still says "after"; the per-matchup engine (vectorized_combat) is "after".
+INSTANT_PANIC = _os.environ.get("RENOWN_PANIC_TIMING", "instant").strip().lower() != "after"
 _RENOWN_TRAJ_LOG = []
 from vectorized_combat import StaticArmy, get_tactic_tables
 # Keyword constants — point tag checks at VARIABLES, not string literals (rename-safe).
@@ -39,7 +44,7 @@ from vectorized_combat import StaticArmy, get_tactic_tables
 from renown_data import (
     DEADLY, CLEAVE, DEFLECT, DESTROY_SHIELD, DRILLED, DUAL_WIELD, FLORENTINE, HALFSWORD,
     MINUS_1_TBH, MINUS_1_PARRY, NEGATE_RIPOSTE, NEGATE_SHIELDED, NEGATE_TEMPERED, NEGATE_UNSTOPPABLE,
-    NIMBLE, NO_PARRY, ONE_SHOT, PARRY, PLANISHING, POISON, RECOVER, RIPOSTE, SERRATED,
+    NIMBLE, NO_PARRY, CRUDE, ONE_SHOT, PARRY, PLANISHING, POISON, RECOVER, RIPOSTE, SERRATED,
     STEADY, STRAIN, TWO_H, UNBREAKABLE, UNSTOPPABLE, UNWIELDY, ENDURING,
     IMMUNE_DESTROY_SHIELD, IMMUNE_STRAIN, IMMUNE_UNWIELDY,
 )
@@ -54,7 +59,7 @@ from combat_kernel import (
 import combat_primitives as _cp
 import re
 from dice_config import FACES, FOCUSED_THR, CAP_THR, AUTO_PASS_FLOOR
-from dice_config import NO_FALL_BACK
+from dice_config import NO_FALL_BACK, clamp_init
 _AP_FLOOR = AUTO_PASS_FLOOR if AUTO_PASS_FLOOR is not None else 1  # None (rule off) => floor 1, nothing auto-passes
 try:
     import numba
@@ -64,7 +69,7 @@ except Exception:
 
 # The 9 runtime tags tested inside the loop (besides what's baked into base_init).
 RUNTIME_TAGS = ["+1TH", "+1TH first", "+1TH after_first", "Immune Tactic TH", DRILLED, IMMUNE_UNWIELDY, PARRY, POISON,
-                STEADY, "Unshakable", UNBREAKABLE, "Zealot", "Rally", "Resolute", UNSTOPPABLE, NEGATE_SHIELDED, UNWIELDY, FLORENTINE, ENDURING,
+                STEADY, "Unshakable", UNBREAKABLE, "Zealot", "Rally", "Resolute", UNSTOPPABLE, NEGATE_SHIELDED, NEGATE_RIPOSTE, UNWIELDY, FLORENTINE, ENDURING,
                 "Blunder first", "Immune Blunder"]
 
 
@@ -94,6 +99,7 @@ def pack_side(loadouts, is_attacker):
     P["shield_off_first"]  = np.array([a.shield_off_first for a in armies], dtype=np.bool_)
     P["shield_off_normal"] = np.array([a.shield_off_normal for a in armies], dtype=np.bool_)
     P["shield_immune"] = np.array([a.shield_immune for a in armies], dtype=np.bool_)
+    P["shield_wall"] = np.array([getattr(a, "shield_wall", False) for a in armies], dtype=np.bool_)   # Pavisiers' Yard
     P["shield_bonus_start"] = np.array([a.shield_bonus_start for a in armies], dtype=np.int64)
     P["shield_tbh_penalty_start"] = np.array([a.shield_tbh_penalty_start for a in armies], dtype=np.int64)
     P["shield_th_penalty_start"]  = np.array([a.shield_th_penalty_start for a in armies], dtype=np.int64)
@@ -114,7 +120,10 @@ def pack_side(loadouts, is_attacker):
     armies_noseize = [StaticArmy(ld, is_attacker=False) for ld in loadouts]
     P["ap_first"]    = np.array([a.ap_first for a in armies], dtype=np.int64)
     P["parry_bonus"] = np.array([a.parry_bonus for a in armies], dtype=np.int64)
+    P["foe_parry_first"] = np.array([a.foe_parry_first for a in armies], dtype=np.int64)
+    P["foe_parry_normal"] = np.array([a.foe_parry_normal for a in armies], dtype=np.int64)
     P["strike_bonus"] = np.array([a.strike_bonus for a in armies], dtype=np.int64)
+    P["strike_bonus_first"] = np.array([a.strike_bonus_first for a in armies], dtype=np.int64)   # skirmish 1
     P["ap_normal"]   = np.array([a.ap_normal for a in armies], dtype=np.int64)
     P["ap_melee"]    = np.array([a.ap_melee for a in armies], dtype=np.int64)       # Riposte weapon
     # Weapon-imposed tactic restriction (Arquebus) — same flags vectorized_combat reads.
@@ -126,6 +135,8 @@ def pack_side(loadouts, is_attacker):
     P["binit_first_seize"]   = np.array([a.base_init(True)  for a in armies_seize],   dtype=np.int64)
     P["binit_first_noseize"] = np.array([a.base_init(True)  for a in armies_noseize], dtype=np.int64)
     P["binit_normal"]= np.array([a.base_init(False) for a in armies], dtype=np.int64)
+    P["binit_neg_first"]  = np.array([a.base_init_neg(True)  for a in armies], dtype=np.int64)   # INIT_CAP_FIRST test
+    P["binit_neg_normal"] = np.array([a.base_init_neg(False) for a in armies], dtype=np.int64)
     # Ministry innate Seize mode per slot (None/"first"/"first_two"/"every")
     def _seize_mode(tags):
         if "Seize: first_two" in tags: return "first_two"
@@ -154,7 +165,8 @@ def pack_side(loadouts, is_attacker):
     def _crit_floor(tagset):
         floors = [int(m.group(1)) for t in tagset
                   for m in (re.match(r"^Crit (\d+)$", str(t)),) if m]
-        return min(floors) if floors else FOCUSED_THR
+        plus = sum(int(m.group(1)) for t in tagset for m in (re.match(r"^Crit \+(\d+)$", str(t)),) if m)
+        return (min(floors) if floors else FOCUSED_THR) - plus
     P["first_crit_floor"]  = np.array([_crit_floor(a.tags_first)  for a in armies], dtype=np.int64)
     P["normal_crit_floor"] = np.array([_crit_floor(a.tags_normal) for a in armies], dtype=np.int64)
     # Dual-profile weapons (same as vectorized_combat): once its shield is DESTROYED a dual-profile
@@ -171,17 +183,24 @@ def pack_side(loadouts, is_attacker):
     # Per-slot Dual Wield: Parry reroll + Riposte on FOCUSED_THR-1 (read by the saves kernel).
     P["first_Dual_Wield"]  = np.array([(DUAL_WIELD in a.tags_first)  for a in armies], dtype=np.bool_)
     P["normal_Dual_Wield"] = np.array([(DUAL_WIELD in a.tags_normal) for a in armies], dtype=np.bool_)
+    # Riposte +1 (List Yard): a successful Parry roll of FOCUSED_THR-1 also Ripostes
+    P["first_Riposte_p1"]  = np.array([("Riposte +1" in a.tags_first)  for a in armies], dtype=np.bool_)
+    P["normal_Riposte_p1"] = np.array([("Riposte +1" in a.tags_normal) for a in armies], dtype=np.bool_)
     # Per-slot attacker keywords feeding the SHARED save primitives:
     #   Deflect (explicit weapon tag OR ranged — ranged handled via uses_ranged_* at the call site),
     #   Negate Tempered (AP can push save past 6+, defeating Planishing/Tempered).
     P["first_Deflect"]  = np.array([(DEFLECT in a.tags_first)  for a in armies], dtype=np.bool_)
     P["normal_Deflect"] = np.array([(DEFLECT in a.tags_normal) for a in armies], dtype=np.bool_)
+    P["first_hook"]  = np.array([_cp.hook_value(a.tags_first)  for a in armies], dtype=np.int64)   # Hook N / Negate Shielded
+    P["normal_hook"] = np.array([_cp.hook_value(a.tags_normal) for a in armies], dtype=np.int64)
     P["first_NegateTempered"]  = np.array([(NEGATE_TEMPERED in a.tags_first)  for a in armies], dtype=np.bool_)
     P["normal_NegateTempered"] = np.array([(NEGATE_TEMPERED in a.tags_normal) for a in armies], dtype=np.bool_)
     # Per-slot defender Planishing (Tempered save cap). Static (armor/spec), not per-skirmish,
     # but stored per-phase for a uniform tflag() read.
     P["first_Planishing"]  = np.array([bool(a.planishing) for a in armies], dtype=np.bool_)
     P["normal_Planishing"] = np.array([bool(a.planishing) for a in armies], dtype=np.bool_)
+    # Defender Fluted (armor keyword): incoming AP -1 toward 0, after Deadly. Static per army.
+    P["fluted"] = np.array([bool(getattr(a, "fluted", False)) for a in armies], dtype=np.bool_)
     # Keep the StaticArmy objects + tag sets around for regen/parry resolution per slot
     P["_armies"] = armies
     P["tags_first"]  = [a.tags_first for a in armies]
@@ -299,7 +318,8 @@ def _roll_saves_batch(rng, n, save_target, n_strikes, deadly_strikes,
                       atk_unstoppable=None, def_riposte=None,
                       def_parry_improved=None, def_can_parry_shatter=None, atk_is_ranged=None,
                       def_fat=None, def_planishing=None, atk_has_deflect=None,
-                      atk_ignores_tempered=None, rec_out=None, def_dual_wield=None):
+                      atk_ignores_tempered=None, rec_out=None, def_dual_wield=None,
+                      def_deadly_shift=0, atk_negate_riposte=None, def_riposte_plus=None, atk_parry_pen=0):
     """Batched saves via the SHARED kernel (combat_kernel._saves_kernel) and SHARED primitive
     math (combat_primitives). Identical rules to vectorized_combat — this is the C2 fix.
 
@@ -340,9 +360,10 @@ def _roll_saves_batch(rng, n, save_target, n_strikes, deadly_strikes,
 
     # ── SHARED primitive math (combat_primitives) — same code vectorized calls ──
     save_clip_arr, deadly_clip_arr, ap_arr = _cp.build_save_clips(
-        n, save_target, def_planishing, atk_ignores_tempered)
+        n, save_target, def_planishing, atk_ignores_tempered, def_deadly_shift)
     parry_thr_arr, deflect = _cp.build_parry_thr(
-        n, def_parry_improved, atk_unstoppable, atk_is_ranged, atk_has_deflect, def_fat)
+        n, def_parry_improved, atk_unstoppable, atk_is_ranged, atk_has_deflect, def_fat,
+        False if atk_negate_riposte is None else atk_negate_riposte, atk_parry_pen)
     regen_thr_arr = _cp.build_regen_thr(n, regen_thr, def_fat)
     pmask = _cp._as_bool_arr(parry_mask, n)
     riposte_mask = _cp.build_riposte_mask(n, def_riposte, deflect)
@@ -366,7 +387,7 @@ def _roll_saves_batch(rng, n, save_target, n_strikes, deadly_strikes,
     prr = dw & pmask
     parry_rolls2 = (rng.integers(1, FACES + 1, size=(n, max_strikes), dtype=np.int8)
                     if bool(prr.any()) else parry_rolls)
-    rip5_arr = dw.copy()                           # Dual Wield: a Parry roll of FOCUSED_THR-1 also Ripostes
+    rip5_arr = _cp._as_bool_arr(def_riposte_plus if def_riposte_plus is not None else False, n)   # Riposte +1
     halfsword = False                              # deprecated; never set in the pool
 
     cas, rip, rec = _shared_saves_kernel3(
@@ -374,7 +395,7 @@ def _roll_saves_batch(rng, n, save_target, n_strikes, deadly_strikes,
         n_strikes_arr, deadly_arr, save_clip_arr, deadly_clip_arr, ap_arr,
         _cp._as_bool_arr(poison, n), pmask, parry_thr_arr, regen_thr_arr,
         riposte_mask, rip5_arr, prr, parry_rolls2,
-        bool(PARRY_BEFORE_SAVE), bool(halfsword))
+        bool(PARRY_BEFORE_SAVE), bool(halfsword), bool(_cp.DEADLY_NO_RECOVER))
     if rec_out is not None:          # Recovered Strikes (Panic tally unless Enduring)
         rec_out += rec
     return cas, rip
@@ -397,7 +418,7 @@ def _riposte_chain_batch(rng, n, rip, recv, rip_side, max_depth=12):
                                    atk_unstoppable=S["unstop"], def_riposte=D["riposte"],
                                    def_parry_improved=D["parry_bonus"], def_can_parry_shatter=D["riposte"],
                                    def_fat=D["fat"], def_planishing=D["planishing"], rec_out=D["rec"],
-                                   def_dual_wield=D["dw"])
+                                   def_dual_wield=D["dw"], atk_negate_riposte=S["negrip"], def_riposte_plus=D["rp1"])
         out[tgt] = out[tgt] + c
         cur = np.asarray(nxt, dtype=np.int64)
         tgt = 1 - tgt
@@ -435,8 +456,8 @@ def _precompute_regen_parry(Pa, Pb):
             b_regen[i] = rb if rb is not None else 0
             a_flor = (FLORENTINE in at) and (DUAL_WIELD in at)   # Florentine only active while dual-wielding
             b_flor = (FLORENTINE in bt) and (DUAL_WIELD in bt)
-            a_parry[i] = ((PARRY in at) or ("Improved Parry" in at) or a_flor) and (NO_PARRY not in at or "Immune Awkward" in at)
-            b_parry[i] = ((PARRY in bt) or ("Improved Parry" in bt) or b_flor) and (NO_PARRY not in bt or "Immune Awkward" in bt)
+            a_parry[i] = ((PARRY in at) or ("Improved Parry" in at)) and (NO_PARRY not in at or "Immune Awkward" in at) and CRUDE not in at   # Florentine no longer grants Parry
+            b_parry[i] = ((PARRY in bt) or ("Improved Parry" in bt)) and (NO_PARRY not in bt or "Immune Awkward" in bt) and CRUDE not in bt
             a_reroll[i] = vc._has_regen_reroll(at)
             b_reroll[i] = vc._has_regen_reroll(bt)
             a_riposte[i] = (RIPOSTE in at)
@@ -535,6 +556,7 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
     a_unshak = tile(Pa["unshakable"]); b_unshak = tile(Pb["unshakable"])
     a_hasshield = tile(Pa["has_shield"]); b_hasshield = tile(Pb["has_shield"])
     a_shimm = tile(Pa["shield_immune"]); b_shimm = tile(Pb["shield_immune"])
+    a_swall = tile(Pa["shield_wall"]); b_swall = tile(Pb["shield_wall"])
     a_shbonus = tile(Pa["shield_bonus_start"]); b_shbonus = tile(Pb["shield_bonus_start"])
     # variant-B shield restoration inputs
     a_shinit = tile(Pa["shield_init"]); b_shinit = tile(Pb["shield_init"])
@@ -669,6 +691,7 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         a_dstr = tflag(Pa, skl, DESTROY_SHIELD); b_dstr = tflag(Pb, skl, DESTROY_SHIELD)
         a_crit = tile(Pa[f"{skl}_crit_floor"]); b_crit = tile(Pb[f"{skl}_crit_floor"])
         a_dw = tile(Pa[f"{skl}_Dual_Wield"]); b_dw = tile(Pb[f"{skl}_Dual_Wield"])
+        a_rp1 = tile(Pa[f"{skl}_Riposte_p1"]); b_rp1 = tile(Pb[f"{skl}_Riposte_p1"])
         # Dual-profile 2H runs: shield destroyed at the start of this skirmish (not merely unequipped)
         a_bd = tile(Pa["is_dual"]); b_bd = tile(Pb["is_dual"])
         a_b2h = a_bd & a_shdest; b_b2h = b_bd & b_shdest
@@ -677,9 +700,12 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         a_clv = np.where(a_bd, np.where(a_b2h, tile(Pa[f"{skl}_2h_Cleave"]), a_clv), a_clv)
         b_clv = np.where(b_bd, np.where(b_b2h, tile(Pb[f"{skl}_2h_Cleave"]), b_clv), b_clv)
         # Deflect = explicit weapon tag OR a ranged attack this skirmish.
-        a_deflect = tile(Pa[f"{skl}_Deflect"]) | a_is_rng
-        b_deflect = tile(Pb[f"{skl}_Deflect"]) | b_is_rng
+        # Nov 9 2026: Deflect tag only. Ranged Strikes block Riposte through atk_is_ranged and take Parry's penalty only
+        # through Unstoppable (RANGED_KW), as in vectorized_combat and optimal_play; folding ranged in here added +1.
+        a_deflect = tile(Pa[f"{skl}_Deflect"])
+        b_deflect = tile(Pb[f"{skl}_Deflect"])
         a_negtemp = tile(Pa[f"{skl}_NegateTempered"]); b_negtemp = tile(Pb[f"{skl}_NegateTempered"])
+        a_negrip = tflag(Pa, skl, NEGATE_RIPOSTE); b_negrip = tflag(Pb, skl, NEGATE_RIPOSTE)
         a_planish = tile(Pa[f"{skl}_Planishing"]); b_planish = tile(Pb[f"{skl}_Planishing"])
 
         # === Tactic selection ===
@@ -792,6 +818,9 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
 
         a_I_mod = tab["a_I"][a_tac, b_tac]; a_TH_mod = tab["a_TH"][a_tac, b_tac]; a_TS_mod = tab["a_TS"][a_tac, b_tac]
         b_I_mod = tab["b_I"][a_tac, b_tac]; b_TH_mod = tab["b_TH"][a_tac, b_tac]; b_TS_mod = tab["b_TS"][a_tac, b_tac]
+        # Shield Wall (Pavisiers' Yard): Defensive Formation with the Shield Equipped -> incoming AP -1 more (see a_flut)
+        a_sw_on = a_swall & (a_tac == _DF_IDX) & ~(a_shdest | _a_shoff)
+        b_sw_on = b_swall & (b_tac == _DF_IDX) & ~(b_shdest | _b_shoff)
         # Record the ACTUAL first-skirmish tactics (after any Outrider override) for the
         # empirical tactic matrix. Captured once, on the first skirmish.
         if first:
@@ -817,8 +846,10 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         # destroyed runs (shield_init is negative for Wooden/Scutum/Tower, so -shield_init cancels it).
         a_init_restore = np.where((a_shdest | _a_shoff), -a_shinit, 0)
         b_init_restore = np.where((b_shdest | _b_shoff), -b_shinit, 0)
-        a_init = np.clip(a_bi + a_I_mod + a_init_restore, -2, a_maxinit)
-        b_init = np.clip(b_bi + b_I_mod + b_init_restore, -2, b_maxinit)
+        a_init = clamp_init(a_bi + a_I_mod + a_init_restore,
+                            tile(Pa[f"binit_neg_{skl}"]) + np.minimum(a_I_mod, 0) + a_init_restore, a_maxinit, np)
+        b_init = clamp_init(b_bi + b_I_mod + b_init_restore,
+                            tile(Pb[f"binit_neg_{skl}"]) + np.minimum(b_I_mod, 0) + b_init_restore, b_maxinit, np)
 
         ending = end_pair & active
         no_combat_this = no_combat_pair & active
@@ -837,12 +868,13 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         # to-hit (random mode: Yew only first skirmish w/ ranged — but random pool rarely; include for parity)
         yew_a = 0; yew_b = 0  # Yew Heart handled via tags? It's an extra_tag, not in RUNTIME_TAGS; skip (matches: random uses same)
         # === To-hit with the FATIGUE CAP_THR+ CAP (matches vectorized_combat) ===
-        wth_a = -tile(Pa["strike_bonus"]) + np.where(a_p1th_first, -1, 0) + np.where(a_p1th_rest, -1, 0)
-        wth_b = -tile(Pb["strike_bonus"]) + np.where(b_p1th_first, -1, 0) + np.where(b_p1th_rest, -1, 0)
+        wth_a = -tile(Pa["strike_bonus_first" if skl == "first" else "strike_bonus"]) + np.where(a_p1th_first, -1, 0) + np.where(a_p1th_rest, -1, 0)
+        wth_b = -tile(Pb["strike_bonus_first" if skl == "first" else "strike_bonus"]) + np.where(b_p1th_first, -1, 0) + np.where(b_p1th_rest, -1, 0)
         b_tbh = np.where((b_shdest | _b_shoff), 0, b_shtbh); a_tbh = np.where((a_shdest | _a_shoff), 0, a_shtbh)
         a_th_self = np.where((a_shdest | _a_shoff), 0, a_shth); b_th_self = np.where((b_shdest | _b_shoff), 0, b_shth)
-        a_tbh_eff = np.where(a_negshield, 0, b_tbh)   # Negate Shielded: attacker ignores defender's Shielded (-1 TBH)
-        b_tbh_eff = np.where(b_negshield, 0, a_tbh)
+        # Hook N: attacker ignores up to N points of the defender's Shielded (Negate Shielded = all of it)
+        a_tbh_eff = np.maximum(b_tbh - tile(Pa[f"{skl}_hook"]), 0)
+        b_tbh_eff = np.maximum(a_tbh - tile(Pb[f"{skl}_hook"]), 0)
         # improving (lower target): weapon +1TH (wth, =-1), positive tactic TH. (Yew skipped.)
         # worsening (raise target): own/enemy shield TH, negative tactic TH.
         # Cap (base + improving) at CAP_THR; then worsening mods apply, capped at CAP_THR+ again (no auto-fail). Fatigue only worsens Morale.
@@ -860,11 +892,17 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         a_tt = np.minimum(a_th_pre + a_th_worsen, CAP_THR)
         b_tt = np.minimum(b_th_pre + b_th_worsen, CAP_THR)
 
-        b_ap_vs_a = b_ap          # ABF / Gilded Foundry do not modify AP
-        a_ap_vs_b = a_ap
+        # Fluted (defender's armor): incoming AP -1 toward 0 (Ranged and Riposte included);
+        # Deadly strikes get the after-Deadly correction via *_dshift.
+        a_flut = tile(Pa["fluted"]).astype(np.int64) + a_sw_on.astype(np.int64)
+        b_flut = tile(Pb["fluted"]).astype(np.int64) + b_sw_on.astype(np.int64)
+        b_ap_vs_a = _cp.fluted_ap(b_ap, a_flut)
+        a_ap_vs_b = _cp.fluted_ap(a_ap, b_flut)
+        a_dshift = _cp.deadly_shift(a_ap, b_flut)   # A's Deadly strikes on B (mode-aware)
+        b_dshift = _cp.deadly_shift(b_ap, a_flut)   # B's Deadly strikes on A
         # Riposte strikes use the riposter's MELEE weapon (AP and Unstoppable).
-        b_apm_vs_a = tile(Pb["ap_melee"])
-        a_apm_vs_b = tile(Pa["ap_melee"])
+        b_apm_vs_a = _cp.fluted_ap(tile(Pb["ap_melee"]), a_flut)
+        a_apm_vs_b = _cp.fluted_ap(tile(Pa["ap_melee"]), b_flut)
         a_unstop_m = tile(Pa["unstop_melee"]); b_unstop_m = tile(Pb["unstop_melee"])
         a_sv = a_armor - b_ap_vs_a - np.where((a_shdest | _a_shoff), 0, a_shbonus) - a_TS_mod
         b_sv = b_armor - a_ap_vs_b - np.where((b_shdest | _b_shoff), 0, b_shbonus) - b_TS_mod
@@ -877,7 +915,7 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         a_riposte = np.repeat(RP[skl]["a_riposte"], n_runs); b_riposte = np.repeat(RP[skl]["b_riposte"], n_runs)
         a_imp_parry = np.repeat(RP[skl]["a_imp_parry"], n_runs); b_imp_parry = np.repeat(RP[skl]["b_imp_parry"], n_runs)
         a_florentine = np.repeat(RP[skl]["a_florentine"], n_runs); b_florentine = np.repeat(RP[skl]["b_florentine"], n_runs)
-        # Fatigue no longer affects Parry, Riposte or Recover (Florentine = Parry while Dual Wielding).
+        # Fatigue no longer affects Parry, Riposte or Recover.
         a_parry_eff = a_parry; b_parry_eff = b_parry
         a_regen_eff = a_regen; b_regen_eff = b_regen
         a_riposte_eff = a_riposte; b_riposte_eff = b_riposte
@@ -889,20 +927,34 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         # Recovered Strikes per side this skirmish (count toward the Panic tally unless Enduring)
         _b_rec_main = np.zeros(N, dtype=np.int64); _a_rec_rip = np.zeros(N, dtype=np.int64)
         _a_rec_main = np.zeros(N, dtype=np.int64); _b_rec_rip = np.zeros(N, dtype=np.int64)
+
+        def _instant_panic_side(P, shaking, shake_bonus, fat, heal, size_now, cas, rec, struck_first_mask, panic_used):
+            """INSTANT_PANIC: this side was struck first; Panic check now, same rules as the morale phase."""
+            import combat_morale as _cm
+            _tags = P["tags_first"] if first else P["tags_normal"]
+            steadfast = tile(np.array([("Steadfast" in t) or ("Immune Panic" in t) for t in _tags], dtype=bool))
+            net = np.maximum(0, cas - heal) + np.where(active & ~tflag(P, skl, ENDURING), rec, 0)
+            return _cm.instant_panic(rng, N, _shake_batch, vc.SHAKE_CAP, np.maximum(0, size_now), fat,
+                                     struck_first_mask & active & ~ending, net, shaking, shake_bonus, steadfast,
+                                     field_used=cas, field_cap=(vc.FRONT_CAP + vc.RESERVE_CAP),
+                                     morale_cap_mask=tflag(P, skl, "Unshakable"), zealot_mask=tflag(P, skl, "Zealot"),
+                                     resolute_firstpass_mask=tflag(P, skl, "Resolute"), panic_used=panic_used)
         # A strikes B
         a_strk, a_sh, a_destroys = _roll_strikes_batch(rng, N, a_tt, a_front, a_dead, a_clv, a_dstr,
                                                        b_hasshield, (b_shdest | _b_shoff), b_shimm, a_crit)
         a_fights = proceed & (a_size > 0)
         a_strk = np.where(a_fights, a_strk, 0); a_sh = np.where(a_fights, a_sh, 0)
         a_parry_bonus = tile(Pa["parry_bonus"])
+        a_foe_parry = tile(Pa["foe_parry_first" if first else "foe_parry_normal"])
+        b_foe_parry = tile(Pb["foe_parry_first" if first else "foe_parry_normal"])
         b_parry_bonus = tile(Pb["parry_bonus"])
         a_destroys = a_destroys & a_fights
         b_cas, b_rip = _roll_saves_batch(rng, N, b_sv, a_strk, a_sh, a_poison, b_parry_eff, b_regen_eff, b_reroll,
                                          atk_unstoppable=a_unstop, def_riposte=b_riposte_eff,
                                          def_parry_improved=b_parry_bonus, def_can_parry_shatter=b_riposte,
                                          atk_is_ranged=a_is_rng, def_fat=b_fat, def_planishing=b_planish,
-                                         atk_has_deflect=a_deflect, atk_ignores_tempered=a_negtemp, rec_out=_b_rec_main,
-                                         def_dual_wield=b_dw)
+                                         atk_has_deflect=a_deflect, atk_ignores_tempered=a_negtemp, atk_negate_riposte=a_negrip, rec_out=_b_rec_main, atk_parry_pen=a_foe_parry,
+                                         def_dual_wield=b_dw, def_deadly_shift=a_dshift, def_riposte_plus=b_rp1)
         b_cas = np.minimum(b_cas, b_front)
         b_shdest = b_shdest | a_destroys
         # B's riposte: each Focused parry Strikes A back once with B's melee weapon, single clean Strikes
@@ -913,21 +965,30 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
                 return dict(save=a_armor - b_apm_vs_a - np.where((a_shdest | _a_shoff), 0, a_shbonus) - a_TS_mod,
                             poison=a_poison, parry=a_parry_eff, regen=a_regen_eff, reroll=a_reroll,
                             unstop=a_unstop_m, riposte=a_riposte_eff, parry_bonus=a_parry_bonus, fat=a_fat,
-                            planishing=a_planish, rec=rec, dw=a_dw)
+                            planishing=a_planish, rec=rec, dw=a_dw, negrip=a_negrip, rp1=a_rp1)
             return dict(save=b_armor - a_apm_vs_b - np.where((b_shdest | _b_shoff), 0, b_shbonus) - b_TS_mod,
                         poison=b_poison, parry=b_parry_eff, regen=b_regen_eff, reroll=b_reroll,
                         unstop=b_unstop_m, riposte=b_riposte_eff, parry_bonus=b_parry_bonus, fat=b_fat,
-                        planishing=b_planish, rec=rec, dw=b_dw)
+                        planishing=b_planish, rec=rec, dw=b_dw, negrip=b_negrip, rp1=b_rp1)
         _z = lambda: np.zeros(N, dtype=np.int64)
         _r1a, _r1b, _r2a, _r2b, _r3a, _r3b = _z(), _z(), _z(), _z(), _z(), _z()
         _c1a = _c1b = _c2a = _c2b = _c3a = _c3b = _z()
         if b_riposte_eff.any():
             _c1a, _c1b = _riposte_chain_batch(rng, N, b_rip, _rs("a", _r1a), _rs("b", _r1b))
 
+        _a_ip = _b_ip = None
+        if INSTANT_PANIC:
+            _b_ip = _instant_panic_side(Pb, b_shaking, b_shake_bonus, b_fat, b_heal, b_size - b_cas,
+                                        b_cas, _b_rec_main, a_first_mask, b_panic_used)
+            b_panic_used = _b_ip["panic_used"]
+            _b_ipc = _b_ip["cas"]
+            _b_gone = _b_ip["rout"]
+        else:
+            _b_ipc = 0; _b_gone = False
         b_front_after = np.maximum(0, b_front - b_cas)
-        b_front_refill = np.minimum(vc.FRONT_CAP, b_front_after + b_res)
+        b_front_refill = np.minimum(vc.FRONT_CAP, np.maximum(0, b_front + b_res - b_cas - _b_ipc))
         b_eff_front = np.where(a_first_mask, b_front_refill, b_front)
-        b_alive = np.where(a_first_mask, (b_size - b_cas) > 0, b_size > 0)
+        b_alive = np.where(a_first_mask, ((b_size - b_cas - _b_ipc) > 0) & ~np.asarray(_b_gone), b_size > 0)
         b_fights = proceed & b_alive
         b_strk, b_sh, b_destroys = _roll_strikes_batch(rng, N, b_tt, b_eff_front, b_dead, b_clv, b_dstr,
                                                        a_hasshield, (a_shdest | _a_shoff), a_shimm, b_crit)
@@ -937,8 +998,8 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
                                          atk_unstoppable=b_unstop, def_riposte=a_riposte_eff,
                                          def_parry_improved=a_parry_bonus, def_can_parry_shatter=a_riposte,
                                          atk_is_ranged=b_is_rng, def_fat=a_fat, def_planishing=a_planish,
-                                         atk_has_deflect=b_deflect, atk_ignores_tempered=b_negtemp, rec_out=_a_rec_main,
-                                         def_dual_wield=a_dw)
+                                         atk_has_deflect=b_deflect, atk_ignores_tempered=b_negtemp, atk_negate_riposte=b_negrip, rec_out=_a_rec_main, atk_parry_pen=b_foe_parry,
+                                         def_dual_wield=a_dw, def_deadly_shift=b_dshift, def_riposte_plus=a_rp1)
         a_cas = np.minimum(a_cas, a_front)
         # A's riposte back onto B (A's weapon AP a_ap_vs_b, single clean strikes). Plus any riposte B
         # already dealt to A from A's opening strike (a_rip_cas) folds into A's casualties.
@@ -947,13 +1008,20 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
 
         # recompute A for b_first
         recompute_a = b_first_mask
+        if INSTANT_PANIC:
+            _a_ip = _instant_panic_side(Pa, a_shaking, a_shake_bonus, a_fat, a_heal, a_size - a_cas,
+                                        a_cas, _a_rec_main, b_first_mask, a_panic_used)
+            a_panic_used = _a_ip["panic_used"]
+            _a_ipc = _a_ip["cas"]; _a_gone = _a_ip["rout"]
+        else:
+            _a_ipc = 0; _a_gone = False
         if recompute_a.any():
             a_front_after = np.maximum(0, a_front - a_cas)
-            a_front_refill = np.minimum(vc.FRONT_CAP, a_front_after + a_res)
+            a_front_refill = np.minimum(vc.FRONT_CAP, np.maximum(0, a_front + a_res - a_cas - _a_ipc))
             a_eff_front = np.where(recompute_a, a_front_refill, a_front)
             na_strk, na_sh, na_destroys = _roll_strikes_batch(rng, N, a_tt, a_eff_front, a_dead, a_clv, a_dstr,
                                                               b_hasshield, (b_shdest | _b_shoff), b_shimm, a_crit)
-            a_alive_back = (a_front_after + a_res) > 0
+            a_alive_back = ((a_front + a_res - a_cas - _a_ipc) > 0) & ~np.asarray(_a_gone)
             na_fights = recompute_a & a_alive_back
             a_strk = np.where(recompute_a, np.where(na_fights, na_strk, 0), a_strk)
             a_sh = np.where(recompute_a, np.where(na_fights, na_sh, 0), a_sh)
@@ -963,8 +1031,8 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
                                                atk_unstoppable=a_unstop, def_riposte=b_riposte_eff,
                                                def_parry_improved=b_parry_bonus, def_can_parry_shatter=b_riposte,
                                                atk_is_ranged=a_is_rng, def_fat=b_fat, def_planishing=b_planish,
-                                               atk_has_deflect=a_deflect, atk_ignores_tempered=a_negtemp, rec_out=_nb_rec,
-                                               def_dual_wield=b_dw)
+                                               atk_has_deflect=a_deflect, atk_ignores_tempered=a_negtemp, atk_negate_riposte=a_negrip, rec_out=_nb_rec, atk_parry_pen=a_foe_parry,
+                                               def_dual_wield=b_dw, def_deadly_shift=a_dshift, def_riposte_plus=b_rp1)
             nb_cas = np.minimum(nb_cas, b_front)
             b_cas = np.where(recompute_a, nb_cas, b_cas)
             _b_rec_main = np.where(recompute_a, _nb_rec, _b_rec_main)
@@ -999,6 +1067,19 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         a_kill += a_clost; b_kill += b_clost
         a_nd = (a_size <= 0) & (a_cause == 0) & active; b_nd = (b_size <= 0) & (b_cause == 0) & active
         a_cause = np.where(a_nd, 1, a_cause).astype(np.int8); b_cause = np.where(b_nd, 1, b_cause).astype(np.int8)
+        _a_ip_used = np.zeros(N, dtype=np.int64); _b_ip_used = np.zeros(N, dtype=np.int64)
+        if INSTANT_PANIC:
+            # instant Panic losses (and a Panic rout) land now; the end-of-Skirmish check skips these runs
+            _al = np.minimum(_a_ip["cas"], a_size); a_size = a_size - _al; a_waver = a_waver + _al
+            _bl = np.minimum(_b_ip["cas"], b_size); b_size = b_size - _bl; b_waver = b_waver + _bl
+            a_cause = np.where((a_size <= 0) & (a_cause == 0) & active & (_al > 0), 4, a_cause).astype(np.int8)
+            b_cause = np.where((b_size <= 0) & (b_cause == 0) & active & (_bl > 0), 4, b_cause).astype(np.int8)
+            _ar = _a_ip["rout"] & (a_size > 0) & active; _br = _b_ip["rout"] & (b_size > 0) & active
+            a_rout = a_rout + np.where(_ar, a_size, 0); b_rout = b_rout + np.where(_br, b_size, 0)
+            a_cause = np.where(_ar & (a_cause == 0), 3, a_cause).astype(np.int8)
+            b_cause = np.where(_br & (b_cause == 0), 3, b_cause).astype(np.int8)
+            a_size = np.where(_ar, 0, a_size); b_size = np.where(_br, 0, b_size)
+            _a_ip_used = _al; _b_ip_used = _bl
         a_scas = a_clost.copy(); b_scas = b_clost.copy()
 
         # endurance / fatigue
@@ -1034,19 +1115,21 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
             a_size, a_end, a_fat, active, ending,
             a_netc, a_shaking, a_shake_bonus, a_unbreak_eff, a_steadfast,
             a_cause, a_waver, a_shake, a_rout,
-            field_budget=a_clost, field_cap=(vc.FRONT_CAP + vc.RESERVE_CAP),
+            field_budget=a_clost + _a_ip_used, field_cap=(vc.FRONT_CAP + vc.RESERVE_CAP),
             morale_cap_mask=a_mcap, zealot_mask=a_zealot,
             steadfast_firstpass_mask=a_rally, break_used=a_break_used,
-            resolute_firstpass_mask=a_resolute, panic_used=a_panic_used)
+            resolute_firstpass_mask=a_resolute, panic_used=a_panic_used,
+            panic_done=(_a_ip["done"] if INSTANT_PANIC else None))
         _bM = _cm.resolve_side_morale(
             rng, N, _shake_batch, vc.SHAKE_CAP,
             b_size, b_end, b_fat, active, ending,
             b_netc, b_shaking, b_shake_bonus, b_unbreak_eff, b_steadfast,
             b_cause, b_waver, b_shake, b_rout,
-            field_budget=b_clost, field_cap=(vc.FRONT_CAP + vc.RESERVE_CAP),
+            field_budget=b_clost + _b_ip_used, field_cap=(vc.FRONT_CAP + vc.RESERVE_CAP),
             morale_cap_mask=b_mcap, zealot_mask=b_zealot,
             steadfast_firstpass_mask=b_rally, break_used=b_break_used,
-            resolute_firstpass_mask=b_resolute, panic_used=b_panic_used)
+            resolute_firstpass_mask=b_resolute, panic_used=b_panic_used,
+            panic_done=(_b_ip["done"] if INSTANT_PANIC else None))
         a_size = _aM["size"]; a_cause = _aM["cause"]
         a_waver = _aM["cas_panic_total"]; a_shake = _aM["cas_break_total"]; a_rout = _aM["cas_rout_total"]
         a_exh = _aM["exhausted"]; a_break_used = _aM["break_used"]; a_panic_used = _aM["panic_used"]; a_slost = _aM["break_lost"]; a_wvlost = _aM["panic_lost"]

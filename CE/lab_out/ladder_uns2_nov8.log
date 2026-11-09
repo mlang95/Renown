@@ -1,0 +1,62 @@
+pool: lab_out/ladder_pool_nov8.csv (2042 builds)
+
+######## weapon: 21 items | subjects 200 (of 1973 carrying one) | panel 300
+  baseline done (228s)
+  2HBastard          n=115  later +0.928  (115s)
+  2HSpears           n=115  later -0.332  (137s)
+  Arming Sword       n=110  later +0.031  (126s)
+  Bastard Sword      n=110  later +0.214  (123s)
+  Battle Axe         n=115  later -0.097  (126s)
+  Bill Hook          n=115  later +0.090  (142s)
+  Cavalry Spear      n=44   later +0.116  (40s)
+  Cudgel             n=115  later -1.284  (107s)
+  Daggers            n=115  later -0.451  (110s)
+  Estoc              n=110  later +0.544  (106s)
+  Farm Tools         n=200  later -0.825  (185s)
+  Flail              n=110  later +0.063  (100s)
+  Halberd            n=115  later +0.594  (106s)
+  Lance              n=44   later +0.676  (34s)
+  Morningstar        n=110  later +0.441  (91s)
+  Pike               n=115  later +0.210  (95s)
+  Pitchfork          n=115  later -0.699  (96s)
+  Poleaxe            n=115  later +0.922  (91s)
+  Short Sword        n=110  later -0.155  (93s)
+  Spears             n=110  later -0.695  (91s)
+  War Hammer         n=115  later +0.713  (98s)
+
+== weapon: item value on the same builds (value_later sorted) ==
+   item_shown     tier   n  value_first  value_later
+    2HBastard   Forged 115        0.727        0.928
+      Poleaxe Tempered 115        0.669        0.922
+   War Hammer   Forged 115        0.542        0.713
+        Lance Tempered  44        0.619        0.676
+      Halberd  Wrought 115        0.428        0.594
+        Estoc Tempered 110        0.360        0.544
+  Morningstar   Forged 110        0.366        0.441
+Bastard Sword   Forged 110        0.181        0.214
+         Pike  Wrought 115        0.155        0.210
+Cavalry Spear  Wrought  44        0.076        0.116
+    Bill Hook     Cast 115        0.103        0.090
+        Flail  Wrought 110        0.088        0.063
+ Arming Sword  Wrought 110        0.071        0.031
+   Battle Axe  Wrought 115        0.528       -0.097
+  Short Sword     Cast 110       -0.045       -0.155
+     2HSpears     Cast 115       -0.229       -0.332
+      Daggers     Cast 115       -0.321       -0.451
+        Spear     Cast 110       -0.398       -0.695
+    Pitchfork    Crude 115       -0.464       -0.699
+    Farm Tool    Crude 200       -0.481       -0.825
+       Cudgel    Crude 115       -0.487       -1.284
+
+== weapon: by tier (value_later) ==
+          count   mean    std    min    max   step
+tier                                              
+Crude         3 -0.936  0.308 -1.284 -0.699    NaN
+Cast          5 -0.309  0.297 -0.695  0.090  0.627
+Wrought       6  0.153  0.239 -0.097  0.594  0.462
+Forged        4  0.574  0.312  0.214  0.928  0.421
+Tempered      3  0.714  0.192  0.544  0.922  0.140
+
+  tier steps <= 0: 0 of 4 | mean |step| 0.412 vs mean within-tier spread 0.270
+  -> ladder in order and tiers fairly tight.
+  -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\ladder_weapon_uns2

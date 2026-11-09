@@ -308,7 +308,7 @@ def edicts():
     return _table(["Edict", "Type", "Requirement"], rows)
 
 def weapons():
-    rows = [[rd.display(n), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(x["tier"])), str(x["ap"]), f"{x['init']:+d}", ", ".join(x["tags"]) or "—"]
+    rows = [[rd.display(n), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(x["tier"])), str(x["ap"]), f"{x['init']:+d}", ", ".join(getattr(rd, "display_tags", lambda t, ranged=False: list(t or []))(x["tags"], ranged=(n in rd.RANGED))) or "—"]
            for n, x in rd.WEAPONS.items()]
     return _table(["Weapon", "Tier", "AP", "Init", "Keywords"], rows)
 
@@ -329,7 +329,7 @@ def ages():
     return _table(["Age", "Starting Rising", "Starting Year"], rows)
 
 def ranged():
-    rows = [[rd.display(n), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(x["tier"])), str(x["ap"]), f"{x['init']:+d}", ", ".join(x["tags"]) or "—"]
+    rows = [[rd.display(n), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(x["tier"])), str(x["ap"]), f"{x['init']:+d}", ", ".join(getattr(rd, "display_tags", lambda t, ranged=False: list(t or []))(x["tags"], ranged=(n in rd.RANGED))) or "—"]
            for n, x in rd.RANGED.items()]
     return _table(["Ranged Weapon", "Tier", "AP", "Init", "Keywords"], rows)
 

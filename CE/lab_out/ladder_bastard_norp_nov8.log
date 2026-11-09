@@ -1,0 +1,21 @@
+pool: lab_out/_pool_cache/hf_5_16_pc50_96e2f7b51421.csv (2042 builds)
+
+######## weapon: 4 items | subjects 200 (of 1949 carrying one) | panel 300
+  baseline done (196s)
+  2HBastard          n=111  later +0.828  (99s)
+  Bastard Sword      n=110  later +0.246  (106s)
+  2HBastard [ap2]    n=111  later +0.695  (105s)
+  2HBastard [no_cleave] n=111  later +0.464  (104s)
+
+== weapon: item value on the same builds (value_later sorted) ==
+           item_shown   tier   n  value_first  value_later
+            2HBastard Forged 111        0.634        0.828
+      2HBastard [ap2] Forged 111        0.529        0.695
+2HBastard [no_cleave] Forged 111        0.348        0.464
+        Bastard Sword Forged 110        0.232        0.246
+
+== weapon: by tier (value_later) ==
+        count   mean    std    min    max  step
+tier                                           
+Forged      4  0.559  0.257  0.246  0.828   NaN
+  -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\ladder_weapon_bastard_norp

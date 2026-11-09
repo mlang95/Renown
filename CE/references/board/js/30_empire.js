@@ -1277,6 +1277,7 @@ function glossLookup(tok){
   let base=tok.replace(/\s*[:+].*$/,"").replace(/\s+\d+$/,"").trim();
   base=SYN[base]||base;
   if(base && GLOSS[base]) return {term:base,def:GLOSS[base],mod:tok};
+  if(base && GLOSS[base+" X"]) return {term:base+" X",def:GLOSS[base+" X"],mod:tok};   // "Hook 2" → "Hook X"
   let m=tok.match(/^(Immune|Negate)\s+(.+)$/i);
   if(m){let x=SYN[m[2]]||m[2]; if(GLOSS[x]) return {term:x,def:GLOSS[x],mod:tok,prefix:m[1]};}
   return {term:tok,def:null};
@@ -1286,6 +1287,10 @@ function openModal(html){
   document.getElementById("inspect").style.display="flex";
 }
 function closeModal(){WP=null;document.getElementById("inspect").style.display="none";}
+// keyword bundles (display only; items keep the separate tags): DATA.rulesConst.KEYWORD_BUNDLES, ranged_only = RANGED items
+function dispTags(tags,ranged){const B=(DATA.rulesConst||{}).KEYWORD_BUNDLES||{};let t=[...(tags||[])];const lead=[];
+  for(const nm in B){const b=B[nm];if(b.ranged_only&&!ranged)continue;if(b.parts.every(p=>t.includes(p))){lead.push(nm);t=t.filter(x=>!b.parts.includes(x));}}
+  return lead.concat(t);}
 function kwChipHTML(tok,cls){return '<span class="kw '+(cls||"")+'" data-tok="'+esc(tok)+'">'+esc(tok)+'</span>';}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");}
 function inspectKeyword(tok){
@@ -1323,10 +1328,10 @@ function inspectItem(kind,name){
   if(kind==="armor"){push("SAVE",it.save+"+");}
   if(kind==="shield"){push("SAVE +",it.save_bonus);push("INIT",(it.init>=0?"+":"")+it.init);}
   if(S_.length)h+='<div class="sgrid">'+S_.join("")+'</div>';
-  if(it.tags&&it.tags.length){h+='<div class="lbl2">'+(it.profile2h?'1H PROFILE — ':'')+'KEYWORDS (tap for detail)</div><div class="atoms">'+it.tags.map(t=>kwChipHTML(t)).join(" ")+'</div>';}
+  if(it.tags&&it.tags.length){h+='<div class="lbl2">'+(it.profile2h?'1H PROFILE — ':'')+'KEYWORDS (tap for detail)</div><div class="atoms">'+dispTags(it.tags,kind==="ranged").map(t=>kwChipHTML(t)).join(" ")+'</div>';}
   if(kind==="weapon"&&it.profile2h){const q=it.profile2h;
     h+='<div class="lbl2">2H PROFILE — chosen each Skirmish with your Tactic (no Shield while 2H)</div><div class="sgrid"><span class="stat"><span class="k">AP</span><b>'+q.ap+'</b></span><span class="stat"><span class="k">INIT</span><b>'+((q.init>=0?"+":"")+q.init)+'</b></span></div>'+
-      '<div class="atoms">'+(q.tags||[]).map(t=>kwChipHTML(t)).join(" ")+'</div>';}
+      '<div class="atoms">'+dispTags(q.tags).map(t=>kwChipHTML(t)).join(" ")+'</div>';}
   if(it.requires)h+='<div class="note">Requires: '+it.requires.map(esc).join(", ")+'</div>';
   if(it.tactics_allowed)h+='<div class="note">Tactics: '+it.tactics_allowed.map(esc).join(", ")+'</div>';
   if(it.note)h+='<div class="note">'+esc(it.note)+'</div>';

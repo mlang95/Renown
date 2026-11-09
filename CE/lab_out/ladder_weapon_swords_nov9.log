@@ -1,0 +1,35 @@
+pool: lab_out/ladder_pool_nov9.csv (2042 builds)
+
+######## weapon: 8 items | subjects 200 (of 1972 carrying one) | panel 300
+  baseline done (189s)
+  Arming Sword       n=114  later +0.169  wr +0.020  (109s)
+  Bastard Sword      n=114  later +0.349  wr +0.042  (114s)
+  Cavalry Spear      n=46   later +0.067  wr +0.037  (42s)
+  Estoc              n=114  later +0.488  wr +0.057  (109s)
+  Morningstar        n=114  later +0.403  wr +0.032  (111s)
+  Short Sword        n=114  later -0.004  wr -0.001  (109s)
+  Short Sword [noparry] n=114  later -0.147  wr -0.021  (109s)
+  Arming Sword [deadly] n=114  later +0.206  wr +0.022  (111s)
+
+== weapon: item value on the same builds (d_wr sorted) ==
+           item_shown     tier   n  value_first  value_later   d_wr  d_lost_strike  d_lost_panic  d_lost_break  d_lost_rout  d_skirm
+                Estoc Tempered 114        0.290        0.488  0.057         -0.463        -0.055        -0.210       -0.004   -0.130
+        Bastard Sword   Forged 114        0.236        0.349  0.042         -0.470        -0.116         0.031       -0.003   -0.029
+        Cavalry Spear  Wrought  46       -0.077        0.067  0.037         -0.046         0.102        -0.307       -0.008   -0.150
+          Morningstar   Forged 114        0.304        0.403  0.032         -0.320        -0.039        -0.188       -0.003   -0.104
+Arming Sword [deadly]  Wrought 114        0.122        0.206  0.022         -0.142        -0.021        -0.082       -0.004   -0.051
+         Arming Sword  Wrought 114        0.120        0.169  0.020         -0.276        -0.098         0.113       -0.001    0.021
+          Short Sword     Cast 114        0.004       -0.004 -0.001         -0.082        -0.082         0.227        0.001    0.081
+Short Sword [noparry]     Cast 114       -0.109       -0.147 -0.021          0.238         0.014         0.079        0.000    0.048
+
+== weapon: by tier (d_wr) ==
+          count   mean    std    min    max   step
+tier                                              
+Cast          2 -0.011  0.014 -0.021 -0.001    NaN
+Wrought       3  0.026  0.009  0.020  0.037  0.037
+Forged        2  0.037  0.008  0.032  0.042  0.011
+Tempered      1  0.057    NaN  0.057  0.057  0.020
+
+  tier steps <= 0: 0 of 3 | mean |step| 0.023 vs mean within-tier spread 0.010
+  -> ladder in order and tiers fairly tight.
+  -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\ladder_weapon_swords_nov9

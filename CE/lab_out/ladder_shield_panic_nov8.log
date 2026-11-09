@@ -1,0 +1,32 @@
+pool: lab_out/ladder_pool_nov8.csv (2042 builds)
+
+######## shield: 6 items | subjects 200 (of 1148 carrying one) | panel 300
+  baseline done (193s)
+  Buckler Shield     n=200  later -0.119  wr -0.012  (206s)
+  Heater Shield      n=148  later +0.479  wr +0.076  (204s)
+  Kite Shield        n=148  later +0.133  wr +0.016  (188s)
+  Targe Shield       n=148  later -0.054  wr -0.002  (199s)
+  Tower Shield       n=141  later -0.186  wr -0.000  (196s)
+  Tower Shield [save2] n=141  later -0.043  wr +0.019  (198s)
+
+== shield: item value on the same builds (d_wr sorted) ==
+          item_shown     tier   n  value_first  value_later   d_wr  d_lost_strike  d_lost_panic  d_lost_break  d_lost_rout  d_skirm
+       Heater Shield Tempered 148        0.435        0.479  0.076         -1.433        -0.480         0.823        0.002    0.201
+Tower Shield [save2]   Forged 141        0.196       -0.043  0.019         -1.095        -0.502         1.238        0.011    0.391
+         Kite Shield  Wrought 148        0.102        0.133  0.016         -0.238        -0.096         0.114        0.000    0.029
+        Tower Shield   Forged 141        0.077       -0.186 -0.000         -0.702        -0.402         1.009        0.008    0.343
+        Targe Shield     Cast 148       -0.017       -0.054 -0.002         -0.026        -0.068         0.126        0.000    0.053
+      Buckler Shield    Crude 200       -0.065       -0.119 -0.012          0.211         0.070        -0.114       -0.000   -0.027
+
+== shield: by tier (d_wr) ==
+          count   mean    std    min    max   step
+tier                                              
+Crude         1 -0.012    NaN -0.012 -0.012    NaN
+Cast          1 -0.002    NaN -0.002 -0.002  0.010
+Wrought       1  0.016    NaN  0.016  0.016  0.018
+Forged        2  0.009  0.014 -0.000  0.019 -0.006
+Tempered      1  0.076    NaN  0.076  0.076  0.067
+
+  tier steps <= 0: 1 of 4 | mean |step| 0.025 vs mean within-tier spread 0.014
+  -> tiers are tight but out of order: the ladder (tier stats for their cost) looks off.
+  -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\ladder_shield_panic_sim

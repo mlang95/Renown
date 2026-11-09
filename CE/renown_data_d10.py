@@ -9,7 +9,7 @@ SIMPLE = True
 # Industry actions, no Envoy); in Spring the Envoy Phase is the Diplomacy Phase (offers between players; no Envoys), the only one
 PHASE_REFORM = _os.environ.get("RENOWN_PHASES", "1") == "1"
 vS = "-S"
-VERSION = f"0.4.9.9.15-d10{vS}{PHASE_REFORM}"
+VERSION = f"0.4.9.9.16-d10{vS}{PHASE_REFORM}"
 # ── DICE ─────────────────────────────────────────────────────────────────────
 # Single source for die size, shared with the combat engines. Every threshold
 # string below is an f-string built from these, so changing the die rewrites the
@@ -31,8 +31,8 @@ except ImportError:  # standalone (build_wiki, gen_compendium, card sheets, ...)
     FATIGUE_MORALE   = 2
     PARRY_BASE       = 8
     RECOVER_BASE     = 8
-    DEADLY_AP        = 5
-    DEADLY_MODE      = "additional"
+    DEADLY_AP        = 10
+    DEADLY_MODE      = "set"
     UNSTOPPABLE_MOD  = 2
     IMPROVED_PARRY_MOD = 1
     DICE_SOURCE      = "renown_data fallback"
@@ -50,6 +50,8 @@ PO_MIN               = -10
 PO_MAX               = 10
 INITIATIVE_MIN       = -2
 INITIATIVE_MAX       = 2
+INIT_CAP_BEFORE_PENALTIES = True   # bonuses are capped at INITIATIVE_MAX first, then penalties apply (surplus can't absorb them)
+INIT_FLOOR           = False  # no lower limit on Initiative; INITIATIVE_MIN is only the Blunder threshold
 STANDING_THRESHOLDS = {
     "Untested":    1,
     "Rising":      3,
@@ -83,6 +85,7 @@ UNBREAKABLE     = "Unbreakable"
 PARRY           = "Parry"
 RIPOSTE         = "Riposte"
 NO_PARRY        = "Awkward"
+CRUDE           = "Crude"    # weapon keyword: can never Parry; Immune Awkward doesn't remove it
 RECOVER         = "Recover"
 SERRATED        = "Serrated"
 SERRATED_MOD    = 2          # Serrated: cumulative penalty to the defender's Recover roll
@@ -90,7 +93,18 @@ ENDURING        = "Enduring"   # successfully Recovered Strikes don't count towa
 STRAIN          = "Strained"
 MINUS_1_TBH     = "Shielded"
 PONDEROUS       = "Ponderous"   # shield drawback: -1 to the bearer's own Strike roll
-PLANISHING      = "Planishing"
+PLANISHING      = "Riveted"      # ward: to-Save never worse than CAP_THR+ (Armory). Displayed "Riveted" since Nov 7 2026 (was "Planishing" on Court Armoury); constant name kept so engines/tools follow
+SHIELD_WALL     = "Shield Wall"   # Pavisiers' Yard (Nov 8 2026): in Defensive Formation with a Shield Equipped, incoming AP -1
+WEDGE           = "Wedge"        # Nov 9 2026: first Skirmish, -1 to the defender's Parry roll vs that weapon's Strikes (engine: "First FoeParry +1 @<weapon>")
+FLUTED          = "Articulated"  # armor keyword (Gothic Plate): incoming AP reduced by 1, after Deadly; AP 0 unaffected; also Immune Strained. Was "Fluted" (renamed Nov 8 2026; constant name kept so engines follow)
+# Keyword BUNDLES — display only. Items keep the separate tags (the engines read those); cards, tables, wiki and
+# the board show the bundle name where every part is present. A bundle counts as each keyword it lists.
+RANGED_KW       = "Ranged"
+BRACED          = "Braced"
+KEYWORD_BUNDLES = {
+    RANGED_KW: {"parts": [DEADLY, UNSTOPPABLE, NO_PARRY], "ranged_only": True},   # Pike also has all three: melee stays unbundled
+    BRACED:    {"parts": [STEADY, UNWIELDY]},
+}
 FATIGUE_TOKEN   = "Fatigue Token"
 CRUSADER        = "Righteous Fervour"
 # Exposed X (player effect): other players may aim an EXPOSED_DOMAIN Envoy at you when it is declared; it gains Authority
@@ -118,45 +132,64 @@ IMMUNE_STRAIN         = immune(STRAIN)
 NEGATE_UNSTOPPABLE = "Immune Unstoppable"
 
 NEGATE_TEMPERED    = f"Negate {PLANISHING}"   # RETIRED (Oct 19 2026): on no item; constant kept for engine imports
-NEGATE_RIPOSTE     = "Negate Riposte"           # RETIRED (Oct 19 2026): folded into Unstoppable; constant kept for engine imports
-NEGATE_SHIELDED    = negate(MINUS_1_TBH)   # "Negate Shielded": attacker ignores defender's Shielded (-1 to Strike)
+NEGATE_RIPOSTE     = "Negate Riposte"           # attacker keyword: the defender cannot Riposte its Strikes. Every Ranged Strike has it; Holdings can grant it ("Gain Negate Riposte")
+NEGATE_SHIELDED    = negate(MINUS_1_TBH)   # RETIRED (Nov 7 2026): replaced by Hook X; on no item; engines still read it (ignores all Shielded)
+HOOK               = "Hook"                # Hook X: the attacker ignores up to X points of the defender's Shielded
+HOOK_1             = f"{HOOK} 1"
+HOOK_2             = f"{HOOK} 2"
+SHIELDED_2         = f"{MINUS_1_TBH} 2"     # Shielded 2 (Heater Shield): -2 to enemy Strikes
+SHIELDED_3         = f"{MINUS_1_TBH} 3"     # Shielded 3 (Tower Shield): -3 to enemy Strikes (Nov 8 2026)
 MINUS_1_PARRY      = "-1 to Parry"
 HALFSWORD          = "Halfsword"   # RESERVED — engine path intact, no weapon carries it (shelved)
 DUAL_WIELD         = "Dual Wield"
-FLORENTINE         = "Florentine"  # Two of the same 1H Melee Weapon gain Dual Wield; grants Parry while Dual Wielding (List Yard).
+FLORENTINE         = "Florentine"  # Two of the same 1H Melee Weapon = Dual Wielding (List Yard). DUAL_WIELD is the loadout tag; its rule lives in FLORENTINE's glossary entry.
 PIVOTAL = "Focused"
 
 
 GLOSSARY = {
     STEADY:         "Initiative cannot be reduced by Tactics.",
     UNWIELDY:       "Initiative cannot be improved by Tactics.",
+    BRACED:         f"Initiative cannot be modified by Tactics. Counts as {STEADY} and {UNWIELDY}: Immune {UNWIELDY} leaves {STEADY}.",
+    RANGED_KW:      f"Every Ranged Weapon counts as {DEADLY}, {UNSTOPPABLE}, {NO_PARRY} and {NEGATE_RIPOSTE}. Immune to one of them removes only that part.",
     TWO_H:          "Cannot use a Shield: while a 2H weapon is Equipped, your Shield gives nothing that Skirmish (no Save bonus, Initiative or keywords).",
-    DEADLY:  f"On a {PIVOTAL} Strike: that Strike's AP is increased by {DEADLY_AP}, and the defender may Parry or {RECOVER} only with a {PIVOTAL} roll.",
-    UNSTOPPABLE:    f"-{UNSTOPPABLE_MOD} to the defender's Parry roll (to a maximum of {CAP_THR}+).",
+    DEADLY:  (f"On a {PIVOTAL} Strike: that Strike has AP -{DEADLY_AP}, the defender can at best Parry it on a {PIVOTAL} roll, and it can't be {RECOVER}ed."
+              if DEADLY_MODE == "set" else
+              f"On a {PIVOTAL} Strike: that Strike's AP is increased by {DEADLY_AP}, and the defender can at best Parry or {RECOVER} it on a {PIVOTAL} roll."),
+    UNSTOPPABLE:    f"-{UNSTOPPABLE_MOD} to the defender's Parry roll.",
     CLEAVE:         f"On a {PIVOTAL} Strike: roll one extra Strike die at your modified to-Strike; a {PIVOTAL} extra die Strikes and rolls another.",
     POISON:         f"When the Defender receives a Strike and rolls a {PIVOTAL} Save, it fails; the resulting wound may only be {RECOVER}ed with a {PIVOTAL} {RECOVER}.",
     NIMBLE:         "Gain Initiative +1 in the first Skirmish of each Battle.",
     DRILLED:        "Does not lose Endurance in the first Skirmish of each Battle.",
     DESTROY_SHIELD: f"On a {PIVOTAL} Strike: the target loses its Shield attributes for the rest of the Battle.",
-    BLUNDER:        f"At Initiative {INITIATIVE_MIN}, your to-Strike is set to {BLUNDER_THR}+ (penalties can't make it worse).",
-    ONE_SHOT:       "Must be Equipped in the first Skirmish of a Battle, and can't be Equipped after it. Requires a Skirmish Field.",
+    BLUNDER:        f"At Initiative {INITIATIVE_MIN} or lower, your to-Strike is set to {BLUNDER_THR}+ (penalties can't make it worse).",
+    ONE_SHOT:       "Must be Equipped in the first Skirmish of a Battle, and can't be Equipped after it. Requires Training Grounds.",
     #DEFLECT:        "-1 to Parry and Negate Riposte against this weapon's Strikes. (All Ranged weapons have Deflect.)",
     #IMMUNE_PANIC:   "Automatically passes Panic checks.",
     #UNBREAKABLE:    "Immune Break: does not take Break checks while Fatigued.",
-    PARRY:          f"If your Army has gained {PARRY}, roll a D{FACES} to attempt to Parry a Strike before an Armor Save. On an {PARRY_BASE}+ (better with Improve Parry), the Strike is Parried and has no further effect.",
+    PARRY:          f"If your Army has gained {PARRY}, roll a D{FACES} to attempt to Parry a Strike before an Armor Save. On an {PARRY_BASE}+ (better with Parry +1), the Strike is Parried and has no further effect. A Parry that would need more than {CAP_THR}+ can't be made.",
     RIPOSTE:        f"If your Army has gained {RIPOSTE} and rolls a Focused Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
     NO_PARRY:       "While Equipped with this weapon during a Skirmish, you cannot Parry, and so cannot Riposte.",
+    CRUDE:          f"While this weapon or shield is Equipped during a Skirmish, you cannot Parry, and so cannot Riposte. Immune {NO_PARRY} doesn't remove this.",
+    "Deadly +1":    f"Your {DEADLY} also triggers on an Unmodified roll one lower than {PIVOTAL} (9+). Each +1 stacks. Written \"(Ranged Weapons)\", it applies only while a Ranged Weapon is Equipped.",
+    "Cleave +1":    f"Your {CLEAVE} also triggers on an Unmodified roll one lower than {PIVOTAL} (9+). Each +1 stacks.",
+    "Parry +1":     f"Your {PARRY} rolls succeed on one lower. Each +1 stacks.",
+    "Riposte +1":   f"You also {RIPOSTE} on a successful Parry roll one lower than {PIVOTAL} (9).",
+    "Shield Initiative": "Shield Initiative penalty reduced by 1: your Shield's negative Initiative is 1 smaller (a Shield with no penalty gains nothing). Granted by Shieldwright.",
+    "Buckler with 2H": "Armies Equipped with a 2H Weapon may Equip a Buckler Shield, and it counts while the 2H Weapon is Equipped. Granted by Buckler School.",
+    SHIELD_WALL: "While this Army plays Defensive Formation with a Shield Equipped, Strikes against it have their AP reduced by 1 (after Deadly), including Ranged Weapons. AP 0 is unaffected. Stacks with Articulated. Granted by Pavisiers' Yard.",
+    WEDGE:          f"In the first Skirmish of a Battle, -1 to the defender's Parry roll against Strikes from the weapon that gained it.",
+    "Hook X":       f"Your Strikes ignore up to X points of the defender's {MINUS_1_TBH} (Hook 1 ignores a shield's -1; Hook 2 ignores a Heater Shield's -2 and 2 of a Tower Shield's -3).",
     RECOVER:        f"If your Army has gained {RECOVER} and a to-Save roll fails, roll a D{FACES} & compare it to your Recover value: a result greater than or equal to your Recover value recovers the Retinue. Recovered Strikes still count toward the Panic check threshold.",
     ENDURING:       "Successfully Recovered Strikes don't count toward the Panic check threshold.",
     SERRATED:       f"A cumulative -{SERRATED_MOD} penalty to the defender's Recover roll.",
     PLANISHING:     f"A {PIVOTAL} Save succeeds, regardless of AP.",
+    FLUTED:         f"Strikes against this Army have their AP reduced by 1 (after Deadly), including Ranged Weapons. AP 0 is unaffected. The Army is also {IMMUNE_STRAIN}.",
     FATIGUE_TOKEN:  f"Each token reduces Morale -{FATIGUE_MORALE} by. If your modified Morale is ever {ROUT_THR}+, your Army Routs. These effects are cumulative.",
-    MINUS_1_TBH:    f"A cumulative -1 penalty to the Strike roll (to a maximum of {CAP_THR}+). Sources: a shield's -1 to Strike.",
+    MINUS_1_TBH:    f"A cumulative -1 penalty to the Strike roll (to a maximum of {CAP_THR}+). Sources: a shield's -1 to Strike. {MINUS_1_TBH} 2 (Heater Shield) is -2; {MINUS_1_TBH} 3 (Tower Shield) is -3. Hook X ignores up to X of it.",
     #PONDEROUS:      f"A cumulative -1 penalty to your own Strike roll while this Shield is Equipped (to a maximum of {CAP_THR}+).",
 	#NEGATE_UNSTOPPABLE: "Cancels the attacker's Parry from Unstoppable: this shield's -1 to Strike still applies, and the attacker's -1 to Parry does not.",
     #MINUS_1_PARRY: "A stacking -1 penalty to the defender's Parry roll (to a maximum of 6+). Sources: Unstoppable, Deflect, and each Fatigue token.",
-    DUAL_WIELD: "A failed Strike is rerolled once; the rerolled Strike can be Focused. Dual Wield confers Two-Handed. You cannot reroll successful Strikes.",
-    FLORENTINE: f"Your Armies may equip two of the same 1H Melee Weapon to gain {DUAL_WIELD}. While Dual Wielding, your Army gains {PARRY}.",
+    FLORENTINE: f"Your Armies may equip two of the same 1H Melee Weapon. While they do, they are Dual Wielding: a failed Parry is rerolled once, and they count as Two-Handed.",
     "Immune [keyword]": "Can't gain that keyword's effect as it applies to your Army (e.g. Immune Strained, Destroy Shield, Steady, etc.).",
     "Negate [keyword]": "Your opponent can't gain that keyword's effect as it applies to their Army (e.g. Negate Shielded).",
 
@@ -186,9 +219,9 @@ GLOSSARY = {
     "Save":          f"The defender's roll to avoid a Casualty: roll a D{FACES}, add the weapon's AP (a negative) and the shield's Save bonus (a positive); the hit is saved on a Modified roll >= the armor value.",
     "Unmodified roll": "The number on the die before any modifiers. Modifiers never change what counts as Unmodified.",
     "Modified roll": "The number on the die after every modifier is applied.",
-    "Initiative":    f"Decides who Strikes first each Skirmish (higher first). Runs {INITIATIVE_MIN} to +{INITIATIVE_MAX} (only the Ministry of Military Strategy raises the maximum, to +3). At {INITIATIVE_MIN} or lower you Blunder.",
+    "Initiative":    f"Decides who Strikes first each Skirmish (higher first). Add bonuses up to +{INITIATIVE_MAX} (only the Ministry of Military Strategy raises the maximum, to +3), then subtract penalties; there is no minimum. At {INITIATIVE_MIN} or lower you Blunder.",
     "Tactic":        "A choice both players make secretly and reveal together each Skirmish; it can shift Initiative, Strike, and Save rolls.",
-    "Dual-equip":    "Carry two weapons at once (e.g. melee + ranged). Granted by the Skirmish Field.",
+    "Dual-equip":    "Carry two weapons at once (e.g. melee + ranged). Granted by Training Grounds.",
     "Monument":      "A Domain's capstone Holding, one per game. Having one completes the Monument Edict.",
 
     # ── Empire keywords (referenced by Pursuits/Factions; DRAFTED — review wording) ──
@@ -299,32 +332,32 @@ ENDURANCE_REGAIN    = 2    # +Endurance restored to non-Strained armies in the E
 RETINUES = {
     "Levy":           {"cost": 1000, "to_hit": 6, "endurance": 3, "shaking": 6, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
     "Man-at-Arms":    {"cost": 2000, "to_hit": 5, "endurance": 4, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
-    "Sergeant":       {"cost": 3000, "to_hit": 3, "endurance": 4, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
-    "Knight Templar": {"cost": 4000, "to_hit": 4, "endurance": 3, "shaking": 4, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
+    "Sergeant":       {"cost": 3000, "to_hit": 3, "endurance": 3, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
+    "Knight Templar": {"cost": 4000, "to_hit": 4, "endurance": 2, "shaking": 4, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
 }
 
 WEAPONS = {
-    "Farm Tools":     {"ap":  0, "init":  0, "tier": "Crude",   "tags": [NO_PARRY]},
-    "Cudgel":         {"ap": -1, "init": -1, "tier": "Crude",   "tags": [TWO_H, NO_PARRY]},
-    "Pitchfork":      {"ap":  0, "init":  0, "tier": "Crude",   "tags": [TWO_H, STEADY, NO_PARRY]},
-    "Bill Hook":      {"ap": -1, "init":  0, "tier": "Cast",   "tags":  [TWO_H, NEGATE_SHIELDED]},
+    "Farm Tools":     {"ap":  0, "init":  0, "tier": "Crude",   "tags": [CRUDE]},
+    "Cudgel":         {"ap": -1, "init": -1, "tier": "Crude",   "tags": [TWO_H, CRUDE]},
+    "Pitchfork":      {"ap":  0, "init":  1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, CRUDE]},
+    "Bill Hook":      {"ap": -1, "init":  0, "tier": "Cast",   "tags":  [TWO_H, HOOK_1]},
     "Daggers":        {"ap":  0, "init":  0, "tier": "Cast",    "tags": [TWO_H, DEADLY, NO_PARRY]},
-    "Short Sword":    {"ap":  0, "init":  0, "tier": "Cast",    "tags": [STEADY]},
-    "Spears":         {"ap":  0, "init":  1, "tier": "Cast",    "tags": [UNWIELDY, NO_PARRY], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile.'},
+    "Short Sword":    {"ap":  0, "init":  0, "tier": "Cast",    "tags": [STEADY, "Parry +1"]},
+    "Spears":         {"ap":  0, "init":  1, "tier": "Cast",    "tags": [UNWIELDY, NO_PARRY], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile. Cannot Florentine.'},
     "2HSpears":       {"ap": -1, "init":  1, "tier": "Cast",    "tags": [TWO_H, STEADY, NO_PARRY]},
-    "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY]},
+    "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY, "Parry +1"]},
     "Pike":           {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, STEADY, UNWIELDY, DEADLY, UNSTOPPABLE, NO_PARRY]},
-    "Flail":          {"ap": -1, "init": -1, "tier": "Wrought", "tags": [UNSTOPPABLE, CLEAVE, NO_PARRY], 'note': 'Cannot Florentine'},
-    "Halberd":        {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, STEADY, NEGATE_SHIELDED]},
-    "Battle Axe":     {"ap": -3, "init": -1, "tier": "Wrought", "tags": [TWO_H, UNSTOPPABLE, CLEAVE, NEGATE_SHIELDED]},
-    "Cavalry Spear":  {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY], 'note': "Needs Stable; no Tower Shield or Florentine or Ranged Weapon"},
-    "Morningstar":    {"ap": -4, "init": -1, "tier": "Forged",  "tags": [CLEAVE, DESTROY_SHIELD], 'note': 'Cannot Florentine'},
-    "Bastard Sword":  {"ap": -1, "init":  0, "tier": "Forged",  "tags": [STEADY, DEADLY], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile.'},
-    "2HBastard":      {"ap": -3, "init":  0, "tier": "Forged",  "tags": [TWO_H, UNSTOPPABLE, CLEAVE]},
-    "War Hammer":     {"ap":-10, "init": -1, "tier": "Forged",  "tags": [TWO_H, STEADY, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD]},
-    "Lance":          {"ap": -4, "init":  1, "tier": "Forged",  "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY], 'note': "Needs Saddlery; no Tower Shield, Florentine, Ranged weapon."},
-    "Estoc":          {"ap": -3, "init":  0, "tier": "Crafted", "tags": [STEADY, DEADLY, UNSTOPPABLE]},
-    "Poleaxe":        {"ap": -4, "init":  1, "tier": "Crafted", "tags": [TWO_H, STEADY, CLEAVE, UNSTOPPABLE, DESTROY_SHIELD]}, # NEGATE_SHIELDED
+    "Flail":          {"ap": -1, "init":  0, "tier": "Wrought", "tags": [UNSTOPPABLE, CLEAVE, NO_PARRY]},
+    "Halberd":        {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, HOOK_1]},
+    "Battle Axe":     {"ap": -3, "init": -1, "tier": "Wrought", "tags": [TWO_H, UNSTOPPABLE, CLEAVE, HOOK_1]},
+    "Cavalry Spear":  {"ap":  0, "init":  1, "tier": "Wrought", "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY, DEADLY], 'note': "Needs Stable; no Tower Shield or Florentine or Ranged Weapon"},
+    "Morningstar":    {"ap": -3, "init":  0, "tier": "Forged",  "tags": [CLEAVE]},   # Nov 8 2026: Unwieldy dropped; Destroy Shield is thrown weapons only
+    "Bastard Sword":  {"ap": -2, "init":  0, "tier": "Forged",  "tags": [STEADY, DEADLY, "Parry +1"], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile. Cannot Florentine.'},
+    "2HBastard":      {"ap": -2, "init":  0, "tier": "Forged",  "tags": [TWO_H, UNSTOPPABLE, CLEAVE]},
+    "War Hammer":     {"ap":-10, "init": -1, "tier": "Forged",  "tags": [TWO_H, STEADY, UNSTOPPABLE, HOOK_2]},   # Nov 8 2026: Destroy Shield is thrown weapons only
+    "Lance":          {"ap": -5, "init":  1, "tier": "Crafted", "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY, DEADLY], 'note': "Needs Saddlery; no Tower Shield, Florentine, Ranged weapon."},
+    "Estoc":          {"ap": -2, "init":  0, "tier": "Crafted", "tags": [STEADY, CLEAVE, UNSTOPPABLE, "Parry +1"]}, #Falchion
+    "Poleaxe":        {"ap": -5, "init":  1, "tier": "Crafted", "tags": [TWO_H, DEADLY, UNSTOPPABLE, HOOK_2]},   # Nov 8 2026: Destroy Shield is thrown weapons only
 }
 # 1H / 2H profiles: an entry named "2H<Name>" is the 2H profile of the weapon named <Name> (or the one weapon
 # whose name starts with it: "2HBastard" → "Bastard Sword"). That weapon gets "profile_2h"; it is one item that
@@ -340,10 +373,10 @@ RANGED_WEAPON = [UNSTOPPABLE, NO_PARRY, DEADLY]
 RANGED = {
     "Hunting Bow": {"ap":  0, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNSTOPPABLE, DEADLY, NO_PARRY]},
     "Longbow":     {"ap": -1, "init":  2, "tier": "Cast",    "tags": [TWO_H, UNSTOPPABLE, DEADLY, NO_PARRY]},
-    "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, DEADLY, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD, ONE_SHOT, NO_PARRY], 'note': 'Cannot Florentine'},
-    "Crossbow":    {"ap": -3, "init":  2, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, DEADLY, UNSTOPPABLE, NEGATE_SHIELDED, NO_PARRY]},#'note': "Tower Shield only (no other shield), cannot Dual Wield"
-    "Pilum":       {"ap": -4, "init":  1, "tier": "Crafted", "tags": [STEADY, DEADLY, UNSTOPPABLE, NEGATE_SHIELDED, DESTROY_SHIELD, ONE_SHOT, NO_PARRY]},
-    "Arquebus":    {"ap": -6, "init":  2, "tier": "Crude",   "tags": [TWO_H, STEADY, DEADLY, UNSTOPPABLE, NEGATE_SHIELDED, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
+    "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, DEADLY, UNSTOPPABLE, HOOK_1, DESTROY_SHIELD, ONE_SHOT, NO_PARRY], 'note': 'Cannot Florentine'},
+    "Crossbow":    {"ap": -3, "init":  2, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, DEADLY, UNSTOPPABLE, HOOK_2, ONE_SHOT, NO_PARRY]},#'note': "Tower Shield only (no other shield), cannot Dual Wield"
+    "Pilum":       {"ap": -4, "init":  1, "tier": "Crafted", "tags": [STEADY, DEADLY, UNSTOPPABLE, HOOK_2, DESTROY_SHIELD, ONE_SHOT, NO_PARRY], 'note': 'Cannot Florentine'},
+    "Arquebus":    {"ap": -6, "init":  2, "tier": "Crude",   "tags": [TWO_H, STEADY, DEADLY, UNSTOPPABLE, HOOK_2, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
    
 }
 
@@ -351,18 +384,18 @@ SHIELDS = {
     None:            {"save_bonus": 0, "init":  0, "tier": None,     "tags": []},
     "Buckler Shield":{"save_bonus": 1, "init":  0, "tier": "Crude",  "tags": []},
     "Targe Shield":  {"save_bonus": 1, "init": -1, "tier": "Cast",   "tags": [UNWIELDY, MINUS_1_TBH]},
-    "Kite Shield":   {"save_bonus": 1, "init": -1, "tier": "Wrought","tags": [STEADY, MINUS_1_TBH]},
-    "Tower Shield":  {"save_bonus": 2, "init": -2, "tier": "Forged", "tags": [UNWIELDY, MINUS_1_TBH]}, #, PONDEROUS
-    "Heater Shield": {"save_bonus": 1, "init":  0, "tier": "Crafted","tags": [MINUS_1_TBH, IMMUNE_DESTROY_SHIELD]},
+    "Kite Shield":   {"save_bonus": 1, "init":  0, "tier": "Wrought","tags": [MINUS_1_TBH]},   # Nov 8 2026: no Steady, Initiative 0
+    "Tower Shield":  {"save_bonus": 2, "init": -2, "tier": "Forged", "tags": [UNWIELDY, CRUDE, SHIELDED_3]}, # no Parry + Shielded 3 (Steady dropped, Shielded 3: Nov 8 2026)
+    "Heater Shield": {"save_bonus": 2, "init": -1, "tier": "Crafted","tags": [SHIELDED_2, IMMUNE_DESTROY_SHIELD]},   # Nov 8 2026: Save +2, Shielded 2; Immune Destroy Shield back on the Heater
 }
 
 ARMORS = {
     "Cloth":       {"save": 10, "tier": None,      "tags": []},
     "Gambeson":    {"save":  8, "tier": "Crude",   "tags": []},
-    "Leather":     {"save":  7, "tier": "Cast",    "tags": []},
+    "Leather":     {"save":  7, "tier": "Cast",    "tags": [NIMBLE]},
     "Chainmail":   {"save":  6, "tier": "Wrought", "tags": []},
-    "Full Plate":  {"save":  5, "tier": "Forged",  "tags": []},
-    "Gothic Plate":{"save":  4, "tier": "Crafted", "tags": []},
+    "Full Plate":  {"save":  4, "tier": "Forged",  "tags": ["Init -1"]},   # Nov 9 2026: Initiative -1 every Skirmish (combat only)
+    "Gothic Plate":{"save":  3, "tier": "Crafted", "tags": []},   # Nov 9 2026: 3+, Articulated dropped (was Fluted AP -1 + Immune Strained)
 }
 
 # ── Tier ladder ────────────────────────────────────────────────────────────
@@ -725,13 +758,13 @@ NODES = {
         "natural": True,
         "innate": "Gold +500; Craft +1",
         "monument": False},
-    "Forestry": {
+    "Forestry": {                 # shown as "Carpentry" (NAME_DISPLAY); took Carpentry's effect and children Nov 8 2026
         "group": "g_raw",
         "root": True,
         "terrain": ["Forest"],
         "unlock": "-",
         "natural": True,
-        "innate": "Gold +500; Craft +1",
+        "innate": "Gold +500; Craft +1; Build Timer -1",
         "monument": False},
     "Fishmongery": {
         "group": "g_raw",
@@ -786,7 +819,7 @@ NODES = {
         "terrain": [],
         "unlock": "-",
         "natural": True,
-        "innate": "Supply -500; Unlocks Crude armor & shield",
+        "innate": "Supply -500; Unlocks Crude armor",
         "efficient": "Hamlet",
         "monument": False},
     "Saddlery": {
@@ -807,14 +840,14 @@ NODES = {
         "group": "g_husbandry",
         "unlock": "Established Prowess",
         "natural": True,
-        "innate": "Gold +500; Speed +1; Unlocks Cavalry Spears regardless of Tier Unlock",
+        "innate": "Gold +500; Speed +1; Unlocks Cavalry Spears regardless of Tier Unlock", #; Cavalry Spears gain Wedge
         "efficient": ["Avenery"],
         "monument": False},
     "Marshal Tiltyard": {
         "group": "g_husbandry",
         "unlock": "Sovereign Prowess",
         "natural": True,
-        "innate": "Initiative +1; Unlocks Lances regardless of Tier Unlock; Armies must be equipped with Lance",
+        "innate": "Unlocks Lances regardless of Tier Unlock; Armies must be equipped with Lance; Lances gain Wedge",
         "efficient": ["Farriery"],
         "monument": True},
     "Vine Nursery": {
@@ -845,8 +878,9 @@ NODES = {
         "innate": "Gold +1000; Gold +500 in Fall",
         "efficient": "Arboretum",
         "monument": False},
-    "Carpentry": {
+    "Carpentry": {                # DEPRECATED Nov 8 2026: folded into Forestry (which now displays as Carpentry)
         "group": "g_arms",
+        "deprecated": True,
         "unlock": "-",
         "innate": "Gold +500; Craft +1; Build Timer -1",
         "efficient": "Forestry",
@@ -896,7 +930,7 @@ NODES = {
         "group": "g_arms",
         "unlock": "Rising Prowess",
         "innate": "Supply -500; Unlocks Ranged Weapons",
-        "efficient": "Carpentry",
+        "efficient": "Forestry",
         "monument": False},
     "Chandlery": {
         "group": "g_devotion",
@@ -908,14 +942,33 @@ NODES = {
         "group": "g_arms",
         "unlock": "-",
         "natural": True,
-        "innate": "Craft +1; Supply -500; Unlocks Cast armor & shield",
+        "innate": "Craft +1; Supply -500; Unlocks Cast armor",
         "efficient": ["Animal Husbandry","Joinery"],
         "monument": False},
     "Joinery": {
         "group": "g_arms",
         "unlock": "Rising Industry",
-        "innate": "Supply -500; Unlocks Shields",
-        "efficient": ["Carpentry","Salt Works", "Furnace"],
+        "innate": "Supply -500; Unlocks Buckler Shield",
+        "efficient": ["Forestry","Salt Works", "Furnace"],
+        "monument": False},
+    # -- Shield line (Nov 8 2026): Joinery > Shieldwright > Buckler School > Pavisiers' Yard > College of Arms --
+    "Shieldwright": {
+        "group": "g_arms",
+        "unlock": "Rising Industry",
+        "innate": "Shield Initiative penalty reduced by 1; Unlocks Targe Shield",
+        "efficient": ["Joinery"],
+        "monument": False},
+    "Buckler School": {
+        "group": "g_arms",
+        "unlock": "Established Industry",
+        "innate": "Unlocks Kite Shield; Armies Equipped with a 2H Weapon may Equip a Buckler Shield",
+        "efficient": ["Shieldwright"],
+        "monument": False},
+    "Pavisiers' Yard": {
+        "group": "g_arms",
+        "unlock": "Established Industry",
+        "innate": "Unlocks Tower Shield; Unlocks Leather; gain Shield Wall",
+        "efficient": ["Buckler School"],
         "monument": False},
     #"Furnace": {
     #    "group": "g_arms",
@@ -934,13 +987,13 @@ NODES = {
         "group": "g_commerce",
         "unlock": "Established Industry",
         "innate": "Craft +3; Weapons gain -1AP",
-        "efficient": ["Forge"],
+        "efficient": ["Blacksmith"],
         "monument": False}, 
     "Jewelry Foundry": {
         "group": "g_commerce",
         "unlock": "Established Industry",
         "innate": f"Gold +2000; Craft +5; {EXPOSED} 1",
-        "efficient": ["Finery"],
+        "efficient": ["Forge"],
         "monument": False},
     "Polish House": {
         "group": "g_commerce",
@@ -952,19 +1005,19 @@ NODES = {
     "Armory": {
         "group": "g_arms",
         "unlock": "Rising Industry",
-        "innate": "Craft +3; Unlocks Wrought armor & shield",
+        "innate": "Craft +3; Unlocks Wrought armor",
         "efficient": ["Tannery"],
         "monument": False},
     "Master Workshop": {
         "group": "g_arms",
         "unlock": "Established Industry",
         "innate": "Craft +2; Supply -500; Add Serrated to Weapons",
-        "efficient": "Finery",
+        "efficient": "Forge",
         "monument": False},
     "Gilded Foundry": {
         "group": "g_arms",
         "unlock": "Established Industry",
-        "innate": "Supply -1000; Unlocks Forged armor & shield",
+        "innate": f"Supply -1000; {PLANISHING}: Your to-Save can't be reduced beyond {CAP_THR}+; Unlocks Forged armor",
         "efficient": "Armory",
         "monument": False},
     "Smokehouse": {
@@ -1050,7 +1103,7 @@ NODES = {
         "unlock": "Rising Industry",
         #"infrastructure_req": "Magistrate's Hall",
         "innate": "Craft +5; Trade Partners gain Craft +3",
-        "efficient": ["Courtyard"],
+        "efficient": ["Market Square"],
         "monument": False},
     "Money Lending": {
         "group": "g_commerce",
@@ -1131,7 +1184,7 @@ NODES = {
         "group": "g_logistics",
         "unlock": "Rising Prowess",
         #"infrastructure_req": "Muster Field",
-        "innate": "Faith +1 while at War; Unlocks Man-at-Arms for Muster",
+        "innate": "Faith +1 while at War; Unlocks Man-at-Arms for Muster; Armies gain Immune Strained",
         "efficient": "Conditioning Field",
         "monument": False},
     "Interrogation Chambers": {
@@ -1189,7 +1242,7 @@ NODES = {
         "unlock": "Rising Piety",
         #"infrastructure_req": "Town Square",
         "innate": "First and second Oppose on an Envoy of yours each Envoy Phase: reduce by 1",
-        "efficient": "Courtyard",
+        "efficient": "Market Square",
         "monument": False},
     "Bell Tower": {
         "group": "g_court",
@@ -1232,18 +1285,18 @@ NODES = {
         "unlock": "Rising Piety",
         ##"infrastructure_req": "Town Square",
         "innate": "Faith +1; Reduce the first instance of Doubt each turn by 1, min 0",
-        "efficient": "Courtyard",
+        "efficient": "Market Square",
         "monument": False},
     "Conditioning Field": {
         "group": "g_logistics",
         "unlock": "Rising Prowess",
-        "innate": "Faith +1 while not at War; Armies gain Nimble",
+        "innate": "Faith +1 while not at War; Armies gain Nimble; gain Immune Unwieldy",
         "efficient": ["Courtyard"],
         "monument": False},
     "Grand Tournament": {
         "group": "g_logistics",
         "unlock": "Established Prowess",
-        "innate": "Reach +1; Armies gain Riposte & Improve Parry by +1", #3x in the Intrigue Phase: exchange 500 gold for Influence +1;
+        "innate": "Reach +1; Armies gain Riposte; Parry +1", #3x in the Intrigue Phase: exchange 500 gold for Influence +1;
         "efficient": ["Coliseum"],
         "monument": False},
     "Apothecary": {
@@ -1255,7 +1308,7 @@ NODES = {
     "Infirmary": {
         "group": "g_devotion",
         "unlock": "Established Piety",
-        "innate": "Supply -500; Improve Recover by +1",
+        "innate": "Supply -500; Recover +1",
         "efficient": "Apothecary",
         "monument": False},
     "Supply Depot": {
@@ -1428,7 +1481,7 @@ NODES = {
         "unlock": "Rising Industry",
         "natural": True,
         "innate": "Supply -500; Upkeep -500",
-        "efficient": ["Bakery", "Forge", "Carpentry", "Masonry"],
+        "efficient": ["Bakery", "Forge", "Forestry", "Masonry"],
         "monument": False},
     #"Kiln": {
     #    "group": "g_logistics",
@@ -1464,7 +1517,7 @@ NODES = {
         "group": "g_logistics",
         "unlock": "Rising Prowess",
         "innate": "Siege Timer -1; Armies gain Immune Strained during Lay Siege",
-        "efficient": ["Carpentry","Furnace"],
+        "efficient": ["Forestry","Furnace"],
         "monument": False},
     "Siege Works": {
         "group": "g_logistics",
@@ -1533,31 +1586,44 @@ NODES = {
         "group": "g_arms",
         "unlock": "Established Industry",
         "innate": "Craft +2; Unlocks Forged Tier Weapons",
-        "efficient": "Blacksmith",
+        "efficient": "Finery",
         "monument": False},
-    "Skirmish Field": {
+    "Training Grounds": {         # Nov 8 2026: the old Skirmish Field (dual-equip) under a new name
         "group": "g_arms",
         "unlock": "Rising Prowess",
         "innate": "Armies may be equipped with a Ranged and a Melee Weapon simultaneously; Unlocks Longbow regardless of Unlock Tier",
         "efficient": "Fletchery",
         "monument": False},
-    "List Yard": {
+    "Archery Butts": {
         "group": "g_arms",
         "unlock": "Established Prowess",
-        "innate": "Gain Immune Awkward; gain Florentine",
-        "efficient": "Skirmish Field",
+        "innate": "Ranged Weapons gain +1 to Strike; Unlocks Crossbow regardless of Tier Unlock", #Ranged Weapons gain -1AP
+        "efficient": "Training Grounds",
         "monument": False},
-    "Fighting School": {
+    "Skirmish Field": {           # Nov 8 2026: takes the old Fighting School slot
         "group": "g_arms",
         "unlock": "Established Prowess",
-        "innate": "+1 to Strike; gain Immune Unwieldy",
+        "innate": "Gain Immune Awkward; Unlocks Javelin regardless of Tier Unlock",
+        "efficient": "Archery Butts",
+        "monument": False},
+    "List Yard": {                # Nov 8 2026: moved to the tournament branch
+        "group": "g_arms",
+        "unlock": "Established Prowess",
+        "innate": "Gain Florentine",
+        "efficient": "Grand Tournament",
+        "monument": False},
+    "Fighting School": {          # DEPRECATED Nov 8 2026: replaced by Skirmish Field
+        "group": "g_arms",
+        "deprecated": True,
+        "unlock": "Established Prowess",
+        "innate": "Gain Immune Awkward; gain Immune Unwieldy", #+1 to Strike; 
         "efficient": "List Yard",
         "monument": False},
     "Court Armoury": {
         "group": "g_arms",
         "unlock": "Sovereign Industry",
         #"infrastructure_req": "Aqueducts",
-        "innate": f"{PLANISHING}: Your to-Save can't be reduced beyond {CAP_THR}+; Unlocks Crafted Armor & Shield", #Supply -500; 
+        "innate": "Unlocks Crafted Armor", #Supply -500; # Planishing moved to Armory as Riveted (Nov 7 2026); Gothic Plate carries Articulated
         "efficient": "Gilded Foundry",
         "monument": True},
     "Serfdom": {
@@ -1579,8 +1645,20 @@ NODES = {
     "Royal Pavilion": {
         "group": "g_logistics",
         "unlock": "Sovereign Prowess",
-        "innate": "Armies gain Immune Strained; Deadly, & Cleave also trigger Focused Strikes on an Unmodified 8+; Unlocks Pilum regardless of Tier Unlock",#Improve Parry by +1; 
-        "efficient": ["Grand Tournament","Fighting School"],
+        "innate": "Deadly +2; Cleave +2; gain Steady",
+        "efficient": ["List Yard"],
+        "monument": True},
+    "Ballistarium": {
+        "group": "g_arms",
+        "unlock": "Sovereign Prowess",
+        "innate": "Deadly +2 (Ranged Weapons); Unlocks Pilum regardless of Tier Unlock",
+        "efficient": "Skirmish Field",
+        "monument": True},
+    "College of Arms": {
+        "group": "g_arms",
+        "unlock": "Sovereign Industry",
+        "innate": "Unlocks Heater Shield; Unlocks Chainmail",   # Nov 8 2026: "Shields gain Immune Destroy Shield" removed (the Heater carries it)
+        "efficient": "Pavisiers' Yard",
         "monument": True},
     "Imperial Palace": {
         "group": "g_works",
@@ -1601,7 +1679,7 @@ NODES = {
         "group": "g_logistics",
         "unlock": "Sovereign Prowess",
         #"infrastructure_req": "Library",
-        "innate": "Always gains Seize the Initiative, and your opponent doesn't; max initiative is increased to 3; Gain Drilled; Initiative +1",
+        "innate": "Always gains Seize the Initiative, and your opponent doesn't; max initiative is increased to 3; Gain Drilled", #; Initiative +1
         "efficient": "War College",
         "monument": True},
     "Thieves' Guild": {
@@ -1698,7 +1776,7 @@ NODES = {
         "unlock": "Sovereign Cunning + Rising Prowess",
         #"infrastructure_req": "Stone Roads",
         "natural": True,
-        "innate": "Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own",
+        "innate": "Every Skirmish, you may force your opponent to reveal their Tactic Card they selected before you select your own; You may Fall Back in the first Skirmish",
         "efficient": ["Beacon Towers"],
         "monument": True},
     "Emporium": {
@@ -1762,14 +1840,15 @@ LINE_LABELS = {
     "l_maritime": {"label": "Maritime", "members": ["Fishmongery", "Harbor", "Fish Weir", "Cooperage", "Emporium", "Port Authority"]},
     "l_armada": {"label": "Armada", "members": ["Harbor", "Ropewalk", "Sail Loft", "Shipyard", "Fleet Anchorage"]},
     "l_piracy": {"label": "Piracy", "members": ["Harbor", "False Lights", "Corsair Haven", "Black Market", "Thieves' Guild"]},
-    "l_training": {"label": "Training", "members": ["Courtyard", "Common Land", "Conditioning Field", "Coliseum", "Grand Tournament", "Royal Pavilion"]},
-    "l_siege": {"label": "Siege", "members": ["Carpentry", "Mine", "Siege Works", "Siege Camp", "Artillery Park"]},
+    "l_training": {"label": "Training", "members": ["Courtyard", "Common Land", "Conditioning Field", "Coliseum", "Grand Tournament", "List Yard", "Royal Pavilion"]},
+    "l_siege": {"label": "Siege", "members": ["Forestry", "Mine", "Siege Works", "Siege Camp", "Artillery Park"]},
     "l_command": {"label": "Command", "members": ["University", "War College", "Ministry of Military Strategy"]},
     "l_supply": {"label": "Supply", "members": ["Forestry", "Kiln", "Charcoal Burner", "Salt Works", "Butchery", "Smokehouse", "Levy Hall", "Baggage Train"]},
     "l_medical": {"label": "Medical", "members": ["Alchemy", "Apothecary", "Infirmary", "Hospitaller", "Preceptory of the Knight's Templar"]},
     "l_smithing": {"label": "Smithing", "members": ["Mine", "Furnace", "Blacksmith", "Forge", "Master Workshop", "Advanced Blast Furnace"]},
-    "l_bulwark": {"label": "Bulwark", "members": ["Animal Husbandry", "Carpentry", "Joinery", "Tannery", "Armory", "Gilded Foundry", "Court Armoury"]},
-    "l_archery": {"label": "Archery", "members": ["Forestry", "Carpentry", "Fletchery", "Tiltyard"]},
+    "l_bulwark": {"label": "Bulwark", "members": ["Animal Husbandry", "Forestry", "Joinery", "Tannery", "Armory", "Gilded Foundry", "Court Armoury"]},
+    "l_shields": {"label": "Shield Wall", "members": ["Forestry", "Joinery", "Shieldwright", "Buckler School", "Pavisiers' Yard", "College of Arms"]},
+    "l_archery": {"label": "Archery", "members": ["Forestry", "Fletchery", "Training Grounds", "Archery Butts", "Skirmish Field", "Ballistarium"]},
     "l_cavalry": {"label": "Cavalry", "members": ["Animal Husbandry", "Stable", "Saddlery", "Caravanery"]},
     "l_statecraft": {"label": "Statecraft", "members": ["Courtyard", "Jester's Court", "Bell Tower", "Embassy", "Senate Hall"]},
     "l_trivium": {"label": "Trivium", "members": ["Alchemy", "Academy", "University", "Studium Generale"]},
@@ -1833,7 +1912,9 @@ MONUMENT_SUMMARY = {
     "Baggage Train":                      "Cheaper Armies, Can't be Blocked",
     "Serfdom":                            "Gold from Doubt, Builds Faster",
     "Office of Works":                    "Ignores Siege Restrictions, Harder to Siege, Builds Faster",
-    "Royal Pavilion":                     "Unyielding, Deadlier Armies",
+    "Royal Pavilion":                     "Steady, Deadlier Armies",
+    "College of Arms":                    "Unbreakable Shields, Heraldic Heaters",
+    "Ballistarium":                       "Deadlier Ranged, Throwing Spears",
     "Imperial Palace":                    "Weaker Rivals Gain Doubt, Your Envoys Can't Fail",
     "Artillery Park":                     "Faster Sieges, Unlocks Gunpowder",
     "Ministry of Military Strategy":      "Professional Tactical Army",
@@ -3683,6 +3764,7 @@ NAME_DISPLAY = {
     "Farm Tools": "Farm Tool",
     "Artillery Park": "Ordnance Yard",
     "Coliseum": "Drill Yard",
+    "Forestry": "Carpentry",       # Nov 8 2026: Forestry took Carpentry's place
     "Javelin": "Throwing Axe",
     "Crafted" : "Tempered",
     #"Gambeson": "Padded",
@@ -3705,6 +3787,7 @@ NAME_DISPLAY = {
     "Census Hall":"Tally House",
     "Burgages":"Villein Hovels",
     "The Grand Exchange":"The Center of Commerce",
+    "Ballistarium": "Shock Arsenal",
 
     
 
@@ -3759,6 +3842,20 @@ _ALIAS_RE = _re_disp.compile(
 def display(name):
     """Player-facing label for an engine id. Returns the id when unaliased."""
     return ALIASES.get(name, name)
+
+
+def display_tags(tags, ranged=False):
+    """Player-facing keyword list: collapse each KEYWORD_BUNDLES entry whose parts are all present (bundle name
+    first, remaining tags in their order). ranged=True for RANGED items (Ranged bundle is ranged-only)."""
+    tags = list(tags or [])
+    lead = []
+    for name, b in KEYWORD_BUNDLES.items():
+        if b.get("ranged_only") and not ranged:
+            continue
+        if all(p in tags for p in b["parts"]):
+            lead.append(name)
+            tags = [t for t in tags if t not in b["parts"]]
+    return lead + tags
 
 
 def display_tier(tier, item=None):
@@ -4039,6 +4136,8 @@ def _unlockers(tier):
                 if re.search(rf"unlocks?\s+{tl}\s+weapons", t): c.add("weapons")
                 if re.search(rf"unlocks?\s+{tl}\s+armor", t): c.add("armor")
                 if re.search(rf"unlocks?\s+{tl}\s+(armor\s+(&|and)\s+)?shields?", t): c.add("shield")
+                if any(re.search(rf"unlocks?\s+{re.escape(k.lower())}\b", t) for k, v in SHIELDS.items() if k and v.get("tier") == tier): c.add("shield")
+                if any(re.search(rf"unlocks?\s+{re.escape(k.lower())}\b", t) for k, v in ARMORS.items() if k and v.get("tier") == tier): c.add("armor")
             if c: out.append((n + ("" if part == "innate" else " (Mastery)"), c))
     return out
 def _ulabel(c):
@@ -4273,9 +4372,9 @@ GLOSSARY_CATEGORIES = [
     ('World', ['Bandit', 'Outlaw Country', 'Wild Outlaw Country']),
     ('Army States', ['Army', 'Retinue', 'Garrison', 'Speed X', 'Presence', 'Blocked', 'Strained']),
     ('Battle Structure', ['Battle', 'Skirmish', 'Attacker / Defender', 'Seize the Initiative', 'Tactic', 'Field', 'Casualty', 'Initiative', BLUNDER, 'Strike', 'to-Strike number', 'AP', 'Save', 'Endurance', 'Fatigued', FATIGUE_TOKEN, 'Morale', 'Break check', 'Panic check', 'Rout', 'Fall Back']),
-    ('Combat Keywords — Defense', [PARRY, RIPOSTE, RECOVER, ENDURING, MINUS_1_TBH, PLANISHING]),
-    ('Combat Keywords — Offense', [DEADLY, CLEAVE, POISON, DESTROY_SHIELD, UNSTOPPABLE, SERRATED]),
-    ('Combat Keywords — Handling', ['Equipped', STEADY, UNWIELDY, NIMBLE, DRILLED, TWO_H, DUAL_WIELD, 'Dual-equip', FLORENTINE, NO_PARRY, ONE_SHOT, PONDEROUS]),
+    ('Combat Keywords — Defense', [PARRY, 'Parry +1', RIPOSTE, 'Riposte +1', RECOVER, ENDURING, MINUS_1_TBH, PLANISHING, FLUTED, SHIELD_WALL]),
+    ('Combat Keywords — Offense', [RANGED_KW, DEADLY, 'Deadly +1', CLEAVE, 'Cleave +1', POISON, DESTROY_SHIELD, UNSTOPPABLE, SERRATED, 'Hook X', WEDGE]),
+    ('Combat Keywords — Handling', ['Equipped', STEADY, UNWIELDY, BRACED, NIMBLE, DRILLED, TWO_H, 'Dual-equip', FLORENTINE, NO_PARRY, CRUDE, ONE_SHOT, PONDEROUS, 'Shield Initiative', 'Buckler with 2H']),
     ('Combat Keywords — Immune / Negate', ['Immune [keyword]', 'Negate [keyword]']),
     ('Equipment Tiers', [k for k in map(str, GLOSSARY) if k.split()[0] in {display_tier(x) for x in TIERS} | set(globals().get("ITEM_TIER_DISPLAY", {}).values()) or k == "Ranged Weapons"]),
 ]
@@ -4347,11 +4446,47 @@ def _ht_strip(s):
     s = _re_disp.sub(r"\*\*|\*|__", "", s)
     return s.replace("’", "'").strip()
 
+# Keywords a Holding can grant with "Gain <keyword>" (holding_combat_tags). Only keywords the engines and the
+# board read from the Army's tags: shield properties (Shielded, Ponderous, Immune Destroy Shield) and gear facts
+# (Two-Handed, One-Shot, Dual Wield) stay on their items. A granted weapon keyword applies to whatever weapon
+# the Army has Equipped (Ranged included).
+_HT_GAIN_KW = (DEADLY, CLEAVE, POISON, DESTROY_SHIELD, UNSTOPPABLE, SERRATED, NEGATE_SHIELDED, NEGATE_RIPOSTE,
+               PARRY, RIPOSTE, ENDURING, PLANISHING, STEADY, NIMBLE, DRILLED, FLORENTINE)
+
 def holding_combat_tags(text, sim=False):
     """Combat / unlock tokens a Holding's text grants (settlement board + combat sim).
     sim=True adds the sim-only tokens the board doesn't act on (tactic reveal, Tiltyard equip rules)."""
     t, out = _ht_strip(text), []
     _I = _re_disp.I
+    # ranged-only clauses ("Ranged Weapons gain +1 to Strike", "Ranged Weapons gain -1AP", "Deadly +1 (Ranged Weapons)"):
+    # read as "Ranged <token>" (the engines apply them only while a Ranged Weapon is Equipped), then cut out of the text
+    if _re_disp.search(r"Ranged Weapons (?:have|gain) \+1 to Strike", t, _I): out.append("Ranged Strike +1")
+    m = _re_disp.search(r"Ranged Weapons gain (-\d+)\s*AP\b", t, _I)
+    if m: out.append("Ranged AP " + m.group(1))
+    m = _re_disp.search(r"Deadly \+(\d+) \(Ranged Weapons\)", t, _I)
+    if m: out.append("Ranged Crit +" + m.group(1))
+    t = _re_disp.sub(r"Ranged Weapons (?:have|gain) \+1 to Strike|Ranged Weapons gain -\d+\s*AP\b|Deadly \+\d+ \(Ranged Weapons\)", "", t, flags=_I)
+    # first-Skirmish-only AP ("Weapons gain -XAP in the first Skirmish"): read as "First AP -X" (the engines apply
+    # it in Skirmish 1 only), then cut out so the all-Skirmish rule below (Finery) doesn't read it too
+    # A named weapon ("Cavalry Spears gain AP -1 in the First Skirmish") -> "First AP -1 @Cavalry Spear": only while
+    # that weapon is the one Equipped. Both orders read: "gain -1AP" (Finery's) and "gain AP -1".
+    _fs = r"\b([A-Z][A-Za-z ]*?) gain (?:(-\d+)\s*AP|AP\s*(-\d+)) in the first Skirmish\b"
+    for _who, _a, _b in _re_disp.findall(_fs, t, _I):
+        _n = _a or _b
+        _who = _who.strip()
+        if _who.lower() == "weapons":
+            out.append("First AP " + _n)
+        else:
+            _w = next((w for w in WEAPONS if w.lower() in (_who.lower(), _who.lower().rstrip("s"))), None)
+            out.append(f"First AP {_n} @{_w}" if _w else f"First AP {_n} @?{_who}")
+    t = _re_disp.sub(_fs, "", t, flags=_I)
+    # Wedge granted to a named weapon ("Cavalry Spears gain Wedge") -> "First FoeParry +1 @Cavalry Spear"
+    _wg = r"\b([A-Z][A-Za-z ]*?) gain " + WEDGE + r"\b"
+    for _who in _re_disp.findall(_wg, t, _I):
+        _who = _who.strip()
+        _w = next((w for w in WEAPONS if w.lower() in (_who.lower(), _who.lower().rstrip("s"))), None)
+        out.append(f"First FoeParry +1 @{_w}" if _w else f"First FoeParry +1 @?{_who}")
+    t = _re_disp.sub(_wg, "", t, flags=_I)
     # unlocks
     if _re_disp.search(r"Unlocks?\s+Ranged\s+Weapons", t, _I): out.append("ranged")
     if _re_disp.search(r"Unlocks?\s+Cavalry\s+Weapons", t, _I): out.append("cavalry")
@@ -4367,12 +4502,22 @@ def holding_combat_tags(text, sim=False):
     # gear tiers
     for m in _re_disp.finditer(_HT_TIER + r"\s+armor\s*(?:and|&)\s*shields?", t, _I):
         x = m.group(1).title(); out += ["armor:" + x, "shield:" + x]
+    for m in _re_disp.finditer(r"Unlocks?\s+" + _HT_TIER + r"\s+armor\b(?!\s*(?:and|&))", t, _I):   # armour only (Nov 8 2026 Shield line)
+        out.append("armor:" + m.group(1).title())
+    # "Unlocks Chainmail": that armour's tier (named armour unlock, Shield line)
+    for m in _re_disp.finditer(r"Unlocks?\s+(" + "|".join(_re_disp.escape(k) for k in ARMORS if k and ARMORS[k].get("tier")) + r")\b", t, _I):
+        _ar = next(k for k in ARMORS if k and k.lower() == m.group(1).lower())
+        out.append("armor:" + ARMORS[_ar]["tier"])
+    # "Unlocks Kite Shield": that Shield's tier (each tier has one Shield); every Shield needs the Shields permission
+    for m in _re_disp.finditer(r"Unlocks?\s+(" + "|".join(_re_disp.escape(k) for k in SHIELDS if k) + r")\b", t, _I):
+        _sh = next(k for k in SHIELDS if k and k.lower() == m.group(1).lower())
+        out += ["shield:" + SHIELDS[_sh]["tier"], "tier:Shields"]
     for m in _re_disp.finditer(r"(?:Unlocks?\s+)?" + _HT_TIER + r"(?:\s+Tier)?\s+Weapons", t, _I):
         if _re_disp.search(r"unlock", t[m.start():m.end() + 12], _I): out.append("tier:" + m.group(1).title())
     if _re_disp.search(r"(?<![A-Za-z] )unlocks?\s+Shields\b", t, _I): out.append("tier:Shields")
     # combat keywords
-    for pat, tok in ((r"\bPlanishing\b", "Planishing"), (r"\bSerrated\b", "Serrated"), (r"gain\s+Poison", "Poison"),
-                     (r"gain\s+Riposte", "Riposte"), (r"\bNimble\b", "Nimble"), (r"\bEnduring\b", "Enduring"),
+    for pat, tok in ((r"\b" + PLANISHING + r"\b", PLANISHING), (r"\bSerrated\b", "Serrated"), (r"gain\s+Poison", "Poison"),
+                     (r"gain\s+Riposte\b(?!\s*\+\d)", "Riposte"), (r"\bNimble\b", "Nimble"), (r"\bEnduring\b", "Enduring"),
                      (r"\bDrilled\b", "Drilled"), (r"(?<!Settlements gain )Immune Strained(?! during)", IMMUNE_STRAIN),
                      (r"\+1 to Strike", "Strike +1"), (r"\bgain\s+Immune Unwieldy", IMMUNE_UNWIELDY), (r"\bgain\s+Immune Awkward", "Immune Awkward"), (r"max initiative is increased to 3", "MaxInit3"),
                      (r"Always gains Seize the Initiative", "Seize: first"), (r"Righteous Fervour", "Righteous Fervour"),
@@ -4382,16 +4527,35 @@ def holding_combat_tags(text, sim=False):
     if _re_disp.search(r"two of the same 1H Melee Weapon to gain Dual Wield|\bgain\s+Florentine\b", t, _I): out.append(FLORENTINE)
     m = _re_disp.search(r"Weapons gain (-\d+)\s*AP\b", t, _I)      # e.g. Finery: "Weapons gain -1AP"
     if m: out.append("AP " + m.group(1))
-    out += ["Parry +1"] * len(_re_disp.findall(r"Improve Parry by \+1", t, _I))
+    out += ["Parry +1"] * len(_re_disp.findall(r"Improve Parry by \+1|(?:^|;)\s*(?:Armies gain\s+)?Parry \+1\b", t, _I))
+    if _re_disp.search(r"\bRiposte \+1\b", t, _I): out.append("Riposte +1")
+    # "Deadly +1; Cleave +1": Focused Strikes one lower (the engines' Crit applies to Deadly and Cleave together)
+    # Any N ("Royal Pavilion: Deadly +2; Cleave +2" -> Crit +2); the larger N wins, not the sum.
+    _crit = [int(n) for n in _re_disp.findall(r"\b(?:Deadly|Cleave) \+(\d+)\b", t, _I)]
+    if _crit: out.append(f"Crit +{max(_crit)}")
+    if _re_disp.search(r"\bImmune One-Shot\b", t, _I): out.append("Immune One-Shot")
+    # Shield line (Nov 8 2026)
+    if _re_disp.search(r"Shield Initiative penalty reduced by 1", t, _I): out.append("Shield Init +1")
+    if _re_disp.search(r"Equipped with a 2H Weapon may Equip a Buckler", t, _I): out.append("Buckler 2H")
+    if _re_disp.search(r"\bgain\s+" + SHIELD_WALL + r"\b", t, _I): out.append(SHIELD_WALL)
+    if _re_disp.search(r"Shields gain Immune Destroy Shield", t, _I): out.append(IMMUNE_DESTROY_SHIELD)
     m = _re_disp.search(r"Focused Strikes on an? (?:natural|Unmodified) (\d+)\+", t, _I)
     if m: out.append("Crit " + m.group(1))
     m = _re_disp.search(r"Gain Recover (\d+)", t, _I)
     if m: out.append("Recover " + m.group(1))            # base; its "or improve" alternative is not a second grant
-    else: out += ["Recover +1"] * len(_re_disp.findall(r"(?:Improve Recover by|Recover improved by)\s*\+1", t, _I))
+    else: out += ["Recover +1"] * len(_re_disp.findall(r"(?:Improve Recover by|Recover improved by)\s*\+1|(?:^|;)\s*Recover \+1\b", t, _I))
+    # "Gain <keyword>": any combat keyword the engines and board read from the Army's tags
+    # (lists too: "gain Deadly and Cleave", "gain Deadly, Cleave & Poison")
+    _kw_any = "(?:" + "|".join(_re_disp.escape(k) for k in _HT_GAIN_KW) + ")"
+    for kw in _HT_GAIN_KW:
+        if kw not in out and _re_disp.search(r"\bgain\s+(?:" + _kw_any + r"\s*(?:,|&|and)\s*)*"
+                                             + _re_disp.escape(kw) + r"\b(?!\s*\+\d)", t, _I):
+            out.append(kw)
     if sim:
         if _re_disp.search(r"Every Skirmish, you may force your opponent to reveal", t, _I): out.append("Outrider: every")
         elif _re_disp.search(r"First Skirmish, you may force your opponent to reveal", t, _I): out.append("Outrider: first")
         if _re_disp.search(r"equipped with a Ranged and a Melee Weapon simultaneously", t, _I): out.append("dual-equip")
+        if _re_disp.search(r"may Fall Back in the first Skirmish", t, _I): out.append("Fall Back: first")   # lifts the Skirmish 1 Fall Back ban (board)
     return out
 
 def holding_upkeep(text):

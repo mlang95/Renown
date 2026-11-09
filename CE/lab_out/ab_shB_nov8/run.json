@@ -1,0 +1,12 @@
+{
+  "pool_csv": "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\de104240f25e6e61\\dffab947-1be2-431a-a034-f7e84a3d94f5\\scratchpad\\out\\pool_base_noIDS.csv",
+  "pool_kind": "csv",
+  "per_cell": 40,
+  "balance": "none",
+  "ti_min": 6,
+  "ti_max": 16,
+  "runs": 25,
+  "modes": [
+    "optimal"
+  ]
+}

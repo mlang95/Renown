@@ -1,0 +1,12 @@
+{
+  "pool_csv": "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\de104240f25e6e61\\dffab947-1be2-431a-a034-f7e84a3d94f5\\scratchpad\\out\\pool_fp4.csv",
+  "pool_kind": "csv",
+  "per_cell": 200,
+  "balance": "weapon_kit",
+  "ti_min": 19,
+  "ti_max": 20,
+  "runs": 25,
+  "modes": [
+    "optimal"
+  ]
+}

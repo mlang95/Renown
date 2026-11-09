@@ -1,0 +1,44 @@
+pool: lab_out/ladder_pool_nov8.csv (2042 builds)
+
+######## weapon: 13 items | subjects 200 (of 1973 carrying one) | panel 300
+  baseline done (267s)
+  2HBastard          n=115  later +0.928  wr +0.097  (149s)
+  Arming Sword       n=110  later +0.031  wr +0.005  (135s)
+  Bastard Sword      n=110  later +0.214  wr +0.026  (139s)
+  Battle Axe         n=115  later -0.097  wr +0.005  (141s)
+  Cavalry Spear      n=44   later +0.116  wr +0.057  (50s)
+  Estoc              n=110  later +0.544  wr +0.063  (141s)
+  Flail              n=110  later +0.063  wr -0.001  (131s)
+  Halberd            n=115  later +0.594  wr +0.090  (135s)
+  Lance              n=44   later +0.676  wr +0.137  (52s)
+  Morningstar        n=110  later +0.441  wr +0.035  (130s)
+  Pike               n=115  later +0.210  wr +0.061  (137s)
+  Poleaxe            n=115  later +0.922  wr +0.133  (140s)
+  War Hammer         n=115  later +0.713  wr +0.070  (136s)
+
+== weapon: item value on the same builds (d_wr sorted) ==
+   item_shown     tier   n  value_first  value_later   d_wr  d_lost_strike  d_lost_panic  d_lost_break  d_lost_rout  d_skirm
+        Lance Tempered  44        0.619        0.676  0.137         -1.206        -0.099        -0.390       -0.004   -0.287
+      Poleaxe Tempered 115        0.669        0.922  0.133         -1.649        -0.276        -0.173       -0.002   -0.182
+    2HBastard   Forged 115        0.727        0.928  0.097         -1.074        -0.168        -0.239       -0.001   -0.185
+      Halberd  Wrought 115        0.428        0.594  0.090         -1.094        -0.171        -0.089       -0.001   -0.115
+   War Hammer   Forged 115        0.542        0.713  0.070         -0.648        -0.117        -0.251       -0.001   -0.159
+        Estoc Tempered 110        0.360        0.544  0.063         -0.580        -0.087        -0.161       -0.002   -0.118
+         Pike  Wrought 115        0.155        0.210  0.061         -0.514        -0.008        -0.220       -0.001   -0.157
+Cavalry Spear  Wrought  44        0.076        0.116  0.057         -0.354         0.004        -0.186       -0.003   -0.133
+  Morningstar   Forged 110        0.366        0.441  0.035         -0.419        -0.068        -0.129       -0.001   -0.083
+Bastard Sword   Forged 110        0.181        0.214  0.026         -0.237        -0.043        -0.057       -0.001   -0.043
+   Battle Axe  Wrought 115        0.528       -0.097  0.005         -0.065        -0.058         0.068       -0.001    0.031
+ Arming Sword  Wrought 110        0.071        0.031  0.005         -0.047        -0.022        -0.008       -0.000   -0.005
+        Flail  Wrought 110        0.088        0.063 -0.001          0.167         0.081        -0.246       -0.000   -0.101
+
+== weapon: by tier (d_wr) ==
+          count   mean    std    min    max   step
+tier                                              
+Wrought       6  0.036  0.038 -0.001  0.090    NaN
+Forged        4  0.057  0.033  0.026  0.097  0.021
+Tempered      3  0.111  0.042  0.063  0.137  0.054
+
+  tier steps <= 0: 0 of 2 | mean |step| 0.037 vs mean within-tier spread 0.038
+  -> items spread wider than the tier steps: individual items matter more than the ladder.
+  -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\ladder_weapon_panic_instant

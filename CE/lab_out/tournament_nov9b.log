@@ -1,0 +1,737 @@
+ce_paths: data     = C:\Users\Matt\OneDrive\Desktop\Game\CE\renown_data_d10.py
+ce_paths: search order
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4\shims
+    C:\Users\Matt\OneDrive\Desktop\Game\CE
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4
+ce_paths: OUT_DIR = C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out
+
+=== Renown tournament — d10_nov9b_pinst ===
+  d10 | Focused 10+ | Rout 11+ | cap 10+ | Fatigue -0/-2 | auto-pass 2 | Parry 8+ | Recover 8+ | Deadly set 10 | Unstoppable +2 | ImpParry -1 | src defaults
+  output -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_nov9b_pinst
+
+  d10 + isolation checks passed.
+
+  sampled per cell balanced by weapon_kit
+holding_first_pool: 53,485 Holding sets -> 2,042 builds (dropped 3,747 sets whose named weapon keywords no unlocked weapon carries; 72,219 builds owning a Holding they don't use)
+  per retinue: {'Knight Templar': 408, 'Levy': 600, 'Man-at-Arms': 534, 'Sergeant': 500}
+  per TI: {5: 62, 6: 91, 7: 141, 8: 164, 9: 184, 10: 200, 11: 200, 12: 200, 13: 200, 14: 200, 15: 200, 16: 200}
+  Saved pool -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_nov9b_pinst\loadouts_hf_5_16_pc50_balk.parquet (+ .csv)
+By retinue: {'Levy': 600, 'Man-at-Arms': 534, 'Sergeant': 500, 'Knight Templar': 408}
+By TI: {5: 62, 6: 91, 7: 141, 8: 164, 9: 184, 10: 200, 11: 200, 12: 200, 13: 200, 14: 200, 15: 200, 16: 200}
+
+Pool: 2042 builds  (~4,167,722 raw pairs before monument filter)
+Workers: 8  |  n_runs: 25
+
+[MEM] auto_slot_budget: psutil=True free_used=10.0GB workers=8 bytes/slot=1400 safety=0.35 -> raw=334,246 clamped=334,246 (raw)
+[batch mode=optimal] 2042 loadouts → 3,939,926 pairs × 25 runs | n_workers=8
+  slot_budget=334246 → block_size=13,369 pairs (334,225 slots/block); est. peak ≈ 5.0 GB (8 blocks in flight)
+ce_paths: data     = C:\Users\Matt\OneDrive\Desktop\Game\CE\renown_data_d10.py
+ce_paths: search order
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4\shims
+    C:\Users\Matt\OneDrive\Desktop\Game\CE
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4
+ce_paths: OUT_DIR = C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out
+
+=== Renown tournament — d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst ===
+  d10 | Focused 10+ | Rout 11+ | cap 10+ | Fatigue -0/-2 | auto-pass 2 | Parry 8+ | Recover 8+ | Deadly set 10 | Unstoppable +2 | ImpParry -1 | src defaults
+  output -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst
+
+  d10 + isolation checks passed.
+
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.14GB | bytes/slot~=462 | 52.8s
+ce_paths: data     = C:\Users\Matt\OneDrive\Desktop\Game\CE\renown_data_d10.py
+ce_paths: search order
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4\shims
+    C:\Users\Matt\OneDrive\Desktop\Game\CE
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4
+ce_paths: OUT_DIR = C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out
+
+=== Renown tournament — d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst ===
+  d10 | Focused 10+ | Rout 11+ | cap 10+ | Fatigue -0/-2 | auto-pass 2 | Parry 8+ | Recover 8+ | Deadly set 10 | Unstoppable +2 | ImpParry -1 | src defaults
+  output -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst
+
+  d10 + isolation checks passed.
+
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.14GB | bytes/slot~=461 | 53.0s
+  [13,369/3,939,926] 56s eta 16389s
+ce_paths: data     = C:\Users\Matt\OneDrive\Desktop\Game\CE\renown_data_d10.py
+ce_paths: search order
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4\shims
+    C:\Users\Matt\OneDrive\Desktop\Game\CE
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4
+ce_paths: OUT_DIR = C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out
+
+=== Renown tournament — d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst ===
+  d10 | Focused 10+ | Rout 11+ | cap 10+ | Fatigue -0/-2 | auto-pass 2 | Parry 8+ | Recover 8+ | Deadly set 10 | Unstoppable +2 | ImpParry -1 | src defaults
+  output -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst
+
+  d10 + isolation checks passed.
+
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.14GB | bytes/slot~=466 | 53.4s
+  [26,738/3,939,926] 56s eta 8253s
+ce_paths: data     = C:\Users\Matt\OneDrive\Desktop\Game\CE\renown_data_d10.py
+ce_paths: search order
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4\shims
+    C:\Users\Matt\OneDrive\Desktop\Game\CE
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4
+ce_paths: OUT_DIR = C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out
+
+=== Renown tournament — d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst ===
+  d10 | Focused 10+ | Rout 11+ | cap 10+ | Fatigue -0/-2 | auto-pass 2 | Parry 8+ | Recover 8+ | Deadly set 10 | Unstoppable +2 | ImpParry -1 | src defaults
+  output -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst
+
+  d10 + isolation checks passed.
+
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.14GB | bytes/slot~=465 | 53.9s
+ce_paths: data     = C:\Users\Matt\OneDrive\Desktop\Game\CE\renown_data_d10.py
+ce_paths: search order
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4\shims
+    C:\Users\Matt\OneDrive\Desktop\Game\CE
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4
+ce_paths: OUT_DIR = C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out
+
+=== Renown tournament — d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst ===
+  d10 | Focused 10+ | Rout 11+ | cap 10+ | Fatigue -0/-2 | auto-pass 2 | Parry 8+ | Recover 8+ | Deadly set 10 | Unstoppable +2 | ImpParry -1 | src defaults
+  output -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst
+
+  d10 + isolation checks passed.
+
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=468 | 54.1s
+ce_paths: data     = C:\Users\Matt\OneDrive\Desktop\Game\CE\renown_data_d10.py
+ce_paths: search order
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4\shims
+    C:\Users\Matt\OneDrive\Desktop\Game\CE
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4
+ce_paths: OUT_DIR = C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out
+
+=== Renown tournament — d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst ===
+  d10 | Focused 10+ | Rout 11+ | cap 10+ | Fatigue -0/-2 | auto-pass 2 | Parry 8+ | Recover 8+ | Deadly set 10 | Unstoppable +2 | ImpParry -1 | src defaults
+  output -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst
+
+  d10 + isolation checks passed.
+
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=472 | 54.2s
+  [40,107/3,939,926] 57s eta 5532s
+  [53,476/3,939,926] 57s eta 4164s
+ce_paths: data     = C:\Users\Matt\OneDrive\Desktop\Game\CE\renown_data_d10.py
+ce_paths: search order
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4\shims
+    C:\Users\Matt\OneDrive\Desktop\Game\CE
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4
+ce_paths: OUT_DIR = C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out
+
+=== Renown tournament — d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst ===
+  d10 | Focused 10+ | Rout 11+ | cap 10+ | Fatigue -0/-2 | auto-pass 2 | Parry 8+ | Recover 8+ | Deadly set 10 | Unstoppable +2 | ImpParry -1 | src defaults
+  output -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst
+
+  d10 + isolation checks passed.
+
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.14GB | bytes/slot~=464 | 54.8s
+  [66,845/3,939,926] 58s eta 3332s
+  [80,214/3,939,926] 58s eta 2784s
+ce_paths: data     = C:\Users\Matt\OneDrive\Desktop\Game\CE\renown_data_d10.py
+ce_paths: search order
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4\shims
+    C:\Users\Matt\OneDrive\Desktop\Game\CE
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4
+ce_paths: OUT_DIR = C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out
+
+=== Renown tournament — d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst ===
+  d10 | Focused 10+ | Rout 11+ | cap 10+ | Fatigue -0/-2 | auto-pass 2 | Parry 8+ | Recover 8+ | Deadly set 10 | Unstoppable +2 | ImpParry -1 | src defaults
+  output -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst
+
+  d10 + isolation checks passed.
+
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.14GB | bytes/slot~=465 | 55.3s
+  [93,583/3,939,926] 58s eta 2388s
+  [106,952/3,939,926] 59s eta 2098s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=487 | 54.0s
+  [120,321/3,939,926] 112s eta 3541s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=480 | 55.9s
+  [133,690/3,939,926] 113s eta 3203s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=481 | 54.7s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=468 | 56.5s
+  [147,059/3,939,926] 113s eta 2923s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=481 | 56.2s
+  [160,428/3,939,926] 114s eta 2683s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=487 | 56.0s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=480 | 55.2s
+  [173,797/3,939,926] 114s eta 2477s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=481 | 57.0s
+  [187,166/3,939,926] 115s eta 2299s
+  [200,535/3,939,926] 115s eta 2141s
+  [213,904/3,939,926] 115s eta 2008s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=491 | 58.7s
+  [227,273/3,939,926] 171s eta 2795s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=479 | 58.7s
+  [240,642/3,939,926] 172s eta 2644s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=481 | 58.9s
+  [254,011/3,939,926] 174s eta 2523s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=481 | 59.5s
+  [267,380/3,939,926] 174s eta 2397s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=482 | 67.0s
+  [280,749/3,939,926] 181s eta 2359s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=491 | 67.8s
+  [294,118/3,939,926] 183s eta 2269s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=479 | 68.7s
+  [307,487/3,939,926] 184s eta 2178s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=478 | 71.3s
+  [320,856/3,939,926] 186s eta 2094s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=491 | 63.4s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=489 | 63.1s
+  [334,225/3,939,926] 235s eta 2540s
+  [347,594/3,939,926] 236s eta 2439s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=483 | 63.5s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=491 | 64.5s
+  [360,963/3,939,926] 239s eta 2367s
+  [374,332/3,939,926] 239s eta 2280s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=492 | 61.9s
+  [387,701/3,939,926] 244s eta 2232s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=499 | 63.5s
+  [401,070/3,939,926] 247s eta 2181s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=484 | 64.4s
+  [414,439/3,939,926] 250s eta 2131s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=486 | 73.7s
+  [427,808/3,939,926] 259s eta 2123s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=491 | 49.7s
+  [441,177/3,939,926] 286s eta 2266s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=493 | 52.4s
+  [454,546/3,939,926] 289s eta 2215s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=488 | 50.6s
+  [467,915/3,939,926] 291s eta 2156s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=488 | 53.9s
+  [481,284/3,939,926] 293s eta 2108s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=495 | 49.9s
+  [494,653/3,939,926] 294s eta 2049s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=492 | 49.1s
+  [508,022/3,939,926] 297s eta 2005s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=489 | 46.5s
+  [521,391/3,939,926] 297s eta 1950s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=491 | 45.1s
+  [534,760/3,939,926] 304s eta 1938s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=496 | 40.7s
+  [548,129/3,939,926] 327s eta 2023s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=491 | 49.3s
+  [561,498/3,939,926] 339s eta 2038s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=494 | 48.3s
+  [574,867/3,939,926] 339s eta 1986s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=498 | 47.8s
+  [588,236/3,939,926] 342s eta 1951s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=503 | 47.4s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=487 | 47.1s
+  [601,605/3,939,926] 345s eta 1913s
+  [614,974/3,939,926] 345s eta 1866s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=505 | 57.6s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=495 | 46.7s
+  [628,343/3,939,926] 351s eta 1852s
+  [641,712/3,939,926] 352s eta 1808s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=496 | 41.4s
+  [655,081/3,939,926] 381s eta 1912s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=495 | 54.7s
+  [668,450/3,939,926] 382s eta 1871s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=500 | 41.4s
+  [681,819/3,939,926] 384s eta 1837s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=501 | 42.2s
+  [695,188/3,939,926] 387s eta 1808s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=492 | 42.7s
+  [708,557/3,939,926] 388s eta 1771s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=494 | 51.7s
+  [721,926/3,939,926] 391s eta 1742s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=504 | 41.5s
+  [735,295/3,939,926] 393s eta 1714s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=495 | 42.5s
+  [748,664/3,939,926] 395s eta 1682s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=502 | 38.7s
+  [762,033/3,939,926] 421s eta 1755s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=497 | 39.4s
+  [775,402/3,939,926] 422s eta 1723s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=507 | 40.5s
+  [788,771/3,939,926] 428s eta 1712s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=498 | 45.3s
+  [802,140/3,939,926] 430s eta 1683s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=493 | 43.6s
+  [815,509/3,939,926] 432s eta 1656s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=501 | 41.5s
+  [828,878/3,939,926] 433s eta 1625s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=491 | 40.9s
+  [842,247/3,939,926] 435s eta 1599s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=495 | 41.2s
+  [855,616/3,939,926] 436s eta 1573s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=503 | 41.3s
+  [868,985/3,939,926] 463s eta 1636s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=501 | 43.4s
+  [882,354/3,939,926] 466s eta 1615s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=511 | 46.1s
+  [895,723/3,939,926] 475s eta 1615s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=499 | 46.3s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=498 | 45.9s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=504 | 48.5s
+  [909,092/3,939,926] 479s eta 1597s
+  [922,461/3,939,926] 479s eta 1568s
+  [935,830/3,939,926] 480s eta 1540s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=495 | 45.2s
+  [949,199/3,939,926] 480s eta 1513s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=498 | 47.3s
+  [962,568/3,939,926] 484s eta 1497s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=503 | 43.2s
+  [975,937/3,939,926] 507s eta 1539s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=501 | 43.4s
+  [989,306/3,939,926] 510s eta 1521s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=503 | 38.7s
+  [1,002,675/3,939,926] 514s eta 1507s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=497 | 38.9s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=500 | 38.9s
+  [1,016,044/3,939,926] 518s eta 1492s
+  [1,029,413/3,939,926] 519s eta 1467s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=493 | 38.4s
+  [1,042,782/3,939,926] 519s eta 1442s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=507 | 39.4s
+  [1,056,151/3,939,926] 520s eta 1419s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=492 | 38.0s
+  [1,069,520/3,939,926] 523s eta 1403s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=501 | 35.9s
+  [1,082,889/3,939,926] 543s eta 1433s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=507 | 35.9s
+  [1,096,258/3,939,926] 547s eta 1418s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=508 | 37.4s
+  [1,109,627/3,939,926] 552s eta 1409s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=491 | 37.9s
+  [1,122,996/3,939,926] 557s eta 1397s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=505 | 39.4s
+  [1,136,365/3,939,926] 559s eta 1378s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=501 | 39.7s
+  [1,149,734/3,939,926] 559s eta 1357s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=505 | 42.1s
+  [1,163,103/3,939,926] 562s eta 1342s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=493 | 40.5s
+  [1,176,472/3,939,926] 563s eta 1324s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=498 | 43.6s
+  [1,189,841/3,939,926] 588s eta 1358s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=504 | 42.1s
+  [1,203,210/3,939,926] 589s eta 1340s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=508 | 42.3s
+  [1,216,579/3,939,926] 595s eta 1332s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=493 | 41.5s
+  [1,229,948/3,939,926] 599s eta 1319s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=508 | 40.8s
+  [1,243,317/3,939,926] 601s eta 1303s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=503 | 43.9s
+  [1,256,686/3,939,926] 603s eta 1287s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=508 | 42.1s
+  [1,270,055/3,939,926] 605s eta 1271s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=492 | 40.9s
+  [1,283,424/3,939,926] 605s eta 1252s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=502 | 44.2s
+  [1,296,793/3,939,926] 632s eta 1289s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=509 | 40.8s
+  [1,310,162/3,939,926] 637s eta 1278s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=495 | 38.4s
+  [1,323,531/3,939,926] 638s eta 1260s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=503 | 56.5s
+  [1,336,900/3,939,926] 646s eta 1258s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=512 | 45.7s
+  [1,350,269/3,939,926] 647s eta 1240s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=497 | 42.0s
+  [1,363,638/3,939,926] 647s eta 1223s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=498 | 45.4s
+  [1,377,007/3,939,926] 649s eta 1208s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=508 | 44.4s
+  [1,390,376/3,939,926] 649s eta 1191s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=506 | 49.0s
+  [1,403,745/3,939,926] 682s eta 1232s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=505 | 56.6s
+  [1,417,114/3,939,926] 694s eta 1235s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=500 | 46.9s
+  [1,430,483/3,939,926] 694s eta 1218s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=496 | 57.9s
+  [1,443,852/3,939,926] 696s eta 1203s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=500 | 50.9s
+  [1,457,221/3,939,926] 698s eta 1189s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=502 | 48.3s
+  [1,470,590/3,939,926] 698s eta 1172s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=502 | 52.7s
+  [1,483,959/3,939,926] 702s eta 1162s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=493 | 54.6s
+  [1,497,328/3,939,926] 702s eta 1146s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=498 | 49.3s
+  [1,510,697/3,939,926] 732s eta 1177s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=500 | 46.4s
+  [1,524,066/3,939,926] 741s eta 1174s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=499 | 43.3s
+  [1,537,435/3,939,926] 742s eta 1159s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=496 | 47.3s
+  [1,550,804/3,939,926] 744s eta 1146s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=505 | 49.5s
+  [1,564,173/3,939,926] 744s eta 1130s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=504 | 50.6s
+  [1,577,542/3,939,926] 749s eta 1122s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=503 | 49.0s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=496 | 48.8s
+  [1,590,911/3,939,926] 751s eta 1109s
+  [1,604,280/3,939,926] 752s eta 1094s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=502 | 47.0s
+  [1,617,649/3,939,926] 780s eta 1120s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=509 | 54.9s
+  [1,631,018/3,939,926] 796s eta 1127s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=501 | 53.1s
+  [1,644,387/3,939,926] 797s eta 1113s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=505 | 56.3s
+  [1,657,756/3,939,926] 798s eta 1099s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=497 | 46.9s
+  [1,671,125/3,939,926] 799s eta 1085s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=512 | 50.3s
+  [1,684,494/3,939,926] 800s eta 1071s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=498 | 57.0s
+  [1,697,863/3,939,926] 802s eta 1059s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=501 | 53.8s
+  [1,711,232/3,939,926] 806s eta 1049s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=502 | 47.9s
+  [1,724,601/3,939,926] 829s eta 1064s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=516 | 47.1s
+  [1,737,970/3,939,926] 844s eta 1070s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=507 | 47.7s
+  [1,751,339/3,939,926] 846s eta 1057s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=511 | 46.9s
+  [1,764,708/3,939,926] 847s eta 1044s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=498 | 48.2s
+  [1,778,077/3,939,926] 848s eta 1031s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=507 | 46.4s
+  [1,791,446/3,939,926] 848s eta 1018s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=511 | 50.7s
+  [1,804,815/3,939,926] 849s eta 1005s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=512 | 44.7s
+  [1,818,184/3,939,926] 851s eta 993s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=506 | 43.7s
+  [1,831,553/3,939,926] 873s eta 1005s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=493 | 40.7s
+  [1,844,922/3,939,926] 889s eta 1010s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=494 | 41.6s
+  [1,858,291/3,939,926] 890s eta 998s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=511 | 48.4s
+  [1,871,660/3,939,926] 893s eta 987s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=509 | 51.1s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=510 | 47.9s
+  [1,885,029/3,939,926] 899s eta 980s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=500 | 53.4s
+  [1,898,398/3,939,926] 899s eta 967s
+  [1,911,767/3,939,926] 900s eta 954s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=509 | 50.6s
+  [1,925,136/3,939,926] 900s eta 942s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=505 | 47.3s
+  [1,938,505/3,939,926] 921s eta 951s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=492 | 50.0s
+  [1,951,874/3,939,926] 940s eta 957s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=513 | 50.5s
+  [1,965,243/3,939,926] 944s eta 949s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=505 | 56.1s
+  [1,978,612/3,939,926] 947s eta 939s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=511 | 50.8s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=501 | 50.5s
+  [1,991,981/3,939,926] 950s eta 929s
+  [2,005,350/3,939,926] 951s eta 917s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=507 | 53.0s
+  [2,018,719/3,939,926] 952s eta 906s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=504 | 52.4s
+  [2,032,088/3,939,926] 953s eta 895s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=501 | 43.8s
+  [2,045,457/3,939,926] 966s eta 894s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=499 | 46.5s
+  [2,058,826/3,939,926] 987s eta 902s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=509 | 58.3s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=500 | 52.0s
+  [2,072,195/3,939,926] 1003s eta 904s
+  [2,085,564/3,939,926] 1004s eta 893s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=505 | 59.0s
+  [2,098,933/3,939,926] 1007s eta 883s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=510 | 56.2s
+  [2,112,302/3,939,926] 1009s eta 873s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=507 | 57.0s
+  [2,125,671/3,939,926] 1011s eta 863s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=505 | 60.7s
+  [2,139,040/3,939,926] 1012s eta 852s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=502 | 59.5s
+  [2,152,409/3,939,926] 1026s eta 852s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=505 | 49.0s
+  [2,165,778/3,939,926] 1037s eta 849s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=514 | 42.8s
+  [2,179,147/3,939,926] 1047s eta 846s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=510 | 47.1s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=502 | 50.2s
+  [2,192,516/3,939,926] 1054s eta 840s
+  [2,205,885/3,939,926] 1055s eta 829s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=509 | 46.5s
+  [2,219,254/3,939,926] 1056s eta 819s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=515 | 48.9s
+  [2,232,623/3,939,926] 1060s eta 811s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=510 | 52.6s
+  [2,245,992/3,939,926] 1065s eta 803s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=502 | 47.2s
+  [2,259,361/3,939,926] 1074s eta 799s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=499 | 46.2s
+  [2,272,730/3,939,926] 1084s eta 795s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=515 | 45.1s
+  [2,286,099/3,939,926] 1092s eta 790s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=517 | 47.8s
+  [2,299,468/3,939,926] 1103s eta 787s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=502 | 50.5s
+  [2,312,837/3,939,926] 1106s eta 778s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=510 | 50.6s
+  [2,326,206/3,939,926] 1107s eta 768s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=513 | 48.6s
+  [2,339,575/3,939,926] 1109s eta 759s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=510 | 44.8s
+  [2,352,944/3,939,926] 1110s eta 749s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=507 | 54.9s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=497 | 45.1s
+  [2,366,313/3,939,926] 1129s eta 751s
+  [2,379,682/3,939,926] 1130s eta 741s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=513 | 46.9s
+  [2,393,051/3,939,926] 1140s eta 737s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=511 | 51.1s
+  [2,406,420/3,939,926] 1155s eta 736s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=510 | 48.4s
+  [2,419,789/3,939,926] 1158s eta 727s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=504 | 52.4s
+  [2,433,158/3,939,926] 1159s eta 718s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=515 | 52.5s
+  [2,446,527/3,939,926] 1160s eta 708s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=510 | 50.0s
+  [2,459,896/3,939,926] 1161s eta 698s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=501 | 52.6s
+  [2,473,265/3,939,926] 1183s eta 702s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=507 | 54.0s
+  [2,486,634/3,939,926] 1184s eta 692s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=520 | 51.2s
+  [2,500,003/3,939,926] 1192s eta 686s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=503 | 54.1s
+  [2,513,372/3,939,926] 1215s eta 690s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=507 | 58.9s
+  [2,526,741/3,939,926] 1219s eta 682s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=516 | 61.7s
+  [2,540,110/3,939,926] 1220s eta 672s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=503 | 65.3s
+  [2,553,479/3,939,926] 1221s eta 663s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=505 | 63.5s
+  [2,566,848/3,939,926] 1223s eta 654s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=503 | 55.7s
+  [2,580,217/3,939,926] 1239s eta 653s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=511 | 55.4s
+  [2,593,586/3,939,926] 1240s eta 644s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=520 | 48.8s
+  [2,606,955/3,939,926] 1241s eta 635s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=507 | 49.9s
+  [2,620,324/3,939,926] 1266s eta 638s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=510 | 49.1s
+  [2,633,693/3,939,926] 1269s eta 629s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=512 | 50.8s
+  [2,647,062/3,939,926] 1272s eta 621s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=516 | 53.8s
+  [2,660,431/3,939,926] 1274s eta 613s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=508 | 55.8s
+  [2,673,800/3,939,926] 1279s eta 606s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=508 | 47.4s
+  [2,687,169/3,939,926] 1287s eta 600s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=514 | 47.9s
+  [2,700,538/3,939,926] 1289s eta 592s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=520 | 49.2s
+  [2,713,907/3,939,926] 1290s eta 583s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=511 | 43.0s
+  [2,727,276/3,939,926] 1313s eta 584s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=513 | 49.7s
+  [2,740,645/3,939,926] 1316s eta 576s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=510 | 50.6s
+  [2,754,014/3,939,926] 1323s eta 570s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=519 | 49.2s
+  [2,767,383/3,939,926] 1324s eta 561s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=503 | 55.4s
+  [2,780,752/3,939,926] 1335s eta 556s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=516 | 54.0s
+  [2,794,121/3,939,926] 1344s eta 551s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=508 | 56.5s
+  [2,807,490/3,939,926] 1345s eta 542s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=513 | 56.4s
+  [2,820,859/3,939,926] 1347s eta 534s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=514 | 51.2s
+  [2,834,228/3,939,926] 1365s eta 532s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=512 | 56.2s
+  [2,847,597/3,939,926] 1373s eta 527s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=511 | 58.6s
+  [2,860,966/3,939,926] 1382s eta 521s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=519 | 60.3s
+  [2,874,335/3,939,926] 1385s eta 513s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=501 | 60.6s
+  [2,887,704/3,939,926] 1396s eta 509s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=513 | 54.9s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=505 | 57.1s
+  [2,901,073/3,939,926] 1402s eta 502s
+  [2,914,442/3,939,926] 1403s eta 494s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=517 | 60.7s
+  [2,927,811/3,939,926] 1405s eta 486s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=508 | 39.7s
+  [2,941,180/3,939,926] 1414s eta 480s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=505 | 51.0s
+  [2,954,549/3,939,926] 1416s eta 472s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=512 | 39.6s
+  [2,967,918/3,939,926] 1422s eta 466s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=514 | 41.4s
+  [2,981,287/3,939,926] 1427s eta 459s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=496 | 41.5s
+  [2,994,656/3,939,926] 1438s eta 454s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=509 | 42.0s
+  [3,008,025/3,939,926] 1445s eta 448s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=501 | 42.2s
+  [3,021,394/3,939,926] 1445s eta 439s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=511 | 42.7s
+  [3,034,763/3,939,926] 1449s eta 432s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=513 | 45.3s
+  [3,048,132/3,939,926] 1459s eta 427s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=511 | 44.9s
+  [3,061,501/3,939,926] 1461s eta 419s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=513 | 46.3s
+  [3,074,870/3,939,926] 1469s eta 413s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=511 | 45.3s
+  [3,088,239/3,939,926] 1473s eta 406s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=500 | 44.1s
+  [3,101,608/3,939,926] 1483s eta 401s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=497 | 40.9s
+  [3,114,977/3,939,926] 1487s eta 394s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=513 | 43.4s
+  [3,128,346/3,939,926] 1489s eta 386s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=513 | 42.1s
+  [3,141,715/3,939,926] 1491s eta 379s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=511 | 38.1s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=522 | 39.9s
+  [3,155,084/3,939,926] 1500s eta 373s
+  [3,168,453/3,939,926] 1500s eta 365s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=502 | 37.0s
+  [3,181,822/3,939,926] 1507s eta 359s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=519 | 37.3s
+  [3,195,191/3,939,926] 1511s eta 352s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=501 | 36.3s
+  [3,208,560/3,939,926] 1520s eta 346s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=502 | 38.1s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=512 | 36.5s
+  [3,221,929/3,939,926] 1526s eta 340s
+  [3,235,298/3,939,926] 1526s eta 332s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=523 | 37.6s
+  [3,248,667/3,939,926] 1529s eta 325s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=516 | 37.6s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=511 | 38.2s
+  [3,262,036/3,939,926] 1539s eta 320s
+  [3,275,405/3,939,926] 1539s eta 312s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=501 | 38.9s
+  [3,288,774/3,939,926] 1546s eta 306s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=520 | 40.1s
+  [3,302,143/3,939,926] 1551s eta 300s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=504 | 40.1s
+  [3,315,512/3,939,926] 1560s eta 294s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.15GB | bytes/slot~=497 | 39.4s
+  [3,328,881/3,939,926] 1566s eta 287s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=504 | 40.6s
+  [3,342,250/3,939,926] 1567s eta 280s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=524 | 41.6s
+  [3,355,619/3,939,926] 1571s eta 274s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=505 | 41.9s
+  [3,368,988/3,939,926] 1581s eta 268s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=508 | 43.2s
+  [3,382,357/3,939,926] 1583s eta 261s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=513 | 46.7s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=509 | 42.0s
+  [3,395,726/3,939,926] 1593s eta 255s
+  [3,409,095/3,939,926] 1594s eta 248s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=502 | 41.7s
+  [3,422,464/3,939,926] 1609s eta 243s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=510 | 41.9s
+  [3,435,833/3,939,926] 1609s eta 236s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=502 | 50.6s
+  [3,449,202/3,939,926] 1612s eta 229s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=520 | 47.2s
+  [3,462,571/3,939,926] 1619s eta 223s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=506 | 40.7s
+  [3,475,940/3,939,926] 1622s eta 217s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=514 | 42.7s
+  [3,489,309/3,939,926] 1626s eta 210s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=514 | 41.1s
+  [3,502,678/3,939,926] 1635s eta 204s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=500 | 41.7s
+  [3,516,047/3,939,926] 1636s eta 197s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=515 | 41.0s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=500 | 42.1s
+  [3,529,416/3,939,926] 1651s eta 192s
+  [3,542,785/3,939,926] 1652s eta 185s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=504 | 55.0s
+  [3,556,154/3,939,926] 1667s eta 180s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=513 | 50.8s
+  [3,569,523/3,939,926] 1674s eta 174s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=513 | 47.3s
+  [3,582,892/3,939,926] 1674s eta 167s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=526 | 57.6s
+  [3,596,261/3,939,926] 1677s eta 160s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=510 | 47.8s
+  [3,609,630/3,939,926] 1683s eta 154s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=506 | 47.6s
+  [3,622,999/3,939,926] 1684s eta 147s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=504 | 46.2s
+  [3,636,368/3,939,926] 1698s eta 142s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=505 | 46.8s
+  [3,649,737/3,939,926] 1699s eta 135s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=506 | 43.6s
+  [3,663,106/3,939,926] 1711s eta 129s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=513 | 41.9s
+  [3,676,475/3,939,926] 1717s eta 123s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=507 | 47.4s
+  [3,689,844/3,939,926] 1722s eta 117s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=522 | 49.6s
+  [3,703,213/3,939,926] 1727s eta 110s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=512 | 49.2s
+  [3,716,582/3,939,926] 1734s eta 104s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=514 | 50.9s
+  [3,729,951/3,939,926] 1735s eta 98s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=509 | 41.5s
+  [3,743,320/3,939,926] 1740s eta 91s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=517 | 40.7s
+  [3,756,689/3,939,926] 1740s eta 85s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=514 | 42.2s
+  [3,770,058/3,939,926] 1760s eta 79s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=503 | 50.9s
+  [3,783,427/3,939,926] 1763s eta 73s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.17GB | bytes/slot~=531 | 40.4s
+  [3,796,796/3,939,926] 1768s eta 67s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=506 | 52.0s
+  [3,810,165/3,939,926] 1774s eta 60s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=512 | 43.3s
+  [3,823,534/3,939,926] 1779s eta 54s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=513 | 46.6s
+  [3,836,903/3,939,926] 1781s eta 48s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=509 | 42.9s
+  [3,850,272/3,939,926] 1783s eta 42s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=514 | 46.6s
+  [3,863,641/3,939,926] 1787s eta 35s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=514 | 42.2s
+  [3,877,010/3,939,926] 1802s eta 29s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=506 | 40.4s
+  [3,890,379/3,939,926] 1804s eta 23s
+[MEM] block: 9440 pairs x 25 = 236,000 slots | RSS=0.16GB | bytes/slot~=714 | 26.8s
+  [3,899,819/3,939,926] 1808s eta 19s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=528 | 41.3s
+  [3,913,188/3,939,926] 1810s eta 12s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=508 | 39.3s
+  [3,926,557/3,939,926] 1818s eta 6s
+[MEM] block: 13369 pairs x 25 = 334,225 slots | RSS=0.16GB | bytes/slot~=512 | 47.0s
+  [3,939,926/3,939,926] 1822s eta 0s
+  wrote C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_nov9b_pinst\matchups_optimal.parquet, summary_optimal.csv, tactic_matrix_optimal.csv
+Optimal tournament complete in 1825s
+
+==============================================================================
+DONE. Notebook (Combatv4/v11Renown_Combat_Lab.ipynb), cell 2:
+==============================================================================
+    OUT_DIR        = None      # latest run = C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_nov9b_pinst
+    SUMMARY_SOURCE = "optimal"      (this run holds: optimal)
+    pool: C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_nov9b_pinst\loadouts_hf_5_16_pc50_balk.csv
+  Then run the notebook top to bottom.
+
+  Build explorer (double-click to open in your browser):
+    optimal   C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_nov9b_pinst\build_explorer_optimal.html
+
+  All files: C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_nov9b_pinst
+==============================================================================

@@ -1,111 +1,123 @@
 [
  {
-  "title": "Forestry",
+  "title": "Carpentry",
   "anchor": "Forestry",
   "mode": "root",
   "nodes": {
    "Forestry": [
     0,
-    1
+    2
    ],
-   "Carpentry": [
+   "Siege Camp": [
+    1,
+    2
+   ],
+   "Fletchery": [
+    1,
+    3
+   ],
+   "Joinery": [
+    1,
+    4
+   ],
+   "Chandlery": [
     1,
     1
    ],
-   "Siege Camp": [
-    2,
-    1
-   ],
-   "Joinery": [
-    2,
-    2
-   ],
-   "Chandlery": [
-    2,
-    3
-   ],
-   "Fletchery": [
-    2,
-    0
-   ],
    "Siege Works": [
-    3,
-    1
-   ],
-   "Tannery": [
-    3,
+    2,
     2
    ],
-   "Reliquary": [
-    3,
+   "Training Grounds": [
+    2,
     3
    ],
-   "Apothecary": [
-    3,
+   "Shieldwright": [
+    2,
     4
    ],
-   "Skirmish Field": [
-    3,
+   "Tannery": [
+    2,
+    5
+   ],
+   "Reliquary": [
+    2,
+    1
+   ],
+   "Apothecary": [
+    2,
     0
    ],
    "Battery Park": [
-    4,
-    1
-   ],
-   "Armory": [
-    4,
+    3,
     2
    ],
-   "Pilgrimage Site": [
-    4,
+   "Archery Butts": [
+    3,
     3
    ],
-   "Infirmary": [
-    4,
+   "Buckler School": [
+    3,
     4
    ],
-   "List Yard": [
-    4,
+   "Armory": [
+    3,
+    5
+   ],
+   "Pilgrimage Site": [
+    3,
+    1
+   ],
+   "Infirmary": [
+    3,
     0
    ],
    "Abatis Field": [
-    5,
-    1
-   ],
-   "Gilded Foundry": [
-    5,
+    4,
     2
    ],
-   "Unforgotten Shrine": [
-    5,
+   "Skirmish Field": [
+    4,
     3
    ],
-   "Hospitaller": [
-    5,
+   "Pavisiers' Yard": [
+    4,
     4
    ],
-   "Fighting School": [
-    5,
+   "Gilded Foundry": [
+    4,
+    5
+   ],
+   "Unforgotten Shrine": [
+    4,
+    1
+   ],
+   "Hospitaller": [
+    4,
     0
    ],
    "Artillery Park": [
-    6,
-    1
-   ],
-   "Court Armoury": [
-    6,
+    5,
     2
    ],
-   "Exalted Basilica": [
-    6,
+   "Ballistarium": [
+    5,
     3
    ],
-   "Preceptory of the Knight's Templar": [
-    6,
+   "College of Arms": [
+    5,
     4
    ],
-   "Royal Pavilion": [
-    6,
+   "Court Armoury": [
+    5,
+    5
+   ],
+   "Exalted Basilica": [
+    5,
+    1
+   ],
+   "Preceptory of the Knight's Templar": [
+    5,
     0
    ]
   },
@@ -119,6 +131,10 @@
     "Apothecary"
    ],
    [
+    "Training Grounds",
+    "Archery Butts"
+   ],
+   [
     "Tannery",
     "Armory"
    ],
@@ -127,16 +143,24 @@
     "Artillery Park"
    ],
    [
+    "Skirmish Field",
+    "Ballistarium"
+   ],
+   [
     "Siege Works",
     "Battery Park"
    ],
    [
-    "Forestry",
-    "Carpentry"
+    "Shieldwright",
+    "Buckler School"
    ],
    [
     "Forestry",
     "Chandlery"
+   ],
+   [
+    "Pavisiers' Yard",
+    "College of Arms"
    ],
    [
     "Gilded Foundry",
@@ -147,11 +171,7 @@
     "Exalted Basilica"
    ],
    [
-    "List Yard",
-    "Fighting School"
-   ],
-   [
-    "Carpentry",
+    "Forestry",
     "Fletchery"
    ],
    [
@@ -167,12 +187,12 @@
     "Infirmary"
    ],
    [
-    "Carpentry",
+    "Forestry",
     "Joinery"
    ],
    [
-    "Skirmish Field",
-    "List Yard"
+    "Buckler School",
+    "Pavisiers' Yard"
    ],
    [
     "Reliquary",
@@ -187,11 +207,11 @@
     "Reliquary"
    ],
    [
-    "Fighting School",
-    "Royal Pavilion"
+    "Joinery",
+    "Shieldwright"
    ],
    [
-    "Carpentry",
+    "Forestry",
     "Siege Camp"
    ],
    [
@@ -199,7 +219,7 @@
     "Siege Works"
    ],
    [
-    "Fletchery",
+    "Archery Butts",
     "Skirmish Field"
    ],
    [
@@ -207,8 +227,193 @@
     "Tannery"
    ],
    [
+    "Fletchery",
+    "Training Grounds"
+   ],
+   [
     "Pilgrimage Site",
     "Unforgotten Shrine"
+   ]
+  ]
+ },
+ {
+  "title": "Furnace",
+  "anchor": "Furnace",
+  "mode": "root",
+  "nodes": {
+   "Furnace": [
+    0,
+    1
+   ],
+   "Blacksmith": [
+    1,
+    1
+   ],
+   "Siege Camp": [
+    1,
+    2
+   ],
+   "Joinery": [
+    1,
+    3
+   ],
+   "Finery": [
+    2,
+    1
+   ],
+   "Siege Works": [
+    2,
+    2
+   ],
+   "Shieldwright": [
+    2,
+    3
+   ],
+   "Tannery": [
+    2,
+    4
+   ],
+   "Forge": [
+    3,
+    1
+   ],
+   "Battery Park": [
+    3,
+    2
+   ],
+   "Buckler School": [
+    3,
+    3
+   ],
+   "Armory": [
+    3,
+    4
+   ],
+   "Master Workshop": [
+    4,
+    1
+   ],
+   "Abatis Field": [
+    4,
+    2
+   ],
+   "Pavisiers' Yard": [
+    4,
+    3
+   ],
+   "Gilded Foundry": [
+    4,
+    4
+   ],
+   "Jewelry Foundry": [
+    4,
+    0
+   ],
+   "Advanced Blast Furnace": [
+    5,
+    1
+   ],
+   "Artillery Park": [
+    5,
+    2
+   ],
+   "College of Arms": [
+    5,
+    3
+   ],
+   "Court Armoury": [
+    5,
+    4
+   ],
+   "Polish House": [
+    5,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Battery Park",
+    "Abatis Field"
+   ],
+   [
+    "Master Workshop",
+    "Advanced Blast Furnace"
+   ],
+   [
+    "Tannery",
+    "Armory"
+   ],
+   [
+    "Abatis Field",
+    "Artillery Park"
+   ],
+   [
+    "Siege Works",
+    "Battery Park"
+   ],
+   [
+    "Furnace",
+    "Blacksmith"
+   ],
+   [
+    "Shieldwright",
+    "Buckler School"
+   ],
+   [
+    "Pavisiers' Yard",
+    "College of Arms"
+   ],
+   [
+    "Gilded Foundry",
+    "Court Armoury"
+   ],
+   [
+    "Blacksmith",
+    "Finery"
+   ],
+   [
+    "Finery",
+    "Forge"
+   ],
+   [
+    "Armory",
+    "Gilded Foundry"
+   ],
+   [
+    "Forge",
+    "Jewelry Foundry"
+   ],
+   [
+    "Furnace",
+    "Joinery"
+   ],
+   [
+    "Forge",
+    "Master Workshop"
+   ],
+   [
+    "Buckler School",
+    "Pavisiers' Yard"
+   ],
+   [
+    "Jewelry Foundry",
+    "Polish House"
+   ],
+   [
+    "Joinery",
+    "Shieldwright"
+   ],
+   [
+    "Furnace",
+    "Siege Camp"
+   ],
+   [
+    "Siege Camp",
+    "Siege Works"
+   ],
+   [
+    "Joinery",
+    "Tannery"
    ]
   ]
  },
@@ -583,6 +788,183 @@
   ]
  },
  {
+  "title": "Courtyard",
+  "anchor": "Courtyard",
+  "mode": "root",
+  "nodes": {
+   "Courtyard": [
+    0,
+    2
+   ],
+   "Market Square": [
+    1,
+    2
+   ],
+   "Conditioning Field": [
+    1,
+    0
+   ],
+   "Merchant Quarter": [
+    2,
+    2
+   ],
+   "Episcopal Court": [
+    2,
+    4
+   ],
+   "Coliseum": [
+    2,
+    0
+   ],
+   "Jester's Court": [
+    2,
+    1
+   ],
+   "Money Lending": [
+    3,
+    2
+   ],
+   "Artisan Workshop": [
+    3,
+    3
+   ],
+   "Interrogation Chambers": [
+    3,
+    4
+   ],
+   "Grand Tournament": [
+    3,
+    0
+   ],
+   "Bell Tower": [
+    3,
+    1
+   ],
+   "Esteemed Bank": [
+    4,
+    2
+   ],
+   "Court Artists": [
+    4,
+    3
+   ],
+   "Execution Dock": [
+    4,
+    4
+   ],
+   "List Yard": [
+    4,
+    0
+   ],
+   "Embassy": [
+    4,
+    1
+   ],
+   "Aristocratic Court": [
+    5,
+    2
+   ],
+   "Inquisitorial Palace": [
+    5,
+    4
+   ],
+   "Royal Pavilion": [
+    5,
+    0
+   ],
+   "Senate Hall": [
+    5,
+    1
+   ]
+  },
+  "edges": [
+   [
+    "Court Artists",
+    "Aristocratic Court"
+   ],
+   [
+    "Esteemed Bank",
+    "Aristocratic Court"
+   ],
+   [
+    "Market Square",
+    "Artisan Workshop"
+   ],
+   [
+    "Jester's Court",
+    "Bell Tower"
+   ],
+   [
+    "Conditioning Field",
+    "Coliseum"
+   ],
+   [
+    "Courtyard",
+    "Conditioning Field"
+   ],
+   [
+    "Artisan Workshop",
+    "Court Artists"
+   ],
+   [
+    "Bell Tower",
+    "Embassy"
+   ],
+   [
+    "Market Square",
+    "Episcopal Court"
+   ],
+   [
+    "Money Lending",
+    "Esteemed Bank"
+   ],
+   [
+    "Interrogation Chambers",
+    "Execution Dock"
+   ],
+   [
+    "Coliseum",
+    "Grand Tournament"
+   ],
+   [
+    "Execution Dock",
+    "Inquisitorial Palace"
+   ],
+   [
+    "Episcopal Court",
+    "Interrogation Chambers"
+   ],
+   [
+    "Market Square",
+    "Jester's Court"
+   ],
+   [
+    "Grand Tournament",
+    "List Yard"
+   ],
+   [
+    "Courtyard",
+    "Market Square"
+   ],
+   [
+    "Market Square",
+    "Merchant Quarter"
+   ],
+   [
+    "Merchant Quarter",
+    "Money Lending"
+   ],
+   [
+    "List Yard",
+    "Royal Pavilion"
+   ],
+   [
+    "Embassy",
+    "Senate Hall"
+   ]
+  ]
+ },
+ {
   "title": "Animal Husbandry",
   "anchor": "Animal Husbandry",
   "mode": "root",
@@ -744,324 +1126,6 @@
    [
     "Caravanery",
     "Toll House"
-   ]
-  ]
- },
- {
-  "title": "Courtyard",
-  "anchor": "Courtyard",
-  "mode": "root",
-  "nodes": {
-   "Courtyard": [
-    0,
-    2
-   ],
-   "Market Square": [
-    1,
-    2
-   ],
-   "Merchant Quarter": [
-    1,
-    3
-   ],
-   "Episcopal Court": [
-    1,
-    4
-   ],
-   "Conditioning Field": [
-    1,
-    0
-   ],
-   "Jester's Court": [
-    1,
-    1
-   ],
-   "Artisan Workshop": [
-    2,
-    2
-   ],
-   "Money Lending": [
-    2,
-    3
-   ],
-   "Interrogation Chambers": [
-    2,
-    4
-   ],
-   "Coliseum": [
-    2,
-    0
-   ],
-   "Bell Tower": [
-    2,
-    1
-   ],
-   "Court Artists": [
-    3,
-    2
-   ],
-   "Esteemed Bank": [
-    3,
-    3
-   ],
-   "Execution Dock": [
-    3,
-    4
-   ],
-   "Grand Tournament": [
-    3,
-    0
-   ],
-   "Embassy": [
-    3,
-    1
-   ],
-   "Aristocratic Court": [
-    4,
-    2
-   ],
-   "Inquisitorial Palace": [
-    4,
-    4
-   ],
-   "Royal Pavilion": [
-    4,
-    0
-   ],
-   "Senate Hall": [
-    4,
-    1
-   ]
-  },
-  "edges": [
-   [
-    "Court Artists",
-    "Aristocratic Court"
-   ],
-   [
-    "Esteemed Bank",
-    "Aristocratic Court"
-   ],
-   [
-    "Market Square",
-    "Artisan Workshop"
-   ],
-   [
-    "Jester's Court",
-    "Bell Tower"
-   ],
-   [
-    "Conditioning Field",
-    "Coliseum"
-   ],
-   [
-    "Courtyard",
-    "Conditioning Field"
-   ],
-   [
-    "Artisan Workshop",
-    "Court Artists"
-   ],
-   [
-    "Bell Tower",
-    "Embassy"
-   ],
-   [
-    "Courtyard",
-    "Episcopal Court"
-   ],
-   [
-    "Money Lending",
-    "Esteemed Bank"
-   ],
-   [
-    "Interrogation Chambers",
-    "Execution Dock"
-   ],
-   [
-    "Coliseum",
-    "Grand Tournament"
-   ],
-   [
-    "Execution Dock",
-    "Inquisitorial Palace"
-   ],
-   [
-    "Episcopal Court",
-    "Interrogation Chambers"
-   ],
-   [
-    "Courtyard",
-    "Jester's Court"
-   ],
-   [
-    "Courtyard",
-    "Market Square"
-   ],
-   [
-    "Courtyard",
-    "Merchant Quarter"
-   ],
-   [
-    "Merchant Quarter",
-    "Money Lending"
-   ],
-   [
-    "Grand Tournament",
-    "Royal Pavilion"
-   ],
-   [
-    "Embassy",
-    "Senate Hall"
-   ]
-  ]
- },
- {
-  "title": "Furnace",
-  "anchor": "Furnace",
-  "mode": "root",
-  "nodes": {
-   "Furnace": [
-    0,
-    1
-   ],
-   "Blacksmith": [
-    1,
-    1
-   ],
-   "Siege Camp": [
-    1,
-    2
-   ],
-   "Joinery": [
-    1,
-    3
-   ],
-   "Forge": [
-    2,
-    1
-   ],
-   "Siege Works": [
-    2,
-    2
-   ],
-   "Tannery": [
-    2,
-    3
-   ],
-   "Finery": [
-    3,
-    1
-   ],
-   "Battery Park": [
-    3,
-    2
-   ],
-   "Armory": [
-    3,
-    3
-   ],
-   "Master Workshop": [
-    4,
-    1
-   ],
-   "Abatis Field": [
-    4,
-    2
-   ],
-   "Gilded Foundry": [
-    4,
-    3
-   ],
-   "Jewelry Foundry": [
-    4,
-    0
-   ],
-   "Advanced Blast Furnace": [
-    5,
-    1
-   ],
-   "Artillery Park": [
-    5,
-    2
-   ],
-   "Court Armoury": [
-    5,
-    3
-   ],
-   "Polish House": [
-    5,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Battery Park",
-    "Abatis Field"
-   ],
-   [
-    "Master Workshop",
-    "Advanced Blast Furnace"
-   ],
-   [
-    "Tannery",
-    "Armory"
-   ],
-   [
-    "Abatis Field",
-    "Artillery Park"
-   ],
-   [
-    "Siege Works",
-    "Battery Park"
-   ],
-   [
-    "Furnace",
-    "Blacksmith"
-   ],
-   [
-    "Gilded Foundry",
-    "Court Armoury"
-   ],
-   [
-    "Forge",
-    "Finery"
-   ],
-   [
-    "Blacksmith",
-    "Forge"
-   ],
-   [
-    "Armory",
-    "Gilded Foundry"
-   ],
-   [
-    "Finery",
-    "Jewelry Foundry"
-   ],
-   [
-    "Furnace",
-    "Joinery"
-   ],
-   [
-    "Finery",
-    "Master Workshop"
-   ],
-   [
-    "Jewelry Foundry",
-    "Polish House"
-   ],
-   [
-    "Furnace",
-    "Siege Camp"
-   ],
-   [
-    "Siege Camp",
-    "Siege Works"
-   ],
-   [
-    "Joinery",
-    "Tannery"
    ]
   ]
  },
@@ -1231,6 +1295,171 @@
   ]
  },
  {
+  "title": "Salt Works",
+  "anchor": "Salt Works",
+  "mode": "root",
+  "nodes": {
+   "Salt Works": [
+    0,
+    1
+   ],
+   "Butchery": [
+    1,
+    1
+   ],
+   "Joinery": [
+    1,
+    2
+   ],
+   "Workyard": [
+    1,
+    0
+   ],
+   "Charcoal Burner": [
+    2,
+    1
+   ],
+   "Shieldwright": [
+    2,
+    2
+   ],
+   "Tannery": [
+    2,
+    3
+   ],
+   "Burgages": [
+    2,
+    0
+   ],
+   "Smokehouse": [
+    3,
+    1
+   ],
+   "Buckler School": [
+    3,
+    2
+   ],
+   "Armory": [
+    3,
+    3
+   ],
+   "Census Hall": [
+    3,
+    0
+   ],
+   "Levy Hall": [
+    4,
+    1
+   ],
+   "Pavisiers' Yard": [
+    4,
+    2
+   ],
+   "Gilded Foundry": [
+    4,
+    3
+   ],
+   "Storehouse": [
+    4,
+    0
+   ],
+   "Baggage Train": [
+    5,
+    1
+   ],
+   "College of Arms": [
+    5,
+    2
+   ],
+   "Court Armoury": [
+    5,
+    3
+   ],
+   "Serfdom": [
+    5,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Tannery",
+    "Armory"
+   ],
+   [
+    "Levy Hall",
+    "Baggage Train"
+   ],
+   [
+    "Shieldwright",
+    "Buckler School"
+   ],
+   [
+    "Workyard",
+    "Burgages"
+   ],
+   [
+    "Salt Works",
+    "Butchery"
+   ],
+   [
+    "Burgages",
+    "Census Hall"
+   ],
+   [
+    "Butchery",
+    "Charcoal Burner"
+   ],
+   [
+    "Pavisiers' Yard",
+    "College of Arms"
+   ],
+   [
+    "Gilded Foundry",
+    "Court Armoury"
+   ],
+   [
+    "Armory",
+    "Gilded Foundry"
+   ],
+   [
+    "Salt Works",
+    "Joinery"
+   ],
+   [
+    "Smokehouse",
+    "Levy Hall"
+   ],
+   [
+    "Buckler School",
+    "Pavisiers' Yard"
+   ],
+   [
+    "Storehouse",
+    "Serfdom"
+   ],
+   [
+    "Joinery",
+    "Shieldwright"
+   ],
+   [
+    "Charcoal Burner",
+    "Smokehouse"
+   ],
+   [
+    "Census Hall",
+    "Storehouse"
+   ],
+   [
+    "Joinery",
+    "Tannery"
+   ],
+   [
+    "Salt Works",
+    "Workyard"
+   ]
+  ]
+ },
+ {
   "title": "Fishmongery",
   "anchor": "Fishmongery",
   "mode": "root",
@@ -1388,139 +1617,6 @@
   ]
  },
  {
-  "title": "Salt Works",
-  "anchor": "Salt Works",
-  "mode": "root",
-  "nodes": {
-   "Salt Works": [
-    0,
-    1
-   ],
-   "Butchery": [
-    1,
-    1
-   ],
-   "Joinery": [
-    1,
-    2
-   ],
-   "Workyard": [
-    1,
-    0
-   ],
-   "Charcoal Burner": [
-    2,
-    1
-   ],
-   "Tannery": [
-    2,
-    2
-   ],
-   "Burgages": [
-    2,
-    0
-   ],
-   "Smokehouse": [
-    3,
-    1
-   ],
-   "Armory": [
-    3,
-    2
-   ],
-   "Census Hall": [
-    3,
-    0
-   ],
-   "Levy Hall": [
-    4,
-    1
-   ],
-   "Gilded Foundry": [
-    4,
-    2
-   ],
-   "Storehouse": [
-    4,
-    0
-   ],
-   "Baggage Train": [
-    5,
-    1
-   ],
-   "Court Armoury": [
-    5,
-    2
-   ],
-   "Serfdom": [
-    5,
-    0
-   ]
-  },
-  "edges": [
-   [
-    "Tannery",
-    "Armory"
-   ],
-   [
-    "Levy Hall",
-    "Baggage Train"
-   ],
-   [
-    "Workyard",
-    "Burgages"
-   ],
-   [
-    "Salt Works",
-    "Butchery"
-   ],
-   [
-    "Burgages",
-    "Census Hall"
-   ],
-   [
-    "Butchery",
-    "Charcoal Burner"
-   ],
-   [
-    "Gilded Foundry",
-    "Court Armoury"
-   ],
-   [
-    "Armory",
-    "Gilded Foundry"
-   ],
-   [
-    "Salt Works",
-    "Joinery"
-   ],
-   [
-    "Smokehouse",
-    "Levy Hall"
-   ],
-   [
-    "Storehouse",
-    "Serfdom"
-   ],
-   [
-    "Charcoal Burner",
-    "Smokehouse"
-   ],
-   [
-    "Census Hall",
-    "Storehouse"
-   ],
-   [
-    "Joinery",
-    "Tannery"
-   ],
-   [
-    "Salt Works",
-    "Workyard"
-   ]
-  ]
- },
- {
   "title": "Manor House",
   "anchor": "Manor House",
   "mode": "chain",
@@ -1556,6 +1652,10 @@
    "Bakery": [
     1,
     4
+   ],
+   "Forestry": [
+    1,
+    5
    ],
    "Herb Garden": [
     1,
@@ -1633,6 +1733,10 @@
    ],
    [
     "Bakery",
+    "Mill"
+   ],
+   [
+    "Forestry",
     "Mill"
    ],
    [

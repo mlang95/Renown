@@ -1,0 +1,148 @@
+pool: lab_out/_pool_cache/hf_5_16_pc50_96e2f7b51421.csv (2042 builds)
+
+######## weapon: 21 items | subjects 200 (of 1973 carrying one) | panel 300
+  baseline done (160s)
+  2HBastard          n=115  later +0.989  (89s)
+  2HSpears           n=115  later -0.335  (90s)
+  Arming Sword       n=110  later +0.078  (89s)
+  Bastard Sword      n=110  later +0.255  (92s)
+  Battle Axe         n=115  later -0.112  (90s)
+  Bill Hook          n=115  later +0.087  (90s)
+  Cavalry Spear      n=44   later +0.509  (33s)
+  Cudgel             n=115  later -1.286  (90s)
+  Daggers            n=115  later -0.459  (91s)
+  Estoc              n=110  later +0.587  (88s)
+  Farm Tools         n=200  later -0.796  (153s)
+  Flail              n=110  later -0.962  (87s)
+  Halberd            n=115  later +0.717  (89s)
+  Lance              n=44   later +0.793  (32s)
+  Morningstar        n=110  later +0.474  (89s)
+  Pike               n=115  later +0.204  (93s)
+  Pitchfork          n=115  later -0.701  (90s)
+  Poleaxe            n=115  later +0.917  (92s)
+  Short Sword        n=110  later -0.109  (89s)
+  Spears             n=110  later -0.649  (90s)
+  War Hammer         n=115  later +0.712  (89s)
+
+== weapon: item value on the same builds (value_later sorted) ==
+   item_shown     tier   n  value_first  value_later
+    2HBastard   Forged 115        0.774        0.989
+      Poleaxe Tempered 115        0.671        0.917
+        Lance Tempered  44        0.688        0.793
+      Halberd  Wrought 115        0.526        0.717
+   War Hammer   Forged 115        0.548        0.712
+        Estoc Tempered 110        0.388        0.587
+Cavalry Spear  Wrought  44        0.414        0.509
+  Morningstar   Forged 110        0.385        0.474
+Bastard Sword   Forged 110        0.208        0.255
+         Pike  Wrought 115        0.156        0.204
+    Bill Hook     Cast 115        0.109        0.087
+ Arming Sword  Wrought 110        0.103        0.078
+  Short Sword     Cast 110       -0.013       -0.109
+   Battle Axe  Wrought 115        0.521       -0.112
+     2HSpears     Cast 115       -0.224       -0.335
+      Daggers     Cast 115       -0.323       -0.459
+        Spear     Cast 110       -0.367       -0.649
+    Pitchfork    Crude 115       -0.459       -0.701
+    Farm Tool    Crude 200       -0.459       -0.796
+        Flail  Wrought 110       -0.130       -0.962
+       Cudgel    Crude 115       -0.482       -1.286
+
+== weapon: by tier (value_later) ==
+          count   mean    std    min    max   step
+tier                                              
+Crude         3 -0.928  0.314 -1.286 -0.701    NaN
+Cast          5 -0.293  0.289 -0.649  0.087  0.635
+Wrought       6  0.072  0.588 -0.962  0.717  0.365
+Forged        4  0.607  0.315  0.255  0.989  0.535
+Tempered      3  0.765  0.167  0.587  0.917  0.158
+
+  tier steps <= 0: 0 of 4 | mean |step| 0.423 vs mean within-tier spread 0.335
+  -> ladder in order and tiers fairly tight.
+  -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\ladder_weapon
+
+######## ranged: 6 items | subjects 200 (of 1203 carrying one) | panel 300
+  baseline done (162s)
+  Arquebus           n=200  later +0.634  (168s)
+  Crossbow           n=186  later -0.491  (144s)
+  Hunting Bow        n=200  later -0.102  (168s)
+  Javelin            n=186  later -0.491  (163s)
+  Longbow            n=200  later +0.274  (190s)
+  Pilum              n=186  later -0.491  (160s)
+
+== ranged: item value on the same builds (value_later sorted) ==
+    item_shown     tier   n  value_first  value_later
+      Arquebus    Crude 200        0.306        0.634
+       Longbow     Cast 200       -0.078        0.274
+   Hunting Bow    Crude 200       -0.430       -0.102
+      Crossbow   Forged 186        0.407       -0.491
+  Throwing Axe  Wrought 186        0.553       -0.491
+Throwing Spear Tempered 186        0.818       -0.491
+
+== ranged: by tier (value_later) ==
+          count   mean    std    min    max   step
+tier                                              
+Crude         2  0.266  0.521 -0.102  0.634    NaN
+Cast          1  0.274    NaN  0.274  0.274  0.008
+Wrought       1 -0.491    NaN -0.491 -0.491 -0.765
+Forged        1 -0.491    NaN -0.491 -0.491  0.000
+Tempered      1 -0.491    NaN -0.491 -0.491  0.000
+
+  tier steps <= 0: 3 of 4 | mean |step| 0.193 vs mean within-tier spread 0.521
+  -> items spread wider than the tier steps: individual items matter more than the ladder.
+  -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\ladder_ranged
+
+######## armor: 6 items | subjects 200 (of 2042 carrying one) | panel 300
+  baseline done (169s)
+  Chainmail          n=195  later +1.081  (170s)
+  Cloth              n=195  later -0.412  (170s)
+  Full Plate         n=195  later +1.995  (165s)
+  Gambeson           n=195  later +0.225  (166s)
+  Gothic Plate       n=195  later +2.812  (158s)
+  Leather            n=195  later +0.639  (141s)
+
+== armor: item value on the same builds (value_later sorted) ==
+  item_shown     tier   n  value_first  value_later
+Gothic Plate Tempered 195        2.846        2.812
+  Full Plate   Forged 195        1.998        1.995
+   Chainmail  Wrought 195        1.063        1.081
+     Leather     Cast 195        0.671        0.639
+    Gambeson    Crude 195        0.205        0.225
+       Cloth     none 195       -0.384       -0.412
+
+== armor: by tier (value_later) ==
+          count   mean  std    min    max   step
+tier                                            
+none          1 -0.412  NaN -0.412 -0.412    NaN
+Crude         1  0.225  NaN  0.225  0.225  0.637
+Cast          1  0.639  NaN  0.639  0.639  0.414
+Wrought       1  1.081  NaN  1.081  1.081  0.443
+Forged        1  1.995  NaN  1.995  1.995  0.914
+Tempered      1  2.812  NaN  2.812  2.812  0.817
+  -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\ladder_armor
+
+######## shield: 5 items | subjects 200 (of 1148 carrying one) | panel 300
+  baseline done (144s)
+  Buckler Shield     n=200  later -0.120  (143s)
+  Heater Shield      n=148  later +0.496  (108s)
+  Kite Shield        n=148  later +0.132  (106s)
+  Targe Shield       n=148  later -0.042  (106s)
+  Tower Shield       n=141  later -0.183  (101s)
+
+== shield: item value on the same builds (value_later sorted) ==
+    item_shown     tier   n  value_first  value_later
+ Heater Shield Tempered 148        0.424        0.496
+   Kite Shield  Wrought 148        0.103        0.132
+  Targe Shield     Cast 148       -0.031       -0.042
+Buckler Shield    Crude 200       -0.066       -0.120
+  Tower Shield   Forged 141        0.064       -0.183
+
+== shield: by tier (value_later) ==
+          count   mean  std    min    max   step
+tier                                            
+Crude         1 -0.120  NaN -0.120 -0.120    NaN
+Cast          1 -0.042  NaN -0.042 -0.042  0.078
+Wrought       1  0.132  NaN  0.132  0.132  0.174
+Forged        1 -0.183  NaN -0.183 -0.183 -0.314
+Tempered      1  0.496  NaN  0.496  0.496  0.678
+  -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\ladder_shield

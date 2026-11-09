@@ -45,7 +45,7 @@ CONTEXT = {
     "MaxInit3":        ("both sides Init +1 & Nimble (holder can reach 3)", {}, {"tags": ["Init +1", "Nimble"]},
                         ["Init +1", "Nimble"]),
     "Seize: first":    ("plain", {}, {}, []),
-    "Planishing":      ("vs War Hammer, holder Gothic Plate", {"armor": "Gothic Plate"},
+    "Riveted":         ("vs War Hammer, holder Chainmail", {"armor": "Chainmail"},
                         {"weapon": "War Hammer", "shield": None}, []),
     "Poison":          ("vs Gothic Plate", {}, {"armor": "Gothic Plate"}, []),
     "Serrated":        ("vs Recover 6", {}, {"tags": ["Recover 6"]}, []),

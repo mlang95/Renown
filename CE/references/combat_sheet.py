@@ -309,11 +309,11 @@ def back(c):
              "One Shot":"1Shot","Poison":"Poison","Negate Shielded":"¬Shielded","Negate Riposte":"¬Riposte",
              "Negate Planishing":"¬Planishing","Dual Wield":"Dual", "Immune Destroy Shield" : "!DShield"}
         return ", ".join(m.get(t, t) for t in tags) or "\u2014"
-    wrows = [[rd.display(n), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(w["tier"])), w["ap"], f"{w['init']:+d}", kw_short(w["tags"])] for n, w in rd.WEAPONS.items()]
+    wrows = [[rd.display(n), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(w["tier"])), w["ap"], f"{w['init']:+d}", kw_short(getattr(rd, "display_tags", lambda t, ranged=False: list(t or []))(w["tags"]))] for n, w in rd.WEAPONS.items()]
     yl = chart(c, lx, y_start, col_w, "Melee Weapons", ["Weapon","Tier","AP","Init","Keywords"], wrows,
                colw=[col_w*0.24, col_w*0.13, col_w*0.08, col_w*0.09, col_w*0.46], fs=7.2, rowh=11,
                align=["l","l","num","num","l"])
-    rrows = [[rd.display(n), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(w["tier"])), w["ap"], f"{w['init']:+d}", kw_short(w["tags"])] for n, w in rd.RANGED.items()]
+    rrows = [[rd.display(n), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(w["tier"])), w["ap"], f"{w['init']:+d}", kw_short(getattr(rd, "display_tags", lambda t, ranged=False: list(t or []))(w["tags"], ranged=True))] for n, w in rd.RANGED.items()]
     yl = chart(c, lx, yl-6, col_w, "Ranged Weapons", ["Weapon","Tier","AP","Init","Keywords"], rrows,
                colw=[col_w*0.24, col_w*0.13, col_w*0.08, col_w*0.09, col_w*0.46], fs=7.2, rowh=11,
                align=["l","l","num","num","l"])

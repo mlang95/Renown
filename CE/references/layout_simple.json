@@ -10,37 +10,37 @@
    ],
    "Forestry": [
     0,
+    2
+   ],
+   "Salt Works": [
+    0,
     3
    ],
    "Blacksmith": [
     1,
     0
    ],
-   "Carpentry": [
-    1,
-    3
-   ],
-   "Salt Works": [
-    1,
-    4
-   ],
-   "Forge": [
-    2,
-    0
-   ],
    "Animal Husbandry": [
-    2,
+    1,
     1
    ],
    "Joinery": [
-    2,
+    1,
     2
    ],
    "Finery": [
-    3,
+    2,
     0
    ],
    "Tannery": [
+    2,
+    1
+   ],
+   "Forge": [
+    3,
+    0
+   ],
+   "Armory": [
     3,
     1
    ],
@@ -48,7 +48,7 @@
     4,
     0
    ],
-   "Armory": [
+   "Gilded Foundry": [
     4,
     1
    ],
@@ -60,12 +60,8 @@
     5,
     0
    ],
-   "Gilded Foundry": [
-    5,
-    1
-   ],
    "Court Armoury": [
-    6,
+    5,
     1
    ]
   },
@@ -83,19 +79,15 @@
     "Blacksmith"
    ],
    [
-    "Forestry",
-    "Carpentry"
-   ],
-   [
     "Gilded Foundry",
     "Court Armoury"
    ],
    [
-    "Forge",
+    "Blacksmith",
     "Finery"
    ],
    [
-    "Blacksmith",
+    "Finery",
     "Forge"
    ],
    [
@@ -103,11 +95,11 @@
     "Gilded Foundry"
    ],
    [
-    "Finery",
+    "Forge",
     "Jewelry Foundry"
    ],
    [
-    "Carpentry",
+    "Forestry",
     "Joinery"
    ],
    [
@@ -119,7 +111,7 @@
     "Joinery"
    ],
    [
-    "Finery",
+    "Forge",
     "Master Workshop"
    ],
    [
@@ -146,27 +138,27 @@
     0
    ],
    "Merchant Quarter": [
-    1,
-    1
-   ],
-   "Artisan Workshop": [
     2,
     0
    ],
    "Money Lending": [
-    2,
-    1
-   ],
-   "Court Artists": [
     3,
     0
    ],
-   "Esteemed Bank": [
+   "Artisan Workshop": [
     3,
     1
    ],
-   "Aristocratic Court": [
+   "Esteemed Bank": [
     4,
+    0
+   ],
+   "Court Artists": [
+    4,
+    1
+   ],
+   "Aristocratic Court": [
+    5,
     0
    ]
   },
@@ -196,7 +188,7 @@
     "Market Square"
    ],
    [
-    "Courtyard",
+    "Market Square",
     "Merchant Quarter"
    ],
    [
@@ -214,32 +206,28 @@
     0,
     0
    ],
-   "Carpentry": [
-    1,
-    0
-   ],
    "Furnace": [
-    1,
+    0,
     1
    ],
    "Siege Camp": [
-    2,
+    1,
     0
    ],
    "Siege Works": [
-    3,
+    2,
     0
    ],
    "Battery Park": [
-    4,
+    3,
     0
    ],
    "Abatis Field": [
-    5,
+    4,
     0
    ],
    "Artillery Park": [
-    6,
+    5,
     0
    ]
   },
@@ -258,10 +246,6 @@
    ],
    [
     "Forestry",
-    "Carpentry"
-   ],
-   [
-    "Carpentry",
     "Siege Camp"
    ],
    [
@@ -328,6 +312,75 @@
   ]
  },
  {
+  "title": "College of Arms",
+  "anchor": "College of Arms",
+  "mode": "chain",
+  "nodes": {
+   "Forestry": [
+    0,
+    0
+   ],
+   "Furnace": [
+    0,
+    1
+   ],
+   "Salt Works": [
+    0,
+    2
+   ],
+   "Joinery": [
+    1,
+    0
+   ],
+   "Shieldwright": [
+    2,
+    0
+   ],
+   "Buckler School": [
+    3,
+    0
+   ],
+   "Pavisiers' Yard": [
+    4,
+    0
+   ],
+   "College of Arms": [
+    5,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Shieldwright",
+    "Buckler School"
+   ],
+   [
+    "Pavisiers' Yard",
+    "College of Arms"
+   ],
+   [
+    "Forestry",
+    "Joinery"
+   ],
+   [
+    "Salt Works",
+    "Joinery"
+   ],
+   [
+    "Furnace",
+    "Joinery"
+   ],
+   [
+    "Buckler School",
+    "Pavisiers' Yard"
+   ],
+   [
+    "Joinery",
+    "Shieldwright"
+   ]
+  ]
+ },
+ {
   "title": "Court Armoury",
   "anchor": "Court Armoury",
   "mode": "chain",
@@ -336,40 +389,36 @@
     0,
     0
    ],
-   "Carpentry": [
-    1,
-    0
-   ],
    "Furnace": [
-    1,
+    0,
     1
    ],
    "Salt Works": [
-    1,
+    0,
     2
    ],
    "Joinery": [
-    2,
+    1,
     0
    ],
    "Animal Husbandry": [
-    2,
+    1,
     3
    ],
    "Tannery": [
-    3,
+    2,
     0
    ],
    "Armory": [
-    4,
+    3,
     0
    ],
    "Gilded Foundry": [
-    5,
+    4,
     0
    ],
    "Court Armoury": [
-    6,
+    5,
     0
    ]
   },
@@ -377,10 +426,6 @@
    [
     "Tannery",
     "Armory"
-   ],
-   [
-    "Forestry",
-    "Carpentry"
    ],
    [
     "Gilded Foundry",
@@ -391,7 +436,7 @@
     "Gilded Foundry"
    ],
    [
-    "Carpentry",
+    "Forestry",
     "Joinery"
    ],
    [
@@ -531,88 +576,88 @@
     1,
     0
    ],
+   "Finery": [
+    2,
+    0
+   ],
    "Arable Land": [
-    1,
+    2,
     1
    ],
-   "Forestry": [
-    1,
+   "Quarry": [
+    2,
     2
    ],
-   "Quarry": [
-    1,
-    3
-   ],
    "Arboretum": [
-    1,
+    2,
     4
    ],
    "Apiary": [
-    1,
+    2,
     5
    ],
    "Plant Nursery": [
-    1,
+    2,
     6
    ],
    "Vine Nursery": [
-    1,
+    2,
     7
    ],
    "Forge": [
-    2,
+    3,
     0
    ],
    "Bakery": [
-    2,
+    3,
     1
    ],
-   "Carpentry": [
-    2,
+   "Masonry": [
+    3,
     2
    ],
-   "Masonry": [
-    2,
+   "Forestry": [
+    3,
     3
    ],
    "Orchard": [
-    2,
+    3,
     4
    ],
    "Brewhouse": [
-    2,
+    3,
     5
    ],
    "Herb Garden": [
-    2,
+    3,
     6
    ],
    "Vineyard": [
-    2,
+    3,
     7
    ],
    "Mill": [
-    3,
+    4,
     0
    ],
    "Cidery": [
-    3,
+    4,
     4
    ],
    "Meadery": [
-    3,
+    4,
     5
    ],
    "Spice Merchant": [
-    3,
+    4,
     6
    ],
    "Winery": [
-    3,
+    4,
     7
    ],
    "Manor House": [
-    4,
+    5,
     0
    ]
   },
@@ -630,15 +675,15 @@
     "Brewhouse"
    ],
    [
-    "Forestry",
-    "Carpentry"
-   ],
-   [
     "Orchard",
     "Cidery"
    ],
    [
     "Blacksmith",
+    "Finery"
+   ],
+   [
+    "Finery",
     "Forge"
    ],
    [
@@ -682,7 +727,7 @@
     "Mill"
    ],
    [
-    "Carpentry",
+    "Forestry",
     "Mill"
    ],
    [
@@ -842,11 +887,11 @@
     1,
     0
    ],
-   "Forge": [
+   "Finery": [
     2,
     0
    ],
-   "Finery": [
+   "Forge": [
     3,
     0
    ],
@@ -865,15 +910,15 @@
     "Blacksmith"
    ],
    [
-    "Forge",
+    "Blacksmith",
     "Finery"
    ],
    [
-    "Blacksmith",
+    "Finery",
     "Forge"
    ],
    [
-    "Finery",
+    "Forge",
     "Jewelry Foundry"
    ],
    [
@@ -1127,6 +1172,59 @@
   ]
  },
  {
+  "title": "Shock Arsenal",
+  "anchor": "Ballistarium",
+  "mode": "chain",
+  "nodes": {
+   "Forestry": [
+    0,
+    0
+   ],
+   "Fletchery": [
+    1,
+    0
+   ],
+   "Training Grounds": [
+    2,
+    0
+   ],
+   "Archery Butts": [
+    3,
+    0
+   ],
+   "Skirmish Field": [
+    4,
+    0
+   ],
+   "Ballistarium": [
+    5,
+    0
+   ]
+  },
+  "edges": [
+   [
+    "Training Grounds",
+    "Archery Butts"
+   ],
+   [
+    "Skirmish Field",
+    "Ballistarium"
+   ],
+   [
+    "Forestry",
+    "Fletchery"
+   ],
+   [
+    "Archery Butts",
+    "Skirmish Field"
+   ],
+   [
+    "Fletchery",
+    "Training Grounds"
+   ]
+  ]
+ },
+ {
   "title": "Marshal Tiltyard",
   "anchor": "Marshal Tiltyard",
   "mode": "chain",
@@ -1375,56 +1473,32 @@
   "anchor": "Royal Pavilion",
   "mode": "chain",
   "nodes": {
-   "Forestry": [
+   "Courtyard": [
     0,
     0
    ],
-   "Carpentry": [
+   "Conditioning Field": [
     1,
     0
    ],
-   "Fletchery": [
+   "Coliseum": [
     2,
     0
    ],
-   "Courtyard": [
-    2,
-    1
-   ],
-   "Skirmish Field": [
+   "Grand Tournament": [
     3,
     0
-   ],
-   "Conditioning Field": [
-    3,
-    1
    ],
    "List Yard": [
     4,
     0
    ],
-   "Coliseum": [
-    4,
-    1
-   ],
-   "Fighting School": [
-    5,
-    0
-   ],
-   "Grand Tournament": [
-    5,
-    1
-   ],
    "Royal Pavilion": [
-    6,
+    5,
     0
    ]
   },
   "edges": [
-   [
-    "Forestry",
-    "Carpentry"
-   ],
    [
     "Conditioning Field",
     "Coliseum"
@@ -1434,32 +1508,16 @@
     "Conditioning Field"
    ],
    [
-    "List Yard",
-    "Fighting School"
-   ],
-   [
-    "Carpentry",
-    "Fletchery"
-   ],
-   [
     "Coliseum",
     "Grand Tournament"
    ],
    [
-    "Skirmish Field",
+    "Grand Tournament",
     "List Yard"
    ],
    [
-    "Grand Tournament",
+    "List Yard",
     "Royal Pavilion"
-   ],
-   [
-    "Fighting School",
-    "Royal Pavilion"
-   ],
-   [
-    "Fletchery",
-    "Skirmish Field"
    ]
   ]
  },
@@ -1525,26 +1583,30 @@
     0,
     0
    ],
-   "Episcopal Court": [
+   "Market Square": [
     1,
     0
    ],
-   "Interrogation Chambers": [
+   "Episcopal Court": [
     2,
     0
    ],
-   "Execution Dock": [
+   "Interrogation Chambers": [
     3,
     0
    ],
-   "Inquisitorial Palace": [
+   "Execution Dock": [
     4,
+    0
+   ],
+   "Inquisitorial Palace": [
+    5,
     0
    ]
   },
   "edges": [
    [
-    "Courtyard",
+    "Market Square",
     "Episcopal Court"
    ],
    [
@@ -1558,6 +1620,10 @@
    [
     "Episcopal Court",
     "Interrogation Chambers"
+   ],
+   [
+    "Courtyard",
+    "Market Square"
    ]
   ]
  },
@@ -1655,20 +1721,24 @@
     0,
     0
    ],
-   "Jester's Court": [
+   "Market Square": [
     1,
     0
    ],
-   "Bell Tower": [
+   "Jester's Court": [
     2,
     0
    ],
-   "Embassy": [
+   "Bell Tower": [
     3,
     0
    ],
-   "Senate Hall": [
+   "Embassy": [
     4,
+    0
+   ],
+   "Senate Hall": [
+    5,
     0
    ]
   },
@@ -1682,8 +1752,12 @@
     "Embassy"
    ],
    [
-    "Courtyard",
+    "Market Square",
     "Jester's Court"
+   ],
+   [
+    "Courtyard",
+    "Market Square"
    ],
    [
     "Embassy",

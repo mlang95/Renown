@@ -1,0 +1,89 @@
+run: d10_nov9b_pinst  (2037 builds)
+
+== 1. frame value at equal spend ==
+         frame   n    wr  ctrl_prem  d_inv  top10_share  pool_share  ranged_share  shield_share                                                        weapons
+ Sword & Board 391 0.505     -0.014  1.299        0.157       0.192         0.593         1.000 Bastard Sword 118, Arming Sword 107, Short Sword 101, Estoc 65
+    Florentine  28 0.803      0.307 -0.214        0.069       0.014         0.000         0.000        Short Sword 10, Arming Sword 10, Morningstar 6, Estoc 2
+  Shock Troops 189 0.502     -0.020  1.545        0.098       0.093         0.582         0.291                                   Battle Axe 116, 2HBastard 73
+ Crowd Control 131 0.402     -0.048 -1.575        0.034       0.064         0.702         1.000                                       Flail 68, Morningstar 63
+      Polearms 256 0.523      0.027  0.264        0.108       0.126         0.539         0.270                         Bill Hook 123, Halberd 111, Poleaxe 22
+    War Hammer  71 0.491     -0.029  1.410        0.039       0.035         0.507         0.324                                                  War Hammer 71
+Spears & Pikes 292 0.454     -0.006 -1.778        0.137       0.143         0.764         0.668                               Spears 153, Pike 70, 2HSpears 69
+       Cavalry  42 0.599      0.105  0.071        0.039       0.021         0.000         1.000                                      Cavalry Spear 33, Lance 9
+         Chaff 567 0.476     -0.009 -0.250        0.284       0.278         0.559         0.430          Farm Tools 220, Pitchfork 156, Cudgel 112, Daggers 79
+   Ranged Only  70 0.528      0.060 -1.386        0.034       0.034         1.000         0.000                                                               
+
+== 2. frame ceiling: best build win rate per TI quartile ==
+                TI 8-20  TI 20-26  TI 26-32  TI 32-46
+frame                                                
+Sword & Board     0.763     0.718     0.928     0.974
+Florentine        0.791     0.866     0.891     0.946
+Shock Troops      0.570     0.663     0.857     0.982
+Crowd Control     0.471     0.618     0.873     0.897
+Polearms          0.554     0.721     0.871     0.958
+War Hammer        0.458     0.599     0.804     0.900
+Spears & Pikes    0.647     0.721     0.936     0.970
+Cavalry           0.454     0.856     0.866     0.942
+Chaff             0.722     0.826     0.983     0.957
+Ranged Only       0.489     0.741     0.846     0.909
+
+best build per frame:
+                                                                                                                                                                                                       name  win_rate  ti
+frame                                                                                                                                                                                                                    
+Sword & Board                                                                    KT/Bastard/Heater/Chain [(SInd, EProw, SPie, NCun), AP -1, Buckler 2H, Enduring, Rec 7, Serr, Shield Init +1, Shield Wall]     0.974  42
+Florentine                                      KT/Morningstar/Cloth (DW) [(EInd, EProw, SPie, NCun), AP -1, DW, Enduring, Florentine, Immune Strained, ImmU, Nimble, Parry +1, Rec 7, Riposte, Riposte +1]     0.946  37
+Shock Troops                                                                                                     Sgt/BattleAxe/FullPlate [MiMiSt, (EInd, SProw, EPie, RCun), Enduring, Poison, Rec 7, Temp]     0.982  41
+Crowd Control                                                KT/Flail+Longbow/Targe/Cloth (TY) [(RInd, EProw, SPie, NCun), Enduring, Immune Awkward, Ranged AP -1, Ranged Strike +1, Rec 7, Shield Init +1]     0.897  34
+Polearms                                                                     KT/Bill Hook+HuntBow/FullPlate (TY) [(EInd, EProw, SPie, RCun), Enduring, Poison, Ranged AP -1, Ranged Strike +1, Rec 7, Temp]     0.958  41
+War Hammer                                                                  KT/WarHammer/Buckler/Leather [(EInd, EProw, SPie, NCun), AP -1, Buckler 2H, Enduring, Rec 7, Serr, Shield Init +1, Shield Wall]     0.900  37
+Spears & Pikes                                                       KT/Pike+HuntBow/Gambeson (TY) [Ba, (RInd, SProw, SPie, RCun), Enduring, Immune Awkward, Poison, Ranged AP -1, Ranged Strike +1, Rec 7]     0.970  42
+Cavalry                                                                                 KT/Cavalry Spear/Heater/Chain [(SInd, EProw, SPie, NCun), Buckler 2H, Enduring, Rec 7, Shield Init +1, Shield Wall]     0.942  41
+Chaff           MaA/Longbow/Gambeson [Ba, RoPa, (NInd, SProw, EPie, NCun), Florentine, Immune Awkward, Immune Strained, ImmU, Nimble, Parry +1, Ranged AP -1, Ranged Strike +1, Rec 7, Riposte, Riposte +1]     0.983  32
+Ranged Only                                                                                                                    KT/Longbow/Chain [(EInd, EProw, SPie, RCun), AP -1, Enduring, Poison, Rec 7]     0.909  40
+
+== 3. frame vs frame: win rate of row against column ==
+op              Sword & Board  Florentine  Shock Troops  Crowd Control  Polearms  War Hammer  Spears & Pikes  Cavalry  Chaff  Ranged Only
+me                                                                                                                                       
+Sword & Board            0.48        0.12          0.48           0.58      0.46        0.50            0.52     0.39   0.52         0.48
+Florentine               0.84        0.45          0.75           0.86      0.83        0.78            0.78     0.73   0.80         0.72
+Shock Troops             0.48        0.21          0.48           0.57      0.47        0.51            0.53     0.39   0.49         0.44
+Crowd Control            0.38        0.12          0.39           0.48      0.36        0.42            0.42     0.31   0.40         0.36
+Polearms                 0.50        0.14          0.50           0.61      0.48        0.52            0.54     0.41   0.52         0.48
+War Hammer               0.47        0.18          0.45           0.54      0.45        0.48            0.53     0.44   0.48         0.42
+Spears & Pikes           0.43        0.18          0.43           0.54      0.42        0.43            0.47     0.33   0.46         0.41
+Cavalry                  0.57        0.23          0.57           0.66      0.55        0.52            0.62     0.47   0.62         0.58
+Chaff                    0.44        0.18          0.48           0.56      0.44        0.49            0.49     0.33   0.48         0.45
+Ranged Only              0.48        0.24          0.53           0.60      0.48        0.54            0.54     0.38   0.51         0.48
+
+== 4. rock-paper-scissors: matchup edge left after overall strength (win-rate points) ==
+op              Sword & Board  Florentine  Shock Troops  Crowd Control  Polearms  War Hammer  Spears & Pikes  Cavalry  Chaff  Ranged Only
+me                                                                                                                                       
+Sword & Board               0         -11             1              1         0           1               1        1      3            3
+Florentine                 11           0            -5              2         8          -2              -5        1     -2           -7
+Shock Troops               -1           5             0             -1        -1           2               0        0     -2           -2
+Crowd Control              -1          -2             1              0        -2           3               0        1     -1            0
+Polearms                    0          -8             1              2         0           1               1        1      1            2
+War Hammer                 -1           2            -2             -3        -1           0               2        6     -2           -2
+Spears & Pikes             -1           5             0              0        -1          -2               0       -2      1            0
+Cavalry                    -1          -1             0             -1        -1          -6               2        0      4            4
+Chaff                      -3           2             2              1        -1           2              -1       -4      0            2
+Ranged Only                -3           7             2              0        -2           2               0       -4     -2            0
+
+strongest counters (row beats column more than strength says):
+  Florentine      > Sword & Board   11.1 pts
+  Florentine      > Polearms         7.9 pts
+  Ranged Only     > Florentine       6.7 pts
+  War Hammer      > Cavalry          6.4 pts
+  Shock Troops    > Florentine       5.4 pts
+  Spears & Pikes  > Florentine       5.2 pts
+  Cavalry         > Chaff            3.9 pts
+  Cavalry         > Ranged Only      3.9 pts
+  Sword & Board   > Ranged Only      3.3 pts
+  Crowd Control   > War Hammer       2.9 pts
+
+counter loops (each beats the next by > 2 pts beyond strength): 
+  Sword & Board > Ranged Only > Florentine > Sword & Board   (weakest link 3.3 pts)
+  Cavalry > Ranged Only > War Hammer > Cavalry   (weakest link 2.2 pts)
+  Sword & Board > Chaff > Florentine > Sword & Board   (weakest link 2.1 pts)
+
+-> lab_out/d10_nov9b_pinst\frame_*.csv

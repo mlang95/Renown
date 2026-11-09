@@ -1,0 +1,45 @@
+pool: lab_out/_pool_cache/hf_5_16_pc50_96e2f7b51421.csv (2042 builds)
+
+######## weapon: 14 items | subjects 200 (of 1973 carrying one) | panel 300
+  baseline done (215s)
+  2HBastard          n=115  later +0.928  wr +0.101  (136s)
+  Arming Sword       n=110  later +0.045  wr +0.008  (116s)
+  Bastard Sword      n=110  later +0.223  wr +0.029  (130s)
+  Battle Axe         n=115  later -0.097  wr +0.011  (131s)
+  Cavalry Spear      n=44   later +0.137  wr +0.044  (43s)
+  Flail              n=110  later +0.064  wr +0.001  (104s)
+  Halberd            n=115  later +0.607  wr +0.088  (107s)
+  Morningstar        n=110  later +0.442  wr +0.040  (104s)
+  Pike               n=115  later +0.218  wr +0.055  (107s)
+  War Hammer         n=115  later +0.727  wr +0.078  (102s)
+  Cavalry Spear [ap2] n=44   later +0.416  wr +0.085  (43s)
+  Cavalry Spear [ap0] n=44   later -0.261  wr -0.012  (41s)
+  Halberd [ap1]      n=115  later +0.410  wr +0.065  (108s)
+  Halberd [ap3_nohook] n=115  later +0.667  wr +0.097  (103s)
+
+== weapon: item value on the same builds (d_wr sorted) ==
+          item_shown    tier   n  value_first  value_later   d_wr
+           2HBastard  Forged 115        0.725        0.928  0.101
+Halberd [ap3_nohook] Wrought 115        0.490        0.667  0.097
+             Halberd Wrought 115        0.441        0.607  0.088
+ Cavalry Spear [ap2] Wrought  44        0.372        0.416  0.085
+          War Hammer  Forged 115        0.556        0.727  0.078
+       Halberd [ap1] Wrought 115        0.295        0.410  0.065
+                Pike Wrought 115        0.164        0.218  0.055
+       Cavalry Spear Wrought  44        0.100        0.137  0.044
+         Morningstar  Forged 110        0.368        0.442  0.040
+       Bastard Sword  Forged 110        0.191        0.223  0.029
+          Battle Axe Wrought 115        0.529       -0.097  0.011
+        Arming Sword Wrought 110        0.086        0.045  0.008
+               Flail Wrought 110        0.088        0.064  0.001
+ Cavalry Spear [ap0] Wrought  44       -0.291       -0.261 -0.012
+
+== weapon: by tier (d_wr) ==
+         count   mean    std    min    max   step
+tier                                             
+Wrought     10  0.044  0.040 -0.012  0.097    NaN
+Forged       4  0.062  0.034  0.029  0.101  0.018
+
+  tier steps <= 0: 0 of 1 | mean |step| 0.018 vs mean within-tier spread 0.037
+  -> items spread wider than the tier steps: individual items matter more than the ladder.
+  -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\ladder_weapon_cavspear_sim

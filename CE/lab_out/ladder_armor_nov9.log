@@ -1,0 +1,30 @@
+pool: lab_out/ladder_pool_nov9.csv (2042 builds)
+
+######## armor: 6 items | subjects 200 (of 2042 carrying one) | panel 300
+  baseline done (473s)
+  Chainmail          n=199  later +1.119  wr +0.152  (448s)
+  Cloth              n=199  later -0.449  wr -0.059  (475s)
+  Full Plate         n=199  later +1.630  wr +0.224  (480s)
+  Gambeson           n=199  later +0.224  wr +0.025  (323s)
+  Gothic Plate       n=199  later +2.515  wr +0.349  (243s)
+  Leather            n=199  later +0.659  wr +0.088  (380s)
+
+== armor: item value on the same builds (d_wr sorted) ==
+  item_shown     tier   n  value_first  value_later   d_wr  d_lost_strike  d_lost_panic  d_lost_break  d_lost_rout  d_skirm
+Gothic Plate Tempered 199        2.497        2.515  0.349         -6.448        -1.734         2.389        0.015    0.503
+  Full Plate   Forged 199        1.862        1.630  0.224         -4.080        -1.414         2.326        0.013    0.617
+   Chainmail  Wrought 199        1.081        1.119  0.152         -2.318        -0.809         1.052        0.000    0.269
+     Leather     Cast 199        0.669        0.659  0.088         -1.272        -0.458         0.562       -0.001    0.153
+    Gambeson    Crude 199        0.190        0.224  0.025         -0.305        -0.120         0.117       -0.001    0.041
+       Cloth     none 199       -0.441       -0.449 -0.059          0.897         0.340        -0.516       -0.002   -0.145
+
+== armor: by tier (d_wr) ==
+          count   mean  std    min    max   step
+tier                                            
+none          1 -0.059  NaN -0.059 -0.059    NaN
+Crude         1  0.025  NaN  0.025  0.025  0.084
+Cast          1  0.088  NaN  0.088  0.088  0.063
+Wrought       1  0.152  NaN  0.152  0.152  0.064
+Forged        1  0.224  NaN  0.224  0.224  0.071
+Tempered      1  0.349  NaN  0.349  0.349  0.125
+  -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\ladder_armor_nov9

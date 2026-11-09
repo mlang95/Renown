@@ -177,7 +177,7 @@ def _saves_kernel3(rolls, parry_rolls, regen_rolls,
                   n_strikes, deadly_strikes, save_clip, deadly_save_clip, auto_pass_save,
                   atk_has_poison, parry_mask, parry_thr, regen_thr,
                   riposte_mask, riposte_on5, parry_reroll, parry_rolls2,
-                  parry_before_save=False, halfsword_mode=False):
+                  parry_before_save=False, halfsword_mode=False, deadly_no_recover=False):
     """Per-run save resolution. All roll arrays (n,max_strikes) int8.
     save_clip / deadly_save_clip: per-run save targets (2..7; 7 = impossible).
       Deadly strikes resolve at deadly_save_clip (normal target worsened by Deadly's AP -5;
@@ -185,7 +185,8 @@ def _saves_kernel3(rolls, parry_rolls, regen_rolls,
     parry_thr: per-run Parry threshold (base PARRY_BASE/-1 + 2*Unstoppable + ranged/Deflect, capped CAP_THR; Fatigue no longer applies).
       Deadly strikes can only be Parried on a Focused roll (>= FOCUSED_THR).
     regen_thr: per-run Recover threshold (0 = none; base + Serrated, capped CAP_THR; Fatigue no longer applies).
-      Deadly strikes can only be Recovered on a Focused roll (>= FOCUSED_THR).
+      Deadly strikes can only be Recovered on a Focused roll (>= FOCUSED_THR), or never when
+      deadly_no_recover (DEADLY_MODE 'set').
     riposte_on5: Dual Wield — a Parry roll of FOCUSED_THR-1 that parries also Ripostes (per run).
     parry_reroll / parry_rolls2: Dual Wield — a failed Parry roll is rerolled once, from parry_rolls2
       (n,max_strikes); the reroll can Riposte.
@@ -223,7 +224,8 @@ def _saves_kernel3(rolls, parry_rolls, regen_rolls,
             if is_half:
                 pthr_eff = CAP_THR if (pthr + 1) > CAP_THR else (pthr + 1)
             elif is_deadly:
-                pthr_eff = FOCUSED_THR
+                # Nov 9 2026: at best a Focused roll; a normal target already past it (11+ = can't Parry) still applies
+                pthr_eff = FOCUSED_THR if pthr < FOCUSED_THR else pthr
             else:
                 pthr_eff = pthr
             # ── PARRY-FIRST ordering (experiment toggle) ──
@@ -268,7 +270,7 @@ def _saves_kernel3(rolls, parry_rolls, regen_rolls,
                         rec += 1
                         continue
                 elif is_deadly:
-                    if rr >= FOCUSED_THR:
+                    if (not deadly_no_recover) and rr >= FOCUSED_THR:
                         rec += 1
                         continue
                 elif poison_kill:

@@ -1,0 +1,39 @@
+pool: lab_out/ladder_pool_nov8.csv (2042 builds)
+
+######## weapon: 10 items | subjects 200 (of 1973 carrying one) | panel 300
+  baseline done (268s)
+  Arming Sword       n=110  later +0.031  wr +0.006  (167s)
+  Bastard Sword      n=110  later +0.214  wr +0.028  (172s)
+  Estoc              n=110  later +0.544  wr +0.066  (164s)
+  Short Sword        n=110  later -0.155  wr -0.015  (172s)
+  Arming Sword [parry1] n=110  later +0.195  wr +0.018  (164s)
+  Arming Sword [gain_parry] n=110  later +0.275  wr +0.030  (143s)
+  Short Sword [parry1] n=110  later +0.008  wr -0.004  (141s)
+  Short Sword [gain_parry] n=110  later +0.088  wr +0.007  (143s)
+  Bastard Sword [parry1] n=110  later +0.378  wr +0.039  (149s)
+  Bastard Sword [gain_parry] n=110  later +0.459  wr +0.054  (140s)
+
+== weapon: item value on the same builds (d_wr sorted) ==
+                item_shown     tier   n  value_first  value_later   d_wr  d_lost_strike  d_lost_panic  d_lost_break  d_lost_rout  d_skirm
+                     Estoc Tempered 110        0.360        0.544  0.066         -0.587        -0.090        -0.161       -0.002   -0.121
+Bastard Sword [gain_parry]   Forged 110        0.334        0.459  0.054         -0.602        -0.213         0.206       -0.001    0.035
+    Bastard Sword [parry1]   Forged 110        0.306        0.378  0.039         -0.449        -0.107         0.029       -0.002   -0.026
+ Arming Sword [gain_parry]  Wrought 110        0.223        0.275  0.030         -0.405        -0.194         0.264        0.000    0.079
+             Bastard Sword   Forged 110        0.181        0.214  0.028         -0.254        -0.049        -0.051       -0.002   -0.044
+     Arming Sword [parry1]  Wrought 110        0.195        0.195  0.018         -0.263        -0.088         0.088       -0.000    0.017
+  Short Sword [gain_parry]     Cast 110        0.106        0.088  0.007         -0.200        -0.178         0.367        0.001    0.140
+              Arming Sword  Wrought 110        0.071        0.031  0.006         -0.074        -0.032         0.001       -0.001   -0.003
+      Short Sword [parry1]     Cast 110        0.079        0.008 -0.004         -0.071        -0.071         0.189        0.000    0.074
+               Short Sword     Cast 110       -0.045       -0.155 -0.015          0.120        -0.012         0.087        0.000    0.050
+
+== weapon: by tier (d_wr) ==
+          count   mean    std    min    max   step
+tier                                              
+Cast          3 -0.004  0.011 -0.015  0.007    NaN
+Wrought       3  0.018  0.012  0.006  0.030  0.022
+Forged        3  0.040  0.013  0.028  0.054  0.022
+Tempered      1  0.066    NaN  0.066  0.066  0.025
+
+  tier steps <= 0: 0 of 3 | mean |step| 0.023 vs mean within-tier spread 0.012
+  -> ladder in order and tiers fairly tight.
+  -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\ladder_weapon_parry_sim

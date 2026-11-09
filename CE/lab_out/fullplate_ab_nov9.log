@@ -1,0 +1,26 @@
+pool: lab_out/d10_nov9b_pinst/loadouts_hf_5_16_pc50_balk.csv (2042 builds)
+
+######## armor: 4 items | subjects 200 (of 2042 carrying one) | panel 300
+  baseline done (252s)
+  Chainmail          n=197  later +1.185  wr +0.162  (245s)
+  Full Plate         n=197  later +1.737  wr +0.240  (250s)
+  Gothic Plate       n=197  later +2.565  wr +0.357  (248s)
+  Full Plate [no_init_pen] n=197  later +2.105  wr +0.298  (245s)
+
+== armor: item value on the same builds (d_wr sorted) ==
+              item_shown     tier   n  value_first  value_later  d_wr  d_lost_strike  d_lost_panic  d_lost_break  d_lost_rout  d_skirm
+            Gothic Plate Tempered 197        2.548        2.565 0.357         -6.699        -1.883         2.491        0.015    0.518
+Full Plate [no_init_pen]   Forged 197        2.087        2.105 0.298         -5.202        -1.635         2.117        0.007    0.470
+              Full Plate   Forged 197        1.948        1.737 0.240         -4.348        -1.569         2.431        0.013    0.631
+               Chainmail  Wrought 197        1.156        1.185 0.162         -2.523        -0.928         1.172        0.002    0.302
+
+== armor: by tier (d_wr) ==
+          count   mean    std    min    max   step
+tier                                              
+Wrought       1  0.162    NaN  0.162  0.162    NaN
+Forged        2  0.269  0.041  0.240  0.298  0.107
+Tempered      1  0.357    NaN  0.357  0.357  0.087
+
+  tier steps <= 0: 0 of 2 | mean |step| 0.097 vs mean within-tier spread 0.041
+  -> ladder in order and tiers fairly tight.
+  -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\ladder_armor_fp_ab

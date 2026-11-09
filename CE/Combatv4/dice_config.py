@@ -13,8 +13,8 @@ results from a different die than the one you asked for.
 """
 import os
 import re as _re
-_BONUS_STATS = ("Parry", "Save", "Strike", "Shake", "Init", "AP")
-_BONUS_RE = _re.compile(r'^(Parry|Save|Strike|Shake|Init|AP)\s*([+-]\d+)$')
+_BONUS_STATS = ("Parry", "Save", "Strike", "Shake", "Init", "AP", "FoeParry")   # FoeParry +N: foes Parry this army N worse
+_BONUS_RE = _re.compile(r'^(Parry|Save|Strike|Shake|Init|AP|FoeParry)\s*([+-]\d+)$')
 _LEGACY = {"+1I": ("Init", 1), "+1TH": ("Strike", 1), "Improved Parry": ("Parry", 1)}
 # NB: "Shake +1" is NOT in _LEGACY — it already matches the regex natively.
 
@@ -106,13 +106,43 @@ def describe():
 # ── Additional printed thresholds (data-side defaults, engine-visible) ───────
 PARRY_BASE    = _knob("PARRY_BASE", 8)    # base Parry target
 RECOVER_BASE  = _knob("RECOVER_BASE", 8) # worst rung of the Recover ladder
-DEADLY_AP     = _knob("DEADLY_AP", 5)     # additional AP on a Focused Deadly strike
+DEADLY_AP     = _knob("DEADLY_AP", 10)    # Deadly AP: "set" mode (default since Nov 7 2026) = a Deadly Strike HAS AP -N; "additional" = +N on top of the weapon
 def _env_str(name, default):
     raw = os.environ.get(name)
     return default if raw is None or str(raw).strip() == "" else str(raw).strip()
 # Tournament only: 1 = no army picks the Fall Back Tactic (a weapon limited to Fighting Formation / Fall Back,
 # e.g. the Arquebus, then always plays Fighting Formation). 0 = Fall Back allowed from the second Skirmish.
 NO_FALL_BACK = str(os.environ.get("RENOWN_NO_FALL_BACK", "1")).strip() not in ("0", "", "false", "False")
-DEADLY_MODE = _env_str("RENOWN_DEADLY_MODE", _RUN.get("deadly_mode", "additional"))  # "additional" = save_t + DEADLY_AP ; "set" = override (see OPEN #1)
+# Initiative rules (defaults from the data: INIT_CAP_BEFORE_PENALTIES / INIT_FLOOR; env overrides for tests).
+#   INIT_CAP_FIRST 1 = bonuses are capped at the maximum BEFORE penalties apply; 0 = sum everything, then cap.
+#   INIT_FLOOR     1 = Initiative can't go below -2;                   0 = no lower limit (Blunder is still <= -2).
+# Resolved on first use, not at import: the data file imports this module before it defines the two flags.
+INIT_CAP_FIRST = None
+INIT_FLOOR = None
+def _env_bool(name, default):
+    raw = os.environ.get(name)
+    return default if raw is None or str(raw).strip() == "" else str(raw).strip() not in ("0", "false", "False")
+def init_rules():
+    """(cap_first, floor) — env RENOWN_INIT_CAP_FIRST / RENOWN_INIT_FLOOR, else the data's
+    INIT_CAP_BEFORE_PENALTIES / INIT_FLOOR. Setting the module globals directly also works (tests)."""
+    global INIT_CAP_FIRST, INIT_FLOOR
+    if INIT_CAP_FIRST is None or INIT_FLOOR is None:
+        try:
+            import renown_data as _rd_init
+            icf, ifl = bool(getattr(_rd_init, "INIT_CAP_BEFORE_PENALTIES")), bool(getattr(_rd_init, "INIT_FLOOR"))
+        except Exception:
+            icf, ifl = False, True
+        if INIT_CAP_FIRST is None:
+            INIT_CAP_FIRST = _env_bool("RENOWN_INIT_CAP_FIRST", icf)
+        if INIT_FLOOR is None:
+            INIT_FLOOR = _env_bool("RENOWN_INIT_FLOOR", ifl)
+    return INIT_CAP_FIRST, INIT_FLOOR
+def clamp_init(total, neg, cap, np):
+    """Final Initiative. total = every modifier summed; neg = the sum of its negative parts (<= 0)."""
+    init_rules()
+    if INIT_CAP_FIRST:
+        total = np.minimum(total - neg, cap) + neg
+    return np.clip(total, -2 if INIT_FLOOR else -99, cap)
+DEADLY_MODE = _env_str("RENOWN_DEADLY_MODE", _RUN.get("deadly_mode", "set"))  # "set" (Version D): Deadly Strike = AP -DEADLY_AP, Parry only Focused, no Recover; "additional" = old rule
 UNSTOPPABLE_MOD    = _knob("UNSTOPPABLE_MOD", 2)         # +N to the defender's Parry target when the attacker is Unstoppable
 IMPROVED_PARRY_MOD = _knob("IMPROVED_PARRY_MOD", 1)      # -N to the defender's own Parry target with Improved Parry

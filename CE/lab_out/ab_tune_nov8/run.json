@@ -1,0 +1,12 @@
+{
+  "pool_csv": "C:\\Users\\Matt\\OneDrive\\Desktop\\Game\\CE\\lab_out\\ab_tune_nov8\\loadouts_hf_19_20_pc200_balk.csv",
+  "pool_kind": "holding_first",
+  "per_cell": 200,
+  "balance": "weapon_kit",
+  "ti_min": 19,
+  "ti_max": 20,
+  "runs": 25,
+  "modes": [
+    "optimal"
+  ]
+}

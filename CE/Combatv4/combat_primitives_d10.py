@@ -52,13 +52,82 @@ def crit_floor_from_tags_scalar(tags):
     return 6
 
 
-def build_save_clips(n, save_target, def_planishing, atk_ignores_tempered):
+def shielded_value(shield_tags):
+    """Shielded strength of a shield: 'Shielded N' (e.g. Tower: Shielded 2) wins, plain 'Shielded' = 1, else 0."""
+    best = 0
+    for t in shield_tags or ():
+        t = str(t)
+        if t.startswith("Shielded "):
+            try:
+                best = max(best, int(t.split()[1]))
+            except (IndexError, ValueError):
+                pass
+        elif t == "Shielded":
+            best = max(best, 1)
+    return best
+
+
+def hook_value(tags):
+    """How many points of the defender's Shielded the attacker ignores: 'Hook N' -> N;
+    'Negate Shielded' (legacy) ignores all of it."""
+    best = 0
+    for t in tags or ():
+        t = str(t)
+        if t == "Negate Shielded":
+            return 99
+        if t.startswith("Hook "):
+            try:
+                best = max(best, int(t.split()[1]))
+            except (IndexError, ValueError):
+                pass
+    return best
+
+
+def fluted_ap(ap, def_fluted):
+    """Fluted (defender's armor): incoming AP reduced by 1, toward 0 — AP 0 stays 0.
+    Applied to the AP a Strike carries (melee, Ranged or Riposte). Scalar-or-array."""
+    # def_fluted may be a count (Articulated 1 + Shield Wall 1 = 2): each point reduces AP by 1, never past 0
+    if np.ndim(def_fluted) == 0:
+        return np.minimum(ap + int(def_fluted), 0) if def_fluted else ap
+    n = np.asarray(def_fluted).astype(np.int64)
+    return np.where(n > 0, np.minimum(ap + n, 0), ap)
+
+
+def fluted_deadly_shift(ap, def_fluted):
+    """Deadly-target correction for Fluted, which applies AFTER Deadly's extra AP.
+    The engines pass the Fluted-reduced normal save target, and the Deadly target is built as
+    normal + DEADLY_AP. That is right when AP < 0 (the -1 was already taken). When AP == 0 the
+    normal target had nothing to reduce, but AP 0 + Deadly is negative, so Fluted still takes 1:
+    shift the Deadly target by -1 there. Returns 0/-1, scalar-or-array."""
+    # with a count n: the normal target already took min(n, -AP); the Deadly AP takes the rest
+    n = np.asarray(def_fluted).astype(np.int64)
+    taken = np.minimum(n, np.maximum(-np.asarray(ap), 0))
+    r = -(n - taken)
+    return int(r) if np.ndim(r) == 0 else r
+
+
+def deadly_shift(ap, def_fluted):
+    """Shift added to (normal save target + DEADLY_AP) to get the Deadly save target.
+    DEADLY_MODE "additional" (default): Deadly adds DEADLY_AP to the Strike's AP, Fluted after -> fluted_deadly_shift.
+    DEADLY_MODE "set": a Deadly Strike HAS AP -DEADLY_AP (e.g. 10), replacing the weapon's AP; Fluted then
+      takes 1 (AP -10 -> -9). The normal target already holds the (Fluted) weapon AP, so swap it out:
+      deadly = armor + DEADLY_AP - fl - shield - TS = normal + eff_ap + DEADLY_AP - fl."""
+    if DEADLY_MODE == "set":
+        fl = np.asarray(def_fluted).astype(np.int64)
+        return fluted_ap(ap, def_fluted) - fl
+    return fluted_deadly_shift(ap, def_fluted)
+
+
+DEADLY_NO_RECOVER = (DEADLY_MODE == "set")   # Version D: a Deadly Strike can't be Recovered
+
+
+def build_save_clips(n, save_target, def_planishing, atk_ignores_tempered, deadly_shift=0):
     """Normal + Deadly save-target arrays, with the Planishing (Tempered) cap.
 
         Deadly strikes resolve at save_target + DEADLY_AP (default +3, additive). Planishing caps
 
-    NOTE: DEADLY_MODE="set" is NOT wired here — see OPEN #1. Leave it "additional"
-    until that's decided; importing DEADLY_MODE now just makes the field available.
+    DEADLY_MODE "set" (Version D, Nov 7 2026) is wired through deadly_shift(): the engines pass it as
+    `deadly_shift`, and the kernel drops Recover for Deadly Strikes (DEADLY_NO_RECOVER).
     BOTH at 6+ (no auto-fail from AP) UNLESS the attacker carries Negate Tempered
     (atk_ignores_tempered), which lets AP push the save past 6+ to auto-fail.
 
@@ -71,7 +140,7 @@ def build_save_clips(n, save_target, def_planishing, atk_ignores_tempered):
     """
     save_t = _as_int_arr(save_target, n)
     save_clipped = np.clip(save_t, _AP_FLOOR, FACES + 1) # FACES+1 = auto-fail
-    deadly_clipped = np.clip(save_t + DEADLY_AP, _AP_FLOOR, FACES + 1)
+    deadly_clipped = np.clip(save_t + DEADLY_AP + _as_int_arr(deadly_shift, n), _AP_FLOOR, FACES + 1)
 
     planish = _as_bool_arr(def_planishing, n)
     ignores = _as_bool_arr(atk_ignores_tempered, n)
@@ -87,27 +156,32 @@ def build_save_clips(n, save_target, def_planishing, atk_ignores_tempered):
 
 
 def build_parry_thr(n, def_parry_improved, atk_unstoppable, atk_is_ranged,
-                    atk_has_deflect, def_fat):
+                    atk_has_deflect, def_fat, atk_negate_riposte=False, atk_parry_pen=0):
     """Per-element Parry threshold array vs NORMAL hits.
 
     Base PARRY_BASE+ (one rung better with Improved Parry), -2 to Parry vs Unstoppable
-    (i.e. +2 to the target), +1 vs Deflect (all ranged carry Deflect; Daggers/Estoc/
-    Ministry carry it explicitly), capped at CAP_THR+. Fatigue no longer affects Parry
+    (i.e. +2 to the target), +1 vs an explicit Deflect tag. Uncapped: 11+ = can't Parry (Nov 9 2026).
+    Ranged Strikes do NOT worsen Parry (Nov 7 2026: Ranged = Deadly + Unstoppable + Awkward +
+    Negate Riposte; Unstoppable already covers their Parry penalty) — they only suppress Riposte. Fatigue no longer affects Parry
     (def_fat kept for call-site compatibility, ignored). Deadly
     strikes Parry only on a Focused roll — handled in the kernel, not here.
 
     All inputs scalar-or-array (n,). Returns parry_thr (n,) int64.
-    Also returns the per-element `deflect` mask so the caller can suppress riposte.
+    Also returns the per-element no-Riposte mask (Deflect tag OR a Ranged Strike) for build_riposte_mask.
     """
     parry_bonus = _as_int_arr(def_parry_improved, n) # 0 = none; each +1 = one rung better
     unstop = _as_bool_arr(atk_unstoppable, n)
     ranged = _as_bool_arr(atk_is_ranged, n)
     deflect_tag = _as_bool_arr(atk_has_deflect, n)
-    deflect = deflect_tag | ranged   # ranged always Deflects
+    # Ranged Strikes and a Negate Riposte attacker (e.g. from a Holding) block Riposte; only a Deflect tag worsens Parry
+    no_riposte = deflect_tag | ranged | _as_bool_arr(atk_negate_riposte, n)
     base = (PARRY_BASE - parry_bonus).astype(np.int64)
-    parry_thr = base + UNSTOPPABLE_MOD * unstop.astype(np.int64) + deflect.astype(np.int64)
-    parry_thr = np.minimum(parry_thr, CAP_THR).astype(np.int64)
-    return parry_thr.copy(), deflect
+    parry_thr = base + UNSTOPPABLE_MOD * unstop.astype(np.int64) + deflect_tag.astype(np.int64)
+    parry_thr = parry_thr + _as_int_arr(atk_parry_pen, n)   # attacker's FoeParry (e.g. a charge); 0 for most
+    # Nov 9 2026: no cap. A target above FACES (11+) can't be met: the Strike can't be Parried. Deadly Strikes
+    # don't read this target (the kernel Parries them on a Focused roll only), so Unstoppable never stacks onto Deadly.
+    parry_thr = parry_thr.astype(np.int64)
+    return parry_thr.copy(), no_riposte
 
 
 def build_regen_thr(n, def_regen_threshold, def_fat):

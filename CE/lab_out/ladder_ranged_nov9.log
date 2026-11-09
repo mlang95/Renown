@@ -1,0 +1,30 @@
+pool: lab_out/ladder_pool_nov9.csv (2042 builds)
+
+######## ranged: 6 items | subjects 200 (of 1216 carrying one) | panel 300
+  baseline done (248s)
+  Arquebus           n=200  later +0.653  wr +0.119  (252s)
+  Crossbow           n=192  later -0.393  wr -0.059  (215s)
+  Hunting Bow        n=200  later -0.161  wr -0.026  (251s)
+  Javelin            n=192  later -0.393  wr -0.038  (215s)
+  Longbow            n=200  later +0.233  wr +0.027  (230s)
+  Pilum              n=192  later -0.393  wr -0.024  (199s)
+
+== ranged: item value on the same builds (d_wr sorted) ==
+    item_shown      tier   n  value_first  value_later   d_wr  d_lost_strike  d_lost_panic  d_lost_break  d_lost_rout  d_skirm
+      Arquebus Gunpowder 200        0.453        0.653  0.119         -0.945        -0.046        -0.530       -0.001   -0.344
+       Longbow      Cast 200       -0.014        0.233  0.027         -0.318        -0.011        -0.134       -0.000   -0.077
+Throwing Spear  Tempered 192        1.033       -0.393 -0.024          0.076        -0.172         0.493        0.002    0.199
+   Hunting Bow     Crude 200       -0.384       -0.161 -0.026          0.289         0.079        -0.037       -0.000    0.014
+  Throwing Axe   Wrought 192        0.719       -0.393 -0.038          0.238        -0.149         0.515        0.002    0.221
+      Crossbow    Forged 192        0.520       -0.393 -0.059          0.500        -0.059         0.465        0.002    0.228
+
+== ranged: by tier (d_wr) ==
+           count   mean  std    min    max   step
+tier                                             
+Gunpowder      1  0.119  NaN  0.119  0.119    NaN
+Crude          1 -0.026  NaN -0.026 -0.026 -0.145
+Cast           1  0.027  NaN  0.027  0.027  0.054
+Wrought        1 -0.038  NaN -0.038 -0.038 -0.066
+Forged         1 -0.059  NaN -0.059 -0.059 -0.021
+Tempered       1 -0.024  NaN -0.024 -0.024  0.035
+  -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\ladder_ranged_nov9

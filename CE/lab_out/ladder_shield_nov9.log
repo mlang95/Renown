@@ -1,0 +1,27 @@
+pool: lab_out/ladder_pool_nov9.csv (2042 builds)
+
+######## shield: 5 items | subjects 200 (of 1106 carrying one) | panel 300
+  baseline done (225s)
+  Buckler Shield     n=200  later -0.088  wr -0.009  (216s)
+  Heater Shield      n=158  later +0.438  wr +0.071  (169s)
+  Kite Shield        n=158  later +0.123  wr +0.015  (170s)
+  Targe Shield       n=158  later -0.065  wr -0.007  (180s)
+  Tower Shield       n=149  later -0.154  wr +0.012  (165s)
+
+== shield: item value on the same builds (d_wr sorted) ==
+    item_shown     tier   n  value_first  value_later   d_wr  d_lost_strike  d_lost_panic  d_lost_break  d_lost_rout  d_skirm
+ Heater Shield Tempered 158        0.445        0.438  0.071         -1.319        -0.439         0.753        0.002    0.196
+   Kite Shield  Wrought 158        0.109        0.123  0.015         -0.217        -0.080         0.101       -0.000    0.030
+  Tower Shield   Forged 149        0.254       -0.154  0.012         -0.855        -0.453         1.162        0.005    0.394
+  Targe Shield     Cast 158       -0.028       -0.065 -0.007          0.050        -0.041         0.100       -0.000    0.052
+Buckler Shield    Crude 200       -0.029       -0.088 -0.009          0.146         0.040        -0.071       -0.000   -0.016
+
+== shield: by tier (d_wr) ==
+          count   mean  std    min    max   step
+tier                                            
+Crude         1 -0.009  NaN -0.009 -0.009    NaN
+Cast          1 -0.007  NaN -0.007 -0.007  0.001
+Wrought       1  0.015  NaN  0.015  0.015  0.022
+Forged        1  0.012  NaN  0.012  0.012 -0.003
+Tempered      1  0.071  NaN  0.071  0.071  0.059
+  -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\ladder_shield_nov9

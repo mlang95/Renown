@@ -31,7 +31,7 @@ row and stand the art on it). Nothing is truncated silently: oversize art fails 
 """
 import argparse, json, os, sys
 
-SPRITE_VERSION = "0.9.6"
+SPRITE_VERSION = "0.9.7"
 
 KEYS = {
     "k": "outline", "w": "plaster wall", "t": "stone", "u": "dark stone", "r": "roof",
@@ -877,6 +877,81 @@ put(c, ["...kmk....",
         "kkk....kkk"], 15, 22)                                                        # bench + clamp
 put(c, ["k.....", "kb....", "kbk...", "kb....", "kbk...", "kbbbbk", "kkkkkk", "kb..kb", "kb..kb", "kb..kb", "kk..kk"], 26, 20)   # chair
 SPRITES["holding:Joinery"] = fin32(c)
+
+# ---- Shield line (Nov 8 2026): Joinery > Shieldwright > Buckler School > Pavisiers' Yard > College of Arms (monument)
+# Shieldwright (Rising Industry): half-timber workshop with a painted heater hung out as its sign; a raw plank board
+# with an iron boss on the easel, a painted targe leaned in front
+c = cv32()
+wall(c, 0, 17, 15, 14, "w")
+for xx in (5, 10):
+    vline(c, xx, 18, 29, "b")
+hline(c, 1, 13, 22, "b")
+roof(c, 7, 10, 7)
+win4(c, 1, 18)
+door4(c, 6, 24)
+hline(c, 14, 19, 18, "k")                                                                 # sign bracket
+put(c, [".kkkkk", ".kcyyk", ".kcyyk", ".kccyk", "..kck.", "...k.."], 14, 19)               # sign: a painted heater
+disc(c, 25.5, 19.5, [(1, "m"), (4.6, "b")])                                               # raw board, iron boss
+for x in (23, 28):
+    for y in range(15, 25):
+        if c[y][x] == "b":
+            c[y][x] = "B"                                                                 # glued plank seams
+put(c, ["kbk"] * 6, 21, 24)                                                               # easel legs
+put(c, ["kbk"] * 6, 28, 24)
+disc(c, 24.5, 27, [(0.8, "y"), (3.4, "c")])                                               # painted targe
+SPRITES["holding:Shieldwright"] = fin32(c)
+
+
+def fencer(c, x, y, cloth, face=1):
+    """Sword-and-buckler fencer 8 wide, 11 tall, top-left (x, y): buckler held forward, sword upright in the back
+    hand. face=1 looks right, -1 left (mirrored inside the same 8 columns)."""
+    f = (lambda dx: x + dx) if face > 0 else (lambda dx: x + 6 - dx)
+    for dx, dy, ch in ((2, 2, "k"), (3, 2, "k"), (1, 3, "k"), (2, 3, "h"), (3, 3, "j"), (4, 3, "k"), (2, 4, "k"), (3, 4, "k")):
+        c[y + dy][f(dx)] = ch                                                             # head
+    for dy in range(5, 9):
+        for dx, ch in ((1, "k"), (2, cloth), (3, SHADE[cloth]), (4, "k")):
+            c[y + dy][f(dx)] = ch                                                         # tabard
+    hline(c, min(f(1), f(4)), max(f(1), f(4)), y + 5, "k")
+    for dy, dxs in ((9, (1, 4)), (10, (0, 5))):
+        for dx in dxs:
+            c[y + dy][f(dx)] = "k"                                                        # legs, wide stance
+    for dx, dy, ch in ((5, 5, "k"), (6, 5, "m"), (7, 5, "k"), (5, 6, "m"), (6, 6, "y"), (7, 6, "m"), (5, 7, "k"), (6, 7, "m"), (7, 7, "k")):
+        if 0 <= f(dx) < len(c[0]):
+            c[y + dy][f(dx)] = ch                                                         # buckler
+    vline(c, f(0), y, y + 4, "s")                                                         # sword blade
+    c[y + 5][f(0)] = "y"
+    c[y + 6][f(0)] = "b"
+
+
+# Buckler School (Established Industry): dressed-stone fencing hall, smoking chimney, tall windows, a buckler hung over
+# the door; a sword-and-buckler bout in the yard
+c = cv32()
+put(c, [".s..", "s...", ".s..", "kkkk", "kTuk", "kTuk", "kTuk"], 1, 3)
+wall(c, 0, 15, 17, 16, "t")
+roof(c, 8, 7, 8, "u")
+courses(c, 1, 17, 14, 29)
+for x0 in (1, 12):
+    put(c, ["kkkk", "kyyk", "kyyk", "kyYk", "kkkk"], x0, 18)
+disc(c, 8.5, 18.5, [(0.6, "y"), (2.2, "m")], edge="K")                                   # buckler sign
+put(c, [".kkkk.", "kddddk"] + ["kddddk"] * 6, 6, 23)
+fencer(c, 17, 20, "a", 1)
+fencer(c, 25, 20, "c", -1)
+SPRITES["holding:Buckler School"] = fin32(c)
+
+PAVISE = [".kkk.", "kcmCk", "kcmCk", "kmsMk", "kcmCk", "kcmCk", "kcmCk", "kmsMk", "kcmCk", "kcmCk", "kkkkk", ".k.k."]
+# Pavisiers' Yard (Established Industry; gains Shield Wall): stone workshop with a smoking stack; a shield wall of
+# painted, iron-banded pavises propped across the yard
+c = cv32()
+put(c, [".s..", "..s.", ".s..", "kkkk", "kTuk", "kTuk", "kTuk", "kTuk"], 9, 3)
+wall(c, 0, 16, 15, 15, "t")
+roof(c, 7, 8, 7)
+courses(c, 1, 18, 12, 29)
+win4(c, 2, 18)
+put(c, [".kkkk.", "kddddk"] + ["kddddk"] * 5, 8, 24)
+put(c, PAVISE, 15, 19)
+put(c, [r.translate(str.maketrans("cC", "aA")) for r in PAVISE], 21, 19)
+put(c, PAVISE, 27, 19)
+SPRITES["holding:Pavisiers' Yard"] = fin32(c)
 
 # Blacksmith: stone smithy open at the front, hood over the hearth, tongs; anvil with hammer, sparks, quench tub
 c = cv32()
@@ -3163,6 +3238,39 @@ for x0, y0 in ((37, 43), (40, 43), (43, 43), (45, 43), (38, 40), (41, 40), (44, 
     put(c, [".k.", "kuU", ".k."], x0, y0)
 SPRITES["monument:Artillery Park"] = fin32(c)
 
+# Ballistarium (Sovereign Prowess — Kraghs, the fortified hold; the Archery line's capstone: Deadly Ranged Weapons,
+# Throwing Spears): crenellated bastion under a red war banner, throwing spears stood behind the parapet; at its foot
+# a target with a throwing spear buried in the gold, arrows around it, a barrel of arrows
+c = cv48()
+SPEAR = ["..k..", ".kmk.", ".kmk.", ".kMk.", "..b..", "..b..", "..b..", "..b..", "..b..", "..b..", "..b.."]
+for x0, y0 in ((13, 10), (17, 9), (21, 10), (25, 9)):
+    put(c, SPEAR, x0, y0)                                                                # spears behind the parapet
+cren(c, 4, 20, 30)
+wall(c, 4, 22, 30, 25, "t")
+courses(c, 5, 24, 30, 45)
+flag(c, 5, 4, "c", 16)
+for j in range(5, 12):
+    hline(c, 6, 10, j, "c")
+    c[j][9] = c[j][10] = "C"
+put(c, ["cc.cC", "c...C"], 6, 12)
+for x0 in (8, 28):
+    put(c, SLIT, x0, 26)
+put(c, ["..kkkkkk..", ".kddddddk.", "kddddddddk", "kddkddkddk", "kddkddkddk", "kkkkkkkkkk"] + ["kddddddddk"] * 5, 14, 36)
+put(c, ["kkkkkk", "kcyyCk", "kcyyCk", ".kcCk.", "..kk.."], 16, 27)                       # red shield over the gate
+vline(c, 42, 32, 46, "b")                                                                # target post
+vline(c, 41, 32, 46, "k")
+vline(c, 43, 32, 46, "k")
+disc(c, 42, 27, [(1.2, "y"), (2.4, "c"), (3.6, "s"), (4.8, "c")])
+for i in range(7):                                                                       # spear buried in the gold
+    c[27 - (i + 1) // 2][41 - i] = "b"
+    if c[26 - (i + 1) // 2][41 - i] == ".":
+        c[26 - (i + 1) // 2][41 - i] = "k"
+for x0, y0 in ((38, 29), (44, 23)):
+    put(c, ["s.", ".b"], x0, y0)                                                         # arrows in the target
+put(c, ["s.s.s", "bsbsb", ".bbb."], 35, 36)                                              # arrows in the barrel
+put(c, BARREL8, 34, 39)
+SPRITES["monument:Ballistarium"] = fin32(c)
+
 # Ministry of Military Strategy (Prowess — Kraghs, history as propaganda): stone hall carved with a victory frieze,
 # red banners at the door, crenellated tower with a flag
 c = cv48()
@@ -3324,6 +3432,53 @@ for x0 in (2, 4):
     c[13][x0] = "k"
 hline(c, 1, 5, 17, "k")
 SPRITES["holding:Fighting School"] = fin32(c)
+# Nov 8 2026 tree: the archery-butt art goes to Archery Butts, the training-yard art to the new Skirmish Field
+SPRITES["holding:Archery Butts"] = SPRITES["holding:Skirmish Field"]
+SPRITES["holding:Skirmish Field"] = SPRITES["holding:Fighting School"]
+
+
+def archer(c, x, y):
+    """Archer 8 wide, 14 tall, top-left (x, y), facing left: longbow upright before him (taller than he is),
+    quiver over the shoulder, sword at the hip."""
+    put(c, ["...kk...",
+            "..kssk..",
+            "...kk...",
+            "..khjk..",
+            "...kk.k.",
+            "..kcCksk",
+            ".kccCCks",
+            "kkcyCkks",
+            "kmkcCk..",
+            "..kcCk..",
+            "..kkkk..",
+            "..k..k..",
+            "..k..k..",
+            "..k..k.."], x, y)
+    vline(c, x + 1, y + 1, y + 13, "s")                                                   # bowstring
+    for dy, dx in ((0, 0), (1, -1), (2, -1), (3, -2), (4, -2), (5, -2), (6, -2), (7, -2), (8, -2), (9, -2), (10, -1),
+                   (11, -1), (12, 0)):
+        c[y + dy][x + dx] = "b"                                                          # longbow stave
+
+
+# Training Grounds (Rising Prowess; ranged and melee carried at once): half-timber barracks under a red banner, a rack
+# holding spear and sword, an archer with a longbow and a sword at the hip
+c = cv32()
+flag(c, 7, 3, "c", 8)
+wall(c, 0, 18, 14, 13, "w")
+for xx in (5, 9):
+    vline(c, xx, 19, 29, "b")
+hline(c, 1, 12, 23, "b")
+roof(c, 7, 11, 7)
+win4(c, 1, 19)
+door4(c, 6, 25, 6)
+for xx in (14, 22):
+    vline(c, xx, 21, 30, "b")                                                             # rack posts and rails
+for yy in (21, 27):
+    hline(c, 14, 22, yy, "b")
+put(c, ["..k..", ".kmk.", ".kmk.", ".kMk."] + ["..b.."] * 9 + ["..B.."], 14, 15)          # spear
+put(c, ["kyk", "kbk", "yyy", "kmk", "ksk", "ksk", "kmk", "kmk", ".k."], 18, 20)             # sword, hilt up
+archer(c, 24, 17)
+SPRITES["holding:Training Grounds"] = fin32(c)
 
 # Black Hold (Cunning + Industry monument): a black keep on a rock, a black banner, a raised portcullis over a dark gate,
 # a gibbet cage hanging from an arm off the parapet
@@ -3435,6 +3590,42 @@ for x, y in ((19, 31), (20, 32), (11, 31), (10, 32)):
 put(c, ["kkkkkkk", "kaayaAk", "kaayaAk", "kyyyyYk", "kaayaAk", ".kayAk.", "..kAk..", "...k..."], 12, 23)   # crest
 put(c, ["..kkk..", ".kdddk."] + ["kdddddk"] * 12, 12, 33)
 SPRITES["monument:Court Armoury"] = fin32(c)
+
+
+def heater(col1, col2, part="pale"):
+    """5x6 painted heater shield: pale (left | right), fess (top | bottom) or quarter."""
+    rows = []
+    for y in range(4):
+        r = ""
+        for x in range(3):
+            q = {"pale": x < 1 or (x == 1 and y % 2 == 0), "fess": y < 2, "quarter": (x < 2) == (y < 2)}[part]
+            r += col1 if q else col2
+        rows.append("k" + r + "k")
+    return ["kkkkk"] + rows[:3] + [".k" + rows[3][2] + "k.", "..k.."]
+
+
+# College of Arms (Sovereign Industry — Trusteki, ordered and built to outlast; the Shield line's capstone): tall
+# dressed-stone hall under a leaded roof, a clock gear in the gable, twin smoking stacks; a frieze of painted heraldic
+# heaters, a great quartered heater over the door; a mail hauberk on its stand in the yard (Heater Shield, Chainmail)
+c = cv48()
+for x0 in (3, 33):
+    put(c, [".s..", "s..s", ".s..", "kkkk"] + ["kTuk"] * 14, x0, 0)
+wall(c, 0, 18, 40, 29, "t")
+roof(c, 19, 7, 12, "u")
+courses(c, 1, 20, 37, 45)
+disc(c, 19.5, 13, [(0.8, "k"), (2.5, "y"), (3.6, "m")])                                  # clock gear
+for i, (a, b, p) in enumerate((("c", "y", "pale"), ("a", "s", "fess"), ("y", "c", "quarter"),
+                               ("a", "y", "pale"), ("c", "s", "fess"), ("y", "a", "quarter"))):
+    put(c, heater(a, b, p), 2 + i * 6 + (5 if i > 2 else 0), 20)                         # heraldic frieze
+hline(c, 1, 38, 26, "K")
+for x0 in (3, 33):
+    put(c, ["kkkk", "kyyk", "kyyk", "kyyk", "kkkk", "kyYk", "kyYk", "kkkk"], x0, 29)
+put(c, ["kkkkkkkkk", "kaaaakyyk", "kaaaakyyk", "kaaaakyyk", "kkkkkkkkk", "kyyykaaak", "kyyykaaak", ".kyykaak.",
+        "..kykak..", "...kkk..."], 15, 27)                                                # great quartered heater
+put(c, [".kkkkkkk.", "kdddddddk"] + ["kdddddddk"] * 8, 15, 37)
+put(c, ["..kkk..", ".khjhk.", "..kkk..", ".kmumk.", "kmumumk", "kumumuk", "kmumumk", "kumumuk", ".kmumk.", ".kumuk.",
+        "..kbk..", "..kbk..", "..kbk..", ".kbbbk.", ".kkkkk."], 41, 32)                   # hauberk on its stand
+SPRITES["monument:College of Arms"] = fin32(c)
 
 # Aristocratic Court (Industry + Cunning — Prezish, the counting-house cartel): palazzo with a gilded cornice, loggia
 # arcade, balconied piano nobile, scales over the loggia; corner towers under blue roofs
@@ -5109,6 +5300,26 @@ SPRITES["eq:Estoc"] = [   # swept guard
     "..................",
     "..................",
 ]
+SPRITES["eq:Falchion"] = [   # art for the printed name (Estoc shown as Falchion): broad single-edged blade, clipped point
+    "..................",
+    "................k.",
+    "...............ksk",
+    ".............kkmsk",
+    "............kmmssk",
+    "...........kmmskk.",
+    "..........kmmsk...",
+    "....k....kmmsk....",
+    "...kyk..kmskk.....",
+    "....kykkmsk.......",
+    ".....kymsk........",
+    ".....kkyk.........",
+    "....kbkkyk........",
+    "...kbk..k.........",
+    "..kyk.............",
+    "...k..............",
+    "..................",
+    "..................",
+]
 SPRITES["eq:Poleaxe"] = [   # long diamond spike, crescent head on a 2-px haft, gold langets, flat hammer behind
     ".....kk...........",
     "....ksuk..........",
@@ -6695,6 +6906,34 @@ PLATE_NO_INFRA = ["Hamlet", "Village"]
 SCENE_STYLE = {"fade": 0.08, "sil": 0.35, "halo": 1, "lift": 8, "head": 10}
 
 
+# eq: art drawn for a printed name rather than an id (NAME_DISPLAY maps the id to it). When the id is shown under that
+# name, board_sprites() gives the id this art; when it isn't, the art stays in the file unused.
+EQ_SHOWN_ART = {"Falchion"}
+
+
+def eq_key(name, ns):
+    """Equipment icon key for a WEAPONS / RANGED / SHIELDS / ARMORS id: art drawn for its printed name wins."""
+    shown = ns.get("NAME_DISPLAY", {}).get(name)
+    return "eq:" + shown if shown and "eq:" + shown in SPRITES else "eq:" + name
+
+
+def board_sprites(ns):
+    """SPRITES as the board ships them: each gear id's eq: icon follows its printed name (Estoc shown as Falchion ->
+    the Falchion art under eq:Estoc); printed-name art itself is left out of the payload."""
+    S = dict(SPRITES)
+    gear = set()
+    for t in ("WEAPONS", "RANGED", "SHIELDS", "ARMORS"):
+        gear |= {n for n in ns.get(t, {}) if n not in (None, "None", "null")}
+    for n in gear:
+        k = eq_key(n, ns)
+        if k != "eq:" + n:
+            S["eq:" + n] = SPRITES[k]
+    for n in EQ_SHOWN_ART:
+        if n not in gear:
+            S.pop("eq:" + n, None)
+    return S
+
+
 def feet_key(raw_name):
     """Terrain strip for a ward whose chain is rooted in this Raw Material. None if it has none."""
     k = "feet:" + raw_name
@@ -6846,8 +7085,10 @@ def check(ns):
     for n in sorted(gear):
         if "eq:" + n not in SPRITES:
             out.append(f"no equipment icon for {n}")
+    shown = {s for n, s in ns.get("NAME_DISPLAY", {}).items() if n in gear}
+    spare = EQ_SHOWN_ART                                         # art for a printed name not currently mapped (kept for reuse)
     for key in SPRITES:
-        if key.startswith("eq:") and key[3:] not in gear:
+        if key.startswith("eq:") and key[3:] not in gear and key[3:] not in shown and key[3:] not in spare:
             out.append(f"{key}: not in WEAPONS / RANGED / SHIELDS / ARMORS")
     for k in ("map:camp", "map:bandit_army"):
         if k not in SPRITES:

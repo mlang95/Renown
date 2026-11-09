@@ -1033,7 +1033,7 @@ if hasattr(rd,"RETINUES"):
     eq.append("<h2>Retinues</h2>")
     eq.append(_grid(["Retinue","Cost","To-Hit","Endurance","Morale","Speed","Max Size"],
         [[rd.display(n),d.get("cost"),f"{d.get('to_hit')}+",d.get("endurance"),f"{d.get('shaking')}+",d.get("speed","—"),d.get("max_size","—")] for n,d in rd.RETINUES.items()], u))
-def _wrow(n,d): return [rd.display(n), d.get("ap"), (f"+{d['init']}" if d.get('init',0)>0 else d.get('init')), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(d.get("tier"))), ", ".join(d.get("tags",[]))]
+def _wrow(n,d): return [rd.display(n), d.get("ap"), (f"+{d['init']}" if d.get('init',0)>0 else d.get('init')), (getattr(rd,"ITEM_TIER_DISPLAY",{}).get(n) or rd.display_tier(d.get("tier"))), ", ".join(getattr(rd, "display_tags", lambda t, ranged=False: list(t or []))(d.get("tags",[]), ranged=(n in rd.RANGED)))]
 if hasattr(rd,"WEAPONS"):
     eq.append("<h2>Melee Weapons</h2>")
     eq.append(_grid(["Weapon","AP","Init","Tier","Keywords"], [_wrow(n,d) for n,d in rd.WEAPONS.items()], u))

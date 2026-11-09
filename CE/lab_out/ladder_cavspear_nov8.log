@@ -1,0 +1,43 @@
+pool: lab_out/_pool_cache/hf_5_16_pc50_96e2f7b51421.csv (2042 builds)
+
+######## weapon: 13 items | subjects 200 (of 1973 carrying one) | panel 300
+  baseline done (164s)
+  2HBastard          n=115  later +0.928  (106s)
+  Arming Sword       n=110  later +0.045  (101s)
+  Bastard Sword      n=110  later +0.223  (118s)
+  Battle Axe         n=115  later -0.097  (104s)
+  Cavalry Spear      n=44   later +0.137  (33s)
+  Flail              n=110  later +0.064  (95s)
+  Halberd            n=115  later +0.607  (113s)
+  Morningstar        n=110  later +0.442  (115s)
+  Pike               n=115  later +0.218  (103s)
+  War Hammer         n=115  later +0.727  (101s)
+  Cavalry Spear [ap2] n=44   later +0.416  (44s)
+  Cavalry Spear [ap0] n=44   later -0.261  (39s)
+  Halberd [ap1]      n=115  later +0.410  (105s)
+
+== weapon: item value on the same builds (value_later sorted) ==
+         item_shown    tier   n  value_first  value_later
+          2HBastard  Forged 115        0.725        0.928
+         War Hammer  Forged 115        0.556        0.727
+            Halberd Wrought 115        0.441        0.607
+        Morningstar  Forged 110        0.368        0.442
+Cavalry Spear [ap2] Wrought  44        0.372        0.416
+      Halberd [ap1] Wrought 115        0.295        0.410
+      Bastard Sword  Forged 110        0.191        0.223
+               Pike Wrought 115        0.164        0.218
+      Cavalry Spear Wrought  44        0.100        0.137
+              Flail Wrought 110        0.088        0.064
+       Arming Sword Wrought 110        0.086        0.045
+         Battle Axe Wrought 115        0.529       -0.097
+Cavalry Spear [ap0] Wrought  44       -0.291       -0.261
+
+== weapon: by tier (value_later) ==
+         count   mean    std    min    max   step
+tier                                             
+Wrought      9  0.171  0.273 -0.261  0.607    NaN
+Forged       4  0.580  0.310  0.223  0.928  0.409
+
+  tier steps <= 0: 0 of 1 | mean |step| 0.409 vs mean within-tier spread 0.292
+  -> ladder in order and tiers fairly tight.
+  -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\ladder_weapon_cavspear

@@ -1,0 +1,17 @@
+pool: lab_out/_pool_cache/hf_5_16_pc50_96e2f7b51421.csv (2042 builds)
+
+######## weapon: 2 items | subjects 200 (of 1973 carrying one) | panel 300
+  baseline done (176s)
+  Halberd            n=115  later +0.607  (106s)
+  Halberd [ap3_nohook] n=115  later +0.667  (118s)
+
+== weapon: item value on the same builds (value_later sorted) ==
+          item_shown    tier   n  value_first  value_later
+Halberd [ap3_nohook] Wrought 115        0.490        0.667
+             Halberd Wrought 115        0.441        0.607
+
+== weapon: by tier (value_later) ==
+         count   mean    std    min    max  step
+tier                                            
+Wrought      2  0.637  0.042  0.607  0.667   NaN
+  -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\ladder_weapon_halberd

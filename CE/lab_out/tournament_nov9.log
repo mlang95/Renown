@@ -1,0 +1,638 @@
+ce_paths: data     = C:\Users\Matt\OneDrive\Desktop\Game\CE\renown_data_d10.py
+ce_paths: search order
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4\shims
+    C:\Users\Matt\OneDrive\Desktop\Game\CE
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4
+ce_paths: OUT_DIR = C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out
+
+=== Renown tournament — d10_nov9_changes_pinst ===
+  d10 | Focused 10+ | Rout 11+ | cap 10+ | Fatigue -0/-2 | auto-pass 2 | Parry 8+ | Recover 8+ | Deadly set 10 | Unstoppable +2 | ImpParry -1 | src defaults
+  output -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_nov9_changes_pinst
+
+  d10 + isolation checks passed.
+
+Loaded 2042 loadouts from lab_out/d10_nov9_changes_pinst/loadouts_hf_5_16_pc50_balk.csv
+  pool matches the current data (Holding keywords and gear unlocks)
+By retinue: {'Levy': 600, 'Man-at-Arms': 534, 'Sergeant': 500, 'Knight Templar': 408}
+By TI: {5: 62, 6: 91, 7: 141, 8: 164, 9: 184, 10: 200, 11: 200, 12: 200, 13: 200, 14: 200, 15: 200, 16: 200}
+
+Pool: 2042 builds  (~4,167,722 raw pairs before monument filter)
+Workers: 8  |  n_runs: 25
+
+[MEM] auto_slot_budget: psutil=True free_used=12.7GB workers=8 bytes/slot=1400 safety=0.35 -> raw=425,345 clamped=400,000 (CAP)
+[batch mode=optimal] 2042 loadouts → 3,943,772 pairs × 25 runs | n_workers=8
+  slot_budget=400000 → block_size=16,000 pairs (400,000 slots/block); est. peak ≈ 6.0 GB (8 blocks in flight)
+ce_paths: data     = C:\Users\Matt\OneDrive\Desktop\Game\CE\renown_data_d10.py
+ce_paths: search order
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4\shims
+    C:\Users\Matt\OneDrive\Desktop\Game\CE
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4
+ce_paths: OUT_DIR = C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out
+
+=== Renown tournament — d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst ===
+  d10 | Focused 10+ | Rout 11+ | cap 10+ | Fatigue -0/-2 | auto-pass 2 | Parry 8+ | Recover 8+ | Deadly set 10 | Unstoppable +2 | ImpParry -1 | src defaults
+  output -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst
+
+  d10 + isolation checks passed.
+
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=394 | 53.0s
+  [16,000/3,943,772] 57s eta 14039s
+ce_paths: data     = C:\Users\Matt\OneDrive\Desktop\Game\CE\renown_data_d10.py
+ce_paths: search order
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4\shims
+    C:\Users\Matt\OneDrive\Desktop\Game\CE
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4
+ce_paths: OUT_DIR = C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out
+
+=== Renown tournament — d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst ===
+  d10 | Focused 10+ | Rout 11+ | cap 10+ | Fatigue -0/-2 | auto-pass 2 | Parry 8+ | Recover 8+ | Deadly set 10 | Unstoppable +2 | ImpParry -1 | src defaults
+  output -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst
+
+  d10 + isolation checks passed.
+
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=396 | 54.3s
+  [32,000/3,943,772] 59s eta 7181s
+ce_paths: data     = C:\Users\Matt\OneDrive\Desktop\Game\CE\renown_data_d10.py
+ce_paths: search order
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4\shims
+    C:\Users\Matt\OneDrive\Desktop\Game\CE
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4
+ce_paths: OUT_DIR = C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out
+
+=== Renown tournament — d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst ===
+  d10 | Focused 10+ | Rout 11+ | cap 10+ | Fatigue -0/-2 | auto-pass 2 | Parry 8+ | Recover 8+ | Deadly set 10 | Unstoppable +2 | ImpParry -1 | src defaults
+  output -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst
+
+  d10 + isolation checks passed.
+
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=401 | 54.8s
+ce_paths: data     = C:\Users\Matt\OneDrive\Desktop\Game\CE\renown_data_d10.py
+ce_paths: search order
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4\shims
+    C:\Users\Matt\OneDrive\Desktop\Game\CE
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4
+ce_paths: OUT_DIR = C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out
+
+=== Renown tournament — d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst ===
+  d10 | Focused 10+ | Rout 11+ | cap 10+ | Fatigue -0/-2 | auto-pass 2 | Parry 8+ | Recover 8+ | Deadly set 10 | Unstoppable +2 | ImpParry -1 | src defaults
+  output -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst
+
+  d10 + isolation checks passed.
+
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=400 | 54.9s
+  [48,000/3,943,772] 59s eta 4812s
+ce_paths: data     = C:\Users\Matt\OneDrive\Desktop\Game\CE\renown_data_d10.py
+ce_paths: search order
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4\shims
+    C:\Users\Matt\OneDrive\Desktop\Game\CE
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4
+ce_paths: OUT_DIR = C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out
+
+=== Renown tournament — d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst ===
+  d10 | Focused 10+ | Rout 11+ | cap 10+ | Fatigue -0/-2 | auto-pass 2 | Parry 8+ | Recover 8+ | Deadly set 10 | Unstoppable +2 | ImpParry -1 | src defaults
+  output -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst
+
+  d10 + isolation checks passed.
+
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=399 | 55.3s
+  [64,000/3,943,772] 60s eta 3617s
+ce_paths: data     = C:\Users\Matt\OneDrive\Desktop\Game\CE\renown_data_d10.py
+ce_paths: search order
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4\shims
+    C:\Users\Matt\OneDrive\Desktop\Game\CE
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4
+ce_paths: OUT_DIR = C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out
+
+=== Renown tournament — d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst ===
+  d10 | Focused 10+ | Rout 11+ | cap 10+ | Fatigue -0/-2 | auto-pass 2 | Parry 8+ | Recover 8+ | Deadly set 10 | Unstoppable +2 | ImpParry -1 | src defaults
+  output -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst
+
+  d10 + isolation checks passed.
+
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=400 | 55.6s
+ce_paths: data     = C:\Users\Matt\OneDrive\Desktop\Game\CE\renown_data_d10.py
+ce_paths: search order
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4\shims
+    C:\Users\Matt\OneDrive\Desktop\Game\CE
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4
+ce_paths: OUT_DIR = C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out
+
+=== Renown tournament — d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst ===
+  d10 | Focused 10+ | Rout 11+ | cap 10+ | Fatigue -0/-2 | auto-pass 2 | Parry 8+ | Recover 8+ | Deadly set 10 | Unstoppable +2 | ImpParry -1 | src defaults
+  output -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst
+
+  d10 + isolation checks passed.
+
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=405 | 55.9s
+  [80,000/3,943,772] 60s eta 2901s
+  [96,000/3,943,772] 60s eta 2421s
+  [112,000/3,943,772] 61s eta 2074s
+ce_paths: data     = C:\Users\Matt\OneDrive\Desktop\Game\CE\renown_data_d10.py
+ce_paths: search order
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4\shims
+    C:\Users\Matt\OneDrive\Desktop\Game\CE
+    C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4
+ce_paths: OUT_DIR = C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out
+
+=== Renown tournament — d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst ===
+  d10 | Focused 10+ | Rout 11+ | cap 10+ | Fatigue -0/-2 | auto-pass 2 | Parry 8+ | Recover 8+ | Deadly set 10 | Unstoppable +2 | ImpParry -1 | src defaults
+  output -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_foc10_fat02_par8_dea10s_uns2_imp1_pinst
+
+  d10 + isolation checks passed.
+
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=399 | 56.7s
+  [128,000/3,943,772] 61s eta 1821s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=411 | 59.1s
+  [144,000/3,943,772] 117s eta 3091s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=411 | 62.2s
+  [160,000/3,943,772] 122s eta 2890s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=408 | 63.4s
+  [176,000/3,943,772] 123s eta 2632s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=416 | 63.6s
+  [192,000/3,943,772] 124s eta 2432s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=415 | 64.8s
+  [208,000/3,943,772] 125s eta 2251s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=411 | 65.3s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=413 | 66.0s
+  [224,000/3,943,772] 127s eta 2106s
+  [240,000/3,943,772] 127s eta 1963s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=414 | 70.4s
+  [256,000/3,943,772] 131s eta 1881s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=415 | 65.3s
+  [272,000/3,943,772] 183s eta 2474s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=410 | 64.5s
+  [288,000/3,943,772] 188s eta 2390s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=418 | 65.7s
+  [304,000/3,943,772] 191s eta 2284s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=412 | 66.8s
+  [320,000/3,943,772] 193s eta 2183s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=412 | 71.4s
+  [336,000/3,943,772] 195s eta 2089s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=410 | 68.3s
+  [352,000/3,943,772] 196s eta 1996s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=412 | 75.3s
+  [368,000/3,943,772] 203s eta 1972s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=414 | 79.1s
+  [384,000/3,943,772] 210s eta 1949s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=414 | 62.3s
+  [400,000/3,943,772] 251s eta 2227s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=420 | 73.1s
+  [416,000/3,943,772] 257s eta 2181s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=419 | 65.6s
+  [432,000/3,943,772] 261s eta 2120s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=416 | 68.6s
+  [448,000/3,943,772] 262s eta 2045s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=418 | 71.4s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.15GB | bytes/slot~=415 | 66.9s
+  [464,000/3,943,772] 263s eta 1971s
+  [480,000/3,943,772] 263s eta 1900s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=418 | 74.0s
+  [496,000/3,943,772] 278s eta 1930s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=417 | 67.3s
+  [512,000/3,943,772] 278s eta 1864s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=420 | 63.5s
+  [528,000/3,943,772] 316s eta 2045s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=416 | 64.9s
+  [544,000/3,943,772] 323s eta 2019s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=420 | 77.3s
+  [560,000/3,943,772] 339s eta 2049s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=421 | 76.6s
+  [576,000/3,943,772] 340s eta 1989s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=419 | 78.3s
+  [592,000/3,943,772] 342s eta 1938s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=417 | 81.3s
+  [608,000/3,943,772] 344s eta 1887s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=426 | 77.9s
+  [624,000/3,943,772] 356s eta 1895s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=417 | 87.7s
+  [640,000/3,943,772] 367s eta 1893s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=419 | 71.1s
+  [656,000/3,943,772] 395s eta 1982s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=424 | 82.8s
+  [672,000/3,943,772] 400s eta 1947s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=419 | 65.7s
+  [688,000/3,943,772] 406s eta 1920s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=420 | 66.5s
+  [704,000/3,943,772] 407s eta 1874s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=418 | 64.9s
+  [720,000/3,943,772] 408s eta 1826s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=418 | 64.7s
+  [736,000/3,943,772] 409s eta 1784s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=430 | 64.3s
+  [752,000/3,943,772] 421s eta 1787s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=423 | 63.1s
+  [768,000/3,943,772] 431s eta 1781s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=419 | 57.2s
+  [784,000/3,943,772] 454s eta 1828s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=423 | 55.3s
+  [800,000/3,943,772] 456s eta 1792s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=421 | 56.4s
+  [816,000/3,943,772] 463s eta 1774s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=421 | 55.3s
+  [832,000/3,943,772] 463s eta 1733s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=423 | 56.2s
+  [848,000/3,943,772] 465s eta 1696s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=421 | 55.3s
+  [864,000/3,943,772] 465s eta 1658s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=422 | 51.7s
+  [880,000/3,943,772] 473s eta 1648s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=421 | 49.5s
+  [896,000/3,943,772] 481s eta 1636s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=420 | 49.5s
+  [912,000/3,943,772] 504s eta 1675s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=422 | 50.4s
+  [928,000/3,943,772] 507s eta 1648s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=423 | 48.4s
+  [944,000/3,943,772] 512s eta 1628s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=424 | 50.0s
+  [960,000/3,943,772] 513s eta 1595s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=423 | 48.6s
+  [976,000/3,943,772] 514s eta 1564s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=420 | 50.4s
+  [992,000/3,943,772] 515s eta 1534s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=425 | 47.6s
+  [1,008,000/3,943,772] 521s eta 1518s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=423 | 49.6s
+  [1,024,000/3,943,772] 531s eta 1515s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=421 | 53.7s
+  [1,040,000/3,943,772] 558s eta 1559s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=422 | 55.0s
+  [1,056,000/3,943,772] 563s eta 1539s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=424 | 51.0s
+  [1,072,000/3,943,772] 564s eta 1511s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=420 | 53.4s
+  [1,088,000/3,943,772] 569s eta 1494s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=429 | 58.2s
+  [1,104,000/3,943,772] 572s eta 1472s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=423 | 57.6s
+  [1,120,000/3,943,772] 573s eta 1444s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=429 | 53.3s
+  [1,136,000/3,943,772] 575s eta 1421s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=427 | 53.2s
+  [1,152,000/3,943,772] 585s eta 1418s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=429 | 56.8s
+  [1,168,000/3,943,772] 621s eta 1475s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=419 | 63.2s
+  [1,184,000/3,943,772] 622s eta 1451s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=429 | 66.0s
+  [1,200,000/3,943,772] 631s eta 1442s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=423 | 61.7s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=428 | 59.2s
+  [1,216,000/3,943,772] 632s eta 1417s
+  [1,232,000/3,943,772] 632s eta 1392s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=423 | 59.6s
+  [1,248,000/3,943,772] 633s eta 1367s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=429 | 60.0s
+  [1,264,000/3,943,772] 636s eta 1348s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=426 | 60.8s
+  [1,280,000/3,943,772] 647s eta 1345s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=429 | 66.1s
+  [1,296,000/3,943,772] 688s eta 1405s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=423 | 66.0s
+  [1,312,000/3,943,772] 689s eta 1382s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=424 | 60.2s
+  [1,328,000/3,943,772] 693s eta 1365s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=427 | 62.1s
+  [1,344,000/3,943,772] 694s eta 1342s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=424 | 63.8s
+  [1,360,000/3,943,772] 696s eta 1322s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=422 | 66.0s
+  [1,376,000/3,943,772] 699s eta 1305s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=424 | 64.4s
+  [1,392,000/3,943,772] 700s eta 1284s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=423 | 63.1s
+  [1,408,000/3,943,772] 710s eta 1279s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=429 | 51.2s
+  [1,424,000/3,943,772] 740s eta 1309s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=425 | 50.8s
+  [1,440,000/3,943,772] 741s eta 1288s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=425 | 52.4s
+  [1,456,000/3,943,772] 747s eta 1276s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=423 | 56.1s
+  [1,472,000/3,943,772] 750s eta 1259s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=430 | 56.0s
+  [1,488,000/3,943,772] 753s eta 1242s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=424 | 59.4s
+  [1,504,000/3,943,772] 759s eta 1232s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=425 | 59.1s
+  [1,520,000/3,943,772] 760s eta 1212s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=427 | 57.6s
+  [1,536,000/3,943,772] 768s eta 1204s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=426 | 66.6s
+  [1,552,000/3,943,772] 807s eta 1244s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=430 | 63.1s
+  [1,568,000/3,943,772] 813s eta 1232s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=424 | 72.8s
+  [1,584,000/3,943,772] 814s eta 1213s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=426 | 63.8s
+  [1,600,000/3,943,772] 817s eta 1197s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=429 | 71.6s
+  [1,616,000/3,943,772] 819s eta 1180s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=426 | 62.8s
+  [1,632,000/3,943,772] 823s eta 1165s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=421 | 67.1s
+  [1,648,000/3,943,772] 828s eta 1153s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=425 | 69.3s
+  [1,664,000/3,943,772] 838s eta 1148s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=428 | 67.6s
+  [1,680,000/3,943,772] 882s eta 1188s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=425 | 69.7s
+  [1,696,000/3,943,772] 885s eta 1172s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=431 | 76.9s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=425 | 67.7s
+  [1,712,000/3,943,772] 885s eta 1154s
+  [1,728,000/3,943,772] 886s eta 1136s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=431 | 67.4s
+  [1,744,000/3,943,772] 887s eta 1119s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=421 | 72.7s
+  [1,760,000/3,943,772] 896s eta 1112s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=423 | 70.4s
+  [1,776,000/3,943,772] 898s eta 1097s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=429 | 71.2s
+  [1,792,000/3,943,772] 910s eta 1092s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=426 | 69.1s
+  [1,808,000/3,943,772] 952s eta 1124s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=429 | 66.4s
+  [1,824,000/3,943,772] 954s eta 1109s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=423 | 58.1s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=425 | 55.7s
+  [1,840,000/3,943,772] 954s eta 1091s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=428 | 69.8s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=421 | 68.6s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=431 | 69.3s
+  [1,856,000/3,943,772] 955s eta 1074s
+  [1,872,000/3,943,772] 955s eta 1057s
+  [1,888,000/3,943,772] 955s eta 1040s
+  [1,904,000/3,943,772] 956s eta 1024s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=428 | 61.6s
+  [1,920,000/3,943,772] 972s eta 1024s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=427 | 60.9s
+  [1,936,000/3,943,772] 1013s eta 1051s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=428 | 63.3s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=423 | 62.7s
+  [1,952,000/3,943,772] 1018s eta 1039s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=429 | 62.7s
+  [1,968,000/3,943,772] 1019s eta 1023s
+  [1,984,000/3,943,772] 1019s eta 1007s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=423 | 64.2s
+  [2,000,000/3,943,772] 1020s eta 991s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=431 | 66.7s
+  [2,016,000/3,943,772] 1021s eta 976s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=424 | 69.8s
+  [2,032,000/3,943,772] 1025s eta 964s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=427 | 71.2s
+  [2,048,000/3,943,772] 1044s eta 966s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=427 | 68.6s
+  [2,064,000/3,943,772] 1088s eta 991s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=428 | 74.7s
+  [2,080,000/3,943,772] 1089s eta 976s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=422 | 69.6s
+  [2,096,000/3,943,772] 1090s eta 961s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=435 | 73.9s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=427 | 68.3s
+  [2,112,000/3,943,772] 1094s eta 949s
+  [2,128,000/3,943,772] 1095s eta 934s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=429 | 76.1s
+  [2,144,000/3,943,772] 1098s eta 922s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=425 | 78.9s
+  [2,160,000/3,943,772] 1098s eta 907s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=425 | 69.3s
+  [2,176,000/3,943,772] 1114s eta 905s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=420 | 68.7s
+  [2,192,000/3,943,772] 1160s eta 927s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=424 | 77.2s
+  [2,208,000/3,943,772] 1166s eta 916s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=430 | 80.9s
+  [2,224,000/3,943,772] 1171s eta 905s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=435 | 79.9s
+  [2,240,000/3,943,772] 1175s eta 893s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=436 | 78.1s
+  [2,256,000/3,943,772] 1176s eta 880s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=426 | 81.0s
+  [2,272,000/3,943,772] 1180s eta 868s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=432 | 85.2s
+  [2,288,000/3,943,772] 1180s eta 854s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=425 | 72.8s
+  [2,304,000/3,943,772] 1188s eta 845s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=422 | 68.8s
+  [2,320,000/3,943,772] 1230s eta 861s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=421 | 73.9s
+  [2,336,000/3,943,772] 1241s eta 854s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=435 | 71.8s
+  [2,352,000/3,943,772] 1243s eta 841s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=430 | 74.9s
+  [2,368,000/3,943,772] 1250s eta 832s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=430 | 69.8s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=433 | 74.2s
+  [2,384,000/3,943,772] 1251s eta 818s
+  [2,400,000/3,943,772] 1252s eta 805s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=428 | 72.1s
+  [2,416,000/3,943,772] 1253s eta 792s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=427 | 68.1s
+  [2,432,000/3,943,772] 1256s eta 781s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=424 | 63.5s
+  [2,448,000/3,943,772] 1294s eta 791s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=439 | 63.7s
+  [2,464,000/3,943,772] 1307s eta 785s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=426 | 81.1s
+  [2,480,000/3,943,772] 1323s eta 781s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=425 | 68.3s
+  [2,496,000/3,943,772] 1325s eta 768s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=431 | 76.1s
+  [2,512,000/3,943,772] 1328s eta 757s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=429 | 77.3s
+  [2,528,000/3,943,772] 1329s eta 744s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=432 | 82.3s
+  [2,544,000/3,943,772] 1335s eta 735s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=429 | 85.2s
+  [2,560,000/3,943,772] 1336s eta 722s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=434 | 87.7s
+  [2,576,000/3,943,772] 1383s eta 734s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=435 | 79.9s
+  [2,592,000/3,943,772] 1388s eta 724s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=424 | 67.2s
+  [2,608,000/3,943,772] 1391s eta 712s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=427 | 70.8s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=430 | 67.5s
+  [2,624,000/3,943,772] 1396s eta 702s
+  [2,640,000/3,943,772] 1397s eta 690s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=429 | 69.9s
+  [2,656,000/3,943,772] 1399s eta 679s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=427 | 67.7s
+  [2,672,000/3,943,772] 1405s eta 669s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=430 | 70.6s
+  [2,688,000/3,943,772] 1407s eta 657s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=437 | 67.7s
+  [2,704,000/3,943,772] 1451s eta 665s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=428 | 69.8s
+  [2,720,000/3,943,772] 1458s eta 656s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=427 | 76.0s
+  [2,736,000/3,943,772] 1467s eta 648s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=424 | 71.4s
+  [2,752,000/3,943,772] 1468s eta 636s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=432 | 71.4s
+  [2,768,000/3,943,772] 1471s eta 625s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=435 | 74.8s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=433 | 67.3s
+  [2,784,000/3,943,772] 1472s eta 613s
+  [2,800,000/3,943,772] 1472s eta 601s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=430 | 75.8s
+  [2,816,000/3,943,772] 1483s eta 594s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=435 | 55.2s
+  [2,832,000/3,943,772] 1508s eta 592s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=434 | 65.3s
+  [2,848,000/3,943,772] 1524s eta 587s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=427 | 67.7s
+  [2,864,000/3,943,772] 1537s eta 579s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=439 | 74.0s
+  [2,880,000/3,943,772] 1547s eta 571s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=427 | 84.0s
+  [2,896,000/3,943,772] 1552s eta 562s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=431 | 80.7s
+  [2,912,000/3,943,772] 1553s eta 550s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=436 | 87.0s
+  [2,928,000/3,943,772] 1560s eta 541s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=432 | 80.4s
+  [2,944,000/3,943,772] 1564s eta 531s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=436 | 66.2s
+  [2,960,000/3,943,772] 1574s eta 523s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=432 | 56.7s
+  [2,976,000/3,943,772] 1582s eta 514s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=431 | 59.4s
+  [2,992,000/3,943,772] 1597s eta 508s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=435 | 58.5s
+  [3,008,000/3,943,772] 1606s eta 500s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=427 | 56.3s
+  [3,024,000/3,943,772] 1609s eta 489s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=436 | 56.8s
+  [3,040,000/3,943,772] 1610s eta 479s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=436 | 58.3s
+  [3,056,000/3,943,772] 1619s eta 470s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=430 | 57.2s
+  [3,072,000/3,943,772] 1622s eta 460s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=435 | 55.8s
+  [3,088,000/3,943,772] 1631s eta 452s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=434 | 56.5s
+  [3,104,000/3,943,772] 1639s eta 444s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=431 | 56.8s
+  [3,120,000/3,943,772] 1654s eta 437s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=429 | 58.0s
+  [3,136,000/3,943,772] 1665s eta 429s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=424 | 59.0s
+  [3,152,000/3,943,772] 1669s eta 419s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=430 | 60.3s
+  [3,168,000/3,943,772] 1671s eta 409s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=436 | 59.7s
+  [3,184,000/3,943,772] 1679s eta 401s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=433 | 59.1s
+  [3,200,000/3,943,772] 1682s eta 391s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=428 | 59.8s
+  [3,216,000/3,943,772] 1692s eta 383s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=429 | 61.2s
+  [3,232,000/3,943,772] 1702s eta 375s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=425 | 62.0s
+  [3,248,000/3,943,772] 1717s eta 368s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=434 | 61.4s
+  [3,264,000/3,943,772] 1727s eta 360s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=425 | 60.6s
+  [3,280,000/3,943,772] 1730s eta 350s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=430 | 60.0s
+  [3,296,000/3,943,772] 1732s eta 340s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=430 | 58.6s
+  [3,312,000/3,943,772] 1739s eta 332s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=433 | 60.2s
+  [3,328,000/3,943,772] 1742s eta 322s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=429 | 57.3s
+  [3,344,000/3,943,772] 1750s eta 314s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=426 | 61.3s
+  [3,360,000/3,943,772] 1764s eta 306s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=434 | 69.6s
+  [3,376,000/3,943,772] 1788s eta 301s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=431 | 59.4s
+  [3,392,000/3,943,772] 1790s eta 291s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=435 | 58.8s
+  [3,408,000/3,943,772] 1791s eta 282s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=439 | 64.0s
+  [3,424,000/3,943,772] 1792s eta 272s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=432 | 57.7s
+  [3,440,000/3,943,772] 1797s eta 263s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=432 | 60.8s
+  [3,456,000/3,943,772] 1804s eta 255s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=435 | 57.6s
+  [3,472,000/3,943,772] 1808s eta 246s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=430 | 59.7s
+  [3,488,000/3,943,772] 1825s eta 238s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=430 | 62.3s
+  [3,504,000/3,943,772] 1853s eta 233s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=438 | 63.0s
+  [3,520,000/3,943,772] 1855s eta 223s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=423 | 66.8s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=439 | 63.3s
+  [3,536,000/3,943,772] 1856s eta 214s
+  [3,552,000/3,943,772] 1856s eta 205s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=435 | 61.9s
+  [3,568,000/3,943,772] 1859s eta 196s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=429 | 61.5s
+  [3,584,000/3,943,772] 1866s eta 187s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=430 | 60.5s
+  [3,600,000/3,943,772] 1869s eta 178s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=434 | 56.5s
+  [3,616,000/3,943,772] 1882s eta 171s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=427 | 54.4s
+  [3,632,000/3,943,772] 1909s eta 164s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=429 | 57.2s
+  [3,648,000/3,943,772] 1917s eta 155s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=426 | 65.6s
+  [3,664,000/3,943,772] 1922s eta 147s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=436 | 69.3s
+  [3,680,000/3,943,772] 1925s eta 138s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=438 | 69.5s
+  [3,696,000/3,943,772] 1926s eta 129s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=434 | 59.0s
+  [3,712,000/3,943,772] 1928s eta 120s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=435 | 64.2s
+  [3,728,000/3,943,772] 1930s eta 112s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=428 | 54.5s
+  [3,744,000/3,943,772] 1937s eta 103s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=428 | 59.2s
+  [3,760,000/3,943,772] 1968s eta 96s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=437 | 74.7s
+  [3,776,000/3,943,772] 1993s eta 89s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=437 | 65.4s
+  [3,792,000/3,943,772] 1996s eta 80s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=434 | 72.0s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=433 | 68.7s
+  [3,808,000/3,943,772] 1998s eta 71s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=428 | 75.4s
+  [3,824,000/3,943,772] 1998s eta 63s
+  [3,840,000/3,943,772] 1999s eta 54s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=443 | 72.4s
+  [3,856,000/3,943,772] 1999s eta 46s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=437 | 77.2s
+  [3,872,000/3,943,772] 2015s eta 37s
+[MEM] block: 7772 pairs x 25 = 194,300 slots | RSS=0.16GB | bytes/slot~=863 | 24.5s
+  [3,879,772/3,943,772] 2023s eta 33s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=434 | 54.8s
+  [3,895,772/3,943,772] 2024s eta 25s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=435 | 49.8s
+  [3,911,772/3,943,772] 2043s eta 17s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=439 | 48.9s
+  [3,927,772/3,943,772] 2047s eta 8s
+[MEM] block: 16000 pairs x 25 = 400,000 slots | RSS=0.16GB | bytes/slot~=435 | 52.6s
+  [3,943,772/3,943,772] 2050s eta 0s
+  wrote C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_nov9_changes_pinst\matchups_optimal.parquet, summary_optimal.csv, tactic_matrix_optimal.csv
+Optimal tournament complete in 2053s
+
+==============================================================================
+DONE. Notebook (Combatv4/v11Renown_Combat_Lab.ipynb), cell 2:
+==============================================================================
+    OUT_DIR        = None      # latest run = C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_nov9_changes_pinst
+    SUMMARY_SOURCE = "optimal"      (this run holds: optimal)
+    pool: C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_nov9_changes_pinst\loadouts_hf_5_16_pc50_balk.csv
+  Then run the notebook top to bottom.
+
+  Build explorer (double-click to open in your browser):
+    optimal   C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_nov9_changes_pinst\build_explorer_optimal.html
+
+  All files: C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\d10_nov9_changes_pinst
+==============================================================================

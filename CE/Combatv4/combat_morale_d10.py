@@ -37,14 +37,54 @@ from dice_config import (FACES, FOCUSED_THR, ROUT_THR, CAP_THR, AUTO_PASS_FLOOR,
 PANIC_THRESHOLD = 5   # trigger is (net_combat > PANIC_THRESHOLD)
 
 
+def _morale_target(shaking, fat, shake_bonus, zealot_mask=None, morale_cap_mask=None):
+    """Pre-token shake target (same value panic and break both read this skirmish)."""
+    shaking_arr = np.asarray(shaking)
+    target = (shaking_arr + np.asarray(fat).astype(np.int64) - np.asarray(shake_bonus)).astype(np.int64)
+    # Zealot: morale target cannot be modified at all — locked at base `shaking` (fatigue tokens
+    # and shake_bonus/Abbey do nothing). Applied before any other modifier.
+    if zealot_mask is not None:
+        _zb = np.broadcast_to(shaking_arr, target.shape).astype(np.int64)
+        target = np.where(np.asarray(zealot_mask, dtype=bool), _zb, target).astype(np.int64)
+    # Unshakable: morale target can never be reduced beyond 6+ (cap at 6). These units still
+    # TAKE panic & break tests every skirmish (they bleed at 6+), but can never reach the >=7
+    # rout threshold — they attrit, they don't shatter. Distinct from Unbreakable (skips the
+    # Break test but still routs at >=7).
+    if morale_cap_mask is not None:
+        target = np.where(np.asarray(morale_cap_mask, dtype=bool), np.minimum(target, CAP_THR), target).astype(np.int64)
+    return target
+
+
+def instant_panic(rng, n, roller, shake_cap, size, fat, mask, net_combat, shaking, shake_bonus, steadfast_mask,
+                  field_used, field_cap=15, morale_cap_mask=None, zealot_mask=None,
+                  resolute_firstpass_mask=None, panic_used=None):
+    """TEST SWITCH (RENOWN_PANIC_TIMING=instant): the Panic check taken as soon as the side that was
+    struck first has lost more than 5, before it Strikes back. Same trigger, target, Resolute and rout as
+    the end-of-Skirmish check; `size` is the side's size after the opening Strike.
+    Returns dict(cas=, rout=, done=, panic_used=): done = the check was taken (no second one this Skirmish)."""
+    target = _morale_target(shaking, fat, shake_bonus, zealot_mask, morale_cap_mask)
+    trig = (net_combat > PANIC_THRESHOLD) & (size > 0) & (~steadfast_mask) & np.asarray(mask, dtype=bool)
+    done = trig.copy()
+    if resolute_firstpass_mask is not None and panic_used is not None:
+        free = trig & np.asarray(resolute_firstpass_mask, dtype=bool) & (~panic_used)
+        panic_used = panic_used | free
+        trig = trig & (~free)
+    test = trig & (target <= FACES)
+    cas = roller(rng, n, np.minimum(shake_cap, size), target, test)
+    cas = np.minimum(np.minimum(cas, size), np.maximum(0, field_cap - np.asarray(field_used).astype(np.int64)))
+    rout = trig & (target >= ROUT_THR)
+    return dict(cas=cas.astype(np.int64), rout=rout, done=done, panic_used=panic_used)
+
+
 def resolve_side_morale(rng, n, roller, shake_cap,
                         size, end, fat, active, ending,
                         net_combat, shaking, shake_bonus, unbreakable_mask, steadfast_mask,
                         cause, cas_panic_total, cas_break_total, cas_rout_total,
                         field_budget=None, field_cap=15, morale_cap_mask=None,
                         zealot_mask=None, steadfast_firstpass_mask=None, break_used=None,
-                        resolute_firstpass_mask=None, panic_used=None):
+                        resolute_firstpass_mask=None, panic_used=None, panic_done=None):
     """Resolve PANIC -> BREAK -> ROUT for ONE side, in place where possible.
+    panic_done: runs whose Panic check this Skirmish was already taken (instant Panic) -> no second one.
 
     All array args are shape (n,). Scalars (shaking) may be scalar or (n,).
     Returns a dict of updated arrays; the caller assigns them back. Pure numpy.
@@ -63,20 +103,7 @@ def resolve_side_morale(rng, n, roller, shake_cap,
     Returns dict(size=, panic_lost=, break_lost=, rout_lost=, cause=,
                  cas_panic_total=, cas_break_total=, cas_rout_total=, exhausted=).
     """
-    shaking_arr = np.asarray(shaking)
-    # Pre-token shake target (same value panic and break both read this skirmish).
-    target = (shaking_arr + np.asarray(fat).astype(np.int64) - np.asarray(shake_bonus)).astype(np.int64)
-    # Zealot: morale target cannot be modified at all — locked at base `shaking` (fatigue tokens
-    # and shake_bonus/Abbey do nothing). Applied before any other modifier.
-    if zealot_mask is not None:
-        _zb = np.broadcast_to(shaking_arr, target.shape).astype(np.int64)
-        target = np.where(np.asarray(zealot_mask, dtype=bool), _zb, target).astype(np.int64)
-    # Unshakable: morale target can never be reduced beyond 6+ (cap at 6). These units still
-    # TAKE panic & break tests every skirmish (they bleed at 6+), but can never reach the >=7
-    # rout threshold — they attrit, they don't shatter. Distinct from Unbreakable (skips the
-    # Break test but still routs at >=7).
-    if morale_cap_mask is not None:
-        target = np.where(np.asarray(morale_cap_mask, dtype=bool), np.minimum(target, CAP_THR), target).astype(np.int64)
+    target = _morale_target(shaking, fat, shake_bonus, zealot_mask, morale_cap_mask)
     exhausted = (np.asarray(end) <= 0) & (size > 0)
     # Per-skirmish FIELD budget (15 = front+reserve): combat already removed `field_budget`
     # this skirmish; panic+break may only remove up to the remainder. None = uncapped.
@@ -87,6 +114,8 @@ def resolve_side_morale(rng, n, roller, shake_cap,
 
     # ── 1. PANIC check (net combat > 5) ──────────────────────────────────────────
     panic_trig = (net_combat > PANIC_THRESHOLD) & (size > 0) & (~steadfast_mask) & (~ending) & active
+    if panic_done is not None:
+        panic_trig = panic_trig & (~np.asarray(panic_done, dtype=bool))
     # Resolute: the FIRST panic check a unit is ever required to take auto-passes (no roll, no
     # casualties); the one-shot is consumed. Parallel to Rally for break checks. `panic_used` is
     # persistent per-battle state carried by the caller across skirmishes.

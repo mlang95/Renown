@@ -54,6 +54,20 @@ def save_pool(pool, basename):
     return os.path.abspath(basename + ".csv")
 
 
+def pool_fingerprint(kind, **params):
+    """Hash of what pool building reads: Holding tree + text + parsed tokens, gear tiers / keywords / Initiative /
+    notes (not AP or Save numbers), the Retinues, the pool code, and the pool settings."""
+    import hashlib
+    rd = loadouts.rd
+    items = {nm: {str(k): {f: v.get(f) for f in ("tier", "tags", "init", "note", "requires", "profile_2h")}
+                  for k, v in getattr(rd, nm).items() if isinstance(v, dict)}
+             for nm in ("WEAPONS", "RANGED", "SHIELDS", "ARMORS")}
+    code = hashlib.sha1(open(loadouts.__file__, "rb").read()).hexdigest()
+    blob = json.dumps({"kind": kind, "params": params, "nodes": rd.NODES, "sim": rd.HOLDING_SIM, "items": items,
+                       "retinues": list(rd.RETINUES), "code": code}, sort_keys=True, default=str)
+    return hashlib.sha1(blob.encode("utf-8")).hexdigest()[:12]
+
+
 def ti_of(l):
     return len(l.pursuits) if l.pursuits else 0
 
@@ -128,9 +142,12 @@ def main():
     ap.add_argument("--mpc-max", type=int, default=None, help=argparse.SUPPRESS)   # retired: read as --ti-max
     ap.add_argument("--per-cell", default="40",
                     help="holding-first / balanced: builds per (Retinue x TI) cell, or 'none' for all. Default 40.")
-    ap.add_argument("--balance", default="none", choices=("none", "weapon"),
+    ap.add_argument("--balance", default="none", choices=("none", "weapon", "weapon_kit"),
                     help="holding-first: how each (Retinue x TI) cell is sampled. 'none' = uniform; "
-                         "'weapon' = slots dealt evenly across the weapons the cell can field.")
+                         "'weapon' = slots dealt evenly across the weapons the cell can field; "
+                         "'weapon_kit' = across weapon x kit (each shield, Dual Wield, none).")
+    ap.add_argument("--max-monuments", type=int, default=None,
+                    help="holding-first: cap Monuments per build (default: no cap, as in the game)")
     ap.add_argument("--stratify", default="all",
                     help="generator pool: builds per TI bucket (an integer like 500), or 'all' for the full pool.")
     ap.add_argument("--drop-shield-tier", action="store_true",
@@ -162,17 +179,52 @@ def main():
     pool_csv, pool_kind = None, None
 
     # ── Build or load the pool ──
+    if args.csv == "last":                     # the pool the last run used (lab_out/last_run.json -> its run.json)
+        try:
+            _lr = json.load(open(os.path.join(os.path.dirname(os.path.abspath(args.out)), "last_run.json")))
+            args.csv = json.load(open(os.path.join(_lr["out_dir"], "run.json")))["pool_csv"]
+            print(f"  POOL_CSV=last -> {args.csv}")
+        except Exception as e:
+            sys.exit(f"POOL_CSV=last: can't find the last run's pool ({e}). Give the pool's path instead.")
     if args.csv and os.path.exists(args.csv):
         pool = loadouts.archetype_pool(csv_path=args.csv)
         pool_csv, pool_kind = os.path.abspath(args.csv), "csv"
         print(f"Loaded {len(pool)} loadouts from {args.csv}")
+        # A reused pool keeps each build's Holdings, gear and Holding keywords from when it was made. Equipment
+        # stat changes are fine; Holding text, tree or unlock changes make it stale.
+        _stale = loadouts.stale_pool_report(pool)
+        if _stale:
+            _nb = len({n for n, _ in _stale})
+            print(f"\n  STALE POOL: {_nb} of {len(pool)} builds no longer match the current data:")
+            for n, why in _stale[:15]:
+                print(f"    {n}: {why}")
+            if len(_stale) > 15:
+                print(f"    ... {len(_stale) - 15} more")
+            if os.environ.get("RENOWN_ALLOW_STALE") != "1":
+                sys.exit("  Stopped. Build a new pool (POOL_CSV blank), or set ALLOW_STALE=1 to run this one anyway.")
+            print("  ALLOW_STALE=1: running it anyway.\n")
+        else:
+            print("  pool matches the current data (Holding keywords and gear unlocks)")
     elif args.holding_first:
         pool_kind = "holding_first"
         _bal = None if args.balance == "none" else args.balance
-        pool = loadouts.holding_first_pool(ti_min=args.ti_min, ti_max=args.ti_max, per_cell=per_cell, balance=_bal)
+        _fp = pool_fingerprint("holding_first", ti_min=args.ti_min, ti_max=args.ti_max, per_cell=per_cell,
+                               balance=_bal, max_monuments=args.max_monuments)
+        _cache_dir = os.path.join(os.path.dirname(os.path.abspath(args.out)), "_pool_cache")
+        _cache = os.path.join(_cache_dir, f"hf_{args.ti_min}_{args.ti_max}{cap}_{_fp}")
+        if os.environ.get("RENOWN_POOL_CACHE", "1") != "0" and os.path.exists(_cache + ".csv"):
+            pool = loadouts.archetype_pool(csv_path=_cache + ".csv")
+            print(f"  pool cache hit {_fp}: {len(pool)} builds from {_cache}.csv (same tree, gear rules and settings)")
+        else:
+            pool = loadouts.holding_first_pool(ti_min=args.ti_min, ti_max=args.ti_max, per_cell=per_cell, balance=_bal,
+                                               max_monuments=args.max_monuments)
+            if os.environ.get("RENOWN_POOL_CACHE", "1") != "0":
+                os.makedirs(_cache_dir, exist_ok=True)
+                save_pool(pool, _cache)
+                print(f"  pool cached as {_fp}")
         if not args.no_save_pool:
             pool_csv = save_pool(pool, os.path.join(
-                args.out, f"loadouts_hf_{args.ti_min}_{args.ti_max}{cap}" + (f"_bal{_bal[0]}" if _bal else "")))
+                args.out, f"loadouts_hf_{args.ti_min}_{args.ti_max}{cap}" + (f"_bal{'k' if _bal == 'weapon_kit' else _bal[0]}" if _bal else "")))
     elif args.balanced:
         pool_kind = "balanced"
         pool = loadouts.balanced_validation_pool(

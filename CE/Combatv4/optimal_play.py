@@ -26,6 +26,8 @@ answered); the Outrider side plays the best response to it.
     OP.explain(la, lb)            # both mixes, the payoff table and the initiative read for one pairing
 """
 import numpy as np
+from dice_config import clamp_init
+import combat_primitives as _cp
 
 from dice_config import FACES, FOCUSED_THR, CAP_THR, AUTO_PASS_FLOOR, PARRY_BASE, DEADLY_AP, UNSTOPPABLE_MOD
 
@@ -50,10 +52,12 @@ def _side(P, RP, skl, me, opp_P):
     g = lambda k: np.asarray(P[k])
     s = {}
     s["to_hit"] = g("to_hit"); s["armor"] = g("armor_save"); s["max_init"] = g("max_init")
-    s["size"] = g("size_start"); s["strike_bonus"] = g("strike_bonus"); s["parry_bonus"] = g("parry_bonus")
+    s["size"] = g("size_start"); s["parry_bonus"] = g("parry_bonus")
+    s["strike_bonus"] = g("strike_bonus_first" if skl == "first" and "strike_bonus_first" in P else "strike_bonus")
     s["ap"] = g(f"ap_{skl}"); s["ap_melee"] = g("ap_melee"); s["unstop_melee"] = g("unstop_melee")
     s["shield_off"] = g(f"shield_off_{skl}")
     s["shield_bonus"] = np.where(s["shield_off"], 0, g("shield_bonus_start"))
+    s["swall"] = (g("shield_wall") if "shield_wall" in P else np.zeros_like(s["shield_off"], dtype=bool)) & ~s["shield_off"]   # Pavisiers' Yard
     s["tbh"] = np.where(s["shield_off"], 0, g("shield_tbh_penalty_start"))      # what the OPPONENT suffers
     s["th_self"] = np.where(s["shield_off"], 0, g("shield_th_penalty_start"))
     for k, key in (("steady", "Steady"), ("unw", "Unwieldy"), ("imunw", "Immune_Unwieldy"),
@@ -64,6 +68,11 @@ def _side(P, RP, skl, me, opp_P):
         s[k] = g(f"{skl}_{key}")
     s["deadly"] = g(f"{skl}_Deadly"); s["crit"] = g(f"{skl}_crit_floor")
     s["ranged"] = g(f"{skl}_is_ranged")
+    s["hook"] = g(f"{skl}_hook")   # Hook N / Negate Shielded (99)
+    s["rp1"] = g(f"{skl}_Riposte_p1") if f"{skl}_Riposte_p1" in P else np.zeros_like(g(f"{skl}_Deadly"), dtype=bool)   # Riposte +1
+    s["foe_parry"] = g(f"foe_parry_{skl}") if f"foe_parry_{skl}" in P else np.zeros_like(s["ranged"], dtype=np.int64)
+    s["negrip"] = g(f"{skl}_Negate_Riposte")   # Negate Riposte (e.g. a Holding): the defender cannot Riposte its Strikes
+    s["fluted"] = g("fluted") if "fluted" in P else np.zeros_like(s["ranged"], dtype=bool)   # armor: incoming AP -1
     s["unw_active"] = s["unw"] & ~s["imunw"]
     rp = RP[skl]
     s["parry"] = rp[f"{me}_parry"]; s["regen"] = rp[f"{me}_regen"]; s["riposte"] = rp[f"{me}_riposte"]
@@ -73,20 +82,20 @@ def _side(P, RP, skl, me, opp_P):
 
 
 def _cas_per_strike(def_s, atk_s, save_t, deadly_frac, atk_unstop, atk_ranged, atk_deflect, atk_poison,
-                    atk_negtemp):
+                    atk_negtemp, deadly_shift=0, atk_negrip=False, atk_fp=0):
     """Expected casualties per landed Strike on the defender, and expected Ripostes per Strike."""
     # save targets (Planishing caps both at CAP_THR unless the attacker Negates it)
     cap = def_s["planish"] & ~atk_negtemp
     sc = np.where(cap, np.minimum(save_t, CAP_THR), save_t)
-    dsc_raw = save_t + DEADLY_AP
+    dsc_raw = save_t + DEADLY_AP + deadly_shift   # deadly_shift: Fluted after Deadly (AP 0 case)
     dsc = np.where(cap, np.minimum(dsc_raw, CAP_THR), dsc_raw)
     auto_pass = save_t < _AP
     # parry thresholds
-    deflect = atk_deflect | atk_ranged
-    pthr = np.minimum(PARRY_BASE - def_s["parry_bonus"] + UNSTOPPABLE_MOD * atk_unstop + deflect, CAP_THR)
+    no_rip = atk_deflect | atk_ranged | atk_negrip   # Ranged / Negate Riposte block Riposte; only a Deflect tag worsens Parry
+    pthr = PARRY_BASE - def_s["parry_bonus"] + UNSTOPPABLE_MOD * atk_unstop + atk_deflect + atk_fp   # 11+ = no Parry (_p_ge -> 0)
     pm = def_s["parry"]
     dw = def_s["dw"]                     # Dual Wield: a failed Parry is rerolled once; FOCUSED_THR-1 also Ripostes
-    q_n, q_d = _p_ge(pthr), _p_ge(FOCUSED_THR)
+    q_n, q_d = _p_ge(pthr), _p_ge(np.maximum(FOCUSED_THR, pthr))   # Deadly: at best a Focused roll
     pp_n = np.where(pm, np.where(dw, 1 - (1 - q_n) ** 2, q_n), 0.0)
     pp_d = np.where(pm, np.where(dw, 1 - (1 - q_d) ** 2, q_d), 0.0)
     rthr = def_s["regen"]
@@ -100,10 +109,10 @@ def _cas_per_strike(def_s, atk_s, save_t, deadly_frac, atk_unstop, atk_ranged, a
     cas_n = (1 - pp_n) * (f_plain * (1 - p_rec) + f_poison * (1 - p_rec_foc))
     f_d = _p_lt(dsc)
     f_dp = np.where(atk_poison, _p_ge(np.maximum(FOCUSED_THR, dsc)), 0.0)
-    cas_d = (1 - pp_d) * (f_d + f_dp) * (1 - p_rec_foc)
+    cas_d = (1 - pp_d) * (f_d + f_dp) * (1 - (0.0 if _cp.DEADLY_NO_RECOVER else p_rec_foc))   # Version D: no Recover
     cas = (1 - deadly_frac) * cas_n + deadly_frac * cas_d
-    rip_ok = def_s["riposte"] & ~deflect
-    q_r = _p_ge(np.maximum(pthr, np.where(dw, FOCUSED_THR - 1, FOCUSED_THR)))   # a parrying roll that Ripostes
+    rip_ok = def_s["riposte"] & ~no_rip
+    q_r = _p_ge(np.maximum(pthr, np.where(def_s["rp1"], FOCUSED_THR - 1, FOCUSED_THR)))   # a parrying roll that Ripostes (Riposte +1: 9)
     rip_n = np.where(dw, q_r * (2 - q_n), q_r)                                  # reroll: first roll, or the reroll
     rip = np.where(rip_ok, (1 - deadly_frac) * np.where(pm, rip_n, 0.0)
                    + deadly_frac * pp_d, 0.0)
@@ -136,19 +145,24 @@ def payoff(Pa, Pb, RP, skl, a_bi, b_bi, tab, front_cap, reserve_cap):
     aI = tab["a_I"][T, T][None]; bI = tab["b_I"][T, T][None]
     aTH = tab["a_TH"][T, T][None]; bTH = tab["b_TH"][T, T][None]
     aTS = tab["a_TS"][T, T][None]; bTS = tab["b_TS"][T, T][None]
+    # Shield Wall (Pavisiers' Yard): in Defensive Formation with the Shield Equipped, incoming AP -1 more
+    # (Articulated count + Shield Wall, per Tactic cell: A's Tactic is axis 1, B's axis 2)
+    _dfa = (np.arange(N_TAC) == _DF_IDX)
+    A_fl = np.asarray(A["fluted"]).astype(np.int64)[:, None, None] + (np.asarray(A["swall"])[:, None, None] & _dfa[None, :, None])
+    B_fl = np.asarray(B["fluted"]).astype(np.int64)[:, None, None] + (np.asarray(B["swall"])[:, None, None] & _dfa[None, None, :])
     no_combat = tab["no_combat"][T, T][None]
     x = lambda v: np.asarray(v)[:, None, None]
     # Initiative (Steady: negative Tactic mods -> 0; Unwieldy: positive -> 0)
     aIm = np.where(x(A["steady"]) & (aI < 0), 0, aI); aIm = np.where(x(A["unw_active"]) & (aIm > 0), 0, aIm)
     bIm = np.where(x(B["steady"]) & (bI < 0), 0, bI); bIm = np.where(x(B["unw_active"]) & (bIm > 0), 0, bIm)
-    a_init = np.clip(x(a_bi) + aIm, -2, x(A["max_init"]))
-    b_init = np.clip(x(b_bi) + bIm, -2, x(B["max_init"]))
+    a_init = clamp_init(x(a_bi) + aIm, x(Pa[f"binit_neg_{skl}"]) + np.minimum(aIm, 0), x(A["max_init"]), np)
+    b_init = clamp_init(x(b_bi) + bIm, x(Pb[f"binit_neg_{skl}"]) + np.minimum(bIm, 0), x(B["max_init"]), np)
     a_trip = ((a_init <= -2) | (x(A["blunder_first"]) & first)) & ~x(A["imm_blunder"])
     b_trip = ((b_init <= -2) | (x(B["blunder_first"]) & first)) & ~x(B["imm_blunder"])
 
     def to_strike(S, O, TH, trip):
         improve = -x(S["strike_bonus"]) - np.maximum(TH, 0)
-        worsen = np.where(x(S["negshield"]), 0, x(O["tbh"])) + x(S["th_self"]) + np.where(x(S["immtac"]), 0, np.maximum(-TH, 0))
+        worsen = np.maximum(x(O["tbh"]) - x(S["hook"]), 0) + x(S["th_self"]) + np.where(x(S["immtac"]), 0, np.maximum(-TH, 0))
         pre = np.minimum(x(S["to_hit"]) + improve, CAP_THR)
         pre = np.where(trip, np.maximum(pre, CAP_THR), pre)
         return np.minimum(pre + worsen, CAP_THR)
@@ -158,23 +172,26 @@ def payoff(Pa, Pb, RP, skl, a_bi, b_bi, tab, front_cap, reserve_cap):
     a_str, a_df = _strike_dice(a_tt, A)
     b_str, b_df = _strike_dice(b_tt, B)
     # saves: defender armour - attacker AP - defender shield - defender's Tactic TS
-    b_sv = x(B["armor"]) - x(A["ap"]) - x(B["shield_bonus"]) - bTS
-    a_sv = x(A["armor"]) - x(B["ap"]) - x(A["shield_bonus"]) - aTS
+    # (Fluted defender: incoming AP -1 toward 0; Deadly gets the after-Deadly shift)
+    b_sv = x(B["armor"]) - _cp.fluted_ap(x(A["ap"]), B_fl) - x(B["shield_bonus"]) - bTS
+    a_sv = x(A["armor"]) - _cp.fluted_ap(x(B["ap"]), A_fl) - x(A["shield_bonus"]) - aTS
     b_cas_ps, b_rip_ps = _cas_per_strike({k: x(v) for k, v in B.items()}, A, b_sv, a_df, x(A["unstop"]), x(A["ranged"]),
-                                         x(A["deflect_tag"]), x(A["poison"]), x(A["negtemp"]))
+                                         x(A["deflect_tag"]), x(A["poison"]), x(A["negtemp"]),
+                                         _cp.deadly_shift(x(A["ap"]), B_fl), x(A["negrip"]), x(A["foe_parry"]))
     a_cas_ps, a_rip_ps = _cas_per_strike({k: x(v) for k, v in A.items()}, B, a_sv, b_df, x(B["unstop"]), x(B["ranged"]),
-                                         x(B["deflect_tag"]), x(B["poison"]), x(B["negtemp"]))
+                                         x(B["deflect_tag"]), x(B["poison"]), x(B["negtemp"]),
+                                         _cp.deadly_shift(x(B["ap"]), A_fl), x(B["negrip"]), x(B["foe_parry"]))
     # Riposte: a clean Strike from the riposter's melee weapon back onto the striker
-    a_rip_sv = x(A["armor"]) - x(B["ap_melee"]) - x(A["shield_bonus"]) - aTS
-    b_rip_sv = x(B["armor"]) - x(A["ap_melee"]) - x(B["shield_bonus"]) - bTS
+    a_rip_sv = x(A["armor"]) - _cp.fluted_ap(x(B["ap_melee"]), A_fl) - x(A["shield_bonus"]) - aTS
+    b_rip_sv = x(B["armor"]) - _cp.fluted_ap(x(A["ap_melee"]), B_fl) - x(B["shield_bonus"]) - bTS
     zero = np.zeros_like(a_df)
     # per Riposte Strike received: casualties, and the chance it is Riposted back (a Riposte is a melee Strike)
     a_cas_rip, a_rr = _cas_per_strike({k: x(v) for k, v in A.items()}, B,
                                       a_rip_sv, zero, x(B["unstop_melee"]), x(np.zeros_like(B["ranged"])),
-                                      x(np.zeros_like(B["ranged"])), x(B["poison"]), x(B["negtemp"]))
+                                      x(np.zeros_like(B["ranged"])), x(B["poison"]), x(B["negtemp"]), 0, x(B["negrip"]))
     b_cas_rip, b_rr = _cas_per_strike({k: x(v) for k, v in B.items()}, A,
                                       b_rip_sv, zero, x(A["unstop_melee"]), x(np.zeros_like(A["ranged"])),
-                                      x(np.zeros_like(A["ranged"])), x(A["poison"]), x(A["negtemp"]))
+                                      x(np.zeros_like(A["ranged"])), x(A["poison"]), x(A["negtemp"]), 0, x(A["negrip"]))
     g = 1.0 / (1.0 - np.minimum(a_rr * b_rr, 0.95))        # the exchange goes back and forth (geometric)
     a_front = np.minimum(front_cap, x(A["size"])).astype(float)
     b_front = np.minimum(front_cap, x(B["size"])).astype(float)
@@ -301,6 +318,7 @@ def outrider_answer(pre, a_seizes, first, n_runs, revealed_side):
 
 # ── single-pairing inspection ──────────────────────────────────────────────────────────────────────
 TACTICS6 = ["Scout", "Ambush", "Flank", "Charge", "Fighting Formation", "Defensive Formation"]
+_DF_IDX = TACTICS6.index("Defensive Formation")   # Pavisiers' Yard Save +1
 
 
 def explain(la, lb, a_seizes=True, show=True):

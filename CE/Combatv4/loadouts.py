@@ -47,6 +47,23 @@ TIER_IDX = {t: i for i, t in enumerate(TIER_ORDER)}
 # Keyed here once so the rule is enforced consistently in valid_combo,
 # _structural_legal, and the archetype_pool two-of-same block.
 STABLE_WEAPONS = frozenset({"Lance", "Cavalry Spear"})
+# Gear bans come from each weapon's note, read the same way as the board (30_empire.js canDualWield /
+# weaponForbids): "no ... Tower Shield", "no ... Ranged", and any mention of Florentine / Dual Wield.
+import re as _re_note
+def weapon_forbids(weapon, what):
+    n = str(WEAPONS.get(weapon, {}).get("note", "") or "")
+    if what == "ranged":
+        return bool(_re_note.search(r"\bno\b[^.]*\bRanged\b", n, _re_note.I))
+    if what == "tower":
+        return bool(_re_note.search(r"\bno\b[^.]*\bTower Shield\b", n, _re_note.I))
+    if what == "florentine":
+        return bool(_re_note.search(r"Dual Wield|Florentine", n, _re_note.I))
+    return False
+def can_florentine(weapon):
+    """Two of the same 1H Melee Weapon: not Farm Tools, not 2H, and the note doesn't rule it out."""
+    w = WEAPONS.get(weapon)
+    return (w is not None and weapon != "Farm Tools" and TWO_H not in w.get("tags", [])
+            and not weapon_forbids(weapon, "florentine"))
 # Default army size. Half-scale game: 25 troops (front 10 / reserve 5). Old full-scale was 50.
 # CSV pools that store an explicit size are overridden to this on load unless the size differs
 # intentionally; regenerated pools use this directly.
@@ -231,14 +248,18 @@ def ranged_satisfied(ranged, pursuits):
     return all(req in pursuits for req in RANGED.get(ranged, {}).get("requires", []))
 
 
-def valid_combo(retinue, weapon, shield, armor, ranged, has_tiltyard, allow_tier_mismatch=2):
+SHIELD_TIER_RULE = False   # Nov 8 2026: any unlocked Shield may go with any 1H weapon (the old shield tier >= weapon tier rule is gone)
+
+
+def valid_combo(retinue, weapon, shield, armor, ranged, has_tiltyard, allow_tier_mismatch=2, buckler_2h=False):
     """Filter for sensible combinations.
     - 2H melee disallows shields.
     - 1H melee REQUIRES a shield (a dual-profile weapon too: its plain entry is the 1H profile).
       Farm Tools is exempt as the universal sidearm fallback in pure-ranged builds.
-    - 1H melee: shield tier must be >= weapon tier (universal rule).
+    - 1H melee: shield tier must be >= weapon tier (retired Nov 8 2026: SHIELD_TIER_RULE).
       Note: the "shield tier == weapon tier without ABF" rule is path-specific
       and enforced in archetype_pool() by restricting shield_options per path.
+    - buckler_2h (Buckler School): a 2H melee weapon may carry a Buckler Shield.
     - Lance disallows Tower Shield.
     - Poleaxe cannot be used by Levy (rules).
     - One-Shot ranged (Javelin, Crossbow) requires Tiltyard.
@@ -246,15 +267,13 @@ def valid_combo(retinue, weapon, shield, armor, ranged, has_tiltyard, allow_tier
     - Stable (cavalry) weapons cannot dual-equip a ranged weapon (charge weapons).
     - Pure-ranged exception: Farm Tools + ranged represents a ranged-focused build.
     """
-    if is_2h(weapon) and shield is not None:
+    if is_2h(weapon) and shield is not None and not (buckler_2h and shield == "Buckler Shield" and _true_2h(weapon)):
         return False
     # Stable cavalry weapons (Lance, Cavalry Spear) are charge weapons: no dual-equip
     # with a ranged weapon. (DW two-of-same is blocked separately in archetype_pool.)
-    if weapon in STABLE_WEAPONS and ranged is not None:
+    if ranged is not None and weapon_forbids(weapon, "ranged"):      # note: "no ... Ranged"
         return False
-    # Lance restrictions: cannot use Tower (too unwieldy on horse) or Wooden (too cheap).
-    # Lance CAN use Kite, Scutum, or Heater Shield.
-    if weapon in ("Lance", "Cavalry Spear") and shield == "Tower Shield":
+    if shield == "Tower Shield" and weapon_forbids(weapon, "tower"):  # note: "no ... Tower Shield"
         return False
     # (Crossbow is 2H like the other bows: no Crossbow-specific shield rule.)
     if weapon == "Poleaxe" and retinue == "Levy":
@@ -270,10 +289,10 @@ def valid_combo(retinue, weapon, shield, armor, ranged, has_tiltyard, allow_tier
             and not is_2h(weapon)
             and shield is None):
         return False
-    # 1H + shield: shield tier must be >= weapon tier
+    # 1H + shield: shield tier must be >= weapon tier -- RETIRED Nov 8 2026 (not a game rule; SHIELD_TIER_RULE=False).
     # Exception: Lance is exempt from the tier rule (only the explicit forbidden-shield
     # list above applies). Lance can use Kite, Scutum, or Heater regardless of weapon tier.
-    if shield is not None and not is_2h(weapon) and weapon != "Farm Tools" and weapon not in ("Lance", "Cavalry Spear"):
+    if SHIELD_TIER_RULE and shield is not None and not is_2h(weapon) and weapon != "Farm Tools" and weapon not in ("Lance", "Cavalry Spear"):
         weapon_tier_idx = TIER_IDX.get(WEAPONS[weapon]["tier"], 0)
         shield_tier_idx = TIER_IDX.get(SHIELDS[shield]["tier"], 0)
         if shield_tier_idx < weapon_tier_idx:
@@ -734,12 +753,56 @@ def _load_loadouts_from_csv(csv_path):
                 domain_count=dc,
             ))
     return pool
+def _true_2h(weapon_name):
+    """A Two-Handed weapon (not a Dual Wield one): Buckler School lets these carry a Buckler."""
+    return TWO_H in WEAPONS.get(weapon_name, {}).get("tags", [])
+
+
+def _shield_init(shield, tags):
+    """Shield Initiative after Shieldwright ('Shield Init +1': a negative penalty is 1 smaller)."""
+    i = SHIELDS[shield]["init"]
+    return i + 1 if (i < 0 and "Shield Init +1" in tags) else i
+
+
+_SHIELD_DRAWBACKS = {UNWIELDY, getattr(rd, "CRUDE", "Crude"), getattr(rd, "PONDEROUS", "Ponderous")}
+_SHIELD_PERKS = {IMMUNE_DESTROY_SHIELD, STEADY}
+
+
+def _shield_profile(s, tags):
+    d = SHIELDS[s]; t = set(d.get("tags", []))
+    return (d.get("save_bonus", 0), _shield_init(s, tags), _cp_shielded(t), t & _SHIELD_DRAWBACKS, t & _SHIELD_PERKS)
+
+
+def _cp_shielded(t):
+    best = 0
+    for x in t:
+        if x == "Shielded":
+            best = max(best, 1)
+        elif str(x).startswith("Shielded "):
+            try:
+                best = max(best, int(str(x).split()[1]))
+            except ValueError:
+                pass
+    return best
+
+
+def _undominated_shields(shields, tags):
+    """Drop a Shield when another unlocked Shield is at least as good on every count (Save, Initiative after
+    Shieldwright, Shielded, drawbacks, perks) and better on one: no player would carry it."""
+    prof = {s: _shield_profile(s, tags) for s in shields}
+    def beats(a, b):
+        A, B = prof[a], prof[b]
+        ge = A[0] >= B[0] and A[1] >= B[1] and A[2] >= B[2] and A[3] <= B[3] and A[4] >= B[4]
+        return ge and A != B
+    return [s for s in shields if not any(beats(o, s) for o in shields if o != s)]
+
+
 def _blunders(w_init, weapon, shield, tags):
     """True if this weapon + shield leaves the Army at the Blunder floor with no way off it.
     Initiative before Tactics = weapon + shield + Holding Init bonuses. At -1 or better: fine. At -2: fine only
     if a Tactic can still raise it, i.e. nothing it carries is Unwieldy (weapon, shield, Holding tags) or it has
     Immune Unwieldy. Below -2: always floored."""
-    init = w_init + SHIELDS[shield]["init"] + parse_bonuses(tags)["Init"]
+    init = w_init + _shield_init(shield, tags) + parse_bonuses(tags)["Init"]
     if init >= -1:
         return False
     if init < -2:
@@ -749,7 +812,7 @@ def _blunders(w_init, weapon, shield, tags):
     return unwieldy and IMMUNE_UNWIELDY not in tags
 
 
-def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, max_monuments=2):
+def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, max_monuments=None):
     """Enumerate loadouts. Two modes:
       1. CSV mode (`csv_path` given): load a frozen pool exported by an earlier run.
       2. Generator mode (default): enumerate Holding sets and derive everything else from them.
@@ -788,12 +851,16 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, max_m
             closed = frozenset(prereq_closure(seed))
             ok = _pursuit_set_is_valid(closed)
             budget = len(closed)
+            if len(_cc) > 1_000_000:                    # bounded: the DFS revisits nearby seeds, so a reset costs little
+                _cc.clear()
             r = _cc[seed] = (closed, ok, budget, sum(1 for m in _POOL_MONUMENTS if m in closed))
         return r
 
     def _full(closed):
         r = _fc.get(closed)
         if r is None:
+            if len(_fc) > 500_000:
+                _fc.clear()
             r = _fc[closed] = compute_pursuit_cost(closed)
         return r
 
@@ -814,7 +881,8 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, max_m
         Each distinct closed set is expanded once (its children depend only on the set), so there is
         no cap on how many options a build combines: the budget alone bounds it."""
         seen, best = set(), {}
-        fits = lambda c: c[1] and c[2] <= max_pursuit_cost and c[3] <= max_monuments
+        _mon_cap = float("inf") if max_monuments is None else max_monuments   # None = no cap (the game has none; Nov 7 2026)
+        fits = lambda c: c[1] and c[2] <= max_pursuit_cost and c[3] <= _mon_cap
         for industry_path in INDUSTRY_PATHS:
             for ret_chain in RETINUE_CHAINS:
                 base = frozenset(industry_path) | ret_chain
@@ -843,7 +911,7 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, max_m
         if pursuits in _done:
             continue
         _done.add(pursuits)
-        if sum(1 for m in _POOL_MONUMENTS if m in pursuits) > max_monuments:
+        if max_monuments is not None and sum(1 for m in _POOL_MONUMENTS if m in pursuits) > max_monuments:
             continue
         retinue_guess = derive_retinue_from_pursuits(pursuits)
         tier_str = derive_tier_from_pursuits(pursuits)
@@ -880,7 +948,7 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, max_m
         dual_wield_weapons = set()
         if has_dw:
             for w in melee:
-                if w == "Farm Tools" or w in DUAL_PROFILE or is_2h(w) or w in STABLE_WEAPONS:   # a dual-profile weapon (1H) always carries a shield
+                if not can_florentine(w):                         # weapon note rules (board canDualWield)
                     continue
                 arms_options.append((w, None, True))
                 dual_wield_weapons.add(w)
@@ -888,23 +956,24 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, max_m
             is_two_of_same = (weapon in dual_wield_weapons and ranged is None and ty)
             SHIELD_LADDER = ["Heater Shield", "Tower Shield", "Kite Shield",
                              "Targe Shield", "Buckler Shield"]
-            if weapon is None or is_2h(weapon) or is_two_of_same:
+            if (weapon is not None and _true_2h(weapon) and not is_two_of_same and "Buckler 2H" in tags
+                    and shield_satisfied("Buckler Shield", pursuits)):
+                shield_opts = ["Buckler Shield"]                  # Buckler School: the 2H weapon keeps a Buckler
+            elif weapon is None or is_2h(weapon) or is_two_of_same:
                 shield_opts = [None]
             else:
                 w_init = WEAPONS.get(weapon, {}).get("init", 0) if weapon != "Farm Tools" else 0
-                best_shield = None
-                for s in SHIELD_LADDER:
-                    if shield_satisfied(s, pursuits) and not _blunders(w_init, weapon, s, tags):
-                        best_shield = s
-                        break
-                shield_opts = [best_shield] if best_shield else [None]
+                # Nov 8 2026: every unlocked Shield that no other unlocked Shield strictly beats (was: the top of SHIELD_LADDER only)
+                ok_sh = [s for s in SHIELD_LADDER if shield_satisfied(s, pursuits) and not _blunders(w_init, weapon, s, tags)]
+                shield_opts = _undominated_shields(ok_sh, tags) or [None]
             ARMOR_LADDER = ["Gothic Plate", "Full Plate", "Chainmail", "Leather", "Gambeson", "Cloth"]
             armor_opts = [next((a for a in ARMOR_LADDER if a in ARMORS and armor_satisfied(a, pursuits)),
                                "Cloth")]
             for shield in shield_opts:
                 for armor in armor_opts:
                     if not is_two_of_same and not valid_combo(
-                            retinue_guess, weapon or "Farm Tools", shield, armor, ranged, ty):
+                            retinue_guess, weapon or "Farm Tools", shield, armor, ranged, ty,
+                            buckler_2h="Buckler 2H" in tags):
                         continue
                     if shield is not None and not shield_satisfied(shield, pursuits):
                         continue
@@ -983,9 +1052,9 @@ def _structural_legal(weapon, shield, armor, ranged, has_tiltyard):
     if is_2h(weapon) and shield is not None:
         return False
     # Stable cavalry weapons cannot dual-equip a ranged weapon (charge weapons).
-    if weapon in STABLE_WEAPONS and ranged is not None:
+    if ranged is not None and weapon_forbids(weapon, "ranged"):
         return False
-    if weapon in ("Lance", "Cavalry Spear") and shield == "Tower Shield":
+    if shield == "Tower Shield" and weapon_forbids(weapon, "tower"):
         return False
     if weapon in DUAL_PROFILE and shield is None:
         return False
@@ -1050,7 +1119,7 @@ def balanced_validation_pool(ti_min=6, ti_max=16, per_cell=None, seed=2026,
                         continue
                 gear_configs.append((weapon, shield, armor, None, False))
     for weapon in WEAPONS:                                        # Tiltyard two-of-same Dual Wield
-        if weapon == "Farm Tools" or weapon in DUAL_PROFILE or is_2h(weapon) or weapon in STABLE_WEAPONS:
+        if not can_florentine(weapon):
             continue
         for armor_tier in TIER_ORDER:
             if armor_for_tier.get(armor_tier):
@@ -1152,17 +1221,20 @@ def validate_loadout(ld, check_tier_floors=False):
     w, sh, ar, rg = ld.weapon, ld.shield, ld.armor, ld.ranged
     _is_dw_build = (DUAL_WIELD in set(ld.extra_tags or []) and w is not None
                     and DUAL_WIELD not in WEAPONS.get(w, {}).get("tags", []))
-    if w is not None and is_2h(w) and sh is not None:
+    if w is not None and is_2h(w) and sh is not None and not (
+            sh == "Buckler Shield" and _true_2h(w) and "Buckler 2H" in set(ld.extra_tags or [])):
         v.append(f"2H weapon {w} has shield {sh}")
     if (w not in (None, "Farm Tools") and not is_2h(w) and sh is None
             and not _is_dw_build):
         v.append(f"1H weapon {w} has no shield")
     if w in DUAL_PROFILE and sh is None:
         v.append(f"{w} (1H) has no shield")
-    if w in STABLE_WEAPONS and sh == "Tower Shield":
-        v.append(f"{w} cannot use Tower Shield")
-    if w in STABLE_WEAPONS and rg is not None:
-        v.append(f"Stable cavalry weapon {w} cannot dual-equip ranged {rg}")
+    if sh == "Tower Shield" and weapon_forbids(w, "tower"):
+        v.append(f"{w} cannot use Tower Shield (weapon note)")
+    if rg is not None and weapon_forbids(w, "ranged"):
+        v.append(f"{w} cannot dual-equip ranged {rg} (weapon note)")
+    if _is_dw_build and not can_florentine(w):
+        v.append(f"{w} cannot Florentine (weapon note)")
     if rg is not None and ONE_SHOT in RANGED.get(rg, {}).get("tags", []) and not ld.has_tiltyard:
         v.append(f"One-Shot ranged {rg} without Tiltyard")
     if w not in (None, "Farm Tools") and rg is not None and not ld.has_tiltyard:
@@ -1178,10 +1250,107 @@ def validate_loadout(ld, check_tier_floors=False):
     for p in sorted(P):
         if p in _SIM and not _line_ok(p, P):
             v.append(f"Holding {p} has no complete Mastery Chain line")
-    # (Joinery / Fletchery carry 'Upkeep -N' in their text, so they're never idle.)
-    if ld.has_tiltyard and rg is None and not _is_dw_build and not _needed_by_line("Tiltyard", P):
-        v.append("Tiltyard without a ranged weapon")
+    # dual-equip (Training Grounds; was Tiltyard) with no ranged weapon or Dual Wield, unless another Holding's line runs through it
+    _dq = _holder("dual-equip")
+    if ld.has_tiltyard and rg is None and not _is_dw_build and not (_dq and _dq in P and _needed_by_line(_dq, P)):
+        v.append(f"dual-equip ({_dq}) without a ranged weapon")
     return v
+
+
+def _gear_tags(ld):
+    """Keywords on the build's gear (weapon incl. its 2H profile, ranged, shield, armour)."""
+    t = set()
+    if ld.weapon in WEAPONS:
+        t |= set(WEAPONS[ld.weapon].get("tags", []))
+        p2 = WEAPONS[ld.weapon].get("profile_2h")
+        if p2 in WEAPONS:
+            t |= set(WEAPONS[p2].get("tags", []))
+    if ld.ranged in RANGED:
+        t |= set(RANGED[ld.ranged].get("tags", []))
+    if ld.shield in SHIELDS:
+        t |= set(SHIELDS[ld.shield].get("tags", []))
+    if ld.armor in ARMORS:
+        t |= set(ARMORS[ld.armor].get("tags", []))
+    return t
+
+
+def _token_used(tok, ld, need, gear):
+    """Does this build use what this Holding token gives it?"""
+    if tok.startswith(_INFO_PREFIX) or tok in _INFO_EXACT or _GEAR_LADDER.match(tok):
+        if tok.startswith("anytier:"):
+            n = tok[8:].lower()
+            return any(x and x.lower().rstrip("s") == n.rstrip("s") for x in (ld.weapon, ld.ranged))
+        if tok.startswith("retinue:"):
+            return tok == "retinue:" + ld.retinue
+        if tok == "cavalry":
+            return ld.weapon in STABLE_WEAPONS
+        if tok == "Artillery Park":
+            return ld.ranged == "Arquebus"
+        if tok == "Lance only":
+            return False                                   # a restriction, not a benefit
+        return tok in need
+    sh = ld.shield
+    if tok.startswith("Ranged "):
+        return ld.ranged is not None
+    if tok == "Immune One-Shot":
+        return ld.ranged is not None and ONE_SHOT in RANGED[ld.ranged].get("tags", [])
+    if tok == "Shield Init +1":
+        return sh is not None and SHIELDS[sh]["init"] < 0
+    if tok == "Buckler 2H":
+        return sh == "Buckler Shield" and _true_2h(ld.weapon)
+    if tok in ("Shield Wall", IMMUNE_DESTROY_SHIELD):
+        return sh is not None
+    if tok == IMMUNE_UNWIELDY:
+        return UNWIELDY in gear
+    if tok == "Immune Awkward":
+        return NO_PARRY_KW in gear
+    if tok == rd.FLORENTINE:
+        return DUAL_WIELD in set(ld.extra_tags or [])
+    if " @" in tok:                                        # scoped to one weapon ("First FoeParry +1 @Cavalry Spear", Wedge)
+        return str(ld.weapon or "").split(" [")[0] == tok.split(" @", 1)[1]
+    return True                                            # a combat keyword the army carries
+
+
+def stale_pool_report(pool):
+    """For a pool loaded from CSV: builds whose saved Holding keywords (extra_tags) no longer match what their
+    Holdings' text gives in the current data, or whose gear the current data no longer allows.
+    Returns [(build name, problem)]. Equipment stat changes (AP, Save, keywords on items) are not stale."""
+    out = []
+    for ld in pool:
+        P = set(ld.pursuits)
+        saved = {t for t in (ld.extra_tags or ()) if t}
+        dw = DUAL_WIELD in saved and ld.weapon is not None and DUAL_WIELD not in WEAPONS.get(ld.weapon, {}).get("tags", [])
+        now = set(compute_pursuit_cost(P)[2]) | ({DUAL_WIELD} if dw else set())
+        if now != saved:
+            gone, new = sorted(saved - now), sorted(now - saved)
+            out.append((ld.name, "Holding keywords changed:" + (f" no longer {gone}" if gone else "") + (f" now also {new}" if new else "")))
+        missing = [h for h in P if h not in _SIM]
+        if missing:
+            out.append((ld.name, f"Holdings no longer in the tree: {missing}"))
+        else:
+            for v in validate_loadout(ld):
+                out.append((ld.name, v))
+    return out
+
+
+def idle_holdings(ld):
+    """Holdings in the build that do nothing for it: no other Holding's line runs through them and none
+    of their tokens is used by this build's gear (see _token_used)."""
+    P = set(ld.pursuits)
+    toks = _tokens(P)
+    dw = DUAL_WIELD in set(ld.extra_tags or []) and ld.weapon is not None \
+        and DUAL_WIELD not in WEAPONS.get(ld.weapon, {}).get("tags", [])
+    need = gear_requirements(ld.weapon, ld.shield, ld.armor, ld.ranged, two_of_same=dw, toks=toks)
+    need |= {"weapon:" + ld.weapon} if ld.weapon in STABLE_WEAPONS else set()
+    req = set(RANGED[ld.ranged].get("requires", [])) if ld.ranged in RANGED else set()
+    gear = _gear_tags(ld)
+    out = []
+    for h in sorted(P):
+        if h not in _SIM or h in req or _needed_by_line(h, P):
+            continue
+        if not any(_token_used(t, ld, need, gear) for t in _SIM[h]["tags"]):
+            out.append(h)
+    return out
 
 
 def validate_pool(pool, check_tier_floors=False, max_report=20, verbose=True):
@@ -1298,7 +1467,10 @@ def holding_synergy(name):
     """(strong, soft) weapon keywords a Holding's text points at. Read from the text, not a list."""
     text = _holding_text(name)
     strong, soft = set(), set()
+    granted = set(rd.holding_combat_tags(text, sim=True))   # "Gain Deadly": the Holding supplies it, gear needn't
     for kw in _WEAPON_KW:
+        if kw in granted:
+            continue
         for m in _re.finditer(r"\b" + _re.escape(kw) + r"\b", text):
             pre = text[max(0, m.start() - 8):m.start()]
             if pre.rstrip().endswith("Immune"):
@@ -1361,7 +1533,8 @@ def synergy_score(ld, prof=None):
     if prof["florentine"] == "strong" and not dw:
         meets = False
     score = 2 * len(mk & want) + rw * len((rk - mk) & want) + len(mk & soft) + (len((rk - mk) & soft) if ranged_only else 0)
-    if prof["parry"] and NO_PARRY_KW in (mk if not ranged_only else rk) and not prof["immune_awkward"]:
+    _wk = mk if not ranged_only else rk
+    if prof["parry"] and ((NO_PARRY_KW in _wk and not prof["immune_awkward"]) or CRUDE_KW in _wk):   # Crude: no immunity
         score -= 2
     if prof["florentine"] == "soft":
         score += 1 if dw else 0
@@ -1369,6 +1542,7 @@ def synergy_score(ld, prof=None):
 
 
 NO_PARRY_KW = getattr(rd, "NO_PARRY", "Awkward")
+CRUDE_KW = getattr(rd, "CRUDE", "Crude")
 
 
 def domain_points(domain):
@@ -1376,13 +1550,24 @@ def domain_points(domain):
     return int(sum(domain.values()))
 
 
+def _kit(ld):
+    """How the build carries its main weapon: 'Dual Wield', its shield, or 'none'."""
+    return "Dual Wield" if DUAL_WIELD in (ld.extra_tags or ()) else (ld.shield or "none")
+
+
+_DEAL_KEYS = {"weapon_kit": lambda ld: (ld.weapon, ld.ranged, _kit(ld))}
+
+
 def _deal_by(builds, n, field, rng):
     """Pick n builds, dealt round-robin across the values of `field` (e.g. weapon): every value gets an
-    equal share where it has builds; a value that runs out passes its slots to the others."""
+    equal share where it has builds; a value that runs out passes its slots to the others.
+    field="weapon_kit" deals across (weapon, ranged, kit) so shield and Dual Wield variants of a weapon
+    each get a share, instead of whichever kit the cheaper Holding sets happen to produce."""
     from collections import defaultdict
+    key = _DEAL_KEYS.get(field) or (lambda ld: getattr(ld, field))
     groups = defaultdict(list)
     for ld in builds:
-        groups[getattr(ld, field)].append(ld)
+        groups[key(ld)].append(ld)
     queues = []
     for k in sorted(groups, key=lambda v: (v is None, str(v))):
         g = list(groups[k]); rng.shuffle(g); queues.append(g)
@@ -1398,7 +1583,7 @@ def _deal_by(builds, n, field, rng):
     return picked
 
 
-def holding_first_pool(ti_min=6, ti_max=16, per_cell=40, max_monuments=2, seed=2026,
+def holding_first_pool(ti_min=6, ti_max=16, per_cell=40, max_monuments=None, seed=2026,
                        keep="best", balance=None, verbose=True):
     """Tournament pool built Holdings-first.
     1. Every Holding set from archetype_pool's enumeration (weapon/armor tier stop x Retinue unlock x any
@@ -1408,7 +1593,8 @@ def holding_first_pool(ti_min=6, ti_max=16, per_cell=40, max_monuments=2, seed=2
        (ties all kept), keep="all" keeps every gear option that meets the STRONG rule.
     3. Balanced per (Retinue, TI) cell: `per_cell` builds sampled per cell (None = all).
        balance=None samples each cell uniformly (gear shows up as often as the Holding sets produce it);
-       balance="weapon" deals each cell's slots evenly across the weapons that cell can field.
+       balance="weapon" deals each cell's slots evenly across the weapons that cell can field;
+       balance="weapon_kit" deals them across weapon x kit (each shield, Dual Wield, none).
     Every build is checked with validate_loadout. TI is len(pursuits); military_pursuit_count holds the
     Wards the build occupies (its settlement footprint), reported only."""
     import random as _random
@@ -1419,7 +1605,7 @@ def holding_first_pool(ti_min=6, ti_max=16, per_cell=40, max_monuments=2, seed=2
     for ld in raw:
         by_set[ld.pursuits].append(ld)
     out_cells = defaultdict(list)
-    dropped_strong = 0
+    dropped_strong = dropped_idle = 0
     for P, lds in by_set.items():
         prof = synergy_profile(P)
         scored = [(synergy_score(ld, prof), ld) for ld in lds]
@@ -1434,6 +1620,9 @@ def holding_first_pool(ti_min=6, ti_max=16, per_cell=40, max_monuments=2, seed=2
         for s, ld in ok:
             if validate_loadout(ld):
                 continue
+            if idle_holdings(ld):                         # owns a Holding that does nothing for this build
+                dropped_idle += 1
+                continue
             ld = ld._replace(military_pursuit_count=_ward_count(set(P)), extra_tags=frozenset(ld.extra_tags))
             out_cells[(ld.retinue, ti)].append(ld)
     out = []
@@ -1446,7 +1635,8 @@ def holding_first_pool(ti_min=6, ti_max=16, per_cell=40, max_monuments=2, seed=2
         if balance:
             print(f"  sampled per cell balanced by {balance}")
         print(f"holding_first_pool: {len(by_set):,} Holding sets -> {len(out):,} builds "
-              f"(dropped {dropped_strong:,} sets whose named weapon keywords no unlocked weapon carries)")
+              f"(dropped {dropped_strong:,} sets whose named weapon keywords no unlocked weapon carries; "
+              f"{dropped_idle:,} builds owning a Holding they don't use)")
         print("  per retinue:", dict(_C(b.retinue for b in out)))
         print("  per TI:", dict(sorted(_C(len(b.pursuits) for b in out).items())))
     return out

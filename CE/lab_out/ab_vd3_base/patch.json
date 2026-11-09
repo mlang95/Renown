@@ -1,0 +1,208 @@
+{
+ "note": "In-memory data patch this run used (renown_data_d10 unchanged on disk). Version D runs also used --deadly-mode set --deadly-ap 10 (see dice.json).",
+ "edits": [
+  [
+   "HOLDING_SIM",
+   "Armory",
+   "tags",
+   "tag-",
+   "Riveted"
+  ],
+  [
+   "HOLDING_SIM",
+   "Gilded Foundry",
+   "tags",
+   "tag+",
+   "Riveted"
+  ],
+  [
+   "WEAPONS",
+   "Lance",
+   "tier",
+   "set",
+   "Crafted"
+  ],
+  [
+   "ARMORS",
+   "Leather",
+   "save",
+   "set",
+   7
+  ],
+  [
+   "ARMORS",
+   "Leather",
+   "tags",
+   "tag+",
+   "Nimble"
+  ],
+  [
+   "WEAPONS",
+   "Cavalry Spear",
+   "ap",
+   "set",
+   -1
+  ],
+  [
+   "WEAPONS",
+   "Cavalry Spear",
+   "tags",
+   "tag+",
+   "Deadly"
+  ],
+  [
+   "WEAPONS",
+   "2HBastard",
+   "ap",
+   "set",
+   -4
+  ],
+  [
+   "WEAPONS",
+   "Poleaxe",
+   "ap",
+   "set",
+   -5
+  ],
+  [
+   "SHIELDS",
+   "Tower Shield",
+   "tags",
+   "tag-",
+   "Shielded"
+  ],
+  [
+   "SHIELDS",
+   "Tower Shield",
+   "tags",
+   "tag+",
+   "Steady"
+  ],
+  [
+   "SHIELDS",
+   "Tower Shield",
+   "tags",
+   "tag+",
+   "Crude"
+  ],
+  [
+   "SHIELDS",
+   "Tower Shield",
+   "tags",
+   "tag+",
+   "Shielded 2"
+  ],
+  [
+   "WEAPONS",
+   "Bill Hook",
+   "tags",
+   "tag-",
+   "Negate Shielded"
+  ],
+  [
+   "WEAPONS",
+   "Bill Hook",
+   "tags",
+   "tag+",
+   "Hook 1"
+  ],
+  [
+   "WEAPONS",
+   "Halberd",
+   "tags",
+   "tag-",
+   "Negate Shielded"
+  ],
+  [
+   "WEAPONS",
+   "Halberd",
+   "tags",
+   "tag+",
+   "Hook 1"
+  ],
+  [
+   "WEAPONS",
+   "Battle Axe",
+   "tags",
+   "tag-",
+   "Negate Shielded"
+  ],
+  [
+   "WEAPONS",
+   "Battle Axe",
+   "tags",
+   "tag+",
+   "Hook 1"
+  ],
+  [
+   "WEAPONS",
+   "War Hammer",
+   "tags",
+   "tag-",
+   "Negate Shielded"
+  ],
+  [
+   "WEAPONS",
+   "War Hammer",
+   "tags",
+   "tag+",
+   "Hook 2"
+  ],
+  [
+   "RANGED",
+   "Javelin",
+   "tags",
+   "tag-",
+   "Negate Shielded"
+  ],
+  [
+   "RANGED",
+   "Javelin",
+   "tags",
+   "tag+",
+   "Hook 1"
+  ],
+  [
+   "RANGED",
+   "Crossbow",
+   "tags",
+   "tag-",
+   "Negate Shielded"
+  ],
+  [
+   "RANGED",
+   "Crossbow",
+   "tags",
+   "tag+",
+   "Hook 2"
+  ],
+  [
+   "RANGED",
+   "Pilum",
+   "tags",
+   "tag-",
+   "Negate Shielded"
+  ],
+  [
+   "RANGED",
+   "Pilum",
+   "tags",
+   "tag+",
+   "Hook 2"
+  ],
+  [
+   "RANGED",
+   "Arquebus",
+   "tags",
+   "tag-",
+   "Negate Shielded"
+  ],
+  [
+   "RANGED",
+   "Arquebus",
+   "tags",
+   "tag+",
+   "Hook 2"
+  ]
+ ]
+}

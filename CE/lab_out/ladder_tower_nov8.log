@@ -1,0 +1,17 @@
+pool: lab_out/_pool_cache/hf_5_16_pc50_96e2f7b51421.csv (2042 builds)
+
+######## shield: 2 items | subjects 200 (of 1148 carrying one) | panel 300
+  baseline done (264s)
+  Tower Shield       n=141  later -0.186  wr -0.000  (170s)
+  Tower Shield [save2] n=141  later -0.043  wr +0.019  (193s)
+
+== shield: item value on the same builds (d_wr sorted) ==
+          item_shown   tier   n  value_first  value_later   d_wr
+Tower Shield [save2] Forged 141        0.197       -0.043  0.019
+        Tower Shield Forged 141        0.077       -0.186 -0.000
+
+== shield: by tier (d_wr) ==
+        count  mean    std  min    max  step
+tier                                        
+Forged      2  0.01  0.014 -0.0  0.019   NaN
+  -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\ladder_shield_tower

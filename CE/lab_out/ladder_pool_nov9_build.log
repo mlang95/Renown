@@ -1,0 +1,8 @@
+fingerprint f2c21af80973 exists: False
+  sampled per cell balanced by weapon_kit
+holding_first_pool: 53,485 Holding sets -> 2,042 builds (dropped 3,747 sets whose named weapon keywords no unlocked weapon carries; 61,223 builds owning a Holding they don't use)
+  per retinue: {'Knight Templar': 408, 'Levy': 600, 'Man-at-Arms': 534, 'Sergeant': 500}
+  per TI: {5: 62, 6: 91, 7: 141, 8: 164, 9: 184, 10: 200, 11: 200, 12: 200, 13: 200, 14: 200, 15: 200, 16: 200}
+2042 builds in 317 s
+Royal Pavilion builds 36 with Crit +2: 36
+  Saved pool -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\ladder_pool_nov9.parquet (+ .csv)

@@ -69,7 +69,7 @@ GOLD_RE   = re.compile(r"^(?:Gold\s+)?([+-]?)\s?(\d{2,})(?:\s*gold)?$", re.I)   
 COMBAT_KW = ["unlock", "tier", "armor", "shield", "weapon", "ranged", "cavalry",
     "serrated", "poison", "parry", "riposte", "recover", "endurance", "immune",
     "nimble", "drilled", "zealous", "man-at-arms", "sergeant", "knight", "muster",
-    "reach", "strike", "tactic", "panic", "deadly", "cleave", "dual", "planishing",
+    "reach", "strike", "tactic", "panic", "deadly", "cleave", "dual", "planishing", "riveted",
     "seize the initiative", "arquebus", "shake", "enduring", "sally", "siege",
     "blunder", "garrison"]
 ENVOY_KW = ["envoy", "oppose", "support", "vote", "council", "condemn", "endorse",
@@ -628,7 +628,8 @@ def sprite_payload(ns, data_path):
         keymap = {n: k for n in sorted(names) for k in [mod.sprite_key(n, ns)] if k in mod.SPRITES}
         print(f"  sprites: {os.path.normpath(p)} ({len(mod.SPRITES)} sprites, {len(keymap)} names mapped)")
         raw = sorted(n for n, v in ns.get("NODES", {}).items() if v.get("type") == "Raw Materials")
-        return {"scatter": dict(getattr(mod, "SCATTER", {})), "S": mod.SPRITES, "P": mod.PALETTES.get("scene", {}), "key": keymap, "v": getattr(mod, "SPRITE_VERSION", "?"),
+        S = mod.board_sprites(ns) if hasattr(mod, "board_sprites") else mod.SPRITES   # eq: icons follow printed names
+        return {"scatter": dict(getattr(mod, "SCATTER", {})), "S": S, "P": mod.PALETTES.get("scene", {}), "key": keymap, "v": getattr(mod, "SPRITE_VERSION", "?"),
                 "raw": raw, "skyline": {k: list(v) for k, v in getattr(mod, "SKYLINE", {}).items()},
                 "supersedes": dict(getattr(mod, "INFRA_SUPERSEDES", {})), "noInfra": list(getattr(mod, "PLATE_NO_INFRA", [])),
                 "style": dict(getattr(mod, "SCENE_STYLE", {})), "herGroups": dict(getattr(mod, "HER_GROUPS", {})), "eqTile": getattr(mod, "EQ_TILE", "#3a404c")}
@@ -856,7 +857,7 @@ def battle_data(ns, rules_path):
         "narration": dict(ns.get("BATTLE_NARRATION", {}) or {}),
         "panicThreshold": ns.get("PANIC_CASUALTY_THRESHOLD"), "fatigueMorale": ns.get("FATIGUE_MORALE"),
         "fatigueStrike": ns.get("FATIGUE_STRIKE"), "capThr": ns.get("CAP_THR"), "routThr": ns.get("ROUT_THR"),
-        "faces": ns.get("FACES"), "focusedThr": ns.get("FOCUSED_THR"), "deadlyAp": ns.get("DEADLY_AP"),
+        "faces": ns.get("FACES"), "focusedThr": ns.get("FOCUSED_THR"), "deadlyAp": ns.get("DEADLY_AP"), "deadlyMode": ns.get("DEADLY_MODE"),
         "tacticalGlobal": list(ns.get("TACTICAL_GLOBAL", [])),
         "steps": rules_section(rules_path, "The Skirmish Steps", ns),
         "seize": rules_section(rules_path, "Beginning a Battle", ns),
@@ -908,7 +909,7 @@ def bandit_loadouts(ns, equip, key="BANDIT_EQUIPMENT_PER_ERA"):
 RULES_CONSTS = ("PHASES", "MARCH_MULTIPLIER", "MUSTER_RANGE", "CHARTER_MIN_RANGE", "HAMLET_RANGE",
                 "OUTLAW_BUFFER_RANGE", "SACK_EXTORT_PER_TIER", "INTERCEPT_EXTORT_PER_CRAFT", "WEALTH_EDICT_GOLD", "EDICT_UNIQUE", "CUNNING_EXTORT", "CUNNING_DOUBT", "GAME_TURN_LIMIT", "VASSAL_EXCHANGE_CAP",
                 "BLUNDER_THR", "BANDIT_BEHAVIOR", "UPKEEP_TRACKS",
-                "GLOSSARY_CATEGORIES", "STARTING_TREASURY", "EMPIRE_START_TIERS", "TERM_ENVOY_SCORE", "SHUTTER_TERM", "UPKEEP_TERM", "SUPPLY_TERM", "RENOWN_MAX",
+                "GLOSSARY_CATEGORIES", "KEYWORD_BUNDLES", "STARTING_TREASURY", "EMPIRE_START_TIERS", "TERM_ENVOY_SCORE", "SHUTTER_TERM", "UPKEEP_TERM", "SUPPLY_TERM", "RENOWN_MAX",
                 "CAPITAL_EDGE_RANGE", "AGE_YEAR_SEASON",
                 "PRESENCE_RANGE", "DOMAIN_MAX", "EXPOSED", "EXPOSED_DOMAIN", "FAITH_FICKLE_PO", "WARD_MODEL", "SETUP_HAMLET_HOLDINGS",
                 "SETUP_CAPITAL_PICKS", "SETUP_HAMLET_PICKS", "HAMLET_REPEATABLE", "AGE_YEAR_ROLL_MEAN", "AGE_YEAR_ROLL_SD",
@@ -1000,6 +1001,7 @@ def main():
         rulebook=rules_payload(ns, rules_path if os.path.exists(rules_path) else None),
         limits={"poMin": ns.get("PO_MIN", -5), "poMax": ns.get("PO_MAX", 10),
                 "initMin": ns.get("INITIATIVE_MIN", -2), "initMax": ns.get("INITIATIVE_MAX", 2),
+                "initCapFirst": bool(ns.get("INIT_CAP_BEFORE_PENALTIES", False)), "initFloor": bool(ns.get("INIT_FLOOR", True)),
                 "standing": ns.get("STANDING_THRESHOLDS", {"Untested": 1, "Rising": 3, "Established": 6, "Sovereign": 10})},
         eras=ns.get("ERAS", {}), edicts=ns.get("EDICTS", {}),
         envoyOutcomes=ns.get("ENVOY_OUTCOMES", {}), outcomeThresh=ns.get("ENVOY_OUTCOME_THRESHOLDS", {}),

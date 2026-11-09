@@ -1,0 +1,132 @@
+##### charge (First AP -1) on Lance | Panic normal
+pool: lab_out/ladder_pool_nov8.csv (2042 builds)
+change: add First AP -1
+subjects: 10 builds (10 matched, 0 skipped as illegal) | panel: 300
+analytic done in 11s
+battles done in 16s
+
+== overall (change in net casualties per Skirmish, first / later; win rate if --sim) ==
+  d_first +0.071 ±0.010  d_later +0.000 ±0.000  d_wr +0.003 ±0.001
+  win rate: 0.641 -> 0.644
+
+== by retinue ==
+                n  d_first  d_later   d_wr
+retinue                                   
+Sergeant        3    0.112      0.0  0.006
+Levy            3    0.046      0.0  0.003
+Man-at-Arms     3    0.063      0.0  0.003
+Knight Templar  1    0.043      0.0 -0.007
+
+== by shield ==
+                n  d_first  d_later   d_wr
+shield                                    
+Targe Shield    3    0.085      0.0  0.006
+Kite Shield     3    0.066      0.0  0.002
+Buckler Shield  4    0.064      0.0  0.001
+
+== by armor ==
+            n  d_first  d_later   d_wr
+armor                                 
+Leather     4    0.062      0.0  0.004
+Gambeson    5    0.081      0.0  0.003
+Full Plate  1    0.055      0.0  0.000
+##### charge (First AP -1) on Cavalry Spear | Panic normal
+pool: lab_out/ladder_pool_nov8.csv (2042 builds)
+change: add First AP -1
+subjects: 44 builds (44 matched, 0 skipped as illegal) | panel: 300
+analytic done in 81s
+battles done in 42s
+
+== overall (change in net casualties per Skirmish, first / later; win rate if --sim) ==
+  d_first +0.270 ±0.016  d_later +0.000 ±0.000  d_wr +0.009 ±0.001
+  win rate: 0.640 -> 0.649
+
+== by retinue ==
+                 n  d_first  d_later   d_wr
+retinue                                    
+Man-at-Arms     10    0.282      0.0  0.011
+Sergeant         9    0.355      0.0  0.011
+Knight Templar  11    0.307      0.0  0.009
+Levy            14    0.177      0.0  0.008
+
+== by shield ==
+                 n  d_first  d_later   d_wr
+shield                                     
+Buckler Shield  16    0.273      0.0  0.011
+Targe Shield    12    0.289      0.0  0.011
+Kite Shield      9    0.261      0.0  0.008
+Heater Shield    7    0.241      0.0  0.004
+
+== by armor ==
+             n  d_first  d_later   d_wr
+armor                                  
+Full Plate   1    0.235      0.0  0.013
+Gambeson    15    0.308      0.0  0.012
+Leather     17    0.253      0.0  0.008
+Chainmail   11    0.246      0.0  0.007
+##### charge (First AP -1) on Lance | Panic instant
+pool: lab_out/ladder_pool_nov8.csv (2042 builds)
+change: add First AP -1
+subjects: 10 builds (10 matched, 0 skipped as illegal) | panel: 300
+analytic done in 12s
+battles done in 19s
+
+== overall (change in net casualties per Skirmish, first / later; win rate if --sim) ==
+  d_first +0.071 ±0.010  d_later +0.000 ±0.000  d_wr +0.003 ±0.001
+  win rate: 0.645 -> 0.648
+
+== by retinue ==
+                n  d_first  d_later   d_wr
+retinue                                   
+Sergeant        3    0.112      0.0  0.004
+Levy            3    0.046      0.0  0.003
+Man-at-Arms     3    0.063      0.0  0.003
+Knight Templar  1    0.043      0.0  0.001
+
+== by shield ==
+                n  d_first  d_later   d_wr
+shield                                    
+Targe Shield    3    0.085      0.0  0.004
+Buckler Shield  4    0.064      0.0  0.003
+Kite Shield     3    0.066      0.0  0.003
+
+== by armor ==
+            n  d_first  d_later   d_wr
+armor                                 
+Full Plate  1    0.055      0.0  0.005
+Gambeson    5    0.081      0.0  0.003
+Leather     4    0.062      0.0  0.003
+##### charge (First AP -1) on Cavalry Spear | Panic instant
+pool: lab_out/ladder_pool_nov8.csv (2042 builds)
+change: add First AP -1
+subjects: 44 builds (44 matched, 0 skipped as illegal) | panel: 300
+analytic done in 98s
+battles done in 40s
+
+== overall (change in net casualties per Skirmish, first / later; win rate if --sim) ==
+  d_first +0.270 ±0.016  d_later +0.000 ±0.000  d_wr +0.011 ±0.001
+  win rate: 0.642 -> 0.653
+
+== by retinue ==
+                 n  d_first  d_later   d_wr
+retinue                                    
+Man-at-Arms     10    0.282      0.0  0.014
+Levy            14    0.177      0.0  0.011
+Sergeant         9    0.355      0.0  0.011
+Knight Templar  11    0.307      0.0  0.010
+
+== by shield ==
+                 n  d_first  d_later   d_wr
+shield                                     
+Buckler Shield  16    0.273      0.0  0.013
+Kite Shield      9    0.261      0.0  0.012
+Targe Shield    12    0.289      0.0  0.012
+Heater Shield    7    0.241      0.0  0.005
+
+== by armor ==
+             n  d_first  d_later   d_wr
+armor                                  
+Gambeson    15    0.308      0.0  0.014
+Full Plate   1    0.235      0.0  0.013
+Leather     17    0.253      0.0  0.011
+Chainmail   11    0.246      0.0  0.008

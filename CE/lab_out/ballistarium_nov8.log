@@ -1,0 +1,98 @@
+##### Ballistarium as now: value of Deadly +1 (Ranged Weapons)
+pool: lab_out/ladder_pool_nov8.csv (2042 builds)
+change: remove Ranged Crit +1
+subjects: 102 builds (102 matched, 0 skipped as illegal) | panel: 300
+analytic done in 166s
+battles done in 71s
+
+== overall (change in net casualties per Skirmish, first / later; win rate if --sim) ==
+  d_first -0.214 ±0.005  d_later -0.103 ±0.013  d_wr -0.019 ±0.002
+  win rate: 0.623 -> 0.603
+
+== by retinue ==
+                 n  d_first  d_later   d_wr
+retinue                                    
+Knight Templar  17   -0.176   -0.078 -0.008
+Man-at-Arms     26   -0.221   -0.095 -0.018
+Sergeant        16   -0.242   -0.101 -0.018
+Levy            43   -0.215   -0.118 -0.024
+
+== by weapon ==
+                n  d_first  d_later   d_wr
+weapon                                    
+War Hammer      1   -0.184    0.000 -0.007
+Bastard Sword   8   -0.176   -0.028 -0.010
+Spears         15   -0.214   -0.059 -0.013
+Daggers        27   -0.209   -0.058 -0.014
+2HBastard       5   -0.193   -0.044 -0.015
+Flail           8   -0.208   -0.095 -0.020
+Pike           19   -0.213   -0.102 -0.021
+Farm Tools     19   -0.251   -0.258 -0.036
+
+== by shield ==
+                 n  d_first  d_later   d_wr
+shield                                     
+Tower Shield     1   -0.171    0.000 -0.007
+Buckler Shield  36   -0.209   -0.071 -0.016
+-               47   -0.216   -0.113 -0.020
+Targe Shield     7   -0.208   -0.115 -0.021
+Heater Shield    2   -0.241   -0.155 -0.024
+Kite Shield      9   -0.230   -0.167 -0.030
+
+== by armor ==
+             n  d_first  d_later   d_wr
+armor                                  
+Cloth       57   -0.212   -0.079 -0.015
+Chainmail    3   -0.229   -0.103 -0.020
+Gambeson    27   -0.210   -0.119 -0.021
+Leather     13   -0.224   -0.152 -0.028
+Full Plate   2   -0.255   -0.258 -0.051
+##### Ballistarium at +2: value of Deadly +2 (Ranged Weapons)
+pool: lab_out/ladder_pool_nov8_ball2.csv (2042 builds)
+change: remove Ranged Crit +2
+subjects: 102 builds (102 matched, 0 skipped as illegal) | panel: 300
+analytic done in 183s
+battles done in 91s
+
+== overall (change in net casualties per Skirmish, first / later; win rate if --sim) ==
+  d_first -0.436 ±0.010  d_later -0.209 ±0.027  d_wr -0.038 ±0.003
+  win rate: 0.641 -> 0.603
+
+== by retinue ==
+                 n  d_first  d_later   d_wr
+retinue                                    
+Knight Templar  17   -0.355   -0.159 -0.016
+Man-at-Arms     26   -0.456   -0.195 -0.036
+Sergeant        16   -0.487   -0.206 -0.037
+Levy            43   -0.437   -0.239 -0.048
+
+== by weapon ==
+                n  d_first  d_later   d_wr
+weapon                                    
+War Hammer      1   -0.385    0.000 -0.015
+Bastard Sword   8   -0.357   -0.057 -0.020
+Spears         15   -0.436   -0.119 -0.027
+2HBastard       5   -0.396   -0.090 -0.028
+Daggers        27   -0.425   -0.118 -0.028
+Flail           8   -0.423   -0.195 -0.038
+Pike           19   -0.432   -0.207 -0.041
+Farm Tools     19   -0.508   -0.525 -0.068
+
+== by shield ==
+                 n  d_first  d_later   d_wr
+shield                                     
+Tower Shield     1   -0.342    0.000 -0.013
+Buckler Shield  36   -0.426   -0.145 -0.031
+-               47   -0.440   -0.230 -0.039
+Targe Shield     7   -0.422   -0.234 -0.041
+Heater Shield    2   -0.491   -0.316 -0.046
+Kite Shield      9   -0.467   -0.340 -0.058
+
+== by armor ==
+             n  d_first  d_later   d_wr
+armor                                  
+Cloth       57   -0.432   -0.160 -0.030
+Chainmail    3   -0.465   -0.211 -0.037
+Gambeson    27   -0.427   -0.242 -0.042
+Leather     13   -0.454   -0.309 -0.055
+Full Plate   2   -0.515   -0.522 -0.096

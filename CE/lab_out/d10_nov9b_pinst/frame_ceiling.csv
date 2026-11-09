@@ -1,0 +1,11 @@
+frame,TI 8-20,TI 20-26,TI 26-32,TI 32-46,name,win_rate,ti
+Sword & Board,0.7629,0.7184,0.9283,0.9735,"KT/Bastard/Heater/Chain [(SInd, EProw, SPie, NCun), AP -1, Buckler 2H, Enduring, Rec 7, Serr, Shield Init +1, Shield Wall]",0.9735,42
+Florentine,0.7906,0.8665,0.8909,0.9458,"KT/Morningstar/Cloth (DW) [(EInd, EProw, SPie, NCun), AP -1, DW, Enduring, Florentine, Immune Strained, ImmU, Nimble, Parry +1, Rec 7, Riposte, Riposte +1]",0.9458,37
+Shock Troops,0.57,0.6627,0.8567,0.9825,"Sgt/BattleAxe/FullPlate [MiMiSt, (EInd, SProw, EPie, RCun), Enduring, Poison, Rec 7, Temp]",0.9825,41
+Crowd Control,0.4711,0.6182,0.8732,0.8969,"KT/Flail+Longbow/Targe/Cloth (TY) [(RInd, EProw, SPie, NCun), Enduring, Immune Awkward, Ranged AP -1, Ranged Strike +1, Rec 7, Shield Init +1]",0.8969,34
+Polearms,0.5544,0.721,0.8712,0.9581,"KT/Bill Hook+HuntBow/FullPlate (TY) [(EInd, EProw, SPie, RCun), Enduring, Poison, Ranged AP -1, Ranged Strike +1, Rec 7, Temp]",0.9581,41
+War Hammer,0.4585,0.5988,0.8045,0.8997,"KT/WarHammer/Buckler/Leather [(EInd, EProw, SPie, NCun), AP -1, Buckler 2H, Enduring, Rec 7, Serr, Shield Init +1, Shield Wall]",0.8997,37
+Spears & Pikes,0.6473,0.7213,0.9364,0.9696,"KT/Pike+HuntBow/Gambeson (TY) [Ba, (RInd, SProw, SPie, RCun), Enduring, Immune Awkward, Poison, Ranged AP -1, Ranged Strike +1, Rec 7]",0.9696,42
+Cavalry,0.4539,0.8565,0.866,0.9424,"KT/Cavalry Spear/Heater/Chain [(SInd, EProw, SPie, NCun), Buckler 2H, Enduring, Rec 7, Shield Init +1, Shield Wall]",0.9424,41
+Chaff,0.7221,0.8256,0.9828,0.9574,"MaA/Longbow/Gambeson [Ba, RoPa, (NInd, SProw, EPie, NCun), Florentine, Immune Awkward, Immune Strained, ImmU, Nimble, Parry +1, Ranged AP -1, Ranged Strike +1, Rec 7, Riposte, Riposte +1]",0.9828,32
+Ranged Only,0.489,0.741,0.8465,0.9089,"KT/Longbow/Chain [(EInd, EProw, SPie, RCun), AP -1, Enduring, Poison, Rec 7]",0.9089,40

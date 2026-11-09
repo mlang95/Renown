@@ -1,0 +1,61 @@
+##### Wedge removed from Lance builds
+pool: lab_out/d10_nov9b_pinst/loadouts_hf_5_16_pc50_balk.csv (2042 builds)
+change: remove First FoeParry +1 @Lance
+subjects: 8 builds (8 matched, 0 skipped as illegal) | panel: 300
+analytic done in 9s
+battles done in 16s
+
+== overall (change in net casualties per Skirmish, first / later; win rate if --sim) ==
+  d_first -0.170 ±0.013  d_later +0.000 ±0.000  d_wr -0.005 ±0.002
+  win rate: 0.705 -> 0.700
+
+== by retinue ==
+             n  d_first  d_later   d_wr
+retinue                                
+Levy         1   -0.118      0.0 -0.002
+Sergeant     3   -0.212      0.0 -0.005
+Man-at-Arms  4   -0.151      0.0 -0.007
+
+== by shield ==
+                n  d_first  d_later   d_wr
+shield                                    
+Heater Shield   1   -0.149      0.0 -0.003
+Targe Shield    4   -0.181      0.0 -0.005
+Buckler Shield  3   -0.161      0.0 -0.007
+
+== by armor ==
+            n  d_first  d_later   d_wr
+armor                                 
+Full Plate  1   -0.143      0.0  0.000
+Chainmail   2   -0.178      0.0 -0.003
+Gambeson    3   -0.182      0.0 -0.004
+Leather     2   -0.157      0.0 -0.012
+##### Wedge removed from Cavalry Spear builds
+pool: lab_out/d10_nov9b_pinst/loadouts_hf_5_16_pc50_balk.csv (2042 builds)
+change: remove First FoeParry +1 @Cavalry Spear
+subjects: 3 builds (3 matched, 0 skipped as illegal) | panel: 300
+analytic done in 3s
+battles done in 8s
+
+== overall (change in net casualties per Skirmish, first / later; win rate if --sim) ==
+  d_first -0.130 ±0.012  d_later +0.000 ±0.000  d_wr -0.007 ±0.003
+  win rate: 0.552 -> 0.546
+
+== by retinue ==
+                n  d_first  d_later  d_wr
+retinue                                  
+Levy            1   -0.108      0.0 -0.00
+Knight Templar  1   -0.151      0.0 -0.01
+Man-at-Arms     1   -0.132      0.0 -0.01
+
+== by shield ==
+                n  d_first  d_later   d_wr
+shield                                    
+Buckler Shield  2   -0.120      0.0 -0.005
+Targe Shield    1   -0.151      0.0 -0.010
+
+== by armor ==
+          n  d_first  d_later   d_wr
+armor                               
+Leather   2   -0.120      0.0 -0.005
+Gambeson  1   -0.151      0.0 -0.010

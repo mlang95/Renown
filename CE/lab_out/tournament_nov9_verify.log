@@ -1,0 +1,133 @@
+
+1. MODULE RESOLUTION
+  [PASS] renown_data -> renown_data_d10.py  — got renown_data_d10.py
+  [PASS] vectorized_combat -> vectorized_combat_d10.py  — got vectorized_combat_d10.py
+  [PASS] combat_kernel -> combat_kernel_d10.py  — got combat_kernel_d10.py
+  [PASS] combat_morale -> combat_morale_d10.py  — got combat_morale_d10.py
+  [PASS] combat_primitives -> combat_primitives_d10.py  — got combat_primitives_d10.py
+  [PASS] renown_combat -> renown_combat_d10.py
+  [PASS] loadouts inside CE tree  — C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4
+  [PASS] batch_engine inside CE tree  — C:\Users\Matt\OneDrive\Desktop\Game\CE\Combatv4
+  [PASS] nothing loaded from outside CE
+
+2. DICE CONFIG  (d10 | Focused 10+ | Rout 11+ | cap 10+ | Fatigue -2/-2 | auto-pass 2 | Parry 8+ | Recover 8+ | Deadly set 10 | Unstoppable +2 | ImpParry -1 | src defaults)
+  [PASS] renown_data is the -d10 build  — 0.4.9.9.15-d10-STrue
+  [PASS] renown_data.FACES matches dice_config  — 10 vs 10
+
+3. DATA VALUES  (structural — these do not hard-code your tuning)
+  [PASS] retinue thresholds within 2..FACES
+      retinues: Levy 6+/6+, Man-at-Arms 5+/5+, Sergeant 3+/5+, Knight Templar 4+/4+
+  [PASS] armor ladder monotonic by tier  — Cloth 10+, Gambeson 8+, Leather 7+, Chainmail 6+, Full Plate 4+, Gothic Plate 3+
+  [PASS] armor saves within 2..FACES
+      shields: Buckler +1/+0, Targe +1/-1, Kite +1/+0, Tower +2/-2, Heater +2/-1
+  [PASS] one Recover base rung  — {'Recover 8': ['Apothecary']}
+      Recover ladder: Recover +1 (Infirmary), Recover 8 (Apothecary)
+  [PASS] Arquebus spelled correctly  — found ['Arquebus']
+  [PASS] Arquebus gated on Artillery Park  — ['Artillery Park']
+  [PASS] Arquebus tactic restriction present  — ['Fighting Formation', 'Fall Back']
+  [PASS] Focused glossary matches FOCUSED_THR  — An Unmodified 10.
+  [PASS] no stray '6+' in combat glossary
+      AP by tier (informational): Crude 0-1 | Cast 0-1 | Wrought 1-3 | Forged 2-10 | Crafted 3-4
+
+4. PROBABILITY SANITY
+  [PASS] p_success(10)  — 0.100 expected 0.100
+  [PASS] p_success(2)  — 0.900 expected 0.900
+  [PASS] p_success(11)  — 0.000 expected 0.000
+  [PASS] auto-pass floor
+
+5. SMOKE RUN
+  [PASS] loadouts constructed  — Man-at-Arms/Chainmail vs Levy/Gambeson
+  [PASS] matchup ran  — dict
+       {'a_wins': 200, 'b_wins': 0, 'mut_wipe': 0, 'indecisive': 0, 'avg_skirm': 3.815, 'avg_a_rem': 16.66, 'avg_b_rem': 0.0, 'a_shield_destroyed_rate': 0.0, 'b_shield_destroyed_rate': 0.0, 'a_ended_by_fallback_rate': 0.0, 'b_ended_by_fallback_rate': 0.0, 'avg_a_killed_combat': 6.55, 'avg_a_killed_shake': 1.74, 'avg_a_killed_waver': 0.05, 'avg_a_killed_rout': 0.0, 'avg_a_killed_flee': 0.0, 'avg_b_killed_
+  [FAIL] 'The Tunnellers' -> 'Tunnellers', but 'Tunnellers' is itself an alias key (chain)
+  [FAIL] 'Tunnellers' aliases to itself
+  [FAIL] 'Tunnellers' -> 'Tunnellers', but 'Tunnellers' is itself an alias key (chain)
+  [FAIL] label 'Terrain Negotiators' claimed by ['The Ancient Wilds', 'Ancient Wilds']
+  [FAIL] label 'From the Pulpit' claimed by ['The Pulpit', 'Pulpit']
+  [FAIL] label 'Tunnellers' claimed by ['The Tunnellers', 'Tunnellers']
+  [FAIL] label 'Oathsworn Knight' claimed by ["Knight's Templar", 'Knight Templar']
+  [FAIL] alias key 'Tundra' matches no node/weapon/tier id
+  [FAIL] alias key "Knight's Templar" matches no node/weapon/tier id
+  [FAIL] alias key 'Knight Templar' matches no node/weapon/tier id
+  [FAIL] alias key 'Recover' matches no node/weapon/tier id
+  [FAIL] alias key 'RECOVER' matches no node/weapon/tier id
+  [FAIL] alias key 'Recovered' matches no node/weapon/tier id
+  [FAIL] alias key 'TH' matches no node/weapon/tier id
+  [FAIL] alias key 'TS' matches no node/weapon/tier id
+  [FAIL] alias key 'The Eternal Sepulchre' matches no node/weapon/tier id
+  [FAIL] alias key 'High Chancery' matches no node/weapon/tier id
+  [FAIL] alias key 'The Grand Exchange' matches no node/weapon/tier id
+  [FAIL] alias key 'Pursuit' matches no node/weapon/tier id
+  [FAIL] alias key 'Pursuits' matches no node/weapon/tier id
+  [FAIL] alias key 'PURSUIT' matches no node/weapon/tier id
+  [FAIL] alias key 'PURSUITS' matches no node/weapon/tier id
+  [FAIL] alias key 'The Battering Ram' matches no node/weapon/tier id
+  [FAIL] alias key 'The Boundless Steppe' matches no node/weapon/tier id
+  [FAIL] alias key 'The Bandit King' matches no node/weapon/tier id
+  [FAIL] alias key 'The Crimson Tide' matches no node/weapon/tier id
+  [FAIL] alias key 'The Entwined Crown' matches no node/weapon/tier id
+  [FAIL] alias key 'The Eternal Court' matches no node/weapon/tier id
+  [FAIL] alias key 'The Final Word' matches no node/weapon/tier id
+  [FAIL] alias key 'The Gilded Crescent' matches no node/weapon/tier id
+  [FAIL] alias key 'The Gilded Path' matches no node/weapon/tier id
+  [FAIL] alias key 'The Illuminated Order' matches no node/weapon/tier id
+  [FAIL] alias key 'The Iron Faith' matches no node/weapon/tier id
+  [FAIL] alias key 'The Iron Shore' matches no node/weapon/tier id
+  [FAIL] alias key 'The Iron Throne' matches no node/weapon/tier id
+  [FAIL] alias key 'The Merchant Republics' matches no node/weapon/tier id
+  [FAIL] alias key 'The Sacred Throne' matches no node/weapon/tier id
+  [FAIL] alias key 'The Tunnellers' matches no node/weapon/tier id
+  [FAIL] alias key 'Tunnellers' matches no node/weapon/tier id
+  [FAIL] alias key 'The Undying Flame' matches no node/weapon/tier id
+  [FAIL] alias key 'The Verdant Kingdom' matches no node/weapon/tier id
+  [FAIL] alias key 'The Winter Wolves' matches no node/weapon/tier id
+  [FAIL] alias key 'The Ancient Wilds' matches no node/weapon/tier id
+  [FAIL] alias key 'Ancient Wilds' matches no node/weapon/tier id
+  [FAIL] alias key 'The Bloodied Cross' matches no node/weapon/tier id
+  [FAIL] alias key 'The Blazing Standard' matches no node/weapon/tier id
+  [FAIL] alias key 'The Inner Circle' matches no node/weapon/tier id
+  [FAIL] alias key 'The Luminous Court' matches no node/weapon/tier id
+  [FAIL] alias key 'The Grand Compact' matches no node/weapon/tier id
+  [FAIL] alias key 'The Pale Throne' matches no node/weapon/tier id
+  [FAIL] alias key 'The Sublime Gate' matches no node/weapon/tier id
+  [FAIL] alias key 'The Velvet Hand' matches no node/weapon/tier id
+  [FAIL] alias key 'The Ashen Vale' matches no node/weapon/tier id
+  [FAIL] alias key 'The Broken Banner' matches no node/weapon/tier id
+  [FAIL] alias key 'The Forked Tongue' matches no node/weapon/tier id
+  [FAIL] alias key 'The Hall of Masks' matches no node/weapon/tier id
+  [FAIL] alias key 'The Smoldering Crown' matches no node/weapon/tier id
+  [FAIL] alias key "The Squatters' Crown" matches no node/weapon/tier id
+  [FAIL] alias key 'The Wandering Crown' matches no node/weapon/tier id
+  [FAIL] alias key 'The Dukedom' matches no node/weapon/tier id
+  [FAIL] alias key 'The Elder Grove' matches no node/weapon/tier id
+  [FAIL] alias key 'The Yew Heart' matches no node/weapon/tier id
+  [FAIL] alias key 'The Greenward Charter' matches no node/weapon/tier id
+  [FAIL] alias key 'The Stonewrights' matches no node/weapon/tier id
+  [FAIL] alias key 'The Reaver Kings' matches no node/weapon/tier id
+  [FAIL] alias key 'The Silver Tongues' matches no node/weapon/tier id
+  [FAIL] alias key 'The Last Arrivals' matches no node/weapon/tier id
+  [FAIL] alias key 'The Iron Whisper' matches no node/weapon/tier id
+  [FAIL] alias key 'The Chapter House' matches no node/weapon/tier id
+  [FAIL] alias key 'The Levy Lords' matches no node/weapon/tier id
+  [FAIL] alias key 'The Endless Host' matches no node/weapon/tier id
+  [FAIL] alias key 'The Gilded Shield' matches no node/weapon/tier id
+  [FAIL] alias key 'The Mirror Court' matches no node/weapon/tier id
+  [FAIL] alias key 'The Ashen Tide' matches no node/weapon/tier id
+  [FAIL] alias key 'The Warrior Monks' matches no node/weapon/tier id
+  [FAIL] alias key 'The Shadow Ledger' matches no node/weapon/tier id
+  [FAIL] alias key "The Builders' Covenant" matches no node/weapon/tier id
+  [FAIL] alias key 'The Unshaken' matches no node/weapon/tier id
+  [FAIL] alias key 'The Mendicant Orders' matches no node/weapon/tier id
+  [FAIL] alias key 'The Pulpit' matches no node/weapon/tier id
+  [FAIL] alias key 'Pulpit' matches no node/weapon/tier id
+  [FAIL] alias key 'The Zealot March' matches no node/weapon/tier id
+  [FAIL] alias key 'The Black Tithe' matches no node/weapon/tier id
+  [FAIL] alias key 'Faction' matches no node/weapon/tier id
+  [FAIL] alias key 'Factions' matches no node/weapon/tier id
+  [FAIL] alias key 'faction' matches no node/weapon/tier id
+  [FAIL] alias key 'factions' matches no node/weapon/tier id
+  [FAIL] alias key 'FACTION' matches no node/weapon/tier id
+  [FAIL] alias key 'FACTIONS' matches no node/weapon/tier id
+  [FAIL] alias key 'Council Phase' matches no node/weapon/tier id
+
+ALL CHECKS PASSED

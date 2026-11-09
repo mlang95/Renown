@@ -1,0 +1,48 @@
+pool: lab_out/ladder_pool_nov8.csv (2042 builds)
+
+######## weapon: 15 items | subjects 200 (of 1973 carrying one) | panel 300
+  baseline done (195s)
+  2HBastard          n=115  later +0.928  wr +0.101  (109s)
+  Arming Sword       n=110  later +0.031  wr +0.006  (112s)
+  Bastard Sword      n=110  later +0.214  wr +0.028  (164s)
+  Cavalry Spear      n=44   later +0.116  wr +0.042  (43s)
+  Halberd            n=115  later +0.594  wr +0.087  (145s)
+  Morningstar        n=110  later +0.441  wr +0.040  (123s)
+  Short Sword        n=110  later -0.155  wr -0.015  (123s)
+  War Hammer         n=115  later +0.713  wr +0.077  (131s)
+  Cavalry Spear [ap2] n=44   later +0.394  wr +0.081  (52s)
+  Cavalry Spear [ap2_no_deadly] n=44   later +0.166  wr +0.051  (45s)
+  Halberd [no_unst]  n=115  later +0.340  wr +0.055  (135s)
+  2HBastard [ap2]    n=115  later +0.800  wr +0.088  (111s)
+  2HBastard [ap2_deadly] n=115  later +0.953  wr +0.105  (107s)
+  Arming Sword [deadly] n=110  later +0.214  wr +0.028  (108s)
+  Short Sword [deadly] n=110  later +0.056  wr +0.009  (104s)
+
+== weapon: item value on the same builds (d_wr sorted) ==
+                   item_shown    tier   n  value_first  value_later   d_wr
+       2HBastard [ap2_deadly]  Forged 115        0.746        0.953  0.105
+                    2HBastard  Forged 115        0.727        0.928  0.101
+              2HBastard [ap2]  Forged 115        0.629        0.800  0.088
+                      Halberd Wrought 115        0.428        0.594  0.087
+          Cavalry Spear [ap2] Wrought  44        0.347        0.394  0.081
+                   War Hammer  Forged 115        0.542        0.713  0.077
+            Halberd [no_unst] Wrought 115        0.268        0.340  0.055
+Cavalry Spear [ap2_no_deadly] Wrought  44        0.118        0.166  0.051
+                Cavalry Spear Wrought  44        0.076        0.116  0.042
+                  Morningstar  Forged 110        0.366        0.441  0.040
+                Bastard Sword  Forged 110        0.181        0.214  0.028
+        Arming Sword [deadly] Wrought 110        0.181        0.214  0.028
+         Short Sword [deadly]    Cast 110        0.083        0.056  0.009
+                 Arming Sword Wrought 110        0.071        0.031  0.006
+                  Short Sword    Cast 110       -0.045       -0.155 -0.015
+
+== weapon: by tier (d_wr) ==
+         count   mean    std    min    max   step
+tier                                             
+Cast         2 -0.003  0.017 -0.015  0.009    NaN
+Wrought      7  0.050  0.028  0.006  0.087  0.053
+Forged       6  0.073  0.032  0.028  0.105  0.023
+
+  tier steps <= 0: 0 of 2 | mean |step| 0.038 vs mean within-tier spread 0.026
+  -> ladder in order and tiers fairly tight.
+  -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\ladder_weapon_swords_sim

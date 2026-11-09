@@ -1,0 +1,62 @@
+pool: lab_out/ladder_pool_nov8.csv (2042 builds)
+
+######## weapon: 21 items | subjects 200 (of 853 carrying one) | panel 300
+  baseline done (227s)
+  2HBastard          n=200  later +0.358  (202s)
+  2HSpears           n=200  later -0.776  (187s)
+  Arming Sword       n=200  later +0.076  (199s)
+  Bastard Sword      n=200  later +0.248  (195s)
+  Battle Axe         n=200  later -0.769  (163s)
+  Bill Hook          n=200  later -0.483  (158s)
+  Cavalry Spear      n=90   later +0.111  (69s)
+  Cudgel             n=200  later -1.797  (153s)
+  Daggers            n=200  later -0.909  (160s)
+  Estoc              n=200  later +0.560  (185s)
+  Farm Tools         n=200  later -0.748  (221s)
+  Flail              n=200  later +0.090  (226s)
+  Halberd            n=200  later +0.047  (220s)
+  Lance              n=90   later +0.638  (103s)
+  Morningstar        n=200  later +0.456  (221s)
+  Pike               n=200  later -0.228  (189s)
+  Pitchfork          n=200  later -1.129  (186s)
+  Poleaxe            n=200  later +0.382  (188s)
+  Short Sword        n=200  later -0.092  (179s)
+  Spears             n=200  later -0.619  (169s)
+  War Hammer         n=200  later +0.133  (164s)
+
+== weapon: item value on the same builds (value_later sorted) ==
+   item_shown     tier   n  value_first  value_later
+        Lance Tempered  90        0.612        0.638
+        Estoc Tempered 200        0.415        0.560
+  Morningstar   Forged 200        0.417        0.456
+      Poleaxe Tempered 200        0.250        0.382
+    2HBastard   Forged 200        0.299        0.358
+Bastard Sword   Forged 200        0.214        0.248
+   War Hammer   Forged 200        0.127        0.133
+Cavalry Spear  Wrought  90        0.106        0.111
+        Flail  Wrought 200        0.120        0.090
+ Arming Sword  Wrought 200        0.094        0.076
+      Halberd  Wrought 200        0.017        0.047
+  Short Sword     Cast 200       -0.027       -0.092
+         Pike  Wrought 200       -0.152       -0.228
+    Bill Hook     Cast 200       -0.299       -0.483
+        Spear     Cast 200       -0.420       -0.619
+    Farm Tool    Crude 200       -0.439       -0.748
+   Battle Axe  Wrought 200        0.051       -0.769
+     2HSpears     Cast 200       -0.525       -0.776
+      Daggers     Cast 200       -0.609       -0.909
+    Pitchfork    Crude 200       -0.750       -1.129
+       Cudgel    Crude 200       -0.810       -1.797
+
+== weapon: by tier (value_later) ==
+          count   mean    std    min    max   step
+tier                                              
+Crude         3 -1.225  0.531 -1.797 -0.748    NaN
+Cast          5 -0.576  0.314 -0.909 -0.092  0.649
+Wrought       6 -0.112  0.345 -0.769  0.111  0.464
+Forged        4  0.299  0.139  0.133  0.456  0.411
+Tempered      3  0.527  0.131  0.382  0.638  0.228
+
+  tier steps <= 0: 0 of 4 | mean |step| 0.438 vs mean within-tier spread 0.292
+  -> ladder in order and tiers fairly tight.
+  -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\ladder_weapon_kitswap

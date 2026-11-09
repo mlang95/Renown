@@ -41,7 +41,9 @@ const PO=DATA.publicOrder||{};
 function POB(k){const t=(DATA.poByEra||{})[currentEra()];return (t&&t[String(k)])||PO[String(k)];}
 function poNum(k){const e=POB(k),m=e&&String(e[1]).match(/(\d+)/);return m?+m[1]:0;}
 const LIM=DATA.limits||{};
-const PO_MIN=(LIM.poMin??-5),PO_MAX=(LIM.poMax??10),INIT_MIN=(LIM.initMin??-2),INIT_MAX=(LIM.initMax??2);
+const PO_MIN=(LIM.poMin??-5),PO_MAX=(LIM.poMax??10),INIT_MIN=(LIM.initMin??-2),INIT_MAX=(LIM.initMax??2),
+      INIT_CAP_FIRST=!!LIM.initCapFirst,INIT_FLOOR=LIM.initFloor!==false,   // bonuses capped before penalties · Initiative floored at INIT_MIN
+      INIT_LIMIT_TXT=(INIT_CAP_FIRST?"bonuses to +"+INIT_MAX+", then penalties":"limit +"+INIT_MAX)+(INIT_FLOOR?", floor "+INIT_MIN:"");
 const ST=LIM.standing||{Untested:1,Rising:3,Established:6,Sovereign:10};
 const SOV=ST.Sovereign,EST=ST.Established,RIS=ST.Rising;
 const ERAS=DATA.eras||{};

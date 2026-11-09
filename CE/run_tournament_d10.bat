@@ -32,8 +32,8 @@ set FAT_M=2
 set PARRY=8
 set RECOVER=8
 set AUTOPASS=
-set DEADLY_AP=5
-set DEADLY_MODE=
+set DEADLY_AP=10
+set DEADLY_MODE=set
 set UNSTOP=2
 set IMP_PARRY=
 REM NO_FALL_BACK: 1 = no army picks Fall Back (Arquebus always plays Fighting Formation); 0 = Fall Back allowed
@@ -56,8 +56,8 @@ REM POOL: holding_first = Holdings first, gear from their text, balanced per (Re
 REM       balanced      = gear first, full legal gear cross, balanced per (Retinue x TI)     [TI_MIN/TI_MAX, PER_CELL]
 REM       generator     = every Holding combination within TI (archetype_pool)              [TI_MIN/TI_MAX, STRATIFY per TI]
 set POOL=holding_first
-set TI_MIN=5
-set TI_MAX=18
+set TI_MIN=8
+set TI_MAX=20
 REM PER_CELL vs STRATIFY: both cap how many builds go into the pool; which one is read depends on POOL.
 REM   PER_CELL  (holding_first, balanced): max builds per (Retinue x TI) cell, i.e. per Retinue at each TI value.
 REM             Pool size <= 4 Retinues x PER_CELL x (TI_MAX - TI_MIN + 1). Low TI cells often hold fewer builds
@@ -68,11 +68,23 @@ REM             Pool size <= STRATIFY x (TI_MAX - TI_MIN + 1). "all" = every bui
 REM             e.g. TI 5-12 x 500 = up to 4,000 builds.
 REM   Run time and file size grow with the SQUARE of the pool (every build plays every other):
 REM   1,600 builds = ~2.6M pairings per tournament; 4,000 builds = ~16M. Halve the cap to quarter the run.
-set PER_CELL=30
+set PER_CELL=50
 REM BALANCE (holding_first only): weapon = each (Retinue x TI) cell's slots dealt evenly across the weapons
 REM         it can field, so rare weapons (Estoc, Bastard Sword) get a full share; none = uniform sample.
-set BALANCE=weapon
+REM         weapon_kit = dealt across weapon x kit (each shield, Dual Wield, none), so a weapon's
+REM         shield builds are not crowded out by its cheaper Florentine builds (recommended).
+set BALANCE=weapon_kit
 set STRATIFY=500
+REM POOL_CSV: reuse a saved pool instead of building one (same builds, so equipment changes compare cleanly).
+REM           blank = build a new pool; last = the pool the last run used; or a path to a saved loadouts_*.csv
+REM           Safe for equipment stats (weapon / armour / shield / Retinue numbers and keywords). Holding text,
+REM           tree or unlock changes make a saved pool stale: the run lists the mismatches and stops.
+set POOL_CSV=
+REM ALLOW_STALE: 1 = run a reused pool even when it no longer matches the data
+set ALLOW_STALE=
+REM POOL_CACHE: 1 = when POOL_CSV is blank, reuse a cached pool if the tree, Holding text, gear rules and pool
+REM             settings are unchanged since it was built (lab_out\_pool_cache); 0 = always build a new pool
+set POOL_CACHE=1
 set RUNS=25
 
 REM ============================ TOURNAMENTS ===================================
@@ -88,7 +100,7 @@ set EXPLORER=1
 REM ============================ MEMORY SETTINGS ===============================
 REM WORKERS: each initializes numba and RESERVES several GB of Windows COMMIT.
 REM Keep at 6-8. Lower on MemoryError; raise cautiously.
-set WORKERS=8
+set WORKERS=15
 set RENOWN_MEM_DEBUG=1
 set SLOT_BUDGET=auto
 REM auto
@@ -129,6 +141,9 @@ if errorlevel 1 (
 echo.
 
 set COMMON=--runs %RUNS% --slot-budget %SLOT_BUDGET% --workers %WORKERS% %MODES%
+if not "%POOL_CSV%"=="" set COMMON=%COMMON% --csv "%POOL_CSV%"
+if "%ALLOW_STALE%"=="1" (set RENOWN_ALLOW_STALE=1) else (set RENOWN_ALLOW_STALE=)
+if "%POOL_CACHE%"=="0" (set RENOWN_POOL_CACHE=0) else (set RENOWN_POOL_CACHE=1)
 if "%POOL%"=="holding_first" (
   %PY% run_tournament_d10.py %DICE% --holding-first --ti-min %TI_MIN% --ti-max %TI_MAX% --per-cell %PER_CELL% --balance %BALANCE% %COMMON%
 ) else if "%POOL%"=="balanced" (

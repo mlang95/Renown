@@ -1,0 +1,62 @@
+pool: lab_out/ladder_pool_nov9.csv (2042 builds)
+
+######## weapon: 21 items | subjects 200 (of 1972 carrying one) | panel 300
+  baseline done (445s)
+  2HBastard          n=118  later +0.691  wr +0.066  (247s)
+  2HSpears           n=118  later -0.307  wr -0.016  (247s)
+  Arming Sword       n=114  later +0.169  wr +0.020  (256s)
+  Bastard Sword      n=114  later +0.349  wr +0.042  (269s)
+  Battle Axe         n=118  later -0.178  wr -0.016  (267s)
+  Bill Hook          n=118  later +0.038  wr -0.002  (251s)
+  Cavalry Spear      n=46   later +0.067  wr +0.037  (81s)
+  Cudgel             n=118  later -1.279  wr -0.141  (137s)
+  Daggers            n=118  later -0.438  wr -0.065  (132s)
+  Estoc              n=114  later +0.488  wr +0.057  (129s)
+  Farm Tools         n=200  later -0.769  wr -0.099  (353s)
+  Flail              n=114  later +0.027  wr -0.011  (220s)
+  Halberd            n=118  later +0.296  wr +0.048  (221s)
+  Lance              n=46   later +0.641  wr +0.119  (88s)
+  Morningstar        n=114  later +0.403  wr +0.032  (220s)
+  Pike               n=118  later +0.190  wr +0.044  (233s)
+  Pitchfork          n=118  later -0.711  wr -0.079  (229s)
+  Poleaxe            n=118  later +0.862  wr +0.114  (224s)
+  Short Sword        n=114  later -0.004  wr -0.001  (165s)
+  Spears             n=114  later -0.637  wr -0.073  (121s)
+  War Hammer         n=118  later +0.655  wr +0.052  (122s)
+
+== weapon: item value on the same builds (d_wr sorted) ==
+   item_shown     tier   n  value_first  value_later   d_wr  d_lost_strike  d_lost_panic  d_lost_break  d_lost_rout  d_skirm
+        Lance Tempered  46        0.486        0.641  0.119         -0.932        -0.009        -0.592       -0.010   -0.339
+      Poleaxe Tempered 118        0.538        0.862  0.114         -1.407        -0.203        -0.167       -0.000   -0.177
+    2HBastard   Forged 118        0.474        0.691  0.066         -0.699        -0.104        -0.142       -0.000   -0.126
+        Estoc Tempered 114        0.290        0.488  0.057         -0.463        -0.055        -0.210       -0.004   -0.130
+   War Hammer   Forged 118        0.426        0.655  0.052         -0.469        -0.044        -0.290       -0.000   -0.172
+      Halberd  Wrought 118        0.178        0.296  0.048         -0.666        -0.121         0.065        0.000   -0.021
+         Pike  Wrought 118        0.055        0.190  0.044         -0.258         0.058        -0.233       -0.000   -0.147
+Bastard Sword   Forged 114        0.236        0.349  0.042         -0.470        -0.116         0.031       -0.003   -0.029
+Cavalry Spear  Wrought  46       -0.077        0.067  0.037         -0.046         0.102        -0.307       -0.008   -0.150
+  Morningstar   Forged 114        0.304        0.403  0.032         -0.320        -0.039        -0.188       -0.003   -0.104
+ Arming Sword  Wrought 114        0.120        0.169  0.020         -0.276        -0.098         0.113       -0.001    0.021
+  Short Sword     Cast 114        0.004       -0.004 -0.001         -0.082        -0.082         0.227        0.001    0.081
+    Bill Hook     Cast 118        0.023        0.038 -0.002          0.014        -0.029         0.102        0.000    0.043
+        Flail  Wrought 114        0.004        0.027 -0.011          0.316         0.118        -0.260       -0.002   -0.096
+   Battle Axe  Wrought 118        0.329       -0.178 -0.016          0.135        -0.010         0.071       -0.000    0.044
+     2HSpears     Cast 118       -0.277       -0.307 -0.016          0.235         0.117        -0.131        0.000   -0.050
+      Daggers     Cast 118       -0.373       -0.438 -0.065          0.897         0.232        -0.181        0.000   -0.021
+        Spear     Cast 114       -0.465       -0.637 -0.073          0.826         0.171        -0.026        0.002    0.050
+    Pitchfork    Crude 118       -0.499       -0.711 -0.079          1.005         0.270        -0.213        0.000   -0.022
+    Farm Tool    Crude 200       -0.521       -0.769 -0.099          1.187         0.270        -0.167        0.001    0.016
+       Cudgel    Crude 118       -0.560       -1.279 -0.141          1.586         0.350        -0.239       -0.000    0.027
+
+== weapon: by tier (d_wr) ==
+          count   mean    std    min    max   step
+tier                                              
+Crude         3 -0.107  0.032 -0.141 -0.079    NaN
+Cast          5 -0.031  0.035 -0.073 -0.001  0.075
+Wrought       6  0.020  0.028 -0.016  0.048  0.052
+Forged        4  0.048  0.015  0.032  0.066  0.028
+Tempered      3  0.097  0.035  0.057  0.119  0.049
+
+  tier steps <= 0: 0 of 4 | mean |step| 0.051 vs mean within-tier spread 0.029
+  -> ladder in order and tiers fairly tight.
+  -> C:\Users\Matt\OneDrive\Desktop\Game\CE\lab_out\ladder_weapon_nov9

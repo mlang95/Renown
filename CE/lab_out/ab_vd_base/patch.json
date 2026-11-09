@@ -1,0 +1,54 @@
+{
+ "note": "In-memory data patch this run used (renown_data_d10 unchanged on disk). Version D runs also used --deadly-mode set --deadly-ap 10 (see dice.json).",
+ "edits": [
+  [
+   "HOLDING_SIM",
+   "Royal Pavilion",
+   "tags",
+   "tag-",
+   "Crit 8"
+  ],
+  [
+   "HOLDING_SIM",
+   "Royal Pavilion",
+   "tags",
+   "tag+",
+   "Crit 9"
+  ],
+  [
+   "HOLDING_SIM",
+   "Armory",
+   "tags",
+   "tag-",
+   "Riveted"
+  ],
+  [
+   "HOLDING_SIM",
+   "Gilded Foundry",
+   "tags",
+   "tag+",
+   "Riveted"
+  ],
+  [
+   "WEAPONS",
+   "Lance",
+   "tier",
+   "set",
+   "Crafted"
+  ],
+  [
+   "ARMORS",
+   "Leather",
+   "save",
+   "set",
+   7
+  ],
+  [
+   "ARMORS",
+   "Leather",
+   "tags",
+   "tag+",
+   "Nimble"
+  ]
+ ]
+}

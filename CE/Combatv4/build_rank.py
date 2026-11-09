@@ -56,7 +56,7 @@ def _weapon_kw(weapon, ranged):
 
 
 SIGNATURE_KW = ["Deadly", "Cleave", "Unstoppable", "Destroy Shield", "Negate Shielded", "Steady", "Unwieldy",
-                "One-Shot", "2H", "Awkward"]
+                "One-Shot", "2H", "Awkward", "Crude"]
 
 
 def builds(S, include_domain=True):
@@ -212,7 +212,7 @@ def _opp_features(R):
     for k in SIGNATURE_KW:
         f[f"weapon: {k}"] = kw.map(lambda s, k=k: k in s)
     tags = R["tags"].astype(str)
-    for t in ("Parry", "Riposte", "Poison", "Planishing", "Serrated", "Crit 8", "Immune Panic", "Drilled",
+    for t in ("Parry", "Riposte", "Poison", "Riveted", "Serrated", "Crit 8", "Immune Panic", "Drilled",
               "Nimble", "Outrider: every", "Immune Blunder", "Dual Wield"):
         f[f"has {t}"] = tags.str.contains(re.escape(t))
     f["Recover"] = tags.str.contains(r"Recover \d")
