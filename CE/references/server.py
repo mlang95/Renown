@@ -33,7 +33,8 @@ API (JSON):
     POST   /api/games          {name,seats,pin}-> {id}
     POST   /api/games/<id>/archive {archived,pin} -> {ok}   (needs that game's Duke PIN when it has one)
     GET    /g/<id>/                            -> the board for game <id>
-    GET    /g/<id>/api/game                    -> {id,name,seats}
+    GET    /g/<id>/api/game                    -> {id,name,seats,mode}
+    (POST /api/games also takes mode: {type:"escalation", adv, advN, holdN, seize, toWin, ai} — see clean_mode)
   Game routes (prefix /g/<id>, or none for the main game):
     GET    /api/state[?since=N]                -> {rev, keys:[...], parts:{key:{data,version}}}
     PUT    /api/part/<key>      {data, base}   -> {version, rev} | 409 {data, version}
@@ -168,6 +169,8 @@ def init_lobby():
     c = lobby()
     c.execute("""CREATE TABLE IF NOT EXISTS games(id TEXT PRIMARY KEY, name TEXT, seats INTEGER, pin_hash TEXT,
                                               created TEXT, last_active TEXT, archived INTEGER DEFAULT 0)""")
+    if "mode" not in [r[1] for r in c.execute("PRAGMA table_info(games)")]:
+        c.execute("ALTER TABLE games ADD COLUMN mode TEXT DEFAULT ''")
     if os.path.exists(DB) and not c.execute("SELECT 1 FROM games WHERE id=?", (MAIN_GAME,)).fetchone():
         c.execute("INSERT INTO games(id,name,seats,pin_hash,created,last_active) VALUES(?,?,?,?,?,?)",
                   (MAIN_GAME, "Main game", 0, "", now(), now()))
@@ -199,6 +202,30 @@ def touch(write=False):
     if write:
         c = lobby(); c.execute("UPDATE games SET last_active=? WHERE id=?", (now(), gid())); c.commit(); c.close()
 
+ESC_AI = ("", "novice", "intermediate", "challenging", "impossible")
+
+def clean_mode(m):
+    """Game type from the lobby form -> stored JSON ('' = standard game). Escalation: two seats, its options
+    clamped here (defaults and bounds also live in renown_data.ESCALATION; the board reads those)."""
+    if not isinstance(m, dict) or m.get("type") != "escalation":
+        return ""
+    def num(k, lo, hi, d):
+        try:
+            return max(lo, min(hi, int(m.get(k, d))))
+        except (TypeError, ValueError):
+            return d
+    return json.dumps({"type": "escalation",
+                       "adv": "standing" if m.get("adv") == "standing" else "dp",
+                       "advN": num("advN", 1, 5, 1), "holdN": num("holdN", 1, 5, 2), "toWin": num("toWin", 1, 15, 5),
+                       "seize": m.get("seize") if m.get("seize") in ("winner", "loser", "random") else "winner",
+                       "ai": m.get("ai") if m.get("ai") in ESC_AI else ""})
+
+def mode_of(r):
+    try:
+        return json.loads((r or {}).get("mode") or "") or None
+    except (TypeError, ValueError):
+        return None
+
 def slug(name):
     s = re.sub(r"[^a-z0-9]+", "-", (name or "").lower()).strip("-")[:24].strip("-")
     return (s or "game") + "-" + secrets.token_hex(2)
@@ -206,6 +233,7 @@ def slug(name):
 def game_summary(r):
     """Lobby row + what the game's own file says (players, claims, started, turn)."""
     out = {k: r[k] for k in ("id", "name", "seats", "created", "last_active")}
+    out["mode"] = mode_of(dict(r))
     out["archived"] = bool(r["archived"]); out["pin"] = bool(r["pin_hash"] or (r["id"] == MAIN_GAME and ADMIN_PIN))
     seen = SEEN.get(r["id"])
     out["live"] = bool(seen and time.time() - seen < LIVE_SECS)
@@ -377,12 +405,15 @@ class Handler(http.server.BaseHTTPRequestHandler):
             except (TypeError, ValueError):
                 seats = 1
             pin = str(body.get("pin") or "")[:64]
+            mode = clean_mode(body.get("mode"))
+            if mode:
+                seats = 2
             c = lobby()
             g = slug(name)
             while c.execute("SELECT 1 FROM games WHERE id=?", (g,)).fetchone():
                 g = slug(name)
-            c.execute("INSERT INTO games(id,name,seats,pin_hash,created,last_active) VALUES(?,?,?,?,?,?)",
-                      (g, name, seats, pin_hash(pin), now(), now()))
+            c.execute("INSERT INTO games(id,name,seats,pin_hash,created,last_active,mode) VALUES(?,?,?,?,?,?,?)",
+                      (g, name, seats, pin_hash(pin), now(), now(), mode))
             c.commit(); c.close()
             self._send(200, {"id": g}); return
         m = re.match(r"^/api/games/([a-z0-9-]{1,40})/archive$", path)
@@ -514,7 +545,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self._file(HTML, "settlement_board.html not found next to server.py — generate it first"); return
         if path == "/api/game":
             r = game_row(gid()) or {}
-            self._send(200, {"id": gid(), "name": r.get("name") or gid(), "seats": r.get("seats") or 0}); return
+            self._send(200, {"id": gid(), "name": r.get("name") or gid(), "seats": r.get("seats") or 0, "mode": mode_of(r)}); return
         if path == "/api/chat":
             self._chat_get(u); return
         if path == "/api/state":

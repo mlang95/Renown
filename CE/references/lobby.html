@@ -19,7 +19,11 @@
   button{cursor:pointer}button:hover{border-color:var(--dim)}
   .go{border-color:var(--go);font-weight:600}
   .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
-  form.new{display:grid;grid-template-columns:1fr 110px 150px auto;gap:8px;align-items:end}
+  form.new{display:grid;grid-template-columns:1fr 150px 110px 150px auto;gap:8px;align-items:end}
+  form.new .esc{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;
+    border-top:1px solid var(--line);padding-top:10px}
+  form.new .esc[hidden]{display:none}
+  .tag{font-size:11px;text-transform:uppercase;letter-spacing:.06em;border:1px solid var(--line2);border-radius:4px;padding:1px 5px;color:var(--dim)}
   form.new label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--dim)}
   .games{display:flex;flex-direction:column;gap:8px}
   .game{display:grid;grid-template-columns:14px 1fr auto;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);
@@ -32,7 +36,7 @@
   .tools{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-top:28px;flex-wrap:wrap}
   .tools label{color:var(--dim);font-size:13px;display:flex;gap:6px;align-items:center}
   #token{width:260px}
-  @media(max-width:640px){form.new{grid-template-columns:1fr 1fr}form.new .nm{grid-column:1/-1}form.new button{grid-column:1/-1}
+  @media(max-width:640px){form.new{grid-template-columns:1fr 1fr}form.new .esc{grid-template-columns:1fr 1fr}form.new .nm{grid-column:1/-1}form.new button{grid-column:1/-1}
     .game{grid-template-columns:12px 1fr}.acts{grid-column:1/-1;justify-content:flex-end}#token{width:100%}h1{font-size:36px}}
 </style>
 </head>
@@ -44,9 +48,19 @@
   <h2>New game</h2>
   <form class="new panel" id="newForm">
     <label class="nm">Name<input id="nName" maxlength="60" placeholder="game name" required></label>
+    <label>Game type<select id="nType"><option value="">Standard</option><option value="escalation">Escalation (1v1 battles)</option></select></label>
     <label>Seats<select id="nSeats"></select></label>
     <label>Duke PIN<input id="nPin" type="password" maxlength="64" placeholder="optional" autocomplete="new-password"></label>
     <button class="go" type="submit">Create</button>
+    <div class="esc" id="escOpts" hidden>
+      <label>Advance per round<select id="eAdv"><option value="dp">Domain Points</option><option value="standing">Standings</option></select></label>
+      <label>Amount per round<select id="eAdvN"></select></label>
+      <label>Holdings per round<select id="eHoldN"></select></label>
+      <label>Seizes the Initiative<select id="eSeize"><option value="winner">Last winner</option><option value="loser">Last loser</option><option value="random">Random</option></select></label>
+      <label>Edicts to win<select id="eToWin"></select></label>
+      <label>Opponent<select id="eAi"><option value="">Human</option><option value="novice">AI · Novice</option>
+        <option value="intermediate">AI · Intermediate</option><option value="challenging">AI · Challenging</option><option value="impossible">AI · Impossible</option></select></label>
+    </div>
   </form>
   <div class="err" id="newErr"></div>
 
@@ -65,6 +79,9 @@ let TOKEN="";try{TOKEN=localStorage.getItem("renown_token")||"";}catch(e){}
 $("token").value=TOKEN;
 $("token").onchange=()=>{TOKEN=$("token").value.trim();try{localStorage.setItem("renown_token",TOKEN);}catch(e){}load();};
 for(let i=1;i<=7;i++)$("nSeats").insertAdjacentHTML("beforeend",'<option'+(i===4?" selected":"")+'>'+i+'</option>');
+const opts=(id,lo,hi,d)=>{for(let i=lo;i<=hi;i++)$(id).insertAdjacentHTML("beforeend",'<option'+(i===d?" selected":"")+'>'+i+'</option>');};
+opts("eAdvN",1,5,1);opts("eHoldN",1,5,2);opts("eToWin",1,15,5);
+$("nType").onchange=()=>{const e=$("nType").value==="escalation";$("escOpts").hidden=!e;$("nSeats").disabled=e;if(e)$("nSeats").value="2";};
 async function api(method,path,body){
   const h={};if(body!==undefined)h["Content-Type"]="application/json";if(TOKEN)h["X-Renown-Token"]=TOKEN;
   const r=await fetch(path,{method,headers:h,body:body!==undefined?JSON.stringify(body):undefined});
@@ -72,9 +89,9 @@ async function api(method,path,body){
 function ago(ts){if(!ts)return "";const s=(Date.now()-Date.parse(ts))/1000;if(isNaN(s))return "";
   if(s<90)return "just now";if(s<5400)return Math.round(s/60)+" min ago";if(s<129600)return Math.round(s/3600)+" h ago";return Math.round(s/86400)+" days ago";}
 function row(g){
-  const seats=g.players||g.seats||0,status=g.started?"Turn "+g.turn:(g.players?"Setup":"New");
+  const seats=g.players||g.seats||0,m=g.mode||null,status=m?"":g.started?"Turn "+g.turn:(g.players?"Setup":"New");
   return '<div class="game'+(g.archived?" arch":"")+'"><span class="dot'+(g.live?" live":"")+'" title="'+(g.live?"live":"idle")+'"></span>'+
-    '<div><div class="gname">'+esc(g.name)+'</div><div class="meta">'+[status,g.claimed+" / "+seats+" seated",g.pin?"Duke PIN":"",
+    '<div><div class="gname">'+esc(g.name)+(m?' <span class="tag">Escalation</span>':'')+'</div><div class="meta">'+[status,m?"first to "+m.toWin+" Edicts"+(m.ai?" · vs AI ("+m.ai+")":""):"",g.claimed+" / "+seats+" seated",g.pin?"Duke PIN":"",
       g.live?"live":"active "+ago(g.last_active)].filter(Boolean).map(esc).join(" · ")+'</div></div>'+
     '<div class="acts">'+(g.archived?'<button data-arch="0" data-id="'+esc(g.id)+'">Restore</button>'
       :'<button data-arch="1" data-id="'+esc(g.id)+'" title="hide from this list">Archive</button><a href="/g/'+esc(g.id)+'/"><button class="go">Join</button></a>')+'</div></div>';}
@@ -92,7 +109,9 @@ $("games").onclick=async e=>{const b=e.target.closest("[data-arch]");if(!b)retur
   if(r.status!==200)alert((r.json&&r.json.error)||"failed");load();};
 $("showArch").onchange=load;
 $("newForm").onsubmit=async e=>{e.preventDefault();$("newErr").textContent="";
-  const r=await api("POST","/api/games",{name:$("nName").value.trim(),seats:+$("nSeats").value,pin:$("nPin").value}).catch(()=>null);
+  const r=await api("POST","/api/games",{name:$("nName").value.trim(),seats:+$("nSeats").value,pin:$("nPin").value,
+    mode:$("nType").value==="escalation"?{type:"escalation",adv:$("eAdv").value,advN:+$("eAdvN").value,holdN:+$("eHoldN").value,
+      seize:$("eSeize").value,toWin:+$("eToWin").value,ai:$("eAi").value}:null}).catch(()=>null);
   if(!r||r.status!==200||!r.json){$("newErr").textContent=(r&&r.json&&r.json.error)||"Could not create the game.";return;}
   location.href="/g/"+encodeURIComponent(r.json.id)+"/";};
 load();setInterval(load,15000);

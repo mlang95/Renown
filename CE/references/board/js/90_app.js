@@ -370,7 +370,8 @@ async function initServer(){
   Object.keys(j.parts).forEach(k=>{SYNC.base[k]=j.parts[k].data;SYNC.ver[k]=j.parts[k].version;});
   if(j.parts.shared){joinD(Object.fromEntries(Object.keys(j.parts).map(k=>[k,j.parts[k].data])));reindex();}
   if(!j.parts.shared&&GAME_ID){const g=await apiFetch("GET","/api/game");   // new lobby game: one player per seat it was made with
-    while(g&&D.players.length<Math.min(+g.seats||0,7))D.players.push(newPlayer(D.players.length+1));reindex();}
+    while(g&&D.players.length<Math.min(+g.seats||0,7))D.players.push(newPlayer(D.players.length+1));
+    if(g&&g.mode&&g.mode.type==="escalation"&&ESCD&&!D.esc)escInit(g.mode);reindex();}
   SYNC.ready=true;if(nameAllSetts())save();render();renderList();
   if(!j.parts.shared)push();                         // empty server: seed it from this browser
   refreshBuilds();chatPoll();welcomeOpen();
