@@ -4619,6 +4619,48 @@ AI_PROFILES = {c: {"domains": v["domains"], "archetype": v["archetype"], "action
                    "prowess_coded": "Prowess" in v["domains"]}
                for c, v in CULTURES.items()}
 
+# ── ESCALATION CAMPAIGN (lobby game type) ───────────────────────────────────────────────────────
+# Heads-up fight-off: two armies, Battle after Battle. No income, upkeep, Influence or map. Each round:
+# Battle -> the winner gains an Edict -> both players advance (Domain Points or Standings) and place
+# Holdings (instant build, combat Holdings only) -> both lock a hidden loadout -> next Battle.
+# "defaults" seed the lobby form; "limits" bound what the lobby / server accept.
+# AI tuning (board/js/57_escalation.js reads every key; nothing is hard-coded there):
+#   bucket      win-rate percentile band of the tournament pool the target build is drawn from
+#   pivot       False = never re-target; True = may re-target once the player commits (see PIVOT);
+#               "dynamic" = re-targets every round to the best counter of the player's public build
+#   tactic      "random" (uniform) | "mixed" (equilibrium blended with `noise` uniform) | "optimal" (equilibrium)
+#   exploit     0..1: weight on the best response to the player's REVEALED Tactic history (never the live pick)
+#   holdOrder   "random" = target Holdings in random order | "unlock" = cheapest Standing first, then unlocks
+#   gear        "target" = target gear, else best by tier | "counter" = best unlocked counter to the
+#               player's last REVEALED loadout
+ESCALATION = {
+    "army_size": ARMY_MAX_RETINUES,
+    "start": {"retinue": "Levy", "armor": "Cloth", "weapon": "Farm Tools"},
+    "defaults": {"adv": "dp", "advN": 1, "holdN": 2, "seize": "winner", "toWin": 5, "ai": ""},
+    "limits": {"advN": (1, 5), "holdN": (1, 5), "toWin": (1, 15)},
+    "ai": {
+        "novice":       {"label": "Novice",       "bucket": (0.70, 0.80), "pivot": False,     "tactic": "random",
+                         "noise": 1.0, "exploit": 0.0, "holdOrder": "random", "gear": "target"},
+        "intermediate": {"label": "Intermediate", "bucket": (0.80, 1.00), "pivot": True,      "tactic": "mixed",
+                         "noise": 0.35, "exploit": 0.0, "holdOrder": "unlock", "gear": "target"},
+        "challenging":  {"label": "Challenging",  "bucket": (0.90, 1.00), "pivot": True,      "tactic": "optimal",
+                         "noise": 0.0, "exploit": 0.0, "holdOrder": "unlock", "gear": "counter"},
+        "impossible":   {"label": "Impossible",   "bucket": (0.90, 1.00), "pivot": "dynamic", "tactic": "optimal",
+                         "noise": 0.0, "exploit": 0.5, "holdOrder": "unlock", "gear": "counter"},
+    },
+    # re-targeting (pivot True): the player is "committed" once they hold `commit_holdings`+ Holdings and the
+    # nearest pool build shares >= `commit_overlap` of them; the AI switches when a candidate's counter score
+    # beats its current target's by `margin` (score: -1 lose .. +1 win), at most `max_pivots` times.
+    # `candidates` = how many pool builds (best win rate first) are scored per decision; `switch_cost` is taken
+    # off a candidate's score per Holding the AI already owns that the candidate doesn't use.
+    "pivot": {"commit_holdings": 4, "commit_overlap": 0.5, "margin": 0.08, "max_pivots": 1, "candidates": 24,
+              "switch_cost": 0.02},
+    "gear_candidates": 12,        # "counter" gear: loadouts scored in full (pre-ranked by a quick neutral-Tactic check)
+    "exploit_min_reveals": 3,     # revealed Tactics needed before `exploit` applies
+    "solver_iters": 400,          # fictitious-play iterations for the Tactic equilibrium
+    "ai_step_ms": 450,            # delay between the AI's dice rolls in the Battle view
+}
+
 # ── PHASE_REFORM text (runs last, after GLOSSARY_SEE / NAME_DISPLAY) ──────────────────────────────────────────
 if PHASE_REFORM:
     GLOSSARY["Council Phase"] = ("The phase after the Empire Phase: clockwise from the starting player, each player performs the Era's "

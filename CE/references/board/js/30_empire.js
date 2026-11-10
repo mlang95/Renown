@@ -428,6 +428,7 @@ function render(){
   applyTheme(D.theme||"pixel");
   applySkin(D.shape||"sharp");
   renderTopBar();
+  if(typeof escOn==="function"&&escOn()){escRoute(D.view);return;}   // Escalation: Campaign | Battle | Reference only
   const batOK=!D.started||!!mods().battle;   // Battle sandbox: always before Start game; afterwards with the Battle module
   if(D.view==="battle"&&!batOK)D.view="table";
   {const vb=document.getElementById("vtBattle");if(vb)vb.hidden=!batOK;}
@@ -494,7 +495,7 @@ function renderTopBar(){
   });
   const add=document.createElement("span");add.className="pchip";add.textContent="+ player";
   add.onclick=()=>{const np=newPlayer(D.players.length+1);np.id=Math.max(Date.now(),1+Math.max(0,...D.players.map(p=>+p.id||0)));D.players.push(np);(np.board.settlements||[]).forEach(s=>nameSett(np,s));D.active=D.players.length-1;reindex();save();render();renderList();};
-  bar.appendChild(add);
+  if(!escOn())bar.appendChild(add);
   const p=D.players[D.active], chip=chips[D.active];
   const card=document.getElementById("playerCard");if(card)card.innerHTML="";
   const put=el=>(card||bar).appendChild(el);

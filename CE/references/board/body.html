@@ -1,5 +1,6 @@
 <div class="topbar" id="topbar">
   <div class="views" id="viewTabs">
+    <div class="vtab" data-v="esc" id="vtEsc" title="Escalation campaign" hidden>Campaign</div>
     <div class="vtab" data-v="table" title="play: the Table, the map, your actions">Realm</div>
     <div class="vtab on" data-v="board" title="inspect and edit your Empire">Empire</div>
     <div class="vtab" data-v="reference" title="rules">Reference</div>
@@ -208,8 +209,9 @@
 <div id="viewReference" class="viewpane" style="display:none"></div>
 <div id="viewTable" class="viewpane" style="display:none"></div>
 <div id="viewBattle" class="viewpane" style="display:none"></div>
+<div id="viewEsc" class="viewpane" style="display:none"></div>
 
 <div id="inspect" class="modal" style="display:none"><div class="modalcard" id="inspectCard"></div></div>
 <div id="flash" class="flash toast" aria-live="polite"></div>
-<nav class="tabbar" id="tabbar"><button data-v="table">Realm</button><button data-v="board">Empire</button><button data-v="reference">Reference</button></nav>
+<nav class="tabbar" id="tabbar"><button data-v="esc" class="esc-only">Campaign</button><button data-v="battle" class="esc-only">Battle</button><button data-v="table">Realm</button><button data-v="board">Empire</button><button data-v="reference">Reference</button></nav>
 <div class="phpill" id="phPill"></div>

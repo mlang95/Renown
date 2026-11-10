@@ -37,13 +37,14 @@ function heritagesFor(n){const k=n?cultureFactions({culture:n}):null;return Obje
 function seatCard(p){const cl=claimOf(p),me=mine(p),c=cultureOf(p.board),mc=myClaimP();
   const act=me?'<button class="wl-go" data-wl="profile" data-p="'+esc(p.id)+'">Profile</button><button data-wl="release" data-p="'+esc(p.id)+'">release</button>'
     :cl?(ADMIN?'<button data-wl="clear" data-p="'+esc(p.id)+'">clear claim</button>':'<span class="note">taken</span>')
+    :escOn()&&escIsAi(p)?'<span class="note">AI</span>'
     :mc?'<span class="note">open</span>':'<button class="wl-go" data-wl="take" data-p="'+esc(p.id)+'">Take seat</button>';
   return '<div class="wl-seat'+(me?" mine":cl?" taken":"")+'" style="--pc:'+esc(p.color)+'">'+
     '<div class="wl-her">'+(heraldOf(p,52)||pTok(p,40))+'</div><div class="wl-sn">'+esc(p.name)+'</div>'+
     '<div class="note">'+(c?esc(c)+' · '+esc(CUL[c].archetype||""):esc(CUL_SELF))+'</div>'+
     (p.board.faction?'<div class="note">'+esc(p.board.faction)+'</div>':'')+
     '<div class="wl-act">'+act+'</div></div>';}
-function seatView(){const g=WEL.game||{},me=myClaimP(),add=!D.started&&D.players.length<7&&(ADMIN||canHost());
+function seatView(){const g=WEL.game||{},me=myClaimP(),add=!D.started&&!escOn()&&D.players.length<7&&(ADMIN||canHost());
   return '<div class="wl-head"><h2>'+esc(g.name||"Renown")+'</h2><span class="note">'+(D.started?"Turn "+tTurn():"Setup")+'</span>'+
       '<a class="wl-games" href="/">Games</a><button class="close" data-wl="close" title="close">✕</button></div>'+
     '<div class="wl-seats">'+D.players.map(seatCard).join("")+(add?'<button class="wl-seat wl-add" data-wl="add">+ seat</button>':'')+'</div>'+

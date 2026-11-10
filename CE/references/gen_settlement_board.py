@@ -948,6 +948,93 @@ def effects_report(ns, records, infra, wonders, out_md):
     with open(out_md, "w", encoding="utf-8") as fh: fh.write("\n".join(L) + "\n")
     print(f"wrote {out_md}  ({len(flag)} to review, {len(both)} both-Phase, {len(rows)} Envoy clauses, {len(used)}/{len(ER.REG)} patterns used)")
 
+def _esc_find_csv(lab, pattern):
+    """Newest CSV under lab_out matching pattern; the last tournament run's folder (last_run.json) first."""
+    import glob
+    try:
+        tag = json.load(open(os.path.join(lab, "last_run.json"), encoding="utf-8")).get("tag", "")
+    except Exception:
+        tag = ""
+    for d in ([os.path.join(lab, tag)] if tag else []) + [lab]:
+        hits = glob.glob(os.path.join(d, pattern)) if d != lab else glob.glob(os.path.join(lab, "*", pattern))
+        if hits:
+            return max(hits, key=os.path.getmtime)
+    return ""
+
+def esc_payload(ns, data_path, summary_arg=""):
+    """Escalation Campaign: the combat Holdings players may place (any Holding with combat text, plus every
+    Holding on a Mastery Chain line toward one), the tuning block, and the tournament build pool the AI draws
+    from (name, gear, Holdings, win rate). Win rates come from a tournament summary CSV (name + win_rate:
+    --esc-summary, else lab_out/<last run>/summary*.csv); gear and Holdings from the same run's loadout pool."""
+    import csv
+    cfg = ns.get("ESCALATION")
+    if not cfg:
+        return None
+    sim = ns.get("HOLDING_SIM", {}) or {}
+    keep = {n for n, h in sim.items() if h.get("tags")}
+    todo = list(keep)
+    while todo:
+        for p in sim.get(todo.pop(), {}).get("parents", []):
+            if p in sim and p not in keep:
+                keep.add(p); todo.append(p)
+    hold = {n: {"domain": {d: (v if d != "*" else [list(x) for x in v]) for d, v in sim[n]["domain"].items()},
+                "parents": [p for p in sim[n]["parents"] if p in sim], "root": bool(sim[n]["root"]) or not sim[n]["parents"],
+                "monument": bool(sim[n]["monument"]), "combat": bool(sim[n]["tags"])}
+            for n in sorted(keep)}
+    lab = os.path.join(os.path.dirname(os.path.abspath(data_path)), "lab_out")
+    summ = summary_arg or _esc_find_csv(lab, "summary*.csv")
+    rows, wr = {}, {}
+    if summ and os.path.isfile(summ):
+        for r in csv.DictReader(open(summ, encoding="utf-8-sig")):
+            n = r.get("name") or r.get("a_name")
+            if n and r.get("win_rate") not in (None, ""):
+                try: wr[n] = float(r["win_rate"])
+                except ValueError: pass
+                rows[n] = r
+    import glob
+    near = glob.glob(os.path.join(os.path.dirname(os.path.abspath(summ)), "loadouts*.csv")) if summ else []
+    pool_csv = max(near, key=os.path.getmtime) if near else _esc_find_csv(lab, "loadouts*.csv")
+    if pool_csv:
+        for r in csv.DictReader(open(pool_csv, encoding="utf-8-sig")):
+            n = r.get("name")
+            if n and (not wr or n in wr):
+                rows[n] = dict(r, **{k: v for k, v in rows.get(n, {}).items() if v not in (None, "")})
+    def line(n, have, stack=()):
+        """Smallest set of combat Holdings that puts n on a complete Mastery Chain line (loadouts._line)."""
+        h = hold.get(n)
+        if h is None or h["root"]:
+            return {n} if h else set()
+        if any(p in have for p in h["parents"]):
+            return {n}
+        best = None
+        for p in h["parents"]:
+            if p in stack: continue
+            sub = line(p, have, stack + (n,))
+            if sub is not None and (best is None or len(sub) < len(best)): best = sub
+        return None if best is None else best | {n}
+    pool, H = [], sorted(hold)
+    hi = {n: i for i, n in enumerate(H)}
+    skipped = 0
+    for n, r in rows.items():
+        ps = [p for p in str(r.get("pursuits") or "").split("|") if p]
+        if not r.get("retinue") or any(p not in sim for p in ps):    # a Holding the data no longer has
+            skipped += 1; continue
+        P = {p for p in ps if p in hold}                              # non-combat Holdings play no part here
+        for p in sorted(P):
+            P |= line(p, P - {p}) or set()
+        ps = sorted(P)
+        pool.append([n, r.get("retinue") or "", r.get("weapon") or "", r.get("shield") or "", r.get("armor") or "",
+                     r.get("ranged") or "", [hi[p] for p in ps], round(wr[n], 4) if n in wr else None])
+    pool.sort(key=lambda x: -(x[7] or 0))
+    rel = lambda f: os.path.relpath(f, lab) if os.path.abspath(f).startswith(os.path.abspath(lab)) else os.path.basename(f)
+    src = (rel(summ) if summ else "") + (" + " + rel(pool_csv) if pool_csv else "")
+    if not wr:
+        print("  WARN escalation: no tournament summary with win_rate found - AI ranks builds by investment, not win rate")
+    print(f"  escalation: {len(hold)} combat Holdings, {len(pool)} pool builds ({src or 'none'}; {skipped} skipped)")
+    out = {k: v for k, v in cfg.items()}
+    out.update(hold=hold, holdNames=H, pool=pool, poolSrc=src, poolRated=bool(wr))
+    return out
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data", default="renown_data_d10.py")
@@ -957,6 +1044,8 @@ def main():
     ap.add_argument("--wiki-home", default="https://mlang95.github.io/RenownWiki/",
                     help="hosted wiki used when the board is NOT the wiki's own copy (server.py, local file)")
     ap.add_argument("--mapgen", default="", help="folder with gen.js + presets.js (default: <data dir>/mapgen or ../mapgen)")
+    ap.add_argument("--esc-summary", default="", metavar="CSV",
+                    help="tournament summary CSV (name, win_rate) for the Escalation AI (default: newest lab_out/*/summary*.csv)")
     ap.add_argument("--check-rules", action="store_true",
                     help="cross-check key constants in the rules doc against the data file, then exit")
     ap.add_argument("--effects-report", default="", metavar="MD",
@@ -1027,6 +1116,7 @@ def main():
         renownPerTurn=ns.get("RENOWN_PER_TURN", 1), dpPerTurn=ns.get("DOMAIN_POINTS_PER_TURN", 1),
         settlements=ns.get("SETTLEMENTS", {}),
         battle=battle_data(ns, rules_path),
+        escalation=esc_payload(ns, a.data, a.esc_summary),
         terrainRef={"terrain": ns.get("TERRAIN", {}), "movement": ns.get("MOVEMENT_MODIFIERS", {}),
                     "tactical": ns.get("TACTICAL_TERRAIN", {}), "tacticalGlobal": list(ns.get("TACTICAL_GLOBAL", []))},
         banditLoadouts=b_lo,

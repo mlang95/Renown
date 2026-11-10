@@ -713,7 +713,7 @@ function onHill(X){const h=sideTile(X);return !!(h&&h.hill);}
 function onGrass(X){const h=sideTile(X);return !!(h&&h.t==="plains");}
 // who Seizes unless the players choose otherwise: the Ministry always; in a Forest the defender (side B)
 function seizeDefault(){const f=seizeForced();if(f)return f;const T=bfTerrain();return T&&T.tile==="Forest"?"B":null;}
-function seizeHTML(){const B=battle();if(!sideCalc("A")||!sideCalc("B"))return '<div class="bcmd"><div class="bcmd-t">Pick both armies</div></div>';
+function seizeHTML(){const B=battle();if(escOn()&&B.escR)return escSeizeHTML();if(!sideCalc("A")||!sideCalc("B"))return '<div class="bcmd"><div class="bcmd-t">Pick both armies</div></div>';
   const f=seizeForced(),cur=f||(B.seizeSet?(B.seize||""):seizeDefault()),T=bfTerrain(),TT=T&&(TREF.tactical||{})[T.tile],tr=TT&&/Seize/i.test(TT.effect||"")?T.tile+": "+TT.effect:"",
         hl=["A","B"].filter(onHill).map(X=>sideNm(X)+" is on a Hill: +1 Initiative every Skirmish");
   const btn=(v,l)=>'<button class="bseize'+(cur===v?' on':'')+'" data-v="'+v+'"'+(f?' disabled':'')+'>'+esc(l)+'</button>';
@@ -995,6 +995,7 @@ function endBattle(win){
   // a Bandit Army goes home after every Battle (survivors re-join its camp); if it was
   // destroyed, its camp is destroyed with it
   bHome.forEach(h=>{const M=mapState();if(M.camps[h.k])banditReturn(h.k);else{const c=M.camps[h.home];if(c&&c.out===h.uid){delete M.camps[h.home];blog("Bandit Camp @ "+h.home+" destroyed with its Army");}}});
+  if(escOn())try{escAfterBattle(win,B);}catch(e){console.warn("escalation",e);}
   blog("Battle ended — Fatigue tokens removed");B.id=null;B.seizeSet=false;B.rev=null;B.rolls={};save();render();
 }
 function wireBattle(host){
