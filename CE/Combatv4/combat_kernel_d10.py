@@ -177,7 +177,8 @@ def _saves_kernel3(rolls, parry_rolls, regen_rolls,
                   n_strikes, deadly_strikes, save_clip, deadly_save_clip, auto_pass_save,
                   atk_has_poison, parry_mask, parry_thr, regen_thr,
                   riposte_mask, riposte_on5, parry_reroll, parry_rolls2,
-                  parry_before_save=False, halfsword_mode=False, deadly_no_recover=False):
+                  parry_before_save=False, halfsword_mode=False, deadly_no_recover=False,
+                  reroll_riposte=True):
     """Per-run save resolution. All roll arrays (n,max_strikes) int8.
     save_clip / deadly_save_clip: per-run save targets (2..7; 7 = impossible).
       Deadly strikes resolve at deadly_save_clip (normal target worsened by Deadly's AP -5;
@@ -187,9 +188,9 @@ def _saves_kernel3(rolls, parry_rolls, regen_rolls,
     regen_thr: per-run Recover threshold (0 = none; base + Serrated, capped CAP_THR; Fatigue no longer applies).
       Deadly strikes can only be Recovered on a Focused roll (>= FOCUSED_THR), or never when
       deadly_no_recover (DEADLY_MODE 'set').
-    riposte_on5: Dual Wield — a Parry roll of FOCUSED_THR-1 that parries also Ripostes (per run).
+    riposte_on5: Riposte +1 — a Parry roll of FOCUSED_THR-1 that parries also Ripostes (per run).
     parry_reroll / parry_rolls2: Dual Wield — a failed Parry roll is rerolled once, from parry_rolls2
-      (n,max_strikes); the reroll can Riposte.
+      (n,max_strikes); the reroll can Riposte unless reroll_riposte is False (dice_config.DW_REROLL_RIPOSTE).
     halfsword_mode: DEPRECATED; carried forward inert (never set True by current callers).
     Returns (casualties (n,), ripostes (n,), recovered (n,)) — recovered = Strikes a failed Save
     let through that the Recover roll then saved (they still count toward Panic unless Enduring)."""
@@ -231,10 +232,12 @@ def _saves_kernel3(rolls, parry_rolls, regen_rolls,
             # ── PARRY-FIRST ordering (experiment toggle) ──
             if parry_before_save and pmask and pthr_eff <= FACES:
                 pr = parry_rolls[r, d]
+                rr2 = False
                 if prr and pr < pthr_eff:          # Dual Wield: a failed Parry is rerolled once
                     pr = parry_rolls2[r, d]
+                    rr2 = True
                 if pr >= pthr_eff:
-                    if (not is_half) and rip_on and (pr >= FOCUSED_THR or (rip5 and pr >= FOCUSED_THR - 1 and pthr_eff <= FOCUSED_THR - 1)):
+                    if (not is_half) and rip_on and (reroll_riposte or not rr2) and (pr >= FOCUSED_THR or (rip5 and pr >= FOCUSED_THR - 1 and pthr_eff <= FOCUSED_THR - 1)):
                         rip += 1
                     continue
             # ── Armor save (Halfsword strikes allow NO save) ──
@@ -255,10 +258,12 @@ def _saves_kernel3(rolls, parry_rolls, regen_rolls,
             # ── Default ordering: Parry after a failed save ──
             if (not parry_before_save) and pmask and pthr_eff <= FACES:
                 pr = parry_rolls[r, d]
+                rr2 = False
                 if prr and pr < pthr_eff:          # Dual Wield: a failed Parry is rerolled once
                     pr = parry_rolls2[r, d]
+                    rr2 = True
                 if pr >= pthr_eff:
-                    if (not is_half) and rip_on and (pr >= FOCUSED_THR or (rip5 and pr >= FOCUSED_THR - 1 and pthr_eff <= FOCUSED_THR - 1)):
+                    if (not is_half) and rip_on and (reroll_riposte or not rr2) and (pr >= FOCUSED_THR or (rip5 and pr >= FOCUSED_THR - 1 and pthr_eff <= FOCUSED_THR - 1)):
                         rip += 1
                     continue
             # ── Recover (Halfsword: -1 to Recover, i.e. thr+1) ──

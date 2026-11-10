@@ -93,8 +93,10 @@ ENDURING        = "Enduring"   # successfully Recovered Strikes don't count towa
 STRAIN          = "Strained"
 MINUS_1_TBH     = "Shielded"
 PONDEROUS       = "Ponderous"   # shield drawback: -1 to the bearer's own Strike roll
-PLANISHING      = "Riveted"      # ward: to-Save never worse than CAP_THR+ (Armory). Displayed "Riveted" since Nov 7 2026 (was "Planishing" on Court Armoury); constant name kept so engines/tools follow
+PLANISHING      = "Gusseted"      # ward: to-Save never worse than CAP_THR+ (Armory). Displayed "Riveted" since Nov 7 2026 (was "Planishing" on Court Armoury); constant name kept so engines/tools follow
 SHIELD_WALL     = "Shield Wall"   # Pavisiers' Yard (Nov 8 2026): in Defensive Formation with a Shield Equipped, incoming AP -1
+GUIGE_STRAP     = "Guige Strap"   # Buckler School (Nov 9 2026): carry a 1H weapon + Shield and a 2H weapon, Equip one set each Skirmish; no Ranged Weapon
+FIRST_CHARGE    = "First Charge"   # Nov 10 2026: "First Charge X" (plain = 1): first Skirmish, CAVALRY_WEAPONS gain -X AP (engine: "First AP -X @<weapon>")
 WEDGE           = "Wedge"        # Nov 9 2026: first Skirmish, -1 to the defender's Parry roll vs that weapon's Strikes (engine: "First FoeParry +1 @<weapon>")
 FLUTED          = "Articulated"  # armor keyword (Gothic Plate): incoming AP reduced by 1, after Deadly; AP 0 unaffected; also Immune Strained. Was "Fluted" (renamed Nov 8 2026; constant name kept so engines follow)
 # Keyword BUNDLES — display only. Items keep the separate tags (the engines read those); cards, tables, wiki and
@@ -146,6 +148,7 @@ FLORENTINE         = "Florentine"  # Two of the same 1H Melee Weapon = Dual Wiel
 PIVOTAL = "Focused"
 
 
+PANIC_CASUALTY_THRESHOLD = 5  # take a Panic check if casualties this Skirmish reach this (5 or more; Nov 10 2026, was "more than 5")
 GLOSSARY = {
     STEADY:         "Initiative cannot be reduced by Tactics.",
     UNWIELDY:       "Initiative cannot be improved by Tactics.",
@@ -162,34 +165,36 @@ GLOSSARY = {
     DRILLED:        "Does not lose Endurance in the first Skirmish of each Battle.",
     DESTROY_SHIELD: f"On a {PIVOTAL} Strike: the target loses its Shield attributes for the rest of the Battle.",
     BLUNDER:        f"At Initiative {INITIATIVE_MIN} or lower, your to-Strike is set to {BLUNDER_THR}+ (penalties can't make it worse).",
-    ONE_SHOT:       "Must be Equipped in the first Skirmish of a Battle, and can't be Equipped after it. Requires Training Grounds.",
+    ONE_SHOT:       "May only be Equipped in the first Skirmish of a Battle; if it isn't Equipped then, it can't be used that Battle. Requires Training Grounds.",
     #DEFLECT:        "-1 to Parry and Negate Riposte against this weapon's Strikes. (All Ranged weapons have Deflect.)",
     #IMMUNE_PANIC:   "Automatically passes Panic checks.",
     #UNBREAKABLE:    "Immune Break: does not take Break checks while Fatigued.",
     PARRY:          f"If your Army has gained {PARRY}, roll a D{FACES} to attempt to Parry a Strike before an Armor Save. On an {PARRY_BASE}+ (better with Parry +1), the Strike is Parried and has no further effect. A Parry that would need more than {CAP_THR}+ can't be made.",
     RIPOSTE:        f"If your Army has gained {RIPOSTE} and rolls a Focused Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
-    NO_PARRY:       "While Equipped with this weapon during a Skirmish, you cannot Parry, and so cannot Riposte.",
+    NO_PARRY:       "While Equipped with this weapon during a Skirmish, you cannot Parry.",
     CRUDE:          f"While this weapon or shield is Equipped during a Skirmish, you cannot Parry, and so cannot Riposte. Immune {NO_PARRY} doesn't remove this.",
     "Deadly +1":    f"Your {DEADLY} also triggers on an Unmodified roll one lower than {PIVOTAL} (9+). Each +1 stacks. Written \"(Ranged Weapons)\", it applies only while a Ranged Weapon is Equipped.",
     "Cleave +1":    f"Your {CLEAVE} also triggers on an Unmodified roll one lower than {PIVOTAL} (9+). Each +1 stacks.",
     "Parry +1":     f"Your {PARRY} rolls succeed on one lower. Each +1 stacks.",
     "Riposte +1":   f"You also {RIPOSTE} on a successful Parry roll one lower than {PIVOTAL} (9).",
     "Shield Initiative": "Shield Initiative penalty reduced by 1: your Shield's negative Initiative is 1 smaller (a Shield with no penalty gains nothing). Granted by Shieldwright.",
-    "Buckler with 2H": "Armies Equipped with a 2H Weapon may Equip a Buckler Shield, and it counts while the 2H Weapon is Equipped. Granted by Buckler School.",
-    SHIELD_WALL: "While this Army plays Defensive Formation with a Shield Equipped, Strikes against it have their AP reduced by 1 (after Deadly), including Ranged Weapons. AP 0 is unaffected. Stacks with Articulated. Granted by Pavisiers' Yard.",
+    "Buckler with 2H": "Armies Equipped with a 2H Weapon may Equip a Buckler Shield, and it counts while the 2H Weapon is Equipped. Granted by Joinery.",
+    GUIGE_STRAP:    "Your Armies may carry a 2H Melee Weapon as well as a 1H Melee Weapon and Shield, and choose each Skirmish which to Equip: the 1H Weapon and Shield, or the 2H Weapon. An Army carrying both may not carry a Ranged Weapon. Granted by Buckler School.",
+    SHIELD_WALL: "While this Army plays Defensive Formation with a Shield Equipped, Strikes against it have their AP reduced by 1. Granted by Pavisiers' Yard.",
     WEDGE:          f"In the first Skirmish of a Battle, -1 to the defender's Parry roll against Strikes from the weapon that gained it.",
-    "Hook X":       f"Your Strikes ignore up to X points of the defender's {MINUS_1_TBH} (Hook 1 ignores a shield's -1; Hook 2 ignores a Heater Shield's -2 and 2 of a Tower Shield's -3).",
+    "First Charge X": "In the first Skirmish of a Battle, Cavalry Spears and Lances gain -X AP. First Charge with no number is First Charge 1; each source adds up.",
+    "Hook X":       f"Your Strikes ignore up to X modifiers of the defender's {MINUS_1_TBH}.",
     RECOVER:        f"If your Army has gained {RECOVER} and a to-Save roll fails, roll a D{FACES} & compare it to your Recover value: a result greater than or equal to your Recover value recovers the Retinue. Recovered Strikes still count toward the Panic check threshold.",
     ENDURING:       "Successfully Recovered Strikes don't count toward the Panic check threshold.",
     SERRATED:       f"A cumulative -{SERRATED_MOD} penalty to the defender's Recover roll.",
     PLANISHING:     f"A {PIVOTAL} Save succeeds, regardless of AP.",
-    FLUTED:         f"Strikes against this Army have their AP reduced by 1 (after Deadly), including Ranged Weapons. AP 0 is unaffected. The Army is also {IMMUNE_STRAIN}.",
+    FLUTED:         f"Strikes against this Army have their AP reduced by 1. The Army is also {IMMUNE_STRAIN}.",
     FATIGUE_TOKEN:  f"Each token reduces Morale -{FATIGUE_MORALE} by. If your modified Morale is ever {ROUT_THR}+, your Army Routs. These effects are cumulative.",
     MINUS_1_TBH:    f"A cumulative -1 penalty to the Strike roll (to a maximum of {CAP_THR}+). Sources: a shield's -1 to Strike. {MINUS_1_TBH} 2 (Heater Shield) is -2; {MINUS_1_TBH} 3 (Tower Shield) is -3. Hook X ignores up to X of it.",
     #PONDEROUS:      f"A cumulative -1 penalty to your own Strike roll while this Shield is Equipped (to a maximum of {CAP_THR}+).",
 	#NEGATE_UNSTOPPABLE: "Cancels the attacker's Parry from Unstoppable: this shield's -1 to Strike still applies, and the attacker's -1 to Parry does not.",
     #MINUS_1_PARRY: "A stacking -1 penalty to the defender's Parry roll (to a maximum of 6+). Sources: Unstoppable, Deflect, and each Fatigue token.",
-    FLORENTINE: f"Your Armies may equip two of the same 1H Melee Weapon. While they do, they are Dual Wielding: a failed Parry is rerolled once, and they count as Two-Handed.",
+    FLORENTINE: "Your Armies may equip two of the same 1H Melee Weapon. If they do, a failed Parry is rerolled once, but rerolled parries cannot Riposte. Gain Two-Handed.",
     "Immune [keyword]": "Can't gain that keyword's effect as it applies to your Army (e.g. Immune Strained, Destroy Shield, Steady, etc.).",
     "Negate [keyword]": "Your opponent can't gain that keyword's effect as it applies to their Army (e.g. Negate Shielded).",
 
@@ -210,7 +215,7 @@ GLOSSARY = {
     "Endurance":     "A side's stamina. Each side that fights loses 1 per Skirmish; at 0 it becomes Fatigued.",
     "Fatigued":      f"A side at 0 Endurance. Each Skirmish its Field takes a Break check, then it gains a Fatigue Token.",
     "Break check":   "Taken by each Fatigued side's Field every Skirmish, just before it gains its Fatigue Token. Roll Morale (5 dice, modified by Fatigue Tokens); failures are Casualties, but a Break check never triggers a Panic check. Unbreakable auto-passes.",
-    "Panic check":   "Taken at most once per Skirmish by a side that suffered more than 5 Casualties in that Skirmish (Recovered Strikes count, unless Enduring), after both sides have Struck. Roll Morale (5 dice); Immune Panic auto-passes.",
+    "Panic check":   f"Taken at most once per Skirmish by a side that suffered {PANIC_CASUALTY_THRESHOLD} or more Casualties in that Skirmish (Recovered Strikes count, unless Enduring), after both sides have Struck. Roll Morale (5 dice); Immune Panic auto-passes.",
     "Morale":        f"How steady a Retinue is when tested (lower is steadier; see the Retinue table). Break and Panic checks roll it: a D{FACES} per Retinue in the Field, up to 5 dice, each must meet its modified value; failures are Casualties. If the modified value is ever {ROUT_THR}+, the Army Routs.",
     "Rout":          f"The Army breaks and leaves the Battle. Apply Casualties equal to the remaining Retinues. Whenever an Army's modified Morale value reaches {ROUT_THR}+, it Routs automatically.",
     "Fall Back":     "A controlled retreat that ends the Battle with at least one Retinue left — a partial success.",
@@ -324,7 +329,6 @@ ARMY_MAX_RETINUES   = 25   # maximum retinues a single Army may hold
 FRONT_LINE_MAX      = 10   # retinues placed in the front line per Skirmish (one Strike die each)
 RESERVE_MAX         = 5    # retinues held in reserve to replace front-line losses
 MORALE_DICE_MAX     = 5    # dice rolled on a Break or Panic check
-PANIC_CASUALTY_THRESHOLD = 5  # take a Panic check if casualties this Skirmish exceed this
 ENDURANCE_REGAIN    = 2    # +Endurance restored to non-Strained armies in the Empire Phase
 
 
@@ -346,18 +350,18 @@ WEAPONS = {
     "Spears":         {"ap":  0, "init":  1, "tier": "Cast",    "tags": [UNWIELDY, NO_PARRY], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile. Cannot Florentine.'},
     "2HSpears":       {"ap": -1, "init":  1, "tier": "Cast",    "tags": [TWO_H, STEADY, NO_PARRY]},
     "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY, "Parry +1"]},
-    "Pike":           {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, STEADY, UNWIELDY, DEADLY, UNSTOPPABLE, NO_PARRY]},
     "Flail":          {"ap": -1, "init":  0, "tier": "Wrought", "tags": [UNSTOPPABLE, CLEAVE, NO_PARRY]},
     "Halberd":        {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, HOOK_1]},
-    "Battle Axe":     {"ap": -3, "init": -1, "tier": "Wrought", "tags": [TWO_H, UNSTOPPABLE, CLEAVE, HOOK_1]},
-    "Cavalry Spear":  {"ap":  0, "init":  1, "tier": "Wrought", "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY, DEADLY], 'note': "Needs Stable; no Tower Shield or Florentine or Ranged Weapon"},
-    "Morningstar":    {"ap": -3, "init":  0, "tier": "Forged",  "tags": [CLEAVE]},   # Nov 8 2026: Unwieldy dropped; Destroy Shield is thrown weapons only
+    "Battle Axe":     {"ap": -4, "init": -1, "tier": "Wrought", "tags": [TWO_H, UNSTOPPABLE, CLEAVE, HOOK_1]},
+    "Cavalry Spear":  {"ap":  0, "init":  1, "tier": "Wrought", "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY, DEADLY], 'note': "Needs Stable; no Tower Shield or Florentine or Ranged Weapon; can't use the Defensive Formation Tactic.", 'tactics_banned': ["Defensive Formation"]},
+    "Pike":           {"ap": -3, "init":  1, "tier": "Forged",  "tags": [TWO_H, STEADY, UNWIELDY, DEADLY, UNSTOPPABLE, NO_PARRY]},
+    "Morningstar":    {"ap": -4, "init": -1, "tier": "Forged",  "tags": [CLEAVE]},   # Nov 8 2026: Unwieldy dropped; Destroy Shield is thrown weapons only
     "Bastard Sword":  {"ap": -2, "init":  0, "tier": "Forged",  "tags": [STEADY, DEADLY, "Parry +1"], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile. Cannot Florentine.'},
     "2HBastard":      {"ap": -2, "init":  0, "tier": "Forged",  "tags": [TWO_H, UNSTOPPABLE, CLEAVE]},
     "War Hammer":     {"ap":-10, "init": -1, "tier": "Forged",  "tags": [TWO_H, STEADY, UNSTOPPABLE, HOOK_2]},   # Nov 8 2026: Destroy Shield is thrown weapons only
-    "Lance":          {"ap": -5, "init":  1, "tier": "Crafted", "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY, DEADLY], 'note': "Needs Saddlery; no Tower Shield, Florentine, Ranged weapon."},
-    "Estoc":          {"ap": -2, "init":  0, "tier": "Crafted", "tags": [STEADY, CLEAVE, UNSTOPPABLE, "Parry +1"]}, #Falchion
-    "Poleaxe":        {"ap": -5, "init":  1, "tier": "Crafted", "tags": [TWO_H, DEADLY, UNSTOPPABLE, HOOK_2]},   # Nov 8 2026: Destroy Shield is thrown weapons only
+    "Lance":          {"ap": -5, "init":  1, "tier": "Crafted", "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY, DEADLY], 'note': "Needs Saddlery; no Tower Shield, Florentine, Ranged weapon; can't use the Defensive Formation Tactic.", 'tactics_banned': ["Defensive Formation"]},
+    "Estoc":          {"ap": -3, "init":  0, "tier": "Crafted", "tags": [STEADY, CLEAVE, UNSTOPPABLE, "Parry +1"]}, #Falchion
+    "Poleaxe":        {"ap": -4, "init":  1, "tier": "Crafted", "tags": [TWO_H, DEADLY, UNSTOPPABLE, HOOK_2]},   # Nov 8 2026: Destroy Shield is thrown weapons only
 }
 # 1H / 2H profiles: an entry named "2H<Name>" is the 2H profile of the weapon named <Name> (or the one weapon
 # whose name starts with it: "2HBastard" → "Bastard Sword"). That weapon gets "profile_2h"; it is one item that
@@ -369,13 +373,14 @@ for _k2 in [k for k in WEAPONS if k.startswith("2H")]:
         raise ValueError(f"WEAPONS: 2H profile {_k2!r} matches {_base or 'no weapon'}")
     WEAPONS[_base[0]].setdefault("profile_2h", _k2)
 WEAPON_2H_PROFILES = {v["profile_2h"]: k for k, v in WEAPONS.items() if v.get("profile_2h")}   # "2H…" entry → its weapon
+CAVALRY_WEAPONS = ("Cavalry Spear", "Lance")   # what "Cavalry" names in rules text (First Charge); keep in step with the Stable/Saddlery unlocks
 RANGED_WEAPON = [UNSTOPPABLE, NO_PARRY, DEADLY]
 RANGED = {
     "Hunting Bow": {"ap":  0, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNSTOPPABLE, DEADLY, NO_PARRY]},
     "Longbow":     {"ap": -1, "init":  2, "tier": "Cast",    "tags": [TWO_H, UNSTOPPABLE, DEADLY, NO_PARRY]},
-    "Javelin":     {"ap": -2, "init":  1, "tier": "Wrought", "tags": [STEADY, DEADLY, UNSTOPPABLE, HOOK_1, DESTROY_SHIELD, ONE_SHOT, NO_PARRY], 'note': 'Cannot Florentine'},
+    "Javelin":     {"ap": -2, "init":  2, "tier": "Wrought", "tags": [STEADY, DEADLY, UNSTOPPABLE, HOOK_1, DESTROY_SHIELD, ONE_SHOT, NO_PARRY], 'note': 'Cannot Florentine'},
     "Crossbow":    {"ap": -3, "init":  2, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, DEADLY, UNSTOPPABLE, HOOK_2, ONE_SHOT, NO_PARRY]},#'note': "Tower Shield only (no other shield), cannot Dual Wield"
-    "Pilum":       {"ap": -4, "init":  1, "tier": "Crafted", "tags": [STEADY, DEADLY, UNSTOPPABLE, HOOK_2, DESTROY_SHIELD, ONE_SHOT, NO_PARRY], 'note': 'Cannot Florentine'},
+    "Pilum":       {"ap": -4, "init":  2, "tier": "Crafted", "tags": [STEADY, DEADLY, UNSTOPPABLE, HOOK_2, DESTROY_SHIELD, ONE_SHOT, NO_PARRY], 'note': 'Cannot Florentine'},
     "Arquebus":    {"ap": -6, "init":  2, "tier": "Crude",   "tags": [TWO_H, STEADY, DEADLY, UNSTOPPABLE, HOOK_2, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
    
 }
@@ -384,7 +389,7 @@ SHIELDS = {
     None:            {"save_bonus": 0, "init":  0, "tier": None,     "tags": []},
     "Buckler Shield":{"save_bonus": 1, "init":  0, "tier": "Crude",  "tags": []},
     "Targe Shield":  {"save_bonus": 1, "init": -1, "tier": "Cast",   "tags": [UNWIELDY, MINUS_1_TBH]},
-    "Kite Shield":   {"save_bonus": 1, "init":  0, "tier": "Wrought","tags": [MINUS_1_TBH]},   # Nov 8 2026: no Steady, Initiative 0
+    "Kite Shield":   {"save_bonus": 1, "init": -1, "tier": "Wrought","tags": [STEADY, SHIELDED_2]},   # Nov 8 2026: no Steady, Initiative 0
     "Tower Shield":  {"save_bonus": 2, "init": -2, "tier": "Forged", "tags": [UNWIELDY, CRUDE, SHIELDED_3]}, # no Parry + Shielded 3 (Steady dropped, Shielded 3: Nov 8 2026)
     "Heater Shield": {"save_bonus": 2, "init": -1, "tier": "Crafted","tags": [SHIELDED_2, IMMUNE_DESTROY_SHIELD]},   # Nov 8 2026: Save +2, Shielded 2; Immune Destroy Shield back on the Heater
 }
@@ -392,7 +397,7 @@ SHIELDS = {
 ARMORS = {
     "Cloth":       {"save": 10, "tier": None,      "tags": []},
     "Gambeson":    {"save":  8, "tier": "Crude",   "tags": []},
-    "Leather":     {"save":  7, "tier": "Cast",    "tags": [NIMBLE]},
+    "Leather":     {"save":  7, "tier": "Cast",    "tags": []},
     "Chainmail":   {"save":  6, "tier": "Wrought", "tags": []},
     "Full Plate":  {"save":  4, "tier": "Forged",  "tags": ["Init -1"]},   # Nov 9 2026: Initiative -1 every Skirmish (combat only)
     "Gothic Plate":{"save":  3, "tier": "Crafted", "tags": []},   # Nov 9 2026: 3+, Articulated dropped (was Fluted AP -1 + Immune Strained)
@@ -840,14 +845,14 @@ NODES = {
         "group": "g_husbandry",
         "unlock": "Established Prowess",
         "natural": True,
-        "innate": "Gold +500; Speed +1; Unlocks Cavalry Spears regardless of Tier Unlock", #; Cavalry Spears gain Wedge
+        "innate": "Gold +500; Speed +1; Unlocks Cavalry Spears regardless of Tier Unlock", #; Cavalry Spears gain Wedge; Gain First Charge
         "efficient": ["Avenery"],
         "monument": False},
     "Marshal Tiltyard": {
         "group": "g_husbandry",
         "unlock": "Sovereign Prowess",
         "natural": True,
-        "innate": "Unlocks Lances regardless of Tier Unlock; Armies must be equipped with Lance; Lances gain Wedge",
+        "innate": "Unlocks Lances regardless of Tier Unlock; Armies must be equipped with Lance; Lances gain Wedge; Initiative +1",
         "efficient": ["Farriery"],
         "monument": True},
     "Vine Nursery": {
@@ -948,7 +953,7 @@ NODES = {
     "Joinery": {
         "group": "g_arms",
         "unlock": "Rising Industry",
-        "innate": "Supply -500; Unlocks Buckler Shield",
+        "innate": "Supply -500; Unlocks Buckler Shield; Armies Equipped with a 2H Weapon may Equip a Buckler Shield",
         "efficient": ["Forestry","Salt Works", "Furnace"],
         "monument": False},
     # -- Shield line (Nov 8 2026): Joinery > Shieldwright > Buckler School > Pavisiers' Yard > College of Arms --
@@ -961,7 +966,7 @@ NODES = {
     "Buckler School": {
         "group": "g_arms",
         "unlock": "Established Industry",
-        "innate": "Unlocks Kite Shield; Armies Equipped with a 2H Weapon may Equip a Buckler Shield",
+        "innate": "Unlocks Kite Shield; Guige Strap: Armies may choose to be equipped with a Shield or 2H Weapon each Skirmish (they may not carry a Ranged Weapon).",
         "efficient": ["Shieldwright"],
         "monument": False},
     "Pavisiers' Yard": {
@@ -1184,7 +1189,7 @@ NODES = {
         "group": "g_logistics",
         "unlock": "Rising Prowess",
         #"infrastructure_req": "Muster Field",
-        "innate": "Faith +1 while at War; Unlocks Man-at-Arms for Muster; Armies gain Immune Strained",
+        "innate": "Faith +1 while at War; Unlocks Man-at-Arms for Muster", #; Armies gain Immune Strained
         "efficient": "Conditioning Field",
         "monument": False},
     "Interrogation Chambers": {
@@ -1234,7 +1239,7 @@ NODES = {
         "group": "g_devotion",
         "unlock": "Established Piety",
         #"infrastructure_req": "Chapel",
-        "innate": "Enduring: Successful Recovered rolls do not count towards the panic check threshold",#Recover improved by +1; 
+        "innate": "Recover improved by +1; Enduring: Successful Recovered rolls do not count towards the panic check threshold",
         "efficient": "Infirmary",
         "monument": False},
     "Jester's Court": {
@@ -1296,7 +1301,7 @@ NODES = {
     "Grand Tournament": {
         "group": "g_logistics",
         "unlock": "Established Prowess",
-        "innate": "Reach +1; Armies gain Riposte; Parry +1", #3x in the Intrigue Phase: exchange 500 gold for Influence +1;
+        "innate": "Reach +1; Armies gain Riposte", #3x in the Intrigue Phase: exchange 500 gold for Influence +1; ; Parry +1
         "efficient": ["Coliseum"],
         "monument": False},
     "Apothecary": {
@@ -1321,7 +1326,7 @@ NODES = {
         "group": "g_commerce",
         "unlock": "Established Industry",
         "innate": "Gold +1000; Faith +1",
-        "efficient": "Market Square",
+        "efficient": "Merchant Quarter",
         "monument": False},
     "University": {
         "group": "g_court",
@@ -1645,7 +1650,7 @@ NODES = {
     "Royal Pavilion": {
         "group": "g_logistics",
         "unlock": "Sovereign Prowess",
-        "innate": "Deadly +2; Cleave +2; gain Steady",
+        "innate": "Deadly +2; Cleave +2; Immune Strained", #; gain Steady
         "efficient": ["List Yard"],
         "monument": True},
     "Ballistarium": {
@@ -2955,7 +2960,7 @@ DOMAIN_BOARD = {
     },
     "Prowess": {
         "Rising":      "Indomitable: In the Tally Phase, you may Support one of your own Prowess Envoys.",
-        "Established": "Edict of War: May have an additional Army. Perform a Muster Action.",
+        "Established": "Edict of War: May have an additional Army. Perform a Muster or Reinforce Action.",
         "Sovereign":   "High Quartermaster: Supply -2000. May change equipment on your Armies during any Upkeep step while that Army is within your Province. No longer lose Influence while at War.",
     },
     "Cunning": {
@@ -3788,6 +3793,7 @@ NAME_DISPLAY = {
     "Burgages":"Villein Hovels",
     "The Grand Exchange":"The Center of Commerce",
     "Ballistarium": "Shock Arsenal",
+    "Estoc":"Falchion"
 
     
 
@@ -4373,8 +4379,8 @@ GLOSSARY_CATEGORIES = [
     ('Army States', ['Army', 'Retinue', 'Garrison', 'Speed X', 'Presence', 'Blocked', 'Strained']),
     ('Battle Structure', ['Battle', 'Skirmish', 'Attacker / Defender', 'Seize the Initiative', 'Tactic', 'Field', 'Casualty', 'Initiative', BLUNDER, 'Strike', 'to-Strike number', 'AP', 'Save', 'Endurance', 'Fatigued', FATIGUE_TOKEN, 'Morale', 'Break check', 'Panic check', 'Rout', 'Fall Back']),
     ('Combat Keywords — Defense', [PARRY, 'Parry +1', RIPOSTE, 'Riposte +1', RECOVER, ENDURING, MINUS_1_TBH, PLANISHING, FLUTED, SHIELD_WALL]),
-    ('Combat Keywords — Offense', [RANGED_KW, DEADLY, 'Deadly +1', CLEAVE, 'Cleave +1', POISON, DESTROY_SHIELD, UNSTOPPABLE, SERRATED, 'Hook X', WEDGE]),
-    ('Combat Keywords — Handling', ['Equipped', STEADY, UNWIELDY, BRACED, NIMBLE, DRILLED, TWO_H, 'Dual-equip', FLORENTINE, NO_PARRY, CRUDE, ONE_SHOT, PONDEROUS, 'Shield Initiative', 'Buckler with 2H']),
+    ('Combat Keywords — Offense', [RANGED_KW, DEADLY, 'Deadly +1', CLEAVE, 'Cleave +1', POISON, DESTROY_SHIELD, UNSTOPPABLE, SERRATED, 'Hook X', WEDGE, 'First Charge X']),
+    ('Combat Keywords — Handling', ['Equipped', STEADY, UNWIELDY, BRACED, NIMBLE, DRILLED, TWO_H, 'Dual-equip', FLORENTINE, NO_PARRY, CRUDE, ONE_SHOT, PONDEROUS, 'Shield Initiative', 'Buckler with 2H', GUIGE_STRAP]),
     ('Combat Keywords — Immune / Negate', ['Immune [keyword]', 'Negate [keyword]']),
     ('Equipment Tiers', [k for k in map(str, GLOSSARY) if k.split()[0] in {display_tier(x) for x in TIERS} | set(globals().get("ITEM_TIER_DISPLAY", {}).values()) or k == "Ranged Weapons"]),
 ]
@@ -4487,6 +4493,11 @@ def holding_combat_tags(text, sim=False):
         _w = next((w for w in WEAPONS if w.lower() in (_who.lower(), _who.lower().rstrip("s"))), None)
         out.append(f"First FoeParry +1 @{_w}" if _w else f"First FoeParry +1 @?{_who}")
     t = _re_disp.sub(_wg, "", t, flags=_I)
+    # First Charge X (plain "First Charge" = 1): first Skirmish, -X AP on each Cavalry weapon -> "First AP -X @<weapon>"
+    _fc = r"\b" + FIRST_CHARGE + r"(?:\s+(\d+))?\b"
+    for _x in _re_disp.findall(_fc, t, _I):
+        out += [f"First AP -{_x or 1} @{_w}" for _w in CAVALRY_WEAPONS]
+    t = _re_disp.sub(_fc, "", t, flags=_I)
     # unlocks
     if _re_disp.search(r"Unlocks?\s+Ranged\s+Weapons", t, _I): out.append("ranged")
     if _re_disp.search(r"Unlocks?\s+Cavalry\s+Weapons", t, _I): out.append("cavalry")
@@ -4538,6 +4549,7 @@ def holding_combat_tags(text, sim=False):
     if _re_disp.search(r"Shield Initiative penalty reduced by 1", t, _I): out.append("Shield Init +1")
     if _re_disp.search(r"Equipped with a 2H Weapon may Equip a Buckler", t, _I): out.append("Buckler 2H")
     if _re_disp.search(r"\bgain\s+" + SHIELD_WALL + r"\b", t, _I): out.append(SHIELD_WALL)
+    if _re_disp.search(r"\b" + GUIGE_STRAP + r"\b", t, _I): out.append(GUIGE_STRAP)
     if _re_disp.search(r"Shields gain Immune Destroy Shield", t, _I): out.append(IMMUNE_DESTROY_SHIELD)
     m = _re_disp.search(r"Focused Strikes on an? (?:natural|Unmodified) (\d+)\+", t, _I)
     if m: out.append("Crit " + m.group(1))

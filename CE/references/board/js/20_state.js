@@ -519,9 +519,9 @@ function isCityPlus(t){return TIER_CHAIN.indexOf(t)>=TIER_CHAIN.indexOf("City");
 function dbActive(b){b=b||S;const out=[],dv=b.domains||{};[["Rising",RIS],["Established",EST],["Sovereign",SOV]].forEach(([t,th])=>
   DOMAINS.forEach(d=>{const e=DBOARD[d];if(e&&typeof e==="object"&&e[t]&&(dv[d]||0)>=th)out.push({dom:d,tier:t,name:String(e[t]).split(":")[0].trim(),text:String(e[t])});}));
   (b.placed||[]).filter(x=>x.name==="Studium Generale"&&pActive(x)&&!x.fac).forEach(x=>{const d=((b.tbl||{}).studiumEffects||{})[String(x.id)],e=DBOARD[d];if(d&&e&&e.Sovereign&&(dv[d]||0)<SOV&&!out.some(y=>y.dom===d&&y.tier==="Sovereign"))out.push({dom:d,tier:"Sovereign",name:String(e.Sovereign).split(":")[0].trim(),text:String(e.Sovereign),free:true,via:"Studium Generale",id:String(x.id)});});return out;}
-// One-shot Standing actions ("Perform endorsed Build", "Perform a Muster Action"): armed when the Standing is reached,
+// One-shot Standing actions ("Perform endorsed Build", "Perform a Muster or Reinforce Action" = the Muster action, which raises or Reinforces): armed when the Standing is reached,
 // offered in the next Empire Phase, cleared when performed (standingPending[key] = {due: turn})
-const STANDING_ACT_RE=/\bPerform endorsed (Build|Improve|Settle|Expand)\b|\bPerform (?:a )?(Move|Muster) Action\b/i;
+const STANDING_ACT_RE=/\bPerform endorsed (Build|Improve|Settle|Expand)\b|\bPerform (?:a )?(Move|Muster)(?: or Reinforce)? Action\b/i;
 function standingKey(x){return "standing:"+(x.free?"studium:"+x.id:x.dom+":"+x.tier);}
 function armStanding(p,d,old,next){if(!p||!(next>old))return;[["Rising",RIS],["Established",EST],["Sovereign",SOV]].forEach(([tier,th])=>{
   if(old>=th||next<th||!STANDING_ACT_RE.test(String((DBOARD[d]||{})[tier]||"")))return;

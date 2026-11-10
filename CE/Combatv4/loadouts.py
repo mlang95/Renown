@@ -35,8 +35,9 @@ from renown_data import (
 )
 from dice_config import RECOVER_BASE, parse_bonuses
 Loadout = namedtuple("Loadout",
-    "name retinue weapon shield armor ranged has_tiltyard size extra_tags upkeep_per_retinue playstyle tiltyard_mastery pursuits military_pursuit_count domain_count")
-Loadout.__new__.__defaults__ = (None, True, frozenset(), 0, 0)  # playstyle, tiltyard_mastery, pursuits, mpc, domain_count
+    "name retinue weapon shield armor ranged has_tiltyard size extra_tags upkeep_per_retinue playstyle tiltyard_mastery pursuits military_pursuit_count domain_count weapon_2h")
+Loadout.__new__.__defaults__ = (None, True, frozenset(), 0, 0, None)  # playstyle, tiltyard_mastery, pursuits, mpc, domain_count, weapon_2h
+# weapon_2h: Guige Strap's second weapon (a 2H melee weapon carried beside the 1H weapon + Shield; no ranged).
 # ==============================================================================
 # Tier ordering, abbreviations
 # ==============================================================================
@@ -154,7 +155,7 @@ _DOMAIN_TAGS = {PARRY, "Immune Blunder", "Immune Panic", "Shake +1", "confers:" 
 def _standing_letter(v):
     return "S" if v >= _SOV else ("E" if v >= _EST else ("R" if v >= _RIS else "N"))
 def _name(retinue, weapon, shield, armor, ranged, has_tiltyard, extra_tags, playstyle=None,
-          pursuits=None):
+          pursuits=None, weapon_2h=None):
     """Build a human-readable name for a loadout.
     Format: RET/WEAPON[+RANGED]/SHIELD/ARMOR (TY) [bracket] <playstyle>
     - Pure-ranged (no real melee weapon — None or the Farm Tools placeholder): the ranged weapon is
@@ -171,6 +172,8 @@ def _name(retinue, weapon, shield, armor, ranged, has_tiltyard, extra_tags, play
         parts.append(_w_label(ranged))
     else:
         w_str = _w_label(weapon)
+        if weapon_2h:
+            w_str = f"{w_str}|{_w_label(weapon_2h)}"      # Guige Strap: 1H weapon | 2H weapon
         if ranged:
             w_str = f"{w_str}+{_w_label(ranged)}"
         parts.append(w_str)
@@ -383,7 +386,7 @@ BUILD_KITS = {
     NIMBLE:               (NIMBLE,),
     STEADY:               (STEADY,),
     "Steadfast":            ("Immune Panic",),                  # Preceptory innate / Undying Flame (legacy preset name)
-    PARRY:                (PARRY,),                         # Edict of War (Sovereign Prowess)
+    PARRY:                (PARRY,),                         # Established Prowess standing (STANDING_EFFECTS)
     "Cond Field":           ("Cond Field",),                    # Conditioning Field mastery
     "Rend":           (SERRATED,),               # Master Workshop mastery
     "GF Armor":             (PLANISHING,),                      # Gilded Foundry mastery
@@ -673,7 +676,7 @@ def compute_effective_upkeep(loadout):
     return max(0, int(round(base - red)))
 
 
-def gear_requirements(weapon, shield, armor, ranged, two_of_same=False, toks=None):
+def gear_requirements(weapon, shield, armor, ranged, two_of_same=False, toks=None, weapon_2h=None):
     """Unlock tokens a gear choice needs (the text tokens of the Holdings that unlock it).
     toks: the build's tokens; an item it unlocks 'regardless of Tier Unlock' (anytier:) needs no tier."""
     need = set()
@@ -681,6 +684,8 @@ def gear_requirements(weapon, shield, armor, ranged, two_of_same=False, toks=Non
     tiers = [WEAPONS[weapon]["tier"]] if weapon in WEAPONS and not free(weapon) else []
     if ranged and not free(ranged):
         tiers.append(RANGED[ranged]["tier"])
+    if weapon_2h in WEAPONS and not free(weapon_2h):
+        tiers.append(WEAPONS[weapon_2h]["tier"])
     top = max(tiers, key=lambda t: TIER_IDX.get(t, 0)) if tiers else TIER_ORDER[0]
     if top != TIER_ORDER[0]:
         need.add("tier:" + top)
@@ -696,6 +701,8 @@ def gear_requirements(weapon, shield, armor, ranged, two_of_same=False, toks=Non
         need.add("dual-equip")
     if two_of_same:
         need.add(rd.FLORENTINE)
+    if weapon_2h:
+        need.add(rd.GUIGE_STRAP)
     return need
 
 
@@ -740,6 +747,13 @@ def _load_loadouts_from_csv(csv_path):
             pursuits_str = row.get("pursuits", "") or ""
             pursuits = frozenset(p.strip() for p in pursuits_str.split("|") if p.strip())
             upkeep = int(row.get("upkeep_per_retinue") or RETINUES[retinue]["cost"])
+            w2 = row.get("weapon_2h", "") or None
+            # gear-use tags (as the generator writes them now): Guige Strap only with a 2H weapon carried,
+            # Florentine only while Dual Wielding, so an older pool file reads the same as a new one
+            if not w2:
+                extra_tags = [t for t in extra_tags if t != rd.GUIGE_STRAP]
+            if DUAL_WIELD not in extra_tags:
+                extra_tags = [t for t in extra_tags if t != rd.FLORENTINE]
             pool.append(Loadout(
                 name=row["name"],
                 retinue=retinue, weapon=weapon, shield=shield, armor=armor,
@@ -751,6 +765,7 @@ def _load_loadouts_from_csv(csv_path):
                 pursuits=pursuits,
                 military_pursuit_count=mpc,
                 domain_count=dc,
+                weapon_2h=w2,
             ))
     return pool
 def _true_2h(weapon_name):
@@ -799,9 +814,12 @@ def _undominated_shields(shields, tags):
 
 def _blunders(w_init, weapon, shield, tags):
     """True if this weapon + shield leaves the Army at the Blunder floor with no way off it.
-    Initiative before Tactics = weapon + shield + Holding Init bonuses. At -1 or better: fine. At -2: fine only
+    Initiative before Tactics = weapon + shield + Init bonuses in tags (Holdings; the caller adds the armour's
+    keywords, e.g. Full Plate Init -1). At -1 or better: fine. At -2: fine only
     if a Tactic can still raise it, i.e. nothing it carries is Unwieldy (weapon, shield, Holding tags) or it has
     Immune Unwieldy. Below -2: always floored."""
+    if "Immune Blunder" in tags:                       # Sovereign Prowess: the floor can't trip it
+        return False
     init = w_init + _shield_init(shield, tags) + parse_bonuses(tags)["Init"]
     if init >= -1:
         return False
@@ -924,6 +942,8 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, max_m
         has_ty = "dual-equip" in toks
         has_dw = rd.FLORENTINE in toks
         melee = WEAPONS_BY_TIER[tier_str]
+        guige = rd.GUIGE_STRAP in toks
+        guige_2h = [w for w in melee if _true_2h(w) and w not in rd.WEAPON_2H_PROFILES]
         # ranged at or below the tier, plus any ranged weapon unlocked regardless of tier (Skirmish Field: Longbow)
         rng_opts = list(dict.fromkeys(_ranged_at_or_below(tier_str, RANGED_BY_TIER)
                                       + [r for r in RANGED if "anytier:" + r in toks]))
@@ -956,6 +976,11 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, max_m
             is_two_of_same = (weapon in dual_wield_weapons and ranged is None and ty)
             SHIELD_LADDER = ["Heater Shield", "Tower Shield", "Kite Shield",
                              "Targe Shield", "Buckler Shield"]
+            ARMOR_LADDER = ["Gothic Plate", "Full Plate", "Chainmail", "Leather", "Gambeson", "Cloth"]
+            armor_opts = [next((a for a in ARMOR_LADDER if a in ARMORS and armor_satisfied(a, pursuits)),
+                               "Cloth")]
+            # the Blunder check counts the armour's keywords too (Full Plate: Init -1), as the engine does
+            blunder_tags = set(tags) | set(ARMORS[armor_opts[0]].get("tags", []))
             if (weapon is not None and _true_2h(weapon) and not is_two_of_same and "Buckler 2H" in tags
                     and shield_satisfied("Buckler Shield", pursuits)):
                 shield_opts = ["Buckler Shield"]                  # Buckler School: the 2H weapon keeps a Buckler
@@ -964,11 +989,8 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, max_m
             else:
                 w_init = WEAPONS.get(weapon, {}).get("init", 0) if weapon != "Farm Tools" else 0
                 # Nov 8 2026: every unlocked Shield that no other unlocked Shield strictly beats (was: the top of SHIELD_LADDER only)
-                ok_sh = [s for s in SHIELD_LADDER if shield_satisfied(s, pursuits) and not _blunders(w_init, weapon, s, tags)]
+                ok_sh = [s for s in SHIELD_LADDER if shield_satisfied(s, pursuits) and not _blunders(w_init, weapon, s, blunder_tags)]
                 shield_opts = _undominated_shields(ok_sh, tags) or [None]
-            ARMOR_LADDER = ["Gothic Plate", "Full Plate", "Chainmail", "Leather", "Gambeson", "Cloth"]
-            armor_opts = [next((a for a in ARMOR_LADDER if a in ARMORS and armor_satisfied(a, pursuits)),
-                               "Cloth")]
             for shield in shield_opts:
                 for armor in armor_opts:
                     if not is_two_of_same and not valid_combo(
@@ -986,25 +1008,39 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, max_m
                     if is_two_of_same:
                         build_tags.add(DUAL_WIELD)
                     tags_tuple = tuple(sorted(build_tags))
-                    obs_key = (retinue_guess, weapon, shield, armor, ranged, ty, tags_tuple)
-                    if obs_key in seen_keys and seen_keys[obs_key][0] <= len(pursuits):   # keep the cheapest by TI
-                        continue
-                    name = _name(retinue_guess, weapon, shield, armor, ranged, ty,
-                                 sorted(build_tags), playstyle=None, pursuits=pursuits)
-                    ld = Loadout(
-                        name=name,
-                        retinue=retinue_guess, weapon=weapon, shield=shield, armor=armor,
-                        ranged=ranged, has_tiltyard=ty, size=DEFAULT_ARMY_SIZE,
-                        extra_tags=sorted(build_tags),
-                        upkeep_per_retinue=0,
-                        playstyle=None,
-                        tiltyard_mastery=True,
-                        pursuits=frozenset(pursuits),
-                        military_pursuit_count=_ward_count(set(pursuits)),
-                        domain_count=domain_count,
-                    )
-                    ld = ld._replace(upkeep_per_retinue=compute_effective_upkeep(ld))
-                    seen_keys[obs_key] = (len(pursuits), ld)
+                    # Guige Strap (Buckler School): a 1H weapon + Shield may also carry a 2H weapon of the
+                    # build's tier (no ranged; a 1H/2H weapon already has its own 2H profile)
+                    w2_opts = [None]
+                    if (guige and ranged is None and shield is not None and not is_two_of_same
+                            and weapon in melee and weapon != "Farm Tools" and not is_2h(weapon) and weapon not in DUAL_PROFILE):
+                        w2_opts += guige_2h
+                    for w2 in w2_opts:
+                        # the Guige Strap tag marks builds that carry the 2H weapon (as Dual Wield marks the doubled
+                        # weapon); owning Buckler School without one shows in its Holding, not the tag
+                        # Florentine likewise marks only the Dual Wielding build; owning List Yard shows in its Holding
+                        w_tags = sorted(build_tags - ({rd.GUIGE_STRAP} if not w2 else set())
+                                        - ({rd.FLORENTINE} if not is_two_of_same else set()))
+                        tags_tuple = tuple(w_tags)
+                        obs_key = (retinue_guess, weapon, shield, armor, ranged, ty, tags_tuple, w2)
+                        if obs_key in seen_keys and seen_keys[obs_key][0] <= len(pursuits):   # keep the cheapest by TI
+                            continue
+                        name = _name(retinue_guess, weapon, shield, armor, ranged, ty,
+                                     w_tags, playstyle=None, pursuits=pursuits, weapon_2h=w2)
+                        ld = Loadout(
+                            name=name,
+                            retinue=retinue_guess, weapon=weapon, shield=shield, armor=armor,
+                            ranged=ranged, has_tiltyard=ty, size=DEFAULT_ARMY_SIZE,
+                            extra_tags=w_tags,
+                            upkeep_per_retinue=0,
+                            playstyle=None,
+                            tiltyard_mastery=True,
+                            pursuits=frozenset(pursuits),
+                            military_pursuit_count=_ward_count(set(pursuits)),
+                            domain_count=domain_count,
+                            weapon_2h=w2,
+                        )
+                        ld = ld._replace(upkeep_per_retinue=compute_effective_upkeep(ld))
+                        seen_keys[obs_key] = (len(pursuits), ld)
     return [v[1] for v in seen_keys.values()]
 # ── archetype_pool seeds, read from HOLDING_SIM (NODES text) — no hand-kept Holding list ────────────────
 _GEAR_LADDER = _re.compile(r"^(?:tier:(?:" + "|".join(TIER_ORDER) + r")|armor:\w+|shield:\w+|retinue:.+)$")
@@ -1219,6 +1255,14 @@ def validate_loadout(ld, check_tier_floors=False):
     v = []
     P = set(ld.pursuits)
     w, sh, ar, rg = ld.weapon, ld.shield, ld.armor, ld.ranged
+    w2 = getattr(ld, "weapon_2h", None)
+    if w2 is not None:                                      # Guige Strap
+        if not _true_2h(w2) or w2 in rd.WEAPON_2H_PROFILES:
+            v.append(f"Guige weapon {w2} is not a 2H weapon")
+        if w is None or w == "Farm Tools" or is_2h(w) or sh is None:
+            v.append(f"Guige needs a 1H weapon and Shield (has {w} / {sh})")
+        if rg is not None:
+            v.append(f"Guige build carries ranged {rg}")
     _is_dw_build = (DUAL_WIELD in set(ld.extra_tags or []) and w is not None
                     and DUAL_WIELD not in WEAPONS.get(w, {}).get("tags", []))
     if w is not None and is_2h(w) and sh is not None and not (
@@ -1240,7 +1284,7 @@ def validate_loadout(ld, check_tier_floors=False):
     if w not in (None, "Farm Tools") and rg is not None and not ld.has_tiltyard:
         v.append(f"dual-equip ({w}+{rg}) without Tiltyard")
     toks = _tokens(P)
-    for t in sorted(gear_requirements(w if w in WEAPONS else None, sh, ar, rg, _is_dw_build, toks=_tokens(P))):
+    for t in sorted(gear_requirements(w if w in WEAPONS else None, sh, ar, rg, _is_dw_build, toks=_tokens(P), weapon_2h=w2)):
         if t not in toks:
             v.append(f"gear needs '{t}' — no Holding in the build grants it")
     if rg is not None:
@@ -1265,6 +1309,8 @@ def _gear_tags(ld):
         p2 = WEAPONS[ld.weapon].get("profile_2h")
         if p2 in WEAPONS:
             t |= set(WEAPONS[p2].get("tags", []))
+    if getattr(ld, "weapon_2h", None) in WEAPONS:
+        t |= set(WEAPONS[ld.weapon_2h].get("tags", []))
     if ld.ranged in RANGED:
         t |= set(RANGED[ld.ranged].get("tags", []))
     if ld.shield in SHIELDS:
@@ -1306,8 +1352,10 @@ def _token_used(tok, ld, need, gear):
         return NO_PARRY_KW in gear
     if tok == rd.FLORENTINE:
         return DUAL_WIELD in set(ld.extra_tags or [])
+    if tok == rd.GUIGE_STRAP:
+        return getattr(ld, "weapon_2h", None) is not None
     if " @" in tok:                                        # scoped to one weapon ("First FoeParry +1 @Cavalry Spear", Wedge)
-        return str(ld.weapon or "").split(" [")[0] == tok.split(" @", 1)[1]
+        return tok.split(" @", 1)[1] in (str(ld.weapon or "").split(" [")[0], getattr(ld, "weapon_2h", None))
     return True                                            # a combat keyword the army carries
 
 
@@ -1318,9 +1366,13 @@ def stale_pool_report(pool):
     out = []
     for ld in pool:
         P = set(ld.pursuits)
-        saved = {t for t in (ld.extra_tags or ()) if t}
+        saved = {t for t in (ld.extra_tags or ()) if t and not str(t).startswith("Equip:")}   # Equip:* = per-build weapon choice
         dw = DUAL_WIELD in saved and ld.weapon is not None and DUAL_WIELD not in WEAPONS.get(ld.weapon, {}).get("tags", [])
         now = set(compute_pursuit_cost(P)[2]) | ({DUAL_WIELD} if dw else set())
+        if not getattr(ld, "weapon_2h", None):
+            now.discard(rd.GUIGE_STRAP)                    # the tag marks a carried 2H weapon, not the Holding
+        if not dw:
+            now.discard(rd.FLORENTINE)                     # the tag marks a Dual Wielding army, not List Yard
         if now != saved:
             gone, new = sorted(saved - now), sorted(now - saved)
             out.append((ld.name, "Holding keywords changed:" + (f" no longer {gone}" if gone else "") + (f" now also {new}" if new else "")))
@@ -1340,7 +1392,8 @@ def idle_holdings(ld):
     toks = _tokens(P)
     dw = DUAL_WIELD in set(ld.extra_tags or []) and ld.weapon is not None \
         and DUAL_WIELD not in WEAPONS.get(ld.weapon, {}).get("tags", [])
-    need = gear_requirements(ld.weapon, ld.shield, ld.armor, ld.ranged, two_of_same=dw, toks=toks)
+    need = gear_requirements(ld.weapon, ld.shield, ld.armor, ld.ranged, two_of_same=dw, toks=toks,
+                             weapon_2h=getattr(ld, "weapon_2h", None))
     need |= {"weapon:" + ld.weapon} if ld.weapon in STABLE_WEAPONS else set()
     req = set(RANGED[ld.ranged].get("requires", [])) if ld.ranged in RANGED else set()
     gear = _gear_tags(ld)
@@ -1385,7 +1438,7 @@ def with_playstyle(loadout, playstyle):
     Useful for one-off comparisons."""
     new_name = _name(loadout.retinue, loadout.weapon, loadout.shield, loadout.armor,
                      loadout.ranged, loadout.has_tiltyard, loadout.extra_tags,
-                     playstyle=playstyle, pursuits=loadout.pursuits)
+                     playstyle=playstyle, pursuits=loadout.pursuits, weapon_2h=getattr(loadout, "weapon_2h", None))
     return loadout._replace(name=new_name, playstyle=playstyle)
 def kt_twins(pool):
     """For every KT loadout in `pool`, create a twin that's the SAME KT retinue & equipment
@@ -1418,7 +1471,7 @@ def kt_twins(pool):
             continue
         new_name = _name(ld.retinue, ld.weapon, ld.shield, ld.armor,
                          ld.ranged, ld.has_tiltyard, ld.extra_tags,
-                         playstyle=natural_ps, pursuits=ld.pursuits) + " (NaturalPS)"
+                         playstyle=natural_ps, pursuits=ld.pursuits, weapon_2h=getattr(ld, "weapon_2h", None)) + " (NaturalPS)"
         twin = ld._replace(name=new_name, playstyle=natural_ps)
         twins.append(twin)
     return twins
@@ -1514,6 +1567,8 @@ def _gear_kw(ld):
         p2 = WEAPONS[ld.weapon].get("profile_2h")
         if p2 in WEAPONS:
             m |= set(WEAPONS[p2].get("tags", []))
+    if getattr(ld, "weapon_2h", None) in WEAPONS:
+        m |= set(WEAPONS[ld.weapon_2h].get("tags", []))
     if ld.ranged and ld.ranged in RANGED:
         r |= set(RANGED[ld.ranged].get("tags", []))
     return m, r
@@ -1552,6 +1607,8 @@ def domain_points(domain):
 
 def _kit(ld):
     """How the build carries its main weapon: 'Dual Wield', its shield, or 'none'."""
+    if getattr(ld, "weapon_2h", None):
+        return "Guige"                                     # every 2H partner of this weapon shares one share
     return "Dual Wield" if DUAL_WIELD in (ld.extra_tags or ()) else (ld.shield or "none")
 
 
@@ -1654,7 +1711,8 @@ def pool_frame(pool):
             not (t.startswith(_INFO_PREFIX) or t in _INFO_EXACT) for t in _SIM[p]["tags"]) and p not in gear_holders)
         prof = synergy_profile(P)
         rows.append({"name": ld.name, "retinue": ld.retinue, "weapon": ld.weapon, "shield": ld.shield or "",
-                     "armor": ld.armor, "ranged": ld.ranged or "", "tags": ",".join(sorted(ld.extra_tags)),
+                     "armor": ld.armor, "ranged": ld.ranged or "", "weapon_2h": ld.weapon_2h or "",
+                     "tags": ",".join(sorted(ld.extra_tags)),
                      "pursuits": "|".join(sorted(P)), "total_investment": len(P),
                      "domain_points": domain_points(domain), "ti_cost": len(P) + domain_points(domain),
                      "core": " + ".join(core) or "(none)",

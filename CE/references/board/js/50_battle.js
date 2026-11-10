@@ -60,7 +60,9 @@ function facCombat(b){const f=FAC[(b||{}).faction||""];if(!f)return [];const t=S
   if(m&&(b.po||0)>=+m[1]){if(/\+1 Initiative|Initiative \+1/i.test(m[2]))add("Init +1");if(/\bSteady\b/i.test(m[2]))add("Steady");}
   return out;}
 // total weapon AP bonus from an army's Holding tokens ("AP -1" per Finery-style text); 0 for none
-function apMod(u,rng){return (u&&u.mods||[]).reduce((s,m)=>{const x=(rng?/^(?:Ranged )?AP ([+-]\d+)$/:/^AP ([+-]\d+)$/).exec(m.tok);return s+(x?+x[1]:0);},0);}
+// "First AP -X" (first Skirmish only; " @<weapon>" = only while that melee weapon is Equipped, e.g. First Charge), as Combatv4
+function apMod(u,rng,first,wn){return (u&&u.mods||[]).reduce((s,m)=>{const x=(rng?/^(?:Ranged )?AP ([+-]\d+)$/:/^AP ([+-]\d+)$/).exec(m.tok);if(x)return s+(+x[1]);
+  const f=first?/^First AP ([+-]\d+)(?: @(.+))?$/.exec(m.tok):null;return s+(f&&(!f[2]||(!rng&&f[2]===wn))?+f[1]:0);},0);}
 function sideUnlocks(p){const u=sideUnlocks0(p);u.outEvery=u.mods.some(m=>m.tok==="Outrider: every");u.outFirst=u.mods.some(m=>m.tok==="Outrider: first");return u;}
 // Outrider reveal read from the Holding text ("Every Skirmish, you may force your opponent to reveal…" / "First Skirmish, …")
 function sideUnlocks0(p){return p?withBoard(p.board,()=>{const have=new Set(Object.keys(PC));const {earned}=computeEarned(have);
@@ -75,16 +77,20 @@ function standingFxOf(dv){const out=[],F=BT.standingFx||{},TH={Rising:RIS,Establ
 let EQSEL={};                                   // this device's pending choice per side, before it is submitted
 // gear permissions from Holding text: carry Ranged + Melee ("dual-equip", Skirmish Field) · Dual Wield ("Florentine", List Yard)
 function hasArmyTok(p,tok){return !!p&&withBoard(p.board,()=>!!armyTokHolder(tok));}
+// Guige Strap (Buckler School): a 2H weapon carried beside the 1H weapon + Shield (a.weapon2h), Equipped instead of them
+function g2h(a){return a&&a.weapon2h&&a.weapon2h!=="None"&&EQ.weapons[a.weapon2h]?a.weapon2h:"";}
+function eqWName(a,e){return e.mode==="ranged"?a.ranged:e.mode==="2h"&&g2h(a)?a.weapon2h:(a.weapon||"");}
 function eqOptions(X){const B=battle(),{p,a}=sideArmy(B[X]);if(!a)return {opts:["melee"],bastard:false};fixBastard(a);
   const r=(a.ranged&&a.ranged!=="None")?EQ.ranged[a.ranged]:null,real=!!a.weapon&&a.weapon!=="Farm Tools",
         one=!!r&&(r.tags||[]).includes("One-Shot")&&!hasArmyTok(p,"Immune One-Shot"),sk1=(B.sk||1)===1,bastard=!!prof2h(a.weapon);
   let opts;
   if(!r)opts=["melee"];
-  else if(one)opts=sk1?["ranged"]:["melee"];            // One-Shot: must be Equipped in the first Skirmish, never after
+  else if(one)opts=sk1?["ranged","melee"]:["melee"];    // One-Shot: may be Equipped in the first Skirmish only, never after
   else if(!real)opts=["ranged"];                         // ranged-only (Farm Tools sidearm) keeps firing
   else opts=["ranged","melee"];                          // carries both (dual-equip)
   const flor=hasArmyTok(p,"Florentine");
   if(opts.includes("melee")&&flor&&canDualWield(a.weapon))opts.push("dual");   // Florentine: Dual Wield the 1H this Skirmish
+  if(opts.includes("melee")&&g2h(a))opts.push("2h");                             // Guige Strap: the 2H weapon this Skirmish
   return {opts,bastard,dual:!!r&&real,carry:hasArmyTok(p,"dual-equip"),flor,one};}
 function eqCode(X){const o=eqOptions(X),s=EQSEL[X]||{},m=o.opts.includes(s.mode)?s.mode:o.opts[0],a=sideArmy(battle()[X]).a||{};
   const b2h=s.b2h!=null?s.b2h:(a.b2h!=null?!!a.b2h:!(a.shield&&a.shield!=="None"));   // default: 2H without a shield
@@ -96,16 +102,18 @@ function eqNow(X){const B=battle(),rv=B.rev&&B.rev.sk===B.sk?B.rev:null,o=eqOpti
 function dualOn(a,e){return !!e&&e.mode==="dual"&&canDualWield(a.weapon);}
 function eqWeapon(a,e,shDest){if(!a)return {ap:0};const r=(a.ranged&&a.ranged!=="None")?EQ.ranged[a.ranged]:null,w=EQ.weapons[a.weapon]||{};
   if(e.mode==="ranged"&&r)return r;
+  if(e.mode==="2h"&&g2h(a))return EQ.weapons[a.weapon2h];                              // Guige Strap: the 2H weapon
   if(dualOn(a,e))return Object.assign({},w,{tags:[].concat(w.tags||[],["2H","Dual Wield"])});   // two of the same melee weapon: Dual Wield confers 2H
   if(prof2h(a.weapon)&&(e.b2h||shDest))return prof2h(a.weapon);                       // 2H profile (also forced once the shield is gone)
   return w;}
 // Random Tactic: uniform over the Tactics other than Fall Back (as the sim's Random mode), limited to
 // those an equipped weapon allows when its note says "May only use …" (e.g. Arquebus).
-// Weapon-imposed Tactic limit (RANGED[*].tactics_allowed, e.g. Arquebus): applies while that weapon is the one
+// Weapon-imposed Tactic limit (tactics_allowed, e.g. Arquebus; tactics_banned, e.g. Lance): applies while that weapon is the one
 // Equipped this Skirmish — same rule as Combatv4 (tactic_mask_ranged). Returns the allowed list, or null.
 function tacAllowedW(X){const B=battle(),{a}=sideArmy(B[X]||{});if(!a)return null;
   const w=eqWeapon(a,eqNow(X),!!((B.shDest||{})[X]));
   if(Array.isArray(w.tactics_allowed)&&w.tactics_allowed.length)return w.tactics_allowed.filter(t=>BT.tactics.includes(t));
+  if(Array.isArray(w.tactics_banned)&&w.tactics_banned.length)return BT.tactics.filter(t=>!w.tactics_banned.includes(t));   // e.g. Lance: no Defensive Formation
   const n=String(w.note||"");if(/May only use/i.test(n)){const ok=BT.tactics.filter(t=>n.includes(t));if(ok.length)return ok;}
   return null;}
 // Battle-tile limit (TACTICAL_TERRAIN "You may only play A, B, or C", e.g. Forest): Fall Back stays open (TACTICAL_GLOBAL)
@@ -137,7 +145,7 @@ function sideCalc(X){
   const sh0=(shDest||shOff)?{save_bonus:0,init:0,tags:[]}:shRaw;             // a destroyed or unequipped shield gives nothing
   const sh=(sh0.init<0&&u.mods.some(m=>m.tok==="Shield Init +1"))?Object.assign({},sh0,{init:sh0.init+1}):sh0;   // Shieldwright
   const eqO=eqNow(O),eShD=!!((B.shDest||{})[O]);
-  let ewpn={ap:0},ewm={ap:0};if(eo){ewpn=eqWeapon(eo,eqO,eShD);ewm=eqWeapon(eo,{mode:"melee",b2h:eqO.b2h},eShD);}   // Riposte = melee weapon
+  let ewpn={ap:0},ewm={ap:0};if(eo){ewpn=eqWeapon(eo,eqO,eShD);ewm=eqWeapon(eo,{mode:eqO.mode==="ranged"?"melee":eqO.mode,b2h:eqO.b2h},eShD);}   // Riposte = the Equipped melee weapon (the 1H one while firing)
   const strikePlus=u.mods.filter(m=>m.tok==="Strike +1").length,initPlus=u.mods.filter(m=>m.tok==="Init +1").length;
   const rev=B.rev&&B.rev.sk===B.sk?B.rev:null,cell=rev?TMX[rev.A+"|"+rev.B]:null,tm0=cell?(X==="A"?cell[0]:cell[1]):{I:0,TH:0,TS:0};
   const swall=!!(rev&&(X==="A"?rev.A:rev.B)==="Defensive Formation"&&!(shDest||shOff)&&!!a.shield&&a.shield!=="None"&&u.mods.some(m=>m.tok==="Shield Wall")),
@@ -169,7 +177,7 @@ function sideCalc(X){
   const I0=INIT_CAP_FIRST?Math.min(maxI,rawI-negI)+negI:Math.min(maxI,rawI);
   const I=INIT_FLOOR?Math.max(INIT_MIN,I0):I0,blunder=!immBlunder&&(I<=INIT_MIN||!!oBlunder);
   // where Initiative comes from, part by part (datasheet breakdown); a Tactic modifier its gear ignores is listed as ignored
-  const initParts=[[eqX.mode==="ranged"?a.ranged:(a.weapon||"weapon"),wpn.init||0]];
+  const initParts=[[eqWName(a,eqX)||"weapon",wpn.init||0]];
   if(sh.init)initParts.push([a.shield,sh.init]);
   u.mods.filter(m=>m.tok==="Init +1").forEach(m=>initParts.push([m.node||"Init +1",1]));
   if(tm.I)initParts.push(["Tactic",tmNote?tm.I:tmI,tmNote?"ignored ("+tmNote.split(":")[0]+")":""]);
@@ -199,7 +207,8 @@ function sideCalc(X){
   const plan=mt.has("Riveted")||mt.has("GF Armor");
   const eTags=new Set([].concat(ewpn.tags||[]));
   const planOn=plan&&!eTags.has("Negate Riveted")&&!eTags.has("Negate Tempered");
-  const eUap=sideUnlocks(sideArmy(o).p),eApMod=apMod(eUap,!!(eqO&&eqO.mode==="ranged")),eApModM=apMod(eUap,false),apOwn=apMod(u,eqX.mode==="ranged");                     // "AP -N" (Finery: Weapons gain -1AP): more negative = more AP
+  const eUap=sideUnlocks(sideArmy(o).p),sk1AP=(B.sk||1)===1,eApMod=apMod(eUap,!!(eqO&&eqO.mode==="ranged"),sk1AP,eo?eqWName(eo,eqO):""),
+        eApModM=apMod(eUap,false,sk1AP,eo?eqWName(eo,{mode:eqO.mode==="ranged"?"melee":eqO.mode}):""),apOwn=apMod(u,eqX.mode==="ranged",sk1AP,eqWName(a,eqX));                     // "AP -N" (Finery: Weapons gain -1AP): more negative = more AP
   // Fluted (armor): incoming AP reduced by 1 toward 0 (Ranged and Riposte too), applied after Deadly; AP 0 unaffected.
   const flutN=((ar.tags||[]).includes("Articulated")?1:0)+(swall?1:0),flut=flutN>0,flAP=ap=>flutN?Math.min(ap+flutN,0):ap;   // Articulated (was Fluted) + Shield Wall
   const saveNoFl=(ar.save||0)-((ewpn.ap||0)+eApMod)-(sh.save_bonus||0)-(tm.TS||0)-sd.adj.TS;
@@ -261,8 +270,8 @@ function sideCalc(X){
   if(recs.length){const rv=Math.min(...recs)-recPlus,base=Math.min(CAP,rv+serrN*SM);
     recThr=Math.min(CAP,base-adjR);                                                  // Fatigue no longer affects Recover
     recNote="Recover "+rv+"+"+(recPlus?" (base "+Math.min(...recs)+" −"+recPlus+")":"")+(serrN?" · Serrated +"+serrN*SM:"")+(enduring?" · Enduring: Recovered Strikes don't count for Panic":"");}
-  if(canParry)trig.push("Parry "+parryThr+"+"+(parryPlus?" (Improved −"+parryPlus*IPM+")":"")+(eUnstop?" · enemy Unstoppable +"+UM:"")+(riposte?" · Riposte on "+(ripP?(FOC-1)+"+":FOC):"")+(dualW?" · Dual Wield: failed Parries re-rolled":""));
-  else if(awkward)trig.push("No Parry: "+(crudeSh&&!wTags.has("Crude")?a.shield:(eqX.mode==="ranged"?a.ranged:a.weapon))+" is "+(crude?"Crude":"Awkward"));
+  if(canParry)trig.push("Parry "+parryThr+"+"+(parryPlus?" (Improved −"+parryPlus*IPM+")":"")+(eUnstop?" · enemy Unstoppable +"+UM:"")+(riposte?" · Riposte on "+(ripP?(FOC-1)+"+":FOC):"")+(dualW?" · Dual Wield: failed Parries re-rolled (a reroll can't Riposte)":""));
+  else if(awkward)trig.push("No Parry: "+(crudeSh&&!wTags.has("Crude")?a.shield:eqWName(a,eqX))+" is "+(crude?"Crude":"Awkward"));
   else trig.push("No Parry (needs "+(Object.keys(BT.standingFx||{}).find(k=>/Gain Parry/i.test(BT.standingFx[k]))||"Parry").replace("|"," ").split(" ").reverse().join(" ")+")");
   if(poisoned||poisonedMelee)trig.push("Enemy Poison: a "+FOC+" Save fails; Recover it only on "+FOC+(poisoned?"":" (melee only)"));
   if(recNote)trig.push(recNote);
@@ -276,7 +285,7 @@ function sideCalc(X){
   trig.unshift(...[shOff?"Shield not usable (2H)":"",dualCarry&&!eqInfo.carry&&p?"Carrying both needs "+armyTokNamed("dual-equip"):"",
     dualW&&!eqInfo.flor&&p?"Dual Wield needs Florentine ("+armyTokNamed("Florentine")+")":""].filter(Boolean));
   // the Strike and Save targets part by part, for the explainers: [label, change to the target] (a lower target is easier)
-  const wName=eqX.mode==="ranged"?a.ranged:(a.weapon||"melee weapon"),eWName=eo?(eqO.mode==="ranged"?eo.ranged:(eo.weapon||"melee weapon")):"",
+  const wName=eqWName(a,eqX)||"melee weapon",eWName=eo?(eqWName(eo,eqO)||"melee weapon"):"",
         nodes=tok=>u.mods.filter(m=>m.tok===tok).map(m=>m.node).filter(Boolean).join(", ");
   const strikeParts=[[(a.retinue||"Retinue")+" base",rt.to_hit||0]];
   if(strikePlus)strikeParts.push(["Strike +1"+(nodes("Strike +1")?" ("+nodes("Strike +1")+")":""),-strikePlus]);
@@ -397,8 +406,11 @@ function datasheetHTML(X,c,pl){
       (SPR&&SPR.S["eq:"+n]?'<span class="ic">'+eqSVG(n,20)+'</span>':'')+esc(nm)+(fl?'<span class="st">'+fl+'</span>':'')+(ex||'')+'</td><td>'+ap+'</td><td>'+ini+'</td><td>'+sv+'</td></tr>'+
       (tg.length?'<tr class="trt'+(on?'':' off')+'"><td colspan="4">'+tg.map(t=>{shown.add(t);return kwc(t);}).join("")+'</td></tr>':'');};
   const wrow=(n,nm,it,on,fl)=>row(n,nm,it,(it.ap||0)+(c.apOwn||0),sg(it.init),"—",on,fl),two=!!(rw&&mw&&!(onR&&a.weapon==="Farm Tools"));
-  let g='';
-  if(onR){g+=wrow(a.ranged,a.ranged,rw,true,two?"equipped":"");if(two)g+=wrow(a.weapon,a.weapon,mw,false,"carried");}
+  let g='';const w2n=g2h(a),w2=w2n?EQ.weapons[w2n]:null;
+  if(w2&&mw){const on2=c.eqX.mode==="2h";                                       // Guige Strap: the Equipped set first
+    if(on2)g+=wrow(w2n,w2n,w2,true,"equipped")+wrow(a.weapon,a.weapon,mw,false,"carried");
+    else g+=wrow(a.weapon,a.weapon+(c.dualW?" ×2":""),mw,true,"equipped")+wrow(w2n,w2n,w2,false,"carried");}
+  else if(onR){g+=wrow(a.ranged,a.ranged,rw,true,two?"equipped":"");if(two)g+=wrow(a.weapon,a.weapon,mw,false,"carried");}
   else{if(mw)g+=wrow(a.weapon,a.weapon+(c.eqX.b2h?" (2H)":"")+(c.dualW?" ×2":""),c.eqX.b2h&&prof2h(a.weapon)?prof2h(a.weapon):mw,true,two?"equipped":"");if(rw)g+=wrow(a.ranged,a.ranged,rw,false,"carried");}
   if(sh)g+=row(a.shield,a.shield,sh,"—",sh.init?sg(sh.init):"—","+"+(sh.save_bonus||0),!(c.shOff||c.shDest),c.shOff?"off: 2H":"",
     B.id?'<label class="st"><input type="checkbox" class="bshd" data-x="'+X+'"'+(c.shDest?' checked':'')+'> destroyed</label>':'');
@@ -436,7 +448,7 @@ function tacticPickHTML(X){
   else if(B.id&&(mine||!API.online||tmode==="manual")&&tmode!=="random"&&!(B.rev&&B.rev.sk===B.sk)){
     {const eo_=eqOptions(X),cur=eqNow(X);
       if(eo_.opts.length>1||eo_.bastard)h+='<div style="margin-top:4px;display:flex;gap:6px;align-items:center"><span class="note">Equipment</span>'+
-        (eo_.opts.length>1?'<select class="beq" data-x="'+X+'"'+(pk2.picked?' disabled':'')+'>'+eo_.opts.map(m=>'<option value="'+m+'"'+(cur.mode===m?' selected':'')+'>'+(m==="ranged"?esc(a.ranged)+(!((EQ.ranged[a.ranged]||{}).tags||[]).includes("2H")&&a.shield&&a.shield!=="None"?' + '+esc(a.shield):''):m==="dual"?'Florentine: two '+esc(a.weapon):esc(a.weapon||"melee")+(a.shield&&a.shield!=="None"?' + '+esc(a.shield):''))+'</option>').join('')+'</select>':'')+
+        (eo_.opts.length>1?'<select class="beq" data-x="'+X+'"'+(pk2.picked?' disabled':'')+'>'+eo_.opts.map(m=>'<option value="'+m+'"'+(cur.mode===m?' selected':'')+'>'+(m==="ranged"?esc(a.ranged)+(!((EQ.ranged[a.ranged]||{}).tags||[]).includes("2H")&&a.shield&&a.shield!=="None"?' + '+esc(a.shield):''):m==="dual"?'Florentine: two '+esc(a.weapon):m==="2h"?esc(a.weapon2h):esc(a.weapon||"melee")+(a.shield&&a.shield!=="None"?' + '+esc(a.shield):''))+'</option>').join('')+'</select>':'')+
         (eo_.bastard?'<select class="beqb" data-x="'+X+'"'+(pk2.picked?' disabled':'')+'><option value="1H"'+(cur.b2h?'':' selected')+'>1H</option><option value="2H"'+(cur.b2h?' selected':'')+'>2H</option></select>':'')+
         '<span class="note">submitted with your Tactic</span></div>';
       else if(eo_.one&&eo_.opts[0]==="ranged")h+='<div class="note" style="margin-top:4px">One-Shot: '+esc(a.ranged)+(!((EQ.ranged[a.ranged]||{}).tags||[]).includes("2H")&&a.shield&&a.shield!=="None"?' + '+esc(a.shield):'')+' is Equipped this Skirmish.</div>';}
@@ -511,7 +523,7 @@ function tacDetailHTML(X,t){if(!t)return '<div class="note" style="margin-top:4p
 function rollGuideHTML(X){const B=battle(),fl=bFlow(),c=sideCalc(X);if(!c||!B.dice||!B.id)return "";const O=X==="A"?"B":"A",co=sideCalc(O),F=BT.faces||10,FOC=BT.focusedThr||10;
   // the same steps the buttons offer: a step the flow allows but this side can't take (no Dual Wield, Parry, Recover …) is skipped
   const can=fl?fl.can[X]:{},sv=(B.sv||{})[X],T=BT.panicThreshold||5,pn=(B[X].cas||0)+(c.enduring?0:(B[X].rcv||0)),
-    has={strike:1,cleave:1,dual:0,parry:c.canParry,rip:ripN(X)>0,save:1,recover:c.recThr!=null&&sv&&sv.sk===B.sk&&(sv.n+recFx(sv))>0,panic:!c.immunePanic&&pn>T,brk:1},
+    has={strike:1,cleave:1,dual:0,parry:c.canParry,rip:ripN(X)>0,save:1,recover:c.recThr!=null&&sv&&sv.sk===B.sk&&(sv.n+recFx(sv))>0,panic:!c.immunePanic&&pn>=T,brk:1},
     k=["strike","cleave","dual","parry","rip","save","recover","panic","brk"].find(f=>can[f]&&has[f]);if(!k)return "";
   // parts are [label, change to the target]; on the dice that is the opposite sign (Tactic +1 to Strike = each die +1)
   const dmods=(L,eff)=>{const base=L[0][1],m=base-eff,ls=L.slice(1).filter(([,v])=>v).map(([n,v])=>esc(n)+' '+sgnD(-v)),cap=L.slice(1).filter(([,v])=>!v).map(([n])=>esc(n)),
@@ -530,14 +542,14 @@ function rollGuideHTML(X){const B=battle(),fl=bFlow(),c=sideCalc(X);if(!c||!B.di
       '<div class="note">Your '+esc(c.wName)+': '+(ap?'AP '+sgnD(ap)+' — each of their Save dice '+sgnD(ap):'no AP')+(c.wpn.init?' · Initiative '+sgnD(c.wpn.init):'')+'.</div>'+
       '<div class="note">'+(c.critFloor<FOC?c.critFloor+'+':'10s')+' (Focused): '+(tens.length?tens.join('; '):'just a hit — your '+esc(c.wName)+' has no Focused effect')+'.</div>';}
   else if(k==="parry"||k==="rip"){h='<b>Parry</b> — roll one die per hit coming at you ('+(k==="rip"?ripN(X):inc)+'). Each <b>'+tgtTxt(c.parryThr)+'</b> turns a hit aside'+(ic.d?'; Deadly hits only on a 10':'')+'.'+
-      (c.dualW?' Dual Wield: each failed Parry is re-rolled once.':'')+
+      (c.dualW?' Dual Wield: each failed Parry is re-rolled once; a re-rolled Parry can\'t Riposte.':'')+
       (c.riposte?'<div class="note">'+(c.ripP?(FOC-1)+'s and 10s':'10s')+': <b>Riposte</b> — you strike back once with your '+esc(c.a.weapon||"melee weapon")+'.</div>':'<div class="note">10s: just a Parry.</div>');}
   else if(k==="save"){const vm=dmods(c.saveParts,c.save);h='<b>Save</b> — roll one die per hit that got through ('+inc+'). Your '+esc(c.a.armor||"Cloth")+' saves on <b>'+vm.base+'+</b>, each die <b>'+sgnD(vm.m)+'</b>'+(c.save>F?" — it can't save":'')+'; every failed Save is a casualty.'+
       '<div class="note">Modifiers: '+vm.txt+'.'+(ic.d?' Deadly hits ('+ic.d+'): each die '+sgnD(vm.base-c.deadlySave)+'.':'')+'</div>'+
       '<div class="note">10s: '+(c.poisoned?'<b>fail</b> — their weapon is Poisoned':'just a Save')+'.</div>';}
   else if(k==="recover")h='<b>Recover</b> — each failed Save gets one more die: <b>'+tgtTxt(c.recThr)+'</b> and that '+esc(c.a.retinue||"Retinue")+' is back on its feet'+(c.enduring?'':' (it still counts toward Panic)')+'.';
   else h='<b>'+(k==="panic"?'Panic':'Break')+' check</b> — roll '+(BT.moraleDiceMax||5)+' dice; each below <b>'+c.morale+'</b> costs a '+esc(c.a.retinue||"Retinue")+'.'+
-      (k==="panic"?'<div class="note">Rolled because this Skirmish\'s casualties passed '+(BT.panicThreshold||5)+'.</div>':'<div class="note">Rolled because Endurance hit 0.</div>');
+      (k==="panic"?'<div class="note">Rolled because this Skirmish\'s casualties reached '+(BT.panicThreshold||5)+'.</div>':'<div class="note">Rolled because Endurance hit 0.</div>');
   return '<div class="roll-guide"><span class="rg-k">next</span> '+h+'</div>';}
 // ---- battle chronicle: BATTLE_NARRATION lines filled from what just happened (B.narr), read under the battlefield ----
 const NARR=BT.narration||{};
@@ -605,7 +617,7 @@ function bFlow(){const B=battle(),sk=B.sk,C={A:sideCalc("A"),B:sideCalc("B")};
   const done1=X=>!able(X)||(struck(X)&&defDone(O(X)));                                     // X has fought (or can't)
   const fought=nc||(done1("A")&&done1("B")&&(tie||(!pend("A")&&!pend("B"))));
   const T=BT.panicThreshold||5,pn=X=>{const sd=B[X];return (sd.cas||0)+(C[X].enduring?0:(sd.rcv||0));};
-  const panicDue=X=>able(X)&&!C[X].immunePanic&&pn(X)>T&&(B.pnk||{})[X]!==sk;
+  const panicDue=X=>able(X)&&!C[X].immunePanic&&pn(X)>=T&&(B.pnk||{})[X]!==sk;
   const can={A:{},B:{}};
   ["A","B"].forEach(X=>{const o=O(X),k=can[X];
     k.strike=!nc&&!on(B.strk,X)&&able(X)&&(tie||X===first||(struck(first)&&defDone(X)&&!pend(X)&&!pend(first)));
@@ -648,7 +660,7 @@ function actionsHTML(X){
       '<button class="'+cls("save")+'" data-x="'+X+'" data-k="Save"'+g("save")+'>Save ×'+inc+(ic.d?' ('+ic.d+' Deadly)':'')+'</button>'+
       (ripN(X)?(c.canParry?'<button class="'+cls("rip")+'" data-x="'+X+'" data-k="RipParry">Parry Riposte ×'+ripN(X)+'</button>':'')+'<button class="'+cls("rip")+'" data-x="'+X+'" data-k="RipSave">Save vs Riposte ×'+ripN(X)+'</button>':'')+
       ((sv=>{const fx=sv?recFx(sv):0;return sv&&sv.sk===B.sk&&(sv.n+fx)&&c.recThr!=null?'<button class="'+cls("recover")+'" data-x="'+X+'" data-k="Recover">Recover ×'+(sv.n+fx)+(fx?' ('+fx+' on '+(BT.focusedThr||10)+' only)':'')+'</button>':'';})((B.sv||{})[X]))+
-      (!c.immunePanic&&pn>T?'<button class="'+cls("panic")+'" data-x="'+X+'" data-k="Morale"'+g("panic")+'>Panic check ×'+(BT.moraleDiceMax||5)+'</button>':'')+
+      (!c.immunePanic&&pn>=T?'<button class="'+cls("panic")+'" data-x="'+X+'" data-k="Morale"'+g("panic")+'>Panic check ×'+(BT.moraleDiceMax||5)+'</button>':'')+
       (fatiguesNow(X)&&!((B.brk||{})[X]&&B.brk[X].sk===B.sk)?'<button class="'+cls("brk")+'" data-x="'+X+'" data-k="Break"'+g("brk")+'>Break check ×'+(BT.moraleDiceMax||5)+'</button>':'')+
       '<input type="number" min="0" value="'+inc+'" class="bn" data-x="'+X+'" style="width:52px" title="dice count override for Parry/Save">'+
       '</div>'+((g_,r_)=>g_||r_?'<details class="bdice"><summary class="note">dice detail</summary>'+g_+r_+'</details>':'')(rollGuideHTML(X),rollHTML(X));   // the Skirmish log above reads easier; the dice stay one click away
@@ -779,7 +791,7 @@ function battleGlanceHTML(){const B=battle(),cA=sideCalc("A"),cB=sideCalc("B");i
   const sk=(X,c)=>{const sd=B[X]||{},cas=(+sd.cas||0),pt=+BT.panicThreshold||5,e=+(c.a.endurance||0),e0=+((EQ.retinues[c.a.retinue]||{}).endurance)||Math.max(e,3);
     return '<div class="gl-stats"><span title="Morale: roll this or higher; Routs at '+(BT.routThr||11)+'+">❤ Morale <b>'+c.morale+'+</b></span>'+
       '<span title="Endurance (0 = Fatigued at the end of the Skirmish)">⧗ '+"■".repeat(Math.min(e,8))+'<span class="dim">'+"□".repeat(Math.max(0,Math.min(e0,8)-e))+'</span></span>'+
-      '<span title="casualties this Skirmish; above '+pt+' = Panic check" class="'+(cas>pt?'neg':'')+'">☠ '+cas+'/'+pt+(cas>pt?' Panic!':'')+'</span>'+(c.a.fatigue?'<span class="neg">Fatigue '+c.a.fatigue+'</span>':'')+'</div>';};
+      '<span title="casualties this Skirmish; '+pt+' or more = Panic check" class="'+(cas>=pt?'neg':'')+'">☠ '+cas+'/'+pt+(cas>=pt?' Panic!':'')+'</span>'+(c.a.fatigue?'<span class="neg">Fatigue '+c.a.fatigue+'</span>':'')+'</div>';};
   const side=X=>{const c=X==="A"?cA:cB;return '<div class="gl-side" style="--sc:'+col(X)+'"><div class="gl-nm"><b>'+esc(sideNm(X))+'</b> '+pk(X)+'</div>'+(cell?'<div class="gl-md note">'+esc(md(X==="A"?cell[0]:cell[1]))+'</div>':'')+troops(X,c)+sk(X,c)+'</div>';};
   const first=cA.I===cB.I?'<div class="gl-first">⇆ <b>Simultaneous</b><span class="note">Init '+cA.I+' = '+cB.I+'</span></div>':
     '<div class="gl-first">'+(cA.I>cB.I?'<b>'+esc(sideNm("A"))+'</b> ⇒':'⇐ <b>'+esc(sideNm("B"))+'</b>')+'<span class="note">strikes first · Init '+cA.I+' vs '+cB.I+'</span></div>';
@@ -836,14 +848,14 @@ function rollCore(X,kind,nOverride){
     if(c.hasDestroy&&procs&&esh&&!(esh.tags||[]).includes("Immune Destroy Shield")&&!hasArmyTok(sideArmy(B[O]).p,"Immune Destroy Shield")&&!B.shDest[O]){B.shDest[O]=true;blog(O+"'s "+ea.shield+" is DESTROYED");}
   }else if(kind==="Parry"){
     const tot=nOverride!=null?nOverride:inc.n+inc.d,d=Math.min(inc.d,tot),nn=tot-d,T=c.parryThr;
-    const ok=c.canParry;let dn=d10(nn),dd=d10(d);
+    const ok=c.canParry;let dn=d10(nn),dd=d10(d),rrN=[],rrD=[];                       // rrN/rrD: Dual Wield rerolls (they can't Riposte)
     if(ok&&c.dualW){const fn=dn.filter(v=>v<T),fd=dd.filter(v=>v<FOC);                // Dual Wield: each failed Parry is re-rolled once
-      if(fn.length+fd.length){const rn=d10(fn.length),rd=d10(fd.length);dn=dn.filter(v=>v>=T).concat(rn);dd=dd.filter(v=>v>=FOC).concat(rd);
+      if(fn.length+fd.length){const rn=d10(fn.length),rd=d10(fd.length);rrN=rn;rrD=rd;dn=dn.filter(v=>v>=T).concat(rn);dd=dd.filter(v=>v>=FOC).concat(rd);
         blog(X+" re-rolls "+(fn.length+fd.length)+" failed Parr"+(fn.length+fd.length===1?"y":"ies")+" (Dual Wield) ["+rn.concat(rd).join(",")+"]");}}
     const p=ok?dn.filter(v=>v>=T).length:0,pd=ok?dd.filter(v=>v>=FOC).length:0;   // no Parry: every Parry fails
     if(!ok)blog(X+" has no Parry — all Parries fail");
-    const RT=c.ripP?FOC-1:FOC,ripN0=ok?dn.filter(v=>v>=Math.max(T,RT)).length:0;  // Riposte +1: a parrying 9 also Ripostes
-    const rip=ok&&c.riposte?ripN0+pd:0;
+    const RT=c.ripP?FOC-1:FOC,rp=a=>a.filter(v=>v>=Math.max(T,RT)).length,ripN0=ok?rp(dn)-rp(rrN):0;  // Riposte +1: a parrying 9 also Ripostes
+    const rip=ok&&c.riposte?ripN0+pd-rrD.filter(v=>v>=FOC).length:0;                  // a rerolled Parry can't Riposte
     if(rip){addRip(O,rip);blog(X+" Ripostes ×"+rip+" → "+O+" takes "+rip+" Strike(s) from "+X+"'s melee weapon");}
     B.par[X]={sk:B.sk,p:p+((B.par[X]&&B.par[X].sk===B.sk)?B.par[X].p:0),pd:pd+((B.par[X]&&B.par[X].sk===B.sk)?B.par[X].pd:0)};
     B.rolls[X]={kind,target:ok?T:99,dice:dn.sort((x,y)=>y-x),succ:p,nat10:ripN0,
@@ -868,8 +880,8 @@ function rollCore(X,kind,nOverride){
   }else if(kind==="RipParry"||kind==="RipSave"){
     const pr=ripN(X);if(!pr){blog(X+": no Riposte Strikes pending");save();render();return;}
     if(kind==="RipParry"){if(!c.canParry){blog(X+" has no Parry — Riposte Strikes can't be Parried");save();render();return;}const T=c.parryThrMelee;let dn=d10(pr);
-      if(c.dualW){const fn=dn.filter(v=>v<T).length;if(fn){const rn=d10(fn);dn=dn.filter(v=>v>=T).concat(rn);blog(X+" re-rolls "+fn+" failed Parr"+(fn===1?"y":"ies")+" (Dual Wield) ["+rn.join(",")+"]");}}
-      const p=dn.filter(v=>v>=T).length,back=c.riposteMelee?dn.filter(v=>v>=Math.max(T,c.dualW?FOC-1:FOC)).length:0;
+      let rr=[];if(c.dualW){const fn=dn.filter(v=>v<T).length;if(fn){const rn=d10(fn);rr=rn;dn=dn.filter(v=>v>=T).concat(rn);blog(X+" re-rolls "+fn+" failed Parr"+(fn===1?"y":"ies")+" (Dual Wield) ["+rn.join(",")+"]");}}
+      const RT2=Math.max(T,c.ripP?FOC-1:FOC),p=dn.filter(v=>v>=T).length,back=c.riposteMelee?dn.filter(v=>v>=RT2).length-rr.filter(v=>v>=RT2).length:0;   // Riposte +1, not Dual Wield, Ripostes on a 9; a rerolled Parry can't Riposte
       B.rip[X].n=pr-p;B.rolls[X]={kind:"Parry",target:T,dice:dn.sort((x,y)=>y-x),succ:p,nat10:back};
       blog(X+" Parries Riposte "+pr+"d10 vs "+T+"+ ["+dn.join(",")+"] → "+p+" parried");if(back){addRip(O,back);blog(X+" Ripostes the Riposte ×"+back+" → "+O+" takes "+back+" Strike(s)");}}
     else{const T=c.saveMelee,dn=d10(pr),pz=c.poisonedMelee?FOC:99,s1=T>FACES_?0:dn.filter(v=>v>=T&&v<pz).length,pz1=dn.filter(v=>v>=pz).length,f=pr-s1;
@@ -913,7 +925,7 @@ function rollBreakBtn(X){const B=battle(),r=B.endRep&&B.endRep.sk===B.sk&&B.endR
 // what must be resolved before the Skirmish (and so the Battle) can end: casualties applied, Panic checks rolled (emulated dice)
 function panicOwed(){const B=battle();if(!B.id||!B.dice)return [];const T=BT.panicThreshold||5;
   return ["A","B"].filter(X=>{const c=sideCalc(X),sd=B[X];if(!c||c.immunePanic||(c.a.count||0)<=0||(c.a.retinue&&isRouted(c.a)))return false;
-    return (sd.cas||0)+(c.enduring?0:(sd.rcv||0))>T&&(B.pnk||{})[X]!==B.sk;});}
+    return (sd.cas||0)+(c.enduring?0:(sd.rcv||0))>=T&&(B.pnk||{})[X]!==B.sk;});}
 function endSkirmish(){
   ["A","B"].forEach(X=>{const n=pendCas(X);if(n>0){blog(X+": "+n+" pending casualties applied at End Skirmish");applyCasNow(X,n);}});
   {const P=panicOwed();if(P.length){flash("Panic check first: "+P.map(sideNm).join(", "));save();render();return;}}

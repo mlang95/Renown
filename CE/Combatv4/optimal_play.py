@@ -30,6 +30,7 @@ from dice_config import clamp_init
 import combat_primitives as _cp
 
 from dice_config import FACES, FOCUSED_THR, CAP_THR, AUTO_PASS_FLOOR, PARRY_BASE, DEADLY_AP, UNSTOPPABLE_MOD
+from dice_config import DW_REROLL_RIPOSTE as _DWR
 
 _AP = AUTO_PASS_FLOOR if AUTO_PASS_FLOOR is not None else 1
 N_TAC = 6                    # Fall Back (index 6) is never part of the optimal mix
@@ -54,7 +55,7 @@ def _side(P, RP, skl, me, opp_P):
     s["to_hit"] = g("to_hit"); s["armor"] = g("armor_save"); s["max_init"] = g("max_init")
     s["size"] = g("size_start"); s["parry_bonus"] = g("parry_bonus")
     s["strike_bonus"] = g("strike_bonus_first" if skl == "first" and "strike_bonus_first" in P else "strike_bonus")
-    s["ap"] = g(f"ap_{skl}"); s["ap_melee"] = g("ap_melee"); s["unstop_melee"] = g("unstop_melee")
+    s["ap"] = g(f"ap_{skl}"); s["ap_melee"] = g(f"ap_melee_{skl}"); s["unstop_melee"] = g(f"unstop_melee_{skl}")
     s["shield_off"] = g(f"shield_off_{skl}")
     s["shield_bonus"] = np.where(s["shield_off"], 0, g("shield_bonus_start"))
     s["swall"] = (g("shield_wall") if "shield_wall" in P else np.zeros_like(s["shield_off"], dtype=bool)) & ~s["shield_off"]   # Pavisiers' Yard
@@ -94,7 +95,7 @@ def _cas_per_strike(def_s, atk_s, save_t, deadly_frac, atk_unstop, atk_ranged, a
     no_rip = atk_deflect | atk_ranged | atk_negrip   # Ranged / Negate Riposte block Riposte; only a Deflect tag worsens Parry
     pthr = PARRY_BASE - def_s["parry_bonus"] + UNSTOPPABLE_MOD * atk_unstop + atk_deflect + atk_fp   # 11+ = no Parry (_p_ge -> 0)
     pm = def_s["parry"]
-    dw = def_s["dw"]                     # Dual Wield: a failed Parry is rerolled once; FOCUSED_THR-1 also Ripostes
+    dw = def_s["dw"]                     # Dual Wield: a failed Parry is rerolled once (a rerolled Parry can't Riposte unless DW_REROLL_RIPOSTE)
     q_n, q_d = _p_ge(pthr), _p_ge(np.maximum(FOCUSED_THR, pthr))   # Deadly: at best a Focused roll
     pp_n = np.where(pm, np.where(dw, 1 - (1 - q_n) ** 2, q_n), 0.0)
     pp_d = np.where(pm, np.where(dw, 1 - (1 - q_d) ** 2, q_d), 0.0)
@@ -113,7 +114,7 @@ def _cas_per_strike(def_s, atk_s, save_t, deadly_frac, atk_unstop, atk_ranged, a
     cas = (1 - deadly_frac) * cas_n + deadly_frac * cas_d
     rip_ok = def_s["riposte"] & ~no_rip
     q_r = _p_ge(np.maximum(pthr, np.where(def_s["rp1"], FOCUSED_THR - 1, FOCUSED_THR)))   # a parrying roll that Ripostes (Riposte +1: 9)
-    rip_n = np.where(dw, q_r * (2 - q_n), q_r)                                  # reroll: first roll, or the reroll
+    rip_n = np.where(dw, q_r * (2 - q_n) if _DWR else q_r, q_r)                 # reroll: first roll, or the reroll (unless DW_REROLL_RIPOSTE off)
     rip = np.where(rip_ok, (1 - deadly_frac) * np.where(pm, rip_n, 0.0)
                    + deadly_frac * pp_d, 0.0)
     return cas, rip

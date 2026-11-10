@@ -185,5 +185,5 @@ function bfEffects(S){const B=battle(),now=bfSeen(),was=BF.seen;BF.seen=now;cons
   ["A","B"].forEach(X=>{const s=S[X],d=now["cas"+X]-(was["cas"+X]||0);if(!s||d<=0)return;const up=Math.min(d,BF.res[X]||0);
     bfToast("cas"+X,'<b>'+esc(s.nm)+'</b>: '+bfN(d,"falls","fall")+(up?' · '+up+' step up from reserve':'')+(s.c.front<(BT.frontMax||10)?' · front '+s.c.front:''),s.col);
     const sd=B[X],pn=(sd.cas||0)+(s.c.enduring?0:(sd.rcv||0)),T=BT.panicThreshold||5;
-    if(pn>T&&!BF.panic[X]){BF.panic[X]=1;bfToast("pn"+X,s.c.immunePanic?'<b>'+esc(s.nm)+'</b>: '+pn+' lost this Skirmish, Immune Panic':
-      '<b>'+esc(s.nm)+'</b>: '+pn+' lost this Skirmish (over '+T+'), <b>Panic check</b> after both sides Strike',s.col,300);}});}
+    if(pn>=T&&!BF.panic[X]){BF.panic[X]=1;bfToast("pn"+X,s.c.immunePanic?'<b>'+esc(s.nm)+'</b>: '+pn+' lost this Skirmish, Immune Panic':
+      '<b>'+esc(s.nm)+'</b>: '+pn+' lost this Skirmish ('+T+' or more), <b>Panic check</b> after both sides Strike',s.col,300);}});}

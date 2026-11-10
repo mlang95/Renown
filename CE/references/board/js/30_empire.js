@@ -1334,6 +1334,7 @@ function inspectItem(kind,name){
       '<div class="atoms">'+dispTags(q.tags).map(t=>kwChipHTML(t)).join(" ")+'</div>';}
   if(it.requires)h+='<div class="note">Requires: '+it.requires.map(esc).join(", ")+'</div>';
   if(it.tactics_allowed)h+='<div class="note">Tactics: '+it.tactics_allowed.map(esc).join(", ")+'</div>';
+  if(it.tactics_banned)h+='<div class="note">Can\'t use: '+it.tactics_banned.map(esc).join(", ")+'</div>';
   if(it.note)h+='<div class="note">'+esc(it.note)+'</div>';
   openModal(h);
 }
@@ -1363,7 +1364,12 @@ function loadoutFields(obj,u,opts){opts=opts||{};const lo=document.createElement
   if(opts.bastard)fixBastard(obj);
   fixWeaponNotes(obj);
   field("Weapon","weapon",EQ.weapons,u.wTiers,(name,it)=>reqMet(it,u)&&weaponUnlockMet(name,u)&&lanceOnlyOK(name,u,opts.army),()=>fixWeaponNotes(obj));
-  field("Ranged","ranged",Object.assign({"None":{tier:null}},EQ.ranged),u.wTiers,(name,it)=>name==="None"||(u.ranged&&reqMet(it,u)&&!weaponForbids(obj.weapon,"ranged")));
+  // Guige Strap (Buckler School): the Ranged choice becomes a 2H weapon carried beside the 1H weapon + Shield (no Ranged weapon)
+  if((u.mods||[]).some(m=>m.tok==="Guige Strap")){obj.ranged="None";
+    const w2={"None":{tier:null}};Object.keys(EQ.weapons).forEach(k=>{const w=EQ.weapons[k];if((w.tags||[]).includes("2H")&&!EQ.prof2hOf[k])w2[k]=w;});
+    field("2H Weapon","weapon2h",w2,u.wTiers,(name,it)=>name==="None"||(reqMet(it,u)&&weaponUnlockMet(name,u)));}
+  else{if(obj.weapon2h)obj.weapon2h="None";
+    field("Ranged","ranged",Object.assign({"None":{tier:null}},EQ.ranged),u.wTiers,(name,it)=>name==="None"||(u.ranged&&reqMet(it,u)&&!weaponForbids(obj.weapon,"ranged")));}
   field("Armor","armor",EQ.armors,new Set(EQ.tiers),name=>u.armors.has(name)||name==="Cloth");
   const shieldItems={};Object.keys(EQ.shields).forEach(k=>shieldItems[k==="null"?"None":k]=EQ.shields[k]);
   field("Shield","shield",shieldItems,unlockedShieldTiers(u),name=>name==="None"||(u.shields&&!(name==="Tower Shield"&&weaponForbids(obj.weapon,"tower"))));
@@ -1456,13 +1462,13 @@ function armyCard(a,u){
   // loadout selects
   const lo=loadoutFields(a,u,{army:true,onRetinue:()=>{const rt=EQ.retinues[a.retinue];if(rt)a.endurance=rt.endurance;},bastard:true});
   card.appendChild(lo);
-  const gf=facGearFlags(a);if(gf.length){const fb=document.createElement("div");fb.className="flagbox";fb.style.marginTop="4px";fb.textContent="⚑ "+gf.join(" · ");card.appendChild(fb);}
+  const gf=facGearFlags(a).concat(g2h(a)&&((EQ.weapons[a.weapon]||{tags:["2H"]}).tags||[]).includes("2H")||g2h(a)&&(!a.shield||a.shield==="None")?["Guige Strap: the 2H Weapon is carried beside a 1H Weapon and Shield"]:[]);if(gf.length){const fb=document.createElement("div");fb.className="flagbox";fb.style.marginTop="4px";fb.textContent="⚑ "+gf.join(" · ");card.appendChild(fb);}
 
   card.appendChild(armyStats(a,u));
 
   // clickable loadout chips
   const loch=document.createElement("div");loch.className="lochips";
-  [["Retinue","retinue",a.retinue],["Weapon","weapon",a.weapon],["Ranged","ranged",a.ranged],
+  [["Retinue","retinue",a.retinue],["Weapon","weapon",a.weapon],["2H Weapon","weapon",a.weapon2h],["Ranged","ranged",a.ranged],
    ["Armor","armor",a.armor],["Shield","shield",a.shield]].forEach(([lbl,kind,val])=>{
     if(!val||val==="None")return;
     const c=document.createElement("span");c.className="lochip";c.dataset.kind=kind;c.dataset.item=val;

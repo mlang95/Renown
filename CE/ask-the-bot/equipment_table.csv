@@ -8,32 +8,32 @@ Short Sword,Melee,Cast,0,0,"Steady, Parry +1"
 Spears,Melee,Cast,0,1,"Unwieldy, Awkward"
 2HSpears,Melee,Cast,-1,1,"2H, Steady, Awkward"
 Arming Sword,Melee,Wrought,-1,0,"Steady, Parry +1"
-Pike,Melee,Wrought,-2,1,"2H, Steady, Unwieldy, Deadly, Unstoppable, Awkward"
 Flail,Melee,Wrought,-1,0,"Unstoppable, Cleave, Awkward"
 Halberd,Melee,Wrought,-2,1,"2H, Hook 1"
-Battle Axe,Melee,Wrought,-3,-1,"2H, Unstoppable, Cleave, Hook 1"
+Battle Axe,Melee,Wrought,-4,-1,"2H, Unstoppable, Cleave, Hook 1"
 Cavalry Spear,Melee,Wrought,0,1,"Steady, Unwieldy, Unstoppable, Awkward, Deadly"
-Morningstar,Melee,Forged,-3,0,Cleave
+Pike,Melee,Forged,-3,1,"2H, Steady, Unwieldy, Deadly, Unstoppable, Awkward"
+Morningstar,Melee,Forged,-4,-1,Cleave
 Bastard Sword,Melee,Forged,-2,0,"Steady, Deadly, Parry +1"
 2HBastard,Melee,Forged,-2,0,"2H, Unstoppable, Cleave"
 War Hammer,Melee,Forged,-10,-1,"2H, Steady, Unstoppable, Hook 2"
 Lance,Melee,Crafted,-5,1,"Steady, Unwieldy, Unstoppable, Awkward, Deadly"
-Estoc,Melee,Crafted,-2,0,"Steady, Cleave, Unstoppable, Parry +1"
-Poleaxe,Melee,Crafted,-5,1,"2H, Deadly, Unstoppable, Hook 2"
+Estoc,Melee,Crafted,-3,0,"Steady, Cleave, Unstoppable, Parry +1"
+Poleaxe,Melee,Crafted,-4,1,"2H, Deadly, Unstoppable, Hook 2"
 Hunting Bow,Ranged,Crude,0,2,"2H, Unstoppable, Deadly, Awkward"
 Longbow,Ranged,Cast,-1,2,"2H, Unstoppable, Deadly, Awkward"
-Javelin,Ranged,Wrought,-2,1,"Steady, Deadly, Unstoppable, Hook 1, Destroy Shield, One-Shot, Awkward"
+Javelin,Ranged,Wrought,-2,2,"Steady, Deadly, Unstoppable, Hook 1, Destroy Shield, One-Shot, Awkward"
 Crossbow,Ranged,Forged,-3,2,"2H, Unwieldy, Deadly, Unstoppable, Hook 2, One-Shot, Awkward"
-Pilum,Ranged,Crafted,-4,1,"Steady, Deadly, Unstoppable, Hook 2, Destroy Shield, One-Shot, Awkward"
+Pilum,Ranged,Crafted,-4,2,"Steady, Deadly, Unstoppable, Hook 2, Destroy Shield, One-Shot, Awkward"
 Arquebus,Ranged,Crude,-6,2,"2H, Steady, Deadly, Unstoppable, Hook 2, Awkward"
 Buckler Shield,Shield,Crude,+1,0,
 Targe Shield,Shield,Cast,+1,-1,"Unwieldy, Shielded"
-Kite Shield,Shield,Wrought,+1,0,Shielded
+Kite Shield,Shield,Wrought,+1,-1,"Steady, Shielded 2"
 Tower Shield,Shield,Forged,+2,-2,"Unwieldy, Crude, Shielded 3"
 Heater Shield,Shield,Crafted,+2,-1,"Shielded 2, Immune Destroy Shield"
 Cloth,Armor,,10+,,
 Gambeson,Armor,Crude,8+,,
-Leather,Armor,Cast,7+,,Nimble
+Leather,Armor,Cast,7+,,
 Chainmail,Armor,Wrought,6+,,
 Full Plate,Armor,Forged,4+,,Init -1
 Gothic Plate,Armor,Crafted,3+,,

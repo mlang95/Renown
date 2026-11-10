@@ -86,12 +86,14 @@ os.environ["RENOWN_DEADLY_MODE"] = str(dc.DEADLY_MODE)
 # Panic timing (Nov 9 2026): read the same way the engines do; recorded so the notebook can match it.
 PANIC_TIMING = "after" if os.environ.get("RENOWN_PANIC_TIMING", "instant").strip().lower() == "after" else "instant"
 os.environ["RENOWN_PANIC_TIMING"] = PANIC_TIMING      # workers inherit it
+os.environ["RENOWN_DW_REROLL_RIPOSTE"] = "1" if dc.DW_REROLL_RIPOSTE else "0"
 
 tag = mine.tag or (
     f"d{dc.FACES}_foc{dc.FOCUSED_THR}_fat{dc.FATIGUE_STRIKE}{dc.FATIGUE_MORALE}"
     f"_par{dc.PARRY_BASE}_dea{dc.DEADLY_AP}{'s' if dc.DEADLY_MODE == 'set' else 'a'}"
     f"_uns{dc.UNSTOPPABLE_MOD}_imp{dc.IMPROVED_PARRY_MOD}"
     + ("_pinst" if PANIC_TIMING == "instant" else "")
+    + ("_dwrr" if dc.DW_REROLL_RIPOSTE else "")       # old Dual Wield rule (a rerolled Parry can Riposte) gets its own folder
 )
 out_dir = os.path.join(OUT_ROOT, tag)
 os.makedirs(out_dir, exist_ok=True)

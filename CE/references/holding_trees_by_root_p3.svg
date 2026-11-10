@@ -20,12 +20,16 @@
 <path d="M344,112 L368,112" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M344,220 L368,220" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M344,220 L368,220" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M344,184 L540,184" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M344,184 L540,184" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M320,76 L367,76" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M320,76 L367,76" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
-<path d="M492,148 L539,148" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
-<path d="M492,148 L539,148" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M492,148 L516,148" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M492,148 L516,148" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95"/>
+<path d="M516,148 L516,184" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M516,148 L516,184" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95"/>
+<path d="M516,184 L540,184" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M516,184 L540,184" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
+<path d="M516,148 L540,148" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
+<path d="M516,148 L540,148" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M492,220 L539,220" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
 <path d="M492,220 L539,220" fill="none" stroke="#8f8672" stroke-width="1.6" opacity="0.95" marker-end="url(#arw-8f8672)"/>
 <path d="M492,76 L539,76" fill="none" stroke="#f4efe4" stroke-width="4.6" opacity="1"/>
@@ -75,10 +79,10 @@
 <text x="383" y="115" font-size="8.2" fill="#2b2620">Jester's Court</text>
 <rect x="546" y="136" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="546" y="136" width="5" height="24" fill="#2E5A8C"/>
-<text x="555" y="151" font-size="8.2" fill="#2b2620">Money Lending</text>
+<text x="555" y="151" font-size="8.2" fill="#2b2620">Artisan Workshop</text>
 <rect x="546" y="172" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="546" y="172" width="5" height="24" fill="#2E5A8C"/>
-<text x="555" y="187" font-size="8.2" fill="#2b2620">Artisan Workshop</text>
+<text x="555" y="187" font-size="8.2" fill="#2b2620">Money Lending</text>
 <rect x="546" y="208" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="546" y="208" width="5" height="24" fill="#C6A024"/>
 <text x="555" y="223" font-size="8.2" fill="#2b2620">Interrogation Chambers</text>
@@ -90,10 +94,10 @@
 <text x="555" y="115" font-size="8.2" fill="#2b2620">Bell Tower</text>
 <rect x="718" y="136" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="718" y="136" width="5" height="24" fill="#2E5A8C"/>
-<text x="727" y="151" font-size="8.2" fill="#2b2620">Esteemed Bank</text>
+<text x="727" y="151" font-size="8.2" fill="#2b2620">Court Artists</text>
 <rect x="718" y="172" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="718" y="172" width="5" height="24" fill="#2E5A8C"/>
-<text x="727" y="187" font-size="8.2" fill="#2b2620">Court Artists</text>
+<text x="727" y="187" font-size="8.2" fill="#2b2620">Esteemed Bank</text>
 <rect x="718" y="208" width="118" height="24" rx="4" fill="#ffffff" stroke="#C6A024" stroke-width="1.4"/>
 <rect x="718" y="208" width="5" height="24" fill="#C6A024"/>
 <text x="727" y="223" font-size="8.2" fill="#2b2620">Execution Dock</text>

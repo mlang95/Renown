@@ -70,8 +70,8 @@ def analytic_values(pairs):
     A, B = [], []
     for la, lb in pairs:
         la2, lb2 = conf(la, lb); lb2, la2 = conf(lb2, la2)
-        la2, lb2 = vc.resolve_equipment(la2, lb2)
         A.append(la2); B.append(lb2)
+    A, B = vc.resolve_equipment_batch(A, B)
     Pa = BE.pack_side(A, True); Pb = BE.pack_side(B, False)
     RP = BE._precompute_regen_parry(Pa, Pb)
     tab = vc.get_tactic_tables()

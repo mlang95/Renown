@@ -12,7 +12,7 @@ _shaking_test_vec, batch passes _shake_batch) — both have signature
 
 RESHAPED MORALE MODEL (canonical):
   Order at end of skirmish (AFTER both sides' strikes, BEFORE fatigue-token accrual):
-    1. PANIC check  — trigger: net combat casualties > 5 this skirmish. Field min(5,size).
+    1. PANIC check  — trigger: net combat casualties >= PANIC_THRESHOLD (5) this skirmish. Field min(5,size).
                       Exempt: Steadfast (Immune Panic). Target >=ROUT_THR -> panic-rout.
     2. BREAK check  — trigger: exhausted (endurance 0), EVERY such skirmish, at the
                       PRE-token shake target. Field min(5,size). Exempt from the TEST:
@@ -33,8 +33,11 @@ from dice_config import (FACES, FOCUSED_THR, ROUT_THR, CAP_THR, AUTO_PASS_FLOOR,
                          PARRY_BASE, RECOVER_BASE, DEADLY_AP)
 
 
-# Canonical panic trigger: STRICTLY GREATER THAN 5 net combat casualties.
-PANIC_THRESHOLD = 5   # trigger is (net_combat > PANIC_THRESHOLD)
+# Canonical panic trigger: net combat casualties AT LEAST the data's PANIC_CASUALTY_THRESHOLD (5 or more, Nov 10 2026).
+# RENOWN_PANIC_THRESHOLD overrides it for tests (6 = the old "more than 5"); workers inherit the environment.
+import os as _os_pt
+import renown_data as _rd_pt
+PANIC_THRESHOLD = int(_os_pt.environ.get("RENOWN_PANIC_THRESHOLD", getattr(_rd_pt, "PANIC_CASUALTY_THRESHOLD", 5)))   # trigger: net_combat >= this
 
 
 def _morale_target(shaking, fat, shake_bonus, zealot_mask=None, morale_cap_mask=None):
@@ -59,11 +62,11 @@ def instant_panic(rng, n, roller, shake_cap, size, fat, mask, net_combat, shakin
                   field_used, field_cap=15, morale_cap_mask=None, zealot_mask=None,
                   resolute_firstpass_mask=None, panic_used=None):
     """TEST SWITCH (RENOWN_PANIC_TIMING=instant): the Panic check taken as soon as the side that was
-    struck first has lost more than 5, before it Strikes back. Same trigger, target, Resolute and rout as
+    struck first has lost PANIC_THRESHOLD (5) or more, before it Strikes back. Same trigger, target, Resolute and rout as
     the end-of-Skirmish check; `size` is the side's size after the opening Strike.
     Returns dict(cas=, rout=, done=, panic_used=): done = the check was taken (no second one this Skirmish)."""
     target = _morale_target(shaking, fat, shake_bonus, zealot_mask, morale_cap_mask)
-    trig = (net_combat > PANIC_THRESHOLD) & (size > 0) & (~steadfast_mask) & np.asarray(mask, dtype=bool)
+    trig = (net_combat >= PANIC_THRESHOLD) & (size > 0) & (~steadfast_mask) & np.asarray(mask, dtype=bool)
     done = trig.copy()
     if resolute_firstpass_mask is not None and panic_used is not None:
         free = trig & np.asarray(resolute_firstpass_mask, dtype=bool) & (~panic_used)
@@ -112,10 +115,11 @@ def resolve_side_morale(rng, n, roller, shake_cap,
     else:
         remaining = np.maximum(0, field_cap - np.asarray(field_budget).astype(np.int64))
 
-    # ── 1. PANIC check (net combat > 5) ──────────────────────────────────────────
-    panic_trig = (net_combat > PANIC_THRESHOLD) & (size > 0) & (~steadfast_mask) & (~ending) & active
+    # ── 1. PANIC check (net combat >= PANIC_THRESHOLD) ──────────────────────────────────────────
+    panic_trig = (net_combat >= PANIC_THRESHOLD) & (size > 0) & (~steadfast_mask) & (~ending) & active
     if panic_done is not None:
         panic_trig = panic_trig & (~np.asarray(panic_done, dtype=bool))
+    panic_checked = panic_trig.copy()                 # checks required this Skirmish (Resolute auto-pass included)
     # Resolute: the FIRST panic check a unit is ever required to take auto-passes (no roll, no
     # casualties); the one-shot is consumed. Parallel to Rally for break checks. `panic_used` is
     # persistent per-battle state carried by the caller across skirmishes.
@@ -180,4 +184,4 @@ def resolve_side_morale(rng, n, roller, shake_cap,
     return dict(size=size, panic_lost=panic_lost, break_lost=break_lost, rout_lost=rout_loss,
                 cause=cause, cas_panic_total=cas_panic_total, cas_break_total=cas_break_total,
                 cas_rout_total=cas_rout_total, exhausted=exhausted, break_used=break_used,
-                panic_used=panic_used)
+                panic_used=panic_used, panic_checks=panic_checked)

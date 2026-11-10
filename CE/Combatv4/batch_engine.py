@@ -26,6 +26,7 @@ _os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
 _os.environ.setdefault("MKL_NUM_THREADS", "1")
 # ─────────────────────────────────────────────────────────────────────────────────────────────
 import numpy as np
+import dice_config as _dc_dwr   # DW_REROLL_RIPOSTE (Dual Wield test switch)
 import renown_combat
 from renown_combat import TACTICS
 _DF_IDX = TACTICS.index("Defensive Formation")   # Pavisiers' Yard Save +1
@@ -125,13 +126,15 @@ def pack_side(loadouts, is_attacker):
     P["strike_bonus"] = np.array([a.strike_bonus for a in armies], dtype=np.int64)
     P["strike_bonus_first"] = np.array([a.strike_bonus_first for a in armies], dtype=np.int64)   # skirmish 1
     P["ap_normal"]   = np.array([a.ap_normal for a in armies], dtype=np.int64)
-    P["ap_melee"]    = np.array([a.ap_melee for a in armies], dtype=np.int64)       # Riposte weapon
+    P["ap_melee_first"]  = np.array([a.ap_melee_first for a in armies], dtype=np.int64)    # Riposte: Equipped melee weapon
+    P["ap_melee_normal"] = np.array([a.ap_melee_normal for a in armies], dtype=np.int64)
     # Weapon-imposed tactic restriction (Arquebus) — same flags vectorized_combat reads.
     P["first_tac_restricted"]  = np.array([a.tactic_restricted_first for a in armies], dtype=np.bool_)
     P["normal_tac_restricted"] = np.array([a.tactic_restricted_normal for a in armies], dtype=np.bool_)
     P["tac_mask"] = np.array([(a.tactic_mask_ranged if a.tactic_mask_ranged is not None else np.ones(7, dtype=bool))
                               for a in armies], dtype=np.bool_).reshape(len(armies), 7)
-    P["unstop_melee"] = np.array([a.unstop_melee for a in armies], dtype=np.bool_)
+    P["unstop_melee_first"]  = np.array([a.unstop_melee_first for a in armies], dtype=np.bool_)
+    P["unstop_melee_normal"] = np.array([a.unstop_melee_normal for a in armies], dtype=np.bool_)
     P["binit_first_seize"]   = np.array([a.base_init(True)  for a in armies_seize],   dtype=np.int64)
     P["binit_first_noseize"] = np.array([a.base_init(True)  for a in armies_noseize], dtype=np.int64)
     P["binit_normal"]= np.array([a.base_init(False) for a in armies], dtype=np.int64)
@@ -337,8 +340,8 @@ def _roll_saves_batch(rng, n, save_target, n_strikes, deadly_strikes,
       def_planishing   : defender Tempered cap (save never beyond 6+)
       atk_has_deflect  : attacker weapon carries Deflect (+1 parry, negate riposte)
       atk_ignores_tempered : attacker Negate Tempered (AP can push save past 6+)
-      def_dual_wield   : defender Dual Wields: a failed Parry is rerolled once, and a successful
-                         Parry roll of FOCUSED_THR-1 also Ripostes
+      def_dual_wield   : defender Dual Wields: a failed Parry is rerolled once; the reroll Ripostes only
+                         under the old rule (dice_config.DW_REROLL_RIPOSTE)
     Returns (casualties (n,), ripostes (n,)).
     (def_can_parry_shatter / regen_reroll_mask retained for call-site compat; the shared kernel
      handles Deadly parry-on-6 intrinsically and reroll is deprecated.)"""
@@ -395,7 +398,7 @@ def _roll_saves_batch(rng, n, save_target, n_strikes, deadly_strikes,
         n_strikes_arr, deadly_arr, save_clip_arr, deadly_clip_arr, ap_arr,
         _cp._as_bool_arr(poison, n), pmask, parry_thr_arr, regen_thr_arr,
         riposte_mask, rip5_arr, prr, parry_rolls2,
-        bool(PARRY_BEFORE_SAVE), bool(halfsword), bool(_cp.DEADLY_NO_RECOVER))
+        bool(PARRY_BEFORE_SAVE), bool(halfsword), bool(_cp.DEADLY_NO_RECOVER), bool(_dc_dwr.DW_REROLL_RIPOSTE))
     if rec_out is not None:          # Recovered Strikes (Panic tally unless Enduring)
         rec_out += rec
     return cas, rip
@@ -514,8 +517,7 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
             na.append(la2); nb.append(lb2)
         a_loadouts, b_loadouts = na, nb
     # Equipment declaration (playstyle choice in the sim) — same resolver as vectorized_combat.
-    _eq = [vc.resolve_equipment(la, lb) for la, lb in zip(a_loadouts, b_loadouts)]
-    a_loadouts = [x[0] for x in _eq]; b_loadouts = [x[1] for x in _eq]
+    a_loadouts, b_loadouts = vc.resolve_equipment_batch(a_loadouts, b_loadouts)
     Pa = pack_side(a_loadouts, is_attacker=True)
     Pb = pack_side(b_loadouts, is_attacker=False)
     RP = _precompute_regen_parry(Pa, Pb)
@@ -628,6 +630,7 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
     # casualty totals
     a_kill = np.zeros(N); b_kill = np.zeros(N)
     a_waver = np.zeros(N); b_waver = np.zeros(N)   # losses to the Waver test (>5 net combat)
+    a_pchk = np.zeros(N); b_pchk = np.zeros(N); a_pinst = np.zeros(N); b_pinst = np.zeros(N)   # Panic checks taken (instant = before striking back)
     a_shake = np.zeros(N); b_shake = np.zeros(N)
     a_rout = np.zeros(N); b_rout = np.zeros(N)
     skirm_count = np.zeros(N, dtype=np.int64)
@@ -901,9 +904,9 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         a_dshift = _cp.deadly_shift(a_ap, b_flut)   # A's Deadly strikes on B (mode-aware)
         b_dshift = _cp.deadly_shift(b_ap, a_flut)   # B's Deadly strikes on A
         # Riposte strikes use the riposter's MELEE weapon (AP and Unstoppable).
-        b_apm_vs_a = _cp.fluted_ap(tile(Pb["ap_melee"]), a_flut)
-        a_apm_vs_b = _cp.fluted_ap(tile(Pa["ap_melee"]), b_flut)
-        a_unstop_m = tile(Pa["unstop_melee"]); b_unstop_m = tile(Pb["unstop_melee"])
+        b_apm_vs_a = _cp.fluted_ap(tile(Pb[f"ap_melee_{skl}"]), a_flut)
+        a_apm_vs_b = _cp.fluted_ap(tile(Pa[f"ap_melee_{skl}"]), b_flut)
+        a_unstop_m = tile(Pa[f"unstop_melee_{skl}"]); b_unstop_m = tile(Pb[f"unstop_melee_{skl}"])
         a_sv = a_armor - b_ap_vs_a - np.where((a_shdest | _a_shoff), 0, a_shbonus) - a_TS_mod
         b_sv = b_armor - a_ap_vs_b - np.where((b_shdest | _b_shoff), 0, b_shbonus) - b_TS_mod
 
@@ -1070,6 +1073,7 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         _a_ip_used = np.zeros(N, dtype=np.int64); _b_ip_used = np.zeros(N, dtype=np.int64)
         if INSTANT_PANIC:
             # instant Panic losses (and a Panic rout) land now; the end-of-Skirmish check skips these runs
+            a_pinst = a_pinst + (_a_ip["done"] & active); b_pinst = b_pinst + (_b_ip["done"] & active)
             _al = np.minimum(_a_ip["cas"], a_size); a_size = a_size - _al; a_waver = a_waver + _al
             _bl = np.minimum(_b_ip["cas"], b_size); b_size = b_size - _bl; b_waver = b_waver + _bl
             a_cause = np.where((a_size <= 0) & (a_cause == 0) & active & (_al > 0), 4, a_cause).astype(np.int8)
@@ -1133,9 +1137,11 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         a_size = _aM["size"]; a_cause = _aM["cause"]
         a_waver = _aM["cas_panic_total"]; a_shake = _aM["cas_break_total"]; a_rout = _aM["cas_rout_total"]
         a_exh = _aM["exhausted"]; a_break_used = _aM["break_used"]; a_panic_used = _aM["panic_used"]; a_slost = _aM["break_lost"]; a_wvlost = _aM["panic_lost"]
+        a_pchk = a_pchk + _aM["panic_checks"]
         b_size = _bM["size"]; b_cause = _bM["cause"]
         b_waver = _bM["cas_panic_total"]; b_shake = _bM["cas_break_total"]; b_rout = _bM["cas_rout_total"]
         b_exh = _bM["exhausted"]; b_break_used = _bM["break_used"]; b_panic_used = _bM["panic_used"]; b_slost = _bM["break_lost"]; b_wvlost = _bM["panic_lost"]
+        b_pchk = b_pchk + _bM["panic_checks"]
         # Heal next skirmish reads COMBAT-only casualties (shake/panic/rout can't be healed).
         a_prev_combat = a_clost.copy(); b_prev_combat = b_clost.copy()
         a_prev_cas = a_scas + a_slost + a_wvlost; b_prev_cas = b_scas + b_slost + b_wvlost
@@ -1166,6 +1172,10 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         "avg_b_killed_shake": per_pair_sum(b_shake) / n_runs,
         "avg_a_killed_waver": per_pair_sum(a_waver) / n_runs,
         "avg_b_killed_waver": per_pair_sum(b_waver) / n_runs,
+        "avg_a_panic_checks": per_pair_sum(a_pchk + a_pinst) / n_runs,      # per Battle
+        "avg_b_panic_checks": per_pair_sum(b_pchk + b_pinst) / n_runs,
+        "avg_a_panic_instant": per_pair_sum(a_pinst) / n_runs,               # of which before striking back
+        "avg_b_panic_instant": per_pair_sum(b_pinst) / n_runs,
         "avg_a_killed_rout": per_pair_sum(a_rout) / n_runs,
         "avg_b_killed_rout": per_pair_sum(b_rout) / n_runs,
         "avg_skirm": per_pair_sum(skirm_count) / n_runs,
@@ -1486,7 +1496,7 @@ def _write_batch_summary(summary, summary_path, n_runs):
             "win_rate", "loss_rate", "decisive_rate", "decisive_win_rate",
             "avg_self_survivors", "avg_opp_survivors", "kill_efficiency",
             "upkeep_per_retinue", "army_upkeep", "wins_per_1000_upkeep",
-            "military_pursuit_count", "domain_count", "pursuits",
+            "military_pursuit_count", "domain_count", "pursuits", "weapon_2h",
         ])
         for name, s in summary.items():
             ld = s["loadout"]
@@ -1511,7 +1521,7 @@ def _write_batch_summary(summary, summary_path, n_runs):
                 f"{win_rate:.4f}", f"{loss_rate:.4f}", f"{decisive_rate:.4f}", f"{decisive_win_rate:.4f}",
                 f"{avg_self_rem:.2f}", f"{avg_opp_rem:.2f}", f"{kill_eff:.2f}",
                 ld.upkeep_per_retinue, army_upkeep, f"{wins_per_1k:.2f}",
-                mpc, dc, "|".join(sorted(pursuits)),
+                mpc, dc, "|".join(sorted(pursuits)), getattr(ld, "weapon_2h", None) or "",
             ])
 
 

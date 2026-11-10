@@ -141,7 +141,7 @@ var SIM = (function () {
         first.push(iA === iB ? "=" : iA > iB ? "A" : "B");
         const pt = BT.panicThreshold || 5;
         for (const X of ["A", "B"]) { const sd = B[X], c = sideCalc(X); if (!c || c.immunePanic) continue; const pn = (sd.cas || 0) + (c.enduring ? 0 : (sd.rcv || 0));
-          if (pn > pt && sideAlive(X)) { roll(X, "Morale"); const n = pendCas(X); if (n) { applyCas(X, n); cas[X] += n; } } }
+          if (pn >= pt && sideAlive(X)) { roll(X, "Morale"); const n = pendCas(X); if (n) { applyCas(X, n); cas[X] += n; } } }
       } else first.push(null);
       const fb = cell[0].end || cell[1].end;
       endSkirmish();

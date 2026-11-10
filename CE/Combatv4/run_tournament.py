@@ -46,6 +46,7 @@ def save_pool(pool, basename):
         "pursuits": "|".join(sorted(l.pursuits)),
         "military_pursuit_count": l.military_pursuit_count,
         "domain_count": l.domain_count,
+        "weapon_2h": getattr(l, "weapon_2h", None) or "",
     } for l in pool]
     df = pd.DataFrame(rows)
     df.to_parquet(basename + ".parquet", index=False)
@@ -246,6 +247,17 @@ def main():
         if not args.no_save_pool:
             pool_csv = save_pool(pool, os.path.join(
                 args.out, f"loadouts_gen_{args.ti_min}_{args.ti_max}" + (f"_st{strat_n}" if strat_n else "_full")))
+
+    # Melee + ranged armies: each build picks its weapon per Skirmish once, against a fixed panel.
+    import vectorized_combat as _vc
+    pool, _equip_report = _vc.fix_equipment_per_build(pool, panel_n=100, seed=2026)
+    if os.environ.get("RENOWN_PRUNE_UNUSED", "1") != "0":   # hybrids paying for a weapon they don't use
+        pool, _equip_report = _vc.prune_unused_weapons(pool, _equip_report)
+    if _equip_report:
+        import pandas as _pd
+        _pd.DataFrame(_equip_report).to_csv(os.path.join(args.out, "equipment_choice.csv"), index=False)
+    if pool_csv and pool_kind != "csv":                 # never rewrite a pool file given with --csv
+        pool_csv = save_pool(pool, pool_csv[:-4] if pool_csv.endswith(".csv") else pool_csv)
 
     print("By retinue:", dict(Counter(l.retinue for l in pool).most_common()))
     print("By TI:", dict(sorted(Counter(ti_of(l) for l in pool).items())))

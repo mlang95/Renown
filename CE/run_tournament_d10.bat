@@ -100,7 +100,7 @@ set EXPLORER=1
 REM ============================ MEMORY SETTINGS ===============================
 REM WORKERS: each initializes numba and RESERVES several GB of Windows COMMIT.
 REM Keep at 6-8. Lower on MemoryError; raise cautiously.
-set WORKERS=15
+set WORKERS=12
 set RENOWN_MEM_DEBUG=1
 set SLOT_BUDGET=auto
 REM auto

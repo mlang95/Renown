@@ -88,7 +88,8 @@ def builds(S, include_domain=True):
     kw = [_weapon_kw(w, r) for w, r in zip(T["weapon"], T["ranged"])]
     T["weapon_kw"] = [",".join(k for k in SIGNATURE_KW if k in s) for s in kw]
     T["dual_wield"] = T["tags"].str.contains("Dual Wield", regex=False)
-    T["gear"] = (T["weapon"].fillna("").astype(str) + np.where(T["dual_wield"], " x2", "")
+    w2 = T["weapon_2h"].fillna("").astype(str) if "weapon_2h" in T.columns else pd.Series("", index=T.index)
+    T["gear"] = (T["weapon"].fillna("").astype(str) + np.where(T["dual_wield"], " x2", "") + np.where(w2 != "", " | " + w2, "")
                  + np.where(T["shield"] != "", " / " + T["shield"].astype(str), "")
                  + np.where(T["ranged"] != "", " + " + T["ranged"].astype(str), "") + " / " + T["armor"].astype(str))
     T["family"] = T["retinue"].astype(str) + " | " + T["core"] + " | " + T["weapon_kw"].replace("", "-")
@@ -213,7 +214,7 @@ def _opp_features(R):
         f[f"weapon: {k}"] = kw.map(lambda s, k=k: k in s)
     tags = R["tags"].astype(str)
     for t in ("Parry", "Riposte", "Poison", "Riveted", "Serrated", "Crit 8", "Immune Panic", "Drilled",
-              "Nimble", "Outrider: every", "Immune Blunder", "Dual Wield"):
+              "Nimble", "Outrider: every", "Immune Blunder", "Dual Wield", "Guige Strap"):
         f[f"has {t}"] = tags.str.contains(re.escape(t))
     f["Recover"] = tags.str.contains(r"Recover \d")
     f["Seize (Ministry)"] = tags.str.contains("Seize")
@@ -321,7 +322,7 @@ def _tag_sources():
     return PA.token_sources()
 
 
-def attribute_table(S, include_domain=True, qbands=4, min_n=3, show=True):
+def attribute_table(S, include_domain=True, qbands=4, min_n=3, show=True, text=True):
     """The notebook's full-dictionary sensitivity harness (ctrl_prem = edge with spend held fixed),
     with every group of rows that select exactly the same builds merged into one row.
     Merging catches what always travels together in the pool — e.g. Crit 8 / Immune Strained / Parry +1
@@ -355,7 +356,7 @@ def attribute_table(S, include_domain=True, qbands=4, min_n=3, show=True):
         for v in sorted(x for x in T[col].dropna().unique() if str(x) not in ("", "nan", "None")):
             items.append((f"{col}: {v}", "item", (T[col] == v).to_numpy()))
         sample = next((v for v in D.values() if isinstance(v, dict)), {})
-        for f in [k for k in sample if k not in ("tags", "note", "profile_2h", "requires", "tactics_allowed")]:
+        for f in [k for k in sample if k not in ("tags", "note", "profile_2h", "requires", "tactics_allowed", "tactics_banned")]:
             cv = T[col].map(lambda x, f=f, D=D: D.get(x, {}).get(f, np.nan) if x in D else np.nan)
             for v in cv.dropna().unique():
                 items.append((f"{col}.{f} = {v}", "field", (cv == v).to_numpy()))
@@ -399,7 +400,7 @@ def attribute_table(S, include_domain=True, qbands=4, min_n=3, show=True):
         print(f"variables: {len(items)} -> {len(out)} after merging rows that select the same builds "
               f"| investment axis: TI{' + Domain points' if include_domain else ''}")
         with pd.option_context("display.max_rows", None, "display.width", 250, "display.max_colwidth", 70):
-            _show("Attributes by real edge (ctrl_prem); merged rows listed in 'same builds as'", out)
+            _show("Attributes by real edge (ctrl_prem); merged rows listed in 'same builds as'", out, text=text)
     return out
 
 
@@ -463,16 +464,21 @@ def _jsd(o):
     return str(o)
 
 
-def _show(title, df):
-    """Show a table with NAME_DISPLAY applied (ids in the frame itself stay canonical)."""
+def _show(title, df, text=False):
+    """Show a table with NAME_DISPLAY applied (ids in the frame itself stay canonical).
+    text=True prints plain text (copyable) instead of a notebook table."""
     from display_lab import disp_df, D
     df = disp_df(df) if hasattr(df, "columns") else df
-    try:
-        from IPython.display import display, Markdown
-        display(Markdown(f"**{D(title)}**"))
-        display(df)
-    except Exception:
-        print(f"\n== {D(title)}\n{df.to_string()}")
+    if not text:
+        try:
+            from IPython.display import display, Markdown
+            display(Markdown(f"**{D(title)}**"))
+            display(df)
+            return
+        except Exception:
+            pass
+    body = df.to_string(index=False, max_colwidth=90) if hasattr(df, "columns") else str(df)
+    print(f"\n== {D(title)}\n{body}")
 
 
 _EXPLORER = r"""<!doctype html>

@@ -74,7 +74,7 @@ function boardDiff(a,b){const L=[];
   const an=x=>(x.label||"Army "+x.id);
   ab.forEach((x,id)=>{const o=aa.get(id);if(!o){L.push("raised "+an(x)+": "+(x.count||0)+"× "+x.retinue);return;}
     if((o.count||0)!==(x.count||0))L.push(an(x)+" "+(o.count||0)+" → "+(x.count||0)+" "+x.retinue);
-    ["retinue","weapon","ranged","armor","shield"].forEach(f=>{if(o[f]!==x[f])L.push(an(x)+" "+f+": "+o[f]+" → "+x[f]);});
+    ["retinue","weapon","weapon2h","ranged","armor","shield"].forEach(f=>{if((o[f]||"None")!==(x[f]||"None"))L.push(an(x)+" "+f+": "+o[f]+" → "+x[f]);});
     if(!o.strained&&x.strained)L.push(an(x)+" Strained");});
   aa.forEach((x,id)=>{if(!ab.has(id))L.push("disbanded "+an(x));});
   if((a.turn||0)!==(b.turn||0))L.push("ended turn "+(a.turn||0)+" → "+(b.turn||0));

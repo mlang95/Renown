@@ -11,7 +11,9 @@ Drop-in replacement for the loop-based run_matchup in tournament.py:
 """
 
 import re
+import time
 import numpy as np
+import dice_config as _dc_dwr   # DW_REROLL_RIPOSTE (Dual Wield test switch)
 from dice_config import (FACES, FOCUSED_THR, ROUT_THR, CAP_THR, AUTO_PASS_FLOOR,
                          PARRY_BASE, RECOVER_BASE, DEADLY_AP, parse_bonuses)
 from dice_config import NO_FALL_BACK, clamp_init
@@ -22,7 +24,7 @@ import os as _os_pt
 INSTANT_PANIC = _os_pt.environ.get("RENOWN_PANIC_TIMING", "instant").strip().lower() != "after"
 _AP_FLOOR = AUTO_PASS_FLOOR if AUTO_PASS_FLOOR is not None else 1 # None (rule off) => floor 1, nothing auto-passes
 from renown_data_d10 import (
-    RETINUES, WEAPONS, RANGED, SHIELDS, ARMORS,
+    RETINUES, WEAPONS, RANGED, SHIELDS, ARMORS, TIERS,
     TACTIC_MATRIX, TACTICS,
 )
 # Keyword constants — engine reads these VARIABLES, not string literals, so that
@@ -195,6 +197,13 @@ class StaticArmy:
             # Keep 1H profile as primary; precompute the 2H profile for per-run fallback.
             dual_2h_profile = dict(_prof_2h)
         has_real_melee = ld.weapon is not None and ld.weapon != "Farm Tools"
+        # The army's 2H set, Equipped instead of the 1H weapon + Shield in a Skirmish it chooses (Equip:*=2h):
+        # Guige Strap's second weapon (weapon_2h), else a dual-profile weapon's own 2H profile.
+        _w2 = getattr(ld, "weapon_2h", None)
+        self.alt2h_profile = dict(WEAPONS[_w2]) if _w2 else dual_2h_profile
+        _a2h = self.alt2h_profile is not None
+        melee_first_prof = self.alt2h_profile if (_a2h and EQUIP_FIRST_2H in ld.extra_tags) else melee_profile
+        melee_normal_prof = self.alt2h_profile if (_a2h and EQUIP_NORMAL_2H in ld.extra_tags) else melee_profile
 
         if ld.ranged:
             ranged_profile = RANGED[ld.ranged]
@@ -212,11 +221,11 @@ class StaticArmy:
                                 and not ranged_is_one_shot
                                 and not has_real_melee)
         # Equipment declared per phase (sim: resolve_equipment() writes these tags per matchup).
-        # Only a Tiltyard army carrying a real melee weapon AND a multi-shot ranged weapon chooses;
-        # One-Shot is forced (ranged in skirmish 1, melee after) and ranged-only armies keep firing.
-        _can_choose = (ld.ranged is not None) and has_real_melee and not ranged_is_one_shot
+        # An army carrying a real melee weapon AND a ranged weapon chooses each Skirmish. A One-Shot
+        # weapon may only be Equipped in the first Skirmish (melee after); ranged-only armies keep firing.
+        _can_choose = (ld.ranged is not None) and has_real_melee
         _first_melee = _can_choose and (EQUIP_FIRST_MELEE in ld.extra_tags)
-        _normal_ranged = _can_choose and (EQUIP_NORMAL_RANGED in ld.extra_tags)
+        _normal_ranged = _can_choose and not ranged_is_one_shot and (EQUIP_NORMAL_RANGED in ld.extra_tags)
         # Whether this army's ATTACK is a ranged strike, per phase (drives the new parry rules:
         # ranged = -1 to defender Parry capped at 6+, and a parry vs ranged never ripostes).
         self.uses_ranged_first = (ld.ranged is not None) and not _first_melee
@@ -228,16 +237,22 @@ class StaticArmy:
         # "May only use the Fighting Formation or Fall Back Tactics." Stored as a boolean mask over TACTICS (the canonical order the
         # weight arrays use) so the skirmish loop can zero disallowed weights and
         # let the rest renormalize, exactly as the Fall Back gate does.
-        _allowed = (ranged_profile or {}).get("tactics_allowed")
-        if _allowed:
-            self.tactic_mask_ranged = np.array(
-                [t in _allowed for t in TACTICS], dtype=bool)
-        else:
-            self.tactic_mask_ranged = None
-        # Restriction applies on skirmish 1 whenever the ranged weapon is up, and on
-        # later skirmishes only while it keeps firing (pure-ranged multi-shot).
-        self.tactic_restricted_first = self.tactic_mask_ranged is not None and self.uses_ranged_first
-        self.tactic_restricted_normal = self.tactic_mask_ranged is not None and self.uses_ranged_normal
+        # Nov 10 2026: a melee weapon may declare `tactics_banned` (Cavalry Spear, Lance: no Defensive
+        # Formation); either list applies while that weapon is the Equipped one (the 2H set of Guige Strap /
+        # a 1H/2H weapon uses its own profile). The attribute keeps its old name; it is the Equipped
+        # weapon's mask now, not only the ranged weapon's.
+        def _tmask(prof):
+            al = (prof or {}).get("tactics_allowed"); bn = (prof or {}).get("tactics_banned")
+            if not al and not bn:
+                return None
+            return np.array([(not al or t in al) and not (bn and t in bn) for t in TACTICS], dtype=bool)
+        _m_first = _tmask(ranged_profile) if self.uses_ranged_first else _tmask(melee_first_prof)
+        _m_normal = _tmask(ranged_profile) if self.uses_ranged_normal else _tmask(melee_normal_prof)
+        _ms = [m for m in (_m_first, _m_normal) if m is not None]
+        # one mask per army (packed once); if the two phases' weapons both restrict, their intersection
+        self.tactic_mask_ranged = np.logical_and.reduce(_ms) if _ms else None
+        self.tactic_restricted_first = _m_first is not None
+        self.tactic_restricted_normal = _m_normal is not None
 
         # Tiltyard adaptive flag (used by run_matchup_tiltyard_adaptive wrapper).
         # Only meaningful when dual-equipped with mastery.
@@ -258,10 +273,10 @@ class StaticArmy:
             self.shield_off_first = bool(ld.shield) and _2h(ranged_profile)
             self.tags_first = self._compute_tags(ranged_profile, None if self.shield_off_first else ld.shield, ld, has_both=has_real_melee, first=True, ranged=True)
         else:
-            self.ap_first = melee_profile["ap"] + mw_bonus
-            self.init_first = melee_profile["init"]
-            self.shield_off_first = bool(ld.shield) and _2h(melee_profile)
-            self.tags_first = self._compute_tags(melee_profile, None if self.shield_off_first else ld.shield, ld, has_both=bool(ld.ranged) and has_real_melee, first=True)
+            self.ap_first = melee_first_prof["ap"] + mw_bonus
+            self.init_first = melee_first_prof["init"]
+            self.shield_off_first = bool(ld.shield) and _2h(melee_first_prof)
+            self.tags_first = self._compute_tags(melee_first_prof, None if self.shield_off_first else ld.shield, ld, has_both=bool(ld.ranged) and has_real_melee, first=True)
 
         # Normal-skirmish stats (skirmishes 2+)
         if self.uses_ranged_normal:
@@ -276,13 +291,18 @@ class StaticArmy:
             #   - One-shot + Tiltyard + real melee: S2+ uses real melee
             #   - One-shot without real melee (Farm Tools + one-shot): S2+ uses
             #     Farm Tools (melee_weapon_name resolves to Farm Tools in that case)
-            self.ap_normal = melee_profile["ap"] + mw_bonus
-            self.init_normal = melee_profile["init"]
-            self.shield_off_normal = bool(ld.shield) and _2h(melee_profile)
-            self.tags_normal = self._compute_tags(melee_profile, None if self.shield_off_normal else ld.shield, ld, has_both=bool(ld.ranged) and has_real_melee, first=False)
-        # Riposte always strikes with the melee weapon, even in a skirmish where the army fires its ranged weapon.
-        self.ap_melee = melee_profile["ap"] + mw_bonus
-        self.unstop_melee = UNSTOPPABLE in (melee_profile.get("tags") or [])
+            self.ap_normal = melee_normal_prof["ap"] + mw_bonus
+            self.init_normal = melee_normal_prof["init"]
+            self.shield_off_normal = bool(ld.shield) and _2h(melee_normal_prof)
+            self.tags_normal = self._compute_tags(melee_normal_prof, None if self.shield_off_normal else ld.shield, ld, has_both=bool(ld.ranged) and has_real_melee, first=False)
+        # Riposte strikes with the Equipped melee weapon (the 2H set in a Skirmish that Equips it); in a
+        # Skirmish where the army fires its ranged weapon, with its 1H melee weapon.
+        rip_first = melee_profile if self.uses_ranged_first else melee_first_prof
+        rip_normal = melee_profile if self.uses_ranged_normal else melee_normal_prof
+        self.ap_melee_first = rip_first["ap"] + mw_bonus
+        self.ap_melee_normal = rip_normal["ap"] + mw_bonus
+        self.unstop_melee_first = UNSTOPPABLE in (rip_first.get("tags") or [])
+        self.unstop_melee_normal = UNSTOPPABLE in (rip_normal.get("tags") or [])
         # ───────────────────────────────────────────────────────────────
         # Dual profile: precompute the 2H tag sets for per-run override
         # when the shield is destroyed mid-battle.
@@ -310,7 +330,8 @@ class StaticArmy:
         self.init_bonus   = _b["Init"]     # was the +1I line
         self.shake_bonus  = _b["Shake"]    # was the "Shake +1" line
         _bf = parse_bonuses(self.tags_first)
-        _bm = parse_bonuses(self._compute_tags(melee_profile, ld.shield, ld, has_both=False, first=False))
+        _bm1 = parse_bonuses(self._compute_tags(rip_first, None if _2h(rip_first) else ld.shield, ld, has_both=False, first=True))
+        _bm = parse_bonuses(self._compute_tags(rip_normal, None if _2h(rip_normal) else ld.shield, ld, has_both=False, first=False))
         self.strike_bonus = _b["Strike"]   # consumed in Step 2 (skirmishes 2+)
         self.strike_bonus_first = _bf["Strike"]   # skirmish 1
         self.parry_bonus  = _b["Parry"]    # consumed in Step 3
@@ -319,7 +340,8 @@ class StaticArmy:
         self.armor_save  -= _b["Save"]     # Save folds into armor save (lower target = better)
         self.ap_first    += _bf["AP"]      # AP folds into weapon AP (both engines read these)
         self.ap_normal   += _b["AP"]
-        self.ap_melee    += _bm["AP"]      # Riposte: the melee weapon
+        self.ap_melee_first  += _bm1["AP"]   # Riposte: the Equipped melee weapon
+        self.ap_melee_normal += _bm["AP"]
 
 
 
@@ -575,47 +597,318 @@ _RECOVER_TAG_RE = re.compile(r"^(?:Recover|Regenerate) (\d+)$")
 
 EQUIP_FIRST_MELEE = "Equip:first=melee"
 EQUIP_NORMAL_RANGED = "Equip:normal=ranged"
+EQUIP_FIRST_2H = "Equip:first=2h"        # the 2H set (Guige Strap's weapon_2h, or a 1H/2H weapon's 2H profile)
+EQUIP_NORMAL_2H = "Equip:normal=2h"
+
+
+def _equip_strip(ld):
+    return ld._replace(extra_tags=frozenset(t for t in ld.extra_tags if not str(t).startswith("Equip:")))
+
+
+def _equip_opts(ld):
+    """What the army chooses between: (first-Skirmish options, later-Skirmish options), or None if it has
+    no choice. Options: "ranged"; "melee" = the 1H/main melee weapon (with its Shield); "2h" = the 2H set
+    (Guige Strap's weapon_2h, or a 1H/2H weapon's 2H profile while it carries a Shield). One-Shot ranged
+    is an option in the first Skirmish only; a ranged-only army (no real melee) has no choice."""
+    real = ld.weapon is not None and ld.weapon != "Farm Tools"
+    if not real:
+        return None
+    first, later = [], []
+    if ld.ranged:
+        first.append("ranged")
+        if not (ONE_SHOT in RANGED[ld.ranged]["tags"] and "Immune One-Shot" not in ld.extra_tags):
+            later.append("ranged")
+    first.append("melee"); later.append("melee")
+    if getattr(ld, "weapon_2h", None) or (WEAPONS[ld.weapon].get("profile_2h") and ld.shield):
+        first.append("2h"); later.append("2h")
+    if len(first) < 2 and len(later) < 2:
+        return None
+    return tuple(first), tuple(later)
+
+
+def _equip_kind(ld):
+    """Report label: "multi" / "one" (melee + multi-shot / One-Shot ranged), "guige" (1H + Shield and a
+    2H weapon), "profile" (a 1H/2H weapon with a Shield), or None (no choice)."""
+    o = _equip_opts(ld)
+    if o is None:
+        return None
+    if ld.ranged:
+        return "multi" if "ranged" in o[1] else "one"
+    return "guige" if getattr(ld, "weapon_2h", None) else "profile"
+
+
+def _equip_with(ld, first, later):
+    """Write the Equip:* tags for a first-Skirmish and a later-Skirmish choice ("ranged" / "melee" / "2h")."""
+    t = set(ld.extra_tags)
+    if first in ("melee", "2h"): t.add(EQUIP_FIRST_MELEE)
+    if first == "2h": t.add(EQUIP_FIRST_2H)
+    if later == "ranged": t.add(EQUIP_NORMAL_RANGED)
+    if later == "2h": t.add(EQUIP_NORMAL_2H)
+    return ld._replace(extra_tags=frozenset(t))
+
+
+def _equip_default_pick(opts):
+    """Ranged wherever the army may Equip it, else the main melee weapon (a 2H set is never the default)."""
+    f, l = opts
+    return ("ranged" if "ranged" in f else "melee"), ("ranged" if "ranged" in l else "melee")
+
+
+def _equip_default(ld):
+    o = _equip_opts(ld)
+    return _equip_with(ld, *_equip_default_pick(o)) if o else ld
+
+
+_EQUIP_ORDER = ("ranged", "melee", "2h")   # a tie keeps the earlier option
+
+
+EQUIP_ITERS = 150            # Tactic-solver iterations for the equipment choice (optimal_play uses 600)
+_EQUIP_CACHE = {}            # (subject key, opponent key) -> (first_melee, normal_ranged), across batches
+_EQUIP_CACHE_MAX = 1_500_000
+
+
+def _ld_key(ld):
+    return tuple(tuple(x) if isinstance(x, list) else x for x in ld)
+
+
+def _pack_unique(lds, is_attacker):
+    """batch_engine.pack_side, building each distinct loadout's StaticArmy once."""
+    import batch_engine as _BE
+    pos, uniq, idx = {}, [], []
+    for ld in lds:
+        k = _ld_key(ld)
+        j = pos.get(k)
+        if j is None:
+            j = pos[k] = len(uniq); uniq.append(ld)
+        idx.append(j)
+    P = _BE.pack_side(uniq, is_attacker=is_attacker)
+    if len(uniq) == len(lds):
+        return P
+    idx = np.asarray(idx)
+    out = {}
+    for k, v in P.items():
+        if isinstance(v, np.ndarray) and v.ndim >= 1 and v.shape[0] == len(uniq):
+            out[k] = v[idx]
+        elif isinstance(v, list) and len(v) == len(uniq):
+            out[k] = [v[i] for i in idx]
+        else:
+            out[k] = v
+    return out
+
+
+EQUIP_FIXED = "Equip:fixed"   # the build's equipment choice was made once (fix_equipment_per_build); keep it
+
+
+def _equip_values(subjects, opts, opps):
+    """Per (army, opponent): expected casualties dealt minus taken for the army in the A seat, at both
+    sides' optimal Tactic mix, for each option it may Equip. Returns {option: (first, later)}, arrays of
+    length n with NaN where the army lacks that option in that phase. The first Skirmish averages both
+    Seize states."""
+    import batch_engine as _BE, optimal_play as _OP
+    tab = get_tactic_tables()
+    n = len(subjects)
+    out = {}
+    for o in _EQUIP_ORDER:
+        idx = [j for j in range(n) if o in opts[j][0] or o in opts[j][1]]
+        f_all = np.full(n, np.nan); l_all = np.full(n, np.nan)
+        if not idx:
+            out[o] = (f_all, l_all)
+            continue
+        As = []
+        for j in idx:
+            df, dl = _equip_default_pick(opts[j])
+            As.append(_equip_with(subjects[j], o if o in opts[j][0] else df, o if o in opts[j][1] else dl))
+        Pa = _pack_unique(As, is_attacker=True)
+        Pb = _pack_unique([opps[j] for j in idx], is_attacker=False)
+        RP = _BE._precompute_regen_parry(Pa, Pb)
+        tm_a = np.asarray(Pa["tac_mask"])[:, :_OP.N_TAC]; tm_b = np.asarray(Pb["tac_mask"])[:, :_OP.N_TAC]
+        vals = {}
+        for state, skl, abi, bbi in (("first_a", "first", Pa["binit_first_seize"], Pb["binit_first_noseize"]),
+                                     ("first_b", "first", Pa["binit_first_noseize"], Pb["binit_first_seize"]),
+                                     ("normal", "normal", Pa["binit_normal"], Pb["binit_normal"])):
+            am = np.where(np.asarray(Pa[f"{skl}_tac_restricted"])[:, None], tm_a, True)
+            bm = np.where(np.asarray(Pb[f"{skl}_tac_restricted"])[:, None], tm_b, True)
+            M, _ = _OP.payoff(Pa, Pb, RP, skl, abi, bbi, tab, FRONT_CAP, RESERVE_CAP)
+            vals[state] = np.asarray(_OP.solve(M, am, bm, iters=EQUIP_ITERS)[2], float)
+        idx = np.asarray(idx)
+        has_f = np.array([o in opts[j][0] for j in idx]); has_l = np.array([o in opts[j][1] for j in idx])
+        f_all[idx[has_f]] = ((vals["first_a"] + vals["first_b"]) / 2)[has_f]
+        l_all[idx[has_l]] = vals["normal"][has_l]
+        out[o] = (f_all, l_all)
+    return out
+
+
+def _equip_best(V, phase):
+    """Per row, the option with the highest value in that phase (0 = first, 1 = later); ties keep the
+    earlier option in _EQUIP_ORDER. Returns an array of option names."""
+    M = np.stack([V[o][phase] for o in _EQUIP_ORDER], axis=1)
+    M = np.where(np.isnan(M), -np.inf, M)
+    return np.asarray(_EQUIP_ORDER, dtype=object)[np.argmax(M, axis=1)]
+
+
+def _confers_both(la, lb):
+    """Domain-standing opponent debuffs (confers:X) moved onto the other army, as batch_engine does."""
+    def one(s, o):
+        c = {t.split(":", 1)[1] for t in s.extra_tags if t.startswith("confers:")}
+        s2 = s._replace(extra_tags=frozenset(t for t in s.extra_tags if not t.startswith("confers:")))
+        return s2, (o._replace(extra_tags=frozenset(set(o.extra_tags) | c)) if c else o)
+    la, lb = one(la, lb)
+    lb, la = one(lb, la)
+    return la, lb
+
+
+def fix_equipment_per_build(pool, panel_n=100, seed=2026, chunk=20000, verbose=True):
+    """Per-build equipment choice, made once before a tournament. Every army with a choice (_equip_opts:
+    melee + ranged, Guige Strap's 1H + Shield or 2H weapon, a 1H/2H weapon with a Shield) is scored
+    against the same random panel of panel_n opponents from the pool (each at its default equipment); per
+    phase it Equips the option with the highest mean value over the panel (see _equip_values; ties keep
+    ranged, then the main melee weapon). The choice is written onto the build as Equip:* tags plus
+    Equip:fixed, so every Battle uses it. Returns (new_pool, report): one row per such build — name, kind,
+    weapons, first / later = the choice, and <phase>_<option> = share of the panel where that option
+    scored best (blank where it isn't an option)."""
+    import random as _random
+    rng = _random.Random(seed)
+    panel = [_equip_default(_equip_strip(o)) for o in rng.sample(list(pool), min(panel_n, len(pool)))]
+    base = [_equip_strip(ld) for ld in pool]
+    who = [i for i, ld in enumerate(base) if _equip_opts(ld)]
+    jobs = [(i, o) for i in who for o in panel if o.name != base[i].name]
+    t0 = time.time()
+    V = {o: (np.empty(len(jobs)), np.empty(len(jobs))) for o in _EQUIP_ORDER}
+    for c0 in range(0, len(jobs), chunk):
+        sl = jobs[c0:c0 + chunk]
+        pairs = [_confers_both(base[i], o) for i, o in sl]
+        S = [a for a, _ in pairs]; O = [b for _, b in pairs]
+        r = _equip_values(S, [_equip_opts(s) for s in S], O)
+        for o in _EQUIP_ORDER:
+            V[o][0][c0:c0 + len(sl)] = r[o][0]; V[o][1][c0:c0 + len(sl)] = r[o][1]
+    best_f, best_l = _equip_best(V, 0), _equip_best(V, 1)
+    owner = np.array([i for i, _ in jobs])
+    out, report = list(pool), []
+    for i in who:
+        m = owner == i
+        f_opts, l_opts = _equip_opts(base[i])
+        mf = {o: np.nanmean(V[o][0][m]) for o in f_opts}
+        ml = {o: np.nanmean(V[o][1][m]) for o in l_opts}
+        first = max(_EQUIP_ORDER, key=lambda o: (mf.get(o, -np.inf), -_EQUIP_ORDER.index(o)))
+        later = max(_EQUIP_ORDER, key=lambda o: (ml.get(o, -np.inf), -_EQUIP_ORDER.index(o)))
+        ld = _equip_with(base[i], first, later)
+        out[i] = ld._replace(extra_tags=frozenset(set(ld.extra_tags) | {EQUIP_FIXED}))
+        row = {"name": base[i].name, "kind": _equip_kind(base[i]), "weapon": base[i].weapon,
+               "weapon_2h": getattr(base[i], "weapon_2h", None) or "", "ranged": base[i].ranged or "",
+               "shield": base[i].shield or "",
+               "buckler_2h": base[i].shield == "Buckler Shield" and "Buckler 2H" in base[i].extra_tags,
+               "first": first, "later": later}
+        for ph, opts, best in (("first", f_opts, best_f), ("later", l_opts, best_l)):
+            for o in _EQUIP_ORDER:
+                row[f"{ph}_{o}"] = float((best[m] == o).mean()) if o in opts else np.nan
+        report.append(row)
+    if verbose:
+        from collections import Counter as _C
+        print(f"  equipment fixed per build: {len(who)} builds with a choice "
+              f"{dict(_C(r['kind'] for r in report))}, panel {len(panel)}, {time.time() - t0:.0f}s")
+    return out, report
+
+
+PRUNE_SHARE = 0.9            # a build that Equips one weapon more often than this (share of panel x phases) is one-weapon
+PRUNE_CHEAP_TIER = "Wrought" # an unused weapon at or below this tier is cheap enough to keep
+
+
+def _share(r, opts, phases):
+    """Share of the panel x the given phases where one of `opts` scored best."""
+    v = [sum(r[f"{ph}_{o}"] for o in opts if r[f"{ph}_{o}"] == r[f"{ph}_{o}"]) for ph in phases]
+    return sum(v) / len(v)
+
+
+def prune_unused_weapons(pool, report, share=PRUNE_SHARE, cheap_tier=PRUNE_CHEAP_TIER, verbose=True):
+    """Drop builds that pay for a weapon they don't use (after fix_equipment_per_build).
+    Melee + ranged: melee share = how often a melee option scores best (multi-shot: mean of first and later
+    Skirmishes; One-Shot: first Skirmish only).
+      melee share > share                                     ranged unused
+      melee share < 1 - share, melee weapon above cheap tier  melee unused
+    Guige Strap: 2H share = how often the 2H weapon scores best (mean of first and later).
+      2H share > share, 1H weapon above cheap tier            1H unused
+      2H share > share, Buckler kept with the 2H (Joinery)    1H unused, whatever its tier: that army is a
+                                                              2H + Buckler build carrying a 1H it doesn't use
+      2H share < 1 - share, 2H weapon above cheap tier        2H unused
+    A 1H/2H weapon's own profiles are one item: never dropped. Report rows gain share and dropped."""
+    order = list(TIERS)
+    cheap = order.index(cheap_tier)
+    pricey = lambda w: order.index(WEAPONS[w]["tier"]) > cheap
+    drop = set()
+    for r in report:
+        why, s = "", np.nan
+        if r["kind"] in ("multi", "one"):
+            s = _share(r, ("melee", "2h"), ("first",) if r["kind"] == "one" else ("first", "later"))
+            if s > share:
+                why = "ranged unused"
+            elif s < 1 - share and pricey(r["weapon"]):
+                why = "melee unused"
+        elif r["kind"] == "guige":
+            s = _share(r, ("2h",), ("first", "later"))
+            if s > share and (pricey(r["weapon"]) or r.get("buckler_2h")):
+                why = "1H unused"
+            elif s < 1 - share and pricey(r["weapon_2h"]):
+                why = "2H unused"
+        r["share"] = s
+        r["dropped"] = why
+        if why:
+            drop.add(r["name"])
+    out = [ld for ld in pool if ld.name not in drop]
+    if verbose:
+        from collections import Counter as _C
+        c = _C(r["dropped"] for r in report if r["dropped"])
+        print(f"  dropped {len(drop)} builds paying for a weapon they Equip under {1 - share:.0%} of the time "
+              f"(kept when that weapon is {cheap_tier} or cheaper, except a 1H beside a Buckler kept with the 2H): "
+              f"{dict(c)} -> {len(out)} builds")
+    return out, report
+
+
+def resolve_equipment_batch(a_lds, b_lds):
+    """Sim equipment declaration for many pairings at once (in the game the player chooses).
+    A build carrying Equip:fixed (fix_equipment_per_build, used by the tournament) keeps its choice.
+    Any other army with a choice (_equip_opts) Equips, in each phase, whichever option does better against
+    this opponent (_equip_values): the first Skirmish and later Skirmishes are chosen separately; One-Shot
+    ranged is an option in the first Skirmish only. Each army is judged in the A seat against the opponent
+    at its default equipment (ranged wherever it may); ties keep ranged, then the main melee weapon.
+    Decisions are cached per (army, opponent) for the session. Returns (a_list, b_list)."""
+    fixed = lambda ld: EQUIP_FIXED in ld.extra_tags
+    A = [x if fixed(x) else _equip_strip(x) for x in a_lds]
+    B = [x if fixed(x) else _equip_strip(x) for x in b_lds]
+    ka = [None if fixed(x) else _equip_opts(x) for x in A]
+    kb = [None if fixed(x) else _equip_opts(x) for x in B]
+    A_def = [x if fixed(x) else _equip_default(x) for x in A]
+    B_def = [x if fixed(x) else _equip_default(x) for x in B]
+    if not any(ka) and not any(kb):
+        return A_def, B_def
+
+    jobs = []                                       # (side, index, key)
+    todo, todo_pos = [], {}
+    for side, subj, kinds, opp_def in ((0, A, ka, B_def), (1, B, kb, A_def)):
+        for i, k in enumerate(kinds):
+            if not k:
+                continue
+            key = (_ld_key(subj[i]), _ld_key(opp_def[i]))
+            jobs.append((side, i, key))
+            if key not in _EQUIP_CACHE and key not in todo_pos:
+                todo_pos[key] = len(todo); todo.append((subj[i], k, opp_def[i]))
+
+    if todo:
+        V = _equip_values([s for s, _, _ in todo], [k for _, k, _ in todo], [o for _, _, o in todo])
+        bf, bl = _equip_best(V, 0), _equip_best(V, 1)
+        if len(_EQUIP_CACHE) + len(todo) > _EQUIP_CACHE_MAX:
+            _EQUIP_CACHE.clear()
+        for key, j in todo_pos.items():
+            _EQUIP_CACHE[key] = (bf[j], bl[j])
+
+    out = (list(A_def), list(B_def))
+    for side, i, key in jobs:
+        out[side][i] = _equip_with((A, B)[side][i], *_EQUIP_CACHE[key])
+    return out
 
 
 def resolve_equipment(ld_a, ld_b):
-    """Sim equipment declaration (the playstyle's choice; in the game the player chooses).
-    A Tiltyard army carrying a real melee weapon and a multi-shot ranged weapon uses its Ranged
-    weapon, unless its Melee profile would out-Initiative the opponent while its Ranged profile
-    would not. Decided per phase (skirmish 1 / later skirmishes) on base Initiative — equipped
-    weapon + shield (off under a 2H weapon) + standing/phase effects, before Tactics — against
-    the opponent at its default equipment (Ranged when it carries one). Returns the two loadouts
-    with Equip:* tags set; everything else about them is unchanged."""
-    def _strip(ld):
-        return ld._replace(extra_tags=frozenset(t for t in ld.extra_tags if not str(t).startswith("Equip:")))
-    ld_a, ld_b = _strip(ld_a), _strip(ld_b)
-
-    def _can_choose(ld):
-        real = ld.weapon is not None and ld.weapon != "Farm Tools"
-        return bool(ld.ranged) and real and (ONE_SHOT not in RANGED[ld.ranged]["tags"] or "Immune One-Shot" in ld.extra_tags)
-
-    def _with(ld, first_melee, normal_ranged):
-        t = set(ld.extra_tags)
-        if first_melee: t.add(EQUIP_FIRST_MELEE)
-        if normal_ranged: t.add(EQUIP_NORMAL_RANGED)
-        return ld._replace(extra_tags=frozenset(t))
-
-    def _default(ld):   # Ranged whenever it can choose
-        return _with(ld, False, True) if _can_choose(ld) else ld
-
-    def _plan(ld, opp):
-        if not _can_choose(ld):
-            return ld
-        o = StaticArmy(_default(opp), is_attacker=False)
-        r = StaticArmy(_with(ld, False, True), is_attacker=False)
-        m = StaticArmy(_with(ld, True, False), is_attacker=False)
-        pick = {}
-        for first in (True, False):
-            oi = o.base_init(first)
-            ri, mi = r.base_init(first), m.base_init(first)
-            pick[first] = "melee" if (mi > oi and not ri > oi) else "ranged"
-        return _with(ld, pick[True] == "melee", pick[False] == "ranged")
-
-    return _plan(ld_a, ld_b), _plan(ld_b, ld_a)
+    """One pairing of resolve_equipment_batch (see there)."""
+    a, b = resolve_equipment_batch([ld_a], [ld_b])
+    return a[0], b[0]
 
 
 def _can_parry(tags):
@@ -838,7 +1131,7 @@ def _roll_saves_vec(rng, n, save_target, n_strikes, shatter_strikes, atk_has_poi
         else np.zeros((n, max_strikes), dtype=np.int8)
 
     # Dual Wield: a failed Parry is rerolled once (dice drawn last, only when used, same order as
-    # batch_engine._roll_saves_batch), and a successful Parry roll of FOCUSED_THR-1 also Ripostes.
+    # batch_engine._roll_saves_batch); the reroll can't Riposte (dice_config.DW_REROLL_RIPOSTE).
     dw = _cp._as_bool_arr(def_dual_wield, n)
     prr = dw & parry_mask
     parry_rolls2 = (rng.integers(1, FACES + 1, size=(n, max_strikes), dtype=np.int8)
@@ -850,7 +1143,7 @@ def _roll_saves_vec(rng, n, save_target, n_strikes, shatter_strikes, atk_has_poi
         n_strikes_arr, deadly_arr, save_clip_arr, deadly_clip_arr, ap_arr,
         _cp._as_bool_arr(atk_has_poison, n), parry_mask, parry_thr_arr, regen_thr_arr,
         riposte_mask, rip5_arr, prr, parry_rolls2,
-        bool(PARRY_BEFORE_SAVE), bool(atk_has_halfsword), bool(_cp.DEADLY_NO_RECOVER))
+        bool(PARRY_BEFORE_SAVE), bool(atk_has_halfsword), bool(_cp.DEADLY_NO_RECOVER), bool(_dc_dwr.DW_REROLL_RIPOSTE))
     if rec_out is not None:
         rec_out += recovered
     return casualties, ripostes
@@ -1554,8 +1847,8 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         a_dshift = _cp.deadly_shift(a_ap, b_flut)   # A's Deadly strikes on B (mode-aware)
         b_dshift = _cp.deadly_shift(b_ap, a_flut)   # B's Deadly strikes on A
         # Riposte strikes use the riposter's MELEE weapon: shift the save target by the AP difference.
-        b_rip_ap_shift = b_ap_vs_a - _cp.fluted_ap(b_static.ap_melee, a_flut)
-        a_rip_ap_shift = a_ap_vs_b - _cp.fluted_ap(a_static.ap_melee, b_flut)
+        b_rip_ap_shift = b_ap_vs_a - _cp.fluted_ap(b_static.ap_melee_first if first else b_static.ap_melee_normal, a_flut)
+        a_rip_ap_shift = a_ap_vs_b - _cp.fluted_ap(a_static.ap_melee_first if first else a_static.ap_melee_normal, b_flut)
         a_save_target_against_b = (a_static.armor_save - b_ap_vs_a)
         a_save_target_against_b -= np.where((a_shield_destroyed | _a_shoff), 0, a_static.shield_bonus_start)
         a_save_target_against_b = a_save_target_against_b - a_TS_mod
@@ -1618,7 +1911,7 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
             return dict(save=save, parry=_can_parry(tags), regen=_regen_threshold(tags, otags),
                         reroll=_has_regen_reroll(tags), parry_bonus=st.parry_bonus, riposte=(RIPOSTE in tags),
                         fat=fat, planishing=st.planishing, crit5=("Crit 5" in tags), rec=rec, dw=(DUAL_WIELD in tags), rp1=("Riposte +1" in tags),
-                        poison=(POISON in tags) and ("Immune Poison" not in otags), unstop=st.unstop_melee,
+                        poison=(POISON in tags) and ("Immune Poison" not in otags), unstop=(st.unstop_melee_first if first else st.unstop_melee_normal),
                         negrip=(NEGATE_RIPOSTE in tags))
         _z = lambda: np.zeros(n_runs, dtype=np.int64)
         _r1a, _r1b, _r2a, _r2b, _r3a, _r3b = _z(), _z(), _z(), _z(), _z(), _z()

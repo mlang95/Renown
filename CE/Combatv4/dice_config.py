@@ -113,6 +113,8 @@ def _env_str(name, default):
 # Tournament only: 1 = no army picks the Fall Back Tactic (a weapon limited to Fighting Formation / Fall Back,
 # e.g. the Arquebus, then always plays Fighting Formation). 0 = Fall Back allowed from the second Skirmish.
 NO_FALL_BACK = str(os.environ.get("RENOWN_NO_FALL_BACK", "1")).strip() not in ("0", "", "false", "False")
+# Dual Wield (Nov 10 2026): a rerolled Parry can't Riposte (the rule, default 0); 1 = the old rule (a rerolled Parry can Riposte)
+DW_REROLL_RIPOSTE = str(os.environ.get("RENOWN_DW_REROLL_RIPOSTE", "0")).strip() not in ("0", "", "false", "False")
 # Initiative rules (defaults from the data: INIT_CAP_BEFORE_PENALTIES / INIT_FLOOR; env overrides for tests).
 #   INIT_CAP_FIRST 1 = bonuses are capped at the maximum BEFORE penalties apply; 0 = sum everything, then cap.
 #   INIT_FLOOR     1 = Initiative can't go below -2;                   0 = no lower limit (Blunder is still <= -2).
