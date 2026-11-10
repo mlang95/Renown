@@ -54,6 +54,16 @@ function escHoldWhy(b,n){const h=ESCD.hold[n];if(!h)return ["not a combat Holdin
   if(!h.root&&!h.parents.some(q=>escOwn(b).has(q)))why.push(h.parents.join(" or "));
   return why;}
 function escHoldOK(b,n){return !escOwn(b).has(n)&&!escHoldWhy(b,n).length;}
+// combat text only (build cuts the rest) + the Holdings each one builds into on its Mastery Chain
+function escNeeds(n){return escHoldWhy({domains:{},placed:[]},n);}
+function escKids(n){return Object.keys(ESCD.hold).filter(k=>(ESCD.hold[k].parents||[]).includes(n));}
+function escLeads(n){const out=[],seen=new Set([n]);let q=escKids(n);
+  while(q.length){const nx=[];q.forEach(k=>{if(seen.has(k))return;seen.add(k);if((ESCD.hold[k]||{}).fx)out.push(k);else nx.push(...escKids(k));});q=nx;}
+  return out;}
+function escFxHTML(n){const fx=(ESCD.hold[n]||{}).fx;return fx?'<div class="esc-fx">'+esc(fx)+'</div>':'<div class="note">no combat effect</div>';}
+function escKidsHTML(n){const K=escKids(n);if(!K.length)return '';
+  return '<div class="esc-kids"><span class="note">builds into</span>'+K.map(k=>{const fx=(ESCD.hold[k]||{}).fx,L=fx?[]:escLeads(k);
+    return '<div><b>'+esc(k)+'</b>'+(fx?': '+esc(fx):L.length?' <span class="note">(leads to '+esc(L.join(", "))+')</span>':' <span class="note">no combat effect</span>')+'</div>';}).join("")+'</div>';}
 function escPlace(p,n){const pb=escPB(p),b=p.board;if(!(pb.hold>0)||!escHoldOK(b,n))return false;
   b.placed.push({id:nextId(b.placed),name:n,sid:null,esc:D.esc.round});pb.hold--;return true;}
 function escAdvance(p,d){const pb=escPB(p),b=p.board,v=+((b.domains||{})[d])||0;if(!(pb.left>0)||v>=SOV)return false;
@@ -288,7 +298,7 @@ function escTok(t){const m=/^(tier|armor|shield|weapon|retinue|anytier):(.+)$/.e
 function escSideHTML(p,me){const b=p.board,u=escU(b),pb=escPB(p),foeView=!sameP(p,me),E=D.esc;
   const stand=DOMAINS.map(d=>{const v=+((b.domains||{})[d])||0;return '<span class="kw" title="'+esc(d+" "+v)+'">'+esc(d)+' '+v+' <span style="opacity:.6">'+esc(domBand(v))+'</span></span>';}).join(" ");
   const fx=standingFxOf(b.domains||{}).map(f=>'<span class="kw mod" title="'+esc(f.t+" "+f.d)+'">'+esc(f.text)+'</span>').join(" ");
-  const hold=[...escOwn(b)].map(n=>'<span class="kw'+(ESCD.hold[n]&&ESCD.hold[n].monument?' mod':'')+'" title="'+esc((R[n]||{}).innate_raw||"")+'">'+esc(n)+'</span>').join(" ");
+  const hold=[...escOwn(b)].map(n=>'<span class="kw'+(ESCD.hold[n]&&ESCD.hold[n].monument?' mod':'')+'" title="'+esc((ESCD.hold[n]||{}).fx||"")+'">'+esc(n)+'</span>').join(" ");
   const wt=[...u.wTiers].sort((a,b)=>TIER_RANK[a]-TIER_RANK[b]).join(", ");
   const mods=u.mods.map(m=>'<span class="kw mod" data-tok="'+esc(m.tok)+'" title="'+esc(gloss(m.tok))+'">'+esc(m.tok)+' <span style="opacity:.6">('+esc(m.node)+')</span></span>').join(" ");
   const row=(k,v)=>'<div class="kv"><span class="k">'+k+'</span><span class="val" style="text-align:right">'+(v||'<span class="note">none</span>')+'</span></div>';
@@ -309,7 +319,7 @@ function escAdvHTML(p){const pb=escPB(p),b=p.board,o=escO(),mineP=!escIsAi(p);
   const own=escOwn(b),all=Object.keys(ESCD.hold).filter(n=>!own.has(n)),ok=all.filter(n=>escHoldOK(b,n)),no=all.filter(n=>!escHoldOK(b,n));
   const card=(n,can)=>{const h_=ESCD.hold[n],why=can?[]:escHoldWhy(b,n);
     return '<div class="esc-hold'+(can?'':' off')+(h_.monument?' mon':'')+'"><div><b>'+esc(n)+'</b>'+(h_.monument?' <span class="badge tier">Monument</span>':'')+
-      '<div class="note">'+esc((R[n]||{}).innate_raw||"")+'</div>'+(why.length?'<div class="note neg">needs '+esc(why.join(" · "))+'</div>':'')+'</div>'+
+      escFxHTML(n)+escKidsHTML(n)+(why.length?'<div class="note neg">needs '+esc(why.join(" · "))+'</div>':'')+'</div>'+
       (can?'<button data-esc="hold" data-n="'+esc(n)+'"'+(pb.hold>0?'':' disabled')+'>place</button>':'')+'</div>';};
   h+='<div class="lbl" style="margin-top:8px">HOLDINGS YOU CAN PLACE</div><div class="esc-holds">'+(ok.map(n=>card(n,true)).join("")||'<div class="note">none</div>')+'</div>'+
     '<details style="margin-top:6px"><summary class="note" style="cursor:pointer">locked ('+no.length+')</summary><div class="esc-holds">'+no.map(n=>card(n,false)).join("")+'</div></details>';
@@ -366,7 +376,12 @@ function escWire(host){
 function escSeizeHTML(){const E=D.esc,B=battle(),f=seizeForced(),s=f?f:"A",ready=!!(sideCalc("A")&&sideCalc("B"));
   return '<div class="bcmd bseizebox"><div class="bcmd-t">Battle '+E.round+'</div><div>'+esc(sideNm(s))+' Seizes the Initiative'+(f?' (Ministry)':' ('+esc((E.seizeR||{}).why||"")+')')+'</div>'+
     '<button id="bStartGo" class="bstart'+(ready?' go':'')+'"'+(ready?'':' disabled')+'>Start battle</button></div>';}
-function escReferenceHTML(){return '<div style="padding:14px"><h2 style="margin-bottom:8px">Combat reference</h2><div id="refStanding">'+standingEffectsHTML()+'</div><div id="refBattle">'+battleRulesHTML()+'</div>'+escArmoryHTML()+'</div>';}
+function escReferenceHTML(){return '<div style="padding:14px"><h2 style="margin-bottom:8px">Combat reference</h2><div id="refStanding">'+standingEffectsHTML()+'</div><div id="refBattle">'+battleRulesHTML()+'</div>'+escHoldRefHTML()+escArmoryHTML()+'</div>';}
+function escHoldRefHTML(){const AL=DATA.aliases||{},dn=n=>AL[n]||n,H=Object.keys(ESCD.hold).sort((a,b)=>dn(a).localeCompare(dn(b)));   // order by the name players read
+  return '<details class="tot" open><summary><b>Combat Holdings</b></summary><div style="overflow-x:auto"><table class="dtable esc-reft" style="font-size:12px"><thead><tr><th></th><th>Needs</th><th>Combat effect</th><th>Builds into</th></tr></thead><tbody>'+
+    H.map(n=>{const h=ESCD.hold[n],nd=escNeeds(n);
+      return '<tr><td><b>'+esc(n)+'</b>'+(h.monument?' <span class="badge tier">Monument</span>':'')+'</td><td>'+esc(nd.join(" · ")||"—")+'</td><td>'+escFxHTML(n)+'</td><td>'+(escKidsHTML(n)||'<span class="note">—</span>')+'</td></tr>';}).join("")+
+    '</tbody></table></div></details>';}
 function escArmoryHTML(){const t=(title,o,cols,f)=>'<details class="tot"><summary><b>'+title+'</b></summary><div style="overflow-x:auto"><table class="dtable" style="font-size:12px"><thead><tr><th></th>'+cols.map(c=>'<th>'+c+'</th>').join("")+'</tr></thead><tbody>'+
     Object.keys(o).filter(n=>n!=="null").map(n=>'<tr><td><b>'+esc(n)+'</b></td>'+f(o[n]).map(v=>'<td>'+esc(v==null?"":String(v))+'</td>').join("")+'</tr>').join("")+'</tbody></table></div></details>';
   return t("Retinues",EQ.retinues,["to Strike","Morale","Endurance"],r=>[r.to_hit+"+",r.shaking+"+",r.endurance])+

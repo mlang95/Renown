@@ -977,9 +977,16 @@ def esc_payload(ns, data_path, summary_arg=""):
         for p in sim.get(todo.pop(), {}).get("parents", []):
             if p in sim and p not in keep:
                 keep.add(p); todo.append(p)
+    nodes, tags_of, strip = ns.get("NODES", {}), ns.get("holding_combat_tags"), ns.get("_ht_strip") or (lambda s: s)
+    fx_word = re.compile(r"\b(Immune|Armies|Weapons?|Strike|Parry|Save|Initiative|Skirmish|Morale|Recover)\b", re.I)
+    not_fx = re.compile(r"\b(Siege|Sally|Move|Province|Speed|Reach)\b", re.I)    # map / siege text: no map in Escalation
+    def combat_fx(n):
+        """A Holding's text cut to its combat clauses (one the combat parser reads, or one in combat words)."""
+        cl = [c.strip() for c in re.split(r";|\.\s+|\.$", strip(str((nodes.get(n) or {}).get("innate", "")))) if c.strip()]
+        return "; ".join(c for c in cl if (tags_of and tags_of(c, sim=True)) or (fx_word.search(c) and not not_fx.search(c)))
     hold = {n: {"domain": {d: (v if d != "*" else [list(x) for x in v]) for d, v in sim[n]["domain"].items()},
                 "parents": [p for p in sim[n]["parents"] if p in sim], "root": bool(sim[n]["root"]) or not sim[n]["parents"],
-                "monument": bool(sim[n]["monument"]), "combat": bool(sim[n]["tags"])}
+                "monument": bool(sim[n]["monument"]), "combat": bool(sim[n]["tags"]), "fx": combat_fx(n)}
             for n in sorted(keep)}
     lab = os.path.join(os.path.dirname(os.path.abspath(data_path)), "lab_out")
     summ = summary_arg or _esc_find_csv(lab, "summary*.csv")

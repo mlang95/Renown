@@ -986,6 +986,9 @@ body.esc-on .bsel,body.esc-on .bqlist,body.esc-on #modBox,body.esc-on #boardBox{
 .esc-holds{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px;margin-top:4px}
 .esc-hold{display:flex;gap:8px;justify-content:space-between;align-items:flex-start;border:1px solid var(--line);border-radius:var(--radius-sm,4px);padding:6px 8px;background:var(--panel2)}
 .esc-hold.mon{border-color:var(--envoy)}.esc-hold.off{opacity:.6}
+.esc-fx{font-size:12px;margin-top:2px}
+.esc-kids{margin-top:4px;padding-left:8px;border-left:2px solid var(--line2);font-size:12px;display:flex;flex-direction:column;gap:2px}
+.esc-reft td{vertical-align:top}.esc-reft .esc-kids{margin-top:0}.esc-reft .esc-kids>.note:first-child{display:none}
 .esc-load{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px;margin:4px 0}
 .esc-load .fld{display:flex;flex-direction:column;gap:2px}
 .esc-sides{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:8px}
