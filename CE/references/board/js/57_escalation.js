@@ -33,7 +33,7 @@ function escInit(mode){
   D.players=D.players.slice(0,2);
   const opts={};["adv","advN","holdN","seize","toWin","ai"].forEach(k=>{if(mode&&mode[k]!=null)opts[k]=mode[k];});
   D.esc={opts,round:1,phase:"loadout",score:{},hist:[],tacHist:{},shown:{},log:[]};
-  D.players.forEach(p=>{const b=p.board;b.domains=startDoms();b.placed=[];b.armies=[];b.esc={};escRoundStart(p);escRefit(p);});
+  D.players.forEach(p=>{const b=p.board;withBoard(b,()=>setFaction(""));b.domains=startDoms();b.placed=[];b.armies=[];b.esc={};escRoundStart(p);escRefit(p);});
   const k=escAiKey();if(k){const ai=D.players[1];D.esc.aiPid=ai.id;ai.name="AI · "+ESCD.ai[k].label;escArmy(ai).label=ai.name;}
   D.view="esc";}
 function escReset(){if(!confirm("Start the campaign over?"))return;const o=escO();D.battle=null;D.esc=null;

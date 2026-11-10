@@ -510,9 +510,10 @@ function renderTopBar(){
   if(HER_ALL.length)put(herPicker(p,ed));   // anyone may pick a charge; a culture only sets the default
   else{const h=heraldOf(p,26);if(h){const w=document.createElement("span");w.className="pc-her";w.innerHTML=h;put(w);}}
   put(nm);put(gen);put(col);
-  {const w=document.createElement("span");w.innerHTML=culSelectHTML(p.board);const cs=w.firstChild;cs.disabled=!ed;cs.classList.add("keepval");
-    cs.onchange=e=>{setCulture(p,e.target.value||"");save();render();renderList();};put(cs);}
-  put(facPicker(ed,v=>{setFaction(v);save();render();renderList();}));
+  if(!escOn()){   // Escalation: no culture / Heritage choice
+    {const w=document.createElement("span");w.innerHTML=culSelectHTML(p.board);const cs=w.firstChild;cs.disabled=!ed;cs.classList.add("keepval");
+      cs.onchange=e=>{setCulture(p,e.target.value||"");save();render();renderList();};put(cs);}
+    put(facPicker(ed,v=>{setFaction(v);save();render();renderList();}));}
   {let on=false;try{on=!!SYNC.ready;}catch(e){}
     if(on){const cl=claimOf(p),mc=myClaimP(),b=document.createElement("button");b.dataset.claim="1";
       if(mine(p)){b.textContent="\u2605 yours \u00b7 release";b.onclick=()=>{if(!confirm("Release "+p.name+"?"))return;delete p.board.claim;if(TB().ready)delete TB().ready[p.id];save();render();};}

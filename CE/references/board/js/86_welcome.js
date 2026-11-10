@@ -70,7 +70,7 @@ function profileView(){const p=pById(WEL.pid);if(!p)return seatView();const ed=c
       '<input id="wlName" class="keepval" value="'+esc(p.name)+'"'+(ed?"":" disabled")+' aria-label="name">'+
       '<button data-wl="gen"'+(ed?"":" disabled")+'>Generate</button><input id="wlCol" type="color" value="'+esc(p.color)+'"'+(ed?"":" disabled")+' aria-label="colour">'+
       '<span id="wlHerSlot"></span><button class="close" data-wl="close" title="close">✕</button></div>'+
-    '<div class="wl-prof"><div class="wl-culs">'+card("")+groups+'</div><div class="wl-detail">'+culDetail(cur,p,ed)+'</div></div>'+
+    (escOn()?'':'<div class="wl-prof"><div class="wl-culs">'+card("")+groups+'</div><div class="wl-detail">'+culDetail(cur,p,ed)+'</div></div>')+
     '<div class="wl-foot"><button class="wl-go" data-wl="close">Done</button></div>';}
 function welcomeRender(){if(!WEL.view)return;let el=document.getElementById("welcome");
   if(!el){el=document.createElement("div");el.id="welcome";el.className="modal wl";el.innerHTML='<div class="modalcard wlcard" role="dialog" aria-modal="true"></div>';
@@ -91,7 +91,7 @@ function welcomeClick(e){if(e.target.id==="welcome"){if(WEL.view==="profile"||my
   if(k==="watch"){WATCH=true;try{sessionStorage.setItem(gkey("renown_watch"),"1");}catch(_){}return welcomeClose();}
   if(k==="take"&&p&&!claimOf(p)&&!myClaimP()){p.board.claim={dev:DEV,ts:Date.now()};WATCH=false;
     {const x=PT(p),m=seatMap(),n=tSeats();if(!(Number.isInteger(x.seat)&&m[x.seat]===p))for(let i=0;i<n;i++)if(!m[i]){x.seat=i;x.seatTs=tnow();break;}}   // and sit at the Tabletry{sessionStorage.removeItem(gkey("renown_watch"));}catch(_){}
-    save();render();flash("you are "+p.name);return welcomeProfile(p);}
+    save();render();flash("you are "+p.name);return escOn()?welcomeClose():welcomeProfile(p);}
   if(k==="profile"&&p)return welcomeProfile(p);
   if((k==="release"&&p&&mine(p))||(k==="clear"&&p&&ADMIN)){if(!confirm((k==="release"?"Release ":"Clear the claim on ")+p.name+"?"))return;
     delete p.board.claim;if(TB().ready)delete TB().ready[p.id];save();render();return welcomeRender();}
