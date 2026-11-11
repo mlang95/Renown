@@ -65,7 +65,7 @@ function bfBuild(sig,S,T){const wrap=document.createElement("div");wrap.classNam
   ["A","B"].forEach(X=>{const s=S[X];if(s)h+=bfCamp(X,s.col);});
   h+='<g class="bf-units">';["A","B"].forEach(X=>{const s=S[X];if(!s)return;for(let id=0;id<s.FM+s.RM;id++)h+=bfFigure(s,id);});
   h+='</g><g class="bf-fx"></g></svg></div><div class="bf-cap"></div>';
-  wrap.innerHTML='<div class="bf-head"></div><div class="bf-feed" aria-live="polite"></div>'+h;
+  wrap.innerHTML='<div class="bf-head"></div>'+h;   // no event feed under the header (bfFeedPaint finds no .bf-feed); the Chronicle keeps the log
   const t0=()=>({parry:0,rip:0,save:0,heal:0,on:{}});                 // on = which of these have been rolled this Skirmish
   BF={wrap,sig,seen:{},rip:{},pos:{A:[],B:[]},fresh:true,t:{A:t0(),B:t0()},res:{A:S.A?S.A.c.reserve:0,B:S.B?S.B.c.reserve:0},panic:{}};
   // start everyone in camp
