@@ -89,6 +89,7 @@ def builds(S, include_domain=True):
     T["weapon_kw"] = [",".join(k for k in SIGNATURE_KW if k in s) for s in kw]
     T["dual_wield"] = T["tags"].str.contains("Dual Wield", regex=False)
     w2 = T["weapon_2h"].fillna("").astype(str) if "weapon_2h" in T.columns else pd.Series("", index=T.index)
+    w2 = w2.map(lambda x: ("2x " + x) if _loadouts().guige_pair(x) else x)   # Guige Strap's Florentine pair
     T["gear"] = (T["weapon"].fillna("").astype(str) + np.where(T["dual_wield"], " x2", "") + np.where(w2 != "", " | " + w2, "")
                  + np.where(T["shield"] != "", " / " + T["shield"].astype(str), "")
                  + np.where(T["ranged"] != "", " + " + T["ranged"].astype(str), "") + " / " + T["armor"].astype(str))

@@ -201,6 +201,12 @@ class StaticArmy:
         # Guige Strap's second weapon (weapon_2h), else a dual-profile weapon's own 2H profile.
         _w2 = getattr(ld, "weapon_2h", None)
         self.alt2h_profile = dict(WEAPONS[_w2]) if _w2 else dual_2h_profile
+        # Nov 10 2026: with Florentine, Guige Strap's second set may be a Dual Wielded pair of a 1H Melee Weapon. The pair
+        # counts as the 2H weapon: Dual Wield (failed Parries re-rolled once) and 2H (the Shield gives nothing, Buckler
+        # School's Buckler included, as the board's buck2h), only in a Skirmish that Equips it.
+        self.alt2h_pair = bool(_w2) and TWO_H not in (self.alt2h_profile.get("tags") or [])
+        if self.alt2h_pair:
+            self.alt2h_profile["tags"] = list(self.alt2h_profile.get("tags") or []) + [TWO_H, DUAL_WIELD]
         _a2h = self.alt2h_profile is not None
         melee_first_prof = self.alt2h_profile if (_a2h and EQUIP_FIRST_2H in ld.extra_tags) else melee_profile
         melee_normal_prof = self.alt2h_profile if (_a2h and EQUIP_NORMAL_2H in ld.extra_tags) else melee_profile
@@ -266,7 +272,7 @@ class StaticArmy:
         # skirmish: no save bonus, Initiative, -1TBH or keywords) but it is not lost.
         # Buckler School ("Buckler 2H"): a Buckler Shield stays Equipped while a 2H weapon is
         _buck2h = ld.shield == "Buckler Shield" and "Buckler 2H" in ld.extra_tags
-        _2h = lambda prof: TWO_H in (prof.get("tags") or []) and not _buck2h
+        _2h = lambda prof: TWO_H in (prof.get("tags") or []) and not (_buck2h and DUAL_WIELD not in (prof.get("tags") or []))
         if self.uses_ranged_first:
             self.ap_first = ranged_profile["ap"] + mw_bonus
             self.init_first = ranged_profile["init"]
@@ -626,6 +632,12 @@ def _equip_opts(ld):
     return tuple(first), tuple(later)
 
 
+def _guige_pair(ld):
+    """Guige Strap's second set is a Dual Wielded pair of a 1H weapon (Florentine), not a 2H weapon."""
+    w2 = getattr(ld, "weapon_2h", None)
+    return bool(w2) and TWO_H not in WEAPONS[w2].get("tags", [])
+
+
 def _equip_kind(ld):
     """Report label: "multi" / "one" (melee + multi-shot / One-Shot ranged), "guige" (1H + Shield and a
     2H weapon), "profile" (a 1H/2H weapon with a Shield), or None (no choice)."""
@@ -795,7 +807,8 @@ def fix_equipment_per_build(pool, panel_n=100, seed=2026, chunk=20000, verbose=T
         row = {"name": base[i].name, "kind": _equip_kind(base[i]), "weapon": base[i].weapon,
                "weapon_2h": getattr(base[i], "weapon_2h", None) or "", "ranged": base[i].ranged or "",
                "shield": base[i].shield or "",
-               "buckler_2h": base[i].shield == "Buckler Shield" and "Buckler 2H" in base[i].extra_tags,
+               "buckler_2h": (base[i].shield == "Buckler Shield" and "Buckler 2H" in base[i].extra_tags
+                              and not _guige_pair(base[i])),   # a Dual Wielded pair never keeps the Buckler
                "first": first, "later": later}
         for ph, opts, best in (("first", f_opts, best_f), ("later", l_opts, best_l)):
             for o in _EQUIP_ORDER:

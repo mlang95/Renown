@@ -65,6 +65,10 @@ def can_florentine(weapon):
     w = WEAPONS.get(weapon)
     return (w is not None and weapon != "Farm Tools" and TWO_H not in w.get("tags", [])
             and not weapon_forbids(weapon, "florentine"))
+def guige_pair(weapon_2h):
+    """Guige Strap's second set is a Dual Wielded pair of a 1H Melee Weapon (needs Florentine; Nov 10 2026), not a
+    2H weapon. The pair counts as the 2H weapon: Dual Wield and 2H while it is Equipped (engine: StaticArmy.alt2h_pair)."""
+    return weapon_2h in WEAPONS and TWO_H not in WEAPONS[weapon_2h].get("tags", [])
 # Default army size. Half-scale game: 25 troops (front 10 / reserve 5). Old full-scale was 50.
 # CSV pools that store an explicit size are overridden to this on load unless the size differs
 # intentionally; regenerated pools use this directly.
@@ -173,7 +177,7 @@ def _name(retinue, weapon, shield, armor, ranged, has_tiltyard, extra_tags, play
     else:
         w_str = _w_label(weapon)
         if weapon_2h:
-            w_str = f"{w_str}|{_w_label(weapon_2h)}"      # Guige Strap: 1H weapon | 2H weapon
+            w_str = f"{w_str}|{'2x' if guige_pair(weapon_2h) else ''}{_w_label(weapon_2h)}"   # Guige Strap: 1H | 2H weapon (or 2x pair)
         if ranged:
             w_str = f"{w_str}+{_w_label(ranged)}"
         parts.append(w_str)
@@ -703,6 +707,8 @@ def gear_requirements(weapon, shield, armor, ranged, two_of_same=False, toks=Non
         need.add(rd.FLORENTINE)
     if weapon_2h:
         need.add(rd.GUIGE_STRAP)
+    if guige_pair(weapon_2h):
+        need.add(rd.FLORENTINE)                          # the second set is a Dual Wielded 1H pair
     return need
 
 
@@ -752,7 +758,7 @@ def _load_loadouts_from_csv(csv_path):
             # Florentine only while Dual Wielding, so an older pool file reads the same as a new one
             if not w2:
                 extra_tags = [t for t in extra_tags if t != rd.GUIGE_STRAP]
-            if DUAL_WIELD not in extra_tags:
+            if DUAL_WIELD not in extra_tags and not guige_pair(w2):
                 extra_tags = [t for t in extra_tags if t != rd.FLORENTINE]
             pool.append(Loadout(
                 name=row["name"],
@@ -944,6 +950,8 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, max_m
         melee = WEAPONS_BY_TIER[tier_str]
         guige = rd.GUIGE_STRAP in toks
         guige_2h = [w for w in melee if _true_2h(w) and w not in rd.WEAPON_2H_PROFILES]
+        if guige and has_dw:                            # with Florentine the second set may be a Dual Wielded 1H pair
+            guige_2h += [w for w in melee if can_florentine(w)]
         # ranged at or below the tier, plus any ranged weapon unlocked regardless of tier (Skirmish Field: Longbow)
         rng_opts = list(dict.fromkeys(_ranged_at_or_below(tier_str, RANGED_BY_TIER)
                                       + [r for r in RANGED if "anytier:" + r in toks]))
@@ -1019,7 +1027,7 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, max_m
                         # weapon); owning Buckler School without one shows in its Holding, not the tag
                         # Florentine likewise marks only the Dual Wielding build; owning List Yard shows in its Holding
                         w_tags = sorted(build_tags - ({rd.GUIGE_STRAP} if not w2 else set())
-                                        - ({rd.FLORENTINE} if not is_two_of_same else set()))
+                                        - ({rd.FLORENTINE} if not (is_two_of_same or guige_pair(w2)) else set()))
                         tags_tuple = tuple(w_tags)
                         obs_key = (retinue_guess, weapon, shield, armor, ranged, ty, tags_tuple, w2)
                         if obs_key in seen_keys and seen_keys[obs_key][0] <= len(pursuits):   # keep the cheapest by TI
@@ -1257,8 +1265,11 @@ def validate_loadout(ld, check_tier_floors=False):
     w, sh, ar, rg = ld.weapon, ld.shield, ld.armor, ld.ranged
     w2 = getattr(ld, "weapon_2h", None)
     if w2 is not None:                                      # Guige Strap
-        if not _true_2h(w2) or w2 in rd.WEAPON_2H_PROFILES:
-            v.append(f"Guige weapon {w2} is not a 2H weapon")
+        if guige_pair(w2):                                  # Florentine: a Dual Wielded 1H pair
+            if not can_florentine(w2):
+                v.append(f"Guige pair {w2} cannot Florentine (weapon note)")
+        elif not _true_2h(w2) or w2 in rd.WEAPON_2H_PROFILES:
+            v.append(f"Guige weapon {w2} is not a 2H weapon or a Florentine pair")
         if w is None or w == "Farm Tools" or is_2h(w) or sh is None:
             v.append(f"Guige needs a 1H weapon and Shield (has {w} / {sh})")
         if rg is not None:
@@ -1351,7 +1362,7 @@ def _token_used(tok, ld, need, gear):
     if tok == "Immune Awkward":
         return NO_PARRY_KW in gear
     if tok == rd.FLORENTINE:
-        return DUAL_WIELD in set(ld.extra_tags or [])
+        return DUAL_WIELD in set(ld.extra_tags or []) or guige_pair(getattr(ld, "weapon_2h", None))
     if tok == rd.GUIGE_STRAP:
         return getattr(ld, "weapon_2h", None) is not None
     if " @" in tok:                                        # scoped to one weapon ("First FoeParry +1 @Cavalry Spear", Wedge)
@@ -1371,7 +1382,7 @@ def stale_pool_report(pool):
         now = set(compute_pursuit_cost(P)[2]) | ({DUAL_WIELD} if dw else set())
         if not getattr(ld, "weapon_2h", None):
             now.discard(rd.GUIGE_STRAP)                    # the tag marks a carried 2H weapon, not the Holding
-        if not dw:
+        if not dw and not guige_pair(getattr(ld, "weapon_2h", None)):
             now.discard(rd.FLORENTINE)                     # the tag marks a Dual Wielding army, not List Yard
         if now != saved:
             gone, new = sorted(saved - now), sorted(now - saved)
@@ -1583,7 +1594,7 @@ def synergy_score(ld, prof=None):
     ranged_only = ld.ranged is not None and ld.weapon in (None, "Farm Tools") and ONE_SHOT not in rk
     rw = 2 if ranged_only else 1
     want, soft = set(prof["strong"]), set(prof["soft"])
-    dw = DUAL_WIELD in set(ld.extra_tags)
+    dw = DUAL_WIELD in set(ld.extra_tags) or guige_pair(getattr(ld, "weapon_2h", None))   # a Guige pair Dual Wields too
     meets = (not want) or bool((mk | rk) & want)
     if prof["florentine"] == "strong" and not dw:
         meets = False
