@@ -61,7 +61,7 @@ def _morale_target(shaking, fat, shake_bonus, zealot_mask=None, morale_cap_mask=
 def instant_panic(rng, n, roller, shake_cap, size, fat, mask, net_combat, shaking, shake_bonus, steadfast_mask,
                   field_used, field_cap=15, morale_cap_mask=None, zealot_mask=None,
                   resolute_firstpass_mask=None, panic_used=None):
-    """TEST SWITCH (RENOWN_PANIC_TIMING=instant): the Panic check taken as soon as the side that was
+    """The rule (RENOWN_PANIC_TIMING=instant, the default): the Panic check taken as soon as the side that was
     struck first has lost PANIC_THRESHOLD (5) or more, before it Strikes back. Same trigger, target, Resolute and rout as
     the end-of-Skirmish check; `size` is the side's size after the opening Strike.
     Returns dict(cas=, rout=, done=, panic_used=): done = the check was taken (no second one this Skirmish)."""

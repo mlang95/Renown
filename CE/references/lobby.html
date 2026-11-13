@@ -56,8 +56,7 @@
       <label>Advance per round<select id="eAdv"><option value="dp">Domain Points</option><option value="standing">Standings</option></select></label>
       <label>Amount per round<select id="eAdvN"></select></label>
       <label>Holdings per round<select id="eHoldN"></select></label>
-      <label>Seizes the Initiative<select id="eSeize"><option value="winner">Last winner</option><option value="loser">Last loser</option><option value="random">Random</option></select></label>
-      <label>Edicts to win<select id="eToWin"></select></label>
+      <label>Struggle track (nodes a side)<select id="eTrack"></select></label>
       <label>Opponent<select id="eAi"><option value="">Human</option><option value="novice">AI · Novice</option>
         <option value="intermediate">AI · Intermediate</option><option value="challenging">AI · Challenging</option><option value="impossible">AI · Impossible</option></select></label>
     </div>
@@ -80,7 +79,7 @@ $("token").value=TOKEN;
 $("token").onchange=()=>{TOKEN=$("token").value.trim();try{localStorage.setItem("renown_token",TOKEN);}catch(e){}load();};
 for(let i=1;i<=7;i++)$("nSeats").insertAdjacentHTML("beforeend",'<option'+(i===4?" selected":"")+'>'+i+'</option>');
 const opts=(id,lo,hi,d)=>{for(let i=lo;i<=hi;i++)$(id).insertAdjacentHTML("beforeend",'<option'+(i===d?" selected":"")+'>'+i+'</option>');};
-opts("eAdvN",1,5,1);opts("eHoldN",1,5,2);opts("eToWin",1,15,5);
+opts("eAdvN",1,5,1);opts("eHoldN",1,5,2);opts("eTrack",2,8,4);
 $("nType").onchange=()=>{const e=$("nType").value==="escalation";$("escOpts").hidden=!e;$("nSeats").disabled=e;if(e)$("nSeats").value="2";};
 async function api(method,path,body){
   const h={};if(body!==undefined)h["Content-Type"]="application/json";if(TOKEN)h["X-Renown-Token"]=TOKEN;
@@ -91,7 +90,7 @@ function ago(ts){if(!ts)return "";const s=(Date.now()-Date.parse(ts))/1000;if(is
 function row(g){
   const seats=g.players||g.seats||0,m=g.mode||null,status=m?"":g.started?"Turn "+g.turn:(g.players?"Setup":"New");
   return '<div class="game'+(g.archived?" arch":"")+'"><span class="dot'+(g.live?" live":"")+'" title="'+(g.live?"live":"idle")+'"></span>'+
-    '<div><div class="gname">'+esc(g.name)+(m?' <span class="tag">Escalation</span>':'')+'</div><div class="meta">'+[status,m?"first to "+m.toWin+" Edicts"+(m.ai?" · vs AI ("+m.ai+")":""):"",g.claimed+" / "+seats+" seated",g.pin?"Duke PIN":"",
+    '<div><div class="gname">'+esc(g.name)+(m?' <span class="tag">Escalation</span>':'')+'</div><div class="meta">'+[status,m?(m.track?"struggle "+m.track+" a side":"first to "+m.toWin+" Edicts")+(m.ai?" · vs AI ("+m.ai+")":""):"",g.claimed+" / "+seats+" seated",g.pin?"Duke PIN":"",
       g.live?"live":"active "+ago(g.last_active)].filter(Boolean).map(esc).join(" · ")+'</div></div>'+
     '<div class="acts">'+(g.archived?'<button data-arch="0" data-id="'+esc(g.id)+'">Restore</button>'
       :'<button data-arch="1" data-id="'+esc(g.id)+'" title="hide from this list">Archive</button><a href="/g/'+esc(g.id)+'/"><button class="go">Join</button></a>')+'</div></div>';}
@@ -111,7 +110,7 @@ $("showArch").onchange=load;
 $("newForm").onsubmit=async e=>{e.preventDefault();$("newErr").textContent="";
   const r=await api("POST","/api/games",{name:$("nName").value.trim(),seats:+$("nSeats").value,pin:$("nPin").value,
     mode:$("nType").value==="escalation"?{type:"escalation",adv:$("eAdv").value,advN:+$("eAdvN").value,holdN:+$("eHoldN").value,
-      seize:$("eSeize").value,toWin:+$("eToWin").value,ai:$("eAi").value}:null}).catch(()=>null);
+      track:+$("eTrack").value,ai:$("eAi").value}:null}).catch(()=>null);
   if(!r||r.status!==200||!r.json){$("newErr").textContent=(r&&r.json&&r.json.error)||"Could not create the game.";return;}
   location.href="/g/"+encodeURIComponent(r.json.id)+"/";};
 load();setInterval(load,15000);

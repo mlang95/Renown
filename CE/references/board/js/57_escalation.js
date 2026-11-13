@@ -18,29 +18,38 @@ function escDriver(){return !D.players.some(q=>!escIsAi(q)&&mine(q)&&!sameP(q,es
 const ESC_STEPS=[["Rising",RIS],["Established",EST],["Sovereign",SOV]];
 
 // ---- setup ----
-function escStartLoad(){const s=ESCD.start||{};return {retinue:s.retinue||"Levy",weapon:s.weapon||"Farm Tools",ranged:"None",armor:s.armor||"Cloth",shield:"None"};}
+function escStartLoad(){const s=ESCD.start||{};return {retinue:s.retinue||"Levy",weapon:s.weapon||"Farm Tools",ranged:"None",armor:s.armor||"Cloth",shield:"None",weapon2h:"None"};}
 function escArmy(p){const b=p.board;b.armies=b.armies||[];let a=b.armies.find(x=>String(x.id)==="1");
   if(!a){a=Object.assign({id:1,label:p.name,count:ESCD.army_size,fatigue:0,open:true},escPB(p).load||escStartLoad());
     a.endurance=+((EQ.retinues[a.retinue]||{}).endurance)||0;b.armies=[a];}
   return a;}
 function escRefit(p){const a=escArmy(p),L=escPB(p).load||escStartLoad();
-  Object.assign(a,{retinue:L.retinue,weapon:L.weapon,ranged:L.ranged||"None",armor:L.armor,shield:L.shield||"None",label:p.name,
+  Object.assign(a,{retinue:L.retinue,weapon:L.weapon,weapon2h:L.weapon2h||"None",ranged:L.ranged||"None",armor:L.armor,shield:L.shield||"None",label:p.name,
     count:ESCD.army_size,fatigue:0,strained:false,blunder:false});
   if(L.b2h!=null)a.b2h=L.b2h;else delete a.b2h;
   a.endurance=+((EQ.retinues[a.retinue]||{}).endurance)||0;p.board.armies=[a];return a;}
 function escInit(mode){
   while(D.players.length<2)D.players.push(newPlayer(D.players.length+1));
   D.players=D.players.slice(0,2);
-  const opts={};["adv","advN","holdN","seize","toWin","ai"].forEach(k=>{if(mode&&mode[k]!=null)opts[k]=mode[k];});
-  D.esc={opts,round:1,phase:"loadout",score:{},hist:[],tacHist:{},shown:{},log:[]};
+  const opts={};["adv","advN","holdN","track","ai"].forEach(k=>{if(mode&&mode[k]!=null)opts[k]=mode[k];});
+  D.esc={opts,round:1,phase:"loadout",score:{},hist:[],tacHist:{},shown:{},log:[],trk:{pid:null,n:0},boon:null};
   D.players.forEach(p=>{const b=p.board;withBoard(b,()=>setFaction(""));b.domains=startDoms();b.placed=[];b.armies=[];b.esc={};escRoundStart(p);escRefit(p);});
   const k=escAiKey();if(k){const ai=D.players[1];D.esc.aiPid=ai.id;ai.name="AI · "+ESCD.ai[k].label;escArmy(ai).label=ai.name;}
   D.view="esc";}
 function escReset(){if(!confirm("Start the campaign over?"))return;const o=escO();D.battle=null;D.esc=null;
   D.players.forEach(p=>{if(!escIsAi(p))delete p.board.esc;});escInit(o);save();render();}
+// ---- struggle track (ESCALATION_STRUGGLE): trk = {pid: whose side it is on, n: node}; boon = the loser's benefits this round
+function escTrackN(){return Math.max(2,+escO().track||((ESCD.struggle||[]).length+1));}   // nodes a side; the last one loses
+function escBoonKeys(k){return (ESCD.struggle||[]).slice(0,Math.min(k,escTrackN()-1)).map(x=>x.key);}
+function escBoonLabel(key){return ((ESCD.struggle||[]).find(x=>x.key===key)||{}).label||key;}
+function escBoon(p,key){const E=D.esc,b=E&&E.boon;return !!(b&&p&&String(b.pid)===String(p.id)&&b.r===E.round&&b.keys.includes(key));}
+function escTrackMove(win){const E=D.esc,T=E.trk=E.trk||{pid:null,n:0},lose=escFoe(win);if(!lose)return null;
+  if(!T.n||String(T.pid)===String(lose.id)){T.pid=lose.id;T.n++;}else{T.n--;if(!T.n)T.pid=null;}   // one node toward the loser
+  return lose;}
 // per-player round state: points / Holdings left this round, and a snapshot for "reset"
+function escHoldN(p){return +escO().holdN+(escBoon(p,"holding")?1:0);}
 function escRoundStart(p){const pb=escPB(p),o=escO();
-  Object.assign(pb,{r:D.esc.round,left:+o.advN,hold:+o.holdN,ready:false,lock:false,
+  Object.assign(pb,{r:D.esc.round,left:+o.advN,hold:escHoldN(p),ready:false,lock:false,
     snap:{domains:clone(p.board.domains||{}),placed:clone(p.board.placed||[])}});
   if(!pb.load)pb.load=escStartLoad();}
 function escLog(t){D.esc.log=(D.esc.log||[]).concat([{r:D.esc.round,t}]).slice(-60);}
@@ -60,16 +69,18 @@ function escKids(n){return Object.keys(ESCD.hold).filter(k=>(ESCD.hold[k].parent
 function escLeads(n){const out=[],seen=new Set([n]);let q=escKids(n);
   while(q.length){const nx=[];q.forEach(k=>{if(seen.has(k))return;seen.add(k);if((ESCD.hold[k]||{}).fx)out.push(k);else nx.push(...escKids(k));});q=nx;}
   return out;}
-function escFxHTML(n){const fx=(ESCD.hold[n]||{}).fx;return fx?'<div class="esc-fx">'+esc(fx)+'</div>':'<div class="note">no combat effect</div>';}
+// a step with no combat effect of its own: what it unlocks instead
+function escNoFx(n){const K=escKids(n);return K.length?'Unlocks '+K.join(", "):'no combat effect';}
+function escFxHTML(n){const fx=(ESCD.hold[n]||{}).fx;return fx?'<div class="esc-fx">'+esc(fx)+'</div>':'<div class="note">'+esc(escNoFx(n))+'</div>';}
 function escKidsHTML(n){const K=escKids(n);if(!K.length)return '';
   return '<div class="esc-kids"><span class="note">builds into</span>'+K.map(k=>{const fx=(ESCD.hold[k]||{}).fx,L=fx?[]:escLeads(k);
-    return '<div><b>'+esc(k)+'</b>'+(fx?': '+esc(fx):L.length?' <span class="note">(leads to '+esc(L.join(", "))+')</span>':' <span class="note">no combat effect</span>')+'</div>';}).join("")+'</div>';}
+    return '<div><b>'+esc(k)+'</b>'+(fx?': '+esc(fx):L.length?' <span class="note">(leads to '+esc(L.join(", "))+')</span>':' <span class="note">'+esc(escNoFx(k))+'</span>')+'</div>';}).join("")+'</div>';}
 function escPlace(p,n){const pb=escPB(p),b=p.board;if(!(pb.hold>0)||!escHoldOK(b,n))return false;
   b.placed.push({id:nextId(b.placed),name:n,sid:null,esc:D.esc.round});pb.hold--;return true;}
 function escAdvance(p,d){const pb=escPB(p),b=p.board,v=+((b.domains||{})[d])||0;if(!(pb.left>0)||v>=SOV)return false;
   b.domains=b.domains||{};b.domains[d]=escO().adv==="standing"?(ESC_STEPS.find(s=>s[1]>v)||[0,SOV])[1]:v+1;pb.left--;return true;}
 function escRoundReset(p){const pb=escPB(p),o=escO();if(!pb.snap)return;p.board.domains=clone(pb.snap.domains);p.board.placed=clone(pb.snap.placed);
-  pb.left=+o.advN;pb.hold=+o.holdN;pb.ready=false;}
+  pb.left=+o.advN;pb.hold=escHoldN(p);pb.ready=false;}
 
 // ---- gear: what a board may equip (the same tests the Army editor applies, locked items left out) ----
 function escU(b){return withBoard(b,()=>armyUnlocks(computeEarned(new Set(Object.keys(PC))).earned));}
@@ -77,35 +88,54 @@ function escGear(b){const u=escU(b),okT=(it,n)=>tierOK(it.tier,u.wTiers)||u.anyT
   return {u,
     retinue:Object.keys(EQ.retinues).filter(n=>u.retinues.has(n)),
     weapon:Object.keys(EQ.weapons).filter(n=>{const it=EQ.weapons[n];return okT(it,n)&&reqMet(it,u)&&weaponUnlockMet(n,u)&&lanceOnlyOK(n,u,true);}),
-    ranged:["None"].concat(u.ranged?Object.keys(EQ.ranged).filter(n=>okT(EQ.ranged[n],n)&&reqMet(EQ.ranged[n],u)):[]),
+    ranged:["None"].concat(Object.keys(EQ.ranged).filter(n=>u.rangedUnl.has(n)&&okT(EQ.ranged[n],n)&&reqMet(EQ.ranged[n],u))),
     armor:Object.keys(EQ.armors).filter(n=>n==="Cloth"||u.armors.has(n)),
-    shield:["None"].concat(u.shields?Object.keys(EQ.shields).filter(k=>k!=="null"&&tierOK(EQ.shields[k].tier,unlockedShieldTiers(u))):[])};}
+    shield:["None"].concat(u.shields?Object.keys(EQ.shields).filter(k=>k!=="null"&&tierOK(EQ.shields[k].tier,unlockedShieldTiers(u))):[]),
+    // Guige Strap: a second set beside the 1H weapon + Shield: a 2H weapon, or (Florentine) a 1H weapon to Dual Wield
+    weapon2h:["None"].concat((u.mods||[]).some(m=>m.tok==="Guige Strap")?Object.keys(EQ.weapons).filter(n=>{const it=EQ.weapons[n],t=it.tags||[];
+      return ((t.includes("2H")&&!EQ.prof2hOf[n])||((u.mods||[]).some(m=>m.tok==="Florentine")&&canDualWield(n)))&&okT(it,n)&&reqMet(it,u)&&weaponUnlockMet(n,u);}):[])};}
 function escFixLoad(b,L){const G=escGear(b),pick=(k,v,d)=>G[k].includes(v)?v:d;
   const o={retinue:pick("retinue",L.retinue,G.retinue[0]||"Levy"),weapon:pick("weapon",EQ.prof2hOf[L.weapon]||L.weapon,G.weapon[0]||"Farm Tools"),
-    ranged:pick("ranged",L.ranged||"None","None"),armor:pick("armor",L.armor,"Cloth"),shield:pick("shield",L.shield||"None","None")};
-  if(L.b2h!=null&&prof2h(o.weapon))o.b2h=!!L.b2h;fixWeaponNotes(o);return o;}
+    ranged:pick("ranged",L.ranged||"None","None"),armor:pick("armor",L.armor,"Cloth"),shield:pick("shield",L.shield||"None","None"),
+    weapon2h:pick("weapon2h",L.weapon2h||"None","None")};
+  if(L.b2h!=null&&prof2h(o.weapon))o.b2h=!!L.b2h;fixWeaponNotes(o);
+  // the second set needs a 1H weapon + Shield to sit beside; carrying it rules out a Ranged weapon
+  if(((EQ.weapons[o.weapon]||{}).tags||[]).includes("2H")||o.shield==="None")o.weapon2h="None";
+  if(o.weapon2h!=="None")o.ranged="None";
+  return o;}
 
 // ---- phases ----
-function escSeizer(){const E=D.esc,o=escO(),last=E.hist[E.hist.length-1],ps=D.players;
+function escSeizer(){const E=D.esc,last=E.hist[E.hist.length-1],ps=D.players;
   if(E.seizeR&&E.seizeR.r===E.round)return pById(E.seizeR.pid)||ps[0];
-  let p=null;if(last&&last.win!=null){const w=pById(last.win);p=o.seize==="winner"?w:o.seize==="loser"?escFoe(w):null;}
+  let p=null,why="random";
+  if(last&&last.win!=null){p=pById(last.win);why="last winner";}
+  else if(last&&last.seize!=null){p=pById(last.seize);why="no winner: keeps it";}
   if(!p)p=ps[Math.floor(Math.random()*ps.length)];
-  E.seizeR={r:E.round,pid:p.id,why:last&&last.win!=null&&o.seize!=="random"?"last "+o.seize:"random"};return p;}
+  E.seizeR={r:E.round,pid:p.id,why};return p;}
+// the Battle's terrain: the loser's pick when they hold the terrain benefit, else the centre terrain; a Hill is under the chooser's army
+function escTerrain(){const E=D.esc,b=E.boon,tl=ESCD.terrains||[],pick=b&&b.r===E.round&&b.keys.includes("terrain")&&tl.includes(b.terrain)?b.terrain:null;
+  return {tile:pick||ESCD.centre_terrain||"Open Field",pid:pick?b.pid:null};}
 function escReveal(){const E=D.esc;
   D.players.forEach(p=>{const pb=escPB(p);pb.load=escFixLoad(p.board,pb.load||escStartLoad());escRefit(p);
     E.shown[p.id]=clone(pb.load);});
   const s=escSeizer(),o=escFoe(s);D.battle=null;const B=battle();
   B.A=Object.assign(newSide(),{pid:s.id,aid:1});B.B=Object.assign(newSide(),{pid:o.id,aid:1});B.seize="A";B.seizeSet=true;B.escR=E.round;
-  E.phase="battle";escLog("Loadouts revealed · "+s.name+" Seizes the Initiative ("+E.seizeR.why+")");}
-// endBattle hook: the winner gains an Edict; armies are restored for the next round
+  const T=escTerrain();B.terrain=T.tile;B.hillX=T.tile==="Hill"&&T.pid!=null?(String(T.pid)===String(s.id)?"A":"B"):null;
+  E.phase="battle";escLog("Loadouts revealed · "+s.name+" Seizes the Initiative ("+E.seizeR.why+") · "+T.tile+(T.pid!=null?" (chosen by "+((pById(T.pid)||{}).name||"?")+")":""));}
+// endBattle hook: the struggle track moves toward the loser; armies are restored for the next round
 function escAfterBattle(win,B){const E=D.esc;if(!E||E.phase!=="battle"||B.escR!==E.round)return;
   const sd=win==="A"||win==="B"?B[win]:null,wp=sd?pById(sd.pid):null;
   E.hist.push({r:E.round,win:wp?wp.id:null,seize:B.A.pid,load:D.players.map(p=>({pid:p.id,l:clone(escPB(p).load)})),
-    left:{A:(sideArmy(B.A).a||{}).count||0,B:(sideArmy(B.B).a||{}).count||0}});
-  if(wp){E.score[wp.id]=(+E.score[wp.id]||0)+1;escLog(wp.name+" wins Battle "+E.round+" · Edict "+E.score[wp.id]+"/"+escO().toWin);}
-  else escLog("Battle "+E.round+": no winner");
+    left:{A:(sideArmy(B.A).a||{}).count||0,B:(sideArmy(B.B).a||{}).count||0},terrain:B.terrain||""});
+  const H=E.hist[E.hist.length-1],N=escTrackN();E.boon=null;
+  if(wp){E.score[wp.id]=(+E.score[wp.id]||0)+1;const lp=escTrackMove(wp),T=E.trk,onL=lp&&String(T.pid)===String(lp.id);
+    if(onL&&T.n<N){E.boon={pid:lp.id,r:E.round+1,n:T.n,keys:escBoonKeys(T.n),terrain:null};}
+    escLog(wp.name+" wins Battle "+E.round+" · struggle: "+(T.n?((pById(T.pid)||{}).name||"?")+"'s side, node "+T.n+"/"+N:"centre")+
+      (E.boon?" · "+lp.name+": "+E.boon.keys.map(escBoonLabel).join(", "):""));}
+  else escLog("Battle "+E.round+": no winner · the struggle stays");
+  H.trk=clone(E.trk);
   D.players.forEach(p=>escRefit(p));
-  if(wp&&E.score[wp.id]>=+escO().toWin){E.phase="done";E.champ=wp.id;}
+  if(wp&&E.trk.n>=N&&String(E.trk.pid)!==String(wp.id)){E.phase="done";E.champ=wp.id;}
   else{E.round++;E.phase="advance";D.players.forEach(escRoundStart);}
   D.view="esc";}
 // state machine: any client may move it on (idempotent)
@@ -121,7 +151,7 @@ function escStep(){const E=D.esc;let ch=false;
 let ESC_POOL=null;
 function escPool(){if(ESC_POOL)return ESC_POOL;const H=ESCD.holdNames||[];
   const rows=(ESCD.pool||[]).map(r=>({name:r[0],retinue:r[1],weapon:EQ.prof2hOf[r[2]]||r[2],shield:r[3]||"None",armor:r[4],ranged:r[5]||"None",
-    hold:r[6].map(i=>H[i]),wr:r[7]})).filter(r=>EQ.retinues[r.retinue]&&EQ.weapons[r.weapon]&&EQ.armors[r.armor]&&
+    hold:r[6].map(i=>H[i]),wr:r[7],weapon2h:r[8]&&EQ.weapons[r[8]]?r[8]:"None"})).filter(r=>EQ.retinues[r.retinue]&&EQ.weapons[r.weapon]&&EQ.armors[r.armor]&&
     (r.shield==="None"||EQ.shields[r.shield])&&(r.ranged==="None"||EQ.ranged[r.ranged]));
   const key=r=>ESCD.poolRated?(r.wr||0):r.hold.length;           // no tournament win rates: investment stands in
   rows.sort((a,b)=>key(a)-key(b));rows.forEach((r,i)=>{r.pct=rows.length>1?i/(rows.length-1):1;});
@@ -149,7 +179,7 @@ function escSandbox(sx,so,fn){const keepB=D.battle,keepSel=EQSEL,saved=[sx,so].m
       const L=s.load||escStartLoad();b.armies=[Object.assign({id:1,label:s.p.name,count:s.count||ESCD.army_size,fatigue:0,
         endurance:+((EQ.retinues[L.retinue]||{}).endurance)||0},clone(L))];});
     D.battle={id:"esc-eval",sk:1,round:0,dice:true,seize:"A",seizeSet:true,A:Object.assign(newSide(),{pid:sx.p.id,aid:1}),
-      B:Object.assign(newSide(),{pid:so.p.id,aid:1}),rev:null,rolls:{},log:[],start:{}};
+      B:Object.assign(newSide(),{pid:so.p.id,aid:1}),rev:null,rolls:{},log:[],start:{},terrain:ESC_EVAL_T||"",hillX:ESC_EVAL_T==="Hill"?"A":null};
     EQSEL={};ESC_MEMO=new Map();return fn();}
   finally{saved.forEach(([b,pl,dm,ar])=>{b.placed=pl;b.domains=dm;b.armies=ar;});D.battle=keepB;EQSEL=keepSel;ESC_MEMO=null;}}
 // chance a Strike from side `a` gets through side d's Parry, Save and Recover
@@ -187,9 +217,9 @@ function escArch(p){const own=[...escOwn(p.board)],P=escPool();let best=null,bs=
   if(own.length)P.forEach(r=>{const S=new Set(r.hold),inter=own.filter(n=>S.has(n)).length,j=inter/Math.max(1,new Set(own.concat(r.hold)).size);
     if(j>bs||(j===bs&&(r.wr||0)>((best||{}).wr||0))){bs=j;best=r;}});
   const pv=ESCD.pivot||{},committed=own.length>=(pv.commit_holdings||4)&&best&&own.filter(n=>best.hold.includes(n)).length/own.length>=(pv.commit_overlap||0.5);
-  return {row:committed?best:null,committed,state:committed?{p,hold:best.hold,domains:escNeedDoms(best.hold),load:{retinue:best.retinue,weapon:best.weapon,ranged:best.ranged,armor:best.armor,shield:best.shield}}
+  return {row:committed?best:null,committed,state:committed?{p,hold:best.hold,domains:escNeedDoms(best.hold),load:{retinue:best.retinue,weapon:best.weapon,weapon2h:best.weapon2h,ranged:best.ranged,armor:best.armor,shield:best.shield}}
     :{p,load:escShownLoad(p)}};}
-function escRowState(p,r){return {p,hold:r.hold,domains:escNeedDoms(r.hold),load:{retinue:r.retinue,weapon:r.weapon,ranged:r.ranged,armor:r.armor,shield:r.shield}};}
+function escRowState(p,r){return {p,hold:r.hold,domains:escNeedDoms(r.hold),load:{retinue:r.retinue,weapon:r.weapon,weapon2h:r.weapon2h,ranged:r.ranged,armor:r.armor,shield:r.shield}};}
 function escAiRetarget(ai){const cfg=escAiCfg(),m=escAiMem(),pv=ESCD.pivot||{};if(!cfg||!cfg.pivot)return;
   const dyn=cfg.pivot==="dynamic";if(!dyn&&(m.pivots||0)>=(pv.max_pivots||1))return;
   const foe=escFoe(ai),arch=escArch(foe);if(!dyn&&!arch.committed)return;
@@ -206,7 +236,7 @@ function escAiOrder(ai,names,cfg){const b=ai.board,L=names.filter(n=>!escOwn(b).
   // "unlock": the cheapest complete path (line + Standings) to each payoff Holding (one with combat text) in the set,
   // nearest payoff first (gear unlocks break ties); its line Holdings come before it
   const own=escOwn(b),set=new Set(L),dv=b.domains||{},
-    gear=n=>((ARMYSRC[n]||{}).innate||[]).some(t=>/^(tier|armor|shield|weapon|retinue):|^ranged$/.test(t))?0:1,
+    gear=n=>((ARMYSRC[n]||{}).innate||[]).some(t=>/^(tier|armor|shield|weapon|retinue|ranged):/.test(t))?0:1,
     path=(n,seen)=>{if(own.has(n)||seen.has(n))return [];seen.add(n);const h=ESCD.hold[n];if(!h)return [];
       if(h.root||h.parents.some(q=>own.has(q)))return [n];let best=null;
       h.parents.forEach(q=>{if(!ESCD.hold[q])return;const sub=path(q,new Set(seen)),len=sub.length+(set.has(q)?0:0.5);if(!best||len<best.len)best={sub,len};});
@@ -228,7 +258,14 @@ function escAiAdvance(ai){const pb=escPB(ai),cfg=escAiCfg()||{},m=escAiMem(),b=a
     if(!n){const rest=Object.keys(ESCD.hold).filter(x=>escHoldOK(b,x)&&ESCD.hold[x].combat);
       n=cfg.holdOrder==="random"?rest[Math.floor(Math.random()*rest.length)]:escAiOrder(ai,rest,cfg)[0];}
     if(!n||!escPlace(ai,n))break;}
+  if(escBoon(ai,"terrain")&&!D.esc.boon.terrain)try{escAiTerrain(ai);}catch(e){console.warn("esc terrain",e);}
   pb.ready=true;escAiNote("advance: "+DOMAINS.map(d=>d[0]+(b.domains[d]||0)).join(" ")+" · "+[...escOwn(b)].length+" Holdings");}
+let ESC_EVAL_T=null;   // terrain for escSandbox's evaluation Battle (the AI's terrain pick)
+function escAiTerrain(ai){const cfg=escAiCfg()||{},tl=ESCD.terrains||[],b=D.esc.boon;if(!tl.length)return;
+  if(cfg.tactic==="random"){b.terrain=tl[Math.floor(Math.random()*tl.length)];escAiNote("terrain → "+b.terrain+" (random)");return;}
+  const foe=escFoe(ai),me={p:ai,load:escPB(ai).load||escStartLoad()},them={p:foe,load:escShownLoad(foe)};
+  const S=tl.map(t=>{ESC_EVAL_T=t;try{return {t,v:escMatch(me,them)};}finally{ESC_EVAL_T=null;}}).sort((x,y)=>y.v-x.v);
+  b.terrain=S[0].t;escAiNote("terrain → "+b.terrain+" ("+S.map(x=>x.t+" "+x.v.toFixed(2)).join(", ")+")");}
 
 // ---- AI: loadout ----
 function escRank(kind,n){if(kind==="retinue"){const r=EQ.retinues[n]||{};return (+r.cost||0)*10-(+r.to_hit||9);}
@@ -237,7 +274,7 @@ function escBest(G,kind){return G[kind].slice().sort((a,b)=>escRank(kind,b)-escR
 function escAiLoad(ai){const cfg=escAiCfg()||{},m=escAiMem(),b=ai.board,G=escGear(b),tg=escRow(m.target);
   const has=(k,v)=>G[k].includes(v),pick=(k,v)=>v&&has(k,v)?v:null;
   const base={retinue:pick("retinue",tg&&tg.retinue)||escBest(G,"retinue"),armor:pick("armor",tg&&tg.armor)||escBest(G,"armor"),
-    weapon:pick("weapon",tg&&tg.weapon),shield:pick("shield",tg&&tg.shield),ranged:pick("ranged",tg&&tg.ranged)};
+    weapon:pick("weapon",tg&&tg.weapon),shield:pick("shield",tg&&tg.shield),ranged:pick("ranged",tg&&tg.ranged),weapon2h:pick("weapon2h",tg&&tg.weapon2h)||"None"};
   if(!base.weapon){const is2=n=>((EQ.weapons[n]||{}).tags||[]).includes("2H"),want2=tg&&is2(tg.weapon),L=G.weapon.filter(n=>!want2||is2(n));
     base.weapon=(L.length?L:G.weapon).sort((a,b)=>escRank("weapon",b)-escRank("weapon",a))[0]||"Farm Tools";}
   if(base.shield==null)base.shield=((EQ.weapons[base.weapon]||{}).tags||[]).includes("2H")?"None":escBest(G,"shield");
@@ -252,7 +289,7 @@ function escAiLoad(ai){const cfg=escAiCfg()||{},m=escAiMem(),b=ai.board,G=escGea
       const c2=sideCalc("A"),oc2=sideCalc("B");return c&&oc&&c2&&oc2?escPay("A",c2,oc2):-9;})})).sort((a,b)=>b.q-a.q).slice(0,K);
     const full=quick.map(o=>({x:o.x,v:escMatch({p:ai,load:o.x},fs)})).sort((a,b)=>b.v-a.v);
     if(full.length){L=full[0].x;why="counter to "+[fs.load.retinue,fs.load.weapon,fs.load.armor].join("/")+" ("+full[0].v.toFixed(2)+")";}}
-  escPB(ai).load=L;escPB(ai).lock=true;escAiNote("loadout "+[L.retinue,L.weapon,L.ranged!=="None"?L.ranged:"",L.armor,L.shield!=="None"?L.shield:""].filter(Boolean).join(", ")+" · "+why);}
+  escPB(ai).load=L;escPB(ai).lock=true;escAiNote("loadout "+[L.retinue,L.weapon+(escW2Txt(L)?" | "+escW2Txt(L):""),L.ranged!=="None"?L.ranged:"",L.armor,L.shield!=="None"?L.shield:""].filter(Boolean).join(", ")+" · "+why);}
 
 // ---- AI: Battle (Tactic + equipment each Skirmish, then its own rolls) ----
 function escAiSide(){const B=battle();return ["A","B"].find(X=>B[X]&&escIsAi(pById(B[X].pid)))||null;}
@@ -273,10 +310,10 @@ function escAiBattle(){const B=battle(),X=escAiSide();if(!B.id||!X||ESC_AI_T)ret
     try{f();}catch(e){console.warn("esc ai",e);}},ms);};
   if(!(B.rev&&B.rev.sk===B.sk)){const key=B.id+":"+pickKey();if((PICKS[X]||{}).picked||B.escAiPk===key)return;
     go(()=>{if(B.escAiPk===key)return;B.escAiPk=key;const r=escAiTactic(X);escAiNote("S"+B.sk+" Tactic → "+r.t+" ("+r.why+")");pickTactic(X,r.t);});return;}
-  if(battleOutcome())return;
-  const rp=B.endRep&&B.endRep.sk===B.sk&&B.endRep.rows.find(r=>r.X===X&&r.brk&&r.brk.pending);if(rp){go(()=>rollBreakBtn(X));return;}
+  if(battleOutcome()&&!battleOwed())return;   // decided: the AI still rolls anything it owes first
+  const rp=B.endRep&&B.endRep.sk===B.sk&&B.endRep.rows.find(r=>r.X===X&&brkPending(r));if(rp){go(()=>rollBreakBtn(X));return;}
   const fl=bFlow();if(!fl)return;const k=fl.can[X],c=sideCalc(X);
-  const st=(B.strk||{})[X],act=k.strike?()=>roll(X,"Strike"):k.cleave?()=>roll(X,"Cleave"):k.dual&&c.dualW&&st&&st.sk===B.sk&&st.miss?()=>roll(X,"DualWield"):
+  const st=(B.strk||{})[X],act=k.strike?()=>roll(X,"Strike"):k.cleave?()=>roll(X,"Cleave"):
     k.parry?()=>roll(X,"Parry"):k.save?()=>roll(X,"Save"):k.recover?()=>roll(X,"Recover"):
     k.rip?()=>{if(c.canParry)roll(X,"RipParry");roll(X,"RipSave");}:k.apply?()=>{applyCas(X,pendCas(X));save();render();}:
     k.panic?()=>roll(X,"Morale"):k.brk?()=>roll(X,"Break"):null;
@@ -292,9 +329,10 @@ function escAfterRender(){if(ESC_BUSY||!escOn())return;ESC_BUSY=true;
   catch(e){console.warn("escalation",e);}ESC_BUSY=false;}
 
 // ---- view ----
-function escLoadTxt(L){return L?[L.retinue,(L.weapon||"")+(L.b2h&&prof2h(L.weapon)?" (2H)":""),L.ranged&&L.ranged!=="None"?L.ranged:"",L.armor,L.shield&&L.shield!=="None"?L.shield:""].filter(Boolean).map(esc).join(" · "):"—";}
-function escTok(t){const m=/^(tier|armor|shield|weapon|retinue|anytier):(.+)$/.exec(t);if(!m)return t==="ranged"?"Ranged weapons":t;
-  return m[1]==="tier"?m[2]+" weapons":m[1]==="armor"?m[2]+" armor":m[1]==="shield"?m[2]+" shields":m[1]==="retinue"?m[2]:m[1]==="weapon"?m[2]:"";}
+function escW2Txt(L){const n=L&&L.weapon2h;return n&&n!=="None"?(((EQ.weapons[n]||{}).tags||[]).includes("2H")?n:"2× "+n):"";}
+function escLoadTxt(L){return L?[L.retinue,(L.weapon||"")+(L.b2h&&prof2h(L.weapon)?" (2H)":"")+(escW2Txt(L)?" | "+escW2Txt(L):""),L.ranged&&L.ranged!=="None"?L.ranged:"",L.armor,L.shield&&L.shield!=="None"?L.shield:""].filter(Boolean).map(esc).join(" · "):"—";}
+function escTok(t){const m=/^(tier|armor|shield|weapon|retinue|anytier|ranged):(.+)$/.exec(t);if(!m)return t;
+  return m[1]==="tier"?m[2]+" weapons":m[1]==="armor"?m[2]+" armor":m[1]==="shield"?m[2]+" shields":m[1]==="retinue"?m[2]:m[1]==="weapon"||m[1]==="ranged"?m[2]:"";}
 function escSideHTML(p,me){const b=p.board,u=escU(b),pb=escPB(p),foeView=!sameP(p,me),E=D.esc;
   const stand=DOMAINS.map(d=>{const v=+((b.domains||{})[d])||0;return '<span class="kw" title="'+esc(d+" "+v)+'">'+esc(d)+' '+v+' <span style="opacity:.6">'+esc(domBand(v))+'</span></span>';}).join(" ");
   const fx=standingFxOf(b.domains||{}).map(f=>'<span class="kw mod" title="'+esc(f.t+" "+f.d)+'">'+esc(f.text)+'</span>').join(" ");
@@ -303,10 +341,10 @@ function escSideHTML(p,me){const b=p.board,u=escU(b),pb=escPB(p),foeView=!sameP(
   const mods=u.mods.map(m=>'<span class="kw mod" data-tok="'+esc(m.tok)+'" title="'+esc(gloss(m.tok))+'">'+esc(m.tok)+' <span style="opacity:.6">('+esc(m.node)+')</span></span>').join(" ");
   const row=(k,v)=>'<div class="kv"><span class="k">'+k+'</span><span class="val" style="text-align:right">'+(v||'<span class="note">none</span>')+'</span></div>';
   return '<div class="tot esc-side"><h3 style="font-size:14px">'+esc(p.name)+(escIsAi(p)?' <span class="badge tier">AI</span>':'')+
-    ' <span class="badge earn">Edicts '+(+E.score[p.id]||0)+'/'+escO().toWin+'</span></h3>'+
+    (E.trk&&E.trk.n&&String(E.trk.pid)===String(p.id)?' <span class="badge earn">struggle on their side: node '+E.trk.n+'/'+escTrackN()+'</span>':'')+'</h3>'+
     row("Standings",stand)+row("Battle effects",fx)+row("Holdings",hold)+
     row("Retinues",esc([...u.retinues].join(", ")))+row("Weapon tiers",esc(wt))+row("Armor",esc([...u.armors].join(", ")))+
-    row("Shields",u.shields?esc([...unlockedShieldTiers(u)].join(", ")):"")+row("Ranged",u.ranged?"yes":"")+
+    row("Shields",u.shields?esc([...unlockedShieldTiers(u)].join(", ")):"")+row("Ranged",esc([...u.rangedUnl].join(", ")))+
     row("Modifiers",mods)+row(foeView?"Last revealed":"Loadout",foeView?escLoadTxt(E.shown[p.id]):escLoadTxt(pb.load))+'</div>';}
 function escAdvHTML(p){const pb=escPB(p),b=p.board,o=escO(),mineP=!escIsAi(p);
   if(pb.ready)return '<div class="note">Ready. Waiting for '+esc((escFoe(p)||{}).name||"opponent")+'.</div><button data-esc="unready">change</button>';
@@ -329,20 +367,47 @@ function escAdvHTML(p){const pb=escPB(p),b=p.board,o=escO(),mineP=!escIsAi(p);
   return h;}
 function escLoadHTML(p){const pb=escPB(p),G=escGear(p.board),L=escFixLoad(p.board,pb.load||escStartLoad());pb.load=L;
   if(pb.lock)return '<div class="note">Loadout locked: '+escLoadTxt(L)+'. Waiting for '+esc((escFoe(p)||{}).name||"opponent")+'.</div><button data-esc="unlock">change</button>';
-  const sel=(k,lab)=>'<label class="fld"><span class="note">'+lab+'</span><select data-esc-l="'+k+'">'+G[k].map(n=>{const it=k==="retinue"?null:(k==="shield"?EQ.shields[n]:EQ[k==="weapon"?"weapons":k==="ranged"?"ranged":"armors"][n]);
-    return '<option value="'+esc(n)+'"'+(L[k]===n?' selected':'')+'>'+esc(n)+(it&&it.tier?' ['+esc(it.tier_label||it.tier)+']':'')+'</option>';}).join("")+'</select></label>';
+  const sel=(k,lab,off)=>'<label class="fld"><span class="note">'+lab+'</span><select data-esc-l="'+k+'"'+(off?' disabled':'')+'>'+G[k].map(n=>{const it=k==="retinue"?null:(k==="shield"?EQ.shields[n]:EQ[k==="weapon"||k==="weapon2h"?"weapons":k==="ranged"?"ranged":"armors"][n]);
+    const pair=k==="weapon2h"&&it&&!(it.tags||[]).includes("2H");   // Florentine pair
+    return '<option value="'+esc(n)+'"'+(L[k]===n?' selected':'')+'>'+esc(n)+(pair?' ×2 (Florentine)':'')+(it&&it.tier?' ['+esc(it.tier_label||it.tier)+']':'')+'</option>';}).join("")+'</select></label>';
+  const no2=((EQ.weapons[L.weapon]||{}).tags||[]).includes("2H")||L.shield==="None";   // Guige Strap's second set sits beside a 1H weapon + Shield
+  // Secondary: a Ranged weapon, or (Guige Strap, beside a 1H weapon + Shield) a 2H weapon or a Florentine 1H pair
+  const tl=it=>it&&it.tier?' ['+esc(it.tier_label||it.tier)+']':'',cur=secondaryValue(L),opt=(v,t)=>'<option value="'+esc(v)+'"'+(cur===v?' selected':'')+'>'+t+'</option>',
+    rg=G.ranged.filter(n=>n!=="None"),w2=no2?[]:G.weapon2h.filter(n=>n!=="None"),two=n=>((EQ.weapons[n]||{}).tags||[]).includes("2H"),
+    grp=(lab,L2,f)=>L2.length?'<optgroup label="'+esc(lab)+'">'+L2.map(f).join("")+'</optgroup>':'';
+  const sec='<label class="fld"><span class="note">Secondary</span><select data-esc-l="secondary">'+opt("None","None")+
+    grp("Ranged",rg,n=>opt("r:"+n,esc(n)+tl(EQ.ranged[n])))+grp("2H Weapon (Guige Strap)",w2.filter(two),n=>opt("w:"+n,esc(n)+tl(EQ.weapons[n])))+
+    grp("Florentine pair (Guige Strap)",w2.filter(n=>!two(n)),n=>opt("w:"+n,esc(n)+' ×2'+tl(EQ.weapons[n])))+'</select></label>';
   const w=EQ.weapons[L.weapon]||{},ar=EQ.armors[L.armor]||{},rt=EQ.retinues[L.retinue]||{},sh=EQ.shields[L.shield==="None"?"null":L.shield]||{};
-  return '<div class="esc-load">'+sel("retinue","Retinue")+sel("weapon","Weapon")+
+  return '<div class="esc-load">'+sel("retinue","Retinue")+sel("weapon","Main")+
     (prof2h(L.weapon)?'<label class="fld"><span class="note">Grip</span><select data-esc-l="b2h"><option value="0"'+(L.b2h?'':' selected')+'>1H</option><option value="1"'+(L.b2h?' selected':'')+'>2H</option></select></label>':'')+
-    sel("ranged","Ranged")+sel("armor","Armor")+sel("shield","Shield")+'</div>'+
+    sec+sel("armor","Armor")+sel("shield","Shield")+'</div>'+
+    (G.weapon2h.length>1&&no2?'<div class="note">Guige Strap: pick a 1H Main weapon and a Shield to carry a 2H weapon or pair as Secondary.</div>':'')+
     '<div class="note">to Strike '+(rt.to_hit||"?")+'+ · Morale '+(rt.shaking||"?")+'+ · Endurance '+(rt.endurance||"?")+' · AP '+(w.ap||0)+' · Init '+((w.init||0)+(sh.init||0))+
     ' · Save '+(ar.save||"?")+'+'+(sh.save_bonus?' (shield +'+sh.save_bonus+')':'')+((w.tags||[]).length?' · '+esc(w.tags.join(", ")):'')+'</div>'+
     '<div class="esc-row"><button class="go" data-esc="lock">Lock loadout ▸</button></div>';}
+// the struggle track: players[0]'s losing node on the left, players[1]'s on the right, the tracker where it stands
+function escTrackHTML(){const E=D.esc,ps=D.players,N=escTrackN(),T=E.trk||{pid:null,n:0};if(ps.length<2)return "";
+  const pos=!T.n?0:(String(T.pid)===String(ps[0].id)?-T.n:T.n),col=i=>i<0?ps[0].color:i>0?ps[1].color:"var(--dim)";
+  const tip=i=>{const k=Math.abs(i),who=i<0?ps[0]:ps[1];if(!k)return "centre";if(k>=N)return who.name+" loses the campaign";
+    return who.name+"'s side, node "+k+": "+escBoonKeys(k).map(escBoonLabel).join(", ");};
+  let h='';for(let i=-N;i<=N;i++)h+='<span class="esc-node'+(i===pos?' on':'')+(Math.abs(i)===N?' end':'')+'" style="--pc:'+esc(col(i))+'" title="'+esc(tip(i))+'">'+(Math.abs(i)===N?'✝':i?Math.abs(i):'·')+'</span>';
+  return '<div class="esc-trackrow"><b style="color:'+esc(ps[0].color)+'">'+esc(ps[0].name)+'</b><div class="esc-track">'+h+'</div><b style="color:'+esc(ps[1].color)+'">'+esc(ps[1].name)+'</b></div>';}
+// this round's benefits (the loser's), with the terrain pick for its holder
+function escBoonHTML(me){const E=D.esc,b=E.boon;if(!b||b.r!==E.round||E.phase==="done")return "";const p=pById(b.pid);if(!p)return "";
+  const mine=me&&String(me.id)===String(p.id)&&!escIsAi(p),open=E.phase==="advance"||E.phase==="loadout",tl=ESCD.terrains||[];
+  let h='<div class="tot esc-boon" style="border-color:'+esc(p.color||"var(--line2)")+'"><b>'+esc(p.name)+'</b> · struggle node '+b.n+': '+b.keys.map(k=>esc(escBoonLabel(k))).join(" · ");
+  if(b.keys.includes("terrain")){const cur=tl.includes(b.terrain)?b.terrain:"",TT=TREF.tactical||{};
+    if(mine&&open)h+='<div class="esc-row"><label class="fld"><span class="note">Terrain for Battle '+E.round+'</span><select data-esc-t="1">'+
+      tl.map(t=>'<option value="'+esc(t)+'"'+((cur||ESCD.centre_terrain)===t?' selected':'')+'>'+esc(t)+'</option>').join("")+'</select></label>'+
+      (cur&&TT[cur]?'<span class="note">'+esc(TT[cur].effect||"")+(cur==="Hill"?' (your army)':'')+'</span>':'')+'</div>';
+    else h+='<div class="note">Terrain: '+esc(cur||(E.phase==="battle"?(battle().terrain||""):"not chosen yet"))+'</div>';}
+  return h+'</div>';}
 function escPaneHTML(){const E=D.esc,o=escO(),me=escMe(),foe=escFoe(me),ps=D.players;
   const ph={advance:"Advance",loadout:"Loadouts",battle:"Battle",done:"Campaign over"}[E.phase]||E.phase;
   let h='<div class="bm-card esc"><div class="esc-top"><h2>Escalation</h2><span class="badge tier">Round '+E.round+'</span><span class="badge earn">'+esc(ph)+'</span>'+
-    ps.map(p=>'<span class="esc-score" style="border-color:'+esc(p.color||"var(--line2)")+'">'+esc(p.name)+' <b>'+(+E.score[p.id]||0)+'</b>/'+o.toWin+'</span>').join("")+
-    '<span class="note">'+esc((o.adv==="standing"?o.advN+" Standing":o.advN+" Domain Point")+(+o.advN>1?"s":"")+" · "+o.holdN+" Holding"+(+o.holdN>1?"s":"")+" per round · Seize: "+o.seize)+'</span></div>';
+    '<span class="note">'+esc((o.adv==="standing"?o.advN+" Standing":o.advN+" Domain Point")+(+o.advN>1?"s":"")+" · "+o.holdN+" Holding"+(+o.holdN>1?"s":"")+" per round · the last winner Seizes")+'</span></div>'+
+    escTrackHTML()+escBoonHTML(me);
   if(!me){return h+'<div class="note">Pick your seat in the top bar.</div></div>';}
   h+='<div class="tot esc-phase">';
   if(E.phase==="done"){const w=pById(E.champ);h+='<div class="bcmd-t">'+esc(w?w.name:"?")+' wins the campaign</div><button data-esc="again">Play again</button>';}
@@ -370,15 +435,23 @@ function escWire(host){
     else if(k==="tobattle")D.view="battle";
     else if(k==="again"||k==="restart"){escReset();return;}
     save();render();});
+  host.querySelectorAll("[data-esc-t]").forEach(s=>s.onchange=()=>{const me=escMe(),b=D.esc.boon;if(!me||!b||String(b.pid)!==String(me.id))return;
+    b.terrain=s.value||null;escLog(me.name+" picks the terrain: "+(b.terrain||ESCD.centre_terrain||"Open Field"));save();render();});
   host.querySelectorAll("[data-esc-l]").forEach(s=>s.onchange=()=>{const me=escMe();if(!me)return;const pb=escPB(me),k=s.dataset.escL;
-    pb.load=Object.assign({},pb.load,k==="b2h"?{b2h:s.value==="1"}:{[k]:s.value});pb.load=escFixLoad(me.board,pb.load);save();render();});
+    pb.load=Object.assign({},pb.load,k==="b2h"?{b2h:s.value==="1"}:k==="secondary"?{}:{[k]:s.value});if(k==="secondary")setSecondary(pb.load,s.value);
+    pb.load=escFixLoad(me.board,pb.load);save();render();});
   wireDashExtras(host);}
 function escSeizeHTML(){const E=D.esc,B=battle(),f=seizeForced(),s=f?f:"A",ready=!!(sideCalc("A")&&sideCalc("B"));
   return '<div class="bcmd bseizebox"><div class="bcmd-t">Battle '+E.round+'</div><div>'+esc(sideNm(s))+' Seizes the Initiative'+(f?' (Ministry)':' ('+esc((E.seizeR||{}).why||"")+')')+'</div>'+
     '<button id="bStartGo" class="bstart'+(ready?' go':'')+'"'+(ready?'':' disabled')+'>Start battle</button></div>';}
 function escReferenceHTML(){return '<div style="padding:14px"><h2 style="margin-bottom:8px">Combat reference</h2><div id="refStanding">'+standingEffectsHTML()+'</div><div id="refBattle">'+battleRulesHTML()+'</div>'+escHoldRefHTML()+escArmoryHTML()+'</div>';}
+// Combat Holdings as the Pursuit tree's flow charts (one per root), cut to the combat Holdings and the steps toward them;
+// each box shows its unlock and its combat effect. The table stays below as a list.
 function escHoldRefHTML(){const AL=DATA.aliases||{},dn=n=>AL[n]||n,H=Object.keys(ESCD.hold).sort((a,b)=>dn(a).localeCompare(dn(b)));   // order by the name players read
-  return '<details class="tot" open><summary><b>Combat Holdings</b></summary><div style="overflow-x:auto"><table class="dtable esc-reft" style="font-size:12px"><thead><tr><th></th><th>Needs</th><th>Combat effect</th><th>Builds into</th></tr></thead><tbody>'+
+  const tree=DATA.tree?treeHTML({only:new Set(H),need:n=>!!(ESCD.hold[n]||{}).fx,body:n=>{const fx=(ESCD.hold[n]||{}).fx;return fx?kwify(fx,n):'<span class="note">'+esc(escNoFx(n))+'</span>';}}):'';
+  return (tree?'<details id="refTree" class="tot" open><summary><b>Combat Holdings</b> <span class="note">one chart per root Holding · arrows = builds into</span></summary>'+
+      '<div class="tb-row" style="margin:6px 0"><button data-tree="open">expand all</button><button data-tree="close">collapse all</button></div>'+tree+'</details>':'')+
+    '<details class="tot"'+(tree?'':' open')+'><summary><b>Combat Holdings</b> <span class="note">as a list</span></summary><div style="overflow-x:auto"><table class="dtable esc-reft" style="font-size:12px"><thead><tr><th></th><th>Needs</th><th>Combat effect</th><th>Builds into</th></tr></thead><tbody>'+
     H.map(n=>{const h=ESCD.hold[n],nd=escNeeds(n);
       return '<tr><td><b>'+esc(n)+'</b>'+(h.monument?' <span class="badge tier">Monument</span>':'')+'</td><td>'+esc(nd.join(" · ")||"—")+'</td><td>'+escFxHTML(n)+'</td><td>'+(escKidsHTML(n)||'<span class="note">—</span>')+'</td></tr>';}).join("")+
     '</tbody></table></div></details>';}

@@ -34,7 +34,7 @@ API (JSON):
     POST   /api/games/<id>/archive {archived,pin} -> {ok}   (needs that game's Duke PIN when it has one)
     GET    /g/<id>/                            -> the board for game <id>
     GET    /g/<id>/api/game                    -> {id,name,seats,mode}
-    (POST /api/games also takes mode: {type:"escalation", adv, advN, holdN, seize, toWin, ai} — see clean_mode)
+    (POST /api/games also takes mode: {type:"escalation", adv, advN, holdN, track, ai} — see clean_mode)
   Game routes (prefix /g/<id>, or none for the main game):
     GET    /api/state[?since=N]                -> {rev, keys:[...], parts:{key:{data,version}}}
     PUT    /api/part/<key>      {data, base}   -> {version, rev} | 409 {data, version}
@@ -216,8 +216,8 @@ def clean_mode(m):
             return d
     return json.dumps({"type": "escalation",
                        "adv": "standing" if m.get("adv") == "standing" else "dp",
-                       "advN": num("advN", 1, 5, 1), "holdN": num("holdN", 1, 5, 2), "toWin": num("toWin", 1, 15, 5),
-                       "seize": m.get("seize") if m.get("seize") in ("winner", "loser", "random") else "winner",
+                       "advN": num("advN", 1, 5, 1), "holdN": num("holdN", 1, 5, 2),
+                       "track": num("track", 2, 8, 4),   # struggle track: nodes a side (the last one loses)
                        "ai": m.get("ai") if m.get("ai") in ESC_AI else ""})
 
 def mode_of(r):

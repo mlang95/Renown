@@ -79,6 +79,8 @@ let EQSEL={};                                   // this device's pending choice 
 function hasArmyTok(p,tok){return !!p&&withBoard(p.board,()=>!!armyTokHolder(tok));}
 // Guige Strap (Buckler School): a 2H weapon carried beside the 1H weapon + Shield (a.weapon2h), Equipped instead of them
 function g2h(a){return a&&a.weapon2h&&a.weapon2h!=="None"&&EQ.weapons[a.weapon2h]?a.weapon2h:"";}
+// ...with Florentine that second set may be two of a 1H weapon, Dual Wielded (it counts as the 2H weapon)
+function g2hPair(a){const n=g2h(a);return !!n&&!((EQ.weapons[n].tags||[]).includes("2H"));}
 function eqWName(a,e){return e.mode==="ranged"?a.ranged:e.mode==="2h"&&g2h(a)?a.weapon2h:(a.weapon||"");}
 function eqOptions(X){const B=battle(),{p,a}=sideArmy(B[X]);if(!a)return {opts:["melee"],bastard:false};fixBastard(a);
   const r=(a.ranged&&a.ranged!=="None")?EQ.ranged[a.ranged]:null,real=!!a.weapon&&a.weapon!=="Farm Tools",
@@ -102,7 +104,8 @@ function eqNow(X){const B=battle(),rv=B.rev&&B.rev.sk===B.sk?B.rev:null,o=eqOpti
 function dualOn(a,e){return !!e&&e.mode==="dual"&&canDualWield(a.weapon);}
 function eqWeapon(a,e,shDest){if(!a)return {ap:0};const r=(a.ranged&&a.ranged!=="None")?EQ.ranged[a.ranged]:null,w=EQ.weapons[a.weapon]||{};
   if(e.mode==="ranged"&&r)return r;
-  if(e.mode==="2h"&&g2h(a))return EQ.weapons[a.weapon2h];                              // Guige Strap: the 2H weapon
+  if(e.mode==="2h"&&g2h(a)){const w2=EQ.weapons[a.weapon2h];                         // Guige Strap: the 2H weapon (or Florentine pair)
+    return g2hPair(a)?Object.assign({},w2,{tags:[].concat(w2.tags||[],["2H","Dual Wield"])}):w2;}
   if(dualOn(a,e))return Object.assign({},w,{tags:[].concat(w.tags||[],["2H","Dual Wield"])});   // two of the same melee weapon: Dual Wield confers 2H
   if(prof2h(a.weapon)&&(e.b2h||shDest))return prof2h(a.weapon);                       // 2H profile (also forced once the shield is gone)
   return w;}
@@ -152,14 +155,16 @@ function sideCalc(X){
         tm=tm0;                                                              // Shield Wall (Pavisiers' Yard): incoming AP -1 in Defensive Formation
   const forced=seizeForced(),seize=B.sk===1&&(forced?forced===X:B.seize===X)?1:0,   // Ministry: always Seizes, its opponent never
         hillI=onHill(X)?1:0;                                                            // Hill: +1 Initiative every Skirmish (TACTICAL_TERRAIN)
+  // Mire (Wetlands): gain Unwieldy and Immune Steady, -1 to Save · Tundra: gain Strained (TACTICAL_TERRAIN)
+  const tTile=sideTile(X),mire=!!tTile&&tTile.t==="wetland",tundra=!!tTile&&tTile.t==="tundra",mireS=mire?1:0;
   // Unwieldy: Initiative can't be improved by Tactics (clamp a positive Tactic I to 0) unless Immune Unwieldy.
   // tmEff = the Tactic modifiers that actually apply (display); tmBlk = what was blocked and why.
   // Steady: a negative Tactic I is clamped to 0. Same rule as Combatv4/batch_engine.py.
   const eqInfo=eqOptions(X),dualCarry=eqInfo.dual;                            // carrying both (no longer gives Unwieldy)
   const hasM=tok=>u.mods.some(m=>m.tok===tok);
-  const eqTags=[].concat(wpn.tags||[],ar.tags||[],sh.tags||[],rt.tags||[],hasM("Always Unwieldy")?["Unwieldy"]:[],hasM("Steady")?["Steady"]:[],
+  const eqTags=[].concat(wpn.tags||[],ar.tags||[],sh.tags||[],rt.tags||[],hasM("Always Unwieldy")||mire?["Unwieldy"]:[],hasM("Steady")?["Steady"]:[],
         (ar.tags||[]).includes("Articulated")?["Immune Strained"]:[]);   // Articulated = Fluted + Immune Strained
-  const unw=eqTags.includes("Unwieldy")&&(hasM("No Immune Unwieldy")||!hasM("Immune Unwieldy")),stdy=eqTags.includes("Steady");
+  const unw=eqTags.includes("Unwieldy")&&(hasM("No Immune Unwieldy")||!hasM("Immune Unwieldy")),stdy=eqTags.includes("Steady")&&!mire;   // Mire: Immune Steady
   let tmI=tm.I||0,tmNote="";
   if(unw&&tmI>0){tmNote="Unwieldy: ignores the Tactic's +"+tmI+" Initiative";tmI=0;}
   if(stdy&&tmI<0){tmNote="Steady: ignores the Tactic's −"+(-tmI)+" Initiative";tmI=0;}
@@ -169,7 +174,7 @@ function sideCalc(X){
   const sFx=standingFxOf(sideDomains(sd,p)),immBlunder=sFx.some(f=>/Immune Blunder/i.test(f.text)),stImmPanic=sFx.some(f=>/Immune Panic/i.test(f.text));
   const oFx=standingFxOf(sideDomains(o,sideArmy(o).p)),oStrain=oFx.find(f=>/Opponent gains Strained/i.test(f.text)),
         oBlunder=(B.sk||1)===1?oFx.find(f=>/Opponent gains Blunder in the first Skirmish/i.test(f.text)):null;
-  const strainI=((effStrained(p,a)||(oStrain&&!immuneStrainIn(p,a)))&&!mt.has("Immune Strained"))?-1:0;   // Strained: −1 Init unless Immune Strained (or inside a controlled Settlement: Granary)
+  const strainI=((effStrained(p,a)||tundra||(oStrain&&!immuneStrainIn(p,a)))&&!mt.has("Immune Strained"))?-1:0;   // Strained: −1 Init unless Immune Strained (or inside a controlled Settlement: Granary)
   const maxI=mt.has("MaxInit3")?INIT_MAX+1:INIT_MAX;   // Ministry of Military Strategy only: ceiling +1
   const rawI=(wpn.init||0)+(sh.init||0)+initPlus+tmI+seize+hillI+strainI+sd.adj.I;
   // INIT_CAP_FIRST: bonuses are capped at the maximum, then penalties apply · INIT_FLOOR off: no lower limit (Blunder at INIT_MIN or lower)
@@ -182,7 +187,7 @@ function sideCalc(X){
   u.mods.filter(m=>m.tok==="Init +1").forEach(m=>initParts.push([m.node||"Init +1",1]));
   if(tm.I)initParts.push(["Tactic",tmNote?tm.I:tmI,tmNote?"ignored ("+tmNote.split(":")[0]+")":""]);
   if(seize)initParts.push(["Seize",seize]);if(hillI)initParts.push(["Hill",hillI]);
-  if(strainI)initParts.push(["Strained"+(a.strained?"":siegeStrains(p,a)?" (Besieged)":oStrain?" (enemy "+oStrain.t+" "+oStrain.d+")":""),strainI]);
+  if(strainI)initParts.push(["Strained"+(a.strained?"":tundra?" (Tundra)":siegeStrains(p,a)?" (Besieged)":oStrain?" (enemy "+oStrain.t+" "+oStrain.d+")":""),strainI]);
   if(sd.adj.I)initParts.push(["Duke adjust",sd.adj.I]);
   // to-Strike (same order as Combatv4): base − improving, capped at CAP; Blunder clamps to CAP (Fatigue tokens only worsen Morale);
   // then worsening mods (enemy Shielded, own shield Ponderous, negative Tactic TH) apply, and the result is capped at CAP+ (never an auto-fail).
@@ -211,14 +216,14 @@ function sideCalc(X){
         eApModM=apMod(eUap,false,sk1AP,eo?eqWName(eo,{mode:eqO.mode==="ranged"?"melee":eqO.mode}):""),apOwn=apMod(u,eqX.mode==="ranged",sk1AP,eqWName(a,eqX));                     // "AP -N" (Finery: Weapons gain -1AP): more negative = more AP
   // Fluted (armor): incoming AP reduced by 1 toward 0 (Ranged and Riposte too), applied after Deadly; AP 0 unaffected.
   const flutN=((ar.tags||[]).includes("Articulated")?1:0)+(swall?1:0),flut=flutN>0,flAP=ap=>flutN?Math.min(ap+flutN,0):ap;   // Articulated (was Fluted) + Shield Wall
-  const saveNoFl=(ar.save||0)-((ewpn.ap||0)+eApMod)-(sh.save_bonus||0)-(tm.TS||0)-sd.adj.TS;
-  const saveRaw=(ar.save||0)-flAP((ewpn.ap||0)+eApMod)-(sh.save_bonus||0)-(tm.TS||0)-sd.adj.TS;
+  const saveNoFl=(ar.save||0)-((ewpn.ap||0)+eApMod)-(sh.save_bonus||0)-(tm.TS||0)-sd.adj.TS+mireS;
+  const saveRaw=(ar.save||0)-flAP((ewpn.ap||0)+eApMod)-(sh.save_bonus||0)-(tm.TS||0)-sd.adj.TS+mireS;
   const save=planOn?Math.min(saveRaw,CAP):Math.min(saveRaw,FACES_+1);   // FACES+1 = auto-fail
   // Deadly: "set" (Version D) = the Strike HAS AP −DAP (Fluted −1 of it), no Recover; "additional" = +DAP on top of the weapon
   const dSet=BT.deadlyMode==="set";
-  const deadlyRaw=Math.min(dSet?(ar.save||0)+DAP-flutN-(sh.save_bonus||0)-(tm.TS||0)-sd.adj.TS:saveNoFl+DAP-flutN,FACES_+1),deadlySave=planOn?Math.min(deadlyRaw,CAP):deadlyRaw;
+  const deadlyRaw=Math.min(dSet?(ar.save||0)+DAP-flutN-(sh.save_bonus||0)-(tm.TS||0)-sd.adj.TS+mireS:saveNoFl+DAP-flutN,FACES_+1),deadlySave=planOn?Math.min(deadlyRaw,CAP):deadlyRaw;
   const saveVs=wp=>{const tg=new Set([].concat(wp.tags||[])),po=plan&&!tg.has("Negate Riveted")&&!tg.has("Negate Tempered"),
-    raw=(ar.save||0)-flAP((wp.ap||0)+eApModM)-(sh.save_bonus||0)-(tm.TS||0)-sd.adj.TS;return po?Math.min(raw,CAP):Math.min(raw,FACES_+1);};
+    raw=(ar.save||0)-flAP((wp.ap||0)+eApModM)-(sh.save_bonus||0)-(tm.TS||0)-sd.adj.TS+mireS;return po?Math.min(raw,CAP):Math.min(raw,FACES_+1);};
   const saveMelee=saveVs(ewm);                                  // vs a Riposte (always the riposting side's melee weapon)
   // own strike profile (Focused procs)
   const critN=[...mt].map(t=>(t.match(/^Crit (\d+)$/)||[])[1]).filter(Boolean).map(Number);
@@ -240,7 +245,8 @@ function sideCalc(X){
   if(hasM("Always Unwieldy"))trig.push("Faction: always Unwieldy"+(hasM("No Immune Unwieldy")?", can't gain Immune Unwieldy":""));
   if(immBlunder&&(I<=INIT_MIN||oBlunder))trig.push("Immune Blunder (Standing): no Blunder");
   if(blunder)trig.push("Blunder: to-Strike "+CAP+"+ before penalties"+(oBlunder&&I>INIT_MIN?" (enemy "+oBlunder.t+" "+oBlunder.d+", first Skirmish)":""));
-  if(a.strained||siegeStrains(p,a)||oStrain)trig.push(strainI?"Strained −1 Init"+(a.strained?"":siegeStrains(p,a)?" (Besieged)":" (enemy "+oStrain.t+" "+oStrain.d+")"):"Immune Strained: no Init loss");
+  if(mire)trig.push("Mire: Unwieldy, Immune Steady, −1 to Save");
+  if(a.strained||tundra||siegeStrains(p,a)||oStrain)trig.push(strainI?"Strained −1 Init"+(a.strained?"":tundra?" (Tundra)":siegeStrains(p,a)?" (Besieged)":" (enemy "+oStrain.t+" "+oStrain.d+")"):"Immune Strained: no Init loss");
   {const ms=moraleStanding(a);if(ms)trig.push(ms.src+" Morale +"+ms.n+": Morale value −"+ms.n+" (steadier)");}
   {const mp=moralePO(a);if(mp)trig.push(mp.src+" (Public Order) Morale −"+mp.n+": Morale value +"+mp.n);}
   if(maxI>INIT_MAX)trig.push("Init ceiling +"+maxI);
@@ -297,9 +303,9 @@ function sideCalc(X){
   if(pre+worsen-sd.adj.TH>CAP)strikeParts.push(["no worse than "+CAP+"+",0]);
   const eAP=(ewpn.ap||0)+eApMod,saveParts=[[(a.armor||"Cloth")+" base",ar.save||0]];
   if(eAP)saveParts.push(["their "+(eWName||"weapon")+" (AP "+String(eAP).replace("-","−")+")",-eAP]);if(flut&&eAP<0)saveParts.push([(a.armor||"armor")+" (Articulated)",-1]);if(sh.save_bonus)saveParts.push([a.shield,-sh.save_bonus]);
-  if(tm.TS)saveParts.push(["Tactic",-tm.TS]);if(sd.adj.TS)saveParts.push(["Duke adjust",-sd.adj.TS]);
+  if(tm.TS)saveParts.push(["Tactic",-tm.TS]);if(mireS)saveParts.push(["Mire",mireS]);if(sd.adj.TS)saveParts.push(["Duke adjust",-sd.adj.TS]);
   if(planOn&&saveRaw>CAP)saveParts.push(["Riveted: no worse than "+CAP+"+",0]);
-  return {dualW,ripP,immunePanic:mt.has("Immune Panic")||stImmPanic,eqX,shOff,enduring,canParry,parryThr,parryThrMelee,riposte,riposteMelee,saveMelee,poisoned,poisonedMelee,recThr,serrN,p,a,rt,I,rawI,tmNote,initParts,strainI,strainBy:a.strained?"":siegeStrains(p,a)?"Besieged":oStrain&&!immuneStrainIn(p,a)?"enemy "+oStrain.t+" "+oStrain.d:"",tmEff:Object.assign({},tm,{I:tmI,TH:mt.has("Immune Tactic TH")&&tacTH<0?0:tacTH}),tmBlk:[tmNote,mt.has("Immune Tactic TH")&&tacTH<0?"Immune Tactic TH: Tactic "+tacTH+" ignored":""].filter(Boolean),blunder,toStrike,save,saveRaw,deadlySave,planOn,critFloor,hasDeadly,hasCleave,hasDestroy,shDest,trig,apOwn,morale,front,field,reserve:Math.max(0,field-front),camp:Math.max(0,(a.count||0)-field),skCas,tags,tm,seize,cell:!!cell,outrider:(u.outEvery||(u.outFirst&&B.sk===1)),outEvery:u.outEvery,
+  return {dualW,ripP,immunePanic:mt.has("Immune Panic")||stImmPanic||(typeof escOn==="function"&&escOn()&&escBoon(p,"immune_panic")),eqX,shOff,enduring,canParry,parryThr,parryThrMelee,riposte,riposteMelee,saveMelee,poisoned,poisonedMelee,recThr,serrN,p,a,rt,I,rawI,tmNote,initParts,strainI,strainBy:a.strained?"":tundra?"Tundra":siegeStrains(p,a)?"Besieged":oStrain&&!immuneStrainIn(p,a)?"enemy "+oStrain.t+" "+oStrain.d:"",tmEff:Object.assign({},tm,{I:tmI,TH:mt.has("Immune Tactic TH")&&tacTH<0?0:tacTH}),tmBlk:[tmNote,mt.has("Immune Tactic TH")&&tacTH<0?"Immune Tactic TH: Tactic "+tacTH+" ignored":""].filter(Boolean),blunder,toStrike,save,saveRaw,deadlySave,planOn,critFloor,hasDeadly,hasCleave,hasDestroy,shDest,trig,apOwn,morale,front,field,reserve:Math.max(0,field-front),camp:Math.max(0,(a.count||0)-field),skCas,tags,tm,seize,cell:!!cell,outrider:(u.outEvery||(u.outFirst&&B.sk===1)),outEvery:u.outEvery,
     wName,wpn,eWName,strikeParts,saveParts,ar};
 }
 // hidden picks: server when online, in-page when not
@@ -408,8 +414,9 @@ function datasheetHTML(X,c,pl){
   const wrow=(n,nm,it,on,fl)=>row(n,nm,it,(it.ap||0)+(c.apOwn||0),sg(it.init),"—",on,fl),two=!!(rw&&mw&&!(onR&&a.weapon==="Farm Tools"));
   let g='';const w2n=g2h(a),w2=w2n?EQ.weapons[w2n]:null;
   if(w2&&mw){const on2=c.eqX.mode==="2h";                                       // Guige Strap: the Equipped set first
-    if(on2)g+=wrow(w2n,w2n,w2,true,"equipped")+wrow(a.weapon,a.weapon,mw,false,"carried");
-    else g+=wrow(a.weapon,a.weapon+(c.dualW?" ×2":""),mw,true,"equipped")+wrow(w2n,w2n,w2,false,"carried");}
+    const w2l=w2n+(g2hPair(a)?" ×2":"");
+    if(on2)g+=wrow(w2n,w2l,w2,true,"equipped")+wrow(a.weapon,a.weapon,mw,false,"carried");
+    else g+=wrow(a.weapon,a.weapon+(c.dualW?" ×2":""),mw,true,"equipped")+wrow(w2n,w2l,w2,false,"carried");}
   else if(onR){g+=wrow(a.ranged,a.ranged,rw,true,two?"equipped":"");if(two)g+=wrow(a.weapon,a.weapon,mw,false,"carried");}
   else{if(mw)g+=wrow(a.weapon,a.weapon+(c.eqX.b2h?" (2H)":"")+(c.dualW?" ×2":""),c.eqX.b2h&&prof2h(a.weapon)?prof2h(a.weapon):mw,true,two?"equipped":"");if(rw)g+=wrow(a.ranged,a.ranged,rw,false,"carried");}
   if(sh)g+=row(a.shield,a.shield,sh,"—",sh.init?sg(sh.init):"—","+"+(sh.save_bonus||0),!(c.shOff||c.shDest),c.shOff?"off: 2H":"",
@@ -448,7 +455,7 @@ function tacticPickHTML(X){
   else if(B.id&&(mine||!API.online||tmode==="manual")&&tmode!=="random"&&!(B.rev&&B.rev.sk===B.sk)){
     {const eo_=eqOptions(X),cur=eqNow(X);
       if(eo_.opts.length>1||eo_.bastard)h+='<div style="margin-top:4px;display:flex;gap:6px;align-items:center"><span class="note">Equipment</span>'+
-        (eo_.opts.length>1?'<select class="beq" data-x="'+X+'"'+(pk2.picked?' disabled':'')+'>'+eo_.opts.map(m=>'<option value="'+m+'"'+(cur.mode===m?' selected':'')+'>'+(m==="ranged"?esc(a.ranged)+(!((EQ.ranged[a.ranged]||{}).tags||[]).includes("2H")&&a.shield&&a.shield!=="None"?' + '+esc(a.shield):''):m==="dual"?'Florentine: two '+esc(a.weapon):m==="2h"?esc(a.weapon2h):esc(a.weapon||"melee")+(a.shield&&a.shield!=="None"?' + '+esc(a.shield):''))+'</option>').join('')+'</select>':'')+
+        (eo_.opts.length>1?'<select class="beq" data-x="'+X+'"'+(pk2.picked?' disabled':'')+'>'+eo_.opts.map(m=>'<option value="'+m+'"'+(cur.mode===m?' selected':'')+'>'+(m==="ranged"?esc(a.ranged)+(!((EQ.ranged[a.ranged]||{}).tags||[]).includes("2H")&&a.shield&&a.shield!=="None"?' + '+esc(a.shield):''):m==="dual"?'Florentine: two '+esc(a.weapon):m==="2h"?(g2hPair(a)?'Florentine: two '+esc(a.weapon2h):esc(a.weapon2h)):esc(a.weapon||"melee")+(a.shield&&a.shield!=="None"?' + '+esc(a.shield):''))+'</option>').join('')+'</select>':'')+
         (eo_.bastard?'<select class="beqb" data-x="'+X+'"'+(pk2.picked?' disabled':'')+'><option value="1H"'+(cur.b2h?'':' selected')+'>1H</option><option value="2H"'+(cur.b2h?' selected':'')+'>2H</option></select>':'')+
         '<span class="note">submitted with your Tactic</span></div>';
       else if(eo_.one&&eo_.opts[0]==="ranged")h+='<div class="note" style="margin-top:4px">One-Shot: '+esc(a.ranged)+(!((EQ.ranged[a.ranged]||{}).tags||[]).includes("2H")&&a.shield&&a.shield!=="None"?' + '+esc(a.shield):'')+' is Equipped this Skirmish.</div>';}
@@ -614,20 +621,24 @@ function bFlow(){const B=battle(),sk=B.sk,C={A:sideCalc("A"),B:sideCalc("B")};
   const recDue=X=>{const sv=(B.sv||{})[X];return !!sv&&sv.sk===sk&&C[X].recThr!=null&&(sv.n+recFx(sv))>0;};
   const defDone=X=>struck(O(X))&&(saved(X)||inc(X)===0)&&!recDue(X)&&!ripN(O(X));        // X's defence against the other side's Strike
   const tie=C.A.I===C.B.I,first=tie?null:(C.A.I>C.B.I?"A":"B"),second=first&&O(first);
-  const done1=X=>!able(X)||(struck(X)&&defDone(O(X)));                                     // X has fought (or can't)
-  const fought=nc||(done1("A")&&done1("B")&&(tie||(!pend("A")&&!pend("B"))));
   const T=BT.panicThreshold||5,pn=X=>{const sd=B[X];return (sd.cas||0)+(C[X].enduring?0:(sd.rcv||0));};
   const panicDue=X=>able(X)&&!C[X].immunePanic&&pn(X)>=T&&(B.pnk||{})[X]!==sk;
+  // instant Panic: the side struck first takes its Panic check as soon as its defence is done and casualties are off,
+  // before it Strikes back; a check at Rout Morale means it doesn't Strike back. One Panic check per Skirmish.
+  const inst=instantPanic()&&!tie&&!nc,hitNow=X=>inst&&X===second&&struck(first)&&defDone(X)&&!pend(X)&&!pend(first),
+    routNow=X=>inst&&X===second&&(B.pnk||{})[X]===sk&&C[X].morale>=(BT.routThr||11);
+  const done1=X=>!able(X)||routNow(X)||(struck(X)&&defDone(O(X)));                         // X has fought (or can't)
+  const fought=nc||(done1("A")&&done1("B")&&(tie||(!pend("A")&&!pend("B"))));
   const can={A:{},B:{}};
   ["A","B"].forEach(X=>{const o=O(X),k=can[X];
-    k.strike=!nc&&!on(B.strk,X)&&able(X)&&(tie||X===first||(struck(first)&&defDone(X)&&!pend(X)&&!pend(first)));
+    k.strike=!nc&&!on(B.strk,X)&&able(X)&&(tie||X===first||(struck(first)&&defDone(X)&&!pend(X)&&!pend(first)))&&!(X===second&&inst&&(panicDue(X)||routNow(X)));
     k.cleave=cleaveN(X)>0;k.dual=struck(X)&&!parried(o)&&!saved(o);
     k.parry=struck(o)&&C[X].canParry&&!parried(X)&&!saved(X)&&inc(X)>0;
     k.save=struck(o)&&!saved(X)&&inc(X)>0&&(!C[X].canParry||parried(X));
     k.recover=recDue(X);k.rip=ripN(X)>0;
     k.apply=pend(X)>0&&!k.rip&&!k.parry&&!k.save&&!k.recover&&(!tie||(done1("A")&&done1("B")));
-    k.panic=fought&&panicDue(X);k.panicLater=!fought&&!C[X].immunePanic&&pn(X)>T;});
-  const P=["A","B"].filter(panicDue),brkDue=X=>able(X)&&fatiguesNow(X)&&(B.brk||{})[X]?.sk!==sk;
+    k.panic=(fought||hitNow(X))&&panicDue(X);k.panicLater=!fought&&!C[X].immunePanic&&pn(X)>T;});
+  const P=["A","B"].filter(panicDue),brkDue=X=>able(X)&&!routNow(X)&&!isRouted(C[X].a)&&fatiguesNow(X)&&(B.brk||{})[X]?.sk!==sk;
   ["A","B"].forEach(X=>{can[X].brk=fought&&!P.length&&!pend("A")&&!pend("B")&&brkDue(X);});
   const BR=["A","B"].filter(X=>can[X].brk),done=fought&&!P.length&&!pend("A")&&!pend("B")&&!BR.length;
   // what is due next, in words
@@ -644,7 +655,9 @@ function bFlow(){const B=battle(),sk=B.sk,C={A:sideCalc("A"),B:sideCalc("B")};
     if(!msg&&BR.length)msg="Break check (Endurance 0): "+BR.map(nm).join(", ");
     if(!msg&&(can.A.apply||can.B.apply))msg="Apply casualties: "+["A","B"].filter(Y=>can[Y].apply).map(nm).join(", ");}
   if(!msg&&done)msg="Skirmish resolved";
-  return {can,done,fought,nc,tie,first,msg};}
+  return {can,done,fought,nc,tie,first,inst,msg};}
+// rule (Nov 10 2026): the side struck first takes its Panic check the moment it reaches the threshold, before it Strikes back
+function instantPanic(){return true;}
 // roll / casualty buttons for one side, in the command bar above the field once both Tactics are revealed
 function actionsHTML(X){
   const B=battle(),sd=B[X],c=sideCalc(X),O=X==="A"?"B":"A";if(!c)return "";const a=c.a,fl=bFlow(),k=fl&&!ADMIN?fl.can[X]:null;
@@ -667,7 +680,7 @@ function actionsHTML(X){
   }
   h+='<div style="display:flex;gap:4px;align-items:center;margin-top:6px"><span class="note">casualties</span><input type="number" min="0" value="'+pendCas(X)+'" class="bcas" data-x="'+X+'" style="width:52px"><button class="bcasgo'+(fl&&fl.can[X].apply?' go':'')+'" data-x="'+X+'"'+(k&&!k.apply?' disabled':'')+'>apply</button>'+
     (()=>{const cc=sideCalc(X)||{},rc=cc.enduring?0:(sd.rcv||0),pn=(sd.cas||0)+rc,imP=!!cc.immunePanic;   // Enduring: Recovered Strikes don't count
-      return '<span class="note">this Skirmish: '+(sd.cas||0)+(sd.rcv?(cc.enduring?' ('+sd.rcv+' Recovered — Enduring, not counted)':' + '+sd.rcv+' Recovered = '+pn)+' for Panic':'')+(imP?' · Immune Panic':'')+((!imP&&BT.panicThreshold&&pn>BT.panicThreshold)?' — <b style="color:var(--upkeep)">Panic check after both sides Strike</b>':'')+'</span>';})()+'</div>';
+      return '<span class="note">this Skirmish: '+(sd.cas||0)+(sd.rcv?(cc.enduring?' ('+sd.rcv+' Recovered — Enduring, not counted)':' + '+sd.rcv+' Recovered = '+pn)+' for Panic':'')+(imP?' · Immune Panic':'')+((!imP&&BT.panicThreshold&&pn>=BT.panicThreshold)?' — <b style="color:var(--upkeep)">Panic check '+((fl&&fl.inst&&fl.first&&fl.first!==X)?'before it Strikes back':'after both sides Strike')+'</b>':'')+'</span>';})()+'</div>';
   // Endurance reaching 0 this Skirmish → Break check (rolled after the Panic checks) + Fatigue token at End Skirmish
   if(B.id&&fatiguesNow(X)){const e=a.endurance||0,bd=(B.brk||{})[X],rolled=bd&&bd.sk===B.sk;
     h+='<div class="note" style="margin-top:6px;padding:6px;border:1px solid var(--upkeep);border-radius:var(--radius)"><b style="color:var(--upkeep)">Fatigued at end of Skirmish</b> — Endurance '+e+' → 0. '+
@@ -681,9 +694,9 @@ function battleOwed(){const B=battle();if(!B.id)return "";const L=[];
   ["A","B"].forEach(X=>{if(pendCas(X)>0)L.push(sideNm(X)+": apply casualties");});
   panicOwed().forEach(X=>L.push(sideNm(X)+": Panic check"));
   {const fl=bFlow();if(fl)["A","B"].forEach(X=>{if(fl.can[X].brk)L.push(sideNm(X)+": Break check");});}
-  if(B.endRep&&B.endRep.sk===B.sk)B.endRep.rows.forEach(r=>{if(r.brk&&r.brk.pending)L.push(sideNm(r.X)+": Break check");});
+  if(B.endRep&&B.endRep.sk===B.sk)B.endRep.rows.forEach(r=>{if(brkPending(r))L.push(sideNm(r.X)+": Break check");});
   return [...new Set(L)].join(", ");}
-function battleOutcome(){const B=battle(),R=B.endRep&&B.endRep.sk===B.sk?B.endRep:null;if(!B.id||!R||R.rows.some(r=>r.brk&&r.brk.pending))return null;
+function battleOutcome(){const B=battle(),R=B.endRep&&B.endRep.sk===B.sk?B.endRep:null;if(!B.id||!R||R.rows.some(brkPending))return null;
   const lost={},why={};
   ["A","B"].forEach(X=>{const r=R.rows.find(x=>x.X===X),c=sideCalc(X),n=c?(c.a.count||0):0;
     if(n<=0||(r&&r.wiped)){lost[X]=1;why[X]="is wiped out";}else if(r&&r.rout){lost[X]=1;why[X]="Routs";}});
@@ -708,7 +721,9 @@ function resultHTML(oc){const B=battle(),nm=X=>esc(sideNm(X));let h='<div class=
   return h+'</div>';}
 // before the Battle: who Seizes the Initiative; Start lights up once that is set
 // the terrain under a side's own army: a Hill (+1 Initiative every Skirmish), any grassland = Open Field (Ranged +1 to Strike)
-function sideTile(X){const B=battle(),g=mapState().grid,k=sideHex(B[X]);if(!g||!k)return null;return decodeGrid(g).hex[k]||null;}
+function sideTile(X){const B=battle();
+  if(B.terrain){const k=BT_KIND[B.terrain]||"plains";return {t:k==="hill"?"plains":k,hill:B.terrain==="Hill"&&B.hillX===X};}   // a set terrain (Escalation): a Hill is under one army
+  const g=mapState().grid,k=sideHex(B[X]);if(!g||!k)return null;return decodeGrid(g).hex[k]||null;}
 function onHill(X){const h=sideTile(X);return !!(h&&h.hill);}
 function onGrass(X){const h=sideTile(X);return !!(h&&h.t==="plains");}
 // who Seizes unless the players choose otherwise: the Ministry always; in a Forest the defender (side B)
@@ -721,7 +736,8 @@ function seizeHTML(){const B=battle();if(escOn()&&B.escR)return escSeizeHTML();i
     (f?'<div class="note">'+esc(sideNm(f))+' Seizes (Ministry), whatever the terrain</div>':'')+(tr&&!f?'<div class="note">'+esc(tr)+'</div>':'')+hl.map(t=>'<div class="note">'+esc(t)+'</div>').join('')+
     '<button id="bStartGo" class="bstart'+(cur!=null?' go':'')+'"'+(cur!=null?'':' disabled')+'>Start battle</button></div>';}
 function bCmdHTML(){const B=battle();if(!B.id)return seizeHTML();
-  const oc=battleOutcome();if(oc)return resultHTML(oc);
+  const oc=battleOutcome();if(oc){const ow=battleOwed();   // decided, but rolls still owed (rules: checks before the winner): keep their buttons
+    return resultHTML(oc)+(ow&&B.rev&&B.rev.sk===B.sk?'<div class="bflow"><span>Before the Battle ends: '+esc(ow)+'</span></div><div class="btacs">'+actionsHTML("A")+actionsHTML("B")+'</div>':'');}
   if(!(B.rev&&B.rev.sk===B.sk))return '<div class="btacs">'+tacticPickHTML("A")+tacticPickHTML("B")+'</div>';
   const fl=bFlow();
   return (fl?'<div class="bflow"><span>'+fl.msg+'</span><button class="bEndSk2'+(fl.done?' go':'')+'">End Skirmish ▸</button></div>':'')+
@@ -754,7 +770,7 @@ function battleRulesHTML(){let h=tacticExplainHTML();
 function renderBattle(){WHATIF.clear();
   const host=document.getElementById("viewBattle"),B=battle();
   const Q=bq();
-  let h='<div class="bm-card"><div class="bm-h"><h2>Battle</h2><button data-do="battleclose" data-nav="1" title="back to the Realm">✕</button></div>'+
+  let h='<div class="bm-h"><h2>Battle</h2><button data-do="battleclose" data-nav="1" title="back to the Realm">✕</button></div>'+
     (Q.length?'<div class="tot bqlist"><div class="lbl">BATTLES TO RESOLVE · '+Q.length+'</div>'+Q.map(o=>'<div class="bqrow'+(B.qid===o.id?' on':'')+'">'+stIcon(o.kind==="sally"?"besieged":o.kind==="siege"?"sieging":"battle",16)+
       '<span><b>A</b> '+esc(bqSideName(o.A))+' <span class="note">vs</span> <b>B</b> '+esc(bqSideName(o.B))+'</span><span class="note">'+esc(o.src||"")+(o.seize?' · Seize: '+o.seize:'')+' · turn '+o.turn+'</span>'+
       (B.qid===o.id?'<span class="badge earn">loaded</span>':'<button data-bq-load="'+o.id+'">load</button>')+'<button class="rm" data-bq-del="'+o.id+'" title="remove">✕</button></div>').join("")+'</div>':'')+
@@ -774,10 +790,19 @@ function renderBattle(){WHATIF.clear();
   if(cA&&cB&&!B.id)h+='<div class="note" style="margin-bottom:6px">'+(cA.I===cB.I?'<b>Simultaneous</b> — both sides Strike with their full front line':'Strikes first: <b>'+(cA.I>cB.I?"A":"B")+'</b>')+' (I '+cA.I+' vs '+cB.I+')</div>';
   const vs=viewerSide(),bs=BSIDE||(vs==="A"||vs==="B"?vs:"A");
   h+='<div class="bside-nav"><button data-bs="A"'+(bs==="A"?' class="on"':'')+'>Side A</button><button data-bs="B"'+(bs==="B"?' class="on"':'')+'>Side B</button><button data-bs="AB"'+(bs==="AB"?' class="on"':'')+'>Both</button></div>';
-  h+='<div class="bsides bgrid" data-bs="'+bs+'">'+sideHTML("A")+'<div class="bfield-col">'+bCmdHTML()+'<div id="bfield"></div>'+chronicleHTML()+'</div>'+sideHTML("B")+'</div>';
-  h+='<div class="tot"><h3 style="font-size:13px">Log</h3><div class="note">'+(B.log||[]).map(esc).join('<br>')+'</div></div>';
-  h+=tacticExplainHTML().replace('id="tacEx" open','id="tacExB"')+siegeHTML()+'<div class="note" style="margin:8px 0">Skirmish rules are in <a href="#" data-goto="reference#refBattle">Reference ▸</a></div></div>';
-  host.innerHTML=h;bfMount(host);wireBattle(host);wireDashExtras(host);
+  const sA=sideHTML("A"),sB=sideHTML("B"),cmd=bCmdHTML(),chr=chronicleHTML(),
+    post='<div class="tot"><h3 style="font-size:13px">Log</h3><div class="note">'+(B.log||[]).map(esc).join('<br>')+'</div></div>'+
+      tacticExplainHTML().replace('id="tacEx" open','id="tacExB"')+siegeHTML()+'<div class="note" style="margin:8px 0">Skirmish rules are in <a href="#" data-goto="reference#refBattle">Reference ▸</a></div>';
+  // The battlefield stays in the page between redraws (taking it out and putting it back restarts every animation and
+  // snaps the figures): once it is up, only the panels around it are replaced.
+  const bsEl=host.querySelector(".bsides"),pre=host.querySelector("#bPre"),live=!!(BF&&BF.wrap&&BF.wrap.isConnected&&bsEl&&pre&&bsEl.contains(BF.wrap));
+  if(live&&bfRefresh(()=>{pre.innerHTML=h;bsEl.dataset.bs=bs;
+      const swap=(sel,html)=>{const el=bsEl.querySelector(sel);if(el)el.outerHTML=html;};
+      swap(':scope > .bside[data-side="A"]',sA);swap(':scope > .bside[data-side="B"]',sB);
+      host.querySelector("#bCmd").innerHTML=cmd;host.querySelector("#bChron").innerHTML=chr;host.querySelector("#bPost").innerHTML=post;})){}
+  else{host.innerHTML='<div class="bm-card"><div id="bPre">'+h+'</div><div class="bsides bgrid" data-bs="'+bs+'">'+sA+'<div class="bfield-col"><div id="bCmd">'+cmd+'</div><div id="bfield"></div><div id="bChron">'+chr+'</div></div>'+sB+'</div>'+
+      '<div id="bPost">'+post+'</div></div>';bfMount(host);}
+  wireBattle(host);wireDashExtras(host);
 }
 // ---- Battle at a glance: the Skirmish as pictures — the two Tactics face off, who Strikes first, each side's troops (front /
 // reserve / camp / fallen), Morale and Endurance, and every roll of this Skirmish as a row of dice (lit = success) with its outcome
@@ -797,14 +822,26 @@ function battleGlanceHTML(){const B=battle(),cA=sideCalc("A"),cB=sideCalc("B");i
     '<div class="gl-first">'+(cA.I>cB.I?'<b>'+esc(sideNm("A"))+'</b> ⇒':'⇐ <b>'+esc(sideNm("B"))+'</b>')+'<span class="note">strikes first · Init '+cA.I+' vs '+cB.I+'</span></div>';
   // the exchange: each roll as dice (lit = success), with what it did
   const EV=B.gl&&B.gl.sk===B.sk?B.gl.ev:[],PV=B.gl&&B.gl.sk<B.sk&&B.gl.ev.length?B.gl:(B.glPrev&&B.glPrev.sk<B.sk?B.glPrev:null);
-  const dice=e=>(e.dice||[]).map(v=>{const ok=e.kind==="Morale"||e.kind==="Break"?v>=e.target:v>=e.target;return '<i class="gl-d'+(ok?' ok':'')+(v>=(BT.focusedThr||10)&&/Strike/.test(e.kind)?' crit':'')+'" title="'+v+'">'+v+'</i>';}).join("");
+  const FOC_=BT.focusedThr||10;
+  // a Strike die that triggers Deadly / Cleave below a natural 10 (Deadly +X / Cleave +X) is coloured like a Focused 10
+  const crit=(e,v)=>/Strike/.test(e.kind)&&v>=e.target&&(v>=FOC_||v>=(e.crit||99)),
+    die=(e,v,tgt,cls)=>'<i class="gl-d'+(v>=tgt?' ok':'')+(crit(e,v)?' crit':'')+(cls||'')+'" title="'+v+(cls?' (re-roll)':'')+'">'+v+'</i>',
+    row_=(e,L,tgt,cls)=>(L||[]).map(v=>die(e,v,tgt,cls)).join(""),
+    rrSep='<span class="gl-sep" title="Dual Wield: failed Parries re-rolled once">↻</span>';
+  const dice=e=>{const P=e.prr;
+    let h=P?row_(e,P.n0,e.target)+(P.n.length?'<span class="gl-grp">'+rrSep+row_(e,P.n,e.target," rr")+'</span>':''):row_(e,e.dice,e.target);
+    if(e.dl)h+='<span class="gl-sep">Deadly</span>'+(P?row_(e,P.d0,e.dl.target)+(P.d.length?'<span class="gl-grp">'+rrSep+row_(e,P.d,e.dl.target," rr")+'</span>':''):row_(e,e.dl.dice,e.dl.target));
+    return h;};
   const res=e=>{const k=e.kind;if(k==="Fall")return '<b class="neg">✝ '+e.n+' fall</b>';
-    if(/Strike/.test(k))return '<b>'+(e.succ||0)+' hit'+(e.succ===1?'':'s')+'</b>'+(e.cleave?' <span class="note">(Cleave)</span>':'');
-    if(k==="Parry")return '<b>'+(e.succ||0)+' parried</b>';if(k==="Save")return '<b>'+(e.succ||0)+' saved</b>'+(e.cas!=null?' · <span class="neg">'+e.cas+' unsaved</span>':'');
+    const dls=e.dl?(e.dl.succ||0):0;
+    if(/Strike/.test(k))return '<b>'+(e.succ||0)+' hit'+(e.succ===1?'':'s')+'</b>'+(e.deadly?' · <span class="neg">'+e.deadly+' Deadly</span>':'')+(e.cleave?' <span class="note">(Cleave)</span>':'');
+    if(k==="Parry")return '<b>'+((e.succ||0)+dls)+' parried</b>'+(e.prr?' <span class="note">(↻ Dual Wield)</span>':'');if(k==="Save")return '<b>'+((e.succ||0)+dls)+' saved</b>'+(e.cas!=null?' · <span class="neg">'+e.cas+' unsaved</span>':'');
     if(k==="Recover")return '<b>'+(e.succ||0)+' recovered</b>';if(k==="Morale"||k==="Panic")return '<b>Panic</b> · <span class="neg">'+((e.dice||[]).length-(e.succ||0))+' flee</span>';
     if(k==="Break")return '<b>Break</b> · <span class="neg">'+(e.cas||0)+' lost</span>';return '<b>'+(e.succ||0)+'</b>';};
   const verb=k=>({Strike:"Strike",Save:"Save",Parry:"Parry",Recover:"Recover",Morale:"Panic check",Break:"Break check",Fall:"Casualties"}[k]||k);
-  const rows=L=>L.map(e=>'<div class="gl-row" style="--sc:'+col(e.X)+'"><span class="gl-who">'+esc(sideNm(e.X))+'</span><span class="gl-k">'+verb(e.kind)+(e.target&&e.target<99&&e.kind!=="Fall"?' <span class="note">'+e.target+'+</span>':e.target>=99?' <span class="note">can\'t</span>':'')+'</span><span class="gl-dice">'+dice(e)+'</span><span class="gl-res">'+res(e)+'</span></div>').join("");
+  // one column per side, under that side; the number keeps the order of the exchange across both columns
+  const row=(e,i)=>'<div class="gl-r"><span class="gl-i note">'+i+'</span><span class="gl-k">'+verb(e.kind)+(e.target&&e.target<99&&e.kind!=="Fall"?' <span class="note">'+e.target+'+</span>':e.target>=99?' <span class="note">can\'t</span>':'')+'</span><span class="gl-dice">'+dice(e)+'</span><span class="gl-res">'+res(e)+'</span></div>';
+  const rows=L=>{const N=L.map((e,i)=>[e,i+1]);return '<div class="gl-cols">'+["A","B"].map(X=>'<div class="gl-col" style="--sc:'+col(X)+'">'+N.filter(([e])=>e.X===X).map(([e,i])=>row(e,i)).join("")+'</div>').join("")+'</div>';};
   const ex=(EV.length?'<div class="gl-ex">'+rows(EV)+'</div>':
     '<div class="note gl-wait">'+(rev?'Roll Strikes below — each roll shows up here as dice.':'Both sides pick a Tactic; they are revealed together.')+'</div>')+
     (PV?'<details class="gl-prev"><summary class="note">Skirmish '+PV.sk+' — how it went ('+PV.ev.filter(e=>e.kind==="Fall").map(e=>esc(sideNm(e.X))+" ✝"+e.n).join(", ")+')</summary><div class="gl-ex">'+rows(PV.ev)+'</div></details>':'');
@@ -817,7 +854,11 @@ function incoming(X){const B=battle(),O=X==="A"?"B":"A",S_=B.strk&&B.strk[O];if(
 let GL_HOLD=null;   // casualties applied inside a roll are listed after that roll
 function glPush(e){const B=battle();if(!B.id)return;if(GL_HOLD&&e.kind==="Fall"){GL_HOLD.push(e);return;}if(!B.gl||B.gl.sk!==B.sk){if(B.gl&&B.gl.ev.length)B.glPrev=B.gl;B.gl={sk:B.sk,ev:[]};}B.gl.ev.push(e);}
 function roll(X,kind,nOverride){const B=battle(),before=B.rolls&&B.rolls[X];GL_HOLD=[];let held;try{rollCore(X,kind,nOverride);}finally{held=GL_HOLD;GL_HOLD=null;}const r=B.rolls&&B.rolls[X];
-  if(r&&r!==before)glPush({X,kind:r.kind||kind,cleave:!!r.cleave,target:r.target,dice:(r.dice||[]).slice(0,30),succ:r.succ,cas:r.cas,nat10:r.nat10||0});held.forEach(glPush);}
+  const add=r&&r!==before;
+  if(add)glPush({X,kind:r.kind||kind,cleave:!!r.cleave,target:r.target,dice:(r.dice||[]).slice(0,30),succ:r.succ,cas:r.cas,nat10:r.nat10||0,
+    crit:r.crit,deadly:r.deadly||0,dl:r.dl&&r.dl.dice&&r.dl.dice.length?{target:r.dl.target,dice:r.dl.dice.slice(0,30),succ:r.dl.succ}:null,prr:r.prr||null});
+  held.forEach(glPush);
+  if(add||held.length){save();render();}}   // the dice rows update the moment a roll is made
 function rollCore(X,kind,nOverride){
   const B=battle(),c=sideCalc(X);if(!c)return;const O=X==="A"?"B":"A",FACES_=BT.faces||10,FOC=BT.focusedThr||10;
   B.strk=B.strk||{};B.par=B.par||{};B.shDest=B.shDest||{};
@@ -833,7 +874,7 @@ function rollCore(X,kind,nOverride){
     if(rr)B.strk[X]={sk:B.sk,succ:prev.succ+succ,deadly:prev.deadly+deadly,procs:prev.procs+procs,miss:0};
     else{B.strk[X]={sk:B.sk,succ,deadly,procs,miss};delete B.par[O];if(B.clv)delete B.clv[X];}
     if(cl)addCleave(X,cl);
-    B.rolls[X]={kind:"Strike",rr,target,dice:dice.sort((x,y)=>y-x),succ,nat10:procs,deadly};
+    B.rolls[X]={kind:"Strike",rr,target,dice:dice.sort((x,y)=>y-x),succ,nat10:procs,deadly,crit:c.hasDeadly||c.hasCleave?c.critFloor:99};
     blog(X+(rr?" Dual Wield re-roll ":" Strike ")+n+"d10 vs "+target+"+ ["+dice.join(",")+"] → "+succ+" strike(s)"+(deadly?" ("+deadly+" Deadly)":"")+(cl?" · Cleave ×"+cl+" to roll":"")+(rr?" · total "+B.strk[X].succ:""));
     const {a:ea}=sideArmy(B[O]);const esh=ea&&ea.shield&&ea.shield!=="None"?EQ.shields[ea.shield]:null;
     if(c.hasDestroy&&procs&&esh&&!(esh.tags||[]).includes("Immune Destroy Shield")&&!hasArmyTok(sideArmy(B[O]).p,"Immune Destroy Shield")&&!B.shDest[O]){B.shDest[O]=true;blog(O+"'s "+ea.shield+" is DESTROYED");}
@@ -842,13 +883,14 @@ function rollCore(X,kind,nOverride){
     const target=c.toStrike,af=target>FACES_,dice=d10(n).sort((x,y)=>y-x);let succ=0,deadly=0,procs=0,cl=0;
     dice.forEach(v=>{if(af||v<target)return;succ++;if(v>=FOC)procs++;if(v>=c.critFloor){if(c.hasDeadly)deadly++;cl++;}});
     st.succ+=succ;st.deadly+=deadly;st.procs+=procs;B.clv[X]={sk:B.sk,n:cl};
-    B.rolls[X]={kind:"Strike",cleave:true,target,dice,succ,nat10:procs,deadly};
+    B.rolls[X]={kind:"Strike",cleave:true,target,dice,succ,nat10:procs,deadly,crit:c.hasDeadly||c.hasCleave?c.critFloor:99};
     blog(X+" Cleave "+n+"d10 vs "+target+"+ ["+dice.join(",")+"] → "+succ+" strike(s)"+(deadly?" ("+deadly+" Deadly)":"")+(cl?" · Cleave ×"+cl+" more":"")+" · total "+st.succ);
     const {a:ea}=sideArmy(B[O]);const esh=ea&&ea.shield&&ea.shield!=="None"?EQ.shields[ea.shield]:null;
     if(c.hasDestroy&&procs&&esh&&!(esh.tags||[]).includes("Immune Destroy Shield")&&!hasArmyTok(sideArmy(B[O]).p,"Immune Destroy Shield")&&!B.shDest[O]){B.shDest[O]=true;blog(O+"'s "+ea.shield+" is DESTROYED");}
   }else if(kind==="Parry"){
     const tot=nOverride!=null?nOverride:inc.n+inc.d,d=Math.min(inc.d,tot),nn=tot-d,T=c.parryThr;
     const ok=c.canParry;let dn=d10(nn),dd=d10(d),rrN=[],rrD=[];                       // rrN/rrD: Dual Wield rerolls (they can't Riposte)
+    const dn0=dn.slice(),dd0=dd.slice(),dsc=(x,y)=>y-x;
     if(ok&&c.dualW){const fn=dn.filter(v=>v<T),fd=dd.filter(v=>v<FOC);                // Dual Wield: each failed Parry is re-rolled once
       if(fn.length+fd.length){const rn=d10(fn.length),rd=d10(fd.length);rrN=rn;rrD=rd;dn=dn.filter(v=>v>=T).concat(rn);dd=dd.filter(v=>v>=FOC).concat(rd);
         blog(X+" re-rolls "+(fn.length+fd.length)+" failed Parr"+(fn.length+fd.length===1?"y":"ies")+" (Dual Wield) ["+rn.concat(rd).join(",")+"]");}}
@@ -859,7 +901,8 @@ function rollCore(X,kind,nOverride){
     if(rip){addRip(O,rip);blog(X+" Ripostes ×"+rip+" → "+O+" takes "+rip+" Strike(s) from "+X+"'s melee weapon");}
     B.par[X]={sk:B.sk,p:p+((B.par[X]&&B.par[X].sk===B.sk)?B.par[X].p:0),pd:pd+((B.par[X]&&B.par[X].sk===B.sk)?B.par[X].pd:0)};
     B.rolls[X]={kind,target:ok?T:99,dice:dn.sort((x,y)=>y-x),succ:p,nat10:ripN0,
-      dl:d?{target:ok?FOC:99,dice:dd.sort((x,y)=>y-x),succ:pd}:null};
+      dl:d?{target:ok?FOC:99,dice:dd.sort((x,y)=>y-x),succ:pd}:null,
+      prr:rrN.length||rrD.length?{n0:dn0.sort(dsc),d0:dd0.sort(dsc),n:rrN.slice().sort(dsc),d:rrD.slice().sort(dsc)}:null};   // Dual Wield: first roll + re-rolls
     blog(X+" Parry "+nn+"d10 vs "+(ok?T+"+":"auto-fail")+" ["+dn.join(",")+"] → "+p+" parried"+(d?" · Deadly "+d+"d10 vs "+FOC+"+ ["+dd.join(",")+"] → "+pd+" parried":""));
   }else if(kind==="Save"){
     const tot=nOverride!=null?nOverride:inc.n+inc.d,d=Math.min(inc.d,tot),nn=tot-d;
@@ -879,10 +922,11 @@ function rollCore(X,kind,nOverride){
     blog(X+" Recover "+sv.n+"d10 vs "+T+"+ ["+dn.join(",")+"] → "+r1+" recovered"+(fx?" · "+(BT.deadlyMode==="set"?"Poisoned ":"Deadly/Poisoned ")+fx+"d10 vs "+FOC+"+ ["+dd.join(",")+"] → "+r2+" recovered":"")+(dLost?" · "+dLost+" Deadly can't be Recovered":"")+" → "+(left+dLost)+" casualties");
   }else if(kind==="RipParry"||kind==="RipSave"){
     const pr=ripN(X);if(!pr){blog(X+": no Riposte Strikes pending");save();render();return;}
-    if(kind==="RipParry"){if(!c.canParry){blog(X+" has no Parry — Riposte Strikes can't be Parried");save();render();return;}const T=c.parryThrMelee;let dn=d10(pr);
+    if(kind==="RipParry"){if(!c.canParry){blog(X+" has no Parry — Riposte Strikes can't be Parried");save();render();return;}const T=c.parryThrMelee;let dn=d10(pr);const dn0=dn.slice();
       let rr=[];if(c.dualW){const fn=dn.filter(v=>v<T).length;if(fn){const rn=d10(fn);rr=rn;dn=dn.filter(v=>v>=T).concat(rn);blog(X+" re-rolls "+fn+" failed Parr"+(fn===1?"y":"ies")+" (Dual Wield) ["+rn.join(",")+"]");}}
       const RT2=Math.max(T,c.ripP?FOC-1:FOC),p=dn.filter(v=>v>=T).length,back=c.riposteMelee?dn.filter(v=>v>=RT2).length-rr.filter(v=>v>=RT2).length:0;   // Riposte +1, not Dual Wield, Ripostes on a 9; a rerolled Parry can't Riposte
-      B.rip[X].n=pr-p;B.rolls[X]={kind:"Parry",target:T,dice:dn.sort((x,y)=>y-x),succ:p,nat10:back};
+      B.rip[X].n=pr-p;B.rolls[X]={kind:"Parry",target:T,dice:dn.sort((x,y)=>y-x),succ:p,nat10:back,
+        prr:rr.length?{n0:dn0.sort((x,y)=>y-x),d0:[],n:rr.slice().sort((x,y)=>y-x),d:[]}:null};
       blog(X+" Parries Riposte "+pr+"d10 vs "+T+"+ ["+dn.join(",")+"] → "+p+" parried");if(back){addRip(O,back);blog(X+" Ripostes the Riposte ×"+back+" → "+O+" takes "+back+" Strike(s)");}}
     else{const T=c.saveMelee,dn=d10(pr),pz=c.poisonedMelee?FOC:99,s1=T>FACES_?0:dn.filter(v=>v>=T&&v<pz).length,pz1=dn.filter(v=>v>=pz).length,f=pr-s1;
       B.rolls[X]={kind:"Save",target:T,dice:dn.sort((x,y)=>y-x),succ:s1,nat10:0,cas:f};delete B.rip[X];
@@ -920,6 +964,8 @@ function applyCas(X,n){if(n>0)glPush({X,kind:"Fall",n});const B_=battle(),p=(B_.
 function rollBreak(X,r,a){const dice=d10(r.brk.n).sort((x,y)=>y-x),lost=Math.min(dice.filter(v=>v<r.brk.target).length,a.count||0);
   a.count-=lost;r.brk.dice=dice;r.brk.lost=lost;delete r.brk.pending;if((a.count||0)===0)r.wiped=true;
   blog(X+" Break check "+r.brk.n+"d10 vs "+r.brk.target+"+ ["+dice.join(",")+"] → "+lost+" casualties"+(r.wiped?" — wiped out":""));}
+// a Break check still to roll from the last End Skirmish; a side that Routed or was wiped out owes none
+function brkPending(r){return !!(r&&r.brk&&r.brk.pending&&!r.rout&&!r.wiped);}
 function rollBreakBtn(X){const B=battle(),r=B.endRep&&B.endRep.sk===B.sk&&B.endRep.rows.find(x=>x.X===X&&x.brk&&x.brk.pending),{a}=sideArmy(B[X]);
   if(!r||!a)return;rollBreak(X,r,a);save();render();}
 // what must be resolved before the Skirmish (and so the Battle) can end: casualties applied, Panic checks rolled (emulated dice)
@@ -1026,7 +1072,7 @@ function wireBattle(host){
   host.querySelectorAll(".bFinish").forEach(b=>b.onclick=()=>{const why=battleOwed();if(why){flash("Before the Battle ends: "+why);return;}endBattle(b.dataset.w||null);});
   const dc=host.querySelector("#bDice");if(dc)dc.onchange=()=>{B.dice=dc.checked;save();render();};
   const rs=host.querySelector("#bReset");if(rs)rs.onclick=()=>{B.round=(B.round||0)+1;B.rev=null;PEEK=false;blog("Tactic picks reset");save();loadPicks().then(render);};
-  host.querySelectorAll("#bEndSk,.bEndSk2").forEach(es=>es.onclick=()=>{const B=battle(),pb=B.endRep&&B.endRep.sk===B.sk&&B.endRep.rows.filter(r=>r.brk&&r.brk.pending).map(r=>r.X),fl=bFlow();
+  host.querySelectorAll("#bEndSk,.bEndSk2").forEach(es=>es.onclick=()=>{const B=battle(),pb=B.endRep&&B.endRep.sk===B.sk&&B.endRep.rows.filter(brkPending).map(r=>r.X),fl=bFlow();
     if(fl&&!fl.done){const late=fl.fought&&["A","B"].some(X=>fl.can[X].panic||fl.can[X].apply);   // casualties and Panic checks can't be skipped
       if(late){flash("Resolve first: "+fl.msg.replace(/<[^>]+>/g,""));return;}
       if(!confirm("Still to do: "+fl.msg.replace(/<[^>]+>/g,"")+". End the Skirmish anyway?"))return;}

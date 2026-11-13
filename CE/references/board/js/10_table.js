@@ -866,16 +866,19 @@ let REF_CUL=false;try{REF_CUL=localStorage.getItem("renown_refcul")==="1";}catch
 function refCulture(){return cultureOf(S)||derivedCulture(S);}
 function refAvail(){const raw=refRawAvail(),c=REF_CUL?refCulture():null,cs=c?cultureSet(c):null;
   if(!cs)return raw;if(!raw)return cs;return new Set([...raw].filter(n=>cs.has(n)));}
-function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.json next to the generator — tree unavailable.</div>';
+// opt (Escalation): only = the Holdings to chart (rows / columns left empty are closed up), body(n) = a box's text instead of its effect
+function treeHTML(opt){opt=opt||{};const T=DATA.tree;if(!T)return '<div class="note">No layout.json next to the generator — tree unavailable.</div>';
   const NH0=62,CG=44,RG=10,AV=Math.max(600,((document.getElementById("viewReference")||{}).clientWidth||window.innerWidth)-70),EC="#6a6a72",E0=T.edges||{},DC={Industry:"#2E5A8C",Prowess:"#9E2B25",Cunning:"#3a3a40",Piety:"#C6A024"};
   // box colour: the Domain of the highest Standing in the unlock (ties: the first listed)
   const dom=n=>{const u=(R[n]||{}).unlock_raw||"";let best="",bk=-1;
     for(const m of u.matchAll(/(Rising|Established|Sovereign)\s+(Industry|Prowess|Cunning|Piety)/g)){const k=ST_ORDER.indexOf(m[1]);if(k>bk){bk=k;best=m[2];}}
     return best||["Industry","Prowess","Cunning","Piety"].find(d=>u.includes(d))||"";};
-  const AVS=refAvail(),LC=legalCtx(),PM=planMarks();
+  const AVS=opt.only?null:refAvail(),LC=legalCtx(),PM=planMarks();
   return T.charts.map(c=>{if(AVS&&R[c.title]&&!AVS.has(c.title))return "";   // a root chart whose Raw Material is off the map: its reachable Holdings show under their other roots
     // the reference tree is the full tree: the culture view filter applies to the catalog only
-    const N=Object.fromEntries(Object.entries(c.nodes).filter(([k])=>!AVS||AVS.has(k))),ks=Object.keys(N);if(!ks.length)return "";
+    let N=Object.fromEntries(Object.entries(c.nodes).filter(([k])=>(!AVS||AVS.has(k))&&(!opt.only||opt.only.has(k))));const ks=Object.keys(N);if(!ks.length||(opt.need&&!ks.some(opt.need)))return "";   // need: a chart must hold one of these
+    if(opt.only){const cs=[...new Set(ks.map(k=>N[k][0]))].sort((a,b)=>a-b),rs=[...new Set(ks.map(k=>N[k][1]))].sort((a,b)=>a-b);   // close up the gaps
+      N=Object.fromEntries(ks.map(k=>[k,[cs.indexOf(N[k][0]),rs.indexOf(N[k][1])]]));}
     const E={...E0};(c.links||[]).forEach(([p,k])=>{E[p]=(E[p]||[]).concat([k]);});   // chart-only links (e.g. Naturals into Manor House)
     const mc=Math.max(...ks.map(k=>N[k][0])),mr=Math.max(...ks.map(k=>N[k][1]));
     const NW=Math.round(Math.max(150,Math.min(200,(AV-mc*CG)/(mc+1)))),W=(mc+1)*NW+mc*CG;   // boxes shrink to fit the window
@@ -885,7 +888,7 @@ function treeHTML(){const T=DATA.tree;if(!T)return '<div class="note">No layout.
       return '<div class="tnh"><span class="gk" data-gk="'+(GK_BY[esc(n)]??"")+'">'+esc(n)+'</span>'+(r.monument?' ◆':'')+'</div>'+
         (un||r.mreq_raw||NATURAL.has(n)?'<div class="tnr">'+(NATURAL.has(n)?'<span class="tnu tn-nat gk" data-gk="'+(GK_BY.Natural??"")+'">Natural</span>':'')+(un?'<span class="tnu'+(us.ok?'':' bad')+'" title="Unlock: '+esc(r.unlock_raw)+'">'+(us.ok?'':'🔒')+esc(r.unlock_raw)+'</span>':'')+
           (r.mreq_raw?'<span class="tnu'+(ir?'':' bad')+'" title="Requires: '+esc(r.mreq_raw)+'">'+(ir?'':'🔒')+'🏛 '+esc(r.mreq_raw)+'</span>':'')+'</div>':'')+
-        '<div class="tnc">'+(r.combo?kwify(r.combo,n):"—")+'</div>';};
+        '<div class="tnc">'+(opt.body?opt.body(n):(r.combo?kwify(r.combo,n):"—"))+'</div>';};
     // one box height per row: the tallest box in that row at this width, so each row stays level and no effect text is cut
     const RH=(()=>{const m=document.createElement("div");m.style.cssText="position:absolute;visibility:hidden;left:-9999px;top:0";
       m.innerHTML=ks.map(n=>'<div class="tn" style="position:static;width:'+NW+'px;height:auto">'+inner(n)+'</div>').join("");

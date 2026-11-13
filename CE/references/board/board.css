@@ -847,6 +847,17 @@
   .bf-u.wound .bf-b{animation:bfwound .9s infinite}
   .bf-u.lunge .bf-b{animation:bflunge .5s}
   .bf-u.shake .bf-b{animation:bfshake .4s 2}
+  /* struck down: flash, reel back, fall (ends where .dead rests, so nothing snaps) */
+  .bf-u.dying .bf-b{animation:bfdie .95s ease-in forwards}
+  @keyframes bfdie{0%{transform:none;filter:none;opacity:1}18%{transform:translateX(calc(var(--lx) * -.4));filter:brightness(2.2) sepia(1) hue-rotate(-50deg) saturate(5)}40%{transform:translateX(calc(var(--lx) * -.6)) rotate(-12deg);filter:brightness(1.4) sepia(1) hue-rotate(-50deg) saturate(3)}100%{transform:rotate(90deg) scale(.8);filter:grayscale(1) brightness(.55);opacity:.7}}
+  .bf-u.parry .bf-b{animation:bfparry .55s}
+  @keyframes bfparry{30%{transform:translateX(calc(var(--lx) * -.35));filter:brightness(1.8)}}
+  .bf-u.saved .bf-b{animation:bfsaved .7s}
+  @keyframes bfsaved{35%{filter:drop-shadow(0 0 4px #90caf9) brightness(1.4)}}
+  .bf-u.healed .bf-b{animation:bfhealed .9s}
+  @keyframes bfhealed{35%{transform:translateY(-4px);filter:drop-shadow(0 0 5px #66bb6a) brightness(1.4)}}
+  .bf-float{font-size:14px;font-weight:700;paint-order:stroke;stroke:#0b0f14;stroke-width:3px;stroke-linejoin:round;animation:bffloat 2.2s forwards}
+  @keyframes bffloat{0%{opacity:0;transform:translateY(6px)}12%{opacity:1;transform:none}72%{opacity:1}100%{opacity:0;transform:translateY(-8px)}}
   @keyframes bfwound{50%{filter:brightness(1.6) sepia(1) hue-rotate(-40deg) saturate(4)}}
   @keyframes bflunge{45%{transform:translateX(var(--lx))}}
   @keyframes bfshake{25%{transform:translateX(-2px)}75%{transform:translateX(2px)}}
@@ -859,7 +870,7 @@
   @keyframes bfban{0%{opacity:0}12%{opacity:1}80%{opacity:1}100%{opacity:0}}
   .bf-cap{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;padding:5px 10px;font-size:12px;border-top:1px solid var(--line2);background:var(--panel2)}
   .bf-cap .tsw,.bf-cap .tswg{vertical-align:middle}
-  @media (prefers-reduced-motion:reduce){.bf-u,.bf-b{transition:none}.bf-pop,.bf-shot,.bf-ban,.bf-u.lunge .bf-b,.bf-u.shake .bf-b{animation-duration:.01s}.bf-u.wound .bf-b{animation:none;filter:sepia(1) hue-rotate(-40deg) saturate(4)}}
+  @media (prefers-reduced-motion:reduce){.bf-u,.bf-b{transition:none}.bf-pop,.bf-shot,.bf-ban,.bf-float,.bf-u.lunge .bf-b,.bf-u.shake .bf-b,.bf-u.dying .bf-b,.bf-u.parry .bf-b,.bf-u.saved .bf-b,.bf-u.healed .bf-b{animation-duration:.01s}.bf-u.wound .bf-b{animation:none;filter:sepia(1) hue-rotate(-40deg) saturate(4)}}
   .bm-h{display:flex;align-items:center;gap:8px;margin-bottom:6px}.bm-h button{margin-left:auto}
   .tac-sum{margin:4px 0;line-height:1.5}.tac-sum .pos{color:var(--income);font-weight:600}.tac-sum .neg{color:var(--upkeep);font-weight:600}
   .su-step{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.su-chips{display:flex;gap:4px;flex-wrap:wrap}
@@ -962,12 +973,14 @@
   .gl-sk{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim)}.gl-vs{font-size:15px;font-weight:700}
   .gl-first{display:flex;flex-direction:column;align-items:center;font-size:13px}
   .gl-ex{margin-top:10px;border-top:1px solid var(--line);padding-top:6px;display:flex;flex-direction:column;gap:3px}
-  .gl-row{display:grid;grid-template-columns:110px 120px 1fr auto;gap:8px;align-items:center;border-left:3px solid var(--sc);padding-left:6px;font-size:12px}
-  .gl-who{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .gl-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+  .gl-col{display:flex;flex-direction:column;gap:3px;border-left:3px solid var(--sc);padding-left:6px;min-width:0}
+  .gl-r{display:grid;grid-template-columns:16px 84px minmax(0,1fr) auto;align-items:center;gap:3px 8px;font-size:12px}.gl-i{text-align:right}.gl-dice{min-width:0}.gl-res{white-space:nowrap;text-align:right}
   .gl-dice{display:flex;flex-wrap:wrap;gap:2px}.gl-d{display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;font-style:normal;font-size:10px;border:1px solid var(--line);border-radius:3px;opacity:.5}
   .gl-d.ok{opacity:1;border-color:var(--income);color:var(--income);background:rgba(102,187,106,.12)}.gl-d.crit{border-color:var(--order);color:var(--order)}
+  .gl-d.rr{border-style:dashed}.gl-grp{display:inline-flex;flex-wrap:wrap;gap:2px}.gl-sep{font-size:10px;color:var(--dim);margin:0 3px;align-self:center;text-transform:uppercase;letter-spacing:.04em}
   .gl-wait{margin-top:8px}
-  @media (max-width:700px){.gl-top{grid-template-columns:1fr}.gl-top .gl-side:last-child{text-align:left;border-right:none;border-left:4px solid var(--sc)}.gl-row{grid-template-columns:80px 1fr;}}
+  @media (max-width:700px){.gl-top{grid-template-columns:1fr}.gl-top .gl-side:last-child{text-align:left;border-right:none;border-left:4px solid var(--sc)}.gl-cols{grid-template-columns:1fr}}
   .gl-prev{margin-top:6px}
   .hermenu{grid-template-columns:repeat(8,34px);max-height:60vh;overflow-y:auto}
 /* ---- Escalation campaign (57_escalation.js) ---- */
@@ -979,6 +992,12 @@ body.esc-on .bsel,body.esc-on .bqlist,body.esc-on #modBox,body.esc-on #boardBox{
 .esc .esc-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}.esc .esc-top h2{margin:0 6px 0 0}
 .esc-score{border:1px solid var(--line2);border-left-width:4px;border-radius:var(--radius-sm,4px);padding:2px 8px}
 .esc-phase{border-color:var(--order)}
+.esc-trackrow{display:flex;align-items:center;gap:10px;margin:4px 0 8px;flex-wrap:wrap}
+.esc-track{display:flex;gap:3px}
+.esc-node{width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line2);border-bottom:3px solid var(--pc);border-radius:4px;font-size:11px;color:var(--dim)}
+.esc-node.end{color:var(--pc);font-weight:700}
+.esc-node.on{background:var(--pc);color:#fff;border-color:var(--pc);font-weight:700;box-shadow:0 0 0 2px var(--panel),0 0 0 3px var(--pc)}
+.esc-boon{border-left-width:4px}
 .esc-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:4px 0}
 .esc-doms{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:6px;margin:6px 0}
 .esc-dom{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-left:4px solid var(--dc);border-radius:var(--radius-sm,4px);padding:5px 8px}

@@ -33,9 +33,9 @@ _DF_IDX = TACTICS.index("Defensive Formation")   # Pavisiers' Yard Save +1
 import vectorized_combat as vc
 import os as _os
 _RENOWN_TRAJ = _os.environ.get('RENOWN_TRAJ')=='1'
-# PANIC TIMING (trial, Nov 9 2026): default "instant" -> the side struck first takes its Panic check as soon as it has
-# lost more than 5, before it Strikes back (equal Initiative unchanged). RENOWN_PANIC_TIMING=after restores the written
-# rule (after both sides have Struck). Rules text still says "after"; the per-matchup engine (vectorized_combat) is "after".
+# PANIC TIMING: "instant" is the rule (trial Nov 9, adopted Nov 10 2026) -> the side struck first takes its Panic check as
+# soon as it has lost 5 or more, before it Strikes back (equal Initiative unchanged). RENOWN_PANIC_TIMING=after runs the
+# old rule (after both sides have Struck) for comparison.
 INSTANT_PANIC = _os.environ.get("RENOWN_PANIC_TIMING", "instant").strip().lower() != "after"
 _RENOWN_TRAJ_LOG = []
 from vectorized_combat import StaticArmy, get_tactic_tables

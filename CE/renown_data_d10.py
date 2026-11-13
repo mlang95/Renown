@@ -95,7 +95,8 @@ MINUS_1_TBH     = "Shielded"
 PONDEROUS       = "Ponderous"   # shield drawback: -1 to the bearer's own Strike roll
 PLANISHING      = "Gusseted"      # ward: to-Save never worse than CAP_THR+ (Armory). Displayed "Riveted" since Nov 7 2026 (was "Planishing" on Court Armoury); constant name kept so engines/tools follow
 SHIELD_WALL     = "Shield Wall"   # Pavisiers' Yard (Nov 8 2026): in Defensive Formation with a Shield Equipped, incoming AP -1
-GUIGE_STRAP     = "Guige Strap"   # Buckler School (Nov 9 2026): carry a 1H weapon + Shield and a 2H weapon, Equip one set each Skirmish; no Ranged Weapon
+GUIGE_STRAP     = "Guige Strap"   # Buckler School (Nov 9 2026): carry a 1H weapon + Shield and a 2H weapon, Equip one set each Skirmish; no Ranged Weapon. Nov 10: with Florentine the 2H set may be a Dual Wielded pair of another 1H weapon
+RANGER          = "Ranger"        # Training Grounds (Nov 12 2026): an Army may carry a Ranged Weapon as its secondary weapon, beside a Melee Weapon (engine token "dual-equip")
 FIRST_CHARGE    = "First Charge"   # Nov 10 2026: "First Charge X" (plain = 1): first Skirmish, CAVALRY_WEAPONS gain -X AP (engine: "First AP -X @<weapon>")
 WEDGE           = "Wedge"        # Nov 9 2026: first Skirmish, -1 to the defender's Parry roll vs that weapon's Strikes (engine: "First FoeParry +1 @<weapon>")
 FLUTED          = "Articulated"  # armor keyword (Gothic Plate): incoming AP reduced by 1, after Deadly; AP 0 unaffected; also Immune Strained. Was "Fluted" (renamed Nov 8 2026; constant name kept so engines follow)
@@ -179,7 +180,7 @@ GLOSSARY = {
     "Riposte +1":   f"You also {RIPOSTE} on a successful Parry roll one lower than {PIVOTAL} (9).",
     "Shield Initiative": "Shield Initiative penalty reduced by 1: your Shield's negative Initiative is 1 smaller (a Shield with no penalty gains nothing). Granted by Shieldwright.",
     "Buckler with 2H": "Armies Equipped with a 2H Weapon may Equip a Buckler Shield, and it counts while the 2H Weapon is Equipped. Granted by Joinery.",
-    GUIGE_STRAP:    "Your Armies may carry a 2H Melee Weapon as well as a 1H Melee Weapon and Shield, and choose each Skirmish which to Equip: the 1H Weapon and Shield, or the 2H Weapon. An Army carrying both may not carry a Ranged Weapon. Granted by Buckler School.",
+    GUIGE_STRAP:    "Your Armies may carry a 2H Melee Weapon as well as a 1H Melee Weapon and Shield, and choose each Skirmish which to Equip: the 1H Weapon and Shield, or the 2H Weapon. With Florentine, that second set may instead be two of the same 1H Melee Weapon, Dual Wielded (it counts as the 2H Weapon). An Army carrying both may not carry a Ranged Weapon. Granted by Buckler School.",
     SHIELD_WALL: "While this Army plays Defensive Formation with a Shield Equipped, Strikes against it have their AP reduced by 1. Granted by Pavisiers' Yard.",
     WEDGE:          f"In the first Skirmish of a Battle, -1 to the defender's Parry roll against Strikes from the weapon that gained it.",
     "First Charge X": "In the first Skirmish of a Battle, Cavalry Spears and Lances gain -X AP. First Charge with no number is First Charge 1; each source adds up.",
@@ -215,7 +216,7 @@ GLOSSARY = {
     "Endurance":     "A side's stamina. Each side that fights loses 1 per Skirmish; at 0 it becomes Fatigued.",
     "Fatigued":      f"A side at 0 Endurance. Each Skirmish its Field takes a Break check, then it gains a Fatigue Token.",
     "Break check":   "Taken by each Fatigued side's Field every Skirmish, just before it gains its Fatigue Token. Roll Morale (5 dice, modified by Fatigue Tokens); failures are Casualties, but a Break check never triggers a Panic check. Unbreakable auto-passes.",
-    "Panic check":   f"Taken at most once per Skirmish by a side that suffered {PANIC_CASUALTY_THRESHOLD} or more Casualties in that Skirmish (Recovered Strikes count, unless Enduring), after both sides have Struck. Roll Morale (5 dice); Immune Panic auto-passes.",
+    "Panic check":   f"Taken at most once per Skirmish by a side that suffered {PANIC_CASUALTY_THRESHOLD} or more Casualties in that Skirmish (Recovered Strikes count, unless Enduring): the side Struck first takes it at once, before it Strikes back (a Rout means it doesn't Strike back); otherwise after both sides have Struck. Roll Morale (5 dice); Immune Panic auto-passes.",
     "Morale":        f"How steady a Retinue is when tested (lower is steadier; see the Retinue table). Break and Panic checks roll it: a D{FACES} per Retinue in the Field, up to 5 dice, each must meet its modified value; failures are Casualties. If the modified value is ever {ROUT_THR}+, the Army Routs.",
     "Rout":          f"The Army breaks and leaves the Battle. Apply Casualties equal to the remaining Retinues. Whenever an Army's modified Morale value reaches {ROUT_THR}+, it Routs automatically.",
     "Fall Back":     "A controlled retreat that ends the Battle with at least one Retinue left — a partial success.",
@@ -226,7 +227,7 @@ GLOSSARY = {
     "Modified roll": "The number on the die after every modifier is applied.",
     "Initiative":    f"Decides who Strikes first each Skirmish (higher first). Add bonuses up to +{INITIATIVE_MAX} (only the Ministry of Military Strategy raises the maximum, to +3), then subtract penalties; there is no minimum. At {INITIATIVE_MIN} or lower you Blunder.",
     "Tactic":        "A choice both players make secretly and reveal together each Skirmish; it can shift Initiative, Strike, and Save rolls.",
-    "Dual-equip":    "Carry two weapons at once (e.g. melee + ranged). Granted by Training Grounds.",
+    RANGER:         "Your Armies may carry a Ranged Weapon as their secondary weapon, as well as a Melee Weapon. Granted by Training Grounds.",
     "Monument":      "A Domain's capstone Holding, one per game. Having one completes the Monument Edict.",
 
     # ── Empire keywords (referenced by Pursuits/Factions; DRAFTED — review wording) ──
@@ -296,8 +297,9 @@ GLOSSARY = {
 #   Morale target = base `shaking` + Fatigue tokens - shake bonuses (e.g. Abbey +1).
 #   Break check: each Fatigued side rolls every Skirmish (up to 5 dice) before its
 #                Fatigue token; failures are casualties. Target ROUT_THR+ is unmakeable = Rout.
-#   Panic check: a side that took >5 casualties this Skirmish rolls once after it
-#                Strikes back. (Handled by Immune Panic, not by these four.)
+#   Panic check: a side that took 5+ casualties this Skirmish rolls once: the side struck first
+#                at once, before it Strikes back; otherwise after both sides have Struck.
+#                (Handled by Immune Panic, not by these four.)
 # ─────────────────────────────────────────────────────────────────────────────
 MORALE_GLOSSARY = {
     "Unbreakable": "Skips the Break check entirely while Fatigued: never rolls, never takes "
@@ -829,30 +831,30 @@ NODES = {
         "monument": False},
     "Saddlery": {
         "group": "g_husbandry",
-        "unlock": "1 Established",
+        "unlock": "1 Rising",
         "natural": True,
-        "innate": "Gold +500; Craft +2; Speed +1; Unlocks Lance (Still requires Tier Unlock)",
+        "innate": "Gold +500; Craft +2; Speed +1; Unlocks Lances with Advanced Blast Furnace",
         "efficient": ["Stable"],
         "monument": False},
     "Avenery": {
         "group": "g_husbandry",
-        "unlock": "1 Established",
+        "unlock": "Established Prowess",
         "natural": True,
-        "innate": "Gold +500; Speed +1",
+        "innate": "Gold +500; Speed +2; Lances gain Wedge",
         "efficient": ["Saddlery"],
         "monument": False},
     "Farriery": {
         "group": "g_husbandry",
         "unlock": "Established Prowess",
         "natural": True,
-        "innate": "Gold +500; Speed +1; Unlocks Cavalry Spears regardless of Tier Unlock", #; Cavalry Spears gain Wedge; Gain First Charge
+        "innate": "Gold +500; Speed +1; Unlocks Cavalry Spears", #; Cavalry Spears gain Wedge; Gain First Charge
         "efficient": ["Avenery"],
         "monument": False},
     "Marshal Tiltyard": {
         "group": "g_husbandry",
         "unlock": "Sovereign Prowess",
         "natural": True,
-        "innate": "Unlocks Lances regardless of Tier Unlock; Armies must be equipped with Lance; Lances gain Wedge; Initiative +1",
+        "innate": "Unlocks Lances; Armies must be equipped with Lance; Initiative +1",
         "efficient": ["Farriery"],
         "monument": True},
     "Vine Nursery": {
@@ -934,7 +936,7 @@ NODES = {
     "Fletchery": {
         "group": "g_arms",
         "unlock": "Rising Prowess",
-        "innate": "Supply -500; Unlocks Ranged Weapons",
+        "innate": "Supply -500; Unlocks Hunting Bow",
         "efficient": "Forestry",
         "monument": False},
     "Chandlery": {
@@ -947,7 +949,7 @@ NODES = {
         "group": "g_arms",
         "unlock": "-",
         "natural": True,
-        "innate": "Craft +1; Supply -500; Unlocks Cast armor",
+        "innate": "Craft +1; Supply -500; Unlocks Leather Armour",
         "efficient": ["Animal Husbandry","Joinery"],
         "monument": False},
     "Joinery": {
@@ -960,7 +962,7 @@ NODES = {
     "Shieldwright": {
         "group": "g_arms",
         "unlock": "Rising Industry",
-        "innate": "Shield Initiative penalty reduced by 1; Unlocks Targe Shield",
+        "innate": "Craft +2; Shield Initiative penalty reduced by 1; Unlocks Targe Shield",
         "efficient": ["Joinery"],
         "monument": False},
     "Buckler School": {
@@ -1010,7 +1012,7 @@ NODES = {
     "Armory": {
         "group": "g_arms",
         "unlock": "Rising Industry",
-        "innate": "Craft +3; Unlocks Wrought armor",
+        "innate": "Craft +3; Unlocks Chainmail",
         "efficient": ["Tannery"],
         "monument": False},
     "Master Workshop": {
@@ -1022,7 +1024,7 @@ NODES = {
     "Gilded Foundry": {
         "group": "g_arms",
         "unlock": "Established Industry",
-        "innate": f"Supply -1000; {PLANISHING}: Your to-Save can't be reduced beyond {CAP_THR}+; Unlocks Forged armor",
+        "innate": f"Supply -1000; {PLANISHING}: Your to-Save can't be reduced beyond {CAP_THR}+; Unlocks Full Plate",
         "efficient": "Armory",
         "monument": False},
     "Smokehouse": {
@@ -1140,7 +1142,7 @@ NODES = {
         "group": "g_arms",
         "unlock": "1 Rising",
         "natural": True,
-        "innate": "Speed +2; Unlocks Cavalry Spear (Still requires Tier Unlock)",
+        "innate": "Speed +2; Unlocks Cavalry Spears with Blacksmith",
         "efficient": ["Animal Husbandry","Inn"],
         "monument": False},
     "Ropewalk": {
@@ -1593,22 +1595,22 @@ NODES = {
         "innate": "Craft +2; Unlocks Forged Tier Weapons",
         "efficient": "Finery",
         "monument": False},
-    "Training Grounds": {         # Nov 8 2026: the old Skirmish Field (dual-equip) under a new name
+    "Training Grounds": {         # Nov 8 2026: the old Skirmish Field (dual-equip) under a new name. Nov 12: grants Ranger
         "group": "g_arms",
         "unlock": "Rising Prowess",
-        "innate": "Armies may be equipped with a Ranged and a Melee Weapon simultaneously; Unlocks Longbow regardless of Unlock Tier",
+        "innate": "Ranger: Armies may use a Ranged Weapon as their secondary weapon; Unlocks Longbow",
         "efficient": "Fletchery",
         "monument": False},
     "Archery Butts": {
         "group": "g_arms",
         "unlock": "Established Prowess",
-        "innate": "Ranged Weapons gain +1 to Strike; Unlocks Crossbow regardless of Tier Unlock", #Ranged Weapons gain -1AP
+        "innate": "Ranged Weapons gain +1 to Strike; Unlocks Crossbow", #Ranged Weapons gain -1AP
         "efficient": "Training Grounds",
         "monument": False},
     "Skirmish Field": {           # Nov 8 2026: takes the old Fighting School slot
         "group": "g_arms",
         "unlock": "Established Prowess",
-        "innate": "Gain Immune Awkward; Unlocks Javelin regardless of Tier Unlock",
+        "innate": "Gain Immune Awkward; Unlocks Javelin",
         "efficient": "Archery Butts",
         "monument": False},
     "List Yard": {                # Nov 8 2026: moved to the tournament branch
@@ -1628,7 +1630,7 @@ NODES = {
         "group": "g_arms",
         "unlock": "Sovereign Industry",
         #"infrastructure_req": "Aqueducts",
-        "innate": "Unlocks Crafted Armor", #Supply -500; # Planishing moved to Armory as Riveted (Nov 7 2026); Gothic Plate carries Articulated
+        "innate": "Unlocks Articulated Gothic Plate", #Supply -500; # Planishing moved to Armory as Riveted (Nov 7 2026); Gothic Plate carries Articulated
         "efficient": "Gilded Foundry",
         "monument": True},
     "Serfdom": {
@@ -1656,7 +1658,7 @@ NODES = {
     "Ballistarium": {
         "group": "g_arms",
         "unlock": "Sovereign Prowess",
-        "innate": "Deadly +2 (Ranged Weapons); Unlocks Pilum regardless of Tier Unlock",
+        "innate": "Deadly +2 (Ranged Weapons); Unlocks Pilum",
         "efficient": "Skirmish Field",
         "monument": True},
     "College of Arms": {
@@ -2992,7 +2994,7 @@ GLOSSARY["Standing Rank"] = (f"Untested {STANDING_RANK['Untested']}, Rising {STA
 SEASONS = {
     "Winter": {"name": "Freezing",    "effect": "All Armies gain Speed -5; Siege Timers don't count down. Tax income collected."},
     "Spring": {"name": "Planting",    "effect": "No Host, Bandit Actions, Trade Income, Council Phase, or Diplomacy Actions. Players don't gain or spend Influence tokens. Bandit Camps Spawn."},
-    "Summer": {"name": "Campaigning", "effect": "All Armies gain Speed +3"},
+    "Summer": {"name": "Campaigning", "effect": "All Armies gain Speed +5"},
     "Fall":   {"name": "Harvest",     "effect": "Income from Holdings in Hamlets is doubled."},
 }
 
@@ -3778,6 +3780,7 @@ NAME_DISPLAY = {
     "Preceptory of the Knight's Templar": "Sacred Preceptory",
     "Knight's Templar": "Oathsworn Knight",
     "Knight Templar": "Oathsworn Knight",
+    "Man-at-Arms":"Warriors",
     "Recover": "Heal",
     "RECOVER": "HEAL",
     "Recovered" : "Healed",
@@ -3806,7 +3809,7 @@ TIER_DISPLAY = {
     "Crafted": "Tempered",
 }
 # Per-item tier label, display only. The item keeps its real tier id for the engine
-# (Arquebus = Crude: no Industry gate, so Artillery Park + Fletchery are its only unlocks).
+# (Arquebus = Crude: no Industry gate, so Artillery Park, which names it, is its only unlock).
 # Labels here are never added to TIERS, so loadouts / the board's tier ladder are untouched.
 ITEM_TIER_DISPLAY = {
     "Arquebus": "Gunpowder",
@@ -4158,14 +4161,13 @@ for _t in TIERS:
 for _lbl in sorted(set(ITEM_TIER_DISPLAY.values())):           # label-only tiers (e.g. Gunpowder)
     _its = [k for k, v in ITEM_TIER_DISPLAY.items() if v == _lbl]
     _req = sorted({r for k in _its for src in (WEAPONS, RANGED, SHIELDS, ARMORS) for r in ((src.get(k) or {}).get("requires") or [])})
-    if any(k in RANGED for k in _its):                        # ranged items also need the Ranged Weapons unlock
-        _req += [n for n, d in NODES.items() if n not in _req and re.search(r"unlocks?\s+ranged weapons",
-                 re.sub(r"\*\*", "", (d.get("innate") or "") + " " + (d.get("mastery") or "")).lower())]
     GLOSSARY.setdefault(_lbl, f"{_lbl} equipment: {', '.join(_its)}." + (f" Unlocked by: {', '.join(_req)}." if _req else ""))
 GLOSSARY.setdefault("Ranged Weapons", "Ranged weapons: " + ", ".join(
     f"{k} ({display_tier(v.get('tier'), k)})" for k, v in RANGED.items()) + "."
     + (lambda u: f" Unlocked by: {', '.join(u)}." if u else "")(
-        [n for n, d in NODES.items() if re.search(r"unlocks?\s+ranged weapons", re.sub(r"\*\*", "", (d.get("innate") or "") + " " + (d.get("mastery") or "")).lower())]))
+        [f"{n} ({', '.join(rs)})" for n, d in NODES.items() if not d.get("deprecated")
+         for rs in [[r for r in RANGED if re.search(r"unlocks?\s+(?:ranged weapons|" + re.escape(r.lower()) + r")",
+                    re.sub(r"\*\*", "", (d.get("innate") or "") + " " + (d.get("mastery") or "")).lower())]] if rs]))
 GLOSSARY["Root"] = (f"A Holding with no {CHAIN_TERM} requirement: you may start it without controlling a parent. "
                     f"If it names a {CHAIN_TERM} parent, it may still share that Holding's Settlement Ward.")
 
@@ -4380,7 +4382,7 @@ GLOSSARY_CATEGORIES = [
     ('Battle Structure', ['Battle', 'Skirmish', 'Attacker / Defender', 'Seize the Initiative', 'Tactic', 'Field', 'Casualty', 'Initiative', BLUNDER, 'Strike', 'to-Strike number', 'AP', 'Save', 'Endurance', 'Fatigued', FATIGUE_TOKEN, 'Morale', 'Break check', 'Panic check', 'Rout', 'Fall Back']),
     ('Combat Keywords — Defense', [PARRY, 'Parry +1', RIPOSTE, 'Riposte +1', RECOVER, ENDURING, MINUS_1_TBH, PLANISHING, FLUTED, SHIELD_WALL]),
     ('Combat Keywords — Offense', [RANGED_KW, DEADLY, 'Deadly +1', CLEAVE, 'Cleave +1', POISON, DESTROY_SHIELD, UNSTOPPABLE, SERRATED, 'Hook X', WEDGE, 'First Charge X']),
-    ('Combat Keywords — Handling', ['Equipped', STEADY, UNWIELDY, BRACED, NIMBLE, DRILLED, TWO_H, 'Dual-equip', FLORENTINE, NO_PARRY, CRUDE, ONE_SHOT, PONDEROUS, 'Shield Initiative', 'Buckler with 2H', GUIGE_STRAP]),
+    ('Combat Keywords — Handling', ['Equipped', STEADY, UNWIELDY, BRACED, NIMBLE, DRILLED, TWO_H, RANGER, FLORENTINE, NO_PARRY, CRUDE, ONE_SHOT, PONDEROUS, 'Shield Initiative', 'Buckler with 2H', GUIGE_STRAP]),
     ('Combat Keywords — Immune / Negate', ['Immune [keyword]', 'Negate [keyword]']),
     ('Equipment Tiers', [k for k in map(str, GLOSSARY) if k.split()[0] in {display_tier(x) for x in TIERS} | set(globals().get("ITEM_TIER_DISPLAY", {}).values()) or k == "Ranged Weapons"]),
 ]
@@ -4499,13 +4501,28 @@ def holding_combat_tags(text, sim=False):
         out += [f"First AP -{_x or 1} @{_w}" for _w in CAVALRY_WEAPONS]
     t = _re_disp.sub(_fc, "", t, flags=_I)
     # unlocks
-    if _re_disp.search(r"Unlocks?\s+Ranged\s+Weapons", t, _I): out.append("ranged")
+    # Named weapon unlocks (Nov 12 2026): "Unlocks X" = X outright, whatever its tier -> "anytier:X";
+    # "Unlocks X with Y" = X once Holding Y is also built -> "anytier:X@Y". Ranged Weapons -> "ranged:X",
+    # Cavalry weapons -> "weapon:X". Old wording still reads: "regardless of Tier Unlock" = outright,
+    # "(Still requires Tier Unlock)" = the item's tier still applies. The blanket "Unlocks Ranged Weapons" grants every one.
+    if _re_disp.search(r"Unlocks?\s+Ranged\s+Weapons", t, _I): out += ["ranged:" + r for r in RANGED]
     if _re_disp.search(r"Unlocks?\s+Cavalry\s+Weapons", t, _I): out.append("cavalry")
-    for wm in _re_disp.finditer(r"Unlocks?\s+(Cavalry Spear|Lance)s?\b", t, _I):
-        out.append("weapon:" + wm.group(1).title())
-    # "Unlocks Lances regardless of Tier Unlock" (Marshal Tiltyard, Farriery, Skirmish Field): that item ignores its tier
+    _named = list(CAVALRY_WEAPONS) + list(RANGED)
+    for m in _re_disp.finditer(r"Unlocks?\s+(" + "|".join(_re_disp.escape(r) for r in _named) + r")s?\b([^;]*)", t, _I):
+        _it = next(r for r in _named if r.lower() == m.group(1).lower())
+        out.append(("ranged:" if _it in RANGED else "weapon:") + _it)
+        _tail = m.group(2).strip()
+        _w = _re_disp.match(r"with\s+(.+?)\s*\.?$", _tail, _I)
+        if _re_disp.search(r"requires Tier Unlock", _tail, _I):
+            pass
+        elif _w:
+            out.append(f"anytier:{_it}@{_w.group(1)}")
+        else:
+            out.append("anytier:" + _it)
+    # "Unlocks <item> regardless of Tier Unlock" for anything else (old wording)
     for wm in _re_disp.finditer(r"Unlocks?\s+([A-Z][\w ]*?)s?\s+regardless of (?:Tier Unlock|Unlock Tier)", t):
-        out.append("anytier:" + wm.group(1).strip().title())
+        if wm.group(1).strip().title() not in _named:
+            out.append("anytier:" + wm.group(1).strip().title())
     m = _re_disp.search(r"Unlocks?\s+(.+?)\s+for\s+Muster", t, _I)
     if m:
         r = m.group(1).strip()
@@ -4566,7 +4583,7 @@ def holding_combat_tags(text, sim=False):
     if sim:
         if _re_disp.search(r"Every Skirmish, you may force your opponent to reveal", t, _I): out.append("Outrider: every")
         elif _re_disp.search(r"First Skirmish, you may force your opponent to reveal", t, _I): out.append("Outrider: first")
-        if _re_disp.search(r"equipped with a Ranged and a Melee Weapon simultaneously", t, _I): out.append("dual-equip")
+        if _re_disp.search(r"equipped with a Ranged and a Melee Weapon simultaneously|\b" + RANGER + r"\b", t, _I): out.append("dual-equip")
         if _re_disp.search(r"may Fall Back in the first Skirmish", t, _I): out.append("Fall Back: first")   # lifts the Skirmish 1 Fall Back ban (board)
     return out
 
@@ -4621,7 +4638,7 @@ AI_PROFILES = {c: {"domains": v["domains"], "archetype": v["archetype"], "action
 
 # ── ESCALATION CAMPAIGN (lobby game type) ───────────────────────────────────────────────────────
 # Heads-up fight-off: two armies, Battle after Battle. No income, upkeep, Influence or map. Each round:
-# Battle -> the winner gains an Edict -> both players advance (Domain Points or Standings) and place
+# Battle -> the struggle track moves one node toward the loser -> both players advance (Domain Points or Standings) and place
 # Holdings (instant build, combat Holdings only) -> both lock a hidden loadout -> next Battle.
 # "defaults" seed the lobby form; "limits" bound what the lobby / server accept.
 # AI tuning (board/js/57_escalation.js reads every key; nothing is hard-coded there):
@@ -4633,11 +4650,25 @@ AI_PROFILES = {c: {"domains": v["domains"], "archetype": v["archetype"], "action
 #   holdOrder   "random" = target Holdings in random order | "unlock" = cheapest Standing first, then unlocks
 #   gear        "target" = target gear, else best by tier | "counter" = best unlocked counter to the
 #               player's last REVEALED loadout
+# STRUGGLE TRACK (Nov 11 2026): one tracker, starting at the centre (0). After a Battle with a winner it moves one node toward
+# the loser and the winner Seizes the Initiative next Battle (no winner: it stays, the last Seizer keeps it; first Battle:
+# random). If it now sits on the loser's side at node k, the loser gets the benefits of nodes 1..k for the next round;
+# the winner never gets benefits. Reaching the last node on your side loses the campaign. Track length = one node per
+# benefit + the losing node: add or remove an entry here to lengthen or shorten it (the lobby can also set the length;
+# nodes past this list add no new benefit).
+ESCALATION_STRUGGLE = [
+    {"key": "terrain",      "label": "Choose the terrain"},   # next Battle's terrain; on a Hill the chooser's army is on it
+    {"key": "holding",      "label": "+1 Holding"},           # one more Holding to place this round (kept for good)
+    {"key": "immune_panic", "label": "Immune Panic"},         # for the next Battle
+]
 ESCALATION = {
     "army_size": ARMY_MAX_RETINUES,
     "start": {"retinue": "Levy", "armor": "Cloth", "weapon": "Farm Tools"},
-    "defaults": {"adv": "dp", "advN": 1, "holdN": 2, "seize": "winner", "toWin": 5, "ai": ""},
-    "limits": {"advN": (1, 5), "holdN": (1, 5), "toWin": (1, 15)},
+    "defaults": {"adv": "dp", "advN": 1, "holdN": 2, "track": len(ESCALATION_STRUGGLE) + 1, "ai": ""},
+    "limits": {"advN": (1, 5), "holdN": (1, 5), "track": (2, 8)},
+    "struggle": ESCALATION_STRUGGLE,
+    "terrains": ["Open Field", "Hill", "Forest", "Mire", "Tundra"],   # TACTICAL_TERRAIN tiles a Battle can be fought on
+    "centre_terrain": "Open Field",   # a Battle no one chose the terrain for (the tracker at the centre, or on the winner's side)
     "ai": {
         "novice":       {"label": "Novice",       "bucket": (0.70, 0.80), "pivot": False,     "tactic": "random",
                          "noise": 1.0, "exploit": 0.0, "holdOrder": "random", "gear": "target"},

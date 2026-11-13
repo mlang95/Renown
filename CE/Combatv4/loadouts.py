@@ -246,11 +246,11 @@ def is_2h(weapon_name):
     # Dual Wield confers 2H (both hands on weapons) — a Dual Wield weapon never carries a shield.
     return (TWO_H in tags) or (DUAL_WIELD in tags)
 def ranged_satisfied(ranged, pursuits):
-    """True if the build unlocks this ranged weapon: a Holding whose text 'Unlocks Ranged Weapons'
-    (Fletchery), plus any Holdings the RANGED profile lists in 'requires' (Arquebus: Artillery Park)."""
+    """True if the build unlocks this ranged weapon: a Holding that names it ("ranged:<name>": Fletchery
+    unlocks Hunting Bow, Artillery Park the Arquebus, ...), plus any Holdings the RANGED profile lists in 'requires'."""
     if ranged is None:
         return True
-    if "ranged" not in _tokens(pursuits):
+    if "ranged:" + ranged not in _tokens(pursuits):
         return False
     return all(req in pursuits for req in RANGED.get(ranged, {}).get("requires", []))
 
@@ -461,7 +461,7 @@ from collections import Counter as _Counter
 import renown_data as rd
 
 _SIM = rd.HOLDING_SIM
-_INFO_PREFIX = ("tier:", "armor:", "shield:", "weapon:", "retinue:", "anytier:")
+_INFO_PREFIX = ("tier:", "armor:", "shield:", "weapon:", "retinue:", "anytier:", "ranged:")
 _INFO_EXACT = {"ranged", "cavalry", "dual-equip", "Artillery Park", "Lance only"}   # gear gates read by the pool, not the engine   # "Florentine" both gates Dual Wield and reaches the engine
 _ENGINE_TOKEN = {"Righteous Fervour": "Resolute"}     # text keyword -> engine tag of the same rule
 _BONUS_TOKEN = _re.compile(r"^(\w+) \+(\d+)$")
@@ -474,7 +474,17 @@ PURSUITS_INFO = {n: {"cost": 1, "domain": dict(h["domain"]), "innate_tags": list
 
 
 def _tokens(pursuits):
-    return {t for p in pursuits if p in _SIM for t in _SIM[p]["tags"]}
+    """Tokens the build's Holdings grant. "anytier:X@Y" ("Unlocks X with Y") counts as "anytier:X" only when Y is built."""
+    out = set()
+    for p in pursuits:
+        for t in (_SIM[p]["tags"] if p in _SIM else ()):
+            if t.startswith("anytier:") and "@" in t:
+                x, y = t.split("@", 1)
+                if y in pursuits:
+                    out.add(x)
+            else:
+                out.add(t)
+    return out
 
 
 def _holders(token):
@@ -682,7 +692,7 @@ def compute_effective_upkeep(loadout):
 
 def gear_requirements(weapon, shield, armor, ranged, two_of_same=False, toks=None, weapon_2h=None):
     """Unlock tokens a gear choice needs (the text tokens of the Holdings that unlock it).
-    toks: the build's tokens; an item it unlocks 'regardless of Tier Unlock' (anytier:) needs no tier."""
+    toks: the build's tokens; an item a Holding unlocks by name ("Unlocks X", anytier:) needs no tier."""
     need = set()
     free = lambda n: toks is not None and ("anytier:" + n) in toks
     tiers = [WEAPONS[weapon]["tier"]] if weapon in WEAPONS and not free(weapon) else []
@@ -700,7 +710,7 @@ def gear_requirements(weapon, shield, armor, ranged, two_of_same=False, toks=Non
     if ARMORS[armor]["tier"]:
         need.add("armor:" + ARMORS[armor]["tier"])
     if ranged:
-        need.add("ranged")
+        need.add("ranged:" + ranged)
     if (ranged and weapon not in (None, "Farm Tools")) or (ranged and ONE_SHOT in RANGED[ranged].get("tags", [])):
         need.add("dual-equip")
     if two_of_same:
@@ -941,10 +951,10 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, max_m
         tier_str = derive_tier_from_pursuits(pursuits)
         toks = _tokens(pursuits)
         _ti = TIER_IDX.get(tier_str, -1)
-        # cavalry: 'Unlocks X' + its weapon tier, or 'Unlocks X regardless of Tier Unlock' (anytier:)
+        # cavalry: 'Unlocks X' outright, or 'Unlocks X with Y' once Y is built (anytier:), else X's weapon tier
         cav = [w for w in ("Cavalry Spear", "Lance")
                if "weapon:" + w in toks and (_ti >= TIER_IDX[WEAPONS[w]["tier"]] or "anytier:" + w in toks)]
-        has_fletch = "ranged" in toks
+        has_fletch = any(t.startswith("ranged:") for t in toks)
         has_ty = "dual-equip" in toks
         has_dw = rd.FLORENTINE in toks
         melee = WEAPONS_BY_TIER[tier_str]
@@ -952,9 +962,10 @@ def archetype_pool(min_pursuit_cost=5, max_pursuit_cost=10, csv_path=None, max_m
         guige_2h = [w for w in melee if _true_2h(w) and w not in rd.WEAPON_2H_PROFILES]
         if guige and has_dw:                            # with Florentine the second set may be a Dual Wielded 1H pair
             guige_2h += [w for w in melee if can_florentine(w)]
-        # ranged at or below the tier, plus any ranged weapon unlocked regardless of tier (Skirmish Field: Longbow)
-        rng_opts = list(dict.fromkeys(_ranged_at_or_below(tier_str, RANGED_BY_TIER)
-                                      + [r for r in RANGED if "anytier:" + r in toks]))
+        # ranged weapons a Holding names ("ranged:<name>"), at or below the tier or unlocked regardless of tier
+        rng_opts = [r for r in dict.fromkeys(_ranged_at_or_below(tier_str, RANGED_BY_TIER)
+                                             + [r for r in RANGED if "anytier:" + r in toks])
+                    if ranged_satisfied(r, pursuits)]
         arms_options = []
         if "Lance only" in toks:                        # "Armies must be equipped with Lance" (Marshal Tiltyard)
             if "Lance" not in cav:
@@ -1713,7 +1724,7 @@ def holding_first_pool(ti_min=6, ti_max=16, per_cell=40, max_monuments=None, see
 def pool_frame(pool):
     """One row per build with the columns the build views read (TI, domain points, core Holdings, synergy)."""
     import pandas as pd
-    gear_holders = {h for t in ("ranged", "dual-equip", rd.FLORENTINE) for h in _holders(t)}
+    gear_holders = {h for t in ["ranged:" + r for r in RANGED] + ["dual-equip", rd.FLORENTINE] for h in _holders(t)}
     rows = []
     for ld in pool:
         P = set(ld.pursuits)

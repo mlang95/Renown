@@ -18,9 +18,9 @@ from dice_config import (FACES, FOCUSED_THR, ROUT_THR, CAP_THR, AUTO_PASS_FLOOR,
                          PARRY_BASE, RECOVER_BASE, DEADLY_AP, parse_bonuses)
 from dice_config import NO_FALL_BACK, clamp_init
 import os as _os_pt
-# PANIC TIMING (trial, Nov 9 2026) - same switch and default as batch_engine: "instant" (default) = the side struck
-# first takes its Panic check as soon as it has lost more than 5, before it Strikes back; RENOWN_PANIC_TIMING=after
-# restores the written rule (after both sides have Struck).
+# PANIC TIMING - same switch and default as batch_engine: "instant" is the rule (adopted Nov 10 2026) = the side struck
+# first takes its Panic check as soon as it has lost 5 or more, before it Strikes back; RENOWN_PANIC_TIMING=after
+# runs the old rule (after both sides have Struck) for comparison.
 INSTANT_PANIC = _os_pt.environ.get("RENOWN_PANIC_TIMING", "instant").strip().lower() != "after"
 _AP_FLOOR = AUTO_PASS_FLOOR if AUTO_PASS_FLOOR is not None else 1 # None (rule off) => floor 1, nothing auto-passes
 from renown_data_d10 import (

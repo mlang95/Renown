@@ -117,7 +117,7 @@ print(f"      Recover ladder: " + ", ".join(f"{t} ({', '.join(ns)})" for t, ns i
 check("Arquebus spelled correctly", "Arquebus" in rd.RANGED,
       "found " + str([k for k in rd.RANGED if "rq" in k.lower()]))
 arq = rd.RANGED.get("Arquebus", {})
-check("Arquebus gated on Artillery Park",                      # ruling: Artillery Park (+ Fletchery), not ABF
+check("Arquebus gated on Artillery Park",                      # ruling: Artillery Park (names it; no Fletchery since Nov 12 2026), not ABF
       "Artillery Park" in set(arq.get("requires", [])), arq.get("requires"))
 check("Arquebus tactic restriction present", bool(arq.get("tactics_allowed")),
       arq.get("tactics_allowed"))

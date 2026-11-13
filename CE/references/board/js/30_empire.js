@@ -1236,7 +1236,7 @@ function armyUnlocks(earned){
   });
   const tset=new Set(active.map(a=>a.tok));
   const wTiers=new Set(["Crude"]), armors=new Set(["Cloth"]);
-  let shields=false, ranged=false, cavalry=false;const weaponsUnl=new Set(),anyTier=new Set();
+  let shields=false, cavalry=false;const weaponsUnl=new Set(),anyTier=new Set(),rangedUnl=new Set();
   const shieldTiers=new Set();let shieldByTier=SIMPLE;     // SIMPLE: shield tier from "X armor & shield" (plus Joinery for Shields)
   const retinues=new Set(["Levy"]); const mods=[];
   active.forEach(a=>{
@@ -1248,17 +1248,17 @@ function armyUnlocks(earned){
       else if(x==="Shields") shields=true;
     } else if(t.startsWith("armor:")){const x=t.slice(6);Object.keys(EQ.armors).forEach(k=>{if(EQ.armors[k]&&EQ.armors[k].tier===x)armors.add(k);});}
     else if(t.startsWith("shield:")){shieldByTier=true;shieldTiers.add(t.slice(7));}
-    else if(t==="ranged") ranged=true;
+    else if(t.startsWith("ranged:")) rangedUnl.add(t.slice(7));   // a Holding names this Ranged Weapon ("Unlocks Hunting Bow")
     else if(t==="cavalry") cavalry=true;
     else if(t.startsWith("weapon:")){weaponsUnl.add(t.slice(7));cavalry=true;}
-    else if(t.startsWith("anytier:")) anyTier.add(t.slice(8));   // "Unlocks X regardless of Tier Unlock": X ignores its tier
+    else if(t.startsWith("anytier:")){const [x,y]=t.slice(8).split("@");if(!y||(PC[y]||0)>0)anyTier.add(x);}   // "Unlocks X" ignores X's tier; "Unlocks X with Y" only while Y is built
     else if(t.startsWith("retinue:")) retinues.add(t.slice(8));
     else mods.push(a);           // keyword / modifier
   });
   // armor also implied by weapon tiers? no — armor unlocked only by explicit armor tags.
   Object.keys(EQ.reqAlias||{}).forEach(al=>{if((PC[EQ.reqAlias[al]]||0)>0)tset.add(al);});   // legacy alias in "requires" (e.g. ABF)
   Object.keys(PC).forEach(n=>{if(PC[n]>0)tset.add(n);});                                      // or the Holding's own name
-  return {set:tset,wTiers,armors,shields,shieldTiers,shieldByTier,ranged,cavalry,weaponsUnl,anyTier,retinues,mods,active};
+  return {set:tset,wTiers,armors,shields,shieldTiers,shieldByTier,ranged:rangedUnl.size>0,rangedUnl,cavalry,weaponsUnl,anyTier,retinues,mods,active};
 }
 function unlockedShieldTiers(u){ // Shields (Joinery) + tier: SIMPLE = "X armor & shield" Holdings; legacy = weapon-tier progression
   return u.shields ? (u.shieldByTier?u.shieldTiers:u.wTiers) : new Set();
@@ -1355,6 +1355,27 @@ function optionList(sel, items, tierset, u, chosen, extra){
   sel.value = chosen && items[chosen] ? chosen : sel.querySelector("option")?.value;
 }
 
+// Secondary: one slot for what is carried beside the Main weapon: a Ranged weapon, or (Guige Strap) a 2H weapon, or
+// (Guige Strap + Florentine) a 1H pair to Dual Wield. Stored as obj.ranged / obj.weapon2h (one of them set). Options the
+// unlocks don't allow are marked 🔒 (flags, not locks), as in the other slots.
+function secondaryOptions(obj,u){const L=[],tierOk=(it,n)=>tierOK(it.tier,u.wTiers)||!!(u.anyTier&&u.anyTier.has(n)),
+    guige=(u.mods||[]).some(m=>m.tok==="Guige Strap"),flor=guige&&(u.mods||[]).some(m=>m.tok==="Florentine"),
+    host=!((EQ.weapons[obj.weapon]||{}).tags||[]).includes("2H")&&obj.shield&&obj.shield!=="None";   // Guige: beside a 1H weapon + Shield
+  L.push({v:"None",t:"None",ok:true});
+  Object.keys(EQ.ranged).forEach(n=>{const it=EQ.ranged[n];L.push({v:"r:"+n,t:n,g:"Ranged",it,ok:tierOk(it,n)&&u.rangedUnl.has(n)&&reqMet(it,u)&&!weaponForbids(obj.weapon,"ranged")});});
+  const G2=[],PR=[];
+  if(guige)Object.keys(EQ.weapons).forEach(n=>{const it=EQ.weapons[n],t=it.tags||[],two=t.includes("2H")&&!EQ.prof2hOf[n],pair=!two&&flor&&canDualWield(n);
+    if(two||pair)(two?G2:PR).push({v:"w:"+n,t:n+(pair?" ×2":""),g:two?"2H Weapon (Guige Strap)":"Florentine pair (Guige Strap)",it,ok:host&&tierOk(it,n)&&reqMet(it,u)&&weaponUnlockMet(n,u)});});
+  return L.concat(G2,PR);}
+function secondaryValue(o){return o.weapon2h&&o.weapon2h!=="None"?"w:"+o.weapon2h:o.ranged&&o.ranged!=="None"?"r:"+o.ranged:"None";}
+function setSecondary(o,v){o.ranged=v.startsWith("r:")?v.slice(2):"None";o.weapon2h=v.startsWith("w:")?v.slice(2):"None";}
+function secondaryField(obj,u){const f=document.createElement("div");f.className="fld";f.innerHTML='<label>Secondary</label>';
+  const sel=document.createElement("select"),L=secondaryOptions(obj,u),cur=secondaryValue(obj);let grp=null,host=sel;
+  L.forEach(x=>{if(x.g&&x.g!==grp){grp=x.g;host=document.createElement("optgroup");host.label=grp;sel.appendChild(host);}
+    const o=document.createElement("option");o.value=x.v;o.textContent=(x.ok?"":"🔒 ")+x.t+(x.it&&x.it.tier?" ["+(x.it.tier_label||x.it.tier)+"]":"");if(!x.ok)o.className="locked";host.appendChild(o);});
+  const has=v=>L.some(x=>x.v===v),pick=[cur,"r:"+obj.ranged].find(has)||"None";   // a second set no longer offered falls back to the Ranged weapon
+  sel.value=pick;if(pick!==cur)setSecondary(obj,pick);
+  sel.onchange=()=>{setSecondary(obj,sel.value);save();render();};f.appendChild(sel);return f;}
 // Shared loadout builder (Army cards and the Garrison card): Retinue · Weapon · Ranged · Armor · Shield selects bound to obj,
 // locked options marked by the owner's unlocks u. opts.onRetinue runs after a Retinue change; opts.bastard folds a "2H…" profile entry into its weapon.
 function loadoutFields(obj,u,opts){opts=opts||{};const lo=document.createElement("div");lo.className="loadout";
@@ -1365,13 +1386,9 @@ function loadoutFields(obj,u,opts){opts=opts||{};const lo=document.createElement
   field("Retinue","retinue",retItems,new Set(Object.keys(EQ.retinues)),name=>u.retinues.has(name),opts.onRetinue);
   if(opts.bastard)fixBastard(obj);
   fixWeaponNotes(obj);
-  field("Weapon","weapon",EQ.weapons,u.wTiers,(name,it)=>reqMet(it,u)&&weaponUnlockMet(name,u)&&lanceOnlyOK(name,u,opts.army),()=>fixWeaponNotes(obj));
-  // Guige Strap (Buckler School): the Ranged choice becomes a 2H weapon carried beside the 1H weapon + Shield (no Ranged weapon)
-  if((u.mods||[]).some(m=>m.tok==="Guige Strap")){obj.ranged="None";
-    const w2={"None":{tier:null}};Object.keys(EQ.weapons).forEach(k=>{const w=EQ.weapons[k];if((w.tags||[]).includes("2H")&&!EQ.prof2hOf[k])w2[k]=w;});
-    field("2H Weapon","weapon2h",w2,u.wTiers,(name,it)=>name==="None"||(reqMet(it,u)&&weaponUnlockMet(name,u)));}
-  else{if(obj.weapon2h)obj.weapon2h="None";
-    field("Ranged","ranged",Object.assign({"None":{tier:null}},EQ.ranged),u.wTiers,(name,it)=>name==="None"||(u.ranged&&reqMet(it,u)&&!weaponForbids(obj.weapon,"ranged")));}
+  field("Main","weapon",EQ.weapons,u.wTiers,(name,it)=>reqMet(it,u)&&weaponUnlockMet(name,u)&&lanceOnlyOK(name,u,opts.army),()=>fixWeaponNotes(obj));
+  lo.appendChild(secondaryField(obj,u));
+  if(!(u.mods||[]).some(m=>m.tok==="Guige Strap")&&obj.weapon2h)obj.weapon2h="None";
   field("Armor","armor",EQ.armors,new Set(EQ.tiers),name=>u.armors.has(name)||name==="Cloth");
   const shieldItems={};Object.keys(EQ.shields).forEach(k=>shieldItems[k==="null"?"None":k]=EQ.shields[k]);
   field("Shield","shield",shieldItems,unlockedShieldTiers(u),name=>name==="None"||(u.shields&&!(name==="Tower Shield"&&weaponForbids(obj.weapon,"tower"))));
@@ -1402,7 +1419,7 @@ function renderArmy(){
   up.innerHTML='<details'+(unlOpen?' open':'')+'><summary class="lbl" style="cursor:pointer">ARMY UNLOCKS &amp; MODIFIERS <span class="note" style="text-transform:none;letter-spacing:0">'
     + esc([wt,[...u.armors].join(", "),[...u.retinues].join(", ")].filter(Boolean).join(" · ")+(u.mods.length?" · "+u.mods.length+" mod"+(u.mods.length>1?"s":""):""))+'</span></summary>'
     + g("Weapon tiers", wt)
-    + g("Ranged", u.ranged?"yes":"no") + g("Cavalry", u.weaponsUnl&&u.weaponsUnl.size?[...u.weaponsUnl].join(", "):(u.cavalry?"yes":"no"))
+    + g("Ranged", u.rangedUnl.size?[...u.rangedUnl].join(", "):"no") + g("Cavalry", u.weaponsUnl&&u.weaponsUnl.size?[...u.weaponsUnl].join(", "):(u.cavalry?"yes":"no"))
     + g("Armor", [...u.armors].join(", "))
     + g("Shields", u.shields?("yes ("+[...unlockedShieldTiers(u)].sort((a,b)=>TIER_RANK[a]-TIER_RANK[b]).join(", ")+")"):"no")
     + g("Retinues", [...u.retinues].join(", "))
@@ -1470,7 +1487,7 @@ function armyCard(a,u){
 
   // clickable loadout chips
   const loch=document.createElement("div");loch.className="lochips";
-  [["Retinue","retinue",a.retinue],["Weapon","weapon",a.weapon],["2H Weapon","weapon",a.weapon2h],["Ranged","ranged",a.ranged],
+  [["Retinue","retinue",a.retinue],["Main","weapon",a.weapon],["Secondary","weapon",a.weapon2h],["Secondary","ranged",a.ranged],
    ["Armor","armor",a.armor],["Shield","shield",a.shield]].forEach(([lbl,kind,val])=>{
     if(!val||val==="None")return;
     const c=document.createElement("span");c.className="lochip";c.dataset.kind=kind;c.dataset.item=val;

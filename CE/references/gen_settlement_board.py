@@ -1031,7 +1031,8 @@ def esc_payload(ns, data_path, summary_arg=""):
             P |= line(p, P - {p}) or set()
         ps = sorted(P)
         pool.append([n, r.get("retinue") or "", r.get("weapon") or "", r.get("shield") or "", r.get("armor") or "",
-                     r.get("ranged") or "", [hi[p] for p in ps], round(wr[n], 4) if n in wr else None])
+                     r.get("ranged") or "", [hi[p] for p in ps], round(wr[n], 4) if n in wr else None,
+                     r.get("weapon_2h") or ""])                       # Guige Strap's second weapon
     pool.sort(key=lambda x: -(x[7] or 0))
     rel = lambda f: os.path.relpath(f, lab) if os.path.abspath(f).startswith(os.path.abspath(lab)) else os.path.basename(f)
     src = (rel(summ) if summ else "") + (" + " + rel(pool_csv) if pool_csv else "")
