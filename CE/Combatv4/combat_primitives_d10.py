@@ -83,6 +83,21 @@ def hook_value(tags):
     return best
 
 
+def phalanx_value(tags):
+    """Phalanx X (defender): reduces the attacker's Hook by X. 'Phalanx' = 1; 'Phalanx N' -> N; the largest wins."""
+    best = 0
+    for t in tags or ():
+        t = str(t)
+        if t == "Phalanx":
+            best = max(best, 1)
+        elif t.startswith("Phalanx "):
+            try:
+                best = max(best, int(t.split()[1]))
+            except (IndexError, ValueError):
+                pass
+    return best
+
+
 def fluted_ap(ap, def_fluted):
     """Fluted (defender's armor): incoming AP reduced by 1, toward 0 — AP 0 stays 0.
     Applied to the AP a Strike carries (melee, Ranged or Riposte). Scalar-or-array."""

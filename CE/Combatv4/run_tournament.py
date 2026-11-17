@@ -56,16 +56,27 @@ def save_pool(pool, basename):
 
 
 def pool_fingerprint(kind, **params):
-    """Hash of what pool building reads: Holding tree + text + parsed tokens, gear tiers / keywords / Initiative /
-    notes (not AP or Save numbers), the Retinues, the pool code, and the pool settings."""
+    """Hash of what pool building reads, so wording-only edits reuse the cache:
+      Holdings   each one's parsed sim entry (tokens, Domain, parents, root, Monument, upkeep) and the weapon
+                 keywords its text points at (holding_synergy) - not the raw text
+      Standings  STANDING_EFFECTS + STANDING_THRESHOLDS (become saved tags)
+      gear       tier / keywords / Initiative / notes / requires / 2H profile (not AP or Save numbers)
+      Retinues   names + cost (cost becomes the saved upkeep)
+      code       loadouts.py as parsed (comments and layout ignored), and the pool settings."""
+    import ast
     import hashlib
     rd = loadouts.rd
     items = {nm: {str(k): {f: v.get(f) for f in ("tier", "tags", "init", "note", "requires", "profile_2h")}
                   for k, v in getattr(rd, nm).items() if isinstance(v, dict)}
              for nm in ("WEAPONS", "RANGED", "SHIELDS", "ARMORS")}
-    code = hashlib.sha1(open(loadouts.__file__, "rb").read()).hexdigest()
-    blob = json.dumps({"kind": kind, "params": params, "nodes": rd.NODES, "sim": rd.HOLDING_SIM, "items": items,
-                       "retinues": list(rd.RETINUES), "code": code}, sort_keys=True, default=str)
+    synergy = {n: [sorted(s) for s in loadouts.holding_synergy(n)] for n in rd.HOLDING_SIM}
+    standings = {"effects": {str(k): v for k, v in getattr(rd, "STANDING_EFFECTS", {}).items()},
+                 "thresholds": getattr(rd, "STANDING_THRESHOLDS", None)}
+    retinues = {n: r.get("cost") for n, r in rd.RETINUES.items()}
+    code = hashlib.sha1(ast.dump(ast.parse(open(loadouts.__file__, encoding="utf-8").read())).encode()).hexdigest()
+    blob = json.dumps({"kind": kind, "params": params, "sim": rd.HOLDING_SIM, "synergy": synergy,
+                       "standings": standings, "items": items, "retinues": retinues, "code": code},
+                      sort_keys=True, default=str)
     return hashlib.sha1(blob.encode("utf-8")).hexdigest()[:12]
 
 

@@ -13,6 +13,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 import re
 import renown_data as rd
+from rich_text import rich_wrap, draw_rich   # bold lead-in labels ("Each Empire Phase:", "Ranger:")
 _INN_LBL = "EFFECT" if getattr(rd, "SIMPLE", False) else "INNATE"
 
 SERIF, SERIF_B, SERIF_I = "Helvetica", "Helvetica-Bold", "Helvetica-Oblique"
@@ -99,7 +100,7 @@ def body_layout(c, inn, mas, mas_req, gate, gate_col, x, y_top, y_floor, w, cap=
         lines = blocks = 0
         for txt in (inn, mas):
             if txt:
-                lines += len(wrap(c, txt, SERIF, size, w)); blocks += 1
+                lines += len(rich_wrap(c, txt, SERIF, SERIF_B, size, w)); blocks += 1
         rs = max(5.0, size*0.72)
         req_lines = 0
         if inn and gate:     req_lines += len(wrap(c, _INN_LBL + ": " + gate, SERIF_I, rs, w))
@@ -140,8 +141,8 @@ def body_layout(c, inn, mas, mas_req, gate, gate_col, x, y_top, y_floor, w, cap=
             c.drawString(x, y, label)
             y -= size * 0.85 + 1.5
         c.setFont(SERIF, size); c.setFillColor(BODY)
-        for ln in wrap(c, txt, SERIF, size, w):
-            c.drawString(x, y, ln); y -= size + 1.8
+        for ln in rich_wrap(c, txt, SERIF, SERIF_B, size, w):
+            draw_rich(c, x, y, ln, size); y -= size + 1.8
         y -= 3
     return y
 

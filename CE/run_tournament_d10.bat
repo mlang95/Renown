@@ -57,7 +57,7 @@ REM       balanced      = gear first, full legal gear cross, balanced per (Retin
 REM       generator     = every Holding combination within TI (archetype_pool)              [TI_MIN/TI_MAX, STRATIFY per TI]
 set POOL=holding_first
 set TI_MIN=8
-set TI_MAX=20
+set TI_MAX=22
 REM PER_CELL vs STRATIFY: both cap how many builds go into the pool; which one is read depends on POOL.
 REM   PER_CELL  (holding_first, balanced): max builds per (Retinue x TI) cell, i.e. per Retinue at each TI value.
 REM             Pool size <= 4 Retinues x PER_CELL x (TI_MAX - TI_MIN + 1). Low TI cells often hold fewer builds
@@ -68,7 +68,7 @@ REM             Pool size <= STRATIFY x (TI_MAX - TI_MIN + 1). "all" = every bui
 REM             e.g. TI 5-12 x 500 = up to 4,000 builds.
 REM   Run time and file size grow with the SQUARE of the pool (every build plays every other):
 REM   1,600 builds = ~2.6M pairings per tournament; 4,000 builds = ~16M. Halve the cap to quarter the run.
-set PER_CELL=50
+set PER_CELL=100
 REM BALANCE (holding_first only): weapon = each (Retinue x TI) cell's slots dealt evenly across the weapons
 REM         it can field, so rare weapons (Estoc, Bastard Sword) get a full share; none = uniform sample.
 REM         weapon_kit = dealt across weapon x kit (each shield, Dual Wield, none), so a weapon's
@@ -95,12 +95,12 @@ REM EXPLORER=1: write build_explorer.html / build_explorer_optimal.html into the
 set RANDOM=0
 set OPTIMAL=1
 set PLAYSTYLE=0
-set EXPLORER=1
+set EXPLORER=0
 
 REM ============================ MEMORY SETTINGS ===============================
 REM WORKERS: each initializes numba and RESERVES several GB of Windows COMMIT.
 REM Keep at 6-8. Lower on MemoryError; raise cautiously.
-set WORKERS=12
+set WORKERS=14
 set RENOWN_MEM_DEBUG=1
 set SLOT_BUDGET=auto
 REM auto

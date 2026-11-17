@@ -240,6 +240,31 @@
         "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\de104240f25e6e61\\dfb5b50f-0631-4441-b002-b580d6203e02\\scratchpad\\e2e"
       ],
       "port": 8784
+    },
+    {
+      "name": "board-playback",
+      "runtimeExecutable": "C:/Users/Matt/anaconda3/envs/kotr/python.exe",
+      "runtimeArgs": [
+        "references/server.py"
+      ],
+      "env": {
+        "PORT": "8785",
+        "RENOWN_DB": "C:/Users/Matt/AppData/Local/Temp/claude/cfc9f01daf5e04c5/f3c56ea5-1e3a-4633-b7cb-ba3966fbf9e6/scratchpad/playback.db",
+        "RENOWN_GAMES": "C:/Users/Matt/AppData/Local/Temp/claude/cfc9f01daf5e04c5/f3c56ea5-1e3a-4633-b7cb-ba3966fbf9e6/scratchpad/pb_games"
+      },
+      "port": 8785
+    },
+    {
+      "name": "board-ai",
+      "runtimeExecutable": "C:\\Users\\Matt\\anaconda3\\envs\\kotr\\python.exe",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8786",
+        "--directory",
+        "C:\\Users\\Matt\\AppData\\Local\\Temp\\claude\\b2018bd4141d9d75\\c9c481bc-fd4a-43fa-9ee7-79642c0d9383\\scratchpad\\board"
+      ],
+      "port": 8786
     }
   ]
 }

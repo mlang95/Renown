@@ -140,6 +140,8 @@ NEGATE_SHIELDED    = negate(MINUS_1_TBH)   # RETIRED (Nov 7 2026): replaced by H
 HOOK               = "Hook"                # Hook X: the attacker ignores up to X points of the defender's Shielded
 HOOK_1             = f"{HOOK} 1"
 HOOK_2             = f"{HOOK} 2"
+PHALANX            = "Phalanx"             # Phalanx X (Nov 16 2026): enemy Hook against this Army is reduced by X; bare "Phalanx" = Phalanx 1
+IMMUNE_HOOK        = immune(HOOK)        # Immune Hook (Heater Shield): the attacker's Hook X ignores none of this Shielded
 SHIELDED_2         = f"{MINUS_1_TBH} 2"     # Shielded 2 (Heater Shield): -2 to enemy Strikes
 SHIELDED_3         = f"{MINUS_1_TBH} 3"     # Shielded 3 (Tower Shield): -3 to enemy Strikes (Nov 8 2026)
 MINUS_1_PARRY      = "-1 to Parry"
@@ -164,7 +166,7 @@ GLOSSARY = {
     POISON:         f"When the Defender receives a Strike and rolls a {PIVOTAL} Save, it fails; the resulting wound may only be {RECOVER}ed with a {PIVOTAL} {RECOVER}.",
     NIMBLE:         "Gain Initiative +1 in the first Skirmish of each Battle.",
     DRILLED:        "Does not lose Endurance in the first Skirmish of each Battle.",
-    DESTROY_SHIELD: f"On a {PIVOTAL} Strike: the target loses its Shield attributes for the rest of the Battle.",
+    DESTROY_SHIELD: f"On a {PIVOTAL} Strike (Deadly +1 widens it, as it does {DEADLY}): the target loses its Shield attributes for the rest of the Battle.",
     BLUNDER:        f"At Initiative {INITIATIVE_MIN} or lower, your to-Strike is set to {BLUNDER_THR}+ (penalties can't make it worse).",
     ONE_SHOT:       "May only be Equipped in the first Skirmish of a Battle; if it isn't Equipped then, it can't be used that Battle. Requires Training Grounds.",
     #DEFLECT:        "-1 to Parry and Negate Riposte against this weapon's Strikes. (All Ranged weapons have Deflect.)",
@@ -174,7 +176,7 @@ GLOSSARY = {
     RIPOSTE:        f"If your Army has gained {RIPOSTE} and rolls a Focused Parry against a Melee Weapon's Strike, you Riposte: your opponent immediately takes a Strike from your melee weapon. You can Riposte a Riposte.",
     NO_PARRY:       "While Equipped with this weapon during a Skirmish, you cannot Parry.",
     CRUDE:          f"While this weapon or shield is Equipped during a Skirmish, you cannot Parry, and so cannot Riposte. Immune {NO_PARRY} doesn't remove this.",
-    "Deadly +1":    f"Your {DEADLY} also triggers on an Unmodified roll one lower than {PIVOTAL} (9+). Each +1 stacks. Written \"(Ranged Weapons)\", it applies only while a Ranged Weapon is Equipped.",
+    "Deadly +1":    f"Your {DEADLY} also triggers on an Unmodified roll one lower than {PIVOTAL} (9+), and so does {DESTROY_SHIELD}. Each +1 stacks. Written \"(Ranged Weapons)\" or \"(Melee Weapons)\", it applies only while that kind of weapon is Equipped.",
     "Cleave +1":    f"Your {CLEAVE} also triggers on an Unmodified roll one lower than {PIVOTAL} (9+). Each +1 stacks.",
     "Parry +1":     f"Your {PARRY} rolls succeed on one lower. Each +1 stacks.",
     "Riposte +1":   f"You also {RIPOSTE} on a successful Parry roll one lower than {PIVOTAL} (9).",
@@ -185,6 +187,7 @@ GLOSSARY = {
     WEDGE:          f"In the first Skirmish of a Battle, -1 to the defender's Parry roll against Strikes from the weapon that gained it.",
     "First Charge X": "In the first Skirmish of a Battle, Cavalry Spears and Lances gain -X AP. First Charge with no number is First Charge 1; each source adds up.",
     "Hook X":       f"Your Strikes ignore up to X modifiers of the defender's {MINUS_1_TBH}.",
+    "Phalanx X":    f"Hook X of Strikes against your Army is reduced by X (to a minimum of 0). {PHALANX} with no number is {PHALANX} 1.",
     RECOVER:        f"If your Army has gained {RECOVER} and a to-Save roll fails, roll a D{FACES} & compare it to your Recover value: a result greater than or equal to your Recover value recovers the Retinue. Recovered Strikes still count toward the Panic check threshold.",
     ENDURING:       "Successfully Recovered Strikes don't count toward the Panic check threshold.",
     SERRATED:       f"A cumulative -{SERRATED_MOD} penalty to the defender's Recover roll.",
@@ -338,8 +341,8 @@ ENDURANCE_REGAIN    = 2    # +Endurance restored to non-Strained armies in the E
 RETINUES = {
     "Levy":           {"cost": 1000, "to_hit": 6, "endurance": 3, "shaking": 6, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
     "Man-at-Arms":    {"cost": 2000, "to_hit": 5, "endurance": 4, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
-    "Sergeant":       {"cost": 3000, "to_hit": 3, "endurance": 3, "shaking": 5, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
-    "Knight Templar": {"cost": 4000, "to_hit": 4, "endurance": 2, "shaking": 4, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
+    "Sergeant":       {"cost": 3000, "to_hit": 3, "endurance": 3, "shaking": 4, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
+    "Knight Templar": {"cost": 3000, "to_hit": 4, "endurance": 2, "shaking": 3, "unbreakable": False, "speed": 5, "max_size": ARMY_MAX_RETINUES},
 }
 
 WEAPONS = {
@@ -347,23 +350,23 @@ WEAPONS = {
     "Cudgel":         {"ap": -1, "init": -1, "tier": "Crude",   "tags": [TWO_H, CRUDE]},
     "Pitchfork":      {"ap":  0, "init":  1, "tier": "Crude",   "tags": [TWO_H, UNWIELDY, CRUDE]},
     "Bill Hook":      {"ap": -1, "init":  0, "tier": "Cast",   "tags":  [TWO_H, HOOK_1]},
-    "Daggers":        {"ap":  0, "init":  0, "tier": "Cast",    "tags": [TWO_H, DEADLY, NO_PARRY]},
-    "Short Sword":    {"ap":  0, "init":  0, "tier": "Cast",    "tags": [STEADY, "Parry +1"]},
-    "Spears":         {"ap":  0, "init":  1, "tier": "Cast",    "tags": [UNWIELDY, NO_PARRY], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile. Cannot Florentine.'},
-    "2HSpears":       {"ap": -1, "init":  1, "tier": "Cast",    "tags": [TWO_H, STEADY, NO_PARRY]},
+    "Daggers":        {"ap": -1, "init": -1, "tier": "Cast",    "tags": [TWO_H, DEADLY, NO_PARRY]},
+    "Short Sword":    {"ap":  0, "init":  0, "tier": "Cast",    "tags": [STEADY]},
+    "Spears":         {"ap":  0, "init":  1, "tier": "Cast",    "tags": [UNWIELDY, DEADLY, NO_PARRY], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile. Cannot Florentine.'},
+    "2HSpears":       {"ap":  0, "init":  1, "tier": "Cast",    "tags": [TWO_H, STEADY, DEADLY, NO_PARRY]},
     "Arming Sword":   {"ap": -1, "init":  0, "tier": "Wrought", "tags": [STEADY, "Parry +1"]},
-    "Flail":          {"ap": -1, "init":  0, "tier": "Wrought", "tags": [UNSTOPPABLE, CLEAVE, NO_PARRY]},
+    "Flail":          {"ap": -2, "init": -1, "tier": "Wrought", "tags": [UNSTOPPABLE, CLEAVE, NO_PARRY]},
     "Halberd":        {"ap": -2, "init":  1, "tier": "Wrought", "tags": [TWO_H, HOOK_1]},
     "Battle Axe":     {"ap": -4, "init": -1, "tier": "Wrought", "tags": [TWO_H, UNSTOPPABLE, CLEAVE, HOOK_1]},
-    "Cavalry Spear":  {"ap":  0, "init":  1, "tier": "Wrought", "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY, DEADLY], 'note': "Needs Stable; no Tower Shield or Florentine or Ranged Weapon; can't use the Defensive Formation Tactic.", 'tactics_banned': ["Defensive Formation"]},
-    "Pike":           {"ap": -3, "init":  1, "tier": "Forged",  "tags": [TWO_H, STEADY, UNWIELDY, DEADLY, UNSTOPPABLE, NO_PARRY]},
+    "Cavalry Spear":  {"ap": -1, "init":  1, "tier": "Wrought", "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY], 'note': "Needs Stable; no Tower Shield or Florentine or Ranged Weapon; can't use the Defensive Formation Tactic.", 'tactics_banned': ["Defensive Formation"]},
+    "Pike":           {"ap": -3, "init":  2, "tier": "Forged",  "tags": [TWO_H, STEADY, UNWIELDY, DEADLY, UNSTOPPABLE, NO_PARRY]},
     "Morningstar":    {"ap": -4, "init": -1, "tier": "Forged",  "tags": [CLEAVE]},   # Nov 8 2026: Unwieldy dropped; Destroy Shield is thrown weapons only
     "Bastard Sword":  {"ap": -2, "init":  0, "tier": "Forged",  "tags": [STEADY, DEADLY, "Parry +1"], 'note': 'At the beginning of each equipment step, you may choose the 1H or 2H profile. Cannot Florentine.'},
-    "2HBastard":      {"ap": -2, "init":  0, "tier": "Forged",  "tags": [TWO_H, UNSTOPPABLE, CLEAVE]},
+    "2HBastard":      {"ap": -2, "init":  0, "tier": "Forged",  "tags": [TWO_H, UNSTOPPABLE, CLEAVE, "Parry +1"]},
     "War Hammer":     {"ap":-10, "init": -1, "tier": "Forged",  "tags": [TWO_H, STEADY, UNSTOPPABLE, HOOK_2]},   # Nov 8 2026: Destroy Shield is thrown weapons only
     "Lance":          {"ap": -5, "init":  1, "tier": "Crafted", "tags": [STEADY, UNWIELDY, UNSTOPPABLE, NO_PARRY, DEADLY], 'note': "Needs Saddlery; no Tower Shield, Florentine, Ranged weapon; can't use the Defensive Formation Tactic.", 'tactics_banned': ["Defensive Formation"]},
     "Estoc":          {"ap": -3, "init":  0, "tier": "Crafted", "tags": [STEADY, CLEAVE, UNSTOPPABLE, "Parry +1"]}, #Falchion
-    "Poleaxe":        {"ap": -4, "init":  1, "tier": "Crafted", "tags": [TWO_H, DEADLY, UNSTOPPABLE, HOOK_2]},   # Nov 8 2026: Destroy Shield is thrown weapons only
+    "Poleaxe":        {"ap": -4, "init":  1, "tier": "Crafted", "tags": [TWO_H, STEADY, DEADLY, UNSTOPPABLE, HOOK_1]},   # Nov 8 2026: Destroy Shield is thrown weapons only
 }
 # 1H / 2H profiles: an entry named "2H<Name>" is the 2H profile of the weapon named <Name> (or the one weapon
 # whose name starts with it: "2HBastard" → "Bastard Sword"). That weapon gets "profile_2h"; it is one item that
@@ -378,22 +381,22 @@ WEAPON_2H_PROFILES = {v["profile_2h"]: k for k, v in WEAPONS.items() if v.get("p
 CAVALRY_WEAPONS = ("Cavalry Spear", "Lance")   # what "Cavalry" names in rules text (First Charge); keep in step with the Stable/Saddlery unlocks
 RANGED_WEAPON = [UNSTOPPABLE, NO_PARRY, DEADLY]
 RANGED = {
-    "Hunting Bow": {"ap":  0, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNSTOPPABLE, DEADLY, NO_PARRY]},
-    "Longbow":     {"ap": -1, "init":  2, "tier": "Cast",    "tags": [TWO_H, UNSTOPPABLE, DEADLY, NO_PARRY]},
-    "Javelin":     {"ap": -2, "init":  2, "tier": "Wrought", "tags": [STEADY, DEADLY, UNSTOPPABLE, HOOK_1, DESTROY_SHIELD, ONE_SHOT, NO_PARRY], 'note': 'Cannot Florentine'},
-    "Crossbow":    {"ap": -3, "init":  2, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, DEADLY, UNSTOPPABLE, HOOK_2, ONE_SHOT, NO_PARRY]},#'note': "Tower Shield only (no other shield), cannot Dual Wield"
-    "Pilum":       {"ap": -4, "init":  2, "tier": "Crafted", "tags": [STEADY, DEADLY, UNSTOPPABLE, HOOK_2, DESTROY_SHIELD, ONE_SHOT, NO_PARRY], 'note': 'Cannot Florentine'},
-    "Arquebus":    {"ap": -6, "init":  2, "tier": "Crude",   "tags": [TWO_H, STEADY, DEADLY, UNSTOPPABLE, HOOK_2, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
+    "Hunting Bow": {"ap": -1, "init":  2, "tier": "Crude",   "tags": [TWO_H, UNSTOPPABLE, DEADLY, NO_PARRY]},
+    "Longbow":     {"ap": -2, "init":  2, "tier": "Cast",    "tags": [TWO_H, UNSTOPPABLE, DEADLY, NO_PARRY]},
+    "Javelin":     {"ap": -3, "init":  2, "tier": "Wrought", "tags": [DEADLY, UNSTOPPABLE, HOOK_1, DESTROY_SHIELD, ONE_SHOT, NO_PARRY], 'note': 'Cannot Florentine'},
+    "Crossbow":    {"ap": -4, "init":  2, "tier": "Forged",  "tags": [TWO_H, UNWIELDY, DEADLY, UNSTOPPABLE, HOOK_2, ONE_SHOT, NO_PARRY]},#'note': "Tower Shield only (no other shield), cannot Dual Wield"
+    "Pilum":       {"ap": -4, "init":  2, "tier": "Crafted", "tags": [DEADLY, UNSTOPPABLE, HOOK_2, DESTROY_SHIELD, ONE_SHOT, NO_PARRY], 'note': 'Cannot Florentine'},
+    "Arquebus":    {"ap": -8, "init":  2, "tier": "Crude",   "tags": [TWO_H, STEADY, DEADLY, UNSTOPPABLE, HOOK_2, NO_PARRY], 'note': "May only use the Fighting Formation or Fall Back Tactics.", 'requires': ["Artillery Park"], 'tactics_allowed': ["Fighting Formation", "Fall Back"]},
    
 }
 
 SHIELDS = {
     None:            {"save_bonus": 0, "init":  0, "tier": None,     "tags": []},
-    "Buckler Shield":{"save_bonus": 1, "init":  0, "tier": "Crude",  "tags": []},
-    "Targe Shield":  {"save_bonus": 1, "init": -1, "tier": "Cast",   "tags": [UNWIELDY, MINUS_1_TBH]},
-    "Kite Shield":   {"save_bonus": 1, "init": -1, "tier": "Wrought","tags": [STEADY, SHIELDED_2]},   # Nov 8 2026: no Steady, Initiative 0
+    "Buckler Shield":{"save_bonus": 1, "init":  0, "tier": "Crude",  "tags": [MINUS_1_TBH]},
+    "Targe Shield":  {"save_bonus": 1, "init": -1, "tier": "Cast",   "tags": [UNWIELDY, SHIELDED_2]},
+    "Kite Shield":   {"save_bonus": 2, "init": -1, "tier": "Wrought","tags": [STEADY, SHIELDED_2]},   # Nov 8 2026: no Steady, Initiative 0
     "Tower Shield":  {"save_bonus": 2, "init": -2, "tier": "Forged", "tags": [UNWIELDY, CRUDE, SHIELDED_3]}, # no Parry + Shielded 3 (Steady dropped, Shielded 3: Nov 8 2026)
-    "Heater Shield": {"save_bonus": 2, "init": -1, "tier": "Crafted","tags": [SHIELDED_2, IMMUNE_DESTROY_SHIELD]},   # Nov 8 2026: Save +2, Shielded 2; Immune Destroy Shield back on the Heater
+    "Heater Shield": {"save_bonus": 2, "init": -1, "tier": "Crafted","tags": [SHIELDED_2, IMMUNE_DESTROY_SHIELD]}, #, IMMUNE_HOOK  # Nov 15 2026: + Immune Hook. Nov 8 2026: Save +2, Shielded 2; Immune Destroy Shield back on the Heater
 }
 
 ARMORS = {
@@ -401,8 +404,8 @@ ARMORS = {
     "Gambeson":    {"save":  8, "tier": "Crude",   "tags": []},
     "Leather":     {"save":  7, "tier": "Cast",    "tags": []},
     "Chainmail":   {"save":  6, "tier": "Wrought", "tags": []},
-    "Full Plate":  {"save":  4, "tier": "Forged",  "tags": ["Init -1"]},   # Nov 9 2026: Initiative -1 every Skirmish (combat only)
-    "Gothic Plate":{"save":  3, "tier": "Crafted", "tags": []},   # Nov 9 2026: 3+, Articulated dropped (was Fluted AP -1 + Immune Strained)
+    "Full Plate":  {"save":  4, "tier": "Forged",  "tags": []},   # Nov 9 2026: Initiative -1 every Skirmish (combat only)
+    "Gothic Plate":{"save":  3, "tier": "Crafted", "tags": [FLUTED]},   # Nov 9 2026: 3+, Articulated dropped (was Fluted AP -1 + Immune Strained)
 }
 
 # ── Tier ladder ────────────────────────────────────────────────────────────
@@ -422,7 +425,7 @@ TIER_UNLOCK = {
 STANDING_EFFECTS = {
     ("Prowess", "Established"): "Gain Parry.", #Remove "Parry"
     ("Prowess", "Sovereign"): "Immune Blunder",
-    ("Piety",   "Sovereign"): "Morale +1",
+    #("Piety",   "Sovereign"): "Morale +1",
     #("Piety", "Sovereign"): "Immune Panic",
     ("Cunning", "Established"): "Opponent gains Strained.", #Remove "Foes gain Blunder in first Skirmish"
     ("Cunning", "Sovereign"):   "Opponent gains Blunder in the first Skirmish.", #Remove "Foes gain Strained"
@@ -936,7 +939,7 @@ NODES = {
     "Fletchery": {
         "group": "g_arms",
         "unlock": "Rising Prowess",
-        "innate": "Supply -500; Unlocks Hunting Bow",
+        "innate": "Supply -500; Unlocks Hunting Bow; Unlocks Ranged Weapons",
         "efficient": "Forestry",
         "monument": False},
     "Chandlery": {
@@ -1115,13 +1118,13 @@ NODES = {
     "Money Lending": {
         "group": "g_commerce",
         "unlock": "Established Industry",
-        "innate": "Once per Empire Phase, you may loan money to another player at 100 per 1000/turn interest (minimum 100); on Default: Perform Demand Tribute; Extort 1000",
+        "innate": "Once per Empire Phase: you may loan money to another player at 100 per 1000/turn interest (minimum 100); on Default: Perform Demand Tribute; Extort 1000",
         "efficient": ["Merchant Quarter"],
         "monument": False},
     "Esteemed Bank": {
         "group": "g_commerce",
         "unlock": "Established Industry",
-        "innate": "Each Empire Phase, Gain 1000 per 10000 in Treasury",
+        "innate": "Each Empire Phase: Gain 1000 per 10000 in Treasury",
         "efficient": ["Money Lending"],
         "monument": False},
     "Census Hall": {
@@ -1241,7 +1244,7 @@ NODES = {
         "group": "g_devotion",
         "unlock": "Established Piety",
         #"infrastructure_req": "Chapel",
-        "innate": "Recover improved by +1; Enduring: Successful Recovered rolls do not count towards the panic check threshold",
+        "innate": "Recover improved by +1; Enduring: Successful Recovered rolls do not count towards the panic check threshold",#
         "efficient": "Infirmary",
         "monument": False},
     "Jester's Court": {
@@ -1261,7 +1264,7 @@ NODES = {
         "group": "g_court",
         "unlock": "Established Piety",
         #"infrastructure_req": "Library",
-        "innate": "Once per Diplomacy Phase, you may cause a Diplomacy action to fail; Other non-vassal players gain Faith +1 per Signed Treaty with you besides Peace",
+        "innate": "Once per Diplomacy Phase: you may cause a Diplomacy action to fail; Other non-vassal players gain Faith +1 per Signed Treaty with you besides Peace",
         "efficient": "Bell Tower",
         "monument": False},
     "Granary": {
@@ -1360,7 +1363,7 @@ NODES = {
         "group": "g_court",
         "unlock": "-",
         "natural": True,
-        "innate": "In the Intrigue Phase: Authority -1 on one Envoy", # Once per Envoy Phase: select a Personal Action you performed this turn. Next turn, you may perform that action in the Empire Phase, but you send 1 fewer Envoy next turn.
+        "innate": "Intrigue Phase: Authority -1 on one Envoy", # Once per Envoy Phase: select a Personal Action you performed this turn. Next turn, you may perform that action in the Empire Phase, but you send 1 fewer Envoy next turn.
         "efficient": ["Inn","Animal Husbandry"],
         "monument": False},
     "Toll House": {
@@ -1422,7 +1425,7 @@ NODES = {
     "Forgery Workshop": {
         "group": "g_secrecy",
         "unlock": "Established Cunning",
-        "innate": "At the end of the Tally Phase, if a Cunning Envoy you sent Failed, you may send another Cunning Envoy",
+        "innate": "Tally Phase end: if a Cunning Envoy you sent Failed, you may send another Cunning Envoy",
         "efficient": ["Dark Scriptorium"],
         "monument": False},
     "Toxicarium": {
@@ -1467,7 +1470,7 @@ NODES = {
         "unlock": "Established Cunning",
         #"infrastructure_req": "Dirt Roads",
         "natural": True,
-        "innate": "At the Start of the Empire Phase, you may select an Army within your Province and move it up to its modified Speed; Whenever a non-allied Army ends a Move action within your Province, you may immediately perform a Move action",
+        "innate": "Empire Phase start: you may select an Army within your Province and move it up to its modified Speed; Whenever a non-allied Army ends a Move action within your Province, you may immediately perform a Move action",
         "efficient": "Toll House",
         "monument": False},
     "Forgotten Catacombs": {
@@ -1517,7 +1520,7 @@ NODES = {
         "unlock": "Sovereign Prowess",
         #"infrastructure_req": "Bridges",
         "natural": True,
-        "innate": "Supply -2000; At the Start of the Empire Phase, you may perform a Move action; Gain Immune Blocked",
+        "innate": "Supply -2000; Empire Phase start: you may perform a Move action; Gain Immune Blocked",
         "efficient": "Levy Hall",
         "monument": True},
     "Siege Camp": {
@@ -1598,20 +1601,20 @@ NODES = {
     "Training Grounds": {         # Nov 8 2026: the old Skirmish Field (dual-equip) under a new name. Nov 12: grants Ranger
         "group": "g_arms",
         "unlock": "Rising Prowess",
-        "innate": "Ranger: Armies may use a Ranged Weapon as their secondary weapon; Unlocks Longbow",
+        "innate": "Ranger: Armies may use a Ranged Weapon as their secondary weapon; Unlocks Javelin",
         "efficient": "Fletchery",
-        "monument": False},
-    "Archery Butts": {
-        "group": "g_arms",
-        "unlock": "Established Prowess",
-        "innate": "Ranged Weapons gain +1 to Strike; Unlocks Crossbow", #Ranged Weapons gain -1AP
-        "efficient": "Training Grounds",
         "monument": False},
     "Skirmish Field": {           # Nov 8 2026: takes the old Fighting School slot
         "group": "g_arms",
         "unlock": "Established Prowess",
-        "innate": "Gain Immune Awkward; Unlocks Javelin",
-        "efficient": "Archery Butts",
+        "innate": "Gain Immune Awkward; Unlocks Longbow",
+        "efficient": "Training Grounds",
+        "monument": False},
+    "Archery Butts": {
+        "group": "g_arms",
+        "unlock": "Established Prowess",
+        "innate": "Upkeep -500; Unlocks Crossbow", #Ranged Weapons gain -1AP; Ranged Weapons gain +1 to Strike
+        "efficient": "Skirmish Field",
         "monument": False},
     "List Yard": {                # Nov 8 2026: moved to the tournament branch
         "group": "g_arms",
@@ -1630,7 +1633,7 @@ NODES = {
         "group": "g_arms",
         "unlock": "Sovereign Industry",
         #"infrastructure_req": "Aqueducts",
-        "innate": "Unlocks Articulated Gothic Plate", #Supply -500; # Planishing moved to Armory as Riveted (Nov 7 2026); Gothic Plate carries Articulated
+        "innate": "Unlocks Gothic Plate", #Supply -500; # Planishing moved to Armory as Riveted (Nov 7 2026); Gothic Plate carries Articulated
         "efficient": "Gilded Foundry",
         "monument": True},
     "Serfdom": {
@@ -1652,33 +1655,32 @@ NODES = {
     "Royal Pavilion": {
         "group": "g_logistics",
         "unlock": "Sovereign Prowess",
-        "innate": "Deadly +2; Cleave +2; Immune Strained", #; gain Steady
+        "innate": "Deadly +2 (Melee Weapons); Cleave +2; Immune Strained", #; gain Steady   Nov 13 2026: Deadly melee only
         "efficient": ["List Yard"],
         "monument": True},
     "Ballistarium": {
         "group": "g_arms",
         "unlock": "Sovereign Prowess",
-        "innate": "Deadly +2 (Ranged Weapons); Unlocks Pilum",
-        "efficient": "Skirmish Field",
+        "innate": " Gain Immune One-Shot; Unlocks Pilum",#Deadly +2 (Ranged Weapons);
+        "efficient": "Archery Butts",
         "monument": True},
     "College of Arms": {
         "group": "g_arms",
         "unlock": "Sovereign Industry",
-        "innate": "Unlocks Heater Shield; Unlocks Chainmail",   # Nov 8 2026: "Shields gain Immune Destroy Shield" removed (the Heater carries it)
+        "innate": "Unlocks Heater Shield; Unlocks Chainmail; Armies gain Phalanx",   # Nov 16 2026: + Phalanx. Nov 8 2026: "Shields gain Immune Destroy Shield" removed (the Heater carries it)
         "efficient": "Pavisiers' Yard",
         "monument": True},
     "Imperial Palace": {
         "group": "g_works",
         "unlock": "Sovereign Prowess + Established Industry",
         #"infrastructure_req": "Keep",
-        "innate": "If your Envoy would fail, it passes instead; Each Empire Phase, each non-allied player with a lower Prowess value gains Doubt +2",
+        "innate": "If your Envoy would fail, it passes instead; Each Empire Phase: each non-allied player with a lower Prowess value gains Doubt +2",
         "efficient": "Castle Hall",
         "monument": True},
     "Artillery Park": {
         "group": "g_logistics",
         "unlock": "Sovereign Prowess + Established Industry",
         ##"infrastructure_req": "Magistrate's Hall",
-        "innate": "Siege Timers ignore Wooden & Stone Walls; Unlocks Arquebus",
         "innate": "Siege Timers ignore Wooden & Stone Walls; Unlocks Arquebus",
         "efficient": "Abatis Field",
         "monument": True},
@@ -1700,14 +1702,14 @@ NODES = {
         "group": "g_court",
         "unlock": "Sovereign Piety",
         #"infrastructure_req": "Library",
-        "innate": "Faith +1; Influence +1 per other player; In the Intrigue Phase, you may Condemn an At War player's Envoy or Endorse an Ally's Envoy",
+        "innate": "Faith +1; Influence +1 per other player; Intrigue Phase: you may Condemn an At War player's Envoy or Endorse an Ally's Envoy",
         "efficient": "Embassy",
         "monument": True},
     "Papal Palace": {
         "group": "g_devotion",
         "unlock": "Sovereign Piety + Established Industry",
         #"infrastructure_req": "Cathedral",
-        "innate": "Each Empire Phase, Tithe each other player with lower Piety, resolved in the Extort step; You no longer pay cost for Piety Envoys",
+        "innate": "Each Empire Phase: Tithe each other player with lower Piety, resolved in the Extort step; You no longer pay cost for Piety Envoys",
         "efficient": ["Monastery"],
         "monument": True},
     "Inquisitorial Palace": {
@@ -1728,7 +1730,7 @@ NODES = {
         "group": "g_devotion",
         "unlock": "Sovereign Piety",
         #"infrastructure_req": "Cathedral",
-        "innate": "Gold +300 per Faith; At the Start of the Empire Phase, you may perform an Endorsed Spread Truth",
+        "innate": "Gold +300 per Faith; Empire Phase start: you may perform an Endorsed Spread Truth",
         "efficient": "Unforgotten Shrine",
         "monument": True},
     "Manor House": {
@@ -1756,7 +1758,7 @@ NODES = {
     "Outlaw Rookery": {
         "group": "g_secrecy",
         "unlock": "Sovereign Cunning",
-        "innate": "Each Empire Phase, Extort the whole Treasury of every Bandit Camp within your Province; Bandit Camps and Armies within your Province don't target you and instead target another player at random", #gain Immune Uprising (your Uprising spawns no Bandit Camps); 
+        "innate": "Each Empire Phase: Extort the whole Treasury of every Bandit Camp within your Province; Bandit Camps and Armies within your Province don't target you and instead target another player at random", #gain Immune Uprising (your Uprising spawns no Bandit Camps); 
         "efficient": "Syndicate Hub",
         "monument": True},
     "Advanced Blast Furnace": {
@@ -1769,13 +1771,13 @@ NODES = {
     "Cipher Chamber": {
         "group": "g_secrecy",
         "unlock": "Established Cunning",
-        "innate": "At the Start of the Empire Phase, choose one: select an army you did not select last turn; that army gains Blocked; or select any active Timer you did not select last turn; increase it by 2",
+        "innate": "Empire Phase start: choose one: select an army you did not select last turn; that army gains Blocked; or select any active Timer you did not select last turn; increase it by 2",
         "efficient": "Forgery Workshop",
         "monument": False},
     "Whispering Undercroft": {
         "group": "g_secrecy",
         "unlock": "Sovereign Cunning",
-        "innate": "In the Intrigue Phase, choose a Personal Envoy: its sender must declare the specific action & target they would Perform if it passes (including sub-Actions). If it passes, they must Perform that declared action at the declared target; You cast all of your votes in the Tally Phase",
+        "innate": "Intrigue Phase: choose a Personal Envoy: its sender must declare the specific action & target they would Perform if it passes (including sub-Actions). If it passes, they must Perform that declared action at the declared target; You cast all of your votes in the Tally Phase",
         "efficient": "Cipher Chamber",
         "monument": True},
     "Outrider Intercept Post": {
@@ -1989,7 +1991,7 @@ FACTIONS = {
         'strength': 'High',
         'mechanic_name': 'Friends in Low Places',
         'summary': "Starts with Smuggler's Nook; controls a Bandit Camp; no Piety or Prowess Holdings",
-        'mechanic': "You begin the game with a Smuggler's Nook (no Ward, Natural). At the Start of the Empire Phase, you may control one Bandit Camp outside your Territory. When a Bandit Camp is spawned, you may place it in your Outlaw Country instead. You cannot Build Holdings which require Piety or Prowess Standing.",
+        'mechanic': "You begin the game with a Smuggler's Nook (no Ward, Natural). Empire Phase start: you may control one Bandit Camp outside your Territory. When a Bandit Camp is spawned, you may place it in your Outlaw Country instead. You cannot Build Holdings which require Piety or Prowess Standing.",
         'pair': "Outlaw Rookery, Thieves' Guild",
         'complement': 'Outrider Intercept Post',
     },
@@ -2315,7 +2317,7 @@ FACTIONS = {
         'strength': 'Medium',
         'mechanic_name': 'Friends in High Places',
         'summary': 'Rewards players who support your Envoys',
-        'mechanic': 'Each Empire Phase, a player who supported a Personal Envoy you sent that passed gains Faith +1; if that Personal Envoy was endorsed, they Extort 500 gold from you.',
+        'mechanic': 'Each Empire Phase: a player who supported a Personal Envoy you sent that passed gains Faith +1; if that Personal Envoy was endorsed, they Extort 500 gold from you.',
         'pair': 'Aristocratic Court, Senate Hall',
         'complement': 'Imperial Palace',
     },
@@ -2339,7 +2341,7 @@ FACTIONS = {
         'strength': 'Low',
         'mechanic_name': 'The Highest Bidder',
         'summary': "Can't war or be warred on; allied to the highest bidder",
-        'mechanic': "You can't Declare War and can't be the target of a Declare War action. Each Empire Phase, you must sign the Military or Defensive Alliance offered by the highest-bidding player, and must be paid each Empire Phase. To overturn your current Alliance, a player must pay more than the prior agreement. You can't sign or end Alliances via a Diplomacy action.",
+        'mechanic': "You can't Declare War and can't be the target of a Declare War action. Each Empire Phase: you must sign the Military or Defensive Alliance offered by the highest-bidding player, and must be paid each Empire Phase. To overturn your current Alliance, a player must pay more than the prior agreement. You can't sign or end Alliances via a Diplomacy action.",
         'pair': 'Aristocratic Court, Manor House',
         'complement': 'Baggage Train',
     },
@@ -2363,7 +2365,7 @@ FACTIONS = {
         'strength': 'High',
         'mechanic_name': 'Mimic',
         'summary': "Takes another player's Faction each turn",
-        'mechanic': "At the Start of the Empire Phase, choose another player's Faction; you have that Faction's mechanic this turn. You can't choose that same Faction next turn.",
+        'mechanic': "Empire Phase start: choose another player's Faction; you have that Faction's mechanic this turn. You can't choose that same Faction next turn.",
         'pair': 'Whispering Undercroft, Studium Generale',
         'complement': 'Outrider Intercept Post',
     },
@@ -2498,7 +2500,7 @@ FACTIONS = {
         'strength': 'Medium',
         'mechanic_name': 'Standing Embassy',
         'summary': 'A Diplomacy action each Empire Phase',
-        'mechanic': 'Each Empire Phase, perform a Diplomacy action.',
+        'mechanic': 'Each Empire Phase: perform a Diplomacy action.',
         'pair': 'Aristocratic Court, Senate Hall',
         'complement': 'Studium Generale',
     },
@@ -2570,7 +2572,7 @@ FACTIONS = {
         'strength': 'Medium',
         'mechanic_name': 'Danegeld',
         'summary': "Pays 2,000 for immunity from a player's Cunning & Prowess",
-        'mechanic': "At the Start of the Empire Phase, you may give another player 2000 gold. If you do, that player can't target you with Cunning or Prowess actions this turn unless they pay you 5000.",
+        'mechanic': "Empire Phase start: you may give another player 2000 gold. If you do, that player can't target you with Cunning or Prowess actions this turn unless they pay you 5000.",
         'pair': "Thieves' Guild, Polish House",
         'complement': 'Aristocratic Court',
     },
@@ -2606,7 +2608,7 @@ FACTIONS = {
         'strength': 'Medium',
         'mechanic_name': 'Faith of Arms',
         'summary': 'Faith from full Armies; no Piety actions',
-        'mechanic': "Each Empire Phase, gain Faith +1 per Army with 25 Retinues. You can't perform Piety actions.",
+        'mechanic': "Each Empire Phase: gain Faith +1 per Army with 25 Retinues. You can't perform Piety actions.",
         'pair': 'Royal Pavilion, Marshal Tiltyard',
         'complement': 'Imperial Palace',
     },
@@ -2690,7 +2692,7 @@ FACTIONS = {
         'strength': 'High',
         'mechanic_name': 'Toll of Fear',
         'summary': 'May take Doubt +2 to Extort 1,000 from everyone',
-        'mechanic': 'Each Empire Phase, you may gain Doubt +2. If you do, Extort 1000 from each other player.',
+        'mechanic': 'Each Empire Phase: you may gain Doubt +2. If you do, Extort 1000 from each other player.',
         'pair': "Serfdom, Thieves' Guild",
         'complement': 'Ossuary Crypt',
     },
@@ -2807,7 +2809,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
  # ── Wondrous tier (Wonders): Realm Scope, one per game, built in your capital
  'Colossus': {'upkeep': 500,
               'upkeep_frequency': 'per Wonder',
-              'empire_bonus': "Speed +2; Siege Timer -2; Gain Immune Blunder; In the Intrigue Phase, you may support your own Personal Prowess Envoys before other players vote",
+              'empire_bonus': "Speed +2; Siege Timer -2; Gain Immune Blunder; Intrigue Phase: you may support your own Personal Prowess Envoys before other players vote",
               'tier': 'Wondrous',
               'build_time': 10,
               'requirement': 'Keep'},
@@ -2825,7 +2827,7 @@ INFRASTRUCTURE = {'Dirt Roads': {'upkeep': 0,
                         'requirement': 'Cathedral'},
  'High Chancery': {'upkeep': 500,
                    'upkeep_frequency': 'per Wonder',
-                   'empire_bonus': "Upkeep -2000; In the Tally Phase, you may Endorse one Envoy you sent",
+                   'empire_bonus': "Upkeep -2000; Tally Phase: you may Endorse one Envoy you sent",
                    'tier': 'Wondrous',
                    'build_time': 10,
                    'requirement': "Magistrate's Hall"}
@@ -2961,18 +2963,18 @@ DOMAIN_BOARD = {
         "Sovereign":   "Titan of Industry: Your capital may Expand to a Metropolis. Perform endorsed Expand.",
     },
     "Prowess": {
-        "Rising":      "Indomitable: In the Tally Phase, you may Support one of your own Prowess Envoys.",
+        "Rising":      "Indomitable: Tally Phase: you may Support one of your own Prowess Envoys.",
         "Established": "Edict of War: May have an additional Army. Perform a Muster or Reinforce Action.",
         "Sovereign":   "High Quartermaster: Supply -2000. May change equipment on your Armies during any Upkeep step while that Army is within your Province. No longer lose Influence while at War.",
     },
     "Cunning": {
-        "Rising":      "Clandestine Councilor: In the Intrigue Phase, target an Envoy and a player with a lower Cunning value - that player Abstains that Envoy.",
+        "Rising":      "Clandestine Councilor: Intrigue Phase: target an Envoy and a player with a lower Cunning value - that player Abstains that Envoy.",
         "Established": "Grand Vizier: Influence +1. Players may not target you with Cunning actions if your Cunning value is higher.",
         "Sovereign":   "Master Conspirator: Once per Envoy Phase, if your non-Cunning Envoy passes or is endorsed, you may instead perform a Cunning action.",
     },
     "Piety": {
         "Rising":      "Divine Mandate: Faith +1 each Empire Phase.",
-        "Established": "One True Gospel: Each Empire Phase, each other non-allied player with a lower Piety value gains Doubt +2.",
+        "Established": "One True Gospel: Each Empire Phase: each other non-allied player with a lower Piety value gains Doubt +2.",
         "Sovereign":   "Pillar of Faith: If your Public Order would be set below 4, set it to 4. In addition, may use the Sacred War action.",
     },
     # Influence scaling by standing (Untested/Rising/Established/Sovereign):
@@ -3900,6 +3902,44 @@ def display_text(s):
     return _ALIAS_RE.sub(_rep, str(s))
 
 
+# ── Lead-in labels ─────────────────────────────────────────────────────────────
+# An effect clause may open with a label and a colon: a timing window ("Each Empire Phase:", "Intrigue Phase:")
+# or a keyword / Standing name ("Ranger:", "Indomitable:"). Outputs print these labels bold; the data stays plain.
+# Two labels can chain ("Indomitable: Tally Phase: ..."). Timing labels and their meaning:
+TIMING_LABELS = {
+    "Empire Phase start":       "at the Start of the Empire Phase (step 1)",
+    "Each Empire Phase":        "every Empire Phase, with its remaining effects (step 9)",
+    "Once per Empire Phase":    "once, during the Empire Phase",
+    "Intrigue Phase":           "during the Intrigue Phase",
+    "Tally Phase":              "during the Tally Phase",
+    "Tally Phase end":          "at the end of the Tally Phase",
+    "Once per Diplomacy Phase": "once, during the Diplomacy Phase",
+}
+_LEADIN_ONE = r"[A-Z][\w'’\-]*(?: (?:of|the|per|start|end|[A-Z][\w'’\-]*)){0,4}:"
+LEADIN_RE = _re_disp.compile(r"(?:(?<=^)|(?<=; )|(?<=\. ))(" + _LEADIN_ONE + r")(?: (" + _LEADIN_ONE + r"))?(?= )")
+
+
+def leadin_split(s):
+    """[(text, is_label), ...] for an effect string; labels keep their colon."""
+    s = str(s or "")
+    out, i = [], 0
+    for m in LEADIN_RE.finditer(s):
+        if m.start() > i:
+            out.append((s[i:m.start()], False))
+        out.append((m.group(1), True))
+        if m.group(2):
+            out += [(" ", False), (m.group(2), True)]
+        i = m.end()
+    if i < len(s):
+        out.append((s[i:], False))
+    return out
+
+
+def leadin_wrap(s, open_tag="**", close_tag="**"):
+    """Wrap each lead-in label in open_tag/close_tag (Markdown by default; pass "<b>", "</b>" for HTML)."""
+    return "".join(f"{open_tag}{t}{close_tag}" if lab else t for t, lab in leadin_split(s))
+
+
 def display_list(seq, sep=", "):
     """Join an id list (builds_into, prereqs, requires_all) as labels."""
     return sep.join(display(x) for x in (seq or []))
@@ -4380,7 +4420,7 @@ GLOSSARY_CATEGORIES = [
     ('World', ['Bandit', 'Outlaw Country', 'Wild Outlaw Country']),
     ('Army States', ['Army', 'Retinue', 'Garrison', 'Speed X', 'Presence', 'Blocked', 'Strained']),
     ('Battle Structure', ['Battle', 'Skirmish', 'Attacker / Defender', 'Seize the Initiative', 'Tactic', 'Field', 'Casualty', 'Initiative', BLUNDER, 'Strike', 'to-Strike number', 'AP', 'Save', 'Endurance', 'Fatigued', FATIGUE_TOKEN, 'Morale', 'Break check', 'Panic check', 'Rout', 'Fall Back']),
-    ('Combat Keywords — Defense', [PARRY, 'Parry +1', RIPOSTE, 'Riposte +1', RECOVER, ENDURING, MINUS_1_TBH, PLANISHING, FLUTED, SHIELD_WALL]),
+    ('Combat Keywords — Defense', [PARRY, 'Parry +1', RIPOSTE, 'Riposte +1', RECOVER, ENDURING, MINUS_1_TBH, 'Phalanx X', PLANISHING, FLUTED, SHIELD_WALL]),
     ('Combat Keywords — Offense', [RANGED_KW, DEADLY, 'Deadly +1', CLEAVE, 'Cleave +1', POISON, DESTROY_SHIELD, UNSTOPPABLE, SERRATED, 'Hook X', WEDGE, 'First Charge X']),
     ('Combat Keywords — Handling', ['Equipped', STEADY, UNWIELDY, BRACED, NIMBLE, DRILLED, TWO_H, RANGER, FLORENTINE, NO_PARRY, CRUDE, ONE_SHOT, PONDEROUS, 'Shield Initiative', 'Buckler with 2H', GUIGE_STRAP]),
     ('Combat Keywords — Immune / Negate', ['Immune [keyword]', 'Negate [keyword]']),
@@ -4557,10 +4597,15 @@ def holding_combat_tags(text, sim=False):
     if m: out.append("AP " + m.group(1))
     out += ["Parry +1"] * len(_re_disp.findall(r"Improve Parry by \+1|(?:^|;)\s*(?:Armies gain\s+)?Parry \+1\b", t, _I))
     if _re_disp.search(r"\bRiposte \+1\b", t, _I): out.append("Riposte +1")
-    # "Deadly +1; Cleave +1": Focused Strikes one lower (the engines' Crit applies to Deadly and Cleave together)
-    # Any N ("Royal Pavilion: Deadly +2; Cleave +2" -> Crit +2); the larger N wins, not the sum.
-    _crit = [int(n) for n in _re_disp.findall(r"\b(?:Deadly|Cleave) \+(\d+)\b", t, _I)]
-    if _crit: out.append(f"Crit +{max(_crit)}")
+    # "Deadly +1; Cleave +1": Focused Strikes one lower (the engines' Crit applies to Deadly and Cleave together); the
+    # larger N wins, not the sum. "Deadly +N (Melee Weapons)" counts only while a melee weapon is Equipped, and so does
+    # "Cleave +N" (only melee weapons carry Cleave): "Melee Crit +M" adds what melee gets beyond the plain "Crit +N"
+    # (Royal Pavilion: "Deadly +2 (Melee Weapons); Cleave +2" -> Melee Crit +2).
+    _crit = [int(n) for n in _re_disp.findall(r"\bDeadly \+(\d+)\b(?!\s*\(Melee Weapons\))", t, _I)]
+    _mcrit = [int(n) for n in _re_disp.findall(r"\bDeadly \+(\d+) \(Melee Weapons\)|\bCleave \+(\d+)\b", t, _I) for n in [n[0] or n[1]]]
+    _c0 = max(_crit) if _crit else 0
+    if _c0: out.append(f"Crit +{_c0}")
+    if _mcrit and max(_mcrit) > _c0: out.append(f"Melee Crit +{max(_mcrit) - _c0}")
     if _re_disp.search(r"\bImmune One-Shot\b", t, _I): out.append("Immune One-Shot")
     # Shield line (Nov 8 2026)
     if _re_disp.search(r"Shield Initiative penalty reduced by 1", t, _I): out.append("Shield Init +1")
@@ -4568,6 +4613,8 @@ def holding_combat_tags(text, sim=False):
     if _re_disp.search(r"\bgain\s+" + SHIELD_WALL + r"\b", t, _I): out.append(SHIELD_WALL)
     if _re_disp.search(r"\b" + GUIGE_STRAP + r"\b", t, _I): out.append(GUIGE_STRAP)
     if _re_disp.search(r"Shields gain Immune Destroy Shield", t, _I): out.append(IMMUNE_DESTROY_SHIELD)
+    m = _re_disp.search(r"\bgain\s+" + PHALANX + r"\b(?:\s+(\d+))?", t, _I)   # "Armies gain Phalanx" = Phalanx 1
+    if m: out.append(f"{PHALANX} {m.group(1) or 1}")
     m = _re_disp.search(r"Focused Strikes on an? (?:natural|Unmodified) (\d+)\+", t, _I)
     if m: out.append("Crit " + m.group(1))
     m = _re_disp.search(r"Gain Recover (\d+)", t, _I)

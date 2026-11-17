@@ -70,6 +70,8 @@ def _side(P, RP, skl, me, opp_P):
     s["deadly"] = g(f"{skl}_Deadly"); s["crit"] = g(f"{skl}_crit_floor")
     s["ranged"] = g(f"{skl}_is_ranged")
     s["hook"] = g(f"{skl}_hook")   # Hook N / Negate Shielded (99)
+    s["phalanx"] = g(f"{skl}_phalanx") if f"{skl}_phalanx" in P else np.zeros_like(s["hook"])   # Phalanx X
+    s["hook_immune"] = g("hook_immune") if "hook_immune" in P else np.zeros_like(s["hook"], dtype=bool)   # Immune Hook (Heater)
     s["rp1"] = g(f"{skl}_Riposte_p1") if f"{skl}_Riposte_p1" in P else np.zeros_like(g(f"{skl}_Deadly"), dtype=bool)   # Riposte +1
     s["foe_parry"] = g(f"foe_parry_{skl}") if f"foe_parry_{skl}" in P else np.zeros_like(s["ranged"], dtype=np.int64)
     s["negrip"] = g(f"{skl}_Negate_Riposte")   # Negate Riposte (e.g. a Holding): the defender cannot Riposte its Strikes
@@ -163,7 +165,7 @@ def payoff(Pa, Pb, RP, skl, a_bi, b_bi, tab, front_cap, reserve_cap):
 
     def to_strike(S, O, TH, trip):
         improve = -x(S["strike_bonus"]) - np.maximum(TH, 0)
-        worsen = np.maximum(x(O["tbh"]) - x(S["hook"]), 0) + x(S["th_self"]) + np.where(x(S["immtac"]), 0, np.maximum(-TH, 0))
+        worsen = np.maximum(x(O["tbh"]) - np.where(x(O["hook_immune"]), 0, np.maximum(x(S["hook"]) - x(O["phalanx"]), 0)), 0) + x(S["th_self"]) + np.where(x(S["immtac"]), 0, np.maximum(-TH, 0))
         pre = np.minimum(x(S["to_hit"]) + improve, CAP_THR)
         pre = np.where(trip, np.maximum(pre, CAP_THR), pre)
         return np.minimum(pre + worsen, CAP_THR)

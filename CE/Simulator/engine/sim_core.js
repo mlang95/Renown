@@ -8,7 +8,9 @@ var SIM = (function () {
   let CUR_T = 0;
   // ---- event taps: wrap the board's own functions so every gold / Faith / Doubt movement is booked ----
   const pidOf = b => { const p = (D.players || []).find(q => q.board === b); return p ? p.id : null; };
-  const cat = why => String(why || "").split(/[:·(]/)[0].trim().slice(0, 40) || "other";
+  const cat = why => { const s = String(why || "");   // Extorts keep their cause ("Extorted by Bandits (Bandit Pillage")
+    if (/^Extorted/.test(s)) return s.replace(/ of .*$/, "").replace(/[:·].*$/, "").trim().slice(0, 60);
+    return s.split(/[:·(]/)[0].trim().slice(0, 40) || "other"; };
   const _tGold = tGold;
   tGold = function (b, v, why) { const r = _tGold.apply(this, arguments); if (v) REC.ledger.push([CUR_T, pidOf(b), cat(why), Math.round(+v || 0)]); return r; };
   const _gainDoubt = gainDoubt;
@@ -150,6 +152,8 @@ var SIM = (function () {
       else if (fb) end = "fall back";
     }
     const win = end === "A" || end === "B" ? end : null;
+    // casualties from the head counts (the board applies Strike casualties itself, not through applyCas)
+    for (const X of ["A", "B"]) { const a = sideArmy(B[X]).a; cas[X] = Math.max(cas[X], start[X] - (a ? +a.count || 0 : 0)); }
     const side = X => { const sd = B[X]; return sd.kind === "bandit" ? { bandit: sd.camp } : { pid: sd.pid, aid: sd.aid }; };
     const rec = { t: CUR_T, src: o.src || "", A: side("A"), B: side("B"), startA: start.A, startB: start.B, casA: cas.A, casB: cas.B, skirmishes: tac.length, end: end || "limit", win, tactics: tac, first };
     // a player's Siege Battle: winning it leads to Capture (RULES › Siege Timer); losing breaks the Siege (Bandit Sieges: endBattle)
@@ -227,6 +231,8 @@ var SIM = (function () {
         ind: +dv.Industry || 0, pro: +dv.Prowess || 0, cun: +dv.Cunning || 0, pie: +dv.Piety || 0,
         edicts: edictTotal(p), edictKinds: Object.fromEntries(Object.keys(el).filter(k => el[k].length).map(k => [k, el[k].length])),
         armies: (b.armies || []).length, retinues: (b.armies || []).reduce((t, a) => t + (+a.count || 0), 0),
+        kit: (b.armies || []).map(a => [a.retinue, a.weapon, a.armor, a.shield].join("/")).slice(0, 1).join(""),
+        lean: ((PT(p) || {}).aiLean || {}).d || null, chains: typeof aiChains === "function" && aiOn(p) ? aiChains(p).map(c => c.t) : null,
         settlements: sett.length, tiers, holdings: (b.placed || []).length, holdingsActive: (b.placed || []).filter(x => pActive(x)).length,
         infra: Object.keys(b.infra || {}).filter(k => b.infra[k]).length, wonders: Object.keys(b.wonders || {}).filter(k => b.wonders[k]).length,
         monuments: (b.placed || []).filter(x => R[x.name] && R[x.name].monument).length,

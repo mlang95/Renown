@@ -1323,6 +1323,10 @@ function inspectItem(kind,name){
   let h='<h3>'+esc(name);
   if(it.tier)h+=' <span class="badge tier">'+(it.tier_label||it.tier)+'</span>';
   h+='<button class="close" onclick="closeModal()">✕</button></h3>';
+  openModal(h+itemBodyHtml(kind,it));
+}
+// stats, keywords and notes of one item (the inspector modal and the hover card in rules text)
+function itemBodyHtml(kind,it){let h="";
   const S_=[];
   const push=(k,v)=>{if(v!==undefined&&v!==null&&v!=="")S_.push('<span class="stat"><span class="k">'+k+'</span><b>'+v+'</b></span>');};
   if(kind==="retinue"){push("TO-STRIKE",it.to_hit+"+");push("ENDURANCE",it.endurance);push("SHAKING",it.shaking+"+");push("SPEED",it.speed);push("MAX",it.max_size);push("COST",it.cost);}
@@ -1338,8 +1342,7 @@ function inspectItem(kind,name){
   if(it.tactics_allowed)h+='<div class="note">Tactics: '+it.tactics_allowed.map(esc).join(", ")+'</div>';
   if(it.tactics_banned)h+='<div class="note">Can\'t use: '+it.tactics_banned.map(esc).join(", ")+'</div>';
   if(it.note)h+='<div class="note">'+esc(it.note)+'</div>';
-  openModal(h);
-}
+  return h;}
 
 function optionList(sel, items, tierset, u, chosen, extra){
   // items: {name:record}; build <option>s, marking locked

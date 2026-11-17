@@ -3,37 +3,37 @@ Farm Tools,Melee,Crude,0,0,Crude
 Cudgel,Melee,Crude,-1,-1,"2H, Crude"
 Pitchfork,Melee,Crude,0,1,"2H, Unwieldy, Crude"
 Bill Hook,Melee,Cast,-1,0,"2H, Hook 1"
-Daggers,Melee,Cast,0,0,"2H, Deadly, Awkward"
-Short Sword,Melee,Cast,0,0,"Steady, Parry +1"
-Spears,Melee,Cast,0,1,"Unwieldy, Awkward"
-2HSpears,Melee,Cast,-1,1,"2H, Steady, Awkward"
+Daggers,Melee,Cast,-1,-1,"2H, Deadly, Awkward"
+Short Sword,Melee,Cast,0,0,Steady
+Spears,Melee,Cast,0,1,"Unwieldy, Deadly, Awkward"
+2HSpears,Melee,Cast,0,1,"2H, Steady, Deadly, Awkward"
 Arming Sword,Melee,Wrought,-1,0,"Steady, Parry +1"
-Flail,Melee,Wrought,-1,0,"Unstoppable, Cleave, Awkward"
+Flail,Melee,Wrought,-2,-1,"Unstoppable, Cleave, Awkward"
 Halberd,Melee,Wrought,-2,1,"2H, Hook 1"
 Battle Axe,Melee,Wrought,-4,-1,"2H, Unstoppable, Cleave, Hook 1"
-Cavalry Spear,Melee,Wrought,0,1,"Steady, Unwieldy, Unstoppable, Awkward, Deadly"
-Pike,Melee,Forged,-3,1,"2H, Steady, Unwieldy, Deadly, Unstoppable, Awkward"
+Cavalry Spear,Melee,Wrought,-1,1,"Steady, Unwieldy, Unstoppable, Awkward"
+Pike,Melee,Forged,-3,2,"2H, Steady, Unwieldy, Deadly, Unstoppable, Awkward"
 Morningstar,Melee,Forged,-4,-1,Cleave
 Bastard Sword,Melee,Forged,-2,0,"Steady, Deadly, Parry +1"
-2HBastard,Melee,Forged,-2,0,"2H, Unstoppable, Cleave"
+2HBastard,Melee,Forged,-2,0,"2H, Unstoppable, Cleave, Parry +1"
 War Hammer,Melee,Forged,-10,-1,"2H, Steady, Unstoppable, Hook 2"
 Lance,Melee,Crafted,-5,1,"Steady, Unwieldy, Unstoppable, Awkward, Deadly"
 Estoc,Melee,Crafted,-3,0,"Steady, Cleave, Unstoppable, Parry +1"
-Poleaxe,Melee,Crafted,-4,1,"2H, Deadly, Unstoppable, Hook 2"
-Hunting Bow,Ranged,Crude,0,2,"2H, Unstoppable, Deadly, Awkward"
-Longbow,Ranged,Cast,-1,2,"2H, Unstoppable, Deadly, Awkward"
-Javelin,Ranged,Wrought,-2,2,"Steady, Deadly, Unstoppable, Hook 1, Destroy Shield, One-Shot, Awkward"
-Crossbow,Ranged,Forged,-3,2,"2H, Unwieldy, Deadly, Unstoppable, Hook 2, One-Shot, Awkward"
-Pilum,Ranged,Crafted,-4,2,"Steady, Deadly, Unstoppable, Hook 2, Destroy Shield, One-Shot, Awkward"
-Arquebus,Ranged,Crude,-6,2,"2H, Steady, Deadly, Unstoppable, Hook 2, Awkward"
-Buckler Shield,Shield,Crude,+1,0,
-Targe Shield,Shield,Cast,+1,-1,"Unwieldy, Shielded"
-Kite Shield,Shield,Wrought,+1,-1,"Steady, Shielded 2"
+Poleaxe,Melee,Crafted,-4,1,"2H, Steady, Deadly, Unstoppable, Hook 1"
+Hunting Bow,Ranged,Crude,-1,2,"2H, Unstoppable, Deadly, Awkward"
+Longbow,Ranged,Cast,-2,2,"2H, Unstoppable, Deadly, Awkward"
+Javelin,Ranged,Wrought,-3,2,"Deadly, Unstoppable, Hook 1, Destroy Shield, One-Shot, Awkward"
+Crossbow,Ranged,Forged,-4,2,"2H, Unwieldy, Deadly, Unstoppable, Hook 2, One-Shot, Awkward"
+Pilum,Ranged,Crafted,-4,2,"Deadly, Unstoppable, Hook 2, Destroy Shield, One-Shot, Awkward"
+Arquebus,Ranged,Crude,-8,2,"2H, Steady, Deadly, Unstoppable, Hook 2, Awkward"
+Buckler Shield,Shield,Crude,+1,0,Shielded
+Targe Shield,Shield,Cast,+1,-1,"Unwieldy, Shielded 2"
+Kite Shield,Shield,Wrought,+2,-1,"Steady, Shielded 2"
 Tower Shield,Shield,Forged,+2,-2,"Unwieldy, Crude, Shielded 3"
 Heater Shield,Shield,Crafted,+2,-1,"Shielded 2, Immune Destroy Shield"
 Cloth,Armor,,10+,,
 Gambeson,Armor,Crude,8+,,
 Leather,Armor,Cast,7+,,
 Chainmail,Armor,Wrought,6+,,
-Full Plate,Armor,Forged,4+,,Init -1
-Gothic Plate,Armor,Crafted,3+,,
+Full Plate,Armor,Forged,4+,,
+Gothic Plate,Armor,Crafted,3+,,Articulated

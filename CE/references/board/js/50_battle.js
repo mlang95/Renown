@@ -201,7 +201,8 @@ function sideCalc(X){
   const esh=(eo&&!((B.shDest||{})[O])&&!eShOff)?(EQ.shields[(eo.shield==="None"||!eo.shield)?"null":eo.shield]||{tags:[]}):{tags:[]};
   // Shielded N (Heater: Shielded 2, Tower: Shielded 3) vs the attacker's Hook X (Negate Shielded = all of it)
   const shVal=tg=>[].concat(tg||[]).reduce((b,t)=>{const m=String(t).match(/^Shielded (\d+)$/);return m?Math.max(b,+m[1]):t==="Shielded"?Math.max(b,1):b;},0);
-  const hookV=[...mt].reduce((b,t)=>t==="Negate Shielded"?99:(m=>m?Math.max(b,+m[1]):b)(String(t).match(/^Hook (\d+)$/)),0);
+  const ePhal=sideUnlocks(sideArmy(o).p).mods.reduce((b,m)=>(x=>x?Math.max(b,+(x[1]||1)):b)(String(m.tok).match(/^Phalanx(?: (\d+))?$/)),0);   // Phalanx X: their Army cuts our Hook by X
+  const hookV=[].concat(esh.tags||[]).includes("Immune Hook")?0:Math.max(0,[...mt].reduce((b,t)=>t==="Negate Shielded"?99:(m=>m?Math.max(b,+m[1]):b)(String(t).match(/^Hook (\d+)$/)),0)-ePhal);
   const eShN=shVal(esh.tags),eShEff=Math.max(0,eShN-hookV),eShielded=eShEff>0;
   const worsen=eShEff+((sh.tags||[]).includes("Ponderous")?1:0)+(mt.has("Immune Tactic TH")?0:Math.max(-tacTH,0));
   let pre=Math.min((rt.to_hit||0)-improve,CAP);if(blunder)pre=Math.max(pre,CAP);
@@ -227,7 +228,7 @@ function sideCalc(X){
   const saveMelee=saveVs(ewm);                                  // vs a Riposte (always the riposting side's melee weapon)
   // own strike profile (Focused procs)
   const critN=[...mt].map(t=>(t.match(/^Crit (\d+)$/)||[])[1]).filter(Boolean).map(Number);
-  const critPlus=[...mt].reduce((s,t)=>{const m=String(t).match(eqX.mode==="ranged"?/^(?:Ranged )?Crit \+(\d+)$/:/^Crit \+(\d+)$/);return s+(m?+m[1]:0);},0);
+  const critPlus=[...mt].reduce((s,t)=>{const m=String(t).match(eqX.mode==="ranged"?/^(?:Ranged )?Crit \+(\d+)$/:/^(?:Melee )?Crit \+(\d+)$/);return s+(m?+m[1]:0);},0);
   const critFloor=Math.min(FOC,...critN)-critPlus;
   const wTags=new Set([].concat(wpn.tags||[]));
   const wk=k=>wTags.has(k)||mt.has(k);   // weapon keyword, or granted by a Holding ("Gain Deadly")
@@ -254,7 +255,7 @@ function sideCalc(X){
   if(flut)trig.push(((ar.tags||[]).includes("Articulated")?"Articulated":"")+(swall?((ar.tags||[]).includes("Articulated")?" + ":"")+"Shield Wall":"")+": enemy AP reduced by "+flutN);
   if(hasDeadly)trig.push(BT.deadlyMode==="set"?"Deadly: strikes on "+critFloor+"+ are AP −"+DAP+", Parried only on "+FOC+", can't be Recovered":"Deadly: strikes on "+critFloor+"+ save at +"+DAP);
   if(hasCleave)trig.push("Cleave: strikes on "+critFloor+"+ roll an extra die");
-  if(hasDestroy)trig.push("Destroy Shield: any "+FOC+"+ strike destroys the enemy shield");
+  if(hasDestroy)trig.push("Destroy Shield: any "+critFloor+"+ strike destroys the enemy shield");
   const morale=(c=>c!=null?Math.min(c,effMorale(a)+sd.adj.M):effMorale(a)+sd.adj.M)(moraleCap(a));
   // ---- Parry / Riposte / Recover (defending against O's Strikes) — same model as Combatv4 build_parry_thr / build_regen_thr ----
   const eSd=o,eU=sideUnlocks(sideArmy(eSd).p),eTok=new Set(eU.mods.map(m=>m.tok)),eW=new Set([].concat(ewpn.tags||[])),eRanged=!!(eo&&eo.ranged&&eo.ranged!=="None"&&eqO&&eqO.mode==="ranged");   // Negate Riposte only while their Ranged weapon is Equipped
@@ -778,6 +779,7 @@ function renderBattle(){WHATIF.clear();
     '<span class="note">Skirmish <b>'+(B.id?B.sk:'—')+'</b></span>'+
     (B.id?'<span class="note">Seized: <b>'+esc((s=>s?sideNm(s):"neither")(seizeForced()||B.seize))+'</b></span>':'')+
     '<label class="note"><input type="checkbox" id="bDice"'+(B.dice?' checked':'')+'> emulate dice</label>'+
+    (B.id?'<label class="note"><input type="checkbox" id="bAuto"'+(autoOn()?' checked':'')+'> auto battle</label>':'')+
     (B.id?'<button id="bReset">reset picks</button><button id="bEndSk" style="border-color:var(--order)">end Skirmish ▸</button><span class="note">end Battle:</span><button class="bEndB" data-w="A" style="border-color:var(--upkeep)">'+esc(sideNm("A"))+' won</button><button class="bEndB" data-w="B" style="border-color:var(--upkeep)">'+esc(sideNm("B"))+' won</button><button class="bEndB" data-w="" style="border-color:var(--upkeep)">no winner</button>':'')+'</div>';
   const v=viewerSide();
   h+='<div class="note" style="margin-bottom:6px">Viewing as <b>'+esc((D.players[D.active]||{}).name||"?")+'</b>'+(v==="-"?' (spectator — switch player in the top bar to pick)':' = side '+v)+(API.online?'':' · no server: picks stay on this device (pass-and-play)')+'</div>';
@@ -877,7 +879,7 @@ function rollCore(X,kind,nOverride){
     B.rolls[X]={kind:"Strike",rr,target,dice:dice.sort((x,y)=>y-x),succ,nat10:procs,deadly,crit:c.hasDeadly||c.hasCleave?c.critFloor:99};
     blog(X+(rr?" Dual Wield re-roll ":" Strike ")+n+"d10 vs "+target+"+ ["+dice.join(",")+"] → "+succ+" strike(s)"+(deadly?" ("+deadly+" Deadly)":"")+(cl?" · Cleave ×"+cl+" to roll":"")+(rr?" · total "+B.strk[X].succ:""));
     const {a:ea}=sideArmy(B[O]);const esh=ea&&ea.shield&&ea.shield!=="None"?EQ.shields[ea.shield]:null;
-    if(c.hasDestroy&&procs&&esh&&!(esh.tags||[]).includes("Immune Destroy Shield")&&!hasArmyTok(sideArmy(B[O]).p,"Immune Destroy Shield")&&!B.shDest[O]){B.shDest[O]=true;blog(O+"'s "+ea.shield+" is DESTROYED");}
+    if(c.hasDestroy&&dice.some(v=>!af&&v>=target&&v>=c.critFloor)&&esh&&!(esh.tags||[]).includes("Immune Destroy Shield")&&!hasArmyTok(sideArmy(B[O]).p,"Immune Destroy Shield")&&!B.shDest[O]){B.shDest[O]=true;blog(O+"'s "+ea.shield+" is DESTROYED");}
   }else if(kind==="Cleave"){
     const n=cleaveN(X),st=(B.strk||{})[X];if(!n||!st||st.sk!==B.sk){blog(X+": no Cleave dice to roll");save();render();return;}
     const target=c.toStrike,af=target>FACES_,dice=d10(n).sort((x,y)=>y-x);let succ=0,deadly=0,procs=0,cl=0;
@@ -886,7 +888,7 @@ function rollCore(X,kind,nOverride){
     B.rolls[X]={kind:"Strike",cleave:true,target,dice,succ,nat10:procs,deadly,crit:c.hasDeadly||c.hasCleave?c.critFloor:99};
     blog(X+" Cleave "+n+"d10 vs "+target+"+ ["+dice.join(",")+"] → "+succ+" strike(s)"+(deadly?" ("+deadly+" Deadly)":"")+(cl?" · Cleave ×"+cl+" more":"")+" · total "+st.succ);
     const {a:ea}=sideArmy(B[O]);const esh=ea&&ea.shield&&ea.shield!=="None"?EQ.shields[ea.shield]:null;
-    if(c.hasDestroy&&procs&&esh&&!(esh.tags||[]).includes("Immune Destroy Shield")&&!hasArmyTok(sideArmy(B[O]).p,"Immune Destroy Shield")&&!B.shDest[O]){B.shDest[O]=true;blog(O+"'s "+ea.shield+" is DESTROYED");}
+    if(c.hasDestroy&&dice.some(v=>!af&&v>=target&&v>=c.critFloor)&&esh&&!(esh.tags||[]).includes("Immune Destroy Shield")&&!hasArmyTok(sideArmy(B[O]).p,"Immune Destroy Shield")&&!B.shDest[O]){B.shDest[O]=true;blog(O+"'s "+ea.shield+" is DESTROYED");}
   }else if(kind==="Parry"){
     const tot=nOverride!=null?nOverride:inc.n+inc.d,d=Math.min(inc.d,tot),nn=tot-d,T=c.parryThr;
     const ok=c.canParry;let dn=d10(nn),dd=d10(d),rrN=[],rrD=[];                       // rrN/rrD: Dual Wield rerolls (they can't Riposte)
@@ -1070,7 +1072,8 @@ function wireBattle(host){
   host.querySelectorAll("#bStart,#bStartGo").forEach(b=>b.onclick=startFn);
   host.querySelectorAll(".bseize").forEach(b=>b.onclick=()=>{B.seize=b.dataset.v;B.seizeSet=true;save();render();});
   host.querySelectorAll(".bFinish").forEach(b=>b.onclick=()=>{const why=battleOwed();if(why){flash("Before the Battle ends: "+why);return;}endBattle(b.dataset.w||null);});
-  const dc=host.querySelector("#bDice");if(dc)dc.onchange=()=>{B.dice=dc.checked;save();render();};
+  const dc=host.querySelector("#bDice");if(dc)dc.onchange=()=>{B.dice=dc.checked;if(!B.dice)AUTO_B=null;save();render();};
+  const au=host.querySelector("#bAuto");if(au)au.onchange=()=>autoSet(au.checked);
   const rs=host.querySelector("#bReset");if(rs)rs.onclick=()=>{B.round=(B.round||0)+1;B.rev=null;PEEK=false;blog("Tactic picks reset");save();loadPicks().then(render);};
   host.querySelectorAll("#bEndSk,.bEndSk2").forEach(es=>es.onclick=()=>{const B=battle(),pb=B.endRep&&B.endRep.sk===B.sk&&B.endRep.rows.filter(brkPending).map(r=>r.X),fl=bFlow();
     if(fl&&!fl.done){const late=fl.fought&&["A","B"].some(X=>fl.can[X].panic||fl.can[X].apply);   // casualties and Panic checks can't be skipped

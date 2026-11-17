@@ -132,16 +132,17 @@ def _wrap_with_bold_prefix(prefix, body, font_reg, font_bold, size, max_w):
             cur = [(word, True)]
             cur_w = ww
 
-    # Body words (regular)
-    for word in body.split():
-        ww = stringWidth(word, font_reg, size)
+    # Body words (regular; lead-in labels such as "Empire Phase start:" bold)
+    from renown_data import leadin_split
+    for word, bold in [(w, lab) for chunk, lab in leadin_split(body) for w in chunk.split()]:
+        ww = stringWidth(word, font_bold if bold else font_reg, size)
         extra = (space_w + ww) if cur else ww
         if can_fit(extra):
-            cur.append((word, False))
+            cur.append((word, bold))
             cur_w += extra
         else:
             lines.append(cur)
-            cur = [(word, False)]
+            cur = [(word, bold)]
             cur_w = ww
 
     if cur:
@@ -288,8 +289,7 @@ def draw_faction_card(c, x, y, row):
             )
         else:
             # Wrap whole thing as plain text → convert to segment format
-            plain_lines = _wrap(mech_body, "Helvetica", body_size, inner_w)
-            seg_lines = [[(w, False) for w in line.split()] for line in plain_lines]
+            seg_lines = _wrap_with_bold_prefix("", mech_body, "Helvetica", "Helvetica-Bold", body_size, inner_w)   # lead-in labels bold
 
         total_h = len(seg_lines) * line_h
         if total_h <= (body_top - body_floor):
@@ -306,8 +306,7 @@ def draw_faction_card(c, x, y, row):
                 "Helvetica", "Helvetica-Bold", body_size, inner_w
             )
         else:
-            plain_lines = _wrap(mech_body, "Helvetica", body_size, inner_w)
-            seg_lines = [[(w, False) for w in line.split()] for line in plain_lines]
+            seg_lines = _wrap_with_bold_prefix("", mech_body, "Helvetica", "Helvetica-Bold", body_size, inner_w)   # lead-in labels bold
         avail = body_top - body_floor
         max_lines = max(1, int(avail / line_h))
         if len(seg_lines) > max_lines:

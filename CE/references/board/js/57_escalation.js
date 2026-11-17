@@ -71,10 +71,10 @@ function escLeads(n){const out=[],seen=new Set([n]);let q=escKids(n);
   return out;}
 // a step with no combat effect of its own: what it unlocks instead
 function escNoFx(n){const K=escKids(n);return K.length?'Unlocks '+K.join(", "):'no combat effect';}
-function escFxHTML(n){const fx=(ESCD.hold[n]||{}).fx;return fx?'<div class="esc-fx">'+esc(fx)+'</div>':'<div class="note">'+esc(escNoFx(n))+'</div>';}
+function escFxHTML(n){const fx=(ESCD.hold[n]||{}).fx;return fx?'<div class="esc-fx">'+kwify(fx,n)+'</div>':'<div class="note">'+esc(escNoFx(n))+'</div>';}
 function escKidsHTML(n){const K=escKids(n);if(!K.length)return '';
   return '<div class="esc-kids"><span class="note">builds into</span>'+K.map(k=>{const fx=(ESCD.hold[k]||{}).fx,L=fx?[]:escLeads(k);
-    return '<div><b>'+esc(k)+'</b>'+(fx?': '+esc(fx):L.length?' <span class="note">(leads to '+esc(L.join(", "))+')</span>':' <span class="note">'+esc(escNoFx(k))+'</span>')+'</div>';}).join("")+'</div>';}
+    return '<div><b>'+esc(k)+'</b>'+(fx?': '+kwify(fx,k):L.length?' <span class="note">(leads to '+esc(L.join(", "))+')</span>':' <span class="note">'+esc(escNoFx(k))+'</span>')+'</div>';}).join("")+'</div>';}
 function escPlace(p,n){const pb=escPB(p),b=p.board;if(!(pb.hold>0)||!escHoldOK(b,n))return false;
   b.placed.push({id:nextId(b.placed),name:n,sid:null,esc:D.esc.round});pb.hold--;return true;}
 function escAdvance(p,d){const pb=escPB(p),b=p.board,v=+((b.domains||{})[d])||0;if(!(pb.left>0)||v>=SOV)return false;
@@ -456,7 +456,7 @@ function escHoldRefHTML(){const AL=DATA.aliases||{},dn=n=>AL[n]||n,H=Object.keys
       return '<tr><td><b>'+esc(n)+'</b>'+(h.monument?' <span class="badge tier">Monument</span>':'')+'</td><td>'+esc(nd.join(" · ")||"—")+'</td><td>'+escFxHTML(n)+'</td><td>'+(escKidsHTML(n)||'<span class="note">—</span>')+'</td></tr>';}).join("")+
     '</tbody></table></div></details>';}
 function escArmoryHTML(){const t=(title,o,cols,f)=>'<details class="tot"><summary><b>'+title+'</b></summary><div style="overflow-x:auto"><table class="dtable" style="font-size:12px"><thead><tr><th></th>'+cols.map(c=>'<th>'+c+'</th>').join("")+'</tr></thead><tbody>'+
-    Object.keys(o).filter(n=>n!=="null").map(n=>'<tr><td><b>'+esc(n)+'</b></td>'+f(o[n]).map(v=>'<td>'+esc(v==null?"":String(v))+'</td>').join("")+'</tr>').join("")+'</tbody></table></div></details>';
+    Object.keys(o).filter(n=>n!=="null").map(n=>'<tr><td><b>'+gkLink(n)+'</b></td>'+f(o[n]).map(v=>'<td>'+esc(v==null?"":String(v))+'</td>').join("")+'</tr>').join("")+'</tbody></table></div></details>';
   return t("Retinues",EQ.retinues,["to Strike","Morale","Endurance"],r=>[r.to_hit+"+",r.shaking+"+",r.endurance])+
     t("Weapons",EQ.weapons,["Tier","AP","Init","Keywords"],w=>[w.tier_label||w.tier,w.ap||0,w.init||0,(w.tags||[]).join(", ")])+
     t("Ranged",EQ.ranged,["Tier","AP","Init","Keywords"],w=>[w.tier_label||w.tier,w.ap||0,w.init||0,(w.tags||[]).join(", ")])+

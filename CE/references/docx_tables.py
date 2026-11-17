@@ -233,7 +233,7 @@ def domain_board():
     b = rd.DOMAIN_BOARD
     se = getattr(rd, "STANDING_EFFECTS", {})
     def cell(d, tier):
-        base = (b[d].get(tier, "") or "").strip()
+        base = rd.leadin_wrap((b[d].get(tier, "") or "").strip())   # Standing name and timing labels bold
         cmb = se.get((d, tier))
         if cmb:
             base = (base + " " if base else "") + str(cmb).strip()
@@ -340,7 +340,7 @@ def shields():
 
 def infrastructure():
     rows = [[n, v.get("tier", ""), str(v.get("upkeep", "")), str(v.get("build_time", "")),
-             v.get("requirement", ""), v.get("empire_bonus", "")]
+             v.get("requirement", ""), rd.leadin_wrap(v.get("empire_bonus", ""))]
             for n, v in rd.INFRASTRUCTURE.items()]
     return _table(["Infrastructure", "Tier", getattr(rd, "UPKEEP_TERM", "Upkeep"), "Build Time", "Requirement", "Empire Bonus"], rows)
 
@@ -362,7 +362,7 @@ def tactical_terrain():
 
 def factions():
     fb = getattr(rd, "faction_body", lambda k: rd.FACTIONS[k].get("mechanic", ""))   # name = mechanic title; body without it
-    rows = [[n, v.get("feel", ""), v.get("difficulty", ""), v.get("strength", ""), fb(n)]
+    rows = [[n, v.get("feel", ""), v.get("difficulty", ""), v.get("strength", ""), rd.leadin_wrap(fb(n))]
             for n, v in rd.FACTIONS.items()]
     return _table(["Faction", "Feel", "Difficulty", "Strength", "Mechanic"], rows)
 
@@ -473,7 +473,7 @@ def holdings():
         name = rd.display(n) + (" (Monument)" if mon else "") + (" (Natural)" if v.get("natural") else "") + (f" (also {extra})" if extra else "")
         if simple:
             return [name, rd.display_text(v.get("infrastructure_req", "")) or "\u2014", eff_txt,
-                    rd.display_text(v.get("innate", "") or "") or "\u2014"]
+                    rd.leadin_wrap(rd.display_text(v.get("innate", "") or "")) or "\u2014"]
         return [name, rd.display_text(v.get("mastery_req", "")) or "\u2014", eff_txt,
                 rd.display_text(v.get("innate", "") or "") or "\u2014", rd.display_text(v.get("mastery", "")) or "\u2014"]
     hdr = ([term, "Infrastructure Req", chain, "Effect"] if simple

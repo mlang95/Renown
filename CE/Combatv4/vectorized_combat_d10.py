@@ -138,6 +138,8 @@ class StaticArmy:
         self.shield_th_penalty_start = 1 if (PONDEROUS in shield_tags) else 0
         self.has_shield = ld.shield is not None
         # Immune Destroy Shield (Heater): this shield cannot be destroyed by Destroy Shield.
+        # Immune Hook (Heater): the attacker's Hook X ignores none of this shield's Shielded.
+        self.hook_immune = "Immune Hook" in shield_tags
         self.shield_immune = IMMUNE_DESTROY_SHIELD in shield_tags or IMMUNE_DESTROY_SHIELD in ld.extra_tags   # College of Arms: army-wide
         # Pavisiers' Yard (Shield Wall): incoming AP -1 while this army plays Defensive Formation with its Shield Equipped
         self.shield_wall = bool(ld.shield) and ("Shield Wall" in ld.extra_tags)
@@ -365,6 +367,11 @@ class StaticArmy:
             tags.discard(_rt)
             if ranged:
                 _fold_bonus(tags, _rt[len("Ranged "):])
+        # ... and to melee weapons ("Melee Crit +2": Royal Pavilion's Deadly / Cleave), while a melee weapon is Equipped
+        for _mt in [t for t in tags if str(t).startswith("Melee ")]:
+            tags.discard(_mt)
+            if not ranged:
+                _fold_bonus(tags, _mt[len("Melee "):])
         # Tokens scoped to the first Skirmish ("First AP -1" = a charge): folded into the plain token in the
         # first Skirmish, dropped after it. No current Holding text produces one (lab tests only).
         # "First AP -1 @Lance": only while that melee weapon is the Equipped profile.
@@ -1819,8 +1826,8 @@ def run_matchup_vec(ld_a, ld_b, n_runs=100, max_skirmishes=20, seed=None, altern
         # a vec-only divergence vs batch (batch only used Unstoppable), and vec's own comment said
         # Immune Tactic TH should NOT affect shield TBH. Unstoppable now drives ONLY the parry penalty.
         # Hook N ignores up to N points of the defender's Shielded (Negate Shielded = all of it).
-        a_shield_tbh_eff = np.maximum(b_shield_tbh - _cp.hook_value(a_tags), 0)
-        b_shield_tbh_eff = np.maximum(a_shield_tbh - _cp.hook_value(b_tags), 0)
+        a_shield_tbh_eff = np.maximum(b_shield_tbh - (0 if b_static.hook_immune else max(0, _cp.hook_value(a_tags) - _cp.phalanx_value(b_tags))), 0)   # Immune Hook (defender's shield); Phalanx X
+        b_shield_tbh_eff = np.maximum(a_shield_tbh - (0 if a_static.hook_immune else max(0, _cp.hook_value(b_tags) - _cp.phalanx_value(a_tags))), 0)
         # === To-hit with the FATIGUE 6+ CAP ===
         # Rule: fatigue can never push the target-to-hit past 6+ (a fatigued unit always still
         # hits on a natural 6). The cap is applied to (base + improving mods + fatigue). Then

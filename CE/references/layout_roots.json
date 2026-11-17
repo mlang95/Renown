@@ -52,7 +52,7 @@
     3,
     2
    ],
-   "Archery Butts": [
+   "Skirmish Field": [
     3,
     3
    ],
@@ -76,7 +76,7 @@
     4,
     2
    ],
-   "Skirmish Field": [
+   "Archery Butts": [
     4,
     3
    ],
@@ -131,7 +131,7 @@
     "Apothecary"
    ],
    [
-    "Training Grounds",
+    "Skirmish Field",
     "Archery Butts"
    ],
    [
@@ -143,7 +143,7 @@
     "Artillery Park"
    ],
    [
-    "Skirmish Field",
+    "Archery Butts",
     "Ballistarium"
    ],
    [
@@ -219,7 +219,7 @@
     "Siege Works"
    ],
    [
-    "Archery Butts",
+    "Training Grounds",
     "Skirmish Field"
    ],
    [

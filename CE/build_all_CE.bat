@@ -23,7 +23,19 @@ setlocal EnableExtensions EnableDelayedExpansion
 REM ---------------------------------------------------------------- EDIT THESE
 set PY="C:\Users\Matt\anaconda3\envs\kotr\python.exe"
 set GIT="C:\Program Files\Git\cmd\git.exe"
-set CE_ROOT=C:\Users\Matt\OneDrive\Desktop\Game\CE
+REM CE_ROOT : the CE folder this script sits in (so the alpha checkout builds into itself, not into Game\CE)
+set "CE_ROOT=%~dp0"
+if "%CE_ROOT:~-1%"=="\" set "CE_ROOT=%CE_ROOT:~0,-1%"
+
+REM ---- CHANNEL : where a build is allowed to publish (Nov 16 2026) ------------
+REM   dev   = build everything locally; no wiki push; source pushed to the branch
+REM           you are on (never forced, never tagged). Tournaments / lab never publish.
+REM   alpha = the public line: syncs + pushes the wiki, pushes branch ALPHA_BRANCH
+REM           and tags v<VERSION>. Refuses unless run from a checkout of ALPHA_BRANCH
+REM           with nothing uncommitted. Normally started by promote_alpha.bat.
+REM   A CHANNEL set before this script runs (promote_alpha.bat does) wins.
+if not defined CHANNEL set CHANNEL=dev
+set ALPHA_BRANCH=alpha
 
 REM ---- FOLDER NAMES (rename a folder on disk = change one word here) --------
 set DIR_CODE=combatv4
@@ -116,7 +128,7 @@ REM   snapshots current state. Old states live as folders, not git history.
 REM   NOTE: any subfolder with its own .git (Game\RenownWiki, a stray Game\CE\.git)
 REM   would be recorded as a submodule pointer, not files - remove/ignore those
 REM   (see the .gitignore block below and the one-time setup).
-set REPO_DIR=C:\Users\Matt\OneDrive\Desktop\Game
+for %%I in ("%CE_ROOT%\..") do set "REPO_DIR=%%~fI"
 REM REPO_REMOTE : used ONLY to create 'origin' on first run (when REPO_DIR has
 REM   no .git yet). Ignored once a repo exists.
 set REPO_REMOTE=https://github.com/mlang95/Renown.git
@@ -124,6 +136,31 @@ set REPO_BRANCH=main
 set REPO_MSG=CE build v%DIE% simple=%SIMPLE%
 REM REPO_TAG : 1 = also create + push tag v<VERSION>, 0 = commit/push only.
 set REPO_TAG=1
+
+REM ---- CHANNEL rules (see CHANNEL at the top) ---------------------------------
+REM dev never touches the public wiki and never tags; alpha must come from a clean ALPHA_BRANCH checkout.
+if /i "%CHANNEL%"=="dev" set PUSH_WIKI=0
+if /i "%CHANNEL%"=="dev" set REPO_TAG=0
+if /i not "%CHANNEL%"=="dev" if /i not "%CHANNEL%"=="alpha" (
+  echo ERROR: CHANNEL=%CHANNEL% - use dev or alpha.
+  pause & exit /b 1
+)
+if /i "%CHANNEL%"=="alpha" (
+  set "CUR_BRANCH="
+  for /f "delims=" %%B in ('"%GIT% -C "%REPO_DIR%" branch --show-current"') do set "CUR_BRANCH=%%B"
+  if /i not "!CUR_BRANCH!"=="%ALPHA_BRANCH%" (
+    echo ERROR: CHANNEL=alpha builds only from a checkout of branch %ALPHA_BRANCH% ^(this is "!CUR_BRANCH!" in %REPO_DIR%^).
+    echo        Use promote_alpha.bat from your dev folder instead.
+    pause & exit /b 1
+  )
+  set "DIRTY="
+  %GIT% -C "%REPO_DIR%" status --porcelain --untracked-files=no -- . ":^CE/lab_out" > "%TEMP%\renown_dirty.txt"
+  for %%A in ("%TEMP%\renown_dirty.txt") do if %%~zA GTR 0 set "DIRTY=1"
+  if defined DIRTY (
+    echo ERROR: %REPO_DIR% has uncommitted changes - an alpha build must be exactly a committed state ^(lab_out output is ignored^).
+    pause & exit /b 1
+  )
+)
 
 REM IGNORE_BULK : keep regenerable tournament/analysis output OUT of the repo so
 REM   a big matchups.parquet can't get staged and blow past GitHub's 100 MB
@@ -192,7 +229,7 @@ set /p VERSION=<"%TEMP%\ce_ver.txt"
 del "%TEMP%\ce_ver.txt"
 
 echo.
-echo === build_all_CE : v%VERSION%  DIE=%DIE%  SIMPLE=%SIMPLE%  PHASES=%PHASES%  WHAT=%WHAT%  PLAYERS=%PLAYERS%  PUSH_REPO=%PUSH_REPO% ===
+echo === build_all_CE : v%VERSION%  CHANNEL=%CHANNEL%  DIE=%DIE%  SIMPLE=%SIMPLE%  PHASES=%PHASES%  WHAT=%WHAT%  PLAYERS=%PLAYERS%  PUSH_REPO=%PUSH_REPO% ===
 echo     data   %DATA_SRC%  -^> renown_data.py in %CE_ROOT%
 echo     sheets %SHEET_DIR%
 echo     maps   %MAP_DIR%
@@ -416,7 +453,7 @@ REM --- route genuine large binaries (deliverables) to LFS ---------------------
 %GIT% lfs install --local >nul
 %GIT% lfs track %LFS_PATTERNS% >nul
 if "%AUTO_LFS_BIG%"=="1" (
-  for /f "delims=" %%F in ('%GIT% ls-files --others --modified --exclude-standard') do (
+  for /f "delims=" %%F in ('"%GIT% ls-files --others --modified --exclude-standard"') do (
     set FSIZE=0
     if exist "%%F" set FSIZE=%%~zF
     if !FSIZE! GTR 99000000 (
@@ -431,21 +468,24 @@ if "%AUTO_LFS_BIG%"=="1" (
 
 if "%REPO_TAG%"=="1" %GIT% tag -a v%VERSION% -m "%REPO_MSG%" 2>nul || echo   (tag v%VERSION% already exists - keeping it)
 
-REM --- Force push to completely overwrite remote with local state ---
-%GIT% rev-parse --abbrev-ref --symbolic-full-name @{u} >nul 2>&1
-if errorlevel 1 ( 
-    %GIT% push -u origin HEAD:%REPO_BRANCH% --force 
-) else ( 
-    %GIT% push --force 
+REM --- Push (never forced, Nov 16 2026): dev -> the branch you are on; alpha -> ALPHA_BRANCH ---
+set "PUSH_BRANCH="
+for /f "delims=" %%B in ('"%GIT% branch --show-current"') do set "PUSH_BRANCH=%%B"
+if /i "%CHANNEL%"=="alpha" set "PUSH_BRANCH=%ALPHA_BRANCH%"
+if "!PUSH_BRANCH!"=="" (
+  echo   Detached HEAD - committed locally, nothing pushed.
+) else (
+  echo   pushing HEAD -^> origin/!PUSH_BRANCH!  ^(CHANNEL=%CHANNEL%^)
+  %GIT% push origin HEAD:refs/heads/!PUSH_BRANCH!
+  if errorlevel 1 echo   PUSH REJECTED: origin/!PUSH_BRANCH! has commits this checkout lacks. Pull or merge, then push again - nothing was forced.
 )
-
-if "%REPO_TAG%"=="1" %GIT% push origin v%VERSION% --force 2>nul
+if "%REPO_TAG%"=="1" %GIT% push origin refs/tags/v%VERSION% 2>nul
 popd
 
 :end
 echo.
-echo Done. Press any key to close.
-pause
+echo Done (CHANNEL=%CHANNEL%).
+if not defined NO_PAUSE pause
 endlocal
 goto :eof
 

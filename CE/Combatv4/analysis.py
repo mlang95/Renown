@@ -18,6 +18,58 @@ import numpy as np
 from renown_combat import RETINUES
 
 
+# ── Which weapon a build actually fights with (Nov 16 2026) ──────────────────────────────────────
+# A melee + ranged build declares its Equipped weapon per phase in its Equip:* tags (written by
+# fix_equipment_per_build). Many ranged builds carry a cheap melee weapon they never Equip (pruning keeps
+# unused weapons of Wrought or below), so per-weapon win rates must not credit that weapon with the
+# ranged build's results. Tag meaning (vectorized_combat_d10._equip_with):
+#   first Skirmish: Equip:first=melee / Equip:first=2h -> melee; otherwise the ranged weapon if carried
+#   later Skirmishes: Equip:normal=ranged -> ranged; Equip:normal=2h -> melee (2H set); otherwise melee
+# A build with no Equip:* tags at all uses the engine default: ranged wherever it may (a One-Shot ranged
+# weapon only in the first Skirmish, unless the build has Immune One-Shot).
+def _tagset(tags):
+    if tags is None or (isinstance(tags, float) and np.isnan(tags)):
+        return set()
+    if isinstance(tags, str):
+        return {t.strip() for t in tags.replace("|", ",").split(",") if t.strip()}
+    return {str(t) for t in tags}
+
+
+def melee_equipped(weapon, ranged, tags):
+    """True if the build Equips its melee weapon in at least one phase (Farm Tools / no weapon: False)."""
+    if weapon in (None, "", "Farm Tools") or (isinstance(weapon, float) and np.isnan(weapon)):
+        return False
+    if ranged in (None, "") or (isinstance(ranged, float) and np.isnan(ranged)):
+        return True
+    t = _tagset(tags)
+    if "Equip:first=melee" in t or "Equip:first=2h" in t or "Equip:normal=2h" in t:
+        return True
+    if any(x.startswith("Equip:") for x in t):          # declared: later phases are melee unless normal=ranged
+        return "Equip:normal=ranged" not in t
+    from renown_data import RANGED, ONE_SHOT          # undeclared: engine default
+    one_shot = ONE_SHOT in RANGED.get(ranged, {}).get("tags", []) and "Immune One-Shot" not in t
+    return one_shot
+
+
+def weapon_in_use(weapon, ranged, tags):
+    """The melee weapon if the build ever Equips it, else None (the build fights with its ranged weapon /
+    Farm Tools). Feed this in place of the raw weapon column to any per-weapon report."""
+    return weapon if melee_equipped(weapon, ranged, tags) else None
+
+
+def add_weapon_in_use(df, prefix=""):
+    """Add `<prefix>weapon_used` (bool) and `<prefix>weapon_eff` (weapon_in_use) to a summary
+    (prefix "") or matchups frame (prefix "a_" / "b_"). Tags column: `tags` / `a_tags` / `b_tags`."""
+    w, r, t = prefix + "weapon", prefix + "ranged", prefix + "tags"
+    keys = df[[w, r, t]].astype(object).where(df[[w, r, t]].notna(), None)
+    uniq = keys.drop_duplicates()
+    used = {tuple(k): melee_equipped(*k) for k in uniq.itertuples(index=False, name=None)}
+    flag = np.fromiter((used[tuple(k)] for k in keys.itertuples(index=False, name=None)), dtype=bool, count=len(df))
+    df[prefix + "weapon_used"] = flag
+    df[prefix + "weapon_eff"] = df[w].where(flag, None)
+    return df
+
+
 def per_build_metrics(df):
     """Collapse a matchups frame (one row per pair) to ONE row per attacker build (a_name),
     with aggregated output metrics. Cheap base for feature_bucket_matrix: the giant frame is
@@ -412,6 +464,162 @@ def load_tournament_lean(matchups_path="matchups.csv", columns=None, downcast=Tr
     return df
 
 
+def load_tournament_compact(matchups_path="matchups.csv", columns=None, frac=None, seed=2026):
+    """Lowest-memory full loader: every column, same values and derived columns as load_tournament,
+    but no column is ever held as Python string objects.
+
+    - String columns are read from parquet as dictionaries and arrive in pandas as categoricals
+      (a few bytes per row instead of ~60-180). Categories are sorted (same order as the old object
+      columns sort in), and each a_/b_ pair (a_name/b_name, a_weapon/b_weapon, ...) shares one
+      category list, so a_x == b_x comparisons work.
+    - Ints are downcast to the smallest type that holds them, floats to float32.
+    - The upkeep columns are worked out once per build, not with a per-row apply.
+    - frac: keep a random fraction of rows, filtered row group by row group so the full file is
+      never in memory at once.
+    Falls back to load_tournament_lean + the same compaction for a CSV-only run.
+    """
+    import os
+    import pyarrow as pa
+    import pyarrow.parquet as pqf
+
+    pq = None
+    p = str(matchups_path)
+    if p.endswith(".parquet"):
+        pq = p
+    elif p.endswith(".csv") and os.path.exists(p[:-4] + ".parquet"):
+        pq = p[:-4] + ".parquet"
+    if pq is None:
+        df = load_tournament_lean(matchups_path, columns=columns, downcast=False, frac=frac, seed=seed)
+        return _compact_frame(df, finalize=False)
+
+    f = pqf.ParquetFile(pq)
+    schema = f.schema_arrow
+    names = [n for n in (columns or schema.names) if n in schema.names]
+    strcols = [n for n in names if pa.types.is_string(schema.field(n).type)
+               or pa.types.is_large_string(schema.field(n).type)]
+    f = pqf.ParquetFile(pq, read_dictionary=strcols)
+    if frac is not None and 0 < frac < 1:
+        rng = np.random.default_rng(seed)
+        parts = []
+        for i in range(f.num_row_groups):
+            t = f.read_row_group(i, columns=names)
+            parts.append(t.filter(pa.array(rng.random(t.num_rows) < frac)))
+        table = pa.concat_tables(parts)
+        del parts
+    else:
+        table = f.read(columns=names)
+    table = table.unify_dictionaries()
+    df = table.to_pandas(self_destruct=True, split_blocks=True)
+    del table
+    return _compact_frame(df, finalize=True)
+
+
+def _compact_frame(df, finalize=True):
+    """Categoricals for strings (sorted, a_/b_ pairs share categories), smallest ints, float32,
+    then the derived columns of _finalize_tournament_df computed per build."""
+    # strings -> categoricals
+    for c in df.columns:
+        if df[c].dtype == object:
+            df[c] = df[c].astype("category")
+    cats = [c for c in df.columns if isinstance(df[c].dtype, pd.CategoricalDtype)]
+    done = set()
+    for c in cats:
+        if c in done:
+            continue
+        pair = [c]
+        if c[:2] in ("a_", "b_"):
+            o = ("b_" if c[:2] == "a_" else "a_") + c[2:]
+            if o in cats:
+                pair.append(o)
+        vals = set()
+        for k in pair:
+            vals |= {v for v in df[k].cat.categories if v is not None}
+        if finalize:
+            base = c[2:] if c[:2] in ("a_", "b_") else c
+            if base in ("tags", "shield", "ranged"):
+                vals.add("")
+            elif base == "playstyle":
+                vals.add("Random")
+        new = sorted(vals, key=str)
+        for k in pair:
+            df[k] = df[k].cat.set_categories(new)
+            done.add(k)
+    # numerics. Battle counts stay int32: pandas 2.0 keeps a small int dtype through some
+    # groupby sums, so int8/int16 counts could wrap once totals pass 127 / 32767.
+    counts = {"a_wins", "b_wins", "mut_wipe", "indecisive", "n_runs"}
+    for c in df.columns:
+        k = df[c].dtype.kind
+        if k in "iu":
+            if c in counts or "_wipe_" in c:
+                df[c] = df[c].astype("int32")
+            else:
+                df[c] = pd.to_numeric(df[c], downcast="integer")
+        elif k == "f":
+            df[c] = df[c].astype("float32")
+    if not finalize:
+        return df
+
+    for p in ("a", "b"):
+        for col in ("tags", "shield", "ranged"):
+            if f"{p}_{col}" in df.columns:
+                df[f"{p}_{col}"] = df[f"{p}_{col}"].fillna("")
+        if f"{p}_playstyle" in df.columns:
+            df[f"{p}_playstyle"] = df[f"{p}_playstyle"].fillna("Random")
+        else:
+            df[f"{p}_playstyle"] = pd.Categorical.from_codes(np.zeros(len(df), dtype=np.int8),
+                                                             categories=["Random"])
+        if f"{p}_shield_destroyed_rate" not in df.columns:
+            df[f"{p}_shield_destroyed_rate"] = np.float32(0.0)
+
+    # upkeep, once per build: name -> (retinue, weapon, shield, armor, ranged)
+    kit = ("retinue", "weapon", "shield", "armor", "ranged")
+    if all(f"{p}_{k}" in df.columns for p in "ab" for k in kit + ("name",)):
+        n_cat = len(df["a_name"].cat.categories)
+        base_cost = np.full(n_cat, np.nan, dtype=np.float32)
+        mod_cost = np.full(n_cat, np.nan, dtype=np.float32)
+        for p in ("a", "b"):
+            codes = df[f"{p}_name"].cat.codes.to_numpy()
+            seen, first = np.unique(codes, return_index=True)
+            todo = np.isnan(base_cost[seen])
+            for code, row in zip(seen[todo], first[todo]):
+                r, w, s, a, rg = (df[f"{p}_{k}"].iat[row] for k in kit)
+                base_cost[code] = RETINUES[r]["cost"]
+                mod_cost[code] = compute_per_retinue_upkeep(r, w, s, a, rg)
+        base_cost, mod_cost = np.nan_to_num(base_cost), np.nan_to_num(mod_cost)   # NaN = name never seen, never read
+        if (base_cost == np.round(base_cost)).all() and (mod_cost == np.round(mod_cost)).all():
+            base_cost, mod_cost = base_cost.astype("int32"), mod_cost.astype("int32")   # costs are whole numbers
+        for p in ("a", "b"):
+            codes = df[f"{p}_name"].cat.codes.to_numpy()
+            df[f"{p}_ret_cost"] = base_cost[codes]
+            df[f"{p}_ret_cost_modified"] = mod_cost[codes]
+    else:   # no names: per unique kit
+        for p in ("a", "b"):
+            keys = [f"{p}_{k}" for k in kit]
+            g = df.groupby(keys, observed=True, sort=False).ngroup().to_numpy()
+            _, first = np.unique(g, return_index=True)
+            base = np.empty(len(first), dtype=np.float32); mod = np.empty_like(base)
+            for gid, row in zip(g[first], first):
+                vals = [df[k].iat[row] for k in keys]
+                base[gid] = RETINUES[vals[0]]["cost"]
+                mod[gid] = compute_per_retinue_upkeep(*vals)
+            df[f"{p}_ret_cost"] = base[g]
+            df[f"{p}_ret_cost_modified"] = mod[g]
+    for p in ("a", "b"):
+        df[f"{p}_upkeep_base"] = df[f"{p}_ret_cost"]
+        df[f"{p}_upkeep"] = df[f"{p}_ret_cost_modified"]
+        df[f"{p}_killed"] = (df[f"{p}_size"] - df[f"avg_{p}_rem"]).astype("float32")
+
+    n = (df["a_wins"].astype("int32") + df["b_wins"] + df["mut_wipe"] + df["indecisive"])
+    df["n_runs"] = n.astype("int32")
+    df["a_win_rate"] = (df["a_wins"] / n).astype("float32")
+    df["b_win_rate"] = (df["b_wins"] / n).astype("float32")
+    a_frac = (df["b_killed"] / df["b_size"].clip(lower=1)).clip(0, 1)
+    b_frac = (df["a_killed"] / df["a_size"].clip(lower=1)).clip(0, 1)
+    df["a_spoils_per_battle"] = (a_frac * df["b_ret_cost_modified"]).astype("float32")
+    df["b_spoils_per_battle"] = (b_frac * df["a_ret_cost_modified"]).astype("float32")
+    return df
+
+
 def _finalize_tournament_df(df):
     """Apply the derived columns / fillna normalization shared by the CSV and Parquet
     load paths."""
@@ -538,13 +746,13 @@ def spoils_efficiency(df):
 def punch_above_weight(df, cost_threshold_ratio=1.2):
     """Win rate vs opponents with at least cost_threshold_ratio × your modified upkeep.
     Excludes loadouts with 0 modified upkeep (can't form a meaningful ratio)."""
-    df = df[df["a_name"] != df["b_name"]].copy()
-    df = df[df["a_upkeep"] > 0]
-    df = df[df["b_upkeep"] >= df["a_upkeep"] * cost_threshold_ratio]
+    cols = ["a_wins", "b_wins", "indecisive", "n_runs", "b_upkeep", "a_upkeep"]
+    keep = ((df["a_name"] != df["b_name"]) & (df["a_upkeep"] > 0)
+            & (df["b_upkeep"] >= df["a_upkeep"] * cost_threshold_ratio)).to_numpy()
+    df = df.loc[keep, ["a_name"] + cols]          # one copy, only the columns used
     if len(df) == 0:
         return pd.DataFrame(columns=["a_name", "punch_win_rate", "n_richer_opps", "avg_cost_ratio"])
-    cols = ["a_wins", "b_wins", "indecisive", "n_runs", "b_upkeep", "a_upkeep"]
-    grp = df.groupby("a_name")[cols].apply(_punch_agg).reset_index()
+    grp = df.groupby("a_name", observed=True)[cols].apply(_punch_agg).reset_index()
     grp["punch_win_rate"] = grp["punch_wins"] / grp["punch_battles"]
     return grp.sort_values("punch_win_rate", ascending=False)
 
@@ -1504,8 +1712,14 @@ def _pursuit_summary_from_df(df, n_runs_per_matchup=None):
         totals = df["a_wins"] + df["b_wins"] + df["mut_wipe"] + df["indecisive"]
         n_runs_per_matchup = int(totals.mode().iloc[0])
 
-    # Group by attacker name; drop mirror matches to avoid double-counting
-    non_mirror = df[df["a_name"] != df["b_name"]]
+    # Group by attacker name; drop mirror matches to avoid double-counting.
+    # Only the 11 columns used are taken before the row filter (filtering the whole frame
+    # copied every column, which is what ran big runs out of memory).
+    use = ["a_name", "a_retinue", "a_military_pursuit_count", "a_domain_count", "a_pursuits",
+           "a_wins", "b_wins", "mut_wipe", "indecisive", "avg_a_rem", "avg_b_rem"]
+    keep = (df["a_name"] != df["b_name"]).to_numpy()
+    non_mirror = df.loc[keep, use]
+    del keep
     grp = non_mirror.groupby("a_name", observed=True).agg(
         retinue=("a_retinue", "first"),
         military_pursuit_count=("a_military_pursuit_count", "first"),
@@ -1796,22 +2010,19 @@ def filter_confounds(df, drop_mutual_wipes=False, exclude_mirror_gear=False,
       min_decisive_rate : keep only rows whose decisive fraction (1 - mut - ind)/n_runs >=
                           this threshold. Filters out matchups too stalematey to be informative.
     """
-    d = df.copy()
-    nr = d["n_runs"].clip(lower=1)
-
+    # Row filters are combined into one mask, then the frame is copied once (it used to be
+    # copied whole up front and again after every filter).
+    keep = np.ones(len(df), dtype=bool)
     if exclude_mirror_gear:
-        same = (d["a_weapon"] == d["b_weapon"]) & (d["a_shield"] == d["b_shield"]) & (d["a_armor"] == d["b_armor"])
-        d = d[~same].copy()
-        nr = d["n_runs"].clip(lower=1)
-
-    if same_mpc and "a_military_pursuit_count" in d.columns:
-        d = d[(d["a_military_pursuit_count"] - d["b_military_pursuit_count"]).abs() <= mpc_tolerance].copy()
-        nr = d["n_runs"].clip(lower=1)
-
+        keep &= ~((df["a_weapon"] == df["b_weapon"]) & (df["a_shield"] == df["b_shield"])
+                  & (df["a_armor"] == df["b_armor"])).to_numpy()
+    if same_mpc and "a_military_pursuit_count" in df.columns:
+        keep &= ((df["a_military_pursuit_count"].astype("int32") - df["b_military_pursuit_count"]).abs()
+                 <= mpc_tolerance).to_numpy()
     if min_decisive_rate is not None:
-        dec_rate = (d["a_wins"] + d["b_wins"]) / nr
-        d = d[dec_rate >= min_decisive_rate].copy()
-        nr = d["n_runs"].clip(lower=1)
+        keep &= (((df["a_wins"].astype("int32") + df["b_wins"]) / df["n_runs"].clip(lower=1))
+                 >= min_decisive_rate).to_numpy()
+    d = df[keep].copy()
 
     if drop_mutual_wipes:
         denom = (d["a_wins"] + d["b_wins"] + d["indecisive"]).clip(lower=1)

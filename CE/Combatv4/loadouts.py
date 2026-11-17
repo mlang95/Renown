@@ -457,6 +457,7 @@ BUILD_KITS = {
 #   upkeep    Army upkeep = the Retinue type's cost - "Upkeep -N" in the build's text;
 #             conditional clauses count at renown_data.COND_UPKEEP_FACTOR.
 import re as _re
+import functools as _functools
 from collections import Counter as _Counter
 import renown_data as rd
 
@@ -474,7 +475,13 @@ PURSUITS_INFO = {n: {"cost": 1, "domain": dict(h["domain"]), "innate_tags": list
 
 
 def _tokens(pursuits):
-    """Tokens the build's Holdings grant. "anytier:X@Y" ("Unlocks X with Y") counts as "anytier:X" only when Y is built."""
+    """Tokens the build's Holdings grant. "anytier:X@Y" ("Unlocks X with Y") counts as "anytier:X" only when Y is built.
+    Read-only (cached per Holding set)."""
+    return _tokens_of(frozenset(pursuits))
+
+
+@_functools.lru_cache(maxsize=1 << 18)
+def _tokens_of(pursuits):
     out = set()
     for p in pursuits:
         for t in (_SIM[p]["tags"] if p in _SIM else ()):
@@ -484,7 +491,7 @@ def _tokens(pursuits):
                     out.add(x)
             else:
                 out.add(t)
-    return out
+    return frozenset(out)
 
 
 def _holders(token):
@@ -518,11 +525,38 @@ def _line(name, have, stack=()):
     return None if best is None else best | {name}
 
 
+@_functools.lru_cache(maxsize=1 << 18)
+def _grounded(P):
+    """The Holdings in frozenset P that stand on one complete line inside P (least fixpoint: a Holding is in
+    when it is a root / not a Holding, or one of its parents is not a Holding or is already in). Same answer
+    as the recursive _line_ok walk, computed once per set: cycles (Saddlery<->Caravanery) never ground each other."""
+    G = {p for p in P if p in _SIM_SELF_GROUNDED or p not in _SIM}
+    frontier = list(G)
+    while frontier:                                    # spread down from grounded Holdings to their children in P
+        g = frontier.pop()
+        for c in _SIM_CHILDREN.get(g, ()):
+            if c in P and c not in G:
+                G.add(c)
+                frontier.append(c)
+    return frozenset(G)
+
+
+_SIM_SELF_GROUNDED = frozenset(n for n, h in _SIM.items()   # root, no parents, or a parent that isn't a Holding
+                               if h["root"] or not h["parents"] or any(q not in _SIM for q in h["parents"]))
+_SIM_CHILDREN = {}
+for _n, _h in _SIM.items():
+    for _par in _h["parents"]:
+        _SIM_CHILDREN.setdefault(_par, []).append(_n)
+
+
 def _line_ok(name, P, stack=()):
     """True if `name` has one complete line inside P."""
     h = _SIM.get(name)
     if h is None or h["root"] or not h["parents"]:
         return True
+    if not stack:
+        G = _grounded(frozenset(P))
+        return any(p not in _SIM or p in G for p in h["parents"])
     for p in h["parents"]:
         if p in stack:
             continue
@@ -537,13 +571,15 @@ def prereq_closure(pursuits):
     changed = True
     while changed:
         changed = False
+        G = _grounded(frozenset(out))                      # recomputed only when out grows (same order as before)
         for p in sorted(out):
-            if _line_ok(p, out):
+            if p in G:                                     # = _line_ok(p, out) for p in out
                 continue
             add = _line(p, frozenset(out - {p}))           # cheapest line under p, given what's built
             if add and not add <= out:
                 out |= add
                 changed = True
+                G = _grounded(frozenset(out))
     return out
 
 
@@ -554,13 +590,13 @@ def master_effect_closure(pursuits):
 
 def _needed_by_line(h, P):
     """True if some other Holding in P loses its only line without h."""
-    rest = set(P) - {h}
-    return any(not _line_ok(q, rest) for q in rest)
+    rest = frozenset(P) - {h}
+    return len(_grounded(rest)) < len(rest)
 
 
 def _pursuit_set_is_valid(pursuits):
-    P = set(pursuits)
-    return all(_line_ok(p, P) for p in P)
+    P = frozenset(pursuits)
+    return len(_grounded(P)) == len(P)
 
 
 # ── what a pursuit set unlocks ───────────────────────────────────────────────
@@ -1360,13 +1396,15 @@ def _token_used(tok, ld, need, gear):
     sh = ld.shield
     if tok.startswith("Ranged "):
         return ld.ranged is not None
+    if tok.startswith("Melee "):
+        return ld.weapon not in (None, "Farm Tools")
     if tok == "Immune One-Shot":
         return ld.ranged is not None and ONE_SHOT in RANGED[ld.ranged].get("tags", [])
     if tok == "Shield Init +1":
         return sh is not None and SHIELDS[sh]["init"] < 0
     if tok == "Buckler 2H":
         return sh == "Buckler Shield" and _true_2h(ld.weapon)
-    if tok in ("Shield Wall", IMMUNE_DESTROY_SHIELD):
+    if tok in ("Shield Wall", IMMUNE_DESTROY_SHIELD) or tok.startswith("Phalanx"):   # Phalanx only protects a Shield's Shielded
         return sh is not None
     if tok == IMMUNE_UNWIELDY:
         return UNWIELDY in gear
@@ -1538,8 +1576,10 @@ def _holding_text(name):
     return " ; ".join(str(n.get(k, "")) for k in ("innate", "mastery") if n.get(k))
 
 
+@_functools.lru_cache(maxsize=None)
 def holding_synergy(name):
-    """(strong, soft) weapon keywords a Holding's text points at. Read from the text, not a list."""
+    """(strong, soft) weapon keywords a Holding's text points at. Read from the text, not a list.
+    Cached per Holding (the data doesn't change during a run); the sets are read-only."""
     text = _holding_text(name)
     strong, soft = set(), set()
     granted = set(rd.holding_combat_tags(text, sim=True))   # "Gain Deadly": the Holding supplies it, gear needn't
@@ -1552,7 +1592,7 @@ def holding_synergy(name):
                 soft.add(kw)
             elif not _re.search(r"\b(Negate|Unlocks?|Add)\s*$", pre):
                 strong.add(kw)
-    return strong, soft
+    return frozenset(strong), frozenset(soft)
 
 
 def synergy_profile(pursuits):

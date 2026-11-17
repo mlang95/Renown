@@ -13,6 +13,7 @@ from reportlab.lib.colors import HexColor, Color
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 import renown_data as rd
+from rich_text import rich_words, draw_rich   # bold lead-in labels
 
 SERIF, SERIF_B, SERIF_I = "Helvetica", "Helvetica-Bold", "Helvetica-Oblique"
 for face, fn in [("EBG", "EBGaramond-Regular.ttf"), ("EBG-B", "EBGaramond-Bold.ttf"),
@@ -82,17 +83,17 @@ def draw_effects(c, x, ytop, w):
             reqs = "" if not req or req == "None" else f"  (needs {req})"
             c.setFont(SERIF_B, 7.5); c.setFillColor(_c(TIER_COL[d.get("tier")]))
             nw = c.stringWidth(n, SERIF_B, 7.5); c.drawString(xx, yy, n)
-            body = eff + reqs
             c.setFont(SERIF, 7); c.setFillColor(HexColor("#3a3a42"))
-            first = True; drawn = []; line = ""; avail = colw - nw - 6
-            for wd in body.split():
-                t = (line + " " + wd).strip()
-                if c.stringWidth(t, SERIF, 7) <= (avail if first else colw): line = t
+            words = rich_words(eff, SERIF, SERIF_B) + [(wd, SERIF) for wd in reqs.split()]   # lead-in labels bold
+            first = True; drawn = []; line = []; lw = 0.0; avail = colw - nw - 6
+            for wd, f in words:
+                ww = c.stringWidth(wd, f, 7); gap = c.stringWidth(" ", f, 7) if line else 0.0
+                if lw + gap + ww <= (avail if first else colw): line.append((wd, f)); lw += gap + ww
                 else:
-                    drawn.append((line, first)); first = False; line = wd; avail = colw
+                    drawn.append((line, first)); first = False; line = [(wd, f)]; lw = ww; avail = colw
             drawn.append((line, first))
-            for txt, fst in drawn:
-                c.drawString((xx + nw + 5) if fst else xx, yy, txt); yy -= 8.6
+            for seg, fst in drawn:
+                draw_rich(c, (xx + nw + 5) if fst else xx, yy, seg, 7); yy -= 8.6
             yy -= 2
 
 def build(out):

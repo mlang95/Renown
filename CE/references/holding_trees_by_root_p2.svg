@@ -203,8 +203,8 @@
 <rect x="374" y="306" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
 <rect x="374" y="306" width="5" height="24" fill="#6a6a72"/>
 <text x="383" y="321" font-size="8.2" fill="#2b2620">Caravanery</text>
-<rect x="546" y="342" width="118" height="24" rx="4" fill="#ffffff" stroke="#6a6a72" stroke-width="1.4"/>
-<rect x="546" y="342" width="5" height="24" fill="#6a6a72"/>
+<rect x="546" y="342" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
+<rect x="546" y="342" width="5" height="24" fill="#9E2B25"/>
 <text x="555" y="357" font-size="8.2" fill="#2b2620">Avenery</text>
 <rect x="546" y="378" width="118" height="24" rx="4" fill="#ffffff" stroke="#1c1c20" stroke-width="1.4"/>
 <rect x="546" y="378" width="5" height="24" fill="#1c1c20"/>

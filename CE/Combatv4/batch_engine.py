@@ -100,6 +100,7 @@ def pack_side(loadouts, is_attacker):
     P["shield_off_first"]  = np.array([a.shield_off_first for a in armies], dtype=np.bool_)
     P["shield_off_normal"] = np.array([a.shield_off_normal for a in armies], dtype=np.bool_)
     P["shield_immune"] = np.array([a.shield_immune for a in armies], dtype=np.bool_)
+    P["hook_immune"] = np.array([getattr(a, "hook_immune", False) for a in armies], dtype=np.bool_)   # Immune Hook (Heater)
     P["shield_wall"] = np.array([getattr(a, "shield_wall", False) for a in armies], dtype=np.bool_)   # Pavisiers' Yard
     P["shield_bonus_start"] = np.array([a.shield_bonus_start for a in armies], dtype=np.int64)
     P["shield_tbh_penalty_start"] = np.array([a.shield_tbh_penalty_start for a in armies], dtype=np.int64)
@@ -196,6 +197,8 @@ def pack_side(loadouts, is_attacker):
     P["normal_Deflect"] = np.array([(DEFLECT in a.tags_normal) for a in armies], dtype=np.bool_)
     P["first_hook"]  = np.array([_cp.hook_value(a.tags_first)  for a in armies], dtype=np.int64)   # Hook N / Negate Shielded
     P["normal_hook"] = np.array([_cp.hook_value(a.tags_normal) for a in armies], dtype=np.int64)
+    P["first_phalanx"]  = np.array([_cp.phalanx_value(a.tags_first)  for a in armies], dtype=np.int64)   # Phalanx X: reduces the enemy's Hook
+    P["normal_phalanx"] = np.array([_cp.phalanx_value(a.tags_normal) for a in armies], dtype=np.int64)
     P["first_NegateTempered"]  = np.array([(NEGATE_TEMPERED in a.tags_first)  for a in armies], dtype=np.bool_)
     P["normal_NegateTempered"] = np.array([(NEGATE_TEMPERED in a.tags_normal) for a in armies], dtype=np.bool_)
     # Per-slot defender Planishing (Tempered save cap). Static (armor/spec), not per-skirmish,
@@ -876,8 +879,8 @@ def run_batch_random(pairs, n_runs=50, seed=2026, max_skirmishes=40, mode="rando
         b_tbh = np.where((b_shdest | _b_shoff), 0, b_shtbh); a_tbh = np.where((a_shdest | _a_shoff), 0, a_shtbh)
         a_th_self = np.where((a_shdest | _a_shoff), 0, a_shth); b_th_self = np.where((b_shdest | _b_shoff), 0, b_shth)
         # Hook N: attacker ignores up to N points of the defender's Shielded (Negate Shielded = all of it)
-        a_tbh_eff = np.maximum(b_tbh - tile(Pa[f"{skl}_hook"]), 0)
-        b_tbh_eff = np.maximum(a_tbh - tile(Pb[f"{skl}_hook"]), 0)
+        a_tbh_eff = np.maximum(b_tbh - np.where(tile(Pb["hook_immune"]), 0, np.maximum(tile(Pa[f"{skl}_hook"]) - tile(Pb[f"{skl}_phalanx"]), 0)), 0)   # Immune Hook (defender's shield)
+        b_tbh_eff = np.maximum(a_tbh - np.where(tile(Pa["hook_immune"]), 0, np.maximum(tile(Pb[f"{skl}_hook"]) - tile(Pa[f"{skl}_phalanx"]), 0)), 0)
         # improving (lower target): weapon +1TH (wth, =-1), positive tactic TH. (Yew skipped.)
         # worsening (raise target): own/enemy shield TH, negative tactic TH.
         # Cap (base + improving) at CAP_THR; then worsening mods apply, capped at CAP_THR+ again (no auto-fail). Fatigue only worsens Morale.

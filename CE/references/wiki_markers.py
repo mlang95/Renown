@@ -107,7 +107,7 @@ def _standing_headers():
 def _t_domain_board():
     b = rd.DOMAIN_BOARD
     order = ["Untested", "Rising", "Established", "Sovereign"]
-    rows = [[d, "\u2014", b[d].get("Rising", ""), b[d].get("Established", ""), b[d].get("Sovereign", "")]
+    rows = [[d, "\u2014"] + [rd.leadin_wrap(b[d].get(t, "")) for t in ("Rising", "Established", "Sovereign")]   # labels bold
             for d in ["Industry", "Prowess", "Cunning", "Piety"]]
     return _htable(_standing_headers(), rows)
 
@@ -184,7 +184,7 @@ def _t_infrastructure():
     items = sorted(rd.INFRASTRUCTURE.items(), key=lambda kv: (TIER_ORD.get(kv[1].get("tier"), 9), kv[0]))
     return _htable(["Build", "Tier", getattr(rd, "UPKEEP_TERM", "Upkeep"), "Build Time", "Requirement", "Effect"],
                    [[n, d.get("tier", ""), d.get("upkeep", ""), d.get("build_time", ""),
-                     d.get("requirement", ""), d.get("empire_bonus", "")] for n, d in items])
+                     d.get("requirement", ""), rd.leadin_wrap(d.get("empire_bonus", ""))] for n, d in items])
 
 TABLE_RENDER = {
     "public_order": _t_public_order, "po_modifiers": _t_po_modifiers, "domain_board": _t_domain_board,
@@ -241,7 +241,20 @@ def _ooxml_to_html(xml):
         for tr in re.findall(r"<w:tr\b.*?</w:tr>", blk, re.S):
             cells = []
             for tc in re.findall(r"<w:tc\b.*?</w:tc>", tr, re.S):
-                paras = ["".join(re.findall(r"<w:t(?:\s[^>]*)?>(.*?)</w:t>", pp, re.S)) for pp in re.findall(r"<w:p\b.*?</w:p>", tc, re.S)]
+                # a cell mixing bold and plain runs (lead-in labels: "Each Empire Phase:") keeps its bold as **..**
+                runs = [(bool(re.search(r"<w:b/>", r)), "".join(re.findall(r"<w:t(?:\s[^>]*)?>(.*?)</w:t>", r, re.S)))
+                        for r in re.findall(r"<w:r>.*?</w:r>", tc, re.S)]
+                mixed = len({b for b, t in runs if t.strip()}) > 1
+                def _para(pp):
+                    rs = re.findall(r"<w:r>.*?</w:r>", pp, re.S)
+                    if not mixed or not rs:
+                        return "".join(re.findall(r"<w:t(?:\s[^>]*)?>(.*?)</w:t>", pp, re.S))
+                    out_ = ""
+                    for r in rs:
+                        t = "".join(re.findall(r"<w:t(?:\s[^>]*)?>(.*?)</w:t>", r, re.S))
+                        out_ += f"**{t.strip()}** " if (re.search(r"<w:b/>", r) and t.strip()) else t
+                    return out_
+                paras = [_para(pp) for pp in re.findall(r"<w:p\b.*?</w:p>", tc, re.S)]
                 txt = " ".join(x for x in paras if x.strip())
                 cells.append(html.unescape(txt))
             if cells: rows.append(cells)

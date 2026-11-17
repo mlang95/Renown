@@ -418,7 +418,11 @@ def parse_effects(raw):
     raw = strip_md(raw or "")
     if not raw or raw in ("-", "—"):
         return []
+    # a leading timing label ("Each Empire Phase: ...") is its own atom, as the old "Each Empire Phase, ..." was
+    raw = LEADIN_TIMING_RE.sub(r"\1, ", raw)
     return [a for a in (classify(cl) for cl in re.split(r"[;,]|\.\s+(?=[A-Z+\-])", raw)) if a]
+
+LEADIN_TIMING_RE = re.compile(r"(?:(?<=^)|(?<=; )|(?<=\. ))(Empire Phase start|Each Empire Phase|Once per \w+ Phase|Intrigue Phase|Tally Phase end|Tally Phase): ")
 
 def parse_mreq(s):
     s = strip_md(s or "")

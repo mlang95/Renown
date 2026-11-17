@@ -108,7 +108,7 @@
 <text x="555" y="151" font-size="8.2" fill="#2b2620">Battery Park</text>
 <rect x="546" y="172" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
 <rect x="546" y="172" width="5" height="24" fill="#9E2B25"/>
-<text x="555" y="187" font-size="8.2" fill="#2b2620">Archery Butts</text>
+<text x="555" y="187" font-size="8.2" fill="#2b2620">Skirmish Field</text>
 <rect x="546" y="208" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="546" y="208" width="5" height="24" fill="#2E5A8C"/>
 <text x="555" y="223" font-size="8.2" fill="#2b2620">Buckler School</text>
@@ -126,7 +126,7 @@
 <text x="727" y="151" font-size="8.2" fill="#2b2620">Abatis Field</text>
 <rect x="718" y="172" width="118" height="24" rx="4" fill="#ffffff" stroke="#9E2B25" stroke-width="1.4"/>
 <rect x="718" y="172" width="5" height="24" fill="#9E2B25"/>
-<text x="727" y="187" font-size="8.2" fill="#2b2620">Skirmish Field</text>
+<text x="727" y="187" font-size="8.2" fill="#2b2620">Archery Butts</text>
 <rect x="718" y="208" width="118" height="24" rx="4" fill="#ffffff" stroke="#2E5A8C" stroke-width="1.4"/>
 <rect x="718" y="208" width="5" height="24" fill="#2E5A8C"/>
 <text x="727" y="223" font-size="8.2" fill="#2b2620">Pavisiers' Yard</text>

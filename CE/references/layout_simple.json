@@ -1188,11 +1188,11 @@
     2,
     0
    ],
-   "Archery Butts": [
+   "Skirmish Field": [
     3,
     0
    ],
-   "Skirmish Field": [
+   "Archery Butts": [
     4,
     0
    ],
@@ -1203,11 +1203,11 @@
   },
   "edges": [
    [
-    "Training Grounds",
+    "Skirmish Field",
     "Archery Butts"
    ],
    [
-    "Skirmish Field",
+    "Archery Butts",
     "Ballistarium"
    ],
    [
@@ -1215,7 +1215,7 @@
     "Fletchery"
    ],
    [
-    "Archery Butts",
+    "Training Grounds",
     "Skirmish Field"
    ],
    [

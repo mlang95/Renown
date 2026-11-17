@@ -30,6 +30,8 @@ function newWorld(seed, file) {
   const rng = () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; };   // xorshift32
   const g = makeWindowGlobals(rng);
   g.window = g; g.self = g; g.globalThis = g;
+  // AI knob overrides for experiments (env AI_SPINE / AI_PATH as JSON, e.g. AI_SPINE='{"engage":1.0}'); read by the board's aiSpine() / aiPathCfg()
+  for (const k of ["AI_SPINE", "AI_PATH"]) if (process.env[k]) try { g[k + "_OVERRIDE"] = JSON.parse(process.env[k]); } catch (e) { console.log("bad " + k + " JSON", e.message); }
   const ctx = vm.createContext(g);
   script.runInContext(ctx);
   return ctx;

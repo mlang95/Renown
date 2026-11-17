@@ -14,6 +14,14 @@ settlement-board web app are all generated from one Python data file.
 | `../Combatv3/` | D6 / deprecated | own `build_all.bat`; don't import across |
 | `../0.4.8.1/`, `../0.4.8 Updated Docs/`, `../generators/` | archived | reference only |
 
+## Channels: dev vs public alpha
+- This folder (`Desktop\Game`) is **dev**: `build_all_CE.bat` defaults to `CHANNEL=dev` — builds locally, never pushes
+  the wiki or tags, pushes only the current branch (never forced). Tournaments / lab / sims never publish.
+- The public side (wiki on GitHub Pages, board server, Discord bot `!ask` / `!renown`) runs from the **alpha** worktree
+  `C:\Users\Matt\Renown-alpha` (branch `alpha`); live games are in `C:\Users\Matt\Renown-alpha-data` (outside git).
+- Publish = `promote_alpha.bat [ref]` (merges the ref's last commit into `alpha`, builds there with `CHANNEL=alpha`).
+  Then restart in WSL: `bash /mnt/c/Users/Matt/Renown-alpha-data/start_public.sh`. Never edit or build in the alpha folder by hand.
+
 ## Source of truth (CE)
 | File | Role |
 |---|---|

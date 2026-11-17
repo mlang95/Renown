@@ -156,6 +156,10 @@ function gslug(s){return String(s).toLowerCase().replace(/[^a-z0-9]+/g,"-").repl
 const GK_LIST=[],GK_BY={},GK_LC={};
 (()=>{const add=(t,k,label)=>{const e=esc(label||t);if(!t||GK_BY[e]!=null)return;GK_BY[e]=GK_LIST.length;GK_LC[e.toLowerCase()]=GK_LIST.length;GK_LIST.push({t,k});};
   NAMES.forEach(n=>add(n,"p"));Object.keys(WON||{}).forEach(n=>add(n,"w"));Object.keys(INFRA||{}).forEach(n=>add(n,"i"));
+  // equipment: "Lance", "Lances", "Cavalry Spears", "Kite Shield" … (2H profiles are part of their weapon's card)
+  [["weapon",EQ.weapons],["ranged",EQ.ranged],["armor",EQ.armors],["shield",EQ.shields]].forEach(([kind,src])=>
+    Object.keys(src||{}).filter(n=>n&&n!=="None"&&src[n]&&!/^2H/.test(n)).forEach(n=>{const e={t:n,k:"e",kind};
+      [n,/s$/.test(n)?"":n+"s"].filter(Boolean).forEach(v=>{const x=esc(v);if(GK_BY[x]!=null)return;GK_BY[x]=GK_LIST.length;GK_LC[x.toLowerCase()]=GK_LIST.length;GK_LIST.push(e);});}));
   Object.keys(GLOSS).filter(t=>/^[A-Z][A-Za-z' /-]{2,}$/.test(t)).forEach(t=>{
     const m=t.match(/^(.+?) X$/);                                   // "Extort X" → Extort, Extorts, Extorted…
     if(m){const b=m[1];[b,b+"s",b+"ed",b+"ing",b+"ion"].forEach(v=>add(t,"g",v));}else add(t,"g");
@@ -165,7 +169,16 @@ const GK_LIST=[],GK_BY={},GK_LC={};
     if(GLOSS["Influence X"])add("Influence X","g",SCORE);}})();   // Recoup → Recoups, Recouped
 const GK_RE=GK_LIST.length?new RegExp("(^|[^A-Za-z0-9])("+Object.keys(GK_BY).sort((a,b)=>b.length-a.length)
   .map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")(?![A-Za-z0-9])","gi"):null;
-function kwify(text,self){const h=esc(dispScore(text==null?"":text));if(!GK_RE)return h;const seen=new Set();
+// one name as a hover link (an item, Holding or glossary term), or plain text when nothing matches
+function gkLink(name){const x=esc(name),i=GK_BY[x];return i==null?x:'<span class="gk" data-gk="'+i+'">'+x+'</span>';}
+// a clause may open with a label ("Each Empire Phase:", "Ranger:", "Indomitable: Tally Phase:") — printed bold,
+// as renown_data.LEADIN_RE marks it for the cards and the wiki
+const LEADIN_ONE="[A-Z][\\w'’\\-]*(?: (?:of|the|per|start|end|[A-Z][\\w'’\\-]*)){0,4}:";
+const LEADIN_RE=new RegExp("(^|; |\\. )("+LEADIN_ONE+"(?: "+LEADIN_ONE+")?)(?= )","g");
+function kwify(text,self){const t=dispScore(text==null?"":text),seen=new Set();let out="",i=0,m;LEADIN_RE.lastIndex=0;
+  while((m=LEADIN_RE.exec(t))){const s=m.index+m[1].length;out+=kwPart(t.slice(i,s),self,seen)+"<b>"+kwPart(m[2],self,seen)+"</b>";i=s+m[2].length;}
+  return out+kwPart(t.slice(i),self,seen);}
+function kwPart(text,self,seen){const h=esc(text);if(!GK_RE)return h;
   return h.replace(GK_RE,(m,pre,term)=>{
     // single words must match case exactly (so "cast" in prose isn't linked); multi-word terms match any case ("Cast armor")
     const idx=GK_BY[term]!=null?GK_BY[term]:(/\s/.test(term)?GK_LC[term.toLowerCase()]:undefined);
@@ -178,6 +191,8 @@ const WIKI_LOCAL=/*__WIKI_LOCAL__*/false;
 const WIKI_BASE=DATA.wikiBase||(WIKI_LOCAL?"":(DATA.wikiHome||""));
 function wikiA(href){return '<div><a href="'+esc(WIKI_BASE+href)+'" target="'+(WIKI_LOCAL&&window.top!==window?"_top":"_blank")+'" rel="noopener">wiki ↗</a></div>';}
 function gkHtml(e){
+  if(e.k==="e"){const src={weapon:EQ.weapons,ranged:EQ.ranged,armor:EQ.armors,shield:EQ.shields}[e.kind]||{},it=src[e.t]||{};
+    return '<div class="gh">'+esc(e.t)+' <span class="note">'+esc([{weapon:"Weapon",ranged:"Ranged Weapon",armor:"Armor",shield:"Shield"}[e.kind],it.tier_label||it.tier].filter(Boolean).join(" · "))+'</span></div>'+itemBodyHtml(e.kind,it);}
   if(e.k==="g"){return '<div class="gh">'+esc(e.t)+'</div><div>'+esc(GLOSS[e.t]||"")+'</div>'+wikiA("glossary.html#"+gslug(e.t));}
   if(e.k==="p"){const r=R[e.t]||{};return '<div class="gh">'+esc(e.t)+' <span class="note">'+esc(r.monument&&r.group?r.group:(r.type||""))+(r.monument?" · Monument":"")+(NATURAL.has(e.t)?" · Natural":"")+'</span></div>'+
     (r.unlock_raw&&!/^[-\u2014]$/.test(r.unlock_raw.trim())?'<div class="note">Unlock: '+esc(r.unlock_raw)+'</div>':'')+

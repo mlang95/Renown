@@ -98,7 +98,7 @@ function totTip(k){let t=((SIMPLE&&totTipSimple(k))||TOT_TIPS[k]||"").replace(/\
 // self:  "<Name>: Faith|Doubt +N each Empire Phase"
 // lower: "Each Empire Phase, each [other] non-allied player with a lower <Domain> value gains Faith|Doubt +N"
 // floor: "If your Public Order would be set below N, set it to N"
-const EP_SELF=/(Faith|Doubt)\s*\+(\d+)\s+each Empire Phase/i,EP_LOW=/Each Empire Phase, each (?:other )?non-allied player with a lower (\w+) value gains (Faith|Doubt)\s*\+(\d+)/i,
+const EP_SELF=/(Faith|Doubt)\s*\+(\d+)\s+each Empire Phase/i,EP_LOW=/Each Empire Phase[,:] each (?:other )?non-allied player with a lower (\w+) value gains (Faith|Doubt)\s*\+(\d+)/i,
       EP_FLOOR=/If your Public Order would be set below (-?\d+), set it to (-?\d+)/i;
 function epSources(b){const out=[],dv=b.domains||{},TIERS=[["Rising",RIS],["Established",EST],["Sovereign",SOV]];
   DOMAINS.forEach(d=>{const e=DBOARD[d];if(!e||typeof e!=="object")return;TIERS.forEach(([t,th])=>{const tx=e[t];if(!tx||(dv[d]||0)<th)return;

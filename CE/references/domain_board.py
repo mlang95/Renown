@@ -13,6 +13,7 @@ from reportlab.lib.colors import HexColor, Color
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 import renown_data as rd
+from rich_text import rich_wrap, draw_rich   # bold lead-in labels
 
 SERIF, SERIF_B, SERIF_I = "Helvetica", "Helvetica-Bold", "Helvetica-Oblique"
 for face, fn in [("EBG", "EBGaramond-Regular.ttf"), ("EBG-B", "EBGaramond-Bold.ttf"),
@@ -75,7 +76,7 @@ def infra_tracker(c, x, y, w):
                 elines = [first] + (wrap(c, " ".join(words), SERIF, efs, colw - 12) if words else [])
                 rh = max(10, 4 + len(elines) * (efs + 1.0) + 2)
             else:
-                elines = wrap(c, eff, SERIF, efs, colw - 12)
+                elines = rich_wrap(c, _D(eff), SERIF, SERIF_B, efs, colw - 12)   # lead-in labels bold
                 rh = max(12, (9 if tight else 9.5) + len(elines) * lsp)
             c.setFillColor(SLOTBG); c.setStrokeColor(FRAME); c.setLineWidth(0.5)
             c.roundRect(cx, ry - rh, colw, rh, 2, stroke=1, fill=1)
@@ -93,7 +94,7 @@ def infra_tracker(c, x, y, w):
                 ty = ry - (13.5 if tight else 14)
                 c.setFont(SERIF, efs); c.setFillColor(HexColor("#3a3a42"))
                 for ln in elines:
-                    c.drawString(cx + 8, ty, ln); ty -= lsp
+                    draw_rich(c, cx + 8, ty, ln, efs); ty -= lsp
             ry -= rh + (1.6 if tight else 2.2)
         low = min(low, ry)
     return low
@@ -119,12 +120,7 @@ def _cell_lines(c, emp, cmb, size, maxw):
     """Empire effect (bold before ':') then combat effect (bold) on a new line."""
     lines = []
     if emp:
-        if ":" in emp:
-            pre, post = emp.split(":", 1)
-            runs = [(pre + ":", True), (post.strip(), False)]
-        else:
-            runs = [(emp, False)]
-        lines += _wrap_runs(c, runs, size, maxw)
+        lines += _wrap_runs(c, rd.leadin_split(emp), size, maxw)   # Standing name and timing labels bold
     if cmb:
         lines += _wrap_runs(c, [(cmb, True)], size, maxw)
     return lines

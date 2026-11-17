@@ -362,8 +362,8 @@ def draw_spec_card(c, x, y, row):
     type_line   = _get(row, "type")
     unlock      = _get(row, "unlock requirement", "unlock requirements", "unlocks", "unlock")
     mast_req    = _get(row, "mastery requirement", "mastery requirements", "mastery req")
-    innate      = _get(row, "innate effects", "innate effect", "innate")
-    mastery     = _get(row, "mastery effect", "mastery effects", "mastery")
+    innate      = _rd.leadin_wrap(_get(row, "innate effects", "innate effect", "innate"))    # bold lead-in labels
+    mastery     = _rd.leadin_wrap(_get(row, "mastery effect", "mastery effects", "mastery"))
     builds_into = _get(row, "builds into", "builds_into")
     category    = _derive_category(type_line, unlock, _get(row, "category"))
     accent      = CATEGORY_COLORS.get(category)

@@ -54,9 +54,9 @@ def _strikes_kernel(rolls, cleave_rolls, front_line, target_th_clip, auto_fail, 
     die that Strikes and procs (>= crit_floor) is Deadly when the weapon is, and rolls another
     extra die, and so on (Cleave chains). The first extra die is cleave_rolls[r, d]; chained
     dice come from cleave_rolls[r, maxd:] (callers allocate that pool only when a Cleave
-    weapon is present, so non-Cleave runs draw exactly as before). A Focused extra Strike
-    counts as a Focused Strike for Destroy Shield.
-    Destroy Shield (proc_count) fires on a NATURAL 6 ONLY — Crit floor widens Deadly/Cleave, not it.
+    weapon is present, so non-Cleave runs draw exactly as before). An extra Strike at or above the Crit floor
+    counts for Destroy Shield.
+    Destroy Shield (proc_count) fires on roll >= crit_floor too: a Crit bonus (Ballistarium: Deadly +2 (Ranged Weapons)) widens it with Deadly/Cleave.
     reroll_misses (dual-wield): a die that fails to Strike is rerolled once (using the
     spare cleave_rolls die); the reroll can hit and can itself be a Deadly proc. Mutually
     exclusive with Cleave at the engine level (a weapon won't carry both).
@@ -85,14 +85,14 @@ def _strikes_kernel(rolls, cleave_rolls, front_line, target_th_clip, auto_fail, 
                     rr = cleave_rolls[r, d]
                     if rr >= th:
                         s += 1
-                        if rr >= FOCUSED_THR:
+                        if rr >= crit_floor:
                             pc += 1
                         if has_deadly and rr >= crit_floor:
                             dl += 1
                 continue
             s += 1
             is_proc = (roll >= crit_floor)
-            if roll >= FOCUSED_THR:
+            if roll >= crit_floor:
                 pc += 1
             if is_proc:
                 if has_deadly:
@@ -102,7 +102,7 @@ def _strikes_kernel(rolls, cleave_rolls, front_line, target_th_clip, auto_fail, 
                     extra = cleave_rolls[r, d]
                     while ap or (extra >= th and not af):
                         s += 1
-                        if extra >= FOCUSED_THR:
+                        if extra >= crit_floor:
                             pc += 1
                         if extra < crit_floor:
                             break
@@ -142,13 +142,13 @@ def _strikes_kernel_dual(rolls, cleave_rolls, front_line, target_th_clip, auto_f
                     rr = cleave_rolls[r, d]
                     if rr >= th:
                         s += 1
-                        if rr >= FOCUSED_THR:
+                        if rr >= crit_floor:
                             pc += 1
                         if hd and rr >= crit_floor:
                             dl += 1
                 continue
             s += 1
-            if roll >= FOCUSED_THR:
+            if roll >= crit_floor:
                 pc += 1
             if roll >= crit_floor:
                 if hd:
@@ -158,7 +158,7 @@ def _strikes_kernel_dual(rolls, cleave_rolls, front_line, target_th_clip, auto_f
                     extra = cleave_rolls[r, d]
                     while ap or (extra >= th and not af):
                         s += 1
-                        if extra >= FOCUSED_THR:
+                        if extra >= crit_floor:
                             pc += 1
                         if extra < crit_floor:
                             break

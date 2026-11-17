@@ -69,24 +69,24 @@ REG = {
     # Corsair Haven: non-Trade Partners who receive Trade Income gain Doubt m[1]
     "trade_doubt":         ("clause", "hiwf", r"Whenever a player who isn.t your Trade Partner receives Trade Income, they gain Doubt \+(\d+)"),
     # Outlaw Rookery: in the Extort step, every Bandit Camp in its owner's Province is emptied into their Treasury
-    "province_camp_extort":("clause", "hiwf", r"Each Empire Phase, Extort the whole Treasury of every Bandit Camp within your Province"),
+    "province_camp_extort":("clause", "hiwf", r"Each Empire Phase[,:] Extort the whole Treasury of every Bandit Camp within your Province"),
     "syndicate_camp_extort":("clause", "hiwf",r"Whenever a Bandit Camp within your Province Extorts, you Extort the Bandit Camp for half the amount"),
     "forge_oppose_extort":("clause", "hiwf", r"Extort (\d+) anytime a player Opposes an Envoy of yours"),
-    "forge_retry":         ("clause", "hiwf", r"Once per Envoy Phase: attempt another Cunning Envoy if your Cunning Envoy Failed|At the end of the Tally Phase, if a Cunning Envoy you sent Failed, you may send another Cunning Envoy"),
+    "forge_retry":         ("clause", "hiwf", r"Once per Envoy Phase: attempt another Cunning Envoy if your Cunning Envoy Failed|(?:At the end of the Tally Phase,|Tally Phase end:) if a Cunning Envoy you sent Failed, you may send another Cunning Envoy"),
     # Jewelry Foundry / Polish House / Spice Merchant: m[1] Domain, m[2] Authority; aimed at declaration, target locked at Perform
     # Exposed X keyword: the same effect, Domain from DATA.rulesConst.EXPOSED_DOMAIN, m[1] = X (stacks)
     "exposed":             ("clause", "hiwf", r"^" + re.escape(_EXPOSED) + r" (\d+)$"),
     "envoy_invite":        ("text", "hiwf", r"a player may target you with a (\w+) Envoy\. If they do, that Envoy gains Authority \+(\d+)\. If it Passes or is Endorsed, the action must target you"),
-    "whisper_declare":   ("clause", "hiwf", r"Once per Personal Envoy Phase when a player sends an Envoy: that player must declare the specific Action & target they would Perform if the Envoy passes \(including sub-Actions\)|In the Intrigue Phase, choose a Personal Envoy: its sender must declare the specific action & target they would Perform if it passes \(including sub-Actions\)"),
+    "whisper_declare":   ("clause", "hiwf", r"Once per Personal Envoy Phase when a player sends an Envoy: that player must declare the specific Action & target they would Perform if the Envoy passes \(including sub-Actions\)|(?:In the )?Intrigue Phase[,:] choose a Personal Envoy: its sender must declare the specific action & target they would Perform if it passes \(including sub-Actions\)"),
     "envoy_next_fewer":    ("clause", "hiwf", r"send (\d+) fewer Envoys? next turn"),
     "courier_defer":       ("clause", "hiwf", r"successfully Performed Personal Envoy can be Performed next turn|select a Personal Action you performed this turn"),
-    "courier_auth_minus":  ("clause", "hiwf", r"(?:Once per (?:turn|Envoy Phase)(?: before voting)?|In the Intrigue Phase): Authority (?:−|-)1 on (?:Target|one) Envoy"),
-    "senate_intervene":    ("clause", "hiwf", r"Once per Envoy Phase: before players vote on an Envoy you choose, you may Condemn it if it's an At War player's Envoy, or Endorse it if it's an Ally's Envoy|In the Intrigue Phase, you may Condemn an At War player's Envoy or Endorse an Ally's Envoy"),
+    "courier_auth_minus":  ("clause", "hiwf", r"(?:Once per (?:turn|Envoy Phase)(?: before voting)?|(?:In the )?Intrigue Phase): Authority (?:−|-)1 on (?:Target|one) Envoy"),
+    "senate_intervene":    ("clause", "hiwf", r"Once per Envoy Phase: before players vote on an Envoy you choose, you may Condemn it if it's an At War player's Envoy, or Endorse it if it's an Ally's Envoy|(?:In the )?Intrigue Phase[,:] you may Condemn an At War player's Envoy or Endorse an Ally's Envoy"),
     # ---- Intrigue / Tally Phase effects (RULES: Envoy Phase steps 3 and 5); kind s = Domain Standing text ----
-    "colossus_self":       ("clause", "hiwf", r"In the Intrigue Phase, you may support your own (Personal )?(\w+) Envoys"),
-    "intrigue_silence":    ("clause", "s", r"In the Intrigue Phase, target an Envoy and a player with a lower (\w+) value"),
-    "tally_support":       ("clause", "s", r"In the Tally Phase, you may Support one of your own (\w+) Envoys"),
-    "tally_endorse":       ("clause", "hiwf", r"In the Tally Phase, you may Endorse one Envoy you sent"),
+    "colossus_self":       ("clause", "hiwf", r"(?:In the )?Intrigue Phase[,:] you may support your own (Personal )?(\w+) Envoys"),
+    "intrigue_silence":    ("clause", "s", r"(?:In the )?Intrigue Phase[,:] target an Envoy and a player with a lower (\w+) value"),
+    "tally_support":       ("clause", "s", r"(?:In the )?Tally Phase[,:] you may Support one of your own (\w+) Envoys"),
+    "tally_endorse":       ("clause", "hiwf", r"(?:In the )?Tally Phase[,:] you may Endorse one Envoy you sent"),
     "tally_votes":         ("clause", "hiwf", r"You cast all of your votes in the Tally Phase"),
     "no_alliance":         ("clause", "hiwf", r"(?:can.t|cannot) (?:be in|join) an Alliance"),
     # ---- armies / sieges ----
@@ -120,13 +120,13 @@ REG = {
     "toll_extort":         ("clause", "hiwf", r"Extort (\d+) when non-allied Army ends a Move action within your Province"),
     "toll_diplomacy":      ("clause", "hiwf", r"when an Army ends a Move action within your Province,? Perform a Diplomacy action targeting that army.s player"),
     "beacon_move":         ("clause", "hiwf", r"Whenever a non-allied Army ends a Move action within your Province, you may immediately perform a Move action"),
-    "beacon_start_move":   ("clause", "hiwf", r"At the Start of the Empire Phase, you may select an Army within your Province and move it up to its modified Speed"),
-    "start_empire_move":   ("clause", "hiwf", r"At the Start of the Empire Phase, you may perform a Move action"),
-    "start_empire_spread": ("clause", "hiwf", r"At the Start of the Empire Phase, you may perform an Endorsed Spread Truth"),
+    "beacon_start_move":   ("clause", "hiwf", r"(?:At the Start of the Empire Phase,|Empire Phase start:) you may select an Army within your Province and move it up to its modified Speed"),
+    "start_empire_move":   ("clause", "hiwf", r"(?:At the Start of the Empire Phase,|Empire Phase start:) you may perform a Move action"),
+    "start_empire_spread": ("clause", "hiwf", r"(?:At the Start of the Empire Phase,|Empire Phase start:) you may perform an Endorsed Spread Truth"),
     # Cipher Chamber: "choose one" of the two each Start of the Empire Phase (the board offers both until one is used)
-    "cipher_block_army":   ("text", "hiwf", r"At the Start of the Empire Phase,? (?:choose one: )?select an army you did not select last turn; that army gains Blocked"),
-    "cipher_timer_plus":   ("text", "hiwf", r"(?:At the Start of the Empire Phase: |; or )select any active Timer you did not select last turn; increase it by (\d+)"),
-    "cipher_choose_one":   ("text", "hiwf", r"At the Start of the Empire Phase, choose one: select an army"),
+    "cipher_block_army":   ("text", "hiwf", r"(?:At the Start of the Empire Phase,?|Empire Phase start:) (?:choose one: )?select an army you did not select last turn; that army gains Blocked"),
+    "cipher_timer_plus":   ("text", "hiwf", r"(?:(?:At the Start of the Empire Phase|Empire Phase start): |; or )select any active Timer you did not select last turn; increase it by (\d+)"),
+    "cipher_choose_one":   ("text", "hiwf", r"(?:At the Start of the Empire Phase,|Empire Phase start:) choose one: select an army"),
     # Keep: every Muster is hurried once (the Muster Timer -1, the Army gains up to the combined muster limit at once)
     "muster_rush":         ("clause", "hiwf", r"When you Muster, (?:reduce the Muster Timer by 1 and )?immediately gain Retinues equal to the combined muster limit"),
     # ---- Public Order / Faith / Doubt ----
@@ -158,16 +158,16 @@ REG = {
     "trade_border":        ("clause", "hiwf", r"may trade so long as your border touches another player"),
     "loan_terms":          ("clause", "hiwf", r"loan money to (Trade Partners|another player) at (\d+) per (\d+)\s*/\s*turn interest\s*\(minimum (\d+)\)"),
     "loan_default":        ("clause", "hiwf", r"^on Default:\s*Perform (.+)$"),
-    "loan_once":           ("clause", "hiwf", r"Once per (turn|Empire Phase),? (?:you )?may loan money"),
+    "loan_once":           ("clause", "hiwf", r"Once per (turn|Empire Phase)[,:]? (?:you )?may loan money"),
     "tithe_lower":         ("clause", "hiwf", r"Tithe each other player with lower ((?:Piety|Prowess|Cunning|Industry|Public Order)(?: or (?:Piety|Prowess|Cunning|Industry|Public Order))?)"),
     "extort_half_trade":   ("clause", "hiwf", r"Extort half of Trade Income from players who (?:don.t trade with you|aren.t your Trade Partners)"),
     # m[1] gold, m[2] "non-allied " when only non-allies pay, m[3] the value compared (Treasury, a Domain, Public Order)
-    "extort_lower_treasury":("clause", "hiwf", r"Each Empire Phase,? Extort (\d+) from each (non-allied )?player with a lower (Treasury|Piety|Prowess|Cunning|Industry|Public Order)(?: value)?"),
+    "extort_lower_treasury":("clause", "hiwf", r"Each Empire Phase[,:]? Extort (\d+) from each (non-allied )?player with a lower (Treasury|Piety|Prowess|Cunning|Industry|Public Order)(?: value)?"),
     # Diplomacy Phase (PHASE_REFORM): Embassy makes one Diplomacy action fail; Aristocratic Court Extorts both parties of others' actions
-    "embassy_fail":        ("clause", "hiwf", r"Once per Diplomacy (?:step|Phase), you may cause a Diplomacy action to fail"),
+    "embassy_fail":        ("clause", "hiwf", r"Once per Diplomacy (?:step|Phase)[,:] you may cause a Diplomacy action to fail"),
     "diplo_extort":        ("clause", "hiwf", r"Whenever another player performs a Diplomacy action targeting another player, Extort (\d+) from both players"),
     # Aristocratic Court: m[1] outcome word (Endorsed / Passed, default Passed), m[2] Domain
-    "ep_action":           ("clause", "hiwf", r"Each Empire Phase, perform an? (?:(Endorsed|Passed) )?(Diplomacy|Prowess|Cunning|Piety|Industry) action"),
+    "ep_action":           ("clause", "hiwf", r"Each Empire Phase[,:] perform an? (?:(Endorsed|Passed) )?(Diplomacy|Prowess|Cunning|Piety|Industry) action"),
     "extort_target_faith": ("clause", "hiwf", r"Targets of Extort from (.+?) gain Faith \+(\d+)"),
     "no_sally_forth":     ("clause", "hiwf", r"Settlements you Siege can.t Sally Forth"),
     # ---- Presence (Commanding Presence): Settlements via Garrison; Keep: Presence +N on those Settlements; Armies always ----
@@ -187,7 +187,7 @@ REG = {
     "immune_uprising":     ("text", "h", r"Immune Uprising"),
     "fd_others_without":   ("text", "h", r"each other player without (?:an? )?([^.;]+?) gains (Faith|Doubt)\s*\+(\d+)"),
     "fd_per_treaty":       ("text", "h", r"Other non-vassal players gain (Faith|Doubt)\s*\+(\d+) per Signed Treaty with you besides Peace"),
-    "ep_lower":            ("text", "hM", r"Each Empire Phase, each (?:other )?non-allied player with a lower (\w+) value gains (Faith|Doubt)\s*\+(\d+)"),
+    "ep_lower":            ("text", "hM", r"Each Empire Phase[,:] each (?:other )?non-allied player with a lower (\w+) value gains (Faith|Doubt)\s*\+(\d+)"),
     "build_timer":         ("all", "hM", "Build Timer\\s*([+\\-−])\\s?(\\d+)"),
     "repair_timer":        ("all", "hM", "Repair Timer\\s*([+\\-−])\\s?(\\d+)"),
     "reach_plus":          ("text", "hMF", r"Reach\s*\+\s*(\d+)"),
@@ -220,33 +220,35 @@ REG = {
     "pillage_peace":       ("text", "F", r"You may Pillage while not At War"),
     "settle_late":         ("text", "F", r"You place your starting Town after every other player has placed theirs"),
     "max_armies":          ("text", "F", r"You must always have the maximum number of Armies; while you don.t, you must send all of your Prowess Envoys"),
-    "tribute_shield":      ("text", "F", r"At the Start of the Empire Phase, you may give another player (\d+) gold\. If you do, that player can.t target you with ([\w ]+?) actions this turn unless they pay you (\d+)"),
+    "tribute_shield":      ("text", "F", r"(?:At the Start of the Empire Phase,|Empire Phase start:) you may give another player (\d+) gold\. If you do, that player can.t target you with ([\w ]+?) actions this turn unless they pay you (\d+)"),
     "swap_tactic":         ("text", "F", r"you may swap your Tactic with your opponent.s"),
     "capture_destroy":     ("text", "F", r"When you Capture a Settlement, you may instead destroy it"),
     "doubt_buyout":        ("text", "F", r"a player who would gain Doubt from it may instead give you (\d+) gold"),
-    "doubt_for_extort":    ("text", "F", r"Each Empire Phase, you may gain Doubt \+(\d+)\. If you do, Extort (\d+) from each other player"),
+    "doubt_for_extort":    ("text", "F", r"Each Empire Phase[,:] you may gain Doubt \+(\d+)\. If you do, Extort (\d+) from each other player"),
     "cant_send_envoy":     ("clause", "hiwf", r"can.t send (\w+) Envoys"),
     "muster_set_each":     ("clause", "hiwf", r"Each of your Settlements has a Muster Limit of (\d+)"),
-    "faith_full_army":     ("clause", "hiwf", r"Each Empire Phase, gain Faith \+(\d+) per Army with (\d+) Retinues"),
+    "faith_full_army":     ("clause", "hiwf", r"Each Empire Phase[,:] gain Faith \+(\d+) per Army with (\d+) Retinues"),
     "faith_first_improve": ("clause", "hiwf", r"Faith \+(\d+) the first time you perform an Improve action"),
     "piety_influence_next":("clause", "hiwf", r"Whenever you perform a Piety action, gain Influence \+(\d+) next Empire Phase"),
     "convert_rising":      ("clause", "hiwf", r"You may Convert at Rising Piety"),
 }
 
 # ---- once-per / "may" tracker rows (the board's Once-per card) ----
-ONCE_RE = re.compile(r"\b(?:Once\s*/\s*turn|Once per turn|Once per game|Once per \w+ Phase|\d+x\s*(?:/\s*turn|per \w+ Phase|in the \w+ Phase)|Each turn|Every turn|Every Skirmish|At the Start of the Empire Phase)\b|\bmay\b(?!\s+not)", F)
+ONCE_RE = re.compile(r"\b(?:Once\s*/\s*turn|Once per turn|Once per game|Once per \w+ Phase|\d+x\s*(?:/\s*turn|per \w+ Phase|in the \w+ Phase)|Each turn|Every turn|Every Skirmish|At the Start of the Empire Phase|Empire Phase start)\b|\bmay\b(?!\s+not)", F)
 ONCE_AUTO = re.compile(REG["siege_double"][2] + "|" + REG["first_doubt"][2] + "|" + REG["forge_retry"][2], F)   # clauses the board applies or prompts itself: no Once-per tracker row
 XCH_RE = re.compile(r"(\d+)x\s*(?:/\s*turn|per \w+ Phase|in the \w+ Phase):?\s*exchange (\d+) gold for (?:(\d+) Influence|Influence \+(\d+))", F)
 CANT_RE = re.compile(r"(?:can.t|cannot)\s+(.+?)(?=,?\s+and\s+(?:you\s+)?(?:can.t|cannot)\b|$)", F)
 CANT_SKIP = re.compile(r"^(?:be the target|be in an Alliance|pursue|build|equip|use shields|gain Immune|exceed|refuse|choose|vote|be modified|be Razed)|\bon you$|^target you\b", F)   # "X actions can't target you" restricts other players, not you
+# A clause's leading timing label (renown_data.TIMING_LABELS; e.g. "Intrigue Phase: "), optionally after a Standing name
+TIMING_LEAD = re.compile(r"^(?:Empire Phase start|Each Empire Phase|Once per \w+ Phase|Intrigue Phase|Tally Phase(?: end)?): ", F)
 SP_RE = re.compile("Speed\\s*([+\\-−])\\s?(\\d+)", F)
 
 
 def once_phase(c):
     if re.search(r"\bOnce per turn\b", c, F): return "turn"
-    m = re.search(r"per (\w+) Phase|At the (Start) of the Empire Phase|\bin the (\w+) Phase\b", c, F)
+    m = re.search(r"per (\w+) Phase|At the (Start) of the Empire Phase|\bin the (\w+) Phase\b|(?:^|: )(Intrigue|Tally) Phase(?: end)?:|Empire Phase (start):", c, F)
     if not m: return ""
-    return m.group(1).lower() if m.group(1) else m.group(3).lower() if m.group(3) else "empire"
+    return m.group(1).lower() if m.group(1) else m.group(3).lower() if m.group(3) else m.group(4).lower() if m.group(4) else "empire"
 
 
 PHASES = ("empire", "council", "envoy", "intrigue", "tally", "battle", "rest")
@@ -260,7 +262,7 @@ def window_of(c):
       scope Envoy predicate: personal | council | '' (the clause names Envoys without either)"""
     w = {"win": "", "lim": "", "may": bool(re.search(r"\bmay\b(?!\s+not)", c, F)), "trig": "", "envoy": bool(re.search(r"\benvoys?\b", c, F)), "scope": ""}
     if re.search(r"\bOnce per game\b", c, F): w.update(win="game", lim="once")
-    elif re.search(r"\bAt the Start of the Empire Phase\b", c, F): w.update(win="start-empire", lim="each")
+    elif re.search(r"\bAt the Start of the Empire Phase\b|\bEmpire Phase start:", c, F): w.update(win="start-empire", lim="each")
     elif re.search(r"\bOnce per turn\b|\bOnce\s*/\s*turn\b", c, F): w.update(win="turn", lim="once")
     else:
         m = re.search(r"\b(\d+)x\s*/\s*turn\b", c, F)
@@ -269,7 +271,7 @@ def window_of(c):
             m = re.search(r"\b(Once|\d+x) per (\w+) Phase\b", c, F)
             if m and m.group(2).lower() in PHASES: w.update(win=m.group(2).lower(), lim="once" if m.group(1).lower() == "once" else m.group(1).lower())
             # Intrigue / Tally: Envoy Phase steps that happen once, so an effect placed in one is once unless it says Nx
-            elif re.search(r"\b(?:in|during|at the (?:start|end) of) the (?:Intrigue|Tally) Phase\b", c, F):
+            elif re.search(r"\b(?:in|during|at the (?:start|end) of) the (?:Intrigue|Tally) Phase\b|(?:^|: )(?:Intrigue|Tally) Phase(?: end)?:", c, F):
                 n = re.search(r"\b(\d+)x in the (?:Intrigue|Tally) Phase\b", c, F)
                 w.update(win=re.search(r"\b(Intrigue|Tally) Phase\b", c, F).group(1).lower(), lim=n.group(1) + "x" if n else "once")
             elif re.search(r"\bEach turn\b|\bEvery turn\b|\bper turn\b", c, F): w.update(win="turn", lim="each")
@@ -375,6 +377,8 @@ def build_efx(ns, records, infra, wonders, strip_md):
             for c in _clauses(text):
                 if c and ONCE_RE.search(c) and not ONCE_AUTO.search(c):
                     i = ONCE_RE.search(c).start(); cm = c.rfind(", ", 0, i + 2)
+                    lm = TIMING_LEAD.match(c)   # a leading "Intrigue Phase: " cuts like the old "In the Intrigue Phase, "
+                    if lm and lm.end() <= i and lm.end() - 2 > cm: cm = lm.end() - 2
                     cc = c[cm + 2:] if cm > 0 else c
                     x = XCH_RE.search(cc)
                     once.append({"c": cc, "ph": once_phase(cc), "game": bool(re.search(r"Once per game", cc, F)),
